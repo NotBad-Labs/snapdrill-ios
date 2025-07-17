@@ -5,19 +5,27 @@
 //  Created by YIMING LIAO on 7/16/25.
 //
 
+
+//
+//  BaseCard.swift
+//  NotBad
+//
+//  Created by YIMING LIAO on 7/16/25.
+//
+
 import SwiftUI
 
 struct BaseCard<Content: View>: View {
     let content: Content
     var padding: CGFloat = .cardPadding
-    var backgroundColor: Color = Theme.shared.cardBackground
+    var backgroundColor: Color? = nil
     var cornerRadius: CGFloat = .radiusM
     var shadowRadius: CGFloat = 2
     var shadowOpacity: Double = 0.1
     
     init(
         padding: CGFloat = .cardPadding,
-        backgroundColor: Color = Theme.shared.cardBackground,
+        backgroundColor: Color? = nil,
         cornerRadius: CGFloat = .radiusM,
         shadowRadius: CGFloat = 2,
         shadowOpacity: Double = 0.1,
@@ -34,7 +42,7 @@ struct BaseCard<Content: View>: View {
     var body: some View {
         content
             .padding(padding)
-            .background(backgroundColor)
+            .background(backgroundColor ?? Theme.shared.cardBackground)
             .cornerRadius(cornerRadius)
             .shadow(
                 color: Theme.shared.shadowColor,

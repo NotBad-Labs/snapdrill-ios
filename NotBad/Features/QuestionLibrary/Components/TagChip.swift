@@ -11,6 +11,8 @@ struct TagChip: View {
     let tag: String
     let searchTerm: String
     
+    @State private var hasAppeared = false
+    
     private var tagColor: Color {
         Color.tagColor(for: tag)
     }
@@ -22,6 +24,11 @@ struct TagChip: View {
             font: .labelSmall,
             highlightColor: .yellow
         )
+        .scaleEffect(hasAppeared ? 1.0 : 0.8)
+        .animation(.bouncy.delay(0.05), value: hasAppeared)
+        .onAppear {
+            hasAppeared = true
+        }
         .padding(.horizontal, .spacingS)
         .padding(.vertical, .spacingXS)
         .background(tagColor.opacity(0.2))

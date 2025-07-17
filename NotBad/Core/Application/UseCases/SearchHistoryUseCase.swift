@@ -5,6 +5,14 @@
 //  Created by YIMING LIAO on 7/16/25.
 //
 
+
+//
+//  SearchHistoryUseCase.swift
+//  NotBad
+//
+//  Created by YIMING LIAO on 7/16/25.
+//
+
 import Foundation
 
 actor SearchHistoryUseCase {

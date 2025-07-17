@@ -5,6 +5,14 @@
 //  Created by YIMING LIAO on 7/16/25.
 //
 
+
+//
+//  HighlightedText.swift
+//  NotBad
+//
+//  Created by YIMING LIAO on 7/16/25.
+//
+
 import SwiftUI
 
 struct HighlightedText: View {

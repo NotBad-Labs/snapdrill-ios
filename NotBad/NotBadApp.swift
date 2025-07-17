@@ -10,23 +10,42 @@ import SwiftData
 
 @main
 struct NotBadApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+    let container: ModelContainer
+    
+    init() {
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            container = try ModelContainer(for: Question.self)
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("❌ SwiftData 容器初始化失败: \(error)")
         }
-    }()
-
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .modelContainer(container)
+                .onAppear {
+                    #if DEBUG
+                    createSampleDataIfNeeded()
+                    #endif
+                }
         }
-        .modelContainer(sharedModelContainer)
     }
+    
+    #if DEBUG
+    private func createSampleDataIfNeeded() {
+        let context = container.mainContext
+        
+        // 检查是否已有数据
+        let descriptor = FetchDescriptor<Question>()
+        let existingQuestions = try? context.fetch(descriptor)
+        
+        if existingQuestions?.isEmpty ?? true {
+            Task {
+                let useCase = CreateSampleDataUseCase(modelContext: context)
+                try await useCase.execute()
+            }
+        }
+    }
+    #endif
 }

@@ -10,6 +10,8 @@ import SwiftUI
 struct DifficultyBadge: View {
     let difficulty: Int
     
+    @State private var hasAppeared = false
+    
     private var difficultyText: String {
         switch difficulty {
         case 1: return "基础题"
@@ -33,6 +35,11 @@ struct DifficultyBadge: View {
             .background(difficultyColor.opacity(0.2))
             .foregroundColor(difficultyColor)
             .cornerRadius(.radiusS)
+            .scaleEffect(hasAppeared ? 1.0 : 0.8)
+            .animation(.bouncy, value: hasAppeared)
+            .onAppear {
+                hasAppeared = true
+            }
     }
 }
 

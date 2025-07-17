@@ -22,10 +22,13 @@ class QuestionDetailViewModel {
     var isEditing: Bool = false
     var showingSaveAlert: Bool = false
     var saveErrorMessage: String = ""
+    var showingDeleteAlert: Bool = false
     
     // MARK: - Dependencies
     private let updateQuestionUseCase: UpdateQuestionUseCase
+    private let markAsReviewedUseCase: MarkAsReviewedUseCase
     private let question: Question
+    private let modelContext: ModelContext
     
     // MARK: - Computed Properties
     var isValid: Bool {
@@ -63,10 +66,37 @@ class QuestionDetailViewModel {
     init(question: Question, modelContext: ModelContext) {
         self.question = question
         self.updateQuestionUseCase = UpdateQuestionUseCase(modelContext: modelContext)
+        self.markAsReviewedUseCase = MarkAsReviewedUseCase(modelContext: modelContext)
+        self.modelContext = modelContext
         loadQuestionData()
     }
     
     // MARK: - Actions
+
+    func markAsReviewed() async {
+        do {
+            try await markAsReviewedUseCase.execute(question)
+        } catch {
+            saveErrorMessage = error.localizedDescription
+        }
+    }
+    
+    func deleteQuestion() {
+        modelContext.delete(question)
+        do {
+            try modelContext.save()
+        } catch {
+            saveErrorMessage = error.localizedDescription
+        }
+    }
+
+    func unmarkAsReviewed() async {
+        do {
+            try await markAsReviewedUseCase.unmarkAsReviewed(question)
+        } catch {
+            saveErrorMessage = error.localizedDescription
+        }
+    }
     func toggleEditing() {
         if isEditing && hasChanges {
             // 有未保存的更改，提示用户

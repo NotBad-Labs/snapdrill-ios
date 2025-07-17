@@ -21,6 +21,12 @@ struct AddQuestionView: View {
     @State private var showError = false
     @State private var errorMessage = ""
     
+    // 学科选择相关状态
+    @State private var selectedSubjects: Set<Subject> = []
+    @State private var customSubjects: [Subject] = []
+    @State private var showingAddCustomSubject = false
+    @State private var customSubjectName = ""
+    
     // 计算属性
     private var isValid: Bool {
         !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
@@ -54,6 +60,34 @@ struct AddQuestionView: View {
             
             Section(header: Text("正确答案")) {
                 TextField("请输入答案", text: $answer)
+            }
+            
+            // 学科选择
+            Section(header: Text("学科")) {
+                LazyVGrid(columns: [
+                    GridItem(.adaptive(minimum: 80))
+                ], spacing: 8) {
+                    ForEach(Subject.coreSubjects + customSubjects) { subject in
+                        subjectTagView(subject: subject)
+                    }
+                    
+                    // 添加自定义学科按钮
+                    Button(action: {
+                        showingAddCustomSubject = true
+                    }) {
+                        HStack {
+                            Image(systemName: "plus.circle")
+                            Text("添加")
+                        }
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.gray.opacity(0.1))
+                        .foregroundColor(.gray)
+                        .cornerRadius(8)
+                    }
+                }
+                .padding(.vertical, 4)
             }
             
             // 可选信息
@@ -123,6 +157,26 @@ struct AddQuestionView: View {
         } catch {
             errorMessage = error.localizedDescription
             showError = true
+        }
+    }
+    
+    // 学科标签视图
+    @ViewBuilder
+    private func subjectTagView(subject: Subject) -> some View {
+        Button(action: {
+            if selectedSubjects.contains(subject) {
+                selectedSubjects.remove(subject)
+            } else {
+                selectedSubjects.insert(subject)
+            }
+        }) {
+            Text(subject.name)
+                .font(.caption)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(selectedSubjects.contains(subject) ? Color.blue : Color.gray.opacity(0.1))
+                .foregroundColor(selectedSubjects.contains(subject) ? .white : .primary)
+                .cornerRadius(8)
         }
     }
 }

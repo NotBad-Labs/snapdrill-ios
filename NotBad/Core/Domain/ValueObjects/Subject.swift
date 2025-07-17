@@ -5,10 +5,18 @@
 //  Created by YIMING LIAO on 7/16/25.
 //
 
+
+//
+//  Subject.swift
+//  NotBad
+//
+//  Created by YIMING LIAO on 7/16/25.
+//
+
 import Foundation
 
 struct Subject: Identifiable, Hashable, Sendable {
-    let id = UUID()
+    var id: String { name }
     let name: String
     let isCustom: Bool
     

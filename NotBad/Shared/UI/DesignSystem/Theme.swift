@@ -5,6 +5,14 @@
 //  Created by YIMING LIAO on 7/16/25.
 //
 
+
+//
+//  Theme.swift
+//  NotBad
+//
+//  Created by YIMING LIAO on 7/16/25.
+//
+
 import SwiftUI
 
 @MainActor
@@ -48,18 +56,18 @@ class Theme {
     
     // MARK: - Computed Properties
     var primaryBackground: Color {
-        isDarkMode ? Color.black : Color.white
+        Color(.systemBackground)
     }
     
     var secondaryBackground: Color {
-        isDarkMode ? Color.gray.opacity(0.1) : Color.gray.opacity(0.05)
+        Color(.systemGroupedBackground)
     }
     
     var cardBackground: Color {
-        isDarkMode ? Color.gray.opacity(0.15) : Color.white
+        Color(.secondarySystemGroupedBackground)
     }
     
     var shadowColor: Color {
-        isDarkMode ? Color.clear : Color.black.opacity(0.1)
+        Color.black.opacity(0.1)
     }
 }

@@ -178,6 +178,59 @@ struct QuestionDetailView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+
+                // 复习状态
+                Section(header: Text("复习状态")) {
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("复习状态")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            HStack {
+                                Image(systemName: question.isReviewed ? "checkmark.circle.fill" : "circle")
+                                    .foregroundColor(question.isReviewed ? .green : .gray)
+                                Text(question.isReviewed ? "已复习" : "未复习")
+                                    .foregroundColor(question.isReviewed ? .green : .primary)
+                            }
+                        }
+
+                        Spacer()
+
+                        if question.isReviewed {
+                            Button("取消复习") {
+                                Task {
+                                    await viewModel.unmarkAsReviewed()
+                                }
+                            }
+                            .buttonStyle(.bordered)
+                        } else {
+                            Button("标记已复习") {
+                                Task {
+                                    await viewModel.markAsReviewed()
+                                }
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                    }
+
+                    if question.reviewCount > 0 {
+                        HStack {
+                            Text("复习次数:")
+                            Spacer()
+                            Text("\(question.reviewCount) 次")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    if let reviewedAt = question.reviewedAt {
+                        HStack {
+                            Text("最后复习:")
+                            Spacer()
+                            Text(reviewedAt.formatted(date: .abbreviated, time: .shortened))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
             }
             .navigationTitle("题目详情")
             .navigationBarTitleDisplayMode(.inline)
@@ -212,6 +265,16 @@ struct QuestionDetailView: View {
                         }
                     }
                 }
+                
+                ToolbarItem(placement: .bottomBar) {
+                    if !viewModel.isEditing {
+                        Button(role: .destructive) {
+                            viewModel.showingDeleteAlert = true
+                        } label: {
+                            Label("删除题目", systemImage: "trash")
+                        }
+                    }
+                }
             }
             .alert("未保存的更改", isPresented: Binding(
                 get: { viewModel.showingSaveAlert },
@@ -230,6 +293,20 @@ struct QuestionDetailView: View {
                 Button("取消", role: .cancel) { }
             } message: {
                 Text("您有未保存的更改，要保存吗？")
+            }
+            .alert("确定删除这道题？", isPresented: Binding(
+                get: { viewModel.showingDeleteAlert },
+                set: { viewModel.showingDeleteAlert = $0 }
+            )) {
+                Button("删除", role: .destructive) {
+                    Task {
+                        await viewModel.deleteQuestion()
+                        dismiss()
+                    }
+                }
+                Button("取消", role: .cancel) { }
+            } message: {
+                Text("此操作无法撤销，确定删除这道错题？")
             }
         }
     }
