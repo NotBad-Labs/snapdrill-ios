@@ -10,13 +10,7 @@ import SwiftData
 
 struct ContentView: View {
     var body: some View {
-        TabView {
-            QuestionListView()
-                .tabItem {
-                    Image(systemName: "list.bullet")
-                    Text("题库")
-                }
-        }
+        RootView()
     }
 }
 
