@@ -1,0 +1,22 @@
+# Xcode
+*.xcuserstate
+*.xcuserdatad/
+**/xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.hmap
+*.ipa
+.build/
+
+# Swift Package Manager
+.swiftpm/
+Packages/
+Package.pins
+Package.resolved
+
+# macOS
+.DS_Store
+
+# 其他
+*.log
