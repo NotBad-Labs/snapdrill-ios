@@ -33,7 +33,11 @@
 		B2EDB79E2E268EAD00DF073D /* Exceptions for "NotBad" folder in "NotBad" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Features/Discover/DiscoverView.swift,
+				Features/QuestionLibrary/Components/DifficultyBadge.swift,
 				Info.plist,
+				Navigation/AppRouter.swift,
+				Shared/UI/Components/DifficultyBadge.swift,
 			);
 			target = B2EDB77A2E268EAC00DF073D /* NotBad */;
 		};
@@ -112,6 +116,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B2EDB79F2E268EAD00DF073D /* Build configuration list for PBXNativeTarget "NotBad" */;
 			buildPhases = (
+				B212F4DD2E2B5C690032FD4D /* SwiftLint */,
 				B2EDB7772E268EAC00DF073D /* Sources */,
 				B2EDB7782E268EAC00DF073D /* Frameworks */,
 				B2EDB7792E268EAC00DF073D /* Resources */,
@@ -243,6 +248,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B212F4DD2E2B5C690032FD4D /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# SwiftLint Run Script\nif [[ \"$(uname -m)\" == arm64 ]]; then\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nif which swiftlint > /dev/null; then\n    swiftlint --config \"Tools/CodeQuality/SwiftLint/.swiftlint.yml\"\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\nexit 0\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B2EDB7772E268EAC00DF073D /* Sources */ = {
