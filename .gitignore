@@ -1,0 +1,25 @@
+# Xcode 构建相关
+DerivedData/
+build/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# CocoaPods（如果你用了）
+Pods/
+
+# Carthage（如果你用了）
+Carthage/Build/
+
+# Xcode 用户配置
+*.xcuserstate
+*.xcuserdata/
+*.xcodeproj/project.xcworkspace/
+
+# macOS 系统文件
+.DS_Store
+
+# 临时或日志文件
+*.log
+*.swp
