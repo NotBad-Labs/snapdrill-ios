@@ -34,7 +34,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Presentation/Features/Authentication/ViewModels/LoginViewModel.swift,
 			);
 			target = B276CE5C2E2DE47D001F00AF /* NotBad */;
 		};
