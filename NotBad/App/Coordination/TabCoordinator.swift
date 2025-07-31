@@ -1,11 +1,3 @@
-//
-//  TabCoordinator.swift
-//  NotBad
-//
-//  Created by YIMING LIAO on 2025/7/29.
-//
-
-
 import SwiftUI
 import Foundation
 
@@ -288,7 +280,7 @@ struct DashboardTabCoordinatorView: View {
             Group {
                 switch coordinator.currentFlow {
                 case .home:
-                    DashboardPlaceholderView()
+                    DashboardView()
                 case .weatherDetail:
                     Text("天气详情页面")
                         .navigationTitle("天气详情")
@@ -313,7 +305,7 @@ struct QuestionManagementTabCoordinatorView: View {
             Group {
                 switch coordinator.currentFlow {
                 case .home:
-                    QuestionManagementPlaceholderView()
+                    QuestionManagementView()
                 case .cameraCapture:
                     Text("相机捕获页面")
                         .navigationTitle("拍照录题")
@@ -350,7 +342,7 @@ struct StudyPracticeTabCoordinatorView: View {
             Group {
                 switch coordinator.currentFlow {
                 case .home:
-                    StudyPracticePlaceholderView()
+                    StudyPracticeView()
                 case .modeSelection:
                     Text("模式选择页面")
                         .navigationTitle("练习模式")
@@ -384,7 +376,7 @@ struct DiscoveryTabCoordinatorView: View {
             Group {
                 switch coordinator.currentFlow {
                 case .home:
-                    DiscoveryPlaceholderView()
+                    DiscoveryView()
                 case .search:
                     Text("搜索页面")
                         .navigationTitle("搜索")
