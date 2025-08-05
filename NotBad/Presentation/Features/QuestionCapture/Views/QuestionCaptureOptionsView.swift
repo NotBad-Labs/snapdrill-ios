@@ -10,57 +10,28 @@ import SwiftUI
 /// 录题选项视图
 ///
 /// 职责：
-/// - 显示录题方式选项（拍照/手动输入）
-/// - 每个选项都可以跳转到具体的录题界面 (待创建)
+/// - 在用户选择具体的录题方式后，显示下一步的交互界面
+/// - 根据不同的录题方式（如拍照、文件导入），呈现不同的UI和功能
 struct QuestionCaptureOptionsView: View {
     var body: some View {
         VStack(spacing: 20) {
-            Text("选择录题方式")
+            Image(systemName: "hand.tap.fill")
+                .font(.system(size: 80))
+                .foregroundColor(.gray)
+            
+            Text("准备开始录题")
                 .font(.title)
                 .fontWeight(.bold)
             
-            Text("你可以通过拍照快速录入，也可以手动输入错题。")
+            Text("这里是根据你的选择，开始录入题目的页面。\n我们将在这里实现具体的功能。")
                 .font(.body)
+                .multilineTextAlignment(.center)
                 .foregroundColor(.secondary)
-            
-            // 拍照录题按钮
-            Button(action: {
-                // TODO: 导航到拍照录题视图
-            }) {
-                HStack {
-                    Image(systemName: "camera.on.rectangle.fill")
-                    Text("拍照录题")
-                }
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.blue)
-                .cornerRadius(10)
-            }
-            .padding(.horizontal)
-            
-            // 手动输入按钮
-            Button(action: {
-                // TODO: 导航到手动录入视图
-            }) {
-                HStack {
-                    Image(systemName: "square.and.pencil.circle.fill")
-                    Text("手动输入")
-                }
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.secondary)
-                .cornerRadius(10)
-            }
-            .padding(.horizontal)
             
             Spacer()
         }
-        .padding(.vertical, 20)
-        .navigationTitle("录题")
+        .padding()
+        .navigationTitle("录题选项")
     }
 }
 
@@ -75,3 +46,4 @@ struct QuestionCaptureOptionsView_Previews: PreviewProvider {
     }
 }
 #endif
+

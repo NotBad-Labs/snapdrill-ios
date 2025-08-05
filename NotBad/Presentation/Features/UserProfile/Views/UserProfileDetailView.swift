@@ -5,6 +5,14 @@
 //  Created by YIMING LIAO on 2025/8/1.
 //
 
+
+//
+//  UserProfileDetailView.swift
+//  NotBad
+//
+//  Created by YIMING LIAO on 2025/8/1.
+//
+
 import SwiftUI
 
 /// 用户资料详情视图

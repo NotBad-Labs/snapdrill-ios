@@ -112,7 +112,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B276CE812E2DE47E001F00AF /* Build configuration list for PBXNativeTarget "NotBad" */;
 			buildPhases = (
-				B276CE592E2DE47D001F00AF /* Sources */,
 				B276CE5A2E2DE47D001F00AF /* Frameworks */,
 				B276CE5B2E2DE47D001F00AF /* Resources */,
 			);
@@ -245,13 +244,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B276CE592E2DE47D001F00AF /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		B276CE6A2E2DE47E001F00AF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;

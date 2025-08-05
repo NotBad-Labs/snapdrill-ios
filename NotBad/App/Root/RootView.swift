@@ -1,19 +1,19 @@
 // MARK: - RootView.swift
 /**
  * 应用根视图容器
- * 
+ *
  * 职责：
  * - 作为应用的根视图容器，负责根据应用状态渲染对应的界面
  * - 管理应用级别的视图转场和动画效果
  * - 处理全局的 UI 状态（如加载遮罩、错误提示等）
  * - 响应应用状态变化，动态切换不同的视图流程
- * 
+ *
  * 设计原则：
  * - 状态驱动：完全基于 AppState 的状态来决定显示内容
  * - 视图纯净：不包含业务逻辑，只负责视图的渲染和转场
  * - 响应式：使用 @EnvironmentObject 响应状态变化
  * - 用户体验：提供流畅的转场动画和加载反馈
- * 
+ *
  * 架构位置：
  * ```
  * NotBadApp
@@ -22,27 +22,27 @@
  *     ↓ 根据状态选择视图
  * SplashView / OnboardingView / MainTabView ← 具体视图
  * ```
- * 
+ *
  * 状态流转：
  * ```
- * SplashView (初始化) 
+ * SplashView (初始化)
  *     ↓ 完成初始化
  * OnboardingView (首次使用) / MainTabView (非首次)
  *     ↓ 完成引导
  * MainTabView (主应用界面)
  * ```
- * 
+ *
  * 使用方式：
  * - 该视图作为应用的根视图，在 NotBadApp.swift 中使用
  * - 通过环境对象获取状态和依赖
  * - 自动响应状态变化并更新 UI
- * 
+ *
  * 注意事项：
  * - 该视图不应包含任何业务逻辑
  * - 所有状态变更都应通过 AppState 进行
  * - 转场动画应该保持简洁和一致
  * - 错误状态的处理应该用户友好
- * 
+ *
  * @author NotBad Team
  * @since 1.0.0
  * @updated 2025-08-01
@@ -55,13 +55,13 @@ struct RootView: View {
     // MARK: - 环境依赖
     
     /// 全局应用状态，用于决定显示哪个视图
-    @EnvironmentObject private var appState: AppState
+    @Environment(AppState.self) private var appState
     
     /// 应用协调器，用于处理导航相关的业务逻辑
-    @EnvironmentObject private var appCoordinator: AppCoordinator
+    @Environment(AppCoordinator.self) private var appCoordinator
     
     /// 依赖注入环境，提供各种服务的访问
-    @EnvironmentObject private var appEnvironment: AppEnvironment
+    @Environment(AppEnvironment.self) private var appEnvironment
     
     // MARK: - 本地状态
     
@@ -118,7 +118,7 @@ struct RootView: View {
     
     /**
      * 主内容视图
-     * 
+     *
      * 根据当前应用状态显示对应的视图内容
      */
     @ViewBuilder
@@ -143,7 +143,7 @@ struct RootView: View {
     
     /**
      * 全局覆盖层视图
-     * 
+     *
      * 显示全局的加载、错误、提示等覆盖内容
      */
     @ViewBuilder
@@ -160,7 +160,7 @@ struct RootView: View {
     
     /**
      * 当前转场动画
-     * 
+     *
      * 根据不同的状态转换提供合适的转场动画
      */
     private var currentTransition: AnyTransition {
@@ -186,7 +186,7 @@ struct RootView: View {
     
     /**
      * 处理视图出现事件
-     * 
+     *
      * 执行一些初始化操作，如网络状态检查等
      */
     private func handleViewAppear() {
@@ -201,7 +201,7 @@ struct RootView: View {
     
     /**
      * 处理主视图出现事件
-     * 
+     *
      * 当切换到主界面时执行的操作
      */
     private func handleMainViewAppear() {
@@ -291,11 +291,11 @@ struct RootView: View {
 
 /**
  * 启动页视图
- * 
+ *
  * 显示应用启动时的加载界面
  */
 struct SplashView: View {
-    @EnvironmentObject private var appState: AppState
+    @Environment(AppState.self) private var appState
     
     var body: some View {
         ZStack {
@@ -399,11 +399,11 @@ struct SplashView: View {
 
 /**
  * 引导页容器视图
- * 
+ *
  * 包装引导页流程的容器
  */
 struct OnboardingContainerView: View {
-    @EnvironmentObject private var appState: AppState
+    @Environment(AppState.self) private var appState
     
     var body: some View {
         OnboardingView()
@@ -416,7 +416,7 @@ struct OnboardingContainerView: View {
 
 /**
  * 主界面容器视图
- * 
+ *
  * 包装主应用界面的容器
  */
 struct MainTabContainerView: View {
@@ -438,11 +438,11 @@ struct MainTabContainerView: View {
 
 /**
  * 引导页视图
- * 
+ *
  * 简化的引导页实现
  */
 struct OnboardingView: View {
-    @EnvironmentObject private var appState: AppState
+    @Environment(AppState.self) private var appState
     
     var body: some View {
         VStack(spacing: 40) {
@@ -492,7 +492,7 @@ struct OnboardingView: View {
  * 引导步骤指示器
  */
 struct OnboardingStepIndicator: View {
-    @EnvironmentObject private var appState: AppState
+    @Environment(AppState.self) private var appState
     
     var body: some View {
         HStack(spacing: 8) {
@@ -512,7 +512,7 @@ struct OnboardingStepIndicator: View {
 
 /**
  * 全局加载视图
- * 
+ *
  * 全屏的加载遮罩
  */
 struct GlobalLoadingView: View {
@@ -579,7 +579,7 @@ struct SecondaryButtonStyle: ButtonStyle {
 
 /**
  * 全局错误类型
- * 
+ *
  * 用于显示全局错误弹窗
  */
 struct GlobalError: Identifiable {

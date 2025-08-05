@@ -5,6 +5,14 @@
 //  Created by YIMING LIAO on 2025/8/1.
 //
 
+
+//
+//  DashboardDetailView.swift
+//  NotBad
+//
+//  Created by YIMING LIAO on 2025/8/1.
+//
+
 import SwiftUI
 
 /// 仪表盘的子页面视图

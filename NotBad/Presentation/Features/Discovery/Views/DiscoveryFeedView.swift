@@ -16,13 +16,22 @@ struct DiscoveryFeedView: View {
     var body: some View {
         List {
             ForEach(0..<10) { index in
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("推荐错题集：主题 \(index + 1)")
-                        .font(.headline)
-                    Text("这里将展示由社区用户分享的精彩内容。")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    Divider()
+                NavigationLink(destination: Text("详情页 \(index + 1)")) {
+                    HStack(spacing: 15) {
+                        Image(systemName: "books.vertical.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(.purple)
+                        
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text("推荐错题集：主题 \(index + 1)")
+                                .font(.headline)
+                            Text("这里将展示由社区用户分享的精彩内容。")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                    }
                 }
             }
         }
@@ -41,3 +50,4 @@ struct DiscoveryFeedView_Previews: PreviewProvider {
     }
 }
 #endif
+
