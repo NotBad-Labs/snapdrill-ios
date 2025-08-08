@@ -24,6 +24,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B241F0EA2E461BF700F2C402 /* SwiftDataContainer */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SwiftDataContainer; path = ../SwiftDataContainer; sourceTree = SOURCE_ROOT; };
 		B276CE5D2E2DE47D001F00AF /* NotBad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NotBad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B276CE6E2E2DE47E001F00AF /* NotBadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NotBadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B276CE782E2DE47E001F00AF /* NotBadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NotBadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,6 +89,7 @@
 		B276CE542E2DE47D001F00AF = {
 			isa = PBXGroup;
 			children = (
+				B241F0EA2E461BF700F2C402 /* SwiftDataContainer */,
 				B276CE5F2E2DE47D001F00AF /* NotBad */,
 				B276CE712E2DE47E001F00AF /* NotBadTests */,
 				B276CE7B2E2DE47E001F00AF /* NotBadUITests */,
@@ -207,6 +209,9 @@
 			);
 			mainGroup = B276CE542E2DE47D001F00AF;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B241F0EC2E461D5900F2C402 /* XCLocalSwiftPackageReference "../SwiftDataContainer" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B276CE5E2E2DE47D001F00AF /* Products */;
 			projectDirPath = "";
@@ -600,6 +605,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		B241F0EC2E461D5900F2C402 /* XCLocalSwiftPackageReference "../SwiftDataContainer" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../SwiftDataContainer;
+		};
+/* End XCLocalSwiftPackageReference section */
 	};
 	rootObject = B276CE552E2DE47D001F00AF /* Project object */;
 }
