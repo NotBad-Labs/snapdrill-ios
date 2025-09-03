@@ -26,8 +26,8 @@
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/your-org/notbad-app.git
-   cd notbad-app
+   git clone https://github.com/chramboliao/NotBad
+   cd NotBad
    ```
 
 2. **解析依赖**
@@ -140,7 +140,7 @@ brew install swiftformat
 5. 创建Pull Request
 
 ### 报告问题
-使用 [GitHub Issues](https://github.com/your-org/notbad-app/issues) 报告bug或提出功能建议。
+使用 [GitHub Issues](https://github.com/chramboliao/NotBad/issues) 报告bug或提出功能建议。
 
 ## 📄 开源协议
 
@@ -149,8 +149,8 @@ brew install swiftformat
 ## 📞 联系我们
 
 - 📧 **邮箱**: dev@notbad.app
-- 💬 **讨论**: [GitHub Discussions](https://github.com/your-org/notbad-app/discussions)
-- 🐛 **Bug报告**: [GitHub Issues](https://github.com/your-org/notbad-app/issues)
+- 💬 **讨论**: [GitHub Discussions](https://github.com/chramboliao/NotBad/discussions)
+- 🐛 **Bug报告**: [GitHub Issues](https://github.com/chramboliao/NotBad/issues)
 
 ---
 
