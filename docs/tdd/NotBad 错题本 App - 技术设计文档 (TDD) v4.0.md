@@ -26,6 +26,9 @@
 
 - 订阅定价调整（月 ¥10 / 年 ¥99 / 永久 ¥688）本身为产品/商业层面的变更，对客户端实现影响有限，但会影响我们对“Pro”特性的优先级与云端资源分配策略。
 - PRD 明确将“基础 iCloud 同步”对所有用户免费开放——因此本版本的同步实现以 **CloudKit/ iCloud 为基础方案**（无额外自建后端成本），并在 TDD 中保留对“高级同步”（多平台、历史版本、实时协同）需要自建后端的说明与扩展接口。 
+  - 注意：CloudKit 在私有/公共容器上都有存储与请求配额限制（例如每用户存储、每秒写入/读取速率等），TDD 需明确对应的监控与降级措施。
+    - 建议在 SyncService 中增加配额监控点（dailyStorageBytes、apiCallsPerMinute），并在接近阈值时优雅降级（如压缩/去重、限制上云、提示用户）。
+    - 若教师/班级或历史版本需求导致配额压力，需评估自建后端或 BaaS 替代方案，并在 ADR-002 中明确成本/运维责任分界。
 - PRD 中关于 AI 与家长协同的增加，意味着 **云端 AI 调用（例如 Gemini 或第三方模型）应当视为增值能力**：若决定将部分 AI 能力作为 Pro 权益，需要在后端或第三方API上实现配额/鉴权与计费，并在本地实现健壮的脱网降级策略（CoreML）。
 - PRD 明确了 MVP 的 Must Have 功能集，TDD 将这些功能列为实现与测试优先级（见第6章测试策略）。
 
@@ -78,6 +81,27 @@ struct ReviewItem {
     var studyHistory: \[StudyRecord\]  
     var masteryLevel: MasteryLevel  
 }  
+// 建议扩展字段以支持家长/教师/授权场景
+struct ReviewItemMetadata {
+  var ownerId: UUID
+  var parentShareStatus: ParentShareStatus // .none / .summary / .oneTime / .itemLevel
+  var parentAccessRevokedAt: Date? // 最近一次撤销时间
+  var sharedWithClassIds: [UUID]
+}
+
+enum ParentShareStatus {
+  case none
+  case summary
+  case oneTime
+  case itemLevel
+}
+
+// 指标计算器接口（L1/L2/L3）
+protocol MetricsCalculator {
+  func calculateMARU(for period: DateRange) async throws -> Int // L1
+  func calculateMRU(for period: DateRange) async throws -> Int  // L2
+  func calculateMMU(for period: DateRange) async throws -> Int  // L3
+}
 // ... 其他实体定义
 
 ### **3.2 数据持久化 (Data Persistence)**
@@ -119,6 +143,38 @@ struct ReviewItem {
   * Pro用户优先使用云端API，有每日调用配额。  
   * 云端服务失败或免费用户，自动降级至本地模型。  
 * **性能约束**: P95响应时间 \< 1秒 (本地), \< 5秒 (云端)。
+
+#### **4.1.3 教师/班级服务接口 (Teacher / Class Service)**
+
+* **协议**: ClassManagementService
+* **职责**: 支持教师创建班级、邀请学生/家长加入、布置作业、回收统计与匿名聚合视图。
+* **示例接口**:
+  ```swift
+  protocol ClassManagementService {
+      func createClass(name: String, teacherId: UUID) async throws -> UUID // 返回 classId
+      func generateInviteCode(classId: UUID) async throws -> String
+      func assignHomework(classId: UUID, items: [UUID], dueDate: Date) async throws -> UUID // assignmentId
+      func getAnonymizedStats(classId: UUID) async throws -> ClassStats
+  }
+  ```
+
+* **实现说明**: 该服务在 CloudKit-only 场景下可实现基本的匿名统计（聚合数）但难以支持复杂的作业管理与权限回溯；建议把教师相关的持久化设计为可替换的 Repository（CloudKitRepository 或 ServerRepository），并在 ADR 明确支持边界。
+
+#### **4.1.4 家长授权服务 (Parent Access Service)**
+
+* **协议**: ParentAccessService
+* **职责**: 管理家长的查看申请、按题目授权、撤销授权与访问审计。
+* **示例接口**:
+  ```swift
+  protocol ParentAccessService {
+      func requestAccess(itemId: UUID, parentId: UUID) async throws
+      func approveAccess(itemId: UUID, parentId: UUID) async throws
+      func revokeAccess(itemId: UUID, parentId: UUID) async throws
+      func getAccessLog(itemId: UUID) async throws -> [AccessRecord]
+  }
+  ```
+
+* **实现说明**: 对于撤销（revokeAccess），客户端必须立即在本地生效（本地权限表更新并触发 parent_access_revoked 事件），并异步同步至 CloudKit/后端以保证跨设备一致性；同时记录审计日志便于合规与争议处理。
 
 ### **4.2 数据同步接口 (Data Sync Contract)**
 
@@ -213,7 +269,40 @@ PRD中的每个Gherkin格式验收标准（AC），都必须有一个或多个�
   * **P0级报警** (崩溃率 \> 1%): 电话、短信、Slack通知On-Call工程师，要求5分钟内响应。  
   * **P1级报警** (核心API成功率 \< 99%): Slack @channel 通知，要求30分钟内响应。
 
+* **分析事件 (Analytics Events)**:
+  为了支持 PRD 中的 L1/L2/L3 指标与家长/教师场景，建议在客户端和后端统一以下事件 schema（示例）:
+  ```swift
+  enum AnalyticsEvent {
+      case reviewItemCreated(itemId: UUID, creationMethod: String, subject: String, hasImage: Bool)
+      case studySessionCompleted(sessionId: UUID, duration: TimeInterval, itemsCompleted: Int)
+      case itemMarkedMastered(itemId: UUID, masterySource: String)
+      case reviewItemEdited(itemId: UUID, fieldsChanged: [String])
+      case parentViewRequest(itemId: UUID, parentId: UUID)
+      case parentAccessRevoked(itemId: UUID, parentId: UUID)
+      case teacherClassCreated(classId: UUID, teacherId: UUID)
+  }
+  ```
+
+  每个事件需定义严格的字段类型、采集频率防抖（防止重复上报）和隐私分级（例如家长相关事件默认不采集具体题目内容，除非学生授权）。
+
 ## **8\. 附录 (Appendix)**
+### **8.1 分阶段交付计划 (Phased Delivery Plan)**
+
+为匹配 PRD v4.0 的发布建议，TDD 推荐采用时间盒（time-boxed）分阶段交付以降低风险并快速验证假设：
+
+- **核心MVP（6周）**
+  - 交付模块：OCRService, LocalStorage (SwiftData), BasicReviewUI, 基础离线复习卡片
+  - 测试重点：OCR准确率（印刷体/手写基线）、离线可用性、关键性能指标（启动/响应）
+
+- **增强MVP（4周）**
+  - 交付模块：SyncService（CloudKit）、CategoryManager、基础Analytics埋点与Dashboard
+  - 测试重点：同步可靠性、分类准确率、数据一致性与埋点完整性
+
+- **完整v1.0（6周）**
+  - 交付模块：SubscriptionManager（支付/订阅）、ParentAccessService（家长授权/撤销）、TeacherService（班级/作业模块，邀请制Beta）、云端历史版本支持的初步实现
+  - 测试重点：支付流程、权限管理、教师场景的端到端验证
+
+注：若教师/班级场景对后端依赖强烈，建议将其初始实现标记为“ServerRepository 实验性路径”或采用 BaaS（如 Firebase）进行快速验证，再在后续迭代中迁移至自建后端或扩展 CloudKit 方案。
 
 * [**PRD v4.0**](https://www.google.com/search?q=./notbad_prd_v4.0.md)  
 * [**需求追踪矩阵 (RTM)**](https://www.google.com/search?q=./rtm_matrix.md)  
