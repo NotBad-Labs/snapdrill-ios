@@ -67,6 +67,18 @@
 
 - 关键依赖：
 	- CloudKit / iCloud（同步实现与配额）
+\
+---
+### **编辑历史 / 贡献者 (Edit History & Contributors)**
+
+| 日期 | 版本 | 主要变更 | 贡献者 |
+| :---- | :---- | :---- | :---- |
+| 2025-09-02 | v1.0 | 初版：REQ-001~010 映射 | Product & Tech |
+| 2025-09-03 | v2.0 | 增加 REQ-011~017 / Sprint / 依赖风险 | Product & Tech |
+| 2025-09-10 | v2.0+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |
+
+> 若需求集发生重构，创建新版本表格并将旧表格整体归档而不覆写。
+
 	- OCR 模型（CoreML 本地模型 & 云端备选）
 	- Analytics/Data Warehouse（指标派生）
 	- StoreKit（订阅/支付）

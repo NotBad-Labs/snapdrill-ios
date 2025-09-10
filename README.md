@@ -61,9 +61,13 @@
 ## 📖 项目文档
 
 ### 核心文档
-- 📋 **[产品需求文档 (PRD)](docs/notbad_prd_v31.md)** - 产品功能和业务需求
-- 🔧 **[技术设计文档 (TDD)](docs/notbad_tdd_v31.md)** - 系统架构和技术实现
-- 📚 **[术语表](docs/notbad_glossary_v31.md)** - 统一的业务和技术术语
+- � **[文档索引 (Docs Index)](docs/README.md)** - 所有主要文档的快速跳转
+- 📋 **产品需求文档 (PRD)**: `docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md`
+- 🔧 **技术设计文档 (TDD)**: `docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md`
+- 📊 **需求追踪矩阵 (RTM)**: `docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v2.0.md`
+- 🧾 **业务术语表**: `docs/glossary/NotBad App - 业务术语表 v1.1.md`
+- 🧪 **技术术语表**: `docs/glossary/NotBad App - 技术术语表 v1.1.md`
+- 🔗 **术语→代码索引**: `docs/glossary/NotBad App - 术语到代码索引 v1.0.md`
 
 ### 开发指南
 - 🎨 **[UI设计规范](docs/ui-guidelines.md)** - 界面设计和交互规范

@@ -306,6 +306,18 @@ PRD中的每个Gherkin格式验收标准（AC），都必须有一个或多个�
 - **增强MVP（4周）**
   - 交付模块：SyncService（CloudKit）、CategoryManager、基础Analytics埋点与Dashboard
   - 测试重点：同步可靠性、分类准确率、数据一致性与埋点完整性
+\
+---
+### **8.2 编辑历史 / 贡献者 (Edit History & Contributors)**
+
+| 日期 | 版本 | 主要变更 | 贡献者 |
+| :---- | :---- | :---- | :---- |
+| 2025-09-02 | v3.1 | 架构草案 / 模块分层初稿 | Tech Team |
+| 2025-09-03 | v4.0 | 增加 Metrics/Parent/Teacher 服务 & 分阶段交付计划 | Tech Team |
+| 2025-09-10 | v4.0+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |
+
+> 按需要新增行，历史行不修改；重大技术决策请同步对应 ADR。
+
 
 - **完整v1.0（6周）**
   - 交付模块：SubscriptionManager（支付/订阅）、ParentAccessService（家长授权/撤销）、TeacherService（班级/作业模块，邀请制Beta）、云端历史版本支持的初步实现

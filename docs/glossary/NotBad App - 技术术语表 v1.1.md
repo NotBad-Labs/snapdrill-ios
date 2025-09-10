@@ -91,6 +91,18 @@
 | **可观测性** | Observability | 日志(Logs), 指标(Metrics), 追踪(Traces) |
 
 ## **7\. 版本演进**
+\
+---
+### **编辑历史 / 贡献者 (Edit History & Contributors)**
+
+| 日期 | 版本 | 主要变更 | 贡献者 |
+| :---- | :---- | :---- | :---- |
+| 2025-09-02 | v1.0 | 初版技术术语 / 架构分类 | Tech Team |
+| 2025-09-04 | v1.1 | 增加 MetricsCalculator / 服务接口术语 / Quota Monitoring | Tech Team |
+| 2025-09-10 | v1.1+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |
+
+> 大规模架构术语或协议列表调整时，请与 ADR 同步并升级版本号。
+
 
 | 术语 (中文) | 英文术语 (English Term) | 定义 |
 | :---- | :---- | :---- |

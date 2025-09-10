@@ -79,6 +79,16 @@
 | :---- | :---- | :---- |
 | **免费版** | Free Tier | 免费 |
 | **Pro月订阅** | Pro Monthly Subscription | ¥10/月 (同步 PRD v4.0) |
+---
+### **编辑历史 / 贡献者 (Edit History & Contributors)**
+
+| 日期 | 版本 | 主要变更 | 贡献者 |
+| :---- | :---- | :---- | :---- |
+| 2025-09-02 | v1.0 | 初版术语集合 | Product & Tech |
+| 2025-09-04 | v1.1 | 增加指标分层 / 教师 & 家长术语 / 定价修订 | Product & Tech |
+| 2025-09-10 | v1.1+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |
+
+> 术语定义若发生语义重大变化，应升级版本号（v1.2等）而不是覆写原行。
 | **Pro年订阅** | Pro Annual Subscription | ¥99/年 (同步 PRD v4.0) |
 | **永久买断** | Lifetime Purchase | ¥688 (同步 PRD v4.0) |
 | **试用期** | Trial Period | 未在 PRD 明确（TBD） |
