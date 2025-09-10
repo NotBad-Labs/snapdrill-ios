@@ -2,11 +2,18 @@
 
 **文档定位：技术实现单一事实来源 (Single Source of Truth for Implementation)**
 
-本文档基于 [**PRD v4.0**](https://www.google.com/search?q=./notbad_prd_v4.0.md) 的产品需求，为NotBad App的技术实现提供了唯一的、权威的、详尽的蓝图。它是开发、测试及运维团队的**核心行动纲领**，定义了应用的架构设计、模块职责、接口契約、数据结构和非功能性实现方案。
+本文档基于 [**PRD v4.0**](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md) 的产品需求，为NotBad App的技术实现提供了唯一的、权威的、详尽的蓝图。它是开发、测试及运维团队的**核心行动纲领**，定义了应用的架构设计、模块职责、接口契約、数据结构和非功能性实现方案。
 
 ## 速查：相关文档（快速跳转）
 
-- 文档索引: [docs/README.md](../README.md)
+- 文档索引: [docs/README.md](.注：若教师/班级场景对后端依赖强烈，建议将其初始实现标记为"ServerRepository 实验性路径"或采用 BaaS（如 Firebase）进行快速验证，再在后续迭代中迁移至自建后端或扩展 CloudKit 方案。
+
+## **8.1 相关文档索引 (Related Documents)**
+
+* [**PRD v4.0**](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)  
+* [**需求追踪矩阵 (RTM)**](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)  
+* [**技术术语表**](../glossary/NotBad%20App%20-%20技术术语表%20v1.1.md)
+* [**ADR 索引**](../ard/README.md)DME.md)
 - PRD: [docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)
 - RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v2.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)
 - 业务术语表: [docs/glossary/NotBad App - 业务术语表 v1.1.md](../glossary/NotBad%20App%20-%20业务术语表%20v1.1.md)
@@ -47,9 +54,9 @@
 
 本项目的关键技术决策均通过**架构决策记录 (ADR)** 进行系统性存档。ADR旨在理解决策背景、评估备选方案并追踪决策后果。
 
-* [**ADR-001: 本地持久化框架选型**](https://www.google.com/search?q=./architecture_decision_record_template.md)  
-* [**ADR-002: 云同步方案选型**](https://www.google.com/search?q=./adr_cloud_sync.md) (待创建)  
-* [**ADR-003: OCR引擎选型**](https://www.google.com/search?q=./adr_ocr_engine.md) (待创建)
+* [**ADR-001: 本地数据层与持久化框架选型 (SwiftData)**](../ard/ADR-001%20本地数据层与持久化框架选型%20(SwiftData).md)  
+* [**ADR-002: 云同步与多端一致性策略 (Local-First + CloudKit)**](../ard/ADR-002%20云同步与多端一致性策略%20(Local-First%20+%20CloudKit).md)  
+* [**ADR-003: OCR 处理流水线与重处理策略**](../ard/ADR-003%20OCR%20处理流水线与重处理策略.md)
 
 ## **2\. 系统架构设计 (System Architecture)**
 
@@ -312,7 +319,7 @@ PRD中的每个Gherkin格式验收标准（AC），都必须有一个或多个�
 
 | 日期 | 版本 | 主要变更 | 贡献者 |
 | :---- | :---- | :---- | :---- |
-| 2025-09-10 | v4.0+auto | 脚本验证插入示例 | Docs Maintainer |
+| 2025-09-10 | v4.0+auto | 文档评审与结构优化 | Docs Maintainer |
 | 2025-09-02 | v3.1 | 架构草案 / 模块分层初稿 | Tech Team |
 | 2025-09-03 | v4.0 | 增加 Metrics/Parent/Teacher 服务 & 分阶段交付计划 | Tech Team |
 | 2025-09-10 | v4.0+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |

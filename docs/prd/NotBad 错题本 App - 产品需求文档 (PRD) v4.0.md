@@ -469,10 +469,10 @@
 
 ### **9.1 相关文档索引 (Related Documents)**
 
-* [**需求追踪矩阵 (RTM)**](https://www.google.com/search?q=./rtm_matrix.md): 追踪本PRD中所有需求的设计、实现与测试状态。  
-* [**技术设计文档 (TDD)**](https://www.google.com/search?q=./notbad_tdd_v3.1.md): 本PRD所有功能的技术实现方案。  
-* [**业务术语表**](https://www.google.com/search?q=./business_glossary.md) & [**技术术语表**](https://www.google.com/search?q=./technical_glossary.md): 项目统一语言规范。  
-* [**架构决策记录 (ADR)**](https://www.google.com/search?q=./architecture_decision_record_template.md): 关键技术决策的存档。
+* [**需求追踪矩阵 (RTM)**](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md): 追踪本PRD中所有需求的设计、实现与测试状态。  
+* [**技术设计文档 (TDD)**](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md): 本PRD所有功能的技术实现方案。  
+* [**业务术语表**](../glossary/NotBad%20App%20-%20业务术语表%20v1.1.md) & [**技术术语表**](../glossary/NotBad%20App%20-%20技术术语表%20v1.1.md): 项目统一语言规范。  
+* [**架构决策记录 (ADR)**](../ard/README.md): 关键技术决策的存档。
 
 ### **9.2 MoSCoW 优先级总览**
 
@@ -484,7 +484,7 @@
 
 | 日期 | 版本 | 主要变更 | 贡献者 |
 | :---- | :---- | :---- | :---- |
-| 2025-09-10 | v4.0+auto | 脚本验证插入示例 | Docs Maintainer |
+| 2025-09-10 | v4.0+auto | 文档评审与结构优化 | Docs Maintainer |
 | 2025-09-02 | v3.1 | 初步结构 & 早期评审合并 | Product Team |
 | 2025-09-03 | v4.0 | 指标分层 / 家长协同 / OCR重识别 / 风险监控 / 定价修订 | Product Team |
 | 2025-09-10 | v4.0+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |

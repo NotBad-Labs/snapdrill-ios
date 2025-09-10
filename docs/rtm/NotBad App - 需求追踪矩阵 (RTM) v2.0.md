@@ -73,7 +73,7 @@
 
 | 日期 | 版本 | 主要变更 | 贡献者 |
 | :---- | :---- | :---- | :---- |
-| 2025-09-10 | v2.0+auto | 脚本验证插入示例 | Docs Maintainer |
+| 2025-09-10 | v2.0+auto | 文档评审与结构优化 | Docs Maintainer |
 | 2025-09-02 | v1.0 | 初版：REQ-001~010 映射 | Product & Tech |
 | 2025-09-03 | v2.0 | 增加 REQ-011~017 / Sprint / 依赖风险 | Product & Tech |
 | 2025-09-10 | v2.0+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |
