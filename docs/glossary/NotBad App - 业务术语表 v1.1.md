@@ -2,6 +2,15 @@
 
 **目的**: 本文档面向**产品、设计、运营、市场**角色，定义核心业务概念，是确保跨部门沟通一致性的**唯一事实来源**。
 
+## 速查：相关文档（快速跳转）
+
+- 文档索引: [docs/README.md](../README.md)
+- PRD: [docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)
+- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md)
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v2.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v1.1.md](NotBad%20App%20-%20技术术语表%20v1.1.md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v1.0.md](NotBad%20App%20-%20术语到代码索引%20v1.0.md)
+
 | 版本 | 日期 | 作者 | 变更说明 |
 | :---- | :---- | :---- | :---- |
 | v1.1 | 2025-09-04 | Team | 同步 PRD v4.0：修正定价，新增指标分层与教师相关术语 |

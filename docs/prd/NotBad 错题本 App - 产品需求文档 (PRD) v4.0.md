@@ -4,6 +4,15 @@
 
 本文档是NotBad App从概念到发布的全周期产品需求定义的**唯一权威来源**。它旨在为产品、设计、开发、测试、运营及管理团队提供统一的、无歧义的行动纲领。所有与产品需求相关的讨论、决策和实现，均须以此文档为基准。
 
+## 速查：相关文档（快速跳转）
+
+- 文档索引: [docs/README.md](../README.md)
+- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md)
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v2.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)
+- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v1.1.md](../glossary/NotBad%20App%20-%20业务术语表%20v1.1.md)
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v1.1.md](../glossary/NotBad%20App%20-%20技术术语表%20v1.1.md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v1.0.md](../glossary/NotBad%20App%20-%20术语到代码索引%20v1.0.md)
+
 | 版本 | 日期 | 作者 | 变更说明 | 状态 |
 | :---- | :---- | :---- | :---- | :---- |
 | v3.1 | 2025-09-02 | Product Team | 基于多方AI评审进行初步优化 | 已归档 |

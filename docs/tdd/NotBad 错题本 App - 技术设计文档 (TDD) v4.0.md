@@ -4,6 +4,15 @@
 
 本文档基于 [**PRD v4.0**](https://www.google.com/search?q=./notbad_prd_v4.0.md) 的产品需求，为NotBad App的技术实现提供了唯一的、权威的、详尽的蓝图。它是开发、测试及运维团队的**核心行动纲领**，定义了应用的架构设计、模块职责、接口契約、数据结构和非功能性实现方案。
 
+## 速查：相关文档（快速跳转）
+
+- 文档索引: [docs/README.md](../README.md)
+- PRD: [docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v2.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)
+- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v1.1.md](../glossary/NotBad%20App%20-%20业务术语表%20v1.1.md)
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v1.1.md](../glossary/NotBad%20App%20-%20技术术语表%20v1.1.md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v1.0.md](../glossary/NotBad%20App%20-%20术语到代码索引%20v1.0.md)
+
 | 版本 | 日期 | 作者 | 变更说明 | 状态 |
 | :---- | :---- | :---- | :---- | :---- |
 | v3.1 | 2025-09-02 | Tech Team | 基于初步评审意见进行优化 | 已归档 |
