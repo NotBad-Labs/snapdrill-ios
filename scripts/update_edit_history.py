@@ -22,7 +22,8 @@ import re
 import sys
 
 HEADING_PATTERN = re.compile(r"^### .*编辑历史.*")
-TABLE_HEADER_PATTERN = re.compile(r"^\| *日期 *\| *版本 *\| *说明 *\| *作者 *\|")
+# 支持现有表头: | 日期 | 版本 | 主要变更 | 贡献者 |
+TABLE_HEADER_PATTERN = re.compile(r"^\| *日期 *\| *版本 *\| *(说明|主要变更) *\| *(作者|贡献者) *\|")
 VERSION_IN_NAME = re.compile(r"v(\d+\.\d+)")
 
 
@@ -46,7 +47,7 @@ def process_file(path: pathlib.Path, row: str) -> bool:
             # scan forward to find table header
             for j in range(i + 1, min(i + 15, len(lines))):
                 if TABLE_HEADER_PATTERN.match(lines[j]):
-                    insert_at = j + 2  # after header + separator
+                    insert_at = j + 2  # after header + separator line
                     lines.insert(insert_at, row)
                     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
                     return True
