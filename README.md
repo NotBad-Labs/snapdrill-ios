@@ -165,3 +165,29 @@ brew install swiftformat
 *让每一次复习都有价值*
 
 </div>
+
+# NotBad
+
+一个用于管理与复习“错题”的 iOS 应用（SwiftUI + SwiftData + CloudKit）。
+
+## 文档索引
+详见 `docs/README.md` 获取 PRD、TDD、RTM、术语表、ADR 等导航。
+
+## 文档更新流程
+1. 修改或新增文档内容（确保语义清晰，必要时更新相关交叉链接）。
+2. 如为架构/技术选型或重要原则变更：
+   - 进入 `docs/ard/` 参考模板创建新的 `ADR-XXX <标题>.md`。
+   - 更新 `docs/ard/README.md` 索引表格（追加行，勿重排历史）。
+3. 执行自动编辑历史脚本（示例）：
+   ```bash
+   ./scripts/update_edit_history.py --author "Your Name" --summary "简述变更" docs/prd/NotBad\ 错题本\ App\ -\ 产品需求文档\ \(PRD\)\ v4.0.md
+   ```
+   可一次传入多个文件；脚本会在对应“编辑历史”表插入新行。
+4. Git 提交：
+   - Commit message 采用前缀：`docs: ...` 或 `adr: ...`。
+5. 代码 / 文档评审：
+   - 重要决策的 ADR 需在 PR 讨论区获得至少 1 位审核者同意。
+6. 合并后禁止回写已采纳 ADR 的历史内容（除错别字）；若决策被替代，创建新 ADR 并在旧 ADR 标记“已取代 → ADR-YYY”。
+
+## 许可
+TBD
