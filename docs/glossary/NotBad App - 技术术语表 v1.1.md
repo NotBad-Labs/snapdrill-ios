@@ -97,6 +97,7 @@
 
 | 日期 | 版本 | 主要变更 | 贡献者 |
 | :---- | :---- | :---- | :---- |
+| 2025-09-10 | v1.1+auto | 脚本验证插入示例 | Docs Maintainer |
 | 2025-09-02 | v1.0 | 初版技术术语 / 架构分类 | Tech Team |
 | 2025-09-04 | v1.1 | 增加 MetricsCalculator / 服务接口术语 / Quota Monitoring | Tech Team |
 | 2025-09-10 | v1.1+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |

@@ -312,6 +312,7 @@ PRD中的每个Gherkin格式验收标准（AC），都必须有一个或多个�
 
 | 日期 | 版本 | 主要变更 | 贡献者 |
 | :---- | :---- | :---- | :---- |
+| 2025-09-10 | v4.0+auto | 脚本验证插入示例 | Docs Maintainer |
 | 2025-09-02 | v3.1 | 架构草案 / 模块分层初稿 | Tech Team |
 | 2025-09-03 | v4.0 | 增加 Metrics/Parent/Teacher 服务 & 分阶段交付计划 | Tech Team |
 | 2025-09-10 | v4.0+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |
