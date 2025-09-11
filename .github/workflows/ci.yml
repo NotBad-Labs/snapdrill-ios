@@ -128,7 +128,7 @@ jobs:
         python3 Scripts/check_coverage.py coverage.json 80
         
     - name: Upload Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results-${{ matrix.destination }}
@@ -175,7 +175,7 @@ jobs:
         python3 Scripts/check_performance_regression.py
         
     - name: Upload Performance Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: performance-results
         path: PerformanceResults.xcresult
@@ -213,7 +213,7 @@ jobs:
           -resultBundlePath UITestResults.xcresult
           
     - name: Upload UI Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: ui-test-results
@@ -288,7 +288,7 @@ jobs:
           --password "$APPLEID_PASSWORD"
           
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: build-artifacts
         path: |
