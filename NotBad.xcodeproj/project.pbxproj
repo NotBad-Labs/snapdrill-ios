@@ -6,6 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B29580232E6A78A300E2D95C /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = B29580222E6A789C00E2D95C /* .swiftlint.yml */; };
+		B2BE0C8B2E6A793F001369C3 /* UnitTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C8A2E6A793F001369C3 /* UnitTestPlan.xctestplan */; };
+		B2BE0C8D2E6A7967001369C3 /* IntegrationTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C8C2E6A7967001369C3 /* IntegrationTestPlan.xctestplan */; };
+		B2BE0C8F2E6A7973001369C3 /* PerformanceTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C8E2E6A7973001369C3 /* PerformanceTestPlan.xctestplan */; };
+		B2BE0C912E6A7981001369C3 /* UITestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C902E6A7981001369C3 /* UITestPlan.xctestplan */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B27BD9712E560D0800E69277 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +35,25 @@
 		B27BD95F2E560D0600E69277 /* NotBad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NotBad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27BD9702E560D0800E69277 /* NotBadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NotBadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27BD97A2E560D0800E69277 /* NotBadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NotBadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B29580092E6987A300E2D95C /* 架构决策记录模板 (ADR).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "架构决策记录模板 (ADR).md"; sourceTree = "<group>"; };
+		B295800B2E6987A300E2D95C /* NotBad App - 技术术语表 v1.1.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "NotBad App - 技术术语表 v1.1.md"; sourceTree = "<group>"; };
+		B295800C2E6987A300E2D95C /* NotBad App - 术语到代码索引 v1.0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "NotBad App - 术语到代码索引 v1.0.md"; sourceTree = "<group>"; };
+		B295800D2E6987A300E2D95C /* NotBad App - 业务术语表 v1.1.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "NotBad App - 业务术语表 v1.1.md"; sourceTree = "<group>"; };
+		B295800F2E6987A300E2D95C /* NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md"; sourceTree = "<group>"; };
+		B29580112E6987A300E2D95C /* NotBad App - 需求追踪矩阵 (RTM) v2.0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "NotBad App - 需求追踪矩阵 (RTM) v2.0.md"; sourceTree = "<group>"; };
+		B29580132E6987A300E2D95C /* NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md"; sourceTree = "<group>"; };
+		B29580152E6987A300E2D95C /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		B29580172E6A71E100E2D95C /* 项目结构.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "项目结构.md"; sourceTree = "<group>"; };
+		B29580212E6A72B000E2D95C /* 清单.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "清单.md"; sourceTree = "<group>"; };
+		B29580222E6A789C00E2D95C /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
+		B2BE0C8A2E6A793F001369C3 /* UnitTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UnitTestPlan.xctestplan; sourceTree = "<group>"; };
+		B2BE0C8C2E6A7967001369C3 /* IntegrationTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = IntegrationTestPlan.xctestplan; sourceTree = "<group>"; };
+		B2BE0C8E2E6A7973001369C3 /* PerformanceTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = PerformanceTestPlan.xctestplan; sourceTree = "<group>"; };
+		B2BE0C902E6A7981001369C3 /* UITestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UITestPlan.xctestplan; sourceTree = "<group>"; };
+		B2BE0C932E6A7CC7001369C3 /* check_coverage.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = check_coverage.py; sourceTree = "<group>"; };
+		B2BE0C942E6A7CE8001369C3 /* extract_performance_metrics.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = extract_performance_metrics.py; sourceTree = "<group>"; };
+		B2BE0C952E6A7D00001369C3 /* check_performance_regression.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = check_performance_regression.py; sourceTree = "<group>"; };
+		B2BE0C962E6A7D13001369C3 /* setup_ci.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = setup_ci.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -34,16 +61,28 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Sources/Domain/Protocols/ModuleProtocols.swift,
 			);
 			target = B27BD95E2E560D0600E69277 /* NotBad */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		B29580202E6A728A00E2D95C /* Exceptions for "NotBad" folder in "Copy Bundle Resources" phase from "NotBad" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = B27BD95D2E560D0600E69277 /* Resources */;
+			membershipExceptions = (
+				Sources/Domain/Protocols/ModuleProtocols.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B27BD9612E560D0700E69277 /* NotBad */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				B27BD9822E560D0800E69277 /* Exceptions for "NotBad" folder in "NotBad" target */,
+				B29580202E6A728A00E2D95C /* Exceptions for "NotBad" folder in "Copy Bundle Resources" phase from "NotBad" target */,
 			);
 			path = NotBad;
 			sourceTree = "<group>";
@@ -56,6 +95,11 @@
 		B27BD97D2E560D0800E69277 /* NotBadUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = NotBadUITests;
+			sourceTree = "<group>";
+		};
+		B2BE0C972E6A7D93001369C3 /* .github */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = .github;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -88,6 +132,14 @@
 		B27BD9562E560D0600E69277 = {
 			isa = PBXGroup;
 			children = (
+				B2BE0C972E6A7D93001369C3 /* .github */,
+				B2BE0C922E6A7CAE001369C3 /* Scripts */,
+				B2BE0C902E6A7981001369C3 /* UITestPlan.xctestplan */,
+				B2BE0C8E2E6A7973001369C3 /* PerformanceTestPlan.xctestplan */,
+				B2BE0C8C2E6A7967001369C3 /* IntegrationTestPlan.xctestplan */,
+				B29580222E6A789C00E2D95C /* .swiftlint.yml */,
+				B2BE0C8A2E6A793F001369C3 /* UnitTestPlan.xctestplan */,
+				B29580162E6987A300E2D95C /* docs */,
 				B27BD9612E560D0700E69277 /* NotBad */,
 				B27BD9732E560D0800E69277 /* NotBadTests */,
 				B27BD97D2E560D0800E69277 /* NotBadUITests */,
@@ -103,6 +155,74 @@
 				B27BD97A2E560D0800E69277 /* NotBadUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B295800A2E6987A300E2D95C /* ard */ = {
+			isa = PBXGroup;
+			children = (
+				B29580092E6987A300E2D95C /* 架构决策记录模板 (ADR).md */,
+			);
+			path = ard;
+			sourceTree = "<group>";
+		};
+		B295800E2E6987A300E2D95C /* glossary */ = {
+			isa = PBXGroup;
+			children = (
+				B295800B2E6987A300E2D95C /* NotBad App - 技术术语表 v1.1.md */,
+				B295800C2E6987A300E2D95C /* NotBad App - 术语到代码索引 v1.0.md */,
+				B295800D2E6987A300E2D95C /* NotBad App - 业务术语表 v1.1.md */,
+			);
+			path = glossary;
+			sourceTree = "<group>";
+		};
+		B29580102E6987A300E2D95C /* prd */ = {
+			isa = PBXGroup;
+			children = (
+				B295800F2E6987A300E2D95C /* NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md */,
+			);
+			path = prd;
+			sourceTree = "<group>";
+		};
+		B29580122E6987A300E2D95C /* rtm */ = {
+			isa = PBXGroup;
+			children = (
+				B29580112E6987A300E2D95C /* NotBad App - 需求追踪矩阵 (RTM) v2.0.md */,
+			);
+			path = rtm;
+			sourceTree = "<group>";
+		};
+		B29580142E6987A300E2D95C /* tdd */ = {
+			isa = PBXGroup;
+			children = (
+				B29580132E6987A300E2D95C /* NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md */,
+			);
+			path = tdd;
+			sourceTree = "<group>";
+		};
+		B29580162E6987A300E2D95C /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				B29580212E6A72B000E2D95C /* 清单.md */,
+				B29580172E6A71E100E2D95C /* 项目结构.md */,
+				B295800A2E6987A300E2D95C /* ard */,
+				B295800E2E6987A300E2D95C /* glossary */,
+				B29580102E6987A300E2D95C /* prd */,
+				B29580122E6987A300E2D95C /* rtm */,
+				B29580142E6987A300E2D95C /* tdd */,
+				B29580152E6987A300E2D95C /* README */,
+			);
+			path = docs;
+			sourceTree = "<group>";
+		};
+		B2BE0C922E6A7CAE001369C3 /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				B2BE0C962E6A7D13001369C3 /* setup_ci.sh */,
+				B2BE0C952E6A7D00001369C3 /* check_performance_regression.py */,
+				B2BE0C942E6A7CE8001369C3 /* extract_performance_metrics.py */,
+				B2BE0C932E6A7CC7001369C3 /* check_coverage.py */,
+			);
+			path = Scripts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -122,6 +242,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				B27BD9612E560D0700E69277 /* NotBad */,
+				B2BE0C972E6A7D93001369C3 /* .github */,
 			);
 			name = NotBad;
 			packageProductDependencies = (
@@ -225,6 +346,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2BE0C8F2E6A7973001369C3 /* PerformanceTestPlan.xctestplan in Resources */,
+				B29580232E6A78A300E2D95C /* .swiftlint.yml in Resources */,
+				B2BE0C912E6A7981001369C3 /* UITestPlan.xctestplan in Resources */,
+				B2BE0C8B2E6A793F001369C3 /* UnitTestPlan.xctestplan in Resources */,
+				B2BE0C8D2E6A7967001369C3 /* IntegrationTestPlan.xctestplan in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
