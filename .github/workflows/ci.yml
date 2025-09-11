@@ -1,9 +1,9 @@
 #
-//  ci.yml
-//  NotBad
-//
-//  Created by YIMING LIAO on 2025/9/5.
-//
+#  ci.yml
+#  NotBad
+#
+#  Created by YIMING LIAO on 2025/9/5.
+#
 # .github/workflows/ci.yml
 name: NotBad CI/CD Pipeline
 
