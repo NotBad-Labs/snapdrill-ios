@@ -12,7 +12,13 @@
     "testTimeoutsEnabled" : true
   },
   "testTargets" : [
-
+    {
+      "target" : {
+        "containerPath" : "container:NotBad.xcodeproj",
+        "identifier" : "B27BD9792E560D0800E69277",
+        "name" : "NotBadUITests"
+      }
+    }
   ],
   "version" : 1
 }
