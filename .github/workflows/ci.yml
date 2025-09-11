@@ -249,4 +249,4 @@ jobs:
           channel: '#notbad-dev'
           webhook_url: ${{ secrets.SLACK_WEBHOOK }}
           fields: repo,message,commit,author,action,eventName,ref,workflow
-        security default-keychain -s build.keychain
+        
