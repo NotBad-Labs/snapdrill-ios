@@ -12,6 +12,7 @@
 		B2BE0C8D2E6A7967001369C3 /* IntegrationTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C8C2E6A7967001369C3 /* IntegrationTestPlan.xctestplan */; };
 		B2BE0C8F2E6A7973001369C3 /* PerformanceTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C8E2E6A7973001369C3 /* PerformanceTestPlan.xctestplan */; };
 		B2BE0C912E6A7981001369C3 /* UITestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C902E6A7981001369C3 /* UITestPlan.xctestplan */; };
+		B2BE0C9D2E727CD0001369C3 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C9C2E727CC6001369C3 /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,7 @@
 		B2BE0C942E6A7CE8001369C3 /* extract_performance_metrics.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = extract_performance_metrics.py; sourceTree = "<group>"; };
 		B2BE0C952E6A7D00001369C3 /* check_performance_regression.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = check_performance_regression.py; sourceTree = "<group>"; };
 		B2BE0C962E6A7D13001369C3 /* setup_ci.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = setup_ci.sh; sourceTree = "<group>"; };
+		B2BE0C9C2E727CC6001369C3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -132,6 +134,7 @@
 		B27BD9562E560D0600E69277 = {
 			isa = PBXGroup;
 			children = (
+				B2BE0C9C2E727CC6001369C3 /* .gitignore */,
 				B2BE0C972E6A7D93001369C3 /* .github */,
 				B2BE0C922E6A7CAE001369C3 /* Scripts */,
 				B2BE0C902E6A7981001369C3 /* UITestPlan.xctestplan */,
@@ -351,6 +354,7 @@
 				B2BE0C912E6A7981001369C3 /* UITestPlan.xctestplan in Resources */,
 				B2BE0C8B2E6A793F001369C3 /* UnitTestPlan.xctestplan in Resources */,
 				B2BE0C8D2E6A7967001369C3 /* IntegrationTestPlan.xctestplan in Resources */,
+				B2BE0C9D2E727CD0001369C3 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
