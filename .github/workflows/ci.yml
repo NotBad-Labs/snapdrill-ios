@@ -80,7 +80,7 @@ jobs:
         xcode-version: '15.0'
         
     - name: Cache Dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/Library/Developer/Xcode/DerivedData
@@ -88,6 +88,10 @@ jobs:
         key: ${{ runner.os }}-xcode-${{ hashFiles('**/*.xcodeproj', '**/*.swift') }}
         restore-keys: |
           ${{ runner.os }}-xcode-
+          
+    - name: Resolve Package Dependencies
+      run: |
+        xcodebuild -resolvePackageDependencies -project ${{ env.PROJECT_NAME }} -scheme ${{ env.SCHEME_NAME }}
           
     - name: Build Project
       run: |
