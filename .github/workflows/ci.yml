@@ -50,8 +50,8 @@ jobs:
     strategy:
       matrix:
         destination:
-          - 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest'
-          - 'platform=iOS Simulator,name=iPad Pro (13-inch),OS=latest'
+          - 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest'
+          - 'platform=iOS Simulator,name=iPad Pro (12.9-inch) (6th generation),OS=latest'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -128,7 +128,7 @@ jobs:
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' \
             -testPlan PerformanceTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath PerformanceResults.xcresult
@@ -156,13 +156,13 @@ jobs:
         with:
           xcode-version: '16.2'
       - name: Boot Simulator
-        run: xcrun simctl boot "iPhone 16 Pro" || true
+        run: xcrun simctl boot "iPhone 15 Pro" || true
       - name: Run UI Tests
         run: |
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
-              -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+              -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest' \
             -testPlan UITestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath UITestResults.xcresult
