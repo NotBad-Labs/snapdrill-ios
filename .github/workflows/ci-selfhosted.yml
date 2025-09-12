@@ -187,8 +187,50 @@ jobs:
       # 验证模拟器
       - name: Verify Simulators
         run: |
+          echo "目标设备: ${{ matrix.destination }}"
           echo "可用模拟器列表:"
           xcrun simctl list devices available | grep -E "(iPhone 16 Pro|iPad.*10th generation)"
+          
+          # 检查目标设备是否可用
+          if xcrun simctl list devices available | grep -q "iPhone 16 Pro"; then
+            echo "✅ iPhone 16 Pro 模拟器可用"
+          else
+            echo "❌ iPhone 16 Pro 模拟器不可用"
+          fi
+          
+          if xcrun simctl list devices available | grep -q "iPad.*10th generation"; then
+            echo "✅ iPad (10th generation) 模拟器可用"
+          else
+            echo "❌ iPad (10th generation) 模拟器不可用"
+          fi
+          
+          # 列出所有可用的iPad模拟器
+          echo "所有可用的iPad模拟器:"
+          xcrun simctl list devices available | grep "iPad"
+      
+      - name: Boot Target Simulator
+        run: |
+          echo "启动目标模拟器: ${{ matrix.destination }}"
+          
+          # 提取设备名称
+          if [[ "${{ matrix.destination }}" == *"iPhone 16 Pro"* ]]; then
+            device_name="iPhone 16 Pro"
+          elif [[ "${{ matrix.destination }}" == *"iPad"* ]]; then
+            device_name="iPad (10th generation)"
+          else
+            echo "未知设备类型"
+            exit 1
+          fi
+          
+          echo "启动模拟器: $device_name"
+          xcrun simctl boot "$device_name" || echo "模拟器可能已经在运行"
+          
+          # 等待模拟器完全启动
+          sleep 10
+          
+          # 检查模拟器状态
+          echo "模拟器状态:"
+          xcrun simctl list devices | grep "$device_name"
       
       - name: Check Project Configuration
         run: |
