@@ -114,26 +114,39 @@ jobs:
           else
             echo "⚠️ 群晖存储未挂载，尝试挂载..."
             
-            # 创建挂载点
-            echo "$SMB_PASSWORD" | sudo -S mkdir -p "$MOUNT_POINT"
-            
             # 使用环境变量中的群晖配置
             echo "群晖配置:"
             echo "  SMB_HOST: ${SMB_HOST:-192.168.1.211}"
             echo "  SHARE_NAME: ${SHARE_NAME:-runner_data}"
             echo "  SMB_USER: ${SMB_USER:-chbearxiong}"
+            echo "  SMB_PASSWORD: ${SMB_PASSWORD:+已设置}${SMB_PASSWORD:-未设置}"
+            echo "  密码长度: ${#SMB_PASSWORD}"
             
             echo "尝试挂载 //${SMB_HOST}/${SHARE_NAME} 到 $MOUNT_POINT"
             echo "注意: 如果挂载失败，请检查网络连接和群晖设置"
             
+            # 检查密码是否设置
+            if [ -z "${SMB_PASSWORD:-}" ]; then
+              echo "⚠️ 未设置 SMB_PASSWORD，跳过自动挂载"
+              echo "请在 GitHub Secrets 中设置 SMB_PASSWORD"
+              exit 1
+            fi
+            
+            # 创建挂载点
+            echo "创建挂载点..."
+            printf '%s\n' "$SMB_PASSWORD" | sudo -S mkdir -p "$MOUNT_POINT"
+            
             # 尝试挂载
-            if [ -n "${SMB_PASSWORD:-}" ]; then
-              echo "$SMB_PASSWORD" | sudo -S mount_smbfs //${SMB_USER}@${SMB_HOST}/${SHARE_NAME} "$MOUNT_POINT"
+            echo "正在挂载群晖存储..."
+            if printf '%s\n' "$SMB_PASSWORD" | sudo -S mount_smbfs //${SMB_USER}@${SMB_HOST}/${SHARE_NAME} "$MOUNT_POINT"; then
               echo "✅ 群晖存储挂载成功"
             else
-              echo "⚠️ 未设置 SMB_PASSWORD，跳过自动挂载"
-              echo "请在 Mac mini 上手动运行挂载脚本"
-              echo "脚本位置: ./Scripts/runner_mount_smb.sh"
+              echo "❌ 群晖存储挂载失败"
+              echo "请检查:"
+              echo "1. 群晖SMB服务是否启用"
+              echo "2. 用户权限设置"
+              echo "3. 网络连接"
+              echo "4. GitHub Secrets中的密码是否正确"
               exit 1
             fi
           fi
