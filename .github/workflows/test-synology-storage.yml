@@ -109,11 +109,11 @@ jobs:
           fi
           
           # 创建挂载点
-          sudo mkdir -p "$MOUNT_POINT"
+          echo "$SMB_PASSWORD" | sudo -S mkdir -p "$MOUNT_POINT"
           
           # 尝试挂载
           echo "正在挂载群晖存储..."
-          if echo "$SMB_PASSWORD" | sudo mount_smbfs //"$SMB_USER"@"$SMB_HOST"/"$SHARE_NAME" "$MOUNT_POINT" 2>/dev/null; then
+          if echo "$SMB_PASSWORD" | sudo -S mount_smbfs //"$SMB_USER"@"$SMB_HOST"/"$SHARE_NAME" "$MOUNT_POINT" 2>/dev/null; then
             echo "✅ 挂载成功"
             
             # 显示挂载信息
@@ -284,7 +284,7 @@ jobs:
           # 卸载挂载点
           if mount | grep -q "$MOUNT_POINT"; then
             echo "卸载群晖存储..."
-            sudo umount "$MOUNT_POINT" 2>/dev/null || true
+            echo "$SMB_PASSWORD" | sudo -S umount "$MOUNT_POINT" 2>/dev/null || true
             echo "✅ 卸载完成"
           fi
       

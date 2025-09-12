@@ -94,10 +94,10 @@ test_mount() {
     fi
     
     # 创建挂载点
-    sudo mkdir -p "$mount_point"
+    echo "$SMB_PASSWORD" | sudo -S mkdir -p "$mount_point"
     
     # 尝试挂载
-    if echo "$SMB_PASSWORD" | sudo mount_smbfs //"$smb_user"@"$smb_host"/"$share_name" "$mount_point" 2>/dev/null; then
+    if echo "$SMB_PASSWORD" | sudo -S mount_smbfs //"$smb_user"@"$smb_host"/"$share_name" "$mount_point" 2>/dev/null; then
         log_success "挂载成功"
         return 0
     else
@@ -187,7 +187,7 @@ cleanup() {
     
     # 卸载挂载点
     if mount | grep -q "$mount_point"; then
-        sudo umount "$mount_point" 2>/dev/null || true
+        echo "$SMB_PASSWORD" | sudo -S umount "$mount_point" 2>/dev/null || true
         log_info "已卸载: $mount_point"
     fi
     

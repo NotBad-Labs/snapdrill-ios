@@ -115,7 +115,7 @@ jobs:
             echo "⚠️ 群晖存储未挂载，尝试挂载..."
             
             # 创建挂载点
-            sudo mkdir -p "$MOUNT_POINT"
+            echo "$SMB_PASSWORD" | sudo -S mkdir -p "$MOUNT_POINT"
             
             # 使用环境变量中的群晖配置
             echo "群晖配置:"
@@ -126,9 +126,9 @@ jobs:
             echo "尝试挂载 //${SMB_HOST}/${SHARE_NAME} 到 $MOUNT_POINT"
             echo "注意: 如果挂载失败，请检查网络连接和群晖设置"
             
-            # 尝试挂载（这里可能需要密码，所以先跳过实际挂载）
+            # 尝试挂载
             if [ -n "${SMB_PASSWORD:-}" ]; then
-              echo "$SMB_PASSWORD" | sudo mount_smbfs //${SMB_USER}@${SMB_HOST}/${SHARE_NAME} "$MOUNT_POINT"
+              echo "$SMB_PASSWORD" | sudo -S mount_smbfs //${SMB_USER}@${SMB_HOST}/${SHARE_NAME} "$MOUNT_POINT"
               echo "✅ 群晖存储挂载成功"
             else
               echo "⚠️ 未设置 SMB_PASSWORD，跳过自动挂载"
