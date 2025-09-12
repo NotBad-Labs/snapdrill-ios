@@ -218,7 +218,7 @@ jobs:
           xcodebuild build \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination '${{ matrix.destination }}' \
+            -destination "${{ matrix.destination }}" \
             CODE_SIGNING_ALLOWED=NO \
             -verbose
       
@@ -227,39 +227,41 @@ jobs:
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination '${{ matrix.destination }}' \
+            -destination "${{ matrix.destination }}" \
             -testPlan UnitTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -enableCodeCoverage YES \
-            -resultBundlePath ${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult
+            -resultBundlePath "${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult"
       
       - name: Run Integration Tests
         run: |
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination '${{ matrix.destination }}' \
+            -destination "${{ matrix.destination }}" \
             -testPlan IntegrationTestPlan \
             CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath ${{ env.ARTIFACTS_DIR }}/IntegrationResults-${{ matrix.destination }}.xcresult
+            -resultBundlePath "${{ env.ARTIFACTS_DIR }}/IntegrationResults-${{ matrix.destination }}.xcresult"
       
       - name: Generate Code Coverage Report
         run: |
-          xcrun xccov view --report --json ${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult > ${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json
+          xcrun xccov view --report --json "${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult" > "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json"
       
       - name: Check Code Coverage Threshold
         if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
-        run: python3 Scripts/check_coverage.py ${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json 80
+        run: python3 Scripts/check_coverage.py "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json" 80
       
       # 上传测试结果到群晖存储（作为备份）
       - name: Archive Test Results to NAS
         run: |
           timestamp=$(date +%Y%m%d_%H%M%S)
-          mkdir -p ${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/${{ matrix.destination }}
-          cp -r ${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult ${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/${{ matrix.destination }}/
-          cp -r ${{ env.ARTIFACTS_DIR }}/IntegrationResults-${{ matrix.destination }}.xcresult ${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/${{ matrix.destination }}/
-          cp ${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json ${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/${{ matrix.destination }}/
-          echo "测试结果已保存到: ${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/${{ matrix.destination }}"
+          # 创建安全的目录名（替换特殊字符）
+          safe_destination=$(echo "${{ matrix.destination }}" | sed 's/[^a-zA-Z0-9._-]/_/g')
+          mkdir -p "${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_destination"
+          cp -r "${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult" "${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_destination/"
+          cp -r "${{ env.ARTIFACTS_DIR }}/IntegrationResults-${{ matrix.destination }}.xcresult" "${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_destination/"
+          cp "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json" "${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_destination/"
+          echo "测试结果已保存到: ${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_destination"
 
   # 性能测试 - 仅在PR或手动触发时运行
   performance-test:
