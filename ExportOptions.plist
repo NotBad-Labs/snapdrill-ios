@@ -4,15 +4,19 @@
 <dict>
     <key>method</key>
     <string>app-store</string>
+    <key>teamID</key>
+    <string>${TEAM_ID}</string>
+    <key>uploadBitcode</key>
+    <false/>
+    <key>uploadSymbols</key>
+    <true/>
+    <key>compileBitcode</key>
+    <false/>
+    <key>destination</key>
+    <string>upload</string>
     <key>signingStyle</key>
     <string>automatic</string>
     <key>stripSwiftSymbols</key>
-    <true/>
-    <key>teamID</key>
-    <string>W5A8THDKW8</string>
-    <key>uploadBitcode</key>
-    <true/>
-    <key>uploadSymbols</key>
     <true/>
 </dict>
 </plist>
