@@ -121,6 +121,11 @@ jobs:
             echo "  SMB_USER: ${SMB_USER:-chbearxiong}"
             echo "  SMB_PASSWORD: ${SMB_PASSWORD:+已设置}${SMB_PASSWORD:-未设置}"
             echo "  密码长度: ${#SMB_PASSWORD}"
+            echo "  期望长度: 11 (Bearsweet1e)"
+            if [ "${#SMB_PASSWORD}" -ne 11 ]; then
+              echo "  ⚠️ 密码长度不正确！可能包含多余字符"
+              echo "  密码内容（十六进制）: $(printf '%s' "$SMB_PASSWORD" | xxd -p)"
+            fi
             
             echo "尝试挂载 //${SMB_HOST}/${SHARE_NAME} 到 $MOUNT_POINT"
             echo "注意: 如果挂载失败，请检查网络连接和群晖设置"
