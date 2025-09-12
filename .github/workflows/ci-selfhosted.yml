@@ -158,6 +158,20 @@ jobs:
             echo "正在挂载群晖存储..."
             if printf '%s\n' "$SMB_PASSWORD" | sudo -S mount_smbfs //${SMB_USER}@${ACTUAL_HOST}/${SHARE_NAME} "$MOUNT_POINT"; then
               echo "✅ 群晖存储挂载成功"
+              
+              # 设置权限，确保可以写入
+              echo "设置群晖存储权限..."
+              sudo chown -R $(whoami):staff "$MOUNT_POINT" 2>/dev/null || true
+              chmod -R 755 "$MOUNT_POINT" 2>/dev/null || true
+              
+              # 创建必要的目录
+              mkdir -p "$MOUNT_POINT/artifacts"
+              mkdir -p "$MOUNT_POINT/test-results"
+              mkdir -p "$MOUNT_POINT/performance-results"
+              mkdir -p "$MOUNT_POINT/ui-test-results"
+              mkdir -p "$MOUNT_POINT/build-artifacts"
+              
+              echo "✅ 群晖存储权限设置完成"
             else
               echo "❌ 群晖存储挂载失败"
               echo "请检查:"
@@ -224,6 +238,10 @@ jobs:
       
       - name: Run Unit Tests
         run: |
+          # 使用本地临时目录避免权限问题
+          local_result_path="./TestResults-$(date +%s).xcresult"
+          echo "使用本地结果路径: $local_result_path"
+          
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
@@ -231,17 +249,31 @@ jobs:
             -testPlan UnitTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -enableCodeCoverage YES \
-            -resultBundlePath "${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult"
+            -resultBundlePath "$local_result_path"
+          
+          # 复制到群晖存储
+          echo "复制测试结果到群晖存储..."
+          cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult"
+          echo "✅ 测试结果已保存到群晖存储"
       
       - name: Run Integration Tests
         run: |
+          # 使用本地临时目录避免权限问题
+          local_result_path="./IntegrationResults-$(date +%s).xcresult"
+          echo "使用本地结果路径: $local_result_path"
+          
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
             -destination "${{ matrix.destination }}" \
             -testPlan IntegrationTestPlan \
             CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath "${{ env.ARTIFACTS_DIR }}/IntegrationResults-${{ matrix.destination }}.xcresult"
+            -resultBundlePath "$local_result_path"
+          
+          # 复制到群晖存储
+          echo "复制集成测试结果到群晖存储..."
+          cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/IntegrationResults-${{ matrix.destination }}.xcresult"
+          echo "✅ 集成测试结果已保存到群晖存储"
       
       - name: Generate Code Coverage Report
         run: |
