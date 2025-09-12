@@ -176,16 +176,51 @@ jobs:
           echo "可用模拟器列表:"
           xcrun simctl list devices available | grep -E "(iPhone 16 Pro|iPad.*10th generation)"
       
+      - name: Check Project Configuration
+        run: |
+          echo "检查项目配置..."
+          echo "工作空间路径: ${{ env.WORKSPACE_PATH }}"
+          echo "方案名称: ${{ env.SCHEME_NAME }}"
+          
+          # 检查工作空间是否存在
+          if [ ! -d "${{ env.WORKSPACE_PATH }}" ]; then
+            echo "❌ 工作空间不存在: ${{ env.WORKSPACE_PATH }}"
+            exit 1
+          fi
+          
+          # 列出可用的方案
+          echo "可用方案:"
+          xcodebuild -list -workspace ${{ env.WORKSPACE_PATH }}
+          
+          # 检查目标设备
+          echo "目标设备: ${{ matrix.destination }}"
+          xcrun simctl list devices available | grep -E "(iPhone 16 Pro|iPad.*10th generation)"
+      
       - name: Resolve Package Dependencies
         run: xcodebuild -resolvePackageDependencies -workspace ${{ env.WORKSPACE_PATH }} -scheme ${{ env.SCHEME_NAME }}
       
       - name: Build (for testing)
         run: |
-          xcodebuild clean build \
+          echo "开始构建项目..."
+          echo "工作空间: ${{ env.WORKSPACE_PATH }}"
+          echo "方案: ${{ env.SCHEME_NAME }}"
+          echo "目标设备: ${{ matrix.destination }}"
+          
+          # 清理构建
+          echo "清理项目..."
+          xcodebuild clean \
+            -workspace ${{ env.WORKSPACE_PATH }} \
+            -scheme ${{ env.SCHEME_NAME }} \
+            CODE_SIGNING_ALLOWED=NO
+          
+          # 构建项目
+          echo "构建项目..."
+          xcodebuild build \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
             -destination '${{ matrix.destination }}' \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            -verbose
       
       - name: Run Unit Tests
         run: |
