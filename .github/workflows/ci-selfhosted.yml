@@ -114,12 +114,13 @@ jobs:
     strategy:
       matrix:
         destination:
+          # iPhone 15 及以后的设备
           - 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6'
           - 'platform=iOS Simulator,name=iPhone 15 Pro,OS=18.6'
-          - 'platform=iOS Simulator,name=iPhone 14,OS=18.6'
-          # iPad 测试（如果可用）
-          - 'platform=iOS Simulator,name=iPad (10th generation),OS=18.6'
-          - 'platform=iOS Simulator,name=iPad Air (5th generation),OS=18.6'
+          - 'platform=iOS Simulator,name=iPhone 15,OS=18.6'
+          # iPad Pro 系列
+          - 'platform=iOS Simulator,name=iPad Pro 11-inch (M4),OS=18.6'
+          - 'platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=18.6'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -220,12 +221,12 @@ jobs:
           echo "📱 所有可用模拟器列表:"
           xcrun simctl list devices available | grep -E "(iPhone|iPad)"
           
-          # 检查所有支持的设备类型
+          # 检查所有支持的现代设备类型
           echo ""
-          echo "🔍 检查支持的设备类型:"
+          echo "🔍 检查支持的现代设备类型:"
           
-          # iPhone 设备检查
-          for device in "iPhone 16 Pro" "iPhone 15 Pro" "iPhone 14"; do
+          # iPhone 15 及以后的设备检查
+          for device in "iPhone 16 Pro" "iPhone 15 Pro" "iPhone 15"; do
             if xcrun simctl list devices available | grep -q "$device"; then
               echo "✅ $device 模拟器可用"
             else
@@ -233,8 +234,8 @@ jobs:
             fi
           done
           
-          # iPad 设备检查
-          for device in "iPad (10th generation)" "iPad Air (5th generation)"; do
+          # iPad Pro 系列设备检查
+          for device in "iPad Pro 11-inch (M4)" "iPad Pro 13-inch (M4)"; do
             if xcrun simctl list devices available | grep -q "$device"; then
               echo "✅ $device 模拟器可用"
             else
@@ -251,17 +252,17 @@ jobs:
         run: |
           echo "启动目标模拟器: ${{ matrix.destination }}"
           
-          # 提取设备名称 - 支持所有设备类型
+          # 提取设备名称 - 支持现代设备类型
           if [[ "${{ matrix.destination }}" == *"iPhone 16 Pro"* ]]; then
             device_name="iPhone 16 Pro"
           elif [[ "${{ matrix.destination }}" == *"iPhone 15 Pro"* ]]; then
             device_name="iPhone 15 Pro"
-          elif [[ "${{ matrix.destination }}" == *"iPhone 14"* ]]; then
-            device_name="iPhone 14"
-          elif [[ "${{ matrix.destination }}" == *"iPad (10th generation)"* ]]; then
-            device_name="iPad (10th generation)"
-          elif [[ "${{ matrix.destination }}" == *"iPad Air (5th generation)"* ]]; then
-            device_name="iPad Air (5th generation)"
+          elif [[ "${{ matrix.destination }}" == *"iPhone 15"* ]]; then
+            device_name="iPhone 15"
+          elif [[ "${{ matrix.destination }}" == *"iPad Pro 11-inch (M4)"* ]]; then
+            device_name="iPad Pro 11-inch (M4)"
+          elif [[ "${{ matrix.destination }}" == *"iPad Pro 13-inch (M4)"* ]]; then
+            device_name="iPad Pro 13-inch (M4)"
           else
             echo "❌ 未知设备类型: ${{ matrix.destination }}"
             echo "可用设备列表:"
