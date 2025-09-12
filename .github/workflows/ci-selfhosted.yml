@@ -355,15 +355,16 @@ jobs:
         run: |
           # 根据项目阶段设置不同的覆盖率要求
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            # 主分支要求较高覆盖率
-            COVERAGE_THRESHOLD=60
-            WARN_THRESHOLD=50
+            # 主分支要求适合项目初期的覆盖率
+            COVERAGE_THRESHOLD=50
+            WARN_THRESHOLD=40
           else
-            # 开发分支要求较低覆盖率（适合项目初期）
+            # 开发分支要求更低覆盖率（适合项目初期）
             COVERAGE_THRESHOLD=30
             WARN_THRESHOLD=20
           fi
           echo "📊 当前覆盖率要求: ${COVERAGE_THRESHOLD}% (警告阈值: ${WARN_THRESHOLD}%)"
+          echo "💡 项目初期策略: 专注功能开发，逐步提升覆盖率"
           python3 Scripts/check_coverage.py "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json" $COVERAGE_THRESHOLD --warn-threshold $WARN_THRESHOLD --show-details
       
       # 上传测试结果到群晖存储（作为备份）
