@@ -119,9 +119,9 @@ jobs:
             
             # 使用环境变量中的群晖配置
             echo "群晖配置:"
-            echo "  SMB_HOST: ${SMB_HOST:-未设置}"
-            echo "  SHARE_NAME: ${SHARE_NAME:-未设置}"
-            echo "  SMB_USER: ${SMB_USER:-未设置}"
+            echo "  SMB_HOST: ${SMB_HOST:-192.168.1.211}"
+            echo "  SHARE_NAME: ${SHARE_NAME:-runner_data}"
+            echo "  SMB_USER: ${SMB_USER:-chbearxiong}"
             
             echo "尝试挂载 //${SMB_HOST}/${SHARE_NAME} 到 $MOUNT_POINT"
             echo "注意: 如果挂载失败，请检查网络连接和群晖设置"
