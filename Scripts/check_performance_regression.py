@@ -1,9 +1,8 @@
+# check_performance_regression.py
+# NotBad
 #
-//  check_performance_regression.py
-//  NotBad
-//
-//  Created by YIMING LIAO on 2025/9/5.
-//
+# Created by YIMING LIAO on 2025/9/5.
+#
 #!/usr/bin/env python3
 # Scripts/check_performance_regression.py
 """检查性能回退"""

@@ -1,9 +1,8 @@
+# check_coverage.py
+# NotBad
 #
-//  check_coverage.py
-//  NotBad
-//
-//  Created by YIMING LIAO on 2025/9/5.
-//
+# Created by YIMING LIAO on 2025/9/5.
+#
 #!/usr/bin/env python3
 # Scripts/check_coverage.py
 """检查代码覆盖率是否达到阈值"""

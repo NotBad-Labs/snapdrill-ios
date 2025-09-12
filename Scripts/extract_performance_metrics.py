@@ -1,9 +1,8 @@
+# extract_performance_metrics.py
+# NotBad
 #
-//  extract_performance_metrics.py
-//  NotBad
-//
-//  Created by YIMING LIAO on 2025/9/5.
-//
+# Created by YIMING LIAO on 2025/9/5.
+#
 #!/usr/bin/env python3
 # Scripts/extract_performance_metrics.py
 """提取性能测试指标"""
@@ -19,6 +18,7 @@ def extract_performance_metrics(xcresult_path):
         # 使用xcresulttool提取测试结果
         cmd = [
             'xcrun', 'xcresulttool', 'get',
+            'object', '--legacy',
             '--format', 'json',
             '--path', xcresult_path
         ]

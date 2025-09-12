@@ -1,8 +1,46 @@
-//
-//  .gitignore
-//  NotBad
-//
-//  Created by YIMING LIAO on 2025/9/11.
-//
+# Xcode
+*.xcuserdata
+*.xcuserdatad/
+UserInterfaceState.xcuserstate
+xcuserdata/
+DerivedData/
+*.hmap
+*.ipa
+*.xcworkspace
+.DS_Store
 
-*.xcuserstate
+# Test Results
+TestResults.xcresult/
+test_results/
+coverage.lcov
+
+# Performance files (temporary)
+performance_metrics.json
+performance_baseline.json
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Swift Package Manager
+.swiftpm/
+Packages/
+Package.resolved
+
+# CocoaPods
+Pods/
+*.podspec
+
+# Build products
+build/
+*.build
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
