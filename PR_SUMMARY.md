@@ -91,6 +91,27 @@
 2. **创建Feature分支**: 基于此基础开发具体功能  
 3. **迭代开发**: 小步快跑，频繁集成
 
+## 🧰 自托管 macOS Runner 切换指南（关键节点）
+
+本分支作为“是否采用自托管”的成本决策节点，已收紧触发策略，仅对 `push main` 与 `PR -> main` 自动触发，保留手动触发。
+
+### 1) 自托管 runs-on 示例
+```yaml
+runs-on: [self-hosted, macos, xcode-16-4]
+```
+
+### 2) 工作流改动要点
+- 去除（或仅校验）`setup-xcode`，自托管机上预装 Xcode 16.4 与 iOS 18.6。
+- 目的地固定：`-destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6'`
+- 继续使用缓存（SPM/DerivedData）。
+
+### 3) 切换步骤
+1. 在仓库/组织 Settings → Actions → Runners 注册 macOS runner，并添加标签：`self-hosted`, `macos`, `xcode-16-4`, `ios-18-6`。
+2. 在 `ci.yml` 中将目标 jobs 的 `runs-on` 从 `macos-15` 替换为上述标签。
+3. 保留当前托管通道作为 fallback（可通过矩阵或条件切换）。
+
+详细搭建清单见：`docs/ci-cd/self-hosted-macos-runner.md`。
+
 ## 🔗 相关链接
 - [PRD v4.0](docs/prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)
 - [TDD v4.0](docs/tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md)
