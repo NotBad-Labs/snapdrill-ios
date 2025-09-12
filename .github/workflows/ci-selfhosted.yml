@@ -45,6 +45,8 @@ env:
   SHARE_NAME: ${{ secrets.SHARE_NAME }}
   SMB_USER: ${{ secrets.SMB_USER }}
   SMB_PASSWORD: ${{ secrets.SMB_PASSWORD }}
+  # 群晖设备名（用于mDNS解析）
+  SYNOLOGY_HOSTNAME: DS1821
 
 jobs:
   # 代码质量检查 - 使用GitHub托管运行器（快速）
@@ -117,6 +119,7 @@ jobs:
             # 使用环境变量中的群晖配置
             echo "群晖配置:"
             echo "  SMB_HOST: ${SMB_HOST:-192.168.1.211}"
+            echo "  SYNOLOGY_HOSTNAME: ${SYNOLOGY_HOSTNAME:-DS1821}"
             echo "  SHARE_NAME: ${SHARE_NAME:-runner_data}"
             echo "  SMB_USER: ${SMB_USER:-chbearxiong}"
             echo "  SMB_PASSWORD: ${SMB_PASSWORD:+已设置}${SMB_PASSWORD:-未设置}"
@@ -127,7 +130,17 @@ jobs:
               echo "  密码内容（十六进制）: $(printf '%s' "$SMB_PASSWORD" | xxd -p)"
             fi
             
-            echo "尝试挂载 //${SMB_HOST}/${SHARE_NAME} 到 $MOUNT_POINT"
+            # 尝试解析群晖设备名
+            echo "尝试解析群晖设备名: ${SYNOLOGY_HOSTNAME}"
+            if nslookup "${SYNOLOGY_HOSTNAME}.local" > /dev/null 2>&1; then
+              echo "✅ 群晖设备名解析成功"
+              ACTUAL_HOST="${SYNOLOGY_HOSTNAME}.local"
+            else
+              echo "⚠️ 群晖设备名解析失败，使用IP地址: ${SMB_HOST}"
+              ACTUAL_HOST="${SMB_HOST}"
+            fi
+            
+            echo "尝试挂载 //${ACTUAL_HOST}/${SHARE_NAME} 到 $MOUNT_POINT"
             echo "注意: 如果挂载失败，请检查网络连接和群晖设置"
             
             # 检查密码是否设置
@@ -143,7 +156,7 @@ jobs:
             
             # 尝试挂载
             echo "正在挂载群晖存储..."
-            if printf '%s\n' "$SMB_PASSWORD" | sudo -S mount_smbfs //${SMB_USER}@${SMB_HOST}/${SHARE_NAME} "$MOUNT_POINT"; then
+            if printf '%s\n' "$SMB_PASSWORD" | sudo -S mount_smbfs //${SMB_USER}@${ACTUAL_HOST}/${SHARE_NAME} "$MOUNT_POINT"; then
               echo "✅ 群晖存储挂载成功"
             else
               echo "❌ 群晖存储挂载失败"

@@ -25,6 +25,7 @@ env:
   SHARE_NAME: ${{ secrets.SHARE_NAME }}
   SMB_USER: ${{ secrets.SMB_USER }}
   SMB_PASSWORD: ${{ secrets.SMB_PASSWORD }}
+  SYNOLOGY_HOSTNAME: DS1821
   MOUNT_POINT: /Volumes/runner_data
 
 jobs:
