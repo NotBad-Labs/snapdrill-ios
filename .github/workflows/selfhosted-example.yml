@@ -1,0 +1,50 @@
+name: Self-hosted iOS CI (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  selfhosted-test:
+    name: Build & Unit Tests on self-hosted
+    runs-on: [self-hosted, macos, xcode-16-4]
+    timeout-minutes: 30
+    env:
+      SCHEME_NAME: NotBad
+      WORKSPACE_PATH: NotBad.xcodeproj/project.xcworkspace
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 可改为仅校验 Xcode 版本
+      - name: Print Xcode version
+        run: xcodebuild -version
+
+      - name: List Simulators
+        run: xcrun simctl list devices | sed -n '1,80p'
+
+      - name: Build (for testing)
+        run: |
+          xcodebuild clean build \
+            -workspace ${{ env.WORKSPACE_PATH }} \
+            -scheme ${{ env.SCHEME_NAME }} \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Run Unit Tests
+        run: |
+          xcodebuild test \
+            -workspace ${{ env.WORKSPACE_PATH }} \
+            -scheme ${{ env.SCHEME_NAME }} \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
+            -testPlan UnitTestPlan \
+            CODE_SIGNING_ALLOWED=NO \
+            -resultBundlePath /Volumes/runner_data/artifacts/SelfHosted-TestResults.xcresult || \
+          xcodebuild test \
+            -workspace ${{ env.WORKSPACE_PATH }} \
+            -scheme ${{ env.SCHEME_NAME }} \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
+            -testPlan UnitTestPlan \
+            CODE_SIGNING_ALLOWED=NO \
+            -resultBundlePath SelfHosted-TestResults.xcresult
+
+

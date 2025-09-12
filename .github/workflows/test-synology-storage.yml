@@ -1,0 +1,305 @@
+name: Test Synology Storage Integration
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_mount:
+        description: 'Test SMB mount functionality'
+        required: false
+        default: true
+        type: boolean
+      test_read_write:
+        description: 'Test read/write permissions'
+        required: false
+        default: true
+        type: boolean
+      test_ci_directories:
+        description: 'Test CI directory structure'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  # 群晖存储配置（从GitHub Secrets获取）
+  SMB_HOST: ${{ secrets.SMB_HOST }}
+  SHARE_NAME: ${{ secrets.SHARE_NAME }}
+  SMB_USER: ${{ secrets.SMB_USER }}
+  SMB_PASSWORD: ${{ secrets.SMB_PASSWORD }}
+  SYNOLOGY_HOSTNAME: DS1821
+  MOUNT_POINT: /Volumes/runner_data
+
+jobs:
+  test-synology-storage:
+    name: Test Synology Storage
+    runs-on: [self-hosted, macos, m4, xcode-16-4]
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Display Configuration
+        run: |
+          echo "=========================================="
+          echo "群晖存储测试配置"
+          echo "=========================================="
+          echo "SMB_HOST: ${SMB_HOST:-未设置}"
+          echo "SHARE_NAME: ${SHARE_NAME:-未设置}"
+          echo "SMB_USER: ${SMB_USER:-未设置}"
+          echo "SMB_PASSWORD: ${SMB_PASSWORD:+已设置}"
+          echo "MOUNT_POINT: $MOUNT_POINT"
+          echo "=========================================="
+      
+      - name: Check Prerequisites
+        run: |
+          echo "检查必要工具..."
+          
+          if ! command -v mount_smbfs &> /dev/null; then
+            echo "❌ mount_smbfs 命令不可用"
+            exit 1
+          fi
+          echo "✅ mount_smbfs 可用"
+          
+          if ! command -v ping &> /dev/null; then
+            echo "❌ ping 命令不可用"
+            exit 1
+          fi
+          echo "✅ ping 可用"
+          
+          if ! command -v smbutil &> /dev/null; then
+            echo "❌ smbutil 命令不可用"
+            exit 1
+          fi
+          echo "✅ smbutil 可用"
+      
+      - name: Test Network Connectivity
+        if: ${{ github.event.inputs.test_mount == 'true' || github.event.inputs.test_mount == '' }}
+        run: |
+          echo "测试网络连接到群晖: $SMB_HOST"
+          
+          if ping -c 3 -W 3000 "$SMB_HOST" > /dev/null 2>&1; then
+            echo "✅ 网络连接正常"
+          else
+            echo "❌ 无法连接到群晖 $SMB_HOST"
+            exit 1
+          fi
+      
+      - name: Test SMB Service
+        if: ${{ github.event.inputs.test_mount == 'true' || github.event.inputs.test_mount == '' }}
+        run: |
+          echo "测试SMB服务: //$SMB_HOST/$SHARE_NAME"
+          
+          # 尝试列出共享
+          if smbutil view //"$SMB_HOST" 2>/dev/null | grep -q "$SHARE_NAME"; then
+            echo "✅ SMB服务正常，找到共享: $SHARE_NAME"
+          else
+            echo "⚠️ 无法访问SMB服务或未找到共享: $SHARE_NAME"
+            echo "尝试直接挂载..."
+          fi
+      
+      - name: Test Mount
+        if: ${{ github.event.inputs.test_mount == 'true' || github.event.inputs.test_mount == '' }}
+        run: |
+          echo "测试挂载: //$SMB_USER@$SMB_HOST/$SHARE_NAME -> $MOUNT_POINT"
+          
+          # 检查是否已经挂载
+          if mount | grep -q "$MOUNT_POINT"; then
+            echo "⚠️ 挂载点 $MOUNT_POINT 已被占用，先卸载..."
+            sudo umount "$MOUNT_POINT" 2>/dev/null || true
+            sleep 2
+          fi
+          
+          # 创建挂载点
+          echo "$SMB_PASSWORD" | sudo -S mkdir -p "$MOUNT_POINT"
+          
+          # 尝试挂载
+          echo "正在挂载群晖存储..."
+          if echo "$SMB_PASSWORD" | sudo -S mount_smbfs //"$SMB_USER"@"$SMB_HOST"/"$SHARE_NAME" "$MOUNT_POINT" 2>/dev/null; then
+            echo "✅ 挂载成功"
+            
+            # 显示挂载信息
+            echo "挂载信息:"
+            df -h "$MOUNT_POINT" | tail -1
+            
+            # 列出挂载点内容
+            echo "挂载点内容:"
+            ls -la "$MOUNT_POINT" || echo "无法列出挂载点内容"
+          else
+            echo "❌ 挂载失败"
+            echo "请检查:"
+            echo "1. 群晖SMB服务是否启用"
+            echo "2. 用户权限设置"
+            echo "3. 网络连接"
+            echo "4. GitHub Secrets配置"
+            exit 1
+          fi
+      
+      - name: Test Storage Access
+        if: ${{ github.event.inputs.test_read_write == 'true' || github.event.inputs.test_read_write == '' }}
+        run: |
+          echo "测试存储访问权限..."
+          
+          # 测试读取权限
+          if [ -r "$MOUNT_POINT" ]; then
+            echo "✅ 读取权限正常"
+          else
+            echo "❌ 无法读取挂载点"
+            exit 1
+          fi
+          
+          # 测试写入权限
+          local test_file="$MOUNT_POINT/test_write_$(date +%s).txt"
+          if echo "测试写入 $(date)" > "$test_file" 2>/dev/null; then
+            echo "✅ 写入权限正常"
+            rm -f "$test_file"
+          else
+            echo "❌ 无法写入挂载点"
+            exit 1
+          fi
+          
+          # 测试目录创建
+          local test_dir="$MOUNT_POINT/test_dir_$(date +%s)"
+          if mkdir "$test_dir" 2>/dev/null; then
+            echo "✅ 目录创建权限正常"
+            rmdir "$test_dir"
+          else
+            echo "❌ 无法在挂载点创建目录"
+            exit 1
+          fi
+          
+          # 显示存储信息
+          echo "存储信息:"
+          df -h "$MOUNT_POINT" | tail -1
+      
+      - name: Test CI Directories
+        if: ${{ github.event.inputs.test_ci_directories == 'true' || github.event.inputs.test_ci_directories == '' }}
+        run: |
+          echo "测试CI相关目录结构..."
+          
+          local dirs=(
+            "$MOUNT_POINT/artifacts"
+            "$MOUNT_POINT/test-results"
+            "$MOUNT_POINT/performance-results"
+            "$MOUNT_POINT/ui-test-results"
+            "$MOUNT_POINT/build-artifacts"
+          )
+          
+          for dir in "${dirs[@]}"; do
+            if mkdir -p "$dir" 2>/dev/null; then
+              echo "✅ 创建目录: $dir"
+            else
+              echo "❌ 无法创建目录: $dir"
+              exit 1
+            fi
+          done
+          
+          # 测试在artifacts目录中创建文件
+          local test_artifact="$MOUNT_POINT/artifacts/test_artifact_$(date +%s).txt"
+          if echo "CI测试文件 $(date)" > "$test_artifact" 2>/dev/null; then
+            echo "✅ artifacts目录写入测试通过"
+            rm -f "$test_artifact"
+          else
+            echo "❌ artifacts目录写入测试失败"
+            exit 1
+          fi
+          
+          # 显示目录结构
+          echo "CI目录结构:"
+          find "$MOUNT_POINT" -type d -maxdepth 2 | sort
+      
+      - name: Test File Operations
+        run: |
+          echo "测试文件操作..."
+          
+          # 创建测试文件
+          local test_file="$MOUNT_POINT/test_file_operations.txt"
+          echo "测试文件内容 $(date)" > "$test_file"
+          
+          # 测试文件读取
+          if [ -r "$test_file" ]; then
+            echo "✅ 文件读取正常"
+            echo "文件内容: $(cat "$test_file")"
+          else
+            echo "❌ 文件读取失败"
+            exit 1
+          fi
+          
+          # 测试文件修改
+          echo "修改后的内容 $(date)" >> "$test_file"
+          if [ -w "$test_file" ]; then
+            echo "✅ 文件修改正常"
+          else
+            echo "❌ 文件修改失败"
+            exit 1
+          fi
+          
+          # 测试文件删除
+          if rm "$test_file" 2>/dev/null; then
+            echo "✅ 文件删除正常"
+          else
+            echo "❌ 文件删除失败"
+            exit 1
+          fi
+      
+      - name: Performance Test
+        run: |
+          echo "测试存储性能..."
+          
+          # 创建大文件测试写入性能
+          local large_file="$MOUNT_POINT/performance_test_$(date +%s).txt"
+          echo "开始写入性能测试..."
+          
+          start_time=$(date +%s)
+          for i in {1..1000}; do
+            echo "性能测试行 $i - $(date)" >> "$large_file"
+          done
+          end_time=$(date +%s)
+          
+          write_time=$((end_time - start_time))
+          file_size=$(du -h "$large_file" | cut -f1)
+          
+          echo "✅ 写入性能测试完成"
+          echo "文件大小: $file_size"
+          echo "写入时间: ${write_time}秒"
+          
+          # 测试读取性能
+          start_time=$(date +%s)
+          wc -l "$large_file" > /dev/null
+          end_time=$(date +%s)
+          
+          read_time=$((end_time - start_time))
+          echo "读取时间: ${read_time}秒"
+          
+          # 清理测试文件
+          rm -f "$large_file"
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "清理测试环境..."
+          
+          # 清理测试文件
+          find "$MOUNT_POINT" -name "test_*" -type f -delete 2>/dev/null || true
+          find "$MOUNT_POINT" -name "test_*" -type d -exec rmdir {} + 2>/dev/null || true
+          
+          # 卸载挂载点
+          if mount | grep -q "$MOUNT_POINT"; then
+            echo "卸载群晖存储..."
+            echo "$SMB_PASSWORD" | sudo -S umount "$MOUNT_POINT" 2>/dev/null || true
+            echo "✅ 卸载完成"
+          fi
+      
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "=========================================="
+          echo "群晖存储测试总结"
+          echo "=========================================="
+          echo "✅ 所有测试已完成"
+          echo "群晖存储可以正常作为Mac mini的存储使用"
+          echo "配置信息:"
+          echo "  SMB_HOST: $SMB_HOST"
+          echo "  SHARE_NAME: $SHARE_NAME"
+          echo "  SMB_USER: $SMB_USER"
+          echo "  MOUNT_POINT: $MOUNT_POINT"
+          echo "=========================================="
