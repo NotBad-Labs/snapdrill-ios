@@ -101,6 +101,7 @@ jobs:
       - name: Generate Code Coverage Report
         run: xcrun xccov view --report --json TestResults.xcresult > coverage.json
       - name: Check Code Coverage Threshold
+        if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
         run: python3 Scripts/check_coverage.py coverage.json 80
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
