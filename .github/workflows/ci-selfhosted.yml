@@ -327,9 +327,19 @@ jobs:
     name: Deployment Notification
     runs-on: ubuntu-latest
     needs: [build-archive, cleanup]
-    if: always() && ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+    if: always()
     steps:
+      - name: Check if Slack webhook is configured
+        id: check-slack
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            echo "slack_configured=true" >> $GITHUB_OUTPUT
+          else
+            echo "slack_configured=false" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Notify Slack
+        if: steps.check-slack.outputs.slack_configured == 'true'
         uses: 8398a7/action-slack@v3
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
