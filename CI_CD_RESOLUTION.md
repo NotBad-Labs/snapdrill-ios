@@ -1,80 +1,87 @@
 # CI/CD 配置修复完成报告
 
-## 问题描述
-1. **第一轮问题**：CI/CD 管道因为 iOS 模拟器版本不匹配失败
-   - 错误：iPhone 16 Pro's iOS Simulator 18.2 不匹配 NotBadTests 的 iOS Simulator 18.5 部署目标
+## 问题历史
 
-2. **第二轮问题**：GitHub Actions Setup Xcode 步骤失败
-   - 错误："Could not find Xcode version that satisfied version spec: '16.0'"
-   - 原因：GitHub Actions runners 不支持 Xcode 16.0
+### 第一轮问题：iOS 模拟器版本不匹配
+- 错误：iPhone 16 Pro's iOS Simulator 18.2 不匹配 NotBadTests 的 iOS Simulator 18.5 部署目标
+- **解决方案**：统一所有目标的部署目标为 iOS 17.0
 
-## 解决方案
+### 第二轮问题：GitHub Actions Xcode 版本不支持
+- 错误："Could not find Xcode version that satisfied version spec: '16.0'"
+- **解决方案**：降级到 Xcode 15.4 + iPhone 15 Pro
 
-### 第一轮修复：统一部署目标
-- 将所有目标（NotBad、NotBadTests、NotBadUITests）的部署目标统一为 iOS 17.0
-- 修复的文件：`NotBad.xcodeproj/project.pbxproj`
-- 变更数量：6 个部署目标从混合版本（18.0/18.5）统一到 17.0
+### 第三轮问题：项目文件格式不兼容 ⭐ **当前修复**
+- 错误："The project 'NotBad' cannot be opened because it is in a future Xcode project file format (77)"
+- **根本原因**：项目使用 Xcode 16 创建（objectVersion = 77），但 Xcode 15.4 无法识别
+- **最终解决方案**：升级 GitHub Actions 环境以匹配项目要求
 
-### 第二轮修复：兼容 GitHub Actions
-- **降级 Xcode 版本**：从 16.0 降级到 15.4（GitHub Actions 支持）
-- **更新模拟器配置**：
-  - iPhone 16 Pro → iPhone 15 Pro
-  - iPad Pro 13-inch (M4) → iPad Pro (12.9-inch) (6th generation)
-  - OS 版本：使用 `latest` 而非指定版本号
+## 最终解决方案
 
-### 修改的文件
-#### .github/workflows/ci.yml
+### 升级 GitHub Actions 环境
+- **Runner**: macOS-14 → **macOS-15**（最新）
+- **Xcode**: 15.4 → **16.0**（匹配项目格式）
+- **项目文件格式**: 保持 objectVersion = 77（原生 Xcode 16 格式）
+
+### 恢复原始配置
+- **模拟器**: 恢复使用 iPhone 16 Pro + iPad Pro 13-inch (M4)
+- **iOS 版本**: 使用 `OS=latest` 让 GitHub Actions 自动选择
+- **部署目标**: 保持 iOS 17.0（向后兼容）
+
+## 技术决策理由
+
+### 为什么选择升级而非降级？
+1. **项目完整性**：避免修改项目文件可能引入的兼容性问题
+2. **功能保证**：保持 Xcode 16 的最新特性和优化
+3. **长期维护**：与开发环境保持一致，减少版本差异
+4. **GitHub Actions 支持**：macOS-15 已经支持 Xcode 16.0
+
+## 配置详情
+
+### GitHub Actions 配置
 ```yaml
-# 所有任务中的 Xcode 版本配置
+# 所有任务使用最新环境
+runs-on: macos-15
+
+# 使用匹配的 Xcode 版本
 - name: Setup Xcode
   uses: maxim-lobanov/setup-xcode@v1
   with:
-    xcode-version: '15.4'  # 从 16.0 降级
+    xcode-version: '16.0'
 
-# 测试矩阵更新
+# 测试矩阵使用原生模拟器
 strategy:
   matrix:
     destination:
-      - 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest'
-      - 'platform=iOS Simulator,name=iPad Pro (12.9-inch) (6th generation),OS=latest'
+      - 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest'
+      - 'platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=latest'
 ```
+
+### 项目配置
+- **Xcode 项目格式**: objectVersion = 77（原生）
+- **iOS 部署目标**: 17.0（所有 target 统一）
+- **开发环境**: Xcode 16.4 (本地) / 16.0 (CI)
 
 ## 验证过程
-- ✅ 本地构建成功（使用 iOS 17.0 部署目标）
-- ✅ 本地测试运行成功（5 个测试全部通过）
-- ✅ GitHub Actions 兼容性修复（Xcode 15.4 + iPhone 15 Pro）
-
-## 测试结果
-```
-✔ Test run with 5 tests passed after 0.013 seconds.
-- testMasteryLevelProgression() ✅
-- testStudyResults() ✅  
-- testDomainTypes() ✅
-- testSubjectTypes() ✅
-- example() ✅
-```
+- ✅ 本地包依赖解析成功
+- ✅ 项目文件格式验证通过
+- ✅ 配置已推送到 GitHub
 
 ## 提交历史
-1. **db4050f**: 修复CI/CD配置：统一部署目标为iOS 17.0，更新模拟器为iPhone 16 Pro/iPad Pro 13-inch iOS 18.4
-2. **c50c3d7**: 修复CI/CD: 降级Xcode版本为15.4，使用iPhone 15 Pro模拟器以兼容GitHub Actions
+1. **db4050f**: 统一部署目标为iOS 17.0
+2. **c50c3d7**: 降级Xcode版本为15.4（临时方案）
+3. **cda27d1**: 更新问题解决报告
+4. **50dbef8**: 升级到macos-15和Xcode 16.0以支持项目文件格式77 ⭐ **最终方案**
 
-## 当前配置
-- **Xcode 版本**: 15.4（GitHub Actions 兼容）
-- **iOS 部署目标**: 17.0（统一）
-- **测试模拟器**: 
-  - iPhone 15 Pro (iOS latest)
-  - iPad Pro (12.9-inch) 6th gen (iOS latest)
+## 当前状态 ✅
+- **GitHub Actions**: macOS-15 + Xcode 16.0（最新稳定）
+- **项目兼容性**: 完全匹配开发环境
+- **CI/CD 状态**: 应该可以通过所有步骤
 - **分支**: feat/setup-ci-cd-workflow
-- **状态**: 已推送到 GitHub
+- **最新提交**: 50dbef8
 
 ## 下一步
-1. ✅ 在 GitHub 上检查 Actions 状态（应该通过 Setup Xcode 步骤）
-2. ⏳ 验证完整的 CI/CD 管道运行
-3. ⏳ 如果所有测试通过，准备创建 PR 合并到主分支
+1. 🔄 验证 GitHub Actions 运行状态
+2. ⏳ 确认所有测试任务通过
+3. ⏳ 创建 PR 合并到主分支
 
-## 技术细节
-- **GitHub Actions Runner**: macOS-14
-- **Xcode 版本**: 15.4（稳定支持）
-- **iOS 部署目标**: 17.0（向后兼容）
-- **模拟器策略**: 使用 `OS=latest` 避免版本冲突
-- **测试框架**: XCTest + SwiftTesting
+这次应该可以完全解决所有 CI/CD 问题！🎉
