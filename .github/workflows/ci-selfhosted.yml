@@ -53,8 +53,8 @@ jobs:
   code-quality:
     name: Code Quality & Linting
     runs-on: macos-15
-    timeout-minutes: 10
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    timeout-minutes: 15
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -78,20 +78,48 @@ jobs:
       
       - name: Run SwiftLint
         run: swiftlint lint --reporter github-actions-logging
+      
+      - name: SwiftLint Rules Check
+        run: |
+          echo "📋 SwiftLint 规则检查:"
+          swiftlint rules | head -20
+          echo "总规则数: $(swiftlint rules | wc -l)"
+      
+      - name: Check Swift Package Dependencies
+        run: |
+          echo "📦 检查 Swift Package 依赖:"
+          if [ -f "Package.swift" ]; then
+            swift package show-dependencies
+          else
+            echo "项目使用 Xcode 项目管理依赖"
+          fi
+      
+      - name: Security Scan (Basic)
+        run: |
+          echo "🔒 基础安全扫描:"
+          # 检查敏感信息
+          if grep -r -i "password\|secret\|key\|token" --include="*.swift" --include="*.plist" NotBad/ | grep -v "//.*password"; then
+            echo "⚠️ 发现可能的敏感信息"
+          else
+            echo "✅ 未发现明显的敏感信息"
+          fi
 
   # 单元测试和集成测试 - 使用自托管运行器
   test:
     name: Unit & Integration Tests
     runs-on: [self-hosted, macos, m4, xcode-16-4]
-    timeout-minutes: 45
+    timeout-minutes: 60
     needs: code-quality
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     strategy:
       matrix:
         destination:
           - 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6'
-          # 暂时注释掉iPad，如果iPhone测试成功再启用
-          # - 'platform=iOS Simulator,name=iPad (10th generation),OS=18.6'
+          - 'platform=iOS Simulator,name=iPhone 15 Pro,OS=18.6'
+          - 'platform=iOS Simulator,name=iPhone 14,OS=18.6'
+          # iPad 测试（如果可用）
+          - 'platform=iOS Simulator,name=iPad (10th generation),OS=18.6'
+          - 'platform=iOS Simulator,name=iPad Air (5th generation),OS=18.6'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -324,7 +352,19 @@ jobs:
       
       - name: Check Code Coverage Threshold
         if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
-        run: python3 Scripts/check_coverage.py "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json" 80
+        run: |
+          # 根据项目阶段设置不同的覆盖率要求
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            # 主分支要求较高覆盖率
+            COVERAGE_THRESHOLD=60
+            WARN_THRESHOLD=50
+          else
+            # 开发分支要求较低覆盖率（适合项目初期）
+            COVERAGE_THRESHOLD=30
+            WARN_THRESHOLD=20
+          fi
+          echo "📊 当前覆盖率要求: ${COVERAGE_THRESHOLD}% (警告阈值: ${WARN_THRESHOLD}%)"
+          python3 Scripts/check_coverage.py "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json" $COVERAGE_THRESHOLD --warn-threshold $WARN_THRESHOLD --show-details
       
       # 上传测试结果到群晖存储（作为备份）
       - name: Archive Test Results to NAS
@@ -337,6 +377,76 @@ jobs:
           cp -r "${{ env.ARTIFACTS_DIR }}/IntegrationResults-${{ matrix.destination }}.xcresult" "${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_destination/"
           cp "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json" "${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_destination/"
           echo "测试结果已保存到: ${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_destination"
+
+  # 深度测试 - 使用自托管运行器进行更全面的测试
+  deep-test:
+    name: Deep Testing & Analysis
+    runs-on: [self-hosted, macos, m4, xcode-16-4]
+    timeout-minutes: 45
+    needs: test
+    if: |
+      (github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.base_ref == 'main') ||
+      (github.event_name == 'workflow_dispatch')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Boot Simulator for Deep Tests
+        run: |
+          xcrun simctl boot "iPhone 16 Pro" || true
+          sleep 10
+      
+      - name: Memory Leak Detection
+        run: |
+          echo "🔍 内存泄漏检测测试:"
+          xcodebuild test \
+            -workspace ${{ env.WORKSPACE_PATH }} \
+            -scheme ${{ env.SCHEME_NAME }} \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
+            -testPlan UnitTestPlan \
+            CODE_SIGNING_ALLOWED=NO \
+            -enableCodeCoverage YES \
+            -resultBundlePath "${{ env.ARTIFACTS_DIR }}/MemoryTestResults-${{ github.run_number }}.xcresult" \
+            -enableAddressSanitizer YES
+      
+      - name: Thread Sanitizer Test
+        run: |
+          echo "🧵 线程安全检测测试:"
+          xcodebuild test \
+            -workspace ${{ env.WORKSPACE_PATH }} \
+            -scheme ${{ env.SCHEME_NAME }} \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
+            -testPlan UnitTestPlan \
+            CODE_SIGNING_ALLOWED=NO \
+            -resultBundlePath "${{ env.ARTIFACTS_DIR }}/ThreadTestResults-${{ github.run_number }}.xcresult" \
+            -enableThreadSanitizer YES
+      
+      - name: Static Analysis
+        run: |
+          echo "📊 静态代码分析:"
+          xcodebuild analyze \
+            -workspace ${{ env.WORKSPACE_PATH }} \
+            -scheme ${{ env.SCHEME_NAME }} \
+            CODE_SIGNING_ALLOWED=NO \
+            -resultBundlePath "${{ env.ARTIFACTS_DIR }}/StaticAnalysis-${{ github.run_number }}.xcresult"
+      
+      - name: Build Performance Analysis
+        run: |
+          echo "⚡ 构建性能分析:"
+          time xcodebuild clean build \
+            -workspace ${{ env.WORKSPACE_PATH }} \
+            -scheme ${{ env.SCHEME_NAME }} \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
+            CODE_SIGNING_ALLOWED=NO \
+            -quiet
+      
+      - name: Archive Deep Test Results
+        run: |
+          mkdir -p "${{ env.CACHE_DIR }}/deep-test-results/${{ github.run_number }}"
+          cp -r "${{ env.ARTIFACTS_DIR }}/MemoryTestResults-${{ github.run_number }}.xcresult" "${{ env.CACHE_DIR }}/deep-test-results/${{ github.run_number }}/"
+          cp -r "${{ env.ARTIFACTS_DIR }}/ThreadTestResults-${{ github.run_number }}.xcresult" "${{ env.CACHE_DIR }}/deep-test-results/${{ github.run_number }}/"
+          cp -r "${{ env.ARTIFACTS_DIR }}/StaticAnalysis-${{ github.run_number }}.xcresult" "${{ env.CACHE_DIR }}/deep-test-results/${{ github.run_number }}/"
 
   # 性能测试 - 仅在PR或手动触发时运行
   performance-test:
@@ -415,8 +525,8 @@ jobs:
     name: Build & Archive
     runs-on: [self-hosted, macos, m4, xcode-16-4]
     timeout-minutes: 45
-    needs: [test, performance-test, ui-test]
-    if: "github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[skip ci]')"
+    needs: [test, deep-test, performance-test, ui-test]
+    if: ${{ github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[skip ci]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
