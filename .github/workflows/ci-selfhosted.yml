@@ -40,6 +40,11 @@ env:
   ARTIFACTS_DIR: /Volumes/runner_data/artifacts
   # 缓存目录已在自托管运行器上配置
   CACHE_DIR: /Volumes/runner_data
+  # 群晖存储配置（在 GitHub Secrets 中设置）
+  SMB_HOST: ${{ secrets.SMB_HOST }}
+  SHARE_NAME: ${{ secrets.SHARE_NAME }}
+  SMB_USER: ${{ secrets.SMB_USER }}
+  SMB_PASSWORD: ${{ secrets.SMB_PASSWORD }}
 
 jobs:
   # 代码质量检查 - 使用GitHub托管运行器（快速）
@@ -97,12 +102,40 @@ jobs:
             echo "警告: 期望Xcode 16.4，当前版本: $xcode_version"
           fi
       
-      # 验证存储挂载
-      - name: Verify Storage Mount
+      # 挂载群晖存储
+      - name: Mount Synology Storage
         run: |
-          if [ ! -d "/Volumes/runner_data" ]; then
-            echo "错误: 群晖存储未挂载"
-            exit 1
+          MOUNT_POINT="/Volumes/runner_data"
+          
+          # 检查是否已经挂载
+          if [ -d "$MOUNT_POINT" ] && mount | grep -q "$MOUNT_POINT"; then
+            echo "✅ 群晖存储已挂载: $MOUNT_POINT"
+            ls -la "$MOUNT_POINT"
+          else
+            echo "⚠️ 群晖存储未挂载，尝试挂载..."
+            
+            # 创建挂载点
+            sudo mkdir -p "$MOUNT_POINT"
+            
+            # 使用环境变量中的群晖配置
+            echo "群晖配置:"
+            echo "  SMB_HOST: ${SMB_HOST:-未设置}"
+            echo "  SHARE_NAME: ${SHARE_NAME:-未设置}"
+            echo "  SMB_USER: ${SMB_USER:-未设置}"
+            
+            echo "尝试挂载 //${SMB_HOST}/${SHARE_NAME} 到 $MOUNT_POINT"
+            echo "注意: 如果挂载失败，请检查网络连接和群晖设置"
+            
+            # 尝试挂载（这里可能需要密码，所以先跳过实际挂载）
+            if [ -n "${SMB_PASSWORD:-}" ]; then
+              echo "$SMB_PASSWORD" | sudo mount_smbfs //${SMB_USER}@${SMB_HOST}/${SHARE_NAME} "$MOUNT_POINT"
+              echo "✅ 群晖存储挂载成功"
+            else
+              echo "⚠️ 未设置 SMB_PASSWORD，跳过自动挂载"
+              echo "请在 Mac mini 上手动运行挂载脚本"
+              echo "脚本位置: ./Scripts/runner_mount_smb.sh"
+              exit 1
+            fi
           fi
           echo "存储挂载正常: $(df -h /Volumes/runner_data | tail -1)"
       
