@@ -1,4 +1,4 @@
-# **NotBad App \- 需求追踪矩阵 (RTM) v2.0**
+# **NotBad App \- 需求追踪矩阵 (RTM) v4.2 (Swift6 + iOS18)**
 
 ## 速查：相关文档（快速跳转）
 

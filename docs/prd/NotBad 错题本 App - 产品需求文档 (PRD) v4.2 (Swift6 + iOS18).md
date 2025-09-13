@@ -1,4 +1,4 @@
-# **NotBad 错题本 App \- 产品需求文档 (PRD) v4.0**
+# **NotBad 错题本 App \- 产品需求文档 (PRD) v4.2 (Swift6 + iOS18)**
 
 **文档定位：单一事实来源 (Single Source of Truth)**
 
@@ -7,11 +7,11 @@
 ## 速查：相关文档（快速跳转）
 
 - 文档索引: [docs/README.md](../README.md)
-- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md)
-- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v2.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)
-- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v1.1.md](../glossary/NotBad%20App%20-%20业务术语表%20v1.1.md)
-- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v1.1.md](../glossary/NotBad%20App%20-%20技术术语表%20v1.1.md)
-- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v1.0.md](../glossary/NotBad%20App%20-%20术语到代码索引%20v1.0.md)
+- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v4.2 (Swift6 + iOS18).md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.2%20(Swift6%20+%20iOS18).md)
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v4.2 (Swift6 + iOS18).md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v4.2%20(Swift6%20+%20iOS18).md)
+- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v4.2 (Swift6 + iOS18).md](../glossary/NotBad%20App%20-%20业务术语表%20v4.2%20(Swift6%20+%20iOS18).md)
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v4.2 (Swift6 + iOS18).md](../glossary/NotBad%20App%20-%20技术术语表%20v4.2%20(Swift6%20+%20iOS18).md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v4.2 (Swift6 + iOS18).md](../glossary/NotBad%20App%20-%20术语到代码索引%20v4.2%20(Swift6%20+%20iOS18).md)
 
 | 版本 | 日期 | 作者 | 变更说明 | 状态 |
 | :---- | :---- | :---- | :---- | :---- |
@@ -35,20 +35,26 @@
 ### **1.3 技术约束与要求 (Technical Constraints & Requirements)**
 
 #### **1.3.1 平台要求**
-- **最低支持**: iOS 18.0+ (放弃iOS 17以前支持，专注现代化)
+- **最低支持**: iOS 18.0+ (全面拥抱最新系统特性)
 - **开发环境**: Xcode 16.5+, Swift 6.0
 - **并发模型**: 严格采用Swift 6 Actor模型，确保类型安全
 - **UI框架**: SwiftUI (充分利用iOS 18新组件和特性)
+- **架构模式**: Clean Architecture + Swift 6 Actor模型
 
 #### **1.3.2 性能要求 (基于Swift 6优化)**
-- **启动时间**: < 1.5秒 (Swift 6并发优化，比传统方式快30%+)
-- **响应时间**: < 1秒 (Actor模型优化，零阻塞操作)
-- **内存使用**: < 80MB (Swift 6内存管理优化)
+- **启动时间**: < 1.5秒 (Swift 6并发优化，Actor预加载，比传统方式快30%+)
+- **响应时间**: < 1秒 (Actor模型优化，零阻塞操作，编译时安全)
+- **内存使用**: < 80MB (Swift 6内存管理优化，Actor隔离)
 - **并发安全**: 100%编译时保证，运行时零开销
-- **滚动流畅度**: > 60fps (利用iOS 18新动画API)
+- **滚动流畅度**: > 60fps (利用iOS 18新动画API，Swift 6性能优化)
 
-#### **1.3.3 现代化特性要求**
-- **类型安全**: 编译时保证所有并发访问安全
+#### **1.3.3 Swift 6 + iOS 18 现代化特性**
+- **类型安全**: 100%编译时类型检查，Sendable协议保证
+- **并发模型**: 严格采用Swift 6 Actor模型，async/await
+- **状态管理**: 使用@Observable替代@StateObject，性能提升30%
+- **导航系统**: 采用NavigationStack替代NavigationView，支持复杂导航
+- **数据操作**: 利用SwiftData批量操作，性能提升50%
+- **错误处理**: 现代化async/await错误处理，类型安全
 - **错误处理**: 现代化async/await错误处理机制
 - **状态管理**: 使用@Observable替代ObservableObject
 - **导航体验**: NavigationStack提供更流畅的页面切换

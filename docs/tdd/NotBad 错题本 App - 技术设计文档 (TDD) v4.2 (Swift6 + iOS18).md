@@ -1,4 +1,4 @@
-# **NotBad 错题本 App \- 技术设计文档 (TDD) v4.0**
+# **NotBad 错题本 App \- 技术设计文档 (TDD) v4.2 (Swift6 + iOS18)**
 
 **文档定位：技术实现单一事实来源 (Single Source of Truth for Implementation)**
 
@@ -7,11 +7,11 @@
 ## 速查：相关文档（快速跳转）
 
 - 文档索引: [docs/README.md](../README.md)
-- PRD: [docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)
-- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v2.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)
-- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v1.1.md](../glossary/NotBad%20App%20-%20业务术语表%20v1.1.md)
-- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v1.1.md](../glossary/NotBad%20App%20-%20技术术语表%20v1.1.md)
-- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v1.0.md](../glossary/NotBad%20App%20-%20术语到代码索引%20v1.0.md)
+- PRD: [docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v4.2 (Swift6 + iOS18).md](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.2%20(Swift6%20+%20iOS18).md)
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v4.2 (Swift6 + iOS18).md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v4.2%20(Swift6%20+%20iOS18).md)
+- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v4.2 (Swift6 + iOS18).md](../glossary/NotBad%20App%20-%20业务术语表%20v4.2%20(Swift6%20+%20iOS18).md)
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v4.2 (Swift6 + iOS18).md](../glossary/NotBad%20App%20-%20技术术语表%20v4.2%20(Swift6%20+%20iOS18).md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v4.2 (Swift6 + iOS18).md](../glossary/NotBad%20App%20-%20术语到代码索引%20v4.2%20(Swift6%20+%20iOS18).md)
 - ADR 索引: [docs/adr/README.md](../adr/README.md)
 
 | 版本 | 日期 | 作者 | 变更说明 | 状态 |
@@ -24,7 +24,7 @@
 
 ### **1.1 技术目标 (Technical Goals)**
 
-构建一个基于Swift 6 + iOS 18的现代化、高性能、高可靠、可扩展且易于维护的iOS原生应用，严格承接PRD v4.1中定义的所有功能性及非功能性需求，确保：
+构建一个基于Swift 6 + iOS 18的现代化、高性能、高可靠、可扩展且易于维护的iOS原生应用，严格承接PRD v4.2中定义的所有功能性及非功能性需求，确保：
 
 * **性能卓越**: 满足Swift 6优化后的性能指标（启动<1.5s, 核心响应<1s, 列表滚动>60fps）。  
 * **并发安全**: 100%编译时保证并发安全，运行时零开销，利用Swift 6 Actor模型。  

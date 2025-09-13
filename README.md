@@ -84,15 +84,15 @@ graph TB
 
 ### 📋 核心文档
 - **[文档中心](docs/README.md)** - 所有文档的快速导航
-- **[产品需求文档 (PRD)](docs/prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)** - 产品功能规格
-- **[技术设计文档 (TDD)](docs/tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md)** - 技术架构设计
-- **[需求追踪矩阵 (RTM)](docs/rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)** - 需求实现追踪
+- **[产品需求文档 (PRD)](docs/prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.2%20(Swift6%20+%20iOS18).md)** - 产品功能规格
+- **[技术设计文档 (TDD)](docs/tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.2%20(Swift6%20+%20iOS18).md)** - 技术架构设计
+- **[需求追踪矩阵 (RTM)](docs/rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v4.2%20(Swift6%20+%20iOS18).md)** - 需求实现追踪
 
 ### 🏗️ 架构决策
-- **[ADR-001](docs/adr/ADR-001%20本地数据层与持久化框架选型%20(SwiftData).md)** - SwiftData 选型
-- **[ADR-002](docs/adr/ADR-002%20云同步与多端一致性策略%20(Local-First%20+%20CloudKit).md)** - 云同步策略
-- **[ADR-003](docs/adr/ADR-003%20OCR%20处理流水线与重处理策略.md)** - OCR 引擎选型
-- **[ADR-004](docs/adr/ADR-004-错题重做功能方案选型.md)** - 错题重做方案
+- **[ADR-001](docs/adr/ADR-001%20本地数据层与持久化框架选型%20(SwiftData)%20v4.2%20(Swift6%20+%20iOS18).md)** - SwiftData 选型
+- **[ADR-002](docs/adr/ADR-002%20云同步与多端一致性策略%20(Local-First%20+%20CloudKit)%20v4.2%20(Swift6%20+%20iOS18).md)** - 云同步策略
+- **[ADR-003](docs/adr/ADR-003%20OCR%20处理流水线与重处理策略%20v4.2%20(Swift6%20+%20iOS18).md)** - OCR 引擎选型
+- **[ADR-004](docs/adr/ADR-004%20错题重做功能方案选型%20v4.2%20(Swift6%20+%20iOS18).md)** - 错题重做方案
 
 ### 📚 开发指南
 - **[开发工作流程](docs/DEVELOPMENT_WORKFLOW.md)** - Git 工作流和开发规范
