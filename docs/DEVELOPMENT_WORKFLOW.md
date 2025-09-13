@@ -1,14 +1,12 @@
-# 🚀 NotBad 开发工作流程
+# 🚀 NotBad 开发工作流程 (GitHub Flow)
 
 ## 📋 分支策略
 
 ### 分支结构
 ```
 main (生产环境)
-├── develop (开发主分支)
-│   ├── feature/功能名称 (功能开发)
-│   ├── bugfix/问题描述 (问题修复)
-│   └── hotfix/紧急修复 (紧急修复)
+├── feature/功能名称 (功能开发)
+├── bugfix/问题描述 (问题修复)
 └── milestone/* (里程碑分支)
 ```
 
@@ -16,11 +14,9 @@ main (生产环境)
 
 | 分支类型 | 命名规范 | 用途 | 合并目标 |
 |----------|----------|------|----------|
-| `main` | - | 生产环境，稳定版本 | - |
-| `develop` | - | 开发主分支，集成测试 | `main` |
-| `feature/*` | `feature/功能名称` | 新功能开发 | `develop` |
-| `bugfix/*` | `bugfix/问题描述` | 问题修复 | `develop` |
-| `hotfix/*` | `hotfix/紧急修复` | 紧急修复 | `main` |
+| `main` | - | 生产环境，始终可部署 | - |
+| `feature/*` | `feature/功能名称` | 新功能开发 | `main` |
+| `bugfix/*` | `bugfix/问题描述` | 问题修复 | `main` |
 | `milestone/*` | `milestone/里程碑名称` | 重要里程碑记录 | - |
 
 ## 🔄 开发流程
@@ -28,9 +24,9 @@ main (生产环境)
 ### 1. 日常功能开发
 
 ```bash
-# 1. 从develop分支创建功能分支
-git checkout develop
-git pull origin develop
+# 1. 从main分支创建功能分支
+git checkout main
+git pull origin main
 git checkout -b feature/user-authentication
 
 # 2. 开发功能
@@ -43,15 +39,15 @@ git commit -m "feat: 添加用户认证功能"
 # 4. 推送功能分支
 git push origin feature/user-authentication
 
-# 5. 创建Pull Request (develop ← feature/user-authentication)
+# 5. 创建Pull Request (main ← feature/user-authentication)
 # 在GitHub上创建PR，等待CI/CD测试通过
 
-# 6. 合并到develop
-# PR通过后合并到develop分支
+# 6. 合并到main
+# PR通过后合并到main分支
 
 # 7. 删除功能分支
-git checkout develop
-git pull origin develop
+git checkout main
+git pull origin main
 git branch -d feature/user-authentication
 git push origin --delete feature/user-authentication
 ```
@@ -59,9 +55,9 @@ git push origin --delete feature/user-authentication
 ### 2. 问题修复
 
 ```bash
-# 1. 从develop分支创建修复分支
-git checkout develop
-git pull origin develop
+# 1. 从main分支创建修复分支
+git checkout main
+git pull origin main
 git checkout -b bugfix/memory-leak-fix
 
 # 2. 修复问题
@@ -74,89 +70,57 @@ git commit -m "fix: 修复内存泄漏问题"
 # 4. 推送修复分支
 git push origin bugfix/memory-leak-fix
 
-# 5. 创建Pull Request
+# 5. 创建Pull Request (main ← bugfix/memory-leak-fix)
 # 在GitHub上创建PR，等待测试通过
 
-# 6. 合并到develop
-# PR通过后合并到develop分支
-```
+# 6. 合并到main
+# PR通过后合并到main分支
 
-### 3. 发布到生产环境
-
-```bash
-# 1. 从develop合并到main
+# 7. 删除修复分支
 git checkout main
 git pull origin main
-git merge develop --no-ff -m "release: 发布v1.0.0
+git branch -d bugfix/memory-leak-fix
+git push origin --delete bugfix/memory-leak-fix
+```
+
+### 3. 发布管理
+
+```bash
+# GitHub Flow 中，main分支始终可部署
+# 当需要发布时，直接创建标签即可
+
+# 1. 确保main分支是最新的
+git checkout main
+git pull origin main
+
+# 2. 创建发布标签
+git tag -a v1.0.0 -m "Release version 1.0.0
 
 - 新功能: 用户认证系统
 - 修复: 内存泄漏问题
 - 优化: 性能提升20%"
 
-# 2. 推送main分支
-git push origin main
-
-# 3. 创建发布标签
-git tag -a v1.0.0 -m "Release version 1.0.0"
+# 3. 推送标签
 git push origin v1.0.0
 
-# 4. 更新develop分支
-git checkout develop
-git merge main
-git push origin develop
-```
-
-### 4. 紧急修复
-
-```bash
-# 1. 从main分支创建紧急修复分支
-git checkout main
-git pull origin main
-git checkout -b hotfix/critical-security-fix
-
-# 2. 紧急修复
-# ... 修复代码 ...
-
-# 3. 提交修复
-git add .
-git commit -m "hotfix: 修复关键安全问题"
-
-# 4. 推送紧急修复分支
-git push origin hotfix/critical-security-fix
-
-# 5. 创建Pull Request (main ← hotfix/critical-security-fix)
-# 紧急情况下可以直接合并
-
-# 6. 合并到main
-git checkout main
-git merge hotfix/critical-security-fix --no-ff
-git push origin main
-
-# 7. 同步到develop
-git checkout develop
-git merge main
-git push origin develop
-
-# 8. 删除紧急修复分支
-git branch -d hotfix/critical-security-fix
-git push origin --delete hotfix/critical-security-fix
+# 4. 在GitHub上创建Release
+# 使用标签创建正式的Release发布
 ```
 
 ## 🧪 CI/CD 集成
 
 ### 自动化测试
 
-- **develop分支**: 运行完整测试套件
-- **main分支**: 运行完整测试 + 构建归档
-- **功能分支**: 运行基础测试
+- **main分支**: 运行完整测试套件 + 构建归档
+- **功能分支**: 运行基础测试（代码质量 + 单元测试 + 集成测试）
 
 ### 测试覆盖
 
 | 分支 | 代码质量 | 单元测试 | 集成测试 | 性能测试 | UI测试 | 构建归档 |
 |------|----------|----------|----------|----------|--------|----------|
 | `main` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `develop` | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | `feature/*` | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| `bugfix/*` | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
 
 ## 📝 提交信息规范
 
