@@ -30,7 +30,7 @@
 | 性能监控服务 | `protocol PerformanceMonitoringService` | `Sources/Infrastructure/Monitoring/PerformanceMonitoringService.swift` | 追踪启动时间、OCR处理时间、同步延迟等 |
 | 教师作业进度 | `struct AssignmentProgress` | `Sources/Domain/DTOs/AssignmentProgress.swift` | 作业完成统计、难点分析 |
 | Feature Flag | `struct FeatureFlags` / `enum Feature` | `Sources/Infrastructure/Config/FeatureFlags.swift` | 在运行时切换云AI/教师功能/大容量历史版本等 |
-| ADR 文件 | `docs/adr/ADR-002-cloud-sync.md` | `docs/adr/` | 记录 CloudKit vs Server 决策等 |
+| ADR 文件 | `docs/adr/ADR-005-导航协调器模式.md`<br>`docs/adr/ADR-006-底部Tab导航架构设计.md` | `docs/adr/` | 记录导航架构和协调器模式决策 |
 
 
 ## 如何使用
@@ -39,8 +39,20 @@
 3. 我可以根据需要把这些建议符号生成为代码 stub（Swift 协议/structs）到 `Sources/` 下以便开发直接开始实现——如需要，请回复“生成 stubs”。
 
 ## 变更记录
+- v1.2 (2025-09-13): 新增底部Tab导航架构相关的术语和代码映射
 - v1.1 (2025-09-13): 补充批量导入、遗忘曲线、性能监控等新增服务的代码映射
 - v1.0 (2025-09-04): 初始索引，基于 PRD v4.0 / TDD v4.0 / RTM v2.0
+
+## 导航架构术语映射
+
+| 术语 (中文) | 建议代码符号 (Swift) | 建议文件/模块路径 | 说明/备注 |
+| :---- | :---- | :---- | :---- |
+| 底部Tab导航 | `struct MainTabView` | `Sources/Shared/Views/MainTabView.swift` | 5个Tab的主界面导航容器 |
+| 首页Tab | `struct HomeTabView` | `Sources/Features/Home/Views/HomeTabView.swift` | 学习总览和快速入口 |
+| 题库Tab | `struct QuestionBankTabView` | `Sources/Features/QuestionBank/Views/QuestionBankTabView.swift` | ReviewItem管理和分类 |
+| 录入Tab | `struct CaptureTabView` | `Sources/Features/Capture/Views/CaptureTabView.swift` | OCR拍照识别功能 |
+| 发现Tab | `struct DiscoverTabView` | `Sources/Features/Discover/Views/DiscoverTabView.swift` | 学习社区和资源推荐 |
+| 我的Tab | `struct ProfileTabView` | `Sources/Features/Profile/Views/ProfileTabView.swift` | 个人设置和账户管理 |
 
 ***
 

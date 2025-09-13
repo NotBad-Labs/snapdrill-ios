@@ -1,15 +1,8 @@
-//
-//  CreateReviewItemUseCase.swift
-//  NotBad
-//
-//  Created by AI Assistant on 2025/9/13.
-//
-
 import Foundation
+import UIKit
 
-// MARK: - 创建复习项用例实现
-/// 创建复习项用例的具体实现
-/// 遵循Clean Architecture的Application层设计原则
+/// 创建复习项用例实现
+@MainActor
 class CreateReviewItemUseCaseImpl: CreateReviewItemUseCase {
     private let repository: ReviewItemRepository
     
@@ -17,55 +10,49 @@ class CreateReviewItemUseCaseImpl: CreateReviewItemUseCase {
         self.repository = repository
     }
     
-    /// 执行创建复习项操作
-    func execute(_ request: CreateReviewItemRequest) async throws -> CreateReviewItemResponse {
-        // 1. 验证输入数据
-        try validateRequest(request)
-        
-        // 2. 创建复习项实体
-        let reviewItem = createReviewItem(from: request)
-        
-        // 3. 保存到仓储
-        do {
-            let createdItem = try await repository.create(reviewItem)
-            return CreateReviewItemResponse(reviewItem: createdItem)
-        } catch {
-            throw ReviewItemUseCaseError.repositoryError("创建复习项失败: \(error.localizedDescription)")
-        }
-    }
-    
-    // MARK: - 私有方法
-    
-    /// 验证创建请求
-    private func validateRequest(_ request: CreateReviewItemRequest) throws {
-        guard !request.content.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            throw ReviewItemUseCaseError.validationFailed("标题不能为空")
-        }
-        
-        guard !request.content.question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            throw ReviewItemUseCaseError.validationFailed("题目不能为空")
-        }
-        
-        guard !request.content.subject.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            throw ReviewItemUseCaseError.validationFailed("科目不能为空")
-        }
-        
-        // 验证标题长度
-        if request.content.title.count > 100 {
-            throw ReviewItemUseCaseError.validationFailed("标题长度不能超过100个字符")
-        }
-        
-        // 验证题目长度
-        if request.content.question.count > 5000 {
-            throw ReviewItemUseCaseError.validationFailed("题目长度不能超过5000个字符")
-        }
-    }
-    
-    /// 从请求创建复习项实体
-    private func createReviewItem(from request: CreateReviewItemRequest) -> ReviewItem {
-        return ReviewItem(
-            content: request.content,
-            metadata: request.metadata
+    nonisolated func execute(imageData: Data?, recognizedText: String, userNotes: String, subject: String, tags: [String]) async throws -> ReviewItem {
+        // 1. 创建ReviewContent
+        let content = ReviewContent(
+            imageData: imageData,
+            recognizedText: recognizedText,
+            userNotes: userNotes,
+            subject: subject,
+            tags: tags,
+            difficulty: .medium // 默认中等难度
         )
+        
+        // 2. 创建ReviewItemMetadata
+        let metadata = ReviewItemMetadata(
+            ownerId: await getCurrentUserId(),
+            parentShareStatus: .none,
+            parentAccessRevokedAt: nil,
+            sharedWithClassIds: [],
+            isArchived: false
+        )
+        
+        // 3. 保存到数据库
+        let reviewItem = try await self.repository.createReviewItem(content, metadata: metadata)
+        
+        return reviewItem
+    }
+    
+    private func getCurrentUserId() async -> UUID {
+        // TODO: 实现用户ID获取逻辑
+        // 目前返回一个固定的UUID，后续需要集成用户认证系统
+        return UUID()
+    }
+}
+
+/// 获取复习项用例实现
+@MainActor
+class GetReviewItemsUseCaseImpl: GetReviewItemsUseCase {
+    private let repository: ReviewItemRepository
+    
+    init(repository: ReviewItemRepository) {
+        self.repository = repository
+    }
+    
+    nonisolated func execute(predicate: Predicate<ReviewItem>?, sortBy: [SortDescriptor<ReviewItem>]) async throws -> [ReviewItem] {
+        return try await self.repository.getReviewItems(predicate: predicate, sortBy: sortBy)
     }
 }

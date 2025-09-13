@@ -6,5 +6,9 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>需要访问相机来拍摄错题，进行OCR识别和录入</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>需要访问相册来选择错题图片，进行OCR识别和录入</string>
 </dict>
 </plist>

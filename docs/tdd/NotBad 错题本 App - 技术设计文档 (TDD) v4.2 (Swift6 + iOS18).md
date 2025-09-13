@@ -2,7 +2,7 @@
 
 **文档定位：技术实现单一事实来源 (Single Source of Truth for Implementation)**
 
-本文档基于 [**PRD v4.0**](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md) 的产品需求，为NotBad App的技术实现提供了唯一的、权威的、详尽的蓝图。它是开发、测试及运维团队的**核心行动纲领**，定义了应用的架构设计、模块职责、接口契約、数据结构和非功能性实现方案。
+本文档基于 [**PRD v4.2**](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.2%20(Swift6%20+%20iOS18).md) 的产品需求，为NotBad App的技术实现提供了唯一的、权威的、详尽的蓝图。它是开发、测试及运维团队的**核心行动纲领**，定义了应用的架构设计、模块职责、接口契約、数据结构和非功能性实现方案。
 
 ## 速查：相关文档（快速跳转）
 
@@ -18,7 +18,8 @@
 | :---- | :---- | :---- | :---- | :---- |
 | v3.1 | 2025-09-02 | Tech Team | 基于初步评审意见进行优化 | 已归档 |
 | v4.0 | 2025-09-03 | Tech Team | 综合全部评审意见，扩展所有章节，升级为技术实现"单一事实来源"版本 | 已归档 |
-| **v4.1** | **2025-09-13** | **Tech Team** | **基于Swift 6 + iOS 18现代化，全面更新并发模型和架构设计** | ✅ **生效中** |
+| v4.1 | 2025-09-13 | Tech Team | 基于Swift 6 + iOS 18现代化，全面更新并发模型和架构设计 | 已归档 |
+| **v4.2** | **2025-09-13** | **Tech Team** | **新增导航协调器模式架构设计，更新ADR索引和实现细节** | ✅ **生效中** |
 
 ## **1\. 技术概述 (Technical Overview)**
 
@@ -32,9 +33,9 @@
 * **极致可靠**: 核心功能100%离线可用，崩溃率低于0.1%。  
 * **架构现代化**: 通过Clean Architecture + Swift 6并发模型实现高度的可测试性和可维护性。
 
-### **1.3 与 PRD v4.0 的技术影响 (PRD sync notes)**
+### **1.3 与 PRD v4.2 的技术影响 (PRD sync notes)**
 
-以下为最近 PRD v4.0 更新中涉及到的要点及对本技术设计的直接影响：
+以下为最近 PRD v4.2 更新中涉及到的要点及对本技术设计的直接影响：
 
 - 订阅定价调整（月 ¥10 / 年 ¥99 / 永久 ¥688）本身为产品/商业层面的变更，对客户端实现影响有限，但会影响我们对“Pro”特性的优先级与云端资源分配策略。
 - PRD 明确将“基础 iCloud 同步”对所有用户免费开放——因此本版本的同步实现以 **CloudKit/ iCloud 为基础方案**（无额外自建后端成本），并在 TDD 中保留对“高级同步”（多平台、历史版本、实时协同）需要自建后端的说明与扩展接口。 
@@ -50,9 +51,8 @@
 
 本项目的关键技术决策均通过**架构决策记录 (ADR)** 进行系统性存档。ADR旨在理解决策背景、评估备选方案并追踪决策后果。
 
-* [**ADR-001: 本地数据层与持久化框架选型 (SwiftData)**](../ard/ADR-001%20本地数据层与持久化框架选型%20(SwiftData).md)  
-* [**ADR-002: 云同步与多端一致性策略 (Local-First + CloudKit)**](../ard/ADR-002%20云同步与多端一致性策略%20(Local-First%20+%20CloudKit).md)  
-* [**ADR-003: OCR 处理流水线与重处理策略**](../ard/ADR-003%20OCR%20处理流水线与重处理策略.md)
+* [**ADR-005: 导航协调器模式**](../adr/ADR-005-导航协调器模式.md)  
+* [**ADR-006: 底部Tab导航架构设计**](../adr/ADR-006-底部Tab导航架构设计.md)
 
 ## **2\. 系统架构设计 (System Architecture)**
 
@@ -167,6 +167,170 @@ sequenceDiagram
     VM-->>UI: 更新界面状态
     UI-->>U: 显示创建成功
 ```
+
+### **2.5 导航架构设计 (Navigation Architecture)**
+
+#### **2.5.1 底部Tab导航架构**
+
+基于 [**ADR-006: 底部Tab导航架构设计**](../adr/ADR-006-底部Tab导航架构设计.md) 的决策，应用采用5个Tab的底部导航架构：
+
+```mermaid
+graph TB
+    subgraph "MainTabView"
+        A[首页 - Home]
+        B[题库 - Question Bank]
+        C[录入 - Capture]
+        D[发现 - Discover]
+        E[我的 - Me]
+    end
+    
+    subgraph "功能模块"
+        F[学习总览]
+        G[ReviewItem管理]
+        H[OCR拍照识别]
+        I[学习社区]
+        J[个人设置]
+    end
+    
+    A --> F
+    B --> G
+    C --> H
+    D --> I
+    E --> J
+```
+
+**Tab功能定位**：
+- **首页**: 学习总览、进度概览、快速入口
+- **题库**: ReviewItem管理、分类筛选、复习跟踪
+- **录入**: OCR拍照识别、批量导入、智能分类
+- **发现**: 轻度社交、学习资源、AI助手
+- **我的**: 个人设置、账户管理、Pro订阅
+
+#### **2.5.2 导航协调器架构 (Navigation Coordinator Architecture)**
+
+基于 [**ADR-005: 导航协调器模式**](../adr/ADR-005-导航协调器模式.md) 的架构决策，我们采用协调器模式来管理应用的导航流程和依赖注入，实现高度解耦和可测试的架构。
+
+#### **2.5.1 协调器层次结构**
+
+```mermaid
+graph TB
+    subgraph "Application Entry"
+        A[NotBadApp.swift]
+    end
+    
+    subgraph "Application Coordinator"
+        B[AppCoordinator]
+        C[AppCoordinatorView]
+        D[AppFlow]
+    end
+    
+    subgraph "Feature Coordinators"
+        E[ReviewCoordinator]
+        F[StudyCoordinator]
+        G[SettingsCoordinator]
+    end
+    
+    subgraph "Views & ViewModels"
+        H[SwiftUI Views]
+        I[ViewModels]
+    end
+    
+    A --> B
+    B --> C
+    C --> D
+    B --> E
+    B --> F
+    B --> G
+    E --> H
+    F --> H
+    G --> H
+    H --> I
+```
+
+#### **2.5.2 核心组件职责**
+
+| 组件 | 职责 | 关键特性 |
+|------|------|----------|
+| **AppCoordinator** | 应用级导航管理和依赖注入容器 | `@MainActor`, `ObservableObject`, 管理应用生命周期 |
+| **AppCoordinatorView** | 根据协调器状态展示相应界面 | SwiftUI视图，响应状态变化 |
+| **AppFlow** | 定义应用的主要流程和状态 | 枚举类型，支持动画过渡 |
+| **FeatureCoordinator** | 特定功能区域的导航管理 | 可嵌套，独立测试 |
+
+#### **2.5.3 实现示例**
+
+```swift
+// 应用流程定义
+enum AppFlow {
+    case splash      // 启动画面
+    case main        // 主界面  
+    case onboarding  // 引导流程
+    case settings    // 设置界面
+}
+
+// 应用协调器
+@MainActor
+class AppCoordinator: ObservableObject {
+    @Published var isLoading = true
+    @Published var currentFlow: AppFlow = .splash
+    
+    // 依赖注入容器
+    private let reviewRepository: ReviewItemRepository
+    private let syncService: CloudSyncService
+    private let ocrService: OCRService
+    
+    init() {
+        // 依赖注入和服务初始化
+        self.reviewRepository = SwiftDataReviewRepository()
+        self.syncService = CloudKitSyncService()
+        self.ocrService = VisionOCRService()
+        setupApplication()
+    }
+    
+    func navigateToFlow(_ flow: AppFlow) {
+        withAnimation(.easeInOut) {
+            currentFlow = flow
+        }
+    }
+}
+
+// 协调器视图
+struct AppCoordinatorView: View {
+    @ObservedObject var coordinator: AppCoordinator
+    
+    var body: some View {
+        Group {
+            if coordinator.isLoading {
+                SplashView()
+            } else {
+                switch coordinator.currentFlow {
+                case .main:
+                    MainTabView()
+                case .onboarding:
+                    OnboardingView()
+                case .settings:
+                    SettingsView()
+                }
+            }
+        }
+        .animation(.easeInOut, value: coordinator.currentFlow)
+    }
+}
+```
+
+#### **2.5.4 与Clean Architecture的集成**
+
+协调器模式完美支持Clean Architecture的分层设计：
+
+- **表现层 (Presentation)**: 协调器和SwiftUI视图
+- **应用层 (Application)**: 协调器调用用例和交互器  
+- **领域层 (Domain)**: 纯业务逻辑，不依赖具体实现
+- **基础设施层 (Infrastructure)**: 具体实现通过协调器注入
+
+这种架构确保了：
+- **依赖倒置**: 高层模块不依赖低层模块
+- **单一职责**: 每个组件职责明确
+- **开闭原则**: 对扩展开放，对修改关闭
+- **可测试性**: 所有依赖都可以在测试时替换
 
 ## **3\. 数据设计 (Data Design)**
 
@@ -2973,7 +3137,7 @@ graph TB
 ## **8\. 附录 (Appendix)**
 ### **8.1 分阶段交付计划 (Phased Delivery Plan)**
 
-为匹配 PRD v4.0 的发布建议，TDD 推荐采用时间盒（time-boxed）分阶段交付以降低风险并快速验证假设：
+为匹配 PRD v4.2 的发布建议，TDD 推荐采用时间盒（time-boxed）分阶段交付以降低风险并快速验证假设：
 
 - **核心MVP（6周）**
   - 交付模块：OCRService, LocalStorage (SwiftData), BasicReviewUI, 基础离线复习卡片
@@ -3002,6 +3166,6 @@ graph TB
 
 注：若教师/班级场景对后端依赖强烈，建议将其初始实现标记为“ServerRepository 实验性路径”或采用 BaaS（如 Firebase）进行快速验证，再在后续迭代中迁移至自建后端或扩展 CloudKit 方案。
 
-* [**PRD v4.0**](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)  
+* [**PRD v4.2**](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.2%20(Swift6%20+%20iOS18).md)  
 * [**需求追踪矩阵 (RTM)**](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)  
 * [**技术术语表**](../glossary/NotBad%20App%20-%20技术术语表%20v1.1.md)
