@@ -2,7 +2,16 @@
 
 **文档定位：技术实现单一事实来源 (Single Source of Truth for Implementation)**
 
-本文档基于 [**PRD v4.0**](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md) 的产品需求，为NotBad App的技术实现提供了唯一的、权威的、详尽的蓝图。它是开发、测试及运维团队的**核心行动纲领**，定义了应用的架构设计、模块职责、接口契約、数据结构和非功能性实现方案。
+本文档基于 [**PRD v4.0**](../prd/NotBad%20错题本%20Ap#### **4.1.2 学习分析服务接口 (LearningAnalysisService)**
+
+*   **协议**: `LearningAnalysisService`
+*   **MVP实现 (本地规则引擎)**:
+    *   **实现类**: `LocalRuleBasedAnalysisService`
+    *   **业务规则**:
+        *   **薄弱点诊断**: 基于`studyHistory`实现。例如，一个知识点的题目在最近3次复习中，有2次或以上被标记为“未掌握”，则该知识点被识别为薄弱点。
+        *   **实现方式**: 该服务将封装这些固定的业务规则，不涉及复杂的机器学习模型。
+*   **未来扩展 (Pro功能)**:
+    *   保留`HybridAIService`的设计，用于在未来版本中为Pro用户提供基于云端大模型（如Gemini）的更深层次诊断，并实现从本地服务到混合服务的平滑切换。产品需求文档%20(PRD)%20v4.0.md) 的产品需求，为NotBad App的技术实现提供了唯一的、权威的、详尽的蓝图。它是开发、测试及运维团队的**核心行动纲领**，定义了应用的架构设计、模块职责、接口契約、数据结构和非功能性实现方案。
 
 ## 速查：相关文档（快速跳转）
 
@@ -192,13 +201,25 @@ protocol MetricsCalculator {
 
 * **实现说明**: 对于撤销（revokeAccess），客户端必须立即在本地生效（本地权限表更新并触发 parent_access_revoked 事件），并异步同步至 CloudKit/后端以保证跨设备一致性；同时记录审计日志便于合规与争议处理。
 
+#### **4.1.5 错题重做服务 (ReviewItemRedoService)**
+
+*   **协议**: `ReviewItemRedoService`
+*   **职责**: 提供错题重做的用户界面和业务逻辑。
+*   **核心实现 (并排视图)**:
+    1.  **视图布局**: 实现一个`RedoView`，采用`HStack`或`Grid`布局，左侧展示`ReviewItem`的原始图片和内容（只读），右侧提供一个空白的`TextEditor`或类似的输入区域供用户作答。
+    2.  **数据流**: `RedoView`接收一个`ReviewItem`作为输入。用户的作答内容保存在`@State`变量中，不直接修改原始`ReviewItem`。
+    3.  **完成与确认**: 用户点击“完成重做”后，调用`updateMasteryLevel`用例，传入用户对自己本次作答的评价（例如，通过一个选择“已掌握”/“未掌握”的弹窗），从而更新该`ReviewItem`的`masteryLevel`和`studyHistory`。
+*   **技术选型**: SwiftUI, Combine。
+
 ### **4.2 数据同步接口 (Data Sync Contract)**
 
 * **协议**: SyncService  
 * **实现**: CloudKitSyncService  
 * **同步规则**:  
   * **触发时机**: 应用启动、从后台返回、本地数据发生变更后。  
-  * **冲突解决**: 默认策略为“最后写入获胜(Last-Write-Wins)”。对于复杂冲突，将标记数据并提示用户手动选择保留哪个版本。  
+  * **冲突解决**:  
+  * **MVP策略**: 严格采用“**最后写入获胜 (Last-Write-Wins)**”策略。CloudKit将根据记录的修改时间戳自动解决冲突，客户端不实现任何手动的冲突解决UI。  
+  * **未来考虑**: 在未来的版本中，可以为特定类型的关键数据（如用户笔记）引入更复杂的合并策略或版本历史功能。  
 * **错误处理**:  
   * SyncError.authError: iCloud账户认证失败，引导用户检查系统设置。  
   * SyncError.networkError: 网络不可达，自动转入离线模式，待网络恢复后重试。
