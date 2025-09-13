@@ -65,14 +65,14 @@ public class CloudKitSyncService: CloudSyncServiceProtocol {
         let results = try await database.records(matching: query)
         var reviewItems: [SimpleReviewItem] = []
         
-        for (recordID, result) in results.matchResults {
+        for (_, result) in results.matchResults {
             switch result {
             case .success(let record):
                 if let reviewItem = try await convertRecordToReviewItem(record) {
                     reviewItems.append(reviewItem)
                 }
             case .failure(let error):
-                logger.error("获取记录失败: \\(recordID), 错误: \\(error)")
+                logger.error("获取记录失败: 错误: \\(error)")
             }
         }
         

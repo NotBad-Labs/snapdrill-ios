@@ -2,7 +2,7 @@ import Foundation
 import CoreGraphics
 
 // MARK: - OCR Result Models
-public struct OCRResult {
+public struct OCRResult: Sendable {
     public let recognizedText: String
     public let confidence: Float
     public let boundingBoxes: [OCRTextBlock]
@@ -21,7 +21,7 @@ public struct OCRResult {
     }
 }
 
-public struct OCRTextBlock {
+public struct OCRTextBlock: Sendable {
     public let text: String
     public let confidence: Float
     public let boundingBox: CGRect
@@ -35,7 +35,7 @@ public struct OCRTextBlock {
     }
 }
 
-public struct OCRMetadata {
+public struct OCRMetadata: Sendable {
     public let processedAt: Date
     public let processingTime: TimeInterval
     public let imageSize: CGSize
@@ -77,7 +77,7 @@ public protocol OCRServiceProtocol {
 }
 
 // MARK: - OCR Error Types
-public enum OCRError: Error, CaseIterable {
+public enum OCRError: Error, CaseIterable, Sendable {
     case invalidImageData
     case recognitionFailed
     case lowConfidence

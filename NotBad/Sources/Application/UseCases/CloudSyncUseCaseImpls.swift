@@ -24,7 +24,7 @@ public class SyncReviewItemsUseCaseImpl: SyncReviewItemsUseCaseProtocol {
         
         var successfulSyncs = 0
         var failedSyncs = 0
-        var conflicts: [SyncConflict] = []
+        let conflicts: [SyncConflict] = []
         var errors: [CloudSyncError] = []
         
         for item in pendingItems {

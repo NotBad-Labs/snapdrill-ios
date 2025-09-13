@@ -19,6 +19,12 @@ extension DifficultyLevel: Sendable {}
 extension ParentShareStatus: Sendable {}
 extension ItemSource: Sendable {}
 
+// OCR相关类型
+extension OCRResult: Sendable {}
+extension OCRTextBlock: Sendable {}
+extension OCRMetadata: Sendable {}
+extension OCRError: Sendable {}
+
 // MARK: - 日期范围结构体
 struct DateRange: Sendable {
     let startDate: Date

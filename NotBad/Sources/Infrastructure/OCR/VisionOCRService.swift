@@ -1,5 +1,5 @@
 import Foundation
-import Vision
+@preconcurrency import Vision
 import UIKit
 import CoreImage
 
@@ -115,10 +115,9 @@ private extension VisionOCRService {
             request.recognitionLanguages = ["zh-Hans", "en-US"]
             request.usesLanguageCorrection = true
             
-            // 执行识别
-            let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-            
-            DispatchQueue.global(qos: .userInitiated).async {
+            // 执行识别 - 使用Task确保并发安全
+            Task {
+                let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
                 do {
                     try handler.perform([request])
                 } catch {
