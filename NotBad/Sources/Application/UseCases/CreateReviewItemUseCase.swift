@@ -10,7 +10,7 @@ import Foundation
 // MARK: - 创建复习项用例实现
 /// 创建复习项用例的具体实现
 /// 遵循Clean Architecture的Application层设计原则
-class CreateReviewItemUseCase: CreateReviewItemUseCase {
+class CreateReviewItemUseCaseImpl: CreateReviewItemUseCase {
     private let repository: ReviewItemRepository
     
     init(repository: ReviewItemRepository) {

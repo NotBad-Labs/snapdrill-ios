@@ -10,7 +10,7 @@ import Foundation
 // MARK: - 核心实体：复习项
 /// 复习项是系统的核心实体，代表需要复习的单个学习内容单元
 /// 遵循Clean Architecture的Domain层设计原则，纯Swift结构体，无外部依赖
-struct ReviewItem: Identifiable, Equatable, Hashable {
+struct ReviewItem: Identifiable, Equatable, Hashable, Codable {
     let id: UUID
     var content: ReviewContent
     var metadata: ReviewMetadata
@@ -34,7 +34,7 @@ struct ReviewItem: Identifiable, Equatable, Hashable {
 
 // MARK: - 复习内容
 /// 复习项的具体内容，包含题目、答案、解析等
-struct ReviewContent: Equatable, Hashable {
+struct ReviewContent: Equatable, Hashable, Codable {
     var title: String
     var question: String
     var answer: String?
@@ -67,7 +67,7 @@ struct ReviewContent: Equatable, Hashable {
 
 // MARK: - 复习元数据
 /// 复习项的元数据，包含创建时间、更新时间、共享状态等
-struct ReviewMetadata: Equatable, Hashable {
+struct ReviewMetadata: Equatable, Hashable, Codable {
     var createdAt: Date
     var updatedAt: Date
     var ownerId: UUID
@@ -97,7 +97,7 @@ struct ReviewMetadata: Equatable, Hashable {
 
 // MARK: - 学习记录
 /// 记录用户对复习项的学习历史
-struct StudyRecord: Identifiable, Equatable, Hashable {
+struct StudyRecord: Identifiable, Equatable, Hashable, Codable {
     let id: UUID
     var studyDate: Date
     var isCorrect: Bool
@@ -121,16 +121,16 @@ struct StudyRecord: Identifiable, Equatable, Hashable {
 
 // MARK: - 掌握程度
 /// 用户对复习项的掌握程度状态
-enum MasteryLevel: String, CaseIterable, Equatable, Hashable {
+public enum MasteryLevel: String, CaseIterable, Equatable, Hashable, Codable {
     case notMastered = "not_mastered"
-    case fuzzy = "fuzzy"
+    case unclear = "unclear"
     case mastered = "mastered"
     
     var displayName: String {
         switch self {
         case .notMastered:
             return "未掌握"
-        case .fuzzy:
+        case .unclear:
             return "模糊"
         case .mastered:
             return "已掌握"
@@ -141,7 +141,7 @@ enum MasteryLevel: String, CaseIterable, Equatable, Hashable {
         switch self {
         case .notMastered:
             return "red"
-        case .fuzzy:
+        case .unclear:
             return "orange"
         case .mastered:
             return "green"
@@ -151,7 +151,7 @@ enum MasteryLevel: String, CaseIterable, Equatable, Hashable {
 
 // MARK: - 难度等级
 /// 复习项的难度等级
-enum DifficultyLevel: String, CaseIterable, Equatable, Hashable {
+enum DifficultyLevel: String, CaseIterable, Equatable, Hashable, Codable {
     case easy = "easy"
     case medium = "medium"
     case hard = "hard"
@@ -181,7 +181,7 @@ enum DifficultyLevel: String, CaseIterable, Equatable, Hashable {
 
 // MARK: - 家长分享状态
 /// 家长分享状态，用于控制家长对复习项的访问权限
-enum ParentShareStatus: String, CaseIterable, Equatable, Hashable {
+public enum ParentShareStatus: String, CaseIterable, Equatable, Hashable, Codable {
     case none = "none"
     case summary = "summary"
     case oneTime = "one_time"
@@ -203,7 +203,7 @@ enum ParentShareStatus: String, CaseIterable, Equatable, Hashable {
 
 // MARK: - 复习项来源
 /// 复习项的创建来源
-enum ItemSource: String, CaseIterable, Equatable, Hashable {
+enum ItemSource: String, CaseIterable, Equatable, Hashable, Codable {
     case manual = "manual"
     case ocr = "ocr"
     case importFile = "import_file"

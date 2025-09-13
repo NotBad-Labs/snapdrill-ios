@@ -223,7 +223,7 @@ class ReviewItemProtocolsTests: XCTestCase {
         // Given
         let masteryCounts: [MasteryLevel: Int] = [
             .notMastered: 5,
-            .fuzzy: 3,
+            .unclear: 3,
             .mastered: 2
         ]
         let difficultyCounts: [DifficultyLevel: Int] = [
@@ -248,7 +248,7 @@ class ReviewItemProtocolsTests: XCTestCase {
         // Then
         XCTAssertEqual(statistics.totalCount, 10)
         XCTAssertEqual(statistics.masteryLevelCounts[.notMastered], 5)
-        XCTAssertEqual(statistics.masteryLevelCounts[.fuzzy], 3)
+        XCTAssertEqual(statistics.masteryLevelCounts[.unclear], 3)
         XCTAssertEqual(statistics.masteryLevelCounts[.mastered], 2)
         XCTAssertEqual(statistics.difficultyLevelCounts[.easy], 3)
         XCTAssertEqual(statistics.difficultyLevelCounts[.medium], 4)

@@ -93,14 +93,14 @@ class ReviewItemTests: XCTestCase {
     func testMasteryLevelDisplayName() {
         // Then
         XCTAssertEqual(MasteryLevel.notMastered.displayName, "未掌握")
-        XCTAssertEqual(MasteryLevel.fuzzy.displayName, "模糊")
+        XCTAssertEqual(MasteryLevel.unclear.displayName, "模糊")
         XCTAssertEqual(MasteryLevel.mastered.displayName, "已掌握")
     }
     
     func testMasteryLevelColor() {
         // Then
         XCTAssertEqual(MasteryLevel.notMastered.color, "red")
-        XCTAssertEqual(MasteryLevel.fuzzy.color, "orange")
+        XCTAssertEqual(MasteryLevel.unclear.color, "orange")
         XCTAssertEqual(MasteryLevel.mastered.color, "green")
     }
     

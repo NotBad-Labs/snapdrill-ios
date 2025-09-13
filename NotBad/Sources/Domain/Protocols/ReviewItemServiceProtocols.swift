@@ -83,7 +83,7 @@ protocol ReviewItemRepository: Repository {
 // MARK: - 复习项用例协议
 /// 复习项业务用例协议
 protocol ReviewItemUseCase: UseCase {
-    typealias Error = ReviewItemUseCaseError
+    typealias UseCaseErrorType = ReviewItemUseCaseError
 }
 
 // MARK: - 创建复习项用例协议

@@ -10,7 +10,7 @@ import Foundation
 // MARK: - 获取复习项列表用例实现
 /// 获取复习项列表用例的具体实现
 /// 支持多种查询条件和排序方式
-class GetReviewItemsUseCase: GetReviewItemsUseCase {
+class GetReviewItemsUseCaseImpl: GetReviewItemsUseCase {
     private let repository: ReviewItemRepository
     
     init(repository: ReviewItemRepository) {
@@ -53,6 +53,12 @@ class GetReviewItemsUseCase: GetReviewItemsUseCase {
             return try await repository.getBySubject(subject)
         case .byMasteryLevel(let masteryLevel):
             return try await repository.getByMasteryLevel(masteryLevel)
+        case .byDifficulty(let difficulty):
+            return try await repository.getByDifficulty(difficulty)
+        case .byTags(let tags):
+            return try await fetchWithCustomFilter(CustomReviewItemFilter(tags: tags))
+        case .byDateRange(let dateRange):
+            return try await fetchWithCustomFilter(CustomReviewItemFilter(dateRange: dateRange))
         case .bySearch(let query):
             return try await repository.search(query)
         case .custom(let customFilter):

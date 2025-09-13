@@ -40,7 +40,7 @@ protocol RepositoryError: Error, LocalizedError {
 protocol UseCase {
     associatedtype Request
     associatedtype Response
-    associatedtype Error: UseCaseError
+    associatedtype UseCaseErrorType: UseCaseError
     
     func execute(_ request: Request) async throws -> Response
 }
