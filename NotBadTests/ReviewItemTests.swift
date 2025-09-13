@@ -46,6 +46,7 @@ class ReviewItemTests: XCTestCase {
         // Given
         let id = UUID()
         let ownerId = UUID()
+        let fixedDate = Date() // 使用固定时间戳
         
         let content1 = ReviewContent(
             title: "数学题",
@@ -56,6 +57,8 @@ class ReviewItemTests: XCTestCase {
         )
         
         let metadata1 = ReviewMetadata(
+            createdAt: fixedDate,
+            updatedAt: fixedDate,
             ownerId: ownerId,
             source: .manual
         )
@@ -69,6 +72,8 @@ class ReviewItemTests: XCTestCase {
         )
         
         let metadata2 = ReviewMetadata(
+            createdAt: fixedDate,
+            updatedAt: fixedDate,
             ownerId: ownerId,
             source: .manual
         )
