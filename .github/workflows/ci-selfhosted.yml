@@ -510,13 +510,22 @@ jobs:
       
       - name: Run Performance Tests
         run: |
+          # 使用本地临时目录避免权限问题
+          local_result_path="./PerformanceResults-${{ github.run_number }}.xcresult"
+          echo "使用本地结果路径: $local_result_path"
+          
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
             -testPlan PerformanceTestPlan \
             CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath ${{ env.ARTIFACTS_DIR }}/PerformanceResults-${{ github.run_number }}.xcresult
+            -resultBundlePath "$local_result_path"
+          
+          # 复制到群晖存储
+          echo "复制性能测试结果到群晖存储..."
+          cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/"
+          echo "✅ 性能测试结果已保存到群晖存储"
       
       - name: Extract Performance Metrics
         run: python3 Scripts/extract_performance_metrics.py ${{ env.ARTIFACTS_DIR }}/PerformanceResults-${{ github.run_number }}.xcresult
@@ -549,13 +558,22 @@ jobs:
       
       - name: Run UI Tests
         run: |
+          # 使用本地临时目录避免权限问题
+          local_result_path="./UITestResults-${{ github.run_number }}.xcresult"
+          echo "使用本地结果路径: $local_result_path"
+          
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
             -testPlan UITestPlan \
             CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath ${{ env.ARTIFACTS_DIR }}/UITestResults-${{ github.run_number }}.xcresult
+            -resultBundlePath "$local_result_path"
+          
+          # 复制到群晖存储
+          echo "复制UI测试结果到群晖存储..."
+          cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/"
+          echo "✅ UI测试结果已保存到群晖存储"
       
       - name: Archive UI Test Results to NAS
         run: |
