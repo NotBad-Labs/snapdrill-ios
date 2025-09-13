@@ -184,7 +184,7 @@ final class OCRUseCaseTests: XCTestCase {
         // Given
         let request = ProcessImageRequest(imageData: Data())
         mockOCRService.shouldThrowError = true
-        mockOCRService.errorToThrow = OCRError.invalidImageData
+        mockOCRService.errorToThrow = OCRError.invalidImage
         
         // When & Then
         do {

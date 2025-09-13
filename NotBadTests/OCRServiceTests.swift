@@ -168,7 +168,7 @@ final class VisionOCRServiceTests: XCTestCase {
         }
         
         // Test specific error descriptions
-        XCTAssertEqual(OCRError.invalidImageData.localizedDescription, "图片数据无效")
+        XCTAssertEqual(OCRError.invalidImage.localizedDescription, "图像格式无效或损坏")
         XCTAssertEqual(OCRError.recognitionFailed.localizedDescription, "文字识别失败")
         XCTAssertEqual(OCRError.lowConfidence.localizedDescription, "识别置信度过低")
     }

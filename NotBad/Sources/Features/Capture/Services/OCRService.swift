@@ -25,7 +25,7 @@ struct BoundingBox {
 }
 
 /// OCR识别错误
-enum OCRError: LocalizedError {
+enum OCRError: LocalizedError, CaseIterable {
     case invalidImage
     case lowConfidence(confidence: Double)
     case processingTimeout
@@ -41,6 +41,42 @@ enum OCRError: LocalizedError {
             return "图像处理超时"
         case .recognitionFailed:
             return "文字识别失败"
+        }
+    }
+}
+
+/// 网络错误
+enum NetworkError: LocalizedError, CaseIterable {
+    case noConnection
+    case timeout
+    case invalidResponse
+    
+    var errorDescription: String? {
+        switch self {
+        case .noConnection:
+            return "网络连接不可用"
+        case .timeout:
+            return "网络请求超时"
+        case .invalidResponse:
+            return "无效的网络响应"
+        }
+    }
+}
+
+/// 同步错误
+enum SyncError: LocalizedError, CaseIterable {
+    case conflictDetected
+    case quotaExceeded
+    case cloudKitUnavailable
+    
+    var errorDescription: String? {
+        switch self {
+        case .conflictDetected:
+            return "检测到数据冲突"
+        case .quotaExceeded:
+            return "存储配额已满"
+        case .cloudKitUnavailable:
+            return "CloudKit服务不可用"
         }
     }
 }

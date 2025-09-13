@@ -14,16 +14,20 @@ class ReviewItemTests: XCTestCase {
     func testReviewItemCreation() {
         // Given
         let content = ReviewContent(
-            title: "数学题",
-            question: "1+1等于多少？",
-            answer: "2",
+            imageData: nil,
+            recognizedText: "1+1等于多少？",
+            userNotes: "简单的加法题",
             subject: "数学",
+            tags: ["加法", "基础"],
             difficulty: .easy
         )
         
-        let metadata = ReviewMetadata(
+        let metadata = ReviewItemMetadata(
             ownerId: UUID(),
-            source: .manual
+            parentShareStatus: .none,
+            parentAccessRevokedAt: nil,
+            sharedWithClassIds: [],
+            isArchived: false
         )
         
         // When
@@ -135,15 +139,19 @@ class ReviewItemTests: XCTestCase {
         // Given
         let reviewItem = ReviewItem(
             content: ReviewContent(
-                title: "数学题",
-                question: "1+1等于多少？",
-                answer: "2",
+                imageData: nil,
+                recognizedText: "1+1等于多少？",
+                userNotes: "简单的加法题",
                 subject: "数学",
+                tags: ["加法", "基础"],
                 difficulty: .easy
             ),
-            metadata: ReviewMetadata(
+            metadata: ReviewItemMetadata(
                 ownerId: UUID(),
-                source: .manual
+                parentShareStatus: .none,
+                parentAccessRevokedAt: nil,
+                sharedWithClassIds: [],
+                isArchived: false
             )
         )
         
@@ -171,11 +179,20 @@ class ReviewItemTests: XCTestCase {
         // Given
         let reviewItem = ReviewItem(
             content: ReviewContent(
-                title: "数学题",
-                question: "1+1等于多少？",
-                subject: "数学"
+                imageData: nil,
+                recognizedText: "1+1等于多少？",
+                userNotes: "简单的加法题",
+                subject: "数学",
+                tags: ["加法", "基础"],
+                difficulty: .easy
             ),
-            metadata: ReviewMetadata(ownerId: UUID())
+            metadata: ReviewItemMetadata(
+                ownerId: UUID(),
+                parentShareStatus: .none,
+                parentAccessRevokedAt: nil,
+                sharedWithClassIds: [],
+                isArchived: false
+            )
         )
         
         // When
