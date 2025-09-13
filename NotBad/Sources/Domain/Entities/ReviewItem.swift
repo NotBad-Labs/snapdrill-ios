@@ -10,8 +10,8 @@ import Foundation
 // MARK: - 核心实体：复习项
 /// 复习项是系统的核心实体，代表需要复习的单个学习内容单元
 /// 遵循Clean Architecture的Domain层设计原则，纯Swift结构体，无外部依赖
-struct ReviewItem: Identifiable, Equatable, Hashable, Codable {
-    let id: UUID
+public struct ReviewItem: Identifiable, Equatable, Hashable, Codable {
+    public let id: UUID
     var content: ReviewContent
     var metadata: ReviewMetadata
     var studyHistory: [StudyRecord]
@@ -151,7 +151,7 @@ public enum MasteryLevel: String, CaseIterable, Equatable, Hashable, Codable {
 
 // MARK: - 难度等级
 /// 复习项的难度等级
-enum DifficultyLevel: String, CaseIterable, Equatable, Hashable, Codable {
+public enum DifficultyLevel: String, CaseIterable, Equatable, Hashable, Codable {
     case easy = "easy"
     case medium = "medium"
     case hard = "hard"

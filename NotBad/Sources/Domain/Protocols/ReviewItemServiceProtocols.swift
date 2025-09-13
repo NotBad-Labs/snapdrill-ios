@@ -112,7 +112,7 @@ protocol DeleteReviewItemUseCase: ReviewItemUseCase where Request == DeleteRevie
 
 // MARK: - 复习项服务协议
 /// 复习项业务服务协议
-protocol ReviewItemService {
+public protocol ReviewItemService {
     typealias Error = ReviewItemServiceError
     
     // MARK: - 业务操作
@@ -247,13 +247,13 @@ enum ReviewItemUseCaseError: Error, LocalizedError {
 }
 
 /// 复习项服务错误
-enum ReviewItemServiceError: Error, LocalizedError {
+public enum ReviewItemServiceError: Error, LocalizedError {
     case serviceUnavailable(String)
     case configurationError(String)
     case externalServiceError(String)
     
     
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .serviceUnavailable(let message):
             return "服务不可用: \(message)"

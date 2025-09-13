@@ -13,7 +13,7 @@ import Foundation
 
 // MARK: - 复习项过滤条件
 /// 复习项查询的过滤条件
-enum ReviewItemFilter: Codable {
+public enum ReviewItemFilter: Codable {
     case all
     case byOwner(UUID)
     case bySubject(String)
@@ -27,7 +27,7 @@ enum ReviewItemFilter: Codable {
 
 // MARK: - 自定义过滤条件
 /// 自定义的复习项过滤条件
-struct CustomReviewItemFilter: Codable {
+public struct CustomReviewItemFilter: Codable {
     let ownerId: UUID?
     let subject: String?
     let masteryLevel: MasteryLevel?
@@ -54,7 +54,7 @@ struct CustomReviewItemFilter: Codable {
 
 // MARK: - 日期范围
 /// 日期范围结构
-struct DateRange: Codable {
+public struct DateRange: Codable {
     let startDate: Date
     let endDate: Date
     
@@ -66,7 +66,7 @@ struct DateRange: Codable {
 
 // MARK: - 复习项排序方式
 /// 复习项排序方式
-enum ReviewItemSortBy: String, CaseIterable, Codable {
+public enum ReviewItemSortBy: String, CaseIterable, Codable {
     case createdDateAsc = "created_date_asc"
     case createdDateDesc = "created_date_desc"
     case updatedDateAsc = "updated_date_asc"
@@ -121,7 +121,7 @@ struct ReviewItemStatistics: Codable {
 
 // MARK: - 创建复习项请求和响应
 /// 创建复习项请求
-struct CreateReviewItemRequest: Codable {
+public struct CreateReviewItemRequest: Codable {
     let title: String
     let question: String
     let answer: String?
@@ -159,7 +159,7 @@ struct CreateReviewItemRequest: Codable {
 }
 
 /// 创建复习项响应
-struct CreateReviewItemResponse: Codable {
+public struct CreateReviewItemResponse: Codable {
     let reviewItem: ReviewItem
     let success: Bool
     let message: String?
@@ -175,7 +175,7 @@ struct CreateReviewItemResponse: Codable {
 
 // MARK: - 获取复习项请求和响应
 /// 获取复习项列表请求
-struct GetReviewItemsRequest: Codable {
+public struct GetReviewItemsRequest: Codable {
     let filter: ReviewItemFilter
     let sortBy: ReviewItemSortBy
     let page: Int
@@ -195,7 +195,7 @@ struct GetReviewItemsRequest: Codable {
 }
 
 /// 获取复习项列表响应
-struct GetReviewItemsResponse: Codable {
+public struct GetReviewItemsResponse: Codable {
     let items: [ReviewItem]
     let totalCount: Int
     let page: Int
@@ -223,7 +223,7 @@ struct GetReviewItemsResponse: Codable {
 
 // MARK: - 更新复习项请求和响应
 /// 更新复习项请求
-struct UpdateReviewItemRequest: Codable {
+public struct UpdateReviewItemRequest: Codable {
     let id: UUID
     let title: String?
     let question: String?
@@ -261,7 +261,7 @@ struct UpdateReviewItemRequest: Codable {
 }
 
 /// 更新复习项响应
-struct UpdateReviewItemResponse: Codable {
+public struct UpdateReviewItemResponse: Codable {
     let reviewItem: ReviewItem
     let success: Bool
     let message: String?
@@ -277,7 +277,7 @@ struct UpdateReviewItemResponse: Codable {
 
 // MARK: - 删除复习项请求和响应
 /// 删除复习项请求
-struct DeleteReviewItemRequest: Codable {
+public struct DeleteReviewItemRequest: Codable {
     let id: UUID
     let reason: String?
     
@@ -288,7 +288,7 @@ struct DeleteReviewItemRequest: Codable {
 }
 
 /// 删除复习项响应
-struct DeleteReviewItemResponse: Codable {
+public struct DeleteReviewItemResponse: Codable {
     let success: Bool
     let message: String?
     let timestamp: Date
@@ -302,7 +302,7 @@ struct DeleteReviewItemResponse: Codable {
 
 // MARK: - 学习记录请求和响应
 /// 添加学习记录请求
-struct AddStudyRecordRequest: Codable {
+public struct AddStudyRecordRequest: Codable {
     let reviewItemId: UUID
     let isCorrect: Bool
     let timeSpent: TimeInterval
@@ -322,7 +322,7 @@ struct AddStudyRecordRequest: Codable {
 }
 
 /// 添加学习记录响应
-struct AddStudyRecordResponse: Codable {
+public struct AddStudyRecordResponse: Codable {
     let reviewItem: ReviewItem
     let studyRecord: StudyRecord
     let success: Bool
@@ -345,7 +345,7 @@ struct AddStudyRecordResponse: Codable {
 
 // MARK: - 更新掌握程度请求和响应
 /// 更新掌握程度请求
-struct UpdateMasteryLevelRequest: Codable {
+public struct UpdateMasteryLevelRequest: Codable {
     let reviewItemId: UUID
     let masteryLevel: MasteryLevel
     let reason: String?
@@ -358,7 +358,7 @@ struct UpdateMasteryLevelRequest: Codable {
 }
 
 /// 更新掌握程度响应
-struct UpdateMasteryLevelResponse: Codable {
+public struct UpdateMasteryLevelResponse: Codable {
     let reviewItem: ReviewItem
     let success: Bool
     let message: String?
@@ -374,7 +374,7 @@ struct UpdateMasteryLevelResponse: Codable {
 
 // MARK: - 搜索复习项请求和响应
 /// 搜索复习项请求
-struct SearchReviewItemsRequest: Codable {
+public struct SearchReviewItemsRequest: Codable {
     let query: String
     let filters: ReviewItemFilter?
     let sortBy: ReviewItemSortBy
@@ -397,7 +397,7 @@ struct SearchReviewItemsRequest: Codable {
 }
 
 /// 搜索复习项响应
-struct SearchReviewItemsResponse: Codable {
+public struct SearchReviewItemsResponse: Codable {
     let items: [ReviewItem]
     let totalCount: Int
     let page: Int
@@ -425,7 +425,7 @@ struct SearchReviewItemsResponse: Codable {
 
 // MARK: - 获取统计信息请求和响应
 /// 获取统计信息请求
-struct GetStatisticsRequest: Codable {
+public struct GetStatisticsRequest: Codable {
     let ownerId: UUID?
     let dateRange: DateRange?
     let groupBy: StatisticsGroupBy
@@ -442,7 +442,7 @@ struct GetStatisticsRequest: Codable {
 }
 
 /// 获取统计信息响应
-struct GetStatisticsResponse: Codable {
+public struct GetStatisticsResponse: Codable {
     let statistics: ReviewItemStatistics
     let subjectStatistics: [String: Int]
     let masteryStatistics: [MasteryLevel: Int]
@@ -468,7 +468,7 @@ struct GetStatisticsResponse: Codable {
 
 // MARK: - 批量操作请求和响应
 /// 批量创建复习项请求
-struct CreateReviewItemsBatchRequest: Codable {
+public struct CreateReviewItemsBatchRequest: Codable {
     let items: [CreateReviewItemRequest]
     let ownerId: UUID
     
@@ -479,7 +479,7 @@ struct CreateReviewItemsBatchRequest: Codable {
 }
 
 /// 批量创建复习项响应
-struct CreateReviewItemsBatchResponse: Codable {
+public struct CreateReviewItemsBatchResponse: Codable {
     let createdItems: [ReviewItem]
     let failedItems: [FailedItem]
     let successCount: Int
@@ -496,7 +496,7 @@ struct CreateReviewItemsBatchResponse: Codable {
 }
 
 /// 批量更新复习项请求
-struct UpdateReviewItemsBatchRequest: Codable {
+public struct UpdateReviewItemsBatchRequest: Codable {
     let updates: [UpdateReviewItemRequest]
     
     init(updates: [UpdateReviewItemRequest]) {
@@ -505,7 +505,7 @@ struct UpdateReviewItemsBatchRequest: Codable {
 }
 
 /// 批量更新复习项响应
-struct UpdateReviewItemsBatchResponse: Codable {
+public struct UpdateReviewItemsBatchResponse: Codable {
     let updatedItems: [ReviewItem]
     let failedItems: [FailedItem]
     let successCount: Int
@@ -522,7 +522,7 @@ struct UpdateReviewItemsBatchResponse: Codable {
 }
 
 /// 批量删除复习项请求
-struct DeleteReviewItemsBatchRequest: Codable {
+public struct DeleteReviewItemsBatchRequest: Codable {
     let ids: [UUID]
     let reason: String?
     
@@ -533,7 +533,7 @@ struct DeleteReviewItemsBatchRequest: Codable {
 }
 
 /// 批量删除复习项响应
-struct DeleteReviewItemsBatchResponse: Codable {
+public struct DeleteReviewItemsBatchResponse: Codable {
     let deletedIds: [UUID]
     let failedItems: [FailedItem]
     let successCount: Int
@@ -564,7 +564,7 @@ struct FailedItem: Codable {
 }
 
 /// 统计分组方式
-enum StatisticsGroupBy: String, CaseIterable, Codable {
+public enum StatisticsGroupBy: String, CaseIterable, Codable {
     case subject = "subject"
     case masteryLevel = "mastery_level"
     case difficulty = "difficulty"
