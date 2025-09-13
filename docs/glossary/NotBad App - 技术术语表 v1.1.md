@@ -14,6 +14,7 @@
 | 版本 | 日期 | 作者 | 变更说明 |
 | :---- | :---- | :---- | :---- |
 | v1.1 | 2025-09-04 | Team | 同步 PRD/TDD v4.0：新增 Metrics/Teacher/Parent 服务与 Quota Monitoring 术语 |
+| **v1.2** | **2025-09-13** | **Team** | **基于Swift 6 + iOS 18现代化，新增并发模型和现代化术语** |
 
 ## **1\. 技术架构术语**
 
@@ -27,6 +28,32 @@
 | **架构决策记录** | Architecture Decision Record (ADR) | Markdown文档 |
 | **ADR-002 (Cloud Sync)** | ADR-002: Cloud Sync | 待创建：记录 CloudKit vs 自建后端决策 |
 | **ADR-003 (OCR 引擎)** | ADR-003: OCR Engine | 待创建：记录 OCR 引擎选型与性能评估 |
+
+## **1.1 Swift 6 并发模型术语**
+
+| 术语 (中文) | 英文术语 (English Term) | 技术实现 | 说明 |
+| :---- | :---- | :---- | :---- |
+| **Actor** | Actor | `actor` 关键字 | 类型安全的并发单元，替代class |
+| **异步函数** | Async Function | `async` 关键字 | 异步执行的函数，替代回调 |
+| **等待调用** | Await Call | `await` 关键字 | 等待异步操作完成 |
+| **发送安全** | Sendable | `Sendable` 协议 | 可安全跨并发边界传递的类型 |
+| **严格并发** | Strict Concurrency | 编译时检查 | 编译时保证并发安全 |
+| **任务组** | Task Group | `TaskGroup` | 并发执行多个任务 |
+| **并发安全** | Concurrency Safety | 编译时保证 | 编译时检查并发访问安全 |
+| **Actor隔离** | Actor Isolation | 编译器检查 | Actor内部状态隔离保护 |
+
+## **1.2 iOS 18 新特性术语**
+
+| 术语 (中文) | 英文术语 (English Term) | 技术实现 | 说明 |
+| :---- | :---- | :---- | :---- |
+| **导航栈** | NavigationStack | `NavigationStack` | 新的导航容器，替代NavigationView |
+| **可观察对象** | Observable | `@Observable` | 新的状态管理宏，替代ObservableObject |
+| **数据模型** | Data Model | `@Model` | SwiftData数据模型 |
+| **批量操作** | Batch Operations | `ModelContext.transaction` | 批量数据操作API |
+| **并发处理** | Concurrent Processing | `TaskGroup` | 并发任务处理 |
+| **状态管理** | State Management | `@Observable` | 现代化状态管理 |
+| **动画系统** | Animation System | iOS 18新API | 改进的动画性能 |
+| **手势识别** | Gesture Recognition | iOS 18新API | 更精确的手势操作 |
 
 ## **2\. 数据管理术语**
 
