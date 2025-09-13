@@ -8,27 +8,7 @@
 import Foundation
 
 // MARK: - 枚举类型定义
-public enum MasteryLevel: String, CaseIterable, Codable {
-    case notMastered = "not_mastered"
-    case unclear = "unclear"
-    case mastered = "mastered"
-}
-
-public enum Subject: String, CaseIterable, Codable {
-    case math = "math"
-    case chinese = "chinese"
-    case english = "english"
-    case physics = "physics"
-    case chemistry = "chemistry"
-    case biology = "biology"
-}
-
-public enum ParentShareStatus: String, Codable {
-    case none = "none"
-    case summary = "summary"
-    case oneTime = "one_time"
-    case itemLevel = "item_level"
-}
+// 注意：MasteryLevel 和 ParentShareStatus 已在 ReviewItem.swift 中定义
 
 public enum StudyResult: String, Codable, CaseIterable {
     case correct = "correct"

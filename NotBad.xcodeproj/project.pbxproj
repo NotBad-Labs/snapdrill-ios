@@ -63,28 +63,16 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Sources/Domain/Protocols/ModuleProtocols.swift,
 			);
 			target = B27BD95E2E560D0600E69277 /* NotBad */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		B29580202E6A728A00E2D95C /* Exceptions for "NotBad" folder in "Copy Bundle Resources" phase from "NotBad" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = B27BD95D2E560D0600E69277 /* Resources */;
-			membershipExceptions = (
-				Sources/Domain/Protocols/ModuleProtocols.swift,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B27BD9612E560D0700E69277 /* NotBad */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				B27BD9822E560D0800E69277 /* Exceptions for "NotBad" folder in "NotBad" target */,
-				B29580202E6A728A00E2D95C /* Exceptions for "NotBad" folder in "Copy Bundle Resources" phase from "NotBad" target */,
 			);
 			path = NotBad;
 			sourceTree = "<group>";

@@ -2,50 +2,186 @@
 //  ReviewItemTests.swift
 //  NotBadTests
 //
-//  Created by Assistant on 8/20/25.
+//  Created by AI Assistant on 2025/9/13.
 //
 
-import Testing
-import SwiftData
+import XCTest
 @testable import NotBad
 
-struct ReviewItemTests {
+// MARK: - ReviewItem实体测试
+class ReviewItemTests: XCTestCase {
     
-    @Test func testDomainTypes() async throws {
-        // Test domain types are accessible
-        let level = MasteryLevel.notMastered
-        let subject = Subject.math
-        let result = StudyResult.correct
+    func testReviewItemCreation() {
+        // Given
+        let content = ReviewContent(
+            title: "数学题",
+            question: "1+1等于多少？",
+            answer: "2",
+            subject: "数学",
+            difficulty: .easy
+        )
         
-        #expect(level == .notMastered)
-        #expect(subject == .math)
-        #expect(result == .correct)
+        let metadata = ReviewMetadata(
+            ownerId: UUID(),
+            source: .manual
+        )
+        
+        // When
+        let reviewItem = ReviewItem(
+            content: content,
+            metadata: metadata
+        )
+        
+        // Then
+        XCTAssertEqual(reviewItem.content.title, "数学题")
+        XCTAssertEqual(reviewItem.content.question, "1+1等于多少？")
+        XCTAssertEqual(reviewItem.content.answer, "2")
+        XCTAssertEqual(reviewItem.content.subject, "数学")
+        XCTAssertEqual(reviewItem.content.difficulty, .easy)
+        XCTAssertEqual(reviewItem.masteryLevel, .notMastered)
+        XCTAssertEqual(reviewItem.studyHistory.count, 0)
     }
     
-    @Test func testMasteryLevelProgression() async throws {
-        // Test mastery level enum values
-        let levels: [MasteryLevel] = [.notMastered, .unclear, .mastered]
-        #expect(levels.count == 3)
-        #expect(MasteryLevel.allCases.count == 3)
+    func testReviewItemEquality() {
+        // Given
+        let id = UUID()
+        let ownerId = UUID()
+        let fixedDate = Date() // 使用固定时间戳
+        
+        let content1 = ReviewContent(
+            title: "数学题",
+            question: "1+1等于多少？",
+            answer: "2",
+            subject: "数学",
+            difficulty: .easy
+        )
+        
+        let metadata1 = ReviewMetadata(
+            createdAt: fixedDate,
+            updatedAt: fixedDate,
+            ownerId: ownerId,
+            source: .manual
+        )
+        
+        let content2 = ReviewContent(
+            title: "数学题",
+            question: "1+1等于多少？",
+            answer: "2",
+            subject: "数学",
+            difficulty: .easy
+        )
+        
+        let metadata2 = ReviewMetadata(
+            createdAt: fixedDate,
+            updatedAt: fixedDate,
+            ownerId: ownerId,
+            source: .manual
+        )
+        
+        // When
+        let item1 = ReviewItem(
+            id: id,
+            content: content1,
+            metadata: metadata1
+        )
+        
+        let item2 = ReviewItem(
+            id: id,
+            content: content2,
+            metadata: metadata2
+        )
+        
+        // Then
+        XCTAssertEqual(item1, item2)
     }
     
-    @Test func testSubjectTypes() async throws {
-        // Test subject enum values
-        let subjects = Subject.allCases
-        #expect(subjects.contains(.math))
-        #expect(subjects.contains(.chinese))
-        #expect(subjects.contains(.english))
-        #expect(subjects.contains(.physics))
-        #expect(subjects.contains(.chemistry))
-        #expect(subjects.contains(.biology))
+    func testMasteryLevelDisplayName() {
+        // Then
+        XCTAssertEqual(MasteryLevel.notMastered.displayName, "未掌握")
+        XCTAssertEqual(MasteryLevel.unclear.displayName, "模糊")
+        XCTAssertEqual(MasteryLevel.mastered.displayName, "已掌握")
     }
     
-    @Test func testStudyResults() async throws {
-        // Test study result enum values
-        let results = StudyResult.allCases
-        #expect(results.contains(.correct))
-        #expect(results.contains(.incorrect))
-        #expect(results.contains(.partial))
-        #expect(results.contains(.skipped))
+    func testMasteryLevelColor() {
+        // Then
+        XCTAssertEqual(MasteryLevel.notMastered.color, "red")
+        XCTAssertEqual(MasteryLevel.unclear.color, "orange")
+        XCTAssertEqual(MasteryLevel.mastered.color, "green")
+    }
+    
+    func testDifficultyLevelWeight() {
+        // Then
+        XCTAssertEqual(DifficultyLevel.easy.weight, 1)
+        XCTAssertEqual(DifficultyLevel.medium.weight, 2)
+        XCTAssertEqual(DifficultyLevel.hard.weight, 3)
+    }
+    
+    func testStudyRecordCreation() {
+        // When
+        let studyRecord = StudyRecord(
+            isCorrect: true,
+            timeSpent: 30.0,
+            notes: "做对了"
+        )
+        
+        // Then
+        XCTAssertTrue(studyRecord.isCorrect)
+        XCTAssertEqual(studyRecord.timeSpent, 30.0)
+        XCTAssertEqual(studyRecord.notes, "做对了")
+    }
+    
+    func testReviewItemCodable() {
+        // Given
+        let reviewItem = ReviewItem(
+            content: ReviewContent(
+                title: "数学题",
+                question: "1+1等于多少？",
+                answer: "2",
+                subject: "数学",
+                difficulty: .easy
+            ),
+            metadata: ReviewMetadata(
+                ownerId: UUID(),
+                source: .manual
+            )
+        )
+        
+        // When
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        
+        do {
+            let data = try encoder.encode(reviewItem)
+            let decodedItem = try decoder.decode(ReviewItem.self, from: data)
+            
+            // Then
+            XCTAssertEqual(reviewItem.id, decodedItem.id)
+            XCTAssertEqual(reviewItem.content.title, decodedItem.content.title)
+            XCTAssertEqual(reviewItem.content.question, decodedItem.content.question)
+            XCTAssertEqual(reviewItem.content.answer, decodedItem.content.answer)
+            XCTAssertEqual(reviewItem.content.subject, decodedItem.content.subject)
+            XCTAssertEqual(reviewItem.content.difficulty, decodedItem.content.difficulty)
+            XCTAssertEqual(reviewItem.masteryLevel, decodedItem.masteryLevel)
+        } catch {
+            XCTFail("编码/解码失败: \(error)")
+        }
+    }
+    
+    func testReviewItemHashable() {
+        // Given
+        let reviewItem = ReviewItem(
+            content: ReviewContent(
+                title: "数学题",
+                question: "1+1等于多少？",
+                subject: "数学"
+            ),
+            metadata: ReviewMetadata(ownerId: UUID())
+        )
+        
+        // When
+        let hashValue = reviewItem.hashValue
+        
+        // Then
+        XCTAssertNotEqual(hashValue, 0)
     }
 }

@@ -10,11 +10,11 @@ import SwiftData
 
 struct ContentView: View {
     var body: some View {
-        Text("Hello, NotBad!")
-            .padding()
+        ReviewItemListView()
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }
