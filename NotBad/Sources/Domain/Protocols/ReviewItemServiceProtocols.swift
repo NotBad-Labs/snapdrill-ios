@@ -90,33 +90,22 @@ protocol ReviewItemUseCase {
 }
 
 // MARK: - 创建复习项用例协议
-protocol CreateReviewItemUseCase: ReviewItemUseCase {
-    typealias Request = CreateReviewItemRequest
-    typealias Response = CreateReviewItemResponse
-    
+protocol CreateReviewItemUseCase: ReviewItemUseCase where Request == CreateReviewItemRequest, Response == CreateReviewItemResponse {
     func execute(_ request: Request) async throws -> Response
 }
 
 // MARK: - 获取复习项用例协议
-protocol GetReviewItemsUseCase: ReviewItemUseCase {
-    typealias Request = GetReviewItemsRequest
-    typealias Response = GetReviewItemsResponse
-    
+protocol GetReviewItemsUseCase: ReviewItemUseCase where Request == GetReviewItemsRequest, Response == GetReviewItemsResponse {
     func execute(_ request: Request) async throws -> Response
 }
 
 // MARK: - 更新复习项用例协议
-protocol UpdateReviewItemUseCase: ReviewItemUseCase {
-    typealias Request = UpdateReviewItemRequest
-    typealias Response = UpdateReviewItemResponse
-    
+protocol UpdateReviewItemUseCase: ReviewItemUseCase where Request == UpdateReviewItemRequest, Response == UpdateReviewItemResponse {
     func execute(_ request: Request) async throws -> Response
 }
 
 // MARK: - 删除复习项用例协议
-protocol DeleteReviewItemUseCase: ReviewItemUseCase {
-    typealias Request = DeleteReviewItemRequest
-    typealias Response = DeleteReviewItemResponse
+protocol DeleteReviewItemUseCase: ReviewItemUseCase where Request == DeleteReviewItemRequest, Response == DeleteReviewItemResponse {
     
     func execute(_ request: Request) async throws -> Response
 }
