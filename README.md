@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![iOS](https://img.shields.io/badge/iOS-17.0%2B-blue) ![Swift](https://img.shields.io/badge/Swift-6.0-orange) ![Xcode](https://img.shields.io/badge/Xcode-16.0%2B-blue) ![Status](https://img.shields.io/badge/Status-Core%20Features%20Complete-green) ![License](https://img.shields.io/badge/License-MIT-green)
+![iOS](https://img.shields.io/badge/iOS-17.0%2B%20%7C%20Ready%20for%20iOS%2026-blue) ![Swift](https://img.shields.io/badge/Swift-6.0%2B-orange) ![Xcode](https://img.shields.io/badge/Xcode-16.0%2B%20%7C%20Preparing%20for%2017.0-blue) ![Status](https://img.shields.io/badge/Status-Core%20Features%20Complete-green) ![License](https://img.shields.io/badge/License-MIT-green)
 
 > 一个**安全、简洁、智能**的K12学习复习应用，帮助学生科学高效地管理和复习错题，形成完整的学习闭环。
 
@@ -25,10 +25,10 @@
 
 ### 环境要求
 
-- **macOS**: Sonoma 14.0+
-- **Xcode**: 16.0+
-- **iOS Deployment Target**: 17.0+
-- **Swift**: 6.0
+- **macOS**: Sonoma 14.0+ (推荐 macOS 15.0+ for iOS 26 development)
+- **Xcode**: 16.0+ (iOS 26 support will require Xcode 17.0+)
+- **iOS Deployment Target**: 17.0+ (with iOS 26.0+ optimization planned)
+- **Swift**: 6.0+ (future compatibility with Swift 6.1+)
 
 ### 项目设置
 
@@ -98,6 +98,24 @@ graph TB
 - **[开发工作流程](docs/DEVELOPMENT_WORKFLOW.md)** - Git 工作流和开发规范
 - **[术语表](docs/glossary/)** - 业务和技术术语定义
 - **[CI/CD 配置](.github/CI_CD_OPTIMIZATIONS.md)** - 持续集成优化
+
+## 🚀 iOS 新版本适配计划
+
+### 📱 **iOS 26.0 Ready Strategy**
+我们正在为即将到来的iOS新版本做准备，确保NotBad能充分利用最新的系统特性：
+
+#### **🎯 适配重点**
+- **增强OCR体验**: 利用新版Vision框架的改进，提升识别准确率
+- **智能化功能**: 集成系统级AI能力，优化错题分析和推荐
+- **性能优化**: 采用新的SwiftUI和Swift并发特性，提升应用流畅度
+- **隐私增强**: 遵循最新的隐私保护标准和用户控制要求
+
+#### **🔧 技术准备**
+- **向后兼容**: 保持iOS 17.0+支持，使用`@available`实现渐进式特性
+- **代码现代化**: 持续采用Swift 6+的最新语言特性
+- **测试覆盖**: 在多版本iOS上验证功能完整性
+
+> 💡 我们将在iOS新版本发布的第一时间适配新特性，为用户提供最佳的学习体验。
 
 > 💡 **文档优先**: 本项目采用文档驱动开发，所有功能设计和技术决策都有完整文档支撑。
 
