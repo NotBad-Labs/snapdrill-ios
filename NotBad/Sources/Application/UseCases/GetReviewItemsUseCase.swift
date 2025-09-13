@@ -7,10 +7,10 @@
 
 import Foundation
 
-// MARK: - 获取复习项列表用例
-/// 获取复习项列表的用例，封装查询复习项的业务逻辑
+// MARK: - 获取复习项列表用例实现
+/// 获取复习项列表用例的具体实现
 /// 支持多种查询条件和排序方式
-class GetReviewItemsUseCase {
+class GetReviewItemsUseCase: GetReviewItemsUseCase {
     private let repository: ReviewItemRepository
     
     init(repository: ReviewItemRepository) {
@@ -18,9 +18,6 @@ class GetReviewItemsUseCase {
     }
     
     /// 执行获取复习项列表操作
-    /// - Parameter request: 查询请求
-    /// - Returns: 查询结果
-    /// - Throws: 查询失败时抛出错误
     func execute(_ request: GetReviewItemsRequest) async throws -> GetReviewItemsResponse {
         // 1. 根据查询条件获取复习项
         let items = try await fetchItems(by: request.filter)
@@ -154,128 +151,4 @@ class GetReviewItemsUseCase {
             subjectCounts: subjectCounts
         )
     }
-}
-
-// MARK: - 获取复习项列表请求
-/// 获取复习项列表的请求参数
-struct GetReviewItemsRequest {
-    let filter: ReviewItemFilter
-    let sortBy: ReviewItemSortBy
-    let page: Int
-    let pageSize: Int
-    
-    init(
-        filter: ReviewItemFilter = .all,
-        sortBy: ReviewItemSortBy = .createdDateDesc,
-        page: Int = 0,
-        pageSize: Int = 20
-    ) {
-        self.filter = filter
-        self.sortBy = sortBy
-        self.page = page
-        self.pageSize = pageSize
-    }
-}
-
-// MARK: - 获取复习项列表响应
-/// 获取复习项列表的响应数据
-struct GetReviewItemsResponse {
-    let items: [ReviewItem]
-    let totalCount: Int
-    let page: Int
-    let pageSize: Int
-    let statistics: ReviewItemStatistics
-}
-
-// MARK: - 复习项过滤条件
-/// 复习项查询的过滤条件
-enum ReviewItemFilter {
-    case all
-    case byOwner(UUID)
-    case bySubject(String)
-    case byMasteryLevel(MasteryLevel)
-    case bySearch(String)
-    case custom(CustomReviewItemFilter)
-}
-
-// MARK: - 自定义过滤条件
-/// 自定义的复习项过滤条件
-struct CustomReviewItemFilter {
-    let ownerId: UUID?
-    let subject: String?
-    let masteryLevel: MasteryLevel?
-    let difficulty: DifficultyLevel?
-    let tags: [String]?
-    let dateRange: DateRange?
-    
-    init(
-        ownerId: UUID? = nil,
-        subject: String? = nil,
-        masteryLevel: MasteryLevel? = nil,
-        difficulty: DifficultyLevel? = nil,
-        tags: [String]? = nil,
-        dateRange: DateRange? = nil
-    ) {
-        self.ownerId = ownerId
-        self.subject = subject
-        self.masteryLevel = masteryLevel
-        self.difficulty = difficulty
-        self.tags = tags
-        self.dateRange = dateRange
-    }
-}
-
-// MARK: - 日期范围
-/// 日期范围结构
-struct DateRange {
-    let startDate: Date
-    let endDate: Date
-    
-    init(startDate: Date, endDate: Date) {
-        self.startDate = startDate
-        self.endDate = endDate
-    }
-}
-
-// MARK: - 复习项排序方式
-/// 复习项排序方式
-enum ReviewItemSortBy: String, CaseIterable {
-    case createdDateAsc = "created_date_asc"
-    case createdDateDesc = "created_date_desc"
-    case updatedDateAsc = "updated_date_asc"
-    case updatedDateDesc = "updated_date_desc"
-    case titleAsc = "title_asc"
-    case titleDesc = "title_desc"
-    case masteryLevel = "mastery_level"
-    case difficulty = "difficulty"
-    
-    var displayName: String {
-        switch self {
-        case .createdDateAsc:
-            return "创建时间（升序）"
-        case .createdDateDesc:
-            return "创建时间（降序）"
-        case .updatedDateAsc:
-            return "更新时间（升序）"
-        case .updatedDateDesc:
-            return "更新时间（降序）"
-        case .titleAsc:
-            return "标题（升序）"
-        case .titleDesc:
-            return "标题（降序）"
-        case .masteryLevel:
-            return "掌握程度"
-        case .difficulty:
-            return "难度等级"
-        }
-    }
-}
-
-// MARK: - 复习项统计信息
-/// 复习项统计信息
-struct ReviewItemStatistics {
-    let totalCount: Int
-    let masteryLevelCounts: [MasteryLevel: Int]
-    let difficultyLevelCounts: [DifficultyLevel: Int]
-    let subjectCounts: [String: Int]
 }

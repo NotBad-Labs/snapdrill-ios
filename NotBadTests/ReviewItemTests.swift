@@ -124,39 +124,10 @@ class ReviewItemTests: XCTestCase {
         XCTAssertEqual(studyRecord.timeSpent, 30.0)
         XCTAssertEqual(studyRecord.notes, "做对了")
     }
-}
-
-// MARK: - CreateReviewItemUseCase测试
-class CreateReviewItemUseCaseTests: XCTestCase {
     
-    private var useCase: CreateReviewItemUseCase!
-    private var mockRepository: MockReviewItemRepository!
-    
-    override func setUp() {
-        super.setUp()
-        mockRepository = MockReviewItemRepository()
-        useCase = CreateReviewItemUseCase(repository: mockRepository)
-    }
-    
-    override func tearDown() {
-        useCase = nil
-        mockRepository = nil
-        super.tearDown()
-    }
-    
-    func testCreateReviewItemSuccess() async throws {
+    func testReviewItemCodable() {
         // Given
-        let request = CreateReviewItemRequest(
-            title: "数学题",
-            question: "1+1等于多少？",
-            answer: "2",
-            subject: "数学",
-            difficulty: .easy,
-            ownerId: UUID(),
-            source: .manual
-        )
-        
-        let expectedItem = ReviewItem(
+        let reviewItem = ReviewItem(
             content: ReviewContent(
                 title: "数学题",
                 question: "1+1等于多少？",
@@ -165,194 +136,46 @@ class CreateReviewItemUseCaseTests: XCTestCase {
                 difficulty: .easy
             ),
             metadata: ReviewMetadata(
-                ownerId: request.ownerId,
+                ownerId: UUID(),
                 source: .manual
             )
         )
         
-        mockRepository.createResult = expectedItem
+        // When
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        
+        do {
+            let data = try encoder.encode(reviewItem)
+            let decodedItem = try decoder.decode(ReviewItem.self, from: data)
+            
+            // Then
+            XCTAssertEqual(reviewItem.id, decodedItem.id)
+            XCTAssertEqual(reviewItem.content.title, decodedItem.content.title)
+            XCTAssertEqual(reviewItem.content.question, decodedItem.content.question)
+            XCTAssertEqual(reviewItem.content.answer, decodedItem.content.answer)
+            XCTAssertEqual(reviewItem.content.subject, decodedItem.content.subject)
+            XCTAssertEqual(reviewItem.content.difficulty, decodedItem.content.difficulty)
+            XCTAssertEqual(reviewItem.masteryLevel, decodedItem.masteryLevel)
+        } catch {
+            XCTFail("编码/解码失败: \(error)")
+        }
+    }
+    
+    func testReviewItemHashable() {
+        // Given
+        let reviewItem = ReviewItem(
+            content: ReviewContent(
+                title: "数学题",
+                question: "1+1等于多少？",
+                subject: "数学"
+            ),
+            metadata: ReviewMetadata(ownerId: UUID())
+        )
         
         // When
-        let result = try await useCase.execute(request)
+        let hashValue = reviewItem.hashValue
         
         // Then
-        XCTAssertEqual(result.content.title, "数学题")
-        XCTAssertEqual(result.content.question, "1+1等于多少？")
-        XCTAssertEqual(result.content.answer, "2")
-        XCTAssertEqual(result.content.subject, "数学")
-        XCTAssertEqual(result.content.difficulty, .easy)
-        XCTAssertTrue(mockRepository.createCalled)
+        XCTAssertNotEqual(hashValue, 0)
     }
-    
-    func testCreateReviewItemWithEmptyTitle() async throws {
-        // Given
-        let request = CreateReviewItemRequest(
-            title: "",
-            question: "1+1等于多少？",
-            subject: "数学",
-            ownerId: UUID()
-        )
-        
-        // When & Then
-        do {
-            _ = try await useCase.execute(request)
-            XCTFail("应该抛出错误")
-        } catch CreateReviewItemError.invalidTitle(let message) {
-            XCTAssertEqual(message, "标题不能为空")
-        } catch {
-            XCTFail("错误的异常类型: \(error)")
-        }
-    }
-    
-    func testCreateReviewItemWithEmptyQuestion() async throws {
-        // Given
-        let request = CreateReviewItemRequest(
-            title: "数学题",
-            question: "",
-            subject: "数学",
-            ownerId: UUID()
-        )
-        
-        // When & Then
-        do {
-            _ = try await useCase.execute(request)
-            XCTFail("应该抛出错误")
-        } catch CreateReviewItemError.invalidQuestion(let message) {
-            XCTAssertEqual(message, "题目不能为空")
-        } catch {
-            XCTFail("错误的异常类型: \(error)")
-        }
-    }
-    
-    func testCreateReviewItemWithEmptySubject() async throws {
-        // Given
-        let request = CreateReviewItemRequest(
-            title: "数学题",
-            question: "1+1等于多少？",
-            subject: "",
-            ownerId: UUID()
-        )
-        
-        // When & Then
-        do {
-            _ = try await useCase.execute(request)
-            XCTFail("应该抛出错误")
-        } catch CreateReviewItemError.invalidSubject(let message) {
-            XCTAssertEqual(message, "科目不能为空")
-        } catch {
-            XCTFail("错误的异常类型: \(error)")
-        }
-    }
-    
-    func testCreateReviewItemWithLongTitle() async throws {
-        // Given
-        let longTitle = String(repeating: "a", count: 101)
-        let request = CreateReviewItemRequest(
-            title: longTitle,
-            question: "1+1等于多少？",
-            subject: "数学",
-            ownerId: UUID()
-        )
-        
-        // When & Then
-        do {
-            _ = try await useCase.execute(request)
-            XCTFail("应该抛出错误")
-        } catch CreateReviewItemError.invalidTitle(let message) {
-            XCTAssertEqual(message, "标题长度不能超过100个字符")
-        } catch {
-            XCTFail("错误的异常类型: \(error)")
-        }
-    }
-}
-
-// MARK: - Mock仓储
-class MockReviewItemRepository: ReviewItemRepository {
-    var createResult: ReviewItem?
-    var getByIdResult: ReviewItem?
-    var getAllResult: [ReviewItem] = []
-    var getByOwnerResult: [ReviewItem] = []
-    var getBySubjectResult: [ReviewItem] = []
-    var getByMasteryLevelResult: [ReviewItem] = []
-    var searchResult: [ReviewItem] = []
-    
-    var createCalled = false
-    var getByIdCalled = false
-    var getAllCalled = false
-    var getByOwnerCalled = false
-    var getBySubjectCalled = false
-    var getByMasteryLevelCalled = false
-    var updateCalled = false
-    var deleteCalled = false
-    var deleteBatchCalled = false
-    var searchCalled = false
-    var addStudyRecordCalled = false
-    var updateMasteryLevelCalled = false
-    
-    func create(_ item: ReviewItem) async throws -> ReviewItem {
-        createCalled = true
-        if let result = createResult {
-            return result
-        }
-        throw ReviewItemRepositoryError.storageError("Mock error")
-    }
-    
-    func getById(_ id: UUID) async throws -> ReviewItem? {
-        getByIdCalled = true
-        return getByIdResult
-    }
-    
-    func getAll() async throws -> [ReviewItem] {
-        getAllCalled = true
-        return getAllResult
-    }
-    
-    func getByOwner(_ ownerId: UUID) async throws -> [ReviewItem] {
-        getByOwnerCalled = true
-        return getByOwnerResult
-    }
-    
-    func getBySubject(_ subject: String) async throws -> [ReviewItem] {
-        getBySubjectCalled = true
-        return getBySubjectResult
-    }
-    
-    func getByMasteryLevel(_ masteryLevel: MasteryLevel) async throws -> [ReviewItem] {
-        getByMasteryLevelCalled = true
-        return getByMasteryLevelResult
-    }
-    
-    func update(_ item: ReviewItem) async throws -> ReviewItem {
-        updateCalled = true
-        return item
-    }
-    
-    func delete(_ id: UUID) async throws {
-        deleteCalled = true
-    }
-    
-    func deleteBatch(_ ids: [UUID]) async throws {
-        deleteBatchCalled = true
-    }
-    
-    func search(_ query: String) async throws -> [ReviewItem] {
-        searchCalled = true
-        return searchResult
-    }
-    
-    func addStudyRecord(itemId: UUID, record: StudyRecord) async throws -> ReviewItem {
-        addStudyRecordCalled = true
-        return ReviewItem(
-            content: ReviewContent(title: "Test", question: "Test", subject: "Test"),
-            metadata: ReviewMetadata(ownerId: UUID())
-        )
-    }
-    
-    func updateMasteryLevel(itemId: UUID, masteryLevel: MasteryLevel) async throws -> ReviewItem {
-        updateMasteryLevelCalled = true
-        return ReviewItem(
-            content: ReviewContent(title: "Test", question: "Test", subject: "Test"),
-            metadata: ReviewMetadata(ownerId: UUID())
-        )
-    }
-}

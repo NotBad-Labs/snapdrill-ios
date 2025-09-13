@@ -11,6 +11,114 @@ import Foundation
 /// 复习项相关的所有请求和响应数据结构
 /// 遵循Clean Architecture的数据传输对象(DTO)设计原则
 
+// MARK: - 复习项过滤条件
+/// 复习项查询的过滤条件
+enum ReviewItemFilter: Codable {
+    case all
+    case byOwner(UUID)
+    case bySubject(String)
+    case byMasteryLevel(MasteryLevel)
+    case byDifficulty(DifficultyLevel)
+    case byTags([String])
+    case byDateRange(DateRange)
+    case bySearch(String)
+    case custom(CustomReviewItemFilter)
+}
+
+// MARK: - 自定义过滤条件
+/// 自定义的复习项过滤条件
+struct CustomReviewItemFilter: Codable {
+    let ownerId: UUID?
+    let subject: String?
+    let masteryLevel: MasteryLevel?
+    let difficulty: DifficultyLevel?
+    let tags: [String]?
+    let dateRange: DateRange?
+    
+    init(
+        ownerId: UUID? = nil,
+        subject: String? = nil,
+        masteryLevel: MasteryLevel? = nil,
+        difficulty: DifficultyLevel? = nil,
+        tags: [String]? = nil,
+        dateRange: DateRange? = nil
+    ) {
+        self.ownerId = ownerId
+        self.subject = subject
+        self.masteryLevel = masteryLevel
+        self.difficulty = difficulty
+        self.tags = tags
+        self.dateRange = dateRange
+    }
+}
+
+// MARK: - 日期范围
+/// 日期范围结构
+struct DateRange: Codable {
+    let startDate: Date
+    let endDate: Date
+    
+    init(startDate: Date, endDate: Date) {
+        self.startDate = startDate
+        self.endDate = endDate
+    }
+}
+
+// MARK: - 复习项排序方式
+/// 复习项排序方式
+enum ReviewItemSortBy: String, CaseIterable, Codable {
+    case createdDateAsc = "created_date_asc"
+    case createdDateDesc = "created_date_desc"
+    case updatedDateAsc = "updated_date_asc"
+    case updatedDateDesc = "updated_date_desc"
+    case titleAsc = "title_asc"
+    case titleDesc = "title_desc"
+    case masteryLevel = "mastery_level"
+    case difficulty = "difficulty"
+    
+    var displayName: String {
+        switch self {
+        case .createdDateAsc:
+            return "创建时间（升序）"
+        case .createdDateDesc:
+            return "创建时间（降序）"
+        case .updatedDateAsc:
+            return "更新时间（升序）"
+        case .updatedDateDesc:
+            return "更新时间（降序）"
+        case .titleAsc:
+            return "标题（升序）"
+        case .titleDesc:
+            return "标题（降序）"
+        case .masteryLevel:
+            return "掌握程度"
+        case .difficulty:
+            return "难度等级"
+        }
+    }
+}
+
+// MARK: - 复习项统计信息
+/// 复习项统计信息
+struct ReviewItemStatistics: Codable {
+    let totalCount: Int
+    let masteryLevelCounts: [MasteryLevel: Int]
+    let difficultyLevelCounts: [DifficultyLevel: Int]
+    let subjectCounts: [String: Int]
+    
+    init(
+        totalCount: Int,
+        masteryLevelCounts: [MasteryLevel: Int],
+        difficultyLevelCounts: [DifficultyLevel: Int],
+        subjectCounts: [String: Int]
+    ) {
+        self.totalCount = totalCount
+        self.masteryLevelCounts = masteryLevelCounts
+        self.difficultyLevelCounts = difficultyLevelCounts
+        self.subjectCounts = subjectCounts
+    }
+}
+
 // MARK: - 创建复习项请求和响应
 /// 创建复习项请求
 struct CreateReviewItemRequest: Codable {
