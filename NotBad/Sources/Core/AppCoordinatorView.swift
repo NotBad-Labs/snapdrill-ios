@@ -62,7 +62,6 @@ struct SplashView: View {
     }
 }
 
-
 // MARK: - 预览
 #Preview {
     AppCoordinatorView(coordinator: AppCoordinator())

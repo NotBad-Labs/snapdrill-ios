@@ -238,7 +238,7 @@ struct OCRResultEditView: View {
             let imageData = image.jpegData(compressionQuality: 0.8)
             
             // 调用UseCase创建ReviewItem
-            let _ = try await createReviewItemUseCase.execute(
+                _ = try await createReviewItemUseCase.execute(
                 imageData: imageData,
                 recognizedText: recognizedText,
                 userNotes: "", // 用户笔记暂时为空

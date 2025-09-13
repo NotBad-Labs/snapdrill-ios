@@ -5,8 +5,8 @@
 //  Created by AI Assistant on 2025/9/13.
 //
 
-import SwiftUI
 import AVFoundation
+import SwiftUI
 import UIKit
 
 /// 相机视图 - Phase 1实现
