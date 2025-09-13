@@ -114,13 +114,9 @@ jobs:
     strategy:
       matrix:
         destination:
-          # iPhone 15 及以后的设备
+          # 只保留最稳定的设备
           - 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6'
-          - 'platform=iOS Simulator,name=iPhone 15 Pro,OS=18.6'
-          - 'platform=iOS Simulator,name=iPhone 15,OS=18.6'
-          # iPad Pro 系列
           - 'platform=iOS Simulator,name=iPad Pro 11-inch (M4),OS=18.6'
-          - 'platform=iOS Simulator,name=iPad Pro 13-inch (M4),OS=18.6'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -221,21 +217,12 @@ jobs:
           echo "📱 所有可用模拟器列表:"
           xcrun simctl list devices available | grep -E "(iPhone|iPad)"
           
-          # 检查所有支持的现代设备类型
+          # 检查支持的稳定设备类型
           echo ""
-          echo "🔍 检查支持的现代设备类型:"
+          echo "🔍 检查支持的稳定设备类型:"
           
-          # iPhone 15 及以后的设备检查
-          for device in "iPhone 16 Pro" "iPhone 15 Pro" "iPhone 15"; do
-            if xcrun simctl list devices available | grep -q "$device"; then
-              echo "✅ $device 模拟器可用"
-            else
-              echo "❌ $device 模拟器不可用"
-            fi
-          done
-          
-          # iPad Pro 系列设备检查
-          for device in "iPad Pro 11-inch (M4)" "iPad Pro 13-inch (M4)"; do
+          # 只检查最稳定的设备
+          for device in "iPhone 16 Pro" "iPad Pro 11-inch (M4)"; do
             if xcrun simctl list devices available | grep -q "$device"; then
               echo "✅ $device 模拟器可用"
             else
@@ -252,21 +239,15 @@ jobs:
         run: |
           echo "启动目标模拟器: ${{ matrix.destination }}"
           
-          # 提取设备名称 - 支持现代设备类型
+          # 提取设备名称 - 只支持最稳定的设备
           if [[ "${{ matrix.destination }}" == *"iPhone 16 Pro"* ]]; then
             device_name="iPhone 16 Pro"
-          elif [[ "${{ matrix.destination }}" == *"iPhone 15 Pro"* ]]; then
-            device_name="iPhone 15 Pro"
-          elif [[ "${{ matrix.destination }}" == *"iPhone 15"* ]]; then
-            device_name="iPhone 15"
           elif [[ "${{ matrix.destination }}" == *"iPad Pro 11-inch (M4)"* ]]; then
             device_name="iPad Pro 11-inch (M4)"
-          elif [[ "${{ matrix.destination }}" == *"iPad Pro 13-inch (M4)"* ]]; then
-            device_name="iPad Pro 13-inch (M4)"
           else
             echo "❌ 未知设备类型: ${{ matrix.destination }}"
             echo "可用设备列表:"
-            xcrun simctl list devices available | grep -E "(iPhone|iPad)"
+            xcrun simctl list devices available | grep -E "(iPhone 16 Pro|iPad Pro 11-inch)"
             exit 1
           fi
           
