@@ -33,12 +33,11 @@ class ReviewItemTests: XCTestCase {
         )
         
         // Then
-        XCTAssertEqual(reviewItem.content.title, "数学题")
-        XCTAssertEqual(reviewItem.content.question, "1+1等于多少？")
-        XCTAssertEqual(reviewItem.content.answer, "2")
+        XCTAssertEqual(reviewItem.content.recognizedText, "1+1等于多少？")
+        XCTAssertEqual(reviewItem.content.userNotes, "简单的加法题")
         XCTAssertEqual(reviewItem.content.subject, "数学")
         XCTAssertEqual(reviewItem.content.difficulty, .easy)
-        XCTAssertEqual(reviewItem.masteryLevel, .notMastered)
+        XCTAssertEqual(reviewItem.masteryLevel, .notLearned)
         XCTAssertEqual(reviewItem.studyHistory.count, 0)
     }
     
@@ -49,44 +48,46 @@ class ReviewItemTests: XCTestCase {
         let fixedDate = Date() // 使用固定时间戳
         
         let content1 = ReviewContent(
-            title: "数学题",
-            question: "1+1等于多少？",
-            answer: "2",
+            imageData: nil,
+            recognizedText: "1+1等于多少？",
+            userNotes: "简单的加法题",
             subject: "数学",
+            tags: ["加法", "基础"],
             difficulty: .easy
         )
         
-        let metadata1 = ReviewMetadata(
-            createdAt: fixedDate,
-            updatedAt: fixedDate,
+        let metadata1 = ReviewItemMetadata(
             ownerId: ownerId,
-            source: .manual
+            parentShareStatus: .none,
+            parentAccessRevokedAt: nil,
+            sharedWithClassIds: [],
+            isArchived: false
         )
         
         let content2 = ReviewContent(
-            title: "数学题",
-            question: "1+1等于多少？",
-            answer: "2",
+            imageData: nil,
+            recognizedText: "1+1等于多少？",
+            userNotes: "简单的加法题",
             subject: "数学",
+            tags: ["加法", "基础"],
             difficulty: .easy
         )
         
-        let metadata2 = ReviewMetadata(
-            createdAt: fixedDate,
-            updatedAt: fixedDate,
+        let metadata2 = ReviewItemMetadata(
             ownerId: ownerId,
-            source: .manual
+            parentShareStatus: .none,
+            parentAccessRevokedAt: nil,
+            sharedWithClassIds: [],
+            isArchived: false
         )
         
         // When
         let item1 = ReviewItem(
-            id: id,
             content: content1,
             metadata: metadata1
         )
         
         let item2 = ReviewItem(
-            id: id,
             content: content2,
             metadata: metadata2
         )
@@ -97,16 +98,16 @@ class ReviewItemTests: XCTestCase {
     
     func testMasteryLevelDisplayName() {
         // Then
-        XCTAssertEqual(MasteryLevel.notMastered.displayName, "未掌握")
+        XCTAssertEqual(MasteryLevel.notLearned.displayName, "未掌握")
         XCTAssertEqual(MasteryLevel.unclear.displayName, "模糊")
-        XCTAssertEqual(MasteryLevel.mastered.displayName, "已掌握")
+        XCTAssertEqual(MasteryLevel.learned.displayName, "已掌握")
     }
     
     func testMasteryLevelColor() {
         // Then
-        XCTAssertEqual(MasteryLevel.notMastered.color, "red")
+        XCTAssertEqual(MasteryLevel.notLearned.color, "red")
         XCTAssertEqual(MasteryLevel.unclear.color, "orange")
-        XCTAssertEqual(MasteryLevel.mastered.color, "green")
+        XCTAssertEqual(MasteryLevel.learned.color, "green")
     }
     
     func testDifficultyLevelWeight() {
@@ -156,9 +157,8 @@ class ReviewItemTests: XCTestCase {
             
             // Then
             XCTAssertEqual(reviewItem.id, decodedItem.id)
-            XCTAssertEqual(reviewItem.content.title, decodedItem.content.title)
-            XCTAssertEqual(reviewItem.content.question, decodedItem.content.question)
-            XCTAssertEqual(reviewItem.content.answer, decodedItem.content.answer)
+            XCTAssertEqual(reviewItem.content.recognizedText, decodedItem.content.recognizedText)
+            XCTAssertEqual(reviewItem.content.userNotes, decodedItem.content.userNotes)
             XCTAssertEqual(reviewItem.content.subject, decodedItem.content.subject)
             XCTAssertEqual(reviewItem.content.difficulty, decodedItem.content.difficulty)
             XCTAssertEqual(reviewItem.masteryLevel, decodedItem.masteryLevel)

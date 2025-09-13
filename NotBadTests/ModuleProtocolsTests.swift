@@ -65,9 +65,9 @@ class ModuleProtocolsTests: XCTestCase {
     
     func testMasteryLevelEnum() {
         // Then
-        XCTAssertEqual(MasteryLevel.notMastered.rawValue, "not_mastered")
+        XCTAssertEqual(MasteryLevel.notLearned.rawValue, "not_learned")
         XCTAssertEqual(MasteryLevel.unclear.rawValue, "unclear")
-        XCTAssertEqual(MasteryLevel.mastered.rawValue, "mastered")
+        XCTAssertEqual(MasteryLevel.learned.rawValue, "learned")
     }
     
     func testParentShareStatusEnum() {

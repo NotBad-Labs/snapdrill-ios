@@ -96,7 +96,7 @@ class CloudSyncServiceTests: XCTestCase {
         record["answerText"] = "远程答案"
         record["subject"] = "物理"
         record["difficultyLevel"] = DifficultyLevel.hard.rawValue
-        record["masteryLevel"] = MasteryLevel.mastered.rawValue
+        record["masteryLevel"] = MasteryLevel.learned.rawValue
         record["tags"] = ["力学"]
         record["createdAt"] = Date()
         record["updatedAt"] = Date()
@@ -165,7 +165,7 @@ class CloudSyncServiceTests: XCTestCase {
             answerText: "本地答案",
             subject: "数学",
             difficultyLevel: .easy,
-            masteryLevel: .mastered, // 更高掌握度
+            masteryLevel: .learned, // 更高掌握度
             tags: ["本地标签", "共同标签"],
             imageURLs: [],
             createdAt: baseDate,
@@ -191,7 +191,7 @@ class CloudSyncServiceTests: XCTestCase {
         
         // Then
         XCTAssertEqual(resolvedItem.title, "远程标题") // 使用最新更新的内容
-        XCTAssertEqual(resolvedItem.masteryLevel, .mastered) // 保留更高掌握度
+        XCTAssertEqual(resolvedItem.masteryLevel, .learned) // 保留更高掌握度
         XCTAssertTrue(resolvedItem.tags.contains("本地标签"))
         XCTAssertTrue(resolvedItem.tags.contains("远程标签"))
         XCTAssertTrue(resolvedItem.tags.contains("共同标签"))

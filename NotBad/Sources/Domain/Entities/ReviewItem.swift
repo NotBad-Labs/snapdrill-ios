@@ -5,7 +5,7 @@ import SwiftData
 
 /// 复习项 - 系统的核心实体
 @Model
-final class ReviewItem: @unchecked Sendable {
+final class ReviewItem: @unchecked Sendable, Equatable {
     @Attribute(.unique) var id: UUID
     var content: ReviewContent
     var metadata: ReviewItemMetadata
@@ -22,6 +22,10 @@ final class ReviewItem: @unchecked Sendable {
         self.masteryLevel = .notLearned
         self.createdAt = Date()
         self.updatedAt = Date()
+    }
+    
+    static func == (lhs: ReviewItem, rhs: ReviewItem) -> Bool {
+        return lhs.id == rhs.id
     }
 }
 
@@ -119,6 +123,17 @@ enum MasteryLevel: String, CaseIterable, Codable {
             return "已掌握"
         }
     }
+    
+    var color: String {
+        switch self {
+        case .notLearned:
+            return "red"
+        case .unclear:
+            return "orange"
+        case .learned:
+            return "green"
+        }
+    }
 }
 
 /// 难度等级
@@ -135,6 +150,17 @@ enum DifficultyLevel: String, CaseIterable, Codable {
             return "中等"
         case .hard:
             return "困难"
+        }
+    }
+    
+    var weight: Int {
+        switch self {
+        case .easy:
+            return 1
+        case .medium:
+            return 2
+        case .hard:
+            return 3
         }
     }
 }

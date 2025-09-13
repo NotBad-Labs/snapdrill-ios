@@ -143,7 +143,7 @@ class CloudSyncUseCaseTests: XCTestCase {
         let baseDate = Date()
         let localItem = createTestReviewItem(
             title: "本地题目",
-            masteryLevel: .mastered,
+            masteryLevel: .learned,
             tags: ["本地标签", "共同标签"],
             updatedAt: baseDate.addingTimeInterval(1800) // 30分钟后
         )
@@ -167,7 +167,7 @@ class CloudSyncUseCaseTests: XCTestCase {
         
         let mergedItem = mockReviewItemService.updatedItems.first!
         XCTAssertEqual(mergedItem.title, "远程题目") // 远程更新时间更晚
-        XCTAssertEqual(mergedItem.masteryLevel, .mastered) // 保留更高掌握度
+        XCTAssertEqual(mergedItem.masteryLevel, .learned) // 保留更高掌握度
         XCTAssertTrue(mergedItem.tags.contains("本地标签"))
         XCTAssertTrue(mergedItem.tags.contains("远程标签"))
         XCTAssertTrue(mergedItem.tags.contains("共同标签"))
