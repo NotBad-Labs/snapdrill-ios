@@ -18,12 +18,6 @@ public enum StudyResult: String, Codable, CaseIterable {
 }
 
 // MARK: - 错误类型定义
-public enum OCRError: Error {
-    case invalidImage
-    case recognitionFailed
-    case lowConfidence
-}
-
 public enum NetworkError: Error {
     case noConnection
     case timeout

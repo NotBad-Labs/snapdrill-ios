@@ -29,7 +29,7 @@ class ModuleProtocolsTests: XCTestCase {
     
     func testOCRErrorTypes() {
         // Given & When
-        let invalidImageError = OCRError.invalidImage
+        let invalidImageError = OCRError.invalidImageData
         let recognitionFailedError = OCRError.recognitionFailed
         let lowConfidenceError = OCRError.lowConfidence
         
