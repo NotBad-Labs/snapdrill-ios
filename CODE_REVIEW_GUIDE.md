@@ -212,8 +212,8 @@ NotBad/Sources/
 - **[ADR-003](docs/adr/ADR-003%20OCR%20处理流水线与重处理策略.md)** - OCR 引擎选型决策
 
 ### 评审材料
-- **[PR 汇总](PR_CONSOLIDATED.md)** - Pull Request 汇总
-- **[里程碑汇总](MILESTONE_CONSOLIDATED.md)** - 项目里程碑汇总
+- **[PR 汇总](docs/development/PR_CONSOLIDATED.md)** - Pull Request 汇总
+- **[里程碑汇总](docs/milestones/MILESTONE_CONSOLIDATED.md)** - 项目里程碑汇总
 - **[CI/CD 优化](.github/CI_CD_OPTIMIZATIONS.md)** - CI/CD 配置优化
 
 ## 📞 反馈方式

@@ -1,4 +1,4 @@
-# NotBad App - 术语 → 代码 索引 (v1.0)
+# NotBad App - 术语 → 代码 索引 (v1.1)
 
 目的：把 PRD/TDD/RTM 中的核心术语映射到代码符号（Swift 协议/类型/函数名）和建议的文件路径，方便开发团队快速定位实现点与对齐命名。
 
@@ -25,6 +25,10 @@
 | Use Case: 创建复习项 | `class CreateReviewItemUseCase` | `Sources/Application/UseCases/CreateReviewItemUseCase.swift` | Use case 层实现复习项创建逻辑 |
 | Use Case: 学习会话 | `class StudySessionUseCase` | `Sources/Application/UseCases/StudySessionUseCase.swift` | 管理 study session 的开始/结束/计数 |
 | Redo 模板服务 | `class RedoTemplateService` | `Sources/Infrastructure/Redo/RedoTemplateService.swift` | 生成重做模板、遮蔽答案区域 |
+| 批量导入服务 | `protocol BatchImportService` | `Sources/Infrastructure/Import/BatchImportService.swift` | 从相册批量导入图片，支持并发处理 |
+| 遗忘曲线服务 | `protocol ForgettingCurveService` | `Sources/Domain/Services/ForgettingCurveService.swift` | 计算最佳复习时间，个性化学习提醒 |
+| 性能监控服务 | `protocol PerformanceMonitoringService` | `Sources/Infrastructure/Monitoring/PerformanceMonitoringService.swift` | 追踪启动时间、OCR处理时间、同步延迟等 |
+| 教师作业进度 | `struct AssignmentProgress` | `Sources/Domain/DTOs/AssignmentProgress.swift` | 作业完成统计、难点分析 |
 | Feature Flag | `struct FeatureFlags` / `enum Feature` | `Sources/Infrastructure/Config/FeatureFlags.swift` | 在运行时切换云AI/教师功能/大容量历史版本等 |
 | ADR 文件 | `docs/adr/ADR-002-cloud-sync.md` | `docs/adr/` | 记录 CloudKit vs Server 决策等 |
 
@@ -35,6 +39,7 @@
 3. 我可以根据需要把这些建议符号生成为代码 stub（Swift 协议/structs）到 `Sources/` 下以便开发直接开始实现——如需要，请回复“生成 stubs”。
 
 ## 变更记录
+- v1.1 (2025-09-13): 补充批量导入、遗忘曲线、性能监控等新增服务的代码映射
 - v1.0 (2025-09-04): 初始索引，基于 PRD v4.0 / TDD v4.0 / RTM v2.0
 
 ***

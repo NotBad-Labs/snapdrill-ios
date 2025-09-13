@@ -21,6 +21,14 @@
 - **静态资源**: [assets/](assets/) - 存放图片、图表等文档引用的静态文件
 - **会议纪要**: [meetings/](meetings/) - 项目相关会议记录与决策历史
 
+## 📈 项目历史
+- **里程碑汇总**: [milestones/MILESTONE_CONSOLIDATED.md](milestones/MILESTONE_CONSOLIDATED.md) - 项目重要里程碑记录
+- **开发历史**: [development/PR_CONSOLIDATED.md](development/PR_CONSOLIDATED.md) - Pull Request 汇总
+- **GitHub PR 描述**: [development/GITHUB_PR_DESCRIPTION.md](development/GITHUB_PR_DESCRIPTION.md) - PR 模板和描述
+
+## 🔧 CI/CD 文档
+- **CI/CD 指南**: [ci-cd/](ci-cd/) - 持续集成和部署相关文档
+
 ## 建议
 
 - 将此文件作为 `docs` 目录的首页，仓库 `README.md` 可添加指向 `docs/README.md` 的链接，便于快速访问。
