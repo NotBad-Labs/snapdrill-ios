@@ -13,7 +13,7 @@ import Foundation
 
 // MARK: - 复习项仓储协议
 /// 复习项数据访问协议
-protocol ReviewItemRepository: Repository {
+protocol ReviewItemRepository {
     typealias Entity = ReviewItem
     typealias ID = UUID
     typealias Error = ReviewItemRepositoryError
@@ -82,8 +82,11 @@ protocol ReviewItemRepository: Repository {
 
 // MARK: - 复习项用例协议
 /// 复习项业务用例协议
-protocol ReviewItemUseCase: UseCase {
-    typealias UseCaseErrorType = ReviewItemUseCaseError
+protocol ReviewItemUseCase {
+    associatedtype Request
+    associatedtype Response
+    
+    func execute(_ request: Request) async throws -> Response
 }
 
 // MARK: - 创建复习项用例协议
@@ -120,7 +123,7 @@ protocol DeleteReviewItemUseCase: ReviewItemUseCase {
 
 // MARK: - 复习项服务协议
 /// 复习项业务服务协议
-protocol ReviewItemService: Service {
+protocol ReviewItemService {
     typealias Error = ReviewItemServiceError
     
     // MARK: - 业务操作
@@ -162,7 +165,7 @@ protocol ReviewItemService: Service {
 
 // MARK: - 复习项事件协议
 /// 复习项相关事件协议
-protocol ReviewItemEvent: DomainEvent {
+protocol ReviewItemEvent {
     var reviewItemId: UUID { get }
 }
 
@@ -208,7 +211,7 @@ struct StudyRecordAddedEvent: ReviewItemEvent {
 
 // MARK: - 复习项错误类型
 /// 复习项仓储错误
-enum ReviewItemRepositoryError: RepositoryError {
+enum ReviewItemRepositoryError: Error, LocalizedError {
     case itemNotFound(UUID)
     case itemAlreadyExists(UUID)
     case invalidData(String)
@@ -216,28 +219,6 @@ enum ReviewItemRepositoryError: RepositoryError {
     case networkError(String)
     case permissionDenied(String)
     
-    static func notFound(id: Any) -> ReviewItemRepositoryError {
-        if let uuid = id as? UUID {
-            return .itemNotFound(uuid)
-        }
-        return .invalidData("Invalid ID type")
-    }
-    
-    static func invalidData(_ message: String) -> ReviewItemRepositoryError {
-        return .invalidData(message)
-    }
-    
-    static func storageError(_ message: String) -> ReviewItemRepositoryError {
-        return .storageError(message)
-    }
-    
-    static func networkError(_ message: String) -> ReviewItemRepositoryError {
-        return .networkError(message)
-    }
-    
-    static func permissionDenied(_ message: String) -> ReviewItemRepositoryError {
-        return .permissionDenied(message)
-    }
     
     var errorDescription: String? {
         switch self {
@@ -258,22 +239,11 @@ enum ReviewItemRepositoryError: RepositoryError {
 }
 
 /// 复习项用例错误
-enum ReviewItemUseCaseError: UseCaseError {
+enum ReviewItemUseCaseError: Error, LocalizedError {
     case validationFailed(String)
     case businessRuleViolation(String)
     case repositoryError(String)
     
-    static func validationFailed(_ message: String) -> ReviewItemUseCaseError {
-        return .validationFailed(message)
-    }
-    
-    static func businessRuleViolation(_ message: String) -> ReviewItemUseCaseError {
-        return .businessRuleViolation(message)
-    }
-    
-    static func repositoryError(_ message: String) -> ReviewItemUseCaseError {
-        return .repositoryError(message)
-    }
     
     var errorDescription: String? {
         switch self {
@@ -288,22 +258,11 @@ enum ReviewItemUseCaseError: UseCaseError {
 }
 
 /// 复习项服务错误
-enum ReviewItemServiceError: ServiceError {
+enum ReviewItemServiceError: Error, LocalizedError {
     case serviceUnavailable(String)
     case configurationError(String)
     case externalServiceError(String)
     
-    static func serviceUnavailable(_ message: String) -> ReviewItemServiceError {
-        return .serviceUnavailable(message)
-    }
-    
-    static func configurationError(_ message: String) -> ReviewItemServiceError {
-        return .configurationError(message)
-    }
-    
-    static func externalServiceError(_ message: String) -> ReviewItemServiceError {
-        return .externalServiceError(message)
-    }
     
     var errorDescription: String? {
         switch self {
