@@ -24,37 +24,13 @@ struct CaptureTabView: View {
             // 主要操作按钮
             VStack(spacing: 16) {
                 // 拍照按钮
-                Button(action: {
-                    showingCamera = true
-                }) {
-                    HStack {
-                        Image(systemName: "camera.fill")
-                            .font(.title2)
-                        Text("拍照录入")
-                            .font(.headline)
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(Color.blue)
-                    .cornerRadius(16)
+                Button(action: { showingCamera = true }) {
+                    cameraButtonContent
                 }
                 
                 // 相册导入按钮
-                Button(action: {
-                    showingImagePicker = true
-                }) {
-                    HStack {
-                        Image(systemName: "photo.on.rectangle")
-                            .font(.title2)
-                        Text("从相册导入")
-                            .font(.headline)
-                    }
-                    .foregroundColor(.blue)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(16)
+                Button(action: { showingImagePicker = true }) {
+                    galleryButtonContent
                 }
             }
             .padding(.horizontal)
@@ -106,6 +82,36 @@ struct CaptureTabView: View {
                 showingEditView = true
             }
         }
+    }
+    
+    // MARK: - View Components
+    
+    private var cameraButtonContent: some View {
+        HStack {
+            Image(systemName: "camera.fill")
+                .font(.title2)
+            Text("拍照录入")
+                .font(.headline)
+        }
+        .foregroundColor(.white)
+        .frame(maxWidth: .infinity)
+        .frame(height: 56)
+        .background(Color.blue)
+        .cornerRadius(16)
+    }
+    
+    private var galleryButtonContent: some View {
+        HStack {
+            Image(systemName: "photo.on.rectangle")
+                .font(.title2)
+            Text("从相册导入")
+                .font(.headline)
+        }
+        .foregroundColor(.blue)
+        .frame(maxWidth: .infinity)
+        .frame(height: 56)
+        .background(Color.blue.opacity(0.1))
+        .cornerRadius(16)
     }
 }
 

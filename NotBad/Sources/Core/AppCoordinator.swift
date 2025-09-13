@@ -6,8 +6,8 @@
 //  应用程序协调器 - 管理基本导航和状态，集成SwiftData
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 /// 应用程序协调器 - 负责整个应用的导航流程
 @MainActor

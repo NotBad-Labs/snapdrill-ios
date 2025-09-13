@@ -19,17 +19,9 @@ excluded:
 disabled_rules:
   - trailing_whitespace
   - todo
-  - fixme
 
 # 启用的规则
 opt_in_rules:
-  - empty_count
-  - empty_string
-  - first_where
-  - sorted_first_last
-  - unneeded_parentheses_in_closure_argument
-  - vertical_parameter_alignment_on_call
-  - yoda_condition
   - closure_body_length
   - closure_end_indentation
   - closure_spacing

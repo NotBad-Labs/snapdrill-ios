@@ -19,7 +19,7 @@ final class ReviewItem: @unchecked Sendable {
         self.content = content
         self.metadata = metadata
         self.studyHistory = []
-        self.masteryLevel = .notMastered
+        self.masteryLevel = .notLearned
         self.createdAt = Date()
         self.updatedAt = Date()
     }
@@ -105,17 +105,17 @@ final class StudyRecord: @unchecked Sendable {
 
 /// 掌握度等级
 enum MasteryLevel: String, CaseIterable, Codable {
-    case notMastered = "not_mastered"
+    case notLearned = "not_learned"
     case unclear = "unclear"
-    case mastered = "mastered"
+    case learned = "learned"
     
     var displayName: String {
         switch self {
-        case .notMastered:
+        case .notLearned:
             return "未掌握"
         case .unclear:
             return "模糊"
-        case .mastered:
+        case .learned:
             return "已掌握"
         }
     }

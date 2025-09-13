@@ -5,8 +5,8 @@
 //  Created by AI Assistant on 2025/9/13.
 //
 
-import SwiftUI
 import PhotosUI
+import SwiftUI
 
 /// 相册选择视图 - Phase 1实现
 struct ImagePickerView: UIViewControllerRepresentable {

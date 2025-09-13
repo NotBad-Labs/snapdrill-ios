@@ -65,70 +65,8 @@ final class VisionOCRService: OCRServiceProtocol, @unchecked Sendable {
                 
                 let startTime = CFAbsoluteTimeGetCurrent()
                 
-                let request = VNRecognizeTextRequest { request, error in
-                    let processingTime = CFAbsoluteTimeGetCurrent() - startTime
-                    
-                if error != nil {
-                    continuation.resume(throwing: OCRError.recognitionFailed)
-                    return
-                }
-                    
-                    guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                        continuation.resume(throwing: OCRError.recognitionFailed)
-                        return
-                    }
-                    
-                    var recognizedText = ""
-                    var boundingBoxes: [BoundingBox] = []
-                    var totalConfidence: Double = 0
-                    var validObservations = 0
-                    
-                    for observation in observations {
-                        guard let topCandidate = observation.topCandidates(1).first else { continue }
-                        
-                        let confidence = Double(topCandidate.confidence)
-                        let threshold = self.confidenceThreshold
-                        if confidence >= threshold {
-                            recognizedText += topCandidate.string + "\n"
-                            
-                            // 转换坐标系统 (Vision使用左下角原点，UIKit使用左上角原点)
-                            let boundingBox = observation.boundingBox
-                            let convertedRect = CGRect(
-                                x: boundingBox.minX,
-                                y: 1.0 - boundingBox.maxY, // 翻转Y坐标
-                                width: boundingBox.width,
-                                height: boundingBox.height
-                            )
-                            
-                            boundingBoxes.append(BoundingBox(
-                                text: topCandidate.string,
-                                confidence: confidence,
-                                rect: convertedRect
-                            ))
-                            
-                            totalConfidence += confidence
-                            validObservations += 1
-                        }
-                    }
-                    
-                    // 移除最后的换行符
-                    recognizedText = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
-                    
-                    if recognizedText.isEmpty {
-                        continuation.resume(throwing: OCRError.lowConfidence(confidence: 0))
-                        return
-                    }
-                    
-                    let averageConfidence = validObservations > 0 ? totalConfidence / Double(validObservations) : 0
-                    
-                    let result = OCRResult(
-                        text: recognizedText,
-                        confidence: averageConfidence,
-                        boundingBoxes: boundingBoxes,
-                        processingTime: processingTime
-                    )
-                    
-                    continuation.resume(returning: result)
+                let request = VNRecognizeTextRequest { [weak self] request, error in
+                    self?.handleRecognitionResult(request: request, error: error, startTime: startTime, continuation: continuation)
                 }
                 
                 // 配置识别参数
@@ -149,6 +87,75 @@ final class VisionOCRService: OCRServiceProtocol, @unchecked Sendable {
                 }
             }
         }
+    }
+    
+    // MARK: - Private Methods
+    
+    private func handleRecognitionResult(request: VNRequest, error: Error?, startTime: CFAbsoluteTime, continuation: CheckedContinuation<OCRResult, Error>) {
+        let processingTime = CFAbsoluteTimeGetCurrent() - startTime
+        
+        if error != nil {
+            continuation.resume(throwing: OCRError.recognitionFailed)
+            return
+        }
+        
+        guard let observations = request.results as? [VNRecognizedTextObservation] else {
+            continuation.resume(throwing: OCRError.recognitionFailed)
+            return
+        }
+        
+        let result = createOCRResult(from: observations, processingTime: processingTime)
+        continuation.resume(returning: result)
+    }
+    
+    private func createOCRResult(from observations: [VNRecognizedTextObservation], processingTime: TimeInterval) -> OCRResult {
+        var recognizedText = ""
+        var boundingBoxes: [BoundingBox] = []
+        var totalConfidence: Double = 0
+        var validObservations = 0
+        
+        for observation in observations {
+            guard let topCandidate = observation.topCandidates(1).first else { continue }
+            
+            let confidence = Double(topCandidate.confidence)
+            if confidence >= confidenceThreshold {
+                recognizedText += topCandidate.string + "\n"
+                
+                let convertedRect = convertBoundingBox(observation.boundingBox)
+                boundingBoxes.append(BoundingBox(
+                    text: topCandidate.string,
+                    confidence: confidence,
+                    rect: convertedRect
+                ))
+                
+                totalConfidence += confidence
+                validObservations += 1
+            }
+        }
+        
+        recognizedText = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if recognizedText.isEmpty {
+            fatalError("No text recognized")
+        }
+        
+        let averageConfidence = validObservations > 0 ? totalConfidence / Double(validObservations) : 0
+        
+        return OCRResult(
+            text: recognizedText,
+            confidence: averageConfidence,
+            boundingBoxes: boundingBoxes,
+            processingTime: processingTime
+        )
+    }
+    
+    private func convertBoundingBox(_ boundingBox: CGRect) -> CGRect {
+        return CGRect(
+            x: boundingBox.minX,
+            y: 1.0 - boundingBox.maxY,
+            width: boundingBox.width,
+            height: boundingBox.height
+        )
     }
 }
 

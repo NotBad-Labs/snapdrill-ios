@@ -15,7 +15,7 @@ struct QuestionBankTabView: View {
     @Query private var reviewItems: [ReviewItem]
     @State private var searchText = ""
     @State private var selectedSubject = "全部"
-    @State private var selectedMasteryLevel = MasteryLevel.notMastered
+    @State private var selectedMasteryLevel = MasteryLevel.notLearned
     
     private let subjects = ["全部", "数学", "语文", "英语", "物理", "化学", "生物", "历史", "地理", "政治"]
     
@@ -122,44 +122,50 @@ struct FilterBar: View {
                 // 科目筛选
                 Menu {
                     ForEach(subjects, id: \.self) { subject in
-                        Button(subject) {
-                            selectedSubject = subject
-                        }
+                        Button(subject) { selectedSubject = subject }
                     }
                 } label: {
-                    HStack {
-                        Text(selectedSubject)
-                        Image(systemName: "chevron.down")
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.blue.opacity(0.1))
-                    .foregroundColor(.blue)
-                    .cornerRadius(8)
+                    subjectFilterLabel
                 }
                 
                 // 掌握度筛选
                 Menu {
                     ForEach(MasteryLevel.allCases, id: \.self) { level in
-                        Button(level.displayName) {
-                            selectedMasteryLevel = level
-                        }
+                        Button(level.displayName) { selectedMasteryLevel = level }
                     }
                 } label: {
-                    HStack {
-                        Text(selectedMasteryLevel.displayName)
-                        Image(systemName: "chevron.down")
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.orange.opacity(0.1))
-                    .foregroundColor(.orange)
-                    .cornerRadius(8)
+                    masteryLevelFilterLabel
                 }
             }
             .padding(.horizontal)
         }
         .padding(.vertical, 8)
+    }
+    
+    // MARK: - View Components
+    
+    private var subjectFilterLabel: some View {
+        HStack {
+            Text(selectedSubject)
+            Image(systemName: "chevron.down")
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(Color.blue.opacity(0.1))
+        .foregroundColor(.blue)
+        .cornerRadius(8)
+    }
+    
+    private var masteryLevelFilterLabel: some View {
+        HStack {
+            Text(selectedMasteryLevel.displayName)
+            Image(systemName: "chevron.down")
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(Color.orange.opacity(0.1))
+        .foregroundColor(.orange)
+        .cornerRadius(8)
     }
 }
 
@@ -216,49 +222,63 @@ struct ReviewItemRowView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // 题目预览
-            Text(item.content.recognizedText)
-                .font(.body)
-                .lineLimit(2)
-                .foregroundColor(.primary)
-            
-            HStack {
-                // 科目标签
-                Text(item.content.subject)
-                    .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.blue.opacity(0.1))
-                    .foregroundColor(.blue)
-                    .cornerRadius(6)
-                
-                // 掌握度标签
-                Text(item.masteryLevel.displayName)
-                    .font(.caption)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(masteryLevelColor.opacity(0.1))
-                    .foregroundColor(masteryLevelColor)
-                    .cornerRadius(6)
-                
-                Spacer()
-                
-                // 创建时间
-                Text(item.createdAt, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+            questionPreview
+            tagRow
         }
         .padding(.vertical, 4)
     }
     
+    // MARK: - View Components
+    
+    private var questionPreview: some View {
+        Text(item.content.recognizedText)
+            .font(.body)
+            .lineLimit(2)
+            .foregroundColor(.primary)
+    }
+    
+    private var tagRow: some View {
+        HStack {
+            subjectTag
+            masteryLevelTag
+            Spacer()
+            creationDate
+        }
+    }
+    
+    private var subjectTag: some View {
+        Text(item.content.subject)
+            .font(.caption)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.blue.opacity(0.1))
+            .foregroundColor(.blue)
+            .cornerRadius(6)
+    }
+    
+    private var masteryLevelTag: some View {
+        Text(item.masteryLevel.displayName)
+            .font(.caption)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(masteryLevelColor.opacity(0.1))
+            .foregroundColor(masteryLevelColor)
+            .cornerRadius(6)
+    }
+    
+    private var creationDate: some View {
+        Text(item.createdAt, style: .date)
+            .font(.caption)
+            .foregroundColor(.secondary)
+    }
+    
     private var masteryLevelColor: Color {
         switch item.masteryLevel {
-        case .notMastered:
+        case .notLearned:
             return .red
         case .unclear:
             return .orange
-        case .mastered:
+        case .learned:
             return .green
         }
     }
