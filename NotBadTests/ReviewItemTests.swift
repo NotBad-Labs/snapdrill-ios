@@ -179,3 +179,4 @@ class ReviewItemTests: XCTestCase {
         // Then
         XCTAssertNotEqual(hashValue, 0)
     }
+}
