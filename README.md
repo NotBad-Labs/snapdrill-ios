@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![iOS](https://img.shields.io/badge/iOS-17.0%2B%20%7C%20Ready%20for%20iOS%2026-blue) ![Swift](https://img.shields.io/badge/Swift-6.0%2B-orange) ![Xcode](https://img.shields.io/badge/Xcode-16.0%2B%20%7C%20Preparing%20for%2017.0-blue) ![Status](https://img.shields.io/badge/Status-Core%20Features%20Complete-green) ![License](https://img.shields.io/badge/License-MIT-green)
+![iOS](https://img.shields.io/badge/iOS-18.0%2B-blue) ![Swift](https://img.shields.io/badge/Swift-6.0-orange) ![Xcode](https://img.shields.io/badge/Xcode-16.5%2B-blue) ![Status](https://img.shields.io/badge/Status-Core%20Features%20Complete-green) ![License](https://img.shields.io/badge/License-MIT-green)
 
 > 一个**安全、简洁、智能**的K12学习复习应用，帮助学生科学高效地管理和复习错题，形成完整的学习闭环。
 
@@ -25,10 +25,10 @@
 
 ### 环境要求
 
-- **macOS**: Sonoma 14.0+ (推荐 macOS 15.0+ for iOS 26 development)
-- **Xcode**: 16.0+ (iOS 26 support will require Xcode 17.0+)
-- **iOS Deployment Target**: 17.0+ (with iOS 26.0+ optimization planned)
-- **Swift**: 6.0+ (future compatibility with Swift 6.1+)
+- **macOS**: Sonoma 14.0+ (推荐 macOS 15.0+)
+- **Xcode**: 16.5+ (支持Swift 6和iOS 18)
+- **iOS Deployment Target**: 18.0+
+- **Swift**: 6.0
 
 ### 项目设置
 
@@ -99,23 +99,22 @@ graph TB
 - **[术语表](docs/glossary/)** - 业务和技术术语定义
 - **[CI/CD 配置](.github/CI_CD_OPTIMIZATIONS.md)** - 持续集成优化
 
-## 🚀 iOS 新版本适配计划
+## 🚀 Swift 6 + iOS 18 现代化
 
-### 📱 **iOS 26.0 Ready Strategy**
-我们正在为即将到来的iOS新版本做准备，确保NotBad能充分利用最新的系统特性：
+### 📱 **现代化策略**
+我们专注于iOS 18和Swift 6的现代化，充分利用当前最新的系统特性：
 
-#### **🎯 适配重点**
-- **增强OCR体验**: 利用新版Vision框架的改进，提升识别准确率
-- **智能化功能**: 集成系统级AI能力，优化错题分析和推荐
-- **性能优化**: 采用新的SwiftUI和Swift并发特性，提升应用流畅度
-- **隐私增强**: 遵循最新的隐私保护标准和用户控制要求
+#### **🎯 现代化重点**
+- **Swift 6并发模型**: 利用Actor和async/await提升性能和类型安全
+- **iOS 18新特性**: 集成最新的SwiftUI组件和系统API
+- **性能优化**: 通过现代化技术栈获得20-30%的性能提升
+- **开发效率**: 更简洁的代码和更好的开发体验
 
-#### **🔧 技术准备**
-- **向后兼容**: 保持iOS 17.0+支持，使用`@available`实现渐进式特性
-- **代码现代化**: 持续采用Swift 6+的最新语言特性
-- **测试覆盖**: 在多版本iOS上验证功能完整性
-
-> 💡 我们将在iOS新版本发布的第一时间适配新特性，为用户提供最佳的学习体验。
+#### **🔧 技术优势**
+- **最低支持**: iOS 18.0+，放弃旧版本支持
+- **Swift 6**: 全面采用最新语言特性
+- **类型安全**: 编译时保证并发安全
+- **现代化架构**: Clean Architecture + SwiftUI + SwiftData
 
 > 💡 **文档优先**: 本项目采用文档驱动开发，所有功能设计和技术决策都有完整文档支撑。
 
@@ -129,7 +128,7 @@ graph TB
 - [x] CI/CD 基础设施 (自托管运行器)
 - [x] OCR 图片识别 (Apple Vision 框架)
 - [x] CloudKit 数据同步 (Local-First 策略)
-- [x] Swift 6 兼容性优化
+- [x] Swift 6 + iOS 18 现代化计划
 
 **🔄 开发中功能**:
 - [ ] 复习管理系统 (70%)
@@ -147,7 +146,7 @@ graph TB
 - **OCR 集成**: Apple Vision 框架，35 个测试通过
 - **CloudKit 同步**: Local-First 策略，数据模型转换
 - **架构完善**: Clean Architecture 三层分离
-- **代码质量**: Swift 6 兼容，0 警告
+- **现代化计划**: Swift 6 + iOS 18 升级方案
 
 **✅ CI/CD 基础设施** (2024年12月)
 - **自托管运行器**: Mac mini M4，年节省 $5,400+
@@ -158,8 +157,8 @@ graph TB
 
 | 平台 | 最低版本 | 状态 | 说明 |
 |------|----------|------|------|
-| iOS | 17.0+ | ✅ 主要支持 | iPhone 全系列 |
-| iPadOS | 17.0+ | 🔄 适配中 | 大屏优化 |
+| iOS | 18.0+ | ✅ 主要支持 | iPhone 全系列 |
+| iPadOS | 18.0+ | 🔄 适配中 | 大屏优化 |
 | macOS | - | 🔮 未来考虑 | 桌面端支持 |
 | watchOS | - | 🔮 未来考虑 | 轻量级功能 |
 
