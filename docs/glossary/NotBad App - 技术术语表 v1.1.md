@@ -2,6 +2,15 @@
 
 **目的**: 本文档面向**开发、测试、运维**角色，定义核心技术概念、架构、规范，是确保技术团队高效协作的**唯一事实来源**。
 
+## 速查：相关文档（快速跳转）
+
+- 文档索引: [docs/README.md](../README.md)
+- PRD: [docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)
+- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md)
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v2.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)
+- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v1.1.md](NotBad%20App%20-%20业务术语表%20v1.1.md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v1.0.md](NotBad%20App%20-%20术语到代码索引%20v1.0.md)
+
 | 版本 | 日期 | 作者 | 变更说明 |
 | :---- | :---- | :---- | :---- |
 | v1.1 | 2025-09-04 | Team | 同步 PRD/TDD v4.0：新增 Metrics/Teacher/Parent 服务与 Quota Monitoring 术语 |
@@ -82,6 +91,19 @@
 | **可观测性** | Observability | 日志(Logs), 指标(Metrics), 追踪(Traces) |
 
 ## **7\. 版本演进**
+\
+---
+### **编辑历史 / 贡献者 (Edit History & Contributors)**
+
+| 日期 | 版本 | 主要变更 | 贡献者 |
+| :---- | :---- | :---- | :---- |
+| 2025-09-10 | v1.1+auto | 文档评审与结构优化 | Docs Maintainer |
+| 2025-09-02 | v1.0 | 初版技术术语 / 架构分类 | Tech Team |
+| 2025-09-04 | v1.1 | 增加 MetricsCalculator / 服务接口术语 / Quota Monitoring | Tech Team |
+| 2025-09-10 | v1.1+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |
+
+> 大规模架构术语或协议列表调整时，请与 ADR 同步并升级版本号。
+
 
 | 术语 (中文) | 英文术语 (English Term) | 定义 |
 | :---- | :---- | :---- |

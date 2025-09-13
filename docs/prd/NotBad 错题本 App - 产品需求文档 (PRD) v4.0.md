@@ -4,6 +4,15 @@
 
 本文档是NotBad App从概念到发布的全周期产品需求定义的**唯一权威来源**。它旨在为产品、设计、开发、测试、运营及管理团队提供统一的、无歧义的行动纲领。所有与产品需求相关的讨论、决策和实现，均须以此文档为基准。
 
+## 速查：相关文档（快速跳转）
+
+- 文档索引: [docs/README.md](../README.md)
+- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md)
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v2.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)
+- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v1.1.md](../glossary/NotBad%20App%20-%20业务术语表%20v1.1.md)
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v1.1.md](../glossary/NotBad%20App%20-%20技术术语表%20v1.1.md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v1.0.md](../glossary/NotBad%20App%20-%20术语到代码索引%20v1.0.md)
+
 | 版本 | 日期 | 作者 | 变更说明 | 状态 |
 | :---- | :---- | :---- | :---- | :---- |
 | v3.1 | 2025-09-02 | Product Team | 基于多方AI评审进行初步优化 | 已归档 |
@@ -460,15 +469,28 @@
 
 ### **9.1 相关文档索引 (Related Documents)**
 
-* [**需求追踪矩阵 (RTM)**](https://www.google.com/search?q=./rtm_matrix.md): 追踪本PRD中所有需求的设计、实现与测试状态。  
-* [**技术设计文档 (TDD)**](https://www.google.com/search?q=./notbad_tdd_v3.1.md): 本PRD所有功能的技术实现方案。  
-* [**业务术语表**](https://www.google.com/search?q=./business_glossary.md) & [**技术术语表**](https://www.google.com/search?q=./technical_glossary.md): 项目统一语言规范。  
-* [**架构决策记录 (ADR)**](https://www.google.com/search?q=./architecture_decision_record_template.md): 关键技术决策的存档。
+* [**需求追踪矩阵 (RTM)**](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md): 追踪本PRD中所有需求的设计、实现与测试状态。  
+* [**技术设计文档 (TDD)**](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md): 本PRD所有功能的技术实现方案。  
+* [**业务术语表**](../glossary/NotBad%20App%20-%20业务术语表%20v1.1.md) & [**技术术语表**](../glossary/NotBad%20App%20-%20技术术语表%20v1.1.md): 项目统一语言规范。  
+* [**架构决策记录 (ADR)**](../ard/README.md): 关键技术决策的存档。
 
 ### **9.2 MoSCoW 优先级总览**
 
 * **Must Have (必须有)**: 拍照创建、基础管理、专注复习、错题重做、基础统计。是构成产品核心价值的基石。  
 * **Should Have (应该有)**: Pro订阅、家长模式、AI诊断。是提升产品竞争力、实现商业闭环的关键。  
+\
+---
+### **9.3 编辑历史 / 贡献者 (Edit History & Contributors)**
+
+| 日期 | 版本 | 主要变更 | 贡献者 |
+| :---- | :---- | :---- | :---- |
+| 2025-09-10 | v4.0+auto | 文档评审与结构优化 | Docs Maintainer |
+| 2025-09-02 | v3.1 | 初步结构 & 早期评审合并 | Product Team |
+| 2025-09-03 | v4.0 | 指标分层 / 家长协同 / OCR重识别 / 风险监控 / 定价修订 | Product Team |
+| 2025-09-10 | v4.0+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |
+
+> 若需新增条目：复制表格最后一行并追加；保持“单一事实来源”原则，历史版本不再直接修改，仅追加说明。
+
 * **Must Have (必须有)**: 云同步（基础 iCloud/CloudKit，同步与设备恢复）。
 * **Could Have (可以有)**: PDF导出、社交分享。能提升用户体验，但非必要。  
 * **Won't Have (暂不做)**: Android版、Web端、游戏化。与当前阶段的战略定位不符。

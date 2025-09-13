@@ -2,6 +2,15 @@
 
 **目的**: 本文档面向**产品、设计、运营、市场**角色，定义核心业务概念，是确保跨部门沟通一致性的**唯一事实来源**。
 
+## 速查：相关文档（快速跳转）
+
+- 文档索引: [docs/README.md](../README.md)
+- PRD: [docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)
+- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md)
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v2.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v1.1.md](NotBad%20App%20-%20技术术语表%20v1.1.md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v1.0.md](NotBad%20App%20-%20术语到代码索引%20v1.0.md)
+
 | 版本 | 日期 | 作者 | 变更说明 |
 | :---- | :---- | :---- | :---- |
 | v1.1 | 2025-09-04 | Team | 同步 PRD v4.0：修正定价，新增指标分层与教师相关术语 |
@@ -70,6 +79,17 @@
 | :---- | :---- | :---- |
 | **免费版** | Free Tier | 免费 |
 | **Pro月订阅** | Pro Monthly Subscription | ¥10/月 (同步 PRD v4.0) |
+---
+### **编辑历史 / 贡献者 (Edit History & Contributors)**
+
+| 日期 | 版本 | 主要变更 | 贡献者 |
+| :---- | :---- | :---- | :---- |
+| 2025-09-10 | v1.1+auto | 文档评审与结构优化 | Docs Maintainer |
+| 2025-09-02 | v1.0 | 初版术语集合 | Product & Tech |
+| 2025-09-04 | v1.1 | 增加指标分层 / 教师 & 家长术语 / 定价修订 | Product & Tech |
+| 2025-09-10 | v1.1+links | 添加跨文档快速跳转 & 编辑历史 | Docs Maintainer |
+
+> 术语定义若发生语义重大变化，应升级版本号（v1.2等）而不是覆写原行。
 | **Pro年订阅** | Pro Annual Subscription | ¥99/年 (同步 PRD v4.0) |
 | **永久买断** | Lifetime Purchase | ¥688 (同步 PRD v4.0) |
 | **试用期** | Trial Period | 未在 PRD 明确（TBD） |
