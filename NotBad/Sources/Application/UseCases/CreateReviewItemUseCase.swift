@@ -38,50 +38,34 @@ class CreateReviewItemUseCaseImpl: CreateReviewItemUseCase {
     
     /// 验证创建请求
     private func validateRequest(_ request: CreateReviewItemRequest) throws {
-        guard !request.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        guard !request.content.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw ReviewItemUseCaseError.validationFailed("标题不能为空")
         }
         
-        guard !request.question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        guard !request.content.question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw ReviewItemUseCaseError.validationFailed("题目不能为空")
         }
         
-        guard !request.subject.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        guard !request.content.subject.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw ReviewItemUseCaseError.validationFailed("科目不能为空")
         }
         
         // 验证标题长度
-        if request.title.count > 100 {
+        if request.content.title.count > 100 {
             throw ReviewItemUseCaseError.validationFailed("标题长度不能超过100个字符")
         }
         
         // 验证题目长度
-        if request.question.count > 5000 {
+        if request.content.question.count > 5000 {
             throw ReviewItemUseCaseError.validationFailed("题目长度不能超过5000个字符")
         }
     }
     
     /// 从请求创建复习项实体
     private func createReviewItem(from request: CreateReviewItemRequest) -> ReviewItem {
-        let content = ReviewContent(
-            title: request.title,
-            question: request.question,
-            answer: request.answer,
-            explanation: request.explanation,
-            imageData: request.imageData,
-            subject: request.subject,
-            difficulty: request.difficulty,
-            tags: request.tags
-        )
-        
-        let metadata = ReviewMetadata(
-            ownerId: request.ownerId,
-            source: request.source
-        )
-        
         return ReviewItem(
-            content: content,
-            metadata: metadata
+            content: request.content,
+            metadata: request.metadata
         )
     }
 }

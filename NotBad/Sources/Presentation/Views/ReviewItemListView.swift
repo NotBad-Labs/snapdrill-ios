@@ -8,29 +8,34 @@
 import SwiftUI
 import SwiftData
 
-struct ReviewItemListView: View {
-    @Environment(\.modelContext) private var modelContext
-    @State private var reviewItems: [ReviewItem] = []
-    @State private var isLoading = false
-    @State private var errorMessage: String?
-    @State private var showingCreateSheet = false
+@Observable
+class ReviewItemListViewModel {
+    var reviewItems: [ReviewItem] = []
+    var isLoading = false
+    var errorMessage: String?
+    var showingCreateSheet = false
     
     // 依赖注入
-    @State private var repository: (any ReviewItemRepository)?
-    @State private var getItemsUseCase: (any GetReviewItemsUseCase)?
+    var repository: (any ReviewItemRepository)?
+    var getItemsUseCase: (any GetReviewItemsUseCase)?
+}
+
+struct ReviewItemListView: View {
+    @Environment(\.modelContext) private var modelContext
+    @State private var viewModel = ReviewItemListViewModel()
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
-                if isLoading {
+                if viewModel.isLoading {
                     ProgressView("加载中...")
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if reviewItems.isEmpty {
+                } else if viewModel.reviewItems.isEmpty {
                     EmptyStateView {
-                        showingCreateSheet = true
+                        viewModel.showingCreateSheet = true
                     }
                 } else {
-                    List(reviewItems, id: \.id) { item in
+                    List(viewModel.reviewItems, id: \.id) { item in
                         ReviewItemRowView(item: item)
                     }
                     .refreshable {
@@ -42,13 +47,13 @@ struct ReviewItemListView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        showingCreateSheet = true
+                        viewModel.showingCreateSheet = true
                     }) {
                         Image(systemName: "plus")
                     }
                 }
             }
-            .sheet(isPresented: $showingCreateSheet) {
+            .sheet(isPresented: $viewModel.showingCreateSheet) {
                 CreateReviewItemView(onCreated: { _ in
                     Task {
                         await loadReviewItems()
@@ -59,12 +64,12 @@ struct ReviewItemListView: View {
                 await setupDependencies()
                 await loadReviewItems()
             }
-            .alert("错误", isPresented: .constant(errorMessage != nil)) {
+            .alert("错误", isPresented: .constant(viewModel.errorMessage != nil)) {
                 Button("确定") {
-                    errorMessage = nil
+                    viewModel.errorMessage = nil
                 }
             } message: {
-                if let errorMessage = errorMessage {
+                if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                 }
             }
@@ -74,29 +79,29 @@ struct ReviewItemListView: View {
     // MARK: - Private Methods
     
     private func setupDependencies() async {
-        repository = SwiftDataReviewItemRepository(modelContext: modelContext)
+        viewModel.repository = SwiftDataReviewItemRepository(modelContext: modelContext)
         // TODO: 创建具体的UseCase实现
     }
     
     private func loadReviewItems() async {
-        isLoading = true
-        errorMessage = nil
+        viewModel.isLoading = true
+        viewModel.errorMessage = nil
         
         do {
-            if let repository = repository {
+            if let repository = viewModel.repository {
                 let items = try await repository.getAll()
                 await MainActor.run {
-                    self.reviewItems = items
+                    self.viewModel.reviewItems = items
                 }
             }
         } catch {
             await MainActor.run {
-                self.errorMessage = error.localizedDescription
+                self.viewModel.errorMessage = error.localizedDescription
             }
         }
         
         await MainActor.run {
-            isLoading = false
+            viewModel.isLoading = false
         }
     }
 }

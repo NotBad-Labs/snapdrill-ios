@@ -10,7 +10,7 @@ import Foundation
 // MARK: - 核心实体：复习项
 /// 复习项是系统的核心实体，代表需要复习的单个学习内容单元
 /// 遵循Clean Architecture的Domain层设计原则，纯Swift结构体，无外部依赖
-public struct ReviewItem: Identifiable, Equatable, Hashable, Codable {
+public struct ReviewItem: Identifiable, Equatable, Hashable, Codable, Sendable {
     public let id: UUID
     var content: ReviewContent
     var metadata: ReviewMetadata
@@ -34,7 +34,7 @@ public struct ReviewItem: Identifiable, Equatable, Hashable, Codable {
 
 // MARK: - 复习内容
 /// 复习项的具体内容，包含题目、答案、解析等
-struct ReviewContent: Equatable, Hashable, Codable {
+struct ReviewContent: Equatable, Hashable, Codable, Sendable {
     var title: String
     var question: String
     var answer: String?
@@ -67,7 +67,7 @@ struct ReviewContent: Equatable, Hashable, Codable {
 
 // MARK: - 复习元数据
 /// 复习项的元数据，包含创建时间、更新时间、共享状态等
-struct ReviewMetadata: Equatable, Hashable, Codable {
+struct ReviewMetadata: Equatable, Hashable, Codable, Sendable {
     var createdAt: Date
     var updatedAt: Date
     var ownerId: UUID
@@ -97,7 +97,7 @@ struct ReviewMetadata: Equatable, Hashable, Codable {
 
 // MARK: - 学习记录
 /// 记录用户对复习项的学习历史
-struct StudyRecord: Identifiable, Equatable, Hashable, Codable {
+struct StudyRecord: Identifiable, Equatable, Hashable, Codable, Sendable {
     let id: UUID
     var studyDate: Date
     var isCorrect: Bool
@@ -121,7 +121,7 @@ struct StudyRecord: Identifiable, Equatable, Hashable, Codable {
 
 // MARK: - 掌握程度
 /// 用户对复习项的掌握程度状态
-public enum MasteryLevel: String, CaseIterable, Equatable, Hashable, Codable {
+public enum MasteryLevel: String, CaseIterable, Equatable, Hashable, Codable, Sendable {
     case notMastered = "not_mastered"
     case unclear = "unclear"
     case mastered = "mastered"
@@ -151,7 +151,7 @@ public enum MasteryLevel: String, CaseIterable, Equatable, Hashable, Codable {
 
 // MARK: - 难度等级
 /// 复习项的难度等级
-public enum DifficultyLevel: String, CaseIterable, Equatable, Hashable, Codable {
+public enum DifficultyLevel: String, CaseIterable, Equatable, Hashable, Codable, Sendable {
     case easy = "easy"
     case medium = "medium"
     case hard = "hard"
@@ -181,7 +181,7 @@ public enum DifficultyLevel: String, CaseIterable, Equatable, Hashable, Codable 
 
 // MARK: - 家长分享状态
 /// 家长分享状态，用于控制家长对复习项的访问权限
-public enum ParentShareStatus: String, CaseIterable, Equatable, Hashable, Codable {
+public enum ParentShareStatus: String, CaseIterable, Equatable, Hashable, Codable, Sendable {
     case none = "none"
     case summary = "summary"
     case oneTime = "one_time"
@@ -203,7 +203,7 @@ public enum ParentShareStatus: String, CaseIterable, Equatable, Hashable, Codabl
 
 // MARK: - 复习项来源
 /// 复习项的创建来源
-enum ItemSource: String, CaseIterable, Equatable, Hashable, Codable {
+enum ItemSource: String, CaseIterable, Equatable, Hashable, Codable, Sendable {
     case manual = "manual"
     case ocr = "ocr"
     case importFile = "import_file"
