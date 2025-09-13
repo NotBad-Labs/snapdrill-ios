@@ -2,7 +2,7 @@ name: NotBad CI/CD Pipeline (Self-hosted)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 'refactor/*', 'feature/*', 'develop/*' ]
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
