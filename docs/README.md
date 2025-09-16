@@ -4,7 +4,7 @@
 
 ## 📋 主要文档
 
-- **产品需求文档 (PRD)**: [NotBad 错题本 App - 产品需求文档 (PRD) v4.0.md](prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.0.md)
+- **产品需求文档 (PRD)**: [NotBad 错题本 App - 产品需求文档 (PRD) v4.1.md](prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v4.1.md) ⭐️ **最新版本**
 - **技术设计文档 (TDD)**: [NotBad 错题本 App - 技术设计文档 (TDD) v4.0.md](tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v4.0.md)
 - **需求追踪矩阵 (RTM)**: [NotBad App - 需求追踪矩阵 (RTM) v2.0.md](rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v2.0.md)
 
@@ -20,6 +20,8 @@
 ## 🎯 辅助资源
 - **静态资源**: [assets/](assets/) - 存放图片、图表等文档引用的静态文件
 - **会议纪要**: [meetings/](meetings/) - 项目相关会议记录与决策历史
+- **可观测性**: [observability/metrics-and-alerts.md](observability/metrics-and-alerts.md) - 指标定义与告警阈值
+- **隐私合规**: [privacy/usage-descriptions.md](privacy/usage-descriptions.md) - 权限用途说明与隐私策略
 
 ## 建议
 
