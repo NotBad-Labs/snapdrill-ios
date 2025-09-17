@@ -43,13 +43,7 @@
 		B2BE0C902E6A7981001369C3 /* UITestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UITestPlan.xctestplan; sourceTree = "<group>"; };
 		B2BE0C9C2E727CC6001369C3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B2F0D1002F00000100AAA001 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		B2F0D1012F00000100AAA001 /* README_STANDALONE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_STANDALONE.md; sourceTree = "<group>"; };
-		B2F0D1022F00000100AAA001 /* CODE_REVIEW_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CODE_REVIEW_GUIDE.md; sourceTree = "<group>"; };
-		B2F0D1032F00000100AAA001 /* INSTALL_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = INSTALL_GUIDE.md; sourceTree = "<group>"; };
-		B2F0D1042F00000100AAA001 /* DOCUMENT_SYSTEM_ANALYSIS_V4_2.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DOCUMENT_SYSTEM_ANALYSIS_V4_2.md; sourceTree = "<group>"; };
-		B2F0D1052F00000100AAA001 /* v5.0_文档一致性验证报告.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "v5.0_文档一致性验证报告.md"; sourceTree = "<group>"; };
 		B2F0D1062F00000100AAA001 /* ExportOptions.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ExportOptions.plist; sourceTree = "<group>"; };
-		B2F0D1072F00000100AAA001 /* fix_deployment_target.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = fix_deployment_target.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -127,13 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				B2F0D1002F00000100AAA001 /* README.md */,
-				B2F0D1012F00000100AAA001 /* README_STANDALONE.md */,
-				B2F0D1022F00000100AAA001 /* CODE_REVIEW_GUIDE.md */,
-				B2F0D1032F00000100AAA001 /* INSTALL_GUIDE.md */,
-				B2F0D1042F00000100AAA001 /* DOCUMENT_SYSTEM_ANALYSIS_V4_2.md */,
-				B2F0D1052F00000100AAA001 /* v5.0_文档一致性验证报告.md */,
 				B2F0D1062F00000100AAA001 /* ExportOptions.plist */,
-				B2F0D1072F00000100AAA001 /* fix_deployment_target.sh */,
 				B2BE0C9C2E727CC6001369C3 /* .gitignore */,
 				B2BE0C972E6A7D93001369C3 /* .github */,
 				B2F0D0082F00000100AAA001 /* Scripts */,
