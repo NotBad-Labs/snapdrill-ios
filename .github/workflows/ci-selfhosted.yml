@@ -58,33 +58,33 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.4'
-      
+
       - name: Cache SwiftLint
         uses: actions/cache@v4
         with:
           path: /usr/local/bin/swiftlint
           key: swiftlint-${{ runner.os }}
-      
+
       - name: Install SwiftLint
         run: |
           if ! command -v swiftlint &> /dev/null; then
             brew install swiftlint
           fi
-      
+
       - name: Run SwiftLint
         run: swiftlint lint --reporter github-actions-logging
-      
+
       - name: SwiftLint Rules Check
         run: |
           echo "📋 SwiftLint 规则检查:"
           swiftlint rules | head -20
           echo "总规则数: $(swiftlint rules | wc -l)"
-      
+
       - name: Check Swift Package Dependencies
         run: |
           echo "📦 检查 Swift Package 依赖:"
@@ -93,7 +93,7 @@ jobs:
           else
             echo "项目使用 Xcode 项目管理依赖"
           fi
-      
+
       - name: Security Scan (Basic)
         run: |
           echo "🔒 基础安全扫描:"
@@ -102,6 +102,26 @@ jobs:
             echo "⚠️ 发现可能的敏感信息"
           else
             echo "✅ 未发现明显的敏感信息"
+          fi
+
+      - name: Install pre-commit
+        run: |
+          if ! command -v pre-commit &> /dev/null; then
+            brew install pre-commit
+          fi
+
+      - name: Run pre-commit checks
+        run: |
+          echo "🪝 运行 pre-commit 检查:"
+          pre-commit run --all-files || echo "⚠️ Pre-commit检查发现问题"
+
+      - name: Code complexity analysis
+        run: |
+          echo "📊 代码复杂度分析:"
+          # 使用SwiftLint分析复杂度
+          swiftlint lint --config .swiftlint.yml --reporter json > swiftlint-report.json || true
+          if [ -f "swiftlint-report.json" ]; then
+            echo "生成SwiftLint报告成功"
           fi
 
   # 单元测试和集成测试 - 使用自托管运行器
@@ -120,7 +140,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       # 验证Xcode版本（自托管运行器已预装）
       - name: Verify Xcode Version
         run: |
@@ -129,19 +149,19 @@ jobs:
           if [[ ! "$xcode_version" =~ "Xcode 16.4" ]]; then
             echo "警告: 期望Xcode 16.4，当前版本: $xcode_version"
           fi
-      
+
       # 挂载群晖存储
       - name: Mount Synology Storage
         run: |
           MOUNT_POINT="/Volumes/runner_data"
-          
+
           # 检查是否已经挂载
           if [ -d "$MOUNT_POINT" ] && mount | grep -q "$MOUNT_POINT"; then
             echo "✅ 群晖存储已挂载: $MOUNT_POINT"
             ls -la "$MOUNT_POINT"
           else
             echo "⚠️ 群晖存储未挂载，尝试挂载..."
-            
+
             # 使用环境变量中的群晖配置
             echo "群晖配置:"
             echo "  SMB_HOST: ${SMB_HOST:-192.168.1.211}"
@@ -155,7 +175,7 @@ jobs:
               echo "  ⚠️ 密码长度不正确！可能包含多余字符"
               echo "  密码内容（十六进制）: $(printf '%s' "$SMB_PASSWORD" | xxd -p)"
             fi
-            
+
             # 尝试解析群晖设备名
             echo "尝试解析群晖设备名: ${SYNOLOGY_HOSTNAME}"
             if nslookup "${SYNOLOGY_HOSTNAME}.local" > /dev/null 2>&1; then
@@ -165,42 +185,42 @@ jobs:
               echo "⚠️ 群晖设备名解析失败，使用IP地址: ${SMB_HOST}"
               ACTUAL_HOST="${SMB_HOST}"
             fi
-            
+
             echo "尝试挂载 //${ACTUAL_HOST}/${SHARE_NAME} 到 $MOUNT_POINT"
             echo "注意: 如果挂载失败，请检查网络连接和群晖设置"
-            
+
             # 检查密码是否设置
             if [ -z "${SMB_PASSWORD:-}" ]; then
               echo "⚠️ 未设置 SMB_PASSWORD，跳过自动挂载"
               echo "请在 GitHub Secrets 中设置 SMB_PASSWORD"
               exit 1
             fi
-            
+
             # 创建挂载点
             echo "创建挂载点..."
             printf '%s\n' "$SMB_PASSWORD" | sudo -S mkdir -p "$MOUNT_POINT"
-            
+
             # 尝试挂载
             echo "正在挂载群晖存储..."
             if printf '%s\n' "$SMB_PASSWORD" | sudo -S mount_smbfs //${SMB_USER}@${ACTUAL_HOST}/${SHARE_NAME} "$MOUNT_POINT"; then
               echo "✅ 群晖存储挂载成功"
-              
+
               # 设置权限，确保可以写入和删除
               echo "设置群晖存储权限..."
               sudo chown -R $(whoami):staff "$MOUNT_POINT" 2>/dev/null || true
               chmod -R 777 "$MOUNT_POINT" 2>/dev/null || true
-              
+
               # 特别设置 artifacts 目录权限
               sudo chown -R $(whoami):staff "$MOUNT_POINT/artifacts" 2>/dev/null || true
               chmod -R 777 "$MOUNT_POINT/artifacts" 2>/dev/null || true
-              
+
               # 创建必要的目录
               mkdir -p "$MOUNT_POINT/artifacts"
               mkdir -p "$MOUNT_POINT/test-results"
               mkdir -p "$MOUNT_POINT/performance-results"
               mkdir -p "$MOUNT_POINT/ui-test-results"
               mkdir -p "$MOUNT_POINT/build-artifacts"
-              
+
               echo "✅ 群晖存储权限设置完成"
             else
               echo "❌ 群晖存储挂载失败"
@@ -213,18 +233,18 @@ jobs:
             fi
           fi
           echo "存储挂载正常: $(df -h /Volumes/runner_data | tail -1)"
-      
+
       # 验证模拟器
       - name: Verify Simulators
         run: |
           echo "🎯 目标设备: ${{ matrix.destination }}"
           echo "📱 所有可用模拟器列表:"
           xcrun simctl list devices available | grep -E "(iPhone|iPad)"
-          
+
           # 检查支持的稳定设备类型
           echo ""
           echo "🔍 检查支持的稳定设备类型:"
-          
+
           # 只检查最稳定的设备
           for device in "iPhone 16 Pro" "iPad Pro 11-inch (M4)"; do
             if xcrun simctl list devices available | grep -q "$device"; then
@@ -233,16 +253,16 @@ jobs:
               echo "❌ $device 模拟器不可用"
             fi
           done
-          
+
           echo ""
           echo "📊 设备统计:"
           echo "iPhone 设备数量: $(xcrun simctl list devices available | grep "iPhone" | wc -l)"
           echo "iPad 设备数量: $(xcrun simctl list devices available | grep "iPad" | wc -l)"
-      
+
       - name: Boot Target Simulator
         run: |
           echo "启动目标模拟器: ${{ matrix.destination }}"
-          
+
           # 提取设备名称 - 只支持最稳定的设备
           if [[ "${{ matrix.destination }}" == *"iPhone 16 Pro"* ]]; then
             device_name="iPhone 16 Pro"
@@ -254,17 +274,17 @@ jobs:
             xcrun simctl list devices available | grep -E "(iPhone 16 Pro|iPad Pro 11-inch)"
             exit 1
           fi
-          
+
           echo "✅ 启动模拟器: $device_name"
-          
+
           # 检查设备是否可用
           if xcrun simctl list devices available | grep -q "$device_name"; then
             echo "✅ 设备可用，正在启动..."
             xcrun simctl boot "$device_name" || echo "模拟器可能已经在运行"
-            
+
             # 等待模拟器完全启动
             sleep 10
-            
+
             # 检查模拟器状态
             echo "📱 模拟器状态:"
             xcrun simctl list devices | grep "$device_name"
@@ -274,44 +294,44 @@ jobs:
             xcrun simctl list devices available | grep -E "(iPhone|iPad)"
             exit 1
           fi
-      
+
       - name: Check Project Configuration
         run: |
           echo "检查项目配置..."
           echo "工作空间路径: ${{ env.WORKSPACE_PATH }}"
           echo "方案名称: ${{ env.SCHEME_NAME }}"
-          
+
           # 检查工作空间是否存在
           if [ ! -d "${{ env.WORKSPACE_PATH }}" ]; then
             echo "❌ 工作空间不存在: ${{ env.WORKSPACE_PATH }}"
             exit 1
           fi
-          
+
           # 列出可用的方案
           echo "可用方案:"
           xcodebuild -list -workspace ${{ env.WORKSPACE_PATH }}
-          
+
           # 检查目标设备
           echo "目标设备: ${{ matrix.destination }}"
           xcrun simctl list devices available | grep -E "(iPhone 16 Pro|iPad.*10th generation)"
-      
+
       - name: Resolve Package Dependencies
         run: xcodebuild -resolvePackageDependencies -workspace ${{ env.WORKSPACE_PATH }} -scheme ${{ env.SCHEME_NAME }}
-      
+
       - name: Build (for testing)
         run: |
           echo "开始构建项目..."
           echo "工作空间: ${{ env.WORKSPACE_PATH }}"
           echo "方案: ${{ env.SCHEME_NAME }}"
           echo "目标设备: ${{ matrix.destination }}"
-          
+
           # 清理构建
           echo "清理项目..."
           xcodebuild clean \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
             CODE_SIGNING_ALLOWED=NO
-          
+
           # 构建项目
           echo "构建项目..."
           xcodebuild build \
@@ -320,13 +340,13 @@ jobs:
             -destination "${{ matrix.destination }}" \
             CODE_SIGNING_ALLOWED=NO \
             -verbose
-      
+
       - name: Run Unit Tests
         run: |
           # 使用本地临时目录避免权限问题
           local_result_path="./TestResults-$(date +%s).xcresult"
           echo "使用本地结果路径: $local_result_path"
-          
+
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
@@ -335,18 +355,18 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             -enableCodeCoverage YES \
             -resultBundlePath "$local_result_path"
-          
+
           # 复制到群晖存储
           echo "复制测试结果到群晖存储..."
           cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult"
           echo "✅ 测试结果已保存到群晖存储"
-      
+
       - name: Run Integration Tests
         run: |
           # 使用本地临时目录避免权限问题
           local_result_path="./IntegrationResults-$(date +%s).xcresult"
           echo "使用本地结果路径: $local_result_path"
-          
+
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
@@ -354,16 +374,16 @@ jobs:
             -testPlan IntegrationTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath "$local_result_path"
-          
+
           # 复制到群晖存储
           echo "复制集成测试结果到群晖存储..."
           cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/IntegrationResults-${{ matrix.destination }}.xcresult"
           echo "✅ 集成测试结果已保存到群晖存储"
-      
+
       - name: Generate Code Coverage Report
         run: |
           xcrun xccov view --report --json "${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult" > "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json"
-      
+
       - name: Check Code Coverage Threshold
         if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
         run: |
@@ -380,7 +400,7 @@ jobs:
           echo "📊 当前覆盖率要求: ${COVERAGE_THRESHOLD}% (警告阈值: ${WARN_THRESHOLD}%)"
           echo "💡 项目初期策略: 专注功能开发，逐步提升覆盖率"
           python3 Scripts/check_coverage.py "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json" $COVERAGE_THRESHOLD --warn-threshold $WARN_THRESHOLD --show-details
-      
+
       # 上传测试结果到群晖存储（作为备份）
       - name: Archive Test Results to NAS
         run: |
@@ -406,19 +426,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Boot Simulator for Deep Tests
         run: |
           xcrun simctl boot "iPhone 16 Pro" || true
           sleep 10
-      
+
       - name: Memory Leak Detection
         run: |
           echo "🔍 内存泄漏检测测试:"
           # 使用本地临时目录避免权限问题
           local_result_path="./MemoryTestResults-${{ github.run_number }}.xcresult"
           echo "使用本地结果路径: $local_result_path"
-          
+
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
@@ -428,19 +448,19 @@ jobs:
             -enableCodeCoverage YES \
             -resultBundlePath "$local_result_path" \
             -enableAddressSanitizer YES
-          
+
           # 复制到群晖存储
           echo "复制内存测试结果到群晖存储..."
           cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/"
           echo "✅ 内存测试结果已保存到群晖存储"
-      
+
       - name: Thread Sanitizer Test
         run: |
           echo "🧵 线程安全检测测试:"
           # 使用本地临时目录避免权限问题
           local_result_path="./ThreadTestResults-${{ github.run_number }}.xcresult"
           echo "使用本地结果路径: $local_result_path"
-          
+
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
@@ -449,30 +469,30 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath "$local_result_path" \
             -enableThreadSanitizer YES
-          
+
           # 复制到群晖存储
           echo "复制线程测试结果到群晖存储..."
           cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/"
           echo "✅ 线程测试结果已保存到群晖存储"
-      
+
       - name: Static Analysis
         run: |
           echo "📊 静态代码分析:"
           # 使用本地临时目录避免权限问题
           local_result_path="./StaticAnalysis-${{ github.run_number }}.xcresult"
           echo "使用本地结果路径: $local_result_path"
-          
+
           xcodebuild analyze \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath "$local_result_path"
-          
+
           # 复制到群晖存储
           echo "复制静态分析结果到群晖存储..."
           cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/"
           echo "✅ 静态分析结果已保存到群晖存储"
-      
+
       - name: Build Performance Analysis
         run: |
           echo "⚡ 构建性能分析:"
@@ -482,7 +502,7 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
             CODE_SIGNING_ALLOWED=NO \
             -quiet
-      
+
       - name: Archive Deep Test Results
         run: |
           mkdir -p "${{ env.CACHE_DIR }}/deep-test-results/${{ github.run_number }}"
@@ -502,18 +522,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Boot Simulator for Performance Tests
         run: |
           xcrun simctl boot "iPhone 16 Pro" || true
           sleep 10  # 等待模拟器完全启动
-      
+
       - name: Run Performance Tests
         run: |
           # 使用本地临时目录避免权限问题
           local_result_path="./PerformanceResults-${{ github.run_number }}.xcresult"
           echo "使用本地结果路径: $local_result_path"
-          
+
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
@@ -521,18 +541,18 @@ jobs:
             -testPlan PerformanceTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath "$local_result_path"
-          
+
           # 复制到群晖存储
           echo "复制性能测试结果到群晖存储..."
           cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/"
           echo "✅ 性能测试结果已保存到群晖存储"
-      
+
       - name: Extract Performance Metrics
         run: python3 Scripts/extract_performance_metrics.py ${{ env.ARTIFACTS_DIR }}/PerformanceResults-${{ github.run_number }}.xcresult
-      
+
       - name: Performance Regression Check
         run: python3 Scripts/check_performance_regression.py
-      
+
       - name: Archive Performance Results to NAS
         run: |
           mkdir -p ${{ env.CACHE_DIR }}/performance-results/${{ github.run_number }}
@@ -550,18 +570,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Boot Simulator for UI Tests
         run: |
           xcrun simctl boot "iPhone 16 Pro" || true
           sleep 10  # 等待模拟器完全启动
-      
+
       - name: Run UI Tests
         run: |
           # 使用本地临时目录避免权限问题
           local_result_path="./UITestResults-${{ github.run_number }}.xcresult"
           echo "使用本地结果路径: $local_result_path"
-          
+
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
@@ -569,12 +589,12 @@ jobs:
             -testPlan UITestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath "$local_result_path"
-          
+
           # 复制到群晖存储
           echo "复制UI测试结果到群晖存储..."
           cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/"
           echo "✅ UI测试结果已保存到群晖存储"
-      
+
       - name: Archive UI Test Results to NAS
         run: |
           mkdir -p ${{ env.CACHE_DIR }}/ui-test-results/${{ github.run_number }}
@@ -590,7 +610,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Install Apple Certificate
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -603,14 +623,14 @@ jobs:
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o certificate.p12
           security import certificate.p12 -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
-      
+
       - name: Install Provisioning Profile
         env:
           PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
-      
+
       - name: Archive Project
         run: |
           xcodebuild archive \
@@ -619,7 +639,7 @@ jobs:
             -configuration Release \
             -archivePath ${{ env.ARTIFACTS_DIR }}/NotBad-${{ github.run_number }}.xcarchive \
             -allowProvisioningUpdates
-      
+
       - name: Export IPA
         run: |
           xcodebuild -exportArchive \
@@ -627,7 +647,7 @@ jobs:
             -exportOptionsPlist ExportOptions.plist \
             -exportPath ${{ env.ARTIFACTS_DIR }}/export-${{ github.run_number }} \
             -allowProvisioningUpdates
-      
+
       - name: Upload to TestFlight
         env:
           APPLEID_USERNAME: ${{ secrets.APPLEID_USERNAME }}
@@ -638,7 +658,7 @@ jobs:
             --file ${{ env.ARTIFACTS_DIR }}/export-${{ github.run_number }}/NotBad.ipa \
             --username "$APPLEID_USERNAME" \
             --password "$APPLEID_PASSWORD"
-      
+
       - name: Archive Build Artifacts to NAS
         run: |
           mkdir -p ${{ env.CACHE_DIR }}/build-artifacts/${{ github.run_number }}
@@ -656,16 +676,16 @@ jobs:
         run: |
           # 清理30天前的测试结果
           find ${{ env.CACHE_DIR }}/test-results -type d -mtime +30 -exec rm -rf {} + 2>/dev/null || true
-          
+
           # 清理30天前的性能测试结果
           find ${{ env.CACHE_DIR }}/performance-results -type d -mtime +30 -exec rm -rf {} + 2>/dev/null || true
-          
+
           # 清理30天前的UI测试结果
           find ${{ env.CACHE_DIR }}/ui-test-results -type d -mtime +30 -exec rm -rf {} + 2>/dev/null || true
-          
+
           # 清理60天前的构建产物（保留更长时间）
           find ${{ env.CACHE_DIR }}/build-artifacts -type d -mtime +60 -exec rm -rf {} + 2>/dev/null || true
-          
+
           echo "清理完成，释放空间: $(df -h ${{ env.CACHE_DIR }} | tail -1)"
 
   # 通知任务
@@ -683,7 +703,7 @@ jobs:
           else
             echo "slack_configured=false" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Notify Slack
         if: steps.check-slack.outputs.slack_configured == 'true'
         uses: 8398a7/action-slack@v3

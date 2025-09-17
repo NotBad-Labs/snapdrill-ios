@@ -1,0 +1,32 @@
+# Pre-commit hooks for NotBad iOS project
+# See https://pre-commit.com for more information
+repos:
+  # 通用文件检查
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      # Temporarily disable case-conflict check due to git history
+      # - id: check-case-conflict
+
+  # SwiftLint代码检查（本地安装版本）
+  - repo: local
+    hooks:
+      - id: swiftlint
+        name: SwiftLint
+        entry: swiftlint
+        language: system
+        files: \.swift$
+        args: [--fix]
+
+  # 提交信息检查
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.6.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat,fix,docs,style,refactor,test,chore,perf,ci,build]

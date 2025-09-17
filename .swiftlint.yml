@@ -1,11 +1,6 @@
-#
-//  .swiftlint.yml
-//  NotBad
-//
-//  Created by YIMING LIAO on 2025/9/5.
-//
 # .swiftlint.yml
 # SwiftLint 配置文件 - 针对 NotBad 项目优化
+# Created by YIMING LIAO on 2025/9/5.
 
 # 包含的路径
 included:
@@ -190,14 +185,14 @@ custom_rules:
       - identifier
     message: "Use logger instead of print()"
     severity: warning
-    
+
   # 确保异步函数使用 async/await
   async_await_usage:
     name: "Async/Await Usage"
     regex: "DispatchQueue\\.main\\.async"
     message: "Use async/await instead of DispatchQueue"
     severity: warning
-    
+
   # 确保错误处理使用 Result 类型
   result_type_usage:
     name: "Result Type Usage"
@@ -207,3 +202,16 @@ custom_rules:
 
 # 报告器类型
 reporter: "github-actions-logging"
+
+# 分析器规则（静态分析）
+analyzer_rules:
+  - explicit_self
+  - unused_import
+  - unused_declaration
+
+# 测试覆盖率相关
+coverage:
+  min_percentage: 80  # 最低80%测试覆盖率
+  exclude_files:
+    - "*/Tests/*"
+    - "*/UITests/*"

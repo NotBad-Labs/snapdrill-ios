@@ -30,6 +30,29 @@
    cd NotBad
    ```
 
+2. **安装开发工具**
+   ```bash
+   # 安装 pre-commit hooks
+   brew install pre-commit
+   pre-commit install
+   pre-commit install --hook-type commit-msg
+
+   # 安装 SwiftLint（如果未安装）
+   brew install swiftlint
+   ```
+
+3. **运行质量检查**
+   ```bash
+   # 运行完整质量门槛检查
+   ./Scripts/quality_gate.sh
+   ```
+
+4. **打开项目**
+   ```bash
+   open NotBad.xcodeproj
+   ```
+   ```
+
 2. **解析依赖**
    ```bash
    # Swift包依赖会自动解析
