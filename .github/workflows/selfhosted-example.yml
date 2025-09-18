@@ -1,3 +1,5 @@
+# NOTE: Versions, environments, and constraints must follow the PRD (SSoT):
+# docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0 (Swift6.2 + iOS26).md
 name: Self-hosted iOS CI (manual)
 
 on:
@@ -46,5 +48,3 @@ jobs:
             -testPlan UnitTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath SelfHosted-TestResults.xcresult
-
-
