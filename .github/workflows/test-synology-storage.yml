@@ -28,7 +28,7 @@ env:
   SMB_USER: ${{ secrets.SMB_USER }}
   SMB_PASSWORD: ${{ secrets.SMB_PASSWORD }}
   SYNOLOGY_HOSTNAME: DS1821
-  MOUNT_POINT: /Volumes/runner_data
+  # MOUNT_POINT 将在步骤中基于 $HOME 设置并写入 $GITHUB_ENV 以避免硬编码路径
 
 jobs:
   test-synology-storage:
@@ -39,6 +39,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set env paths (HOME-based)
+        run: |
+          echo "Setting mount point under HOME to avoid sudo..."
+          echo "MOUNT_POINT=$HOME/runner_data" >> "$GITHUB_ENV"
 
       - name: Display Configuration
         run: |
@@ -107,16 +112,18 @@ jobs:
           # 检查是否已经挂载
           if mount | grep -q "$MOUNT_POINT"; then
             echo "⚠️ 挂载点 $MOUNT_POINT 已被占用，先卸载..."
-            sudo umount "$MOUNT_POINT" 2>/dev/null || true
+            umount "$MOUNT_POINT" 2>/dev/null || true
             sleep 2
           fi
 
           # 创建挂载点
-          echo "$SMB_PASSWORD" | sudo -S mkdir -p "$MOUNT_POINT"
+          mkdir -p "$MOUNT_POINT"
 
           # 尝试挂载
           echo "正在挂载群晖存储..."
-          if echo "$SMB_PASSWORD" | sudo -S mount_smbfs //"$SMB_USER"@"$SMB_HOST"/"$SHARE_NAME" "$MOUNT_POINT" 2>/dev/null; then
+          ENC_PASS=$(python3 -c "import sys, urllib.parse as u; print(u.quote(sys.argv[1], safe=''))" "$SMB_PASSWORD")
+          MOUNT_URL=//"$SMB_USER":"$ENC_PASS"@"$SMB_HOST"/"$SHARE_NAME"
+          if mount_smbfs -o file_mode=0777,dir_mode=0777 "$MOUNT_URL" "$MOUNT_POINT" 2>/dev/null; then
             echo "✅ 挂载成功"
 
             # 显示挂载信息
@@ -150,7 +157,7 @@ jobs:
           fi
 
           # 测试写入权限
-          local test_file="$MOUNT_POINT/test_write_$(date +%s).txt"
+          test_file="$MOUNT_POINT/test_write_$(date +%s).txt"
           if echo "测试写入 $(date)" > "$test_file" 2>/dev/null; then
             echo "✅ 写入权限正常"
             rm -f "$test_file"
@@ -160,7 +167,7 @@ jobs:
           fi
 
           # 测试目录创建
-          local test_dir="$MOUNT_POINT/test_dir_$(date +%s)"
+          test_dir="$MOUNT_POINT/test_dir_$(date +%s)"
           if mkdir "$test_dir" 2>/dev/null; then
             echo "✅ 目录创建权限正常"
             rmdir "$test_dir"
@@ -178,7 +185,7 @@ jobs:
         run: |
           echo "测试CI相关目录结构..."
 
-          local dirs=(
+          dirs=(
             "$MOUNT_POINT/artifacts"
             "$MOUNT_POINT/test-results"
             "$MOUNT_POINT/performance-results"
@@ -196,7 +203,7 @@ jobs:
           done
 
           # 测试在artifacts目录中创建文件
-          local test_artifact="$MOUNT_POINT/artifacts/test_artifact_$(date +%s).txt"
+          test_artifact="$MOUNT_POINT/artifacts/test_artifact_$(date +%s).txt"
           if echo "CI测试文件 $(date)" > "$test_artifact" 2>/dev/null; then
             echo "✅ artifacts目录写入测试通过"
             rm -f "$test_artifact"
@@ -207,14 +214,15 @@ jobs:
 
           # 显示目录结构
           echo "CI目录结构:"
-          find "$MOUNT_POINT" -type d -maxdepth 2 | sort
+          # BSD find 不支持 -maxdepth，简单展示前若干条目录
+          find "$MOUNT_POINT" -type d | sort | sed -n '1,100p'
 
       - name: Test File Operations
         run: |
           echo "测试文件操作..."
 
           # 创建测试文件
-          local test_file="$MOUNT_POINT/test_file_operations.txt"
+          test_file="$MOUNT_POINT/test_file_operations.txt"
           echo "测试文件内容 $(date)" > "$test_file"
 
           # 测试文件读取
@@ -236,7 +244,7 @@ jobs:
           fi
 
           # 测试文件删除
-          if rm "$test_file" 2>/dev/null; then
+          if rm -f "$test_file" 2>/dev/null; then
             echo "✅ 文件删除正常"
           else
             echo "❌ 文件删除失败"
@@ -248,7 +256,7 @@ jobs:
           echo "测试存储性能..."
 
           # 创建大文件测试写入性能
-          local large_file="$MOUNT_POINT/performance_test_$(date +%s).txt"
+          large_file="$MOUNT_POINT/performance_test_$(date +%s).txt"
           echo "开始写入性能测试..."
 
           start_time=$(date +%s)
@@ -287,7 +295,7 @@ jobs:
           # 卸载挂载点
           if mount | grep -q "$MOUNT_POINT"; then
             echo "卸载群晖存储..."
-            echo "$SMB_PASSWORD" | sudo -S umount "$MOUNT_POINT" 2>/dev/null || true
+            umount "$MOUNT_POINT" 2>/dev/null || true
             echo "✅ 卸载完成"
           fi
 
