@@ -109,7 +109,8 @@ jobs:
             # URL-encode password to handle special characters
             ENCODED_PWD=$(python3 -c "import os,urllib.parse;print(urllib.parse.quote(os.environ.get('SMB_PASSWORD',''), safe=''))")
             CRED_URL="//${SMB_USER}:${ENCODED_PWD}@${ACTUAL_HOST}/${SHARE_NAME}"
-            if mount_smbfs -o file_mode=0777,dir_mode=0777 "$CRED_URL" "$MOUNT_POINT"; then
+            # macOS mount_smbfs does not support Linux-style file_mode/dir_mode; use -f (file) and -d (dir)
+            if mount_smbfs -f 0777 -d 0777 "$CRED_URL" "$MOUNT_POINT"; then
               echo "✅ 挂载成功"
               mkdir -p "$MOUNT_POINT/artifacts" "$MOUNT_POINT/test-results" "$MOUNT_POINT/performance-results" "$MOUNT_POINT/ui-test-results" "$MOUNT_POINT/build-artifacts"
             else

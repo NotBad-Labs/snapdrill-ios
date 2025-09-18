@@ -123,7 +123,7 @@ jobs:
           echo "正在挂载群晖存储..."
           ENC_PASS=$(python3 -c "import sys, urllib.parse as u; print(u.quote(sys.argv[1], safe=''))" "$SMB_PASSWORD")
           MOUNT_URL=//"$SMB_USER":"$ENC_PASS"@"$SMB_HOST"/"$SHARE_NAME"
-          if mount_smbfs -o file_mode=0777,dir_mode=0777 "$MOUNT_URL" "$MOUNT_POINT" 2>/dev/null; then
+          if mount_smbfs -f 0777 -d 0777 "$MOUNT_URL" "$MOUNT_POINT" 2>/dev/null; then
             echo "✅ 挂载成功"
 
             # 显示挂载信息
