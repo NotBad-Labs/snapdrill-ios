@@ -21,11 +21,17 @@
 ## 速查：相关文档（快速跳转）
 
 - 文档索引: [docs/README.md](../README.md)
-- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v5.0 (Swift6.2 + iOS26).md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v5.0%20(Swift6.2%20+%20iOS26).md)
-- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v5.0 (Swift6.2 + iOS26).md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v5.0%20(Swift6.2%20+%20iOS26).md)
-- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v5.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20业务术语表%20v5.0%20(Swift6.2%20+%20iOS26).md)
-- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v5.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20技术术语表%20v5.0%20(Swift6.2%20+%20iOS26).md)
-- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v5.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20术语到代码索引%20v5.0%20(Swift6.2%20+%20iOS26).md)
+- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v5.0 (Swift6.2 + iOS26).md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v5.0%20(Swift6.2%20+%20iOS26).md)（v6 文档迁移中，暂指向 v5/v18 版本）
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v5.0 (Swift6.2 + iOS26).md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v5.0%20(Swift6.2%20+%20iOS26).md)（v6 文档迁移中，暂指向 v5/v18 版本）
+- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v5.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20业务术语表%20v5.0%20(Swift6.2%20+%20iOS26).md)（v6 文档迁移中，暂指向 v5/v18 版本）
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v5.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20技术术语表%20v5.0%20(Swift6.2%20+%20iOS26).md)（v6 文档迁移中，暂指向 v5/v18 版本）
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v5.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20术语到代码索引%20v5.0%20(Swift6.2%20+%20iOS26).md)（v6 文档迁移中，暂指向 v5/v18 版本）
+
+### v6.0 新增支持文档
+- [PRD 验收标准](./prd-acceptance-criteria.md) - Given-When-Then 格式的功能验收标准
+- [指标与埋点规范](./metrics-and-instrumentation-spec.md) - 性能指标定义和监控埋点规范
+- [平台能力与降级矩阵](./platform-capability-matrix.md) - 多版本iOS兼容策略和降级方案
+- [隐私与合规清单](./privacy-and-compliance-checklist.md) - K12场景下的隐私保护和合规要求
 
 | 版本 | 日期 | 作者 | 变更说明 | 状态 |
 | :---- | :---- | :---- | :---- | :---- |
@@ -52,24 +58,27 @@
 ### **1.3 技术约束与要求 (Technical Constraints & Requirements)**
 
 #### **1.3.1 平台要求 (Swift 6.2 & iOS 26 升级)**
-- **最低支持**: iOS 26.0+ (全面拥抱最新系统特性)
+- **最低支持**: iOS 16.0+（商业覆盖优先）
 - **开发环境**: Xcode 26+, **Swift 6.2** 🆕
 - **并发模型**: **Enhanced Actor Isolation** + **Improved TaskGroup** 🚀
 - **UI框架**: SwiftUI (充分利用iOS 26新组件和Proactive Intelligence)
 - **架构模式**: Clean Architecture + **Swift 6.2 Enhanced Concurrency**
-- **空间计算**: 适配 visionOS 3.0, 引入AR/VR学习场景  espacial 🆕
+- **空间计算**: 适配 visionOS 3.0, 引入AR/VR学习场景 spatial 🆕
+
+高版本特性通过能力检测/条件编译启用，详见《平台能力与降级矩阵》。
 
 #### **1.3.2 性能要求 (基于Swift 6.2 & iOS 26优化) 🚀**
-- **应用启动**: < **1.0秒** (iOS 26 App Resume + Swift 6.2并发优化，性能提升40%+)
-- **响应时间**: < **0.5秒** (Proactive Intelligence 预测性加载 + Enhanced Actor)
-- **内存使用**: < **50MB** (iOS 26 智能内存管理 + Swift 6.2 ARC优化)
-- **并发安全**: **100%编译时保证** + Enhanced Sendable Checking
-- **滚动流畅度**: > **120fps** (iOS 26 ProMotion + Swift 6.2性能优化)
+- **应用启动**: P95 < 1.2s (cold), 基准设备: iPhone 12 / iPhone SE (2022) / current flagship
+- **搜索首屏渲染**: P95 < 300ms
+- **OCR单图处理**: P95 < 2.5s
+- **内存使用 (正常)**: P95 < 60MB; OCR峰值: P95 < 300MB
+- **滚动丢帧率**: P95 < 1%
+- **AR渲染帧率**: P95 ≥ 60fps (ARKit 9.0 优化) 🆕
+- **关键数据通路**: 使用 actor/Sendable 审核 + 并发单测覆盖（≥80%）+ 运行时防护
 - **编译时间**: **减少40%** (Swift 6.2编译器优化)
-- **AR渲染帧率**: > **90fps** (ARKit 9.0 优化) 🆕
 
 #### **1.3.3 Swift 6.2 & iOS 26 新特性利用 🆕**
-- **Proactive Intelligence**: 预测用户意图，智能预加载复习内容，优化提醒时机。
+- **Proactive Intelligence**: 基于在端预测 + 通知调度策略（不保证系统建议的确定性触达），智能预加载复习内容，优化提醒时机。
 - **Enhanced Pattern Matching**: 复杂数据筛选和分类，提升AI分析准确率。
 - **空间计算 & ARKit 9.0**: 引入AR错题录入、3D知识图谱可视化、沉浸式复习场景。
 - **Improved Error Handling**: 更优雅的错误处理机制，提升应用稳定性。
@@ -80,7 +89,7 @@
 
 #### **1.4.1 学生价值 (iOS 26 赋能) 🚀**
 * **AR沉浸式录入**: 通过ARKit 9.0，将错题拖拽到虚拟空间中，实现空间化整理。
-* **Proactive智能复习**: iOS 26 Proactive Intelligence预测最佳复习时机，在锁屏界面智能推送。
+* **Proactive智能复习**: 基于在端预测 + 通知调度策略（不保证系统建议的确定性触达），在锁屏界面智能推送。
 * **3D知识图谱**: 将薄弱知识点以3D形式可视化，直观展示关联性。
 * **安全与隐私增强**: 利用iOS 26新的隐私特性，提供更强的本地数据保护。
 
@@ -184,11 +193,13 @@
 * ⭐ `F-AI-01`: 智能复习计划
 * ⭐ `F-PG-01`: 学习进度统计与家长分享
 
-#### **3.3.3 惊喜需求 (Could Have)**
+#### **3.3.3 惊喜需求 (Could Have/vNext)**
 * 🚀 `F-AI-02`: AI错题分析与知识点识别
 * 🚀 `F-AI-04`: 知识图谱构建
 * 🚀 `F-AI-05`: 个性化学习路径 (Proactive Intelligence)
-* 🚀 `F-UC-03`: AR沉浸式录入 (ARKit 9.0)
+* 🚀 `F-UC-03`: AR沉浸式录入 (ARKit 9.0) - **vNext实验**
+* 🚀 `F-PG-02`: 家长协作与教师管理（PG/TE 模块）- **vNext实验**
+* 🚀 `F-AI-06`: 3D知识图谱 - **vNext实验**
 * 🚀 班级协作功能
 * 🚀 多设备同步
 
@@ -208,10 +219,12 @@
 * 📁 **批量处理**: 支持批量导入和处理
 
 **技术要求**:
-* OCR准确率 > 95%（中文）, > 90%（数学公式）
-* 单张照片处理时间 < 2秒
+* 中文识别 P95 > 90%
+* 公式结构化识别为实验性能力（Could Have）
+* 单张照片处理时间: P95 < 2.5s
 * 支持图片格式：JPEG, PNG, HEIC
 * 最大图片尺寸：10MB
+* **兜底策略**: 低置信度区域高亮 + 手动编辑兜底
 
 #### **4.1.2 错题管理模块 (Management Module)**
 
@@ -286,10 +299,10 @@
 ### **5.1 性能需求 (Performance Requirements) - Swift 6.2 优化 🚀**
 
 #### **5.1.1 响应时间 (Response Time)**
-* **应用启动**: < 1.2秒 (vs 4.2版本的1.5秒，提升20%)
-* **拍照识别**: < 2秒 (OCR处理时间)
-* **页面切换**: < 0.3秒 (Enhanced Actor优化)
-* **搜索响应**: < 0.5秒 (Enhanced Collections优化)
+* **应用启动**: P95 < 1.2s (cold), 基准设备: iPhone 12 / iPhone SE (2022) / current flagship
+* **OCR单图处理**: P95 < 2.5s
+* **页面切换**: P95 < 300ms (Enhanced Actor优化)
+* **搜索首屏渲染**: P95 < 300ms (Enhanced Collections优化)
 * **同步操作**: < 5秒 (在线状态下)
 
 #### **5.1.2 吞吐量 (Throughput)**
@@ -299,7 +312,7 @@
 * **搜索处理**: 支持10000条记录实时搜索
 
 #### **5.1.3 资源使用 (Resource Usage)**
-* **内存使用**: < 60MB (正常使用，vs 4.2版本80MB)
+* **内存使用 (正常)**: P95 < 60MB; OCR峰值: P95 < 300MB
 * **存储空间**: < 100MB (应用本体)
 * **网络流量**: < 10MB/月 (基础同步)
 * **电量消耗**: < 2%/小时 (正常使用)
@@ -325,6 +338,10 @@
 * **传输加密**: TLS 1.3加密所有网络传输
 * **隐私保护**: 完全符合COPPA和GDPR要求
 * **最小权限**: 应用权限最小化原则
+* **文件保护**: 启用 NSFileProtectionComplete
+* **密钥管理**: 本地密钥使用 Keychain
+* **第三方约束**: 不集成第三方广告/追踪 SDK
+* **未成年人保护**: 未成年人数据默认匿名桶
 
 #### **5.3.2 访问控制 (Access Control)**
 * **身份验证**: 支持Face ID/Touch ID/密码
@@ -538,7 +555,7 @@
 
 #### **8.2.2 云服务集成 (Cloud Service Integration)**
 * **iCloud**: 基础数据同步和备份
-* **CloudKit**: 结构化数据同步
+* **CloudKit**: 首发阶段仅支持 CloudKit 私有数据库用于"同一 Apple ID 多设备"同步，不包含跨账号分享。班级/家长共享将于后续评审确定（依赖 CKShare 或自建服务）
 * **推送通知**: APNs消息推送
 * **分析服务**: 匿名用户行为分析
 
@@ -642,16 +659,18 @@
 - 家长协作基础功能
 
 **Week 11-14: 优化和扩展**
-- 性能深度优化
-- 无障碍功能完善
+- 智能复习算法实现
+- 基础分析周报（本地/在端）
+- CloudKit 私有库同一 Apple ID 多设备同步
+- A11y 完善
 - 安全性加强
 - Beta用户测试
 
 **Beta验收标准**:
 - ✅ 完整的错题管理流程
 - ✅ 智能复习提醒系统
-- ✅ 基础数据分析报告
-- ✅ iCloud数据同步
+- ✅ 基础分析周报（本地/在端）
+- ✅ CloudKit 私有库同一 Apple ID 多设备同步
 - ✅ 崩溃率<0.05%
 
 #### **10.1.3 发布阶段 (Release Version) - 4周**
@@ -741,8 +760,8 @@
 ### **11.3 技术指标 (Technical Metrics)**
 
 #### **11.3.1 性能指标 (Performance Metrics)**
-* **应用启动时间**: <1.2秒 (Swift 6.2优化目标)
-* **内存使用**: <60MB (正常使用)
+* **应用启动时间**: P95 < 1.2s (Swift 6.2优化目标, 基准设备: iPhone 12 / iPhone SE (2022) / current flagship)
+* **内存使用 (正常)**: P95 < 60MB; OCR峰值: P95 < 300MB
 * **网络请求成功率**: >99.5%
 * **数据同步成功率**: >99%
 
@@ -780,4 +799,4 @@
 - [ ] 设计团队审批
 - [ ] 项目管理审批
 
-**最后更新**: 2025年9月16日 - Swift 6.2正式发布日
+**最后更新**: 2025年9月18日 - v6.0版本生效日
