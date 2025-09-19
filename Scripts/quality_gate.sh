@@ -34,15 +34,39 @@ else
     echo -e "${YELLOW}⚠️ SwiftLint 未安装，跳过检查${NC}"
 fi
 
-echo "🔨 2. 项目编译检查..."
-xcodebuild -project NotBad.xcodeproj -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 15' clean build
+echo "🧹 2. Markdown 文档规范检查 (markdownlint)..."
+if command -v npx &> /dev/null; then
+    npx -y markdownlint "**/*.md" -c .markdownlint.jsonc || true
+    check_result "markdownlint检查"
+else
+    echo -e "${YELLOW}⚠️ Node/npm 未安装，跳过 markdownlint 检查${NC}"
+fi
+
+echo "🔎 3. 文档链接检查 (lychee)..."
+if command -v lychee &> /dev/null; then
+    lychee --accept 200,204,301,302,307,308 --no-progress --exclude-file .lycheeignore --config .lychee.toml "**/*.md"
+    check_result "链接检查"
+else
+    echo -e "${YELLOW}⚠️ lychee 未安装，跳过链接检查（CI 会执行）${NC}"
+fi
+
+echo "🧭 4. 文档一致性检查..."
+if [ -f "Scripts/docs_consistency_check.py" ]; then
+    python3 Scripts/docs_consistency_check.py
+    check_result "文档一致性检查"
+else
+    echo -e "${YELLOW}⚠️ 文档一致性检查脚本未找到${NC}"
+fi
+
+echo "�️ 5. 项目编译检查..."
+xcodebuild -project NotBad.xcodeproj -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' clean build
 check_result "项目编译"
 
-echo "🧪 3. 单元测试运行..."
-xcodebuild test -project NotBad.xcodeproj -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 15' -enableCodeCoverage YES
+echo "🧪 6. 单元测试运行..."
+xcodebuild test -project NotBad.xcodeproj -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' -enableCodeCoverage YES
 check_result "单元测试"
 
-echo "📊 4. 测试覆盖率检查..."
+echo "📊 7. 测试覆盖率检查..."
 if [ -f "Scripts/check_coverage.py" ]; then
     python3 Scripts/check_coverage.py --min-coverage 80
     check_result "测试覆盖率"
@@ -50,7 +74,7 @@ else
     echo -e "${YELLOW}⚠️ 覆盖率检查脚本未找到${NC}"
 fi
 
-echo "🔍 5. 性能测试检查..."
+echo "🔍 8. 性能测试检查..."
 if [ -f "Scripts/check_performance_regression.py" ]; then
     python3 Scripts/check_performance_regression.py
     check_result "性能回归检查"

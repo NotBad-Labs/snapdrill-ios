@@ -1,0 +1,9 @@
+# Ignore common false positives and local-only links
+# GitHub issue/PR templates sometimes reference these placeholders
+https://example.com
+http://localhost
+http://127.0.0.1
+https://localhost
+https://127.0.0.1
+# Ignore App Store placeholders if any
+https://apps.apple.com/*

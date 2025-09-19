@@ -1,4 +1,4 @@
-# NotBad App - 术语到代码索引 v6.0 (Swift 6.2 + iOS 26)
+# NotBad App - 术语到代码索引 v6.0
 
 ## 文档定位：术语→代码映射索引 (Terms to Code Mapping Index)
 

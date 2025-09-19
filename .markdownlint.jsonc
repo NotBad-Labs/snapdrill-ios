@@ -1,0 +1,10 @@
+{
+  // Basic markdownlint configuration tailored for this repo
+  "default": true,
+  // Allow long lines for tables and URLs
+  "MD013": false,
+  // Allow inline HTML where needed
+  "MD033": false,
+  // Require a top-level heading
+  "MD041": true
+}

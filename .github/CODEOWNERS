@@ -1,0 +1,18 @@
+# CODEOWNERS
+# 参考：https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# 默认所有者（兜底）
+* @yimingliao
+
+# 文档所有者
+/docs/ @yimingliao
+/*.md @yimingliao
+
+# CI 与脚本
+/.github/ @yimingliao
+/Scripts/ @yimingliao
+
+# iOS 工程
+/NotBad/ @yimingliao
+/NotBadTests/ @yimingliao
+/NotBadUITests/ @yimingliao

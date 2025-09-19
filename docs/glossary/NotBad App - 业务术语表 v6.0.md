@@ -1,4 +1,4 @@
-# NotBad App - 业务术语表 v6.0 (Swift 6.2 + iOS 26)
+# NotBad App - 业务术语表 v6.0
 
 ## 文档定位：业务团队统一词汇表 (Business Vocabulary Reference)
 

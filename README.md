@@ -22,6 +22,8 @@
 - **iOS Deployment Target**: 26.0+
 - **Swift**: 6.2
 
+> 平台基线：本仓库统一以 iOS 26 / Xcode 26 / Swift 6.2 为标准开发环境；推荐模拟器设备：iPhone 17 Pro。
+
 ### 项目设置
 
 1. **克隆项目**
@@ -119,22 +121,24 @@
 
 > 💡 **注意**: `docs/` 目录下的文档反映重构前的设计，部分内容可能已过时。
 
-## 🔄 GitHub Flow 工作流程
+## 🔄 Git 分支与发布流程
 
-### 分支与流程
+### 分支与流程（develop 优先）
 
 ```text
-main (长期稳定分支，可随时发布)
-feature/<name> (基于 main 派生的小步快跑特性分支)
-hotfix/<name> (基于 main 的紧急修复)
+main                (长期稳定分支，可随时发布)
+develop             (日常集成分支，PR 汇聚与回归验证)
+feature/<name>      (基于 develop 派生的小步快跑特性分支)
+hotfix/<name>       (基于 main 的紧急修复)
 ```
 
-### 开发流程
+### 开发流程（Feature → Develop → Main）
 
-1. 从 `main` 创建 `feature/xxx` 分支进行开发
-2. 通过 PR 合并回 `main`，确保通过所有质量门槛
-3. 需要发布时，从 `main` 打标签并产出构建（如 TestFlight）
-4. 紧急问题通过 `hotfix/xxx` 分支修复后直接合并回 `main`
+1. 从 `develop` 创建 `feature/xxx` 分支进行开发
+2. 提交 PR 到 `develop`，确保通过所有质量门槛（SwiftLint、测试、markdownlint、link-check、文档一致性等）
+3. 定期将 `develop` 合并（或使用 PR）到 `main`，进行发布准备
+4. 需要发布时，在 `main` 打标签并产出构建（如 TestFlight）
+5. 紧急问题通过 `hotfix/xxx` 分支修复，直接合并回 `main`，并回灌到 `develop`
 
 ## ⚡ 质量门槛
 

@@ -1,0 +1,25 @@
+# Lychee link checker configuration
+# See https://github.com/lycheeverse/lychee for options
+
+verbose = true
+max_concurrency = 8
+timeout = 20
+retry_wait_time = 2
+max_retries = 2
+user_agent = "NotBadDocsLinkChecker/1.0 (+https://github.com/your-org/NotBad)"
+accept = [200, 204, 301, 302, 307, 308]
+
+[exclude]
+regex = [
+  # Ignore mailto links and anchors without http(s)
+  "^mailto:",
+  "^tel:",
+  "^#",
+]
+
+[headers]
+"User-Agent" = "NotBadDocsLinkChecker/1.0"
+
+[cache]
+  # Cache results to speed up local runs (CI action manages its own cache)
+  max_age = "1d"
