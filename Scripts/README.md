@@ -11,15 +11,22 @@
 ```bash
 # 运行完整质量检查（推荐）
 ./Scripts/quality_gate.sh
+
+# 检查文档一致性和链接有效性
+./Scripts/check_docs_consistency.sh
+
+# 自动修复文档格式问题
+./Scripts/check_docs_consistency.sh --fix
 ```
 
-这个脚本会运行所有质量检查，包括编译、测试、覆盖率和性能检查。
+这些脚本会运行所有质量检查，包括编译、测试、覆盖率、性能检查和文档验证。
 
 ## 📁 脚本列表
 
 | 脚本文件 | 用途 | 说明 |
 |---------|------|------|
 | `quality_gate.sh` | 质量门槛检查 | 运行所有质量检查的主脚本 |
+| `check_docs_consistency.sh` | 文档一致性验证 | 检查文档一致性和链接有效性 |
 | `check_coverage.py` | 覆盖率检查 | 验证测试覆盖率是否达标 |
 | `check_performance_regression.py` | 性能回归检测 | 检查性能是否有退化 |
 | `extract_performance_metrics.py` | 性能指标提取 | 从测试结果中提取性能数据 |
@@ -31,6 +38,12 @@
 ```bash
 # 提交前运行质量检查
 ./Scripts/quality_gate.sh
+
+# 检查文档问题
+./Scripts/check_docs_consistency.sh
+
+# 修复文档格式问题
+./Scripts/check_docs_consistency.sh --fix
 ```
 
 ### CI/CD流水线
@@ -40,6 +53,7 @@
 - `check_coverage.py` - 在CI中验证测试覆盖率
 - `extract_performance_metrics.py` - 提取性能测试结果
 - `check_performance_regression.py` - 性能回归检测
+- `check_docs_consistency.sh` - 文档一致性和链接验证
 
 ## 🎯 质量标准
 
@@ -47,6 +61,7 @@
 - **编译检查**: 0 errors
 - **代码风格**: SwiftLint 合规
 - **性能回归**: ≤ 10%
+- **文档质量**: Markdown格式规范，链接有效性
 
 ## 📖 相关文档
 
