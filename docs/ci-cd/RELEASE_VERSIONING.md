@@ -67,6 +67,18 @@ python3 Scripts/bump_version.py --part minor --build 42
 - `NotBad/Info.plist` 的 `CFBundleShortVersionString` 与 `CFBundleVersion` 已更新
 - `CHANGELOG.md` 追加了 `## [x.y.z] - YYYY-MM-DD` 的新节
 
+### 可选：从 Git 提交生成 CHANGELOG 草稿
+
+- 脚本：`Scripts/generate_changelog_from_git.py`
+  - 根据 conventional commits（feat/fix/docs 等）在两个引用（tag/commit）之间生成分组段落
+  - 示例：
+
+    ```bash
+    # 以 tag v6.0.0 之后至当前 HEAD 的提交生成草稿
+    python3 Scripts/generate_changelog_from_git.py --since-tag v6.0.0 > /tmp/changelog_snippet.md
+    # 粘贴到 CHANGELOG.md 对应版本节下，按需润色
+    ```
+
 ## 发布检查清单（Release PR）
 
 - [ ] `VERSION` 更新到目标版本

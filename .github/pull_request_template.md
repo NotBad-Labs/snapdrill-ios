@@ -24,6 +24,7 @@
 - [ ] 本地通过 `Scripts/quality_gate.sh`
 - [ ] 如为 Release PR：包含版本号与变更日志更新
 - [ ] 如为 Hotfix PR：计划回灌 `develop`
+- [ ] 可选：已使用 `Scripts/generate_changelog_from_git.py` 生成并整理 CHANGELOG 草稿
 - [ ] `markdownlint` 和链接检查通过
 - [ ] 如涉及术语或架构变更，已更新 Glossary/ADR
 
