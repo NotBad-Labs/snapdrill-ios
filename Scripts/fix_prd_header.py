@@ -4,14 +4,14 @@
 """
 
 def fix_document_header():
-    file_path = "/Users/yimingliao/Developer/NotBad/docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v5.1 (Swift6.2 + iOS17).md"
+    file_path = "/Users/yimingliao/Developer/NotBad/docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md"
 
     # 读取文件
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
     # 重建正确的文档开头
-    new_header = """# NotBad 错题本 App - 产品需求文档 (PRD) v5.1 (Swift6.2 + iOS17)
+    new_header = """# NotBad 错题本 App - 产品需求文档 (PRD) v6.0
 
 **文档定位：单一事实来源 (Single Source of Truth)**
 

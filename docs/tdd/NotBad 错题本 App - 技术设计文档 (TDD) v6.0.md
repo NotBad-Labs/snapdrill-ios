@@ -15,10 +15,10 @@
 
 - 文档索引: [docs/README.md](../README.md)
 - PRD: [docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v6.0.md)
-- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v6.0 (Swift6.2 + iOS26).md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0%20(Swift6.2%20+%20iOS26).md)
-- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v6.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20业务术语表%20v6.0%20(Swift6.2%20+%20iOS26).md)
-- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v6.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20技术术语表%20v6.0%20(Swift6.2%20+%20iOS26).md)
-- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v6.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20术语到代码索引%20v6.0%20(Swift6.2%20+%20iOS26).md)
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v6.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0.md)
+- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v6.0.md](../glossary/NotBad%20App%20-%20业务术语表%20v6.0.md)
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v6.0.md](../glossary/NotBad%20App%20-%20技术术语表%20v6.0.md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v6.0.md](../glossary/NotBad%20App%20-%20术语到代码索引%20v6.0.md)
 - 附录A: [验收标准模板](../appendices/ACCEPTANCE_CRITERIA_TEMPLATE.md)
 - 附录B: [分析事件规范](../appendices/ANALYTICS_EVENT_SPEC.md)
 - 附录C: [指标对齐](../appendices/METRICS_ALIGNMENT.md)
@@ -80,11 +80,10 @@
 
 基于iOS 26+ Swift 6.2技术栈的关键架构决策：
 
-- [**ADR-007: Swift 6.2 并发架构升级决策**](../adr/ADR-007-Swift6.2-并发架构升级决策.md)
-- [**ADR-008: iOS 26 SwiftData 持久化升级**](../adr/ADR-008-iOS26-SwiftData持久化升级.md)
-- [**ADR-009: Enhanced Vision OCR 集成策略**](../adr/ADR-009-Enhanced-Vision-OCR集成策略.md)
-- [**ADR-010: Discovery 社区模块架构设计**](../adr/ADR-010-Discovery社区模块架构设计.md)
-- [**ADR-011: 前沿设备支持策略 (iPhone 15 Pro+)**](../adr/ADR-011-前沿设备支持策略.md)
+- [ADR-001 本地数据层与持久化框架选型 (SwiftData)](../adr/ADR-001%20本地数据层与持久化框架选型%20(SwiftData).md)
+- [ADR-002 云同步与多端一致性策略 (Local-First + CloudKit)](../adr/ADR-002%20云同步与多端一致性策略%20(Local-First%20+%20CloudKit).md)
+- [ADR-003 OCR 处理流水线与重处理策略](../adr/ADR-003%20OCR%20处理流水线与重处理策略.md)
+- [ADR-004 Swift 6.2 架构升级决策](../adr/ADR-004%20Swift%206.2%20架构升级决策.md)
 
 ## 2. 系统架构设计 (System Architecture)
 
@@ -1074,16 +1073,20 @@ struct PerformanceTargets {
 ### 12.1 平台支持策略
 
 **最低支持版本**:
-- **最低iOS版本**: iOS 16.0+ (商业覆盖优先)
-- **目标iOS版本**: iOS 18.0+ (完整功能体验)
-- **未来iOS版本**: iOS 26.0+ (最新特性)
+
+- **最低iOS版本**: iOS 26.0+ (统一平台基线，简化维护与测试)
+- **目标iOS版本**: iOS 26.0+ (当前即目标，功能完整)
+- **未来iOS版本**: iOS 27.0+ (跟进新特性时评估)
 
 **设备支持范围**:
-- **iPhone**: iPhone 8及以上 (iOS 16.0+支持的所有设备)
-- **iPad**: iPad Air 2及以上，iPad mini 4及以上
-- **基准测试设备**: iPhone 15 Pro, iPhone 15 Pro Max, iPhone SE (2022)
+
+- **iPhone**: iPhone 17 系列及以上（推荐测试设备）
+- **iPad**: iPad Pro (M4) 及以上（如涉及 iPadOS）
+- **基准测试设备**: iPhone 17 Pro, iPhone 17 Pro Max
 
 ### 12.2 功能支持矩阵
+
+> 注意：自 v6.0 起，应用的 Deployment Target 已统一到 iOS 26.0+。下表中的 iOS 16/17/18 列用于记录历史降级策略与兼容性设计，当前代码仅需满足 iOS 26+ 路径。
 
 #### 12.2.1 核心功能 (Must Have)
 
@@ -1143,11 +1146,11 @@ struct DeviceCapability {
 
         switch (deviceModel, memoryGB) {
         case (_, let memory) where memory >= 8:
-            return .premium  // iPhone 15 Pro系列
+            return .premium  // iPhone 17 Pro 系列
         case (_, let memory) where memory >= 6:
-            return .high     // iPhone 14/15系列
+            return .high     // iPhone 17 系列
         case (_, let memory) where memory >= 4:
-            return .medium   // iPhone 12/13系列
+            return .medium   // iPhone 14/15 系列
         default:
             return .low      // iPhone SE等入门设备
         }
@@ -1204,7 +1207,7 @@ func createReviewManager() -> ReviewManagerProtocol {
 | 入门级 | iPhone SE (2022) | P95 < 1.2s | < 50MB | 核心功能 |
 | 中端 | iPhone 12/13 | P95 < 1.0s | < 80MB | 完整功能 |
 | 高端 | iPhone 14/15 | P95 < 0.8s | < 120MB | 增强功能 |
-| 旗舰 | iPhone 15 Pro Max | P95 < 0.6s | < 150MB | 全部功能 |
+| 旗舰 | iPhone 17 Pro Max | P95 < 0.6s | < 150MB | 全部功能 |
 
 #### 12.4.2 动态性能调整
 
@@ -1250,6 +1253,7 @@ class PerformanceManager {
 #### 12.5.2 编译时与运行时防护
 
 **编译时检查**:
+
 ```swift
 // 功能可用性编译时检查
 #if canImport(AppIntents)
@@ -1272,6 +1276,7 @@ class PerformanceManager {
 ```
 
 **运行时能力检测**:
+
 ```swift
 struct CapabilityGuard {
     static func hasVisionProSupport() -> Bool {
@@ -1292,6 +1297,7 @@ struct CapabilityGuard {
 ```
 
 **优雅降级UI**:
+
 ```swift
 @ViewBuilder
 func createAdvancedFeatureView() -> some View {
@@ -1311,10 +1317,12 @@ func createAdvancedFeatureView() -> some View {
 #### 12.5.3 MVP范围与未来版本规划
 
 **MVP功能边界** (v6.0):
+
 - **包含**: OCR基础识别、本地通知、CloudKit私有数据库多设备同步
 - **延迟**: 数学公式结构化(vNext)、教师分享功能(vNext)、完整AR体验(vNext)
 
 **渐进式增强策略**:
+
 - **Phase 1** (v6.0): 核心错题管理 + Discovery社区
 - **Phase 2** (v6.1): 数学公式增强 + App Intents集成
 - **Phase 3** (v7.0): AR体验 + visionOS支持
@@ -1324,14 +1332,16 @@ func createAdvancedFeatureView() -> some View {
 ## 变更日志 (Change Log)
 
 **v6.0 (2025-09-19)**: 技术栈全面升级至iOS 26+ Swift 6.2
+
 - 架构升级：Clean Architecture + Swift 6.2现代并发模式
 - 性能目标：启动<0.8s，内存<150MB，OCR>95%准确率
 - 新功能支持：Discovery社区、强化隐私保护、简化付费模式
-- 平台策略：专注iPhone 15 Pro+设备，前沿技术栈
+- 平台策略：专注 iPhone 17 Pro+ 设备，前沿技术栈
 - 合规增强：COPPA/GDPR完全合规，年龄分层保护
 - 监控完善：基于Swift 6.2的性能监控和质量保证体系
 
 **审批状态**:
+
 - [x] 与PRD v6.0技术要求完全对齐
 - [ ] 技术团队内部评审
 - [ ] 架构评审委员会批准

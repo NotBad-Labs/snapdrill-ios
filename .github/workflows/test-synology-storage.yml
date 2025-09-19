@@ -1,5 +1,5 @@
 # NOTE: Versions, environments, and constraints must follow the PRD (SSoT):
-# docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0 (Swift6.2 + iOS26).md
+# docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md
 name: Test Synology Storage Integration
 
 on:
@@ -33,7 +33,7 @@ env:
 jobs:
   test-synology-storage:
     name: Test Synology Storage
-    runs-on: [self-hosted, macos, m4, xcode-16-4]
+    runs-on: [self-hosted, macos, m4, xcode-26]
     timeout-minutes: 15
 
     steps:

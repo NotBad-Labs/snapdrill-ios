@@ -2,7 +2,7 @@
 
 > 一个**安全、简洁、智能**的K12学习复习应用，帮助学生科学高效地管理和复习错题，形成完整的学习闭环。
 
-![iOS](https://img.shields.io/badge/iOS-26.0%2B-blue) ![Swift](https://img.shields.io/badge/Swift-6.2-orange) ![Xcode](https://img.shields.io/badge/Xcode-16.4%2B-blue) ![Status](https://img.shields.io/badge/Status-Refactoring-yellow)
+![iOS](https://img.shields.io/badge/iOS-26.0%2B-blue) ![Swift](https://img.shields.io/badge/Swift-6.2-orange) ![Xcode](https://img.shields.io/badge/Xcode-26%2B-blue) ![Status](https://img.shields.io/badge/Status-Refactoring-yellow)
 
 ## ✨ 核心功能
 
@@ -59,7 +59,7 @@
 ### 首次运行
 
 1. 打开 `NotBad.xcodeproj`
-2. 选择目标设备 (iPhone 16 Pro 推荐)
+2. 选择目标设备 (iPhone 17 Pro 推荐)
 3. 按 `Cmd + R` 运行
 
 项目首次运行时会自动：
@@ -84,9 +84,10 @@
 
 **重构目标**:
 
-- [x] Git Flow 架构重组
+- [x] GitHub Flow 架构重组
 
-> 提示：PRD 是本项目的单一事实来源（SSoT）。平台版本、范围、NFR 与指标以 PRD 为准：docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0 (Swift6.2 + iOS26).md
+> 提示：PRD 是本项目的单一事实来源（SSoT）。平台版本、范围、NFR 与指标以 PRD 为准：`docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md`
+
 - [x] 质量门槛系统建立
 - [x] 项目结构清理
 - [ ] Swift 6.2 严格并发模式迁移
@@ -105,7 +106,7 @@
 ### 核心文档
 
 - 📋 **[质量门槛指南](docs/QUALITY_GATES.md)** - 代码质量标准和流程
-- 📖 **[开发工作流程](docs/DEVELOPMENT_WORKFLOW.md)** - Git Flow和开发规范
+- 📖 **[开发工作流程](docs/DEVELOPMENT_WORKFLOW.md)** - GitHub Flow 和开发规范
 - 🔧 **[Scripts工具集](Scripts/README.md)** - 质量保障脚本说明
 
 ### 历史文档 (重构前)
@@ -118,26 +119,22 @@
 
 > 💡 **注意**: `docs/` 目录下的文档反映重构前的设计，部分内容可能已过时。
 
-## 🔄 Git Flow 工作流程
+## 🔄 GitHub Flow 工作流程
 
-### 分支结构
+### 分支与流程
 
 ```text
-main (生产分支) - 只包含稳定的可发布版本
-├── develop (开发分支) - 主要开发和集成分支
-│   ├── feature/new-feature - 新功能开发
-│   └── feature/another-feature - 其他功能开发
-├── release/v1.0.0 - 发布准备分支
-└── hotfix/critical-fix - 紧急修复分支
+main (长期稳定分支，可随时发布)
+feature/<name> (基于 main 派生的小步快跑特性分支)
+hotfix/<name> (基于 main 的紧急修复)
 ```
 
 ### 开发流程
 
-1. **开发新功能**：从 `develop` 分支创建 `feature/xxx` 分支
-2. **功能完成**：合并到 `develop` 分支
-3. **准备发布**：从 `develop` 创建 `release/vx.x.x` 分支
-4. **发布上线**：将 `release` 分支合并到 `main` 并打标签
-5. **紧急修复**：从 `main` 创建 `hotfix/xxx` 分支，修复后合并到 `main` 和 `develop`
+1. 从 `main` 创建 `feature/xxx` 分支进行开发
+2. 通过 PR 合并回 `main`，确保通过所有质量门槛
+3. 需要发布时，从 `main` 打标签并产出构建（如 TestFlight）
+4. 紧急问题通过 `hotfix/xxx` 分支修复后直接合并回 `main`
 
 ## ⚡ 质量门槛
 

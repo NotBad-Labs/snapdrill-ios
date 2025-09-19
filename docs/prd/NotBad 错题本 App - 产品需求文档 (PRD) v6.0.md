@@ -22,11 +22,11 @@
 
 速查：相关文档（快速跳转）
 - 文档索引: [docs/README.md](../README.md)
-- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v6.0 (Swift6.2 + iOS26).md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v6.0%20(Swift6.2%20+%20iOS26).md)
-- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v6.0 (Swift6.2 + iOS26).md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0%20(Swift6.2%20+%20iOS26).md)
-- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v6.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20业务术语表%20v6.0%20(Swift6.2%20+%20iOS26).md)
-- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v6.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20技术术语表%20v6.0%20(Swift6.2%20+%20iOS26).md)
-- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v6.0 (Swift6.2 + iOS26).md](../glossary/NotBad%20App%20-%20术语到代码索引%20v6.0%20(Swift6.2%20+%20iOS26).md)
+- TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v6.0.md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v6.0.md)
+- RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v6.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0.md)
+- 业务术语表: [docs/glossary/NotBad App - 业务术语表 v6.0.md](../glossary/NotBad%20App%20-%20业务术语表%20v6.0.md)
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v6.0.md](../glossary/NotBad%20App%20-%20技术术语表%20v6.0.md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v6.0.md](../glossary/NotBad%20App%20-%20术语到代码索引%20v6.0.md)
 - 附录A: [验收标准模板](../appendices/ACCEPTANCE_CRITERIA_TEMPLATE.md)
 - 附录B: [分析事件规范](../appendices/ANALYTICS_EVENT_SPEC.md)
 - 附录C: [指标对齐](../appendices/METRICS_ALIGNMENT.md)
@@ -927,12 +927,12 @@
 
 ### 12.2 词汇表 (Glossary)
 
-详见: [业务术语表](../glossary/NotBad%20App%20-%20业务术语表%20v6.0%20(Swift6.2%20+%20iOS26).md)
+详见: [业务术语表](../glossary/NotBad%20App%20-%20业务术语表%20v6.0.md)
 
 ### 12.3 参考文档 (Reference Documents)
 
-- [技术设计文档](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v6.0%20(Swift6.2%20+%20iOS26).md)
-- [需求追踪矩阵](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0%20(Swift6.2%20+%20iOS26).md)
+- [技术设计文档](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v6.0.md)
+- [需求追踪矩阵](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0.md)
 - [架构决策记录](../adr/README.md)
 
 ### 12.4 变更日志 (Change Log)

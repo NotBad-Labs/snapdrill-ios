@@ -12,18 +12,18 @@
 
 | 文档类型 | 文档名称 | 版本 | 状态 |
 |----------|----------|------|------|
-| **PRD** | [产品需求文档 v6.0](prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v6.0%20(Swift6.2%20+%20iOS17).md) | v6.0 | ✅ 当前版本 |
+| **PRD** | [产品需求文档 v6.0](prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v6.0.md) | v6.0 | ✅ 当前版本 |
 | **TDD** | [技术设计文档 v6.0](tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v6.0.md) | v6.0 | ✅ 当前版本 |
-| **RTM** | [需求追踪矩阵 v6.0](rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0%20(Swift6.2%20+%20iOS26).md) | v6.0 | ✅ 当前版本 |
+| **RTM** | [需求追踪矩阵 v6.0](rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0.md) | v6.0 | ✅ 当前版本 |
 | **UX Spec** | [用户体验设计规范 v6.0](design/UX_SPEC.md) | v6.0 | ✅ 当前版本 |
 
 ### 术语与词汇管理
 
 | 类型 | 文档名称 | 版本 | 覆盖范围 |
 |------|----------|------|----------|
-| **业务术语** | [业务术语表 v6.0](glossary/NotBad%20App%20-%20技术术语表%20v6.0%20(Swift6.2%20+%20iOS26).md) | v6.0 | 产品功能、用户场景 |
-| **技术术语** | [技术术语表 v6.0](glossary/NotBad%20App%20-%20技术术语表%20v6.0%20(Swift6.2%20+%20iOS26).md) | v6.0 | Swift 6.2、iOS 26 |
-| **代码映射** | [术语代码索引 v6.0](glossary/NotBad%20App%20-%20术语到代码索引%20v6.0%20(Swift6.2%20+%20iOS26).md) | v6.0 | 术语到代码追踪 |
+| **业务术语** | [业务术语表 v6.0](glossary/NotBad%20App%20-%20业务术语表%20v6.0.md) | v6.0 | 产品功能、用户场景 |
+| **技术术语** | [技术术语表 v6.0](glossary/NotBad%20App%20-%20技术术语表%20v6.0.md) | v6.0 | Swift 6.2、iOS 26 |
+| **代码映射** | [术语代码索引 v6.0](glossary/NotBad%20App%20-%20术语到代码索引%20v6.0.md) | v6.0 | 术语到代码追踪 |
 
 ## 🏛️ 架构决策记录 (ADR)
 
@@ -61,17 +61,17 @@
 
 ### 会议记录
 
-- **会议纪要**: [meetings/README.md](meetings/README.md) - 项目会议记录与决策历史
+- **会议纪要**: [meetings/README.md](meetings/README.md) - 项目会议与决策记录
 
 ## 📈 版本历史
 
 ### v6.0 (2025-09-19) - 当前版本
 
-- ✨ **技术栈升级**: Swift 6.2 + iOS 26 + Xcode 26
-- 🌟 **Discovery社区**: 匿名化社区功能模块
-- ⚡ **性能优化**: Enhanced Actor + ProMotion Max支持
-- 🛠️ **CI/CD现代化**: 完整自动化构建流程
-- 📚 **文档治理**: 统一版本管理和追踪体系
+- ✨ 技术栈升级: Swift 6.2 + iOS 26 + Xcode 26
+- 🌟 Discovery社区: 匿名化社区功能模块
+- ⚡ 性能优化: Enhanced Actor + ProMotion Max支持
+- 🛠️ CI/CD现代化: 完整自动化构建流程
+- 📚 文档治理: 统一版本管理和追踪体系
 
 ### 历史版本
 
@@ -83,25 +83,30 @@
 
 ### 按角色分类
 
-**产品经理**:
-- [PRD v6.0](prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v6.0%20(Swift6.2%20+%20iOS17).md) - 产品需求和功能规范
-- [RTM v6.0](rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0%20(Swift6.2%20+%20iOS26).md) - 需求追踪和验收
+#### 产品经理
 
-**设计师**:
+- [PRD v6.0](prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v6.0.md) - 产品需求和功能规范
+- [RTM v6.0](rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0.md) - 需求追踪和验收
+
+#### 设计师
+
 - [UX_SPEC.md](design/UX_SPEC.md) - 完整设计规范
 - [设计系统](design/README.md) - 组件库和设计原则
 
-**开发工程师**:
+#### 开发工程师
+
 - [TDD v6.0](tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v6.0.md) - 技术架构和实现
 - [ADR-004](adr/ADR-004%20Swift%206.2%20架构升级决策.md) - Swift 6.2架构决策
 
-**DevOps工程师**:
+#### DevOps工程师
+
 - [CI/CD v6.0](ci-cd/NotBad-CI-CD-Configuration-v6.0.md) - 完整自动化配置
 - [自托管指南](ci-cd/self-hosted-runner-complete-guide.md) - M4 Mac mini部署
 
-**QA工程师**:
+#### QA工程师
+
 - [质量门禁](QUALITY_GATES.md) - 测试标准和流程
-- [RTM v6.0](rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0%20(Swift6.2%20+%20iOS26).md) - 验收标准追踪
+- [RTM v6.0](rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0.md) - 验收标准追踪
 
 ## 📝 文档贡献
 

@@ -1,5 +1,5 @@
 # NOTE: Versions, environments, and constraints must follow the PRD (SSoT):
-# docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0 (Swift6.2 + iOS26).md
+# docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md
 name: NotBad CI/CD Pipeline (Self-hosted)
 
 on:
@@ -61,7 +61,7 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4'
+          xcode-version: '26'
 
       - name: Install SwiftLint
         run: |
@@ -74,15 +74,15 @@ jobs:
 
   test:
     name: Unit & Integration Tests
-    runs-on: [self-hosted, macos, m4, xcode-16-4]
+    runs-on: [self-hosted, macos, m4, xcode-26]
     timeout-minutes: 60
     needs: code-quality
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     strategy:
       matrix:
         destination:
-          - 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6'
-          - 'platform=iOS Simulator,name=iPad Pro 11-inch (M4),OS=18.6'
+          - 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0'
+          - 'platform=iOS Simulator,name=iPad Pro 11-inch (M4),OS=26.0'
     steps:
       - name: Checkout
         uses: actions/checkout@v4

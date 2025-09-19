@@ -17,8 +17,8 @@
 - PRD: [docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md](../prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v6.0.md)
 - TDD: [docs/tdd/NotBad 错题本 App - 技术设计文档 (TDD) v6.0.md](../tdd/NotBad%20错题本%20App%20-%20技术设计文档%20(TDD)%20v6.0.md)
 - RTM: [docs/rtm/NotBad App - 需求追踪矩阵 (RTM) v6.0.md](../rtm/NotBad%20App%20-%20需求追踪矩阵%20(RTM)%20v6.0.md)
-- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v6.0 (Swift6.2 + iOS26).md](NotBad%20App%20-%20技术术语表%20v6.0%20(Swift6.2%20+%20iOS26).md)
-- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v6.0 (Swift6.2 + iOS26).md](NotBad%20App%20-%20术语到代码索引%20v6.0%20(Swift6.2%20+%20iOS26).md)
+- 技术术语表: [docs/glossary/NotBad App - 技术术语表 v6.0.md](NotBad%20App%20-%20技术术语表%20v6.0.md)
+- 术语→代码索引: [docs/glossary/NotBad App - 术语到代码索引 v6.0.md](NotBad%20App%20-%20术语到代码索引%20v6.0.md)
 
 | 版本 | 日期 | 作者 | 变更说明 | 状态 |
 | :---- | :---- | :---- | :---- | :---- |

@@ -1,5 +1,5 @@
 # NOTE: Versions, environments, and constraints must follow the PRD (SSoT):
-# docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0 (Swift6.2 + iOS26).md
+# docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md
 name: Self-hosted iOS CI (manual)
 
 on:
@@ -8,7 +8,7 @@ on:
 jobs:
   selfhosted-test:
     name: Build & Unit Tests on self-hosted
-    runs-on: [self-hosted, macos, xcode-16-4]
+    runs-on: [self-hosted, macos, xcode-26]
     timeout-minutes: 30
     env:
       SCHEME_NAME: NotBad
@@ -52,7 +52,7 @@ jobs:
           xcodebuild clean build \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Run Unit Tests
@@ -60,14 +60,14 @@ jobs:
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
             -testPlan UnitTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath ${{ env.ARTIFACTS_DIR }}/SelfHosted-TestResults.xcresult || \
           xcodebuild test \
             -workspace ${{ env.WORKSPACE_PATH }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
             -testPlan UnitTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath SelfHosted-TestResults.xcresult

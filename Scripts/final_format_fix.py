@@ -4,7 +4,7 @@ import re
 def final_format_fix():
     """最终格式修复：添加必要的空行"""
 
-    file_path = "/Users/yimingliao/Developer/NotBad/docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v5.1 (Swift6.2 + iOS17).md"
+    file_path = "/Users/yimingliao/Developer/NotBad/docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md"
 
     with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
