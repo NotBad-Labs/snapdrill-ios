@@ -8,20 +8,32 @@ on:
 
 jobs:
   lychee:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macos]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install lychee
+        run: |
+          set -euo pipefail
+          if ! command -v lychee >/dev/null 2>&1; then
+            curl -sSL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-aarch64-apple-darwin.tar.gz -o /tmp/lychee.tar.gz || \
+            curl -sSL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-apple-darwin.tar.gz -o /tmp/lychee.tar.gz
+            mkdir -p /tmp/lychee
+            tar -xzf /tmp/lychee.tar.gz -C /tmp/lychee --strip-components=1 || true
+            sudo mv /tmp/lychee/lychee /usr/local/bin/lychee || mv /tmp/lychee/lychee "$HOME/.local/bin/lychee"
+            echo "$HOME/.local/bin" >> $GITHUB_PATH
+          fi
+
       - name: Run lychee link checker
-        uses: lycheeverse/lychee-action@v1.10.0
-        with:
-          args: >-
-            --accept 200,204,301,302,307,308
-            --verbose
-            --no-progress
-            --exclude-file .lycheeignore
-            --config .lychee.toml
-            "**/*.md"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          lychee \
+            --accept 200,204,301,302,307,308 \
+            --verbose \
+            --no-progress \
+            --exclude-file .lycheeignore \
+            --config .lychee.toml \
+            "**/*.md"
