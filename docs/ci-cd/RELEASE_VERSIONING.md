@@ -73,11 +73,14 @@ python3 Scripts/bump_version.py --part minor --build 42
   - 根据 conventional commits（feat/fix/docs 等）在两个引用（tag/commit）之间生成分组段落
   - 示例：
 
-    ```bash
+  ```bash
     # 以 tag v6.0.0 之后至当前 HEAD 的提交生成草稿
     python3 Scripts/generate_changelog_from_git.py --since-tag v6.0.0 > /tmp/changelog_snippet.md
     # 粘贴到 CHANGELOG.md 对应版本节下，按需润色
-    ```
+  ```
+
+
+  - CI 集成：在 release/hotfix PR 上，工作流会生成片段并自动插入到当前版本节；同时会在片段前加入 `Build: <构建号>` 行（来自 Info.plist 的 `CFBundleVersion`）。
 
 ## 发布检查清单（Release PR）
 

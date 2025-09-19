@@ -20,11 +20,13 @@ Usage:
 import os
 import re
 import sys
+import plistlib
 from typing import List
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VERSION_FILE = os.path.join(ROOT, 'VERSION')
 CHANGELOG = os.path.join(ROOT, 'CHANGELOG.md')
+INFO_PLIST = os.path.join(ROOT, 'NotBad', 'Info.plist')
 
 BEGIN = '<!-- AUTO-CHANGELOG-SNIPPET BEGIN -->'
 END = '<!-- AUTO-CHANGELOG-SNIPPET END -->'
@@ -66,10 +68,26 @@ def find_version_section(lines: List[str], version: str):
     return start, end
 
 
+def read_build_number() -> str:
+    try:
+        if os.path.exists(INFO_PLIST):
+            with open(INFO_PLIST, 'rb') as f:
+                plist = plistlib.load(f)
+            return str(plist.get('CFBundleVersion', '')).strip()
+    except Exception:
+        return ''
+    return ''
+
+
 def insert_or_replace(lines: List[str], section_start: int, section_end: int, snippet_lines: List[str]) -> List[str]:
     # Ensure snippet has a heading and blank lines around
     block: List[str] = []
     block.append(BEGIN)
+    # Add build number line if available
+    build = read_build_number()
+    if build:
+        block.append(f"Build: {build}")
+        block.append('')
     # Optional heading to separate
     if snippet_lines and not snippet_lines[0].startswith('### '):
         block.append('### Changes (generated)')
