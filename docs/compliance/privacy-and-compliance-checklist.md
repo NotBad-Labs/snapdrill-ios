@@ -1,7 +1,7 @@
 # 隐私与合规清单（K12 场景）
 
-**文档版本**: v6.0  
-**最后更新**: 2025-09-18  
+**文档版本**: v6.0
+**最后更新**: 2025-09-18
 **关联文档**: [PRD v6.0](./NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v6.0%20(Swift6.2%20+%20iOS26).md)
 
 ## 概述
@@ -64,7 +64,7 @@ struct DataCollectionPolicy {
         case studyProgress     // 学习进度
         case userPreferences   // 用户偏好
         case performanceMetrics // 性能指标（匿名）
-        
+
         // 禁止收集的数据类型
         // - 真实姓名
         // - 学校信息
@@ -72,7 +72,7 @@ struct DataCollectionPolicy {
         // - 联系方式
         // - 社交关系
     }
-    
+
     static func isDataCollectionAllowed(for dataType: AllowedDataType, userAge: Int) -> Bool {
         if userAge < 13 {
             // COPPA 严格限制
@@ -123,7 +123,7 @@ class ConsentManager {
         case personalization // 个性化功能，需要同意
         case marketing      // 市场推广，需要同意（本应用不涉及）
     }
-    
+
     func requestConsent(for type: ConsentType, userAge: Int) async -> Bool {
         if userAge < 13 {
             // 需要家长同意
@@ -144,14 +144,14 @@ class ConsentManager {
 class SecureDataStore {
     // 启用最高级别文件保护
     static let fileProtectionLevel = FileProtectionType.complete
-    
+
     // 敏感数据加密存储
     func encryptAndStore<T: Codable>(_ data: T, key: String) throws {
         let encryptedData = try AES256.encrypt(data, using: getEncryptionKey())
         let url = getSecureStorageURL(for: key)
         try encryptedData.write(to: url, options: [.completeFileProtection])
     }
-    
+
     // 密钥管理
     private func getEncryptionKey() -> Data {
         // 使用 Keychain 存储密钥
@@ -170,10 +170,10 @@ class NetworkManager {
         config.tlsMaximumSupportedProtocolVersion = .TLSv13
         return URLSession(configuration: config)
     }()
-    
+
     // 证书固定
-    func urlSession(_ session: URLSession, 
-                   didReceive challenge: URLAuthenticationChallenge, 
+    func urlSession(_ session: URLSession,
+                   didReceive challenge: URLAuthenticationChallenge,
                    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         // 实现证书固定逻辑
     }
@@ -187,18 +187,18 @@ class NetworkManager {
 class DataAnonymizer {
     // 用户内容哈希化
     static func anonymizeUserContent(_ content: String) -> String {
-        return SHA256.hash(data: content.data(using: .utf8)!).compactMap { 
-            String(format: "%02x", $0) 
+        return SHA256.hash(data: content.data(using: .utf8)!).compactMap {
+            String(format: "%02x", $0)
         }.joined()
     }
-    
+
     // 设备标识符匿名化
     static func generateAnonymousDeviceID() -> String {
         // 使用应用级别 UUID，不使用设备硬件标识
         if let existingID = UserDefaults.standard.string(forKey: "anonymous_device_id") {
             return existingID
         }
-        
+
         let newID = UUID().uuidString
         UserDefaults.standard.set(newID, forKey: "anonymous_device_id")
         return newID
@@ -215,7 +215,7 @@ class DifferentialPrivacy {
         let noise = Laplace.random(scale: scale)
         return value + noise
     }
-    
+
     // 匿名聚合统计
     static func anonymousAggregation(data: [Double]) -> StatisticalSummary {
         let count = addNoise(to: Double(data.count))
@@ -232,12 +232,12 @@ class DifferentialPrivacy {
 class BiometricAuth {
     func authenticateUser() async throws -> Bool {
         let context = LAContext()
-        
+
         var error: NSError?
         guard context.canEvaluatePolicy(.biometryAny, error: &error) else {
             throw AuthError.biometryNotAvailable
         }
-        
+
         let reason = "验证身份以访问学习数据"
         return try await context.evaluatePolicy(.biometryAny, localizedReason: reason)
     }
@@ -253,16 +253,16 @@ class ParentalControls {
         guard try await verifyParentIdentity() else {
             throw ParentalError.identityVerificationFailed
         }
-        
+
         // 2. 展示功能说明
         let consent = try await presentConsentDialog(for: feature)
-        
+
         // 3. 记录授权决定
         try await recordAuthorizationDecision(feature: feature, consent: consent)
-        
+
         return consent
     }
-    
+
     // 家长仪表板
     func getParentalDashboard() -> ParentalDashboard {
         return ParentalDashboard(
@@ -284,14 +284,14 @@ class AgeVerification {
         case teen13to17     // 简化同意
         case adult18plus    // 完整功能
     }
-    
+
     func verifyAge() async -> AgeGroup? {
         // 不直接询问年龄，通过间接方式判断
         let context = await gatherAgeContext()
-        
+
         // 使用机器学习模型估算年龄组
         let ageGroup = await AgeEstimationModel.predict(context: context)
-        
+
         // 如果不确定，采用最严格的保护措施
         return ageGroup ?? .under13
     }
@@ -305,15 +305,15 @@ class ContentSafety {
     func moderateContent(_ content: ReviewItemContent) async -> ModerationResult {
         // 1. 自动检测不适宜内容
         let autoResult = await AutoContentModerator.check(content)
-        
+
         // 2. 如果包含敏感内容，进行人工审核
         if autoResult.containsSensitiveContent {
             return await HumanModerator.review(content)
         }
-        
+
         return autoResult
     }
-    
+
     // 学习环境安全
     func ensureSafeLearningEnvironment() {
         // 禁用不适宜的分享功能
@@ -330,17 +330,17 @@ class ScreenTimeManager {
     func trackStudyTime(session: StudySession) {
         let duration = session.duration
         let currentDate = Date()
-        
+
         // 记录今日学习时间
         let todayStudyTime = getTodayStudyTime() + duration
         saveTodayStudyTime(todayStudyTime)
-        
+
         // 健康提醒
         if todayStudyTime > recommendedDailyLimit {
             showHealthReminder()
         }
     }
-    
+
     // 护眼提醒
     func scheduleEyeCareReminders() {
         // 每20分钟提醒休息
@@ -364,10 +364,10 @@ class DataPortability {
             preferences: getUserPreferences(),
             metadata: getDataMetadata()
         )
-        
+
         // 生成人类可读的报告
         let report = generateHumanReadableReport(userData)
-        
+
         return userData
     }
 }
@@ -380,19 +380,19 @@ class DataDeletion {
     func deleteAllUserData() async throws {
         // 1. 删除本地数据
         try await LocalDataStore.deleteAll()
-        
+
         // 2. 删除云端数据
         try await CloudDataStore.deleteAll()
-        
+
         // 3. 删除分析数据
         try await AnalyticsDataStore.anonymizeAndDelete()
-        
+
         // 4. 撤销所有授权
         await ConsentManager.revokeAllConsents()
-        
+
         // 5. 清除缓存
         clearAllCaches()
-        
+
         // 6. 记录删除操作（用于合规审计）
         await AuditLogger.logDataDeletion()
     }
@@ -426,7 +426,7 @@ enum ThirdPartyService {
     case cloudKit           // Apple CloudKit - 符合隐私标准
     case coreML            // Apple Core ML - 本地处理
     case vision            // Apple Vision - 本地处理
-    
+
     // 明确禁止的服务类型
     // - 广告网络
     // - 社交媒体 SDK
@@ -444,7 +444,7 @@ class DataTransferPolicy {
         .studyContent,     // 学习内容
         .behaviorData      // 行为数据
     ]
-    
+
     // 允许的匿名统计
     static let allowedAnonymousData: [DataType] = [
         .performanceMetrics,    // 性能指标
@@ -505,16 +505,16 @@ class DataBreachResponse {
     func handleDataBreach(incident: SecurityIncident) async {
         // 1. 立即遏制
         await containBreach(incident)
-        
+
         // 2. 评估影响
         let impact = await assessBreachImpact(incident)
-        
+
         // 3. 通知相关方
         if impact.requiresNotification {
             await notifyAffectedUsers(impact.affectedUsers)
             await notifyRegulators(impact)
         }
-        
+
         // 4. 修复和改进
         await implementFixes(incident.vulnerabilities)
     }

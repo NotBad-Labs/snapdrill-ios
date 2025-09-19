@@ -16,18 +16,20 @@
 
 ## ✅ 安装成果
 
-### 运行器配置
-- **名称**：`mac-mini-m4`
+### 运行器配置 (v6.0)
+- **名称**：`mac-mini-m4-v6`
 - **状态**：`online` ✅
-- **标签**：`self-hosted`, `macOS`, `X64`, `m4`, `xcode-16-4`
+- **标签**：`self-hosted`, `macOS`, `M4`, `xcode-26`, `swift-6.2`, `ios-26`
 - **安装目录**：`/Users/runner/actions-runner`
 - **版本**：GitHub Actions Runner v2.328.0
 
-### 系统配置
+### 系统配置 (Swift 6.2支持)
 - ✅ **专用runner用户**：已创建并配置
-- ✅ **Xcode 16.4**：已安装并接受许可
-- ✅ **iOS运行时**：已下载iOS 18.6运行时
-- ✅ **33个模拟器**：支持多设备测试
+- ✅ **Xcode 26.0**：已安装并接受许可，支持Swift 6.2
+- ✅ **iOS 26.0运行时**：已下载iOS 26.0运行时
+- ✅ **Enhanced Actor支持**：Swift 6.2并发特性可用
+- ✅ **ProMotion Max**：120fps显示支持
+- ✅ **40个模拟器**：支持iOS 26.0多设备测试
 - ✅ **系统优化**：关闭睡眠模式，优化性能
 - ✅ **自动监控**：每15分钟检查运行器状态
 
@@ -95,32 +97,37 @@ sudo tail -f /Users/runner/actions-runner/_diag/Runner_*.log
 - **日志记录**：完整的操作和错误日志
 - **健康检查**：系统资源和网络连接监控
 
-## 📋 工作流配置
-
-### 使用方法
-在GitHub Actions工作流中使用以下配置：
+## 使用示例工作流 (v6.0)
 
 ```yaml
+name: NotBad CI/CD v6.0
+on: [push, pull_request]
+
 jobs:
   test:
-    runs-on: [self-hosted, macos, m4, xcode-16-4]
+    name: Swift 6.2 Build & Test
+    runs-on: [self-hosted, macos, m4, xcode-26, swift-6.2, ios-26]
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Build and Test
-        run: |
-          xcodebuild -workspace NotBad.xcodeproj/project.xcworkspace \
-            -scheme NotBad \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6' \
-            test
+    - uses: actions/checkout@v4
+
+    - name: Build & Test
+      run: |
+        xcodebuild clean build test
+            -project NotBad.xcodeproj
+            -scheme NotBad
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=26.0'
+            -enableCodeCoverage YES
+            SWIFT_VERSION=6.2
 ```
 
-### 标签说明
-- `self-hosted`：标识为自托管运行器
-- `macos`：操作系统类型
-- `m4`：处理器架构标识
-- `xcode-16-4`：Xcode版本标识
+## 📋 标签说明 (v6.0)
+- `self-hosted`：自托管运行器
+- `macos`：macOS操作系统
+- `m4`：Apple M4处理器
+- `xcode-26`：Xcode 26.0版本标识
+- `swift-6.2`：Swift 6.2支持
+- `ios-26`：iOS 26.0运行时
 
 ## 🔮 未来扩展
 
