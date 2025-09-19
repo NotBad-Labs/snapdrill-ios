@@ -37,31 +37,47 @@ def read_version() -> str:
     return v
 
 
-def check_info_plist(version: str) -> None:
+def check_info_plist(version: str):
+    """Return (short_version, build) or (None, None) if Info.plist missing."""
     if not os.path.exists(INFO_PLIST):
-        print(f"⚠️ Info.plist not found at {INFO_PLIST}, skipping this check")
-        return
+        print(f"⚠️ Info.plist not found at {INFO_PLIST}, skipping Info.plist checks")
+        return None, None
     with open(INFO_PLIST, 'rb') as f:
         plist = plistlib.load(f)
     short = plist.get('CFBundleShortVersionString')
+    build = str(plist.get('CFBundleVersion', '')).strip()
     if short != version:
         fail(f"Info.plist CFBundleShortVersionString '{short}' != VERSION '{version}'")
+    return short, build
 
 
-def check_changelog(version: str) -> None:
+def check_changelog(version: str, expected_build: str | None) -> None:
     if not os.path.exists(CHANGELOG):
         fail(f"CHANGELOG.md not found: {CHANGELOG}")
-    header = f"## [{version}] - "
+    header_prefix = f"## [{version}] - "
     with open(CHANGELOG, 'r', encoding='utf-8') as f:
-        content = f.read()
-    if header not in content:
-        fail(f"CHANGELOG.md missing section header for version {version} (expected line starting with '{header}')")
+        lines = f.read().splitlines()
+    header_line = None
+    for line in lines:
+        if line.startswith(header_prefix):
+            header_line = line
+            break
+    if header_line is None:
+        fail(f"CHANGELOG.md missing section header for version {version} (expected line starting with '{header_prefix}')")
+    # If we have an expected build (Info.plist existed), enforce it is present and matches
+    if expected_build:
+        m = re.search(r"\(Build\s+([^)]+)\)", header_line)
+        if not m:
+            fail(f"CHANGELOG header for version {version} must include '(Build {expected_build})' but no build suffix found: '{header_line}'")
+        actual_build = m.group(1).strip()
+        if actual_build != expected_build:
+            fail(f"CHANGELOG header build mismatch: found '(Build {actual_build})' but Info.plist CFBundleVersion is '{expected_build}'")
 
 
 def main() -> None:
     version = read_version()
-    check_info_plist(version)
-    check_changelog(version)
+    _, build = check_info_plist(version)
+    check_changelog(version, build)
     print("✅ Release metadata looks consistent: VERSION, Info.plist, CHANGELOG")
 
 

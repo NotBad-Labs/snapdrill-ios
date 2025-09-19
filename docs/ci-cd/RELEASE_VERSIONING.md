@@ -80,7 +80,9 @@ python3 Scripts/bump_version.py --part minor --build 42
   ```
 
 
-  - CI 集成：在 release/hotfix PR 上，工作流会生成片段并自动插入到当前版本节；同时会在片段前加入 `Build: <构建号>` 行（来自 Info.plist 的 `CFBundleVersion`），并且会将该版本节标题更新为 `## [x.y.z] - YYYY-MM-DD (Build N)` 的形式（若已包含 Build 则覆盖为最新构建号）。
+  - CI 集成：在 release/hotfix PR 上，工作流会生成片段并自动插入到当前版本节；同时会在片段前加入 `Build: <构建号>` 行（来自 Info.plist 的 `CFBundleVersion`），并且会将该版本节标题更新为 `## [x.y.z] - YYYY-MM-DD (Build N)` 的形式（若已包含 Build 则覆盖为最新构建号）。此外，CI 会校验：
+    - `VERSION` 与 `Info.plist` 的 `CFBundleShortVersionString` 一致
+    - `CHANGELOG.md` 存在对应版本节，且标题包含 `(Build N)` 并与 `Info.plist` 的 `CFBundleVersion` 相匹配
 
 ## 发布检查清单（Release PR）
 
