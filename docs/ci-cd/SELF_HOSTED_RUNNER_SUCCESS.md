@@ -1,4 +1,44 @@
-# GitHub Actions 自托管运行器安装成功 🎉
+# 自托管 Runner 成功运行与最佳实践
+
+本指南总结了在自托管（Self-hosted）Runner 上运行 NotBad 项目 CI 的关键要点与验证步骤，并明确：当前仓库的工作流默认仅使用自托管 Runner，已关闭 GitHub 托管 Runner 路径以节约费用。
+
+## 现状与策略
+
+- 默认仅用自托管 Runner：
+  - 所有工作流的 `runs-on` 均已切换为 `[self-hosted, macos, ...]` 的标签组合。
+  - 不再使用 `ubuntu-latest`/`macos-latest` 等 GitHub 托管 Runner。
+- Xcode 与模拟器：
+  - 自托管机器需预装 Xcode 26 与 iOS 26 运行时，并在测试 Job 上使用 `iPhone 17 Pro (iOS 26)` 等目标。
+- 工具链安装：
+  - Markdownlint：通过 `actions/setup-node@v4` 安装 Node 20 并全局安装 `markdownlint-cli@0.41.0`。
+  - Link Check：在自托管机本地下载并安装 `lychee` 二进制（兼容 arm64/x86_64），不再依赖 `lycheeverse/lychee-action`。
+  - Release Metadata：直接使用自托管机内置的 `python3` 运行脚本。
+
+## 快速验证
+
+1. 触发 `Markdown Lint` 工作流：修改任意文档提交后，应在自托管 Runner 上运行并输出 markdownlint 结果。
+
+1. 触发 `Link Check` 工作流：推送或 PR 时触发，日志中可见 lychee 本地安装与运行记录，无 GitHub Action 容器拉取行为。
+
+1. 触发 `NotBad CI/CD Pipeline (Self-hosted)`：在 `develop` 或 `release/*` 分支推送变更，`code-quality` 与 `test` 任务均在自托管 Runner 上执行；`code-quality` 会打印 Xcode 版本，`test` 会在 iOS 26 模拟器设备上构建与测试。
+
+1. 触发 `Release Metadata Check`：对 `main` 的 PR 且来源为 `release/*` 或 `hotfix/*` 时触发；工作流在自托管 Runner 上运行，执行 Python 校验与 CHANGELOG 片段生成与插入（非 fork 分支）。
+
+## 常见问题（FAQ）
+
+- 如何临时恢复使用 GitHub 托管 Runner？
+  - 将某个 job 的 `runs-on` 临时改回 `ubuntu-latest` 或 `macos-latest`；合并后记得再切回自托管。
+- 自托管 Runner 没有 `sudo` 权限怎么办？
+  - 本仓库 lychee 安装步骤会自动回退到 `$HOME/.local/bin` 并将其加入 `PATH`，无需 sudo。
+- Xcode 不是 26 版本会怎样？
+  - `code-quality`/`test` 任务会打印 `xcodebuild -version`，若版本不对，建议在自托管机上升级；或在标签中分出 `xcode-26`，并确保该 Runner 挂载该标签。
+
+## 运行器标签约定
+
+- 通用任务：`[self-hosted, macos]`
+- iOS 构建/测试：`[self-hosted, macos, m4, xcode-26]`
+
+请保持自托管机器在线、标签正确、Xcode/模拟器版本与 PRD 对齐，CI 即可稳定运行且避免产生 GitHub Runner 费用。
 
 ## 📅 安装时间
 
