@@ -1,0 +1,99 @@
+name: Documentation Consistency Check
+
+on:
+  push:
+    branches: [ main, develop, 'release/**' ]
+    paths:
+      - '**.md'
+      - 'docs/**'
+      - 'Scripts/check_docs_consistency.sh'
+      - '.markdownlint.jsonc'
+      - '.lychee.toml'
+  pull_request:
+    branches: [ main, develop, 'release/**' ]
+    paths:
+      - '**.md'
+      - 'docs/**'
+      - 'Scripts/check_docs_consistency.sh'
+      - '.markdownlint.jsonc'
+      - '.lychee.toml'
+
+jobs:
+  documentation-check:
+    runs-on: [self-hosted, macos]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install markdownlint-cli
+        run: |
+          npm install -g markdownlint-cli@0.41.0
+
+      - name: Install lychee (if not available)
+        run: |
+          set -euo pipefail
+          if ! command -v lychee >/dev/null 2>&1; then
+            curl -sSL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-aarch64-apple-darwin.tar.gz -o /tmp/lychee.tar.gz || \
+            curl -sSL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-apple-darwin.tar.gz -o /tmp/lychee.tar.gz
+            mkdir -p /tmp/lychee
+            tar -xzf /tmp/lychee.tar.gz -C /tmp/lychee --strip-components=1 || true
+            sudo mv /tmp/lychee/lychee /usr/local/bin/lychee || mv /tmp/lychee/lychee "$HOME/.local/bin/lychee"
+            echo "$HOME/.local/bin" >> $GITHUB_PATH
+          fi
+
+      - name: Make documentation checker executable
+        run: chmod +x Scripts/check_docs_consistency.sh
+
+      - name: Run documentation consistency check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          ./Scripts/check_docs_consistency.sh --verbose
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: doc-validation-report
+          path: docs/DOC_VALIDATION_REPORT.md
+          retention-days: 30
+
+      - name: Comment on PR (if failed)
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let reportContent = '';
+            try {
+              reportContent = fs.readFileSync('docs/DOC_VALIDATION_REPORT.md', 'utf8');
+            } catch (error) {
+              reportContent = 'Documentation validation report could not be generated.';
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 📚 Documentation Validation Failed
+              
+The documentation consistency check failed. Please review the issues and fix them.
+
+**Validation Report:**
+\`\`\`
+${reportContent.slice(0, 1000)}${reportContent.length > 1000 ? '...(truncated)' : ''}
+\`\`\`
+
+**To fix locally:**
+1. Run \`./Scripts/check_docs_consistency.sh\` to see all issues
+2. Run \`./Scripts/check_docs_consistency.sh --fix\` to auto-fix markdown formatting
+3. Manually fix any remaining link or consistency issues
+
+For more details, check the \`doc-validation-report\` artifact in this workflow run.`
+            });

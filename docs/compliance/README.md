@@ -77,9 +77,9 @@
 
 如有合规问题或建议，请联系：
 
-- **法务团队**: legal@notbad.app
-- **隐私官**: privacy@notbad.app
-- **安全团队**: security@notbad.app
+- **法务团队**: <legal@notbad.app>
+- **隐私官**: <privacy@notbad.app>
+- **安全团队**: <security@notbad.app>
 
 ---
 

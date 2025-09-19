@@ -32,4 +32,3 @@
 ---
 
 维护说明: 本文档为唯一事实来源（SSoT），根目录下的 `BASELINE_CALIBRATION_*_REPORT.md` 文件仅作为索引占位。
-

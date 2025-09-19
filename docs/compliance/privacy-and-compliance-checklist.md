@@ -13,6 +13,7 @@
 ### 1. 国际法规
 
 #### 1.1 COPPA（儿童在线隐私保护法）- 美国
+
 - **适用对象**: 13岁以下儿童
 - **要求**:
   - 获得家长明确同意
@@ -21,6 +22,7 @@
   - 不得将儿童信息用于商业目的
 
 #### 1.2 GDPR（通用数据保护条例）- 欧盟
+
 - **适用对象**: 所有欧盟用户，特别是16岁以下
 - **要求**:
   - 数据最小化原则
@@ -31,6 +33,7 @@
 ### 2. 国内法规
 
 #### 2.1 《个人信息保护法》
+
 - **适用对象**: 所有中国境内用户
 - **要求**:
   - 个人信息处理的合法性基础
@@ -39,23 +42,28 @@
   - 未成年人信息特殊保护
 
 #### 2.2 《网络安全法》
+
 - **数据安全要求**
 - **网络运营者义务**
 - **数据本地化要求**
 
 #### 2.3 《数据安全法》
+
 - **数据分类分级保护**
 - **重要数据处理规范**
 
 ## 隐私保护原则
 
 ### 1. 数据最小化
+
 #### 收集原则
+
 - **仅收集必要数据**: 只收集实现功能必需的最少信息
 - **目的限制**: 数据使用严格限定在声明的目的范围内
 - **保留期限**: 设定明确的数据保留期限
 
 #### 实施措施
+
 ```swift
 struct DataCollectionPolicy {
     // 允许收集的数据类型
@@ -88,12 +96,15 @@ struct DataCollectionPolicy {
 ```
 
 ### 2. 透明度原则
+
 #### 隐私政策要求
+
 - **简明易懂**: 使用通俗语言，避免法律术语
 - **分层展示**: 核心信息突出，详细信息分层
 - **定期更新**: 功能变更时及时更新隐私政策
 
 #### 数据处理透明
+
 ```swift
 class PrivacyDashboard {
     // 用户可查看的数据处理信息
@@ -110,7 +121,9 @@ class PrivacyDashboard {
 ```
 
 ### 3. 用户控制
+
 #### 同意管理
+
 - **细粒度同意**: 不同功能分别获得同意
 - **同意撤回**: 用户可随时撤回同意
 - **无同意降级**: 拒绝非必要数据收集时功能正常运行
@@ -140,6 +153,7 @@ class ConsentManager {
 ### 1. 数据加密
 
 #### 1.1 本地存储加密
+
 ```swift
 class SecureDataStore {
     // 启用最高级别文件保护
@@ -161,6 +175,7 @@ class SecureDataStore {
 ```
 
 #### 1.2 传输加密
+
 ```swift
 class NetworkManager {
     // 强制使用 TLS 1.3
@@ -183,6 +198,7 @@ class NetworkManager {
 ### 2. 匿名化处理
 
 #### 2.1 数据脱敏
+
 ```swift
 class DataAnonymizer {
     // 用户内容哈希化
@@ -207,6 +223,7 @@ class DataAnonymizer {
 ```
 
 #### 2.2 差分隐私
+
 ```swift
 class DifferentialPrivacy {
     // 为统计数据添加噪声
@@ -228,6 +245,7 @@ class DifferentialPrivacy {
 ### 3. 访问控制
 
 #### 3.1 生物识别认证
+
 ```swift
 class BiometricAuth {
     func authenticateUser() async throws -> Bool {
@@ -245,6 +263,7 @@ class BiometricAuth {
 ```
 
 #### 3.2 家长控制
+
 ```swift
 class ParentalControls {
     // 家长授权机制
@@ -277,6 +296,7 @@ class ParentalControls {
 ## 未成年人保护措施
 
 ### 1. 年龄验证
+
 ```swift
 class AgeVerification {
     enum AgeGroup {
@@ -299,6 +319,7 @@ class AgeVerification {
 ```
 
 ### 2. 内容安全
+
 ```swift
 class ContentSafety {
     // 内容审核
@@ -324,6 +345,7 @@ class ContentSafety {
 ```
 
 ### 3. 时间管理
+
 ```swift
 class ScreenTimeManager {
     // 学习时间监控
@@ -354,6 +376,7 @@ class ScreenTimeManager {
 ## 数据权利保障
 
 ### 1. 查看权
+
 ```swift
 class DataPortability {
     // 数据导出
@@ -374,6 +397,7 @@ class DataPortability {
 ```
 
 ### 2. 删除权
+
 ```swift
 class DataDeletion {
     // 完全删除用户数据
@@ -400,6 +424,7 @@ class DataDeletion {
 ```
 
 ### 3. 更正权
+
 ```swift
 class DataCorrection {
     // 数据更正
@@ -415,12 +440,14 @@ class DataCorrection {
 ## 第三方服务合规
 
 ### 1. 服务提供商选择标准
+
 - **隐私政策**: 符合 GDPR/COPPA 要求
 - **数据处理协议**: 签署数据处理协议 (DPA)
 - **安全认证**: SOC 2, ISO 27001 等认证
 - **数据本地化**: 支持数据本地化要求
 
 ### 2. 当前集成服务
+
 ```swift
 enum ThirdPartyService {
     case cloudKit           // Apple CloudKit - 符合隐私标准
@@ -436,6 +463,7 @@ enum ThirdPartyService {
 ```
 
 ### 3. 数据传输限制
+
 ```swift
 class DataTransferPolicy {
     // 禁止的数据传输
@@ -457,6 +485,7 @@ class DataTransferPolicy {
 ## 合规审计与监控
 
 ### 1. 定期审计
+
 ```swift
 class ComplianceAudit {
     // 季度合规审计
@@ -473,6 +502,7 @@ class ComplianceAudit {
 ```
 
 ### 2. 实时监控
+
 ```swift
 class PrivacyMonitoring {
     // 隐私违规检测
@@ -488,11 +518,13 @@ class PrivacyMonitoring {
 ## 用户教育与支持
 
 ### 1. 隐私教育
+
 - **交互式隐私指南**: 帮助用户理解隐私设置
 - **定期隐私提醒**: 提醒用户检查隐私设置
 - **家长指导**: 帮助家长理解和配置儿童保护设置
 
 ### 2. 支持渠道
+
 - **隐私相关咨询**: 专门的隐私问题咨询渠道
 - **数据权利行使**: 便捷的数据权利行使流程
 - **投诉处理**: 快速响应隐私投诉
@@ -500,6 +532,7 @@ class PrivacyMonitoring {
 ## 应急响应
 
 ### 1. 数据泄露响应
+
 ```swift
 class DataBreachResponse {
     func handleDataBreach(incident: SecurityIncident) async {
@@ -522,6 +555,7 @@ class DataBreachResponse {
 ```
 
 ### 2. 合规问题响应
+
 - **24小时响应**: 对合规问题的快速响应
 - **问题升级**: 严重合规问题的升级机制
 - **外部专家**: 必要时聘请外部隐私专家
@@ -529,6 +563,7 @@ class DataBreachResponse {
 ---
 
 **重要提醒**:
+
 1. 隐私保护是持续过程，需要定期评估和改进
 2. 法律法规可能变化，需要及时跟进和调整
 3. 技术实现必须与法律要求保持一致

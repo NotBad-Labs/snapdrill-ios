@@ -360,7 +360,7 @@ Text("错题数量: \(count)")
 
 ### 6.1 设计资源
 
-- **Figma设计稿**: [NotBad v6.0 Design System](TBD)
+- **Figma设计稿**: NotBad v6.0 Design System (Coming Soon)
 - **SF Symbols**: 使用iOS 26最新符号集
 - **图标库**: 256x256@3x规格，支持动态着色
 

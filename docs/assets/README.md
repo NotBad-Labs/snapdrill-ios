@@ -32,16 +32,19 @@
 ### 命名示例
 
 **架构图**:
+
 - `tdd-clean-architecture-layers-v6.png`
 - `tdd-discovery-community-flow-v6.svg`
 - `tdd-swiftdata-cloudkit-sync-v6.drawio`
 
 **设计稿**:
+
 - `ux-discovery-post-card-v6.png`
 - `ux-ocr-preview-component-v6.svg`
 - `ux-color-system-tokens-v6.svg`
 
 **流程图**:
+
 - `prd-user-journey-student-v6.drawio`
 - `cicd-github-actions-flow-v6.png`
 - `compliance-privacy-audit-flow-v6.svg`

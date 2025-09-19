@@ -15,4 +15,3 @@
 - 行动项
 
 > 提示：如需维护，请在 `docs/BASELINE_CALIBRATION_REPORT.md` 中更新，并在此处附上必要的摘要。
-
