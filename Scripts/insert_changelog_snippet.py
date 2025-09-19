@@ -113,6 +113,17 @@ def insert_or_replace(lines: List[str], section_start: int, section_end: int, sn
 
     new_lines = lines[:]
 
+    # Also update the header line to include (Build N)
+    build = read_build_number()
+    if build:
+        header_line = new_lines[section_start]
+        # If header already has (Build ...), replace it; else append
+        if '(Build ' in header_line:
+            header_line = re.sub(r"\(Build\s+[^)]+\)", f"(Build {build})", header_line)
+        else:
+            header_line = header_line.rstrip() + f" (Build {build})"
+        new_lines[section_start] = header_line
+
     if exist_begin != -1 and exist_end != -1:
         # Replace existing block, keeping one blank line padding
         new_content = []

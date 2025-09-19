@@ -33,6 +33,17 @@ CHANGELOG = os.path.join(ROOT, 'CHANGELOG.md')
 SEMVER_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 
 
+def read_build_number_from_plist() -> str:
+    try:
+        if os.path.exists(INFO_PLIST):
+            with open(INFO_PLIST, 'rb') as f:
+                plist = plistlib.load(f)
+            return str(plist.get('CFBundleVersion', '')).strip()
+    except Exception:
+        return ''
+    return ''
+
+
 def read_version() -> Tuple[int, int, int]:
     if not os.path.exists(VERSION_FILE):
         print(f"ERROR: VERSION file not found at {VERSION_FILE}", file=sys.stderr)
@@ -74,7 +85,9 @@ def update_info_plist(short_version: str, build_number: int) -> None:
 
 
 def ensure_changelog_section(version: str, date_str: str) -> None:
-    header = f"## [{version}] - {date_str}"
+    build = read_build_number_from_plist()
+    header_base = f"## [{version}] - {date_str}"
+    header = f"{header_base} (Build {build})" if build else header_base
     template = (
         f"\n{header}\n\n"
         "### Added\n\n"
@@ -93,7 +106,23 @@ def ensure_changelog_section(version: str, date_str: str) -> None:
         return
     with open(CHANGELOG, 'r', encoding='utf-8') as f:
         content = f.read()
-    if header in content:
+    # If any header for this version exists (with or without build suffix), update it to include current build
+    version_header_prefix = f"## [{version}] - "
+    if version_header_prefix in content:
+        lines = content.splitlines()
+        for i, line in enumerate(lines):
+            if line.startswith(version_header_prefix):
+                # Replace or append (Build N)
+                if build:
+                    if '(Build ' in line:
+                        line = re.sub(r"\(Build\s+[^)]+\)", f"(Build {build})", line)
+                    else:
+                        line = line.rstrip() + f" (Build {build})"
+                # else leave as-is
+                lines[i] = line
+                break
+        with open(CHANGELOG, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(lines).rstrip() + '\n')
         return
     # Insert new section at top after the intro (after first existing version or end of header block)
     lines = content.splitlines()

@@ -65,7 +65,7 @@ python3 Scripts/bump_version.py --part minor --build 42
 
 - `VERSION` 更新为新版本
 - `NotBad/Info.plist` 的 `CFBundleShortVersionString` 与 `CFBundleVersion` 已更新
-- `CHANGELOG.md` 追加了 `## [x.y.z] - YYYY-MM-DD` 的新节
+- `CHANGELOG.md` 追加了 `## [x.y.z] - YYYY-MM-DD (Build N)` 的新节（如果 `Info.plist` 已存在构建号，则会在标题追加构建号；再次执行会更新为最新构建号，具备幂等性）
 
 ### 可选：从 Git 提交生成 CHANGELOG 草稿
 
@@ -80,7 +80,7 @@ python3 Scripts/bump_version.py --part minor --build 42
   ```
 
 
-  - CI 集成：在 release/hotfix PR 上，工作流会生成片段并自动插入到当前版本节；同时会在片段前加入 `Build: <构建号>` 行（来自 Info.plist 的 `CFBundleVersion`）。
+  - CI 集成：在 release/hotfix PR 上，工作流会生成片段并自动插入到当前版本节；同时会在片段前加入 `Build: <构建号>` 行（来自 Info.plist 的 `CFBundleVersion`），并且会将该版本节标题更新为 `## [x.y.z] - YYYY-MM-DD (Build N)` 的形式（若已包含 Build 则覆盖为最新构建号）。
 
 ## 发布检查清单（Release PR）
 
