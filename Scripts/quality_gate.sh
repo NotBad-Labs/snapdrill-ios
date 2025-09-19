@@ -58,7 +58,7 @@ else
     echo -e "${YELLOW}⚠️ 文档一致性检查脚本未找到${NC}"
 fi
 
-echo "�️ 5. 项目编译检查..."
+echo "🛠️ 5. 项目编译检查..."
 xcodebuild -project NotBad.xcodeproj -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' clean build
 check_result "项目编译"
 
