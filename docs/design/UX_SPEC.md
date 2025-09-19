@@ -341,14 +341,14 @@ Text("错题数量: \(count)")
 
 ### 5.1 iPhone适配
 
-- **iPhone 15 Pro Max**: 430x932pt (主要优化目标)
-- **iPhone 15**: 393x852pt
+- **iPhone 17 Pro Max**: 430x932pt (主要优化目标)
+- **iPhone 17**: 393x852pt
 - **iPhone SE**: 375x667pt (最小支持)
 
 ### 5.2 iPad适配 (vNext)
 
 - **iPad Pro 12.9"**: 1024x1366pt
-- **iPad Air**: 820x1180pt
+- **iPad Pro 11-inch (M4)**: 820x1180pt
 - **分屏支持**: Slide Over, Split View
 
 ### 5.3 visionOS适配规划 (vNext)

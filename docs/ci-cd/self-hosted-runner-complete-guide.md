@@ -224,7 +224,7 @@ jobs:
         xcodebuild clean build test \
             -project NotBad.xcodeproj \
             -scheme NotBad \
-            -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=26.0' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
             -derivedDataPath $DERIVED_DATA_PATH \
             -enableCodeCoverage YES \
             SWIFT_VERSION=6.2

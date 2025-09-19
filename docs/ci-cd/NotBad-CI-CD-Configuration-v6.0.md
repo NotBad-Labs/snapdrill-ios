@@ -24,7 +24,7 @@
 
 ## GitHub Actions 工作流配置
 
-> 运行策略：本仓库默认仅使用自托管（self-hosted）Runner，所有示例均以 `[self-hosted, macos, m4, xcode-26]` 标签为准；如需临时改用 GitHub 托管 Runner，请在 job 级别将 `runs-on` 改回 `macos-latest` 或 `ubuntu-latest`。
+> 运行策略：本仓库默认仅使用自托管（self-hosted）Runner，所有示例均以 `[self-hosted, macos, m4, xcode-26]` 标签为准；如需临时改用 GitHub 托管 Runner，仅用于紧急故障排查，并需在合并前恢复为自托管标签。
 
 ### 主工作流 (.github/workflows/ios.yml)
 

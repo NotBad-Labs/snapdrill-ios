@@ -117,7 +117,7 @@
 | PRD需求ID | 优先级 | 技术要求 | 验收标准 | TDD技术实现 | 测试用例ID | 交付阶段 | 依赖 | 风险等级 | 实现状态 |
 |-----------|--------|----------|----------|-------------|------------|----------|-----|----------|----------|
 | **NF-TECH-01** | Must | Swift 6.2并发模型 | AC-TECH-01: 100%编译时并发安全 | Enhanced Actor Isolation | TC-TECH-001~005 | MVP Phase 1 | Swift 6.2 | High | ⏳ 待开发 |
-| **NF-TECH-02** | Must | iOS 26兼容性 | AC-TECH-02: 充分利用iOS 26新特性 | iOS 26 Feature Adoption | TC-TECH-006~010 | MVP Phase 1 | iPhone 15 Pro+ | Medium | ⏳ 待开发 |
+| **NF-TECH-02** | Must | iOS 26兼容性 | AC-TECH-02: 充分利用iOS 26新特性 | iOS 26 Feature Adoption | TC-TECH-006~010 | MVP Phase 1 | iPhone 17 Pro+ | Medium | ⏳ 待开发 |
 | **NF-TECH-03** | Should | Enhanced Collections | AC-TECH-03: 高性能搜索和排序 | SearchEngine Optimization | TC-TECH-011~015 | MVP Phase 1 | Swift 6.2 Collections | Medium | ⏳ 待开发 |
 | **NF-TECH-04** | Must | SwiftData现代化 | AC-TECH-04: 充分利用SwiftData新特性 | PersistenceController v6.0 | TC-TECH-016~020 | MVP Phase 1 | iOS 26 SwiftData | Low | ⏳ 待开发 |
 

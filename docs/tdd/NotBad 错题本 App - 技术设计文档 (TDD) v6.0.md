@@ -645,13 +645,15 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: macos-15 # iOS 26 支持
+    runs-on: [self-hosted, macos, m4, xcode-26] # 自托管 Runner（Xcode 26 预装）
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Setup Xcode 16
-      uses: maxim-lobanov/setup-xcode@v1
+            run: |
+                xcodebuild -version
+                xcrun simctl list runtimes | grep 'iOS 26' || { echo '❌ Missing iOS 26 runtime on self-hosted runner'; exit 1; }
       with:
         xcode-version: '16.0'
 
@@ -660,7 +662,7 @@ jobs:
         swift --version
         # Swift 6.2 严格并发检查
         xcodebuild -scheme NotBad \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+          -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
           -enableAddressSanitizer YES \
           -enableThreadSanitizer YES \
           build
@@ -669,7 +671,7 @@ jobs:
       run: |
         xcodebuild test \
           -scheme NotBadPerformanceTests \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro' \
+          -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
           -resultBundlePath TestResults.xcresult
 
     - name: Validate Memory Usage
@@ -827,7 +829,7 @@ struct PerformanceDashboard {
 - **指标**: 冷启动时间 (Cold Launch Time)
 - **定义**: 从用户点击应用图标到首屏完全渲染的时间
 - **目标**: P95 < 0.8s (基于Swift 6.2编译优化)
-- **基准设备**: iPhone 15 Pro / iPhone 15 Pro Max / iPhone SE (2022)
+- **基准设备**: iPhone 17 Pro / iPhone 17 Pro Max / iPad Pro 11-inch (M4)
 - **监控方式**: iOS 原生MetricKit + 自定义计时器
 - **埋点事件**: `app_launch_cold`
 
@@ -1022,7 +1024,7 @@ Analytics.track("search_performed", parameters: [
 #### 11.2.4 指标基准与方法论
 
 **基准设备**:
-- iPhone 15 Pro (A17 Pro) - 旗舰级
+- iPhone 17 Pro - 旗舰级
 - iPhone 12 (A14) - 主流级
 - iPhone SE (2022) (A15) - 入门级
 
