@@ -7,6 +7,7 @@
 ## 技术栈要求
 
 ### 核心构建环境
+
 - **Xcode**: 26.0 (支持Swift 6.2)
 - **iOS SDK**: iOS 26.0 SDK
 - **Swift**: 6.2 (Enhanced Actor Isolation, Improved TaskGroup)
@@ -14,6 +15,7 @@
 - **Simulator**: iOS 26.0 运行时
 
 ### 关键特性支持
+
 - Enhanced Actor Isolation (Swift 6.2)
 - Improved TaskGroup 并发处理
 - iOS 26 Advanced Vision Framework
@@ -21,6 +23,8 @@
 - ProMotion Max 120fps支持
 
 ## GitHub Actions 工作流配置
+
+> 运行策略：本仓库默认仅使用自托管（self-hosted）Runner，所有示例均以 `[self-hosted, macos, m4, xcode-26]` 标签为准；如需临时改用 GitHub 托管 Runner，请在 job 级别将 `runs-on` 改回 `macos-latest` 或 `ubuntu-latest`。
 
 ### 主工作流 (.github/workflows/ios.yml)
 
@@ -41,24 +45,23 @@ env:
 jobs:
   build-test:
     name: Build and Test
-    runs-on: macos-15  # 确保支持Xcode 26
+    runs-on: [self-hosted, macos, m4, xcode-26]  # 自托管Runner（Xcode 26 预装）
 
     strategy:
       matrix:
         # 支持多设备测试
         destination:
-          - 'platform=iOS Simulator,name=iPhone 15 Pro,OS=26.0'
-          - 'platform=iOS Simulator,name=iPhone 15 Pro Max,OS=26.0'
-          - 'platform=iOS Simulator,name=iPad Air (5th generation),OS=26.0'
+          - 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0'
+          - 'platform=iOS Simulator,name=iPad Pro 11-inch (M4),OS=26.0'
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Setup Xcode 26
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '26.0'
+    - name: Verify Xcode 26
+      run: |
+        xcodebuild -version
+        swift --version
 
     - name: Verify Swift 6.2 Support
       run: |
@@ -76,14 +79,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-spm-
 
-    - name: Install iOS 26.0 Simulator
+    - name: Verify iOS 26.0 Runtime
       run: |
-        xcrun simctl list runtimes
-        # 确保iOS 26.0运行时可用
-        if ! xcrun simctl list runtimes | grep "iOS 26.0"; then
-          echo "Installing iOS 26.0 runtime..."
-          sudo xcrun simctl runtime install "iOS 26.0"
-        fi
+        # 自托管Runner应已预装 iOS 26 运行时；此处仅做可用性校验
+        xcrun simctl list runtimes | grep "iOS 26.0" || {
+          echo "❌ Missing iOS 26.0 runtime on self-hosted runner"; exit 1;
+        }
 
     - name: Build with Swift 6.2
       run: |
@@ -132,24 +133,23 @@ jobs:
 
   performance-test:
     name: Performance Testing
-    runs-on: macos-15
+    runs-on: [self-hosted, macos, m4, xcode-26]
     needs: build-test
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Setup Xcode 26
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '26.0'
+    - name: Verify Xcode 26
+      run: |
+        xcodebuild -version
 
     - name: Run Performance Tests
       run: |
         xcodebuild test \
           -project NotBad.xcodeproj \
           -scheme PerformanceTestPlan \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=26.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
           -configuration Release \
           SWIFT_VERSION=6.2
 
@@ -164,7 +164,7 @@ jobs:
 
   security-scan:
     name: Security and Privacy Scan
-    runs-on: macos-15
+    runs-on: [self-hosted, macos]
     needs: build-test
 
     steps:
@@ -190,7 +190,7 @@ jobs:
 
   build-release:
     name: Build Release Version
-    runs-on: macos-15
+    runs-on: [self-hosted, macos, m4, xcode-26]
     needs: [build-test, performance-test, security-scan]
     if: github.ref == 'refs/heads/main'
 
@@ -198,10 +198,9 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Setup Xcode 26
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '26.0'
+    - name: Verify Xcode 26
+      run: |
+        xcodebuild -version
 
     - name: Import Signing Certificate
       env:
@@ -263,23 +262,22 @@ on:
 jobs:
   discovery-tests:
     name: Discovery Feature Tests
-    runs-on: macos-15
+    runs-on: [self-hosted, macos, m4, xcode-26]
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Setup Xcode 26
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '26.0'
+    - name: Verify Xcode 26
+      run: |
+        xcodebuild -version
 
     - name: Test Discovery Anonymous Sharing
       run: |
         xcodebuild test \
           -project NotBad.xcodeproj \
           -scheme DiscoveryTests \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=26.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
           -testPlan DiscoveryTestPlan.xctestplan \
           SWIFT_VERSION=6.2
 
@@ -288,13 +286,14 @@ jobs:
         xcodebuild test \
           -project NotBad.xcodeproj \
           -scheme PrivacyTests \
-          -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=26.0' \
+          -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
           SWIFT_VERSION=6.2
 ```
 
 ## 自托管Runner配置 (v6.0)
 
 ### 系统要求
+
 - **设备**: Mac mini M4 或更新
 - **内存**: 16GB+ (推荐32GB)
 - **存储**: 1TB+ SSD
@@ -394,12 +393,14 @@ class CIPerformanceMonitor: NSObject, MXMetricManagerSubscriber {
 ## 部署策略
 
 ### 分支策略
+
 - **main**: 生产发布分支，自动构建并上传TestFlight
 - **develop**: 开发集成分支，运行完整测试套件
 - **feature/***: 功能分支，运行基础测试
 - **hotfix/***: 紧急修复分支，快速验证和发布
 
 ### 测试策略
+
 - **Unit Tests**: 覆盖所有业务逻辑，目标覆盖率>90%
 - **Integration Tests**: Discovery社区、CloudKit同步等集成功能
 - **UI Tests**: 关键用户流程自动化测试
@@ -407,6 +408,7 @@ class CIPerformanceMonitor: NSObject, MXMetricManagerSubscriber {
 - **Security Tests**: COPPA/GDPR合规性验证
 
 ### 质量门禁
+
 1. ✅ 所有单元测试通过
 2. ✅ 代码覆盖率 > 90%
 3. ✅ 性能测试达标(启动<0.8s, 内存<150MB)
@@ -417,7 +419,8 @@ class CIPerformanceMonitor: NSObject, MXMetricManagerSubscriber {
 
 ### 常见问题
 
-**Q: Swift 6.2代码编译失败**
+#### Q: Swift 6.2代码编译失败
+
 ```bash
 # 验证Xcode版本
 xcodebuild -version
@@ -428,7 +431,8 @@ xcodebuild clean
 rm -rf ~/Library/Developer/Xcode/DerivedData
 ```
 
-**Q: iOS 26模拟器不可用**
+#### Q: iOS 26模拟器不可用
+
 ```bash
 # 检查可用运行时
 xcrun simctl list runtimes
@@ -437,7 +441,8 @@ xcrun simctl list runtimes
 sudo xcrun simctl runtime install "iOS 26.0"
 ```
 
-**Q: Enhanced Actor编译错误**
+#### Q: Enhanced Actor编译错误
+
 ```swift
 // 确保使用Swift 6.2语法
 actor DataProcessor: Sendable {
