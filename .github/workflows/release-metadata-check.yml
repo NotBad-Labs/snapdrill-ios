@@ -1,0 +1,42 @@
+name: Release Metadata Check
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE/**'
+    types: [opened, synchronize, reopened]
+
+    # Only run for PRs from release/** or hotfix/** branches
+    # GitHub Actions doesn't support PR source filters directly; we'll filter in a job step.
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Skip if not from release/* or hotfix/*
+        id: branch_check
+        run: |
+          set -euo pipefail
+          SRC_REF="${{ github.head_ref }}"
+          echo "Source ref: $SRC_REF"
+          if [[ "$SRC_REF" == release/* || "$SRC_REF" == hotfix/* ]]; then
+            echo "run_check=true" >> $GITHUB_OUTPUT
+          else
+            echo "run_check=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate release metadata
+        if: steps.branch_check.outputs.run_check == 'true'
+        run: |
+          python3 Scripts/validate_release_metadata.py
