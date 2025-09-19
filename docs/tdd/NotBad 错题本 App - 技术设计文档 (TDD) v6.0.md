@@ -1329,6 +1329,9 @@ func createAdvancedFeatureView() -> some View {
 
 ## 变更日志 (Change Log)
 
+附录参考：历史多版本平台兼容与降级矩阵见
+[appendices/PLATFORM_COMPATIBILITY_HISTORY.md](./appendices/PLATFORM_COMPATIBILITY_HISTORY.md)。
+
 **v6.0 (2025-09-19)**: 技术栈全面升级至iOS 26+ Swift 6.2
 
 - 架构升级：Clean Architecture + Swift 6.2现代并发模式
