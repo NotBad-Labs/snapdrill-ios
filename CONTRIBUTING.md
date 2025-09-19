@@ -2,10 +2,17 @@
 
 感谢你对 NotBad 项目的关注与贡献！本指南帮助你高效参与协作并保持文档与代码质量一致。
 
-## 分支与提交
+## 分支与提交（Git Flow）
 
-- 使用 `feature/<scope>-<short-desc>` 命名分支，例如：`feature/docs-v6.0-modernization`
-- 使用 Trunk-based（简化版）：从 `develop` 拉分支，先提 PR 到 `develop`；待集成稳定后再由维护者合并 `develop → main`
+- 分支模型：`main ← release/* ← develop ← feature/*`，紧急修复走 `hotfix/*`（main 基上切出，合并回 main 并回灌 develop）
+- 命名规范：
+  - `feature/<scope>-<short-desc>`（例：`feature/docs-v6.0-modernization`）
+  - `release/x.y.z`（例：`release/1.0.0`）
+  - `hotfix/x.y.z+1`（例：`hotfix/1.0.1`）
+- PR 目标：
+  - Feature → Develop（`develop ← feature/*`）
+  - Release → Main（`main ← release/*`，发布后回灌 `develop`）
+  - Hotfix → Main（`main ← hotfix/*`，合并后回灌 `develop`）
 - 提交信息遵循约定式：`feat: ...` `fix: ...` `docs: ...` `chore: ...`
 
 ## 文档规范

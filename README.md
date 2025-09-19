@@ -121,24 +121,35 @@
 
 > 💡 **注意**: `docs/` 目录下的文档反映重构前的设计，部分内容可能已过时。
 
-## 🔄 Git 分支与发布流程
+## 🔄 Git 分支与发布流程（Git Flow）
 
-### 分支与流程（develop 优先）
+### 分支与流程（main ← release/\* ← develop ← feature/\*）
 
 ```text
-main                (长期稳定分支，可随时发布)
-develop             (日常集成分支，PR 汇聚与回归验证)
-feature/<name>      (基于 develop 派生的小步快跑特性分支)
-hotfix/<name>       (基于 main 的紧急修复)
+main                (生产稳定分支，随时可发布)
+release/<version>   (预发布分支，版本冻结/回归修复)
+develop             (日常集成分支，功能汇聚与回归验证)
+feature/<name>      (基于 develop 的特性分支，小步快跑)
+hotfix/<name>       (基于 main 的紧急修复，修复后回灌 develop)
 ```
 
-### 开发流程（Feature → Develop → Main）
+### 开发与发布流程
 
-1. 从 `develop` 创建 `feature/xxx` 分支进行开发
-2. 提交 PR 到 `develop`，确保通过所有质量门槛（SwiftLint、测试、markdownlint、link-check、文档一致性等）
-3. 定期将 `develop` 合并（或使用 PR）到 `main`，进行发布准备
-4. 需要发布时，在 `main` 打标签并产出构建（如 TestFlight）
-5. 紧急问题通过 `hotfix/xxx` 分支修复，直接合并回 `main`，并回灌到 `develop`
+1) Feature 开发（Feature → Develop）
+   - 从 `develop` 创建 `feature/xxx`
+   - 完成开发并本地通过 `./Scripts/quality_gate.sh`
+   - 提交 PR 到 `develop`，等待 CI 绿灯与评审通过
+
+2) Release 准备（Develop → Release → Main）
+   - 从 `develop` 切出 `release/x.y.z`，进入版本冻结，仅允许修复与文档/版本号变更
+   - 在 `release/x.y.z` 上完成版本号、变更日志与最后回归
+   - 提交 PR 到 `main`（main ← release/x.y.z），合并后在 `main` 打标签并产出构建（如 TestFlight/App Store）
+   - 将 `release/x.y.z` 变更回灌到 `develop`
+
+3) Hotfix 紧急修复（Main → Hotfix → Main + Develop）
+   - 从 `main` 创建 `hotfix/x.y.z+1`
+   - 修复后提交 PR 到 `main`，合并并打标签发布
+   - 将 `hotfix/x.y.z+1` 回灌到 `develop`
 
 ## ⚡ 质量门槛
 
