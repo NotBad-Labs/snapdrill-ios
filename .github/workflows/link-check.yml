@@ -13,10 +13,60 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install lychee (macOS compatible)
+        run: |
+          set -euo pipefail
+          
+          # 检查是否已经安装
+          if command -v lychee >/dev/null 2>&1; then
+            echo "lychee already installed: $(lychee --version)"
+            exit 0
+          fi
+          
+          echo "Installing lychee for macOS..."
+          
+          # 检测CPU架构 - macOS专用方法
+          SYSTEM_ARCH=$(uname -m)
+          if [[ "$SYSTEM_ARCH" == "arm64" ]]; then
+            LYCHEE_ARCH="aarch64"
+            echo "Detected Apple Silicon (ARM64)"
+          elif [[ "$SYSTEM_ARCH" == "x86_64" ]]; then
+            LYCHEE_ARCH="x86_64"
+            echo "Detected Intel (x86_64)"
+          else
+            echo "Unsupported architecture: $SYSTEM_ARCH"
+            exit 1
+          fi
+          
+          # 下载对应架构的lychee
+          DOWNLOAD_URL="https://github.com/lycheeverse/lychee/releases/latest/download/lychee-${LYCHEE_ARCH}-apple-darwin.tar.gz"
+          echo "Downloading: $DOWNLOAD_URL"
+          
+          curl -sSfL "$DOWNLOAD_URL" -o /tmp/lychee.tar.gz
+          
+          # 解压到临时目录
+          mkdir -p /tmp/lychee-install
+          tar -xzf /tmp/lychee.tar.gz -C /tmp/lychee-install
+          
+          # 使用macOS兼容的安装方式（不使用install -t）
+          sudo mkdir -p /usr/local/bin
+          sudo cp /tmp/lychee-install/lychee /usr/local/bin/lychee
+          sudo chmod +x /usr/local/bin/lychee
+          
+          # 清理
+          rm -rf /tmp/lychee.tar.gz /tmp/lychee-install
+          
+          # 验证安装
+          lychee --version
+
       - name: Run lychee link checker
-        uses: lycheeverse/lychee-action@v1.10.0
-        with:
-          args: --verbose --no-progress --exclude-all-private docs/ README.md
-          fail: true
+        run: |
+          set -euo pipefail
+          lychee \
+            --accept 200,204,301,302,307,308 \
+            --verbose \
+            --no-progress \
+            --max-concurrency 1 \
+            docs/ README.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
