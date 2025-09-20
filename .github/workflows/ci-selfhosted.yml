@@ -37,7 +37,6 @@ concurrency:
 env:
   SCHEME_NAME: NotBad
   PROJECT_NAME: NotBad.xcodeproj
-  WORKSPACE_PATH: NotBad.xcodeproj/project.xcworkspace
   # Mount under $HOME to avoid sudo/password prompts
   ARTIFACTS_DIR: $HOME/runner_data/artifacts
   CACHE_DIR: $HOME/runner_data
@@ -80,7 +79,7 @@ jobs:
     strategy:
       matrix:
         destination:
-          - 'platform=iOS Simulator,name=iPhone 15 Pro,OS=latest'
+          - 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -124,7 +123,7 @@ jobs:
       - name: Build (for testing)
         run: |
           xcodebuild clean build \
-            -workspace ${{ env.WORKSPACE_PATH }} \
+            -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
             -destination "${{ matrix.destination }}" \
             CODE_SIGNING_ALLOWED=NO
@@ -133,7 +132,7 @@ jobs:
         run: |
           local_result_path="./TestResults-$(date +%s).xcresult"
           xcodebuild test \
-            -workspace ${{ env.WORKSPACE_PATH }} \
+            -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
             -destination "${{ matrix.destination }}" \
             -testPlan UnitTestPlan \
@@ -146,7 +145,7 @@ jobs:
         run: |
           local_result_path="./IntegrationResults-$(date +%s).xcresult"
           xcodebuild test \
-            -workspace ${{ env.WORKSPACE_PATH }} \
+            -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
             -destination "${{ matrix.destination }}" \
             -testPlan IntegrationTestPlan \
