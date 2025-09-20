@@ -8,3 +8,4 @@
 **/Scripts/*.py
 **/Scripts/*.sh
 **/ExportOptions.plist
+node_modules

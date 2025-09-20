@@ -7,6 +7,7 @@
 ## 文档治理与变更流程 (Document Governance)
 
 本TDD严格遵循PRD确立的文档优先级：
+
 1. **从属关系**: TDD细化PRD的技术约束，必须与PRD一致；冲突时以PRD为准
 2. **变更流程**: 技术变更首先在TDD提出评审，同步更新RTM和其他从属文档
 3. **版本一致性**: TDD版本号与PRD保持同步，确保技术实现与产品需求的严格对齐
@@ -37,6 +38,7 @@
 基于iOS 26+ Swift 6.2前沿技术栈，构建一个高性能、高可靠、可扩展且易于维护的iOS原生应用，严格承接PRD v6.0中定义的所有功能性及非功能性需求：
 
 **性能卓越**:
+
 - 应用启动时间 < **0.8秒** (利用Swift 6.2编译优化和iOS 26启动加速)
 - 核心交互响应 < **100ms** (基于Swift 6.2最新并发模型)
 - OCR识别准确率 > **95%** (中文) / **90%** (数学公式)
@@ -44,16 +46,19 @@
 - 滚动流畅度 > **120fps** (iOS 26 ProMotion Max支持)
 
 **数据安全**:
+
 - 端到端加密，完全符合COPPA和GDPR隐私合规要求
 - 未成年人数据分类保护 (高/中/低敏感度分级)
 - 年龄分层隐私策略 (13-以下 vs 13-18岁)
 
 **极致可靠**:
+
 - 核心功能100%离线可用
 - 崩溃率 < **0.05%** (Swift 6.2编译时安全保证)
 - 数据同步成功率 > **99.9%**
 
 **架构优雅**:
+
 - Clean Architecture + Swift 6.2现代并发模式
 - 100%编译时并发安全保证
 - 高度可测试性和可维护性
@@ -61,6 +66,7 @@
 ### 1.2 Swift 6.2 & iOS 26 前沿技术利用 (Cutting-edge Technology Utilization)
 
 **Swift 6.2 新特性应用**:
+
 - **Enhanced Actor Isolation**: 实现完全的并发安全，OCR和数据同步性能提升
 - **Improved TaskGroup**: 批量图片处理并发优化
 - **Enhanced Collections**: 高性能错题搜索和分类操作
@@ -69,6 +75,7 @@
 - **Enhanced Sendable Checking**: 100%编译时并发安全验证
 
 **iOS 26 平台特性应用**:
+
 - **Advanced Vision Framework**: 超高精度OCR识别，支持复杂数学公式
 - **Enhanced SwiftData**: 现代化本地持久化，支持复杂查询优化
 - **ProMotion Max**: 120fps+滚动体验，动画流畅度极致优化
@@ -90,23 +97,26 @@
 ### 2.1 架构原则 (Architecture Principles)
 
 **Clean Architecture + Swift 6.2 现代化增强**:
+
 - 严格分层，依赖倒置，领域层是核心
 - 利用Swift 6.2的Enhanced Actor Isolation保证并发安全
 - 所有跨层通信通过Protocol进行，支持Enhanced Sendable检查
 
 **Local-First + CloudKit Premium**:
+
 - 用户数据优先在设备本地处理和存储
 - CloudKit提供跨设备同步，支持iOS 26增强特性
 - 网络仅用于同步，确保100%离线可用性
 
 **SOLID + Swift 6.2 Enhancement**:
+
 - 遵循SOLID原则，利用Swift 6.2的类型系统增强
 - Enhanced Pattern Matching支持复杂业务逻辑
 - Improved Error Handling确保优雅的错误处理
 
 ### 2.2 分层架构设计 (Layered Architecture)
 
-```
+```plaintext
 ┌─────────────────────────────────────────────────┐
 │           Presentation Layer (SwiftUI + MVVM-C)              │
 │   SwiftUI Views + ViewModels + Coordinators                 │
@@ -129,6 +139,7 @@
 ### 2.3 核心模块架构 (Core Module Architecture)
 
 **OCR Processing Module (Enhanced Vision)**:
+
 ```swift
 @MainActor
 class OCRProcessor: ObservableObject {
@@ -145,6 +156,7 @@ class OCRProcessor: ObservableObject {
 ```
 
 **Data Sync Module (Enhanced CloudKit)**:
+
 ```swift
 actor SyncCoordinator {
     private let cloudKitService: EnhancedCloudKitService
@@ -237,6 +249,7 @@ struct UserPrivacySettings: Codable, Sendable {
 ### 3.2 iOS 26 SwiftData 持久化架构 (Advanced Persistence)
 
 **Enhanced SwiftData Configuration**:
+
 ```swift
 import SwiftData
 
@@ -273,6 +286,7 @@ class PersistenceController: ObservableObject {
 ```
 
 **数据加密与隐私保护**:
+
 ```swift
 actor EncryptionService {
     private let keychain: KeychainService
@@ -329,6 +343,7 @@ enum ModerationStatus: String, Codable, CaseIterable, Sendable {
 ### 4.2 隐私保护机制 (Privacy Protection Mechanisms)
 
 **年龄分层访问控制**:
+
 ```swift
 actor DiscoveryAccessController {
     func canAccessDiscovery(user: UserProfile) async -> Bool {
@@ -351,6 +366,7 @@ actor DiscoveryAccessController {
 ```
 
 **内容审核系统**:
+
 ```swift
 actor ContentModerationService {
     private let aiModerator: LocalAIModerator
@@ -379,6 +395,7 @@ actor ContentModerationService {
 ### 5.1 Swift 6.2 并发性能优化 (Concurrency Performance)
 
 **Enhanced TaskGroup 批量处理**:
+
 ```swift
 actor BatchProcessor {
     func processBatchImages(_ images: [UIImage]) async throws -> [OCRResult] {
@@ -403,6 +420,7 @@ actor BatchProcessor {
 ```
 
 **Enhanced Collections 搜索优化**:
+
 ```swift
 actor SearchEngine {
     private let index: SearchIndex
@@ -423,6 +441,7 @@ actor SearchEngine {
 ### 5.2 iOS 26 内存管理优化 (Advanced Memory Management)
 
 **智能内存管理**:
+
 ```swift
 @MainActor
 class MemoryManager: ObservableObject {
@@ -495,6 +514,7 @@ actor PrivacyProtectionService {
 ### 6.2 COPPA/GDPR 合规技术实现 (Compliance Implementation)
 
 **年龄验证与数据收集控制**:
+
 ```swift
 @MainActor
 class ComplianceManager: ObservableObject {
@@ -536,6 +556,7 @@ class ComplianceManager: ObservableObject {
 ### 7.1 Swift 6.2 测试架构 (Testing Architecture)
 
 **Enhanced Testing with Swift 6.2**:
+
 ```swift
 import XCTest
 import Testing // Swift 6.2 新测试框架
@@ -592,6 +613,7 @@ class ReviewItemUseCaseTests: XCTestCase {
 ### 7.2 性能基准测试 (Performance Benchmarks)
 
 **iOS 26 性能基准**:
+
 ```swift
 class PerformanceBenchmarks: XCTestCase {
 
@@ -634,6 +656,7 @@ class PerformanceBenchmarks: XCTestCase {
 ### 8.1 Swift 6.2 CI/CD 管道 (Enhanced CI/CD)
 
 **GitHub Actions with Swift 6.2**:
+
 ```yaml
 name: iOS 26 Swift 6.2 CI/CD
 
@@ -661,6 +684,7 @@ jobs:
       run: |
         swift --version
         # Swift 6.2 严格并发检查
+
         xcodebuild -scheme NotBad \
           -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
           -enableAddressSanitizer YES \
@@ -677,12 +701,14 @@ jobs:
     - name: Validate Memory Usage
       run: |
         # 验证内存使用 < 150MB
+
         python Scripts/validate_memory_usage.py TestResults.xcresult
 ```
 
 ### 8.2 可观测性体系 (Observability System)
 
 **结构化日志与监控**:
+
 ```swift
 import OSLog
 
@@ -731,7 +757,8 @@ actor AnalyticsService {
 
 基于PRD v6.0的MVP要求和iOS 26+ Swift 6.2技术栈：
 
-**Phase 1: 核心MVP (6周)**
+#### Phase 1: 核心MVP (6周)
+
 - **技术目标**: Swift 6.2基础架构 + iOS 26核心功能
 - **交付模块**:
   - Enhanced OCR Service (Vision Framework)
@@ -744,7 +771,8 @@ actor AnalyticsService {
   - ✅ 100%离线可用
   - ✅ 内存使用 < 150MB
 
-**Phase 2: 增强功能 (4周)**
+#### Phase 2: 增强功能 (4周)
+
 - **技术目标**: CloudKit同步 + Discovery社区
 - **交付模块**:
   - Enhanced CloudKit 数据同步
@@ -756,7 +784,8 @@ actor AnalyticsService {
   - ✅ 社区内容匿名化
   - ✅ COPPA/GDPR合规
 
-**Phase 3: 生产就绪 (4周)**
+#### Phase 3: 生产就绪 (4周)
+
 - **技术目标**: 性能优化 + 监控完善
 - **交付模块**:
   - 性能深度优化
@@ -771,12 +800,14 @@ actor AnalyticsService {
 ### 9.2 风险缓解策略 (Risk Mitigation)
 
 **技术风险**:
+
 - **Swift 6.2 兼容性**:
   - 缓解：早期原型验证，保持Xcode 15降级能力
 - **iOS 26 设备覆盖率**:
   - 缓解：20-30%早期采用者足够MVP验证，后续扩展支持
 
 **性能风险**:
+
 - **0.8秒启动目标**:
   - 缓解：分阶段优化，关键路径预加载，懒加载非核心组件
 - **150MB内存限制**:
@@ -826,6 +857,7 @@ struct PerformanceDashboard {
 #### 11.1.1 应用性能指标
 
 **启动性能**:
+
 - **指标**: 冷启动时间 (Cold Launch Time)
 - **定义**: 从用户点击应用图标到首屏完全渲染的时间
 - **目标**: P95 < 0.8s (基于Swift 6.2编译优化)
@@ -855,12 +887,14 @@ class LaunchPerformanceMonitor {
 ```
 
 **响应性能**:
+
 - 搜索首屏渲染: P95 < 300ms
 - 页面切换: P95 < 300ms
 - OCR处理: P95 < 2.5s
 - 滚动丢帧率: P95 < 1%
 
 **资源使用**:
+
 - 内存使用(正常): P95 < 60MB
 - 内存使用(OCR峰值): P95 < 150MB
 - AR渲染帧率: P95 ≥ 60fps
@@ -868,6 +902,7 @@ class LaunchPerformanceMonitor {
 #### 11.1.2 功能质量指标
 
 **OCR准确性监控**:
+
 ```swift
 actor OCRAccuracyTracker {
     private var recognitionSessions: [String: OCRSession] = [:]
@@ -905,6 +940,7 @@ actor OCRAccuracyTracker {
 **命名格式**: `{module}_{action}_{object}`
 
 **模块定义**:
+
 - `app`: 应用级别事件
 - `camera`: 拍照相关
 - `ocr`: OCR处理相关
@@ -915,6 +951,7 @@ actor OCRAccuracyTracker {
 - `subscription`: 订阅付费相关
 
 **动作定义**:
+
 - `start`: 开始某个操作
 - `complete`: 完成某个操作
 - `fail`: 操作失败
@@ -956,12 +993,14 @@ enum AnalyticsEvent: String, CaseIterable {
 #### 11.2.3 分析事件详细规范
 
 **事件约定**:
+
 - **ID格式**: snake_case命名
 - **时间单位**: ms (int类型)
 - **采样率**: 100% (除非特别指定)
 - **隐私保护**: 无PII信息，使用匿名ID，未成年人无跨应用追踪
 
 **核心事件定义**:
+
 ```swift
 // 拍照录入流程
 Analytics.track("capture_started", parameters: [
@@ -1011,11 +1050,13 @@ Analytics.track("search_performed", parameters: [
 ```
 
 **仪表板映射**:
+
 - **获客指标**: App Store Connect + 自定义分析
 - **参与度指标**: review_*, search_* 事件系列
 - **质量指标**: 崩溃率、延迟分布
 
 **数据保留与隐私**:
+
 - **聚合数据保留**: 180天
 - **原始数据保留**: 30天
 - **K-匿名性**: 用户群组 < 5人时不显示数据
@@ -1024,16 +1065,19 @@ Analytics.track("search_performed", parameters: [
 #### 11.2.4 指标基准与方法论
 
 **基准设备**:
+
 - iPhone 17 Pro - 旗舰级
 - iPhone 12 (A14) - 主流级
 - iPhone SE (2022) (A15) - 入门级
 
 **测量方法论**:
+
 - **环境标准化**: 飞行模式关闭，屏幕亮度50%
 - **统计方法**: 测量P50/P95，每场景3次运行，必要时排除首次运行
 - **工具链**: MetricKit + os_signpost + Xcode Instruments + ASC metrics
 
 **关键性能目标**:
+
 ```swift
 struct PerformanceTargets {
     // 应用启动
@@ -1050,6 +1094,7 @@ struct PerformanceTargets {
 ```
 
 **监控与报告**:
+
 - **周度仪表板**: 自动化性能趋势报告
 - **回归检测**: 性能下降超过10%时触发告警
 - **多维度分析**: 按设备型号、iOS版本、功能模块分层分析
@@ -1166,98 +1211,6 @@ struct DeviceCapability {
 // 数据存储层降级
 #if canImport(SwiftData)
     import SwiftData
-    typealias DataStore = SwiftDataStore
-#else
-    import CoreData
-    typealias DataStore = CoreDataStore
-#endif
-
-// 运行时功能选择
-func createDataStore() -> DataStoreProtocol {
-    if #available(iOS 17.0, *), FeatureAvailability.swiftDataSupport {
-        return SwiftDataStore()
-    } else {
-        return CoreDataStore()
-    }
-}
-
-// AI功能降级
-@available(iOS 18.0, *)
-class ProactiveReviewManager {
-    // iOS 18+ 专用的 Proactive Intelligence 实现
-}
-
-class LegacyReviewManager {
-    // iOS 16+ 兼容的基础实现
-}
-
-func createReviewManager() -> ReviewManagerProtocol {
-    if #available(iOS 18.0, *), DeviceCapability.supportsCoreML {
-        return ProactiveReviewManager()
-    } else {
-        return LegacyReviewManager()
-    }
-}
-```
-
-### 12.4 性能优化分级
-
-#### 12.4.1 基准设备性能目标
-
-| 设备级别 | 代表设备 | 启动时间目标 | 内存限制 | 功能级别 |
-|----------|----------|--------------|----------|----------|
-| 入门级 | iPhone SE (2022) | P95 < 1.2s | < 50MB | 核心功能 |
-| 中端 | iPhone 12/13 | P95 < 1.0s | < 80MB | 完整功能 |
-| 高端 | iPhone 14/15 | P95 < 0.8s | < 120MB | 增强功能 |
-| 旗舰 | iPhone 17 Pro Max | P95 < 0.6s | < 150MB | 全部功能 |
-
-#### 12.4.2 动态性能调整
-
-```swift
-@MainActor
-class PerformanceManager {
-    private let deviceLevel = DeviceCapability.performanceLevel()
-
-    func adjustForDevice() {
-        switch deviceLevel {
-        case .low:
-            // 降低动画复杂度、减少并发任务
-            UIView.setAnimationsEnabled(false)
-            TaskGroup.maxConcurrency = 2
-
-        case .medium:
-            // 平衡性能与体验
-            TaskGroup.maxConcurrency = 4
-
-        case .high, .premium:
-            // 启用全部增强功能
-            TaskGroup.maxConcurrency = 8
-            ProMotionDisplayLink.enable()
-        }
-    }
-}
-```
-
-### 12.5 具体降级矩阵与防护策略
-
-#### 12.5.1 功能可用性与降级（iOS 26+）
-
-以下为 iOS 26+ 的可用性与降级策略：
-
-- OCR识别：默认使用 Vision AI；网络受限或识别失败时降级为云端OCR备选
-- 通知系统：默认深度链接增强；必要时回退到基础定时通知
-- App Intents：启用增强集成；在不可用时采用渐进式增强并保持核心功能独立可用
-- CloudKit 同步：默认智能冲突解决；离线或冲突频繁时回退到本地存储兜底
-- AR/visionOS：默认完整支持；在设备/版本不支持时采用 2D 替代界面
-
-#### 12.5.2 编译时与运行时防护
-
-**编译时检查**:
-
-```swift
-// 功能可用性编译时检查
-#if canImport(AppIntents)
-    import AppIntents
 
     @available(iOS 16.0, *)
     struct CreateReviewItemIntent: AppIntent {
@@ -1314,7 +1267,7 @@ func createAdvancedFeatureView() -> some View {
 }
 ```
 
-#### 12.5.3 MVP范围与未来版本规划
+#### 12.5.1 MVP范围与未来版本规划
 
 **MVP功能边界** (v6.0):
 

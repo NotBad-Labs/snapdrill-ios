@@ -52,12 +52,14 @@ graph TB
 ## 技术栈支持
 
 ### 核心构建环境
+
 - **Swift**: 6.2 (Enhanced Actor Isolation)
 - **Xcode**: 26.0
 - **iOS SDK**: 26.0
 - **macOS Runner**: 15.0+
 
 ### 关键特性
+
 - Enhanced Actor并发安全测试
 - Discovery社区功能集成测试
 - COPPA/GDPR合规性自动验证
@@ -67,12 +69,14 @@ graph TB
 ## 部署策略
 
 ### GitHub Actions工作流
+
 1. **主工作流** (`ios.yml`): 完整的构建、测试、发布流程
 2. **Discovery测试** (`discovery-tests.yml`): 社区功能专项测试
 3. **性能测试** (`performance.yml`): PRD v6.0性能目标验证
 4. **安全扫描** (`security.yml`): 隐私合规和安全检查
 
 ### 自托管Runner优势
+
 - **成本节省**: 年节省$5,160+构建费用
 - **性能提升**: 本地SSD + M4处理器，构建速度提升3-5倍
 - **缓存优化**: 持久化依赖缓存，重复构建时间减少60-80%
@@ -82,6 +86,7 @@ graph TB
 ## 质量门禁
 
 ### 自动化检查
+
 - ✅ Swift 6.2代码编译通过
 - ✅ 单元测试覆盖率 > 90%
 - ✅ UI测试关键流程通过
@@ -90,6 +95,7 @@ graph TB
 - ✅ 隐私合规检查通过
 
 ### 发布流程
+
 1. **PR验证**: 功能分支的基础测试
 2. **集成测试**: develop分支的完整测试
 3. **发布构建**: main分支的生产构建
@@ -101,19 +107,25 @@ graph TB
 ### 开发人员
 
 **提交代码时**:
+
 ```bash
+
 # 确保本地测试通过
+
 swift test
 swift build
 
 # 提交到feature分支触发基础CI
+
 git push origin feature/new-feature
 
 # 创建PR到develop触发完整测试
+
 gh pr create --base develop --title "New Feature"
 ```
 
 **查看构建状态**:
+
 - GitHub Actions标签页查看实时构建状态
 - PR页面查看自动化检查结果
 - 构建失败时查看详细日志定位问题
@@ -121,19 +133,25 @@ gh pr create --base develop --title "New Feature"
 ### 运维人员
 
 **监控Runner状态**:
+
 ```bash
+
 # 检查Runner状态
+
 sudo launchctl list | grep actions.runner
 
 # 查看Runner日志
+
 tail -f /Users/runner/actions-runner/_diag/Runner_*.log
 
 # 重启Runner服务
+
 sudo launchctl unload ~/Library/LaunchAgents/actions.runner.*.plist
 sudo launchctl load ~/Library/LaunchAgents/actions.runner.*.plist
 ```
 
 **性能监控**:
+
 - 定期检查构建时间趋势
 - 监控Runner硬件资源使用
 - 验证缓存命中率和效果
@@ -143,15 +161,18 @@ sudo launchctl load ~/Library/LaunchAgents/actions.runner.*.plist
 ### 常见问题
 
 **Swift 6.2编译问题**:
+
 - 确认Xcode 26已正确安装
 - 验证Swift版本: `swift --version`
 - 清理构建缓存: `xcodebuild clean`
 
 **iOS 26模拟器问题**:
+
 - 检查运行时: `xcrun simctl list runtimes`
 - 安装运行时: `sudo xcrun simctl runtime install "iOS 26.0"`
 
 **Runner连接问题**:
+
 - 检查网络连接
 - 验证GitHub Token权限
 - 重新注册Runner
@@ -159,11 +180,13 @@ sudo launchctl load ~/Library/LaunchAgents/actions.runner.*.plist
 ### 性能优化
 
 **构建优化**:
+
 - 启用并行构建: `-jobs 8`
 - 使用增量构建: 避免clean
 - 优化依赖缓存策略
 
 **Runner优化**:
+
 - 定期清理DerivedData
 - 监控磁盘空间使用
 - 升级硬件配置(内存/SSD)
@@ -171,6 +194,7 @@ sudo launchctl load ~/Library/LaunchAgents/actions.runner.*.plist
 ## 相关文档
 
 - [ADR-004 Swift 6.2架构升级决策](../adr/ADR-004%20Swift%206.2%20架构升级决策.md)
+
 ## 📚 快速链接
 
 ### 核心文档
@@ -188,11 +212,13 @@ sudo launchctl load ~/Library/LaunchAgents/actions.runner.*.plist
 ## 维护计划
 
 ### 定期维护
+
 - **周度**: 检查构建性能和成功率
 - **月度**: 更新依赖和工具链版本
 - **季度**: 评估硬件需求和扩容计划
 
 ### 版本升级
+
 - **Xcode更新**: 跟踪苹果发布周期，及时升级
 - **iOS SDK**: 支持新版本iOS系统和设备
 - **Runner版本**: 更新GitHub Actions Runner

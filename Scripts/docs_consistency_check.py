@@ -45,7 +45,7 @@ LINK_START_PATTERN = re.compile(r"\]\(")
 
 
 def find_markdown_files(root: Path) -> List[Path]:
-    return [p for p in root.rglob("*.md") if ".git" not in p.parts]
+    return [p for p in root.rglob("*.md") if ".git" not in p.parts and "node_modules" not in p.parts]
 
 
 def check_required_files() -> List[str]:

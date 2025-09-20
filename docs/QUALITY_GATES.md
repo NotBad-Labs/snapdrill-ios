@@ -77,6 +77,7 @@ git commit -m "feat: add new feature"
 ./Scripts/quality_gate.sh
 
 # 4. 推送到远程
+```bash
 git push origin feature/new-feature
 ```
 
@@ -84,7 +85,7 @@ git push origin feature/new-feature
 
 使用 [Conventional Commits](https://conventionalcommits.org/) 规范：
 
-```
+```plaintext
 <type>[optional scope]: <description>
 
 [optional body]

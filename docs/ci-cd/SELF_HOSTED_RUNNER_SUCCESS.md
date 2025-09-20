@@ -231,7 +231,7 @@ jobs:
 ## 📞 技术支持
 
 如遇到问题，请：
- 
+
 1. 查看运行器日志：`/Users/runner/actions-runner/_diag/Runner_*.log`
 2. 运行健康检查：`./Scripts/quick_test.sh`
 3. 参考完整文档：`docs/ci-cd/`

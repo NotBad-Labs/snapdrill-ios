@@ -2,7 +2,7 @@
 # Scripts/quality_gate.sh
 # 质量门槛检查脚本
 
-set -e
+# Note: We don't use 'set -e' to allow individual checks to fail and continue
 
 echo "🚀 NotBad 质量门槛检查开始..."
 
@@ -36,7 +36,7 @@ fi
 
 echo "🧹 2. Markdown 文档规范检查 (markdownlint)..."
 if command -v npx &> /dev/null; then
-    npx -y markdownlint "**/*.md" -c .markdownlint.jsonc || true
+    npx -y markdownlint "**/*.md" -c .markdownlint.jsonc
     check_result "markdownlint检查"
 else
     echo -e "${YELLOW}⚠️ Node/npm 未安装，跳过 markdownlint 检查${NC}"
@@ -44,7 +44,8 @@ fi
 
 echo "🔎 3. 文档链接检查 (lychee)..."
 if command -v lychee &> /dev/null; then
-    lychee --accept 200,204,301,302,307,308 --no-progress --exclude-file .lycheeignore --config .lychee.toml "**/*.md"
+    # 排除 node_modules 目录避免检查第三方依赖的链接
+    lychee --accept 200,204,301,302,307,308 --no-progress --exclude-file .lycheeignore --config .lychee.toml --exclude "node_modules/**" "**/*.md"
     check_result "链接检查"
 else
     echo -e "${YELLOW}⚠️ lychee 未安装，跳过链接检查（CI 会执行）${NC}"
@@ -67,11 +68,13 @@ xcodebuild test -project NotBad.xcodeproj -scheme NotBad -destination 'platform=
 check_result "单元测试"
 
 echo "📊 7. 测试覆盖率检查..."
-if [ -f "Scripts/check_coverage.py" ]; then
-    python3 Scripts/check_coverage.py --min-coverage 80
+# 查找最新的覆盖率报告文件
+COVERAGE_FILE=$(find ~/Library/Developer/Xcode/DerivedData -name "*.xccovarchive" -type f -exec ls -lt {} + 2>/dev/null | head -1 | awk '{print $NF}')
+if [ -f "Scripts/check_coverage.py" ] && [ -n "$COVERAGE_FILE" ]; then
+    python3 Scripts/check_coverage.py "$COVERAGE_FILE" 80
     check_result "测试覆盖率"
 else
-    echo -e "${YELLOW}⚠️ 覆盖率检查脚本未找到${NC}"
+    echo -e "${YELLOW}⚠️ 覆盖率检查脚本或覆盖率文件未找到${NC}"
 fi
 
 echo "🔍 8. 性能测试检查..."
