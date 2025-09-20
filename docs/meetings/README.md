@@ -1,4 +1,15 @@
-# 会议纪要
+---
+title: 会议纪要
+version: v6.0
+lastUpdated: 2025-09-21
+baseline:
+  ios: 26
+  xcode: 26
+  swift: 6.2
+  device: iPhone 17
+---
+
+## 会议纪要
 
 本目录用于存放项目各类会议的纪要。
 

@@ -1,4 +1,15 @@
-# ADR-006 底部Tab导航架构设计（占位）
+---
+title: ADR-006: 底部Tab导航架构设计（占位）
+version: v6.0
+lastUpdated: 2025-09-21
+baseline:
+  ios: 26
+  xcode: 26
+  swift: 6.2
+  device: iPhone 17
+---
+
+## ADR-006 底部Tab导航架构设计（占位）
 
 > 说明：该文档为占位，用于保持现有链接稳定；后续将补充完整ADR内容。
 

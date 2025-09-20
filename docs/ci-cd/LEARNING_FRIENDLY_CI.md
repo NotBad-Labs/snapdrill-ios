@@ -1,4 +1,14 @@
-# 个人开发者友好的CI配置说明
+---
+title: 个人开发者友好的CI配置说明
+version: v6.0
+lastUpdated: 2025-09-21
+baseline:
+  ios: 26
+  xcode: 26
+  swift: 6.2
+  device: iPhone 17
+---
+
 
 ## 🎯 当前CI策略：学习优先
 

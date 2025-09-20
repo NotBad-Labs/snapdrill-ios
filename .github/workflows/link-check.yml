@@ -16,7 +16,7 @@ jobs:
       - name: Run lychee link checker
         uses: lycheeverse/lychee-action@v1
         with:
-          args: --verbose --no-progress --exclude-all-private 'docs/**/*.md' 'README.md'
+          args: --config .lychee.toml --exclude-file .lycheeignore
           fail: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -44,8 +44,13 @@ fi
 
 echo "🔎 3. 文档链接检查 (lychee)..."
 if command -v lychee &> /dev/null; then
-    # 排除 node_modules 目录避免检查第三方依赖的链接
-    lychee --accept 200,204,301,302,307,308 --no-progress --exclude-file .lycheeignore --config .lychee.toml --exclude "node_modules/**" "**/*.md"
+    # 使用仓库根目录的统一配置，确保与 CI 一致
+    if [ -f ".lychee.toml" ]; then
+        lychee --config .lychee.toml --exclude-file .lycheeignore
+    else
+        # 兼容回退：直接扫描常见文档
+        lychee README.md docs/**/*.md
+    fi
     check_result "链接检查"
 else
     echo -e "${YELLOW}⚠️ lychee 未安装，跳过链接检查（CI 会执行）${NC}"

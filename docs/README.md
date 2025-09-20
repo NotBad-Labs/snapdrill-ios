@@ -1,4 +1,15 @@
-# NotBad 文档中心 v6.0
+---
+title: NotBad 文档中心 v6.0
+version: v6.0
+lastUpdated: 2025-09-19
+baseline:
+  ios: 26
+  xcode: 26
+  swift: 6.2
+  device: iPhone 17
+---
+
+## NotBad 文档中心 v6.0
 
 > **版本**: v6.0
 > **技术栈**: Swift 6.2 + iOS 26 + Xcode 26
