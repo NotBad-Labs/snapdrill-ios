@@ -13,47 +13,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install lychee
-        run: |
-          set -euo pipefail
-          if ! command -v lychee >/dev/null 2>&1; then
-            echo "Installing lychee..."
-            
-            # 检查系统架构
-            if [[ "$(uname -m)" == "arm64" ]]; then
-              ARCH="aarch64"
-            else
-              ARCH="x86_64"
-            fi
-            
-            # 直接使用手动安装避免Homebrew Rosetta问题
-            echo "Manually installing lychee for ${ARCH} to avoid Homebrew conflicts"
-            curl -sSL "https://github.com/lycheeverse/lychee/releases/latest/download/lychee-${ARCH}-apple-darwin.tar.gz" -o /tmp/lychee.tar.gz
-            mkdir -p /tmp/lychee
-            tar -xzf /tmp/lychee.tar.gz -C /tmp/lychee --strip-components=1
-            
-            # 安装到用户目录避免权限问题
-            mkdir -p "$HOME/.local/bin"
-            mv /tmp/lychee/lychee "$HOME/.local/bin/lychee"
-            echo "$HOME/.local/bin" >> $GITHUB_PATH
-            chmod +x "$HOME/.local/bin/lychee"
-            
-            # 清理临时文件
-            rm -rf /tmp/lychee /tmp/lychee.tar.gz
-          fi
-          
-          # 验证安装
-          lychee --version
-
       - name: Run lychee link checker
+        uses: lycheeverse/lychee-action@v1.10.0
+        with:
+          args: --verbose --no-progress --exclude-all-private docs/ README.md
+          fail: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          lychee \
-            --accept 200,204,301,302,307,308 \
-            --verbose \
-            --no-progress \
-            --exclude-file .lycheeignore \
-            --config .lychee.toml \
-            "**/*.md"
