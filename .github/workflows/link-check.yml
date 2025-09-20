@@ -17,12 +17,18 @@ jobs:
         run: |
           set -euo pipefail
           if ! command -v lychee >/dev/null 2>&1; then
-            curl -sSL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-aarch64-apple-darwin.tar.gz -o /tmp/lychee.tar.gz || \
-            curl -sSL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-apple-darwin.tar.gz -o /tmp/lychee.tar.gz
-            mkdir -p /tmp/lychee
-            tar -xzf /tmp/lychee.tar.gz -C /tmp/lychee --strip-components=1 || true
-            sudo mv /tmp/lychee/lychee /usr/local/bin/lychee || mv /tmp/lychee/lychee "$HOME/.local/bin/lychee"
-            echo "$HOME/.local/bin" >> $GITHUB_PATH
+            # 尝试通过 Homebrew 安装
+            if command -v brew >/dev/null 2>&1; then
+              brew install lychee
+            else
+              # 手动安装
+              curl -sSL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-aarch64-apple-darwin.tar.gz -o /tmp/lychee.tar.gz || \
+              curl -sSL https://github.com/lycheeverse/lychee/releases/latest/download/lychee-x86_64-apple-darwin.tar.gz -o /tmp/lychee.tar.gz
+              mkdir -p /tmp/lychee
+              tar -xzf /tmp/lychee.tar.gz -C /tmp/lychee --strip-components=1 || true
+              sudo mv /tmp/lychee/lychee /usr/local/bin/lychee || mv /tmp/lychee/lychee "$HOME/.local/bin/lychee"
+              echo "$HOME/.local/bin" >> $GITHUB_PATH
+            fi
           fi
 
       - name: Run lychee link checker
