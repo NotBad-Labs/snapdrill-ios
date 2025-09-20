@@ -2,7 +2,7 @@ name: Markdown Lint
 
 on:
   push:
-    branches: [ main, develop, 'release/**' ]
+    branches: [ main, develop, 'release/**', 'feature/**' ]  # 包含更多分支
   pull_request:
     branches: [ main, develop, 'release/**' ]
 

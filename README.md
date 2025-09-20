@@ -70,6 +70,8 @@
 - 设置基础用户偏好
 - 加载测试数据 (Debug模式下)
 
+> 💡 **最小可用配置参考**: 如需了解项目的最简化结构，可查看 [`milestone/single-entry-success`](https://github.com/chramboliao/NotBad/tree/milestone/single-entry-success) 分支，该版本展示了单一入口文件架构 + 完整CI/CD的最小配置示例。
+
 ## 🏗️ 技术架构
 
 | 层级 | 技术栈 | 说明 |
