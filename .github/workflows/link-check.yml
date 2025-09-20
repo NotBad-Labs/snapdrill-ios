@@ -18,32 +18,28 @@ jobs:
           set -euo pipefail
           if ! command -v lychee >/dev/null 2>&1; then
             echo "Installing lychee..."
-            # 检查系统架构和现有安装
+            
+            # 检查系统架构
             if [[ "$(uname -m)" == "arm64" ]]; then
               ARCH="aarch64"
-              HOMEBREW_PREFIX="/opt/homebrew"
             else
               ARCH="x86_64"
-              HOMEBREW_PREFIX="/usr/local"
             fi
             
-            # 尝试使用现有的Homebrew
-            if command -v brew >/dev/null 2>&1; then
-              echo "Using existing Homebrew to install lychee"
-              brew install lychee
-            else
-              # 手动下载安装
-              echo "Manually installing lychee for ${ARCH}"
-              curl -sSL "https://github.com/lycheeverse/lychee/releases/latest/download/lychee-${ARCH}-apple-darwin.tar.gz" -o /tmp/lychee.tar.gz
-              mkdir -p /tmp/lychee
-              tar -xzf /tmp/lychee.tar.gz -C /tmp/lychee --strip-components=1
-              
-              # 安装到用户目录避免权限问题
-              mkdir -p "$HOME/.local/bin"
-              mv /tmp/lychee/lychee "$HOME/.local/bin/lychee"
-              echo "$HOME/.local/bin" >> $GITHUB_PATH
-              chmod +x "$HOME/.local/bin/lychee"
-            fi
+            # 直接使用手动安装避免Homebrew Rosetta问题
+            echo "Manually installing lychee for ${ARCH} to avoid Homebrew conflicts"
+            curl -sSL "https://github.com/lycheeverse/lychee/releases/latest/download/lychee-${ARCH}-apple-darwin.tar.gz" -o /tmp/lychee.tar.gz
+            mkdir -p /tmp/lychee
+            tar -xzf /tmp/lychee.tar.gz -C /tmp/lychee --strip-components=1
+            
+            # 安装到用户目录避免权限问题
+            mkdir -p "$HOME/.local/bin"
+            mv /tmp/lychee/lychee "$HOME/.local/bin/lychee"
+            echo "$HOME/.local/bin" >> $GITHUB_PATH
+            chmod +x "$HOME/.local/bin/lychee"
+            
+            # 清理临时文件
+            rm -rf /tmp/lychee /tmp/lychee.tar.gz
           fi
           
           # 验证安装
