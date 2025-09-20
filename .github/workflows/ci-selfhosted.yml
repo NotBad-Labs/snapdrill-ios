@@ -4,19 +4,15 @@ name: NotBad CI/CD Pipeline (Self-hosted)
 
 on:
   push:
-    branches: [ develop, 'release/**' ]
+    branches: [ develop, 'release/**', 'feature/**' ]  # 包含feature分支，方便学习
     paths-ignore:
       - '**/*.md'
-      - 'docs/**'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE/**'
+      - 'docs/**'  # 只忽略文档，其他都检查
   pull_request:
     branches: [ main, develop, 'release/**' ]
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE/**'
   workflow_dispatch:
     inputs:
       run_performance_tests:
