@@ -45,7 +45,7 @@ fi
 
 echo "🧹 2. Markdown 文档规范检查 (markdownlint)..."
 if command -v npx &> /dev/null; then
-    npx -y markdownlint "**/*.md" -c .markdownlint.jsonc
+    npx -y markdownlint "**/*.md" --ignore node_modules --config .markdownlint.jsonc
     check_result "markdownlint检查"
 else
     echo -e "${YELLOW}⚠️ Node/npm 未安装，跳过 markdownlint 检查${NC}"
@@ -56,7 +56,7 @@ if command -v lychee &> /dev/null; then
     # 使用仓库根目录的统一配置，确保与 CI 一致
     if [ -f ".lychee.toml" ]; then
         # 检查配置文件是否已包含 inputs；无论是否包含，总是提供默认 inputs 避免参数错误
-        lychee --config .lychee.toml --exclude-file .lycheeignore README.md docs/**/*.md
+        lychee --config .lychee.toml README.md docs/**/*.md
     else
         # 兼容回退：直接扫描常见文档
         lychee README.md docs/**/*.md

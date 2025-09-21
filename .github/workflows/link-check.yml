@@ -16,7 +16,7 @@ jobs:
       - name: Run lychee link checker
         uses: lycheeverse/lychee-action@v1
         with:
-          args: --config .lychee.toml --exclude-file .lycheeignore
+          args: --config .lychee.toml README.md docs/**/*.md
           fail: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
