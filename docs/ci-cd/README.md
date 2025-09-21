@@ -1,4 +1,13 @@
-# CI/CD 自动化文档目录
+---
+title: CI/CD 自动化文档目录
+version: v6.0
+lastUpdated: 2025-09-21
+baseline:
+    ios: 26
+    xcode: 26
+    swift: 6.2
+    device: iPhone 17
+---
 
 ## 文档概述
 
@@ -13,6 +22,7 @@
 | **NotBad-CI-CD-Configuration-v6.0.md** | Swift 6.2 + iOS 26完整CI/CD配置 | v6.0 当前版本 | 2025-09-19 |
 | **self-hosted-runner-complete-guide.md** | 自托管运行器完整指南（整合版） | v6.0 当前版本 | 2025-09-19 |
 | **SELF_HOSTED_RUNNER_SUCCESS.md** | 运行器安装成功记录 | v6.0 已更新 | 2025-09-19 |
+| **LEARNING_FRIENDLY_CI.md** | 学习友好的CI触发策略与取舍 | v6.0 当前版本 | 2025-09-21 |
 
 ### 📚 文档说明
 

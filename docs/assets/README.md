@@ -1,4 +1,15 @@
-# NotBad 静态资源管理 v6.0
+---
+title: NotBad 静态资源管理 v6.0
+version: v6.0
+lastUpdated: 2025-09-21
+baseline:
+  ios: 26
+  xcode: 26
+  swift: 6.2
+  device: iPhone 17
+---
+
+## NotBad 静态资源管理 v6.0
 
 > **版本**: v6.0
 > **最后更新**: 2025年9月19日

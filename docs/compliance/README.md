@@ -1,4 +1,15 @@
-# 合规文档目录 (Compliance Documentation)
+---
+title: 合规文档目录 (Compliance Documentation)
+version: v6.0
+lastUpdated: 2025-09-21
+baseline:
+    ios: 26
+    xcode: 26
+    swift: 6.2
+    device: iPhone 17
+---
+
+## 合规文档目录 (Compliance Documentation)
 
 ## 文档概述
 

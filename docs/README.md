@@ -1,4 +1,15 @@
-# NotBad 文档中心 v6.0
+---
+title: NotBad 文档中心 v6.0
+version: v6.0
+lastUpdated: 2025-09-19
+baseline:
+  ios: 26
+  xcode: 26
+  swift: 6.2
+  device: iPhone 17
+---
+
+## NotBad 文档中心 v6.0
 
 > **版本**: v6.0
 > **技术栈**: Swift 6.2 + iOS 26 + Xcode 26
@@ -31,8 +42,8 @@
 
 - **ADR 索引**: [adr/README.md](adr/README.md)
 - **Swift 6.2升级决策**: [ADR-004 Swift 6.2 架构升级决策](adr/ADR-004%20Swift%206.2%20架构升级决策.md)
-- **导航协调器模式**: [ADR-005 导航协调器模式](adr/ADR-005-导航协调器模式.md)
-- **底部Tab导航架构**: [ADR-006 底部Tab导航架构设计](adr/ADR-006-底部Tab导航架构设计.md)
+- **导航协调器模式**: [ADR-005 导航协调器模式](adr/ADR-005%20导航协调器模式.md)
+- **底部Tab导航架构**: [ADR-006 底部Tab导航架构设计](adr/ADR-006%20底部Tab导航架构设计.md)
 
 ## 🚀 CI/CD 自动化
 

@@ -1,4 +1,15 @@
-# ADR-004: Swift 6.2 架构升级决策
+---
+title: ADR-004: Swift 6.2 架构升级决策
+version: v6.0
+lastUpdated: 2025-09-21
+baseline:
+    ios: 26
+    xcode: 26
+    swift: 6.2
+    device: iPhone 17
+---
+
+## ADR-004: Swift 6.2 架构升级决策
 
 * **状态**: 已采纳
 * **日期**: 2025-09-19

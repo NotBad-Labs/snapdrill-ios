@@ -1,4 +1,15 @@
-# 架构决策记录索引 (ADR Index)
+---
+title: 架构决策记录索引 (ADR Index)
+version: v6.0
+lastUpdated: 2025-09-21
+baseline:
+  ios: 26
+  xcode: 26
+  swift: 6.2
+  device: iPhone 17
+---
+
+## 架构决策记录索引 (ADR Index)
 
 本目录用于记录影响系统架构的关键技术与产品决策。每条 ADR 都是不可变历史记录；若有新决策取代旧方案，应创建新的 ADR，并在旧 ADR 标记“已取代”。
 
