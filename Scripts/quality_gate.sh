@@ -56,10 +56,10 @@ if command -v lychee &> /dev/null; then
     # 使用仓库根目录的统一配置，确保与 CI 一致
     if [ -f ".lychee.toml" ]; then
         # 检查配置文件是否已包含 inputs；无论是否包含，总是提供默认 inputs 避免参数错误
-        lychee --config .lychee.toml README.md docs/**/*.md
+        lychee --config .lychee.toml "README.md" "docs/**/*.md"
     else
         # 兼容回退：直接扫描常见文档
-        lychee README.md docs/**/*.md
+        lychee "README.md" "docs/**/*.md"
     fi
     check_result "链接检查"
 else
