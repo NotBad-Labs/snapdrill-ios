@@ -11,8 +11,11 @@ DerivedData/
 
 # Test Results
 TestResults.xcresult/
+Local-TestResults-*.xcresult/
+*TestResults*.xcresult/
 test_results/
 coverage.lcov
+*.xcresult/
 
 # Performance files (temporary)
 performance_metrics.json
