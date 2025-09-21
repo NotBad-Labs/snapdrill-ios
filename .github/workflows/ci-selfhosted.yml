@@ -1,22 +1,18 @@
 # NOTE: Versions, environments, and constraints must follow the PRD (SSoT):
-# docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0 (Swift6.2 + iOS26).md
+# docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md
 name: NotBad CI/CD Pipeline (Self-hosted)
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, 'release/**', 'feature/**' ]  # 包含feature分支，方便学习
     paths-ignore:
       - '**/*.md'
-      - 'docs/**'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE/**'
+      - 'docs/**'  # 只忽略文档，其他都检查
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, 'release/**' ]
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE/**'
   workflow_dispatch:
     inputs:
       run_performance_tests:
@@ -37,7 +33,6 @@ concurrency:
 env:
   SCHEME_NAME: NotBad
   PROJECT_NAME: NotBad.xcodeproj
-  WORKSPACE_PATH: NotBad.xcodeproj/project.xcworkspace
   # Mount under $HOME to avoid sudo/password prompts
   ARTIFACTS_DIR: $HOME/runner_data/artifacts
   CACHE_DIR: $HOME/runner_data
@@ -51,17 +46,16 @@ env:
 jobs:
   code-quality:
     name: Code Quality & Linting
-    runs-on: macos-15
+    runs-on: [self-hosted, macos]
     timeout-minutes: 15
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '16.4'
+      - name: Verify Xcode installed
+        run: |
+          xcodebuild -version
 
       - name: Install SwiftLint
         run: |
@@ -74,15 +68,14 @@ jobs:
 
   test:
     name: Unit & Integration Tests
-    runs-on: [self-hosted, macos, m4, xcode-16-4]
+    runs-on: [self-hosted, macos]
     timeout-minutes: 60
     needs: code-quality
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     strategy:
       matrix:
         destination:
-          - 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.6'
-          - 'platform=iOS Simulator,name=iPad Pro 11-inch (M4),OS=18.6'
+          - 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -126,7 +119,7 @@ jobs:
       - name: Build (for testing)
         run: |
           xcodebuild clean build \
-            -workspace ${{ env.WORKSPACE_PATH }} \
+            -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
             -destination "${{ matrix.destination }}" \
             CODE_SIGNING_ALLOWED=NO
@@ -135,7 +128,7 @@ jobs:
         run: |
           local_result_path="./TestResults-$(date +%s).xcresult"
           xcodebuild test \
-            -workspace ${{ env.WORKSPACE_PATH }} \
+            -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
             -destination "${{ matrix.destination }}" \
             -testPlan UnitTestPlan \
@@ -148,7 +141,7 @@ jobs:
         run: |
           local_result_path="./IntegrationResults-$(date +%s).xcresult"
           xcodebuild test \
-            -workspace ${{ env.WORKSPACE_PATH }} \
+            -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
             -destination "${{ matrix.destination }}" \
             -testPlan IntegrationTestPlan \

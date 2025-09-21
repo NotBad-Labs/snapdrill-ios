@@ -1,4 +1,15 @@
-# NotBad 质量门槛指南
+---
+title: NotBad 质量门槛指南
+version: v6.0
+lastUpdated: 2025-09-21
+baseline:
+  ios: 26
+  xcode: 26
+  swift: 6.2
+  device: iPhone 17
+---
+
+## NotBad 质量门槛指南
 
 ## 🎯 概述
 
@@ -77,6 +88,7 @@ git commit -m "feat: add new feature"
 ./Scripts/quality_gate.sh
 
 # 4. 推送到远程
+```bash
 git push origin feature/new-feature
 ```
 
@@ -84,7 +96,7 @@ git push origin feature/new-feature
 
 使用 [Conventional Commits](https://conventionalcommits.org/) 规范：
 
-```
+```plaintext
 <type>[optional scope]: <description>
 
 [optional body]

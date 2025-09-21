@@ -1,15 +1,14 @@
 //
 //  NotBadUITestsLaunchTests.swift
-//  NotBadUITests
+//  NotBad
 //
-//  Created by YIMING LIAO on 8/20/25.
+//  Created by Yiming Liao on 9/20/25.
 //
 
 import XCTest
 
 final class NotBadUITestsLaunchTests: XCTestCase {
-
-    override class var runsForEachTargetApplicationUIConfiguration: Bool {
+    override static var runsForEachTargetApplicationUIConfiguration: Bool {
         true
     }
 

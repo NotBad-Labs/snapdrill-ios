@@ -1,0 +1,11 @@
+# Exclude non-Markdown files and directories for markdownlint
+**/.lycheeignore
+**/.github/CODEOWNERS
+**/.git/
+**/.github/workflows/
+**/*.xcodeproj/
+**/*.xcworkspace/
+**/Scripts/*.py
+**/Scripts/*.sh
+**/ExportOptions.plist
+node_modules

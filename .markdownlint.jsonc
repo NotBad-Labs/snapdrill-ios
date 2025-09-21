@@ -1,0 +1,17 @@
+{
+  // Basic markdownlint configuration tailored for this repo
+  "default": true,
+  // Allow long lines for tables and URLs
+  "MD013": false,
+  // Allow inline HTML where needed
+  "MD033": false,
+  // Heading style variations allowed
+  "MD003": false,
+  // MD025/MD041: Respect front matter title as top-level heading
+  "MD025": {
+    "front_matter_title": "title"
+  },
+  "MD041": {
+    "front_matter_title": "title"
+  }
+}

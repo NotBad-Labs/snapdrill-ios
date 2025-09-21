@@ -1,0 +1,41 @@
+# Lychee configuration for consistent link checking across local and CI
+
+# Treat common redirect and success codes as valid
+accept = [200, 204, 301, 302, 307, 308]
+
+# Retry settings for flaky endpoints
+retry_count = 2
+retry_wait_time = 2
+max_concurrency = 8
+
+# File path exclusions (globs)
+exclude_path = [
+  "node_modules",
+  ".git",
+  "NotBad.xcodeproj"
+]
+
+# URL patterns to exclude (regex strings)
+# Note: Use inline case-insensitive groups when needed
+exclude = [
+  "^mailto:",
+  "^tel:",
+  "(?i)^about:",
+  "^file://",
+  "localhost",
+  "127\\.0\\.0\\.1",
+  "0\\.0\\.0\\.0",
+  # Project-specific pages that may be rate-limited or require auth
+  "https://github.com/chramboliao/NotBad/issues",
+  "https://github.com/chramboliao/NotBad/discussions",
+  # GitHub milestone branches may be rate-limited
+  "https://github.com/chramboliao/NotBad/tree/milestone/"
+]
+
+# Inputs to scan by default
+inputs = [
+  "README.md",
+  "docs/**/*.md"
+]
+
+user_agent = "NotBadDocsLinkChecker/1.0"

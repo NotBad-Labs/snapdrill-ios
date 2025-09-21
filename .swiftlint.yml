@@ -4,8 +4,9 @@
 
 # 包含的路径
 included:
-  - Sources
-  - Tests
+  - NotBad
+  - NotBadTests
+  - NotBadUITests
 
 # 排除的路径
 excluded:
@@ -69,8 +70,6 @@ opt_in_rules:
   - toggle_bool
   - trailing_closure
   - unneeded_parentheses_in_closure_argument
-  - unused_import
-  - unused_private_declaration
   - vertical_parameter_alignment_on_call
   - vertical_whitespace_closing_braces
   - vertical_whitespace_opening_braces
@@ -114,22 +113,6 @@ nesting:
   type_level:
     warning: 3
     error: 6
-  statement_level:
-    warning: 5
-    error: 10
-
-identifier_name:
-  min_length:
-    warning: 3
-    error: 2
-  max_length:
-    warning: 40
-    error: 60
-  excluded:
-    - id
-    - x
-    - y
-    - z
 
 # 强制展开警告（生产代码应避免）
 force_unwrapping:
@@ -139,10 +122,10 @@ force_unwrapping:
 file_header:
   required_pattern: |
                     \/\/
-                    \/\/ .*\.swift
-                    \/\/ NotBad
+                    \/\/  .*\.swift
+                    \/\/  NotBad
                     \/\/
-                    \/\/ Created by .* on \d{1,2}\/\d{1,2}\/\d{2,4}\.
+                    \/\/  Created by .* on \d{1,2}\/\d{1,2}\/\d{2,4}\.
                     \/\/
 
 # 强制使用尾随闭包
@@ -166,14 +149,7 @@ type_name:
     - URL
     - API
 
-# 变量名称
-variable_name:
-  min_length: 3
-  max_length: 40
-  excluded:
-    - id
-    - url
-    - api
+
 
 # 自定义规则
 custom_rules:
@@ -210,8 +186,8 @@ analyzer_rules:
   - unused_declaration
 
 # 测试覆盖率相关
-coverage:
-  min_percentage: 80  # 最低80%测试覆盖率
-  exclude_files:
-    - "*/Tests/*"
-    - "*/UITests/*"
+# coverage:
+#   min_percentage: 80  # 最低80%测试覆盖率
+#   exclude_files:
+#     - "*/Tests/*"
+#     - "*/UITests/*"

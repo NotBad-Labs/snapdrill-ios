@@ -1,16 +1,6 @@
-# Platform Degradation Matrix (iOS 16/17/18/26)
+# 平台降级矩阵（占位）
 
-Purpose: define availability and fallbacks per OS level.
+> 说明：NotBad v6.0 的主平台为 iOS 26+。此处记录旧平台功能降级策略占位内容。
 
-## Matrix
-
-- OCR (Vision): iOS 16+ basic; math formula structuring deferred (vNext)
-- Notifications: iOS 16+; schedule windows + quiet hours; deep links
-- App Intents/Shortcuts: progressive enhancement; optional
-- CloudKit: private DB multi-device only in MVP; sharing/teacher deferred
-- AR/visionOS: deferred to vNext; provide 2D alternatives
-
-## Guards
-
-- Compile-time: #available checks
-- Runtime: capability detection; graceful degradation UI
+- iOS 25：部分视觉增强与120fps不可用
+- iOS 24 及更早：仅核心功能，禁用高级AI特性
