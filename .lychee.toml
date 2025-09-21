@@ -3,10 +3,6 @@
 # Treat common redirect and success codes as valid
 accept = [200, 204, 301, 302, 307, 308]
 
-# Be verbose locally but suppress progress bars (good for CI logs)
-verbose = true
-no_progress = true
-
 # Retry settings for flaky endpoints
 retry_count = 2
 retry_wait_time = 2
@@ -20,28 +16,26 @@ exclude_path = [
 ]
 
 # URL patterns to exclude (regex strings)
+# Note: Use inline case-insensitive groups when needed
 exclude = [
   "^mailto:",
   "^tel:",
-  "^(?i)about:",
+  "(?i)^about:",
   "^file://",
   "localhost",
   "127\\.0\\.0\\.1",
-  "0\\.0\\.0\\.0"
+  "0\\.0\\.0\\.0",
+  # Project-specific pages that may be rate-limited or require auth
+  "https://github.com/chramboliao/NotBad/issues",
+  "https://github.com/chramboliao/NotBad/discussions",
+  # GitHub milestone branches may be rate-limited
+  "https://github.com/chramboliao/NotBad/tree/milestone/"
 ]
 
 # Inputs to scan by default
 inputs = [
   "README.md",
   "docs/**/*.md"
-]
-# Lychee link checker configuration
-# See https://github.com/lycheeverse/lychee for options
-
-# A list of URLs to exclude from checking.
-exclude = [
-    "https://github.com/chramboliao/NotBad/issues",
-    "https://github.com/chramboliao/NotBad/discussions",
 ]
 
 user_agent = "NotBadDocsLinkChecker/1.0"
