@@ -1,4 +1,5 @@
----
+# ---
+
 title: ADR-002: 云同步与多端一致性策略 (Local-First + CloudKit)
 version: v6.0
 lastUpdated: 2025-09-21

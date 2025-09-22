@@ -50,6 +50,7 @@ jobs:
     strategy:
       matrix:
         # 支持多设备测试
+
         destination:
           - 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0'
           - 'platform=iOS Simulator,name=iPad Pro 11-inch (M4),OS=26.0'
@@ -82,6 +83,7 @@ jobs:
     - name: Verify iOS 26.0 Runtime
       run: |
         # 自托管Runner应已预装 iOS 26 运行时；此处仅做可用性校验
+
         xcrun simctl list runtimes | grep "iOS 26.0" || {
           echo "❌ Missing iOS 26.0 runtime on self-hosted runner"; exit 1;
         }
@@ -156,6 +158,7 @@ jobs:
     - name: Validate Performance Targets
       run: |
         # 验证PRD v6.0性能目标
+
         echo "Validating performance targets:"
         echo "- App launch time < 0.8s"
         echo "- Memory usage < 150MB"
@@ -175,11 +178,13 @@ jobs:
       run: |
         echo "Checking COPPA/GDPR compliance..."
         # 检查隐私敏感代码
+
         grep -r "personalData\|userProfile\|ageGroup" Sources/ || true
 
     - name: Privacy Manifest Validation
       run: |
         # 验证隐私清单文件
+
         if [ -f "NotBad/PrivacyInfo.xcprivacy" ]; then
           echo "Privacy manifest found"
           plutil -lint NotBad/PrivacyInfo.xcprivacy
@@ -209,11 +214,13 @@ jobs:
         KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       run: |
         # 创建临时keychain
+
         security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
         security default-keychain -s build.keychain
         security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
 
         # 导入证书
+
         echo $BUILD_CERTIFICATE_BASE64 | base64 --decode > certificate.p12
         security import certificate.p12 -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
         security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
@@ -304,16 +311,19 @@ jobs:
 
 ```bash
 #!/bin/bash
+
 # 自托管Runner Swift 6.2配置脚本
 
 echo "🚀 配置NotBad App CI/CD Runner (Swift 6.2)"
 
 # 1. 安装Xcode 26
+
 echo "📱 安装Xcode 26..."
 sudo xcode-select --install
 sudo xcodebuild -license accept
 
 # 2. 验证Swift 6.2支持
+
 echo "🔧 验证Swift 6.2支持..."
 swift --version | grep "6.2" || {
     echo "❌ Swift 6.2未安装，请安装Xcode 26"
@@ -321,17 +331,21 @@ swift --version | grep "6.2" || {
 }
 
 # 3. 安装iOS 26.0模拟器
+
 echo "📱 安装iOS 26.0模拟器..."
 sudo xcrun simctl runtime install "iOS 26.0"
 xcrun simctl list runtimes | grep "iOS 26.0"
 
 # 4. 预加载依赖
+
 echo "📦 预加载构建依赖..."
 mkdir -p ~/Library/Caches/org.swift.swiftpm
 mkdir -p ~/Library/Developer/Xcode/DerivedData
 
 # 5. 配置Runner标签
+
 echo "🏷️ 配置Runner标签..."
+
 # 在GitHub配置中使用标签: self-hosted,macOS,xcode-26,swift-6.2,ios-26
 
 echo "✅ Runner配置完成！"
@@ -422,11 +436,15 @@ class CIPerformanceMonitor: NSObject, MXMetricManagerSubscriber {
 #### Q: Swift 6.2代码编译失败
 
 ```bash
+
 # 验证Xcode版本
+
 xcodebuild -version
+
 # 确保使用Xcode 26+
 
 # 清理构建缓存
+
 xcodebuild clean
 rm -rf ~/Library/Developer/Xcode/DerivedData
 ```
@@ -434,10 +452,13 @@ rm -rf ~/Library/Developer/Xcode/DerivedData
 #### Q: iOS 26模拟器不可用
 
 ```bash
+
 # 检查可用运行时
+
 xcrun simctl list runtimes
 
 # 安装iOS 26运行时
+
 sudo xcrun simctl runtime install "iOS 26.0"
 ```
 

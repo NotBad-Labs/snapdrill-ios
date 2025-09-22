@@ -1,4 +1,5 @@
----
+# ---
+
 title: NotBad 开发工作流程（Git Flow）
 version: v6.0
 lastUpdated: 2025-09-21
@@ -9,7 +10,13 @@ baseline:
   device: iPhone 17
 ---
 
-## 🚀 NotBad 开发工作流程（Git Flow）
+---
+title: NotBad 开发工作流
+version: v6.0
+lastUpdated: 2025-09-21
+---
+
+# NotBad 开发工作流
 
 ## 📋 分支策略
 
@@ -38,28 +45,36 @@ hotfix/x.y.z+1       紧急修复分支（基于 main）
 ### 1. 日常功能开发（Feature → Develop）
 
 ```bash
+
 # 1. 从 develop 分支创建功能分支
+
 git checkout develop
 git pull origin develop
 git checkout -b feature/user-authentication
 
 # 2. 开发功能
+
 # ... 编写代码 ...
 
 # 3. 提交代码
+
 git add .
 git commit -m "feat: 添加用户认证功能"
 
 # 4. 推送功能分支
+
 git push origin feature/user-authentication
 
 # 5. 创建 Pull Request（develop ← feature/user-authentication）
+
 # 在 GitHub 上创建 PR，等待 CI 测试通过
 
 # 6. 合并到 develop
+
 # PR 通过后合并到 develop 分支
 
 # 7. 删除功能分支
+
 git checkout develop
 git pull origin develop
 git branch -d feature/user-authentication
@@ -69,27 +84,34 @@ git push origin --delete feature/user-authentication
 ### 2. 预发布与发布（Develop → Release → Main）
 
 ```bash
+
 # 1. 从 develop 切出 release 分支
+
 git checkout develop
 git pull origin develop
 git checkout -b release/1.0.0
 
 # 2. 冻结版本并进行回归修复
+
 # 仅允许修复问题、版本号、文档与元数据
 
 # 3. 提交修复
+
 git add .
 git commit -m "fix: 修复内存泄漏问题"
 
 # 4. 推送修复分支
+
 git push origin bugfix/memory-leak-fix
 
 # 5. 创建 Pull Request（main ← release/1.0.0）
+
 # 在 GitHub 上创建 PR，等待完整测试通过
 
 # 6. 合并到 main 并打标签发布
 
 # 7. 删除修复分支
+
 git checkout main
 git pull origin main
 git branch -d bugfix/memory-leak-fix
@@ -99,15 +121,19 @@ git push origin --delete bugfix/memory-leak-fix
 ### 3. 紧急修复（Hotfix → Main + Develop）
 
 ```bash
+
 # 1. 从 main 创建 hotfix 分支
+
 git checkout main
 git pull origin main
 git checkout -b hotfix/1.0.1
 
 # 2. 修复问题并创建 PR（main ← hotfix/1.0.1）
+
 # 合并到 main 后打标签发布
 
 # 3. 将 hotfix 回灌到 develop
+
 git checkout develop
 git merge --no-ff hotfix/1.0.1
 git push origin develop

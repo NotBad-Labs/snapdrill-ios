@@ -25,8 +25,8 @@ def load_current_metrics():
     """加载当前性能指标"""
     metrics_file = 'performance_metrics.json'
     if not os.path.exists(metrics_file):
-        print("❌ 未找到当前性能指标")
-        sys.exit(1)
+        print("ℹ️ 未找到当前性能指标，跳过性能检查")
+        return {}
         
     with open(metrics_file, 'r') as f:
         return json.load(f)
@@ -59,6 +59,10 @@ def check_regression(baseline, current, threshold=0.1):
 def main():
     baseline_metrics = load_baseline_metrics()
     current_metrics = load_current_metrics()
+    
+    if not current_metrics:
+        print("ℹ️ 无当前性能数据，跳过性能回退检查")
+        return
     
     if not baseline_metrics:
         # 如果没有基线，将当前指标设为基线

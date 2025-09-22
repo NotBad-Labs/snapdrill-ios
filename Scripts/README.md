@@ -8,8 +8,36 @@
 
 ### 质量门槛检查
 
+`quality_gate.sh` - 综合质量检查脚本，支持8项核心检查。
+
+**基本使用：**
+
 ```bash
+# 标准检查
+./Scripts/quality_gate.sh
+
+# CI对齐模式 (跳过严格检查)
+./Scripts/quality_gate.sh --ci-parity
+
+# 自定义覆盖率阈值
+COVERAGE_THRESHOLD=90 ./Scripts/quality_gate.sh
+
+# 启用临时文件清理
+CLEANUP_TEMP_FILES=true ./Scripts/quality_gate.sh
+```
+
+**改进特性（v2024.09）：**
+
+- ✅ 精确覆盖率文件查找 (只查找NotBad项目)
+- ✅ 工具可用性预检查
+- ✅ 参数化阈值配置
+- ✅ 临时文件自动清理
+- ✅ SwiftLint闭包长度调整为40行
+
+```bash
+
 # 运行完整质量检查（推荐）
+
 ./Scripts/quality_gate.sh
 ```
 
@@ -29,7 +57,9 @@
 ### 本地开发
 
 ```bash
+
 # 提交前运行质量检查
+
 ./Scripts/quality_gate.sh
 ```
 

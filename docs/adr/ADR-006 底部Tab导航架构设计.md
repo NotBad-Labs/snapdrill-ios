@@ -1,4 +1,5 @@
----
+# ---
+
 title: ADR-006: 底部Tab导航架构设计（占位）
 version: v6.0
 lastUpdated: 2025-09-21

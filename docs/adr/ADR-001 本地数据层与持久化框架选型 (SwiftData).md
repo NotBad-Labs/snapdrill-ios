@@ -1,4 +1,5 @@
----
+# ---
+
 title: ADR-001: 本地数据层与持久化框架选型 (SwiftData)
 version: v6.0
 lastUpdated: 2025-09-21

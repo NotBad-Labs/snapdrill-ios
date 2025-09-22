@@ -80,7 +80,9 @@ graph TB
 #### 1.2 系统环境配置
 
 ```bash
+
 # 创建专用runner用户
+
 sudo dscl . -create /Users/runner
 sudo dscl . -create /Users/runner UserShell /bin/zsh
 sudo dscl . -create /Users/runner RealName "GitHub Actions Runner"
@@ -88,29 +90,40 @@ sudo dscl . -create /Users/runner UniqueID 1001
 sudo dscl . -create /Users/runner PrimaryGroupID 20
 
 # 设置用户目录
+
 sudo createhomedir -c -u runner
 ```
 
 #### 1.3 安装Xcode 26和Swift 6.2
 
 ```bash
+
 # 安装Xcode 26（通过App Store或开发者门户）
+
 # 接受许可协议
+
 sudo xcodebuild -license accept
 
 # 验证Swift 6.2安装
+
 swift --version
+
 # 应该显示：swift-driver version: x.x.x Swift version 6.2.x
 
 # 验证Xcode版本
+
 xcodebuild -version
+
 # 应该显示：Xcode 26.0
+
 ```
 
 #### 1.4 下载iOS 26.0运行时
 
 ```bash
+
 # 下载iOS 26.0 Simulator运行时
+
 xcrun simctl runtime list
 sudo xcrun simctl runtime add iOS26.0
 ```
@@ -120,41 +133,56 @@ sudo xcrun simctl runtime add iOS26.0
 #### 2.1 下载GitHub Actions Runner
 
 ```bash
+
 # 切换到runner用户
+
 sudo su - runner
 
 # 创建actions-runner目录
+
 mkdir actions-runner && cd actions-runner
 
 # 下载最新的runner
+
 curl -o actions-runner-osx-arm64-2.328.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.328.0/actions-runner-osx-arm64-2.328.0.tar.gz
 
 # 解压
+
 tar xzf ./actions-runner-osx-arm64-2.328.0.tar.gz
 ```
 
 #### 2.2 配置Runner
 
 ```bash
+
 # 配置runner（需要在GitHub repo Settings → Actions → Runners页面获取token）
+
 ./config.sh --url https://github.com/chramboliao/NotBad --token YOUR_RUNNER_TOKEN
 
 # 配置选项：
+
 # Runner name: mac-mini-m4-v6
+
 # Runner group: Default
+
 # Labels: self-hosted,macOS,M4,xcode-26,swift-6.2,ios-26
+
 ```
 
 #### 2.3 安装为系统服务
 
 ```bash
+
 # 安装为系统服务（自动启动）
+
 sudo ./svc.sh install
 
 # 启动服务
+
 sudo ./svc.sh start
 
 # 验证状态
+
 sudo ./svc.sh status
 ```
 
@@ -163,23 +191,30 @@ sudo ./svc.sh status
 #### 3.1 配置NAS挂载
 
 ```bash
+
 # 创建挂载点
+
 sudo mkdir -p /Volumes/NotBadCI
 
 # 配置自动挂载（添加到/etc/fstab）
+
 echo "//nas-ip/NotBadCI /Volumes/NotBadCI smbfs rw,auto" | sudo tee -a /etc/fstab
 
 # 手动挂载测试
+
 sudo mount -t smbfs //username:password@nas-ip/NotBadCI /Volumes/NotBadCI
 ```
 
 #### 3.2 配置缓存目录
 
 ```bash
+
 # 创建缓存目录结构
+
 mkdir -p /Volumes/NotBadCI/{spm-cache,derived-data,build-artifacts,test-results,logs}
 
 # 设置权限
+
 chown -R runner:staff /Volumes/NotBadCI
 chmod -R 755 /Volumes/NotBadCI
 ```
@@ -209,6 +244,7 @@ jobs:
     - name: Setup Environment
       run: |
         # 验证环境
+
         swift --version
         xcodebuild -version
         xcrun simctl list devices available
@@ -216,6 +252,7 @@ jobs:
     - name: Cache SPM Dependencies
       run: |
         # 使用NAS缓存SPM依赖
+
         export SPM_CACHE_PATH=$SPM_CACHE_DIR
         swift package resolve
 
@@ -233,6 +270,7 @@ jobs:
       if: always()
       run: |
         # 归档测试结果到NAS
+
         cp -r $DERIVED_DATA_PATH/Logs /Volumes/NotBadCI/logs/$(date +%Y%m%d_%H%M%S)
 ```
 
@@ -242,9 +280,11 @@ jobs:
 
 ```bash
 #!/bin/bash
+
 # monitor-runner.sh - 运行器健康监控
 
 # 检查runner服务状态
+
 if ! sudo ./svc.sh status | grep -q "active"; then
     echo "❌ Runner service is down"
     sudo ./svc.sh start
@@ -252,14 +292,17 @@ if ! sudo ./svc.sh status | grep -q "active"; then
 fi
 
 # 检查磁盘空间
+
 DISK_USAGE=$(df -h / | awk 'NR==2 {print $5}' | sed 's/%//')
 if [ $DISK_USAGE -gt 80 ]; then
     echo "⚠️ Disk usage high: ${DISK_USAGE}%"
     # 清理旧的DerivedData
+
     find /Volumes/NotBadCI/derived-data -mtime +7 -exec rm -rf {} \;
 fi
 
 # 检查NAS连接
+
 if ! ls /Volumes/NotBadCI > /dev/null 2>&1; then
     echo "❌ NAS not mounted"
     sudo mount -t smbfs //username:password@nas-ip/NotBadCI /Volumes/NotBadCI
@@ -271,10 +314,13 @@ fi
 #### 每日维护（crontab配置）
 
 ```bash
+
 # 编辑crontab
+
 crontab -e
 
 # 添加定时任务
+
 0 2 * * * /Users/runner/scripts/cleanup-cache.sh
 0 3 * * * /Users/runner/scripts/monitor-runner.sh
 0 4 * * * /Users/runner/scripts/backup-logs.sh
@@ -294,13 +340,17 @@ crontab -e
 #### Runner离线
 
 ```bash
+
 # 检查服务状态
+
 sudo ./svc.sh status
 
 # 查看日志
+
 tail -f /Users/runner/actions-runner/_diag/Runner_*.log
 
 # 重启服务
+
 sudo ./svc.sh stop
 sudo ./svc.sh start
 ```
@@ -308,13 +358,17 @@ sudo ./svc.sh start
 #### 构建失败
 
 ```bash
+
 # 检查Xcode版本
+
 xcodebuild -version
 
 # 检查iOS模拟器
+
 xcrun simctl list devices available
 
 # 清理构建缓存
+
 xcodebuild clean -alltargets
 rm -rf ~/Library/Developer/Xcode/DerivedData/*
 ```
@@ -322,14 +376,18 @@ rm -rf ~/Library/Developer/Xcode/DerivedData/*
 #### NAS连接问题
 
 ```bash
+
 # 检查网络连接
+
 ping nas-ip
 
 # 重新挂载NAS
+
 sudo umount /Volumes/NotBadCI
 sudo mount -t smbfs //username:password@nas-ip/NotBadCI /Volumes/NotBadCI
 
 # 检查挂载状态
+
 mount | grep NotBadCI
 ```
 

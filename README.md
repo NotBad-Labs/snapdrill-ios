@@ -37,11 +37,13 @@
 
    ```bash
    # 安装 pre-commit hooks
+
    brew install pre-commit
    pre-commit install
    pre-commit install --hook-type commit-msg
 
    # 安装 SwiftLint（如果未安装）
+
    brew install swiftlint
    ```
 
@@ -49,6 +51,7 @@
 
    ```bash
    # 运行完整质量门槛检查
+
    ./Scripts/quality_gate.sh
    ```
 
@@ -175,10 +178,13 @@ hotfix/<name>       (基于 main 的紧急修复，修复后回灌 develop)
 ### 本地质量检查
 
 ```bash
+
 # 运行完整质量检查
+
 ./Scripts/quality_gate.sh
 
 # 查看质量标准详情
+
 cat docs/QUALITY_GATES.md
 ```
 

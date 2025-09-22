@@ -11,7 +11,7 @@ import PhotosUI
 /// 照片库选择视图
 /// 使用PhotosUI选择照片
 struct PhotoLibraryView: View {
-    let coordinator: CaptureCoordinator
+    @ObservedObject var viewModel: CaptureViewModel
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var selectedImageData: Data?
     @Environment(\.dismiss) private var dismiss
@@ -110,12 +110,15 @@ struct PhotoLibraryView: View {
         // 关闭照片库界面
         dismiss()
         
-        // 导航到OCR结果页面
-        let imageString = imageData.base64EncodedString()
-        coordinator.coordinate(to: .ocrResult(image: imageString))
+        // 交由ViewModel处理
+        if let image = UIImage(data: imageData) {
+            viewModel.handleSelectedImage(image)
+        }
     }
 }
 
 #Preview {
-    PhotoLibraryView(coordinator: CaptureCoordinator())
+    let coordinator = CaptureCoordinator()
+    let vm = CaptureViewModel(captureUseCase: ServiceContainer.shared.captureReviewItemUseCase, coordinator: coordinator)
+    PhotoLibraryView(viewModel: vm)
 }

@@ -1,4 +1,5 @@
----
+# ---
+
 title: ADR-004: Swift 6.2 架构升级决策
 version: v6.0
 lastUpdated: 2025-09-21

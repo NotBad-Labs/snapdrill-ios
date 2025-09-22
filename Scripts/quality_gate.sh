@@ -1,10 +1,14 @@
 #!/bin/bash
 # Scripts/quality_gate.sh
-# 质量门槛检查脚本
+# 质量门槛检查脚本 - NotBad 项目
 
 # Note: We don't use 'set -e' to allow individual checks to fail and continue
 
 echo "🚀 NotBad 质量门槛检查开始..."
+
+# 可配置的阈值参数
+COVERAGE_THRESHOLD=${COVERAGE_THRESHOLD:-80}  # 测试覆盖率阈值，可通过环境变量覆盖
+PROJECT_NAME="NotBad"  # 项目名称，用于精确查找覆盖率文件
 
 # CI 对齐模式：
 # - 使用与自托管 CI 相同的测试计划与结果收集方式
@@ -19,6 +23,7 @@ fi
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # 检查结果统计
@@ -34,6 +39,32 @@ check_result() {
         ((CHECKS_FAILED++))
     fi
 }
+
+# 工具可用性预检查
+echo -e "${BLUE}🔧 检查必需工具可用性...${NC}"
+TOOLS_STATUS=""
+for tool in swiftlint; do
+    if command -v "$tool" &> /dev/null; then
+        echo -e "  ✅ $tool: $(command -v "$tool")"
+    else
+        echo -e "  ❌ $tool: 未安装"
+        TOOLS_STATUS="${TOOLS_STATUS}${tool} "
+    fi
+done
+
+for tool in npx python3; do
+    if command -v "$tool" &> /dev/null; then
+        echo -e "  ✅ $tool: 可用"
+    else
+        echo -e "  ⚠️ $tool: 未安装，部分检查可能跳过"
+    fi
+done
+
+if [ -n "$TOOLS_STATUS" ]; then
+    echo -e "${YELLOW}⚠️ 缺少工具: $TOOLS_STATUS${NC}"
+    echo -e "${YELLOW}提示: 运行 'brew install swiftlint' 安装缺失工具${NC}"
+fi
+echo ""
 
 echo "📝 1. SwiftLint 代码风格检查..."
 if command -v swiftlint &> /dev/null; then
@@ -107,23 +138,15 @@ else
 fi
 
 echo "📊 7. 测试覆盖率检查..."
-if [ "$CI_PARITY" = true ]; then
-    if [ -f ./local_artifacts/coverage-local.json ]; then
-        echo "已生成覆盖率 JSON (./local_artifacts/coverage-local.json)，与 CI 方式一致"
-        echo -e "${GREEN}✅ 覆盖率收集 通过${NC}"
-        ((CHECKS_PASSED++))
-    else
-        echo -e "${YELLOW}⚠️ 未能生成覆盖率 JSON，跳过阈值判断（CI 对齐模式）${NC}"
-    fi
+# 优先使用本地JSON文件，如果不存在则查找CI模式文件
+if [ -f ./local_artifacts/coverage-local.json ] && [ -f "Scripts/check_coverage.py" ]; then
+    echo "ℹ️ 使用本地覆盖率文件: coverage-local.json (阈值: ${COVERAGE_THRESHOLD}%)"
+    python3 Scripts/check_coverage.py ./local_artifacts/coverage-local.json "$COVERAGE_THRESHOLD"
+    check_result "测试覆盖率"
+elif [ "$CI_PARITY" = true ]; then
+    echo -e "${YELLOW}⚠️ 未能生成覆盖率 JSON，跳过阈值判断（CI 对齐模式）${NC}"
 else
-    # 查找最新的覆盖率报告文件
-    COVERAGE_FILE=$(find ~/Library/Developer/Xcode/DerivedData -name "*.xccovarchive" -type f -exec ls -lt {} + 2>/dev/null | head -1 | awk '{print $NF}')
-    if [ -f "Scripts/check_coverage.py" ] && [ -n "$COVERAGE_FILE" ]; then
-            python3 Scripts/check_coverage.py "$COVERAGE_FILE" 80
-            check_result "测试覆盖率"
-    else
-            echo -e "${YELLOW}⚠️ 覆盖率检查脚本或覆盖率文件未找到${NC}"
-    fi
+    echo -e "${YELLOW}⚠️ 覆盖率检查脚本或覆盖率文件未找到${NC}"
 fi
 
 echo "🔍 8. 性能测试检查..."
@@ -143,6 +166,14 @@ echo ""
 echo "📋 质量门槛检查总结:"
 echo -e "通过: ${GREEN}${CHECKS_PASSED}${NC}"
 echo -e "失败: ${RED}${CHECKS_FAILED}${NC}"
+
+# 清理临时文件 (可选)
+if [ "${CLEANUP_TEMP_FILES:-false}" = "true" ]; then
+    echo -e "${BLUE}🧹 清理临时文件...${NC}"
+    # 清理超过1天的 xcresult 文件
+    find . -name "Local-TestResults-*.xcresult" -type d -mtime +1 -exec rm -rf {} + 2>/dev/null || true
+    echo "ℹ️ 已清理旧的测试结果文件"
+fi
 
 if [ $CHECKS_FAILED -gt 0 ]; then
     echo -e "${RED}❌ 质量门槛检查失败，请修复问题后重试${NC}"

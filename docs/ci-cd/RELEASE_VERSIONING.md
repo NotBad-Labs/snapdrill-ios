@@ -51,13 +51,17 @@
 用法示例：
 
 ```bash
+
 # 1) 从当前版本按照补丁位递增（6.0.0 → 6.0.1），构建号自增
+
 python3 Scripts/bump_version.py --part patch
 
 # 2) 指定版本号（例如从 6.0.1 直接设置为 6.1.0），构建号自增
+
 python3 Scripts/bump_version.py --set 6.1.0
 
 # 3) 同时指定构建号
+
 python3 Scripts/bump_version.py --part minor --build 42
 ```
 
@@ -75,11 +79,14 @@ python3 Scripts/bump_version.py --part minor --build 42
 
   ```bash
     # 以 tag v6.0.0 之后至当前 HEAD 的提交生成草稿
+
     python3 Scripts/generate_changelog_from_git.py --since-tag v6.0.0 > /tmp/changelog_snippet.md
     # 粘贴到 CHANGELOG.md 对应版本节下，按需润色
+
   ```
 
   - CI 集成：在 release/hotfix PR 上，工作流会生成片段并自动插入到当前版本节；同时会在片段前加入 `Build: <构建号>` 行（来自 Info.plist 的 `CFBundleVersion`），并且会将该版本节标题更新为 `## [x.y.z] - YYYY-MM-DD (Build N)` 的形式（若已包含 Build 则覆盖为最新构建号）。此外，CI 会校验：
+
     - `VERSION` 与 `Info.plist` 的 `CFBundleShortVersionString` 一致
     - `CHANGELOG.md` 存在对应版本节，且标题包含 `(Build N)` 并与 `Info.plist` 的 `CFBundleVersion` 相匹配
 

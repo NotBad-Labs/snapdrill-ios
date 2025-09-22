@@ -1,4 +1,5 @@
----
+# ---
+
 title: NotBad 设计系统 (Design System) v6.0
 version: v6.0
 lastUpdated: 2025-09-21

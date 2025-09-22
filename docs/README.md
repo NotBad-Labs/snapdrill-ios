@@ -2,6 +2,9 @@
 title: NotBad 文档中心 v6.0
 version: v6.0
 lastUpdated: 2025-09-19
+---
+
+# NotBad 文档中心 v6.0
 baseline:
   ios: 26
   xcode: 26

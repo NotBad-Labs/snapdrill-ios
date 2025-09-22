@@ -81,7 +81,9 @@
 ### 服务状态
 
 ```bash
+
 # 运行器服务状态
+
 status actions.runner.chramboliao-NotBad.mac-mini-m4:
 /Users/runner/Library/LaunchAgents/actions.runner.chramboliao-NotBad.mac-mini-m4.plist
 
@@ -129,16 +131,21 @@ Started: 9043 0 actions.runner.chramboliao-NotBad.mac-mini-m4
 ### 常用命令
 
 ```bash
+
 # 查看运行器状态
+
 sudo -u runner /Users/runner/actions-runner/svc.sh status
 
 # 重启运行器服务
+
 sudo -u runner /Users/runner/actions-runner/svc.sh restart
 
 # 查看运行器日志
+
 sudo tail -f /Users/runner/actions-runner/_diag/Runner_*.log
 
 # 环境健康检查
+
 ./Scripts/quick_test.sh
 ```
 

@@ -92,6 +92,10 @@ function_body_length:
   warning: 60
   error: 100
 
+closure_body_length:
+  warning: 40
+  error: 60
+
 function_parameter_count:
   warning: 6
   error: 8

@@ -1,4 +1,5 @@
----
+# ---
+
 title: 架构决策记录索引 (ADR Index)
 version: v6.0
 lastUpdated: 2025-09-21

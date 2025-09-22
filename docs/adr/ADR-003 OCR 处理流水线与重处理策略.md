@@ -1,4 +1,5 @@
----
+# ---
+
 title: ADR-003: OCR 处理流水线与重处理策略
 version: v6.0
 lastUpdated: 2025-09-21

@@ -1,4 +1,5 @@
----
+# ---
+
 title: NotBad 静态资源管理 v6.0
 version: v6.0
 lastUpdated: 2025-09-21

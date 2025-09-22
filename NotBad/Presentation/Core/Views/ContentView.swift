@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  NotBad
 //
-//  Created by Yiming Liao on 21/9/25.
+//  Created by Yiming Liao on 9/21/25.
 //
 
 import SwiftUI

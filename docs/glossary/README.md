@@ -1,4 +1,5 @@
----
+# ---
+
 title: 术语表目录 (Glossary Directory)
 version: v6.0
 lastUpdated: 2025-09-21

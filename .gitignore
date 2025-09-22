@@ -47,3 +47,23 @@ build/
 *.tmp
 *.temp
 .cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.env
+
+# Node modules
+node_modules/
+
+# Coverage files
+*.coverage
+.coverage.*
+coverage.xml
+local_artifacts/

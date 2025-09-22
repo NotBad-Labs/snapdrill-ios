@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+# add_swift_header.py
+# NotBad
+#
+# Created by YIMING LIAO on 2025/9/5.
+#
 import os
 import re
 from datetime import datetime

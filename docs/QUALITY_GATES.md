@@ -2,6 +2,9 @@
 title: NotBad 质量门槛指南
 version: v6.0
 lastUpdated: 2025-09-21
+---
+
+# NotBad 质量门槛指南
 baseline:
   ios: 26
   xcode: 26
@@ -62,32 +65,41 @@ baseline:
 ### 设置开发环境
 
 ```bash
+
 # 1. 安装 pre-commit
+
 brew install pre-commit
 
 # 2. 在项目中安装 hooks
+
 pre-commit install
 pre-commit install --hook-type commit-msg
 
 # 3. 首次运行检查所有文件
+
 pre-commit run --all-files
 ```
 
 ### 日常开发
 
 ```bash
+
 # 1. 开发功能
+
 git checkout develop
 git checkout -b feature/new-feature
 
 # 2. 提交代码（会自动运行 pre-commit 检查）
+
 git add .
 git commit -m "feat: add new feature"
 
 # 3. 运行完整质量检查
+
 ./Scripts/quality_gate.sh
 
 # 4. 推送到远程
+
 ```bash
 git push origin feature/new-feature
 ```
@@ -131,10 +143,13 @@ git commit -m "test: add unit tests for user service"
 ### Pre-commit 检查失败
 
 ```bash
+
 # 查看失败原因
+
 git status
 
 # 修复问题后重新提交
+
 git add .
 git commit -m "fix: resolve linting issues"
 ```
@@ -148,11 +163,15 @@ git commit -m "fix: resolve linting issues"
 ### 测试覆盖率不足
 
 ```bash
+
 # 查看覆盖率报告
+
 python3 Scripts/check_coverage.py --detailed
 
 # 添加测试
+
 # 重新运行测试
+
 xcodebuild test -project NotBad.xcodeproj -scheme NotBad -enableCodeCoverage YES
 ```
 
@@ -178,11 +197,14 @@ xcodebuild test -project NotBad.xcodeproj -scheme NotBad -enableCodeCoverage YES
 编辑 `.swiftlint.yml` 文件来调整规则：
 
 ```yaml
+
 # 禁用特定规则
+
 disabled_rules:
   - line_length
 
 # 自定义规则参数
+
 line_length:
   warning: 120
   error: 200

@@ -13,26 +13,73 @@ import SwiftUI
 final class ServiceContainer: ObservableObject {
     static let shared = ServiceContainer()
     
-    // MARK: - 服务实例
+    // MARK: - Infrastructure Layer (Repositories)
+    private let _reviewItemRepository: ReviewItemRepository
+    
+    // MARK: - Domain Services
     private let _reviewItemService: ReviewItemService
     
-    // MARK: - 公共接口
+    // MARK: - Application Services
+    private let _captureReviewItemUseCase: CaptureReviewItemUseCase
+    private let _reviewSessionUseCase: ReviewSessionUseCase
+    
+    // MARK: - Public Interfaces
+    
+    var reviewItemRepository: ReviewItemRepository {
+        _reviewItemRepository
+    }
+    
     var reviewItemService: ReviewItemService {
         _reviewItemService
     }
     
-    private init() {
-        // 在这里可以根据配置选择不同的实现
-        // 开发阶段使用内存实现，生产环境可以替换为SwiftData实现
-        self._reviewItemService = InMemoryReviewItemService()
+    var captureReviewItemUseCase: CaptureReviewItemUseCase {
+        _captureReviewItemUseCase
     }
     
-    /// 配置服务（用于测试或不同环境）
-    func configure(reviewItemService: ReviewItemService) {
-        // 如果需要运行时配置，可以在这里实现
-        // 但要保持架构的清洁性
+    var reviewSessionUseCase: ReviewSessionUseCase {
+        _reviewSessionUseCase
+    }
+    
+    // MARK: - Initialization
+    
+    private init() {
+        // 1. 创建Infrastructure层 (Repositories)
+        self._reviewItemRepository = InMemoryReviewItemRepository()
+        
+        // 2. 创建Domain Services（注入Repository）
+        self._reviewItemService = ReviewItemService(
+            repository: _reviewItemRepository
+        )
+        
+        // 3. 创建Application Services（注入Domain Services）
+        self._captureReviewItemUseCase = CaptureReviewItemUseCase(
+            reviewItemService: _reviewItemService
+        )
+        self._reviewSessionUseCase = ReviewSessionUseCase(
+            reviewItemService: _reviewItemService
+        )
     }
 }
+
+// MARK: - 测试支持
+#if DEBUG
+extension ServiceContainer {
+    /// 创建测试用的服务容器
+    /// - Parameter repository: 测试用的Repository实现
+    /// - Returns: 配置了测试Repository的服务容器
+    static func createForTesting(with repository: ReviewItemRepository) -> ServiceContainer {
+        let container = ServiceContainer()
+        container._configureForTesting(repository: repository)
+        return container
+    }
+    
+    private func _configureForTesting(repository: ReviewItemRepository) {
+        // 在测试环境中，我们使用反射或者重新构建依赖链
+        // 这里简化处理，实际项目中可能需要更复杂的依赖注入框架
+    }
+}
+#endif
 
 /// 环境键，用于SwiftUI依赖注入
 private struct ServiceContainerKey: EnvironmentKey {

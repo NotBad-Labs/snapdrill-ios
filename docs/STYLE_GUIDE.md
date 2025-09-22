@@ -1,4 +1,5 @@
----
+# ---
+
 title: 文档风格与元数据规范
 version: v6.0
 lastUpdated: 2025-09-21
