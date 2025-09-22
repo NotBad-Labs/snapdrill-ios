@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-test:
     name: Build, Test, and Coverage Gate
-    runs-on: macos-14
+    runs-on: macos-latest
     env:
       COVERAGE_THRESHOLD: "70"
     steps:
