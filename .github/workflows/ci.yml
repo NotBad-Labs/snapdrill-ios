@@ -35,11 +35,11 @@ jobs:
       - name: Run unit tests with coverage (xcresult)
         run: |
           set -o pipefail
-          # Use generic iOS Simulator, let xcodebuild choose available device
+          # Use iPhone 17 Pro Max - the highest-end device for comprehensive testing
           xcodebuild \
             -project NotBad.xcodeproj \
             -scheme NotBad \
-            -destination 'platform=iOS Simulator,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
             -testPlan UnitTestPlan \
             -enableCodeCoverage YES \
             -resultBundlePath TestResults.xcresult \
