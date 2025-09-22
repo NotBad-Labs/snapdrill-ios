@@ -9,12 +9,15 @@ on:
 jobs:
   build-and-test:
     name: Build, Test, and Coverage Gate
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       COVERAGE_THRESHOLD: "70"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
       - name: Show Xcode version
         run: xcodebuild -version
@@ -22,9 +25,14 @@ jobs:
       - name: List available simulators (debug)
         run: xcrun simctl list devices | head -200
 
+      - name: List available simulators (debug)
+        run: |
+          xcrun simctl list devices --json | jq '.devices | to_entries[] | select(.key | contains("iOS")) | .key as $ios | .value[] | select(.isAvailable == true) | "\($ios): \(.name)"'
+        continue-on-error: true
+
       - name: Boot simulator
         run: |
-          xcrun simctl bootstatus "iPhone 15"
+          xcrun simctl bootstatus "iPhone 17" || xcrun simctl bootstatus "iPhone 15"
         continue-on-error: true
 
       - name: Resolve SwiftPM
@@ -37,7 +45,7 @@ jobs:
           xcodebuild \
             -project NotBad.xcodeproj \
             -scheme NotBad \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
             -testPlan UnitTestPlan \
             -enableCodeCoverage YES \
             -resultBundlePath TestResults.xcresult \
