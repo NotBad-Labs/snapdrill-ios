@@ -106,35 +106,45 @@ else
 fi
 
 echo "🛠️ 5. 项目编译检查..."
-xcodebuild -project NotBad.xcodeproj -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' clean build
+# 允许通过环境变量自定义模拟器设备，默认与本地一致使用 iPhone 17（避免机型不一致导致的找不到模拟器问题）
+SIM_DEVICE=${SIM_DEVICE:-"iPhone 17"}
+xcodebuild -project NotBad.xcodeproj -scheme NotBad -destination "platform=iOS Simulator,name=${SIM_DEVICE}" clean build
 check_result "项目编译"
 
 echo "🧪 6. 单元测试运行..."
+LOCAL_XCRESULT="./Local-TestResults-$(date +%s).xcresult"
 if [ "$CI_PARITY" = true ]; then
     # 与 CI 保持一致：指定 UnitTestPlan，并收集 result bundle
-    LOCAL_XCRESULT="./Local-TestResults-$(date +%s).xcresult"
     xcodebuild test \
         -project NotBad.xcodeproj \
         -scheme NotBad \
-        -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
+        -destination "platform=iOS Simulator,name=${SIM_DEVICE}" \
         -testPlan UnitTestPlan \
         -enableCodeCoverage YES \
         -resultBundlePath "$LOCAL_XCRESULT"
-    TEST_STATUS=$?
-    if [ $TEST_STATUS -eq 0 ] && command -v xcrun &> /dev/null; then
-        mkdir -p ./local_artifacts
-        xcrun xccov view --report --json "$LOCAL_XCRESULT" > ./local_artifacts/coverage-local.json || true
-    fi
-    if [ $TEST_STATUS -eq 0 ]; then
-        echo -e "${GREEN}✅ 单元测试 通过${NC}"
-        ((CHECKS_PASSED++))
-    else
-        echo -e "${RED}❌ 单元测试 失败${NC}"
-        ((CHECKS_FAILED++))
-    fi
 else
-    xcodebuild test -project NotBad.xcodeproj -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' -enableCodeCoverage YES
-    check_result "单元测试"
+    # 本地模式同样生成覆盖率 JSON，便于后续阈值判断
+    xcodebuild test \
+        -project NotBad.xcodeproj \
+        -scheme NotBad \
+        -destination "platform=iOS Simulator,name=${SIM_DEVICE}" \
+        -enableCodeCoverage YES \
+        -resultBundlePath "$LOCAL_XCRESULT"
+fi
+TEST_STATUS=$?
+if [ $TEST_STATUS -eq 0 ]; then
+    if command -v xcrun &> /dev/null; then
+        mkdir -p ./local_artifacts ./docs/coverage
+        xcrun xccov view --report --json "$LOCAL_XCRESULT" > ./local_artifacts/coverage-local.json || true
+        # 固化一份覆盖率快照到 docs/coverage，便于对比与归档
+        SNAPSHOT_NAME="coverage-$(date +%Y%m%d-%H%M%S).json"
+        cp ./local_artifacts/coverage-local.json ./docs/coverage/$SNAPSHOT_NAME 2>/dev/null || true
+    fi
+    echo -e "${GREEN}✅ 单元测试 通过${NC}"
+    ((CHECKS_PASSED++))
+else
+    echo -e "${RED}❌ 单元测试 失败${NC}"
+    ((CHECKS_FAILED++))
 fi
 
 echo "📊 7. 测试覆盖率检查..."
