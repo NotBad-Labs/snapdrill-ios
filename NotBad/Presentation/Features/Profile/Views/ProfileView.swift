@@ -26,6 +26,16 @@ struct ProfileView: View {
         NavigationStack(path: $coordinator.navigationPath) {
             ProfileContentView(coordinator: coordinator)
                 .navigationTitle("我的")
+                .navigationDestination(for: ProfileCoordinator.ProfileRoute.self) { route in
+                    switch route {
+                    case .settings:
+                        ProfileSettingsView(coordinator: coordinator)
+                    case .about:
+                        AboutView(coordinator: coordinator)
+                    case .detail(let id):
+                        ProfileDetailView(itemId: id, coordinator: coordinator)
+                    }
+                }
         }
     }
 }
@@ -184,4 +194,64 @@ struct ProfileMenuItem: View {
 
 #Preview {
     ProfileView(coordinator: ProfileCoordinator())
+}
+
+// MARK: - 占位视图：设置
+struct ProfileSettingsView: View {
+    let coordinator: ProfileCoordinator
+
+    var body: some View {
+        Form {
+            Section(header: Text("通用")) {
+                Toggle("启用通知", isOn: .constant(true))
+                Toggle("使用蜂窝数据", isOn: .constant(false))
+            }
+
+            Section(header: Text("外观")) {
+                Picker("主题", selection: .constant(0)) {
+                    Text("跟随系统").tag(0)
+                    Text("浅色").tag(1)
+                    Text("深色").tag(2)
+                }
+            }
+        }
+        .navigationTitle("设置")
+    }
+}
+
+// MARK: - 占位视图：关于
+struct AboutView: View {
+    let coordinator: ProfileCoordinator
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("关于 NotBad")
+                .font(.title2)
+                .fontWeight(.semibold)
+            Text("一个帮助你高效学习的开源应用。")
+                .foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding()
+        .navigationTitle("关于")
+    }
+}
+
+// MARK: - 占位视图：通用详情
+struct ProfileDetailView: View {
+    let itemId: String
+    let coordinator: ProfileCoordinator
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("详情")
+                .font(.title2)
+                .fontWeight(.semibold)
+            Text("ID: \(itemId)")
+                .foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding()
+        .navigationTitle("详情")
+    }
 }

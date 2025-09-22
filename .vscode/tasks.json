@@ -12,7 +12,7 @@
 				"-scheme",
 				"NotBad",
 				"-destination",
-				"platform=iOS Simulator,name=iPhone 16",
+				"platform=iOS Simulator,name=iPhone 17",
 				"-parallel-testing-enabled",
 				"YES"
 			],

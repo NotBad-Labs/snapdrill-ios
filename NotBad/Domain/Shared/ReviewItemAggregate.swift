@@ -396,6 +396,30 @@ struct ReviewHistory: Codable, Hashable {
     func getRecentSessions(count: Int) -> [ReviewSession] {
         return Array(sessions.suffix(count))
     }
+
+    /// 计算最近 N 天内（含今天）有复习行为的天数比例。
+    /// - Parameters:
+    ///   - lastNDays: 回看天数窗口，包含今天；若小于等于 0 则返回 0。
+    ///   - calendar: 日历（默认 `.current`），用于按天对齐计算。
+    /// - Returns: 比例值，范围 [0, 1]。
+    func completionRate(lastNDays: Int, calendar: Calendar = .current) -> Double {
+        guard lastNDays > 0 else { return 0.0 }
+        if sessions.isEmpty { return 0.0 }
+
+        // 以当天 00:00 为窗口终点，向前包含 lastNDays 天。
+        let todayStart = calendar.startOfDay(for: Date())
+        guard let windowStart = calendar.date(byAdding: .day, value: -(lastNDays - 1), to: todayStart) else {
+            return 0.0
+        }
+
+        // 过滤窗口内的 session，并按天去重。
+        let inWindow = sessions.filter { $0.date >= windowStart && $0.date <= todayStart.addingTimeInterval(24*60*60 - 1) }
+        let uniqueDays: Set<Date> = Set(inWindow.map { calendar.startOfDay(for: $0.date) })
+
+        let daysWithSessions = uniqueDays.count
+        let denominator = max(lastNDays, 1)
+        return Double(daysWithSessions) / Double(denominator)
+    }
 }
 
 struct ReviewStatistics {

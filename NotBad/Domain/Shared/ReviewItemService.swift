@@ -9,7 +9,7 @@ import Foundation
 
 /// ReviewItem 领域服务
 /// 遵循DDD原则，协调复杂的业务操作，使用Repository进行数据访问
-final class ReviewItemService {
+final class ReviewItemService: ReviewItemServicing {
     
     // MARK: - Dependencies
     private let repository: ReviewItemRepository

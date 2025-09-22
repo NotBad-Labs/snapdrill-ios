@@ -10,24 +10,36 @@
 - 预发布：`main ← release/*`（发布后回灌 `develop`）
 - 紧急修复：`main ← hotfix/*`（合并后回灌 `develop`）
 
-## 变更内容
+## 改动类型
 
-- [ ] 代码变更
-- [ ] 文档更新（PRD/TDD/RTM/Glossary/ADR）
-- [ ] 脚本/CI 配置
+- [ ] 🐛 Bug 修复
+- [ ] ✨ 新功能
+- [ ] 🔨 重构（无行为改变）
+- [ ] 🧪 测试相关（新增/改造测试）
+- [ ] 📝 文档/ADR/设计文档
 
-## 核对清单
+## 改动说明
 
-- [ ] 基线版本与设备统一：iOS 26 / Xcode 26 / Swift 6.2 / iPhone 17 系列
-- [ ] PRD 链接：`docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md`
-- [ ] TDD/RTM/Glossary 交叉链接正确，无历史后缀漂移
-- [ ] 本地通过 `Scripts/quality_gate.sh`
-- [ ] 如为 Release PR：包含版本号与变更日志更新
-- [ ] 如为 Hotfix PR：计划回灌 `develop`
-- [ ] 可选：已使用 `Scripts/generate_changelog_from_git.py` 生成并整理 CHANGELOG 草稿
-- [ ] `markdownlint` 和链接检查通过
-- [ ] 如涉及术语或架构变更，已更新 Glossary/ADR
+请简要描述这个 PR 做了什么、为什么做。
 
-## 相关问题/文档
+## 自检清单
 
-关联的 Issue 或设计文档链接：
+- [ ] 单元测试通过（⌘+U / CI 绿）
+- [ ] 新/改功能已添加或更新测试
+- [ ] 关键路径无性能回退（若涉及，提供 `performance_baseline.json` 对比）
+- [ ] 受影响模块的文档/ADR 已更新（如适用）
+- [ ] UI 改动附截图或描述（如适用）
+
+## 测试步骤
+
+1. 打开应用 …
+2. 导航到 …
+3. 预期结果 …
+
+## 截图（如有 UI 改动）
+
+<!-- 粘贴/上传截图或视频 -->
+
+## 关联事项
+
+- Issue/ADR/设计文档链接：

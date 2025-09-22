@@ -47,33 +47,43 @@ class MainCoordinator: BaseCoordinator {
 
     override func start() {
         selectedTab = 0  // 默认显示首页
+        AppLogger.info(.coordinator, "MainCoordinator.start -> selectedTab=0")
     }
 
     override func coordinate(to route: Route) {
+        AppLogger.debug(.coordinator, "MainCoordinator.coordinate -> \(route)")
         switch route {
         case .home:
             selectedTab = 0
+            AppLogger.info(.coordinator, "Switch tab -> home(0)")
         case .library:
             selectedTab = 1
+            AppLogger.info(.coordinator, "Switch tab -> library(1)")
         case .capture:
             selectedTab = 2
+            AppLogger.info(.coordinator, "Switch tab -> capture(2)")
         case .discovery:
             selectedTab = 3
+            AppLogger.info(.coordinator, "Switch tab -> discovery(3)")
         case .profile:
             selectedTab = 4
+            AppLogger.info(.coordinator, "Switch tab -> profile(4)")
             
         // MARK: - 跨模块导航处理
         case .navigateToLibraryAfterCapture:
             selectedTab = 1  // 切换到Library Tab
             libraryCoordinator.coordinate(to: .library)  // 重置到根视图
+            AppLogger.info(.coordinator, "Cross-tab: navigateToLibraryAfterCapture -> library root")
             
         case .navigateToLibraryFromHome:
             selectedTab = 1
             libraryCoordinator.coordinate(to: .library)
+            AppLogger.info(.coordinator, "Cross-tab: navigateToLibraryFromHome -> library root")
             
         case .navigateToPracticeFromLibrary:
             selectedTab = 1
             libraryCoordinator.coordinate(to: .practiceMode)
+            AppLogger.info(.coordinator, "Cross-tab: navigateToPracticeFromLibrary -> practiceMode")
             
         default:
             getCurrentTabCoordinator()?.coordinate(to: route)

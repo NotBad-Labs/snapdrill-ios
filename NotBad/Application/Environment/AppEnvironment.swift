@@ -140,7 +140,15 @@ extension EnvironmentValues {
 
 // MARK: - Convenience Extensions
 extension View {
-    /// 应用环境配置的便捷方法
+    /// 应用环境配置的便捷方法（配合 EnvironmentObject 的组合注入）
+    ///
+    /// 设计说明：
+    /// - `NotBadApp` 仅注入一个根 `AppEnvironment` 作为 `@EnvironmentObject`；
+    /// - 在壳/根视图（如 `AppShellView`、`RootView`）调用本方法，
+    ///   将更多依赖（`serviceContainer`、`mainCoordinator`、`errorHandler` 等）
+    ///   统一注入到 `EnvironmentValues` 与其它 `EnvironmentObject`；
+    /// - 业务视图可以通过 `@Environment(\.appEnvironment)` 或 `@EnvironmentObject` 解耦读取，
+    ///   避免在视图层层透传依赖，保持 SwiftUI 原生的数据流风格。
     @MainActor
     func withAppEnvironment(_ environment: AppEnvironment? = nil) -> some View {
         let env = environment ?? AppEnvironment.shared

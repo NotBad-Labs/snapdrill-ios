@@ -32,6 +32,11 @@ final class ServiceContainer: ObservableObject {
     var reviewItemService: ReviewItemService {
         _reviewItemService
     }
+
+    /// 协议类型暴露，便于替换与测试
+    var reviewItemServicing: ReviewItemServicing {
+        _reviewItemService
+    }
     
     var captureReviewItemUseCase: CaptureReviewItemUseCase {
         _captureReviewItemUseCase

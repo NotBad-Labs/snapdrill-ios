@@ -26,6 +26,12 @@ struct DiscoveryView: View {
         NavigationStack(path: $coordinator.navigationPath) {
             DiscoveryContentView(coordinator: coordinator)
                 .navigationTitle("发现")
+                .navigationDestination(for: DiscoveryCoordinator.DiscoveryRoute.self) { route in
+                    switch route {
+                    case .detail(let id):
+                        DiscoveryDetailView(itemId: id, coordinator: coordinator)
+                    }
+                }
         }
     }
 }
@@ -158,4 +164,23 @@ struct DiscoveryCard: View {
 
 #Preview {
     DiscoveryView(coordinator: DiscoveryCoordinator())
+}
+
+// MARK: - 占位视图：发现详情
+struct DiscoveryDetailView: View {
+    let itemId: String
+    let coordinator: DiscoveryCoordinator
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("发现详情")
+                .font(.title2)
+                .fontWeight(.semibold)
+            Text("ID: \(itemId)")
+                .foregroundColor(.secondary)
+            Spacer()
+        }
+        .padding()
+        .navigationTitle("详情")
+    }
 }

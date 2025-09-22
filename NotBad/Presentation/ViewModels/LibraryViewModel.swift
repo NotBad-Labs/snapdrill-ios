@@ -41,7 +41,7 @@ final class LibraryViewModel: ObservableObject {
     
     // MARK: - Dependencies
     
-    private let reviewItemService: ReviewItemService
+    private let reviewItemService: ReviewItemServicing
     private weak var coordinator: LibraryCoordinator?
     private var cancellables = Set<AnyCancellable>()
     private weak var errorHandler: AppErrorHandler?
@@ -49,7 +49,7 @@ final class LibraryViewModel: ObservableObject {
     // MARK: - Initialization
     
     init(
-        reviewItemService: ReviewItemService,
+        reviewItemService: ReviewItemServicing,
         coordinator: LibraryCoordinator
     ) {
         self.reviewItemService = reviewItemService
@@ -78,6 +78,9 @@ final class LibraryViewModel: ObservableObject {
     func loadReviewItems() async {
         isLoading = true
         
+        let timer = AppLogger.Timer("LibraryViewModel.loadReviewItems", domain: .viewModel)
+        AppLogger.info(.viewModel, "LibraryViewModel starting loadReviewItems")
+        
         do {
             // 构建查询条件并通过Service查询
             let criteria = ReviewItemQueryCriteria(
@@ -91,8 +94,10 @@ final class LibraryViewModel: ObservableObject {
             let items = try await reviewItemService.getItemsByCriteria(criteria)
             
             reviewItems = items
+            timer.stop(extra: "loaded \(items.count) items")
             
         } catch {
+            AppLogger.error(.viewModel, "LibraryViewModel loadReviewItems failed: \(error)")
             errorHandler?.handle(error)
         }
         
@@ -108,7 +113,10 @@ final class LibraryViewModel: ObservableObject {
             reviewedItems = stats.proficiencyBreakdown.proficient
             pendingItems = stats.total - stats.proficiencyBreakdown.proficient
             
+            AppLogger.debug(.viewModel, "LibraryViewModel statistics loaded: total=\(totalItems), reviewed=\(reviewedItems), pending=\(pendingItems)")
+            
         } catch {
+            AppLogger.error(.viewModel, "LibraryViewModel loadStatistics failed: \(error)")
             print("加载统计信息失败：\(error)")
         }
     }

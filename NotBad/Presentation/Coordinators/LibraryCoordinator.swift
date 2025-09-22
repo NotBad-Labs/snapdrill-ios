@@ -11,15 +11,19 @@ import SwiftUI
 /// 管理题库模块的导航逻辑
 @MainActor
 class LibraryCoordinator: BaseCoordinator {
+    enum LibraryRoute: Hashable {
+        case detail(id: String)
+        case practice
+    }
     override func coordinate(to route: Route) {
         switch route {
         case .library:
             // 回到题库根视图
             navigationPath = NavigationPath()
         case .detail(let module, let id) where module == "library":
-            navigationPath.append("detail-\(id)")
+            navigationPath.append(LibraryRoute.detail(id: id))
         case .practiceMode:
-            navigationPath.append("practice")
+            navigationPath.append(LibraryRoute.practice)
         case .navigateToPracticeFromLibrary:
             // 处理从其他模块触发的练习导航
             coordinate(to: .practiceMode)

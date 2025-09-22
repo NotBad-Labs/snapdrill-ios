@@ -31,19 +31,22 @@ struct CaptureView: View {
         ))
     }
 
+    init(viewModel: CaptureViewModel, coordinator: CaptureCoordinator) {
+        self.coordinator = coordinator
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+
     var body: some View {
         NavigationStack(path: $coordinator.navigationPath) {
             CaptureMainContentView(viewModel: viewModel)
                 .navigationTitle("拍照")
-                .navigationDestination(for: String.self) { route in
-                    if route.hasPrefix("ocr-") {
-                        let imageBase64 = String(route.dropFirst(4))
+                .navigationDestination(for: CaptureCoordinator.CaptureRoute.self) { route in
+                    switch route {
+                    case .ocr(let imageBase64):
                         OCRResultView(imageBase64: imageBase64, coordinator: coordinator)
-                    } else if route.hasPrefix("edit-") {
-                        let text = String(route.dropFirst(5))
+                    case .edit(let text):
                         OCREditView(initialText: text, coordinator: coordinator)
-                    } else if route.hasPrefix("save-") {
-                        let content = String(route.dropFirst(5))
+                    case .save(let content):
                         SaveReviewItemView(content: content, coordinator: coordinator)
                     }
                 }

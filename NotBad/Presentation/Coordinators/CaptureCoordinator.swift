@@ -11,6 +11,11 @@ import SwiftUI
 /// 管理拍照模块的导航逻辑
 @MainActor
 class CaptureCoordinator: BaseCoordinator {
+    enum CaptureRoute: Hashable {
+        case ocr(imageBase64: String)
+        case edit(text: String)
+        case save(content: String)
+    }
     /// 是否显示相机
     @Published var showCamera = false
 
@@ -32,13 +37,13 @@ class CaptureCoordinator: BaseCoordinator {
             showPhotoLibrary = true
 
         case .ocrResult(let image):
-            navigationPath.append("ocr-\(image.prefix(10))")
+            navigationPath.append(CaptureRoute.ocr(imageBase64: image))
 
         case .ocrEdit(let result):
-            navigationPath.append("edit-\(result.prefix(10))")
+            navigationPath.append(CaptureRoute.edit(text: result))
 
         case .saveReviewItem(let content):
-            navigationPath.append("save-\(content.prefix(10))")
+            navigationPath.append(CaptureRoute.save(content: content))
 
         default:
             // 无法处理的路由委托给父协调器

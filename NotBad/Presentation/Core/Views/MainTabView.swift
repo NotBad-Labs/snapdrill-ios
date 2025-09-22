@@ -12,6 +12,7 @@ import SwiftUI
 struct MainTabView: View {
     /// 主协调器引用
     @ObservedObject var coordinator: MainCoordinator
+    @Environment(\.serviceContainer) private var services
 
     init(coordinator: MainCoordinator) {
         self.coordinator = coordinator
@@ -30,7 +31,7 @@ struct MainTabView: View {
 
             if let libraryCoordinator = coordinator.getTabCoordinator(at: 1) as? LibraryCoordinator {
                 let vm = LibraryViewModel(
-                    reviewItemService: ServiceContainer.shared.reviewItemService,
+                    reviewItemService: services.reviewItemServicing,
                     coordinator: libraryCoordinator
                 )
                 LibraryView(viewModel: vm, coordinator: libraryCoordinator)
@@ -42,7 +43,11 @@ struct MainTabView: View {
             }
 
             if let captureCoordinator = coordinator.getTabCoordinator(at: 2) as? CaptureCoordinator {
-                CaptureView(coordinator: captureCoordinator)
+                let vm = CaptureViewModel(
+                    captureUseCase: services.captureReviewItemUseCase,
+                    coordinator: captureCoordinator
+                )
+                CaptureView(viewModel: vm, coordinator: captureCoordinator)
                     .tabItem {
                         Image(systemName: "camera.fill")
                         Text("拍照")
