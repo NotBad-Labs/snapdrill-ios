@@ -51,6 +51,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Presentation/README.md,
+				Testing/README.md,
 			);
 			target = B27BD95E2E560D0600E69277 /* NotBad */;
 		};
