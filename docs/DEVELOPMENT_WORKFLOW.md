@@ -1,5 +1,4 @@
-# ---
-
+---
 title: NotBad 开发工作流程（Git Flow）
 version: v6.0
 lastUpdated: 2025-09-21
@@ -8,12 +7,6 @@ baseline:
   xcode: 26
   swift: 6.2
   device: iPhone 17
----
-
----
-title: NotBad 开发工作流
-version: v6.0
-lastUpdated: 2025-09-21
 ---
 
 # NotBad 开发工作流
