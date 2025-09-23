@@ -1,0 +1,20 @@
+# SwiftLint overrides for test files
+# Relax some rules that are noisy in tests.
+
+disabled_rules:
+  - file_header
+  - sorted_imports
+
+identifier_name:
+  min_length: 1
+  max_length: 40
+  excluded:
+    - i
+    - j
+    - k
+    - m
+    - x
+    - y
+
+force_unwrapping:
+  severity: warning
