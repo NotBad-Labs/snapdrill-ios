@@ -8,8 +8,8 @@ final class ReviewItemServiceUpdateValidationTests: XCTestCase {
         let id = try await service.createReviewItem(
             question: "Q",
             answer: "A",
-            subject: "math",
-            difficulty: "medium",
+            subject: "数学",
+            difficulty: "中等",
             tags: [],
             notes: nil
         )
@@ -22,8 +22,8 @@ final class ReviewItemServiceUpdateValidationTests: XCTestCase {
 
         let fetched = try await service.getReviewItem(id: id)
         XCTAssertNotNil(fetched)
-        XCTAssertEqual(fetched?.subject, .math) // unchanged
-        XCTAssertEqual(fetched?.difficulty, .medium) // unchanged
+    XCTAssertEqual(fetched?.subject, .math) // unchanged
+    XCTAssertEqual(fetched?.difficulty, .medium) // unchanged
     }
 
     func testUpdateReviewItem_itemNotFound_throws() async throws {

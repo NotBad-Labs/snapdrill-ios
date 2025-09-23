@@ -9,8 +9,8 @@ final class ReviewSessionUseCaseGradeTests: XCTestCase {
             _ = try await service.createReviewItem(
                 question: "Q\(i)",
                 answer: "A\(i)",
-                subject: "math",
-                difficulty: "medium",
+                subject: "数学",
+                difficulty: "中等",
                 tags: [],
                 notes: nil
             )

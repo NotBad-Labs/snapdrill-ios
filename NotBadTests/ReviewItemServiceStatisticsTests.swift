@@ -26,8 +26,8 @@ final class ReviewItemServiceStatisticsTests: XCTestCase {
         _ = try await service.createReviewItem(
             question: "Q1",
             answer: "A1",
-            subject: "math",
-            difficulty: "easy",
+            subject: "数学",
+            difficulty: "简单",
             tags: ["algebra"],
             notes: nil
         )
@@ -35,8 +35,8 @@ final class ReviewItemServiceStatisticsTests: XCTestCase {
         _ = try await service.createReviewItem(
             question: "Q2",
             answer: "A2",
-            subject: "science",
-            difficulty: "medium",
+            subject: "物理",
+            difficulty: "中等",
             tags: ["physics"],
             notes: nil
         )
@@ -44,8 +44,8 @@ final class ReviewItemServiceStatisticsTests: XCTestCase {
         _ = try await service.createReviewItem(
             question: "Q3",
             answer: "A3",
-            subject: "language",
-            difficulty: "hard",
+            subject: "语文",
+            difficulty: "困难",
             tags: ["vocab"],
             notes: nil
         )
