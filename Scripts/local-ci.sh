@@ -17,7 +17,10 @@ COVERAGE_THRESHOLD=${COVERAGE_THRESHOLD:-35}
 PROJECT_NAME="NotBad"
 SCHEME="NotBad"
 TEST_PLAN="UnitTestPlan"
-DESTINATION="platform=iOS Simulator,name=iPhone 17 Pro Max"
+# Align default simulator with workspace tasks for consistency; override via DESTINATION env
+DESTINATION=${DESTINATION:-"platform=iOS Simulator,name=iPhone 17"}
+# Enable parallel testing; override via MAX_WORKERS env
+MAX_WORKERS=${MAX_WORKERS:-4}
 
 echo -e "${BLUE}🚀 Starting Local CI for $PROJECT_NAME${NC}"
 echo -e "${BLUE}Coverage Threshold: $COVERAGE_THRESHOLD%${NC}"
@@ -47,6 +50,7 @@ echo ""
 echo -e "${YELLOW}🧪 Running Unit Tests with Coverage${NC}"
 echo "Destination: $DESTINATION"
 echo "Test Plan: $TEST_PLAN"
+echo "Max Workers: $MAX_WORKERS (parallel testing enabled)"
 
 # Clean up previous results
 rm -rf TestResults.xcresult
@@ -57,6 +61,8 @@ xcodebuild \
     -project $PROJECT_NAME.xcodeproj \
     -scheme $SCHEME \
     -destination "$DESTINATION" \
+    -parallel-testing-enabled YES \
+    -maximum-parallel-testing-workers $MAX_WORKERS \
     -testPlan $TEST_PLAN \
     -enableCodeCoverage YES \
     -resultBundlePath TestResults.xcresult \
@@ -78,15 +84,19 @@ if python3 Scripts/check_coverage.py local_artifacts/coverage-local.json "$COVER
     echo ""
     
     # Step 7: Optional - Run markdownlint check
-    echo -e "${YELLOW}📝 Running Markdownlint Check${NC}"
-    if command -v markdownlint &> /dev/null; then
-        if markdownlint "**/*.md" --ignore node_modules --config .markdownlint.jsonc; then
-            echo -e "${GREEN}✅ Markdownlint passed!${NC}"
-        else
-            echo -e "${YELLOW}⚠️  Markdownlint warnings (check ignore list)${NC}"
-        fi
+    if [[ "${SKIP_MARKDOWNLINT:-0}" == "1" ]]; then
+        echo -e "${YELLOW}📝 Skipping Markdownlint (SKIP_MARKDOWNLINT=1)${NC}"
     else
-        echo "markdownlint not available, install with: npm install -g markdownlint-cli"
+        echo -e "${YELLOW}📝 Running Markdownlint Check${NC}"
+        if command -v markdownlint &> /dev/null; then
+            if markdownlint "**/*.md" --ignore node_modules --config .markdownlint.jsonc; then
+                echo -e "${GREEN}✅ Markdownlint passed!${NC}"
+            else
+                echo -e "${YELLOW}⚠️  Markdownlint warnings (check ignore list)${NC}"
+            fi
+        else
+            echo "markdownlint not available, install with: npm install -g markdownlint-cli"
+        fi
     fi
     echo ""
     
