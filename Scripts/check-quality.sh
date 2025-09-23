@@ -14,16 +14,18 @@ WARN_THRESHOLD=${WARN_THRESHOLD:-80}
 # 新增双门槛：逻辑覆盖率与整体覆盖率分别检查
 LOGIC_COVERAGE_THRESHOLD=${LOGIC_COVERAGE_THRESHOLD:-$COVERAGE_THRESHOLD}
 LOGIC_WARN_THRESHOLD=${LOGIC_WARN_THRESHOLD:-$WARN_THRESHOLD}
-OVERALL_COVERAGE_THRESHOLD=${OVERALL_COVERAGE_THRESHOLD:-60}
-OVERALL_WARN_THRESHOLD=${OVERALL_WARN_THRESHOLD:-60}
+OVERALL_COVERAGE_THRESHOLD=${OVERALL_COVERAGE_THRESHOLD:-65}
+OVERALL_WARN_THRESHOLD=${OVERALL_WARN_THRESHOLD:-65}
 RESULT_BUNDLE=${RESULT_BUNDLE:-"TestResults.xcresult"}
 ARTIFACTS_DIR="local_artifacts"
 SNAPSHOT_DIR="docs/coverage"
 
 # 默认排除 SwiftUI 视图文件（通常通过快照/UI 测试覆盖，不纳入逻辑覆盖率门槛）
-# 同时匹配顶层 Presentation/Views 以及任意层级下的 .../Views 目录
-# 注意：这里的正则需要匹配字面点号，使用单个反斜杠转义即可（shell 单引号内无需再次转义）。
-export COVERAGE_EXCLUDE_REGEX=${COVERAGE_EXCLUDE_REGEX:-'NotBad/NotBad/Presentation/.*/Views/.*\.swift'}
+# 同时匹配顶层 Presentation/Views 以及任意层级下的 .../Views 目录：
+#   NotBad/NotBad/Presentation/Views/.../*.swift
+#   NotBad/NotBad/Presentation/<any>/Views/.../*.swift
+# 注意：该正则将用于 Python 的 re 模块；'(.*/)?' 使中间层级为可选，从而涵盖两种路径结构。
+export COVERAGE_EXCLUDE_REGEX=${COVERAGE_EXCLUDE_REGEX:-'NotBad/NotBad/Presentation/(.*/)?Views/.*\.swift'}
 
 mkdir -p "$ARTIFACTS_DIR" "$SNAPSHOT_DIR"
 

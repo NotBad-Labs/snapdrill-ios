@@ -10,8 +10,10 @@
 import json
 import sys
 import argparse
+import os
+import re
 
-def parse_coverage_report(coverage_file):
+def parse_coverage_report(coverage_file, include_target_regex=None, exclude_path_regex=None):
     """解析Xcode生成的覆盖率报告"""
     try:
         with open(coverage_file, 'r') as f:
@@ -21,8 +23,20 @@ def parse_coverage_report(coverage_file):
         total_lines = 0
         covered_lines = 0
         
+        target_pattern = re.compile(include_target_regex) if include_target_regex else None
+        path_pattern = re.compile(exclude_path_regex) if exclude_path_regex else None
+
         for target in coverage_data.get('targets', []):
+            # 仅包含匹配的 target（若设置）
+            if target_pattern:
+                name = target.get('name', '')
+                if not target_pattern.search(name):
+                    continue
             for file_data in target.get('files', []):
+                path = file_data.get('path', '')
+                # 排除匹配的文件路径（若设置）
+                if path_pattern and path and path_pattern.search(path):
+                    continue
                 total_lines += file_data.get('executableLines', 0)
                 covered_lines += file_data.get('coveredLines', 0)
         
@@ -39,10 +53,16 @@ def main():
     parser.add_argument('threshold', type=float, help='覆盖率阈值')
     parser.add_argument('--warn-threshold', type=float, default=None, help='警告阈值（可选）')
     parser.add_argument('--show-details', action='store_true', help='显示详细覆盖率信息')
+    parser.add_argument('--include-target-regex', default=os.environ.get('COVERAGE_INCLUDE_TARGET_REGEX'), help='仅统计匹配该正则的 target（可选）')
+    parser.add_argument('--exclude-path-regex', default=os.environ.get('COVERAGE_EXCLUDE_REGEX'), help='排除匹配该正则的文件路径（可选）')
     
     args = parser.parse_args()
     
-    coverage_percentage, covered_lines, total_lines = parse_coverage_report(args.coverage_file)
+    coverage_percentage, covered_lines, total_lines = parse_coverage_report(
+        args.coverage_file,
+        include_target_regex=args.include_target_regex,
+        exclude_path_regex=args.exclude_path_regex,
+    )
     
     print(f"📊 代码覆盖率: {coverage_percentage:.2f}%")
     print(f"📝 覆盖行数: {covered_lines}/{total_lines}")

@@ -20,6 +20,23 @@
 				"$gcc"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Run Unit Tests (NotBad)",
+			"type": "shell",
+			"command": "xcodebuild",
+			"args": [
+				"test",
+				"-project",
+				"NotBad.xcodeproj",
+				"-scheme",
+				"NotBad",
+				"-destination",
+				"platform=iOS Simulator,name=iPhone 17",
+				"-parallel-testing-enabled",
+				"YES"
+			],
+			"group": "build"
 		}
 	]
 }
