@@ -34,4 +34,15 @@ final class CameraCoverageSmokeTests: XCTestCase {
         // 断言对象已创建并且默认状态合理
         XCTAssertFalse(manager.isSessionRunning)
     }
+
+    // 轻触会话启动/停止路径（在模拟器/无设备环境下也应安全执行）。
+    func testCameraManager_StartAndStopSession_NoCrash() {
+        let manager = CameraManager()
+        manager.startSession()
+        // 等待片刻让会话队列执行
+        let exp = expectation(description: "wait for session queue")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { exp.fulfill() }
+        wait(for: [exp], timeout: 2.0)
+        manager.stopSession()
+    }
 }
