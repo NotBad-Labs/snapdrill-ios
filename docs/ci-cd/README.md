@@ -5,11 +5,14 @@ lastUpdated: 2025-09-21
 ---
 
 # CI/CD 自动化文档目录
-baseline:
-    ios: 26
-    xcode: 26
-    swift: 6.2
-    device: iPhone 17
+
+**技术基线配置：**
+
+- iOS: 26.0
+- Xcode: 26.0  
+- Swift: 6.2
+- 测试设备: iPhone 17
+
 ---
 
 ## 文档概述

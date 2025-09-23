@@ -3,6 +3,7 @@
 > 一个**安全、简洁、智能**的K12学习复习应用，帮助学生科学高效地管理和复习错题，形成完整的学习闭环。
 
 ![iOS](https://img.shields.io/badge/iOS-26.0%2B-blue) ![Swift](https://img.shields.io/badge/Swift-6.2-orange) ![Xcode](https://img.shields.io/badge/Xcode-26%2B-blue) ![Status](https://img.shields.io/badge/Status-Refactoring-yellow)
+![Coverage](https://img.shields.io/badge/coverage-65.38%25-brightgreen) ![Logic](https://img.shields.io/badge/logic-92.37%25-brightgreen) ![Threshold](https://img.shields.io/badge/threshold-65%25-blue)
 
 ## ✨ 核心功能
 

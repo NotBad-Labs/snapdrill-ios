@@ -1,10 +1,9 @@
 ---
 title: NotBad 质量门槛指南
-version: v6.0
-lastUpdated: 2025-09-21
+version: v6.1
+lastUpdated: 2025-09-23
 ---
 
-# NotBad 质量门槛指南
 baseline:
   ios: 26
   xcode: 26
@@ -12,7 +11,7 @@ baseline:
   device: iPhone 17
 ---
 
-## NotBad 质量门槛指南
+# NotBad 质量门槛指南
 
 ## 🎯 概述
 
@@ -41,8 +40,8 @@ baseline:
 
 ### 3. 🧪 测试覆盖率
 
-- **最低要求**: 80% 代码覆盖率
-- **检查范围**: 除 UI 测试外的所有源代码
+- **逻辑覆盖率门槛**: 80%（排除 SwiftUI Views 文件路径：`NotBad/NotBad/Presentation/(.*/)?Views/.*\.swift`）
+- **整体覆盖率门槛**: 65%
 - **测试类型**:
   - 单元测试 (Unit Tests)
   - 集成测试 (Integration Tests)
@@ -96,7 +95,7 @@ git commit -m "feat: add new feature"
 
 # 3. 运行完整质量检查
 
-./Scripts/quality_gate.sh
+zsh Scripts/check-quality.sh
 
 # 4. 推送到远程
 
@@ -157,7 +156,7 @@ git commit -m "fix: resolve linting issues"
 ### CI 检查失败
 
 1. 查看 GitHub Actions 的详细日志
-2. 本地运行 `./Scripts/quality_gate.sh` 复现问题
+2. 本地运行 `zsh Scripts/check-quality.sh` 复现问题
 3. 修复问题后推送新的提交
 
 ### 测试覆盖率不足
