@@ -81,4 +81,48 @@ final class LibraryDetailViewModelTests: XCTestCase {
         await vm.load()
         XCTAssertNil(vm.item)
     }
+
+    func testStartPractice_coordinatesToPracticeMode() async throws {
+        // Arrange
+        let vm = LibraryDetailViewModel(
+            reviewItemService: service,
+            itemId: UUID().uuidString,
+            coordinator: coordinator,
+            errorHandler: errorHandler
+        )
+
+        // Act
+        vm.startPractice()
+
+        // Assert: navigation path should push one route
+        XCTAssertEqual(coordinator.navigationPath.count, 1)
+    }
+
+    func testDeleteCurrentItem_removesItem() async throws {
+        // Arrange: create one item and load it into VM
+        let id = try await service.createReviewItem(
+            question: "Q1",
+            answer: "A1",
+            subject: "math",
+            difficulty: "easy",
+            tags: ["t"],
+            notes: nil
+        )
+        let vm = LibraryDetailViewModel(
+            reviewItemService: service,
+            itemId: id.value.uuidString,
+            coordinator: coordinator,
+            errorHandler: errorHandler
+        )
+        await vm.load()
+        XCTAssertNotNil(vm.item)
+
+        // Act
+        await vm.deleteCurrentItem()
+
+        // Assert
+        XCTAssertNil(vm.item)
+        let all = try await service.getAllItems()
+        XCTAssertEqual(all.count, 0)
+    }
 }
