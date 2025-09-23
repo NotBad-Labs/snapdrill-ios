@@ -104,6 +104,27 @@ final class LibraryViewModelInteractionTests: XCTestCase {
         XCTAssertNotNil(errorHandler.currentError)
     }
 
+    func testDeleteItem_success_updatesItemsAndStatistics() async throws {
+        // Seed two items
+        let id1 = try await service.createReviewItem(question: "Q1", answer: "A1", subject: ReviewItem.Subject.other.rawValue, difficulty: ReviewItem.Difficulty.easy.rawValue, tags: [], notes: nil)
+        _ = try await service.createReviewItem(question: "Q2", answer: "A2", subject: ReviewItem.Subject.other.rawValue, difficulty: ReviewItem.Difficulty.medium.rawValue, tags: [], notes: nil)
+
+        let vm = LibraryViewModel(reviewItemService: service, coordinator: coordinator)
+        vm.configure(errorHandler: errorHandler)
+
+        await vm.loadReviewItems()
+        await vm.loadStatistics()
+        XCTAssertEqual(vm.reviewItems.count, 2)
+        XCTAssertEqual(vm.totalItems, 2)
+
+        guard let item1 = try await service.getReviewItem(id: id1) else { return XCTFail("seed failed") }
+        await vm.deleteItem(item1)
+
+        // After successful delete, LibraryViewModel should reload items and stats
+        XCTAssertEqual(vm.reviewItems.count, 1)
+        XCTAssertEqual(vm.totalItems, 1)
+    }
+
     func testSearchDebounce_triggersReload() async throws {
         // Seed data
         _ = try await service.createReviewItem(question: "Apple pie", answer: "Delicious", subject: ReviewItem.Subject.other.rawValue, difficulty: ReviewItem.Difficulty.easy.rawValue, tags: [], notes: nil)

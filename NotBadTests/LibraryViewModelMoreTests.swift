@@ -82,4 +82,107 @@ final class LibraryViewModelMoreTests: XCTestCase {
         try await Task.sleep(nanoseconds: 600_000_000) // wait > debounce
         XCTAssertEqual(vm.reviewItems.count, 2)
     }
+
+    func testRefresh_updatesItemsAndStatistics() async throws {
+        // Seed initial data
+        _ = try await service.createReviewItem(
+            question: "Q1",
+            answer: "A1",
+            subject: ReviewItem.Subject.other.rawValue,
+            difficulty: ReviewItem.Difficulty.easy.rawValue,
+            tags: [],
+            notes: nil
+        )
+
+        let vm = LibraryViewModel(reviewItemService: service, coordinator: coordinator)
+
+        // When
+        await vm.refresh()
+
+        // Then
+        XCTAssertEqual(vm.reviewItems.count, 1)
+        XCTAssertEqual(vm.totalItems, 1)
+
+        // And: After adding another item, refresh updates both lists and stats
+        _ = try await service.createReviewItem(
+            question: "Q2",
+            answer: "A2",
+            subject: ReviewItem.Subject.other.rawValue,
+            difficulty: ReviewItem.Difficulty.medium.rawValue,
+            tags: [],
+            notes: nil
+        )
+
+        await vm.refresh()
+        XCTAssertEqual(vm.reviewItems.count, 2)
+        XCTAssertEqual(vm.totalItems, 2)
+    }
+
+    func testOnAppear_loadsItemsAndStatistics() async throws {
+        // Seed data
+        _ = try await service.createReviewItem(
+            question: "Hello",
+            answer: "World",
+            subject: ReviewItem.Subject.math.rawValue,
+            difficulty: ReviewItem.Difficulty.hard.rawValue,
+            tags: [],
+            notes: nil
+        )
+        _ = try await service.createReviewItem(
+            question: "Foo",
+            answer: "Bar",
+            subject: ReviewItem.Subject.physics.rawValue,
+            difficulty: ReviewItem.Difficulty.easy.rawValue,
+            tags: [],
+            notes: nil
+        )
+
+        let vm = LibraryViewModel(reviewItemService: service, coordinator: coordinator)
+
+        // When: onAppear schedules async loads for items and statistics
+        vm.onAppear()
+        // allow tasks to complete
+        try await Task.sleep(nanoseconds: 250_000_000)
+
+        // Then
+        XCTAssertEqual(vm.reviewItems.count, 2)
+        XCTAssertEqual(vm.totalItems, 2)
+        XCTAssertEqual(vm.pendingItems, 2)
+    }
+
+    func testFilteredItemsCount_reflectsCurrentItems() async throws {
+        // Seed 3 items: 2 easy, 1 hard
+        _ = try await service.createReviewItem(
+            question: "E1",
+            answer: "A",
+            subject: ReviewItem.Subject.other.rawValue,
+            difficulty: ReviewItem.Difficulty.easy.rawValue,
+            tags: [],
+            notes: nil
+        )
+        _ = try await service.createReviewItem(
+            question: "E2",
+            answer: "A",
+            subject: ReviewItem.Subject.other.rawValue,
+            difficulty: ReviewItem.Difficulty.easy.rawValue,
+            tags: [],
+            notes: nil
+        )
+        _ = try await service.createReviewItem(
+            question: "H1",
+            answer: "A",
+            subject: ReviewItem.Subject.other.rawValue,
+            difficulty: ReviewItem.Difficulty.hard.rawValue,
+            tags: [],
+            notes: nil
+        )
+
+        let vm = LibraryViewModel(reviewItemService: service, coordinator: coordinator)
+        await vm.loadReviewItems()
+        XCTAssertEqual(vm.filteredItemsCount, 3)
+
+        vm.selectedDifficulty = .hard
+        await vm.loadReviewItems()
+        XCTAssertEqual(vm.filteredItemsCount, 1)
+    }
 }
