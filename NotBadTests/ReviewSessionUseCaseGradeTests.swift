@@ -34,12 +34,13 @@ final class ReviewSessionUseCaseGradeTests: XCTestCase {
 
         // New session: 3/5 correct → fair (60%)
         let info2 = try await useCase.startReviewSession(maxItems: 5)
-        for _ in 0..<3 { _ = try await useCase.submitAnswer(sessionId: info2.sessionId, wasSuccessful: true) }
-        for _ in 0..<2 { _ = try await useCase.submitAnswer(sessionId: info2.sessionId, wasSuccessful: false) }
-        if case .completed(let result2) = try await useCase.submitAnswer(sessionId: info2.sessionId, wasSuccessful: false) {
-            // We answered 6 times due to loop above; ensure completion by handling last item
-            XCTAssertTrue(result2.accuracy <= 1.0)
-        }
+        for _ in 0..<3 { _ = try await useCase.submitAnswer(sessionId: info2.sessionId, wasSuccessful: true) } // 3 correct
+        _ = try await useCase.submitAnswer(sessionId: info2.sessionId, wasSuccessful: false) // 4th answer (incorrect)
+        if case .completed(let result2) = try await useCase.submitAnswer(sessionId: info2.sessionId, wasSuccessful: false) { // 5th answer (incorrect)
+            XCTAssertEqual(result2.correctAnswers, 3)
+            XCTAssertEqual(result2.grade, .fair)
+            XCTAssertEqual(result2.totalItems, 5)
+        } else { XCTFail("Expected completed result for fair grade") }
 
         // Third session to directly test grade mapping logic with crafted answers
         let info3 = try await useCase.startReviewSession(maxItems: 5)
