@@ -31,6 +31,8 @@ struct LibraryView: View {
         NavigationStack(path: $coordinator.navigationPath) {
             LibraryContentView(viewModel: viewModel)
                 .navigationTitle("题库")
+                // 标识当前屏幕（便于 UITests 稳定定位）
+                .accessibilityIdentifier("screen_library")
                 .navigationDestination(for: LibraryCoordinator.LibraryRoute.self) { route in
                     switch route {
                     case .detail(let id):
@@ -49,6 +51,7 @@ struct LibraryView: View {
                                 Image(systemName: "plus")
                             }
                         )
+                        .accessibilityIdentifier("library_add_button")
                     }
                 }
         }
@@ -68,8 +71,11 @@ struct LibraryContentView: View {
             // 统计信息
             HStack(spacing: 20) {
                 LibraryStatCard(title: "总题数", count: viewModel.totalItems, color: .blue)
+                    .accessibilityIdentifier("library_stat_total")
                 LibraryStatCard(title: "已掌握", count: viewModel.reviewedItems, color: .green)
+                    .accessibilityIdentifier("library_stat_reviewed")
                 LibraryStatCard(title: "需复习", count: viewModel.pendingItems, color: .orange)
+                    .accessibilityIdentifier("library_stat_pending")
             }
             .padding()
 
@@ -79,6 +85,7 @@ struct LibraryContentView: View {
                     .padding()
             } else if viewModel.reviewItems.isEmpty {
                 Text("暂无题目")
+                    .accessibilityIdentifier("library_empty_state")
                     .foregroundColor(.secondary)
                     .padding()
             } else {

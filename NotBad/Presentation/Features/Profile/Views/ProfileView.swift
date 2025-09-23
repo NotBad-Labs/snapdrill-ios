@@ -26,6 +26,7 @@ struct ProfileView: View {
         NavigationStack(path: $coordinator.navigationPath) {
             ProfileContentView(coordinator: coordinator)
                 .navigationTitle("我的")
+                .accessibilityIdentifier("screen_profile")
                 .navigationDestination(for: ProfileCoordinator.ProfileRoute.self) { route in
                     switch route {
                     case .settings:
@@ -111,22 +112,27 @@ struct ProfileMenuSection: View {
                 ProfileMenuItem(icon: "gear", title: "应用设置", color: .gray) {
                     coordinator.coordinate(to: .settings)
                 }
+                .accessibilityIdentifier("profile_menu_settings")
                 Divider().padding(.leading, 50)
                 ProfileMenuItem(icon: "bell", title: "通知设置", color: .orange) {
                     // TODO: 通知设置
                 }
+                .accessibilityIdentifier("profile_menu_notifications")
                 Divider().padding(.leading, 50)
                 ProfileMenuItem(icon: "shield", title: "隐私设置", color: .blue) {
                     // TODO: 隐私设置 - 可使用 coordinator.coordinate(to: .detail(module: "profile", id: "privacy"))
                 }
+                .accessibilityIdentifier("profile_menu_privacy")
                 Divider().padding(.leading, 50)
                 ProfileMenuItem(icon: "questionmark.circle", title: "帮助反馈", color: .green) {
                     // TODO: 帮助反馈 - 可使用 coordinator.coordinate(to: .detail(module: "profile", id: "help"))
                 }
+                .accessibilityIdentifier("profile_menu_help")
                 Divider().padding(.leading, 50)
                 ProfileMenuItem(icon: "info.circle", title: "关于我们", color: .purple) {
                     coordinator.coordinate(to: .about)
                 }
+                .accessibilityIdentifier("profile_menu_about")
             }
             .background(Color.white)
             .cornerRadius(12)
@@ -216,6 +222,7 @@ struct ProfileSettingsView: View {
             }
         }
         .navigationTitle("设置")
+        .accessibilityIdentifier("screen_profile_settings")
     }
 }
 
@@ -234,6 +241,7 @@ struct AboutView: View {
         }
         .padding()
         .navigationTitle("关于")
+        .accessibilityIdentifier("screen_profile_about")
     }
 }
 

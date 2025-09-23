@@ -14,6 +14,12 @@ final class AppInitializationService {
     // MARK: - Dependencies
     private let serviceContainer: ServiceContainer
     
+    #if DEBUG
+    // 测试钩子：用于在单元测试中注入失败场景
+    // 仅在 DEBUG 下可用，不影响生产环境
+    static var testInjectedFailure: AppInitializationError? = nil
+    #endif
+    
     // MARK: - Initialization
     init(serviceContainer: ServiceContainer = .shared) {
         self.serviceContainer = serviceContainer
@@ -24,6 +30,11 @@ final class AppInitializationService {
     /// 执行应用初始化
     /// - Returns: 初始化是否成功
     func initialize() async throws {
+        #if DEBUG
+        if let injected = Self.testInjectedFailure {
+            throw injected
+        }
+        #endif
         // 1. 基础服务初始化
         try await initializeServices()
         

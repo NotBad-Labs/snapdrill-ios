@@ -40,6 +40,8 @@ struct CaptureView: View {
         NavigationStack(path: $coordinator.navigationPath) {
             CaptureMainContentView(viewModel: viewModel)
                 .navigationTitle("拍照")
+                // 标识当前屏幕，便于 UITests 
+                .accessibilityIdentifier("screen_capture")
                 .navigationDestination(for: CaptureCoordinator.CaptureRoute.self) { route in
                     switch route {
                     case .ocr(let imageBase64):
@@ -88,6 +90,7 @@ struct CaptureHeaderView: View {
             Text("拍照识别")
                 .font(.largeTitle)
                 .fontWeight(.bold)
+                .accessibilityIdentifier("capture_title")
 
             Text("拍摄题目，智能识别文字")
                 .font(.title3)
@@ -128,6 +131,7 @@ struct CaptureCameraButtonView: View {
                 )
             }
         )
+        .accessibilityIdentifier("capture_main_button")
     }
 }
 
@@ -145,6 +149,7 @@ struct CaptureOptionsView: View {
                     viewModel.showCameraView()
                 }
             )
+            .accessibilityIdentifier("capture_option_scan")
 
             CaptureOptionButton(
                 icon: "photo.on.rectangle",
@@ -154,6 +159,7 @@ struct CaptureOptionsView: View {
                     viewModel.showPhotoLibraryView()
                 }
             )
+            .accessibilityIdentifier("capture_option_library")
         }
         .padding(.horizontal)
     }

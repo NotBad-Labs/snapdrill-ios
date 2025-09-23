@@ -39,15 +39,18 @@ final class CaptureViewModel: ObservableObject {
     private let captureUseCase: CaptureReviewItemUseCase
     private weak var coordinator: CaptureCoordinator?
     private weak var errorHandler: AppErrorHandler?
+    private let ocrProcessor: OcrProcessing
     
     // MARK: - Initialization
     
     init(
         captureUseCase: CaptureReviewItemUseCase,
-        coordinator: CaptureCoordinator
+        coordinator: CaptureCoordinator,
+        ocrProcessor: OcrProcessing = DefaultOcrProcessor()
     ) {
         self.captureUseCase = captureUseCase
         self.coordinator = coordinator
+        self.ocrProcessor = ocrProcessor
     }
 
     /// 配置全局错误处理器（在View中从AppEnvironment注入）
@@ -125,7 +128,6 @@ final class CaptureViewModel: ObservableObject {
     private func processImageWithOCR(_ image: UIImage) async {
         isProcessingOCR = true
         ocrProgress = 0.0
-        
         do {
             try Task.checkCancellation()
             // 模拟进度更新
@@ -133,8 +135,8 @@ final class CaptureViewModel: ObservableObject {
                 ocrProgress = 0.3
             }
             
-            // 调用OCR处理（这里需要实际的OCR实现）
-            let result = try await performOCRProcessing(image)
+            // 调用OCR处理
+            let result = try await ocrProcessor.process(image)
             
             withAnimation(.easeInOut(duration: 0.5)) {
                 ocrProgress = 1.0
@@ -159,11 +161,19 @@ final class CaptureViewModel: ObservableObject {
             errorHandler?.handle(error)
         }
     }
-    
-    /// 执行OCR处理（临时实现）
-    private func performOCRProcessing(_ image: UIImage) async throws -> OCRResult {
-        // TODO: 实现真正的OCR处理
-        // 这里返回一个模拟结果
+}
+
+// MARK: - Supporting Types
+
+/// OCR 处理协议，便于注入与测试
+protocol OcrProcessing {
+    func process(_ image: UIImage) async throws -> OCRResult
+}
+
+/// 默认的 OCR 处理器（占位实现）
+struct DefaultOcrProcessor: OcrProcessing {
+    func process(_ image: UIImage) async throws -> OCRResult {
+        // TODO: 集成实际 OCR 能力（Vision/MLKit等）
         return OCRResult(
             question: "从图片中识别的题目",
             answer: "从图片中识别的答案",
@@ -171,10 +181,7 @@ final class CaptureViewModel: ObservableObject {
             confidence: 0.95
         )
     }
-    
 }
-
-// MARK: - Supporting Types
 
 /// OCR识别结果
 struct OCRResult: Sendable {

@@ -33,6 +33,10 @@ final class ReviewSessionUseCase {
         on date: Date = Date(),
         maxItems: Int = 20
     ) async throws -> ReviewSessionInfo {
+        // 如果已有会话在进行中，则不允许再次开始
+        if currentSession != nil {
+            throw ReviewSessionError.sessionAlreadyInProgress
+        }
         // 获取需要复习的项目
         let itemsToReview = try await reviewItemService.getItemsForReview(
             date: date,
@@ -175,7 +179,8 @@ private class ActiveReviewSession {
     var totalItems: Int { items.count }
     var currentItem: ReviewItem { items[currentIndex] }
     var hasNextItem: Bool { currentIndex + 1 < items.count }
-    var progress: Double { Double(currentIndex + 1) / Double(totalItems) }
+    // Progress reflects completed answers over total items, range [0,1].
+    var progress: Double { totalItems > 0 ? Double(results.count) / Double(totalItems) : 0.0 }
     
     func recordAnswer(wasSuccessful: Bool) {
         results.append(ReviewResult(

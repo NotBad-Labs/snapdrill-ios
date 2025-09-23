@@ -261,7 +261,11 @@ private extension ReviewItem {
         let adjustedInterval = baseInterval * difficultyMultiplier
         return now.addingTimeInterval(adjustedInterval)
     }
-    
+    // streak 计算放到公开扩展中，便于测试覆盖
+}
+
+// 将连续成功次数相关方法暴露为内部可见，便于单元测试直接断言
+extension ReviewItem {
     /// 计算当前连续成功次数
     func calculateCurrentStreak() -> Int {
         return reviewHistory.getCurrentStreak()
