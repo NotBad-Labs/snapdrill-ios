@@ -24,12 +24,16 @@
 
 ## 质量检查
 
-- 运行 `Scripts/quality_gate.sh`，确保：
-  - SwiftLint 通过
-  - 可在 iPhone 17 Pro (iOS 26) 模拟器上编译并通过单测
-  - 覆盖率不低于 80%
-  - markdownlint 和链接检查通过
-  - 文档一致性检查通过
+- 本地执行 `./Scripts/check-quality.sh`，包含：
+  - SwiftLint（如已安装）
+  - 使用 iPhone 17 模拟器运行单元测试并生成覆盖率
+  - 覆盖率双门槛：
+    - 逻辑覆盖率（排除 SwiftUI Views）≥ 80%
+    - 整体覆盖率 ≥ 基线（脚本中的 `OVERALL_COVERAGE_THRESHOLD`，默认 60；预警阈值 60）
+  - 输出 `docs/coverage/coverage-<timestamp>.json` 覆盖率快照
+  - DI 启发式体检与文档存在性检查
+
+> 说明：逻辑覆盖率会排除 `NotBad/NotBad/Presentation/.../Views/*.swift`，以避免 UI 细节影响核心逻辑覆盖门槛；整体覆盖率用于稳步拉升全局健康度，CI 将随里程碑逐步Ratchet。
 
 ## 提交 PR
 
