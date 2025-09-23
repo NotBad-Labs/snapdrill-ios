@@ -21,7 +21,7 @@ final class ReviewSessionUseCaseInfoTests: XCTestCase {
         // Random different sessionId should return nil
         let otherId = UUID()
         XCTAssertNotEqual(otherId, info.sessionId)
-        let current = useCase.getCurrentSessionInfo(sessionId: otherId)
+        let current = try useCase.getCurrentSessionInfo(sessionId: otherId)
         XCTAssertNil(current)
     }
 }
