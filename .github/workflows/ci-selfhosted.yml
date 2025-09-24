@@ -107,3 +107,15 @@ jobs:
           path: |
             local_artifacts/coverage-local.json
             local_artifacts/
+
+      - name: Generate Quality Dashboard
+        if: always()
+        run: |
+          zsh Scripts/generate-dashboard.sh || true
+
+      - name: Upload Dashboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-dashboard
+          path: docs/dashboard.md

@@ -1,0 +1,53 @@
+name: NotBad DevOps Maturity Assessment
+version: 1.0.0
+date: 2025-09-24
+
+dimensions:
+  continuous_integration:
+    level: 4
+    evidence:
+      - Unified CI pipeline
+      - Self-hosted runners
+      - Parallel testing
+      - Coverage gates
+    improvements:
+      - Add performance benchmarks
+      - Implement dependency caching
+  continuous_delivery:
+    level: 3
+    evidence:
+      - Release PRs
+      - Version management
+      - Release notes
+    improvements:
+      - Add staging environment
+      - Implement blue-green deployment
+  testing:
+    level: 4
+    evidence:
+      - 70% overall coverage
+      - 93% logic coverage
+      - Unit test suite
+    improvements:
+      - Add integration tests
+      - Add UI tests
+      - Add performance tests
+  monitoring:
+    level: 2
+    evidence:
+      - Basic CI metrics
+      - Cost tracking
+    improvements:
+      - Add APM tools
+      - Add error tracking
+      - Add user analytics
+  documentation:
+    level: 3
+    evidence:
+      - README
+      - Release notes
+      - Runbooks
+    improvements:
+      - API docs
+      - Architecture diagrams
+      - Video tutorials
