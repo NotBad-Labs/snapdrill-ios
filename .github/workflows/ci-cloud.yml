@@ -1,0 +1,65 @@
+name: CI (Cloud)
+
+on:
+  # Disabled by default to avoid cloud minutes usage; run manually if needed
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Build, Test, and Coverage (GitHub Hosted)
+    runs-on: macos-14
+    env:
+      SCHEME_NAME: NotBad
+      PROJECT_NAME: NotBad.xcodeproj
+      COVERAGE_THRESHOLD: "30"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: |
+          xcodebuild -version
+          xcode-select -p
+
+      - name: List available simulators (debug)
+        run: |
+          echo "Available iOS simulators:"
+          xcrun simctl list devices | sed -n '1,200p'
+        continue-on-error: true
+
+      - name: Resolve SwiftPM
+        run: |
+          xcodebuild -resolvePackageDependencies -project ${{ env.PROJECT_NAME }} -scheme ${{ env.SCHEME_NAME }}
+
+      - name: Run unit tests with coverage (xcresult)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project ${{ env.PROJECT_NAME }} \
+            -scheme ${{ env.SCHEME_NAME }} \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -testPlan UnitTestPlan \
+            -enableCodeCoverage YES \
+            -resultBundlePath TestResults.xcresult \
+            test
+
+      - name: Convert coverage to JSON
+        run: |
+          mkdir -p local_artifacts
+          xcrun xccov view --report --json TestResults.xcresult > local_artifacts/coverage-local.json
+
+      - name: Enforce coverage threshold (overall)
+        run: |
+          python3 Scripts/check_coverage.py local_artifacts/coverage-local.json "$COVERAGE_THRESHOLD"
+
+      - name: Upload xcresult
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults-xcresult
+          path: TestResults.xcresult
+
+      - name: Upload coverage JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-local.json
+          path: local_artifacts/coverage-local.json

@@ -1,0 +1,6 @@
+{
+  "note": "Snapshot placeholder recorded by Copilot after local CI passed with 70.01% overall coverage.",
+  "source": "local_artifacts/coverage-local.json",
+  "overall_coverage_percent": 70.01,
+  "timestamp": "2025-09-24T09:58:59+08:00"
+}

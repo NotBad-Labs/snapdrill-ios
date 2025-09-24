@@ -1,0 +1,109 @@
+# NOTE: Versions, environments, and constraints must follow the PRD (SSoT):
+# docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md
+name: NotBad CI/CD Pipeline (Self-hosted)
+
+on:
+  push:
+    branches: [ develop, 'release/**', 'feature/**' ]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ main, develop, 'release/**' ]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      run_performance_tests:
+        description: 'Run performance tests'
+        required: false
+        default: false
+        type: boolean
+      run_ui_tests:
+        description: 'Run UI tests'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SCHEME_NAME: NotBad
+  PROJECT_NAME: NotBad.xcodeproj
+  # Mount under $HOME to avoid sudo/password prompts
+  ARTIFACTS_DIR: $HOME/runner_data/artifacts
+  CACHE_DIR: $HOME/runner_data
+  # Synology/NAS secrets
+  SMB_HOST: ${{ secrets.SMB_HOST }}
+  SHARE_NAME: ${{ secrets.SHARE_NAME }}
+  SMB_USER: ${{ secrets.SMB_USER }}
+  SMB_PASSWORD: ${{ secrets.SMB_PASSWORD }}
+  SYNOLOGY_HOSTNAME: DS1821
+
+jobs:
+  build-test-quality:
+    name: Build, Unit Tests & Dual Coverage Gate (Self-hosted)
+    runs-on: self-hosted
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Xcode Version
+        run: |
+          xcodebuild -version
+
+      - name: List Simulators (debug)
+        run: |
+          xcrun simctl list devices | sed -n '1,120p' || true
+
+      - name: Mount Synology Storage (no sudo)
+        if: ${{ env.SMB_HOST != '' && env.SHARE_NAME != '' && env.SMB_USER != '' && env.SMB_PASSWORD != '' }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          MOUNT_POINT="$HOME/runner_data"
+          if [ -d "$MOUNT_POINT" ] && mount | grep -q "$MOUNT_POINT"; then
+            echo "✅ 已挂载: $MOUNT_POINT"
+          else
+            echo "挂载 NAS 到: $MOUNT_POINT"
+            if nslookup "${SYNOLOGY_HOSTNAME}.local" > /dev/null 2>&1; then
+              ACTUAL_HOST="${SYNOLOGY_HOSTNAME}.local"
+            else
+              ACTUAL_HOST="${SMB_HOST}"
+            fi
+            mkdir -p "$MOUNT_POINT"
+            ENCODED_PWD=$(python3 -c "import os,urllib.parse;print(urllib.parse.quote(os.environ.get('SMB_PASSWORD',''), safe=''))")
+            CRED_URL="//${SMB_USER}:${ENCODED_PWD}@${ACTUAL_HOST}/${SHARE_NAME}"
+            if mount_smbfs -f 0777 -d 0777 "$CRED_URL" "$MOUNT_POINT"; then
+              echo "✅ 挂载成功"
+              mkdir -p "$MOUNT_POINT/artifacts" "$MOUNT_POINT/test-results" "$MOUNT_POINT/performance-results" "$MOUNT_POINT/ui-test-results" "$MOUNT_POINT/build-artifacts"
+            else
+              echo "❌ 挂载失败"
+              exit 0
+            fi
+          fi
+          df -h "$MOUNT_POINT" | tail -1
+
+      - name: Run Quality Gate (Unit tests + dual coverage)
+        run: |
+          SIM_DEVICE="iPhone 17 Pro" TEST_PLAN="UnitTestPlan" MAX_WORKERS="4" zsh Scripts/check-quality.sh
+
+      - name: Upload Test Results Bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults-xcresult
+          path: TestResults.xcresult
+
+      - name: Upload Coverage and Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-and-artifacts
+          path: |
+            local_artifacts/coverage-local.json
+            local_artifacts/

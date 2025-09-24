@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "2520DB8E-40EB-4D49-A507-BD7408C4274C",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:NotBad.xcodeproj",
+        "identifier" : "B27BD96F2E560D0800E69277",
+        "name" : "NotBadTests"
+      }
+    }
+  ],
+  "version" : 1
+}

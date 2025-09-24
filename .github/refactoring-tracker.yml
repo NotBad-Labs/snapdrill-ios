@@ -1,0 +1,32 @@
+name: NotBad 重构进度
+
+phases:
+  - phase: 1
+    name: 基础设施
+    deadline: 2025-10-01
+    tasks:
+      - name: 启用测试覆盖率报告
+        status: in_progress
+        files: ["UnitTestPlan.xctestplan", "Scripts/check-quality.sh"]
+      - name: 统一结构化日志方案
+        status: pending
+        files: ["NotBad/Core/Monitoring/AppMetrics.swift"]
+
+  - phase: 2
+    name: 核心业务
+    deadline: 2025-10-15
+    tasks:
+      - name: Service/UseCase 抽协议
+        status: pending
+        checklist:
+          - 为 ReviewItemService 提供协议
+          - UseCase 抽象接口
+          - 更新 ViewModel 注入点
+
+  - phase: 3
+    name: UI 层
+    deadline: 2025-10-31
+    tasks:
+      - name: 预览数据源一致化
+        status: pending
+        files: ["NotBad/Presentation/Features/*/Views/*View.swift", "NotBad/Testing/MockDataProvider.swift"]

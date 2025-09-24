@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleShortVersionString</key>
+	<string>6.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>NotBad需要访问相机来拍摄题目照片，以便进行OCR识别和创建复习内容。</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>NotBad需要访问相册来选择已有的题目照片，以便进行OCR识别和创建复习内容。</string>
+</dict>
+</plist>
