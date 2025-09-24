@@ -1,0 +1,50 @@
+name: Policy - No GitHub-hosted runners on auto-triggered workflows
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+  push:
+    branches: [ main, develop, 'feature/**', 'release/**', 'hotfix/**' ]
+    paths:
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate workflow runner policy
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for hosted runners in auto-triggered workflows
+        run: |
+          set -euo pipefail
+          cd .github/workflows
+
+          # Find workflow files that have push or pull_request triggers
+          auto_files=$(grep -lE "^on:|^on:\n" -n *.yml | cut -d: -f1 | xargs -I {} sh -c 'awk "/^on:/,/^jobs:/" {} | grep -qE "\bpush:|\bpull_request:" && echo {} || true')
+
+          if [ -z "${auto_files}" ]; then
+            echo "No auto-triggered workflows detected."
+            exit 0
+          fi
+
+          echo "Auto-triggered workflows:" $auto_files
+
+          bad_files=""
+          for f in $auto_files; do
+            if grep -qE "runs-on:\s*(ubuntu-latest|macos-latest|windows-latest)" "$f"; then
+              bad_files+="$f\n"
+            fi
+          done
+
+          if [ -n "$bad_files" ]; then
+            echo "❌ Found auto-triggered workflows using GitHub-hosted runners (disallowed):"
+            printf "%b" "$bad_files"
+            echo "Please switch jobs to 'runs-on: self-hosted' or change to manual-only (workflow_dispatch)."
+            exit 1
+          fi
+
+          echo "✅ Policy passed: no auto-triggered workflows use GitHub-hosted runners."

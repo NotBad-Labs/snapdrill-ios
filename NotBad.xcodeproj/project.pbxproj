@@ -44,9 +44,22 @@
 		B2F0D1062F00000100AAA001 /* ExportOptions.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ExportOptions.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B2A457632E83AA01001A449E /* Exceptions for "NotBad" folder in "NotBad" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B27BD95E2E560D0600E69277 /* NotBad */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B27BD9612E560D0700E69277 /* NotBad */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B2A457632E83AA01001A449E /* Exceptions for "NotBad" folder in "NotBad" target */,
+			);
 			path = NotBad;
 			sourceTree = "<group>";
 		};
