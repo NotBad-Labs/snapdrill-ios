@@ -9,7 +9,7 @@ baseline:
   device: iPhone 17
 ---
 
-# NotBad 开发工作流
+## NotBad 开发工作流
 
 ## 📋 分支策略
 
@@ -136,7 +136,7 @@ git push origin develop
 
 ### 自动化测试
 
-- `feature/*`：代码质量 + 单元 + 集成
+- `feature/*`：代码质量 + 单元（本地优先，必要时少量集成）
 - `develop`：完整测试套件（回归）
 - `release/*`：完整测试 + 构建归档
 - `main`：完整测试 + 打包/归档（可选）
@@ -148,7 +148,7 @@ git push origin develop
 | `main` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `release/*` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `develop` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `feature/*` | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| `feature/*` | ✅ | ✅ | ⚠️（按需） | ❌ | ❌ | ❌ |
 
 ## 📝 提交信息规范
 
@@ -204,12 +204,19 @@ git commit -m "refactor: 重构数据访问层"
 3. **文档更新**: 重要变更需要更新文档
 4. **性能考虑**: 关注内存和性能影响
 
-### 发布管理
+### 发布管理（语义化版本 + 变更日志）
 
-1. **版本标签**: 使用语义化版本号
-2. **变更日志**: 维护详细的变更记录
+1. **版本标签**: 使用语义化版本号（参见仓库 `VERSION` 与 `CHANGELOG.md`）
+2. **变更日志**: 维护详细的变更记录（以 `CHANGELOG.md` 为准）
 3. **回滚准备**: 准备好回滚策略
 4. **监控部署**: 密切关注部署后的状态
+
+---
+
+附注（与脚本对齐）：
+
+- 本地快速循环优先：`SKIP_MARKDOWNLINT=1 MAX_WORKERS=4 zsh Scripts/local-ci.sh`
+- 集成分支/CI 对齐：`zsh Scripts/check-quality.sh`（执行双阈值与快照）
 
 ---
 

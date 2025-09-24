@@ -38,10 +38,11 @@ baseline:
   - 代码复杂度控制
   - 最佳实践遵循
 
-### 3. 🧪 测试覆盖率
+### 3. 🧪 测试覆盖率（单一事实来源 — 与脚本一致）
 
-- **逻辑覆盖率门槛**: 80%（排除 SwiftUI Views 文件路径：`NotBad/NotBad/Presentation/(.*/)?Views/.*\.swift`）
+- **逻辑覆盖率门槛**: 80%（排除 Views：`NotBad/Presentation/(.*/)?Views/.*\.swift`）
 - **整体覆盖率门槛**: 65%
+- 双阈值校验由 `Scripts/check-quality.sh` 与 `Scripts/check_coverage.py` 执行；本地快速循环推荐使用 `Scripts/local-ci.sh`。
 - **测试类型**:
   - 单元测试 (Unit Tests)
   - 集成测试 (Integration Tests)
@@ -53,11 +54,10 @@ baseline:
 - **平台**: iOS 模拟器和真机
 - **配置**: Debug 和 Release 配置都必须编译成功
 
-### 5. ⚡ 性能检查
+### 5. ⚡ 性能检查（按需执行）
 
-- **启动时间**: < 3秒
-- **内存使用**: 合理范围内
-- **无性能回归**: 相比基准版本性能不能下降超过10%
+- **目标**: 无显著性能回归（建议通过基线比对，回归不超过10%）
+- 性能检查可在 `develop`/`release/*` 阶段启用，`feature/*` 默认不阻塞
 
 ## 🛠️ 本地开发流程
 
