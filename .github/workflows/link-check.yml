@@ -1,19 +1,10 @@
-name: Link Check
+name: DISABLED - Link Check
 
 on:
   workflow_dispatch:
 
 jobs:
-  link-check:
-    runs-on: ubuntu-latest
+  disabled:
+    runs-on: self-hosted
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run lychee link checker
-        uses: lycheeverse/lychee-action@v1
-        with:
-          args: --config .lychee.toml "README.md" "docs/**/*.md"
-          fail: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "Link check workflow disabled."

@@ -1,40 +1,10 @@
-name: Debug Runner
+name: DISABLED - Debug Runner (manual)
 
 on:
   workflow_dispatch:
 
 jobs:
-  debug:
+  disabled:
     runs-on: self-hosted
-    env:
-      SMB_HOST: ${{ secrets.SMB_HOST }}
-      SHARE_NAME: ${{ secrets.SHARE_NAME }}
-      SMB_USER: ${{ secrets.SMB_USER }}
-      SMB_PASSWORD: ${{ secrets.SMB_PASSWORD }}
     steps:
-      - name: Runner Info
-        run: |
-          echo "=== Runner OS ==="
-          echo "${{ runner.os }}"
-          echo "=== Runner Context ==="
-          echo "${{ toJson(runner) }}"
-
-      - name: Xcode Info
-        run: |
-          echo "=== Xcode Version ==="
-          xcodebuild -version || true
-          echo "=== Xcode Path ==="
-          xcode-select -p || true
-
-      - name: List Simulators
-        run: |
-          echo "=== Available Simulators (first 150 lines) ==="
-          xcrun simctl list devices | sed -n '1,150p' || true
-
-      - name: Check SMB Secrets presence
-        run: |
-          echo "=== SMB Configuration Presence ==="
-          test -n "${SMB_HOST}" && echo "SMB_HOST present: true" || echo "SMB_HOST present: false"
-          test -n "${SHARE_NAME}" && echo "SHARE_NAME present: true" || echo "SHARE_NAME present: false"
-          test -n "${SMB_USER}" && echo "SMB_USER present: true" || echo "SMB_USER present: false"
-          test -n "${SMB_PASSWORD}" && echo "SMB_PASSWORD present: true" || echo "SMB_PASSWORD present: false"
+      - run: echo "Debug runner workflow disabled to keep workflows minimal."

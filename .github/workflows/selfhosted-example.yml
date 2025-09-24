@@ -1,75 +1,12 @@
 # NOTE: Versions, environments, and constraints must follow the PRD (SSoT):
 # docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.0.md
-name: Self-hosted iOS CI (manual)
+name: DISABLED - Self-hosted iOS CI (example)
 
 on:
   workflow_dispatch:
 
 jobs:
-  selfhosted-test:
-    name: Build & Unit Tests on self-hosted
+  disabled:
     runs-on: self-hosted
-    timeout-minutes: 30
-    env:
-      SCHEME_NAME: NotBad
-      PROJECT_NAME: NotBad.xcodeproj
-      ARTIFACTS_DIR: $HOME/runner_data/artifacts
-      CACHE_DIR: $HOME/runner_data
-      SMB_HOST: ${{ secrets.SMB_HOST }}
-      SHARE_NAME: ${{ secrets.SHARE_NAME }}
-      SMB_USER: ${{ secrets.SMB_USER }}
-      SMB_PASSWORD: ${{ secrets.SMB_PASSWORD }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # 可改为仅校验 Xcode 版本
-      - name: Print Xcode version
-        run: xcodebuild -version
-
-      - name: List Simulators
-        run: xcrun simctl list devices | sed -n '1,80p'
-
-      - name: Mount Synology (no sudo)
-        if: ${{ env.SMB_HOST != '' && env.SHARE_NAME != '' && env.SMB_USER != '' && env.SMB_PASSWORD != '' }}
-        continue-on-error: true
-        run: |
-          set -euo pipefail
-          MOUNT_POINT="$HOME/runner_data"
-          if [ ! -d "$MOUNT_POINT" ] || ! mount | grep -q "$MOUNT_POINT"; then
-            if nslookup "DS1821.local" > /dev/null 2>&1; then
-              ACTUAL_HOST="DS1821.local"
-            else
-              ACTUAL_HOST="${SMB_HOST:-$SMB_HOST}"
-            fi
-            mkdir -p "$MOUNT_POINT"
-            ENCODED_PWD=$(python3 -c "import os,urllib.parse;print(urllib.parse.quote(os.environ.get('SMB_PASSWORD',''), safe=''))")
-            CRED_URL="//${SMB_USER}:${ENCODED_PWD}@${ACTUAL_HOST}/${SHARE_NAME}"
-            mount_smbfs -f 0777 -d 0777 "$CRED_URL" "$MOUNT_POINT" || true
-            mkdir -p "$MOUNT_POINT/artifacts"
-          fi
-
-      - name: Build (for testing)
-        run: |
-          xcodebuild clean build \
-            -project ${{ env.PROJECT_NAME }} \
-            -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
-            CODE_SIGNING_ALLOWED=NO
-
-      - name: Run Unit Tests
-        run: |
-          xcodebuild test \
-            -project ${{ env.PROJECT_NAME }} \
-            -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
-            -testPlan UnitTestPlan \
-            CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath ${{ env.ARTIFACTS_DIR }}/SelfHosted-TestResults.xcresult || \
-          xcodebuild test \
-            -project ${{ env.PROJECT_NAME }} \
-            -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
-            -testPlan UnitTestPlan \
-            CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath SelfHosted-TestResults.xcresult
+      - run: echo "Example self-hosted workflow disabled. Use 'NotBad CI/CD Pipeline (Self-hosted)'."

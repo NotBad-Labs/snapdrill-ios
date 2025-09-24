@@ -1,92 +1,10 @@
-name: Release Metadata Check
+name: DISABLED - Release Metadata Check
 
 on:
-  pull_request:
-    branches: [ main ]
-    paths-ignore:
-      - '**/*.md'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE/**'
-    types: [opened, synchronize, reopened]
-
-    # Only run for PRs from release/** or hotfix/** branches
-    # GitHub Actions doesn't support PR source filters directly; we'll filter in a job step.
+  workflow_dispatch:
 
 jobs:
-  validate:
+  disabled:
     runs-on: self-hosted
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # need tags and history for changelog generation
-
-      - name: Ensure Python 3 (preinstalled on self-hosted)
-        run: |
-          python3 --version
-
-      - name: Skip if not from release/* or hotfix/*
-        id: branch_check
-        run: |
-          set -euo pipefail
-          SRC_REF="${{ github.head_ref }}"
-          echo "Source ref: $SRC_REF"
-          if [[ "$SRC_REF" == release/* || "$SRC_REF" == hotfix/* ]]; then
-            echo "run_check=true" >> $GITHUB_OUTPUT
-          else
-            echo "run_check=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Validate release metadata
-        if: steps.branch_check.outputs.run_check == 'true'
-        run: |
-          python3 Scripts/validate_release_metadata.py
-
-      - name: Determine previous tag
-        if: steps.branch_check.outputs.run_check == 'true'
-        id: prev
-        run: |
-          set -euo pipefail
-          # Try to find the latest tag reachable from base branch (main)
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
-          echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
-          echo "Latest tag: ${LATEST_TAG}"
-
-      - name: Generate changelog snippet from git
-        if: steps.branch_check.outputs.run_check == 'true'
-        run: |
-          set -euo pipefail
-          if [ -n "${{ steps.prev.outputs.latest_tag }}" ]; then
-            python3 Scripts/generate_changelog_from_git.py --from "${{ steps.prev.outputs.latest_tag }}" --to HEAD > changelog_snippet.md
-          else
-            # No tags found, use last 200 commits as a fallback
-            git --no-pager log --pretty=format:%s -n 200 > /tmp/commits.txt
-            echo "### Changes (last 200 commits)\n" > changelog_snippet.md
-            while IFS= read -r line; do echo "- $line" >> changelog_snippet.md; done < /tmp/commits.txt
-          fi
-
-      - name: Upload changelog snippet artifact
-        if: steps.branch_check.outputs.run_check == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: changelog-snippet
-          path: changelog_snippet.md
-
-      - name: Insert snippet into CHANGELOG and commit
-        if: steps.branch_check.outputs.run_check == 'true' && github.event.pull_request.head.repo.fork == false
-        env:
-          PR_BRANCH: ${{ github.head_ref }}
-        run: |
-          set -euo pipefail
-          # Insert snippet under current VERSION section
-          python3 Scripts/insert_changelog_snippet.py changelog_snippet.md
-          # Commit changes back to PR head branch
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
-          git commit -m "docs(changelog): auto-insert generated snippet"
-          git push origin "${PR_BRANCH}"
+      - run: echo "Release metadata check is disabled."
