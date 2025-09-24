@@ -54,7 +54,7 @@ jobs:
           xcodebuild clean build \
             -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Run Unit Tests
@@ -62,14 +62,14 @@ jobs:
           xcodebuild test \
             -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
             -testPlan UnitTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath ${{ env.ARTIFACTS_DIR }}/SelfHosted-TestResults.xcresult || \
           xcodebuild test \
             -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
             -testPlan UnitTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath SelfHosted-TestResults.xcresult
