@@ -5,8 +5,10 @@ set -euo pipefail
 echo "🔍 NotBad 代码质量检查"
 echo "========================"
 
-# 配置项
+# 配置项（可通过环境变量覆盖，以实现本地与CI的一致性）
 SIM_DEVICE=${SIM_DEVICE:-"iPhone 17"}
+TEST_PLAN=${TEST_PLAN:-"UnitTestPlan"}
+MAX_WORKERS=${MAX_WORKERS:-4}
 # 兼容旧变量：COVERAGE_THRESHOLD/WARN_THRESHOLD 用于逻辑覆盖率（保留向后兼容）
 COVERAGE_THRESHOLD=${COVERAGE_THRESHOLD:-80}
 WARN_THRESHOLD=${WARN_THRESHOLD:-80}
@@ -48,8 +50,11 @@ else
   echo "⚠️ 未检测到 swiftlint，跳过规范检查"
 fi
 
-# 2. 单元测试 + 覆盖率（使用可配置模拟器）
+# 2. 单元测试 + 覆盖率（使用可配置模拟器/测试计划/并发度）
 echo "🧪 运行单元测试并收集覆盖率..."
+echo "   ↳ 模拟器: ${SIM_DEVICE}"
+echo "   ↳ 测试计划: ${TEST_PLAN}"
+echo "   ↳ 最大并发: ${MAX_WORKERS}"
 set +e
 if command -v xcpretty >/dev/null 2>&1; then
   XCB_PIPE="xcpretty -c"
@@ -60,6 +65,10 @@ else
 fi
 set -e
 
+# 先解析 SwiftPM 依赖，避免首次构建失败
+echo "📦 解析 SwiftPM 依赖..."
+xcodebuild -resolvePackageDependencies -project NotBad.xcodeproj -scheme NotBad || true
+
 # 清理旧的 result bundle，避免冲突
 rm -rf "$RESULT_BUNDLE"
 
@@ -69,7 +78,9 @@ xcodebuild test \
   -project NotBad.xcodeproj \
   -scheme NotBad \
   -destination "platform=iOS Simulator,name=${SIM_DEVICE}" \
+  -testPlan ${TEST_PLAN} \
   -parallel-testing-enabled YES \
+  -maximum-parallel-testing-workers ${MAX_WORKERS} \
   -enableCodeCoverage YES \
   -resultBundlePath "$RESULT_BUNDLE" | eval $XCB_PIPE
 XCB_STATUS=$?

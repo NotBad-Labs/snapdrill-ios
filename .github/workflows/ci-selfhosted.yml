@@ -3,7 +3,16 @@
 name: NotBad CI/CD Pipeline (Self-hosted)
 
 on:
-  # 默认改为手动触发，避免自托管环境不稳定影响日常开发
+  push:
+    branches: [ develop, 'release/**', 'feature/**' ]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ main, develop, 'release/**' ]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   workflow_dispatch:
     inputs:
       run_performance_tests:
@@ -35,40 +44,10 @@ env:
   SYNOLOGY_HOSTNAME: DS1821
 
 jobs:
-  code-quality:
-    name: Code Quality & Linting
-    runs-on: self-hosted
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Verify Xcode installed
-        run: |
-          xcodebuild -version
-
-      - name: Install SwiftLint (best effort)
-        run: |
-          if ! command -v swiftlint &> /dev/null; then
-            if command -v brew &> /dev/null; then
-              brew install swiftlint || true
-            else
-              echo "brew not found, skip swiftlint installation"
-            fi
-          fi
-
-      - name: Run SwiftLint
-        run: swiftlint lint --reporter github-actions-logging || true
-
-  test:
-    name: Unit & Integration Tests
+  build-test-quality:
+    name: Build, Unit Tests & Dual Coverage Gate (Self-hosted)
     runs-on: self-hosted
     timeout-minutes: 60
-    needs: code-quality
-    strategy:
-      matrix:
-        destination:
-          - 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -91,17 +70,14 @@ jobs:
             echo "✅ 已挂载: $MOUNT_POINT"
           else
             echo "挂载 NAS 到: $MOUNT_POINT"
-            # Resolve host via mDNS first
             if nslookup "${SYNOLOGY_HOSTNAME}.local" > /dev/null 2>&1; then
               ACTUAL_HOST="${SYNOLOGY_HOSTNAME}.local"
             else
               ACTUAL_HOST="${SMB_HOST}"
             fi
             mkdir -p "$MOUNT_POINT"
-            # URL-encode password to handle special characters
             ENCODED_PWD=$(python3 -c "import os,urllib.parse;print(urllib.parse.quote(os.environ.get('SMB_PASSWORD',''), safe=''))")
             CRED_URL="//${SMB_USER}:${ENCODED_PWD}@${ACTUAL_HOST}/${SHARE_NAME}"
-            # macOS mount_smbfs does not support Linux-style file_mode/dir_mode; use -f (file) and -d (dir)
             if mount_smbfs -f 0777 -d 0777 "$CRED_URL" "$MOUNT_POINT"; then
               echo "✅ 挂载成功"
               mkdir -p "$MOUNT_POINT/artifacts" "$MOUNT_POINT/test-results" "$MOUNT_POINT/performance-results" "$MOUNT_POINT/ui-test-results" "$MOUNT_POINT/build-artifacts"
@@ -112,50 +88,22 @@ jobs:
           fi
           df -h "$MOUNT_POINT" | tail -1
 
-      - name: Prepare artifacts directory
-        run: mkdir -p "${{ env.ARTIFACTS_DIR }}"
-
-      - name: Build (for testing)
+      - name: Run Quality Gate (Unit tests + dual coverage)
         run: |
-          xcodebuild clean build \
-            -project ${{ env.PROJECT_NAME }} \
-            -scheme ${{ env.SCHEME_NAME }} \
-            -destination "${{ matrix.destination }}" \
-            CODE_SIGNING_ALLOWED=NO
+          SIM_DEVICE="iPhone 17 Pro" TEST_PLAN="UnitTestPlan" MAX_WORKERS="4" zsh Scripts/check-quality.sh
 
-      - name: Run Unit Tests
-        run: |
-          local_result_path="./TestResults-$(date +%s).xcresult"
-          xcodebuild test \
-            -project ${{ env.PROJECT_NAME }} \
-            -scheme ${{ env.SCHEME_NAME }} \
-            -destination "${{ matrix.destination }}" \
-            -testPlan UnitTestPlan \
-            CODE_SIGNING_ALLOWED=NO \
-            -enableCodeCoverage YES \
-            -resultBundlePath "$local_result_path"
-          cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult"
+      - name: Upload Test Results Bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults-xcresult
+          path: TestResults.xcresult
 
-      - name: Run Integration Tests
-        run: |
-          local_result_path="./IntegrationResults-$(date +%s).xcresult"
-          xcodebuild test \
-            -project ${{ env.PROJECT_NAME }} \
-            -scheme ${{ env.SCHEME_NAME }} \
-            -destination "${{ matrix.destination }}" \
-            -testPlan IntegrationTestPlan \
-            CODE_SIGNING_ALLOWED=NO \
-            -resultBundlePath "$local_result_path"
-          cp -r "$local_result_path" "${{ env.ARTIFACTS_DIR }}/IntegrationResults-${{ matrix.destination }}.xcresult"
-
-      - name: Generate coverage json
-        run: |
-          xcrun xccov view --report --json "${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult" > "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json"
-
-      - name: Archive results to NAS cache
-        run: |
-          safe_dest=$(echo "${{ matrix.destination }}" | sed 's/[^a-zA-Z0-9._-]/_/g')
-          mkdir -p "${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_dest"
-          cp -r "${{ env.ARTIFACTS_DIR }}/TestResults-${{ matrix.destination }}.xcresult" "${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_dest/" || true
-          cp -r "${{ env.ARTIFACTS_DIR }}/IntegrationResults-${{ matrix.destination }}.xcresult" "${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_dest/" || true
-          cp "${{ env.ARTIFACTS_DIR }}/coverage-${{ matrix.destination }}.json" "${{ env.CACHE_DIR }}/test-results/${{ github.run_number }}/$safe_dest/" || true
+      - name: Upload Coverage and Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-and-artifacts
+          path: |
+            local_artifacts/coverage-local.json
+            local_artifacts/

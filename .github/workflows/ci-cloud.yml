@@ -1,10 +1,8 @@
 name: CI (Cloud)
 
 on:
-  push:
-    branches: [ main, develop, 'release/**', 'feature/**' ]
-  pull_request:
-    branches: [ main, develop ]
+  # Disabled by default to avoid cloud minutes usage; run manually if needed
+  workflow_dispatch:
 
 jobs:
   test:

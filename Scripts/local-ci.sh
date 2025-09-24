@@ -16,10 +16,10 @@ NC='\033[0m' # No Color
 COVERAGE_THRESHOLD=${COVERAGE_THRESHOLD:-35}
 PROJECT_NAME="NotBad"
 SCHEME="NotBad"
-TEST_PLAN="UnitTestPlan"
-# Align default simulator with workspace tasks for consistency; override via DESTINATION env
-DESTINATION=${DESTINATION:-"platform=iOS Simulator,name=iPhone 17"}
-# Enable parallel testing; override via MAX_WORKERS env
+TEST_PLAN=${TEST_PLAN:-"UnitTestPlan"}
+# Align default simulator with workspace tasks for consistency
+SIM_DEVICE=${SIM_DEVICE:-"iPhone 17 Pro"}
+# Enable parallel testing
 MAX_WORKERS=${MAX_WORKERS:-4}
 
 echo -e "${BLUE}🚀 Starting Local CI for $PROJECT_NAME${NC}"
@@ -48,36 +48,17 @@ echo ""
 
 # Step 4: Run unit tests with coverage
 echo -e "${YELLOW}🧪 Running Unit Tests with Coverage${NC}"
-echo "Destination: $DESTINATION"
+echo "Simulator: $SIM_DEVICE"
 echo "Test Plan: $TEST_PLAN"
 echo "Max Workers: $MAX_WORKERS (parallel testing enabled)"
 
-# Clean up previous results
-rm -rf TestResults.xcresult
-rm -rf local_artifacts
+rm -rf TestResults.xcresult local_artifacts || true
 
-set -o pipefail
-xcodebuild \
-    -project $PROJECT_NAME.xcodeproj \
-    -scheme $SCHEME \
-    -destination "$DESTINATION" \
-    -parallel-testing-enabled YES \
-    -maximum-parallel-testing-workers $MAX_WORKERS \
-    -testPlan $TEST_PLAN \
-    -enableCodeCoverage YES \
-    -resultBundlePath TestResults.xcresult \
-    test
+# Delegate to the same quality gate used by self-hosted CI for parity
+SIM_DEVICE="$SIM_DEVICE" TEST_PLAN="$TEST_PLAN" MAX_WORKERS="$MAX_WORKERS" zsh Scripts/check-quality.sh
 
 echo ""
 
-# Step 5: Convert coverage to JSON
-echo -e "${YELLOW}📊 Converting Coverage to JSON${NC}"
-mkdir -p local_artifacts
-xcrun xccov view --report --json TestResults.xcresult > local_artifacts/coverage-local.json
-echo "Coverage report saved to: local_artifacts/coverage-local.json"
-echo ""
-
-# Step 6: Enforce coverage threshold
 echo -e "${YELLOW}🎯 Enforcing Coverage Threshold${NC}"
 if python3 Scripts/check_coverage.py local_artifacts/coverage-local.json "$COVERAGE_THRESHOLD"; then
     echo -e "${GREEN}✅ Coverage threshold passed!${NC}"
