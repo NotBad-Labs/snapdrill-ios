@@ -1,0 +1,24 @@
+name: Cleanup Check (Manual)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Project Analysis
+        run: |
+          chmod +x Scripts/analyze-project.sh
+          ./Scripts/analyze-project.sh > docs/devops/cleanup/current-state.md
+          echo "Analysis completed. Report at docs/devops/cleanup/current-state.md"
+      - name: Upload Cleanup Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cleanup-report
+          path: docs/devops/cleanup/current-state.md
