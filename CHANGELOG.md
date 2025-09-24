@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
-## [6.0.1] - 2025-09-24 (Unreleased)
+## [6.0.1] - 2025-09-24
 
 ### Added — Coverage and Docs
 
@@ -20,7 +20,7 @@ The format is based on Keep a Changelog and this project adheres to Semantic Ver
 ### Notes
 
 - No production behavior changes; this is a quality/coverage uplift release.
-- Intended to be released after integrating `feature/navigation-coordinator` → `develop` and promoting to a short-lived `release/6.0.1` branch.
+// Released as a documentation/tests/CI quality uplift; no production behavior changes.
 
 ## [6.0.0] - 2025-09-19 (Build 1)
 
