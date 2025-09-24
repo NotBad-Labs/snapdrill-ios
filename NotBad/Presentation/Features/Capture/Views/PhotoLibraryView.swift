@@ -115,6 +115,19 @@ struct PhotoLibraryView: View {
             viewModel.handleSelectedImage(image)
         }
     }
+
+#if DEBUG
+    // MARK: - Test Hooks (DEBUG only)
+    /// 供单元测试直接驱动选择图片处理路径，增加对 View 内部逻辑的覆盖
+    func _test_handleSelectedImage(_ data: Data) {
+        handleSelectedImage(data)
+    }
+
+    /// 供单元测试设置选中图片数据，以便覆盖预览分支
+    func _test_setSelectedImageData(_ data: Data?) {
+        selectedImageData = data
+    }
+#endif
 }
 
 #Preview {

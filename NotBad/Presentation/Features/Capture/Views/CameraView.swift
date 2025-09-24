@@ -122,6 +122,19 @@ struct CameraView: View {
             }
         }
     }
+
+#if DEBUG
+    // MARK: - Test Hooks (DEBUG only)
+    /// 供单元测试直接触发拍照完成后的处理逻辑
+    func _test_handleCapturedImage(_ data: Data) {
+        handleCapturedImage(data)
+    }
+
+    /// 供单元测试调用保存到相册逻辑（无需真实相册权限即可调用，不保证写入）
+    func _test_saveImageToPhotoLibrary(_ data: Data) {
+        saveImageToPhotoLibrary(data)
+    }
+#endif
 }
 
 /// 相机预览视图

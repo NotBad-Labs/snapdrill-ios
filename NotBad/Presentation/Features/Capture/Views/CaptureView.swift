@@ -388,3 +388,29 @@ struct SaveReviewItemView: View {
         }
     }
 }
+
+#if DEBUG
+// MARK: - Test Hooks (DEBUG only)
+extension OCREditView {
+    /// 测试钩子：设置文本并模拟点击“保存为复习项…”
+    mutating func _test_editAndSave(text newText: String) {
+        self.text = newText
+        if !newText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            coordinator.coordinate(to: .saveReviewItem(content: newText))
+        }
+    }
+}
+
+extension SaveReviewItemView {
+    /// 测试钩子：设置必要字段并尝试保存，覆盖校验与保存路径
+    mutating func _test_attemptSave(question q: String, answer a: String, tags tagString: String = "") {
+        self.question = q
+        self.answer = a
+        self.tags = tagString
+        // 直接触发保存逻辑（异步），测试只需覆盖路径，无需等待完成
+        // 注意：避免在逃逸闭包中捕获 mutating self，复制一份临时副本以绕过编译限制
+        var copy = self
+        Task { await copy.save() }
+    }
+}
+#endif

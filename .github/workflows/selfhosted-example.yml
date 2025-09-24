@@ -8,11 +8,11 @@ on:
 jobs:
   selfhosted-test:
     name: Build & Unit Tests on self-hosted
-    runs-on: [self-hosted, macos, xcode-26]
+    runs-on: self-hosted
     timeout-minutes: 30
     env:
       SCHEME_NAME: NotBad
-      WORKSPACE_PATH: NotBad.xcodeproj/project.xcworkspace
+      PROJECT_NAME: NotBad.xcodeproj
       ARTIFACTS_DIR: $HOME/runner_data/artifacts
       CACHE_DIR: $HOME/runner_data
       SMB_HOST: ${{ secrets.SMB_HOST }}
@@ -31,6 +31,8 @@ jobs:
         run: xcrun simctl list devices | sed -n '1,80p'
 
       - name: Mount Synology (no sudo)
+        if: ${{ env.SMB_HOST != '' && env.SHARE_NAME != '' && env.SMB_USER != '' && env.SMB_PASSWORD != '' }}
+        continue-on-error: true
         run: |
           set -euo pipefail
           MOUNT_POINT="$HOME/runner_data"
@@ -43,31 +45,31 @@ jobs:
             mkdir -p "$MOUNT_POINT"
             ENCODED_PWD=$(python3 -c "import os,urllib.parse;print(urllib.parse.quote(os.environ.get('SMB_PASSWORD',''), safe=''))")
             CRED_URL="//${SMB_USER}:${ENCODED_PWD}@${ACTUAL_HOST}/${SHARE_NAME}"
-            mount_smbfs -o file_mode=0777,dir_mode=0777 "$CRED_URL" "$MOUNT_POINT" || true
+            mount_smbfs -f 0777 -d 0777 "$CRED_URL" "$MOUNT_POINT" || true
             mkdir -p "$MOUNT_POINT/artifacts"
           fi
 
       - name: Build (for testing)
         run: |
           xcodebuild clean build \
-            -workspace ${{ env.WORKSPACE_PATH }} \
+            -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Run Unit Tests
         run: |
           xcodebuild test \
-            -workspace ${{ env.WORKSPACE_PATH }} \
+            -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
             -testPlan UnitTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath ${{ env.ARTIFACTS_DIR }}/SelfHosted-TestResults.xcresult || \
           xcodebuild test \
-            -workspace ${{ env.WORKSPACE_PATH }} \
+            -project ${{ env.PROJECT_NAME }} \
             -scheme ${{ env.SCHEME_NAME }} \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
             -testPlan UnitTestPlan \
             CODE_SIGNING_ALLOWED=NO \
             -resultBundlePath SelfHosted-TestResults.xcresult

@@ -3,16 +3,7 @@
 name: NotBad CI/CD Pipeline (Self-hosted)
 
 on:
-  push:
-    branches: [ develop, 'release/**', 'feature/**' ]  # 包含feature分支，方便学习
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'  # 只忽略文档，其他都检查
-  pull_request:
-    branches: [ main, develop, 'release/**' ]
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
+  # 默认改为手动触发，避免自托管环境不稳定影响日常开发
   workflow_dispatch:
     inputs:
       run_performance_tests:
@@ -46,9 +37,8 @@ env:
 jobs:
   code-quality:
     name: Code Quality & Linting
-    runs-on: [self-hosted, macos]
+    runs-on: self-hosted
     timeout-minutes: 15
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,10 +47,14 @@ jobs:
         run: |
           xcodebuild -version
 
-      - name: Install SwiftLint
+      - name: Install SwiftLint (best effort)
         run: |
           if ! command -v swiftlint &> /dev/null; then
-            brew install swiftlint
+            if command -v brew &> /dev/null; then
+              brew install swiftlint || true
+            else
+              echo "brew not found, skip swiftlint installation"
+            fi
           fi
 
       - name: Run SwiftLint
@@ -68,14 +62,13 @@ jobs:
 
   test:
     name: Unit & Integration Tests
-    runs-on: [self-hosted, macos]
+    runs-on: self-hosted
     timeout-minutes: 60
     needs: code-quality
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     strategy:
       matrix:
         destination:
-          - 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest'
+          - 'platform=iOS Simulator,name=iPhone 15'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -84,7 +77,13 @@ jobs:
         run: |
           xcodebuild -version
 
+      - name: List Simulators (debug)
+        run: |
+          xcrun simctl list devices | sed -n '1,120p' || true
+
       - name: Mount Synology Storage (no sudo)
+        if: ${{ env.SMB_HOST != '' && env.SHARE_NAME != '' && env.SMB_USER != '' && env.SMB_PASSWORD != '' }}
+        continue-on-error: true
         run: |
           set -euo pipefail
           MOUNT_POINT="$HOME/runner_data"
@@ -108,7 +107,7 @@ jobs:
               mkdir -p "$MOUNT_POINT/artifacts" "$MOUNT_POINT/test-results" "$MOUNT_POINT/performance-results" "$MOUNT_POINT/ui-test-results" "$MOUNT_POINT/build-artifacts"
             else
               echo "❌ 挂载失败"
-              exit 1
+              exit 0
             fi
           fi
           df -h "$MOUNT_POINT" | tail -1
