@@ -46,24 +46,9 @@
 		B2F0D1062F00000100AAA001 /* ExportOptions.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ExportOptions.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		B27BD9822E560D0800E69277 /* Exceptions for "NotBad" folder in "NotBad" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-				Presentation/README.md,
-				Testing/README.md,
-			);
-			target = B27BD95E2E560D0600E69277 /* NotBad */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B27BD9612E560D0700E69277 /* NotBad */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				B27BD9822E560D0800E69277 /* Exceptions for "NotBad" folder in "NotBad" target */,
-			);
 			path = NotBad;
 			sourceTree = "<group>";
 		};
@@ -272,11 +257,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B2BE0C8F2E6A7973001369C3 /* PerformanceTestPlan.xctestplan in Resources */,
-				B29580232E6A78A300E2D95C /* .swiftlint.yml in Resources */,
 				B2BE0C912E6A7981001369C3 /* UITestPlan.xctestplan in Resources */,
 				B2BE0C8B2E6A793F001369C3 /* UnitTestPlan.xctestplan in Resources */,
 				B2BE0C8D2E6A7967001369C3 /* IntegrationTestPlan.xctestplan in Resources */,
-				B2BE0C9D2E727CD0001369C3 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,7 +329,11 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				EXCLUDED_SOURCE_FILE_NAMES = (
+					"*/README.md",
+					"Info.plist",
+				);
 				INFOPLIST_FILE = NotBad/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -379,7 +366,11 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				EXCLUDED_SOURCE_FILE_NAMES = (
+					"*/README.md",
+					"Info.plist",
+				);
 				INFOPLIST_FILE = NotBad/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
