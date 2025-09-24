@@ -1,6 +1,5 @@
-# Current Sprint
+# Sprint: Phase 4
 
-Phase 4 — Coverage to 71.5%
-- Target subsystems: Infrastructure layer
-- Timebox: 4 hours focus block
-- Success: overall ≥ 71.5%, no regression in logic gate
+- Target: 71.5% coverage
+- Focus: Infrastructure layer
+- Deadline: 2025-09-25

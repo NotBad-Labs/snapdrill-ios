@@ -52,6 +52,33 @@ def compute_coverage(path, exclude=None):
 overall_pct, overall_cov, overall_total = compute_coverage(coverage_path, exclude=None)
 logic_pct, logic_cov, logic_total = compute_coverage(coverage_path, exclude=exclude_regex)
 
+# approximate test count from xcresult if present next to coverage JSON
+def find_xcresult_dir():
+    candidates = [
+        os.path.join(os.getcwd(), 'TestResults.xcresult'),
+    ]
+    for c in candidates:
+        if os.path.isdir(c):
+            return c
+    return None
+
+def try_count_tests(xcresult):
+    # Heuristic placeholder: count occurrences of "Test suite '" in logs if available
+    try:
+        log = os.path.join(xcresult, 'Info.plist')
+        return None if not os.path.isfile(log) else None
+    except Exception:
+        return None
+
+tests_count = try_count_tests(find_xcresult_dir())
+
+# Build time best-effort from environment or file mtime
+generated_ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+try:
+    mtime = datetime.fromtimestamp(os.path.getmtime(coverage_path)).strftime('%Y-%m-%d %H:%M:%S')
+except Exception:
+    mtime = generated_ts
+
 def human_time_from_snapshot_name(name):
     # expects coverage-YYYYmmdd-HHMMSS.json
     try:
@@ -70,10 +97,15 @@ for snap in snapshots[-10:]:
 
 print('# NotBad Quality Dashboard')
 print()
+print(f'Generated: {generated_ts}')
+print()
 print('## Coverage Summary')
 print()
 print(f'- Overall coverage: {overall_pct:.2f}% ({overall_cov}/{overall_total} lines)')
 print(f'- Logic-only coverage (Views excluded): {logic_pct:.2f}% ({logic_cov}/{logic_total} lines)')
+if tests_count is not None:
+    print(f'- Tests executed: {tests_count}')
+print(f'- Coverage JSON mtime: {mtime}')
 print()
 print('## Recent Coverage Trend (overall)')
 print()
@@ -94,6 +126,21 @@ print('1. Run unit tests via the quality script to produce coverage:')
 print('   - `zsh Scripts/check-quality.sh`')
 print('2. Generate this dashboard:')
 print('   - `zsh Scripts/generate-dashboard.sh`')
+
+# Recent commits (last 5)
+print()
+print('## Recent Commits (last 5)')
+print()
+try:
+    import subprocess
+    out = subprocess.check_output(['git', 'log', '--pretty=%h %s', '-n', '5'], text=True).strip()
+    if out:
+        for line in out.splitlines():
+            print(f'- {line}')
+    else:
+        print('No commits found.')
+except Exception:
+    print('Git log unavailable in this environment.')
 PY
 
 echo "✅ Dashboard generated at $OUTPUT_MD"
