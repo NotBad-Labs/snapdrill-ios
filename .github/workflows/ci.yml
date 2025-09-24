@@ -1,10 +1,9 @@
-name: iOS CI
+name: iOS CI (Cloud - Manual Only)
 
+# Disabled from auto-triggers to avoid GitHub-hosted minutes. Use self-hosted CI instead.
 on:
-  push:
-    branches: [ main, feature/**, fix/** ]
-  pull_request:
-    branches: [ main ]
+  # Manual-only. Do NOT enable push/PR triggers.
+  workflow_dispatch:
 
 jobs:
   build-and-test:

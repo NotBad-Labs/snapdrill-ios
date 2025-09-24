@@ -7,12 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B29580232E6A78A300E2D95C /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = B29580222E6A789C00E2D95C /* .swiftlint.yml */; };
 		B2BE0C8B2E6A793F001369C3 /* UnitTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C8A2E6A793F001369C3 /* UnitTestPlan.xctestplan */; };
 		B2BE0C8D2E6A7967001369C3 /* IntegrationTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C8C2E6A7967001369C3 /* IntegrationTestPlan.xctestplan */; };
 		B2BE0C8F2E6A7973001369C3 /* PerformanceTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C8E2E6A7973001369C3 /* PerformanceTestPlan.xctestplan */; };
 		B2BE0C912E6A7981001369C3 /* UITestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C902E6A7981001369C3 /* UITestPlan.xctestplan */; };
-		B2BE0C9D2E727CD0001369C3 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C9C2E727CC6001369C3 /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -329,11 +327,11 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				GENERATE_INFOPLIST_FILE = NO;
 				EXCLUDED_SOURCE_FILE_NAMES = (
 					"*/README.md",
-					"Info.plist",
+					Info.plist,
 				);
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = NotBad/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -366,11 +364,11 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				GENERATE_INFOPLIST_FILE = NO;
 				EXCLUDED_SOURCE_FILE_NAMES = (
 					"*/README.md",
-					"Info.plist",
+					Info.plist,
 				);
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = NotBad/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
