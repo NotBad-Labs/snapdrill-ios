@@ -7,29 +7,21 @@
 
 import SwiftUI
 
+/// NotBad 错题本应用主入口
+///
+/// 职责：
+/// - 应用配置和启动
+/// - 场景管理
+/// - 根视图展示
 @main
 struct NotBadApp: App {
+    
+    // MARK: - Scene
+    
     var body: some Scene {
         WindowGroup {
-            VStack {
-                Image(systemName: "book.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.blue)
-                    .padding()
-
-                Text("NotBad 错题本")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .padding()
-
-                Text("文档驱动开发示例项目")
-                    .font(.title2)
-                    .foregroundColor(.secondary)
-                    .padding()
-
-                Spacer()
-            }
-            .padding()
+            CoordinatorView()
+                .modelContainer(DataManager.shared.container)
         }
     }
 }
