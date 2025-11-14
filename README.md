@@ -1,8 +1,9 @@
-# NotBad 错题本 App - 产品需求文档
+# NotBad 错题本 App - 项目概述（README）
 
 ## 📋 项目概述
 
-这是 NotBad 错题本 App 的产品需求文档仓库。
+这是 NotBad 错题本 App 的产品需求文档仓库。  
+本仓库用于统一管理产品需求文档、架构说明和开发规范，是设计、产品和工程团队的主要协作载体。
 
 NotBad 是一个专为 K12 学生设计的智能错题管理应用，采用 **Swift 6.2 + iOS 26** 技术栈，基于 Clean Architecture 架构。
 
@@ -18,7 +19,7 @@ NotBad 是一个专为 K12 学生设计的智能错题管理应用，采用 **Sw
 
 完整的产品需求文档请查看：
 
-**[NotBad 错题本 App - 产品需求文档 (PRD) v6.0](docs/prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v6.0.md)**
+**[👉 查看完整 PRD](docs/prd/NotBad%20错题本%20App%20-%20产品需求文档%20(PRD)%20v6.0.md)**
 
 本文档是项目的**单一事实来源 (Single Source of Truth)**，涵盖：
 
@@ -36,12 +37,16 @@ NotBad 是一个专为 K12 学生设计的智能错题管理应用，采用 **Sw
 - **UI 框架**: SwiftUI
 - **架构**: Clean Architecture + MVVM-C
 
+> 架构风格采用 Uncle Bob Clean Architecture 的分层理念，并结合 MVVM + Coordinator 实现模块化与可测试性。
+
 ## 📊 性能目标
 
 - 应用启动: < 0.8秒
 - 内存使用: < 150MB
 - OCR 准确率: > 95% (中文)
 - 滚动流畅度: > 120fps
+
+以上性能指标基于 Release 模式、目标设备 iPhone XX 进行评估。
 
 ## 📞 联系方式
 

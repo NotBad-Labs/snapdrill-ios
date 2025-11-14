@@ -18,7 +18,8 @@ struct CoordinatorView: View {
     
     // MARK: - Properties
     
-    @State private var coordinator = AppCoordinator()
+    // 从 App 注入的协调器
+    @EnvironmentObject var coordinator: AppCoordinator
     
     // MARK: - Body
     
@@ -35,7 +36,7 @@ struct CoordinatorView: View {
                     fullScreenCoverView(for: destination)
                 }
         }
-        .environment(coordinator)
+        // Coordinator 由上层通过 .environmentObject 注入，不需要额外设置 environment
     }
     
     // MARK: - View Builders
@@ -121,4 +122,5 @@ extension AppCoordinator.Destination: Identifiable {
 #Preview {
     CoordinatorView()
         .modelContainer(for: [], inMemory: true)
+        .environmentObject(AppCoordinator())
 }
