@@ -4,65 +4,92 @@
 //
 //  Created by Yiming Liao on 9/20/25.
 //
+//  单一事实来源（SSoT）：docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.2.md
+//  本文件是应用唯一入口，所有实现严格基于 PRD v6.2 派生
 
 import SwiftUI
-import SwiftData
 
 /// NotBad 错题本应用主入口
 ///
 /// 职责：
-/// - 应用配置和启动
-/// - 场景管理
+/// - 应用启动与配置
+/// - 场景生命周期管理
 /// - 根视图展示
+///
+/// 设计原则（来自 PRD v6.2）：
+/// - 本地优先（Local-First）
+/// - 端侧优先（On-Device First）
+/// - 隐私优先（Privacy by Design）
+/// - 免费无广告
 @main
 struct NotBadApp: App {
     
-    // MARK: - App-level objects
+    // MARK: - Properties
     
-    /// 应用级别协调器（Observation 风格注入）
-    private let appCoordinator = AppCoordinator()
-    
-    /// 支持监听前后台等场景事件
+    /// 监听应用前后台状态
     @Environment(\.scenePhase) private var scenePhase
-    
-    /// 可注入的 ModelContainer。默认使用 DataManager.shared.container，测试或预览可通过 init 注入自定义 container
-    private let modelContainer: ModelContainer
-    
-    // MARK: - Initialization
-    
-    init(modelContainer: ModelContainer? = nil) {
-        if let container = modelContainer {
-            self.modelContainer = container
-        } else {
-            // 使用 DataManager 提供的容器（保持向后兼容）
-            self.modelContainer = DataManager.shared.container
-        }
-        // 在这里可以初始化日志/遥测/远程配置等
-        // Logger.shared.setup(...)
-    }
     
     // MARK: - Scene
     
     var body: some Scene {
         WindowGroup {
-            CoordinatorView()
-                .modelContainer(modelContainer)
-                .environment(appCoordinator)
-                .onChange(of: scenePhase) { newPhase, _ in
-                    switch newPhase {
-                    case .active:
-                        // 前台恢复、刷新短期数据
-                        print("App 进入前台")
-                    case .background:
-                        // 后台保存数据
-                        print("App 进入后台 - 尝试保存")
-                        // 这里可触发持久化保存逻辑
-                    case .inactive:
-                        print("App 处于非活动状态")
-                    @unknown default:
-                        break
-                    }
+            ContentView()
+                .onChange(of: scenePhase) { oldPhase, newPhase in
+                    handleScenePhaseChange(from: oldPhase, to: newPhase)
                 }
         }
+    }
+    
+    // MARK: - Lifecycle Handlers
+    
+    /// 处理应用场景状态变化
+    /// - Parameters:
+    ///   - oldPhase: 旧状态
+    ///   - newPhase: 新状态
+    private func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
+        switch newPhase {
+        case .active:
+            // 前台激活：刷新数据、恢复状态
+            print("✅ NotBad 进入前台")
+            
+        case .background:
+            // 后台：持久化数据、清理资源
+            print("⏸️ NotBad 进入后台")
+            
+        case .inactive:
+            // 非活动状态：暂停操作
+            print("⏯️ NotBad 处于非活动状态")
+            
+        @unknown default:
+            break
+        }
+    }
+}
+
+// MARK: - Root View (Placeholder)
+
+/// 根视图占位
+/// TODO: 根据 PRD v6.2 §4.2 实现完整导航流程（欢迎屏 → 主界面）
+struct ContentView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "book.closed.fill")
+                .font(.system(size: 80))
+                .foregroundColor(.blue)
+            
+            Text("NotBad 错题本")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+            
+            Text("基于 PRD v6.2 重新开发中")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Text("本地优先 · 隐私优先 · 免费无广告")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.top, 8)
+        }
+        .padding()
     }
 }
