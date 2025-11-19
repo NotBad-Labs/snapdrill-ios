@@ -4,6 +4,8 @@
 //
 //  Created by Yiming Liao on 9/20/25.
 //
+//  Updated: 2025-11-19 (Phase 1: 工程升级到 Swift 6.3 + iOS 26.1)
+//  PRD 章节：§3.1 技术栈
 //  单一事实来源（SSoT）：docs/prd/NotBad 错题本 App - 产品需求文档 (PRD) v6.2.md
 //  本文件是应用唯一入口，所有实现严格基于 PRD v6.2 派生
 
