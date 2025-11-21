@@ -1,9 +1,0 @@
-{
-    "terminal.integrated.sendKeybindingsToShell": true,
-    "explorer.exclude": {
-        "**/.git": true,
-        "**/.DS_Store": true,
-        "**/*.xcworkspace/**": true,
-        "**/*.xcodeproj/**": true
-    }
-}

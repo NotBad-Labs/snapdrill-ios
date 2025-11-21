@@ -1,49 +1,35 @@
 # Xcode
-*.xcuserstate
-*.xcuserdatad/
 xcuserdata/
 DerivedData/
-*.xcworkspace/xcuserdata/
-project.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
 build/
+*.xcworkspace/xcuserdata/
 *.pbxuser
 *.mode1v3
 *.mode2v3
 *.perspectivev3
-!default.pbxuser
-!default.mode1v3
-!default.mode2v3
-!default.perspectivev3
 
 # macOS
 .DS_Store
-.AppleDouble
-.LSOverride
 ._*
 
-# VS Code
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# Editors
+.vscode/
 *.code-workspace
 
 # Swift Package Manager
 .build/
 .swiftpm/
 
-# Test Results
+# Test & Build
 *.xcresult/
-Local-TestResults-*.xcresult/
 
-# Backup files
+# Backup & Temp
 *.backup
 *.bak
-
-# Temporary files
+*.old
 *.swp
 *~
-.DS_Store
+
+# Test plans (generated)
+*TestPlan.xctestplan
+.swiftlint.yml

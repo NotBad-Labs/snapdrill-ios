@@ -1,24 +1,6 @@
 {
-  "configurations" : [
-    {
-      "id" : "1216E7D9-1243-437E-8970-FE923F5AC29E",
-      "name" : "Configuration 1",
-      "options" : {
-
-      }
-    }
-  ],
-  "defaultOptions" : {
-    "testTimeoutsEnabled" : true
-  },
-  "testTargets" : [
-    {
-      "target" : {
-        "containerPath" : "container:NotBad.xcodeproj",
-        "identifier" : "B27BD9792E560D0800E69277",
-        "name" : "NotBadUITests"
-      }
-    }
-  ],
+  "configurations" : [],
+  "defaultOptions" : {},
+  "testTargets" : [],
   "version" : 1
 }
