@@ -2,70 +2,86 @@
 
 > 一个简洁、本地优先、注重隐私的 K12 错题管理工具
 
-## 📱 MVP 核心功能
+## 📱 核心功能
 
-1. **错题录入** - 拍照 + OCR + 手动编辑
-2. **错题管理** - 查看、搜索、删除
-3. **复习系统** - 卡片式复习 + 掌握度标记
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| 📸 **错题录入** | ✅ | 拍照 + 相册 + OCR 智能识别 |
+| �� **题库管理** | ✅ | 浏览、搜索、筛选、编辑、删除 |
+| 🔄 **卡片复习** | ✅ | 滑动卡片 + 掌握度标记 + 间隔重复 |
+| 📊 **数据看板** | ✅ | 统计图表 + 学习进度可视化 |
 
 ## 🎯 设计原则
 
 - **本地优先** - 数据存储在设备本地，无需登录
-- **隐私保护** - 不上传用户数据，可选 iCloud 私有同步
+- **隐私保护** - 不上传用户数据
 - **免费无广告** - 核心功能永久免费
-- **简洁易用** - 专注学习体验，拒绝功能臃肿
+- **简洁易用** - 专注学习体验
 
 ## 🛠 技术栈
 
-- **平台**: iOS 26.0+
-- **语言**: Swift 6.0+
-- **框架**: SwiftUI + SwiftData
-- **工具**: Xcode 26.0+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| iOS | 26.0+ | 目标平台 |
+| Swift | 6.0+ | 开发语言 |
+| SwiftUI | - | 声明式 UI |
+| SwiftData | - | 数据持久化 |
+| Vision | - | OCR 文字识别 |
+
+## 🏗 架构设计
+
+采用 **Light Clean Architecture + DDD 值对象** 模式：
+
+```
+NotBad/
+├── App/                    # 应用入口
+├── Domain/                 # 领域层（核心业务）
+│   ├── Entities/           # 实体 (ReviewItem)
+│   ├── ValueObjects/       # 值对象 (9个)
+│   └── Protocols/          # 协议定义
+├── Data/                   # 数据层
+│   └── Repository/         # 仓储实现
+├── Infrastructure/         # 基础设施
+│   ├── OCR/               # OCR 服务
+│   └── Camera/            # 相机组件
+└── Presentation/           # 表现层
+    └── Features/           # 功能模块
+        ├── Capture/        # 录入
+        ├── Library/        # 题库
+        ├── Review/         # 复习
+        └── Dashboard/      # 看板
+```
 
 ## 🚀 快速开始
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/NotBad.git
+git clone https://github.com/chramboliao/NotBad.git
+cd NotBad
 
 # 打开项目
-cd NotBad
 open NotBad.xcodeproj
 
 # 在 Xcode 中 ⌘+R 运行
 ```
 
-## 📂 项目结构
+### 系统要求
 
-```
-NotBad/
-├── Domain/Models/          # 数据模型
-├── Presentation/           # UI 层
-│   ├── Capture/           # 录入功能
-│   ├── Library/           # 题库管理
-│   ├── Review/            # 复习系统
-│   ├── Dashboard/         # 数据看板
-│   └── Profile/           # 用户设置
-└── NotBadApp.swift        # 应用入口
-```
+- macOS 15.0+ (Sequoia)
+- Xcode 26.0+
+- iOS 26.0+ 模拟器或真机
 
-## 🎨 当前状态
+## 📖 文档
 
-**开发模式**: 敏捷迭代  
-**代码行数**: ~900 行  
-**文件数**: 8 个 Swift 文件  
-**编译状态**: ✅ Build Success
+- [术语表 (Glossary)](GLOSSARY.md) - 项目统一语言定义
+- [贡献指南](CONTRIBUTING.md) - 如何参与贡献
 
-## 📝 开发路线
+## 📊 项目状态
 
-- [x] 项目初始化
-- [x] 基础 UI 框架
-- [x] 数据模型设计
-- [ ] 图片拍摄与选择
-- [ ] OCR 文字识别
-- [ ] 错题列表与搜索
-- [ ] 复习卡片系统
-- [ ] 数据持久化
+| 指标 | 数值 |
+|------|------|
+| MVP 完成度 | 100% ✅ |
+| 编译状态 | ✅ Build Success |
 
 ## 🤝 贡献
 
