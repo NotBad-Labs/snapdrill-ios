@@ -62,7 +62,7 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
         let lowercasedQuery = query.lowercased()
         return fetchAll().filter { item in
             item.title.lowercased().contains(lowercasedQuery) ||
-            item.tags.matches(query) ||
+            item.knowledgePoints.matches(query) ||
             item.note.lowercased().contains(lowercasedQuery)
         }
     }

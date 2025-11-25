@@ -108,25 +108,25 @@ if subject.isAvailable(for: .primary) {
 | **Difficulty** | 难度 | 题目的难易程度 | 送分、简单、中等、困难、压轴 |
 | **Source** | 来源 | 题目的出处 | 课本、考试、作业、真题... |
 | **SourceCategory** | 来源分类 | 来源的大类划分 | 官方、学校、课外、其他 |
-| **Tags** | 知识点标签 | 题目涉及的知识点集合 | ["函数", "不等式", "导数"] |
+| **KnowledgePoints** | 知识点 | 题目涉及的知识点集合 | ["函数", "不等式", "导数"] |
 
 ```swift
-// Tags（知识点标签）使用示例 - 不可变操作
-let tags = Tags(["函数", "导数"])
-let newTags = tags.adding("极限")           // 返回新 Tags，原 tags 不变
-let merged = tags.merging(with: ["积分"])   // 合并多个标签
+// KnowledgePoints（知识点）使用示例 - 不可变操作
+let points = KnowledgePoints(["函数", "导数"])
+let newPoints = points.adding("极限")           // 返回新 KnowledgePoints，原 points 不变
+let merged = points.merging(with: ["积分"])   // 合并多个知识点
 
-print(tags.contains("函数"))   // true
-print(tags.count)              // 2
-print(tags.rawValue)           // "函数, 导数" (用于存储)
+print(points.contains("函数"))   // true
+print(points.count)              // 2
+print(points.rawValue)           // "函数, 导数" (用于存储)
 
-// 遍历标签（实现了 Sequence 协议）
-for tag in tags {
-    print(tag)
+// 遍历知识点（实现了 Sequence 协议）
+for point in points {
+    print(point)
 }
 
-// 获取学科推荐标签
-let suggestions = Tags.suggestions(for: .math)
+// 获取学科推荐知识点
+let suggestions = KnowledgePoints.suggestions(for: .math)
 // ["代数", "几何", "函数", "方程", "不等式", ...]
 ```
 
@@ -226,11 +226,11 @@ final class ReviewItem {
 }
 
 // Value Object（值对象）- 无标识，不可变
-struct Tags: Equatable {
+struct KnowledgePoints: Equatable {
     private let items: [String]  // ✅ 不可变
     
-    func adding(_ tag: String) -> Tags {  // ✅ 返回新实例
-        Tags(items + [tag])
+    func adding(_ point: String) -> KnowledgePoints {  // ✅ 返回新实例
+        KnowledgePoints(items + [point])
     }
 }
 
@@ -304,8 +304,8 @@ class LibraryViewModel: ObservableObject {
 |----------|-----------|--------|
 | 采集 (Capture) | 录入、添加、创建、输入 | `CaptureView`, `captureItem()` |
 | 复习 (Review) | 学习、温习、回顾 | `ReviewView`, `reviewItem()` |
-| 掌握 (Mastery) | 熟练、精通、会了 | `MasteryLevel`, `mastery` |
-| 知识点 (Tags) | 考点、要点、标签 | `Tags`, `tags` |
+| 掌握 (Mastery) | 熔练、精通、会了 | `MasteryLevel`, `mastery` |
+| 知识点 (KnowledgePoints) | 考点、要点、标签 | `KnowledgePoints`, `knowledgePoints` |
 | 错题条目 (ReviewItem) | 错题、题目、问题 | `ReviewItem` |
 | 错题库 (Library) | 题库、收藏、列表 | `LibraryView` |
 
@@ -439,7 +439,7 @@ final class ReviewItem {
     var subjectRaw: String          // 存储 Subject.rawValue
     var gradeRaw: String            // 存储 Grade.rawValue
     var masteryLevel: Int           // 存储 MasteryLevel.rawValue
-    var tagsRaw: String             // 存储逗号分隔的标签
+    var knowledgePointsRaw: String  // 存储逗号分隔的知识点
     var difficultyRaw: Int          // 存储 Difficulty.rawValue
     var errorTypeRaw: String        // 存储 ErrorType.rawValue
     var sourceRaw: String           // 存储 Source.rawValue
@@ -456,9 +456,9 @@ final class ReviewItem {
         set { gradeRaw = newValue.rawValue }
     }
     
-    var tags: Tags {
-        get { Tags(from: tagsRaw) }
-        set { tagsRaw = newValue.rawValue }
+    var knowledgePoints: KnowledgePoints {
+        get { KnowledgePoints(from: knowledgePointsRaw) }
+        set { knowledgePointsRaw = newValue.rawValue }
     }
 }
 ```
@@ -486,6 +486,7 @@ func handle(_ item: ReviewItem)  // 不知道如何处理
 |------|------|------|
 | 1.0 | 2025-11-25 | 初始版本，定义所有核心术语 |
 | 1.1 | 2025-11-25 | 添加业务术语、学习理论术语、代码示例 |
+| 1.2 | 2025-11-25 | Tags 重命名为 KnowledgePoints，消除歧义 |
 
 ---
 
@@ -506,7 +507,7 @@ func handle(_ item: ReviewItem)  // 不知道如何处理
 │  采集      →  Capture (不叫 Add/Create)              │
 │  复习      →  Review (不叫 Study/Learn)              │
 │  掌握程度  →  MasteryLevel (5级: none→mastered)      │
-│  知识点    →  Tags (不叫标签/考点)                    │
+│  知识点    →  KnowledgePoints (不叫 Tags/标签)       │
 │  题型      →  ReviewItemType (不叫 QuestionType)     │
 │  错题库    →  Library (不叫题库/收藏)                 │
 └─────────────────────────────────────────────────────┘

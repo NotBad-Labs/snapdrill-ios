@@ -41,8 +41,8 @@ final class ReviewItem {
     /// 年级（存储 rawValue）
     var gradeRaw: String
     
-    /// 知识点标签（逗号分隔存储）
-    var tagsRaw: String
+    /// 知识点（逗号分隔存储）
+    var knowledgePointsRaw: String
     
     /// 难度等级
     var difficultyRaw: Int
@@ -76,10 +76,10 @@ final class ReviewItem {
         set { masteryLevel = newValue.rawValue }
     }
     
-    /// 知识点标签
-    var tags: Tags {
-        get { Tags(from: tagsRaw) }
-        set { tagsRaw = newValue.rawValue }
+    /// 知识点
+    var knowledgePoints: KnowledgePoints {
+        get { KnowledgePoints(from: knowledgePointsRaw) }
+        set { knowledgePointsRaw = newValue.rawValue }
     }
     
     /// 难度等级
@@ -122,7 +122,7 @@ final class ReviewItem {
         mastery: MasteryLevel = .none,
         subject: Subject = .math,
         grade: Grade = .grade10,
-        tags: Tags = .empty,
+        knowledgePoints: KnowledgePoints = .empty,
         difficulty: Difficulty = .medium,
         errorType: ErrorType = .other,
         source: Source = .other,
@@ -139,7 +139,7 @@ final class ReviewItem {
         self.reviewCount = 0
         self.subjectRaw = subject.rawValue
         self.gradeRaw = grade.rawValue
-        self.tagsRaw = tags.rawValue
+        self.knowledgePointsRaw = knowledgePoints.rawValue
         self.difficultyRaw = difficulty.rawValue
         self.errorTypeRaw = errorType.rawValue
         self.sourceRaw = source.rawValue

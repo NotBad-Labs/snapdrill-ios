@@ -27,7 +27,7 @@ final class CaptureViewModel {
     var note: String = ""
     var subject: Subject = .math
     var grade: Grade = .grade10
-    var tags: String = ""
+    var knowledgePointsInput: String = ""
     var difficulty: Difficulty = .medium
     var errorType: ErrorType = .other
     var source: Source = .other
@@ -123,7 +123,7 @@ final class CaptureViewModel {
             note: note,
             subject: subject,
             grade: grade,
-            tags: Tags(from: tags),
+            knowledgePoints: KnowledgePoints(from: knowledgePointsInput),
             difficulty: difficulty,
             errorType: errorType,
             source: source,
@@ -154,7 +154,7 @@ final class CaptureViewModel {
         selectedUIImage = nil
         title = ""
         note = ""
-        tags = ""
+        knowledgePointsInput = ""
         // subject, grade 保持上次选择，方便连续录入
     }
     

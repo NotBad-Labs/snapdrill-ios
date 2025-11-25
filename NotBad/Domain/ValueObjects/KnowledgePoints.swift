@@ -1,18 +1,21 @@
 //
-//  Tags.swift
+//  KnowledgePoints.swift
 //  NotBad
 //
-//  知识点标签值对象 - 不可变集合设计
+//  知识点值对象 - 不可变集合设计
 //
 
 import Foundation
 
-/// 知识点标签集合
-struct Tags: Equatable, Codable, Hashable {
+/// 知识点集合
+///
+/// 表示一道错题涉及的知识点列表，如 ["函数", "导数", "极限"]
+/// 遵循值对象原则：不可变，所有操作返回新实例
+struct KnowledgePoints: Equatable, Codable, Hashable {
     private var items: [String]
     
-    /// 空标签
-    static let empty = Tags([])
+    /// 空知识点集合
+    static let empty = KnowledgePoints([])
     
     // MARK: - Initialization
     
@@ -32,10 +35,10 @@ struct Tags: Equatable, Codable, Hashable {
     
     // MARK: - Properties
     
-    /// 标签数组
+    /// 知识点数组
     var array: [String] { items }
     
-    /// 标签数量
+    /// 知识点数量
     var count: Int { items.count }
     
     /// 是否为空
@@ -44,10 +47,10 @@ struct Tags: Equatable, Codable, Hashable {
     /// 是否非空
     var isNotEmpty: Bool { !items.isEmpty }
     
-    /// 第一个标签
+    /// 第一个知识点
     var first: String? { items.first }
     
-    /// 最后一个标签
+    /// 最后一个知识点
     var last: String? { items.last }
     
     /// 转换为逗号分隔的字符串（用于存储）
@@ -57,62 +60,62 @@ struct Tags: Equatable, Codable, Hashable {
     
     // MARK: - Operations
     
-    /// 添加单个标签
-    func adding(_ tag: String) -> Tags {
-        let trimmed = tag.trimmingCharacters(in: .whitespaces)
+    /// 添加单个知识点
+    func adding(_ point: String) -> KnowledgePoints {
+        let trimmed = point.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty, !items.contains(trimmed) else { return self }
-        return Tags(items + [trimmed])
+        return KnowledgePoints(items + [trimmed])
     }
     
-    /// 批量添加标签
-    func adding(_ tags: [String]) -> Tags {
+    /// 批量添加知识点
+    func adding(_ points: [String]) -> KnowledgePoints {
         var newItems = items
-        for tag in tags {
-            let trimmed = tag.trimmingCharacters(in: .whitespaces)
+        for point in points {
+            let trimmed = point.trimmingCharacters(in: .whitespaces)
             if !trimmed.isEmpty && !newItems.contains(trimmed) {
                 newItems.append(trimmed)
             }
         }
-        return Tags(newItems)
+        return KnowledgePoints(newItems)
     }
     
-    /// 移除单个标签
-    func removing(_ tag: String) -> Tags {
-        Tags(items.filter { $0 != tag })
+    /// 移除单个知识点
+    func removing(_ point: String) -> KnowledgePoints {
+        KnowledgePoints(items.filter { $0 != point })
     }
     
-    /// 批量移除标签
-    func removing(_ tags: [String]) -> Tags {
-        let tagsSet = Set(tags)
-        return Tags(items.filter { !tagsSet.contains($0) })
+    /// 批量移除知识点
+    func removing(_ points: [String]) -> KnowledgePoints {
+        let pointsSet = Set(points)
+        return KnowledgePoints(items.filter { !pointsSet.contains($0) })
     }
     
-    /// 合并标签集合
-    func merging(with other: Tags) -> Tags {
-        Tags(items + other.items)
+    /// 合并知识点集合
+    func merging(with other: KnowledgePoints) -> KnowledgePoints {
+        KnowledgePoints(items + other.items)
     }
     
     /// 取交集
-    func intersection(with other: Tags) -> Tags {
+    func intersection(with other: KnowledgePoints) -> KnowledgePoints {
         let otherSet = Set(other.items)
-        return Tags(items.filter { otherSet.contains($0) })
+        return KnowledgePoints(items.filter { otherSet.contains($0) })
     }
     
-    /// 是否包含标签
-    func contains(_ tag: String) -> Bool {
-        items.contains(tag)
+    /// 是否包含知识点
+    func contains(_ point: String) -> Bool {
+        items.contains(point)
     }
     
-    /// 是否包含任意一个标签
-    func containsAny(of tags: [String]) -> Bool {
-        let tagsSet = Set(tags)
-        return items.contains { tagsSet.contains($0) }
+    /// 是否包含任意一个知识点
+    func containsAny(of points: [String]) -> Bool {
+        let pointsSet = Set(points)
+        return items.contains { pointsSet.contains($0) }
     }
     
-    /// 是否包含所有标签
-    func containsAll(of tags: [String]) -> Bool {
+    /// 是否包含所有知识点
+    func containsAll(of points: [String]) -> Bool {
         let itemsSet = Set(items)
-        return tags.allSatisfy { itemsSet.contains($0) }
+        return points.allSatisfy { itemsSet.contains($0) }
     }
     
     /// 搜索匹配（模糊搜索）
@@ -122,16 +125,16 @@ struct Tags: Equatable, Codable, Hashable {
         return items.contains { $0.lowercased().contains(lowercasedQuery) }
     }
     
-    /// 过滤包含关键词的标签
-    func filter(containing keyword: String) -> Tags {
+    /// 过滤包含关键词的知识点
+    func filter(containing keyword: String) -> KnowledgePoints {
         guard !keyword.isEmpty else { return self }
         let lowercasedKeyword = keyword.lowercased()
-        return Tags(items.filter { $0.lowercased().contains(lowercasedKeyword) })
+        return KnowledgePoints(items.filter { $0.lowercased().contains(lowercasedKeyword) })
     }
     
-    /// 排序后的标签
-    func sorted() -> Tags {
-        Tags(items.sorted())
+    /// 排序后的知识点
+    func sorted() -> KnowledgePoints {
+        KnowledgePoints(items.sorted())
     }
     
     /// 下标访问
@@ -143,7 +146,7 @@ struct Tags: Equatable, Codable, Hashable {
 
 // MARK: - Sequence
 
-extension Tags: Sequence {
+extension KnowledgePoints: Sequence {
     func makeIterator() -> IndexingIterator<[String]> {
         items.makeIterator()
     }
@@ -151,7 +154,7 @@ extension Tags: Sequence {
 
 // MARK: - Collection
 
-extension Tags: Collection {
+extension KnowledgePoints: Collection {
     var startIndex: Int { items.startIndex }
     var endIndex: Int { items.endIndex }
     
@@ -166,7 +169,7 @@ extension Tags: Collection {
 
 // MARK: - ExpressibleByArrayLiteral
 
-extension Tags: ExpressibleByArrayLiteral {
+extension KnowledgePoints: ExpressibleByArrayLiteral {
     init(arrayLiteral elements: String...) {
         self.init(elements)
     }
@@ -174,14 +177,14 @@ extension Tags: ExpressibleByArrayLiteral {
 
 // MARK: - CustomStringConvertible
 
-extension Tags: CustomStringConvertible {
+extension KnowledgePoints: CustomStringConvertible {
     var description: String { rawValue }
 }
 
-// MARK: - 常用知识点标签预设
+// MARK: - 常用知识点预设
 
-extension Tags {
-    /// 数学常用标签
+extension KnowledgePoints {
+    /// 数学常用知识点
     enum Math {
         static let algebra = "代数"
         static let geometry = "几何"
@@ -205,7 +208,7 @@ extension Tags {
         }
     }
     
-    /// 物理常用标签
+    /// 物理常用知识点
     enum Physics {
         static let mechanics = "力学"
         static let kinematics = "运动学"
@@ -224,7 +227,7 @@ extension Tags {
         }
     }
     
-    /// 化学常用标签
+    /// 化学常用知识点
     enum Chemistry {
         static let organic = "有机化学"
         static let inorganic = "无机化学"
@@ -239,7 +242,7 @@ extension Tags {
         }
     }
     
-    /// 英语常用标签
+    /// 英语常用知识点
     enum English {
         static let grammar = "语法"
         static let vocabulary = "词汇"
@@ -254,7 +257,7 @@ extension Tags {
         }
     }
     
-    /// 根据学科获取推荐标签
+    /// 根据学科获取推荐知识点
     static func suggestions(for subject: Subject) -> [String] {
         switch subject {
         case .math: return Math.all

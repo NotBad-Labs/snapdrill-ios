@@ -36,7 +36,7 @@ final class LibraryViewModel {
         items.filter { item in
             let matchesSearch = searchText.isEmpty ||
                 item.title.localizedCaseInsensitiveContains(searchText) ||
-                item.tags.matches(searchText)
+                item.knowledgePoints.matches(searchText)
             
             let matchesSubject = selectedSubject == nil || item.subject == selectedSubject
             
