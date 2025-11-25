@@ -7,6 +7,7 @@
 
 import Testing
 import SwiftUI
+import Foundation
 @testable import NotBad
 
 @Suite("Subject 值对象测试")
@@ -28,10 +29,10 @@ struct SubjectTests {
         }
     }
     
-    @Test("学科数量正确（主要9科+其他）")
+    @Test("学科数量正确")
     func subjectCount() {
-        // 语数英物化生政史地 + other = 10
-        #expect(Subject.allCases.count == 10)
+        // 语文、英语、数学、物理、化学、生物、科学、历史、地理、政治、道法、信息、通技、其他 = 14
+        #expect(Subject.allCases.count == 14)
     }
     
     // MARK: - 分类测试
@@ -91,10 +92,10 @@ struct SubjectTests {
         #expect(decoded == subject)
     }
     
-    @Test("rawValue 正确")
+    @Test("rawValue 正确（中文）")
     func subjectRawValue() {
-        #expect(Subject.math.rawValue == "math")
-        #expect(Subject.chinese.rawValue == "chinese")
-        #expect(Subject(rawValue: "physics") == .physics)
+        #expect(Subject.math.rawValue == "数学")
+        #expect(Subject.chinese.rawValue == "语文")
+        #expect(Subject(rawValue: "物理") == .physics)
     }
 }

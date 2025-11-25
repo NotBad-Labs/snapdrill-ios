@@ -7,6 +7,7 @@
 
 import Testing
 import SwiftUI
+import Foundation
 @testable import NotBad
 
 @Suite("MasteryLevel 值对象测试")

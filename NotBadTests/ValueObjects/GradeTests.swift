@@ -6,6 +6,7 @@
 //
 
 import Testing
+import Foundation
 @testable import NotBad
 
 @Suite("Grade 值对象测试")
@@ -29,7 +30,7 @@ struct GradeTests {
     
     @Test("小学学段包含正确的年级")
     func primarySchoolGrades() {
-        let primary = Grade.primarySchool
+        let primary = GradeStage.primary.grades
         #expect(primary.count == 6)
         #expect(primary.contains(.grade1))
         #expect(primary.contains(.grade6))
@@ -38,7 +39,7 @@ struct GradeTests {
     
     @Test("初中学段包含正确的年级")
     func middleSchoolGrades() {
-        let middle = Grade.middleSchool
+        let middle = GradeStage.junior.grades
         #expect(middle.count == 3)
         #expect(middle.contains(.grade7))
         #expect(middle.contains(.grade9))
@@ -48,7 +49,7 @@ struct GradeTests {
     
     @Test("高中学段包含正确的年级")
     func highSchoolGrades() {
-        let high = Grade.highSchool
+        let high = GradeStage.senior.grades
         #expect(high.count == 3)
         #expect(high.contains(.grade10))
         #expect(high.contains(.grade12))
@@ -57,12 +58,12 @@ struct GradeTests {
     
     // MARK: - 排序测试
     
-    @Test("年级可正确比较大小")
-    func gradeComparison() {
-        #expect(Grade.grade1 < Grade.grade2)
-        #expect(Grade.grade6 < Grade.grade7)
-        #expect(Grade.grade9 < Grade.grade10)
-        #expect(Grade.grade12 > Grade.grade1)
+    @Test("年级序号正确递增")
+    func gradeOrderIncreasing() {
+        #expect(Grade.grade1.order < Grade.grade2.order)
+        #expect(Grade.grade6.order < Grade.grade7.order)
+        #expect(Grade.grade9.order < Grade.grade10.order)
+        #expect(Grade.grade12.order > Grade.grade1.order)
     }
     
     // MARK: - 编码测试

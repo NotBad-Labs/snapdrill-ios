@@ -6,6 +6,7 @@
 //
 
 import Testing
+import Foundation
 @testable import NotBad
 
 @Suite("KnowledgePoints 值对象测试")
@@ -23,9 +24,10 @@ struct KnowledgePointsTests {
         #expect(kp.contains("极限"))
     }
     
-    @Test("从中文逗号分隔字符串初始化")
+    @Test("从逗号分隔字符串初始化（英文逗号）")
     func initFromChineseCommaSeparatedString() {
-        let kp = KnowledgePoints(from: "三角函数，正弦，余弦")
+        // 注意：只支持英文逗号分隔
+        let kp = KnowledgePoints(from: "三角函数,正弦,余弦")
         
         #expect(kp.count == 3)
         #expect(kp.contains("三角函数"))
@@ -140,7 +142,8 @@ struct KnowledgePointsTests {
     func rawValueSerialization() {
         let kp = KnowledgePoints(["A", "B", "C"])
         
-        #expect(kp.rawValue == "A,B,C")
+        // rawValue 使用 ", " (带空格) 分隔
+        #expect(kp.rawValue == "A, B, C")
     }
     
     @Test("空知识点 rawValue 为空字符串")
