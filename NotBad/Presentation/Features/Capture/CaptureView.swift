@@ -11,75 +11,59 @@ import SwiftData
 
 struct CaptureView: View {
     @Environment(\.modelContext) private var modelContext
+    @State private var viewModel = CaptureViewModel()
     
-    // 图片选择
+    // 仅用于 PhotosPicker 的临时状态
     @State private var selectedItem: PhotosPickerItem?
-    @State private var selectedImage: Image?
-    @State private var selectedImageData: Data?
-    @State private var selectedUIImage: UIImage?
-    
-    // 表单数据
-    @State private var title: String = ""
-    @State private var note: String = ""
-    @State private var subject: Subject = .math
-    @State private var grade: Grade = .grade10
-    @State private var knowledgePointsInput: String = ""
-    @State private var difficulty: Difficulty = .medium
-    @State private var errorType: ErrorType = .other
-    @State private var source: Source = .other
-    @State private var questionType: ReviewItemType = .other
-    
-    // UI 状态
-    @State private var isSaving = false
-    @State private var showAlert = false
-    @State private var alertMessage = ""
-    @State private var showCamera = false
     @State private var showImageSourcePicker = false
-    @State private var isRecognizingText = false
-    @State private var showLiveScanner = false
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    // 1. 图片选择区域
                     imageSelectionSection
                     
-                    // 2. OCR 识别按钮
-                    if selectedUIImage != nil && title.isEmpty {
+                    if viewModel.selectedUIImage != nil && viewModel.title.isEmpty {
                         ocrButton
                     }
                     
-                    // 3. 信息录入区域
                     inputSection
                     
-                    // 4. 保存按钮
                     saveButton
                 }
                 .padding()
             }
             .navigationTitle("录入错题")
-            .onChange(of: selectedItem) { _, newValue in
-                loadTransferable(from: newValue)
+            .onAppear {
+                viewModel.configure(with: modelContext)
             }
-            .sheet(isPresented: $showCamera) {
-                ImagePicker(sourceType: .camera) { image in
-                    handlePickedImage(image)
+            .onChange(of: selectedItem) { _, newValue in
+                Task {
+                    await viewModel.loadTransferable(from: newValue)
                 }
+            }
+            .sheet(isPresented: $viewModel.showCamera) {
+                ImagePicker(sourceType: .camera) { image in
+                    viewModel.handlePickedImage(image)
+                }
+            }
+            .sheet(isPresented: $viewModel.showLiveScanner) {
+                liveScannerSheet
             }
             .confirmationDialog("选择图片来源", isPresented: $showImageSourcePicker) {
                 Button("拍照") {
-                    showCamera = true
+                    viewModel.showCamera = true
                 }
                 Button("从相册选择") {
                     // PhotosPicker 会自动处理
                 }
                 Button("取消", role: .cancel) {}
             }
-            .alert(alertMessage, isPresented: $showAlert) {
+            .alert(viewModel.alertMessage, isPresented: $viewModel.showAlert) {
                 Button("确定") {
-                    if alertMessage.contains("成功") {
-                        resetForm()
+                    if viewModel.alertMessage.contains("成功") {
+                        viewModel.resetForm()
+                        selectedItem = nil
                     }
                 }
             }
@@ -90,8 +74,7 @@ struct CaptureView: View {
     
     private var imageSelectionSection: some View {
         Group {
-            if let selectedImage {
-                // 已选择图片
+            if let selectedImage = viewModel.selectedImage {
                 VStack(spacing: 12) {
                     selectedImage
                         .resizable()
@@ -100,7 +83,6 @@ struct CaptureView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .shadow(radius: 5)
                     
-                    // 重新选择按钮
                     Button {
                         showImageSourcePicker = true
                     } label: {
@@ -110,11 +92,10 @@ struct CaptureView: View {
                     }
                 }
             } else {
-                // 未选择图片
                 VStack(spacing: 16) {
                     // 拍照按钮
                     Button {
-                        showCamera = true
+                        viewModel.showCamera = true
                     } label: {
                         VStack(spacing: 12) {
                             Image(systemName: "camera.fill")
@@ -130,11 +111,10 @@ struct CaptureView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                     
-                    // 实时扫描按钮 (iOS16+ 可用)
+                    // 实时扫描按钮
                     if #available(iOS 16.0, *) {
                         Button {
-                            // 展示实时扫描视图
-                            showLiveScanner = true
+                            viewModel.showLiveScanner = true
                         } label: {
                             VStack(spacing: 12) {
                                 Image(systemName: "doc.viewfinder")
@@ -151,18 +131,6 @@ struct CaptureView: View {
                             .frame(height: 120)
                             .background(Color.purple.opacity(0.1))
                             .clipShape(RoundedRectangle(cornerRadius: 16))
-                        }
-                        .sheet(isPresented: $showLiveScanner) {
-                            if #available(iOS 16.0, *) {
-                                LiveTextScannerContainer(onResult: { text in
-                                    // 将扫描的文字填入 note，并尝试提取标题（首行）
-                                    let firstLine = text.components(separatedBy: .newlines).first ?? text
-                                    if title.isEmpty { title = String(firstLine.prefix(30)) }
-                                    note = text
-                                }, onCancel: {})
-                            } else {
-                                Text("系统版本不支持实时扫描")
-                            }
                         }
                     }
                     
@@ -188,16 +156,18 @@ struct CaptureView: View {
     
     private var ocrButton: some View {
         Button {
-            recognizeText()
+            Task {
+                await viewModel.recognizeText()
+            }
         } label: {
             HStack {
-                if isRecognizingText {
+                if viewModel.isRecognizingText {
                     ProgressView()
                         .tint(.white)
                 } else {
                     Image(systemName: "text.viewfinder")
                 }
-                Text(isRecognizingText ? "识别中..." : "自动识别文字")
+                Text(viewModel.isRecognizingText ? "识别中..." : "自动识别文字")
                     .fontWeight(.semibold)
             }
             .frame(maxWidth: .infinity)
@@ -206,26 +176,28 @@ struct CaptureView: View {
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .disabled(isRecognizingText)
+        .disabled(viewModel.isRecognizingText)
     }
     
     private var inputSection: some View {
         VStack(alignment: .leading, spacing: 16) {
+            // 标题
             VStack(alignment: .leading, spacing: 8) {
                 Text("标题")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                TextField("例如: 数学-三角函数 (必填)", text: $title)
+                TextField("例如: 数学-三角函数 (必填)", text: $viewModel.title)
                     .textFieldStyle(.roundedBorder)
                     .font(.headline)
             }
             
+            // 学科 & 年级
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("学科")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    Picker("学科", selection: $subject) {
+                    Picker("学科", selection: $viewModel.subject) {
                         ForEach(Subject.allCases, id: \.self) { subject in
                             Text(subject.displayName).tag(subject)
                         }
@@ -240,7 +212,7 @@ struct CaptureView: View {
                     Text("年级")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    Picker("年级", selection: $grade) {
+                    Picker("年级", selection: $viewModel.grade) {
                         ForEach(Grade.allCases, id: \.self) { grade in
                             Text(grade.displayName).tag(grade)
                         }
@@ -252,19 +224,21 @@ struct CaptureView: View {
                 }
             }
             
+            // 知识点
             VStack(alignment: .leading, spacing: 8) {
                 Text("知识点标签")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                TextField("例如: 函数, 导数 (逗号分隔)", text: $knowledgePointsInput)
+                TextField("例如: 函数, 导数 (逗号分隔)", text: $viewModel.knowledgePointsInput)
                     .textFieldStyle(.roundedBorder)
             }
             
+            // 备注
             VStack(alignment: .leading, spacing: 8) {
                 Text("备注")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                TextField("记录解题思路或知识点...", text: $note, axis: .vertical)
+                TextField("记录解题思路或知识点...", text: $viewModel.note, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(3...6)
             }
@@ -273,137 +247,37 @@ struct CaptureView: View {
     
     private var saveButton: some View {
         Button {
-            saveItem()
+            viewModel.saveItem()
         } label: {
             HStack {
-                if isSaving {
+                if viewModel.isSaving {
                     ProgressView()
                         .tint(.white)
                         .padding(.trailing, 5)
                 }
-                Text(isSaving ? "保存中..." : "保存到题库")
+                Text(viewModel.isSaving ? "保存中..." : "保存到题库")
                     .fontWeight(.bold)
             }
             .frame(maxWidth: .infinity)
             .padding()
-            .background(isValid ? Color.blue : Color.gray.opacity(0.3))
+            .background(viewModel.isValid ? Color.blue : Color.gray.opacity(0.3))
             .foregroundStyle(.white)
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .disabled(!isValid || isSaving)
+        .disabled(!viewModel.isValid || viewModel.isSaving)
     }
     
-    // MARK: - Logic
-    
-    private var isValid: Bool {
-        selectedImageData != nil && !title.isEmpty
-    }
-    
-    private func handlePickedImage(_ image: UIImage) {
-        selectedUIImage = image
-        selectedImage = Image(uiImage: image)
-        
-        // 压缩图片
-        if let compressedData = image.jpegData(compressionQuality: 0.7) {
-            selectedImageData = compressedData
-        }
-        
-        // 自动触发 OCR
-        if title.isEmpty {
-            Task {
-                await MainActor.run {
-                    recognizeText()
-                }
-            }
-        }
-    }
-    
-    private func loadTransferable(from item: PhotosPickerItem?) {
-        Task {
-            if let data = try? await item?.loadTransferable(type: Data.self),
-               let uiImage = UIImage(data: data) {
-                await MainActor.run {
-                    handlePickedImage(uiImage)
-                }
-            }
-        }
-    }
-    
-    private func recognizeText() {
-        guard let image = selectedUIImage else { return }
-        
-        isRecognizingText = true
-        
-        Task {
-            do {
-                let recognizedText = try await OCRService.shared.recognizeText(from: image)
-                let extractedTitle = OCRService.shared.extractTitle(from: recognizedText)
-                
-                await MainActor.run {
-                    title = extractedTitle
-                    note = recognizedText
-                    isRecognizingText = false
-                    
-                    // 提示用户
-                    alertMessage = "文字识别成功！已自动填充标题和笔记"
-                    showAlert = true
-                }
-            } catch {
-                await MainActor.run {
-                    isRecognizingText = false
-                    alertMessage = "文字识别失败：\(error.localizedDescription)\n\n可以手动输入标题和笔记"
-                    showAlert = true
-                }
-            }
-        }
-    }
-    
-    private func resetImage() {
-        selectedItem = nil
-        selectedImage = nil
-        selectedImageData = nil
-        selectedUIImage = nil
-    }
-    
-    private func resetForm() {
-        resetImage()
-        title = ""
-        note = ""
-        knowledgePointsInput = ""
-        // subject 和 grade 保持上次选择，方便连续录入
-    }
-    
-    private func saveItem() {
-        guard let data = selectedImageData else { return }
-        isSaving = true
-        
-        let newItem = ReviewItem(
-            imageData: data,
-            title: title,
-            note: note,
-            subject: subject,
-            grade: grade,
-            knowledgePoints: KnowledgePoints(from: knowledgePointsInput),
-            difficulty: difficulty,
-            errorType: errorType,
-            source: source,
-            questionType: questionType
-        )
-        
-        modelContext.insert(newItem)
-        
-        do {
-            try modelContext.save()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                isSaving = false
-                alertMessage = "保存成功！错题已添加到题库"
-                showAlert = true
-            }
-        } catch {
-            isSaving = false
-            alertMessage = "保存失败：\(error.localizedDescription)"
-            showAlert = true
+    @ViewBuilder
+    private var liveScannerSheet: some View {
+        if #available(iOS 16.0, *) {
+            LiveTextScannerContainer(
+                onResult: { text in
+                    viewModel.handleLiveScanResult(text)
+                },
+                onCancel: {}
+            )
+        } else {
+            Text("系统版本不支持实时扫描")
         }
     }
 }

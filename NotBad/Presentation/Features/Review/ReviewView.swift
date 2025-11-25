@@ -11,21 +11,10 @@ import SwiftData
 struct ReviewView: View {
     @Query(sort: \ReviewItem.createdAt, order: .reverse) private var allItems: [ReviewItem]
     @Environment(\.modelContext) private var modelContext
+    @State private var viewModel = ReviewViewModel()
     
-    @State private var currentIndex = 0
-    @State private var showCompletionAlert = false
-    @State private var reviewedCount = 0
-    
-    // 过滤出需要复习的错题（优先级：未掌握 > 模糊 > 已掌握）
     private var reviewItems: [ReviewItem] {
-        allItems.sorted { item1, item2 in
-            // 按掌握度排序：0(不会) > 1(模糊) > 2(熟悉) > 3(掌握)
-            if item1.masteryLevel != item2.masteryLevel {
-                return item1.masteryLevel < item2.masteryLevel
-            }
-            // 相同掌握度按复习次数排序（少的优先）
-            return item1.reviewCount < item2.reviewCount
-        }
+        viewModel.reviewItems(from: allItems)
     }
     
     var body: some View {
@@ -39,13 +28,15 @@ struct ReviewView: View {
             }
             .navigationTitle("复习")
             .navigationBarTitleDisplayMode(.large)
-            .alert("复习完成！", isPresented: $showCompletionAlert) {
+            .onAppear {
+                viewModel.configure(with: modelContext)
+            }
+            .alert("复习完成！", isPresented: $viewModel.showCompletionAlert) {
                 Button("太棒了！") {
-                    currentIndex = 0
-                    reviewedCount = 0
+                    viewModel.reset()
                 }
             } message: {
-                Text("本次复习了 \(reviewedCount) 道错题\n继续保持，你会越来越好！")
+                Text("本次复习了 \(viewModel.reviewedCount) 道错题\n继续保持，你会越来越好！")
             }
         }
     }
@@ -82,23 +73,15 @@ struct ReviewView: View {
     
     private var reviewContentView: some View {
         VStack(spacing: 0) {
-            // 进度条
             progressBar
             
-            // 卡片区域
-            TabView(selection: $currentIndex) {
+            TabView(selection: $viewModel.currentIndex) {
                 ForEach(reviewItems.indices, id: \.self) { index in
                     ReviewCard(
                         item: reviewItems[index],
-                        onMastered: {
-                            handleMasteryUpdate(index: index, level: 3)
-                        },
-                        onUnclear: {
-                            handleMasteryUpdate(index: index, level: 1)
-                        },
-                        onFailed: {
-                            handleMasteryUpdate(index: index, level: 0)
-                        }
+                        onMastered: { handleMastery(index: index, level: .mastered) },
+                        onUnclear: { handleMastery(index: index, level: .glimpse) },
+                        onFailed: { handleMastery(index: index, level: .none) }
                     )
                     .tag(index)
                 }
@@ -118,54 +101,26 @@ struct ReviewView: View {
                 
                 Spacer()
                 
-                Text("\(currentIndex + 1) / \(reviewItems.count)")
+                Text("\(viewModel.currentIndex + 1) / \(reviewItems.count)")
                     .font(.headline)
                     .foregroundStyle(.blue)
             }
             
-            ProgressView(value: Double(currentIndex + 1), total: Double(reviewItems.count))
+            ProgressView(value: Double(viewModel.currentIndex + 1), total: Double(reviewItems.count))
                 .tint(.blue)
         }
         .padding()
         .background(.background.secondary)
     }
     
-    // MARK: - 逻辑处理
+    // MARK: - Actions
     
-    private func handleMasteryUpdate(index: Int, level: Int) {
+    private func handleMastery(index: Int, level: MasteryLevel) {
         guard index < reviewItems.count else { return }
         
-        let item = reviewItems[index]
-        
         withAnimation {
-            // 更新掌握度
-            item.masteryLevel = level
-            
-            // 增加复习次数
-            item.reviewCount += 1
-            
-            // 更新复习时间
-            item.updatedAt = Date()
-            
-            // 计算下次复习时间
-            let level = MasteryLevel(rawValue: level) ?? .none
-            if let nextDate = Calendar.current.date(byAdding: .day, value: level.reviewIntervalDays, to: Date()) {
-                item.nextReviewDate = nextDate
-            }
-            
-            // 保存
-            try? modelContext.save()
-            
-            // 增加已复习计数
-            reviewedCount += 1
-            
-            // 移动到下一题
-            if currentIndex < reviewItems.count - 1 {
-                currentIndex += 1
-            } else {
-                // 完成所有复习
-                showCompletionAlert = true
-            }
+            viewModel.handleMasteryUpdate(for: reviewItems[index], level: level)
+            viewModel.moveToNext(totalCount: reviewItems.count)
         }
     }
 }

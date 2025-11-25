@@ -11,56 +11,16 @@ import SwiftData
 struct LibraryView: View {
     @Query(sort: \ReviewItem.createdAt, order: .reverse) private var items: [ReviewItem]
     @Environment(\.modelContext) private var modelContext
+    @State private var viewModel = LibraryViewModel()
     
-    @State private var searchText = ""
-    @State private var selectedSubject: Subject?
-    
-    var filteredItems: [ReviewItem] {
-        items.filter { item in
-            let matchesSearch = searchText.isEmpty || 
-                item.title.localizedCaseInsensitiveContains(searchText) ||
-                item.knowledgePoints.matches(searchText)
-            
-            let matchesSubject = selectedSubject == nil || item.subject == selectedSubject
-            
-            return matchesSearch && matchesSubject
-        }
+    private var filteredItems: [ReviewItem] {
+        viewModel.filteredItems(from: items)
     }
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // 筛选栏
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) {
-                        // "全部" 选项
-                        FilterChip(
-                            title: "全部",
-                            isSelected: selectedSubject == nil,
-                            action: {
-                                withAnimation(.spring(response: 0.3)) {
-                                    selectedSubject = nil
-                                }
-                            }
-                        )
-                        
-                        // 各学科选项
-                        ForEach(Subject.allCases, id: \.self) { subject in
-                            FilterChip(
-                                title: subject.displayName,
-                                isSelected: selectedSubject == subject,
-                                action: {
-                                    withAnimation(.spring(response: 0.3)) {
-                                        selectedSubject = subject
-                                    }
-                                }
-                            )
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                }
-                .background(Color(uiColor: .systemBackground))
+                filterBar
                 
                 if filteredItems.isEmpty {
                     ContentUnavailableView(
@@ -69,31 +29,66 @@ struct LibraryView: View {
                         description: Text("快去录入你的第一道错题吧")
                     )
                 } else {
-                    List {
-                        ForEach(filteredItems) { item in
-                            NavigationLink(value: item) {
-                                ItemRow(item: item)
-                            }
-                        }
-                        .onDelete(perform: deleteItems)
-                    }
-                    .listStyle(.plain)
-                    .navigationDestination(for: ReviewItem.self) { item in
-                        ItemDetailView(item: item)
-                    }
+                    itemList
                 }
             }
             .navigationTitle("题库")
-            .searchable(text: $searchText, prompt: "搜索标题或标签")
+            .searchable(text: $viewModel.searchText, prompt: "搜索标题或知识点")
+            .onAppear {
+                viewModel.configure(with: modelContext)
+            }
         }
     }
     
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(filteredItems[index])
+    // MARK: - Subviews
+    
+    private var filterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                FilterChip(
+                    title: "全部",
+                    isSelected: viewModel.selectedSubject == nil,
+                    action: {
+                        withAnimation(.spring(response: 0.3)) {
+                            viewModel.selectSubject(nil)
+                        }
+                    }
+                )
+                
+                ForEach(Subject.allCases, id: \.self) { subject in
+                    FilterChip(
+                        title: subject.displayName,
+                        isSelected: viewModel.selectedSubject == subject,
+                        action: {
+                            withAnimation(.spring(response: 0.3)) {
+                                viewModel.selectSubject(subject)
+                            }
+                        }
+                    )
+                }
             }
-            try? modelContext.save()
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+        .background(Color(uiColor: .systemBackground))
+    }
+    
+    private var itemList: some View {
+        List {
+            ForEach(filteredItems) { item in
+                NavigationLink(value: item) {
+                    ItemRow(item: item)
+                }
+            }
+            .onDelete { offsets in
+                withAnimation {
+                    viewModel.deleteItems(from: filteredItems, at: offsets)
+                }
+            }
+        }
+        .listStyle(.plain)
+        .navigationDestination(for: ReviewItem.self) { item in
+            ItemDetailView(item: item)
         }
     }
 }

@@ -1,6 +1,25 @@
 {
-  "configurations" : [],
-  "defaultOptions" : {},
-  "testTargets" : [],
+  "configurations" : [
+    {
+      "id" : "D4E8F3A2-1B5C-4D9E-A6F7-8C0B2E1F3D4A",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:NotBad.xcodeproj",
+        "identifier" : "B27BD96F2E560D0800E69277",
+        "name" : "NotBadTests"
+      }
+    }
+  ],
   "version" : 1
 }
