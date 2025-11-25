@@ -2,33 +2,42 @@
 //  DashboardView.swift
 //  NotBad
 //
-//  数据看板 - iOS 26 现代化设计
+//  Created for NotBad K12 错题本
 //
 
 import SwiftUI
 import SwiftData
 import Charts
 
+// MARK: - DashboardView
+
+/// 数据看板视图
+///
+/// 展示学习数据统计和可视化图表。
+///
+/// ## 功能特性
+///
+/// - 欢迎卡片
+/// - 统计数据展示
+/// - 掌握度分布饼图
+/// - 学科分布条形图
+/// - 快捷操作入口
 struct DashboardView: View {
+    
+    // MARK: - Environment
+    
     @Query private var allItems: [ReviewItem]
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    // 欢迎卡片
                     welcomeCard
-                    
-                    // 统计卡片
                     statisticsGrid
-                    
-                    // 掌握度分布
                     masteryDistributionChart
-                    
-                    // 学科分布
                     subjectDistributionChart
-                    
-                    // 快捷操作
                     quickActions
                 }
                 .padding()
@@ -38,7 +47,7 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - 欢迎卡片
+    // MARK: - Welcome Card
     
     private var welcomeCard: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -78,7 +87,7 @@ struct DashboardView: View {
         .clipShape(RoundedRectangle(cornerRadius: 20))
     }
     
-    // MARK: - 统计网格
+    // MARK: - Statistics Grid
     
     private var statisticsGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
@@ -112,7 +121,7 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - 掌握度分布图表
+    // MARK: - Mastery Distribution Chart
     
     private var masteryDistributionChart: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -123,7 +132,7 @@ struct DashboardView: View {
                 emptyChartPlaceholder
             } else {
                 Chart {
-                    ForEach(masteryData, id: \.level) { data in
+                    ForEach(masteryData) { data in
                         SectorMark(
                             angle: .value("数量", data.count),
                             innerRadius: .ratio(0.6),
@@ -145,7 +154,7 @@ struct DashboardView: View {
                 
                 // 图例
                 HStack(spacing: 16) {
-                    ForEach(masteryData, id: \.level) { data in
+                    ForEach(masteryData) { data in
                         HStack(spacing: 6) {
                             Circle()
                                 .fill(data.color)
@@ -162,7 +171,7 @@ struct DashboardView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
-    // MARK: - 学科分布图表
+    // MARK: - Subject Distribution Chart
     
     private var subjectDistributionChart: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -194,7 +203,7 @@ struct DashboardView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
-    // MARK: - 空状态占位符
+    // MARK: - Empty Chart Placeholder
     
     private var emptyChartPlaceholder: some View {
         VStack(spacing: 12) {
@@ -210,7 +219,7 @@ struct DashboardView: View {
         .frame(maxWidth: .infinity)
     }
     
-    // MARK: - 快捷操作
+    // MARK: - Quick Actions
     
     private var quickActions: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -245,10 +254,10 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - 计算属性
+    // MARK: - Computed Properties
     
     private var masteredCount: Int {
-        allItems.filter { $0.masteryLevel == 3 }.count
+        allItems.filter { $0.masteryLevel == MasteryLevel.mastered.rawValue }.count
     }
     
     private var weeklyNewCount: Int {
@@ -260,24 +269,29 @@ struct DashboardView: View {
         allItems.reduce(0) { $0 + $1.reviewCount }
     }
     
-    private var masteryData: [MasteryData] {
+    private var masteryData: [MasteryChartData] {
         MasteryLevel.allCases.compactMap { level in
             let count = allItems.filter { $0.masteryLevel == level.rawValue }.count
             guard count > 0 else { return nil }
-            return MasteryData(level: level.rawValue, label: level.displayName, color: level.color, count: count)
+            let total = max(1, allItems.count)
+            return MasteryChartData(
+                level: level,
+                count: count,
+                percentage: Double(count) / Double(total)
+            )
         }
     }
     
     private var subjectData: [SubjectData] {
-        let subjects = Dictionary(grouping: allItems, by: { $0.subject })
+        Dictionary(grouping: allItems, by: { $0.subject })
             .map { SubjectData(subject: $0.key.displayName, count: $0.value.count) }
             .sorted { $0.count > $1.count }
-        return subjects
     }
 }
 
-// MARK: - 统计卡片
+// MARK: - StatCard
 
+/// 统计卡片组件
 struct StatCard: View {
     let title: String
     let value: String
@@ -310,8 +324,9 @@ struct StatCard: View {
     }
 }
 
-// MARK: - 快捷操作按钮
+// MARK: - QuickActionButton
 
+/// 快捷操作按钮组件
 struct QuickActionButton: View {
     let title: String
     let icon: String
@@ -338,6 +353,8 @@ struct QuickActionButton: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
+
+// MARK: - Preview
 
 #Preview {
     DashboardView()

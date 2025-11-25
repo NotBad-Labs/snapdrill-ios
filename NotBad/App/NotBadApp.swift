@@ -2,15 +2,18 @@
 //  NotBadApp.swift
 //  NotBad
 //
-//  应用主入口
+//  Created for NotBad K12 错题本
 //
 
 import SwiftUI
 import SwiftData
 
-/// NotBad 错题本应用主入口
+// MARK: - NotBadApp
+
+/// NotBad K12 错题本应用主入口
 @main
 struct NotBadApp: App {
+    
     var body: some Scene {
         WindowGroup {
             MainTabView()

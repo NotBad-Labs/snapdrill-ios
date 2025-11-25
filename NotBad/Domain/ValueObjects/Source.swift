@@ -2,168 +2,440 @@
 //  Source.swift
 //  NotBad
 //
-//  题目来源值对象 - K12完整覆盖
+//  Created for NotBad K12 错题本
 //
 
 import SwiftUI
 
+// MARK: - SourceCategory
+
 /// 来源分类
-enum SourceCategory: String, CaseIterable, Codable {
-    case official = "官方"     // 课本、真题
-    case school = "学校"       // 试卷、作业、模拟考
-    case extra = "课外"        // 练习册、辅导班、竞赛
-    case other = "其他"        // 网络、自测、其他
+///
+/// 将题目来源按性质分为四大类。
+///
+/// ## 分类说明
+///
+/// - **官方**：课本、历年真题等权威来源
+/// - **学校**：校内考试、模拟考、作业
+/// - **课外**：练习册、辅导班、竞赛
+/// - **其他**：网络、自测等
+///
+/// ## 使用示例
+///
+/// ```swift
+/// let category = SourceCategory.official
+/// print(category.displayName)  // "官方"
+/// print(category.icon)         // "building.columns"
+/// ```
+enum SourceCategory: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     
-    var displayName: String { rawValue }
+    /// 官方来源
+    ///
+    /// 包括课本、历年真题等权威出版物。
+    case official = "官方"
     
-    /// 图标
-    var icon: String {
+    /// 学校来源
+    ///
+    /// 包括考试、模拟考、作业等校内资料。
+    case school = "学校"
+    
+    /// 课外来源
+    ///
+    /// 包括练习册、辅导班、竞赛等校外资料。
+    case extra = "课外"
+    
+    /// 其他来源
+    ///
+    /// 包括网络、自测等来源不明确的资料。
+    case other = "其他"
+    
+    // MARK: - Identifiable
+    
+    /// 唯一标识符
+    nonisolated var id: String { rawValue }
+}
+
+// MARK: - SourceCategory Display Properties
+
+extension SourceCategory {
+    
+    /// 显示名称
+    nonisolated var displayName: String { rawValue }
+    
+    /// SF Symbol 图标名称
+    nonisolated var icon: String {
         switch self {
-        case .official: return "building.columns"
-        case .school: return "graduationcap"
-        case .extra: return "books.vertical"
-        case .other: return "ellipsis.circle"
+        case .official: "building.columns"
+        case .school: "graduationcap"
+        case .extra: "books.vertical"
+        case .other: "ellipsis.circle"
         }
     }
     
-    /// 颜色
+    /// 主题颜色
+    @MainActor
     var color: Color {
         switch self {
-        case .official: return .red
-        case .school: return .blue
-        case .extra: return .orange
-        case .other: return .gray
+        case .official: .red
+        case .school: .blue
+        case .extra: .orange
+        case .other: .gray
+        }
+    }
+    
+    /// 分类描述
+    nonisolated var categoryDescription: String {
+        switch self {
+        case .official: "权威教材与考试资料"
+        case .school: "校内学习与考试资料"
+        case .extra: "课外拓展与提升资料"
+        case .other: "其他学习资料"
         }
     }
 }
 
+// MARK: - Source
+
 /// 题目来源
-enum Source: String, CaseIterable, Codable {
-    // 官方
+///
+/// K12 教育中常见的题目来源，按分类组织。
+///
+/// ## 来源分布
+///
+/// ### 官方来源（2种）
+/// - 课本、历年真题
+///
+/// ### 学校来源（3种）
+/// - 考试、模拟考、作业
+///
+/// ### 课外来源（3种）
+/// - 练习册、辅导班、竞赛
+///
+/// ### 其他来源（3种）
+/// - 网络、自测、其他
+///
+/// ## 使用示例
+///
+/// ```swift
+/// let source = Source.pastExam
+/// print(source.displayName)     // "历年真题"
+/// print(source.importance)      // 5
+/// print(source.isAuthoritative) // true
+///
+/// // 获取高重要性来源
+/// let important = Source.highImportanceSources
+/// ```
+enum Source: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
+    
+    // MARK: - Official Sources (官方)
+    
+    /// 课本
+    ///
+    /// 教材教辅，官方权威。
     case textbook = "课本"
+    
+    /// 历年真题
+    ///
+    /// 中考、高考等正式考试真题。
     case pastExam = "历年真题"
     
-    // 学校
+    // MARK: - School Sources (学校)
+    
+    /// 考试
+    ///
+    /// 校内正式考试（期中、期末等）。
     case exam = "考试"
+    
+    /// 模拟考
+    ///
+    /// 模拟考试，仿真度较高。
     case mock = "模拟考"
+    
+    /// 作业
+    ///
+    /// 日常作业、课后练习。
     case homework = "作业"
     
-    // 课外
+    // MARK: - Extra Sources (课外)
+    
+    /// 练习册
+    ///
+    /// 市售练习册、习题集。
     case workbook = "练习册"
+    
+    /// 辅导班
+    ///
+    /// 课外辅导机构资料。
     case tutor = "辅导班"
+    
+    /// 竞赛
+    ///
+    /// 学科竞赛、奥赛等。
     case competition = "竞赛"
     
-    // 其他
+    // MARK: - Other Sources (其他)
+    
+    /// 网络
+    ///
+    /// 网络资源、在线题库。
     case online = "网络"
+    
+    /// 自测
+    ///
+    /// 自主测试、自我检验。
     case selfTest = "自测"
+    
+    /// 其他
+    ///
+    /// 其他来源。
     case other = "其他"
     
+    // MARK: - Identifiable
+    
+    /// 唯一标识符
+    nonisolated var id: String { rawValue }
+}
+
+// MARK: - Source Display Properties
+
+extension Source {
+    
     /// 显示名称
-    var displayName: String { rawValue }
+    nonisolated var displayName: String { rawValue }
     
     /// 简短标签
-    var shortLabel: String {
+    ///
+    /// 用于空间有限的 UI 展示。
+    nonisolated var shortLabel: String {
         switch self {
-        case .textbook: return "课本"
-        case .pastExam: return "真题"
-        case .exam: return "考试"
-        case .mock: return "模考"
-        case .homework: return "作业"
-        case .workbook: return "练习"
-        case .tutor: return "辅导"
-        case .competition: return "竞赛"
-        case .online: return "网络"
-        case .selfTest: return "自测"
-        case .other: return "其他"
+        case .textbook: "课本"
+        case .pastExam: "真题"
+        case .exam: "考试"
+        case .mock: "模考"
+        case .homework: "作业"
+        case .workbook: "练习"
+        case .tutor: "辅导"
+        case .competition: "竞赛"
+        case .online: "网络"
+        case .selfTest: "自测"
+        case .other: "其他"
         }
     }
     
-    /// 来源分类
-    var category: SourceCategory {
+    /// SF Symbol 图标名称
+    nonisolated var icon: String {
         switch self {
-        case .textbook, .pastExam:
-            return .official
-        case .exam, .mock, .homework:
-            return .school
-        case .workbook, .tutor, .competition:
-            return .extra
-        case .online, .selfTest, .other:
-            return .other
+        case .textbook: "book.closed"
+        case .pastExam: "doc.badge.clock"
+        case .exam: "doc.text.fill"
+        case .mock: "doc.text"
+        case .homework: "pencil.and.list.clipboard"
+        case .workbook: "book"
+        case .tutor: "person.2"
+        case .competition: "trophy"
+        case .online: "globe"
+        case .selfTest: "person.crop.circle.badge.questionmark"
+        case .other: "ellipsis.circle"
         }
     }
     
-    /// 图标
-    var icon: String {
-        switch self {
-        case .textbook: return "book.closed"
-        case .pastExam: return "doc.badge.clock"
-        case .exam: return "doc.text.fill"
-        case .mock: return "doc.text"
-        case .homework: return "pencil.and.list.clipboard"
-        case .workbook: return "book"
-        case .tutor: return "person.2"
-        case .competition: return "trophy"
-        case .online: return "globe"
-        case .selfTest: return "person.crop.circle.badge.questionmark"
-        case .other: return "ellipsis.circle"
-        }
-    }
-    
-    /// 颜色
+    /// 主题颜色
+    @MainActor
     var color: Color {
         switch self {
-        case .textbook: return .blue
-        case .pastExam: return .red
-        case .exam: return .red
-        case .mock: return .orange
-        case .homework: return .green
-        case .workbook: return .cyan
-        case .tutor: return .purple
-        case .competition: return .yellow
-        case .online: return .indigo
-        case .selfTest: return .mint
-        case .other: return .gray
+        case .textbook: .blue
+        case .pastExam: .red
+        case .exam: .red
+        case .mock: .orange
+        case .homework: .green
+        case .workbook: .cyan
+        case .tutor: .purple
+        case .competition: .yellow
+        case .online: .indigo
+        case .selfTest: .mint
+        case .other: .gray
+        }
+    }
+}
+
+// MARK: - Source Category
+
+extension Source {
+    
+    /// 来源分类
+    nonisolated var category: SourceCategory {
+        switch self {
+        case .textbook, .pastExam:
+            .official
+        case .exam, .mock, .homework:
+            .school
+        case .workbook, .tutor, .competition:
+            .extra
+        case .online, .selfTest, .other:
+            .other
         }
     }
     
-    /// 重要程度（1-5，越高越重要）
-    var importance: Int {
+    /// 是否为官方来源
+    nonisolated var isOfficial: Bool { category == .official }
+    
+    /// 是否为学校来源
+    nonisolated var isSchool: Bool { category == .school }
+    
+    /// 是否为课外来源
+    nonisolated var isExtra: Bool { category == .extra }
+}
+
+// MARK: - Source Importance
+
+extension Source {
+    
+    /// 重要程度
+    ///
+    /// 1-5 分，数字越大越重要：
+    /// - 5：历年真题、正式考试
+    /// - 4：竞赛、模拟考、课本
+    /// - 3：辅导班、练习册
+    /// - 2：作业、网络
+    /// - 1：自测、其他
+    nonisolated var importance: Int {
         switch self {
-        case .pastExam: return 5      // 历年真题最重要
-        case .exam: return 5          // 正式考试
-        case .competition: return 4   // 竞赛题有拔高价值
-        case .mock: return 4          // 模拟考接近真实
-        case .textbook: return 4      // 课本是基础
-        case .tutor: return 3         // 辅导班针对性强
-        case .workbook: return 3      // 练习册有系统性
-        case .homework: return 2      // 日常作业
-        case .online: return 2        // 网络资源质量参差
-        case .selfTest: return 1      // 自测
-        case .other: return 1         // 其他
+        case .pastExam: 5
+        case .exam: 5
+        case .competition: 4
+        case .mock: 4
+        case .textbook: 4
+        case .tutor: 3
+        case .workbook: 3
+        case .homework: 2
+        case .online: 2
+        case .selfTest: 1
+        case .other: 1
         }
     }
+    
+    /// 重要程度描述
+    nonisolated var importanceDescription: String {
+        switch importance {
+        case 5: "非常重要"
+        case 4: "重要"
+        case 3: "一般"
+        case 2: "次要"
+        default: "低"
+        }
+    }
+    
+    /// 是否为高重要性来源
+    ///
+    /// 重要程度 >= 4 视为高重要性。
+    nonisolated var isHighImportance: Bool { importance >= 4 }
+    
+    /// 是否为中等重要性来源
+    ///
+    /// 重要程度 >= 3 且 < 4。
+    nonisolated var isMediumImportance: Bool { importance == 3 }
+    
+    /// 是否为低重要性来源
+    ///
+    /// 重要程度 < 3。
+    nonisolated var isLowImportance: Bool { importance < 3 }
+}
+
+// MARK: - Source Authority & Exam
+
+extension Source {
     
     /// 是否为高权威来源
-    var isAuthoritative: Bool {
+    ///
+    /// 官方来源或正式考试视为高权威。
+    nonisolated var isAuthoritative: Bool {
         category == .official || self == .exam
     }
     
     /// 是否为考试相关
-    var isExamRelated: Bool {
+    ///
+    /// 包括历年真题、正式考试、模拟考。
+    nonisolated var isExamRelated: Bool {
         [.pastExam, .exam, .mock].contains(self)
+    }
+    
+    /// 是否为提升类来源
+    ///
+    /// 竞赛、辅导班等提升类来源。
+    nonisolated var isAdvanced: Bool {
+        [.competition, .tutor].contains(self)
     }
 }
 
-// MARK: - 统计辅助
+// MARK: - Source Static Collections
 
 extension Source {
+    
+    /// 所有官方来源
+    nonisolated static var officialSources: [Source] {
+        [.textbook, .pastExam]
+    }
+    
+    /// 所有学校来源
+    nonisolated static var schoolSources: [Source] {
+        [.exam, .mock, .homework]
+    }
+    
+    /// 所有课外来源
+    nonisolated static var extraSources: [Source] {
+        [.workbook, .tutor, .competition]
+    }
+    
+    /// 所有考试相关来源
+    nonisolated static var examRelatedSources: [Source] {
+        [.pastExam, .exam, .mock]
+    }
+    
+    /// 高重要性来源
+    ///
+    /// 重要程度 >= 4 的所有来源。
+    nonisolated static var highImportanceSources: [Source] {
+        allCases.filter { $0.importance >= 4 }
+    }
+    
+    /// 高权威来源
+    nonisolated static var authoritativeSources: [Source] {
+        allCases.filter { $0.isAuthoritative }
+    }
+}
+
+// MARK: - Source Query Methods
+
+extension Source {
+    
     /// 获取某分类下的所有来源
-    static func sources(in category: SourceCategory) -> [Source] {
+    ///
+    /// - Parameter category: 来源分类
+    /// - Returns: 该分类下的所有来源
+    nonisolated static func sources(in category: SourceCategory) -> [Source] {
         allCases.filter { $0.category == category }
     }
     
-    /// 高重要性来源（重要程度 >= 4）
-    static var highImportanceSources: [Source] {
-        allCases.filter { $0.importance >= 4 }
+    /// 获取指定重要程度的所有来源
+    ///
+    /// - Parameter level: 重要程度（1-5）
+    /// - Returns: 该重要程度的所有来源
+    nonisolated static func sources(withImportance level: Int) -> [Source] {
+        allCases.filter { $0.importance == level }
+    }
+    
+    /// 获取重要程度大于等于指定值的所有来源
+    ///
+    /// - Parameter minLevel: 最低重要程度
+    /// - Returns: 符合条件的所有来源
+    nonisolated static func sources(withMinImportance minLevel: Int) -> [Source] {
+        allCases.filter { $0.importance >= minLevel }
+    }
+    
+    /// 按重要程度排序的所有来源
+    ///
+    /// 从高到低排序。
+    nonisolated static var sortedByImportance: [Source] {
+        allCases.sorted { $0.importance > $1.importance }
     }
 }

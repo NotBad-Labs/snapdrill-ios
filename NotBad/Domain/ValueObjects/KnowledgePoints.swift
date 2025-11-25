@@ -7,20 +7,47 @@
 
 import Foundation
 
+// MARK: - KnowledgePoints
+
 /// 知识点集合
 ///
-/// 表示一道错题涉及的知识点列表，如 ["函数", "导数", "极限"]
-/// 遵循值对象原则：不可变，所有操作返回新实例
-struct KnowledgePoints: Equatable, Codable, Hashable {
-    private var items: [String]
+/// 表示一道错题涉及的知识点列表，如 ["函数", "导数", "极限"]。
+/// 遵循值对象原则：不可变，所有操作返回新实例。
+///
+/// ## 核心特性
+/// - **不可变设计**：所有修改操作返回新实例
+/// - **自动去重**：创建时自动去除重复项
+/// - **空值安全**：自动过滤空字符串和空白
+///
+/// ## 使用示例
+/// ```swift
+/// // 创建知识点集合
+/// let points: KnowledgePoints = ["函数", "导数", "极限"]
+///
+/// // 添加知识点（返回新实例）
+/// let newPoints = points.adding("积分")
+///
+/// // 从字符串创建
+/// let fromString = KnowledgePoints(from: "函数, 导数, 极限")
+///
+/// // 搜索匹配
+/// let matches = points.matches("函")  // true
+/// ```
+struct KnowledgePoints: Sendable, Equatable, Codable, Hashable {
+    
+    // MARK: - Properties
+    
+    /// 内部存储的知识点数组
+    let items: [String]
     
     /// 空知识点集合
     static let empty = KnowledgePoints([])
     
     // MARK: - Initialization
     
+    /// 从字符串数组创建
+    /// - Parameter items: 知识点数组（自动去重、去空、去首尾空格）
     init(_ items: [String] = []) {
-        // 去重、去空、去首尾空格
         self.items = items
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
@@ -28,13 +55,16 @@ struct KnowledgePoints: Equatable, Codable, Hashable {
     }
     
     /// 从逗号分隔的字符串创建
+    /// - Parameter string: 逗号分隔的知识点字符串
     init(from string: String) {
         let components = string.components(separatedBy: ",")
         self.init(components)
     }
-    
-    // MARK: - Properties
-    
+}
+
+// MARK: - KnowledgePoints Computed Properties
+
+extension KnowledgePoints {
     /// 知识点数组
     var array: [String] { items }
     
@@ -57,10 +87,14 @@ struct KnowledgePoints: Equatable, Codable, Hashable {
     var rawValue: String {
         items.joined(separator: ", ")
     }
-    
-    // MARK: - Operations
-    
+}
+
+// MARK: - KnowledgePoints Operations
+
+extension KnowledgePoints {
     /// 添加单个知识点
+    /// - Parameter point: 要添加的知识点
+    /// - Returns: 包含新知识点的新实例
     func adding(_ point: String) -> KnowledgePoints {
         let trimmed = point.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty, !items.contains(trimmed) else { return self }
@@ -68,6 +102,8 @@ struct KnowledgePoints: Equatable, Codable, Hashable {
     }
     
     /// 批量添加知识点
+    /// - Parameter points: 要添加的知识点数组
+    /// - Returns: 包含新知识点的新实例
     func adding(_ points: [String]) -> KnowledgePoints {
         var newItems = items
         for point in points {
@@ -80,45 +116,71 @@ struct KnowledgePoints: Equatable, Codable, Hashable {
     }
     
     /// 移除单个知识点
+    /// - Parameter point: 要移除的知识点
+    /// - Returns: 移除后的新实例
     func removing(_ point: String) -> KnowledgePoints {
         KnowledgePoints(items.filter { $0 != point })
     }
     
     /// 批量移除知识点
+    /// - Parameter points: 要移除的知识点数组
+    /// - Returns: 移除后的新实例
     func removing(_ points: [String]) -> KnowledgePoints {
         let pointsSet = Set(points)
         return KnowledgePoints(items.filter { !pointsSet.contains($0) })
     }
     
     /// 合并知识点集合
+    /// - Parameter other: 要合并的知识点集合
+    /// - Returns: 合并后的新实例
     func merging(with other: KnowledgePoints) -> KnowledgePoints {
         KnowledgePoints(items + other.items)
     }
     
     /// 取交集
+    /// - Parameter other: 另一个知识点集合
+    /// - Returns: 交集后的新实例
     func intersection(with other: KnowledgePoints) -> KnowledgePoints {
         let otherSet = Set(other.items)
         return KnowledgePoints(items.filter { otherSet.contains($0) })
     }
     
+    /// 排序后的知识点
+    /// - Returns: 按字母顺序排序的新实例
+    func sorted() -> KnowledgePoints {
+        KnowledgePoints(items.sorted())
+    }
+}
+
+// MARK: - KnowledgePoints Query Methods
+
+extension KnowledgePoints {
     /// 是否包含知识点
+    /// - Parameter point: 要查询的知识点
+    /// - Returns: 是否包含
     func contains(_ point: String) -> Bool {
         items.contains(point)
     }
     
     /// 是否包含任意一个知识点
+    /// - Parameter points: 要查询的知识点数组
+    /// - Returns: 是否包含任意一个
     func containsAny(of points: [String]) -> Bool {
         let pointsSet = Set(points)
         return items.contains { pointsSet.contains($0) }
     }
     
     /// 是否包含所有知识点
+    /// - Parameter points: 要查询的知识点数组
+    /// - Returns: 是否全部包含
     func containsAll(of points: [String]) -> Bool {
         let itemsSet = Set(items)
         return points.allSatisfy { itemsSet.contains($0) }
     }
     
     /// 搜索匹配（模糊搜索）
+    /// - Parameter query: 搜索关键词
+    /// - Returns: 是否有匹配
     func matches(_ query: String) -> Bool {
         guard !query.isEmpty else { return true }
         let lowercasedQuery = query.lowercased()
@@ -126,25 +188,24 @@ struct KnowledgePoints: Equatable, Codable, Hashable {
     }
     
     /// 过滤包含关键词的知识点
+    /// - Parameter keyword: 过滤关键词
+    /// - Returns: 过滤后的新实例
     func filter(containing keyword: String) -> KnowledgePoints {
         guard !keyword.isEmpty else { return self }
         let lowercasedKeyword = keyword.lowercased()
         return KnowledgePoints(items.filter { $0.lowercased().contains(lowercasedKeyword) })
     }
     
-    /// 排序后的知识点
-    func sorted() -> KnowledgePoints {
-        KnowledgePoints(items.sorted())
-    }
-    
-    /// 下标访问
-    subscript(index: Int) -> String? {
+    /// 下标访问（安全版本）
+    /// - Parameter index: 索引
+    /// - Returns: 对应的知识点，越界返回 nil
+    subscript(safe index: Int) -> String? {
         guard index >= 0 && index < items.count else { return nil }
         return items[index]
     }
 }
 
-// MARK: - Sequence
+// MARK: - KnowledgePoints Sequence
 
 extension KnowledgePoints: Sequence {
     func makeIterator() -> IndexingIterator<[String]> {
@@ -152,7 +213,7 @@ extension KnowledgePoints: Sequence {
     }
 }
 
-// MARK: - Collection
+// MARK: - KnowledgePoints Collection
 
 extension KnowledgePoints: Collection {
     var startIndex: Int { items.startIndex }
@@ -167,7 +228,7 @@ extension KnowledgePoints: Collection {
     }
 }
 
-// MARK: - ExpressibleByArrayLiteral
+// MARK: - KnowledgePoints ExpressibleByArrayLiteral
 
 extension KnowledgePoints: ExpressibleByArrayLiteral {
     init(arrayLiteral elements: String...) {
@@ -175,15 +236,16 @@ extension KnowledgePoints: ExpressibleByArrayLiteral {
     }
 }
 
-// MARK: - CustomStringConvertible
+// MARK: - KnowledgePoints CustomStringConvertible
 
 extension KnowledgePoints: CustomStringConvertible {
     var description: String { rawValue }
 }
 
-// MARK: - 常用知识点预设
+// MARK: - KnowledgePoints Subject Suggestions
 
 extension KnowledgePoints {
+    
     /// 数学常用知识点
     enum Math {
         static let algebra = "代数"
@@ -202,8 +264,8 @@ extension KnowledgePoints {
         static let analyticGeometry = "解析几何"
         
         static var all: [String] {
-            [algebra, geometry, function, equation, inequality, sequence, 
-             probability, statistics, derivative, integral, vector, 
+            [algebra, geometry, function, equation, inequality, sequence,
+             probability, statistics, derivative, integral, vector,
              trigonometry, solidGeometry, analyticGeometry]
         }
     }
@@ -222,7 +284,7 @@ extension KnowledgePoints {
         static let modern = "近代物理"
         
         static var all: [String] {
-            [mechanics, kinematics, dynamics, energy, electricity, 
+            [mechanics, kinematics, dynamics, energy, electricity,
              magnetism, optics, thermodynamics, waves, modern]
         }
     }
@@ -258,13 +320,15 @@ extension KnowledgePoints {
     }
     
     /// 根据学科获取推荐知识点
+    /// - Parameter subject: 学科
+    /// - Returns: 该学科的推荐知识点列表
     static func suggestions(for subject: Subject) -> [String] {
         switch subject {
-        case .math: return Math.all
-        case .physics: return Physics.all
-        case .chemistry: return Chemistry.all
-        case .english: return English.all
-        default: return []
+        case .math: Math.all
+        case .physics: Physics.all
+        case .chemistry: Chemistry.all
+        case .english: English.all
+        default: []
         }
     }
 }

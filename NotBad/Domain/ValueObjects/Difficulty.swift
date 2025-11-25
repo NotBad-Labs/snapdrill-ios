@@ -7,98 +7,191 @@
 
 import SwiftUI
 
+// MARK: - Difficulty
+
 /// 题目难度等级（5级制）
-enum Difficulty: Int, CaseIterable, Codable {
-    case basic = 0     // 送分题
-    case easy = 1      // 简单
-    case medium = 2    // 中等
-    case hard = 3      // 困难
-    case extreme = 4   // 压轴
+///
+/// 表示题目的难度等级，从基础到压轴共5个级别。
+/// 用于帮助学生识别题目难度，合理分配复习时间。
+///
+/// ## 难度等级
+/// - ``basic``: 送分题 - 基础概念直接应用
+/// - ``easy``: 简单题 - 常规题型
+/// - ``medium``: 中等题 - 需要分析思考
+/// - ``hard``: 困难题 - 综合性强
+/// - ``extreme``: 压轴题 - 极具挑战性
+///
+/// ## 使用示例
+/// ```swift
+/// let difficulty = Difficulty.medium
+/// print(difficulty.displayName)  // "中等"
+/// print(difficulty.stars)        // 3
+/// print(difficulty.coefficient)  // 0.5
+/// ```
+enum Difficulty: Int, Sendable, CaseIterable, Codable, Hashable, Identifiable {
+    /// 送分题 - 基础概念直接应用，几乎不会出错
+    case basic = 0
     
+    /// 简单题 - 常规题型，稍加思考即可解决
+    case easy = 1
+    
+    /// 中等题 - 需要一定分析，容易粗心出错
+    case medium = 2
+    
+    /// 困难题 - 综合性强，需要灵活运用多个知识点
+    case hard = 3
+    
+    /// 压轴题 - 压轴难度，极具挑战性
+    case extreme = 4
+    
+    // MARK: Identifiable
+    
+    nonisolated var id: Int { rawValue }
+}
+
+// MARK: - Difficulty Display Properties
+
+extension Difficulty {
     /// 显示名称
-    var displayName: String {
+    ///
+    /// 用于在 UI 中显示完整的难度名称
+    nonisolated var displayName: String {
         switch self {
-        case .basic: return "送分"
-        case .easy: return "简单"
-        case .medium: return "中等"
-        case .hard: return "困难"
-        case .extreme: return "压轴"
+        case .basic: "送分"
+        case .easy: "简单"
+        case .medium: "中等"
+        case .hard: "困难"
+        case .extreme: "压轴"
         }
     }
     
     /// 简短标签
-    var shortLabel: String {
+    ///
+    /// 单字标签，适用于空间受限的场景（如徽章、标签）
+    nonisolated var shortLabel: String {
         switch self {
-        case .basic: return "送"
-        case .easy: return "易"
-        case .medium: return "中"
-        case .hard: return "难"
-        case .extreme: return "压"
+        case .basic: "送"
+        case .easy: "易"
+        case .medium: "中"
+        case .hard: "难"
+        case .extreme: "压"
         }
     }
     
     /// 详细描述
-    var detailText: String {
+    ///
+    /// 提供该难度等级的详细说明，帮助用户理解
+    nonisolated var detailText: String {
         switch self {
-        case .basic: return "基础概念直接应用，几乎不会出错"
-        case .easy: return "常规题型，稍加思考即可解决"
-        case .medium: return "需要一定分析，容易粗心出错"
-        case .hard: return "综合性强，需要灵活运用多个知识点"
-        case .extreme: return "压轴难度，极具挑战性"
-        }
-    }
-    
-    /// 图标
-    var icon: String {
-        switch self {
-        case .basic: return "gift"
-        case .easy: return "star"
-        case .medium: return "star.leadinghalf.filled"
-        case .hard: return "star.fill"
-        case .extreme: return "flame.fill"
-        }
-    }
-    
-    /// 颜色（绿→蓝→黄→橙→红 渐进）
-    var color: Color {
-        switch self {
-        case .basic: return .mint
-        case .easy: return .green
-        case .medium: return .yellow
-        case .hard: return .orange
-        case .extreme: return .red
-        }
-    }
-    
-    /// 星级（1-5）
-    var stars: Int { rawValue + 1 }
-    
-    /// 难度系数（0.0-1.0）
-    var coefficient: Double {
-        Double(rawValue) / Double(Self.allCases.count - 1)
-    }
-    
-    /// 建议复习优先级（1-5，数字越大优先级越高）
-    var reviewPriority: Int {
-        rawValue + 1
-    }
-    
-    /// 预计耗时倍数（相对于基准时间）
-    var timeMultiplier: Double {
-        switch self {
-        case .basic: return 0.5
-        case .easy: return 1.0
-        case .medium: return 1.5
-        case .hard: return 2.0
-        case .extreme: return 3.0
+        case .basic: "基础概念直接应用，几乎不会出错"
+        case .easy: "常规题型，稍加思考即可解决"
+        case .medium: "需要一定分析，容易粗心出错"
+        case .hard: "综合性强，需要灵活运用多个知识点"
+        case .extreme: "压轴难度，极具挑战性"
         }
     }
 }
 
-// MARK: - Comparable
+// MARK: - Difficulty Visual Properties
+
+extension Difficulty {
+    /// SF Symbol 图标名称
+    ///
+    /// 返回适合该难度等级的 SF Symbol 图标
+    nonisolated var icon: String {
+        switch self {
+        case .basic: "gift"
+        case .easy: "star"
+        case .medium: "star.leadinghalf.filled"
+        case .hard: "star.fill"
+        case .extreme: "flame.fill"
+        }
+    }
+    
+    /// 主题颜色
+    ///
+    /// 采用渐进式配色方案：绿→黄→橙→红
+    nonisolated var color: Color {
+        switch self {
+        case .basic: .mint
+        case .easy: .green
+        case .medium: .yellow
+        case .hard: .orange
+        case .extreme: .red
+        }
+    }
+    
+    /// 星级评分（1-5）
+    ///
+    /// 用于可视化显示难度等级
+    nonisolated var stars: Int { rawValue + 1 }
+}
+
+// MARK: - Difficulty Metrics
+
+extension Difficulty {
+    /// 难度系数（0.0-1.0）
+    ///
+    /// 归一化的难度值，可用于算法计算
+    /// - Returns: 0.0（最简单）到 1.0（最困难）之间的值
+    nonisolated var coefficient: Double {
+        Double(rawValue) / Double(Self.allCases.count - 1)
+    }
+    
+    /// 建议复习优先级（1-5）
+    ///
+    /// 数字越大，优先级越高
+    /// 通常较难的题目需要更频繁的复习
+    nonisolated var reviewPriority: Int { rawValue + 1 }
+    
+    /// 预计耗时倍数
+    ///
+    /// 相对于基准时间的倍数，用于估算完成题目所需时间
+    /// - Returns: 0.5（送分题）到 3.0（压轴题）的倍数系数
+    nonisolated var timeMultiplier: Double {
+        switch self {
+        case .basic: 0.5
+        case .easy: 1.0
+        case .medium: 1.5
+        case .hard: 2.0
+        case .extreme: 3.0
+        }
+    }
+}
+
+// MARK: - Difficulty Comparable
 
 extension Difficulty: Comparable {
-    static func < (lhs: Difficulty, rhs: Difficulty) -> Bool {
+    /// 比较两个难度等级
+    ///
+    /// 基于 rawValue 进行比较，数值越大难度越高
+    nonisolated static func < (lhs: Difficulty, rhs: Difficulty) -> Bool {
         lhs.rawValue < rhs.rawValue
+    }
+}
+
+// MARK: - Difficulty CustomStringConvertible
+
+extension Difficulty: CustomStringConvertible {
+    nonisolated var description: String { displayName }
+}
+
+// MARK: - Difficulty Factory Methods
+
+extension Difficulty {
+    /// 从星级创建难度（1-5）
+    /// - Parameter stars: 星级数量
+    /// - Returns: 对应的难度等级，无效输入返回 nil
+    static func from(stars: Int) -> Difficulty? {
+        Self(rawValue: stars - 1)
+    }
+    
+    /// 从系数创建难度（0.0-1.0）
+    /// - Parameter coefficient: 难度系数
+    /// - Returns: 最接近的难度等级
+    static func from(coefficient: Double) -> Difficulty {
+        let clamped = max(0, min(1, coefficient))
+        let index = Int(round(clamped * Double(Self.allCases.count - 1)))
+        return Self(rawValue: index) ?? .medium
     }
 }
