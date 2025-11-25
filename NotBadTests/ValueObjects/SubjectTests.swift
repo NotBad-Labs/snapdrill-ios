@@ -37,30 +37,30 @@ struct SubjectTests {
     // MARK: - 分类测试
     
     @Test("主科分类正确")
-    func mainSubjects() {
-        let main = Subject.mainSubjects
-        #expect(main.count == 3)
-        #expect(main.contains(.chinese))
-        #expect(main.contains(.math))
-        #expect(main.contains(.english))
+    func coreSubjects() {
+        let core = Subject.coreSubjects
+        #expect(core.count == 3)
+        #expect(core.contains(.chinese))
+        #expect(core.contains(.math))
+        #expect(core.contains(.english))
     }
     
-    @Test("理科分类正确")
-    func scienceSubjects() {
-        let science = Subject.scienceSubjects
-        #expect(science.count == 3)
-        #expect(science.contains(.physics))
-        #expect(science.contains(.chemistry))
-        #expect(science.contains(.biology))
+    @Test("初中考试学科分类正确")
+    func juniorExamSubjects() {
+        let junior = Subject.juniorExamSubjects
+        #expect(junior.count == 9)
+        #expect(junior.contains(.physics))
+        #expect(junior.contains(.chemistry))
+        #expect(junior.contains(.biology))
     }
     
-    @Test("文科分类正确")
-    func humanitiesSubjects() {
-        let humanities = Subject.humanitiesSubjects
-        #expect(humanities.count == 3)
-        #expect(humanities.contains(.politics))
-        #expect(humanities.contains(.history))
-        #expect(humanities.contains(.geography))
+    @Test("高中考试学科分类正确")
+    func seniorExamSubjects() {
+        let senior = Subject.seniorExamSubjects
+        #expect(senior.count == 9)
+        #expect(senior.contains(.physics))
+        #expect(senior.contains(.chemistry))
+        #expect(senior.contains(.biology))
     }
     
     // MARK: - 颜色测试
