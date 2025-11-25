@@ -21,9 +21,13 @@ struct CaptureView: View {
     // 表单数据
     @State private var title: String = ""
     @State private var note: String = ""
-    @State private var subject: String = "数学"
-    @State private var grade: String = "高一"
+    @State private var subject: Subject = .math
+    @State private var grade: Grade = .grade10
     @State private var tags: String = ""
+    @State private var difficulty: Difficulty = .medium
+    @State private var errorType: ErrorType = .other
+    @State private var source: Source = .other
+    @State private var questionType: ReviewItemType = .other
     
     // UI 状态
     @State private var isSaving = false
@@ -32,9 +36,7 @@ struct CaptureView: View {
     @State private var showCamera = false
     @State private var showImageSourcePicker = false
     @State private var isRecognizingText = false
-    
-    let subjects = ["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "其他"]
-    let grades = ["小学", "七年级", "八年级", "九年级", "高一", "高二", "高三", "大学", "成人"]
+    @State private var showLiveScanner = false
     
     var body: some View {
         NavigationStack {
@@ -128,6 +130,42 @@ struct CaptureView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                     
+                    // 实时扫描按钮 (iOS16+ 可用)
+                    if #available(iOS 16.0, *) {
+                        Button {
+                            // 展示实时扫描视图
+                            showLiveScanner = true
+                        } label: {
+                            VStack(spacing: 12) {
+                                Image(systemName: "doc.viewfinder")
+                                    .font(.system(size: 40))
+                                    .foregroundStyle(.purple)
+                                Text("实时扫描题干")
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
+                                Text("无需拍照，直接提取文字")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 120)
+                            .background(Color.purple.opacity(0.1))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                        }
+                        .sheet(isPresented: $showLiveScanner) {
+                            if #available(iOS 16.0, *) {
+                                LiveTextScannerContainer(onResult: { text in
+                                    // 将扫描的文字填入 note，并尝试提取标题（首行）
+                                    let firstLine = text.components(separatedBy: .newlines).first ?? text
+                                    if title.isEmpty { title = String(firstLine.prefix(30)) }
+                                    note = text
+                                }, onCancel: {})
+                            } else {
+                                Text("系统版本不支持实时扫描")
+                            }
+                        }
+                    }
+                    
                     // 相册选择
                     PhotosPicker(selection: $selectedItem, matching: .images) {
                         VStack(spacing: 12) {
@@ -188,8 +226,8 @@ struct CaptureView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Picker("学科", selection: $subject) {
-                        ForEach(subjects, id: \.self) {
-                            Text($0)
+                        ForEach(Subject.allCases, id: \.self) { subject in
+                            Text(subject.displayName).tag(subject)
                         }
                     }
                     .pickerStyle(.menu)
@@ -203,8 +241,8 @@ struct CaptureView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     Picker("年级", selection: $grade) {
-                        ForEach(grades, id: \.self) {
-                            Text($0)
+                        ForEach(Grade.allCases, id: \.self) { grade in
+                            Text(grade.displayName).tag(grade)
                         }
                     }
                     .pickerStyle(.menu)
@@ -345,7 +383,11 @@ struct CaptureView: View {
             note: note,
             subject: subject,
             grade: grade,
-            tags: tags
+            tags: Tags(from: tags),
+            difficulty: difficulty,
+            errorType: errorType,
+            source: source,
+            questionType: questionType
         )
         
         modelContext.insert(newItem)

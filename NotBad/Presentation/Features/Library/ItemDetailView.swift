@@ -82,12 +82,12 @@ struct ItemDetailView: View {
             // 学科和年级
             HStack(spacing: 12) {
                 InfoCard(title: "学科", icon: "book.fill") {
-                    Text(item.subject)
+                    Text(item.subject.displayName)
                         .font(.subheadline)
                 }
                 
                 InfoCard(title: "年级", icon: "graduationcap.fill") {
-                    Text(item.grade)
+                    Text(item.grade.displayName)
                         .font(.subheadline)
                 }
             }
@@ -106,7 +106,7 @@ struct ItemDetailView: View {
             // 标签
             if !item.tags.isEmpty {
                 InfoCard(title: "知识点标签", icon: "tag.fill") {
-                    Text(item.tags)
+                    Text(item.tags.rawValue)
                         .font(.subheadline)
                 }
             }
@@ -167,14 +167,14 @@ struct ItemDetailView: View {
                         .foregroundStyle(.secondary)
                     
                     Menu {
-                        ForEach(["语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治", "其他"], id: \.self) { subject in
-                            Button(subject) {
+                        ForEach(Subject.allCases, id: \.self) { subject in
+                            Button(subject.displayName) {
                                 item.subject = subject
                             }
                         }
                     } label: {
                         HStack {
-                            Text(item.subject)
+                            Text(item.subject.displayName)
                             Spacer()
                             Image(systemName: "chevron.up.chevron.down")
                                 .font(.caption)
@@ -193,14 +193,14 @@ struct ItemDetailView: View {
                         .foregroundStyle(.secondary)
                     
                     Menu {
-                        ForEach(["小学", "七年级", "八年级", "九年级", "高一", "高二", "高三", "大学", "成人"], id: \.self) { grade in
-                            Button(grade) {
+                        ForEach(Grade.allCases, id: \.self) { grade in
+                            Button(grade.displayName) {
                                 item.grade = grade
                             }
                         }
                     } label: {
                         HStack {
-                            Text(item.grade)
+                            Text(item.grade.displayName)
                             Spacer()
                             Image(systemName: "chevron.up.chevron.down")
                                 .font(.caption)
@@ -220,7 +220,7 @@ struct ItemDetailView: View {
                     .fontWeight(.medium)
                     .foregroundStyle(.secondary)
                 
-                TextField("例如: 函数, 导数", text: $item.tags)
+                TextField("例如: 函数, 导数", text: $item.tagsRaw)
                     .textFieldStyle(.plain)
                     .padding()
                     .background(.background.secondary)
@@ -266,44 +266,18 @@ struct ItemDetailView: View {
     // MARK: - 辅助视图
     
     private var masteryBadge: some View {
-        HStack(spacing: 6) {
-            Image(systemName: masteryIcon)
-            Text(masteryText)
+        let level = MasteryLevel(rawValue: item.masteryLevel) ?? .none
+        return HStack(spacing: 6) {
+            Image(systemName: level.icon)
+            Text(level.detailText)
         }
         .font(.subheadline)
         .fontWeight(.medium)
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(masteryColor.opacity(0.1))
-        .foregroundStyle(masteryColor)
+        .background(level.color.opacity(0.1))
+        .foregroundStyle(level.color)
         .clipShape(Capsule())
-    }
-    
-    private var masteryIcon: String {
-        switch item.masteryLevel {
-        case 3: return "checkmark.seal.fill"
-        case 2: return "checkmark.circle.fill"
-        case 1: return "questionmark.circle.fill"
-        default: return "xmark.circle.fill"
-        }
-    }
-    
-    private var masteryText: String {
-        switch item.masteryLevel {
-        case 3: return "已掌握"
-        case 2: return "熟悉"
-        case 1: return "模糊"
-        default: return "不会"
-        }
-    }
-    
-    private var masteryColor: Color {
-        switch item.masteryLevel {
-        case 3: return .green
-        case 2: return .mint
-        case 1: return .orange
-        default: return .red
-        }
     }
     
     // MARK: - 逻辑处理
@@ -352,9 +326,9 @@ struct InfoCard<Content: View>: View {
             imageData: nil,
             title: "数学-三角函数",
             note: "这是解题思路",
-            subject: "数学",
-            grade: "高一",
-            tags: "函数, 三角"
+            subject: .math,
+            grade: .grade10,
+            tags: ["函数", "三角"]
         ))
         .modelContainer(for: ReviewItem.self, inMemory: true)
     }

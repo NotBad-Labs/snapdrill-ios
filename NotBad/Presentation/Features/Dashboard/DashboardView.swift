@@ -261,17 +261,16 @@ struct DashboardView: View {
     }
     
     private var masteryData: [MasteryData] {
-        [
-            MasteryData(level: 0, label: "不会", color: .red, count: allItems.filter { $0.masteryLevel == 0 }.count),
-            MasteryData(level: 1, label: "模糊", color: .orange, count: allItems.filter { $0.masteryLevel == 1 }.count),
-            MasteryData(level: 2, label: "熟悉", color: .mint, count: allItems.filter { $0.masteryLevel == 2 }.count),
-            MasteryData(level: 3, label: "掌握", color: .green, count: allItems.filter { $0.masteryLevel == 3 }.count)
-        ].filter { $0.count > 0 }
+        MasteryLevel.allCases.compactMap { level in
+            let count = allItems.filter { $0.masteryLevel == level.rawValue }.count
+            guard count > 0 else { return nil }
+            return MasteryData(level: level.rawValue, label: level.displayName, color: level.color, count: count)
+        }
     }
     
     private var subjectData: [SubjectData] {
         let subjects = Dictionary(grouping: allItems, by: { $0.subject })
-            .map { SubjectData(subject: $0.key, count: $0.value.count) }
+            .map { SubjectData(subject: $0.key.displayName, count: $0.value.count) }
             .sorted { $0.count > $1.count }
         return subjects
     }
@@ -338,20 +337,6 @@ struct QuickActionButton: View {
         .background(.background.secondary)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
-}
-
-// MARK: - 数据模型
-
-struct MasteryData {
-    let level: Int
-    let label: String
-    let color: Color
-    let count: Int
-}
-
-struct SubjectData {
-    let subject: String
-    let count: Int
 }
 
 #Preview {

@@ -13,17 +13,15 @@ struct LibraryView: View {
     @Environment(\.modelContext) private var modelContext
     
     @State private var searchText = ""
-    @State private var selectedSubject: String?
-    
-    let subjects = ["全部", "语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"]
+    @State private var selectedSubject: Subject?
     
     var filteredItems: [ReviewItem] {
         items.filter { item in
             let matchesSearch = searchText.isEmpty || 
                 item.title.localizedCaseInsensitiveContains(searchText) ||
-                item.tags.localizedCaseInsensitiveContains(searchText)
+                item.tags.matches(searchText)
             
-            let matchesSubject = selectedSubject == nil || selectedSubject == "全部" || item.subject == selectedSubject
+            let matchesSubject = selectedSubject == nil || item.subject == selectedSubject
             
             return matchesSearch && matchesSubject
         }
@@ -35,10 +33,22 @@ struct LibraryView: View {
                 // 筛选栏
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
-                        ForEach(subjects, id: \.self) { subject in
+                        // "全部" 选项
+                        FilterChip(
+                            title: "全部",
+                            isSelected: selectedSubject == nil,
+                            action: {
+                                withAnimation(.spring(response: 0.3)) {
+                                    selectedSubject = nil
+                                }
+                            }
+                        )
+                        
+                        // 各学科选项
+                        ForEach(Subject.allCases, id: \.self) { subject in
                             FilterChip(
-                                title: subject,
-                                isSelected: (selectedSubject ?? "全部") == subject,
+                                title: subject.displayName,
+                                isSelected: selectedSubject == subject,
                                 action: {
                                     withAnimation(.spring(response: 0.3)) {
                                         selectedSubject = subject
@@ -147,22 +157,16 @@ struct ItemRow: View {
                 
                 HStack(spacing: 8) {
                     // 学科标签
-                    Text(item.subject)
+                    Text(item.subject.displayName)
                         .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
-                        .background(.blue.opacity(0.1))
-                        .foregroundStyle(.blue)
+                        .background(item.subject.color.opacity(0.1))
+                        .foregroundStyle(item.subject.color)
                         .clipShape(Capsule())
                     
                     // 掌握度
-                    HStack(spacing: 3) {
-                        Image(systemName: masteryIcon)
-                            .font(.caption2)
-                        Text(masteryText)
-                            .font(.caption)
-                    }
-                    .foregroundStyle(masteryColor)
+                    MasteryBadge(level: item.mastery)
                     
                     Spacer()
                     
@@ -174,33 +178,6 @@ struct ItemRow: View {
             }
         }
         .padding(.vertical, 4)
-    }
-    
-    private var masteryIcon: String {
-        switch item.masteryLevel {
-        case 3: return "checkmark.seal.fill"
-        case 2: return "checkmark.circle.fill"
-        case 1: return "questionmark.circle.fill"
-        default: return "xmark.circle.fill"
-        }
-    }
-    
-    private var masteryText: String {
-        switch item.masteryLevel {
-        case 3: return "掌握"
-        case 2: return "熟悉"
-        case 1: return "模糊"
-        default: return "不会"
-        }
-    }
-    
-    private var masteryColor: Color {
-        switch item.masteryLevel {
-        case 3: return .green
-        case 2: return .mint
-        case 1: return .orange
-        default: return .red
-        }
     }
 }
 

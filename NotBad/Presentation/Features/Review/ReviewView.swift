@@ -147,17 +147,9 @@ struct ReviewView: View {
             // 更新复习时间
             item.updatedAt = Date()
             
-            // 计算下次复习时间（简单算法）
-            let daysToAdd: Int = {
-                switch level {
-                case 3: return 7  // 掌握：7天后
-                case 2: return 3  // 熟悉：3天后
-                case 1: return 1  // 模糊：1天后
-                default: return 0  // 不会：立即
-                }
-            }()
-            
-            if let nextDate = Calendar.current.date(byAdding: .day, value: daysToAdd, to: Date()) {
+            // 计算下次复习时间
+            let level = MasteryLevel(rawValue: level) ?? .none
+            if let nextDate = Calendar.current.date(byAdding: .day, value: level.reviewIntervalDays, to: Date()) {
                 item.nextReviewDate = nextDate
             }
             
@@ -195,17 +187,17 @@ struct ReviewCard: View {
                 VStack(spacing: 20) {
                     // 学科标签
                     HStack {
-                        Label(item.subject, systemImage: "book.fill")
+                        Label(item.subject.displayName, systemImage: item.subject.icon)
                             .font(.caption)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(.blue.opacity(0.1))
-                            .foregroundStyle(.blue)
+                            .background(item.subject.color.opacity(0.1))
+                            .foregroundStyle(item.subject.color)
                             .clipShape(Capsule())
                         
                         Spacer()
                         
-                        Text(item.grade)
+                        Text(item.grade.displayName)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -271,7 +263,7 @@ struct ReviewCard: View {
                         HStack {
                             Image(systemName: "tag.fill")
                                 .font(.caption)
-                            Text(item.tags)
+                            Text(item.tags.rawValue)
                                 .font(.caption)
                             Spacer()
                         }
@@ -286,7 +278,7 @@ struct ReviewCard: View {
                         
                         Spacer()
                         
-                        masteryBadge
+                        MasteryBadge(level: MasteryLevel(rawValue: item.masteryLevel) ?? .none, showDetailText: true)
                     }
                 }
                 .padding()
@@ -296,46 +288,6 @@ struct ReviewCard: View {
             actionButtons
         }
         .background(Color(uiColor: .systemBackground))
-    }
-    
-    private var masteryBadge: some View {
-        HStack(spacing: 4) {
-            Image(systemName: masteryIcon)
-            Text(masteryText)
-        }
-        .font(.caption)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .background(masteryColor.opacity(0.1))
-        .foregroundStyle(masteryColor)
-        .clipShape(Capsule())
-    }
-    
-    private var masteryIcon: String {
-        switch item.masteryLevel {
-        case 3: return "checkmark.seal.fill"
-        case 2: return "checkmark.circle.fill"
-        case 1: return "questionmark.circle.fill"
-        default: return "xmark.circle.fill"
-        }
-    }
-    
-    private var masteryText: String {
-        switch item.masteryLevel {
-        case 3: return "已掌握"
-        case 2: return "熟悉"
-        case 1: return "模糊"
-        default: return "不会"
-        }
-    }
-    
-    private var masteryColor: Color {
-        switch item.masteryLevel {
-        case 3: return .green
-        case 2: return .mint
-        case 1: return .orange
-        default: return .red
-        }
     }
     
     private var actionButtons: some View {
