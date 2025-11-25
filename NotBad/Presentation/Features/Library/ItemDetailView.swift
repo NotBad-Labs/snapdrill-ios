@@ -103,10 +103,10 @@ struct ItemDetailView: View {
                 }
             }
             
-            // 标签
-            if !item.tags.isEmpty {
-                InfoCard(title: "知识点标签", icon: "tag.fill") {
-                    Text(item.tags.rawValue)
+            // 知识点
+            if !item.knowledgePoints.isEmpty {
+                InfoCard(title: "知识点", icon: "lightbulb.fill") {
+                    Text(item.knowledgePoints.rawValue)
                         .font(.subheadline)
                 }
             }
@@ -213,14 +213,14 @@ struct ItemDetailView: View {
                 }
             }
             
-            // 标签编辑
+            // 知识点编辑
             VStack(alignment: .leading, spacing: 8) {
-                Label("知识点标签", systemImage: "tag.fill")
+                Label("知识点", systemImage: "lightbulb.fill")
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .foregroundStyle(.secondary)
                 
-                TextField("例如: 函数, 导数", text: $item.tagsRaw)
+                TextField("例如: 函数, 导数", text: $item.knowledgePointsRaw)
                     .textFieldStyle(.plain)
                     .padding()
                     .background(.background.secondary)
@@ -328,7 +328,7 @@ struct InfoCard<Content: View>: View {
             note: "这是解题思路",
             subject: .math,
             grade: .grade10,
-            tags: ["函数", "三角"]
+            knowledgePoints: ["函数", "三角"]
         ))
         .modelContainer(for: ReviewItem.self, inMemory: true)
     }

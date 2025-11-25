@@ -258,12 +258,12 @@ struct ReviewCard: View {
                         }
                     }
                     
-                    // 标签
-                    if !item.tags.isEmpty {
+                    // 知识点
+                    if !item.knowledgePoints.isEmpty {
                         HStack {
-                            Image(systemName: "tag.fill")
+                            Image(systemName: "lightbulb.fill")
                                 .font(.caption)
-                            Text(item.tags.rawValue)
+                            Text(item.knowledgePoints.rawValue)
                                 .font(.caption)
                             Spacer()
                         }

@@ -23,7 +23,7 @@ struct CaptureView: View {
     @State private var note: String = ""
     @State private var subject: Subject = .math
     @State private var grade: Grade = .grade10
-    @State private var tags: String = ""
+    @State private var knowledgePointsInput: String = ""
     @State private var difficulty: Difficulty = .medium
     @State private var errorType: ErrorType = .other
     @State private var source: Source = .other
@@ -256,7 +256,7 @@ struct CaptureView: View {
                 Text("知识点标签")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                TextField("例如: 函数, 导数 (逗号分隔)", text: $tags)
+                TextField("例如: 函数, 导数 (逗号分隔)", text: $knowledgePointsInput)
                     .textFieldStyle(.roundedBorder)
             }
             
@@ -369,7 +369,7 @@ struct CaptureView: View {
         resetImage()
         title = ""
         note = ""
-        tags = ""
+        knowledgePointsInput = ""
         // subject 和 grade 保持上次选择，方便连续录入
     }
     
@@ -383,7 +383,7 @@ struct CaptureView: View {
             note: note,
             subject: subject,
             grade: grade,
-            tags: Tags(from: tags),
+            knowledgePoints: KnowledgePoints(from: knowledgePointsInput),
             difficulty: difficulty,
             errorType: errorType,
             source: source,
