@@ -16,6 +16,10 @@
 - [十、性能标准](#十性能标准-performance)
 - [十一、错误处理标准](#十一错误处理标准-error-handling)
 - [十二、资源管理标准](#十二资源管理标准-resource-management)
+- [十三、设计系统标准](#十三设计系统标准-design-system) ⭐ 新增
+- [十四、调试与发布标准](#十四调试与发布标准-debug--release) ⭐ 新增
+- [十五、无障碍标准](#十五无障碍标准-accessibility) ⭐ 新增
+- [十六、本地化标准](#十六本地化标准-localization) ⭐ 新增
 - [速查表](#速查表)
 
 ---
@@ -1073,6 +1077,338 @@ actor CacheManager {
 
 ---
 
+## 十三、设计系统标准 (Design System)
+
+建立统一的设计系统，消除硬编码样式，提升一致性和可维护性。
+
+### 47. 设计令牌 (Design Tokens)
+
+将所有设计值抽象为令牌，禁止在视图中硬编码数值。
+
+```swift
+// ✅ 正确 - 使用设计令牌
+enum DesignTokens {
+    enum Spacing {
+        static let xs: CGFloat = 4
+        static let sm: CGFloat = 8
+        static let md: CGFloat = 16
+        static let lg: CGFloat = 24
+        static let xl: CGFloat = 32
+        static let xxl: CGFloat = 48
+    }
+    
+    enum CornerRadius {
+        static let small: CGFloat = 8
+        static let medium: CGFloat = 12
+        static let large: CGFloat = 16
+        static let full: CGFloat = 9999
+    }
+    
+    enum Animation {
+        static let quick: Double = 0.2
+        static let normal: Double = 0.3
+        static let slow: Double = 0.5
+    }
+}
+
+// ✅ 在视图中使用
+.padding(DesignTokens.Spacing.md)
+.cornerRadius(DesignTokens.CornerRadius.medium)
+
+// ❌ 错误 - 硬编码数值
+.padding(16)
+.cornerRadius(12)
+```
+
+### 48. 品牌色系 (Brand Colors)
+
+通过 Asset Catalog + 扩展提供语义化颜色。
+
+```swift
+// Assets.xcassets/Colors/ 结构：
+// ├── BrandPrimary.colorset/   (橙色 #FF9500)
+// ├── BrandSecondary.colorset/ (蓝色 #007AFF)
+// ├── BrandSuccess.colorset/   (绿色 #34C759)
+// ├── BrandWarning.colorset/   (黄色 #FFCC00)
+// └── BrandError.colorset/     (红色 #FF3B30)
+
+// 扩展提供便捷访问
+extension Color {
+    enum brand {
+        static let primary = Color("BrandPrimary")
+        static let secondary = Color("BrandSecondary")
+        static let success = Color("BrandSuccess")
+        static let warning = Color("BrandWarning")
+        static let error = Color("BrandError")
+    }
+}
+
+// ✅ 使用语义化颜色
+Text("成功").foregroundStyle(Color.brand.success)
+
+// ❌ 避免硬编码颜色
+Text("成功").foregroundStyle(Color(red: 0.2, green: 0.78, blue: 0.35))
+```
+
+### 49. 统一按钮样式
+
+定义可复用的 ButtonStyle，确保交互一致性。
+
+```swift
+struct PrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.headline)
+            .foregroundStyle(.white)
+            .padding(.horizontal, DesignTokens.Spacing.lg)
+            .padding(.vertical, DesignTokens.Spacing.md)
+            .background(Color.brand.primary)
+            .clipShape(Capsule())
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == PrimaryButtonStyle {
+    static var primaryAction: PrimaryButtonStyle { PrimaryButtonStyle() }
+}
+
+// ✅ 使用
+Button("保存") { save() }
+    .buttonStyle(.primaryAction)
+```
+
+### 50. 卡片样式系统
+
+统一卡片视觉风格。
+
+```swift
+struct StandardCardStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(DesignTokens.Spacing.md)
+            .background(Color(uiColor: .secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.medium))
+    }
+}
+
+extension View {
+    func cardStyle(_ style: CardStyleType = .standard) -> some View {
+        modifier(StandardCardStyle())
+    }
+}
+
+// ✅ 使用
+VStack { ... }
+    .cardStyle()
+```
+
+---
+
+## 十四、调试与发布标准 (Debug & Release)
+
+### 51. 条件编译调试日志
+
+所有调试日志必须包裹在 `#if DEBUG` 中，避免发布版本泄露信息。
+
+```swift
+// ✅ 正确 - 条件编译
+func saveItem(_ item: ReviewItem) {
+    #if DEBUG
+    print("📝 [Repository] Saving item: \(item.id)")
+    #endif
+    
+    modelContext.insert(item)
+    try? modelContext.save()
+    
+    #if DEBUG
+    print("✅ [Repository] Save completed")
+    #endif
+}
+
+// ❌ 错误 - 无条件 print
+func saveItem(_ item: ReviewItem) {
+    print("Saving item: \(item.id)")  // 发布版本会泄露
+    modelContext.insert(item)
+}
+```
+
+### 52. 调试日志规范
+
+使用 emoji 前缀区分日志类型，便于过滤。
+
+```swift
+#if DEBUG
+// 信息日志
+print("📚 [LibraryView] Loaded \(items.count) items")
+
+// 成功日志
+print("✅ [Repository] Save completed")
+
+// 警告日志
+print("⚠️ [ViewModel] Cache expired, refreshing...")
+
+// 错误日志
+print("❌ [Network] Request failed: \(error)")
+
+// 调试日志
+print("🔍 [Debug] Current state: \(state)")
+#endif
+```
+
+### 53. 敏感信息保护
+
+永远不要在日志中打印敏感信息。
+
+```swift
+// ❌ 错误 - 暴露敏感信息
+print("User token: \(userToken)")
+print("Image data: \(imageData)")
+
+// ✅ 正确 - 只打印元数据
+#if DEBUG
+print("🔐 [Auth] Token received, length: \(userToken.count)")
+print("🖼️ [Image] Data size: \(imageData.count) bytes")
+#endif
+```
+
+---
+
+## 十五、无障碍标准 (Accessibility)
+
+遵循 Apple Human Interface Guidelines (HIG) 无障碍设计原则。
+
+### 54. VoiceOver 标签
+
+为所有交互元素提供有意义的无障碍标签。
+
+```swift
+Button(action: save) {
+    Image(systemName: "checkmark")
+}
+.accessibilityLabel("保存")
+.accessibilityHint("保存当前编辑的错题")
+
+// 复合元素
+HStack {
+    Image(systemName: "star.fill")
+    Text("困难")
+}
+.accessibilityElement(children: .combine)
+.accessibilityLabel("难度：困难")
+```
+
+### 55. 动态字体支持
+
+支持用户自定义字体大小。
+
+```swift
+// ✅ 使用系统动态字体
+Text("标题")
+    .font(.headline)  // 自动响应动态字体
+
+// ✅ 自定义字体也要支持
+Text("内容")
+    .font(.system(size: 16, weight: .regular, design: .rounded))
+    .dynamicTypeSize(...DynamicTypeSize.accessibility3)  // 限制最大尺寸
+```
+
+### 56. 减少动画适配
+
+尊重用户的"减少动画"设置。
+
+```swift
+struct AnimatedView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    
+    var body: some View {
+        Image(systemName: "star")
+            .rotationEffect(.degrees(isAnimating ? 360 : 0))
+            .animation(
+                reduceMotion ? nil : .linear(duration: 2).repeatForever(autoreverses: false),
+                value: isAnimating
+            )
+    }
+}
+```
+
+### 57. 触觉反馈
+
+为重要操作提供触觉反馈。
+
+```swift
+// 定义触觉管理器
+@MainActor
+final class HapticManager {
+    static let shared = HapticManager()
+    
+    func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
+        UIImpactFeedbackGenerator(style: style).impactOccurred()
+    }
+    
+    func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
+        UINotificationFeedbackGenerator().notificationOccurred(type)
+    }
+}
+
+// 使用
+Button("删除") {
+    HapticManager.shared.notification(.warning)
+    delete()
+}
+```
+
+---
+
+## 十六、本地化标准 (Localization)
+
+### 58. 集中管理本地化键
+
+将所有 UI 文案集中在本地化键文件中。
+
+```swift
+enum L10n {
+    enum Common {
+        static let ok = String(localized: "common_ok", defaultValue: "确定")
+        static let cancel = String(localized: "common_cancel", defaultValue: "取消")
+        static let save = String(localized: "common_save", defaultValue: "保存")
+    }
+    
+    enum Dashboard {
+        static let title = String(localized: "dashboard_title", defaultValue: "首页")
+        static let pendingReview = String(localized: "dashboard_pending", defaultValue: "待复习")
+    }
+}
+
+// ✅ 使用
+Text(L10n.Dashboard.title)
+
+// ❌ 避免硬编码
+Text("首页")
+```
+
+### 59. 格式化字符串
+
+数字、日期等使用格式化方法。
+
+```swift
+extension L10n {
+    static func itemCount(_ count: Int) -> String {
+        "\(count) 道"
+    }
+    
+    static func percentage(_ value: Double) -> String {
+        "\(Int(value * 100))%"
+    }
+}
+
+// 使用
+Text(L10n.itemCount(items.count))
+Text(L10n.percentage(masteryRate))
+```
+
+---
+
 ## 速查表
 
 ### 🔐 并发安全三件套
@@ -1146,6 +1482,96 @@ struct MyTests {
 }
 ```
 
+### 🎨 设计系统四层次
+
+```swift
+// 1. 设计令牌 - 基础数值
+DesignTokens.Spacing.md       // 16pt
+DesignTokens.CornerRadius.medium  // 12pt
+
+// 2. 品牌色系 - 语义颜色
+Color.brand.primary           // 橙色
+Color.brand.success           // 绿色
+
+// 3. 组件样式 - 可复用修饰器
+.buttonStyle(.primaryAction)
+.cardStyle(.elevated)
+
+// 4. 主题适配 - 深色模式自动
+// Asset Catalog 配置 Any/Dark
+```
+
+### 🔒 调试日志三原则
+
+```swift
+// 1. 条件编译
+#if DEBUG
+print("...")
+#endif
+
+// 2. emoji 分类
+// 📚 信息  ✅ 成功  ⚠️ 警告  ❌ 错误  🔍 调试
+
+// 3. 不暴露敏感信息
+// ❌ print(token)
+// ✅ print("Token length: \(token.count)")
+```
+
+### ♿ 无障碍三要素
+
+```swift
+// 1. VoiceOver 标签
+.accessibilityLabel("保存")
+.accessibilityHint("保存当前错题")
+
+// 2. 动态字体
+.font(.headline)  // 系统字体自动适配
+
+// 3. 减少动画适配
+@Environment(\.accessibilityReduceMotion) var reduceMotion
+```
+
+---
+
+## 审计检查清单
+
+开发完成后，使用此清单进行代码审计：
+
+### 并发安全 ✓
+- [ ] 所有值对象遵循 `Sendable`
+- [ ] 计算属性标记 `nonisolated`
+- [ ] ViewModel 使用 `@MainActor` + `@Observable`
+- [ ] 异步操作使用 `async/await`
+
+### 代码质量 ✓
+- [ ] 协议顺序：Send Case Code Hash ID
+- [ ] 使用 DocC 格式注释
+- [ ] MARK 分组清晰
+- [ ] 访问控制合理
+
+### 设计系统 ✓
+- [ ] 无硬编码数值（间距、圆角、颜色）
+- [ ] 使用 DesignTokens 令牌
+- [ ] 使用 Color.brand 品牌色
+- [ ] 统一按钮/卡片样式
+
+### 调试与发布 ✓
+- [ ] 所有 print 包裹 `#if DEBUG`
+- [ ] 无敏感信息泄露
+- [ ] 使用 emoji 分类日志
+
+### 无障碍 ✓
+- [ ] 交互元素有 accessibilityLabel
+- [ ] 支持动态字体
+- [ ] 适配减少动画设置
+- [ ] 提供触觉反馈
+
+### 测试 ✓
+- [ ] 使用 Swift Testing 框架
+- [ ] 中文测试名
+- [ ] 覆盖边界条件
+- [ ] Mock 外部依赖
+
 ---
 
 ## 参考资源
@@ -1154,6 +1580,20 @@ struct MyTests {
 - [Apple Developer Documentation](https://developer.apple.com/documentation/)
 - [Swift Evolution](https://github.com/apple/swift-evolution)
 - [WWDC 2024 - Swift 6](https://developer.apple.com/wwdc24/)
+- [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/)
+- [Accessibility Programming Guide](https://developer.apple.com/accessibility/)
+
+---
+
+## 更新日志
+
+### 2025-11-26
+- ⭐ **新增** 十三、设计系统标准 (Design Tokens, Brand Colors, Button/Card Styles)
+- ⭐ **新增** 十四、调试与发布标准 (#if DEBUG, 日志规范, 敏感信息保护)
+- ⭐ **新增** 十五、无障碍标准 (VoiceOver, 动态字体, 减少动画, 触觉反馈)
+- ⭐ **新增** 十六、本地化标准 (L10n 键管理, 格式化字符串)
+- ⭐ **新增** 审计检查清单
+- ⭐ **新增** 速查表：设计系统四层次、调试日志三原则、无障碍三要素
 
 ---
 
