@@ -319,6 +319,9 @@ private struct SourceButton: View {
         Button(action: action) {
             SourceButtonContent(icon: icon, title: title, subtitle: subtitle, color: color)
         }
+        .sensoryFeedback(.impact(weight: .light), trigger: title)
+        .accessibilityLabel(subtitle != nil ? "\(title)，\(subtitle!)" : title)
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -334,6 +337,7 @@ private struct SourceButtonContent: View {
             Image(systemName: icon)
                 .font(.system(size: 40))
                 .foregroundStyle(color)
+                .accessibilityHidden(true)
             Text(title)
                 .font(.headline)
                 .foregroundStyle(.primary)

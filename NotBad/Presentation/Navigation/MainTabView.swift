@@ -84,7 +84,7 @@ struct MainTabView: View {
                     .tag(tab)
             }
         }
-        .tint(.blue)
+        .tint(Color.brand.primary)
     }
     
     // MARK: - Tab Content
@@ -117,11 +117,12 @@ struct MainTabView: View {
             if tab == .capture {
                 Image(systemName: tab.icon)
                     .symbolRenderingMode(.palette)
-                    .foregroundStyle(.white, .blue)
+                    .foregroundStyle(.white, Color.brand.primary)
             } else {
                 Image(systemName: isSelected ? tab.selectedIcon : tab.icon)
             }
         }
+        .accessibilityLabel(tab.title)
     }
 }
 

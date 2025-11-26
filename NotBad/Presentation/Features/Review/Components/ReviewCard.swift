@@ -251,6 +251,7 @@ struct MasteryButton: View {
             VStack(spacing: DesignTokens.Spacing.sm) {
                 Image(systemName: icon)
                     .font(.title2)
+                    .accessibilityHidden(true)
                 Text(title)
                     .font(.caption)
                     .fontWeight(.medium)
@@ -261,6 +262,7 @@ struct MasteryButton: View {
             .foregroundStyle(color)
             .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
         }
+        .sensoryFeedback(.impact(weight: .medium), trigger: title)
         .accessibleButton(title, hint: "点击标记为\(title)")
     }
 }
