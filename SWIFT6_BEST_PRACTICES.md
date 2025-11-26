@@ -14,6 +14,8 @@
 - [八、测试标准](#八测试标准-testing)
 - [九、架构标准](#九架构标准-architecture)
 - [十、性能标准](#十性能标准-performance)
+- [十一、错误处理标准](#十一错误处理标准-error-handling)
+- [十二、资源管理标准](#十二资源管理标准-resource-management)
 - [速查表](#速查表)
 
 ---
@@ -957,10 +959,120 @@ final class DashboardViewModel {
         
         let stats = calculateStatistics()
         _statisticsCache = stats
-        _lastCacheTime = Date()
+                _lastCacheTime = Date()
         return stats
     }
 }
+
+---
+
+## 十一、错误处理标准 (Error Handling)
+
+### 43. 统一错误定义
+
+使用枚举定义领域错误，遵循 `LocalizedError`，确保错误信息对用户友好。
+
+```swift
+enum AppError: LocalizedError, Equatable {
+    case network(String)
+    case database(String)
+    case validation(String)
+    case unknown(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .network(let msg): return "网络连接异常: \(msg)"
+        case .database(let msg): return "数据存储失败: \(msg)"
+        case .validation(let msg): return "数据校验未通过: \(msg)"
+        case .unknown(let error): return "未知错误: \(error.localizedDescription)"
+        }
+    }
+    
+    static func == (lhs: AppError, rhs: AppError) -> Bool {
+        lhs.errorDescription == rhs.errorDescription
+    }
+}
+```
+
+### 44. 错误传播与处理
+
+ViewModel 层负责捕获错误并转换为 UI 状态，避免将 `do-catch` 散落在 View 中。
+
+```swift
+@MainActor
+@Observable
+final class ReviewViewModel {
+    var error: AppError?
+    var showError = false
+    
+    func save() async {
+        do {
+            try await repository.save(currentItem)
+        } catch let appError as AppError {
+            self.error = appError
+            self.showError = true
+        } catch {
+            self.error = .unknown(error)
+            self.showError = true
+        }
+    }
+}
+```
+
+---
+
+## 十二、资源管理标准 (Resource Management)
+
+### 45. 图片优化策略
+
+错题本应用涉及大量图片，必须在采集端进行压缩。
+
+```swift
+extension UIImage {
+    /// 优化错题图片（HEIC 格式，限制分辨率）
+    nonisolated func optimizedForStorage() -> Data? {
+        // 1. 调整尺寸（限制最大边长 2048）
+        // let resized = self.downsampling(...) 
+        
+        // 2. 优先使用 HEIC (iOS 11+)
+        // 压缩质量 0.7 在体积和画质间取得平衡
+        if let heicData = self.heicData(compressionQuality: 0.7) {
+            return heicData
+        }
+        
+        // 3. 降级使用 JPEG
+        return self.jpegData(compressionQuality: 0.7)
+    }
+}
+```
+
+### 46. 缓存清理机制
+
+建立自动清理机制，防止应用体积无限膨胀。
+
+```swift
+actor CacheManager {
+    /// 清理过期临时文件
+    func cleanExpiredCache(expirationDays: Int = 7) {
+        let fileManager = FileManager.default
+        let tempDir = fileManager.temporaryDirectory
+        
+        // 获取过期时间阈值
+        guard let threshold = Calendar.current.date(
+            byAdding: .day, 
+            value: -expirationDays, 
+            to: Date()
+        ) else { return }
+        
+        // 遍历并删除过期文件
+        // ... implementation
+    }
+}
+```
+
+---
+
+## 速查表
 ```
 
 ---
