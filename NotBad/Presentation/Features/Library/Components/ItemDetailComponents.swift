@@ -26,12 +26,48 @@ struct DisplayContent: View {
             // 学科和年级
             HStack(spacing: DesignTokens.Spacing.md) {
                 InfoCard(title: "学科", icon: "book.fill") {
-                    Text(item.subject.displayName)
-                        .font(.subheadline)
+                    HStack {
+                        Image(systemName: item.subject.icon)
+                            .foregroundStyle(item.subject.color)
+                        Text(item.subject.displayName)
+                            .font(.subheadline)
+                    }
                 }
                 
                 InfoCard(title: "年级", icon: "graduationcap.fill") {
                     Text(item.grade.displayName)
+                        .font(.subheadline)
+                }
+            }
+            
+            // 难度和题型
+            HStack(spacing: DesignTokens.Spacing.md) {
+                InfoCard(title: "难度", icon: "star.fill") {
+                    HStack(spacing: DesignTokens.Spacing.xs) {
+                        ForEach(0..<5) { index in
+                            Image(systemName: index < item.difficulty.rawValue ? "star.fill" : "star")
+                                .font(.caption)
+                                .foregroundStyle(item.difficulty.color)
+                        }
+                    }
+                }
+                
+                InfoCard(title: "题型", icon: "doc.text.fill") {
+                    HStack {
+                        Image(systemName: item.questionType.icon)
+                            .foregroundStyle(Color.brand.primary)
+                        Text(item.questionType.displayName)
+                            .font(.subheadline)
+                    }
+                }
+            }
+            
+            // 来源
+            InfoCard(title: "来源", icon: "folder.fill") {
+                HStack {
+                    Image(systemName: item.source.icon)
+                        .foregroundStyle(Color.brand.secondary)
+                    Text(item.source.displayName)
                         .font(.subheadline)
                 }
             }
@@ -50,8 +86,17 @@ struct DisplayContent: View {
             // 知识点
             if !item.knowledgePoints.isEmpty {
                 InfoCard(title: "知识点", icon: "lightbulb.fill") {
-                    Text(item.knowledgePoints.rawValue)
-                        .font(.subheadline)
+                    FlowLayout(spacing: DesignTokens.Spacing.sm) {
+                        ForEach(item.knowledgePoints.items, id: \.self) { point in
+                            Text(point)
+                                .font(.caption)
+                                .padding(.horizontal, DesignTokens.Spacing.sm)
+                                .padding(.vertical, DesignTokens.Spacing.xs)
+                                .background(Color.brand.primary.opacity(0.1))
+                                .foregroundStyle(Color.brand.primary)
+                                .clipShape(Capsule())
+                        }
+                    }
                 }
             }
             
@@ -68,6 +113,7 @@ struct DisplayContent: View {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                     timeRow(label: "创建时间：", date: item.createdAt)
                     timeRow(label: "更新时间：", date: item.updatedAt)
+                    timeRow(label: "下次复习：", date: item.nextReviewDate)
                 }
             }
         }
@@ -130,6 +176,22 @@ struct EditingContent: View {
                 }
             }
             
+            // 难度和题型
+            HStack(spacing: DesignTokens.Spacing.md) {
+                FormField(title: "难度", icon: "star.fill") {
+                    difficultyPicker
+                }
+                
+                FormField(title: "题型", icon: "doc.text.fill") {
+                    questionTypePicker
+                }
+            }
+            
+            // 来源
+            FormField(title: "来源", icon: "folder.fill") {
+                sourcePicker
+            }
+            
             // 知识点编辑
             FormField(title: "知识点", icon: "lightbulb.fill") {
                 TextField("例如: 函数, 导数", text: $item.knowledgePointsRaw)
@@ -180,14 +242,57 @@ struct EditingContent: View {
         }
     }
     
-    private func pickerLabel(text: String) -> some View {
+    private var difficultyPicker: some View {
+        Menu {
+            ForEach(Difficulty.allCases, id: \.self) { difficulty in
+                Button {
+                    item.difficulty = difficulty
+                } label: {
+                    Label(difficulty.displayName, systemImage: difficulty.icon)
+                }
+            }
+        } label: {
+            pickerLabel(text: item.difficulty.displayName, color: item.difficulty.color)
+        }
+    }
+    
+    private var questionTypePicker: some View {
+        Menu {
+            ForEach(ReviewItemType.allCases, id: \.self) { type in
+                Button {
+                    item.questionType = type
+                } label: {
+                    Label(type.displayName, systemImage: type.icon)
+                }
+            }
+        } label: {
+            pickerLabel(text: item.questionType.displayName)
+        }
+    }
+    
+    private var sourcePicker: some View {
+        Menu {
+            ForEach(Source.allCases, id: \.self) { source in
+                Button {
+                    item.source = source
+                } label: {
+                    Label(source.displayName, systemImage: source.icon)
+                }
+            }
+        } label: {
+            pickerLabel(text: item.source.displayName)
+        }
+    }
+    
+    private func pickerLabel(text: String, color: Color? = nil) -> some View {
         HStack {
             Text(text)
+                .foregroundStyle(color ?? .primary)
             Spacer()
             Image(systemName: "chevron.up.chevron.down")
                 .font(.caption)
+                .foregroundStyle(.secondary)
         }
-        .foregroundStyle(.primary)
         .padding(DesignTokens.Spacing.lg)
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
