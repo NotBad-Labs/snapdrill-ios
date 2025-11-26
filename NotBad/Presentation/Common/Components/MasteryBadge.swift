@@ -198,7 +198,7 @@ struct MasteryProgressView: View {
     // MARK: - Body
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
             if showLabel {
                 labelView
             }

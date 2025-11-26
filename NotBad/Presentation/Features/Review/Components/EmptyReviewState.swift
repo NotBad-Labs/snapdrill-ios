@@ -13,19 +13,19 @@ import SwiftUI
 struct EmptyReviewState: View {
     
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: DesignTokens.Spacing.xl) {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 80))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.green, .mint],
+                        colors: [Color.brand.success, .mint],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
                 .symbolEffect(.bounce)
             
-            VStack(spacing: 8) {
+            VStack(spacing: DesignTokens.Spacing.sm) {
                 Text("暂无需要复习的错题")
                     .font(.title2)
                     .fontWeight(.semibold)

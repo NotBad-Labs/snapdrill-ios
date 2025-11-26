@@ -339,7 +339,7 @@ struct LiveTextScannerContainer: View {
     
     @ViewBuilder
     private var controlBar: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: DesignTokens.Spacing.md) {
             // 错误提示
             if let errorMessage {
                 errorBanner(errorMessage)
@@ -359,26 +359,26 @@ struct LiveTextScannerContainer: View {
         Text(message)
             .font(.caption)
             .foregroundStyle(.white)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(.red.opacity(0.8), in: Capsule())
+            .padding(.horizontal, DesignTokens.Spacing.lg)
+            .padding(.vertical, DesignTokens.Spacing.sm)
+            .background(Color.brand.error.opacity(0.8), in: Capsule())
     }
     
     private var statusIndicator: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: DesignTokens.Spacing.sm) {
             Image(systemName: "text.viewfinder")
                 .symbolEffect(.pulse)
             Text("将题目对准取景框")
         }
         .font(.subheadline)
         .foregroundStyle(.white)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.horizontal, DesignTokens.Spacing.lg)
+        .padding(.vertical, DesignTokens.Spacing.sm)
         .background(.black.opacity(0.5), in: Capsule())
     }
     
     private var actionButtons: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: DesignTokens.Spacing.xl) {
             // 取消按钮
             Button {
                 onCancel()
@@ -386,8 +386,8 @@ struct LiveTextScannerContainer: View {
             } label: {
                 Label("取消", systemImage: "xmark.circle")
                     .font(.headline)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 14)
+                    .padding(.horizontal, DesignTokens.Spacing.xl)
+                    .padding(.vertical, DesignTokens.Spacing.md + 2)
                     .background(.ultraThinMaterial, in: Capsule())
             }
             
@@ -397,9 +397,9 @@ struct LiveTextScannerContainer: View {
             } label: {
                 Label("完成扫描", systemImage: "checkmark.circle.fill")
                     .font(.headline)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 14)
-                    .background(.blue.gradient, in: Capsule())
+                    .padding(.horizontal, DesignTokens.Spacing.xl)
+                    .padding(.vertical, DesignTokens.Spacing.md + 2)
+                    .background(Color.brand.primary.gradient, in: Capsule())
                     .foregroundStyle(.white)
             }
         }

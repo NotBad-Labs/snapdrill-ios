@@ -67,7 +67,7 @@ struct SubjectTag: View {
     // MARK: - Body
     
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: DesignTokens.Spacing.xs) {
             if style != .compact {
                 iconView
             }
@@ -80,8 +80,8 @@ struct SubjectTag: View {
                 countBadge(count)
             }
         }
-        .padding(.horizontal, style == .compact ? 8 : (style == .iconOnly ? 6 : 12))
-        .padding(.vertical, style == .compact ? 4 : (style == .iconOnly ? 6 : 6))
+        .padding(.horizontal, style == .compact ? DesignTokens.Spacing.sm : (style == .iconOnly ? DesignTokens.Spacing.xs : DesignTokens.Spacing.md))
+        .padding(.vertical, style == .compact ? DesignTokens.Spacing.xs : (style == .iconOnly ? DesignTokens.Spacing.xs : DesignTokens.Spacing.xs))
         .background(backgroundStyle)
         .foregroundStyle(foregroundStyle)
         .clipShape(style == .iconOnly ? AnyShape(Circle()) : AnyShape(Capsule()))
@@ -109,7 +109,7 @@ struct SubjectTag: View {
         Text("\(count)")
             .font(.caption2)
             .fontWeight(.bold)
-            .padding(.horizontal, 6)
+            .padding(.horizontal, DesignTokens.Spacing.xs)
             .padding(.vertical, 2)
             .background(isSelected ? .white.opacity(0.3) : subject.color.opacity(0.2))
             .clipShape(Capsule())
@@ -155,7 +155,7 @@ struct SelectableSubjectTag: View {
     
     var body: some View {
         Button {
-            withAnimation(.spring(response: 0.3)) {
+            withAnimation(DesignTokens.Animation.spring) {
                 isSelected.toggle()
             }
         } label: {
@@ -196,7 +196,7 @@ struct SubjectTagGroup: View {
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+            HStack(spacing: DesignTokens.Spacing.sm) {
                 ForEach(subjects, id: \.self) { subject in
                     tagButton(for: subject)
                 }
@@ -211,7 +211,7 @@ struct SubjectTagGroup: View {
         let isSelected = selection.contains(subject)
         
         return Button {
-            withAnimation(.spring(response: 0.3)) {
+            withAnimation(DesignTokens.Animation.spring) {
                 if singleSelection {
                     selection = isSelected ? [] : [subject]
                 } else {

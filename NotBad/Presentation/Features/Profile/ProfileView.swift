@@ -45,19 +45,19 @@ struct ProfileView: View {
     
     private var userSection: some View {
         Section {
-            HStack(spacing: 16) {
+            HStack(spacing: DesignTokens.Spacing.lg) {
                 // 头像
                 Image(systemName: "person.circle.fill")
                     .font(.system(size: 60))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [.blue, .purple],
+                            colors: [Color.brand.primary, Color.brand.secondary],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                     Text("学习小能手")
                         .font(.title2)
                         .fontWeight(.bold)
@@ -69,7 +69,7 @@ struct ProfileView: View {
                 
                 Spacer()
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, DesignTokens.Spacing.sm)
         }
     }
     
@@ -81,28 +81,28 @@ struct ProfileView: View {
                 icon: "books.vertical.fill",
                 title: "总错题数",
                 value: "\(allItems.count)",
-                color: .blue
+                color: Color.brand.primary
             )
             
             StatisticsRow(
                 icon: "checkmark.seal.fill",
                 title: "已掌握",
                 value: "\(masteredCount)",
-                color: .green
+                color: Color.brand.success
             )
             
             StatisticsRow(
                 icon: "clock.arrow.circlepath",
                 title: "总复习次数",
                 value: "\(totalReviewCount)",
-                color: .orange
+                color: Color.brand.warning
             )
             
             StatisticsRow(
                 icon: "calendar",
                 title: "学习天数",
                 value: "\(studyDays)",
-                color: .purple
+                color: Color.brand.secondary
             )
         }
     }
@@ -250,12 +250,12 @@ private struct PlaceholderSettingView: View {
     let description: String
     
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: DesignTokens.Spacing.xl) {
             Image(systemName: icon)
                 .font(.system(size: 60))
                 .foregroundStyle(.secondary)
             
-            VStack(spacing: 8) {
+            VStack(spacing: DesignTokens.Spacing.sm) {
                 Text(title)
                     .font(.title2)
                     .fontWeight(.bold)
