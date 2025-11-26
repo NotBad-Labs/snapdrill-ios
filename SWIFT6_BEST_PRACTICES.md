@@ -16,10 +16,14 @@
 - [十、性能标准](#十性能标准-performance)
 - [十一、错误处理标准](#十一错误处理标准-error-handling)
 - [十二、资源管理标准](#十二资源管理标准-resource-management)
-- [十三、设计系统标准](#十三设计系统标准-design-system) ⭐ 新增
-- [十四、调试与发布标准](#十四调试与发布标准-debug--release) ⭐ 新增
-- [十五、无障碍标准](#十五无障碍标准-accessibility) ⭐ 新增
-- [十六、本地化标准](#十六本地化标准-localization) ⭐ 新增
+- [十三、设计系统标准](#十三设计系统标准-design-system)
+- [十四、调试与发布标准](#十四调试与发布标准-debug--release)
+- [十五、无障碍标准](#十五无障碍标准-accessibility)
+- [十六、本地化标准](#十六本地化标准-localization)
+- [十七、模块化开发标准](#十七模块化开发标准-modularization) ⭐ 新增
+- [十八、代码规范工具](#十八代码规范工具-linting) ⭐ 新增
+- [十九、性能调试工具](#十九性能调试工具-profiling) ⭐ 新增
+- [二十、启动优化策略](#二十启动优化策略-launch-optimization) ⭐ 新增
 - [速查表](#速查表)
 
 ---
@@ -1409,6 +1413,685 @@ Text(L10n.percentage(masteryRate))
 
 ---
 
+## 十七、模块化开发标准 (Modularization)
+
+使用 Swift Package Manager (SPM) 将功能拆分为独立模块，加快编译速度并强制解耦。
+
+### 60. 模块划分原则
+
+按功能边界划分模块，遵循单一职责原则。
+
+```
+NotBad/
+├── NotBadApp/                    # 主 App Target
+│   └── NotBadApp.swift
+│
+├── Packages/                     # 本地 SPM 包
+│   ├── NotBadCore/               # 核心业务模块
+│   │   ├── Sources/
+│   │   │   └── NotBadCore/
+│   │   │       ├── Entities/
+│   │   │       ├── ValueObjects/
+│   │   │       └── Protocols/
+│   │   └── Package.swift
+│   │
+│   ├── NotBadUI/                 # UI 组件模块
+│   │   ├── Sources/
+│   │   │   └── NotBadUI/
+│   │   │       ├── Components/
+│   │   │       ├── Styles/
+│   │   │       └── DesignTokens/
+│   │   └── Package.swift
+│   │
+│   ├── NotBadData/               # 数据层模块
+│   │   ├── Sources/
+│   │   │   └── NotBadData/
+│   │   │       ├── Repository/
+│   │   │       └── Migration/
+│   │   └── Package.swift
+│   │
+│   └── NotBadInfra/              # 基础设施模块
+│       ├── Sources/
+│       │   └── NotBadInfra/
+│       │       ├── OCR/
+│       │       ├── Camera/
+│       │       └── Network/
+│       └── Package.swift
+```
+
+### 61. Package.swift 配置
+
+每个模块定义清晰的依赖关系和产品。
+
+```swift
+// Package.swift - NotBadCore
+import PackageDescription
+
+let package = Package(
+    name: "NotBadCore",
+    platforms: [
+        .iOS(.v17),
+        .macOS(.v14)
+    ],
+    products: [
+        .library(
+            name: "NotBadCore",
+            targets: ["NotBadCore"]
+        )
+    ],
+    dependencies: [],  // 核心模块无外部依赖
+    targets: [
+        .target(
+            name: "NotBadCore",
+            dependencies: [],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
+            ]
+        ),
+        .testTarget(
+            name: "NotBadCoreTests",
+            dependencies: ["NotBadCore"]
+        )
+    ]
+)
+```
+
+### 62. 模块依赖规则
+
+遵循依赖方向：上层依赖下层，禁止循环依赖。
+
+```
+┌─────────────────────────────────────────────────┐
+│                   NotBadApp                     │
+│              (主应用 - 组装层)                   │
+└─────────────────────────────────────────────────┘
+                      │
+        ┌─────────────┼─────────────┐
+        ▼             ▼             ▼
+┌───────────┐  ┌───────────┐  ┌───────────┐
+│ NotBadUI  │  │NotBadData │  │NotBadInfra│
+│  (展示层) │  │  (数据层) │  │ (基础设施) │
+└───────────┘  └───────────┘  └───────────┘
+        │             │             │
+        └─────────────┼─────────────┘
+                      ▼
+            ┌─────────────────┐
+            │   NotBadCore    │
+            │   (核心领域)     │
+            └─────────────────┘
+```
+
+**依赖规则：**
+- ✅ `NotBadUI` → `NotBadCore` (UI 依赖核心类型)
+- ✅ `NotBadData` → `NotBadCore` (数据层实现核心协议)
+- ✅ `NotBadApp` → 所有模块 (主应用组装)
+- ❌ `NotBadCore` → `NotBadUI` (禁止核心依赖 UI)
+- ❌ 任何循环依赖
+
+### 63. 模块化编译优势
+
+```swift
+// 增量编译：只重新编译修改的模块
+// 修改 NotBadUI 中的按钮样式
+// → 只重新编译 NotBadUI + NotBadApp
+// → NotBadCore、NotBadData 使用缓存
+
+// 并行编译：无依赖关系的模块可并行构建
+// NotBadUI、NotBadData、NotBadInfra 可同时编译
+```
+
+---
+
+## 十八、代码规范工具 (Linting)
+
+集成自动化代码规范检查，统一团队代码风格。
+
+### 64. SwiftLint 集成
+
+在项目中配置 SwiftLint 自动检查代码风格。
+
+**安装 SwiftLint：**
+```bash
+# 使用 Homebrew
+brew install swiftlint
+
+# 或使用 SPM 作为构建工具插件
+# Package.swift 中添加
+.package(url: "https://github.com/realm/SwiftLint.git", from: "0.54.0")
+```
+
+**Xcode Build Phase 脚本：**
+```bash
+# Build Phases → New Run Script Phase
+if which swiftlint > /dev/null; then
+    swiftlint
+else
+    echo "warning: SwiftLint not installed"
+fi
+```
+
+### 65. SwiftLint 配置文件
+
+项目根目录创建 `.swiftlint.yml`：
+
+```yaml
+# .swiftlint.yml - NotBad 项目配置
+
+# 禁用的规则
+disabled_rules:
+  - trailing_whitespace      # 允许尾随空格
+  - line_length              # 单独配置
+  - type_body_length         # 允许较长类型
+
+# 启用的可选规则
+opt_in_rules:
+  - empty_count              # 使用 isEmpty 而非 count == 0
+  - empty_string             # 使用 isEmpty 而非 == ""
+  - first_where              # 使用 first(where:) 而非 filter().first
+  - force_unwrapping         # 警告强制解包
+  - implicitly_unwrapped_optional  # 警告隐式解包
+  - private_outlet           # IBOutlet 应为 private
+  - sorted_first_last        # 使用 min()/max() 而非 sorted().first
+
+# 排除的目录
+excluded:
+  - Pods
+  - .build
+  - DerivedData
+  - "*.generated.swift"
+
+# 行长度配置
+line_length:
+  warning: 120
+  error: 200
+  ignores_comments: true
+  ignores_urls: true
+
+# 类型名称长度
+type_name:
+  min_length: 2
+  max_length: 50
+
+# 标识符名称长度  
+identifier_name:
+  min_length: 1
+  max_length: 50
+  excluded:
+    - id
+    - x
+    - y
+    - i
+    - j
+
+# 函数体长度
+function_body_length:
+  warning: 50
+  error: 100
+
+# 文件长度
+file_length:
+  warning: 500
+  error: 1000
+
+# 自定义规则
+custom_rules:
+  # 禁止在非 DEBUG 模式下使用 print
+  no_print_in_release:
+    name: "No Print in Release"
+    regex: "^\\s*print\\("
+    message: "Use #if DEBUG wrapper for print statements"
+    severity: warning
+```
+
+### 66. SwiftFormat 补充
+
+SwiftLint 检查风格，SwiftFormat 自动格式化。
+
+**安装：**
+```bash
+brew install swiftformat
+```
+
+**配置 `.swiftformat`：**
+```
+# .swiftformat - 格式化规则
+
+--swiftversion 6.0
+--indent 4
+--indentcase true
+--trimwhitespace always
+--voidtype void
+--semicolons never
+--commas always
+--stripunusedargs closure-only
+--maxwidth 120
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+
+# 排除目录
+--exclude Pods,.build,DerivedData
+```
+
+**格式化命令：**
+```bash
+# 格式化整个项目
+swiftformat .
+
+# 检查但不修改
+swiftformat --lint .
+```
+
+### 67. CI/CD 集成
+
+在 GitHub Actions 中自动检查代码规范：
+
+```yaml
+# .github/workflows/lint.yml
+name: Lint
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  swiftlint:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install SwiftLint
+        run: brew install swiftlint
+        
+      - name: Run SwiftLint
+        run: swiftlint --strict
+```
+
+---
+
+## 十九、性能调试工具 (Profiling)
+
+使用 Instruments 进行性能分析，用数据驱动优化决策。
+
+### 68. Instruments 核心工具
+
+针对不同问题使用对应的 Instrument：
+
+| 问题类型 | 工具 | 用途 |
+|---------|------|------|
+| 卡顿/掉帧 | **Time Profiler** | 查找主线程阻塞 |
+| 内存泄漏 | **Leaks** | 检测循环引用 |
+| 内存占用 | **Allocations** | 分析内存分配 |
+| 电量消耗 | **Energy Log** | 定位耗电操作 |
+| 网络请求 | **Network** | 分析网络性能 |
+| 动画卡顿 | **Core Animation** | 分析渲染性能 |
+| SwiftUI | **SwiftUI Profiler** | 分析视图重绘 |
+
+### 69. Time Profiler 使用
+
+定位主线程阻塞和 CPU 热点。
+
+```swift
+// 步骤：
+// 1. Xcode → Product → Profile (⌘I)
+// 2. 选择 Time Profiler
+// 3. 录制操作场景
+// 4. 分析 Call Tree
+
+// 常见问题示例：
+// ❌ 主线程执行耗时操作
+func loadData() {
+    let data = heavyCalculation()  // 阻塞主线程
+    updateUI(data)
+}
+
+// ✅ 移到后台线程
+func loadData() async {
+    let data = await Task.detached {
+        heavyCalculation()  // 后台执行
+    }.value
+    await MainActor.run {
+        updateUI(data)  // 主线程更新 UI
+    }
+}
+```
+
+### 70. Leaks 内存泄漏检测
+
+检测循环引用导致的内存泄漏。
+
+```swift
+// 常见泄漏场景 1：闭包强引用
+class ViewModel {
+    var onComplete: (() -> Void)?
+    
+    func setup() {
+        // ❌ 泄漏 - 闭包强引用 self
+        onComplete = {
+            self.doSomething()
+        }
+        
+        // ✅ 正确 - 使用 weak self
+        onComplete = { [weak self] in
+            self?.doSomething()
+        }
+    }
+}
+
+// 常见泄漏场景 2：delegate 强引用
+class Parent {
+    var child: Child?
+    
+    func setup() {
+        child = Child()
+        child?.delegate = self  // 循环引用！
+    }
+}
+
+// ✅ delegate 应声明为 weak
+protocol ChildDelegate: AnyObject { }
+
+class Child {
+    weak var delegate: ChildDelegate?  // weak 打破循环
+}
+```
+
+### 71. Allocations 内存分析
+
+分析内存分配模式，发现内存峰值。
+
+```swift
+// 使用 Allocations 分析：
+// 1. 查看 "All Heap & Anonymous VM" 趋势
+// 2. 关注 "Persistent Bytes" 持续增长
+// 3. 使用 "Mark Generation" 对比内存变化
+
+// 常见问题：图片缓存导致内存峰值
+// ❌ 一次性加载所有图片
+let allImages = items.map { UIImage(data: $0.imageData!) }
+
+// ✅ 按需加载 + LRU 缓存
+class ImageCache {
+    private let cache = NSCache<NSString, UIImage>()
+    
+    init() {
+        cache.countLimit = 50  // 最多缓存 50 张
+        cache.totalCostLimit = 100 * 1024 * 1024  // 100MB
+    }
+    
+    func image(for key: String) -> UIImage? {
+        cache.object(forKey: key as NSString)
+    }
+}
+```
+
+### 72. SwiftUI 性能分析
+
+使用 SwiftUI Instruments 分析视图重绘。
+
+```swift
+// 检测过度重绘：添加 _printChanges()
+struct ItemRow: View {
+    let item: ReviewItem
+    
+    var body: some View {
+        let _ = Self._printChanges()  // 调试时添加
+        
+        HStack {
+            // ...
+        }
+    }
+}
+
+// 输出示例：
+// ItemRow: @self changed.  ← 整个视图重建
+// ItemRow: item changed.   ← 特定属性变化
+
+// 优化策略：
+// 1. 将大视图拆分为小组件
+// 2. 使用 @State 而非 @Binding 处理本地状态  
+// 3. 确保 ForEach 的 id 稳定
+// 4. 使用 .equatable() 减少不必要重绘
+```
+
+### 73. 性能测试基准
+
+在 XCTest 中编写性能测试：
+
+```swift
+import XCTest
+@testable import NotBad
+
+final class PerformanceTests: XCTestCase {
+    
+    func testFetchPerformance() throws {
+        let repository = ReviewItemRepository()
+        
+        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()]) {
+            _ = repository.fetchAll()
+        }
+    }
+    
+    func testFilterPerformance() throws {
+        let items = (0..<1000).map { _ in ReviewItem.mock() }
+        
+        measure {
+            _ = items.filter { $0.subject == .math && $0.mastery != .mastered }
+        }
+    }
+}
+```
+
+---
+
+## 二十、启动优化策略 (Launch Optimization)
+
+优化应用启动时间，提升用户第一印象。
+
+### 74. 启动时间组成
+
+理解启动时间的构成：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    应用启动时间                              │
+├─────────────────────────────────────────────────────────────┤
+│  Pre-main    │        main()        │      首屏渲染         │
+│  (系统阶段)   │     (应用初始化)      │    (UI 可见)          │
+├─────────────────────────────────────────────────────────────┤
+│ • 加载动态库  │ • AppDelegate 初始化 │ • 布局计算            │
+│ • Rebase/Bind│ • 创建 UIWindow      │ • 视图渲染            │
+│ • ObjC 初始化│ • 创建 Root View     │ • 数据加载            │
+│ • +load 方法 │ • 注册通知           │ • 网络请求            │
+└─────────────────────────────────────────────────────────────┘
+
+目标：冷启动 < 400ms（Apple 建议）
+```
+
+### 75. Pre-main 优化
+
+减少 main() 之前的耗时：
+
+```swift
+// 1. 减少动态库数量
+// - 合并小型库为一个
+// - 使用静态库代替动态库
+// - 移除未使用的框架
+
+// 2. 避免 +load 方法
+// ❌ ObjC 中的 +load 会在启动时执行
++ (void)load {
+    // 每个 +load 都增加启动时间
+}
+
+// ✅ 使用 +initialize 延迟到首次使用
++ (void)initialize {
+    // 首次使用类时才执行
+}
+
+// 3. 减少 Swift 类型元数据
+// - 避免过多的泛型特化
+// - 减少 @objc 导出的类
+```
+
+### 76. 延迟初始化
+
+非必要的初始化延迟到首屏之后。
+
+```swift
+@main
+struct NotBadApp: App {
+    
+    init() {
+        // ✅ 只做必要初始化
+        configureAppearance()
+    }
+    
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .task {
+                    // ✅ 首屏显示后再初始化
+                    await deferredInitialization()
+                }
+        }
+    }
+    
+    private func configureAppearance() {
+        // 仅配置全局外观（必要）
+    }
+    
+    private func deferredInitialization() async {
+        // 延迟初始化：
+        // - 分析 SDK
+        // - 推送注册
+        // - 缓存预热
+        // - 后台数据同步
+        
+        #if DEBUG
+        print("📱 [App] Deferred initialization started")
+        #endif
+        
+        // 分批延迟
+        try? await Task.sleep(for: .milliseconds(500))
+        await setupAnalytics()
+        
+        try? await Task.sleep(for: .milliseconds(200))
+        await registerPushNotifications()
+    }
+}
+```
+
+### 77. 首屏数据策略
+
+优化首屏数据加载：
+
+```swift
+@MainActor
+@Observable
+final class DashboardViewModel {
+    var items: [ReviewItem] = []
+    var isLoading = true
+    
+    // ✅ 分层加载策略
+    func loadData() async {
+        // 1. 立即显示缓存数据
+        if let cached = loadFromCache() {
+            items = cached
+            isLoading = false
+        }
+        
+        // 2. 后台刷新最新数据
+        await refreshFromDatabase()
+    }
+    
+    private func loadFromCache() -> [ReviewItem]? {
+        // 从 UserDefaults 或内存缓存读取
+        // 保证毫秒级响应
+        return CacheManager.shared.dashboardItems
+    }
+    
+    private func refreshFromDatabase() async {
+        let freshItems = repository.fetchAll()
+        
+        // 3. 只在数据变化时更新 UI
+        if freshItems != items {
+            withAnimation {
+                items = freshItems
+            }
+        }
+        
+        // 4. 更新缓存
+        CacheManager.shared.dashboardItems = freshItems
+    }
+}
+```
+
+### 78. 启动时间测量
+
+使用 Instruments 和代码测量启动时间：
+
+```swift
+// 1. Instruments 测量
+// Xcode → Product → Profile → App Launch
+// 查看 "Time to First Frame"
+
+// 2. 代码测量
+@main
+struct NotBadApp: App {
+    private static let launchTime = CFAbsoluteTimeGetCurrent()
+    
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .onAppear {
+                    #if DEBUG
+                    let elapsed = CFAbsoluteTimeGetCurrent() - Self.launchTime
+                    print("🚀 [Launch] First frame: \(String(format: "%.2f", elapsed * 1000))ms")
+                    #endif
+                }
+        }
+    }
+}
+
+// 3. 环境变量测量 Pre-main 时间
+// Scheme → Run → Arguments → Environment Variables
+// 添加: DYLD_PRINT_STATISTICS = 1
+// 输出示例:
+// Total pre-main time: 234.56 milliseconds (100.0%)
+//   dylib loading time:  89.12 milliseconds (38.0%)
+//   rebase/binding time: 12.34 milliseconds (5.2%)
+//   ObjC setup time:     45.67 milliseconds (19.4%)
+//   initializer time:    87.43 milliseconds (37.2%)
+```
+
+### 79. 启动优化清单
+
+```markdown
+### Pre-main 阶段 ✓
+- [ ] 动态库数量 < 6 个自定义库
+- [ ] 无 +load 方法
+- [ ] 移除未使用的框架
+
+### main() 阶段 ✓  
+- [ ] AppDelegate 只做必要初始化
+- [ ] 延迟非必要 SDK 初始化
+- [ ] 避免同步网络请求
+
+### 首屏渲染 ✓
+- [ ] 首屏数据来自缓存
+- [ ] 视图层级简单（< 50 个视图）
+- [ ] 无首屏大图加载
+- [ ] 避免首屏复杂动画
+
+### 测量验证 ✓
+- [ ] 冷启动 < 400ms
+- [ ] 热启动 < 200ms
+- [ ] 使用 App Launch 验证
+```
+
+---
+
 ## 速查表
 
 ### 🔐 并发安全三件套
@@ -1531,6 +2214,57 @@ print("...")
 @Environment(\.accessibilityReduceMotion) var reduceMotion
 ```
 
+### 📦 模块化三原则
+
+```swift
+// 1. 依赖方向：上层 → 下层
+// App → Features → Core（禁止反向依赖）
+
+// 2. 核心模块零依赖
+// NotBadCore 不依赖任何 UI 或数据层
+
+// 3. 通过协议解耦
+protocol RepositoryProtocol { }  // 定义在 Core
+class Repository: RepositoryProtocol { }  // 实现在 Data
+```
+
+### 🔧 性能调试四步法
+
+```swift
+// 1. 定位问题 - Time Profiler
+// 找到主线程阻塞的函数
+
+// 2. 分析内存 - Allocations
+// 查看内存分配趋势和峰值
+
+// 3. 检测泄漏 - Leaks
+// 找到循环引用
+class ViewModel {
+    var closure: (() -> Void)?
+    // ✅ 使用 [weak self]
+    closure = { [weak self] in self?.action() }
+}
+
+// 4. 验证优化 - 性能测试
+measure { /* 基准测试 */ }
+```
+
+### 🚀 启动优化三阶段
+
+```swift
+// 1. Pre-main：减少动态库
+// 目标 < 6 个自定义动态库
+
+// 2. main()：延迟初始化
+.task { await deferredInit() }
+
+// 3. 首屏：缓存优先
+if let cached = loadCache() {
+    items = cached  // 毫秒级显示
+}
+await refreshFromDB()  // 后台刷新
+```
+
 ---
 
 ## 审计检查清单
@@ -1572,6 +2306,30 @@ print("...")
 - [ ] 覆盖边界条件
 - [ ] Mock 外部依赖
 
+### 模块化 ✓
+- [ ] 功能按模块拆分
+- [ ] 依赖方向正确（上层→下层）
+- [ ] 核心模块无 UI 依赖
+- [ ] 使用协议解耦
+
+### 代码规范 ✓
+- [ ] 集成 SwiftLint
+- [ ] 配置 .swiftlint.yml
+- [ ] CI 自动检查
+- [ ] 统一代码格式
+
+### 性能 ✓
+- [ ] 使用 Instruments 分析
+- [ ] 无主线程阻塞
+- [ ] 无内存泄漏
+- [ ] 性能测试覆盖关键路径
+
+### 启动优化 ✓
+- [ ] 冷启动 < 400ms
+- [ ] 延迟非必要初始化
+- [ ] 首屏数据来自缓存
+- [ ] 使用 App Launch 验证
+
 ---
 
 ## 参考资源
@@ -1582,12 +2340,23 @@ print("...")
 - [WWDC 2024 - Swift 6](https://developer.apple.com/wwdc24/)
 - [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/)
 - [Accessibility Programming Guide](https://developer.apple.com/accessibility/)
+- [SwiftLint Rules](https://realm.github.io/SwiftLint/rule-directory.html)
+- [Instruments User Guide](https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/InstrumentsUserGuide/)
+- [App Launch Time Optimization](https://developer.apple.com/videos/play/wwdc2019/423/)
 
 ---
 
 ## 更新日志
 
-### 2025-11-26
+### 2025-11-26 (第二次更新)
+- ⭐ **新增** 十七、模块化开发标准 (SPM 模块划分、依赖规则、编译优势)
+- ⭐ **新增** 十八、代码规范工具 (SwiftLint 配置、SwiftFormat、CI/CD 集成)
+- ⭐ **新增** 十九、性能调试工具 (Instruments 使用、Time Profiler、Leaks、SwiftUI 分析)
+- ⭐ **新增** 二十、启动优化策略 (Pre-main 优化、延迟初始化、首屏数据策略)
+- ⭐ **新增** 速查表：模块化三原则、性能调试四步法、启动优化三阶段
+- ⭐ **新增** 审计检查清单：模块化、代码规范、性能、启动优化
+
+### 2025-11-26 (第一次更新)
 - ⭐ **新增** 十三、设计系统标准 (Design Tokens, Brand Colors, Button/Card Styles)
 - ⭐ **新增** 十四、调试与发布标准 (#if DEBUG, 日志规范, 敏感信息保护)
 - ⭐ **新增** 十五、无障碍标准 (VoiceOver, 动态字体, 减少动画, 触觉反馈)
