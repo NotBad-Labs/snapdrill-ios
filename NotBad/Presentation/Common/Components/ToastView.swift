@@ -198,7 +198,7 @@ private struct ToastModifier: ViewModifier {
                     .padding(.top, 50)
                 }
             }
-            .animation(.spring(response: 0.3), value: toast)
+            .animation(DesignTokens.Animation.spring, value: toast)
     }
     
     private func scheduleAutoDismiss(for toast: Toast) {
