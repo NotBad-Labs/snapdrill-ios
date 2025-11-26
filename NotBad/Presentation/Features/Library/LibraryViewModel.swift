@@ -256,7 +256,9 @@ final class LibraryViewModel {
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("❌ 删除失败: \(error)")
+            #endif
         }
     }
     
@@ -269,7 +271,9 @@ final class LibraryViewModel {
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("❌ 删除失败: \(error)")
+            #endif
         }
     }
     
@@ -288,7 +292,9 @@ final class LibraryViewModel {
             selectedItemIds.removeAll()
             isSelectionMode = false
         } catch {
+            #if DEBUG
             print("❌ 批量删除失败: \(error)")
+            #endif
         }
     }
     

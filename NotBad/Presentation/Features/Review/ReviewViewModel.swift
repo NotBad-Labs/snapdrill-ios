@@ -224,7 +224,9 @@ final class ReviewViewModel {
         do {
             try modelContext.save()
         } catch {
+            #if DEBUG
             print("❌ 保存失败: \(error)")
+            #endif
         }
         
         // 更新统计

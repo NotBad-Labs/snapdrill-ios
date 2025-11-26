@@ -279,7 +279,9 @@ final class CaptureViewModel {
     
     /// 处理实时扫描结果
     func handleLiveScanResult(_ text: String) {
+        #if DEBUG
         print("🔍 [CaptureVM] handleLiveScanResult: text长度=\(text.count)")
+        #endif
         recognizedText = text
         
         let firstLine = text.components(separatedBy: .newlines).first ?? text
@@ -293,7 +295,9 @@ final class CaptureViewModel {
         
         currentStep = .fillForm
         
+        #if DEBUG
         print("🔍 [CaptureVM] 处理结果: title=\(title), isFromLiveScanner=\(isFromLiveScanner), isValid=\(isValid)")
+        #endif
     }
     
     /// 添加知识点
@@ -324,14 +328,18 @@ final class CaptureViewModel {
     /// 保存错题
     func saveItem() {
         guard let modelContext else {
+            #if DEBUG
             print("❌ [CaptureVM] 保存失败：modelContext 为 nil")
+            #endif
             showErrorAlert("保存失败：数据上下文未配置")
             return
         }
         
         // 验证：必须有图片或来自实时扫描
         guard hasImage || isFromLiveScanner else {
+            #if DEBUG
             print("❌ [CaptureVM] 保存失败：无图片且非实时扫描")
+            #endif
             showErrorAlert("保存失败：请选择图片或使用实时扫描")
             return
         }
@@ -351,14 +359,20 @@ final class CaptureViewModel {
             questionType: questionType
         )
         
+        #if DEBUG
         print("📝 [CaptureVM] 创建 ReviewItem: id=\(newItem.id), title=\(newItem.title)")
+        #endif
         
         modelContext.insert(newItem)
+        #if DEBUG
         print("📝 [CaptureVM] insert 完成")
+        #endif
         
         do {
             try modelContext.save()
+            #if DEBUG
             print("✅ [CaptureVM] save 成功")
+            #endif
             
             // 延迟显示成功提示，改善体验
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
@@ -369,7 +383,9 @@ final class CaptureViewModel {
                 NotificationCenter.default.post(name: .reviewItemAdded, object: newItem)
             }
         } catch {
+            #if DEBUG
             print("❌ [CaptureVM] save 失败: \(error)")
+            #endif
             isSaving = false
             showErrorAlert("保存失败：\(error.localizedDescription)")
         }

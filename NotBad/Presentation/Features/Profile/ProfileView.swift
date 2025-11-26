@@ -171,46 +171,26 @@ struct ProfileView: View {
         return dates.count
     }
     
-    // MARK: - Placeholder Views
+    // MARK: - Navigation Destinations
     
     private var notificationSettingsView: some View {
-        PlaceholderSettingView(
-            title: "复习提醒",
-            icon: "bell.fill",
-            description: "设置每日复习提醒时间"
-        )
+        NotificationSettingsView()
     }
     
     private var dataManagementView: some View {
-        PlaceholderSettingView(
-            title: "数据管理",
-            icon: "externaldrive.fill",
-            description: "导出或备份你的错题数据"
-        )
+        DataManagementView()
     }
     
     private var appearanceSettingsView: some View {
-        PlaceholderSettingView(
-            title: "外观设置",
-            icon: "paintbrush.fill",
-            description: "自定义应用主题和显示方式"
-        )
+        AppearanceSettingsView()
     }
     
     private var helpCenterView: some View {
-        PlaceholderSettingView(
-            title: "帮助中心",
-            icon: "questionmark.circle.fill",
-            description: "查看使用指南和常见问题"
-        )
+        HelpCenterView()
     }
     
     private var feedbackView: some View {
-        PlaceholderSettingView(
-            title: "意见反馈",
-            icon: "envelope.fill",
-            description: "告诉我们你的想法和建议"
-        )
+        FeedbackView()
     }
 }
 
@@ -238,41 +218,6 @@ private struct StatisticsRow: View {
                 .fontWeight(.semibold)
                 .foregroundStyle(color)
         }
-    }
-}
-
-// MARK: - PlaceholderSettingView
-
-/// 占位设置视图
-private struct PlaceholderSettingView: View {
-    let title: String
-    let icon: String
-    let description: String
-    
-    var body: some View {
-        VStack(spacing: DesignTokens.Spacing.xl) {
-            Image(systemName: icon)
-                .font(.system(size: 60))
-                .foregroundStyle(.secondary)
-            
-            VStack(spacing: DesignTokens.Spacing.sm) {
-                Text(title)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                
-                Text(description)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-            
-            Text("功能开发中...")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-        }
-        .padding()
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

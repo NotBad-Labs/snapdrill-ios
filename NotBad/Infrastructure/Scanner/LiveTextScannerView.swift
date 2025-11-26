@@ -73,7 +73,9 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
             do {
                 try uiViewController.startScanning()
             } catch {
+                #if DEBUG
                 print("扫描启动失败: \(error.localizedDescription)")
+                #endif
             }
         }
     }
@@ -147,7 +149,9 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
             _ dataScanner: DataScannerViewController,
             becameUnavailableWithError error: DataScannerViewController.ScanningUnavailable
         ) {
+            #if DEBUG
             print("扫描器不可用: \(error.localizedDescription)")
+            #endif
         }
         
         // MARK: - Processing
