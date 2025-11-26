@@ -47,6 +47,8 @@ struct StatisticsGrid: View {
                 color: Color.brand.secondary
             )
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("学习统计")
     }
 }
 
@@ -61,6 +63,7 @@ struct MasteryDistributionChart: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
             Text("掌握度分布")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
             
             if isEmpty {
                 EmptyChartPlaceholder()
@@ -85,6 +88,7 @@ struct MasteryDistributionChart: View {
                     }
                 }
                 .frame(height: 200)
+                .accessibilityLabel(chartAccessibilityLabel)
                 
                 // 图例
                 HStack(spacing: DesignTokens.Spacing.lg) {
@@ -93,9 +97,12 @@ struct MasteryDistributionChart: View {
                             Circle()
                                 .fill(item.color)
                                 .frame(width: 12, height: 12)
+                                .accessibilityHidden(true)
                             Text(item.label)
                                 .font(.caption)
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("\(item.label)：\(item.count)题")
                     }
                 }
             }
@@ -103,6 +110,11 @@ struct MasteryDistributionChart: View {
         .padding(DesignTokens.Spacing.lg)
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
+    }
+    
+    private var chartAccessibilityLabel: String {
+        let descriptions = data.map { "\($0.label)\($0.count)题" }
+        return "掌握度分布图：" + descriptions.joined(separator: "，")
     }
 }
 
@@ -117,6 +129,7 @@ struct SubjectDistributionChart: View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
             Text("学科分布")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
             
             if isEmpty {
                 EmptyChartPlaceholder()
@@ -136,11 +149,17 @@ struct SubjectDistributionChart: View {
                 }
                 .frame(height: CGFloat(max(data.count * 40, 200)))
                 .chartXAxis(.hidden)
+                .accessibilityLabel(chartAccessibilityLabel)
             }
         }
         .padding(DesignTokens.Spacing.lg)
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
+    }
+    
+    private var chartAccessibilityLabel: String {
+        let descriptions = data.map { "\($0.subject)\($0.count)题" }
+        return "学科分布图：" + descriptions.joined(separator: "，")
     }
 }
 
@@ -153,6 +172,7 @@ struct EmptyChartPlaceholder: View {
             Image(systemName: "chart.bar.xaxis")
                 .font(.system(size: 40))
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             
             Text("暂无数据")
                 .font(.subheadline)
@@ -160,5 +180,7 @@ struct EmptyChartPlaceholder: View {
         }
         .frame(height: 150)
         .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("暂无数据")
     }
 }

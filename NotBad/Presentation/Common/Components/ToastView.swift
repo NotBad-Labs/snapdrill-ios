@@ -149,6 +149,7 @@ struct ToastView: View {
             Image(systemName: toast.type.icon)
                 .font(.title3)
                 .foregroundStyle(toast.type.color)
+                .accessibilityHidden(true)
             
             Text(toast.message)
                 .font(.subheadline)
@@ -165,6 +166,7 @@ struct ToastView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                .accessibilityLabel("关闭提示")
             }
         }
         .padding(DesignTokens.Spacing.lg)
@@ -172,6 +174,20 @@ struct ToastView: View {
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
         .shadow(DesignTokens.Shadow.medium)
         .padding(.horizontal)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
+        .accessibilityAddTraits(.isStaticText)
+    }
+    
+    private var accessibilityDescription: String {
+        let typeDescription: String
+        switch toast.type {
+        case .success: typeDescription = "成功"
+        case .error: typeDescription = "错误"
+        case .warning: typeDescription = "警告"
+        case .info: typeDescription = "提示"
+        }
+        return "\(typeDescription)：\(toast.message)"
     }
 }
 
@@ -194,6 +210,8 @@ private struct ToastModifier: ViewModifier {
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .onAppear {
                         scheduleAutoDismiss(for: toast)
+                        // VoiceOver 公告
+                        announceForAccessibility(toast)
                     }
                     .padding(.top, 50)
                 }
@@ -211,6 +229,17 @@ private struct ToastModifier: ViewModifier {
                 }
             }
         }
+    }
+    
+    private func announceForAccessibility(_ toast: Toast) {
+        let typeDescription: String
+        switch toast.type {
+        case .success: typeDescription = "成功"
+        case .error: typeDescription = "错误"
+        case .warning: typeDescription = "警告"
+        case .info: typeDescription = "提示"
+        }
+        AccessibilityAnnouncement.announce("\(typeDescription)：\(toast.message)")
     }
 }
 

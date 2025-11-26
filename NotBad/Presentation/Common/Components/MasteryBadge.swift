@@ -102,12 +102,14 @@ struct MasteryBadge: View {
             .foregroundStyle(level.color)
             .clipShape(Circle())
             .symbolEffect(.pulse, isActive: animated)
+            .accessibilityLabel("掌握程度：\(level.displayName)")
     }
     
     private var standardView: some View {
         HStack(spacing: DesignTokens.Spacing.xs) {
             Image(systemName: level.icon)
                 .symbolEffect(.pulse, isActive: animated)
+                .accessibilityHidden(true)
             Text(level.displayName)
         }
         .font(.caption)
@@ -116,12 +118,15 @@ struct MasteryBadge: View {
         .background(level.color.opacity(0.1))
         .foregroundStyle(level.color)
         .clipShape(Capsule())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("掌握程度：\(level.displayName)")
     }
     
     private var detailedView: some View {
         HStack(spacing: DesignTokens.Spacing.xs) {
             Image(systemName: level.icon)
                 .symbolEffect(.pulse, isActive: animated)
+                .accessibilityHidden(true)
             Text(level.detailText)
         }
         .font(.caption)
@@ -130,6 +135,8 @@ struct MasteryBadge: View {
         .background(level.color.opacity(0.1))
         .foregroundStyle(level.color)
         .clipShape(Capsule())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("掌握程度：\(level.detailText)")
     }
     
     private var starsView: some View {
@@ -140,6 +147,8 @@ struct MasteryBadge: View {
                     .foregroundStyle(index < level.stars ? level.color : .gray.opacity(0.3))
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("掌握程度：\(level.stars)星，\(level.displayName)")
     }
     
     private var progressView: some View {
@@ -167,6 +176,9 @@ struct MasteryBadge: View {
             .frame(height: 6)
         }
         .frame(minWidth: 100)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("掌握程度：\(level.displayName)，\(Int(level.progress * 100))%")
+        .accessibilityValue("\(Int(level.progress * 100))%")
     }
 }
 

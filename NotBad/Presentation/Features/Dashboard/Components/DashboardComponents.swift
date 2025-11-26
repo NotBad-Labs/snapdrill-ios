@@ -36,6 +36,7 @@ struct WelcomeCard: View {
                         )
                     )
                     .symbolEffect(.bounce)
+                    .accessibilityHidden(true)
             }
         }
         .padding(DesignTokens.Spacing.lg)
@@ -47,6 +48,8 @@ struct WelcomeCard: View {
             )
         )
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Hello，继续你的学习之旅")
     }
 }
 
@@ -65,6 +68,7 @@ struct StatCard: View {
                 Image(systemName: icon)
                     .font(.title2)
                     .foregroundStyle(color)
+                    .accessibilityHidden(true)
                 
                 Spacer()
             }
@@ -82,6 +86,8 @@ struct StatCard: View {
         .padding(DesignTokens.Spacing.lg)
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title)：\(value)")
     }
 }
 
@@ -98,6 +104,7 @@ struct QuickActionButton: View {
             Image(systemName: icon)
                 .font(.title3)
                 .foregroundStyle(color)
+                .accessibilityHidden(true)
             
             Text(title)
                 .font(.headline)
@@ -108,9 +115,13 @@ struct QuickActionButton: View {
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
         }
         .padding(DesignTokens.Spacing.lg)
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(.isButton)
     }
 }

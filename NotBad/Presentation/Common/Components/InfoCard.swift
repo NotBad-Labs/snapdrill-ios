@@ -41,6 +41,7 @@ struct InfoCard<Content: View>: View {
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
+                .accessibilityAddTraits(.isHeader)
             
             content
         }
@@ -48,6 +49,7 @@ struct InfoCard<Content: View>: View {
         .padding(DesignTokens.Spacing.lg)
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
+        .accessibilityElement(children: .contain)
     }
 }
 
