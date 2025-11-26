@@ -491,23 +491,29 @@ final class ReviewItem {
 
 ### 24. @Observable 宏
 
-iOS 17+ 使用 `@Observable` 替代 `ObservableObject`。
+使用 `@Observable` 宏（非 `ObservableObject` 协议）实现状态观察。
 
 ```swift
-// ✅ iOS 17+ 推荐
+// ✅ 推荐 - @Observable 宏
 @MainActor
 @Observable
 final class DashboardViewModel {
-    var items: [ReviewItem] = []
-    var isLoading = false
+    var items: [ReviewItem] = []      // 自动追踪变化
+    var isLoading = false             // 无需 @Published
 }
 
-// ❌ 旧方式 - 仍可用但不推荐
+// ❌ 已淘汰 - ObservableObject 协议
 class DashboardViewModel: ObservableObject {
     @Published var items: [ReviewItem] = []
     @Published var isLoading = false
 }
 ```
+
+**`@Observable` 优势：**
+- 更精细的属性级别追踪（非整体对象）
+- 更少的内存开销和更高的性能
+- 无需 `@Published`，代码更简洁
+- 与 Swift 6 并发模型完美配合
 
 ### 25. View 组合
 
