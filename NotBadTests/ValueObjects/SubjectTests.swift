@@ -35,7 +35,128 @@ struct SubjectTests {
         #expect(Subject.allCases.count == 14)
     }
     
+    // MARK: - 显示属性测试
+    
+    @Test("shortLabel 为单字")
+    func shortLabelIsSingleChar() {
+        for subject in Subject.allCases {
+            #expect(subject.shortLabel.count == 1)
+        }
+        
+        #expect(Subject.math.shortLabel == "数")
+        #expect(Subject.physics.shortLabel == "物")
+        #expect(Subject.chinese.shortLabel == "语")
+    }
+    
     // MARK: - 分类测试
+    
+    @Test("SubjectCategory 有5种分类")
+    func categoryCount() {
+        #expect(SubjectCategory.allCases.count == 5)
+    }
+    
+    @Test("SubjectCategory 显示属性正确")
+    func categoryDisplayProperties() {
+        for category in SubjectCategory.allCases {
+            #expect(!category.displayName.isEmpty)
+            #expect(!category.icon.isEmpty)
+            _ = category.color
+        }
+    }
+    
+    @Test("学科分类正确")
+    func subjectCategoryMapping() {
+        // 语言类
+        #expect(Subject.chinese.category == .language)
+        #expect(Subject.english.category == .language)
+        
+        // 理科类
+        #expect(Subject.math.category == .science)
+        #expect(Subject.physics.category == .science)
+        #expect(Subject.chemistry.category == .science)
+        #expect(Subject.biology.category == .science)
+        #expect(Subject.science.category == .science)
+        
+        // 人文类
+        #expect(Subject.history.category == .humanities)
+        #expect(Subject.geography.category == .humanities)
+        #expect(Subject.politics.category == .humanities)
+        #expect(Subject.ethics.category == .humanities)
+        
+        // 技术类
+        #expect(Subject.informationTech.category == .technology)
+        #expect(Subject.generalTech.category == .technology)
+        
+        // 其他
+        #expect(Subject.other.category == .other)
+    }
+    
+    @Test("subjects(in:) 返回正确学科")
+    func subjectsInCategory() {
+        let language = Subject.subjects(in: .language)
+        #expect(language.count == 2)
+        #expect(language.contains(.chinese))
+        #expect(language.contains(.english))
+        
+        let science = Subject.subjects(in: .science)
+        #expect(science.count == 5)
+        
+        let humanities = Subject.subjects(in: .humanities)
+        #expect(humanities.count == 4)
+    }
+    
+    // MARK: - 学段适用性测试
+    
+    @Test("主科适用所有学段")
+    func coreSubjectsApplicableAllStages() {
+        for subject in Subject.coreSubjects {
+            #expect(subject.isApplicable(for: .primary))
+            #expect(subject.isApplicable(for: .junior))
+            #expect(subject.isApplicable(for: .senior))
+        }
+    }
+    
+    @Test("物理化学适用初中高中")
+    func physicsChemistryApplicableJuniorSenior() {
+        #expect(Subject.physics.isApplicable(for: .primary) == false)
+        #expect(Subject.physics.isApplicable(for: .junior) == true)
+        #expect(Subject.physics.isApplicable(for: .senior) == true)
+        
+        #expect(Subject.chemistry.isApplicable(for: .primary) == false)
+        #expect(Subject.chemistry.isApplicable(for: .junior) == true)
+        #expect(Subject.chemistry.isApplicable(for: .senior) == true)
+    }
+    
+    @Test("生物仅适用高中")
+    func biologyOnlySenior() {
+        #expect(Subject.biology.isApplicable(for: .primary) == false)
+        #expect(Subject.biology.isApplicable(for: .junior) == false)
+        #expect(Subject.biology.isApplicable(for: .senior) == true)
+    }
+    
+    @Test("科学适用小学初中")
+    func scienceApplicablePrimaryJunior() {
+        #expect(Subject.science.isApplicable(for: .primary) == true)
+        #expect(Subject.science.isApplicable(for: .junior) == true)
+        #expect(Subject.science.isApplicable(for: .senior) == false)
+    }
+    
+    @Test("subjects(for:) 返回正确学科")
+    func subjectsForStage() {
+        let primary = Subject.subjects(for: .primary)
+        #expect(primary.contains(.chinese))
+        #expect(primary.contains(.math))
+        #expect(primary.contains(.science))
+        #expect(!primary.contains(.physics))
+        #expect(!primary.contains(.biology))
+        
+        let senior = Subject.subjects(for: .senior)
+        #expect(senior.contains(.biology))
+        #expect(senior.contains(.physics))
+        #expect(!senior.contains(.science))
+    }
+    
+    // MARK: - 静态集合测试
     
     @Test("主科分类正确")
     func coreSubjects() {
@@ -64,6 +185,24 @@ struct SubjectTests {
         #expect(senior.contains(.biology))
     }
     
+    @Test("理科组合正确")
+    func scienceCombo() {
+        let combo = Subject.scienceCombo
+        #expect(combo.count == 3)
+        #expect(combo.contains(.physics))
+        #expect(combo.contains(.chemistry))
+        #expect(combo.contains(.biology))
+    }
+    
+    @Test("文科组合正确")
+    func artsCombo() {
+        let combo = Subject.artsCombo
+        #expect(combo.count == 3)
+        #expect(combo.contains(.history))
+        #expect(combo.contains(.geography))
+        #expect(combo.contains(.politics))
+    }
+    
     // MARK: - 颜色测试
     
     @Test("每个学科都有独特的颜色")
@@ -71,10 +210,8 @@ struct SubjectTests {
         var colors: [Color] = []
         for subject in Subject.allCases {
             let color = subject.color
-            // 注意：Color 比较可能不完全准确，但至少验证不会崩溃
             colors.append(color)
         }
-        // 至少有 10 种颜色
         #expect(colors.count == Subject.allCases.count)
     }
     
@@ -97,5 +234,14 @@ struct SubjectTests {
         #expect(Subject.math.rawValue == "数学")
         #expect(Subject.chinese.rawValue == "语文")
         #expect(Subject(rawValue: "物理") == .physics)
+    }
+    
+    // MARK: - 描述测试
+    
+    @Test("description 等于 displayName")
+    func descriptionEqualsDisplayName() {
+        for subject in Subject.allCases {
+            #expect(subject.description == subject.displayName)
+        }
     }
 }
