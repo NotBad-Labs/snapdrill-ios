@@ -959,10 +959,11 @@ final class DashboardViewModel {
         
         let stats = calculateStatistics()
         _statisticsCache = stats
-                _lastCacheTime = Date()
+        _lastCacheTime = Date()
         return stats
     }
 }
+```
 
 ---
 
@@ -1068,11 +1069,6 @@ actor CacheManager {
         // ... implementation
     }
 }
-```
-
----
-
-## 速查表
 ```
 
 ---
