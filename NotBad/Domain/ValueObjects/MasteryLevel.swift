@@ -100,11 +100,11 @@ extension MasteryLevel {
     /// 主题颜色（红→橙→黄→薄荷→绿 渐进）
     nonisolated var color: Color {
         switch self {
-        case .none: .red
-        case .glimpse: .orange
+        case .none: Color.brand.error
+        case .glimpse: Color.brand.warning
         case .partial: .yellow
         case .good: .mint
-        case .mastered: .green
+        case .mastered: Color.brand.success
         }
     }
     

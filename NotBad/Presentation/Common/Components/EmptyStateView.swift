@@ -60,22 +60,25 @@ struct EmptyStateView: View {
     /// 是否显示动画
     var animated: Bool = true
     
+    /// 支持 Dynamic Type 的图标尺寸
+    @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 64
+    
     // MARK: - Body
     
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: DesignTokens.Spacing.xl) {
             iconView
             textContent
             actionButton
         }
-        .padding(40)
+        .padding(DesignTokens.Spacing.xxl + DesignTokens.Spacing.sm)
     }
     
     // MARK: - Subviews
     
     private var iconView: some View {
         Image(systemName: icon)
-            .font(.system(size: 64))
+            .font(.system(size: iconSize))
             .foregroundStyle(
                 LinearGradient(
                     colors: [.gray.opacity(0.6), .gray.opacity(0.3)],
@@ -84,10 +87,11 @@ struct EmptyStateView: View {
                 )
             )
             .symbolEffect(.pulse, isActive: animated)
+            .accessibleDecorative()
     }
     
     private var textContent: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: DesignTokens.Spacing.sm) {
             Text(title)
                 .font(.title2)
                 .fontWeight(.semibold)
@@ -105,12 +109,13 @@ struct EmptyStateView: View {
             Button(action: action) {
                 Text(actionTitle)
                     .fontWeight(.semibold)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
-                    .background(Color.accentColor)
+                    .padding(.horizontal, DesignTokens.Spacing.xl)
+                    .padding(.vertical, DesignTokens.Spacing.md)
+                    .background(Color.brand.primary)
                     .foregroundStyle(.white)
                     .clipShape(Capsule())
             }
+            .accessibleButton(actionTitle)
         }
     }
 }

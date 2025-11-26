@@ -36,7 +36,7 @@ struct InfoCard<Content: View>: View {
     // MARK: - Body
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             Label(title, systemImage: icon)
                 .font(.subheadline)
                 .fontWeight(.medium)
@@ -45,9 +45,9 @@ struct InfoCard<Content: View>: View {
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.background.secondary)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .padding(DesignTokens.Spacing.lg)
+        .background(Color.semantic.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
     }
 }
 

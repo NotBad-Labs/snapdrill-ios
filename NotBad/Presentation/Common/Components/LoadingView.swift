@@ -60,7 +60,7 @@ struct LoadingOverlay: View {
             Color.black.opacity(backgroundOpacity)
                 .ignoresSafeArea()
             
-            VStack(spacing: 16) {
+            VStack(spacing: DesignTokens.Spacing.lg) {
                 ProgressView()
                     .scaleEffect(1.5)
                     .tint(.white)
@@ -73,12 +73,12 @@ struct LoadingOverlay: View {
                     Button("取消", action: onCancel)
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.8))
-                        .padding(.top, 8)
+                        .padding(.top, DesignTokens.Spacing.sm)
                 }
             }
-            .padding(32)
+            .padding(DesignTokens.Spacing.xxl)
             .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
         }
     }
 }
@@ -116,14 +116,14 @@ struct InlineLoader: View {
     // MARK: - Body
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignTokens.Spacing.md) {
             ProgressView()
                 .scaleEffect(scale)
             Text(message)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
-        .padding()
+        .padding(DesignTokens.Spacing.lg)
     }
 }
 

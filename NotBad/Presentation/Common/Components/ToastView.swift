@@ -36,10 +36,10 @@ enum ToastType: Sendable {
     /// 颜色
     var color: Color {
         switch self {
-        case .success: .green
-        case .error: .red
-        case .warning: .orange
-        case .info: .blue
+        case .success: Color.brand.success
+        case .error: Color.brand.error
+        case .warning: Color.brand.warning
+        case .info: Color.brand.primary
         }
     }
     

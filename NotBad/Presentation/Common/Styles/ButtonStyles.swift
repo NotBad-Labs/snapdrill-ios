@@ -187,10 +187,8 @@ struct IconButtonStyle: ButtonStyle {
     
     private func backgroundColor(isPressed: Bool) -> Color {
         guard hasBackground else { return .clear }
-        return configuration.isPressed ? Color.brand.primary.opacity(0.15) : Color.brand.primary.opacity(0.1)
+        return isPressed ? Color.brand.primary.opacity(0.15) : Color.brand.primary.opacity(0.1)
     }
-    
-    private var configuration: ButtonStyle.Configuration { fatalError() }
 }
 
 // MARK: - ButtonSize
