@@ -50,7 +50,7 @@ struct CaptureView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: DesignTokens.Spacing.xl) {
                     imageSelectionSection
                     
                     if viewModel.selectedUIImage != nil && viewModel.title.isEmpty {
@@ -112,12 +112,12 @@ struct CaptureView: View {
     }
     
     private func selectedImageView(_ image: Image) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: DesignTokens.Spacing.md) {
             image
                 .resizable()
                 .scaledToFit()
                 .frame(maxHeight: 300)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
                 .shadow(radius: 5)
             
             Button {
@@ -125,18 +125,18 @@ struct CaptureView: View {
             } label: {
                 Label("重新选择", systemImage: "arrow.clockwise")
                     .font(.caption)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(Color.brand.primary)
             }
         }
     }
     
     private var imageSourceButtons: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignTokens.Spacing.lg) {
             // 拍照按钮
             SourceButton(
                 icon: "camera.fill",
                 title: "拍照录入",
-                color: .blue
+                color: Color.brand.primary
             ) {
                 viewModel.showCamera = true
             }
@@ -147,7 +147,7 @@ struct CaptureView: View {
                     icon: "doc.viewfinder",
                     title: "实时扫描题干",
                     subtitle: "无需拍照，直接提取文字",
-                    color: .purple
+                    color: Color.brand.secondary
                 ) {
                     viewModel.showLiveScanner = true
                 }
@@ -158,7 +158,7 @@ struct CaptureView: View {
                 SourceButtonContent(
                     icon: "photo.on.rectangle",
                     title: "从相册选择",
-                    color: .green
+                    color: Color.brand.success
                 )
             }
         }
@@ -184,9 +184,9 @@ struct CaptureView: View {
             }
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Color.orange)
+            .background(Color.brand.warning)
             .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
         }
         .disabled(viewModel.isRecognizingText)
     }
@@ -194,7 +194,7 @@ struct CaptureView: View {
     // MARK: - Input Section
     
     private var inputSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
             titleField
             subjectAndGradeRow
             knowledgePointsField
@@ -203,7 +203,7 @@ struct CaptureView: View {
     }
     
     private var titleField: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             Text("标题")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -214,8 +214,8 @@ struct CaptureView: View {
     }
     
     private var subjectAndGradeRow: some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
+        HStack(spacing: DesignTokens.Spacing.lg) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 Text("学科")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -226,11 +226,11 @@ struct CaptureView: View {
                 }
                 .pickerStyle(.menu)
                 .frame(maxWidth: .infinity)
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .background(Color.semantic.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm))
             }
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                 Text("年级")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -241,14 +241,14 @@ struct CaptureView: View {
                 }
                 .pickerStyle(.menu)
                 .frame(maxWidth: .infinity)
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .background(Color.semantic.secondaryBackground)
+                .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm))
             }
         }
     }
     
     private var knowledgePointsField: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             Text("知识点标签")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -258,7 +258,7 @@ struct CaptureView: View {
     }
     
     private var noteField: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             Text("备注")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -285,9 +285,9 @@ struct CaptureView: View {
             }
             .frame(maxWidth: .infinity)
             .padding()
-            .background(viewModel.isValid ? Color.blue : Color.gray.opacity(0.3))
+            .background(viewModel.isValid ? Color.brand.primary : Color.semantic.separator)
             .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
         }
         .disabled(!viewModel.isValid || viewModel.isSaving)
     }
@@ -330,7 +330,7 @@ private struct SourceButtonContent: View {
     let color: Color
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: DesignTokens.Spacing.md) {
             Image(systemName: icon)
                 .font(.system(size: 40))
                 .foregroundStyle(color)
@@ -346,7 +346,7 @@ private struct SourceButtonContent: View {
         .frame(maxWidth: .infinity)
         .frame(height: subtitle != nil ? 120 : 100)
         .background(color.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
     }
 }
 

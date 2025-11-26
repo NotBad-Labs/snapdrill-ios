@@ -145,7 +145,7 @@ struct ToastView: View {
     // MARK: - Body
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignTokens.Spacing.md) {
             Image(systemName: toast.type.icon)
                 .font(.title3)
                 .foregroundStyle(toast.type.color)
@@ -167,10 +167,10 @@ struct ToastView: View {
                 }
             }
         }
-        .padding()
+        .padding(DesignTokens.Spacing.lg)
         .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
+        .shadow(DesignTokens.Shadow.medium)
         .padding(.horizontal)
     }
 }

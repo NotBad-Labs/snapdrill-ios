@@ -50,7 +50,7 @@ struct ReviewCard: View {
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: DesignTokens.Spacing.xl) {
                     headerSection
                     imageSection
                     titleSection
@@ -66,7 +66,7 @@ struct ReviewCard: View {
                 onMastered: onMastered
             )
         }
-        .background(Color(uiColor: .systemBackground))
+        .background(Color.semantic.background)
     }
 }
 
@@ -101,14 +101,14 @@ extension ReviewCard {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFit()
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+                .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
+                .shadow(DesignTokens.Shadow.medium)
         }
     }
     
     /// 标题区域
     var titleSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             Text("题目")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -124,16 +124,16 @@ extension ReviewCard {
     @ViewBuilder
     var answerSection: some View {
         if !item.note.isEmpty {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 answerToggleButton
                 
                 if showAnswer {
                     Text(item.note)
                         .font(.body)
-                        .padding()
+                        .padding(DesignTokens.Spacing.lg)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.background.secondary)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .background(Color.semantic.secondaryBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
                         .transition(.scale.combined(with: .opacity))
                 }
             }
@@ -143,7 +143,7 @@ extension ReviewCard {
     /// 答案显示/隐藏按钮
     var answerToggleButton: some View {
         Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            withAnimation(DesignTokens.Animation.spring) {
                 showAnswer.toggle()
             }
         } label: {
@@ -155,17 +155,17 @@ extension ReviewCard {
                 Image(systemName: "chevron.down")
                     .rotationEffect(.degrees(showAnswer ? 180 : 0))
             }
-            .padding()
-            .background(.orange.opacity(0.1))
-            .foregroundStyle(.orange)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(DesignTokens.Spacing.lg)
+            .background(Color.brand.warning.opacity(0.1))
+            .foregroundStyle(Color.brand.warning)
+            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
         }
         .accessibilityLabel(showAnswer ? "隐藏答案" : "查看答案")
     }
     
     /// 元数据区域
     var metadataSection: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: DesignTokens.Spacing.md) {
             if !item.knowledgePoints.isEmpty {
                 HStack {
                     Image(systemName: "lightbulb.fill")
@@ -203,36 +203,36 @@ struct ActionButtons: View {
     let onMastered: () -> Void
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: DesignTokens.Spacing.md) {
             Text("这道题你掌握了吗？")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
-            HStack(spacing: 12) {
+            HStack(spacing: DesignTokens.Spacing.md) {
                 MasteryButton(
                     icon: "xmark.circle.fill",
                     title: "不会",
-                    color: .red,
+                    color: Color.brand.error,
                     action: onFailed
                 )
                 
                 MasteryButton(
                     icon: "questionmark.circle.fill",
                     title: "模糊",
-                    color: .orange,
+                    color: Color.brand.warning,
                     action: onUnclear
                 )
                 
                 MasteryButton(
                     icon: "checkmark.seal.fill",
                     title: "掌握",
-                    color: .green,
+                    color: Color.brand.success,
                     action: onMastered
                 )
             }
         }
-        .padding()
-        .background(.background.secondary)
+        .padding(DesignTokens.Spacing.lg)
+        .background(Color.semantic.secondaryBackground)
     }
 }
 
@@ -248,7 +248,7 @@ struct MasteryButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            VStack(spacing: DesignTokens.Spacing.sm) {
                 Image(systemName: icon)
                     .font(.title2)
                 Text(title)
@@ -256,13 +256,12 @@ struct MasteryButton: View {
                     .fontWeight(.medium)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
+            .padding(.vertical, DesignTokens.Spacing.lg)
             .background(color.opacity(0.1))
             .foregroundStyle(color)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
         }
-        .accessibilityLabel(title)
-        .accessibilityHint("点击标记为\(title)")
+        .accessibleButton(title, hint: "点击标记为\(title)")
     }
 }
 

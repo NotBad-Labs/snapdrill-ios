@@ -64,9 +64,9 @@ struct MasteryLevelTests {
     
     @Test("所有等级都有颜色")
     func allLevelsHaveColors() {
-        // 验证颜色渐进：红 → 绿
-        #expect(MasteryLevel.none.color == .red)
-        #expect(MasteryLevel.mastered.color == .green)
+        // 验证颜色渐进：品牌错误色 → 品牌成功色
+        #expect(MasteryLevel.none.color == Color.brand.error)
+        #expect(MasteryLevel.mastered.color == Color.brand.success)
         
         for level in MasteryLevel.allCases {
             _ = level.color
