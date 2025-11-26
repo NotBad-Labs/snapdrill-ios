@@ -1050,4 +1050,4 @@ struct MyTests {
 ---
 
 *最后更新：2025年11月26日*
-*适用版本：Swift 6.2 / iOS 26 / Xcode 16*
+*适用版本：Swift 6.2.1 / iOS 26.1 / Xcode 26.1.1*
