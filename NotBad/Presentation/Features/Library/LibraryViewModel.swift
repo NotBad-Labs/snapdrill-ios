@@ -50,6 +50,12 @@ final class LibraryViewModel {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
+    /// 高级搜索条件
+    var advancedCriteria = SearchCriteria()
+    
+    /// 是否显示高级搜索
+    var showAdvancedSearch = false
+    
     // MARK: - Filter State
     
     /// 选中的学科
@@ -73,7 +79,20 @@ final class LibraryViewModel {
         selectedMastery != nil ||
         selectedDifficulty != nil ||
         selectedSource != nil ||
-        showPendingReviewOnly
+        showPendingReviewOnly ||
+        advancedCriteria.hasActiveFilters
+    }
+    
+    /// 活跃筛选条件数量
+    var activeFilterCount: Int {
+        var count = 0
+        if selectedSubject != nil { count += 1 }
+        if selectedMastery != nil { count += 1 }
+        if selectedDifficulty != nil { count += 1 }
+        if selectedSource != nil { count += 1 }
+        if showPendingReviewOnly { count += 1 }
+        count += advancedCriteria.activeFilterCount
+        return count
     }
     
     // MARK: - Sort State
@@ -151,6 +170,11 @@ final class LibraryViewModel {
             result = result.filter { $0.needsReview }
         }
         
+        // 高级搜索条件筛选
+        if advancedCriteria.hasActiveFilters {
+            result = advancedCriteria.filter(result)
+        }
+        
         // 排序
         result = sortItems(result)
         
@@ -207,6 +231,7 @@ final class LibraryViewModel {
         selectedSource = nil
         showPendingReviewOnly = false
         searchText = ""
+        advancedCriteria = SearchCriteria()
     }
     
     // MARK: - Selection Actions

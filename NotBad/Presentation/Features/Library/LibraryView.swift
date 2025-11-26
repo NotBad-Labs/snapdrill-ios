@@ -65,6 +65,18 @@ struct LibraryView: View {
             }
             .navigationTitle("题库")
             .searchable(text: $viewModel.searchText, prompt: "搜索标题或知识点")
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    advancedSearchButton
+                }
+                
+                ToolbarItem(placement: .secondaryAction) {
+                    sortMenuButton
+                }
+            }
+            .sheet(isPresented: $viewModel.showAdvancedSearch) {
+                AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
+            }
             .onAppear {
                 viewModel.configure(with: modelContext)
                 #if DEBUG
@@ -81,6 +93,49 @@ struct LibraryView: View {
 // MARK: - Subviews
 
 private extension LibraryView {
+    
+    /// 高级搜索按钮
+    var advancedSearchButton: some View {
+        Button {
+            viewModel.showAdvancedSearch = true
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "slider.horizontal.3")
+                
+                if viewModel.advancedCriteria.hasActiveFilters {
+                    Circle()
+                        .fill(Color.brand.primary)
+                        .frame(width: 8, height: 8)
+                        .offset(x: 2, y: -2)
+                }
+            }
+        }
+        .accessibilityLabel("高级搜索")
+        .accessibilityHint(viewModel.advancedCriteria.hasActiveFilters ? "有 \(viewModel.advancedCriteria.activeFilterCount) 个筛选条件" : "打开高级搜索")
+    }
+    
+    /// 排序菜单按钮
+    var sortMenuButton: some View {
+        Menu {
+            ForEach(SortOption.allCases) { option in
+                Button {
+                    withAnimation {
+                        viewModel.sortOption = option
+                    }
+                } label: {
+                    HStack {
+                        Image(systemName: option.icon)
+                        Text(option.displayName)
+                        if viewModel.sortOption == option {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        } label: {
+            Label("排序", systemImage: "arrow.up.arrow.down")
+        }
+    }
     
     /// 内容视图
     @ViewBuilder

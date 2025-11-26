@@ -68,14 +68,25 @@ enum Tab: Int, CaseIterable, Identifiable, Sendable {
 /// 5. **我的** - 个人中心和设置
 struct MainTabView: View {
     
+    // MARK: - Bindings
+    
+    /// 外部 Tab 选择绑定（用于 Deep Link）
+    @Binding var selectedTab: Int
+    
     // MARK: - State
     
-    @State private var selectedTab: Tab = .dashboard
+    @State private var currentTab: Tab = .dashboard
+    
+    // MARK: - Init
+    
+    init(selectedTab: Binding<Int> = .constant(0)) {
+        _selectedTab = selectedTab
+    }
     
     // MARK: - Body
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $currentTab) {
             ForEach(Tab.allCases) { tab in
                 tabContent(for: tab)
                     .tabItem {
@@ -85,6 +96,14 @@ struct MainTabView: View {
             }
         }
         .tint(Color.brand.primary)
+        .onChange(of: selectedTab) { _, newValue in
+            if let tab = Tab(rawValue: newValue) {
+                currentTab = tab
+            }
+        }
+        .onChange(of: currentTab) { _, newValue in
+            selectedTab = newValue.rawValue
+        }
     }
     
     // MARK: - Tab Content
@@ -108,7 +127,7 @@ struct MainTabView: View {
     // MARK: - Tab Label
     
     private func tabLabel(for tab: Tab) -> some View {
-        let isSelected = selectedTab == tab
+        let isSelected = currentTab == tab
         
         return Label {
             Text(tab.title)

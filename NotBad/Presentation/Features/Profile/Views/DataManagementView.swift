@@ -28,6 +28,9 @@ struct DataManagementView: View {
     @State private var showSuccessToast = false
     @State private var toastMessage = ""
     @State private var exportedFileURL: URL?
+    @State private var isExporting = false
+    @State private var exportProgress: Double = 0
+    @State private var showImportPicker = false
     
     // MARK: - Body
     
@@ -35,6 +38,7 @@ struct DataManagementView: View {
         List {
             storageSection
             exportSection
+            importSection
             dangerZoneSection
         }
         .navigationTitle("数据管理")
@@ -43,6 +47,13 @@ struct DataManagementView: View {
             if let url = exportedFileURL {
                 ShareSheet(activityItems: [url])
             }
+        }
+        .fileImporter(
+            isPresented: $showImportPicker,
+            allowedContentTypes: [.json, .zip],
+            allowsMultipleSelection: false
+        ) { result in
+            handleImport(result)
         }
         .alert("确认清空所有数据？", isPresented: $showDeleteAlert) {
             Button("取消", role: .cancel) { }
@@ -111,7 +122,7 @@ struct DataManagementView: View {
                         .foregroundStyle(Color.brand.primary)
                 }
             }
-            .disabled(allItems.isEmpty)
+            .disabled(allItems.isEmpty || isExporting)
             
             Button {
                 exportToCSV()
@@ -128,7 +139,55 @@ struct DataManagementView: View {
                         .foregroundStyle(Color.brand.success)
                 }
             }
-            .disabled(allItems.isEmpty)
+            .disabled(allItems.isEmpty || isExporting)
+            
+            Button {
+                Task {
+                    await exportFullBackup()
+                }
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                        HStack {
+                            Text("完整备份")
+                            if isExporting {
+                                ProgressView()
+                                    .scaleEffect(0.8)
+                            }
+                        }
+                        Text("导出所有数据和图片（ZIP格式）")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "archivebox.fill")
+                        .foregroundStyle(Color.brand.warning)
+                }
+            }
+            .disabled(allItems.isEmpty || isExporting)
+        }
+    }
+    
+    // MARK: - Import Section
+    
+    private var importSection: some View {
+        Section("数据导入") {
+            Button {
+                showImportPicker = true
+            } label: {
+                Label {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                        Text("从备份恢复")
+                        Text("导入 JSON 或 ZIP 备份文件")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: "square.and.arrow.down.fill")
+                        .foregroundStyle(Color.brand.secondary)
+                }
+            }
+            .disabled(isExporting)
         }
     }
     
@@ -263,6 +322,248 @@ struct DataManagementView: View {
             showSuccessToast = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 showSuccessToast = false
+            }
+        }
+    }
+    
+    // MARK: - Full Backup Export
+    
+    private func exportFullBackup() async {
+        await MainActor.run {
+            isExporting = true
+            exportProgress = 0
+        }
+        
+        do {
+            // 创建临时目录
+            let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("notbad_backup_\(UUID().uuidString)")
+            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+            
+            // 创建图片目录
+            let imagesDir = tempDir.appendingPathComponent("images")
+            try FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
+            
+            // 导出数据和图片
+            var exportItems: [[String: Any]] = []
+            let totalItems = allItems.count
+            
+            for (index, item) in allItems.enumerated() {
+                var dict: [String: Any] = [
+                    "id": item.id.uuidString,
+                    "title": item.title,
+                    "note": item.note,
+                    "subject": item.subject.rawValue,
+                    "questionType": item.questionType.rawValue,
+                    "difficulty": item.difficulty.rawValue,
+                    "source": item.source.rawValue,
+                    "grade": item.grade.rawValue,
+                    "masteryLevel": item.masteryLevel,
+                    "reviewCount": item.reviewCount,
+                    "createdAt": ISO8601DateFormatter().string(from: item.createdAt),
+                    "updatedAt": ISO8601DateFormatter().string(from: item.updatedAt),
+                    "knowledgePoints": item.knowledgePoints.rawValue,
+                    "nextReviewDate": ISO8601DateFormatter().string(from: item.nextReviewDate),
+                    "errorType": item.errorType.rawValue
+                ]
+                
+                // 导出图片
+                if let imageData = item.imageData {
+                    let imageName = "\(item.id.uuidString).jpg"
+                    let imageURL = imagesDir.appendingPathComponent(imageName)
+                    try imageData.write(to: imageURL)
+                    dict["imageName"] = imageName
+                }
+                
+                exportItems.append(dict)
+                
+                await MainActor.run {
+                    exportProgress = Double(index + 1) / Double(totalItems)
+                }
+            }
+            
+            // 写入 JSON 文件
+            let jsonData = try JSONSerialization.data(withJSONObject: exportItems, options: [.prettyPrinted, .sortedKeys])
+            let jsonURL = tempDir.appendingPathComponent("data.json")
+            try jsonData.write(to: jsonURL)
+            
+            // 写入元数据
+            let metadata: [String: Any] = [
+                "version": "1.0",
+                "exportDate": ISO8601DateFormatter().string(from: Date()),
+                "itemCount": allItems.count,
+                "imageCount": imageCount,
+                "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+            ]
+            let metadataData = try JSONSerialization.data(withJSONObject: metadata, options: .prettyPrinted)
+            let metadataURL = tempDir.appendingPathComponent("metadata.json")
+            try metadataData.write(to: metadataURL)
+            
+            // 创建 ZIP 文件
+            let zipURL = FileManager.default.temporaryDirectory.appendingPathComponent("notbad_backup_\(dateString()).zip")
+            try await createZipFile(from: tempDir, to: zipURL)
+            
+            // 清理临时目录
+            try? FileManager.default.removeItem(at: tempDir)
+            
+            await MainActor.run {
+                exportedFileURL = zipURL
+                isExporting = false
+                showExportSheet = true
+            }
+        } catch {
+            await MainActor.run {
+                isExporting = false
+                toastMessage = "备份失败: \(error.localizedDescription)"
+                showSuccessToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    showSuccessToast = false
+                }
+            }
+        }
+    }
+    
+    private func createZipFile(from sourceDir: URL, to destinationURL: URL) async throws {
+        let coordinator = NSFileCoordinator()
+        var error: NSError?
+        
+        coordinator.coordinate(readingItemAt: sourceDir, options: .forUploading, error: &error) { zipURL in
+            try? FileManager.default.copyItem(at: zipURL, to: destinationURL)
+        }
+        
+        if let error = error {
+            throw error
+        }
+    }
+    
+    private func dateString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd_HHmmss"
+        return formatter.string(from: Date())
+    }
+    
+    // MARK: - Import
+    
+    private func handleImport(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            
+            Task {
+                await importData(from: url)
+            }
+            
+        case .failure(let error):
+            toastMessage = "导入失败: \(error.localizedDescription)"
+            showSuccessToast = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                showSuccessToast = false
+            }
+        }
+    }
+    
+    private func importData(from url: URL) async {
+        guard url.startAccessingSecurityScopedResource() else {
+            await MainActor.run {
+                toastMessage = "无法访问文件"
+                showSuccessToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    showSuccessToast = false
+                }
+            }
+            return
+        }
+        
+        defer {
+            url.stopAccessingSecurityScopedResource()
+        }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            
+            // 尝试解析 JSON
+            if let items = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+                await importItems(items, imagesDir: nil)
+            } else {
+                await MainActor.run {
+                    toastMessage = "文件格式不支持"
+                    showSuccessToast = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        showSuccessToast = false
+                    }
+                }
+            }
+        } catch {
+            await MainActor.run {
+                toastMessage = "导入失败: \(error.localizedDescription)"
+                showSuccessToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    showSuccessToast = false
+                }
+            }
+        }
+    }
+    
+    private func importItems(_ items: [[String: Any]], imagesDir: URL?) async {
+        var importedCount = 0
+        
+        for itemDict in items {
+            guard let title = itemDict["title"] as? String else { continue }
+            
+            let item = ReviewItem(
+                imageData: nil,
+                title: title,
+                note: itemDict["note"] as? String ?? "",
+                subject: Subject(rawValue: itemDict["subject"] as? String ?? "") ?? .other,
+                grade: Grade(rawValue: itemDict["grade"] as? String ?? "") ?? .grade10,
+                knowledgePoints: KnowledgePoints(from: itemDict["knowledgePoints"] as? String ?? "")
+            )
+            
+            // 设置其他属性
+            if let difficultyRaw = itemDict["difficulty"] as? Int {
+                item.difficulty = Difficulty(rawValue: difficultyRaw) ?? .medium
+            }
+            if let sourceRaw = itemDict["source"] as? String {
+                item.source = Source(rawValue: sourceRaw) ?? .other
+            }
+            if let questionTypeRaw = itemDict["questionType"] as? String {
+                item.questionType = ReviewItemType(rawValue: questionTypeRaw) ?? .other
+            }
+            if let masteryLevel = itemDict["masteryLevel"] as? Int {
+                item.masteryLevel = masteryLevel
+            }
+            if let reviewCount = itemDict["reviewCount"] as? Int {
+                item.reviewCount = reviewCount
+            }
+            
+            // 导入图片
+            if let imageName = itemDict["imageName"] as? String,
+               let imagesDir = imagesDir {
+                let imageURL = imagesDir.appendingPathComponent(imageName)
+                if let imageData = try? Data(contentsOf: imageURL) {
+                    item.imageData = imageData
+                }
+            }
+            
+            await MainActor.run {
+                modelContext.insert(item)
+            }
+            importedCount += 1
+        }
+        
+        await MainActor.run {
+            do {
+                try modelContext.save()
+                toastMessage = "成功导入 \(importedCount) 道错题"
+                showSuccessToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    showSuccessToast = false
+                }
+            } catch {
+                toastMessage = "保存失败"
+                showSuccessToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    showSuccessToast = false
+                }
             }
         }
     }

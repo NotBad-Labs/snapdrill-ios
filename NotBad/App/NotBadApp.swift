@@ -17,6 +17,9 @@ struct NotBadApp: App {
     /// 模型容器（带迁移计划）
     let modelContainer: ModelContainer
     
+    /// Deep Link 导航状态
+    @State private var selectedTab: Int = 0
+    
     init() {
         do {
             let schema = Schema([ReviewItem.self])
@@ -55,8 +58,62 @@ struct NotBadApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainTabView()
+            MainTabView(selectedTab: $selectedTab)
+                .onOpenURL { url in
+                    handleDeepLink(url)
+                }
+                .task {
+                    await syncWidgetData()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .reviewItemsDidChange)) { _ in
+                    Task {
+                        await syncWidgetData()
+                    }
+                }
         }
         .modelContainer(modelContainer)
+    }
+    
+    // MARK: - Deep Link Handling
+    
+    /// 处理来自 Widget 的 Deep Link
+    private func handleDeepLink(_ url: URL) {
+        guard url.scheme == "notbad" else { return }
+        
+        switch url.host {
+        case "review":
+            // 导航到复习页面
+            selectedTab = 1
+        case "library":
+            // 导航到错题库
+            selectedTab = 2
+        case "capture":
+            // 导航到拍照
+            selectedTab = 0
+        default:
+            break
+        }
+        
+        #if DEBUG
+        print("[App] Deep link handled: \(url)")
+        #endif
+    }
+    
+    // MARK: - Widget Data Sync
+    
+    /// 同步数据到 Widget
+    @MainActor
+    private func syncWidgetData() async {
+        let context = modelContainer.mainContext
+        let descriptor = FetchDescriptor<ReviewItem>()
+        
+        do {
+            let items = try context.fetch(descriptor)
+            items.syncToWidget()
+        } catch {
+            #if DEBUG
+            print("[App] Failed to sync widget data: \(error)")
+            #endif
+        }
     }
 }

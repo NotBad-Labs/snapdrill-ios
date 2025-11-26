@@ -63,6 +63,11 @@ extension Notification.Name {
     /// `userInfo` 包含 `count` (Int) 表示删除数量
     static let reviewItemsBatchDeleted = Notification.Name("notbad.reviewItem.batchDeleted")
     
+    /// 错题数据已变更（用于 Widget 同步）
+    ///
+    /// 触发 Widget 数据刷新
+    static let reviewItemsDidChange = Notification.Name("notbad.reviewItem.didChange")
+    
     // MARK: - Review Session Events
     
     /// 复习会话开始
