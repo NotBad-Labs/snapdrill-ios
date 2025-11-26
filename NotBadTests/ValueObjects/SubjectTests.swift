@@ -127,10 +127,10 @@ struct SubjectTests {
         #expect(Subject.chemistry.isApplicable(for: .senior) == true)
     }
     
-    @Test("生物仅适用高中")
-    func biologyOnlySenior() {
+    @Test("生物适用初中高中")
+    func biologyJuniorSenior() {
         #expect(Subject.biology.isApplicable(for: .primary) == false)
-        #expect(Subject.biology.isApplicable(for: .junior) == false)
+        #expect(Subject.biology.isApplicable(for: .junior) == true)
         #expect(Subject.biology.isApplicable(for: .senior) == true)
     }
     

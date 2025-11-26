@@ -246,8 +246,11 @@ extension Subject {
         // 初中+高中
         case .physics, .chemistry, .history, .geography, .politics:
             [.junior, .senior]
+        // 初中+高中
+        case .biology:
+            [.junior, .senior]
         // 仅高中
-        case .biology, .generalTech:
+        case .generalTech:
             [.senior]
         // 全学段（信息技术）
         case .informationTech, .other:

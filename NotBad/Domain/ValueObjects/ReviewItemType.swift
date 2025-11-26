@@ -331,9 +331,9 @@ extension ReviewItemType {
         case .multiChoice, .fillBlank, .matching: 2
         case .shortAnswer, .drawing: 5
         case .calculation, .experiment: 8
-        case .proof, .analysis: 10
-        case .reading, .cloze: 15
-        case .writing: 30
+        case .reading: 10
+        case .proof, .analysis, .cloze: 12
+        case .writing: 45
         case .other: 5
         }
     }

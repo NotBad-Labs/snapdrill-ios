@@ -295,12 +295,28 @@ struct ReviewItemTests {
         let item1 = ReviewItem()
         #expect(item1.isComplete == false)
         
+        // 有图片 + 知识点 = 完整
         let item2 = ReviewItem(
             imageData: Data([0x00]),
             title: "测试",
             knowledgePoints: KnowledgePoints(from: "知识点")
         )
         #expect(item2.isComplete == true)
+        
+        // 有笔记 + 知识点 = 也完整（无需图片）
+        let item3 = ReviewItem(
+            title: "测试",
+            note: "这是笔记内容",
+            knowledgePoints: KnowledgePoints(from: "知识点")
+        )
+        #expect(item3.isComplete == true)
+        
+        // 只有知识点，无图片无笔记 = 不完整
+        let item4 = ReviewItem(
+            title: "测试",
+            knowledgePoints: KnowledgePoints(from: "知识点")
+        )
+        #expect(item4.isComplete == false)
     }
     
     // MARK: - Comparable 测试

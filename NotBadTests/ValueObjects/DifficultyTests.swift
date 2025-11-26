@@ -101,15 +101,6 @@ struct DifficultyTests {
         #expect(Difficulty.extreme.coefficient == 1.0)
     }
     
-    @Test("reviewPriority 从1到5递增")
-    func reviewPriorityValues() {
-        #expect(Difficulty.basic.reviewPriority == 1)
-        #expect(Difficulty.easy.reviewPriority == 2)
-        #expect(Difficulty.medium.reviewPriority == 3)
-        #expect(Difficulty.hard.reviewPriority == 4)
-        #expect(Difficulty.extreme.reviewPriority == 5)
-    }
-    
     @Test("timeMultiplier 合理范围")
     func timeMultiplierValues() {
         #expect(Difficulty.basic.timeMultiplier == 0.5)

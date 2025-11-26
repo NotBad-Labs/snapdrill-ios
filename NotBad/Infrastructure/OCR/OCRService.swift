@@ -270,7 +270,7 @@ enum OCRError: LocalizedError, Sendable {
         case .invalidImage: "请选择 JPEG 或 PNG 格式的图片"
         case .recognitionFailed: "请确保图片清晰，光线充足"
         case .noTextFound: "请确保图片中包含文字内容"
-        case .timeout: "请检查网络连接后重试"
+        case .timeout: "图片过大或设备负载较高，请稍后重试"
         }
     }
 }

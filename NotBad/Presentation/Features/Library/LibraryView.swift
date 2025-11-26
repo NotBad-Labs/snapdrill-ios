@@ -67,6 +67,10 @@ struct LibraryView: View {
             .searchable(text: $viewModel.searchText, prompt: "搜索标题或知识点")
             .onAppear {
                 viewModel.configure(with: modelContext)
+                print("📚 [LibraryView] onAppear - 共 \(items.count) 条数据")
+                for item in items {
+                    print("  📝 \(item.id): \(item.title)")
+                }
             }
         }
     }

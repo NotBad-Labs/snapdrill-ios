@@ -95,25 +95,7 @@ struct MasteryLevelTests {
         }
     }
     
-    // MARK: - 复习间隔测试
-    
-    @Test("复习间隔天数正确")
-    func reviewIntervalDays() {
-        #expect(MasteryLevel.none.reviewIntervalDays == 0)      // 立即
-        #expect(MasteryLevel.glimpse.reviewIntervalDays == 1)   // 1天
-        #expect(MasteryLevel.partial.reviewIntervalDays == 3)   // 3天
-        #expect(MasteryLevel.good.reviewIntervalDays == 7)      // 7天
-        #expect(MasteryLevel.mastered.reviewIntervalDays == 14) // 14天
-    }
-    
-    @Test("复习间隔递增")
-    func reviewIntervalIncreasing() {
-        var previousInterval = -1
-        for level in MasteryLevel.allCases {
-            #expect(level.reviewIntervalDays > previousInterval)
-            previousInterval = level.reviewIntervalDays
-        }
-    }
+    // MARK: - 复习优先级测试
     
     @Test("reviewPriority 递减")
     func reviewPriorityDecreasing() {

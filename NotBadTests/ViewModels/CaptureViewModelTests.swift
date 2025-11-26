@@ -50,7 +50,7 @@ struct CaptureViewModelTests {
     
     // MARK: - 验证测试
     
-    @Test("isValid 无图片时为 false")
+    @Test("isValid 无图片且无识别文字时为 false")
     func isValidWithoutImage() {
         let viewModel = CaptureViewModel()
         viewModel.title = "测试标题"
@@ -66,12 +66,23 @@ struct CaptureViewModelTests {
         #expect(viewModel.isValid == false)
     }
     
-    @Test("isValid 完整数据时为 true")
+    @Test("isValid 有图片和标题时为 true")
     func isValidWithCompleteData() {
         let viewModel = CaptureViewModel()
         viewModel.selectedImageData = Data([0x00])
         viewModel.title = "测试标题"
         
+        #expect(viewModel.isValid == true)
+    }
+    
+    @Test("isValid 实时扫描模式无图片但有标题时为 true")
+    func isValidWithLiveScannerMode() {
+        let viewModel = CaptureViewModel()
+        viewModel.recognizedText = "扫描识别的文字"
+        viewModel.title = "测试标题"
+        // 无图片 (selectedImageData == nil)
+        
+        #expect(viewModel.isFromLiveScanner == true)
         #expect(viewModel.isValid == true)
     }
     
@@ -84,7 +95,7 @@ struct CaptureViewModelTests {
         #expect(viewModel.isValid == false)
     }
     
-    @Test("validationErrors 返回正确错误")
+    @Test("validationErrors 无图片无扫描时返回图片错误")
     func validationErrorsProperty() {
         let viewModel = CaptureViewModel()
         
@@ -93,6 +104,17 @@ struct CaptureViewModelTests {
         #expect(errors.count == 2)
         #expect(errors.contains { $0.contains("图片") })
         #expect(errors.contains { $0.contains("标题") })
+    }
+    
+    @Test("validationErrors 实时扫描模式不要求图片")
+    func validationErrorsWithLiveScanner() {
+        let viewModel = CaptureViewModel()
+        viewModel.recognizedText = "扫描文字"
+        viewModel.title = "标题"
+        
+        let errors = viewModel.validationErrors
+        
+        #expect(errors.isEmpty)
     }
     
     @Test("validationErrors 有图片后减少")

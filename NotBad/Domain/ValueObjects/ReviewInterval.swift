@@ -106,8 +106,12 @@ extension ReviewInterval {
     
     /// 遗忘曲线稳定性系数
     ///
-    /// 用于记忆保持率计算公式 R = e^(-t/S)
-    /// 其中 S 为稳定性系数，值越大记忆衰减越慢。
+    /// 用于记忆保持率计算。此值基于 SuperMemo SM-2 算法的简化版本，
+    /// 结合艾宾浩斯遗忘曲线的研究调整。
+    ///
+    /// - Note: 原始艾宾浩斯研究使用无意义音节，实际学习效果会更好。
+    ///   此系数经过调整以适应 K12 教育场景中的有意义学习材料。
+    /// - SeeAlso: Pimsleur, P. (1967). A memory schedule.
     nonisolated static var stabilityCoefficient: Double { 1.84 }
 }
 
@@ -183,11 +187,15 @@ extension ReviewInterval {
     
     /// 估算当前记忆保持率
     ///
-    /// 基于艾宾浩斯遗忘曲线公式：R = e^(-t/S)
+    /// 基于简化的遗忘曲线模型：R = e^(-t / (S × M))
     /// 其中：
     /// - R：记忆保持率（0.0 - 1.0）
-    /// - t：距离上次学习的时间
-    /// - S：稳定性系数（受掌握程度影响）
+    /// - t：距离上次学习的天数
+    /// - S：基础稳定性系数（`stabilityCoefficient`）
+    /// - M：掌握程度调整因子（`masteryStabilityFactor`）
+    ///
+    /// 与标准艾宾浩斯公式 R = e^(-t/S) 的区别：
+    /// 本实现添加了掌握程度因子，使得掌握越好衰减越慢。
     ///
     /// - Returns: 0.0 到 1.0 之间的保持率
     nonisolated var estimatedRetention: Double {
@@ -195,7 +203,7 @@ extension ReviewInterval {
         guard daysSinceBase > 0 else { return 1.0 }
         
         let adjustedStability = Self.stabilityCoefficient * masteryStabilityFactor
-        let retention = exp(-Double(daysSinceBase) / (adjustedStability * Double(intervalDays)))
+        let retention = exp(-Double(daysSinceBase) / adjustedStability)
         return min(1.0, max(0.0, retention))
     }
     

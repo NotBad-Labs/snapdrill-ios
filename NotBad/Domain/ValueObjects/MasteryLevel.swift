@@ -12,7 +12,7 @@ import SwiftUI
 /// 错题掌握程度（5级制）
 ///
 /// 类似5星评分系统，用于追踪学生对错题的掌握程度。
-/// 基于艾宾浩斯遗忘曲线计算下次复习间隔。
+/// 复习间隔计算由 ``ReviewInterval`` 负责。
 ///
 /// ## 掌握等级
 /// - ``none``: ⭐ 完全不会 - 需要重新学习基础概念
@@ -24,10 +24,10 @@ import SwiftUI
 /// ## 使用示例
 /// ```swift
 /// let level = MasteryLevel.partial
-/// print(level.displayName)        // "似懂非懂"
-/// print(level.stars)              // 3
-/// print(level.reviewIntervalDays) // 3
-/// print(level.needsReview)        // true
+/// print(level.displayName)    // "似懂非懂"
+/// print(level.stars)          // 3
+/// print(level.needsReview)    // true
+/// print(level.reviewPriority) // 3
 /// ```
 enum MasteryLevel: Int, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     /// 完全不会 - 需要重新学习基础概念
@@ -120,18 +120,10 @@ extension MasteryLevel {
         Double(rawValue) / Double(Self.allCases.count - 1)
     }
     
-    /// 下次复习间隔天数（基于艾宾浩斯遗忘曲线）
-    nonisolated var reviewIntervalDays: Int {
-        switch self {
-        case .none: 0       // 立即复习
-        case .glimpse: 1    // 1天后
-        case .partial: 3    // 3天后
-        case .good: 7       // 7天后
-        case .mastered: 14  // 14天后
-        }
-    }
-    
     /// 复习优先级（越高越优先）
+    ///
+    /// 用于排序：掌握程度越低，优先级越高（越需要优先复习）
+    /// - Note: 具体复习间隔由 `ReviewInterval` 计算，此属性仅用于相对排序
     nonisolated var reviewPriority: Int {
         Self.allCases.count - rawValue
     }

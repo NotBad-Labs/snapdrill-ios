@@ -272,9 +272,9 @@ extension ErrorType {
     nonisolated var severity: Int {
         switch self {
         case .concept, .method: 5
-        case .forgotten, .wrongDirection: 4
-        case .calculation, .misread: 3
-        case .careless, .incomplete: 2
+        case .forgotten, .wrongDirection, .misread: 4
+        case .incomplete: 3
+        case .calculation, .careless: 2
         case .timeLimit, .other: 1
         }
     }

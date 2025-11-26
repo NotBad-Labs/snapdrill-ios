@@ -119,7 +119,7 @@ struct ReviewItemTypeTests {
     
     @Test("作文时间最长")
     func writingLongestTime() {
-        #expect(ReviewItemType.writing.estimatedMinutes == 30)
+        #expect(ReviewItemType.writing.estimatedMinutes == 45)
     }
     
     @Test("difficultyWeight 根据分类设置")

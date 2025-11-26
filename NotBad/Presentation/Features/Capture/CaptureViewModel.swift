@@ -150,16 +150,23 @@ final class CaptureViewModel {
     
     // MARK: - Validation
     
+    /// 是否来自实时扫描（无图片模式）
+    var isFromLiveScanner: Bool {
+        !recognizedText.isEmpty && selectedImageData == nil
+    }
+    
     /// 表单是否有效
+    /// - Note: 实时扫描模式允许无图片保存
     var isValid: Bool {
-        hasImage && !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasTitle = !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return hasTitle && (hasImage || isFromLiveScanner)
     }
     
     /// 验证结果
     var validationErrors: [String] {
         var errors: [String] = []
         
-        if !hasImage {
+        if !hasImage && !isFromLiveScanner {
             errors.append("请选择或拍摄错题图片")
         }
         
@@ -193,10 +200,8 @@ final class CaptureViewModel {
         selectedUIImage = image
         selectedImage = Image(uiImage: image)
         
-        // 压缩图片（保持质量同时减小存储大小）
-        if let compressedData = compressImage(image) {
-            selectedImageData = compressedData
-        }
+        // 使用 ImageCompressor 压缩图片
+        selectedImageData = ImageCompressor.compress(image)
         
         // 更新步骤
         currentStep = .recognize
@@ -216,28 +221,6 @@ final class CaptureViewModel {
               let uiImage = UIImage(data: data) else { return }
         
         handlePickedImage(uiImage)
-    }
-    
-    /// 压缩图片
-    private func compressImage(_ image: UIImage, quality: CGFloat = 0.7) -> Data? {
-        // 如果图片太大，先缩小尺寸
-        let maxDimension: CGFloat = 2048
-        var processedImage = image
-        
-        if image.size.width > maxDimension || image.size.height > maxDimension {
-            let scale = min(maxDimension / image.size.width, maxDimension / image.size.height)
-            let newSize = CGSize(
-                width: image.size.width * scale,
-                height: image.size.height * scale
-            )
-            
-            UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-            image.draw(in: CGRect(origin: .zero, size: newSize))
-            processedImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
-            UIGraphicsEndImageContext()
-        }
-        
-        return processedImage.jpegData(compressionQuality: quality)
     }
     
     /// 清除已选图片
@@ -296,6 +279,7 @@ final class CaptureViewModel {
     
     /// 处理实时扫描结果
     func handleLiveScanResult(_ text: String) {
+        print("🔍 [CaptureVM] handleLiveScanResult: text长度=\(text.count)")
         recognizedText = text
         
         let firstLine = text.components(separatedBy: .newlines).first ?? text
@@ -308,6 +292,8 @@ final class CaptureViewModel {
         }
         
         currentStep = .fillForm
+        
+        print("🔍 [CaptureVM] 处理结果: title=\(title), isFromLiveScanner=\(isFromLiveScanner), isValid=\(isValid)")
     }
     
     /// 添加知识点
@@ -337,15 +323,23 @@ final class CaptureViewModel {
     
     /// 保存错题
     func saveItem() {
-        guard let data = selectedImageData, let modelContext else {
-            showErrorAlert("保存失败：数据不完整")
+        guard let modelContext else {
+            print("❌ [CaptureVM] 保存失败：modelContext 为 nil")
+            showErrorAlert("保存失败：数据上下文未配置")
+            return
+        }
+        
+        // 验证：必须有图片或来自实时扫描
+        guard hasImage || isFromLiveScanner else {
+            print("❌ [CaptureVM] 保存失败：无图片且非实时扫描")
+            showErrorAlert("保存失败：请选择图片或使用实时扫描")
             return
         }
         
         isSaving = true
         
         let newItem = ReviewItem(
-            imageData: data,
+            imageData: selectedImageData,  // 可为 nil（实时扫描模式）
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
             note: note,
             subject: subject,
@@ -357,10 +351,14 @@ final class CaptureViewModel {
             questionType: questionType
         )
         
+        print("📝 [CaptureVM] 创建 ReviewItem: id=\(newItem.id), title=\(newItem.title)")
+        
         modelContext.insert(newItem)
+        print("📝 [CaptureVM] insert 完成")
         
         do {
             try modelContext.save()
+            print("✅ [CaptureVM] save 成功")
             
             // 延迟显示成功提示，改善体验
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
@@ -371,6 +369,7 @@ final class CaptureViewModel {
                 NotificationCenter.default.post(name: .reviewItemAdded, object: newItem)
             }
         } catch {
+            print("❌ [CaptureVM] save 失败: \(error)")
             isSaving = false
             showErrorAlert("保存失败：\(error.localizedDescription)")
         }

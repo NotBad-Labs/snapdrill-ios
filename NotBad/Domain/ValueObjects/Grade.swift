@@ -226,12 +226,12 @@ extension Grade {
     /// 简短标签
     nonisolated var shortLabel: String {
         switch self {
-        case .grade1: "小一"
-        case .grade2: "小二"
-        case .grade3: "小三"
-        case .grade4: "小四"
-        case .grade5: "小五"
-        case .grade6: "小六"
+        case .grade1: "一年级"
+        case .grade2: "二年级"
+        case .grade3: "三年级"
+        case .grade4: "四年级"
+        case .grade5: "五年级"
+        case .grade6: "六年级"
         case .grade7: "初一"
         case .grade8: "初二"
         case .grade9: "初三"

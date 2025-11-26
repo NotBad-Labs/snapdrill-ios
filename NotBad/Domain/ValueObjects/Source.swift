@@ -300,12 +300,12 @@ extension Source {
         switch self {
         case .pastExam: 5
         case .exam: 5
+        case .textbook: 5
         case .competition: 4
         case .mock: 4
-        case .textbook: 4
         case .tutor: 3
         case .workbook: 3
-        case .homework: 2
+        case .homework: 3
         case .online: 2
         case .selfTest: 1
         case .other: 1

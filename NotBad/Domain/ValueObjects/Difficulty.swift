@@ -138,15 +138,10 @@ extension Difficulty {
         Double(rawValue) / Double(Self.allCases.count - 1)
     }
     
-    /// 建议复习优先级（1-5）
-    ///
-    /// 数字越大，优先级越高
-    /// 通常较难的题目需要更频繁的复习
-    nonisolated var reviewPriority: Int { rawValue + 1 }
-    
     /// 预计耗时倍数
     ///
-    /// 相对于基准时间的倍数，用于估算完成题目所需时间
+    /// 相对于题型标准时间（`ReviewItemType.estimatedMinutes`）的倍数。
+    /// 例如：中等难度计算题 = 8分钟 × 1.5 = 12分钟
     /// - Returns: 0.5（送分题）到 3.0（压轴题）的倍数系数
     nonisolated var timeMultiplier: Double {
         switch self {

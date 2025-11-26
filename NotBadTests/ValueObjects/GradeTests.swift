@@ -31,8 +31,8 @@ struct GradeTests {
     
     @Test("shortLabel 格式正确")
     func shortLabelFormat() {
-        #expect(Grade.grade1.shortLabel == "小一")
-        #expect(Grade.grade6.shortLabel == "小六")
+        #expect(Grade.grade1.shortLabel == "一年级")
+        #expect(Grade.grade6.shortLabel == "六年级")
         #expect(Grade.grade7.shortLabel == "初一")
         #expect(Grade.grade9.shortLabel == "初三")
         #expect(Grade.grade10.shortLabel == "高一")

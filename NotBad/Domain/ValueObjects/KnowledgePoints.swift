@@ -248,6 +248,8 @@ extension KnowledgePoints {
     
     /// 数学常用知识点
     enum Math {
+        static let sets = "集合"
+        static let logic = "逻辑"
         static let algebra = "代数"
         static let geometry = "几何"
         static let function = "函数"
@@ -256,6 +258,8 @@ extension KnowledgePoints {
         static let sequence = "数列"
         static let probability = "概率"
         static let statistics = "统计"
+        static let permutation = "排列组合"
+        static let complex = "复数"
         static let derivative = "导数"
         static let integral = "积分"
         static let vector = "向量"
@@ -264,43 +268,89 @@ extension KnowledgePoints {
         static let analyticGeometry = "解析几何"
         
         static var all: [String] {
-            [algebra, geometry, function, equation, inequality, sequence,
-             probability, statistics, derivative, integral, vector,
-             trigonometry, solidGeometry, analyticGeometry]
+            [sets, logic, algebra, geometry, function, equation, inequality,
+             sequence, probability, statistics, permutation, complex,
+             derivative, integral, vector, trigonometry, solidGeometry, analyticGeometry]
         }
     }
     
     /// 物理常用知识点
     enum Physics {
-        static let mechanics = "力学"
         static let kinematics = "运动学"
         static let dynamics = "动力学"
+        static let statics = "静力学"
         static let energy = "能量"
+        static let momentum = "动量"
+        static let circularMotion = "圆周运动"
+        static let gravitation = "万有引力"
         static let electricity = "电学"
         static let magnetism = "磁学"
+        static let electromagnetism = "电磁感应"
         static let optics = "光学"
         static let thermodynamics = "热学"
         static let waves = "波动"
         static let modern = "近代物理"
         
         static var all: [String] {
-            [mechanics, kinematics, dynamics, energy, electricity,
-             magnetism, optics, thermodynamics, waves, modern]
+            [kinematics, dynamics, statics, energy, momentum, circularMotion,
+             gravitation, electricity, magnetism, electromagnetism,
+             optics, thermodynamics, waves, modern]
         }
     }
     
     /// 化学常用知识点
     enum Chemistry {
-        static let organic = "有机化学"
-        static let inorganic = "无机化学"
+        static let atomStructure = "原子结构"
+        static let periodicTable = "元素周期表"
+        static let chemicalBond = "化学键"
         static let reaction = "化学反应"
         static let equilibrium = "化学平衡"
+        static let ionicReaction = "离子反应"
+        static let redox = "氧化还原"
         static let electrochemistry = "电化学"
-        static let structure = "物质结构"
+        static let organic = "有机化学"
+        static let inorganic = "无机化学"
         static let element = "元素化学"
         
         static var all: [String] {
-            [organic, inorganic, reaction, equilibrium, electrochemistry, structure, element]
+            [atomStructure, periodicTable, chemicalBond, reaction, equilibrium,
+             ionicReaction, redox, electrochemistry, organic, inorganic, element]
+        }
+    }
+    
+    /// 生物常用知识点
+    enum Biology {
+        static let cell = "细胞"
+        static let metabolism = "代谢"
+        static let photosynthesis = "光合作用"
+        static let respiration = "呼吸作用"
+        static let genetics = "遗传"
+        static let dna = "DNA与RNA"
+        static let evolution = "进化"
+        static let ecology = "生态"
+        static let regulation = "生命调节"
+        static let reproduction = "生殖发育"
+        
+        static var all: [String] {
+            [cell, metabolism, photosynthesis, respiration, genetics,
+             dna, evolution, ecology, regulation, reproduction]
+        }
+    }
+    
+    /// 语文常用知识点
+    enum Chinese {
+        static let readingComprehension = "阅读理解"
+        static let classicalChinese = "文言文"
+        static let poetry = "诗词鉴赏"
+        static let modernText = "现代文阅读"
+        static let writing = "作文"
+        static let languageApplication = "语言文字运用"
+        static let literaryKnowledge = "文学常识"
+        static let rhetoric = "修辞手法"
+        
+        static var all: [String] {
+            [readingComprehension, classicalChinese, poetry, modernText,
+             writing, languageApplication, literaryKnowledge, rhetoric]
         }
     }
     
@@ -308,14 +358,71 @@ extension KnowledgePoints {
     enum English {
         static let grammar = "语法"
         static let vocabulary = "词汇"
-        static let reading = "阅读"
+        static let reading = "阅读理解"
         static let writing = "写作"
         static let listening = "听力"
         static let tense = "时态"
         static let clause = "从句"
+        static let passiveVoice = "被动语态"
+        static let nonFinite = "非谓语动词"
         
         static var all: [String] {
-            [grammar, vocabulary, reading, writing, listening, tense, clause]
+            [grammar, vocabulary, reading, writing, listening,
+             tense, clause, passiveVoice, nonFinite]
+        }
+    }
+    
+    /// 历史常用知识点
+    enum History {
+        static let ancientChina = "中国古代史"
+        static let modernChina = "中国近现代史"
+        static let worldAncient = "世界古代史"
+        static let worldModern = "世界近现代史"
+        static let politics = "政治制度"
+        static let economy = "经济发展"
+        static let culture = "思想文化"
+        static let reform = "改革变法"
+        
+        static var all: [String] {
+            [ancientChina, modernChina, worldAncient, worldModern,
+             politics, economy, culture, reform]
+        }
+    }
+    
+    /// 地理常用知识点
+    enum Geography {
+        static let naturalGeography = "自然地理"
+        static let humanGeography = "人文地理"
+        static let regionalGeography = "区域地理"
+        static let atmosphere = "大气"
+        static let hydrosphere = "水文"
+        static let lithosphere = "地质地貌"
+        static let population = "人口"
+        static let urbanization = "城市化"
+        static let agriculture = "农业"
+        static let industry = "工业"
+        
+        static var all: [String] {
+            [naturalGeography, humanGeography, regionalGeography,
+             atmosphere, hydrosphere, lithosphere, population,
+             urbanization, agriculture, industry]
+        }
+    }
+    
+    /// 政治常用知识点
+    enum Politics {
+        static let economicLife = "经济生活"
+        static let politicalLife = "政治生活"
+        static let culturalLife = "文化生活"
+        static let philosophy = "哲学"
+        static let materialism = "唯物论"
+        static let dialectics = "辩证法"
+        static let epistemology = "认识论"
+        static let historicalMaterialism = "历史唯物主义"
+        
+        static var all: [String] {
+            [economicLife, politicalLife, culturalLife, philosophy,
+             materialism, dialectics, epistemology, historicalMaterialism]
         }
     }
     
@@ -327,7 +434,12 @@ extension KnowledgePoints {
         case .math: Math.all
         case .physics: Physics.all
         case .chemistry: Chemistry.all
+        case .biology: Biology.all
+        case .chinese: Chinese.all
         case .english: English.all
+        case .history: History.all
+        case .geography: Geography.all
+        case .politics, .ethics: Politics.all
         default: []
         }
     }
