@@ -276,38 +276,38 @@ struct ReviewStatistics: Sendable, Equatable {
     // MARK: - Computed Properties
     
     /// 掌握率（0.0 - 1.0）
-    var masteryRate: Double {
+    nonisolated var masteryRate: Double {
         guard totalCount > 0 else { return 0 }
         return Double(masteredCount) / Double(totalCount)
     }
     
     /// 掌握率百分比
-    var masteryPercentage: Int {
+    nonisolated var masteryPercentage: Int {
         Int(masteryRate * 100)
     }
     
     /// 完成率描述
-    var masteryDescription: String {
+    nonisolated var masteryDescription: String {
         "\(masteredCount)/\(totalCount) 已掌握 (\(masteryPercentage)%)"
     }
     
     /// 是否有待复习
-    var hasPendingReview: Bool {
+    nonisolated var hasPendingReview: Bool {
         pendingReviewCount > 0
     }
     
     /// 是否有逾期
-    var hasOverdue: Bool {
+    nonisolated var hasOverdue: Bool {
         overdueCount > 0
     }
     
     /// 主要学科（错题最多的学科）
-    var primarySubject: Subject? {
+    nonisolated var primarySubject: Subject? {
         subjectDistribution.max(by: { $0.value < $1.value })?.key
     }
     
     /// 主要薄弱点（掌握程度最低的比例最高）
-    var weakestMastery: MasteryLevel? {
+    nonisolated var weakestMastery: MasteryLevel? {
         masteryDistribution
             .filter { $0.key != .mastered && $0.key != .good }
             .max(by: { $0.value < $1.value })?.key

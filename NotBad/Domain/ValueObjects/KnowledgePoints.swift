@@ -66,25 +66,25 @@ struct KnowledgePoints: Sendable, Equatable, Codable, Hashable {
 
 extension KnowledgePoints {
     /// 知识点数组
-    var array: [String] { items }
+    nonisolated var array: [String] { items }
     
     /// 知识点数量
-    var count: Int { items.count }
+    nonisolated var count: Int { items.count }
     
     /// 是否为空
-    var isEmpty: Bool { items.isEmpty }
+    nonisolated var isEmpty: Bool { items.isEmpty }
     
     /// 是否非空
-    var isNotEmpty: Bool { !items.isEmpty }
+    nonisolated var isNotEmpty: Bool { !items.isEmpty }
     
     /// 第一个知识点
-    var first: String? { items.first }
+    nonisolated var first: String? { items.first }
     
     /// 最后一个知识点
-    var last: String? { items.last }
+    nonisolated var last: String? { items.last }
     
     /// 转换为逗号分隔的字符串（用于存储）
-    var rawValue: String {
+    nonisolated var rawValue: String {
         items.joined(separator: ", ")
     }
 }
@@ -95,7 +95,7 @@ extension KnowledgePoints {
     /// 添加单个知识点
     /// - Parameter point: 要添加的知识点
     /// - Returns: 包含新知识点的新实例
-    func adding(_ point: String) -> KnowledgePoints {
+    nonisolated func adding(_ point: String) -> KnowledgePoints {
         let trimmed = point.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty, !items.contains(trimmed) else { return self }
         return KnowledgePoints(items + [trimmed])
@@ -104,7 +104,7 @@ extension KnowledgePoints {
     /// 批量添加知识点
     /// - Parameter points: 要添加的知识点数组
     /// - Returns: 包含新知识点的新实例
-    func adding(_ points: [String]) -> KnowledgePoints {
+    nonisolated func adding(_ points: [String]) -> KnowledgePoints {
         var newItems = items
         for point in points {
             let trimmed = point.trimmingCharacters(in: .whitespaces)
@@ -118,14 +118,14 @@ extension KnowledgePoints {
     /// 移除单个知识点
     /// - Parameter point: 要移除的知识点
     /// - Returns: 移除后的新实例
-    func removing(_ point: String) -> KnowledgePoints {
+    nonisolated func removing(_ point: String) -> KnowledgePoints {
         KnowledgePoints(items.filter { $0 != point })
     }
     
     /// 批量移除知识点
     /// - Parameter points: 要移除的知识点数组
     /// - Returns: 移除后的新实例
-    func removing(_ points: [String]) -> KnowledgePoints {
+    nonisolated func removing(_ points: [String]) -> KnowledgePoints {
         let pointsSet = Set(points)
         return KnowledgePoints(items.filter { !pointsSet.contains($0) })
     }
@@ -133,21 +133,21 @@ extension KnowledgePoints {
     /// 合并知识点集合
     /// - Parameter other: 要合并的知识点集合
     /// - Returns: 合并后的新实例
-    func merging(with other: KnowledgePoints) -> KnowledgePoints {
+    nonisolated func merging(with other: KnowledgePoints) -> KnowledgePoints {
         KnowledgePoints(items + other.items)
     }
     
     /// 取交集
     /// - Parameter other: 另一个知识点集合
     /// - Returns: 交集后的新实例
-    func intersection(with other: KnowledgePoints) -> KnowledgePoints {
+    nonisolated func intersection(with other: KnowledgePoints) -> KnowledgePoints {
         let otherSet = Set(other.items)
         return KnowledgePoints(items.filter { otherSet.contains($0) })
     }
     
     /// 排序后的知识点
     /// - Returns: 按字母顺序排序的新实例
-    func sorted() -> KnowledgePoints {
+    nonisolated func sorted() -> KnowledgePoints {
         KnowledgePoints(items.sorted())
     }
 }
@@ -158,14 +158,14 @@ extension KnowledgePoints {
     /// 是否包含知识点
     /// - Parameter point: 要查询的知识点
     /// - Returns: 是否包含
-    func contains(_ point: String) -> Bool {
+    nonisolated func contains(_ point: String) -> Bool {
         items.contains(point)
     }
     
     /// 是否包含任意一个知识点
     /// - Parameter points: 要查询的知识点数组
     /// - Returns: 是否包含任意一个
-    func containsAny(of points: [String]) -> Bool {
+    nonisolated func containsAny(of points: [String]) -> Bool {
         let pointsSet = Set(points)
         return items.contains { pointsSet.contains($0) }
     }
@@ -173,7 +173,7 @@ extension KnowledgePoints {
     /// 是否包含所有知识点
     /// - Parameter points: 要查询的知识点数组
     /// - Returns: 是否全部包含
-    func containsAll(of points: [String]) -> Bool {
+    nonisolated func containsAll(of points: [String]) -> Bool {
         let itemsSet = Set(items)
         return points.allSatisfy { itemsSet.contains($0) }
     }
@@ -181,7 +181,7 @@ extension KnowledgePoints {
     /// 搜索匹配（模糊搜索）
     /// - Parameter query: 搜索关键词
     /// - Returns: 是否有匹配
-    func matches(_ query: String) -> Bool {
+    nonisolated func matches(_ query: String) -> Bool {
         guard !query.isEmpty else { return true }
         let lowercasedQuery = query.lowercased()
         return items.contains { $0.lowercased().contains(lowercasedQuery) }
@@ -190,7 +190,7 @@ extension KnowledgePoints {
     /// 过滤包含关键词的知识点
     /// - Parameter keyword: 过滤关键词
     /// - Returns: 过滤后的新实例
-    func filter(containing keyword: String) -> KnowledgePoints {
+    nonisolated func filter(containing keyword: String) -> KnowledgePoints {
         guard !keyword.isEmpty else { return self }
         let lowercasedKeyword = keyword.lowercased()
         return KnowledgePoints(items.filter { $0.lowercased().contains(lowercasedKeyword) })
@@ -199,7 +199,7 @@ extension KnowledgePoints {
     /// 下标访问（安全版本）
     /// - Parameter index: 索引
     /// - Returns: 对应的知识点，越界返回 nil
-    subscript(safe index: Int) -> String? {
+    nonisolated subscript(safe index: Int) -> String? {
         guard index >= 0 && index < items.count else { return nil }
         return items[index]
     }
@@ -208,7 +208,7 @@ extension KnowledgePoints {
 // MARK: - KnowledgePoints Sequence
 
 extension KnowledgePoints: Sequence {
-    func makeIterator() -> IndexingIterator<[String]> {
+    nonisolated func makeIterator() -> IndexingIterator<[String]> {
         items.makeIterator()
     }
 }
@@ -216,14 +216,14 @@ extension KnowledgePoints: Sequence {
 // MARK: - KnowledgePoints Collection
 
 extension KnowledgePoints: Collection {
-    var startIndex: Int { items.startIndex }
-    var endIndex: Int { items.endIndex }
+    nonisolated var startIndex: Int { items.startIndex }
+    nonisolated var endIndex: Int { items.endIndex }
     
-    func index(after i: Int) -> Int {
+    nonisolated func index(after i: Int) -> Int {
         items.index(after: i)
     }
     
-    subscript(position: Int) -> String {
+    nonisolated subscript(position: Int) -> String {
         items[position]
     }
 }
@@ -239,7 +239,7 @@ extension KnowledgePoints: ExpressibleByArrayLiteral {
 // MARK: - KnowledgePoints CustomStringConvertible
 
 extension KnowledgePoints: CustomStringConvertible {
-    var description: String { rawValue }
+    nonisolated var description: String { rawValue }
 }
 
 // MARK: - KnowledgePoints Subject Suggestions
