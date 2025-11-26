@@ -45,7 +45,7 @@ struct ProgressBar: View {
     let total: Int
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: DesignTokens.Spacing.md) {
             HStack {
                 Text("复习进度")
                     .font(.subheadline)
@@ -55,14 +55,14 @@ struct ProgressBar: View {
                 
                 Text("\(current) / \(total)")
                     .font(.headline)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(Color.brand.primary)
             }
             
             ProgressView(value: Double(current), total: Double(total))
-                .tint(.blue)
+                .tint(Color.brand.primary)
         }
-        .padding()
-        .background(.background.secondary)
+        .padding(DesignTokens.Spacing.lg)
+        .background(Color.semantic.secondaryBackground)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("复习进度：第 \(current) 题，共 \(total) 题")
         .accessibilityValue("\(Int(Double(current) / Double(total) * 100))%")

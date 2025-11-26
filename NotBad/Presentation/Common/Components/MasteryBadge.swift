@@ -97,7 +97,7 @@ struct MasteryBadge: View {
     private var compactView: some View {
         Image(systemName: level.icon)
             .font(.caption)
-            .padding(6)
+            .padding(DesignTokens.Spacing.sm)
             .background(level.color.opacity(0.1))
             .foregroundStyle(level.color)
             .clipShape(Circle())
@@ -105,35 +105,35 @@ struct MasteryBadge: View {
     }
     
     private var standardView: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: DesignTokens.Spacing.xs) {
             Image(systemName: level.icon)
                 .symbolEffect(.pulse, isActive: animated)
             Text(level.displayName)
         }
         .font(.caption)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
+        .padding(.horizontal, DesignTokens.Spacing.md)
+        .padding(.vertical, DesignTokens.Spacing.sm)
         .background(level.color.opacity(0.1))
         .foregroundStyle(level.color)
         .clipShape(Capsule())
     }
     
     private var detailedView: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: DesignTokens.Spacing.xs) {
             Image(systemName: level.icon)
                 .symbolEffect(.pulse, isActive: animated)
             Text(level.detailText)
         }
         .font(.caption)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
+        .padding(.horizontal, DesignTokens.Spacing.md)
+        .padding(.vertical, DesignTokens.Spacing.sm)
         .background(level.color.opacity(0.1))
         .foregroundStyle(level.color)
         .clipShape(Capsule())
     }
     
     private var starsView: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: DesignTokens.Spacing.xs / 2) {
             ForEach(0..<5, id: \.self) { index in
                 Image(systemName: index < level.stars ? "star.fill" : "star")
                     .font(.caption2)
@@ -143,7 +143,7 @@ struct MasteryBadge: View {
     }
     
     private var progressView: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
             HStack {
                 Text(level.displayName)
                     .font(.caption)
@@ -156,10 +156,10 @@ struct MasteryBadge: View {
             
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
                         .fill(Color.gray.opacity(0.2))
                     
-                    RoundedRectangle(cornerRadius: 4)
+                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
                         .fill(level.color.gradient)
                         .frame(width: geo.size.width * level.progress)
                 }

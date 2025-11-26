@@ -12,9 +12,9 @@ import SwiftUI
 /// 欢迎卡片组件
 struct WelcomeCard: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                     Text("Hello！")
                         .font(.title2)
                         .fontWeight(.bold)
@@ -30,7 +30,7 @@ struct WelcomeCard: View {
                     .font(.system(size: 40))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [.orange, .pink],
+                            colors: [Color.brand.warning, .pink],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -38,15 +38,15 @@ struct WelcomeCard: View {
                     .symbolEffect(.bounce)
             }
         }
-        .padding()
+        .padding(DesignTokens.Spacing.lg)
         .background(
             LinearGradient(
-                colors: [.blue.opacity(0.1), .purple.opacity(0.1)],
+                colors: [Color.brand.primary.opacity(0.1), Color.brand.secondary.opacity(0.1)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
         )
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl))
     }
 }
 
@@ -60,7 +60,7 @@ struct StatCard: View {
     let color: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             HStack {
                 Image(systemName: icon)
                     .font(.title2)
@@ -69,7 +69,7 @@ struct StatCard: View {
                 Spacer()
             }
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                 Text(value)
                     .font(.title)
                     .fontWeight(.bold)
@@ -79,9 +79,9 @@ struct StatCard: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding()
-        .background(.background.secondary)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .padding(DesignTokens.Spacing.lg)
+        .background(Color.semantic.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
     }
 }
 
@@ -109,8 +109,8 @@ struct QuickActionButton: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
-        .padding()
-        .background(.background.secondary)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(DesignTokens.Spacing.lg)
+        .background(Color.semantic.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
     }
 }

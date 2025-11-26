@@ -16,7 +16,7 @@ struct DisplayContent: View {
     let item: ReviewItem
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: DesignTokens.Spacing.xl) {
             // 标题
             InfoCard(title: "标题", icon: "text.alignleft") {
                 Text(item.title)
@@ -24,7 +24,7 @@ struct DisplayContent: View {
             }
             
             // 学科和年级
-            HStack(spacing: 12) {
+            HStack(spacing: DesignTokens.Spacing.md) {
                 InfoCard(title: "学科", icon: "book.fill") {
                     Text(item.subject.displayName)
                         .font(.subheadline)
@@ -65,7 +65,7 @@ struct DisplayContent: View {
             
             // 时间信息
             InfoCard(title: "时间信息", icon: "clock.fill") {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                     timeRow(label: "创建时间：", date: item.createdAt)
                     timeRow(label: "更新时间：", date: item.updatedAt)
                 }
@@ -77,14 +77,14 @@ struct DisplayContent: View {
     
     private var masteryBadge: some View {
         let level = MasteryLevel(rawValue: item.masteryLevel) ?? .none
-        return HStack(spacing: 6) {
+        return HStack(spacing: DesignTokens.Spacing.sm) {
             Image(systemName: level.icon)
             Text(level.detailText)
         }
         .font(.subheadline)
         .fontWeight(.medium)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
+        .padding(.horizontal, DesignTokens.Spacing.md)
+        .padding(.vertical, DesignTokens.Spacing.sm)
         .background(level.color.opacity(0.1))
         .foregroundStyle(level.color)
         .clipShape(Capsule())
@@ -109,18 +109,18 @@ struct EditingContent: View {
     let onSave: () -> Void
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: DesignTokens.Spacing.xl) {
             // 标题编辑
             FormField(title: "标题", icon: "text.alignleft") {
                 TextField("标题", text: $item.title)
                     .textFieldStyle(.plain)
-                    .padding()
-                    .background(.background.secondary)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(DesignTokens.Spacing.lg)
+                    .background(Color.semantic.secondaryBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
             }
             
             // 学科和年级
-            HStack(spacing: 12) {
+            HStack(spacing: DesignTokens.Spacing.md) {
                 FormField(title: "学科", icon: "book.fill") {
                     subjectPicker
                 }
@@ -134,9 +134,9 @@ struct EditingContent: View {
             FormField(title: "知识点", icon: "lightbulb.fill") {
                 TextField("例如: 函数, 导数", text: $item.knowledgePointsRaw)
                     .textFieldStyle(.plain)
-                    .padding()
-                    .background(.background.secondary)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(DesignTokens.Spacing.lg)
+                    .background(Color.semantic.secondaryBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
             }
             
             // 笔记编辑
@@ -144,9 +144,9 @@ struct EditingContent: View {
                 TextField("记录解题思路、易错点等...", text: $item.note, axis: .vertical)
                     .textFieldStyle(.plain)
                     .lineLimit(5...10)
-                    .padding()
-                    .background(.background.secondary)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(DesignTokens.Spacing.lg)
+                    .background(Color.semantic.secondaryBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
             }
             
             // 保存按钮
@@ -188,9 +188,9 @@ struct EditingContent: View {
                 .font(.caption)
         }
         .foregroundStyle(.primary)
-        .padding()
-        .background(.background.secondary)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(DesignTokens.Spacing.lg)
+        .background(Color.semantic.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
     }
     
     private var saveButton: some View {
@@ -201,18 +201,19 @@ struct EditingContent: View {
                     .fontWeight(.semibold)
             }
             .frame(maxWidth: .infinity)
-            .padding()
+            .padding(DesignTokens.Spacing.lg)
             .background(
                 LinearGradient(
-                    colors: [.blue, .blue.opacity(0.8)],
+                    colors: [Color.brand.primary, Color.brand.primary.opacity(0.8)],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
             )
             .foregroundStyle(.white)
             .clipShape(Capsule())
-            .shadow(color: .blue.opacity(0.3), radius: 8, y: 4)
+            .shadow(DesignTokens.Shadow.medium)
         }
+        .accessibleButton("保存修改")
     }
 }
 
@@ -226,7 +227,7 @@ struct FormField<Content: View>: View {
     @ViewBuilder let content: Content
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             Label(title, systemImage: icon)
                 .font(.subheadline)
                 .fontWeight(.medium)

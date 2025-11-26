@@ -18,33 +18,33 @@ struct StatisticsGrid: View {
     let totalReviewCount: Int
     
     var body: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DesignTokens.Spacing.lg) {
             StatCard(
                 title: "总错题",
                 value: "\(totalCount)",
                 icon: "books.vertical.fill",
-                color: .blue
+                color: Color.brand.primary
             )
             
             StatCard(
                 title: "已掌握",
                 value: "\(masteredCount)",
                 icon: "checkmark.seal.fill",
-                color: .green
+                color: Color.brand.success
             )
             
             StatCard(
                 title: "本周新增",
                 value: "\(weeklyNewCount)",
                 icon: "plus.circle.fill",
-                color: .orange
+                color: Color.brand.warning
             )
             
             StatCard(
                 title: "复习次数",
                 value: "\(totalReviewCount)",
                 icon: "clock.arrow.circlepath",
-                color: .purple
+                color: Color.brand.secondary
             )
         }
     }
@@ -58,7 +58,7 @@ struct MasteryDistributionChart: View {
     let isEmpty: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
             Text("掌握度分布")
                 .font(.headline)
             
@@ -87,9 +87,9 @@ struct MasteryDistributionChart: View {
                 .frame(height: 200)
                 
                 // 图例
-                HStack(spacing: 16) {
+                HStack(spacing: DesignTokens.Spacing.lg) {
                     ForEach(data) { item in
-                        HStack(spacing: 6) {
+                        HStack(spacing: DesignTokens.Spacing.sm) {
                             Circle()
                                 .fill(item.color)
                                 .frame(width: 12, height: 12)
@@ -100,9 +100,9 @@ struct MasteryDistributionChart: View {
                 }
             }
         }
-        .padding()
-        .background(.background.secondary)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .padding(DesignTokens.Spacing.lg)
+        .background(Color.semantic.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
     }
 }
 
@@ -114,7 +114,7 @@ struct SubjectDistributionChart: View {
     let isEmpty: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
             Text("学科分布")
                 .font(.headline)
             
@@ -126,7 +126,7 @@ struct SubjectDistributionChart: View {
                         x: .value("数量", item.count),
                         y: .value("学科", item.subject)
                     )
-                    .foregroundStyle(.blue.gradient)
+                    .foregroundStyle(Color.brand.primary.gradient)
                     .cornerRadius(6)
                     .annotation(position: .trailing) {
                         Text("\(item.count)")
@@ -138,9 +138,9 @@ struct SubjectDistributionChart: View {
                 .chartXAxis(.hidden)
             }
         }
-        .padding()
-        .background(.background.secondary)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .padding(DesignTokens.Spacing.lg)
+        .background(Color.semantic.secondaryBackground)
+        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
     }
 }
 
@@ -149,7 +149,7 @@ struct SubjectDistributionChart: View {
 /// 空图表占位符
 struct EmptyChartPlaceholder: View {
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: DesignTokens.Spacing.md) {
             Image(systemName: "chart.bar.xaxis")
                 .font(.system(size: 40))
                 .foregroundStyle(.secondary)
