@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - Tab
 
 /// 应用 Tab 枚举
-enum Tab: Int, CaseIterable, Identifiable {
+enum Tab: Int, CaseIterable, Identifiable, Sendable {
     case dashboard = 0
     case library = 1
     case capture = 2

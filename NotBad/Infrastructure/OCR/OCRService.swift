@@ -38,7 +38,7 @@ import Vision
 /// - Note: 使用单例模式，通过 `.shared` 访问
 /// - Important: 识别是异步操作，可能需要数秒时间
 @MainActor
-final class OCRService: Sendable {
+final class OCRService {
     
     // MARK: - Singleton
     
