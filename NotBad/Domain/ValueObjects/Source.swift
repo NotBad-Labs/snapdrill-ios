@@ -73,8 +73,7 @@ extension SourceCategory {
     }
     
     /// 主题颜色
-    @MainActor
-    var color: Color {
+    nonisolated var color: Color {
         switch self {
         case .official: .red
         case .school: .blue
@@ -240,8 +239,7 @@ extension Source {
     }
     
     /// 主题颜色
-    @MainActor
-    var color: Color {
+    nonisolated var color: Color {
         switch self {
         case .textbook: .blue
         case .pastExam: .red

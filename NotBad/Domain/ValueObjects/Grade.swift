@@ -87,7 +87,7 @@ extension GradeStage {
     }
     
     /// 该学段包含的年级
-    var grades: [Grade] {
+    nonisolated var grades: [Grade] {
         Grade.allCases.filter { $0.stage == self }
     }
     

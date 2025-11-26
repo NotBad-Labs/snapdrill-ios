@@ -76,8 +76,7 @@ extension ReviewItemCategory {
     }
     
     /// 主题颜色
-    @MainActor
-    var color: Color {
+    nonisolated var color: Color {
         switch self {
         case .objective: .blue
         case .subjective: .orange
@@ -268,8 +267,7 @@ extension ReviewItemType {
     }
     
     /// 主题颜色
-    @MainActor
-    var color: Color {
+    nonisolated var color: Color {
         switch self {
         case .choice: .blue
         case .multiChoice: .indigo
