@@ -37,18 +37,32 @@ struct InfoCard<Content: View>: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-            Label(title, systemImage: icon)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-                .accessibilityAddTraits(.isHeader)
+            // Header with icon and title
+            HStack(spacing: DesignTokens.Spacing.sm) {
+                Image(systemName: icon)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+                
+                Text(title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                    .tracking(0.3)
+            }
+            .accessibilityAddTraits(.isHeader)
             
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(DesignTokens.Spacing.lg)
-        .background(Color.semantic.secondaryBackground)
-        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
+        .background(
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                .fill(Color.semantic.secondaryBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                        .strokeBorder(Color.primary.opacity(0.04), lineWidth: 1)
+                )
+        )
         .accessibilityElement(children: .contain)
     }
 }

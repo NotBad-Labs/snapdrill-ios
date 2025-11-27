@@ -43,7 +43,20 @@ enum ErrorCategory: String, Sendable, CaseIterable, Codable, Hashable, Identifia
 
 extension ErrorCategory {
     /// 显示名称
-    nonisolated var displayName: String { rawValue }
+    nonisolated var displayName: String {
+        String(localized: localizationKey)
+    }
+    
+    /// 本地化键值
+    private var localizationKey: String.LocalizationValue {
+        switch self {
+        case .knowledge: "error_category_knowledge"
+        case .method: "error_category_method"
+        case .habit: "error_category_habit"
+        case .objective: "error_category_objective"
+        case .other: "error_category_other"
+        }
+    }
     
     /// SF Symbol 图标名称
     nonisolated var icon: String {
@@ -69,12 +82,17 @@ extension ErrorCategory {
     
     /// 改进方向建议
     nonisolated var improvementDirection: String {
+        String(localized: improvementDirectionKey)
+    }
+    
+    /// 改进方向本地化键值
+    private var improvementDirectionKey: String.LocalizationValue {
         switch self {
-        case .knowledge: "加强学习理解"
-        case .method: "总结解题套路"
-        case .habit: "培养良好习惯"
-        case .objective: "提高做题效率"
-        case .other: "具体问题具体分析"
+        case .knowledge: "error_category_knowledge_improvement"
+        case .method: "error_category_method_improvement"
+        case .habit: "error_category_habit_improvement"
+        case .objective: "error_category_objective_improvement"
+        case .other: "error_category_other_improvement"
         }
     }
 }
@@ -155,21 +173,44 @@ enum ErrorType: String, Sendable, CaseIterable, Codable, Hashable, Identifiable 
 
 extension ErrorType {
     /// 显示名称
-    nonisolated var displayName: String { rawValue }
+    nonisolated var displayName: String {
+        String(localized: localizationKey)
+    }
+    
+    /// 本地化键值
+    private var localizationKey: String.LocalizationValue {
+        switch self {
+        case .concept: "error_type_concept"
+        case .forgotten: "error_type_forgotten"
+        case .method: "error_type_method"
+        case .wrongDirection: "error_type_wrong_direction"
+        case .calculation: "error_type_calculation"
+        case .careless: "error_type_careless"
+        case .misread: "error_type_misread"
+        case .incomplete: "error_type_incomplete"
+        case .timeLimit: "error_type_time_limit"
+        case .other: "error_type_other"
+        }
+    }
     
     /// 简短标签（2字）
     nonisolated var shortLabel: String {
+        String(localized: shortLabelKey)
+    }
+    
+    /// 简短标签本地化键值
+    private var shortLabelKey: String.LocalizationValue {
         switch self {
-        case .concept: "概念"
-        case .forgotten: "遗忘"
-        case .method: "方法"
-        case .wrongDirection: "思路"
-        case .calculation: "计算"
-        case .careless: "粗心"
-        case .misread: "审题"
-        case .incomplete: "遗漏"
-        case .timeLimit: "超时"
-        case .other: "其他"
+        case .concept: "error_type_concept_short"
+        case .forgotten: "error_type_forgotten_short"
+        case .method: "error_type_method_short"
+        case .wrongDirection: "error_type_wrong_direction_short"
+        case .calculation: "error_type_calculation_short"
+        case .careless: "error_type_careless_short"
+        case .misread: "error_type_misread_short"
+        case .incomplete: "error_type_incomplete_short"
+        case .timeLimit: "error_type_time_limit_short"
+        case .other: "error_type_other_short"
         }
     }
     
@@ -238,17 +279,22 @@ extension ErrorType {
 extension ErrorType {
     /// 改进建议
     nonisolated var suggestion: String {
+        String(localized: suggestionKey)
+    }
+    
+    /// 改进建议本地化键值
+    private var suggestionKey: String.LocalizationValue {
         switch self {
-        case .concept: "回顾基础概念，理解底层原理，建立知识体系"
-        case .forgotten: "定期复习，使用间隔重复法巩固记忆"
-        case .method: "总结解题方法，多看例题，归纳解题模板"
-        case .wrongDirection: "先分析题目考查点，再选择解题方向"
-        case .calculation: "加强计算练习，养成验算习惯，使用草稿纸"
-        case .careless: "做题时放慢速度，完成后检查一遍答案"
-        case .misread: "仔细读题，圈出关键词，标注已知条件"
-        case .incomplete: "列出完整解题步骤，逐步检查是否遗漏"
-        case .timeLimit: "提高解题速度，合理分配时间，先易后难"
-        case .other: "分析具体错误原因，针对性改进"
+        case .concept: "error_type_concept_suggestion"
+        case .forgotten: "error_type_forgotten_suggestion"
+        case .method: "error_type_method_suggestion"
+        case .wrongDirection: "error_type_wrong_direction_suggestion"
+        case .calculation: "error_type_calculation_suggestion"
+        case .careless: "error_type_careless_suggestion"
+        case .misread: "error_type_misread_suggestion"
+        case .incomplete: "error_type_incomplete_suggestion"
+        case .timeLimit: "error_type_time_limit_suggestion"
+        case .other: "error_type_other_suggestion"
         }
     }
     

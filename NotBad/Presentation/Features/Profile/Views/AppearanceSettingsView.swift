@@ -65,8 +65,8 @@ struct AppearanceSettingsView: View {
             Toggle(isOn: $useDynamicType) {
                 Label {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                        Text("动态字体")
-                        Text("跟随系统字体大小设置")
+                        Text("appearance_dynamic_font")
+                        Text("appearance_dynamic_font_description")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -76,9 +76,9 @@ struct AppearanceSettingsView: View {
                 }
             }
         } header: {
-            Text("显示")
+            Text("appearance_section_display")
         } footer: {
-            Text("开启后应用会根据系统设置自动调整字体大小。")
+            Text("appearance_display_footer")
         }
     }
     
@@ -89,8 +89,8 @@ struct AppearanceSettingsView: View {
             Toggle(isOn: $reduceMotion) {
                 Label {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                        Text("减少动画")
-                        Text("简化界面动画效果")
+                        Text("appearance_reduce_motion")
+                        Text("appearance_reduce_motion_description")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -100,27 +100,27 @@ struct AppearanceSettingsView: View {
                 }
             }
         } header: {
-            Text("辅助功能")
+            Text("appearance_section_accessibility")
         } footer: {
-            Text("开启后会减少过渡动画，提高界面响应速度。")
+            Text("appearance_accessibility_footer")
         }
     }
     
     // MARK: - Preview Section
     
     private var previewSection: some View {
-        Section("预览") {
+        Section("appearance_section_preview") {
             VStack(spacing: DesignTokens.Spacing.md) {
                 HStack(spacing: DesignTokens.Spacing.md) {
-                    colorPreviewCard(Color.brand.primary, "主色")
-                    colorPreviewCard(Color.brand.secondary, "辅色")
-                    colorPreviewCard(Color.brand.success, "成功")
+                    colorPreviewCard(Color.brand.primary, String(localized: "appearance_color_primary"))
+                    colorPreviewCard(Color.brand.secondary, String(localized: "appearance_color_secondary"))
+                    colorPreviewCard(Color.brand.success, String(localized: "appearance_color_success"))
                 }
                 
                 HStack(spacing: DesignTokens.Spacing.md) {
-                    colorPreviewCard(Color.brand.warning, "警告")
-                    colorPreviewCard(Color.brand.error, "错误")
-                    colorPreviewCard(.gray, "中性")
+                    colorPreviewCard(Color.brand.warning, String(localized: "appearance_color_warning"))
+                    colorPreviewCard(Color.brand.error, String(localized: "appearance_color_error"))
+                    colorPreviewCard(.gray, String(localized: "appearance_color_neutral"))
                 }
             }
             .padding(.vertical, DesignTokens.Spacing.sm)

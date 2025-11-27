@@ -73,11 +73,11 @@ struct DisplayContent: View {
             }
             
             // 掌握度
-            InfoCard(title: "掌握程度", icon: "chart.line.uptrend.xyaxis") {
+            InfoCard(title: String(localized: "detail_mastery_level"), icon: "chart.line.uptrend.xyaxis") {
                 HStack {
                     masteryBadge
                     Spacer()
-                    Text("复习 \(item.reviewCount) 次")
+                    Text(String(format: String(localized: "detail_review_count"), item.reviewCount))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -85,7 +85,7 @@ struct DisplayContent: View {
             
             // 知识点
             if !item.knowledgePoints.isEmpty {
-                InfoCard(title: "知识点", icon: "lightbulb.fill") {
+                InfoCard(title: String(localized: "detail_knowledge_points"), icon: "lightbulb.fill") {
                     FlowLayout(spacing: DesignTokens.Spacing.sm) {
                         ForEach(item.knowledgePoints.items, id: \.self) { point in
                             Text(point)
@@ -220,25 +220,29 @@ struct EditingContent: View {
     
     private var subjectPicker: some View {
         Menu {
-            ForEach(Subject.allCases, id: \.self) { subject in
-                Button(subject.displayName) {
-                    item.subject = subject
+            ForEach(EducationSystemManager.shared.currentSystem.subjectIds, id: \.self) { id in
+                if let subject = Subject(rawValue: id) {
+                    Button(EducationSystemManager.shared.subjectDisplayName(for: id)) {
+                        item.subject = subject
+                    }
                 }
             }
         } label: {
-            pickerLabel(text: item.subject.displayName)
+            pickerLabel(text: EducationSystemManager.shared.subjectDisplayName(for: item.subjectRaw))
         }
     }
     
     private var gradePicker: some View {
         Menu {
-            ForEach(Grade.allCases, id: \.self) { grade in
-                Button(grade.displayName) {
-                    item.grade = grade
+            ForEach(EducationSystemManager.shared.currentSystem.gradeIds, id: \.self) { id in
+                if let grade = Grade(rawValue: id) {
+                    Button(EducationSystemManager.shared.gradeDisplayName(for: id)) {
+                        item.grade = grade
+                    }
                 }
             }
         } label: {
-            pickerLabel(text: item.grade.displayName)
+            pickerLabel(text: EducationSystemManager.shared.gradeDisplayName(for: item.gradeRaw))
         }
     }
     
@@ -302,7 +306,7 @@ struct EditingContent: View {
         Button(action: onSave) {
             HStack {
                 Image(systemName: "checkmark.circle.fill")
-                Text("保存修改")
+                Text("detail_save_changes")
                     .fontWeight(.semibold)
             }
             .frame(maxWidth: .infinity)

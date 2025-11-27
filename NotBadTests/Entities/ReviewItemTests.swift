@@ -63,7 +63,7 @@ struct ReviewItemTests {
         
         item.subject = .chemistry
         #expect(item.subject == .chemistry)
-        #expect(item.subjectRaw == "化学")
+        #expect(item.subjectRaw == "chemistry")
     }
     
     @Test("年级访问器正确")
@@ -73,7 +73,7 @@ struct ReviewItemTests {
         
         item.grade = .grade9
         #expect(item.grade == .grade9)
-        #expect(item.gradeRaw == "九年级") // rawValue 是全称，不是简称
+        #expect(item.gradeRaw == "grade_9")
     }
     
     @Test("掌握程度访问器正确")
@@ -176,6 +176,7 @@ struct ReviewItemTests {
     }
     
     @Test("shortDescription 格式正确")
+    @MainActor
     func shortDescriptionProperty() {
         let item = ReviewItem(subject: .math, questionType: .calculation)
         #expect(item.shortDescription.contains("数学"))
@@ -183,6 +184,7 @@ struct ReviewItemTests {
     }
     
     @Test("fullDescription 格式正确")
+    @MainActor
     func fullDescriptionProperty() {
         let item = ReviewItem(
             subject: .physics,
@@ -191,10 +193,15 @@ struct ReviewItemTests {
             questionType: .calculation
         )
         let desc = item.fullDescription
-        #expect(desc.contains("物理"))
-        #expect(desc.contains("高二"))
-        #expect(desc.contains("困难"))
-        #expect(desc.contains("计算题"))
+        
+        // 使用 EducationSystemManager 获取期望的显示名称，以避免测试环境本地化问题
+        let subjectName = EducationSystemManager.shared.subjectDisplayName(for: item.subjectRaw)
+        let gradeName = EducationSystemManager.shared.gradeDisplayName(for: item.gradeRaw)
+        
+        #expect(desc.contains(subjectName))
+        #expect(desc.contains(gradeName))
+        #expect(desc.contains(item.difficulty.displayName))
+        #expect(desc.contains(item.questionType.displayName))
     }
     
     // MARK: - 复习操作测试

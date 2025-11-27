@@ -60,7 +60,19 @@ enum SourceCategory: String, Sendable, CaseIterable, Codable, Hashable, Identifi
 extension SourceCategory {
     
     /// 显示名称
-    nonisolated var displayName: String { rawValue }
+    nonisolated var displayName: String {
+        String(localized: localizationKey)
+    }
+    
+    /// 本地化键值
+    private var localizationKey: String.LocalizationValue {
+        switch self {
+        case .official: "source_category_official"
+        case .school: "source_category_school"
+        case .extra: "source_category_extra"
+        case .other: "source_category_other"
+        }
+    }
     
     /// SF Symbol 图标名称
     nonisolated var icon: String {
@@ -84,11 +96,16 @@ extension SourceCategory {
     
     /// 分类描述
     nonisolated var categoryDescription: String {
+        String(localized: categoryDescriptionKey)
+    }
+    
+    /// 分类描述本地化键值
+    private var categoryDescriptionKey: String.LocalizationValue {
         switch self {
-        case .official: "权威教材与考试资料"
-        case .school: "校内学习与考试资料"
-        case .extra: "课外拓展与提升资料"
-        case .other: "其他学习资料"
+        case .official: "source_category_official_desc"
+        case .school: "source_category_school_desc"
+        case .extra: "source_category_extra_desc"
+        case .other: "source_category_other_desc"
         }
     }
 }
@@ -200,24 +217,48 @@ enum Source: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
 extension Source {
     
     /// 显示名称
-    nonisolated var displayName: String { rawValue }
+    nonisolated var displayName: String {
+        String(localized: localizationKey)
+    }
+    
+    /// 本地化键值
+    private var localizationKey: String.LocalizationValue {
+        switch self {
+        case .textbook: "source_textbook"
+        case .pastExam: "source_past_exam"
+        case .exam: "source_exam"
+        case .mock: "source_mock"
+        case .homework: "source_homework"
+        case .workbook: "source_workbook"
+        case .tutor: "source_tutor"
+        case .competition: "source_competition"
+        case .online: "source_online"
+        case .selfTest: "source_self_test"
+        case .other: "source_other"
+        }
+    }
     
     /// 简短标签
     ///
     /// 用于空间有限的 UI 展示。
     nonisolated var shortLabel: String {
+        String(localized: shortLabelKey)
+    }
+    
+    /// 简短标签本地化键值
+    private var shortLabelKey: String.LocalizationValue {
         switch self {
-        case .textbook: "课本"
-        case .pastExam: "真题"
-        case .exam: "考试"
-        case .mock: "模考"
-        case .homework: "作业"
-        case .workbook: "练习"
-        case .tutor: "辅导"
-        case .competition: "竞赛"
-        case .online: "网络"
-        case .selfTest: "自测"
-        case .other: "其他"
+        case .textbook: "source_textbook_short"
+        case .pastExam: "source_past_exam_short"
+        case .exam: "source_exam_short"
+        case .mock: "source_mock_short"
+        case .homework: "source_homework_short"
+        case .workbook: "source_workbook_short"
+        case .tutor: "source_tutor_short"
+        case .competition: "source_competition_short"
+        case .online: "source_online_short"
+        case .selfTest: "source_self_test_short"
+        case .other: "source_other_short"
         }
     }
     

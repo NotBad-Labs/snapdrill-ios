@@ -11,45 +11,86 @@ import SwiftUI
 
 /// 欢迎卡片组件
 struct WelcomeCard: View {
+    @State private var isAnimating = false
+    
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             HStack {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                    Text("Hello！")
+                    Text("dashboard_welcome_hello")
                         .font(.title2)
                         .fontWeight(.bold)
                     
-                    Text("继续你的学习之旅")
+                    Text("dashboard_welcome_subtitle")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
                 
-                Image(systemName: "sparkles")
-                    .font(.system(size: 40))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [Color.brand.warning, .pink],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                // 更精致的动画图标
+                ZStack {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [Color.brand.warning.opacity(0.3), .clear],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: 40
+                            )
                         )
-                    )
-                    .symbolEffect(.bounce)
-                    .accessibilityHidden(true)
+                        .frame(width: 80, height: 80)
+                        .scaleEffect(isAnimating ? 1.1 : 0.9)
+                    
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 36, weight: .medium))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color.brand.warning, Color.brand.error],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .rotationEffect(.degrees(isAnimating ? 5 : -5))
+                }
+                .accessibilityHidden(true)
             }
         }
-        .padding(DesignTokens.Spacing.lg)
+        .padding(DesignTokens.Spacing.xl)
         .background(
-            LinearGradient(
-                colors: [Color.brand.primary.opacity(0.1), Color.brand.secondary.opacity(0.1)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.brand.primary.opacity(0.08),
+                            Color.brand.secondary.opacity(0.12)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
         )
-        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl))
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.xl)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            Color.brand.primary.opacity(0.2),
+                            Color.brand.secondary.opacity(0.1)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Hello，继续你的学习之旅")
+        .accessibilityLabel("dashboard_welcome_accessibility")
+        .onAppear {
+            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
+                isAnimating = true
+            }
+        }
     }
 }
 
@@ -57,26 +98,35 @@ struct WelcomeCard: View {
 
 /// 统计卡片组件
 struct StatCard: View {
-    let title: String
+    let title: LocalizedStringKey
     let value: String
     let icon: String
     let color: Color
     
+    @State private var isAppeared = false
+    
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             HStack {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundStyle(color)
-                    .accessibilityHidden(true)
+                // 图标带背景
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.12))
+                        .frame(width: 40, height: 40)
+                    
+                    Image(systemName: icon)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(color)
+                }
+                .accessibilityHidden(true)
                 
                 Spacer()
             }
             
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                 Text(value)
-                    .font(.title)
-                    .fontWeight(.bold)
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .contentTransition(.numericText())
                 
                 Text(title)
                     .font(.caption)
@@ -86,8 +136,17 @@ struct StatCard: View {
         .padding(DesignTokens.Spacing.lg)
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
+        .shadow(DesignTokens.Shadow.light)
+        .scaleEffect(isAppeared ? 1 : 0.95)
+        .opacity(isAppeared ? 1 : 0)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title)：\(value)")
+        .accessibilityLabel(title)
+        .accessibilityValue(value)
+        .onAppear {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                isAppeared = true
+            }
+        }
     }
 }
 
@@ -95,31 +154,43 @@ struct StatCard: View {
 
 /// 快捷操作按钮组件
 struct QuickActionButton: View {
-    let title: String
+    let title: LocalizedStringKey
     let icon: String
     let color: Color
     
+    @State private var isPressed = false
+    
     var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(color)
-                .accessibilityHidden(true)
+        HStack(spacing: DesignTokens.Spacing.md) {
+            // 图标带背景
+            ZStack {
+                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
+                    .fill(color.opacity(0.12))
+                    .frame(width: 40, height: 40)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(color)
+            }
+            .accessibilityHidden(true)
             
             Text(title)
-                .font(.headline)
+                .font(.body.weight(.medium))
                 .foregroundStyle(.primary)
             
             Spacer()
             
             Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.tertiary)
                 .accessibilityHidden(true)
         }
-        .padding(DesignTokens.Spacing.lg)
+        .padding(DesignTokens.Spacing.md)
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
+        .shadow(DesignTokens.Shadow.light)
+        .scaleEffect(isPressed ? 0.98 : 1)
+        .animation(.easeOut(duration: 0.1), value: isPressed)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(title)
         .accessibilityAddTraits(.isButton)

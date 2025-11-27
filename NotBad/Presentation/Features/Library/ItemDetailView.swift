@@ -70,14 +70,14 @@ struct ItemDetailView: View {
             }
             .padding()
         }
-        .navigationTitle("错题详情")
+        .navigationTitle("detail_title")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
-        .alert("确认删除", isPresented: $showDeleteAlert) {
-            Button("取消", role: .cancel) {}
-            Button("删除", role: .destructive) { deleteItem() }
+        .alert("detail_delete_confirm_title", isPresented: $showDeleteAlert) {
+            Button("common_cancel", role: .cancel) {}
+            Button("common_delete", role: .destructive) { deleteItem() }
         } message: {
-            Text("确定要删除这道错题吗？此操作无法撤销。")
+            Text("detail_delete_confirm_message")
         }
     }
 }
@@ -95,7 +95,7 @@ private extension ItemDetailView {
                     isEditing.toggle()
                 } label: {
                     Label(
-                        isEditing ? "完成编辑" : "编辑",
+                        isEditing ? String(localized: "detail_finish_editing") : String(localized: "detail_edit"),
                         systemImage: isEditing ? "checkmark" : "pencil"
                     )
                 }
@@ -103,7 +103,7 @@ private extension ItemDetailView {
                 Button(role: .destructive) {
                     showDeleteAlert = true
                 } label: {
-                    Label("删除", systemImage: "trash")
+                    Label("common_delete", systemImage: "trash")
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")

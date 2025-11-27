@@ -63,8 +63,8 @@ struct LibraryView: View {
                 filterBar
                 contentView
             }
-            .navigationTitle("题库")
-            .searchable(text: $viewModel.searchText, prompt: "搜索标题或知识点")
+            .navigationTitle("library_title")
+            .searchable(text: $viewModel.searchText, prompt: Text("library_search_prompt"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     advancedSearchButton
@@ -110,8 +110,8 @@ private extension LibraryView {
                 }
             }
         }
-        .accessibilityLabel("高级搜索")
-        .accessibilityHint(viewModel.advancedCriteria.hasActiveFilters ? "有 \(viewModel.advancedCriteria.activeFilterCount) 个筛选条件" : "打开高级搜索")
+        .accessibilityLabel("library_advanced_search")
+        .accessibilityHint(viewModel.advancedCriteria.hasActiveFilters ? "library_filter_active \(viewModel.advancedCriteria.activeFilterCount)" : "library_open_advanced_search")
     }
     
     /// 排序菜单按钮
@@ -133,7 +133,7 @@ private extension LibraryView {
                 }
             }
         } label: {
-            Label("排序", systemImage: "arrow.up.arrow.down")
+            Label("library_sort", systemImage: "arrow.up.arrow.down")
         }
     }
     
@@ -142,9 +142,9 @@ private extension LibraryView {
     var contentView: some View {
         if filteredItems.isEmpty {
             ContentUnavailableView(
-                "暂无错题",
+                "library_empty_title",
                 systemImage: "books.vertical",
-                description: Text("快去录入你的第一道错题吧")
+                description: Text("library_empty_description")
             )
         } else {
             itemList
@@ -156,7 +156,7 @@ private extension LibraryView {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
                 FilterChip(
-                    title: "全部",
+                    title: String(localized: "filter_all"),
                     isSelected: viewModel.selectedSubject == nil
                 ) {
                     withAnimation(.spring(response: 0.3)) {

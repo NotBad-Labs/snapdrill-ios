@@ -303,13 +303,13 @@ struct LiveTextScannerContainer: View {
             controlBar
         }
         .alert(
-            "扫描错误",
+            "scanner_error_title",
             isPresented: Binding(
                 get: { errorMessage != nil },
                 set: { if !$0 { errorMessage = nil } }
             )
         ) {
-            Button("确定") { dismiss() }
+            Button("common_confirm") { dismiss() }
         } message: {
             Text(errorMessage ?? "")
         }
@@ -372,7 +372,7 @@ struct LiveTextScannerContainer: View {
         HStack(spacing: DesignTokens.Spacing.sm) {
             Image(systemName: "text.viewfinder")
                 .symbolEffect(.pulse)
-            Text("将题目对准取景框")
+            Text("scanner_aim_prompt")
         }
         .font(.subheadline)
         .foregroundStyle(.white)
@@ -382,30 +382,16 @@ struct LiveTextScannerContainer: View {
     }
     
     private var actionButtons: some View {
-        HStack(spacing: DesignTokens.Spacing.xl) {
-            // 取消按钮
-            Button {
-                onCancel()
-                dismiss()
-            } label: {
-                Label("取消", systemImage: "xmark.circle")
-                    .font(.headline)
-                    .padding(.horizontal, DesignTokens.Spacing.xl)
-                    .padding(.vertical, DesignTokens.Spacing.md + 2)
-                    .background(.ultraThinMaterial, in: Capsule())
-            }
-            
-            // 完成按钮
-            Button {
-                requestFinish()
-            } label: {
-                Label("完成扫描", systemImage: "checkmark.circle.fill")
-                    .font(.headline)
-                    .padding(.horizontal, DesignTokens.Spacing.xl)
-                    .padding(.vertical, DesignTokens.Spacing.md + 2)
-                    .background(Color.brand.primary.gradient, in: Capsule())
-                    .foregroundStyle(.white)
-            }
+        // 完成按钮（取消按钮已移至导航栏）
+        Button {
+            requestFinish()
+        } label: {
+            Label("scanner_finish", systemImage: "checkmark.circle.fill")
+                .font(.headline)
+                .padding(.horizontal, DesignTokens.Spacing.xl)
+                .padding(.vertical, DesignTokens.Spacing.md + 2)
+                .background(Color.brand.primary.gradient, in: Capsule())
+                .foregroundStyle(.white)
         }
     }
     

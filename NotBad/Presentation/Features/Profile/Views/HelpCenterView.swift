@@ -72,10 +72,10 @@ struct HelpCenterView: View {
     private var contactSection: some View {
         Section {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
-                Text("还有其他问题？")
+                Text("help_other_questions")
                     .font(.headline)
                 
-                Text("如果上面的内容没有解答你的疑问，欢迎通过以下方式联系我们：")
+                Text("help_contact_description")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 

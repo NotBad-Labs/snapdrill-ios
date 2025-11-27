@@ -37,17 +37,17 @@ struct NotificationSettingsView: View {
         .task {
             await checkNotificationStatus()
         }
-        .alert("需要通知权限", isPresented: $showPermissionAlert) {
-            Button("取消", role: .cancel) {
+        .alert("notification_permission_required", isPresented: $showPermissionAlert) {
+            Button("common_cancel", role: .cancel) {
                 reminderEnabled = false
             }
-            Button("前往设置") {
+            Button("notification_go_settings") {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
                 }
             }
         } message: {
-            Text("请在设置中开启通知权限，以便接收复习提醒。")
+            Text("notification_permission_message")
         }
     }
     
@@ -58,8 +58,8 @@ struct NotificationSettingsView: View {
             Toggle(isOn: $reminderEnabled) {
                 Label {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                        Text("每日提醒")
-                        Text("在固定时间提醒你复习")
+                        Text("notification_daily_reminder")
+                        Text("notification_reminder_description")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -79,7 +79,7 @@ struct NotificationSettingsView: View {
             }
         } footer: {
             if notificationStatus == .denied {
-                Text("通知权限已关闭，请在系统设置中开启。")
+                Text("notification_permission_denied")
                     .foregroundStyle(Color.brand.error)
             }
         }
@@ -88,12 +88,12 @@ struct NotificationSettingsView: View {
     // MARK: - Time Section
     
     private var timeSection: some View {
-        Section("提醒时间") {
+        Section("notification_reminder_time") {
             Button {
                 showTimePicker.toggle()
             } label: {
                 HStack {
-                    Label("时间", systemImage: "clock.fill")
+                    Label("notification_time", systemImage: "clock.fill")
                         .foregroundStyle(.primary)
                     Spacer()
                     Text(formattedTime)
@@ -108,7 +108,7 @@ struct NotificationSettingsView: View {
             
             if showTimePicker {
                 DatePicker(
-                    "选择时间",
+                    "notification_select_time",
                     selection: timeBinding,
                     displayedComponents: .hourAndMinute
                 )

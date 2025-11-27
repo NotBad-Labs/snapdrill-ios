@@ -20,13 +20,13 @@ enum Tab: Int, CaseIterable, Identifiable, Sendable {
     var id: Int { rawValue }
     
     /// Tab 标题
-    var title: String {
+    var title: LocalizedStringKey {
         switch self {
-        case .dashboard: "首页"
-        case .library: "题库"
-        case .capture: "录入"
-        case .review: "复习"
-        case .profile: "我的"
+        case .dashboard: "tab_dashboard"
+        case .library: "tab_library"
+        case .capture: "tab_capture"
+        case .review: "tab_review"
+        case .profile: "tab_profile"
         }
     }
     
@@ -35,7 +35,7 @@ enum Tab: Int, CaseIterable, Identifiable, Sendable {
         switch self {
         case .dashboard: "house"
         case .library: "books.vertical"
-        case .capture: "plus.circle.fill"
+        case .capture: "plus.circle"
         case .review: "sparkles"
         case .profile: "person.crop.circle"
         }
@@ -131,15 +131,8 @@ struct MainTabView: View {
         
         return Label {
             Text(tab.title)
-                .fontWeight(tab == .capture ? .semibold : .regular)
         } icon: {
-            if tab == .capture {
-                Image(systemName: tab.icon)
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(.white, Color.brand.primary)
-            } else {
-                Image(systemName: isSelected ? tab.selectedIcon : tab.icon)
-            }
+            Image(systemName: isSelected ? tab.selectedIcon : tab.icon)
         }
         .accessibilityLabel(tab.title)
     }

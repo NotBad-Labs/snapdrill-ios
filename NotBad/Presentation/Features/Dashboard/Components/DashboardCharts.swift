@@ -20,35 +20,35 @@ struct StatisticsGrid: View {
     var body: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DesignTokens.Spacing.lg) {
             StatCard(
-                title: "总错题",
+                title: "stat_total_items",
                 value: "\(totalCount)",
                 icon: "books.vertical.fill",
                 color: Color.brand.primary
             )
             
             StatCard(
-                title: "已掌握",
+                title: "stat_mastered",
                 value: "\(masteredCount)",
                 icon: "checkmark.seal.fill",
                 color: Color.brand.success
             )
             
             StatCard(
-                title: "本周新增",
+                title: "stat_weekly_new",
                 value: "\(weeklyNewCount)",
                 icon: "plus.circle.fill",
                 color: Color.brand.warning
             )
             
             StatCard(
-                title: "复习次数",
+                title: "stat_review_count",
                 value: "\(totalReviewCount)",
                 icon: "clock.arrow.circlepath",
                 color: Color.brand.secondary
             )
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("学习统计")
+        .accessibilityLabel("stat_accessibility_label")
     }
 }
 
@@ -61,7 +61,7 @@ struct MasteryDistributionChart: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
-            Text("掌握度分布")
+            Text("chart_mastery_distribution")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
             
@@ -127,7 +127,7 @@ struct SubjectDistributionChart: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
-            Text("学科分布")
+            Text("dashboard_subject_distribution")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
             
@@ -174,13 +174,13 @@ struct EmptyChartPlaceholder: View {
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
             
-            Text("暂无数据")
+            Text("dashboard_no_data")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
         .frame(height: 150)
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("暂无数据")
+        .accessibilityLabel("dashboard_no_data")
     }
 }

@@ -51,10 +51,10 @@ struct FeedbackView: View {
                 recipients: ["feedback@notbad.app"]
             )
         }
-        .alert("感谢反馈！", isPresented: $showSuccessAlert) {
-            Button("好的") { }
+        .alert("feedback_thank_you", isPresented: $showSuccessAlert) {
+            Button("common_ok") { }
         } message: {
-            Text("我们已收到你的反馈，会认真阅读并持续改进。")
+            Text("feedback_received_message")
         }
         .overlay {
             if showCopiedToast {
@@ -72,7 +72,7 @@ struct FeedbackView: View {
     // MARK: - Type Section
     
     private var typeSection: some View {
-        Section("反馈类型") {
+        Section("feedback_section_type") {
             ForEach(FeedbackType.allCases) { type in
                 Button {
                     feedbackType = type
@@ -101,7 +101,7 @@ struct FeedbackView: View {
                 .focused($isFocused)
                 .overlay(alignment: .topLeading) {
                     if feedbackContent.isEmpty {
-                        Text("请详细描述你的问题或建议...")
+                        Text("feedback_placeholder")
                             .foregroundStyle(.tertiary)
                             .padding(.top, 8)
                             .padding(.leading, 4)
@@ -109,9 +109,9 @@ struct FeedbackView: View {
                     }
                 }
         } header: {
-            Text("详细描述")
+            Text("feedback_section_description")
         } footer: {
-            Text("\(feedbackContent.count)/500 字")
+            Text(String(format: String(localized: "feedback_character_count"), feedbackContent.count))
                 .foregroundStyle(feedbackContent.count > 500 ? Color.brand.error : .secondary)
         }
     }
@@ -120,15 +120,15 @@ struct FeedbackView: View {
     
     private var contactSection: some View {
         Section {
-            TextField("邮箱或手机号（选填）", text: $contactInfo)
+            TextField(String(localized: "feedback_contact_placeholder"), text: $contactInfo)
                 .keyboardType(.emailAddress)
                 .textContentType(.emailAddress)
                 .autocapitalization(.none)
                 .focused($isFocused)
         } header: {
-            Text("联系方式")
+            Text("feedback_section_contact")
         } footer: {
-            Text("留下联系方式，方便我们跟进处理。")
+            Text("feedback_contact_footer")
         }
     }
     
@@ -142,7 +142,7 @@ struct FeedbackView: View {
                 } label: {
                     HStack {
                         Spacer()
-                        Label("发送邮件反馈", systemImage: "envelope.fill")
+                        Label("feedback_send_email", systemImage: "envelope.fill")
                             .fontWeight(.semibold)
                         Spacer()
                     }
@@ -154,7 +154,7 @@ struct FeedbackView: View {
                 } label: {
                     HStack {
                         Spacer()
-                        Label("复制反馈内容", systemImage: "doc.on.doc.fill")
+                        Label("feedback_copy_content", systemImage: "doc.on.doc.fill")
                             .fontWeight(.semibold)
                         Spacer()
                     }
@@ -163,7 +163,7 @@ struct FeedbackView: View {
             }
         } footer: {
             if !MFMailComposeViewController.canSendMail() {
-                Text("设备未配置邮箱，点击复制后可粘贴发送到 feedback@notbad.app")
+                Text("feedback_no_email_tip")
             }
         }
     }

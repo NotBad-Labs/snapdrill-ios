@@ -36,7 +36,7 @@ struct ProfileView: View {
                 settingsSection
                 aboutSection
             }
-            .navigationTitle("我的")
+            .navigationTitle("profile_title")
             .navigationBarTitleDisplayMode(.large)
         }
     }
@@ -46,28 +46,40 @@ struct ProfileView: View {
     private var userSection: some View {
         Section {
             HStack(spacing: DesignTokens.Spacing.lg) {
-                // 头像
-                Image(systemName: "person.circle.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [Color.brand.primary, Color.brand.secondary],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                // 头像 with enhanced gradient and shadow
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.brand.primary, Color.brand.secondary],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
+                        .frame(width: 64, height: 64)
+                        .shadow(color: Color.brand.primary.opacity(0.3), radius: 8, x: 0, y: 4)
+                    
+                    Image(systemName: "person.fill")
+                        .font(.system(size: 28, weight: .medium))
+                        .foregroundStyle(.white)
+                }
                 
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                    Text("学习小能手")
+                    Text("profile_nickname")
                         .font(.title2)
                         .fontWeight(.bold)
                     
-                    Text("坚持记录，进步看得见")
+                    Text("profile_subtitle")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
+                
+                // Chevron indicator
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.tertiary)
             }
             .padding(.vertical, DesignTokens.Spacing.sm)
         }
@@ -76,31 +88,31 @@ struct ProfileView: View {
     // MARK: - Statistics Section
     
     private var statisticsSection: some View {
-        Section("学习统计") {
+        Section("profile_section_statistics") {
             StatisticsRow(
                 icon: "books.vertical.fill",
-                title: "总错题数",
+                title: String(localized: "profile_total_items"),
                 value: "\(allItems.count)",
                 color: Color.brand.primary
             )
             
             StatisticsRow(
                 icon: "checkmark.seal.fill",
-                title: "已掌握",
+                title: String(localized: "profile_mastered"),
                 value: "\(masteredCount)",
                 color: Color.brand.success
             )
             
             StatisticsRow(
                 icon: "clock.arrow.circlepath",
-                title: "总复习次数",
+                title: String(localized: "profile_total_reviews"),
                 value: "\(totalReviewCount)",
                 color: Color.brand.warning
             )
             
             StatisticsRow(
                 icon: "calendar",
-                title: "学习天数",
+                title: String(localized: "profile_study_days"),
                 value: "\(studyDays)",
                 color: Color.brand.secondary
             )
@@ -110,23 +122,23 @@ struct ProfileView: View {
     // MARK: - Settings Section
     
     private var settingsSection: some View {
-        Section("设置") {
+        Section("profile_section_settings") {
             NavigationLink {
                 notificationSettingsView
             } label: {
-                Label("复习提醒", systemImage: "bell.fill")
+                Label("profile_review_reminder", systemImage: "bell.fill")
             }
             
             NavigationLink {
                 dataManagementView
             } label: {
-                Label("数据管理", systemImage: "externaldrive.fill")
+                Label("profile_data_management", systemImage: "externaldrive.fill")
             }
             
             NavigationLink {
                 appearanceSettingsView
             } label: {
-                Label("外观设置", systemImage: "paintbrush.fill")
+                Label("profile_appearance", systemImage: "paintbrush.fill")
             }
         }
     }
@@ -134,21 +146,21 @@ struct ProfileView: View {
     // MARK: - About Section
     
     private var aboutSection: some View {
-        Section("关于") {
+        Section("profile_section_about") {
             NavigationLink {
                 helpCenterView
             } label: {
-                Label("帮助中心", systemImage: "questionmark.circle.fill")
+                Label("profile_help_center", systemImage: "questionmark.circle.fill")
             }
             
             NavigationLink {
                 feedbackView
             } label: {
-                Label("意见反馈", systemImage: "envelope.fill")
+                Label("profile_feedback", systemImage: "envelope.fill")
             }
             
             HStack {
-                Label("版本", systemImage: "info.circle.fill")
+                Label("profile_version", systemImage: "info.circle.fill")
                 Spacer()
                 Text("1.0.0")
                     .foregroundStyle(.secondary)
@@ -204,20 +216,28 @@ private struct StatisticsRow: View {
     let color: Color
     
     var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(color)
-                .frame(width: 30)
+        HStack(spacing: DesignTokens.Spacing.md) {
+            // Icon with circle background
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.12))
+                    .frame(width: 36, height: 36)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(color)
+            }
             
             Text(title)
+                .font(.body)
             
             Spacer()
             
             Text(value)
-                .fontWeight(.semibold)
+                .font(.system(.body, design: .rounded, weight: .bold))
                 .foregroundStyle(color)
         }
+        .padding(.vertical, DesignTokens.Spacing.xs)
     }
 }
 

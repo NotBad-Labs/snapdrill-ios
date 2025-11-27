@@ -27,11 +27,11 @@ import SwiftUI
 /// print(category.icon)         // "flask"
 /// ```
 enum SubjectCategory: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
-    case language = "语言"
-    case science = "理科"
-    case humanities = "人文"
-    case technology = "技术"
-    case other = "其他"
+    case language = "language"
+    case science = "science"
+    case humanities = "humanities"
+    case technology = "technology"
+    case other = "other"
     
     // MARK: Identifiable
     
@@ -42,7 +42,20 @@ enum SubjectCategory: String, Sendable, CaseIterable, Codable, Hashable, Identif
 
 extension SubjectCategory {
     /// 显示名称
-    nonisolated var displayName: String { rawValue }
+    nonisolated var displayName: String {
+        String(localized: localizationKey)
+    }
+    
+    /// 本地化键值
+    private var localizationKey: String.LocalizationValue {
+        switch self {
+        case .language: "subject_category_language"
+        case .science: "subject_category_science"
+        case .humanities: "subject_category_humanities"
+        case .technology: "subject_category_technology"
+        case .other: "subject_category_other"
+        }
+    }
     
     /// SF Symbol 图标名称
     nonisolated var icon: String {
@@ -107,41 +120,41 @@ extension SubjectCategory {
 enum Subject: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     // 语言类
     /// 语文
-    case chinese = "语文"
+    case chinese = "chinese"
     /// 英语
-    case english = "英语"
+    case english = "english"
     
     // 理科类
     /// 数学
-    case math = "数学"
+    case math = "math"
     /// 物理（初中、高中）
-    case physics = "物理"
+    case physics = "physics"
     /// 化学（初中、高中）
-    case chemistry = "化学"
+    case chemistry = "chemistry"
     /// 生物（高中）
-    case biology = "生物"
+    case biology = "biology"
     /// 科学（小学、初中科学课）
-    case science = "科学"
+    case science = "science"
     
     // 人文类
     /// 历史（初中、高中）
-    case history = "历史"
+    case history = "history"
     /// 地理（初中、高中）
-    case geography = "地理"
+    case geography = "geography"
     /// 政治（初中、高中）
-    case politics = "政治"
+    case politics = "politics"
     /// 道德与法治（小学、初中）
-    case ethics = "道德与法治"
+    case ethics = "ethics"
     
     // 技术类
     /// 信息技术
-    case informationTech = "信息技术"
+    case informationTech = "information_tech"
     /// 通用技术（高中）
-    case generalTech = "通用技术"
+    case generalTech = "general_tech"
     
     // 其他
     /// 其他学科
-    case other = "其他"
+    case other = "other"
     
     // MARK: Identifiable
     
@@ -152,25 +165,52 @@ enum Subject: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
 
 extension Subject {
     /// 显示名称
-    nonisolated var displayName: String { rawValue }
+    nonisolated var displayName: String {
+        String(localized: localizationKey)
+    }
+    
+    /// 本地化键值
+    private var localizationKey: String.LocalizationValue {
+        switch self {
+        case .chinese: "subject_chinese"
+        case .english: "subject_english"
+        case .math: "subject_math"
+        case .physics: "subject_physics"
+        case .chemistry: "subject_chemistry"
+        case .biology: "subject_biology"
+        case .science: "subject_science"
+        case .history: "subject_history"
+        case .geography: "subject_geography"
+        case .politics: "subject_politics"
+        case .ethics: "subject_ethics"
+        case .informationTech: "subject_information_tech"
+        case .generalTech: "subject_general_tech"
+        case .other: "subject_other"
+        }
+    }
     
     /// 简短标签（单字）
     nonisolated var shortLabel: String {
+        String(localized: shortLabelKey)
+    }
+    
+    /// 简短标签本地化键值
+    private var shortLabelKey: String.LocalizationValue {
         switch self {
-        case .chinese: "语"
-        case .english: "英"
-        case .math: "数"
-        case .physics: "物"
-        case .chemistry: "化"
-        case .biology: "生"
-        case .science: "科"
-        case .history: "史"
-        case .geography: "地"
-        case .politics: "政"
-        case .ethics: "道"
-        case .informationTech: "信"
-        case .generalTech: "技"
-        case .other: "他"
+        case .chinese: "subject_chinese_short"
+        case .english: "subject_english_short"
+        case .math: "subject_math_short"
+        case .physics: "subject_physics_short"
+        case .chemistry: "subject_chemistry_short"
+        case .biology: "subject_biology_short"
+        case .science: "subject_science_short"
+        case .history: "subject_history_short"
+        case .geography: "subject_geography_short"
+        case .politics: "subject_politics_short"
+        case .ethics: "subject_ethics_short"
+        case .informationTech: "subject_information_tech_short"
+        case .generalTech: "subject_general_tech_short"
+        case .other: "subject_other_short"
         }
     }
     

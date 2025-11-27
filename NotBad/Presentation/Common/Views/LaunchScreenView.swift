@@ -42,13 +42,13 @@ struct LaunchScreenView: View {
                 logoView
                 
                 // 应用名称
-                Text("错题本")
+                Text("app_name")
                     .font(.system(size: 36, weight: .bold, design: .rounded))
                     .foregroundStyle(.primary)
                 
                 // 标语
                 if showTagline {
-                    Text("智能复习，高效学习")
+                    Text("app_tagline")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .transition(.opacity.combined(with: .move(edge: .bottom)))

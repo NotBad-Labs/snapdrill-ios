@@ -1,6 +1,29 @@
 {
-  "configurations" : [],
-  "defaultOptions" : {},
-  "testTargets" : [],
+  "configurations" : [
+    {
+      "id" : "8A4B2C1D-3E5F-6789-0ABC-DEF123456789",
+      "name" : "UI Tests",
+      "options" : {
+        "language" : "zh-Hans",
+        "region" : "CN"
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:NotBad.xcodeproj",
+      "identifier" : "B27BD9792E560D0800E69277",
+      "name" : "NotBadUITests"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:NotBad.xcodeproj",
+        "identifier" : "B27BD9792E560D0800E69277",
+        "name" : "NotBadUITests"
+      }
+    }
+  ],
   "version" : 1
 }

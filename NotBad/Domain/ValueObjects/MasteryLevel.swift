@@ -51,34 +51,49 @@ enum MasteryLevel: Int, Sendable, CaseIterable, Codable, Hashable, Identifiable 
 extension MasteryLevel {
     /// 显示名称
     nonisolated var displayName: String {
+        String(localized: localizationKey)
+    }
+    
+    /// 本地化键值
+    private var localizationKey: String.LocalizationValue {
         switch self {
-        case .none: "不会"
-        case .glimpse: "一知半解"
-        case .partial: "似懂非懂"
-        case .good: "基本掌握"
-        case .mastered: "完全掌握"
+        case .none: "mastery_none"
+        case .glimpse: "mastery_glimpse"
+        case .partial: "mastery_partial"
+        case .good: "mastery_good"
+        case .mastered: "mastery_mastered"
         }
     }
     
     /// 简短标签
     nonisolated var shortLabel: String {
+        String(localized: shortLabelKey)
+    }
+    
+    /// 简短标签本地化键值
+    private var shortLabelKey: String.LocalizationValue {
         switch self {
-        case .none: "不会"
-        case .glimpse: "半解"
-        case .partial: "似懂"
-        case .good: "掌握"
-        case .mastered: "精通"
+        case .none: "mastery_none_short"
+        case .glimpse: "mastery_glimpse_short"
+        case .partial: "mastery_partial_short"
+        case .good: "mastery_good_short"
+        case .mastered: "mastery_mastered_short"
         }
     }
     
     /// 详细描述
     nonisolated var detailText: String {
+        String(localized: detailTextKey)
+    }
+    
+    /// 详细描述本地化键值
+    private var detailTextKey: String.LocalizationValue {
         switch self {
-        case .none: "完全不会，需要重新学习基础概念"
-        case .glimpse: "看答案后能懂，但自己做不出来"
-        case .partial: "能做对但不确定，解题思路不清晰"
-        case .good: "能独立完成，偶尔会粗心出错"
-        case .mastered: "完全掌握，能举一反三解决变式题"
+        case .none: "mastery_none_detail"
+        case .glimpse: "mastery_glimpse_detail"
+        case .partial: "mastery_partial_detail"
+        case .good: "mastery_good_detail"
+        case .mastered: "mastery_mastered_detail"
         }
     }
 }

@@ -22,9 +22,9 @@ struct GradeTests {
         }
     }
     
-    @Test("年级数量正确（小学6年+初中3年+高中3年=12）")
+    @Test("年级数量正确（幼儿园+小学6年+初中3年+高中3年=13）")
     func gradeCount() {
-        #expect(Grade.allCases.count == 12)
+        #expect(Grade.allCases.count == 13)
     }
     
     // MARK: - 显示属性测试
@@ -58,7 +58,8 @@ struct GradeTests {
     @Test("小学学段包含正确的年级")
     func primarySchoolGrades() {
         let primary = GradeStage.primary.grades
-        #expect(primary.count == 6)
+        #expect(primary.count == 7)
+        #expect(primary.contains(.kindergarten))
         #expect(primary.contains(.grade1))
         #expect(primary.contains(.grade6))
         #expect(!primary.contains(.grade7))
@@ -141,20 +142,24 @@ struct GradeTests {
     
     // MARK: - 工厂方法测试
     
-    @Test("from(order:) 创建正确")
+    @Test("from(order:) 返回正确年级")
     func fromOrderFactory() {
+        #expect(Grade.from(order: 0) == .kindergarten)
         #expect(Grade.from(order: 1) == .grade1)
+        #expect(Grade.from(order: 6) == .grade6)
         #expect(Grade.from(order: 7) == .grade7)
+        #expect(Grade.from(order: 9) == .grade9)
+        #expect(Grade.from(order: 10) == .grade10)
         #expect(Grade.from(order: 12) == .grade12)
         
-        #expect(Grade.from(order: 0) == nil)
+        #expect(Grade.from(order: -1) == nil)
         #expect(Grade.from(order: 13) == nil)
     }
     
     @Test("grades(for:) 返回正确年级")
     func gradesForStage() {
         let primary = Grade.grades(for: .primary)
-        #expect(primary.count == 6)
+        #expect(primary.count == 7)
         
         let junior = Grade.grades(for: .junior)
         #expect(junior.count == 3)
@@ -167,7 +172,7 @@ struct GradeTests {
     
     @Test("primaryGrades 包含正确年级")
     func primaryGradesCollection() {
-        #expect(Grade.primaryGrades.count == 6)
+        #expect(Grade.primaryGrades.count == 7)
         for grade in Grade.primaryGrades {
             #expect(grade.stage == .primary)
         }
@@ -213,13 +218,14 @@ struct GradeTests {
         #expect(GradeStage.junior.gradeRange == "7-9年级")
         #expect(GradeStage.senior.gradeRange == "10-12年级")
         
-        #expect(GradeStage.primary.gradeCount == 6)
+        #expect(GradeStage.primary.gradeCount == 7)
         #expect(GradeStage.junior.gradeCount == 3)
         #expect(GradeStage.senior.gradeCount == 3)
     }
     
     @Test("GradeStage from(gradeOrder:) 正确")
     func gradeStageFromOrder() {
+        #expect(GradeStage.from(gradeOrder: 0) == .primary)
         #expect(GradeStage.from(gradeOrder: 1) == .primary)
         #expect(GradeStage.from(gradeOrder: 6) == .primary)
         #expect(GradeStage.from(gradeOrder: 7) == .junior)
@@ -227,7 +233,6 @@ struct GradeTests {
         #expect(GradeStage.from(gradeOrder: 10) == .senior)
         #expect(GradeStage.from(gradeOrder: 12) == .senior)
         
-        #expect(GradeStage.from(gradeOrder: 0) == nil)
         #expect(GradeStage.from(gradeOrder: 13) == nil)
     }
     

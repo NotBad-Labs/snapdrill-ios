@@ -26,18 +26,18 @@ struct EmptyReviewState: View {
                 .symbolEffect(.bounce)
             
             VStack(spacing: DesignTokens.Spacing.sm) {
-                Text("暂无需要复习的错题")
+                Text("review_empty_title")
                     .font(.title2)
                     .fontWeight(.semibold)
                 
-                Text("去录入一些错题吧")
+                Text("review_empty_description")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
         }
         .padding()
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("暂无需要复习的错题，去录入一些错题吧")
+        .accessibilityLabel("review_empty_accessibility")
     }
 }
 

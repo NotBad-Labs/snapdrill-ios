@@ -229,11 +229,11 @@ struct SubjectTests {
         #expect(decoded == subject)
     }
     
-    @Test("rawValue 正确（中文）")
+    @Test("rawValue 正确（英文ID）")
     func subjectRawValue() {
-        #expect(Subject.math.rawValue == "数学")
-        #expect(Subject.chinese.rawValue == "语文")
-        #expect(Subject(rawValue: "物理") == .physics)
+        #expect(Subject.math.rawValue == "math")
+        #expect(Subject.chinese.rawValue == "chinese")
+        #expect(Subject(rawValue: "physics") == .physics)
     }
     
     // MARK: - 描述测试

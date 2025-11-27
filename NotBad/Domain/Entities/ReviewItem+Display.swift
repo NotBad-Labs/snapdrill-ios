@@ -22,15 +22,20 @@ extension ReviewItem {
     /// 简短描述
     ///
     /// 格式：「学科 · 题型」
+    @MainActor
     var shortDescription: String {
-        "\(subject.displayName) · \(questionType.displayName)"
+        let subjectName = EducationSystemManager.shared.subjectDisplayName(for: subjectRaw)
+        return "\(subjectName) · \(questionType.displayName)"
     }
     
     /// 完整描述
     ///
     /// 格式：「学科 · 年级 · 题型 · 难度」
+    @MainActor
     var fullDescription: String {
-        "\(subject.displayName) · \(grade.displayName) · \(questionType.displayName) · \(difficulty.displayName)"
+        let subjectName = EducationSystemManager.shared.subjectDisplayName(for: subjectRaw)
+        let gradeName = EducationSystemManager.shared.gradeDisplayName(for: gradeRaw)
+        return "\(subjectName) · \(gradeName) · \(questionType.displayName) · \(difficulty.displayName)"
     }
     
     /// 复习状态描述
@@ -55,7 +60,7 @@ extension ReviewItem {
 extension ReviewItem: CustomStringConvertible {
     
     /// 调试描述
-    var description: String {
-        "ReviewItem(\(displayTitle), \(shortDescription), \(masteryStatusDescription))"
+    nonisolated var description: String {
+        "ReviewItem(\(displayTitle), \(subjectRaw), \(gradeRaw), \(masteryLevel))"
     }
 }

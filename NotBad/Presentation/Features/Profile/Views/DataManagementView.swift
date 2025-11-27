@@ -41,7 +41,7 @@ struct DataManagementView: View {
             importSection
             dangerZoneSection
         }
-        .navigationTitle("数据管理")
+        .navigationTitle("data_management_title")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showExportSheet) {
             if let url = exportedFileURL {
@@ -55,13 +55,13 @@ struct DataManagementView: View {
         ) { result in
             handleImport(result)
         }
-        .alert("确认清空所有数据？", isPresented: $showDeleteAlert) {
-            Button("取消", role: .cancel) { }
-            Button("清空", role: .destructive) {
+        .alert("data_confirm_delete_all", isPresented: $showDeleteAlert) {
+            Button("common_cancel", role: .cancel) { }
+            Button("data_clear", role: .destructive) {
                 deleteAllData()
             }
         } message: {
-            Text("此操作不可恢复，所有错题记录将被永久删除。")
+            Text("data_delete_warning")
         }
         .overlay {
             if showSuccessToast {
@@ -79,23 +79,23 @@ struct DataManagementView: View {
     // MARK: - Storage Section
     
     private var storageSection: some View {
-        Section("存储信息") {
+        Section("data_section_storage") {
             HStack {
-                Label("错题数量", systemImage: "doc.text.fill")
+                Label("data_item_count", systemImage: "doc.text.fill")
                 Spacer()
-                Text("\(allItems.count) 道")
+                Text(String(format: String(localized: "data_items_unit"), allItems.count))
                     .foregroundStyle(.secondary)
             }
             
             HStack {
-                Label("图片数量", systemImage: "photo.fill")
+                Label("data_image_count", systemImage: "photo.fill")
                 Spacer()
-                Text("\(imageCount) 张")
+                Text(String(format: String(localized: "data_images_unit"), imageCount))
                     .foregroundStyle(.secondary)
             }
             
             HStack {
-                Label("预估大小", systemImage: "externaldrive.fill")
+                Label("data_estimated_size", systemImage: "externaldrive.fill")
                 Spacer()
                 Text(estimatedSize)
                     .foregroundStyle(.secondary)
@@ -106,14 +106,14 @@ struct DataManagementView: View {
     // MARK: - Export Section
     
     private var exportSection: some View {
-        Section("数据导出") {
+        Section("data_section_export") {
             Button {
                 exportData()
             } label: {
                 Label {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                        Text("导出为 JSON")
-                        Text("导出所有错题数据（不含图片）")
+                        Text("data_export_json")
+                        Text("data_export_json_description")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -129,8 +129,8 @@ struct DataManagementView: View {
             } label: {
                 Label {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                        Text("导出为 CSV")
-                        Text("可用 Excel 打开查看")
+                        Text("data_export_csv")
+                        Text("data_export_csv_description")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -149,13 +149,13 @@ struct DataManagementView: View {
                 Label {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                         HStack {
-                            Text("完整备份")
+                            Text("data_full_backup")
                             if isExporting {
                                 ProgressView()
                                     .scaleEffect(0.8)
                             }
                         }
-                        Text("导出所有数据和图片（ZIP格式）")
+                        Text("data_full_backup_description")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -171,14 +171,14 @@ struct DataManagementView: View {
     // MARK: - Import Section
     
     private var importSection: some View {
-        Section("数据导入") {
+        Section("data_section_import") {
             Button {
                 showImportPicker = true
             } label: {
                 Label {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                        Text("从备份恢复")
-                        Text("导入 JSON 或 ZIP 备份文件")
+                        Text("data_restore_from_backup")
+                        Text("data_restore_description")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -198,13 +198,13 @@ struct DataManagementView: View {
             Button(role: .destructive) {
                 showDeleteAlert = true
             } label: {
-                Label("清空所有数据", systemImage: "trash.fill")
+                Label("data_clear_all", systemImage: "trash.fill")
             }
             .disabled(allItems.isEmpty)
         } header: {
-            Text("危险操作")
+            Text("data_section_danger_zone")
         } footer: {
-            Text("清空数据后无法恢复，请谨慎操作。建议先导出备份。")
+            Text("data_danger_zone_footer")
         }
     }
     

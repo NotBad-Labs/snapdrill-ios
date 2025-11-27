@@ -74,8 +74,17 @@ final class CaptureViewModel {
     /// 学科
     var subject: Subject = .math
     
-    /// 年级
-    var grade: Grade = .grade10
+    /// 年级（从用户设置读取默认值）
+    var grade: Grade = CaptureViewModel.getUserDefaultGrade()
+    
+    /// 获取用户在 Onboarding 中选择的年级
+    private static func getUserDefaultGrade() -> Grade {
+        guard let savedGrade = UserDefaults.standard.string(forKey: "user_current_grade"),
+              let grade = Grade(rawValue: savedGrade) else {
+            return .grade7  // 默认初一
+        }
+        return grade
+    }
     
     /// 知识点输入（逗号分隔）
     var knowledgePointsInput: String = ""
@@ -111,6 +120,9 @@ final class CaptureViewModel {
     
     /// 提示类型
     var alertType: AlertType = .info
+    
+    /// 是否为成功提示（用于判断是否重置表单）
+    var isSuccessAlert = false
     
     /// 是否显示相机
     var showCamera = false
@@ -167,11 +179,11 @@ final class CaptureViewModel {
         var errors: [String] = []
         
         if !hasImage && !isFromLiveScanner {
-            errors.append("请选择或拍摄错题图片")
+            errors.append(String(localized: "capture_validation_no_image"))
         }
         
         if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            errors.append("请输入标题")
+            errors.append(String(localized: "capture_validation_no_title"))
         }
         
         return errors
@@ -258,12 +270,12 @@ final class CaptureViewModel {
             isRecognizingText = false
             currentStep = .fillForm
             
-            showSuccessAlert("文字识别成功！已自动填充标题和笔记")
+            showSuccessAlert(String(localized: "capture_ocr_success"))
         } catch {
             isRecognizingText = false
             currentStep = .fillForm
             
-            showWarningAlert("文字识别失败：\(error.localizedDescription)\n\n可以手动输入标题和笔记")
+            showWarningAlert(String(format: String(localized: "capture_ocr_failure"), error.localizedDescription))
         }
     }
     
@@ -331,7 +343,7 @@ final class CaptureViewModel {
             #if DEBUG
             print("❌ [CaptureVM] 保存失败：modelContext 为 nil")
             #endif
-            showErrorAlert("保存失败：数据上下文未配置")
+            showErrorAlert(String(localized: "capture_save_error_context"))
             return
         }
         
@@ -340,7 +352,7 @@ final class CaptureViewModel {
             #if DEBUG
             print("❌ [CaptureVM] 保存失败：无图片且非实时扫描")
             #endif
-            showErrorAlert("保存失败：请选择图片或使用实时扫描")
+            showErrorAlert(String(localized: "capture_save_error_no_image"))
             return
         }
         
@@ -374,10 +386,14 @@ final class CaptureViewModel {
             print("✅ [CaptureVM] save 成功")
             #endif
             
+            // 触觉反馈 - 成功
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+            
             // 延迟显示成功提示，改善体验
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                 self?.isSaving = false
-                self?.showSuccessAlert("保存成功！错题已添加到题库")
+                self?.showSuccessAlert(String(localized: "capture_save_success"))
                 
                 // 发送通知
                 NotificationCenter.default.post(name: .reviewItemAdded, object: newItem)
@@ -386,8 +402,13 @@ final class CaptureViewModel {
             #if DEBUG
             print("❌ [CaptureVM] save 失败: \(error)")
             #endif
+            
+            // 触觉反馈 - 失败
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.error)
+            
             isSaving = false
-            showErrorAlert("保存失败：\(error.localizedDescription)")
+            showErrorAlert(String(format: String(localized: "capture_save_error_generic"), error.localizedDescription))
         }
     }
     
@@ -417,7 +438,7 @@ final class CaptureViewModel {
         
         if !keepSubjectAndGrade {
             subject = .math
-            grade = .grade10
+            grade = CaptureViewModel.getUserDefaultGrade()
         }
         
         difficulty = .medium
@@ -431,19 +452,30 @@ final class CaptureViewModel {
     private func showSuccessAlert(_ message: String) {
         alertType = .success
         alertMessage = message
+        isSuccessAlert = true
         showAlert = true
     }
     
     private func showWarningAlert(_ message: String) {
         alertType = .warning
         alertMessage = message
+        isSuccessAlert = false
         showAlert = true
     }
     
     private func showErrorAlert(_ message: String) {
         alertType = .error
         alertMessage = message
+        isSuccessAlert = false
         showAlert = true
+    }
+    
+    /// 显示验证错误
+    func showValidationError() {
+        let errors = validationErrors
+        if !errors.isEmpty {
+            showWarningAlert(errors.joined(separator: "\n"))
+        }
     }
 }
 
@@ -460,10 +492,10 @@ enum CaptureStep: Int, CaseIterable, Identifiable {
     
     var title: String {
         switch self {
-        case .selectImage: "选择图片"
-        case .recognize: "识别文字"
-        case .fillForm: "填写信息"
-        case .review: "确认保存"
+        case .selectImage: String(localized: "capture_step_select_image")
+        case .recognize: String(localized: "capture_step_recognize")
+        case .fillForm: String(localized: "capture_step_fill_form")
+        case .review: String(localized: "capture_step_review")
         }
     }
     

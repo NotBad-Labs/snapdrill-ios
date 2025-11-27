@@ -10,6 +10,7 @@ import SwiftUI
 // MARK: - Device Environment
 
 /// 设备环境信息
+@MainActor
 struct DeviceEnvironment {
     
     /// 当前设备是否为 iPad

@@ -20,6 +20,9 @@ struct NotBadApp: App {
     /// Deep Link 导航状态
     @State private var selectedTab: Int = 0
     
+    /// 是否显示 Onboarding
+    @State private var showOnboarding: Bool = false
+    
     init() {
         do {
             let schema = Schema([ReviewItem.self])
@@ -59,6 +62,14 @@ struct NotBadApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView(selectedTab: $selectedTab)
+                .fullScreenCover(isPresented: $showOnboarding) {
+                    OnboardingView {
+                        showOnboarding = false
+                    }
+                }
+                .onAppear {
+                    checkOnboardingStatus()
+                }
                 .onOpenURL { url in
                     handleDeepLink(url)
                 }
@@ -72,6 +83,16 @@ struct NotBadApp: App {
                 }
         }
         .modelContainer(modelContainer)
+    }
+    
+    // MARK: - Onboarding
+    
+    /// 检查是否需要显示 Onboarding
+    private func checkOnboardingStatus() {
+        let hasCompleted = UserDefaults.standard.bool(forKey: "has_completed_onboarding")
+        if !hasCompleted {
+            showOnboarding = true
+        }
     }
     
     // MARK: - Deep Link Handling

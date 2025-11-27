@@ -57,7 +57,7 @@ struct DashboardView: View {
                 }
                 .padding()
             }
-            .navigationTitle("首页")
+            .navigationTitle("dashboard_title")
             .navigationBarTitleDisplayMode(.large)
         }
     }
@@ -66,13 +66,13 @@ struct DashboardView: View {
     
     private var quickActions: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("快捷操作")
+            Text("dashboard_quick_actions")
                 .font(.headline)
             
             VStack(spacing: 12) {
                 NavigationLink(destination: CaptureView()) {
                     QuickActionButton(
-                        title: "快速录入",
+                        title: "action_quick_capture",
                         icon: "plus.circle.fill",
                         color: .blue
                     )
@@ -80,7 +80,7 @@ struct DashboardView: View {
                 
                 NavigationLink(destination: ReviewView()) {
                     QuickActionButton(
-                        title: "开始复习",
+                        title: "action_start_review",
                         icon: "sparkles",
                         color: .orange
                     )
@@ -88,7 +88,7 @@ struct DashboardView: View {
                 
                 NavigationLink(destination: LibraryView()) {
                     QuickActionButton(
-                        title: "查看题库",
+                        title: "action_view_library",
                         icon: "books.vertical.fill",
                         color: .green
                     )

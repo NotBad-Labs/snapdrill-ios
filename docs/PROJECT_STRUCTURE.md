@@ -12,7 +12,7 @@
 | Swift 文件数 | 69 个 |
 | 测试文件数 | 14 个 |
 | 测试用例数 | 365+ |
-| 技术栈 | Swift 6.2.1 / iOS 26.1 / Xcode 26.1.1 |
+| 技术栈 | Swift 6.2.1 (语言版本 6.3) / iOS 26.1 / Xcode 26.1.1 |
 
 ---
 
@@ -417,9 +417,11 @@ Color.brand.error       // 红色 #FF3B30
 
 - [Swift 6 最佳实践](./SWIFT6_BEST_PRACTICES.md)
 - [值对象最佳实践](./VALUE_OBJECT_BEST_PRACTICES.md)
-- [贡献指南](./CONTRIBUTING.md)
+- [App Store 审核检查清单](./APP_STORE_REVIEW_CHECKLIST.md) ⭐ 新增
+- [安全审计指南](./SECURITY_AUDIT_GUIDE.md) ⭐ 新增
+- [贡献指南](../CONTRIBUTING.md)
 - [术语表](./GLOSSARY.md)
 
 ---
 
-*文档生成时间: 2025年11月26日*
+*文档生成时间: 2025年11月27日*

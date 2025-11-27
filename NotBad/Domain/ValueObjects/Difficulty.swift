@@ -56,12 +56,17 @@ extension Difficulty {
     ///
     /// 用于在 UI 中显示完整的难度名称
     nonisolated var displayName: String {
+        String(localized: localizationKey)
+    }
+    
+    /// 本地化键值
+    private var localizationKey: String.LocalizationValue {
         switch self {
-        case .basic: "送分"
-        case .easy: "简单"
-        case .medium: "中等"
-        case .hard: "困难"
-        case .extreme: "压轴"
+        case .basic: "difficulty_basic"
+        case .easy: "difficulty_easy"
+        case .medium: "difficulty_medium"
+        case .hard: "difficulty_hard"
+        case .extreme: "difficulty_extreme"
         }
     }
     
@@ -69,12 +74,17 @@ extension Difficulty {
     ///
     /// 单字标签，适用于空间受限的场景（如徽章、标签）
     nonisolated var shortLabel: String {
+        String(localized: shortLabelKey)
+    }
+    
+    /// 简短标签本地化键值
+    private var shortLabelKey: String.LocalizationValue {
         switch self {
-        case .basic: "送"
-        case .easy: "易"
-        case .medium: "中"
-        case .hard: "难"
-        case .extreme: "压"
+        case .basic: "difficulty_basic_short"
+        case .easy: "difficulty_easy_short"
+        case .medium: "difficulty_medium_short"
+        case .hard: "difficulty_hard_short"
+        case .extreme: "difficulty_extreme_short"
         }
     }
     
@@ -82,12 +92,17 @@ extension Difficulty {
     ///
     /// 提供该难度等级的详细说明，帮助用户理解
     nonisolated var detailText: String {
+        String(localized: detailTextKey)
+    }
+    
+    /// 详细描述本地化键值
+    private var detailTextKey: String.LocalizationValue {
         switch self {
-        case .basic: "基础概念直接应用，几乎不会出错"
-        case .easy: "常规题型，稍加思考即可解决"
-        case .medium: "需要一定分析，容易粗心出错"
-        case .hard: "综合性强，需要灵活运用多个知识点"
-        case .extreme: "压轴难度，极具挑战性"
+        case .basic: "difficulty_basic_detail"
+        case .easy: "difficulty_easy_detail"
+        case .medium: "difficulty_medium_detail"
+        case .hard: "difficulty_hard_detail"
+        case .extreme: "difficulty_extreme_detail"
         }
     }
 }

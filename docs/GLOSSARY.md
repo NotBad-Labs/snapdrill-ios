@@ -487,6 +487,19 @@ func handle(_ item: ReviewItem)  // 不知道如何处理
 | 1.0 | 2025-11-25 | 初始版本，定义所有核心术语 |
 | 1.1 | 2025-11-25 | 添加业务术语、学习理论术语、代码示例 |
 | 1.2 | 2025-11-25 | Tags 重命名为 KnowledgePoints，消除歧义 |
+| 1.3 | 2025-11-27 | 添加相关文档链接，同步审计文档 |
+
+---
+
+## 📚 相关文档
+
+| 文档 | 用途 |
+|------|------|
+| [项目架构](./PROJECT_STRUCTURE.md) | 了解项目结构和分层 |
+| [Swift 6 最佳实践](./SWIFT6_BEST_PRACTICES.md) | 编码规范和标准 |
+| [值对象最佳实践](./VALUE_OBJECT_BEST_PRACTICES.md) | 值对象设计模式 |
+| [App Store 审核清单](./APP_STORE_REVIEW_CHECKLIST.md) | 上架前检查 ⭐ 新增 |
+| [安全审计指南](./SECURITY_AUDIT_GUIDE.md) | 安全规范 ⭐ 新增 |
 
 ---
 

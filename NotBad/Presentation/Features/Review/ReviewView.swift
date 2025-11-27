@@ -73,17 +73,17 @@ struct ReviewView: View {
                     )
                 }
             }
-            .navigationTitle("复习")
+            .navigationTitle("review_title")
             .navigationBarTitleDisplayMode(.large)
             .onAppear {
                 viewModel.configure(with: modelContext)
             }
-            .alert("复习完成！", isPresented: $bindableViewModel.showCompletionAlert) {
-                Button("太棒了！") {
+            .alert("review_complete_title", isPresented: $bindableViewModel.showCompletionAlert) {
+                Button("review_complete_button") {
                     viewModel.reset()
                 }
             } message: {
-                Text("本次复习了 \(viewModel.reviewedCount) 道错题\n继续保持，你会越来越好！")
+                Text("review_complete_message \(viewModel.reviewedCount)")
             }
         }
     }
@@ -93,6 +93,10 @@ struct ReviewView: View {
     /// 处理掌握度评估
     private func handleMastery(index: Int, level: MasteryLevel) {
         guard index < reviewItems.count else { return }
+        
+        // 触觉反馈
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
         
         withAnimation {
             viewModel.handleMasteryUpdate(for: reviewItems[index], level: level)

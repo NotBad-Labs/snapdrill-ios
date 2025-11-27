@@ -342,16 +342,27 @@ final class LibraryViewModel {
 
 /// 排序选项
 enum SortOption: String, CaseIterable, Identifiable {
-    case createdAtDesc = "最新添加"
-    case createdAtAsc = "最早添加"
-    case titleAsc = "标题排序"
-    case masteryAsc = "掌握程度↑"
-    case masteryDesc = "掌握程度↓"
-    case difficultyDesc = "难度最高"
-    case reviewDateAsc = "最需复习"
+    case createdAtDesc
+    case createdAtAsc
+    case titleAsc
+    case masteryAsc
+    case masteryDesc
+    case difficultyDesc
+    case reviewDateAsc
     
     var id: String { rawValue }
-    var displayName: String { rawValue }
+    
+    var displayName: String {
+        switch self {
+        case .createdAtDesc: String(localized: "sort_newest")
+        case .createdAtAsc: String(localized: "sort_oldest")
+        case .titleAsc: String(localized: "sort_title")
+        case .masteryAsc: String(localized: "sort_mastery_asc")
+        case .masteryDesc: String(localized: "sort_mastery_desc")
+        case .difficultyDesc: String(localized: "sort_difficulty")
+        case .reviewDateAsc: String(localized: "sort_review_needed")
+        }
+    }
     
     var icon: String {
         switch self {
@@ -377,9 +388,9 @@ struct FilteredStatistics: Sendable, Equatable {
     /// 筛选率描述
     var filterDescription: String {
         if filteredCount == totalCount {
-            return "共 \(totalCount) 道"
+            return String(format: String(localized: "filter_total_count"), totalCount)
         } else {
-            return "筛选出 \(filteredCount)/\(totalCount) 道"
+            return String(format: String(localized: "filter_filtered_count"), filteredCount, totalCount)
         }
     }
 }

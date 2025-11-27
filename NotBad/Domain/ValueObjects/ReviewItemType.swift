@@ -63,7 +63,19 @@ enum ReviewItemCategory: String, Sendable, CaseIterable, Codable, Hashable, Iden
 extension ReviewItemCategory {
     
     /// 显示名称
-    nonisolated var displayName: String { rawValue }
+    nonisolated var displayName: String {
+        String(localized: localizationKey)
+    }
+    
+    /// 本地化键值
+    private var localizationKey: String.LocalizationValue {
+        switch self {
+        case .objective: "item_category_objective"
+        case .subjective: "item_category_subjective"
+        case .comprehensive: "item_category_comprehensive"
+        case .other: "item_category_other"
+        }
+    }
     
     /// SF Symbol 图标名称
     nonisolated var icon: String {
@@ -87,11 +99,16 @@ extension ReviewItemCategory {
     
     /// 评分特点描述
     nonisolated var gradingCharacteristic: String {
+        String(localized: gradingCharacteristicKey)
+    }
+    
+    /// 评分特点本地化键值
+    private var gradingCharacteristicKey: String.LocalizationValue {
         switch self {
-        case .objective: "答案唯一，对错分明"
-        case .subjective: "答案开放，按步给分"
-        case .comprehensive: "综合能力，整体评分"
-        case .other: "视具体情况而定"
+        case .objective: "item_category_objective_grading"
+        case .subjective: "item_category_subjective_grading"
+        case .comprehensive: "item_category_comprehensive_grading"
+        case .other: "item_category_other_grading"
         }
     }
 }
@@ -220,28 +237,56 @@ enum ReviewItemType: String, Sendable, CaseIterable, Codable, Hashable, Identifi
 extension ReviewItemType {
     
     /// 显示名称
-    nonisolated var displayName: String { rawValue }
+    nonisolated var displayName: String {
+        String(localized: localizationKey)
+    }
+    
+    /// 本地化键值
+    private var localizationKey: String.LocalizationValue {
+        switch self {
+        case .choice: "item_type_choice"
+        case .multiChoice: "item_type_multi_choice"
+        case .judgment: "item_type_judgment"
+        case .fillBlank: "item_type_fill_blank"
+        case .matching: "item_type_matching"
+        case .shortAnswer: "item_type_short_answer"
+        case .calculation: "item_type_calculation"
+        case .proof: "item_type_proof"
+        case .drawing: "item_type_drawing"
+        case .experiment: "item_type_experiment"
+        case .analysis: "item_type_analysis"
+        case .reading: "item_type_reading"
+        case .writing: "item_type_writing"
+        case .cloze: "item_type_cloze"
+        case .other: "item_type_other"
+        }
+    }
     
     /// 简短标签（单字）
     ///
     /// 用于空间有限的 UI 展示。
     nonisolated var shortLabel: String {
+        String(localized: shortLabelKey)
+    }
+    
+    /// 简短标签本地化键值
+    private var shortLabelKey: String.LocalizationValue {
         switch self {
-        case .choice: "选"
-        case .multiChoice: "多"
-        case .judgment: "判"
-        case .fillBlank: "填"
-        case .matching: "连"
-        case .shortAnswer: "简"
-        case .calculation: "算"
-        case .proof: "证"
-        case .drawing: "图"
-        case .experiment: "实"
-        case .analysis: "析"
-        case .reading: "读"
-        case .writing: "写"
-        case .cloze: "完"
-        case .other: "他"
+        case .choice: "item_type_choice_short"
+        case .multiChoice: "item_type_multi_choice_short"
+        case .judgment: "item_type_judgment_short"
+        case .fillBlank: "item_type_fill_blank_short"
+        case .matching: "item_type_matching_short"
+        case .shortAnswer: "item_type_short_answer_short"
+        case .calculation: "item_type_calculation_short"
+        case .proof: "item_type_proof_short"
+        case .drawing: "item_type_drawing_short"
+        case .experiment: "item_type_experiment_short"
+        case .analysis: "item_type_analysis_short"
+        case .reading: "item_type_reading_short"
+        case .writing: "item_type_writing_short"
+        case .cloze: "item_type_cloze_short"
+        case .other: "item_type_other_short"
         }
     }
     
