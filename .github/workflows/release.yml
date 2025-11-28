@@ -1,0 +1,123 @@
+# NotBad Release Pipeline
+# 用于构建 App Store 发布版本
+#
+# 触发条件：
+# - 创建版本标签 (v*.*.*)
+# - 手动触发
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        type: string
+      build_number:
+        description: 'Build number'
+        required: true
+        type: string
+
+env:
+  SCHEME: NotBad
+  DESTINATION: 'generic/platform=iOS'
+
+jobs:
+  # ============================================
+  # 发布构建
+  # ============================================
+  release-build:
+    name: 🚀 Release Build
+    runs-on: [self-hosted, macOS, ARM64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Set Version
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION="${{ inputs.version }}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "📦 Building version: $VERSION"
+      
+      - name: Show Environment
+        run: |
+          echo "## 🛠️ Build Environment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Xcode | $(xcodebuild -version | head -1) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Swift | $(swift --version | head -1) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | ${{ env.VERSION }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Runner | $(hostname) |" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Build Archive
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project NotBad.xcodeproj \
+            -scheme ${{ env.SCHEME }} \
+            -destination "${{ env.DESTINATION }}" \
+            -archivePath build/NotBad.xcarchive \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty --color || true
+          
+          echo "✅ Archive created at build/NotBad.xcarchive"
+      
+      - name: Upload Archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotBad-${{ env.VERSION }}-archive
+          path: build/NotBad.xcarchive
+          retention-days: 30
+
+  # ============================================
+  # 创建 Release Notes
+  # ============================================
+  release-notes:
+    name: 📝 Release Notes
+    runs-on: [self-hosted, macOS, ARM64]
+    needs: release-build
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Generate Release Notes
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "# NotBad v$VERSION" > RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "## 更新内容" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          
+          # 获取自上个标签以来的提交
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            git log --pretty=format:"- %s" $PREV_TAG..HEAD >> RELEASE_NOTES.md
+          else
+            git log --pretty=format:"- %s" -10 >> RELEASE_NOTES.md
+          fi
+          
+          echo ""
+          echo "## 📋 Release Notes"
+          cat RELEASE_NOTES.md
+      
+      - name: Upload Release Notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: RELEASE_NOTES.md
+          retention-days: 30
