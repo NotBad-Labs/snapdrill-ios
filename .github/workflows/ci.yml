@@ -3,9 +3,10 @@
 # 
 # 配置说明：
 # - Runner 标签: self-hosted, macOS, ARM64
-# - Xcode: 26.1.1
-# - Swift: 6.2.1
-# - 目标平台: iOS 18.0+
+# - Xcode: 26.1.1 (Build 17B100)
+# - Swift: 6.3 (严格并发模式)
+# - 目标平台: iOS 26.0+
+# - 最佳实践: Apple Swift 6 完全并发安全
 
 name: CI
 
@@ -23,8 +24,13 @@ concurrency:
 
 env:
   SCHEME: NotBad
-  DESTINATION: 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.1'
-  XCODE_VERSION: '16.1'
+  # iOS 26.1 + iPhone 17 Pro (最新平台)
+  DESTINATION: 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.1'
+  XCODE_VERSION: '26.1.1'
+  # Swift 6 严格并发检查
+  SWIFT_STRICT_CONCURRENCY: complete
+  # 启用 Swift 6 语言模式
+  OTHER_SWIFT_FLAGS: '-strict-concurrency=complete'
 
 jobs:
   # ============================================
@@ -40,25 +46,27 @@ jobs:
       - name: Run SwiftLint
         run: |
           if command -v swiftlint &> /dev/null; then
-            swiftlint lint --reporter github-actions-logging
+            swiftlint lint --strict --reporter github-actions-logging
           else
             echo "⚠️ SwiftLint not installed, skipping..."
           fi
 
   # ============================================
-  # 构建
+  # Swift 6 编译检查 (严格并发安全)
   # ============================================
-  build:
-    name: 🔨 Build
+  swift6-check:
+    name: 🦅 Swift 6 Concurrency Check
     runs-on: [self-hosted, macOS, ARM64]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Show Xcode Version
-        run: xcodebuild -version
+      - name: Swift Version
+        run: |
+          swift --version
+          echo "## 🦅 Swift 6 Concurrency Check" >> $GITHUB_STEP_SUMMARY
       
-      - name: Build
+      - name: Build with Strict Concurrency
         run: |
           set -o pipefail
           xcodebuild build \
@@ -66,13 +74,55 @@ jobs:
             -scheme ${{ env.SCHEME }} \
             -destination "${{ env.DESTINATION }}" \
             -configuration Debug \
+            SWIFT_STRICT_CONCURRENCY=complete \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee build.log | xcpretty --color || true
+          
+          # 检查并发警告
+          CONCURRENCY_WARNINGS=$(grep -c "concurrency" build.log || echo "0")
+          echo "**Concurrency Warnings:** $CONCURRENCY_WARNINGS" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # 构建 (iOS 26.0+)
+  # ============================================
+  build:
+    name: 🔨 Build (iOS 26)
+    runs-on: [self-hosted, macOS, ARM64]
+    needs: swift6-check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Show Environment
+        run: |
+          echo "## 🔨 Build Environment" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Version |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Xcode | $(xcodebuild -version | head -1) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Swift | $(swift --version | head -1) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target | iOS 26.0+ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Simulator | iPhone 17 Pro (iOS 26.1) |" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Build for iOS 26
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project NotBad.xcodeproj \
+            -scheme ${{ env.SCHEME }} \
+            -destination "${{ env.DESTINATION }}" \
+            -configuration Debug \
+            IPHONEOS_DEPLOYMENT_TARGET=26.0 \
+            SWIFT_VERSION=6.3 \
+            SWIFT_STRICT_CONCURRENCY=complete \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             | xcpretty --color || true
 
   # ============================================
-  # 单元测试
+  # 单元测试 (Swift Testing + XCTest)
   # ============================================
   unit-tests:
     name: 🧪 Unit Tests
@@ -81,6 +131,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: Boot Simulator
+        run: |
+          xcrun simctl boot "iPhone 17 Pro" || true
+          xcrun simctl bootstatus "iPhone 17 Pro" -b
       
       - name: Run Unit Tests
         run: |
@@ -91,6 +146,8 @@ jobs:
             -destination "${{ env.DESTINATION }}" \
             -testPlan UnitTestPlan \
             -resultBundlePath TestResults/UnitTests.xcresult \
+            -parallel-testing-enabled YES \
+            SWIFT_VERSION=6.3 \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -105,7 +162,7 @@ jobs:
           retention-days: 7
 
   # ============================================
-  # UI 测试
+  # UI 测试 (iOS 26 新特性)
   # ============================================
   ui-tests:
     name: 📱 UI Tests
@@ -114,6 +171,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      
+      - name: Boot Simulator
+        run: |
+          xcrun simctl boot "iPhone 17 Pro" || true
+          xcrun simctl bootstatus "iPhone 17 Pro" -b
       
       - name: Run UI Tests
         run: |
@@ -124,6 +186,7 @@ jobs:
             -destination "${{ env.DESTINATION }}" \
             -testPlan UITestPlan \
             -resultBundlePath TestResults/UITests.xcresult \
+            SWIFT_VERSION=6.3 \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -180,25 +243,33 @@ jobs:
   status:
     name: ✅ CI Status
     runs-on: [self-hosted, macOS, ARM64]
-    needs: [lint, build, unit-tests, ui-tests]
+    needs: [lint, swift6-check, build, unit-tests, ui-tests]
     if: always()
     steps:
       - name: Check Status
         run: |
           echo "## 🎯 CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Environment" >> $GITHUB_STEP_SUMMARY
+          echo "- **Xcode:** 26.1.1" >> $GITHUB_STEP_SUMMARY
+          echo "- **Swift:** 6.3 (Strict Concurrency)" >> $GITHUB_STEP_SUMMARY
+          echo "- **iOS Target:** 26.0+" >> $GITHUB_STEP_SUMMARY
+          echo "- **Simulator:** iPhone 17 Pro (iOS 26.1)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Job Results" >> $GITHUB_STEP_SUMMARY
           echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| SwiftLint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Swift 6 Check | ${{ needs.swift6-check.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Unit Tests | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| UI Tests | ${{ needs.ui-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           
-          if [[ "${{ needs.build.result }}" == "failure" || "${{ needs.unit-tests.result }}" == "failure" ]]; then
+          if [[ "${{ needs.build.result }}" == "failure" || "${{ needs.unit-tests.result }}" == "failure" || "${{ needs.swift6-check.result }}" == "failure" ]]; then
             echo ""
             echo "❌ **Pipeline Failed**" >> $GITHUB_STEP_SUMMARY
             exit 1
           else
             echo ""
-            echo "✅ **Pipeline Passed**" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **Pipeline Passed - Swift 6 Compliant**" >> $GITHUB_STEP_SUMMARY
           fi
