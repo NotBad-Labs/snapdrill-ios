@@ -24,8 +24,8 @@ concurrency:
 
 env:
   SCHEME: NotBad
-  # iOS 26.1 + iPhone 17 Pro (最新平台)
-  DESTINATION: 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.1'
+  # iOS 26.1 + iPhone 17 (最新平台)
+  DESTINATION: 'platform=iOS Simulator,name=iPhone 17,OS=26.1'
   XCODE_VERSION: '26.1.1'
   # Swift 6 严格并发检查
   SWIFT_STRICT_CONCURRENCY: complete
@@ -103,7 +103,7 @@ jobs:
           echo "| Xcode | $(xcodebuild -version | head -1) |" >> $GITHUB_STEP_SUMMARY
           echo "| Swift | $(swift --version | head -1) |" >> $GITHUB_STEP_SUMMARY
           echo "| Target | iOS 26.0+ |" >> $GITHUB_STEP_SUMMARY
-          echo "| Simulator | iPhone 17 Pro (iOS 26.1) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Simulator | iPhone 17 (iOS 26.1) |" >> $GITHUB_STEP_SUMMARY
       
       - name: Build for iOS 26
         run: |
@@ -134,8 +134,8 @@ jobs:
       
       - name: Boot Simulator
         run: |
-          xcrun simctl boot "iPhone 17 Pro" || true
-          xcrun simctl bootstatus "iPhone 17 Pro" -b
+          xcrun simctl boot "iPhone 17" || true
+          xcrun simctl bootstatus "iPhone 17" -b
       
       - name: Run Unit Tests
         run: |
@@ -174,8 +174,8 @@ jobs:
       
       - name: Boot Simulator
         run: |
-          xcrun simctl boot "iPhone 17 Pro" || true
-          xcrun simctl bootstatus "iPhone 17 Pro" -b
+          xcrun simctl boot "iPhone 17" || true
+          xcrun simctl bootstatus "iPhone 17" -b
       
       - name: Run UI Tests
         run: |
@@ -254,7 +254,7 @@ jobs:
           echo "- **Xcode:** 26.1.1" >> $GITHUB_STEP_SUMMARY
           echo "- **Swift:** 6.3 (Strict Concurrency)" >> $GITHUB_STEP_SUMMARY
           echo "- **iOS Target:** 26.0+" >> $GITHUB_STEP_SUMMARY
-          echo "- **Simulator:** iPhone 17 Pro (iOS 26.1)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Simulator:** iPhone 17 (iOS 26.1)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Job Results" >> $GITHUB_STEP_SUMMARY
           echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
