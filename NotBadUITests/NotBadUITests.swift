@@ -11,31 +11,31 @@ import XCTest
 ///
 /// 提供通用的测试辅助方法和配置
 class NotBadUITests: XCTestCase {
-    
+
     // MARK: - Properties
-    
+
     var app: XCUIApplication!
-    
+
     // MARK: - Setup & Teardown
-    
+
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        
+
         // 重置 UserDefaults 以确保干净的测试状态
         app.launchArguments = ["--uitesting", "--reset-state"]
-        
+
         // 设置测试语言为中文
         app.launchArguments.append(contentsOf: ["-AppleLanguages", "(zh-Hans)"])
         app.launchArguments.append(contentsOf: ["-AppleLocale", "zh_CN"])
     }
-    
+
     override func tearDownWithError() throws {
         app = nil
     }
-    
+
     // MARK: - Helper Methods
-    
+
     /// 等待元素出现
     /// - Parameters:
     ///   - element: 要等待的元素
@@ -45,7 +45,7 @@ class NotBadUITests: XCTestCase {
     func waitForElement(_ element: XCUIElement, timeout: TimeInterval = 5) -> Bool {
         return element.waitForExistence(timeout: timeout)
     }
-    
+
     /// 等待元素消失
     /// - Parameters:
     ///   - element: 要等待消失的元素
@@ -58,7 +58,7 @@ class NotBadUITests: XCTestCase {
         let result = XCTWaiter.wait(for: [expectation], timeout: timeout)
         return result == .completed
     }
-    
+
     /// 截图并附加到测试报告
     /// - Parameter name: 截图名称
     func takeScreenshot(named name: String) {
@@ -68,7 +68,7 @@ class NotBadUITests: XCTestCase {
         attachment.lifetime = .keepAlways
         add(attachment)
     }
-    
+
     /// 滑动到元素可见
     /// - Parameters:
     ///   - element: 目标元素
@@ -81,7 +81,7 @@ class NotBadUITests: XCTestCase {
             swipeCount += 1
         }
     }
-    
+
     /// 完成 Onboarding 流程（如果显示）
     func completeOnboardingIfNeeded() {
         // 检查是否在 Onboarding 页面
@@ -92,16 +92,16 @@ class NotBadUITests: XCTestCase {
             if chinaOption.exists {
                 chinaOption.tap()
             }
-            
+
             // 点击继续
             continueButton.tap()
-            
+
             // 选择年级（选择高一）
             let gradeOption = app.buttons["高一"]
             if gradeOption.waitForExistence(timeout: 2) {
                 gradeOption.tap()
             }
-            
+
             // 完成 Onboarding
             let startButton = app.buttons["onboarding_start"]
             if startButton.waitForExistence(timeout: 2) {
@@ -109,7 +109,7 @@ class NotBadUITests: XCTestCase {
             }
         }
     }
-    
+
     /// 导航到指定的 Tab
     /// - Parameter tabName: Tab 名称
     func navigateToTab(_ tabName: String) {

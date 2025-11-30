@@ -39,40 +39,40 @@ import SwiftData
 @MainActor
 @Observable
 final class LibraryViewModel {
-    
+
     // MARK: - Search State
-    
+
     /// 搜索关键词
     var searchText = ""
-    
+
     /// 是否正在搜索
     var isSearching: Bool {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
-    
+
     /// 高级搜索条件
     var advancedCriteria = SearchCriteria()
-    
+
     /// 是否显示高级搜索
     var showAdvancedSearch = false
-    
+
     // MARK: - Filter State
-    
+
     /// 选中的学科
     var selectedSubject: Subject?
-    
+
     /// 选中的掌握程度
     var selectedMastery: MasteryLevel?
-    
+
     /// 选中的难度
     var selectedDifficulty: Difficulty?
-    
+
     /// 选中的来源
     var selectedSource: Source?
-    
+
     /// 是否只显示待复习
     var showPendingReviewOnly = false
-    
+
     /// 是否有活跃的筛选条件
     var hasActiveFilters: Bool {
         selectedSubject != nil ||
@@ -82,7 +82,7 @@ final class LibraryViewModel {
         showPendingReviewOnly ||
         advancedCriteria.hasActiveFilters
     }
-    
+
     /// 活跃筛选条件数量
     var activeFilterCount: Int {
         var count = 0
@@ -94,47 +94,47 @@ final class LibraryViewModel {
         count += advancedCriteria.activeFilterCount
         return count
     }
-    
+
     // MARK: - Sort State
-    
+
     /// 排序方式
     var sortOption: SortOption = .createdAtDesc
-    
+
     // MARK: - Selection State
-    
+
     /// 是否处于选择模式
     var isSelectionMode = false
-    
+
     /// 选中的项目 ID
     var selectedItemIds: Set<UUID> = []
-    
+
     /// 选中数量
     var selectedCount: Int {
         selectedItemIds.count
     }
-    
+
     // MARK: - Dependencies
-    
+
     private var modelContext: ModelContext?
-    
+
     // MARK: - Initialization
-    
+
     init() {}
-    
+
     /// 配置 ModelContext
     func configure(with modelContext: ModelContext) {
         self.modelContext = modelContext
     }
-    
+
     // MARK: - Filtering
-    
+
     /// 根据筛选条件过滤错题
     ///
     /// - Parameter items: 原始错题列表
     /// - Returns: 过滤后的错题列表
     func filteredItems(from items: [ReviewItem]) -> [ReviewItem] {
         var result = items
-        
+
         // 搜索筛选
         if isSearching {
             let query = searchText.lowercased()
@@ -144,43 +144,43 @@ final class LibraryViewModel {
                 item.note.lowercased().contains(query)
             }
         }
-        
+
         // 学科筛选
         if let subject = selectedSubject {
             result = result.filter { $0.subject == subject }
         }
-        
+
         // 掌握程度筛选
         if let mastery = selectedMastery {
             result = result.filter { $0.mastery == mastery }
         }
-        
+
         // 难度筛选
         if let difficulty = selectedDifficulty {
             result = result.filter { $0.difficulty == difficulty }
         }
-        
+
         // 来源筛选
         if let source = selectedSource {
             result = result.filter { $0.source == source }
         }
-        
+
         // 待复习筛选
         if showPendingReviewOnly {
             result = result.filter { $0.needsReview }
         }
-        
+
         // 高级搜索条件筛选
         if advancedCriteria.hasActiveFilters {
             result = advancedCriteria.filter(result)
         }
-        
+
         // 排序
         result = sortItems(result)
-        
+
         return result
     }
-    
+
     /// 排序错题
     private func sortItems(_ items: [ReviewItem]) -> [ReviewItem] {
         switch sortOption {
@@ -200,29 +200,29 @@ final class LibraryViewModel {
             items.sorted { $0.nextReviewDate < $1.nextReviewDate }
         }
     }
-    
+
     // MARK: - Filter Actions
-    
+
     /// 选择学科
     func selectSubject(_ subject: Subject?) {
         selectedSubject = subject
     }
-    
+
     /// 选择掌握程度
     func selectMastery(_ mastery: MasteryLevel?) {
         selectedMastery = mastery
     }
-    
+
     /// 选择难度
     func selectDifficulty(_ difficulty: Difficulty?) {
         selectedDifficulty = difficulty
     }
-    
+
     /// 选择来源
     func selectSource(_ source: Source?) {
         selectedSource = source
     }
-    
+
     /// 重置所有筛选条件
     func resetFilters() {
         selectedSubject = nil
@@ -233,9 +233,9 @@ final class LibraryViewModel {
         searchText = ""
         advancedCriteria = SearchCriteria()
     }
-    
+
     // MARK: - Selection Actions
-    
+
     /// 切换选择模式
     func toggleSelectionMode() {
         isSelectionMode.toggle()
@@ -243,7 +243,7 @@ final class LibraryViewModel {
             selectedItemIds.removeAll()
         }
     }
-    
+
     /// 切换单个项目的选中状态
     func toggleSelection(for itemId: UUID) {
         if selectedItemIds.contains(itemId) {
@@ -252,32 +252,32 @@ final class LibraryViewModel {
             selectedItemIds.insert(itemId)
         }
     }
-    
+
     /// 全选
     func selectAll(from items: [ReviewItem]) {
         selectedItemIds = Set(items.map { $0.id })
     }
-    
+
     /// 取消全选
     func deselectAll() {
         selectedItemIds.removeAll()
     }
-    
+
     /// 检查项目是否被选中
     func isSelected(_ itemId: UUID) -> Bool {
         selectedItemIds.contains(itemId)
     }
-    
+
     // MARK: - CRUD Actions
-    
+
     /// 删除指定位置的错题
     func deleteItems(from items: [ReviewItem], at offsets: IndexSet) {
         guard let modelContext else { return }
-        
+
         for index in offsets {
             modelContext.delete(items[index])
         }
-        
+
         do {
             try modelContext.save()
         } catch {
@@ -286,13 +286,13 @@ final class LibraryViewModel {
             #endif
         }
     }
-    
+
     /// 删除单个错题
     func deleteItem(_ item: ReviewItem) {
         guard let modelContext else { return }
-        
+
         modelContext.delete(item)
-        
+
         do {
             try modelContext.save()
         } catch {
@@ -301,17 +301,17 @@ final class LibraryViewModel {
             #endif
         }
     }
-    
+
     /// 批量删除选中的错题
     func deleteSelectedItems(from items: [ReviewItem]) {
         guard let modelContext else { return }
-        
+
         let itemsToDelete = items.filter { selectedItemIds.contains($0.id) }
-        
+
         for item in itemsToDelete {
             modelContext.delete(item)
         }
-        
+
         do {
             try modelContext.save()
             selectedItemIds.removeAll()
@@ -322,13 +322,13 @@ final class LibraryViewModel {
             #endif
         }
     }
-    
+
     // MARK: - Statistics
-    
+
     /// 计算当前筛选结果的统计
     func computeFilteredStatistics(from items: [ReviewItem]) -> FilteredStatistics {
         let filtered = filteredItems(from: items)
-        
+
         return FilteredStatistics(
             totalCount: items.count,
             filteredCount: filtered.count,
@@ -349,9 +349,9 @@ enum SortOption: String, CaseIterable, Identifiable {
     case masteryDesc
     case difficultyDesc
     case reviewDateAsc
-    
+
     var id: String { rawValue }
-    
+
     var displayName: String {
         switch self {
         case .createdAtDesc: String(localized: "sort_newest")
@@ -363,7 +363,7 @@ enum SortOption: String, CaseIterable, Identifiable {
         case .reviewDateAsc: String(localized: "sort_review_needed")
         }
     }
-    
+
     var icon: String {
         switch self {
         case .createdAtDesc: "arrow.down.circle"
@@ -384,7 +384,7 @@ struct FilteredStatistics: Sendable, Equatable {
     let filteredCount: Int
     let masteredCount: Int
     let pendingReviewCount: Int
-    
+
     /// 筛选率描述
     var filterDescription: String {
         if filteredCount == totalCount {

@@ -24,7 +24,7 @@ public enum InternationalGrade: String, Sendable, CaseIterable, Codable, Hashabl
     case grade10 = "intl_grade_10"
     case grade11 = "intl_grade_11"
     case grade12 = "intl_grade_12"
-    
+
     public var id: String { rawValue }
 }
 
@@ -45,11 +45,11 @@ extension InternationalGrade: GradeLevelProtocol {
         case .grade12: 12
         }
     }
-    
+
     public var displayName: String {
         String(localized: displayNameKey)
     }
-    
+
     private var displayNameKey: String.LocalizationValue {
         switch self {
         case .grade1: "intl_grade_1_name"
@@ -66,11 +66,11 @@ extension InternationalGrade: GradeLevelProtocol {
         case .grade12: "intl_grade_12_name"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .grade1: "intl_grade_1_short"
@@ -87,7 +87,7 @@ extension InternationalGrade: GradeLevelProtocol {
         case .grade12: "intl_grade_12_short"
         }
     }
-    
+
     public var schoolLevel: SchoolLevel {
         switch self {
         case .grade1, .grade2, .grade3, .grade4, .grade5, .grade6:
@@ -98,7 +98,7 @@ extension InternationalGrade: GradeLevelProtocol {
             .high
         }
     }
-    
+
     public var icon: String {
         switch schoolLevel {
         case .primary: "figure.child"
@@ -106,7 +106,7 @@ extension InternationalGrade: GradeLevelProtocol {
         case .high: "graduationcap"
         }
     }
-    
+
     public var color: Color {
         switch schoolLevel {
         case .primary: .green
@@ -133,7 +133,7 @@ public enum InternationalSubject: String, Sendable, CaseIterable, Codable, Hasha
     case art = "intl_art"
     case music = "intl_music"
     case other = "intl_other"
-    
+
     public var id: String { rawValue }
 }
 
@@ -141,7 +141,7 @@ extension InternationalSubject: SubjectProtocol {
     public var displayName: String {
         String(localized: displayNameKey)
     }
-    
+
     private var displayNameKey: String.LocalizationValue {
         switch self {
         case .language: "intl_subject_language"
@@ -159,11 +159,11 @@ extension InternationalSubject: SubjectProtocol {
         case .other: "intl_subject_other"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .language: "intl_subject_language_short"
@@ -181,7 +181,7 @@ extension InternationalSubject: SubjectProtocol {
         case .other: "intl_subject_other_short"
         }
     }
-    
+
     public var category: any SubjectCategoryProtocol {
         switch self {
         case .language, .english:
@@ -194,7 +194,7 @@ extension InternationalSubject: SubjectProtocol {
             ChinaSubjectCategory.other
         }
     }
-    
+
     public var icon: String {
         switch self {
         case .language: "textformat"
@@ -212,7 +212,7 @@ extension InternationalSubject: SubjectProtocol {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     public var color: Color {
         switch self {
         case .language: .red
@@ -230,7 +230,7 @@ extension InternationalSubject: SubjectProtocol {
         case .other: .gray
         }
     }
-    
+
     public var applicableLevels: [SchoolLevel] {
         switch self {
         // 全学段：语言、数学
@@ -255,13 +255,13 @@ extension InternationalSubject: SubjectProtocol {
 public struct InternationalEducationSystem: EducationSystemProtocol {
     public typealias GradeType = InternationalGrade
     public typealias SubjectType = InternationalSubject
-    
+
     public let region: EducationRegion = .international
     public let name: String = "International"
-    
+
     public var grades: [InternationalGrade] { InternationalGrade.allCases }
     public var subjects: [InternationalSubject] { InternationalSubject.allCases }
-    
+
     public var schoolLevels: [SchoolLevelConfiguration] {
         [
             SchoolLevelConfiguration(
@@ -290,6 +290,6 @@ public struct InternationalEducationSystem: EducationSystemProtocol {
             )
         ]
     }
-    
+
     public init() {}
 }

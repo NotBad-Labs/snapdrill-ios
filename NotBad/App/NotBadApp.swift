@@ -13,16 +13,16 @@ import SwiftData
 /// NotBad K12 错题本应用主入口
 @main
 struct NotBadApp: App {
-    
+
     /// 模型容器（带迁移计划）
     let modelContainer: ModelContainer
-    
+
     /// Deep Link 导航状态
     @State private var selectedTab: Int = 0
-    
+
     /// 是否显示 Onboarding
     @State private var showOnboarding: Bool = false
-    
+
     init() {
         do {
             let schema = Schema([ReviewItem.self])
@@ -38,13 +38,13 @@ struct NotBadApp: App {
             print("❌ [App] ModelContainer 初始化失败: \(error)")
             print("⚠️ [App] 尝试删除旧数据库...")
             #endif
-            
+
             // 删除旧数据库文件
             let url = URL.applicationSupportDirectory.appending(path: "default.store")
             try? FileManager.default.removeItem(at: url)
             try? FileManager.default.removeItem(at: url.appendingPathExtension("shm"))
             try? FileManager.default.removeItem(at: url.appendingPathExtension("wal"))
-            
+
             // 重新创建容器
             do {
                 let schema = Schema([ReviewItem.self])
@@ -58,7 +58,7 @@ struct NotBadApp: App {
             }
         }
     }
-    
+
     var body: some Scene {
         WindowGroup {
             MainTabView(selectedTab: $selectedTab)
@@ -84,9 +84,9 @@ struct NotBadApp: App {
         }
         .modelContainer(modelContainer)
     }
-    
+
     // MARK: - Onboarding
-    
+
     /// 检查是否需要显示 Onboarding
     private func checkOnboardingStatus() {
         let hasCompleted = UserDefaults.standard.bool(forKey: "has_completed_onboarding")
@@ -94,13 +94,13 @@ struct NotBadApp: App {
             showOnboarding = true
         }
     }
-    
+
     // MARK: - Deep Link Handling
-    
+
     /// 处理来自 Widget 的 Deep Link
     private func handleDeepLink(_ url: URL) {
         guard url.scheme == "notbad" else { return }
-        
+
         switch url.host {
         case "review":
             // 导航到复习页面
@@ -114,20 +114,20 @@ struct NotBadApp: App {
         default:
             break
         }
-        
+
         #if DEBUG
         print("[App] Deep link handled: \(url)")
         #endif
     }
-    
+
     // MARK: - Widget Data Sync
-    
+
     /// 同步数据到 Widget
     @MainActor
     private func syncWidgetData() async {
         let context = modelContainer.mainContext
         let descriptor = FetchDescriptor<ReviewItem>()
-        
+
         do {
             let items = try context.fetch(descriptor)
             items.syncToWidget()

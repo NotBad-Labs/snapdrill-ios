@@ -19,17 +19,17 @@ public enum KoreaGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
     case grade4 = "kr_grade_4"
     case grade5 = "kr_grade_5"
     case grade6 = "kr_grade_6"
-    
+
     // 중학교 (3年)
     case grade7 = "kr_grade_7"
     case grade8 = "kr_grade_8"
     case grade9 = "kr_grade_9"
-    
+
     // 고등학교 (3年)
     case grade10 = "kr_grade_10"
     case grade11 = "kr_grade_11"
     case grade12 = "kr_grade_12"
-    
+
     public var id: String { rawValue }
 }
 
@@ -50,11 +50,11 @@ extension KoreaGrade: GradeLevelProtocol {
         case .grade12: 12
         }
     }
-    
+
     public var displayName: String {
         String(localized: displayNameKey)
     }
-    
+
     private var displayNameKey: String.LocalizationValue {
         switch self {
         case .grade1: "kr_grade_1_name"
@@ -71,11 +71,11 @@ extension KoreaGrade: GradeLevelProtocol {
         case .grade12: "kr_grade_12_name"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .grade1: "kr_grade_1_short"
@@ -92,7 +92,7 @@ extension KoreaGrade: GradeLevelProtocol {
         case .grade12: "kr_grade_12_short"
         }
     }
-    
+
     public var schoolLevel: SchoolLevel {
         switch self {
         case .grade1, .grade2, .grade3, .grade4, .grade5, .grade6:
@@ -103,7 +103,7 @@ extension KoreaGrade: GradeLevelProtocol {
             .high
         }
     }
-    
+
     public var icon: String {
         switch schoolLevel {
         case .primary: "figure.child"
@@ -111,7 +111,7 @@ extension KoreaGrade: GradeLevelProtocol {
         case .high: "graduationcap"
         }
     }
-    
+
     public var color: Color {
         switch schoolLevel {
         case .primary: .green
@@ -137,7 +137,7 @@ public enum KoreaSubject: String, Sendable, CaseIterable, Codable, Hashable, Ide
     case history = "kr_history"         // 역사/한국사
     case ethics = "kr_ethics"           // 도덕/윤리
     case other = "kr_other"
-    
+
     public var id: String { rawValue }
 }
 
@@ -145,7 +145,7 @@ extension KoreaSubject: SubjectProtocol {
     public var displayName: String {
         String(localized: displayNameKey)
     }
-    
+
     private var displayNameKey: String.LocalizationValue {
         switch self {
         case .korean: "kr_subject_korean"
@@ -162,11 +162,11 @@ extension KoreaSubject: SubjectProtocol {
         case .other: "kr_subject_other"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .korean: "kr_subject_korean_short"
@@ -183,7 +183,7 @@ extension KoreaSubject: SubjectProtocol {
         case .other: "kr_subject_other_short"
         }
     }
-    
+
     public var category: any SubjectCategoryProtocol {
         switch self {
         case .korean, .english:
@@ -196,7 +196,7 @@ extension KoreaSubject: SubjectProtocol {
             ChinaSubjectCategory.other
         }
     }
-    
+
     public var icon: String {
         switch self {
         case .korean: "character.ko"
@@ -213,7 +213,7 @@ extension KoreaSubject: SubjectProtocol {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     public var color: Color {
         switch self {
         case .korean: .red
@@ -230,7 +230,7 @@ extension KoreaSubject: SubjectProtocol {
         case .other: .gray
         }
     }
-    
+
     public var applicableLevels: [SchoolLevel] {
         switch self {
         // 全学段：国语、数学、英语
@@ -255,13 +255,13 @@ extension KoreaSubject: SubjectProtocol {
 public struct KoreaEducationSystem: EducationSystemProtocol {
     public typealias GradeType = KoreaGrade
     public typealias SubjectType = KoreaSubject
-    
+
     public let region: EducationRegion = .korea
     public let name: String = "한국 교육"
-    
+
     public var grades: [KoreaGrade] { KoreaGrade.allCases }
     public var subjects: [KoreaSubject] { KoreaSubject.allCases }
-    
+
     public var schoolLevels: [SchoolLevelConfiguration] {
         [
             SchoolLevelConfiguration(
@@ -290,6 +290,6 @@ public struct KoreaEducationSystem: EducationSystemProtocol {
             )
         ]
     }
-    
+
     public init() {}
 }

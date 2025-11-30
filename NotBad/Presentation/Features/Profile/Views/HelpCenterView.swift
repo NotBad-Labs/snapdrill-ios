@@ -13,14 +13,14 @@ import SwiftUI
 ///
 /// 提供使用指南和常见问题解答。
 struct HelpCenterView: View {
-    
+
     // MARK: - State
-    
+
     @State private var expandedSection: HelpSection?
     @State private var searchText = ""
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         List {
             quickStartSection
@@ -31,9 +31,9 @@ struct HelpCenterView: View {
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: "搜索问题")
     }
-    
+
     // MARK: - Quick Start Section
-    
+
     private var quickStartSection: some View {
         Section("快速入门") {
             ForEach(QuickStartItem.allCases) { item in
@@ -48,9 +48,9 @@ struct HelpCenterView: View {
             }
         }
     }
-    
+
     // MARK: - FAQ Section
-    
+
     private var faqSection: some View {
         Section("常见问题") {
             ForEach(filteredFAQs) { faq in
@@ -66,19 +66,19 @@ struct HelpCenterView: View {
             }
         }
     }
-    
+
     // MARK: - Contact Section
-    
+
     private var contactSection: some View {
         Section {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 Text("help_other_questions")
                     .font(.headline)
-                
+
                 Text("help_contact_description")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                
+
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                     contactRow(icon: "envelope.fill", text: "feedback@notbad.app", color: Color.brand.primary)
                     contactRow(icon: "globe", text: "notbad.app/help", color: Color.brand.secondary)
@@ -87,7 +87,7 @@ struct HelpCenterView: View {
             .padding(.vertical, DesignTokens.Spacing.sm)
         }
     }
-    
+
     private func contactRow(icon: String, text: String, color: Color) -> some View {
         HStack(spacing: DesignTokens.Spacing.sm) {
             Image(systemName: icon)
@@ -97,9 +97,9 @@ struct HelpCenterView: View {
                 .foregroundStyle(.secondary)
         }
     }
-    
+
     // MARK: - Computed Properties
-    
+
     private var filteredFAQs: [FAQ] {
         if searchText.isEmpty {
             return FAQ.allCases
@@ -116,7 +116,7 @@ struct HelpCenterView: View {
 enum HelpSection: String, CaseIterable, Identifiable {
     case quickStart
     case faq
-    
+
     var id: String { rawValue }
 }
 
@@ -127,9 +127,9 @@ enum QuickStartItem: String, CaseIterable, Identifiable {
     case review
     case library
     case statistics
-    
+
     var id: String { rawValue }
-    
+
     var title: String {
         switch self {
         case .addItem: return "如何添加错题"
@@ -138,7 +138,7 @@ enum QuickStartItem: String, CaseIterable, Identifiable {
         case .statistics: return "如何查看学习统计"
         }
     }
-    
+
     var icon: String {
         switch self {
         case .addItem: return "plus.circle.fill"
@@ -147,7 +147,7 @@ enum QuickStartItem: String, CaseIterable, Identifiable {
         case .statistics: return "chart.bar.fill"
         }
     }
-    
+
     var content: String {
         switch self {
         case .addItem:
@@ -193,7 +193,7 @@ struct FAQ: Identifiable {
     let id = UUID()
     let question: String
     let answer: String
-    
+
     static let allCases: [FAQ] = [
         FAQ(
             question: "复习提醒没有收到？",

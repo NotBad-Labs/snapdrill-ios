@@ -47,9 +47,9 @@ import Foundation
 /// - Note: 迁移计划在 App 启动时自动执行
 /// - Important: 测试迁移时请使用测试数据，避免损坏生产数据
 enum ReviewItemMigrationPlan: SchemaMigrationPlan {
-    
+
     // MARK: - Schema Versions
-    
+
     /// 所有版本的 Schema
     ///
     /// 按版本顺序排列，从旧到新。
@@ -62,9 +62,9 @@ enum ReviewItemMigrationPlan: SchemaMigrationPlan {
             // ReviewItemSchemaV3.self
         ]
     }
-    
+
     // MARK: - Migration Stages
-    
+
     /// 迁移阶段
     ///
     /// 定义版本之间的迁移逻辑。
@@ -80,9 +80,9 @@ enum ReviewItemMigrationPlan: SchemaMigrationPlan {
 // MARK: - ReviewItemMigrationPlan Future Migrations
 
 extension ReviewItemMigrationPlan {
-    
+
     // MARK: - Migration Templates
-    
+
     /*
     /// V1 到 V2 的迁移
     ///
@@ -105,7 +105,7 @@ extension ReviewItemMigrationPlan {
         }
     )
     */
-    
+
     /*
     /// V2 到 V3 的轻量级迁移
     ///
@@ -148,13 +148,13 @@ extension ReviewItemMigrationPlan {
 /// | sourceRaw | String | 来源 |
 /// | questionTypeRaw | String | 题型 |
 enum ReviewItemSchemaV1: VersionedSchema {
-    
+
     /// 版本标识符
     ///
     /// 格式：(主版本, 次版本, 修订版本)
     /// 使用 `nonisolated(unsafe)` 以兼容 Swift 6.2 严格并发
     nonisolated(unsafe) static var versionIdentifier = Schema.Version(1, 0, 0)
-    
+
     /// 此版本包含的持久化模型
     static var models: [any PersistentModel.Type] {
         [ReviewItem.self]
@@ -208,12 +208,12 @@ enum ReviewItemSchemaV3: VersionedSchema {
 // MARK: - Migration Helpers
 
 extension ReviewItemMigrationPlan {
-    
+
     /// 当前 Schema 版本
     nonisolated(unsafe) static var currentVersion: Schema.Version {
         ReviewItemSchemaV1.versionIdentifier
     }
-    
+
     /// 版本描述
     static var versionDescription: String {
         "V\(currentVersion.major).\(currentVersion.minor).\(currentVersion.patch)"

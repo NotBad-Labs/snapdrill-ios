@@ -10,7 +10,7 @@ import Foundation
 // MARK: - ReviewItem Display Properties
 
 extension ReviewItem {
-    
+
     /// 显示标题
     ///
     /// 如果标题为空或仅空白，返回默认标题。
@@ -18,7 +18,7 @@ extension ReviewItem {
         let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? "未命名错题" : trimmed
     }
-    
+
     /// 简短描述
     ///
     /// 格式：「学科 · 题型」
@@ -27,7 +27,7 @@ extension ReviewItem {
         let subjectName = EducationSystemManager.shared.subjectDisplayName(for: subjectRaw)
         return "\(subjectName) · \(questionType.displayName)"
     }
-    
+
     /// 完整描述
     ///
     /// 格式：「学科 · 年级 · 题型 · 难度」
@@ -37,7 +37,7 @@ extension ReviewItem {
         let gradeName = EducationSystemManager.shared.gradeDisplayName(for: gradeRaw)
         return "\(subjectName) · \(gradeName) · \(questionType.displayName) · \(difficulty.displayName)"
     }
-    
+
     /// 复习状态描述
     var reviewStatusDescription: String {
         if isNew {
@@ -48,7 +48,7 @@ extension ReviewItem {
             return "\(daysUntilReview) 天后复习"
         }
     }
-    
+
     /// 掌握状态描述
     var masteryStatusDescription: String {
         "\(mastery.displayName) · 已复习 \(reviewCount) 次"
@@ -58,7 +58,7 @@ extension ReviewItem {
 // MARK: - ReviewItem CustomStringConvertible
 
 extension ReviewItem: CustomStringConvertible {
-    
+
     /// 调试描述
     nonisolated var description: String {
         "ReviewItem(\(displayTitle), \(subjectRaw), \(gradeRaw), \(masteryLevel))"

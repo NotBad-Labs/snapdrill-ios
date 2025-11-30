@@ -28,29 +28,29 @@ import SwiftUI
 /// print(category.icon)         // "building.columns"
 /// ```
 enum SourceCategory: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
-    
+
     /// 官方来源
     ///
     /// 包括课本、历年真题等权威出版物。
     case official = "官方"
-    
+
     /// 学校来源
     ///
     /// 包括考试、模拟考、作业等校内资料。
     case school = "学校"
-    
+
     /// 课外来源
     ///
     /// 包括练习册、辅导班、竞赛等校外资料。
     case extra = "课外"
-    
+
     /// 其他来源
     ///
     /// 包括网络、自测等来源不明确的资料。
     case other = "其他"
-    
+
     // MARK: - Identifiable
-    
+
     /// 唯一标识符
     nonisolated var id: String { rawValue }
 }
@@ -58,12 +58,12 @@ enum SourceCategory: String, Sendable, CaseIterable, Codable, Hashable, Identifi
 // MARK: - SourceCategory Display Properties
 
 extension SourceCategory {
-    
+
     /// 显示名称
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -73,7 +73,7 @@ extension SourceCategory {
         case .other: "source_category_other"
         }
     }
-    
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
@@ -83,7 +83,7 @@ extension SourceCategory {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     /// 主题颜色
     nonisolated var color: Color {
         switch self {
@@ -93,12 +93,12 @@ extension SourceCategory {
         case .other: .gray
         }
     }
-    
+
     /// 分类描述
     nonisolated var categoryDescription: String {
         String(localized: categoryDescriptionKey)
     }
-    
+
     /// 分类描述本地化键值
     private var categoryDescriptionKey: String.LocalizationValue {
         switch self {
@@ -142,72 +142,72 @@ extension SourceCategory {
 /// let important = Source.highImportanceSources
 /// ```
 enum Source: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
-    
+
     // MARK: - Official Sources (官方)
-    
+
     /// 课本
     ///
     /// 教材教辅，官方权威。
     case textbook = "课本"
-    
+
     /// 历年真题
     ///
     /// 中考、高考等正式考试真题。
     case pastExam = "历年真题"
-    
+
     // MARK: - School Sources (学校)
-    
+
     /// 考试
     ///
     /// 校内正式考试（期中、期末等）。
     case exam = "考试"
-    
+
     /// 模拟考
     ///
     /// 模拟考试，仿真度较高。
     case mock = "模拟考"
-    
+
     /// 作业
     ///
     /// 日常作业、课后练习。
     case homework = "作业"
-    
+
     // MARK: - Extra Sources (课外)
-    
+
     /// 练习册
     ///
     /// 市售练习册、习题集。
     case workbook = "练习册"
-    
+
     /// 辅导班
     ///
     /// 课外辅导机构资料。
     case tutor = "辅导班"
-    
+
     /// 竞赛
     ///
     /// 学科竞赛、奥赛等。
     case competition = "竞赛"
-    
+
     // MARK: - Other Sources (其他)
-    
+
     /// 网络
     ///
     /// 网络资源、在线题库。
     case online = "网络"
-    
+
     /// 自测
     ///
     /// 自主测试、自我检验。
     case selfTest = "自测"
-    
+
     /// 其他
     ///
     /// 其他来源。
     case other = "其他"
-    
+
     // MARK: - Identifiable
-    
+
     /// 唯一标识符
     nonisolated var id: String { rawValue }
 }
@@ -215,12 +215,12 @@ enum Source: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
 // MARK: - Source Display Properties
 
 extension Source {
-    
+
     /// 显示名称
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -237,14 +237,14 @@ extension Source {
         case .other: "source_other"
         }
     }
-    
+
     /// 简短标签
     ///
     /// 用于空间有限的 UI 展示。
     nonisolated var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     /// 简短标签本地化键值
     private var shortLabelKey: String.LocalizationValue {
         switch self {
@@ -261,7 +261,7 @@ extension Source {
         case .other: "source_other_short"
         }
     }
-    
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
@@ -278,7 +278,7 @@ extension Source {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     /// 主题颜色
     nonisolated var color: Color {
         switch self {
@@ -300,7 +300,7 @@ extension Source {
 // MARK: - Source Category
 
 extension Source {
-    
+
     /// 来源分类
     nonisolated var category: SourceCategory {
         switch self {
@@ -314,13 +314,13 @@ extension Source {
             .other
         }
     }
-    
+
     /// 是否为官方来源
     nonisolated var isOfficial: Bool { category == .official }
-    
+
     /// 是否为学校来源
     nonisolated var isSchool: Bool { category == .school }
-    
+
     /// 是否为课外来源
     nonisolated var isExtra: Bool { category == .extra }
 }
@@ -328,7 +328,7 @@ extension Source {
 // MARK: - Source Importance
 
 extension Source {
-    
+
     /// 重要程度
     ///
     /// 1-5 分，数字越大越重要：
@@ -352,7 +352,7 @@ extension Source {
         case .other: 1
         }
     }
-    
+
     /// 重要程度描述
     nonisolated var importanceDescription: String {
         switch importance {
@@ -363,17 +363,17 @@ extension Source {
         default: "低"
         }
     }
-    
+
     /// 是否为高重要性来源
     ///
     /// 重要程度 >= 4 视为高重要性。
     nonisolated var isHighImportance: Bool { importance >= 4 }
-    
+
     /// 是否为中等重要性来源
     ///
     /// 重要程度 >= 3 且 < 4。
     nonisolated var isMediumImportance: Bool { importance == 3 }
-    
+
     /// 是否为低重要性来源
     ///
     /// 重要程度 < 3。
@@ -383,21 +383,21 @@ extension Source {
 // MARK: - Source Authority & Exam
 
 extension Source {
-    
+
     /// 是否为高权威来源
     ///
     /// 官方来源或正式考试视为高权威。
     nonisolated var isAuthoritative: Bool {
         category == .official || self == .exam
     }
-    
+
     /// 是否为考试相关
     ///
     /// 包括历年真题、正式考试、模拟考。
     nonisolated var isExamRelated: Bool {
         [.pastExam, .exam, .mock].contains(self)
     }
-    
+
     /// 是否为提升类来源
     ///
     /// 竞赛、辅导班等提升类来源。
@@ -409,34 +409,34 @@ extension Source {
 // MARK: - Source Static Collections
 
 extension Source {
-    
+
     /// 所有官方来源
     nonisolated static var officialSources: [Source] {
         [.textbook, .pastExam]
     }
-    
+
     /// 所有学校来源
     nonisolated static var schoolSources: [Source] {
         [.exam, .mock, .homework]
     }
-    
+
     /// 所有课外来源
     nonisolated static var extraSources: [Source] {
         [.workbook, .tutor, .competition]
     }
-    
+
     /// 所有考试相关来源
     nonisolated static var examRelatedSources: [Source] {
         [.pastExam, .exam, .mock]
     }
-    
+
     /// 高重要性来源
     ///
     /// 重要程度 >= 4 的所有来源。
     nonisolated static var highImportanceSources: [Source] {
         allCases.filter { $0.importance >= 4 }
     }
-    
+
     /// 高权威来源
     nonisolated static var authoritativeSources: [Source] {
         allCases.filter { $0.isAuthoritative }
@@ -446,7 +446,7 @@ extension Source {
 // MARK: - Source Query Methods
 
 extension Source {
-    
+
     /// 获取某分类下的所有来源
     ///
     /// - Parameter category: 来源分类
@@ -454,7 +454,7 @@ extension Source {
     nonisolated static func sources(in category: SourceCategory) -> [Source] {
         allCases.filter { $0.category == category }
     }
-    
+
     /// 获取指定重要程度的所有来源
     ///
     /// - Parameter level: 重要程度（1-5）
@@ -462,7 +462,7 @@ extension Source {
     nonisolated static func sources(withImportance level: Int) -> [Source] {
         allCases.filter { $0.importance == level }
     }
-    
+
     /// 获取重要程度大于等于指定值的所有来源
     ///
     /// - Parameter minLevel: 最低重要程度
@@ -470,7 +470,7 @@ extension Source {
     nonisolated static func sources(withMinImportance minLevel: Int) -> [Source] {
         allCases.filter { $0.importance >= minLevel }
     }
-    
+
     /// 按重要程度排序的所有来源
     ///
     /// 从高到低排序。

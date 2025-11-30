@@ -13,16 +13,16 @@ import SwiftUI
 enum ToastType: Sendable {
     /// 成功
     case success
-    
+
     /// 错误
     case error
-    
+
     /// 警告
     case warning
-    
+
     /// 信息
     case info
-    
+
     /// 图标名称
     var icon: String {
         switch self {
@@ -32,7 +32,7 @@ enum ToastType: Sendable {
         case .info: "info.circle.fill"
         }
     }
-    
+
     /// 颜色
     var color: Color {
         switch self {
@@ -42,7 +42,7 @@ enum ToastType: Sendable {
         case .info: Color.brand.primary
         }
     }
-    
+
     /// 默认显示时长
     var defaultDuration: Double {
         switch self {
@@ -72,32 +72,32 @@ enum ToastType: Sendable {
 /// }
 /// ```
 struct Toast: Equatable, Sendable {
-    
+
     // MARK: - Properties
-    
+
     /// 消息类型
     let type: ToastType
-    
+
     /// 消息内容
     let message: String
-    
+
     /// 显示时长（秒）
     var duration: Double
-    
+
     /// 创建时间戳（用于唯一标识）
     let id: UUID
-    
+
     // MARK: - Initialization
-    
+
     init(type: ToastType, message: String, duration: Double? = nil) {
         self.type = type
         self.message = message
         self.duration = duration ?? type.defaultDuration
         self.id = UUID()
     }
-    
+
     // MARK: - Equatable
-    
+
     static func == (lhs: Toast, rhs: Toast) -> Bool {
         lhs.id == rhs.id
     }
@@ -106,22 +106,22 @@ struct Toast: Equatable, Sendable {
 // MARK: - Toast Convenience Initializers
 
 extension Toast {
-    
+
     /// 成功 Toast
     static func success(_ message: String, duration: Double? = nil) -> Toast {
         Toast(type: .success, message: message, duration: duration)
     }
-    
+
     /// 错误 Toast
     static func error(_ message: String, duration: Double? = nil) -> Toast {
         Toast(type: .error, message: message, duration: duration)
     }
-    
+
     /// 警告 Toast
     static func warning(_ message: String, duration: Double? = nil) -> Toast {
         Toast(type: .warning, message: message, duration: duration)
     }
-    
+
     /// 信息 Toast
     static func info(_ message: String, duration: Double? = nil) -> Toast {
         Toast(type: .info, message: message, duration: duration)
@@ -134,30 +134,30 @@ extension Toast {
 ///
 /// 显示单个 Toast 消息的视图组件。
 struct ToastView: View {
-    
+
     // MARK: - Properties
-    
+
     let toast: Toast
-    
+
     /// 点击关闭回调
     var onDismiss: (() -> Void)?
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
             Image(systemName: toast.type.icon)
                 .font(.title3)
                 .foregroundStyle(toast.type.color)
                 .accessibilityHidden(true)
-            
+
             Text(toast.message)
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .multilineTextAlignment(.leading)
-            
+
             Spacer()
-            
+
             if onDismiss != nil {
                 Button {
                     onDismiss?()
@@ -178,7 +178,7 @@ struct ToastView: View {
         .accessibilityLabel(accessibilityDescription)
         .accessibilityAddTraits(.isStaticText)
     }
-    
+
     private var accessibilityDescription: String {
         let typeDescription: String
         switch toast.type {
@@ -195,9 +195,9 @@ struct ToastView: View {
 
 /// Toast 视图修饰器
 private struct ToastModifier: ViewModifier {
-    
+
     @Binding var toast: Toast?
-    
+
     func body(content: Content) -> some View {
         content
             .overlay(alignment: .top) {
@@ -218,7 +218,7 @@ private struct ToastModifier: ViewModifier {
             }
             .animation(DesignTokens.Animation.spring, value: toast)
     }
-    
+
     private func scheduleAutoDismiss(for toast: Toast) {
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(toast.duration))
@@ -230,7 +230,7 @@ private struct ToastModifier: ViewModifier {
             }
         }
     }
-    
+
     private func announceForAccessibility(_ toast: Toast) {
         let typeDescription: String
         switch toast.type {
@@ -246,7 +246,7 @@ private struct ToastModifier: ViewModifier {
 // MARK: - View Extension
 
 extension View {
-    
+
     /// 添加 Toast 支持
     ///
     /// - Parameter toast: Toast 状态绑定
@@ -277,7 +277,7 @@ extension View {
 #Preview("Interactive Toast") {
     struct PreviewWrapper: View {
         @State private var toast: Toast?
-        
+
         var body: some View {
             VStack(spacing: 20) {
                 Button("显示成功") {

@@ -13,13 +13,13 @@ import SwiftUI
 enum SubjectTagStyle: Sendable {
     /// 紧凑 - 仅显示名称
     case compact
-    
+
     /// 标准 - 图标 + 名称
     case standard
-    
+
     /// 详细 - 图标 + 名称 + 数量
     case detailed
-    
+
     /// 图标 - 仅图标
     case iconOnly
 }
@@ -49,33 +49,33 @@ enum SubjectTagStyle: Sendable {
 /// SubjectTag(subject: .english, isSelected: true)
 /// ```
 struct SubjectTag: View {
-    
+
     // MARK: - Properties
-    
+
     /// 学科
     let subject: Subject
-    
+
     /// 显示样式
     var style: SubjectTagStyle = .standard
-    
+
     /// 错题数量（详细样式时使用）
     var count: Int?
-    
+
     /// 是否选中
     var isSelected: Bool = false
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.xs) {
             if style != .compact {
                 iconView
             }
-            
+
             if style != .iconOnly {
                 textView
             }
-            
+
             if style == .detailed, let count {
                 countBadge(count)
             }
@@ -91,20 +91,20 @@ struct SubjectTag: View {
             y: 2
         )
     }
-    
+
     // MARK: - Subviews
-    
+
     private var iconView: some View {
         Image(systemName: subject.icon)
             .font(style == .iconOnly ? .subheadline : .caption)
     }
-    
+
     private var textView: some View {
         Text(subject.displayName)
             .font(style == .compact ? .caption2 : .caption)
             .fontWeight(isSelected ? .semibold : .regular)
     }
-    
+
     private func countBadge(_ count: Int) -> some View {
         Text("\(count)")
             .font(.caption2)
@@ -114,9 +114,9 @@ struct SubjectTag: View {
             .background(isSelected ? .white.opacity(0.3) : subject.color.opacity(0.2))
             .clipShape(Capsule())
     }
-    
+
     // MARK: - Styling
-    
+
     private var backgroundStyle: AnyShapeStyle {
         if isSelected {
             AnyShapeStyle(subject.color.gradient)
@@ -124,7 +124,7 @@ struct SubjectTag: View {
             AnyShapeStyle(subject.color.opacity(0.1))
         }
     }
-    
+
     private var foregroundStyle: Color {
         isSelected ? .white : subject.color
     }
@@ -136,23 +136,23 @@ struct SubjectTag: View {
 ///
 /// 带有点击选择功能的学科标签。
 struct SelectableSubjectTag: View {
-    
+
     // MARK: - Properties
-    
+
     /// 学科
     let subject: Subject
-    
+
     /// 选中状态绑定
     @Binding var isSelected: Bool
-    
+
     /// 错题数量
     var count: Int?
-    
+
     /// 样式
     var style: SubjectTagStyle = .standard
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         Button {
             withAnimation(DesignTokens.Animation.spring) {
@@ -177,23 +177,23 @@ struct SelectableSubjectTag: View {
 ///
 /// 显示多个学科标签，支持单选或多选。
 struct SubjectTagGroup: View {
-    
+
     // MARK: - Properties
-    
+
     /// 可选学科列表
     let subjects: [Subject]
-    
+
     /// 选中的学科
     @Binding var selection: Set<Subject>
-    
+
     /// 是否单选模式
     var singleSelection: Bool = false
-    
+
     /// 各学科数量
     var counts: [Subject: Int] = [:]
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: DesignTokens.Spacing.sm) {
@@ -204,12 +204,12 @@ struct SubjectTagGroup: View {
             .padding(.horizontal)
         }
     }
-    
+
     // MARK: - Subviews
-    
+
     private func tagButton(for subject: Subject) -> some View {
         let isSelected = selection.contains(subject)
-        
+
         return Button {
             withAnimation(DesignTokens.Animation.spring) {
                 if singleSelection {
@@ -245,28 +245,28 @@ struct SubjectTagGroup: View {
                 SubjectTag(subject: subject, style: .compact)
             }
         }
-        
+
         // Standard
         HStack {
             ForEach(Subject.coreSubjects, id: \.self) { subject in
                 SubjectTag(subject: subject, style: .standard)
             }
         }
-        
+
         // Icon Only
         HStack {
             ForEach(Subject.coreSubjects, id: \.self) { subject in
                 SubjectTag(subject: subject, style: .iconOnly)
             }
         }
-        
+
         // Detailed
         HStack {
             SubjectTag(subject: .math, style: .detailed, count: 15)
             SubjectTag(subject: .chinese, style: .detailed, count: 8)
             SubjectTag(subject: .english, style: .detailed, count: 12)
         }
-        
+
         // Selected
         HStack {
             SubjectTag(subject: .math, style: .standard, isSelected: true)
@@ -279,7 +279,7 @@ struct SubjectTagGroup: View {
 #Preview("Selectable Tags") {
     struct PreviewWrapper: View {
         @State private var selected = false
-        
+
         var body: some View {
             SelectableSubjectTag(
                 subject: .math,
@@ -294,7 +294,7 @@ struct SubjectTagGroup: View {
 #Preview("Tag Group") {
     struct PreviewWrapper: View {
         @State private var selection: Set<Subject> = [.math]
-        
+
         var body: some View {
             SubjectTagGroup(
                 subjects: Subject.coreSubjects,

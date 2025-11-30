@@ -12,7 +12,7 @@ import SwiftUI
 /// 欢迎卡片组件
 struct WelcomeCard: View {
     @State private var isAnimating = false
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             HStack {
@@ -20,14 +20,14 @@ struct WelcomeCard: View {
                     Text("dashboard_welcome_hello")
                         .font(.title2)
                         .fontWeight(.bold)
-                    
+
                     Text("dashboard_welcome_subtitle")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 Spacer()
-                
+
                 // 更精致的动画图标
                 ZStack {
                     Circle()
@@ -41,7 +41,7 @@ struct WelcomeCard: View {
                         )
                         .frame(width: 80, height: 80)
                         .scaleEffect(isAnimating ? 1.1 : 0.9)
-                    
+
                     Image(systemName: "sparkles")
                         .font(.system(size: 36, weight: .medium))
                         .foregroundStyle(
@@ -102,9 +102,9 @@ struct StatCard: View {
     let value: String
     let icon: String
     let color: Color
-    
+
     @State private var isAppeared = false
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             HStack {
@@ -113,21 +113,21 @@ struct StatCard: View {
                     Circle()
                         .fill(color.opacity(0.12))
                         .frame(width: 40, height: 40)
-                    
+
                     Image(systemName: icon)
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(color)
                 }
                 .accessibilityHidden(true)
-                
+
                 Spacer()
             }
-            
+
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                 Text(value)
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .contentTransition(.numericText())
-                
+
                 Text(title)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -157,9 +157,9 @@ struct QuickActionButton: View {
     let title: LocalizedStringKey
     let icon: String
     let color: Color
-    
+
     @State private var isPressed = false
-    
+
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
             // 图标带背景
@@ -167,19 +167,19 @@ struct QuickActionButton: View {
                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
                     .fill(color.opacity(0.12))
                     .frame(width: 40, height: 40)
-                
+
                 Image(systemName: icon)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(color)
             }
             .accessibilityHidden(true)
-            
+
             Text(title)
                 .font(.body.weight(.medium))
                 .foregroundStyle(.primary)
-            
+
             Spacer()
-            
+
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(.tertiary)

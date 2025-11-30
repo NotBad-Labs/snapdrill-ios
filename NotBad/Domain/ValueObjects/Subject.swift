@@ -32,9 +32,9 @@ enum SubjectCategory: String, Sendable, CaseIterable, Codable, Hashable, Identif
     case humanities = "humanities"
     case technology = "technology"
     case other = "other"
-    
+
     // MARK: Identifiable
-    
+
     nonisolated var id: String { rawValue }
 }
 
@@ -45,7 +45,7 @@ extension SubjectCategory {
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -56,7 +56,7 @@ extension SubjectCategory {
         case .other: "subject_category_other"
         }
     }
-    
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
@@ -67,7 +67,7 @@ extension SubjectCategory {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     /// 主题颜色
     nonisolated var color: Color {
         switch self {
@@ -123,7 +123,7 @@ enum Subject: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     case chinese = "chinese"
     /// 英语
     case english = "english"
-    
+
     // 理科类
     /// 数学
     case math = "math"
@@ -135,7 +135,7 @@ enum Subject: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     case biology = "biology"
     /// 科学（小学、初中科学课）
     case science = "science"
-    
+
     // 人文类
     /// 历史（初中、高中）
     case history = "history"
@@ -145,19 +145,19 @@ enum Subject: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     case politics = "politics"
     /// 道德与法治（小学、初中）
     case ethics = "ethics"
-    
+
     // 技术类
     /// 信息技术
     case informationTech = "information_tech"
     /// 通用技术（高中）
     case generalTech = "general_tech"
-    
+
     // 其他
     /// 其他学科
     case other = "other"
-    
+
     // MARK: Identifiable
-    
+
     nonisolated var id: String { rawValue }
 }
 
@@ -168,7 +168,7 @@ extension Subject {
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -188,12 +188,12 @@ extension Subject {
         case .other: "subject_other"
         }
     }
-    
+
     /// 简短标签（单字）
     nonisolated var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     /// 简短标签本地化键值
     private var shortLabelKey: String.LocalizationValue {
         switch self {
@@ -213,7 +213,7 @@ extension Subject {
         case .other: "subject_other_short"
         }
     }
-    
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
@@ -233,7 +233,7 @@ extension Subject {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     /// 主题颜色
     nonisolated var color: Color {
         switch self {
@@ -273,7 +273,7 @@ extension Subject {
             .other
         }
     }
-    
+
     /// 适用学段
     nonisolated var applicableStages: [GradeStage] {
         switch self {
@@ -297,7 +297,7 @@ extension Subject {
             [.primary, .junior, .senior]
         }
     }
-    
+
     /// 是否适用于指定学段
     /// - Parameter stage: 学段
     /// - Returns: 是否适用
@@ -315,7 +315,7 @@ extension Subject {
     static func subjects(for stage: GradeStage) -> [Subject] {
         allCases.filter { $0.isApplicable(for: stage) }
     }
-    
+
     /// 获取指定分类的学科列表
     /// - Parameter category: 学科分类
     /// - Returns: 该分类下的学科数组
@@ -335,24 +335,24 @@ extension Subject: CustomStringConvertible {
 extension Subject {
     /// 主要学科（语数英）
     static let coreSubjects: [Subject] = [.chinese, .math, .english]
-    
+
     /// 中考学科
     static let juniorExamSubjects: [Subject] = [
         .chinese, .math, .english,
         .physics, .chemistry,
         .history, .geography, .politics, .biology
     ]
-    
+
     /// 高考学科
     static let seniorExamSubjects: [Subject] = [
         .chinese, .math, .english,
         .physics, .chemistry, .biology,
         .history, .geography, .politics
     ]
-    
+
     /// 理科组合（物化生）
     static let scienceCombo: [Subject] = [.physics, .chemistry, .biology]
-    
+
     /// 文科组合（史地政）
     static let artsCombo: [Subject] = [.history, .geography, .politics]
 }

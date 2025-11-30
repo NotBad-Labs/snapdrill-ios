@@ -18,25 +18,25 @@ import PhotosUI
 /// - 相册选择
 /// - 图片预览与重选
 struct ImageSelectionCard: View {
-    
+
     // MARK: - Bindings
-    
+
     @Binding var selectedItem: PhotosPickerItem?
-    
+
     // MARK: - Properties
-    
+
     let selectedImage: Image?
     let isRecognizingText: Bool
     let showLiveScannerSupport: Bool
-    
+
     // MARK: - Actions
-    
+
     let onCameraPressed: () -> Void
     let onLiveScanPressed: () -> Void
     let onRecognizeText: () -> Void
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         VStack(spacing: 0) {
             if let image = selectedImage {
@@ -55,9 +55,9 @@ struct ImageSelectionCard: View {
         )
         .accessibilityIdentifier("image_selection_card")
     }
-    
+
     // MARK: - Empty State
-    
+
     private var emptyStateView: some View {
         VStack(spacing: DesignTokens.Spacing.lg) {
             // 更精致的图标动画
@@ -73,7 +73,7 @@ struct ImageSelectionCard: View {
                         )
                     )
                     .frame(width: 120, height: 120)
-                
+
                 // 虚线圆圈
                 Circle()
                     .strokeBorder(
@@ -81,19 +81,19 @@ struct ImageSelectionCard: View {
                         style: StrokeStyle(lineWidth: 2, dash: [8, 6])
                     )
                     .frame(width: 90, height: 90)
-                
+
                 // 图标
                 Image(systemName: "camera.viewfinder")
                     .font(.system(size: 36, weight: .light))
                     .foregroundStyle(Color.brand.primary)
             }
             .accessibilityHidden(true)
-            
+
             // 提示文字 - 只保留主标题
             Text("capture_add_image_prompt")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            
+
             // 操作按钮组
             actionButtonsRow
                 .padding(.top, DesignTokens.Spacing.xs)
@@ -101,7 +101,7 @@ struct ImageSelectionCard: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(DesignTokens.Spacing.lg)
     }
-    
+
     private var actionButtonsRow: some View {
         HStack(spacing: DesignTokens.Spacing.lg) {
             // 拍照
@@ -112,7 +112,7 @@ struct ImageSelectionCard: View {
             ) {
                 onCameraPressed()
             }
-            
+
             // 实时扫描
             if showLiveScannerSupport {
                 ActionChip(
@@ -123,7 +123,7 @@ struct ImageSelectionCard: View {
                     onLiveScanPressed()
                 }
             }
-            
+
             // 相册
             PhotosPicker(selection: $selectedItem, matching: .images) {
                 ActionChipContent(
@@ -134,9 +134,9 @@ struct ImageSelectionCard: View {
             }
         }
     }
-    
+
     // MARK: - Selected Image View
-    
+
     private func selectedImageView(_ image: Image) -> some View {
         ZStack(alignment: .bottom) {
             // 图片
@@ -145,12 +145,12 @@ struct ImageSelectionCard: View {
                 .scaledToFit()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
-            
+
             // 底部操作栏
             imageActionBar
         }
     }
-    
+
     private var imageActionBar: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
             // OCR 识别按钮
@@ -174,9 +174,9 @@ struct ImageSelectionCard: View {
                 .background(Color.brand.warning, in: Capsule())
             }
             .disabled(isRecognizingText)
-            
+
             Spacer()
-            
+
             // 重选按钮
             Menu {
                 Button {
@@ -184,7 +184,7 @@ struct ImageSelectionCard: View {
                 } label: {
                     Label("capture_camera", systemImage: "camera")
                 }
-                
+
                 if showLiveScannerSupport {
                     Button {
                         onLiveScanPressed()
@@ -192,7 +192,7 @@ struct ImageSelectionCard: View {
                         Label("capture_scan", systemImage: "text.viewfinder")
                     }
                 }
-                
+
                 // 相册选择通过 PhotosPicker 实现
             } label: {
                 HStack(spacing: DesignTokens.Spacing.xs) {
@@ -225,9 +225,9 @@ private struct ActionChip: View {
     let title: String
     let color: Color
     let action: () -> Void
-    
+
     @State private var isPressed = false
-    
+
     var body: some View {
         Button {
             // 触觉反馈
@@ -247,19 +247,19 @@ struct ActionChipContent: View {
     let icon: String
     let title: String
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.sm) {
             ZStack {
                 Circle()
                     .fill(color.opacity(0.12))
                     .frame(width: 48, height: 48)
-                
+
                 Image(systemName: icon)
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(color)
             }
-            
+
             Text(title)
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.primary)
@@ -288,7 +288,7 @@ struct ActionChipContent: View {
             onLiveScanPressed: {},
             onRecognizeText: {}
         )
-        
+
         // 有图片
         ImageSelectionCard(
             selectedItem: .constant(nil),

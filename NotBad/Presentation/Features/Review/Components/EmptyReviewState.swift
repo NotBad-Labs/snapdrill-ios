@@ -11,7 +11,7 @@ import SwiftUI
 
 /// 空状态视图
 struct EmptyReviewState: View {
-    
+
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             Image(systemName: "checkmark.seal.fill")
@@ -24,12 +24,12 @@ struct EmptyReviewState: View {
                     )
                 )
                 .symbolEffect(.bounce)
-            
+
             VStack(spacing: DesignTokens.Spacing.sm) {
                 Text("review_empty_title")
                     .font(.title2)
                     .fontWeight(.semibold)
-                
+
                 Text("review_empty_description")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)

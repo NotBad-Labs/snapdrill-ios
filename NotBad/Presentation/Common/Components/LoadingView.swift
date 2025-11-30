@@ -24,23 +24,23 @@ import SwiftUI
 /// }
 /// ```
 struct LoadingOverlay: View {
-    
+
     // MARK: - Properties
-    
+
     /// 加载提示文字
     let message: String
-    
+
     /// 背景透明度
     var backgroundOpacity: Double = 0.3
-    
+
     /// 是否显示取消按钮
     var showCancel: Bool = false
-    
+
     /// 取消回调
     var onCancel: (() -> Void)?
-    
+
     // MARK: - Initialization
-    
+
     init(
         _ message: String = "加载中...",
         backgroundOpacity: Double = 0.3,
@@ -52,23 +52,23 @@ struct LoadingOverlay: View {
         self.showCancel = showCancel
         self.onCancel = onCancel
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         ZStack {
             Color.black.opacity(backgroundOpacity)
                 .ignoresSafeArea()
-            
+
             VStack(spacing: DesignTokens.Spacing.lg) {
                 ProgressView()
                     .scaleEffect(1.5)
                     .tint(.white)
-                
+
                 Text(message)
                     .font(.subheadline)
                     .foregroundStyle(.white)
-                
+
                 if showCancel, let onCancel {
                     Button("取消", action: onCancel)
                         .font(.subheadline)
@@ -97,24 +97,24 @@ struct LoadingOverlay: View {
 /// }
 /// ```
 struct InlineLoader: View {
-    
+
     // MARK: - Properties
-    
+
     /// 加载提示文字
     let message: String
-    
+
     /// 指示器大小
     var scale: CGFloat = 1.0
-    
+
     // MARK: - Initialization
-    
+
     init(_ message: String = "加载中", scale: CGFloat = 1.0) {
         self.message = message
         self.scale = scale
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
             ProgressView()
@@ -133,24 +133,24 @@ struct InlineLoader: View {
 ///
 /// 显示三个循环动画的点，表示加载状态。
 struct AnimatedDots: View {
-    
+
     // MARK: - Properties
-    
+
     /// 点的颜色
     var color: Color = .accentColor
-    
+
     /// 点的大小
     var size: CGFloat = 8
-    
+
     /// 动画持续时间
     var duration: Double = 0.6
-    
+
     // MARK: - State
-    
+
     @State private var animating = false
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         HStack(spacing: size / 2) {
             ForEach(0..<3, id: \.self) { index in
@@ -176,24 +176,24 @@ struct AnimatedDots: View {
 ///
 /// 显示内容占位符动画，提供更好的加载体验。
 struct SkeletonLoader: View {
-    
+
     // MARK: - Properties
-    
+
     /// 宽度
-    var width: CGFloat? = nil
-    
+    var width: CGFloat?
+
     /// 高度
     var height: CGFloat = 20
-    
+
     /// 圆角半径
     var cornerRadius: CGFloat = 4
-    
+
     // MARK: - State
-    
+
     @State private var isAnimating = false
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         RoundedRectangle(cornerRadius: cornerRadius)
             .fill(
@@ -222,28 +222,28 @@ struct SkeletonLoader: View {
 enum LoadingState: Equatable, Sendable {
     /// 空闲
     case idle
-    
+
     /// 加载中
     case loading(String?)
-    
+
     /// 已加载
     case loaded
-    
+
     /// 错误
     case error(String)
-    
+
     /// 是否正在加载
     var isLoading: Bool {
         if case .loading = self { return true }
         return false
     }
-    
+
     /// 获取加载消息
     var loadingMessage: String? {
         if case .loading(let message) = self { return message }
         return nil
     }
-    
+
     /// 获取错误消息
     var errorMessage: String? {
         if case .error(let message) = self { return message }

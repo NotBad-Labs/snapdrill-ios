@@ -13,15 +13,15 @@ import SwiftUI
 ///
 /// 管理应用主题和显示设置。
 struct AppearanceSettingsView: View {
-    
+
     // MARK: - State
-    
+
     @AppStorage("colorScheme") private var colorScheme = ColorSchemeOption.system
     @AppStorage("useDynamicType") private var useDynamicType = true
     @AppStorage("reduceMotion") private var reduceMotion = false
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         List {
             themeSection
@@ -32,9 +32,9 @@ struct AppearanceSettingsView: View {
         .navigationTitle("外观设置")
         .navigationBarTitleDisplayMode(.inline)
     }
-    
+
     // MARK: - Theme Section
-    
+
     private var themeSection: some View {
         Section("主题") {
             ForEach(ColorSchemeOption.allCases) { option in
@@ -57,9 +57,9 @@ struct AppearanceSettingsView: View {
             }
         }
     }
-    
+
     // MARK: - Display Section
-    
+
     private var displaySection: some View {
         Section {
             Toggle(isOn: $useDynamicType) {
@@ -81,9 +81,9 @@ struct AppearanceSettingsView: View {
             Text("appearance_display_footer")
         }
     }
-    
+
     // MARK: - Accessibility Section
-    
+
     private var accessibilitySection: some View {
         Section {
             Toggle(isOn: $reduceMotion) {
@@ -105,9 +105,9 @@ struct AppearanceSettingsView: View {
             Text("appearance_accessibility_footer")
         }
     }
-    
+
     // MARK: - Preview Section
-    
+
     private var previewSection: some View {
         Section("appearance_section_preview") {
             VStack(spacing: DesignTokens.Spacing.md) {
@@ -116,7 +116,7 @@ struct AppearanceSettingsView: View {
                     colorPreviewCard(Color.brand.secondary, String(localized: "appearance_color_secondary"))
                     colorPreviewCard(Color.brand.success, String(localized: "appearance_color_success"))
                 }
-                
+
                 HStack(spacing: DesignTokens.Spacing.md) {
                     colorPreviewCard(Color.brand.warning, String(localized: "appearance_color_warning"))
                     colorPreviewCard(Color.brand.error, String(localized: "appearance_color_error"))
@@ -126,7 +126,7 @@ struct AppearanceSettingsView: View {
             .padding(.vertical, DesignTokens.Spacing.sm)
         }
     }
-    
+
     private func colorPreviewCard(_ color: Color, _ name: String) -> some View {
         VStack(spacing: DesignTokens.Spacing.xs) {
             RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
@@ -145,9 +145,9 @@ enum ColorSchemeOption: String, CaseIterable, Identifiable {
     case system
     case light
     case dark
-    
+
     var id: String { rawValue }
-    
+
     var displayName: String {
         switch self {
         case .system: return "跟随系统"
@@ -155,7 +155,7 @@ enum ColorSchemeOption: String, CaseIterable, Identifiable {
         case .dark: return "深色模式"
         }
     }
-    
+
     var icon: String {
         switch self {
         case .system: return "gear"
@@ -163,7 +163,7 @@ enum ColorSchemeOption: String, CaseIterable, Identifiable {
         case .dark: return "moon.fill"
         }
     }
-    
+
     var colorScheme: ColorScheme? {
         switch self {
         case .system: return nil

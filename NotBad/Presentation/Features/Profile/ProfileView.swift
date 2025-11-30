@@ -21,13 +21,13 @@ import SwiftData
 /// - 应用设置
 /// - 关于信息
 struct ProfileView: View {
-    
+
     // MARK: - Environment
-    
+
     @Query private var allItems: [ReviewItem]
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -40,9 +40,9 @@ struct ProfileView: View {
             .navigationBarTitleDisplayMode(.large)
         }
     }
-    
+
     // MARK: - User Section
-    
+
     private var userSection: some View {
         Section {
             HStack(spacing: DesignTokens.Spacing.lg) {
@@ -58,24 +58,24 @@ struct ProfileView: View {
                         )
                         .frame(width: 64, height: 64)
                         .shadow(color: Color.brand.primary.opacity(0.3), radius: 8, x: 0, y: 4)
-                    
+
                     Image(systemName: "person.fill")
                         .font(.system(size: 28, weight: .medium))
                         .foregroundStyle(.white)
                 }
-                
+
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                     Text("profile_nickname")
                         .font(.title2)
                         .fontWeight(.bold)
-                    
+
                     Text("profile_subtitle")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 Spacer()
-                
+
                 // Chevron indicator
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
@@ -84,9 +84,9 @@ struct ProfileView: View {
             .padding(.vertical, DesignTokens.Spacing.sm)
         }
     }
-    
+
     // MARK: - Statistics Section
-    
+
     private var statisticsSection: some View {
         Section("profile_section_statistics") {
             StatisticsRow(
@@ -95,21 +95,21 @@ struct ProfileView: View {
                 value: "\(allItems.count)",
                 color: Color.brand.primary
             )
-            
+
             StatisticsRow(
                 icon: "checkmark.seal.fill",
                 title: String(localized: "profile_mastered"),
                 value: "\(masteredCount)",
                 color: Color.brand.success
             )
-            
+
             StatisticsRow(
                 icon: "clock.arrow.circlepath",
                 title: String(localized: "profile_total_reviews"),
                 value: "\(totalReviewCount)",
                 color: Color.brand.warning
             )
-            
+
             StatisticsRow(
                 icon: "calendar",
                 title: String(localized: "profile_study_days"),
@@ -118,9 +118,9 @@ struct ProfileView: View {
             )
         }
     }
-    
+
     // MARK: - Settings Section
-    
+
     private var settingsSection: some View {
         Section("profile_section_settings") {
             NavigationLink {
@@ -128,13 +128,13 @@ struct ProfileView: View {
             } label: {
                 Label("profile_review_reminder", systemImage: "bell.fill")
             }
-            
+
             NavigationLink {
                 dataManagementView
             } label: {
                 Label("profile_data_management", systemImage: "externaldrive.fill")
             }
-            
+
             NavigationLink {
                 appearanceSettingsView
             } label: {
@@ -142,9 +142,9 @@ struct ProfileView: View {
             }
         }
     }
-    
+
     // MARK: - About Section
-    
+
     private var aboutSection: some View {
         Section("profile_section_about") {
             NavigationLink {
@@ -152,13 +152,13 @@ struct ProfileView: View {
             } label: {
                 Label("profile_help_center", systemImage: "questionmark.circle.fill")
             }
-            
+
             NavigationLink {
                 feedbackView
             } label: {
                 Label("profile_feedback", systemImage: "envelope.fill")
             }
-            
+
             HStack {
                 Label("profile_version", systemImage: "info.circle.fill")
                 Spacer()
@@ -167,40 +167,40 @@ struct ProfileView: View {
             }
         }
     }
-    
+
     // MARK: - Computed Properties
-    
+
     private var masteredCount: Int {
         allItems.filter { $0.masteryLevel == MasteryLevel.mastered.rawValue }.count
     }
-    
+
     private var totalReviewCount: Int {
         allItems.reduce(0) { $0 + $1.reviewCount }
     }
-    
+
     private var studyDays: Int {
         let dates = Set(allItems.map { Calendar.current.startOfDay(for: $0.createdAt) })
         return dates.count
     }
-    
+
     // MARK: - Navigation Destinations
-    
+
     private var notificationSettingsView: some View {
         NotificationSettingsView()
     }
-    
+
     private var dataManagementView: some View {
         DataManagementView()
     }
-    
+
     private var appearanceSettingsView: some View {
         AppearanceSettingsView()
     }
-    
+
     private var helpCenterView: some View {
         HelpCenterView()
     }
-    
+
     private var feedbackView: some View {
         FeedbackView()
     }
@@ -214,7 +214,7 @@ private struct StatisticsRow: View {
     let title: String
     let value: String
     let color: Color
-    
+
     var body: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
             // Icon with circle background
@@ -222,17 +222,17 @@ private struct StatisticsRow: View {
                 Circle()
                     .fill(color.opacity(0.12))
                     .frame(width: 36, height: 36)
-                
+
                 Image(systemName: icon)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(color)
             }
-            
+
             Text(title)
                 .font(.body)
-            
+
             Spacer()
-            
+
             Text(value)
                 .font(.system(.body, design: .rounded, weight: .bold))
                 .foregroundStyle(color)

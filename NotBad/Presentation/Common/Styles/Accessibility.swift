@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: - View Accessibility Extensions
 
 extension View {
-    
+
     /// 标记为按钮并添加无障碍标签
     ///
     /// - Parameters:
@@ -31,7 +31,7 @@ extension View {
             .accessibilityHint(hint ?? "")
             .accessibilityAddTraits(.isButton)
     }
-    
+
     /// 标记为图片并添加无障碍标签
     ///
     /// - Parameter label: 图片描述
@@ -41,7 +41,7 @@ extension View {
             .accessibilityLabel(label)
             .accessibilityAddTraits(.isImage)
     }
-    
+
     /// 标记为标题
     ///
     /// - Parameter level: 标题级别（默认无指定级别）
@@ -49,14 +49,14 @@ extension View {
     func accessibleHeader() -> some View {
         self.accessibilityAddTraits(.isHeader)
     }
-    
+
     /// 标记为静态文本（纯装饰性）
     ///
     /// - Returns: 对辅助技术隐藏的视图
     func accessibleDecorative() -> some View {
         self.accessibilityHidden(true)
     }
-    
+
     /// 添加无障碍值
     ///
     /// - Parameters:
@@ -74,7 +74,7 @@ extension View {
             .accessibilityValue(value)
             .accessibilityLabel(label ?? "")
     }
-    
+
     /// 组合多个元素为一个无障碍单元
     ///
     /// - Parameter label: 组合后的标签
@@ -94,7 +94,7 @@ extension View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel(label)
     }
-    
+
     /// 忽略子元素的无障碍信息
     ///
     /// - Parameter label: 自定义标签
@@ -141,21 +141,21 @@ enum IconSizeToken {
 /// 无障碍公告工具
 @MainActor
 enum AccessibilityAnnouncement {
-    
+
     /// 发送无障碍公告
     ///
     /// - Parameter message: 要朗读的消息
     static func announce(_ message: String) {
         UIAccessibility.post(notification: .announcement, argument: message)
     }
-    
+
     /// 发送屏幕变化通知
     ///
     /// - Parameter element: 新获得焦点的元素（可选）
     static func screenChanged(_ element: Any? = nil) {
         UIAccessibility.post(notification: .screenChanged, argument: element)
     }
-    
+
     /// 发送布局变化通知
     ///
     /// - Parameter element: 新获得焦点的元素（可选）
@@ -167,7 +167,7 @@ enum AccessibilityAnnouncement {
 // MARK: - Reduce Motion Support
 
 extension View {
-    
+
     /// 根据减少动态效果设置应用动画
     ///
     /// - Parameters:
@@ -191,11 +191,11 @@ extension View {
 /// 减少动态效果动画修饰器
 private struct ReducedMotionAnimationModifier<V: Equatable>: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    
+
     let animation: Animation?
     let reducedAnimation: Animation?
     let value: V
-    
+
     func body(content: Content) -> some View {
         content.animation(
             reduceMotion ? reducedAnimation : animation,

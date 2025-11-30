@@ -28,15 +28,15 @@ import SwiftUI
 enum GradeStage: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     /// 小学（1-6年级）
     case primary = "primary"
-    
+
     /// 初中（7-9年级）
     case junior = "junior"
-    
+
     /// 高中（10-12年级）
     case senior = "senior"
-    
+
     // MARK: Identifiable
-    
+
     nonisolated var id: String { rawValue }
 }
 
@@ -47,7 +47,7 @@ extension GradeStage {
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -56,12 +56,12 @@ extension GradeStage {
         case .senior: "grade_stage_senior"
         }
     }
-    
+
     /// 简短标签
     nonisolated var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     /// 简短标签本地化键值
     private var shortLabelKey: String.LocalizationValue {
         switch self {
@@ -70,7 +70,7 @@ extension GradeStage {
         case .senior: "grade_stage_senior_short"
         }
     }
-    
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
@@ -79,7 +79,7 @@ extension GradeStage {
         case .senior: "graduationcap"
         }
     }
-    
+
     /// 主题颜色
     nonisolated var color: Color {
         switch self {
@@ -97,7 +97,7 @@ extension GradeStage {
     nonisolated var gradeRange: String {
         String(localized: gradeRangeKey)
     }
-    
+
     /// 年级范围本地化键值
     private var gradeRangeKey: String.LocalizationValue {
         switch self {
@@ -106,12 +106,12 @@ extension GradeStage {
         case .senior: "grade_stage_senior_range"
         }
     }
-    
+
     /// 该学段包含的年级
     nonisolated var grades: [Grade] {
         Grade.allCases.filter { $0.stage == self }
     }
-    
+
     /// 年级数量
     nonisolated var gradeCount: Int {
         switch self {
@@ -120,7 +120,7 @@ extension GradeStage {
         case .senior: 3
         }
     }
-    
+
     /// 起始年级序号
     nonisolated var firstGradeOrder: Int {
         switch self {
@@ -129,7 +129,7 @@ extension GradeStage {
         case .senior: 10
         }
     }
-    
+
     /// 结束年级序号
     nonisolated var lastGradeOrder: Int {
         switch self {
@@ -154,7 +154,7 @@ extension GradeStage {
         default: nil
         }
     }
-    
+
     /// 检查年级序号是否属于此学段
     /// - Parameter order: 年级序号
     /// - Returns: 是否属于此学段
@@ -219,7 +219,7 @@ enum Grade: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     case grade5 = "grade_5"
     /// 六年级
     case grade6 = "grade_6"
-    
+
     // 初中 (3年)
     /// 七年级（初一）
     case grade7 = "grade_7"
@@ -227,7 +227,7 @@ enum Grade: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     case grade8 = "grade_8"
     /// 九年级（初三）
     case grade9 = "grade_9"
-    
+
     // 高中 (3年)
     /// 高一（十年级）
     case grade10 = "grade_10"
@@ -235,9 +235,9 @@ enum Grade: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     case grade11 = "grade_11"
     /// 高三（十二年级）
     case grade12 = "grade_12"
-    
+
     // MARK: Identifiable
-    
+
     nonisolated var id: String { rawValue }
 }
 
@@ -248,7 +248,7 @@ extension Grade {
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -267,12 +267,12 @@ extension Grade {
         case .grade12: "grade_12"
         }
     }
-    
+
     /// 简短标签
     nonisolated var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     /// 简短标签本地化键值
     private var shortLabelKey: String.LocalizationValue {
         switch self {
@@ -291,7 +291,7 @@ extension Grade {
         case .grade12: "grade_12_short"
         }
     }
-    
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
@@ -305,7 +305,7 @@ extension Grade {
             "graduationcap"
         }
     }
-    
+
     /// 主题颜色（同学段渐变）
     nonisolated var color: Color {
         switch self {
@@ -344,7 +344,7 @@ extension Grade {
             .senior
         }
     }
-    
+
     /// 年级序号（0-12）
     nonisolated var order: Int {
         switch self {
@@ -363,7 +363,7 @@ extension Grade {
         case .grade12: 12
         }
     }
-    
+
     /// 是否为毕业年级（六年级、九年级、高三）
     nonisolated var isGraduationYear: Bool {
         switch self {
@@ -382,7 +382,7 @@ extension Grade {
     static func from(order: Int) -> Grade? {
         allCases.first { $0.order == order }
     }
-    
+
     /// 获取指定学段的年级列表
     /// - Parameter stage: 学段
     /// - Returns: 该学段下的年级数组
@@ -410,13 +410,13 @@ extension Grade: CustomStringConvertible {
 extension Grade {
     /// 小学年级
     static let primaryGrades: [Grade] = [.kindergarten, .grade1, .grade2, .grade3, .grade4, .grade5, .grade6]
-    
+
     /// 初中年级
     static let juniorGrades: [Grade] = [.grade7, .grade8, .grade9]
-    
+
     /// 高中年级
     static let seniorGrades: [Grade] = [.grade10, .grade11, .grade12]
-    
+
     /// 毕业年级
     static let graduationGrades: [Grade] = [.grade6, .grade9, .grade12]
 }

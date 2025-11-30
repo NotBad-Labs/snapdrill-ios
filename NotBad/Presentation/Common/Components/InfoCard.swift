@@ -21,20 +21,20 @@ import SwiftUI
 /// }
 /// ```
 struct InfoCard<Content: View>: View {
-    
+
     // MARK: - Properties
-    
+
     /// 卡片标题
     let title: String
-    
+
     /// 图标名称
     let icon: String
-    
+
     /// 卡片内容
     @ViewBuilder let content: Content
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             // Header with icon and title
@@ -42,7 +42,7 @@ struct InfoCard<Content: View>: View {
                 Image(systemName: icon)
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.tertiary)
-                
+
                 Text(title)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
@@ -50,7 +50,7 @@ struct InfoCard<Content: View>: View {
                     .tracking(0.3)
             }
             .accessibilityAddTraits(.isHeader)
-            
+
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)

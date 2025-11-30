@@ -33,9 +33,9 @@ enum ErrorCategory: String, Sendable, CaseIterable, Codable, Hashable, Identifia
     case habit = "习惯类"
     case objective = "客观类"
     case other = "其他"
-    
+
     // MARK: Identifiable
-    
+
     nonisolated var id: String { rawValue }
 }
 
@@ -46,7 +46,7 @@ extension ErrorCategory {
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -57,7 +57,7 @@ extension ErrorCategory {
         case .other: "error_category_other"
         }
     }
-    
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
@@ -68,7 +68,7 @@ extension ErrorCategory {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     /// 主题颜色
     nonisolated var color: Color {
         switch self {
@@ -79,12 +79,12 @@ extension ErrorCategory {
         case .other: .secondary
         }
     }
-    
+
     /// 改进方向建议
     nonisolated var improvementDirection: String {
         String(localized: improvementDirectionKey)
     }
-    
+
     /// 改进方向本地化键值
     private var improvementDirectionKey: String.LocalizationValue {
         switch self {
@@ -139,13 +139,13 @@ enum ErrorType: String, Sendable, CaseIterable, Codable, Hashable, Identifiable 
     case concept = "概念不清"
     /// 知识遗忘 - 曾经掌握但已遗忘
     case forgotten = "知识遗忘"
-    
+
     // 方法类
     /// 方法不当 - 解题方法选择不合适
     case method = "方法不当"
     /// 思路错误 - 解题方向从一开始就错了
     case wrongDirection = "思路错误"
-    
+
     // 习惯类
     /// 计算错误 - 运算过程中的失误
     case calculation = "计算错误"
@@ -155,17 +155,17 @@ enum ErrorType: String, Sendable, CaseIterable, Codable, Hashable, Identifiable 
     case misread = "审题失误"
     /// 步骤遗漏 - 解题过程不完整
     case incomplete = "步骤遗漏"
-    
+
     // 客观类
     /// 时间不足 - 考试时间紧张导致
     case timeLimit = "时间不足"
-    
+
     // 其他
     /// 其他 - 无法明确归类的错误
     case other = "其他"
-    
+
     // MARK: Identifiable
-    
+
     nonisolated var id: String { rawValue }
 }
 
@@ -176,7 +176,7 @@ extension ErrorType {
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -192,12 +192,12 @@ extension ErrorType {
         case .other: "error_type_other"
         }
     }
-    
+
     /// 简短标签（2字）
     nonisolated var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     /// 简短标签本地化键值
     private var shortLabelKey: String.LocalizationValue {
         switch self {
@@ -213,7 +213,7 @@ extension ErrorType {
         case .other: "error_type_other_short"
         }
     }
-    
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
@@ -229,7 +229,7 @@ extension ErrorType {
         case .other: "questionmark.circle"
         }
     }
-    
+
     /// 主题颜色
     nonisolated var color: Color {
         switch self {
@@ -265,7 +265,7 @@ extension ErrorType {
             .other
         }
     }
-    
+
     /// 获取某分类下的所有错误类型
     /// - Parameter category: 错误分类
     /// - Returns: 该分类下的错误类型数组
@@ -281,7 +281,7 @@ extension ErrorType {
     nonisolated var suggestion: String {
         String(localized: suggestionKey)
     }
-    
+
     /// 改进建议本地化键值
     private var suggestionKey: String.LocalizationValue {
         switch self {
@@ -297,7 +297,7 @@ extension ErrorType {
         case .other: "error_type_other_suggestion"
         }
     }
-    
+
     /// 是否属于主观可控错误（可通过努力改进）
     nonisolated var isControllable: Bool {
         category != .objective && self != .other
@@ -324,7 +324,7 @@ extension ErrorType {
         case .timeLimit, .other: 1
         }
     }
-    
+
     /// 复习优先级（基于严重程度）
     nonisolated var reviewPriority: Int { severity }
 }
@@ -348,19 +348,19 @@ extension ErrorType: CustomStringConvertible {
 extension ErrorType {
     /// 常见错误类型（排除"其他"）
     static let commonTypes: [ErrorType] = allCases.filter { $0 != .other }
-    
+
     /// 可控错误类型
     static let controllableTypes: [ErrorType] = allCases.filter { $0.isControllable }
-    
+
     /// 按严重程度降序排列
     static let sortedBySeverity: [ErrorType] = allCases.sorted { $0.severity > $1.severity }
-    
+
     /// 知识类错误
     static let knowledgeTypes: [ErrorType] = [.concept, .forgotten]
-    
+
     /// 方法类错误
     static let methodTypes: [ErrorType] = [.method, .wrongDirection]
-    
+
     /// 习惯类错误
     static let habitTypes: [ErrorType] = [.calculation, .careless, .misread, .incomplete]
 }

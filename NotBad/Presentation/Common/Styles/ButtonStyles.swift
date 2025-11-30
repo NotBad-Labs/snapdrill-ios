@@ -22,15 +22,15 @@ import SwiftUI
 /// .buttonStyle(.primary)
 /// ```
 struct PrimaryButtonStyle: ButtonStyle {
-    
+
     @Environment(\.isEnabled) private var isEnabled
-    
+
     /// 是否全宽
     var fullWidth: Bool = false
-    
+
     /// 尺寸
     var size: ButtonSize = .medium
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(size.font)
@@ -46,7 +46,7 @@ struct PrimaryButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(DesignTokens.Animation.fast, value: configuration.isPressed)
     }
-    
+
     private func backgroundColor(isPressed: Bool) -> Color {
         if !isEnabled {
             return .gray.opacity(0.3)
@@ -64,11 +64,11 @@ struct PrimaryButtonStyle: ButtonStyle {
 ///
 /// 用于次要操作，如「取消」「跳过」。
 struct SecondaryButtonStyle: ButtonStyle {
-    
+
     @Environment(\.isEnabled) private var isEnabled
-    
+
     var size: ButtonSize = .medium
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(size.font)
@@ -87,7 +87,7 @@ struct SecondaryButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(DesignTokens.Animation.fast, value: configuration.isPressed)
     }
-    
+
     private func backgroundColor(isPressed: Bool) -> Color {
         isPressed ? Color.brand.primary.opacity(0.1) : .clear
     }
@@ -99,11 +99,11 @@ struct SecondaryButtonStyle: ButtonStyle {
 ///
 /// 用于低优先级操作或密集布局中的按钮。
 struct GhostButtonStyle: ButtonStyle {
-    
+
     @Environment(\.isEnabled) private var isEnabled
-    
+
     var size: ButtonSize = .medium
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(size.font)
@@ -118,7 +118,7 @@ struct GhostButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(DesignTokens.Animation.fast, value: configuration.isPressed)
     }
-    
+
     private func foregroundColor(isPressed: Bool) -> Color {
         if !isEnabled { return .gray }
         return isPressed ? Color.brand.primary.opacity(0.7) : Color.brand.primary
@@ -131,11 +131,11 @@ struct GhostButtonStyle: ButtonStyle {
 ///
 /// 用于删除、重置等破坏性操作。
 struct DestructiveButtonStyle: ButtonStyle {
-    
+
     @Environment(\.isEnabled) private var isEnabled
-    
+
     var size: ButtonSize = .medium
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(size.font)
@@ -150,7 +150,7 @@ struct DestructiveButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(DesignTokens.Animation.fast, value: configuration.isPressed)
     }
-    
+
     private func backgroundColor(isPressed: Bool) -> Color {
         if !isEnabled { return .gray.opacity(0.3) }
         return isPressed ? Color.brand.error.opacity(0.8) : Color.brand.error
@@ -163,15 +163,15 @@ struct DestructiveButtonStyle: ButtonStyle {
 ///
 /// 用于工具栏或紧凑布局中的纯图标按钮。
 struct IconButtonStyle: ButtonStyle {
-    
+
     @Environment(\.isEnabled) private var isEnabled
-    
+
     /// 按钮尺寸
     var size: CGFloat = 44
-    
+
     /// 是否有背景
     var hasBackground: Bool = true
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: size * 0.45))
@@ -184,7 +184,7 @@ struct IconButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.9 : 1)
             .animation(DesignTokens.Animation.fast, value: configuration.isPressed)
     }
-    
+
     private func backgroundColor(isPressed: Bool) -> Color {
         guard hasBackground else { return .clear }
         return isPressed ? Color.brand.primary.opacity(0.15) : Color.brand.primary.opacity(0.1)
@@ -198,7 +198,7 @@ enum ButtonSize {
     case small
     case medium
     case large
-    
+
     var font: Font {
         switch self {
         case .small: .subheadline
@@ -206,7 +206,7 @@ enum ButtonSize {
         case .large: .title3
         }
     }
-    
+
     var horizontalPadding: CGFloat {
         switch self {
         case .small: 12
@@ -214,7 +214,7 @@ enum ButtonSize {
         case .large: 28
         }
     }
-    
+
     var verticalPadding: CGFloat {
         switch self {
         case .small: 8
@@ -222,7 +222,7 @@ enum ButtonSize {
         case .large: 16
         }
     }
-    
+
     var cornerRadius: CGFloat {
         switch self {
         case .small: DesignTokens.CornerRadius.sm
@@ -237,10 +237,10 @@ enum ButtonSize {
 extension ButtonStyle where Self == PrimaryButtonStyle {
     /// 主要按钮样式
     static var primary: PrimaryButtonStyle { PrimaryButtonStyle() }
-    
+
     /// 主要按钮样式（全宽）
     static var primaryFullWidth: PrimaryButtonStyle { PrimaryButtonStyle(fullWidth: true) }
-    
+
     /// 主要按钮样式（小尺寸）
     static var primarySmall: PrimaryButtonStyle { PrimaryButtonStyle(size: .small) }
 }
@@ -248,7 +248,7 @@ extension ButtonStyle where Self == PrimaryButtonStyle {
 extension ButtonStyle where Self == SecondaryButtonStyle {
     /// 次要按钮样式
     static var secondary: SecondaryButtonStyle { SecondaryButtonStyle() }
-    
+
     /// 次要按钮样式（小尺寸）
     static var secondarySmall: SecondaryButtonStyle { SecondaryButtonStyle(size: .small) }
 }
@@ -279,9 +279,9 @@ extension ButtonStyle where Self == DestructiveButtonStyle {
             Button("开始复习") { }
                 .buttonStyle(.primaryFullWidth)
         }
-        
+
         Divider()
-        
+
         // Secondary
         VStack(spacing: 8) {
             Text("Secondary").font(.caption).foregroundStyle(.secondary)
@@ -292,27 +292,27 @@ extension ButtonStyle where Self == DestructiveButtonStyle {
                     .buttonStyle(.secondarySmall)
             }
         }
-        
+
         Divider()
-        
+
         // Ghost
         VStack(spacing: 8) {
             Text("Ghost").font(.caption).foregroundStyle(.secondary)
             Button("了解更多") { }
                 .buttonStyle(.ghost)
         }
-        
+
         Divider()
-        
+
         // Destructive
         VStack(spacing: 8) {
             Text("Destructive").font(.caption).foregroundStyle(.secondary)
             Button("删除") { }
                 .buttonStyle(.destructive)
         }
-        
+
         Divider()
-        
+
         // Disabled
         VStack(spacing: 8) {
             Text("Disabled").font(.caption).foregroundStyle(.secondary)

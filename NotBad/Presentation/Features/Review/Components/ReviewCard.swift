@@ -25,31 +25,31 @@ import SwiftUI
 /// )
 /// ```
 struct ReviewCard: View {
-    
+
     // MARK: - Properties
-    
+
     /// 错题数据
     let item: ReviewItem
-    
+
     /// 掌握回调
     let onMastered: () -> Void
-    
+
     /// 模糊回调
     let onUnclear: () -> Void
-    
+
     /// 不会回调
     let onFailed: () -> Void
-    
+
     // MARK: - State
-    
+
     /// 是否显示答案
     @State private var showAnswer = false
-    
+
     /// 卡片出现动画
     @State private var isAppeared = false
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
@@ -62,7 +62,7 @@ struct ReviewCard: View {
                 }
                 .padding()
             }
-            
+
             ActionButtons(
                 onFailed: onFailed,
                 onUnclear: onUnclear,
@@ -84,7 +84,7 @@ struct ReviewCard: View {
 // MARK: - ReviewCard Subviews
 
 extension ReviewCard {
-    
+
     /// 头部区域
     var headerSection: some View {
         HStack {
@@ -106,9 +106,9 @@ extension ReviewCard {
                     )
             )
             .foregroundStyle(item.subject.color)
-            
+
             Spacer()
-            
+
             // Grade badge with subtle styling
             Text(item.grade.displayName)
                 .font(.caption.weight(.medium))
@@ -119,7 +119,7 @@ extension ReviewCard {
                 .clipShape(Capsule())
         }
     }
-    
+
     /// 图片区域
     @ViewBuilder
     var imageSection: some View {
@@ -137,7 +137,7 @@ extension ReviewCard {
                 .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
         }
     }
-    
+
     /// 标题区域
     var titleSection: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
@@ -146,7 +146,7 @@ extension ReviewCard {
                 .foregroundStyle(.tertiary)
                 .textCase(.uppercase)
                 .tracking(0.5)
-            
+
             Text(item.title)
                 .font(.title3)
                 .fontWeight(.semibold)
@@ -154,14 +154,14 @@ extension ReviewCard {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
+
     /// 答案区域
     @ViewBuilder
     var answerSection: some View {
         if !item.note.isEmpty {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 answerToggleButton
-                
+
                 if showAnswer {
                     Text(item.note)
                         .font(.body)
@@ -174,7 +174,7 @@ extension ReviewCard {
             }
         }
     }
-    
+
     /// 答案显示/隐藏按钮
     var answerToggleButton: some View {
         Button {
@@ -206,7 +206,7 @@ extension ReviewCard {
         .buttonStyle(AnswerToggleButtonStyle())
         .accessibilityLabel(showAnswer ? "隐藏答案" : "查看答案")
     }
-    
+
     /// 答案切换按钮样式
     private struct AnswerToggleButtonStyle: ButtonStyle {
         func makeBody(configuration: Configuration) -> some View {
@@ -216,7 +216,7 @@ extension ReviewCard {
                 .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
         }
     }
-    
+
     /// 元数据区域
     var metadataSection: some View {
         VStack(spacing: DesignTokens.Spacing.md) {
@@ -230,14 +230,14 @@ extension ReviewCard {
                 }
                 .foregroundStyle(.secondary)
             }
-            
+
             HStack {
                 Label("已复习 \(item.reviewCount) 次", systemImage: "clock.fill")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                
+
                 Spacer()
-                
+
                 MasteryBadge(
                     level: MasteryLevel(rawValue: item.masteryLevel) ?? .none,
                     showDetailText: true
@@ -251,17 +251,17 @@ extension ReviewCard {
 
 /// 评估按钮组件
 struct ActionButtons: View {
-    
+
     let onFailed: () -> Void
     let onUnclear: () -> Void
     let onMastered: () -> Void
-    
+
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.md) {
             Text("review_mastery_prompt")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            
+
             HStack(spacing: DesignTokens.Spacing.md) {
                 MasteryButton(
                     icon: "xmark.circle.fill",
@@ -269,14 +269,14 @@ struct ActionButtons: View {
                     color: Color.brand.error,
                     action: onFailed
                 )
-                
+
                 MasteryButton(
                     icon: "questionmark.circle.fill",
                     title: String(localized: "review_mastery_unclear"),
                     color: Color.brand.warning,
                     action: onUnclear
                 )
-                
+
                 MasteryButton(
                     icon: "checkmark.seal.fill",
                     title: String(localized: "review_mastery_mastered"),
@@ -294,14 +294,14 @@ struct ActionButtons: View {
 
 /// 单个评估按钮
 struct MasteryButton: View {
-    
+
     let icon: String
     let title: String
     let color: Color
     let action: () -> Void
-    
+
     @State private var isPressed = false
-    
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: DesignTokens.Spacing.sm) {
@@ -310,13 +310,13 @@ struct MasteryButton: View {
                     Circle()
                         .fill(color.opacity(0.15))
                         .frame(width: 48, height: 48)
-                    
+
                     Image(systemName: icon)
                         .font(.title2)
                         .symbolEffect(.bounce, value: isPressed)
                         .accessibilityHidden(true)
                 }
-                
+
                 Text(title)
                     .font(.caption)
                     .fontWeight(.semibold)
@@ -343,7 +343,7 @@ struct MasteryButton: View {
 /// Mastery Button 按压样式
 private struct MasteryButtonStyle: ButtonStyle {
     @Binding var isPressed: Bool
-    
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)

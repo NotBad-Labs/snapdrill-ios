@@ -23,13 +23,13 @@ import SwiftUI
 /// }
 /// ```
 struct FlowLayout: Layout {
-    
+
     /// 元素间距
     var spacing: CGFloat = DesignTokens.Spacing.sm
-    
+
     /// 行间距
     var lineSpacing: CGFloat = DesignTokens.Spacing.sm
-    
+
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let result = FlowResult(
             in: proposal.replacingUnspecifiedDimensions().width,
@@ -39,7 +39,7 @@ struct FlowLayout: Layout {
         )
         return result.size
     }
-    
+
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         let result = FlowResult(
             in: bounds.width,
@@ -47,7 +47,7 @@ struct FlowLayout: Layout {
             spacing: spacing,
             lineSpacing: lineSpacing
         )
-        
+
         for (index, subview) in subviews.enumerated() {
             let position = result.positions[index]
             subview.place(
@@ -63,29 +63,29 @@ struct FlowLayout: Layout {
 private struct FlowResult {
     var size: CGSize = .zero
     var positions: [CGPoint] = []
-    
+
     init(in maxWidth: CGFloat, subviews: LayoutSubviews, spacing: CGFloat, lineSpacing: CGFloat) {
         var x: CGFloat = 0
         var y: CGFloat = 0
         var lineHeight: CGFloat = 0
         var maxWidth: CGFloat = 0
-        
+
         for subview in subviews {
             let viewSize = subview.sizeThatFits(.unspecified)
-            
+
             if x + viewSize.width > maxWidth, x > 0 {
                 // 换行
                 x = 0
                 y += lineHeight + lineSpacing
                 lineHeight = 0
             }
-            
+
             positions.append(CGPoint(x: x, y: y))
             lineHeight = max(lineHeight, viewSize.height)
             x += viewSize.width + spacing
             maxWidth = max(maxWidth, x - spacing)
         }
-        
+
         size = CGSize(width: maxWidth, height: y + lineHeight)
     }
 }

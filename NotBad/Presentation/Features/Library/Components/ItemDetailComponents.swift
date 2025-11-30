@@ -12,9 +12,9 @@ import SwiftData
 
 /// 显示模式内容
 struct DisplayContent: View {
-    
+
     let item: ReviewItem
-    
+
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             // 标题
@@ -22,7 +22,7 @@ struct DisplayContent: View {
                 Text(item.title)
                     .font(.headline)
             }
-            
+
             // 学科和年级
             HStack(spacing: DesignTokens.Spacing.md) {
                 InfoCard(title: "学科", icon: "book.fill") {
@@ -33,13 +33,13 @@ struct DisplayContent: View {
                             .font(.subheadline)
                     }
                 }
-                
+
                 InfoCard(title: "年级", icon: "graduationcap.fill") {
                     Text(item.grade.displayName)
                         .font(.subheadline)
                 }
             }
-            
+
             // 难度和题型
             HStack(spacing: DesignTokens.Spacing.md) {
                 InfoCard(title: "难度", icon: "star.fill") {
@@ -51,7 +51,7 @@ struct DisplayContent: View {
                         }
                     }
                 }
-                
+
                 InfoCard(title: "题型", icon: "doc.text.fill") {
                     HStack {
                         Image(systemName: item.questionType.icon)
@@ -61,7 +61,7 @@ struct DisplayContent: View {
                     }
                 }
             }
-            
+
             // 来源
             InfoCard(title: "来源", icon: "folder.fill") {
                 HStack {
@@ -71,7 +71,7 @@ struct DisplayContent: View {
                         .font(.subheadline)
                 }
             }
-            
+
             // 掌握度
             InfoCard(title: String(localized: "detail_mastery_level"), icon: "chart.line.uptrend.xyaxis") {
                 HStack {
@@ -82,7 +82,7 @@ struct DisplayContent: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            
+
             // 知识点
             if !item.knowledgePoints.isEmpty {
                 InfoCard(title: String(localized: "detail_knowledge_points"), icon: "lightbulb.fill") {
@@ -99,7 +99,7 @@ struct DisplayContent: View {
                     }
                 }
             }
-            
+
             // 笔记
             if !item.note.isEmpty {
                 InfoCard(title: "笔记/解题思路", icon: "note.text") {
@@ -107,7 +107,7 @@ struct DisplayContent: View {
                         .font(.body)
                 }
             }
-            
+
             // 时间信息
             InfoCard(title: "时间信息", icon: "clock.fill") {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
@@ -118,9 +118,9 @@ struct DisplayContent: View {
             }
         }
     }
-    
+
     // MARK: - Private Views
-    
+
     private var masteryBadge: some View {
         let level = MasteryLevel(rawValue: item.masteryLevel) ?? .none
         return HStack(spacing: DesignTokens.Spacing.sm) {
@@ -135,7 +135,7 @@ struct DisplayContent: View {
         .foregroundStyle(level.color)
         .clipShape(Capsule())
     }
-    
+
     private func timeRow(label: String, date: Date) -> some View {
         HStack {
             Text(label)
@@ -150,10 +150,10 @@ struct DisplayContent: View {
 
 /// 编辑模式内容
 struct EditingContent: View {
-    
+
     @Bindable var item: ReviewItem
     let onSave: () -> Void
-    
+
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             // 标题编辑
@@ -164,34 +164,34 @@ struct EditingContent: View {
                     .background(Color.semantic.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
             }
-            
+
             // 学科和年级
             HStack(spacing: DesignTokens.Spacing.md) {
                 FormField(title: "学科", icon: "book.fill") {
                     subjectPicker
                 }
-                
+
                 FormField(title: "年级", icon: "graduationcap.fill") {
                     gradePicker
                 }
             }
-            
+
             // 难度和题型
             HStack(spacing: DesignTokens.Spacing.md) {
                 FormField(title: "难度", icon: "star.fill") {
                     difficultyPicker
                 }
-                
+
                 FormField(title: "题型", icon: "doc.text.fill") {
                     questionTypePicker
                 }
             }
-            
+
             // 来源
             FormField(title: "来源", icon: "folder.fill") {
                 sourcePicker
             }
-            
+
             // 知识点编辑
             FormField(title: "知识点", icon: "lightbulb.fill") {
                 TextField("例如: 函数, 导数", text: $item.knowledgePointsRaw)
@@ -200,7 +200,7 @@ struct EditingContent: View {
                     .background(Color.semantic.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
             }
-            
+
             // 笔记编辑
             FormField(title: "笔记/解题思路", icon: "note.text") {
                 TextField("记录解题思路、易错点等...", text: $item.note, axis: .vertical)
@@ -210,14 +210,14 @@ struct EditingContent: View {
                     .background(Color.semantic.secondaryBackground)
                     .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
             }
-            
+
             // 保存按钮
             saveButton
         }
     }
-    
+
     // MARK: - Private Views
-    
+
     private var subjectPicker: some View {
         Menu {
             ForEach(EducationSystemManager.shared.currentSystem.subjectIds, id: \.self) { id in
@@ -231,7 +231,7 @@ struct EditingContent: View {
             pickerLabel(text: EducationSystemManager.shared.subjectDisplayName(for: item.subjectRaw))
         }
     }
-    
+
     private var gradePicker: some View {
         Menu {
             ForEach(EducationSystemManager.shared.currentSystem.gradeIds, id: \.self) { id in
@@ -245,7 +245,7 @@ struct EditingContent: View {
             pickerLabel(text: EducationSystemManager.shared.gradeDisplayName(for: item.gradeRaw))
         }
     }
-    
+
     private var difficultyPicker: some View {
         Menu {
             ForEach(Difficulty.allCases, id: \.self) { difficulty in
@@ -259,7 +259,7 @@ struct EditingContent: View {
             pickerLabel(text: item.difficulty.displayName, color: item.difficulty.color)
         }
     }
-    
+
     private var questionTypePicker: some View {
         Menu {
             ForEach(ReviewItemType.allCases, id: \.self) { type in
@@ -273,7 +273,7 @@ struct EditingContent: View {
             pickerLabel(text: item.questionType.displayName)
         }
     }
-    
+
     private var sourcePicker: some View {
         Menu {
             ForEach(Source.allCases, id: \.self) { source in
@@ -287,7 +287,7 @@ struct EditingContent: View {
             pickerLabel(text: item.source.displayName)
         }
     }
-    
+
     private func pickerLabel(text: String, color: Color? = nil) -> some View {
         HStack {
             Text(text)
@@ -301,7 +301,7 @@ struct EditingContent: View {
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
     }
-    
+
     private var saveButton: some View {
         Button(action: onSave) {
             HStack {
@@ -330,18 +330,18 @@ struct EditingContent: View {
 
 /// 表单字段组件
 struct FormField<Content: View>: View {
-    
+
     let title: String
     let icon: String
     @ViewBuilder let content: Content
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             Label(title, systemImage: icon)
                 .font(.subheadline)
                 .fontWeight(.medium)
                 .foregroundStyle(.secondary)
-            
+
             content
         }
     }

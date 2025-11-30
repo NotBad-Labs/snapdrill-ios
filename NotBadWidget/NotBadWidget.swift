@@ -25,7 +25,7 @@ struct ReviewEntry: TimelineEntry {
 
 /// 小组件数据提供者
 struct Provider: AppIntentTimelineProvider {
-    
+
     func placeholder(in context: Context) -> ReviewEntry {
         ReviewEntry(
             date: Date(),
@@ -36,26 +36,26 @@ struct Provider: AppIntentTimelineProvider {
             configuration: ConfigurationAppIntent()
         )
     }
-    
+
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> ReviewEntry {
         await getEntry(for: configuration)
     }
-    
+
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<ReviewEntry> {
         let entry = await getEntry(for: configuration)
-        
+
         // 每30分钟更新一次
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
         return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
-    
+
     private func getEntry(for configuration: ConfigurationAppIntent) async -> ReviewEntry {
         // 使用 App Group 共享数据
         let pendingCount = UserDefaults(suiteName: "group.com.notbad.app")?.integer(forKey: "pendingReviewCount") ?? 0
         let overdueCount = UserDefaults(suiteName: "group.com.notbad.app")?.integer(forKey: "overdueCount") ?? 0
         let masteryRate = UserDefaults(suiteName: "group.com.notbad.app")?.double(forKey: "masteryRate") ?? 0
         let recentSubjects = UserDefaults(suiteName: "group.com.notbad.app")?.stringArray(forKey: "recentSubjects") ?? []
-        
+
         return ReviewEntry(
             date: Date(),
             pendingCount: pendingCount,
@@ -74,7 +74,7 @@ import AppIntents
 struct ConfigurationAppIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "错题本小组件" }
     static var description: IntentDescription { "显示复习进度和统计信息" }
-    
+
     @Parameter(title: "显示样式", default: .compact)
     var displayStyle: WidgetDisplayStyle
 }
@@ -82,11 +82,11 @@ struct ConfigurationAppIntent: WidgetConfigurationIntent {
 enum WidgetDisplayStyle: String, AppEnum {
     case compact = "紧凑"
     case detailed = "详细"
-    
+
     static var typeDisplayRepresentation: TypeDisplayRepresentation {
         "显示样式"
     }
-    
+
     static var caseDisplayRepresentations: [WidgetDisplayStyle: DisplayRepresentation] {
         [
             .compact: "紧凑",
@@ -100,7 +100,7 @@ enum WidgetDisplayStyle: String, AppEnum {
 struct NotBadWidgetEntryView: View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
-    
+
     var body: some View {
         switch family {
         case .systemSmall:
@@ -125,7 +125,7 @@ struct NotBadWidgetEntryView: View {
 
 struct SmallWidgetView: View {
     let entry: ReviewEntry
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -135,9 +135,9 @@ struct SmallWidgetView: View {
                     .font(.headline)
                     .fontWeight(.bold)
             }
-            
+
             Spacer()
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text("\(entry.pendingCount)")
@@ -147,7 +147,7 @@ struct SmallWidgetView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 if entry.overdueCount > 0 {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.circle.fill")
@@ -169,7 +169,7 @@ struct SmallWidgetView: View {
 
 struct MediumWidgetView: View {
     let entry: ReviewEntry
-    
+
     var body: some View {
         HStack(spacing: 16) {
             // 左侧统计
@@ -181,9 +181,9 @@ struct MediumWidgetView: View {
                         .font(.headline)
                         .fontWeight(.bold)
                 }
-                
+
                 Spacer()
-                
+
                 HStack(spacing: 4) {
                     Text("\(entry.pendingCount)")
                         .font(.system(size: 36, weight: .bold, design: .rounded))
@@ -191,36 +191,36 @@ struct MediumWidgetView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 if entry.overdueCount > 0 {
                     Label("\(entry.overdueCount) 道已逾期", systemImage: "exclamationmark.circle.fill")
                         .font(.caption2)
                         .foregroundStyle(.red)
                 }
             }
-            
+
             Divider()
-            
+
             // 右侧掌握率
             VStack(spacing: 8) {
                 Text("掌握率")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                
+
                 ZStack {
                     Circle()
                         .stroke(Color.gray.opacity(0.2), lineWidth: 8)
-                    
+
                     Circle()
                         .trim(from: 0, to: entry.masteryRate)
                         .stroke(Color.green, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                         .rotationEffect(.degrees(-90))
-                    
+
                     Text("\(Int(entry.masteryRate * 100))%")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                 }
                 .frame(width: 70, height: 70)
-                
+
                 if !entry.recentSubjects.isEmpty {
                     Text(entry.recentSubjects.prefix(2).joined(separator: "·"))
                         .font(.caption2)
@@ -239,7 +239,7 @@ struct MediumWidgetView: View {
 
 struct LargeWidgetView: View {
     let entry: ReviewEntry
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // 标题
@@ -254,9 +254,9 @@ struct LargeWidgetView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            
+
             Divider()
-            
+
             // 统计卡片
             HStack(spacing: 12) {
                 StatCardWidget(
@@ -265,14 +265,14 @@ struct LargeWidgetView: View {
                     icon: "clock.arrow.circlepath",
                     color: .orange
                 )
-                
+
                 StatCardWidget(
                     title: "已逾期",
                     value: "\(entry.overdueCount)",
                     icon: "exclamationmark.triangle.fill",
                     color: .red
                 )
-                
+
                 StatCardWidget(
                     title: "掌握率",
                     value: "\(Int(entry.masteryRate * 100))%",
@@ -280,16 +280,16 @@ struct LargeWidgetView: View {
                     color: .green
                 )
             }
-            
+
             Spacer()
-            
+
             // 最近科目
             if !entry.recentSubjects.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("最近学科")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    
+
                     HStack(spacing: 8) {
                         ForEach(entry.recentSubjects.prefix(4), id: \.self) { subject in
                             Text(subject)
@@ -303,7 +303,7 @@ struct LargeWidgetView: View {
                     }
                 }
             }
-            
+
             // 快速操作
             HStack {
                 Link(destination: URL(string: "notbad://review")!) {
@@ -330,16 +330,16 @@ struct StatCardWidget: View {
     let value: String
     let icon: String
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: 4) {
             Image(systemName: icon)
                 .foregroundStyle(color)
                 .font(.title3)
-            
+
             Text(value)
                 .font(.system(size: 20, weight: .bold, design: .rounded))
-            
+
             Text(title)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
@@ -355,11 +355,11 @@ struct StatCardWidget: View {
 
 struct CircularWidgetView: View {
     let entry: ReviewEntry
-    
+
     var body: some View {
         ZStack {
             AccessoryWidgetBackground()
-            
+
             VStack(spacing: 0) {
                 Text("\(entry.pendingCount)")
                     .font(.system(size: 24, weight: .bold, design: .rounded))
@@ -372,7 +372,7 @@ struct CircularWidgetView: View {
 
 struct RectangularWidgetView: View {
     let entry: ReviewEntry
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -381,9 +381,9 @@ struct RectangularWidgetView: View {
                 Text("\(entry.pendingCount) 道待复习")
                     .font(.caption)
             }
-            
+
             Spacer()
-            
+
             if entry.overdueCount > 0 {
                 Image(systemName: "exclamationmark.circle.fill")
                     .foregroundStyle(.red)
@@ -394,7 +394,7 @@ struct RectangularWidgetView: View {
 
 struct InlineWidgetView: View {
     let entry: ReviewEntry
-    
+
     var body: some View {
         Text("📚 \(entry.pendingCount) 道待复习")
     }
@@ -404,7 +404,7 @@ struct InlineWidgetView: View {
 
 struct NotBadWidget: Widget {
     let kind: String = "NotBadWidget"
-    
+
     var body: some WidgetConfiguration {
         AppIntentConfiguration(
             kind: kind,

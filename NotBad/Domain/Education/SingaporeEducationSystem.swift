@@ -19,17 +19,17 @@ public enum SingaporeGrade: String, Sendable, CaseIterable, Codable, Hashable, I
     case primary4 = "sg_p4"
     case primary5 = "sg_p5"
     case primary6 = "sg_p6"  // PSLE
-    
+
     // Secondary School (4年)
     case secondary1 = "sg_s1"
     case secondary2 = "sg_s2"
     case secondary3 = "sg_s3"
     case secondary4 = "sg_s4"  // O-Level
-    
+
     // Junior College (2年)
     case jc1 = "sg_jc1"
     case jc2 = "sg_jc2"  // A-Level
-    
+
     public var id: String { rawValue }
 }
 
@@ -50,11 +50,11 @@ extension SingaporeGrade: GradeLevelProtocol {
         case .jc2: 12
         }
     }
-    
+
     public var displayName: String {
         String(localized: displayNameKey)
     }
-    
+
     private var displayNameKey: String.LocalizationValue {
         switch self {
         case .primary1: "sg_grade_p1_name"
@@ -71,11 +71,11 @@ extension SingaporeGrade: GradeLevelProtocol {
         case .jc2: "sg_grade_jc2_name"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .primary1: "sg_grade_p1_short"
@@ -92,7 +92,7 @@ extension SingaporeGrade: GradeLevelProtocol {
         case .jc2: "sg_grade_jc2_short"
         }
     }
-    
+
     public var schoolLevel: SchoolLevel {
         switch self {
         case .primary1, .primary2, .primary3, .primary4, .primary5, .primary6:
@@ -103,7 +103,7 @@ extension SingaporeGrade: GradeLevelProtocol {
             .high
         }
     }
-    
+
     public var icon: String {
         switch schoolLevel {
         case .primary: "figure.child"
@@ -111,7 +111,7 @@ extension SingaporeGrade: GradeLevelProtocol {
         case .high: "graduationcap"
         }
     }
-    
+
     public var color: Color {
         switch schoolLevel {
         case .primary: .green
@@ -138,7 +138,7 @@ public enum SingaporeSubject: String, Sendable, CaseIterable, Codable, Hashable,
     case history = "sg_history"
     case socialStudies = "sg_social"
     case other = "sg_other"
-    
+
     public var id: String { rawValue }
 }
 
@@ -146,7 +146,7 @@ extension SingaporeSubject: SubjectProtocol {
     public var displayName: String {
         String(localized: displayNameKey)
     }
-    
+
     private var displayNameKey: String.LocalizationValue {
         switch self {
         case .english: "sg_subject_english"
@@ -164,11 +164,11 @@ extension SingaporeSubject: SubjectProtocol {
         case .other: "sg_subject_other"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .english: "sg_subject_english_short"
@@ -186,7 +186,7 @@ extension SingaporeSubject: SubjectProtocol {
         case .other: "sg_subject_other_short"
         }
     }
-    
+
     public var category: any SubjectCategoryProtocol {
         switch self {
         case .english, .chinese, .malay, .tamil:
@@ -199,7 +199,7 @@ extension SingaporeSubject: SubjectProtocol {
             ChinaSubjectCategory.other
         }
     }
-    
+
     public var icon: String {
         switch self {
         case .english: "a.circle"
@@ -217,7 +217,7 @@ extension SingaporeSubject: SubjectProtocol {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     public var color: Color {
         switch self {
         case .english: .purple
@@ -235,7 +235,7 @@ extension SingaporeSubject: SubjectProtocol {
         case .other: .gray
         }
     }
-    
+
     public var applicableLevels: [SchoolLevel] {
         switch self {
         // 全学段：英语、数学、母语
@@ -260,13 +260,13 @@ extension SingaporeSubject: SubjectProtocol {
 public struct SingaporeEducationSystem: EducationSystemProtocol {
     public typealias GradeType = SingaporeGrade
     public typealias SubjectType = SingaporeSubject
-    
+
     public let region: EducationRegion = .singapore
     public let name: String = "Singapore Education"
-    
+
     public var grades: [SingaporeGrade] { SingaporeGrade.allCases }
     public var subjects: [SingaporeSubject] { SingaporeSubject.allCases }
-    
+
     public var schoolLevels: [SchoolLevelConfiguration] {
         [
             SchoolLevelConfiguration(
@@ -295,6 +295,6 @@ public struct SingaporeEducationSystem: EducationSystemProtocol {
             )
         ]
     }
-    
+
     public init() {}
 }

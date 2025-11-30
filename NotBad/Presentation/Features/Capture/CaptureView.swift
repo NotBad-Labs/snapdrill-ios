@@ -26,18 +26,18 @@ import SwiftData
 /// - 必填项明确标注
 /// - 保存按钮始终可见
 struct CaptureView: View {
-    
+
     // MARK: - Environment
-    
+
     @Environment(\.modelContext) private var modelContext
-    
+
     // MARK: - State
-    
+
     @State private var viewModel = CaptureViewModel()
     @State private var selectedItem: PhotosPickerItem?
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             mainContent
@@ -69,15 +69,15 @@ struct CaptureView: View {
                 }
         }
     }
-    
+
     // MARK: - Main Content
-    
+
     private var mainContent: some View {
         ScrollView {
             VStack(spacing: DesignTokens.Spacing.lg) {
                 // 图片选择卡片
                 imageCard
-                
+
                 // 表单区域
                 formSection
             }
@@ -93,15 +93,15 @@ struct CaptureView: View {
             saveButtonBar
         }
     }
-    
+
     // MARK: - Keyboard
-    
+
     private func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
-    
+
     // MARK: - Image Card
-    
+
     private var imageCard: some View {
         ImageSelectionCard(
             selectedItem: $selectedItem,
@@ -121,9 +121,9 @@ struct CaptureView: View {
             }
         )
     }
-    
+
     // MARK: - Form Section
-    
+
     private var formSection: some View {
         VStack(spacing: DesignTokens.Spacing.lg) {
             // 基本信息
@@ -146,7 +146,7 @@ struct CaptureView: View {
                         .multilineTextAlignment(.trailing)
                         .submitLabel(.done)
                     }
-                    
+
                     // 学科
                     FormRow(isLast: false) {
                         Text("capture_field_subject")
@@ -160,7 +160,7 @@ struct CaptureView: View {
                         .pickerStyle(.menu)
                         .tint(.primary)
                     }
-                    
+
                     // 年级
                     FormRow(isLast: true) {
                         Text("capture_field_grade")
@@ -179,10 +179,10 @@ struct CaptureView: View {
             } header: {
                 Text("capture_section_basic")
             }
-            
+
             // 题目内容（可手动输入或 OCR 识别）
             questionContentSection
-            
+
             // 补充信息
             FormCard {
                 VStack(spacing: 0) {
@@ -197,7 +197,7 @@ struct CaptureView: View {
                         .multilineTextAlignment(.trailing)
                         .submitLabel(.done)
                     }
-                    
+
                     // 笔记
                     FormRow(isLast: true, alignment: .top) {
                         Text("capture_field_note")
@@ -226,11 +226,11 @@ struct CaptureView: View {
             }
         }
     }
-    
+
     // MARK: - Save Button Bar
-    
+
     // MARK: - Question Content Section
-    
+
     private var questionContentSection: some View {
         FormCard {
             ZStack(alignment: .topLeading) {
@@ -242,7 +242,7 @@ struct CaptureView: View {
                         .padding(.horizontal, DesignTokens.Spacing.sm + 4)
                         .padding(.vertical, DesignTokens.Spacing.sm + 8)
                 }
-                
+
                 // 文本编辑器
                 TextEditor(text: $viewModel.recognizedText)
                     .font(.body)
@@ -263,13 +263,13 @@ struct CaptureView: View {
             }
         }
     }
-    
+
     // MARK: - Save Button Bar
-    
+
     private var saveButtonBar: some View {
         VStack(spacing: 0) {
             Divider()
-            
+
             Button {
                 if viewModel.isValid {
                     viewModel.saveItem()
@@ -315,9 +315,9 @@ struct CaptureView: View {
         }
         .background(.ultraThinMaterial)
     }
-    
+
     // MARK: - Save Button Style
-    
+
     private struct SaveButtonStyle: ButtonStyle {
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
@@ -326,9 +326,9 @@ struct CaptureView: View {
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
         }
     }
-    
+
     // MARK: - Live Scanner Sheet
-    
+
     @ViewBuilder
     private var liveScannerSheet: some View {
         NavigationStack {
@@ -360,7 +360,7 @@ struct CaptureView: View {
 private struct FormCard<Content: View, Header: View>: View {
     @ViewBuilder let content: () -> Content
     @ViewBuilder let header: () -> Header
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
             header()
@@ -368,7 +368,7 @@ private struct FormCard<Content: View, Header: View>: View {
                 .foregroundStyle(.secondary)
                 .textCase(.uppercase)
                 .padding(.horizontal, DesignTokens.Spacing.sm)
-            
+
             content()
                 .background(Color.semantic.secondaryBackground)
                 .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
@@ -384,7 +384,7 @@ private struct FormRow<Label: View, Content: View>: View {
     var alignment: VerticalAlignment = .center
     @ViewBuilder let label: () -> Label
     @ViewBuilder let content: () -> Content
-    
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(alignment: alignment) {
@@ -397,7 +397,7 @@ private struct FormRow<Label: View, Content: View>: View {
             }
             .padding(.horizontal, DesignTokens.Spacing.md)
             .padding(.vertical, DesignTokens.Spacing.md)
-            
+
             if !isLast {
                 Divider()
                     .padding(.leading, DesignTokens.Spacing.md)

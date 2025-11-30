@@ -16,9 +16,9 @@ enum Tab: Int, CaseIterable, Identifiable, Sendable {
     case capture = 2
     case review = 3
     case profile = 4
-    
+
     var id: Int { rawValue }
-    
+
     /// Tab 标题
     var title: LocalizedStringKey {
         switch self {
@@ -29,7 +29,7 @@ enum Tab: Int, CaseIterable, Identifiable, Sendable {
         case .profile: "tab_profile"
         }
     }
-    
+
     /// 默认图标
     var icon: String {
         switch self {
@@ -40,7 +40,7 @@ enum Tab: Int, CaseIterable, Identifiable, Sendable {
         case .profile: "person.crop.circle"
         }
     }
-    
+
     /// 选中状态图标
     var selectedIcon: String {
         switch self {
@@ -67,24 +67,24 @@ enum Tab: Int, CaseIterable, Identifiable, Sendable {
 /// 4. **复习** - 智能复习模式
 /// 5. **我的** - 个人中心和设置
 struct MainTabView: View {
-    
+
     // MARK: - Bindings
-    
+
     /// 外部 Tab 选择绑定（用于 Deep Link）
     @Binding var selectedTab: Int
-    
+
     // MARK: - State
-    
+
     @State private var currentTab: Tab = .dashboard
-    
+
     // MARK: - Init
-    
+
     init(selectedTab: Binding<Int> = .constant(0)) {
         _selectedTab = selectedTab
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         TabView(selection: $currentTab) {
             ForEach(Tab.allCases) { tab in
@@ -105,9 +105,9 @@ struct MainTabView: View {
             selectedTab = newValue.rawValue
         }
     }
-    
+
     // MARK: - Tab Content
-    
+
     @ViewBuilder
     private func tabContent(for tab: Tab) -> some View {
         switch tab {
@@ -123,12 +123,12 @@ struct MainTabView: View {
             ProfileView()
         }
     }
-    
+
     // MARK: - Tab Label
-    
+
     private func tabLabel(for tab: Tab) -> some View {
         let isSelected = currentTab == tab
-        
+
         return Label {
             Text(tab.title)
         } icon: {

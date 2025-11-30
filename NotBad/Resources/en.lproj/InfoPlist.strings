@@ -1,0 +1,12 @@
+/* 
+  InfoPlist.strings (English)
+  NotBad
+
+  Privacy permission descriptions for App Store
+*/
+
+/* Camera Permission */
+"NSCameraUsageDescription" = "Camera access is needed to take photos of wrong answers for your study collection.";
+
+/* Photo Library Permission */
+"NSPhotoLibraryUsageDescription" = "Photo library access is needed to select images of wrong answers from your albums.";

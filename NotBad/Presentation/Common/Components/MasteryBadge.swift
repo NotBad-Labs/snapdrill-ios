@@ -13,16 +13,16 @@ import SwiftUI
 enum MasteryBadgeStyle: Sendable {
     /// 紧凑 - 仅图标
     case compact
-    
+
     /// 标准 - 图标 + 名称
     case standard
-    
+
     /// 详细 - 图标 + 详细描述
     case detailed
-    
+
     /// 星级 - 星级显示
     case stars
-    
+
     /// 进度条 - 带进度条
     case progress
 }
@@ -52,29 +52,29 @@ enum MasteryBadgeStyle: Sendable {
 /// MasteryBadge(level: .reviewing, style: .progress)
 /// ```
 struct MasteryBadge: View {
-    
+
     // MARK: - Properties
-    
+
     /// 掌握程度
     let level: MasteryLevel
-    
+
     /// 显示样式
     var style: MasteryBadgeStyle = .standard
-    
+
     /// 是否显示动画
     var animated: Bool = false
-    
+
     // MARK: - Backward Compatibility
-    
+
     /// 向后兼容：是否显示详细文本
     var showDetailText: Bool = false
-    
+
     private var effectiveStyle: MasteryBadgeStyle {
         showDetailText ? .detailed : style
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         Group {
             switch effectiveStyle {
@@ -91,9 +91,9 @@ struct MasteryBadge: View {
             }
         }
     }
-    
+
     // MARK: - Subviews
-    
+
     private var compactView: some View {
         Image(systemName: level.icon)
             .font(.caption)
@@ -104,7 +104,7 @@ struct MasteryBadge: View {
             .symbolEffect(.pulse, isActive: animated)
             .accessibilityLabel("掌握程度：\(level.displayName)")
     }
-    
+
     private var standardView: some View {
         HStack(spacing: DesignTokens.Spacing.xs) {
             Image(systemName: level.icon)
@@ -121,7 +121,7 @@ struct MasteryBadge: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("掌握程度：\(level.displayName)")
     }
-    
+
     private var detailedView: some View {
         HStack(spacing: DesignTokens.Spacing.xs) {
             Image(systemName: level.icon)
@@ -138,7 +138,7 @@ struct MasteryBadge: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("掌握程度：\(level.detailText)")
     }
-    
+
     private var starsView: some View {
         HStack(spacing: DesignTokens.Spacing.xs / 2) {
             ForEach(0..<5, id: \.self) { index in
@@ -150,7 +150,7 @@ struct MasteryBadge: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("掌握程度：\(level.stars)星，\(level.displayName)")
     }
-    
+
     private var progressView: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
             HStack {
@@ -162,12 +162,12 @@ struct MasteryBadge: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            
+
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
                         .fill(Color.gray.opacity(0.2))
-                    
+
                     RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
                         .fill(level.color.gradient)
                         .frame(width: geo.size.width * level.progress)
@@ -188,33 +188,33 @@ struct MasteryBadge: View {
 ///
 /// 独立的进度条组件，提供更灵活的布局控制。
 struct MasteryProgressView: View {
-    
+
     // MARK: - Properties
-    
+
     /// 掌握程度
     let level: MasteryLevel
-    
+
     /// 是否显示标签
     var showLabel: Bool = true
-    
+
     /// 进度条高度
     var barHeight: CGFloat = 8
-    
+
     /// 是否显示动画
     var animated: Bool = true
-    
+
     // MARK: - State
-    
+
     @State private var animatedProgress: Double = 0
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
             if showLabel {
                 labelView
             }
-            
+
             progressBar
         }
         .onAppear {
@@ -236,9 +236,9 @@ struct MasteryProgressView: View {
             }
         }
     }
-    
+
     // MARK: - Subviews
-    
+
     private var labelView: some View {
         HStack {
             Text(level.displayName)
@@ -250,14 +250,14 @@ struct MasteryProgressView: View {
                 .foregroundStyle(.secondary)
         }
     }
-    
+
     private var progressBar: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
                 // 背景
                 RoundedRectangle(cornerRadius: barHeight / 2)
                     .fill(Color.gray.opacity(0.2))
-                
+
                 // 进度
                 RoundedRectangle(cornerRadius: barHeight / 2)
                     .fill(level.color.gradient)
@@ -274,32 +274,32 @@ struct MasteryProgressView: View {
 ///
 /// 显示两个掌握程度的对比（如复习前后）。
 struct MasteryComparisonView: View {
-    
+
     // MARK: - Properties
-    
+
     /// 之前的程度
     let before: MasteryLevel
-    
+
     /// 之后的程度
     let after: MasteryLevel
-    
+
     /// 是否有进步
     var hasImproved: Bool {
         after.progress > before.progress
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         HStack(spacing: 12) {
             MasteryBadge(level: before, style: .compact)
-            
+
             Image(systemName: "arrow.right")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            
+
             MasteryBadge(level: after, style: .compact)
-            
+
             if hasImproved {
                 Image(systemName: "arrow.up.circle.fill")
                     .foregroundStyle(.green)
@@ -319,21 +319,21 @@ struct MasteryComparisonView: View {
                 MasteryBadge(level: level, style: .compact)
             }
         }
-        
+
         // Standard
         VStack(spacing: 8) {
             ForEach(MasteryLevel.allCases, id: \.rawValue) { level in
                 MasteryBadge(level: level, style: .standard)
             }
         }
-        
+
         // Stars
         HStack(spacing: 12) {
             ForEach(MasteryLevel.allCases, id: \.rawValue) { level in
                 MasteryBadge(level: level, style: .stars)
             }
         }
-        
+
         // Progress
         VStack(spacing: 8) {
             ForEach(MasteryLevel.allCases, id: \.rawValue) { level in

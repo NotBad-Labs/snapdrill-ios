@@ -23,36 +23,36 @@ import Charts
 /// - 学科分布条形图
 /// - 快捷操作入口
 struct DashboardView: View {
-    
+
     // MARK: - Environment
-    
+
     @Query private var allItems: [ReviewItem]
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
                     WelcomeCard()
-                    
+
                     StatisticsGrid(
                         totalCount: allItems.count,
                         masteredCount: masteredCount,
                         weeklyNewCount: weeklyNewCount,
                         totalReviewCount: totalReviewCount
                     )
-                    
+
                     MasteryDistributionChart(
                         data: masteryData,
                         isEmpty: allItems.isEmpty
                     )
-                    
+
                     SubjectDistributionChart(
                         data: subjectData,
                         isEmpty: allItems.isEmpty
                     )
-                    
+
                     quickActions
                 }
                 .padding()
@@ -61,14 +61,14 @@ struct DashboardView: View {
             .navigationBarTitleDisplayMode(.large)
         }
     }
-    
+
     // MARK: - Quick Actions
-    
+
     private var quickActions: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("dashboard_quick_actions")
                 .font(.headline)
-            
+
             VStack(spacing: 12) {
                 NavigationLink(destination: CaptureView()) {
                     QuickActionButton(
@@ -77,7 +77,7 @@ struct DashboardView: View {
                         color: .blue
                     )
                 }
-                
+
                 NavigationLink(destination: ReviewView()) {
                     QuickActionButton(
                         title: "action_start_review",
@@ -85,7 +85,7 @@ struct DashboardView: View {
                         color: .orange
                     )
                 }
-                
+
                 NavigationLink(destination: LibraryView()) {
                     QuickActionButton(
                         title: "action_view_library",
@@ -96,22 +96,22 @@ struct DashboardView: View {
             }
         }
     }
-    
+
     // MARK: - Computed Properties
-    
+
     private var masteredCount: Int {
         allItems.filter { $0.masteryLevel == MasteryLevel.mastered.rawValue }.count
     }
-    
+
     private var weeklyNewCount: Int {
         let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
         return allItems.filter { $0.createdAt >= weekAgo }.count
     }
-    
+
     private var totalReviewCount: Int {
         allItems.reduce(0) { $0 + $1.reviewCount }
     }
-    
+
     private var masteryData: [MasteryChartData] {
         MasteryLevel.allCases.compactMap { level in
             let count = allItems.filter { $0.masteryLevel == level.rawValue }.count
@@ -124,7 +124,7 @@ struct DashboardView: View {
             )
         }
     }
-    
+
     private var subjectData: [SubjectData] {
         Dictionary(grouping: allItems, by: { $0.subject })
             .map { SubjectData(subject: $0.key.displayName, count: $0.value.count) }

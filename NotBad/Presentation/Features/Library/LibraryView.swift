@@ -35,28 +35,28 @@ import SwiftData
 /// - 使用 `LibraryViewModel` 处理筛选和删除逻辑
 /// - 子组件（FilterChip、ItemRow）保持独立可复用
 struct LibraryView: View {
-    
+
     // MARK: - Properties
-    
+
     /// 所有错题数据（按创建时间倒序）
     @Query(sort: \ReviewItem.createdAt, order: .reverse)
     private var items: [ReviewItem]
-    
+
     /// 数据上下文
     @Environment(\.modelContext) private var modelContext
-    
+
     /// 视图模型
     @State private var viewModel = LibraryViewModel()
-    
+
     // MARK: - Computed Properties
-    
+
     /// 筛选后的错题列表
     private var filteredItems: [ReviewItem] {
         viewModel.filteredItems(from: items)
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -69,7 +69,7 @@ struct LibraryView: View {
                 ToolbarItem(placement: .primaryAction) {
                     advancedSearchButton
                 }
-                
+
                 ToolbarItem(placement: .secondaryAction) {
                     sortMenuButton
                 }
@@ -93,7 +93,7 @@ struct LibraryView: View {
 // MARK: - Subviews
 
 private extension LibraryView {
-    
+
     /// 高级搜索按钮
     var advancedSearchButton: some View {
         Button {
@@ -101,7 +101,7 @@ private extension LibraryView {
         } label: {
             ZStack(alignment: .topTrailing) {
                 Image(systemName: "slider.horizontal.3")
-                
+
                 if viewModel.advancedCriteria.hasActiveFilters {
                     Circle()
                         .fill(Color.brand.primary)
@@ -113,7 +113,7 @@ private extension LibraryView {
         .accessibilityLabel("library_advanced_search")
         .accessibilityHint(viewModel.advancedCriteria.hasActiveFilters ? "library_filter_active \(viewModel.advancedCriteria.activeFilterCount)" : "library_open_advanced_search")
     }
-    
+
     /// 排序菜单按钮
     var sortMenuButton: some View {
         Menu {
@@ -136,7 +136,7 @@ private extension LibraryView {
             Label("library_sort", systemImage: "arrow.up.arrow.down")
         }
     }
-    
+
     /// 内容视图
     @ViewBuilder
     var contentView: some View {
@@ -150,7 +150,7 @@ private extension LibraryView {
             itemList
         }
     }
-    
+
     /// 筛选栏
     var filterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -163,7 +163,7 @@ private extension LibraryView {
                         viewModel.selectSubject(nil)
                     }
                 }
-                
+
                 ForEach(Subject.allCases, id: \.self) { subject in
                     FilterChip(
                         title: subject.displayName,
@@ -180,7 +180,7 @@ private extension LibraryView {
         }
         .background(Color(uiColor: .systemBackground))
     }
-    
+
     /// 错题列表
     var itemList: some View {
         List {
@@ -219,20 +219,20 @@ private extension LibraryView {
 /// }
 /// ```
 struct FilterChip: View {
-    
+
     // MARK: - Properties
-    
+
     /// 显示标题
     let title: String
-    
+
     /// 是否选中
     let isSelected: Bool
-    
+
     /// 点击回调
     let action: () -> Void
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         Button(action: action) {
             Text(title)
@@ -251,9 +251,9 @@ struct FilterChip: View {
         }
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
-    
+
     // MARK: - Private
-    
+
     /// 背景渐变
     private var backgroundGradient: some ShapeStyle {
         if isSelected {
@@ -286,22 +286,22 @@ struct FilterChip: View {
 /// }
 /// ```
 struct ItemRow: View {
-    
+
     // MARK: - Properties
-    
+
     /// 错题数据
     let item: ReviewItem
-    
+
     // MARK: - Constants
-    
+
     /// 缩略图尺寸
     private enum Layout {
         static let thumbnailSize: CGFloat = 70
         static let cornerRadius: CGFloat = 12
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         HStack(spacing: 12) {
             thumbnailView
@@ -316,7 +316,7 @@ struct ItemRow: View {
 // MARK: - ItemRow Subviews
 
 private extension ItemRow {
-    
+
     /// 缩略图
     @ViewBuilder
     var thumbnailView: some View {
@@ -330,7 +330,7 @@ private extension ItemRow {
             placeholderThumbnail
         }
     }
-    
+
     /// 占位缩略图
     var placeholderThumbnail: some View {
         RoundedRectangle(cornerRadius: Layout.cornerRadius)
@@ -342,14 +342,14 @@ private extension ItemRow {
                     .foregroundStyle(.secondary)
             }
     }
-    
+
     /// 信息区域
     var infoSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(item.title)
                 .font(.headline)
                 .lineLimit(2)
-            
+
             HStack(spacing: 8) {
                 subjectTag
                 MasteryBadge(level: item.mastery)
@@ -358,7 +358,7 @@ private extension ItemRow {
             }
         }
     }
-    
+
     /// 学科标签
     var subjectTag: some View {
         Text(item.subject.displayName)
@@ -369,7 +369,7 @@ private extension ItemRow {
             .foregroundStyle(item.subject.color)
             .clipShape(Capsule())
     }
-    
+
     /// 日期标签
     var dateLabel: some View {
         Text(item.createdAt, format: .dateTime.month().day())

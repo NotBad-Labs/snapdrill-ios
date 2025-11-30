@@ -1,3 +1,43 @@
-# SwiftLint 配置（MVP 阶段禁用所有规则）
+# SwiftLint Configuration for NotBad
+# https://github.com/realm/SwiftLint
+
 disabled_rules:
-  - all
+  - inclusive_language          # "master" in mastery context is appropriate
+  - line_length                 # Some long lines are acceptable
+  - file_length                 # Large files are acceptable for now
+  - type_body_length            # Large types are acceptable for now
+  - function_body_length        # Some complex functions need this
+  - cyclomatic_complexity       # Some complex logic is acceptable
+  - function_parameter_count    # Some functions need many parameters
+  - redundant_string_enum_value # Explicit enum values improve clarity
+
+# Ignore test files for identifier_name (allows short names in tests)
+identifier_name:
+  min_length: 2
+  excluded:
+    - i
+    - id
+    - x
+    - y
+    - kp
+    - r1
+    - r2
+    - r3
+    - r4
+    - r5
+    - xs
+    - sm
+    - md
+    - lg
+    - xl
+    - uk
+    - ok
+
+# Excluded paths
+excluded:
+  - Pods
+  - .build
+  - DerivedData
+
+# Reporter
+reporter: xcode

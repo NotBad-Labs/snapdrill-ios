@@ -39,32 +39,32 @@ import SwiftUI
 /// }
 /// ```
 struct EmptyStateView: View {
-    
+
     // MARK: - Properties
-    
+
     /// 图标名称
     let icon: String
-    
+
     /// 标题文字
     let title: String
-    
+
     /// 描述消息
     let message: String
-    
+
     /// 操作按钮标题
     var actionTitle: String?
-    
+
     /// 操作回调
     var action: (() -> Void)?
-    
+
     /// 是否显示动画
     var animated: Bool = true
-    
+
     /// 支持 Dynamic Type 的图标尺寸
     @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 64
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             iconView
@@ -73,9 +73,9 @@ struct EmptyStateView: View {
         }
         .padding(DesignTokens.Spacing.xxl + DesignTokens.Spacing.sm)
     }
-    
+
     // MARK: - Subviews
-    
+
     private var iconView: some View {
         Image(systemName: icon)
             .font(.system(size: iconSize))
@@ -89,20 +89,20 @@ struct EmptyStateView: View {
             .symbolEffect(.pulse, isActive: animated)
             .accessibleDecorative()
     }
-    
+
     private var textContent: some View {
         VStack(spacing: DesignTokens.Spacing.sm) {
             Text(title)
                 .font(.title2)
                 .fontWeight(.semibold)
-            
+
             Text(message)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
     }
-    
+
     @ViewBuilder
     private var actionButton: some View {
         if let actionTitle, let action {
@@ -123,7 +123,7 @@ struct EmptyStateView: View {
 // MARK: - Convenience Initializers
 
 extension EmptyStateView {
-    
+
     /// 创建带操作的空状态视图
     init(
         icon: String,
@@ -143,7 +143,7 @@ extension EmptyStateView {
 // MARK: - Predefined States
 
 extension EmptyStateView {
-    
+
     /// 题库空状态
     static var noItems: EmptyStateView {
         EmptyStateView(
@@ -152,7 +152,7 @@ extension EmptyStateView {
             message: "快去录入你的第一道错题吧"
         )
     }
-    
+
     /// 复习空状态
     static var noReviewItems: EmptyStateView {
         EmptyStateView(
@@ -161,7 +161,7 @@ extension EmptyStateView {
             message: "太棒了！你已经掌握了所有错题"
         )
     }
-    
+
     /// 搜索无结果
     static var noSearchResults: EmptyStateView {
         EmptyStateView(
@@ -170,7 +170,7 @@ extension EmptyStateView {
             message: "试试其他关键词或筛选条件"
         )
     }
-    
+
     /// 筛选无结果
     static var noFilterResults: EmptyStateView {
         EmptyStateView(
@@ -179,7 +179,7 @@ extension EmptyStateView {
             message: "尝试调整筛选条件"
         )
     }
-    
+
     /// 网络错误
     static func networkError(retry: @escaping () -> Void) -> EmptyStateView {
         EmptyStateView(
@@ -190,7 +190,7 @@ extension EmptyStateView {
             action: retry
         )
     }
-    
+
     /// 加载失败
     static func loadingError(message: String = "加载失败，请稍后重试", retry: @escaping () -> Void) -> EmptyStateView {
         EmptyStateView(
@@ -201,7 +201,7 @@ extension EmptyStateView {
             action: retry
         )
     }
-    
+
     /// 权限被拒绝
     static func permissionDenied(title: String, message: String, action: @escaping () -> Void) -> EmptyStateView {
         EmptyStateView(
@@ -212,7 +212,7 @@ extension EmptyStateView {
             action: action
         )
     }
-    
+
     /// 摆拍无照片
     static func noCameraPermission(action: @escaping () -> Void) -> EmptyStateView {
         .permissionDenied(
@@ -221,7 +221,7 @@ extension EmptyStateView {
             action: action
         )
     }
-    
+
     /// 今日复习完成
     static var reviewCompleted: EmptyStateView {
         EmptyStateView(

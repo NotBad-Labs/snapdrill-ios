@@ -94,9 +94,9 @@ open NotBad.xcodeproj
 | 文档 | 说明 |
 |------|------|
 | [项目结构](docs/PROJECT_STRUCTURE.md) | 完整目录结构说明 |
-| [最佳实践](docs/SWIFT6_BEST_PRACTICES.md) | Swift 6.2 / iOS 26 开发规范 (20章79条) |
-| [值对象指南](docs/VALUE_OBJECT_BEST_PRACTICES.md) | 值对象设计模式 |
+| [编码规范](docs/CODING_STANDARDS.md) | Swift 6.2 / iOS 26 开发规范 |
 | [术语表](docs/GLOSSARY.md) | 项目统一语言定义 |
+| [审核清单](docs/APP_STORE_REVIEW_CHECKLIST.md) | App Store 发布检查清单 |
 | [贡献指南](CONTRIBUTING.md) | 如何参与贡献 |
 
 ## 📄 License

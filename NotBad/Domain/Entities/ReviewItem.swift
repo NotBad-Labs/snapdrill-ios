@@ -49,83 +49,83 @@ import SwiftData
 /// ```
 @Model
 final class ReviewItem {
-    
+
     // MARK: - Core Properties
-    
+
     /// 唯一标识符
     var id: UUID
-    
+
     /// 错题图片数据
     ///
     /// 使用 `.externalStorage` 优化大数据存储，
     /// 图片数据将存储在外部文件中。
     @Attribute(.externalStorage)
     var imageData: Data?
-    
+
     /// 标题
     ///
     /// 通常是 OCR 识别出的首行文字或用户自定义标题。
     /// 创建时如果为空，默认设置为「未命名错题」。
     var title: String
-    
+
     /// 用户备注/笔记
     ///
     /// 用于记录解题思路、易错点等补充信息。
     var note: String
-    
+
     // MARK: - Timestamp Properties
-    
+
     /// 创建时间
     var createdAt: Date
-    
+
     /// 更新时间
     ///
     /// 每次修改时应更新此字段。
     var updatedAt: Date
-    
+
     // MARK: - Review Properties
-    
+
     /// 掌握程度原始值
     ///
     /// 存储 `MasteryLevel` 的 `rawValue`。
     /// 请通过 `mastery` 访问器使用。
     var masteryLevel: Int
-    
+
     /// 下次复习时间
     ///
     /// 基于艾宾浩斯遗忘曲线算法计算。
     var nextReviewDate: Date
-    
+
     /// 复习次数
     ///
     /// 记录已完成的复习次数，影响复习间隔计算。
     var reviewCount: Int
-    
+
     // MARK: - Value Object Raw Storage
-    
+
     /// 学科原始值
     var subjectRaw: String
-    
+
     /// 年级原始值
     var gradeRaw: String
-    
+
     /// 知识点原始值（逗号分隔）
     var knowledgePointsRaw: String
-    
+
     /// 难度等级原始值
     var difficultyRaw: Int
-    
+
     /// 错误类型原始值
     var errorTypeRaw: String
-    
+
     /// 题目来源原始值
     var sourceRaw: String
-    
+
     /// 题目类型原始值
     var questionTypeRaw: String
-    
+
     // MARK: - Initialization
-    
+
     /// 创建新的复习项
     ///
     /// - Parameters:
@@ -174,9 +174,9 @@ final class ReviewItem {
         self.sourceRaw = source.rawValue
         self.questionTypeRaw = questionType.rawValue
     }
-    
+
     // MARK: - Internal Helpers
-    
+
     /// 标记为已更新
     ///
     /// 更新 `updatedAt` 时间戳。

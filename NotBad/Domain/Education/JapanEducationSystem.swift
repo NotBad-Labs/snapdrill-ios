@@ -19,17 +19,17 @@ public enum JapanGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
     case grade4 = "jp_grade_4"
     case grade5 = "jp_grade_5"
     case grade6 = "jp_grade_6"
-    
+
     // 中学校 (3年)
     case grade7 = "jp_grade_7"
     case grade8 = "jp_grade_8"
     case grade9 = "jp_grade_9"
-    
+
     // 高等学校 (3年)
     case grade10 = "jp_grade_10"
     case grade11 = "jp_grade_11"
     case grade12 = "jp_grade_12"
-    
+
     public var id: String { rawValue }
 }
 
@@ -50,11 +50,11 @@ extension JapanGrade: GradeLevelProtocol {
         case .grade12: 12
         }
     }
-    
+
     public var displayName: String {
         String(localized: displayNameKey)
     }
-    
+
     private var displayNameKey: String.LocalizationValue {
         switch self {
         case .grade1: "jp_grade_1_name"
@@ -71,11 +71,11 @@ extension JapanGrade: GradeLevelProtocol {
         case .grade12: "jp_grade_12_name"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .grade1: "jp_grade_1_short"
@@ -92,7 +92,7 @@ extension JapanGrade: GradeLevelProtocol {
         case .grade12: "jp_grade_12_short"
         }
     }
-    
+
     public var schoolLevel: SchoolLevel {
         switch self {
         case .grade1, .grade2, .grade3, .grade4, .grade5, .grade6:
@@ -103,7 +103,7 @@ extension JapanGrade: GradeLevelProtocol {
             .high
         }
     }
-    
+
     public var icon: String {
         switch schoolLevel {
         case .primary: "figure.child"
@@ -111,7 +111,7 @@ extension JapanGrade: GradeLevelProtocol {
         case .high: "graduationcap"
         }
     }
-    
+
     public var color: Color {
         switch schoolLevel {
         case .primary: .green
@@ -137,7 +137,7 @@ public enum JapanSubject: String, Sendable, CaseIterable, Codable, Hashable, Ide
     case history = "jp_history"         // 歴史/日本史/世界史
     case civics = "jp_civics"           // 公民
     case other = "jp_other"
-    
+
     public var id: String { rawValue }
 }
 
@@ -145,7 +145,7 @@ extension JapanSubject: SubjectProtocol {
     public var displayName: String {
         String(localized: displayNameKey)
     }
-    
+
     private var displayNameKey: String.LocalizationValue {
         switch self {
         case .japanese: "jp_subject_japanese"
@@ -162,11 +162,11 @@ extension JapanSubject: SubjectProtocol {
         case .other: "jp_subject_other"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .japanese: "jp_subject_japanese_short"
@@ -183,7 +183,7 @@ extension JapanSubject: SubjectProtocol {
         case .other: "jp_subject_other_short"
         }
     }
-    
+
     public var category: any SubjectCategoryProtocol {
         switch self {
         case .japanese, .english:
@@ -196,7 +196,7 @@ extension JapanSubject: SubjectProtocol {
             ChinaSubjectCategory.other
         }
     }
-    
+
     public var icon: String {
         switch self {
         case .japanese: "character.ja"
@@ -213,7 +213,7 @@ extension JapanSubject: SubjectProtocol {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     public var color: Color {
         switch self {
         case .japanese: .red
@@ -230,7 +230,7 @@ extension JapanSubject: SubjectProtocol {
         case .other: .gray
         }
     }
-    
+
     public var applicableLevels: [SchoolLevel] {
         switch self {
         // 全学段：国語、算数/数学、英語
@@ -255,13 +255,13 @@ extension JapanSubject: SubjectProtocol {
 public struct JapanEducationSystem: EducationSystemProtocol {
     public typealias GradeType = JapanGrade
     public typealias SubjectType = JapanSubject
-    
+
     public let region: EducationRegion = .japan
     public let name: String = "日本教育"
-    
+
     public var grades: [JapanGrade] { JapanGrade.allCases }
     public var subjects: [JapanSubject] { JapanSubject.allCases }
-    
+
     public var schoolLevels: [SchoolLevelConfiguration] {
         [
             SchoolLevelConfiguration(
@@ -290,6 +290,6 @@ public struct JapanEducationSystem: EducationSystemProtocol {
             )
         ]
     }
-    
+
     public init() {}
 }

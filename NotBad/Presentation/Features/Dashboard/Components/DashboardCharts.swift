@@ -16,7 +16,7 @@ struct StatisticsGrid: View {
     let masteredCount: Int
     let weeklyNewCount: Int
     let totalReviewCount: Int
-    
+
     var body: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: DesignTokens.Spacing.lg) {
             StatCard(
@@ -25,21 +25,21 @@ struct StatisticsGrid: View {
                 icon: "books.vertical.fill",
                 color: Color.brand.primary
             )
-            
+
             StatCard(
                 title: "stat_mastered",
                 value: "\(masteredCount)",
                 icon: "checkmark.seal.fill",
                 color: Color.brand.success
             )
-            
+
             StatCard(
                 title: "stat_weekly_new",
                 value: "\(weeklyNewCount)",
                 icon: "plus.circle.fill",
                 color: Color.brand.warning
             )
-            
+
             StatCard(
                 title: "stat_review_count",
                 value: "\(totalReviewCount)",
@@ -58,13 +58,13 @@ struct StatisticsGrid: View {
 struct MasteryDistributionChart: View {
     let data: [MasteryChartData]
     let isEmpty: Bool
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
             Text("chart_mastery_distribution")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
-            
+
             if isEmpty {
                 EmptyChartPlaceholder()
             } else {
@@ -89,7 +89,7 @@ struct MasteryDistributionChart: View {
                 }
                 .frame(height: 200)
                 .accessibilityLabel(chartAccessibilityLabel)
-                
+
                 // 图例
                 HStack(spacing: DesignTokens.Spacing.lg) {
                     ForEach(data) { item in
@@ -111,7 +111,7 @@ struct MasteryDistributionChart: View {
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
     }
-    
+
     private var chartAccessibilityLabel: String {
         let descriptions = data.map { "\($0.label)\($0.count)题" }
         return "掌握度分布图：" + descriptions.joined(separator: "，")
@@ -124,13 +124,13 @@ struct MasteryDistributionChart: View {
 struct SubjectDistributionChart: View {
     let data: [SubjectData]
     let isEmpty: Bool
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
             Text("dashboard_subject_distribution")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
-            
+
             if isEmpty {
                 EmptyChartPlaceholder()
             } else {
@@ -156,7 +156,7 @@ struct SubjectDistributionChart: View {
         .background(Color.semantic.secondaryBackground)
         .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
     }
-    
+
     private var chartAccessibilityLabel: String {
         let descriptions = data.map { "\($0.subject)\($0.count)题" }
         return "学科分布图：" + descriptions.joined(separator: "，")
@@ -173,7 +173,7 @@ struct EmptyChartPlaceholder: View {
                 .font(.system(size: 40))
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
-            
+
             Text("dashboard_no_data")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)

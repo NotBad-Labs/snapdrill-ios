@@ -39,14 +39,14 @@ public enum EducationRegion: String, Sendable, CaseIterable, Codable, Hashable, 
     case usa = "US"
     case uk = "GB"
     case custom = "CUSTOM"
-    
+
     public var id: String { rawValue }
-    
+
     /// 本地化显示名称
     public var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     private var localizationKey: String.LocalizationValue {
         switch self {
         case .china: "education_region_china"
@@ -59,7 +59,7 @@ public enum EducationRegion: String, Sendable, CaseIterable, Codable, Hashable, 
         case .custom: "education_region_custom"
         }
     }
-    
+
     /// 地区旗帜 emoji
     public var flag: String {
         switch self {
@@ -73,12 +73,12 @@ public enum EducationRegion: String, Sendable, CaseIterable, Codable, Hashable, 
         case .custom: "⚙️"
         }
     }
-    
+
     /// 应用内置支持的地区（用于 Onboarding 选择）
     public static var builtInRegions: [EducationRegion] {
         [.china, .japan, .korea, .singapore, .international]
     }
-    
+
     /// 根据设备地区自动检测
     public static func detectFromLocale() -> EducationRegion {
         let regionCode = Locale.current.region?.identifier ?? "CN"
@@ -104,7 +104,7 @@ public enum SchoolLevel: String, Sendable, CaseIterable, Codable, Hashable, Iden
     case middle
     /// 高中/High School
     case high
-    
+
     public var id: String { rawValue }
 }
 
@@ -150,7 +150,7 @@ public protocol SubjectProtocol: Sendable, Hashable, Identifiable, CaseIterable 
     var icon: String { get }
     /// 主题颜色
     var color: Color { get }
-    
+
     /// 是否适用于指定学段
     func isApplicable(for level: SchoolLevel) -> Bool
 }
@@ -191,25 +191,25 @@ public protocol EducationSystemProtocol: Sendable {
     associatedtype GradeType: GradeLevelProtocol
     /// 关联的学科类型
     associatedtype SubjectType: SubjectProtocol
-    
+
     /// 教育地区
     var region: EducationRegion { get }
-    
+
     /// 体系名称
     var name: String { get }
-    
+
     /// 所有年级
     var grades: [GradeType] { get }
-    
+
     /// 所有学科
     var subjects: [SubjectType] { get }
-    
+
     /// 学段配置
     var schoolLevels: [SchoolLevelConfiguration] { get }
-    
+
     /// 获取指定学段的年级
     func grades(for level: SchoolLevel) -> [GradeType]
-    
+
     /// 获取指定学段的学科
     func subjects(for level: SchoolLevel) -> [SubjectType]
 }
@@ -218,7 +218,7 @@ extension EducationSystemProtocol {
     public func grades(for level: SchoolLevel) -> [GradeType] {
         grades.filter { $0.schoolLevel == level }
     }
-    
+
     public func subjects(for level: SchoolLevel) -> [SubjectType] {
         subjects.filter { $0.isApplicable(for: level) }
     }
@@ -243,7 +243,7 @@ public struct SchoolLevelConfiguration: Sendable, Hashable, Identifiable {
     public let icon: String
     /// 颜色
     public let color: Color
-    
+
     public init(
         level: SchoolLevel,
         nameKey: String,
@@ -260,12 +260,12 @@ public struct SchoolLevelConfiguration: Sendable, Hashable, Identifiable {
         self.icon = icon
         self.color = color
     }
-    
+
     /// 本地化名称
     public var displayName: String {
         String(localized: String.LocalizationValue(stringLiteral: nameKey))
     }
-    
+
     /// 年级范围描述
     public var gradeRange: String {
         "\(startGrade)-\(endGrade)"
@@ -279,7 +279,7 @@ public enum EducationSystemError: Error, LocalizedError {
     case unsupportedRegion(EducationRegion)
     case invalidGradeOrder(Int)
     case subjectNotApplicable(String, SchoolLevel)
-    
+
     public var errorDescription: String? {
         switch self {
         case .unsupportedRegion(let region):

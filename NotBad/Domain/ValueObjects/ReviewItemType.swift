@@ -28,32 +28,32 @@ import SwiftUI
 /// print(category.gradingCharacteristic)  // "答案唯一，对错分明"
 /// ```
 enum ReviewItemCategory: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
-    
+
     /// 客观题
     ///
     /// 包括选择、多选、判断、填空、连线等题型。
     /// 答案唯一，评分标准明确。
     case objective = "客观题"
-    
+
     /// 主观题
     ///
     /// 包括简答、计算、证明、作图、实验、材料分析等题型。
     /// 答案开放，通常按步骤给分。
     case subjective = "主观题"
-    
+
     /// 综合题
     ///
     /// 包括阅读理解、作文、完形填空等题型。
     /// 考察综合能力，整体评分。
     case comprehensive = "综合题"
-    
+
     /// 其他
     ///
     /// 不便分类的特殊题型。
     case other = "其他"
-    
+
     // MARK: - Identifiable
-    
+
     /// 唯一标识符
     nonisolated var id: String { rawValue }
 }
@@ -61,12 +61,12 @@ enum ReviewItemCategory: String, Sendable, CaseIterable, Codable, Hashable, Iden
 // MARK: - ReviewItemCategory Display Properties
 
 extension ReviewItemCategory {
-    
+
     /// 显示名称
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -76,7 +76,7 @@ extension ReviewItemCategory {
         case .other: "item_category_other"
         }
     }
-    
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
@@ -86,7 +86,7 @@ extension ReviewItemCategory {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     /// 主题颜色
     nonisolated var color: Color {
         switch self {
@@ -96,12 +96,12 @@ extension ReviewItemCategory {
         case .other: .gray
         }
     }
-    
+
     /// 评分特点描述
     nonisolated var gradingCharacteristic: String {
         String(localized: gradingCharacteristicKey)
     }
-    
+
     /// 评分特点本地化键值
     private var gradingCharacteristicKey: String.LocalizationValue {
         switch self {
@@ -142,92 +142,92 @@ extension ReviewItemCategory {
 /// let mathTypes = ReviewItemType.types(for: .math)
 /// ```
 enum ReviewItemType: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
-    
+
     // MARK: - Objective Types (客观题)
-    
+
     /// 选择题
     ///
     /// 单项选择，四选一最常见。
     case choice = "选择题"
-    
+
     /// 多选题
     ///
     /// 多项选择，通常有多个正确答案。
     case multiChoice = "多选题"
-    
+
     /// 判断题
     ///
     /// 判断对错，二选一。
     case judgment = "判断题"
-    
+
     /// 填空题
     ///
     /// 填写空缺内容，答案通常唯一。
     case fillBlank = "填空题"
-    
+
     /// 连线题
     ///
     /// 将相关内容进行匹配连接。
     case matching = "连线题"
-    
+
     // MARK: - Subjective Types (主观题)
-    
+
     /// 简答题
     ///
     /// 简要回答问题，通常有要点采分。
     case shortAnswer = "简答题"
-    
+
     /// 计算题
     ///
     /// 需要列式计算，按步骤给分。
     case calculation = "计算题"
-    
+
     /// 证明题
     ///
     /// 数学或物理证明，逻辑严密性要求高。
     case proof = "证明题"
-    
+
     /// 作图题
     ///
     /// 绘制图形、图表或示意图。
     case drawing = "作图题"
-    
+
     /// 实验题
     ///
     /// 涉及实验设计、现象描述、结论分析。
     case experiment = "实验题"
-    
+
     /// 材料分析
     ///
     /// 根据给定材料进行分析回答。
     case analysis = "材料分析"
-    
+
     // MARK: - Comprehensive Types (综合题)
-    
+
     /// 阅读理解
     ///
     /// 语文或英语阅读，综合理解能力。
     case reading = "阅读理解"
-    
+
     /// 作文
     ///
     /// 写作题，考察语言表达和组织能力。
     case writing = "作文"
-    
+
     /// 完形填空
     ///
     /// 英语完形填空，综合语法和语境理解。
     case cloze = "完形填空"
-    
+
     // MARK: - Other
-    
+
     /// 其他
     ///
     /// 不便分类的特殊题型。
     case other = "其他"
-    
+
     // MARK: - Identifiable
-    
+
     /// 唯一标识符
     nonisolated var id: String { rawValue }
 }
@@ -235,12 +235,12 @@ enum ReviewItemType: String, Sendable, CaseIterable, Codable, Hashable, Identifi
 // MARK: - ReviewItemType Display Properties
 
 extension ReviewItemType {
-    
+
     /// 显示名称
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -261,14 +261,14 @@ extension ReviewItemType {
         case .other: "item_type_other"
         }
     }
-    
+
     /// 简短标签（单字）
     ///
     /// 用于空间有限的 UI 展示。
     nonisolated var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     /// 简短标签本地化键值
     private var shortLabelKey: String.LocalizationValue {
         switch self {
@@ -289,7 +289,7 @@ extension ReviewItemType {
         case .other: "item_type_other_short"
         }
     }
-    
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
@@ -310,7 +310,7 @@ extension ReviewItemType {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     /// 主题颜色
     nonisolated var color: Color {
         switch self {
@@ -336,7 +336,7 @@ extension ReviewItemType {
 // MARK: - ReviewItemType Category
 
 extension ReviewItemType {
-    
+
     /// 题型分类
     nonisolated var category: ReviewItemCategory {
         switch self {
@@ -350,15 +350,15 @@ extension ReviewItemType {
             .other
         }
     }
-    
+
     /// 是否为客观题
     ///
     /// 客观题有唯一答案，便于自动批改。
     nonisolated var isObjective: Bool { category == .objective }
-    
+
     /// 是否为主观题
     nonisolated var isSubjective: Bool { category == .subjective }
-    
+
     /// 是否为综合题
     nonisolated var isComprehensive: Bool { category == .comprehensive }
 }
@@ -366,7 +366,7 @@ extension ReviewItemType {
 // MARK: - ReviewItemType Time & Difficulty
 
 extension ReviewItemType {
-    
+
     /// 预估答题时间（分钟）
     ///
     /// 基于题型的典型时间需求估算。
@@ -382,7 +382,7 @@ extension ReviewItemType {
         case .other: 5
         }
     }
-    
+
     /// 预估答题时间描述
     nonisolated var estimatedTimeDescription: String {
         switch estimatedMinutes {
@@ -392,7 +392,7 @@ extension ReviewItemType {
         default: "约 \(estimatedMinutes) 分钟"
         }
     }
-    
+
     /// 难度权重
     ///
     /// 综合题和主观题通常更难，权重更高：
@@ -412,7 +412,7 @@ extension ReviewItemType {
 // MARK: - ReviewItemType Subject Association
 
 extension ReviewItemType {
-    
+
     /// 常见适用学科
     ///
     /// 返回该题型最常出现的学科列表。
@@ -444,7 +444,7 @@ extension ReviewItemType {
             Subject.allCases
         }
     }
-    
+
     /// 是否适用于指定学科
     ///
     /// - Parameter subject: 要检查的学科
@@ -457,17 +457,17 @@ extension ReviewItemType {
 // MARK: - ReviewItemType Static Collections
 
 extension ReviewItemType {
-    
+
     /// 所有客观题类型
     nonisolated static var objectiveTypes: [ReviewItemType] {
         [.choice, .multiChoice, .judgment, .fillBlank, .matching]
     }
-    
+
     /// 所有主观题类型
     nonisolated static var subjectiveTypes: [ReviewItemType] {
         [.shortAnswer, .calculation, .proof, .drawing, .experiment, .analysis]
     }
-    
+
     /// 所有综合题类型
     nonisolated static var comprehensiveTypes: [ReviewItemType] {
         [.reading, .writing, .cloze]
@@ -477,7 +477,7 @@ extension ReviewItemType {
 // MARK: - ReviewItemType Query Methods
 
 extension ReviewItemType {
-    
+
     /// 获取某分类下的所有题型
     ///
     /// - Parameter category: 题型分类
@@ -485,7 +485,7 @@ extension ReviewItemType {
     nonisolated static func types(in category: ReviewItemCategory) -> [ReviewItemType] {
         allCases.filter { $0.category == category }
     }
-    
+
     /// 获取适用于某学科的题型
     ///
     /// - Parameter subject: 学科
@@ -493,14 +493,14 @@ extension ReviewItemType {
     nonisolated static func types(for subject: Subject) -> [ReviewItemType] {
         allCases.filter { $0.applicableSubjects.contains(subject) }
     }
-    
+
     /// 按预估时间排序的所有题型
     ///
     /// 从快到慢排序。
     nonisolated static var sortedByTime: [ReviewItemType] {
         allCases.sorted { $0.estimatedMinutes < $1.estimatedMinutes }
     }
-    
+
     /// 按难度权重排序的所有题型
     ///
     /// 从简单到困难排序。

@@ -38,23 +38,23 @@ import SwiftData
 /// - Important: 确保 `modelContext` 的生命周期正确管理
 @MainActor
 final class ReviewItemRepository: ReviewItemRepositoryProtocol {
-    
+
     // MARK: - Properties
-    
+
     /// SwiftData 模型上下文
     private let modelContext: ModelContext
-    
+
     // MARK: - Initialization
-    
+
     /// 创建仓库实例
     ///
     /// - Parameter modelContext: SwiftData 模型上下文
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
-    
+
     // MARK: - Fetch All
-    
+
     /// 获取所有错题
     ///
     /// 按创建时间降序排列（最新的在前）。
@@ -64,26 +64,26 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
         )
         return (try? modelContext.fetch(descriptor)) ?? []
     }
-    
+
     // MARK: - Filtered Fetch
-    
+
     /// 根据条件筛选错题
     func fetch(subject: Subject?, mastery: MasteryLevel?) -> [ReviewItem] {
         var items = fetchAll()
-        
+
         if let subject {
             items = items.filter { $0.subject == subject }
         }
-        
+
         if let mastery {
             items = items.filter { $0.mastery == mastery }
         }
-        
+
         return items
     }
-    
+
     // MARK: - Review Fetch
-    
+
     /// 获取需要复习的错题
     ///
     /// 排序规则：
@@ -92,7 +92,7 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
     /// 3. 复习次数少的优先
     func fetchForReview() -> [ReviewItem] {
         let now = Date()
-        
+
         return fetchAll()
             .filter { $0.nextReviewDate <= now }
             .sorted { item1, item2 in
@@ -102,26 +102,26 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
                 if overdue1 != overdue2 {
                     return overdue1 > overdue2
                 }
-                
+
                 // 掌握程度低的优先
                 if item1.masteryLevel != item2.masteryLevel {
                     return item1.masteryLevel < item2.masteryLevel
                 }
-                
+
                 // 复习次数少的优先
                 return item1.reviewCount < item2.reviewCount
             }
     }
-    
+
     // MARK: - Search
-    
+
     /// 搜索错题
     ///
     /// 在标题、笔记、知识点中搜索，不区分大小写。
     func search(query: String) -> [ReviewItem] {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else { return fetchAll() }
-        
+
         let lowercasedQuery = trimmedQuery.lowercased()
         return fetchAll().filter { item in
             item.title.lowercased().contains(lowercasedQuery) ||
@@ -131,9 +131,9 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
             item.questionType.displayName.contains(trimmedQuery)
         }
     }
-    
+
     // MARK: - Save Operations
-    
+
     /// 保存错题
     ///
     /// 如果是新对象会插入，已存在则更新。
@@ -141,15 +141,15 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
         modelContext.insert(item)
         try modelContext.save()
     }
-    
+
     // MARK: - Delete Operations
-    
+
     /// 删除错题
     func delete(_ item: ReviewItem) throws {
         modelContext.delete(item)
         try modelContext.save()
     }
-    
+
     /// 批量删除错题
     func delete(_ items: [ReviewItem]) throws {
         for item in items {
@@ -157,7 +157,7 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
         }
         try modelContext.save()
     }
-    
+
     /// 删除所有错题
     ///
     /// - Warning: 此操作不可逆
@@ -168,9 +168,9 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
         }
         try modelContext.save()
     }
-    
+
     // MARK: - Statistics
-    
+
     /// 获取统计数据
     func statistics() -> ReviewStatistics {
         ReviewStatistics(from: fetchAll())
@@ -180,7 +180,7 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
 // MARK: - ReviewItemRepository Convenience Methods
 
 extension ReviewItemRepository {
-    
+
     /// 获取指定 ID 的错题
     ///
     /// - Parameter id: 错题 ID
@@ -188,7 +188,7 @@ extension ReviewItemRepository {
     func fetch(byId id: UUID) -> ReviewItem? {
         fetchAll().first { $0.id == id }
     }
-    
+
     /// 获取最近添加的错题
     ///
     /// - Parameter limit: 返回数量限制
@@ -196,7 +196,7 @@ extension ReviewItemRepository {
     func fetchRecent(limit: Int = 10) -> [ReviewItem] {
         Array(fetchAll().prefix(limit))
     }
-    
+
     /// 获取指定学科的错题
     ///
     /// - Parameter subject: 学科
@@ -204,7 +204,7 @@ extension ReviewItemRepository {
     func fetch(subject: Subject) -> [ReviewItem] {
         fetch(subject: subject, mastery: nil)
     }
-    
+
     /// 获取指定难度的错题
     ///
     /// - Parameter difficulty: 难度等级
@@ -212,7 +212,7 @@ extension ReviewItemRepository {
     func fetch(difficulty: Difficulty) -> [ReviewItem] {
         fetchAll().filter { $0.difficulty == difficulty }
     }
-    
+
     /// 获取指定来源的错题
     ///
     /// - Parameter source: 题目来源
@@ -220,7 +220,7 @@ extension ReviewItemRepository {
     func fetch(source: Source) -> [ReviewItem] {
         fetchAll().filter { $0.source == source }
     }
-    
+
     /// 获取高优先级复习项
     ///
     /// 逾期或今天需要复习的错题。
@@ -230,7 +230,7 @@ extension ReviewItemRepository {
     func fetchHighPriority(limit: Int = 20) -> [ReviewItem] {
         Array(fetchForReview().filter { $0.reviewInterval.isUrgent }.prefix(limit))
     }
-    
+
     /// 判断是否存在指定 ID 的错题
     ///
     /// - Parameter id: 错题 ID

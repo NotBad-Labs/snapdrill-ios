@@ -13,9 +13,9 @@ import Foundation
 ///
 /// 集中管理所有本地化字符串，便于维护和国际化扩展。
 enum L10n {
-    
+
     // MARK: - Common
-    
+
     enum Common {
         static let appName = String(localized: "app_name", defaultValue: "错题本")
         static let ok = String(localized: "common_ok", defaultValue: "确定")
@@ -31,9 +31,9 @@ enum L10n {
         static let error = String(localized: "common_error", defaultValue: "错误")
         static let success = String(localized: "common_success", defaultValue: "成功")
     }
-    
+
     // MARK: - Tabs
-    
+
     enum Tab {
         static let dashboard = String(localized: "tab_dashboard", defaultValue: "首页")
         static let library = String(localized: "tab_library", defaultValue: "题库")
@@ -41,9 +41,9 @@ enum L10n {
         static let review = String(localized: "tab_review", defaultValue: "复习")
         static let profile = String(localized: "tab_profile", defaultValue: "我的")
     }
-    
+
     // MARK: - Dashboard
-    
+
     enum Dashboard {
         static let title = String(localized: "dashboard_title", defaultValue: "首页")
         static let totalItems = String(localized: "dashboard_total_items", defaultValue: "总错题数")
@@ -53,9 +53,9 @@ enum L10n {
         static let quickStart = String(localized: "dashboard_quick_start", defaultValue: "快速开始")
         static let recentItems = String(localized: "dashboard_recent_items", defaultValue: "最近添加")
     }
-    
+
     // MARK: - Library
-    
+
     enum Library {
         static let title = String(localized: "library_title", defaultValue: "题库")
         static let searchPlaceholder = String(localized: "library_search_placeholder", defaultValue: "搜索标题或知识点")
@@ -65,9 +65,9 @@ enum L10n {
         static let advancedSearch = String(localized: "library_advanced_search", defaultValue: "高级搜索")
         static let sort = String(localized: "library_sort", defaultValue: "排序")
     }
-    
+
     // MARK: - Capture
-    
+
     enum Capture {
         static let title = String(localized: "capture_title", defaultValue: "录入错题")
         static let takePhoto = String(localized: "capture_take_photo", defaultValue: "拍照")
@@ -76,9 +76,9 @@ enum L10n {
         static let recognizing = String(localized: "capture_recognizing", defaultValue: "识别中...")
         static let saveSuccess = String(localized: "capture_save_success", defaultValue: "保存成功")
     }
-    
+
     // MARK: - Review
-    
+
     enum Review {
         static let title = String(localized: "review_title", defaultValue: "复习")
         static let startReview = String(localized: "review_start", defaultValue: "开始复习")
@@ -88,9 +88,9 @@ enum L10n {
         static let masteredWell = String(localized: "review_mastered_well", defaultValue: "掌握得很好")
         static let needsMorePractice = String(localized: "review_needs_practice", defaultValue: "需要多练习")
     }
-    
+
     // MARK: - Profile
-    
+
     enum Profile {
         static let title = String(localized: "profile_title", defaultValue: "我的")
         static let settings = String(localized: "profile_settings", defaultValue: "设置")
@@ -101,9 +101,9 @@ enum L10n {
         static let feedback = String(localized: "profile_feedback", defaultValue: "意见反馈")
         static let about = String(localized: "profile_about", defaultValue: "关于")
     }
-    
+
     // MARK: - Subjects
-    
+
     enum Subject {
         static let math = String(localized: "subject_math", defaultValue: "数学")
         static let chinese = String(localized: "subject_chinese", defaultValue: "语文")
@@ -116,9 +116,9 @@ enum L10n {
         static let politics = String(localized: "subject_politics", defaultValue: "政治")
         static let other = String(localized: "subject_other", defaultValue: "其他")
     }
-    
+
     // MARK: - Mastery Levels
-    
+
     enum Mastery {
         static let none = String(localized: "mastery_none", defaultValue: "未掌握")
         static let poor = String(localized: "mastery_poor", defaultValue: "较差")
@@ -126,18 +126,18 @@ enum L10n {
         static let good = String(localized: "mastery_good", defaultValue: "掌握")
         static let excellent = String(localized: "mastery_excellent", defaultValue: "熟练")
     }
-    
+
     // MARK: - Difficulty
-    
+
     enum Difficulty {
         static let easy = String(localized: "difficulty_easy", defaultValue: "简单")
         static let medium = String(localized: "difficulty_medium", defaultValue: "中等")
         static let hard = String(localized: "difficulty_hard", defaultValue: "困难")
         static let expert = String(localized: "difficulty_expert", defaultValue: "极难")
     }
-    
+
     // MARK: - Accessibility
-    
+
     enum Accessibility {
         static let closeButton = String(localized: "a11y_close_button", defaultValue: "关闭")
         static let moreOptions = String(localized: "a11y_more_options", defaultValue: "更多选项")
@@ -150,23 +150,23 @@ enum L10n {
 // MARK: - Formatted Strings
 
 extension L10n {
-    
+
     /// 格式化数量
     static func itemCount(_ count: Int) -> String {
         "\(count) 道"
     }
-    
+
     /// 格式化百分比
     static func percentage(_ value: Double) -> String {
         let formatted = Int(value * 100)
         return "\(formatted)%"
     }
-    
+
     /// 格式化复习进度
     static func reviewProgress(current: Int, total: Int) -> String {
         "\(current)/\(total)"
     }
-    
+
     /// 格式化天数
     static func daysUntil(_ days: Int) -> String {
         if days == 0 {

@@ -51,30 +51,30 @@ import Foundation
 /// - Note: 此值对象是不可变的，所有属性都是 `let` 声明
 /// - Important: 记忆保持率计算基于科学研究，但仅供参考
 struct ReviewInterval: Sendable, Codable, Hashable, Identifiable {
-    
+
     // MARK: - Properties
-    
+
     /// 复习次数
     ///
     /// 从 0 开始计数，表示已完成的复习次数。
     /// 影响标准间隔的选择。
     let reviewCount: Int
-    
+
     /// 掌握程度
     ///
     /// 影响复习间隔的调整系数：
     /// - 掌握程度越高，间隔越长
     /// - 掌握程度越低，间隔越短
     let mastery: MasteryLevel
-    
+
     /// 基准日期
     ///
     /// 用于计算下次复习日期的起始日期。
     /// 通常为上次复习日期或录入日期。
     let baseDate: Date
-    
+
     // MARK: - Identifiable
-    
+
     /// 唯一标识符
     ///
     /// 组合复习次数、掌握程度和基准日期生成。
@@ -86,7 +86,7 @@ struct ReviewInterval: Sendable, Codable, Hashable, Identifiable {
 // MARK: - ReviewInterval Ebbinghaus Constants
 
 extension ReviewInterval {
-    
+
     /// 标准复习间隔序列（天）
     ///
     /// 基于艾宾浩斯遗忘曲线的最佳复习时机：
@@ -103,7 +103,7 @@ extension ReviewInterval {
     nonisolated static var standardIntervals: [Int] {
         [1, 2, 4, 7, 15, 30, 60, 120, 180, 365]
     }
-    
+
     /// 遗忘曲线稳定性系数
     ///
     /// 用于记忆保持率计算。此值基于 SuperMemo SM-2 算法的简化版本，
@@ -118,7 +118,7 @@ extension ReviewInterval {
 // MARK: - ReviewInterval Interval Calculation
 
 extension ReviewInterval {
-    
+
     /// 计算下次复习间隔天数
     ///
     /// 根据复习次数获取基础间隔，再根据掌握程度调整：
@@ -134,7 +134,7 @@ extension ReviewInterval {
         let multiplier = mastery.intervalMultiplier
         return max(1, Int(Double(baseInterval) * multiplier))
     }
-    
+
     /// 计算下次复习日期
     ///
     /// 基于 `baseDate` 加上 `intervalDays` 计算。
@@ -148,7 +148,7 @@ extension ReviewInterval {
 // MARK: - ReviewInterval Time Status
 
 extension ReviewInterval {
-    
+
     /// 距离下次复习的天数
     ///
     /// - 正数：还有几天需要复习
@@ -160,23 +160,23 @@ extension ReviewInterval {
         let reviewDay = calendar.startOfDay(for: nextReviewDate)
         return calendar.dateComponents([.day], from: today, to: reviewDay).day ?? 0
     }
-    
+
     /// 是否已逾期
     nonisolated var isOverdue: Bool { daysUntilReview < 0 }
-    
+
     /// 逾期天数
     ///
     /// 如果未逾期返回 0。
     nonisolated var overdueByDays: Int { max(0, -daysUntilReview) }
-    
+
     /// 是否今天需要复习
     ///
     /// 包括已逾期的情况。
     nonisolated var isDueToday: Bool { daysUntilReview <= 0 }
-    
+
     /// 是否本周内需要复习
     nonisolated var isDueThisWeek: Bool { daysUntilReview <= 7 }
-    
+
     /// 是否本月内需要复习
     nonisolated var isDueThisMonth: Bool { daysUntilReview <= 30 }
 }
@@ -184,7 +184,7 @@ extension ReviewInterval {
 // MARK: - ReviewInterval Memory Retention
 
 extension ReviewInterval {
-    
+
     /// 估算当前记忆保持率
     ///
     /// 基于简化的遗忘曲线模型：R = e^(-t / (S × M))
@@ -201,24 +201,24 @@ extension ReviewInterval {
     nonisolated var estimatedRetention: Double {
         let daysSinceBase = max(0, -daysUntilReview + intervalDays)
         guard daysSinceBase > 0 else { return 1.0 }
-        
+
         let adjustedStability = Self.stabilityCoefficient * masteryStabilityFactor
         let retention = exp(-Double(daysSinceBase) / adjustedStability)
         return min(1.0, max(0.0, retention))
     }
-    
+
     /// 掌握程度对记忆稳定性的影响因子
     ///
     /// 掌握程度越高，记忆越稳定，衰减越慢。
     nonisolated private var masteryStabilityFactor: Double {
         mastery.stabilityFactor
     }
-    
+
     /// 记忆保持率百分比
     nonisolated var retentionPercentage: Int {
         Int(estimatedRetention * 100)
     }
-    
+
     /// 记忆保持率描述
     nonisolated var retentionDescription: String {
         switch retentionPercentage {
@@ -234,7 +234,7 @@ extension ReviewInterval {
 // MARK: - ReviewInterval Urgency
 
 extension ReviewInterval {
-    
+
     /// 复习紧迫程度等级
     ///
     /// 1-5 级，数字越大越紧急：
@@ -252,7 +252,7 @@ extension ReviewInterval {
         default: 1
         }
     }
-    
+
     /// 复习紧迫程度描述
     nonisolated var urgencyDescription: String {
         switch daysUntilReview {
@@ -266,7 +266,7 @@ extension ReviewInterval {
         default: "已掌握"
         }
     }
-    
+
     /// 复习紧迫程度简短描述
     nonisolated var urgencyShortDescription: String {
         switch daysUntilReview {
@@ -276,7 +276,7 @@ extension ReviewInterval {
         default: "\(daysUntilReview)天后"
         }
     }
-    
+
     /// 是否紧急（需要立即关注）
     nonisolated var isUrgent: Bool { urgencyLevel >= 4 }
 }
@@ -284,7 +284,7 @@ extension ReviewInterval {
 // MARK: - ReviewInterval Factory Methods
 
 extension ReviewInterval {
-    
+
     /// 创建首次复习间隔
     ///
     /// 用于新录入的错题，复习次数为 0。
@@ -294,7 +294,7 @@ extension ReviewInterval {
     nonisolated static func firstReview(mastery: MasteryLevel = .none) -> ReviewInterval {
         ReviewInterval(reviewCount: 0, mastery: mastery, baseDate: Date())
     }
-    
+
     /// 根据复习历史计算间隔
     ///
     /// - Parameters:
@@ -304,7 +304,7 @@ extension ReviewInterval {
     nonisolated static func calculate(reviewCount: Int, mastery: MasteryLevel) -> ReviewInterval {
         ReviewInterval(reviewCount: reviewCount, mastery: mastery, baseDate: Date())
     }
-    
+
     /// 根据复习历史和指定日期计算间隔
     ///
     /// 主要用于测试或历史数据导入。
@@ -321,7 +321,7 @@ extension ReviewInterval {
     ) -> ReviewInterval {
         ReviewInterval(reviewCount: reviewCount, mastery: mastery, baseDate: date)
     }
-    
+
     /// 从上次复习记录创建下一次复习间隔
     ///
     /// 自动递增复习次数，更新基准日期为当前时间。
@@ -345,7 +345,7 @@ extension ReviewInterval {
 // MARK: - ReviewInterval Comparable
 
 extension ReviewInterval: Comparable {
-    
+
     /// 按紧迫程度排序
     ///
     /// 越紧急（daysUntilReview 越小）越靠前。
@@ -357,7 +357,7 @@ extension ReviewInterval: Comparable {
 // MARK: - ReviewInterval CustomStringConvertible
 
 extension ReviewInterval: CustomStringConvertible {
-    
+
     /// 调试描述
     nonisolated var description: String {
         "\(urgencyDescription) (保持率: \(retentionPercentage)%)"
@@ -367,7 +367,7 @@ extension ReviewInterval: CustomStringConvertible {
 // MARK: - MasteryLevel Interval Extensions
 
 private extension MasteryLevel {
-    
+
     /// 间隔调整倍数
     nonisolated var intervalMultiplier: Double {
         switch self {
@@ -378,7 +378,7 @@ private extension MasteryLevel {
         case .none: 0.25
         }
     }
-    
+
     /// 记忆稳定性因子
     nonisolated var stabilityFactor: Double {
         switch self {
@@ -394,7 +394,7 @@ private extension MasteryLevel {
 // MARK: - Array Safe Access
 
 private extension Array {
-    
+
     /// 安全下标访问
     ///
     /// 避免数组越界崩溃。

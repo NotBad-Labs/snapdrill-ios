@@ -29,17 +29,17 @@ import UIKit
 ///
 /// - Note: 使用 `enum` 实现单例模式，避免实例化
 enum ImageCompressor {
-    
+
     // MARK: - Configuration
-    
+
     /// 默认压缩质量（0.0-1.0）
     static let defaultQuality: CGFloat = 0.7
-    
+
     /// 默认最大尺寸（像素）
     static let defaultMaxDimension: CGFloat = 2048
-    
+
     // MARK: - Public API
-    
+
     /// 压缩图片
     ///
     /// 如果图片尺寸超过最大限制，会先等比缩放再压缩。
@@ -57,7 +57,7 @@ enum ImageCompressor {
         let resized = resize(image, maxDimension: maxDimension)
         return resized.jpegData(compressionQuality: quality)
     }
-    
+
     /// 仅缩放图片（不压缩）
     ///
     /// - Parameters:
@@ -66,26 +66,26 @@ enum ImageCompressor {
     /// - Returns: 缩放后的图片
     static func resize(_ image: UIImage, maxDimension: CGFloat) -> UIImage {
         let size = image.size
-        
+
         // 如果尺寸已在限制内，直接返回
         guard size.width > maxDimension || size.height > maxDimension else {
             return image
         }
-        
+
         // 计算缩放比例
         let scale = min(maxDimension / size.width, maxDimension / size.height)
         let newSize = CGSize(
             width: size.width * scale,
             height: size.height * scale
         )
-        
+
         // 使用现代 API 绘制
         let renderer = UIGraphicsImageRenderer(size: newSize)
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: newSize))
         }
     }
-    
+
     /// 估算压缩后的文件大小（KB）
     ///
     /// - Parameters:

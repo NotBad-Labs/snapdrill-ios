@@ -35,33 +35,33 @@ import SwiftData
 /// - 使用 `InfoCard` 组件展示信息
 /// - 编辑模式和显示模式分离
 struct ItemDetailView: View {
-    
+
     // MARK: - Properties
-    
+
     /// 错题数据（可绑定）
     @Bindable var item: ReviewItem
-    
+
     /// 数据上下文
     @Environment(\.modelContext) private var modelContext
-    
+
     /// 关闭视图
     @Environment(\.dismiss) private var dismiss
-    
+
     // MARK: - State
-    
+
     /// 是否处于编辑模式
     @State private var isEditing = false
-    
+
     /// 是否显示删除确认
     @State private var showDeleteAlert = false
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 imagePreview
-                
+
                 if isEditing {
                     EditingContent(item: item, onSave: saveChanges)
                 } else {
@@ -85,7 +85,7 @@ struct ItemDetailView: View {
 // MARK: - Toolbar
 
 private extension ItemDetailView {
-    
+
     /// 工具栏内容
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
@@ -99,7 +99,7 @@ private extension ItemDetailView {
                         systemImage: isEditing ? "checkmark" : "pencil"
                     )
                 }
-                
+
                 Button(role: .destructive) {
                     showDeleteAlert = true
                 } label: {
@@ -115,7 +115,7 @@ private extension ItemDetailView {
 // MARK: - Subviews
 
 private extension ItemDetailView {
-    
+
     /// 图片预览
     @ViewBuilder
     var imagePreview: some View {
@@ -133,7 +133,7 @@ private extension ItemDetailView {
 // MARK: - Actions
 
 private extension ItemDetailView {
-    
+
     /// 保存修改
     func saveChanges() {
         withAnimation {
@@ -142,7 +142,7 @@ private extension ItemDetailView {
             isEditing = false
         }
     }
-    
+
     /// 删除错题
     func deleteItem() {
         modelContext.delete(item)

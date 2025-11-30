@@ -40,9 +40,9 @@ enum MasteryLevel: Int, Sendable, CaseIterable, Codable, Hashable, Identifiable 
     case good = 3
     /// 完全掌握 - 完全掌握，能举一反三解决变式题
     case mastered = 4
-    
+
     // MARK: Identifiable
-    
+
     nonisolated var id: Int { rawValue }
 }
 
@@ -53,7 +53,7 @@ extension MasteryLevel {
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -64,12 +64,12 @@ extension MasteryLevel {
         case .mastered: "mastery_mastered"
         }
     }
-    
+
     /// 简短标签
     nonisolated var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     /// 简短标签本地化键值
     private var shortLabelKey: String.LocalizationValue {
         switch self {
@@ -80,12 +80,12 @@ extension MasteryLevel {
         case .mastered: "mastery_mastered_short"
         }
     }
-    
+
     /// 详细描述
     nonisolated var detailText: String {
         String(localized: detailTextKey)
     }
-    
+
     /// 详细描述本地化键值
     private var detailTextKey: String.LocalizationValue {
         switch self {
@@ -111,7 +111,7 @@ extension MasteryLevel {
         case .mastered: "star.circle.fill"
         }
     }
-    
+
     /// 主题颜色（红→橙→黄→薄荷→绿 渐进）
     nonisolated var color: Color {
         switch self {
@@ -122,7 +122,7 @@ extension MasteryLevel {
         case .mastered: Color.brand.success
         }
     }
-    
+
     /// 星级（1-5）
     nonisolated var stars: Int { rawValue + 1 }
 }
@@ -134,7 +134,7 @@ extension MasteryLevel {
     nonisolated var progress: Double {
         Double(rawValue) / Double(Self.allCases.count - 1)
     }
-    
+
     /// 复习优先级（越高越优先）
     ///
     /// 用于排序：掌握程度越低，优先级越高（越需要优先复习）
@@ -151,17 +151,17 @@ extension MasteryLevel {
     nonisolated var needsReview: Bool {
         self <= .partial
     }
-    
+
     /// 是否已掌握
     nonisolated var isMastered: Bool {
         self >= .good
     }
-    
+
     /// 是否完全掌握
     nonisolated var isFullyMastered: Bool {
         self == .mastered
     }
-    
+
     /// 是否完全不会
     nonisolated var isUnknown: Bool {
         self == .none
@@ -177,7 +177,7 @@ extension MasteryLevel {
     static func from(stars: Int) -> MasteryLevel? {
         Self(rawValue: stars - 1)
     }
-    
+
     /// 从进度值创建掌握程度（0.0-1.0）
     /// - Parameter progress: 进度值
     /// - Returns: 最接近的掌握程度
@@ -207,10 +207,10 @@ extension MasteryLevel: CustomStringConvertible {
 extension MasteryLevel {
     /// 需要复习的掌握程度
     static let reviewNeeded: [MasteryLevel] = [.none, .glimpse, .partial]
-    
+
     /// 已掌握的程度
     static let masteredLevels: [MasteryLevel] = [.good, .mastered]
-    
+
     /// 按复习优先级排序（优先复习的在前）
     static let sortedByReviewPriority: [MasteryLevel] = allCases.sorted { $0.reviewPriority > $1.reviewPriority }
 }

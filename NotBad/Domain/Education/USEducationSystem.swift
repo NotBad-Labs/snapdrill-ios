@@ -36,11 +36,11 @@ public enum USGrade: String, Sendable, CaseIterable, Codable, Hashable, Identifi
     case grade10 = "grade_10" // Sophomore
     case grade11 = "grade_11" // Junior
     case grade12 = "grade_12" // Senior
-    
+
     // MARK: - GradeLevelProtocol
-    
+
     public var id: String { rawValue }
-    
+
     public var order: Int {
         switch self {
         case .kindergarten: 0
@@ -58,7 +58,7 @@ public enum USGrade: String, Sendable, CaseIterable, Codable, Hashable, Identifi
         case .grade12: 12
         }
     }
-    
+
     public var schoolLevel: SchoolLevel {
         switch self {
         case .kindergarten, .grade1, .grade2, .grade3, .grade4, .grade5:
@@ -69,11 +69,11 @@ public enum USGrade: String, Sendable, CaseIterable, Codable, Hashable, Identifi
             .high
         }
     }
-    
+
     public var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     private var localizationKey: String.LocalizationValue {
         switch self {
         case .kindergarten: "us_grade_k"
@@ -91,11 +91,11 @@ public enum USGrade: String, Sendable, CaseIterable, Codable, Hashable, Identifi
         case .grade12: "us_grade_12"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .kindergarten: "us_grade_k_short"
@@ -113,7 +113,7 @@ public enum USGrade: String, Sendable, CaseIterable, Codable, Hashable, Identifi
         case .grade12: "us_grade_12_short"
         }
     }
-    
+
     /// 高中年级别名
     public var highSchoolAlias: String? {
         switch self {
@@ -124,7 +124,7 @@ public enum USGrade: String, Sendable, CaseIterable, Codable, Hashable, Identifi
         default: nil
         }
     }
-    
+
     public var icon: String {
         switch self {
         case .kindergarten:
@@ -139,7 +139,7 @@ public enum USGrade: String, Sendable, CaseIterable, Codable, Hashable, Identifi
             "graduationcap"
         }
     }
-    
+
     public var color: Color {
         switch self {
         // Elementary: 绿色系
@@ -160,7 +160,7 @@ public enum USGrade: String, Sendable, CaseIterable, Codable, Hashable, Identifi
         case .grade12: Color(red: 0.5, green: 0, blue: 0.5)
         }
     }
-    
+
     /// 根据序号创建年级
     public static func from(order: Int) -> USGrade? {
         allCases.first { $0.order == order }
@@ -178,13 +178,13 @@ public enum USSubjectCategory: String, Sendable, CaseIterable, Codable, Hashable
     case foreignLanguage = "foreign_language"  // 外语
     case electives = "electives"               // 选修
     case other = "other"
-    
+
     public var id: String { rawValue }
-    
+
     public var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     private var localizationKey: String.LocalizationValue {
         switch self {
         case .ela: "us_subject_category_ela"
@@ -196,7 +196,7 @@ public enum USSubjectCategory: String, Sendable, CaseIterable, Codable, Hashable
         case .other: "us_subject_category_other"
         }
     }
-    
+
     public var icon: String {
         switch self {
         case .ela: "textformat"
@@ -208,7 +208,7 @@ public enum USSubjectCategory: String, Sendable, CaseIterable, Codable, Hashable
         case .other: "ellipsis.circle"
         }
     }
-    
+
     public var color: Color {
         switch self {
         case .ela: .red
@@ -233,14 +233,14 @@ public enum USSubject: String, Sendable, CaseIterable, Codable, Hashable, Identi
     case reading = "reading"
     case writing = "writing"
     case literature = "literature"
-    
+
     // Math
     case math = "math"
     case algebra = "algebra"
     case geometry = "geometry"
     case calculus = "calculus"
     case statistics = "statistics"
-    
+
     // Science
     case generalScience = "general_science"
     case biology = "biology"
@@ -248,7 +248,7 @@ public enum USSubject: String, Sendable, CaseIterable, Codable, Hashable, Identi
     case physics = "physics"
     case earthScience = "earth_science"
     case environmentalScience = "environmental_science"
-    
+
     // Social Studies
     case usHistory = "us_history"
     case worldHistory = "world_history"
@@ -256,24 +256,24 @@ public enum USSubject: String, Sendable, CaseIterable, Codable, Hashable, Identi
     case civics = "civics"
     case economics = "economics"
     case government = "government"
-    
+
     // Foreign Language
     case spanish = "spanish"
     case french = "french"
     case german = "german"
     case chinese = "chinese"
     case japanese = "japanese"
-    
+
     // Electives
     case art = "art"
     case music = "music"
     case computerScience = "computer_science"
     case physicalEducation = "pe"
     case health = "health"
-    
+
     // Other
     case other = "other"
-    
+
     public var id: String { rawValue }
 }
 
@@ -283,7 +283,7 @@ extension USSubject: SubjectProtocol {
     public var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     private var localizationKey: String.LocalizationValue {
         switch self {
         case .english: "us_subject_english"
@@ -320,11 +320,11 @@ extension USSubject: SubjectProtocol {
         case .other: "us_subject_other"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .english: "us_subject_english_short"
@@ -361,11 +361,11 @@ extension USSubject: SubjectProtocol {
         case .other: "us_subject_other_short"
         }
     }
-    
+
     public var category: any SubjectCategoryProtocol {
         usCategory
     }
-    
+
     public var usCategory: USSubjectCategory {
         switch self {
         case .english, .reading, .writing, .literature:
@@ -384,7 +384,7 @@ extension USSubject: SubjectProtocol {
             .other
         }
     }
-    
+
     public var applicableLevels: [SchoolLevel] {
         switch self {
         // 全学段基础科目
@@ -404,7 +404,7 @@ extension USSubject: SubjectProtocol {
             [.primary, .middle, .high]
         }
     }
-    
+
     public var icon: String {
         switch self {
         case .english, .reading, .writing, .literature: "textformat"
@@ -427,7 +427,7 @@ extension USSubject: SubjectProtocol {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     public var color: Color {
         switch self {
         case .english, .reading, .writing, .literature: .red
@@ -459,21 +459,21 @@ extension USSubject: SubjectProtocol {
 public struct USEducationSystem: EducationSystemProtocol, Sendable {
     public typealias GradeType = USGrade
     public typealias SubjectType = USSubject
-    
+
     public let region = EducationRegion.usa
-    
+
     public var name: String {
         String(localized: "us_education_system_name")
     }
-    
+
     public var grades: [USGrade] {
         USGrade.allCases
     }
-    
+
     public var subjects: [USSubject] {
         USSubject.allCases
     }
-    
+
     public var schoolLevels: [SchoolLevelConfiguration] {
         [
             SchoolLevelConfiguration(
@@ -502,28 +502,28 @@ public struct USEducationSystem: EducationSystemProtocol, Sendable {
             )
         ]
     }
-    
+
     public init() {}
-    
+
     // MARK: - 美国特有的学科组合
-    
+
     /// 核心科目 (Core Subjects)
     public var coreSubjects: [USSubject] {
         [.english, .math, .generalScience, .usHistory]
     }
-    
+
     /// SAT 相关科目
     public var satSubjects: [USSubject] {
         [.english, .reading, .writing, .math, .algebra, .geometry]
     }
-    
+
     /// AP 常见科目
     public var apSubjects: [USSubject] {
         [.calculus, .statistics, .biology, .chemistry, .physics,
          .usHistory, .worldHistory, .government, .economics,
          .english, .literature, .computerScience]
     }
-    
+
     /// STEM 科目
     public var stemSubjects: [USSubject] {
         [.math, .algebra, .geometry, .calculus, .statistics,

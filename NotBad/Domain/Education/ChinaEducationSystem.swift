@@ -33,11 +33,11 @@ public enum ChinaGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
     case grade10 = "grade_10"   // 十年级
     case grade11 = "grade_11"   // 十一年级
     case grade12 = "grade_12"   // 十二年级
-    
+
     // MARK: - GradeLevelProtocol
-    
+
     public var id: String { rawValue }
-    
+
     public var order: Int {
         switch self {
         case .grade1: 1
@@ -54,7 +54,7 @@ public enum ChinaGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
         case .grade12: 12
         }
     }
-    
+
     public var schoolLevel: SchoolLevel {
         switch self {
         case .grade1, .grade2, .grade3, .grade4, .grade5, .grade6:
@@ -65,11 +65,11 @@ public enum ChinaGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
             .high
         }
     }
-    
+
     public var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     private var localizationKey: String.LocalizationValue {
         switch self {
         case .grade1: "cn_grade_1"
@@ -86,11 +86,11 @@ public enum ChinaGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
         case .grade12: "cn_grade_12"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .grade1: "cn_grade_1_short"
@@ -107,7 +107,7 @@ public enum ChinaGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
         case .grade12: "cn_grade_12_short"
         }
     }
-    
+
     public var icon: String {
         switch self {
         case .grade1, .grade2:
@@ -120,7 +120,7 @@ public enum ChinaGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
             "graduationcap"
         }
     }
-    
+
     public var color: Color {
         switch self {
         // 小学：绿色系渐变
@@ -140,7 +140,7 @@ public enum ChinaGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
         case .grade12: Color(red: 0.5, green: 0, blue: 0.5)
         }
     }
-    
+
     /// 是否为毕业年级
     public var isGraduationYear: Bool {
         switch self {
@@ -148,7 +148,7 @@ public enum ChinaGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
         default: false
         }
     }
-    
+
     /// 根据序号创建年级
     public static func from(order: Int) -> ChinaGrade? {
         allCases.first { $0.order == order }
@@ -164,13 +164,13 @@ public enum ChinaSubjectCategory: String, Sendable, CaseIterable, Codable, Hasha
     case humanities = "humanities"
     case technology = "technology"
     case other = "other"
-    
+
     public var id: String { rawValue }
-    
+
     public var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     private var localizationKey: String.LocalizationValue {
         switch self {
         case .language: "cn_subject_category_language"
@@ -180,7 +180,7 @@ public enum ChinaSubjectCategory: String, Sendable, CaseIterable, Codable, Hasha
         case .other: "cn_subject_category_other"
         }
     }
-    
+
     public var icon: String {
         switch self {
         case .language: "textformat"
@@ -190,7 +190,7 @@ public enum ChinaSubjectCategory: String, Sendable, CaseIterable, Codable, Hasha
         case .other: "ellipsis.circle"
         }
     }
-    
+
     public var color: Color {
         switch self {
         case .language: .red
@@ -211,27 +211,27 @@ public enum ChinaSubject: String, Sendable, CaseIterable, Codable, Hashable, Ide
     // 语言类
     case chinese = "chinese"
     case english = "english"
-    
+
     // 理科类
     case math = "math"
     case physics = "physics"
     case chemistry = "chemistry"
     case biology = "biology"
     case science = "science"  // 小学初中科学课
-    
+
     // 人文类
     case history = "history"
     case geography = "geography"
     case politics = "politics"     // 思想政治（高中）
     case ethics = "ethics" // 道法（小学初中）
-    
+
     // 技术类
     case informationTech = "information_tech"
     case generalTech = "general_tech"  // 高中
-    
+
     // 其他
     case other = "other"
-    
+
     public var id: String { rawValue }
 }
 
@@ -241,7 +241,7 @@ extension ChinaSubject: SubjectProtocol {
     public var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     private var localizationKey: String.LocalizationValue {
         switch self {
         case .chinese: "cn_subject_chinese"
@@ -260,11 +260,11 @@ extension ChinaSubject: SubjectProtocol {
         case .other: "cn_subject_other"
         }
     }
-    
+
     public var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     private var shortLabelKey: String.LocalizationValue {
         switch self {
         case .chinese: "cn_subject_chinese_short"
@@ -283,11 +283,11 @@ extension ChinaSubject: SubjectProtocol {
         case .other: "cn_subject_other_short"
         }
     }
-    
+
     public var category: any SubjectCategoryProtocol {
         chinaCategory
     }
-    
+
     public var chinaCategory: ChinaSubjectCategory {
         switch self {
         case .chinese, .english:
@@ -302,7 +302,7 @@ extension ChinaSubject: SubjectProtocol {
             .other
         }
     }
-    
+
     public var applicableLevels: [SchoolLevel] {
         switch self {
         // 全学段：语数英
@@ -322,7 +322,7 @@ extension ChinaSubject: SubjectProtocol {
             [.primary, .middle, .high]
         }
     }
-    
+
     public var icon: String {
         switch self {
         case .chinese: "character.book.closed.zh"
@@ -341,7 +341,7 @@ extension ChinaSubject: SubjectProtocol {
         case .other: "ellipsis.circle"
         }
     }
-    
+
     public var color: Color {
         switch self {
         case .chinese: .red
@@ -370,21 +370,21 @@ extension ChinaSubject: SubjectProtocol {
 public struct ChinaEducationSystem: EducationSystemProtocol, Sendable {
     public typealias GradeType = ChinaGrade
     public typealias SubjectType = ChinaSubject
-    
+
     public let region = EducationRegion.china
-    
+
     public var name: String {
         String(localized: "cn_education_system_name")
     }
-    
+
     public var grades: [ChinaGrade] {
         ChinaGrade.allCases
     }
-    
+
     public var subjects: [ChinaSubject] {
         ChinaSubject.allCases
     }
-    
+
     public var schoolLevels: [SchoolLevelConfiguration] {
         [
             SchoolLevelConfiguration(
@@ -413,36 +413,36 @@ public struct ChinaEducationSystem: EducationSystemProtocol, Sendable {
             )
         ]
     }
-    
+
     public init() {}
-    
+
     // MARK: - 中国特有的学科组合
-    
+
     /// 主科（语数英）
     public var coreSubjects: [ChinaSubject] {
         [.chinese, .math, .english]
     }
-    
+
     /// 中考学科
     public var juniorExamSubjects: [ChinaSubject] {
         [.chinese, .math, .english, .physics, .chemistry, .history, .geography, .politics, .biology]
     }
-    
+
     /// 高考学科
     public var seniorExamSubjects: [ChinaSubject] {
         [.chinese, .math, .english, .physics, .chemistry, .biology, .history, .geography, .politics]
     }
-    
+
     /// 理科组合（物化生）
     public var scienceCombo: [ChinaSubject] {
         [.physics, .chemistry, .biology]
     }
-    
+
     /// 文科组合（史地政）
     public var humanitiesCombo: [ChinaSubject] {
         [.history, .geography, .politics]
     }
-    
+
     /// 毕业年级
     public var graduationGrades: [ChinaGrade] {
         [.grade6, .grade9, .grade12]

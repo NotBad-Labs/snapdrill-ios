@@ -11,15 +11,15 @@ import SwiftUI
 
 /// 复习内容视图
 struct ReviewContent: View {
-    
+
     let items: [ReviewItem]
     @Binding var currentIndex: Int
     let onMasteryUpdate: (Int, MasteryLevel) -> Void
-    
+
     var body: some View {
         VStack(spacing: 0) {
             ProgressBar(current: currentIndex + 1, total: items.count)
-            
+
             TabView(selection: $currentIndex) {
                 ForEach(items.indices, id: \.self) { index in
                     ReviewCard(
@@ -40,24 +40,24 @@ struct ReviewContent: View {
 
 /// 进度条组件
 struct ProgressBar: View {
-    
+
     let current: Int
     let total: Int
-    
+
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.md) {
             HStack {
                 Text("review_progress_title")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                
+
                 Spacer()
-                
+
                 Text("\(current) / \(total)")
                     .font(.headline)
                     .foregroundStyle(Color.brand.primary)
             }
-            
+
             ProgressView(value: Double(current), total: Double(total))
                 .tint(Color.brand.primary)
         }

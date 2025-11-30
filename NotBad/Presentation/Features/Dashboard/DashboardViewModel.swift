@@ -39,24 +39,24 @@ import SwiftData
 @MainActor
 @Observable
 final class DashboardViewModel {
-    
+
     // MARK: - State
-    
+
     /// 选中的时间范围
     var selectedTimeRange: TimeRange = .week
-    
+
     /// 选中的学科（用于筛选）
     var selectedSubject: Subject?
-    
+
     // MARK: - Computed Statistics
-    
+
     /// 计算综合统计数据
     ///
     /// - Parameter items: 错题列表
     /// - Returns: 统计数据结构
     func computeStatistics(from items: [ReviewItem]) -> DashboardStatistics {
         let filteredItems = filterItems(items)
-        
+
         return DashboardStatistics(
             totalCount: filteredItems.count,
             masteredCount: masteredCount(from: filteredItems),
@@ -68,51 +68,51 @@ final class DashboardViewModel {
             averageReviewCount: averageReviewCount(from: filteredItems)
         )
     }
-    
+
     /// 已掌握数量
     func masteredCount(from items: [ReviewItem]) -> Int {
         items.filter { $0.isMastered }.count
     }
-    
+
     /// 本周新增数量
     func weeklyNewCount(from items: [ReviewItem]) -> Int {
         let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
         return items.filter { $0.createdAt >= weekAgo }.count
     }
-    
+
     /// 累计复习次数
     func totalReviewCount(from items: [ReviewItem]) -> Int {
         items.reduce(0) { $0 + $1.reviewCount }
     }
-    
+
     /// 待复习数量
     func pendingReviewCount(from items: [ReviewItem]) -> Int {
         items.filter { $0.needsReview }.count
     }
-    
+
     /// 已逾期数量
     func overdueCount(from items: [ReviewItem]) -> Int {
         items.filter { $0.isOverdue }.count
     }
-    
+
     /// 掌握率
     func masteryRate(from items: [ReviewItem]) -> Double {
         guard !items.isEmpty else { return 0 }
         return Double(masteredCount(from: items)) / Double(items.count)
     }
-    
+
     /// 平均复习次数
     func averageReviewCount(from items: [ReviewItem]) -> Double {
         guard !items.isEmpty else { return 0 }
         return Double(totalReviewCount(from: items)) / Double(items.count)
     }
-    
+
     // MARK: - Chart Data
-    
+
     /// 掌握程度分布数据
     func masteryData(from items: [ReviewItem]) -> [MasteryChartData] {
         let filteredItems = filterItems(items)
-        
+
         return MasteryLevel.allCases.compactMap { level in
             let count = filteredItems.filter { $0.mastery == level }.count
             guard count > 0 else { return nil }
@@ -123,12 +123,12 @@ final class DashboardViewModel {
             )
         }
     }
-    
+
     /// 学科分布数据
     func subjectData(from items: [ReviewItem]) -> [SubjectChartData] {
         let filteredItems = filterItems(items)
         let total = filteredItems.count
-        
+
         return Dictionary(grouping: filteredItems, by: { $0.subject })
             .map { subject, subjectItems in
                 SubjectChartData(
@@ -139,11 +139,11 @@ final class DashboardViewModel {
             }
             .sorted { $0.count > $1.count }
     }
-    
+
     /// 难度分布数据
     func difficultyData(from items: [ReviewItem]) -> [DifficultyChartData] {
         let filteredItems = filterItems(items)
-        
+
         return Difficulty.allCases.compactMap { difficulty in
             let count = filteredItems.filter { $0.difficulty == difficulty }.count
             guard count > 0 else { return nil }
@@ -153,24 +153,24 @@ final class DashboardViewModel {
             )
         }
     }
-    
+
     /// 每日趋势数据（最近7天）
     func dailyTrendData(from items: [ReviewItem]) -> [DailyTrendData] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        
+
         return (0..<7).reversed().map { daysAgo in
             let date = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
             let nextDate = calendar.date(byAdding: .day, value: 1, to: date)!
-            
+
             let newCount = items.filter {
                 $0.createdAt >= date && $0.createdAt < nextDate
             }.count
-            
+
             let reviewedCount = items.filter {
                 $0.reviewCount > 0 && $0.updatedAt >= date && $0.updatedAt < nextDate
             }.count
-            
+
             return DailyTrendData(
                 date: date,
                 newCount: newCount,
@@ -178,15 +178,15 @@ final class DashboardViewModel {
             )
         }
     }
-    
+
     // MARK: - Insights
-    
+
     /// 生成学习洞察
     func generateInsights(from items: [ReviewItem]) -> [LearningInsight] {
         var insights: [LearningInsight] = []
-        
+
         let stats = computeStatistics(from: items)
-        
+
         // 逾期提醒
         if stats.overdueCount > 0 {
             insights.append(LearningInsight(
@@ -195,7 +195,7 @@ final class DashboardViewModel {
                 message: "建议尽快复习，避免遗忘"
             ))
         }
-        
+
         // 掌握率提示
         if stats.masteryRate >= 0.8 {
             insights.append(LearningInsight(
@@ -210,7 +210,7 @@ final class DashboardViewModel {
                 message: "多复习可以提高掌握率"
             ))
         }
-        
+
         // 薄弱学科
         let subjectStats = subjectData(from: items)
         if let weakest = subjectStats.first, weakest.count > 5 {
@@ -220,26 +220,26 @@ final class DashboardViewModel {
                 message: "共 \(weakest.count) 道题，建议重点复习"
             ))
         }
-        
+
         return insights
     }
-    
+
     // MARK: - Private Helpers
-    
+
     /// 根据筛选条件过滤错题
     private func filterItems(_ items: [ReviewItem]) -> [ReviewItem] {
         var filtered = items
-        
+
         // 按学科筛选
         if let subject = selectedSubject {
             filtered = filtered.filter { $0.subject == subject }
         }
-        
+
         // 按时间范围筛选
         if let startDate = selectedTimeRange.startDate {
             filtered = filtered.filter { $0.createdAt >= startDate }
         }
-        
+
         return filtered
     }
 }
@@ -253,15 +253,15 @@ enum TimeRange: String, CaseIterable, Identifiable {
     case quarter = "本季度"
     case year = "今年"
     case all = "全部"
-    
+
     var id: String { rawValue }
-    
+
     var displayName: String { rawValue }
-    
+
     var startDate: Date? {
         let calendar = Calendar.current
         let now = Date()
-        
+
         switch self {
         case .week:
             return calendar.date(byAdding: .day, value: -7, to: now)
@@ -289,22 +289,22 @@ struct DashboardStatistics: Sendable, Equatable {
     let overdueCount: Int
     let masteryRate: Double
     let averageReviewCount: Double
-    
+
     /// 掌握率百分比描述
     var masteryPercentageText: String {
         "\(Int(masteryRate * 100))%"
     }
-    
+
     /// 是否有待复习
     var hasPendingReview: Bool {
         pendingReviewCount > 0
     }
-    
+
     /// 是否有逾期
     var hasOverdue: Bool {
         overdueCount > 0
     }
-    
+
     /// 空统计数据
     static let empty = DashboardStatistics(
         totalCount: 0,
@@ -325,7 +325,7 @@ struct MasteryChartData: Identifiable, Sendable {
     let level: MasteryLevel
     let count: Int
     let percentage: Double
-    
+
     var id: Int { level.rawValue }
     var label: String { level.displayName }
     var color: Color { level.color }
@@ -336,7 +336,7 @@ struct SubjectChartData: Identifiable, Sendable {
     let subject: Subject
     let count: Int
     let percentage: Double
-    
+
     var id: String { subject.rawValue }
     var displayName: String { subject.displayName }
     var color: Color { subject.color }
@@ -346,7 +346,7 @@ struct SubjectChartData: Identifiable, Sendable {
 struct DifficultyChartData: Identifiable, Sendable {
     let difficulty: Difficulty
     let count: Int
-    
+
     var id: Int { difficulty.rawValue }
     var label: String { difficulty.displayName }
     var color: Color { difficulty.color }
@@ -357,9 +357,9 @@ struct DailyTrendData: Identifiable, Sendable {
     let date: Date
     let newCount: Int
     let reviewedCount: Int
-    
+
     var id: Date { date }
-    
+
     var dayLabel: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "E"
@@ -376,12 +376,12 @@ struct LearningInsight: Identifiable, Sendable {
     let type: InsightType
     let title: String
     let message: String
-    
+
     enum InsightType: Sendable {
         case success
         case warning
         case info
-        
+
         var icon: String {
             switch self {
             case .success: "checkmark.circle.fill"
@@ -389,7 +389,7 @@ struct LearningInsight: Identifiable, Sendable {
             case .info: "info.circle.fill"
             }
         }
-        
+
         var color: Color {
             switch self {
             case .success: .green
@@ -409,12 +409,12 @@ typealias MasteryData = MasteryChartData
 struct SubjectData: Sendable {
     let subject: String
     let count: Int
-    
+
     init(subject: String, count: Int) {
         self.subject = subject
         self.count = count
     }
-    
+
     init(from chartData: SubjectChartData) {
         self.subject = chartData.subject.displayName
         self.count = chartData.count

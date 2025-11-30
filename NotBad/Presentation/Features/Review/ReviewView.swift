@@ -36,31 +36,31 @@ import SwiftData
 /// - 模糊：掌握度设为"一知半解"
 /// - 掌握：掌握度提升到"完全掌握"
 struct ReviewView: View {
-    
+
     // MARK: - Properties
-    
+
     /// 所有错题数据
     @Query(sort: \ReviewItem.createdAt, order: .reverse)
     private var allItems: [ReviewItem]
-    
+
     /// 数据上下文
     @Environment(\.modelContext) private var modelContext
-    
+
     /// 视图模型
     @State private var viewModel = ReviewViewModel()
-    
+
     // MARK: - Computed Properties
-    
+
     /// 需要复习的错题
     private var reviewItems: [ReviewItem] {
         viewModel.generateReviewQueue(from: allItems)
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         @Bindable var bindableViewModel = viewModel
-        
+
         NavigationStack {
             ZStack {
                 if reviewItems.isEmpty {
@@ -87,17 +87,17 @@ struct ReviewView: View {
             }
         }
     }
-    
+
     // MARK: - Actions
-    
+
     /// 处理掌握度评估
     private func handleMastery(index: Int, level: MasteryLevel) {
         guard index < reviewItems.count else { return }
-        
+
         // 触觉反馈
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
-        
+
         withAnimation {
             viewModel.handleMasteryUpdate(for: reviewItems[index], level: level)
             viewModel.moveToNext(totalCount: reviewItems.count)

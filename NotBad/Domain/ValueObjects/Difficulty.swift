@@ -31,21 +31,21 @@ import SwiftUI
 enum Difficulty: Int, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     /// 送分题 - 基础概念直接应用，几乎不会出错
     case basic = 0
-    
+
     /// 简单题 - 常规题型，稍加思考即可解决
     case easy = 1
-    
+
     /// 中等题 - 需要一定分析，容易粗心出错
     case medium = 2
-    
+
     /// 困难题 - 综合性强，需要灵活运用多个知识点
     case hard = 3
-    
+
     /// 压轴题 - 压轴难度，极具挑战性
     case extreme = 4
-    
+
     // MARK: Identifiable
-    
+
     nonisolated var id: Int { rawValue }
 }
 
@@ -58,7 +58,7 @@ extension Difficulty {
     nonisolated var displayName: String {
         String(localized: localizationKey)
     }
-    
+
     /// 本地化键值
     private var localizationKey: String.LocalizationValue {
         switch self {
@@ -69,14 +69,14 @@ extension Difficulty {
         case .extreme: "difficulty_extreme"
         }
     }
-    
+
     /// 简短标签
     ///
     /// 单字标签，适用于空间受限的场景（如徽章、标签）
     nonisolated var shortLabel: String {
         String(localized: shortLabelKey)
     }
-    
+
     /// 简短标签本地化键值
     private var shortLabelKey: String.LocalizationValue {
         switch self {
@@ -87,14 +87,14 @@ extension Difficulty {
         case .extreme: "difficulty_extreme_short"
         }
     }
-    
+
     /// 详细描述
     ///
     /// 提供该难度等级的详细说明，帮助用户理解
     nonisolated var detailText: String {
         String(localized: detailTextKey)
     }
-    
+
     /// 详细描述本地化键值
     private var detailTextKey: String.LocalizationValue {
         switch self {
@@ -122,7 +122,7 @@ extension Difficulty {
         case .extreme: "flame.fill"
         }
     }
-    
+
     /// 主题颜色
     ///
     /// 采用渐进式配色方案：绿→黄→橙→红
@@ -135,7 +135,7 @@ extension Difficulty {
         case .extreme: .red
         }
     }
-    
+
     /// 星级评分（1-5）
     ///
     /// 用于可视化显示难度等级
@@ -152,7 +152,7 @@ extension Difficulty {
     nonisolated var coefficient: Double {
         Double(rawValue) / Double(Self.allCases.count - 1)
     }
-    
+
     /// 预计耗时倍数
     ///
     /// 相对于题型标准时间（`ReviewItemType.estimatedMinutes`）的倍数。
@@ -195,7 +195,7 @@ extension Difficulty {
     static func from(stars: Int) -> Difficulty? {
         Self(rawValue: stars - 1)
     }
-    
+
     /// 从系数创建难度（0.0-1.0）
     /// - Parameter coefficient: 难度系数
     /// - Returns: 最接近的难度等级

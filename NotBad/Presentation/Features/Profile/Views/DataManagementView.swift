@@ -15,14 +15,14 @@ import UniformTypeIdentifiers
 ///
 /// 提供数据导出、导入和清理功能。
 struct DataManagementView: View {
-    
+
     // MARK: - Environment
-    
+
     @Environment(\.modelContext) private var modelContext
     @Query private var allItems: [ReviewItem]
-    
+
     // MARK: - State
-    
+
     @State private var showExportSheet = false
     @State private var showDeleteAlert = false
     @State private var showSuccessToast = false
@@ -31,9 +31,9 @@ struct DataManagementView: View {
     @State private var isExporting = false
     @State private var exportProgress: Double = 0
     @State private var showImportPicker = false
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         List {
             storageSection
@@ -75,9 +75,9 @@ struct DataManagementView: View {
             }
         }
     }
-    
+
     // MARK: - Storage Section
-    
+
     private var storageSection: some View {
         Section("data_section_storage") {
             HStack {
@@ -86,14 +86,14 @@ struct DataManagementView: View {
                 Text(String(format: String(localized: "data_items_unit"), allItems.count))
                     .foregroundStyle(.secondary)
             }
-            
+
             HStack {
                 Label("data_image_count", systemImage: "photo.fill")
                 Spacer()
                 Text(String(format: String(localized: "data_images_unit"), imageCount))
                     .foregroundStyle(.secondary)
             }
-            
+
             HStack {
                 Label("data_estimated_size", systemImage: "externaldrive.fill")
                 Spacer()
@@ -102,9 +102,9 @@ struct DataManagementView: View {
             }
         }
     }
-    
+
     // MARK: - Export Section
-    
+
     private var exportSection: some View {
         Section("data_section_export") {
             Button {
@@ -123,7 +123,7 @@ struct DataManagementView: View {
                 }
             }
             .disabled(allItems.isEmpty || isExporting)
-            
+
             Button {
                 exportToCSV()
             } label: {
@@ -140,7 +140,7 @@ struct DataManagementView: View {
                 }
             }
             .disabled(allItems.isEmpty || isExporting)
-            
+
             Button {
                 Task {
                     await exportFullBackup()
@@ -167,9 +167,9 @@ struct DataManagementView: View {
             .disabled(allItems.isEmpty || isExporting)
         }
     }
-    
+
     // MARK: - Import Section
-    
+
     private var importSection: some View {
         Section("data_section_import") {
             Button {
@@ -190,9 +190,9 @@ struct DataManagementView: View {
             .disabled(isExporting)
         }
     }
-    
+
     // MARK: - Danger Zone Section
-    
+
     private var dangerZoneSection: some View {
         Section {
             Button(role: .destructive) {
@@ -207,25 +207,25 @@ struct DataManagementView: View {
             Text("data_danger_zone_footer")
         }
     }
-    
+
     // MARK: - Computed Properties
-    
+
     private var imageCount: Int {
         allItems.filter { $0.imageData != nil }.count
     }
-    
+
     private var estimatedSize: String {
         let textSize = allItems.reduce(0) { total, item in
             total + item.title.utf8.count + item.note.utf8.count
         }
         let imageSize = allItems.reduce(0) { $0 + ($1.imageData?.count ?? 0) }
         let totalBytes = textSize + imageSize
-        
+
         return ByteCountFormatter.string(fromByteCount: Int64(totalBytes), countStyle: .file)
     }
-    
+
     // MARK: - Methods
-    
+
     private func exportData() {
         let exportItems: [[String: Any]] = allItems.map { item in
             let dict: [String: Any] = [
@@ -245,7 +245,7 @@ struct DataManagementView: View {
             ]
             return dict
         }
-        
+
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: exportItems, options: [.prettyPrinted, .sortedKeys])
             let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("notbad_export_\(Date().timeIntervalSince1970).json")
@@ -260,10 +260,10 @@ struct DataManagementView: View {
             }
         }
     }
-    
+
     private func exportToCSV() {
         var csvString = "ID,标题,笔记,科目,题型,难度,来源,年级,掌握程度,复习次数,创建时间,知识点\n"
-        
+
         for item in allItems {
             let row = [
                 item.id.uuidString,
@@ -281,7 +281,7 @@ struct DataManagementView: View {
             ].joined(separator: ",")
             csvString += row + "\n"
         }
-        
+
         do {
             let data = csvString.data(using: .utf8)!
             let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("notbad_export_\(Date().timeIntervalSince1970).csv")
@@ -296,7 +296,7 @@ struct DataManagementView: View {
             }
         }
     }
-    
+
     private func escapeCSV(_ string: String) -> String {
         let escaped = string.replacingOccurrences(of: "\"", with: "\"\"")
         if escaped.contains(",") || escaped.contains("\n") || escaped.contains("\"") {
@@ -304,12 +304,12 @@ struct DataManagementView: View {
         }
         return escaped
     }
-    
+
     private func deleteAllData() {
         for item in allItems {
             modelContext.delete(item)
         }
-        
+
         do {
             try modelContext.save()
             toastMessage = "数据已清空"
@@ -325,28 +325,28 @@ struct DataManagementView: View {
             }
         }
     }
-    
+
     // MARK: - Full Backup Export
-    
+
     private func exportFullBackup() async {
         await MainActor.run {
             isExporting = true
             exportProgress = 0
         }
-        
+
         do {
             // 创建临时目录
             let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("notbad_backup_\(UUID().uuidString)")
             try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
-            
+
             // 创建图片目录
             let imagesDir = tempDir.appendingPathComponent("images")
             try FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
-            
+
             // 导出数据和图片
             var exportItems: [[String: Any]] = []
             let totalItems = allItems.count
-            
+
             for (index, item) in allItems.enumerated() {
                 var dict: [String: Any] = [
                     "id": item.id.uuidString,
@@ -365,7 +365,7 @@ struct DataManagementView: View {
                     "nextReviewDate": ISO8601DateFormatter().string(from: item.nextReviewDate),
                     "errorType": item.errorType.rawValue
                 ]
-                
+
                 // 导出图片
                 if let imageData = item.imageData {
                     let imageName = "\(item.id.uuidString).jpg"
@@ -373,19 +373,19 @@ struct DataManagementView: View {
                     try imageData.write(to: imageURL)
                     dict["imageName"] = imageName
                 }
-                
+
                 exportItems.append(dict)
-                
+
                 await MainActor.run {
                     exportProgress = Double(index + 1) / Double(totalItems)
                 }
             }
-            
+
             // 写入 JSON 文件
             let jsonData = try JSONSerialization.data(withJSONObject: exportItems, options: [.prettyPrinted, .sortedKeys])
             let jsonURL = tempDir.appendingPathComponent("data.json")
             try jsonData.write(to: jsonURL)
-            
+
             // 写入元数据
             let metadata: [String: Any] = [
                 "version": "1.0",
@@ -397,14 +397,14 @@ struct DataManagementView: View {
             let metadataData = try JSONSerialization.data(withJSONObject: metadata, options: .prettyPrinted)
             let metadataURL = tempDir.appendingPathComponent("metadata.json")
             try metadataData.write(to: metadataURL)
-            
+
             // 创建 ZIP 文件
             let zipURL = FileManager.default.temporaryDirectory.appendingPathComponent("notbad_backup_\(dateString()).zip")
             try await createZipFile(from: tempDir, to: zipURL)
-            
+
             // 清理临时目录
             try? FileManager.default.removeItem(at: tempDir)
-            
+
             await MainActor.run {
                 exportedFileURL = zipURL
                 isExporting = false
@@ -421,37 +421,37 @@ struct DataManagementView: View {
             }
         }
     }
-    
+
     private func createZipFile(from sourceDir: URL, to destinationURL: URL) async throws {
         let coordinator = NSFileCoordinator()
         var error: NSError?
-        
+
         coordinator.coordinate(readingItemAt: sourceDir, options: .forUploading, error: &error) { zipURL in
             try? FileManager.default.copyItem(at: zipURL, to: destinationURL)
         }
-        
+
         if let error = error {
             throw error
         }
     }
-    
+
     private func dateString() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd_HHmmss"
         return formatter.string(from: Date())
     }
-    
+
     // MARK: - Import
-    
+
     private func handleImport(_ result: Result<[URL], Error>) {
         switch result {
         case .success(let urls):
             guard let url = urls.first else { return }
-            
+
             Task {
                 await importData(from: url)
             }
-            
+
         case .failure(let error):
             toastMessage = "导入失败: \(error.localizedDescription)"
             showSuccessToast = true
@@ -460,7 +460,7 @@ struct DataManagementView: View {
             }
         }
     }
-    
+
     private func importData(from url: URL) async {
         guard url.startAccessingSecurityScopedResource() else {
             await MainActor.run {
@@ -472,14 +472,14 @@ struct DataManagementView: View {
             }
             return
         }
-        
+
         defer {
             url.stopAccessingSecurityScopedResource()
         }
-        
+
         do {
             let data = try Data(contentsOf: url)
-            
+
             // 尝试解析 JSON
             if let items = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
                 await importItems(items, imagesDir: nil)
@@ -502,13 +502,13 @@ struct DataManagementView: View {
             }
         }
     }
-    
+
     private func importItems(_ items: [[String: Any]], imagesDir: URL?) async {
         var importedCount = 0
-        
+
         for itemDict in items {
             guard let title = itemDict["title"] as? String else { continue }
-            
+
             let item = ReviewItem(
                 imageData: nil,
                 title: title,
@@ -517,7 +517,7 @@ struct DataManagementView: View {
                 grade: Grade(rawValue: itemDict["grade"] as? String ?? "") ?? .grade10,
                 knowledgePoints: KnowledgePoints(from: itemDict["knowledgePoints"] as? String ?? "")
             )
-            
+
             // 设置其他属性
             if let difficultyRaw = itemDict["difficulty"] as? Int {
                 item.difficulty = Difficulty(rawValue: difficultyRaw) ?? .medium
@@ -534,7 +534,7 @@ struct DataManagementView: View {
             if let reviewCount = itemDict["reviewCount"] as? Int {
                 item.reviewCount = reviewCount
             }
-            
+
             // 导入图片
             if let imageName = itemDict["imageName"] as? String,
                let imagesDir = imagesDir {
@@ -543,13 +543,13 @@ struct DataManagementView: View {
                     item.imageData = imageData
                 }
             }
-            
+
             await MainActor.run {
                 modelContext.insert(item)
             }
             importedCount += 1
         }
-        
+
         await MainActor.run {
             do {
                 try modelContext.save()
@@ -573,11 +573,11 @@ struct DataManagementView: View {
 
 struct ShareSheet: UIViewControllerRepresentable {
     let activityItems: [Any]
-    
+
     func makeUIViewController(context: Context) -> UIActivityViewController {
         UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
     }
-    
+
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 

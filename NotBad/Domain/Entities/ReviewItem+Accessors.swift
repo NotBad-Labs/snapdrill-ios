@@ -10,7 +10,7 @@ import Foundation
 // MARK: - ReviewItem Value Object Accessors
 
 extension ReviewItem {
-    
+
     /// 学科
     var subject: Subject {
         get { Subject(rawValue: subjectRaw) ?? .other }
@@ -19,7 +19,7 @@ extension ReviewItem {
             markAsUpdated()
         }
     }
-    
+
     /// 年级
     var grade: Grade {
         get { Grade(rawValue: gradeRaw) ?? .grade10 }
@@ -28,7 +28,7 @@ extension ReviewItem {
             markAsUpdated()
         }
     }
-    
+
     /// 掌握程度
     var mastery: MasteryLevel {
         get { MasteryLevel(rawValue: masteryLevel) ?? .none }
@@ -37,7 +37,7 @@ extension ReviewItem {
             markAsUpdated()
         }
     }
-    
+
     /// 知识点
     var knowledgePoints: KnowledgePoints {
         get { KnowledgePoints(from: knowledgePointsRaw) }
@@ -46,7 +46,7 @@ extension ReviewItem {
             markAsUpdated()
         }
     }
-    
+
     /// 难度等级
     var difficulty: Difficulty {
         get { Difficulty(rawValue: difficultyRaw) ?? .medium }
@@ -55,7 +55,7 @@ extension ReviewItem {
             markAsUpdated()
         }
     }
-    
+
     /// 错误类型
     var errorType: ErrorType {
         get { ErrorType(rawValue: errorTypeRaw) ?? .other }
@@ -64,7 +64,7 @@ extension ReviewItem {
             markAsUpdated()
         }
     }
-    
+
     /// 题目来源
     var source: Source {
         get { Source(rawValue: sourceRaw) ?? .other }
@@ -73,7 +73,7 @@ extension ReviewItem {
             markAsUpdated()
         }
     }
-    
+
     /// 题目类型
     var questionType: ReviewItemType {
         get { ReviewItemType(rawValue: questionTypeRaw) ?? .other }
