@@ -333,8 +333,8 @@ struct CaptureView: View {
     private var liveScannerSheet: some View {
         NavigationStack {
             LiveTextScannerContainer(
-                onResult: { text in
-                    viewModel.handleLiveScanResult(text)
+                onResult: { text, imageData in
+                    viewModel.handleLiveScanResult(text, imageData: imageData)
                 },
                 onCancel: {
                     viewModel.showLiveScanner = false

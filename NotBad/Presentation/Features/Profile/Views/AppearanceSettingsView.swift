@@ -16,7 +16,7 @@ struct AppearanceSettingsView: View {
 
     // MARK: - State
 
-    @AppStorage("colorScheme") private var colorScheme = ColorSchemeOption.system
+    @AppStorage("colorScheme") private var colorScheme = "system"
     @AppStorage("useDynamicType") private var useDynamicType = true
     @AppStorage("reduceMotion") private var reduceMotion = false
 
@@ -40,14 +40,14 @@ struct AppearanceSettingsView: View {
             ForEach(ColorSchemeOption.allCases) { option in
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) {
-                        colorScheme = option
+                        colorScheme = option.rawValue
                     }
                 } label: {
                     HStack {
                         Label(option.displayName, systemImage: option.icon)
                             .foregroundStyle(.primary)
                         Spacer()
-                        if colorScheme == option {
+                        if colorScheme == option.rawValue {
                             Image(systemName: "checkmark")
                                 .foregroundStyle(Color.brand.primary)
                                 .fontWeight(.semibold)

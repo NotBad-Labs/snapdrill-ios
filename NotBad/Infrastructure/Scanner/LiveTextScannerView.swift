@@ -20,12 +20,13 @@ import VisionKit
 /// - 支持多文本区域识别
 /// - 捏合缩放支持
 /// - 引导提示
+/// - 完成时自动截取画面保存
 ///
 /// ## 使用示例
 ///
 /// ```swift
 /// LiveTextScannerContainer(
-///     onResult: { text in
+///     onResult: { text, imageData in
 ///         print("识别结果: \(text)")
 ///     },
 ///     onCancel: {
@@ -40,8 +41,8 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
 
     // MARK: - Callbacks
 
-    /// 扫描完成回调（累计文本）
-    let onFinish: (String) -> Void
+    /// 扫描完成回调（累计文本 + 截图数据）
+    let onFinish: (String, Data?) -> Void
 
     /// 用户取消回调
     let onCancel: () -> Void
@@ -64,6 +65,10 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
             isHighlightingEnabled: configuration.isHighlightingEnabled
         )
         scanner.delegate = context.coordinator
+        
+        // 保存引用到 coordinator
+        context.coordinator.scanner = scanner
+        
         return scanner
     }
 
@@ -92,6 +97,7 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
 
         private let parent: LiveTextScannerView
         private var collected: Set<String> = []
+        var scanner: DataScannerViewController?
 
         /// 通知观察者令牌
         /// - Note: 标记为 nonisolated(unsafe) 以允许 deinit 访问
@@ -101,14 +107,18 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
             self.parent = parent
             super.init()
 
-            // 监听完成通知
+            // 监听完成通知 - 使用自身保存的 scanner 引用
             notificationToken = NotificationCenter.default.addObserver(
                 forName: .liveScannerFinishRequest,
                 object: nil,
                 queue: .main
             ) { [weak self] _ in
-                Task { @MainActor in
-                    self?.finish()
+                MainActor.assumeIsolated {
+                    if let scanner = self?.scanner {
+                        self?.finishWithCapture(scanner: scanner)
+                    } else {
+                        self?.finish(imageData: nil)
+                    }
                 }
             }
         }
@@ -166,15 +176,29 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
             }
         }
 
-        /// 完成扫描并返回结果
-        func finish() {
-            let merged = collected.sorted().joined(separator: "\n")
-            parent.onFinish(merged)
+        /// 完成扫描并截取画面
+        func finishWithCapture(scanner: DataScannerViewController) {
+            // 截取当前画面
+            let renderer = UIGraphicsImageRenderer(bounds: scanner.view.bounds)
+            let image = renderer.image { context in
+                scanner.view.drawHierarchy(in: scanner.view.bounds, afterScreenUpdates: true)
+            }
+            
+            // 压缩图片数据
+            let imageData = image.jpegData(compressionQuality: 0.7)
+            
+            finish(imageData: imageData)
+        }
 
-            // 发送完成响应通知
+        /// 完成扫描并返回结果
+        func finish(imageData: Data?) {
+            let merged = collected.sorted().joined(separator: "\n")
+            parent.onFinish(merged, imageData)
+
+            // 发送完成响应通知（包含文本和图片数据）
             NotificationCenter.default.post(
                 name: .liveScannerFinishResponse,
-                object: merged
+                object: ScannerResult(text: merged, imageData: imageData)
             )
         }
 
@@ -183,6 +207,14 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
             collected.count
         }
     }
+}
+
+// MARK: - ScannerResult
+
+/// 扫描结果
+struct ScannerResult {
+    let text: String
+    let imageData: Data?
 }
 
 // MARK: - ScannerConfiguration
@@ -283,8 +315,8 @@ struct LiveTextScannerContainer: View {
 
     // MARK: - Callbacks
 
-    /// 扫描结果回调
-    let onResult: (String) -> Void
+    /// 扫描结果回调（文本 + 图片数据）
+    let onResult: (String, Data?) -> Void
 
     /// 取消回调
     let onCancel: () -> Void
@@ -314,8 +346,8 @@ struct LiveTextScannerContainer: View {
             Text(errorMessage ?? "")
         }
         .onReceive(NotificationCenter.default.publisher(for: .liveScannerFinishResponse)) { notification in
-            if let text = notification.object as? String {
-                onResult(text)
+            if let result = notification.object as? ScannerResult {
+                onResult(result.text, result.imageData)
                 dismiss()
             }
         }
@@ -326,8 +358,8 @@ struct LiveTextScannerContainer: View {
     @ViewBuilder
     private var scannerView: some View {
         LiveTextScannerView(
-            onFinish: { text in
-                onResult(text)
+            onFinish: { text, imageData in
+                onResult(text, imageData)
                 dismiss()
             },
             onCancel: {
@@ -410,6 +442,7 @@ struct LiveTextScannerContainer: View {
     }
 
     private func requestFinish() {
+        // 发送完成请求，coordinator 会使用自己保存的 scanner 引用截图
         NotificationCenter.default.post(name: .liveScannerFinishRequest, object: nil)
     }
 }
@@ -419,8 +452,8 @@ struct LiveTextScannerContainer: View {
 #Preview("扫描器容器") {
     if LiveTextScannerView.isSupported {
         LiveTextScannerContainer(
-            onResult: { text in
-                print("识别结果: \(text)")
+            onResult: { text, imageData in
+                print("识别结果: \(text), 图片: \(imageData?.count ?? 0) bytes")
             },
             onCancel: {
                 print("用户取消")

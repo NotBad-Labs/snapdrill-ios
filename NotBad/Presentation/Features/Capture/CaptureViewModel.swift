@@ -290,11 +290,20 @@ final class CaptureViewModel {
     // MARK: - Form Actions
 
     /// 处理实时扫描结果
-    func handleLiveScanResult(_ text: String) {
+    func handleLiveScanResult(_ text: String, imageData: Data?) {
         #if DEBUG
-        print("🔍 [CaptureVM] handleLiveScanResult: text长度=\(text.count)")
+        print("🔍 [CaptureVM] handleLiveScanResult: text长度=\(text.count), 图片=\(imageData?.count ?? 0) bytes")
         #endif
         recognizedText = text
+        
+        // 保存截图
+        if let imageData = imageData {
+            selectedImageData = imageData
+            if let uiImage = UIImage(data: imageData) {
+                selectedImage = Image(uiImage: uiImage)
+                selectedUIImage = uiImage
+            }
+        }
 
         let firstLine = text.components(separatedBy: .newlines).first ?? text
         if title.isEmpty {
@@ -308,7 +317,7 @@ final class CaptureViewModel {
         currentStep = .fillForm
 
         #if DEBUG
-        print("🔍 [CaptureVM] 处理结果: title=\(title), isFromLiveScanner=\(isFromLiveScanner), isValid=\(isValid)")
+        print("🔍 [CaptureVM] 处理结果: title=\(title), hasImage=\(hasImage), isValid=\(isValid)")
         #endif
     }
 

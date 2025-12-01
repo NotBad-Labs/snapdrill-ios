@@ -23,6 +23,18 @@ struct NotBadApp: App {
     /// 是否显示 Onboarding
     @State private var showOnboarding: Bool = false
 
+    /// 用户选择的颜色模式
+    @AppStorage("colorScheme") private var colorSchemeOption = "system"
+
+    /// 计算实际的 ColorScheme
+    private var preferredColorScheme: ColorScheme? {
+        switch colorSchemeOption {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil
+        }
+    }
+
     init() {
         do {
             let schema = Schema([ReviewItem.self])
@@ -62,6 +74,7 @@ struct NotBadApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView(selectedTab: $selectedTab)
+                .preferredColorScheme(preferredColorScheme)
                 .fullScreenCover(isPresented: $showOnboarding) {
                     OnboardingView {
                         showOnboarding = false
