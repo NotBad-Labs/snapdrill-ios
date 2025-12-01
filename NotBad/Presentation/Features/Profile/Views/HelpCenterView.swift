@@ -28,8 +28,12 @@ struct HelpCenterView: View {
             contactSection
         }
         .navigationTitle("帮助中心")
-        .navigationBarTitleDisplayMode(.inline)
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.large)
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "搜索问题")
+        #else
         .searchable(text: $searchText, prompt: "搜索问题")
+        #endif
     }
 
     // MARK: - Quick Start Section

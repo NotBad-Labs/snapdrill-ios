@@ -244,12 +244,15 @@
 				};
 			};
 			buildConfigurationList = B27BD95A2E560D0600E69277 /* Build configuration list for PBXProject "NotBad" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 				"zh-Hans",
+				"zh-Hant",
+				ja,
+				ko,
 			);
 			mainGroup = B27BD9562E560D0600E69277;
 			minimizedProjectReferenceProxies = 1;

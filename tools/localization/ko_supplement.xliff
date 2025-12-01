@@ -1,0 +1,826 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="NotBad/Resources/Localizable.xcstrings" source-language="zh-Hans" target-language="ko" datatype="plaintext">
+    <body>
+      <!-- 核心 UI 与 中文 Key -->
+      <trans-unit id="主题" xml:space="preserve">
+        <source>主题</source>
+        <target state="translated">테마</target>
+      </trans-unit>
+      <trans-unit id="仅显示已逾期" xml:space="preserve">
+        <source>仅显示已逾期</source>
+        <target state="translated">기한 지남만 표시</target>
+      </trans-unit>
+      <trans-unit id="仅显示待复习" xml:space="preserve">
+        <source>仅显示待复习</source>
+        <target state="translated">복습 대기만 표시</target>
+      </trans-unit>
+      <trans-unit id="仅显示有图片" xml:space="preserve">
+        <source>仅显示有图片</source>
+        <target state="translated">이미지 포함만</target>
+      </trans-unit>
+      <trans-unit id="仅显示有笔记" xml:space="preserve">
+        <source>仅显示有笔记</source>
+        <target state="translated">메모 포함만</target>
+      </trans-unit>
+      <trans-unit id="例如: 函数, 导数" xml:space="preserve">
+        <source>例如: 函数, 导数</source>
+        <target state="translated">예: 함수, 미분</target>
+      </trans-unit>
+      <trans-unit id="关键词" xml:space="preserve">
+        <source>关键词</source>
+        <target state="translated">키워드</target>
+      </trans-unit>
+      <trans-unit id="关闭提示" xml:space="preserve">
+        <source>关闭提示</source>
+        <target state="translated">팁 닫기</target>
+      </trans-unit>
+      <trans-unit id="其他条件" xml:space="preserve">
+        <source>其他条件</source>
+        <target state="translated">기타 필터</target>
+      </trans-unit>
+      <trans-unit id="创建日期" xml:space="preserve">
+        <source>创建日期</source>
+        <target state="translated">생성일</target>
+      </trans-unit>
+      <trans-unit id="取消" xml:space="preserve">
+        <source>取消</source>
+        <target state="translated">취소</target>
+      </trans-unit>
+      <trans-unit id="复习提醒" xml:space="preserve">
+        <source>复习提醒</source>
+        <target state="translated">복습 알림</target>
+      </trans-unit>
+      <trans-unit id="外观设置" xml:space="preserve">
+        <source>外观设置</source>
+        <target state="translated">화면 설정</target>
+      </trans-unit>
+      <trans-unit id="学科" xml:space="preserve">
+        <source>学科</source>
+        <target state="translated">과목</target>
+      </trans-unit>
+      <trans-unit id="完成" xml:space="preserve">
+        <source>完成</source>
+        <target state="translated">완료</target>
+      </trans-unit>
+      <trans-unit id="小贴士" xml:space="preserve">
+        <source>小贴士</source>
+        <target state="translated">팁</target>
+      </trans-unit>
+      <trans-unit id="已复习 %lld 次" xml:space="preserve">
+        <source>已复习 %lld 次</source>
+        <target state="translated">%lld회 복습 완료</target>
+      </trans-unit>
+      <trans-unit id="帮助中心" xml:space="preserve">
+        <source>帮助中心</source>
+        <target state="translated">고객센터</target>
+      </trans-unit>
+      <trans-unit id="常见问题" xml:space="preserve">
+        <source>常见问题</source>
+        <target state="translated">자주 묻는 질문</target>
+      </trans-unit>
+      <trans-unit id="应用" xml:space="preserve">
+        <source>应用</source>
+        <target state="translated">앱</target>
+      </trans-unit>
+      <trans-unit id="快速入门" xml:space="preserve">
+        <source>快速入门</source>
+        <target state="translated">빠른 시작</target>
+      </trans-unit>
+      <trans-unit id="意见反馈" xml:space="preserve">
+        <source>意见反馈</source>
+        <target state="translated">피드백</target>
+      </trans-unit>
+      <trans-unit id="掌握程度" xml:space="preserve">
+        <source>掌握程度</source>
+        <target state="translated">숙달도</target>
+      </trans-unit>
+      <trans-unit id="掌握程度：%@" xml:space="preserve">
+        <source>掌握程度：%@</source>
+        <target state="translated">숙달도: %@</target>
+      </trans-unit>
+      <trans-unit id="搜索标题、笔记、知识点" xml:space="preserve">
+        <source>搜索标题、笔记、知识点</source>
+        <target state="translated">제목, 메모, 핵심 내용 검색</target>
+      </trans-unit>
+      <trans-unit id="搜索问题" xml:space="preserve">
+        <source>搜索问题</source>
+        <target state="translated">문제 검색</target>
+      </trans-unit>
+      <trans-unit id="数量" xml:space="preserve">
+        <source>数量</source>
+        <target state="translated">수량</target>
+      </trans-unit>
+      <trans-unit id="日期范围" xml:space="preserve">
+        <source>日期范围</source>
+        <target state="translated">날짜 범위</target>
+      </trans-unit>
+      <trans-unit id="查看答案" xml:space="preserve">
+        <source>查看答案</source>
+        <target state="translated">정답 보기</target>
+      </trans-unit>
+      <trans-unit id="标题" xml:space="preserve">
+        <source>标题</source>
+        <target state="translated">제목</target>
+      </trans-unit>
+      <trans-unit id="记录解题思路、易错点等..." xml:space="preserve">
+        <source>记录解题思路、易错点等...</source>
+        <target state="translated">풀이 과정이나 실수하기 쉬운 점 기록...</target>
+      </trans-unit>
+      <trans-unit id="重置所有条件" xml:space="preserve">
+        <source>重置所有条件</source>
+        <target state="translated">필터 초기화</target>
+      </trans-unit>
+      <trans-unit id="隐藏答案" xml:space="preserve">
+        <source>隐藏答案</source>
+        <target state="translated">정답 숨기기</target>
+      </trans-unit>
+      <trans-unit id="难度" xml:space="preserve">
+        <source>难度</source>
+        <target state="translated">난이도</target>
+      </trans-unit>
+      <trans-unit id="高级搜索" xml:space="preserve">
+        <source>高级搜索</source>
+        <target state="translated">상세 검색</target>
+      </trans-unit>
+
+      <!-- Onboarding -->
+      <trans-unit id="onboarding_button_next" xml:space="preserve">
+        <source>下一步</source>
+        <target state="translated">다음</target>
+      </trans-unit>
+      <trans-unit id="onboarding_button_start" xml:space="preserve">
+        <source>开始使用</source>
+        <target state="translated">시작하기</target>
+      </trans-unit>
+      <trans-unit id="onboarding_button_done" xml:space="preserve">
+        <source>完成</source>
+        <target state="translated">완료</target>
+      </trans-unit>
+      <trans-unit id="onboarding_grade_title" xml:space="preserve">
+        <source>选择年级</source>
+        <target state="translated">학년을 선택해주세요</target>
+      </trans-unit>
+      <trans-unit id="onboarding_region_title" xml:space="preserve">
+        <source>选择地区</source>
+        <target state="translated">지역 선택</target>
+      </trans-unit>
+      <trans-unit id="onboarding_education_system_china" xml:space="preserve">
+        <source>六三三学制（小学+初中+高中）</source>
+        <target state="translated">6-3-3제 (초등+중등+고등)</target>
+      </trans-unit>
+      <trans-unit id="onboarding_education_system_international" xml:space="preserve">
+        <source>Grade 1-12 通用学制</source>
+        <target state="translated">Grade 1-12 국제 표준</target>
+      </trans-unit>
+
+      <!-- 排序选项 -->
+      <trans-unit id="sort_difficulty" xml:space="preserve">
+        <source>按难度</source>
+        <target state="translated">난이도순</target>
+      </trans-unit>
+      <trans-unit id="sort_mastery_asc" xml:space="preserve">
+        <source>掌握度：由低到高</source>
+        <target state="translated">숙달도: 낮은순</target>
+      </trans-unit>
+      <trans-unit id="sort_mastery_desc" xml:space="preserve">
+        <source>掌握度：由高到低</source>
+        <target state="translated">숙달도: 높은순</target>
+      </trans-unit>
+      <trans-unit id="sort_newest" xml:space="preserve">
+        <source>最新优先</source>
+        <target state="translated">최신순</target>
+      </trans-unit>
+      <trans-unit id="sort_oldest" xml:space="preserve">
+        <source>最早优先</source>
+        <target state="translated">오래된순</target>
+      </trans-unit>
+      <trans-unit id="sort_review_needed" xml:space="preserve">
+        <source>待复习优先</source>
+        <target state="translated">복습 필요순</target>
+      </trans-unit>
+      <trans-unit id="sort_title" xml:space="preserve">
+        <source>按标题</source>
+        <target state="translated">제목순</target>
+      </trans-unit>
+
+      <!-- 题目来源 -->
+      <trans-unit id="source_exam" xml:space="preserve">
+        <source>考试</source>
+        <target state="translated">시험</target>
+      </trans-unit>
+      <trans-unit id="source_homework" xml:space="preserve">
+        <source>作业</source>
+        <target state="translated">숙제</target>
+      </trans-unit>
+      <trans-unit id="source_mock" xml:space="preserve">
+        <source>模拟考</source>
+        <target state="translated">모의고사</target>
+      </trans-unit>
+      <trans-unit id="source_textbook" xml:space="preserve">
+        <source>教材</source>
+        <target state="translated">교과서</target>
+      </trans-unit>
+      <trans-unit id="source_workbook" xml:space="preserve">
+        <source>练习册</source>
+        <target state="translated">문제집</target>
+      </trans-unit>
+      <trans-unit id="source_past_exam" xml:space="preserve">
+        <source>真题</source>
+        <target state="translated">기출문제</target>
+      </trans-unit>
+      <trans-unit id="source_competition" xml:space="preserve">
+        <source>竞赛</source>
+        <target state="translated">경시대회</target>
+      </trans-unit>
+      <trans-unit id="source_category_extra" xml:space="preserve">
+        <source>课外</source>
+        <target state="translated">과외</target>
+      </trans-unit>
+      <trans-unit id="source_category_extra_desc" xml:space="preserve">
+        <source>课外拓展与提升资料</source>
+        <target state="translated">과외 심화 및 보충 자료</target>
+      </trans-unit>
+      <trans-unit id="source_category_official" xml:space="preserve">
+        <source>官方</source>
+        <target state="translated">공식</target>
+      </trans-unit>
+      <trans-unit id="source_category_official_desc" xml:space="preserve">
+        <source>权威教材与考试资料</source>
+        <target state="translated">공식 교재 및 시험 자료</target>
+      </trans-unit>
+      <trans-unit id="source_category_other" xml:space="preserve">
+        <source>其他</source>
+        <target state="translated">기타</target>
+      </trans-unit>
+
+      <!-- 题目类型 -->
+      <trans-unit id="item_type_choice" xml:space="preserve">
+        <source>选择题</source>
+        <target state="translated">객관식</target>
+      </trans-unit>
+      <trans-unit id="item_type_multi_choice" xml:space="preserve">
+        <source>多选题</source>
+        <target state="translated">다중 선택</target>
+      </trans-unit>
+      <trans-unit id="item_type_fill_blank" xml:space="preserve">
+        <source>填空题</source>
+        <target state="translated">빈칸 채우기</target>
+      </trans-unit>
+      <trans-unit id="item_type_calculation" xml:space="preserve">
+        <source>计算题</source>
+        <target state="translated">계산 문제</target>
+      </trans-unit>
+      <trans-unit id="item_type_proof" xml:space="preserve">
+        <source>证明题</source>
+        <target state="translated">증명 문제</target>
+      </trans-unit>
+      <trans-unit id="item_type_drawing" xml:space="preserve">
+        <source>作图题</source>
+        <target state="translated">작도 문제</target>
+      </trans-unit>
+      <trans-unit id="item_type_reading" xml:space="preserve">
+        <source>阅读理解</source>
+        <target state="translated">독해</target>
+      </trans-unit>
+      <trans-unit id="item_type_writing" xml:space="preserve">
+        <source>写作</source>
+        <target state="translated">작문/논술</target>
+      </trans-unit>
+      <trans-unit id="item_type_experiment" xml:space="preserve">
+        <source>实验题</source>
+        <target state="translated">실험 탐구</target>
+      </trans-unit>
+      <trans-unit id="item_category_comprehensive" xml:space="preserve">
+        <source>综合题</source>
+        <target state="translated">종합 문제</target>
+      </trans-unit>
+      <trans-unit id="item_category_comprehensive_grading" xml:space="preserve">
+        <source>综合能力，整体评分</source>
+        <target state="translated">종합 능력, 전체 평가</target>
+      </trans-unit>
+      <trans-unit id="item_category_objective" xml:space="preserve">
+        <source>客观题</source>
+        <target state="translated">객관식 문제</target>
+      </trans-unit>
+      <trans-unit id="item_category_objective_grading" xml:space="preserve">
+        <source>答案唯一，对错分明</source>
+        <target state="translated">정답이 하나, 정오가 명확</target>
+      </trans-unit>
+      <trans-unit id="item_category_other" xml:space="preserve">
+        <source>其他</source>
+        <target state="translated">기타</target>
+      </trans-unit>
+
+      <!-- 韩国年级体系 -->
+      <trans-unit id="kr_grade_1_name" xml:space="preserve">
+        <source>kr_grade_1_name</source>
+        <target state="translated">초등학교 1학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_1_short" xml:space="preserve">
+        <source>kr_grade_1_short</source>
+        <target state="translated">초1</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_2_name" xml:space="preserve">
+        <source>kr_grade_2_name</source>
+        <target state="translated">초등학교 2학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_2_short" xml:space="preserve">
+        <source>kr_grade_2_short</source>
+        <target state="translated">초2</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_3_name" xml:space="preserve">
+        <source>kr_grade_3_name</source>
+        <target state="translated">초등학교 3학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_3_short" xml:space="preserve">
+        <source>kr_grade_3_short</source>
+        <target state="translated">초3</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_4_name" xml:space="preserve">
+        <source>kr_grade_4_name</source>
+        <target state="translated">초등학교 4학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_4_short" xml:space="preserve">
+        <source>kr_grade_4_short</source>
+        <target state="translated">초4</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_5_name" xml:space="preserve">
+        <source>kr_grade_5_name</source>
+        <target state="translated">초등학교 5학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_5_short" xml:space="preserve">
+        <source>kr_grade_5_short</source>
+        <target state="translated">초5</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_6_name" xml:space="preserve">
+        <source>kr_grade_6_name</source>
+        <target state="translated">초등학교 6학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_6_short" xml:space="preserve">
+        <source>kr_grade_6_short</source>
+        <target state="translated">초6</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_7_name" xml:space="preserve">
+        <source>kr_grade_7_name</source>
+        <target state="translated">중학교 1학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_7_short" xml:space="preserve">
+        <source>kr_grade_7_short</source>
+        <target state="translated">중1</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_8_name" xml:space="preserve">
+        <source>kr_grade_8_name</source>
+        <target state="translated">중학교 2학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_8_short" xml:space="preserve">
+        <source>kr_grade_8_short</source>
+        <target state="translated">중2</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_9_name" xml:space="preserve">
+        <source>kr_grade_9_name</source>
+        <target state="translated">중학교 3학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_9_short" xml:space="preserve">
+        <source>kr_grade_9_short</source>
+        <target state="translated">중3</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_10_name" xml:space="preserve">
+        <source>kr_grade_10_name</source>
+        <target state="translated">고등학교 1학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_10_short" xml:space="preserve">
+        <source>kr_grade_10_short</source>
+        <target state="translated">고1</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_11_name" xml:space="preserve">
+        <source>kr_grade_11_name</source>
+        <target state="translated">고등학교 2학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_11_short" xml:space="preserve">
+        <source>kr_grade_11_short</source>
+        <target state="translated">고2</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_12_name" xml:space="preserve">
+        <source>kr_grade_12_name</source>
+        <target state="translated">고등학교 3학년</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_12_short" xml:space="preserve">
+        <source>kr_grade_12_short</source>
+        <target state="translated">고3</target>
+      </trans-unit>
+      <trans-unit id="kr_education_system_name" xml:space="preserve">
+        <source>kr_education_system_name</source>
+        <target state="translated">대한민국 학제</target>
+      </trans-unit>
+
+      <!-- 韩国学科 -->
+      <trans-unit id="kr_subject_korean" xml:space="preserve">
+        <source>kr_subject_korean</source>
+        <target state="translated">국어</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_ethics" xml:space="preserve">
+        <source>kr_subject_ethics</source>
+        <target state="translated">도덕/윤리</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_social" xml:space="preserve">
+        <source>kr_subject_social</source>
+        <target state="translated">사회</target>
+      </trans-unit>
+
+      <!-- 教育地区 -->
+      <trans-unit id="education_region_china" xml:space="preserve">
+        <source>中国大陆</source>
+        <target state="translated">중국 본토</target>
+      </trans-unit>
+      <trans-unit id="education_region_custom" xml:space="preserve">
+        <source>自定义</source>
+        <target state="translated">사용자 지정</target>
+      </trans-unit>
+      <trans-unit id="education_region_international" xml:space="preserve">
+        <source>国际通用</source>
+        <target state="translated">국제 표준</target>
+      </trans-unit>
+      <trans-unit id="education_region_japan" xml:space="preserve">
+        <source>日本</source>
+        <target state="translated">일본</target>
+      </trans-unit>
+      <trans-unit id="education_region_korea" xml:space="preserve">
+        <source>韩国</source>
+        <target state="translated">대한민국</target>
+      </trans-unit>
+
+      <!-- 错误分类 -->
+      <trans-unit id="error_category_habit" xml:space="preserve">
+        <source>习惯类</source>
+        <target state="translated">습관적 실수</target>
+      </trans-unit>
+      <trans-unit id="error_category_habit_improvement" xml:space="preserve">
+        <source>培养良好习惯</source>
+        <target state="translated">좋은 습관 기르기</target>
+      </trans-unit>
+      <trans-unit id="error_category_knowledge" xml:space="preserve">
+        <source>知识类</source>
+        <target state="translated">지식 부족</target>
+      </trans-unit>
+      <trans-unit id="error_category_knowledge_improvement" xml:space="preserve">
+        <source>加强学习理解</source>
+        <target state="translated">이해력 강화</target>
+      </trans-unit>
+      <trans-unit id="error_category_method" xml:space="preserve">
+        <source>方法类</source>
+        <target state="translated">풀이 방법 오류</target>
+      </trans-unit>
+
+      <!-- 掌握度详情 -->
+      <trans-unit id="mastery_glimpse_detail" xml:space="preserve">
+        <source>看答案后能懂，但自己做不出来</source>
+        <target state="translated">답을 보면 이해하지만, 혼자서는 못 풀어요</target>
+      </trans-unit>
+      <trans-unit id="mastery_glimpse_short" xml:space="preserve">
+        <source>半解</source>
+        <target state="translated">반쯤</target>
+      </trans-unit>
+      <trans-unit id="mastery_good_detail" xml:space="preserve">
+        <source>能独立完成，偶尔会粗心出错</source>
+        <target state="translated">혼자 풀 수 있지만, 가끔 실수해요</target>
+      </trans-unit>
+      <trans-unit id="mastery_good_short" xml:space="preserve">
+        <source>掌握</source>
+        <target state="translated">숙달</target>
+      </trans-unit>
+      <trans-unit id="mastery_mastered_detail" xml:space="preserve">
+        <source>完全掌握，能举一反三解决变式题</source>
+        <target state="translated">완벽히 이해하고, 응용 문제도 풀 수 있어요</target>
+      </trans-unit>
+      <trans-unit id="mastery_mastered_short" xml:space="preserve">
+        <source>精通</source>
+        <target state="translated">완벽</target>
+      </trans-unit>
+      <trans-unit id="mastery_none_detail" xml:space="preserve">
+        <source>完全不会，看答案也不理解</source>
+        <target state="translated">전혀 모르고, 답을 봐도 이해 안 돼요</target>
+      </trans-unit>
+      <trans-unit id="mastery_none_short" xml:space="preserve">
+        <source>不会</source>
+        <target state="translated">미숙</target>
+      </trans-unit>
+      <trans-unit id="mastery_partial_detail" xml:space="preserve">
+        <source>有一定思路，但容易卡在某个步骤</source>
+        <target state="translated">어느 정도 알지만, 중간에 막혀요</target>
+      </trans-unit>
+      <trans-unit id="mastery_partial_short" xml:space="preserve">
+        <source>似懂</source>
+        <target state="translated">절반</target>
+      </trans-unit>
+
+      <!-- 难度详情 -->
+      <trans-unit id="difficulty_basic_short" xml:space="preserve">
+        <source>送</source>
+        <target state="translated">기</target>
+      </trans-unit>
+      <trans-unit id="difficulty_easy_detail" xml:space="preserve">
+        <source>常规题型，稍加思考即可解决</source>
+        <target state="translated">기본 문제, 조금만 생각하면 풀 수 있어요</target>
+      </trans-unit>
+      <trans-unit id="difficulty_easy_short" xml:space="preserve">
+        <source>易</source>
+        <target state="translated">쉬</target>
+      </trans-unit>
+      <trans-unit id="difficulty_medium_detail" xml:space="preserve">
+        <source>需要综合运用知识点</source>
+        <target state="translated">여러 개념을 종합해야 해요</target>
+      </trans-unit>
+      <trans-unit id="difficulty_medium_short" xml:space="preserve">
+        <source>中</source>
+        <target state="translated">중</target>
+      </trans-unit>
+      <trans-unit id="difficulty_hard_detail" xml:space="preserve">
+        <source>有一定难度，需要深入思考</source>
+        <target state="translated">어렵고, 깊이 생각해야 해요</target>
+      </trans-unit>
+      <trans-unit id="difficulty_hard_short" xml:space="preserve">
+        <source>难</source>
+        <target state="translated">어</target>
+      </trans-unit>
+      <trans-unit id="difficulty_expert_detail" xml:space="preserve">
+        <source>高难度题目，需要灵活变通</source>
+        <target state="translated">고난도, 유연한 사고가 필요해요</target>
+      </trans-unit>
+      <trans-unit id="difficulty_expert_short" xml:space="preserve">
+        <source>极</source>
+        <target state="translated">극</target>
+      </trans-unit>
+      <trans-unit id="difficulty_extreme_detail" xml:space="preserve">
+        <source>压轴难度，极具挑战性</source>
+        <target state="translated">최고난도, 매우 도전적이에요</target>
+      </trans-unit>
+      <trans-unit id="difficulty_extreme_short" xml:space="preserve">
+        <source>压</source>
+        <target state="translated">최</target>
+      </trans-unit>
+
+      <!-- Dashboard 补充 -->
+      <trans-unit id="dashboard_welcome_accessibility" xml:space="preserve">
+        <source>Hello，继续你的学习之旅</source>
+        <target state="translated">안녕하세요, 학습을 계속하세요</target>
+      </trans-unit>
+      <trans-unit id="dashboard_welcome_hello" xml:space="preserve">
+        <source>Hello！</source>
+        <target state="translated">안녕하세요!</target>
+      </trans-unit>
+      <trans-unit id="dashboard_welcome_subtitle" xml:space="preserve">
+        <source>继续你的学习之旅</source>
+        <target state="translated">학습을 계속하세요</target>
+      </trans-unit>
+
+      <!-- Library 补充 -->
+      <trans-unit id="library_advanced_search" xml:space="preserve">
+        <source>高级搜索</source>
+        <target state="translated">상세 검색</target>
+      </trans-unit>
+      <trans-unit id="library_empty_description" xml:space="preserve">
+        <source>快去录入你的第一道错题吧</source>
+        <target state="translated">첫 번째 오답을 등록해보세요</target>
+      </trans-unit>
+      <trans-unit id="library_filter_active %lld" xml:space="preserve">
+        <source>有 %lld 个筛选条件</source>
+        <target state="translated">%lld개 필터 적용 중</target>
+      </trans-unit>
+      <trans-unit id="library_open_advanced_search" xml:space="preserve">
+        <source>打开高级搜索</source>
+        <target state="translated">상세 검색 열기</target>
+      </trans-unit>
+      <trans-unit id="library_search_prompt" xml:space="preserve">
+        <source>搜索标题或知识点</source>
+        <target state="translated">제목 또는 핵심 내용 검색</target>
+      </trans-unit>
+
+      <!-- Detail 补充 -->
+      <trans-unit id="detail_finish_editing" xml:space="preserve">
+        <source>完成编辑</source>
+        <target state="translated">편집 완료</target>
+      </trans-unit>
+      <trans-unit id="detail_knowledge_points" xml:space="preserve">
+        <source>知识点</source>
+        <target state="translated">핵심 내용</target>
+      </trans-unit>
+      <trans-unit id="detail_mastery_level" xml:space="preserve">
+        <source>掌握程度</source>
+        <target state="translated">숙달도</target>
+      </trans-unit>
+      <trans-unit id="detail_review_count" xml:space="preserve">
+        <source>复习 %d 次</source>
+        <target state="translated">%d회 복습</target>
+      </trans-unit>
+      <trans-unit id="detail_save_changes" xml:space="preserve">
+        <source>保存修改</source>
+        <target state="translated">변경 저장</target>
+      </trans-unit>
+
+      <!-- Review 补充 -->
+      <trans-unit id="review_complete_button" xml:space="preserve">
+        <source>太棒了！</source>
+        <target state="translated">잘했어요!</target>
+      </trans-unit>
+      <trans-unit id="review_complete_message %lld" xml:space="preserve">
+        <source>本次复习了 %lld 道错题
+继续保持，你会越来越好！</source>
+        <target state="translated">이번에 %lld문제를 복습했어요
+계속 이렇게 하면 점점 나아질 거예요!</target>
+      </trans-unit>
+      <trans-unit id="review_completed" xml:space="preserve">
+        <source>复习完成</source>
+        <target state="translated">복습 완료</target>
+      </trans-unit>
+      <trans-unit id="review_continue" xml:space="preserve">
+        <source>继续复习</source>
+        <target state="translated">복습 계속하기</target>
+      </trans-unit>
+      <trans-unit id="review_empty_accessibility" xml:space="preserve">
+        <source>暂无需要复习的错题，去录入一些错题吧</source>
+        <target state="translated">복습할 문제가 없어요. 오답을 등록해보세요</target>
+      </trans-unit>
+
+      <!-- Profile 补充 -->
+      <trans-unit id="profile_data_management" xml:space="preserve">
+        <source>数据管理</source>
+        <target state="translated">데이터 관리</target>
+      </trans-unit>
+      <trans-unit id="profile_help_center" xml:space="preserve">
+        <source>帮助中心</source>
+        <target state="translated">고객센터</target>
+      </trans-unit>
+      <trans-unit id="profile_nickname" xml:space="preserve">
+        <source>学习小能手</source>
+        <target state="translated">학습왕</target>
+      </trans-unit>
+      <trans-unit id="profile_notifications" xml:space="preserve">
+        <source>通知设置</source>
+        <target state="translated">알림 설정</target>
+      </trans-unit>
+      <trans-unit id="profile_review_reminder" xml:space="preserve">
+        <source>复习提醒</source>
+        <target state="translated">복습 알림</target>
+      </trans-unit>
+
+      <!-- Notification 补充 -->
+      <trans-unit id="notification_daily_reminder" xml:space="preserve">
+        <source>每日提醒</source>
+        <target state="translated">매일 알림</target>
+      </trans-unit>
+      <trans-unit id="notification_go_settings" xml:space="preserve">
+        <source>前往设置</source>
+        <target state="translated">설정으로 이동</target>
+      </trans-unit>
+      <trans-unit id="notification_permission_denied" xml:space="preserve">
+        <source>通知权限已关闭，请在系统设置中开启。</source>
+        <target state="translated">알림이 비활성화되어 있어요. 설정에서 켜주세요.</target>
+      </trans-unit>
+      <trans-unit id="notification_permission_message" xml:space="preserve">
+        <source>请在设置中开启通知权限，以便接收复习提醒。</source>
+        <target state="translated">복습 알림을 받으려면 설정에서 알림을 허용해주세요.</target>
+      </trans-unit>
+      <trans-unit id="notification_permission_required" xml:space="preserve">
+        <source>需要通知权限</source>
+        <target state="translated">알림 권한 필요</target>
+      </trans-unit>
+
+      <!-- Data 补充 -->
+      <trans-unit id="data_estimated_size" xml:space="preserve">
+        <source>预估大小</source>
+        <target state="translated">예상 크기</target>
+      </trans-unit>
+      <trans-unit id="data_export_csv_description" xml:space="preserve">
+        <source>可用 Excel 打开查看</source>
+        <target state="translated">Excel로 열 수 있어요</target>
+      </trans-unit>
+      <trans-unit id="data_export_json" xml:space="preserve">
+        <source>导出为 JSON</source>
+        <target state="translated">JSON으로 내보내기</target>
+      </trans-unit>
+      <trans-unit id="data_export_json_description" xml:space="preserve">
+        <source>导出所有错题数据（不含图片）</source>
+        <target state="translated">모든 데이터 내보내기 (이미지 제외)</target>
+      </trans-unit>
+      <trans-unit id="data_full_backup_description" xml:space="preserve">
+        <source>导出所有数据和图片（ZIP格式）</source>
+        <target state="translated">모든 데이터와 이미지 내보내기 (ZIP)</target>
+      </trans-unit>
+
+      <!-- Feedback 补充 -->
+      <trans-unit id="feedback_character_count" xml:space="preserve">
+        <source>%d/500 字</source>
+        <target state="translated">%d/500자</target>
+      </trans-unit>
+      <trans-unit id="feedback_contact_footer" xml:space="preserve">
+        <source>留下联系方式，方便我们跟进处理。</source>
+        <target state="translated">연락처를 남겨주시면 추후 안내드릴게요.</target>
+      </trans-unit>
+      <trans-unit id="feedback_contact_placeholder" xml:space="preserve">
+        <source>邮箱或手机号（选填）</source>
+        <target state="translated">이메일 또는 전화번호 (선택)</target>
+      </trans-unit>
+      <trans-unit id="feedback_copy_content" xml:space="preserve">
+        <source>复制反馈内容</source>
+        <target state="translated">피드백 복사</target>
+      </trans-unit>
+
+      <!-- Filter 补充 -->
+      <trans-unit id="filter_all" xml:space="preserve">
+        <source>全部</source>
+        <target state="translated">전체</target>
+      </trans-unit>
+      <trans-unit id="filter_filtered_count" xml:space="preserve">
+        <source>筛选出 %d/%d 道</source>
+        <target state="translated">%d/%d개 표시</target>
+      </trans-unit>
+      <trans-unit id="filter_total_count" xml:space="preserve">
+        <source>共 %d 道</source>
+        <target state="translated">총 %d문제</target>
+      </trans-unit>
+
+      <!-- Scanner 补充 -->
+      <trans-unit id="scanner_error_title" xml:space="preserve">
+        <source>扫描错误</source>
+        <target state="translated">스캔 오류</target>
+      </trans-unit>
+      <trans-unit id="scanner_finish" xml:space="preserve">
+        <source>完成扫描</source>
+        <target state="translated">스캔 완료</target>
+      </trans-unit>
+      <trans-unit id="scanner_unavailable_permission" xml:space="preserve">
+        <source>实时文字扫描功能当前不可用，请检查相机权限</source>
+        <target state="translated">실시간 스캔을 사용할 수 없어요. 카메라 권한을 확인해주세요</target>
+      </trans-unit>
+      <trans-unit id="scanner_unsupported_device" xml:space="preserve">
+        <source>您的设备不支持实时文字扫描功能</source>
+        <target state="translated">이 기기는 실시간 스캔을 지원하지 않아요</target>
+      </trans-unit>
+
+      <!-- Stat 补充 -->
+      <trans-unit id="stat_accessibility_label" xml:space="preserve">
+        <source>学习统计</source>
+        <target state="translated">학습 통계</target>
+      </trans-unit>
+      <trans-unit id="stat_mastered" xml:space="preserve">
+        <source>已掌握</source>
+        <target state="translated">숙달 완료</target>
+      </trans-unit>
+      <trans-unit id="stat_review_count" xml:space="preserve">
+        <source>复习次数</source>
+        <target state="translated">복습 횟수</target>
+      </trans-unit>
+      <trans-unit id="stat_total_items" xml:space="preserve">
+        <source>总错题</source>
+        <target state="translated">총 문제 수</target>
+      </trans-unit>
+      <trans-unit id="stat_weekly_new" xml:space="preserve">
+        <source>本周新增</source>
+        <target state="translated">이번 주 신규</target>
+      </trans-unit>
+
+      <!-- Subject 补充 -->
+      <trans-unit id="subject_biology_short" xml:space="preserve">
+        <source>生</source>
+        <target state="translated">생</target>
+      </trans-unit>
+      <trans-unit id="subject_category_humanities" xml:space="preserve">
+        <source>人文</source>
+        <target state="translated">인문</target>
+      </trans-unit>
+      <trans-unit id="subject_category_language" xml:space="preserve">
+        <source>语言</source>
+        <target state="translated">언어</target>
+      </trans-unit>
+      <trans-unit id="subject_category_other" xml:space="preserve">
+        <source>其他</source>
+        <target state="translated">기타</target>
+      </trans-unit>
+      <trans-unit id="subject_category_science" xml:space="preserve">
+        <source>理科</source>
+        <target state="translated">이과</target>
+      </trans-unit>
+
+      <!-- Help 补充 -->
+      <trans-unit id="help_contact_description" xml:space="preserve">
+        <source>如果上面的内容没有解答你的疑问，欢迎通过以下方式联系我们：</source>
+        <target state="translated">위 내용으로 해결되지 않으면 아래로 문의해주세요:</target>
+      </trans-unit>
+      <trans-unit id="help_other_questions" xml:space="preserve">
+        <source>还有其他问题？</source>
+        <target state="translated">다른 질문이 있으신가요?</target>
+      </trans-unit>
+
+      <!-- HIG 补充 -->
+      <trans-unit id="hig_double_tap_to_save" xml:space="preserve">
+        <source>双击保存</source>
+        <target state="translated">두 번 탭하여 저장</target>
+      </trans-unit>
+      <trans-unit id="hig_fill_required_fields" xml:space="preserve">
+        <source>请先填写必填项</source>
+        <target state="translated">필수 항목을 입력해주세요</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

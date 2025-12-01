@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="NotBad/Resources/Localizable.xcstrings" source-language="zh-Hans" target-language="zh-Hant" datatype="plaintext">
+    <body>
+      <!-- 中国学科 -->
+      <trans-unit id="cn_subject_other" xml:space="preserve">
+        <source>cn_subject_other</source>
+        <target state="translated">其他</target>
+      </trans-unit>
+      <trans-unit id="cn_subject_science" xml:space="preserve">
+        <source>cn_subject_science</source>
+        <target state="translated">自然科學</target>
+      </trans-unit>
+      <trans-unit id="cn_subject_science_short" xml:space="preserve">
+        <source>cn_subject_science_short</source>
+        <target state="translated">科</target>
+      </trans-unit>
+
+      <!-- 国际学科 -->
+      <trans-unit id="intl_subject_art" xml:space="preserve">
+        <source>intl_subject_art</source>
+        <target state="translated">美術</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_art_short" xml:space="preserve">
+        <source>intl_subject_art_short</source>
+        <target state="translated">美</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_biology" xml:space="preserve">
+        <source>intl_subject_biology</source>
+        <target state="translated">生物</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_biology_short" xml:space="preserve">
+        <source>intl_subject_biology_short</source>
+        <target state="translated">生</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_chemistry" xml:space="preserve">
+        <source>intl_subject_chemistry</source>
+        <target state="translated">化學</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_chemistry_short" xml:space="preserve">
+        <source>intl_subject_chemistry_short</source>
+        <target state="translated">化</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_english" xml:space="preserve">
+        <source>intl_subject_english</source>
+        <target state="translated">英文</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_english_short" xml:space="preserve">
+        <source>intl_subject_english_short</source>
+        <target state="translated">英</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_geography" xml:space="preserve">
+        <source>intl_subject_geography</source>
+        <target state="translated">地理</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_geography_short" xml:space="preserve">
+        <source>intl_subject_geography_short</source>
+        <target state="translated">地</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_history" xml:space="preserve">
+        <source>intl_subject_history</source>
+        <target state="translated">歷史</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_history_short" xml:space="preserve">
+        <source>intl_subject_history_short</source>
+        <target state="translated">歷</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_language" xml:space="preserve">
+        <source>intl_subject_language</source>
+        <target state="translated">語言</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_language_short" xml:space="preserve">
+        <source>intl_subject_language_short</source>
+        <target state="translated">語</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_math" xml:space="preserve">
+        <source>intl_subject_math</source>
+        <target state="translated">數學</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_math_short" xml:space="preserve">
+        <source>intl_subject_math_short</source>
+        <target state="translated">數</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_music" xml:space="preserve">
+        <source>intl_subject_music</source>
+        <target state="translated">音樂</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_music_short" xml:space="preserve">
+        <source>intl_subject_music_short</source>
+        <target state="translated">音</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_other" xml:space="preserve">
+        <source>intl_subject_other</source>
+        <target state="translated">其他</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_other_short" xml:space="preserve">
+        <source>intl_subject_other_short</source>
+        <target state="translated">他</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_physics" xml:space="preserve">
+        <source>intl_subject_physics</source>
+        <target state="translated">物理</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_physics_short" xml:space="preserve">
+        <source>intl_subject_physics_short</source>
+        <target state="translated">物</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_science" xml:space="preserve">
+        <source>intl_subject_science</source>
+        <target state="translated">自然科學</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_science_short" xml:space="preserve">
+        <source>intl_subject_science_short</source>
+        <target state="translated">科</target>
+      </trans-unit>
+      <trans-unit id="intl_subject_social_short" xml:space="preserve">
+        <source>intl_subject_social_short</source>
+        <target state="translated">社</target>
+      </trans-unit>
+
+      <!-- 日本学科 -->
+      <trans-unit id="jp_subject_biology" xml:space="preserve">
+        <source>jp_subject_biology</source>
+        <target state="translated">生物</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_biology_short" xml:space="preserve">
+        <source>jp_subject_biology_short</source>
+        <target state="translated">生</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_chemistry" xml:space="preserve">
+        <source>jp_subject_chemistry</source>
+        <target state="translated">化學</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_chemistry_short" xml:space="preserve">
+        <source>jp_subject_chemistry_short</source>
+        <target state="translated">化</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_civics" xml:space="preserve">
+        <source>jp_subject_civics</source>
+        <target state="translated">公民</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_civics_short" xml:space="preserve">
+        <source>jp_subject_civics_short</source>
+        <target state="translated">公</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_english" xml:space="preserve">
+        <source>jp_subject_english</source>
+        <target state="translated">英文</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_english_short" xml:space="preserve">
+        <source>jp_subject_english_short</source>
+        <target state="translated">英</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_geography" xml:space="preserve">
+        <source>jp_subject_geography</source>
+        <target state="translated">地理</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_geography_short" xml:space="preserve">
+        <source>jp_subject_geography_short</source>
+        <target state="translated">地</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_history" xml:space="preserve">
+        <source>jp_subject_history</source>
+        <target state="translated">歷史</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_history_short" xml:space="preserve">
+        <source>jp_subject_history_short</source>
+        <target state="translated">歷</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_japanese" xml:space="preserve">
+        <source>jp_subject_japanese</source>
+        <target state="translated">日語</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_japanese_short" xml:space="preserve">
+        <source>jp_subject_japanese_short</source>
+        <target state="translated">日</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_math" xml:space="preserve">
+        <source>jp_subject_math</source>
+        <target state="translated">數學</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_math_short" xml:space="preserve">
+        <source>jp_subject_math_short</source>
+        <target state="translated">數</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_other" xml:space="preserve">
+        <source>jp_subject_other</source>
+        <target state="translated">其他</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_other_short" xml:space="preserve">
+        <source>jp_subject_other_short</source>
+        <target state="translated">他</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_physics" xml:space="preserve">
+        <source>jp_subject_physics</source>
+        <target state="translated">物理</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_physics_short" xml:space="preserve">
+        <source>jp_subject_physics_short</source>
+        <target state="translated">物</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_science" xml:space="preserve">
+        <source>jp_subject_science</source>
+        <target state="translated">理科</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_science_short" xml:space="preserve">
+        <source>jp_subject_science_short</source>
+        <target state="translated">理</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_social" xml:space="preserve">
+        <source>jp_subject_social</source>
+        <target state="translated">社會</target>
+      </trans-unit>
+      <trans-unit id="jp_subject_social_short" xml:space="preserve">
+        <source>jp_subject_social_short</source>
+        <target state="translated">社</target>
+      </trans-unit>
+
+      <!-- 韩国学科 -->
+      <trans-unit id="kr_subject_biology" xml:space="preserve">
+        <source>kr_subject_biology</source>
+        <target state="translated">生物</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_biology_short" xml:space="preserve">
+        <source>kr_subject_biology_short</source>
+        <target state="translated">生</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_chemistry" xml:space="preserve">
+        <source>kr_subject_chemistry</source>
+        <target state="translated">化學</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_chemistry_short" xml:space="preserve">
+        <source>kr_subject_chemistry_short</source>
+        <target state="translated">化</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_english" xml:space="preserve">
+        <source>kr_subject_english</source>
+        <target state="translated">英文</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_english_short" xml:space="preserve">
+        <source>kr_subject_english_short</source>
+        <target state="translated">英</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_ethics" xml:space="preserve">
+        <source>kr_subject_ethics</source>
+        <target state="translated">倫理</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_ethics_short" xml:space="preserve">
+        <source>kr_subject_ethics_short</source>
+        <target state="translated">倫</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_geography" xml:space="preserve">
+        <source>kr_subject_geography</source>
+        <target state="translated">地理</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_geography_short" xml:space="preserve">
+        <source>kr_subject_geography_short</source>
+        <target state="translated">地</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_history" xml:space="preserve">
+        <source>kr_subject_history</source>
+        <target state="translated">歷史</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_history_short" xml:space="preserve">
+        <source>kr_subject_history_short</source>
+        <target state="translated">歷</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_korean" xml:space="preserve">
+        <source>kr_subject_korean</source>
+        <target state="translated">韓語</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_korean_short" xml:space="preserve">
+        <source>kr_subject_korean_short</source>
+        <target state="translated">韓</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_math" xml:space="preserve">
+        <source>kr_subject_math</source>
+        <target state="translated">數學</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_math_short" xml:space="preserve">
+        <source>kr_subject_math_short</source>
+        <target state="translated">數</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_other" xml:space="preserve">
+        <source>kr_subject_other</source>
+        <target state="translated">其他</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_other_short" xml:space="preserve">
+        <source>kr_subject_other_short</source>
+        <target state="translated">他</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_physics" xml:space="preserve">
+        <source>kr_subject_physics</source>
+        <target state="translated">物理</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_physics_short" xml:space="preserve">
+        <source>kr_subject_physics_short</source>
+        <target state="translated">物</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_science" xml:space="preserve">
+        <source>kr_subject_science</source>
+        <target state="translated">科學</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_science_short" xml:space="preserve">
+        <source>kr_subject_science_short</source>
+        <target state="translated">科</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_social" xml:space="preserve">
+        <source>kr_subject_social</source>
+        <target state="translated">社會</target>
+      </trans-unit>
+      <trans-unit id="kr_subject_social_short" xml:space="preserve">
+        <source>kr_subject_social_short</source>
+        <target state="translated">社</target>
+      </trans-unit>
+
+      <!-- 新加坡学科 -->
+      <trans-unit id="sg_subject_biology" xml:space="preserve">
+        <source>sg_subject_biology</source>
+        <target state="translated">生物</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_biology_short" xml:space="preserve">
+        <source>sg_subject_biology_short</source>
+        <target state="translated">生</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_chemistry" xml:space="preserve">
+        <source>sg_subject_chemistry</source>
+        <target state="translated">化學</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_chemistry_short" xml:space="preserve">
+        <source>sg_subject_chemistry_short</source>
+        <target state="translated">化</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_chinese" xml:space="preserve">
+        <source>sg_subject_chinese</source>
+        <target state="translated">華文</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_chinese_short" xml:space="preserve">
+        <source>sg_subject_chinese_short</source>
+        <target state="translated">華</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_english" xml:space="preserve">
+        <source>sg_subject_english</source>
+        <target state="translated">英文</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_english_short" xml:space="preserve">
+        <source>sg_subject_english_short</source>
+        <target state="translated">英</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_geography" xml:space="preserve">
+        <source>sg_subject_geography</source>
+        <target state="translated">地理</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_geography_short" xml:space="preserve">
+        <source>sg_subject_geography_short</source>
+        <target state="translated">地</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_history" xml:space="preserve">
+        <source>sg_subject_history</source>
+        <target state="translated">歷史</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_history_short" xml:space="preserve">
+        <source>sg_subject_history_short</source>
+        <target state="translated">歷</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_malay_short" xml:space="preserve">
+        <source>sg_subject_malay_short</source>
+        <target state="translated">馬</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_math" xml:space="preserve">
+        <source>sg_subject_math</source>
+        <target state="translated">數學</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_math_short" xml:space="preserve">
+        <source>sg_subject_math_short</source>
+        <target state="translated">數</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_other" xml:space="preserve">
+        <source>sg_subject_other</source>
+        <target state="translated">其他</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_other_short" xml:space="preserve">
+        <source>sg_subject_other_short</source>
+        <target state="translated">他</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_physics" xml:space="preserve">
+        <source>sg_subject_physics</source>
+        <target state="translated">物理</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_physics_short" xml:space="preserve">
+        <source>sg_subject_physics_short</source>
+        <target state="translated">物</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_science" xml:space="preserve">
+        <source>sg_subject_science</source>
+        <target state="translated">科學</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_science_short" xml:space="preserve">
+        <source>sg_subject_science_short</source>
+        <target state="translated">科</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_social" xml:space="preserve">
+        <source>sg_subject_social</source>
+        <target state="translated">社會</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_social_short" xml:space="preserve">
+        <source>sg_subject_social_short</source>
+        <target state="translated">社</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_tamil_short" xml:space="preserve">
+        <source>sg_subject_tamil_short</source>
+        <target state="translated">淡</target>
+      </trans-unit>
+
+      <!-- 美国学科 -->
+      <trans-unit id="us_subject_literature" xml:space="preserve">
+        <source>us_subject_literature</source>
+        <target state="translated">文學</target>
+      </trans-unit>
+      <trans-unit id="us_subject_reading" xml:space="preserve">
+        <source>us_subject_reading</source>
+        <target state="translated">閱讀</target>
+      </trans-unit>
+      <trans-unit id="us_subject_writing" xml:space="preserve">
+        <source>us_subject_writing</source>
+        <target state="translated">寫作</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

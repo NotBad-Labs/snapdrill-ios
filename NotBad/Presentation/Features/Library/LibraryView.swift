@@ -141,11 +141,11 @@ private extension LibraryView {
     @ViewBuilder
     var contentView: some View {
         if filteredItems.isEmpty {
-            ContentUnavailableView(
-                "library_empty_title",
-                systemImage: "books.vertical",
-                description: Text("library_empty_description")
-            )
+            ContentUnavailableView {
+                Label(String(localized: "library_empty_title"), systemImage: "books.vertical")
+            } description: {
+                Text("library_empty_description")
+            }
         } else {
             itemList
         }

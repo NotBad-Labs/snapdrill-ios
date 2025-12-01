@@ -1,0 +1,754 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
+  <file original="NotBad/Resources/Localizable.xcstrings" source-language="zh-Hans" target-language="ja" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.1.1" build-num="17B100"/>
+    </header>
+    <body>
+      <trans-unit id="" xml:space="preserve">
+        <source/>
+        <target/>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@, %@, %@" xml:space="preserve">
+        <source>%1$@, %2$@, %3$@</source>
+        <target state="translated">%1$@, %2$@, %3$@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%@：%lld题" xml:space="preserve">
+        <source>%1$@：%2$lld题</source>
+        <target state="translated">%1$@：%2$lld問</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%lld" xml:space="preserve">
+        <source>%lld</source>
+        <target state="translated">%lld</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%lld / %lld" xml:space="preserve">
+        <source>%1$lld / %2$lld</source>
+        <target state="translated">%1$lld / %2$lld</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="%lld%%" xml:space="preserve">
+        <source>%lld%%</source>
+        <target state="translated">%lld%%</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="*" xml:space="preserve">
+        <source>*</source>
+        <target state="translated">*</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="1.0.0" xml:space="preserve">
+        <source>1.0.0</source>
+        <target state="translated">1.0.0</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="a11y_close_button" xml:space="preserve">
+        <source>关闭</source>
+        <target state="translated">閉じる</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="a11y_delete_item" xml:space="preserve">
+        <source>删除项目</source>
+        <target state="translated">項目を削除</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="a11y_edit_item" xml:space="preserve">
+        <source>编辑项目</source>
+        <target state="translated">項目を編集</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="a11y_more_options" xml:space="preserve">
+        <source>更多选项</source>
+        <target state="translated">その他のオプション</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="a11y_select_item" xml:space="preserve">
+        <source>选择项目</source>
+        <target state="translated">項目を選択</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="action_quick_capture" xml:space="preserve">
+        <source>快速录入</source>
+        <target state="translated">クイック登録</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="action_start_review" xml:space="preserve">
+        <source>开始复习</source>
+        <target state="translated">復習を開始</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="action_view_library" xml:space="preserve">
+        <source>查看题库</source>
+        <target state="translated">問題集を表示</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="app_name" xml:space="preserve">
+        <source>错题本</source>
+        <target state="translated">NotBad</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="app_tagline" xml:space="preserve">
+        <source>智能复习，高效学习</source>
+        <target state="translated">賢く復習、効率的に学習</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_accessibility_footer" xml:space="preserve">
+        <source>开启后会减少过渡动画，提高界面响应速度。</source>
+        <target state="translated">オンにすると画面遷移のアニメーションが減り、操作のレスポンスが向上します。</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_color_error" xml:space="preserve">
+        <source>错误</source>
+        <target state="translated">エラー</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_color_neutral" xml:space="preserve">
+        <source>中性</source>
+        <target state="translated">ニュートラル</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_color_primary" xml:space="preserve">
+        <source>主色</source>
+        <target state="translated">プライマリ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_color_secondary" xml:space="preserve">
+        <source>辅色</source>
+        <target state="translated">セカンダリ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_color_success" xml:space="preserve">
+        <source>成功</source>
+        <target state="translated">成功</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_color_warning" xml:space="preserve">
+        <source>警告</source>
+        <target state="translated">警告</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_display_footer" xml:space="preserve">
+        <source>开启后应用会根据系统设置自动调整字体大小。</source>
+        <target state="translated">オンにすると、システム設定に基づいて文字サイズが自動調整されます。</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_dynamic_font" xml:space="preserve">
+        <source>动态字体</source>
+        <target state="translated">ダイナミックフォント</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_dynamic_font_description" xml:space="preserve">
+        <source>跟随系统字体大小设置</source>
+        <target state="translated">システムの文字サイズに合わせる</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_reduce_motion" xml:space="preserve">
+        <source>减少动画</source>
+        <target state="translated">視差効果を減らす</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_reduce_motion_description" xml:space="preserve">
+        <source>简化界面动画效果</source>
+        <target state="translated">アニメーション効果を簡素化</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_section_accessibility" xml:space="preserve">
+        <source>辅助功能</source>
+        <target state="translated">アクセシビリティ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_section_display" xml:space="preserve">
+        <source>显示</source>
+        <target state="translated">表示</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="appearance_section_preview" xml:space="preserve">
+        <source>预览</source>
+        <target state="translated">プレビュー</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_add_image_hint" xml:space="preserve">
+        <source>拍照或从相册选择</source>
+        <target state="translated">写真を撮るかアルバムから選択</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_add_image_prompt" xml:space="preserve">
+        <source>添加错题图片</source>
+        <target state="translated">間違い問題の画像を追加</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_album" xml:space="preserve">
+        <source>相册</source>
+        <target state="translated">アルバム</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_auto_recognize" xml:space="preserve">
+        <source>自动识别文字</source>
+        <target state="translated">文字を自動認識</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_camera" xml:space="preserve">
+        <source>拍照</source>
+        <target state="translated">カメラ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_camera_input" xml:space="preserve">
+        <source>拍照录入</source>
+        <target state="translated">撮影して追加</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_change_image" xml:space="preserve">
+        <source>更换</source>
+        <target state="translated">変更</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_field_grade" xml:space="preserve">
+        <source>年级</source>
+        <target state="translated">学年</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_field_knowledge_points" xml:space="preserve">
+        <source>知识点标签</source>
+        <target state="translated">知識ポイント</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_field_knowledge_points_placeholder" xml:space="preserve">
+        <source>例如: 函数, 导数 (逗号分隔)</source>
+        <target state="translated">例: 関数, 微分 (カンマ区切り)</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_field_note" xml:space="preserve">
+        <source>备注</source>
+        <target state="translated">メモ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_field_note_placeholder" xml:space="preserve">
+        <source>记录解题思路或知识点...</source>
+        <target state="translated">解き方やポイントを記録...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_field_subject" xml:space="preserve">
+        <source>学科</source>
+        <target state="translated">科目</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_field_title" xml:space="preserve">
+        <source>标题</source>
+        <target state="translated">タイトル</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_field_title_placeholder" xml:space="preserve">
+        <source>例如: 数学-三角函数 (必填)</source>
+        <target state="translated">例: 数学-三角関数 (必須)</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_from_album" xml:space="preserve">
+        <source>从相册选择</source>
+        <target state="translated">アルバムから選択</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_live_scan" xml:space="preserve">
+        <source>实时扫描题干</source>
+        <target state="translated">テキストスキャン</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_live_scan_subtitle" xml:space="preserve">
+        <source>无需拍照，直接提取文字</source>
+        <target state="translated">撮影なしで文字を抽出</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_ocr" xml:space="preserve">
+        <source>识别</source>
+        <target state="translated">認識</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_ocr_failure" xml:space="preserve">
+        <source>文字识别失败：%@
+
+可以手动输入标题和笔记</source>
+        <target state="translated">文字認識に失敗しました：%@
+
+タイトルとメモを手動で入力できます</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_ocr_success" xml:space="preserve">
+        <source>文字识别成功！已自动填充标题和笔记</source>
+        <target state="translated">認識成功！タイトルとメモが自動入力されました</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_question_content_placeholder" xml:space="preserve">
+        <source>输入题目内容，或使用 OCR 从图片识别...</source>
+        <target state="translated">問題文を入力、またはOCRで画像から認識...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_recognizing" xml:space="preserve">
+        <source>识别中...</source>
+        <target state="translated">認識中...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_reselect" xml:space="preserve">
+        <source>重新选择</source>
+        <target state="translated">選び直す</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_reselect_short" xml:space="preserve">
+        <source>capture_reselect_short</source>
+        <target state="translated">再選択</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_save_error_context" xml:space="preserve">
+        <source>保存失败：数据上下文未配置</source>
+        <target state="translated">保存失敗：データコンテキスト未設定</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_save_error_generic" xml:space="preserve">
+        <source>保存失败：%@</source>
+        <target state="translated">保存失敗：%@</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_save_error_no_image" xml:space="preserve">
+        <source>保存失败：请选择图片或使用实时扫描</source>
+        <target state="translated">保存失敗：画像を選択するか、テキストスキャンを使用してください</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_save_success" xml:space="preserve">
+        <source>保存成功！错题已添加到题库</source>
+        <target state="translated">保存しました！問題集に追加されました</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_save_to_library" xml:space="preserve">
+        <source>保存到题库</source>
+        <target state="translated">問題集に保存</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_saving" xml:space="preserve">
+        <source>保存中...</source>
+        <target state="translated">保存中...</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_scan" xml:space="preserve">
+        <source>扫描</source>
+        <target state="translated">スキャン</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_scan_text" xml:space="preserve">
+        <source>扫描文本</source>
+        <target state="translated">テキストをスキャン</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_section_additional" xml:space="preserve">
+        <source>补充信息</source>
+        <target state="translated">追加情報</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_section_basic" xml:space="preserve">
+        <source>基本信息</source>
+        <target state="translated">基本情報</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_section_question_content" xml:space="preserve">
+        <source>题目内容</source>
+        <target state="translated">問題内容</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_select_album" xml:space="preserve">
+        <source>从相册选择</source>
+        <target state="translated">アルバムから選択</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_source_camera" xml:space="preserve">
+        <source>拍照</source>
+        <target state="translated">カメラ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_source_photo_library" xml:space="preserve">
+        <source>从相册选择</source>
+        <target state="translated">フォトライブラリ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_source_selection_title" xml:space="preserve">
+        <source>选择图片来源</source>
+        <target state="translated">画像の取得方法</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_step_fill_form" xml:space="preserve">
+        <source>填写信息</source>
+        <target state="translated">情報入力</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_step_recognize" xml:space="preserve">
+        <source>识别文字</source>
+        <target state="translated">文字認識</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_step_review" xml:space="preserve">
+        <source>确认保存</source>
+        <target state="translated">確認して保存</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_step_select_image" xml:space="preserve">
+        <source>选择图片</source>
+        <target state="translated">画像選択</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_take_photo" xml:space="preserve">
+        <source>拍照</source>
+        <target state="translated">写真を撮る</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_title" xml:space="preserve">
+        <source>录入错题</source>
+        <target state="translated">問題を追加</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_validation_image_required" xml:space="preserve">
+        <source>capture_validation_image_required</source>
+        <target state="translated">画像が必要です</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_validation_no_image" xml:space="preserve">
+        <source>请选择或拍摄错题图片</source>
+        <target state="translated">問題の画像を選択または撮影してください</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_validation_no_title" xml:space="preserve">
+        <source>请输入标题</source>
+        <target state="translated">タイトルを入力してください</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="capture_validation_title_required" xml:space="preserve">
+        <source>capture_validation_title_required</source>
+        <target state="translated">タイトルは必須です</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="chart_mastery_distribution" xml:space="preserve">
+        <source>掌握度分布</source>
+        <target state="translated">習得度分布</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="cn_education_system_name" xml:space="preserve">
+        <source>中国 K-12 体系</source>
+        <target state="translated">中国 K-12 システム</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="cn_grade_1" xml:space="preserve">
+        <source>一年级</source>
+        <target state="translated">小学1年生</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="cn_grade_1_short" xml:space="preserve">
+        <source>一年级</source>
+        <target state="translated">小1</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="dashboard_mastery_rate" xml:space="preserve">
+        <source>掌握率</source>
+        <target state="translated">習得率</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="dashboard_no_data" xml:space="preserve">
+        <source>暂无数据</source>
+        <target state="translated">データなし</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="dashboard_pending_review" xml:space="preserve">
+        <source>待复习</source>
+        <target state="translated">復習待ち</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="dashboard_quick_actions" xml:space="preserve">
+        <source>快捷操作</source>
+        <target state="translated">クイック操作</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="dashboard_quick_start" xml:space="preserve">
+        <source>快速开始</source>
+        <target state="translated">クイックスタート</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="dashboard_recent_items" xml:space="preserve">
+        <source>最近添加</source>
+        <target state="translated">最近追加</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="dashboard_subject_distribution" xml:space="preserve">
+        <source>学科分布</source>
+        <target state="translated">科目分布</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="dashboard_title" xml:space="preserve">
+        <source>首页</source>
+        <target state="translated">ホーム</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="dashboard_today_review" xml:space="preserve">
+        <source>今日复习</source>
+        <target state="translated">今日の復習</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="dashboard_total_items" xml:space="preserve">
+        <source>总错题数</source>
+        <target state="translated">問題総数</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="data_clear" xml:space="preserve">
+        <source>清空</source>
+        <target state="translated">クリア</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="data_clear_all" xml:space="preserve">
+        <source>清空所有数据</source>
+        <target state="translated">全データを消去</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="data_confirm_delete_all" xml:space="preserve">
+        <source>确认清空所有数据？</source>
+        <target state="translated">本当に全データを消去しますか？</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="data_danger_zone_footer" xml:space="preserve">
+        <source>清空数据后无法恢复，请谨慎操作。建议先导出备份。</source>
+        <target state="translated">消去されたデータは復元できません。操作には注意してください。先にバックアップをエクスポートすることをお勧めします。</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="data_delete_warning" xml:space="preserve">
+        <source>此操作不可恢复，所有错题记录将被永久删除。</source>
+        <target state="translated">この操作は取り消せません。すべての問題記録が永久に削除されます。</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="data_export_csv" xml:space="preserve">
+        <source>导出为 CSV</source>
+        <target state="translated">CSV エクスポート</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="data_full_backup" xml:space="preserve">
+        <source>完整备份</source>
+        <target state="translated">完全バックアップ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="data_management_title" xml:space="preserve">
+        <source>数据管理</source>
+        <target state="translated">データ管理</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="data_restore_from_backup" xml:space="preserve">
+        <source>从备份恢复</source>
+        <target state="translated">バックアップから復元</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="detail_delete_confirm_message" xml:space="preserve">
+        <source>确定要删除这道错题吗？此操作无法撤销。</source>
+        <target state="translated">この問題を削除してもよろしいですか？この操作は取り消せません。</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="detail_delete_confirm_title" xml:space="preserve">
+        <source>确认删除</source>
+        <target state="translated">削除の確認</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="detail_edit" xml:space="preserve">
+        <source>编辑</source>
+        <target state="translated">編集</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="detail_title" xml:space="preserve">
+        <source>错题详情</source>
+        <target state="translated">問題の詳細</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="difficulty_basic" xml:space="preserve">
+        <source>送分</source>
+        <target state="translated">基礎</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="difficulty_basic_detail" xml:space="preserve">
+        <source>基础概念直接应用，几乎不会出错</source>
+        <target state="translated">基礎概念の応用、ミスしにくい</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="difficulty_easy" xml:space="preserve">
+        <source>简单</source>
+        <target state="translated">簡単</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="difficulty_medium" xml:space="preserve">
+        <source>中等</source>
+        <target state="translated">普通</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="difficulty_hard" xml:space="preserve">
+        <source>困难</source>
+        <target state="translated">難しい</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="difficulty_expert" xml:space="preserve">
+        <source>极难</source>
+        <target state="translated">超難問</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="difficulty_extreme" xml:space="preserve">
+        <source>压轴</source>
+        <target state="translated">最難関</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="error_type_calculation" xml:space="preserve">
+        <source>计算错误</source>
+        <target state="translated">計算ミス</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="error_type_careless" xml:space="preserve">
+        <source>粗心大意</source>
+        <target state="translated">ケアレスミス</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="error_type_concept" xml:space="preserve">
+        <source>概念不清</source>
+        <target state="translated">概念理解不足</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="error_type_misread" xml:space="preserve">
+        <source>审题失误</source>
+        <target state="translated">読み間違い</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="error_type_other" xml:space="preserve">
+        <source>其他</source>
+        <target state="translated">その他</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="error_type_time_limit" xml:space="preserve">
+        <source>时间不足</source>
+        <target state="translated">時間切れ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="feedback_send_email" xml:space="preserve">
+        <source>发送邮件反馈</source>
+        <target state="translated">メールでフィードバックを送信</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="library_empty_title" xml:space="preserve">
+        <source>暂无错题</source>
+        <target state="translated">問題がありません</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="library_search_placeholder" xml:space="preserve">
+        <source>搜索标题或知识点</source>
+        <target state="translated">タイトルや知識ポイントを検索</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="library_title" xml:space="preserve">
+        <source>题库</source>
+        <target state="translated">問題集</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="mastery_excellent" xml:space="preserve">
+        <source>熟练</source>
+        <target state="translated">完璧</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="mastery_glimpse" xml:space="preserve">
+        <source>一知半解</source>
+        <target state="translated">理解不足</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="mastery_good" xml:space="preserve">
+        <source>基本掌握</source>
+        <target state="translated">ほぼ習得</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="mastery_mastered" xml:space="preserve">
+        <source>完全掌握</source>
+        <target state="translated">完全習得</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="mastery_none" xml:space="preserve">
+        <source>不会</source>
+        <target state="translated">未習得</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="mastery_partial" xml:space="preserve">
+        <source>似懂非懂</source>
+        <target state="translated">あやふや</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="profile_about" xml:space="preserve">
+        <source>关于</source>
+        <target state="translated">アプリについて</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="profile_appearance" xml:space="preserve">
+        <source>外观设置</source>
+        <target state="translated">外観設定</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="profile_settings" xml:space="preserve">
+        <source>设置</source>
+        <target state="translated">設定</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="profile_title" xml:space="preserve">
+        <source>我的</source>
+        <target state="translated">プロフィール</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="review_complete_title" xml:space="preserve">
+        <source>复习完成！</source>
+        <target state="translated">復習完了！</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="review_mode_random" xml:space="preserve">
+        <source>随机复习</source>
+        <target state="translated">ランダム</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="review_mode_smart" xml:space="preserve">
+        <source>智能推荐</source>
+        <target state="translated">スマート</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="review_mode_smart_desc" xml:space="preserve">
+        <source>根据艾宾浩斯曲线智能排序</source>
+        <target state="translated">忘却曲線に基づき最適化</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="review_title" xml:space="preserve">
+        <source>复习</source>
+        <target state="translated">復習</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="scanner_aim_prompt" xml:space="preserve">
+        <source>将题目对准取景框</source>
+        <target state="translated">問題を枠に合わせてください</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="tab_capture" xml:space="preserve">
+        <source>录入</source>
+        <target state="translated">追加</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="tab_dashboard" xml:space="preserve">
+        <source>首页</source>
+        <target state="translated">ホーム</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="tab_library" xml:space="preserve">
+        <source>题库</source>
+        <target state="translated">ライブラリ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="tab_profile" xml:space="preserve">
+        <source>我的</source>
+        <target state="translated">設定</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="tab_review" xml:space="preserve">
+        <source>复习</source>
+        <target state="translated">復習</target>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

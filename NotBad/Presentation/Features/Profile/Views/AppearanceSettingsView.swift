@@ -27,7 +27,6 @@ struct AppearanceSettingsView: View {
             themeSection
             displaySection
             accessibilitySection
-            previewSection
         }
         .navigationTitle("外观设置")
         .navigationBarTitleDisplayMode(.inline)
@@ -103,38 +102,6 @@ struct AppearanceSettingsView: View {
             Text("appearance_section_accessibility")
         } footer: {
             Text("appearance_accessibility_footer")
-        }
-    }
-
-    // MARK: - Preview Section
-
-    private var previewSection: some View {
-        Section("appearance_section_preview") {
-            VStack(spacing: DesignTokens.Spacing.md) {
-                HStack(spacing: DesignTokens.Spacing.md) {
-                    colorPreviewCard(Color.brand.primary, String(localized: "appearance_color_primary"))
-                    colorPreviewCard(Color.brand.secondary, String(localized: "appearance_color_secondary"))
-                    colorPreviewCard(Color.brand.success, String(localized: "appearance_color_success"))
-                }
-
-                HStack(spacing: DesignTokens.Spacing.md) {
-                    colorPreviewCard(Color.brand.warning, String(localized: "appearance_color_warning"))
-                    colorPreviewCard(Color.brand.error, String(localized: "appearance_color_error"))
-                    colorPreviewCard(.gray, String(localized: "appearance_color_neutral"))
-                }
-            }
-            .padding(.vertical, DesignTokens.Spacing.sm)
-        }
-    }
-
-    private func colorPreviewCard(_ color: Color, _ name: String) -> some View {
-        VStack(spacing: DesignTokens.Spacing.xs) {
-            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                .fill(color)
-                .frame(height: 40)
-            Text(name)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
         }
     }
 }

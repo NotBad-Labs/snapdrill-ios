@@ -1,0 +1,910 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="NotBad/Resources/Localizable.xcstrings" source-language="zh-Hans" target-language="zh-Hant" datatype="plaintext">
+    <body>
+      <!-- 中国特有学科 -->
+      <trans-unit id="cn_subject_politics" xml:space="preserve">
+        <source>政治</source>
+        <target state="translated">政治</target>
+      </trans-unit>
+      <trans-unit id="cn_subject_politics_short" xml:space="preserve">
+        <source>政</source>
+        <target state="translated">政</target>
+      </trans-unit>
+      <trans-unit id="cn_subject_info_tech" xml:space="preserve">
+        <source>信息技术</source>
+        <target state="translated">資訊科技</target>
+      </trans-unit>
+      <trans-unit id="cn_subject_general_tech" xml:space="preserve">
+        <source>通用技术</source>
+        <target state="translated">生活科技</target>
+      </trans-unit>
+
+      <!-- 美国特有学科 -->
+      <trans-unit id="us_subject_calculus" xml:space="preserve">
+        <source>微积分</source>
+        <target state="translated">微積分</target>
+      </trans-unit>
+      <trans-unit id="us_subject_economics" xml:space="preserve">
+        <source>经济学</source>
+        <target state="translated">經濟學</target>
+      </trans-unit>
+      <trans-unit id="us_subject_statistics" xml:space="preserve">
+        <source>统计学</source>
+        <target state="translated">統計學</target>
+      </trans-unit>
+      <trans-unit id="us_subject_government" xml:space="preserve">
+        <source>政府与政治</source>
+        <target state="translated">政府與政治</target>
+      </trans-unit>
+      <trans-unit id="us_subject_computer_science" xml:space="preserve">
+        <source>计算机科学</source>
+        <target state="translated">電腦科學</target>
+      </trans-unit>
+
+      <!-- 新加坡特有学科 -->
+      <trans-unit id="sg_subject_malay" xml:space="preserve">
+        <source>马来语</source>
+        <target state="translated">馬來語</target>
+      </trans-unit>
+      <trans-unit id="sg_subject_tamil" xml:space="preserve">
+        <source>泰米尔语</source>
+        <target state="translated">泰米爾語</target>
+      </trans-unit>
+
+      <!-- 国际通用学科 -->
+      <trans-unit id="intl_subject_social" xml:space="preserve">
+        <source>社会研究</source>
+        <target state="translated">社會研究</target>
+      </trans-unit>
+
+      <!-- 错误分类 -->
+      <trans-unit id="error_category_habit" xml:space="preserve">
+        <source>习惯类</source>
+        <target state="translated">習慣類</target>
+      </trans-unit>
+      <trans-unit id="error_category_knowledge" xml:space="preserve">
+        <source>知识类</source>
+        <target state="translated">知識類</target>
+      </trans-unit>
+      <trans-unit id="error_category_method" xml:space="preserve">
+        <source>方法类</source>
+        <target state="translated">方法類</target>
+      </trans-unit>
+      <trans-unit id="error_category_objective" xml:space="preserve">
+        <source>客观类</source>
+        <target state="translated">客觀類</target>
+      </trans-unit>
+
+      <!-- 通用年级补充 -->
+      <trans-unit id="grade_1" xml:space="preserve">
+        <source>一年级</source>
+        <target state="translated">一年級</target>
+      </trans-unit>
+      <trans-unit id="grade_1_short" xml:space="preserve">
+        <source>一年级</source>
+        <target state="translated">一年級</target>
+      </trans-unit>
+      <trans-unit id="grade_2" xml:space="preserve">
+        <source>二年级</source>
+        <target state="translated">二年級</target>
+      </trans-unit>
+      <trans-unit id="grade_2_short" xml:space="preserve">
+        <source>二年级</source>
+        <target state="translated">二年級</target>
+      </trans-unit>
+      <trans-unit id="grade_3" xml:space="preserve">
+        <source>三年级</source>
+        <target state="translated">三年級</target>
+      </trans-unit>
+      <trans-unit id="grade_3_short" xml:space="preserve">
+        <source>三年级</source>
+        <target state="translated">三年級</target>
+      </trans-unit>
+      <trans-unit id="grade_4" xml:space="preserve">
+        <source>四年级</source>
+        <target state="translated">四年級</target>
+      </trans-unit>
+      <trans-unit id="grade_4_short" xml:space="preserve">
+        <source>四年级</source>
+        <target state="translated">四年級</target>
+      </trans-unit>
+      <trans-unit id="grade_5" xml:space="preserve">
+        <source>五年级</source>
+        <target state="translated">五年級</target>
+      </trans-unit>
+      <trans-unit id="grade_5_short" xml:space="preserve">
+        <source>五年级</source>
+        <target state="translated">五年級</target>
+      </trans-unit>
+      <trans-unit id="grade_6" xml:space="preserve">
+        <source>六年级</source>
+        <target state="translated">六年級</target>
+      </trans-unit>
+      <trans-unit id="grade_6_short" xml:space="preserve">
+        <source>六年级</source>
+        <target state="translated">六年級</target>
+      </trans-unit>
+      <trans-unit id="grade_7" xml:space="preserve">
+        <source>七年级</source>
+        <target state="translated">七年級</target>
+      </trans-unit>
+      <trans-unit id="grade_7_short" xml:space="preserve">
+        <source>七年级</source>
+        <target state="translated">七年級</target>
+      </trans-unit>
+      <trans-unit id="grade_8" xml:space="preserve">
+        <source>八年级</source>
+        <target state="translated">八年級</target>
+      </trans-unit>
+      <trans-unit id="grade_8_short" xml:space="preserve">
+        <source>八年级</source>
+        <target state="translated">八年級</target>
+      </trans-unit>
+      <trans-unit id="grade_9" xml:space="preserve">
+        <source>九年级</source>
+        <target state="translated">九年級</target>
+      </trans-unit>
+      <trans-unit id="grade_9_short" xml:space="preserve">
+        <source>九年级</source>
+        <target state="translated">九年級</target>
+      </trans-unit>
+      <trans-unit id="grade_10" xml:space="preserve">
+        <source>十年级</source>
+        <target state="translated">十年級</target>
+      </trans-unit>
+      <trans-unit id="grade_10_short" xml:space="preserve">
+        <source>十年级</source>
+        <target state="translated">十年級</target>
+      </trans-unit>
+      <trans-unit id="grade_11" xml:space="preserve">
+        <source>十一年级</source>
+        <target state="translated">十一年級</target>
+      </trans-unit>
+      <trans-unit id="grade_11_short" xml:space="preserve">
+        <source>十一年级</source>
+        <target state="translated">十一年級</target>
+      </trans-unit>
+      <trans-unit id="grade_12" xml:space="preserve">
+        <source>十二年级</source>
+        <target state="translated">十二年級</target>
+      </trans-unit>
+      <trans-unit id="grade_12_short" xml:space="preserve">
+        <source>十二年级</source>
+        <target state="translated">十二年級</target>
+      </trans-unit>
+      <trans-unit id="grade_k" xml:space="preserve">
+        <source>幼儿园</source>
+        <target state="translated">幼稚園</target>
+      </trans-unit>
+      <trans-unit id="grade_k_short" xml:space="preserve">
+        <source>幼儿园</source>
+        <target state="translated">幼</target>
+      </trans-unit>
+
+      <!-- 中国年级 -->
+      <trans-unit id="cn_grade_1" xml:space="preserve">
+        <source>一年级</source>
+        <target state="translated">一年級</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_2" xml:space="preserve">
+        <source>二年级</source>
+        <target state="translated">二年級</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_3" xml:space="preserve">
+        <source>三年级</source>
+        <target state="translated">三年級</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_4" xml:space="preserve">
+        <source>四年级</source>
+        <target state="translated">四年級</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_5" xml:space="preserve">
+        <source>五年级</source>
+        <target state="translated">五年級</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_6" xml:space="preserve">
+        <source>六年级</source>
+        <target state="translated">六年級</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_7" xml:space="preserve">
+        <source>初一</source>
+        <target state="translated">國一</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_7_short" xml:space="preserve">
+        <source>初一</source>
+        <target state="translated">國一</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_8" xml:space="preserve">
+        <source>初二</source>
+        <target state="translated">國二</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_8_short" xml:space="preserve">
+        <source>初二</source>
+        <target state="translated">國二</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_9" xml:space="preserve">
+        <source>初三</source>
+        <target state="translated">國三</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_9_short" xml:space="preserve">
+        <source>初三</source>
+        <target state="translated">國三</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_10" xml:space="preserve">
+        <source>高一</source>
+        <target state="translated">高一</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_10_short" xml:space="preserve">
+        <source>高一</source>
+        <target state="translated">高一</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_11" xml:space="preserve">
+        <source>高二</source>
+        <target state="translated">高二</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_11_short" xml:space="preserve">
+        <source>高二</source>
+        <target state="translated">高二</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_12" xml:space="preserve">
+        <source>高三</source>
+        <target state="translated">高三</target>
+      </trans-unit>
+      <trans-unit id="cn_grade_12_short" xml:space="preserve">
+        <source>高三</source>
+        <target state="translated">高三</target>
+      </trans-unit>
+      <trans-unit id="cn_education_system_name" xml:space="preserve">
+        <source>中国 K-12 体系</source>
+        <target state="translated">中國 K-12 學制</target>
+      </trans-unit>
+
+      <!-- 通用学科 -->
+      <trans-unit id="subject_math" xml:space="preserve">
+        <source>数学</source>
+        <target state="translated">數學</target>
+      </trans-unit>
+      <trans-unit id="subject_math_short" xml:space="preserve">
+        <source>数</source>
+        <target state="translated">數</target>
+      </trans-unit>
+      <trans-unit id="subject_chinese" xml:space="preserve">
+        <source>语文</source>
+        <target state="translated">國文</target>
+      </trans-unit>
+      <trans-unit id="subject_chinese_short" xml:space="preserve">
+        <source>语</source>
+        <target state="translated">國</target>
+      </trans-unit>
+      <trans-unit id="subject_english" xml:space="preserve">
+        <source>英语</source>
+        <target state="translated">英文</target>
+      </trans-unit>
+      <trans-unit id="subject_english_short" xml:space="preserve">
+        <source>英</source>
+        <target state="translated">英</target>
+      </trans-unit>
+      <trans-unit id="subject_physics" xml:space="preserve">
+        <source>物理</source>
+        <target state="translated">物理</target>
+      </trans-unit>
+      <trans-unit id="subject_physics_short" xml:space="preserve">
+        <source>物</source>
+        <target state="translated">物</target>
+      </trans-unit>
+      <trans-unit id="subject_chemistry" xml:space="preserve">
+        <source>化学</source>
+        <target state="translated">化學</target>
+      </trans-unit>
+      <trans-unit id="subject_chemistry_short" xml:space="preserve">
+        <source>化</source>
+        <target state="translated">化</target>
+      </trans-unit>
+      <trans-unit id="subject_biology" xml:space="preserve">
+        <source>生物</source>
+        <target state="translated">生物</target>
+      </trans-unit>
+      <trans-unit id="subject_history" xml:space="preserve">
+        <source>历史</source>
+        <target state="translated">歷史</target>
+      </trans-unit>
+      <trans-unit id="subject_history_short" xml:space="preserve">
+        <source>历</source>
+        <target state="translated">歷</target>
+      </trans-unit>
+      <trans-unit id="subject_geography" xml:space="preserve">
+        <source>地理</source>
+        <target state="translated">地理</target>
+      </trans-unit>
+      <trans-unit id="subject_geography_short" xml:space="preserve">
+        <source>地</source>
+        <target state="translated">地</target>
+      </trans-unit>
+      <trans-unit id="subject_politics" xml:space="preserve">
+        <source>政治</source>
+        <target state="translated">公民</target>
+      </trans-unit>
+      <trans-unit id="subject_politics_short" xml:space="preserve">
+        <source>政</source>
+        <target state="translated">公</target>
+      </trans-unit>
+      <trans-unit id="subject_science" xml:space="preserve">
+        <source>科学</source>
+        <target state="translated">自然科學</target>
+      </trans-unit>
+      <trans-unit id="subject_science_short" xml:space="preserve">
+        <source>科</source>
+        <target state="translated">科</target>
+      </trans-unit>
+      <trans-unit id="subject_other" xml:space="preserve">
+        <source>其他</source>
+        <target state="translated">其他</target>
+      </trans-unit>
+      <trans-unit id="subject_other_short" xml:space="preserve">
+        <source>他</source>
+        <target state="translated">他</target>
+      </trans-unit>
+
+      <!-- 题目来源 -->
+      <trans-unit id="source_tutor" xml:space="preserve">
+        <source>辅导</source>
+        <target state="translated">補習</target>
+      </trans-unit>
+      <trans-unit id="source_tutor_short" xml:space="preserve">
+        <source>辅</source>
+        <target state="translated">補</target>
+      </trans-unit>
+      <trans-unit id="source_self_test" xml:space="preserve">
+        <source>自测</source>
+        <target state="translated">自習</target>
+      </trans-unit>
+      <trans-unit id="source_self_test_short" xml:space="preserve">
+        <source>自</source>
+        <target state="translated">自</target>
+      </trans-unit>
+      <trans-unit id="source_online" xml:space="preserve">
+        <source>网络</source>
+        <target state="translated">網路</target>
+      </trans-unit>
+      <trans-unit id="source_online_short" xml:space="preserve">
+        <source>网</source>
+        <target state="translated">網</target>
+      </trans-unit>
+      <trans-unit id="source_other" xml:space="preserve">
+        <source>其他</source>
+        <target state="translated">其他</target>
+      </trans-unit>
+      <trans-unit id="source_other_short" xml:space="preserve">
+        <source>他</source>
+        <target state="translated">他</target>
+      </trans-unit>
+
+      <!-- 国际年级 -->
+      <trans-unit id="intl_grade_1_name" xml:space="preserve">
+        <source>intl_grade_1_name</source>
+        <target state="translated">Grade 1</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_1_short" xml:space="preserve">
+        <source>intl_grade_1_short</source>
+        <target state="translated">G1</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_2_name" xml:space="preserve">
+        <source>intl_grade_2_name</source>
+        <target state="translated">Grade 2</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_2_short" xml:space="preserve">
+        <source>intl_grade_2_short</source>
+        <target state="translated">G2</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_3_name" xml:space="preserve">
+        <source>intl_grade_3_name</source>
+        <target state="translated">Grade 3</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_3_short" xml:space="preserve">
+        <source>intl_grade_3_short</source>
+        <target state="translated">G3</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_4_name" xml:space="preserve">
+        <source>intl_grade_4_name</source>
+        <target state="translated">Grade 4</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_4_short" xml:space="preserve">
+        <source>intl_grade_4_short</source>
+        <target state="translated">G4</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_5_name" xml:space="preserve">
+        <source>intl_grade_5_name</source>
+        <target state="translated">Grade 5</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_5_short" xml:space="preserve">
+        <source>intl_grade_5_short</source>
+        <target state="translated">G5</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_6_name" xml:space="preserve">
+        <source>intl_grade_6_name</source>
+        <target state="translated">Grade 6</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_6_short" xml:space="preserve">
+        <source>intl_grade_6_short</source>
+        <target state="translated">G6</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_7_name" xml:space="preserve">
+        <source>intl_grade_7_name</source>
+        <target state="translated">Grade 7</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_7_short" xml:space="preserve">
+        <source>intl_grade_7_short</source>
+        <target state="translated">G7</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_8_name" xml:space="preserve">
+        <source>intl_grade_8_name</source>
+        <target state="translated">Grade 8</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_8_short" xml:space="preserve">
+        <source>intl_grade_8_short</source>
+        <target state="translated">G8</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_9_name" xml:space="preserve">
+        <source>intl_grade_9_name</source>
+        <target state="translated">Grade 9</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_9_short" xml:space="preserve">
+        <source>intl_grade_9_short</source>
+        <target state="translated">G9</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_10_name" xml:space="preserve">
+        <source>intl_grade_10_name</source>
+        <target state="translated">Grade 10</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_10_short" xml:space="preserve">
+        <source>intl_grade_10_short</source>
+        <target state="translated">G10</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_11_name" xml:space="preserve">
+        <source>intl_grade_11_name</source>
+        <target state="translated">Grade 11</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_11_short" xml:space="preserve">
+        <source>intl_grade_11_short</source>
+        <target state="translated">G11</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_12_name" xml:space="preserve">
+        <source>intl_grade_12_name</source>
+        <target state="translated">Grade 12</target>
+      </trans-unit>
+      <trans-unit id="intl_grade_12_short" xml:space="preserve">
+        <source>intl_grade_12_short</source>
+        <target state="translated">G12</target>
+      </trans-unit>
+      <trans-unit id="intl_education_system_name" xml:space="preserve">
+        <source>intl_education_system_name</source>
+        <target state="translated">國際標準學制</target>
+      </trans-unit>
+
+      <!-- 新加坡年级 -->
+      <trans-unit id="sg_grade_p1_name" xml:space="preserve">
+        <source>sg_grade_p1_name</source>
+        <target state="translated">小一</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p1_short" xml:space="preserve">
+        <source>sg_grade_p1_short</source>
+        <target state="translated">P1</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p2_name" xml:space="preserve">
+        <source>sg_grade_p2_name</source>
+        <target state="translated">小二</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p2_short" xml:space="preserve">
+        <source>sg_grade_p2_short</source>
+        <target state="translated">P2</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p3_name" xml:space="preserve">
+        <source>sg_grade_p3_name</source>
+        <target state="translated">小三</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p3_short" xml:space="preserve">
+        <source>sg_grade_p3_short</source>
+        <target state="translated">P3</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p4_name" xml:space="preserve">
+        <source>sg_grade_p4_name</source>
+        <target state="translated">小四</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p4_short" xml:space="preserve">
+        <source>sg_grade_p4_short</source>
+        <target state="translated">P4</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p5_name" xml:space="preserve">
+        <source>sg_grade_p5_name</source>
+        <target state="translated">小五</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p5_short" xml:space="preserve">
+        <source>sg_grade_p5_short</source>
+        <target state="translated">P5</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p6_name" xml:space="preserve">
+        <source>sg_grade_p6_name</source>
+        <target state="translated">小六</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_p6_short" xml:space="preserve">
+        <source>sg_grade_p6_short</source>
+        <target state="translated">P6</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_s1_name" xml:space="preserve">
+        <source>sg_grade_s1_name</source>
+        <target state="translated">中一</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_s1_short" xml:space="preserve">
+        <source>sg_grade_s1_short</source>
+        <target state="translated">S1</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_s2_name" xml:space="preserve">
+        <source>sg_grade_s2_name</source>
+        <target state="translated">中二</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_s2_short" xml:space="preserve">
+        <source>sg_grade_s2_short</source>
+        <target state="translated">S2</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_s3_name" xml:space="preserve">
+        <source>sg_grade_s3_name</source>
+        <target state="translated">中三</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_s3_short" xml:space="preserve">
+        <source>sg_grade_s3_short</source>
+        <target state="translated">S3</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_s4_name" xml:space="preserve">
+        <source>sg_grade_s4_name</source>
+        <target state="translated">中四</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_s4_short" xml:space="preserve">
+        <source>sg_grade_s4_short</source>
+        <target state="translated">S4</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_s5_name" xml:space="preserve">
+        <source>sg_grade_s5_name</source>
+        <target state="translated">中五</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_s5_short" xml:space="preserve">
+        <source>sg_grade_s5_short</source>
+        <target state="translated">S5</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_jc1_name" xml:space="preserve">
+        <source>sg_grade_jc1_name</source>
+        <target state="translated">初級學院一年級</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_jc1_short" xml:space="preserve">
+        <source>sg_grade_jc1_short</source>
+        <target state="translated">JC1</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_jc2_name" xml:space="preserve">
+        <source>sg_grade_jc2_name</source>
+        <target state="translated">初級學院二年級</target>
+      </trans-unit>
+      <trans-unit id="sg_grade_jc2_short" xml:space="preserve">
+        <source>sg_grade_jc2_short</source>
+        <target state="translated">JC2</target>
+      </trans-unit>
+      <trans-unit id="sg_education_system_name" xml:space="preserve">
+        <source>sg_education_system_name</source>
+        <target state="translated">新加坡學制</target>
+      </trans-unit>
+
+      <!-- 美国年级 -->
+      <trans-unit id="us_education_system_name" xml:space="preserve">
+        <source>美国 K-12 体系</source>
+        <target state="translated">美國 K-12 學制</target>
+      </trans-unit>
+      <trans-unit id="us_grade_1" xml:space="preserve">
+        <source>一年级</source>
+        <target state="translated">一年級</target>
+      </trans-unit>
+      <trans-unit id="us_grade_1_short" xml:space="preserve">
+        <source>1年级</source>
+        <target state="translated">G1</target>
+      </trans-unit>
+      <trans-unit id="us_grade_2" xml:space="preserve">
+        <source>二年级</source>
+        <target state="translated">二年級</target>
+      </trans-unit>
+      <trans-unit id="us_grade_2_short" xml:space="preserve">
+        <source>2年级</source>
+        <target state="translated">G2</target>
+      </trans-unit>
+      <trans-unit id="us_grade_3" xml:space="preserve">
+        <source>三年级</source>
+        <target state="translated">三年級</target>
+      </trans-unit>
+      <trans-unit id="us_grade_3_short" xml:space="preserve">
+        <source>3年级</source>
+        <target state="translated">G3</target>
+      </trans-unit>
+      <trans-unit id="us_grade_4" xml:space="preserve">
+        <source>四年级</source>
+        <target state="translated">四年級</target>
+      </trans-unit>
+      <trans-unit id="us_grade_4_short" xml:space="preserve">
+        <source>4年级</source>
+        <target state="translated">G4</target>
+      </trans-unit>
+      <trans-unit id="us_grade_5" xml:space="preserve">
+        <source>五年级</source>
+        <target state="translated">五年級</target>
+      </trans-unit>
+      <trans-unit id="us_grade_5_short" xml:space="preserve">
+        <source>5年级</source>
+        <target state="translated">G5</target>
+      </trans-unit>
+      <trans-unit id="us_grade_6" xml:space="preserve">
+        <source>六年级</source>
+        <target state="translated">六年級</target>
+      </trans-unit>
+      <trans-unit id="us_grade_6_short" xml:space="preserve">
+        <source>6年级</source>
+        <target state="translated">G6</target>
+      </trans-unit>
+      <trans-unit id="us_grade_7" xml:space="preserve">
+        <source>七年级</source>
+        <target state="translated">七年級</target>
+      </trans-unit>
+      <trans-unit id="us_grade_7_short" xml:space="preserve">
+        <source>7年级</source>
+        <target state="translated">G7</target>
+      </trans-unit>
+      <trans-unit id="us_grade_8" xml:space="preserve">
+        <source>八年级</source>
+        <target state="translated">八年級</target>
+      </trans-unit>
+      <trans-unit id="us_grade_8_short" xml:space="preserve">
+        <source>8年级</source>
+        <target state="translated">G8</target>
+      </trans-unit>
+      <trans-unit id="us_grade_9" xml:space="preserve">
+        <source>九年级</source>
+        <target state="translated">九年級 (Freshman)</target>
+      </trans-unit>
+      <trans-unit id="us_grade_9_short" xml:space="preserve">
+        <source>9年级</source>
+        <target state="translated">G9</target>
+      </trans-unit>
+      <trans-unit id="us_grade_10" xml:space="preserve">
+        <source>十年级</source>
+        <target state="translated">十年級 (Sophomore)</target>
+      </trans-unit>
+      <trans-unit id="us_grade_10_short" xml:space="preserve">
+        <source>10年级</source>
+        <target state="translated">G10</target>
+      </trans-unit>
+      <trans-unit id="us_grade_11" xml:space="preserve">
+        <source>十一年级</source>
+        <target state="translated">十一年級 (Junior)</target>
+      </trans-unit>
+      <trans-unit id="us_grade_11_short" xml:space="preserve">
+        <source>11年级</source>
+        <target state="translated">G11</target>
+      </trans-unit>
+      <trans-unit id="us_grade_12" xml:space="preserve">
+        <source>十二年级</source>
+        <target state="translated">十二年級 (Senior)</target>
+      </trans-unit>
+      <trans-unit id="us_grade_12_short" xml:space="preserve">
+        <source>12年级</source>
+        <target state="translated">G12</target>
+      </trans-unit>
+      <trans-unit id="us_grade_k" xml:space="preserve">
+        <source>幼儿园</source>
+        <target state="translated">幼稚園</target>
+      </trans-unit>
+      <trans-unit id="us_grade_k_short" xml:space="preserve">
+        <source>K</source>
+        <target state="translated">K</target>
+      </trans-unit>
+
+      <!-- 日本年级 (用于非日本地区显示) -->
+      <trans-unit id="jp_grade_1_name" xml:space="preserve">
+        <source>jp_grade_1_name</source>
+        <target state="translated">小學一年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_1_short" xml:space="preserve">
+        <source>jp_grade_1_short</source>
+        <target state="translated">小1</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_2_name" xml:space="preserve">
+        <source>jp_grade_2_name</source>
+        <target state="translated">小學二年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_2_short" xml:space="preserve">
+        <source>jp_grade_2_short</source>
+        <target state="translated">小2</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_3_name" xml:space="preserve">
+        <source>jp_grade_3_name</source>
+        <target state="translated">小學三年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_3_short" xml:space="preserve">
+        <source>jp_grade_3_short</source>
+        <target state="translated">小3</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_4_name" xml:space="preserve">
+        <source>jp_grade_4_name</source>
+        <target state="translated">小學四年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_4_short" xml:space="preserve">
+        <source>jp_grade_4_short</source>
+        <target state="translated">小4</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_5_name" xml:space="preserve">
+        <source>jp_grade_5_name</source>
+        <target state="translated">小學五年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_5_short" xml:space="preserve">
+        <source>jp_grade_5_short</source>
+        <target state="translated">小5</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_6_name" xml:space="preserve">
+        <source>jp_grade_6_name</source>
+        <target state="translated">小學六年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_6_short" xml:space="preserve">
+        <source>jp_grade_6_short</source>
+        <target state="translated">小6</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_7_name" xml:space="preserve">
+        <source>jp_grade_7_name</source>
+        <target state="translated">國中一年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_7_short" xml:space="preserve">
+        <source>jp_grade_7_short</source>
+        <target state="translated">中1</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_8_name" xml:space="preserve">
+        <source>jp_grade_8_name</source>
+        <target state="translated">國中二年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_8_short" xml:space="preserve">
+        <source>jp_grade_8_short</source>
+        <target state="translated">中2</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_9_name" xml:space="preserve">
+        <source>jp_grade_9_name</source>
+        <target state="translated">國中三年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_9_short" xml:space="preserve">
+        <source>jp_grade_9_short</source>
+        <target state="translated">中3</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_10_name" xml:space="preserve">
+        <source>jp_grade_10_name</source>
+        <target state="translated">高中一年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_10_short" xml:space="preserve">
+        <source>jp_grade_10_short</source>
+        <target state="translated">高1</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_11_name" xml:space="preserve">
+        <source>jp_grade_11_name</source>
+        <target state="translated">高中二年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_11_short" xml:space="preserve">
+        <source>jp_grade_11_short</source>
+        <target state="translated">高2</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_12_name" xml:space="preserve">
+        <source>jp_grade_12_name</source>
+        <target state="translated">高中三年級</target>
+      </trans-unit>
+      <trans-unit id="jp_grade_12_short" xml:space="preserve">
+        <source>jp_grade_12_short</source>
+        <target state="translated">高3</target>
+      </trans-unit>
+      <trans-unit id="jp_education_system_name" xml:space="preserve">
+        <source>jp_education_system_name</source>
+        <target state="translated">日本學制</target>
+      </trans-unit>
+
+      <!-- 韩国年级 (用于非韩国地区显示) -->
+      <trans-unit id="kr_grade_1_name" xml:space="preserve">
+        <source>kr_grade_1_name</source>
+        <target state="translated">小學一年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_1_short" xml:space="preserve">
+        <source>kr_grade_1_short</source>
+        <target state="translated">小1</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_2_name" xml:space="preserve">
+        <source>kr_grade_2_name</source>
+        <target state="translated">小學二年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_2_short" xml:space="preserve">
+        <source>kr_grade_2_short</source>
+        <target state="translated">小2</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_3_name" xml:space="preserve">
+        <source>kr_grade_3_name</source>
+        <target state="translated">小學三年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_3_short" xml:space="preserve">
+        <source>kr_grade_3_short</source>
+        <target state="translated">小3</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_4_name" xml:space="preserve">
+        <source>kr_grade_4_name</source>
+        <target state="translated">小學四年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_4_short" xml:space="preserve">
+        <source>kr_grade_4_short</source>
+        <target state="translated">小4</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_5_name" xml:space="preserve">
+        <source>kr_grade_5_name</source>
+        <target state="translated">小學五年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_5_short" xml:space="preserve">
+        <source>kr_grade_5_short</source>
+        <target state="translated">小5</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_6_name" xml:space="preserve">
+        <source>kr_grade_6_name</source>
+        <target state="translated">小學六年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_6_short" xml:space="preserve">
+        <source>kr_grade_6_short</source>
+        <target state="translated">小6</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_7_name" xml:space="preserve">
+        <source>kr_grade_7_name</source>
+        <target state="translated">國中一年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_7_short" xml:space="preserve">
+        <source>kr_grade_7_short</source>
+        <target state="translated">中1</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_8_name" xml:space="preserve">
+        <source>kr_grade_8_name</source>
+        <target state="translated">國中二年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_8_short" xml:space="preserve">
+        <source>kr_grade_8_short</source>
+        <target state="translated">中2</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_9_name" xml:space="preserve">
+        <source>kr_grade_9_name</source>
+        <target state="translated">國中三年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_9_short" xml:space="preserve">
+        <source>kr_grade_9_short</source>
+        <target state="translated">中3</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_10_name" xml:space="preserve">
+        <source>kr_grade_10_name</source>
+        <target state="translated">高中一年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_10_short" xml:space="preserve">
+        <source>kr_grade_10_short</source>
+        <target state="translated">高1</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_11_name" xml:space="preserve">
+        <source>kr_grade_11_name</source>
+        <target state="translated">高中二年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_11_short" xml:space="preserve">
+        <source>kr_grade_11_short</source>
+        <target state="translated">高2</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_12_name" xml:space="preserve">
+        <source>kr_grade_12_name</source>
+        <target state="translated">高中三年級</target>
+      </trans-unit>
+      <trans-unit id="kr_grade_12_short" xml:space="preserve">
+        <source>kr_grade_12_short</source>
+        <target state="translated">高3</target>
+      </trans-unit>
+      <trans-unit id="kr_education_system_name" xml:space="preserve">
+        <source>kr_education_system_name</source>
+        <target state="translated">韓國學制</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

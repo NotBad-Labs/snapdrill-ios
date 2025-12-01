@@ -17,6 +17,7 @@ import PhotosUI
 /// - 实时扫描
 /// - 相册选择
 /// - 图片预览与重选
+/// - 取消/清除已选图片
 struct ImageSelectionCard: View {
 
     // MARK: - Bindings
@@ -34,6 +35,7 @@ struct ImageSelectionCard: View {
     let onCameraPressed: () -> Void
     let onLiveScanPressed: () -> Void
     let onRecognizeText: () -> Void
+    let onClearImage: () -> Void
 
     // MARK: - Body
 
@@ -153,6 +155,23 @@ struct ImageSelectionCard: View {
 
     private var imageActionBar: some View {
         HStack(spacing: DesignTokens.Spacing.md) {
+            // 取消按钮
+            Button {
+                onClearImage()
+            } label: {
+                HStack(spacing: DesignTokens.Spacing.xs) {
+                    Image(systemName: "xmark")
+                    Text("common_cancel")
+                }
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.white)
+                .padding(.horizontal, DesignTokens.Spacing.md)
+                .padding(.vertical, DesignTokens.Spacing.sm)
+                .background(Color.brand.error.opacity(0.8), in: Capsule())
+            }
+
+            Spacer()
+
             // OCR 识别按钮
             Button {
                 onRecognizeText()
@@ -174,8 +193,6 @@ struct ImageSelectionCard: View {
                 .background(Color.brand.warning, in: Capsule())
             }
             .disabled(isRecognizingText)
-
-            Spacer()
 
             // 重选按钮
             Menu {
@@ -286,7 +303,8 @@ struct ActionChipContent: View {
             showLiveScannerSupport: true,
             onCameraPressed: {},
             onLiveScanPressed: {},
-            onRecognizeText: {}
+            onRecognizeText: {},
+            onClearImage: {}
         )
 
         // 有图片
@@ -297,7 +315,8 @@ struct ActionChipContent: View {
             showLiveScannerSupport: true,
             onCameraPressed: {},
             onLiveScanPressed: {},
-            onRecognizeText: {}
+            onRecognizeText: {},
+            onClearImage: {}
         )
     }
     .padding()
