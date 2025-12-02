@@ -50,6 +50,12 @@ struct LibraryView: View {
     
     /// 用户配置管理器（获取启用的学科）
     @StateObject private var profileManager = UserProfileManager.shared
+    
+    /// 搜索栏是否展开（App Store 风格）
+    @State private var isSearchExpanded = false
+    
+    /// 搜索框焦点
+    @FocusState private var isSearchFocused: Bool
 
     // MARK: - Computed Properties
 
@@ -72,9 +78,11 @@ struct LibraryView: View {
             contentView
                 .navigationTitle("library_title")
                 .navigationBarTitleDisplayMode(.large)
-                .searchable(text: $viewModel.searchText, prompt: Text("library_search_prompt"))
                 .sheet(isPresented: $viewModel.showAdvancedSearch) {
                     AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
+                }
+                .safeAreaInset(edge: .bottom) {
+                    bottomToolbar
                 }
                 .onAppear {
                     viewModel.configure(with: modelContext)
@@ -107,108 +115,183 @@ private extension LibraryView {
             itemList
         }
     }
-
-    /// 筛选栏（固定在搜索栏下方）
-    var filterBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
-                // 全部按钮
-                FilterChip(
-                    title: String(localized: "filter_all"),
-                    isSelected: viewModel.selectedSubject == nil
-                ) {
-                    withAnimation(.spring(response: 0.3)) {
-                        viewModel.selectSubject(nil)
-                    }
+    
+    // MARK: - Bottom Toolbar (App Store Style)
+    
+    /// 底部工具栏（App Store 风格可展开搜索）
+    private var bottomToolbar: some View {
+        VStack(spacing: 0) {
+            Divider()
+            
+            HStack(spacing: 12) {
+                if isSearchExpanded {
+                    // 展开状态：搜索框
+                    expandedSearchBar
+                } else {
+                    // 收起状态：筛选按钮 + 搜索按钮
+                    collapsedToolbar
                 }
-
-                // 只显示用户启用的学科
-                ForEach(enabledSubjects, id: \.self) { subject in
-                    FilterChip(
-                        title: subject.displayName,
-                        isSelected: viewModel.selectedSubject == subject
-                    ) {
-                        withAnimation(.spring(response: 0.3)) {
-                            viewModel.selectSubject(subject)
-                        }
-                    }
-                }
-                
-                // 分隔线
-                Divider()
-                    .frame(height: 20)
-                
-                // 排序按钮
-                sortButton
-                
-                // 高级筛选按钮
-                advancedFilterButton
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isSearchExpanded)
         }
+        .background(.ultraThinMaterial)
     }
     
-    /// 排序按钮
-    private var sortButton: some View {
-        Menu {
-            ForEach(SortOption.allCases) { option in
-                Button {
-                    withAnimation {
-                        viewModel.sortOption = option
+    /// 收起状态的工具栏
+    private var collapsedToolbar: some View {
+        Group {
+            // 左侧：排序和筛选按钮
+            HStack(spacing: 12) {
+                // 排序按钮
+                Menu {
+                    ForEach(SortOption.allCases) { option in
+                        Button {
+                            withAnimation {
+                                viewModel.sortOption = option
+                            }
+                        } label: {
+                            HStack {
+                                Text(option.displayName)
+                                if viewModel.sortOption == option {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
                     }
                 } label: {
-                    HStack {
-                        Text(option.displayName)
-                        if viewModel.sortOption == option {
-                            Image(systemName: "checkmark")
+                    toolbarButton(icon: "arrow.up.arrow.down", label: viewModel.sortOption.shortName)
+                }
+                
+                // 高级筛选
+                Button {
+                    viewModel.showAdvancedSearch = true
+                } label: {
+                    toolbarButton(
+                        icon: "slider.horizontal.3",
+                        badge: viewModel.advancedCriteria.hasActiveFilters ? viewModel.advancedCriteria.activeFilterCount : nil
+                    )
+                }
+                
+                // 学科筛选（当前选中）
+                if let subject = viewModel.selectedSubject {
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            viewModel.selectSubject(nil)
                         }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(subject.displayName)
+                                .font(.subheadline.weight(.medium))
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.caption)
+                        }
+                        .foregroundStyle(subject.color)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(subject.color.opacity(0.15), in: Capsule())
                     }
                 }
             }
-        } label: {
-            HStack(spacing: 4) {
-                Image(systemName: "arrow.up.arrow.down")
-                Text(viewModel.sortOption.shortName)
+            
+            Spacer()
+            
+            // 右侧：搜索按钮
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    isSearchExpanded = true
+                    isSearchFocused = true
+                }
+            } label: {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(.primary)
+                    .frame(width: 36, height: 36)
+                    .background(Color.secondary.opacity(0.12), in: Circle())
             }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color.semantic.tertiaryBackground, in: Capsule())
         }
     }
     
-    /// 高级筛选按钮
-    private var advancedFilterButton: some View {
-        Button {
-            viewModel.showAdvancedSearch = true
-        } label: {
-            HStack(spacing: 4) {
-                Image(systemName: "slider.horizontal.3")
-                if viewModel.advancedCriteria.hasActiveFilters {
-                    Text("\(viewModel.advancedCriteria.activeFilterCount)")
-                        .font(.caption2.bold())
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.brand.primary, in: Capsule())
+    /// 展开状态的搜索栏
+    private var expandedSearchBar: some View {
+        HStack(spacing: 12) {
+            // 取消按钮
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    isSearchExpanded = false
+                    isSearchFocused = false
+                    viewModel.searchText = ""
+                }
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.primary)
+            }
+            
+            // 搜索输入框
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                TextField(String(localized: "library_search_prompt"), text: $viewModel.searchText)
+                    .font(.body)
+                    .focused($isSearchFocused)
+                    .submitLabel(.search)
+                
+                if !viewModel.searchText.isEmpty {
+                    Button {
+                        viewModel.searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
-            .font(.subheadline)
-            .foregroundStyle(viewModel.advancedCriteria.hasActiveFilters ? Color.brand.primary : .secondary)
             .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color.semantic.tertiaryBackground, in: Capsule())
+            .padding(.vertical, 10)
+            .background(Color.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
         }
+        .transition(.asymmetric(
+            insertion: .move(edge: .trailing).combined(with: .opacity),
+            removal: .move(edge: .trailing).combined(with: .opacity)
+        ))
+    }
+    
+    /// 工具栏按钮样式
+    private func toolbarButton(icon: String, label: String? = nil, badge: Int? = nil) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.system(size: 15, weight: .medium))
+            
+            if let label = label {
+                Text(label)
+                    .font(.subheadline.weight(.medium))
+            }
+            
+            if let badge = badge, badge > 0 {
+                Text("\(badge)")
+                    .font(.caption2.bold())
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(Color.brand.primary, in: Capsule())
+            }
+        }
+        .foregroundStyle(.primary)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color.secondary.opacity(0.12), in: Capsule())
     }
 
     /// 错题列表
     var itemList: some View {
         List {
-            // 筛选栏作为列表第一个 section，随内容滚动
+            // 学科快速筛选栏
             Section {
-                filterBar
+                subjectChipsBar
             }
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
@@ -239,8 +322,40 @@ private extension LibraryView {
             }
         }
         .listStyle(.plain)
+        .contentMargins(.bottom, 80) // 为底部工具栏留出空间
         .navigationDestination(for: ReviewItem.self) { item in
             ItemDetailView(item: item)
+        }
+    }
+    
+    /// 学科快速筛选栏（简洁版）
+    private var subjectChipsBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                // 全部
+                FilterChip(
+                    title: String(localized: "filter_all"),
+                    isSelected: viewModel.selectedSubject == nil
+                ) {
+                    withAnimation(.spring(response: 0.3)) {
+                        viewModel.selectSubject(nil)
+                    }
+                }
+                
+                // 用户选择的学科
+                ForEach(enabledSubjects, id: \.self) { subject in
+                    FilterChip(
+                        title: subject.displayName,
+                        isSelected: viewModel.selectedSubject == subject
+                    ) {
+                        withAnimation(.spring(response: 0.3)) {
+                            viewModel.selectSubject(subject)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
     }
 }
