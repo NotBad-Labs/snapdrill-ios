@@ -267,7 +267,9 @@ protocol ReviewItemRepositoryProtocol {
 
 ```swift
 // ViewModel 中的操作命名示例
-class LibraryViewModel: ObservableObject {
+@MainActor
+@Observable
+final class LibraryViewModel {
     // ✅ 动词 + 名词，清晰表达意图
     func filterItems(by subject: Subject) { ... }
     func searchItems(query: String) { ... }
@@ -496,10 +498,8 @@ func handle(_ item: ReviewItem)  // 不知道如何处理
 | 文档 | 用途 |
 |------|------|
 | [项目架构](./PROJECT_STRUCTURE.md) | 了解项目结构和分层 |
-| [Swift 6 最佳实践](./SWIFT6_BEST_PRACTICES.md) | 编码规范和标准 |
-| [值对象最佳实践](./VALUE_OBJECT_BEST_PRACTICES.md) | 值对象设计模式 |
-| [App Store 审核清单](./APP_STORE_REVIEW_CHECKLIST.md) | 上架前检查 ⭐ 新增 |
-| [安全审计指南](./SECURITY_AUDIT_GUIDE.md) | 安全规范 ⭐ 新增 |
+| [编码规范](./CODING_STANDARDS.md) | Swift 6 / 值对象 / 错误处理规范 |
+| [发布清单](../RELEASE_CHECKLIST.md) | 发布检查 (含 App Store 审核) |
 
 ---
 

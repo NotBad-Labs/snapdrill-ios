@@ -22,11 +22,20 @@
 
 | 技术 | 版本 | 用途 |
 |------|------|------|
-| iOS | 26.0+ | 目标平台 |
-| Swift | 6.2+ | 开发语言 |
+| iOS | 26.0+ | 最低支持版本 |
+| Swift | 6.2.1 | 开发语言 |
+| Xcode | 26.0+ | 开发工具 |
 | SwiftUI | - | 声明式 UI |
 | SwiftData | - | 数据持久化 |
 | Vision | - | OCR 文字识别 |
+
+### 平台策略
+
+本项目仅支持 **iOS 26.0+**。
+
+- **技术驱动**: 全面采用 SwiftData、Swift 6 严格并发检查、@Observable 宏。
+- **产品体验**: 利用最新 Vision API 提供高精度 OCR，无需维护旧版本兼容代码。
+- **开发效率**: 无需 `#available` 检查，代码库保持清洁。
 
 ## 📋 Git Flow 工作流程
 
@@ -55,16 +64,20 @@ main ←────────────────────────
 ```
 NotBad/
 ├── Domain/                 # 领域层（核心业务）
-│   ├── Entities/           # 实体 (ReviewItem)
-│   ├── ValueObjects/       # 值对象 (9个)
+│   ├── Entities/           # 实体 (ReviewItem + 4个扩展)
+│   ├── ValueObjects/       # 值对象 (13个)
+│   ├── Education/          # 多国教育体系 (6国支持)
 │   └── Protocols/          # 协议定义
 ├── Data/                   # 数据层
 │   └── Repository/         # 仓储实现
 ├── Infrastructure/         # 基础设施
 │   ├── OCR/               # OCR 服务
-│   └── Camera/            # 相机组件
+│   ├── Scanner/           # 实时文本扫描
+│   ├── Camera/            # 相机组件
+│   └── Widget/            # Widget 数据同步
 └── Presentation/           # 表现层
-    └── Features/           # 功能模块 (MVVM)
+    ├── Common/             # 通用组件/样式
+    └── Features/           # 功能模块 (6个, MVVM)
 ```
 
 ## 🚀 快速开始
@@ -94,9 +107,9 @@ open NotBad.xcodeproj
 | 文档 | 说明 |
 |------|------|
 | [项目结构](docs/PROJECT_STRUCTURE.md) | 完整目录结构说明 |
-| [编码规范](docs/CODING_STANDARDS.md) | Swift 6.2 / iOS 26 开发规范 |
-| [术语表](docs/GLOSSARY.md) | 项目统一语言定义 |
-| [审核清单](docs/APP_STORE_REVIEW_CHECKLIST.md) | App Store 发布检查清单 |
+| [编码规范](docs/CODING_STANDARDS.md) | Swift 6 / SwiftUI / SwiftData 工程手册 |
+| [术语表](docs/GLOSSARY.md) | 项目统一语言定义 (DDD) |
+| [发布清单](RELEASE_CHECKLIST.md) | 发布前检查清单 (含 App Store 审核) |
 | [贡献指南](CONTRIBUTING.md) | 如何参与贡献 |
 
 ## 📄 License

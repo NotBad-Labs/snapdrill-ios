@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术支持 - NotBad 不错错题本</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #007AFF;
+            --text: #1d1d1f;
+            --text-secondary: #86868b;
+            --bg: #f5f5f7;
+            --white: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            line-height: 1.8;
+            color: var(--text);
+            background: var(--bg);
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .logo span { color: var(--primary); }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+        h2 {
+            font-size: 22px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+        p { margin-bottom: 15px; }
+        .contact-card {
+            background: var(--bg);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .contact-item:last-child { margin-bottom: 0; }
+        .contact-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            width: 40px;
+            text-align: center;
+        }
+        .contact-info h3 {
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+        .contact-info a, .contact-info p {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 15px;
+            margin: 0;
+        }
+        .contact-info a:hover { text-decoration: underline; }
+        .faq {
+            margin-top: 30px;
+        }
+        .faq-item {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .faq-item h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+        .faq-item p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin: 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 15px;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg);
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .wrapper { position: relative; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <a href="support-en.html" class="lang-switch">EN</a>
+    </div>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="logo">Not<span>Bad</span></a>
+            <h1>技术支持</h1>
+            <p class="subtitle">我们随时为你提供帮助</p>
+        </div>
+
+        <h2>📬 联系我们</h2>
+        <div class="contact-card">
+            <div class="contact-item">
+                <span class="contact-icon">✉️</span>
+                <div class="contact-info">
+                    <h3>邮件支持</h3>
+                    <a href="mailto:support@notbad.app">support@notbad.app</a>
+                </div>
+            </div>
+            <div class="contact-item">
+                <span class="contact-icon">⏰</span>
+                <div class="contact-info">
+                    <h3>响应时间</h3>
+                    <p style="color: var(--text-secondary);">通常在 24-48 小时内回复</p>
+                </div>
+            </div>
+        </div>
+
+        <h2>❓ 常见问题</h2>
+        <div class="faq">
+            <div class="faq-item">
+                <h3>如何导入错题？</h3>
+                <p>在首页点击「+」按钮，可以通过拍照、相册选择或实时扫描三种方式导入错题。App 会自动识别图片中的文字。</p>
+            </div>
+            <div class="faq-item">
+                <h3>数据会上传到服务器吗？</h3>
+                <p>不会。你的所有数据都存储在本地设备上，我们不会收集或上传任何个人信息。如果你开启了 iCloud 同步，数据会通过 Apple 的加密通道同步到你自己的 iCloud 账户。</p>
+            </div>
+            <div class="faq-item">
+                <h3>如何更换设备？</h3>
+                <p>开启 iCloud 同步功能后，新设备登录同一 Apple ID 即可自动同步所有数据。</p>
+            </div>
+            <div class="faq-item">
+                <h3>复习提醒是怎么计算的？</h3>
+                <p>我们采用艾宾浩斯遗忘曲线算法，根据你对每道错题的掌握程度，智能计算最佳复习时间。掌握程度越低，复习间隔越短。</p>
+            </div>
+            <div class="faq-item">
+                <h3>App 支持哪些语言？</h3>
+                <p>目前支持简体中文、繁体中文、英语、日语和韩语。OCR 识别支持中文和英文。</p>
+            </div>
+        </div>
+
+        <h2>📱 系统要求</h2>
+        <p>NotBad 需要 iOS 17.0 或更高版本，支持 iPhone 和 iPad。</p>
+
+        <a href="index.html" class="back-link">← 返回首页</a>
+    </div>
+</body>
+</html>

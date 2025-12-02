@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - NotBad</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #007AFF;
+            --text: #1d1d1f;
+            --text-secondary: #86868b;
+            --bg: #f5f5f7;
+            --white: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            line-height: 1.8;
+            color: var(--text);
+            background: var(--bg);
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .logo span { color: var(--primary); }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+        h2 {
+            font-size: 22px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+        p { margin-bottom: 15px; }
+        .contact-card {
+            background: var(--bg);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .contact-item:last-child { margin-bottom: 0; }
+        .contact-icon {
+            font-size: 24px;
+            margin-right: 15px;
+            width: 40px;
+            text-align: center;
+        }
+        .contact-info h3 {
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+        .contact-info a, .contact-info p {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 15px;
+            margin: 0;
+        }
+        .contact-info a:hover { text-decoration: underline; }
+        .faq {
+            margin-top: 30px;
+        }
+        .faq-item {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .faq-item h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+        .faq-item p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin: 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 15px;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg);
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .wrapper { position: relative; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <a href="support.html" class="lang-switch">中文</a>
+    </div>
+    <div class="container">
+        <div class="header">
+            <a href="index-en.html" class="logo">Not<span>Bad</span></a>
+            <h1>Support</h1>
+            <p class="subtitle">We're here to help</p>
+        </div>
+
+        <h2>📬 Contact Us</h2>
+        <div class="contact-card">
+            <div class="contact-item">
+                <span class="contact-icon">✉️</span>
+                <div class="contact-info">
+                    <h3>Email Support</h3>
+                    <a href="mailto:support@notbad.app">support@notbad.app</a>
+                </div>
+            </div>
+            <div class="contact-item">
+                <span class="contact-icon">⏰</span>
+                <div class="contact-info">
+                    <h3>Response Time</h3>
+                    <p style="color: var(--text-secondary);">Usually within 24-48 hours</p>
+                </div>
+            </div>
+        </div>
+
+        <h2>❓ Frequently Asked Questions</h2>
+        <div class="faq">
+            <div class="faq-item">
+                <h3>How do I add mistakes?</h3>
+                <p>Tap the "+" button on the home screen. You can add mistakes by taking a photo, selecting from your photo library, or using the live scanner. The app will automatically recognize text in the image.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Is my data uploaded to a server?</h3>
+                <p>No. All your data is stored locally on your device. We do not collect or upload any personal information. If you enable iCloud sync, data is synced to your own iCloud account through Apple's encrypted channel.</p>
+            </div>
+            <div class="faq-item">
+                <h3>How do I transfer to a new device?</h3>
+                <p>Enable iCloud sync, then sign in with the same Apple ID on your new device. All data will sync automatically.</p>
+            </div>
+            <div class="faq-item">
+                <h3>How are review reminders calculated?</h3>
+                <p>We use the Ebbinghaus forgetting curve algorithm to intelligently calculate the optimal review time based on your mastery level for each mistake. Lower mastery means shorter review intervals.</p>
+            </div>
+            <div class="faq-item">
+                <h3>What languages are supported?</h3>
+                <p>The app supports Simplified Chinese, Traditional Chinese, English, Japanese, and Korean. OCR recognition supports Chinese and English text.</p>
+            </div>
+        </div>
+
+        <h2>📱 System Requirements</h2>
+        <p>NotBad requires iOS 17.0 or later. Compatible with iPhone and iPad.</p>
+
+        <a href="index-en.html" class="back-link">← Back to Home</a>
+    </div>
+</body>
+</html>

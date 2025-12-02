@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotBad - Smart Mistake Notebook App for Students</title>
+    <meta name="description" content="NotBad is an intelligent mistake notebook app designed for K-12 students, featuring OCR recognition and Ebbinghaus memory curve for effective learning.">
+    <meta name="keywords" content="mistake notebook,K12,study,review,Ebbinghaus,OCR,iOS,App,education">
+    <link rel="alternate" hreflang="zh-Hans" href="index.html">
+    <link rel="alternate" hreflang="en" href="index-en.html">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #007AFF;
+            --primary-dark: #0056CC;
+            --text: #1d1d1f;
+            --text-secondary: #86868b;
+            --bg: #f5f5f7;
+            --white: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+        }
+        .logo span { color: var(--primary); }
+        .nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 25px;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        .nav a:hover { color: var(--primary); }
+        .lang-switch {
+            background: var(--bg);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(180deg, var(--white) 0%, var(--bg) 100%);
+        }
+        .hero-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 28px;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+        }
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+        .hero .tagline {
+            font-size: 22px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+        .app-store-btn {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        .app-store-btn:hover { transform: scale(1.05); }
+        .coming-soon {
+            display: inline-block;
+            background: var(--text-secondary);
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: default;
+        }
+
+        /* Features */
+        .features {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        .features h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 50px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .feature-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        .feature-card h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* Privacy Section */
+        .privacy-section {
+            background: var(--white);
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .privacy-section h2 {
+            font-size: 30px;
+            margin-bottom: 20px;
+        }
+        .privacy-section p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        .privacy-badges {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            text-align: center;
+        }
+        .badge-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        .badge-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text);
+            color: var(--white);
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .footer-links {
+            margin-bottom: 20px;
+        }
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: #fff; }
+        .copyright {
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 32px; }
+            .hero .tagline { font-size: 18px; }
+            .features h2 { font-size: 28px; }
+            .nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index-en.html" class="logo">Not<span>Bad</span></a>
+            <nav class="nav">
+                <a href="#features">Features</a>
+                <a href="#privacy">Privacy</a>
+                <a href="support-en.html">Support</a>
+                <a href="index.html" class="lang-switch">中文</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-icon">📝</div>
+        <h1>NotBad</h1>
+        <p class="tagline">Smart Mistake Notebook for Effective Learning</p>
+        <a href="#" class="coming-soon">Coming Soon to App Store</a>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <h2>Key Features</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📸</div>
+                <h3>Smart OCR Recognition</h3>
+                <p>Automatically recognize text from photos with support for multiple languages. Quick and easy mistake entry.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>Ebbinghaus Memory Curve</h3>
+                <p>Scientifically schedule review times based on the forgetting curve. Get reminded at the optimal moment.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Learning Analytics</h3>
+                <p>Intuitive dashboard to identify weak areas and improve with targeted practice.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏷️</div>
+                <h3>Knowledge Point Tags</h3>
+                <p>Organize by subject, question type, and knowledge points. Find past mistakes instantly.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <h3>Mastery Level Tracking</h3>
+                <p>Five-level mastery assessment to clearly understand your learning progress on each mistake.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔔</div>
+                <h3>Smart Review Reminders</h3>
+                <p>Intelligent notifications based on your learning progress. Never miss a review session.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Privacy -->
+    <section class="privacy-section" id="privacy">
+        <h2>Privacy First</h2>
+        <p>Your learning data belongs to you. We never collect, upload, or share any of your personal information.</p>
+        <div class="privacy-badges">
+            <div class="badge">
+                <div class="badge-icon">📱</div>
+                <div class="badge-text">Data Stored Locally</div>
+            </div>
+            <div class="badge">
+                <div class="badge-icon">🚫</div>
+                <div class="badge-text">No Ad Tracking</div>
+            </div>
+            <div class="badge">
+                <div class="badge-icon">🔒</div>
+                <div class="badge-text">No Account Required</div>
+            </div>
+            <div class="badge">
+                <div class="badge-icon">☁️</div>
+                <div class="badge-text">iCloud Sync (Optional)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="privacy-policy-en.html">Privacy Policy</a>
+            <a href="support-en.html">Support</a>
+            <a href="mailto:support@notbad.app">Contact Us</a>
+        </div>
+        <p class="copyright">© 2025 NotBad. All rights reserved.</p>
+    </footer>
+</body>
+</html>
