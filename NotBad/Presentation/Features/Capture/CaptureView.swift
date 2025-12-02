@@ -70,23 +70,31 @@ extension CaptureView {
     private var mainContent: some View {
         Group {
             if viewModel.selectedImage == nil {
-                // 未选择图片：只显示选择入口
-                imageSelectionView
+                // 未选择图片：显示表单 + 底部选择按钮
+                initialInputView
             } else {
-                // 已选择图片：显示编辑表单
+                // 已选择图片：显示完整编辑表单 + 保存按钮
                 editFormView
             }
         }
     }
     
-    /// 图片选择视图（初始状态）
-    private var imageSelectionView: some View {
-        VStack {
-            Spacer()
-            imageCard
-                .frame(height: 160)
-                .padding(.horizontal)
-            Spacer()
+    /// 初始录入视图（未选择图片）
+    private var initialInputView: some View {
+        ScrollView {
+            VStack(spacing: DesignTokens.Spacing.lg) {
+                formSection
+            }
+            .padding(.horizontal)
+            .padding(.top, DesignTokens.Spacing.md)
+            .padding(.bottom, 120)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .onTapGesture {
+            hideKeyboard()
+        }
+        .safeAreaInset(edge: .bottom) {
+            imageSourceBar
         }
     }
     
@@ -195,6 +203,60 @@ extension CaptureView {
                 }
             }
         }
+    }
+}
+
+// MARK: - Image Source Bar
+
+extension CaptureView {
+    /// 底部图片来源选择栏（初始状态显示）
+    private var imageSourceBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+            
+            HStack(spacing: DesignTokens.Spacing.xxl) {
+                // 拍照
+                Button {
+                    viewModel.showCamera = true
+                } label: {
+                    ImageSourceButton(icon: "camera", title: String(localized: "capture_camera"))
+                }
+                
+                // 扫描
+                if LiveTextScannerView.isSupported {
+                    Button {
+                        viewModel.showLiveScanner = true
+                    } label: {
+                        ImageSourceButton(icon: "doc.text.viewfinder", title: String(localized: "capture_scan"))
+                    }
+                }
+                
+                // 相册
+                PhotosPicker(selection: $selectedItem, matching: .images) {
+                    ImageSourceButton(icon: "photo.stack", title: String(localized: "capture_album"))
+                }
+            }
+            .padding(.vertical, DesignTokens.Spacing.md)
+        }
+        .background(.ultraThinMaterial)
+    }
+}
+
+/// 底部图片来源按钮样式
+private struct ImageSourceButton: View {
+    let icon: String
+    let title: String
+    
+    var body: some View {
+        VStack(spacing: DesignTokens.Spacing.xs) {
+            Image(systemName: icon)
+                .font(.system(size: 24, weight: .medium))
+                .symbolRenderingMode(.hierarchical)
+            Text(title)
+                .font(.caption)
+        }
+        .foregroundStyle(.tint)
+        .frame(minWidth: 60)
     }
 }
 
