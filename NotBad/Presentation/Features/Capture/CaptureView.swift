@@ -68,6 +68,30 @@ struct CaptureView: View {
 
 extension CaptureView {
     private var mainContent: some View {
+        Group {
+            if viewModel.selectedImage == nil {
+                // 未选择图片：只显示选择入口
+                imageSelectionView
+            } else {
+                // 已选择图片：显示编辑表单
+                editFormView
+            }
+        }
+    }
+    
+    /// 图片选择视图（初始状态）
+    private var imageSelectionView: some View {
+        VStack {
+            Spacer()
+            imageCard
+                .frame(height: 160)
+                .padding(.horizontal)
+            Spacer()
+        }
+    }
+    
+    /// 编辑表单视图（选择图片后）
+    private var editFormView: some View {
         ScrollView {
             VStack(spacing: DesignTokens.Spacing.lg) {
                 imageCard
