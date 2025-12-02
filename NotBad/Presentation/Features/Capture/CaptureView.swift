@@ -131,28 +131,30 @@ extension CaptureView {
 // MARK: - Image Card
 
 extension CaptureView {
+    @ViewBuilder
     private var imageCard: some View {
-        ImageSelectionCard(
-            selectedItem: $selectedItem,
-            selectedImage: viewModel.selectedImage,
-            isRecognizingText: viewModel.isRecognizingText,
-            showLiveScannerSupport: LiveTextScannerView.isSupported,
-            onCameraPressed: {
-                viewModel.showCamera = true
-            },
-            onLiveScanPressed: {
-                viewModel.showLiveScanner = true
-            },
-            onRecognizeText: {
-                Task {
-                    await viewModel.recognizeText()
+        if let image = viewModel.selectedImage {
+            SelectedImageCard(
+                selectedImage: image,
+                isRecognizingText: viewModel.isRecognizingText,
+                showLiveScannerSupport: LiveTextScannerView.isSupported,
+                onCameraPressed: {
+                    viewModel.showCamera = true
+                },
+                onLiveScanPressed: {
+                    viewModel.showLiveScanner = true
+                },
+                onRecognizeText: {
+                    Task {
+                        await viewModel.recognizeText()
+                    }
+                },
+                onClearImage: {
+                    viewModel.clearImage()
+                    selectedItem = nil
                 }
-            },
-            onClearImage: {
-                viewModel.clearImage()
-                selectedItem = nil
-            }
-        )
+            )
+        }
     }
 }
 
