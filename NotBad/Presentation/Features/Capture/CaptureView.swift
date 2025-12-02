@@ -216,49 +216,74 @@ extension CaptureView {
         VStack(spacing: 0) {
             Divider()
             
-            HStack(spacing: DesignTokens.Spacing.xxl) {
-                // 拍照
+            // Apple 相机风格：中间主按钮突出，两侧辅助按钮
+            HStack {
+                // 左侧：相册按钮
+                PhotosPicker(selection: $selectedItem, matching: .images) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.secondary.opacity(0.15))
+                            .frame(width: 44, height: 44)
+                        
+                        Image(systemName: "photo.on.rectangle")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundStyle(.primary)
+                    }
+                }
+                .accessibilityLabel(Text("capture_album"))
+                
+                Spacer()
+                
+                // 中间：拍照主按钮（相机风格）
                 Button {
                     viewModel.showCamera = true
                 } label: {
-                    ImageSourceButton(icon: "camera", title: String(localized: "capture_camera"))
+                    ZStack {
+                        // 外圈
+                        Circle()
+                            .strokeBorder(Color.primary.opacity(0.2), lineWidth: 4)
+                            .frame(width: 72, height: 72)
+                        
+                        // 内圈（主按钮）
+                        Circle()
+                            .fill(Color.primary)
+                            .frame(width: 60, height: 60)
+                        
+                        // 相机图标
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 24, weight: .medium))
+                            .foregroundStyle(Color(uiColor: .systemBackground))
+                    }
                 }
+                .accessibilityLabel(Text("capture_camera"))
                 
-                // 扫描
+                Spacer()
+                
+                // 右侧：扫描按钮
                 if LiveTextScannerView.isSupported {
                     Button {
                         viewModel.showLiveScanner = true
                     } label: {
-                        ImageSourceButton(icon: "doc.text.viewfinder", title: String(localized: "capture_scan"))
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.secondary.opacity(0.15))
+                                .frame(width: 44, height: 44)
+                            
+                            Image(systemName: "doc.text.viewfinder")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundStyle(.primary)
+                        }
                     }
-                }
-                
-                // 相册
-                PhotosPicker(selection: $selectedItem, matching: .images) {
-                    ImageSourceButton(icon: "photo.stack", title: String(localized: "capture_album"))
+                    .accessibilityLabel(Text("capture_scan"))
+                } else {
+                    // 占位，保持对称
+                    Color.clear.frame(width: 44, height: 44)
                 }
             }
-            .padding(.vertical, DesignTokens.Spacing.md)
+            .padding(.horizontal, DesignTokens.Spacing.xxl)
+            .padding(.vertical, DesignTokens.Spacing.lg)
         }
         .background(.ultraThinMaterial)
-    }
-}
-
-/// 底部图片来源按钮样式
-private struct ImageSourceButton: View {
-    let icon: String
-    let title: String
-    
-    var body: some View {
-        VStack(spacing: DesignTokens.Spacing.xs) {
-            Image(systemName: icon)
-                .font(.system(size: 24, weight: .medium))
-                .symbolRenderingMode(.hierarchical)
-            Text(title)
-                .font(.caption)
-        }
-        .foregroundStyle(.tint)
-        .frame(minWidth: 60)
     }
 }
 
