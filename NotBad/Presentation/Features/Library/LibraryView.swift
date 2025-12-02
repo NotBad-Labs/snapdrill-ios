@@ -59,21 +59,32 @@ struct LibraryView: View {
 
     var body: some View {
         NavigationStack {
-            contentView
-                .navigationTitle("library_title")
-                .searchable(text: $viewModel.searchText, prompt: Text("library_search_prompt"))
-                .sheet(isPresented: $viewModel.showAdvancedSearch) {
-                    AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
-                }
-                .onAppear {
-                    viewModel.configure(with: modelContext)
-                    #if DEBUG
-                    print("📚 [LibraryView] onAppear - 共 \(items.count) 条数据")
-                    for item in items {
-                        print("  📝 \(item.id): \(item.title)")
+            VStack(spacing: 0) {
+                // 筛选栏固定在顶部（搜索栏下方）
+                filterBar
+                    .padding(.bottom, 8)
+                    .background(.ultraThinMaterial)
+                    .overlay(alignment: .bottom) {
+                        Divider()
                     }
-                    #endif
+                
+                // 内容区域
+                contentView
+            }
+            .navigationTitle("library_title")
+            .searchable(text: $viewModel.searchText, prompt: Text("library_search_prompt"))
+            .sheet(isPresented: $viewModel.showAdvancedSearch) {
+                AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
+            }
+            .onAppear {
+                viewModel.configure(with: modelContext)
+                #if DEBUG
+                print("📚 [LibraryView] onAppear - 共 \(items.count) 条数据")
+                for item in items {
+                    print("  📝 \(item.id): \(item.title)")
                 }
+                #endif
+            }
         }
     }
 }
@@ -97,7 +108,7 @@ private extension LibraryView {
         }
     }
 
-    /// 筛选栏（作为列表头部，随内容滚动）
+    /// 筛选栏（固定在搜索栏下方）
     var filterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
@@ -133,9 +144,8 @@ private extension LibraryView {
                 advancedFilterButton
             }
             .padding(.horizontal)
+            .padding(.vertical, 8)
         }
-        .listRowInsets(EdgeInsets())
-        .listRowSeparator(.hidden)
     }
     
     /// 排序按钮
@@ -195,9 +205,6 @@ private extension LibraryView {
     /// 错题列表
     var itemList: some View {
         List {
-            // 筛选栏作为列表第一行，随内容滚动
-            filterBar
-            
             if filteredItems.isEmpty {
                 // 有数据但筛选结果为空
                 ContentUnavailableView {
