@@ -50,6 +50,12 @@ struct LibraryView: View {
     
     /// 用户配置管理器（获取启用的学科）
     @StateObject private var profileManager = UserProfileManager.shared
+    
+    /// 程序化导航路径
+    @State private var navigationPath = NavigationPath()
+    
+    /// 搜索是否激活
+    @Environment(\.isSearching) private var isSearching
 
     // MARK: - Computed Properties
 
@@ -68,7 +74,7 @@ struct LibraryView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             contentView
                 .navigationTitle("library_title")
                 .navigationBarTitleDisplayMode(.large)
@@ -226,8 +232,20 @@ private extension LibraryView {
                     .listRowSeparator(.hidden)
                 } else {
                     ForEach(filteredItems) { item in
-                        NavigationLink(value: item) {
+                        // 使用 Button + 程序化导航，解决搜索时点击不灵敏的问题
+                        Button {
+                            navigationPath.append(item)
+                        } label: {
                             ItemRow(item: item)
+                        }
+                        .buttonStyle(.plain)
+                        // 添加右侧箭头，模拟 NavigationLink 外观
+                        .listRowBackground(Color.clear)
+                        .background(alignment: .trailing) {
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(.tertiary)
+                                .padding(.trailing, 4)
                         }
                     }
                     .onDelete { offsets in
