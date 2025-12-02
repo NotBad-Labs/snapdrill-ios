@@ -59,33 +59,30 @@ struct LibraryView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                filterBar
-                contentView
-            }
-            .navigationTitle("library_title")
-            .searchable(text: $viewModel.searchText, prompt: Text("library_search_prompt"))
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    advancedSearchButton
-                }
+            contentView
+                .navigationTitle("library_title")
+                .searchable(text: $viewModel.searchText, prompt: Text("library_search_prompt"))
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        advancedSearchButton
+                    }
 
-                ToolbarItem(placement: .secondaryAction) {
-                    sortMenuButton
+                    ToolbarItem(placement: .secondaryAction) {
+                        sortMenuButton
+                    }
                 }
-            }
-            .sheet(isPresented: $viewModel.showAdvancedSearch) {
-                AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
-            }
-            .onAppear {
-                viewModel.configure(with: modelContext)
-                #if DEBUG
-                print("📚 [LibraryView] onAppear - 共 \(items.count) 条数据")
-                for item in items {
-                    print("  📝 \(item.id): \(item.title)")
+                .sheet(isPresented: $viewModel.showAdvancedSearch) {
+                    AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
                 }
-                #endif
-            }
+                .onAppear {
+                    viewModel.configure(with: modelContext)
+                    #if DEBUG
+                    print("📚 [LibraryView] onAppear - 共 \(items.count) 条数据")
+                    for item in items {
+                        print("  📝 \(item.id): \(item.title)")
+                    }
+                    #endif
+                }
         }
     }
 }
@@ -140,7 +137,8 @@ private extension LibraryView {
     /// 内容视图
     @ViewBuilder
     var contentView: some View {
-        if filteredItems.isEmpty {
+        if items.isEmpty {
+            // 完全没有数据
             ContentUnavailableView {
                 Label(String(localized: "library_empty_title"), systemImage: "books.vertical")
             } description: {
@@ -151,7 +149,7 @@ private extension LibraryView {
         }
     }
 
-    /// 筛选栏
+    /// 筛选栏（作为列表头部，随内容滚动）
     var filterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
@@ -176,22 +174,35 @@ private extension LibraryView {
                 }
             }
             .padding(.horizontal)
-            .padding(.vertical, 8)
         }
-        .background(Color(uiColor: .systemBackground))
+        .listRowInsets(EdgeInsets())
+        .listRowSeparator(.hidden)
     }
 
     /// 错题列表
     var itemList: some View {
         List {
-            ForEach(filteredItems) { item in
-                NavigationLink(value: item) {
-                    ItemRow(item: item)
+            // 筛选栏作为列表第一行，随内容滚动
+            filterBar
+            
+            if filteredItems.isEmpty {
+                // 有数据但筛选结果为空
+                ContentUnavailableView {
+                    Label(String(localized: "library_no_results"), systemImage: "magnifyingglass")
+                } description: {
+                    Text("library_try_different_filter")
                 }
-            }
-            .onDelete { offsets in
-                withAnimation {
-                    viewModel.deleteItems(from: filteredItems, at: offsets)
+                .listRowSeparator(.hidden)
+            } else {
+                ForEach(filteredItems) { item in
+                    NavigationLink(value: item) {
+                        ItemRow(item: item)
+                    }
+                }
+                .onDelete { offsets in
+                    withAnimation {
+                        viewModel.deleteItems(from: filteredItems, at: offsets)
+                    }
                 }
             }
         }
