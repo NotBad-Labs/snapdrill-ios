@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import UIKit
 
 // MARK: - ImageSelectionCard
 
@@ -105,22 +106,22 @@ struct ImageSelectionCard: View {
     }
 
     private var actionButtonsRow: some View {
-        HStack(spacing: DesignTokens.Spacing.lg) {
+        HStack(spacing: DesignTokens.Spacing.xl) {
             // 拍照
-            ActionChip(
-                icon: "camera.fill",
+            CaptureMethodButton(
+                icon: "camera",
                 title: String(localized: "capture_camera"),
-                color: Color.brand.primary
+                subtitle: String(localized: "capture_camera_hint")
             ) {
                 onCameraPressed()
             }
 
             // 实时扫描
             if showLiveScannerSupport {
-                ActionChip(
-                    icon: "text.viewfinder",
+                CaptureMethodButton(
+                    icon: "doc.text.viewfinder",
                     title: String(localized: "capture_scan"),
-                    color: Color.brand.secondary
+                    subtitle: String(localized: "capture_scan_hint")
                 ) {
                     onLiveScanPressed()
                 }
@@ -128,10 +129,10 @@ struct ImageSelectionCard: View {
 
             // 相册
             PhotosPicker(selection: $selectedItem, matching: .images) {
-                ActionChipContent(
-                    icon: "photo.on.rectangle",
+                CaptureMethodContent(
+                    icon: "photo.stack",
                     title: String(localized: "capture_album"),
-                    color: Color.brand.success
+                    subtitle: String(localized: "capture_album_hint")
                 )
             }
         }
@@ -234,60 +235,74 @@ struct ImageSelectionCard: View {
     }
 }
 
-// MARK: - ActionChip
+// MARK: - CaptureMethodButton
 
-/// 小型操作按钮
-private struct ActionChip: View {
+/// Apple 风格的录入方式按钮
+private struct CaptureMethodButton: View {
     let icon: String
     let title: String
-    let color: Color
+    let subtitle: String
     let action: () -> Void
-
-    @State private var isPressed = false
 
     var body: some View {
         Button {
             // 触觉反馈
-            let generator = UIImpactFeedbackGenerator(style: .light)
+            let generator = UIImpactFeedbackGenerator(style: .medium)
             generator.impactOccurred()
             action()
         } label: {
-            ActionChipContent(icon: icon, title: title, color: color)
+            CaptureMethodContent(icon: icon, title: title, subtitle: subtitle)
         }
-        .buttonStyle(ScaleButtonStyle())
-        .accessibilityIdentifier(title)
+        .buttonStyle(CaptureButtonStyle())
+        .accessibilityLabel(title)
+        .accessibilityHint(subtitle)
     }
 }
 
-/// 操作按钮内容（用于 PhotosPicker）
-struct ActionChipContent: View {
+/// 录入方式按钮内容（用于 PhotosPicker）
+struct CaptureMethodContent: View {
     let icon: String
     let title: String
-    let color: Color
+    let subtitle: String
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.sm) {
+            // 图标 - Apple 风格的圆形背景
             ZStack {
                 Circle()
-                    .fill(color.opacity(0.12))
-                    .frame(width: 48, height: 48)
-
+                    .fill(.tint.opacity(0.1))
+                    .frame(width: 56, height: 56)
+                
                 Image(systemName: icon)
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(color)
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundStyle(.tint)
+                    .symbolRenderingMode(.hierarchical)
             }
 
+            // 标题
             Text(title)
-                .font(.caption.weight(.medium))
+                .font(.subheadline.weight(.medium))
                 .foregroundStyle(.primary)
+            
+            // 副标题
+            Text(subtitle)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
         }
-        .frame(width: 80, height: 80)
-        .background(Color.semantic.tertiaryBackground.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
-        .overlay(
-            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
-                .strokeBorder(Color.semantic.separator.opacity(0.5), lineWidth: 1)
-        )
+        .frame(minWidth: 80)
+        .padding(.vertical, DesignTokens.Spacing.sm)
+        .padding(.horizontal, DesignTokens.Spacing.xs)
+    }
+}
+
+/// 录入按钮的点击动画样式
+private struct CaptureButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.92 : 1)
+            .opacity(configuration.isPressed ? 0.8 : 1)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }
 
