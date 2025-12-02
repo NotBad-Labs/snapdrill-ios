@@ -14,6 +14,7 @@ import SwiftUI
 /// 引导用户完成初始设置：
 /// 1. 选择国家/地区（确定教育体系）
 /// 2. 选择当前年级
+/// 3. 选择学科（根据年级推荐）
 struct OnboardingView: View {
 
     // MARK: - Environment
@@ -25,6 +26,11 @@ struct OnboardingView: View {
     @State private var currentStep: OnboardingStep = .welcome
     @State private var selectedRegion: EducationRegion = .china
     @State private var selectedGrade: Grade = .grade7
+    @State private var selectedSubjects: Set<Subject> = []
+    
+    // MARK: - Profile Manager
+    
+    @StateObject private var profileManager = UserProfileManager.shared
 
     // MARK: - Callbacks
 
@@ -48,6 +54,9 @@ struct OnboardingView: View {
 
                 gradeStep
                     .tag(OnboardingStep.selectGrade)
+                
+                subjectStep
+                    .tag(OnboardingStep.selectSubjects)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut, value: currentStep)
@@ -178,6 +187,70 @@ struct OnboardingView: View {
             }
         }
     }
+    
+    // MARK: - Subject Step
+    
+    private var subjectStep: some View {
+        VStack(spacing: DesignTokens.Spacing.xl) {
+            VStack(spacing: DesignTokens.Spacing.md) {
+                Image(systemName: "book.fill")
+                    .font(.system(size: 60))
+                    .foregroundStyle(Color.brand.primary)
+                
+                Text("onboarding_subject_title")
+                    .font(.title.bold())
+                
+                Text("onboarding_subject_subtitle")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, DesignTokens.Spacing.lg)
+            }
+            .padding(.top, DesignTokens.Spacing.xl)
+            
+            // 学科选择
+            ScrollView {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
+                    // 按分类显示适用于当前年级的学科
+                    ForEach(SubjectCategory.allCases) { category in
+                        let subjectsInCategory = recommendedSubjects.filter { $0.category == category }
+                        
+                        if !subjectsInCategory.isEmpty {
+                            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                                Text(category.displayName)
+                                    .font(.subheadline.bold())
+                                    .foregroundStyle(.secondary)
+                                    .padding(.horizontal, DesignTokens.Spacing.xs)
+                                
+                                LazyVGrid(columns: [
+                                    GridItem(.flexible()),
+                                    GridItem(.flexible()),
+                                    GridItem(.flexible())
+                                ], spacing: DesignTokens.Spacing.sm) {
+                                    ForEach(subjectsInCategory) { subject in
+                                        SubjectOptionButton(
+                                            subject: subject,
+                                            isSelected: selectedSubjects.contains(subject),
+                                            action: { toggleSubject(subject) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, DesignTokens.Spacing.lg)
+            }
+            
+            // 已选学科数量提示
+            if !selectedSubjects.isEmpty {
+                Text("onboarding_subject_selected_count \(selectedSubjects.count)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, DesignTokens.Spacing.sm)
+            }
+        }
+    }
 
     // MARK: - Bottom Button
 
@@ -204,6 +277,8 @@ struct OnboardingView: View {
         case .selectRegion:
             return "onboarding_button_next"
         case .selectGrade:
+            return "onboarding_button_next"
+        case .selectSubjects:
             return "onboarding_button_done"
         }
     }
@@ -220,8 +295,23 @@ struct OnboardingView: View {
             return Grade.allCases.filter { $0 != .kindergarten }
         }
     }
+    
+    /// 根据年级推荐的学科
+    private var recommendedSubjects: [Subject] {
+        Subject.subjects(for: selectedGrade.stage)
+    }
 
     // MARK: - Actions
+    
+    private func toggleSubject(_ subject: Subject) {
+        withAnimation(.spring(response: 0.3)) {
+            if selectedSubjects.contains(subject) {
+                selectedSubjects.remove(subject)
+            } else {
+                selectedSubjects.insert(subject)
+            }
+        }
+    }
 
     private func handleButtonTap() {
         switch currentStep {
@@ -236,9 +326,21 @@ struct OnboardingView: View {
                 currentStep = .selectGrade
             }
         case .selectGrade:
-            // 保存年级设置并完成
+            // 根据年级预选推荐学科
+            selectedSubjects = Set(recommendedSubjects)
+            withAnimation {
+                currentStep = .selectSubjects
+            }
+        case .selectSubjects:
+            // 保存所有设置并完成
             UserDefaults.standard.set(selectedGrade.rawValue, forKey: "user_current_grade")
             UserDefaults.standard.set(true, forKey: "has_completed_onboarding")
+            
+            // 保存用户选择的学科
+            profileManager.enabledSubjects = selectedSubjects.isEmpty 
+                ? Set(recommendedSubjects)  // 如果用户没选，使用推荐学科
+                : selectedSubjects
+            
             onComplete()
         }
     }

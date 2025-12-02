@@ -16,6 +16,7 @@ enum OnboardingStep: Int, CaseIterable, Identifiable {
     case welcome = 0
     case selectRegion = 1
     case selectGrade = 2
+    case selectSubjects = 3
 
     var id: Int { rawValue }
 }

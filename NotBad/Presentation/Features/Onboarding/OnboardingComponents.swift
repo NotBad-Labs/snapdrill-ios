@@ -108,6 +108,60 @@ struct GradeOptionButton: View {
     }
 }
 
+// MARK: - SubjectOptionButton
+
+/// 学科选择按钮
+struct SubjectOptionButton: View {
+    let subject: Subject
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button {
+            let generator = UISelectionFeedbackGenerator()
+            generator.selectionChanged()
+            action()
+        } label: {
+            VStack(spacing: DesignTokens.Spacing.xs) {
+                Image(systemName: subject.icon)
+                    .font(.title3)
+                    .foregroundStyle(isSelected ? .white : subject.color)
+                
+                Text(subject.displayName)
+                    .font(.caption)
+                    .foregroundStyle(isSelected ? .white : .primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 70)
+            .background(
+                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
+                    .fill(isSelected ? subject.color : Color.semantic.secondaryBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
+                    .strokeBorder(
+                        isSelected ? subject.color : Color.semantic.separator,
+                        lineWidth: isSelected ? 2 : 1
+                    )
+            )
+            .overlay(alignment: .topTrailing) {
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.white)
+                        .background(Circle().fill(subject.color))
+                        .offset(x: 4, y: -4)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(subject.displayName)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
 // MARK: - EducationRegion Extensions
 
 extension EducationRegion {

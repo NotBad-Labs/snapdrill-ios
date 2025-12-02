@@ -94,13 +94,13 @@ final class UserProfileManager: ObservableObject {
             ?? Self.loadFromLocal(forKey: Keys.gradientIndex) 
             ?? 0
         
-        // 加载学科偏好
+        // 加载学科偏好（如果用户还没设置过，默认为空集合，会在 Onboarding 中设置）
         if let savedRawValues: [String] = Self.loadFromCloud(forKey: Keys.enabledSubjects)
             ?? Self.loadFromLocal(forKey: Keys.enabledSubjects) {
             self.enabledSubjects = Set(savedRawValues.compactMap { Subject(rawValue: $0) })
         } else {
-            // 默认启用常用学科
-            self.enabledSubjects = [.chinese, .math, .english, .physics, .chemistry]
+            // 首次使用时为空，在 Onboarding 中由用户选择
+            self.enabledSubjects = []
         }
         
         // 监听 iCloud 变更

@@ -59,8 +59,10 @@ struct LibraryView: View {
     }
     
     /// 用户启用的学科列表（按原始顺序排列）
+    /// 如果用户没有选择任何学科，显示所有学科
     private var enabledSubjects: [Subject] {
-        Subject.allCases.filter { profileManager.enabledSubjects.contains($0) }
+        let enabled = Subject.allCases.filter { profileManager.enabledSubjects.contains($0) }
+        return enabled.isEmpty ? Array(Subject.allCases) : enabled
     }
 
     // MARK: - Body
