@@ -138,6 +138,12 @@ struct ProfileView: View {
     private var settingsSection: some View {
         Section("profile_section_settings") {
             NavigationLink {
+                SubjectSettingsView()
+            } label: {
+                Label("profile_subject_settings", systemImage: "book.fill")
+            }
+            
+            NavigationLink {
                 notificationSettingsView
             } label: {
                 Label("profile_review_reminder", systemImage: "bell.fill")

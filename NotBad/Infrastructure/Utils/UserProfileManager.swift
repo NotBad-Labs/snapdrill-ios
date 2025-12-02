@@ -26,6 +26,7 @@ final class UserProfileManager: ObservableObject {
         static let nickname = "user_nickname"
         static let avatar = "user_avatar"
         static let gradientIndex = "user_gradient_index"
+        static let enabledSubjects = "user_enabled_subjects"
     }
     
     // MARK: - Published Properties
@@ -48,6 +49,16 @@ final class UserProfileManager: ObservableObject {
         didSet {
             saveToLocal(gradientIndex, forKey: Keys.gradientIndex)
             syncToCloud(gradientIndex, forKey: Keys.gradientIndex)
+        }
+    }
+    
+    /// 用户启用的学科列表
+    /// 默认启用：语文、数学、英语、物理、化学
+    @Published var enabledSubjects: Set<Subject> {
+        didSet {
+            let rawValues = enabledSubjects.map { $0.rawValue }
+            saveToLocal(rawValues, forKey: Keys.enabledSubjects)
+            syncToCloud(rawValues, forKey: Keys.enabledSubjects)
         }
     }
     
@@ -82,6 +93,15 @@ final class UserProfileManager: ObservableObject {
         self.gradientIndex = Self.loadFromCloud(forKey: Keys.gradientIndex) 
             ?? Self.loadFromLocal(forKey: Keys.gradientIndex) 
             ?? 0
+        
+        // 加载学科偏好
+        if let savedRawValues: [String] = Self.loadFromCloud(forKey: Keys.enabledSubjects)
+            ?? Self.loadFromLocal(forKey: Keys.enabledSubjects) {
+            self.enabledSubjects = Set(savedRawValues.compactMap { Subject(rawValue: $0) })
+        } else {
+            // 默认启用常用学科
+            self.enabledSubjects = [.chinese, .math, .english, .physics, .chemistry]
+        }
         
         // 监听 iCloud 变更
         setupCloudObserver()
@@ -134,5 +154,32 @@ final class UserProfileManager: ObservableObject {
         if let value: Int = Self.loadFromCloud(forKey: Keys.gradientIndex) {
             self.gradientIndex = value
         }
+        if let rawValues: [String] = Self.loadFromCloud(forKey: Keys.enabledSubjects) {
+            self.enabledSubjects = Set(rawValues.compactMap { Subject(rawValue: $0) })
+        }
+    }
+    
+    // MARK: - Subject Management
+    
+    /// 切换学科启用状态
+    func toggleSubject(_ subject: Subject) {
+        if enabledSubjects.contains(subject) {
+            // 至少保留一个学科
+            if enabledSubjects.count > 1 {
+                enabledSubjects.remove(subject)
+            }
+        } else {
+            enabledSubjects.insert(subject)
+        }
+    }
+    
+    /// 检查学科是否启用
+    func isSubjectEnabled(_ subject: Subject) -> Bool {
+        enabledSubjects.contains(subject)
+    }
+    
+    /// 重置为默认学科
+    func resetToDefaultSubjects() {
+        enabledSubjects = [.chinese, .math, .english, .physics, .chemistry]
     }
 }

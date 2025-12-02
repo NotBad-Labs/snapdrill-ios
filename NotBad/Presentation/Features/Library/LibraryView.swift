@@ -47,12 +47,20 @@ struct LibraryView: View {
 
     /// 视图模型
     @State private var viewModel = LibraryViewModel()
+    
+    /// 用户配置管理器（获取启用的学科）
+    @StateObject private var profileManager = UserProfileManager.shared
 
     // MARK: - Computed Properties
 
     /// 筛选后的错题列表
     private var filteredItems: [ReviewItem] {
         viewModel.filteredItems(from: items)
+    }
+    
+    /// 用户启用的学科列表（按原始顺序排列）
+    private var enabledSubjects: [Subject] {
+        Subject.allCases.filter { profileManager.enabledSubjects.contains($0) }
     }
 
     // MARK: - Body
@@ -102,7 +110,7 @@ private extension LibraryView {
     var filterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
-                // 学科筛选
+                // 全部按钮
                 FilterChip(
                     title: String(localized: "filter_all"),
                     isSelected: viewModel.selectedSubject == nil
@@ -112,7 +120,8 @@ private extension LibraryView {
                     }
                 }
 
-                ForEach(Subject.allCases, id: \.self) { subject in
+                // 只显示用户启用的学科
+                ForEach(enabledSubjects, id: \.self) { subject in
                     FilterChip(
                         title: subject.displayName,
                         isSelected: viewModel.selectedSubject == subject
