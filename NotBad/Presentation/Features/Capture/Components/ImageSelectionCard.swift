@@ -63,43 +63,17 @@ struct ImageSelectionCard: View {
 
     private var emptyStateView: some View {
         VStack(spacing: DesignTokens.Spacing.lg) {
-            // 更精致的图标动画
-            ZStack {
-                // 背景光晕
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [Color.brand.primary.opacity(0.15), .clear],
-                            center: .center,
-                            startRadius: 20,
-                            endRadius: 60
-                        )
-                    )
-                    .frame(width: 120, height: 120)
-
-                // 虚线圆圈
-                Circle()
-                    .strokeBorder(
-                        Color.brand.primary.opacity(0.3),
-                        style: StrokeStyle(lineWidth: 2, dash: [8, 6])
-                    )
-                    .frame(width: 90, height: 90)
-
-                // 图标
-                Image(systemName: "camera.viewfinder")
-                    .font(.system(size: 36, weight: .light))
-                    .foregroundStyle(Color.brand.primary)
-            }
-            .accessibilityHidden(true)
-
-            // 提示文字 - 只保留主标题
-            Text("capture_add_image_prompt")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            // 操作按钮组
+            Spacer()
+            
+            // 简洁的操作按钮行
             actionButtonsRow
-                .padding(.top, DesignTokens.Spacing.xs)
+            
+            // 提示文字
+            Text("capture_add_image_prompt")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+            
+            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(DesignTokens.Spacing.lg)
@@ -110,8 +84,7 @@ struct ImageSelectionCard: View {
             // 拍照
             CaptureMethodButton(
                 icon: "camera",
-                title: String(localized: "capture_camera"),
-                subtitle: String(localized: "capture_camera_hint")
+                title: String(localized: "capture_camera")
             ) {
                 onCameraPressed()
             }
@@ -120,8 +93,7 @@ struct ImageSelectionCard: View {
             if showLiveScannerSupport {
                 CaptureMethodButton(
                     icon: "doc.text.viewfinder",
-                    title: String(localized: "capture_scan"),
-                    subtitle: String(localized: "capture_scan_hint")
+                    title: String(localized: "capture_scan")
                 ) {
                     onLiveScanPressed()
                 }
@@ -131,8 +103,7 @@ struct ImageSelectionCard: View {
             PhotosPicker(selection: $selectedItem, matching: .images) {
                 CaptureMethodContent(
                     icon: "photo.stack",
-                    title: String(localized: "capture_album"),
-                    subtitle: String(localized: "capture_album_hint")
+                    title: String(localized: "capture_album")
                 )
             }
         }
@@ -241,7 +212,6 @@ struct ImageSelectionCard: View {
 private struct CaptureMethodButton: View {
     let icon: String
     let title: String
-    let subtitle: String
     let action: () -> Void
 
     var body: some View {
@@ -251,11 +221,10 @@ private struct CaptureMethodButton: View {
             generator.impactOccurred()
             action()
         } label: {
-            CaptureMethodContent(icon: icon, title: title, subtitle: subtitle)
+            CaptureMethodContent(icon: icon, title: title)
         }
         .buttonStyle(CaptureButtonStyle())
         .accessibilityLabel(title)
-        .accessibilityHint(subtitle)
     }
 }
 
@@ -263,36 +232,27 @@ private struct CaptureMethodButton: View {
 struct CaptureMethodContent: View {
     let icon: String
     let title: String
-    let subtitle: String
 
     var body: some View {
-        VStack(spacing: DesignTokens.Spacing.sm) {
-            // 图标 - Apple 风格的圆形背景
+        VStack(spacing: DesignTokens.Spacing.xs) {
+            // 图标 - 简洁的圆形背景
             ZStack {
                 Circle()
-                    .fill(.tint.opacity(0.1))
-                    .frame(width: 56, height: 56)
+                    .fill(.tint.opacity(0.12))
+                    .frame(width: 52, height: 52)
                 
                 Image(systemName: icon)
-                    .font(.system(size: 24, weight: .medium))
+                    .font(.system(size: 22, weight: .medium))
                     .foregroundStyle(.tint)
                     .symbolRenderingMode(.hierarchical)
             }
 
             // 标题
             Text(title)
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.primary)
-            
-            // 副标题
-            Text(subtitle)
-                .font(.caption2)
+                .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
-                .lineLimit(1)
         }
-        .frame(minWidth: 80)
-        .padding(.vertical, DesignTokens.Spacing.sm)
-        .padding(.horizontal, DesignTokens.Spacing.xs)
+        .frame(minWidth: 70)
     }
 }
 
