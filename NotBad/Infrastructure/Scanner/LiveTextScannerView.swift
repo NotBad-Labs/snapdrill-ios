@@ -96,7 +96,10 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
     final class Coordinator: NSObject, DataScannerViewControllerDelegate {
 
         private let parent: LiveTextScannerView
-        private var collected: Set<String> = []
+        
+        /// 使用 item ID 作为 key 存储最新的识别文本，避免重复
+        private var recognizedTexts: [RecognizedItem.ID: String] = [:]
+        
         var scanner: DataScannerViewController?
 
         /// 通知观察者令牌
@@ -144,6 +147,7 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
             didUpdate updatedItems: [RecognizedItem],
             allItems: [RecognizedItem]
         ) {
+            // 更新已识别项目的文本（用最新的版本替换）
             processItems(updatedItems)
         }
 
@@ -152,7 +156,10 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
             didRemove removedItems: [RecognizedItem],
             allItems: [RecognizedItem]
         ) {
-            // 保留已采集的文本，不做移除
+            // 移除不再识别的项目
+            for item in removedItems {
+                recognizedTexts.removeValue(forKey: item.id)
+            }
         }
 
         func dataScanner(
@@ -171,7 +178,8 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
                 if case let .text(textItem) = item {
                     let transcript = textItem.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !transcript.isEmpty else { continue }
-                    collected.insert(transcript)
+                    // 使用 item.id 作为 key，同一 ID 的文本会被更新而不是重复添加
+                    recognizedTexts[item.id] = transcript
                 }
             }
         }
@@ -199,7 +207,9 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
 
         /// 完成扫描并返回结果
         func finish(imageData: Data?) {
-            let merged = collected.sorted().joined(separator: "\n")
+            // 合并所有唯一的识别文本
+            let uniqueTexts = Array(Set(recognizedTexts.values))
+            let merged = uniqueTexts.sorted().joined(separator: "\n")
             
             // 只通过通知返回结果，避免重复回调
             NotificationCenter.default.post(
@@ -210,7 +220,7 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
 
         /// 当前已识别的文本数量
         var collectedCount: Int {
-            collected.count
+            recognizedTexts.count
         }
     }
 }

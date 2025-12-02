@@ -44,7 +44,7 @@ struct ScannerConfiguration: @unchecked Sendable {
         recognizesMultipleItems: true,
         isHighFrameRateTrackingEnabled: false,
         isPinchToZoomEnabled: true,
-        isGuidanceEnabled: true,
+        isGuidanceEnabled: false,  // 禁用引导，避免自动调整视角
         isHighlightingEnabled: true
     )
 
