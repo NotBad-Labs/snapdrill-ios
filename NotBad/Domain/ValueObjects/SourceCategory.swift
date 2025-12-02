@@ -74,6 +74,21 @@ extension SourceCategory {
         }
     }
 
+    /// 简短标签
+    nonisolated var shortLabel: String {
+        String(localized: shortLabelKey)
+    }
+
+    /// 简短标签本地化键值
+    private var shortLabelKey: String.LocalizationValue {
+        switch self {
+        case .official: "source_category_official_short"
+        case .school: "source_category_school_short"
+        case .extra: "source_category_extra_short"
+        case .other: "source_category_other_short"
+        }
+    }
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {

@@ -16,7 +16,7 @@ extension ReviewItem {
     /// 如果标题为空或仅空白，返回默认标题。
     var displayTitle: String {
         let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? "未命名错题" : trimmed
+        return trimmed.isEmpty ? String(localized: "untitled_review_item") : trimmed
     }
 
     /// 简短描述

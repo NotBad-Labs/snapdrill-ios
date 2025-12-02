@@ -50,7 +50,7 @@ import Foundation
 ///
 /// - Note: 此值对象是不可变的，所有属性都是 `let` 声明
 /// - Important: 记忆保持率计算基于科学研究，但仅供参考
-struct ReviewInterval: Sendable, Codable, Hashable, Identifiable {
+struct ReviewInterval: Sendable, Equatable, Codable, Hashable, Identifiable {
 
     // MARK: - Properties
 

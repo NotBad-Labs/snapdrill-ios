@@ -33,7 +33,7 @@ import Foundation
 /// // 搜索匹配
 /// let matches = points.matches("函")  // true
 /// ```
-struct KnowledgePoints: Sendable, Equatable, Codable, Hashable {
+struct KnowledgePoints: Sendable, Codable, Hashable, Identifiable {
 
     // MARK: - Properties
 
@@ -60,6 +60,11 @@ struct KnowledgePoints: Sendable, Equatable, Codable, Hashable {
         let components = string.components(separatedBy: ",")
         self.init(components)
     }
+
+    // MARK: - Identifiable
+
+    /// 唯一标识符
+    nonisolated var id: String { rawValue }
 }
 
 // MARK: - KnowledgePoints Computed Properties

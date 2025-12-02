@@ -16,7 +16,7 @@ import SwiftData
 ///
 /// ## 功能特性
 ///
-/// - 用户信息展示
+/// - 用户信息展示（可自定义昵称和头像）
 /// - 学习统计
 /// - 应用设置
 /// - 关于信息
@@ -25,6 +25,11 @@ struct ProfileView: View {
     // MARK: - Environment
 
     @Query private var allItems: [ReviewItem]
+    
+    // MARK: - State
+    
+    @StateObject private var profileManager = UserProfileManager.shared
+    @State private var showingEditProfile = false
 
     // MARK: - Body
 
@@ -38,6 +43,9 @@ struct ProfileView: View {
             }
             .navigationTitle("profile_title")
             .navigationBarTitleDisplayMode(.large)
+            .sheet(isPresented: $showingEditProfile) {
+                ProfileEditView()
+            }
         }
     }
 
@@ -45,43 +53,49 @@ struct ProfileView: View {
 
     private var userSection: some View {
         Section {
-            HStack(spacing: DesignTokens.Spacing.lg) {
-                // 头像 with enhanced gradient and shadow
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.brand.primary, Color.brand.secondary],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+            Button {
+                showingEditProfile = true
+            } label: {
+                HStack(spacing: DesignTokens.Spacing.lg) {
+                    // 头像 with user-selected gradient and icon
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: profileManager.gradientColors,
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
                             )
-                        )
-                        .frame(width: 64, height: 64)
-                        .shadow(color: Color.brand.primary.opacity(0.3), radius: 8, x: 0, y: 4)
+                            .frame(width: 64, height: 64)
+                            .shadow(color: profileManager.gradientColors[0].opacity(0.3), radius: 8, x: 0, y: 4)
 
-                    Image(systemName: "person.fill")
-                        .font(.system(size: 28, weight: .medium))
-                        .foregroundStyle(.white)
+                        Image(systemName: profileManager.avatar)
+                            .font(.system(size: 28, weight: .medium))
+                            .foregroundStyle(.white)
+                    }
+
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
+                        Text(profileManager.nickname)
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.primary)
+
+                        Text("profile_subtitle")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer()
+
+                    // Chevron indicator
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.tertiary)
                 }
-
-                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                    Text("profile_nickname")
-                        .font(.title2)
-                        .fontWeight(.bold)
-
-                    Text("profile_subtitle")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                // Chevron indicator
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.tertiary)
+                .padding(.vertical, DesignTokens.Spacing.sm)
             }
-            .padding(.vertical, DesignTokens.Spacing.sm)
+            .buttonStyle(.plain)
         }
     }
 

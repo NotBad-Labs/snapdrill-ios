@@ -77,6 +77,21 @@ extension ReviewItemCategory {
         }
     }
 
+    /// 简短标签
+    nonisolated var shortLabel: String {
+        String(localized: shortLabelKey)
+    }
+
+    /// 简短标签本地化键值
+    private var shortLabelKey: String.LocalizationValue {
+        switch self {
+        case .objective: "item_category_objective_short"
+        case .subjective: "item_category_subjective_short"
+        case .comprehensive: "item_category_comprehensive_short"
+        case .other: "item_category_other_short"
+        }
+    }
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {

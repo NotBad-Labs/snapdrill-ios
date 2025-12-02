@@ -57,6 +57,22 @@ extension SubjectCategory {
         }
     }
 
+    /// 简短标签
+    nonisolated var shortLabel: String {
+        String(localized: shortLabelKey)
+    }
+
+    /// 简短标签本地化键值
+    private var shortLabelKey: String.LocalizationValue {
+        switch self {
+        case .language: "subject_category_language_short"
+        case .science: "subject_category_science_short"
+        case .humanities: "subject_category_humanities_short"
+        case .technology: "subject_category_technology_short"
+        case .other: "subject_category_other_short"
+        }
+    }
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {

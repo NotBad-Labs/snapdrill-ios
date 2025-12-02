@@ -159,7 +159,7 @@ final class ReviewItem {
     ) {
         self.id = id
         self.imageData = imageData
-        self.title = title.isEmpty ? "未命名错题" : title
+        self.title = title.isEmpty ? String(localized: "untitled_review_item") : title
         self.note = note
         self.createdAt = createdAt
         self.updatedAt = createdAt

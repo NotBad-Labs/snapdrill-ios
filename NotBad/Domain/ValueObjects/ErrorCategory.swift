@@ -58,6 +58,22 @@ extension ErrorCategory {
         }
     }
 
+    /// 简短标签
+    nonisolated var shortLabel: String {
+        String(localized: shortLabelKey)
+    }
+
+    /// 简短标签本地化键值
+    private var shortLabelKey: String.LocalizationValue {
+        switch self {
+        case .knowledge: "error_category_knowledge_short"
+        case .method: "error_category_method_short"
+        case .habit: "error_category_habit_short"
+        case .objective: "error_category_objective_short"
+        case .other: "error_category_other_short"
+        }
+    }
+
     /// SF Symbol 图标名称
     nonisolated var icon: String {
         switch self {
