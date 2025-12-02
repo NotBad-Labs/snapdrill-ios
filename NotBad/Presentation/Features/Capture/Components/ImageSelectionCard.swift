@@ -62,21 +62,9 @@ struct ImageSelectionCard: View {
     // MARK: - Empty State
 
     private var emptyStateView: some View {
-        VStack(spacing: DesignTokens.Spacing.lg) {
-            Spacer()
-            
-            // 简洁的操作按钮行
-            actionButtonsRow
-            
-            // 提示文字
-            Text("capture_add_image_prompt")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-            
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(DesignTokens.Spacing.lg)
+        // 直接显示操作按钮，无需额外提示 - Apple 风格
+        actionButtonsRow
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private var actionButtonsRow: some View {
