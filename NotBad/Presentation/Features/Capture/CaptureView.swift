@@ -216,89 +216,56 @@ extension CaptureView {
         VStack(spacing: 0) {
             Divider()
             
-            // 核心功能突出：实况文本扫描居中
-            HStack {
-                // 左侧：相册按钮
+            // 轻量化设计：三个等大的文字按钮，简洁不侵入
+            HStack(spacing: 0) {
+                // 相册
                 PhotosPicker(selection: $selectedItem, matching: .images) {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.secondary.opacity(0.15))
-                            .frame(width: 44, height: 44)
-                        
-                        Image(systemName: "photo.on.rectangle")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundStyle(.primary)
+                    VStack(spacing: 4) {
+                        Image(systemName: "photo")
+                            .font(.system(size: 22))
+                        Text("capture_album")
+                            .font(.caption2)
                     }
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
                 }
-                .accessibilityLabel(Text("capture_album"))
                 
-                Spacer()
-                
-                // 中间：实况文本扫描（核心功能）
+                // 智能识别（核心功能）
                 if LiveTextScannerView.isSupported {
                     Button {
                         viewModel.showLiveScanner = true
                     } label: {
-                        ZStack {
-                            // 外圈
-                            Circle()
-                                .strokeBorder(Color.brand.primary.opacity(0.3), lineWidth: 4)
-                                .frame(width: 72, height: 72)
-                            
-                            // 内圈（主按钮）- 使用品牌色突出核心功能
-                            Circle()
-                                .fill(Color.brand.primary)
-                                .frame(width: 60, height: 60)
-                            
-                            // 实况文本图标
+                        VStack(spacing: 4) {
                             Image(systemName: "text.viewfinder")
-                                .font(.system(size: 26, weight: .medium))
-                                .foregroundStyle(.white)
+                                .font(.system(size: 22, weight: .semibold))
+                            Text("capture_live_text")
+                                .font(.caption2)
                         }
+                        .foregroundStyle(Color.accentColor)
+                        .frame(maxWidth: .infinity)
+                        .contentShape(Rectangle())
                     }
-                    .accessibilityLabel(Text("capture_live_text"))
-                } else {
-                    // 设备不支持时，拍照作为主按钮
-                    Button {
-                        viewModel.showCamera = true
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .strokeBorder(Color.primary.opacity(0.2), lineWidth: 4)
-                                .frame(width: 72, height: 72)
-                            Circle()
-                                .fill(Color.primary)
-                                .frame(width: 60, height: 60)
-                            Image(systemName: "camera.fill")
-                                .font(.system(size: 24, weight: .medium))
-                                .foregroundStyle(Color(uiColor: .systemBackground))
-                        }
-                    }
-                    .accessibilityLabel(Text("capture_camera"))
                 }
                 
-                Spacer()
-                
-                // 右侧：拍照按钮（辅助功能）
+                // 拍照
                 Button {
                     viewModel.showCamera = true
                 } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.secondary.opacity(0.15))
-                            .frame(width: 44, height: 44)
-                        
+                    VStack(spacing: 4) {
                         Image(systemName: "camera")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundStyle(.primary)
+                            .font(.system(size: 22))
+                        Text("capture_camera")
+                            .font(.caption2)
                     }
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
                 }
-                .accessibilityLabel(Text("capture_camera"))
             }
-            .padding(.horizontal, DesignTokens.Spacing.xxl)
-            .padding(.vertical, DesignTokens.Spacing.lg)
+            .padding(.vertical, 12)
         }
-        .background(.ultraThinMaterial)
+        .background(.bar)
     }
 }
 
