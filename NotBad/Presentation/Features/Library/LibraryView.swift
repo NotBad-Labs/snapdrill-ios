@@ -62,15 +62,6 @@ struct LibraryView: View {
             contentView
                 .navigationTitle("library_title")
                 .searchable(text: $viewModel.searchText, prompt: Text("library_search_prompt"))
-                .toolbar {
-                    ToolbarItem(placement: .primaryAction) {
-                        advancedSearchButton
-                    }
-
-                    ToolbarItem(placement: .secondaryAction) {
-                        sortMenuButton
-                    }
-                }
                 .sheet(isPresented: $viewModel.showAdvancedSearch) {
                     AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
                 }
@@ -91,49 +82,6 @@ struct LibraryView: View {
 
 private extension LibraryView {
 
-    /// 高级搜索按钮
-    var advancedSearchButton: some View {
-        Button {
-            viewModel.showAdvancedSearch = true
-        } label: {
-            ZStack(alignment: .topTrailing) {
-                Image(systemName: "slider.horizontal.3")
-
-                if viewModel.advancedCriteria.hasActiveFilters {
-                    Circle()
-                        .fill(Color.brand.primary)
-                        .frame(width: 8, height: 8)
-                        .offset(x: 2, y: -2)
-                }
-            }
-        }
-        .accessibilityLabel("library_advanced_search")
-        .accessibilityHint(viewModel.advancedCriteria.hasActiveFilters ? "library_filter_active \(viewModel.advancedCriteria.activeFilterCount)" : "library_open_advanced_search")
-    }
-
-    /// 排序菜单按钮
-    var sortMenuButton: some View {
-        Menu {
-            ForEach(SortOption.allCases) { option in
-                Button {
-                    withAnimation {
-                        viewModel.sortOption = option
-                    }
-                } label: {
-                    HStack {
-                        Image(systemName: option.icon)
-                        Text(option.displayName)
-                        if viewModel.sortOption == option {
-                            Image(systemName: "checkmark")
-                        }
-                    }
-                }
-            }
-        } label: {
-            Label("library_sort", systemImage: "arrow.up.arrow.down")
-        }
-    }
-
     /// 内容视图
     @ViewBuilder
     var contentView: some View {
@@ -153,6 +101,7 @@ private extension LibraryView {
     var filterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
+                // 学科筛选
                 FilterChip(
                     title: String(localized: "filter_all"),
                     isSelected: viewModel.selectedSubject == nil
@@ -172,11 +121,75 @@ private extension LibraryView {
                         }
                     }
                 }
+                
+                // 分隔线
+                Divider()
+                    .frame(height: 20)
+                
+                // 排序按钮
+                sortButton
+                
+                // 高级筛选按钮
+                advancedFilterButton
             }
             .padding(.horizontal)
         }
         .listRowInsets(EdgeInsets())
         .listRowSeparator(.hidden)
+    }
+    
+    /// 排序按钮
+    private var sortButton: some View {
+        Menu {
+            ForEach(SortOption.allCases) { option in
+                Button {
+                    withAnimation {
+                        viewModel.sortOption = option
+                    }
+                } label: {
+                    HStack {
+                        Text(option.displayName)
+                        if viewModel.sortOption == option {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "arrow.up.arrow.down")
+                Text(viewModel.sortOption.shortName)
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.semantic.tertiaryBackground, in: Capsule())
+        }
+    }
+    
+    /// 高级筛选按钮
+    private var advancedFilterButton: some View {
+        Button {
+            viewModel.showAdvancedSearch = true
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "slider.horizontal.3")
+                if viewModel.advancedCriteria.hasActiveFilters {
+                    Text("\(viewModel.advancedCriteria.activeFilterCount)")
+                        .font(.caption2.bold())
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.brand.primary, in: Capsule())
+                }
+            }
+            .font(.subheadline)
+            .foregroundStyle(viewModel.advancedCriteria.hasActiveFilters ? Color.brand.primary : .secondary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.semantic.tertiaryBackground, in: Capsule())
+        }
     }
 
     /// 错题列表

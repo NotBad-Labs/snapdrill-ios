@@ -363,6 +363,19 @@ enum SortOption: String, CaseIterable, Identifiable {
         case .reviewDateAsc: String(localized: "sort_review_needed")
         }
     }
+    
+    /// 简短名称（用于筛选栏按钮显示）
+    var shortName: String {
+        switch self {
+        case .createdAtDesc: String(localized: "sort_short_newest")
+        case .createdAtAsc: String(localized: "sort_short_oldest")
+        case .titleAsc: String(localized: "sort_short_title")
+        case .masteryAsc: String(localized: "sort_short_mastery_asc")
+        case .masteryDesc: String(localized: "sort_short_mastery_desc")
+        case .difficultyDesc: String(localized: "sort_short_difficulty")
+        case .reviewDateAsc: String(localized: "sort_short_review")
+        }
+    }
 
     var icon: String {
         switch self {
