@@ -3,6 +3,7 @@
 //  NotBad
 //
 //  Created for NotBad K12 错题本
+//  Phase 3: ViewModel Dependency Injection
 //
 
 import SwiftUI
@@ -21,24 +22,28 @@ import SwiftData
 /// 3. **更新状态**：记录复习结果，计算下次复习时间
 /// 4. **完成统计**：显示本次复习成果
 ///
-/// ## 使用示例
+/// ## 依赖注入
+///
+/// 支持两种使用方式：
 ///
 /// ```swift
-/// struct ReviewView: View {
-///     @Query private var items: [ReviewItem]
-///     @State private var viewModel = ReviewViewModel()
+/// // 方式1: 使用 DataProvider（推荐，支持测试）
+/// let provider = SwiftDataReviewItemProvider(modelContext: context)
+/// let viewModel = ReviewViewModel(dataProvider: provider)
+/// let queue = viewModel.generateReviewQueue()
 ///
-///     var body: some View {
-///         let queue = viewModel.generateReviewQueue(from: items)
-///         if let current = viewModel.currentItem(from: queue) {
-///             ReviewCard(item: current)
-///         }
-///     }
-/// }
+/// // 方式2: 传入 items（向后兼容）
+/// let viewModel = ReviewViewModel()
+/// let queue = viewModel.generateReviewQueue(from: items)
 /// ```
 @MainActor
 @Observable
 final class ReviewViewModel {
+
+    // MARK: - Dependencies
+
+    /// 数据提供者（可选，用于依赖注入）
+    private var dataProvider: (any ReviewItemDataProviding)?
 
     // MARK: - Review State
 
@@ -88,10 +93,34 @@ final class ReviewViewModel {
 
     // MARK: - Initialization
 
+    /// 默认初始化（向后兼容）
     init() {}
+
+    /// 依赖注入初始化（推荐用于测试）
+    ///
+    /// - Parameter dataProvider: 数据提供者
+    init(dataProvider: any ReviewItemDataProviding) {
+        self.dataProvider = dataProvider
+    }
 
     func configure(with modelContext: ModelContext) {
         self.modelContext = modelContext
+    }
+
+    // MARK: - Data Access
+
+    /// 获取所有错题
+    ///
+    /// 优先从 dataProvider 获取，否则返回空数组
+    var items: [ReviewItem] {
+        dataProvider?.items ?? []
+    }
+
+    /// 生成复习队列（使用 DataProvider）
+    ///
+    /// - Returns: 排序后的复习队列
+    func generateReviewQueue() -> [ReviewItem] {
+        generateReviewQueue(from: items)
     }
 
     // MARK: - Queue Generation

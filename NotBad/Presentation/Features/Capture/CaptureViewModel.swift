@@ -3,6 +3,7 @@
 //  NotBad
 //
 //  Created by LIAOYIMING on 2025/6/5.
+//  Phase 3: ViewModel Dependency Injection
 //
 
 import Foundation
@@ -17,6 +18,20 @@ import SwiftUI
 ///
 /// 负责处理图片选择、OCR 识别、表单管理和保存操作
 /// 使用 Swift 6 的 @Observable 宏实现响应式更新
+///
+/// ## 依赖注入
+///
+/// 支持注入 DataProvider 用于测试：
+///
+/// ```swift
+/// // 生产环境
+/// let viewModel = CaptureViewModel()
+/// viewModel.configure(with: modelContext)
+///
+/// // 测试环境
+/// let mockProvider = MockReviewItemProvider()
+/// let viewModel = CaptureViewModel(dataProvider: mockProvider)
+/// ```
 @MainActor
 @Observable
 final class CaptureViewModel {
@@ -72,14 +87,26 @@ final class CaptureViewModel {
 
     // MARK: - Dependencies
 
+    /// 数据提供者（可选，用于依赖注入）
+    private var dataProvider: (any ReviewItemDataProviding)?
+
     var modelContext: ModelContext?
     let ocrService = OCRService.shared
     let smartAnalysisService = SmartAnalysisService.shared
 
     // MARK: - Initialization
 
+    /// 默认初始化
     init() {
         // 检查智能分析是否可用
+        smartAnalysisAvailable = smartAnalysisService.isAvailable
+    }
+
+    /// 依赖注入初始化（推荐用于测试）
+    ///
+    /// - Parameter dataProvider: 数据提供者
+    init(dataProvider: any ReviewItemDataProviding) {
+        self.dataProvider = dataProvider
         smartAnalysisAvailable = smartAnalysisService.isAvailable
     }
 

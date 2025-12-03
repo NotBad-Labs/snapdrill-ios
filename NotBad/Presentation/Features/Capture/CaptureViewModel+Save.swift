@@ -71,7 +71,8 @@ extension CaptureViewModel {
             generator.notificationOccurred(.success)
 
             // 延迟显示成功提示，改善体验
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(300))
                 self?.isSaving = false
                 self?.showSuccessAlert(String(localized: "capture_save_success"))
 
@@ -97,7 +98,8 @@ extension CaptureViewModel {
         saveItem()
 
         // 保存成功后重置（保留学科和年级）
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(500))
             self?.resetForm(keepSubjectAndGrade: true)
         }
     }

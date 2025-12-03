@@ -78,7 +78,11 @@ struct LibraryView: View {
             contentView
                 .navigationTitle("library_title")
                 .navigationBarTitleDisplayMode(.large)
-                .searchable(text: $viewModel.searchText, prompt: Text("library_search_prompt"))
+                .searchable(
+                    text: $viewModel.searchText,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: Text("library_search_prompt")
+                )
                 .onSubmit(of: .search) {
                     viewModel.submitSearch()
                 }
@@ -235,8 +239,16 @@ private extension LibraryView {
     /// 错题列表
     var itemList: some View {
         List {
+            // 筛选栏（固定在顶部）
+            Section {
+                filterBar
+            }
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            
             // 搜索历史（仅在搜索框为空且有历史记录时显示）
-            if viewModel.searchText.isEmpty {
+            if viewModel.searchText.isEmpty && !isSearching {
                 Section {
                     SearchHistoryView { query in
                         viewModel.selectFromHistory(query)
@@ -246,14 +258,6 @@ private extension LibraryView {
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
             }
-            
-            // 筛选栏作为列表第一个 section，随内容滚动
-            Section {
-                filterBar
-            }
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
             
             // 错题内容
             Section {

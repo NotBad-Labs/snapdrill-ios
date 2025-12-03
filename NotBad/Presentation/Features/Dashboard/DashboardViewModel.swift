@@ -3,6 +3,7 @@
 //  NotBad
 //
 //  Created by LIAOYIMING on 2025/6/5.
+//  Phase 3: ViewModel Dependency Injection
 //
 
 import SwiftUI
@@ -19,9 +20,29 @@ import SwiftData
 /// - 计算错题统计数据（总数、已掌握、本周新增等）
 /// - 生成图表所需的数据结构
 /// - 提供复习建议和学习洞察
+///
+/// ## 依赖注入
+///
+/// 支持两种使用方式：
+///
+/// ```swift
+/// // 方式1: 使用 DataProvider（推荐，支持测试）
+/// let provider = SwiftDataReviewItemProvider(modelContext: context)
+/// let viewModel = DashboardViewModel(dataProvider: provider)
+/// let stats = viewModel.computeStatistics()
+///
+/// // 方式2: 传入 items（向后兼容）
+/// let viewModel = DashboardViewModel()
+/// let stats = viewModel.computeStatistics(from: items)
+/// ```
 @MainActor
 @Observable
 final class DashboardViewModel {
+
+    // MARK: - Dependencies
+
+    /// 数据提供者（可选，用于依赖注入）
+    private var dataProvider: (any ReviewItemDataProviding)?
 
     // MARK: - State
 
@@ -30,6 +51,27 @@ final class DashboardViewModel {
 
     /// 选中的学科（用于筛选）
     var selectedSubject: Subject?
+
+    // MARK: - Initialization
+
+    /// 默认初始化（向后兼容）
+    init() {}
+
+    /// 依赖注入初始化（推荐用于测试）
+    ///
+    /// - Parameter dataProvider: 数据提供者
+    init(dataProvider: any ReviewItemDataProviding) {
+        self.dataProvider = dataProvider
+    }
+
+    // MARK: - Data Access
+
+    /// 获取所有错题
+    ///
+    /// 优先从 dataProvider 获取，否则返回空数组
+    var items: [ReviewItem] {
+        dataProvider?.items ?? []
+    }
 
     // MARK: - Private Helpers
 

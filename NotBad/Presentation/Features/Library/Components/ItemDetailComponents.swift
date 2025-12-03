@@ -43,9 +43,9 @@ struct DisplayContent: View {
             // 难度和题型
             HStack(spacing: DesignTokens.Spacing.md) {
                 InfoCard(title: "难度", icon: "star.fill") {
-                    HStack(spacing: DesignTokens.Spacing.xs) {
-                        ForEach(0..<5) { index in
-                            Image(systemName: index < item.difficulty.rawValue ? "star.fill" : "star")
+                    HStack(spacing: 2) {
+                        ForEach(0..<item.difficulty.stars, id: \.self) { _ in
+                            Image(systemName: "star.fill")
                                 .font(.caption)
                                 .foregroundStyle(item.difficulty.color)
                         }
@@ -69,6 +69,24 @@ struct DisplayContent: View {
                         .foregroundStyle(Color.brand.secondary)
                     Text(item.source.displayName)
                         .font(.subheadline)
+                }
+            }
+
+            // 错误类型（仅当不是默认值时显示）
+            if item.errorType != .other {
+                InfoCard(title: "错误原因", icon: "exclamationmark.triangle.fill") {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                        HStack {
+                            Image(systemName: item.errorType.icon)
+                                .foregroundStyle(item.errorType.color)
+                            Text(item.errorType.displayName)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                        }
+                        Text(item.errorType.suggestion)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
 
@@ -192,6 +210,11 @@ struct EditingContent: View {
                 sourcePicker
             }
 
+            // 错误原因
+            FormField(title: "错误原因", icon: "exclamationmark.triangle.fill") {
+                errorTypePicker
+            }
+
             // 知识点编辑
             FormField(title: "知识点", icon: "lightbulb.fill") {
                 TextField("例如: 函数, 导数", text: $item.knowledgePointsRaw)
@@ -285,6 +308,27 @@ struct EditingContent: View {
             }
         } label: {
             pickerLabel(text: item.source.displayName)
+        }
+    }
+
+    private var errorTypePicker: some View {
+        Menu {
+            // 按分类分组显示
+            ForEach(ErrorCategory.allCases, id: \.self) { category in
+                Section {
+                    ForEach(ErrorType.types(in: category), id: \.self) { errorType in
+                        Button {
+                            item.errorType = errorType
+                        } label: {
+                            Label(errorType.displayName, systemImage: errorType.icon)
+                        }
+                    }
+                } header: {
+                    Text(category.displayName)
+                }
+            }
+        } label: {
+            pickerLabel(text: item.errorType.displayName, color: item.errorType.color)
         }
     }
 

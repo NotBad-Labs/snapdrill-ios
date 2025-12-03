@@ -179,8 +179,13 @@ struct ReviewItemTests {
     @MainActor
     func shortDescriptionProperty() {
         let item = ReviewItem(subject: .math, questionType: .calculation)
-        #expect(item.shortDescription.contains("数学"))
-        #expect(item.shortDescription.contains("计算题"))
+        let desc = item.shortDescription
+        
+        // 使用 EducationSystemManager 获取期望的显示名称
+        let subjectName = EducationSystemManager.shared.subjectDisplayName(for: item.subjectRaw)
+        
+        #expect(desc.contains(subjectName))
+        #expect(desc.contains(item.questionType.displayName))
     }
 
     @Test("fullDescription 格式正确")

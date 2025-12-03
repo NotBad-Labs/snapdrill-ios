@@ -28,7 +28,7 @@ import UIKit
 /// 2. **质量压缩**：使用 JPEG 压缩，默认质量 0.7
 ///
 /// - Note: 使用 `enum` 实现单例模式，避免实例化
-enum ImageCompressor {
+enum ImageCompressor: ImageCompressorProtocol {
 
     // MARK: - Configuration
 

@@ -3,6 +3,7 @@
 //  NotBad
 //
 //  Created for NotBad K12 错题本
+//  Phase 3: ViewModel Dependency Injection
 //
 
 import SwiftUI
@@ -21,24 +22,28 @@ import SwiftData
 /// - 排序方式切换
 /// - 批量删除操作
 ///
-/// ## 使用示例
+/// ## 依赖注入
+///
+/// 支持两种使用方式：
 ///
 /// ```swift
-/// struct LibraryView: View {
-///     @Query private var items: [ReviewItem]
-///     @State private var viewModel = LibraryViewModel()
+/// // 方式1: 使用 DataProvider（推荐，支持测试）
+/// let provider = SwiftDataReviewItemProvider(modelContext: context)
+/// let viewModel = LibraryViewModel(dataProvider: provider)
+/// let filtered = viewModel.filteredItems()
 ///
-///     var body: some View {
-///         List(viewModel.filteredItems(from: items)) { item in
-///             // ...
-///         }
-///         .searchable(text: $viewModel.searchText)
-///     }
-/// }
+/// // 方式2: 传入 items（向后兼容）
+/// let viewModel = LibraryViewModel()
+/// let filtered = viewModel.filteredItems(from: items)
 /// ```
 @MainActor
 @Observable
 final class LibraryViewModel {
+
+    // MARK: - Dependencies
+
+    /// 数据提供者（可选，用于依赖注入）
+    private var dataProvider: (any ReviewItemDataProviding)?
 
     // MARK: - Search State
 
@@ -122,11 +127,35 @@ final class LibraryViewModel {
 
     // MARK: - Initialization
 
+    /// 默认初始化（向后兼容）
     init() {}
+
+    /// 依赖注入初始化（推荐用于测试）
+    ///
+    /// - Parameter dataProvider: 数据提供者
+    init(dataProvider: any ReviewItemDataProviding) {
+        self.dataProvider = dataProvider
+    }
 
     /// 配置 ModelContext
     func configure(with modelContext: ModelContext) {
         self.modelContext = modelContext
+    }
+
+    // MARK: - Data Access
+
+    /// 获取所有错题
+    ///
+    /// 优先从 dataProvider 获取，否则返回空数组
+    var items: [ReviewItem] {
+        dataProvider?.items ?? []
+    }
+
+    /// 获取筛选后的错题（使用 DataProvider）
+    ///
+    /// - Returns: 筛选后的错题列表
+    func filteredItems() -> [ReviewItem] {
+        filteredItems(from: items)
     }
 
     // MARK: - Filtering

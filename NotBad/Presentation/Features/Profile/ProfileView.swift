@@ -24,12 +24,17 @@ struct ProfileView: View {
 
     // MARK: - Environment
 
+    @Environment(\.modelContext) private var modelContext
     @Query private var allItems: [ReviewItem]
     
     // MARK: - State
     
     @StateObject private var profileManager = UserProfileManager.shared
     @State private var showingEditProfile = false
+    #if DEBUG
+    @State private var isGeneratingData = false
+    @State private var showingClearConfirm = false
+    #endif
 
     // MARK: - Body
 
@@ -40,12 +45,25 @@ struct ProfileView: View {
                 statisticsSection
                 settingsSection
                 aboutSection
+                #if DEBUG
+                developerSection
+                #endif
             }
             .navigationTitle("profile_title")
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $showingEditProfile) {
                 ProfileEditView()
             }
+            #if DEBUG
+            .alert("确认清空", isPresented: $showingClearConfirm) {
+                Button("取消", role: .cancel) {}
+                Button("清空", role: .destructive) {
+                    TestDataGenerator.clearAll(in: modelContext)
+                }
+            } message: {
+                Text("将删除所有 \(allItems.count) 条数据")
+            }
+            #endif
         }
     }
 
@@ -182,11 +200,74 @@ struct ProfileView: View {
             HStack {
                 Label("profile_version", systemImage: "info.circle.fill")
                 Spacer()
-                Text("1.0.0")
+                Text("1.1.0")
                     .foregroundStyle(.secondary)
             }
         }
     }
+    
+    // MARK: - Developer Section (DEBUG only)
+    
+    #if DEBUG
+    private var developerSection: some View {
+        Section("🛠 开发者工具") {
+            // 生成测试数据
+            Button {
+                generateTestData(count: 1000)
+            } label: {
+                HStack {
+                    Label("生成 1000 条数据", systemImage: "plus.square.on.square")
+                    Spacer()
+                    if isGeneratingData {
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(isGeneratingData)
+            
+            Button {
+                generateTestData(count: 3000)
+            } label: {
+                HStack {
+                    Label("生成 3000 条数据", systemImage: "square.stack.3d.up")
+                    Spacer()
+                    if isGeneratingData {
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(isGeneratingData)
+            
+            Button {
+                generateTestData(count: 5000)
+            } label: {
+                HStack {
+                    Label("生成 5000 条数据", systemImage: "cube.box")
+                    Spacer()
+                    if isGeneratingData {
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(isGeneratingData)
+            
+            // 清空数据
+            Button(role: .destructive) {
+                showingClearConfirm = true
+            } label: {
+                Label("清空所有数据", systemImage: "trash")
+            }
+        }
+    }
+    
+    private func generateTestData(count: Int) {
+        isGeneratingData = true
+        Task {
+            TestDataGenerator.generate(count: count, in: modelContext)
+            isGeneratingData = false
+        }
+    }
+    #endif
 
     // MARK: - Computed Properties
 

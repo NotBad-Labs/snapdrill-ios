@@ -11,20 +11,50 @@ import SwiftData
 // MARK: - Export Methods
 
 extension DataManagementView {
+    
+    /// 根据筛选条件获取要导出的项目
+    func filteredItemsForExport() -> [ReviewItem] {
+        exportFilterConfig.filter(allItems)
+    }
+    
+    /// 执行筛选后的导出
+    func performFilteredExport() {
+        showExportFilterSheet = false
+        
+        switch pendingExportType {
+        case .pdf:
+            exportToPDF()
+        case .csv:
+            exportToCSV()
+        case .none:
+            break
+        }
+        
+        // 刷新缓存列表
+        refreshCachedFiles()
+    }
 
     /// 导出为 PDF（打印用）
     func exportToPDF() {
+        let itemsToExport = filteredItemsForExport()
+        
+        guard !itemsToExport.isEmpty else {
+            showToast(String(localized: "export_no_items_in_range"), isError: true)
+            return
+        }
+        
         let pdfData = PDFExportService.shared.exportToPDF(
-            items: allItems,
+            items: itemsToExport,
             title: String(localized: "pdf_export_title"),
             includeImages: true,
             includeNotes: true
         )
         
         do {
-            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("notbad_错题本_\(dateString()).pdf")
-            try pdfData.write(to: tempURL)
-            exportedFileURL = tempURL
+            let fileName = exportFileName(type: "pdf", count: itemsToExport.count)
+            // 使用缓存管理器保存文件（而非临时目录）
+            let cachedURL = try ExportCacheManager.shared.cacheExportFile(data: pdfData, fileName: fileName)
+            exportedFileURL = cachedURL
             showExportSheet = true
         } catch {
             showToast(String(localized: "export_failed"), isError: true)
@@ -64,10 +94,17 @@ extension DataManagementView {
 
     /// 导出为 CSV
     func exportToCSV() {
+        let itemsToExport = filteredItemsForExport()
+        
+        guard !itemsToExport.isEmpty else {
+            showToast(String(localized: "export_no_items_in_range"), isError: true)
+            return
+        }
+        
         // CSV 表头（使用本地化字符串）
         var csvString = "ID,标题,笔记,科目,题型,难度,来源,年级,掌握程度,复习次数,创建时间,知识点\n"
 
-        for item in allItems {
+        for item in itemsToExport {
             let row = [
                 item.id.uuidString,
                 escapeCSV(item.title),
@@ -90,9 +127,10 @@ extension DataManagementView {
             var data = Data([0xEF, 0xBB, 0xBF])  // UTF-8 BOM
             data.append(csvString.data(using: .utf8)!)
             
-            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("notbad_export_\(Date().timeIntervalSince1970).csv")
-            try data.write(to: tempURL)
-            exportedFileURL = tempURL
+            let fileName = exportFileName(type: "csv", count: itemsToExport.count)
+            // 使用缓存管理器保存文件
+            let cachedURL = try ExportCacheManager.shared.cacheExportFile(data: data, fileName: fileName)
+            exportedFileURL = cachedURL
             showExportSheet = true
         } catch {
             showToast("导出失败", isError: true)
@@ -217,5 +255,63 @@ extension DataManagementView {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd_HHmmss"
         return formatter.string(from: Date())
+    }
+    
+    /// 生成导出文件名（包含筛选条件信息）
+    func exportFileName(type: String, count: Int) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd"
+        
+        // 构建文件名各部分
+        var parts: [String] = ["notbad"]
+        
+        // 时间范围
+        switch exportFilterConfig.dateRangeType {
+        case .all:
+            break // 不添加
+        case .thisWeek:
+            parts.append("week")
+        case .thisMonth:
+            parts.append("month_\(dateFormatter.string(from: Date()))")
+        case .lastMonth:
+            let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
+            parts.append("month_\(dateFormatter.string(from: lastMonth))")
+        case .thisYear:
+            let year = Calendar.current.component(.year, from: Date())
+            parts.append("year_\(year)")
+        case .custom:
+            let start = dateFormatter.string(from: exportFilterConfig.customStartDate)
+            let end = dateFormatter.string(from: exportFilterConfig.customEndDate)
+            parts.append("\(start)-\(end)")
+        }
+        
+        // 学科（如果只选了1-2个）
+        if exportFilterConfig.filterBySubject && !exportFilterConfig.selectedSubjects.isEmpty {
+            if exportFilterConfig.selectedSubjects.count <= 2 {
+                let subjectNames = exportFilterConfig.selectedSubjects.map { $0.rawValue }.joined(separator: "_")
+                parts.append(subjectNames)
+            }
+        }
+        
+        // 掌握程度
+        if exportFilterConfig.filterByMastery {
+            switch exportFilterConfig.masteryFilterType {
+            case .notMastered:
+                parts.append("未掌握")
+            case .veryWeak:
+                parts.append("薄弱")
+            case .needsReview:
+                parts.append("需复习")
+            case .mastered:
+                parts.append("已掌握")
+            case .customRange:
+                break
+            }
+        }
+        
+        // 数量
+        parts.append("\(count)题")
+        
+        return parts.joined(separator: "_") + ".\(type)"
     }
 }

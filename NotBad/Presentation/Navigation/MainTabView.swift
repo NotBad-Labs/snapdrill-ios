@@ -76,6 +76,9 @@ struct MainTabView: View {
     // MARK: - State
 
     @State private var currentTab: Tab = .dashboard
+    
+    // 预加载各 Tab 视图，避免切换时重新创建
+    @State private var loadedTabs: Set<Tab> = [.dashboard]
 
     // MARK: - Init
 
@@ -88,7 +91,7 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $currentTab) {
             ForEach(Tab.allCases) { tab in
-                tabContent(for: tab)
+                LazyTabContent(tab: tab, isLoaded: loadedTabs.contains(tab))
                     .tabItem {
                         tabLabel(for: tab)
                     }
@@ -96,13 +99,15 @@ struct MainTabView: View {
             }
         }
         .tint(Color.brand.primary)
+        .onChange(of: currentTab) { _, newValue in
+            // 标记当前 Tab 为已加载
+            loadedTabs.insert(newValue)
+            selectedTab = newValue.rawValue
+        }
         .onChange(of: selectedTab) { _, newValue in
             if let tab = Tab(rawValue: newValue) {
                 currentTab = tab
             }
-        }
-        .onChange(of: currentTab) { _, newValue in
-            selectedTab = newValue.rawValue
         }
         .onReceive(NotificationCenter.default.publisher(for: .switchToCapture)) { _ in
             currentTab = .capture
@@ -113,23 +118,12 @@ struct MainTabView: View {
         .onReceive(NotificationCenter.default.publisher(for: .switchToLibrary)) { _ in
             currentTab = .library
         }
-    }
-
-    // MARK: - Tab Content
-
-    @ViewBuilder
-    private func tabContent(for tab: Tab) -> some View {
-        switch tab {
-        case .dashboard:
-            DashboardView()
-        case .library:
-            LibraryView()
-        case .capture:
-            CaptureView()
-        case .review:
-            ReviewView()
-        case .profile:
-            ProfileView()
+        .task {
+            // 后台预加载其他 Tab（延迟执行，不阻塞首屏）
+            try? await Task.sleep(for: .milliseconds(500))
+            await MainActor.run {
+                loadedTabs = Set(Tab.allCases)
+            }
         }
     }
 
@@ -144,6 +138,43 @@ struct MainTabView: View {
             Image(systemName: isSelected ? tab.selectedIcon : tab.icon)
         }
         .accessibilityLabel(tab.title)
+    }
+}
+
+// MARK: - Lazy Tab Content
+
+/// 懒加载 Tab 内容容器
+private struct LazyTabContent: View {
+    let tab: Tab
+    let isLoaded: Bool
+    
+    var body: some View {
+        if isLoaded {
+            tabView
+        } else {
+            // 占位视图，防止布局跳动
+            Color.clear
+                .overlay {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                }
+        }
+    }
+    
+    @ViewBuilder
+    private var tabView: some View {
+        switch tab {
+        case .dashboard:
+            DashboardView()
+        case .library:
+            LibraryView()
+        case .capture:
+            CaptureView()
+        case .review:
+            ReviewView()
+        case .profile:
+            ProfileView()
+        }
     }
 }
 

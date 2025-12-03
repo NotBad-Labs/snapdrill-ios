@@ -75,7 +75,7 @@ struct GradeStageTests {
 
     @Test("各学段包含正确的年级数量")
     func gradesCountForStage() {
-        #expect(GradeStage.primary.grades.count == 6)  // 1-6年级
+        #expect(GradeStage.primary.grades.count == 7)  // 幼儿园 + 1-6年级
         #expect(GradeStage.junior.grades.count == 3)   // 7-9年级
         #expect(GradeStage.senior.grades.count == 3)   // 10-12年级
     }

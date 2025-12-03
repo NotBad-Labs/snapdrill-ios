@@ -29,6 +29,7 @@ struct CaptureView: View {
 
     @State private var viewModel = CaptureViewModel()
     @State private var selectedItem: PhotosPickerItem?
+    @State private var isKeyboardVisible = false
 
     // MARK: - Body
 
@@ -104,7 +105,17 @@ extension CaptureView {
             hideKeyboard()
         }
         .safeAreaInset(edge: .bottom) {
-            imageSourceBar
+            if !isKeyboardVisible {
+                imageSourceBar
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: isKeyboardVisible)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            isKeyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            isKeyboardVisible = false
         }
     }
     
@@ -221,61 +232,50 @@ extension CaptureView {
 // MARK: - Image Source Bar
 
 extension CaptureView {
-    /// 底部图片来源选择栏（初始状态显示）
+    /// 底部图片来源选择栏 - 参考 iOS 备忘录风格
     private var imageSourceBar: some View {
-        VStack(spacing: 0) {
-            Divider()
-            
-            // 轻量化设计：三个等大的文字按钮，简洁不侵入
-            HStack(spacing: 0) {
-                // 相册
-                PhotosPicker(selection: $selectedItem, matching: .images) {
-                    VStack(spacing: 4) {
-                        Image(systemName: "photo")
-                            .font(.system(size: 22))
-                        Text("capture_album")
-                            .font(.caption2)
-                    }
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-                }
-                
-                // 智能识别（核心功能）
-                if LiveTextScannerView.isSupported {
-                    Button {
-                        viewModel.showLiveScanner = true
-                    } label: {
-                        VStack(spacing: 4) {
-                            Image(systemName: "text.viewfinder")
-                                .font(.system(size: 22, weight: .semibold))
-                            Text("capture_live_text")
-                                .font(.caption2)
-                        }
-                        .foregroundStyle(Color.accentColor)
-                        .frame(maxWidth: .infinity)
-                        .contentShape(Rectangle())
-                    }
-                }
-                
-                // 拍照
-                Button {
-                    viewModel.showCamera = true
-                } label: {
-                    VStack(spacing: 4) {
-                        Image(systemName: "camera")
-                            .font(.system(size: 22))
-                        Text("capture_camera")
-                            .font(.caption2)
-                    }
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-                }
+        HStack(spacing: DesignTokens.Spacing.xl) {
+            // 相册
+            PhotosPicker(selection: $selectedItem, matching: .images) {
+                Image(systemName: "photo.on.rectangle")
+                    .font(.system(size: 22))
+                    .foregroundStyle(.primary)
             }
-            .padding(.vertical, 12)
+            .accessibilityLabel(Text("capture_album"))
+            
+            Spacer()
+            
+            // 智能识别（主按钮）
+            if LiveTextScannerView.isSupported {
+                Button {
+                    viewModel.showLiveScanner = true
+                } label: {
+                    Image(systemName: "text.viewfinder")
+                        .font(.system(size: 28, weight: .medium))
+                        .foregroundStyle(.white)
+                        .frame(width: 56, height: 56)
+                        .background(Color.accentColor)
+                        .clipShape(Circle())
+                        .shadow(color: Color.accentColor.opacity(0.3), radius: 8, y: 4)
+                }
+                .accessibilityLabel(Text("capture_live_text"))
+            }
+            
+            Spacer()
+            
+            // 拍照
+            Button {
+                viewModel.showCamera = true
+            } label: {
+                Image(systemName: "camera")
+                    .font(.system(size: 22))
+                    .foregroundStyle(.primary)
+            }
+            .accessibilityLabel(Text("capture_camera"))
         }
-        .background(.bar)
+        .padding(.horizontal, DesignTokens.Spacing.xl)
+        .padding(.vertical, DesignTokens.Spacing.md)
+        .background(.ultraThinMaterial)
     }
 }
 

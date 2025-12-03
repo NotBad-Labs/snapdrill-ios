@@ -37,18 +37,31 @@ struct DataManagementView: View {
     @State var isExporting = false
     @State var exportProgress: Double = 0
     @State var showImportPicker = false
+    
+    // 导出筛选状态
+    @State var showExportFilterSheet = false
+    @State var pendingExportType: ExportType?
+    @State var exportFilterConfig = ExportFilterConfig()
+    
+    // 最近导出缓存
+    @State private var cachedFiles: [CachedExportFile] = []
+    @State private var showClearCacheAlert = false
 
     // MARK: - Body
 
     var body: some View {
         List {
             storageSection
+            recentExportsSection
             exportSection
             importSection
             dangerZoneSection
         }
         .navigationTitle("data_management_title")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            refreshCachedFiles()
+        }
         .sheet(isPresented: $showExportSheet) {
             if let url = exportedFileURL {
                 ShareSheet(activityItems: [url])
@@ -60,6 +73,15 @@ struct DataManagementView: View {
             allowsMultipleSelection: false
         ) { result in
             handleImport(result)
+        }
+        .sheet(isPresented: $showExportFilterSheet) {
+            ExportFilterView(
+                exportType: pendingExportType ?? .pdf,
+                config: exportFilterConfig,
+                allItems: allItems,
+                onExport: { performFilteredExport() },
+                onCancel: { showExportFilterSheet = false }
+            )
         }
         .alert("data_confirm_delete_all", isPresented: $showDeleteAlert) {
             Button("common_cancel", role: .cancel) { }
@@ -103,6 +125,11 @@ struct DataManagementView: View {
 
         return ByteCountFormatter.string(fromByteCount: Int64(totalBytes), countStyle: .file)
     }
+    
+    /// 刷新缓存文件列表
+    func refreshCachedFiles() {
+        cachedFiles = ExportCacheManager.shared.getCachedFiles()
+    }
 }
 
 // MARK: - Sections
@@ -134,32 +161,126 @@ extension DataManagementView {
             }
         }
     }
+    
+    /// 最近导出部分
+    @ViewBuilder
+    var recentExportsSection: some View {
+        if !cachedFiles.isEmpty {
+            Section {
+                ForEach(cachedFiles) { file in
+                    Button {
+                        exportedFileURL = file.url
+                        showExportSheet = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            // 文件类型图标
+                            Image(systemName: file.icon)
+                                .font(.title2)
+                                .foregroundStyle(fileColor(for: file))
+                                .frame(width: 32)
+                            
+                            // 文件信息
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(file.fileName)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(1)
+                                
+                                HStack(spacing: 8) {
+                                    Text(file.formattedSize)
+                                    Text("•")
+                                    Text(file.formattedDate)
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            // 分享图标
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button(role: .destructive) {
+                            withAnimation {
+                                ExportCacheManager.shared.deleteFile(file)
+                                refreshCachedFiles()
+                            }
+                        } label: {
+                            Label("common_delete", systemImage: "trash")
+                        }
+                    }
+                }
+                
+                // 清除所有缓存
+                if cachedFiles.count > 1 {
+                    Button(role: .destructive) {
+                        showClearCacheAlert = true
+                    } label: {
+                        Label("export_clear_cache", systemImage: "trash")
+                    }
+                    .alert("export_clear_cache_confirm", isPresented: $showClearCacheAlert) {
+                        Button("common_cancel", role: .cancel) { }
+                        Button("common_delete", role: .destructive) {
+                            withAnimation {
+                                ExportCacheManager.shared.deleteAllFiles()
+                                refreshCachedFiles()
+                            }
+                        }
+                    } message: {
+                        Text("export_clear_cache_message")
+                    }
+                }
+            } header: {
+                Text("export_recent_files")
+            } footer: {
+                Text("export_recent_files_footer")
+            }
+        }
+    }
+    
+    /// 根据文件类型获取颜色
+    private func fileColor(for file: CachedExportFile) -> Color {
+        switch file.color {
+        case "primary": return Color.brand.primary
+        case "success": return Color.brand.success
+        case "warning": return Color.brand.warning
+        default: return .secondary
+        }
+    }
 
     /// 导出部分
     var exportSection: some View {
         Section("data_section_export") {
-            // PDF 导出（打印用）
+            // PDF 导出（打印用）- 支持筛选
             Button {
-                exportToPDF()
+                pendingExportType = .pdf
+                showExportFilterSheet = true
             } label: {
                 ExportRowLabel(
                     title: "data_export_pdf",
                     description: "data_export_pdf_description",
                     icon: "doc.richtext.fill",
-                    color: Color.brand.primary
+                    color: Color.brand.primary,
+                    badge: "export_filterable"
                 )
             }
             .disabled(allItems.isEmpty || isExporting)
             
-            // CSV 导出（推荐给普通用户）
+            // CSV 导出（推荐给普通用户）- 支持筛选
             Button {
-                exportToCSV()
+                pendingExportType = .csv
+                showExportFilterSheet = true
             } label: {
                 ExportRowLabel(
                     title: "data_export_csv",
                     description: "data_export_csv_description",
                     icon: "tablecells.fill",
-                    color: Color.brand.success
+                    color: Color.brand.success,
+                    badge: "export_filterable"
                 )
             }
             .disabled(allItems.isEmpty || isExporting)
@@ -239,12 +360,23 @@ private struct ExportRowLabel: View {
     let icon: String
     let color: Color
     var isLoading: Bool = false
+    var badge: LocalizedStringKey? = nil
 
     var body: some View {
         Label {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                 HStack {
                     Text(title)
+                    if let badge = badge {
+                        Text(badge)
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.brand.primary.opacity(0.15))
+                            .foregroundStyle(Color.brand.primary)
+                            .clipShape(Capsule())
+                    }
                     if isLoading {
                         ProgressView()
                             .scaleEffect(0.8)
@@ -259,6 +391,14 @@ private struct ExportRowLabel: View {
                 .foregroundStyle(color)
         }
     }
+}
+
+// MARK: - Export Types
+
+/// 导出类型
+enum ExportType {
+    case pdf
+    case csv
 }
 
 // MARK: - ShareSheet
