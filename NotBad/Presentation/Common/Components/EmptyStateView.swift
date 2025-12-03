@@ -144,12 +144,91 @@ extension EmptyStateView {
 
 extension EmptyStateView {
 
-    /// 题库空状态
+    /// 题库空状态 - 首次使用引导
+    static func noItems(onAddTap: @escaping () -> Void) -> some View {
+        VStack(spacing: DesignTokens.Spacing.xxl) {
+            // 主要内容
+            VStack(spacing: DesignTokens.Spacing.xl) {
+                Image(systemName: "sparkles.rectangle.stack")
+                    .font(.system(size: 64))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Color.brand.primary, Color.brand.secondary],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .symbolEffect(.pulse)
+                
+                VStack(spacing: DesignTokens.Spacing.sm) {
+                    Text("library_empty_welcome_title")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Text("library_empty_welcome_subtitle")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            
+            // 使用提示卡片
+            VStack(spacing: DesignTokens.Spacing.md) {
+                tipRow(icon: "camera.fill", text: String(localized: "library_empty_tip_camera"))
+                tipRow(icon: "brain.head.profile", text: String(localized: "library_empty_tip_ai"))
+                tipRow(icon: "arrow.triangle.2.circlepath", text: String(localized: "library_empty_tip_review"))
+            }
+            .padding(DesignTokens.Spacing.lg)
+            .background(
+                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                    .fill(Color(.secondarySystemBackground))
+            )
+            
+            // 操作按钮
+            Button(action: onAddTap) {
+                HStack(spacing: DesignTokens.Spacing.sm) {
+                    Image(systemName: "plus.circle.fill")
+                    Text("library_empty_add_button")
+                }
+                .font(.headline)
+                .foregroundStyle(.white)
+                .padding(.horizontal, DesignTokens.Spacing.xxl)
+                .padding(.vertical, DesignTokens.Spacing.md)
+                .background(
+                    LinearGradient(
+                        colors: [Color.brand.primary, Color.brand.secondary],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .clipShape(Capsule())
+            }
+        }
+        .padding(DesignTokens.Spacing.xxl)
+    }
+    
+    /// 提示行
+    private static func tipRow(icon: String, text: String) -> some View {
+        HStack(spacing: DesignTokens.Spacing.md) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(Color.brand.primary)
+                .frame(width: 24)
+            
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+            
+            Spacer()
+        }
+    }
+    
+    /// 题库空状态（无操作按钮）
     static var noItems: EmptyStateView {
         EmptyStateView(
             icon: "books.vertical",
-            title: "暂无错题",
-            message: "快去录入你的第一道错题吧"
+            title: String(localized: "empty_state_title"),
+            message: String(localized: "empty_state_description")
         )
     }
 
@@ -157,8 +236,8 @@ extension EmptyStateView {
     static var noReviewItems: EmptyStateView {
         EmptyStateView(
             icon: "checkmark.seal.fill",
-            title: "暂无需要复习的错题",
-            message: "太棒了！你已经掌握了所有错题"
+            title: String(localized: "review_empty_title"),
+            message: String(localized: "review_empty_description")
         )
     }
 
@@ -166,8 +245,8 @@ extension EmptyStateView {
     static var noSearchResults: EmptyStateView {
         EmptyStateView(
             icon: "magnifyingglass",
-            title: "未找到结果",
-            message: "试试其他关键词或筛选条件"
+            title: String(localized: "search_empty_title"),
+            message: String(localized: "search_empty_description")
         )
     }
 
@@ -175,8 +254,8 @@ extension EmptyStateView {
     static var noFilterResults: EmptyStateView {
         EmptyStateView(
             icon: "line.3.horizontal.decrease.circle",
-            title: "无匹配结果",
-            message: "尝试调整筛选条件"
+            title: String(localized: "filter_empty_title"),
+            message: String(localized: "filter_empty_description")
         )
     }
 

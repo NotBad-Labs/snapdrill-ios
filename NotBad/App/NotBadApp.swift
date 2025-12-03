@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import TipKit
 
 // MARK: - NotBadApp
 
@@ -36,6 +37,9 @@ struct NotBadApp: App {
     }
 
     init() {
+        // 配置 TipKit
+        TipsConfiguration.configure()
+        
         do {
             let schema = Schema([ReviewItem.self])
             let config = ModelConfiguration(schema: schema)
@@ -73,7 +77,7 @@ struct NotBadApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainTabView(selectedTab: $selectedTab)
+            AdaptiveNavigationView(selectedTab: $selectedTab)
                 .preferredColorScheme(preferredColorScheme)
                 .fullScreenCover(isPresented: $showOnboarding) {
                     OnboardingView {
@@ -86,6 +90,12 @@ struct NotBadApp: App {
                 .onOpenURL { url in
                     handleDeepLink(url)
                 }
+                // Handoff Restoration
+                .onContinueUserActivity(UserActivityType.viewDashboard) { _ in selectedTab = 0 }
+                .onContinueUserActivity(UserActivityType.viewLibrary) { _ in selectedTab = 1 }
+                .onContinueUserActivity(UserActivityType.captureItem) { _ in selectedTab = 2 }
+                .onContinueUserActivity(UserActivityType.reviewSession) { _ in selectedTab = 3 }
+                .onContinueUserActivity(UserActivityType.viewProfile) { _ in selectedTab = 4 }
                 .task {
                     await syncWidgetData()
                 }

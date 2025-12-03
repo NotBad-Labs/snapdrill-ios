@@ -213,7 +213,7 @@ struct FAQ: Identifiable {
         ),
         FAQ(
             question: "如何备份我的错题数据？",
-            answer: "进入『我的』>『数据管理』，选择『导出为 JSON』或『导出为 CSV』，可以将数据保存到文件或分享到其他应用。"
+            answer: "进入『我的』>『数据管理』：\n• 导出为 CSV：可用 Excel/Numbers 打开查看\n• 完整备份：包含图片，适合迁移设备\n• 导出为 JSON：适合开发者，可重新导入"
         ),
         FAQ(
             question: "复习模式有什么区别？",

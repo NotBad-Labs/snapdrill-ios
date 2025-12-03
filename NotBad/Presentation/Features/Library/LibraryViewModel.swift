@@ -44,6 +44,9 @@ final class LibraryViewModel {
 
     /// 搜索关键词
     var searchText = ""
+    
+    /// 搜索历史管理器
+    private let searchHistoryManager = SearchHistoryManager.shared
 
     /// 是否正在搜索
     var isSearching: Bool {
@@ -202,6 +205,23 @@ final class LibraryViewModel {
     }
 
     // MARK: - Filter Actions
+    
+    /// 提交搜索（保存到历史记录）
+    ///
+    /// 当用户按下回车确认搜索时调用，将搜索词保存到历史记录中。
+    func submitSearch() {
+        let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        searchHistoryManager.addSearch(trimmed)
+    }
+    
+    /// 从历史记录选择搜索词
+    ///
+    /// - Parameter query: 历史记录中的搜索词
+    func selectFromHistory(_ query: String) {
+        searchText = query
+        searchHistoryManager.addSearch(query)
+    }
 
     /// 选择学科
     func selectSubject(_ subject: Subject?) {
@@ -319,6 +339,32 @@ final class LibraryViewModel {
         } catch {
             #if DEBUG
             print("❌ 批量删除失败: \(error)")
+            #endif
+        }
+    }
+    
+    /// 批量标记掌握程度
+    ///
+    /// - Parameters:
+    ///   - items: 所有错题列表
+    ///   - mastery: 要设置的掌握程度
+    func markSelectedItems(from items: [ReviewItem], as mastery: MasteryLevel) {
+        guard let modelContext else { return }
+        
+        let itemsToUpdate = items.filter { selectedItemIds.contains($0.id) }
+        
+        for item in itemsToUpdate {
+            item.mastery = mastery
+            item.updatedAt = Date()
+        }
+        
+        do {
+            try modelContext.save()
+            selectedItemIds.removeAll()
+            isSelectionMode = false
+        } catch {
+            #if DEBUG
+            print("❌ 批量标记失败: \(error)")
             #endif
         }
     }

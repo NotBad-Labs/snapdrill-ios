@@ -8,6 +8,7 @@
 import SwiftUI
 import PhotosUI
 import SwiftData
+import TipKit
 
 // MARK: - CaptureView
 
@@ -43,6 +44,11 @@ struct CaptureView: View {
                     Task {
                         await viewModel.loadTransferable(from: newValue)
                     }
+                }
+                .dropDestination(for: Data.self) { items, _ in
+                    guard let item = items.first, let image = UIImage(data: item) else { return false }
+                    viewModel.handlePickedImage(image)
+                    return true
                 }
                 .sheet(isPresented: $viewModel.showCamera) {
                     ImagePicker(sourceType: .camera) { image in
@@ -83,6 +89,10 @@ extension CaptureView {
     private var initialInputView: some View {
         ScrollView {
             VStack(spacing: DesignTokens.Spacing.lg) {
+                // 首次使用提示
+                TipView(CapturePhotoTip(), arrowEdge: .bottom)
+                    .tipBackground(Color(.secondarySystemBackground))
+                
                 formSection
             }
             .padding(.horizontal)

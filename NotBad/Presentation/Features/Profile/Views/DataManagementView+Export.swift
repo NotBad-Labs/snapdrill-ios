@@ -12,6 +12,25 @@ import SwiftData
 
 extension DataManagementView {
 
+    /// 导出为 PDF（打印用）
+    func exportToPDF() {
+        let pdfData = PDFExportService.shared.exportToPDF(
+            items: allItems,
+            title: String(localized: "pdf_export_title"),
+            includeImages: true,
+            includeNotes: true
+        )
+        
+        do {
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("notbad_错题本_\(dateString()).pdf")
+            try pdfData.write(to: tempURL)
+            exportedFileURL = tempURL
+            showExportSheet = true
+        } catch {
+            showToast(String(localized: "export_failed"), isError: true)
+        }
+    }
+
     /// 导出为 JSON
     func exportData() {
         let exportItems: [[String: Any]] = allItems.map { item in
@@ -45,6 +64,7 @@ extension DataManagementView {
 
     /// 导出为 CSV
     func exportToCSV() {
+        // CSV 表头（使用本地化字符串）
         var csvString = "ID,标题,笔记,科目,题型,难度,来源,年级,掌握程度,复习次数,创建时间,知识点\n"
 
         for item in allItems {
@@ -52,11 +72,11 @@ extension DataManagementView {
                 item.id.uuidString,
                 escapeCSV(item.title),
                 escapeCSV(item.note),
-                item.subject.rawValue,
-                item.questionType.rawValue,
-                String(item.difficulty.rawValue),
-                item.source.rawValue,
-                item.grade.rawValue,
+                item.subject.displayName,  // 使用显示名称而非 rawValue
+                item.questionType.displayName,
+                item.difficulty.displayName,
+                item.source.displayName,
+                item.grade.displayName,
                 String(item.masteryLevel),
                 String(item.reviewCount),
                 ISO8601DateFormatter().string(from: item.createdAt),
@@ -66,7 +86,10 @@ extension DataManagementView {
         }
 
         do {
-            let data = csvString.data(using: .utf8)!
+            // 添加 UTF-8 BOM，让 Excel 正确识别编码
+            var data = Data([0xEF, 0xBB, 0xBF])  // UTF-8 BOM
+            data.append(csvString.data(using: .utf8)!)
+            
             let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("notbad_export_\(Date().timeIntervalSince1970).csv")
             try data.write(to: tempURL)
             exportedFileURL = tempURL

@@ -104,6 +104,15 @@ struct MainTabView: View {
         .onChange(of: currentTab) { _, newValue in
             selectedTab = newValue.rawValue
         }
+        .onReceive(NotificationCenter.default.publisher(for: .switchToCapture)) { _ in
+            currentTab = .capture
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .switchToReview)) { _ in
+            currentTab = .review
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .switchToLibrary)) { _ in
+            currentTab = .library
+        }
     }
 
     // MARK: - Tab Content

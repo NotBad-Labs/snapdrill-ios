@@ -113,6 +113,19 @@ extension Notification.Name {
 
     /// 主题已更改
     static let themeChanged = Notification.Name("notbad.settings.themeChanged")
+    
+    // MARK: - Navigation Events
+    
+    /// 切换到录入页面
+    ///
+    /// 从其他页面触发，导航到 Capture Tab
+    static let switchToCapture = Notification.Name("notbad.navigation.switchToCapture")
+    
+    /// 切换到复习页面
+    static let switchToReview = Notification.Name("notbad.navigation.switchToReview")
+    
+    /// 切换到题库页面
+    static let switchToLibrary = Notification.Name("notbad.navigation.switchToLibrary")
 }
 
 // MARK: - Notification UserInfo Keys

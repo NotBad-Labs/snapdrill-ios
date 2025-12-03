@@ -217,7 +217,7 @@ struct CaptureViewModelTests {
     func handleLiveScanResultAction() {
         let viewModel = CaptureViewModel()
 
-        viewModel.handleLiveScanResult("第一行\n第二行\n第三行")
+        viewModel.handleLiveScanResult("第一行\n第二行\n第三行", imageData: nil)
 
         #expect(viewModel.recognizedText == "第一行\n第二行\n第三行")
         #expect(viewModel.title == "第一行")
@@ -230,7 +230,7 @@ struct CaptureViewModelTests {
         let viewModel = CaptureViewModel()
         let longText = String(repeating: "字", count: 100)
 
-        viewModel.handleLiveScanResult(longText)
+        viewModel.handleLiveScanResult(longText, imageData: nil)
 
         #expect(viewModel.title.count == 50)
     }
@@ -240,7 +240,7 @@ struct CaptureViewModelTests {
         let viewModel = CaptureViewModel()
         viewModel.title = "已有标题"
 
-        viewModel.handleLiveScanResult("新文字")
+        viewModel.handleLiveScanResult("新文字", imageData: nil)
 
         #expect(viewModel.title == "已有标题")
     }

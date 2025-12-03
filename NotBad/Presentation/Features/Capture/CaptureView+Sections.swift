@@ -26,7 +26,7 @@ extension CaptureView {
                     }
                 } content: {
                     TextField(
-                        String(localized: "capture_field_title_placeholder"),
+                        viewModel.subject.titlePlaceholder(for: viewModel.grade),
                         text: .init(
                             get: { viewModel.title },
                             set: { viewModel.title = $0 }
@@ -34,15 +34,38 @@ extension CaptureView {
                     )
                     .multilineTextAlignment(.trailing)
                     .submitLabel(.done)
+                    .onSubmit {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
                 }
 
                 // 学科
                 FormRow(isLast: false) {
-                    Text("capture_field_subject")
+                    HStack(spacing: DesignTokens.Spacing.xs) {
+                        Text("capture_field_subject")
+                        if viewModel.isAnalyzing {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                        } else if viewModel.subjectWasAutoSelected {
+                            Image(systemName: "sparkles")
+                                .font(.caption)
+                                .foregroundStyle(Color.brand.primary)
+                        }
+                    }
                 } content: {
+                    let currentRegion = EducationSystemManager.shared.currentRegion
                     Picker("", selection: .init(
                         get: { viewModel.subject },
-                        set: { viewModel.subject = $0 }
+                        set: { newSubject in
+                            viewModel.subject = newSubject
+                            viewModel.subjectWasAutoSelected = false
+                            // 如果当前年级不适用于新学科，自动调整到适用的第一个年级
+                            if !newSubject.isApplicable(for: viewModel.grade, in: currentRegion) {
+                                if let firstApplicableGrade = newSubject.applicableGrades(for: currentRegion).first {
+                                    viewModel.grade = firstApplicableGrade
+                                }
+                            }
+                        }
                     )) {
                         ForEach(Subject.allCases) { subject in
                             Text(subject.displayName)
@@ -53,16 +76,16 @@ extension CaptureView {
                     .tint(.primary)
                 }
 
-                // 年级
+                // 年级（仅显示当前学科在当前教育地区适用的年级）
                 FormRow(isLast: true) {
                     Text("capture_field_grade")
                 } content: {
+                    let currentRegion = EducationSystemManager.shared.currentRegion
                     Picker("", selection: .init(
                         get: { viewModel.grade },
                         set: { viewModel.grade = $0 }
                     )) {
-                        // 中国 K12 不包含幼儿园
-                        ForEach(Grade.allCases.filter { $0 != .kindergarten }) { grade in
+                        ForEach(viewModel.subject.applicableGrades(for: currentRegion)) { grade in
                             Text(grade.displayName)
                                 .tag(grade)
                         }
@@ -85,7 +108,7 @@ extension CaptureView {
                     Text("capture_field_knowledge_points")
                 } content: {
                     TextField(
-                        String(localized: "capture_field_knowledge_points_placeholder"),
+                        viewModel.subject.knowledgePointsPlaceholder(for: viewModel.grade),
                         text: .init(
                             get: { viewModel.knowledgePointsInput },
                             set: { viewModel.knowledgePointsInput = $0 }
@@ -93,6 +116,9 @@ extension CaptureView {
                     )
                     .multilineTextAlignment(.trailing)
                     .submitLabel(.done)
+                    .onSubmit {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
                 }
 
                 // 笔记
@@ -111,6 +137,9 @@ extension CaptureView {
                     .lineLimit(2...4)
                     .multilineTextAlignment(.trailing)
                     .submitLabel(.done)
+                    .onSubmit {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
                 }
             }
         } header: {

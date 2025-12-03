@@ -138,20 +138,20 @@ extension DataManagementView {
     /// 导出部分
     var exportSection: some View {
         Section("data_section_export") {
-            // JSON 导出
+            // PDF 导出（打印用）
             Button {
-                exportData()
+                exportToPDF()
             } label: {
                 ExportRowLabel(
-                    title: "data_export_json",
-                    description: "data_export_json_description",
-                    icon: "square.and.arrow.up.fill",
+                    title: "data_export_pdf",
+                    description: "data_export_pdf_description",
+                    icon: "doc.richtext.fill",
                     color: Color.brand.primary
                 )
             }
             .disabled(allItems.isEmpty || isExporting)
-
-            // CSV 导出
+            
+            // CSV 导出（推荐给普通用户）
             Button {
                 exportToCSV()
             } label: {
@@ -178,6 +178,20 @@ extension DataManagementView {
                     isLoading: isExporting
                 )
             }
+            .disabled(allItems.isEmpty || isExporting)
+
+            // JSON 导出（给技术用户）
+            Button {
+                exportData()
+            } label: {
+                ExportRowLabel(
+                    title: "data_export_json",
+                    description: "data_export_json_description",
+                    icon: "curlybraces",
+                    color: .secondary
+                )
+            }
+            .disabled(allItems.isEmpty || isExporting)
             .disabled(allItems.isEmpty || isExporting)
         }
     }

@@ -18,6 +18,8 @@ struct SubjectSettingsView: View {
     
     @StateObject private var profileManager = UserProfileManager.shared
     @Environment(\.dismiss) private var dismiss
+    @State private var showingAddCustomSubject = false
+    @State private var editingCustomSubject: CustomSubject?
     
     // MARK: - Body
     
@@ -31,7 +33,7 @@ struct SubjectSettingsView: View {
                         .foregroundStyle(.secondary)
                 }
                 
-                // 按分类显示学科
+                // 按分类显示预设学科
                 ForEach(SubjectCategory.allCases) { category in
                     let subjectsInCategory = Subject.allCases.filter { $0.category == category }
                     
@@ -50,6 +52,54 @@ struct SubjectSettingsView: View {
                             }
                         }
                     }
+                }
+                
+                // 自定义学科
+                Section {
+                    ForEach(profileManager.customSubjects) { customSubject in
+                        CustomSubjectToggleRow(
+                            customSubject: customSubject,
+                            isEnabled: profileManager.isCustomSubjectEnabled(customSubject)
+                        ) {
+                            withAnimation(.spring(response: 0.3)) {
+                                profileManager.toggleCustomSubject(customSubject)
+                            }
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                withAnimation {
+                                    profileManager.deleteCustomSubject(id: customSubject.id)
+                                }
+                            } label: {
+                                Label("common_delete", systemImage: "trash")
+                            }
+                            
+                            Button {
+                                editingCustomSubject = customSubject
+                            } label: {
+                                Label("common_edit", systemImage: "pencil")
+                            }
+                            .tint(.orange)
+                        }
+                    }
+                    .onMove { source, destination in
+                        var subjects = profileManager.customSubjects
+                        subjects.move(fromOffsets: source, toOffset: destination)
+                        profileManager.reorderCustomSubjects(subjects)
+                    }
+                    
+                    // 添加自定义学科按钮
+                    Button {
+                        showingAddCustomSubject = true
+                    } label: {
+                        Label("custom_subject_add", systemImage: "plus.circle")
+                            .foregroundStyle(Color.brand.primary)
+                    }
+                } header: {
+                    Text("custom_subject_section_title")
+                } footer: {
+                    Text("custom_subject_section_footer")
+                        .font(.caption)
                 }
                 
                 // 快捷操作
@@ -79,6 +129,12 @@ struct SubjectSettingsView: View {
                         dismiss()
                     }
                 }
+            }
+            .sheet(isPresented: $showingAddCustomSubject) {
+                CustomSubjectEditorView(mode: .add)
+            }
+            .sheet(item: $editingCustomSubject) { subject in
+                CustomSubjectEditorView(mode: .edit(subject))
             }
         }
     }
@@ -123,6 +179,45 @@ private struct SubjectToggleRow: View {
         .buttonStyle(.plain)
         .opacity(canDisable ? 1 : 0.5)
         .disabled(!canDisable && isEnabled)
+    }
+}
+
+// MARK: - CustomSubjectToggleRow
+
+/// 自定义学科开关行
+private struct CustomSubjectToggleRow: View {
+    let customSubject: CustomSubject
+    let isEnabled: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                // 学科图标和名称
+                Label {
+                    Text(customSubject.name)
+                        .foregroundStyle(.primary)
+                } icon: {
+                    Image(systemName: customSubject.icon)
+                        .foregroundStyle(customSubject.color)
+                }
+                
+                Spacer()
+                
+                // 选中状态
+                if isEnabled {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.brand.primary)
+                        .imageScale(.large)
+                } else {
+                    Image(systemName: "circle")
+                        .foregroundStyle(.tertiary)
+                        .imageScale(.large)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 

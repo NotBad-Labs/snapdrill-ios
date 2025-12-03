@@ -26,13 +26,15 @@ extension CaptureViewModel {
                 title = extractedTitle
             }
 
-            // 填充笔记
-            if note.isEmpty {
-                note = result
-            }
-
             isRecognizingText = false
             currentStep = .fillForm
+
+            // 启动智能分析（异步，不阻塞）
+            if smartAnalysisAvailable {
+                Task {
+                    await performSmartAnalysis(text: result)
+                }
+            }
 
             showSuccessAlert(String(localized: "capture_ocr_success"))
         } catch {
@@ -47,7 +49,8 @@ extension CaptureViewModel {
     func retryRecognition() async {
         recognizedText = ""
         title = ""
-        note = ""
+        suggestedSubject = nil
+        subjectWasAutoSelected = false
         await recognizeText()
     }
 
@@ -56,6 +59,11 @@ extension CaptureViewModel {
         #if DEBUG
         print("🔍 [CaptureVM] handleLiveScanResult: text长度=\(text.count), 图片=\(imageData?.count ?? 0) bytes")
         #endif
+        
+        // 关闭扫描器界面
+        showLiveScanner = false
+        isFromLiveScanner = true
+        
         recognizedText = text
         
         // 保存截图
@@ -72,14 +80,66 @@ extension CaptureViewModel {
             title = String(firstLine.prefix(50))
         }
 
-        if note.isEmpty {
-            note = text
-        }
-
         currentStep = .fillForm
+        
+        // 启动智能分析（异步，不阻塞）
+        if smartAnalysisAvailable {
+            Task {
+                await performSmartAnalysis(text: text)
+            }
+        }
 
         #if DEBUG
         print("🔍 [CaptureVM] 处理结果: title=\(title), hasImage=\(hasImage), isValid=\(isValid)")
         #endif
+    }
+}
+
+// MARK: - Smart Analysis
+
+extension CaptureViewModel {
+    /// 执行智能分析
+    ///
+    /// 使用 Apple Intelligence 分析题目内容，自动识别科目并生成标题建议
+    func performSmartAnalysis(text: String) async {
+        guard !text.isEmpty else { return }
+        guard smartAnalysisAvailable else { return }
+        
+        isAnalyzing = true
+        
+        do {
+            let result = try await smartAnalysisService.analyze(text: text)
+            
+            #if DEBUG
+            print("🤖 [SmartAnalysis] 科目: \(result.suggestedSubject.displayName), 置信度: \(result.confidence)")
+            print("🤖 [SmartAnalysis] 标题建议: \(result.suggestedTitle)")
+            #endif
+            
+            // 自动选择科目
+            suggestedSubject = result.suggestedSubject
+            subject = result.suggestedSubject
+            subjectWasAutoSelected = true
+            
+            // 如果标题仍是默认提取的（第一行），且 AI 生成了更好的标题，则替换
+            if result.confidence >= 0.7 && !result.suggestedTitle.isEmpty {
+                let firstLine = recognizedText.components(separatedBy: .newlines).first ?? ""
+                if title == String(firstLine.prefix(50)) {
+                    title = result.suggestedTitle
+                }
+            }
+            
+            isAnalyzing = false
+        } catch {
+            #if DEBUG
+            print("🤖 [SmartAnalysis] 分析失败: \(error.localizedDescription)")
+            #endif
+            isAnalyzing = false
+            // 分析失败不影响正常流程，静默处理
+        }
+    }
+    
+    /// 手动触发智能分析
+    func triggerSmartAnalysis() async {
+        await performSmartAnalysis(text: recognizedText)
     }
 }

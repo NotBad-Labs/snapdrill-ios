@@ -1,0 +1,15 @@
+# GitHub Pages 配置
+title: NotBad 错题本
+description: 一款专为 K12 学生设计的智能错题本应用
+url: https://chramboliao.github.io
+baseurl: /NotBad
+
+# 主题设置（使用默认，因为我们有自定义 HTML）
+theme: null
+
+# 排除不需要发布的文件
+exclude:
+  - CODING_STANDARDS.md
+  - GLOSSARY.md
+  - PROJECT_STRUCTURE.md
+  - README.md

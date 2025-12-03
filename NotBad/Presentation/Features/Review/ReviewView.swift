@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import TipKit
 
 // MARK: - ReviewView
 
@@ -66,11 +67,18 @@ struct ReviewView: View {
                 if reviewItems.isEmpty {
                     EmptyReviewState()
                 } else {
-                    ReviewContent(
-                        items: reviewItems,
-                        currentIndex: $bindableViewModel.currentIndex,
-                        onMasteryUpdate: handleMastery
-                    )
+                    VStack(spacing: 0) {
+                        // 首次复习提示
+                        TipView(ReviewGestureTip(), arrowEdge: .bottom)
+                            .tipBackground(Color(.secondarySystemBackground))
+                            .padding(.horizontal)
+                        
+                        ReviewContent(
+                            items: reviewItems,
+                            currentIndex: $bindableViewModel.currentIndex,
+                            onMasteryUpdate: handleMastery
+                        )
+                    }
                 }
             }
             .navigationTitle("review_title")

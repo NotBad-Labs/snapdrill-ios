@@ -79,6 +79,30 @@ struct LibraryView: View {
                 .navigationTitle("library_title")
                 .navigationBarTitleDisplayMode(.large)
                 .searchable(text: $viewModel.searchText, prompt: Text("library_search_prompt"))
+                .onSubmit(of: .search) {
+                    viewModel.submitSearch()
+                }
+                .toolbar {
+                    // 右上角编辑按钮
+                    ToolbarItem(placement: .topBarTrailing) {
+                        if !items.isEmpty {
+                            Button {
+                                withAnimation(.spring(response: 0.3)) {
+                                    viewModel.toggleSelectionMode()
+                                }
+                            } label: {
+                                Text(viewModel.isSelectionMode ? "library_done" : "library_edit")
+                            }
+                        }
+                    }
+                }
+                .safeAreaInset(edge: .bottom) {
+                    // 批量操作工具栏
+                    if viewModel.isSelectionMode {
+                        batchActionBar
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                }
                 .sheet(isPresented: $viewModel.showAdvancedSearch) {
                     AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
                 }
@@ -103,11 +127,10 @@ private extension LibraryView {
     @ViewBuilder
     var contentView: some View {
         if items.isEmpty {
-            // 完全没有数据
-            ContentUnavailableView {
-                Label(String(localized: "library_empty_title"), systemImage: "books.vertical")
-            } description: {
-                Text("library_empty_description")
+            // 完全没有数据 - 显示首次使用引导
+            EmptyStateView.noItems {
+                // 发送通知切换到录入页面
+                NotificationCenter.default.post(name: .switchToCapture, object: nil)
             }
         } else {
             itemList
@@ -212,6 +235,18 @@ private extension LibraryView {
     /// 错题列表
     var itemList: some View {
         List {
+            // 搜索历史（仅在搜索框为空且有历史记录时显示）
+            if viewModel.searchText.isEmpty {
+                Section {
+                    SearchHistoryView { query in
+                        viewModel.selectFromHistory(query)
+                    }
+                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+            }
+            
             // 筛选栏作为列表第一个 section，随内容滚动
             Section {
                 filterBar
@@ -232,20 +267,38 @@ private extension LibraryView {
                     .listRowSeparator(.hidden)
                 } else {
                     ForEach(filteredItems) { item in
-                        // 使用 Button + 程序化导航，解决搜索时点击不灵敏的问题
-                        Button {
-                            navigationPath.append(item)
-                        } label: {
-                            ItemRow(item: item)
-                        }
-                        .buttonStyle(.plain)
-                        // 添加右侧箭头，模拟 NavigationLink 外观
-                        .listRowBackground(Color.clear)
-                        .background(alignment: .trailing) {
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(.tertiary)
-                                .padding(.trailing, 4)
+                        if viewModel.isSelectionMode {
+                            // 选择模式：点击切换选中状态
+                            Button {
+                                withAnimation(.spring(response: 0.2)) {
+                                    viewModel.toggleSelection(for: item.id)
+                                }
+                            } label: {
+                                HStack {
+                                    Image(systemName: viewModel.isSelected(item.id) ? "checkmark.circle.fill" : "circle")
+                                        .font(.title2)
+                                        .foregroundStyle(viewModel.isSelected(item.id) ? Color.brand.primary : .secondary)
+                                    ItemRow(item: item)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .listRowBackground(viewModel.isSelected(item.id) ? Color.brand.primary.opacity(0.1) : Color.clear)
+                        } else {
+                            // 正常模式：点击导航到详情
+                            Button {
+                                navigationPath.append(item)
+                            } label: {
+                                ItemRow(item: item)
+                            }
+                            .buttonStyle(.plain)
+                            // 添加右侧箭头，模拟 NavigationLink 外观
+                            .listRowBackground(Color.clear)
+                            .background(alignment: .trailing) {
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(.tertiary)
+                                    .padding(.trailing, 4)
+                            }
                         }
                     }
                     .onDelete { offsets in
@@ -259,6 +312,67 @@ private extension LibraryView {
         .listStyle(.plain)
         .navigationDestination(for: ReviewItem.self) { item in
             ItemDetailView(item: item)
+        }
+    }
+    
+    /// 批量操作工具栏
+    var batchActionBar: some View {
+        VStack(spacing: 0) {
+            Divider()
+            
+            HStack(spacing: 16) {
+                // 选中数量提示
+                Text(String(format: String(localized: "batch_selected_count"), viewModel.selectedCount))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                // 全选/取消全选
+                Button {
+                    withAnimation(.spring(response: 0.2)) {
+                        if viewModel.selectedCount == filteredItems.count {
+                            viewModel.deselectAll()
+                        } else {
+                            viewModel.selectAll(from: filteredItems)
+                        }
+                    }
+                } label: {
+                    Text(viewModel.selectedCount == filteredItems.count ? "batch_deselect_all" : "batch_select_all")
+                        .font(.subheadline)
+                }
+                
+                // 标记掌握度菜单
+                Menu {
+                    ForEach(MasteryLevel.allCases, id: \.self) { level in
+                        Button {
+                            withAnimation(.spring(response: 0.3)) {
+                                viewModel.markSelectedItems(from: items, as: level)
+                            }
+                        } label: {
+                            Label(level.displayName, systemImage: level.icon)
+                        }
+                    }
+                } label: {
+                    Label("batch_mark_mastery", systemImage: "checkmark.seal")
+                        .font(.subheadline)
+                }
+                .disabled(viewModel.selectedCount == 0)
+                
+                // 删除按钮
+                Button(role: .destructive) {
+                    withAnimation(.spring(response: 0.3)) {
+                        viewModel.deleteSelectedItems(from: items)
+                    }
+                } label: {
+                    Label("batch_delete", systemImage: "trash")
+                        .font(.subheadline)
+                }
+                .disabled(viewModel.selectedCount == 0)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+            .background(.regularMaterial)
         }
     }
 }
@@ -300,7 +414,8 @@ struct FilterChip: View {
                 .font(.subheadline)
                 .fontWeight(isSelected ? .semibold : .regular)
                 .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.vertical, 12) // Increased vertical padding for better touch target
+                .frame(minHeight: 44)   // Ensure minimum touch target height
                 .background(backgroundGradient)
                 .foregroundStyle(isSelected ? .white : .primary)
                 .clipShape(Capsule())
@@ -311,6 +426,7 @@ struct FilterChip: View {
                 )
         }
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityHint(isSelected ? "Double tap to deselect" : "Double tap to filter by this subject")
     }
 
     // MARK: - Private

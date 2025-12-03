@@ -27,6 +27,8 @@ final class UserProfileManager: ObservableObject {
         static let avatar = "user_avatar"
         static let gradientIndex = "user_gradient_index"
         static let enabledSubjects = "user_enabled_subjects"
+        static let customSubjects = "user_custom_subjects"
+        static let enabledCustomSubjectIds = "user_enabled_custom_subject_ids"
     }
     
     // MARK: - Published Properties
@@ -59,6 +61,22 @@ final class UserProfileManager: ObservableObject {
             let rawValues = enabledSubjects.map { $0.rawValue }
             saveToLocal(rawValues, forKey: Keys.enabledSubjects)
             syncToCloud(rawValues, forKey: Keys.enabledSubjects)
+        }
+    }
+    
+    /// 用户自定义的学科列表
+    @Published var customSubjects: [CustomSubject] {
+        didSet {
+            saveCustomSubjects()
+        }
+    }
+    
+    /// 用户启用的自定义学科ID列表
+    @Published var enabledCustomSubjectIds: Set<UUID> {
+        didSet {
+            let idStrings = enabledCustomSubjectIds.map { $0.uuidString }
+            saveToLocal(idStrings, forKey: Keys.enabledCustomSubjectIds)
+            syncToCloud(idStrings, forKey: Keys.enabledCustomSubjectIds)
         }
     }
     
@@ -101,6 +119,17 @@ final class UserProfileManager: ObservableObject {
         } else {
             // 首次使用时为空，在 Onboarding 中由用户选择
             self.enabledSubjects = []
+        }
+        
+        // 加载自定义学科
+        self.customSubjects = Self.loadCustomSubjects()
+        
+        // 加载启用的自定义学科ID
+        if let idStrings: [String] = Self.loadFromCloud(forKey: Keys.enabledCustomSubjectIds)
+            ?? Self.loadFromLocal(forKey: Keys.enabledCustomSubjectIds) {
+            self.enabledCustomSubjectIds = Set(idStrings.compactMap { UUID(uuidString: $0) })
+        } else {
+            self.enabledCustomSubjectIds = []
         }
         
         // 监听 iCloud 变更
@@ -157,6 +186,30 @@ final class UserProfileManager: ObservableObject {
         if let rawValues: [String] = Self.loadFromCloud(forKey: Keys.enabledSubjects) {
             self.enabledSubjects = Set(rawValues.compactMap { Subject(rawValue: $0) })
         }
+        // 重新加载自定义学科
+        self.customSubjects = Self.loadCustomSubjects()
+        if let idStrings: [String] = Self.loadFromCloud(forKey: Keys.enabledCustomSubjectIds) {
+            self.enabledCustomSubjectIds = Set(idStrings.compactMap { UUID(uuidString: $0) })
+        }
+    }
+    
+    // MARK: - Custom Subject Storage
+    
+    private func saveCustomSubjects() {
+        if let data = try? JSONEncoder().encode(customSubjects) {
+            saveToLocal(data, forKey: Keys.customSubjects)
+            syncToCloud(data, forKey: Keys.customSubjects)
+        }
+    }
+    
+    private static func loadCustomSubjects() -> [CustomSubject] {
+        let data: Data? = loadFromCloud(forKey: Keys.customSubjects)
+            ?? loadFromLocal(forKey: Keys.customSubjects)
+        guard let data = data,
+              let subjects = try? JSONDecoder().decode([CustomSubject].self, from: data) else {
+            return []
+        }
+        return subjects.sorted { $0.sortOrder < $1.sortOrder }
     }
     
     // MARK: - Subject Management
@@ -181,5 +234,60 @@ final class UserProfileManager: ObservableObject {
     /// 重置为默认学科
     func resetToDefaultSubjects() {
         enabledSubjects = [.chinese, .math, .english, .physics, .chemistry]
+    }
+    
+    // MARK: - Custom Subject Management
+    
+    /// 添加自定义学科
+    func addCustomSubject(_ subject: CustomSubject) {
+        var newSubject = subject
+        // 设置排序顺序为当前最大值 + 1
+        newSubject.sortOrder = (customSubjects.map { $0.sortOrder }.max() ?? -1) + 1
+        customSubjects.append(newSubject)
+        // 默认启用新添加的学科
+        enabledCustomSubjectIds.insert(newSubject.id)
+    }
+    
+    /// 更新自定义学科
+    func updateCustomSubject(_ subject: CustomSubject) {
+        if let index = customSubjects.firstIndex(where: { $0.id == subject.id }) {
+            var updatedSubject = subject
+            updatedSubject.updatedAt = Date()
+            customSubjects[index] = updatedSubject
+        }
+    }
+    
+    /// 删除自定义学科
+    func deleteCustomSubject(id: UUID) {
+        customSubjects.removeAll { $0.id == id }
+        enabledCustomSubjectIds.remove(id)
+    }
+    
+    /// 切换自定义学科启用状态
+    func toggleCustomSubject(_ subject: CustomSubject) {
+        if enabledCustomSubjectIds.contains(subject.id) {
+            enabledCustomSubjectIds.remove(subject.id)
+        } else {
+            enabledCustomSubjectIds.insert(subject.id)
+        }
+    }
+    
+    /// 检查自定义学科是否启用
+    func isCustomSubjectEnabled(_ subject: CustomSubject) -> Bool {
+        enabledCustomSubjectIds.contains(subject.id)
+    }
+    
+    /// 获取所有启用的自定义学科
+    func enabledCustomSubjects() -> [CustomSubject] {
+        customSubjects.filter { enabledCustomSubjectIds.contains($0.id) }
+    }
+    
+    /// 重新排序自定义学科
+    func reorderCustomSubjects(_ subjects: [CustomSubject]) {
+        var reorderedSubjects = subjects
+        for (index, _) in reorderedSubjects.enumerated() {
+            reorderedSubjects[index].sortOrder = index
+        }
+        customSubjects = reorderedSubjects
     }
 }

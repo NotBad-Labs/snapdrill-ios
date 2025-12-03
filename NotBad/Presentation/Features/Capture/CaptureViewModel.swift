@@ -55,6 +55,13 @@ final class CaptureViewModel {
     var isRecognizingText: Bool = false
     var recognizedText: String = ""
 
+    // MARK: - Smart Analysis State
+    
+    var isAnalyzing: Bool = false
+    var smartAnalysisAvailable: Bool = false
+    var suggestedSubject: Subject?
+    var subjectWasAutoSelected: Bool = false
+
     // MARK: - Save State
 
     var isSaving: Bool = false
@@ -67,10 +74,14 @@ final class CaptureViewModel {
 
     var modelContext: ModelContext?
     let ocrService = OCRService.shared
+    let smartAnalysisService = SmartAnalysisService.shared
 
     // MARK: - Initialization
 
-    init() {}
+    init() {
+        // 检查智能分析是否可用
+        smartAnalysisAvailable = smartAnalysisService.isAvailable
+    }
 
     /// 配置 ModelContext
     func configure(with modelContext: ModelContext) {
