@@ -86,19 +86,30 @@ final class SwiftDataReviewItemProvider: ReviewItemDataProviding {
         refresh()
     }
 
+    // MARK: - Configuration
+    
+    /// 默认加载数量限制
+    ///
+    /// 避免一次性加载过多数据导致内存问题。
+    /// 对于 K12 错题本，用户可能积累 2-3 年数据。
+    private let defaultFetchLimit = 200
+    
     // MARK: - Data Operations
 
     /// 刷新数据
     ///
-    /// 从 SwiftData 重新加载所有错题数据。
-    func refresh() {
+    /// 加载最近的错题数据，默认限制 200 条以优化性能。
+    /// 如需加载更多，请使用 `loadMore()` 或通过 `@Query` 直接查询。
+    ///
+    /// - Parameter limit: 加载数量限制，默认 200
+    func refresh(limit: Int? = nil) {
         isLoading = true
         defer {
             isLoading = false
             lastRefreshDate = Date()
         }
 
-        items = repository.fetchAll()
+        items = repository.fetchRecent(limit: limit ?? defaultFetchLimit)
     }
 
     /// 保存错题
@@ -138,11 +149,22 @@ final class SwiftDataReviewItemProvider: ReviewItemDataProviding {
 
     // MARK: - Statistics
 
-    /// 获取统计数据
+    /// 获取完整统计数据
     ///
-    /// - Returns: 错题统计信息
+    /// ⚠️ 此方法会加载所有数据，适合设置页面等非频繁调用场景。
+    ///
+    /// - Returns: 完整错题统计信息
     func statistics() -> ReviewStatistics {
         repository.statistics()
+    }
+    
+    /// 获取轻量级统计数据
+    ///
+    /// 使用 fetchCount 高效计数，适合首页等需要快速显示的场景。
+    ///
+    /// - Returns: 快速统计信息（总数、待复习数、已掌握数）
+    func quickStatistics() -> (total: Int, pendingReview: Int, mastered: Int) {
+        repository.quickStatistics()
     }
 }
 

@@ -1,7 +1,7 @@
 # NotBad 项目架构文档
 
 > 最后更新: 2025年12月4日  
-> 版本: 1.2  
+> 版本: 1.3  
 > 分支: minimal
 
 ## 📊 项目概览
@@ -119,6 +119,9 @@ NotBad/
 │   │   │   ├── LiveTextScannerContainer.swift # 扫描器容器
 │   │   │   └── ScannerConfiguration.swift # 扫描器配置
 │   │   │
+│   │   ├── 📁 Shortcuts/                  # Siri 快捷指令 (3个)
+│   │   │   └── AppShortcuts.swift         # AppIntent 定义
+│   │   │
 │   │   ├── 📁 Utils/
 │   │   │   └── ImageCompressor.swift      # 图片压缩工具
 │   │   │
@@ -217,15 +220,20 @@ NotBad/
 │   ├── 📁 Repository/
 │   │   └── ReviewItemRepositoryTests.swift
 │   │
-│   ├── 📁 ValueObjects/                   # 值对象测试 (9个)
+│   ├── 📁 ValueObjects/                   # 值对象测试 (14个)
 │   │   ├── DifficultyTests.swift
+│   │   ├── ErrorCategoryTests.swift
 │   │   ├── ErrorTypeTests.swift
+│   │   ├── GradeStageTests.swift
 │   │   ├── GradeTests.swift
 │   │   ├── KnowledgePointsTests.swift
 │   │   ├── MasteryLevelTests.swift
 │   │   ├── ReviewIntervalTests.swift
+│   │   ├── ReviewItemCategoryTests.swift
 │   │   ├── ReviewItemTypeTests.swift
+│   │   ├── SourceCategoryTests.swift
 │   │   ├── SourceTests.swift
+│   │   ├── SubjectCategoryTests.swift
 │   │   └── SubjectTests.swift
 │   │
 │   ├── 📁 ViewModels/                     # ViewModel 测试 (5个)
@@ -233,27 +241,59 @@ NotBad/
 │   │   ├── DashboardViewModelTests.swift
 │   │   ├── LibraryViewModelTests.swift
 │   │   ├── ReviewViewModelTests.swift
-│   │   └── ViewModelDITests.swift         # ViewModel DI 测试
+│   │   └── ViewModelDITests.swift
 │   │
-│   ├── 📁 Mocks/                          # Mock 实现 (7个)
-│   │   ├── MockReviewItemRepository.swift
-│   │   ├── MockReviewItemProvider.swift
-│   │   ├── MockReviewItemProviderTests.swift
+│   ├── 📁 Mocks/                          # Mock 实现 (8个)
+│   │   ├── MockAnalyticsService.swift
+│   │   ├── MockDataProvider.swift
+│   │   ├── MockImageCompressor.swift
 │   │   ├── MockOCRService.swift
 │   │   ├── MockPDFExportService.swift
-│   │   ├── MockImageCompressor.swift
-│   │   └── MockDataProvider.swift
+│   │   ├── MockReviewItemProvider.swift
+│   │   ├── MockReviewItemProviderTests.swift
+│   │   └── MockReviewItemRepository.swift
 │   │
-│   ├── 📁 DataProvider/                   # 数据提供者测试
+│   ├── 📁 DataProvider/
 │   │   └── DataProviderProtocolTests.swift
 │   │
-│   ├── 📁 Infrastructure/                # 基础设施测试
+│   ├── 📁 Infrastructure/
 │   │   └── DependenciesTests.swift
 │   │
-│   └── 📁 Services/                       # 服务测试 (3个)
-│       ├── OCRServiceTests.swift
-│       ├── ImageCompressorTests.swift
-│       └── PDFExportServiceTests.swift
+│   ├── 📁 Services/                       # 服务测试 (3个)
+│   │   ├── ImageCompressorTests.swift
+│   │   ├── OCRServiceTests.swift
+│   │   └── PDFExportServiceTests.swift
+│   │
+│   ├── 📁 Utils/
+│   │   └── SearchHistoryManagerTests.swift
+│   │
+│   ├── 📁 Performance/                    # 性能测试 (3个)
+│   │   ├── FilteringPerformanceTests.swift
+│   │   ├── ImageCompressionPerformanceTests.swift
+│   │   └── LibraryPerformanceTests.swift
+│   │
+│   ├── 📁 Integration/                    # 集成测试 (3个)
+│   │   ├── EndToEndScenarioTests.swift
+│   │   ├── OCRIntegrationTests.swift
+│   │   └── PDFExportIntegrationTests.swift
+│   │
+│   ├── 📁 View/                           # 视图测试
+│   │   └── ViewComponentTests.swift
+│   │
+│   └── 📁 TestUtilities/                  # 测试工具 (3个)
+│       ├── PerformanceTestHelpers.swift
+│       ├── TestImageFactory.swift
+│       └── TestReviewItemFactory.swift
+│
+├── 📁 NotBadUITests/                      # UI 测试 Target (8个)
+│   ├── AccessibilityUITests.swift         # 无障碍测试
+│   ├── CaptureUITests.swift               # 录入模块测试
+│   ├── DashboardUITests.swift             # 首页模块测试
+│   ├── LibraryUITests.swift               # 题库模块测试
+│   ├── NotBadUITests.swift                # 通用 UI 测试
+│   ├── OnboardingUITests.swift            # 新手引导测试
+│   ├── ProfileUITests.swift               # 个人中心测试
+│   └── ReviewUITests.swift                # 复习模块测试
 │
 └── 📁 NotBad.xcodeproj/                   # Xcode 项目文件
 ```
@@ -291,12 +331,56 @@ NotBad/
 | **Camera** | `ImagePicker.swift` | UIKit 相机/相册桥接 |
 | **OCR** | `OCRService.swift` | Vision 框架 OCR |
 | **Scanner** | 3个文件 | VisionKit 实时扫描 |
+| **Shortcuts** | `AppShortcuts.swift` | Siri 快捷指令 (3个 AppIntent) |
 | **Utils** | `ImageCompressor.swift` 等 | 图片压缩、缓存等工具 |
 | **Widget** | `WidgetDataSync.swift` | App Group 数据同步 |
 | **Localization** | `LocalizationKeys.swift` | 本地化字符串管理 |
 
 ### 4. Presentation Layer (表现层)
 SwiftUI 视图和 ViewModel。
+
+#### 4.0 导航架构 (Navigation)
+
+当前采用 **SwiftUI 原生导航** 方案：
+
+| 场景 | 实现方式 |
+|------|----------|
+| Tab 切换 | `MainTabView` + `Tab` 枚举 |
+| Feature 内跳转 | 各 Feature 内 `NavigationStack` + `NavigationLink` |
+| Deep Link / Siri | 通过 `NotificationCenter` 发送通知切换 Tab |
+| Widget 跳转 | `selectedTab` 绑定 |
+
+**跳转通知定义** (`Notification+Names.swift`)：
+- `.switchToCapture` - 跳转到录入页
+- `.switchToReview` - 跳转到复习页
+- `.switchToLibrary` - 跳转到题库页
+
+> ⚠️ **架构改进建议**
+>
+> 当前使用 `NotificationCenter` 处理跳转简单有效，但在大型项目中可能导致：
+> - 难以追踪通知发送源
+> - 难以传递复杂参数
+> - 测试覆盖困难
+>
+> **推荐方案**：如跳转逻辑变复杂，可封装 `NavigationManager` 单例：
+>
+> ```swift
+> @MainActor
+> @Observable
+> final class NavigationManager {
+>     static let shared = NavigationManager()
+>     var selectedTab: Tab = .dashboard
+>     var libraryDetailItem: ReviewItem?
+>     
+>     func navigateTo(_ tab: Tab) { selectedTab = tab }
+>     func openDetail(_ item: ReviewItem) {
+>         libraryDetailItem = item
+>         selectedTab = .library
+>     }
+> }
+> ```
+>
+> 优势：类型安全、易于测试、支持复杂参数传递。
 
 #### 4.1 通用组件 (Common)
 
@@ -397,6 +481,7 @@ Color.brand.error       // 红色 #FF3B30
 - ViewModel 测试: **100%** 覆盖
 - 实体测试: **100%** 覆盖
 - 架构测试: **41** 个新增
+- UI 测试: **8** 个测试文件 (各功能模块 + 无障碍)
 
 ---
 
@@ -487,6 +572,7 @@ Color.brand.error       // 红色 #FF3B30
 ### 后续版本规划
 - [ ] Apple Watch 应用
 - [ ] AI 智能分析
+- [ ] NavigationManager 路由重构 (当跳转逻辑变复杂时)
 
 ---
 
