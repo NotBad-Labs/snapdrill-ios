@@ -101,7 +101,7 @@
 | Bundle ID | `com.LIAOYIMING.NotBad` | ✅ |
 | Marketing Version | `1.0` | ✅ |
 | Deployment Target | `iOS 26.0+` | ✅ |
-| Swift Version | `6.0` | ✅ |
+| Swift Version | `6.2+` | ✅ |
 
 ---
 

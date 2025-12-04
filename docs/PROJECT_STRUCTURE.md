@@ -1,19 +1,19 @@
 # NotBad 项目架构文档
 
-> 最后更新: 2025年12月2日  
-> 版本: 1.1  
+> 最后更新: 2025年12月4日  
+> 版本: 1.2  
 > 分支: minimal
 
 ## 📊 项目概览
 
 | 指标 | 数值 |
 |------|------|
-| 总代码行数 | ~22,000 行 |
-| Swift 文件数 | 89 个 |
-| 测试文件数 | 15 个 |
-| 测试用例数 | 365+ |
-| 最低系统 | iOS 26.0+ (已确定，详见 README.md) |
-| 技术栈 | Swift 6.2.1 / SwiftUI / SwiftData |
+| 总代码行数 | ~35,000 行 |
+| Swift 文件数 | 117 个 |
+| 测试文件数 | 34 个 |
+| 测试用例数 | 499+ |
+| 最低系统 | iOS 26.0+ |
+| 技术栈 | Swift 6.2+ / SwiftUI / SwiftData |
 
 ---
 
@@ -94,10 +94,17 @@ NotBad/
 │   │
 │   ├── 📁 Data/                           # 数据层
 │   │   ├── ReviewItemMigrationPlan.swift  # 数据迁移计划
-│   │   └── 📁 Repository/
-│   │       └── ReviewItemRepository.swift # 数据仓库实现
+│   │   ├── 📁 Repository/
+│   │   │   └── ReviewItemRepository.swift # 数据仓库实现
+│   │   └── 📁 Provider/                  # 数据提供者
+│   │       └── SwiftDataReviewItemProvider.swift
 │   │
 │   ├── 📁 Infrastructure/                 # 基础设施层
+│   │   ├── 📁 DI/                        # 依赖注入
+│   │   │   ├── Dependencies.swift         # 依赖容器
+│   │   │   ├── EnvironmentKeys.swift      # SwiftUI 环境键
+│   │   │   └── DataProviderFactory.swift  # 数据提供者工厂
+│   │   │
 │   │   ├── 📁 Camera/
 │   │   │   └── ImagePicker.swift          # 相机/相册选择器
 │   │   │
@@ -221,11 +228,32 @@ NotBad/
 │   │   ├── SourceTests.swift
 │   │   └── SubjectTests.swift
 │   │
-│   └── 📁 ViewModels/                     # ViewModel 测试 (4个)
-│       ├── CaptureViewModelTests.swift
-│       ├── DashboardViewModelTests.swift
-│       ├── LibraryViewModelTests.swift
-│       └── ReviewViewModelTests.swift
+│   ├── 📁 ViewModels/                     # ViewModel 测试 (5个)
+│   │   ├── CaptureViewModelTests.swift
+│   │   ├── DashboardViewModelTests.swift
+│   │   ├── LibraryViewModelTests.swift
+│   │   ├── ReviewViewModelTests.swift
+│   │   └── ViewModelDITests.swift         # ViewModel DI 测试
+│   │
+│   ├── 📁 Mocks/                          # Mock 实现 (7个)
+│   │   ├── MockReviewItemRepository.swift
+│   │   ├── MockReviewItemProvider.swift
+│   │   ├── MockReviewItemProviderTests.swift
+│   │   ├── MockOCRService.swift
+│   │   ├── MockPDFExportService.swift
+│   │   ├── MockImageCompressor.swift
+│   │   └── MockDataProvider.swift
+│   │
+│   ├── 📁 DataProvider/                   # 数据提供者测试
+│   │   └── DataProviderProtocolTests.swift
+│   │
+│   ├── 📁 Infrastructure/                # 基础设施测试
+│   │   └── DependenciesTests.swift
+│   │
+│   └── 📁 Services/                       # 服务测试 (3个)
+│       ├── OCRServiceTests.swift
+│       ├── ImageCompressorTests.swift
+│       └── PDFExportServiceTests.swift
 │
 └── 📁 NotBad.xcodeproj/                   # Xcode 项目文件
 ```
@@ -242,7 +270,7 @@ NotBad/
 | **ReviewItem** | `ReviewItem.swift` + 4个扩展 | 核心实体，SwiftData @Model |
 | **Value Objects** | 13个文件 | 不可变业务概念封装 |
 | **Education** | 8个文件 | 多国教育体系配置 |
-| **Protocols** | `ReviewItemRepositoryProtocol.swift` | 仓库抽象接口 |
+| **Protocols** | 5个协议文件 | 仓库/数据提供者/服务抽象接口 |
 | **Notifications** | `Notification+Names.swift` | 应用内通知定义 |
 
 ### 2. Data Layer (数据层)
@@ -251,6 +279,7 @@ NotBad/
 | 组件 | 文件 | 职责 |
 |------|------|------|
 | **Repository** | `ReviewItemRepository.swift` | SwiftData 操作封装 |
+| **Provider** | `SwiftDataReviewItemProvider.swift` | 响应式数据提供者 |
 | **Migration** | `ReviewItemMigrationPlan.swift` | 数据库版本迁移 |
 
 ### 3. Infrastructure Layer (基础设施层)
@@ -258,10 +287,11 @@ NotBad/
 
 | 组件 | 文件 | 职责 |
 |------|------|------|
+| **DI** | 3个文件 | 依赖容器、环境键、工厂 |
 | **Camera** | `ImagePicker.swift` | UIKit 相机/相册桥接 |
 | **OCR** | `OCRService.swift` | Vision 框架 OCR |
 | **Scanner** | 3个文件 | VisionKit 实时扫描 |
-| **Utils** | `ImageCompressor.swift` | 图片压缩处理 |
+| **Utils** | `ImageCompressor.swift` 等 | 图片压缩、缓存等工具 |
 | **Widget** | `WidgetDataSync.swift` | App Group 数据同步 |
 | **Localization** | `LocalizationKeys.swift` | 本地化字符串管理 |
 
@@ -353,15 +383,20 @@ Color.brand.error       // 红色 #FF3B30
 |------|----------|----------|
 | **Entities** | ReviewItemTests | 实体创建、属性、方法 |
 | **Repository** | ReviewItemRepositoryTests | CRUD 操作 |
-| **Value Objects** | 9个测试文件 | 所有值对象 |
-| **ViewModels** | 4个测试文件 | 所有 ViewModel |
+| **Value Objects** | 14个测试文件 | 所有值对象 |
+| **ViewModels** | 5个测试文件 | 所有 ViewModel + DI 测试 |
+| **Mocks** | 1个测试文件 | MockReviewItemProvider 测试 |
+| **DataProvider** | 1个测试文件 | 数据提供者协议测试 |
+| **Infrastructure** | 1个测试文件 | Dependencies 容器测试 |
+| **Services** | 3个测试文件 | OCR/图片压缩/PDF导出 |
 
 ### 测试统计
 
-- 总测试用例: **365+**
+- 总测试用例: **499+**
 - 值对象测试: **100%** 覆盖
 - ViewModel 测试: **100%** 覆盖
 - 实体测试: **100%** 覆盖
+- 架构测试: **41** 个新增
 
 ---
 
@@ -438,16 +473,19 @@ Color.brand.error       // 红色 #FF3B30
 
 ## 📝 待办事项
 
+### 已完成
+- [x] 配置 App Group (Widget 数据共享)
+- [x] 添加 Widget Target 到 Xcode 项目
+- [x] iCloud 同步 (SwiftData 自动同步)
+- [x] Siri 快捷指令 (3个)
+- [x] 架构改进 - 依赖注入支持
+
 ### 即将发布前需完成
-- [ ] 配置 App Group (Widget 数据共享)
-- [ ] 添加 Widget Target 到 Xcode 项目
 - [ ] 真机测试所有功能
 - [ ] 性能优化 (大数据量)
 
 ### 后续版本规划
-- [ ] iCloud 同步
 - [ ] Apple Watch 应用
-- [ ] Siri 快捷指令
 - [ ] AI 智能分析
 
 ---
@@ -461,4 +499,4 @@ Color.brand.error       // 红色 #FF3B30
 
 ---
 
-*文档更新时间: 2025年12月2日*
+*文档更新时间: 2025年12月4日*

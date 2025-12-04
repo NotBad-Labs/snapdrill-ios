@@ -172,7 +172,7 @@ print(difficulty.coefficient)     // 1.5 (用于权重计算)
 | **App** | 应用入口 | NotBadApp.swift |
 | **Domain** | 领域逻辑 | Entities、ValueObjects、Protocols |
 | **Data** | 数据持久化 | Repository 实现 |
-| **Infrastructure** | 基础设施 | OCR、Camera、Scanner |
+| **Infrastructure** | 基础设施 | DI、OCR、Camera、Scanner |
 | **Presentation** | 用户界面 | Views、ViewModels、Components |
 
 ```
@@ -186,12 +186,22 @@ NotBad/
 │   │   ├── MasteryLevel.swift
 │   │   ├── Subject.swift
 │   │   └── ...
-│   └── Protocols/              # 协议/接口
-│       └── ReviewItemRepositoryProtocol.swift
+│   └── Protocols/              # 协议/接口 (5个)
+│       ├── ReviewItemRepositoryProtocol.swift
+│       ├── ReviewItemDataProviding.swift
+│       ├── OCRServiceProtocol.swift
+│       ├── PDFExportServiceProtocol.swift
+│       └── ImageCompressorProtocol.swift
 ├── Data/                       # 数据层
-│   └── Repository/
-│       └── ReviewItemRepository.swift
+│   ├── Repository/
+│   │   └── ReviewItemRepository.swift
+│   └── Provider/
+│       └── SwiftDataReviewItemProvider.swift
 ├── Infrastructure/             # 基础设施层
+│   ├── DI/                     # 依赖注入
+│   │   ├── Dependencies.swift
+│   │   ├── EnvironmentKeys.swift
+│   │   └── DataProviderFactory.swift
 │   ├── OCR/
 │   ├── Camera/
 │   └── Scanner/
@@ -212,6 +222,7 @@ NotBad/
 | **Entity** | 实体 | 有唯一标识的领域对象（如 ReviewItem） |
 | **Value Object** | 值对象 | 无标识、不可变的领域对象（如 Tags、MasteryLevel） |
 | **Repository** | 仓储 | 数据持久化的抽象层 |
+| **DataProvider** | 数据提供者 | 响应式数据访问层，支持 DI |
 | **ViewModel** | 视图模型 | View 的状态和逻辑封装 |
 
 ```swift
@@ -490,6 +501,7 @@ func handle(_ item: ReviewItem)  // 不知道如何处理
 | 1.1 | 2025-11-25 | 添加业务术语、学习理论术语、代码示例 |
 | 1.2 | 2025-11-25 | Tags 重命名为 KnowledgePoints，消除歧义 |
 | 1.3 | 2025-11-27 | 添加相关文档链接，同步审计文档 |
+| 1.4 | 2025-12-04 | 更新架构图，添加 DI、DataProvider 等新术语 |
 
 ---
 
