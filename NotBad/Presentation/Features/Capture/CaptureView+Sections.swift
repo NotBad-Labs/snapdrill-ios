@@ -124,7 +124,7 @@ private extension BasicInfoFormSection {
     var reviewItemTypeRow: some View {
         FormRow(isLast: false) {
             HStack(spacing: DesignTokens.Spacing.xs) {
-                Text("capture_field_question_type")
+                Text("capture_field_review_item_type")
                 Image(systemName: viewModel.reviewItemType.icon)
                     .font(.caption)
                     .foregroundStyle(viewModel.reviewItemType.color)
@@ -152,7 +152,7 @@ private extension BasicInfoFormSection {
                         .tag(type)
                 }
             } header: {
-                Text("capture_question_type_objective")
+                Text("capture_review_item_type_objective")
             }
         }
         
@@ -165,7 +165,7 @@ private extension BasicInfoFormSection {
                         .tag(type)
                 }
             } header: {
-                Text("capture_question_type_subjective")
+                Text("capture_review_item_type_subjective")
             }
         }
         
@@ -178,7 +178,7 @@ private extension BasicInfoFormSection {
                         .tag(type)
                 }
             } header: {
-                Text("capture_question_type_comprehensive")
+                Text("capture_review_item_type_comprehensive")
             }
         }
         
@@ -355,7 +355,7 @@ struct ReviewItemContentFormSection: View {
         FormCard {
             ZStack(alignment: .topLeading) {
                 if viewModel.recognizedText.isEmpty {
-                    Text("capture_question_content_placeholder")
+                    Text("capture_review_item_content_placeholder")
                         .font(.body)
                         .foregroundStyle(.tertiary)
                         .padding(.horizontal, DesignTokens.Spacing.sm + 4)
@@ -370,7 +370,7 @@ struct ReviewItemContentFormSection: View {
             }
         } header: {
             HStack {
-                Text("capture_section_question_content")
+                Text("capture_section_review_item_content")
                 Spacer()
                 if !viewModel.recognizedText.isEmpty {
                     Text("\(viewModel.recognizedText.count)")

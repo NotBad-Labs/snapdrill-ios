@@ -1825,7 +1825,7 @@
         }
       }
     },
-    "capture_field_question_type" : {
+    "capture_field_review_item_type" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2245,7 +2245,7 @@
         }
       }
     },
-    "capture_question_content_placeholder" : {
+    "capture_review_item_content_placeholder" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2280,7 +2280,7 @@
         }
       }
     },
-    "capture_question_type_comprehensive" : {
+    "capture_review_item_type_comprehensive" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2315,7 +2315,7 @@
         }
       }
     },
-    "capture_question_type_objective" : {
+    "capture_review_item_type_objective" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2350,7 +2350,7 @@
         }
       }
     },
-    "capture_question_type_subjective" : {
+    "capture_review_item_type_subjective" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2866,7 +2866,7 @@
         }
       }
     },
-    "capture_section_question_content" : {
+    "capture_section_review_item_content" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -25677,7 +25677,7 @@
         }
       }
     },
-    "review_question_label" : {
+    "review_item_label" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {

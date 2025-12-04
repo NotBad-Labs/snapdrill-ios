@@ -199,7 +199,7 @@ extension ReviewCard {
     /// 标题区域
     var titleSection: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-            Text("review_question_label")
+            Text("review_item_label")
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.tertiary)
                 .textCase(.uppercase)
