@@ -31,14 +31,14 @@ import SwiftData
 ///
 /// ## 设计模式
 ///
-/// - 使用 `@Bindable` 支持双向绑定
-/// - 使用 `InfoCard` 组件展示信息
+/// - 使用 `@Bindable` 支持双向绑定（读取）
+/// - 使用 `ViewModel` 处理写操作（CQRS）
 /// - 编辑模式和显示模式分离
 struct ItemDetailView: View {
 
     // MARK: - Properties
 
-    /// 错题数据（可绑定）
+    /// 错题数据（可绑定，只读展示）
     @Bindable var item: ReviewItem
 
     /// 数据上下文
@@ -48,6 +48,9 @@ struct ItemDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     // MARK: - State
+    
+    /// ViewModel（处理写操作）
+    @State private var viewModel = ItemDetailViewModel()
 
     /// 是否处于编辑模式
     @State private var isEditing = false
@@ -78,6 +81,9 @@ struct ItemDetailView: View {
             Button("common_delete", role: .destructive) { deleteItem() }
         } message: {
             Text("detail_delete_confirm_message")
+        }
+        .onAppear {
+            viewModel.configure(with: modelContext)
         }
     }
 }
@@ -134,19 +140,17 @@ private extension ItemDetailView {
 
 private extension ItemDetailView {
 
-    /// 保存修改
+    /// 保存修改（委托给 ViewModel）
     func saveChanges() {
         withAnimation {
-            item.updatedAt = Date()
-            try? modelContext.save()
+            viewModel.save(item)
             isEditing = false
         }
     }
 
-    /// 删除错题
+    /// 删除错题（委托给 ViewModel）
     func deleteItem() {
-        modelContext.delete(item)
-        try? modelContext.save()
+        viewModel.delete(item)
         dismiss()
     }
 }
