@@ -110,16 +110,28 @@ final class LibraryViewModel {
     var sortOption: SortOption = .createdAtDesc
 
     // MARK: - Selection State
+    
+    /// 选择状态管理器（复用通用组件）
+    let selection = SelectionManager<UUID>()
+    
+    /// 向后兼容：是否处于选择模式
+    var isSelectionMode: Bool {
+        get { selection.isSelectionMode }
+        set { 
+            if newValue { selection.enterSelectionMode() }
+            else { selection.exitSelectionMode() }
+        }
+    }
 
-    /// 是否处于选择模式
-    var isSelectionMode = false
+    /// 向后兼容：选中的项目 ID
+    var selectedItemIds: Set<UUID> {
+        get { selection.selectedIDs }
+        set { selection.selectAll(newValue) }
+    }
 
-    /// 选中的项目 ID
-    var selectedItemIds: Set<UUID> = []
-
-    /// 选中数量
+    /// 向后兼容：选中数量
     var selectedCount: Int {
-        selectedItemIds.count
+        selection.selectedCount
     }
     
     // MARK: - Cache
@@ -440,34 +452,27 @@ final class LibraryViewModel {
 
     /// 切换选择模式
     func toggleSelectionMode() {
-        isSelectionMode.toggle()
-        if !isSelectionMode {
-            selectedItemIds.removeAll()
-        }
+        selection.toggleMode()
     }
 
     /// 切换单个项目的选中状态
     func toggleSelection(for itemId: UUID) {
-        if selectedItemIds.contains(itemId) {
-            selectedItemIds.remove(itemId)
-        } else {
-            selectedItemIds.insert(itemId)
-        }
+        selection.toggle(itemId)
     }
 
     /// 全选
     func selectAll(from items: [ReviewItem]) {
-        selectedItemIds = Set(items.map { $0.id })
+        selection.selectAll(from: items)
     }
 
     /// 取消全选
     func deselectAll() {
-        selectedItemIds.removeAll()
+        selection.deselectAll()
     }
 
     /// 检查项目是否被选中
     func isSelected(_ itemId: UUID) -> Bool {
-        selectedItemIds.contains(itemId)
+        selection.isSelected(itemId)
     }
 
     // MARK: - CRUD Actions
@@ -504,7 +509,7 @@ final class LibraryViewModel {
     func deleteSelectedItems(from items: [ReviewItem]) {
         guard let modelContext else { return }
 
-        let itemsToDelete = items.filter { selectedItemIds.contains($0.id) }
+        let itemsToDelete = selection.selectedItems(from: items)
 
         for item in itemsToDelete {
             modelContext.delete(item)
@@ -512,8 +517,7 @@ final class LibraryViewModel {
 
         do {
             try modelContext.save()
-            selectedItemIds.removeAll()
-            isSelectionMode = false
+            selection.completeOperation()
         } catch {
             Logger.data.error("批量删除失败: \(error)")
         }
@@ -527,7 +531,7 @@ final class LibraryViewModel {
     func markSelectedItems(from items: [ReviewItem], as mastery: MasteryLevel) {
         guard let modelContext else { return }
         
-        let itemsToUpdate = items.filter { selectedItemIds.contains($0.id) }
+        let itemsToUpdate = selection.selectedItems(from: items)
         
         for item in itemsToUpdate {
             item.mastery = mastery
@@ -536,8 +540,7 @@ final class LibraryViewModel {
         
         do {
             try modelContext.save()
-            selectedItemIds.removeAll()
-            isSelectionMode = false
+            selection.completeOperation()
         } catch {
             Logger.data.error("批量标记失败: \(error)")
         }
