@@ -30,6 +30,9 @@ build/
 *.swp
 *~
 
+# Generated files
+project_code_dump.txt
+
 # Test plans (generated)
 *TestPlan.xctestplan
 .swiftlint.yml
