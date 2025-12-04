@@ -455,6 +455,11 @@ struct FilterChip: View {
 ///
 /// 展示错题的缩略图、标题、学科、掌握度和日期信息。
 ///
+/// ## 性能优化
+///
+/// - 使用 `AsyncImage` 风格的懒加载避免主线程阻塞
+/// - 缓存解码后的缩略图
+///
 /// ## 使用示例
 ///
 /// ```swift
@@ -468,6 +473,9 @@ struct ItemRow: View {
 
     /// 错题数据
     let item: ReviewItem
+    
+    /// 缓存的缩略图
+    @State private var cachedThumbnail: UIImage?
 
     // MARK: - Constants
 
@@ -487,6 +495,34 @@ struct ItemRow: View {
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(item.title), \(item.subject.displayName), \(item.mastery.displayName)")
+        .task(id: item.id) {
+            // 异步加载缩略图，避免阻塞主线程
+            await loadThumbnail()
+        }
+    }
+    
+    // MARK: - Thumbnail Loading
+    
+    /// 异步加载并缓存缩略图
+    private func loadThumbnail() async {
+        guard cachedThumbnail == nil,
+              let data = item.imageData else { return }
+        
+        // 在后台线程解码和缩放图片
+        let thumbnail = await Task.detached(priority: .userInitiated) {
+            guard let original = UIImage(data: data) else { return nil as UIImage? }
+            
+            // 生成缩略图，避免加载全尺寸图片
+            let targetSize = CGSize(width: Layout.thumbnailSize * 2, height: Layout.thumbnailSize * 2)
+            let renderer = UIGraphicsImageRenderer(size: targetSize)
+            return renderer.image { _ in
+                original.draw(in: CGRect(origin: .zero, size: targetSize))
+            }
+        }.value
+        
+        await MainActor.run {
+            cachedThumbnail = thumbnail
+        }
     }
 }
 
@@ -494,18 +530,32 @@ struct ItemRow: View {
 
 private extension ItemRow {
 
-    /// 缩略图
+    /// 缩略图（使用缓存）
     @ViewBuilder
     var thumbnailView: some View {
-        if let data = item.imageData, let uiImage = UIImage(data: data) {
-            Image(uiImage: uiImage)
+        if let thumbnail = cachedThumbnail {
+            Image(uiImage: thumbnail)
                 .resizable()
                 .scaledToFill()
                 .frame(width: Layout.thumbnailSize, height: Layout.thumbnailSize)
                 .clipShape(RoundedRectangle(cornerRadius: Layout.cornerRadius))
+        } else if item.imageData != nil {
+            // 有图片数据但还在加载中
+            loadingThumbnail
         } else {
             placeholderThumbnail
         }
+    }
+    
+    /// 加载中的缩略图
+    var loadingThumbnail: some View {
+        RoundedRectangle(cornerRadius: Layout.cornerRadius)
+            .fill(Color.gray.opacity(0.1))
+            .frame(width: Layout.thumbnailSize, height: Layout.thumbnailSize)
+            .overlay {
+                ProgressView()
+                    .scaleEffect(0.8)
+            }
     }
 
     /// 占位缩略图
