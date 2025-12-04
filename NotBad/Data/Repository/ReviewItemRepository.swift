@@ -74,9 +74,19 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
     /// - Parameters:
     ///   - subject: 学科筛选，为 nil 时不筛选
     ///   - mastery: 掌握程度筛选，为 nil 时不筛选
-    ///   - limit: 返回数量限制，默认 200
     /// - Returns: 筛选后的错题列表
-    func fetch(subject: Subject?, mastery: MasteryLevel?, limit: Int = 200) -> [ReviewItem] {
+    func fetch(subject: Subject?, mastery: MasteryLevel?) -> [ReviewItem] {
+        fetch(subject: subject, mastery: mastery, limit: 200)
+    }
+    
+    /// 根据条件筛选错题（带数量限制）
+    ///
+    /// - Parameters:
+    ///   - subject: 学科筛选，为 nil 时不筛选
+    ///   - mastery: 掌握程度筛选，为 nil 时不筛选
+    ///   - limit: 返回数量限制
+    /// - Returns: 筛选后的错题列表
+    func fetch(subject: Subject?, mastery: MasteryLevel?, limit: Int) -> [ReviewItem] {
         // 根据不同的筛选条件构建 Predicate
         var descriptor: FetchDescriptor<ReviewItem>
         
@@ -111,6 +121,13 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
 
     /// 获取需要复习的错题
     ///
+    /// - Returns: 需要复习的错题列表
+    func fetchForReview() -> [ReviewItem] {
+        fetchForReview(limit: 100)
+    }
+    
+    /// 获取需要复习的错题（带数量限制）
+    ///
     /// 使用 SwiftData Predicate 进行数据库级查询。
     ///
     /// 排序规则：
@@ -118,9 +135,9 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
     /// 2. 掌握程度低的优先
     /// 3. 复习次数少的优先
     ///
-    /// - Parameter limit: 返回数量限制，默认 100
+    /// - Parameter limit: 返回数量限制
     /// - Returns: 需要复习的错题列表
-    func fetchForReview(limit: Int = 100) -> [ReviewItem] {
+    func fetchForReview(limit: Int) -> [ReviewItem] {
         let now = Date()
         
         // 使用 Predicate 查询到期需要复习的项目
@@ -163,9 +180,17 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
     /// 在标题、笔记、知识点中搜索，不区分大小写。
     ///
     /// - Parameter query: 搜索关键词
-    /// - Parameter limit: 最大返回数量，默认 100
     /// - Returns: 匹配的错题列表
-    func search(query: String, limit: Int = 100) -> [ReviewItem] {
+    func search(query: String) -> [ReviewItem] {
+        search(query: query, limit: 100)
+    }
+    
+    /// 搜索错题（带数量限制）
+    ///
+    /// - Parameter query: 搜索关键词
+    /// - Parameter limit: 最大返回数量
+    /// - Returns: 匹配的错题列表
+    func search(query: String, limit: Int) -> [ReviewItem] {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         
         // 空查询返回最近记录，而不是全量
@@ -184,6 +209,22 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
         var descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
         descriptor.fetchLimit = limit
         
+        return (try? modelContext.fetch(descriptor)) ?? []
+    }
+    
+    /// 按知识点搜索
+    ///
+    /// - Parameter knowledgePoint: 知识点关键词
+    /// - Returns: 包含该知识点的错题列表
+    func search(byKnowledgePoint knowledgePoint: String) -> [ReviewItem] {
+        let trimmed = knowledgePoint.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return [] }
+        
+        let predicate = #Predicate<ReviewItem> { item in
+            item.knowledgePointsRaw.localizedStandardContains(trimmed)
+        }
+        
+        let descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
         return (try? modelContext.fetch(descriptor)) ?? []
     }
 
@@ -221,10 +262,18 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
     /// 批量删除错题
     ///
     /// - Parameter items: 要删除的错题列表
+    /// - Throws: 删除失败时抛出错误
+    func delete(_ items: [ReviewItem]) throws {
+        _ = try deleteItems(items)
+    }
+    
+    /// 批量删除错题（返回删除数量）
+    ///
+    /// - Parameter items: 要删除的错题列表
     /// - Returns: 实际删除的数量
     /// - Throws: 删除失败时抛出错误
     @discardableResult
-    func delete(_ items: [ReviewItem]) throws -> Int {
+    func deleteItems(_ items: [ReviewItem]) throws -> Int {
         var deletedCount = 0
         for item in items {
             if item.modelContext != nil {
@@ -240,10 +289,18 @@ final class ReviewItemRepository: ReviewItemRepositoryProtocol {
 
     /// 删除所有错题
     ///
+    /// - Warning: 此操作不可逆
+    /// - Throws: 删除失败时抛出错误
+    func deleteAll() throws {
+        _ = try deleteAllItems()
+    }
+    
+    /// 删除所有错题（返回删除数量）
+    ///
     /// - Returns: 删除的错题数量
     /// - Warning: 此操作不可逆
     @discardableResult
-    func deleteAll() throws -> Int {
+    func deleteAllItems() throws -> Int {
         let items = fetchAll()
         let count = items.count
         

@@ -99,10 +99,14 @@ final class SwiftDataReviewItemProvider: ReviewItemDataProviding {
     /// 刷新数据
     ///
     /// 加载最近的错题数据，默认限制 200 条以优化性能。
-    /// 如需加载更多，请使用 `loadMore()` 或通过 `@Query` 直接查询。
+    func refresh() {
+        refresh(limit: nil)
+    }
+    
+    /// 刷新数据（带数量限制）
     ///
     /// - Parameter limit: 加载数量限制，默认 200
-    func refresh(limit: Int? = nil) {
+    func refresh(limit: Int?) {
         isLoading = true
         defer {
             isLoading = false
@@ -137,6 +141,21 @@ final class SwiftDataReviewItemProvider: ReviewItemDataProviding {
     /// - Returns: 需要复习的错题列表，按紧迫程度排序
     func fetchForReview() -> [ReviewItem] {
         repository.fetchForReview()
+    }
+    
+    /// 获取今日需要复习的错题
+    ///
+    /// - Returns: 今日到期的错题列表
+    func fetchDueToday() -> [ReviewItem] {
+        repository.fetchDueToday()
+    }
+    
+    /// 获取指定学科的错题
+    ///
+    /// - Parameter subject: 学科
+    /// - Returns: 该学科的所有错题
+    func fetch(subject: Subject) -> [ReviewItem] {
+        repository.fetch(subject: subject)
     }
 
     /// 搜索错题

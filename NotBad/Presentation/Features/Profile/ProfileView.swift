@@ -71,49 +71,12 @@ struct ProfileView: View {
 
     private var userSection: some View {
         Section {
-            Button {
-                showingEditProfile = true
-            } label: {
-                HStack(spacing: DesignTokens.Spacing.lg) {
-                    // 头像 with user-selected gradient and icon
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: profileManager.gradientColors,
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 64, height: 64)
-                            .shadow(color: profileManager.gradientColors[0].opacity(0.3), radius: 8, x: 0, y: 4)
-
-                        Image(systemName: profileManager.avatar)
-                            .font(.system(size: 28, weight: .medium))
-                            .foregroundStyle(.white)
-                    }
-
-                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
-                        Text(profileManager.nickname)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.primary)
-
-                        Text("profile_subtitle")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Spacer()
-
-                    // Chevron indicator
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.tertiary)
-                }
-                .padding(.vertical, DesignTokens.Spacing.sm)
-            }
-            .buttonStyle(.plain)
+            ProfileUserCard(
+                nickname: profileManager.nickname,
+                avatar: profileManager.avatar,
+                gradientColors: profileManager.gradientColors,
+                onTap: { showingEditProfile = true }
+            )
         }
     }
 
@@ -304,41 +267,6 @@ struct ProfileView: View {
 
     private var feedbackView: some View {
         FeedbackView()
-    }
-}
-
-// MARK: - StatisticsRow
-
-/// 统计行组件
-private struct StatisticsRow: View {
-    let icon: String
-    let title: String
-    let value: String
-    let color: Color
-
-    var body: some View {
-        HStack(spacing: DesignTokens.Spacing.md) {
-            // Icon with circle background
-            ZStack {
-                Circle()
-                    .fill(color.opacity(0.12))
-                    .frame(width: 36, height: 36)
-
-                Image(systemName: icon)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(color)
-            }
-
-            Text(title)
-                .font(.body)
-
-            Spacer()
-
-            Text(value)
-                .font(.system(.body, design: .rounded, weight: .bold))
-                .foregroundStyle(color)
-        }
-        .padding(.vertical, DesignTokens.Spacing.xs)
     }
 }
 

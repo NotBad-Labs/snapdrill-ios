@@ -4,259 +4,255 @@
 //
 //  Created by LIAOYIMING on 2025/6/5.
 //
+//  ⚠️ 注意：此文件已废弃，表单组件已迁移到独立文件：
+//  - BasicInfoFormSection.swift
+//  - AdditionalInfoFormSection.swift
+//  - QuestionContentFormSection.swift
+//
+//  FormCard 和 FormRow 已迁移到 Common/Components/
+//
 
 import SwiftUI
-import PhotosUI
 
-// MARK: - Form Sections
+// MARK: - Basic Info Form Section
 
-extension CaptureView {
-    /// 基本信息区域（标题、学科、年级、题型）
-    func basicInfoSection(viewModel: CaptureViewModel) -> some View {
+/// 基本信息表单区域
+///
+/// 独立的 View 结构体，包含：
+/// - 标题（必填）
+/// - 学科选择
+/// - 年级选择
+/// - 题型选择
+/// - 难度选择
+struct BasicInfoFormSection: View {
+    
+    // MARK: - Properties
+    
+    @Bindable var viewModel: CaptureViewModel
+    
+    // MARK: - Body
+    
+    var body: some View {
         FormCard {
             VStack(spacing: 0) {
-                // 标题（必填）
-                FormRow(isLast: false) {
-                    HStack {
-                        Text("capture_field_title")
-                            .foregroundStyle(.primary)
-                        Text("*")
-                            .foregroundStyle(Color.brand.error)
-                        Spacer()
-                    }
-                } content: {
-                    TextField(
-                        viewModel.subject.titlePlaceholder(for: viewModel.grade),
-                        text: .init(
-                            get: { viewModel.title },
-                            set: { viewModel.title = $0 }
-                        )
-                    )
-                    .multilineTextAlignment(.trailing)
-                    .submitLabel(.done)
-                    .onSubmit {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    }
-                }
-
-                // 学科
-                FormRow(isLast: false) {
-                    HStack(spacing: DesignTokens.Spacing.xs) {
-                        Text("capture_field_subject")
-                        if viewModel.isAnalyzing {
-                            ProgressView()
-                                .scaleEffect(0.7)
-                        } else if viewModel.subjectWasAutoSelected {
-                            Image(systemName: "sparkles")
-                                .font(.caption)
-                                .foregroundStyle(Color.brand.primary)
-                        }
-                    }
-                } content: {
-                    let currentRegion = EducationSystemManager.shared.currentRegion
-                    Picker("", selection: .init(
-                        get: { viewModel.subject },
-                        set: { newSubject in
-                            viewModel.subject = newSubject
-                            viewModel.subjectWasAutoSelected = false
-                            // 如果当前年级不适用于新学科，自动调整到适用的第一个年级
-                            if !newSubject.isApplicable(for: viewModel.grade, in: currentRegion) {
-                                if let firstApplicableGrade = newSubject.applicableGrades(for: currentRegion).first {
-                                    viewModel.grade = firstApplicableGrade
-                                }
-                            }
-                            // 如果当前题型不适用于新学科，自动调整
-                            if !viewModel.questionType.isApplicable(to: newSubject) {
-                                viewModel.questionType = ReviewItemType.types(for: newSubject).first ?? .other
-                            }
-                        }
-                    )) {
-                        ForEach(Subject.allCases) { subject in
-                            Text(subject.displayName)
-                                .tag(subject)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .tint(.primary)
-                }
-
-                // 年级（仅显示当前学科在当前教育地区适用的年级）
-                FormRow(isLast: false) {
-                    Text("capture_field_grade")
-                } content: {
-                    let currentRegion = EducationSystemManager.shared.currentRegion
-                    Picker("", selection: .init(
-                        get: { viewModel.grade },
-                        set: { viewModel.grade = $0 }
-                    )) {
-                        ForEach(viewModel.subject.applicableGrades(for: currentRegion)) { grade in
-                            Text(grade.displayName)
-                                .tag(grade)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .tint(.primary)
-                }
-                
-                // 题型（根据学科动态筛选）
-                FormRow(isLast: false) {
-                    HStack(spacing: DesignTokens.Spacing.xs) {
-                        Text("capture_field_question_type")
-                        Image(systemName: viewModel.questionType.icon)
-                            .font(.caption)
-                            .foregroundStyle(viewModel.questionType.color)
-                    }
-                } content: {
-                    Picker("", selection: .init(
-                        get: { viewModel.questionType },
-                        set: { viewModel.questionType = $0 }
-                    )) {
-                        // 按类别分组显示
-                        let applicableTypes = ReviewItemType.types(for: viewModel.subject)
-                        
-                        // 客观题
-                        let objectiveTypes = applicableTypes.filter { $0.isObjective }
-                        if !objectiveTypes.isEmpty {
-                            Section {
-                                ForEach(objectiveTypes, id: \.self) { type in
-                                    Label(type.displayName, systemImage: type.icon)
-                                        .tag(type)
-                                }
-                            } header: {
-                                Text("capture_question_type_objective")
-                            }
-                        }
-                        
-                        // 主观题
-                        let subjectiveTypes = applicableTypes.filter { $0.isSubjective }
-                        if !subjectiveTypes.isEmpty {
-                            Section {
-                                ForEach(subjectiveTypes, id: \.self) { type in
-                                    Label(type.displayName, systemImage: type.icon)
-                                        .tag(type)
-                                }
-                            } header: {
-                                Text("capture_question_type_subjective")
-                            }
-                        }
-                        
-                        // 综合题
-                        let comprehensiveTypes = applicableTypes.filter { $0.isComprehensive }
-                        if !comprehensiveTypes.isEmpty {
-                            Section {
-                                ForEach(comprehensiveTypes, id: \.self) { type in
-                                    Label(type.displayName, systemImage: type.icon)
-                                        .tag(type)
-                                }
-                            } header: {
-                                Text("capture_question_type_comprehensive")
-                            }
-                        }
-                        
-                        // 其他
-                        Section {
-                            Label(ReviewItemType.other.displayName, systemImage: ReviewItemType.other.icon)
-                                .tag(ReviewItemType.other)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .tint(.primary)
-                }
-                
-                // 难度（星星数量表示难度等级：1星最简单，5星最难）
-                FormRow(isLast: true) {
-                    Text("capture_field_difficulty")
-                } content: {
-                    Picker("", selection: .init(
-                        get: { viewModel.difficulty },
-                        set: { viewModel.difficulty = $0 }
-                    )) {
-                        ForEach(Difficulty.allCases) { difficulty in
-                            // 用文字拼接星星，绕过 Label icon 只显示一个的限制
-                            Text(String(repeating: "★", count: difficulty.stars) + " " + difficulty.displayName)
-                                .tag(difficulty)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .tint(viewModel.difficulty.color)
-                }
+                titleRow
+                subjectRow
+                gradeRow
+                questionTypeRow
+                difficultyRow
             }
         } header: {
             Text("capture_section_basic")
         }
     }
+}
 
-    /// 补充信息区域（知识点、来源、笔记）
-    func additionalInfoSection(viewModel: CaptureViewModel) -> some View {
+// MARK: - Basic Info Rows
+
+private extension BasicInfoFormSection {
+    
+    /// 标题行（必填）
+    var titleRow: some View {
+        FormRow(isLast: false) {
+            HStack {
+                Text("capture_field_title")
+                    .foregroundStyle(.primary)
+                Text("*")
+                    .foregroundStyle(Color.brand.error)
+                Spacer()
+            }
+        } content: {
+            TextField(
+                viewModel.subject.titlePlaceholder(for: viewModel.grade),
+                text: $viewModel.title
+            )
+            .multilineTextAlignment(.trailing)
+            .submitLabel(.done)
+            .onSubmit {
+                hideKeyboard()
+            }
+        }
+    }
+    
+    /// 学科行
+    var subjectRow: some View {
+        FormRow(isLast: false) {
+            HStack(spacing: DesignTokens.Spacing.xs) {
+                Text("capture_field_subject")
+                if viewModel.isAnalyzing {
+                    ProgressView()
+                        .scaleEffect(0.7)
+                } else if viewModel.subjectWasAutoSelected {
+                    Image(systemName: "sparkles")
+                        .font(.caption)
+                        .foregroundStyle(Color.brand.primary)
+                }
+            }
+        } content: {
+            Picker("", selection: $viewModel.subject) {
+                ForEach(Subject.allCases) { subject in
+                    Text(subject.displayName)
+                        .tag(subject)
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(.primary)
+            .onChange(of: viewModel.subject) { _, newSubject in
+                handleSubjectChange(newSubject)
+            }
+        }
+    }
+    
+    /// 年级行
+    var gradeRow: some View {
+        let currentRegion = EducationSystemManager.shared.currentRegion
+        return FormRow(isLast: false) {
+            Text("capture_field_grade")
+        } content: {
+            Picker("", selection: $viewModel.grade) {
+                ForEach(viewModel.subject.applicableGrades(for: currentRegion)) { grade in
+                    Text(grade.displayName)
+                        .tag(grade)
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(.primary)
+        }
+    }
+    
+    /// 题型行
+    var questionTypeRow: some View {
+        FormRow(isLast: false) {
+            HStack(spacing: DesignTokens.Spacing.xs) {
+                Text("capture_field_question_type")
+                Image(systemName: viewModel.questionType.icon)
+                    .font(.caption)
+                    .foregroundStyle(viewModel.questionType.color)
+            }
+        } content: {
+            Picker("", selection: $viewModel.questionType) {
+                questionTypePickerContent
+            }
+            .pickerStyle(.menu)
+            .tint(.primary)
+        }
+    }
+    
+    /// 题型选择器内容
+    @ViewBuilder
+    var questionTypePickerContent: some View {
+        let applicableTypes = ReviewItemType.types(for: viewModel.subject)
+        
+        // 客观题
+        let objectiveTypes = applicableTypes.filter { $0.isObjective }
+        if !objectiveTypes.isEmpty {
+            Section {
+                ForEach(objectiveTypes, id: \.self) { type in
+                    Label(type.displayName, systemImage: type.icon)
+                        .tag(type)
+                }
+            } header: {
+                Text("capture_question_type_objective")
+            }
+        }
+        
+        // 主观题
+        let subjectiveTypes = applicableTypes.filter { $0.isSubjective }
+        if !subjectiveTypes.isEmpty {
+            Section {
+                ForEach(subjectiveTypes, id: \.self) { type in
+                    Label(type.displayName, systemImage: type.icon)
+                        .tag(type)
+                }
+            } header: {
+                Text("capture_question_type_subjective")
+            }
+        }
+        
+        // 综合题
+        let comprehensiveTypes = applicableTypes.filter { $0.isComprehensive }
+        if !comprehensiveTypes.isEmpty {
+            Section {
+                ForEach(comprehensiveTypes, id: \.self) { type in
+                    Label(type.displayName, systemImage: type.icon)
+                        .tag(type)
+                }
+            } header: {
+                Text("capture_question_type_comprehensive")
+            }
+        }
+        
+        // 其他
+        Section {
+            Label(ReviewItemType.other.displayName, systemImage: ReviewItemType.other.icon)
+                .tag(ReviewItemType.other)
+        }
+    }
+    
+    /// 难度行
+    var difficultyRow: some View {
+        FormRow(isLast: true) {
+            Text("capture_field_difficulty")
+        } content: {
+            Picker("", selection: $viewModel.difficulty) {
+                ForEach(Difficulty.allCases) { diff in
+                    Text(String(repeating: "★", count: diff.stars) + " " + diff.displayName)
+                        .tag(diff)
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(viewModel.difficulty.color)
+        }
+    }
+    
+    /// 处理学科变更
+    func handleSubjectChange(_ newSubject: Subject) {
+        let currentRegion = EducationSystemManager.shared.currentRegion
+        viewModel.subjectWasAutoSelected = false
+        
+        // 如果当前年级不适用于新学科，自动调整
+        if !newSubject.isApplicable(for: viewModel.grade, in: currentRegion) {
+            if let firstApplicableGrade = newSubject.applicableGrades(for: currentRegion).first {
+                viewModel.grade = firstApplicableGrade
+            }
+        }
+        
+        // 如果当前题型不适用于新学科，自动调整
+        if !viewModel.questionType.isApplicable(to: newSubject) {
+            viewModel.questionType = ReviewItemType.types(for: newSubject).first ?? .other
+        }
+    }
+    
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil, from: nil, for: nil
+        )
+    }
+}
+
+// MARK: - Additional Info Form Section
+
+/// 补充信息表单区域
+///
+/// 独立的 View 结构体，包含：
+/// - 知识点输入
+/// - 来源选择
+/// - 笔记输入
+struct AdditionalInfoFormSection: View {
+    
+    // MARK: - Properties
+    
+    @Bindable var viewModel: CaptureViewModel
+    
+    // MARK: - Body
+    
+    var body: some View {
         FormCard {
             VStack(spacing: 0) {
-                // 知识点
-                FormRow(isLast: false) {
-                    Text("capture_field_knowledge_points")
-                } content: {
-                    TextField(
-                        viewModel.subject.knowledgePointsPlaceholder(for: viewModel.grade),
-                        text: .init(
-                            get: { viewModel.knowledgePointsInput },
-                            set: { viewModel.knowledgePointsInput = $0 }
-                        )
-                    )
-                    .multilineTextAlignment(.trailing)
-                    .submitLabel(.done)
-                    .onSubmit {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    }
-                }
-                
-                // 来源
-                FormRow(isLast: false) {
-                    HStack(spacing: DesignTokens.Spacing.xs) {
-                        Text("capture_field_source")
-                        Image(systemName: viewModel.source.icon)
-                            .font(.caption)
-                            .foregroundStyle(viewModel.source.color)
-                    }
-                } content: {
-                    Picker("", selection: .init(
-                        get: { viewModel.source },
-                        set: { viewModel.source = $0 }
-                    )) {
-                        // 按分类分组显示
-                        ForEach(SourceCategory.allCases) { category in
-                            Section {
-                                ForEach(Source.allCases.filter { $0.category == category }) { source in
-                                    Label(source.displayName, systemImage: source.icon)
-                                        .tag(source)
-                                }
-                            } header: {
-                                Text(category.displayName)
-                            }
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .tint(.primary)
-                }
-
-                // 笔记
-                FormRow(isLast: true, alignment: .top) {
-                    Text("capture_field_note")
-                        .padding(.top, DesignTokens.Spacing.sm)
-                } content: {
-                    TextField(
-                        String(localized: "capture_field_note_placeholder"),
-                        text: .init(
-                            get: { viewModel.note },
-                            set: { viewModel.note = $0 }
-                        ),
-                        axis: .vertical
-                    )
-                    .lineLimit(2...4)
-                    .multilineTextAlignment(.trailing)
-                    .submitLabel(.done)
-                    .onSubmit {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    }
-                }
+                knowledgePointsRow
+                sourceRow
+                noteRow
             }
         } header: {
             Text("capture_section_additional")
@@ -264,53 +260,123 @@ extension CaptureView {
     }
 }
 
-// MARK: - FormCard
+// MARK: - Additional Info Rows
 
-/// 表单卡片容器
-struct FormCard<Content: View, Header: View>: View {
-    @ViewBuilder let content: () -> Content
-    @ViewBuilder let header: () -> Header
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-            header()
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .textCase(.uppercase)
-                .padding(.horizontal, DesignTokens.Spacing.sm)
-
-            content()
-                .background(Color.semantic.secondaryBackground)
-                .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md))
+private extension AdditionalInfoFormSection {
+    
+    /// 知识点行
+    var knowledgePointsRow: some View {
+        FormRow(isLast: false) {
+            Text("capture_field_knowledge_points")
+        } content: {
+            TextField(
+                viewModel.subject.knowledgePointsPlaceholder(for: viewModel.grade),
+                text: $viewModel.knowledgePointsInput
+            )
+            .multilineTextAlignment(.trailing)
+            .submitLabel(.done)
+            .onSubmit {
+                hideKeyboard()
+            }
         }
+    }
+    
+    /// 来源行
+    var sourceRow: some View {
+        FormRow(isLast: false) {
+            HStack(spacing: DesignTokens.Spacing.xs) {
+                Text("capture_field_source")
+                Image(systemName: viewModel.source.icon)
+                    .font(.caption)
+                    .foregroundStyle(viewModel.source.color)
+            }
+        } content: {
+            Picker("", selection: $viewModel.source) {
+                ForEach(SourceCategory.allCases) { category in
+                    Section {
+                        ForEach(Source.allCases.filter { $0.category == category }) { source in
+                            Label(source.displayName, systemImage: source.icon)
+                                .tag(source)
+                        }
+                    } header: {
+                        Text(category.displayName)
+                    }
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(.primary)
+        }
+    }
+    
+    /// 笔记行
+    var noteRow: some View {
+        FormRow(isLast: true, alignment: .top) {
+            Text("capture_field_note")
+                .padding(.top, DesignTokens.Spacing.sm)
+        } content: {
+            TextField(
+                String(localized: "capture_field_note_placeholder"),
+                text: $viewModel.note,
+                axis: .vertical
+            )
+            .lineLimit(2...4)
+            .multilineTextAlignment(.trailing)
+            .submitLabel(.done)
+            .onSubmit {
+                hideKeyboard()
+            }
+        }
+    }
+    
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil, from: nil, for: nil
+        )
     }
 }
 
-// MARK: - FormRow
+// MARK: - Question Content Form Section
 
-/// 表单行
-struct FormRow<Label: View, Content: View>: View {
-    let isLast: Bool
-    var alignment: VerticalAlignment = .center
-    @ViewBuilder let label: () -> Label
-    @ViewBuilder let content: () -> Content
-
+/// 题目内容表单区域
+///
+/// 独立的 View 结构体，包含：
+/// - 题目内容文本编辑器
+/// - 字数统计
+struct QuestionContentFormSection: View {
+    
+    // MARK: - Properties
+    
+    @Bindable var viewModel: CaptureViewModel
+    
+    // MARK: - Body
+    
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(alignment: alignment) {
-                label()
+        FormCard {
+            ZStack(alignment: .topLeading) {
+                if viewModel.recognizedText.isEmpty {
+                    Text("capture_question_content_placeholder")
+                        .font(.body)
+                        .foregroundStyle(.tertiary)
+                        .padding(.horizontal, DesignTokens.Spacing.sm + 4)
+                        .padding(.vertical, DesignTokens.Spacing.sm + 8)
+                }
+                
+                TextEditor(text: $viewModel.recognizedText)
                     .font(.body)
-                Spacer()
-                content()
-                    .font(.body)
-                    .foregroundStyle(.secondary)
+                    .frame(minHeight: 120, maxHeight: 200)
+                    .padding(DesignTokens.Spacing.sm)
+                    .scrollContentBackground(.hidden)
             }
-            .padding(.horizontal, DesignTokens.Spacing.md)
-            .padding(.vertical, DesignTokens.Spacing.md)
-
-            if !isLast {
-                Divider()
-                    .padding(.leading, DesignTokens.Spacing.md)
+        } header: {
+            HStack {
+                Text("capture_section_question_content")
+                Spacer()
+                if !viewModel.recognizedText.isEmpty {
+                    Text("\(viewModel.recognizedText.count)")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
             }
         }
     }

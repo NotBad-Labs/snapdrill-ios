@@ -184,45 +184,15 @@ extension CaptureView {
 extension CaptureView {
     private var formSection: some View {
         VStack(spacing: DesignTokens.Spacing.lg) {
-            basicInfoSection(viewModel: viewModel)
-            questionContentSection
-            additionalInfoSection(viewModel: viewModel)
+            BasicInfoFormSection(viewModel: viewModel)
+            QuestionContentFormSection(viewModel: viewModel)
+            AdditionalInfoFormSection(viewModel: viewModel)
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 Button("common_done") {
                     hideKeyboard()
-                }
-            }
-        }
-    }
-
-    private var questionContentSection: some View {
-        FormCard {
-            ZStack(alignment: .topLeading) {
-                if viewModel.recognizedText.isEmpty {
-                    Text("capture_question_content_placeholder")
-                        .font(.body)
-                        .foregroundStyle(.tertiary)
-                        .padding(.horizontal, DesignTokens.Spacing.sm + 4)
-                        .padding(.vertical, DesignTokens.Spacing.sm + 8)
-                }
-
-                TextEditor(text: $viewModel.recognizedText)
-                    .font(.body)
-                    .frame(minHeight: 120, maxHeight: 200)
-                    .padding(DesignTokens.Spacing.sm)
-                    .scrollContentBackground(.hidden)
-            }
-        } header: {
-            HStack {
-                Text("capture_section_question_content")
-                Spacer()
-                if !viewModel.recognizedText.isEmpty {
-                    Text("\(viewModel.recognizedText.count)")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
                 }
             }
         }
