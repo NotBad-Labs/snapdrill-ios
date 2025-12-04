@@ -224,14 +224,31 @@ struct ReviewItemTests {
         #expect(item.nextReviewDate > Date())
     }
 
-    @Test("resetProgress 正确重置")
+    @Test("resetProgress 使用渐进式退阶策略")
     func resetProgressAction() {
         let item = ReviewItem()
         item.recordReview(newMastery: .good)
         item.recordReview(newMastery: .mastered)
-
+        
+        // 复习次数现在是 2，掌握度是 mastered
+        let originalCount = item.reviewCount
+        
         item.resetProgress()
-
+        
+        // 渐进式退阶：mastered → partial，复习次数减半
+        #expect(item.reviewCount == originalCount / 2)
+        #expect(item.mastery == .partial)
+    }
+    
+    @Test("hardResetProgress 完全重置复习进度")
+    func hardResetProgressAction() {
+        let item = ReviewItem()
+        item.recordReview(newMastery: .good)
+        item.recordReview(newMastery: .mastered)
+        
+        item.hardResetProgress()
+        
+        // 完全重置：复习次数归零，掌握度重置为 none
         #expect(item.reviewCount == 0)
         #expect(item.mastery == .none)
     }
