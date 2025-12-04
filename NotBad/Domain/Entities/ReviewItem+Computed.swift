@@ -83,6 +83,6 @@ extension ReviewItem {
     ///
     /// 结合题型权重和难度等级计算。
     var overallDifficultyScore: Double {
-        Double(difficulty.rawValue) * questionType.difficultyWeight
+        Double(difficulty.rawValue) * reviewItemType.difficultyWeight
     }
 }

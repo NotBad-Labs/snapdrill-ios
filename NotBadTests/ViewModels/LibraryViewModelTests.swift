@@ -59,16 +59,16 @@ struct LibraryViewModelTests {
         createdAt: Date,
         needsReview: Bool
     ) -> ReviewItem {
-        let item = ReviewItem(
+        let reviewItem = ReviewItem(
             title: title,
             mastery: mastery,
             subject: subject,
             difficulty: difficulty,
             source: source
         )
-        item.createdAt = createdAt
-        item.nextReviewDate = needsReview ? Date() : Calendar.current.date(byAdding: .day, value: 7, to: Date())!
-        return item
+        reviewItem.createdAt = createdAt
+        reviewItem.nextReviewDate = needsReview ? Date() : Calendar.current.date(byAdding: .day, value: 7, to: Date())!
+        return reviewItem
     }
 
     // MARK: - 初始化测试

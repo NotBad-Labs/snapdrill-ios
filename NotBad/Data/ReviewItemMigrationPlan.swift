@@ -146,7 +146,7 @@ extension ReviewItemMigrationPlan {
 /// | difficultyRaw | Int | 难度 |
 /// | errorTypeRaw | String | 错误类型 |
 /// | sourceRaw | String | 来源 |
-/// | questionTypeRaw | String | 题型 |
+/// | reviewItemTypeRaw | String | 题型 |
 enum ReviewItemSchemaV1: VersionedSchema {
 
     /// 版本标识符

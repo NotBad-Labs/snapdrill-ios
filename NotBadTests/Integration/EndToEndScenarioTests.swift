@@ -33,7 +33,7 @@ final class EndToEndScenarioTests: XCTestCase {
         }
         
         // 3. 创建 ReviewItem
-        let item = ReviewItem(
+        let reviewItem = ReviewItem(
             imageData: imageData,
             title: recognizedText.isEmpty ? "手动输入的标题" : String(recognizedText.prefix(50)),
             subject: .math,
@@ -41,9 +41,9 @@ final class EndToEndScenarioTests: XCTestCase {
         )
         
         // 4. 验证数据完整性
-        XCTAssertNotNil(item.imageData)
-        XCTAssertFalse(item.title.isEmpty)
-        XCTAssertTrue(item.hasImage)
+        XCTAssertNotNil(reviewItem.imageData)
+        XCTAssertFalse(reviewItem.title.isEmpty)
+        XCTAssertTrue(reviewItem.hasImage)
         
         print("模拟完成: 拍照 -> OCR(\(recognizedText.count)字) -> 创建题目")
     }

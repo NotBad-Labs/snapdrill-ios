@@ -64,7 +64,7 @@ extension DataManagementView {
         for itemDict in items {
             guard let title = itemDict["title"] as? String else { continue }
 
-            let item = ReviewItem(
+            let reviewItem = ReviewItem(
                 imageData: nil,
                 title: title,
                 note: itemDict["note"] as? String ?? "",
@@ -75,19 +75,20 @@ extension DataManagementView {
 
             // 设置其他属性
             if let difficultyRaw = itemDict["difficulty"] as? Int {
-                item.difficulty = Difficulty(rawValue: difficultyRaw) ?? .medium
+                reviewItem.difficulty = Difficulty(rawValue: difficultyRaw) ?? .medium
             }
             if let sourceRaw = itemDict["source"] as? String {
-                item.source = Source(rawValue: sourceRaw) ?? .other
+                reviewItem.source = Source(rawValue: sourceRaw) ?? .other
             }
-            if let questionTypeRaw = itemDict["questionType"] as? String {
-                item.questionType = ReviewItemType(rawValue: questionTypeRaw) ?? .other
+            // 兼容旧版 "questionType" 和新版 "reviewItemType" 键名
+            if let reviewItemTypeRaw = itemDict["reviewItemType"] as? String ?? itemDict["questionType"] as? String {
+                reviewItem.reviewItemType = ReviewItemType(rawValue: reviewItemTypeRaw) ?? .other
             }
             if let masteryLevel = itemDict["masteryLevel"] as? Int {
-                item.masteryLevel = masteryLevel
+                reviewItem.masteryLevel = masteryLevel
             }
             if let reviewCount = itemDict["reviewCount"] as? Int {
-                item.reviewCount = reviewCount
+                reviewItem.reviewCount = reviewCount
             }
 
             // 导入图片
@@ -95,12 +96,12 @@ extension DataManagementView {
                let imagesDir = imagesDir {
                 let imageURL = imagesDir.appendingPathComponent(imageName)
                 if let imageData = try? Data(contentsOf: imageURL) {
-                    item.imageData = imageData
+                    reviewItem.imageData = imageData
                 }
             }
 
             await MainActor.run {
-                modelContext.insert(item)
+                modelContext.insert(reviewItem)
             }
             importedCount += 1
         }

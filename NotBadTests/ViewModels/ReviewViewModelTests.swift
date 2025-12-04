@@ -35,18 +35,18 @@ struct ReviewViewModelTests {
         needsReview: Bool = false,
         isOverdue: Bool = false
     ) -> ReviewItem {
-        let item = ReviewItem(title: title, mastery: mastery)
-        item.createdAt = createdAt
+        let reviewItem = ReviewItem(title: title, mastery: mastery)
+        reviewItem.createdAt = createdAt
 
         if isOverdue {
-            item.nextReviewDate = Calendar.current.date(byAdding: .day, value: -5, to: Date())!
+            reviewItem.nextReviewDate = Calendar.current.date(byAdding: .day, value: -5, to: Date())!
         } else if needsReview {
-            item.nextReviewDate = Date()
+            reviewItem.nextReviewDate = Date()
         } else {
-            item.nextReviewDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
+            reviewItem.nextReviewDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
         }
 
-        return item
+        return reviewItem
     }
 
     // MARK: - 初始化测试
@@ -152,9 +152,9 @@ struct ReviewViewModelTests {
         viewModel.reviewMode = .weakest
 
         let items = (0..<10).map { _ in
-            let item = ReviewItem()
-            item.nextReviewDate = Date()
-            return item
+            let reviewItem = ReviewItem()
+            reviewItem.nextReviewDate = Date()
+            return reviewItem
         }
 
         let queue = viewModel.generateReviewQueue(from: items)

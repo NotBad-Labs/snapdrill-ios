@@ -60,9 +60,9 @@ struct DataProviderProtocolTests {
     @MainActor
     func protocolDefinesSaveMethod() throws {
         let provider: any ReviewItemDataProviding = MockReviewItemProvider()
-        let item = ReviewItem(title: "测试", subject: .math)
+        let reviewItem = ReviewItem(title: "测试", subject: .math)
         
-        try provider.save(item)
+        try provider.save(reviewItem)
         
         #expect(true)
     }
@@ -71,10 +71,10 @@ struct DataProviderProtocolTests {
     @MainActor
     func protocolDefinesDeleteMethod() throws {
         let provider = MockReviewItemProvider()
-        let item = ReviewItem(title: "测试", subject: .math)
-        try provider.save(item)
+        let reviewItem = ReviewItem(title: "测试", subject: .math)
+        try provider.save(reviewItem)
         
-        try (provider as any ReviewItemDataProviding).delete(item)
+        try (provider as any ReviewItemDataProviding).delete(reviewItem)
         
         #expect(true)
     }

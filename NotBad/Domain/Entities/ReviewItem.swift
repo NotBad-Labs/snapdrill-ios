@@ -32,7 +32,7 @@ import SwiftData
 ///
 /// ```swift
 /// // 创建新错题
-/// let item = ReviewItem(
+/// let reviewItem = ReviewItem(
 ///     title: "二次函数求极值",
 ///     subject: .math,
 ///     grade: .grade10,
@@ -40,10 +40,10 @@ import SwiftData
 /// )
 ///
 /// // 记录复习
-/// item.recordReview(newMastery: .partial)
+/// reviewItem.recordReview(newMastery: .partial)
 ///
 /// // 检查是否需要复习
-/// if item.needsReview {
+/// if reviewItem.needsReview {
 ///     print("该复习了！")
 /// }
 /// ```
@@ -121,8 +121,8 @@ final class ReviewItem {
     /// 题目来源原始值
     var sourceRaw: String
 
-    /// 题目类型原始值
-    var questionTypeRaw: String
+    /// 题型原始值
+    var reviewItemTypeRaw: String
 
     // MARK: - Initialization
 
@@ -141,7 +141,7 @@ final class ReviewItem {
     ///   - difficulty: 难度等级，默认中等
     ///   - errorType: 错误类型
     ///   - source: 题目来源
-    ///   - questionType: 题目类型
+    ///   - reviewItemType: 题型
     init(
         id: UUID = UUID(),
         imageData: Data? = nil,
@@ -155,7 +155,7 @@ final class ReviewItem {
         difficulty: Difficulty = .medium,
         errorType: ErrorType = .other,
         source: Source = .other,
-        questionType: ReviewItemType = .other
+        reviewItemType: ReviewItemType = .other
     ) {
         self.id = id
         self.imageData = imageData
@@ -172,7 +172,7 @@ final class ReviewItem {
         self.difficultyRaw = difficulty.rawValue
         self.errorTypeRaw = errorType.rawValue
         self.sourceRaw = source.rawValue
-        self.questionTypeRaw = questionType.rawValue
+        self.reviewItemTypeRaw = reviewItemType.rawValue
     }
 
     // MARK: - Internal Helpers

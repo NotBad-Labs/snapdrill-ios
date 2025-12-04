@@ -54,9 +54,9 @@ struct DisplayContent: View {
 
                 InfoCard(title: "题型", icon: "doc.text.fill") {
                     HStack {
-                        Image(systemName: reviewItem.questionType.icon)
+                        Image(systemName: reviewItem.reviewItemType.icon)
                             .foregroundStyle(Color.brand.primary)
-                        Text(reviewItem.questionType.displayName)
+                        Text(reviewItem.reviewItemType.displayName)
                             .font(.subheadline)
                     }
                 }
@@ -201,7 +201,7 @@ struct EditingContent: View {
                 }
 
                 FormField(title: "题型", icon: "doc.text.fill") {
-                    questionTypePicker
+                    reviewItemTypePicker
                 }
             }
 
@@ -283,17 +283,17 @@ struct EditingContent: View {
         }
     }
 
-    private var questionTypePicker: some View {
+    private var reviewItemTypePicker: some View {
         Menu {
             ForEach(ReviewItemType.allCases, id: \.self) { type in
                 Button {
-                    reviewItem.questionType = type
+                    reviewItem.reviewItemType = type
                 } label: {
                     Label(type.displayName, systemImage: type.icon)
                 }
             }
         } label: {
-            pickerLabel(text: reviewItem.questionType.displayName)
+            pickerLabel(text: reviewItem.reviewItemType.displayName)
         }
     }
 

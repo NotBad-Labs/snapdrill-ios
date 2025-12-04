@@ -138,7 +138,7 @@ extension ReviewItem {
         difficulty: Difficulty = .medium,
         needsReview: Bool = false
     ) -> ReviewItem {
-        let item = ReviewItem(
+        let reviewItem = ReviewItem(
             title: title,
             mastery: mastery,
             subject: subject,
@@ -147,11 +147,11 @@ extension ReviewItem {
         )
         
         if needsReview {
-            item.nextReviewDate = Date()
+            reviewItem.nextReviewDate = Date()
         } else {
-            item.nextReviewDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
+            reviewItem.nextReviewDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
         }
         
-        return item
+        return reviewItem
     }
 }

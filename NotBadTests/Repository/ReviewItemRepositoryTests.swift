@@ -198,18 +198,18 @@ struct ReviewStatisticsTests {
         var items: [ReviewItem] = []
 
         for i in 0..<masteredCount {
-            let item = ReviewItem(title: "掌握\(i)", mastery: .mastered)
-            items.append(item)
+            let reviewItem = ReviewItem(title: "掌握\(i)", mastery: .mastered)
+            items.append(reviewItem)
         }
 
         for i in 0..<partialCount {
-            let item = ReviewItem(title: "部分\(i)", mastery: .partial)
-            items.append(item)
+            let reviewItem = ReviewItem(title: "部分\(i)", mastery: .partial)
+            items.append(reviewItem)
         }
 
         for i in 0..<noneCount {
-            let item = ReviewItem(title: "未掌握\(i)", mastery: .none)
-            items.append(item)
+            let reviewItem = ReviewItem(title: "未掌握\(i)", mastery: .none)
+            items.append(reviewItem)
         }
 
         return items
@@ -224,21 +224,21 @@ struct ReviewStatisticsTests {
         let now = Date()
 
         for i in 0..<overdueCount {
-            let item = ReviewItem(title: "过期\(i)")
-            item.nextReviewDate = now.addingTimeInterval(-86400 * Double(i + 1))
-            items.append(item)
+            let reviewItem = ReviewItem(title: "过期\(i)")
+            reviewItem.nextReviewDate = now.addingTimeInterval(-86400 * Double(i + 1))
+            items.append(reviewItem)
         }
 
         for i in 0..<dueTodayCount {
-            let item = ReviewItem(title: "今天\(i)")
-            item.nextReviewDate = now
-            items.append(item)
+            let reviewItem = ReviewItem(title: "今天\(i)")
+            reviewItem.nextReviewDate = now
+            items.append(reviewItem)
         }
 
         for i in 0..<futureCount {
-            let item = ReviewItem(title: "未来\(i)")
-            item.nextReviewDate = now.addingTimeInterval(86400 * Double(i + 1))
-            items.append(item)
+            let reviewItem = ReviewItem(title: "未来\(i)")
+            reviewItem.nextReviewDate = now.addingTimeInterval(86400 * Double(i + 1))
+            items.append(reviewItem)
         }
 
         return items
@@ -290,9 +290,9 @@ struct ReviewStatisticsTests {
 
     private func createMockItemsWithReviewCounts(_ counts: [Int]) -> [ReviewItem] {
         counts.enumerated().map { index, count in
-            let item = ReviewItem(title: "题目\(index)")
-            item.reviewCount = count
-            return item
+            let reviewItem = ReviewItem(title: "题目\(index)")
+            reviewItem.reviewCount = count
+            return reviewItem
         }
     }
 }

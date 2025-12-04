@@ -74,11 +74,11 @@ extension ReviewItem {
         }
     }
 
-    /// 题目类型
-    var questionType: ReviewItemType {
-        get { ReviewItemType(rawValue: questionTypeRaw) ?? .other }
+    /// 题型
+    var reviewItemType: ReviewItemType {
+        get { ReviewItemType(rawValue: reviewItemTypeRaw) ?? .other }
         set {
-            questionTypeRaw = newValue.rawValue
+            reviewItemTypeRaw = newValue.rawValue
             markAsUpdated()
         }
     }

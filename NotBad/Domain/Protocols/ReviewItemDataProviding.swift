@@ -161,7 +161,7 @@ extension ReviewItemDataProviding {
             item.knowledgePoints.matches(trimmedQuery) ||
             item.note.lowercased().contains(lowercasedQuery) ||
             item.subject.displayName.contains(trimmedQuery) ||
-            item.questionType.displayName.contains(trimmedQuery)
+            item.reviewItemType.displayName.contains(trimmedQuery)
         }
     }
 

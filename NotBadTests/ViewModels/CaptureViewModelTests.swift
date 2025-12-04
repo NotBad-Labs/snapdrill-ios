@@ -32,7 +32,7 @@ struct CaptureViewModelTests {
         #expect(viewModel.difficulty == .medium)
         #expect(viewModel.errorType == .other)
         #expect(viewModel.source == .other)
-        #expect(viewModel.questionType == .other)
+        #expect(viewModel.reviewItemType == .other)
         #expect(viewModel.currentStep == .selectImage)
         #expect(viewModel.isSaving == false)
         #expect(viewModel.isRecognizingText == false)

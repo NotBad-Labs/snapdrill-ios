@@ -96,11 +96,11 @@ final class ViewComponentTests: XCTestCase {
     /// 测试空标题的显示处理
     @MainActor
     func testEmptyTitleDisplay() {
-        let item = ReviewItem()
-        item.title = "   " // 空白标题
+        let reviewItem = ReviewItem()
+        reviewItem.title = "   " // 空白标题
         
         // displayTitle 应该返回默认值
-        XCTAssertEqual(item.displayTitle, "未命名错题")
+        XCTAssertEqual(reviewItem.displayTitle, "未命名错题")
     }
     
     // MARK: - FilterChip Logic Tests

@@ -45,7 +45,7 @@ extension CaptureViewModel {
             difficulty: difficulty,
             errorType: errorType,
             source: source,
-            questionType: questionType
+            reviewItemType: reviewItemType
         )
 
         Logger.data.info("创建 ReviewItem: id=\(newItem.id), title=\(newItem.title)")
@@ -115,7 +115,7 @@ extension CaptureViewModel {
         difficulty = .medium
         errorType = .other
         source = .other
-        questionType = .other
+        reviewItemType = .other
     }
 }
 

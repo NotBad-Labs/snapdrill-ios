@@ -17,21 +17,21 @@ struct ReviewItemTests {
 
     @Test("默认初始化正确")
     func defaultInitialization() {
-        let item = ReviewItem()
+        let reviewItem = ReviewItem()
 
-        #expect(item.title == "未命名错题")
-        #expect(item.note == "")
-        #expect(item.subject == .math)
-        #expect(item.grade == .grade10)
-        #expect(item.mastery == .none)
-        #expect(item.difficulty == .medium)
-        #expect(item.reviewCount == 0)
-        #expect(item.imageData == nil)
+        #expect(reviewItem.title == "未命名错题")
+        #expect(reviewItem.note == "")
+        #expect(reviewItem.subject == .math)
+        #expect(reviewItem.grade == .grade10)
+        #expect(reviewItem.mastery == .none)
+        #expect(reviewItem.difficulty == .medium)
+        #expect(reviewItem.reviewCount == 0)
+        #expect(reviewItem.imageData == nil)
     }
 
     @Test("自定义初始化正确")
     func customInitialization() {
-        let item = ReviewItem(
+        let reviewItem = ReviewItem(
             title: "二次函数",
             note: "求极值问题",
             subject: .math,
@@ -39,337 +39,337 @@ struct ReviewItemTests {
             difficulty: .hard
         )
 
-        #expect(item.title == "二次函数")
-        #expect(item.note == "求极值问题")
-        #expect(item.subject == .math)
-        #expect(item.grade == .grade11)
-        #expect(item.difficulty == .hard)
+        #expect(reviewItem.title == "二次函数")
+        #expect(reviewItem.note == "求极值问题")
+        #expect(reviewItem.subject == .math)
+        #expect(reviewItem.grade == .grade11)
+        #expect(reviewItem.difficulty == .hard)
     }
 
     @Test("空标题转为默认标题")
     func emptyTitleConvertsToDefault() {
-        let item = ReviewItem(title: "")
-        #expect(item.title == "未命名错题")
+        let reviewItem = ReviewItem(title: "")
+        #expect(reviewItem.title == "未命名错题")
 
-        let item2 = ReviewItem(title: "   ")
-        #expect(item2.title == "   ") // 只有完全空才转换
+        let reviewItem2 = ReviewItem(title: "   ")
+        #expect(reviewItem2.title == "   ") // 只有完全空才转换
     }
 
     // MARK: - 值对象访问器测试
 
     @Test("学科访问器正确")
     func subjectAccessor() {
-        let item = ReviewItem(subject: .physics)
-        #expect(item.subject == .physics)
+        let reviewItem = ReviewItem(subject: .physics)
+        #expect(reviewItem.subject == .physics)
 
-        item.subject = .chemistry
-        #expect(item.subject == .chemistry)
-        #expect(item.subjectRaw == "chemistry")
+        reviewItem.subject = .chemistry
+        #expect(reviewItem.subject == .chemistry)
+        #expect(reviewItem.subjectRaw == "chemistry")
     }
 
     @Test("年级访问器正确")
     func gradeAccessor() {
-        let item = ReviewItem(grade: .grade7)
-        #expect(item.grade == .grade7)
+        let reviewItem = ReviewItem(grade: .grade7)
+        #expect(reviewItem.grade == .grade7)
 
-        item.grade = .grade9
-        #expect(item.grade == .grade9)
-        #expect(item.gradeRaw == "grade_9")
+        reviewItem.grade = .grade9
+        #expect(reviewItem.grade == .grade9)
+        #expect(reviewItem.gradeRaw == "grade_9")
     }
 
     @Test("掌握程度访问器正确")
     func masteryAccessor() {
-        let item = ReviewItem(mastery: .partial)
-        #expect(item.mastery == .partial)
+        let reviewItem = ReviewItem(mastery: .partial)
+        #expect(reviewItem.mastery == .partial)
 
-        item.mastery = .good
-        #expect(item.mastery == .good)
-        #expect(item.masteryLevel == MasteryLevel.good.rawValue)
+        reviewItem.mastery = .good
+        #expect(reviewItem.mastery == .good)
+        #expect(reviewItem.masteryLevel == MasteryLevel.good.rawValue)
     }
 
     @Test("知识点访问器正确")
     func knowledgePointsAccessor() {
         let points = KnowledgePoints(from: "二次函数, 极值")
-        let item = ReviewItem(knowledgePoints: points)
+        let reviewItem = ReviewItem(knowledgePoints: points)
 
-        #expect(item.knowledgePoints.count == 2)
-        #expect(item.knowledgePoints.contains("二次函数"))
-        #expect(item.knowledgePoints.contains("极值"))
+        #expect(reviewItem.knowledgePoints.count == 2)
+        #expect(reviewItem.knowledgePoints.contains("二次函数"))
+        #expect(reviewItem.knowledgePoints.contains("极值"))
     }
 
     // MARK: - 计算属性测试
 
     @Test("有图片正确判断")
     func hasImageProperty() {
-        let item1 = ReviewItem()
-        #expect(item1.hasImage == false)
+        let reviewItem1 = ReviewItem()
+        #expect(reviewItem1.hasImage == false)
 
-        let item2 = ReviewItem(imageData: TestImageFactory.createJPEGData(size: .thumbnail))
-        #expect(item2.hasImage == true)
+        let reviewItem2 = ReviewItem(imageData: TestImageFactory.createJPEGData(size: .thumbnail))
+        #expect(reviewItem2.hasImage == true)
 
-        let item3 = ReviewItem(imageData: Data())
-        #expect(item3.hasImage == false)
+        let reviewItem3 = ReviewItem(imageData: Data())
+        #expect(reviewItem3.hasImage == false)
     }
 
     @Test("hasNote 正确判断")
     func hasNoteProperty() {
-        let item1 = ReviewItem(note: "")
-        #expect(item1.hasNote == false)
+        let reviewItem1 = ReviewItem(note: "")
+        #expect(reviewItem1.hasNote == false)
 
-        let item2 = ReviewItem(note: "   ")
-        #expect(item2.hasNote == false)
+        let reviewItem2 = ReviewItem(note: "   ")
+        #expect(reviewItem2.hasNote == false)
 
-        let item3 = ReviewItem(note: "这是笔记")
-        #expect(item3.hasNote == true)
+        let reviewItem3 = ReviewItem(note: "这是笔记")
+        #expect(reviewItem3.hasNote == true)
     }
 
     @Test("hasKnowledgePoints 正确判断")
     func hasKnowledgePointsProperty() {
-        let item1 = ReviewItem()
-        #expect(item1.hasKnowledgePoints == false)
+        let reviewItem1 = ReviewItem()
+        #expect(reviewItem1.hasKnowledgePoints == false)
 
-        let item2 = ReviewItem(knowledgePoints: KnowledgePoints(from: "函数"))
-        #expect(item2.hasKnowledgePoints == true)
+        let reviewItem2 = ReviewItem(knowledgePoints: KnowledgePoints(from: "函数"))
+        #expect(reviewItem2.hasKnowledgePoints == true)
     }
 
     @Test("needsReview 正确判断")
     func needsReviewProperty() {
-        let item = ReviewItem()
+        let reviewItem = ReviewItem()
         // 新创建的项目 nextReviewDate == createdAt，应该需要复习
-        #expect(item.needsReview == true)
+        #expect(reviewItem.needsReview == true)
     }
 
     @Test("isNew 正确判断")
     func isNewProperty() {
-        let item = ReviewItem()
-        #expect(item.isNew == true)
+        let reviewItem = ReviewItem()
+        #expect(reviewItem.isNew == true)
 
-        item.reviewCount = 1
-        #expect(item.isNew == false)
+        reviewItem.reviewCount = 1
+        #expect(reviewItem.isNew == false)
     }
 
     @Test("isMastered 正确判断")
     func isMasteredProperty() {
-        let item = ReviewItem(mastery: .none)
-        #expect(item.isMastered == false)
+        let reviewItem = ReviewItem(mastery: .none)
+        #expect(reviewItem.isMastered == false)
 
-        item.mastery = .partial
-        #expect(item.isMastered == false)
+        reviewItem.mastery = .partial
+        #expect(reviewItem.isMastered == false)
 
-        item.mastery = .good
-        #expect(item.isMastered == true)
+        reviewItem.mastery = .good
+        #expect(reviewItem.isMastered == true)
 
-        item.mastery = .mastered
-        #expect(item.isMastered == true)
+        reviewItem.mastery = .mastered
+        #expect(reviewItem.isMastered == true)
     }
 
     // MARK: - 显示属性测试
 
     @Test("displayTitle 正确处理")
     func displayTitleProperty() {
-        let item1 = ReviewItem(title: "测试题目")
-        #expect(item1.displayTitle == "测试题目")
+        let reviewItem1 = ReviewItem(title: "测试题目")
+        #expect(reviewItem1.displayTitle == "测试题目")
 
         // 空白标题应返回默认值
-        let item2 = ReviewItem()
-        item2.title = "   "
-        #expect(item2.displayTitle == "未命名错题")
+        let reviewItem2 = ReviewItem()
+        reviewItem2.title = "   "
+        #expect(reviewItem2.displayTitle == "未命名错题")
     }
 
     @Test("shortDescription 格式正确")
     @MainActor
     func shortDescriptionProperty() {
-        let item = ReviewItem(subject: .math, questionType: .calculation)
-        let desc = item.shortDescription
+        let reviewItem = ReviewItem(subject: .math, reviewItemType: .calculation)
+        let desc = reviewItem.shortDescription
         
         // 使用 EducationSystemManager 获取期望的显示名称
-        let subjectName = EducationSystemManager.shared.subjectDisplayName(for: item.subjectRaw)
+        let subjectName = EducationSystemManager.shared.subjectDisplayName(for: reviewItem.subjectRaw)
         
         #expect(desc.contains(subjectName))
-        #expect(desc.contains(item.questionType.displayName))
+        #expect(desc.contains(reviewItem.reviewItemType.displayName))
     }
 
     @Test("fullDescription 格式正确")
     @MainActor
     func fullDescriptionProperty() {
-        let item = ReviewItem(
+        let reviewItem = ReviewItem(
             subject: .physics,
             grade: .grade11,
             difficulty: .hard,
-            questionType: .calculation
+            reviewItemType: .calculation
         )
-        let desc = item.fullDescription
+        let desc = reviewItem.fullDescription
 
         // 使用 EducationSystemManager 获取期望的显示名称，以避免测试环境本地化问题
-        let subjectName = EducationSystemManager.shared.subjectDisplayName(for: item.subjectRaw)
-        let gradeName = EducationSystemManager.shared.gradeDisplayName(for: item.gradeRaw)
+        let subjectName = EducationSystemManager.shared.subjectDisplayName(for: reviewItem.subjectRaw)
+        let gradeName = EducationSystemManager.shared.gradeDisplayName(for: reviewItem.gradeRaw)
 
         #expect(desc.contains(subjectName))
         #expect(desc.contains(gradeName))
-        #expect(desc.contains(item.difficulty.displayName))
-        #expect(desc.contains(item.questionType.displayName))
+        #expect(desc.contains(reviewItem.difficulty.displayName))
+        #expect(desc.contains(reviewItem.reviewItemType.displayName))
     }
 
     // MARK: - 复习操作测试
 
     @Test("recordReview 正确更新状态")
     func recordReviewAction() {
-        let item = ReviewItem()
-        let originalCount = item.reviewCount
+        let reviewItem = ReviewItem()
+        let originalCount = reviewItem.reviewCount
 
-        item.recordReview(newMastery: .partial)
+        reviewItem.recordReview(newMastery: .partial)
 
-        #expect(item.reviewCount == originalCount + 1)
-        #expect(item.mastery == .partial)
-        #expect(item.nextReviewDate > Date())
+        #expect(reviewItem.reviewCount == originalCount + 1)
+        #expect(reviewItem.mastery == .partial)
+        #expect(reviewItem.nextReviewDate > Date())
     }
 
     @Test("resetProgress 使用渐进式退阶策略")
     func resetProgressAction() {
-        let item = ReviewItem()
-        item.recordReview(newMastery: .good)
-        item.recordReview(newMastery: .mastered)
+        let reviewItem = ReviewItem()
+        reviewItem.recordReview(newMastery: .good)
+        reviewItem.recordReview(newMastery: .mastered)
         
         // 复习次数现在是 2，掌握度是 mastered
-        let originalCount = item.reviewCount
+        let originalCount = reviewItem.reviewCount
         
-        item.resetProgress()
+        reviewItem.resetProgress()
         
         // 渐进式退阶：mastered → partial，复习次数减半
-        #expect(item.reviewCount == originalCount / 2)
-        #expect(item.mastery == .partial)
+        #expect(reviewItem.reviewCount == originalCount / 2)
+        #expect(reviewItem.mastery == .partial)
     }
     
     @Test("hardResetProgress 完全重置复习进度")
     func hardResetProgressAction() {
-        let item = ReviewItem()
-        item.recordReview(newMastery: .good)
-        item.recordReview(newMastery: .mastered)
+        let reviewItem = ReviewItem()
+        reviewItem.recordReview(newMastery: .good)
+        reviewItem.recordReview(newMastery: .mastered)
         
-        item.hardResetProgress()
+        reviewItem.hardResetProgress()
         
         // 完全重置：复习次数归零，掌握度重置为 none
-        #expect(item.reviewCount == 0)
-        #expect(item.mastery == .none)
+        #expect(reviewItem.reviewCount == 0)
+        #expect(reviewItem.mastery == .none)
     }
 
     @Test("addKnowledgePoint 正确添加")
     func addKnowledgePointAction() {
-        let item = ReviewItem()
-        item.addKnowledgePoint("函数")
-        item.addKnowledgePoint("极值")
+        let reviewItem = ReviewItem()
+        reviewItem.addKnowledgePoint("函数")
+        reviewItem.addKnowledgePoint("极值")
 
-        #expect(item.knowledgePoints.count == 2)
-        #expect(item.knowledgePoints.contains("函数"))
-        #expect(item.knowledgePoints.contains("极值"))
+        #expect(reviewItem.knowledgePoints.count == 2)
+        #expect(reviewItem.knowledgePoints.contains("函数"))
+        #expect(reviewItem.knowledgePoints.contains("极值"))
     }
 
     @Test("removeKnowledgePoint 正确移除")
     func removeKnowledgePointAction() {
-        let item = ReviewItem(knowledgePoints: KnowledgePoints(from: "函数, 极值"))
-        item.removeKnowledgePoint("函数")
+        let reviewItem = ReviewItem(knowledgePoints: KnowledgePoints(from: "函数, 极值"))
+        reviewItem.removeKnowledgePoint("函数")
 
-        #expect(item.knowledgePoints.count == 1)
-        #expect(!item.knowledgePoints.contains("函数"))
-        #expect(item.knowledgePoints.contains("极值"))
+        #expect(reviewItem.knowledgePoints.count == 1)
+        #expect(!reviewItem.knowledgePoints.contains("函数"))
+        #expect(reviewItem.knowledgePoints.contains("极值"))
     }
 
     @Test("updateNote 正确更新")
     func updateNoteAction() {
-        let item = ReviewItem()
-        let originalDate = item.updatedAt
+        let reviewItem = ReviewItem()
+        let originalDate = reviewItem.updatedAt
 
         // 短暂等待以确保时间差异
         Thread.sleep(forTimeInterval: 0.01)
-        item.updateNote("新笔记")
+        reviewItem.updateNote("新笔记")
 
-        #expect(item.note == "新笔记")
-        #expect(item.updatedAt > originalDate)
+        #expect(reviewItem.note == "新笔记")
+        #expect(reviewItem.updatedAt > originalDate)
     }
 
     @Test("updateTitle 正确更新")
     func updateTitleAction() {
-        let item = ReviewItem()
-        item.updateTitle("新标题")
-        #expect(item.title == "新标题")
+        let reviewItem = ReviewItem()
+        reviewItem.updateTitle("新标题")
+        #expect(reviewItem.title == "新标题")
 
-        item.updateTitle("")
-        #expect(item.title == "未命名错题")
+        reviewItem.updateTitle("")
+        #expect(reviewItem.title == "未命名错题")
     }
 
     // MARK: - 验证测试
 
     @Test("validate 返回正确结果")
     func validateMethod() {
-        let item = ReviewItem(
+        let reviewItem = ReviewItem(
             imageData: TestImageFactory.createJPEGData(size: .thumbnail),
             title: "测试",
             knowledgePoints: KnowledgePoints(from: "知识点")
         )
 
-        let (isValid, issues) = item.validate()
+        let (isValid, issues) = reviewItem.validate()
         #expect(isValid == true)
         #expect(issues.isEmpty)
     }
 
     @Test("validate 检测缺失内容")
     func validateDetectsMissingContent() {
-        let item = ReviewItem(title: "   ")
-        let (_, issues) = item.validate()
+        let reviewItem = ReviewItem(title: "   ")
+        let (_, issues) = reviewItem.validate()
 
         #expect(issues.contains { $0.contains("标题") })
     }
 
     @Test("isComplete 正确判断")
     func isCompleteProperty() {
-        let item1 = ReviewItem()
-        #expect(item1.isComplete == false)
+        let reviewItem1 = ReviewItem()
+        #expect(reviewItem1.isComplete == false)
 
         // 有图片 + 知识点 = 完整
-        let item2 = ReviewItem(
+        let reviewItem2 = ReviewItem(
             imageData: TestImageFactory.createJPEGData(size: .thumbnail),
             title: "测试",
             knowledgePoints: KnowledgePoints(from: "知识点")
         )
-        #expect(item2.isComplete == true)
+        #expect(reviewItem2.isComplete == true)
 
         // 有笔记 + 知识点 = 也完整（无需图片）
-        let item3 = ReviewItem(
+        let reviewItem3 = ReviewItem(
             title: "测试",
             note: "这是笔记内容",
             knowledgePoints: KnowledgePoints(from: "知识点")
         )
-        #expect(item3.isComplete == true)
+        #expect(reviewItem3.isComplete == true)
 
         // 只有知识点，无图片无笔记 = 不完整
-        let item4 = ReviewItem(
+        let reviewItem4 = ReviewItem(
             title: "测试",
             knowledgePoints: KnowledgePoints(from: "知识点")
         )
-        #expect(item4.isComplete == false)
+        #expect(reviewItem4.isComplete == false)
     }
 
     // MARK: - Comparable 测试
 
     @Test("Comparable 按 nextReviewDate 排序")
     func comparableConformance() {
-        let item1 = ReviewItem()
-        item1.nextReviewDate = Date().addingTimeInterval(-3600) // 1小时前
+        let reviewItem1 = ReviewItem()
+        reviewItem1.nextReviewDate = Date().addingTimeInterval(-3600) // 1小时前
 
-        let item2 = ReviewItem()
-        item2.nextReviewDate = Date().addingTimeInterval(3600) // 1小时后
+        let reviewItem2 = ReviewItem()
+        reviewItem2.nextReviewDate = Date().addingTimeInterval(3600) // 1小时后
 
-        #expect(item1 < item2)
+        #expect(reviewItem1 < reviewItem2)
     }
 
     // MARK: - 综合难度测试
 
     @Test("overallDifficultyScore 计算正确")
     func overallDifficultyScoreCalculation() {
-        let item = ReviewItem(difficulty: .hard, questionType: .calculation)
+        let reviewItem = ReviewItem(difficulty: .hard, reviewItemType: .calculation)
 
         // hard = 3, calculation 是主观题权重 1.5
         let expectedScore = 3.0 * 1.5
-        #expect(item.overallDifficultyScore == expectedScore)
+        #expect(reviewItem.overallDifficultyScore == expectedScore)
     }
 }

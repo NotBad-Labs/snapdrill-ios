@@ -176,16 +176,16 @@ public enum TestReviewItemFactory {
             let mastery = MasteryLevel.allCases[i % MasteryLevel.allCases.count]
             let needsReview = i % 4 == 0 // 1/4 需要复习
             
-            let item: ReviewItem
+            let reviewItem: ReviewItem
             if hasImage {
-                item = createWithImage(
+                reviewItem = createWithImage(
                     imageSize: .small,
                     title: "\(subject.displayName)题目 #\(i + 1)",
                     subject: subject,
                     mastery: mastery
                 )
             } else {
-                item = create(
+                reviewItem = create(
                     title: "\(subject.displayName)题目 #\(i + 1)",
                     subject: subject,
                     mastery: mastery
@@ -193,13 +193,13 @@ public enum TestReviewItemFactory {
             }
             
             if needsReview {
-                item.nextReviewDate = Date().addingTimeInterval(-86400 * Double.random(in: 1...7))
+                reviewItem.nextReviewDate = Date().addingTimeInterval(-86400 * Double.random(in: 1...7))
             } else {
-                item.nextReviewDate = Date().addingTimeInterval(86400 * Double.random(in: 1...30))
+                reviewItem.nextReviewDate = Date().addingTimeInterval(86400 * Double.random(in: 1...30))
             }
             
-            item.reviewCount = Int.random(in: 0...10)
-            items.append(item)
+            reviewItem.reviewCount = Int.random(in: 0...10)
+            items.append(reviewItem)
         }
         
         return items

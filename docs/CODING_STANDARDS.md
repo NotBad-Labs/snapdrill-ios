@@ -368,10 +368,10 @@ func test_calculateInterval_withHighMastery_returnsLongerDuration() { ... }
 ```swift
 func testExample() {
     // Given
-    let item = ReviewItem.mock()
+    let reviewItem = ReviewItem.mock()
     
     // When
-    let result = item.calculateInterval()
+    let result = reviewItem.calculateInterval()
     
     // Then
     XCTAssertEqual(result.days, 7)

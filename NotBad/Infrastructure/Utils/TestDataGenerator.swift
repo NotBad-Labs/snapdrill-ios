@@ -124,7 +124,7 @@ struct TestDataGenerator {
         let difficulties = Difficulty.allCases
         let sources = Source.allCases
         let errorTypes = ErrorType.allCases
-        let questionTypes = ReviewItemType.allCases
+        let reviewItemTypes = ReviewItemType.allCases
         let masteryLevels = MasteryLevel.allCases
         
         for i in 0..<count {
@@ -133,7 +133,7 @@ struct TestDataGenerator {
             let difficulty = difficulties.randomElement()!
             let source = sources.randomElement()!
             let errorType = errorTypes.randomElement()!
-            let questionType = questionTypes.randomElement()!
+            let reviewItemType = reviewItemTypes.randomElement()!
             let mastery = masteryLevels.randomElement()!
             
             // 根据学科选择标题
@@ -152,7 +152,7 @@ struct TestDataGenerator {
             // 随机复习次数
             let reviewCount = Int.random(in: 0...10)
             
-            let item = ReviewItem(
+            let generatedItem = ReviewItem(
                 imageData: nil,
                 title: title,
                 note: note,
@@ -164,17 +164,17 @@ struct TestDataGenerator {
                 difficulty: difficulty,
                 errorType: errorType,
                 source: source,
-                questionType: questionType
+                reviewItemType: reviewItemType
             )
             
             // 设置复习次数
-            item.reviewCount = reviewCount
+            generatedItem.reviewCount = reviewCount
             
             // 设置下次复习时间
             let nextReviewDays = Int.random(in: -7...30)
-            item.nextReviewDate = Calendar.current.date(byAdding: .day, value: nextReviewDays, to: Date())!
+            generatedItem.nextReviewDate = Calendar.current.date(byAdding: .day, value: nextReviewDays, to: Date())!
             
-            context.insert(item)
+            context.insert(generatedItem)
             
             // 每 500 条保存一次，避免内存压力
             if i % 500 == 0 && i > 0 {

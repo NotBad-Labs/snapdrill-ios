@@ -25,7 +25,7 @@ extension ReviewItem {
     @MainActor
     var shortDescription: String {
         let subjectName = EducationSystemManager.shared.subjectDisplayName(for: subjectRaw)
-        return "\(subjectName) · \(questionType.displayName)"
+        return "\(subjectName) · \(reviewItemType.displayName)"
     }
 
     /// 完整描述
@@ -35,7 +35,7 @@ extension ReviewItem {
     var fullDescription: String {
         let subjectName = EducationSystemManager.shared.subjectDisplayName(for: subjectRaw)
         let gradeName = EducationSystemManager.shared.gradeDisplayName(for: gradeRaw)
-        return "\(subjectName) · \(gradeName) · \(questionType.displayName) · \(difficulty.displayName)"
+        return "\(subjectName) · \(gradeName) · \(reviewItemType.displayName) · \(difficulty.displayName)"
     }
 
     /// 复习状态描述

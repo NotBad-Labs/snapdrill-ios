@@ -65,22 +65,22 @@ struct DashboardViewModelTests {
         needsReview: Bool,
         isOverdue: Bool = false
     ) -> ReviewItem {
-        let item = ReviewItem(
+        let reviewItem = ReviewItem(
             title: title,
             mastery: mastery,
             subject: subject
         )
-        item.createdAt = createdAt
+        reviewItem.createdAt = createdAt
 
         if needsReview {
-            item.nextReviewDate = isOverdue
+            reviewItem.nextReviewDate = isOverdue
                 ? Calendar.current.date(byAdding: .day, value: -3, to: Date())!
                 : Date()
         } else {
-            item.nextReviewDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
+            reviewItem.nextReviewDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
         }
 
-        return item
+        return reviewItem
     }
 
     // MARK: - 初始化测试

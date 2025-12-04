@@ -299,16 +299,16 @@ final class LibraryViewModel {
 ### ❌ 禁用术语 → ✅ 正确术语
 
 | 禁用 | 原因 | 正确术语 | 代码示例 |
-|------|------|----------|---------|
-| Question | 太泛化 | ReviewItem | `let item: ReviewItem` |
-| QuestionType | 已重命名 | ReviewItemType | `item.questionType: ReviewItemType` |
+|------|------|----------|----------|
+| Question | 太泛化 | ReviewItem | `let reviewItem: ReviewItem` |
+| QuestionType | 已重命名 | ReviewItemType | `reviewItem.reviewItemType: ReviewItemType` |
 | WrongQuestion | 负面标签 | ReviewItem | - |
 | Problem | 歧义（问题/难题） | ReviewItem | - |
 | Error | 与 ErrorType 冲突 | ReviewItem | - |
-| Level | 歧义（等级/关卡） | MasteryLevel / Difficulty | `item.mastery` / `item.difficulty` |
+| Level | 歧义（等级/关卡） | MasteryLevel / Difficulty | `reviewItem.mastery` / `reviewItem.difficulty` |
 | Type | 歧义 | 明确前缀 | `ReviewItemType` / `ErrorType` |
 | Category | 歧义 | 明确前缀 | `SubjectCategory` / `ErrorCategory` |
-| Status | 歧义 | MasteryLevel | `item.mastery` |
+| Status | 歧义 | MasteryLevel | `reviewItem.mastery` |
 | Score | 本项目不涉及分数 | MasteryLevel | - |
 
 ### 同义词统一
@@ -456,7 +456,7 @@ final class ReviewItem {
     var difficultyRaw: Int          // 存储 Difficulty.rawValue
     var errorTypeRaw: String        // 存储 ErrorType.rawValue
     var sourceRaw: String           // 存储 Source.rawValue
-    var questionTypeRaw: String     // 存储 ReviewItemType.rawValue
+    var reviewItemTypeRaw: String   // 存储 ReviewItemType.rawValue
     
     // 值对象访问器（计算属性）
     var subject: Subject {

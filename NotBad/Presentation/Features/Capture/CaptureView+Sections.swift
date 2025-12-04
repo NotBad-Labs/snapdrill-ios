@@ -38,7 +38,7 @@ struct BasicInfoFormSection: View {
                 titleRow
                 subjectRow
                 gradeRow
-                questionTypeRow
+                reviewItemTypeRow
                 difficultyRow
             }
         } header: {
@@ -121,17 +121,17 @@ private extension BasicInfoFormSection {
     }
     
     /// 题型行
-    var questionTypeRow: some View {
+    var reviewItemTypeRow: some View {
         FormRow(isLast: false) {
             HStack(spacing: DesignTokens.Spacing.xs) {
                 Text("capture_field_question_type")
-                Image(systemName: viewModel.questionType.icon)
+                Image(systemName: viewModel.reviewItemType.icon)
                     .font(.caption)
-                    .foregroundStyle(viewModel.questionType.color)
+                    .foregroundStyle(viewModel.reviewItemType.color)
             }
         } content: {
-            Picker("", selection: $viewModel.questionType) {
-                questionTypePickerContent
+            Picker("", selection: $viewModel.reviewItemType) {
+                reviewItemTypePickerContent
             }
             .pickerStyle(.menu)
             .tint(.primary)
@@ -140,7 +140,7 @@ private extension BasicInfoFormSection {
     
     /// 题型选择器内容
     @ViewBuilder
-    var questionTypePickerContent: some View {
+    var reviewItemTypePickerContent: some View {
         let applicableTypes = ReviewItemType.types(for: viewModel.subject)
         
         // 客观题
@@ -218,8 +218,8 @@ private extension BasicInfoFormSection {
         }
         
         // 如果当前题型不适用于新学科，自动调整
-        if !viewModel.questionType.isApplicable(to: newSubject) {
-            viewModel.questionType = ReviewItemType.types(for: newSubject).first ?? .other
+        if !viewModel.reviewItemType.isApplicable(to: newSubject) {
+            viewModel.reviewItemType = ReviewItemType.types(for: newSubject).first ?? .other
         }
     }
     

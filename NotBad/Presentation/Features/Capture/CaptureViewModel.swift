@@ -55,7 +55,7 @@ final class CaptureViewModel {
     var difficulty: Difficulty = .medium
     var errorType: ErrorType = .other
     var source: Source = .other
-    var questionType: ReviewItemType = .other
+    var reviewItemType: ReviewItemType = .other
 
     // MARK: - UI State
 

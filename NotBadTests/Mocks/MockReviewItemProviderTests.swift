@@ -54,9 +54,9 @@ struct MockReviewItemProviderTests {
     @MainActor
     func saveAddsNewItem() throws {
         let provider = MockReviewItemProvider()
-        let item = ReviewItem(title: "新错题", subject: .physics)
+        let reviewItem = ReviewItem(title: "新错题", subject: .physics)
         
-        try provider.save(item)
+        try provider.save(reviewItem)
         
         #expect(provider.items.count == 1)
         #expect(provider.saveCallCount == 1)
@@ -67,11 +67,11 @@ struct MockReviewItemProviderTests {
     @MainActor
     func saveUpdatesExistingItem() throws {
         let provider = MockReviewItemProvider()
-        let item = ReviewItem(title: "原标题", subject: .math)
-        try provider.save(item)
+        let reviewItem = ReviewItem(title: "原标题", subject: .math)
+        try provider.save(reviewItem)
         
-        item.title = "新标题"
-        try provider.save(item)
+        reviewItem.title = "新标题"
+        try provider.save(reviewItem)
         
         #expect(provider.items.count == 1)
         #expect(provider.items.first?.title == "新标题")
@@ -83,10 +83,10 @@ struct MockReviewItemProviderTests {
     func saveThrowsError() throws {
         let provider = MockReviewItemProvider()
         provider.shouldThrowOnSave = true
-        let item = ReviewItem(title: "错题", subject: .math)
+        let reviewItem = ReviewItem(title: "错题", subject: .math)
         
         #expect(throws: MockError.self) {
-            try provider.save(item)
+            try provider.save(reviewItem)
         }
     }
     
@@ -95,10 +95,10 @@ struct MockReviewItemProviderTests {
     @Test("delete 删除项目")
     @MainActor
     func deleteRemovesItem() throws {
-        let item = ReviewItem(title: "待删除", subject: .chinese)
-        let provider = MockReviewItemProvider(items: [item])
+        let reviewItem = ReviewItem(title: "待删除", subject: .chinese)
+        let provider = MockReviewItemProvider(items: [reviewItem])
         
-        try provider.delete(item)
+        try provider.delete(reviewItem)
         
         #expect(provider.items.isEmpty)
         #expect(provider.deleteCallCount == 1)
@@ -110,10 +110,10 @@ struct MockReviewItemProviderTests {
     func deleteThrowsError() throws {
         let provider = MockReviewItemProvider()
         provider.shouldThrowOnDelete = true
-        let item = ReviewItem(title: "错题", subject: .math)
+        let reviewItem = ReviewItem(title: "错题", subject: .math)
         
         #expect(throws: MockError.self) {
-            try provider.delete(item)
+            try provider.delete(reviewItem)
         }
     }
     
@@ -153,8 +153,8 @@ struct MockReviewItemProviderTests {
     @Test("fetchForReview 返回需要复习的项目")
     @MainActor
     func fetchForReviewReturnsItems() {
-        let item = ReviewItem(title: "需复习", subject: .math)
-        let provider = MockReviewItemProvider(items: [item])
+        let reviewItem = ReviewItem(title: "需复习", subject: .math)
+        let provider = MockReviewItemProvider(items: [reviewItem])
         
         _ = provider.fetchForReview()
         
