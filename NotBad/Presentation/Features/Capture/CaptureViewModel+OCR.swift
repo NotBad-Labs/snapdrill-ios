@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import OSLog
 
 // MARK: - OCR Actions
 
@@ -56,9 +57,7 @@ extension CaptureViewModel {
 
     /// 处理实时扫描结果
     func handleLiveScanResult(_ text: String, imageData: Data?) {
-        #if DEBUG
-        print("🔍 [CaptureVM] handleLiveScanResult: text长度=\(text.count), 图片=\(imageData?.count ?? 0) bytes")
-        #endif
+        Logger.ocr.info("handleLiveScanResult: text长度=\(text.count), 图片=\(imageData?.count ?? 0) bytes")
         
         // 关闭扫描器界面
         showLiveScanner = false
@@ -89,9 +88,7 @@ extension CaptureViewModel {
             }
         }
 
-        #if DEBUG
-        print("🔍 [CaptureVM] 处理结果: title=\(title), hasImage=\(hasImage), isValid=\(isValid)")
-        #endif
+        Logger.ocr.debug("处理结果: title=\(self.title), hasImage=\(self.hasImage), isValid=\(self.isValid)")
     }
 }
 
@@ -110,10 +107,8 @@ extension CaptureViewModel {
         do {
             let result = try await smartAnalysisService.analyze(text: text)
             
-            #if DEBUG
-            print("🤖 [SmartAnalysis] 科目: \(result.suggestedSubject.displayName), 置信度: \(result.confidence)")
-            print("🤖 [SmartAnalysis] 标题建议: \(result.suggestedTitle)")
-            #endif
+            Logger.ai.info("科目: \(result.suggestedSubject.displayName), 置信度: \(result.confidence)")
+            Logger.ai.debug("标题建议: \(result.suggestedTitle)")
             
             // 自动选择科目
             suggestedSubject = result.suggestedSubject
@@ -130,9 +125,7 @@ extension CaptureViewModel {
             
             isAnalyzing = false
         } catch {
-            #if DEBUG
-            print("🤖 [SmartAnalysis] 分析失败: \(error.localizedDescription)")
-            #endif
+            Logger.ai.error("分析失败: \(error.localizedDescription)")
             isAnalyzing = false
             // 分析失败不影响正常流程，静默处理
         }

@@ -103,6 +103,23 @@ final class Dependencies {
         }
     }
     
+    /// 埋点服务
+    private var _analyticsService: (any AnalyticsServiceProtocol)?
+    
+    var analyticsService: any AnalyticsServiceProtocol {
+        get {
+            if let service = _analyticsService {
+                return service
+            }
+            let service = LocalAnalyticsService.shared
+            _analyticsService = service
+            return service
+        }
+        set {
+            _analyticsService = newValue
+        }
+    }
+    
     // MARK: - Configuration
     
     /// 配置依赖容器
@@ -121,6 +138,7 @@ final class Dependencies {
         _reviewItemRepository = nil
         _ocrService = nil
         _pdfExportService = nil
+        _analyticsService = nil
     }
 }
 

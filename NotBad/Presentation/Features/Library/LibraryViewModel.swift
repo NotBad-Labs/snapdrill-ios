@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 // MARK: - LibraryViewModel
 
@@ -330,9 +331,7 @@ final class LibraryViewModel {
         do {
             try modelContext.save()
         } catch {
-            #if DEBUG
-            print("❌ 删除失败: \(error)")
-            #endif
+            Logger.data.error("删除失败: \(error)")
         }
     }
 
@@ -345,9 +344,7 @@ final class LibraryViewModel {
         do {
             try modelContext.save()
         } catch {
-            #if DEBUG
-            print("❌ 删除失败: \(error)")
-            #endif
+            Logger.data.error("删除失败: \(error)")
         }
     }
 
@@ -366,9 +363,7 @@ final class LibraryViewModel {
             selectedItemIds.removeAll()
             isSelectionMode = false
         } catch {
-            #if DEBUG
-            print("❌ 批量删除失败: \(error)")
-            #endif
+            Logger.data.error("批量删除失败: \(error)")
         }
     }
     
@@ -392,9 +387,7 @@ final class LibraryViewModel {
             selectedItemIds.removeAll()
             isSelectionMode = false
         } catch {
-            #if DEBUG
-            print("❌ 批量标记失败: \(error)")
-            #endif
+            Logger.data.error("批量标记失败: \(error)")
         }
     }
 

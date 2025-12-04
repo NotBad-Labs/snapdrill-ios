@@ -7,6 +7,7 @@
 
 import SwiftUI
 import VisionKit
+import OSLog
 
 // MARK: - LiveTextScannerView
 
@@ -78,9 +79,7 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
             do {
                 try uiViewController.startScanning()
             } catch {
-                #if DEBUG
-                print("扫描启动失败: \(error.localizedDescription)")
-                #endif
+                Logger.camera.error("扫描启动失败: \(error.localizedDescription)")
             }
         }
     }
@@ -166,9 +165,7 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
             _ dataScanner: DataScannerViewController,
             becameUnavailableWithError error: DataScannerViewController.ScanningUnavailable
         ) {
-            #if DEBUG
-            print("扫描器不可用: \(error.localizedDescription)")
-            #endif
+            Logger.camera.error("扫描器不可用: \(error.localizedDescription)")
         }
 
         // MARK: - Processing
@@ -195,9 +192,7 @@ struct LiveTextScannerView: UIViewControllerRepresentable {
                         finish(imageData: imageData)
                     }
                 } catch {
-                    #if DEBUG
-                    print("📷 截图失败: \(error)")
-                    #endif
+                    Logger.camera.error("截图失败: \(error)")
                     await MainActor.run {
                         finish(imageData: nil)
                     }

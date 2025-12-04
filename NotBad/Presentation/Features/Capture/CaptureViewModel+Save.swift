@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import OSLog
 
 // MARK: - Save Actions
 
@@ -20,18 +21,14 @@ extension CaptureViewModel {
     /// 保存错题
     func saveItem() {
         guard let modelContext else {
-            #if DEBUG
-            print("❌ [CaptureVM] 保存失败：modelContext 为 nil")
-            #endif
+            Logger.data.error("保存失败：modelContext 为 nil")
             showErrorAlert(String(localized: "capture_save_error_context"))
             return
         }
 
         // 验证：必须有图片或来自实时扫描
         guard hasImage || isFromLiveScanner else {
-            #if DEBUG
-            print("❌ [CaptureVM] 保存失败：无图片且非实时扫描")
-            #endif
+            Logger.data.error("保存失败：无图片且非实时扫描")
             showErrorAlert(String(localized: "capture_save_error_no_image"))
             return
         }
@@ -51,20 +48,14 @@ extension CaptureViewModel {
             questionType: questionType
         )
 
-        #if DEBUG
-        print("📝 [CaptureVM] 创建 ReviewItem: id=\(newItem.id), title=\(newItem.title)")
-        #endif
+        Logger.data.info("创建 ReviewItem: id=\(newItem.id), title=\(newItem.title)")
 
         modelContext.insert(newItem)
-        #if DEBUG
-        print("📝 [CaptureVM] insert 完成")
-        #endif
+        Logger.data.debug("insert 完成")
 
         do {
             try modelContext.save()
-            #if DEBUG
-            print("✅ [CaptureVM] save 成功")
-            #endif
+            Logger.data.info("✅ ReviewItem 保存成功: \(newItem.id)")
 
             // 触觉反馈 - 成功
             let generator = UINotificationFeedbackGenerator()
@@ -80,9 +71,7 @@ extension CaptureViewModel {
                 NotificationCenter.default.post(name: .reviewItemAdded, object: newItem)
             }
         } catch {
-            #if DEBUG
-            print("❌ [CaptureVM] save 失败: \(error)")
-            #endif
+            Logger.data.error("❌ ReviewItem 保存失败: \(error.localizedDescription)")
 
             // 触觉反馈 - 失败
             let generator = UINotificationFeedbackGenerator()

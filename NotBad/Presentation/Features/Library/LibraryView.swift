@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 // MARK: - LibraryView
 
@@ -112,12 +113,7 @@ struct LibraryView: View {
                 }
                 .onAppear {
                     viewModel.configure(with: modelContext)
-                    #if DEBUG
-                    print("📚 [LibraryView] onAppear - 共 \(items.count) 条数据")
-                    for item in items {
-                        print("  📝 \(item.id): \(item.title)")
-                    }
-                    #endif
+                    Logger.ui.debug("LibraryView onAppear - 共 \(items.count) 条数据")
                 }
         }
     }

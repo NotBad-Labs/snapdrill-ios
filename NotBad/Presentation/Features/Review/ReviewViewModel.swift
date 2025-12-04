@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 // MARK: - ReviewViewModel
 
@@ -253,9 +254,7 @@ final class ReviewViewModel {
         do {
             try modelContext.save()
         } catch {
-            #if DEBUG
-            print("❌ 保存失败: \(error)")
-            #endif
+            Logger.data.error("保存失败: \(error)")
         }
 
         // 更新统计

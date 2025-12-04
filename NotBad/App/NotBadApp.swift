@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import TipKit
+import OSLog
 
 // MARK: - NotBadApp
 
@@ -50,10 +51,8 @@ struct NotBadApp: App {
             )
         } catch {
             // 如果迁移失败，尝试删除旧数据库重建
-            #if DEBUG
-            print("❌ [App] ModelContainer 初始化失败: \(error)")
-            print("⚠️ [App] 尝试删除旧数据库...")
-            #endif
+            Logger.app.error("❌ ModelContainer 初始化失败: \(error.localizedDescription)")
+            Logger.app.warning("⚠️ 尝试删除旧数据库...")
 
             // 删除旧数据库文件
             let url = URL.applicationSupportDirectory.appending(path: "default.store")
@@ -66,9 +65,7 @@ struct NotBadApp: App {
                 let schema = Schema([ReviewItem.self])
                 let config = ModelConfiguration(schema: schema)
                 modelContainer = try ModelContainer(for: schema, configurations: [config])
-                #if DEBUG
-                print("✅ [App] 重建数据库成功")
-                #endif
+                Logger.app.info("✅ 重建数据库成功")
             } catch {
                 fatalError("❌ [App] 无法创建 ModelContainer: \(error)")
             }
@@ -138,9 +135,7 @@ struct NotBadApp: App {
             break
         }
 
-        #if DEBUG
-        print("[App] Deep link handled: \(url)")
-        #endif
+        Logger.app.debug("Deep link handled: \(url.absoluteString)")
     }
 
     // MARK: - Widget Data Sync
@@ -155,9 +150,7 @@ struct NotBadApp: App {
             let items = try context.fetch(descriptor)
             items.syncToWidget()
         } catch {
-            #if DEBUG
-            print("[App] Failed to sync widget data: \(error)")
-            #endif
+            Logger.widget.error("Failed to sync widget data: \(error.localizedDescription)")
         }
     }
 }

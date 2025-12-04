@@ -111,6 +111,31 @@ extension EnvironmentValues {
     }
 }
 
+// MARK: - Analytics Service Environment Key
+
+/// AnalyticsServiceProtocol 环境键
+private struct AnalyticsServiceKey: EnvironmentKey {
+    static let defaultValue: (any AnalyticsServiceProtocol)? = nil
+}
+
+extension EnvironmentValues {
+    /// 埋点服务
+    ///
+    /// 使用示例:
+    /// ```swift
+    /// // 注入 Mock
+    /// ContentView()
+    ///     .environment(\.analyticsService, MockAnalyticsService())
+    ///
+    /// // 读取
+    /// @Environment(\.analyticsService) var analytics
+    /// ```
+    var analyticsService: (any AnalyticsServiceProtocol)? {
+        get { self[AnalyticsServiceKey.self] }
+        set { self[AnalyticsServiceKey.self] = newValue }
+    }
+}
+
 // MARK: - View Modifiers for Convenience
 
 extension View {
@@ -144,6 +169,14 @@ extension View {
     /// - Returns: 修改后的视图
     func repository(_ repository: any ReviewItemRepositoryProtocol) -> some View {
         environment(\.repository, repository)
+    }
+    
+    /// 注入埋点服务
+    ///
+    /// - Parameter service: 埋点服务实例
+    /// - Returns: 修改后的视图
+    func analyticsService(_ service: any AnalyticsServiceProtocol) -> some View {
+        environment(\.analyticsService, service)
     }
 }
 

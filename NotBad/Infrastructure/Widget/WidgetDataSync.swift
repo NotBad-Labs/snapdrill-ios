@@ -7,6 +7,7 @@
 
 import Foundation
 import WidgetKit
+import OSLog
 
 /// Widget 数据同步服务
 @MainActor
@@ -46,9 +47,7 @@ final class WidgetDataSync {
         recentSubjects: [String]
     ) {
         guard let defaults = sharedDefaults else {
-            #if DEBUG
-            print("[WidgetDataSync] Failed to access shared UserDefaults")
-            #endif
+            Logger.widget.error("Failed to access shared UserDefaults")
             return
         }
 
@@ -61,9 +60,7 @@ final class WidgetDataSync {
         // 刷新 Widget
         reloadWidgets()
 
-        #if DEBUG
-        print("[WidgetDataSync] Synced stats: pending=\(pendingCount), overdue=\(overdueCount), mastery=\(masteryRate)")
-        #endif
+        Logger.widget.debug("Synced stats: pending=\(pendingCount), overdue=\(overdueCount), mastery=\(masteryRate)")
     }
 
     /// 更新待复习数量
