@@ -42,6 +42,7 @@ let wrongItem = ReviewItem(...)   // 不叫 wrongItem
 | **ReviewInterval** | 复习间隔 | 两次复习之间的时间间隔 |
 | **Spaced Repetition** | 间隔重复 | 按递增间隔复习以强化记忆的学习方法 |
 | **Overdue** | 逾期 | 超过计划复习日期仍未复习的状态 |
+| **Reschedule** | 重排 | 逾期复习后，基于实际复习日期重新计算下次间隔 |
 | **Urgency** | 紧迫程度 | 复习的紧急程度（1-5级） |
 
 ```swift
