@@ -9,9 +9,9 @@
 | 指标 | 数值 |
 |------|------|
 | 总代码行数 | ~35,000 行 |
-| Swift 文件数 | 117 个 |
-| 测试文件数 | 34 个 |
-| 测试用例数 | 499+ |
+| Swift 文件数 | 137 个 |
+| 测试文件数 | 53 个 |
+| 测试用例数 | 494 |
 | 最低系统 | iOS 26.0+ |
 | 技术栈 | Swift 6.2+ / SwiftUI / SwiftData |
 
@@ -74,8 +74,12 @@ NotBad/
 │   │   │   ├── ReviewItem+Computed.swift  # 计算属性
 │   │   │   └── ReviewItem+Display.swift   # 显示属性
 │   │   │
-│   │   ├── 📁 Protocols/                  # 协议
-│   │   │   └── ReviewItemRepositoryProtocol.swift
+│   │   ├── 📁 Protocols/                  # 协议 (5个)
+│   │   │   ├── ImageCompressorProtocol.swift  # 图片压缩协议
+│   │   │   ├── OCRServiceProtocol.swift       # OCR 服务协议
+│   │   │   ├── PDFExportServiceProtocol.swift # PDF 导出协议
+│   │   │   ├── ReviewItemDataProviding.swift  # 数据提供者协议
+│   │   │   └── ReviewItemRepositoryProtocol.swift # 仓库协议
 │   │   │
 │   │   └── 📁 ValueObjects/               # 值对象 (13个)
 │   │       ├── Difficulty.swift           # 难度等级
@@ -100,13 +104,30 @@ NotBad/
 │   │       └── SwiftDataReviewItemProvider.swift
 │   │
 │   ├── 📁 Infrastructure/                 # 基础设施层
+│   │   ├── 📁 AI/                        # AI 分析
+│   │   │   └── SmartAnalysisService.swift # 智能分析服务
+│   │   │
+│   │   ├── 📁 Analytics/                 # 分析服务
+│   │   │   ├── AnalyticsServiceProtocol.swift # 分析服务协议
+│   │   │   └── LocalAnalyticsService.swift    # 本地分析实现
+│   │   │
+│   │   ├── 📁 Camera/
+│   │   │   └── ImagePicker.swift          # 相机/相册选择器
+│   │   │
 │   │   ├── 📁 DI/                        # 依赖注入
 │   │   │   ├── Dependencies.swift         # 依赖容器
 │   │   │   ├── EnvironmentKeys.swift      # SwiftUI 环境键
 │   │   │   └── DataProviderFactory.swift  # 数据提供者工厂
 │   │   │
-│   │   ├── 📁 Camera/
-│   │   │   └── ImagePicker.swift          # 相机/相册选择器
+│   │   ├── 📁 Export/                    # 导出服务
+│   │   │   ├── PDFExportService.swift     # PDF 导出服务
+│   │   │   └── 📁 PDF/                   # PDF 渲染组件 (6个)
+│   │   │       ├── PDFFooterRenderer.swift
+│   │   │       ├── PDFHeaderRenderer.swift
+│   │   │       ├── PDFItemRenderer.swift
+│   │   │       ├── PDFPageComposer.swift
+│   │   │       ├── PDFRenderContext.swift
+│   │   │       └── PDFSectionRenderer.swift
 │   │   │
 │   │   ├── 📁 Localization/
 │   │   │   └── LocalizationKeys.swift     # 本地化字符串键
@@ -122,8 +143,14 @@ NotBad/
 │   │   ├── 📁 Shortcuts/                  # Siri 快捷指令 (3个)
 │   │   │   └── AppShortcuts.swift         # AppIntent 定义
 │   │   │
-│   │   ├── 📁 Utils/
-│   │   │   └── ImageCompressor.swift      # 图片压缩工具
+│   │   ├── 📁 Utils/                     # 工具类 (7个)
+│   │   │   ├── ExportCacheManager.swift   # 导出缓存管理
+│   │   │   ├── ImageCompressor.swift      # 图片压缩工具
+│   │   │   ├── Logger+Extensions.swift    # 日志扩展
+│   │   │   ├── SearchHistoryManager.swift # 搜索历史管理
+│   │   │   ├── TestDataGenerator.swift    # 测试数据生成器
+│   │   │   ├── ThumbnailCache.swift       # 缩略图缓存
+│   │   │   └── UserProfileManager.swift   # 用户档案管理
 │   │   │
 │   │   └── 📁 Widget/
 │   │       └── WidgetDataSync.swift       # Widget 数据同步
@@ -133,12 +160,17 @@ NotBad/
 │       │   └── MainTabView.swift          # 主 Tab 导航
 │       │
 │       ├── 📁 Common/                     # 通用组件
-│       │   ├── 📁 Components/             # UI 组件 (7个)
+│       │   ├── 📁 Components/             # UI 组件 (12个)
 │       │   │   ├── EmptyStateView.swift   # 空状态视图
+│       │   │   ├── ErrorAlertView.swift   # 错误提示视图
+│       │   │   ├── FilterChip.swift       # 筛选标签
 │       │   │   ├── FlowLayout.swift       # 流式布局
+│       │   │   ├── FormCard.swift         # 表单卡片
+│       │   │   ├── FormRow.swift          # 表单行
 │       │   │   ├── InfoCard.swift         # 信息卡片
 │       │   │   ├── LoadingView.swift      # 加载视图
 │       │   │   ├── MasteryBadge.swift     # 掌握度徽章
+│       │   │   ├── SearchHistoryView.swift # 搜索历史视图
 │       │   │   ├── SubjectTag.swift       # 学科标签
 │       │   │   └── ToastView.swift        # Toast 提示
 │       │   │
@@ -311,6 +343,8 @@ NotBad/
 | **Value Objects** | 13个文件 | 不可变业务概念封装 |
 | **Education** | 8个文件 | 多国教育体系配置 |
 | **Protocols** | 5个协议文件 | 仓库/数据提供者/服务抽象接口 |
+| **Errors** | `AppError.swift` | 应用错误类型定义 |
+| **Queries** | `ReviewItemQueries.swift` | 数据查询谓词 |
 | **Notifications** | `Notification+Names.swift` | 应用内通知定义 |
 
 ### 2. Data Layer (数据层)
@@ -327,14 +361,17 @@ NotBad/
 
 | 组件 | 文件 | 职责 |
 |------|------|------|
-| **DI** | 3个文件 | 依赖容器、环境键、工厂 |
+| **AI** | `SmartAnalysisService.swift` | 智能分析服务 |
+| **Analytics** | 2个文件 | 分析服务协议与本地实现 |
 | **Camera** | `ImagePicker.swift` | UIKit 相机/相册桥接 |
+| **DI** | 3个文件 | 依赖容器、环境键、工厂 |
+| **Export** | 7个文件 | PDF 导出服务与渲染组件 |
+| **Localization** | `LocalizationKeys.swift` | 本地化字符串管理 |
 | **OCR** | `OCRService.swift` | Vision 框架 OCR |
 | **Scanner** | 3个文件 | VisionKit 实时扫描 |
 | **Shortcuts** | `AppShortcuts.swift` | Siri 快捷指令 (3个 AppIntent) |
-| **Utils** | `ImageCompressor.swift` 等 | 图片压缩、缓存等工具 |
+| **Utils** | 7个文件 | 图片压缩、缓存、日志等工具 |
 | **Widget** | `WidgetDataSync.swift` | App Group 数据同步 |
-| **Localization** | `LocalizationKeys.swift` | 本地化字符串管理 |
 
 ### 4. Presentation Layer (表现层)
 SwiftUI 视图和 ViewModel。
@@ -386,7 +423,7 @@ SwiftUI 视图和 ViewModel。
 
 | 类别 | 组件 | 职责 |
 |------|------|------|
-| **Components** | EmptyStateView, FlowLayout, InfoCard, LoadingView, MasteryBadge, SubjectTag, ToastView | 可复用 UI 组件 |
+| **Components** | EmptyStateView, ErrorAlertView, FilterChip, FlowLayout, FormCard, FormRow, InfoCard, LoadingView, MasteryBadge, SearchHistoryView, SubjectTag, ToastView | 可复用 UI 组件 (12个) |
 | **Layout** | AdaptiveLayout | iPad/iPhone 自适应 |
 | **Styles** | Theme, ButtonStyles, CardStyles, Accessibility | 设计系统 |
 | **Views** | LaunchScreenView | 启动页面 |
@@ -398,7 +435,7 @@ SwiftUI 视图和 ViewModel。
 | **Dashboard** | DashboardView | DashboardViewModel | DashboardCharts, DashboardComponents, DashboardModels |
 | **Library** | LibraryView, ItemDetailView, AdvancedSearchView | LibraryViewModel | ItemDetailComponents, AdvancedSearchModels, AdvancedSearchComponents |
 | **Capture** | CaptureView (+Sections) | CaptureViewModel (+Image, +OCR, +Save) | ImageSelectionCard |
-| **Review** | ReviewView | ReviewViewModel | EmptyReviewState, ReviewCard, ReviewComponents, ReviewModels |
+| **Review** | ReviewView | ReviewViewModel | EmptyReviewState, ReviewCard, ReviewComponents + ReviewModels |
 | **Onboarding** | OnboardingView | - | OnboardingModels, OnboardingComponents |
 | **Profile** | ProfileView | - | 8个子视图 (含导入导出扩展) |
 
@@ -476,12 +513,13 @@ Color.brand.error       // 红色 #FF3B30
 
 ### 测试统计
 
-- 总测试用例: **499+**
+- 总测试用例: **494**
 - 值对象测试: **100%** 覆盖
 - ViewModel 测试: **100%** 覆盖
 - 实体测试: **100%** 覆盖
-- 架构测试: **41** 个新增
+- 架构测试: **41** 个
 - UI 测试: **8** 个测试文件 (各功能模块 + 无障碍)
+- 测试文件总数: **53** 个 (单元测试 45 + UI 测试 8)
 
 ---
 
@@ -585,4 +623,4 @@ Color.brand.error       // 红色 #FF3B30
 
 ---
 
-*文档更新时间: 2025年12月4日*
+*文档更新时间: 2025年12月4日 (术语规范化完成)*
