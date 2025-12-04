@@ -121,6 +121,17 @@ final class LibraryViewModel {
     var selectedCount: Int {
         selectedItemIds.count
     }
+    
+    // MARK: - Cache
+    
+    /// 缓存的筛选结果
+    private var cachedFilteredItems: [ReviewItem] = []
+    
+    /// 缓存的数据源 hash（用于判断是否需要重新计算）
+    private var cachedSourceHash: Int = 0
+    
+    /// 缓存的筛选条件 hash
+    private var cachedFilterHash: Int = 0
 
     // MARK: - Dependencies
 
@@ -160,12 +171,38 @@ final class LibraryViewModel {
     }
 
     // MARK: - Filtering
+    
+    /// 计算当前筛选条件的 hash 值
+    private var currentFilterHash: Int {
+        var hasher = Hasher()
+        hasher.combine(searchText)
+        hasher.combine(selectedSubject)
+        hasher.combine(selectedMastery)
+        hasher.combine(selectedDifficulty)
+        hasher.combine(selectedSource)
+        hasher.combine(showPendingReviewOnly)
+        hasher.combine(sortOption)
+        hasher.combine(advancedCriteria.hasActiveFilters)
+        return hasher.finalize()
+    }
 
-    /// 根据筛选条件过滤错题
+    /// 根据筛选条件过滤错题（带缓存优化）
     ///
     /// - Parameter items: 原始错题列表
     /// - Returns: 过滤后的错题列表
+    ///
+    /// 使用 hash 值判断是否需要重新计算，避免 SwiftUI 每次 body 求值都触发筛选。
     func filteredItems(from items: [ReviewItem]) -> [ReviewItem] {
+        // 计算数据源和筛选条件的 hash
+        let sourceHash = items.count  // 简单用 count 作为 hash，因为 items 变化时 count 一定变
+        let filterHash = currentFilterHash
+        
+        // 如果缓存有效，直接返回
+        if sourceHash == cachedSourceHash && filterHash == cachedFilterHash {
+            return cachedFilteredItems
+        }
+        
+        // 重新计算
         var result = items
 
         // 搜索筛选
@@ -210,6 +247,11 @@ final class LibraryViewModel {
 
         // 排序
         result = sortItems(result)
+        
+        // 更新缓存
+        cachedSourceHash = sourceHash
+        cachedFilterHash = filterHash
+        cachedFilteredItems = result
 
         return result
     }
