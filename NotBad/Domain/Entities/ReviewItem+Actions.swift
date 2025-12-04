@@ -30,10 +30,46 @@ extension ReviewItem {
         markAsUpdated()
     }
 
-    /// 重置复习进度
+    /// 重置复习进度（退阶策略）
     ///
-    /// 将复习次数清零，掌握程度重置为初始状态。
+    /// 采用温和的退阶策略而非直接清零，保护用户学习积极性：
+    /// - 掌握度降级（而非归零）
+    /// - 复习次数减半（而非清零）
+    /// - 下次复习日期设为今天
+    ///
+    /// ## 退阶规则
+    /// - mastered → partial（已掌握 → 部分掌握）
+    /// - good → partial（良好 → 部分掌握）
+    /// - partial → glimpse（部分掌握 → 初步了解）
+    /// - glimpse/none → none（保持最低）
+    ///
+    /// ## 设计理由
+    /// 对于 K12 学生，如果一道题复习了 10 次突然忘了一次，
+    /// 直接重置回起点会严重打击积极性。退阶策略更符合学习心理学。
     func resetProgress() {
+        // 退阶掌握度
+        switch mastery {
+        case .mastered, .good:
+            mastery = .partial
+        case .partial:
+            mastery = .glimpse
+        case .glimpse, .none:
+            mastery = .none
+        }
+        
+        // 复习次数减半（保留学习记录）
+        reviewCount = max(0, reviewCount / 2)
+        
+        // 下次复习设为今天
+        nextReviewDate = Date()
+        markAsUpdated()
+    }
+    
+    /// 完全重置复习进度（强制清零）
+    ///
+    /// 将复习次数完全清零，掌握程度重置为初始状态。
+    /// 仅在用户明确要求"从头开始"时使用。
+    func hardResetProgress() {
         reviewCount = 0
         mastery = .none
         nextReviewDate = Date()

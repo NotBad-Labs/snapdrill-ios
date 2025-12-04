@@ -128,7 +128,9 @@ struct DataManagementView: View {
     
     /// 刷新缓存文件列表
     func refreshCachedFiles() {
-        cachedFiles = ExportCacheManager.shared.getCachedFiles()
+        Task {
+            cachedFiles = await ExportCacheManager.shared.getCachedFiles()
+        }
     }
 }
 
@@ -205,8 +207,8 @@ extension DataManagementView {
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                         Button(role: .destructive) {
-                            withAnimation {
-                                ExportCacheManager.shared.deleteFile(file)
+                            Task {
+                                await ExportCacheManager.shared.deleteFile(file)
                                 refreshCachedFiles()
                             }
                         } label: {
@@ -225,8 +227,8 @@ extension DataManagementView {
                     .alert("export_clear_cache_confirm", isPresented: $showClearCacheAlert) {
                         Button("common_cancel", role: .cancel) { }
                         Button("common_delete", role: .destructive) {
-                            withAnimation {
-                                ExportCacheManager.shared.deleteAllFiles()
+                            Task {
+                                await ExportCacheManager.shared.deleteAllFiles()
                                 refreshCachedFiles()
                             }
                         }

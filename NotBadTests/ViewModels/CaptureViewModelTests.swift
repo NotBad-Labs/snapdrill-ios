@@ -7,6 +7,7 @@
 
 import Testing
 import Foundation
+import UIKit
 @testable import NotBad
 
 @Suite("CaptureViewModel 测试")
@@ -45,7 +46,7 @@ struct CaptureViewModelTests {
 
         #expect(viewModel.hasImage == false)
 
-        viewModel.selectedImageData = Data([0x00, 0x01])
+        viewModel.selectedImageData = TestImageFactory.createJPEGData(size: .thumbnail)
         #expect(viewModel.hasImage == true)
     }
 
@@ -62,7 +63,7 @@ struct CaptureViewModelTests {
     @Test("isValid 无标题时为 false")
     func isValidWithoutTitle() {
         let viewModel = CaptureViewModel()
-        viewModel.selectedImageData = Data([0x00])
+        viewModel.selectedImageData = TestImageFactory.createJPEGData(size: .thumbnail)
 
         #expect(viewModel.isValid == false)
     }
@@ -70,7 +71,7 @@ struct CaptureViewModelTests {
     @Test("isValid 有图片和标题时为 true")
     func isValidWithCompleteData() {
         let viewModel = CaptureViewModel()
-        viewModel.selectedImageData = Data([0x00])
+        viewModel.selectedImageData = TestImageFactory.createJPEGData(size: .thumbnail)
         viewModel.title = "测试标题"
 
         #expect(viewModel.isValid == true)
@@ -91,7 +92,7 @@ struct CaptureViewModelTests {
     @Test("isValid 空白标题时为 false")
     func isValidWithBlankTitle() {
         let viewModel = CaptureViewModel()
-        viewModel.selectedImageData = Data([0x00])
+        viewModel.selectedImageData = TestImageFactory.createJPEGData(size: .thumbnail)
         viewModel.title = "   "
 
         #expect(viewModel.isValid == false)
@@ -122,7 +123,7 @@ struct CaptureViewModelTests {
     @Test("validationErrors 有图片后减少")
     func validationErrorsWithImage() {
         let viewModel = CaptureViewModel()
-        viewModel.selectedImageData = Data([0x00])
+        viewModel.selectedImageData = TestImageFactory.createJPEGData(size: .thumbnail)
 
         let errors = viewModel.validationErrors
 
@@ -140,7 +141,7 @@ struct CaptureViewModelTests {
         viewModel.currentStep = .selectImage
         #expect(viewModel.canProceed == false)
 
-        viewModel.selectedImageData = Data([0x00])
+        viewModel.selectedImageData = TestImageFactory.createJPEGData(size: .thumbnail)
         #expect(viewModel.canProceed == true)
 
         // recognize 步骤始终可以继续
@@ -202,7 +203,7 @@ struct CaptureViewModelTests {
     @Test("clearImage 清除图片状态")
     func clearImageAction() {
         let viewModel = CaptureViewModel()
-        viewModel.selectedImageData = Data([0x00])
+        viewModel.selectedImageData = TestImageFactory.createJPEGData(size: .thumbnail)
         viewModel.currentStep = .fillForm
 
         viewModel.clearImage()
@@ -252,7 +253,7 @@ struct CaptureViewModelTests {
     @Test("proceedToReview 有效时进入预览")
     func proceedToReviewValid() {
         let viewModel = CaptureViewModel()
-        viewModel.selectedImageData = Data([0x00])
+        viewModel.selectedImageData = TestImageFactory.createJPEGData(size: .thumbnail)
         viewModel.title = "测试"
 
         viewModel.proceedToReview()
@@ -276,7 +277,7 @@ struct CaptureViewModelTests {
     func resetFormAction() {
         let viewModel = CaptureViewModel()
         let expectedGrade = CaptureViewModel.getUserDefaultGrade()
-        viewModel.selectedImageData = Data([0x00])
+        viewModel.selectedImageData = TestImageFactory.createJPEGData(size: .thumbnail)
         viewModel.title = "测试"
         viewModel.note = "笔记"
         viewModel.subject = .physics

@@ -178,6 +178,10 @@ struct MockImageCompressorTests {
     
     @Test("reset 清除所有状态")
     func resetClearsAllState() {
+        // 首先重置以确保干净状态
+        MockImageCompressor.reset()
+        
+        // 设置一些状态
         MockImageCompressor.mockCompressedData = Data([0xFF])
         MockImageCompressor.shouldReturnNil = true
         MockImageCompressor.mockEstimatedSize = 999
@@ -185,8 +189,10 @@ struct MockImageCompressorTests {
         _ = MockImageCompressor.resize(UIImage())
         _ = MockImageCompressor.estimateSize(UIImage())
         
+        // 执行 reset
         MockImageCompressor.reset()
         
+        // 验证状态被清除
         #expect(MockImageCompressor.compressCallCount == 0)
         #expect(MockImageCompressor.resizeCallCount == 0)
         #expect(MockImageCompressor.estimateSizeCallCount == 0)

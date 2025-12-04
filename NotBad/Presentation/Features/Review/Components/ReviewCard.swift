@@ -7,6 +7,67 @@
 
 import SwiftUI
 
+// MARK: - AsyncImageView
+
+/// 异步图片加载视图
+///
+/// 在后台线程解码图片，避免阻塞主线程。
+/// 对于复习页面的滑动性能至关重要。
+private struct AsyncImageView: View {
+    let imageData: Data
+    
+    @State private var image: UIImage?
+    @State private var isLoading = true
+    
+    var body: some View {
+        Group {
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+            } else if isLoading {
+                ProgressView()
+                    .frame(height: 200)
+            }
+        }
+        .task(id: imageData.hashValue) {
+            await loadImage()
+        }
+    }
+    
+    private func loadImage() async {
+        isLoading = true
+        
+        // 在后台线程解码图片
+        let decoded = await Task.detached(priority: .userInitiated) {
+            // 解码图片
+            guard let original = UIImage(data: imageData) else { return nil as UIImage? }
+            
+            // 限制最大尺寸以减少内存占用和渲染压力
+            let maxDimension: CGFloat = 800
+            let scale = min(maxDimension / original.size.width, maxDimension / original.size.height, 1.0)
+            
+            if scale < 1.0 {
+                let newSize = CGSize(
+                    width: original.size.width * scale,
+                    height: original.size.height * scale
+                )
+                let renderer = UIGraphicsImageRenderer(size: newSize)
+                return renderer.image { _ in
+                    original.draw(in: CGRect(origin: .zero, size: newSize))
+                }
+            }
+            
+            return original
+        }.value
+        
+        await MainActor.run {
+            self.image = decoded
+            self.isLoading = false
+        }
+    }
+}
+
 // MARK: - ReviewCard
 
 /// 复习卡片组件
@@ -123,11 +184,8 @@ extension ReviewCard {
     /// 图片区域
     @ViewBuilder
     var imageSection: some View {
-        if let imageData = item.imageData,
-           let uiImage = UIImage(data: imageData) {
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFit()
+        if let imageData = item.imageData {
+            AsyncImageView(imageData: imageData)
                 .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
                 .overlay(
                     RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)

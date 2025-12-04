@@ -21,21 +21,23 @@ extension DataManagementView {
     func performFilteredExport() {
         showExportFilterSheet = false
         
-        switch pendingExportType {
-        case .pdf:
-            exportToPDF()
-        case .csv:
-            exportToCSV()
-        case .none:
-            break
+        Task {
+            switch pendingExportType {
+            case .pdf:
+                await exportToPDF()
+            case .csv:
+                await exportToCSV()
+            case .none:
+                break
+            }
+            
+            // 刷新缓存列表
+            refreshCachedFiles()
         }
-        
-        // 刷新缓存列表
-        refreshCachedFiles()
     }
 
     /// 导出为 PDF（打印用）
-    func exportToPDF() {
+    func exportToPDF() async {
         let itemsToExport = filteredItemsForExport()
         
         guard !itemsToExport.isEmpty else {
@@ -53,7 +55,7 @@ extension DataManagementView {
         do {
             let fileName = exportFileName(type: "pdf", count: itemsToExport.count)
             // 使用缓存管理器保存文件（而非临时目录）
-            let cachedURL = try ExportCacheManager.shared.cacheExportFile(data: pdfData, fileName: fileName)
+            let cachedURL = try await ExportCacheManager.shared.cacheExportFile(data: pdfData, fileName: fileName)
             exportedFileURL = cachedURL
             showExportSheet = true
         } catch {
@@ -93,7 +95,7 @@ extension DataManagementView {
     }
 
     /// 导出为 CSV
-    func exportToCSV() {
+    func exportToCSV() async {
         let itemsToExport = filteredItemsForExport()
         
         guard !itemsToExport.isEmpty else {
@@ -129,7 +131,7 @@ extension DataManagementView {
             
             let fileName = exportFileName(type: "csv", count: itemsToExport.count)
             // 使用缓存管理器保存文件
-            let cachedURL = try ExportCacheManager.shared.cacheExportFile(data: data, fileName: fileName)
+            let cachedURL = try await ExportCacheManager.shared.cacheExportFile(data: data, fileName: fileName)
             exportedFileURL = cachedURL
             showExportSheet = true
         } catch {

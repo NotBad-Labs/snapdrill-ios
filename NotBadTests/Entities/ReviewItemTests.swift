@@ -7,6 +7,7 @@
 
 import Testing
 import Foundation
+import UIKit
 @testable import NotBad
 
 @Suite("ReviewItem 实体测试")
@@ -98,12 +99,12 @@ struct ReviewItemTests {
 
     // MARK: - 计算属性测试
 
-    @Test("hasImage 正确判断")
+    @Test("有图片正确判断")
     func hasImageProperty() {
         let item1 = ReviewItem()
         #expect(item1.hasImage == false)
 
-        let item2 = ReviewItem(imageData: Data([0x00, 0x01]))
+        let item2 = ReviewItem(imageData: TestImageFactory.createJPEGData(size: .thumbnail))
         #expect(item2.hasImage == true)
 
         let item3 = ReviewItem(imageData: Data())
@@ -284,7 +285,7 @@ struct ReviewItemTests {
     @Test("validate 返回正确结果")
     func validateMethod() {
         let item = ReviewItem(
-            imageData: Data([0x00]),
+            imageData: TestImageFactory.createJPEGData(size: .thumbnail),
             title: "测试",
             knowledgePoints: KnowledgePoints(from: "知识点")
         )
@@ -309,7 +310,7 @@ struct ReviewItemTests {
 
         // 有图片 + 知识点 = 完整
         let item2 = ReviewItem(
-            imageData: Data([0x00]),
+            imageData: TestImageFactory.createJPEGData(size: .thumbnail),
             title: "测试",
             knowledgePoints: KnowledgePoints(from: "知识点")
         )

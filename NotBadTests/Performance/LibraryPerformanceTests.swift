@@ -172,4 +172,89 @@ final class LibraryPerformanceTests: XCTestCase {
         // 缩略图应该比原图小很多
         XCTAssertLessThan(thumbnailMemory, originalMemory / 100, "缩略图应该比原图小 100 倍以上")
     }
+    
+    // MARK: - Scroll Performance Tests
+    
+    /// 测试模拟列表滚动性能
+    ///
+    /// 确保滚动时图片加载不会造成卡顿
+    /// 目标：单个 cell 渲染 < 16ms (60fps)
+    func testScrollSimulationPerformance() throws {
+        // 准备 50 条数据（模拟屏幕可见区域 + 预加载）
+        var items: [(imageData: Data, title: String)] = []
+        for i in 0..<50 {
+            if let data = generateRealImageData(size: CGSize(width: 800, height: 600)) {
+                items.append((imageData: data, title: "题目 \(i)"))
+            }
+        }
+        
+        print("准备了 \(items.count) 条数据用于滚动测试")
+        
+        measure {
+            // 模拟滚动时的 cell 复用和渲染
+            for item in items {
+                // 模拟 ItemRow 的渲染操作
+                _ = UIImage(data: item.imageData)
+                _ = item.title.count
+            }
+        }
+    }
+    
+    /// 测试快速滚动性能（连续滚动场景）
+    ///
+    /// 模拟用户快速滑动列表时的性能
+    func testFastScrollPerformance() throws {
+        // 创建 100 条测试数据
+        let items = TestReviewItemFactory.createBatch(count: 100)
+        
+        let startTime = CFAbsoluteTimeGetCurrent()
+        
+        // 模拟快速滚动：每隔几项渲染一次（跳过中间项）
+        for i in stride(from: 0, to: items.count, by: 5) {
+            let item = items[i]
+            if let data = item.imageData {
+                // 只生成缩略图，不做完整解码
+                _ = ImageCompressor.resize(UIImage(data: data) ?? UIImage(), maxDimension: 140)
+            }
+        }
+        
+        let elapsed = CFAbsoluteTimeGetCurrent() - startTime
+        print("快速滚动 100 项（每 5 项渲染）耗时: \(elapsed * 1000) ms")
+        
+        // 快速滚动应该在 500ms 内完成
+        XCTAssertLessThan(elapsed, 0.5, "快速滚动应该在 500ms 内完成")
+    }
+    
+    /// 测试 ItemRow 渲染性能
+    ///
+    /// 确保单个 ItemRow 渲染时间 < 16ms (60fps 要求)
+    func testItemRowRenderPerformance() throws {
+        // 创建带真实图片的 ReviewItem
+        let item = TestReviewItemFactory.createWithImage(
+            imageSize: .medium,
+            title: "测试题目：一元二次方程求解步骤",
+            subject: .math,
+            mastery: .partial
+        )
+        
+        measure {
+            // 模拟 ItemRow 渲染的核心操作
+            
+            // 1. 图片解码和缩放
+            if let data = item.imageData, let image = UIImage(data: data) {
+                _ = ImageCompressor.resize(image, maxDimension: 140)
+            }
+            
+            // 2. 文字处理
+            _ = item.title
+            _ = item.subject.displayName
+            _ = item.mastery.displayName
+            _ = item.difficulty.displayName
+            
+            // 3. 日期格式化
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            _ = formatter.string(from: item.createdAt)
+        }
+    }
 }

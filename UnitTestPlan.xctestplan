@@ -13,7 +13,7 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:NotBad.xcodeproj",
         "identifier" : "B27BD96F2E560D0800E69277",

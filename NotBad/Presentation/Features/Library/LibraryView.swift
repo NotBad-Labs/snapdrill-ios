@@ -505,10 +505,17 @@ struct ItemRow: View {
     
     /// 异步加载并缓存缩略图
     private func loadThumbnail() async {
+        // 1. 先检查全局缓存
+        if let cached = ThumbnailCache.shared.thumbnail(for: item.id) {
+            cachedThumbnail = cached
+            return
+        }
+        
+        // 2. 已有本地缓存或无数据则跳过
         guard cachedThumbnail == nil,
               let data = item.imageData else { return }
         
-        // 在后台线程解码和缩放图片
+        // 3. 在后台线程解码和缩放图片
         let thumbnail = await Task.detached(priority: .userInitiated) {
             guard let original = UIImage(data: data) else { return nil as UIImage? }
             
@@ -521,7 +528,11 @@ struct ItemRow: View {
         }.value
         
         await MainActor.run {
-            cachedThumbnail = thumbnail
+            if let thumbnail {
+                // 4. 存入全局缓存
+                ThumbnailCache.shared.setThumbnail(thumbnail, for: item.id)
+                cachedThumbnail = thumbnail
+            }
         }
     }
 }

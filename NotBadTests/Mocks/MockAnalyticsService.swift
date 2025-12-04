@@ -6,6 +6,7 @@
 //
 
 import Foundation
+@testable import NotBad
 
 // MARK: - Mock Analytics Service
 

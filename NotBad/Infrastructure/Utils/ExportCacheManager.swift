@@ -18,15 +18,18 @@ import Foundation
 // MARK: - Export Cache Manager
 
 /// 导出文件缓存管理器
-final class ExportCacheManager: @unchecked Sendable {
+///
+/// 使用 Swift actor 确保线程安全，替代 `@unchecked Sendable`。
+/// 所有文件操作都在 actor 隔离域内执行，避免并发竞争。
+actor ExportCacheManager {
     
     // MARK: - Singleton
     
     static let shared = ExportCacheManager()
     
     private init() {
-        // 启动时清理过期文件
-        cleanupExpiredFiles()
+        // 启动时清理过期文件（在 actor 内安全执行）
+        Task { await cleanupExpiredFiles() }
     }
     
     // MARK: - Constants
