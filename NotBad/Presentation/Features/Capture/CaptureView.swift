@@ -185,7 +185,7 @@ extension CaptureView {
     private var formSection: some View {
         VStack(spacing: DesignTokens.Spacing.lg) {
             BasicInfoFormSection(viewModel: viewModel)
-            QuestionContentFormSection(viewModel: viewModel)
+            ReviewItemContentFormSection(viewModel: viewModel)
             AdditionalInfoFormSection(viewModel: viewModel)
         }
         .toolbar {

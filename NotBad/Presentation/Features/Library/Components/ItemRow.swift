@@ -24,7 +24,7 @@ struct ItemRow: View {
     // MARK: - Properties
     
     /// 错题数据
-    let item: ReviewItem
+    let reviewItem: ReviewItem
     
     /// 缓存的缩略图
     @State private var cachedThumbnail: UIImage?
@@ -45,8 +45,8 @@ struct ItemRow: View {
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(item.title), \(item.subject.displayName), \(item.mastery.displayName)")
-        .task(id: item.id) {
+        .accessibilityLabel("\(reviewItem.title), \(reviewItem.subject.displayName), \(reviewItem.mastery.displayName)")
+        .task(id: reviewItem.id) {
             await loadThumbnail()
         }
     }
@@ -59,14 +59,14 @@ private extension ItemRow {
     /// 异步加载并缓存缩略图
     func loadThumbnail() async {
         // 1. 先检查全局缓存
-        if let cached = ThumbnailCache.shared.thumbnail(for: item.id) {
+        if let cached = ThumbnailCache.shared.thumbnail(for: reviewItem.id) {
             cachedThumbnail = cached
             return
         }
         
         // 2. 已有本地缓存或无数据则跳过
         guard cachedThumbnail == nil,
-              let data = item.imageData else { return }
+              let data = reviewItem.imageData else { return }
         
         // 3. 在后台线程解码和缩放图片
         let thumbnail = await Task.detached(priority: .userInitiated) {
@@ -82,7 +82,7 @@ private extension ItemRow {
         
         await MainActor.run {
             if let thumbnail {
-                ThumbnailCache.shared.setThumbnail(thumbnail, for: item.id)
+                ThumbnailCache.shared.setThumbnail(thumbnail, for: reviewItem.id)
                 cachedThumbnail = thumbnail
             }
         }
@@ -102,7 +102,7 @@ private extension ItemRow {
                 .scaledToFill()
                 .frame(width: Layout.thumbnailSize, height: Layout.thumbnailSize)
                 .clipShape(RoundedRectangle(cornerRadius: Layout.cornerRadius))
-        } else if item.imageData != nil {
+        } else if reviewItem.imageData != nil {
             loadingThumbnail
         } else {
             placeholderThumbnail
@@ -135,13 +135,13 @@ private extension ItemRow {
     /// 信息区域
     var infoSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(item.title)
+            Text(reviewItem.title)
                 .font(.headline)
                 .lineLimit(2)
             
             HStack(spacing: 8) {
                 subjectTag
-                MasteryBadge(level: item.mastery)
+                MasteryBadge(level: reviewItem.mastery)
                 Spacer()
                 dateLabel
             }
@@ -150,18 +150,18 @@ private extension ItemRow {
     
     /// 学科标签
     var subjectTag: some View {
-        Text(item.subject.displayName)
+        Text(reviewItem.subject.displayName)
             .font(.caption)
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
-            .background(item.subject.color.opacity(0.1))
-            .foregroundStyle(item.subject.color)
+            .background(reviewItem.subject.color.opacity(0.1))
+            .foregroundStyle(reviewItem.subject.color)
             .clipShape(Capsule())
     }
     
     /// 日期标签
     var dateLabel: some View {
-        Text(item.createdAt, format: .dateTime.month().day())
+        Text(reviewItem.createdAt, format: .dateTime.month().day())
             .font(.caption)
             .foregroundStyle(.secondary)
     }

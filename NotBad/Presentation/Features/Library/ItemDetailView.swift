@@ -25,7 +25,7 @@ import SwiftData
 ///
 /// ```swift
 /// NavigationStack {
-///     ItemDetailView(item: reviewItem)
+///     ItemDetailView(reviewItem: reviewItem)
 /// }
 /// ```
 ///
@@ -39,7 +39,7 @@ struct ItemDetailView: View {
     // MARK: - Properties
 
     /// 错题数据（可绑定，只读展示）
-    @Bindable var item: ReviewItem
+    @Bindable var reviewItem: ReviewItem
 
     /// 数据上下文
     @Environment(\.modelContext) private var modelContext
@@ -66,9 +66,9 @@ struct ItemDetailView: View {
                 imagePreview
 
                 if isEditing {
-                    EditingContent(item: item, onSave: saveChanges)
+                    EditingContent(reviewItem: reviewItem, onSave: saveChanges)
                 } else {
-                    DisplayContent(item: item)
+                    DisplayContent(reviewItem: reviewItem)
                 }
             }
             .padding()
@@ -125,7 +125,7 @@ private extension ItemDetailView {
     /// 图片预览
     @ViewBuilder
     var imagePreview: some View {
-        if let imageData = item.imageData,
+        if let imageData = reviewItem.imageData,
            let uiImage = UIImage(data: imageData) {
             Image(uiImage: uiImage)
                 .resizable()
@@ -143,14 +143,14 @@ private extension ItemDetailView {
     /// 保存修改（委托给 ViewModel）
     func saveChanges() {
         withAnimation {
-            viewModel.save(item)
+            viewModel.save(reviewItem)
             isEditing = false
         }
     }
 
     /// 删除错题（委托给 ViewModel）
     func deleteItem() {
-        viewModel.delete(item)
+        viewModel.delete(reviewItem)
         dismiss()
     }
 }
@@ -159,7 +159,7 @@ private extension ItemDetailView {
 
 #Preview("Item Detail") {
     NavigationStack {
-        ItemDetailView(item: ReviewItem(
+        ItemDetailView(reviewItem: ReviewItem(
             imageData: nil,
             title: "数学-三角函数",
             note: "这是解题思路",

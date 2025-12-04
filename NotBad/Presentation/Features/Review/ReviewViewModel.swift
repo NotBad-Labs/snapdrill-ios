@@ -242,13 +242,13 @@ final class ReviewViewModel {
     /// 更新错题的掌握程度，计算下次复习时间。
     ///
     /// - Parameters:
-    ///   - item: 当前错题
+    ///   - reviewItem: 当前错题
     ///   - level: 评估的掌握程度
-    func handleMasteryUpdate(for item: ReviewItem, level: MasteryLevel) {
+    func handleMasteryUpdate(for reviewItem: ReviewItem, level: MasteryLevel) {
         guard let modelContext else { return }
 
         // 记录复习
-        item.recordReview(newMastery: level)
+        reviewItem.recordReview(newMastery: level)
 
         // 保存
         do {
@@ -262,7 +262,7 @@ final class ReviewViewModel {
         masteryResults[level, default: 0] += 1
 
         // 发送通知
-        NotificationCenter.default.post(name: .reviewItemUpdated, object: item)
+        NotificationCenter.default.post(name: .reviewItemUpdated, object: reviewItem)
     }
 
     /// 移动到下一题

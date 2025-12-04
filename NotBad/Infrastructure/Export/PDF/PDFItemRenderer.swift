@@ -37,15 +37,15 @@ struct PDFItemRenderer {
     // MARK: - Properties
     
     private let context: CGContext
-    private let item: ReviewItem
+    private let reviewItem: ReviewItem
     private let index: Int
     private let config: Config
     
     // MARK: - Initialization
     
-    init(context: CGContext, item: ReviewItem, index: Int, config: Config = .default) {
+    init(context: CGContext, reviewItem: ReviewItem, index: Int, config: Config = .default) {
         self.context = context
-        self.item = item
+        self.reviewItem = reviewItem
         self.index = index
         self.config = config
     }
@@ -53,28 +53,28 @@ struct PDFItemRenderer {
     // MARK: - Public Methods
     
     /// 估算错题渲染高度（用于分页计算）
-    static func estimateHeight(for item: ReviewItem, config: Config) -> CGFloat {
+    static func estimateHeight(for reviewItem: ReviewItem, config: Config) -> CGFloat {
         var height: CGFloat = 45 // 基础高度（题号 + 难度标签）
         
         let contentWidth = PDFRenderContext.contentRect.width - 40
         
         // 题目内容高度
         let contentHeight = PDFRenderContext.estimateTextHeight(
-            item.title,
+            reviewItem.title,
             width: contentWidth,
             font: PDFRenderContext.Fonts.itemContent
         )
         height += min(contentHeight, 80) + 10
         
         // 图片高度
-        if config.includeImages && item.imageData != nil {
+        if config.includeImages && reviewItem.imageData != nil {
             height += 100
         }
         
         // 笔记高度
-        if config.includeNotes && !item.note.isEmpty {
+        if config.includeNotes && !reviewItem.note.isEmpty {
             let notesHeight = PDFRenderContext.estimateTextHeight(
-                item.note,
+                reviewItem.note,
                 width: contentWidth - 20,
                 font: PDFRenderContext.Fonts.note
             )
@@ -122,8 +122,8 @@ struct PDFItemRenderer {
         indexString.draw(at: CGPoint(x: margin, y: y))
         
         // 难度星级
-        let difficultyStars = String(repeating: "★", count: item.difficulty.rawValue + 1)
-            + String(repeating: "☆", count: 4 - item.difficulty.rawValue)
+        let difficultyStars = String(repeating: "★", count: reviewItem.difficulty.rawValue + 1)
+            + String(repeating: "☆", count: 4 - reviewItem.difficulty.rawValue)
         let difficultyAttributes: [NSAttributedString.Key: Any] = [
             .font: PDFRenderContext.Fonts.small,
             .foregroundColor: PDFRenderContext.Colors.orange
@@ -143,7 +143,7 @@ struct PDFItemRenderer {
             .font: PDFRenderContext.Fonts.itemContent,
             .foregroundColor: PDFRenderContext.Colors.black
         ]
-        let contentText = item.title.isEmpty ? "（请查看图片）" : item.title
+        let contentText = reviewItem.title.isEmpty ? "（请查看图片）" : reviewItem.title
         let contentString = NSAttributedString(string: contentText, attributes: contentAttributes)
         let textContentRect = CGRect(x: margin + 20, y: y, width: contentWidth, height: 80)
         contentString.draw(with: textContentRect, options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine], context: nil)
@@ -158,10 +158,10 @@ struct PDFItemRenderer {
     
     /// 绘制知识点标签
     private func drawKnowledgePoints(y: CGFloat) -> CGFloat {
-        guard !item.knowledgePoints.isEmpty else { return y }
+        guard !reviewItem.knowledgePoints.isEmpty else { return y }
         
         let margin = PDFRenderContext.margin
-        let tagText = "【知识点】" + item.knowledgePoints.prefix(3).joined(separator: "、")
+        let tagText = "【知识点】" + reviewItem.knowledgePoints.prefix(3).joined(separator: "、")
         let tagAttributes: [NSAttributedString.Key: Any] = [
             .font: PDFRenderContext.Fonts.small,
             .foregroundColor: PDFRenderContext.Colors.darkGray
@@ -175,7 +175,7 @@ struct PDFItemRenderer {
     /// 绘制图片
     private func drawImage(y: CGFloat) -> CGFloat {
         guard config.includeImages,
-              let imageData = item.imageData,
+              let imageData = reviewItem.imageData,
               let image = UIImage(data: imageData) else {
             return y
         }
@@ -206,7 +206,7 @@ struct PDFItemRenderer {
     
     /// 绘制笔记/解析
     private func drawNotes(y: CGFloat) -> CGFloat {
-        guard config.includeNotes, !item.note.isEmpty else { return y }
+        guard config.includeNotes, !reviewItem.note.isEmpty else { return y }
         
         var currentY = y
         let margin = PDFRenderContext.margin
@@ -226,12 +226,12 @@ struct PDFItemRenderer {
             .font: PDFRenderContext.Fonts.note,
             .foregroundColor: PDFRenderContext.Colors.darkGray
         ]
-        let noteString = NSAttributedString(string: item.note, attributes: noteAttributes)
+        let noteString = NSAttributedString(string: reviewItem.note, attributes: noteAttributes)
         let noteRect = CGRect(x: margin + 20, y: currentY, width: contentWidth, height: 50)
         noteString.draw(with: noteRect, options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine], context: nil)
         
         let noteHeight = min(
-            PDFRenderContext.estimateTextHeight(item.note, width: contentWidth, font: PDFRenderContext.Fonts.note),
+            PDFRenderContext.estimateTextHeight(reviewItem.note, width: contentWidth, font: PDFRenderContext.Fonts.note),
             50
         )
         

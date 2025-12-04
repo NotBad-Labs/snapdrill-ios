@@ -13,13 +13,13 @@ import SwiftData
 /// 显示模式内容
 struct DisplayContent: View {
 
-    let item: ReviewItem
+    let reviewItem: ReviewItem
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             // 标题
             InfoCard(title: "标题", icon: "text.alignleft") {
-                Text(item.title)
+                Text(reviewItem.title)
                     .font(.headline)
             }
 
@@ -27,15 +27,15 @@ struct DisplayContent: View {
             HStack(spacing: DesignTokens.Spacing.md) {
                 InfoCard(title: "学科", icon: "book.fill") {
                     HStack {
-                        Image(systemName: item.subject.icon)
-                            .foregroundStyle(item.subject.color)
-                        Text(item.subject.displayName)
+                        Image(systemName: reviewItem.subject.icon)
+                            .foregroundStyle(reviewItem.subject.color)
+                        Text(reviewItem.subject.displayName)
                             .font(.subheadline)
                     }
                 }
 
                 InfoCard(title: "年级", icon: "graduationcap.fill") {
-                    Text(item.grade.displayName)
+                    Text(reviewItem.grade.displayName)
                         .font(.subheadline)
                 }
             }
@@ -44,19 +44,19 @@ struct DisplayContent: View {
             HStack(spacing: DesignTokens.Spacing.md) {
                 InfoCard(title: "难度", icon: "star.fill") {
                     HStack(spacing: 2) {
-                        ForEach(0..<item.difficulty.stars, id: \.self) { _ in
+                        ForEach(0..<reviewItem.difficulty.stars, id: \.self) { _ in
                             Image(systemName: "star.fill")
                                 .font(.caption)
-                                .foregroundStyle(item.difficulty.color)
+                                .foregroundStyle(reviewItem.difficulty.color)
                         }
                     }
                 }
 
                 InfoCard(title: "题型", icon: "doc.text.fill") {
                     HStack {
-                        Image(systemName: item.questionType.icon)
+                        Image(systemName: reviewItem.questionType.icon)
                             .foregroundStyle(Color.brand.primary)
-                        Text(item.questionType.displayName)
+                        Text(reviewItem.questionType.displayName)
                             .font(.subheadline)
                     }
                 }
@@ -65,25 +65,25 @@ struct DisplayContent: View {
             // 来源
             InfoCard(title: "来源", icon: "folder.fill") {
                 HStack {
-                    Image(systemName: item.source.icon)
+                    Image(systemName: reviewItem.source.icon)
                         .foregroundStyle(Color.brand.secondary)
-                    Text(item.source.displayName)
+                    Text(reviewItem.source.displayName)
                         .font(.subheadline)
                 }
             }
 
             // 错误类型（仅当不是默认值时显示）
-            if item.errorType != .other {
+            if reviewItem.errorType != .other {
                 InfoCard(title: "错误原因", icon: "exclamationmark.triangle.fill") {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                         HStack {
-                            Image(systemName: item.errorType.icon)
-                                .foregroundStyle(item.errorType.color)
-                            Text(item.errorType.displayName)
+                            Image(systemName: reviewItem.errorType.icon)
+                                .foregroundStyle(reviewItem.errorType.color)
+                            Text(reviewItem.errorType.displayName)
                                 .font(.subheadline)
                                 .fontWeight(.medium)
                         }
-                        Text(item.errorType.suggestion)
+                        Text(reviewItem.errorType.suggestion)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -95,17 +95,17 @@ struct DisplayContent: View {
                 HStack {
                     masteryBadge
                     Spacer()
-                    Text(String(format: String(localized: "detail_review_count"), item.reviewCount))
+                    Text(String(format: String(localized: "detail_review_count"), reviewItem.reviewCount))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
 
             // 知识点
-            if !item.knowledgePoints.isEmpty {
+            if !reviewItem.knowledgePoints.isEmpty {
                 InfoCard(title: String(localized: "detail_knowledge_points"), icon: "lightbulb.fill") {
                     FlowLayout(spacing: DesignTokens.Spacing.sm) {
-                        ForEach(item.knowledgePoints.items, id: \.self) { point in
+                        ForEach(reviewItem.knowledgePoints.items, id: \.self) { point in
                             Text(point)
                                 .font(.caption)
                                 .padding(.horizontal, DesignTokens.Spacing.sm)
@@ -119,9 +119,9 @@ struct DisplayContent: View {
             }
 
             // 笔记
-            if !item.note.isEmpty {
+            if !reviewItem.note.isEmpty {
                 InfoCard(title: "笔记/解题思路", icon: "note.text") {
-                    Text(item.note)
+                    Text(reviewItem.note)
                         .font(.body)
                 }
             }
@@ -129,9 +129,9 @@ struct DisplayContent: View {
             // 时间信息
             InfoCard(title: "时间信息", icon: "clock.fill") {
                 VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
-                    timeRow(label: "创建时间：", date: item.createdAt)
-                    timeRow(label: "更新时间：", date: item.updatedAt)
-                    timeRow(label: "下次复习：", date: item.nextReviewDate)
+                    timeRow(label: "创建时间：", date: reviewItem.createdAt)
+                    timeRow(label: "更新时间：", date: reviewItem.updatedAt)
+                    timeRow(label: "下次复习：", date: reviewItem.nextReviewDate)
                 }
             }
         }
@@ -140,7 +140,7 @@ struct DisplayContent: View {
     // MARK: - Private Views
 
     private var masteryBadge: some View {
-        let level = MasteryLevel(rawValue: item.masteryLevel) ?? .none
+        let level = MasteryLevel(rawValue: reviewItem.masteryLevel) ?? .none
         return HStack(spacing: DesignTokens.Spacing.sm) {
             Image(systemName: level.icon)
             Text(level.detailText)
@@ -169,14 +169,14 @@ struct DisplayContent: View {
 /// 编辑模式内容
 struct EditingContent: View {
 
-    @Bindable var item: ReviewItem
+    @Bindable var reviewItem: ReviewItem
     let onSave: () -> Void
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             // 标题编辑
             FormField(title: "标题", icon: "text.alignleft") {
-                TextField("标题", text: $item.title)
+                TextField("标题", text: $reviewItem.title)
                     .textFieldStyle(.plain)
                     .padding(DesignTokens.Spacing.lg)
                     .background(Color.semantic.secondaryBackground)
@@ -217,7 +217,7 @@ struct EditingContent: View {
 
             // 知识点编辑
             FormField(title: "知识点", icon: "lightbulb.fill") {
-                TextField("例如: 函数, 导数", text: $item.knowledgePointsRaw)
+                TextField("例如: 函数, 导数", text: $reviewItem.knowledgePointsRaw)
                     .textFieldStyle(.plain)
                     .padding(DesignTokens.Spacing.lg)
                     .background(Color.semantic.secondaryBackground)
@@ -226,7 +226,7 @@ struct EditingContent: View {
 
             // 笔记编辑
             FormField(title: "笔记/解题思路", icon: "note.text") {
-                TextField("记录解题思路、易错点等...", text: $item.note, axis: .vertical)
+                TextField("记录解题思路、易错点等...", text: $reviewItem.note, axis: .vertical)
                     .textFieldStyle(.plain)
                     .lineLimit(5...10)
                     .padding(DesignTokens.Spacing.lg)
@@ -246,12 +246,12 @@ struct EditingContent: View {
             ForEach(EducationSystemManager.shared.currentSystem.subjectIds, id: \.self) { id in
                 if let subject = Subject(rawValue: id) {
                     Button(EducationSystemManager.shared.subjectDisplayName(for: id)) {
-                        item.subject = subject
+                        reviewItem.subject = subject
                     }
                 }
             }
         } label: {
-            pickerLabel(text: EducationSystemManager.shared.subjectDisplayName(for: item.subjectRaw))
+            pickerLabel(text: EducationSystemManager.shared.subjectDisplayName(for: reviewItem.subjectRaw))
         }
     }
 
@@ -260,12 +260,12 @@ struct EditingContent: View {
             ForEach(EducationSystemManager.shared.currentSystem.gradeIds, id: \.self) { id in
                 if let grade = Grade(rawValue: id) {
                     Button(EducationSystemManager.shared.gradeDisplayName(for: id)) {
-                        item.grade = grade
+                        reviewItem.grade = grade
                     }
                 }
             }
         } label: {
-            pickerLabel(text: EducationSystemManager.shared.gradeDisplayName(for: item.gradeRaw))
+            pickerLabel(text: EducationSystemManager.shared.gradeDisplayName(for: reviewItem.gradeRaw))
         }
     }
 
@@ -273,13 +273,13 @@ struct EditingContent: View {
         Menu {
             ForEach(Difficulty.allCases, id: \.self) { difficulty in
                 Button {
-                    item.difficulty = difficulty
+                    reviewItem.difficulty = difficulty
                 } label: {
                     Label(difficulty.displayName, systemImage: difficulty.icon)
                 }
             }
         } label: {
-            pickerLabel(text: item.difficulty.displayName, color: item.difficulty.color)
+            pickerLabel(text: reviewItem.difficulty.displayName, color: reviewItem.difficulty.color)
         }
     }
 
@@ -287,13 +287,13 @@ struct EditingContent: View {
         Menu {
             ForEach(ReviewItemType.allCases, id: \.self) { type in
                 Button {
-                    item.questionType = type
+                    reviewItem.questionType = type
                 } label: {
                     Label(type.displayName, systemImage: type.icon)
                 }
             }
         } label: {
-            pickerLabel(text: item.questionType.displayName)
+            pickerLabel(text: reviewItem.questionType.displayName)
         }
     }
 
@@ -301,13 +301,13 @@ struct EditingContent: View {
         Menu {
             ForEach(Source.allCases, id: \.self) { source in
                 Button {
-                    item.source = source
+                    reviewItem.source = source
                 } label: {
                     Label(source.displayName, systemImage: source.icon)
                 }
             }
         } label: {
-            pickerLabel(text: item.source.displayName)
+            pickerLabel(text: reviewItem.source.displayName)
         }
     }
 
@@ -318,7 +318,7 @@ struct EditingContent: View {
                 Section {
                     ForEach(ErrorType.types(in: category), id: \.self) { errorType in
                         Button {
-                            item.errorType = errorType
+                            reviewItem.errorType = errorType
                         } label: {
                             Label(errorType.displayName, systemImage: errorType.icon)
                         }
@@ -328,7 +328,7 @@ struct EditingContent: View {
                 }
             }
         } label: {
-            pickerLabel(text: item.errorType.displayName, color: item.errorType.color)
+            pickerLabel(text: reviewItem.errorType.displayName, color: reviewItem.errorType.color)
         }
     }
 

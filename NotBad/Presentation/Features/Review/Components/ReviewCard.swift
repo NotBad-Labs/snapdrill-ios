@@ -90,7 +90,7 @@ struct ReviewCard: View {
     // MARK: - Properties
 
     /// 错题数据
-    let item: ReviewItem
+    let reviewItem: ReviewItem
 
     /// 掌握回调
     let onMastered: () -> Void
@@ -151,27 +151,27 @@ extension ReviewCard {
         HStack {
             // Subject badge with enhanced styling
             HStack(spacing: DesignTokens.Spacing.xs) {
-                Image(systemName: item.subject.icon)
+                Image(systemName: reviewItem.subject.icon)
                     .symbolEffect(.pulse.byLayer, options: .repeating.speed(0.5), value: isAppeared)
-                Text(item.subject.displayName)
+                Text(reviewItem.subject.displayName)
             }
             .font(.caption.weight(.semibold))
             .padding(.horizontal, 14)
             .padding(.vertical, 8)
             .background(
                 Capsule()
-                    .fill(item.subject.color.opacity(0.15))
+                    .fill(reviewItem.subject.color.opacity(0.15))
                     .overlay(
                         Capsule()
-                            .strokeBorder(item.subject.color.opacity(0.3), lineWidth: 1)
+                            .strokeBorder(reviewItem.subject.color.opacity(0.3), lineWidth: 1)
                     )
             )
-            .foregroundStyle(item.subject.color)
+            .foregroundStyle(reviewItem.subject.color)
 
             Spacer()
 
             // Grade badge with subtle styling
-            Text(item.grade.displayName)
+            Text(reviewItem.grade.displayName)
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 10)
@@ -184,7 +184,7 @@ extension ReviewCard {
     /// 图片区域
     @ViewBuilder
     var imageSection: some View {
-        if let imageData = item.imageData {
+        if let imageData = reviewItem.imageData {
             AsyncImageView(imageData: imageData)
                 .clipShape(RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg))
                 .overlay(
@@ -205,7 +205,7 @@ extension ReviewCard {
                 .textCase(.uppercase)
                 .tracking(0.5)
 
-            Text(item.title)
+            Text(reviewItem.title)
                 .font(.title3)
                 .fontWeight(.semibold)
                 .lineSpacing(4)
@@ -216,12 +216,12 @@ extension ReviewCard {
     /// 答案区域
     @ViewBuilder
     var answerSection: some View {
-        if !item.note.isEmpty {
+        if !reviewItem.note.isEmpty {
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 answerToggleButton
 
                 if showAnswer {
-                    Text(item.note)
+                    Text(reviewItem.note)
                         .font(.body)
                         .padding(DesignTokens.Spacing.lg)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -278,11 +278,11 @@ extension ReviewCard {
     /// 元数据区域
     var metadataSection: some View {
         VStack(spacing: DesignTokens.Spacing.md) {
-            if !item.knowledgePoints.isEmpty {
+            if !reviewItem.knowledgePoints.isEmpty {
                 HStack {
                     Image(systemName: "lightbulb.fill")
                         .font(.caption)
-                    Text(item.knowledgePoints.rawValue)
+                    Text(reviewItem.knowledgePoints.rawValue)
                         .font(.caption)
                     Spacer()
                 }
@@ -290,14 +290,14 @@ extension ReviewCard {
             }
 
             HStack {
-                Label("已复习 \(item.reviewCount) 次", systemImage: "clock.fill")
+                Label("已复习 \(reviewItem.reviewCount) 次", systemImage: "clock.fill")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
                 Spacer()
 
                 MasteryBadge(
-                    level: MasteryLevel(rawValue: item.masteryLevel) ?? .none,
+                    level: MasteryLevel(rawValue: reviewItem.masteryLevel) ?? .none,
                     showDetailText: true
                 )
             }
@@ -415,7 +415,7 @@ private struct MasteryButtonStyle: ButtonStyle {
 
 #Preview("Review Card") {
     ReviewCard(
-        item: ReviewItem(
+        reviewItem: ReviewItem(
             imageData: nil,
             title: "测试错题",
             note: "这是答案和解题思路",

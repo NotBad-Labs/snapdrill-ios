@@ -30,7 +30,7 @@ struct ReviewContent: View {
                 ForEach(items.indices, id: \.self) { index in
                     // 懒加载：只渲染当前页及相邻页
                     LazyReviewCardView(
-                        item: items[index],
+                        reviewItem: items[index],
                         index: index,
                         currentIndex: currentIndex,
                         preloadRange: preloadRange,
@@ -53,7 +53,7 @@ struct ReviewContent: View {
 /// 只有当卡片进入预加载范围时才真正渲染内容，
 /// 大幅减少初始加载时间和内存占用。
 private struct LazyReviewCardView: View {
-    let item: ReviewItem
+    let reviewItem: ReviewItem
     let index: Int
     let currentIndex: Int
     let preloadRange: Int
@@ -70,7 +70,7 @@ private struct LazyReviewCardView: View {
         Group {
             if shouldLoad {
                 ReviewCard(
-                    item: item,
+                    reviewItem: reviewItem,
                     onMastered: onMastered,
                     onUnclear: onUnclear,
                     onFailed: onFailed

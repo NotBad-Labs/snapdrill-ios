@@ -7,7 +7,7 @@
 //  ⚠️ 注意：此文件已废弃，表单组件已迁移到独立文件：
 //  - BasicInfoFormSection.swift
 //  - AdditionalInfoFormSection.swift
-//  - QuestionContentFormSection.swift
+//  - ReviewItemContentFormSection (错题内容)
 //
 //  FormCard 和 FormRow 已迁移到 Common/Components/
 //
@@ -336,14 +336,14 @@ private extension AdditionalInfoFormSection {
     }
 }
 
-// MARK: - Question Content Form Section
+// MARK: - ReviewItem Content Form Section
 
-/// 题目内容表单区域
+/// 错题内容表单区域
 ///
 /// 独立的 View 结构体，包含：
-/// - 题目内容文本编辑器
+/// - 错题内容文本编辑器
 /// - 字数统计
-struct QuestionContentFormSection: View {
+struct ReviewItemContentFormSection: View {
     
     // MARK: - Properties
     

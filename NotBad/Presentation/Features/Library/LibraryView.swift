@@ -160,8 +160,8 @@ private extension LibraryView {
             }
         }
         .listStyle(.plain)
-        .navigationDestination(for: ReviewItem.self) { item in
-            ItemDetailView(item: item)
+        .navigationDestination(for: ReviewItem.self) { reviewItem in
+            ItemDetailView(reviewItem: reviewItem)
         }
     }
     
@@ -175,11 +175,11 @@ private extension LibraryView {
     }
     
     var itemRows: some View {
-        ForEach(filteredItems) { item in
+        ForEach(filteredItems) { reviewItem in
             if viewModel.isSelectionMode {
-                selectionRow(for: item)
+                selectionRow(for: reviewItem)
             } else {
-                navigationRow(for: item)
+                navigationRow(for: reviewItem)
             }
         }
         .onDelete { offsets in
@@ -189,28 +189,28 @@ private extension LibraryView {
         }
     }
     
-    func selectionRow(for item: ReviewItem) -> some View {
+    func selectionRow(for reviewItem: ReviewItem) -> some View {
         Button {
             withAnimation(.spring(response: 0.2)) {
-                viewModel.toggleSelection(for: item.id)
+                viewModel.toggleSelection(for: reviewItem.id)
             }
         } label: {
             HStack {
-                Image(systemName: viewModel.isSelected(item.id) ? "checkmark.circle.fill" : "circle")
+                Image(systemName: viewModel.isSelected(reviewItem.id) ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundStyle(viewModel.isSelected(item.id) ? Color.brand.primary : .secondary)
-                ItemRow(item: item)
+                    .foregroundStyle(viewModel.isSelected(reviewItem.id) ? Color.brand.primary : .secondary)
+                ItemRow(reviewItem: reviewItem)
             }
         }
         .buttonStyle(.plain)
-        .listRowBackground(viewModel.isSelected(item.id) ? Color.brand.primary.opacity(0.1) : Color.clear)
+        .listRowBackground(viewModel.isSelected(reviewItem.id) ? Color.brand.primary.opacity(0.1) : Color.clear)
     }
     
-    func navigationRow(for item: ReviewItem) -> some View {
+    func navigationRow(for reviewItem: ReviewItem) -> some View {
         Button {
-            navigationPath.append(item)
+            navigationPath.append(reviewItem)
         } label: {
-            ItemRow(item: item)
+            ItemRow(reviewItem: reviewItem)
         }
         .buttonStyle(.plain)
         .listRowBackground(Color.clear)

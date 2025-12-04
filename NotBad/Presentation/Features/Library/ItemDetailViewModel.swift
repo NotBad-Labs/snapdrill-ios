@@ -61,10 +61,10 @@ final class ItemDetailViewModel {
     
     /// 删除错题
     ///
-    /// - Parameter item: 要删除的错题
+    /// - Parameter reviewItem: 要删除的错题
     /// - Returns: 删除是否成功
     @discardableResult
-    func delete(_ item: ReviewItem) -> Bool {
+    func delete(_ reviewItem: ReviewItem) -> Bool {
         guard let modelContext else {
             Logger.data.error("ItemDetailViewModel: modelContext 未配置")
             return false
@@ -74,20 +74,20 @@ final class ItemDetailViewModel {
         analyticsService.track(AnalyticsEvent(
             name: AnalyticsEventName.itemDeleted,
             parameters: [
-                "subject": item.subject.rawValue,
-                "mastery": String(item.mastery.rawValue)
+                "subject": reviewItem.subject.rawValue,
+                "mastery": String(reviewItem.mastery.rawValue)
             ]
         ))
         
         // 执行删除
-        modelContext.delete(item)
+        modelContext.delete(reviewItem)
         
         do {
             try modelContext.save()
-            Logger.data.info("删除错题成功: \(item.title)")
+            Logger.data.info("删除错题成功: \(reviewItem.title)")
             
             // 发送通知
-            NotificationCenter.default.post(name: .reviewItemDeleted, object: item.id)
+            NotificationCenter.default.post(name: .reviewItemDeleted, object: reviewItem.id)
             
             return true
         } catch {
@@ -98,24 +98,24 @@ final class ItemDetailViewModel {
     
     /// 保存修改
     ///
-    /// - Parameter item: 要保存的错题
+    /// - Parameter reviewItem: 要保存的错题
     /// - Returns: 保存是否成功
     @discardableResult
-    func save(_ item: ReviewItem) -> Bool {
+    func save(_ reviewItem: ReviewItem) -> Bool {
         guard let modelContext else {
             Logger.data.error("ItemDetailViewModel: modelContext 未配置")
             return false
         }
         
         // 更新时间戳
-        item.updatedAt = Date()
+        reviewItem.updatedAt = Date()
         
         do {
             try modelContext.save()
-            Logger.data.debug("保存错题成功: \(item.title)")
+            Logger.data.debug("保存错题成功: \(reviewItem.title)")
             
             // 发送通知
-            NotificationCenter.default.post(name: .reviewItemUpdated, object: item)
+            NotificationCenter.default.post(name: .reviewItemUpdated, object: reviewItem)
             
             return true
         } catch {

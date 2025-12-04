@@ -122,8 +122,8 @@ final class PDFPageComposer {
                 currentY = sectionRenderer.render(at: currentY)
                 
                 // 遍历该学科的错题
-                for item in subjectItems {
-                    let estimatedHeight = PDFItemRenderer.estimateHeight(for: item, config: itemConfig)
+                for reviewItem in subjectItems {
+                    let estimatedHeight = PDFItemRenderer.estimateHeight(for: reviewItem, config: itemConfig)
                     
                     // 检查是否需要分页
                     if currentY + estimatedHeight > PDFRenderContext.contentRect.maxY {
@@ -134,7 +134,7 @@ final class PDFPageComposer {
                     // 绘制错题
                     let itemRenderer = PDFItemRenderer(
                         context: context.cgContext,
-                        item: item,
+                        reviewItem: reviewItem,
                         index: globalIndex,
                         config: itemConfig
                     )
