@@ -24,6 +24,9 @@ struct NotBadApp: App {
 
     /// 是否显示 Onboarding
     @State private var showOnboarding: Bool = false
+    
+    /// Widget 同步防抖任务
+    @State private var widgetSyncTask: Task<Void, Never>?
 
     /// 用户选择的颜色模式
     @AppStorage("colorScheme") private var colorSchemeOption = "system"
@@ -97,12 +100,31 @@ struct NotBadApp: App {
                     await syncWidgetData()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .reviewItemsDidChange)) { _ in
-                    Task {
-                        await syncWidgetData()
-                    }
+                    // 防抖：批量删除/修改时避免高频同步
+                    scheduleWidgetSync()
                 }
         }
         .modelContainer(modelContainer)
+    }
+    
+    // MARK: - Widget Sync (Debounced)
+    
+    /// 调度 Widget 同步（带 1.5 秒防抖）
+    ///
+    /// 当用户批量删除或修改错题时，会触发多次 `.reviewItemsDidChange` 通知。
+    /// 使用防抖机制避免 Widget 数据疯狂同步，减少 CPU 和 I/O 压力。
+    private func scheduleWidgetSync() {
+        // 取消之前的防抖任务
+        widgetSyncTask?.cancel()
+        
+        // 延迟 1.5 秒后执行同步
+        widgetSyncTask = Task {
+            try? await Task.sleep(for: .seconds(1.5))
+            
+            guard !Task.isCancelled else { return }
+            
+            await syncWidgetData()
+        }
     }
 
     // MARK: - Onboarding

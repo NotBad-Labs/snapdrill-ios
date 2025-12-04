@@ -41,6 +41,9 @@ final class CaptureViewModel {
     var selectedImage: Image?
     var selectedImageData: Data?
     var selectedUIImage: UIImage?
+    
+    /// 图片正在压缩处理中（后台线程执行 JPEG 压缩）
+    var isProcessingImage: Bool = false
 
     // MARK: - Form State
 

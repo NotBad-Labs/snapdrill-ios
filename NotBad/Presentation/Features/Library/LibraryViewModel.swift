@@ -132,6 +132,17 @@ final class LibraryViewModel {
     
     /// 缓存的筛选条件 hash
     private var cachedFilterHash: Int = 0
+    
+    // MARK: - Database Search State
+    
+    /// 数据库搜索结果（穿透 Provider 直接查询数据库）
+    private(set) var databaseSearchResults: [ReviewItem]?
+    
+    /// 搜索防抖任务
+    private var searchDebounceTask: Task<Void, Never>?
+    
+    /// 是否正在执行数据库搜索
+    private(set) var isSearchingDatabase = false
 
     // MARK: - Dependencies
 
@@ -274,6 +285,105 @@ final class LibraryViewModel {
         case .reviewDateAsc:
             items.sorted { $0.nextReviewDate < $1.nextReviewDate }
         }
+    }
+
+    // MARK: - Database Search
+    
+    /// 执行数据库搜索（带防抖）
+    ///
+    /// 当搜索词变化时调用，会自动防抖 300ms 后执行数据库查询。
+    /// 这解决了"搜索墙"问题 - 确保能搜到 Provider 缓存外的历史数据。
+    ///
+    /// - Note: 搜索结果存储在 `databaseSearchResults` 中
+    func performDatabaseSearch() {
+        // 取消之前的防抖任务
+        searchDebounceTask?.cancel()
+        
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // 如果搜索词为空，清除数据库搜索结果
+        guard !query.isEmpty else {
+            databaseSearchResults = nil
+            isSearchingDatabase = false
+            return
+        }
+        
+        // 防抖 300ms
+        searchDebounceTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(300))
+            
+            guard !Task.isCancelled else { return }
+            
+            await self?.executeSearch(query: query)
+        }
+    }
+    
+    /// 执行实际的数据库搜索
+    private func executeSearch(query: String) async {
+        isSearchingDatabase = true
+        defer { isSearchingDatabase = false }
+        
+        guard let provider = dataProvider else {
+            // 如果没有 provider，回退到内存搜索
+            databaseSearchResults = nil
+            return
+        }
+        
+        // 调用 Provider 的数据库搜索（穿透到 Repository）
+        databaseSearchResults = provider.search(query: query)
+    }
+    
+    /// 获取最终显示的数据
+    ///
+    /// 如果有数据库搜索结果，优先使用；否则使用 Provider 缓存数据。
+    /// 这确保了搜索时能查到全部数据，浏览时使用高性能缓存。
+    func displayItems(from items: [ReviewItem]) -> [ReviewItem] {
+        // 如果正在搜索且有数据库结果，使用数据库结果
+        if isSearching, let searchResults = databaseSearchResults {
+            // 对搜索结果应用其他筛选条件（学科、掌握度等）
+            return applyFiltersExceptSearch(to: searchResults)
+        }
+        
+        // 否则使用常规的内存筛选
+        return filteredItems(from: items)
+    }
+    
+    /// 应用除搜索外的其他筛选条件
+    private func applyFiltersExceptSearch(to items: [ReviewItem]) -> [ReviewItem] {
+        var result = items
+        
+        // 学科筛选
+        if let subject = selectedSubject {
+            result = result.filter { $0.subject == subject }
+        }
+        
+        // 掌握程度筛选
+        if let mastery = selectedMastery {
+            result = result.filter { $0.mastery == mastery }
+        }
+        
+        // 难度筛选
+        if let difficulty = selectedDifficulty {
+            result = result.filter { $0.difficulty == difficulty }
+        }
+        
+        // 来源筛选
+        if let source = selectedSource {
+            result = result.filter { $0.source == source }
+        }
+        
+        // 待复习筛选
+        if showPendingReviewOnly {
+            result = result.filter { $0.needsReview }
+        }
+        
+        // 高级搜索条件筛选
+        if advancedCriteria.hasActiveFilters {
+            result = advancedCriteria.filter(result)
+        }
+        
+        // 排序
+        return sortItems(result)
     }
 
     // MARK: - Filter Actions
