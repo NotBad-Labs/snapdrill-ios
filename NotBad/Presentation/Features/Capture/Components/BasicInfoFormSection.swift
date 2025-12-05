@@ -120,7 +120,7 @@ private extension BasicInfoFormSection {
                 Text("capture_field_review_item_type")
                 Image(systemName: viewModel.reviewItemType.icon)
                     .font(.caption)
-                    .foregroundStyle(viewModel.reviewItemType.color)
+                    .foregroundStyle(.secondary)
             }
         } content: {
             Picker("", selection: $viewModel.reviewItemType) {

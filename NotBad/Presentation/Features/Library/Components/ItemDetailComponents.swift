@@ -78,7 +78,7 @@ struct DisplayContent: View {
                     VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                         HStack {
                             Image(systemName: reviewItem.errorType.icon)
-                                .foregroundStyle(reviewItem.errorType.color)
+                                .foregroundStyle(.secondary)
                             Text(reviewItem.errorType.displayName)
                                 .font(.subheadline)
                                 .fontWeight(.medium)
@@ -349,7 +349,7 @@ struct EditingContent: View {
                 }
             }
         } label: {
-            pickerLabel(text: currentErrorType.displayName, color: currentErrorType.color)
+            pickerLabel(text: currentErrorType.displayName)
         }
     }
 

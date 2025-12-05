@@ -64,7 +64,7 @@ private extension AdditionalInfoFormSection {
                 Text("capture_field_source")
                 Image(systemName: viewModel.source.icon)
                     .font(.caption)
-                    .foregroundStyle(viewModel.source.color)
+                    .foregroundStyle(.secondary)
             }
         } content: {
             Picker("", selection: $viewModel.source) {
