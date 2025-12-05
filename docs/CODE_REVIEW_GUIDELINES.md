@@ -1292,7 +1292,7 @@ app.buttons["submit_button"].tap()
 | 关键用户流程 | 添加题目、复习 | UI 测试 |
 | 数据迁移 | 模型版本升级 | 集成测试 |
 
-### 13.10 测试审查清单
+### 13.7 测试审查清单
 
 - [ ] 新功能有对应单元测试
 - [ ] 测试使用 AAA 结构
@@ -1483,9 +1483,8 @@ Closes #42
 | 文档 | 路径 | 说明 |
 |------|------|------|
 | 📖 术语表 | [`docs/GLOSSARY.md`](./GLOSSARY.md) | 项目统一术语定义 |
-| 🔧 技术债务 | [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md) | 已知技术债务追踪 |
-| 📐 项目结构 | [`docs/PROJECT_STRUCTURE.md`](./PROJECT_STRUCTURE.md) | 目录结构说明 |
 | 🏪 商店信息 | [`docs/APP_STORE_LISTING.md`](./APP_STORE_LISTING.md) | App Store 描述 |
+| 📋 发布清单 | [`RELEASE_CHECKLIST.md`](../RELEASE_CHECKLIST.md) | 发布前检查项 |
 
 ### B. 参考资源
 
@@ -1531,8 +1530,8 @@ Closes #42
 
 | 版本 | 日期 | 变更内容 | 作者 |
 |------|------|---------|------|
-| 1.0 | 2024-12-05 | 初始版本：7 个核心维度 | Team |
-| 2.0 | 2024-12-05 | 扩展至 12 个维度 | Team |
+| 1.0 | 2025-12-05 | 初始版本：7 个核心维度 | Team |
+| 2.0 | 2025-12-05 | 扩展至 12 个维度 | Team |
 | | | - 新增隐私与数据安全（含 COPPA） | |
 | | | - 新增无障碍与包容性（含 Switch Control） | |
 | | | - 新增本地化与国际化 | |
@@ -1541,24 +1540,27 @@ Closes #42
 | | | - 新增 Git Commit 规范 | |
 | | | - 添加 PR 评论模板 | |
 | | | - 添加 Apple Design Awards 参考 | |
-| 3.0 | 2024-12-05 | 扩展至 14 个维度，合并 CODING_STANDARDS | Team |
+| 3.0 | 2025-12-05 | 扩展至 14 个维度，合并 CODING_STANDARDS | Team |
 | | | - 新增命名与代码风格（含 MARK 分段） | |
 | | | - 新增错误处理与日志（含 Logger 规范） | |
 | | | - 新增 SwiftData 值对象集成模式 | |
 | | | - 新增协议遵循顺序口诀 | |
 | | | - 新增禁止事项表格 | |
 | | | - 删除 CODING_STANDARDS.md（已合并） | |
-| 3.1 | 2024-12-05 | 值对象规范优化 | Team |
+| 3.1 | 2025-12-05 | 值对象规范优化 | Team |
 | | | - 采用语义命名（basic/easy/medium/hard/extreme） | |
 | | | - 新增 §5.6 值对象命名规范 | |
 | | | - color 属性移至 Presentation 层 | |
 | | | - 示例代码与实际实现保持一致 | |
-| 3.2 | 2024-12-05 | 完善 Design Tokens 与测试规范 | Team |
+| 3.2 | 2025-12-05 | 完善 Design Tokens 与测试规范 | Team |
 | | | - 新增 §1.5 Design Tokens 规范（Spacing、IconSize、Colors） | |
 | | | - 更新 §2.1 分层架构（含目录结构说明） | |
 | | | - 更新 §12.4 Logger 规范（分类日志） | |
-| | | - 新增 §13.7-13.9 测试文件组织与 Mock 设计 | |
 | | | - Infrastructure 层明确禁止 SwiftUI 依赖 | |
+| 3.3 | 2025-12-05 | 文档清理 | Team |
+| | | - 删除 PROJECT_STRUCTURE.md、TECHNICAL_DEBT.md | |
+| | | - 修复测试章节编号（§13.7） | |
+| | | - 更新快速导航链接 | |
 
 ---
 
