@@ -55,7 +55,7 @@ private extension ProfileUserCard {
                         endPoint: .bottomTrailing
                     )
                 )
-                .frame(width: 64, height: 64)
+                .frame(width: DesignTokens.IconSize.avatarSm, height: DesignTokens.IconSize.avatarSm)
                 .shadow(color: gradientColors[0].opacity(0.3), radius: 8, x: 0, y: 4)
             
             Image(systemName: avatar)

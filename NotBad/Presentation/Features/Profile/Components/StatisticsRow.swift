@@ -50,7 +50,7 @@ struct StatisticsRow: View {
         ZStack {
             Circle()
                 .fill(color.opacity(0.12))
-                .frame(width: 36, height: 36)
+                .frame(width: DesignTokens.IconSize.md, height: DesignTokens.IconSize.md)
             
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .semibold))

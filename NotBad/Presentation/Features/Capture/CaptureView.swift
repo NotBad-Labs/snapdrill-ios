@@ -222,7 +222,7 @@ extension CaptureView {
                     Image(systemName: "text.viewfinder")
                         .font(.system(size: 28, weight: .medium))
                         .foregroundStyle(.white)
-                        .frame(width: 56, height: 56)
+                        .frame(width: DesignTokens.IconSize.xxl, height: DesignTokens.IconSize.xxl)
                         .background(Color.accentColor)
                         .clipShape(Circle())
                         .shadow(color: Color.accentColor.opacity(0.3), radius: 8, y: 4)

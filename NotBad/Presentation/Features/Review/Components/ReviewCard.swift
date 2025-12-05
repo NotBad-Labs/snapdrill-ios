@@ -373,7 +373,7 @@ struct MasteryButton: View {
                 ZStack {
                     Circle()
                         .fill(color.opacity(0.15))
-                        .frame(width: 48, height: 48)
+                        .frame(width: DesignTokens.IconSize.xl2, height: DesignTokens.IconSize.xl2)
 
                     Image(systemName: icon)
                         .font(.title2)

@@ -99,7 +99,7 @@ struct ProfileEditView: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 100, height: 100)
+                        .frame(width: DesignTokens.IconSize.avatarXl, height: DesignTokens.IconSize.avatarXl)
                         .shadow(color: gradientOptions[selectedGradientIndex][0].opacity(0.3), radius: 10, x: 0, y: 5)
                     
                     Image(systemName: selectedAvatar)
@@ -119,7 +119,7 @@ struct ProfileEditView: View {
                             ZStack {
                                 Circle()
                                     .fill(selectedAvatar == avatar ? Color.brand.primary.opacity(0.15) : Color.clear)
-                                    .frame(width: 44, height: 44)
+                                    .frame(width: DesignTokens.IconSize.xl, height: DesignTokens.IconSize.xl)
                                 
                                 Image(systemName: avatar)
                                     .font(.system(size: 22))
@@ -169,7 +169,7 @@ struct ProfileEditView: View {
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .frame(width: 36, height: 36)
+                            .frame(width: DesignTokens.IconSize.md, height: DesignTokens.IconSize.md)
                             .overlay {
                                 if selectedGradientIndex == index {
                                     Circle()

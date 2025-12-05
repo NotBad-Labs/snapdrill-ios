@@ -128,7 +128,7 @@ struct CustomSubjectEditorView: View {
                             Image(systemName: selectedIcon)
                                 .font(.title2)
                                 .foregroundStyle(selectedColor)
-                                .frame(width: 44, height: 44)
+                                .frame(width: DesignTokens.IconSize.xl, height: DesignTokens.IconSize.xl)
                                 .background(selectedColor.opacity(0.15))
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
@@ -148,7 +148,7 @@ struct CustomSubjectEditorView: View {
                             } label: {
                                 Circle()
                                     .fill(color)
-                                    .frame(width: 36, height: 36)
+                                    .frame(width: DesignTokens.IconSize.md, height: DesignTokens.IconSize.md)
                                     .overlay {
                                         if color == selectedColor {
                                             Image(systemName: "checkmark")

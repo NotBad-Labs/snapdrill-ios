@@ -213,7 +213,7 @@ extension EmptyStateView {
             Image(systemName: icon)
                 .font(.body)
                 .foregroundStyle(Color.brand.primary)
-                .frame(width: 24)
+                .frame(width: DesignTokens.IconSize.xs)
             
             Text(text)
                 .font(.subheadline)

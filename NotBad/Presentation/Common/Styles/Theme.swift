@@ -135,6 +135,32 @@ enum DesignTokens {
         static let slow: SwiftUI.Animation = .easeInOut(duration: 0.4)
         static let spring: SwiftUI.Animation = .spring(response: 0.35, dampingFraction: 0.7)
     }
+
+    // MARK: - Icon Size
+
+    /// 图标/头像尺寸令牌
+    enum IconSize {
+        /// 超小图标 (24pt) - 列表项图标
+        static let xs: CGFloat = 24
+        /// 小图标 (32pt) - 紧凑型头像
+        static let sm: CGFloat = 32
+        /// 中小图标 (36pt) - 统计项图标
+        static let md: CGFloat = 36
+        /// 中等图标 (40pt) - 标准按钮图标
+        static let lg: CGFloat = 40
+        /// 较大图标 (44pt) - Touch Target 最小尺寸
+        static let xl: CGFloat = 44
+        /// 中大图标 (48pt) - 操作按钮图标
+        static let xl2: CGFloat = 48
+        /// 大图标 (56pt) - 主操作按钮
+        static let xxl: CGFloat = 56
+        /// 头像小 (64pt) - 用户头像
+        static let avatarSm: CGFloat = 64
+        /// 头像大 (80pt) - 详情页头像
+        static let avatarLg: CGFloat = 80
+        /// 特大 (100pt) - 编辑头像
+        static let avatarXl: CGFloat = 100
+    }
 }
 
 // MARK: - ShadowStyle

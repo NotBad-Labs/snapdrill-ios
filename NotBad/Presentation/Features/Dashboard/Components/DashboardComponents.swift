@@ -39,7 +39,7 @@ struct WelcomeCard: View {
                                 endRadius: 40
                             )
                         )
-                        .frame(width: 80, height: 80)
+                        .frame(width: DesignTokens.IconSize.avatarLg, height: DesignTokens.IconSize.avatarLg)
                         .scaleEffect(isAnimating ? 1.1 : 0.9)
 
                     Image(systemName: "sparkles")
@@ -112,7 +112,7 @@ struct StatCard: View {
                 ZStack {
                     Circle()
                         .fill(color.opacity(0.12))
-                        .frame(width: 40, height: 40)
+                        .frame(width: DesignTokens.IconSize.lg, height: DesignTokens.IconSize.lg)
 
                     Image(systemName: icon)
                         .font(.headline)
@@ -166,7 +166,7 @@ struct QuickActionButton: View {
             ZStack {
                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
                     .fill(color.opacity(0.12))
-                    .frame(width: 40, height: 40)
+                    .frame(width: DesignTokens.IconSize.lg, height: DesignTokens.IconSize.lg)
 
                 Image(systemName: icon)
                     .font(.system(size: 18, weight: .semibold))

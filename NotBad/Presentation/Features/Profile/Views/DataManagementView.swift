@@ -184,7 +184,7 @@ extension DataManagementView {
                             Image(systemName: file.icon)
                                 .font(.title2)
                                 .foregroundStyle(fileColor(for: file))
-                                .frame(width: 32)
+                                .frame(width: DesignTokens.IconSize.sm)
                             
                             // 文件信息
                             VStack(alignment: .leading, spacing: 2) {

@@ -239,7 +239,7 @@ struct ExportFilterView: View {
                         HStack {
                             Image(systemName: type.icon)
                                 .foregroundStyle(type.color)
-                                .frame(width: 24)
+                                .frame(width: DesignTokens.IconSize.xs)
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(type.displayName)
@@ -361,7 +361,7 @@ private struct PresetChip: View {
                 Image(systemName: preset.icon)
                     .font(.title2)
                     .foregroundStyle(preset.color)
-                    .frame(width: 44, height: 44)
+                    .frame(width: DesignTokens.IconSize.xl, height: DesignTokens.IconSize.xl)
                     .background(preset.color.opacity(0.15))
                     .clipShape(Circle())
                 
@@ -439,7 +439,7 @@ private struct DifficultyStarButton: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            .frame(width: 44, height: 50)
+            .frame(width: DesignTokens.IconSize.xl, height: 50)
             .background(isInRange ? Color.yellow.opacity(0.1) : Color.clear)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
