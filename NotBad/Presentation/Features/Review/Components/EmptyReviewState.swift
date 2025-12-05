@@ -15,7 +15,7 @@ struct EmptyReviewState: View {
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             Image(systemName: "checkmark.seal.fill")
-                .font(.system(size: 80))
+                .font(Typography.iconXL)
                 .foregroundStyle(
                     LinearGradient(
                         colors: [Color.brand.success, .mint],

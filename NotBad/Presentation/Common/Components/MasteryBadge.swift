@@ -166,7 +166,7 @@ struct MasteryBadge: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
-                        .fill(Color.gray.opacity(0.2))
+                        .fill(Color.secondary.opacity(0.2))
 
                     RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.sm)
                         .fill(level.color.gradient)
@@ -256,7 +256,7 @@ struct MasteryProgressView: View {
             ZStack(alignment: .leading) {
                 // 背景
                 RoundedRectangle(cornerRadius: barHeight / 2)
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(Color.secondary.opacity(0.2))
 
                 // 进度
                 RoundedRectangle(cornerRadius: barHeight / 2)

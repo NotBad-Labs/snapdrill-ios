@@ -113,14 +113,14 @@ struct GhostButtonStyle: ButtonStyle {
             .padding(.vertical, size.verticalPadding)
             .background(
                 RoundedRectangle(cornerRadius: size.cornerRadius)
-                    .fill(configuration.isPressed ? Color.gray.opacity(0.1) : .clear)
+                    .fill(configuration.isPressed ? Color.secondary.opacity(0.1) : .clear)
             )
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(DesignTokens.Animation.fast, value: configuration.isPressed)
     }
 
     private func foregroundColor(isPressed: Bool) -> Color {
-        if !isEnabled { return .gray }
+        if !isEnabled { return .secondary }
         return isPressed ? Color.brand.primary.opacity(0.7) : Color.brand.primary
     }
 }

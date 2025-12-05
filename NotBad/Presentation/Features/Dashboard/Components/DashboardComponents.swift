@@ -43,7 +43,7 @@ struct WelcomeCard: View {
                         .scaleEffect(isAnimating ? 1.1 : 0.9)
 
                     Image(systemName: "sparkles")
-                        .font(.system(size: 36, weight: .medium))
+                        .font(Typography.displayMedium())
                         .foregroundStyle(
                             LinearGradient(
                                 colors: [Color.brand.warning, Color.brand.error],
@@ -115,7 +115,7 @@ struct StatCard: View {
                         .frame(width: 40, height: 40)
 
                     Image(systemName: icon)
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(.headline)
                         .foregroundStyle(color)
                 }
                 .accessibilityHidden(true)
@@ -125,7 +125,7 @@ struct StatCard: View {
 
             VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                 Text(value)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(Typography.displaySmall())
                     .contentTransition(.numericText())
 
                 Text(title)

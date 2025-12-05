@@ -112,7 +112,7 @@ private extension ItemRow {
     /// 加载中的缩略图
     var loadingThumbnail: some View {
         RoundedRectangle(cornerRadius: Layout.cornerRadius)
-            .fill(Color.gray.opacity(0.1))
+            .fill(Color.secondary.opacity(0.1))
             .frame(width: Layout.thumbnailSize, height: Layout.thumbnailSize)
             .overlay {
                 ProgressView()
@@ -123,7 +123,7 @@ private extension ItemRow {
     /// 占位缩略图
     var placeholderThumbnail: some View {
         RoundedRectangle(cornerRadius: Layout.cornerRadius)
-            .fill(Color.gray.opacity(0.1))
+            .fill(Color.secondary.opacity(0.1))
             .frame(width: Layout.thumbnailSize, height: Layout.thumbnailSize)
             .overlay {
                 Image(systemName: "photo")

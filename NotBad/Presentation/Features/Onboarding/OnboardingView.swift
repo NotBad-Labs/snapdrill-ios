@@ -92,7 +92,7 @@ struct OnboardingView: View {
 
             // App 图标
             Image(systemName: "checkmark.circle.badge.xmark")
-                .font(.system(size: 80))
+                .font(Typography.iconXL)
                 .foregroundStyle(Color.brand.primary)
                 .symbolRenderingMode(.hierarchical)
 
@@ -118,7 +118,7 @@ struct OnboardingView: View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             VStack(spacing: DesignTokens.Spacing.md) {
                 Image(systemName: "globe.asia.australia")
-                    .font(.system(size: 60))
+                    .font(Typography.iconLarge)
                     .foregroundStyle(Color.brand.primary)
 
                 Text("onboarding_region_title")
@@ -155,7 +155,7 @@ struct OnboardingView: View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             VStack(spacing: DesignTokens.Spacing.md) {
                 Image(systemName: "graduationcap")
-                    .font(.system(size: 60))
+                    .font(Typography.iconLarge)
                     .foregroundStyle(Color.brand.primary)
 
                 Text("onboarding_grade_title")
@@ -194,7 +194,7 @@ struct OnboardingView: View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             VStack(spacing: DesignTokens.Spacing.md) {
                 Image(systemName: "book.fill")
-                    .font(.system(size: 60))
+                    .font(Typography.iconLarge)
                     .foregroundStyle(Color.brand.primary)
                 
                 Text("onboarding_subject_title")

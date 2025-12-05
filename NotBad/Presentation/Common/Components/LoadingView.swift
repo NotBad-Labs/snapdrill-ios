@@ -199,9 +199,9 @@ struct SkeletonLoader: View {
             .fill(
                 LinearGradient(
                     colors: [
-                        Color.gray.opacity(0.3),
-                        Color.gray.opacity(0.1),
-                        Color.gray.opacity(0.3)
+                        Color.secondary.opacity(0.3),
+                        Color.secondary.opacity(0.1),
+                        Color.secondary.opacity(0.3)
                     ],
                     startPoint: isAnimating ? .leading : .trailing,
                     endPoint: isAnimating ? .trailing : .leading

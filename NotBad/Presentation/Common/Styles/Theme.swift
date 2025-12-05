@@ -147,6 +147,43 @@ struct ShadowStyle {
     let y: CGFloat
 }
 
+// MARK: - Typography
+
+/// 字体样式（支持 Dynamic Type）
+enum Typography {
+    
+    // MARK: - Display (大标题数字)
+    
+    /// 超大数字显示 (如统计数字)
+    static func displayLarge(weight: Font.Weight = .bold, design: Font.Design = .rounded) -> Font {
+        .system(.largeTitle, design: design, weight: weight)
+    }
+    
+    /// 大数字显示
+    static func displayMedium(weight: Font.Weight = .semibold, design: Font.Design = .rounded) -> Font {
+        .system(.title, design: design, weight: weight)
+    }
+    
+    /// 中等数字显示
+    static func displaySmall(weight: Font.Weight = .medium, design: Font.Design = .rounded) -> Font {
+        .system(.title2, design: design, weight: weight)
+    }
+    
+    // MARK: - Icon Sizes (图标字号)
+    
+    /// 特大图标 (Onboarding/Empty State)
+    static let iconXL: Font = .system(size: 80)
+    
+    /// 大图标
+    static let iconLarge: Font = .system(size: 60)
+    
+    /// 中等图标
+    static let iconMedium: Font = .system(size: 40)
+    
+    /// 小图标
+    static let iconSmall: Font = .system(size: 28)
+}
+
 // MARK: - View Extension
 
 extension View {
