@@ -121,7 +121,77 @@ enum Difficulty: Int, Sendable, CaseIterable, Codable, Hashable, Identifiable {
 | 固定字号 `.system(size:)` | 语义字体 `.headline` | 无障碍 |
 | 硬编码颜色 `Color.black` | 语义颜色 `Color.primary` | 深色模式 |
 
-### 1.5 命名审查清单
+### 1.5 Design Tokens 规范
+
+所有 UI 样式值必须使用 Design Tokens，禁止硬编码。
+
+#### 间距 (Spacing)
+
+```swift
+// ✅ 使用 Design Tokens
+VStack(spacing: DesignTokens.Spacing.md) { ... }
+.padding(DesignTokens.Spacing.lg)
+
+// ❌ 硬编码
+VStack(spacing: 16) { ... }
+.padding(24)
+```
+
+| Token | 值 | 用途 |
+|-------|-----|------|
+| `xxs` | 2pt | 最小间距 |
+| `xs` | 4pt | 紧凑元素 |
+| `sm` | 8pt | 小间距 |
+| `md` | 16pt | 默认间距 |
+| `lg` | 24pt | 大间距 |
+| `xl` | 32pt | 区块间距 |
+| `xxl` | 48pt | 页面边距 |
+
+#### 图标尺寸 (IconSize)
+
+```swift
+// ✅ 使用 Design Tokens
+Image(systemName: "star.fill")
+    .frame(width: DesignTokens.IconSize.md.value, 
+           height: DesignTokens.IconSize.md.value)
+
+// ❌ 硬编码
+Image(systemName: "star.fill")
+    .frame(width: 40, height: 40)
+```
+
+| Token | 值 | 用途 |
+|-------|-----|------|
+| `xxs` | 16pt | 内联图标 |
+| `xs` | 24pt | 列表图标 |
+| `sm` | 32pt | 小图标 |
+| `md` | 40pt | 默认图标 |
+| `lg` | 48pt | 大图标 |
+| `xl` | 56pt | 特大图标 |
+| `xxl` | 64pt | 巨型图标 |
+
+#### 颜色 (Colors)
+
+```swift
+// ✅ 语义颜色
+Color.brand.primary
+Color.semantic.success
+Color.semantic.warning
+
+// ❌ 硬编码颜色
+Color.blue
+Color(hex: "#007AFF")
+```
+
+| 分类 | 用途 | 示例 |
+|------|------|------|
+| `Color.brand.*` | 品牌色 | `.primary`, `.secondary` |
+| `Color.semantic.*` | 语义色 | `.success`, `.warning`, `.error` |
+| 值对象颜色 | 实体区分 | `MasteryLevel.color`, `Subject.color` |
+
+> **⚠️ 无障碍原则**：颜色仅作辅助，不应是区分信息的唯一方式。必须配合图标或文字。
+
+### 1.6 命名审查清单
 
 - [ ] 类型名使用 UpperCamelCase
 - [ ] 变量/函数使用 lowerCamelCase
@@ -129,6 +199,9 @@ enum Difficulty: Int, Sendable, CaseIterable, Codable, Hashable, Identifiable {
 - [ ] 文件名与主类型一致
 - [ ] 代码使用 MARK 分段
 - [ ] 协议遵循顺序正确
+- [ ] 间距使用 `DesignTokens.Spacing.*`
+- [ ] 图标尺寸使用 `DesignTokens.IconSize.*`
+- [ ] 颜色使用语义颜色或 Design Tokens
 
 ---
 
@@ -1037,21 +1110,57 @@ func save() {
 
 ### 12.4 日志规范
 
-使用 `Logger` 工具统一输出，支持 4 级日志。
+使用 `Logger` 工具统一输出，支持分类和多级日志。**禁止使用 `print()`**。
+
+#### Logger 分类
+
+| 分类 | 用途 | 示例 |
+|------|------|------|
+| `.ui` | UI 层日志 | 视图生命周期、用户交互 |
+| `.data` | 数据层日志 | 数据库操作、缓存 |
+| `.review` | 复习业务日志 | 复习流程、算法计算 |
+| `.ai` | AI 服务日志 | OCR、AI 分析 |
+
+```swift
+// ✅ 使用分类 Logger
+import OSLog
+
+private let logger = Logger.ui  // 或 .data, .review, .ai
+
+func loadData() {
+    logger.debug("Loading library items")
+    logger.info("Loaded \(items.count) items")
+    logger.warning("Cache miss, fetching from database")
+    logger.error("Failed to load items: \(error)")
+}
+
+// ❌ 禁止使用 print
+print("Loading items...")  // 🚨 禁止
+```
+
+#### 日志级别
 
 | 级别 | 方法 | 生产环境 | 用途 |
 |------|------|---------|------|
-| **Debug** | `Logger.debug()` | ❌ 禁用 | 调试信息、变量值 |
-| **Info** | `Logger.info()` | ❌ 禁用 | 业务流程、用户操作 |
-| **Warning** | `Logger.warning()` | ✅ 保留 | 潜在问题、降级处理 |
-| **Error** | `Logger.error()` | ✅ 保留 | 异常错误、崩溃前兆 |
+| **Debug** | `logger.debug()` | ❌ 禁用 | 调试信息、变量值 |
+| **Info** | `logger.info()` | ❌ 禁用 | 业务流程、用户操作 |
+| **Warning** | `logger.warning()` | ✅ 保留 | 潜在问题、降级处理 |
+| **Error** | `logger.error()` | ✅ 保留 | 异常错误、崩溃前兆 |
+
+#### Logger 定义位置
 
 ```swift
-// ✅ 正确用法
-Logger.debug("Fetching items", context: ["count": items.count])
-Logger.info("User started review session")
-Logger.warning("Image compression failed, using original")
-Logger.error("Save failed", error: error, context: ["itemId": item.id])
+// Infrastructure/Utils/Logger+Categories.swift
+import OSLog
+
+extension Logger {
+    private static let subsystem = Bundle.main.bundleIdentifier ?? "com.notbad"
+    
+    static let ui = Logger(subsystem: subsystem, category: "UI")
+    static let data = Logger(subsystem: subsystem, category: "Data")
+    static let review = Logger(subsystem: subsystem, category: "Review")
+    static let ai = Logger(subsystem: subsystem, category: "AI")
+}
 ```
 
 ### 12.5 日志隐私保护
@@ -1183,7 +1292,7 @@ app.buttons["submit_button"].tap()
 | 关键用户流程 | 添加题目、复习 | UI 测试 |
 | 数据迁移 | 模型版本升级 | 集成测试 |
 
-### 13.7 测试审查清单
+### 13.10 测试审查清单
 
 - [ ] 新功能有对应单元测试
 - [ ] 测试使用 AAA 结构
@@ -1192,6 +1301,9 @@ app.buttons["submit_button"].tap()
 - [ ] 使用 `accessibilityIdentifier` 定位元素
 - [ ] 断言失败信息清晰
 - [ ] 测试命名遵循 `methodName_condition_expectedResult`
+- [ ] 测试文件位置与主项目结构对应
+- [ ] Mock 对象放在 `Mocks/` 目录
+- [ ] 使用 Swift Testing (`@Test`) 而非 XCTest（新测试）
 
 ---
 
@@ -1441,6 +1553,12 @@ Closes #42
 | | | - 新增 §5.6 值对象命名规范 | |
 | | | - color 属性移至 Presentation 层 | |
 | | | - 示例代码与实际实现保持一致 | |
+| 3.2 | 2024-12-05 | 完善 Design Tokens 与测试规范 | Team |
+| | | - 新增 §1.5 Design Tokens 规范（Spacing、IconSize、Colors） | |
+| | | - 更新 §2.1 分层架构（含目录结构说明） | |
+| | | - 更新 §12.4 Logger 规范（分类日志） | |
+| | | - 新增 §13.7-13.9 测试文件组织与 Mock 设计 | |
+| | | - Infrastructure 层明确禁止 SwiftUI 依赖 | |
 
 ---
 
