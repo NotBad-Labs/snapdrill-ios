@@ -37,7 +37,7 @@ protocol StartReviewSessionUseCaseProtocol: Sendable {
     /// - Parameter mode: 复习模式
     /// - Returns: 复习会话，包含待复习题目
     /// - Throws: 创建会话失败时抛出错误
-    func execute(mode: ReviewMode) async throws -> ReviewSession
+    func execute(mode: SessionReviewMode) async throws -> ReviewSession
     
     /// 开始指定学科的复习会话
     ///
@@ -46,7 +46,7 @@ protocol StartReviewSessionUseCaseProtocol: Sendable {
     ///   - mode: 复习模式
     /// - Returns: 复习会话
     /// - Throws: 创建会话失败时抛出错误
-    func execute(subject: Subject, mode: ReviewMode) async throws -> ReviewSession
+    func execute(subject: Subject, mode: SessionReviewMode) async throws -> ReviewSession
     
     /// 开始指定题目的复习会话
     ///
@@ -56,10 +56,13 @@ protocol StartReviewSessionUseCaseProtocol: Sendable {
     func execute(itemIds: [UUID]) async throws -> ReviewSession
 }
 
-// MARK: - ReviewMode
+// MARK: - SessionReviewMode
 
-/// 复习模式
-enum ReviewMode: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
+/// 复习会话模式（Domain 层）
+///
+/// 用于 Use Case 的复习模式定义，与 Presentation 层的 ReviewMode 独立。
+/// 在 ViewModel 中需要进行映射转换。
+enum SessionReviewMode: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     /// 智能模式：按算法推荐
     case smart
     
@@ -108,7 +111,10 @@ enum ReviewMode: String, Sendable, CaseIterable, Codable, Hashable, Identifiable
 /// 复习会话
 ///
 /// 代表一次完整的复习过程，从开始到结束。
-struct ReviewSession: Identifiable, Sendable {
+///
+/// - Note: 使用 `@unchecked Sendable` 因为 ReviewItem 是引用类型，
+///         但在实际使用中会在 MainActor 上下文中操作。
+struct ReviewSession: Identifiable, @unchecked Sendable {
     
     /// 会话 ID
     let id: UUID
@@ -117,7 +123,7 @@ struct ReviewSession: Identifiable, Sendable {
     let items: [ReviewItem]
     
     /// 复习模式
-    let mode: ReviewMode
+    let mode: SessionReviewMode
     
     /// 开始时间
     let startedAt: Date
@@ -163,7 +169,7 @@ struct ReviewSession: Identifiable, Sendable {
     init(
         id: UUID = UUID(),
         items: [ReviewItem],
-        mode: ReviewMode,
+        mode: SessionReviewMode,
         startedAt: Date = Date(),
         currentIndex: Int = 0,
         results: [ReviewResult] = []

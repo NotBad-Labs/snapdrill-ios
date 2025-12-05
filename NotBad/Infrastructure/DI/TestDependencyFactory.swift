@@ -205,8 +205,14 @@ final class MockReviewItemRepository: ReviewItemRepositoryProtocol {
     func statistics() -> ReviewStatistics {
         ReviewStatistics(
             totalCount: items.count,
-            dueCount: fetchForReview().count,
-            masteredCount: items.filter { $0.masteryLevel == MasteryLevel.mastered.rawValue }.count
+            masteredCount: items.filter { $0.masteryLevel == MasteryLevel.mastered.rawValue }.count,
+            weeklyNewCount: 0,
+            totalReviewCount: items.reduce(0) { $0 + $1.reviewCount },
+            pendingReviewCount: fetchForReview().count,
+            overdueCount: items.filter { $0.isOverdue }.count,
+            masteryDistribution: [:],
+            subjectDistribution: [:],
+            difficultyDistribution: [:]
         )
     }
     
@@ -214,19 +220,16 @@ final class MockReviewItemRepository: ReviewItemRepositoryProtocol {
         let subjectItems = items.filter { $0.subject == subject }
         return ReviewStatistics(
             totalCount: subjectItems.count,
-            dueCount: subjectItems.filter { $0.nextReviewDate <= Date() }.count,
-            masteredCount: subjectItems.filter { $0.masteryLevel == MasteryLevel.mastered.rawValue }.count
+            masteredCount: subjectItems.filter { $0.masteryLevel == MasteryLevel.mastered.rawValue }.count,
+            weeklyNewCount: 0,
+            totalReviewCount: subjectItems.reduce(0) { $0 + $1.reviewCount },
+            pendingReviewCount: subjectItems.filter { $0.nextReviewDate <= Date() }.count,
+            overdueCount: subjectItems.filter { $0.isOverdue }.count,
+            masteryDistribution: [:],
+            subjectDistribution: [:],
+            difficultyDistribution: [:]
         )
     }
-}
-
-// MARK: - ReviewStatistics (临时定义)
-
-/// 复习统计（如果 Domain 层没有定义）
-struct ReviewStatistics: Sendable {
-    let totalCount: Int
-    let dueCount: Int
-    let masteredCount: Int
 }
 
 // MARK: - MockOCRService

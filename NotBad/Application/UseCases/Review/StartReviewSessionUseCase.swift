@@ -30,12 +30,12 @@ final class StartReviewSessionUseCase: StartReviewSessionUseCaseProtocol {
     
     // MARK: - StartReviewSessionUseCaseProtocol
     
-    func execute(mode: ReviewMode) async throws -> ReviewSession {
+    func execute(mode: SessionReviewMode) async throws -> ReviewSession {
         let items = fetchAndSort(mode: mode, subject: nil)
         return ReviewSession(items: items, mode: mode)
     }
     
-    func execute(subject: Subject, mode: ReviewMode) async throws -> ReviewSession {
+    func execute(subject: Subject, mode: SessionReviewMode) async throws -> ReviewSession {
         let items = fetchAndSort(mode: mode, subject: subject)
         return ReviewSession(items: items, mode: mode)
     }
@@ -53,7 +53,7 @@ final class StartReviewSessionUseCase: StartReviewSessionUseCaseProtocol {
     
     // MARK: - Private Methods
     
-    private func fetchAndSort(mode: ReviewMode, subject: Subject?) -> [ReviewItem] {
+    private func fetchAndSort(mode: SessionReviewMode, subject: Subject?) -> [ReviewItem] {
         var items: [ReviewItem]
         
         // 根据模式获取题目

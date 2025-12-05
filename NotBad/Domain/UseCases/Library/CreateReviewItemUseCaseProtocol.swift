@@ -149,48 +149,5 @@ enum CreateReviewItemError: Error, LocalizedError, Sendable {
     }
 }
 
-// MARK: - OCRResult
-
-/// OCR 识别结果
-///
-/// 由 OCR 服务返回，用于自动填充错题信息。
-struct OCRResult: Sendable {
-    
-    /// 识别的文本
-    let text: String
-    
-    /// 推断的学科
-    let inferredSubject: Subject?
-    
-    /// 推断的知识点
-    let inferredKnowledgePoints: [String]
-    
-    /// 置信度（0-1）
-    let confidence: Double
-    
-    /// 识别区域
-    let regions: [OCRRegion]
-    
-    init(
-        text: String,
-        inferredSubject: Subject? = nil,
-        inferredKnowledgePoints: [String] = [],
-        confidence: Double = 0,
-        regions: [OCRRegion] = []
-    ) {
-        self.text = text
-        self.inferredSubject = inferredSubject
-        self.inferredKnowledgePoints = inferredKnowledgePoints
-        self.confidence = confidence
-        self.regions = regions
-    }
-}
-
-// MARK: - OCRRegion
-
-/// OCR 识别区域
-struct OCRRegion: Sendable {
-    let text: String
-    let boundingBox: CGRect
-    let confidence: Double
-}
+// Note: OCRResult 和 OCRRegion 定义在 Infrastructure/OCR/OCRService.swift
+// Domain 层应使用 Infrastructure 层的类型定义

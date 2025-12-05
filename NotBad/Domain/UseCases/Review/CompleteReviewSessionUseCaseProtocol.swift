@@ -49,7 +49,7 @@ struct ReviewReport: Identifiable, Sendable {
     let sessionId: UUID
     
     /// 复习模式
-    let mode: ReviewMode
+    let mode: SessionReviewMode
     
     /// 总题目数
     let totalCount: Int
@@ -116,14 +116,14 @@ struct ReviewReport: Identifiable, Sendable {
     init(
         id: UUID = UUID(),
         sessionId: UUID,
-        mode: ReviewMode,
+        mode: SessionReviewMode,
         totalCount: Int,
         correctCount: Int,
         totalDuration: TimeInterval,
         startedAt: Date,
         completedAt: Date = Date(),
         masteryDistribution: [MasteryLevel: Int] = [:],
-        subjectDistribution: [Subject: Int] = [:]
+        subjectDistribution: [Subject: Int] = []
     ) {
         self.id = id
         self.sessionId = sessionId

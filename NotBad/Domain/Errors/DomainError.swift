@@ -40,7 +40,7 @@ enum DomainError: Error, LocalizedError, Sendable {
     case requiredFieldMissing(field: String)
     
     /// 值超出范围
-    case valueOutOfRange(field: String, min: Any, max: Any, actual: Any)
+    case valueOutOfRange(field: String, min: String, max: String, actual: String)
     
     // MARK: - State Errors
     
