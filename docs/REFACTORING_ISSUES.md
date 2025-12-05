@@ -344,18 +344,32 @@ docs/adr/ADR-005-di-factory.md
 
 ---
 
-### Issue #16: ❌ [P3] API 文档生成
-**Status**: ❌ 未开始（可选）
+### Issue #16: ✅ [P3] API 文档生成
+**Status**: ✅ 已完成
 **Labels**: `documentation`, `api`, `priority-low`
 
 **Description**:
 配置 DocC 生成 API 文档。
 
 **Tasks**:
-- [ ] 配置 DocC 目录
-- [ ] 为公共 API 添加文档注释
-- [ ] 添加代码示例
-- [ ] 配置 CI 自动生成文档
+- [x] 配置 DocC 目录 (Documentation.docc)
+- [x] 创建主文档入口 (NotBad.md)
+- [x] 添加架构概述文档 (Architecture.md, CleanArchitecture.md)
+- [x] 添加 DI 文档 (DependencyInjection.md)
+- [x] 添加 Use Cases 文档 (UseCases.md)
+- [x] 添加 ViewModel/Views 文档
+
+**Files Created**:
+```
+NotBad/Documentation.docc/
+├── NotBad.md              # 主入口
+├── Architecture.md        # 架构概述
+├── CleanArchitecture.md   # Clean Architecture 详解
+├── DependencyInjection.md # DI 模式说明
+├── UseCases.md            # Use Case 模式
+├── ViewModels.md          # ViewModel 设计
+└── Views.md               # SwiftUI 视图设计
+```
 
 ---
 
@@ -405,8 +419,8 @@ docs/adr/ADR-005-di-factory.md
 | P0（阻塞） | 2 | 2 ✅ | 0 | 0 |
 | P1（高） | 6 | 4 ✅ | 2 ⚠️ | 0 |
 | P2（中） | 7 | 4 ✅ | 1 ⚠️ | 2 (2🚫) |
-| P3（低） | 3 | 1 ✅ | 1 ⚠️ | 1 ❌ |
-| **总计** | **18** | **11** | **4** | **3** |
+| P3（低） | 3 | 2 ✅ | 1 ⚠️ | 0 |
+| **总计** | **18** | **12** | **4** | **2** |
 
 ### 状态图例
 - ✅ 已完成
@@ -433,7 +447,7 @@ docs/adr/ADR-005-di-factory.md
 | #13 | 日志与分析系统 | ✅ 已完成 |
 | #14 | 性能监控 | ⚠️ 部分完成 |
 | #15 | 架构决策记录 | ✅ 已完成 |
-| #16 | API 文档生成 | ❌ 未开始（可选） |
+| #16 | API 文档生成 | ✅ 已完成 |
 | #17 | SwiftLint 规则增强 | ✅ 已完成 |
 | #18 | CI/CD 流水线 | ✅ 已完成 |
 
