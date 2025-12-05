@@ -319,39 +319,22 @@ NotBadTests/Mocks/MockReviewItemRepository.swift
 
 ## 📚 文档任务
 
-### Issue #15: ❌ [P2] 架构决策记录 (ADR)
-**Status**: ❌ 未开始（推荐）
+### Issue #15: ✅ [P2] 架构决策记录 (ADR)
+**Status**: ✅ 已完成
 
 **Description**:
 创建架构决策记录文档。
 
 **Tasks**:
-- [ ] ADR-001: 选择 Clean Architecture
-- [ ] ADR-002: 选择 SwiftData 而非 Core Data
-- [ ] ADR-003: Use Cases 模式采用
-- [ ] ADR-004: 分层错误体系设计
-- [ ] ADR-005: DI Factory 模式选择
+- [x] ADR-001: 选择 Clean Architecture
+- [x] ADR-002: 选择 SwiftData 而非 Core Data
+- [x] ADR-003: Use Cases 模式采用
+- [x] ADR-004: 分层错误体系设计
+- [x] ADR-005: DI Factory 模式选择
 
-**Template**:
-```markdown
-# ADR-001: 选择 Clean Architecture
-
-## 状态
-已采纳
-
-## 上下文
-需要一个可测试、可维护的架构...
-
-## 决策
-采用 Clean Architecture...
-
-## 后果
-- 正面：...
-- 负面：...
+**Files Created**:
 ```
-
-**Files to Create**:
-```
+docs/adr/README.md
 docs/adr/ADR-001-clean-architecture.md
 docs/adr/ADR-002-swiftdata.md
 docs/adr/ADR-003-use-cases.md
@@ -416,9 +399,9 @@ docs/adr/ADR-005-di-factory.md
 |--------|--------|--------|----------|---------------|
 | P0（阻塞） | 2 | 2 ✅ | 0 | 0 |
 | P1（高） | 6 | 4 ✅ | 2 ⚠️ | 0 |
-| P2（中） | 7 | 2 ✅ | 1 ⚠️ | 4 (2🚫 + 2❌) |
+| P2（中） | 7 | 3 ✅ | 1 ⚠️ | 3 (2🚫 + 1❌) |
 | P3（低） | 3 | 0 | 1 ⚠️ | 2 ❌ |
-| **总计** | **18** | **8** | **4** | **6** |
+| **总计** | **18** | **9** | **4** | **5** |
 
 ### 状态图例
 - ✅ 已完成
@@ -444,7 +427,7 @@ docs/adr/ADR-005-di-factory.md
 | #12 | 网络层实现 | 🚫 不需要（离线应用） |
 | #13 | 日志与分析系统 | ✅ 已完成 |
 | #14 | 性能监控 | ⚠️ 部分完成 |
-| #15 | 架构决策记录 | ❌ 未开始（推荐） |
+| #15 | 架构决策记录 | ✅ 已完成 |
 | #16 | API 文档生成 | ❌ 未开始（可选） |
 | #17 | SwiftLint 规则增强 | ❌ 未开始（可选） |
 | #18 | CI/CD 流水线 | ❌ 未开始（可选） |
