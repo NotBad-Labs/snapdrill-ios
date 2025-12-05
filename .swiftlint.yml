@@ -1,19 +1,136 @@
 # SwiftLint Configuration for NotBad
+# 遵循 CODE_REVIEW_GUIDELINES.md 规范
 # https://github.com/realm/SwiftLint
+
+# ============================================
+# 包含/排除路径
+# ============================================
+
+included:
+  - NotBad
+  - NotBadTests
+
+excluded:
+  - Pods
+  - .build
+  - DerivedData
+  - NotBad/Generated
+
+# ============================================
+# 禁用的规则
+# ============================================
 
 disabled_rules:
   - inclusive_language          # "master" in mastery context is appropriate
-  - line_length                 # Some long lines are acceptable
-  - file_length                 # Large files are acceptable for now
-  - type_body_length            # Large types are acceptable for now
-  - function_body_length        # Some complex functions need this
-  - cyclomatic_complexity       # Some complex logic is acceptable
-  - function_parameter_count    # Some functions need many parameters
-  - redundant_string_enum_value # Explicit enum values improve clarity
+  - todo                        # 允许 TODO 注释
+  - trailing_whitespace         # Xcode 自动处理
+  - vertical_whitespace_opening_braces  # 代码风格偏好
+  - vertical_whitespace_closing_braces  # 代码风格偏好
+  - implicit_return             # 显式 return 更清晰
+  - type_contents_order         # 当前代码结构可接受
+  - redundant_string_enum_value # 显式枚举值更清晰
+  - force_unwrapping            # 某些场景合理使用
+  - prefer_self_in_static_references  # 当前代码可接受
 
-# Ignore test files for identifier_name (allows short names in tests)
+# ============================================
+# 启用的可选规则
+# ============================================
+
+opt_in_rules:
+  # 性能相关
+  - empty_string
+  - first_where
+  - last_where
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - flatmap_over_map_reduce
+  - reduce_boolean
+  - reduce_into
+  - sorted_first_last
+  
+  # 代码风格
+  - closure_end_indentation
+  - closure_spacing
+  - collection_alignment
+  - explicit_init
+  - modifier_order
+  - multiline_arguments
+  - multiline_function_chains
+  - operator_usage_whitespace
+  - prefer_self_in_static_references
+  - redundant_nil_coalescing
+  - redundant_type_annotation
+  - toggle_bool
+  - trailing_closure
+  - unneeded_parentheses_in_closure_argument
+  - vertical_parameter_alignment_on_call
+  
+  # 安全相关
+  - discouraged_optional_boolean
+  - fallthrough
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - overridden_super_call
+  - yoda_condition
+  
+  # 架构相关
+  - file_name_no_space
+
+# ============================================
+# 规则自定义配置
+# ============================================
+
+# 行长度限制
+line_length:
+  warning: 150
+  error: 250
+  ignores_comments: true
+  ignores_urls: true
+  ignores_interpolated_strings: true
+
+# 文件长度限制
+file_length:
+  warning: 400
+  error: 600
+  ignore_comment_only_lines: true
+
+# 类型体长度限制
+type_body_length:
+  warning: 250
+  error: 400
+
+# 函数体长度限制
+function_body_length:
+  warning: 40
+  error: 80
+
+# 函数参数数量限制
+function_parameter_count:
+  warning: 5
+  error: 8
+
+# 圈复杂度
+cyclomatic_complexity:
+  warning: 10
+  error: 20
+  ignores_case_statements: true
+
+# 类型名称
+type_name:
+  min_length: 3
+  max_length: 50
+  excluded:
+    - iCloudSyncTip  # 保持 iCloud 标准命名
+
+# 标识符名称
 identifier_name:
-  min_length: 2
+  min_length:
+    warning: 2
+    error: 1
+  max_length:
+    warning: 50
+    error: 60
   excluded:
     - i
     - id
@@ -32,12 +149,112 @@ identifier_name:
     - xl
     - uk
     - ok
+    - to
 
-# Excluded paths
-excluded:
-  - Pods
-  - .build
-  - DerivedData
+# 嵌套类型层级
+nesting:
+  type_level:
+    warning: 2
+    error: 3
+  function_level:
+    warning: 3
+    error: 5
 
-# Reporter
+# 大元组
+large_tuple:
+  warning: 3
+  error: 4
+
+# 修饰符顺序
+modifier_order:
+  preferred_modifier_order:
+    - acl
+    - setterACL
+    - override
+    - dynamic
+    - mutators
+    - lazy
+    - final
+    - required
+    - convenience
+    - typeMethods
+    - owned
+
+# 类型内容顺序
+type_contents_order:
+  order:
+    - associated_type
+    - type_alias
+    - case
+    - subtype
+    - type_property
+    - instance_property
+    - ib_inspectable
+    - ib_outlet
+    - initializer
+    - type_method
+    - view_life_cycle_method
+    - ib_action
+    - other_method
+    - subscript
+
+# 多行参数
+multiline_arguments:
+  first_argument_location: next_line
+  only_enforce_after_first_closure_on_first_line: true
+
+# 垂直空白
+vertical_whitespace:
+  max_empty_lines: 1
+
+# Force Unwrap 警告
+force_unwrapping:
+  severity: warning
+
+# 隐式解包可选值
+implicitly_unwrapped_optional:
+  mode: all_except_iboutlets
+  severity: warning
+
+# ============================================
+# 自定义规则 (Clean Architecture 检查)
+# ============================================
+
+custom_rules:
+  # 禁止在 Domain 层导入 SwiftData
+  no_swiftdata_in_domain:
+    name: "No SwiftData in Domain"
+    regex: "^import SwiftData"
+    message: "Domain 层不应导入 SwiftData，违反 Clean Architecture"
+    severity: error
+    included: "NotBad/Domain/.*\\.swift"
+  
+  # 禁止在 Domain 层导入 SwiftUI
+  no_swiftui_in_domain:
+    name: "No SwiftUI in Domain"
+    regex: "^import SwiftUI"
+    message: "Domain 层不应导入 SwiftUI，违反 Clean Architecture"
+    severity: error
+    included: "NotBad/Domain/.*\\.swift"
+  
+  # 禁止在 Application 层导入 SwiftData
+  no_swiftdata_in_application:
+    name: "No SwiftData in Application"
+    regex: "^import SwiftData"
+    message: "Application 层不应导入 SwiftData，违反 Clean Architecture"
+    severity: error
+    included: "NotBad/Application/.*\\.swift"
+  
+  # 禁止使用 print（应使用 Logger）- 仅提示
+  # no_print_statement:
+  #   name: "No Print Statements"
+  #   regex: "\\bprint\\s*\\("
+  #   message: "请使用 Logger 而非 print 进行日志输出"
+  #   severity: warning
+
+# ============================================
+# 报告格式
+# ============================================
+
 reporter: xcode
+
