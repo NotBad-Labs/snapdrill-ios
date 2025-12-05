@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 // MARK: - InternationalGrade
 
@@ -107,13 +106,6 @@ extension InternationalGrade: GradeLevelProtocol {
         }
     }
 
-    public var color: Color {
-        switch schoolLevel {
-        case .primary: .green
-        case .middle: .orange
-        case .high: .purple
-        }
-    }
 }
 
 // MARK: - InternationalSubject
@@ -213,23 +205,6 @@ extension InternationalSubject: SubjectProtocol {
         }
     }
 
-    public var color: Color {
-        switch self {
-        case .language: .red
-        case .english: .purple
-        case .math: .blue
-        case .science: .cyan
-        case .physics: .indigo
-        case .chemistry: .green
-        case .biology: .mint
-        case .history: .brown
-        case .geography: .teal
-        case .socialStudies: .orange
-        case .art: .pink
-        case .music: .yellow
-        case .other: .gray
-        }
-    }
 
     public var applicableLevels: [SchoolLevel] {
         switch self {
@@ -269,24 +244,21 @@ public struct InternationalEducationSystem: EducationSystemProtocol {
                 nameKey: "intl_school_primary",
                 startGrade: 1,
                 endGrade: 6,
-                icon: "backpack",
-                color: .green
+                icon: "backpack"
             ),
             SchoolLevelConfiguration(
                 level: .middle,
                 nameKey: "intl_school_middle",
                 startGrade: 7,
                 endGrade: 9,
-                icon: "book",
-                color: .blue
+                icon: "book"
             ),
             SchoolLevelConfiguration(
                 level: .high,
                 nameKey: "intl_school_high",
                 startGrade: 10,
                 endGrade: 12,
-                icon: "graduationcap",
-                color: .purple
+                icon: "graduationcap"
             )
         ]
     }

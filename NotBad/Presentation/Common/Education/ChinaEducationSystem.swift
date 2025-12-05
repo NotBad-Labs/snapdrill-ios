@@ -10,7 +10,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 // MARK: - ChinaGrade
 
@@ -121,25 +120,6 @@ public enum ChinaGrade: String, Sendable, CaseIterable, Codable, Hashable, Ident
         }
     }
 
-    public var color: Color {
-        switch self {
-        // 小学：绿色系渐变
-        case .grade1: .mint
-        case .grade2: .green
-        case .grade3: .teal
-        case .grade4: .cyan
-        case .grade5: .blue
-        case .grade6: .indigo
-        // 初中：暖色系
-        case .grade7: .yellow
-        case .grade8: .orange
-        case .grade9: .red
-        // 高中：紫色系
-        case .grade10: .pink
-        case .grade11: .purple
-        case .grade12: Color(red: 0.5, green: 0, blue: 0.5)
-        }
-    }
 
     /// 是否为毕业年级
     public var isGraduationYear: Bool {
@@ -191,15 +171,6 @@ public enum ChinaSubjectCategory: String, Sendable, CaseIterable, Codable, Hasha
         }
     }
 
-    public var color: Color {
-        switch self {
-        case .language: .red
-        case .science: .blue
-        case .humanities: .orange
-        case .technology: .purple
-        case .other: .gray
-        }
-    }
 }
 
 // MARK: - ChinaSubject
@@ -342,24 +313,6 @@ extension ChinaSubject: SubjectProtocol {
         }
     }
 
-    public var color: Color {
-        switch self {
-        case .chinese: .red
-        case .english: .blue
-        case .math: .purple
-        case .physics: .cyan
-        case .chemistry: .orange
-        case .biology: .green
-        case .science: .teal
-        case .history: .brown
-        case .geography: .mint
-        case .politics: .indigo
-        case .ethics: .pink
-        case .informationTech: .gray
-        case .generalTech: .secondary
-        case .other: .secondary
-        }
-    }
 }
 
 // MARK: - ChinaEducationSystem
@@ -392,24 +345,21 @@ public struct ChinaEducationSystem: EducationSystemProtocol, Sendable {
                 nameKey: "cn_school_level_primary",
                 startGrade: 1,
                 endGrade: 6,
-                icon: "figure.child",
-                color: .green
+                icon: "figure.child"
             ),
             SchoolLevelConfiguration(
                 level: .middle,
                 nameKey: "cn_school_level_middle",
                 startGrade: 7,
                 endGrade: 9,
-                icon: "figure.stand",
-                color: .orange
+                icon: "figure.stand"
             ),
             SchoolLevelConfiguration(
                 level: .high,
                 nameKey: "cn_school_level_high",
                 startGrade: 10,
                 endGrade: 12,
-                icon: "graduationcap",
-                color: .purple
+                icon: "graduationcap"
             )
         ]
     }

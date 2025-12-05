@@ -12,7 +12,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 // MARK: - USGrade
 
@@ -140,26 +139,6 @@ public enum USGrade: String, Sendable, CaseIterable, Codable, Hashable, Identifi
         }
     }
 
-    public var color: Color {
-        switch self {
-        // Elementary: 绿色系
-        case .kindergarten: .mint
-        case .grade1: .green
-        case .grade2: .teal
-        case .grade3: .cyan
-        case .grade4: .blue
-        case .grade5: .indigo
-        // Middle: 暖色系
-        case .grade6: .yellow
-        case .grade7: .orange
-        case .grade8: .red
-        // High: 紫色系
-        case .grade9: .pink
-        case .grade10: .purple
-        case .grade11: Color(red: 0.6, green: 0.2, blue: 0.8)
-        case .grade12: Color(red: 0.5, green: 0, blue: 0.5)
-        }
-    }
 
     /// 根据序号创建年级
     public static func from(order: Int) -> USGrade? {
@@ -209,17 +188,6 @@ public enum USSubjectCategory: String, Sendable, CaseIterable, Codable, Hashable
         }
     }
 
-    public var color: Color {
-        switch self {
-        case .ela: .red
-        case .math: .purple
-        case .science: .blue
-        case .socialStudies: .orange
-        case .foreignLanguage: .green
-        case .electives: .pink
-        case .other: .gray
-        }
-    }
 }
 
 // MARK: - USSubject
@@ -428,27 +396,6 @@ extension USSubject: SubjectProtocol {
         }
     }
 
-    public var color: Color {
-        switch self {
-        case .english, .reading, .writing, .literature: .red
-        case .math, .algebra, .geometry, .calculus, .statistics: .purple
-        case .generalScience, .biology: .green
-        case .chemistry: .orange
-        case .physics: .cyan
-        case .earthScience, .environmentalScience: .teal
-        case .usHistory, .worldHistory: .brown
-        case .geography: .mint
-        case .civics, .government: .indigo
-        case .economics: .blue
-        case .spanish, .french, .german, .chinese, .japanese: .green
-        case .art: .pink
-        case .music: .purple
-        case .computerScience: .gray
-        case .physicalEducation: .orange
-        case .health: .red
-        case .other: .secondary
-        }
-    }
 }
 
 // MARK: - USEducationSystem
@@ -481,24 +428,21 @@ public struct USEducationSystem: EducationSystemProtocol, Sendable {
                 nameKey: "us_school_level_elementary",
                 startGrade: 0,  // Kindergarten
                 endGrade: 5,
-                icon: "figure.child",
-                color: .green
+                icon: "figure.child"
             ),
             SchoolLevelConfiguration(
                 level: .middle,
                 nameKey: "us_school_level_middle",
                 startGrade: 6,
                 endGrade: 8,
-                icon: "figure.stand",
-                color: .orange
+                icon: "figure.stand"
             ),
             SchoolLevelConfiguration(
                 level: .high,
                 nameKey: "us_school_level_high",
                 startGrade: 9,
                 endGrade: 12,
-                icon: "graduationcap",
-                color: .purple
+                icon: "graduationcap"
             )
         ]
     }

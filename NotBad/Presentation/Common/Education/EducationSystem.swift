@@ -13,7 +13,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 // MARK: - EducationRegion
 
@@ -126,8 +125,6 @@ public protocol GradeLevelProtocol: Sendable, Hashable, Identifiable, CaseIterab
     var shortLabel: String { get }
     /// 图标
     var icon: String { get }
-    /// 主题颜色
-    var color: Color { get }
 }
 
 // MARK: - SubjectProtocol
@@ -148,8 +145,6 @@ public protocol SubjectProtocol: Sendable, Hashable, Identifiable, CaseIterable 
     var applicableLevels: [SchoolLevel] { get }
     /// 图标
     var icon: String { get }
-    /// 主题颜色
-    var color: Color { get }
 
     /// 是否适用于指定学段
     func isApplicable(for level: SchoolLevel) -> Bool
@@ -168,7 +163,6 @@ public protocol SubjectCategoryProtocol: Sendable, Hashable, Identifiable {
     var id: String { get }
     var displayName: String { get }
     var icon: String { get }
-    var color: Color { get }
 }
 
 // MARK: - EducationSystemProtocol
@@ -241,16 +235,13 @@ public struct SchoolLevelConfiguration: Sendable, Hashable, Identifiable {
     public let gradeCount: Int
     /// 图标
     public let icon: String
-    /// 颜色
-    public let color: Color
 
     public init(
         level: SchoolLevel,
         nameKey: String,
         startGrade: Int,
         endGrade: Int,
-        icon: String,
-        color: Color
+        icon: String
     ) {
         self.id = level
         self.nameKey = nameKey
@@ -258,7 +249,6 @@ public struct SchoolLevelConfiguration: Sendable, Hashable, Identifiable {
         self.endGrade = endGrade
         self.gradeCount = endGrade - startGrade + 1
         self.icon = icon
-        self.color = color
     }
 
     /// 本地化名称

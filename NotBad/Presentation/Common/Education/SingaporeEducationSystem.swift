@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 // MARK: - SingaporeGrade
 
@@ -112,13 +111,6 @@ extension SingaporeGrade: GradeLevelProtocol {
         }
     }
 
-    public var color: Color {
-        switch schoolLevel {
-        case .primary: .green
-        case .middle: .orange
-        case .high: .purple
-        }
-    }
 }
 
 // MARK: - SingaporeSubject
@@ -218,23 +210,6 @@ extension SingaporeSubject: SubjectProtocol {
         }
     }
 
-    public var color: Color {
-        switch self {
-        case .english: .purple
-        case .chinese: .red
-        case .malay: .green
-        case .tamil: .orange
-        case .math: .blue
-        case .science: .cyan
-        case .physics: .indigo
-        case .chemistry: .mint
-        case .biology: .teal
-        case .geography: .brown
-        case .history: .yellow
-        case .socialStudies: .pink
-        case .other: .gray
-        }
-    }
 
     public var applicableLevels: [SchoolLevel] {
         switch self {
@@ -274,24 +249,21 @@ public struct SingaporeEducationSystem: EducationSystemProtocol {
                 nameKey: "sg_school_primary",
                 startGrade: 1,
                 endGrade: 6,
-                icon: "backpack",
-                color: .green
+                icon: "backpack"
             ),
             SchoolLevelConfiguration(
                 level: .middle,
                 nameKey: "sg_school_secondary",
                 startGrade: 7,
                 endGrade: 10,
-                icon: "book",
-                color: .blue
+                icon: "book"
             ),
             SchoolLevelConfiguration(
                 level: .high,
                 nameKey: "sg_school_jc",
                 startGrade: 11,
                 endGrade: 12,
-                icon: "graduationcap",
-                color: .purple
+                icon: "graduationcap"
             )
         ]
     }

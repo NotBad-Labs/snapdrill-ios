@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 // MARK: - JapanGrade
 
@@ -112,13 +111,6 @@ extension JapanGrade: GradeLevelProtocol {
         }
     }
 
-    public var color: Color {
-        switch schoolLevel {
-        case .primary: .green
-        case .middle: .orange
-        case .high: .purple
-        }
-    }
 }
 
 // MARK: - JapanSubject
@@ -214,22 +206,6 @@ extension JapanSubject: SubjectProtocol {
         }
     }
 
-    public var color: Color {
-        switch self {
-        case .japanese: .red
-        case .math: .blue
-        case .english: .purple
-        case .science: .cyan
-        case .socialStudies: .orange
-        case .physics: .indigo
-        case .chemistry: .green
-        case .biology: .mint
-        case .geography: .teal
-        case .history: .brown
-        case .civics: .yellow
-        case .other: .gray
-        }
-    }
 
     public var applicableLevels: [SchoolLevel] {
         switch self {
@@ -269,24 +245,21 @@ public struct JapanEducationSystem: EducationSystemProtocol {
                 nameKey: "jp_school_primary",
                 startGrade: 1,
                 endGrade: 6,
-                icon: "backpack",
-                color: .green
+                icon: "backpack"
             ),
             SchoolLevelConfiguration(
                 level: .middle,
                 nameKey: "jp_school_middle",
                 startGrade: 7,
                 endGrade: 9,
-                icon: "book",
-                color: .blue
+                icon: "book"
             ),
             SchoolLevelConfiguration(
                 level: .high,
                 nameKey: "jp_school_high",
                 startGrade: 10,
                 endGrade: 12,
-                icon: "graduationcap",
-                color: .purple
+                icon: "graduationcap"
             )
         ]
     }
