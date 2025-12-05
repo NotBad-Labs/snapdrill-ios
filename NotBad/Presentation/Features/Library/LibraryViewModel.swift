@@ -238,6 +238,21 @@ final class LibraryViewModel {
             }
         }
 
+        // 应用其他筛选条件并排序
+        result = applyNonSearchFilters(to: result)
+        
+        // 更新缓存
+        cachedSourceHash = sourceHash
+        cachedFilterHash = filterHash
+        cachedFilteredItems = result
+
+        return result
+    }
+    
+    /// 应用除搜索外的所有筛选条件（共用逻辑）
+    private func applyNonSearchFilters(to items: [ReviewItem]) -> [ReviewItem] {
+        var result = items
+        
         // 学科筛选
         if let subject = selectedSubject {
             result = result.filter { $0.subject == subject }
@@ -269,14 +284,7 @@ final class LibraryViewModel {
         }
 
         // 排序
-        result = sortItems(result)
-        
-        // 更新缓存
-        cachedSourceHash = sourceHash
-        cachedFilterHash = filterHash
-        cachedFilteredItems = result
-
-        return result
+        return sortItems(result)
     }
 
     /// 排序错题
@@ -353,49 +361,11 @@ final class LibraryViewModel {
         // 如果正在搜索且有数据库结果，使用数据库结果
         if isSearching, let searchResults = databaseSearchResults {
             // 对搜索结果应用其他筛选条件（学科、掌握度等）
-            return applyFiltersExceptSearch(to: searchResults)
+            return applyNonSearchFilters(to: searchResults)
         }
         
         // 否则使用常规的内存筛选
         return filteredItems(from: items)
-    }
-    
-    /// 应用除搜索外的其他筛选条件
-    private func applyFiltersExceptSearch(to items: [ReviewItem]) -> [ReviewItem] {
-        var result = items
-        
-        // 学科筛选
-        if let subject = selectedSubject {
-            result = result.filter { $0.subject == subject }
-        }
-        
-        // 掌握程度筛选
-        if let mastery = selectedMastery {
-            result = result.filter { $0.mastery == mastery }
-        }
-        
-        // 难度筛选
-        if let difficulty = selectedDifficulty {
-            result = result.filter { $0.difficulty == difficulty }
-        }
-        
-        // 来源筛选
-        if let source = selectedSource {
-            result = result.filter { $0.source == source }
-        }
-        
-        // 待复习筛选
-        if showPendingReviewOnly {
-            result = result.filter { $0.needsReview }
-        }
-        
-        // 高级搜索条件筛选
-        if advancedCriteria.hasActiveFilters {
-            result = advancedCriteria.filter(result)
-        }
-        
-        // 排序
-        return sortItems(result)
     }
 
     // MARK: - Filter Actions
@@ -586,75 +556,5 @@ final class LibraryViewModel {
             masteredCount: filtered.filter { $0.isMastered }.count,
             pendingReviewCount: filtered.filter { $0.needsReview }.count
         )
-    }
-}
-
-// MARK: - SortOption
-
-/// 排序选项
-enum SortOption: String, CaseIterable, Identifiable {
-    case createdAtDesc
-    case createdAtAsc
-    case titleAsc
-    case masteryAsc
-    case masteryDesc
-    case difficultyDesc
-    case reviewDateAsc
-
-    var id: String { rawValue }
-
-    var displayName: String {
-        switch self {
-        case .createdAtDesc: String(localized: "sort_newest")
-        case .createdAtAsc: String(localized: "sort_oldest")
-        case .titleAsc: String(localized: "sort_title")
-        case .masteryAsc: String(localized: "sort_mastery_asc")
-        case .masteryDesc: String(localized: "sort_mastery_desc")
-        case .difficultyDesc: String(localized: "sort_difficulty")
-        case .reviewDateAsc: String(localized: "sort_review_needed")
-        }
-    }
-    
-    /// 简短名称（用于筛选栏按钮显示）
-    var shortName: String {
-        switch self {
-        case .createdAtDesc: String(localized: "sort_short_newest")
-        case .createdAtAsc: String(localized: "sort_short_oldest")
-        case .titleAsc: String(localized: "sort_short_title")
-        case .masteryAsc: String(localized: "sort_short_mastery_asc")
-        case .masteryDesc: String(localized: "sort_short_mastery_desc")
-        case .difficultyDesc: String(localized: "sort_short_difficulty")
-        case .reviewDateAsc: String(localized: "sort_short_review")
-        }
-    }
-
-    var icon: String {
-        switch self {
-        case .createdAtDesc: "arrow.down.circle"
-        case .createdAtAsc: "arrow.up.circle"
-        case .titleAsc: "textformat.abc"
-        case .masteryAsc, .masteryDesc: "chart.bar"
-        case .difficultyDesc: "flame"
-        case .reviewDateAsc: "clock"
-        }
-    }
-}
-
-// MARK: - FilteredStatistics
-
-/// 筛选结果统计
-struct FilteredStatistics: Sendable, Equatable {
-    let totalCount: Int
-    let filteredCount: Int
-    let masteredCount: Int
-    let pendingReviewCount: Int
-
-    /// 筛选率描述
-    var filterDescription: String {
-        if filteredCount == totalCount {
-            return String(format: String(localized: "filter_total_count"), totalCount)
-        } else {
-            return String(format: String(localized: "filter_filtered_count"), filteredCount, totalCount)
-        }
     }
 }
