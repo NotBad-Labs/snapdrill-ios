@@ -39,7 +39,7 @@ struct ItemRow: View {
     // MARK: - Body
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignTokens.Spacing.md) {
             thumbnailView
             infoSection
         }
@@ -134,12 +134,12 @@ private extension ItemRow {
     
     /// 信息区域
     var infoSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm - 2) {
             Text(reviewItem.title)
                 .font(.headline)
                 .lineLimit(2)
             
-            HStack(spacing: 8) {
+            HStack(spacing: DesignTokens.Spacing.sm) {
                 subjectTag
                 MasteryBadge(level: reviewItem.mastery)
                 Spacer()

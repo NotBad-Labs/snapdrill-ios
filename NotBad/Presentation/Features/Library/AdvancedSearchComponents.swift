@@ -129,7 +129,7 @@ struct SelectionChip: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 4) {
+            HStack(spacing: DesignTokens.Spacing.xs) {
                 Image(systemName: icon)
                     .font(.caption2)
                 Text(title)

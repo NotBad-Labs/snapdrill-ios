@@ -72,7 +72,7 @@ struct ExportFilterView: View {
                         onExport()
                         dismiss()
                     } label: {
-                        HStack(spacing: 4) {
+                        HStack(spacing: DesignTokens.Spacing.xs) {
                             Text("export_confirm")
                             Text("(\(filteredCount))")
                                 .foregroundStyle(.secondary)
@@ -92,7 +92,7 @@ struct ExportFilterView: View {
     private var previewSection: some View {
         Section {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs) {
                     Text("export_filter_preview")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -103,7 +103,7 @@ struct ExportFilterView: View {
                 Spacer()
                 
                 // 数量显示
-                VStack(alignment: .trailing, spacing: 4) {
+                VStack(alignment: .trailing, spacing: DesignTokens.Spacing.xs) {
                     Text("\(filteredCount)")
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundStyle(filteredCount > 0 ? Color.brand.primary : .secondary)
@@ -132,7 +132,7 @@ struct ExportFilterView: View {
     private var presetsSection: some View {
         Section {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
+                HStack(spacing: DesignTokens.Spacing.sm) {
                     ForEach(ExportPreset.allCases) { preset in
                         PresetChip(preset: preset) {
                             withAnimation(.spring(response: 0.3)) {
@@ -192,13 +192,13 @@ struct ExportFilterView: View {
                 ForEach(SubjectCategory.allCases, id: \.self) { category in
                     let subjects = Subject.allCases.filter { $0.category == category }
                     if !subjects.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                             Text(category.displayName)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                                .padding(.top, 4)
+                                .padding(.top, DesignTokens.Spacing.xs)
                             
-                            FlowLayout(spacing: 8) {
+                            FlowLayout(spacing: DesignTokens.Spacing.sm) {
                                 ForEach(subjects, id: \.self) { subject in
                                     SubjectChip(
                                         subject: subject,
@@ -241,7 +241,7 @@ struct ExportFilterView: View {
                                 .foregroundStyle(type.color)
                                 .frame(width: DesignTokens.IconSize.xs)
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs / 2) {
                                 Text(type.displayName)
                                     .foregroundStyle(.primary)
                                 Text(type.description)
@@ -284,12 +284,12 @@ struct ExportFilterView: View {
                 Toggle("export_filter_by_difficulty", isOn: $config.filterByDifficulty.animation(.spring(response: 0.3)))
                 
                 if config.filterByDifficulty {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
                         Text("export_difficulty_range")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         
-                        HStack(spacing: 8) {
+                        HStack(spacing: DesignTokens.Spacing.sm) {
                             ForEach(1...5, id: \.self) { level in
                                 DifficultyStarButton(
                                     level: level,
@@ -326,7 +326,7 @@ struct ExportFilterView: View {
                 Toggle("export_filter_by_error_type", isOn: $config.filterByErrorType.animation(.spring(response: 0.3)))
                 
                 if config.filterByErrorType {
-                    FlowLayout(spacing: 8) {
+                    FlowLayout(spacing: DesignTokens.Spacing.sm) {
                         ForEach(ErrorType.allCases, id: \.self) { errorType in
                             ErrorTypeChip(
                                 errorType: errorType,
@@ -357,7 +357,7 @@ private struct PresetChip: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 6) {
+            VStack(spacing: DesignTokens.Spacing.xs) {
                 Image(systemName: preset.icon)
                     .font(.title2)
                     .foregroundStyle(preset.color)
@@ -385,7 +385,7 @@ private struct SubjectChip: View {
     
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 4) {
+            HStack(spacing: DesignTokens.Spacing.xs) {
                 Text(subject.icon)
                     .font(.caption)
                 Text(subject.displayName)
@@ -431,16 +431,16 @@ private struct DifficultyStarButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 2) {
+            VStack(spacing: DesignTokens.Spacing.xs / 2) {
                 Image(systemName: isInRange ? "star.fill" : "star")
                     .font(.title2)
-                    .foregroundStyle(isInRange ? .yellow : .secondary)
+                    .foregroundStyle(isInRange ? Color.brand.warning : .secondary)
                 Text("\(level)")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             .frame(width: DesignTokens.IconSize.xl, height: 50)
-            .background(isInRange ? Color.yellow.opacity(0.1) : Color.clear)
+            .background(isInRange ? Color.brand.warning.opacity(0.1) : Color.clear)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
         .buttonStyle(.plain)

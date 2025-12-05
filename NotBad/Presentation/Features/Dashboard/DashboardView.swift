@@ -38,7 +38,7 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: DesignTokens.Spacing.xl) {
                     WelcomeCard()
 
                     StatisticsGrid(
@@ -70,11 +70,11 @@ struct DashboardView: View {
     // MARK: - Quick Actions
 
     private var quickActions: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.lg) {
             Text("dashboard_quick_actions")
                 .font(.headline)
 
-            VStack(spacing: 12) {
+            VStack(spacing: DesignTokens.Spacing.md) {
                 NavigationLink(destination: CaptureView()) {
                     QuickActionButton(
                         title: "action_quick_capture",

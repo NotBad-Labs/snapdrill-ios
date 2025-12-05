@@ -43,7 +43,7 @@ struct LibraryFilterBar: View {
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
+            HStack(spacing: DesignTokens.Spacing.md - 2) {
                 allSubjectsChip
                 subjectChips
                 
@@ -107,7 +107,7 @@ private extension LibraryFilterBar {
                 }
             }
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: DesignTokens.Spacing.xs) {
                 Image(systemName: "arrow.up.arrow.down")
                 Text(sortOption.shortName)
             }
@@ -122,7 +122,7 @@ private extension LibraryFilterBar {
     /// 高级筛选按钮
     var advancedFilterButton: some View {
         Button(action: onShowAdvancedSearch) {
-            HStack(spacing: 4) {
+            HStack(spacing: DesignTokens.Spacing.xs) {
                 Image(systemName: "slider.horizontal.3")
                 if advancedCriteria.hasActiveFilters {
                     Text("\(advancedCriteria.activeFilterCount)")

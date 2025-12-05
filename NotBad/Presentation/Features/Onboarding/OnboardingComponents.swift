@@ -28,7 +28,7 @@ struct RegionOptionButton: View {
                 Text(region.flag)
                     .font(.largeTitle)
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs / 2) {
                     Text(region.displayName)
                         .font(.headline)
                         .foregroundStyle(.primary)

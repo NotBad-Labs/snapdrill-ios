@@ -109,7 +109,7 @@ struct ProfileEditView: View {
                 .padding(.vertical, DesignTokens.Spacing.md)
                 
                 // 头像选择网格
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: DesignTokens.Spacing.md) {
                     ForEach(avatarOptions, id: \.self) { avatar in
                         Button {
                             withAnimation(.spring(response: 0.3)) {
@@ -154,7 +154,7 @@ struct ProfileEditView: View {
     
     private var gradientSection: some View {
         Section {
-            HStack(spacing: 12) {
+            HStack(spacing: DesignTokens.Spacing.md) {
                 ForEach(0..<gradientOptions.count, id: \.self) { index in
                     Button {
                         withAnimation(.spring(response: 0.3)) {

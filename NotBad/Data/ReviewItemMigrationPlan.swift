@@ -7,6 +7,7 @@
 
 import SwiftData
 import Foundation
+import OSLog
 
 // MARK: - ReviewItemMigrationPlan
 
@@ -92,13 +93,13 @@ extension ReviewItemMigrationPlan {
         toVersion: ReviewItemSchemaV2.self,
         willMigrate: { context in
             // 迁移前的准备工作
-            print("📦 准备从 V1 迁移到 V2...")
+            Logger.data.info("📦 准备从 V1 迁移到 V2...")
             
             // 可以在这里备份数据或进行预处理
         },
         didMigrate: { context in
             // 迁移后的清理工作
-            print("✅ V1 → V2 迁移完成")
+            Logger.data.info("✅ V1 → V2 迁移完成")
             
             // 可以在这里进行数据验证或后处理
             // 例如：设置新字段的默认值

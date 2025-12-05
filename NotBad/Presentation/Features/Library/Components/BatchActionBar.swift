@@ -49,7 +49,7 @@ struct BatchActionBar: View {
         VStack(spacing: 0) {
             Divider()
             
-            HStack(spacing: 16) {
+            HStack(spacing: DesignTokens.Spacing.lg) {
                 selectedCountLabel
                 
                 Spacer()

@@ -179,7 +179,7 @@ extension DataManagementView {
                         exportedFileURL = file.url
                         showExportSheet = true
                     } label: {
-                        HStack(spacing: 12) {
+                        HStack(spacing: DesignTokens.Spacing.md) {
                             // 文件类型图标
                             Image(systemName: file.icon)
                                 .font(.title2)
@@ -187,13 +187,13 @@ extension DataManagementView {
                                 .frame(width: DesignTokens.IconSize.sm)
                             
                             // 文件信息
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs / 2) {
                                 Text(file.fileName)
                                     .font(.subheadline)
                                     .foregroundStyle(.primary)
                                     .lineLimit(1)
                                 
-                                HStack(spacing: 8) {
+                                HStack(spacing: DesignTokens.Spacing.sm) {
                                     Text(file.formattedSize)
                                     Text("•")
                                     Text(file.formattedDate)

@@ -115,14 +115,14 @@ struct ErrorBannerView: View {
     var onRetry: (() -> Void)?
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignTokens.Spacing.md) {
             // 图标
             Image(systemName: error.icon)
                 .font(.title3)
                 .foregroundStyle(.white)
             
             // 消息
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.xs / 2) {
                 Text(error.userMessage)
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.white)

@@ -43,7 +43,7 @@ struct DisplayContent: View {
             // 难度和题型
             HStack(spacing: DesignTokens.Spacing.md) {
                 InfoCard(title: "难度", icon: reviewItem.difficulty.icon) {
-                    HStack(spacing: 2) {
+                    HStack(spacing: DesignTokens.Spacing.xs / 2) {
                         Text(reviewItem.difficulty.displayName)
                             .font(.subheadline)
                         Text("(\(reviewItem.difficulty.stars)星)")

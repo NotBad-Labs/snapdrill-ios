@@ -78,7 +78,7 @@ struct MasteryDistributionChart: View {
                         .foregroundStyle(item.color.gradient)
                         .cornerRadius(4)
                         .annotation(position: .overlay) {
-                            VStack(spacing: 2) {
+                            VStack(spacing: DesignTokens.Spacing.xs / 2) {
                                 Text("\(item.count)")
                                     .font(.headline)
                                     .fontWeight(.bold)

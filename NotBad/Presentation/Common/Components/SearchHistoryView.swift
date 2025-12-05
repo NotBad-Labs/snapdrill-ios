@@ -41,7 +41,7 @@ struct SearchHistoryView: View {
     
     var body: some View {
         if !historyManager.searchHistory.isEmpty {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
                 // 标题和清空按钮
                 HStack {
                     Label {
@@ -67,7 +67,7 @@ struct SearchHistoryView: View {
                 .padding(.horizontal)
                 
                 // 历史记录列表（使用 FlowLayout 标签形式）
-                FlowLayout(spacing: 8) {
+                FlowLayout(spacing: DesignTokens.Spacing.sm) {
                     ForEach(historyManager.searchHistory, id: \.self) { query in
                         SearchHistoryChip(
                             text: query,
@@ -108,7 +108,7 @@ private struct SearchHistoryChip: View {
     let onDelete: () -> Void
     
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: DesignTokens.Spacing.sm - 2) {
             Text(text)
                 .font(.subheadline)
                 .lineLimit(1)

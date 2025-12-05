@@ -68,7 +68,7 @@ struct ItemDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: DesignTokens.Spacing.xl) {
                 imagePreview
 
                 if isEditing {

@@ -84,7 +84,7 @@ private struct KeyHint: View {
     let label: String
     
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: DesignTokens.Spacing.xs) {
             Text(key)
                 .font(.caption2.monospaced())
                 .padding(.horizontal, 6)

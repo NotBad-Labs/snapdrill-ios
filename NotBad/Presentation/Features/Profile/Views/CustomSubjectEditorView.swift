@@ -139,7 +139,7 @@ struct CustomSubjectEditorView: View {
                 
                 // 颜色选择
                 Section {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 12) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: DesignTokens.Spacing.md) {
                         ForEach(availableColors, id: \.self) { color in
                             Button {
                                 withAnimation(.spring(response: 0.3)) {
@@ -294,7 +294,7 @@ private struct IconPickerView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 16) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: DesignTokens.Spacing.lg) {
                     ForEach(availableIcons, id: \.self) { icon in
                         Button {
                             withAnimation(.spring(response: 0.3)) {
