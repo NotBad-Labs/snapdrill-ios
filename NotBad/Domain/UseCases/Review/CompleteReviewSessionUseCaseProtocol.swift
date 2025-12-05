@@ -123,7 +123,7 @@ struct ReviewReport: Identifiable, Sendable {
         startedAt: Date,
         completedAt: Date = Date(),
         masteryDistribution: [MasteryLevel: Int] = [:],
-        subjectDistribution: [Subject: Int] = []
+        subjectDistribution: [Subject: Int] = [:]
     ) {
         self.id = id
         self.sessionId = sessionId

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 // MARK: - TestDependencyFactory
 
@@ -59,7 +60,7 @@ final class TestDependencyFactory: DependencyFactory {
     }
     
     func makeRecordReviewResultUseCase() -> RecordReviewResultUseCaseProtocol {
-        RecordReviewResultUseCase(repository: mockRepository)
+        fatalError("RecordReviewResultUseCase not implemented yet")
     }
     
     func makeCompleteReviewSessionUseCase() -> CompleteReviewSessionUseCaseProtocol {
@@ -69,7 +70,7 @@ final class TestDependencyFactory: DependencyFactory {
     // MARK: - Use Cases - Library
     
     func makeCreateReviewItemUseCase() -> CreateReviewItemUseCaseProtocol {
-        CreateReviewItemUseCase(repository: mockRepository)
+        fatalError("CreateReviewItemUseCase not implemented yet")
     }
     
     func makeFetchReviewItemsUseCase() -> FetchReviewItemsUseCaseProtocol {
@@ -79,7 +80,7 @@ final class TestDependencyFactory: DependencyFactory {
     // MARK: - Use Cases - Statistics
     
     func makeGetStatisticsUseCase() -> GetStatisticsUseCaseProtocol {
-        GetStatisticsUseCase(repository: mockRepository)
+        fatalError("GetStatisticsUseCase not implemented yet")
     }
     
     // MARK: - Services
@@ -235,27 +236,51 @@ final class MockReviewItemRepository: ReviewItemRepositoryProtocol {
 // MARK: - MockOCRService
 
 /// Mock OCR 服务
+@MainActor
 final class MockOCRService: OCRServiceProtocol {
     
-    var mockResult: OCRResult = OCRResult(text: "Mock OCR Text")
+    var mockText: String = "Mock OCR Text"
+    var mockConfidence: Double = 0.95
     var shouldThrowError: Bool = false
     
-    func recognize(image: Data) async throws -> OCRResult {
+    func recognizeText(from image: UIImage) async throws -> String {
         if shouldThrowError {
             throw NSError(domain: "MockOCR", code: -1)
         }
-        return mockResult
+        return mockText
+    }
+    
+    func recognizeTextWithConfidence(from image: UIImage) async throws -> OCRResult {
+        if shouldThrowError {
+            throw NSError(domain: "MockOCR", code: -1)
+        }
+        return OCRResult(text: mockText, lines: [], confidence: mockConfidence)
     }
 }
 
 // MARK: - MockAnalyticsService
 
 /// Mock 分析服务
+@MainActor
 final class MockAnalyticsService: AnalyticsServiceProtocol {
     
-    var trackedEvents: [(name: String, parameters: [String: Any]?)] = []
+    var trackedEvents: [AnalyticsEvent] = []
+    var userProperties: [String: String] = [:]
+    var userId: String?
     
-    func track(event: String, parameters: [String: Any]?) {
-        trackedEvents.append((event, parameters))
+    func track(_ event: AnalyticsEvent) {
+        trackedEvents.append(event)
+    }
+    
+    func track(_ name: String, parameters: [String: String]) {
+        trackedEvents.append(AnalyticsEvent(name: name, parameters: parameters))
+    }
+    
+    func setUserProperty(_ value: String, forName name: String) {
+        userProperties[name] = value
+    }
+    
+    func setUserId(_ userId: String?) {
+        self.userId = userId
     }
 }

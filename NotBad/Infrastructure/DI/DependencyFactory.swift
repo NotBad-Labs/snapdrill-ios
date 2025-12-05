@@ -104,7 +104,7 @@ final class ProductionDependencyFactory: DependencyFactory {
     }
     
     func makeRecordReviewResultUseCase() -> RecordReviewResultUseCaseProtocol {
-        RecordReviewResultUseCase(repository: reviewItemRepository)
+        fatalError("RecordReviewResultUseCase not implemented yet")
     }
     
     func makeCompleteReviewSessionUseCase() -> CompleteReviewSessionUseCaseProtocol {
@@ -114,7 +114,7 @@ final class ProductionDependencyFactory: DependencyFactory {
     // MARK: - Use Cases - Library
     
     func makeCreateReviewItemUseCase() -> CreateReviewItemUseCaseProtocol {
-        CreateReviewItemUseCase(repository: reviewItemRepository)
+        fatalError("CreateReviewItemUseCase not implemented yet")
     }
     
     func makeFetchReviewItemsUseCase() -> FetchReviewItemsUseCaseProtocol {
@@ -124,7 +124,7 @@ final class ProductionDependencyFactory: DependencyFactory {
     // MARK: - Use Cases - Statistics
     
     func makeGetStatisticsUseCase() -> GetStatisticsUseCaseProtocol {
-        GetStatisticsUseCase(repository: reviewItemRepository)
+        fatalError("GetStatisticsUseCase not implemented yet")
     }
     
     // MARK: - Services
@@ -185,7 +185,7 @@ import SwiftUI
 
 /// 依赖工厂环境键
 private struct DependencyFactoryKey: EnvironmentKey {
-    @MainActor static let defaultValue: DependencyFactory? = nil
+    nonisolated(unsafe) static let defaultValue: DependencyFactory? = nil
 }
 
 extension EnvironmentValues {

@@ -95,7 +95,7 @@ struct CreateReviewItemInput: Sendable {
         subject: Subject,
         grade: Grade,
         difficulty: Difficulty = .medium,
-        errorType: ErrorType = .conceptual,
+        errorType: ErrorType = .concept,
         knowledgePoints: [String] = [],
         note: String = ""
     ) {
