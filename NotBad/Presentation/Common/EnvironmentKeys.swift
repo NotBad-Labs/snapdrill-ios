@@ -234,3 +234,59 @@ extension View {
         ))
     }
 }
+
+// MARK: - DependencyFactory Environment Key
+
+/// 依赖工厂环境键
+///
+/// 用于通过 SwiftUI Environment 注入完整的依赖工厂
+private struct DependencyFactoryKey: EnvironmentKey {
+    nonisolated(unsafe) static let defaultValue: DependencyFactory? = nil
+}
+
+extension EnvironmentValues {
+    /// 依赖工厂
+    ///
+    /// 使用示例:
+    /// ```swift
+    /// // 注入
+    /// ContentView()
+    ///     .environment(\.dependencyFactory, factory)
+    ///
+    /// // 读取
+    /// @Environment(\.dependencyFactory) var factory
+    /// ```
+    var dependencyFactory: DependencyFactory? {
+        get { self[DependencyFactoryKey.self] }
+        set { self[DependencyFactoryKey.self] = newValue }
+    }
+}
+
+// MARK: - DependencyFactory View Modifier
+
+/// 依赖工厂注入修饰符
+struct WithDependencyFactory: ViewModifier {
+    let factory: DependencyFactory
+    
+    func body(content: Content) -> some View {
+        content.environment(\.dependencyFactory, factory)
+    }
+}
+
+extension View {
+    /// 注入依赖工厂
+    ///
+    /// - Parameter factory: 依赖工厂实例
+    /// - Returns: 修改后的视图
+    func withDependencyFactory(_ factory: DependencyFactory) -> some View {
+        modifier(WithDependencyFactory(factory: factory))
+    }
+    
+    /// 注入依赖工厂（简写版本）
+    ///
+    /// - Parameter factory: 依赖工厂实例
+    /// - Returns: 修改后的视图
+    func withDependencies(_ factory: DependencyFactory) -> some View {
+        modifier(WithDependencyFactory(factory: factory))
+    }
+}

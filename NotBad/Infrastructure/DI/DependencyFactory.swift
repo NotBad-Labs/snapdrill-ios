@@ -179,41 +179,6 @@ enum AppDependencies {
     }
 }
 
-// MARK: - Environment Key (Optional)
-
-import SwiftUI
-
-/// 依赖工厂环境键
-private struct DependencyFactoryKey: EnvironmentKey {
-    nonisolated(unsafe) static let defaultValue: DependencyFactory? = nil
-}
-
-extension EnvironmentValues {
-    /// 依赖工厂
-    var dependencyFactory: DependencyFactory? {
-        get { self[DependencyFactoryKey.self] }
-        set { self[DependencyFactoryKey.self] = newValue }
-    }
-}
-
-// MARK: - View Modifier
-
-/// 便捷的依赖注入修饰符
-struct WithDependencies: ViewModifier {
-    let factory: DependencyFactory
-    
-    func body(content: Content) -> some View {
-        content.environment(\.dependencyFactory, factory)
-    }
-}
-
-extension View {
-    /// 注入依赖工厂
-    func withDependencies(_ factory: DependencyFactory) -> some View {
-        modifier(WithDependencies(factory: factory))
-    }
-}
-
 // MARK: - ViewModel Factory Extension
 
 extension DependencyFactory {
