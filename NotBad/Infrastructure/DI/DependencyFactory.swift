@@ -84,7 +84,8 @@ final class ProductionDependencyFactory: DependencyFactory {
     
     // MARK: - Properties
     
-    private let modelContainer: ModelContainer
+    /// SwiftData 模型容器
+    let modelContainer: ModelContainer
     
     /// 缓存的 Repository（避免重复创建）
     private lazy var reviewItemRepository: ReviewItemRepositoryProtocol = {

@@ -36,14 +36,14 @@ enum DataProviderFactory {
         SwiftDataReviewItemProvider(modelContainer: modelContainer)
     }
     
-    /// 使用 Dependencies 容器中的 ModelContainer 创建数据提供者
+    /// 使用 AppDependencies 容器中的 ModelContainer 创建数据提供者
     ///
-    /// - Returns: SwiftData 实现的数据提供者，如果 ModelContainer 未配置则返回 nil
+    /// - Returns: SwiftData 实现的数据提供者，如果工厂未配置则返回 nil
     static func makeSwiftDataProvider() -> SwiftDataReviewItemProvider? {
-        guard let container = Dependencies.shared.modelContainer else {
+        guard let factory = AppDependencies.factory as? ProductionDependencyFactory else {
             return nil
         }
-        return SwiftDataReviewItemProvider(modelContainer: container)
+        return SwiftDataReviewItemProvider(modelContainer: factory.modelContainer)
     }
 }
 

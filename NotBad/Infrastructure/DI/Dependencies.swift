@@ -2,7 +2,12 @@
 //  Dependencies.swift
 //  NotBad
 //
-//  依赖容器 - 管理应用的依赖注入
+//  ⚠️ 已废弃 - 请使用 DependencyFactory 和 AppDependencies
+//
+//  此文件保留仅用于向后兼容，将在未来版本中删除。
+//  新代码请使用：
+//  - AppDependencies.factory 获取依赖工厂
+//  - @Environment(\.dependencyFactory) 在 View 中注入
 //
 
 import Foundation
@@ -12,20 +17,18 @@ import SwiftData
 
 /// 依赖容器
 ///
-/// 提供应用级别的依赖管理，支持在生产环境和测试环境中切换实现。
+/// ⚠️ **已废弃** - 请使用 `AppDependencies` 和 `DependencyFactory`
 ///
-/// ## 使用示例
+/// ## 迁移指南
 ///
 /// ```swift
-/// // 生产环境
+/// // 旧方式（已废弃）
 /// let repository = Dependencies.shared.reviewItemRepository
 ///
-/// // 测试环境
-/// Dependencies.shared.reviewItemRepository = MockReviewItemRepository()
+/// // 新方式
+/// let useCase = AppDependencies.factory.makeCreateReviewItemUseCase()
 /// ```
-///
-/// - Note: 使用单例模式，通过 `.shared` 访问
-/// - Important: 测试完成后记得重置依赖
+@available(*, deprecated, message: "Use AppDependencies and DependencyFactory instead")
 @MainActor
 final class Dependencies {
     

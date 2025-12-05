@@ -91,9 +91,6 @@ struct NotBadApp: App {
         self.dependencyFactory = factory
         AppDependencies.configure(factory: factory)
         
-        // 向后兼容：配置旧的 Dependencies 单例
-        Dependencies.shared.configure(modelContainer: container)
-        
         Logger.app.info("✅ 依赖工厂初始化完成")
     }
 
