@@ -60,7 +60,7 @@ final class TestDependencyFactory: DependencyFactory {
     }
     
     func makeRecordReviewResultUseCase() -> RecordReviewResultUseCaseProtocol {
-        fatalError("RecordReviewResultUseCase not implemented yet")
+        RecordReviewResultUseCase(repository: mockRepository)
     }
     
     func makeCompleteReviewSessionUseCase() -> CompleteReviewSessionUseCaseProtocol {
@@ -88,7 +88,7 @@ final class TestDependencyFactory: DependencyFactory {
     // MARK: - Use Cases - Statistics
     
     func makeGetStatisticsUseCase() -> GetStatisticsUseCaseProtocol {
-        fatalError("GetStatisticsUseCase not implemented yet")
+        GetStatisticsUseCase(repository: mockRepository)
     }
     
     // MARK: - Services

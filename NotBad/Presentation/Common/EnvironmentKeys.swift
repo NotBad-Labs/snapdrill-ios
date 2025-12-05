@@ -241,7 +241,7 @@ extension View {
 ///
 /// 用于通过 SwiftUI Environment 注入完整的依赖工厂
 private struct DependencyFactoryKey: EnvironmentKey {
-    nonisolated(unsafe) static let defaultValue: DependencyFactory? = nil
+    static let defaultValue: DependencyFactory? = nil
 }
 
 extension EnvironmentValues {

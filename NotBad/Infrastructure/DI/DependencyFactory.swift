@@ -110,7 +110,7 @@ final class ProductionDependencyFactory: DependencyFactory {
     }
     
     func makeRecordReviewResultUseCase() -> RecordReviewResultUseCaseProtocol {
-        fatalError("RecordReviewResultUseCase not implemented yet")
+        RecordReviewResultUseCase(repository: reviewItemRepository)
     }
     
     func makeCompleteReviewSessionUseCase() -> CompleteReviewSessionUseCaseProtocol {
@@ -138,7 +138,7 @@ final class ProductionDependencyFactory: DependencyFactory {
     // MARK: - Use Cases - Statistics
     
     func makeGetStatisticsUseCase() -> GetStatisticsUseCaseProtocol {
-        fatalError("GetStatisticsUseCase not implemented yet")
+        GetStatisticsUseCase(repository: reviewItemRepository)
     }
     
     // MARK: - Services
