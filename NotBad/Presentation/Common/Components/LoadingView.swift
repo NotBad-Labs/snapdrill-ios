@@ -264,7 +264,7 @@ enum LoadingState: Equatable, Sendable {
     ZStack {
         Color.blue
         LoadingOverlay("正在上传...", showCancel: true) {
-            print("取消")
+            // Cancel action
         }
     }
 }

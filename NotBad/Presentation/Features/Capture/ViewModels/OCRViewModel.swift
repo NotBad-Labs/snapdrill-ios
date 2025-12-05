@@ -8,6 +8,7 @@
 import Foundation
 import Observation
 import UIKit
+import OSLog
 
 // MARK: - OCRViewModel
 
@@ -44,7 +45,7 @@ final class OCRViewModel {
             self.recognizedText = text
             return text
         } catch {
-            print("OCR failed: \(error)")
+            Logger.ocr.error("OCR failed: \(error.localizedDescription)")
             return nil
         }
     }

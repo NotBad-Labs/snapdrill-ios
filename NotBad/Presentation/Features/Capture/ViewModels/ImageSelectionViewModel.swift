@@ -9,6 +9,7 @@ import Foundation
 import Observation
 import SwiftUI
 import PhotosUI
+import OSLog
 
 // MARK: - ImageSelectionViewModel
 
@@ -60,7 +61,7 @@ final class ImageSelectionViewModel {
                 handlePickedImage(uiImage)
             }
         } catch {
-            print("Failed to load image: \(error)")
+            Logger.camera.error("Failed to load image: \(error.localizedDescription)")
         }
     }
     

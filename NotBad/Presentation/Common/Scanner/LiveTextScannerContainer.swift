@@ -175,11 +175,11 @@ struct LiveTextScannerContainer: View {
 #Preview("扫描器容器") {
     if LiveTextScannerView.isSupported {
         LiveTextScannerContainer(
-            onResult: { text, imageData in
-                print("识别结果: \(text), 图片: \(imageData?.count ?? 0) bytes")
+            onResult: { _, _ in
+                // Handle scan result
             },
             onCancel: {
-                print("用户取消")
+                // Handle cancel
             }
         )
     } else {

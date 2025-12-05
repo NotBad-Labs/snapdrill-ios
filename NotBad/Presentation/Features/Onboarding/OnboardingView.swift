@@ -350,7 +350,7 @@ struct OnboardingView: View {
 
 #Preview {
     OnboardingView {
-        print("Onboarding completed")
+        // Preview completion handler
     }
 }
 

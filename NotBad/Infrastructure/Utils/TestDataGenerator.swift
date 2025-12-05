@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import OSLog
 
 #if DEBUG
 
@@ -181,12 +182,12 @@ struct TestDataGenerator {
             // 每 500 条保存一次，避免内存压力
             if i % 500 == 0 && i > 0 {
                 try? context.save()
-                print("Generated \(i) items...")
+                Logger.performance.info("Generated \(i) items...")
             }
         }
         
         try? context.save()
-        print("✅ Generated \(count) test items")
+        Logger.performance.info("✅ Generated \(count) test items")
     }
     
     /// 根据学科获取标题
@@ -226,9 +227,9 @@ struct TestDataGenerator {
         do {
             try context.delete(model: ReviewItemModel.self)
             try context.save()
-            print("✅ Cleared all test data")
+            Logger.data.info("✅ Cleared all test data")
         } catch {
-            print("❌ Failed to clear data: \(error)")
+            Logger.data.error("❌ Failed to clear data: \(error.localizedDescription)")
         }
     }
 }

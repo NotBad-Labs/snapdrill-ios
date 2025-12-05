@@ -51,11 +51,6 @@ public final class LocalAnalyticsService: AnalyticsServiceProtocol, @unchecked S
         if recentEvents.count > maxRecentEvents {
             recentEvents.removeFirst()
         }
-        
-        #if DEBUG
-        // Debug 模式下打印到控制台
-        print("📈 Analytics: \(event.name)\(paramsString)")
-        #endif
     }
     
     public func setUserProperty(_ value: String, forName name: String) {

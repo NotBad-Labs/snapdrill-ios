@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import OSLog
 
 /// 错题记录仓储实现
 /// 使用 ReviewItemModel 进行 SwiftData 持久化，对外暴露纯领域实体 ReviewItem
@@ -36,7 +37,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to fetch all review items: \(error)")
+            Logger.data.error("Failed to fetch all review items: \(error.localizedDescription)")
             return []
         }
     }
@@ -58,7 +59,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.first
         } catch {
-            print("Failed to fetch model by id: \(error)")
+            Logger.data.error("Failed to fetch model by id: \(error.localizedDescription)")
             return nil
         }
     }
@@ -132,7 +133,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to fetch review items by subject: \(error)")
+            Logger.data.error("Failed to fetch review items by subject: \(error.localizedDescription)")
             return []
         }
     }
@@ -150,7 +151,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to fetch review items by mastery level: \(error)")
+            Logger.data.error("Failed to fetch review items by mastery level: \(error.localizedDescription)")
             return []
         }
     }
@@ -167,7 +168,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to fetch favorite items: \(error)")
+            Logger.data.error("Failed to fetch favorite items: \(error.localizedDescription)")
             return []
         }
     }
@@ -185,7 +186,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to fetch items due for review: \(error)")
+            Logger.data.error("Failed to fetch items due for review: \(error.localizedDescription)")
             return []
         }
     }
@@ -206,7 +207,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to fetch today's items: \(error)")
+            Logger.data.error("Failed to fetch today's items: \(error.localizedDescription)")
             return []
         }
     }
@@ -222,7 +223,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to fetch recent items: \(error)")
+            Logger.data.error("Failed to fetch recent items: \(error.localizedDescription)")
             return []
         }
     }
@@ -239,7 +240,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to fetch items in date range: \(error)")
+            Logger.data.error("Failed to fetch items in date range: \(error.localizedDescription)")
             return []
         }
     }
@@ -257,7 +258,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to fetch items by error type: \(error)")
+            Logger.data.error("Failed to fetch items by error type: \(error.localizedDescription)")
             return []
         }
     }
@@ -275,7 +276,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to fetch items by source: \(error)")
+            Logger.data.error("Failed to fetch items by source: \(error.localizedDescription)")
             return []
         }
     }
@@ -297,7 +298,7 @@ final class ReviewItemRepository: Sendable {
             let models = try modelContext.fetch(descriptor)
             return models.map { ReviewItemMapper.toEntity(from: $0) }
         } catch {
-            print("Failed to search items: \(error)")
+            Logger.data.error("Failed to search items: \(error.localizedDescription)")
             return []
         }
     }
@@ -310,7 +311,7 @@ final class ReviewItemRepository: Sendable {
         do {
             return try modelContext.fetchCount(descriptor)
         } catch {
-            print("Failed to count items: \(error)")
+            Logger.data.error("Failed to count items: \(error.localizedDescription)")
             return 0
         }
     }
@@ -355,7 +356,7 @@ final class ReviewItemRepository: Sendable {
         do {
             return try modelContext.fetchCount(descriptor)
         } catch {
-            print("Failed to count favorites: \(error)")
+            Logger.data.error("Failed to count favorites: \(error.localizedDescription)")
             return 0
         }
     }
@@ -393,7 +394,7 @@ final class ReviewItemRepository: Sendable {
         do {
             return try modelContext.fetchCount(descriptor)
         } catch {
-            print("Failed to count today's items: \(error)")
+            Logger.data.error("Failed to count today's items: \(error.localizedDescription)")
             return 0
         }
     }
@@ -409,7 +410,7 @@ final class ReviewItemRepository: Sendable {
         do {
             return try modelContext.fetchCount(descriptor)
         } catch {
-            print("Failed to count items due for review: \(error)")
+            Logger.data.error("Failed to count items due for review: \(error.localizedDescription)")
             return 0
         }
     }

@@ -180,7 +180,7 @@ struct ErrorBannerView: View {
                 }
             }
             .errorAlert($error) {
-                print("Retry tapped")
+                // Retry action
             }
         }
     }

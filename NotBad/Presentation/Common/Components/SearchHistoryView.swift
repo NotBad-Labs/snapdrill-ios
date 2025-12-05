@@ -136,8 +136,8 @@ private struct SearchHistoryChip: View {
 
 #Preview {
     VStack {
-        SearchHistoryView { query in
-            print("Selected: \(query)")
+        SearchHistoryView { _ in
+            // Handle selection
         }
         Spacer()
     }

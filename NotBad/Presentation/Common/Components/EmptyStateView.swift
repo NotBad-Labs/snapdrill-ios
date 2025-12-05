@@ -331,12 +331,12 @@ extension EmptyStateView {
         title: "收件箱为空",
         message: "暂时没有新消息",
         actionTitle: "刷新",
-        action: { print("刷新") }
+        action: { }
     )
 }
 
 #Preview("Network Error") {
     EmptyStateView.networkError {
-        print("重试")
+        // Retry action
     }
 }
