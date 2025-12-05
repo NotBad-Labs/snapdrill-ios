@@ -49,8 +49,8 @@
 | **release/** | 发布分支：发布前的测试和修复 |
 | **hotfix/** | 热修复分支：生产环境紧急修复 |
 
-```
-main ←──────────────────────────────────────── 稳定发布
+```text
+main ←────────────────────────────────────────── 稳定发布
   ↑                                              ↑
   └── release/v1.0.0 ←── develop ←── feature/xxx
                               ↑
@@ -61,7 +61,7 @@ main ←────────────────────────
 
 采用 **Clean Architecture + MVVM + DDD 值对象** 模式：
 
-```
+```text
 NotBad/
 ├── Domain/                 # 领域层（核心业务）
 │   ├── Entities/           # 实体 (ReviewItem + 4个扩展)
@@ -118,4 +118,4 @@ MIT License - 详见 [LICENSE](LICENSE)
 
 ---
 
-**Made with ❤️ for better learning**
+Made with ❤️ for better learning

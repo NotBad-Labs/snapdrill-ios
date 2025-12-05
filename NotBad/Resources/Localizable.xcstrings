@@ -32,6 +32,9 @@
     "(%lld)" : {
 
     },
+    "(%lld星)" : {
+
+    },
     "【%@】" : {
 
     },
@@ -192,6 +195,9 @@
           }
         }
       }
+    },
+    "%lld." : {
+
     },
     "%lld%%" : {
       "localizations" : {
@@ -25962,6 +25968,61 @@
         }
       }
     },
+    "review_status_in_days_format" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%d 天后复习"
+          }
+        }
+      }
+    },
+    "review_status_new" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "新录入，尚未复习"
+          }
+        }
+      }
+    },
+    "review_status_overdue_format" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "已逾期 %d 天"
+          }
+        }
+      }
+    },
+    "review_status_today" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "今天需要复习"
+          }
+        }
+      }
+    },
+    "review_times_format" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "已复习 %d 次"
+          }
+        }
+      }
+    },
     "review_tip_gesture_message" : {
       "localizations" : {
         "en" : {
@@ -28448,6 +28509,15 @@
           }
         }
       }
+    },
+    "socratic_error_invalid" : {
+
+    },
+    "socratic_error_timeout" : {
+
+    },
+    "socratic_error_unavailable" : {
+
     },
     "sort_difficulty" : {
       "extractionState" : "manual",
@@ -38508,6 +38578,50 @@
         }
       }
     },
+    "validation_content_suggested" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "建议添加图片或笔记"
+          }
+        }
+      }
+    },
+    "validation_image_required" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "请添加错题图片"
+          }
+        }
+      }
+    },
+    "validation_knowledge_points_suggested" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "建议添加知识点标签"
+          }
+        }
+      }
+    },
+    "validation_title_required" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "标题不能为空"
+          }
+        }
+      }
+    },
     "主题" : {
       "localizations" : {
         "en" : {
@@ -38931,6 +39045,9 @@
         }
       }
     },
+    "对 (√)" : {
+
+    },
     "将删除所有 %lld 条数据" : {
 
     },
@@ -39073,6 +39190,9 @@
           }
         }
       }
+    },
+    "得分: ____________" : {
+
     },
     "快速入门" : {
       "localizations" : {
@@ -39425,6 +39545,9 @@
         }
       }
     },
+    "模拟测验" : {
+
+    },
     "清空" : {
 
     },
@@ -39441,6 +39564,9 @@
 
     },
     "生成 5000 条数据" : {
+
+    },
+    "用时: ____________" : {
 
     },
     "知识点:" : {
@@ -39461,9 +39587,6 @@
           }
         }
       }
-    },
-    "解：" : {
-
     },
     "记录解题思路、易错点等..." : {
       "localizations" : {
@@ -39520,6 +39643,9 @@
           }
         }
       }
+    },
+    "错 (×)" : {
+
     },
     "隐藏答案" : {
       "localizations" : {

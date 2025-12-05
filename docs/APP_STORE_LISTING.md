@@ -92,12 +92,14 @@ Download now and turn every mistake into a stepping stone for success!
 ## 关键词
 
 ### 中文 (100字符内)
-```
+
+```text
 错题本,错题,复习,艾宾浩斯,记忆曲线,学习,高考,中考,拍照,OCR,K12,教育,学生,作业
 ```
 
 ### English (100 characters)
-```
+
+```text
 study notes,mistakes,flashcards,spaced repetition,learning,K12,education,student,homework,OCR
 ```
 
@@ -107,8 +109,9 @@ study notes,mistakes,flashcards,spaced repetition,learning,K12,education,student
 
 ### v1.0 首发版本
 
-**中文**
-```
+#### 中文
+
+```text
 🎉 NotBad 不错错题本首次发布！
 
 核心功能：
@@ -127,8 +130,9 @@ study notes,mistakes,flashcards,spaced repetition,learning,K12,education,student
 开始记录你的错题，让学习更高效！
 ```
 
-**English**
-```
+#### English Version
+
+```text
 🎉 NotBad Study Notes - First Release!
 
 Core Features:
@@ -173,14 +177,14 @@ Start recording your mistakes and learn more efficiently!
 
 | 项目 | 内容 |
 |------|------|
-| 支持 URL | https://chramboliao.github.io/NotBad/support.html |
-| 隐私政策 URL | https://chramboliao.github.io/NotBad/privacy-policy.html |
-| 营销 URL | https://chramboliao.github.io/NotBad/ |
+| 支持 URL | <https://chramboliao.github.io/NotBad/support.html> |
+| 隐私政策 URL | <https://chramboliao.github.io/NotBad/privacy-policy.html> |
+| 营销 URL | <https://chramboliao.github.io/NotBad/> |
 
 ---
 
 ## 版权信息
 
-```
+```text
 © 2025 NotBad. All rights reserved.
 ```

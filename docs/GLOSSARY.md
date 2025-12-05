@@ -176,7 +176,7 @@ print(difficulty.coefficient)     // 1.5 (用于权重计算)
 | **Infrastructure** | 基础设施 | DI、OCR、Camera、Scanner |
 | **Presentation** | 用户界面 | Views、ViewModels、Components |
 
-```
+```text
 NotBad/
 ├── App/                        # 应用层
 │   └── NotBadApp.swift
@@ -415,7 +415,7 @@ Grade.grade7 < .grade10  // true
 
 ### 文件命名
 
-```
+```text
 实体:      ReviewItem.swift
 值对象:    MasteryLevel.swift, Difficulty.swift
 视图:      CaptureView.swift, LibraryView.swift
@@ -525,7 +525,7 @@ func handle(_ item: ReviewItem)  // 不知道如何处理
 
 ### 快速参考卡片
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │  NotBad 核心术语速查                                  │
 ├─────────────────────────────────────────────────────┤

@@ -17,10 +17,10 @@
 5. [领域驱动设计](#5-领域驱动设计ddd)
 6. [性能与资源管理](#6-性能与资源管理)
 7. [隐私与数据安全](#7-隐私与数据安全)
-8. [无障碍与包容性](#8-无障碍与包容性accessibility--inclusivity)
-9. [本地化与国际化](#9-本地化与国际化localization--i18n)
+8. [无障碍与包容性](#8-无障碍与包容性)
+9. [本地化与国际化](#9-本地化与国际化)
 10. [SwiftUI 最佳实践](#10-swiftui-最佳实践)
-11. [用户体验与交互](#11-用户体验与交互ux--interaction)
+11. [用户体验与交互](#11-用户体验与交互)
 12. [错误处理与日志](#12-错误处理与日志)
 13. [测试策略](#13-测试策略)
 14. [文档与可维护性](#14-文档与可维护性)
@@ -103,6 +103,7 @@ enum Difficulty: Int, Sendable, CaseIterable, Codable, Hashable, Identifiable {
 ```
 
 **顺序说明**：
+
 1. `Sendable` — 并发安全（最重要）
 2. `CaseIterable` — 枚举遍历
 3. `Codable` — 序列化
@@ -217,6 +218,7 @@ Color(hex: "#007AFF")
 | **Presentation** | 所有层 | 直接访问 SwiftData Context |
 
 **检查点**:
+
 - [ ] Domain 层是否纯净（不包含 `import SwiftUI`/`UIKit`/`L10n`）
 - [ ] 关键路径：`NotBad/Domain/` 目录下所有文件
 - [ ] 违例举例：`import SwiftUI`、直接使用 `Color`、调用 `EducationSystemManager.shared`
@@ -237,7 +239,7 @@ class LibraryViewModel {
 
 ### 2.3 单向数据流
 
-```
+```text
 Repository → ViewModel → View
     ↑                      |
     └──────── Action ──────┘
