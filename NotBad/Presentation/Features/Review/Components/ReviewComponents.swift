@@ -128,10 +128,46 @@ private struct LazyReviewCardView: View {
                     onFailed: onFailed
                 )
             } else {
-                // 占位视图，保持尺寸一致
-                Color.clear
+                // 占位视图，保持 TabView 尺寸稳定，避免滑动时高度跳变
+                ReviewCardPlaceholder()
             }
         }
+    }
+}
+
+/// 卡片占位，确保未预加载时也占据同等布局空间
+private struct ReviewCardPlaceholder: View {
+    var body: some View {
+        VStack(spacing: DesignTokens.Spacing.md) {
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                .fill(Color.semantic.secondaryBackground)
+                .frame(height: 36)
+
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                .fill(Color.semantic.secondaryBackground)
+                .frame(height: 220)
+
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.sm) {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.semantic.secondaryBackground)
+                    .frame(height: 16)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.semantic.secondaryBackground)
+                    .frame(height: 14)
+            }
+
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.md)
+                .fill(Color.semantic.secondaryBackground)
+                .frame(height: 120)
+
+            RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.lg)
+                .fill(Color.semantic.secondaryBackground)
+                .frame(height: 96)
+        }
+        .padding(DesignTokens.Spacing.lg)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color.semantic.background)
+        .redacted(reason: .placeholder)
     }
 }
 
