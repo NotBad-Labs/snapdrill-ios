@@ -57,13 +57,7 @@ struct SourceCategoryTests {
         #expect(SourceCategory.other.icon == "ellipsis.circle")
     }
 
-    @Test("所有分类都有颜色")
-    func allCategoriesHaveColors() {
-        #expect(SourceCategory.official.color == .red)
-        #expect(SourceCategory.school.color == .blue)
-        #expect(SourceCategory.extra.color == .orange)
-        #expect(SourceCategory.other.color == .gray)
-    }
+    // Note: color 属性已移至 Presentation/Common/Styles/ValueObjects+UI.swift
 
     @Test("所有分类都有分类描述")
     func allCategoriesHaveCategoryDescription() {

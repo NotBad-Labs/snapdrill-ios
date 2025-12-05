@@ -56,12 +56,7 @@ struct GradeStageTests {
         #expect(GradeStage.senior.icon == "graduationcap")
     }
 
-    @Test("所有学段都有颜色")
-    func allGradeStagesHaveColors() {
-        #expect(GradeStage.primary.color == .green)
-        #expect(GradeStage.junior.color == .orange)
-        #expect(GradeStage.senior.color == .purple)
-    }
+    // Note: color 属性已移至 Presentation/Common/Styles/ValueObjects+UI.swift
 
     @Test("gradeRange 描述年级范围")
     func gradeRangeNotEmpty() {

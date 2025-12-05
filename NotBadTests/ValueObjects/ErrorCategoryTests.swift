@@ -59,14 +59,7 @@ struct ErrorCategoryTests {
         #expect(ErrorCategory.other.icon == "ellipsis.circle")
     }
 
-    @Test("所有分类都有颜色")
-    func allCategoriesHaveColors() {
-        #expect(ErrorCategory.knowledge.color == .purple)
-        #expect(ErrorCategory.method.color == .red)
-        #expect(ErrorCategory.habit.color == .orange)
-        #expect(ErrorCategory.objective.color == .gray)
-        #expect(ErrorCategory.other.color == .secondary)
-    }
+    // Note: color 属性已移至 Presentation/Common/Styles/ValueObjects+UI.swift
 
     @Test("所有分类都有改进方向建议")
     func allCategoriesHaveImprovementDirection() {

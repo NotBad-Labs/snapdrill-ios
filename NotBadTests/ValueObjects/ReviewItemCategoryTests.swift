@@ -57,13 +57,7 @@ struct ReviewItemCategoryTests {
         #expect(ReviewItemCategory.other.icon == "ellipsis.circle")
     }
 
-    @Test("所有分类都有颜色")
-    func allCategoriesHaveColors() {
-        #expect(ReviewItemCategory.objective.color == .blue)
-        #expect(ReviewItemCategory.subjective.color == .orange)
-        #expect(ReviewItemCategory.comprehensive.color == .purple)
-        #expect(ReviewItemCategory.other.color == .gray)
-    }
+    // Note: color 属性已移至 Presentation/Common/Styles/ValueObjects+UI.swift
 
     @Test("所有分类都有评分特点描述")
     func allCategoriesHaveGradingCharacteristic() {
