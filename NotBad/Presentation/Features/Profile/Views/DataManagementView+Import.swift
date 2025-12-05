@@ -121,9 +121,6 @@ extension DataManagementView {
 
     /// 删除所有数据
     func deleteAllData() {
-        // 从模型获取 ID 列表
-        let idsToDelete = allModels.map { $0.id }
-        
         // 删除持久化模型
         for model in allModels {
             modelContext.delete(model)

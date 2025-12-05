@@ -64,12 +64,13 @@ final class SpotlightIndexService {
     /// - Parameter item: 要索引的错题
     func index(_ item: ReviewItem) {
         let searchableItem = createSearchableItem(from: item)
+        let itemTitle = item.title  // 提取 Sendable 值用于日志
         
         CSSearchableIndex.default().indexSearchableItems([searchableItem]) { error in
             if let error {
                 Logger.search.error("Spotlight 索引失败: \(error.localizedDescription)")
             } else {
-                Logger.search.debug("Spotlight 已索引: \(item.title)")
+                Logger.search.debug("Spotlight 已索引: \(itemTitle)")
             }
         }
     }
@@ -81,12 +82,13 @@ final class SpotlightIndexService {
         guard !items.isEmpty else { return }
         
         let searchableItems = items.map { createSearchableItem(from: $0) }
+        let count = items.count  // 提取 Sendable 值用于日志
         
         CSSearchableIndex.default().indexSearchableItems(searchableItems) { error in
             if let error {
                 Logger.search.error("Spotlight 批量索引失败: \(error.localizedDescription)")
             } else {
-                Logger.search.info("Spotlight 已索引 \(items.count) 条错题")
+                Logger.search.info("Spotlight 已索引 \(count) 条错题")
             }
         }
     }
@@ -103,13 +105,16 @@ final class SpotlightIndexService {
     ///
     /// - Parameter item: 要移除索引的错题
     func removeIndex(for item: ReviewItem) {
+        let identifier = item.id.uuidString  // 提取 Sendable 值
+        let itemTitle = item.title
+        
         CSSearchableIndex.default().deleteSearchableItems(
-            withIdentifiers: [item.id.uuidString]
+            withIdentifiers: [identifier]
         ) { error in
             if let error {
                 Logger.search.error("Spotlight 删除索引失败: \(error.localizedDescription)")
             } else {
-                Logger.search.debug("Spotlight 已删除索引: \(item.title)")
+                Logger.search.debug("Spotlight 已删除索引: \(itemTitle)")
             }
         }
     }
@@ -119,6 +124,7 @@ final class SpotlightIndexService {
     /// - Parameter items: 要移除索引的错题列表
     func removeIndex(for items: [ReviewItem]) {
         let identifiers = items.map { $0.id.uuidString }
+        let count = items.count  // 提取 Sendable 值
         
         CSSearchableIndex.default().deleteSearchableItems(
             withIdentifiers: identifiers
@@ -126,7 +132,7 @@ final class SpotlightIndexService {
             if let error {
                 Logger.search.error("Spotlight 批量删除索引失败: \(error.localizedDescription)")
             } else {
-                Logger.search.info("Spotlight 已删除 \(items.count) 条索引")
+                Logger.search.info("Spotlight 已删除 \(count) 条索引")
             }
         }
     }
