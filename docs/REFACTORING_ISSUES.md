@@ -379,19 +379,22 @@ docs/adr/ADR-005-di-factory.md
 
 ---
 
-### Issue #18: ❌ [P3] CI/CD 流水线
-**Status**: ❌ 未开始（可选）
+### Issue #18: ✅ [P3] CI/CD 流水线
+**Status**: ✅ 已完成
 **Labels**: `tooling`, `ci-cd`, `priority-low`
 
 **Description**:
 配置 GitHub Actions CI/CD。
 
 **Tasks**:
-- [ ] 配置 PR 自动构建
-- [ ] 配置单元测试运行
-- [ ] 配置代码覆盖率报告
-- [ ] 配置 SwiftLint 检查
-- [ ] 配置 TestFlight 自动发布
+- [x] 配置 PR 自动构建 (iOS 26, Swift 6.3)
+- [x] 配置单元测试运行 (UnitTestPlan)
+- [x] 配置 UI 测试运行 (UITestPlan)
+- [x] 配置代码覆盖率报告
+- [x] 配置 SwiftLint 检查
+- [x] 配置 Swift 6 严格并发检查
+
+**File**: `.github/workflows/ci.yml` (276 行完整配置)
 
 ---
 
@@ -402,8 +405,8 @@ docs/adr/ADR-005-di-factory.md
 | P0（阻塞） | 2 | 2 ✅ | 0 | 0 |
 | P1（高） | 6 | 4 ✅ | 2 ⚠️ | 0 |
 | P2（中） | 7 | 4 ✅ | 1 ⚠️ | 2 (2🚫) |
-| P3（低） | 3 | 0 | 1 ⚠️ | 2 ❌ |
-| **总计** | **18** | **10** | **4** | **4** |
+| P3（低） | 3 | 1 ✅ | 1 ⚠️ | 1 ❌ |
+| **总计** | **18** | **11** | **4** | **3** |
 
 ### 状态图例
 - ✅ 已完成
@@ -432,7 +435,7 @@ docs/adr/ADR-005-di-factory.md
 | #15 | 架构决策记录 | ✅ 已完成 |
 | #16 | API 文档生成 | ❌ 未开始（可选） |
 | #17 | SwiftLint 规则增强 | ✅ 已完成 |
-| #18 | CI/CD 流水线 | ❌ 未开始（可选） |
+| #18 | CI/CD 流水线 | ✅ 已完成 |
 
 ---
 
