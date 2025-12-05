@@ -34,9 +34,11 @@ import Observation
 /// // 获取选中项
 /// let selectedItems = items.filter { selection.isSelected($0.id) }
 /// ```
+///
+/// - Note: 使用 `@MainActor` 确保线程安全，所有方法都在主线程执行
 @MainActor
 @Observable
-final class SelectionManager<ID: Hashable & Sendable>: @unchecked Sendable {
+final class SelectionManager<ID: Hashable & Sendable>: Sendable {
     
     // MARK: - State
     

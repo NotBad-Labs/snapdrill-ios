@@ -46,7 +46,9 @@ import OSLog
 /// - 内存缓存: 最大 100 张 / 50MB
 /// - 磁盘缓存: 最大 200MB，超限自动清理
 /// - 缩略图尺寸: 300x300 JPEG (质量 0.7)
-final class ThumbnailCache: @unchecked Sendable {
+///
+/// - Note: 使用 Swift actor 确保线程安全，替代 `@unchecked Sendable`
+actor ThumbnailCache {
     
     // MARK: - Singleton
     
@@ -76,9 +78,6 @@ final class ThumbnailCache: @unchecked Sendable {
     /// 文件管理器
     private let fileManager = FileManager.default
     
-    /// 磁盘操作队列
-    private let diskQueue = DispatchQueue(label: "com.notbad.thumbnailcache.disk", qos: .utility)
-    
     // MARK: - Initialization
     
     private init() {
@@ -99,12 +98,12 @@ final class ThumbnailCache: @unchecked Sendable {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.clearMemoryCache()
+            Task { await self?.clearMemoryCache() }
         }
         
         // 启动时检查磁盘缓存大小
-        diskQueue.async { [weak self] in
-            self?.trimDiskCacheIfNeeded()
+        Task { [weak self] in
+            await self?.trimDiskCacheIfNeeded()
         }
     }
     
@@ -144,36 +143,25 @@ final class ThumbnailCache: @unchecked Sendable {
     ///
     /// - Parameter id: ReviewItem 的 UUID
     /// - Returns: 缓存的缩略图
-    func thumbnail(for id: UUID) async -> UIImage? {
-        // L1: 先检查内存（同步）
+    func thumbnailAsync(for id: UUID) async -> UIImage? {
+        // L1: 先检查内存
         let key = id.uuidString as NSString
         if let cached = memoryCache.object(forKey: key) {
             return cached
         }
         
-        // L2: 磁盘读取（异步）
-        return await withCheckedContinuation { continuation in
-            diskQueue.async { [weak self] in
-                guard let self else {
-                    continuation.resume(returning: nil)
-                    return
-                }
-                
-                let fileURL = self.diskCacheURL.appendingPathComponent("\(id.uuidString).jpg")
-                if let data = try? Data(contentsOf: fileURL),
-                   let image = UIImage(data: data) {
-                    // 回写到内存缓存
-                    DispatchQueue.main.async {
-                        self.setMemoryCache(image, for: id)
-                    }
-                    // 更新访问时间
-                    try? self.fileManager.setAttributes([.modificationDate: Date()], ofItemAtPath: fileURL.path)
-                    continuation.resume(returning: image)
-                } else {
-                    continuation.resume(returning: nil)
-                }
-            }
+        // L2: 磁盘读取
+        let fileURL = diskCacheURL.appendingPathComponent("\(id.uuidString).jpg")
+        if let data = try? Data(contentsOf: fileURL),
+           let image = UIImage(data: data) {
+            // 回写到内存缓存
+            setMemoryCache(image, for: id)
+            // 更新访问时间
+            try? fileManager.setAttributes([.modificationDate: Date()], ofItemAtPath: fileURL.path)
+            return image
         }
+        
+        return nil
     }
     
     /// 缓存缩略图（同时写入内存和磁盘）
@@ -185,24 +173,8 @@ final class ThumbnailCache: @unchecked Sendable {
         // L1: 写入内存
         setMemoryCache(image, for: id)
         
-        // L2: 异步写入磁盘
-        diskQueue.async { [weak self] in
-            self?.writeToDisk(image, for: id)
-        }
-    }
-    
-    /// 异步缓存缩略图
-    func setThumbnail(_ image: UIImage, for id: UUID) async {
-        // L1: 写入内存
-        setMemoryCache(image, for: id)
-        
         // L2: 写入磁盘
-        await withCheckedContinuation { continuation in
-            diskQueue.async { [weak self] in
-                self?.writeToDisk(image, for: id)
-                continuation.resume()
-            }
-        }
+        writeToDisk(image, for: id)
     }
     
     /// 从原图数据生成并缓存缩略图
@@ -211,33 +183,24 @@ final class ThumbnailCache: @unchecked Sendable {
     ///   - imageData: 原图数据
     ///   - id: ReviewItem 的 UUID
     /// - Returns: 生成的缩略图
-    func generateAndCache(from imageData: Data, for id: UUID) async -> UIImage? {
+    func generateAndCache(from imageData: Data, for id: UUID) -> UIImage? {
         // 先检查缓存
-        if let cached = await thumbnail(for: id) {
+        if let cached = thumbnail(for: id) {
             return cached
         }
         
-        // 在后台线程生成缩略图
-        return await withCheckedContinuation { continuation in
-            diskQueue.async { [weak self] in
-                guard let self,
-                      let original = UIImage(data: imageData) else {
-                    continuation.resume(returning: nil)
-                    return
-                }
-                
-                // 生成缩略图
-                let thumbnail = self.createThumbnail(from: original)
-                
-                // 缓存
-                DispatchQueue.main.async {
-                    self.setMemoryCache(thumbnail, for: id)
-                }
-                self.writeToDisk(thumbnail, for: id)
-                
-                continuation.resume(returning: thumbnail)
-            }
+        guard let original = UIImage(data: imageData) else {
+            return nil
         }
+        
+        // 生成缩略图
+        let thumbnail = createThumbnail(from: original)
+        
+        // 缓存到内存和磁盘
+        setMemoryCache(thumbnail, for: id)
+        writeToDisk(thumbnail, for: id)
+        
+        return thumbnail
     }
     
     /// 移除指定项目的缓存
@@ -248,11 +211,8 @@ final class ThumbnailCache: @unchecked Sendable {
         memoryCache.removeObject(forKey: id.uuidString as NSString)
         
         // 移除磁盘缓存
-        diskQueue.async { [weak self] in
-            guard let self else { return }
-            let fileURL = self.diskCacheURL.appendingPathComponent("\(id.uuidString).jpg")
-            try? self.fileManager.removeItem(at: fileURL)
-        }
+        let fileURL = diskCacheURL.appendingPathComponent("\(id.uuidString).jpg")
+        try? fileManager.removeItem(at: fileURL)
     }
     
     /// 清空内存缓存
@@ -265,26 +225,14 @@ final class ThumbnailCache: @unchecked Sendable {
     func clearAllCache() {
         clearMemoryCache()
         
-        diskQueue.async { [weak self] in
-            guard let self else { return }
-            try? self.fileManager.removeItem(at: self.diskCacheURL)
-            try? self.fileManager.createDirectory(at: self.diskCacheURL, withIntermediateDirectories: true)
-            Logger.performance.info("ThumbnailCache: 所有缓存已清空")
-        }
+        try? fileManager.removeItem(at: diskCacheURL)
+        try? fileManager.createDirectory(at: diskCacheURL, withIntermediateDirectories: true)
+        Logger.performance.info("ThumbnailCache: 所有缓存已清空")
     }
     
     /// 获取磁盘缓存大小
-    func diskCacheSize() async -> Int {
-        await withCheckedContinuation { continuation in
-            diskQueue.async { [weak self] in
-                guard let self else {
-                    continuation.resume(returning: 0)
-                    return
-                }
-                let size = self.calculateDiskCacheSize()
-                continuation.resume(returning: size)
-            }
-        }
+    func diskCacheSize() -> Int {
+        calculateDiskCacheSize()
     }
     
     // MARK: - Private Helpers

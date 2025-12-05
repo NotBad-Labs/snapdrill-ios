@@ -14,8 +14,10 @@ import OSLog
 
 /// 本地埋点服务
 /// 使用 OSLog 记录事件，便于调试和 Console.app 查看
+///
+/// - Note: 使用 `@MainActor` 确保线程安全，所有方法都在主线程执行
 @MainActor
-public final class LocalAnalyticsService: AnalyticsServiceProtocol, @unchecked Sendable {
+public final class LocalAnalyticsService: AnalyticsServiceProtocol, Sendable {
     
     // MARK: - Singleton
     
