@@ -482,7 +482,14 @@ final class LibraryViewModel {
         guard let modelContext else { return }
 
         for index in offsets {
-            modelContext.delete(items[index])
+            let itemId = items[index].id
+            let descriptor = FetchDescriptor<ReviewItemModel>(
+                predicate: #Predicate { $0.id == itemId }
+            )
+            if let models = try? modelContext.fetch(descriptor),
+               let model = models.first {
+                modelContext.delete(model)
+            }
         }
 
         do {
@@ -496,9 +503,16 @@ final class LibraryViewModel {
     func deleteItem(_ item: ReviewItem) {
         guard let modelContext else { return }
 
-        modelContext.delete(item)
-
+        let itemId = item.id
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate { $0.id == itemId }
+        )
+        
         do {
+            let models = try modelContext.fetch(descriptor)
+            if let model = models.first {
+                modelContext.delete(model)
+            }
             try modelContext.save()
         } catch {
             Logger.data.error("删除失败: \(error)")
@@ -512,7 +526,14 @@ final class LibraryViewModel {
         let itemsToDelete = selection.selectedItems(from: items)
 
         for item in itemsToDelete {
-            modelContext.delete(item)
+            let itemId = item.id
+            let descriptor = FetchDescriptor<ReviewItemModel>(
+                predicate: #Predicate { $0.id == itemId }
+            )
+            if let models = try? modelContext.fetch(descriptor),
+               let model = models.first {
+                modelContext.delete(model)
+            }
         }
 
         do {
@@ -534,8 +555,15 @@ final class LibraryViewModel {
         let itemsToUpdate = selection.selectedItems(from: items)
         
         for item in itemsToUpdate {
-            item.mastery = mastery
-            item.updatedAt = Date()
+            let itemId = item.id
+            let descriptor = FetchDescriptor<ReviewItemModel>(
+                predicate: #Predicate { $0.id == itemId }
+            )
+            if let models = try? modelContext.fetch(descriptor),
+               let model = models.first {
+                model.masteryLevel = mastery.rawValue
+                model.updatedAt = Date()
+            }
         }
         
         do {

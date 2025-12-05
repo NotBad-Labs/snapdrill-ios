@@ -2,463 +2,488 @@
 //  ReviewItemRepository.swift
 //  NotBad
 //
-//  Created for NotBad K12 错题本
+//  错题记录仓储实现
 //
 
 import Foundation
 import SwiftData
 
-// MARK: - ReviewItemRepository
-
-/// 错题仓库实现
-///
-/// 基于 SwiftData 的具体存储实现。
-///
-/// ## 职责
-///
-/// - 封装 SwiftData 的 `ModelContext` 操作
-/// - 实现 `ReviewItemRepositoryProtocol` 定义的所有方法
-/// - 提供高效的查询和统计功能
-///
-/// ## 使用示例
-///
-/// ```swift
-/// // 创建仓库实例
-/// let repository = ReviewItemRepository(modelContext: modelContext)
-///
-/// // 获取需要复习的错题
-/// let reviewItems = repository.fetchForReview()
-///
-/// // 保存新错题
-/// let newItem = ReviewItem(title: "新错题", subject: .math)
-/// try repository.save(newItem)
-/// ```
-///
-/// - Note: 所有操作都在 `@MainActor` 上下文中执行
-/// - Important: 确保 `modelContext` 的生命周期正确管理
+/// 错题记录仓储实现
+/// 使用 ReviewItemModel 进行 SwiftData 持久化，对外暴露纯领域实体 ReviewItem
 @MainActor
-final class ReviewItemRepository: ReviewItemRepositoryProtocol {
-
+final class ReviewItemRepository: Sendable {
+    
     // MARK: - Properties
-
-    /// SwiftData 模型上下文
+    
     private let modelContext: ModelContext
-
+    private let modelContainer: ModelContainer
+    
     // MARK: - Initialization
-
-    /// 创建仓库实例
-    ///
-    /// - Parameter modelContext: SwiftData 模型上下文
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    
+    init(modelContainer: ModelContainer) {
+        self.modelContainer = modelContainer
+        self.modelContext = modelContainer.mainContext
     }
-
-    // MARK: - Fetch All
-
+    
+    // MARK: - CRUD Operations
+    
     /// 获取所有错题
-    ///
-    /// 按创建时间降序排列（最新的在前）。
     func fetchAll() -> [ReviewItem] {
-        let descriptor = FetchDescriptor<ReviewItem>(
+        let descriptor = FetchDescriptor<ReviewItemModel>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
-        return (try? modelContext.fetch(descriptor)) ?? []
-    }
-
-    // MARK: - Filtered Fetch
-
-    /// 根据条件筛选错题
-    ///
-    /// 使用 SwiftData Predicate 进行数据库级查询。
-    ///
-    /// - Parameters:
-    ///   - subject: 学科筛选，为 nil 时不筛选
-    ///   - mastery: 掌握程度筛选，为 nil 时不筛选
-    /// - Returns: 筛选后的错题列表
-    func fetch(subject: Subject?, mastery: MasteryLevel?) -> [ReviewItem] {
-        fetch(subject: subject, mastery: mastery, limit: 200)
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to fetch all review items: \(error)")
+            return []
+        }
     }
     
-    /// 根据条件筛选错题（带数量限制）
-    ///
-    /// - Parameters:
-    ///   - subject: 学科筛选，为 nil 时不筛选
-    ///   - mastery: 掌握程度筛选，为 nil 时不筛选
-    ///   - limit: 返回数量限制
-    /// - Returns: 筛选后的错题列表
-    func fetch(subject: Subject?, mastery: MasteryLevel?, limit: Int) -> [ReviewItem] {
-        // 根据不同的筛选条件构建 Predicate
-        var descriptor: FetchDescriptor<ReviewItem>
-        
-        if let subject, let mastery {
-            let subjectValue = subject.rawValue
-            let masteryValue = mastery.rawValue
-            let predicate = #Predicate<ReviewItem> { item in
-                item.subjectRaw == subjectValue && item.masteryLevel == masteryValue
+    /// 根据 ID 获取单个错题
+    func fetch(by id: UUID) -> ReviewItem? {
+        guard let model = fetchModel(by: id) else { return nil }
+        return ReviewItemMapper.toEntity(from: model)
+    }
+    
+    /// 根据 ID 获取持久化模型
+    private func fetchModel(by id: UUID) -> ReviewItemModel? {
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.id == id
             }
-            descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
-        } else if let subject {
-            let subjectValue = subject.rawValue
-            let predicate = #Predicate<ReviewItem> { item in
-                item.subjectRaw == subjectValue
-            }
-            descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
-        } else if let mastery {
-            let masteryValue = mastery.rawValue
-            let predicate = #Predicate<ReviewItem> { item in
-                item.masteryLevel == masteryValue
-            }
-            descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
+        )
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.first
+        } catch {
+            print("Failed to fetch model by id: \(error)")
+            return nil
+        }
+    }
+    
+    /// 保存或更新错题
+    func save(_ item: ReviewItem) throws {
+        if let existingModel = fetchModel(by: item.id) {
+            // 更新现有模型
+            ReviewItemMapper.updateModel(existingModel, from: item)
         } else {
-            descriptor = FetchDescriptor(sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
+            // 创建新模型
+            let newModel = ReviewItemMapper.toModel(from: item)
+            modelContext.insert(newModel)
         }
         
-        descriptor.fetchLimit = limit
-        return (try? modelContext.fetch(descriptor)) ?? []
-    }
-
-    // MARK: - Review Fetch
-
-    /// 获取需要复习的错题
-    ///
-    /// - Returns: 需要复习的错题列表
-    func fetchForReview() -> [ReviewItem] {
-        fetchForReview(limit: 100)
+        try modelContext.save()
     }
     
-    /// 获取需要复习的错题（带数量限制）
-    ///
-    /// 使用 SwiftData Predicate 进行数据库级查询。
-    ///
-    /// 排序规则：
-    /// 1. 已逾期的优先（逾期天数多的在前）
-    /// 2. 掌握程度低的优先
-    /// 3. 复习次数少的优先
-    ///
-    /// - Parameter limit: 返回数量限制
-    /// - Returns: 需要复习的错题列表
-    func fetchForReview(limit: Int) -> [ReviewItem] {
-        let now = Date()
+    /// 批量保存错题
+    func saveAll(_ items: [ReviewItem]) throws {
+        for item in items {
+            try save(item)
+        }
+    }
+    
+    /// 删除错题
+    func delete(_ item: ReviewItem) throws {
+        guard let model = fetchModel(by: item.id) else { return }
+        modelContext.delete(model)
+        try modelContext.save()
+    }
+    
+    /// 根据 ID 删除错题
+    func delete(by id: UUID) throws {
+        guard let model = fetchModel(by: id) else { return }
+        modelContext.delete(model)
+        try modelContext.save()
+    }
+    
+    /// 批量删除错题
+    func deleteAll(_ items: [ReviewItem]) throws {
+        for item in items {
+            try delete(item)
+        }
+    }
+    
+    /// 删除所有错题
+    func deleteAll() throws {
+        let descriptor = FetchDescriptor<ReviewItemModel>()
+        let models = try modelContext.fetch(descriptor)
         
-        // 使用 Predicate 查询到期需要复习的项目
-        let predicate = #Predicate<ReviewItem> { item in
-            item.nextReviewDate <= now
+        for model in models {
+            modelContext.delete(model)
         }
         
-        // 按复习日期升序（最早到期的在前），然后按掌握程度升序
-        var descriptor = FetchDescriptor(
-            predicate: predicate,
-            sortBy: [
-                SortDescriptor(\ReviewItem.nextReviewDate, order: .forward),
-                SortDescriptor(\ReviewItem.masteryLevel, order: .forward),
-                SortDescriptor(\ReviewItem.reviewCount, order: .forward)
-            ]
+        try modelContext.save()
+    }
+    
+    // MARK: - Query Operations
+    
+    /// 根据学科获取错题
+    func fetch(by subject: Subject) -> [ReviewItem] {
+        let subjectRaw = subject.rawValue
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.subjectRaw == subjectRaw
+            },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to fetch review items by subject: \(error)")
+            return []
+        }
+    }
+    
+    /// 根据掌握程度获取错题
+    func fetch(by masteryLevel: MasteryLevel) -> [ReviewItem] {
+        let levelRaw = masteryLevel.rawValue
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.masteryLevel == levelRaw
+            },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to fetch review items by mastery level: \(error)")
+            return []
+        }
+    }
+    
+    /// 获取收藏的错题
+    func fetchFavorites() -> [ReviewItem] {
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.isFavorite == true
+            },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to fetch favorite items: \(error)")
+            return []
+        }
+    }
+    
+    /// 获取需要复习的错题（根据下次复习日期）
+    func fetchDueForReview() -> [ReviewItem] {
+        let now = Date()
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.nextReviewDate <= now
+            },
+            sortBy: [SortDescriptor(\.nextReviewDate, order: .forward)]
+        )
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to fetch items due for review: \(error)")
+            return []
+        }
+    }
+    
+    /// 获取今日添加的错题
+    func fetchTodayItems() -> [ReviewItem] {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.createdAt >= startOfDay && model.createdAt < endOfDay
+            },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to fetch today's items: \(error)")
+            return []
+        }
+    }
+    
+    /// 获取最近添加的错题
+    func fetchRecent(limit: Int = 10) -> [ReviewItem] {
+        var descriptor = FetchDescriptor<ReviewItemModel>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         descriptor.fetchLimit = limit
         
-        let items = (try? modelContext.fetch(descriptor)) ?? []
-        
-        // 进一步按逾期天数排序（需要计算属性，在内存中处理）
-        return items.sorted { item1, item2 in
-            let overdue1 = item1.reviewInterval.overdueByDays
-            let overdue2 = item2.reviewInterval.overdueByDays
-            if overdue1 != overdue2 {
-                return overdue1 > overdue2
-            }
-            if item1.masteryLevel != item2.masteryLevel {
-                return item1.masteryLevel < item2.masteryLevel
-            }
-            return item1.reviewCount < item2.reviewCount
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to fetch recent items: \(error)")
+            return []
         }
-    }
-
-    // MARK: - Search
-
-    /// 搜索错题
-    ///
-    /// 使用 SwiftData Predicate 进行数据库级搜索，避免内存遍历。
-    /// 在标题、笔记、知识点中搜索，不区分大小写。
-    ///
-    /// - Parameter query: 搜索关键词
-    /// - Returns: 匹配的错题列表
-    func search(query: String) -> [ReviewItem] {
-        search(query: query, limit: 100)
     }
     
-    /// 搜索错题（带数量限制）
-    ///
-    /// - Parameter query: 搜索关键词
-    /// - Parameter limit: 最大返回数量
-    /// - Returns: 匹配的错题列表
-    func search(query: String, limit: Int) -> [ReviewItem] {
-        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        // 空查询返回最近记录，而不是全量
-        guard !trimmedQuery.isEmpty else {
-            return fetchRecent(limit: limit)
+    /// 根据日期范围获取错题
+    func fetch(from startDate: Date, to endDate: Date) -> [ReviewItem] {
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.createdAt >= startDate && model.createdAt <= endDate
+            },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to fetch items in date range: \(error)")
+            return []
         }
-
-        // 使用 SwiftData Predicate 进行数据库级搜索
-        let predicate = #Predicate<ReviewItem> { item in
-            item.title.localizedStandardContains(trimmedQuery) ||
-            item.note.localizedStandardContains(trimmedQuery) ||
-            item.knowledgePointsRaw.localizedStandardContains(trimmedQuery) ||
-            item.subjectRaw.localizedStandardContains(trimmedQuery)
-        }
-        
-        var descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
-        descriptor.fetchLimit = limit
-        
-        return (try? modelContext.fetch(descriptor)) ?? []
     }
     
-    /// 按知识点搜索
-    ///
-    /// - Parameter knowledgePoint: 知识点关键词
-    /// - Returns: 包含该知识点的错题列表
-    func search(byKnowledgePoint knowledgePoint: String) -> [ReviewItem] {
-        let trimmed = knowledgePoint.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return [] }
-        
-        let predicate = #Predicate<ReviewItem> { item in
-            item.knowledgePointsRaw.localizedStandardContains(trimmed)
+    /// 根据错误类型获取错题
+    func fetch(by errorType: ErrorType) -> [ReviewItem] {
+        let typeRaw = errorType.rawValue
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.errorTypeRaw == typeRaw
+            },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to fetch items by error type: \(error)")
+            return []
         }
-        
-        let descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
-        return (try? modelContext.fetch(descriptor)) ?? []
-    }
-
-    // MARK: - Save Operations
-
-    /// 保存错题
-    ///
-    /// 如果是新对象会插入，已存在则更新。
-    /// 具备幂等性，重复调用不会重复插入。
-    func save(_ item: ReviewItem) throws {
-        // 只有新对象才需要 insert
-        if item.modelContext == nil {
-            modelContext.insert(item)
-        }
-        try modelContext.save()
-    }
-
-    // MARK: - Delete Operations
-
-    /// 删除错题
-    ///
-    /// - Parameter item: 要删除的错题
-    /// - Throws: 删除失败时抛出错误
-    /// - Note: 安全处理已删除或僵尸对象
-    func delete(_ item: ReviewItem) throws {
-        // 检查 item 是否已被删除或不在 context 中
-        guard !item.isDeleted, let context = item.modelContext else {
-            // item 已被删除或不在任何 context 中，跳过
-            return
-        }
-        context.delete(item)
-        try context.save()
-    }
-
-    /// 批量删除错题
-    ///
-    /// - Parameter items: 要删除的错题列表
-    /// - Throws: 删除失败时抛出错误
-    func delete(_ items: [ReviewItem]) throws {
-        _ = try deleteItems(items)
     }
     
-    /// 批量删除错题（返回删除数量）
-    ///
-    /// - Parameter items: 要删除的错题列表
-    /// - Returns: 实际删除的数量
-    /// - Throws: 删除失败时抛出错误
-    @discardableResult
-    func deleteItems(_ items: [ReviewItem]) throws -> Int {
-        var deletedCount = 0
-        for item in items {
-            if item.modelContext != nil {
-                modelContext.delete(item)
-                deletedCount += 1
-            }
+    /// 根据来源获取错题
+    func fetch(by source: Source) -> [ReviewItem] {
+        let sourceRaw = source.rawValue
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.sourceRaw == sourceRaw
+            },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to fetch items by source: \(error)")
+            return []
         }
-        if deletedCount > 0 {
-            try modelContext.save()
-        }
-        return deletedCount
-    }
-
-    /// 删除所有错题
-    ///
-    /// - Warning: 此操作不可逆
-    /// - Throws: 删除失败时抛出错误
-    func deleteAll() throws {
-        _ = try deleteAllItems()
     }
     
-    /// 删除所有错题（返回删除数量）
-    ///
-    /// - Returns: 删除的错题数量
-    /// - Warning: 此操作不可逆
-    @discardableResult
-    func deleteAllItems() throws -> Int {
-        let items = fetchAll()
-        let count = items.count
-        
-        guard count > 0 else { return 0 }
-        
-        for item in items {
-            modelContext.delete(item)
+    // MARK: - Search Operations
+    
+    /// 搜索错题（按关键词）
+    func search(query keyword: String) -> [ReviewItem] {
+        let lowercasedKeyword = keyword.lowercased()
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.subjectRaw.localizedStandardContains(lowercasedKeyword) ||
+                model.note.localizedStandardContains(lowercasedKeyword) ||
+                model.title.localizedStandardContains(lowercasedKeyword)
+            },
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        do {
+            let models = try modelContext.fetch(descriptor)
+            return models.map { ReviewItemMapper.toEntity(from: $0) }
+        } catch {
+            print("Failed to search items: \(error)")
+            return []
         }
-        try modelContext.save()
-        
-        return count
     }
-
+    
     // MARK: - Statistics
-
-    /// 获取完整统计数据
-    ///
-    /// ⚠️ 此方法会加载所有数据计算统计信息，适合在后台调用或数据量较小时使用。
-    /// 对于仅需要计数的场景，请使用 `quickStatistics()` 获取轻量级统计。
-    ///
-    /// - Returns: 完整统计信息
-    func statistics() -> ReviewStatistics {
-        ReviewStatistics(from: fetchAll())
+    
+    /// 获取错题总数
+    func count() -> Int {
+        let descriptor = FetchDescriptor<ReviewItemModel>()
+        do {
+            return try modelContext.fetchCount(descriptor)
+        } catch {
+            print("Failed to count items: \(error)")
+            return 0
+        }
     }
     
-    /// 获取轻量级统计数据
-    ///
-    /// 使用 fetchCount 进行高效计数，避免加载全部实体。
-    /// 适合首页等需要快速显示统计的场景。
-    ///
-    /// - Returns: 快速统计信息（总数、待复习数、掌握数）
+    /// 获取各学科错题数量
+    func countBySubject() -> [Subject: Int] {
+        let items = fetchAll()
+        var result: [Subject: Int] = [:]
+        for item in items {
+            result[item.subject, default: 0] += 1
+        }
+        return result
+    }
+    
+    /// 获取各掌握程度错题数量
+    func countByMasteryLevel() -> [MasteryLevel: Int] {
+        let items = fetchAll()
+        var result: [MasteryLevel: Int] = [:]
+        for item in items {
+            result[item.mastery, default: 0] += 1
+        }
+        return result
+    }
+    
+    /// 获取各错误类型错题数量
+    func countByErrorType() -> [ErrorType: Int] {
+        let items = fetchAll()
+        var result: [ErrorType: Int] = [:]
+        for item in items {
+            result[item.errorType, default: 0] += 1
+        }
+        return result
+    }
+    
+    /// 获取收藏数量
+    func countFavorites() -> Int {
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.isFavorite == true
+            }
+        )
+        do {
+            return try modelContext.fetchCount(descriptor)
+        } catch {
+            print("Failed to count favorites: \(error)")
+            return 0
+        }
+    }
+    
+    /// 获取快速统计数据
+    /// 使用高效的 fetchCount，适合首页等需要快速显示的场景
     func quickStatistics() -> (total: Int, pendingReview: Int, mastered: Int) {
         let total = count()
+        let pendingReview = countDueForReview()
         
-        // 待复习数量
-        let now = Date()
-        let pendingPredicate = #Predicate<ReviewItem> { item in
-            item.nextReviewDate <= now
-        }
-        let pendingDescriptor = FetchDescriptor(predicate: pendingPredicate)
-        let pendingReview = (try? modelContext.fetchCount(pendingDescriptor)) ?? 0
-        
-        // 已掌握数量 (mastery >= 3, 即 .good 或 .mastered)
-        let masteredPredicate = #Predicate<ReviewItem> { item in
-            item.masteryLevel >= 3
-        }
-        let masteredDescriptor = FetchDescriptor(predicate: masteredPredicate)
+        // 计算已掌握数量（good 或 mastered）
+        let masteredLevelRaw = MasteryLevel.mastered.rawValue
+        let goodLevelRaw = MasteryLevel.good.rawValue
+        let masteredDescriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.masteryLevel == masteredLevelRaw || model.masteryLevel == goodLevelRaw
+            }
+        )
         let mastered = (try? modelContext.fetchCount(masteredDescriptor)) ?? 0
         
         return (total, pendingReview, mastered)
     }
-}
-
-// MARK: - ReviewItemRepository Convenience Methods
-
-extension ReviewItemRepository {
-
-    /// 获取指定 ID 的错题
-    ///
-    /// 使用 Predicate 进行数据库级查询，避免全量加载。
-    ///
-    /// - Parameter id: 错题 ID
-    /// - Returns: 匹配的错题，如果不存在返回 `nil`
-    func fetch(byId id: UUID) -> ReviewItem? {
-        let predicate = #Predicate<ReviewItem> { item in
-            item.id == id
-        }
-        var descriptor = FetchDescriptor(predicate: predicate)
-        descriptor.fetchLimit = 1
-        return try? modelContext.fetch(descriptor).first
-    }
-
-    /// 获取最近添加的错题
-    ///
-    /// 使用 fetchLimit 进行数据库级分页，避免全量加载。
-    ///
-    /// - Parameter limit: 返回数量限制，默认 50
-    /// - Returns: 最近添加的错题列表
-    func fetchRecent(limit: Int = 50) -> [ReviewItem] {
-        var descriptor = FetchDescriptor<ReviewItem>(
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+    
+    /// 获取今日添加数量
+    func countTodayItems() -> Int {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.createdAt >= startOfDay && model.createdAt < endOfDay
+            }
         )
-        descriptor.fetchLimit = limit
-        return (try? modelContext.fetch(descriptor)) ?? []
-    }
-
-    /// 获取指定学科的错题
-    ///
-    /// - Parameter subject: 学科
-    /// - Parameter limit: 返回数量限制，默认 100
-    /// - Returns: 该学科的错题
-    func fetch(subject: Subject, limit: Int = 100) -> [ReviewItem] {
-        let subjectValue = subject.rawValue
-        let predicate = #Predicate<ReviewItem> { item in
-            item.subjectRaw == subjectValue
+        do {
+            return try modelContext.fetchCount(descriptor)
+        } catch {
+            print("Failed to count today's items: \(error)")
+            return 0
         }
-        var descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
-        descriptor.fetchLimit = limit
-        return (try? modelContext.fetch(descriptor)) ?? []
-    }
-
-    /// 获取指定难度的错题
-    ///
-    /// - Parameter difficulty: 难度等级
-    /// - Parameter limit: 返回数量限制，默认 100
-    /// - Returns: 该难度的错题
-    func fetch(difficulty: Difficulty, limit: Int = 100) -> [ReviewItem] {
-        let difficultyValue = difficulty.rawValue
-        let predicate = #Predicate<ReviewItem> { item in
-            item.difficultyRaw == difficultyValue
-        }
-        var descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
-        descriptor.fetchLimit = limit
-        return (try? modelContext.fetch(descriptor)) ?? []
-    }
-
-    /// 获取指定来源的错题
-    ///
-    /// - Parameter source: 题目来源
-    /// - Parameter limit: 返回数量限制，默认 100
-    /// - Returns: 该来源的错题
-    func fetch(source: Source, limit: Int = 100) -> [ReviewItem] {
-        let sourceValue = source.rawValue
-        let predicate = #Predicate<ReviewItem> { item in
-            item.sourceRaw == sourceValue
-        }
-        var descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\ReviewItem.createdAt, order: .reverse)])
-        descriptor.fetchLimit = limit
-        return (try? modelContext.fetch(descriptor)) ?? []
-    }
-
-    /// 获取高优先级复习项
-    ///
-    /// 逾期或今天需要复习的错题。
-    ///
-    /// - Parameter limit: 返回数量限制
-    /// - Returns: 高优先级错题列表
-    func fetchHighPriority(limit: Int = 20) -> [ReviewItem] {
-        Array(fetchForReview().filter { $0.reviewInterval.isUrgent }.prefix(limit))
-    }
-
-    /// 判断是否存在指定 ID 的错题
-    ///
-    /// 使用 Predicate 进行数据库级查询。
-    ///
-    /// - Parameter id: 错题 ID
-    /// - Returns: 是否存在
-    func exists(id: UUID) -> Bool {
-        fetch(byId: id) != nil
     }
     
-    /// 获取错题总数
-    ///
-    /// 使用 fetchCount 进行高效计数，无需加载实体。
-    ///
-    /// - Returns: 错题总数
-    func count() -> Int {
-        let descriptor = FetchDescriptor<ReviewItem>()
-        return (try? modelContext.fetchCount(descriptor)) ?? 0
+    /// 获取待复习数量
+    func countDueForReview() -> Int {
+        let now = Date()
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { model in
+                model.nextReviewDate <= now
+            }
+        )
+        do {
+            return try modelContext.fetchCount(descriptor)
+        } catch {
+            print("Failed to count items due for review: \(error)")
+            return 0
+        }
+    }
+    
+    // MARK: - Batch Operations
+    
+    /// 批量更新掌握程度
+    func updateMasteryLevel(for ids: [UUID], to level: MasteryLevel) throws {
+        let levelRaw = level.rawValue
+        for id in ids {
+            if let model = fetchModel(by: id) {
+                model.masteryLevel = levelRaw
+                model.updatedAt = Date()
+            }
+        }
+        try modelContext.save()
+    }
+    
+    /// 批量切换收藏状态
+    func toggleFavorite(for ids: [UUID]) throws {
+        for id in ids {
+            if let model = fetchModel(by: id) {
+                model.isFavorite.toggle()
+                model.updatedAt = Date()
+            }
+        }
+        try modelContext.save()
+    }
+    
+    // MARK: - Migration Support
+    
+    /// 获取底层 ModelContext（仅用于迁移）
+    var underlyingModelContext: ModelContext {
+        modelContext
+    }
+    
+    /// 获取底层 ModelContainer（仅用于迁移）
+    var underlyingModelContainer: ModelContainer {
+        modelContainer
+    }
+}
+
+// MARK: - ReviewItemRepositoryProtocol Conformance
+
+extension ReviewItemRepository: ReviewItemRepositoryProtocol {
+    
+    /// 根据条件筛选错题
+    func fetch(subject: Subject?, mastery: MasteryLevel?) -> [ReviewItem] {
+        var items = fetchAll()
+        
+        if let subject = subject {
+            items = items.filter { $0.subject == subject }
+        }
+        
+        if let mastery = mastery {
+            items = items.filter { $0.mastery == mastery }
+        }
+        
+        return items
+    }
+    
+    /// 获取需要复习的错题（protocol 要求的方法名）
+    func fetchForReview() -> [ReviewItem] {
+        fetchDueForReview()
+    }
+    
+    /// 批量删除错题
+    func delete(_ items: [ReviewItem]) throws {
+        try deleteAll(items)
+    }
+    
+    /// 获取统计数据
+    func statistics() -> ReviewStatistics {
+        let items = fetchAll()
+        return ReviewStatistics(from: items)
     }
 }

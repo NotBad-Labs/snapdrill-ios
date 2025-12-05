@@ -87,6 +87,37 @@ enum L10n {
         static let completed = String(localized: "review_completed", defaultValue: "复习完成")
         static let masteredWell = String(localized: "review_mastered_well", defaultValue: "掌握得很好")
         static let needsMorePractice = String(localized: "review_needs_practice", defaultValue: "需要多练习")
+        
+        /// 格式化复习次数
+        ///
+        /// - Parameter count: 复习次数
+        /// - Returns: 本地化的复习次数描述，如「已复习 3 次」
+        static func reviewedTimes(_ count: Int) -> String {
+            String(format: String(localized: "review_times_format", defaultValue: "已复习 %d 次"), count)
+        }
+    }
+    
+    // MARK: - Review Status
+    
+    enum ReviewStatus {
+        static let new = String(localized: "review_status_new", defaultValue: "新录入，尚未复习")
+        static let today = String(localized: "review_status_today", defaultValue: "今天需要复习")
+        
+        /// 格式化逾期天数
+        ///
+        /// - Parameter days: 逾期天数
+        /// - Returns: 本地化的逾期描述，如「已逾期 3 天」
+        static func overdue(days: Int) -> String {
+            String(format: String(localized: "review_status_overdue_format", defaultValue: "已逾期 %d 天"), days)
+        }
+        
+        /// 格式化剩余天数
+        ///
+        /// - Parameter days: 距离下次复习的天数
+        /// - Returns: 本地化的剩余天数描述，如「3 天后复习」
+        static func inDays(_ days: Int) -> String {
+            String(format: String(localized: "review_status_in_days_format", defaultValue: "%d 天后复习"), days)
+        }
     }
 
     // MARK: - Profile
@@ -134,6 +165,15 @@ enum L10n {
         static let medium = String(localized: "difficulty_medium", defaultValue: "中等")
         static let hard = String(localized: "difficulty_hard", defaultValue: "困难")
         static let expert = String(localized: "difficulty_expert", defaultValue: "极难")
+    }
+
+    // MARK: - Validation
+
+    enum Validation {
+        static let titleRequired = String(localized: "validation_title_required", defaultValue: "标题不能为空")
+        static let contentSuggested = String(localized: "validation_content_suggested", defaultValue: "建议添加图片或笔记")
+        static let knowledgePointsSuggested = String(localized: "validation_knowledge_points_suggested", defaultValue: "建议添加知识点标签")
+        static let imageRequired = String(localized: "validation_image_required", defaultValue: "请添加错题图片")
     }
 
     // MARK: - Accessibility

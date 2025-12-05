@@ -7,7 +7,6 @@
 
 import Testing
 import Foundation
-import SwiftUI
 @testable import NotBad
 
 @Suite("Grade 值对象测试")
@@ -43,13 +42,6 @@ struct GradeTests {
     func allGradesHaveIcons() {
         for grade in Grade.allCases {
             #expect(!grade.icon.isEmpty)
-        }
-    }
-
-    @Test("所有年级都有颜色")
-    func allGradesHaveColors() {
-        for grade in Grade.allCases {
-            _ = grade.color
         }
     }
 

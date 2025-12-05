@@ -4,9 +4,10 @@
 //
 //  掌握程度值对象单元测试
 //
+//  Note: UI 相关测试（如 color 属性）位于 Presentation 层测试中
+//
 
 import Testing
-import SwiftUI
 import Foundation
 @testable import NotBad
 
@@ -62,14 +63,16 @@ struct MasteryLevelTests {
         }
     }
 
-    @Test("所有等级都有颜色")
-    func allLevelsHaveColors() {
-        // 验证颜色渐进：品牌错误色 → 品牌成功色
-        #expect(MasteryLevel.none.color == Color.brand.error)
-        #expect(MasteryLevel.mastered.color == Color.brand.success)
-
+    // Note: 颜色测试已移至 Presentation 层测试
+    // MasteryLevel.color 属性定义在 ValueObjects+UI.swift 中
+    
+    @Test("所有等级都有图标名称")
+    func allLevelsHaveValidIcons() {
+        // 验证图标名称符合 SF Symbols 命名规范
         for level in MasteryLevel.allCases {
-            _ = level.color
+            let icon = level.icon
+            #expect(!icon.isEmpty, "\(level) 应该有图标")
+            #expect(!icon.contains(" "), "图标名称不应包含空格")
         }
     }
 

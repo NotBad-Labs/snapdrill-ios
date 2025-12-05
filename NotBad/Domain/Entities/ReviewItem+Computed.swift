@@ -19,16 +19,22 @@ extension ReviewItem {
     }
 
     /// 是否有图片
+    ///
+    /// - Returns: 图片数据非空且非空数据时返回 `true`
     var hasImage: Bool {
         imageData != nil && !(imageData?.isEmpty ?? true)
     }
 
     /// 是否有笔记
+    ///
+    /// - Returns: 笔记内容非空白时返回 `true`
     var hasNote: Bool {
         !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     /// 是否有知识点
+    ///
+    /// - Returns: 知识点集合非空时返回 `true`
     var hasKnowledgePoints: Bool {
         !knowledgePoints.isEmpty
     }
@@ -36,6 +42,8 @@ extension ReviewItem {
     /// 是否需要复习
     ///
     /// 基于下次复习日期判断。
+    ///
+    /// - Returns: `nextReviewDate <= 当前时间` 时返回 `true`
     var needsReview: Bool {
         nextReviewDate <= Date()
     }
@@ -43,6 +51,8 @@ extension ReviewItem {
     /// 是否已逾期
     ///
     /// 直接基于 `nextReviewDate` 判断，避免重新计算间隔导致不一致。
+    ///
+    /// - Returns: `nextReviewDate < 今天开始时间` 时返回 `true`
     var isOverdue: Bool {
         nextReviewDate < Calendar.current.startOfDay(for: Date())
     }
@@ -50,11 +60,15 @@ extension ReviewItem {
     /// 是否已掌握
     ///
     /// 掌握程度达到 `.good` 或以上。
+    ///
+    /// - Returns: 掌握程度 >= good 时返回 `true`
     var isMastered: Bool {
         mastery.isMastered
     }
 
     /// 是否为新录入（从未复习）
+    ///
+    /// - Returns: `reviewCount == 0` 时返回 `true`
     var isNew: Bool {
         reviewCount == 0
     }

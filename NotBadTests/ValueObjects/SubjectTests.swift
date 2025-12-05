@@ -6,7 +6,6 @@
 //
 
 import Testing
-import SwiftUI
 import Foundation
 @testable import NotBad
 
@@ -60,7 +59,6 @@ struct SubjectTests {
         for category in SubjectCategory.allCases {
             #expect(!category.displayName.isEmpty)
             #expect(!category.icon.isEmpty)
-            _ = category.color
         }
     }
 
@@ -201,18 +199,6 @@ struct SubjectTests {
         #expect(combo.contains(.history))
         #expect(combo.contains(.geography))
         #expect(combo.contains(.politics))
-    }
-
-    // MARK: - 颜色测试
-
-    @Test("每个学科都有独特的颜色")
-    func subjectColors() {
-        var colors: [Color] = []
-        for subject in Subject.allCases {
-            let color = subject.color
-            colors.append(color)
-        }
-        #expect(colors.count == Subject.allCases.count)
     }
 
     // MARK: - 编码测试

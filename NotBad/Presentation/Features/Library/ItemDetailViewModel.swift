@@ -79,10 +79,20 @@ final class ItemDetailViewModel {
             ]
         ))
         
-        // 执行删除
-        modelContext.delete(reviewItem)
+        // 查找并删除对应的持久化模型
+        let itemId = reviewItem.id
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate { $0.id == itemId }
+        )
         
         do {
+            let models = try modelContext.fetch(descriptor)
+            guard let model = models.first else {
+                Logger.data.error("ItemDetailViewModel: 找不到要删除的模型")
+                return false
+            }
+            
+            modelContext.delete(model)
             try modelContext.save()
             Logger.data.info("删除错题成功: \(reviewItem.title)")
             
@@ -107,10 +117,23 @@ final class ItemDetailViewModel {
             return false
         }
         
-        // 更新时间戳
-        reviewItem.updatedAt = Date()
+        // 查找对应的持久化模型
+        let itemId = reviewItem.id
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate { $0.id == itemId }
+        )
         
         do {
+            let models = try modelContext.fetch(descriptor)
+            guard let model = models.first else {
+                Logger.data.error("ItemDetailViewModel: 找不到要更新的模型")
+                return false
+            }
+            
+            // 更新模型
+            ReviewItemMapper.updateModel(model, from: reviewItem)
+            model.updatedAt = Date()
+            
             try modelContext.save()
             Logger.data.debug("保存错题成功: \(reviewItem.title)")
             

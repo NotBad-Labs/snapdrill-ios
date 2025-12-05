@@ -112,7 +112,12 @@ struct DifficultyChartData: Identifiable, Sendable {
 
     var id: Int { difficulty.rawValue }
     var label: String { difficulty.displayName }
-    var color: Color { difficulty.color }
+    
+    /// 图表颜色 - 使用渐变灰度区分，不依赖颜色传达信息
+    var color: Color {
+        // 通过透明度区分难度级别
+        Color.accentColor.opacity(0.4 + Double(difficulty.rawValue) * 0.15)
+    }
 }
 
 /// 每日趋势数据

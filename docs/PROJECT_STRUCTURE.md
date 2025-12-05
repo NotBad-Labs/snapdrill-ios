@@ -9,9 +9,9 @@
 | 指标 | 数值 |
 |------|------|
 | 总代码行数 | ~35,000 行 |
-| Swift 文件数 | 137 个 |
-| 测试文件数 | 53 个 |
-| 测试用例数 | 494 |
+| Swift 文件数 | 136 个 |
+| 测试文件数 | 46 个 |
+| 测试用例数 | 477 |
 | 最低系统 | iOS 26.0+ |
 | 技术栈 | Swift 6.2+ / SwiftUI / SwiftData |
 
@@ -120,14 +120,10 @@ NotBad/
 │   │   │   └── DataProviderFactory.swift  # 数据提供者工厂
 │   │   │
 │   │   ├── 📁 Export/                    # 导出服务
-│   │   │   ├── PDFExportService.swift     # PDF 导出服务
-│   │   │   └── 📁 PDF/                   # PDF 渲染组件 (6个)
-│   │   │       ├── PDFFooterRenderer.swift
-│   │   │       ├── PDFHeaderRenderer.swift
-│   │   │       ├── PDFItemRenderer.swift
-│   │   │       ├── PDFPageComposer.swift
-│   │   │       ├── PDFRenderContext.swift
-│   │   │       └── PDFSectionRenderer.swift
+│   │   │   ├── PDFExportService.swift     # PDF 导出服务 (使用 SwiftUI 渲染)
+│   │   │   ├── SwiftUIPDFExporter.swift   # SwiftUI 版 PDF 导出器
+│   │   │   └── 📁 SwiftUI/               # SwiftUI PDF 视图组件
+│   │   │       └── ExamPaperViews.swift   # 试卷页面视图
 │   │   │
 │   │   ├── 📁 Localization/
 │   │   │   └── LocalizationKeys.swift     # 本地化字符串键
@@ -156,8 +152,10 @@ NotBad/
 │   │       └── WidgetDataSync.swift       # Widget 数据同步
 │   │
 │   └── 📁 Presentation/                   # 表现层
-│       ├── 📁 Navigation/
-│       │   └── MainTabView.swift          # 主 Tab 导航
+│       ├── 📁 Navigation/                 # 导航 (3个)
+│       │   ├── MainTabView.swift          # 主 Tab 导航
+│       │   ├── NavigationRouter.swift     # 全局导航路由器 (@Observable)
+│       │   └── AdaptiveNavigationView.swift # iPad 自适应导航
 │       │
 │       ├── 📁 Common/                     # 通用组件
 │       │   ├── 📁 Components/             # UI 组件 (12个)
@@ -195,25 +193,29 @@ NotBad/
 │           │       ├── DashboardCharts.swift
 │           │       └── DashboardComponents.swift
 │           │
-│           ├── 📁 Library/                # 题库模块 (7个)
+│           ├── 📁 Library/                # 题库模块 (8个)
 │           │   ├── LibraryView.swift
 │           │   ├── LibraryViewModel.swift
 │           │   ├── ItemDetailView.swift
+│           │   ├── ItemDetailViewModel.swift  # 详情 ViewModel
 │           │   ├── AdvancedSearchView.swift
 │           │   ├── AdvancedSearchModels.swift # 搜索数据模型
 │           │   ├── AdvancedSearchComponents.swift # 搜索组件
 │           │   └── 📁 Components/
 │           │       └── ItemDetailComponents.swift
 │           │
-│           ├── 📁 Capture/                # 录入模块 (7个)
-│           │   ├── CaptureView.swift
-│           │   ├── CaptureView+Sections.swift  # 表单分区
-│           │   ├── CaptureViewModel.swift
-│           │   ├── CaptureViewModel+Image.swift # 图片处理
-│           │   ├── CaptureViewModel+OCR.swift   # OCR 处理
-│           │   ├── CaptureViewModel+Save.swift  # 保存逻辑
-│           │   └── 📁 Components/
-│           │       └── ImageSelectionCard.swift # 图片选择卡片
+│           ├── 📁 Capture/                # 录入模块 (重构后)
+│           │   ├── CaptureView.swift      # 主视图
+│           │   ├── 📁 ViewModels/         # ViewModel 层 (4个)
+│           │   │   ├── CaptureOrchestrator.swift    # 流程协调器 (状态机)
+│           │   │   ├── ImageSelectionViewModel.swift # 图片选择
+│           │   │   ├── OCRViewModel.swift           # OCR 识别
+│           │   │   └── ReviewItemFormViewModel.swift # 表单编辑
+│           │   └── 📁 Components/         # UI 组件 (4个)
+│           │       ├── AdditionalInfoFormSection.swift   # 附加信息表单
+│           │       ├── BasicInfoFormSection.swift        # 基本信息表单
+│           │       ├── ReviewItemContentFormSection.swift # 内容表单
+│           │       └── SelectedImageCard.swift           # 已选图片卡片
 │           │
 │           ├── 📁 Review/                 # 复习模块 (5个)
 │           │   ├── ReviewView.swift
@@ -268,8 +270,9 @@ NotBad/
 │   │   ├── SubjectCategoryTests.swift
 │   │   └── SubjectTests.swift
 │   │
-│   ├── 📁 ViewModels/                     # ViewModel 测试 (5个)
-│   │   ├── CaptureViewModelTests.swift
+│   ├── 📁 ViewModels/                     # ViewModel 测试 (6个)
+│   │   ├── CaptureOrchestratorTests.swift   # 协调器测试
+│   │   ├── ReviewItemFormViewModelTests.swift # 表单 VM 测试
 │   │   ├── DashboardViewModelTests.swift
 │   │   ├── LibraryViewModelTests.swift
 │   │   ├── ReviewViewModelTests.swift
@@ -365,7 +368,7 @@ NotBad/
 | **Analytics** | 2个文件 | 分析服务协议与本地实现 |
 | **Camera** | `ImagePicker.swift` | UIKit 相机/相册桥接 |
 | **DI** | 3个文件 | 依赖容器、环境键、工厂 |
-| **Export** | 7个文件 | PDF 导出服务与渲染组件 |
+| **Export** | 3个文件 | PDF 导出服务 (SwiftUI 渲染) |
 | **Localization** | `LocalizationKeys.swift` | 本地化字符串管理 |
 | **OCR** | `OCRService.swift` | Vision 框架 OCR |
 | **Scanner** | 3个文件 | VisionKit 实时扫描 |
@@ -378,46 +381,29 @@ SwiftUI 视图和 ViewModel。
 
 #### 4.0 导航架构 (Navigation)
 
-当前采用 **SwiftUI 原生导航** 方案：
+当前采用 **NavigationRouter 单例 + SwiftUI 原生导航** 方案：
 
 | 场景 | 实现方式 |
 |------|----------|
-| Tab 切换 | `MainTabView` + `Tab` 枚举 |
+| Tab 切换 | `MainTabView` + `NavigationRouter.shared` |
 | Feature 内跳转 | 各 Feature 内 `NavigationStack` + `NavigationLink` |
-| Deep Link / Siri | 通过 `NotificationCenter` 发送通知切换 Tab |
-| Widget 跳转 | `selectedTab` 绑定 |
+| Deep Link / Siri | 通过 `NavigationRouter.switchTab(to:)` 切换 |
+| iPad 布局 | `AdaptiveNavigationView` (NavigationSplitView) |
+| Widget 跳转 | `NavigationRouter.selectedTab` 绑定 |
 
-**跳转通知定义** (`Notification+Names.swift`)：
-- `.switchToCapture` - 跳转到录入页
-- `.switchToReview` - 跳转到复习页
-- `.switchToLibrary` - 跳转到题库页
-
-> ⚠️ **架构改进建议**
->
-> 当前使用 `NotificationCenter` 处理跳转简单有效，但在大型项目中可能导致：
-> - 难以追踪通知发送源
-> - 难以传递复杂参数
-> - 测试覆盖困难
->
-> **推荐方案**：如跳转逻辑变复杂，可封装 `NavigationManager` 单例：
->
-> ```swift
-> @MainActor
-> @Observable
-> final class NavigationManager {
->     static let shared = NavigationManager()
->     var selectedTab: Tab = .dashboard
->     var libraryDetailItem: ReviewItem?
->     
->     func navigateTo(_ tab: Tab) { selectedTab = tab }
->     func openDetail(_ item: ReviewItem) {
->         libraryDetailItem = item
->         selectedTab = .library
->     }
-> }
-> ```
->
-> 优势：类型安全、易于测试、支持复杂参数传递。
+**NavigationRouter** (`NavigationRouter.swift`)：
+```swift
+@MainActor
+@Observable
+final class NavigationRouter {
+    static let shared = NavigationRouter()
+    var selectedTab: Tab = .dashboard
+    var dashboardPath = NavigationPath()
+    // ... 各 Tab 的导航堆栈
+    
+    func switchTab(to tab: Tab) { selectedTab = tab }
+}
+```
 
 #### 4.1 通用组件 (Common)
 
@@ -434,7 +420,7 @@ SwiftUI 视图和 ViewModel。
 |------|------|-----------|------------|
 | **Dashboard** | DashboardView | DashboardViewModel | DashboardCharts, DashboardComponents, DashboardModels |
 | **Library** | LibraryView, ItemDetailView, AdvancedSearchView | LibraryViewModel | ItemDetailComponents, AdvancedSearchModels, AdvancedSearchComponents |
-| **Capture** | CaptureView (+Sections) | CaptureViewModel (+Image, +OCR, +Save) | ImageSelectionCard |
+| **Capture** | CaptureView (+Sections) | CaptureOrchestrator, ImageSelectionViewModel, OCRViewModel, ReviewItemFormViewModel | ImageSelectionCard |
 | **Review** | ReviewView | ReviewViewModel | EmptyReviewState, ReviewCard, ReviewComponents + ReviewModels |
 | **Onboarding** | OnboardingView | - | OnboardingModels, OnboardingComponents |
 | **Profile** | ProfileView | - | 8个子视图 (含导入导出扩展) |

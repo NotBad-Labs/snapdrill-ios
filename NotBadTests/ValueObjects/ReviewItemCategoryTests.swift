@@ -7,7 +7,6 @@
 
 import Testing
 import Foundation
-import SwiftUI
 @testable import NotBad
 
 @Suite("ReviewItemCategory 值对象测试")
@@ -31,10 +30,10 @@ struct ReviewItemCategoryTests {
 
     @Test("分类包含客观、主观、综合、其他")
     func categoryValues() {
-        #expect(ReviewItemCategory.objective.rawValue == "客观题")
-        #expect(ReviewItemCategory.subjective.rawValue == "主观题")
-        #expect(ReviewItemCategory.comprehensive.rawValue == "综合题")
-        #expect(ReviewItemCategory.other.rawValue == "其他")
+        #expect(ReviewItemCategory.objective.rawValue == "objective")
+        #expect(ReviewItemCategory.subjective.rawValue == "subjective")
+        #expect(ReviewItemCategory.comprehensive.rawValue == "comprehensive")
+        #expect(ReviewItemCategory.other.rawValue == "other")
     }
 
     // MARK: - 显示属性测试

@@ -5,7 +5,7 @@
 //  来源分类值对象
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - SourceCategory
 
@@ -32,22 +32,22 @@ enum SourceCategory: String, Sendable, CaseIterable, Codable, Hashable, Identifi
     /// 官方来源
     ///
     /// 包括课本、历年真题等权威出版物。
-    case official = "官方"
+    case official = "official"
 
     /// 学校来源
     ///
     /// 包括考试、模拟考、作业等校内资料。
-    case school = "学校"
+    case school = "school"
 
     /// 课外来源
     ///
     /// 包括练习册、辅导班、竞赛等校外资料。
-    case extra = "课外"
+    case extra = "extra"
 
     /// 其他来源
     ///
     /// 包括网络、自测等来源不明确的资料。
-    case other = "其他"
+    case other = "other"
 
     // MARK: - Identifiable
 
@@ -96,16 +96,6 @@ extension SourceCategory {
         case .school: "graduationcap"
         case .extra: "books.vertical"
         case .other: "ellipsis.circle"
-        }
-    }
-
-    /// 主题颜色
-    nonisolated var color: Color {
-        switch self {
-        case .official: .red
-        case .school: .blue
-        case .extra: .orange
-        case .other: .gray
         }
     }
 

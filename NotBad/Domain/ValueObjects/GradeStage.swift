@@ -5,7 +5,7 @@
 //  学段值对象（小学/初中/高中）
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - GradeStage
 
@@ -77,15 +77,6 @@ extension GradeStage {
         case .primary: "figure.child"
         case .junior: "figure.stand"
         case .senior: "graduationcap"
-        }
-    }
-
-    /// 主题颜色
-    nonisolated var color: Color {
-        switch self {
-        case .primary: .green
-        case .junior: .orange
-        case .senior: .purple
         }
     }
 }

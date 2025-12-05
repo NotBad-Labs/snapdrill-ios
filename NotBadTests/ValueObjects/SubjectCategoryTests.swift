@@ -7,7 +7,6 @@
 
 import Testing
 import Foundation
-import SwiftUI
 @testable import NotBad
 
 @Suite("SubjectCategory 值对象测试")

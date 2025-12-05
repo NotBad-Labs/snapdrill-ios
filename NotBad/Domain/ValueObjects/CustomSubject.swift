@@ -5,10 +5,7 @@
 //  用户自定义学科
 //
 
-import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
+import Foundation
 
 // MARK: - CustomSubject
 
@@ -22,7 +19,7 @@ import UIKit
 /// let art = CustomSubject(name: "美术", icon: "paintpalette", colorHex: "#FF6B6B")
 /// print(art.displayName)  // "美术"
 /// ```
-struct CustomSubject: Identifiable, Codable, Hashable, Sendable {
+struct CustomSubject: Sendable, Codable, Hashable, Identifiable {
     
     // MARK: - Properties
     
@@ -87,11 +84,6 @@ struct CustomSubject: Identifiable, Codable, Hashable, Sendable {
         String(name.prefix(1))
     }
     
-    /// 颜色
-    var color: Color {
-        Color(hex: colorHex) ?? .gray
-    }
-    
     /// 是否适用于指定学段
     func isApplicable(for stage: GradeStage) -> Bool {
         applicableStages.contains(stage)
@@ -107,52 +99,5 @@ struct CustomSubject: Identifiable, Codable, Hashable, Sendable {
         Grade.allCases.filter { grade in
             grade != .kindergarten && applicableStages.contains(grade.stage)
         }
-    }
-}
-
-// MARK: - Color Extension
-
-extension Color {
-    /// 从十六进制字符串创建颜色
-    init?(hex: String) {
-        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
-        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
-        
-        var rgb: UInt64 = 0
-        guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else { return nil }
-        
-        let length = hexSanitized.count
-        switch length {
-        case 6:
-            self.init(
-                red: Double((rgb & 0xFF0000) >> 16) / 255.0,
-                green: Double((rgb & 0x00FF00) >> 8) / 255.0,
-                blue: Double(rgb & 0x0000FF) / 255.0
-            )
-        case 8:
-            self.init(
-                red: Double((rgb & 0xFF000000) >> 24) / 255.0,
-                green: Double((rgb & 0x00FF0000) >> 16) / 255.0,
-                blue: Double((rgb & 0x0000FF00) >> 8) / 255.0,
-                opacity: Double(rgb & 0x000000FF) / 255.0
-            )
-        default:
-            return nil
-        }
-    }
-    
-    /// 转换为十六进制字符串
-    func toHex() -> String? {
-        #if canImport(UIKit)
-        guard let components = UIColor(self).cgColor.components else { return nil }
-        
-        let r = components.count >= 1 ? components[0] : 0
-        let g = components.count >= 2 ? components[1] : 0
-        let b = components.count >= 3 ? components[2] : 0
-        
-        return String(format: "#%02X%02X%02X", Int(r * 255), Int(g * 255), Int(b * 255))
-        #else
-        return nil
-        #endif
     }
 }

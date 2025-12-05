@@ -5,7 +5,7 @@
 //  题型值对象
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - ReviewItemType
 
@@ -42,83 +42,83 @@ enum ReviewItemType: String, Sendable, CaseIterable, Codable, Hashable, Identifi
     /// 选择题
     ///
     /// 单项选择，四选一最常见。
-    case choice = "选择题"
+    case choice = "choice"
 
     /// 多选题
     ///
     /// 多项选择，通常有多个正确答案。
-    case multiChoice = "多选题"
+    case multiChoice = "multiChoice"
 
     /// 判断题
     ///
     /// 判断对错，二选一。
-    case judgment = "判断题"
+    case judgment = "judgment"
 
     /// 填空题
     ///
     /// 填写空缺内容，答案通常唯一。
-    case fillBlank = "填空题"
+    case fillBlank = "fillBlank"
 
     /// 连线题
     ///
     /// 将相关内容进行匹配连接。
-    case matching = "连线题"
+    case matching = "matching"
 
     // MARK: - Subjective Types (主观题)
 
     /// 简答题
     ///
     /// 简要回答问题，通常有要点采分。
-    case shortAnswer = "简答题"
+    case shortAnswer = "shortAnswer"
 
     /// 计算题
     ///
     /// 需要列式计算，按步骤给分。
-    case calculation = "计算题"
+    case calculation = "calculation"
 
     /// 证明题
     ///
     /// 数学或物理证明，逻辑严密性要求高。
-    case proof = "证明题"
+    case proof = "proof"
 
     /// 作图题
     ///
     /// 绘制图形、图表或示意图。
-    case drawing = "作图题"
+    case drawing = "drawing"
 
     /// 实验题
     ///
     /// 涉及实验设计、现象描述、结论分析。
-    case experiment = "实验题"
+    case experiment = "experiment"
 
     /// 材料分析
     ///
     /// 根据给定材料进行分析回答。
-    case analysis = "材料分析"
+    case analysis = "analysis"
 
     // MARK: - Comprehensive Types (综合题)
 
     /// 阅读理解
     ///
     /// 语文或英语阅读，综合理解能力。
-    case reading = "阅读理解"
+    case reading = "reading"
 
     /// 作文
     ///
     /// 写作题，考察语言表达和组织能力。
-    case writing = "作文"
+    case writing = "writing"
 
     /// 完形填空
     ///
     /// 英语完形填空，综合语法和语境理解。
-    case cloze = "完形填空"
+    case cloze = "cloze"
 
     // MARK: - Other
 
     /// 其他
     ///
     /// 不便分类的特殊题型。
-    case other = "其他"
+    case other = "other"
 
     // MARK: - Identifiable
 
@@ -202,27 +202,6 @@ extension ReviewItemType {
         case .writing: "pencil.line"
         case .cloze: "text.badge.minus"
         case .other: "ellipsis.circle"
-        }
-    }
-
-    /// 主题颜色
-    nonisolated var color: Color {
-        switch self {
-        case .choice: .blue
-        case .multiChoice: .indigo
-        case .judgment: .cyan
-        case .fillBlank: .green
-        case .matching: .teal
-        case .shortAnswer: .orange
-        case .calculation: .red
-        case .proof: .purple
-        case .drawing: .pink
-        case .experiment: .mint
-        case .analysis: .brown
-        case .reading: .yellow
-        case .writing: .red
-        case .cloze: .indigo
-        case .other: .gray
         }
     }
 }

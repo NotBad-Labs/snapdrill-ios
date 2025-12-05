@@ -152,6 +152,7 @@ struct TestDataGenerator {
             // 随机复习次数
             let reviewCount = Int.random(in: 0...10)
             
+            // 创建领域实体
             let generatedItem = ReviewItem(
                 imageData: nil,
                 title: title,
@@ -167,14 +168,15 @@ struct TestDataGenerator {
                 reviewItemType: reviewItemType
             )
             
-            // 设置复习次数
-            generatedItem.reviewCount = reviewCount
+            // 转换为持久化模型并设置额外属性
+            let model = ReviewItemMapper.toModel(from: generatedItem)
+            model.reviewCount = reviewCount
             
             // 设置下次复习时间
             let nextReviewDays = Int.random(in: -7...30)
-            generatedItem.nextReviewDate = Calendar.current.date(byAdding: .day, value: nextReviewDays, to: Date())!
+            model.nextReviewDate = Calendar.current.date(byAdding: .day, value: nextReviewDays, to: Date())!
             
-            context.insert(generatedItem)
+            context.insert(model)
             
             // 每 500 条保存一次，避免内存压力
             if i % 500 == 0 && i > 0 {
@@ -222,7 +224,7 @@ struct TestDataGenerator {
     /// 清除所有测试数据
     static func clearAll(in context: ModelContext) {
         do {
-            try context.delete(model: ReviewItem.self)
+            try context.delete(model: ReviewItemModel.self)
             try context.save()
             print("✅ Cleared all test data")
         } catch {

@@ -38,11 +38,16 @@ final class Dependencies {
     
     private init() {}
     
-    // MARK: - Model Context
+    // MARK: - Model Container
     
-    /// SwiftData 模型上下文
+    /// SwiftData 模型容器
     /// 由 App 入口设置
-    var modelContext: ModelContext?
+    var modelContainer: ModelContainer?
+    
+    /// SwiftData 模型上下文（便捷访问）
+    var modelContext: ModelContext? {
+        modelContainer?.mainContext
+    }
     
     // MARK: - Repository
     
@@ -55,10 +60,10 @@ final class Dependencies {
             if let repo = _reviewItemRepository {
                 return repo
             }
-            guard let context = modelContext else {
-                fatalError("ModelContext not configured. Call Dependencies.shared.configure(modelContext:) first.")
+            guard let container = modelContainer else {
+                fatalError("ModelContainer not configured. Call Dependencies.shared.configure(modelContainer:) first.")
             }
-            let repo = ReviewItemRepository(modelContext: context)
+            let repo = ReviewItemRepository(modelContainer: container)
             _reviewItemRepository = repo
             return repo
         }
@@ -124,9 +129,9 @@ final class Dependencies {
     
     /// 配置依赖容器
     ///
-    /// - Parameter modelContext: SwiftData 模型上下文
-    func configure(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    /// - Parameter modelContainer: SwiftData 模型容器
+    func configure(modelContainer: ModelContainer) {
+        self.modelContainer = modelContainer
     }
     
     // MARK: - Reset

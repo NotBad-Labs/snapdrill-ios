@@ -7,7 +7,6 @@
 
 import Testing
 import Foundation
-import SwiftUI
 @testable import NotBad
 
 @Suite("ErrorCategory 值对象测试")
@@ -31,11 +30,11 @@ struct ErrorCategoryTests {
 
     @Test("分类包含知识、方法、习惯、客观、其他")
     func categoryValues() {
-        #expect(ErrorCategory.knowledge.rawValue == "知识类")
-        #expect(ErrorCategory.method.rawValue == "方法类")
-        #expect(ErrorCategory.habit.rawValue == "习惯类")
-        #expect(ErrorCategory.objective.rawValue == "客观类")
-        #expect(ErrorCategory.other.rawValue == "其他")
+        #expect(ErrorCategory.knowledge.rawValue == "knowledge")
+        #expect(ErrorCategory.method.rawValue == "method")
+        #expect(ErrorCategory.habit.rawValue == "habit")
+        #expect(ErrorCategory.objective.rawValue == "objective")
+        #expect(ErrorCategory.other.rawValue == "other")
     }
 
     // MARK: - 显示属性测试

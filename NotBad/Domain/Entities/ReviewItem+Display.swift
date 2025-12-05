@@ -2,7 +2,9 @@
 //  ReviewItem+Display.swift
 //  NotBad
 //
-//  显示属性扩展
+//  显示属性扩展（纯 Domain 层，无 UI 依赖）
+//
+//  Note: UI 相关的显示属性已移至 Presentation/Common/Extensions/ReviewItem+UI.swift
 //
 
 import Foundation
@@ -13,45 +15,13 @@ extension ReviewItem {
 
     /// 显示标题
     ///
-    /// 如果标题为空或仅空白，返回默认标题。
+    /// 处理标题的显示逻辑，使用统一的 `normalizeTitle` 方法：
+    /// - 去除首尾空白字符
+    /// - 如果结果为空，返回本地化的默认标题
+    ///
+    /// - Note: 与初始化时的默认标题逻辑完全一致
     var displayTitle: String {
-        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? String(localized: "untitled_review_item") : trimmed
-    }
-
-    /// 简短描述
-    ///
-    /// 格式：「学科 · 题型」
-    @MainActor
-    var shortDescription: String {
-        let subjectName = EducationSystemManager.shared.subjectDisplayName(for: subjectRaw)
-        return "\(subjectName) · \(reviewItemType.displayName)"
-    }
-
-    /// 完整描述
-    ///
-    /// 格式：「学科 · 年级 · 题型 · 难度」
-    @MainActor
-    var fullDescription: String {
-        let subjectName = EducationSystemManager.shared.subjectDisplayName(for: subjectRaw)
-        let gradeName = EducationSystemManager.shared.gradeDisplayName(for: gradeRaw)
-        return "\(subjectName) · \(gradeName) · \(reviewItemType.displayName) · \(difficulty.displayName)"
-    }
-
-    /// 复习状态描述
-    var reviewStatusDescription: String {
-        if isNew {
-            return "新录入，尚未复习"
-        } else if needsReview {
-            return isOverdue ? "已逾期 \(reviewInterval.overdueByDays) 天" : "今天需要复习"
-        } else {
-            return "\(daysUntilReview) 天后复习"
-        }
-    }
-
-    /// 掌握状态描述
-    var masteryStatusDescription: String {
-        "\(mastery.displayName) · 已复习 \(reviewCount) 次"
+        Self.normalizeTitle(title)
     }
 }
 

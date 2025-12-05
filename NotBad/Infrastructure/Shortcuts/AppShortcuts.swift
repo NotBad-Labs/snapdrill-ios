@@ -66,9 +66,9 @@ struct AddReviewItemIntent: AppIntent {
     static let openAppWhenRun: Bool = true
     
     func perform() async throws -> some IntentResult {
-        // 发送通知切换到录入页面
+        // 切换到录入页面
         await MainActor.run {
-            NotificationCenter.default.post(name: .switchToCapture, object: nil)
+            NavigationRouter.shared.selectedTab = .capture
         }
         return .result()
     }
@@ -86,9 +86,9 @@ struct StartReviewIntent: AppIntent {
     static let openAppWhenRun: Bool = true
     
     func perform() async throws -> some IntentResult {
-        // 发送通知切换到复习页面
+        // 切换到复习页面
         await MainActor.run {
-            NotificationCenter.default.post(name: .switchToReview, object: nil)
+            NavigationRouter.shared.selectedTab = .review
         }
         return .result()
     }

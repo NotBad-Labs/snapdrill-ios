@@ -26,7 +26,12 @@ struct DashboardView: View {
 
     // MARK: - Environment
 
-    @Query private var allItems: [ReviewItem]
+    @Query private var allModels: [ReviewItemModel]
+    
+    /// 将持久化模型转换为领域实体
+    private var allItems: [ReviewItem] {
+        allModels.map { ReviewItemMapper.toEntity(from: $0) }
+    }
 
     // MARK: - Body
 
@@ -136,5 +141,5 @@ struct DashboardView: View {
 
 #Preview {
     DashboardView()
-        .modelContainer(for: ReviewItem.self, inMemory: true)
+        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

@@ -5,7 +5,7 @@
 //  年级值对象 - K12教育（小学到高中）
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - Grade
 
@@ -133,29 +133,6 @@ extension Grade {
             "figure.stand"
         case .grade10, .grade11, .grade12:
             "graduationcap"
-        }
-    }
-
-    /// 主题颜色（同学段渐变）
-    nonisolated var color: Color {
-        switch self {
-        // 幼儿园：粉色系
-        case .kindergarten: .pink
-        // 小学：绿色系
-        case .grade1: .mint
-        case .grade2: .green
-        case .grade3: .teal
-        case .grade4: .cyan
-        case .grade5: .blue
-        case .grade6: .indigo
-        // 初中：暖色系
-        case .grade7: .yellow
-        case .grade8: .orange
-        case .grade9: .red
-        // 高中：紫色系
-        case .grade10: .pink
-        case .grade11: .purple
-        case .grade12: Color(red: 0.5, green: 0, blue: 0.5)
         }
     }
 }

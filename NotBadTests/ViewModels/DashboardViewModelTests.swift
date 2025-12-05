@@ -65,13 +65,15 @@ struct DashboardViewModelTests {
         needsReview: Bool,
         isOverdue: Bool = false
     ) -> ReviewItem {
+        // 使用初始化器传入所有必要参数
         let reviewItem = ReviewItem(
             title: title,
+            createdAt: createdAt,
             mastery: mastery,
             subject: subject
         )
-        reviewItem.createdAt = createdAt
-
+        
+        // 设置 nextReviewDate
         if needsReview {
             reviewItem.nextReviewDate = isOverdue
                 ? Calendar.current.date(byAdding: .day, value: -3, to: Date())!
@@ -79,7 +81,7 @@ struct DashboardViewModelTests {
         } else {
             reviewItem.nextReviewDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())!
         }
-
+        
         return reviewItem
     }
 

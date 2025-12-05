@@ -7,7 +7,6 @@
 
 import Testing
 import Foundation
-import SwiftUI
 @testable import NotBad
 
 @Suite("Difficulty 值对象测试")
@@ -74,18 +73,6 @@ struct DifficultyTests {
         }
 
         #expect(Difficulty.extreme.icon == "flame.fill")
-    }
-
-    @Test("所有难度都有颜色")
-    func allDifficultiesHaveColors() {
-        // 验证颜色存在且不会崩溃
-        for difficulty in Difficulty.allCases {
-            _ = difficulty.color
-        }
-
-        // 验证颜色渐进：绿 → 红
-        #expect(Difficulty.basic.color == .mint)
-        #expect(Difficulty.extreme.color == .red)
     }
 
     // MARK: - 系数和指标测试

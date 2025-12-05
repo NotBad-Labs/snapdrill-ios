@@ -27,8 +27,7 @@ struct CaptureView: View {
 
     // MARK: - State
 
-    @State private var viewModel = CaptureViewModel()
-    @State private var selectedItem: PhotosPickerItem?
+    @State private var orchestrator = CaptureOrchestrator()
     @State private var isKeyboardVisible = false
 
     // MARK: - Body
@@ -39,31 +38,30 @@ struct CaptureView: View {
                 .navigationTitle(LocalizedStringKey("capture_title"))
                 .navigationBarTitleDisplayMode(.large)
                 .onAppear {
-                    viewModel.configure(with: modelContext)
+                    orchestrator.configure(with: modelContext)
                 }
-                .onChange(of: selectedItem) { _, newValue in
+                .onChange(of: orchestrator.imageSelectionVM.selectedItem) { _, newValue in
                     Task {
-                        await viewModel.loadTransferable(from: newValue)
+                        await orchestrator.imageSelectionVM.loadTransferable(from: newValue)
                     }
                 }
                 .dropDestination(for: Data.self) { items, _ in
                     guard let item = items.first, let image = UIImage(data: item) else { return false }
-                    viewModel.handlePickedImage(image)
+                    orchestrator.handleNewImage(image)
                     return true
                 }
-                .sheet(isPresented: $viewModel.showCamera) {
+                .sheet(isPresented: $orchestrator.imageSelectionVM.showCamera) {
                     ImagePicker(sourceType: .camera) { image in
-                        viewModel.handlePickedImage(image)
+                        orchestrator.handleNewImage(image)
                     }
                 }
-                .fullScreenCover(isPresented: $viewModel.showLiveScanner) {
+                .fullScreenCover(isPresented: $orchestrator.imageSelectionVM.showLiveScanner) {
                     liveScannerSheet
                 }
-                .alert(viewModel.alertMessage, isPresented: $viewModel.showAlert) {
+                .alert(orchestrator.alertMessage, isPresented: $orchestrator.showAlert) {
                     Button(LocalizedStringKey("common_confirm")) {
-                        if viewModel.isSuccessAlert {
-                            viewModel.resetForm()
-                            selectedItem = nil
+                        if orchestrator.isSuccessAlert {
+                            orchestrator.reset()
                         }
                     }
                 }
@@ -76,7 +74,7 @@ struct CaptureView: View {
 extension CaptureView {
     private var mainContent: some View {
         Group {
-            if viewModel.selectedImage == nil {
+            if orchestrator.imageSelectionVM.selectedImage == nil {
                 // 未选择图片：显示表单 + 底部选择按钮
                 initialInputView
             } else {
@@ -154,25 +152,26 @@ extension CaptureView {
 extension CaptureView {
     @ViewBuilder
     private var imageCard: some View {
-        if let image = viewModel.selectedImage {
+        if let image = orchestrator.imageSelectionVM.selectedImage {
             SelectedImageCard(
                 selectedImage: image,
-                isRecognizingText: viewModel.isRecognizingText,
+                isRecognizingText: orchestrator.ocrVM.isRecognizing,
                 showLiveScannerSupport: LiveTextScannerView.isSupported,
                 onCameraPressed: {
-                    viewModel.showCamera = true
+                    orchestrator.imageSelectionVM.showCamera = true
                 },
                 onLiveScanPressed: {
-                    viewModel.showLiveScanner = true
+                    orchestrator.imageSelectionVM.showLiveScanner = true
                 },
                 onRecognizeText: {
                     Task {
-                        await viewModel.recognizeText()
+                        if let uiImage = orchestrator.imageSelectionVM.selectedUIImage {
+                            _ = await orchestrator.ocrVM.recognizeText(from: uiImage)
+                        }
                     }
                 },
                 onClearImage: {
-                    viewModel.clearImage()
-                    selectedItem = nil
+                    orchestrator.reset()
                 }
             )
         }
@@ -184,9 +183,9 @@ extension CaptureView {
 extension CaptureView {
     private var formSection: some View {
         VStack(spacing: DesignTokens.Spacing.lg) {
-            BasicInfoFormSection(viewModel: viewModel)
-            ReviewItemContentFormSection(viewModel: viewModel)
-            AdditionalInfoFormSection(viewModel: viewModel)
+            BasicInfoFormSection(viewModel: orchestrator.formVM)
+            ReviewItemContentFormSection(ocrVM: orchestrator.ocrVM)
+            AdditionalInfoFormSection(viewModel: orchestrator.formVM)
         }
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -206,7 +205,7 @@ extension CaptureView {
     private var imageSourceBar: some View {
         HStack(spacing: DesignTokens.Spacing.xl) {
             // 相册
-            PhotosPicker(selection: $selectedItem, matching: .images) {
+            PhotosPicker(selection: $orchestrator.imageSelectionVM.selectedItem, matching: .images) {
                 Image(systemName: "photo.on.rectangle")
                     .font(.system(size: 22))
                     .foregroundStyle(.primary)
@@ -218,7 +217,7 @@ extension CaptureView {
             // 智能识别（主按钮）
             if LiveTextScannerView.isSupported {
                 Button {
-                    viewModel.showLiveScanner = true
+                    orchestrator.imageSelectionVM.showLiveScanner = true
                 } label: {
                     Image(systemName: "text.viewfinder")
                         .font(.system(size: 28, weight: .medium))
@@ -235,7 +234,7 @@ extension CaptureView {
             
             // 拍照
             Button {
-                viewModel.showCamera = true
+                orchestrator.imageSelectionVM.showCamera = true
             } label: {
                 Image(systemName: "camera")
                     .font(.system(size: 22))
@@ -257,22 +256,13 @@ extension CaptureView {
             Divider()
 
             Button {
-                if viewModel.isValid {
-                    viewModel.saveItem()
-                } else {
-                    viewModel.showValidationError()
-                }
+                orchestrator.save()
             } label: {
                 saveButtonLabel
             }
             .buttonStyle(SaveButtonStyle())
-            .disabled(viewModel.isSaving)
+            .disabled(orchestrator.isSaving)
             .accessibilityLabel(Text("capture_save_to_library"))
-            .accessibilityHint(
-                viewModel.isValid
-                    ? Text("hig_double_tap_to_save")
-                    : Text("hig_fill_required_fields")
-            )
             .padding(.horizontal)
             .padding(.vertical, DesignTokens.Spacing.md)
         }
@@ -281,14 +271,14 @@ extension CaptureView {
 
     private var saveButtonLabel: some View {
         HStack(spacing: DesignTokens.Spacing.sm) {
-            if viewModel.isSaving {
+            if orchestrator.isSaving {
                 ProgressView()
                     .tint(.white)
             } else {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 18, weight: .semibold))
             }
-            Text(viewModel.isSaving ? "capture_saving" : "capture_save_to_library")
+            Text(orchestrator.isSaving ? "capture_saving" : "capture_save_to_library")
                 .fontWeight(.semibold)
         }
         .frame(maxWidth: .infinity)
@@ -328,17 +318,20 @@ extension CaptureView {
         NavigationStack {
             LiveTextScannerContainer(
                 onResult: { text, imageData in
-                    viewModel.handleLiveScanResult(text, imageData: imageData)
+                    if let data = imageData, let image = UIImage(data: data) {
+                        orchestrator.handleNewImage(image)
+                    }
+                    orchestrator.imageSelectionVM.showLiveScanner = false
                 },
                 onCancel: {
-                    viewModel.showLiveScanner = false
+                    orchestrator.imageSelectionVM.showLiveScanner = false
                 }
             )
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("common_cancel") {
-                        viewModel.showLiveScanner = false
+                        orchestrator.imageSelectionVM.showLiveScanner = false
                     }
                     .foregroundStyle(.white)
                 }
@@ -352,5 +345,5 @@ extension CaptureView {
 
 #Preview {
     CaptureView()
-        .modelContainer(for: ReviewItem.self, inMemory: true)
+        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

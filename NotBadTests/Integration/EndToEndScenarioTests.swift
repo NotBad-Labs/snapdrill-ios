@@ -48,39 +48,33 @@ final class EndToEndScenarioTests: XCTestCase {
         print("模拟完成: 拍照 -> OCR(\(recognizedText.count)字) -> 创建题目")
     }
     
-    /// 测试 CaptureViewModel 完整流程
+    /// 测试 CaptureOrchestrator 完整流程
     @MainActor
-    func testCaptureViewModelFlow() async {
-        let viewModel = CaptureViewModel()
+    func testCaptureOrchestratorFlow() async {
+        let orchestrator = CaptureOrchestrator()
         
-        // 1. 选择图片
-        XCTAssertEqual(viewModel.currentStep, .selectImage)
-        viewModel.selectedImageData = TestImageFactory.createJPEGData(size: .medium)
-        XCTAssertTrue(viewModel.hasImage)
-        XCTAssertTrue(viewModel.canProceed)
+        // 1. 初始状态：选择图片
+        XCTAssertEqual(orchestrator.currentStep, .selectImage)
         
-        // 2. 进入识别步骤
-        viewModel.currentStep = .recognize
-        XCTAssertTrue(viewModel.canProceed)
+        // 2. 模拟选择图片
+        let imageData = TestImageFactory.createJPEGData(size: .medium)
+        if let image = UIImage(data: imageData) {
+            orchestrator.handleNewImage(image)
+        }
         
-        // 3. 填写表单
-        viewModel.currentStep = .fillForm
-        viewModel.title = "一元二次方程求解"
-        viewModel.subject = .math
-        viewModel.difficulty = .medium
-        viewModel.knowledgePointsInput = "方程, 因式分解"
+        // 3. 状态应该转到填表
+        XCTAssertEqual(orchestrator.currentStep, .fillForm)
         
-        XCTAssertTrue(viewModel.isValid)
-        XCTAssertTrue(viewModel.canProceed)
+        // 4. 填写表单
+        orchestrator.formVM.title = "一元二次方程求解"
+        orchestrator.formVM.subject = .math
+        orchestrator.formVM.difficulty = .medium
+        orchestrator.formVM.knowledgePointsInput = "方程, 因式分解"
         
-        // 4. 预览
-        viewModel.proceedToReview()
-        XCTAssertEqual(viewModel.currentStep, .review)
-        
-        // 5. 验证最终状态
-        XCTAssertEqual(viewModel.title, "一元二次方程求解")
-        XCTAssertEqual(viewModel.subject, .math)
-        XCTAssertEqual(viewModel.parsedKnowledgePoints.count, 2)
+        // 5. 验证表单状态
+        XCTAssertEqual(orchestrator.formVM.title, "一元二次方程求解")
+        XCTAssertEqual(orchestrator.formVM.subject, .math)
+        XCTAssertEqual(orchestrator.formVM.parsedKnowledgePoints.count, 2)
     }
     
     // MARK: - Library Flow Tests

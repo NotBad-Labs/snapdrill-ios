@@ -32,6 +32,9 @@
     "(%lld)" : {
 
     },
+    "【%@】" : {
+
+    },
     "*" : {
       "localizations" : {
         "en" : {
@@ -2245,6 +2248,103 @@
         }
       }
     },
+    "capture_recognizing" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recognizing..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "認識中..."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인식 중..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "识别中..."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "辨識中..."
+          }
+        }
+      }
+    },
+    "capture_reselect" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reselect"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選び直す"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 선택"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新选择"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新選取"
+          }
+        }
+      }
+    },
+    "capture_reselect_short" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reselect"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再選択"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "재선택"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重選"
+          }
+        }
+      }
+    },
     "capture_review_item_content_placeholder" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2381,103 +2481,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "主觀題"
-          }
-        }
-      }
-    },
-    "capture_recognizing" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recognizing..."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "認識中..."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "인식 중..."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "识别中..."
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "辨識中..."
-          }
-        }
-      }
-    },
-    "capture_reselect" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reselect"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選び直す"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다시 선택"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新选择"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新選取"
-          }
-        }
-      }
-    },
-    "capture_reselect_short" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reselect"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "再選択"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "재선택"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重選"
           }
         }
       }
@@ -22643,6 +22646,9 @@
         }
       }
     },
+    "NotBad 错题本自动生成" : {
+
+    },
     "notification_daily_reminder" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -25015,6 +25021,41 @@
         }
       }
     },
+    "review_item_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Question"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Question"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Question"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "题目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "題目"
+          }
+        }
+      }
+    },
     "review_mastered_well" : {
       "localizations" : {
         "en" : {
@@ -25673,41 +25714,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "複習進度"
-          }
-        }
-      }
-    },
-    "review_item_label" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Question"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Question"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Question"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "题目"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "題目"
           }
         }
       }
@@ -38866,6 +38872,9 @@
         }
       }
     },
+    "姓名: ____________" : {
+
+    },
     "学科" : {
       "localizations" : {
         "en" : {
@@ -39329,6 +39338,9 @@
         }
       }
     },
+    "日期: ____________" : {
+
+    },
     "日期范围" : {
       "localizations" : {
         "en" : {
@@ -39419,6 +39431,9 @@
     "清空所有数据" : {
 
     },
+    "班级: ____________" : {
+
+    },
     "生成 1000 条数据" : {
 
     },
@@ -39428,7 +39443,26 @@
     "生成 5000 条数据" : {
 
     },
+    "知识点:" : {
+
+    },
     "确认清空" : {
+
+    },
+    "笔记: %@" : {
+
+    },
+    "第 %lld 页 / 共 %lld 页" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "第 %1$lld 页 / 共 %2$lld 页"
+          }
+        }
+      }
+    },
+    "解：" : {
 
     },
     "记录解题思路、易错点等..." : {

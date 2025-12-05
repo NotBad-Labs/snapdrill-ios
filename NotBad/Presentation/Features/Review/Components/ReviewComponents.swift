@@ -17,6 +17,7 @@ struct ReviewContent: View {
 
     let items: [ReviewItem]
     @Binding var currentIndex: Int
+    @Binding var showAnswer: Bool
     let onMasteryUpdate: (Int, MasteryLevel) -> Void
     
     /// 预加载范围（前后各几个）
@@ -34,6 +35,7 @@ struct ReviewContent: View {
                         index: index,
                         currentIndex: currentIndex,
                         preloadRange: preloadRange,
+                        showAnswer: index == currentIndex ? $showAnswer : .constant(false),
                         onMastered: { onMasteryUpdate(index, .mastered) },
                         onUnclear: { onMasteryUpdate(index, .glimpse) },
                         onFailed: { onMasteryUpdate(index, .none) }
@@ -42,6 +44,54 @@ struct ReviewContent: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            
+            // 键盘快捷键提示（仅 iPad/Mac）
+            #if !os(watchOS)
+            KeyboardShortcutHint()
+            #endif
+        }
+    }
+}
+
+// MARK: - KeyboardShortcutHint
+
+/// 键盘快捷键提示视图
+///
+/// 在 iPad/Mac 上显示快捷键提示
+private struct KeyboardShortcutHint: View {
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    
+    var body: some View {
+        // 仅在 iPad (Regular Size Class) 显示
+        if sizeClass == .regular {
+            HStack(spacing: DesignTokens.Spacing.lg) {
+                KeyHint(key: "Space", label: "显示答案")
+                KeyHint(key: "1", label: "不会")
+                KeyHint(key: "2", label: "模糊")
+                KeyHint(key: "3", label: "掌握")
+                KeyHint(key: "←→", label: "切换")
+            }
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+            .padding(.vertical, DesignTokens.Spacing.sm)
+        }
+    }
+}
+
+/// 单个按键提示
+private struct KeyHint: View {
+    let key: String
+    let label: String
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(key)
+                .font(.caption2.monospaced())
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.secondary.opacity(0.2))
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+            Text(label)
         }
     }
 }
@@ -57,6 +107,7 @@ private struct LazyReviewCardView: View {
     let index: Int
     let currentIndex: Int
     let preloadRange: Int
+    @Binding var showAnswer: Bool
     let onMastered: () -> Void
     let onUnclear: () -> Void
     let onFailed: () -> Void
@@ -71,6 +122,7 @@ private struct LazyReviewCardView: View {
             if shouldLoad {
                 ReviewCard(
                     reviewItem: reviewItem,
+                    showAnswer: $showAnswer,
                     onMastered: onMastered,
                     onUnclear: onUnclear,
                     onFailed: onFailed

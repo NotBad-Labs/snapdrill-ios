@@ -54,9 +54,17 @@ struct KnowledgePoints: Sendable, Codable, Hashable, Identifiable {
             .uniqued()
     }
 
-    /// 从逗号分隔的字符串创建
-    /// - Parameter string: 逗号分隔的知识点字符串
+    /// 从字符串创建（支持 JSON 格式和旧版 CSV 格式）
+    /// - Parameter string: JSON 字符串或逗号分隔的字符串
     init(from string: String) {
+        // 尝试解析 JSON
+        if let data = string.data(using: .utf8),
+           let decoded = try? JSONDecoder().decode([String].self, from: data) {
+            self.init(decoded)
+            return
+        }
+        
+        // 回退到旧版 CSV 解析
         let components = string.components(separatedBy: ",")
         self.init(components)
     }
@@ -88,9 +96,13 @@ extension KnowledgePoints {
     /// 最后一个知识点
     nonisolated var last: String? { items.last }
 
-    /// 转换为逗号分隔的字符串（用于存储）
+    /// 转换为 JSON 字符串（用于存储）
     nonisolated var rawValue: String {
-        items.joined(separator: ", ")
+        guard let data = try? JSONEncoder().encode(items),
+              let jsonString = String(data: data, encoding: .utf8) else {
+            return "[]"
+        }
+        return jsonString
     }
 }
 

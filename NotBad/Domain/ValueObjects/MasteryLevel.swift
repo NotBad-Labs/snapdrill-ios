@@ -4,8 +4,10 @@
 //
 //  掌握程度值对象 - 5级制
 //
+//  Note: UI 相关属性（color）已移至 Presentation/Common/Styles/ValueObjects+UI.swift
+//
 
-import SwiftUI
+import Foundation
 
 // MARK: - MasteryLevel
 
@@ -109,17 +111,6 @@ extension MasteryLevel {
         case .partial: "questionmark.circle.fill"
         case .good: "checkmark.circle.fill"
         case .mastered: "star.circle.fill"
-        }
-    }
-
-    /// 主题颜色（红→橙→黄→薄荷→绿 渐进）
-    nonisolated var color: Color {
-        switch self {
-        case .none: Color.brand.error
-        case .glimpse: Color.brand.warning
-        case .partial: .yellow
-        case .good: .mint
-        case .mastered: Color.brand.success
         }
     }
 

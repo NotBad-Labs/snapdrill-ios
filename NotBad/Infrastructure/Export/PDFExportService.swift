@@ -42,7 +42,11 @@ final class PDFExportService: PDFExportServiceProtocol {
     
     // MARK: - Dependencies
     
-    private let composer = PDFPageComposer()
+    // 旧版渲染器 (已废弃)
+    // private let composer = PDFPageComposer()
+    
+    // 新版 SwiftUI 渲染器
+    private let swiftUIExporter = SwiftUIPDFExporter()
     
     // MARK: - Export Methods
     
@@ -61,12 +65,66 @@ final class PDFExportService: PDFExportServiceProtocol {
         includeNotes: Bool = false,
         showAnswerArea: Bool = true
     ) -> Data {
-        composer.compose(
-            items: items,
-            title: title,
+        // 构建配置对象
+        let config = PDFExportConfig(
             includeImages: includeImages,
             includeNotes: includeNotes,
             showAnswerArea: showAnswerArea
         )
+        
+        // 使用新的 SwiftUI 导出器
+        if let data = swiftUIExporter.export(items: items, title: title, config: config) {
+            return data
+        }
+        
+        // 降级处理（理论上不应发生）
+        return Data()
+    }
+    
+    // MARK: - Exam Mode Export
+    
+    /// 导出为试卷模式 PDF
+    ///
+    /// 试卷模式特性：
+    /// - 自动题号编排
+    /// - 智能留白（根据题型调整答题区大小）
+    /// - 隐藏答案/笔记（防作弊）
+    /// - 正式的试卷头部（姓名、班级、得分栏）
+    ///
+    /// - Parameters:
+    ///   - items: 要导出的错题列表
+    ///   - title: 试卷标题
+    /// - Returns: PDF 数据
+    func exportAsExam(
+        items: [ReviewItem],
+        title: String = "模拟测验"
+    ) -> Data {
+        // 使用试卷模式预设
+        if let data = swiftUIExporter.export(items: items, title: title, config: .examMode) {
+            return data
+        }
+        return Data()
+    }
+    
+    /// 导出为复习模式 PDF
+    ///
+    /// 复习模式特性：
+    /// - 显示笔记和知识点
+    /// - 不显示答题留白
+    /// - 适合打印后阅读复习
+    ///
+    /// - Parameters:
+    ///   - items: 要导出的错题列表
+    ///   - title: 文档标题
+    /// - Returns: PDF 数据
+    func exportAsReview(
+        items: [ReviewItem],
+        title: String = "错题复习集"
+    ) -> Data {
+        // 使用复习模式预设
+        if let data = swiftUIExporter.export(items: items, title: title, config: .reviewMode) {
+            return data
+        }
+        return Data()
     }
 }

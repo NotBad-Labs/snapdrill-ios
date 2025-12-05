@@ -45,6 +45,12 @@ extension Logger {
     
     /// AI 分析日志
     static let ai = Logger(subsystem: subsystem, category: "AI")
+    
+    /// Spotlight 搜索日志
+    static let search = Logger(subsystem: subsystem, category: "Search")
+    
+    /// 性能监控日志
+    static let performance = Logger(subsystem: subsystem, category: "Performance")
 }
 
 // MARK: - Convenience Methods

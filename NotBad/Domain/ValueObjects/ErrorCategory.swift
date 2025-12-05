@@ -5,7 +5,7 @@
 //  错误分类值对象
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - ErrorCategory
 
@@ -28,11 +28,11 @@ import SwiftUI
 /// print(category.improvementDirection)  // "加强学习理解"
 /// ```
 enum ErrorCategory: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
-    case knowledge = "知识类"
-    case method = "方法类"
-    case habit = "习惯类"
-    case objective = "客观类"
-    case other = "其他"
+    case knowledge = "knowledge"
+    case method = "method"
+    case habit = "habit"
+    case objective = "objective"
+    case other = "other"
 
     // MARK: Identifiable
 
@@ -82,17 +82,6 @@ extension ErrorCategory {
         case .habit: "hand.raised"
         case .objective: "clock"
         case .other: "ellipsis.circle"
-        }
-    }
-
-    /// 主题颜色
-    nonisolated var color: Color {
-        switch self {
-        case .knowledge: .purple
-        case .method: .red
-        case .habit: .orange
-        case .objective: .gray
-        case .other: .secondary
         }
     }
 

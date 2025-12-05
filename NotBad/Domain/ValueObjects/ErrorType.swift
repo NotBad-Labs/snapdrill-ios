@@ -5,7 +5,7 @@
 //  错误类型值对象 - 按错误根因分类
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - ErrorType
 
@@ -46,33 +46,33 @@ import SwiftUI
 enum ErrorType: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     // 知识类
     /// 概念不清 - 对基础概念理解有偏差
-    case concept = "概念不清"
+    case concept = "concept"
     /// 知识遗忘 - 曾经掌握但已遗忘
-    case forgotten = "知识遗忘"
+    case forgotten = "forgotten"
 
     // 方法类
     /// 方法不当 - 解题方法选择不合适
-    case method = "方法不当"
+    case method = "method"
     /// 思路错误 - 解题方向从一开始就错了
-    case wrongDirection = "思路错误"
+    case wrongDirection = "wrong_direction"
 
     // 习惯类
     /// 计算错误 - 运算过程中的失误
-    case calculation = "计算错误"
+    case calculation = "calculation"
     /// 粗心大意 - 非知识性的低级失误
-    case careless = "粗心大意"
+    case careless = "careless"
     /// 审题失误 - 题目理解或条件提取错误
-    case misread = "审题失误"
+    case misread = "misread"
     /// 步骤遗漏 - 解题过程不完整
-    case incomplete = "步骤遗漏"
+    case incomplete = "incomplete"
 
     // 客观类
     /// 时间不足 - 考试时间紧张导致
-    case timeLimit = "时间不足"
+    case timeLimit = "time_limit"
 
     // 其他
     /// 其他 - 无法明确归类的错误
-    case other = "其他"
+    case other = "other"
 
     // MARK: Identifiable
 
@@ -137,22 +137,6 @@ extension ErrorType {
         case .incomplete: "checklist.unchecked"
         case .timeLimit: "clock.badge.exclamationmark"
         case .other: "questionmark.circle"
-        }
-    }
-
-    /// 主题颜色
-    nonisolated var color: Color {
-        switch self {
-        case .concept: .purple
-        case .forgotten: .indigo
-        case .method: .red
-        case .wrongDirection: .pink
-        case .calculation: .blue
-        case .careless: .yellow
-        case .misread: .orange
-        case .incomplete: .mint
-        case .timeLimit: .gray
-        case .other: .secondary
         }
     }
 }

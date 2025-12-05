@@ -104,46 +104,12 @@ extension ReviewItem {
 
     /// 更新标题
     ///
+    /// 使用统一的 `normalizeTitle` 方法处理标题。
+    ///
     /// - Parameter newTitle: 新的标题
     func updateTitle(_ newTitle: String) {
-        title = newTitle.isEmpty ? "未命名错题" : newTitle
+        title = Self.normalizeTitle(newTitle)
         markAsUpdated()
-    }
-}
-
-// MARK: - ReviewItem Validation
-
-extension ReviewItem {
-
-    /// 验证数据完整性
-    ///
-    /// - Returns: 验证结果和问题列表
-    func validate() -> (isValid: Bool, issues: [String]) {
-        var issues: [String] = []
-
-        if title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            issues.append("标题不能为空")
-        }
-
-        if imageData == nil && note.isEmpty {
-            issues.append("建议添加图片或笔记")
-        }
-
-        if knowledgePoints.isEmpty {
-            issues.append("建议添加知识点标签")
-        }
-
-        return (issues.isEmpty, issues)
-    }
-
-    /// 是否数据完整
-    ///
-    /// 要求：
-    /// - 有图片或笔记（至少一项）
-    /// - 有知识点标签
-    /// - 标题非空
-    var isComplete: Bool {
-        (hasImage || hasNote) && hasKnowledgePoints && !title.isEmpty
     }
 }
 
@@ -154,6 +120,8 @@ extension ReviewItem: Comparable {
     /// 按紧迫程度排序
     ///
     /// 越需要复习的排在前面。
+    ///
+    /// - Returns: 左侧是否比右侧更紧迫（nextReviewDate 更早）
     static func < (lhs: ReviewItem, rhs: ReviewItem) -> Bool {
         lhs.nextReviewDate < rhs.nextReviewDate
     }

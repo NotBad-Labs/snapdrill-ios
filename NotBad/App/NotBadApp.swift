@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import TipKit
+import CoreSpotlight
 import OSLog
 
 // MARK: - NotBadApp
@@ -19,14 +20,17 @@ struct NotBadApp: App {
     /// 模型容器（带迁移计划）
     let modelContainer: ModelContainer
 
-    /// Deep Link 导航状态
-    @State private var selectedTab: Int = 0
+    /// 导航路由器
+    @State private var router = NavigationRouter.shared
 
     /// 是否显示 Onboarding
     @State private var showOnboarding: Bool = false
     
     /// Widget 同步防抖任务
     @State private var widgetSyncTask: Task<Void, Never>?
+    
+    /// Spotlight 搜索结果点击的错题 ID
+    @State private var spotlightItemId: UUID?
 
     /// 用户选择的颜色模式
     @AppStorage("colorScheme") private var colorSchemeOption = "system"
@@ -45,7 +49,7 @@ struct NotBadApp: App {
         TipsConfiguration.configure()
         
         do {
-            let schema = Schema([ReviewItem.self])
+            let schema = Schema([ReviewItemModel.self])
             let config = ModelConfiguration(schema: schema)
             modelContainer = try ModelContainer(
                 for: schema,
@@ -65,7 +69,7 @@ struct NotBadApp: App {
 
             // 重新创建容器
             do {
-                let schema = Schema([ReviewItem.self])
+                let schema = Schema([ReviewItemModel.self])
                 let config = ModelConfiguration(schema: schema)
                 modelContainer = try ModelContainer(for: schema, configurations: [config])
                 Logger.app.info("✅ 重建数据库成功")
@@ -77,7 +81,8 @@ struct NotBadApp: App {
 
     var body: some Scene {
         WindowGroup {
-            AdaptiveNavigationView(selectedTab: $selectedTab)
+            AdaptiveNavigationView()
+                .environment(\.router, router)
                 .preferredColorScheme(preferredColorScheme)
                 .fullScreenCover(isPresented: $showOnboarding) {
                     OnboardingView {
@@ -91,17 +96,28 @@ struct NotBadApp: App {
                     handleDeepLink(url)
                 }
                 // Handoff Restoration
-                .onContinueUserActivity(UserActivityType.viewDashboard) { _ in selectedTab = 0 }
-                .onContinueUserActivity(UserActivityType.viewLibrary) { _ in selectedTab = 1 }
-                .onContinueUserActivity(UserActivityType.captureItem) { _ in selectedTab = 2 }
-                .onContinueUserActivity(UserActivityType.reviewSession) { _ in selectedTab = 3 }
-                .onContinueUserActivity(UserActivityType.viewProfile) { _ in selectedTab = 4 }
+                .onContinueUserActivity(UserActivityType.viewDashboard) { _ in router.selectedTab = .dashboard }
+                .onContinueUserActivity(UserActivityType.viewLibrary) { _ in router.selectedTab = .library }
+                .onContinueUserActivity(UserActivityType.captureItem) { _ in router.selectedTab = .capture }
+                .onContinueUserActivity(UserActivityType.reviewSession) { _ in router.selectedTab = .review }
+                .onContinueUserActivity(UserActivityType.viewProfile) { _ in router.selectedTab = .profile }
+                // Spotlight 搜索结果点击
+                .onContinueUserActivity(CSSearchableItemActionType) { activity in
+                    handleSpotlightSearch(activity)
+                }
                 .task {
                     await syncWidgetData()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .reviewItemsDidChange)) { _ in
                     // 防抖：批量删除/修改时避免高频同步
                     scheduleWidgetSync()
+                }
+                .onChange(of: spotlightItemId) { _, newId in
+                    // Spotlight 搜索结果导航
+                    if let id = newId {
+                        navigateToItem(id: id)
+                        spotlightItemId = nil
+                    }
                 }
         }
         .modelContainer(modelContainer)
@@ -146,18 +162,38 @@ struct NotBadApp: App {
         switch url.host {
         case "review":
             // 导航到复习页面
-            selectedTab = 1
+            router.selectedTab = .review
         case "library":
             // 导航到错题库
-            selectedTab = 2
+            router.selectedTab = .library
         case "capture":
             // 导航到拍照
-            selectedTab = 0
+            router.selectedTab = .capture
         default:
             break
         }
 
         Logger.app.debug("Deep link handled: \(url.absoluteString)")
+    }
+    
+    // MARK: - Spotlight Search Handling
+    
+    /// 处理 Spotlight 搜索结果点击
+    private func handleSpotlightSearch(_ activity: NSUserActivity) {
+        if let itemId = SpotlightIndexService.handleSpotlightActivity(activity) {
+            spotlightItemId = itemId
+            Logger.app.debug("Spotlight search: navigating to item \(itemId)")
+        }
+    }
+    
+    /// 导航到指定错题
+    @MainActor
+    private func navigateToItem(id: UUID) {
+        // 切换到题库 Tab
+        router.selectedTab = .library
+        
+        // 通过 NavigationRouter 推送详情页
+        router.navigateToItemDetail(itemId: id)
     }
 
     // MARK: - Widget Data Sync
@@ -166,10 +202,11 @@ struct NotBadApp: App {
     @MainActor
     private func syncWidgetData() async {
         let context = modelContainer.mainContext
-        let descriptor = FetchDescriptor<ReviewItem>()
+        let descriptor = FetchDescriptor<ReviewItemModel>()
 
         do {
-            let items = try context.fetch(descriptor)
+            let models = try context.fetch(descriptor)
+            let items = models.map { ReviewItemMapper.toEntity(from: $0) }
             items.syncToWidget()
         } catch {
             Logger.widget.error("Failed to sync widget data: \(error.localizedDescription)")

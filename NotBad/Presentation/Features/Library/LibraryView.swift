@@ -18,21 +18,28 @@ import OSLog
 /// ## 架构设计
 ///
 /// 视图采用 MVVM + 组件化架构：
-/// - 使用 `@Query` 从 SwiftData 获取数据
+/// - 使用 `@Query` 从 SwiftData 获取 ReviewItemModel
+/// - 通过 ReviewItemMapper 转换为领域实体 ReviewItem
 /// - 使用 `LibraryViewModel` 处理筛选和删除逻辑
 /// - 子组件独立可复用：FilterChip、ItemRow、LibraryFilterBar、BatchActionBar
 struct LibraryView: View {
 
     // MARK: - Properties
 
-    @Query(sort: \ReviewItem.createdAt, order: .reverse)
-    private var items: [ReviewItem]
+    @Query(sort: \ReviewItemModel.createdAt, order: .reverse)
+    private var models: [ReviewItemModel]
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.router) private var router
     @State private var viewModel = LibraryViewModel()
     @StateObject private var profileManager = UserProfileManager.shared
     @State private var navigationPath = NavigationPath()
     @Environment(\.isSearching) private var isSearching
+    
+    /// 将持久化模型转换为领域实体
+    private var items: [ReviewItem] {
+        models.map { ReviewItemMapper.toEntity(from: $0) }
+    }
 
     // MARK: - Computed Properties
 
@@ -49,60 +56,93 @@ struct LibraryView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            contentView
-                .navigationTitle("library_title")
-                .navigationBarTitleDisplayMode(.large)
-                .searchable(
-                    text: $viewModel.searchText,
-                    placement: .navigationBarDrawer(displayMode: .always),
-                    prompt: Text("library_search_prompt")
-                )
-                .onSubmit(of: .search) {
-                    viewModel.submitSearch()
+            mainContent
+                .navigationDestination(for: UUID.self) { itemId in
+                    if let model = models.first(where: { $0.id == itemId }) {
+                        ItemDetailView(model: model)
+                    }
                 }
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        if !items.isEmpty {
-                            Button {
-                                withAnimation(.spring(response: 0.3)) {
-                                    viewModel.toggleSelectionMode()
-                                }
-                            } label: {
-                                Text(viewModel.isSelectionMode ? "library_done" : "library_edit")
+        }
+    }
+    
+    // MARK: - Main Content
+    
+    @ViewBuilder
+    private var mainContent: some View {
+        contentView
+            .navigationTitle("library_title")
+            .navigationBarTitleDisplayMode(.large)
+            .searchable(
+                text: $viewModel.searchText,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: Text("library_search_prompt")
+            )
+            .onSubmit(of: .search) {
+                viewModel.submitSearch()
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if !items.isEmpty {
+                        Button {
+                            withAnimation(.spring(response: 0.3)) {
+                                viewModel.toggleSelectionMode()
                             }
+                        } label: {
+                            Text(viewModel.isSelectionMode ? "library_done" : "library_edit")
                         }
                     }
                 }
-                .safeAreaInset(edge: .bottom) {
-                    if viewModel.isSelectionMode {
-                        BatchActionBar(
-                            selectedCount: viewModel.selectedCount,
-                            totalCount: filteredItems.count,
-                            onToggleSelectAll: {
-                                if viewModel.selectedCount == filteredItems.count {
-                                    viewModel.deselectAll()
-                                } else {
-                                    viewModel.selectAll(from: filteredItems)
-                                }
-                            },
-                            onMarkMastery: { level in
-                                viewModel.markSelectedItems(from: items, as: level)
-                            },
-                            onDelete: {
-                                viewModel.deleteSelectedItems(from: items)
-                            }
-                        )
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+            .safeAreaInset(edge: .bottom) {
+                batchActionBarIfNeeded
+            }
+            .sheet(isPresented: $viewModel.showAdvancedSearch) {
+                AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
+            }
+            .onAppear {
+                viewModel.configure(with: modelContext)
+                Logger.ui.debug("LibraryView onAppear - 共 \(items.count) 条数据")
+            }
+            .onChange(of: router.pendingItemDetailId) { _, newId in
+                handleSpotlightNavigation(itemId: newId)
+            }
+    }
+    
+    // MARK: - Batch Action Bar
+    
+    @ViewBuilder
+    private var batchActionBarIfNeeded: some View {
+        if viewModel.isSelectionMode {
+            BatchActionBar(
+                selectedCount: viewModel.selectedCount,
+                totalCount: filteredItems.count,
+                onToggleSelectAll: {
+                    if viewModel.selectedCount == filteredItems.count {
+                        viewModel.deselectAll()
+                    } else {
+                        viewModel.selectAll(from: filteredItems)
                     }
+                },
+                onMarkMastery: { level in
+                    viewModel.markSelectedItems(from: items, as: level)
+                },
+                onDelete: {
+                    viewModel.deleteSelectedItems(from: items)
                 }
-                .sheet(isPresented: $viewModel.showAdvancedSearch) {
-                    AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
-                }
-                .onAppear {
-                    viewModel.configure(with: modelContext)
-                    Logger.ui.debug("LibraryView onAppear - 共 \(items.count) 条数据")
-                }
+            )
+            .transition(.move(edge: .bottom).combined(with: .opacity))
         }
+    }
+    
+    // MARK: - Spotlight Navigation
+    
+    private func handleSpotlightNavigation(itemId: UUID?) {
+        guard let itemId,
+              let item = items.first(where: { $0.id == itemId }) else {
+            return
+        }
+        navigationPath.append(item)
+        router.pendingItemDetailId = nil
     }
 }
 
@@ -114,7 +154,7 @@ private extension LibraryView {
     var contentView: some View {
         if items.isEmpty {
             EmptyStateView.noItems {
-                NotificationCenter.default.post(name: .switchToCapture, object: nil)
+                router.selectedTab = .capture
             }
         } else {
             itemList
@@ -160,9 +200,6 @@ private extension LibraryView {
             }
         }
         .listStyle(.plain)
-        .navigationDestination(for: ReviewItem.self) { reviewItem in
-            ItemDetailView(reviewItem: reviewItem)
-        }
     }
     
     var noResultsView: some View {
@@ -208,7 +245,7 @@ private extension LibraryView {
     
     func navigationRow(for reviewItem: ReviewItem) -> some View {
         Button {
-            navigationPath.append(reviewItem)
+            navigationPath.append(reviewItem.id)
         } label: {
             ItemRow(reviewItem: reviewItem)
         }
@@ -227,5 +264,5 @@ private extension LibraryView {
 
 #Preview("Library View") {
     LibraryView()
-        .modelContainer(for: ReviewItem.self, inMemory: true)
+        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

@@ -58,8 +58,8 @@ private extension ItemRow {
     
     /// 异步加载并缓存缩略图
     func loadThumbnail() async {
-        // 1. 先检查全局缓存
-        if let cached = ThumbnailCache.shared.thumbnail(for: reviewItem.id) {
+        // 1. 先检查全局缓存（支持磁盘缓存）
+        if let cached = await ThumbnailCache.shared.thumbnail(for: reviewItem.id) {
             cachedThumbnail = cached
             return
         }
@@ -80,9 +80,9 @@ private extension ItemRow {
             }
         }.value
         
-        await MainActor.run {
-            if let thumbnail {
-                ThumbnailCache.shared.setThumbnail(thumbnail, for: reviewItem.id)
+        if let thumbnail {
+            await ThumbnailCache.shared.setThumbnail(thumbnail, for: reviewItem.id)
+            await MainActor.run {
                 cachedThumbnail = thumbnail
             }
         }

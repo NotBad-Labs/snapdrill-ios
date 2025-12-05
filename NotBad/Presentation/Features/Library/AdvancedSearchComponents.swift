@@ -53,8 +53,8 @@ struct DifficultySelectionRow: View {
                 ForEach(Difficulty.allCases, id: \.self) { difficulty in
                     SelectionChip(
                         title: difficulty.displayName,
-                        icon: "star.fill",
-                        color: difficulty.color,
+                        icon: difficulty.icon,
+                        color: .accentColor,
                         isSelected: selectedDifficulties.contains(difficulty)
                     ) {
                         withAnimation(.spring(response: 0.3)) {

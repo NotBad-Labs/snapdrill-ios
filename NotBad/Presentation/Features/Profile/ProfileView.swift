@@ -25,7 +25,12 @@ struct ProfileView: View {
     // MARK: - Environment
 
     @Environment(\.modelContext) private var modelContext
-    @Query private var allItems: [ReviewItem]
+    @Query private var allModels: [ReviewItemModel]
+    
+    /// 将持久化模型转换为领域实体
+    private var allItems: [ReviewItem] {
+        allModels.map { ReviewItemMapper.toEntity(from: $0) }
+    }
     
     // MARK: - State
     
@@ -274,5 +279,5 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView()
-        .modelContainer(for: ReviewItem.self, inMemory: true)
+        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

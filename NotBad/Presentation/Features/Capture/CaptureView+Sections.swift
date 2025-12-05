@@ -196,12 +196,15 @@ private extension BasicInfoFormSection {
         } content: {
             Picker("", selection: $viewModel.difficulty) {
                 ForEach(Difficulty.allCases) { diff in
-                    Text(String(repeating: "★", count: diff.stars) + " " + diff.displayName)
-                        .tag(diff)
+                    Label {
+                        Text(diff.displayName)
+                    } icon: {
+                        Image(systemName: diff.icon)
+                    }
+                    .tag(diff)
                 }
             }
             .pickerStyle(.menu)
-            .tint(viewModel.difficulty.color)
         }
     }
     

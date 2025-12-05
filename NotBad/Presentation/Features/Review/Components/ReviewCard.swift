@@ -75,11 +75,17 @@ private struct AsyncImageView: View {
 /// 展示单道错题的详细信息，支持显示/隐藏答案，
 /// 并提供掌握度自评按钮。
 ///
+/// ## 键盘快捷键支持
+///
+/// 通过外部绑定 `showAnswer`，支持键盘快捷键控制：
+/// - 空格键切换答案显示
+///
 /// ## 使用示例
 ///
 /// ```swift
 /// ReviewCard(
 ///     item: reviewItem,
+///     showAnswer: $showAnswer,
 ///     onMastered: { /* 完全掌握 */ },
 ///     onUnclear: { /* 一知半解 */ },
 ///     onFailed: { /* 不会 */ }
@@ -91,6 +97,9 @@ struct ReviewCard: View {
 
     /// 错题数据
     let reviewItem: ReviewItem
+    
+    /// 是否显示答案（外部绑定，支持键盘快捷键）
+    @Binding var showAnswer: Bool
 
     /// 掌握回调
     let onMastered: () -> Void
@@ -102,9 +111,6 @@ struct ReviewCard: View {
     let onFailed: () -> Void
 
     // MARK: - State
-
-    /// 是否显示答案
-    @State private var showAnswer = false
 
     /// 卡片出现动画
     @State private var isAppeared = false
@@ -414,6 +420,8 @@ private struct MasteryButtonStyle: ButtonStyle {
 }
 
 #Preview("Review Card") {
+    @Previewable @State var showAnswer = false
+    
     ReviewCard(
         reviewItem: ReviewItem(
             imageData: nil,
@@ -423,6 +431,7 @@ private struct MasteryButtonStyle: ButtonStyle {
             grade: .grade10,
             knowledgePoints: ["函数"]
         ),
+        showAnswer: $showAnswer,
         onMastered: {},
         onUnclear: {},
         onFailed: {}

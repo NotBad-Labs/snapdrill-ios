@@ -138,19 +138,19 @@ struct KnowledgePointsTests {
 
     // MARK: - rawValue 测试
 
-    @Test("rawValue 正确序列化")
+    @Test("rawValue 正确序列化为JSON")
     func rawValueSerialization() {
         let kp = KnowledgePoints(["A", "B", "C"])
 
-        // rawValue 使用 ", " (带空格) 分隔
-        #expect(kp.rawValue == "A, B, C")
+        // rawValue 现在使用 JSON 格式
+        #expect(kp.rawValue == "[\"A\",\"B\",\"C\"]")
     }
 
-    @Test("空知识点 rawValue 为空字符串")
+    @Test("空知识点 rawValue 为空数组JSON")
     func emptyRawValue() {
         let kp = KnowledgePoints.empty
 
-        #expect(kp.rawValue == "")
+        #expect(kp.rawValue == "[]")
     }
 
     // MARK: - 编码测试

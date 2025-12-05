@@ -116,15 +116,16 @@ extension Notification.Name {
     
     // MARK: - Navigation Events
     
-    /// 切换到录入页面
-    ///
-    /// 从其他页面触发，导航到 Capture Tab
+    /// 切换到录入页面 (Deprecated: Use NavigationRouter)
+    @available(*, deprecated, message: "Use NavigationRouter.shared.selectedTab = .capture")
     static let switchToCapture = Notification.Name("notbad.navigation.switchToCapture")
     
-    /// 切换到复习页面
+    /// 切换到复习页面 (Deprecated: Use NavigationRouter)
+    @available(*, deprecated, message: "Use NavigationRouter.shared.selectedTab = .review")
     static let switchToReview = Notification.Name("notbad.navigation.switchToReview")
     
-    /// 切换到题库页面
+    /// 切换到题库页面 (Deprecated: Use NavigationRouter)
+    @available(*, deprecated, message: "Use NavigationRouter.shared.selectedTab = .library")
     static let switchToLibrary = Notification.Name("notbad.navigation.switchToLibrary")
 }
 

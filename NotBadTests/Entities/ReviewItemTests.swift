@@ -19,14 +19,14 @@ struct ReviewItemTests {
     func defaultInitialization() {
         let reviewItem = ReviewItem()
 
-        #expect(reviewItem.title == "未命名错题")
-        #expect(reviewItem.note == "")
-        #expect(reviewItem.subject == .math)
-        #expect(reviewItem.grade == .grade10)
-        #expect(reviewItem.mastery == .none)
-        #expect(reviewItem.difficulty == .medium)
-        #expect(reviewItem.reviewCount == 0)
-        #expect(reviewItem.imageData == nil)
+        #expect(reviewItem.title == "未命名错题", "空标题应转为默认标题")
+        #expect(reviewItem.note == "", "笔记应为空")
+        #expect(reviewItem.subject == .math, "默认学科应为数学")
+        #expect(reviewItem.grade == .grade10, "默认年级应为高一")
+        #expect(reviewItem.mastery == .none, "默认掌握度应为 none")
+        #expect(reviewItem.difficulty == .medium, "默认难度应为中等")
+        #expect(reviewItem.reviewCount == 0, "默认复习次数应为 0")
+        #expect(reviewItem.imageData == nil, "默认图片应为 nil")
     }
 
     @Test("自定义初始化正确")
@@ -39,20 +39,26 @@ struct ReviewItemTests {
             difficulty: .hard
         )
 
-        #expect(reviewItem.title == "二次函数")
-        #expect(reviewItem.note == "求极值问题")
-        #expect(reviewItem.subject == .math)
-        #expect(reviewItem.grade == .grade11)
-        #expect(reviewItem.difficulty == .hard)
+        #expect(reviewItem.title == "二次函数", "标题应保持不变")
+        #expect(reviewItem.note == "求极值问题", "笔记应保持不变")
+        #expect(reviewItem.subject == .math, "学科应为数学")
+        #expect(reviewItem.grade == .grade11, "年级应为高二")
+        #expect(reviewItem.difficulty == .hard, "难度应为困难")
     }
 
     @Test("空标题转为默认标题")
     func emptyTitleConvertsToDefault() {
+        // 空字符串转换为默认标题
         let reviewItem = ReviewItem(title: "")
-        #expect(reviewItem.title == "未命名错题")
+        #expect(reviewItem.title == "未命名错题", "空字符串应转为默认标题")
 
+        // 纯空白字符串也转换为默认标题（normalizeTitle 会 trim）
         let reviewItem2 = ReviewItem(title: "   ")
-        #expect(reviewItem2.title == "   ") // 只有完全空才转换
+        #expect(reviewItem2.title == "未命名错题", "纯空白应转为默认标题")
+        
+        // 正常标题保持不变（但会 trim）
+        let reviewItem3 = ReviewItem(title: "  测试标题  ")
+        #expect(reviewItem3.title == "测试标题", "标题应被 trim 后保留")
     }
 
     // MARK: - 值对象访问器测试
@@ -176,11 +182,11 @@ struct ReviewItemTests {
         #expect(reviewItem2.displayTitle == "未命名错题")
     }
 
-    @Test("shortDescription 格式正确")
+    @Test("shortDescriptionForUI 格式正确")
     @MainActor
     func shortDescriptionProperty() {
         let reviewItem = ReviewItem(subject: .math, reviewItemType: .calculation)
-        let desc = reviewItem.shortDescription
+        let desc = reviewItem.shortDescriptionForUI
         
         // 使用 EducationSystemManager 获取期望的显示名称
         let subjectName = EducationSystemManager.shared.subjectDisplayName(for: reviewItem.subjectRaw)
@@ -189,7 +195,7 @@ struct ReviewItemTests {
         #expect(desc.contains(reviewItem.reviewItemType.displayName))
     }
 
-    @Test("fullDescription 格式正确")
+    @Test("fullDescriptionForUI 格式正确")
     @MainActor
     func fullDescriptionProperty() {
         let reviewItem = ReviewItem(
@@ -198,7 +204,7 @@ struct ReviewItemTests {
             difficulty: .hard,
             reviewItemType: .calculation
         )
-        let desc = reviewItem.fullDescription
+        let desc = reviewItem.fullDescriptionForUI
 
         // 使用 EducationSystemManager 获取期望的显示名称，以避免测试环境本地化问题
         let subjectName = EducationSystemManager.shared.subjectDisplayName(for: reviewItem.subjectRaw)
@@ -219,9 +225,9 @@ struct ReviewItemTests {
 
         reviewItem.recordReview(newMastery: .partial)
 
-        #expect(reviewItem.reviewCount == originalCount + 1)
-        #expect(reviewItem.mastery == .partial)
-        #expect(reviewItem.nextReviewDate > Date())
+        #expect(reviewItem.reviewCount == originalCount + 1, "复习次数应+1")
+        #expect(reviewItem.mastery == .partial, "掌握度应更新为 partial")
+        #expect(reviewItem.nextReviewDate > Date(), "下次复习日期应在未来")
     }
 
     @Test("resetProgress 使用渐进式退阶策略")
@@ -236,8 +242,8 @@ struct ReviewItemTests {
         reviewItem.resetProgress()
         
         // 渐进式退阶：mastered → partial，复习次数减半
-        #expect(reviewItem.reviewCount == originalCount / 2)
-        #expect(reviewItem.mastery == .partial)
+        #expect(reviewItem.reviewCount == originalCount / 2, "复习次数应减半，保留学习记录")
+        #expect(reviewItem.mastery == .partial, "mastered 应退阶为 partial")
     }
     
     @Test("hardResetProgress 完全重置复习进度")
@@ -249,8 +255,8 @@ struct ReviewItemTests {
         reviewItem.hardResetProgress()
         
         // 完全重置：复习次数归零，掌握度重置为 none
-        #expect(reviewItem.reviewCount == 0)
-        #expect(reviewItem.mastery == .none)
+        #expect(reviewItem.reviewCount == 0, "完全重置应将复习次数清零")
+        #expect(reviewItem.mastery == .none, "完全重置应将掌握度设为 none")
     }
 
     @Test("addKnowledgePoint 正确添加")
@@ -299,7 +305,7 @@ struct ReviewItemTests {
 
     // MARK: - 验证测试
 
-    @Test("validate 返回正确结果")
+    @Test("validateItem 返回正确结果")
     func validateMethod() {
         let reviewItem = ReviewItem(
             imageData: TestImageFactory.createJPEGData(size: .thumbnail),
@@ -307,23 +313,25 @@ struct ReviewItemTests {
             knowledgePoints: KnowledgePoints(from: "知识点")
         )
 
-        let (isValid, issues) = reviewItem.validate()
-        #expect(isValid == true)
-        #expect(issues.isEmpty)
+        let result = reviewItem.validateItem()
+        #expect(result.isValid == true, "完整数据应验证通过")
+        #expect(result.errors.isEmpty, "完整数据不应有错误")
     }
 
-    @Test("validate 检测缺失内容")
+    @Test("validateItem 检测缺失内容")
     func validateDetectsMissingContent() {
-        let reviewItem = ReviewItem(title: "   ")
-        let (_, issues) = reviewItem.validate()
+        // 创建一个 ReviewItem，然后直接修改 title 为空（绕过 normalizeTitle）
+        let reviewItem = ReviewItem(title: "测试")
+        reviewItem.title = "   " // 直接设置空白标题
+        let result = reviewItem.validateItem()
 
-        #expect(issues.contains { $0.contains("标题") })
+        #expect(result.errors.contains(.titleRequired))
     }
 
     @Test("isComplete 正确判断")
     func isCompleteProperty() {
         let reviewItem1 = ReviewItem()
-        #expect(reviewItem1.isComplete == false)
+        #expect(reviewItem1.isComplete == false, "空数据应不完整")
 
         // 有图片 + 知识点 = 完整
         let reviewItem2 = ReviewItem(
@@ -331,7 +339,7 @@ struct ReviewItemTests {
             title: "测试",
             knowledgePoints: KnowledgePoints(from: "知识点")
         )
-        #expect(reviewItem2.isComplete == true)
+        #expect(reviewItem2.isComplete == true, "有图片+知识点应完整")
 
         // 有笔记 + 知识点 = 也完整（无需图片）
         let reviewItem3 = ReviewItem(
@@ -339,14 +347,14 @@ struct ReviewItemTests {
             note: "这是笔记内容",
             knowledgePoints: KnowledgePoints(from: "知识点")
         )
-        #expect(reviewItem3.isComplete == true)
+        #expect(reviewItem3.isComplete == true, "有笔记+知识点应完整")
 
         // 只有知识点，无图片无笔记 = 不完整
         let reviewItem4 = ReviewItem(
             title: "测试",
             knowledgePoints: KnowledgePoints(from: "知识点")
         )
-        #expect(reviewItem4.isComplete == false)
+        #expect(reviewItem4.isComplete == false, "无图片无笔记应不完整")
     }
 
     // MARK: - Comparable 测试

@@ -80,22 +80,16 @@ struct AdaptiveNavigationView: View {
     /// 水平尺寸类
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     
+    /// 导航路由器
+    @Environment(\.router) private var router
+    
     // MARK: - State
     
     /// 当前选中的侧边栏项
     @State private var selectedSidebarItem: SidebarItem? = .dashboard
     
-    /// Tab 选择绑定（用于 Deep Link）
-    @Binding var selectedTab: Int
-    
     /// 侧边栏可见性
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
-    
-    // MARK: - Init
-    
-    init(selectedTab: Binding<Int>) {
-        _selectedTab = selectedTab
-    }
     
     // MARK: - Body
     
@@ -106,27 +100,18 @@ struct AdaptiveNavigationView: View {
                 iPadLayout
             } else {
                 // iPhone: 使用 TabView
-                MainTabView(selectedTab: $selectedTab)
+                MainTabView()
             }
         }
-        .onChange(of: selectedTab) { _, newValue in
-            if let item = SidebarItem(rawValue: newValue) {
+        .onChange(of: router.selectedTab) { _, newValue in
+            if let item = SidebarItem(rawValue: newValue.rawValue) {
                 selectedSidebarItem = item
             }
         }
         .onChange(of: selectedSidebarItem) { _, newValue in
-            if let item = newValue {
-                selectedTab = item.rawValue
+            if let item = newValue, let tab = Tab(rawValue: item.rawValue) {
+                router.selectedTab = tab
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .switchToCapture)) { _ in
-            handleDeepLink(.capture)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .switchToReview)) { _ in
-            handleDeepLink(.review)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .switchToLibrary)) { _ in
-            handleDeepLink(.library)
         }
         // Handoff Support
         .userActivity(UserActivityType.viewDashboard, isActive: isCurrent(.dashboard)) { activity in
@@ -152,7 +137,7 @@ struct AdaptiveNavigationView: View {
         if horizontalSizeClass == .regular {
             return selectedSidebarItem == item
         } else {
-            return selectedTab == item.rawValue
+            return router.selectedTab.rawValue == item.rawValue
         }
     }
     
@@ -237,7 +222,9 @@ struct AdaptiveNavigationView: View {
         if horizontalSizeClass == .regular {
             selectedSidebarItem = item
         } else {
-            selectedTab = item.rawValue
+            if let tab = Tab(rawValue: item.rawValue) {
+                router.selectedTab = tab
+            }
         }
     }
 }
@@ -245,11 +232,11 @@ struct AdaptiveNavigationView: View {
 // MARK: - Preview
 
 #Preview("iPad Layout") {
-    AdaptiveNavigationView(selectedTab: .constant(0))
-        .modelContainer(for: ReviewItem.self, inMemory: true)
+    AdaptiveNavigationView()
+        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }
 
 #Preview("iPhone Layout") {
-    AdaptiveNavigationView(selectedTab: .constant(0))
-        .modelContainer(for: ReviewItem.self, inMemory: true)
+    AdaptiveNavigationView()
+        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

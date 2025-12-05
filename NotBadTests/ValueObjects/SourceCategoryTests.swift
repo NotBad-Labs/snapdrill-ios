@@ -7,7 +7,6 @@
 
 import Testing
 import Foundation
-import SwiftUI
 @testable import NotBad
 
 @Suite("SourceCategory 值对象测试")
@@ -31,10 +30,10 @@ struct SourceCategoryTests {
 
     @Test("分类包含官方、学校、课外、其他")
     func categoryValues() {
-        #expect(SourceCategory.official.rawValue == "官方")
-        #expect(SourceCategory.school.rawValue == "学校")
-        #expect(SourceCategory.extra.rawValue == "课外")
-        #expect(SourceCategory.other.rawValue == "其他")
+        #expect(SourceCategory.official.rawValue == "official")
+        #expect(SourceCategory.school.rawValue == "school")
+        #expect(SourceCategory.extra.rawValue == "extra")
+        #expect(SourceCategory.other.rawValue == "other")
     }
 
     // MARK: - 显示属性测试

@@ -5,7 +5,7 @@
 //  题目难度值对象 - 5级制
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - Difficulty
 
@@ -120,19 +120,6 @@ extension Difficulty {
         case .medium: "star.leadinghalf.filled"
         case .hard: "star.fill"
         case .extreme: "flame.fill"
-        }
-    }
-
-    /// 主题颜色
-    ///
-    /// 采用渐进式配色方案：绿→黄→橙→红
-    nonisolated var color: Color {
-        switch self {
-        case .basic: .mint
-        case .easy: .green
-        case .medium: .yellow
-        case .hard: .orange
-        case .extreme: .red
         }
     }
 

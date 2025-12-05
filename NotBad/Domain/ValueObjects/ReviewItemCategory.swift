@@ -5,7 +5,7 @@
 //  题型分类值对象
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - ReviewItemCategory
 
@@ -33,24 +33,24 @@ enum ReviewItemCategory: String, Sendable, CaseIterable, Codable, Hashable, Iden
     ///
     /// 包括选择、多选、判断、填空、连线等题型。
     /// 答案唯一，评分标准明确。
-    case objective = "客观题"
+    case objective = "objective"
 
     /// 主观题
     ///
     /// 包括简答、计算、证明、作图、实验、材料分析等题型。
     /// 答案开放，通常按步骤给分。
-    case subjective = "主观题"
+    case subjective = "subjective"
 
     /// 综合题
     ///
     /// 包括阅读理解、作文、完形填空等题型。
     /// 考察综合能力，整体评分。
-    case comprehensive = "综合题"
+    case comprehensive = "comprehensive"
 
     /// 其他
     ///
     /// 不便分类的特殊题型。
-    case other = "其他"
+    case other = "other"
 
     // MARK: - Identifiable
 
@@ -99,16 +99,6 @@ extension ReviewItemCategory {
         case .subjective: "pencil"
         case .comprehensive: "doc.text"
         case .other: "ellipsis.circle"
-        }
-    }
-
-    /// 主题颜色
-    nonisolated var color: Color {
-        switch self {
-        case .objective: .blue
-        case .subjective: .orange
-        case .comprehensive: .purple
-        case .other: .gray
         }
     }
 

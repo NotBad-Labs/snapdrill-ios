@@ -46,13 +46,6 @@ final class ViewComponentTests: XCTestCase {
     
     // MARK: - Difficulty Display Tests
     
-    /// 测试难度颜色
-    func testDifficultyColors() {
-        for difficulty in Difficulty.allCases {
-            XCTAssertFalse(difficulty.color.description.isEmpty)
-        }
-    }
-    
     /// 测试难度图标
     func testDifficultyIcons() {
         for difficulty in Difficulty.allCases {
@@ -89,8 +82,8 @@ final class ViewComponentTests: XCTestCase {
         
         // 验证显示属性
         XCTAssertEqual(item.displayTitle, "测试题目")
-        XCTAssertFalse(item.shortDescription.isEmpty)
-        XCTAssertFalse(item.fullDescription.isEmpty)
+        XCTAssertFalse(item.shortDescriptionForUI.isEmpty)
+        XCTAssertFalse(item.fullDescriptionForUI.isEmpty)
     }
     
     /// 测试空标题的显示处理

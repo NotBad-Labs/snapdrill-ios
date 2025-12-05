@@ -69,6 +69,9 @@ final class SwiftDataReviewItemProvider: ReviewItemDataProviding {
 
     /// SwiftData 模型上下文
     private let modelContext: ModelContext
+    
+    /// SwiftData 模型容器
+    private let modelContainer: ModelContainer
 
     /// 底层仓库（复用现有逻辑）
     private let repository: ReviewItemRepository
@@ -77,10 +80,11 @@ final class SwiftDataReviewItemProvider: ReviewItemDataProviding {
 
     /// 创建数据提供者实例
     ///
-    /// - Parameter modelContext: SwiftData 模型上下文
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
-        self.repository = ReviewItemRepository(modelContext: modelContext)
+    /// - Parameter modelContainer: SwiftData 模型容器
+    init(modelContainer: ModelContainer) {
+        self.modelContainer = modelContainer
+        self.modelContext = modelContainer.mainContext
+        self.repository = ReviewItemRepository(modelContainer: modelContainer)
 
         // 初始加载数据
         refresh()
@@ -123,6 +127,9 @@ final class SwiftDataReviewItemProvider: ReviewItemDataProviding {
     func save(_ item: ReviewItem) throws {
         try repository.save(item)
         refresh()
+        
+        // 更新 Spotlight 索引
+        SpotlightIndexService.shared.index(item)
     }
 
     /// 删除错题
@@ -130,6 +137,9 @@ final class SwiftDataReviewItemProvider: ReviewItemDataProviding {
     /// - Parameter item: 要删除的错题
     /// - Throws: 删除失败时抛出错误
     func delete(_ item: ReviewItem) throws {
+        // 先移除 Spotlight 索引
+        SpotlightIndexService.shared.removeIndex(for: item)
+        
         try repository.delete(item)
         refresh()
     }
@@ -155,7 +165,7 @@ final class SwiftDataReviewItemProvider: ReviewItemDataProviding {
     /// - Parameter subject: 学科
     /// - Returns: 该学科的所有错题
     func fetch(subject: Subject) -> [ReviewItem] {
-        repository.fetch(subject: subject)
+        repository.fetch(subject: subject, mastery: nil)
     }
 
     /// 搜索错题

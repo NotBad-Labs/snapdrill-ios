@@ -42,13 +42,13 @@ struct DisplayContent: View {
 
             // 难度和题型
             HStack(spacing: DesignTokens.Spacing.md) {
-                InfoCard(title: "难度", icon: "star.fill") {
+                InfoCard(title: "难度", icon: reviewItem.difficulty.icon) {
                     HStack(spacing: 2) {
-                        ForEach(0..<reviewItem.difficulty.stars, id: \.self) { _ in
-                            Image(systemName: "star.fill")
-                                .font(.caption)
-                                .foregroundStyle(reviewItem.difficulty.color)
-                        }
+                        Text(reviewItem.difficulty.displayName)
+                            .font(.subheadline)
+                        Text("(\(reviewItem.difficulty.stars)星)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
 
@@ -167,16 +167,17 @@ struct DisplayContent: View {
 // MARK: - EditingContent
 
 /// 编辑模式内容
+/// 使用 ReviewItemModel 进行双向绑定编辑
 struct EditingContent: View {
 
-    @Bindable var reviewItem: ReviewItem
+    @Bindable var model: ReviewItemModel
     let onSave: () -> Void
 
     var body: some View {
         VStack(spacing: DesignTokens.Spacing.xl) {
             // 标题编辑
             FormField(title: "标题", icon: "text.alignleft") {
-                TextField("标题", text: $reviewItem.title)
+                TextField("标题", text: $model.title)
                     .textFieldStyle(.plain)
                     .padding(DesignTokens.Spacing.lg)
                     .background(Color.semantic.secondaryBackground)
@@ -217,7 +218,7 @@ struct EditingContent: View {
 
             // 知识点编辑
             FormField(title: "知识点", icon: "lightbulb.fill") {
-                TextField("例如: 函数, 导数", text: $reviewItem.knowledgePointsRaw)
+                TextField("例如: 函数, 导数", text: $model.knowledgePointsRaw)
                     .textFieldStyle(.plain)
                     .padding(DesignTokens.Spacing.lg)
                     .background(Color.semantic.secondaryBackground)
@@ -226,7 +227,7 @@ struct EditingContent: View {
 
             // 笔记编辑
             FormField(title: "笔记/解题思路", icon: "note.text") {
-                TextField("记录解题思路、易错点等...", text: $reviewItem.note, axis: .vertical)
+                TextField("记录解题思路、易错点等...", text: $model.note, axis: .vertical)
                     .textFieldStyle(.plain)
                     .lineLimit(5...10)
                     .padding(DesignTokens.Spacing.lg)
@@ -240,18 +241,38 @@ struct EditingContent: View {
     }
 
     // MARK: - Private Views
+    
+    /// 当前难度（从 raw 值转换）
+    private var currentDifficulty: Difficulty {
+        Difficulty(rawValue: model.difficultyRaw) ?? .medium
+    }
+    
+    /// 当前题型
+    private var currentReviewItemType: ReviewItemType {
+        ReviewItemType(rawValue: model.reviewItemTypeRaw) ?? .other
+    }
+    
+    /// 当前来源
+    private var currentSource: Source {
+        Source(rawValue: model.sourceRaw) ?? .other
+    }
+    
+    /// 当前错误类型
+    private var currentErrorType: ErrorType {
+        ErrorType(rawValue: model.errorTypeRaw) ?? .other
+    }
 
     private var subjectPicker: some View {
         Menu {
             ForEach(EducationSystemManager.shared.currentSystem.subjectIds, id: \.self) { id in
                 if let subject = Subject(rawValue: id) {
                     Button(EducationSystemManager.shared.subjectDisplayName(for: id)) {
-                        reviewItem.subject = subject
+                        model.subjectRaw = subject.rawValue
                     }
                 }
             }
         } label: {
-            pickerLabel(text: EducationSystemManager.shared.subjectDisplayName(for: reviewItem.subjectRaw))
+            pickerLabel(text: EducationSystemManager.shared.subjectDisplayName(for: model.subjectRaw))
         }
     }
 
@@ -260,12 +281,12 @@ struct EditingContent: View {
             ForEach(EducationSystemManager.shared.currentSystem.gradeIds, id: \.self) { id in
                 if let grade = Grade(rawValue: id) {
                     Button(EducationSystemManager.shared.gradeDisplayName(for: id)) {
-                        reviewItem.grade = grade
+                        model.gradeRaw = grade.rawValue
                     }
                 }
             }
         } label: {
-            pickerLabel(text: EducationSystemManager.shared.gradeDisplayName(for: reviewItem.gradeRaw))
+            pickerLabel(text: EducationSystemManager.shared.gradeDisplayName(for: model.gradeRaw))
         }
     }
 
@@ -273,13 +294,13 @@ struct EditingContent: View {
         Menu {
             ForEach(Difficulty.allCases, id: \.self) { difficulty in
                 Button {
-                    reviewItem.difficulty = difficulty
+                    model.difficultyRaw = difficulty.rawValue
                 } label: {
                     Label(difficulty.displayName, systemImage: difficulty.icon)
                 }
             }
         } label: {
-            pickerLabel(text: reviewItem.difficulty.displayName, color: reviewItem.difficulty.color)
+            pickerLabel(text: currentDifficulty.displayName)
         }
     }
 
@@ -287,13 +308,13 @@ struct EditingContent: View {
         Menu {
             ForEach(ReviewItemType.allCases, id: \.self) { type in
                 Button {
-                    reviewItem.reviewItemType = type
+                    model.reviewItemTypeRaw = type.rawValue
                 } label: {
                     Label(type.displayName, systemImage: type.icon)
                 }
             }
         } label: {
-            pickerLabel(text: reviewItem.reviewItemType.displayName)
+            pickerLabel(text: currentReviewItemType.displayName)
         }
     }
 
@@ -301,13 +322,13 @@ struct EditingContent: View {
         Menu {
             ForEach(Source.allCases, id: \.self) { source in
                 Button {
-                    reviewItem.source = source
+                    model.sourceRaw = source.rawValue
                 } label: {
                     Label(source.displayName, systemImage: source.icon)
                 }
             }
         } label: {
-            pickerLabel(text: reviewItem.source.displayName)
+            pickerLabel(text: currentSource.displayName)
         }
     }
 
@@ -318,7 +339,7 @@ struct EditingContent: View {
                 Section {
                     ForEach(ErrorType.types(in: category), id: \.self) { errorType in
                         Button {
-                            reviewItem.errorType = errorType
+                            model.errorTypeRaw = errorType.rawValue
                         } label: {
                             Label(errorType.displayName, systemImage: errorType.icon)
                         }
@@ -328,7 +349,7 @@ struct EditingContent: View {
                 }
             }
         } label: {
-            pickerLabel(text: reviewItem.errorType.displayName, color: reviewItem.errorType.color)
+            pickerLabel(text: currentErrorType.displayName, color: currentErrorType.color)
         }
     }
 

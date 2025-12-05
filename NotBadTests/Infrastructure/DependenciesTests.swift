@@ -23,27 +23,27 @@ struct DependenciesTests {
         #expect(instance1 === instance2)
     }
     
-    // MARK: - ModelContext 测试
+    // MARK: - ModelContainer 测试
     
-    @Test("初始 modelContext 为 nil")
+    @Test("初始 modelContainer 为 nil")
     @MainActor
-    func initialModelContextIsNil() {
+    func initialModelContainerIsNil() {
         let deps = Dependencies.shared
-        // 注意：在测试环境中可能已经配置了 modelContext
+        // 注意：在测试环境中可能已经配置了 modelContainer
         // 这里只验证属性可访问
-        _ = deps.modelContext
+        _ = deps.modelContainer
         #expect(true)
     }
     
-    @Test("可以设置 modelContext")
+    @Test("可以设置 modelContainer")
     @MainActor
-    func canSetModelContext() throws {
+    func canSetModelContainer() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: ReviewItem.self, configurations: config)
+        let container = try ModelContainer(for: ReviewItemModel.self, configurations: config)
         
-        Dependencies.shared.modelContext = container.mainContext
+        Dependencies.shared.configure(modelContainer: container)
         
-        #expect(Dependencies.shared.modelContext != nil)
+        #expect(Dependencies.shared.modelContainer != nil)
     }
 }
 
@@ -54,10 +54,9 @@ struct DataProviderFactoryTests {
     @MainActor
     func makeSwiftDataProviderCreatesProvider() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: ReviewItem.self, configurations: config)
-        let context = container.mainContext
+        let container = try ModelContainer(for: ReviewItemModel.self, configurations: config)
         
-        let provider = DataProviderFactory.makeSwiftDataProvider(modelContext: context)
+        let provider = DataProviderFactory.makeSwiftDataProvider(modelContainer: container)
         
         #expect(provider is SwiftDataReviewItemProvider)
     }
@@ -66,10 +65,9 @@ struct DataProviderFactoryTests {
     @MainActor
     func createdProviderHasEmptyItems() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: ReviewItem.self, configurations: config)
-        let context = container.mainContext
+        let container = try ModelContainer(for: ReviewItemModel.self, configurations: config)
         
-        let provider = DataProviderFactory.makeSwiftDataProvider(modelContext: context)
+        let provider = DataProviderFactory.makeSwiftDataProvider(modelContainer: container)
         
         #expect(provider.items.isEmpty)
     }
@@ -78,11 +76,10 @@ struct DataProviderFactoryTests {
     @MainActor
     func multipleCallsCreateIndependentProviders() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: ReviewItem.self, configurations: config)
-        let context = container.mainContext
+        let container = try ModelContainer(for: ReviewItemModel.self, configurations: config)
         
-        let provider1 = DataProviderFactory.makeSwiftDataProvider(modelContext: context)
-        let provider2 = DataProviderFactory.makeSwiftDataProvider(modelContext: context)
+        let provider1 = DataProviderFactory.makeSwiftDataProvider(modelContainer: container)
+        let provider2 = DataProviderFactory.makeSwiftDataProvider(modelContainer: container)
         
         #expect(provider1 !== provider2)
     }

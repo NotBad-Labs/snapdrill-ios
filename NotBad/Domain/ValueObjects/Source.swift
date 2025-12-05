@@ -5,7 +5,7 @@
 //  题目来源值对象
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - Source
 
@@ -45,63 +45,63 @@ enum Source: String, Sendable, CaseIterable, Codable, Hashable, Identifiable {
     /// 课本
     ///
     /// 教材教辅，官方权威。
-    case textbook = "课本"
+    case textbook = "textbook"
 
     /// 历年真题
     ///
     /// 中考、高考等正式考试真题。
-    case pastExam = "历年真题"
+    case pastExam = "past_exam"
 
     // MARK: - School Sources (学校)
 
     /// 考试
     ///
     /// 校内正式考试（期中、期末等）。
-    case exam = "考试"
+    case exam = "exam"
 
     /// 模拟考
     ///
     /// 模拟考试，仿真度较高。
-    case mock = "模拟考"
+    case mock = "mock"
 
     /// 作业
     ///
     /// 日常作业、课后练习。
-    case homework = "作业"
+    case homework = "homework"
 
     // MARK: - Extra Sources (课外)
 
     /// 练习册
     ///
     /// 市售练习册、习题集。
-    case workbook = "练习册"
+    case workbook = "workbook"
 
     /// 辅导班
     ///
     /// 课外辅导机构资料。
-    case tutor = "辅导班"
+    case tutor = "tutor"
 
     /// 竞赛
     ///
     /// 学科竞赛、奥赛等。
-    case competition = "竞赛"
+    case competition = "competition"
 
     // MARK: - Other Sources (其他)
 
     /// 网络
     ///
     /// 网络资源、在线题库。
-    case online = "网络"
+    case online = "online"
 
     /// 自测
     ///
     /// 自主测试、自我检验。
-    case selfTest = "自测"
+    case selfTest = "self_test"
 
     /// 其他
     ///
     /// 其他来源。
-    case other = "其他"
+    case other = "other"
 
     // MARK: - Identifiable
 
@@ -173,23 +173,6 @@ extension Source {
         case .online: "globe"
         case .selfTest: "person.crop.circle.badge.questionmark"
         case .other: "ellipsis.circle"
-        }
-    }
-
-    /// 主题颜色
-    nonisolated var color: Color {
-        switch self {
-        case .textbook: .blue
-        case .pastExam: .red
-        case .exam: .red
-        case .mock: .orange
-        case .homework: .green
-        case .workbook: .cyan
-        case .tutor: .purple
-        case .competition: .yellow
-        case .online: .indigo
-        case .selfTest: .mint
-        case .other: .gray
         }
     }
 }

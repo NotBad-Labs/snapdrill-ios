@@ -64,6 +64,7 @@ extension DataManagementView {
         for itemDict in items {
             guard let title = itemDict["title"] as? String else { continue }
 
+            // 创建领域实体
             let reviewItem = ReviewItem(
                 imageData: nil,
                 title: title,
@@ -101,7 +102,9 @@ extension DataManagementView {
             }
 
             await MainActor.run {
-                modelContext.insert(reviewItem)
+                // 转换为持久化模型并插入
+                let model = ReviewItemMapper.toModel(from: reviewItem)
+                modelContext.insert(model)
             }
             importedCount += 1
         }
@@ -118,8 +121,12 @@ extension DataManagementView {
 
     /// 删除所有数据
     func deleteAllData() {
-        for item in allItems {
-            modelContext.delete(item)
+        // 从模型获取 ID 列表
+        let idsToDelete = allModels.map { $0.id }
+        
+        // 删除持久化模型
+        for model in allModels {
+            modelContext.delete(model)
         }
 
         do {

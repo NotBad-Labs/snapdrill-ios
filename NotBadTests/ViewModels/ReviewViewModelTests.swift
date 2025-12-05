@@ -35,8 +35,7 @@ struct ReviewViewModelTests {
         needsReview: Bool = false,
         isOverdue: Bool = false
     ) -> ReviewItem {
-        let reviewItem = ReviewItem(title: title, mastery: mastery)
-        reviewItem.createdAt = createdAt
+        let reviewItem = ReviewItem(title: title, createdAt: createdAt, mastery: mastery)
 
         if isOverdue {
             reviewItem.nextReviewDate = Calendar.current.date(byAdding: .day, value: -5, to: Date())!

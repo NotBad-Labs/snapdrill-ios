@@ -26,10 +26,9 @@ struct DataProviderProtocolTests {
     @MainActor
     func swiftDataProviderConformsToProtocol() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: ReviewItem.self, configurations: config)
-        let context = container.mainContext
+        let container = try ModelContainer(for: ReviewItemModel.self, configurations: config)
         
-        let provider: any ReviewItemDataProviding = SwiftDataReviewItemProvider(modelContext: context)
+        let provider: any ReviewItemDataProviding = SwiftDataReviewItemProvider(modelContainer: container)
         
         #expect(provider is SwiftDataReviewItemProvider)
     }
@@ -107,8 +106,8 @@ struct DataProviderProtocolTests {
         let mockProvider: any ReviewItemDataProviding = MockReviewItemProvider()
         
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: ReviewItem.self, configurations: config)
-        let swiftDataProvider: any ReviewItemDataProviding = SwiftDataReviewItemProvider(modelContext: container.mainContext)
+        let container = try ModelContainer(for: ReviewItemModel.self, configurations: config)
+        let swiftDataProvider: any ReviewItemDataProviding = SwiftDataReviewItemProvider(modelContainer: container)
         
         var providers: [any ReviewItemDataProviding] = []
         providers.append(mockProvider)

@@ -39,7 +39,7 @@ import Foundation
 /// ```swift
 /// // 在 App 入口配置 ModelContainer
 /// let container = try ModelContainer(
-///     for: ReviewItem.self,
+///     for: ReviewItemModel.self,
 ///     migrationPlan: ReviewItemMigrationPlan.self
 /// )
 /// ```
@@ -125,7 +125,7 @@ extension ReviewItemMigrationPlan {
 ///
 /// ## 包含的模型
 ///
-/// - `ReviewItem`：错题实体
+/// - `ReviewItemModel`：错题持久化模型
 ///
 /// ## 字段列表
 ///
@@ -157,7 +157,7 @@ enum ReviewItemSchemaV1: VersionedSchema {
 
     /// 此版本包含的持久化模型
     static var models: [any PersistentModel.Type] {
-        [ReviewItem.self]
+        [ReviewItemModel.self]
     }
 }
 
@@ -181,7 +181,7 @@ enum ReviewItemSchemaV2: VersionedSchema {
     nonisolated(unsafe) static var versionIdentifier = Schema.Version(2, 0, 0)
     
     static var models: [any PersistentModel.Type] {
-        [ReviewItem.self]
+        [ReviewItemModel.self]
     }
 }
 */
@@ -200,7 +200,7 @@ enum ReviewItemSchemaV3: VersionedSchema {
     nonisolated(unsafe) static var versionIdentifier = Schema.Version(3, 0, 0)
     
     static var models: [any PersistentModel.Type] {
-        [ReviewItem.self]
+        [ReviewItemModel.self]
     }
 }
 */

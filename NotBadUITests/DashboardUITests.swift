@@ -108,8 +108,14 @@ final class DashboardUITests: NotBadUITests {
 
             takeScreenshot(named: "dashboard_refreshing")
 
-            // 等待刷新完成
-            sleep(2)
+            // 等待刷新完成（使用显式等待而非 sleep）
+            // 方案1: 等待刷新指示器消失
+            let refreshIndicator = app.activityIndicators.firstMatch
+            if refreshIndicator.exists {
+                _ = refreshIndicator.waitForNonExistence(timeout: 5)
+            }
+            // 方案2: 等待内容重新出现
+            _ = scrollView.waitForExistence(timeout: 3)
 
             takeScreenshot(named: "dashboard_after_refresh")
         }

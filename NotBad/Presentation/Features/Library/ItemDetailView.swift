@@ -25,21 +25,27 @@ import SwiftData
 ///
 /// ```swift
 /// NavigationStack {
-///     ItemDetailView(reviewItem: reviewItem)
+///     ItemDetailView(model: reviewItemModel)
 /// }
 /// ```
 ///
 /// ## 设计模式
 ///
-/// - 使用 `@Bindable` 支持双向绑定（读取）
+/// - 使用 `@Bindable` 绑定 ReviewItemModel (SwiftData)
+/// - 通过 ReviewItemMapper 转换为领域实体 ReviewItem 用于只读展示
 /// - 使用 `ViewModel` 处理写操作（CQRS）
 /// - 编辑模式和显示模式分离
 struct ItemDetailView: View {
 
     // MARK: - Properties
 
-    /// 错题数据（可绑定，只读展示）
-    @Bindable var reviewItem: ReviewItem
+    /// 持久化模型（SwiftData）
+    @Bindable var model: ReviewItemModel
+    
+    /// 领域实体（只读，用于展示）
+    private var reviewItem: ReviewItem {
+        ReviewItemMapper.toEntity(from: model)
+    }
 
     /// 数据上下文
     @Environment(\.modelContext) private var modelContext
@@ -66,7 +72,7 @@ struct ItemDetailView: View {
                 imagePreview
 
                 if isEditing {
-                    EditingContent(reviewItem: reviewItem, onSave: saveChanges)
+                    EditingContent(model: model, onSave: saveChanges)
                 } else {
                     DisplayContent(reviewItem: reviewItem)
                 }
@@ -125,7 +131,7 @@ private extension ItemDetailView {
     /// 图片预览
     @ViewBuilder
     var imagePreview: some View {
-        if let imageData = reviewItem.imageData,
+        if let imageData = model.imageData,
            let uiImage = UIImage(data: imageData) {
             Image(uiImage: uiImage)
                 .resizable()
@@ -143,14 +149,17 @@ private extension ItemDetailView {
     /// 保存修改（委托给 ViewModel）
     func saveChanges() {
         withAnimation {
-            viewModel.save(reviewItem)
+            // 从模型同步到领域实体再保存
+            let entity = ReviewItemMapper.toEntity(from: model)
+            viewModel.save(entity)
             isEditing = false
         }
     }
 
     /// 删除错题（委托给 ViewModel）
     func deleteItem() {
-        viewModel.delete(reviewItem)
+        let entity = ReviewItemMapper.toEntity(from: model)
+        viewModel.delete(entity)
         dismiss()
     }
 }
@@ -158,15 +167,16 @@ private extension ItemDetailView {
 // MARK: - Preview
 
 #Preview("Item Detail") {
+    let model = ReviewItemModel(
+        imageData: nil,
+        title: "数学-三角函数",
+        note: "这是解题思路",
+        subjectRaw: Subject.math.rawValue,
+        gradeRaw: Grade.grade10.rawValue,
+        knowledgePointsRaw: "函数,三角"
+    )
     NavigationStack {
-        ItemDetailView(reviewItem: ReviewItem(
-            imageData: nil,
-            title: "数学-三角函数",
-            note: "这是解题思路",
-            subject: .math,
-            grade: .grade10,
-            knowledgePoints: ["函数", "三角"]
-        ))
-        .modelContainer(for: ReviewItem.self, inMemory: true)
+        ItemDetailView(model: model)
+            .modelContainer(for: ReviewItemModel.self, inMemory: true)
     }
 }

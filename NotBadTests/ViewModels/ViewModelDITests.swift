@@ -139,30 +139,27 @@ struct ReviewViewModelDITests {
     }
 }
 
-// MARK: - CaptureViewModel DI Tests
+// MARK: - CaptureOrchestrator DI Tests
 
-@Suite("CaptureViewModel 依赖注入测试")
-struct CaptureViewModelDITests {
+@Suite("CaptureOrchestrator 依赖注入测试")
+struct CaptureOrchestratorDITests {
     
-    @Test("使用 DataProvider 初始化")
+    @Test("初始化后子 ViewModel 可用")
     @MainActor
-    func initWithDataProvider() {
-        let provider = MockReviewItemProvider()
-        let viewModel = CaptureViewModel(dataProvider: provider)
+    func subViewModelsAvailable() {
+        let orchestrator = CaptureOrchestrator()
         
-        #expect(viewModel.title.isEmpty)
-        #expect(viewModel.selectedImage == nil)
+        #expect(orchestrator.formVM.title.isEmpty)
+        #expect(orchestrator.imageSelectionVM.selectedImage == nil)
     }
     
-    @Test("DataProvider 在初始化后可用")
+    @Test("表单 ViewModel 初始状态正确")
     @MainActor
-    func dataProviderAvailable() {
-        let provider = MockReviewItemProvider()
-        provider.items = [ReviewItem(title: "已有错题", subject: .math)]
+    func formVMInitialState() {
+        let orchestrator = CaptureOrchestrator()
         
-        let viewModel = CaptureViewModel(dataProvider: provider)
-        
-        // ViewModel 可以访问 provider 的数据
-        #expect(provider.items.count == 1)
+        // 验证表单 ViewModel 的默认值
+        #expect(orchestrator.formVM.subject == .math)
+        #expect(orchestrator.formVM.difficulty == .medium)
     }
 }

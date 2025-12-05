@@ -25,7 +25,12 @@ struct DataManagementView: View {
     // MARK: - Environment
 
     @Environment(\.modelContext) var modelContext
-    @Query var allItems: [ReviewItem]
+    @Query var allModels: [ReviewItemModel]
+    
+    /// 将持久化模型转换为领域实体
+    var allItems: [ReviewItem] {
+        allModels.map { ReviewItemMapper.toEntity(from: $0) }
+    }
 
     // MARK: - State
 
@@ -420,6 +425,6 @@ struct ShareSheet: UIViewControllerRepresentable {
 #Preview {
     NavigationStack {
         DataManagementView()
-            .modelContainer(for: ReviewItem.self, inMemory: true)
+            .modelContainer(for: ReviewItemModel.self, inMemory: true)
     }
 }

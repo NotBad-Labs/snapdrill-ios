@@ -68,28 +68,19 @@ enum Tab: Int, CaseIterable, Identifiable, Sendable {
 /// 5. **我的** - 个人中心和设置
 struct MainTabView: View {
 
-    // MARK: - Bindings
-
-    /// 外部 Tab 选择绑定（用于 Deep Link）
-    @Binding var selectedTab: Int
+    // MARK: - Environment
+    
+    @Bindable private var router = NavigationRouter.shared
 
     // MARK: - State
-
-    @State private var currentTab: Tab = .dashboard
     
     // 预加载各 Tab 视图，避免切换时重新创建
     @State private var loadedTabs: Set<Tab> = [.dashboard]
 
-    // MARK: - Init
-
-    init(selectedTab: Binding<Int> = .constant(0)) {
-        _selectedTab = selectedTab
-    }
-
     // MARK: - Body
 
     var body: some View {
-        TabView(selection: $currentTab) {
+        TabView(selection: $router.selectedTab) {
             ForEach(Tab.allCases) { tab in
                 LazyTabContent(tab: tab, isLoaded: loadedTabs.contains(tab))
                     .tabItem {
@@ -99,24 +90,9 @@ struct MainTabView: View {
             }
         }
         .tint(Color.brand.primary)
-        .onChange(of: currentTab) { _, newValue in
+        .onChange(of: router.selectedTab) { _, newValue in
             // 标记当前 Tab 为已加载
             loadedTabs.insert(newValue)
-            selectedTab = newValue.rawValue
-        }
-        .onChange(of: selectedTab) { _, newValue in
-            if let tab = Tab(rawValue: newValue) {
-                currentTab = tab
-            }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .switchToCapture)) { _ in
-            currentTab = .capture
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .switchToReview)) { _ in
-            currentTab = .review
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .switchToLibrary)) { _ in
-            currentTab = .library
         }
         .task {
             // 后台预加载其他 Tab（延迟执行，不阻塞首屏）
@@ -130,7 +106,7 @@ struct MainTabView: View {
     // MARK: - Tab Label
 
     private func tabLabel(for tab: Tab) -> some View {
-        let isSelected = currentTab == tab
+        let isSelected = router.selectedTab == tab
 
         return Label {
             Text(tab.title)
@@ -182,5 +158,5 @@ private struct LazyTabContent: View {
 
 #Preview {
     MainTabView()
-        .modelContainer(for: ReviewItem.self, inMemory: true)
+        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

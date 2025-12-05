@@ -35,6 +35,7 @@ extension CaptureViewModel {
 
         isSaving = true
 
+        // 创建领域实体
         let newItem = ReviewItem(
             imageData: selectedImageData,  // 可为 nil（实时扫描模式）
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -50,7 +51,9 @@ extension CaptureViewModel {
 
         Logger.data.info("创建 ReviewItem: id=\(newItem.id), title=\(newItem.title)")
 
-        modelContext.insert(newItem)
+        // 转换为持久化模型并插入
+        let model = ReviewItemMapper.toModel(from: newItem)
+        modelContext.insert(model)
         Logger.data.debug("insert 完成")
 
         do {

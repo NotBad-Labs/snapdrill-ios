@@ -61,12 +61,12 @@ struct LibraryViewModelTests {
     ) -> ReviewItem {
         let reviewItem = ReviewItem(
             title: title,
+            createdAt: createdAt,
             mastery: mastery,
             subject: subject,
             difficulty: difficulty,
             source: source
         )
-        reviewItem.createdAt = createdAt
         reviewItem.nextReviewDate = needsReview ? Date() : Calendar.current.date(byAdding: .day, value: 7, to: Date())!
         return reviewItem
     }
