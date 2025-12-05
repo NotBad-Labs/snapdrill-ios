@@ -47,8 +47,8 @@ struct ItemDetailView: View {
         ReviewItemMapper.toEntity(from: model)
     }
 
-    /// 数据上下文
-    @Environment(\.modelContext) private var modelContext
+    /// 依赖工厂
+    @Environment(\.dependencyFactory) private var dependencyFactory
 
     /// 关闭视图
     @Environment(\.dismiss) private var dismiss
@@ -89,7 +89,9 @@ struct ItemDetailView: View {
             Text("detail_delete_confirm_message")
         }
         .onAppear {
-            viewModel.configure(with: modelContext)
+            if let factory = dependencyFactory {
+                viewModel.configure(with: factory)
+            }
         }
     }
 }

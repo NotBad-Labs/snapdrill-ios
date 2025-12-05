@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import SwiftData
 import OSLog
 
 // MARK: - LibraryViewModel
@@ -158,7 +157,8 @@ final class LibraryViewModel {
 
     // MARK: - Dependencies
 
-    private var modelContext: ModelContext?
+    private var deleteUseCase: DeleteReviewItemUseCaseProtocol?
+    private var updateUseCase: UpdateReviewItemUseCaseProtocol?
 
     // MARK: - Initialization
 
@@ -171,10 +171,27 @@ final class LibraryViewModel {
     init(dataProvider: any ReviewItemDataProviding) {
         self.dataProvider = dataProvider
     }
+    
+    /// 依赖注入初始化（完整版）
+    ///
+    /// - Parameters:
+    ///   - dataProvider: 数据提供者
+    ///   - deleteUseCase: 删除用例
+    ///   - updateUseCase: 更新用例
+    init(
+        dataProvider: any ReviewItemDataProviding,
+        deleteUseCase: DeleteReviewItemUseCaseProtocol,
+        updateUseCase: UpdateReviewItemUseCaseProtocol
+    ) {
+        self.dataProvider = dataProvider
+        self.deleteUseCase = deleteUseCase
+        self.updateUseCase = updateUseCase
+    }
 
-    /// 配置 ModelContext
-    func configure(with modelContext: ModelContext) {
-        self.modelContext = modelContext
+    /// 配置依赖
+    func configure(with factory: DependencyFactory) {
+        self.deleteUseCase = factory.makeDeleteReviewItemUseCase()
+        self.updateUseCase = factory.makeUpdateReviewItemUseCase()
     }
 
     // MARK: - Data Access
@@ -449,68 +466,55 @@ final class LibraryViewModel {
 
     /// 删除指定位置的错题
     func deleteItems(from items: [ReviewItem], at offsets: IndexSet) {
-        guard let modelContext else { return }
-
-        for index in offsets {
-            let itemId = items[index].id
-            let descriptor = FetchDescriptor<ReviewItemModel>(
-                predicate: #Predicate { $0.id == itemId }
-            )
-            if let models = try? modelContext.fetch(descriptor),
-               let model = models.first {
-                modelContext.delete(model)
-            }
+        guard let deleteUseCase else {
+            Logger.data.error("DeleteUseCase 未配置")
+            return
         }
 
-        do {
-            try modelContext.save()
-        } catch {
-            Logger.data.error("删除失败: \(error)")
+        let itemIds = offsets.map { items[$0].id }
+        
+        Task {
+            do {
+                try await deleteUseCase.execute(itemIds: itemIds)
+            } catch {
+                Logger.data.error("删除失败: \(error)")
+            }
         }
     }
 
     /// 删除单个错题
     func deleteItem(_ item: ReviewItem) {
-        guard let modelContext else { return }
+        guard let deleteUseCase else {
+            Logger.data.error("DeleteUseCase 未配置")
+            return
+        }
 
-        let itemId = item.id
-        let descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: #Predicate { $0.id == itemId }
-        )
-        
-        do {
-            let models = try modelContext.fetch(descriptor)
-            if let model = models.first {
-                modelContext.delete(model)
+        Task {
+            do {
+                try await deleteUseCase.execute(itemId: item.id)
+            } catch {
+                Logger.data.error("删除失败: \(error)")
             }
-            try modelContext.save()
-        } catch {
-            Logger.data.error("删除失败: \(error)")
         }
     }
 
     /// 批量删除选中的错题
     func deleteSelectedItems(from items: [ReviewItem]) {
-        guard let modelContext else { return }
-
-        let itemsToDelete = selection.selectedItems(from: items)
-
-        for item in itemsToDelete {
-            let itemId = item.id
-            let descriptor = FetchDescriptor<ReviewItemModel>(
-                predicate: #Predicate { $0.id == itemId }
-            )
-            if let models = try? modelContext.fetch(descriptor),
-               let model = models.first {
-                modelContext.delete(model)
-            }
+        guard let deleteUseCase else {
+            Logger.data.error("DeleteUseCase 未配置")
+            return
         }
 
-        do {
-            try modelContext.save()
-            selection.completeOperation()
-        } catch {
-            Logger.data.error("批量删除失败: \(error)")
+        let itemsToDelete = selection.selectedItems(from: items)
+        let itemIds = itemsToDelete.map(\.id)
+
+        Task {
+            do {
+                try await deleteUseCase.execute(itemIds: itemIds)
+                selection.completeOperation()
+            } catch {
+                Logger.data.error("批量删除失败: \(error)")
+            }
         }
     }
     
@@ -520,27 +524,21 @@ final class LibraryViewModel {
     ///   - items: 所有错题列表
     ///   - mastery: 要设置的掌握程度
     func markSelectedItems(from items: [ReviewItem], as mastery: MasteryLevel) {
-        guard let modelContext else { return }
-        
-        let itemsToUpdate = selection.selectedItems(from: items)
-        
-        for item in itemsToUpdate {
-            let itemId = item.id
-            let descriptor = FetchDescriptor<ReviewItemModel>(
-                predicate: #Predicate { $0.id == itemId }
-            )
-            if let models = try? modelContext.fetch(descriptor),
-               let model = models.first {
-                model.masteryLevel = mastery.rawValue
-                model.updatedAt = Date()
-            }
+        guard let updateUseCase = updateUseCase as? UpdateReviewItemUseCase else {
+            Logger.data.error("UpdateUseCase 未配置")
+            return
         }
         
-        do {
-            try modelContext.save()
-            selection.completeOperation()
-        } catch {
-            Logger.data.error("批量标记失败: \(error)")
+        let itemsToUpdate = selection.selectedItems(from: items)
+        let itemIds = itemsToUpdate.map(\.id)
+
+        Task {
+            do {
+                try await updateUseCase.executeBatch(itemIds: itemIds, mastery: mastery)
+                selection.completeOperation()
+            } catch {
+                Logger.data.error("批量标记失败: \(error)")
+            }
         }
     }
 

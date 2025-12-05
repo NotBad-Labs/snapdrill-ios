@@ -77,6 +77,10 @@ final class TestDependencyFactory: DependencyFactory {
         DeleteReviewItemUseCase(repository: mockRepository)
     }
     
+    func makeUpdateReviewItemUseCase() -> UpdateReviewItemUseCaseProtocol {
+        UpdateReviewItemUseCase(repository: mockRepository)
+    }
+    
     func makeFetchReviewItemsUseCase() -> FetchReviewItemsUseCaseProtocol {
         FetchReviewItemsUseCase(repository: mockRepository)
     }

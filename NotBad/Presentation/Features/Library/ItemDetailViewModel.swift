@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import SwiftData
 import OSLog
 
 // MARK: - ItemDetailViewModel
@@ -28,7 +27,7 @@ import OSLog
 ///
 /// ```swift
 /// @State private var viewModel = ItemDetailViewModel()
-/// viewModel.configure(with: modelContext)
+/// viewModel.configure(with: factory)
 /// ```
 @Observable
 @MainActor
@@ -36,8 +35,11 @@ final class ItemDetailViewModel {
     
     // MARK: - Dependencies
     
-    /// 数据上下文
-    private var modelContext: ModelContext?
+    /// 删除用例
+    private var deleteUseCase: DeleteReviewItemUseCaseProtocol?
+    
+    /// 更新用例
+    private var updateUseCase: UpdateReviewItemUseCaseProtocol?
     
     /// 分析服务
     private let analyticsService: any AnalyticsServiceProtocol
@@ -52,9 +54,10 @@ final class ItemDetailViewModel {
     
     /// 配置 ViewModel
     ///
-    /// - Parameter context: SwiftData 模型上下文
-    func configure(with context: ModelContext) {
-        self.modelContext = context
+    /// - Parameter factory: 依赖工厂
+    func configure(with factory: DependencyFactory) {
+        self.deleteUseCase = factory.makeDeleteReviewItemUseCase()
+        self.updateUseCase = factory.makeUpdateReviewItemUseCase()
     }
     
     // MARK: - Commands
@@ -65,8 +68,8 @@ final class ItemDetailViewModel {
     /// - Returns: 删除是否成功
     @discardableResult
     func delete(_ reviewItem: ReviewItem) -> Bool {
-        guard let modelContext else {
-            Logger.data.error("ItemDetailViewModel: modelContext 未配置")
+        guard let deleteUseCase else {
+            Logger.data.error("ItemDetailViewModel: deleteUseCase 未配置")
             return false
         }
         
@@ -79,31 +82,19 @@ final class ItemDetailViewModel {
             ]
         ))
         
-        // 查找并删除对应的持久化模型
-        let itemId = reviewItem.id
-        let descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: #Predicate { $0.id == itemId }
-        )
-        
-        do {
-            let models = try modelContext.fetch(descriptor)
-            guard let model = models.first else {
-                Logger.data.error("ItemDetailViewModel: 找不到要删除的模型")
-                return false
+        Task {
+            do {
+                try await deleteUseCase.execute(itemId: reviewItem.id)
+                Logger.data.info("删除错题成功: \(reviewItem.title)")
+                
+                // 发送通知
+                NotificationCenter.default.post(name: .reviewItemDeleted, object: reviewItem.id)
+            } catch {
+                Logger.data.error("删除错题失败: \(error)")
             }
-            
-            modelContext.delete(model)
-            try modelContext.save()
-            Logger.data.info("删除错题成功: \(reviewItem.title)")
-            
-            // 发送通知
-            NotificationCenter.default.post(name: .reviewItemDeleted, object: reviewItem.id)
-            
-            return true
-        } catch {
-            Logger.data.error("删除错题失败: \(error)")
-            return false
         }
+        
+        return true
     }
     
     /// 保存修改
@@ -112,38 +103,35 @@ final class ItemDetailViewModel {
     /// - Returns: 保存是否成功
     @discardableResult
     func save(_ reviewItem: ReviewItem) -> Bool {
-        guard let modelContext else {
-            Logger.data.error("ItemDetailViewModel: modelContext 未配置")
+        guard let updateUseCase else {
+            Logger.data.error("ItemDetailViewModel: updateUseCase 未配置")
             return false
         }
         
-        // 查找对应的持久化模型
-        let itemId = reviewItem.id
-        let descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: #Predicate { $0.id == itemId }
-        )
-        
-        do {
-            let models = try modelContext.fetch(descriptor)
-            guard let model = models.first else {
-                Logger.data.error("ItemDetailViewModel: 找不到要更新的模型")
-                return false
+        Task {
+            do {
+                let updates = ReviewItemUpdates(
+                    title: reviewItem.title,
+                    imageData: reviewItem.imageData,
+                    subject: reviewItem.subject,
+                    grade: reviewItem.grade,
+                    difficulty: reviewItem.difficulty,
+                    errorType: reviewItem.errorType,
+                    knowledgePoints: reviewItem.knowledgePoints.items,
+                    note: reviewItem.note,
+                    mastery: reviewItem.mastery
+                )
+                
+                try await updateUseCase.execute(itemId: reviewItem.id, updates: updates)
+                Logger.data.debug("保存错题成功: \(reviewItem.title)")
+                
+                // 发送通知
+                NotificationCenter.default.post(name: .reviewItemUpdated, object: reviewItem)
+            } catch {
+                Logger.data.error("保存错题失败: \(error)")
             }
-            
-            // 更新模型
-            ReviewItemMapper.updateModel(model, from: reviewItem)
-            model.updatedAt = Date()
-            
-            try modelContext.save()
-            Logger.data.debug("保存错题成功: \(reviewItem.title)")
-            
-            // 发送通知
-            NotificationCenter.default.post(name: .reviewItemUpdated, object: reviewItem)
-            
-            return true
-        } catch {
-            Logger.data.error("保存错题失败: \(error)")
-            return false
         }
+        
+        return true
     }
 }

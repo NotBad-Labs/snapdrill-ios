@@ -76,6 +76,9 @@ struct ReviewItemUpdates: Sendable {
     /// 新备注
     var note: String?
     
+    /// 新掌握程度
+    var mastery: MasteryLevel?
+    
     // MARK: - Initialization
     
     init(
@@ -87,7 +90,8 @@ struct ReviewItemUpdates: Sendable {
         difficulty: Difficulty? = nil,
         errorType: ErrorType? = nil,
         knowledgePoints: [String]? = nil,
-        note: String? = nil
+        note: String? = nil,
+        mastery: MasteryLevel? = nil
     ) {
         self.title = title
         self.imageData = imageData
@@ -98,6 +102,7 @@ struct ReviewItemUpdates: Sendable {
         self.errorType = errorType
         self.knowledgePoints = knowledgePoints
         self.note = note
+        self.mastery = mastery
     }
     
     /// 是否有任何更新
@@ -110,6 +115,7 @@ struct ReviewItemUpdates: Sendable {
         difficulty != nil ||
         errorType != nil ||
         knowledgePoints != nil ||
-        note != nil
+        note != nil ||
+        mastery != nil
     }
 }

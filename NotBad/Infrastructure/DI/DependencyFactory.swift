@@ -54,6 +54,9 @@ protocol DependencyFactory: Sendable {
     /// 创建删除错题用例
     func makeDeleteReviewItemUseCase() -> DeleteReviewItemUseCaseProtocol
     
+    /// 创建更新错题用例
+    func makeUpdateReviewItemUseCase() -> UpdateReviewItemUseCaseProtocol
+    
     /// 创建获取错题用例
     func makeFetchReviewItemsUseCase() -> FetchReviewItemsUseCaseProtocol
     
@@ -122,6 +125,10 @@ final class ProductionDependencyFactory: DependencyFactory {
     
     func makeDeleteReviewItemUseCase() -> DeleteReviewItemUseCaseProtocol {
         DeleteReviewItemUseCase(repository: reviewItemRepository)
+    }
+    
+    func makeUpdateReviewItemUseCase() -> UpdateReviewItemUseCaseProtocol {
+        UpdateReviewItemUseCase(repository: reviewItemRepository)
     }
     
     func makeFetchReviewItemsUseCase() -> FetchReviewItemsUseCaseProtocol {

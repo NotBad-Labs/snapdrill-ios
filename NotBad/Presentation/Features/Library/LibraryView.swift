@@ -29,7 +29,7 @@ struct LibraryView: View {
     @Query(sort: \ReviewItemModel.createdAt, order: .reverse)
     private var models: [ReviewItemModel]
 
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dependencyFactory) private var dependencyFactory
     @Environment(\.router) private var router
     @State private var viewModel = LibraryViewModel()
     @StateObject private var profileManager = UserProfileManager.shared
@@ -100,7 +100,9 @@ struct LibraryView: View {
                 AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
             }
             .onAppear {
-                viewModel.configure(with: modelContext)
+                if let factory = dependencyFactory {
+                    viewModel.configure(with: factory)
+                }
                 Logger.ui.debug("LibraryView onAppear - 共 \(items.count) 条数据")
             }
             .onChange(of: router.pendingItemDetailId) { _, newId in
