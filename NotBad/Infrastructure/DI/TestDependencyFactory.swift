@@ -70,7 +70,11 @@ final class TestDependencyFactory: DependencyFactory {
     // MARK: - Use Cases - Library
     
     func makeCreateReviewItemUseCase() -> CreateReviewItemUseCaseProtocol {
-        fatalError("CreateReviewItemUseCase not implemented yet")
+        CreateReviewItemUseCase(repository: mockRepository)
+    }
+    
+    func makeDeleteReviewItemUseCase() -> DeleteReviewItemUseCaseProtocol {
+        DeleteReviewItemUseCase(repository: mockRepository)
     }
     
     func makeFetchReviewItemsUseCase() -> FetchReviewItemsUseCaseProtocol {

@@ -7,7 +7,6 @@
 
 import Foundation
 import Observation
-import SwiftData
 import SwiftUI
 
 // MARK: - Orchestrator Step
@@ -55,7 +54,7 @@ final class CaptureOrchestrator {
     
     // MARK: - Dependencies
     
-    var modelContext: ModelContext?
+    private var createUseCase: CreateReviewItemUseCaseProtocol?
     
     // MARK: - Initialization
     
@@ -63,9 +62,9 @@ final class CaptureOrchestrator {
         setupBindings()
     }
     
-    /// 配置 ModelContext
-    func configure(with modelContext: ModelContext) {
-        self.modelContext = modelContext
+    /// 配置依赖
+    func configure(with factory: DependencyFactory) {
+        self.createUseCase = factory.makeCreateReviewItemUseCase()
     }
     
     // MARK: - Bindings
@@ -95,8 +94,12 @@ final class CaptureOrchestrator {
     }
     
     /// 保存错题
-    func save() {
-        guard let context = modelContext else { return }
+    func save() async {
+        guard let useCase = createUseCase else {
+            showAlert(message: "依赖未配置")
+            return
+        }
+        
         guard let imageData = imageSelectionVM.selectedImageData else {
             showAlert(message: String(localized: "capture_validation_image_required"))
             return
@@ -109,31 +112,24 @@ final class CaptureOrchestrator {
         
         isSaving = true
         
-        // 创建 ReviewItemModel（持久化模型）
-        let newModel = ReviewItemModel(
-            imageData: imageData,
-            title: formVM.title,
-            note: formVM.note,
-            subjectRaw: formVM.subject.rawValue,
-            gradeRaw: formVM.grade.rawValue,
-            knowledgePointsRaw: formVM.knowledgePointsInput,
-            difficultyRaw: formVM.difficulty.rawValue,
-            errorTypeRaw: formVM.errorType.rawValue,
-            sourceRaw: formVM.source.rawValue,
-            reviewItemTypeRaw: formVM.reviewItemType.rawValue
-        )
-        
-        // 保存到数据库
-        context.insert(newModel)
-        
         do {
-            try context.save()
+            // 构建输入
+            let input = CreateReviewItemInput(
+                title: formVM.title,
+                imageData: imageData,
+                subject: formVM.subject,
+                grade: formVM.grade,
+                difficulty: formVM.difficulty,
+                errorType: formVM.errorType,
+                knowledgePoints: formVM.knowledgePointsArray,
+                note: formVM.note
+            )
             
-            // 创建领域实体用于通知
-            let entity = ReviewItemMapper.toEntity(from: newModel)
+            // 调用 UseCase
+            let item = try await useCase.execute(input: input)
             
             // 发送通知
-            NotificationCenter.default.post(name: .reviewItemAdded, object: entity)
+            NotificationCenter.default.post(name: .reviewItemAdded, object: item)
             
             // 显示成功提示
             showAlert(message: String(localized: "capture_save_success"), isSuccess: true)

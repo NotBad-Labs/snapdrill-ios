@@ -121,6 +121,11 @@ final class ReviewItemFormViewModel {
         KnowledgePoints(from: knowledgePointsInput)
     }
     
+    /// 知识点数组（用于 UseCase）
+    var knowledgePointsArray: [String] {
+        parsedKnowledgePoints.items
+    }
+    
     // MARK: - Helpers
     
     static func getUserDefaultGrade() -> Grade {

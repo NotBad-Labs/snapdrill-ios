@@ -51,6 +51,9 @@ protocol DependencyFactory: Sendable {
     /// 创建创建错题用例
     func makeCreateReviewItemUseCase() -> CreateReviewItemUseCaseProtocol
     
+    /// 创建删除错题用例
+    func makeDeleteReviewItemUseCase() -> DeleteReviewItemUseCaseProtocol
+    
     /// 创建获取错题用例
     func makeFetchReviewItemsUseCase() -> FetchReviewItemsUseCaseProtocol
     
@@ -114,7 +117,11 @@ final class ProductionDependencyFactory: DependencyFactory {
     // MARK: - Use Cases - Library
     
     func makeCreateReviewItemUseCase() -> CreateReviewItemUseCaseProtocol {
-        fatalError("CreateReviewItemUseCase not implemented yet")
+        CreateReviewItemUseCase(repository: reviewItemRepository)
+    }
+    
+    func makeDeleteReviewItemUseCase() -> DeleteReviewItemUseCaseProtocol {
+        DeleteReviewItemUseCase(repository: reviewItemRepository)
     }
     
     func makeFetchReviewItemsUseCase() -> FetchReviewItemsUseCaseProtocol {

@@ -23,7 +23,7 @@ struct CaptureView: View {
 
     // MARK: - Environment
 
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dependencyFactory) private var dependencyFactory
 
     // MARK: - State
 
@@ -38,7 +38,9 @@ struct CaptureView: View {
                 .navigationTitle(LocalizedStringKey("capture_title"))
                 .navigationBarTitleDisplayMode(.large)
                 .onAppear {
-                    orchestrator.configure(with: modelContext)
+                    if let factory = dependencyFactory {
+                        orchestrator.configure(with: factory)
+                    }
                 }
                 .onChange(of: orchestrator.imageSelectionVM.selectedItem) { _, newValue in
                     Task {
@@ -256,7 +258,9 @@ extension CaptureView {
             Divider()
 
             Button {
-                orchestrator.save()
+                Task {
+                    await orchestrator.save()
+                }
             } label: {
                 saveButtonLabel
             }
