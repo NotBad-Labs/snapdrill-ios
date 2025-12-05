@@ -19,6 +19,9 @@ struct NotBadApp: App {
 
     /// 模型容器（带迁移计划）
     let modelContainer: ModelContainer
+    
+    /// 依赖工厂
+    let dependencyFactory: DependencyFactory
 
     /// 导航路由器
     @State private var router = NavigationRouter.shared
@@ -48,10 +51,12 @@ struct NotBadApp: App {
         // 配置 TipKit
         TipsConfiguration.configure()
         
+        var container: ModelContainer
+        
         do {
             let schema = Schema([ReviewItemModel.self])
             let config = ModelConfiguration(schema: schema)
-            modelContainer = try ModelContainer(
+            container = try ModelContainer(
                 for: schema,
                 migrationPlan: ReviewItemMigrationPlan.self,
                 configurations: [config]
@@ -71,18 +76,32 @@ struct NotBadApp: App {
             do {
                 let schema = Schema([ReviewItemModel.self])
                 let config = ModelConfiguration(schema: schema)
-                modelContainer = try ModelContainer(for: schema, configurations: [config])
+                container = try ModelContainer(for: schema, configurations: [config])
                 Logger.app.info("✅ 重建数据库成功")
             } catch {
                 fatalError("❌ [App] 无法创建 ModelContainer: \(error)")
             }
         }
+        
+        // 设置 ModelContainer
+        self.modelContainer = container
+        
+        // 创建并配置依赖工厂
+        let factory = ProductionDependencyFactory(modelContainer: container)
+        self.dependencyFactory = factory
+        AppDependencies.configure(factory: factory)
+        
+        // 向后兼容：配置旧的 Dependencies 单例
+        Dependencies.shared.configure(modelContainer: container)
+        
+        Logger.app.info("✅ 依赖工厂初始化完成")
     }
 
     var body: some Scene {
         WindowGroup {
             AdaptiveNavigationView()
                 .environment(\.router, router)
+                .withDependencies(dependencyFactory)
                 .preferredColorScheme(preferredColorScheme)
                 .fullScreenCover(isPresented: $showOnboarding) {
                     OnboardingView {

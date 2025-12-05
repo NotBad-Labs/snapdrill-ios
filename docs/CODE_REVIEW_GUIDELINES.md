@@ -4,7 +4,7 @@
 
 > **🎯 愿景**：打造符合 Apple Design Awards 标准的高质量教育应用，在创新、包容性、用户体验上追求卓越。
 
-请在每次 PR 评审时参考下列 **14 个核心维度** 逐项核对，并在 PR 描述中简短列出已检查项。
+请在每次 PR 评审时参考下列 **15 个核心维度** 逐项核对，并在 PR 描述中简短列出已检查项。
 
 ---
 
@@ -24,6 +24,7 @@
 12. [错误处理与日志](#12-错误处理与日志)
 13. [测试策略](#13-测试策略)
 14. [文档与可维护性](#14-文档与可维护性)
+15. [网络层规范](#15-网络层规范预留)
 
 ---
 
@@ -247,6 +248,152 @@ Repository → ViewModel → View
 
 - [ ] View 不直接修改 Repository 数据
 - [ ] 状态变更通过 ViewModel 的 Action 方法
+
+### 2.4 Use Cases 层（推荐）
+
+当业务逻辑变得复杂时，建议引入 Use Cases（Application 层）来封装跨实体的业务操作：
+
+```swift
+// ✅ 推荐：Use Case 封装复杂业务逻辑
+protocol StartReviewSessionUseCaseProtocol: Sendable {
+    func execute(itemIds: [UUID]) async throws -> ReviewSession
+}
+
+@MainActor
+final class StartReviewSessionUseCase: StartReviewSessionUseCaseProtocol {
+    private let itemRepository: ReviewItemRepositoryProtocol
+    private let sessionRepository: ReviewSessionRepositoryProtocol
+    private let scheduler: ReviewSchedulerProtocol
+    
+    func execute(itemIds: [UUID]) async throws -> ReviewSession {
+        // 1. 验证题目存在
+        let items = try await itemRepository.fetch(ids: itemIds)
+        guard !items.isEmpty else {
+            throw NotBadError.notFound(id: itemIds.first ?? UUID())
+        }
+        
+        // 2. 按算法排序
+        let sortedItems = scheduler.prioritize(items)
+        
+        // 3. 创建复习会话
+        let session = ReviewSession(items: sortedItems)
+        try await sessionRepository.save(session)
+        
+        return session
+    }
+}
+
+// ViewModel 调用 Use Case
+@MainActor
+@Observable
+class ReviewViewModel {
+    private let startReviewUseCase: StartReviewSessionUseCaseProtocol
+    
+    func startReview() async {
+        do {
+            session = try await startReviewUseCase.execute(itemIds: selectedIds)
+        } catch {
+            toast = .error(error.localizedDescription)
+        }
+    }
+}
+```
+
+**Use Cases 适用场景**：
+- 跨多个 Repository 的操作
+- 需要事务保证的业务流程
+- 复杂的业务规则验证
+- 需要复用的业务逻辑
+
+**Use Cases 存放位置**：
+```
+NotBad/
+├── Domain/
+│   ├── UseCases/              # Use Cases 接口
+│   │   ├── Review/
+│   │   │   ├── StartReviewSessionUseCaseProtocol.swift
+│   │   │   └── RecordReviewResultUseCaseProtocol.swift
+│   │   └── Library/
+│   │       └── ImportItemsUseCaseProtocol.swift
+├── Application/               # Use Cases 实现（可选，也可放在 Data 层）
+│   └── UseCases/
+│       └── StartReviewSessionUseCase.swift
+```
+
+### 2.5 依赖注入最佳实践
+
+当前项目使用简单的 Singleton 容器，建议逐步演进为更成熟的 DI 模式：
+
+#### 当前方案（可接受）
+
+```swift
+// Infrastructure/DI/Dependencies.swift
+@MainActor
+final class Dependencies {
+    static let shared = Dependencies()
+    
+    lazy var reviewItemRepository: ReviewItemRepositoryProtocol = {
+        SwiftDataReviewItemRepository(modelContext: modelContext)
+    }()
+}
+```
+
+#### 推荐演进方向
+
+**方案 A：Environment 注入（SwiftUI 原生）**
+
+```swift
+// 定义 Environment Key
+private struct ReviewItemRepositoryKey: EnvironmentKey {
+    static let defaultValue: ReviewItemRepositoryProtocol = MockReviewItemRepository()
+}
+
+extension EnvironmentValues {
+    var reviewItemRepository: ReviewItemRepositoryProtocol {
+        get { self[ReviewItemRepositoryKey.self] }
+        set { self[ReviewItemRepositoryKey.self] = newValue }
+    }
+}
+
+// 使用
+struct LibraryView: View {
+    @Environment(\.reviewItemRepository) var repository
+}
+
+// 注入
+ContentView()
+    .environment(\.reviewItemRepository, SwiftDataReviewItemRepository())
+```
+
+**方案 B：Factory 模式（推荐用于复杂场景）**
+
+```swift
+protocol DependencyFactory: Sendable {
+    func makeReviewItemRepository() -> ReviewItemRepositoryProtocol
+    func makeReviewSessionUseCase() -> StartReviewSessionUseCaseProtocol
+}
+
+@MainActor
+final class ProductionDependencyFactory: DependencyFactory {
+    private let modelContext: ModelContext
+    
+    func makeReviewItemRepository() -> ReviewItemRepositoryProtocol {
+        SwiftDataReviewItemRepository(modelContext: modelContext)
+    }
+}
+
+final class TestDependencyFactory: DependencyFactory {
+    func makeReviewItemRepository() -> ReviewItemRepositoryProtocol {
+        MockReviewItemRepository()
+    }
+}
+```
+
+**DI 审查清单**：
+- [ ] ViewModel 不直接创建 Repository
+- [ ] 依赖通过构造器或 Environment 注入
+- [ ] 测试可以轻松替换依赖为 Mock
+- [ ] 避免过度使用 `shared` 单例
 
 ---
 
@@ -595,6 +742,81 @@ AsyncImage(url: thumbnailURL) { image in
 - [ ] 大文件标注 `@Attribute(.externalStorage)`
 - [ ] 避免在 `body` 中进行计算密集操作
 - [ ] 使用 `@Query` 时指定 `fetchLimit`
+
+### 6.5 SwiftData 数据迁移策略
+
+随着应用迭代，数据模型会发生变化。必须制定清晰的迁移策略。
+
+#### 迁移类型
+
+| 类型 | 描述 | SwiftData 支持 |
+|------|------|---------------|
+| **轻量迁移** | 添加可选属性、重命名 | ✅ 自动 |
+| **自定义迁移** | 复杂数据转换 | ⚠️ 需要 `SchemaMigrationPlan` |
+| **破坏性迁移** | 删除属性、类型变化 | ⚠️ 可能丢失数据 |
+
+#### 迁移规范
+
+```swift
+// 1. 定义版本化 Schema
+enum SchemaV1: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 0)
+    static var models: [any PersistentModel.Type] {
+        [ReviewItemV1.self]
+    }
+    
+    @Model
+    final class ReviewItemV1 {
+        var title: String
+        var createdAt: Date
+    }
+}
+
+enum SchemaV2: VersionedSchema {
+    static var versionIdentifier = Schema.Version(2, 0, 0)
+    static var models: [any PersistentModel.Type] {
+        [ReviewItem.self]  // 当前版本
+    }
+}
+
+// 2. 定义迁移计划
+enum ReviewItemMigrationPlan: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] {
+        [SchemaV1.self, SchemaV2.self]
+    }
+    
+    static var stages: [MigrationStage] {
+        [migrateV1toV2]
+    }
+    
+    static let migrateV1toV2 = MigrationStage.custom(
+        fromVersion: SchemaV1.self,
+        toVersion: SchemaV2.self
+    ) { context in
+        // 自定义迁移逻辑
+        let items = try context.fetch(FetchDescriptor<SchemaV1.ReviewItemV1>())
+        for item in items {
+            // 数据转换
+        }
+        try context.save()
+    }
+}
+
+// 3. 应用迁移计划
+let container = try ModelContainer(
+    for: ReviewItem.self,
+    migrationPlan: ReviewItemMigrationPlan.self
+)
+```
+
+#### 迁移审查清单
+
+- [ ] 新增属性有默认值或可选
+- [ ] 删除属性前确认数据已迁移
+- [ ] 复杂迁移有 `SchemaMigrationPlan`
+- [ ] 迁移代码有单元测试
+- [ ] 迁移在 TestFlight 验证过
+- [ ] 回滚方案已准备
 
 ---
 
@@ -1045,7 +1267,39 @@ Button("保存") {
 
 所有业务错误使用 `NotBadError` 枚举，确保类型安全和本地化。
 
+#### 分层错误体系
+
+| 层级 | 错误类型 | 职责 | 示例 |
+|------|---------|------|------|
+| **Domain** | `DomainError` | 业务规则违反 | 验证失败、状态不一致 |
+| **Data** | `RepositoryError` | 数据操作失败 | 保存失败、查询失败 |
+| **Infrastructure** | `InfrastructureError` | 外部服务错误 | OCR 失败、文件系统错误 |
+| **Presentation** | 转换为用户提示 | 显示友好信息 | Toast、Alert |
+
 ```swift
+// Domain 层错误（纯业务逻辑）
+enum DomainError: Error, Sendable {
+    case validationFailed(field: String, reason: String)
+    case invalidStateTransition(from: String, to: String)
+    case businessRuleViolation(rule: String)
+}
+
+// Data 层错误（数据操作）
+enum RepositoryError: Error, Sendable {
+    case saveFailed(underlying: Error)
+    case fetchFailed(underlying: Error)
+    case notFound(id: UUID)
+    case duplicateEntry(identifier: String)
+}
+
+// Infrastructure 层错误（外部服务）
+enum InfrastructureError: Error, Sendable {
+    case ocrFailed(reason: String)
+    case fileSystemError(path: String, underlying: Error)
+    case permissionDenied(resource: String)
+}
+
+// 统一应用错误（面向用户）
 enum NotBadError: LocalizedError, Sendable {
     case saveFailed(reason: String)
     case notFound(id: UUID)
@@ -1478,6 +1732,142 @@ Closes #42
 
 ---
 
+## 15. 网络层规范（预留）
+
+> 📌 **注意**：NotBad 当前为纯本地应用，本章节为未来云同步/AI 服务预留规范。
+
+### 15.1 网络架构原则
+
+```
+View → ViewModel → UseCase → Repository → NetworkService → API
+                                              ↓
+                                         URLSession
+```
+
+**核心原则**：
+- Repository 抽象网络调用，上层无感知
+- 网络请求统一使用 `async/await`
+- 错误类型化，支持重试策略
+- 请求/响应日志化（脱敏）
+
+### 15.2 API 客户端规范
+
+```swift
+// ✅ 推荐：协议抽象
+protocol APIClientProtocol: Sendable {
+    func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T
+}
+
+// Endpoint 定义
+struct Endpoint: Sendable {
+    let path: String
+    let method: HTTPMethod
+    let headers: [String: String]
+    let body: Data?
+    let timeout: TimeInterval
+}
+
+// 实现
+actor APIClient: APIClientProtocol {
+    private let session: URLSession
+    private let baseURL: URL
+    private let authProvider: AuthProviderProtocol
+    
+    func request<T: Decodable>(_ endpoint: Endpoint) async throws -> T {
+        var request = URLRequest(url: baseURL.appendingPathComponent(endpoint.path))
+        request.httpMethod = endpoint.method.rawValue
+        request.allHTTPHeaderFields = endpoint.headers
+        request.httpBody = endpoint.body
+        
+        // 添加认证
+        try await authProvider.authorize(&request)
+        
+        // 执行请求
+        let (data, response) = try await session.data(for: request)
+        
+        // 验证响应
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
+        }
+        
+        guard 200..<300 ~= httpResponse.statusCode else {
+            throw NetworkError.httpError(statusCode: httpResponse.statusCode, data: data)
+        }
+        
+        // 解码
+        return try JSONDecoder().decode(T.self, from: data)
+    }
+}
+```
+
+### 15.3 网络错误处理
+
+```swift
+enum NetworkError: Error, Sendable {
+    case noConnection
+    case timeout
+    case invalidResponse
+    case httpError(statusCode: Int, data: Data)
+    case decodingFailed(underlying: Error)
+    case unauthorized
+    case serverError(message: String)
+    
+    var isRetryable: Bool {
+        switch self {
+        case .noConnection, .timeout, .serverError:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+// 重试策略
+struct RetryPolicy: Sendable {
+    let maxAttempts: Int
+    let delay: Duration
+    let backoffMultiplier: Double
+    
+    static let `default` = RetryPolicy(
+        maxAttempts: 3,
+        delay: .seconds(1),
+        backoffMultiplier: 2.0
+    )
+}
+```
+
+### 15.4 离线优先策略
+
+```swift
+// Repository 支持离线优先
+protocol SyncableRepositoryProtocol {
+    func fetch() async throws -> [Item]           // 优先本地，后台同步
+    func save(_ item: Item) async throws          // 保存本地，排队上传
+    func sync() async throws                      // 手动同步
+    var syncStatus: SyncStatus { get }            // 同步状态
+}
+
+enum SyncStatus: Sendable {
+    case synced
+    case pendingUpload(count: Int)
+    case syncing
+    case error(NetworkError)
+}
+```
+
+### 15.5 网络审查清单（未来）
+
+- [ ] API 请求使用 `async/await`
+- [ ] 请求超时设置合理（默认 30s）
+- [ ] 支持请求取消
+- [ ] 错误类型化且支持重试
+- [ ] 敏感数据传输加密
+- [ ] 认证 Token 安全存储（Keychain）
+- [ ] 离线场景优雅降级
+- [ ] 网络日志不包含敏感信息
+
+---
+
 ## 附录
 
 ### A. 快速导航
@@ -1563,6 +1953,12 @@ Closes #42
 | | | - 删除 PROJECT_STRUCTURE.md、TECHNICAL_DEBT.md | |
 | | | - 修复测试章节编号（§13.7） | |
 | | | - 更新快速导航链接 | |
+| 4.0 | 2025-12-05 | 企业级架构增强，扩展至 15 个维度 | Team |
+| | | - 新增 §2.4 Use Cases 层规范（Application 层） | |
+| | | - 新增 §2.5 依赖注入最佳实践（Environment/Factory） | |
+| | | - 增强 §12.1 分层错误体系（Domain/Data/Infrastructure） | |
+| | | - 新增 §6.5 SwiftData 数据迁移策略 | |
+| | | - 新增 §15 网络层规范（预留云同步/AI 服务） | |
 
 ---
 

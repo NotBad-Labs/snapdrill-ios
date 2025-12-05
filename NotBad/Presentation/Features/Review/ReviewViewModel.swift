@@ -3,7 +3,7 @@
 //  NotBad
 //
 //  Created for NotBad K12 错题本
-//  Phase 3: ViewModel Dependency Injection
+//  Phase 4: Use Case Integration
 //
 
 import SwiftUI
@@ -23,25 +23,41 @@ import OSLog
 /// 3. **更新状态**：记录复习结果，计算下次复习时间
 /// 4. **完成统计**：显示本次复习成果
 ///
-/// ## 依赖注入
-///
-/// 支持两种使用方式：
+/// ## 依赖注入（推荐方式）
 ///
 /// ```swift
-/// // 方式1: 使用 DataProvider（推荐，支持测试）
-/// let provider = SwiftDataReviewItemProvider(modelContext: context)
-/// let viewModel = ReviewViewModel(dataProvider: provider)
-/// let queue = viewModel.generateReviewQueue()
+/// // 使用 DependencyFactory
+/// let factory = AppDependencies.factory
+/// let viewModel = ReviewViewModel(
+///     startSessionUseCase: factory.makeStartReviewSessionUseCase(),
+///     recordResultUseCase: factory.makeRecordReviewResultUseCase(),
+///     completeSessionUseCase: factory.makeCompleteReviewSessionUseCase()
+/// )
+/// ```
 ///
-/// // 方式2: 传入 items（向后兼容）
+/// ## 向后兼容
+///
+/// ```swift
+/// // 旧方式仍然支持
 /// let viewModel = ReviewViewModel()
-/// let queue = viewModel.generateReviewQueue(from: items)
+/// viewModel.configure(with: modelContext)
 /// ```
 @MainActor
 @Observable
 final class ReviewViewModel {
 
-    // MARK: - Dependencies
+    // MARK: - Use Cases (New Architecture)
+    
+    /// 开始复习会话用例
+    private var startSessionUseCase: StartReviewSessionUseCaseProtocol?
+    
+    /// 记录复习结果用例
+    private var recordResultUseCase: RecordReviewResultUseCaseProtocol?
+    
+    /// 完成复习会话用例
+    private var completeSessionUseCase: CompleteReviewSessionUseCaseProtocol?
+
+    // MARK: - Dependencies (Legacy)
 
     /// 数据提供者（可选，用于依赖注入）
     private var dataProvider: (any ReviewItemDataProviding)?
@@ -88,7 +104,7 @@ final class ReviewViewModel {
     /// 每次复习数量限制
     var batchSize: Int = 20
 
-    // MARK: - Dependencies
+    // MARK: - Dependencies (Legacy)
 
     private var modelContext: ModelContext?
 
@@ -96,6 +112,22 @@ final class ReviewViewModel {
 
     /// 默认初始化（向后兼容）
     init() {}
+    
+    /// Use Cases 注入初始化（推荐）
+    ///
+    /// - Parameters:
+    ///   - startSessionUseCase: 开始复习会话用例
+    ///   - recordResultUseCase: 记录复习结果用例
+    ///   - completeSessionUseCase: 完成复习会话用例
+    init(
+        startSessionUseCase: StartReviewSessionUseCaseProtocol,
+        recordResultUseCase: RecordReviewResultUseCaseProtocol,
+        completeSessionUseCase: CompleteReviewSessionUseCaseProtocol
+    ) {
+        self.startSessionUseCase = startSessionUseCase
+        self.recordResultUseCase = recordResultUseCase
+        self.completeSessionUseCase = completeSessionUseCase
+    }
 
     /// 依赖注入初始化（推荐用于测试）
     ///
