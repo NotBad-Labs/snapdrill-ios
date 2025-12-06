@@ -2,12 +2,16 @@
 //  NotBadWidget.swift
 //  NotBadWidget
 //
-//  Created for NotBad K12 错题本
+//  使用 App Groups + SwiftData 直接读取主 App 数据
 //
 
 import WidgetKit
 import SwiftUI
 import SwiftData
+
+// MARK: - App Group 配置（与主 App 保持一致）
+
+private let appGroupIdentifier = "group.com.notbad.shared"
 
 // MARK: - ReviewEntry
 
@@ -24,6 +28,8 @@ struct ReviewEntry: TimelineEntry {
 // MARK: - Provider
 
 /// 小组件数据提供者
+///
+/// 直接从 SwiftData 读取数据（通过 App Groups 共享）
 struct Provider: AppIntentTimelineProvider {
 
     func placeholder(in context: Context) -> ReviewEntry {
@@ -49,22 +55,71 @@ struct Provider: AppIntentTimelineProvider {
         return Timeline(entries: [entry], policy: .after(nextUpdate))
     }
 
+    @MainActor
     private func getEntry(for configuration: ConfigurationAppIntent) async -> ReviewEntry {
-        // 使用 App Group 共享数据
-        let pendingCount = UserDefaults(suiteName: "group.com.notbad.app")?.integer(forKey: "pendingReviewCount") ?? 0
-        let overdueCount = UserDefaults(suiteName: "group.com.notbad.app")?.integer(forKey: "overdueCount") ?? 0
-        let masteryRate = UserDefaults(suiteName: "group.com.notbad.app")?.double(forKey: "masteryRate") ?? 0
-        let recentSubjects = UserDefaults(suiteName: "group.com.notbad.app")?.stringArray(forKey: "recentSubjects") ?? []
-
-        return ReviewEntry(
-            date: Date(),
-            pendingCount: pendingCount,
-            overdueCount: overdueCount,
-            masteryRate: masteryRate,
-            recentSubjects: recentSubjects,
-            configuration: configuration
-        )
+        // ✅ 直接从 SwiftData 读取（通过 App Groups 共享目录）
+        do {
+            let container = try createSharedModelContainer()
+            let context = container.mainContext
+            
+            let descriptor = FetchDescriptor<ReviewItemModel>()
+            let allItems = try context.fetch(descriptor)
+            
+            let now = Date()
+            let startOfDay = Calendar.current.startOfDay(for: now)
+            
+            // 待复习：nextReviewDate <= now
+            let pendingCount = allItems.filter { $0.nextReviewDate <= now }.count
+            
+            // 已逾期：nextReviewDate < 今天开始
+            let overdueCount = allItems.filter { $0.nextReviewDate < startOfDay }.count
+            
+            // 掌握率
+            let masteredCount = allItems.filter { $0.masteryLevel >= 3 }.count
+            let masteryRate = allItems.isEmpty ? 0 : Double(masteredCount) / Double(allItems.count)
+            
+            // 最近学科
+            let recentSubjects = Array(Set(allItems.prefix(10).map { $0.subjectRaw })).prefix(3).map { String($0) }
+            
+            return ReviewEntry(
+                date: now,
+                pendingCount: pendingCount,
+                overdueCount: overdueCount,
+                masteryRate: masteryRate,
+                recentSubjects: Array(recentSubjects),
+                configuration: configuration
+            )
+        } catch {
+            print("❌ Widget 读取数据失败: \(error)")
+            return ReviewEntry(
+                date: Date(),
+                pendingCount: 0,
+                overdueCount: 0,
+                masteryRate: 0,
+                recentSubjects: [],
+                configuration: configuration
+            )
+        }
     }
+    
+    /// 创建共享的 ModelContainer（使用 App Groups）
+    private func createSharedModelContainer() throws -> ModelContainer {
+        let schema = Schema([ReviewItemModel.self])
+        
+        guard let appGroupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier) else {
+            throw WidgetError.appGroupNotConfigured
+        }
+        
+        let storeURL = appGroupURL.appendingPathComponent("NotBad.sqlite")
+        let config = ModelConfiguration(schema: schema, url: storeURL)
+        
+        return try ModelContainer(for: schema, configurations: [config])
+    }
+}
+
+/// Widget 错误类型
+enum WidgetError: Error {
+    case appGroupNotConfigured
 }
 
 // MARK: - ConfigurationAppIntent

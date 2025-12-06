@@ -51,8 +51,13 @@ final class ImageStorageService: @unchecked Sendable {
     
     private let fileManager = FileManager.default
     
-    /// 图片存储目录
+    /// 图片存储目录（使用 App Groups 共享目录）
     private var imagesDirectory: URL {
+        // ✅ 优先使用 App Groups 共享目录，让 Widget 也能访问
+        if let sharedURL = PersistenceController.sharedContainerURL {
+            return sharedURL.appendingPathComponent("Images", isDirectory: true)
+        }
+        // Fallback：私有目录（Widget 无法访问）
         let paths = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
         let documentsDirectory = paths[0]
         return documentsDirectory.appendingPathComponent("Images", isDirectory: true)
@@ -68,6 +73,7 @@ final class ImageStorageService: @unchecked Sendable {
                 withIntermediateDirectories: true,
                 attributes: nil
             )
+            print("📁 图片目录: \(imagesDirectory.path)")
         } catch {
             Logger.data.error("创建图片目录失败: \(error.localizedDescription)")
         }
