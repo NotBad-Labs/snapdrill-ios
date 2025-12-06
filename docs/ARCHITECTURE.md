@@ -217,13 +217,15 @@ struct LibraryView: View {
 
 | 类别 | 数量 |
 |------|------|
-| 总 Swift 文件 | ~78 个 |
+| 主 App Swift 文件 | 61 个 |
 | ReviewKit 文件 | 5 个 |
 | ImageKit 文件 | 2 个 |
 | OCRKit 文件 | 3 个 |
 | Views 文件 | 7 个 |
 | Components 文件 | 15 个 |
-| Infrastructure 文件 | 16 个 |
+| Infrastructure 文件 | 13 个 |
+
+> 注：Components 中大部分为待集成的预备组件，当前仅 ImagePicker 被使用。
 
 ---
 
