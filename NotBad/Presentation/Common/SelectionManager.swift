@@ -7,6 +7,7 @@
 
 import Foundation
 import Observation
+import ReviewKit
 
 // MARK: - Selection Manager
 
@@ -168,12 +169,12 @@ final class SelectionManager<ID: Hashable & Sendable>: Sendable {
 extension SelectionManager where ID == UUID {
     
     /// 从 ReviewItem 数组全选
-    func selectAll(from items: [ReviewItem]) {
+    func selectAll(from items: [ReviewItemModel]) {
         selectedIDs = Set(items.map(\.id))
     }
     
     /// 从 ReviewItem 数组获取选中项
-    func selectedItems(from items: [ReviewItem]) -> [ReviewItem] {
+    func selectedItems(from items: [ReviewItemModel]) -> [ReviewItemModel] {
         items.filter { selectedIDs.contains($0.id) }
     }
 }

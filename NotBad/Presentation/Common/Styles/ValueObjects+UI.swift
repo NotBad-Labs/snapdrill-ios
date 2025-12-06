@@ -13,6 +13,7 @@
 //
 
 import SwiftUI
+import ReviewKit
 #if canImport(UIKit)
 import UIKit
 #endif

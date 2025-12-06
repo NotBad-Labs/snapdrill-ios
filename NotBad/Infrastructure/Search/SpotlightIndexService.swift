@@ -180,7 +180,7 @@ final class SpotlightIndexService {
         attributeSet.contentDescription = createDescription(for: item)
         
         // 关键词（用于搜索匹配）
-        var keywords = item.knowledgePoints.items
+        var keywords = item.knowledgePoints
         keywords.append(item.subject.displayName)
         keywords.append(item.grade.displayName)
         if !item.note.isEmpty {
@@ -192,12 +192,17 @@ final class SpotlightIndexService {
         }
         attributeSet.keywords = keywords
         
-        // 缩略图（如果有图片）
-        if let imageData = item.imageData,
-           let image = UIImage(data: imageData) {
-            // 生成小缩略图用于搜索结果显示
-            let thumbnail = generateThumbnail(from: image, maxSize: 120)
-            attributeSet.thumbnailData = thumbnail
+        // 缩略图（如果有图片路径，尝试加载）
+        if let imagePath = item.imagePath, 
+           !imagePath.isEmpty,
+           let imagesDir = PersistenceController.imagesDirectoryURL {
+            // 从文件系统加载图片
+            let imageURL = imagesDir.appendingPathComponent(imagePath)
+            if let imageData = try? Data(contentsOf: imageURL),
+               let image = UIImage(data: imageData) {
+                let thumbnail = generateThumbnail(from: image, maxSize: 120)
+                attributeSet.thumbnailData = thumbnail
+            }
         }
         
         // 时间戳
@@ -223,7 +228,7 @@ final class SpotlightIndexService {
         
         // 知识点
         if !item.knowledgePoints.isEmpty {
-            parts.append("知识点: \(item.knowledgePoints.items.prefix(3).joined(separator: ", "))")
+            parts.append("知识点: \(item.knowledgePoints.prefix(3).joined(separator: ", "))")
         }
         
         // 笔记预览

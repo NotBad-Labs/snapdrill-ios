@@ -8,6 +8,7 @@
 import Foundation
 import WidgetKit
 import OSLog
+import ReviewKit
 
 /// Widget 数据同步服务
 @MainActor
@@ -100,9 +101,9 @@ final class WidgetDataSync {
     }
 }
 
-// MARK: - ReviewItem Collection Extension
+// MARK: - ReviewItemModel Collection Extension
 
-extension Array where Element == ReviewItem {
+extension Array where Element == ReviewItemModel {
 
     /// 同步数据到 Widget
     @MainActor

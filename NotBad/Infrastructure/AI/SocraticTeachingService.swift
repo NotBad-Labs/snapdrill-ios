@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationModels
+import ReviewKit
 
 // MARK: - Socratic Hint Level
 
@@ -183,7 +184,7 @@ final class SocraticTeachingService {
     /// - Returns: 苏格拉底式响应
     /// - Throws: 服务不可用或分析失败
     func getHint(
-        for item: ReviewItem,
+        for item: ReviewItemModel,
         level: SocraticHintLevel = .direction,
         studentQuestion: String? = nil
     ) async throws -> SocraticResponse {
@@ -240,7 +241,7 @@ final class SocraticTeachingService {
     /// 快速生成思考引导（不使用完整结构化输出）
     ///
     /// 适用于快速获取一个引导问题的场景
-    func quickGuide(for item: ReviewItem) async throws -> String {
+    func quickGuide(for item: ReviewItemModel) async throws -> String {
         guard isAvailable else {
             throw SocraticTeachingError.serviceUnavailable
         }
@@ -263,7 +264,7 @@ final class SocraticTeachingService {
     // MARK: - Private Helpers
     
     /// 构建题目上下文
-    private func buildQuestionContext(item: ReviewItem, studentQuestion: String?) -> String {
+    private func buildQuestionContext(item: ReviewItemModel, studentQuestion: String?) -> String {
         var context = """
         学科：\(item.subject.displayName)
         题型：\(item.reviewItemType.displayName)
@@ -365,7 +366,7 @@ extension SocraticTeachingService {
     
     /// 获取下一层提示
     func getNextHint(
-        for item: ReviewItem,
+        for item: ReviewItemModel,
         currentLevel: SocraticHintLevel
     ) async throws -> SocraticResponse? {
         guard let nextLevel = currentLevel.next else {

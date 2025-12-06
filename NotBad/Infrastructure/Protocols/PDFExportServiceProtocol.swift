@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftData
+import ReviewKit
 
 // MARK: - PDFExportServiceProtocol
 
@@ -47,7 +48,7 @@ protocol PDFExportServiceProtocol: AnyObject, Sendable {
     ///   - showAnswerArea: 是否显示答题区域，默认 true
     /// - Returns: PDF 数据
     func exportToPDF(
-        items: [ReviewItem],
+        items: [ReviewItemModel],
         title: String,
         includeImages: Bool,
         includeNotes: Bool,

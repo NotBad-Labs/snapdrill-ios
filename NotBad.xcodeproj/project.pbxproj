@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B26C37842EE41DA5008D46F5 /* ReviewKit in Frameworks */ = {isa = PBXBuildFile; productRef = B26C37832EE41DA5008D46F5 /* ReviewKit */; };
 		B29580232E6A78A300E2D95C /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = B29580222E6A789C00E2D95C /* .swiftlint.yml */; };
 		B2BE0C8B2E6A793F001369C3 /* UnitTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C8A2E6A793F001369C3 /* UnitTestPlan.xctestplan */; };
 		B2BE0C8D2E6A7967001369C3 /* IntegrationTestPlan.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B2BE0C8C2E6A7967001369C3 /* IntegrationTestPlan.xctestplan */; };
@@ -97,6 +98,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B26C37842EE41DA5008D46F5 /* ReviewKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -117,6 +119,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B26C37822EE41DA5008D46F5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B27BD9562E560D0600E69277 = {
 			isa = PBXGroup;
 			children = (
@@ -134,6 +143,7 @@
 				B27BD9612E560D0700E69277 /* NotBad */,
 				B27BD9732E560D0800E69277 /* NotBadTests */,
 				B27BD97D2E560D0800E69277 /* NotBadUITests */,
+				B26C37822EE41DA5008D46F5 /* Frameworks */,
 				B27BD9602E560D0600E69277 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -169,6 +179,7 @@
 			);
 			name = NotBad;
 			packageProductDependencies = (
+				B26C37832EE41DA5008D46F5 /* ReviewKit */,
 			);
 			productName = NotBad;
 			productReference = B27BD95F2E560D0600E69277 /* NotBad.app */;
@@ -256,6 +267,9 @@
 			);
 			mainGroup = B27BD9562E560D0600E69277;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B26C37812EE41D61008D46F5 /* XCLocalSwiftPackageReference "Packages/ReviewKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B27BD9602E560D0600E69277 /* Products */;
 			projectDirPath = "";
@@ -645,6 +659,21 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		B26C37812EE41D61008D46F5 /* XCLocalSwiftPackageReference "Packages/ReviewKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/ReviewKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B26C37832EE41DA5008D46F5 /* ReviewKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B26C37812EE41D61008D46F5 /* XCLocalSwiftPackageReference "Packages/ReviewKit" */;
+			productName = ReviewKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B27BD9572E560D0600E69277 /* Project object */;
 }

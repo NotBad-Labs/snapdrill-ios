@@ -7,6 +7,7 @@
 
 import Foundation
 import FoundationModels
+import ReviewKit
 
 // MARK: - SmartAnalysisResult
 
