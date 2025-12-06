@@ -2,8 +2,7 @@
 //  PDFExportServiceProtocol.swift
 //  NotBad
 //
-//  Created for NotBad K12 错题本
-//  Phase 4: Service Layer Abstraction
+//  PDF 导出服务协议定义
 //
 
 import Foundation
@@ -18,21 +17,11 @@ import ReviewKit
 ///
 /// ## 设计目的
 ///
-/// 1. **解耦**：ViewModel 依赖协议而非具体实现
+/// 1. **解耦**：View 层依赖协议而非具体实现
 /// 2. **可测试**：可以注入 Mock 实现进行单元测试
 /// 3. **可替换**：未来可以替换为其他 PDF 生成库
 ///
-/// ## 使用示例
-///
-/// ```swift
-/// // 生产环境
-/// let service: PDFExportServiceProtocol = PDFExportService.shared
-/// let data = service.exportToPDF(items: items, title: "我的错题集")
-///
-/// // 测试环境
-/// let mockService = MockPDFExportService()
-/// let data = mockService.exportToPDF(items: items, title: "测试")
-/// ```
+/// - Note: 具体实现待开发（参见 ROADMAP.md Phase 5）
 @MainActor
 protocol PDFExportServiceProtocol: AnyObject, Sendable {
 

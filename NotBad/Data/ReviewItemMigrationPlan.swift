@@ -2,7 +2,7 @@
 //  ReviewItemMigrationPlan.swift
 //  NotBad
 //
-//  Created for NotBad K12 错题本
+//  SwiftData 数据迁移计划
 //
 
 import SwiftData
@@ -14,7 +14,7 @@ import ReviewKit
 /// ReviewItem 数据迁移计划
 ///
 /// 负责管理不同版本之间的 SwiftData 数据迁移。
-/// V3 架构：图片存储在文件系统，数据库只存路径。
+/// 当前版本 V3：图片存储在文件系统，数据库只存路径。
 enum ReviewItemMigrationPlan: SchemaMigrationPlan {
 
     // MARK: - Schema Versions

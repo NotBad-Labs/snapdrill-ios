@@ -2,15 +2,9 @@
 //  ImageStorageService.swift
 //  NotBad
 //
-//  图片文件存储服务（桥接层）
+//  图片文件存储服务
 //
-//  注意：核心实现已迁移到 ImageKit Package。
-//  此处保留作为兼容层，待工程添加 ImageKit 依赖后可移除。
-//
-//  TODO: 添加 ImageKit Package 依赖后：
-//  1. 在需要的文件顶部添加 `import ImageKit`
-//  2. 删除此文件
-//  3. 直接使用 ImageKit.ImageStorageService
+//  将图片存储到 App Groups 共享目录，支持 Widget 访问。
 //
 
 import UIKit

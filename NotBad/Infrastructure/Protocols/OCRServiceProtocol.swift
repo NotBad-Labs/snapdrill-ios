@@ -2,8 +2,7 @@
 //  OCRServiceProtocol.swift
 //  NotBad
 //
-//  Created for NotBad K12 错题本
-//  Phase 4: Service Layer Abstraction
+//  OCR 文字识别服务协议定义
 //
 
 import UIKit
@@ -16,25 +15,18 @@ import UIKit
 ///
 /// ## 设计目的
 ///
-/// 1. **解耦**：ViewModel 依赖协议而非具体实现
+/// 1. **解耦**：View 层依赖协议而非具体实现
 /// 2. **可测试**：可以注入 Mock 实现进行单元测试
 /// 3. **可替换**：未来可以替换为其他 OCR 引擎
 ///
 /// ## 使用示例
 ///
 /// ```swift
-/// // 生产环境
-/// let service: OCRServiceProtocol = OCRService.shared
+/// let service = OCRService.shared
 /// let result = try await service.recognizeText(from: image)
-///
-/// // 测试环境
-/// let mockService = MockOCRService()
-/// mockService.mockResult = "测试文本"
-/// let result = try await mockService.recognizeText(from: image)
 /// ```
 ///
 /// - Note: 所有方法都是异步的，可能需要数秒时间
-/// - Important: 实现类应标记为 `@MainActor` 以确保线程安全
 @MainActor
 protocol OCRServiceProtocol: AnyObject, Sendable {
 

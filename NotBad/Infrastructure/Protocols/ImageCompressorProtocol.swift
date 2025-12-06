@@ -2,7 +2,7 @@
 //  ImageCompressorProtocol.swift
 //  NotBad
 //
-//  Created by Architecture Improvement on 2025.
+//  图片压缩服务协议定义
 //
 
 import UIKit
@@ -12,7 +12,7 @@ import UIKit
 /// 图片压缩服务协议
 ///
 /// 该协议定义了图片压缩和调整大小的标准接口，用于：
-/// - 解耦 ViewModel 和具体图片压缩实现
+/// - 提供统一的图片处理 API
 /// - 支持依赖注入和单元测试
 /// - 提供可替换的图片处理策略
 protocol ImageCompressorProtocol {
