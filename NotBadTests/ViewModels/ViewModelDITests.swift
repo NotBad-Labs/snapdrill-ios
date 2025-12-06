@@ -9,6 +9,7 @@ import Testing
 import SwiftData
 import Foundation
 @testable import NotBad
+import ReviewKit
 
 // MARK: - DashboardViewModel DI Tests
 

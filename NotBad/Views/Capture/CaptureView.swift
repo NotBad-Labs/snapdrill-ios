@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import ReviewKit
 
 struct CaptureView: View {
     @Environment(\.modelContext) private var modelContext

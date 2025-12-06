@@ -7,6 +7,7 @@
 
 import SwiftData
 import Foundation
+import ReviewKit
 
 // MARK: - ReviewItemMigrationPlan
 

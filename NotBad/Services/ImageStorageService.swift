@@ -15,6 +15,7 @@
 
 import UIKit
 import OSLog
+import ReviewKit
 
 // MARK: - ImageStorageService
 

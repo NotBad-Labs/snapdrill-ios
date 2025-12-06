@@ -9,6 +9,7 @@
 
 import SwiftUI
 import SwiftData
+import ReviewKit
 
 @main
 struct NotBadApp: App {

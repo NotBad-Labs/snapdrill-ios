@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import ReviewKit
 
 struct LibraryView: View {
     @Query(sort: \ReviewItemModel.createdAt, order: .reverse)

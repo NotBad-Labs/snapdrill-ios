@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import ReviewKit
 
 struct ContentView: View {
     var body: some View {

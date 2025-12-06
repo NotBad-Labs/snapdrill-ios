@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import ReviewKit
 
 struct ReviewView: View {
     @Query(sort: \ReviewItemModel.nextReviewDate)

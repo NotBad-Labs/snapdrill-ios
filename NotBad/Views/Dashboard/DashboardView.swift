@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import ReviewKit
 
 struct DashboardView: View {
     @Query private var items: [ReviewItemModel]
