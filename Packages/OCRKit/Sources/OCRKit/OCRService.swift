@@ -1,0 +1,194 @@
+// OCRKit - OCR 服务实现
+//
+// 基于 Apple Vision 框架的文字识别服务。
+
+import Foundation
+import Vision
+
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
+
+// MARK: - OCRService
+
+/// OCR 文字识别服务
+///
+/// 基于 Apple Vision 框架实现的文字识别服务，支持中英文混合识别。
+///
+/// ## 功能特性
+///
+/// - 支持中文简体、繁体和英文识别
+/// - 精确识别模式，适合印刷体和手写体
+/// - 语言校正，提高识别准确率
+/// - 返回置信度信息
+///
+/// ## 使用示例
+///
+/// ```swift
+/// let service = OCRService.shared
+///
+/// do {
+///     let result = try await service.recognizeText(from: image)
+///     print("识别文本: \(result)")
+/// } catch {
+///     print("识别失败: \(error)")
+/// }
+/// ```
+@MainActor
+public final class OCRService: OCRServiceProtocol {
+    
+    // MARK: - Singleton
+    
+    /// 共享实例
+    public static let shared = OCRService()
+    
+    // MARK: - Configuration
+    
+    /// 识别级别
+    public var recognitionLevel: VNRequestTextRecognitionLevel = .accurate
+    
+    /// 支持的语言
+    public var recognitionLanguages = ["zh-Hans", "zh-Hant", "en-US"]
+    
+    /// 是否使用语言校正
+    public var usesLanguageCorrection = true
+    
+    // MARK: - Initialization
+    
+    public init() {}
+    
+    /// 创建自定义配置的 OCR 服务
+    public init(
+        recognitionLevel: VNRequestTextRecognitionLevel = .accurate,
+        languages: [String] = ["zh-Hans", "zh-Hant", "en-US"],
+        usesLanguageCorrection: Bool = true
+    ) {
+        self.recognitionLevel = recognitionLevel
+        self.recognitionLanguages = languages
+        self.usesLanguageCorrection = usesLanguageCorrection
+    }
+    
+    // MARK: - Recognition
+    
+    /// 从图片中识别文字（带置信度）
+    public func recognizeTextWithConfidence(from image: PlatformImage) async throws -> OCRResult {
+        guard let cgImage = getCGImage(from: image) else {
+            throw OCRError.invalidImage
+        }
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+            
+            let request = VNRecognizeTextRequest { [weak self] request, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                
+                guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                    continuation.resume(throwing: OCRError.recognitionFailed)
+                    return
+                }
+                
+                let result = self?.processObservations(observations) ?? OCRResult.empty
+                
+                if result.text.isEmpty {
+                    continuation.resume(throwing: OCRError.noTextFound)
+                } else {
+                    continuation.resume(returning: result)
+                }
+            }
+            
+            // 配置识别参数
+            request.recognitionLevel = recognitionLevel
+            request.recognitionLanguages = recognitionLanguages
+            request.usesLanguageCorrection = usesLanguageCorrection
+            
+            do {
+                try requestHandler.perform([request])
+            } catch {
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+    
+    // MARK: - Private Helpers
+    
+    private func getCGImage(from image: PlatformImage) -> CGImage? {
+        #if canImport(UIKit)
+        return image.cgImage
+        #elseif canImport(AppKit)
+        return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        #endif
+    }
+    
+    private func processObservations(_ observations: [VNRecognizedTextObservation]) -> OCRResult {
+        var lines: [OCRLine] = []
+        var totalConfidence: Float = 0
+        
+        for observation in observations {
+            guard let candidate = observation.topCandidates(1).first else { continue }
+            
+            let line = OCRLine(
+                text: candidate.string,
+                confidence: candidate.confidence,
+                boundingBox: observation.boundingBox
+            )
+            lines.append(line)
+            totalConfidence += candidate.confidence
+        }
+        
+        let averageConfidence = lines.isEmpty ? 0 : totalConfidence / Float(lines.count)
+        let fullText = lines.map { $0.text }.joined(separator: "\n")
+        
+        return OCRResult(
+            text: fullText,
+            lines: lines,
+            confidence: Double(averageConfidence)
+        )
+    }
+}
+
+// MARK: - Text Extraction Helpers
+
+public extension OCRService {
+    
+    /// 从识别的文字中提取标题
+    ///
+    /// 提取第一行文字作为标题，最多 50 个字符。
+    func extractTitle(from text: String) -> String {
+        let firstLine = text.components(separatedBy: .newlines).first ?? text
+        let trimmed = firstLine.trimmingCharacters(in: .whitespacesAndNewlines)
+        let title = String(trimmed.prefix(50))
+        return title.isEmpty ? "未命名错题" : title
+    }
+    
+    /// 提取题目中的数学公式（简单识别）
+    func extractMathExpressions(from text: String) -> [String] {
+        let patterns = [
+            "[0-9]+[+\\-×÷*/=][0-9]+",  // 基本运算
+            "[a-zA-Z]\\^[0-9]+",         // 幂运算
+            "√[0-9]+",                    // 根号
+            "[0-9]+/[0-9]+"              // 分数
+        ]
+        
+        var expressions: [String] = []
+        
+        for pattern in patterns {
+            if let regex = try? NSRegularExpression(pattern: pattern) {
+                let range = NSRange(text.startIndex..., in: text)
+                let matches = regex.matches(in: text, range: range)
+                
+                for match in matches {
+                    if let range = Range(match.range, in: text) {
+                        expressions.append(String(text[range]))
+                    }
+                }
+            }
+        }
+        
+        return expressions
+    }
+}

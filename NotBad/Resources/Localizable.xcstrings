@@ -2,6 +2,7 @@
   "sourceLanguage" : "zh-Hans",
   "strings" : {
     "" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29,16 +30,8 @@
         }
       }
     },
-    "(%lld)" : {
-
-    },
-    "(%lld星)" : {
-
-    },
-    "【%@】" : {
-
-    },
     "*" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -67,6 +60,7 @@
       }
     },
     "%@, %@, %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -100,7 +94,18 @@
         }
       }
     },
+    "%@, %@, 掌握程度%lld级" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@, 掌握程度%3$lld级"
+          }
+        }
+      }
+    },
     "%@：%lld题" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -134,19 +139,6 @@
         }
       }
     },
-    "%@不能为空" : {
-
-    },
-    "%@值 %@ 超出范围 [%@, %@]" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@值 %2$@ 超出范围 [%3$@, %4$@]"
-          }
-        }
-      }
-    },
     "%@导出失败：%@" : {
       "localizations" : {
         "zh-Hans" : {
@@ -157,21 +149,8 @@
         }
       }
     },
-    "%@已存在" : {
-
-    },
     "%@权限被拒绝" : {
 
-    },
-    "%@验证失败：%@" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@验证失败：%2$@"
-          }
-        }
-      }
     },
     "%lld" : {
       "localizations" : {
@@ -202,6 +181,7 @@
       }
     },
     "%lld / %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -235,10 +215,8 @@
         }
       }
     },
-    "%lld." : {
-
-    },
     "%lld%%" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -265,12 +243,6 @@
           }
         }
       }
-    },
-    "•" : {
-
-    },
-    "🛠 开发者工具" : {
-
     },
     "1.0.0" : {
       "extractionState" : "stale",
@@ -300,9 +272,6 @@
           }
         }
       }
-    },
-    "1.1.0" : {
-
     },
     "a11y_close_button" : {
       "localizations" : {
@@ -2363,6 +2332,7 @@
       }
     },
     "capture_reselect_short" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -3434,6 +3404,7 @@
       }
     },
     "capture_validation_image_required" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -3526,6 +3497,7 @@
       }
     },
     "capture_validation_title_required" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -7521,6 +7493,7 @@
       }
     },
     "data_export_pdf" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -7555,6 +7528,7 @@
       }
     },
     "data_export_pdf_description" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11905,6 +11879,7 @@
       }
     },
     "export_advanced_options" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11939,6 +11914,7 @@
       }
     },
     "export_clear_cache" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11973,6 +11949,7 @@
       }
     },
     "export_clear_cache_confirm" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12007,6 +11984,7 @@
       }
     },
     "export_clear_cache_message" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12041,6 +12019,7 @@
       }
     },
     "export_confirm" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12110,6 +12089,7 @@
       }
     },
     "export_date_range" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12144,6 +12124,7 @@
       }
     },
     "export_difficulty_range" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12178,6 +12159,7 @@
       }
     },
     "export_end_date" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12212,6 +12194,7 @@
       }
     },
     "export_failed" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12246,6 +12229,7 @@
       }
     },
     "export_filter_by_difficulty" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12280,6 +12264,7 @@
       }
     },
     "export_filter_by_error_type" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12314,6 +12299,7 @@
       }
     },
     "export_filter_by_mastery" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12348,6 +12334,7 @@
       }
     },
     "export_filter_by_subject" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12382,6 +12369,7 @@
       }
     },
     "export_filter_preview" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12416,6 +12404,7 @@
       }
     },
     "export_filterable" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12450,6 +12439,7 @@
       }
     },
     "export_items_count" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12484,6 +12474,7 @@
       }
     },
     "export_mastery_custom" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12500,6 +12491,7 @@
       }
     },
     "export_mastery_custom_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12516,6 +12508,7 @@
       }
     },
     "export_mastery_footer" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12550,6 +12543,7 @@
       }
     },
     "export_mastery_mastered" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12584,6 +12578,7 @@
       }
     },
     "export_mastery_mastered_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12618,6 +12613,7 @@
       }
     },
     "export_mastery_needs_review" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12652,6 +12648,7 @@
       }
     },
     "export_mastery_needs_review_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12686,6 +12683,7 @@
       }
     },
     "export_mastery_not_mastered" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12720,6 +12718,7 @@
       }
     },
     "export_mastery_not_mastered_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12754,6 +12753,7 @@
       }
     },
     "export_mastery_very_weak" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12788,6 +12788,7 @@
       }
     },
     "export_mastery_very_weak_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12822,6 +12823,7 @@
       }
     },
     "export_no_items_in_range" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12856,6 +12858,7 @@
       }
     },
     "export_preset_all" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12890,6 +12893,7 @@
       }
     },
     "export_preset_all_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12906,6 +12910,7 @@
       }
     },
     "export_preset_easy_first" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12940,6 +12945,7 @@
       }
     },
     "export_preset_easy_first_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12956,6 +12962,7 @@
       }
     },
     "export_preset_exam_prep" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12990,6 +12997,7 @@
       }
     },
     "export_preset_exam_prep_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13006,6 +13014,7 @@
       }
     },
     "export_preset_hard_challenge" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13040,6 +13049,7 @@
       }
     },
     "export_preset_hard_challenge_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13056,6 +13066,7 @@
       }
     },
     "export_preset_monthly" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13090,6 +13101,7 @@
       }
     },
     "export_preset_monthly_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13106,6 +13118,7 @@
       }
     },
     "export_preset_this_week" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13140,6 +13153,7 @@
       }
     },
     "export_preset_this_week_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13156,6 +13170,7 @@
       }
     },
     "export_preset_weak_points" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13190,6 +13205,7 @@
       }
     },
     "export_preset_weak_points_desc" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13206,6 +13222,7 @@
       }
     },
     "export_presets_description" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13240,6 +13257,7 @@
       }
     },
     "export_quick_presets" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13274,6 +13292,7 @@
       }
     },
     "export_range_all" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13308,6 +13327,7 @@
       }
     },
     "export_range_custom" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13377,6 +13397,7 @@
       }
     },
     "export_range_last_month" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13411,6 +13432,7 @@
       }
     },
     "export_range_this_month" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13445,6 +13467,7 @@
       }
     },
     "export_range_this_week" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13479,6 +13502,7 @@
       }
     },
     "export_range_this_year" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13513,6 +13537,7 @@
       }
     },
     "export_recent_files" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13547,6 +13572,7 @@
       }
     },
     "export_recent_files_footer" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13581,6 +13607,7 @@
       }
     },
     "export_reset_filters" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13615,6 +13642,7 @@
       }
     },
     "export_section_mastery" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13649,6 +13677,7 @@
       }
     },
     "export_section_mastery_tip" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13683,6 +13712,7 @@
       }
     },
     "export_section_subject" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13717,6 +13747,7 @@
       }
     },
     "export_section_time" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -13786,6 +13817,7 @@
       }
     },
     "export_start_date" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -22098,12 +22130,6 @@
         }
       }
     },
-    "maintenance_message" : {
-
-    },
-    "maintenance_title" : {
-
-    },
     "mastery_excellent" : {
       "localizations" : {
         "en" : {
@@ -22697,7 +22723,7 @@
         }
       }
     },
-    "NotBad 错题本自动生成" : {
+    "NotBad 错题本" : {
 
     },
     "notification_daily_reminder" : {
@@ -23789,6 +23815,7 @@
 
     },
     "pdf_export_title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -23821,24 +23848,6 @@
           }
         }
       }
-    },
-    "permission_camera_description" : {
-
-    },
-    "permission_camera_title" : {
-
-    },
-    "permission_notifications_description" : {
-
-    },
-    "permission_notifications_title" : {
-
-    },
-    "permission_photo_library_description" : {
-
-    },
-    "permission_photo_library_title" : {
-
     },
     "profile_about" : {
       "localizations" : {
@@ -24814,9 +24823,6 @@
           }
         }
       }
-    },
-    "retry" : {
-
     },
     "review_complete_button" : {
       "extractionState" : "manual",
@@ -38691,10 +38697,20 @@
         }
       }
     },
+    "一年级" : {
+
+    },
+    "三年级" : {
+
+    },
     "不支持的图片格式：%@" : {
 
     },
+    "中等" : {
+
+    },
     "主题" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38722,7 +38738,14 @@
         }
       }
     },
+    "二年级" : {
+
+    },
+    "五年级" : {
+
+    },
     "仅显示已逾期" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38751,6 +38774,7 @@
       }
     },
     "仅显示待复习" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38779,6 +38803,7 @@
       }
     },
     "仅显示有图片" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38807,6 +38832,7 @@
       }
     },
     "仅显示有笔记" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38834,10 +38860,14 @@
         }
       }
     },
-    "优秀" : {
+    "从相册选择错题图片" : {
+
+    },
+    "作文" : {
 
     },
     "例如: 函数, 导数" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38865,26 +38895,26 @@
         }
       }
     },
-    "保存失败，请重试" : {
+    "保存" : {
 
     },
-    "全部复习" : {
+    "保存失败：%@" : {
 
     },
-    "关联的%@不存在" : {
+    "信息" : {
 
     },
-    "关联的%@不存在：%@" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "关联的%1$@不存在：%2$@"
-          }
-        }
-      }
+    "信息技术" : {
+
+    },
+    "六年级" : {
+
+    },
+    "关于" : {
+
     },
     "关键词" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38940,7 +38970,11 @@
         }
       }
     },
+    "其他" : {
+
+    },
     "其他条件" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38968,10 +39002,8 @@
         }
       }
     },
-    "创建复习会话失败，请重试" : {
-
-    },
     "创建日期" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38999,22 +39031,37 @@
         }
       }
     },
-    "创建时间" : {
+    "初一" : {
+
+    },
+    "初三" : {
+
+    },
+    "初二" : {
+
+    },
+    "初步了解" : {
 
     },
     "删除" : {
 
     },
-    "删除失败，请重试" : {
+    "删除失败：%@" : {
 
     },
     "加载失败" : {
 
     },
-    "加载数据失败" : {
+    "加载失败：%@" : {
 
     },
-    "及格" : {
+    "化学" : {
+
+    },
+    "单选题" : {
+
+    },
+    "历史" : {
 
     },
     "取消" : {
@@ -39045,10 +39092,32 @@
         }
       }
     },
-    "图片太大（%@MB），请压缩后重试" : {
+    "四年级" : {
+
+    },
+    "困难" : {
+
+    },
+    "图片" : {
+
+    },
+    "图片占用" : {
+
+    },
+    "地理" : {
+
+    },
+    "基本掌握" : {
+
+    },
+    "填空题" : {
+
+    },
+    "复习" : {
 
     },
     "复习提醒" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39076,13 +39145,11 @@
         }
       }
     },
-    "复习时间" : {
-
-    },
-    "复习次数" : {
+    "复习资料" : {
 
     },
     "外观设置" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39110,10 +39177,14 @@
         }
       }
     },
-    "姓名: ____________" : {
+    "多选题" : {
+
+    },
+    "存储" : {
 
     },
     "学科" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39141,7 +39212,11 @@
         }
       }
     },
+    "完全掌握" : {
+
+    },
     "完成" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39169,16 +39244,8 @@
         }
       }
     },
-    "实体已存在：%@" : {
-
-    },
-    "对 (√)" : {
-
-    },
-    "将删除所有 %lld 条数据" : {
-
-    },
     "小贴士" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39207,6 +39274,7 @@
       }
     },
     "已复习 %lld 次" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39234,7 +39302,11 @@
         }
       }
     },
+    "已选择的图片" : {
+
+    },
     "帮助中心" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39263,6 +39335,7 @@
       }
     },
     "常见问题" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39291,6 +39364,7 @@
       }
     },
     "应用" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39318,10 +39392,17 @@
         }
       }
     },
-    "得分: ____________" : {
+    "录入" : {
+
+    },
+    "录入错题" : {
+
+    },
+    "待复习" : {
 
     },
     "快速入门" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39350,6 +39431,7 @@
       }
     },
     "意见反馈" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39377,13 +39459,11 @@
         }
       }
     },
-    "找不到要删除的错题" : {
-
-    },
-    "找不到要更新的错题" : {
+    "所有错题都已复习完成" : {
 
     },
     "掌握程度" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39412,6 +39492,7 @@
       }
     },
     "掌握程度：%@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39440,6 +39521,7 @@
       }
     },
     "掌握程度：%@，%lld%%" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39474,6 +39556,7 @@
       }
     },
     "掌握程度：%lld星，%@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39508,6 +39591,7 @@
       }
     },
     "搜索标题、笔记、知识点" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39536,6 +39620,7 @@
       }
     },
     "搜索问题" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39563,35 +39648,20 @@
         }
       }
     },
-    "操作不允许：%@" : {
-
-    },
     "操作失败" : {
 
     },
-    "操作失败，请重试" : {
+    "政治" : {
 
     },
-    "操作已回滚：%@" : {
+    "数学" : {
 
     },
-    "数据不存在或已被删除" : {
+    "数据无效" : {
 
-    },
-    "数据损坏：%@" : {
-
-    },
-    "数据迁移失败（%@ → %@），请联系支持" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "数据迁移失败（%1$@ → %2$@），请联系支持"
-          }
-        }
-      }
     },
     "数量" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39628,15 +39698,8 @@
     "文字识别服务暂不可用" : {
 
     },
-    "无法从%@状态切换到%@状态" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "无法从%1$@状态切换到%2$@状态"
-          }
-        }
-      }
+    "方法错误" : {
+
     },
     "无法写入文件：%@" : {
 
@@ -39644,10 +39707,8 @@
     "无法读取文件：%@" : {
 
     },
-    "日期: ____________" : {
-
-    },
     "日期范围" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39675,13 +39736,7 @@
         }
       }
     },
-    "智能推荐" : {
-
-    },
-    "更新无效：%@" : {
-
-    },
-    "更新时间" : {
+    "暂无待复习" : {
 
     },
     "服务器错误(%lld)" : {
@@ -39697,7 +39752,17 @@
         }
       }
     },
+    "未命名错题" : {
+
+    },
+    "未掌握" : {
+
+    },
+    "极难" : {
+
+    },
     "查看答案" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39753,43 +39818,37 @@
         }
       }
     },
-    "标题不能为空" : {
+    "概念错误" : {
 
     },
-    "模拟测验" : {
+    "模拟卷" : {
 
     },
-    "没有找到需要复习的题目" : {
+    "点击录入添加第一道错题" : {
 
     },
-    "清空" : {
+    "点击更换图片" : {
 
     },
-    "清空所有数据" : {
+    "版本 1.0" : {
 
     },
-    "班级: ____________" : {
+    "物理" : {
 
     },
-    "生成 1000 条数据" : {
+    "理解错误" : {
 
     },
-    "生成 3000 条数据" : {
+    "生物" : {
 
     },
-    "生成 5000 条数据" : {
+    "相册权限被拒绝" : {
 
     },
-    "用时: ____________" : {
-
-    },
-    "知识点:" : {
+    "相机权限被拒绝" : {
 
     },
     "确定" : {
-
-    },
-    "确认清空" : {
 
     },
     "磁盘空间不足：需要 %lldMB，可用 %lldMB" : {
@@ -39802,29 +39861,41 @@
         }
       }
     },
-    "笔记: %@" : {
+    "科学" : {
 
     },
-    "第 %lld 页 / 共 %lld 页" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "第 %1$lld 页 / 共 %2$lld 页"
-          }
-        }
-      }
+    "简单" : {
+
     },
-    "紧急复习" : {
+    "简答题" : {
+
+    },
+    "粗心大意" : {
+
+    },
+    "练习册" : {
+
+    },
+    "网络不可用" : {
 
     },
     "网络不可用，请检查网络连接" : {
 
     },
-    "良好" : {
+    "考试" : {
+
+    },
+    "英语" : {
+
+    },
+    "计算错误" : {
+
+    },
+    "计算题" : {
 
     },
     "记录解题思路、易错点等..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39852,10 +39923,37 @@
         }
       }
     },
+    "记忆错误" : {
+
+    },
+    "设置" : {
+
+    },
+    "证明题" : {
+
+    },
+    "语文" : {
+
+    },
     "请在「设置」中开启相应权限" : {
 
     },
+    "请在设置中开启相册权限" : {
+
+    },
+    "请在设置中开启相机权限" : {
+
+    },
+    "请检查数据是否存在" : {
+
+    },
+    "请检查网络连接" : {
+
+    },
     "请检查网络连接后重试" : {
+
+    },
+    "请检查输入数据" : {
 
     },
     "请求超时，请重试" : {
@@ -39870,33 +39968,35 @@
     "请稍后重试" : {
 
     },
-    "输入无效：%@" : {
+    "请重启应用或联系支持" : {
 
     },
-    "违反业务规则「%@」：%@" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "违反业务规则「%1$@」：%2$@"
-          }
-        }
-      }
+    "课后作业" : {
+
     },
-    "部分操作失败：成功 %lld 项，失败 %lld 项" : {
-      "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "部分操作失败：成功 %1$lld 项，失败 %2$lld 项"
-          }
-        }
-      }
+    "较难" : {
+
     },
-    "部分错题不存在（%lld 个）" : {
+    "还没有错题" : {
+
+    },
+    "选择图片" : {
+
+    },
+    "选择照片" : {
+
+    },
+    "通用技术" : {
+
+    },
+    "道德与法治" : {
+
+    },
+    "部分掌握" : {
 
     },
     "重置所有条件" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39927,10 +40027,8 @@
     "重试" : {
 
     },
-    "错 (×)" : {
-
-    },
     "隐藏答案" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39958,10 +40056,8 @@
         }
       }
     },
-    "随机练习" : {
-
-    },
     "难度" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -39989,9 +40085,6 @@
         }
       }
     },
-    "需努力" : {
-
-    },
     "需要%@权限：%@" : {
       "localizations" : {
         "zh-Hans" : {
@@ -40002,7 +40095,20 @@
         }
       }
     },
+    "题库" : {
+
+    },
+    "高一" : {
+
+    },
+    "高三" : {
+
+    },
+    "高二" : {
+
+    },
     "高级搜索" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

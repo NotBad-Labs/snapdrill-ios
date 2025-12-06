@@ -1,7 +1,9 @@
 # ADR-003: Use Cases 模式
 
 ## 状态
-已采纳
+**已废弃** — 被 [ADR-006](./ADR-006-pragmatic-architecture.md) 取代
+
+> ⚠️ 本决策已于 2025年12月6日废弃。Use Cases 层已删除，业务逻辑直接在 View 或 Service 中实现。
 
 ## 日期
 2025年12月

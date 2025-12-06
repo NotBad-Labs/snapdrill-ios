@@ -1,83 +1,112 @@
 # Architecture
 
-NotBad 采用 Clean Architecture 分层架构设计。
+NotBad 采用实用主义架构设计，充分发挥 SwiftData 原生能力。
 
 ## Overview
 
-Clean Architecture 将应用分为多个同心圆层，每层有明确的职责，依赖方向从外向内。
+我们放弃了严格的 Clean Architecture 分层，采用更简单、更高效的 3 层结构：
 
 ```
 ┌─────────────────────────────────────────┐
-│           Presentation Layer            │
-│      (SwiftUI Views, ViewModels)        │
+│              Views Layer                │
+│         (SwiftUI + @Query)              │
 ├─────────────────────────────────────────┤
-│           Application Layer             │
-│           (Use Cases, DTOs)             │
+│            Services Layer               │
+│      (ImageStorage, OCR, Algorithm)     │
 ├─────────────────────────────────────────┤
-│             Domain Layer                │
-│    (Entities, Repository Protocols)     │
-├─────────────────────────────────────────┤
-│         Infrastructure Layer            │
-│        (DI, Logging, Analytics)         │
-├─────────────────────────────────────────┤
-│             Data Layer                  │
-│   (SwiftData, Repository Implementations)│
+│             Models Layer                │
+│         (@Model + 业务逻辑)              │
 └─────────────────────────────────────────┘
 ```
 
-## 分层说明
+## 核心原则
 
-### Domain 层
+### 1. SwiftData 原生驱动
 
-领域层是应用的核心，包含：
+View 直接使用 `@Query` 读取数据，无需中间层：
 
-- **Entities**: 业务实体如 `ReviewItem`, `Subject`
-- **Repository Protocols**: 数据访问协议
-- **Domain Errors**: 领域错误类型
+```swift
+struct LibraryView: View {
+    @Query(sort: \ReviewItemModel.createdAt, order: .reverse)
+    private var items: [ReviewItemModel]
+    
+    var body: some View {
+        List(items) { item in
+            ItemRow(item: item)
+        }
+    }
+}
+```
 
-领域层不依赖任何外部框架。
+### 2. 充血模型
 
-### Application 层
+业务逻辑直接写在 `@Model` 中：
 
-应用层包含业务用例：
+```swift
+@Model
+final class ReviewItemModel {
+    var wrongCount: Int
+    
+    // 业务属性
+    var isHardQuestion: Bool {
+        wrongCount > 5
+    }
+    
+    // 业务方法
+    func recordReview(correct: Bool) {
+        // 更新复习状态
+    }
+}
+```
 
-- **Use Cases**: 单一职责的业务操作
-- **DTOs**: 数据传输对象
+### 3. 图片分离存储
 
-每个 Use Case 封装一个业务操作，如 `CreateReviewItemUseCase`。
+**严禁**将图片 Data 存入 SwiftData：
 
-### Data 层
+| 存储位置 | 内容 |
+|---------|------|
+| SwiftData | `imagePath: String?` |
+| FileManager | 图片文件 (.jpg) |
 
-数据层实现 Domain 层定义的协议：
+### 4. 服务层职责
 
-- **SwiftData Repositories**: 使用 SwiftData 实现持久化
-- **Mappers**: 数据模型转换
+无状态的复杂逻辑放入 Service：
 
-### Infrastructure 层
+- `ImageStorageService`: 图片文件读写
+- `OCRService`: 文字识别
+- `ReviewAlgorithm`: 复习间隔计算
 
-基础设施层提供技术支持：
+## 数据流
 
-- **DI Factory**: 依赖注入工厂
-- **Logging**: 日志系统
-- **Analytics**: 分析服务
+```
+Database (@Model) → @Query (自动刷新) → View
+         ↑                                |
+         └──────── Service (逻辑/IO) ──────┘
+```
 
-### Presentation 层
+## 模块化演进方向
 
-表现层处理 UI：
+> **核心洞察**：文件夹分层是"君子协定"，Package 隔离是"物理围墙"。编译器才是最好的架构守卫。
 
-- **ViewModels**: 使用 @Observable 的视图模型
-- **Views**: SwiftUI 视图
-- **Components**: 可复用 UI 组件
+当功能稳定后，App 将只是一层薄薄的 UI 壳：
 
-## 依赖规则
+```text
+NotBad (App Target) - 画皮 + 组装
+└── Packages/
+    ├── ReviewKit    # 🧠 大脑：数据、算法、逻辑
+    ├── ImageKit     # 图片处理
+    └── OCRKit       # 文字识别
+```
 
-1. 依赖方向：外层 → 内层
-2. Domain 层不依赖任何外层
-3. Application 层只依赖 Domain
-4. Data 层实现 Domain 层的协议
+**终极测试**：创建一个 macOS 命令行工具 Target，依赖 ReviewKit，能直接跑通复习算法。如果做到了，你的核心资产就可以复用到 Widget、App Clip、macOS、watchOS。
+
+详见 [ADR-007: 模块化演进方向](../docs/adr/ADR-007-modularization-direction.md)
+
+## 架构决策记录
+
+- ``<doc:ADR-006-pragmatic-architecture>`` - 实用主义架构
+- ``<doc:ADR-007-modularization-direction>`` - 模块化演进方向
 
 ## See Also
 
-- <doc:CleanArchitecture>
-- <doc:DependencyInjection>
-- <doc:UseCases>
+- <doc:Views>

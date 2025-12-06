@@ -1,7 +1,9 @@
 # ADR-005: DI Factory 模式
 
 ## 状态
-已采纳
+**已废弃** — 被 [ADR-006](./ADR-006-pragmatic-architecture.md) 取代
+
+> ⚠️ 本决策已于 2025年12月6日废弃。DI 层已删除，使用 SwiftUI `@Environment` 或简单单例替代。
 
 ## 日期
 2025年12月

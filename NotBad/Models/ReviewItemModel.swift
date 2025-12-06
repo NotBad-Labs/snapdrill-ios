@@ -242,41 +242,39 @@ final class ReviewItemModel {
     }
 }
 
-// MARK: - ReviewScheduler
+// MARK: - ReviewScheduler (Bridge to ReviewKit)
 
-/// 复习调度器（核心算法）
+/// 复习调度器（桥接层）
 ///
-/// 基于艾宾浩斯遗忘曲线的简化实现
+/// 注意：核心算法已迁移到 ReviewKit Package。
+/// 此处保留作为兼容层，待工程添加 ReviewKit 依赖后可移除。
+///
+/// TODO: 添加 ReviewKit Package 依赖后：
+/// 1. 在文件顶部添加 `import ReviewKit`
+/// 2. 删除此 enum
+/// 3. 直接使用 ReviewKit.ReviewScheduler
 enum ReviewScheduler {
     
-    /// 计算下次复习日期
-    /// - Parameters:
-    ///   - currentMastery: 当前掌握程度 (0-3)
-    ///   - reviewCount: 已复习次数
-    /// - Returns: 下次复习日期
+    /// 使用 ReviewKit 算法计算下次复习日期
     static func calculateNextReviewDate(currentMastery: Int, reviewCount: Int) -> Date {
         let calendar = Calendar.current
         let today = Date()
         
-        // 基础间隔（天）
+        // 算法与 ReviewKit.ReviewScheduler 保持一致
         let baseIntervals: [Int] = [1, 2, 4, 7, 14, 30, 60]
         
-        // 根据掌握程度调整
         let masteryMultiplier: Double = switch currentMastery {
-        case 0: 0.5   // 完全不会，缩短间隔
-        case 1: 0.75  // 部分掌握
-        case 2: 1.0   // 大部分掌握
-        case 3: 1.5   // 完全掌握，延长间隔
+        case 0: 0.5
+        case 1: 0.75
+        case 2: 1.0
+        case 3: 1.5
         default: 1.0
         }
         
-        // 取对应的基础间隔
         let index = min(reviewCount, baseIntervals.count - 1)
         let baseInterval = baseIntervals[index]
+        let actualInterval = max(1, Int(Double(baseInterval) * masteryMultiplier))
         
-        // 计算实际间隔
-        let actualInterval = Int(Double(baseInterval) * masteryMultiplier)
-        
-        return calendar.date(byAdding: .day, value: max(1, actualInterval), to: today) ?? today
+        return calendar.date(byAdding: .day, value: actualInterval, to: today) ?? today
     }
 }

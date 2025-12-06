@@ -1,138 +1,95 @@
 # Views
 
-NotBad 的 SwiftUI 视图设计。
+SwiftUI 视图层设计指南。
 
 ## Overview
 
-NotBad 使用 SwiftUI 构建所有 UI，遵循组件化和可复用原则。
+视图层采用 SwiftData 原生驱动，直接使用 `@Query` 获取数据。
 
-## 视图层级
+## 视图结构
 
 ```
-App
-├── DashboardView          # 首页仪表盘
-│   ├── StatisticsCard
-│   └── QuickActions
-├── LibraryView            # 错题库
-│   ├── ReviewItemList
-│   └── ReviewItemRow
-├── ReviewView             # 复习流程
-│   ├── ReviewCard
-│   └── ReviewProgress
-└── SettingsView           # 设置
+Views/
+├── ContentView.swift          # TabView 主容器
+├── Dashboard/
+│   └── DashboardView.swift    # 首页仪表盘
+├── Library/
+│   ├── LibraryView.swift      # 题库列表
+│   └── ItemRow.swift          # 列表行组件
+├── Capture/
+│   └── CaptureView.swift      # 错题录入
+├── Review/
+│   └── ReviewView.swift       # 复习模式
+└── Settings/
+    └── SettingsView.swift     # 设置页面
 ```
 
-## 视图设计原则
+## 状态管理
 
-### 1. 小而专注
-
-每个视图只负责一个功能：
+### @Query - 数据读取
 
 ```swift
-// ✅ 好：小而专注
-struct ReviewItemRow: View {
-    let item: ReviewItem
-    
-    var body: some View {
-        HStack {
-            Text(item.question)
-            Spacer()
-            MasteryBadge(level: item.masteryLevel)
-        }
+@Query(sort: \ReviewItemModel.createdAt, order: .reverse)
+private var items: [ReviewItemModel]
+```
+
+### @State - 视图私有状态
+
+```swift
+@State private var isLoading = false
+@State private var showImagePicker = false
+```
+
+### @Bindable - 模型编辑
+
+```swift
+@Bindable var item: ReviewItemModel
+```
+
+### @Environment - 环境依赖
+
+```swift
+@Environment(\.modelContext) private var modelContext
+```
+
+## 最佳实践
+
+### 1. 视图职责单一
+
+每个视图只做一件事，超过 200 行考虑拆分。
+
+### 2. 提取子视图
+
+```swift
+var body: some View {
+    List(items) { item in
+        ItemRow(item: item)  // 独立组件
     }
 }
 ```
 
-### 2. 使用 ViewModel
-
-复杂视图使用 ViewModel 管理状态：
+### 3. 无障碍支持
 
 ```swift
-struct ReviewListView: View {
-    @State private var viewModel: ReviewListViewModel
-    
-    var body: some View {
-        List(viewModel.items) { item in
-            ReviewItemRow(item: item)
-        }
-    }
+Button(action: scan) {
+    Image(systemName: "camera")
 }
+.accessibilityLabel("扫描题目")
+.accessibilityHint("双击打开相机")
 ```
 
-### 3. 组件复用
-
-提取可复用组件：
+### 4. 空状态处理
 
 ```swift
-// 可复用的掌握度徽章
-struct MasteryBadge: View {
-    let level: MasteryLevel
-    
-    var body: some View {
-        Text(level.displayName)
-            .padding(.horizontal, 8)
-            .background(level.color)
-            .clipShape(Capsule())
-    }
+if items.isEmpty {
+    ContentUnavailableView(
+        "还没有错题",
+        systemImage: "tray",
+        description: Text("点击录入添加第一道错题")
+    )
 }
-```
-
-## 常用组件
-
-### MasteryBadge
-
-显示掌握度级别：
-
-```swift
-MasteryBadge(level: .good)
-```
-
-### ReviewItemCard
-
-错题卡片展示：
-
-```swift
-ReviewItemCard(item: reviewItem) {
-    // 点击操作
-}
-```
-
-### StatisticsChart
-
-统计图表：
-
-```swift
-StatisticsChart(data: statistics)
-```
-
-## 响应式设计
-
-### 适配不同屏幕
-
-```swift
-struct AdaptiveLayout: View {
-    @Environment(\.horizontalSizeClass) var sizeClass
-    
-    var body: some View {
-        if sizeClass == .regular {
-            // iPad 布局
-            HStack { ... }
-        } else {
-            // iPhone 布局
-            VStack { ... }
-        }
-    }
-}
-```
-
-### 动态字体
-
-```swift
-Text("标题")
-    .font(.headline)  // 自动适配用户偏好
 ```
 
 ## See Also
 
-- <doc:ViewModels>
 - <doc:Architecture>

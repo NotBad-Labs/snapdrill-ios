@@ -10,11 +10,17 @@
 
 | 编号 | 标题 | 状态 | 日期 |
 |------|------|------|------|
-| [ADR-001](ADR-001-clean-architecture.md) | 采用 Clean Architecture | 已采纳 | 2025-12 |
+| [ADR-001](ADR-001-clean-architecture.md) | 采用 Clean Architecture | ~~已废弃~~ | 2025-12 |
 | [ADR-002](ADR-002-swiftdata.md) | 选择 SwiftData 作为持久层 | 已采纳 | 2025-12 |
-| [ADR-003](ADR-003-use-cases.md) | Use Cases 模式 | 已采纳 | 2025-12 |
-| [ADR-004](ADR-004-error-system.md) | 分层错误体系设计 | 已采纳 | 2025-12 |
-| [ADR-005](ADR-005-di-factory.md) | DI Factory 模式 | 已采纳 | 2025-12 |
+| [ADR-003](ADR-003-use-cases.md) | Use Cases 模式 | ~~已废弃~~ | 2025-12 |
+| [ADR-004](ADR-004-error-system.md) | 分层错误体系设计 | ~~已废弃~~ | 2025-12 |
+| [ADR-005](ADR-005-di-factory.md) | DI Factory 模式 | ~~已废弃~~ | 2025-12 |
+| [ADR-006](ADR-006-pragmatic-architecture.md) | **实用主义架构** | ✅ 已采纳 | 2025-12-06 |
+| [ADR-007](ADR-007-modularization-direction.md) | **模块化演进方向** | 📋 提议中 | 2025-12-06 |
+
+> 📢 **当前架构**：ADR-006 实用主义架构（3 层：Views → Services → Models）
+> 
+> 📋 **未来方向**：ADR-007 提议在代码量增长后采用 Swift Package 模块化
 
 ## ADR 模板
 

@@ -1,7 +1,9 @@
 # ADR-001: 采用 Clean Architecture
 
 ## 状态
-已采纳
+**已废弃** — 被 [ADR-006](./ADR-006-pragmatic-architecture.md) 取代
+
+> ⚠️ 本决策已于 2025年12月6日废弃。项目转向实用主义架构，详见 ADR-006。
 
 ## 日期
 2025年12月

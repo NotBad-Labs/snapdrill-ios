@@ -2,9 +2,15 @@
 //  ImageStorageService.swift
 //  NotBad
 //
-//  图片文件存储服务 - 使用 FileManager 替代 SwiftData 存储
+//  图片文件存储服务（桥接层）
 //
-//  核心原则：图片存磁盘，数据库只存路径
+//  注意：核心实现已迁移到 ImageKit Package。
+//  此处保留作为兼容层，待工程添加 ImageKit 依赖后可移除。
+//
+//  TODO: 添加 ImageKit Package 依赖后：
+//  1. 在需要的文件顶部添加 `import ImageKit`
+//  2. 删除此文件
+//  3. 直接使用 ImageKit.ImageStorageService
 //
 
 import UIKit
