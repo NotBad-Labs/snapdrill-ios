@@ -2,10 +2,18 @@
 //  ValueObjects.swift
 //  NotBad
 //
-//  值对象定义
+//  ⚠️ 已迁移到 ReviewKit Package
 //
-//  这些枚举用于类型安全的分类和状态表示。
-//  以 rawValue 形式存储在 ReviewItemModel 中。
+//  这个文件已迁移到 Packages/ReviewKit/Sources/ReviewKit/ValueObjects/
+//  待 Xcode 添加 ReviewKit 依赖后删除此文件。
+//
+//  迁移步骤：
+//  1. 在 Xcode 中，选择 NotBad project
+//  2. 点击 "Package Dependencies"
+//  3. 添加本地 Package: Packages/ReviewKit
+//  4. 在 NotBad target 的 "Frameworks, Libraries..." 中添加 ReviewKit
+//  5. 删除此文件和 NotBad/Models/ReviewItemModel.swift
+//  6. 在需要的地方添加 `import ReviewKit`
 //
 
 import Foundation

@@ -2,9 +2,18 @@
 //  PersistenceController.swift
 //  NotBad
 //
-//  统一的数据持久化控制器
+//  ⚠️ 已迁移到 ReviewKit Package
 //
-//  关键：使用 App Groups 共享目录，让 Widget 能访问主 App 数据
+//  这个文件已迁移到 Packages/ReviewKit/Sources/ReviewKit/Data/
+//  待 Xcode 添加 ReviewKit 依赖后删除此文件。
+//
+//  迁移步骤：
+//  1. 在 Xcode 中，选择 NotBad project
+//  2. 点击 "Package Dependencies"
+//  3. 添加本地 Package: Packages/ReviewKit
+//  4. 在 NotBad target 的 "Frameworks, Libraries..." 中添加 ReviewKit
+//  5. 删除此文件
+//  6. 在需要的地方添加 `import ReviewKit`
 //
 
 import SwiftData

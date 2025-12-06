@@ -117,4 +117,18 @@ public extension ReviewScheduler {
     
     /// 默认共享实例
     static let shared = ReviewScheduler()
+    
+    /// 静态方法：计算下次复习日期
+    ///
+    /// 便利方法，供 ReviewItemModel.recordReview() 调用
+    /// - Parameters:
+    ///   - currentMastery: 掌握程度 (0-3)
+    ///   - reviewCount: 复习次数
+    /// - Returns: 下次复习日期
+    static func calculateNextReviewDate(currentMastery: Int, reviewCount: Int) -> Date {
+        shared.calculateNextReviewDate(
+            currentMastery: currentMastery,
+            reviewCount: reviewCount
+        )
+    }
 }
