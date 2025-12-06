@@ -2,31 +2,20 @@
 //  LazyImageView.swift
 //  NotBad
 //
-//  异步加载图片的 View - 从 ImageRepository 按需加载
+//  异步加载图片的 View - 从 ImageStorageService 按需加载
 //
 
 import SwiftUI
-import OSLog
 
 // MARK: - LazyImageView
 
 /// 懒加载图片视图
 ///
-/// 从 ImageRepository 按需加载图片，避免列表时加载所有图片到内存。
-///
-/// ## 使用示例
-///
-/// ```swift
-/// LazyImageView(reviewItemId: item.id)
-///     .frame(maxHeight: 200)
-///     .cornerRadius(12)
-/// ```
+/// 从文件系统按需加载图片，避免列表时加载所有图片到内存。
 struct LazyImageView: View {
     
-    // MARK: - Properties
-    
-    /// ReviewItem ID
-    let reviewItemId: UUID
+    /// 图片文件名
+    let imagePath: String?
     
     /// 占位符
     var placeholder: Image = Image(systemName: "photo")
@@ -36,11 +25,6 @@ struct LazyImageView: View {
     
     /// 加载的图片
     @State private var loadedImage: UIImage?
-    
-    /// 图片仓库
-    @Environment(\.imageRepository) private var imageRepository
-    
-    // MARK: - Body
     
     var body: some View {
         Group {
@@ -64,50 +48,26 @@ struct LazyImageView: View {
         }
     }
     
-    // MARK: - Private Methods
-    
     @MainActor
     private func loadImage() async {
-        guard let imageRepo = imageRepository else {
+        guard let path = imagePath, !path.isEmpty else {
             isLoading = false
             return
         }
         
-        if let imageData = imageRepo.loadImage(for: reviewItemId),
-           let uiImage = UIImage(data: imageData) {
-            loadedImage = uiImage
-        }
+        // 后台加载
+        loadedImage = await Task.detached {
+            ImageStorageService.shared.load(fileName: path)
+        }.value
         
         isLoading = false
-    }
-}
-
-// MARK: - Environment Key
-
-private struct ImageRepositoryKey: EnvironmentKey {
-    static let defaultValue: ImageRepositoryProtocol? = nil
-}
-
-extension EnvironmentValues {
-    var imageRepository: ImageRepositoryProtocol? {
-        get { self[ImageRepositoryKey.self] }
-        set { self[ImageRepositoryKey.self] = newValue }
-    }
-}
-
-// MARK: - View Extension
-
-extension View {
-    /// 注入图片仓库
-    func withImageRepository(_ repository: ImageRepositoryProtocol) -> some View {
-        environment(\.imageRepository, repository)
     }
 }
 
 // MARK: - Preview
 
 #Preview {
-    LazyImageView(reviewItemId: UUID())
+    LazyImageView(imagePath: nil)
         .frame(width: 200, height: 150)
         .background(Color.gray.opacity(0.1))
         .cornerRadius(12)
