@@ -22098,6 +22098,12 @@
         }
       }
     },
+    "maintenance_message" : {
+
+    },
+    "maintenance_title" : {
+
+    },
     "mastery_excellent" : {
       "localizations" : {
         "en" : {
@@ -23816,6 +23822,24 @@
         }
       }
     },
+    "permission_camera_description" : {
+
+    },
+    "permission_camera_title" : {
+
+    },
+    "permission_notifications_description" : {
+
+    },
+    "permission_notifications_title" : {
+
+    },
+    "permission_photo_library_description" : {
+
+    },
+    "permission_photo_library_title" : {
+
+    },
     "profile_about" : {
       "localizations" : {
         "en" : {
@@ -24790,6 +24814,9 @@
           }
         }
       }
+    },
+    "retry" : {
+
     },
     "review_complete_button" : {
       "extractionState" : "manual",

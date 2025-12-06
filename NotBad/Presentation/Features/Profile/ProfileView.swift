@@ -20,19 +20,22 @@ import SwiftData
 /// - 学习统计
 /// - 应用设置
 /// - 关于信息
+///
+/// ## 架构设计
+///
+/// 使用 Use Cases 获取数据，不直接访问 SwiftData
 struct ProfileView: View {
 
     // MARK: - Environment
 
+    @Environment(\.dependencyFactory) private var dependencyFactory
     @Environment(\.modelContext) private var modelContext
-    @Query private var allModels: [ReviewItemModel]
-    
-    /// 将持久化模型转换为领域实体
-    private var allItems: [ReviewItem] {
-        allModels.map { ReviewItemMapper.toEntity(from: $0) }
-    }
     
     // MARK: - State
+    
+    /// 从 Use Case 加载的数据
+    @State private var allItems: [ReviewItem] = []
+    @State private var isLoading = false
     
     @StateObject private var profileManager = UserProfileManager.shared
     @State private var showingEditProfile = false
@@ -59,17 +62,37 @@ struct ProfileView: View {
             .sheet(isPresented: $showingEditProfile) {
                 ProfileEditView()
             }
+            .task {
+                await loadData()
+            }
             #if DEBUG
             .alert("确认清空", isPresented: $showingClearConfirm) {
                 Button("取消", role: .cancel) {}
                 Button("清空", role: .destructive) {
                     TestDataGenerator.clearAll(in: modelContext)
+                    allItems = []
+                    Task { await loadData(forceRefresh: true) }
                 }
             } message: {
                 Text("将删除所有 \(allItems.count) 条数据")
             }
             #endif
         }
+    }
+    
+    // MARK: - Data Loading
+    
+    private func loadData(forceRefresh: Bool = false) async {
+        guard let factory = dependencyFactory else { return }
+        
+        // 如果已有数据且不强制刷新，跳过加载
+        guard forceRefresh || allItems.isEmpty else { return }
+        
+        isLoading = true
+        defer { isLoading = false }
+        
+        let useCase = factory.makeFetchReviewItemsUseCase()
+        allItems = await useCase.execute()
     }
 
     // MARK: - User Section
@@ -279,5 +302,4 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView()
-        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

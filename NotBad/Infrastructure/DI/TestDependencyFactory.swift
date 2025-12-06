@@ -41,6 +41,11 @@ final class TestDependencyFactory: DependencyFactory {
         return repo
     }()
     
+    /// Mock 图片仓库
+    private lazy var mockImageRepository: MockImageRepository = {
+        MockImageRepository()
+    }()
+    
     // MARK: - Initialization
     
     init(mockItems: [ReviewItem] = []) {
@@ -51,6 +56,10 @@ final class TestDependencyFactory: DependencyFactory {
     
     func makeReviewItemRepository() -> ReviewItemRepositoryProtocol {
         mockRepository
+    }
+    
+    func makeImageRepository() -> ImageRepositoryProtocol {
+        mockImageRepository
     }
     
     // MARK: - Use Cases - Review
@@ -70,7 +79,7 @@ final class TestDependencyFactory: DependencyFactory {
     // MARK: - Use Cases - Library
     
     func makeCreateReviewItemUseCase() -> CreateReviewItemUseCaseProtocol {
-        CreateReviewItemUseCase(repository: mockRepository)
+        CreateReviewItemUseCase(repository: mockRepository, imageRepository: mockImageRepository)
     }
     
     func makeDeleteReviewItemUseCase() -> DeleteReviewItemUseCaseProtocol {
@@ -100,6 +109,39 @@ final class TestDependencyFactory: DependencyFactory {
     func makeAnalyticsService() -> any AnalyticsServiceProtocol {
         MockAnalyticsService()
     }
+    
+    // MARK: - ViewModels
+    
+    func makeLibraryViewModel() -> LibraryViewModel {
+        LibraryViewModel(
+            fetchItemsUseCase: makeFetchReviewItemsUseCase(),
+            deleteItemUseCase: makeDeleteReviewItemUseCase(),
+            updateItemUseCase: makeUpdateReviewItemUseCase()
+        )
+    }
+    
+    func makeDashboardViewModel() -> DashboardViewModel {
+        DashboardViewModel(
+            fetchItemsUseCase: makeFetchReviewItemsUseCase(),
+            statisticsUseCase: makeGetStatisticsUseCase()
+        )
+    }
+    
+    func makeReviewViewModel() -> ReviewViewModel {
+        ReviewViewModel(
+            fetchItemsUseCase: makeFetchReviewItemsUseCase(),
+            startSessionUseCase: makeStartReviewSessionUseCase(),
+            recordResultUseCase: makeRecordReviewResultUseCase(),
+            completeSessionUseCase: makeCompleteReviewSessionUseCase()
+        )
+    }
+    
+    func makeCaptureViewModel() -> CaptureViewModel {
+        CaptureViewModel(
+            createItemUseCase: makeCreateReviewItemUseCase(),
+            ocrService: makeOCRService()
+        )
+    }
 }
 
 // MARK: - MockReviewItemRepository
@@ -122,6 +164,14 @@ final class MockReviewItemRepository: ReviewItemRepositoryProtocol {
     
     func fetchAll() -> [ReviewItem] {
         items
+    }
+    
+    func fetch(by id: UUID) -> ReviewItem? {
+        items.first { $0.id == id }
+    }
+    
+    func fetchWithImage(by id: UUID) -> ReviewItem? {
+        items.first { $0.id == id }
     }
     
     func fetch(subject: Subject?, mastery: MasteryLevel?) -> [ReviewItem] {
@@ -290,5 +340,56 @@ final class MockAnalyticsService: AnalyticsServiceProtocol {
     
     func setUserId(_ userId: String?) {
         self.userId = userId
+    }
+}
+
+// MARK: - MockImageRepository
+
+/// Mock 图片仓库
+@MainActor
+final class MockImageRepository: ImageRepositoryProtocol {
+    
+    /// 模拟的图片数据存储
+    var imageStorage: [UUID: Data] = [:]
+    
+    /// 是否模拟错误
+    var shouldThrowError: Bool = false
+    
+    func loadImage(for reviewItemId: UUID) -> Data? {
+        imageStorage[reviewItemId]
+    }
+    
+    func hasImage(for reviewItemId: UUID) -> Bool {
+        imageStorage[reviewItemId] != nil
+    }
+    
+    func saveImage(_ imageData: Data, for reviewItemId: UUID) throws {
+        if shouldThrowError {
+            throw NSError(domain: "MockImage", code: -1)
+        }
+        imageStorage[reviewItemId] = imageData
+    }
+    
+    func updateImage(_ imageData: Data, for reviewItemId: UUID) throws {
+        if shouldThrowError {
+            throw NSError(domain: "MockImage", code: -1)
+        }
+        imageStorage[reviewItemId] = imageData
+    }
+    
+    func deleteImage(for reviewItemId: UUID) throws {
+        if shouldThrowError {
+            throw NSError(domain: "MockImage", code: -1)
+        }
+        imageStorage.removeValue(forKey: reviewItemId)
+    }
+    
+    func deleteImages(for reviewItemIds: [UUID]) throws {
+        if shouldThrowError {
+            throw NSError(domain: "MockImage", code: -1)
+        }
+        for id in reviewItemIds {
+            imageStorage.removeValue(forKey: id)
+        }
     }
 }

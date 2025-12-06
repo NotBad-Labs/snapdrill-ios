@@ -32,7 +32,7 @@ struct RecordReviewResultUseCaseTests {
             difficulty: .medium,
             errorType: .concept
         )
-        item.masteryLevel = masteryLevel
+        item.masteryLevel = masteryLevel.rawValue
         return item
     }
     
@@ -46,10 +46,10 @@ struct RecordReviewResultUseCaseTests {
         repository.items = [item]
         
         // When
-        let result = try await sut.execute(itemId: item.id, isCorrect: true)
+        let result = try await sut.execute(itemId: item.id, isCorrect: true, duration: 30.0)
         
         // Then
-        #expect(result.masteryLevel == .partial)
+        #expect(result.masteryLevel == MasteryLevel.partial.rawValue)
     }
     
     @Test("回答错误降低掌握度")
@@ -60,10 +60,10 @@ struct RecordReviewResultUseCaseTests {
         repository.items = [item]
         
         // When
-        let result = try await sut.execute(itemId: item.id, isCorrect: false)
+        let result = try await sut.execute(itemId: item.id, isCorrect: false, duration: 30.0)
         
         // Then
-        #expect(result.masteryLevel == .partial)
+        #expect(result.masteryLevel == MasteryLevel.partial.rawValue)
     }
     
     @Test("最高掌握度不再提升")
@@ -74,10 +74,10 @@ struct RecordReviewResultUseCaseTests {
         repository.items = [item]
         
         // When
-        let result = try await sut.execute(itemId: item.id, isCorrect: true)
+        let result = try await sut.execute(itemId: item.id, isCorrect: true, duration: 30.0)
         
         // Then
-        #expect(result.masteryLevel == .mastered)
+        #expect(result.masteryLevel == MasteryLevel.mastered.rawValue)
     }
     
     @Test("最低掌握度不再降低")
@@ -88,10 +88,10 @@ struct RecordReviewResultUseCaseTests {
         repository.items = [item]
         
         // When
-        let result = try await sut.execute(itemId: item.id, isCorrect: false)
+        let result = try await sut.execute(itemId: item.id, isCorrect: false, duration: 30.0)
         
         // Then
-        #expect(result.masteryLevel == .glimpse)
+        #expect(result.masteryLevel == MasteryLevel.glimpse.rawValue)
     }
     
     // MARK: - Review Count Tests
@@ -105,7 +105,7 @@ struct RecordReviewResultUseCaseTests {
         repository.items = [item]
         
         // When
-        let result = try await sut.execute(itemId: item.id, isCorrect: true)
+        let result = try await sut.execute(itemId: item.id, isCorrect: true, duration: 30.0)
         
         // Then
         #expect(result.reviewCount == initialCount + 1)
@@ -122,11 +122,10 @@ struct RecordReviewResultUseCaseTests {
         let beforeDate = Date()
         
         // When
-        let result = try await sut.execute(itemId: item.id, isCorrect: true)
+        let result = try await sut.execute(itemId: item.id, isCorrect: true, duration: 30.0)
         
         // Then
-        #expect(result.nextReviewDate != nil)
-        #expect(result.nextReviewDate! > beforeDate)
+        #expect(result.nextReviewDate > beforeDate)
     }
     
     @Test("回答错误设置较短的下次复习间隔")
@@ -137,11 +136,11 @@ struct RecordReviewResultUseCaseTests {
         repository.items = [item]
         
         // When
-        let result = try await sut.execute(itemId: item.id, isCorrect: false)
+        let result = try await sut.execute(itemId: item.id, isCorrect: false, duration: 30.0)
         
         // Then
-        #expect(result.nextReviewDate != nil)
-        // 错误的应该更快复习
+        // 错误的应该更快复习 - nextReviewDate 应该是有效日期
+        #expect(result.nextReviewDate > Date.distantPast)
     }
     
     // MARK: - Error Tests
@@ -154,7 +153,7 @@ struct RecordReviewResultUseCaseTests {
         
         // When/Then
         await #expect(throws: Error.self) {
-            try await sut.execute(itemId: nonExistentId, isCorrect: true)
+            _ = try await sut.execute(itemId: nonExistentId, isCorrect: true, duration: 30.0)
         }
     }
 }

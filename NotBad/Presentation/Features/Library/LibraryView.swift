@@ -17,34 +17,30 @@ import OSLog
 ///
 /// ## 架构设计
 ///
-/// 视图采用 MVVM + 组件化架构：
-/// - 使用 `@Query` 从 SwiftData 获取 ReviewItemModel
-/// - 通过 ReviewItemMapper 转换为领域实体 ReviewItem
-/// - 使用 `LibraryViewModel` 处理筛选和删除逻辑
+/// 视图采用 MVVM + Clean Architecture：
+/// - 通过 DependencyFactory 注入 ViewModel
+/// - ViewModel 通过 Use Cases 获取数据
 /// - 子组件独立可复用：FilterChip、ItemRow、LibraryFilterBar、BatchActionBar
 struct LibraryView: View {
 
     // MARK: - Properties
 
-    @Query(sort: \ReviewItemModel.createdAt, order: .reverse)
-    private var models: [ReviewItemModel]
-
     @Environment(\.dependencyFactory) private var dependencyFactory
     @Environment(\.router) private var router
-    @State private var viewModel = LibraryViewModel()
+    @State private var viewModel: LibraryViewModel?
     @StateObject private var profileManager = UserProfileManager.shared
     @State private var navigationPath = NavigationPath()
     @Environment(\.isSearching) private var isSearching
-    
-    /// 将持久化模型转换为领域实体
-    private var items: [ReviewItem] {
-        models.map { ReviewItemMapper.toEntity(from: $0) }
-    }
 
     // MARK: - Computed Properties
+    
+    /// 从 ViewModel 获取的错题列表
+    private var items: [ReviewItem] {
+        viewModel?.items ?? []
+    }
 
     private var filteredItems: [ReviewItem] {
-        viewModel.filteredItems(from: items)
+        viewModel?.filteredItems(from: items) ?? []
     }
     
     private var enabledSubjects: [Subject] {
@@ -56,24 +52,39 @@ struct LibraryView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            mainContent
-                .navigationDestination(for: UUID.self) { itemId in
-                    if let model = models.first(where: { $0.id == itemId }) {
-                        ItemDetailView(model: model)
-                    }
+            Group {
+                if let viewModel {
+                    mainContent(viewModel: viewModel)
+                } else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+            }
+            .navigationDestination(for: UUID.self) { itemId in
+                // 通过 ViewModel 获取 item 详情视图
+                ItemDetailViewWrapper(itemId: itemId)
+            }
+            .task {
+                // 初始化 ViewModel 并加载数据
+                if viewModel == nil, let factory = dependencyFactory {
+                    viewModel = factory.makeLibraryViewModel()
+                }
+                await viewModel?.loadItems()
+            }
         }
     }
     
     // MARK: - Main Content
     
     @ViewBuilder
-    private var mainContent: some View {
-        contentView
+    private func mainContent(viewModel: LibraryViewModel) -> some View {
+        @Bindable var bindableViewModel = viewModel
+        
+        contentView(viewModel: viewModel)
             .navigationTitle("library_title")
             .navigationBarTitleDisplayMode(.large)
             .searchable(
-                text: $viewModel.searchText,
+                text: $bindableViewModel.searchText,
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Text("library_search_prompt")
             )
@@ -94,16 +105,13 @@ struct LibraryView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                batchActionBarIfNeeded
+                batchActionBarIfNeeded(viewModel: viewModel)
             }
-            .sheet(isPresented: $viewModel.showAdvancedSearch) {
-                AdvancedSearchView(searchCriteria: $viewModel.advancedCriteria)
+            .sheet(isPresented: $bindableViewModel.showAdvancedSearch) {
+                AdvancedSearchView(searchCriteria: $bindableViewModel.advancedCriteria)
             }
-            .onAppear {
-                if let factory = dependencyFactory {
-                    viewModel.configure(with: factory)
-                }
-                Logger.ui.debug("LibraryView onAppear - 共 \(items.count) 条数据")
+            .refreshable {
+                await viewModel.refresh()
             }
             .onChange(of: router.pendingItemDetailId) { _, newId in
                 handleSpotlightNavigation(itemId: newId)
@@ -113,7 +121,7 @@ struct LibraryView: View {
     // MARK: - Batch Action Bar
     
     @ViewBuilder
-    private var batchActionBarIfNeeded: some View {
+    private func batchActionBarIfNeeded(viewModel: LibraryViewModel) -> some View {
         if viewModel.isSelectionMode {
             BatchActionBar(
                 selectedCount: viewModel.selectedCount,
@@ -143,7 +151,7 @@ struct LibraryView: View {
               let item = items.first(where: { $0.id == itemId }) else {
             return
         }
-        navigationPath.append(item)
+        navigationPath.append(item.id)
         router.pendingItemDetailId = nil
     }
 }
@@ -153,24 +161,29 @@ struct LibraryView: View {
 private extension LibraryView {
 
     @ViewBuilder
-    var contentView: some View {
-        if items.isEmpty {
+    func contentView(viewModel: LibraryViewModel) -> some View {
+        if viewModel.isLoading {
+            ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if items.isEmpty {
             EmptyStateView.noItems {
                 router.selectedTab = .capture
             }
         } else {
-            itemList
+            itemList(viewModel: viewModel)
         }
     }
 
-    var itemList: some View {
-        List {
+    func itemList(viewModel: LibraryViewModel) -> some View {
+        @Bindable var bindableViewModel = viewModel
+        
+        return List {
             // 筛选栏
             Section {
                 LibraryFilterBar(
                     enabledSubjects: enabledSubjects,
                     selectedSubject: viewModel.selectedSubject,
-                    sortOption: $viewModel.sortOption,
+                    sortOption: $bindableViewModel.sortOption,
                     advancedCriteria: viewModel.advancedCriteria,
                     onSubjectSelected: { viewModel.selectSubject($0) },
                     onShowAdvancedSearch: { viewModel.showAdvancedSearch = true }
@@ -197,7 +210,7 @@ private extension LibraryView {
                 if filteredItems.isEmpty {
                     noResultsView
                 } else {
-                    itemRows
+                    itemRows(viewModel: viewModel)
                 }
             }
         }
@@ -213,10 +226,10 @@ private extension LibraryView {
         .listRowSeparator(.hidden)
     }
     
-    var itemRows: some View {
+    func itemRows(viewModel: LibraryViewModel) -> some View {
         ForEach(filteredItems) { reviewItem in
             if viewModel.isSelectionMode {
-                selectionRow(for: reviewItem)
+                selectionRow(for: reviewItem, viewModel: viewModel)
             } else {
                 navigationRow(for: reviewItem)
             }
@@ -228,7 +241,7 @@ private extension LibraryView {
         }
     }
     
-    func selectionRow(for reviewItem: ReviewItem) -> some View {
+    func selectionRow(for reviewItem: ReviewItem, viewModel: LibraryViewModel) -> some View {
         Button {
             withAnimation(.spring(response: 0.2)) {
                 viewModel.toggleSelection(for: reviewItem.id)
@@ -262,9 +275,68 @@ private extension LibraryView {
     }
 }
 
+// MARK: - ItemDetailViewWrapper
+
+/// 详情视图包装器（通过 ID 获取并展示）
+private struct ItemDetailViewWrapper: View {
+    let itemId: UUID
+    @Environment(\.dependencyFactory) private var dependencyFactory
+    @State private var item: ReviewItem?
+    
+    var body: some View {
+        Group {
+            if let item {
+                // 使用 ReviewItem 展示详情
+                ItemDetailFromEntityView(item: item)
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            // 通过 Use Case 获取单个 item
+            if let factory = dependencyFactory {
+                let useCase = factory.makeFetchReviewItemsUseCase()
+                item = await useCase.execute(id: itemId)
+            }
+        }
+    }
+}
+
+/// 从 ReviewItem 实体展示详情
+private struct ItemDetailFromEntityView: View {
+    let item: ReviewItem
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(item.title)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                if let imageData = item.imageData,
+                   let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .cornerRadius(12)
+                }
+                
+                if !item.note.isEmpty {
+                    Text(item.note)
+                        .foregroundStyle(.secondary)
+                }
+                
+                // 更多详情...
+            }
+            .padding()
+        }
+        .navigationTitle(item.title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
 // MARK: - Preview
 
 #Preview("Library View") {
     LibraryView()
-        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

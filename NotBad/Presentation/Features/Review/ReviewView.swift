@@ -35,37 +35,18 @@ import TipKit
 /// | ← | 上一题 |
 /// | → | 下一题 |
 ///
-/// ## 使用示例
+/// ## 架构设计
 ///
-/// ```swift
-/// ReviewView()
-///     .modelContainer(for: ReviewItem.self)
-/// ```
-///
-/// ## 复习算法
-///
-/// 根据用户的自我评估更新掌握度：
-/// - 不会：掌握度重置为"未掌握"
-/// - 模糊：掌握度设为"一知半解"
-/// - 掌握：掌握度提升到"完全掌握"
+/// 使用 ViewModel + Use Cases 获取数据，不直接访问 SwiftData
 struct ReviewView: View {
 
     // MARK: - Properties
 
-    /// 所有错题数据（持久化模型）
-    @Query(sort: \ReviewItemModel.createdAt, order: .reverse)
-    private var allModels: [ReviewItemModel]
-    
-    /// 将持久化模型转换为领域实体
-    private var allItems: [ReviewItem] {
-        allModels.map { ReviewItemMapper.toEntity(from: $0) }
-    }
-
-    /// 数据上下文
-    @Environment(\.modelContext) private var modelContext
+    /// 依赖工厂
+    @Environment(\.dependencyFactory) private var dependencyFactory
 
     /// 视图模型
-    @State private var viewModel = ReviewViewModel()
+    @State private var viewModel: ReviewViewModel?
     
     /// 答案显示状态（提升到此处以支持键盘控制）
     @State private var showAnswer = false
@@ -77,82 +58,103 @@ struct ReviewView: View {
 
     /// 需要复习的错题
     private var reviewItems: [ReviewItem] {
-        viewModel.generateReviewQueue(from: allItems)
+        guard let viewModel else { return [] }
+        return viewModel.generateReviewQueue(from: viewModel.items)
     }
 
     // MARK: - Body
 
     var body: some View {
-        @Bindable var bindableViewModel = viewModel
-
         NavigationStack {
-            ZStack {
-                if reviewItems.isEmpty {
-                    EmptyReviewState()
+            Group {
+                if let viewModel {
+                    reviewContent(viewModel: viewModel)
                 } else {
-                    VStack(spacing: 0) {
-                        // 首次复习提示
-                        TipView(ReviewGestureTip(), arrowEdge: .bottom)
-                            .tipBackground(Color(.secondarySystemBackground))
-                            .padding(.horizontal)
-                        
-                        ReviewContent(
-                            items: reviewItems,
-                            currentIndex: $bindableViewModel.currentIndex,
-                            showAnswer: $showAnswer,
-                            onMasteryUpdate: handleMastery
-                        )
-                    }
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
             .navigationTitle("review_title")
             .navigationBarTitleDisplayMode(.large)
-            .onAppear {
-                viewModel.configure(with: modelContext)
-            }
-            .onChange(of: viewModel.currentIndex) { _, _ in
-                // 切换卡片时重置答案显示状态
-                showAnswer = false
-            }
-            .alert("review_complete_title", isPresented: $bindableViewModel.showCompletionAlert) {
-                Button("review_complete_button") {
-                    viewModel.reset()
+            .task {
+                // 初始化 ViewModel 并加载数据
+                if viewModel == nil, let factory = dependencyFactory {
+                    viewModel = factory.makeReviewViewModel()
                 }
-            } message: {
-                Text("review_complete_message \(viewModel.reviewedCount)")
+                await viewModel?.loadItems()
             }
-            // MARK: - Keyboard Shortcuts (iPad/Mac)
-            .focusable()
-            .focusEffectDisabled()
-            .onKeyPress(.space) {
-                withAnimation(DesignTokens.Animation.spring) {
-                    showAnswer.toggle()
+        }
+    }
+    
+    // MARK: - Review Content
+    
+    @ViewBuilder
+    private func reviewContent(viewModel: ReviewViewModel) -> some View {
+        @Bindable var bindableViewModel = viewModel
+        
+        ZStack {
+            if reviewItems.isEmpty {
+                EmptyReviewState()
+            } else {
+                VStack(spacing: 0) {
+                    // 首次复习提示
+                    TipView(ReviewGestureTip(), arrowEdge: .bottom)
+                        .tipBackground(Color(.secondarySystemBackground))
+                        .padding(.horizontal)
+                    
+                    ReviewContent(
+                        items: reviewItems,
+                        currentIndex: $bindableViewModel.currentIndex,
+                        showAnswer: $showAnswer,
+                        onMasteryUpdate: { index, level in
+                            handleMastery(index: index, level: level, viewModel: viewModel)
+                        }
+                    )
                 }
-                return .handled
             }
-            .onKeyPress(keys: [.init("1"), .init("2"), .init("3")]) { press in
-                handleKeyboardMastery(key: press.characters)
-                return .handled
+        }
+        .onChange(of: viewModel.currentIndex) { _, _ in
+            // 切换卡片时重置答案显示状态
+            showAnswer = false
+        }
+        .alert("review_complete_title", isPresented: $bindableViewModel.showCompletionAlert) {
+            Button("review_complete_button") {
+                viewModel.reset()
             }
-            .onKeyPress(.leftArrow) {
-                withAnimation {
-                    viewModel.moveToPrevious()
-                }
-                return .handled
+        } message: {
+            Text("review_complete_message \(viewModel.reviewedCount)")
+        }
+        // MARK: - Keyboard Shortcuts (iPad/Mac)
+        .focusable()
+        .focusEffectDisabled()
+        .onKeyPress(.space) {
+            withAnimation(DesignTokens.Animation.spring) {
+                showAnswer.toggle()
             }
-            .onKeyPress(.rightArrow) {
-                withAnimation {
-                    viewModel.moveToNext(totalCount: reviewItems.count)
-                }
-                return .handled
+            return .handled
+        }
+        .onKeyPress(keys: [.init("1"), .init("2"), .init("3")]) { press in
+            handleKeyboardMastery(key: press.characters, viewModel: viewModel)
+            return .handled
+        }
+        .onKeyPress(.leftArrow) {
+            withAnimation {
+                viewModel.moveToPrevious()
             }
+            return .handled
+        }
+        .onKeyPress(.rightArrow) {
+            withAnimation {
+                viewModel.moveToNext(totalCount: reviewItems.count)
+            }
+            return .handled
         }
     }
 
     // MARK: - Actions
 
     /// 处理掌握度评估
-    private func handleMastery(index: Int, level: MasteryLevel) {
+    private func handleMastery(index: Int, level: MasteryLevel, viewModel: ReviewViewModel) {
         guard index < reviewItems.count else { return }
 
         // 触觉反馈
@@ -166,7 +168,7 @@ struct ReviewView: View {
     }
     
     /// 处理键盘掌握度快捷键
-    private func handleKeyboardMastery(key: String) {
+    private func handleKeyboardMastery(key: String, viewModel: ReviewViewModel) {
         guard viewModel.currentIndex < reviewItems.count else { return }
         
         let level: MasteryLevel
@@ -181,7 +183,7 @@ struct ReviewView: View {
             return
         }
         
-        handleMastery(index: viewModel.currentIndex, level: level)
+        handleMastery(index: viewModel.currentIndex, level: level, viewModel: viewModel)
     }
 }
 
@@ -189,5 +191,4 @@ struct ReviewView: View {
 
 #Preview("Review View") {
     ReviewView()
-        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

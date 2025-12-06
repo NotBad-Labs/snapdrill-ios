@@ -19,7 +19,12 @@ import SwiftData
 /// 领域层使用 `ReviewItem` 实体，数据层使用此模型。
 ///
 /// ## 映射关系
-/// - `ReviewItemModel` ↔ `ReviewItem` (通过 `ReviewItemMapper`)
+/// - `ReviewItemModel` → `ReviewItem` (通过 `ReviewItemMapper.toEntity()`)
+/// - `ReviewItem` → `ReviewItemModel` (通过 `ReviewItemMapper.toModel()`)
+///
+/// ## 图片存储
+/// - **新数据**：图片存储在独立的 `ReviewItemImageModel` 中，由 `ImageRepository` 管理
+/// - **旧数据**：`imageData` 字段仍保留，用于兼容升级前的数据
 ///
 /// ## 存储策略
 /// - 值对象以 rawValue 形式存储

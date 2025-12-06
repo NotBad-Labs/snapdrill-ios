@@ -88,9 +88,10 @@ struct FetchReviewItemsUseCaseTests {
         // Given
         let (sut, repository) = makeSUT()
         repository.items = makeSampleItems()
+        let filter = ReviewItemFilter(subject: .math)
         
         // When
-        let result = try await sut.execute(subject: .math)
+        let result = await sut.execute(filter: filter)
         
         // Then
         #expect(result.count == 2)
@@ -102,9 +103,10 @@ struct FetchReviewItemsUseCaseTests {
         // Given
         let (sut, repository) = makeSUT()
         repository.items = makeSampleItems()
+        let filter = ReviewItemFilter(grade: .grade10)
         
         // When
-        let result = try await sut.execute(grade: .grade10)
+        let result = await sut.execute(filter: filter)
         
         // Then
         #expect(result.count == 2)
@@ -116,9 +118,10 @@ struct FetchReviewItemsUseCaseTests {
         // Given
         let (sut, repository) = makeSUT()
         repository.items = makeSampleItems()
+        let filter = ReviewItemFilter(difficulty: .hard)
         
         // When
-        let result = try await sut.execute(difficulty: .hard)
+        let result = await sut.execute(filter: filter)
         
         // Then
         #expect(result.count == 1)
@@ -130,9 +133,10 @@ struct FetchReviewItemsUseCaseTests {
         // Given
         let (sut, repository) = makeSUT()
         repository.items = makeSampleItems()
+        let filter = ReviewItemFilter(subject: .math, grade: .grade10)
         
         // When
-        let result = try await sut.execute(subject: .math, grade: .grade10)
+        let result = await sut.execute(filter: filter)
         
         // Then
         #expect(result.count == 1)
@@ -147,9 +151,10 @@ struct FetchReviewItemsUseCaseTests {
         let (sut, repository) = makeSUT()
         let items = makeSampleItems()
         repository.items = items
+        let filter = ReviewItemFilter(sortBy: .createdAt, ascending: false)
         
         // When
-        let result = try await sut.execute(sortBy: .createdAt, ascending: false)
+        let result = await sut.execute(filter: filter)
         
         // Then
         #expect(result.count == 3)

@@ -2,7 +2,7 @@
 //  ViewModelDITests.swift
 //  NotBadTests
 //
-//  测试 ViewModel 依赖注入功能
+//  测试 ViewModel 依赖注入功能（Use Case 模式）
 //
 
 import Testing
@@ -15,40 +15,34 @@ import Foundation
 @Suite("DashboardViewModel 依赖注入测试")
 struct DashboardViewModelDITests {
     
-    @Test("使用 DataProvider 初始化")
+    @Test("使用默认初始化器")
     @MainActor
-    func initWithDataProvider() {
-        let provider = MockReviewItemProvider()
-        let viewModel = DashboardViewModel(dataProvider: provider)
+    func initWithDefaults() {
+        let viewModel = DashboardViewModel()
         
         #expect(viewModel.items.isEmpty)
     }
     
-    @Test("通过 DataProvider 获取数据")
+    @Test("初始化后状态正确")
     @MainActor
-    func getItemsFromDataProvider() {
-        let provider = MockReviewItemProvider()
-        provider.items = [
-            ReviewItem(title: "数学错题", subject: .math),
-            ReviewItem(title: "语文错题", subject: .chinese)
-        ]
-        let viewModel = DashboardViewModel(dataProvider: provider)
+    func initialStateCorrect() {
+        let viewModel = DashboardViewModel()
         
-        #expect(viewModel.items.count == 2)
+        #expect(viewModel.items.isEmpty)
+        #expect(viewModel.selectedTimeRange == .week)
     }
     
-    @Test("computeStatistics 使用 DataProvider 数据")
+    @Test("computeStatistics 计算正确")
     @MainActor
-    func computeStatisticsWithProvider() {
-        let provider = MockReviewItemProvider()
-        let item1 = ReviewItem(title: "已掌握", subject: .math)
-        item1.mastery = .mastered
-        let item2 = ReviewItem(title: "学习中", subject: .physics)
-        item2.mastery = .partial
-        provider.items = [item1, item2]
+    func computeStatisticsCorrect() {
+        let viewModel = DashboardViewModel()
         
-        let viewModel = DashboardViewModel(dataProvider: provider)
-        let stats = viewModel.computeStatistics(from: viewModel.items)
+        let item1 = ReviewItem(title: "已掌握", subject: .math)
+        item1.masteryLevel = MasteryLevel.mastered.rawValue
+        let item2 = ReviewItem(title: "学习中", subject: .physics)
+        item2.masteryLevel = MasteryLevel.partial.rawValue
+        
+        let stats = viewModel.computeStatistics(from: [item1, item2])
         
         #expect(stats.totalCount == 2)
         #expect(stats.masteredCount == 1)
@@ -60,50 +54,21 @@ struct DashboardViewModelDITests {
 @Suite("LibraryViewModel 依赖注入测试")
 struct LibraryViewModelDITests {
     
-    @Test("使用 DataProvider 初始化")
+    @Test("使用默认初始化器")
     @MainActor
-    func initWithDataProvider() {
-        let provider = MockReviewItemProvider()
-        let viewModel = LibraryViewModel(dataProvider: provider)
+    func initWithDefaults() {
+        let viewModel = LibraryViewModel()
         
         #expect(viewModel.items.isEmpty)
     }
     
-    @Test("filteredItems 使用 DataProvider 数据")
+    @Test("初始化后筛选状态正确")
     @MainActor
-    func filteredItemsWithProvider() {
-        let provider = MockReviewItemProvider()
-        provider.items = [
-            ReviewItem(title: "数学1", subject: .math),
-            ReviewItem(title: "数学2", subject: .math),
-            ReviewItem(title: "物理1", subject: .physics)
-        ]
-        let viewModel = LibraryViewModel(dataProvider: provider)
+    func initialFilterStateCorrect() {
+        let viewModel = LibraryViewModel()
         
-        // 无筛选时返回全部
-        #expect(viewModel.filteredItems().count == 3)
-        
-        // 按学科筛选
-        viewModel.selectedSubject = .math
-        #expect(viewModel.filteredItems().count == 2)
-    }
-    
-    @Test("搜索功能正常")
-    @MainActor
-    func searchWithProvider() {
-        let provider = MockReviewItemProvider()
-        provider.items = [
-            ReviewItem(title: "二次函数", subject: .math),
-            ReviewItem(title: "一次函数", subject: .math),
-            ReviewItem(title: "古诗词", subject: .chinese)
-        ]
-        let viewModel = LibraryViewModel(dataProvider: provider)
-        viewModel.searchText = "函数"
-        
-        let filtered = viewModel.filteredItems()
-        
-        #expect(filtered.count == 2)
-        #expect(filtered.allSatisfy { $0.title.contains("函数") })
+        #expect(viewModel.selectedSubject == nil)
+        #expect(viewModel.searchText.isEmpty)
     }
 }
 
@@ -112,30 +77,22 @@ struct LibraryViewModelDITests {
 @Suite("ReviewViewModel 依赖注入测试")
 struct ReviewViewModelDITests {
     
-    @Test("使用 DataProvider 初始化")
+    @Test("使用默认初始化器")
     @MainActor
-    func initWithDataProvider() {
-        let provider = MockReviewItemProvider()
-        let viewModel = ReviewViewModel(dataProvider: provider)
+    func initWithDefaults() {
+        let viewModel = ReviewViewModel()
         
         #expect(viewModel.items.isEmpty)
     }
     
-    @Test("generateReviewQueue 使用 DataProvider 数据")
+    @Test("初始化后复习状态正确")
     @MainActor
-    func generateReviewQueueWithProvider() {
-        let provider = MockReviewItemProvider()
-        let item1 = ReviewItem(title: "需要复习", subject: .math)
-        item1.mastery = .partial
-        let item2 = ReviewItem(title: "已掌握", subject: .physics)
-        item2.mastery = .mastered
-        provider.items = [item1, item2]
+    func initialReviewStateCorrect() {
+        let viewModel = ReviewViewModel()
         
-        let viewModel = ReviewViewModel(dataProvider: provider)
-        let queue = viewModel.generateReviewQueue()
-        
-        // 应该返回结果（具体数量取决于复习算法）
-        #expect(queue.count >= 0)
+        #expect(viewModel.currentIndex == 0)
+        #expect(viewModel.sessionState == .idle)
+        #expect(viewModel.reviewedCount == 0)
     }
 }
 

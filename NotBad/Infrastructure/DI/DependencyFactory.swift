@@ -35,6 +35,9 @@ protocol DependencyFactory: Sendable {
     /// 创建错题仓库
     func makeReviewItemRepository() -> ReviewItemRepositoryProtocol
     
+    /// 创建图片仓库
+    func makeImageRepository() -> ImageRepositoryProtocol
+    
     // MARK: - Use Cases - Review
     
     /// 创建开始复习会话用例
@@ -72,6 +75,28 @@ protocol DependencyFactory: Sendable {
     
     /// 创建分析服务
     func makeAnalyticsService() -> any AnalyticsServiceProtocol
+    
+    // MARK: - ViewModels
+    
+    /// 创建 LibraryViewModel
+    ///
+    /// 使用 Use Cases 注入，用于题库视图
+    func makeLibraryViewModel() -> LibraryViewModel
+    
+    /// 创建 DashboardViewModel
+    ///
+    /// 使用统计用例注入，用于数据看板视图
+    func makeDashboardViewModel() -> DashboardViewModel
+    
+    /// 创建 ReviewViewModel
+    ///
+    /// 使用复习相关 Use Cases 注入
+    func makeReviewViewModel() -> ReviewViewModel
+    
+    /// 创建 CaptureViewModel
+    ///
+    /// 使用创建用例注入，用于错题录入视图
+    func makeCaptureViewModel() -> CaptureViewModel
 }
 
 // MARK: - ProductionDependencyFactory
@@ -92,6 +117,11 @@ final class ProductionDependencyFactory: DependencyFactory {
         ReviewItemRepository(modelContainer: modelContainer)
     }()
     
+    /// 缓存的图片仓库
+    private lazy var imageRepository: ImageRepositoryProtocol = {
+        ImageRepository(modelContainer: modelContainer)
+    }()
+    
     // MARK: - Initialization
     
     init(modelContainer: ModelContainer) {
@@ -102,6 +132,10 @@ final class ProductionDependencyFactory: DependencyFactory {
     
     func makeReviewItemRepository() -> ReviewItemRepositoryProtocol {
         return reviewItemRepository
+    }
+    
+    func makeImageRepository() -> ImageRepositoryProtocol {
+        return imageRepository
     }
     
     // MARK: - Use Cases - Review
@@ -121,7 +155,7 @@ final class ProductionDependencyFactory: DependencyFactory {
     // MARK: - Use Cases - Library
     
     func makeCreateReviewItemUseCase() -> CreateReviewItemUseCaseProtocol {
-        CreateReviewItemUseCase(repository: reviewItemRepository)
+        CreateReviewItemUseCase(repository: reviewItemRepository, imageRepository: imageRepository)
     }
     
     func makeDeleteReviewItemUseCase() -> DeleteReviewItemUseCaseProtocol {
@@ -150,6 +184,39 @@ final class ProductionDependencyFactory: DependencyFactory {
     
     func makeAnalyticsService() -> any AnalyticsServiceProtocol {
         LocalAnalyticsService.shared
+    }
+    
+    // MARK: - ViewModels
+    
+    func makeLibraryViewModel() -> LibraryViewModel {
+        LibraryViewModel(
+            fetchItemsUseCase: makeFetchReviewItemsUseCase(),
+            deleteItemUseCase: makeDeleteReviewItemUseCase(),
+            updateItemUseCase: makeUpdateReviewItemUseCase()
+        )
+    }
+    
+    func makeDashboardViewModel() -> DashboardViewModel {
+        DashboardViewModel(
+            fetchItemsUseCase: makeFetchReviewItemsUseCase(),
+            statisticsUseCase: makeGetStatisticsUseCase()
+        )
+    }
+    
+    func makeReviewViewModel() -> ReviewViewModel {
+        ReviewViewModel(
+            fetchItemsUseCase: makeFetchReviewItemsUseCase(),
+            startSessionUseCase: makeStartReviewSessionUseCase(),
+            recordResultUseCase: makeRecordReviewResultUseCase(),
+            completeSessionUseCase: makeCompleteReviewSessionUseCase()
+        )
+    }
+    
+    func makeCaptureViewModel() -> CaptureViewModel {
+        CaptureViewModel(
+            createItemUseCase: makeCreateReviewItemUseCase(),
+            ocrService: makeOCRService()
+        )
     }
 }
 
@@ -191,19 +258,5 @@ enum AppDependencies {
     /// 重置（用于测试）
     static func reset() {
         factory = nil
-    }
-}
-
-// MARK: - ViewModel Factory Extension
-
-extension DependencyFactory {
-    
-    /// 创建 ReviewViewModel（带 Use Cases 注入）
-    func makeReviewViewModel() -> ReviewViewModel {
-        ReviewViewModel(
-            startSessionUseCase: makeStartReviewSessionUseCase(),
-            recordResultUseCase: makeRecordReviewResultUseCase(),
-            completeSessionUseCase: makeCompleteReviewSessionUseCase()
-        )
     }
 }

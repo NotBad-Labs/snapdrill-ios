@@ -152,6 +152,7 @@ final class Dependencies {
 
 // MARK: - Convenience Extensions
 
+@available(*, deprecated, message: "Use AppDependencies and DependencyFactory instead")
 extension Dependencies {
     
     /// 使用 Mock Repository 进行测试

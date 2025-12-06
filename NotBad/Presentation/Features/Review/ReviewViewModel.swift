@@ -48,6 +48,9 @@ final class ReviewViewModel {
 
     // MARK: - Use Cases (New Architecture)
     
+    /// 获取错题用例
+    private var fetchItemsUseCase: FetchReviewItemsUseCaseProtocol?
+    
     /// 开始复习会话用例
     private var startSessionUseCase: StartReviewSessionUseCaseProtocol?
     
@@ -56,11 +59,14 @@ final class ReviewViewModel {
     
     /// 完成复习会话用例
     private var completeSessionUseCase: CompleteReviewSessionUseCaseProtocol?
-
-    // MARK: - Dependencies (Legacy)
-
-    /// 数据提供者（可选，用于依赖注入）
-    private var dataProvider: (any ReviewItemDataProviding)?
+    
+    // MARK: - Data State
+    
+    /// 从 Use Case 加载的数据
+    private(set) var loadedItems: [ReviewItem] = []
+    
+    /// 数据是否正在加载
+    private(set) var isLoading = false
 
     // MARK: - Review State
 
@@ -104,13 +110,9 @@ final class ReviewViewModel {
     /// 每次复习数量限制
     var batchSize: Int = 20
 
-    // MARK: - Dependencies (Legacy)
-
-    private var modelContext: ModelContext?
-
     // MARK: - Initialization
 
-    /// 默认初始化（向后兼容）
+    /// 默认初始化
     init() {}
     
     /// Use Cases 注入初始化（推荐）
@@ -128,28 +130,51 @@ final class ReviewViewModel {
         self.recordResultUseCase = recordResultUseCase
         self.completeSessionUseCase = completeSessionUseCase
     }
-
-    /// 依赖注入初始化（推荐用于测试）
+    
+    /// 完整 Use Cases 注入初始化（包含 fetch）
     ///
-    /// - Parameter dataProvider: 数据提供者
-    init(dataProvider: any ReviewItemDataProviding) {
-        self.dataProvider = dataProvider
+    /// - Parameters:
+    ///   - fetchItemsUseCase: 获取错题用例
+    ///   - startSessionUseCase: 开始复习会话用例
+    ///   - recordResultUseCase: 记录复习结果用例
+    ///   - completeSessionUseCase: 完成复习会话用例
+    init(
+        fetchItemsUseCase: FetchReviewItemsUseCaseProtocol,
+        startSessionUseCase: StartReviewSessionUseCaseProtocol,
+        recordResultUseCase: RecordReviewResultUseCaseProtocol,
+        completeSessionUseCase: CompleteReviewSessionUseCaseProtocol
+    ) {
+        self.fetchItemsUseCase = fetchItemsUseCase
+        self.startSessionUseCase = startSessionUseCase
+        self.recordResultUseCase = recordResultUseCase
+        self.completeSessionUseCase = completeSessionUseCase
     }
-
-    func configure(with modelContext: ModelContext) {
-        self.modelContext = modelContext
+    
+    // MARK: - Data Loading
+    
+    /// 加载所有错题（使用 Use Case）
+    ///
+    /// - Parameter forceRefresh: 强制刷新，忽略缓存
+    func loadItems(forceRefresh: Bool = false) async {
+        guard let fetchItemsUseCase else { return }
+        
+        // 如果已有数据且不强制刷新，跳过加载
+        guard forceRefresh || loadedItems.isEmpty else { return }
+        
+        isLoading = true
+        defer { isLoading = false }
+        
+        loadedItems = await fetchItemsUseCase.execute()
     }
 
     // MARK: - Data Access
 
     /// 获取所有错题
-    ///
-    /// 优先从 dataProvider 获取，否则返回空数组
     var items: [ReviewItem] {
-        dataProvider?.items ?? []
+        loadedItems
     }
 
-    /// 生成复习队列（使用 DataProvider）
+    /// 生成复习队列
     ///
     /// - Returns: 排序后的复习队列
     func generateReviewQueue() -> [ReviewItem] {
@@ -277,22 +302,40 @@ final class ReviewViewModel {
     ///   - reviewItem: 当前错题
     ///   - level: 评估的掌握程度
     func handleMasteryUpdate(for reviewItem: ReviewItem, level: MasteryLevel) {
-        guard let modelContext else { return }
-
-        // 记录复习
-        reviewItem.recordReview(newMastery: level)
-
-        // 保存
-        do {
-            try modelContext.save()
-        } catch {
-            Logger.data.error("保存失败: \(error)")
+        Task { @MainActor [weak self] in
+            guard let self, let recordResultUseCase else {
+                // Fallback: 本地更新
+                reviewItem.recordReview(newMastery: level)
+                self?.updateStatistics(level: level, reviewItem: reviewItem)
+                return
+            }
+            
+            do {
+                // 判断是否正确（基本掌握/完全掌握视为正确）
+                let isCorrect = level == .mastered || level == .good
+                
+                // 使用 Use Case 记录
+                _ = try await recordResultUseCase.execute(
+                    itemId: reviewItem.id,
+                    isCorrect: isCorrect,
+                    duration: 0  // 暂时不追踪用时
+                )
+                
+                updateStatistics(level: level, reviewItem: reviewItem)
+            } catch {
+                Logger.data.error("记录复习结果失败: \(error)")
+                // Fallback: 本地更新
+                reviewItem.recordReview(newMastery: level)
+                updateStatistics(level: level, reviewItem: reviewItem)
+            }
         }
-
-        // 更新统计
+    }
+    
+    /// 更新复习统计
+    private func updateStatistics(level: MasteryLevel, reviewItem: ReviewItem) {
         reviewedCount += 1
         masteryResults[level, default: 0] += 1
-
+        
         // 发送通知
         NotificationCenter.default.post(name: .reviewItemUpdated, object: reviewItem)
     }

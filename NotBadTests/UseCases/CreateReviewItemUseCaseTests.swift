@@ -86,12 +86,16 @@ struct CreateReviewItemUseCaseTests {
     func testCreateReviewItem_emptyTitle_throws() async {
         // Given
         let (sut, _) = makeSUT()
-        var input = makeValidInput()
-        input.title = ""
+        let input = CreateReviewItemInput(
+            title: "",
+            imageData: Data(),
+            subject: .math,
+            grade: .grade10
+        )
         
         // When/Then
         await #expect(throws: CreateReviewItemError.self) {
-            try await sut.execute(input: input)
+            _ = try await sut.execute(input: input)
         }
     }
     
@@ -99,12 +103,16 @@ struct CreateReviewItemUseCaseTests {
     func testCreateReviewItem_titleTooLong_throws() async {
         // Given
         let (sut, _) = makeSUT()
-        var input = makeValidInput()
-        input.title = String(repeating: "A", count: 300)  // 超过最大长度
+        let input = CreateReviewItemInput(
+            title: String(repeating: "A", count: 300),
+            imageData: Data(),
+            subject: .math,
+            grade: .grade10
+        )
         
         // When/Then
         await #expect(throws: CreateReviewItemError.self) {
-            try await sut.execute(input: input)
+            _ = try await sut.execute(input: input)
         }
     }
     
@@ -114,12 +122,12 @@ struct CreateReviewItemUseCaseTests {
     func testCreateReviewItem_saveFails_throwsSaveFailed() async {
         // Given
         let (sut, repository) = makeSUT()
-        repository.shouldFailOnSave = true
+        repository.shouldThrowOnSave = true
         let input = makeValidInput()
         
         // When/Then
         await #expect(throws: CreateReviewItemError.self) {
-            try await sut.execute(input: input)
+            _ = try await sut.execute(input: input)
         }
     }
 }

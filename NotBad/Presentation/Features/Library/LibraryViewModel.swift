@@ -24,26 +24,16 @@ import OSLog
 ///
 /// ## 依赖注入
 ///
-/// 支持两种使用方式：
+/// 使用 DependencyFactory 创建：
 ///
 /// ```swift
-/// // 方式1: 使用 DataProvider（推荐，支持测试）
-/// let provider = SwiftDataReviewItemProvider(modelContext: context)
-/// let viewModel = LibraryViewModel(dataProvider: provider)
+/// let viewModel = dependencyFactory.makeLibraryViewModel()
+/// await viewModel.loadItems()
 /// let filtered = viewModel.filteredItems()
-///
-/// // 方式2: 传入 items（向后兼容）
-/// let viewModel = LibraryViewModel()
-/// let filtered = viewModel.filteredItems(from: items)
 /// ```
 @MainActor
 @Observable
 final class LibraryViewModel {
-
-    // MARK: - Dependencies
-
-    /// 数据提供者（可选，用于依赖注入）
-    private var dataProvider: (any ReviewItemDataProviding)?
 
     // MARK: - Search State
 
@@ -157,53 +147,69 @@ final class LibraryViewModel {
 
     // MARK: - Dependencies
 
+    private var fetchItemsUseCase: FetchReviewItemsUseCaseProtocol?
     private var deleteUseCase: DeleteReviewItemUseCaseProtocol?
     private var updateUseCase: UpdateReviewItemUseCaseProtocol?
+    
+    // MARK: - Data State
+    
+    /// 从 Use Case 加载的数据（新架构）
+    private(set) var loadedItems: [ReviewItem] = []
+    
+    /// 数据是否正在加载
+    private(set) var isLoading = false
 
     // MARK: - Initialization
 
-    /// 默认初始化（向后兼容）
+    /// 默认初始化
     init() {}
-
-    /// 依赖注入初始化（推荐用于测试）
-    ///
-    /// - Parameter dataProvider: 数据提供者
-    init(dataProvider: any ReviewItemDataProviding) {
-        self.dataProvider = dataProvider
-    }
     
-    /// 依赖注入初始化（完整版）
+    /// Use Case 依赖注入初始化（推荐）
     ///
     /// - Parameters:
-    ///   - dataProvider: 数据提供者
-    ///   - deleteUseCase: 删除用例
-    ///   - updateUseCase: 更新用例
+    ///   - fetchItemsUseCase: 获取错题用例
+    ///   - deleteItemUseCase: 删除错题用例
+    ///   - updateItemUseCase: 更新错题用例
     init(
-        dataProvider: any ReviewItemDataProviding,
-        deleteUseCase: DeleteReviewItemUseCaseProtocol,
-        updateUseCase: UpdateReviewItemUseCaseProtocol
+        fetchItemsUseCase: FetchReviewItemsUseCaseProtocol,
+        deleteItemUseCase: DeleteReviewItemUseCaseProtocol,
+        updateItemUseCase: UpdateReviewItemUseCaseProtocol
     ) {
-        self.dataProvider = dataProvider
-        self.deleteUseCase = deleteUseCase
-        self.updateUseCase = updateUseCase
+        self.fetchItemsUseCase = fetchItemsUseCase
+        self.deleteUseCase = deleteItemUseCase
+        self.updateUseCase = updateItemUseCase
     }
-
-    /// 配置依赖
-    func configure(with factory: DependencyFactory) {
-        self.deleteUseCase = factory.makeDeleteReviewItemUseCase()
-        self.updateUseCase = factory.makeUpdateReviewItemUseCase()
+    
+    // MARK: - Data Loading
+    
+    /// 加载所有错题（使用 Use Case）
+    /// 
+    /// - Parameter forceRefresh: 强制刷新，忽略缓存
+    func loadItems(forceRefresh: Bool = false) async {
+        guard let fetchItemsUseCase else { return }
+        
+        // 如果已有数据且不强制刷新，跳过加载
+        guard forceRefresh || loadedItems.isEmpty else { return }
+        
+        isLoading = true
+        defer { isLoading = false }
+        
+        loadedItems = await fetchItemsUseCase.execute()
+    }
+    
+    /// 刷新数据（强制重新加载）
+    func refresh() async {
+        await loadItems(forceRefresh: true)
     }
 
     // MARK: - Data Access
 
     /// 获取所有错题
-    ///
-    /// 优先从 dataProvider 获取，否则返回空数组
     var items: [ReviewItem] {
-        dataProvider?.items ?? []
+        loadedItems
     }
 
-    /// 获取筛选后的错题（使用 DataProvider）
+    /// 获取筛选后的错题
     ///
     /// - Returns: 筛选后的错题列表
     func filteredItems() -> [ReviewItem] {
@@ -360,14 +366,13 @@ final class LibraryViewModel {
         isSearchingDatabase = true
         defer { isSearchingDatabase = false }
         
-        guard let provider = dataProvider else {
-            // 如果没有 provider，回退到内存搜索
-            databaseSearchResults = nil
-            return
+        // 从已加载的数据中搜索
+        let lowercasedQuery = query.lowercased()
+        databaseSearchResults = loadedItems.filter { item in
+            item.title.lowercased().contains(lowercasedQuery) ||
+            item.note.lowercased().contains(lowercasedQuery) ||
+            item.knowledgePoints.items.contains { $0.lowercased().contains(lowercasedQuery) }
         }
-        
-        // 调用 Provider 的数据库搜索（穿透到 Repository）
-        databaseSearchResults = provider.search(query: query)
     }
     
     /// 获取最终显示的数据

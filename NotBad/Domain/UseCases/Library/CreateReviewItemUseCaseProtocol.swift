@@ -87,6 +87,12 @@ struct CreateReviewItemInput: Sendable {
     /// 备注
     let note: String
     
+    /// 来源
+    let source: Source
+    
+    /// 题目类型
+    let reviewItemType: ReviewItemType
+    
     // MARK: - Initialization
     
     init(
@@ -97,7 +103,9 @@ struct CreateReviewItemInput: Sendable {
         difficulty: Difficulty = .medium,
         errorType: ErrorType = .concept,
         knowledgePoints: [String] = [],
-        note: String = ""
+        note: String = "",
+        source: Source = .other,
+        reviewItemType: ReviewItemType = .other
     ) {
         self.title = title
         self.imageData = imageData
@@ -107,6 +115,8 @@ struct CreateReviewItemInput: Sendable {
         self.errorType = errorType
         self.knowledgePoints = knowledgePoints
         self.note = note
+        self.source = source
+        self.reviewItemType = reviewItemType
     }
     
     // MARK: - Validation

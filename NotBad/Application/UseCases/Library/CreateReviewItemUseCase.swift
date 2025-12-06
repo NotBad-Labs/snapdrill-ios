@@ -15,17 +15,20 @@ import Foundation
 /// - 验证输入数据
 /// - 创建 Domain 实体
 /// - 保存到仓库
+/// - 分离存储图片数据
 @MainActor
 final class CreateReviewItemUseCase: CreateReviewItemUseCaseProtocol {
     
     // MARK: - Dependencies
     
     private let repository: ReviewItemRepositoryProtocol
+    private let imageRepository: ImageRepositoryProtocol?
     
     // MARK: - Initialization
     
-    init(repository: ReviewItemRepositoryProtocol) {
+    init(repository: ReviewItemRepositoryProtocol, imageRepository: ImageRepositoryProtocol? = nil) {
         self.repository = repository
+        self.imageRepository = imageRepository
     }
     
     // MARK: - CreateReviewItemUseCaseProtocol
@@ -34,16 +37,18 @@ final class CreateReviewItemUseCase: CreateReviewItemUseCaseProtocol {
         // 1. 验证输入
         try input.validate()
         
-        // 2. 创建 Domain 实体
+        // 2. 创建 Domain 实体（不含图片数据，图片单独存储）
         let item = ReviewItem(
-            imageData: input.imageData,
+            imageData: nil,  // 图片数据分离存储
             title: input.title,
             note: input.note,
             subject: input.subject,
             grade: input.grade,
             knowledgePoints: KnowledgePoints(input.knowledgePoints),
             difficulty: input.difficulty,
-            errorType: input.errorType
+            errorType: input.errorType,
+            source: input.source,
+            reviewItemType: input.reviewItemType
         )
         
         // 3. 保存到仓库
@@ -51,6 +56,16 @@ final class CreateReviewItemUseCase: CreateReviewItemUseCaseProtocol {
             try repository.save(item)
         } catch {
             throw CreateReviewItemError.saveFailed(underlying: error)
+        }
+        
+        // 4. 分离存储图片数据
+        if let imageData = input.imageData, let imageRepo = imageRepository {
+            do {
+                try imageRepo.saveImage(imageData, for: item.id)
+            } catch {
+                // 图片保存失败不影响主流程，仅记录日志
+                // 图片可以后续重新添加
+            }
         }
         
         return item

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 import UniformTypeIdentifiers
 
 // MARK: - DataManagementView
@@ -20,17 +19,21 @@ import UniformTypeIdentifiers
 /// - `DataManagementView.swift` - 主视图和 UI 部分
 /// - `DataManagementView+Export.swift` - 导出相关方法
 /// - `DataManagementView+Import.swift` - 导入相关方法
+///
+/// ## 架构设计
+///
+/// 使用 Use Cases 获取数据，不直接访问 SwiftData
 struct DataManagementView: View {
 
     // MARK: - Environment
 
-    @Environment(\.modelContext) var modelContext
-    @Query var allModels: [ReviewItemModel]
+    @Environment(\.dependencyFactory) var dependencyFactory
     
-    /// 将持久化模型转换为领域实体
-    var allItems: [ReviewItem] {
-        allModels.map { ReviewItemMapper.toEntity(from: $0) }
-    }
+    // MARK: - Data State
+    
+    /// 从 Use Case 加载的数据
+    @State var allItems: [ReviewItem] = []
+    @State var isLoading = false
 
     // MARK: - State
 
@@ -64,7 +67,8 @@ struct DataManagementView: View {
         }
         .navigationTitle("data_management_title")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
+        .task {
+            await loadData()
             refreshCachedFiles()
         }
         .sheet(isPresented: $showExportSheet) {
@@ -101,6 +105,21 @@ struct DataManagementView: View {
                 toastOverlay
             }
         }
+    }
+    
+    // MARK: - Data Loading
+    
+    func loadData(forceRefresh: Bool = false) async {
+        guard let factory = dependencyFactory else { return }
+        
+        // 如果已有数据且不强制刷新，跳过加载
+        guard forceRefresh || allItems.isEmpty else { return }
+        
+        isLoading = true
+        defer { isLoading = false }
+        
+        let useCase = factory.makeFetchReviewItemsUseCase()
+        allItems = await useCase.execute()
     }
 
     // MARK: - Toast Overlay

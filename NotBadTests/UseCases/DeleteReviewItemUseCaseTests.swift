@@ -44,7 +44,7 @@ struct DeleteReviewItemUseCaseTests {
         repository.items = [item]
         
         // When
-        try await sut.execute(id: item.id)
+        try await sut.execute(itemId: item.id)
         
         // Then
         #expect(repository.deleteCalled == true)
@@ -60,7 +60,7 @@ struct DeleteReviewItemUseCaseTests {
         
         // When/Then
         await #expect(throws: Error.self) {
-            try await sut.execute(id: nonExistentId)
+            try await sut.execute(itemId: nonExistentId)
         }
     }
     
@@ -75,7 +75,7 @@ struct DeleteReviewItemUseCaseTests {
         let idsToDelete = items.prefix(2).map { $0.id }
         
         // When
-        try await sut.executeBatch(ids: Array(idsToDelete))
+        try await sut.execute(itemIds: Array(idsToDelete))
         
         // Then
         #expect(repository.items.count == 1)
@@ -88,7 +88,7 @@ struct DeleteReviewItemUseCaseTests {
         repository.items = [makeSampleItem()]
         
         // When
-        try await sut.executeBatch(ids: [])
+        try await sut.execute(itemIds: [])
         
         // Then
         #expect(repository.items.count == 1)

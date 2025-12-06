@@ -20,8 +20,8 @@ extension CaptureViewModel {
 
     /// 保存错题
     func saveItem() {
-        guard let modelContext else {
-            Logger.data.error("保存失败：modelContext 为 nil")
+        guard let createItemUseCase else {
+            Logger.data.error("保存失败：createItemUseCase 为 nil")
             showErrorAlert(String(localized: "capture_save_error_context"))
             return
         }
@@ -35,53 +35,50 @@ extension CaptureViewModel {
 
         isSaving = true
 
-        // 创建领域实体
-        let newItem = ReviewItem(
-            imageData: selectedImageData,  // 可为 nil（实时扫描模式）
-            title: title.trimmingCharacters(in: .whitespacesAndNewlines),
-            note: note,
-            subject: subject,
-            grade: grade,
-            knowledgePoints: KnowledgePoints(from: knowledgePointsInput),
-            difficulty: difficulty,
-            errorType: errorType,
-            source: source,
-            reviewItemType: reviewItemType
-        )
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            
+            do {
+                // 创建输入
+                let input = CreateReviewItemInput(
+                    title: title.trimmingCharacters(in: .whitespacesAndNewlines),
+                    imageData: selectedImageData,
+                    subject: subject,
+                    grade: grade,
+                    difficulty: difficulty,
+                    errorType: errorType,
+                    knowledgePoints: KnowledgePoints(from: knowledgePointsInput).items,
+                    note: note,
+                    source: source,
+                    reviewItemType: reviewItemType
+                )
+                
+                // 使用 Use Case 保存
+                let newItem = try await createItemUseCase.execute(input: input)
+                
+                Logger.data.info("✅ ReviewItem 保存成功: \(newItem.id)")
 
-        Logger.data.info("创建 ReviewItem: id=\(newItem.id), title=\(newItem.title)")
+                // 触觉反馈 - 成功
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.success)
 
-        // 转换为持久化模型并插入
-        let model = ReviewItemMapper.toModel(from: newItem)
-        modelContext.insert(model)
-        Logger.data.debug("insert 完成")
-
-        do {
-            try modelContext.save()
-            Logger.data.info("✅ ReviewItem 保存成功: \(newItem.id)")
-
-            // 触觉反馈 - 成功
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.success)
-
-            // 延迟显示成功提示，改善体验
-            Task { @MainActor [weak self] in
+                // 延迟显示成功提示，改善体验
                 try? await Task.sleep(for: .milliseconds(300))
-                self?.isSaving = false
-                self?.showSuccessAlert(String(localized: "capture_save_success"))
+                isSaving = false
+                showSuccessAlert(String(localized: "capture_save_success"))
 
                 // 发送通知
                 NotificationCenter.default.post(name: .reviewItemAdded, object: newItem)
+            } catch {
+                Logger.data.error("❌ ReviewItem 保存失败: \(error.localizedDescription)")
+
+                // 触觉反馈 - 失败
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.error)
+
+                isSaving = false
+                showErrorAlert(String(format: String(localized: "capture_save_error_generic"), error.localizedDescription))
             }
-        } catch {
-            Logger.data.error("❌ ReviewItem 保存失败: \(error.localizedDescription)")
-
-            // 触觉反馈 - 失败
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.error)
-
-            isSaving = false
-            showErrorAlert(String(format: String(localized: "capture_save_error_generic"), error.localizedDescription))
         }
     }
 

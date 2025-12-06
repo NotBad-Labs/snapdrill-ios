@@ -75,6 +75,15 @@ final class MockReviewItemRepository: ReviewItemRepositoryProtocol {
         return items
     }
     
+    func fetch(by id: UUID) -> ReviewItem? {
+        return items.first { $0.id == id }
+    }
+    
+    func fetchWithImage(by id: UUID) -> ReviewItem? {
+        // Mock 实现直接返回完整数据
+        return items.first { $0.id == id }
+    }
+    
     func fetch(subject: Subject?, mastery: MasteryLevel?) -> [ReviewItem] {
         var result = items
         if let subject = subject {

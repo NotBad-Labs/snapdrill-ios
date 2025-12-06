@@ -32,8 +32,7 @@ struct GetStatisticsUseCaseTests {
             difficulty: .medium,
             errorType: .concept
         )
-        item1.masteryLevel = .mastered
-        item1.reviewCount = 5
+        item1.masteryLevel = MasteryLevel.mastered.rawValue
         
         let item2 = ReviewItem(
             imageData: Data(),
@@ -43,8 +42,7 @@ struct GetStatisticsUseCaseTests {
             difficulty: .hard,
             errorType: .calculation
         )
-        item2.masteryLevel = .partial
-        item2.reviewCount = 3
+        item2.masteryLevel = MasteryLevel.partial.rawValue
         
         let item3 = ReviewItem(
             imageData: Data(),
@@ -54,8 +52,7 @@ struct GetStatisticsUseCaseTests {
             difficulty: .easy,
             errorType: .careless
         )
-        item3.masteryLevel = .none
-        item3.reviewCount = 0
+        item3.masteryLevel = MasteryLevel.none.rawValue
         
         return [item1, item2, item3]
     }
@@ -69,10 +66,10 @@ struct GetStatisticsUseCaseTests {
         repository.items = makeSampleItems()
         
         // When
-        let result = try await sut.executeOverview()
+        let result = await sut.executeOverview()
         
         // Then
-        #expect(result.totalItems == 3)
+        #expect(result.totalCount == 3)
     }
     
     @Test("空仓库返回零统计")
@@ -82,10 +79,10 @@ struct GetStatisticsUseCaseTests {
         repository.items = []
         
         // When
-        let result = try await sut.executeOverview()
+        let result = await sut.executeOverview()
         
         // Then
-        #expect(result.totalItems == 0)
+        #expect(result.totalCount == 0)
     }
     
     // MARK: - Subject Statistics Tests
@@ -97,16 +94,16 @@ struct GetStatisticsUseCaseTests {
         repository.items = makeSampleItems()
         
         // When
-        let result = try await sut.executeBySubject()
+        let result = await sut.executeBySubject()
         
         // Then
         #expect(result.count == 2)  // math 和 physics
         
         let mathStats = result.first { $0.subject == .math }
-        #expect(mathStats?.count == 2)
+        #expect(mathStats?.totalCount == 2)
         
         let physicsStats = result.first { $0.subject == .physics }
-        #expect(physicsStats?.count == 1)
+        #expect(physicsStats?.totalCount == 1)
     }
     
     // MARK: - Mastery Distribution Tests
@@ -118,7 +115,7 @@ struct GetStatisticsUseCaseTests {
         repository.items = makeSampleItems()
         
         // When
-        let result = try await sut.executeOverview()
+        let result = await sut.executeOverview()
         
         // Then
         // 1 mastered, 1 partial, 1 none
@@ -136,7 +133,7 @@ struct GetStatisticsUseCaseTests {
         repository.items = makeSampleItems()
         
         // When
-        let result = try await sut.executeTrend(days: 7)
+        let result = await sut.executeTrend(days: 7)
         
         // Then
         #expect(result.count == 7)
@@ -151,7 +148,7 @@ struct GetStatisticsUseCaseTests {
         repository.items = makeSampleItems()
         
         // When
-        let result = try await sut.executeTodayProgress()
+        let result = await sut.executeTodayProgress()
         
         // Then
         #expect(result.targetCount >= 0)

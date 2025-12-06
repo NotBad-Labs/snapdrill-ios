@@ -28,22 +28,31 @@ final class ReviewItemRepository: Sendable {
     
     // MARK: - CRUD Operations
     
-    /// 获取所有错题
+    /// 获取所有错题（轻量版，不加载图片数据）
+    /// 用于列表显示场景，避免一次性加载大量图片到内存
     func fetchAll() -> [ReviewItem] {
         let descriptor = FetchDescriptor<ReviewItemModel>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         do {
             let models = try modelContext.fetch(descriptor)
-            return models.map { ReviewItemMapper.toEntity(from: $0) }
+            // 使用轻量转换，不加载图片数据
+            return ReviewItemMapper.toEntitiesWithoutImage(models)
         } catch {
             Logger.data.error("Failed to fetch all review items: \(error.localizedDescription)")
             return []
         }
     }
     
-    /// 根据 ID 获取单个错题
+    /// 根据 ID 获取单个错题（不含图片）
     func fetch(by id: UUID) -> ReviewItem? {
+        guard let model = fetchModel(by: id) else { return nil }
+        return ReviewItemMapper.toEntityWithoutImage(from: model)
+    }
+    
+    /// 根据 ID 获取单个错题（包含完整图片数据）
+    /// 用于详情页展示，按需加载图片
+    func fetchWithImage(by id: UUID) -> ReviewItem? {
         guard let model = fetchModel(by: id) else { return nil }
         return ReviewItemMapper.toEntity(from: model)
     }

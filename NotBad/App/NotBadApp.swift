@@ -14,27 +14,44 @@ import OSLog
 // MARK: - NotBadApp
 
 /// NotBad K12 错题本应用主入口
+///
+/// 采用层次化协调器架构：
+///
+/// ```
+/// NotBadApp (App Entry)
+///     └── AppCoordinator
+///         ├── RootCoordinator (启动/错误/维护)
+///         ├── MainFlowCoordinator (Onboarding/权限)
+///         │   └── TabCoordinator (Tab 导航)
+///         │       └── FeatureCoordinators (各功能模块)
+///         ├── WidgetSyncCoordinator
+///         ├── DeepLinkCoordinator
+///         └── SpotlightCoordinator
+/// ```
+///
+/// App 入口只负责：
+/// - 初始化核心依赖（ModelContainer、DependencyFactory）
+/// - 创建协调器层次结构
+/// - 组装 View 层级
+/// - 转发系统事件给协调器
 @main
 struct NotBadApp: App {
 
+    // MARK: - Core Dependencies
+    
     /// 模型容器（带迁移计划）
     let modelContainer: ModelContainer
     
     /// 依赖工厂
     let dependencyFactory: DependencyFactory
-
-    /// 导航路由器
-    @State private var router = NavigationRouter.shared
-
-    /// 是否显示 Onboarding
-    @State private var showOnboarding: Bool = false
     
-    /// Widget 同步防抖任务
-    @State private var widgetSyncTask: Task<Void, Never>?
+    // MARK: - Coordinators
     
-    /// Spotlight 搜索结果点击的错题 ID
-    @State private var spotlightItemId: UUID?
+    /// 应用协调器（协调器层次结构的根节点）
+    @State private var coordinator: AppCoordinator
 
+    // MARK: - User Preferences
+    
     /// 用户选择的颜色模式
     @AppStorage("colorScheme") private var colorSchemeOption = "system"
 
@@ -47,16 +64,82 @@ struct NotBadApp: App {
         }
     }
 
+    // MARK: - Initialization
+    
     init() {
         // 配置 TipKit
         TipsConfiguration.configure()
         
-        var container: ModelContainer
+        // 初始化 ModelContainer
+        let container = Self.createModelContainer()
+        self.modelContainer = container
         
+        // 创建并配置依赖工厂
+        let factory = ProductionDependencyFactory(modelContainer: container)
+        self.dependencyFactory = factory
+        AppDependencies.configure(factory: factory)
+        
+        // 初始化应用协调器（会自动创建整个协调器层次结构）
+        self._coordinator = State(initialValue: AppCoordinator(modelContainer: container))
+        
+        Logger.app.info("✅ App 初始化完成")
+    }
+
+    // MARK: - Scene
+    
+    var body: some Scene {
+        WindowGroup {
+            RootView(
+                coordinator: coordinator.root,
+                mainFlowCoordinator: coordinator.mainFlow
+            )
+            .environment(\.appCoordinator, coordinator)
+            .environment(\.tabCoordinator, coordinator.tab)
+            .withDependencies(dependencyFactory)
+            .preferredColorScheme(preferredColorScheme)
+            // Deep Link
+            .onOpenURL { url in
+                coordinator.handleOpenURL(url)
+            }
+            // Handoff Restoration
+            .onContinueUserActivity(UserActivityType.viewDashboard) { _ in
+                coordinator.handleHandoffTab(.dashboard)
+            }
+            .onContinueUserActivity(UserActivityType.viewLibrary) { _ in
+                coordinator.handleHandoffTab(.library)
+            }
+            .onContinueUserActivity(UserActivityType.captureItem) { _ in
+                coordinator.handleHandoffTab(.capture)
+            }
+            .onContinueUserActivity(UserActivityType.reviewSession) { _ in
+                coordinator.handleHandoffTab(.review)
+            }
+            .onContinueUserActivity(UserActivityType.viewProfile) { _ in
+                coordinator.handleHandoffTab(.profile)
+            }
+            // Spotlight 搜索结果
+            .onContinueUserActivity(CSSearchableItemActionType) { activity in
+                coordinator.handleUserActivity(activity)
+            }
+            // Widget 同步
+            .task {
+                await coordinator.startWidgetSync()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .reviewItemsDidChange)) { _ in
+                coordinator.scheduleWidgetSync()
+            }
+        }
+        .modelContainer(modelContainer)
+    }
+    
+    // MARK: - Factory Methods
+    
+    /// 创建 ModelContainer
+    private static func createModelContainer() -> ModelContainer {
         do {
-            let schema = Schema([ReviewItemModel.self])
+            let schema = Schema([ReviewItemModel.self, ReviewItemImageModel.self])
             let config = ModelConfiguration(schema: schema)
-            container = try ModelContainer(
+            return try ModelContainer(
                 for: schema,
                 migrationPlan: ReviewItemMigrationPlan.self,
                 configurations: [config]
@@ -74,158 +157,14 @@ struct NotBadApp: App {
 
             // 重新创建容器
             do {
-                let schema = Schema([ReviewItemModel.self])
+                let schema = Schema([ReviewItemModel.self, ReviewItemImageModel.self])
                 let config = ModelConfiguration(schema: schema)
-                container = try ModelContainer(for: schema, configurations: [config])
+                let container = try ModelContainer(for: schema, configurations: [config])
                 Logger.app.info("✅ 重建数据库成功")
+                return container
             } catch {
                 fatalError("❌ [App] 无法创建 ModelContainer: \(error)")
             }
-        }
-        
-        // 设置 ModelContainer
-        self.modelContainer = container
-        
-        // 创建并配置依赖工厂
-        let factory = ProductionDependencyFactory(modelContainer: container)
-        self.dependencyFactory = factory
-        AppDependencies.configure(factory: factory)
-        
-        Logger.app.info("✅ 依赖工厂初始化完成")
-    }
-
-    var body: some Scene {
-        WindowGroup {
-            AdaptiveNavigationView()
-                .environment(\.router, router)
-                .withDependencies(dependencyFactory)
-                .preferredColorScheme(preferredColorScheme)
-                .fullScreenCover(isPresented: $showOnboarding) {
-                    OnboardingView {
-                        showOnboarding = false
-                    }
-                }
-                .onAppear {
-                    checkOnboardingStatus()
-                }
-                .onOpenURL { url in
-                    handleDeepLink(url)
-                }
-                // Handoff Restoration
-                .onContinueUserActivity(UserActivityType.viewDashboard) { _ in router.selectedTab = .dashboard }
-                .onContinueUserActivity(UserActivityType.viewLibrary) { _ in router.selectedTab = .library }
-                .onContinueUserActivity(UserActivityType.captureItem) { _ in router.selectedTab = .capture }
-                .onContinueUserActivity(UserActivityType.reviewSession) { _ in router.selectedTab = .review }
-                .onContinueUserActivity(UserActivityType.viewProfile) { _ in router.selectedTab = .profile }
-                // Spotlight 搜索结果点击
-                .onContinueUserActivity(CSSearchableItemActionType) { activity in
-                    handleSpotlightSearch(activity)
-                }
-                .task {
-                    await syncWidgetData()
-                }
-                .onReceive(NotificationCenter.default.publisher(for: .reviewItemsDidChange)) { _ in
-                    // 防抖：批量删除/修改时避免高频同步
-                    scheduleWidgetSync()
-                }
-                .onChange(of: spotlightItemId) { _, newId in
-                    // Spotlight 搜索结果导航
-                    if let id = newId {
-                        navigateToItem(id: id)
-                        spotlightItemId = nil
-                    }
-                }
-        }
-        .modelContainer(modelContainer)
-    }
-    
-    // MARK: - Widget Sync (Debounced)
-    
-    /// 调度 Widget 同步（带 1.5 秒防抖）
-    ///
-    /// 当用户批量删除或修改错题时，会触发多次 `.reviewItemsDidChange` 通知。
-    /// 使用防抖机制避免 Widget 数据疯狂同步，减少 CPU 和 I/O 压力。
-    private func scheduleWidgetSync() {
-        // 取消之前的防抖任务
-        widgetSyncTask?.cancel()
-        
-        // 延迟 1.5 秒后执行同步
-        widgetSyncTask = Task {
-            try? await Task.sleep(for: .seconds(1.5))
-            
-            guard !Task.isCancelled else { return }
-            
-            await syncWidgetData()
-        }
-    }
-
-    // MARK: - Onboarding
-
-    /// 检查是否需要显示 Onboarding
-    private func checkOnboardingStatus() {
-        let hasCompleted = UserDefaults.standard.bool(forKey: "has_completed_onboarding")
-        if !hasCompleted {
-            showOnboarding = true
-        }
-    }
-
-    // MARK: - Deep Link Handling
-
-    /// 处理来自 Widget 的 Deep Link
-    private func handleDeepLink(_ url: URL) {
-        guard url.scheme == "notbad" else { return }
-
-        switch url.host {
-        case "review":
-            // 导航到复习页面
-            router.selectedTab = .review
-        case "library":
-            // 导航到错题库
-            router.selectedTab = .library
-        case "capture":
-            // 导航到拍照
-            router.selectedTab = .capture
-        default:
-            break
-        }
-
-        Logger.app.debug("Deep link handled: \(url.absoluteString)")
-    }
-    
-    // MARK: - Spotlight Search Handling
-    
-    /// 处理 Spotlight 搜索结果点击
-    private func handleSpotlightSearch(_ activity: NSUserActivity) {
-        if let itemId = SpotlightIndexService.handleSpotlightActivity(activity) {
-            spotlightItemId = itemId
-            Logger.app.debug("Spotlight search: navigating to item \(itemId)")
-        }
-    }
-    
-    /// 导航到指定错题
-    @MainActor
-    private func navigateToItem(id: UUID) {
-        // 切换到题库 Tab
-        router.selectedTab = .library
-        
-        // 通过 NavigationRouter 推送详情页
-        router.navigateToItemDetail(itemId: id)
-    }
-
-    // MARK: - Widget Data Sync
-
-    /// 同步数据到 Widget
-    @MainActor
-    private func syncWidgetData() async {
-        let context = modelContainer.mainContext
-        let descriptor = FetchDescriptor<ReviewItemModel>()
-
-        do {
-            let models = try context.fetch(descriptor)
-            let items = models.map { ReviewItemMapper.toEntity(from: $0) }
-            items.syncToWidget()
-        } catch {
-            Logger.widget.error("Failed to sync widget data: \(error.localizedDescription)")
         }
     }
 }

@@ -22,48 +22,82 @@ import Charts
 /// - 掌握度分布饼图
 /// - 学科分布条形图
 /// - 快捷操作入口
+///
+/// ## 架构设计
+///
+/// 使用 ViewModel + Use Cases 获取数据，不直接访问 SwiftData
 struct DashboardView: View {
 
     // MARK: - Environment
 
-    @Query private var allModels: [ReviewItemModel]
+    @Environment(\.dependencyFactory) private var dependencyFactory
     
-    /// 将持久化模型转换为领域实体
+    // MARK: - State
+    
+    @State private var viewModel: DashboardViewModel?
+
+    // MARK: - Computed Properties
+    
+    /// 从 ViewModel 获取的错题列表
     private var allItems: [ReviewItem] {
-        allModels.map { ReviewItemMapper.toEntity(from: $0) }
+        viewModel?.items ?? []
     }
 
     // MARK: - Body
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: DesignTokens.Spacing.xl) {
-                    WelcomeCard()
-
-                    StatisticsGrid(
-                        totalCount: allItems.count,
-                        masteredCount: masteredCount,
-                        weeklyNewCount: weeklyNewCount,
-                        totalReviewCount: totalReviewCount
-                    )
-
-                    MasteryDistributionChart(
-                        data: masteryData,
-                        isEmpty: allItems.isEmpty
-                    )
-
-                    SubjectDistributionChart(
-                        data: subjectData,
-                        isEmpty: allItems.isEmpty
-                    )
-
-                    quickActions
+            Group {
+                if let viewModel {
+                    dashboardContent(viewModel: viewModel)
+                } else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .padding()
             }
             .navigationTitle("dashboard_title")
             .navigationBarTitleDisplayMode(.large)
+            .task {
+                // 初始化 ViewModel 并加载数据
+                if viewModel == nil, let factory = dependencyFactory {
+                    viewModel = factory.makeDashboardViewModel()
+                }
+                await viewModel?.loadData()
+            }
+        }
+    }
+    
+    // MARK: - Dashboard Content
+    
+    @ViewBuilder
+    private func dashboardContent(viewModel: DashboardViewModel) -> some View {
+        ScrollView {
+            VStack(spacing: DesignTokens.Spacing.xl) {
+                WelcomeCard()
+
+                StatisticsGrid(
+                    totalCount: allItems.count,
+                    masteredCount: masteredCount,
+                    weeklyNewCount: weeklyNewCount,
+                    totalReviewCount: totalReviewCount
+                )
+
+                MasteryDistributionChart(
+                    data: masteryData,
+                    isEmpty: allItems.isEmpty
+                )
+
+                SubjectDistributionChart(
+                    data: subjectData,
+                    isEmpty: allItems.isEmpty
+                )
+
+                quickActions
+            }
+            .padding()
+        }
+        .refreshable {
+            await viewModel.refresh()
         }
     }
 
@@ -141,5 +175,4 @@ struct DashboardView: View {
 
 #Preview {
     DashboardView()
-        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

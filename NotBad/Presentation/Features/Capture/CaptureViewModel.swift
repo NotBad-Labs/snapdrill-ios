@@ -3,7 +3,7 @@
 //  NotBad
 //
 //  Created by LIAOYIMING on 2025/6/5.
-//  Phase 3: ViewModel Dependency Injection
+//  Phase 4: Use Case Integration
 //
 
 import Foundation
@@ -19,18 +19,12 @@ import SwiftUI
 /// 负责处理图片选择、OCR 识别、表单管理和保存操作
 /// 使用 Swift 6 的 @Observable 宏实现响应式更新
 ///
-/// ## 依赖注入
-///
-/// 支持注入 DataProvider 用于测试：
+/// ## 依赖注入（推荐方式）
 ///
 /// ```swift
-/// // 生产环境
-/// let viewModel = CaptureViewModel()
-/// viewModel.configure(with: modelContext)
-///
-/// // 测试环境
-/// let mockProvider = MockReviewItemProvider()
-/// let viewModel = CaptureViewModel(dataProvider: mockProvider)
+/// // 使用 DependencyFactory
+/// let factory = dependencies.factory
+/// let viewModel = factory.makeCaptureViewModel()
 /// ```
 @MainActor
 @Observable
@@ -88,13 +82,19 @@ final class CaptureViewModel {
 
     var isFromLiveScanner: Bool = false
 
-    // MARK: - Dependencies
-
-    /// 数据提供者（可选，用于依赖注入）
-    private var dataProvider: (any ReviewItemDataProviding)?
-
-    var modelContext: ModelContext?
-    let ocrService = OCRService.shared
+    // MARK: - Dependencies (Use Cases)
+    
+    /// 创建错题用例
+    var createItemUseCase: CreateReviewItemUseCaseProtocol?
+    
+    /// OCR 服务
+    private var injectedOCRService: (any OCRServiceProtocol)?
+    
+    /// OCR 服务（优先使用注入的服务）
+    var ocrService: any OCRServiceProtocol {
+        injectedOCRService ?? OCRService.shared
+    }
+    
     let smartAnalysisService = SmartAnalysisService.shared
 
     // MARK: - Initialization
@@ -104,18 +104,19 @@ final class CaptureViewModel {
         // 检查智能分析是否可用
         smartAnalysisAvailable = smartAnalysisService.isAvailable
     }
-
-    /// 依赖注入初始化（推荐用于测试）
+    
+    /// Use Case 依赖注入初始化（推荐）
     ///
-    /// - Parameter dataProvider: 数据提供者
-    init(dataProvider: any ReviewItemDataProviding) {
-        self.dataProvider = dataProvider
+    /// - Parameters:
+    ///   - createItemUseCase: 创建错题用例
+    ///   - ocrService: OCR 服务
+    init(
+        createItemUseCase: CreateReviewItemUseCaseProtocol,
+        ocrService: any OCRServiceProtocol
+    ) {
+        self.createItemUseCase = createItemUseCase
+        self.injectedOCRService = ocrService
         smartAnalysisAvailable = smartAnalysisService.isAvailable
-    }
-
-    /// 配置 ModelContext
-    func configure(with modelContext: ModelContext) {
-        self.modelContext = modelContext
     }
 
     // MARK: - Grade Default

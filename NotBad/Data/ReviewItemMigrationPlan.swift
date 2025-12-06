@@ -57,10 +57,8 @@ enum ReviewItemMigrationPlan: SchemaMigrationPlan {
     /// SwiftData 会根据此数组确定迁移路径。
     static var schemas: [VersionedSchema.Type] {
         [
-            ReviewItemSchemaV1.self
-            // 未来版本在此添加：
-            // ReviewItemSchemaV2.self,
-            // ReviewItemSchemaV3.self
+            ReviewItemSchemaV1.self,
+            ReviewItemSchemaV2.self
         ]
     }
 
@@ -69,13 +67,25 @@ enum ReviewItemMigrationPlan: SchemaMigrationPlan {
     /// 迁移阶段
     ///
     /// 定义版本之间的迁移逻辑。
-    /// 空数组表示所有迁移都是轻量级迁移。
     static var stages: [MigrationStage] {
         [
-            // 未来添加迁移逻辑：
-            // migrateV1toV2
+            migrateV1toV2
         ]
     }
+}
+
+// MARK: - V1 to V2 Migration
+
+extension ReviewItemMigrationPlan {
+
+    /// V1 到 V2 的轻量级迁移
+    ///
+    /// V2 新增 ReviewItemImageModel，这是一个新增的表，
+    /// 使用轻量级迁移即可，SwiftData 会自动创建新表。
+    static let migrateV1toV2 = MigrationStage.lightweight(
+        fromVersion: ReviewItemSchemaV1.self,
+        toVersion: ReviewItemSchemaV2.self
+    )
 }
 
 // MARK: - ReviewItemMigrationPlan Future Migrations
@@ -162,6 +172,34 @@ enum ReviewItemSchemaV1: VersionedSchema {
     }
 }
 
+// MARK: - ReviewItemSchemaV2
+
+/// ReviewItem Schema V2
+///
+/// 新增独立图片存储模型，支持懒加载。
+///
+/// ## 变更说明
+///
+/// - 新增 `ReviewItemImageModel`：独立存储图片数据
+/// - 图片数据与 ReviewItem 分离，支持按需加载
+/// - 减少列表加载时的内存占用
+///
+/// ## 迁移注意事项
+///
+/// - 使用轻量级迁移，SwiftData 自动创建新表
+/// - 已有数据的图片仍在 ReviewItemModel 中
+/// - 新数据的图片存储在 ReviewItemImageModel 中
+enum ReviewItemSchemaV2: VersionedSchema {
+    
+    /// 版本标识符
+    nonisolated(unsafe) static var versionIdentifier = Schema.Version(2, 0, 0)
+    
+    /// 此版本包含的持久化模型
+    static var models: [any PersistentModel.Type] {
+        [ReviewItemModel.self, ReviewItemImageModel.self]
+    }
+}
+
 // MARK: - Future Schema Versions
 
 /*
@@ -212,7 +250,7 @@ extension ReviewItemMigrationPlan {
 
     /// 当前 Schema 版本
     nonisolated(unsafe) static var currentVersion: Schema.Version {
-        ReviewItemSchemaV1.versionIdentifier
+        ReviewItemSchemaV2.versionIdentifier
     }
 
     /// 版本描述

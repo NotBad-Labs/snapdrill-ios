@@ -43,10 +43,24 @@ protocol ReviewItemRepositoryProtocol: AnyObject, Sendable {
 
     // MARK: - Fetch Operations
 
-    /// 获取所有错题
+    /// 获取所有错题（轻量版，不含图片数据）
     ///
-    /// - Returns: 所有错题列表，按创建时间降序排列
+    /// - Returns: 所有错题列表，按创建时间降序排列（不含图片数据）
     func fetchAll() -> [ReviewItem]
+    
+    /// 根据 ID 获取单个错题（不含图片）
+    ///
+    /// - Parameter id: 错题 ID
+    /// - Returns: 对应的错题实体，不存在则返回 nil
+    func fetch(by id: UUID) -> ReviewItem?
+    
+    /// 根据 ID 获取单个错题（包含完整图片数据）
+    ///
+    /// 用于详情页展示，按需加载图片。
+    ///
+    /// - Parameter id: 错题 ID
+    /// - Returns: 对应的错题实体（含图片），不存在则返回 nil
+    func fetchWithImage(by id: UUID) -> ReviewItem?
 
     /// 根据条件筛选错题
     ///

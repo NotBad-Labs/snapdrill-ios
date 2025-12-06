@@ -3,7 +3,7 @@
 //  NotBad
 //
 //  Created by LIAOYIMING on 2025/6/5.
-//  Phase 3: ViewModel Dependency Injection
+//  Phase 4: Use Case Integration
 //
 
 import SwiftUI
@@ -21,28 +21,33 @@ import SwiftData
 /// - 生成图表所需的数据结构
 /// - 提供复习建议和学习洞察
 ///
-/// ## 依赖注入
-///
-/// 支持两种使用方式：
+/// ## 依赖注入（推荐方式）
 ///
 /// ```swift
-/// // 方式1: 使用 DataProvider（推荐，支持测试）
-/// let provider = SwiftDataReviewItemProvider(modelContext: context)
-/// let viewModel = DashboardViewModel(dataProvider: provider)
-/// let stats = viewModel.computeStatistics()
-///
-/// // 方式2: 传入 items（向后兼容）
-/// let viewModel = DashboardViewModel()
-/// let stats = viewModel.computeStatistics(from: items)
+/// // 使用 DependencyFactory
+/// let factory = dependencies.factory
+/// let viewModel = factory.makeDashboardViewModel()
+/// await viewModel.loadData()
 /// ```
 @MainActor
 @Observable
 final class DashboardViewModel {
 
-    // MARK: - Dependencies
+    // MARK: - Dependencies (Use Cases)
 
-    /// 数据提供者（可选，用于依赖注入）
-    private var dataProvider: (any ReviewItemDataProviding)?
+    /// 获取错题用例
+    private var fetchItemsUseCase: FetchReviewItemsUseCaseProtocol?
+    
+    /// 统计用例
+    private var statisticsUseCase: GetStatisticsUseCaseProtocol?
+    
+    // MARK: - Data State
+    
+    /// 从 Use Case 加载的数据
+    private(set) var loadedItems: [ReviewItem] = []
+    
+    /// 数据是否正在加载
+    private(set) var isLoading = false
 
     // MARK: - State
 
@@ -54,23 +59,49 @@ final class DashboardViewModel {
 
     // MARK: - Initialization
 
-    /// 默认初始化（向后兼容）
+    /// 默认初始化
     init() {}
-
-    /// 依赖注入初始化（推荐用于测试）
+    
+    /// Use Case 依赖注入初始化（推荐）
     ///
-    /// - Parameter dataProvider: 数据提供者
-    init(dataProvider: any ReviewItemDataProviding) {
-        self.dataProvider = dataProvider
+    /// - Parameters:
+    ///   - fetchItemsUseCase: 获取错题用例
+    ///   - statisticsUseCase: 统计用例
+    init(
+        fetchItemsUseCase: FetchReviewItemsUseCaseProtocol,
+        statisticsUseCase: GetStatisticsUseCaseProtocol
+    ) {
+        self.fetchItemsUseCase = fetchItemsUseCase
+        self.statisticsUseCase = statisticsUseCase
+    }
+    
+    // MARK: - Data Loading
+    
+    /// 加载数据（使用 Use Case）
+    ///
+    /// - Parameter forceRefresh: 强制刷新，忽略缓存
+    func loadData(forceRefresh: Bool = false) async {
+        guard let fetchItemsUseCase else { return }
+        
+        // 如果已有数据且不强制刷新，跳过加载
+        guard forceRefresh || loadedItems.isEmpty else { return }
+        
+        isLoading = true
+        defer { isLoading = false }
+        
+        loadedItems = await fetchItemsUseCase.execute()
+    }
+    
+    /// 刷新数据（强制重新加载）
+    func refresh() async {
+        await loadData(forceRefresh: true)
     }
 
     // MARK: - Data Access
 
     /// 获取所有错题
-    ///
-    /// 优先从 dataProvider 获取，否则返回空数组
     var items: [ReviewItem] {
-        dataProvider?.items ?? []
+        loadedItems
     }
 
     // MARK: - Private Helpers
