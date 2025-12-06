@@ -2,16 +2,14 @@
 //  NotBadWidget.swift
 //  NotBadWidget
 //
-//  使用 App Groups + SwiftData 直接读取主 App 数据
+//  使用 ReviewKit 共享数据
+//  Widget 和主 App 使用相同的 ReviewKit.ReviewItemModel
 //
 
 import WidgetKit
 import SwiftUI
 import SwiftData
-
-// MARK: - App Group 配置（与主 App 保持一致）
-
-private let appGroupIdentifier = "group.com.notbad.shared"
+import ReviewKit  // ✅ 导入 ReviewKit，共享 Model 定义
 
 // MARK: - ReviewEntry
 
@@ -57,10 +55,9 @@ struct Provider: AppIntentTimelineProvider {
 
     @MainActor
     private func getEntry(for configuration: ConfigurationAppIntent) async -> ReviewEntry {
-        // ✅ 直接从 SwiftData 读取（通过 App Groups 共享目录）
+        // ✅ 使用 ReviewKit 的 PersistenceController 读取共享数据
         do {
-            let container = try createSharedModelContainer()
-            let context = container.mainContext
+            let context = PersistenceController.shared.container.mainContext
             
             let descriptor = FetchDescriptor<ReviewItemModel>()
             let allItems = try context.fetch(descriptor)
@@ -101,25 +98,6 @@ struct Provider: AppIntentTimelineProvider {
             )
         }
     }
-    
-    /// 创建共享的 ModelContainer（使用 App Groups）
-    private func createSharedModelContainer() throws -> ModelContainer {
-        let schema = Schema([ReviewItemModel.self])
-        
-        guard let appGroupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier) else {
-            throw WidgetError.appGroupNotConfigured
-        }
-        
-        let storeURL = appGroupURL.appendingPathComponent("NotBad.sqlite")
-        let config = ModelConfiguration(schema: schema, url: storeURL)
-        
-        return try ModelContainer(for: schema, configurations: [config])
-    }
-}
-
-/// Widget 错误类型
-enum WidgetError: Error {
-    case appGroupNotConfigured
 }
 
 // MARK: - ConfigurationAppIntent

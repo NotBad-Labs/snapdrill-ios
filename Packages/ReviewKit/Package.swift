@@ -23,7 +23,10 @@ let package = Package(
     targets: [
         .target(
             name: "ReviewKit",
-            dependencies: []
+            dependencies: [],
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency") // Swift 6 预备
+            ]
         ),
         .executableTarget(
             name: "ReviewKitCLI",
