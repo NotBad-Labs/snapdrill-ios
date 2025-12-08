@@ -59,26 +59,15 @@ main ←────────────────────────
 
 ## 🏗 架构设计
 
-采用 **Clean Architecture + MVVM + DDD 值对象** 模式：
+当前采用 **实用主义架构**（见 [ADR-006](docs/adr/ADR-006-pragmatic-architecture.md)），核心是 SwiftUI + SwiftData 直连，复杂逻辑下沉到 Service：
 
 ```text
-NotBad/
-├── Domain/                 # 领域层（核心业务）
-│   ├── Entities/           # 实体 (ReviewItem + 4个扩展)
-│   ├── ValueObjects/       # 值对象 (13个)
-│   ├── Education/          # 多国教育体系 (6国支持)
-│   └── Protocols/          # 协议定义
-├── Data/                   # 数据层
-│   └── Repository/         # 仓储实现
-├── Infrastructure/         # 基础设施
-│   ├── OCR/               # OCR 服务
-│   ├── Scanner/           # 实时文本扫描
-│   ├── Camera/            # 相机组件
-│   └── Widget/            # Widget 数据同步
-└── Presentation/           # 表现层
-    ├── Common/             # 通用组件/样式
-    └── Features/           # 功能模块 (6个, MVVM)
+Views (@Query) → Models (@Model 充血模型) → Services (纯 Swift)
 ```
+
+- 图片仅存磁盘路径（由 `ImageStorageService` 处理），避免 SwiftData 膨胀。
+- 未来演进方向：物理模块化（ReviewKit / ImageKit / OCRKit），详见 [ADR-007](docs/adr/ADR-007-modularization-direction.md)。
+- 详细目录说明见 `docs/PROJECT_STRUCTURE.md` 与 `docs/ARCHITECTURE.md`。
 
 ## 🚀 快速开始
 
@@ -87,8 +76,8 @@ NotBad/
 git clone https://github.com/chramboliao/NotBad.git
 cd NotBad
 
-# 切换到开发分支
-git checkout develop
+# 切换到当前开发分支
+git checkout minimal
 
 # 打开项目
 open NotBad.xcodeproj
@@ -109,6 +98,8 @@ open NotBad.xcodeproj
 | [项目结构](docs/PROJECT_STRUCTURE.md) | 完整目录结构说明 |
 | [编码规范](docs/CODING_STANDARDS.md) | Swift 6 / SwiftUI / SwiftData 工程手册 |
 | [术语表](docs/GLOSSARY.md) | 项目统一语言定义 (DDD) |
+| [架构决策记录](docs/adr/README.md) | 当前架构与演进提案 |
+| [归档文档](docs/archive/README.md) | 历史 ADR / 规划文档 |
 | [发布清单](RELEASE_CHECKLIST.md) | 发布前检查清单 (含 App Store 审核) |
 | [贡献指南](CONTRIBUTING.md) | 如何参与贡献 |
 

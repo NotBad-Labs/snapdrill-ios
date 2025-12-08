@@ -112,7 +112,7 @@ public enum OCRError: LocalizedError, Sendable {
 /// OCR 服务协议
 ///
 /// 定义文字识别服务的抽象接口，支持依赖注入和测试。
-@MainActor
+/// 方法可在任意线程调用，内部处理线程安全。
 public protocol OCRServiceProtocol: AnyObject, Sendable {
     
     /// 从图片中识别文字

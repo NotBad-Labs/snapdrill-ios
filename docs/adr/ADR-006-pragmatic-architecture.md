@@ -1,17 +1,17 @@
 # ADR-006: 实用主义架构（废弃 Clean Architecture）
 
 ## 状态
-**已采纳** — 废弃 ADR-001、ADR-003、ADR-005
+**已采纳** — 废弃 [ADR-001](../archive/adr/ADR-001-clean-architecture.md)、[ADR-003](../archive/adr/ADR-003-use-cases.md)、[ADR-005](../archive/adr/ADR-005-di-factory.md)
 
 ## 日期
 2025年12月6日
 
 ## 上下文
 
-项目最初采用 Clean Architecture（见 ADR-001），包含：
+项目最初采用 Clean Architecture（见 [ADR-001](../archive/adr/ADR-001-clean-architecture.md)），包含：
 - 4 层物理分离：Domain / Application / Data / Presentation
-- Use Cases 模式（见 ADR-003）
-- DI Factory（见 ADR-005）
+- Use Cases 模式（见 [ADR-003](../archive/adr/ADR-003-use-cases.md)）
+- DI Factory（见 [ADR-005](../archive/adr/ADR-005-di-factory.md)）
 - Entity ↔ Mapper ↔ Model 转换
 
 ### 实践中发现的问题

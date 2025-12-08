@@ -1,7 +1,7 @@
 # ADR-001: 采用 Clean Architecture
 
 ## 状态
-**已废弃** — 被 [ADR-006](./ADR-006-pragmatic-architecture.md) 取代
+**已废弃** — 被 [ADR-006](../../adr/ADR-006-pragmatic-architecture.md) 取代
 
 > ⚠️ 本决策已于 2025年12月6日废弃。项目转向实用主义架构，详见 ADR-006。
 
@@ -113,4 +113,4 @@ NotBad/
 ## 参考
 
 - [Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [iOS Clean Architecture with SwiftUI](https://nalexn.github.io/clean-architecture-swiftui/)
+- iOS Clean Architecture with SwiftUI（参考链接待更新）

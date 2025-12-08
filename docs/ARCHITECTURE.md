@@ -1,7 +1,8 @@
 # NotBad 项目架构文档
 
 > 最后更新：2025年12月6日  
-> 分支：minimal
+> 分支：minimal  
+> 权威顺序：ADR → ARCHITECTURE → README（如有冲突以 ADR 优先）
 
 ## 📋 概述
 
@@ -215,17 +216,7 @@ struct LibraryView: View {
 
 ## 📊 文件统计
 
-| 类别 | 数量 |
-|------|------|
-| 主 App Swift 文件 | 61 个 |
-| ReviewKit 文件 | 5 个 |
-| ImageKit 文件 | 2 个 |
-| OCRKit 文件 | 3 个 |
-| Views 文件 | 7 个 |
-| Components 文件 | 15 个 |
-| Infrastructure 文件 | 13 个 |
-
-> 注：Components 中大部分为待集成的预备组件，当前仅 ImagePicker 被使用。
+> 说明：文件数量随分支/迭代变化，以下不再列静态数字。如需统计，可运行 `find NotBad -name '*.swift' | wc -l`（或分目录统计）。
 
 ---
 
@@ -292,6 +283,18 @@ struct LibraryView: View {
 - [ ] 添加 iCloud 同步
 - [ ] 支持 PDF 导出
 - [ ] 添加学习报告功能
+
+---
+
+## 🧭 小团队模块化决策卡片
+
+- **优先策略**：薄壳 App + 少数高复用包（ReviewKit 管模型/算法；ImageKit/OCRKit 管 IO 能力；DesignSystem 视需求再抽）。避免“一个巨大 Kit”。
+- **依赖方向**：App → Kits；Kits 之间无环；Kit 不引入 SwiftUI（除非专为 UI 的 DesignSystem）；SwiftData 模型只定义在 ReviewKit。
+- **何时拆包（满足两项再拆）**：
+    1) 代码需被至少两个 Target 复用（App/Widget/CLI/macOS 等）。
+    2) 拆出后能显著降低编译/耦合或方便并行开发。
+    3) 公共 API 已相对稳定、边界清晰。
+- **何时暂缓**：单平台、团队 <5 人、代码量 <5 万行且无编译瓶颈时，保持主 Target 更简单高效。
 
 ---
 

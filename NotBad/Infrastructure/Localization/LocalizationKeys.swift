@@ -30,6 +30,9 @@ enum L10n {
         static let loading = String(localized: "common_loading", defaultValue: "加载中...")
         static let error = String(localized: "common_error", defaultValue: "错误")
         static let success = String(localized: "common_success", defaultValue: "成功")
+        static let warning = String(localized: "common_warning", defaultValue: "警告")
+        static let info = String(localized: "common_info", defaultValue: "提示")
+        static let recognitionFailed = String(localized: "common_recognition_failed", defaultValue: "识别失败")
     }
 
     // MARK: - Tabs

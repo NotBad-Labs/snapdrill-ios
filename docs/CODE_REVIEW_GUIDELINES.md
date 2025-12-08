@@ -5,6 +5,8 @@
 
 本文档为团队统一的代码审查（Code Review）准则。我们的目标是在保持**开发效率**（实用主义）的同时，交付符合 **Apple Design Awards** 标准的高质量教育应用。
 
+> 说明：风格细节以 `docs/CODING_STANDARDS.md` 为准，本指南聚焦评审检查项；如有冲突，优先级为 ADR → CODING_STANDARDS → 本指南。
+
 > **🎯 愿景**：通过原生架构发挥平台优势，在创新、包容性、用户体验上追求卓越。
 
 请在每次 PR 评审时参考下列 **15 个核心维度** 逐项核对。
@@ -33,34 +35,7 @@
 
 ## 1. 命名与代码风格
 
-### 1.1 命名规范
-
-| 类型 | 规范 | 示例 |
-|------|------|------|
-| 类型 | UpperCamelCase | `ReviewItem`, `ImageStorageService` |
-| 变量/函数 | lowerCamelCase | `fetchItems()`, `imagePath` |
-| 常量 | lowerCamelCase | `let maxRetryCount = 3` |
-| 协议 | 名词或 -able | `ReviewAlgorithm`, `Sendable` |
-| 文件名 | 与主类型一致 | `ReviewItem.swift` |
-
-### 1.2 协议遵循顺序
-
-**口诀：`"Send Case Code Hash ID"`**
-
-```swift
-enum Difficulty: Int, Sendable, CaseIterable, Codable, Hashable, Identifiable {
-    case easy, medium, hard
-    var id: Int { rawValue }
-}
-```
-
-### 1.3 Design Tokens 规范
-
-严禁硬编码 UI 数值，必须使用 `DesignTokens`。
-
-- **间距**: `DesignTokens.Spacing.md` (16pt) 而非 `16`。
-- **图标**: `DesignTokens.IconSize.lg` (48pt) 而非 `48`。
-- **颜色**: `Color.brand.primary` 或 `Color.semantic.error`。
+> 详细风格规范已汇总于 `docs/CODING_STANDARDS.md`，评审时仅需确认是否遵循该文档；如需具体规则（命名、协议顺序、Design Tokens），请直接参阅 CODING_STANDARDS。
 
 ---
 

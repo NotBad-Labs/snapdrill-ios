@@ -15,7 +15,10 @@ struct CaptureView: View {
     @State private var note = ""
     @State private var selectedImage: UIImage?
     @State private var showImagePicker = false
+    @State private var showSourceSheet = false
+    @State private var imageSource: UIImagePickerController.SourceType = .photoLibrary
     @State private var isRecognizing = false
+    @State private var errorMessage = ""
     @State private var recognizedText = ""
     @State private var showSaveSuccess = false
     
@@ -36,6 +39,14 @@ struct CaptureView: View {
                             Text("正在识别文字...")
                                 .foregroundStyle(.secondary)
                         }
+                    }
+                }
+
+                if !errorMessage.isEmpty {
+                    Section {
+                        Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                            .font(.footnote)
                     }
                 }
                 
@@ -61,12 +72,17 @@ struct CaptureView: View {
                             Spacer()
                         }
                     }
-                    .disabled(title.isEmpty && selectedImage == nil)
+                    .disabled((title.isEmpty && selectedImage == nil) || isRecognizing)
                 }
             }
             .navigationTitle("录入错题")
             .sheet(isPresented: $showImagePicker) {
-                ImagePicker(image: $selectedImage)
+                ImagePicker(image: $selectedImage, sourceType: imageSource, allowsEditing: true)
+            }
+            .confirmationDialog("选择图片来源", isPresented: $showSourceSheet) {
+                Button("拍照") { presentPicker(.camera) }
+                Button("从相册选择") { presentPicker(.photoLibrary) }
+                Button("取消", role: .cancel) {}
             }
             .onChange(of: selectedImage) { _, newImage in
                 if let image = newImage {
@@ -87,12 +103,12 @@ struct CaptureView: View {
                 .scaledToFit()
                 .frame(maxHeight: 200)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .onTapGesture { showImagePicker = true }
+                .onTapGesture { showSourceSheet = true }
                 .accessibilityLabel("已选择的图片")
                 .accessibilityHint("点击更换图片")
         } else {
             Button {
-                showImagePicker = true
+                showSourceSheet = true
             } label: {
                 Label("选择图片", systemImage: "photo.on.rectangle.angled")
                     .frame(maxWidth: .infinity)
@@ -107,6 +123,7 @@ struct CaptureView: View {
     private func performOCR(on image: UIImage) {
         isRecognizing = true
         recognizedText = ""
+        errorMessage = ""
         
         Task {
             do {
@@ -118,7 +135,8 @@ struct CaptureView: View {
                     title = ocrService.extractTitle(from: text)
                 }
             } catch {
-                recognizedText = "识别失败: \(error.localizedDescription)"
+                recognizedText = ""
+                errorMessage = "\(L10n.Common.recognitionFailed): \(error.localizedDescription)"
             }
             isRecognizing = false
         }
@@ -127,6 +145,12 @@ struct CaptureView: View {
     // MARK: - Save
     
     private func saveItem() {
+        guard !isRecognizing else { return }
+        // 没有标题时回退到识别结果或默认文案
+        if title.isEmpty {
+            title = recognizedText.isEmpty ? "未命名错题" : ocrService.extractTitle(from: recognizedText)
+        }
+
         let item = ReviewItemModel(
             title: title,
             note: note.isEmpty ? recognizedText : note
@@ -147,6 +171,14 @@ struct CaptureView: View {
         note = ""
         selectedImage = nil
         recognizedText = ""
+        errorMessage = ""
+    }
+
+    // MARK: - Helpers
+    private func presentPicker(_ source: UIImagePickerController.SourceType) {
+        guard UIImagePickerController.isSourceTypeAvailable(source) else { return }
+        imageSource = source
+        showImagePicker = true
     }
 }
 

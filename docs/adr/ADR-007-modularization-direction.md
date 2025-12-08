@@ -1,7 +1,7 @@
 # ADR-007: 模块化架构演进方向
 
 ## 状态
-**提议中** (Proposed)
+**已采纳** (Accepted)
 
 ## 日期
 2025-12-06（更新）
@@ -150,6 +150,23 @@ WebSocket 来了 → 存库 → 数据库通知 → UI 刷新
 ```
 这个链路畅通比什么都重要。
 
+### 4. 小团队的取舍（避免过度拆分）
+
+- **优先保持 App 薄壳 + 少数高复用包**：App 只管 UI/导航/组装；`ReviewKit` 管模型与算法；`ImageKit`/`OCRKit` 管 IO 能力；`DesignSystem` 视需求再抽。不要做“一个巨大 Kit”。
+- **触发拆包的条件**：多端复用（Widget/CLI/macOS）、并行开发、编译时间瓶颈、或需要对外分发库。否则先留在主 Target，避免无谓复杂度。
+- **依赖方向**：App → Kits；Kits 之间尽量无环；Kit 不 import SwiftUI（除非专为 UI 的 DesignSystem），SwiftData 模型只定义一处（ReviewKit）。
+- **决策清单**（满足两项再拆）
+    1) 这段代码是否会被至少两个 Target 复用？
+    2) 业务/编译耦合是否能因拆包显著降低？
+    3) 接口是否足够稳定，拆出后维护成本可控？
+    4) 是否有明确的公共 API 轮廓和封装边界？
+
+### 5. Swift 6.x 的实践提示
+
+- 保持核心 Kit 不依赖 SwiftUI；使用 `StrictConcurrency`/`Sendable` 提前规避并发问题。
+- 尽量 internal 化非必要 API，减轻接口膨胀与编译负担。
+- 通过局部包划分减少全量重编，兼顾原生性能与迭代效率。
+
 ## 实施时机
 
 | 条件 | 行动 |
@@ -158,6 +175,16 @@ WebSocket 来了 → 存库 → 数据库通知 → UI 刷新
 | 功能稳定后 | 创建 ReviewKit，迁移算法 |
 | 代码量 > 5万行 | 拆分 ImageKit、OCRKit |
 | 多平台扩展 | 全面依赖 Package |
+
+> 小团队决策卡片见 `docs/ARCHITECTURE.md`（薄壳 App + 少量高复用包，避免巨大单包；依赖方向 App→Kits，满足复用/降耦合/接口稳定再拆包）。
+
+## 工程师点评（摘要）
+
+- **薄壳 App + 核心三包**：保持 App 只做 UI/导航/组装；核心仅维护 `ReviewKit`（模型/算法/迁移）、`ImageKit`（图片 IO/压缩/共享路径）、`OCRKit`（文本识别）。DesignSystem 视需求再抽，避免“巨大 CommonKit”。
+- **依赖与命名空间**：App/Widget 共享 ReviewKit 中的 SwiftData 模型，杜绝多处定义；Kits 不引入 SwiftUI（除非专为 UI 的 DesignSystem），避免环依赖。
+- **拆包触发**：需多 Target 复用或明显降低编译/耦合时再拆；单平台、小团队、<5 万行且无编译瓶颈时可暂缓，保持主 Target 简单高效。
+- **并发与性能**：先在核心 Kit 开启 Strict Concurrency（Swift 6），分而治之；包内尽量 internal 化非公开 API，减轻接口膨胀与编译负担。
+- **验证与测试**：用 CLI Target 仅依赖 ReviewKit 跑通算法，证明核心可独立于 UI；核心测试快速、无须启动模拟器。
 
 ## 愿景
 

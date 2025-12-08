@@ -216,29 +216,31 @@ public final class ReviewItemModel {
         set { masteryLevel = newValue.rawValue }
     }
     
-    // MARK: - Business Methods (充血模型)
+    // MARK: - Convenience Methods
     
     /// 记录一次复习
+    ///
+    /// - Note: 推荐使用 `ReviewService.recordReview(for:performance:)` 以便更好的测试和维护
+    ///
     /// - Parameter performance: 掌握程度 (0-3)
     public func recordReview(performance: Int) {
-        let clampedPerformance = max(0, min(3, performance))
-        masteryLevel = clampedPerformance
-        reviewCount += 1
-        updatedAt = Date()
-        
-        // 使用 ReviewScheduler 计算下次复习时间
-        nextReviewDate = ReviewScheduler.calculateNextReviewDate(
-            currentMastery: clampedPerformance,
-            reviewCount: reviewCount
-        )
+        ReviewService.shared.recordReview(for: self, performance: performance)
+    }
+    
+    /// 记录一次复习（使用枚举）
+    ///
+    /// - Note: 推荐使用 `ReviewService.recordReview(for:performance:)` 以便更好的测试和维护
+    ///
+    /// - Parameter performance: 复习表现
+    public func recordReview(performance: ReviewPerformance) {
+        ReviewService.shared.recordReview(for: self, performance: performance)
     }
     
     /// 重置复习进度
+    ///
+    /// - Note: 推荐使用 `ReviewService.resetProgress(for:)` 以便更好的测试和维护
     public func resetProgress() {
-        masteryLevel = 0
-        reviewCount = 0
-        nextReviewDate = Date()
-        updatedAt = Date()
+        ReviewService.shared.resetProgress(for: self)
     }
     
     /// 标记为已更新

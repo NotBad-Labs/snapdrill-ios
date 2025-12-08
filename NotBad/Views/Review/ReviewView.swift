@@ -12,9 +12,11 @@ import ReviewKit
 struct ReviewView: View {
     @Query(sort: \ReviewItemModel.nextReviewDate)
     private var allItems: [ReviewItemModel]
+    @Environment(\.modelContext) private var modelContext
     
     @State private var currentIndex = 0
     @State private var showAnswer = false
+    @State private var showCompleteBanner = false
     
     private var dueItems: [ReviewItemModel] {
         allItems.filter { $0.needsReview }
@@ -44,6 +46,18 @@ struct ReviewView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Menu {
+                            Button("跳过") { goNext() }
+                            Button(role: .destructive) {
+                                deleteCurrent()
+                            } label: {
+                                Label("删除", systemImage: "trash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                        }
+                    }
                 }
             }
         }
@@ -57,6 +71,15 @@ struct ReviewView: View {
             systemImage: "checkmark.circle.fill",
             description: Text("所有错题都已复习完成")
         )
+        .overlay(alignment: .top) {
+            if showCompleteBanner {
+                Label("已完成本轮复习", systemImage: "sparkles")
+                    .padding(8)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .padding(.top, 12)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
     }
     
     private func reviewCardView(item: ReviewItemModel) -> some View {
@@ -93,11 +116,28 @@ struct ReviewView: View {
                 // 操作按钮
                 if showAnswer {
                     performanceButtons(for: item)
+                    nextReviewInfo(for: item)
                 } else {
                     showAnswerButton
                 }
             }
             .padding()
+            .safeAreaInset(edge: .bottom) {
+                if !dueItems.isEmpty {
+                    HStack {
+                        Button("跳过") { goNext() }
+                            .buttonStyle(.bordered)
+                        Button(role: .destructive) {
+                            deleteCurrent()
+                        } label: {
+                            Label("删除", systemImage: "trash")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                }
+            }
         }
         .animation(.spring(duration: 0.3), value: showAnswer)
     }
@@ -115,6 +155,16 @@ struct ReviewView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .sensoryFeedback(.impact(flexibility: .soft), trigger: showAnswer)
+    }
+
+    private func nextReviewInfo(for item: ReviewItemModel) -> some View {
+        VStack(spacing: 4) {
+            Text("下次复习：")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+            Text(item.nextReviewDate.formatted(date: .abbreviated, time: .omitted))
+                .font(.headline)
+        }
     }
     
     private func performanceButtons(for item: ReviewItemModel) -> some View {
@@ -178,16 +228,29 @@ struct ReviewView: View {
     private func recordAndNext(item: ReviewItemModel, performance: Int) {
         // 记录复习（使用充血模型方法）
         item.recordReview(performance: performance)
-        
-        // 下一题
+
+        goNext()
+    }
+
+    private func goNext() {
         withAnimation {
             showAnswer = false
             if currentIndex < dueItems.count - 1 {
                 currentIndex += 1
             } else {
-                currentIndex = 0  // 回到开始（此时 dueItems 应该为空了）
+                currentIndex = 0
+                showCompleteBanner = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    showCompleteBanner = false
+                }
             }
         }
+    }
+
+    private func deleteCurrent() {
+        guard let current = currentItem else { return }
+        modelContext.delete(current)
+        goNext()
     }
 }
 

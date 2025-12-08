@@ -1,6 +1,7 @@
 // OCRKit - OCR 服务实现
 //
 // 基于 Apple Vision 框架的文字识别服务。
+// 线程安全：Vision 处理在后台执行，可在任意线程调用。
 
 import Foundation
 import Vision
@@ -16,6 +17,7 @@ import AppKit
 /// OCR 文字识别服务
 ///
 /// 基于 Apple Vision 框架实现的文字识别服务，支持中英文混合识别。
+/// 线程安全，可在任意线程调用，Vision 处理在后台执行。
 ///
 /// ## 功能特性
 ///
@@ -36,24 +38,38 @@ import AppKit
 ///     print("识别失败: \(error)")
 /// }
 /// ```
-@MainActor
-public final class OCRService: OCRServiceProtocol {
+public final class OCRService: OCRServiceProtocol, @unchecked Sendable {
     
     // MARK: - Singleton
     
     /// 共享实例
     public static let shared = OCRService()
     
-    // MARK: - Configuration
+    // MARK: - Configuration (Thread-safe via lock)
+    
+    private let lock = NSLock()
+    
+    private var _recognitionLevel: VNRequestTextRecognitionLevel = .accurate
+    private var _recognitionLanguages = ["zh-Hans", "zh-Hant", "en-US"]
+    private var _usesLanguageCorrection = true
     
     /// 识别级别
-    public var recognitionLevel: VNRequestTextRecognitionLevel = .accurate
+    public var recognitionLevel: VNRequestTextRecognitionLevel {
+        get { lock.withLock { _recognitionLevel } }
+        set { lock.withLock { _recognitionLevel = newValue } }
+    }
     
     /// 支持的语言
-    public var recognitionLanguages = ["zh-Hans", "zh-Hant", "en-US"]
+    public var recognitionLanguages: [String] {
+        get { lock.withLock { _recognitionLanguages } }
+        set { lock.withLock { _recognitionLanguages = newValue } }
+    }
     
     /// 是否使用语言校正
-    public var usesLanguageCorrection = true
+    public var usesLanguageCorrection: Bool {
+        get { lock.withLock { _usesLanguageCorrection } }
+        set { lock.withLock { _usesLanguageCorrection = newValue } }
+    }
     
     // MARK: - Initialization
     
@@ -65,56 +81,81 @@ public final class OCRService: OCRServiceProtocol {
         languages: [String] = ["zh-Hans", "zh-Hant", "en-US"],
         usesLanguageCorrection: Bool = true
     ) {
-        self.recognitionLevel = recognitionLevel
-        self.recognitionLanguages = languages
-        self.usesLanguageCorrection = usesLanguageCorrection
+        self._recognitionLevel = recognitionLevel
+        self._recognitionLanguages = languages
+        self._usesLanguageCorrection = usesLanguageCorrection
     }
     
     // MARK: - Recognition
     
     /// 从图片中识别文字（带置信度）
+    ///
+    /// Vision 处理在后台线程执行，不阻塞主线程。
     public func recognizeTextWithConfidence(from image: PlatformImage) async throws -> OCRResult {
         guard let cgImage = getCGImage(from: image) else {
             throw OCRError.invalidImage
         }
         
-        return try await withCheckedThrowingContinuation { continuation in
-            let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-            
-            let request = VNRecognizeTextRequest { [weak self] request, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
-                
-                guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                    continuation.resume(throwing: OCRError.recognitionFailed)
-                    return
-                }
-                
-                let result = self?.processObservations(observations) ?? OCRResult.empty
-                
-                if result.text.isEmpty {
-                    continuation.resume(throwing: OCRError.noTextFound)
-                } else {
-                    continuation.resume(returning: result)
-                }
-            }
-            
-            // 配置识别参数
-            request.recognitionLevel = recognitionLevel
-            request.recognitionLanguages = recognitionLanguages
-            request.usesLanguageCorrection = usesLanguageCorrection
-            
-            do {
-                try requestHandler.perform([request])
-            } catch {
-                continuation.resume(throwing: error)
-            }
-        }
+        // 捕获配置（线程安全）
+        let level = recognitionLevel
+        let languages = recognitionLanguages
+        let useCorrection = usesLanguageCorrection
+        
+        // 在后台线程执行 Vision 识别
+        return try await Task.detached(priority: .userInitiated) {
+            try self.performRecognition(
+                cgImage: cgImage,
+                level: level,
+                languages: languages,
+                useCorrection: useCorrection
+            )
+        }.value
     }
     
     // MARK: - Private Helpers
+    
+    private func performRecognition(
+        cgImage: CGImage,
+        level: VNRequestTextRecognitionLevel,
+        languages: [String],
+        useCorrection: Bool
+    ) throws -> OCRResult {
+        var recognitionResult: OCRResult = .empty
+        var recognitionError: Error?
+        
+        let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        
+        let request = VNRecognizeTextRequest { request, error in
+            if let error {
+                recognitionError = error
+                return
+            }
+            
+            guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                recognitionError = OCRError.recognitionFailed
+                return
+            }
+            
+            recognitionResult = self.processObservations(observations)
+        }
+        
+        // 配置识别参数
+        request.recognitionLevel = level
+        request.recognitionLanguages = languages
+        request.usesLanguageCorrection = useCorrection
+        
+        try requestHandler.perform([request])
+        
+        if let error = recognitionError {
+            throw error
+        }
+        
+        if recognitionResult.text.isEmpty {
+            throw OCRError.noTextFound
+        }
+        
+        return recognitionResult
+    }
     
     private func getCGImage(from image: PlatformImage) -> CGImage? {
         #if canImport(UIKit)

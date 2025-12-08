@@ -100,7 +100,7 @@ NotBad (App Target) - 画皮 + 组装
 
 **终极测试**：创建一个 macOS 命令行工具 Target，依赖 ReviewKit，能直接跑通复习算法。如果做到了，你的核心资产就可以复用到 Widget、App Clip、macOS、watchOS。
 
-详见 [ADR-007: 模块化演进方向](../docs/adr/ADR-007-modularization-direction.md)
+详见 [ADR-007: 模块化演进方向](../../docs/adr/ADR-007-modularization-direction.md)
 
 ## 架构决策记录
 

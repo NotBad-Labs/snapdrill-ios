@@ -1,0 +1,191 @@
+{
+  "version": "1.0",
+  "systems": {
+    "CN": {
+      "name": "cn_education_system_name",
+      "schoolLevels": [
+        { "level": "primary", "nameKey": "cn_school_level_primary", "startGrade": 1, "endGrade": 6, "icon": "figure.child" },
+        { "level": "middle", "nameKey": "cn_school_level_middle", "startGrade": 7, "endGrade": 9, "icon": "figure.stand" },
+        { "level": "high", "nameKey": "cn_school_level_high", "startGrade": 10, "endGrade": 12, "icon": "graduationcap" }
+      ],
+      "grades": [
+        { "id": "grade_1", "order": 1, "level": "primary", "nameKey": "cn_grade_1", "shortKey": "cn_grade_1_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_2", "order": 2, "level": "primary", "nameKey": "cn_grade_2", "shortKey": "cn_grade_2_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_3", "order": 3, "level": "primary", "nameKey": "cn_grade_3", "shortKey": "cn_grade_3_short", "icon": "figure.child.and.lock", "isGraduation": false },
+        { "id": "grade_4", "order": 4, "level": "primary", "nameKey": "cn_grade_4", "shortKey": "cn_grade_4_short", "icon": "figure.child.and.lock", "isGraduation": false },
+        { "id": "grade_5", "order": 5, "level": "primary", "nameKey": "cn_grade_5", "shortKey": "cn_grade_5_short", "icon": "figure.child.and.lock", "isGraduation": false },
+        { "id": "grade_6", "order": 6, "level": "primary", "nameKey": "cn_grade_6", "shortKey": "cn_grade_6_short", "icon": "figure.child.and.lock", "isGraduation": true },
+        { "id": "grade_7", "order": 7, "level": "middle", "nameKey": "cn_grade_7", "shortKey": "cn_grade_7_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "grade_8", "order": 8, "level": "middle", "nameKey": "cn_grade_8", "shortKey": "cn_grade_8_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "grade_9", "order": 9, "level": "middle", "nameKey": "cn_grade_9", "shortKey": "cn_grade_9_short", "icon": "figure.stand", "isGraduation": true },
+        { "id": "grade_10", "order": 10, "level": "high", "nameKey": "cn_grade_10", "shortKey": "cn_grade_10_short", "icon": "graduationcap", "isGraduation": false },
+        { "id": "grade_11", "order": 11, "level": "high", "nameKey": "cn_grade_11", "shortKey": "cn_grade_11_short", "icon": "graduationcap", "isGraduation": false },
+        { "id": "grade_12", "order": 12, "level": "high", "nameKey": "cn_grade_12", "shortKey": "cn_grade_12_short", "icon": "graduationcap", "isGraduation": true }
+      ],
+      "subjects": [
+        { "id": "chinese", "category": "language", "nameKey": "cn_subject_chinese", "shortKey": "cn_subject_chinese_short", "icon": "character.book.closed.zh", "levels": ["primary", "middle", "high"] },
+        { "id": "english", "category": "language", "nameKey": "cn_subject_english", "shortKey": "cn_subject_english_short", "icon": "a.circle", "levels": ["primary", "middle", "high"] },
+        { "id": "math", "category": "science", "nameKey": "cn_subject_math", "shortKey": "cn_subject_math_short", "icon": "function", "levels": ["primary", "middle", "high"] },
+        { "id": "physics", "category": "science", "nameKey": "cn_subject_physics", "shortKey": "cn_subject_physics_short", "icon": "atom", "levels": ["middle", "high"] },
+        { "id": "chemistry", "category": "science", "nameKey": "cn_subject_chemistry", "shortKey": "cn_subject_chemistry_short", "icon": "flask", "levels": ["middle", "high"] },
+        { "id": "biology", "category": "science", "nameKey": "cn_subject_biology", "shortKey": "cn_subject_biology_short", "icon": "leaf", "levels": ["middle", "high"] },
+        { "id": "science", "category": "science", "nameKey": "cn_subject_science", "shortKey": "cn_subject_science_short", "icon": "testtube.2", "levels": ["primary", "middle"] },
+        { "id": "history", "category": "humanities", "nameKey": "cn_subject_history", "shortKey": "cn_subject_history_short", "icon": "clock.arrow.circlepath", "levels": ["middle", "high"] },
+        { "id": "geography", "category": "humanities", "nameKey": "cn_subject_geography", "shortKey": "cn_subject_geography_short", "icon": "globe.asia.australia", "levels": ["middle", "high"] },
+        { "id": "politics", "category": "humanities", "nameKey": "cn_subject_politics", "shortKey": "cn_subject_politics_short", "icon": "building.columns", "levels": ["middle", "high"] },
+        { "id": "ethics", "category": "humanities", "nameKey": "cn_subject_ethics", "shortKey": "cn_subject_ethics_short", "icon": "heart.text.square", "levels": ["primary", "middle"] },
+        { "id": "information_tech", "category": "technology", "nameKey": "cn_subject_info_tech", "shortKey": "cn_subject_info_tech_short", "icon": "desktopcomputer", "levels": ["primary", "middle", "high"] },
+        { "id": "general_tech", "category": "technology", "nameKey": "cn_subject_general_tech", "shortKey": "cn_subject_general_tech_short", "icon": "gearshape.2", "levels": ["high"] },
+        { "id": "other", "category": "other", "nameKey": "cn_subject_other", "shortKey": "cn_subject_other_short", "icon": "ellipsis.circle", "levels": ["primary", "middle", "high"] }
+      ],
+      "subjectCategories": [
+        { "id": "language", "nameKey": "cn_subject_category_language", "icon": "textformat" },
+        { "id": "science", "nameKey": "cn_subject_category_science", "icon": "flask" },
+        { "id": "humanities", "nameKey": "cn_subject_category_humanities", "icon": "book" },
+        { "id": "technology", "nameKey": "cn_subject_category_technology", "icon": "desktopcomputer" },
+        { "id": "other", "nameKey": "cn_subject_category_other", "icon": "ellipsis.circle" }
+      ]
+    },
+    "JP": {
+      "name": "jp_education_system_name",
+      "schoolLevels": [
+        { "level": "primary", "nameKey": "jp_school_level_primary", "startGrade": 1, "endGrade": 6, "icon": "figure.child" },
+        { "level": "middle", "nameKey": "jp_school_level_middle", "startGrade": 7, "endGrade": 9, "icon": "figure.stand" },
+        { "level": "high", "nameKey": "jp_school_level_high", "startGrade": 10, "endGrade": 12, "icon": "graduationcap" }
+      ],
+      "grades": [
+        { "id": "grade_1", "order": 1, "level": "primary", "nameKey": "jp_grade_1", "shortKey": "jp_grade_1_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_2", "order": 2, "level": "primary", "nameKey": "jp_grade_2", "shortKey": "jp_grade_2_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_3", "order": 3, "level": "primary", "nameKey": "jp_grade_3", "shortKey": "jp_grade_3_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_4", "order": 4, "level": "primary", "nameKey": "jp_grade_4", "shortKey": "jp_grade_4_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_5", "order": 5, "level": "primary", "nameKey": "jp_grade_5", "shortKey": "jp_grade_5_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_6", "order": 6, "level": "primary", "nameKey": "jp_grade_6", "shortKey": "jp_grade_6_short", "icon": "figure.child", "isGraduation": true },
+        { "id": "grade_7", "order": 7, "level": "middle", "nameKey": "jp_grade_7", "shortKey": "jp_grade_7_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "grade_8", "order": 8, "level": "middle", "nameKey": "jp_grade_8", "shortKey": "jp_grade_8_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "grade_9", "order": 9, "level": "middle", "nameKey": "jp_grade_9", "shortKey": "jp_grade_9_short", "icon": "figure.stand", "isGraduation": true },
+        { "id": "grade_10", "order": 10, "level": "high", "nameKey": "jp_grade_10", "shortKey": "jp_grade_10_short", "icon": "graduationcap", "isGraduation": false },
+        { "id": "grade_11", "order": 11, "level": "high", "nameKey": "jp_grade_11", "shortKey": "jp_grade_11_short", "icon": "graduationcap", "isGraduation": false },
+        { "id": "grade_12", "order": 12, "level": "high", "nameKey": "jp_grade_12", "shortKey": "jp_grade_12_short", "icon": "graduationcap", "isGraduation": true }
+      ],
+      "subjects": [
+        { "id": "japanese", "category": "language", "nameKey": "jp_subject_japanese", "shortKey": "jp_subject_japanese_short", "icon": "character.book.closed", "levels": ["primary", "middle", "high"] },
+        { "id": "english", "category": "language", "nameKey": "jp_subject_english", "shortKey": "jp_subject_english_short", "icon": "a.circle", "levels": ["primary", "middle", "high"] },
+        { "id": "math", "category": "science", "nameKey": "jp_subject_math", "shortKey": "jp_subject_math_short", "icon": "function", "levels": ["primary", "middle", "high"] },
+        { "id": "science", "category": "science", "nameKey": "jp_subject_science", "shortKey": "jp_subject_science_short", "icon": "testtube.2", "levels": ["primary", "middle", "high"] },
+        { "id": "social", "category": "humanities", "nameKey": "jp_subject_social", "shortKey": "jp_subject_social_short", "icon": "globe.asia.australia", "levels": ["primary", "middle", "high"] },
+        { "id": "other", "category": "other", "nameKey": "jp_subject_other", "shortKey": "jp_subject_other_short", "icon": "ellipsis.circle", "levels": ["primary", "middle", "high"] }
+      ],
+      "subjectCategories": [
+        { "id": "language", "nameKey": "jp_subject_category_language", "icon": "textformat" },
+        { "id": "science", "nameKey": "jp_subject_category_science", "icon": "flask" },
+        { "id": "humanities", "nameKey": "jp_subject_category_humanities", "icon": "book" },
+        { "id": "other", "nameKey": "jp_subject_category_other", "icon": "ellipsis.circle" }
+      ]
+    },
+    "KR": {
+      "name": "kr_education_system_name",
+      "schoolLevels": [
+        { "level": "primary", "nameKey": "kr_school_level_primary", "startGrade": 1, "endGrade": 6, "icon": "figure.child" },
+        { "level": "middle", "nameKey": "kr_school_level_middle", "startGrade": 7, "endGrade": 9, "icon": "figure.stand" },
+        { "level": "high", "nameKey": "kr_school_level_high", "startGrade": 10, "endGrade": 12, "icon": "graduationcap" }
+      ],
+      "grades": [
+        { "id": "grade_1", "order": 1, "level": "primary", "nameKey": "kr_grade_1", "shortKey": "kr_grade_1_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_2", "order": 2, "level": "primary", "nameKey": "kr_grade_2", "shortKey": "kr_grade_2_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_3", "order": 3, "level": "primary", "nameKey": "kr_grade_3", "shortKey": "kr_grade_3_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_4", "order": 4, "level": "primary", "nameKey": "kr_grade_4", "shortKey": "kr_grade_4_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_5", "order": 5, "level": "primary", "nameKey": "kr_grade_5", "shortKey": "kr_grade_5_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_6", "order": 6, "level": "primary", "nameKey": "kr_grade_6", "shortKey": "kr_grade_6_short", "icon": "figure.child", "isGraduation": true },
+        { "id": "grade_7", "order": 7, "level": "middle", "nameKey": "kr_grade_7", "shortKey": "kr_grade_7_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "grade_8", "order": 8, "level": "middle", "nameKey": "kr_grade_8", "shortKey": "kr_grade_8_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "grade_9", "order": 9, "level": "middle", "nameKey": "kr_grade_9", "shortKey": "kr_grade_9_short", "icon": "figure.stand", "isGraduation": true },
+        { "id": "grade_10", "order": 10, "level": "high", "nameKey": "kr_grade_10", "shortKey": "kr_grade_10_short", "icon": "graduationcap", "isGraduation": false },
+        { "id": "grade_11", "order": 11, "level": "high", "nameKey": "kr_grade_11", "shortKey": "kr_grade_11_short", "icon": "graduationcap", "isGraduation": false },
+        { "id": "grade_12", "order": 12, "level": "high", "nameKey": "kr_grade_12", "shortKey": "kr_grade_12_short", "icon": "graduationcap", "isGraduation": true }
+      ],
+      "subjects": [
+        { "id": "korean", "category": "language", "nameKey": "kr_subject_korean", "shortKey": "kr_subject_korean_short", "icon": "character.book.closed", "levels": ["primary", "middle", "high"] },
+        { "id": "english", "category": "language", "nameKey": "kr_subject_english", "shortKey": "kr_subject_english_short", "icon": "a.circle", "levels": ["primary", "middle", "high"] },
+        { "id": "math", "category": "science", "nameKey": "kr_subject_math", "shortKey": "kr_subject_math_short", "icon": "function", "levels": ["primary", "middle", "high"] },
+        { "id": "science", "category": "science", "nameKey": "kr_subject_science", "shortKey": "kr_subject_science_short", "icon": "testtube.2", "levels": ["primary", "middle", "high"] },
+        { "id": "social", "category": "humanities", "nameKey": "kr_subject_social", "shortKey": "kr_subject_social_short", "icon": "globe.asia.australia", "levels": ["primary", "middle", "high"] },
+        { "id": "other", "category": "other", "nameKey": "kr_subject_other", "shortKey": "kr_subject_other_short", "icon": "ellipsis.circle", "levels": ["primary", "middle", "high"] }
+      ],
+      "subjectCategories": [
+        { "id": "language", "nameKey": "kr_subject_category_language", "icon": "textformat" },
+        { "id": "science", "nameKey": "kr_subject_category_science", "icon": "flask" },
+        { "id": "humanities", "nameKey": "kr_subject_category_humanities", "icon": "book" },
+        { "id": "other", "nameKey": "kr_subject_category_other", "icon": "ellipsis.circle" }
+      ]
+    },
+    "SG": {
+      "name": "sg_education_system_name",
+      "schoolLevels": [
+        { "level": "primary", "nameKey": "sg_school_level_primary", "startGrade": 1, "endGrade": 6, "icon": "figure.child" },
+        { "level": "middle", "nameKey": "sg_school_level_middle", "startGrade": 7, "endGrade": 10, "icon": "figure.stand" },
+        { "level": "high", "nameKey": "sg_school_level_high", "startGrade": 11, "endGrade": 12, "icon": "graduationcap" }
+      ],
+      "grades": [
+        { "id": "primary_1", "order": 1, "level": "primary", "nameKey": "sg_grade_p1", "shortKey": "sg_grade_p1_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "primary_2", "order": 2, "level": "primary", "nameKey": "sg_grade_p2", "shortKey": "sg_grade_p2_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "primary_3", "order": 3, "level": "primary", "nameKey": "sg_grade_p3", "shortKey": "sg_grade_p3_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "primary_4", "order": 4, "level": "primary", "nameKey": "sg_grade_p4", "shortKey": "sg_grade_p4_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "primary_5", "order": 5, "level": "primary", "nameKey": "sg_grade_p5", "shortKey": "sg_grade_p5_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "primary_6", "order": 6, "level": "primary", "nameKey": "sg_grade_p6", "shortKey": "sg_grade_p6_short", "icon": "figure.child", "isGraduation": true },
+        { "id": "secondary_1", "order": 7, "level": "middle", "nameKey": "sg_grade_s1", "shortKey": "sg_grade_s1_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "secondary_2", "order": 8, "level": "middle", "nameKey": "sg_grade_s2", "shortKey": "sg_grade_s2_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "secondary_3", "order": 9, "level": "middle", "nameKey": "sg_grade_s3", "shortKey": "sg_grade_s3_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "secondary_4", "order": 10, "level": "middle", "nameKey": "sg_grade_s4", "shortKey": "sg_grade_s4_short", "icon": "figure.stand", "isGraduation": true },
+        { "id": "jc_1", "order": 11, "level": "high", "nameKey": "sg_grade_jc1", "shortKey": "sg_grade_jc1_short", "icon": "graduationcap", "isGraduation": false },
+        { "id": "jc_2", "order": 12, "level": "high", "nameKey": "sg_grade_jc2", "shortKey": "sg_grade_jc2_short", "icon": "graduationcap", "isGraduation": true }
+      ],
+      "subjects": [
+        { "id": "english", "category": "language", "nameKey": "sg_subject_english", "shortKey": "sg_subject_english_short", "icon": "a.circle", "levels": ["primary", "middle", "high"] },
+        { "id": "chinese", "category": "language", "nameKey": "sg_subject_chinese", "shortKey": "sg_subject_chinese_short", "icon": "character.book.closed.zh", "levels": ["primary", "middle", "high"] },
+        { "id": "math", "category": "science", "nameKey": "sg_subject_math", "shortKey": "sg_subject_math_short", "icon": "function", "levels": ["primary", "middle", "high"] },
+        { "id": "science", "category": "science", "nameKey": "sg_subject_science", "shortKey": "sg_subject_science_short", "icon": "testtube.2", "levels": ["primary", "middle", "high"] },
+        { "id": "other", "category": "other", "nameKey": "sg_subject_other", "shortKey": "sg_subject_other_short", "icon": "ellipsis.circle", "levels": ["primary", "middle", "high"] }
+      ],
+      "subjectCategories": [
+        { "id": "language", "nameKey": "sg_subject_category_language", "icon": "textformat" },
+        { "id": "science", "nameKey": "sg_subject_category_science", "icon": "flask" },
+        { "id": "other", "nameKey": "sg_subject_category_other", "icon": "ellipsis.circle" }
+      ]
+    },
+    "INTL": {
+      "name": "intl_education_system_name",
+      "schoolLevels": [
+        { "level": "primary", "nameKey": "intl_school_level_primary", "startGrade": 1, "endGrade": 6, "icon": "figure.child" },
+        { "level": "middle", "nameKey": "intl_school_level_middle", "startGrade": 7, "endGrade": 9, "icon": "figure.stand" },
+        { "level": "high", "nameKey": "intl_school_level_high", "startGrade": 10, "endGrade": 12, "icon": "graduationcap" }
+      ],
+      "grades": [
+        { "id": "grade_1", "order": 1, "level": "primary", "nameKey": "intl_grade_1", "shortKey": "intl_grade_1_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_2", "order": 2, "level": "primary", "nameKey": "intl_grade_2", "shortKey": "intl_grade_2_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_3", "order": 3, "level": "primary", "nameKey": "intl_grade_3", "shortKey": "intl_grade_3_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_4", "order": 4, "level": "primary", "nameKey": "intl_grade_4", "shortKey": "intl_grade_4_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_5", "order": 5, "level": "primary", "nameKey": "intl_grade_5", "shortKey": "intl_grade_5_short", "icon": "figure.child", "isGraduation": false },
+        { "id": "grade_6", "order": 6, "level": "primary", "nameKey": "intl_grade_6", "shortKey": "intl_grade_6_short", "icon": "figure.child", "isGraduation": true },
+        { "id": "grade_7", "order": 7, "level": "middle", "nameKey": "intl_grade_7", "shortKey": "intl_grade_7_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "grade_8", "order": 8, "level": "middle", "nameKey": "intl_grade_8", "shortKey": "intl_grade_8_short", "icon": "figure.stand", "isGraduation": false },
+        { "id": "grade_9", "order": 9, "level": "middle", "nameKey": "intl_grade_9", "shortKey": "intl_grade_9_short", "icon": "figure.stand", "isGraduation": true },
+        { "id": "grade_10", "order": 10, "level": "high", "nameKey": "intl_grade_10", "shortKey": "intl_grade_10_short", "icon": "graduationcap", "isGraduation": false },
+        { "id": "grade_11", "order": 11, "level": "high", "nameKey": "intl_grade_11", "shortKey": "intl_grade_11_short", "icon": "graduationcap", "isGraduation": false },
+        { "id": "grade_12", "order": 12, "level": "high", "nameKey": "intl_grade_12", "shortKey": "intl_grade_12_short", "icon": "graduationcap", "isGraduation": true }
+      ],
+      "subjects": [
+        { "id": "language", "category": "language", "nameKey": "intl_subject_language", "shortKey": "intl_subject_language_short", "icon": "textformat", "levels": ["primary", "middle", "high"] },
+        { "id": "math", "category": "science", "nameKey": "intl_subject_math", "shortKey": "intl_subject_math_short", "icon": "function", "levels": ["primary", "middle", "high"] },
+        { "id": "science", "category": "science", "nameKey": "intl_subject_science", "shortKey": "intl_subject_science_short", "icon": "testtube.2", "levels": ["primary", "middle", "high"] },
+        { "id": "social", "category": "humanities", "nameKey": "intl_subject_social", "shortKey": "intl_subject_social_short", "icon": "globe", "levels": ["primary", "middle", "high"] },
+        { "id": "other", "category": "other", "nameKey": "intl_subject_other", "shortKey": "intl_subject_other_short", "icon": "ellipsis.circle", "levels": ["primary", "middle", "high"] }
+      ],
+      "subjectCategories": [
+        { "id": "language", "nameKey": "intl_subject_category_language", "icon": "textformat" },
+        { "id": "science", "nameKey": "intl_subject_category_science", "icon": "flask" },
+        { "id": "humanities", "nameKey": "intl_subject_category_humanities", "icon": "book" },
+        { "id": "other", "nameKey": "intl_subject_category_other", "icon": "ellipsis.circle" }
+      ]
+    }
+  }
+}

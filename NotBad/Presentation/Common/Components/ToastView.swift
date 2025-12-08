@@ -182,10 +182,10 @@ struct ToastView: View {
     private var accessibilityDescription: String {
         let typeDescription: String
         switch toast.type {
-        case .success: typeDescription = "成功"
-        case .error: typeDescription = "错误"
-        case .warning: typeDescription = "警告"
-        case .info: typeDescription = "提示"
+        case .success: typeDescription = L10n.Common.success
+        case .error: typeDescription = L10n.Common.error
+        case .warning: typeDescription = L10n.Common.warning
+        case .info: typeDescription = L10n.Common.info
         }
         return "\(typeDescription)：\(toast.message)"
     }
@@ -234,10 +234,10 @@ private struct ToastModifier: ViewModifier {
     private func announceForAccessibility(_ toast: Toast) {
         let typeDescription: String
         switch toast.type {
-        case .success: typeDescription = "成功"
-        case .error: typeDescription = "错误"
-        case .warning: typeDescription = "警告"
-        case .info: typeDescription = "提示"
+        case .success: typeDescription = L10n.Common.success
+        case .error: typeDescription = L10n.Common.error
+        case .warning: typeDescription = L10n.Common.warning
+        case .info: typeDescription = L10n.Common.info
         }
         AccessibilityAnnouncement.announce("\(typeDescription)：\(toast.message)")
     }

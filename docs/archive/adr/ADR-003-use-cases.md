@@ -1,7 +1,7 @@
 # ADR-003: Use Cases 模式
 
 ## 状态
-**已废弃** — 被 [ADR-006](./ADR-006-pragmatic-architecture.md) 取代
+**已废弃** — 被 [ADR-006](../../adr/ADR-006-pragmatic-architecture.md) 取代
 
 > ⚠️ 本决策已于 2025年12月6日废弃。Use Cases 层已删除，业务逻辑直接在 View 或 Service 中实现。
 
@@ -133,4 +133,4 @@ final class ReviewListViewModel {
 ## 参考
 
 - [Clean Architecture Use Cases](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [Use Case Driven Development](https://www.ivarjacobson.com/publications/books/use-case-20-2016)
+- [Use Case (维基百科)](https://en.wikipedia.org/wiki/Use_case)

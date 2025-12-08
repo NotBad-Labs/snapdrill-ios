@@ -76,7 +76,11 @@ struct LibraryView: View {
     private var listView: some View {
         List {
             ForEach(filteredItems) { item in
-                ItemRow(item: item)
+                NavigationLink {
+                    ItemDetailView(item: item)
+                } label: {
+                    ItemRow(item: item)
+                }
             }
         }
         .listStyle(.plain)

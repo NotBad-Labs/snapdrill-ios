@@ -1,6 +1,12 @@
 import XCTest
 @testable import ImageKit
 
+#if canImport(AppKit)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
+
 final class ImageStorageServiceTests: XCTestCase {
     
     var storage: ImageStorageService!
@@ -167,5 +173,137 @@ final class ImageStorageServiceTests: XCTestCase {
         XCTAssertTrue(customStorage.exists(fileName: fileName))
         
         customStorage.clearAll()
+    }
+    
+    // MARK: - Real Image Tests
+    
+    #if canImport(AppKit)
+    func testSaveAndLoadRealImage() {
+        let id = UUID()
+        
+        // 创建真实测试图片
+        let size = NSSize(width: 200, height: 200)
+        let image = NSImage(size: size)
+        image.lockFocus()
+        NSColor.blue.setFill()
+        NSRect(origin: .zero, size: size).fill()
+        NSColor.white.setFill()
+        NSRect(x: 50, y: 50, width: 100, height: 100).fill()
+        image.unlockFocus()
+        
+        // 保存
+        let fileName = storage.save(image: image, with: id)
+        XCTAssertNotNil(fileName)
+        
+        // 加载
+        let loaded = storage.load(fileName: fileName)
+        XCTAssertNotNil(loaded)
+        XCTAssertEqual(loaded?.size.width ?? 0, 200, accuracy: 1)
+    }
+    
+    func testDownsampleLargeImage() {
+        let id = UUID()
+        
+        // 创建超大图片 (3000x3000)
+        let size = NSSize(width: 3000, height: 3000)
+        let image = NSImage(size: size)
+        image.lockFocus()
+        NSColor.red.setFill()
+        NSRect(origin: .zero, size: size).fill()
+        image.unlockFocus()
+        
+        // 保存（应该被降采样）
+        let fileName = storage.save(image: image, with: id)
+        XCTAssertNotNil(fileName)
+        
+        // 检查文件大小合理（降采样后应该小很多）
+        if let fileURL = storage.fileURL(for: fileName),
+           let attributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path),
+           let fileSize = attributes[.size] as? Int {
+            // 3000x3000 原图压缩后可能很大，降采样到 2048 后应该更小
+            XCTAssertLessThan(fileSize, 5_000_000, "降采样后文件应该小于 5MB")
+        }
+    }
+    #elseif canImport(UIKit)
+    func testSaveAndLoadRealImage() {
+        let id = UUID()
+        
+        // 创建真实测试图片
+        let size = CGSize(width: 200, height: 200)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let image = renderer.image { context in
+            UIColor.blue.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            UIColor.white.setFill()
+            context.fill(CGRect(x: 50, y: 50, width: 100, height: 100))
+        }
+        
+        // 保存
+        let fileName = storage.save(image: image, with: id)
+        XCTAssertNotNil(fileName)
+        
+        // 加载
+        let loaded = storage.load(fileName: fileName)
+        XCTAssertNotNil(loaded)
+        XCTAssertEqual(loaded?.size.width ?? 0, 200, accuracy: 1)
+    }
+    
+    func testDownsampleLargeImage() {
+        let id = UUID()
+        
+        // 创建超大图片 (3000x3000)
+        let size = CGSize(width: 3000, height: 3000)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let image = renderer.image { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+        }
+        
+        // 保存（应该被降采样）
+        let fileName = storage.save(image: image, with: id)
+        XCTAssertNotNil(fileName)
+        
+        // 检查文件大小合理
+        if let fileURL = storage.fileURL(for: fileName),
+           let attributes = try? FileManager.default.attributesOfItem(atPath: fileURL.path),
+           let fileSize = attributes[.size] as? Int {
+            XCTAssertLessThan(fileSize, 5_000_000, "降采样后文件应该小于 5MB")
+        }
+    }
+    #endif
+    
+    // MARK: - Thread Safety Tests
+    
+    func testConcurrentAccess() async {
+        let ids = (0..<20).map { _ in UUID() }
+        let testStorage = self.storage! // Capture locally for Sendable
+        
+        // 并发保存
+        await withTaskGroup(of: String?.self) { group in
+            for id in ids {
+                group.addTask { @Sendable in
+                    testStorage.save(data: Data(repeating: 0x00, count: 100), with: id)
+                }
+            }
+        }
+        
+        // 验证所有文件都存在
+        for id in ids {
+            XCTAssertTrue(storage.exists(fileName: "\(id.uuidString).jpg"))
+        }
+        
+        // 并发删除
+        await withTaskGroup(of: Void.self) { group in
+            for id in ids {
+                group.addTask { @Sendable in
+                    testStorage.delete(fileName: "\(id.uuidString).jpg")
+                }
+            }
+        }
+        
+        // 验证所有文件都已删除
+        for id in ids {
+            XCTAssertFalse(storage.exists(fileName: "\(id.uuidString).jpg"))
+        }
     }
 }

@@ -258,19 +258,19 @@ enum OCRError: LocalizedError, Sendable {
 
     var errorDescription: String? {
         switch self {
-        case .invalidImage: "图片格式无效，请重新选择"
-        case .recognitionFailed: "文字识别失败，请重试"
-        case .noTextFound: "未识别到文字，请确保图片清晰"
-        case .timeout: "识别超时，请重试"
+        case .invalidImage: String(localized: "ocr_error_invalid_image", defaultValue: "图片格式无效，请重新选择")
+        case .recognitionFailed: String(localized: "ocr_error_recognition_failed", defaultValue: "文字识别失败，请重试")
+        case .noTextFound: String(localized: "ocr_error_no_text_found", defaultValue: "未识别到文字，请确保图片清晰")
+        case .timeout: String(localized: "ocr_error_timeout", defaultValue: "识别超时，请重试")
         }
     }
 
     var recoverySuggestion: String? {
         switch self {
-        case .invalidImage: "请选择 JPEG 或 PNG 格式的图片"
-        case .recognitionFailed: "请确保图片清晰，光线充足"
-        case .noTextFound: "请确保图片中包含文字内容"
-        case .timeout: "图片过大或设备负载较高，请稍后重试"
+        case .invalidImage: String(localized: "ocr_suggestion_invalid_image", defaultValue: "请选择 JPEG 或 PNG 格式的图片")
+        case .recognitionFailed: String(localized: "ocr_suggestion_recognition_failed", defaultValue: "请确保图片清晰，光线充足")
+        case .noTextFound: String(localized: "ocr_suggestion_no_text_found", defaultValue: "请确保图片中包含文字内容")
+        case .timeout: String(localized: "ocr_suggestion_timeout", defaultValue: "图片过大或设备负载较高，请稍后重试")
         }
     }
 }

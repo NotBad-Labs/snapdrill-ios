@@ -8,9 +8,39 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 public typealias PlatformImage = UIImage
+private let maxSaveDimension: CGFloat = 2048
+private extension UIImage {
+    /// 限制最大边长并保持比例，用于保存前压缩
+    func preparingForSave(maxDimension: CGFloat) -> UIImage {
+        let maxSide = max(size.width, size.height)
+        guard maxSide > maxDimension else { return self }
+        let scale = maxDimension / maxSide
+        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+    }
+}
 #elseif canImport(AppKit)
 import AppKit
 public typealias PlatformImage = NSImage
+private let maxSaveDimension: CGFloat = 2048
+private extension NSImage {
+    func preparingForSave(maxDimension: CGFloat) -> NSImage {
+        let maxSide = max(size.width, size.height)
+        guard maxSide > maxDimension else { return self }
+        let scale = maxDimension / maxSide
+        let newSize = NSSize(width: size.width * scale, height: size.height * scale)
+        let newImage = NSImage(size: newSize)
+        newImage.lockFocus()
+        defer { newImage.unlockFocus() }
+        self.draw(in: NSRect(origin: .zero, size: newSize))
+        return newImage
+    }
+}
 #endif
 
 import OSLog
@@ -27,6 +57,7 @@ private extension Logger {
 ///
 /// 将图片保存到应用文档目录，返回文件名供数据库存储。
 /// 解决 SwiftData 存储大图片导致的内存溢出问题。
+/// 线程安全：所有文件操作通过锁保护。
 ///
 /// ## 使用示例
 ///
@@ -57,6 +88,7 @@ public final class ImageStorageService: @unchecked Sendable {
     
     private let fileManager = FileManager.default
     private let subdirectory: String
+    private let lock = NSLock()
     
     /// 图片存储目录
     public var imagesDirectory: URL {
@@ -75,14 +107,16 @@ public final class ImageStorageService: @unchecked Sendable {
     }
     
     private func ensureDirectoryExists() {
-        do {
-            try fileManager.createDirectory(
-                at: imagesDirectory,
-                withIntermediateDirectories: true,
-                attributes: nil
-            )
-        } catch {
-            Logger.imageKit.error("创建图片目录失败: \(error.localizedDescription)")
+        lock.withLock {
+            do {
+                try fileManager.createDirectory(
+                    at: imagesDirectory,
+                    withIntermediateDirectories: true,
+                    attributes: nil
+                )
+            } catch {
+                Logger.imageKit.error("创建图片目录失败: \(error.localizedDescription)")
+            }
         }
     }
     
@@ -97,7 +131,8 @@ public final class ImageStorageService: @unchecked Sendable {
     ///   - compressionQuality: JPEG 压缩质量（0.0-1.0），默认 0.8
     /// - Returns: 保存的文件名，失败返回 nil
     public func save(image: UIImage, with id: UUID, compressionQuality: CGFloat = 0.8) -> String? {
-        guard let data = image.jpegData(compressionQuality: compressionQuality) else {
+        let prepared = image.preparingForSave(maxDimension: maxSaveDimension)
+        guard let data = prepared.jpegData(compressionQuality: compressionQuality) else {
             Logger.imageKit.error("图片转换 JPEG 失败")
             return nil
         }
@@ -134,13 +169,15 @@ public final class ImageStorageService: @unchecked Sendable {
         let fileName = "\(id.uuidString).jpg"
         let fileURL = imagesDirectory.appendingPathComponent(fileName)
         
-        do {
-            try data.write(to: fileURL, options: .atomic)
-            Logger.imageKit.debug("图片保存成功: \(fileName)")
-            return fileName
-        } catch {
-            Logger.imageKit.error("保存图片失败: \(error.localizedDescription)")
-            return nil
+        return lock.withLock {
+            do {
+                try data.write(to: fileURL, options: .atomic)
+                Logger.imageKit.debug("图片保存成功: \(fileName)")
+                return fileName
+            } catch {
+                Logger.imageKit.error("保存图片失败: \(error.localizedDescription)")
+                return nil
+            }
         }
     }
     
@@ -199,11 +236,13 @@ public final class ImageStorageService: @unchecked Sendable {
         
         let fileURL = imagesDirectory.appendingPathComponent(fileName)
         
-        do {
-            try fileManager.removeItem(at: fileURL)
-            Logger.imageKit.debug("图片删除成功: \(fileName)")
-        } catch {
-            Logger.imageKit.warning("删除图片失败: \(error.localizedDescription)")
+        lock.withLock {
+            do {
+                try fileManager.removeItem(at: fileURL)
+                Logger.imageKit.debug("图片删除成功: \(fileName)")
+            } catch {
+                Logger.imageKit.warning("删除图片失败: \(error.localizedDescription)")
+            }
         }
     }
     
@@ -246,14 +285,16 @@ public final class ImageStorageService: @unchecked Sendable {
     
     /// 清理所有图片（危险操作）
     public func clearAll() {
-        do {
-            let files = try fileManager.contentsOfDirectory(at: imagesDirectory, includingPropertiesForKeys: nil)
-            for file in files {
-                try fileManager.removeItem(at: file)
+        lock.withLock {
+            do {
+                let files = try fileManager.contentsOfDirectory(at: imagesDirectory, includingPropertiesForKeys: nil)
+                for file in files {
+                    try fileManager.removeItem(at: file)
+                }
+                Logger.imageKit.info("已清理所有图片，共 \(files.count) 个")
+            } catch {
+                Logger.imageKit.error("清理图片失败: \(error.localizedDescription)")
             }
-            Logger.imageKit.info("已清理所有图片，共 \(files.count) 个")
-        } catch {
-            Logger.imageKit.error("清理图片失败: \(error.localizedDescription)")
         }
     }
     

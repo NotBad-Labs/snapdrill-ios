@@ -104,8 +104,9 @@ final class ReviewSchedulerTests: XCTestCase {
     
     func testSchedulerIsSendable() async {
         // 验证可以跨 Actor 传递
+        let localScheduler = self.scheduler! // 捕获本地副本，避免跨隔离域捕获 self
         let result = await Task.detached {
-            self.scheduler.calculateIntervalDays(currentMastery: 2, reviewCount: 0)
+            localScheduler.calculateIntervalDays(currentMastery: 2, reviewCount: 0)
         }.value
         
         XCTAssertEqual(result, 1)
