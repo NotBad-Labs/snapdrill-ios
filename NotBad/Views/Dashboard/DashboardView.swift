@@ -99,7 +99,7 @@ struct DashboardView: View {
                     icon: "brain",
                     color: .blue
                 ) {
-                    // TODO: 跳转到复习页
+                    // TODO: 跳转到复习页 - 需要实现 NavigationRouter
                 }
                 
                 QuickActionButton(
@@ -107,7 +107,7 @@ struct DashboardView: View {
                     icon: "plus.circle",
                     color: .green
                 ) {
-                    // TODO: 跳转到录入页
+                    // TODO: 跳转到录入页 - 需要实现 NavigationRouter
                 }
             }
         }
