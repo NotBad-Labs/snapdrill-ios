@@ -10,6 +10,9 @@ import WidgetKit
 import SwiftUI
 import SwiftData
 import ReviewKit  // ✅ 导入 ReviewKit，共享 Model 定义
+import os.log
+
+private let logger = Logger(subsystem: "com.notbad.widget", category: "Widget")
 
 // MARK: - ReviewEntry
 
@@ -87,7 +90,7 @@ struct Provider: AppIntentTimelineProvider {
                 configuration: configuration
             )
         } catch {
-            print("❌ Widget 读取数据失败: \(error)")
+            logger.error("Widget 读取数据失败: \(error.localizedDescription)")
             return ReviewEntry(
                 date: Date(),
                 pendingCount: 0,

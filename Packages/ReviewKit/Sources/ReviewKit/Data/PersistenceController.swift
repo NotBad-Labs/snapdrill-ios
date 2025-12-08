@@ -9,6 +9,9 @@
 
 import SwiftData
 import Foundation
+import os.log
+
+private let logger = Logger(subsystem: "com.notbad.reviewkit", category: "Persistence")
 
 // MARK: - App Group 配置
 
@@ -94,10 +97,10 @@ public struct PersistenceController: Sendable {
                 schema: schema,
                 url: storeURL
             )
-            print("📁 数据库路径: \(storeURL.path)")
+            logger.info("数据库路径: \(storeURL.path)")
         } else {
             // Fallback：默认路径（Widget 无法访问）
-            print("⚠️ App Groups 未配置，Widget 将无法访问数据")
+            logger.warning("App Groups 未配置，Widget 将无法访问数据")
             modelConfiguration = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false
@@ -108,7 +111,7 @@ public struct PersistenceController: Sendable {
             container = try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
             // 如果失败，尝试删除旧数据库重建
-            print("❌ ModelContainer 初始化失败: \(error)")
+            logger.error("ModelContainer 初始化失败: \(error.localizedDescription)")
             
             if let url = Self.databaseURL {
                 try? FileManager.default.removeItem(at: url)

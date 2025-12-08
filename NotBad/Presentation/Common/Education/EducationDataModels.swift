@@ -8,6 +8,9 @@
 //
 
 import Foundation
+import os.log
+
+private let logger = Logger(subsystem: "com.notbad", category: "Education")
 
 // MARK: - JSON Root
 
@@ -127,7 +130,7 @@ public enum EducationDataLoader {
     /// 从 Bundle 加载教育系统数据
     public static func load() -> EducationSystemsData? {
         guard let url = Bundle.main.url(forResource: "EducationSystems", withExtension: "json") else {
-            print("⚠️ EducationSystems.json not found in bundle")
+            logger.warning("EducationSystems.json not found in bundle")
             return nil
         }
         
@@ -136,7 +139,7 @@ public enum EducationDataLoader {
             let decoder = JSONDecoder()
             return try decoder.decode(EducationSystemsData.self, from: data)
         } catch {
-            print("⚠️ Failed to decode EducationSystems.json: \(error)")
+            logger.warning("Failed to decode EducationSystems.json: \(error.localizedDescription)")
             return nil
         }
     }

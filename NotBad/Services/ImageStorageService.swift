@@ -68,7 +68,7 @@ final class ImageStorageService: @unchecked Sendable {
                 withIntermediateDirectories: true,
                 attributes: nil
             )
-            print("📁 图片目录: \(imagesDirectory.path)")
+            Logger.data.debug("图片目录: \(self.imagesDirectory.path)")
         } catch {
             Logger.data.error("创建图片目录失败: \(error.localizedDescription)")
         }
