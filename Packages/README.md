@@ -17,8 +17,9 @@ NotBad 的核心业务逻辑模块，采用物理隔离架构。
 
 | Package | 职责 | 内容 | 测试 |
 |---------|------|------|------|
-| [ReviewKit](ReviewKit/) | 领域层核心 | Model + 算法 + 持久化 | 9 tests ✅ |
-| [CaptureKit](CaptureKit/) | 录入链路 (图片存储 + OCR + 实时扫描) | ImageStorage + OCR + LiveText/Scanner + CaptureService | TBD |
+| [ReviewKit](ReviewKit/) | 领域层核心 | Model + 算法 + 持久化 | 57 tests ✅ |
+| [CaptureKit](CaptureKit/) | 录入链路 | 图片存储 + OCR + 扫描 | TBD |
+| [ProcessKit](ProcessKit/) | 图像处理 | 手写擦除 + 图像增强 | 3 tests ✅ |
 
 ## ReviewKit - 领域层核心
 
@@ -46,7 +47,7 @@ ReviewKit/
 
 **解决方案**：将 Model 放入 Package，统一为 `ReviewKit.ReviewItemModel`。
 
-## 目标架构（单一 CaptureKit 版本）
+## 架构全景
 
 ```
 NotBad (App Target)           NotBadWidget (Widget Target)
@@ -57,7 +58,7 @@ NotBad (App Target)           NotBadWidget (Widget Target)
               ReviewKit (Package)
               ┌─────────────────────────┐
               │ ReviewItemModel         │  ← 统一的 Model
-              │ PersistenceController   │  ← 共享数据库
+              │ PersistenceController   │  ← 共享数据库 (SwiftData)
               │ ReviewScheduler         │  ← 复习算法
               └─────────────────────────┘
                     │
@@ -65,10 +66,28 @@ NotBad (App Target)           NotBadWidget (Widget Target)
               CaptureKit (Package)
               ┌─────────────────────────┐
               │ ImageStorageService     │  ← App Group 图片存储
-              │ OCRService/LiveText/    │  ← Vision & VisionKit
-              │ Scanner/CaptureService  │  ← 统一录入入口
+              │ OCRService              │  ← Vision (文字识别)
+              │ LiveText/Scanner        │  ← VisionKit (扫描界面)
+              └─────────────────────────┘
+                    │
+                    ▼
+              ProcessKit (Package)
+              ┌─────────────────────────┐
+              │ ImageProcessor          │  ← 手写擦除引擎
+              │ ColorBasedEraser        │  ← 颜色过滤（快速）
+              │ Core ML Model           │  ← 语义分割（精确）
               └─────────────────────────┘
 ```
+
+### 依赖关系
+
+```
+App → ReviewKit → CaptureKit → ProcessKit
+```
+
+- **ReviewKit**：纯业务逻辑，不依赖其他 Kit
+- **CaptureKit**：可选依赖 ProcessKit（后处理）
+- **ProcessKit**：独立的图像处理引擎
 
 ## 终极测试
 

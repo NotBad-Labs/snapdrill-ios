@@ -1,0 +1,27 @@
+# Core ML 模型存放位置
+
+将训练好的 `.mlmodel` 文件放在此目录：
+
+```
+Resources/
+└── HandwritingSegmentation.mlmodel
+```
+
+## 模型规格
+
+**输入**：
+- 名称: `image`
+- 类型: `Image<RGB, 512, 512>` (可变尺寸)
+- 说明: 原始试卷扫描图
+
+**输出**：
+- 名称: `segmentationMap`
+- 类型: `MultiArray<Int32, (1, 512, 512)>`
+- 说明: 分割 mask，每个像素值对应类别
+  - 0: Background
+  - 1: Printed Text (保留)
+  - 2: Handwritten (擦除)
+
+## 模型训练
+
+参考 `docs/MODEL_TRAINING.md`（待创建）
