@@ -157,10 +157,12 @@ public struct ReviewService {
     
     /// 获取今日待复习项
     ///
-    /// - Parameter items: 所有复习项
+    /// - Parameters:
+    ///   - items: 所有复习项
+    ///   - date: 参考日期（默认当前时间，便于测试）
     /// - Returns: 今日需要复习的项
-    public func itemsDueToday(from items: [ReviewItemModel]) -> [ReviewItemModel] {
-        let today = Calendar.current.startOfDay(for: Date())
+    public func itemsDueToday(from items: [ReviewItemModel], on date: Date = Date()) -> [ReviewItemModel] {
+        let today = Calendar.current.startOfDay(for: date)
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
         
         return items.filter { item in
@@ -170,11 +172,34 @@ public struct ReviewService {
     
     /// 获取逾期项
     ///
-    /// - Parameter items: 所有复习项
+    /// - Parameters:
+    ///   - items: 所有复习项
+    ///   - date: 参考日期（默认当前时间，便于测试）
     /// - Returns: 已逾期的项
-    public func overdueItems(from items: [ReviewItemModel]) -> [ReviewItemModel] {
-        let today = Calendar.current.startOfDay(for: Date())
+    public func overdueItems(from items: [ReviewItemModel], on date: Date = Date()) -> [ReviewItemModel] {
+        let today = Calendar.current.startOfDay(for: date)
         return items.filter { $0.nextReviewDate < today }
+    }
+    
+    /// 判断是否需要复习
+    ///
+    /// - Parameters:
+    ///   - item: 复习项
+    ///   - date: 参考日期（默认当前时间，便于测试）
+    /// - Returns: 是否需要复习
+    public func needsReview(for item: ReviewItemModel, on date: Date = Date()) -> Bool {
+        item.nextReviewDate <= date
+    }
+    
+    /// 判断是否已逾期
+    ///
+    /// - Parameters:
+    ///   - item: 复习项
+    ///   - date: 参考日期（默认当前时间，便于测试）
+    /// - Returns: 是否已逾期
+    public func isOverdue(for item: ReviewItemModel, on date: Date = Date()) -> Bool {
+        let today = Calendar.current.startOfDay(for: date)
+        return item.nextReviewDate < today
     }
     
     /// 获取已掌握项

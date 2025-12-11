@@ -163,6 +163,19 @@ struct ReviewServiceTests {
         #expect(result.first?.id == itemDueToday.id)
     }
     
+    @Test("Items due today with custom date")
+    func testItemsDueTodayWithCustomDate() {
+        let customDate = Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 15))!
+        let customToday = Calendar.current.startOfDay(for: customDate)
+        
+        let item = createTestItem()
+        item.nextReviewDate = customToday.addingTimeInterval(3600)
+        
+        let result = service.itemsDueToday(from: [item], on: customDate)
+        
+        #expect(result.count == 1)
+    }
+    
     @Test("Overdue items filter works")
     func testOverdueItems() {
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
@@ -178,6 +191,45 @@ struct ReviewServiceTests {
         
         #expect(result.count == 1)
         #expect(result.first?.id == overdueItem.id)
+    }
+    
+    @Test("Overdue items with custom date")
+    func testOverdueItemsWithCustomDate() {
+        let customDate = Calendar.current.date(from: DateComponents(year: 2025, month: 6, day: 15))!
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: customDate)!
+        
+        let item = createTestItem()
+        item.nextReviewDate = yesterday
+        
+        let result = service.overdueItems(from: [item], on: customDate)
+        
+        #expect(result.count == 1)
+    }
+    
+    @Test("Needs review check")
+    func testNeedsReview() {
+        let item = createTestItem()
+        let now = Date()
+        
+        item.nextReviewDate = now.addingTimeInterval(-3600) // 1 hour ago
+        #expect(service.needsReview(for: item, on: now) == true)
+        
+        item.nextReviewDate = now.addingTimeInterval(3600) // 1 hour later
+        #expect(service.needsReview(for: item, on: now) == false)
+    }
+    
+    @Test("Is overdue check")
+    func testIsOverdue() {
+        let item = createTestItem()
+        let now = Date()
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: now)!
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: now)!
+        
+        item.nextReviewDate = yesterday
+        #expect(service.isOverdue(for: item, on: now) == true)
+        
+        item.nextReviewDate = tomorrow
+        #expect(service.isOverdue(for: item, on: now) == false)
     }
     
     @Test("Mastered items filter works")

@@ -111,4 +111,34 @@ final class ReviewSchedulerTests: XCTestCase {
         
         XCTAssertEqual(result, 1)
     }
+    
+    // MARK: - 边界条件增强测试
+    
+    func testNegativeReviewCount() {
+        // 负数复习次数应被视为 0
+        let interval = scheduler.calculateIntervalDays(currentMastery: 2, reviewCount: -5)
+        XCTAssertEqual(interval, 1, "负数复习次数应使用第一个间隔")
+    }
+    
+    func testInvalidMasteryLevel() {
+        // 超出范围的掌握程度应使用默认倍率 1.0
+        let interval = scheduler.calculateIntervalDays(currentMastery: 10, reviewCount: 2)
+        // 掌握程度 10 不在映射中，应使用默认值 1.0
+        XCTAssertEqual(interval, 4, "无效掌握程度应使用默认倍率 1.0")
+    }
+    
+    func testZeroMasteryZeroReviewCount() {
+        // 完全不会 + 第一次复习
+        let interval = scheduler.calculateIntervalDays(currentMastery: 0, reviewCount: 0)
+        // 基础间隔 1 * 倍率 0.5 = 0.5 → max(1, 0) = 1
+        XCTAssertGreaterThanOrEqual(interval, 1, "最小间隔应为 1 天")
+    }
+    
+    func testExtremelyHighReviewCount() {
+        // 极高的复习次数应使用最后一个间隔
+        let interval1000 = scheduler.calculateIntervalDays(currentMastery: 2, reviewCount: 1000)
+        let interval100 = scheduler.calculateIntervalDays(currentMastery: 2, reviewCount: 100)
+        
+        XCTAssertEqual(interval1000, interval100, "极高复习次数应使用最大间隔")
+    }
 }
