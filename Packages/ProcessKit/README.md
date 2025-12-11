@@ -51,21 +51,38 @@ let cropped = processor.cropToContent(image)
 
 ### Core ML 语义分割模型
 
-**模型输入**：试卷图片（RGB，任意尺寸）  
-**模型输出**：分割 mask（每像素分类）
+**推荐架构**：U-Net / Pix2Pix（图像到图像翻译）
 
-```
-Classes:
-- 0: Background (背景)
-- 1: Printed (印刷体，保留)
-- 2: Handwritten (手写，擦除)
-```
+**模型输入**：
+- 格式: `CVPixelBuffer` (RGB)
+- 尺寸: 512×512 或 1024×1024
+- 归一化: [0, 1]
+
+**模型输出**：
+- 格式: `MultiArray<Float, (1, H, W)>` (分割 mask)
+- 类别:
+  - 0: Background (背景)
+  - 1: Printed (印刷体，保留)
+  - 2: Handwritten (手写，擦除)
 
 **模型文件位置**：
 ```
 ProcessKit/Sources/ProcessKit/Resources/
-└── HandwritingSegmentation.mlmodel
+└── HandwritingSegmentation.mlmodel  # 量化后 15-25MB
 ```
+
+**获取模型的三种方式**：
+1. **开源模型**（推荐起步）
+   - Hugging Face: `document-denoising`
+   - GitHub: `pix2pix`, `U-Net-pytorch`
+   
+2. **商业 API 转换**（不推荐，有成本）
+   - Remove.bg API → 反向工程（违反 ToS）
+   
+3. **自研训练**（长期目标）
+   - 数据集: 1000+ 试卷样本
+   - 框架: PyTorch
+   - 硬件: M1 Mac / NVIDIA GPU
 
 ### 性能优化
 
@@ -131,20 +148,41 @@ ProcessKit
 
 ## 开发路线图
 
-### Phase 1: 颜色过滤（当前）
-- ✅ HSV 色彩空间转换
-- ✅ 蓝/红/灰色范围擦除
-- ✅ Core Image 滤镜链
+### Phase 1: MVP - 开源模型验证（当前）
+**目标**：快速验证技术可行性
+- ✅ 颜色过滤擦除（HSV 色彩空间）
+- 🔄 寻找开源模型（GitHub/Hugging Face）
+  - 关键词: `Document de-noising`, `Handwriting removal`, `Pix2Pix`
+- 🔄 使用 `coremltools` 转换模型
+  ```bash
+  pip install coremltools
+  python convert_to_coreml.py  # PyTorch/TF → .mlmodel
+  ```
+- 🔄 集成到 ProcessKit/Resources/
+- **预期体积**: 40-80MB (Float16)
 
-### Phase 2: Core ML 模型（进行中）
-- 🔄 数据集收集与标注
-- 🔄 U-Net 模型训练
-- 🔄 Core ML 转换与优化
+### Phase 2: 优化 - Int8 量化（1-2 周后）
+**目标**：压缩体积，提升性能
+- ⏳ 使用 Core ML Tools 量化
+  ```python
+  import coremltools as ct
+  model = ct.models.MLModel('model.mlmodel')
+  quantized = ct.models.neural_network.quantization_utils.quantize_weights(
+      model, nbits=8
+  )
+  quantized.save('model_int8.mlmodel')
+  ```
+- **目标体积**: 15-25MB (精度损失 <5%)
+- ⏳ 性能基准测试
+  - iPhone 15 Pro: ~800ms/张 (ANE 加速)
+  - iPhone 12: ~1.2s/张
 
-### Phase 3: 高级功能（未来）
-- ⏳ 智能题目分割
-- ⏳ 多色手写分离
-- ⏳ 手写体矢量化
+### Phase 3: 自研 - 定制数据集（用户反馈后）
+**目标**：打造核心竞争力
+- ⏳ 收集"擦除失败"案例（用户反馈）
+- ⏳ 合成训练数据（空白试卷 + 手写叠加）
+- ⏳ 微调 U-Net/Pix2Pix 模型
+- ⏳ 针对中文手写优化
 
 ---
 
@@ -155,14 +193,23 @@ cd Packages/ProcessKit
 swift test
 ```
 
----
+--- → 512×512 缩放)
 
-## 竞品对比
+| 操作 | 耗时 | 备注 |
+|------|------|------|
+| 颜色过滤擦除 | ~200ms | Core Image 硬件加速 |
+| Core ML 推理 (Int8) | ~800ms | Neural Engine 加速 |
+| Core ML 推理 (Float16) | ~1.2s | 精度更高但稍慢 |
+| 后处理合成 | ~100ms | GPU 并行 |
+| **总计** | **~1.1s** | 完全本地，离线可用 |
 
-| 功能 | NotBad (ProcessKit) | 扫描全能王 / CapWords |
-|------|---------------------|----------------------|
-| 手写擦除 | ✅ 本地 Core ML | ☁️ 云端 API |
-| 处理速度 | ~1s/张（本地 ANE） | ~3-5s/张（网络+云端） |
+**模型体积对比**：
+
+| 量化方式 | 体积 | 精度损失 | 推荐 |
+|----------|------|----------|------|
+| Float32 (原始) | 100-200MB | 0% | ❌ 太大 |
+| Float16 (标准) | 40-80MB | <1% | ⚠️ 可接受 |
+| Int8 (量化) | 15-25MB | <5% | ✅ 强烈推荐（网络+云端） |
 | 离线可用 | ✅ 完全离线 | ❌ 必须联网 |
 | 边际成本 | $0 | $0.01-0.05/张 |
 | 隐私 | ✅ 图片不出设备 | ⚠️ 上传云端 |
