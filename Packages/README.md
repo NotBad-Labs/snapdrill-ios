@@ -18,8 +18,7 @@ NotBad 的核心业务逻辑模块，采用物理隔离架构。
 | Package | 职责 | 内容 | 测试 |
 |---------|------|------|------|
 | [ReviewKit](ReviewKit/) | 领域层核心 | Model + 算法 + 持久化 | 9 tests ✅ |
-| [ImageKit](ImageKit/) | 图片存储 | FileManager 封装 | 16 tests ✅ |
-| [OCRKit](OCRKit/) | 文字识别 | Vision 框架封装 | 10 tests ✅ |
+| [CaptureKit](CaptureKit/) | 录入链路 (图片存储 + OCR + 实时扫描) | ImageStorage + OCR + LiveText/Scanner + CaptureService | TBD |
 
 ## ReviewKit - 领域层核心
 
@@ -47,7 +46,7 @@ ReviewKit/
 
 **解决方案**：将 Model 放入 Package，统一为 `ReviewKit.ReviewItemModel`。
 
-## 目标架构
+## 目标架构（单一 CaptureKit 版本）
 
 ```
 NotBad (App Target)           NotBadWidget (Widget Target)
@@ -62,9 +61,13 @@ NotBad (App Target)           NotBadWidget (Widget Target)
               │ ReviewScheduler         │  ← 复习算法
               └─────────────────────────┘
                     │
-         ┌──────────┴──────────┐
-         │                     │
-    ImageKit               OCRKit
+                    ▼
+              CaptureKit (Package)
+              ┌─────────────────────────┐
+              │ ImageStorageService     │  ← App Group 图片存储
+              │ OCRService/LiveText/    │  ← Vision & VisionKit
+              │ Scanner/CaptureService  │  ← 统一录入入口
+              └─────────────────────────┘
 ```
 
 ## 终极测试
@@ -91,12 +94,13 @@ swift run ReviewKitCLI
 2. General → Frameworks, Libraries...
 3. 添加 `ReviewKit`
 
-### 步骤 3：删除旧文件
+### 步骤 3：删除或停用旧文件
 
-删除以下文件（已迁移到 ReviewKit）：
+以下文件已迁移到 Packages，请删除或停用以避免双份定义：
 - `NotBad/Models/ReviewItemModel.swift`
 - `NotBad/Models/ValueObjects.swift`
 - `NotBad/Data/PersistenceController.swift`
+- 任何旧的 OCR/Image 入口（已合并进 CaptureKit）
 
 ### 步骤 4：添加 import
 
@@ -111,11 +115,8 @@ import ReviewKit
 # ReviewKit
 cd Packages/ReviewKit && swift test
 
-# ImageKit
-cd Packages/ImageKit && swift test
-
-# OCRKit
-cd Packages/OCRKit && swift test
+# CaptureKit
+cd Packages/CaptureKit && swift test
 ```
 
 ## 相关文档

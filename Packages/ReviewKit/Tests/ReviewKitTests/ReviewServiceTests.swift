@@ -10,6 +10,7 @@ import Foundation
 @testable import ReviewKit
 
 @Suite("ReviewService Tests")
+@MainActor
 struct ReviewServiceTests {
     
     let service = ReviewService()
@@ -20,9 +21,9 @@ struct ReviewServiceTests {
     func testRecordReviewUpdatesMasteryLevel() {
         let item = createTestItem()
         
-        service.recordReview(for: item, performance: ReviewPerformance.good)
+        service.recordReview(for: item, performance: ReviewPerformance.basic)
         
-        #expect(item.masteryLevel == ReviewPerformance.good.rawValue)
+        #expect(item.masteryLevel == ReviewPerformance.basic.rawValue)
     }
     
     @Test("Record review increments review count")
@@ -30,7 +31,7 @@ struct ReviewServiceTests {
         let item = createTestItem()
         let initialCount = item.reviewCount
         
-        service.recordReview(for: item, performance: ReviewPerformance.good)
+        service.recordReview(for: item, performance: ReviewPerformance.basic)
         
         #expect(item.reviewCount == initialCount + 1)
     }
@@ -51,7 +52,7 @@ struct ReviewServiceTests {
         
         service.recordReview(for: item, performance: 100)
         
-        #expect(item.masteryLevel == 3) // Clamped to max
+        #expect(item.masteryLevel == 4) // Clamped to max
     }
     
     @Test("Record review with negative value clamps to zero")
@@ -68,8 +69,8 @@ struct ReviewServiceTests {
         let item = createTestItem()
         
         service.recordReview(for: item, performance: ReviewPerformance.forgot)
-        service.recordReview(for: item, performance: ReviewPerformance.hard)
-        service.recordReview(for: item, performance: ReviewPerformance.good)
+        service.recordReview(for: item, performance: ReviewPerformance.vague)
+        service.recordReview(for: item, performance: ReviewPerformance.basic)
         
         #expect(item.reviewCount == 3)
     }
@@ -184,10 +185,10 @@ struct ReviewServiceTests {
         let masteredItem = createTestItem()
         masteredItem.masteryLevel = MasteryLevel.mastered.rawValue
         
-        let partialItem = createTestItem()
-        partialItem.masteryLevel = MasteryLevel.partial.rawValue
+        let vagueItem = createTestItem()
+        vagueItem.masteryLevel = MasteryLevel.vague.rawValue
         
-        let result = service.masteredItems(from: [masteredItem, partialItem])
+        let result = service.masteredItems(from: [masteredItem, vagueItem])
         
         #expect(result.count == 1)
         #expect(result.first?.id == masteredItem.id)
@@ -203,13 +204,13 @@ struct ReviewServiceTests {
         let mastered2 = createTestItem()
         mastered2.masteryLevel = MasteryLevel.mastered.rawValue
         
-        let partial = createTestItem()
-        partial.masteryLevel = MasteryLevel.partial.rawValue
+        let vague = createTestItem()
+        vague.masteryLevel = MasteryLevel.vague.rawValue
         
         let none = createTestItem()
         none.masteryLevel = MasteryLevel.none.rawValue
         
-        let rate = service.masteryRate(for: [mastered1, mastered2, partial, none])
+        let rate = service.masteryRate(for: [mastered1, mastered2, vague, none])
         
         #expect(rate == 0.5) // 2 out of 4
     }
@@ -247,7 +248,7 @@ struct ReviewServiceTests {
         let customService = ReviewService(scheduler: customScheduler)
         let item = createTestItem()
         
-        customService.recordReview(for: item, performance: .good)
+        customService.recordReview(for: item, performance: .basic)
         
         #expect(item.reviewCount == 1)
     }
@@ -257,7 +258,7 @@ struct ReviewServiceTests {
         let shared = ReviewService.shared
         let item = createTestItem()
         
-        shared.recordReview(for: item, performance: .good)
+        shared.recordReview(for: item, performance: .basic)
         
         #expect(item.reviewCount == 1)
     }
@@ -281,7 +282,7 @@ struct ReviewServiceTests {
         #expect(item.mastery == .none)
         
         service.recordReview(for: item, performance: ReviewPerformance.easy)
-        #expect(item.masteryLevel == 3)
+        #expect(item.masteryLevel == 4)
     }
     
     // MARK: - Helper

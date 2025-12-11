@@ -22,19 +22,38 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "ReviewKit",
+            name: "ReviewKitCore",
             dependencies: [],
-            swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency") // Swift 6 预备
-            ]
+            path: "Sources/ReviewKitCore",
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        .target(
+            name: "ReviewKitModels",
+            dependencies: ["ReviewKitCore"],
+            path: "Sources/ReviewKitModels",
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        .target(
+            name: "ReviewKitPersistence",
+            dependencies: ["ReviewKitModels", "ReviewKitCore"],
+            path: "Sources/ReviewKitPersistence",
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        .target(
+            name: "ReviewKit",
+            dependencies: ["ReviewKitCore", "ReviewKitModels", "ReviewKitPersistence"],
+            path: "Sources/ReviewKit",
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .executableTarget(
             name: "ReviewKitCLI",
-            dependencies: ["ReviewKit"]
+            dependencies: ["ReviewKit"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "ReviewKitTests",
-            dependencies: ["ReviewKit"]
+            dependencies: ["ReviewKit"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
     ]
 )

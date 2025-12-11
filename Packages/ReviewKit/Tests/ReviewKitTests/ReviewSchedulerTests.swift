@@ -47,28 +47,28 @@ final class ReviewSchedulerTests: XCTestCase {
     }
     
     func testEasyExtendsInterval() {
-        let easyInterval = scheduler.calculateIntervalDays(currentMastery: 3, reviewCount: 2)
+        let easyInterval = scheduler.calculateIntervalDays(currentMastery: 4, reviewCount: 2)
         let normalInterval = scheduler.calculateIntervalDays(currentMastery: 2, reviewCount: 2)
         
-        XCTAssertGreaterThan(easyInterval, normalInterval, "轻松掌握应该延长间隔")
+        XCTAssertGreaterThan(easyInterval, normalInterval, "完全掌握应该延长间隔")
     }
     
     // MARK: - ReviewPerformance 枚举
     
     func testPerformanceEnum() {
-        let goodDate = scheduler.calculateNextReviewDate(
-            performance: .good,
+        let basicDate = scheduler.calculateNextReviewDate(
+            performance: .basic,
             reviewCount: 0,
             from: referenceDate
         )
         
         let masteryDate = scheduler.calculateNextReviewDate(
-            currentMastery: ReviewPerformance.good.rawValue,
+            currentMastery: ReviewPerformance.basic.rawValue,
             reviewCount: 0,
             from: referenceDate
         )
         
-        XCTAssertEqual(goodDate, masteryDate, "两种调用方式结果应该一致")
+        XCTAssertEqual(basicDate, masteryDate, "两种调用方式结果应该一致")
     }
     
     // MARK: - 边界条件

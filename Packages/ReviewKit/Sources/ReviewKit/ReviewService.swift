@@ -9,6 +9,8 @@
 //
 
 import Foundation
+import ReviewKitCore
+import ReviewKitModels
 
 // MARK: - ReviewService
 
@@ -17,13 +19,15 @@ import Foundation
 /// 处理复习相关的业务逻辑，与 ReviewScheduler 配合使用。
 /// 遵循"贫血模型 + 领域服务"模式，便于测试和维护。
 ///
+/// - Important: 此服务必须在主线程调用，因为 SwiftData Model 不是 Sendable。
+///
 /// ## 使用示例
 ///
 /// ```swift
 /// let service = ReviewService()
 ///
 /// // 记录复习
-/// service.recordReview(for: item, performance: .good)
+/// service.recordReview(for: item, performance: .basic)
 ///
 /// // 重置进度
 /// service.resetProgress(for: item)
@@ -31,7 +35,9 @@ import Foundation
 /// // 批量标记已掌握
 /// service.markAsMastered(items: [item1, item2])
 /// ```
-public struct ReviewService: Sendable {
+@MainActor
+/// 复习业务服务（主线程调用）
+public struct ReviewService {
     
     private let scheduler: ReviewScheduler
     
@@ -65,14 +71,14 @@ public struct ReviewService: Sendable {
     ///
     /// - Parameters:
     ///   - item: 复习项
-    ///   - performance: 掌握程度 (0-3)
+    ///   - performance: 掌握程度 (0-4)
     ///   - date: 复习日期
     public func recordReview(
         for item: ReviewItemModel,
         performance: Int,
         on date: Date = Date()
     ) {
-        let clampedPerformance = max(0, min(3, performance))
+        let clampedPerformance = max(0, min(4, performance))
         item.masteryLevel = clampedPerformance
         item.reviewCount += 1
         item.updatedAt = date
@@ -82,6 +88,18 @@ public struct ReviewService: Sendable {
             reviewCount: item.reviewCount,
             from: date
         )
+    }
+
+    /// 记录一次复习（严格校验版，超出范围会抛出错误）
+    public func recordReviewValidated(
+        for item: ReviewItemModel,
+        performance: Int,
+        on date: Date = Date()
+    ) throws {
+        guard (0...4).contains(performance) else {
+            throw ReviewError.invalidPerformance(value: performance)
+        }
+        recordReview(for: item, performance: performance, on: date)
     }
     
     // MARK: - Reset Progress
@@ -111,9 +129,16 @@ public struct ReviewService: Sendable {
     ///
     /// - Parameter items: 复习项数组
     public func markAsMastered(items: [ReviewItemModel]) {
+        let now = Date()
         for item in items {
             item.masteryLevel = MasteryLevel.mastered.rawValue
-            item.updatedAt = Date()
+            item.reviewCount += 1
+            item.updatedAt = now
+            item.nextReviewDate = scheduler.calculateNextReviewDate(
+                currentMastery: MasteryLevel.mastered.rawValue,
+                reviewCount: item.reviewCount,
+                from: now
+            )
         }
     }
     
@@ -185,6 +210,7 @@ public struct ReviewService: Sendable {
 
 // MARK: - Shared Instance
 
+/// ReviewService 的共享实例封装
 public extension ReviewService {
     /// 共享实例
     static let shared = ReviewService()

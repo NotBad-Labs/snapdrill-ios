@@ -12,12 +12,12 @@
 
 @_exported import Foundation
 @_exported import SwiftData
+@_exported import ReviewKitCore
+@_exported import ReviewKitModels
+@_exported import ReviewKitPersistence
 
-// MARK: - 重导出公共 API
-
-// 调度器
+// 调度器别名保持兼容
 public typealias Scheduler = ReviewScheduler
+// 模型别名保持兼容（ReviewItem 在模型模块内定义）
 
-// 模型（保持向后兼容）
-// ReviewItem 和 ReviewItemModel 都可用
 

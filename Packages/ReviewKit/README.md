@@ -13,13 +13,14 @@ ReviewKit 是 NotBad 的 **Domain Layer（领域层）**，包含：
 | 持久化 | `Data/PersistenceController.swift` | App Groups 共享数据库 |
 | 算法 | `ReviewScheduler.swift` | 间隔重复复习调度 |
 
-## 特性
+- ## 特性
 
-- ✅ **SwiftData** - 使用 @Model 宏，支持 iOS 17+ / macOS 14+
-- ✅ **App Groups** - 主 App 和 Widget 共享数据库
-- ✅ **充血模型** - Model 自带业务方法 (`recordReview()` 等)
-- ✅ **Sendable** - Swift 6 并发安全
-- ✅ **跨平台** - iOS, macOS, Widget, CLI 均可使用
+- ✅ **Swift 6.2 / Strict Concurrency** — Package targets 强制 `swiftLanguageMode(.v6)`
+- ✅ **SwiftData** — @Model，最低 iOS 17 / macOS 14（与 Package 平台声明一致）
+- ✅ **App Groups** — 主 App / Widget 共享数据库
+- ✅ **充血模型 + 领域服务** — 模型轻，业务放服务
+- ✅ **Sendable 思维** — 跨模块并发安全
+- ✅ **模块化** — Core / Models / Persistence / ReviewKit 聚合
 
 ## 为什么 Model 在 Package 里？
 
@@ -44,23 +45,61 @@ SwiftData 使用完全限定类名（`模块名.类名`）作为存储标识符�
 ```swift
 import ReviewKit
 
+// 启动早期（App/Scene 初始化前）配置共享参数
+ReviewKitConfiguration.configure(
+   .init(appGroupIdentifier: "group.com.example.shared")
+)
+
 // 访问持久化
 let container = PersistenceController.shared.container
 
-// 创建新错题
-let item = ReviewItemModel()
-item.title = "二次函数求根"
-item.subject = .math
-item.difficulty = .medium
+// 创建新错题（知识点为原生数组）
+let item = ReviewItemModel(
+   title: "二次函数求根",
+   subjectRaw: Subject.math.rawValue,
+   difficultyRaw: Difficulty.medium.rawValue,
+   knowledgePoints: ["二次函数", "求根"]
+)
 
 // 记录复习
 item.recordReview(performance: 2)  // 大部分掌握
 // nextReviewDate 自动更新
 
+// SwiftData 谓词示例（iOS 17+ 原生数组查询）
+// let predicate = #Predicate<ReviewItemModel> { $0.knowledgePoints.contains("二次函数") }
+
 // 使用调度器
 let scheduler = ReviewScheduler()
 let days = scheduler.calculateIntervalDays(currentMastery: 2, reviewCount: 3)
 ```
+
+### 自定义配置（App Group / 路径）
+
+在应用启动早期设置共享配置，然后用自定义实例：
+
+```swift
+ReviewKitConfiguration.configure(
+   .init(
+      appGroupIdentifier: "group.com.example.shared",
+      databaseFileName: "Example.sqlite",
+      imagesDirectoryName: "Images"
+   )
+)
+
+let persistence = PersistenceController(configuration: .shared)
+let imageStorage = ImageStorageService(configuration: .shared)
+
+// 异步保存/读取图片（仅在 canImport(UIKit)/canImport(AppKit) 下）
+let fileName = try await imageStorage.saveImage(image, for: itemId)
+let loaded = await imageStorage.loadImage(named: fileName)
+```
+
+### 模块结构
+
+- `ReviewKitCore`: 调度器、值对象、通用错误
+- `ReviewKitModels`: SwiftData 模型
+- `ReviewKitPersistence`: 配置、数据库、图片存储
+- `ReviewKit`: 聚合层，`import ReviewKit` 即可使用全部 API
 
 ## 集成到 NotBad 主工程
 

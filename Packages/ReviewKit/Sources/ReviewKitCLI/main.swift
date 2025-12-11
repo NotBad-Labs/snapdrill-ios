@@ -20,13 +20,13 @@ let today = Date()
 let dateFormatter = DateFormatter()
 dateFormatter.dateFormat = "yyyy-MM-dd"
 
-print("掌握程度: .good (正常掌握)\n")
+print("掌握程度: .basic (基本掌握)\n")
 print("复习次数 │ 间隔天数 │ 下次复习日期")
 print("─────────┼──────────┼──────────────")
 
 for reviewCount in 0..<7 {
     let nextDate = scheduler.calculateNextReviewDate(
-        performance: .good,
+        performance: .basic,
         reviewCount: reviewCount,
         from: today
     )
@@ -40,10 +40,11 @@ print("\n───────────────────────�
 print("\n📊 不同掌握程度的间隔对比（第3次复习后）\n")
 
 let performances: [(ReviewPerformance, String)] = [
-    (.forgot, "完全忘记"),
-    (.hard, "勉强记得"),
-    (.good, "正常掌握"),
-    (.easy, "轻松掌握")
+    (.forgot, "完全不会"),
+    (.vague, "模糊记忆"),
+    (.basic, "基本掌握"),
+    (.familiar, "熟练掌握"),
+    (.easy, "完全掌握")
 ]
 
 print("掌握程度 │ 间隔天数")
