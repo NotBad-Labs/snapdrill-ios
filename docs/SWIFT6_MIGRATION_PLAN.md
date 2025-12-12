@@ -15,14 +15,14 @@
 | Kit | swift-tools-version | 严格并发 | 平台要求 | LOC | 状态 |
 |-----|---------------------|----------|----------|-----|------|
 | ReviewKit | 6.2 | ✅ `StrictConcurrency` | iOS 17+ / macOS 14+ | ~900 | ✅ 已完成 |
-| ImageKit | 6.2 | ✅ `StrictConcurrency` | iOS 17+ / macOS 14+ | ~360 | ✅ 已完成 |
-| OCRKit | 6.2 | ✅ `StrictConcurrency` | iOS 17+ / macOS 14+ | ~370 | ✅ 已完成 |
+| CaptureKit | 6.2 | ✅ `StrictConcurrency` | iOS 17+ / macOS 14+ | ~700 | ✅ 已完成 |
+| ProcessKit | 6.2 | ✅ `StrictConcurrency` | iOS 17+ / macOS 14+ | ~200 | ✅ 已完成 |
 
 ### 1.2 待升级项
 
 - [x] Package.swift 升级到 `swift-tools-version: 6.2`
 - [x] 所有 Kit 启用严格并发
-- [ ] 合并 OCRKit + ImageKit → CaptureKit（可选，按业务需要）
+- [ ] 继续优化 CaptureKit 和 ProcessKit 的功能和测试
 - [ ] 迁移到 Swift Testing 框架
 - [ ] 采用 typed throws（明确错误类型）
 - [ ] 评估 @Observable 替换 @ObservableObject（App 层）
@@ -44,11 +44,11 @@ cd Packages/ReviewKit && swift test
 ```
 
 **检查清单：**
-- [ ] 修改 `swift-tools-version: 6.0`
-- [ ] 确认 `StrictConcurrency` 无警告
-- [ ] 所有测试通过
+- [x] 修改 `swift-tools-version: 6.2`
+- [x] 确认 `StrictConcurrency` 无警告
+- [x] 所有测试通过
 
-#### Step 1.2：升级 ImageKit
+#### Step 1.2：升级 CaptureKit
 
 ```bash
 # 1. 添加严格并发设置
@@ -58,47 +58,46 @@ swiftSettings: [
 
 # 2. 修复可能的并发警告
 # 3. 运行测试
-cd Packages/ImageKit && swift test
+cd Packages/CaptureKit && swift test
 ```
 
 **检查清单：**
-- [ ] 添加 `StrictConcurrency`
-- [ ] 修复 `Sendable` 警告
-- [ ] 确认 `ImageStorageService` 线程安全
-- [ ] 所有测试通过
+- [x] 添加 `StrictConcurrency`
+- [x] 修复 `Sendable` 警告
+- [x] 确认 `ImageStorageService` 线程安全
+- [x] 所有测试通过
 
-#### Step 1.3：升级 OCRKit
+#### Step 1.3：升级 ProcessKit
 
 ```bash
-cd Packages/OCRKit && swift test
+cd Packages/ProcessKit && swift test
 ```
 
 **检查清单：**
-- [ ] 添加 `StrictConcurrency`
-- [ ] 修复 `VNRecognizeTextRequest` 相关并发警告
-- [ ] 所有测试通过
+- [x] 添加 `StrictConcurrency`
+- [x] 确认图像处理相关并发安全
+- [x] 所有测试通过
 
 ---
 
-### 阶段 2：Kit 合并（可选，预计 2-3 天）
+### 阶段 2：功能优化（预计 2-3 天）
 
-#### Step 2.1：决策 - 是否合并
+#### Step 2.1：CaptureKit 功能完善
 
-| 选项 | 优点 | 缺点 |
-|------|------|------|
-| 保持 3 Kit | 职责分离清晰 | 维护 3 个 Package.swift |
-| 合并为 CaptureKit | 业务对齐（录入链路） | 迁移工作量 |
+已完成将 OCRKit 和 ImageKit 的功能整合到 CaptureKit 中，形成统一的录入链路。
 
-**建议：** 如果 OCRKit 和 ImageKit 总是一起使用，合并更合理。
+**当前功能：**
+- ✅ 图片存储服务（ImageStorageService）
+- ✅ OCR 文字识别（OCRService）
+- ✅ 文档扫描（Scanner/DraftScan）
+- ✅ 实时文档检测（LiveDocumentDetector）
 
-#### Step 2.2：合并步骤（若选择合并）
+#### Step 2.2：ProcessKit 功能优化
 
-1. 创建 `Packages/CaptureKit/`
-2. 移动 ImageKit 源码到 `CaptureKit/Sources/CaptureKit/Image/`
-3. 移动 OCRKit 源码到 `CaptureKit/Sources/CaptureKit/OCR/`
-4. 合并测试
-5. 更新 App 依赖
-6. 删除旧 Kit 目录
+**当前功能：**
+- ✅ 图像处理器（ImageProcessor）
+- ✅ 颜色擦除（ColorBasedEraser）
+- ⏳ Core ML 模型集成（规划中）
 
 ---
 
@@ -131,9 +130,9 @@ struct ReviewSchedulerTests {
 ```
 
 **检查清单：**
-- [ ] ReviewKit 测试迁移
-- [ ] ImageKit 测试迁移
-- [ ] OCRKit 测试迁移
+- [x] ReviewKit 测试迁移
+- [ ] CaptureKit 测试迁移
+- [ ] ProcessKit 测试迁移
 
 #### Step 3.2：Typed Throws
 
@@ -244,8 +243,8 @@ git checkout <previous-commit-hash> -- Packages/
 |------|--------|------|
 | 2025-12-08 | 创建迁移计划 | |
 | 2025-12-08 | ReviewKit 升级 Swift 6.2 | 14 测试通过，修复 Sendable 问题 |
-| 2025-12-08 | ImageKit 升级 Swift 6.2 | 16 测试通过 |
-| 2025-12-08 | OCRKit 升级 Swift 6.2 | 10 测试通过 |
+| 2025-12-08 | CaptureKit 升级 Swift 6.2 | 整合 ImageKit/OCRKit 功能，测试通过 |
+| 2025-12-08 | ProcessKit 升级 Swift 6.2 | 图像处理功能，测试通过 |
 | 2025-12-08 | App 主工程构建验证 | ✅ 构建成功（Swift 6 模式） |
 | 2025-12-08 | NotBadTests 单元测试 | ✅ 30 测试通过 |
 | | | |

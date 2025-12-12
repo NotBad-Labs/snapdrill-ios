@@ -86,8 +86,8 @@ Database (@Model) → @Query (自动刷新) → View
 NotBad (App Target) - 只是一层薄薄的 UI
 └── Packages/
     ├── ReviewKit    # 🧠 大脑：数据、算法、逻辑
-    ├── ImageKit     # 图片处理
-    └── OCRKit       # 文字识别
+    ├── CaptureKit   # 📸 录入：扫描、OCR、图片存储
+    └── ProcessKit   # 🎨 增强：图像处理、AI 擦除
 ```
 
 **终极测试**：创建一个 macOS 命令行工具 Target，依赖 ReviewKit，能直接跑通复习算法——如果做到了，架构就超越了 90% 的独立开发者。

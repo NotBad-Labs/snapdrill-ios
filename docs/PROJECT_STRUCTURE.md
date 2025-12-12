@@ -16,5 +16,5 @@ NotBad/
 
 - `NotBadTests/`：单元、集成、性能测试。
 - `NotBadUITests/`：UI 测试。
-- `Packages/`：模块化拆分（ReviewKit、ImageKit、OCRKit 等）。
+- `Packages/`：模块化拆分（ReviewKit、CaptureKit、ProcessKit）。
 - `docs/`：架构/规范/术语表等文档；归档文档位于 `docs/archive/`。

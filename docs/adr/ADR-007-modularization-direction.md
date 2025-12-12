@@ -152,7 +152,7 @@ WebSocket 来了 → 存库 → 数据库通知 → UI 刷新
 
 ### 4. 小团队的取舍（避免过度拆分）
 
-- **优先保持 App 薄壳 + 少数高复用包**：App 只管 UI/导航/组装；`ReviewKit` 管模型与算法；`ImageKit`/`OCRKit` 管 IO 能力；`DesignSystem` 视需求再抽。不要做“一个巨大 Kit”。
+- **优先保持 App 薄壳 + 少数高复用包**：App 只管 UI/导航/组装；`ReviewKit` 管模型与算法；`CaptureKit` 管录入链路；`ProcessKit` 管图像增强；`DesignSystem` 视需求再抽。不要做“一个巨大 Kit”。
 - **触发拆包的条件**：多端复用（Widget/CLI/macOS）、并行开发、编译时间瓶颈、或需要对外分发库。否则先留在主 Target，避免无谓复杂度。
 - **依赖方向**：App → Kits；Kits 之间尽量无环；Kit 不 import SwiftUI（除非专为 UI 的 DesignSystem），SwiftData 模型只定义一处（ReviewKit）。
 - **决策清单**（满足两项再拆）
@@ -176,11 +176,13 @@ WebSocket 来了 → 存库 → 数据库通知 → UI 刷新
 | 代码量 > 5万行 | 拆分 ImageKit、OCRKit |
 | 多平台扩展 | 全面依赖 Package |
 
+> **更新 (2025-12-12)**: ImageKit 和 OCRKit 已整合为 **CaptureKit**，同时新增 **ProcessKit** 用于图像处理。当前架构为 ReviewKit + CaptureKit + ProcessKit（3-Kit 架构）。详见 [SCAN_FLOW.md](../SCAN_FLOW.md)。
+
 > 小团队决策卡片见 `docs/ARCHITECTURE.md`（薄壳 App + 少量高复用包，避免巨大单包；依赖方向 App→Kits，满足复用/降耦合/接口稳定再拆包）。
 
 ## 工程师点评（摘要）
 
-- **薄壳 App + 核心三包**：保持 App 只做 UI/导航/组装；核心仅维护 `ReviewKit`（模型/算法/迁移）、`ImageKit`（图片 IO/压缩/共享路径）、`OCRKit`（文本识别）。DesignSystem 视需求再抽，避免“巨大 CommonKit”。
+- **薄壳 App + 核心三包**：保持 App 只做 UI/导航/组装；核心仅维护 `ReviewKit`（模型/算法/迁移）、`CaptureKit`（扫描/OCR/图片存储）、`ProcessKit`（图像增强/AI擦除）。DesignSystem 视需求再抽，避免“巨大 CommonKit”。
 - **依赖与命名空间**：App/Widget 共享 ReviewKit 中的 SwiftData 模型，杜绝多处定义；Kits 不引入 SwiftUI（除非专为 UI 的 DesignSystem），避免环依赖。
 - **拆包触发**：需多 Target 复用或明显降低编译/耦合时再拆；单平台、小团队、<5 万行且无编译瓶颈时可暂缓，保持主 Target 简单高效。
 - **并发与性能**：先在核心 Kit 开启 Strict Concurrency（Swift 6），分而治之；包内尽量 internal 化非公开 API，减轻接口膨胀与编译负担。
