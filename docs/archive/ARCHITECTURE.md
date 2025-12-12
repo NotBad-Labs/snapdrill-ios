@@ -1,3 +1,5 @@
+> **Archived**: not part of public documentation; may be outdated.
+
 # NotBad 项目架构文档
 
 > 最后更新：2025年12月6日  

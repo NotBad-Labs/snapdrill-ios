@@ -1,3 +1,5 @@
+> **Archived**: not part of public documentation; may be outdated.
+
 # NotBad 三大 Kit 架构验证报告
 
 **评审日期**: 2025-12-11  

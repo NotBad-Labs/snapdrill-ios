@@ -1,3 +1,5 @@
+> **Archived**: not part of public documentation; may be outdated.
+
 # NotBad 架构哲学：回应"Camera-First"讨论
 
 **日期**: 2025年12月11日  

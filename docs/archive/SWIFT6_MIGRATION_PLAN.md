@@ -1,3 +1,5 @@
+> **Archived**: not part of public documentation; may be outdated.
+
 # Swift 6.2 迁移计划
 
 > 创建日期：2025-12-08  

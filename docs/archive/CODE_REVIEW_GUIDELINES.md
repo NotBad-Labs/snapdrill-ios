@@ -1,3 +1,5 @@
+> **Archived**: not part of public documentation; may be outdated.
+
 # Code Review 指南 — NotBad 项目
 
 **版本**: 5.0 (Pragmatic Edition)  
@@ -5,7 +7,7 @@
 
 本文档为团队统一的代码审查（Code Review）准则。我们的目标是在保持**开发效率**（实用主义）的同时，交付符合 **Apple Design Awards** 标准的高质量教育应用。
 
-> 说明：风格细节以 `docs/CODING_STANDARDS.md` 为准，本指南聚焦评审检查项；如有冲突，优先级为 ADR → CODING_STANDARDS → 本指南。
+> 说明：风格细节以 `CODING_STANDARDS.md` 为准，本指南聚焦评审检查项；如有冲突，优先级为 ADR → CODING_STANDARDS → 本指南。
 
 > **🎯 愿景**：通过原生架构发挥平台优势，在创新、包容性、用户体验上追求卓越。
 
@@ -35,7 +37,7 @@
 
 ## 1. 命名与代码风格
 
-> 详细风格规范已汇总于 `docs/CODING_STANDARDS.md`，评审时仅需确认是否遵循该文档；如需具体规则（命名、协议顺序、Design Tokens），请直接参阅 CODING_STANDARDS。
+> 详细风格规范已汇总于 `CODING_STANDARDS.md`（同在 archive/），评审时仅需确认是否遵循该文档；如需具体规则（命名、协议顺序、Design Tokens），请直接参阅 CODING_STANDARDS。
 
 ---
 

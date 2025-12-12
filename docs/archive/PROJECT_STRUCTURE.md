@@ -1,3 +1,5 @@
+> **Archived**: not part of public documentation; may be outdated.
+
 # 项目结构（NotBad）
 
 > 精简版占位文档，描述主目录职责，确保链接可用。

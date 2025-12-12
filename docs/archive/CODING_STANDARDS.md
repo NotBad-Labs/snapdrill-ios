@@ -1,3 +1,5 @@
+> **Archived**: not part of public documentation; may be outdated.
+
 # 编码规范（NotBad）
 
 > 精简版占位文档，确保链接可用；后续可根据团队规范补充细节。
