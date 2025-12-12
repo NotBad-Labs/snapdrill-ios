@@ -176,6 +176,8 @@ WebSocket 来了 → 存库 → 数据库通知 → UI 刷新
 | 代码量 > 5万行 | 拆分 ImageKit、OCRKit |
 | 多平台扩展 | 全面依赖 Package |
 
+> **更新 (2025-12-12)**: ImageKit 和 OCRKit 已整合为 **CaptureKit**，同时新增 **ProcessKit** 用于图像处理。当前架构为 ReviewKit + CaptureKit + ProcessKit（3-Kit 架构）。详见 [SCAN_FLOW.md](../SCAN_FLOW.md)。
+
 > 小团队决策卡片见 `docs/ARCHITECTURE.md`（薄壳 App + 少量高复用包，避免巨大单包；依赖方向 App→Kits，满足复用/降耦合/接口稳定再拆包）。
 
 ## 工程师点评（摘要）
