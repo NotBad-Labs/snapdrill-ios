@@ -1,0 +1,55 @@
+{
+  "object" : {
+    "artifacts" : [
+
+    ],
+    "dependencies" : [
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "notbadcore",
+          "kind" : "fileSystem",
+          "location" : "/Users/yimingliao/Developer/NotBad/Packages/NotBadCore",
+          "name" : "NotBadCore"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/yimingliao/Developer/NotBad/Packages/NotBadCore"
+        },
+        "subpath" : "notbadcore"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "notbadservice",
+          "kind" : "fileSystem",
+          "location" : "/Users/yimingliao/Developer/NotBad/Packages/NotBadService",
+          "name" : "NotBadService"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/yimingliao/Developer/NotBad/Packages/NotBadService"
+        },
+        "subpath" : "notbadservice"
+      },
+      {
+        "basedOn" : null,
+        "packageRef" : {
+          "identity" : "notbadui",
+          "kind" : "fileSystem",
+          "location" : "/Users/yimingliao/Developer/NotBad/Packages/NotBadUI",
+          "name" : "NotBadUI"
+        },
+        "state" : {
+          "name" : "fileSystem",
+          "path" : "/Users/yimingliao/Developer/NotBad/Packages/NotBadUI"
+        },
+        "subpath" : "notbadui"
+      }
+    ],
+    "prebuilts" : [
+
+    ]
+  },
+  "version" : 7
+}

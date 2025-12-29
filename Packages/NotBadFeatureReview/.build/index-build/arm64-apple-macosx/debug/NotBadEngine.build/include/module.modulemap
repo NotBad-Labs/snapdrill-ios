@@ -1,0 +1,3 @@
+module NotBadEngine {
+    header "/Users/yimingliao/Developer/NotBad/Packages/NotBadFeatureReview/.build/index-build/arm64-apple-macosx/debug/NotBadEngine.build/include/NotBadEngine-Swift.h"
+}

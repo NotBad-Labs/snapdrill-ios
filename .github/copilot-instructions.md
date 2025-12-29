@@ -16,11 +16,15 @@ NotBad 是一款专为 **iOS** 设计的间隔重复（Spaced-Repetition）学�
 
 | 包名 | 职责层级 | 说明 | 依赖限制 |
 | :--- | :--- | :--- | :--- |
-| **NotBadCore** | Domain (领域层) | 包含纯业务逻辑、算法（如复习调度）和协议定义。 | **0 依赖** (仅限 Foundation) |
-| **NotBadData** | Infrastructure (数据层) | SwiftData 模型定义 (@Model) 及持久化逻辑。 | 依赖 `NotBadCore` |
-| **NotBadService** | Service (服务层) | 封装系统能力（OCR, Vision, 图像处理）。 | 依赖 `NotBadCore` |
-| **NotBadUI** | Presentation (组件层) | 通用 UI 组件、样式定义、图标资源。 | 依赖 `NotBadCore` |
-| **NotBadFeature** | Feature (功能层) | 具体的业务页面（如扫描、复习、统计）。 | 依赖上述所有包 |
+| **NotBadCore** | Kernel (内核层) | 对应 `ReviewItem` 概念。包含题目定义、通用协议、基础枚举。 | **0 依赖** |
+| **NotBadEngine** | Logic (逻辑层) | 对应 `ReviewPlan` 概念。包含复习调度算法、掌握程度计算。 | 依赖 `NotBadCore` |
+| **NotBadData** | Infrastructure (数据层) | 对应 `Storage` 概念。SwiftData 模型定义及持久化逻辑。 | 依赖 `NotBadCore` |
+| **NotBadService** | Service (服务层) | 对应 `Capture` 核心逻辑。封装 OCR、Vision、图像处理。 | 依赖 `NotBadCore` |
+| **NotBadUI** | Presentation (组件层) | 全局设计系统、通用 UI 组件、图标资源。 | 依赖 `NotBadCore` |
+| **NotBadFeatureCapture** | Feature (功能层) | **采集流程**：拍照、实时检测、预览编辑界面。 | 依赖 Core, UI, Service |
+| **NotBadFeatureLibrary** | Feature (功能层) | **题库流程**：题目列表、搜索、详情查看。 | 依赖 Core, UI, Data |
+| **NotBadFeatureReview** | Feature (功能层) | **复习流程**：复习会话、答题交互、进度展示。 | 依赖 Core, Engine, UI, Data |
+| **NotBadFeatureSettings** | Feature (功能层) | **设置流程**：个人资料、打印配置、系统设置。 | 依赖 Core, UI, Service |
 
 ### 依赖原则
 1. **单向依赖**: 上层模块可以依赖下层模块，严禁循环依赖。
