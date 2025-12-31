@@ -1,0 +1,12 @@
+//
+//  Debug.xcconfig
+//  NotBad
+//
+
+#include "Configs/Shared.xcconfig"
+
+DEBUG_INFORMATION_FORMAT = dwarf
+ENABLE_TESTABILITY = YES
+GCC_OPTIMIZATION_LEVEL = 0
+SWIFT_OPTIMIZATION_LEVEL = -Onone
+mtl_enable_debug_info = YES

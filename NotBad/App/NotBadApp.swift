@@ -2,54 +2,43 @@
 //  NotBadApp.swift
 //  NotBad
 //
-//  应用入口
+//  Created by Yiming Liao on 2025/12/29.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  应用入口文件，负责初始化应用和主界面配置
 //
 
 import SwiftUI
-import NotBadFeatureCapture
-import NotBadFeatureLibrary
-import NotBadFeatureReview
-import NotBadFeatureSettings
+import SwiftData
+import NotBadData
+import NotBadFeatures
+import TipKit
 
+/// 应用的主入口
+///
+/// 负责配置应用的主窗口和根视图。
 @main
 struct NotBadApp: App {
+    /// 顶级导航协调器 (Coordinator State)
+    @State private var appRouter = AppRouter()
+    
     var body: some Scene {
         WindowGroup {
-            MainTabView()
-        }
-    }
-}
-
-struct MainTabView: View {
-    var body: some View {
-        TabView {
-            NavigationStack {
-                LibraryView()
-            }
-            .tabItem {
-                Label("题库", systemImage: "books.vertical")
-            }
-            
-            NavigationStack {
-                ReviewView()
-            }
-            .tabItem {
-                Label("复习", systemImage: "clock.arrow.circlepath")
-            }
-            
-            NavigationStack {
-                CaptureView()
-            }
-            .tabItem {
-                Label("采集", systemImage: "camera")
-            }
-            
-            NavigationStack {
-                SettingsView()
-            }
-            .tabItem {
-                Label("设置", systemImage: "gear")
-            }
+            // 极简入口：仅负责注入环境和启动根视图
+            AppRootView(router: appRouter)
+                .modelContainer(PersistenceController.shared.container)
+                .onAppear {
+                    // Initialize TipKit
+                    try? Tips.configure([
+                        .displayFrequency(.immediate),
+                        .datastoreLocation(.applicationDefault)
+                    ])
+                    
+                    // Initialize default subjects on first launch
+                    let context = PersistenceController.shared.container.mainContext
+                    let repository = SubjectRepository(modelContext: context)
+                    repository.initializeDefaultsIfNeeded()
+                }
         }
     }
 }

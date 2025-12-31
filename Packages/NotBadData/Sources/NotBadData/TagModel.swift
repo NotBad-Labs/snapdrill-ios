@@ -1,0 +1,31 @@
+//
+//  TagModel.swift
+//  NotBadData
+//
+//  Created by NotBad Architect on 2025/12/31.
+//
+
+import Foundation
+import SwiftData
+
+/// 标签模型
+///
+/// 用于对题目进行多维度的标记，如：因为粗心、因为计算错误、期中考、压轴题等。
+@Model
+public final class TagModel {
+    @Attribute(.unique) public var id: UUID
+    public var name: String
+    public var colorHex: String
+    public var createdAt: Date
+    
+    // Relationship
+    // inverse: \ReviewItemModel.tags implies we need to update ReviewItemModel
+    public var items: [ReviewItemModel]? = []
+    
+    public init(id: UUID = UUID(), name: String, colorHex: String = "#8E8E93") {
+        self.id = id
+        self.name = name
+        self.colorHex = colorHex
+        self.createdAt = Date()
+    }
+}

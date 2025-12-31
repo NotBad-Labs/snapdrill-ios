@@ -19,3 +19,9 @@ Packages/**/.swiftpm/
 
 # OS X
 .DS_Store
+
+# Logs
+*.log
+
+# Personal Configs
+xcuserdata/

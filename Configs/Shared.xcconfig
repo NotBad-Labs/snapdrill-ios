@@ -1,0 +1,23 @@
+//
+//  Shared.xcconfig
+//  NotBad
+//
+//  Created by NotBad Agent on 2025/12/31.
+//
+
+// App Identity
+PRODUCT_NAME = NotBad
+PRODUCT_BUNDLE_IDENTIFIER = com.notbad.app
+MARKETING_VERSION = 1.0.0
+CURRENT_PROJECT_VERSION = 1
+
+// Swift
+SWIFT_VERSION = 6.2
+SWIFT_STRICT_CONCURRENCY = complete
+
+// Deployment
+IPHONEOS_DEPLOYMENT_TARGET = 18.0
+
+// Compiler
+GCC_TREAT_WARNINGS_AS_ERRORS = YES // Enterprise Standard: Zero Tolerance
+SWIFT_TREAT_WARNINGS_AS_ERRORS = YES

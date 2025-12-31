@@ -1,0 +1,69 @@
+disabled_rules:
+  - trailing_whitespace
+  - todo
+  - identifier_name 
+
+opt_in_rules:
+  - empty_count
+  - empty_string
+  - fatal_error_message
+  # - file_header # Disabled: Header standardization is secondary to logic
+  - first_where
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - legacy_random
+  - multiline_parameters
+  - nested_self_usage
+  - operator_usage_whitespace
+  - redundant_nil_coalescing
+  - strict_fileprivate
+  - switch_case_alignment
+
+  - vertical_parameter_alignment_on_call
+  - vertical_whitespace_closing_braces
+  - yoda_condition
+
+included:
+  - NotBad
+  - Packages
+
+excluded:
+  - "**/DerivedData"
+  - "**/Pods"
+  - "**/Carthage"
+  - "**/fastlane"
+  - "**/Package.swift"
+  - "**/.build"
+  - "**/DerivedData"
+  - "**/Packages/NotBadData/Sources/NotBadData/DataSeeder.swift"
+
+force_cast: warning
+force_try: warning
+force_unwrapping: error # Enterprise standard: No force unwraps allowed!
+
+line_length:
+  warning: 140
+  error: 200
+  ignores_comments: true
+  ignores_urls: true
+
+file_length:
+  warning: 500
+  error: 1000
+
+type_body_length:
+  warning: 400
+  error: 600
+
+function_body_length:
+  warning: 60
+  error: 100
+
+cyclomatic_complexity:
+  warning: 10
+  error: 20
+
+nesting:
+  type_level: 2
+
+reporter: "xcode"

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AG_BF_FEATURES /* NotBadFeatures in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_FEATURES /* NotBadFeatures */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,30 +31,39 @@
 		B27BD95F2E560D0600E69277 /* NotBad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NotBad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27BD9702E560D0800E69277 /* NotBadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NotBadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27BD97A2E560D0800E69277 /* NotBadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NotBadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B29580222E6A789C00E2D95C /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
-		B2BE0C8A2E6A793F001369C3 /* UnitTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UnitTestPlan.xctestplan; sourceTree = "<group>"; };
-		B2BE0C8C2E6A7967001369C3 /* IntegrationTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = IntegrationTestPlan.xctestplan; sourceTree = "<group>"; };
-		B2BE0C8E2E6A7973001369C3 /* PerformanceTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = PerformanceTestPlan.xctestplan; sourceTree = "<group>"; };
-		B2BE0C902E6A7981001369C3 /* UITestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = UITestPlan.xctestplan; sourceTree = "<group>"; };
+		B2B4A4B62F04F25600209449 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		B2B4A4B72F04F26F00209449 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		B2BE0C9C2E727CC6001369C3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B2F0D1002F00000100AAA001 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		B2F0D1062F00000100AAA001 /* ExportOptions.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ExportOptions.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B27BD9612E560D0700E69277 /* NotBad */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = NotBad;
 			sourceTree = "<group>";
 		};
 		B27BD9732E560D0800E69277 /* NotBadTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = NotBadTests;
 			sourceTree = "<group>";
 		};
 		B27BD97D2E560D0800E69277 /* NotBadUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = NotBadUITests;
+			sourceTree = "<group>";
+		};
+		B2PACKAGES001 /* Packages */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = Packages;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -63,6 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AG_BF_FEATURES /* NotBadFeatures in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,11 +106,14 @@
 			children = (
 				B2F0D1002F00000100AAA001 /* README.md */,
 				B2BE0C9C2E727CC6001369C3 /* .gitignore */,
+				B2PACKAGES001 /* Packages */,
 				B27BD9612E560D0700E69277 /* NotBad */,
 				B27BD9732E560D0800E69277 /* NotBadTests */,
 				B27BD97D2E560D0800E69277 /* NotBadUITests */,
 				B26C37822EE41DA5008D46F5 /* Frameworks */,
 				B27BD9602E560D0600E69277 /* Products */,
+				B2B4A4B62F04F25600209449 /* Debug.xcconfig */,
+				B2B4A4B72F04F26F00209449 /* Release.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -120,6 +134,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B27BD9832E560D0800E69277 /* Build configuration list for PBXNativeTarget "NotBad" */;
 			buildPhases = (
+				ACD1E1216FBC0DAB3856B4DB /* SwiftLint */,
 				B27BD95B2E560D0600E69277 /* Sources */,
 				B27BD95C2E560D0600E69277 /* Frameworks */,
 				B27BD95D2E560D0600E69277 /* Resources */,
@@ -133,6 +148,7 @@
 			);
 			name = NotBad;
 			packageProductDependencies = (
+				AG_PROD_FEATURES /* NotBadFeatures */,
 			);
 			productName = NotBad;
 			productReference = B27BD95F2E560D0600E69277 /* NotBad.app */;
@@ -155,8 +171,6 @@
 				B27BD9732E560D0800E69277 /* NotBadTests */,
 			);
 			name = NotBadTests;
-			packageProductDependencies = (
-			);
 			productName = NotBadTests;
 			productReference = B27BD9702E560D0800E69277 /* NotBadTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -178,8 +192,6 @@
 				B27BD97D2E560D0800E69277 /* NotBadUITests */,
 			);
 			name = NotBadUITests;
-			packageProductDependencies = (
-			);
 			productName = NotBadUITests;
 			productReference = B27BD97A2E560D0800E69277 /* NotBadUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -221,6 +233,10 @@
 			mainGroup = B27BD9562E560D0600E69277;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				AG_PKG_FEATURES /* XCLocalSwiftPackageReference "NotBadFeatures" */,
+				B2PKG_CORE /* XCLocalSwiftPackageReference "NotBadCore" */,
+				B2PKG_DATA /* XCLocalSwiftPackageReference "NotBadData" */,
+				B2PKG_UI /* XCLocalSwiftPackageReference "NotBadUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B27BD9602E560D0600E69277 /* Products */;
@@ -257,6 +273,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		ACD1E1216FBC0DAB3856B4DB /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -z \"${CI}\" ]; then\n  export PATH=\"$PATH:/opt/homebrew/bin:/usr/local/bin\"\n  if which swiftlint >/dev/null; then\n    swiftlint\n  else\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\n  fi\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B27BD95B2E560D0600E69277 /* Sources */ = {
@@ -316,7 +353,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -351,7 +388,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -368,6 +405,7 @@
 		};
 		B27BD9862E560D0800E69277 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B2B4A4B62F04F25600209449 /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -405,7 +443,7 @@
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -434,6 +472,7 @@
 		};
 		B27BD9872E560D0800E69277 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B2B4A4B72F04F26F00209449 /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -471,7 +510,7 @@
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -609,9 +648,30 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		AG_PKG_FEATURES /* XCLocalSwiftPackageReference "NotBadFeatures" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NotBadFeatures;
+		};
+		B2PKG_CORE /* XCLocalSwiftPackageReference "NotBadCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NotBadCore;
+		};
+		B2PKG_DATA /* XCLocalSwiftPackageReference "NotBadData" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NotBadData;
+		};
+		B2PKG_UI /* XCLocalSwiftPackageReference "NotBadUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NotBadUI;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AG_PROD_FEATURES /* NotBadFeatures */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "NotBadFeatures" */;
+			productName = NotBadFeatures;
+		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B27BD9572E560D0600E69277 /* Project object */;

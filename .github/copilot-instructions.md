@@ -21,6 +21,7 @@ NotBad 是一款专为 **iOS** 设计的间隔重复（Spaced-Repetition）学�
 | **NotBadData** | Infrastructure (数据层) | 对应 `Storage` 概念。SwiftData 模型定义及持久化逻辑。 | 依赖 `NotBadCore` |
 | **NotBadService** | Service (服务层) | 对应 `Capture` 核心逻辑。封装 OCR、Vision、图像处理。 | 依赖 `NotBadCore` |
 | **NotBadUI** | Presentation (组件层) | 全局设计系统、通用 UI 组件、图标资源。 | 依赖 `NotBadCore` |
+| **NotBadFeatureDashboard** | Feature (功能层) | **首页流程**：复习概览、今日统计、快捷入口。 | 依赖 Core, UI |
 | **NotBadFeatureCapture** | Feature (功能层) | **采集流程**：拍照、实时检测、预览编辑界面。 | 依赖 Core, UI, Service |
 | **NotBadFeatureLibrary** | Feature (功能层) | **题库流程**：题目列表、搜索、详情查看。 | 依赖 Core, UI, Data |
 | **NotBadFeatureReview** | Feature (功能层) | **复习流程**：复习会话、答题交互、进度展示。 | 依赖 Core, Engine, UI, Data |

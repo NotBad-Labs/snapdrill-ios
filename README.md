@@ -1,31 +1,61 @@
-# NotBad 错题本 App
+# NotBad
 
-## 🚀 生产分支 (Production Branch)
+**NotBad** 是一款个人智能学习助手 iOS 应用，旨在帮助用户通过间隔重复（Spaced Repetition）技术来采集、组织和复习知识。
 
-这是 NotBad 错题本 App 的生产分支，只包含经过充分测试、准备发布的稳定代码。
+## 架构设计
 
-## 📋 Git Flow 工作流程
+项目采用基于 Swift Package Manager (SPM) 的 **严格模块化架构 (Strict Modular Architecture)**。主 App Target 仅仅是一个薄层，负责将各功能模块组合在一起。
 
-本项目采用标准的 Git Flow 工作流程：
+### 模块层级
 
-- **main** - 生产分支（当前分支）：只包含稳定的可发布版本
-- **develop** - 开发分支：主要开发和集成分支
-- **feature/** - 功能分支：新功能开发
-- **release/** - 发布分支：发布前的测试和修复
-- **hotfix/** - 热修复分支：生产环境紧急修复
+#### 1. 基础层 (Foundation Layers)
+这些模块为应用提供底层能力。
 
-## 🔄 开发流程
+- **[NotBadCore](Packages/NotBadCore/README.md)**: 核心逻辑层。包含领域实体、业务引擎 (Engine)、基础服务 (Service) 和通用工具 (Utils)。
+- **[NotBadData](Packages/NotBadData/README.md)**: 数据层。基于 SwiftData 的持久化和迁移管理。
+- **[NotBadUI](Packages/NotBadUI/README.md)**: 表现层。包含设计系统、通用组件 (ImageCropper) 和基础路由协议。
 
-1. **开发新功能**：从 `develop` 分支创建 `feature/xxx` 分支
-2. **功能完成**：合并到 `develop` 分支
-3. **准备发布**：从 `develop` 创建 `release/vx.x.x` 分支
-4. **发布上线**：将 `release` 分支合并到 `main` 并打标签
-5. **紧急修复**：从 `main` 创建 `hotfix/xxx` 分支，修复后合并到 `main` 和 `develop`
+#### 2. 功能层 (Feature Layer)
+所有具体的业务功能都整合在一个统一的模块中，以简化开发体验。
 
-## 📖 文档
+- **[NotBadFeatures](Packages/NotBadFeatures/README.md)**: 
+    - **Capture**: 智能扫描与 OCR。
+    - **Library**: 题库管理与编辑。
+    - **Dashboard**: 数据概览。
+    - **Review**: 复习流程。
+    - **Settings**: 设置与关于。
 
-完整的项目文档和开发指南请查看 `develop` 分支的 `docs/` 目录。
+### 其他
+- **Scripts**: 自动化脚本与开发者工具。
+- **Composition**: 应用层的胶水代码与依赖注入占位符。
 
----
+## 环境要求
 
-> 注意：此分支仅用于发布，开发工作请在 `develop` 分支进行。
+- **Xcode**: 16.0+
+- **iOS**: 18.0+
+- **SwiftLint**: 必需 (用于代码风格检查) `brew install swiftlint`
+
+## 快速开始
+
+1.  克隆仓库: `git clone https://github.com/chramboliao/NotBad.git`
+2.  安装依赖工具: 确保已安装 SwiftLint。
+3.  打开项目: 双击 `NotBad.xcodeproj`。
+4.  运行: 选择 `NotBad` Scheme，在模拟器或真机上运行。
+
+## 贡献
+
+请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 了解如何参与项目开发、分支管理及代码规范。
+
+## 测试
+
+项目包含单元测试与 UI 测试。
+- **Xcode**: 按下 `Cmd+U`。
+- **命令行**:
+  ```bash
+  xcodebuild test -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 16'
+  ```
+
+## 文档
+
+所有模块均提供 Apple **DocC** 文档。
+查看方式：Xcode 菜单栏 **Product > Build Documentation**。
