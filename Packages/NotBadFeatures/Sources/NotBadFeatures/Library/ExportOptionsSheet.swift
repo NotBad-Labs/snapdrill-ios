@@ -3,6 +3,9 @@
 //  NotBadFeatures
 //
 //  Created by NotBad Architect on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  导出选项配置页，允许用户选择要包含在 PDF 中的内容。
 //
 
 import SwiftUI
@@ -219,4 +222,11 @@ struct ReviewExport: Transferable {
         }
         return csv
     }
+}
+
+#Preview {
+    ExportOptionsSheet(items: [
+        ReviewItemModel(content: "Sample Q1", subject: "Math"),
+        ReviewItemModel(content: "Sample Q2", subject: "Physics")
+    ])
 }

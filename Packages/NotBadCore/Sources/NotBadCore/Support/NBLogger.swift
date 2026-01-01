@@ -2,7 +2,10 @@
 //  NBLogger.swift
 //  NotBadSupport
 //
-//  Created by NotBad Architect.
+//  Created by NotBad Architect on 2025/12/30.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  [Legacy] 旧版日志记录器，请迁移至 NotBadLogger。
 //
 
 import Foundation

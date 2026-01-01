@@ -3,6 +3,9 @@
 //  NotBadFeatures
 //
 //  Created by NotBad Architect on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  题库筛选页，提供多维度（学科、标签、日期）过滤能力。
 //
 
 import SwiftUI
@@ -16,6 +19,7 @@ struct LibraryFilterSheet: View {
     @Binding var selectedSubjects: Set<String>
     @Binding var selectedTags: Set<String>
     
+    @Query(sort: \SubjectModel.sortOrder) private var allSubjects: [SubjectModel]
     @Query(sort: \TagModel.name) private var allTags: [TagModel]
     
     var onReset: () -> Void
@@ -24,23 +28,30 @@ struct LibraryFilterSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                // Section: Subjects
+                // Section: Subjects (动态从 SwiftData 获取)
                 Section("学科") {
-                    ForEach(SubjectPreset.allCases) { subject in
-                        HStack {
-                            Text(subject.rawValue)
-                            Spacer()
-                            if selectedSubjects.contains(subject.rawValue) {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(.blue)
+                    if allSubjects.isEmpty {
+                        Text("暂无学科").foregroundStyle(.secondary)
+                    } else {
+                        ForEach(allSubjects) { subject in
+                            HStack {
+                                Image(systemName: subject.icon)
+                                    .foregroundStyle(Color(hex: subject.colorHex))
+                                    .frame(width: 20)
+                                Text(subject.name)
+                                Spacer()
+                                if selectedSubjects.contains(subject.name) {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(.blue)
+                                }
                             }
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            if selectedSubjects.contains(subject.rawValue) {
-                                selectedSubjects.remove(subject.rawValue)
-                            } else {
-                                selectedSubjects.insert(subject.rawValue)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if selectedSubjects.contains(subject.name) {
+                                    selectedSubjects.remove(subject.name)
+                                } else {
+                                    selectedSubjects.insert(subject.name)
+                                }
                             }
                         }
                     }
@@ -90,4 +101,14 @@ struct LibraryFilterSheet: View {
             }
         }
     }
+}
+
+#Preview {
+    LibraryFilterSheet(
+        selectedSubjects: .constant(["Math"]),
+        selectedTags: .constant(["Important"]),
+        onReset: {},
+        onApply: {}
+    )
+    .modelContainer(for: TagModel.self, inMemory: true)
 }

@@ -1,0 +1,84 @@
+//
+//  HeaderView.swift
+//  NotBadFeatureDashboard
+//
+//  Created by NotBad Architect on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  首页顶部标题栏视图。
+//
+
+import SwiftUI
+
+/// 仪表盘顶部标题栏，包含日期和应用名称
+struct HeaderView: View {
+    @AppStorage("userAvatar") private var userAvatar: String = "person.crop.circle.fill"
+    @AppStorage("userAvatarColorIndex") private var userAvatarColorIndex: Int = 0
+    
+    // Dynamic Greeting
+    private var greeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12: return "早安，同学"
+        case 12..<18: return "午安，同学"
+        case 18..<22: return "晚上好，同学"
+        default: return "夜深了，注意休息"
+        }
+    }
+    
+    var body: some View {
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 6) {
+                // Date & Weather (Privacy Balanced)
+                HStack(spacing: 6) {
+                    Image(systemName: "calendar")
+                        .font(.caption2)
+                    Text(Date().formatted(date: .complete, time: .omitted))
+                        .font(.caption)
+                        .fontWeight(.medium)
+                }
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+                
+                // Greeting
+                Text(greeting)
+                    .font(.title2.bold())
+                    .foregroundStyle(.primary)
+            }
+            
+            Spacer()
+            
+            // Avatar / Profile
+            Button {
+                // Navigate to Settings Tab via Notification
+                NotificationCenter.default.post(name: NSNotification.Name("SwitchToSettingsTab"), object: nil)
+            } label: {
+                let colors: [[Color]] = [
+                    [.blue, .purple],
+                    [.orange, .red],
+                    [.green, .teal],
+                    [.pink, .indigo],
+                    [.gray, .black],
+                    [.yellow, .orange]
+                ]
+                let selectedColors = colors[userAvatarColorIndex < colors.count ? userAvatarColorIndex : 0]
+                
+                Image(systemName: userAvatar)
+                    .font(.system(size: 40))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(LinearGradient(colors: selectedColors, startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .symbolEffect(.pulse, isActive: false) // Potential for interaction
+                    .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.top, 10) // Slightly adjusted padding
+    }
+}
+
+#Preview {
+    HeaderView()
+}

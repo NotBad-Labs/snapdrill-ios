@@ -1,3 +1,13 @@
+//
+//  MigrationPlan.swift
+//  NotBadData
+//
+//  Created by Yiming Liao on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  SwiftData 数据库迁移计划，定义 Schema 版本升级逻辑。
+//
+
 import SwiftData
 import Foundation
 
@@ -77,26 +87,6 @@ public enum NotBadSchemaV1: VersionedSchema {
     }
 }
 
-public enum NotBadMigrationPlan: SchemaMigrationPlan {
-    public static var schemas: [any VersionedSchema.Type] {
-        [
-            NotBadSchemaV1.self,
-            NotBadSchemaV2.self
-        ]
-    }
-    
-    public static var stages: [MigrationStage] {
-        [
-            migrateV1toV2
-        ]
-    }
-    
-    static let migrateV1toV2 = MigrationStage.lightweight(
-        fromVersion: NotBadSchemaV1.self,
-        toVersion: NotBadSchemaV2.self
-    )
-}
-
 // MARK: - Schema V2
 /// 升级后的 Schema，包含答案和难度字段
 public enum NotBadSchemaV2: VersionedSchema {
@@ -109,4 +99,46 @@ public enum NotBadSchemaV2: VersionedSchema {
             TagModel.self
         ]
     }
+}
+
+// MARK: - Schema V3
+/// 升级后的 Schema，新增 SourceModel
+public enum NotBadSchemaV3: VersionedSchema {
+    public static let versionIdentifier: Schema.Version = .init(3, 0, 0)
+    
+    public static var models: [any PersistentModel.Type] {
+        [
+            ReviewItemModel.self,
+            SubjectModel.self,
+            TagModel.self,
+            SourceModel.self
+        ]
+    }
+}
+
+public enum NotBadMigrationPlan: SchemaMigrationPlan {
+    public static var schemas: [any VersionedSchema.Type] {
+        [
+            NotBadSchemaV1.self,
+            NotBadSchemaV2.self,
+            NotBadSchemaV3.self
+        ]
+    }
+    
+    public static var stages: [MigrationStage] {
+        [
+            migrateV1toV2,
+            migrateV2toV3
+        ]
+    }
+    
+    static let migrateV1toV2 = MigrationStage.lightweight(
+        fromVersion: NotBadSchemaV1.self,
+        toVersion: NotBadSchemaV2.self
+    )
+    
+    static let migrateV2toV3 = MigrationStage.lightweight(
+        fromVersion: NotBadSchemaV2.self,
+        toVersion: NotBadSchemaV3.self
+    )
 }

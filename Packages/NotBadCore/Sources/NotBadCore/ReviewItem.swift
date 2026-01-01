@@ -88,6 +88,14 @@ public struct ReviewItem: Sendable, Identifiable, Codable {
     /// 年级/掌握程度
     public var grade: String
     
+    // MARK: - SM-2 Algorithm Fields
+    /// 难度因子 (Ease Factor)，初始值 2.5，最小 1.3
+    public var easeFactor: Double
+    /// 当前复习间隔 (天数)
+    public var interval: Int
+    /// 连续正确复习次数
+    public var repetitions: Int
+    
     /// 初始化复习条目
     public init(
         id: UUID = UUID(),
@@ -102,7 +110,10 @@ public struct ReviewItem: Sendable, Identifiable, Codable {
         answerText: String = "",
         answerImagePath: String? = nil,
         difficulty: Int = 0,
-        grade: String = ""
+        grade: String = "",
+        easeFactor: Double = 2.5,
+        interval: Int = 0,
+        repetitions: Int = 0
     ) {
         self.id = id
         self.content = content
@@ -118,6 +129,11 @@ public struct ReviewItem: Sendable, Identifiable, Codable {
         self.answerImagePath = answerImagePath
         self.difficulty = difficulty
         self.grade = grade
+        
+        // SM-2 defaults
+        self.easeFactor = easeFactor
+        self.interval = interval
+        self.repetitions = repetitions
     }
 }
 

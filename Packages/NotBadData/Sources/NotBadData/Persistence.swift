@@ -17,7 +17,7 @@ public class PersistenceController {
     public let container: ModelContainer
     
     public init(inMemory: Bool = false) {
-        let schema = Schema(versionedSchema: NotBadSchemaV2.self)
+        let schema = Schema(versionedSchema: NotBadSchemaV3.self)
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: inMemory

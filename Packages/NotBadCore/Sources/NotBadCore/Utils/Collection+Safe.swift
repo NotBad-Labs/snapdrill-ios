@@ -2,7 +2,10 @@
 //  Collection+Safe.swift
 //  NotBadUtils
 //
-//  Created by NotBad Architect.
+//  Created by NotBad Architect on 2025/12/30.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  Collection 扩展，提供安全的数组下标访问。
 //
 
 import Foundation

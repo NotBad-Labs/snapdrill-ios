@@ -8,6 +8,7 @@
 //  应用层级路由管理，定义一级 Tab 和全局导航状态
 //
 
+import SwiftUI
 import Observation
 import NotBadFeatures
 
@@ -48,14 +49,28 @@ final class AppRouter {
     /// 初始化并设立绑定
     init() {
         dashboardRouter.onNavigateToReview = { [weak self] in
+            // Review often has its own transition handling or needs to be instant if it triggers the "Slide Up" view internal to ReviewTab?
+            // User said Review "slides up" internally.
+            // But let's animate the tab switch itself to be smooth too if needed.
+            // Actually user LIKED Review transition. Let's touch Capture.
             self?.selectedTab = .review
         }
         
         dashboardRouter.onNavigateToCapture = { [weak self] draft in
-            self?.selectedTab = .capture
+            withAnimation(.spring(duration: 0.4)) {
+                self?.selectedTab = .capture
+            }
             if let draft = draft {
                 self?.captureRouter.restoreDraft(draft)
             }
+        }
+        
+        reviewRouter.onNavigateToLibrary = { [weak self] in
+            self?.selectedTab = .library
+        }
+        
+        reviewRouter.onNavigateToCapture = { [weak self] in
+            self?.selectedTab = .capture
         }
     }
 }

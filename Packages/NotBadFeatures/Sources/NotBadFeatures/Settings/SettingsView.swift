@@ -12,6 +12,7 @@ import SwiftUI
 import Observation
 import NotBadCore
 import NotBadUI
+import SwiftData
 import NotBadData
 import MessageUI
 
@@ -26,10 +27,23 @@ public struct SettingsView: View {
     // State for mock settings
     @AppStorage("appTintColor") private var appTintColorHex: String = "#007AFF"
     @AppStorage("userName") private var userName: String = "Student"
+    @AppStorage("userAvatar") private var userAvatar: String = "person.crop.circle.fill"
+    @AppStorage("userAvatarColorIndex") private var userAvatarColorIndex: Int = 0
     
     @State private var showingClearAlert = false
     @State private var showingMail = false
     @State private var isGenerating = false
+    @State private var showingSubjectManager = false
+    @State private var showingSourceManager = false
+    
+    // Appearance Setting
+    @AppStorage("appearanceMode") private var appearanceMode: Int = 0 // 0=System, 1=Light, 2=Dark
+    @AppStorage("cardContextAlignment") private var alignmentRaw: String = "leading"
+    @AppStorage("cardContextFontSize") private var fontSizeRaw: Double = 16.0
+    
+    // Front Card Appearance
+    @AppStorage("cardFrontAlignment") private var frontAlignmentRaw: String = "center"
+    @AppStorage("cardFrontFontSize") private var frontFontSizeRaw: Double = 32.0
     
     public init(router: SettingsRouter) {
         self.router = router
@@ -40,62 +54,83 @@ public struct SettingsView: View {
             List {
                 // 1. Profile / Search Placeholder
                 // Telegram puts Profile at top.
+                // 1. Profile / Search Placeholder
+                // Telegram puts Profile at top.
                 Section {
-                    HStack(spacing: 12) {
-                        Image(systemName: "person.crop.circle.fill")
-                            .font(.system(size: 60))
-                            .foregroundStyle(Color.gray.opacity(0.3))
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(userName)
-                                .font(.title2.bold())
-                            Text("+86 1XX XXXX XXXX") // Mock phone
-                                .font(.body)
-                                .foregroundStyle(.secondary)
+                    NavigationLink {
+                        EditProfileView()
+                    } label: {
+                        HStack(spacing: 12) {
+                            let colors: [[Color]] = [
+                                [.blue, .purple], [.orange, .red], [.green, .teal],
+                                [.pink, .indigo], [.gray, .black], [.yellow, .orange]
+                            ]
+                            let selectedColors = colors[userAvatarColorIndex < colors.count ? userAvatarColorIndex : 0]
+                            
+                            Image(systemName: userAvatar)
+                                .font(.system(size: 60))
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundStyle(LinearGradient(colors: selectedColors, startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .clipShape(Circle())
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(userName)
+                                    .font(.title2.bold())
+                                Text("编辑个人资料") // Mock subtitle
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
+                        .padding(.vertical, 4)
                     }
-                    .padding(.vertical, 4)
                 }
                 
-                // 2. Core Settings
-                Section {
+                // 2. Core Settings (Working Features)
+                Section("通用") {
+                    // 外观切换 (Working)
+                    Picker(selection: $appearanceMode) {
+                        Text("跟随系统").tag(0)
+                        Text("浅色").tag(1)
+                        Text("深色").tag(2)
+                    } label: {
+                        SettingsRow(icon: "paintpalette.fill", color: .cyan, title: "外观")
+                    }
+                }
+                
+                // 3. Review Appearance (New)
+                Section("复习体验") {
+                     NavigationLink {
+                        ReviewAppearanceSettingsView(
+                            alignmentRaw: $alignmentRaw,
+                            fontSizeRaw: $fontSizeRaw,
+                            frontAlignmentRaw: $frontAlignmentRaw,
+                            frontFontSizeRaw: $frontFontSizeRaw
+                        )
+                     } label: {
+                        SettingsRow(icon: "eye.fill", color: .indigo, title: "卡片外观")
+                     }
+                }
+                
+                // 4. Coming Soon
+                Section("即将上线") {
                     SettingsRow(icon: "bell.fill", color: .red, title: "通知与声音")
-                    SettingsRow(icon: "lock.fill", color: .gray, title: "隐私与安全")
-                    SettingsRow(icon: "cylinder.split.1x2.fill", color: .green, title: "数据与存储")
-                    SettingsRow(icon: "paintpalette.fill", color: .cyan, title: "外观", value: "跟随系统")
-                    SettingsRow(icon: "battery.100", color: .orange, title: "省电模式", value: "关闭")
-                    SettingsRow(icon: "globe", color: .purple, title: "语言", value: "简体中文")
-                }
-                
-                // 3. Premium / App Specific
-                Section {
                     SettingsRow(icon: "star.fill", color: .purple, title: "NotBad 会员", isPremium: true)
-                    SettingsRow(icon: "gift.fill", color: .pink, title: "赠送会员")
+                    SettingsRow(icon: "icloud.fill", color: .blue, title: "iCloud 同步")
                 }
-                
-                // 4. Support
-                Section {
-                    Button {
-                        // Action
-                    } label: {
-                        SettingsRow(icon: "message.fill", color: .orange, title: "提问")
-                    }
-                    
-                    Button {
-                        router.path.append(SettingsDestination.licenses) // Reuse for demo
-                    } label: {
-                         SettingsRow(icon: "questionmark.circle.fill", color: .cyan, title: "NotBad 常见问题")
-                    }
-                    
-                    SettingsRow(icon: "lightbulb.fill", color: .yellow, title: "新功能特性")
-                }
+                .foregroundStyle(.secondary)
                 
                 // 5. Data Management (Real Features)
                 Section("数据") {
                     Button {
-                        // Mock action
+                        showingSubjectManager = true
                     } label: {
                          SettingsRow(icon: "folder.fill", color: .blue, title: "管理学科分类")
+                    }
+                    
+                    Button {
+                        showingSourceManager = true
+                    } label: {
+                         SettingsRow(icon: "doc.text.fill", color: .green, title: "管理来源")
                     }
                     
                     if showingClearAlert { } // Trigger logic moved to modifier
@@ -150,6 +185,12 @@ public struct SettingsView: View {
             } message: {
                 Text("此操作将删除所有题目和学科分类，且不可恢复。")
             }
+            .sheet(isPresented: $showingSubjectManager) {
+                SubjectManagerView()
+            }
+            .sheet(isPresented: $showingSourceManager) {
+                SourceManagerView(modelContext: modelContext)
+            }
         }
     }
     
@@ -157,9 +198,12 @@ public struct SettingsView: View {
         do {
             try modelContext.delete(model: ReviewItemModel.self)
             try modelContext.delete(model: SubjectModel.self)
+            try modelContext.delete(model: SourceModel.self)
             // Re-init defaults
             let subjectRepo = SubjectRepository(modelContext: modelContext)
             subjectRepo.initializeDefaultsIfNeeded()
+            let sourceRepo = SourceRepository(modelContext: modelContext)
+            sourceRepo.seedDefaultSourcesIfNeeded()
         } catch {
             print("Failed to clear data: \(error)")
         }
@@ -168,7 +212,7 @@ public struct SettingsView: View {
     private func generateMockData() {
         isGenerating = true
         Task {
-            let seeder = DataSeeder(modelContext: modelContext)
+            let seeder = DataSeeder(container: modelContext.container)
             do {
                 let time = try await seeder.seedReviewItems(count: 100)
                 print("Success: \(time)s")
@@ -219,5 +263,103 @@ struct SettingsRow: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+#Preview {
+    SettingsView(router: SettingsRouter())
+        .modelContainer(for: [ReviewItemModel.self, SubjectModel.self], inMemory: true)
+}
+
+/// 独立的复习外观设置页
+/// 独立的复习外观设置页
+struct ReviewAppearanceSettingsView: View {
+    @Binding var alignmentRaw: String
+    @Binding var fontSizeRaw: Double
+    @Binding var frontAlignmentRaw: String
+    @Binding var frontFontSizeRaw: Double
+    
+    var body: some View {
+        Form {
+            // MARK: - 卡片正面
+            Section("卡片正面 (题目)") {
+                HStack {
+                    Text("Sample Question")
+                        .font(.system(size: frontFontSizeRaw, weight: .bold, design: .serif))
+                        .multilineTextAlignment(resolveTextAlignment(frontAlignmentRaw))
+                        .frame(maxWidth: .infinity, alignment: resolveAlignment(frontAlignmentRaw))
+                        .padding()
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .listRowBackground(Color.clear)
+                
+                Picker("对齐方式", selection: $frontAlignmentRaw) {
+                    Text("左对齐").tag("leading")
+                    Text("居中").tag("center")
+                    Text("右对齐").tag("trailing")
+                }
+                
+                VStack(alignment: .leading) {
+                    Text("字体大小: \(Int(frontFontSizeRaw))")
+                    Slider(value: $frontFontSizeRaw, in: 20...48, step: 1) {
+                        Text("字体大小")
+                    } minimumValueLabel: {
+                        Text("A").font(.system(size: 14))
+                    } maximumValueLabel: {
+                        Text("A").font(.system(size: 24))
+                    }
+                }
+            }
+            
+            // MARK: - 卡片背面
+            Section("卡片背面 (Header)") {
+                HStack {
+                    Text("Q: Sample Question Context")
+                        .font(.system(size: fontSizeRaw, weight: .medium, design: .serif))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(resolveTextAlignment(alignmentRaw))
+                        .frame(maxWidth: .infinity, alignment: resolveAlignment(alignmentRaw))
+                        .padding()
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .listRowBackground(Color.clear)
+                
+                Picker("对齐方式", selection: $alignmentRaw) {
+                    Text("左对齐").tag("leading")
+                    Text("居中").tag("center")
+                    Text("右对齐").tag("trailing")
+                }
+                
+                VStack(alignment: .leading) {
+                    Text("字体大小: \(Int(fontSizeRaw))")
+                    Slider(value: $fontSizeRaw, in: 12...24, step: 1) {
+                        Text("字体大小")
+                    } minimumValueLabel: {
+                        Text("A").font(.system(size: 12))
+                    } maximumValueLabel: {
+                        Text("A").font(.system(size: 24))
+                    }
+                }
+            }
+        }
+        .navigationTitle("卡片外观")
+    }
+    
+    private func resolveAlignment(_ raw: String) -> Alignment {
+        switch raw {
+        case "center": return .center
+        case "trailing": return .trailing
+        default: return .leading
+        }
+    }
+    
+    private func resolveTextAlignment(_ raw: String) -> TextAlignment {
+        switch raw {
+        case "center": return .center
+        case "trailing": return .trailing
+        default: return .leading
+        }
     }
 }

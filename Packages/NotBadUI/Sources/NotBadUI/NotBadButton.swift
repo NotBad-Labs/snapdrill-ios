@@ -46,3 +46,11 @@ public struct NotBadButton: View {
             .buttonStyle(.borderedProminent)
     }
 }
+
+#Preview {
+    VStack(spacing: 20) {
+        NotBadButton(title: "Primary Button") { }
+        NotBadButton(title: "Another Action") { }
+    }
+    .padding()
+}

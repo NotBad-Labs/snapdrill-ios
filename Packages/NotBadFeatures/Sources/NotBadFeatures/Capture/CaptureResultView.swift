@@ -2,8 +2,10 @@
 //  CaptureResultView.swift
 //  NotBadFeatureCapture
 //
-//  Created by Yiming Liao on 2025/12/29.
+//  Created by Yiming Liao on 2025/12/30.
 //  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  采集结果预览视图，提供裁剪、重拍和确认功能。
 //
 
 import SwiftUI
@@ -12,12 +14,18 @@ import NotBadCore
 import NotBadUI
 import StoreKit
 import SwiftData
+import PhotosUI
 
 /// 采集结果预览与编辑视图
 struct CaptureResultView: View {
     @Bindable var router: CaptureRouter
     @Environment(\.modelContext) private var modelContext
     @Environment(\.analyticsService) private var analyticsService
+    
+    // 动态查询学科列表
+    @Query(sort: \SubjectModel.sortOrder) private var subjects: [SubjectModel]
+    @Query(sort: \SourceModel.sortOrder) private var sources: [SourceModel]
+    @Query(sort: \TagModel.name) private var allTags: [TagModel]
     
     @State private var content: String
     @State private var image: UIImage?
@@ -34,8 +42,11 @@ struct CaptureResultView: View {
     @State private var answerText: String = ""
     @State private var difficulty: Int = 0
     @State private var grade: String = ""
+    @State private var answerImage: UIImage?
+    @State private var answerPhotoItem: PhotosPickerItem?
     
     @State private var isCropping = false
+    @State private var isSaved = false  // Track if item was saved
     
     private let imageStorage = ImageStorage()
     
@@ -128,9 +139,11 @@ struct CaptureResultView: View {
                                 .multilineTextAlignment(.trailing)
                             
                             Menu {
-                                ForEach(SubjectPreset.allCases) { subject in
-                                    Button(subject.rawValue) {
-                                        selectedSubject = subject.rawValue
+                                ForEach(subjects) { subject in
+                                    Button {
+                                        selectedSubject = subject.name
+                                    } label: {
+                                        Label(subject.name, systemImage: subject.icon)
                                     }
                                 }
                             } label: {
@@ -150,9 +163,11 @@ struct CaptureResultView: View {
                                 .multilineTextAlignment(.trailing)
                             
                             Menu {
-                                ForEach(ReviewSourcePreset.allCases) { source in
-                                    Button(source.rawValue) {
-                                        selectedSource = source.rawValue
+                                ForEach(sources) { source in
+                                    Button {
+                                        selectedSource = source.name
+                                    } label: {
+                                        Label(source.name, systemImage: source.icon)
                                     }
                                 }
                             } label: {
@@ -167,7 +182,11 @@ struct CaptureResultView: View {
                         // Tags
                         VStack(alignment: .leading) {
                             Text("标签")
-                            TagInputView(tags: $tagList, text: $tagInputText)
+                            TagInputView(
+                                tags: $tagList,
+                                text: $tagInputText,
+                                suggestions: allTags.map { $0.name }
+                            )
                         }
                         .padding()
                     }
@@ -213,13 +232,38 @@ struct CaptureResultView: View {
                         Divider().padding(.leading)
                         
                         // Answer
-                        VStack(alignment: .leading) {
+                        VStack(alignment: .leading, spacing: 12) {
                             Text("参考答案")
                             TextEditor(text: $answerText)
                                 .frame(minHeight: 80)
                                 .scrollContentBackground(.hidden) // For iOS 16+
                                 .background(Color(UIColor.tertiarySystemFill))
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                            
+                            // Answer Image Picker
+                            HStack {
+                                if let answerImage {
+                                    Image(uiImage: answerImage)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(maxHeight: 100)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    
+                                    Button(role: .destructive) {
+                                        self.answerImage = nil
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(.red)
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                PhotosPicker(selection: $answerPhotoItem, matching: .images) {
+                                    Label("添加答案图片", systemImage: "photo.badge.plus")
+                                        .font(.subheadline)
+                                }
+                            }
                         }
                         .padding()
                     }
@@ -258,6 +302,22 @@ struct CaptureResultView: View {
                     }
                 )
                 .ignoresSafeArea()
+            }
+        }
+        .onDisappear {
+            // Save draft if user leaves without saving
+            if !isSaved, let image = image, !content.isEmpty {
+                CaptureDraftService.shared.saveDraft(image: image, content: content)
+            }
+        }
+        .onChange(of: answerPhotoItem) { _, newItem in
+            Task {
+                if let data = try? await newItem?.loadTransferable(type: Data.self),
+                   let loadedImage = UIImage(data: data) {
+                    await MainActor.run {
+                        answerImage = loadedImage
+                    }
+                }
             }
         }
     }
@@ -303,6 +363,16 @@ struct CaptureResultView: View {
             }
         }
         
+        // Save answer image
+        var savedAnswerImagePath: String?
+        if let answerImage {
+            do {
+                savedAnswerImagePath = try imageStorage.saveImage(answerImage)
+            } catch {
+                print("Failed to save answer image: \(error)")
+            }
+        }
+        
         let newItem = ReviewItemModel(
             content: content,
             imagePath: savedImagePath,
@@ -310,11 +380,15 @@ struct CaptureResultView: View {
             source: selectedSource,
             tags: tagModels,
             answerText: answerText,
-            answerImagePath: nil, // TODO: Add answer image support
+            answerImagePath: savedAnswerImagePath,
             difficulty: difficulty,
             grade: grade
         )
         modelContext.insert(newItem)
+        
+        // Mark as saved (prevents draft save on disappear)
+        isSaved = true
+        CaptureDraftService.shared.clearDraft()
         
         // Analytics
         analyticsService.logEvent("capture_saved", properties: ["subject": selectedSubject])
@@ -337,4 +411,11 @@ struct CaptureResultView: View {
         // Pop to root (Capture Dashboard)
         router.path = .init() 
     }
+}
+
+#Preview {
+    NavigationStack {
+        CaptureResultView(router: CaptureRouter(), content: "Sample recognized text from camera.", image: nil)
+    }
+    .modelContainer(for: [ReviewItemModel.self, TagModel.self], inMemory: true)
 }

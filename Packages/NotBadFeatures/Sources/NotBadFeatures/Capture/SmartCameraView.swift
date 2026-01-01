@@ -2,7 +2,10 @@
 //  SmartCameraView.swift
 //  NotBadFeatureCapture
 //
-//  Created by NotBad Architect on 2025/12/30.
+//  Created by Yiming Liao on 2025/12/29.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  智能相机视图，集成实时 OCR 识别与矩形检测。
 //
 
 import SwiftUI
@@ -108,10 +111,6 @@ struct SmartCameraView: View {
         // Let's try to crop roughly using the Vision Rect.
         
         let crop = cropImage(image, to: rect)
-        
-        // Invalidate Tip
-        ScannerTip.hasUsedScanner = true
-        
         onCapture(crop ?? image)
     }
     
@@ -176,4 +175,8 @@ struct SmartCameraRepresentable: UIViewControllerRepresentable {
             }
         }
     }
+}
+
+#Preview {
+    SmartCameraView(onCapture: { _ in }, onCancel: {})
 }

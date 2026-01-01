@@ -5,6 +5,8 @@
 //  Created by Yiming Liao on 2025/12/29.
 //  Copyright © 2025 NotBad Team. All rights reserved.
 //
+//  ReviewItem 的 SwiftData 模型定义。
+//
 
 import Foundation
 import SwiftData
@@ -64,6 +66,14 @@ public final class ReviewItemModel {
     /// 适用年级
     public var grade: String = ""
     
+    // MARK: - SM-2 Algorithm Fields
+    /// 难度因子，初始 2.5，最小 1.3
+    public var easeFactor: Double = 2.5
+    /// 当前复习间隔 (天数)
+    public var interval: Int = 0
+    /// 连续正确复习次数
+    public var repetitions: Int = 0
+    
     public init(
         id: UUID = UUID(),
         content: String,
@@ -77,7 +87,10 @@ public final class ReviewItemModel {
         answerText: String = "",
         answerImagePath: String? = nil,
         difficulty: Int = 0,
-        grade: String = ""
+        grade: String = "",
+        easeFactor: Double = 2.5,
+        interval: Int = 0,
+        repetitions: Int = 0
     ) {
         self.id = id
         self.content = content
@@ -94,6 +107,11 @@ public final class ReviewItemModel {
         self.answerImagePath = answerImagePath
         self.difficulty = difficulty
         self.grade = grade
+        
+        // SM-2
+        self.easeFactor = easeFactor
+        self.interval = interval
+        self.repetitions = repetitions
     }
     
     // 兼容旧代码的计算属性 (现在直接返回 String)
@@ -107,7 +125,6 @@ public final class ReviewItemModel {
         set { sourceRawValue = newValue }
     }
     
-    // 转换为 Core 实体
     // 转换为 Core 实体
     public func toEntity() -> ReviewItem {
         ReviewItem(
@@ -123,7 +140,10 @@ public final class ReviewItemModel {
             answerText: answerText,
             answerImagePath: answerImagePath,
             difficulty: difficulty,
-            grade: grade
+            grade: grade,
+            easeFactor: easeFactor,
+            interval: interval,
+            repetitions: repetitions
         )
     }
 }

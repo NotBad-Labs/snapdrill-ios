@@ -13,7 +13,7 @@ opt_in_rules:
   - implicitly_unwrapped_optional
   - legacy_random
   - multiline_parameters
-  - nested_self_usage
+  # - nested_self_usage # Invalid rule identifier
   - operator_usage_whitespace
   - redundant_nil_coalescing
   - strict_fileprivate

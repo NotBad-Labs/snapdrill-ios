@@ -5,6 +5,8 @@
 //  Created by Yiming Liao on 2025/12/30.
 //  Copyright © 2025 NotBad Team. All rights reserved.
 //
+//  OCR 服务，封装 Vision 框架提供图片文字识别能力。
+//
 
 import UIKit
 import Vision

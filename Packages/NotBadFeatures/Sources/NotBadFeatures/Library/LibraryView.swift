@@ -193,3 +193,8 @@ public struct LibraryView: View {
         }
     }
 }
+
+#Preview {
+    LibraryView(router: LibraryRouter())
+        .modelContainer(for: [SubjectModel.self, ReviewItemModel.self], inMemory: true)
+}

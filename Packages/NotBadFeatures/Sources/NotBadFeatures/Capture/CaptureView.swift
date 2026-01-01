@@ -15,7 +15,6 @@ import NotBadUI
 import NotBadData
 import SwiftData
 import PhotosUI
-import TipKit
 
 /// 采集功能界面
 ///
@@ -36,8 +35,13 @@ public struct CaptureView: View {
     
     @State private var isViewActive = false
     
-    // Tips
-    private let scannerTip = ScannerTip()
+    // Draft Recovery State
+    @State private var showDraftAlert = false
+    @State private var pendingDraft: CaptureDraftService.Draft?
+    
+    // Error State
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
     
     /// 初始化采集视图
     /// - Parameter router: 注入的路由器
@@ -84,7 +88,6 @@ public struct CaptureView: View {
                             ) {
                                 isShowingScanner = true
                             }
-                            .popoverTip(isViewActive ? scannerTip : nil, arrowEdge: .bottom)
                             
                             // 2. Photo Library
                             PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
@@ -178,9 +181,34 @@ public struct CaptureView: View {
             }
             .onAppear {
                 isViewActive = true
+                // Check for draft on appear
+                if let draft = CaptureDraftService.shared.loadDraft() {
+                    pendingDraft = draft
+                    showDraftAlert = true
+                }
             }
             .onDisappear {
                 isViewActive = false
+            }
+            .alert("恢复草稿", isPresented: $showDraftAlert) {
+                Button("继续编辑") {
+                    if let draft = pendingDraft {
+                        router.push(.scannerResult(content: draft.content, image: draft.image))
+                        CaptureDraftService.shared.clearDraft()
+                    }
+                    pendingDraft = nil
+                }
+                Button("放弃", role: .destructive) {
+                    CaptureDraftService.shared.clearDraft()
+                    pendingDraft = nil
+                }
+            } message: {
+                Text("检测到未保存的采集内容，是否恢复？")
+            }
+            .alert("错误", isPresented: $showErrorAlert) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text(errorMessage)
             }
         }
     }
@@ -195,7 +223,8 @@ public struct CaptureView: View {
             } else {
                 await MainActor.run {
                     isProcessing = false
-                    // TODO: show error toast
+                    errorMessage = "图片加载失败，请重试"
+                    showErrorAlert = true
                 }
             }
         }
@@ -275,4 +304,9 @@ struct CaptureMethodCard: View {
             CaptureMethodCardContent(icon: icon, title: title, subtitle: subtitle, color: color)
         }
     }
+}
+
+#Preview {
+    @Bindable var router = CaptureRouter()
+    return CaptureView(router: router)
 }

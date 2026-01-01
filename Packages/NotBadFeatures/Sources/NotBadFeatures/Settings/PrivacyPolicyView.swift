@@ -1,3 +1,13 @@
+//
+//  PrivacyPolicyView.swift
+//  NotBadFeatures
+//
+//  Created by Yiming Liao on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  隐私政策展示页面。
+//
+
 import SwiftUI
 
 public struct PrivacyPolicyView: View {

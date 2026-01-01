@@ -1,4 +1,14 @@
 // swift-tools-version: 6.2
+//
+//  Package.swift
+//  NotBadUI
+//
+//  Created by Yiming Liao on 2025/12/29.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  通用 UI 组件库，包含设计系统和基础控件。
+//
+
 import PackageDescription
 
 let package = Package(

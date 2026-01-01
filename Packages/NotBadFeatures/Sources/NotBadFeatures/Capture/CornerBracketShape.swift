@@ -2,7 +2,10 @@
 //  CornerBracketShape.swift
 //  NotBadFeatureCapture
 //
-//  Created by NotBad Architect on 2025/12/30.
+//  Created by Yiming Liao on 2025/12/30.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  自定义 Shape，用于绘制相机取景器的四个角标。
 //
 
 import SwiftUI

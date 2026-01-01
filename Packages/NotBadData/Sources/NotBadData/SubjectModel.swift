@@ -2,7 +2,10 @@
 //  SubjectModel.swift
 //  NotBadData
 //
-//  Created by NotBad Architect on 2025/12/30.
+//  Created by Yiming Liao on 2025/12/30.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  学科数据模型 (SwiftData)，如数学、英语等。
 //
 
 import Foundation

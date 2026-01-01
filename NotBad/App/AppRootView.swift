@@ -2,7 +2,10 @@
 //  AppRootView.swift
 //  NotBad
 //
-//  Created by NotBad Architect.
+//  Created by NotBad Architect on 2025/12/29.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  应用根视图，组合导航和各个 Feature 模块。
 //
 
 import SwiftUI
@@ -48,10 +51,19 @@ struct AppRootView: View {
                 .tag(AppTab.settings)
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToCaptureTab"))) { _ in
-            router.selectedTab = .capture
+            withAnimation(.spring(duration: 0.4)) {
+                router.selectedTab = .capture
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToLibraryTab"))) { _ in
-            router.selectedTab = .library
+            withAnimation(.spring(duration: 0.4)) {
+                router.selectedTab = .library
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToSettingsTab"))) { _ in
+            withAnimation(.spring(duration: 0.4)) {
+                router.selectedTab = .settings
+            }
         }
     }
 }

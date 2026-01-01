@@ -5,6 +5,8 @@
 //  Created by Yiming Liao on 2025/12/30.
 //  Copyright © 2025 NotBad Team. All rights reserved.
 //
+//  基于 VisionKit 的文档扫描视图 (VNDocumentCameraViewController 封装)。
+//
 
 import SwiftUI
 @preconcurrency import VisionKit

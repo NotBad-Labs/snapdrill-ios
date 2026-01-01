@@ -3,6 +3,9 @@
 //  NotBadFeatures
 //
 //  Created by NotBad Architect on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  该文件已废弃，其功能已被 ResolvedExportSheet 替代。
 //
 
 import SwiftUI
@@ -94,4 +97,11 @@ struct PDFKitRepresentedView: UIViewRepresentable {
     func updateUIView(_ uiView: PDFView, context: Context) {
         uiView.document = document
     }
+}
+
+#Preview {
+    ExportPreviewView(items: [
+        ReviewItemModel(content: "Sample Q1 for PDF", subject: "Math"),
+        ReviewItemModel(content: "Sample Q2 for PDF", subject: "Physics")
+    ])
 }

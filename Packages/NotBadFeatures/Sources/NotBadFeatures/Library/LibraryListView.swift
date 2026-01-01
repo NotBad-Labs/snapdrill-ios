@@ -2,7 +2,10 @@
 //  LibraryListView.swift
 //  NotBadFeatureLibrary
 //
-//  Created by NotBad Agent on 2025/12/31.
+//  Created by NotBad Architect on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  题库列表视图，展示特定筛选条件下的错题列表。
 //
 
 import SwiftUI
@@ -165,4 +168,15 @@ struct LibraryListView: View {
             }
         }
     }
+}
+
+#Preview {
+    LibraryListView(
+        searchText: "",
+        selectedSubjects: .constant([]),
+        selectedTags: [],
+        selectedItemIDs: .constant([]),
+        router: LibraryRouter()
+    )
+    .modelContainer(for: [SubjectModel.self, ReviewItemModel.self], inMemory: true)
 }

@@ -1,3 +1,13 @@
+//
+//  LicenseView.swift
+//  NotBadFeatures
+//
+//  Created by Yiming Liao on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  开源许可展示页面，列出项目中使用的第三方库。
+//
+
 import SwiftUI
 
 struct LicenseView: View {
@@ -64,3 +74,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+
+#Preview {
+    NavigationStack {
+        LicenseView()
+    }
+}

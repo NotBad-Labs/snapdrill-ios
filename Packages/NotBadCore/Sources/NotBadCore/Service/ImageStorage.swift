@@ -5,6 +5,8 @@
 //  Created by Yiming Liao on 2025/12/29.
 //  Copyright © 2025 NotBad Team. All rights reserved.
 //
+//  图片存储服务，负责将图片持久化到本地文件系统。
+//
 
 import UIKit
 

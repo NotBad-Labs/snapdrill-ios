@@ -36,6 +36,12 @@ public final class ReviewRouter: FeatureRouter {
     /// 目标类型别名
     public typealias Destination = ReviewDestination
     
+    /// 跳转到题库的回调
+    public var onNavigateToLibrary: (() -> Void)?
+    
+    /// 跳转到采集的回调
+    public var onNavigateToCapture: (() -> Void)?
+    
     /// 初始化路由器
     public init() {}
 }

@@ -2,7 +2,10 @@
 //  ImageCropperView.swift
 //  NotBadUI
 //
-//  Shared component, refactored by Antigravity on 2025/12/31.
+//  Shared component,//  Created by Yiming Liao on 2025/12/29.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  图片裁剪视图，基于 Mantis 库封装 (或其他裁剪库)。
 //
 
 import SwiftUI

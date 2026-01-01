@@ -25,16 +25,37 @@ public struct ReviewView: View {
     @Bindable private var router: ReviewRouter
     
     // Data
+    // State Machine
+    enum ReviewPhase {
+        case loading
+        case idle        // Dashboard
+        case reviewing   // Card Stack
+        case finished    // Summary
+    }
+    
+    @State private var phase: ReviewPhase = .loading
+    
+    // Data
     @Query private var allItems: [ReviewItemModel]
     @Environment(\.modelContext) private var modelContext
     
-    // State
-    @State private var workingItems: [ReviewItemModel] = [] // The mutable stack
+    // Session State
+    @State private var reviewQueue: [ReviewItemModel] = [] // Full queue for today
+    @State private var workingItems: [ReviewItemModel] = [] // Current working stack
     @State private var finishedItems: Int = 0
-    @State private var undoStack: [ReviewItemModel] = [] // History for Undo
-    @State private var initialLoadComplete = false
+    @State private var undoStack: [ReviewItemModel] = []
     @State private var isAnswerShown = false
-    @State private var swipeTrigger: Int? // For programmatic swipe
+    @State private var swipeTrigger: Int?
+    @State private var showPauseAlert = false
+    @State private var reviewedTodayCount = 0 // Track for Dashboard Stats
+    @State private var sessionStartReviewedCount = 0
+    @State private var isProcessingSwipe = false
+    @State private var lastInteractionTime: Date = .distantPast
+    
+    // UI State
+    @State private var currentSwipeOffset: CGFloat = 0 // Interactive Linkage
+    
+    private let minInteractionInterval: TimeInterval = 0.55 // Slightly longer than card animation (0.5s)
     
     public init(router: ReviewRouter) {
         self.router = router
@@ -45,216 +66,291 @@ public struct ReviewView: View {
             ZStack {
                 ReviewBackground()
                 
-                VStack {
-                    if !initialLoadComplete {
-                        ProgressView()
-                    } else if workingItems.isEmpty && finishedItems == 0 {
-                        // Truly empty (No data)
-                        ReviewEmptyStateView(
-                            icon: "flag.checkered",
-                            title: "开启复习之旅",
-                            subtitle: "添加第一道错题，系统将为你安排科学的复习计划。",
-                            actionTitle: "去录入"
-                        ) {
-                            NotificationCenter.default.post(name: NSNotification.Name("SwitchToCaptureTab"), object: nil)
+                switch phase {
+                case .loading:
+                    ProgressView()
+                        .onAppear(perform: loadData)
+                        
+                case .idle:
+                    ReviewDashboardView(
+                        pendingCount: reviewQueue.count,
+                        reviewedCount: reviewedTodayCount,
+                        totalItemsCount: allItems.count,
+                        onStart: startSession,
+                        onEnter: { router.onNavigateToCapture?() }
+                    )
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
+                    
+                case .reviewing:
+                    reviewSessionView
+                        .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
+                    
+                case .finished:
+                    ReviewEmptyStateView(
+                        icon: "checkmark.seal.fill",
+                        title: "今日复习完成",
+                        subtitle: "太棒了！休息一下，明天继续。",
+                        actionTitle: "好的",
+                        action: { 
+                            // Must reload to reflect the "done" status in dashboard
+                            loadData()
+                            withAnimation { phase = .idle } 
                         }
-                    } else if workingItems.isEmpty {
-                        // Finished all
-                        ReviewEmptyStateView(
-                            icon: "checkmark.seal.fill",
-                            title: "今日复习完成",
-                            subtitle: "太棒了！休息一下，明天继续。",
-                            actionTitle: "重新开始",
-                            action: resetSession
-                        )
-                    } else {
-                        // Content
-                        VStack(spacing: 20) {
-                            // Header
-                            ReviewProgressHeader(current: finishedItems + 1, total: finishedItems + workingItems.count)
-                            
-                            Spacer()
-                            
-                            // Card Stack
-                            ZStack {
-                                // show max 3 cards
-                                ForEach(Array(workingItems.prefix(3).reversed()), id: \.id) { item in
-                                   // Calculate Index for visual stacking
-                                    let index = workingItems.firstIndex(of: item) ?? 0
-                                    let isTop = index == 0
-                                    
-                                    SwipeCard(
-                                        content: {
-                                            ReviewCardContent(item: item, isAnswerShown: isTop && isAnswerShown)
-                                        },
-                                        onRemove: { direction in
-                                            handleSwipeCompletion(direction: direction)
-                                        },
-                                        externalSwipe: isTop ? $swipeTrigger : .constant(nil)
-                                    )
-                                    .allowsHitTesting(isTop) // Only top card interactive
-                                    .scaleEffect(scale(for: index))
-                                    .offset(y: offset(for: index))
-                                    .rotationEffect(.degrees(rotation(for: index)))
-                                    .zIndex(Double(workingItems.count - index))
-                                    // Action Stamps (Overlay)
-                                    .overlay(
-                                        GeometryReader { geometry in
-                                            let dragOffset = isTop ?
-                                                (geometry.frame(in: .global).origin.x 
-                                                 - UIScreen.main.bounds.width / 2 
-                                                 + geometry.size.width / 2) :
-                                                0
-                                            
-                                            if isTop {
-                                                if dragOffset < -50 {
-                                                    // Swipe Left (Next/Forget)
-                                                    Text("忘记")
-                                                        .font(.system(size: 40, weight: .heavy, design: .rounded))
-                                                        .foregroundColor(.red)
-                                                        .padding()
-                                                        .overlay(
-                                                            RoundedRectangle(cornerRadius: 12)
-                                                                .stroke(.red, lineWidth: 4)
-                                                        )
-                                                        .rotationEffect(.degrees(15))
-                                                        .offset(x: 80, y: -100)
-                                                        .opacity(Double(abs(dragOffset) / 150))
-                                                } else if dragOffset > 50 {
-                                                    // Swipe Right (Prev/Remember)
-                                                    Text("记得")
-                                                        .font(.system(size: 40, weight: .heavy, design: .rounded))
-                                                        .foregroundColor(.green)
-                                                        .padding()
-                                                        .overlay(
-                                                            RoundedRectangle(cornerRadius: 12)
-                                                                .stroke(.green, lineWidth: 4)
-                                                        )
-                                                        .rotationEffect(.degrees(-15))
-                                                        .offset(x: -80, y: -100)
-                                                        .opacity(Double(abs(dragOffset) / 150))
-                                                }
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: 500)
-                            .padding(.horizontal)
-                            
-                            Spacer()
-                            
-                            // Bottom Action (Flip)
-                            bottomControl
-                                .padding(.bottom, 40)
-                                .opacity(workingItems.isEmpty ? 0 : 1)
-                        }
-                    }
+                    )
+                    .transition(.scale.combined(with: .opacity))
                 }
             }
-            .navigationTitle("复习")
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear(perform: loadData)
+            // Immersive Mode
+            .toolbar(phase == .reviewing ? .hidden : .visible, for: .navigationBar)
+            .toolbar(phase == .reviewing ? .hidden : .visible, for: .tabBar)
+            .animation(.spring(response: 0.5, dampingFraction: 0.8), value: phase)
+            .alert("确认暂停复习？", isPresented: $showPauseAlert) {
+                Button("继续", role: .cancel) { }
+                Button("暂停", role: .destructive) {
+                    quitSession()
+                }
+            } message: {
+                Text("当前进度将保存，您可以稍后继续。")
+            }
+            .onAppear {
+                loadData()
+            }
+            .onChange(of: allItems) { _, _ in
+                loadData()
+            }
+        }
+    }
+    
+    // MARK: - Subviews
+    
+    private var reviewSessionView: some View {
+        VStack(spacing: 20) {
+            // Header
+            // Header (Immersive)
+            ReviewProgressHeader(
+                current: sessionStartReviewedCount + finishedItems + 1,
+                total: sessionStartReviewedCount + finishedItems + workingItems.count,
+                onPause: { showPauseAlert = true }
+            )
+            
+            Spacer() // Top Spacer (Push down slightly)
+            
+            // Card Stack - Maximized
+            ZStack {
+               // show max 3 cards
+               ForEach(Array(workingItems.prefix(3).reversed()), id: \.id) { item in
+                  // Calculate Index for visual stacking
+                   let index = workingItems.firstIndex(of: item) ?? 0
+                   let isTop = index == 0
+                   
+                   SwipeCard(
+                       content: {
+                           FlipView(
+                               isFlipped: isTop && isAnswerShown,
+                               front: { 
+                                   ReviewCardFactory.makeFront(for: item)
+                                       .padding(.horizontal)
+                                       .padding(.vertical, 32) // Reduced internal padding
+                               },
+                               back: { 
+                                   ReviewCardFactory.makeBack(for: item)
+                                       .padding(.horizontal)
+                                       .padding(.vertical, 32)
+                               }
+                           )
+                           // Tap to flip
+                           .onTapGesture {
+                               if isTop {
+                                   withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                                       isAnswerShown.toggle()
+                                   }
+                               }
+                           }
+                       },
+                       onRemove: { direction in
+                           currentSwipeOffset = 0 // Reset on removal
+                           handleSwipeCompletion(direction: direction)
+                       },
+                       externalSwipe: isTop ? $swipeTrigger : .constant(nil),
+                       onSwipeProgress: isTop ? { offset in
+                           currentSwipeOffset = offset
+                       } : nil
+                   )
+                   .allowsHitTesting(isTop) // Only top card interactive
+                   .scaleEffect(scale(for: index))
+                   .offset(y: offset(for: index))
+                   .rotationEffect(.degrees(rotation(for: index))) // Base stack rotation
+                   .zIndex(Double(workingItems.count - index))
+                   // Action Stamps Overlay
+                   .overlay(
+                       GeometryReader { geometry in
+                           let dragOffset = isTop ?
+                               (geometry.frame(in: .global).origin.x 
+                                - UIScreen.main.bounds.width / 2 
+                                + geometry.size.width / 2) :
+                               0
+                           
+                           // Action Stamps
+                           if isTop {
+                               if dragOffset < -50 {
+                                   Text("忘记")
+                                       .font(.system(size: 40, weight: .heavy, design: .rounded))
+                                       .foregroundColor(.red)
+                                       .padding()
+                                       .overlay(
+                                           RoundedRectangle(cornerRadius: 12)
+                                               .stroke(.red, lineWidth: 4)
+                                       )
+                                       .rotationEffect(.degrees(15))
+                                       .offset(x: 80, y: -100)
+                                       .opacity(Double(abs(dragOffset) / 200))
+                               } else if dragOffset > 50 {
+                                   Text("记得")
+                                       .font(.system(size: 40, weight: .heavy, design: .rounded))
+                                       .foregroundColor(.green)
+                                       .padding()
+                                       .overlay(
+                                           RoundedRectangle(cornerRadius: 12)
+                                               .stroke(.green, lineWidth: 4)
+                                       )
+                                       .rotationEffect(.degrees(-15))
+                                       .offset(x: -80, y: -100)
+                                       .opacity(Double(abs(dragOffset) / 200))
+                               }
+                           }
+                       }
+                   )
+               }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity) // Flex fill
+            .padding(.horizontal, 12) // Minimal margins
+            
+            // Removed bottom Spacer to push buttons down less or let card expand more
+            
+            bottomControl
+                .padding(.bottom, 40)
         }
     }
     
     @ViewBuilder
     private var bottomControl: some View {
-        VStack(spacing: 24) {
-             // 1. Action Row: Undo + Answer Toggle
-            HStack(spacing: 16) {
-                // Undo Button
-                Button(action: undoLastSwipe) {
-                    Image(systemName: "arrow.counterclockwise")
-                        .font(.title3.bold())
-                        .foregroundStyle(undoStack.isEmpty ? Color.secondary.opacity(0.3) : Color.orange)
-                        .padding(12)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
-                .disabled(undoStack.isEmpty)
+        ReviewActionButtons(
+            swipeOffset: currentSwipeOffset,
+            onRate: { rating in
+                let now = Date()
+                guard now.timeIntervalSince(lastInteractionTime) >= minInteractionInterval else { return }
+                guard !isProcessingSwipe else { return }
                 
-                // Answer Toggle
-                Button(action: { withAnimation { isAnswerShown.toggle() } }, label: {
-                    HStack {
-                        Text(isAnswerShown ? "隐藏答案" : "查看答案")
-                        if !isAnswerShown {
-                             Image(systemName: "eye")
-                        } else {
-                             Image(systemName: "eye.slash")
-                        }
-                    }
-                    .font(.subheadline.bold())
-                    .foregroundStyle(isAnswerShown ? Color.secondary : Color.blue)
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 24)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
-                })
-            }
-            
-            // 2. Rating Bar (Always available)
-            BinaryRatingBar { rating in
+                lastInteractionTime = now
+                isProcessingSwipe = true
+                
                 let direction = (rating == .good) ? 1 : -1
-                // Trigger animation first
                 swipeTrigger = direction
-            }
-        }
+            },
+            onUndo: undoLastSwipe,
+            onToggleAnswer: { withAnimation { isAnswerShown.toggle() } },
+            isUndoEnabled: !undoStack.isEmpty,
+            isAnswerShown: isAnswerShown
+        )
+        .frame(height: 100)
     }
     
     // MARK: - Helpers
     
     private func loadData() {
-        // Reload if not initially loaded OR if we are empty (to catch new data generated in Settings)
-        if !initialLoadComplete || (workingItems.isEmpty && finishedItems == 0) {
-            let now = Date()
-            let due = allItems.filter { item in
-                guard let next = item.nextReviewAt else { return true }
-                return next <= now
-            }.sorted { ($0.nextReviewAt ?? Date.distantPast) < ($1.nextReviewAt ?? Date.distantPast) }
-            
-            // Only update if we found something, to avoid unnecessary state thrashing if truly empty
-            // But if previously empty and now empty, no harm.
-            workingItems = due
-            finishedItems = 0
-            undoStack.removeAll() // Clear undo stack on new session
-            initialLoadComplete = true
-            isAnswerShown = false
+        let now = Date()
+        let due = allItems.filter { item in
+            guard let next = item.nextReviewAt else { return true }
+            return next <= now
+        }.sorted { ($0.nextReviewAt ?? Date.distantPast) < ($1.nextReviewAt ?? Date.distantPast) }
+        
+        reviewQueue = due
+        
+        // Only switch to idle if we are loading or finished, 
+        // don't interrupt an active session unless logic requires it.
+        // For simple sync, if we are in .reviewing, we might want to update queue silently?
+        // But for now, if data changes, let's just refresh. 
+        // If user is reviewing, replacing queue might be jarring. 
+        // Ideally we only refresh if phase is .idle or .loading or .finished.
+        if phase != .reviewing {
+            phase = .idle
+        }
+        
+        // Calculate Reviewed Today (Any item reviewed today)
+        let today = Calendar.current.startOfDay(for: now)
+        reviewedTodayCount = allItems.filter { item in
+            guard let date = item.lastReviewedAt else { return false }
+            return date >= today
+        }.count
+    }
+    
+    private func startSession() {
+        workingItems = reviewQueue
+        finishedItems = 0
+        undoStack.removeAll()
+        isAnswerShown = false
+        
+        // Calculate how many were already done today (for persistent progress bar)
+        let today = Calendar.current.startOfDay(for: Date())
+        sessionStartReviewedCount = allItems.filter { item in
+            guard let date = item.lastReviewedAt else { return false }
+            return date >= today
+        }.count
+        
+        withAnimation {
+            phase = .reviewing
+        }
+    }
+    
+    private func quitSession() {
+        // Just quit and refresh stats
+        loadData()
+        withAnimation {
+            phase = .idle
         }
     }
     
     private func resetSession() {
-        // For verify purpose, just reload
-        initialLoadComplete = false
+        phase = .loading
         undoStack.removeAll()
         loadData()
     }
     
     private func handleSwipeCompletion(direction: Int) {
-        // Reset trigger to prevent chain reaction on next card
         swipeTrigger = nil
+        isProcessingSwipe = false // Unlock for next interaction
         
-        // direction: -1 (Left/Forget), 1 (Right/Remember)
         guard let item = workingItems.first else { return }
         
         withAnimation(.spring(duration: 0.35)) {
             let removed = workingItems.removeFirst()
-            undoStack.append(removed) // Push to history
+            undoStack.append(removed)
             finishedItems += 1
             isAnswerShown = false
+            
+            // Check if finished
+            if workingItems.isEmpty {
+                 phase = .finished
+            }
         }
         
-        // Update Scheduler
-        // Left (-1) = Forget/Again
-        // Right (1) = Remember/Good
+        // Update Scheduler logic
         let rating: ReviewRating = direction > 0 ? .good : .again
-        
         let scheduler = ReviewScheduler()
         let updated = scheduler.scheduleNextReview(for: item.toEntity(), rating: rating)
+        
+        // Sync all SM-2 fields back to the model
         item.lastReviewedAt = updated.lastReviewedAt
         item.nextReviewAt = updated.nextReviewAt
+        item.easeFactor = updated.easeFactor
+        item.interval = updated.interval
+        item.repetitions = updated.repetitions
         
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save review result: \(error)")
+        }
     }
     
     private func undoLastSwipe() {
@@ -264,7 +360,12 @@ public struct ReviewView: View {
             let item = undoStack.removeLast()
             workingItems.insert(item, at: 0)
             finishedItems -= 1
-            isAnswerShown = false // Reset state for the card coming back
+            isAnswerShown = false 
+            
+            // If we undid from finished state? (Though UI hides undo in finished, safe to check)
+            if phase == .finished {
+                phase = .reviewing
+            }
         }
     }
     
@@ -295,4 +396,9 @@ public struct ReviewView: View {
         // Or keep it simple. Mainstream apps usually fully random.
         return angle
     }
+    }
+
+#Preview {
+    ReviewView(router: ReviewRouter())
+        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

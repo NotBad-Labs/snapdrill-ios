@@ -3,13 +3,19 @@
 //  NotBadCore
 //
 //  Created by NotBad Architect on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  PDF 导出服务，负责将错题数据渲染为 PDF 文档。
 //
 
 import UIKit
 import PDFKit
 
-/// 负责将错题列表生成 PDF
+/// 负责将错题列表生成 PDF 的服务类
+///
+/// 该服务提供将 `ReviewItem` 数组转换为 PDF 文件的能力，支持自定义图片提供者以加载本地或远程图片。
 public final class PDFExportService: Sendable {
+    /// 全局共享实例
     public static let shared = PDFExportService()
     
     private init() {}

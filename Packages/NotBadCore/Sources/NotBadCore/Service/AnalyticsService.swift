@@ -1,3 +1,13 @@
+//
+//  AnalyticsService.swift
+//  NotBadCore
+//
+//  Created by Yiming Liao on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  统计服务协议定义，遵循依赖倒置原则。
+//
+
 import Foundation
 
 /// 统计分析服务协议 (DIP 抽象层)

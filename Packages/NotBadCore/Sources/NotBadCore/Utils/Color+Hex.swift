@@ -3,6 +3,9 @@
 //  NotBadUtils
 //
 //  Created by NotBad Architect on 2025/12/30.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  Color 扩展，提供十六进制颜色初始化功能。
 //
 
 import SwiftUI
@@ -32,5 +35,24 @@ extension Color {
             blue: Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+    
+    /// Convert Color to Hex string (e.g. "#FF5733")
+    public func toHex() -> String? {
+        let uiColor = UIColor(self)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        guard uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            return nil
+        }
+        
+        let r = Int(red * 255)
+        let g = Int(green * 255)
+        let b = Int(blue * 255)
+        
+        return String(format: "#%02X%02X%02X", r, g, b)
     }
 }

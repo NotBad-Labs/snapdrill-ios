@@ -5,11 +5,14 @@
 //  Created by Yiming Liao on 2025/12/29.
 //  Copyright © 2025 NotBad Team. All rights reserved.
 //
+//  错题详情页，展示题目的完整信息（原题、答案、解析）。
+//
 
 import SwiftUI
 import NotBadData
 import NotBadUI
 import NotBadCore
+import SwiftData
 
 /// 题目详情视图
 ///
@@ -41,7 +44,8 @@ struct LibraryDetailView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .padding(.horizontal)
                         .onTapGesture {
-                            // TODO: Detail full screen
+                            fullScreenImage = image
+                            showingFullScreenImage = true
                         }
                 }
                 
@@ -129,7 +133,23 @@ struct LibraryDetailView: View {
         .sheet(isPresented: $isEditing) {
             LibraryEditView(item: item)
         }
+        .fullScreenCover(isPresented: $showingFullScreenImage) {
+            if let image = fullScreenImage {
+                FullScreenImageView(image: image) {
+                    showingFullScreenImage = false
+                }
+            }
+        }
     }
     
     @State private var isEditing = false
+    @State private var showingFullScreenImage = false
+    @State private var fullScreenImage: UIImage?
+}
+
+#Preview {
+    NavigationStack {
+        LibraryDetailView(router: LibraryRouter(), item: ReviewItemModel(content: "Sample Question"))
+    }
+    .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

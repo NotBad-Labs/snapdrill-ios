@@ -1,3 +1,13 @@
+//
+//  LoggingAnalyticsService.swift
+//  NotBadCore
+//
+//  Created by Yiming Liao on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  基于日志的统计服务实现，用于在开发阶段记录埋点。
+//
+
 import Foundation
 import OSLog
 

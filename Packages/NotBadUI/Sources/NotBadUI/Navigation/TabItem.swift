@@ -1,3 +1,14 @@
+//
+//  TabItem.swift
+//  NotBadUI
+//
+//  Created by Yiming Liao on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  定义 TabBar 的枚举项及其相关属性。
+//
+
+import SwiftUI
 import Foundation
 
 /// 定义应用中所有的 Tab 项

@@ -2,7 +2,10 @@
 //  ReviewRatingView.swift
 //  NotBadFeatures
 //
-//  Created by NotBad Agent on 2025/12/31.
+//  Created by NotBad Architect on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  底部评分栏，提供 '忘记', '模糊', '熟悉' 等操作反馈。
 //
 
 import SwiftUI
@@ -12,46 +15,46 @@ struct BinaryRatingBar: View {
     let onRate: (ReviewRating) -> Void
     
     var body: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 16) {
             // Forget / Again
             Button(action: { onRate(.again) }, label: {
-                VStack(spacing: 4) {
+                VStack(spacing: 2) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.system(size: 20, weight: .bold))
                     Text("忘记")
-                        .font(.headline)
+                        .font(.subheadline)
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 64)
-                .background(Color.red.opacity(0.15))
+                .frame(height: 52)
+                .background(Color.red.opacity(0.1))
                 .foregroundStyle(Color.red)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.red.opacity(0.2), lineWidth: 1)
                 )
             })
             
             // Remember / Good
             Button(action: { onRate(.good) }, label: {
-                VStack(spacing: 4) {
+                VStack(spacing: 2) {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.system(size: 20, weight: .bold))
                     Text("记得")
-                        .font(.headline)
+                        .font(.subheadline)
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 64)
-                .background(Color.green.opacity(0.15))
+                .frame(height: 52)
+                .background(Color.green.opacity(0.1))
                 .foregroundStyle(Color.green)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.green.opacity(0.2), lineWidth: 1)
                 )
             })
         }
-        .padding(.horizontal, 32)
+        .padding(.horizontal, 24)
     }
 }
 
@@ -61,9 +64,14 @@ struct ReviewActionPill: View {
     let color: Color
     let action: (ReviewRating) -> Void
     
-    private var timeString: String {
-        let interval = ReviewScheduler().interval(for: rating)
-        return formatInterval(interval)
+    /// 简化的时间描述（基于评分类型）
+    private var timeHint: String {
+        switch rating {
+        case .again: return "10分钟"
+        case .hard: return "1天"
+        case .good: return "1-6天"
+        case .easy: return "更长"
+        }
     }
     
     var body: some View {
@@ -71,7 +79,7 @@ struct ReviewActionPill: View {
             VStack(spacing: 2) {
                 Text(title)
                     .font(.headline)
-                Text(timeString)
+                Text(timeHint)
                     .font(.caption2)
                     .opacity(0.8)
             }
@@ -85,13 +93,18 @@ struct ReviewActionPill: View {
             )
         })
     }
-    
-    private func formatInterval(_ interval: TimeInterval) -> String {
-        let minutes = Int(interval / 60)
-        if minutes < 60 { return "\(minutes)分" }
-        let hours = minutes / 60
-        if hours < 24 { return "\(hours)时" }
-        let days = hours / 24
-        return "\(days)天"
+}
+
+#Preview {
+    VStack(spacing: 40) {
+        BinaryRatingBar(onRate: { _ in })
+        
+        HStack {
+            ReviewActionPill(title: "忘记", rating: .again, color: .red, action: { _ in })
+            ReviewActionPill(title: "模糊", rating: .hard, color: .orange, action: { _ in })
+            ReviewActionPill(title: "熟悉", rating: .good, color: .green, action: { _ in })
+            ReviewActionPill(title: "简单", rating: .easy, color: .blue, action: { _ in })
+        }
     }
+    .padding()
 }

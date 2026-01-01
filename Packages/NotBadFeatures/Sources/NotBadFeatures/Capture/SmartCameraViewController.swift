@@ -2,7 +2,10 @@
 //  SmartCameraViewController.swift
 //  NotBadFeatureCapture
 //
-//  Created by NotBad Architect on 2025/12/30.
+//  Created by Yiming Liao on 2025/12/29.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  相机控制器 (UIKit)，管理 AVCaptureSession 及其数据流。
 //
 
 import UIKit

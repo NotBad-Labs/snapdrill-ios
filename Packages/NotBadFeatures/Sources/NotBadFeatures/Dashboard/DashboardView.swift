@@ -5,6 +5,8 @@
 //  Created by Yiming Liao on 2025/12/29.
 //  Copyright © 2025 NotBad Team. All rights reserved.
 //
+//  首页仪表盘视图，展示复习进度概览和快捷入口。
+//
 
 import SwiftUI
 import SwiftData
@@ -22,8 +24,7 @@ public struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
     
     // State for dashboard data
-    @State private var dueCount: Int = 0
-    @State private var totalCount: Int = 0 // Add total count tracking
+    // Counts are now handled reactively by child views (ReviewHeroCard, DailyStatsView)
     @Query(sort: \SubjectModel.sortOrder) private var subjects: [SubjectModel]
     
     @State private var showingSubjectManager = false
@@ -53,9 +54,8 @@ public struct DashboardView: View {
                         HeaderView()
                         
                         // 2. Hero Section (Review Status)
+                        // 2. Hero Section (Review Status, Reactive)
                         ReviewHeroCard(
-                            totalCount: totalCount,
-                            dueCount: dueCount,
                             onStartReview: { router.navigateToReview() },
                             onStartCapture: { checkDraftAndCapture() }
                         )
@@ -82,15 +82,8 @@ public struct DashboardView: View {
                                 NotificationCenter.default.post(name: NSNotification.Name("SwitchToLibraryTab"), object: nil)
                             }
                             
-                            // Analysis/Stats (Placeholder)
-                            BentoCard(
-                                title: "学习统计",
-                                subtitle: "查看趋势",
-                                icon: "chart.bar.xaxis",
-                                gradient: LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing)
-                            ) {
-                                showingComingSoon = true
-                            }
+                            // Daily Insight (Real Data, Reactive)
+                            DailyStatsView()
                             
                             // Settings/More
                             BentoCard(
@@ -148,14 +141,41 @@ public struct DashboardView: View {
     }
 
     private func loadData() {
-        let repo = ReviewRepository(modelContext: modelContext)
         let subjectRepo = SubjectRepository(modelContext: modelContext)
-        do {
-            self.dueCount = try repo.fetchDueCount()
-            self.totalCount = try repo.totalItemCount()
-            subjectRepo.initializeDefaultsIfNeeded()
-        } catch {
-            print("Failed to fetch dashboard data: \(error)")
+        subjectRepo.initializeDefaultsIfNeeded()
+    }
+}
+
+#Preview {
+    DashboardView(router: DashboardRouter())
+        .modelContainer(for: [SubjectModel.self, ReviewItemModel.self], inMemory: true)
+}
+
+/// 独立的今日统计视图，使用 @Query 实现自动刷新
+struct DailyStatsView: View {
+    @Query private var todayItems: [ReviewItemModel]
+    
+    init() {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? Date().addingTimeInterval(86400)
+        
+        // Dynamic Predicate for "Today"
+        let predicate = #Predicate<ReviewItemModel> { item in
+            item.createdAt >= startOfDay && item.createdAt < endOfDay
+        }
+        
+        _todayItems = Query(filter: predicate)
+    }
+    
+    var body: some View {
+        BentoCard(
+            title: "今日新增",
+            subtitle: "\(todayItems.count) 题",
+            icon: "chart.bar.xaxis",
+            gradient: LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing)
+        ) {
+            // No action
         }
     }
 }

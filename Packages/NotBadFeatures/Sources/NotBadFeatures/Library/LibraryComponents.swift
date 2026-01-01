@@ -2,7 +2,10 @@
 //  LibraryComponents.swift
 //  NotBadFeatureLibrary
 //
-//  Created by NotBad Agent on 2025/12/31.
+//  Created by NotBad Architect on 2025/12/30.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  题库模块共享的小组件，如 SubjectCapsule。
 //
 
 import SwiftUI
@@ -28,4 +31,12 @@ struct SubjectCapsule: View {
         .clipShape(Capsule())
         .animation(.spring, value: isSelected)
     }
+}
+
+#Preview {
+    HStack {
+        SubjectCapsule(subject: SubjectModel(name: "Math", icon: "function", colorHex: "#FF5733", sortOrder: 0), isSelected: true)
+        SubjectCapsule(subject: SubjectModel(name: "Physics", icon: "atom", colorHex: "#33FF57", sortOrder: 1), isSelected: false)
+    }
+    .padding()
 }

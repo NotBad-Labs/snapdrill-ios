@@ -2,8 +2,10 @@
 //  ReviewRepository.swift
 //  NotBadData
 //
-//  Created by Yiming Liao on 2025/12/29.
+//  Created by Yiming Liao on 2025/12/30.
 //  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  错题数据的增删改查仓库，封装 SwiftData 上下文操作。
 //
 
 import Foundation

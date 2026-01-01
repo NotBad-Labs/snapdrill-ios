@@ -2,7 +2,10 @@
 //  DependencyContainer.swift
 //  NotBad
 //
-//  Created by NotBad Architect.
+//  Created by NotBad Architect on 2025/12/29.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  依赖注入容器，管理全局服务实例。
 //
 
 import Foundation

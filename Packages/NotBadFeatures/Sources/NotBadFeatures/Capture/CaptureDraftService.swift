@@ -2,7 +2,10 @@
 //  CaptureDraftService.swift
 //  NotBadFeatures
 //
-//  Created by NotBad Architect on 2025/12/31.
+//  Created by Yiming Liao on 2025/12/30.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  采集草稿服务，负责暂时保存未确认的拍摄内容。
 //
 
 import UIKit

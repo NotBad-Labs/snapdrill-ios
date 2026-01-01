@@ -2,7 +2,10 @@
 //  LibraryEditView.swift
 //  NotBadFeatureLibrary
 //
-//  Created by Antigravity on 2025/12/31.
+//  Created by NotBad Architect on 2025/12/31.
+//  Copyright © 2025 NotBad Team. All rights reserved.
+//
+//  错题编辑页面，用于修改题目内容、标签和学科。
 //
 
 import SwiftUI
@@ -18,12 +21,21 @@ struct LibraryEditView: View {
     @Bindable var item: ReviewItemModel
     @Environment(\.modelContext) private var modelContext
     
+    // Focus State for Keyboard
+    @FocusState private var isInputFocused: Bool
+    
+    // 动态查询学科列表
+    @Query(sort: \SubjectModel.sortOrder) private var subjects: [SubjectModel]
+    @Query(sort: \SourceModel.sortOrder) private var sources: [SourceModel]
+    @Query(sort: \TagModel.name) private var allTags: [TagModel]
+    
     // Services
     private let imageStorage = ImageStorage()
     private let ocrService = OCRService()
     
     // State
     @State private var content: String
+    @State private var answer: String
     @State private var selectedSubject: String
     @State private var selectedSource: String
     
@@ -44,6 +56,7 @@ struct LibraryEditView: View {
     init(item: ReviewItemModel) {
         self.item = item
         _content = State(initialValue: item.content)
+        _answer = State(initialValue: item.answerText)
         _selectedSubject = State(initialValue: item.subject)
         _selectedSource = State(initialValue: item.source)
         
@@ -90,51 +103,90 @@ struct LibraryEditView: View {
                 Section(header: Text("题目内容")) {
                     TextEditor(text: $content)
                         .frame(minHeight: 120)
+                        .focused($isInputFocused)
+                }
+                
+                // MARK: - Answer Section
+                Section(header: Text("参考答案")) {
+                    TextEditor(text: $answer)
+                        .frame(minHeight: 100)
+                        .focused($isInputFocused)
                 }
                 
                 // MARK: - Metadata
                 Section(header: Text("属性")) {
                     // Subject
+                    // Subject
                     HStack {
                         Text("学科")
                         Spacer()
-                        TextField("选择或输入", text: $selectedSubject)
-                            .multilineTextAlignment(.trailing)
                         
                         Menu {
-                            ForEach(SubjectPreset.allCases) { subject in
-                                Button(subject.rawValue) {
-                                    selectedSubject = subject.rawValue
+                            ForEach(subjects) { subject in
+                                Button {
+                                    selectedSubject = subject.name
+                                } label: {
+                                    Label(subject.name, systemImage: subject.icon)
                                 }
                             }
                         } label: {
-                            Image(systemName: "chevron.up.chevron.down")
-                                .foregroundStyle(.secondary)
+                            HStack {
+                                Text(selectedSubject.isEmpty ? "选择学科" : selectedSubject)
+                                    .foregroundStyle(selectedSubject.isEmpty ? .secondary : .primary)
+                                Image(systemName: "chevron.up.chevron.down")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
                         }
                     }
                     
                     // Source
+                    // Source
                     HStack {
                         Text("来源")
                         Spacer()
-                        TextField("选择或输入", text: $selectedSource)
-                            .multilineTextAlignment(.trailing)
                         
                         Menu {
-                            ForEach(ReviewSourcePreset.allCases) { source in
-                                Button(source.rawValue) {
-                                    selectedSource = source.rawValue
+                            ForEach(sources) { source in
+                                Button {
+                                    selectedSource = source.name
+                                } label: {
+                                    Label(source.name, systemImage: source.icon)
                                 }
                             }
                         } label: {
-                            Image(systemName: "chevron.up.chevron.down")
-                                .foregroundStyle(.secondary)
+                            HStack {
+                                Text(selectedSource.isEmpty ? "选择来源" : selectedSource)
+                                    .foregroundStyle(selectedSource.isEmpty ? .secondary : .primary)
+                                Image(systemName: "chevron.up.chevron.down")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
+                    }
+                    
+                    // Difficulty
+                    HStack {
+                        Text("难度")
+                        Spacer()
+                        HStack(spacing: 4) {
+                            ForEach(1...5, id: \.self) { star in
+                                Image(systemName: item.difficulty >= star ? "star.fill" : "star")
+                                    .foregroundStyle(.yellow)
+                                    .onTapGesture {
+                                        item.difficulty = star
+                                    }
+                            }
                         }
                     }
                     
                     VStack(alignment: .leading) {
                         Text("标签")
-                        TagInputView(tags: $tagList, text: $tagInputText)
+                        TagInputView(
+                            tags: $tagList,
+                            text: $tagInputText,
+                            suggestions: allTags.map { $0.name }
+                        )
                     }
                 }
             }
@@ -153,6 +205,10 @@ struct LibraryEditView: View {
                     Button("保存") { save() }
                         .disabled(isProcessing)
                 }
+            }
+            .scrollDismissesKeyboard(.immediately) // Dismiss on ANY scroll
+            .onTapGesture {
+                isInputFocused = false // Dismiss on background tap
             }
             .onAppear {
                 if displayedImage == nil, let path = item.imagePath {
@@ -242,6 +298,7 @@ struct LibraryEditView: View {
         
         // Save fields
         item.content = content
+        item.answerText = answer
         item.subject = selectedSubject
         item.source = selectedSource
         
@@ -284,4 +341,9 @@ struct LibraryEditView: View {
         
         dismiss()
     }
+}
+
+#Preview {
+    LibraryEditView(item: ReviewItemModel(content: "Sample Question for Editing", subject: "Biology"))
+        .modelContainer(for: [ReviewItemModel.self, TagModel.self], inMemory: true)
 }
