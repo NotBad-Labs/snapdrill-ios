@@ -34,6 +34,7 @@ public struct ReviewView: View {
     @State private var undoStack: [ReviewItemModel] = [] // History for Undo
     @State private var initialLoadComplete = false
     @State private var isAnswerShown = false
+    @State private var swipeTrigger: Int? // For programmatic swipe
     
     public init(router: ReviewRouter) {
         self.router = router
@@ -87,8 +88,9 @@ public struct ReviewView: View {
                                             ReviewCardContent(item: item, isAnswerShown: isTop && isAnswerShown)
                                         },
                                         onRemove: { direction in
-                                            handleSwipe(direction: direction)
-                                        }
+                                            handleSwipeCompletion(direction: direction)
+                                        },
+                                        externalSwipe: isTop ? $swipeTrigger : .constant(nil)
                                     )
                                     .allowsHitTesting(isTop) // Only top card interactive
                                     .scaleEffect(scale(for: index))
@@ -194,7 +196,8 @@ public struct ReviewView: View {
             // 2. Rating Bar (Always available)
             BinaryRatingBar { rating in
                 let direction = (rating == .good) ? 1 : -1
-                handleSwipe(direction: direction)
+                // Trigger animation first
+                swipeTrigger = direction
             }
         }
     }
@@ -227,7 +230,10 @@ public struct ReviewView: View {
         loadData()
     }
     
-    private func handleSwipe(direction: Int) {
+    private func handleSwipeCompletion(direction: Int) {
+        // Reset trigger to prevent chain reaction on next card
+        swipeTrigger = nil
+        
         // direction: -1 (Left/Forget), 1 (Right/Remember)
         guard let item = workingItems.first else { return }
         

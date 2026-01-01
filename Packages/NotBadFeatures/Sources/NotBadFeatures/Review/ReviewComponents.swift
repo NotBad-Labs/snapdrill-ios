@@ -14,6 +14,7 @@ import NotBadData
 struct SwipeCard<Content: View>: View {
     let content: Content
     let onRemove: (Int) -> Void // -1 for Left (Next), 1 for Right (Prev/Forget)
+    @Binding var externalSwipe: Int? // Triggers swipe when set
     
     @State private var translation: CGSize = .zero
     
@@ -21,9 +22,10 @@ struct SwipeCard<Content: View>: View {
     private let threshold: CGFloat = 100
     private let rotationDegrees: Double = 15
     
-    init(@ViewBuilder content: () -> Content, onRemove: @escaping (Int) -> Void) {
+    init(@ViewBuilder content: () -> Content, onRemove: @escaping (Int) -> Void, externalSwipe: Binding<Int?> = .constant(nil)) {
         self.content = content()
         self.onRemove = onRemove
+        self._externalSwipe = externalSwipe
     }
     
     var body: some View {
@@ -68,6 +70,11 @@ struct SwipeCard<Content: View>: View {
                             }
                         }
                 )
+                .onChange(of: externalSwipe) { _, newValue in
+                    if let direction = newValue {
+                        snapAway(direction: direction, width: geometry.size.width)
+                    }
+                }
         }
     }
     
