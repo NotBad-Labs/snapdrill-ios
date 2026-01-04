@@ -128,8 +128,8 @@ public struct TagInputView: View {
 }
 
 #Preview {
-    @State var tags = ["SwiftUI", "Combine", "SwiftData"]
-    @State var text = ""
+    @Previewable @State var tags = ["SwiftUI", "Combine", "SwiftData"]
+    @Previewable @State var text = ""
     return TagInputView(tags: $tags, text: $text)
         .padding()
 }

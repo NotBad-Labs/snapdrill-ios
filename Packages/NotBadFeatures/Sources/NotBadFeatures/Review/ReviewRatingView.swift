@@ -21,7 +21,7 @@ struct BinaryRatingBar: View {
                 VStack(spacing: 2) {
                     Image(systemName: "xmark")
                         .font(.system(size: 20, weight: .bold))
-                    Text("忘记")
+                    Text(L10n.Review.forgot)
                         .font(.subheadline)
                 }
                 .frame(maxWidth: .infinity)
@@ -40,7 +40,7 @@ struct BinaryRatingBar: View {
                 VStack(spacing: 2) {
                     Image(systemName: "checkmark")
                         .font(.system(size: 20, weight: .bold))
-                    Text("记得")
+                    Text(L10n.Review.remember)
                         .font(.subheadline)
                 }
                 .frame(maxWidth: .infinity)
@@ -100,10 +100,10 @@ struct ReviewActionPill: View {
         BinaryRatingBar(onRate: { _ in })
         
         HStack {
-            ReviewActionPill(title: "忘记", rating: .again, color: .red, action: { _ in })
-            ReviewActionPill(title: "模糊", rating: .hard, color: .orange, action: { _ in })
-            ReviewActionPill(title: "熟悉", rating: .good, color: .green, action: { _ in })
-            ReviewActionPill(title: "简单", rating: .easy, color: .blue, action: { _ in })
+            ReviewActionPill(title: L10n.Review.forgot, rating: .again, color: .red, action: { _ in })
+            ReviewActionPill(title: L10n.Review.hard, rating: .hard, color: .orange, action: { _ in })
+            ReviewActionPill(title: L10n.Review.good, rating: .good, color: .green, action: { _ in })
+            ReviewActionPill(title: L10n.Review.easy, rating: .easy, color: .blue, action: { _ in })
         }
     }
     .padding()

@@ -48,12 +48,45 @@
 
 ## 测试
 
-项目包含单元测试与 UI 测试。
-- **Xcode**: 按下 `Cmd+U`。
+项目包含完整的测试套件，包括单元测试、集成测试和 UI 测试。
+
+### 测试覆盖率
+
+[![codecov](https://codecov.io/gh/chramboliao/NotBad/branch/main/graph/badge.svg)](https://codecov.io/gh/chramboliao/NotBad)
+
+- **目标覆盖率**: 60%+
+- **当前覆盖率**: 查看 CI 报告
+
+### 运行测试
+
+- **Xcode**: 按下 `Cmd+U`
 - **命令行**:
   ```bash
-  xcodebuild test -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 16'
+  xcodebuild test -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 17'
   ```
+- **带覆盖率报告**:
+  ```bash
+  xcodebuild test -scheme NotBad \
+    -destination 'platform=iOS Simulator,name=iPhone 17' \
+    -enableCodeCoverage YES
+  ```
+
+### 测试结构
+
+```
+Tests/
+├── NotBadCoreTests/          # Service 层测试
+│   ├── OCRServiceTests
+│   ├── PDFExportServiceTests
+│   ├── CaptureServiceTests
+│   └── AnalyticsServiceTests
+├── NotBadDataTests/          # 数据层测试
+│   ├── ReviewItemModelTests
+│   ├── ModelTests
+│   ├── ReviewRepositoryTests
+│   └── TestHelpers
+└── NotBadUITests/            # UI 测试（待添加）
+```
 
 ## 文档
 

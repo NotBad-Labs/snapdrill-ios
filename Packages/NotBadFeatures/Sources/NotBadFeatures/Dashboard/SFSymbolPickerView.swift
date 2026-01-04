@@ -216,15 +216,26 @@ struct SFSymbolPickerView: View {
             selectedSymbol = symbol
             dismiss()
         } label: {
-            VStack(spacing: 4) {
+            ZStack {
+                // Liquid Glass Background
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.ultraThinMaterial)
+                    .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                
+                // Selection Highlight
+                if selectedSymbol == symbol {
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.blue, lineWidth: 2)
+                }
+                
                 Image(systemName: symbol)
-                    .font(.title2)
-                    .symbolRenderingMode(.multicolor) // Native colors!
-                    .foregroundStyle(.primary)
-                    .frame(width: 40, height: 40)
-                    .background(selectedSymbol == symbol ? Color.blue.opacity(0.2) : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .font(.system(size: 24))
+                    .foregroundStyle(.primary) // Use primary color for native look
+                    .symbolRenderingMode(.hierarchical) // The true "native" system look
+                    .frame(width: 30, height: 30)
             }
+            .frame(width: 50, height: 50)
+            .contentShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
     }

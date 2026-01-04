@@ -25,17 +25,17 @@ import NotBadCore
 @Model
 public final class ReviewItemModel {
     /// 唯一主键
-    @Attribute(.unique) public var id: UUID
+    public var id: UUID = UUID()
     
     /// 题目内容
-    public var content: String
+    public var content: String = ""
     
     /// 图片相对路径
     /// - Note: 仅保存文件名或相对路径，根目录由 `ImageStorage` 管理
     public var imagePath: String?
     
     /// 创建时间
-    public var createdAt: Date
+    public var createdAt: Date = Date()
     
     /// 上次复习时间
     public var lastReviewedAt: Date?
@@ -45,12 +45,12 @@ public final class ReviewItemModel {
     
     // 存储枚举的原始值
     /// 学科 (String)
-    public var subjectRawValue: String
+    public var subjectRawValue: String = "其他"
     /// 来源 (String)
-    public var sourceRawValue: String
+    public var sourceRawValue: String = "其他"
     
     /// 标签集合 (Many-to-Many Relationship)
-    @Relationship(inverse: \TagModel.items)
+    @Relationship(deleteRule: .nullify, inverse: \TagModel.items)
     public var tags: [TagModel]? = []
     
     // MARK: - Schema V2 Fields

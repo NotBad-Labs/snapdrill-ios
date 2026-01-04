@@ -61,7 +61,7 @@ private struct FlipOpacity: ViewModifier, @preconcurrency Animatable {
 }
 
 #Preview {
-    @State var isFlipped = false
+    @Previewable @State var isFlipped = false
     return VStack(spacing: 40) {
         FlipView(
             isFlipped: isFlipped,

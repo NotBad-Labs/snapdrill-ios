@@ -231,7 +231,12 @@ struct EditSourceView: View {
         } else {
             // 添加模式：创建新来源
             let repo = SourceRepository(modelContext: modelContext)
-            repo.add(name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
+            do {
+                try repo.add(name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
+            } catch {
+                // 如果失败（如重复），静默失败或显示错误
+                print("Failed to add source: \(error.localizedDescription)")
+            }
         }
     }
 }

@@ -27,14 +27,10 @@ public actor OCRService {
     ///
     /// 异步执行文本识别任务。
     ///
-    /// - Parameter image: 包含文字的图片（推荐经过文档扫描校正后的图片）
+    /// - Parameter cgImage: 包含文字的图片（推荐经过文档扫描校正后的图片）
     /// - Returns: 识别出的所有文本，按行拼接，以换行符 `\n` 分隔
-    /// - Throws: `OCRError` 如果图片无效或识别请求失败
-    public func recognizeText(from image: UIImage) async throws -> String {
-        guard let cgImage = image.cgImage else {
-            throw OCRError.invalidImage
-        }
-        
+    /// - Throws: `OCRError` 如果识别请求失败
+    public func recognizeText(from cgImage: CGImage) async throws -> String {
         return try await withCheckedThrowingContinuation { continuation in
             let request = VNRecognizeTextRequest { request, error in
                 if let error = error {

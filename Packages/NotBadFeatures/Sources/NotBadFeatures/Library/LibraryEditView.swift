@@ -202,7 +202,11 @@ struct LibraryEditView: View {
                     })
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") { save() }
+                    Button("保存") {
+                        Task {
+                            await save()
+                        }
+                    }
                         .disabled(isProcessing)
                 }
             }
@@ -266,7 +270,10 @@ struct LibraryEditView: View {
         Task {
             do {
                 // 1. OCR
-                let recognizedText = try await ocrService.recognizeText(from: image)
+                guard let cgImage = image.cgImage else {
+                    throw OCRError.invalidImage
+                }
+                let recognizedText = try await ocrService.recognizeText(from: cgImage)
                 
                 // 2. Save Image immediately? 
                 // Wait until "Save" button to save image file effectively?
@@ -292,7 +299,7 @@ struct LibraryEditView: View {
         }
     }
 
-    private func save() {
+    private func save() async {
         isSavedNormally = true
         CaptureDraftService.shared.clearDraft()
         
@@ -332,14 +339,16 @@ struct LibraryEditView: View {
             // We should delete old one if we care about cleanup, but `ImageStorage` logic is opaque here.
             
             do {
-                let newPath = try imageStorage.saveImage(newImage)
+                let newPath = try await imageStorage.saveImage(newImage)
                 item.imagePath = newPath
             } catch {
                 print("Failed to save new image: \(error)")
             }
         }
         
-        dismiss()
+        await MainActor.run {
+            dismiss()
+        }
     }
 }
 

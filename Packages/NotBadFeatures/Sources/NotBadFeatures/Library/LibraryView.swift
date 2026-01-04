@@ -62,6 +62,9 @@ public struct LibraryView: View {
                 }
                 selectedItemIDs.removeAll()
             }
+            
+            // Explicitly save to ensure Dashboard stats update immediately
+            try? modelContext.save()
         } catch {
             print("Failed to delete items: \(error)")
         }
@@ -84,22 +87,33 @@ public struct LibraryView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack {
-                        if editMode.isEditing == false {
-                            Button(action: { isFilterPresented = true }, label: {
-                                Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
-                                    .symbolVariant(!selectedSubjects.isEmpty || !selectedTags.isEmpty ? .fill : .none)
-                            })
-                        }
-                        
-                        Button(editMode.isEditing ? "完成" : "选择") {
-                            withAnimation {
-                                editMode = editMode.isEditing ? .inactive : .active
-                                if !editMode.isEditing {
+                        if editMode.isEditing {
+                            Button("完成") {
+                                withAnimation {
+                                    editMode = .inactive
                                     selectedItemIDs.removeAll()
                                 }
                             }
+                            .fontWeight(.bold)
+                        } else {
+                            Menu {
+                                Button {
+                                    withAnimation {
+                                        editMode = .active
+                                    }
+                                } label: {
+                                    Label("选择题目", systemImage: "checkmark.circle")
+                                }
+                                
+                                Button {
+                                    isFilterPresented = true
+                                } label: {
+                                    Label("筛选与排序", systemImage: "line.3.horizontal.decrease.circle")
+                                }
+                            } label: {
+                                Label("管理", systemImage: "ellipsis.circle")
+                            }
                         }
-                        .fontWeight(editMode.isEditing ? .bold : .regular)
                     }
                 }
                 

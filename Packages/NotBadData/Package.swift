@@ -25,7 +25,7 @@ let package = Package(
             name: "NotBadData",
             dependencies: ["NotBadCore"],
             swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
+                .swiftLanguageMode(.v6)
             ]
         ),
         .testTarget(

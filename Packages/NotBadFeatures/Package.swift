@@ -31,7 +31,7 @@ let package = Package(
                 "NotBadData"
             ],
             swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
+                .swiftLanguageMode(.v6)
             ]
         )
     ]

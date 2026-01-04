@@ -20,6 +20,8 @@ public enum SettingsDestination: Hashable {
     case licenses
     /// 隐私政策页面
     case privacyPolicy
+    /// 用户协议页面
+    case termsOfService
 }
 
 /// 设置模块路由器

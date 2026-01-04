@@ -1,0 +1,2 @@
+/Users/yimingliao/Developer/NotBad/Packages/NotBadData/Sources/NotBadData/Persistence.swift:120:34: warning: Force Try Violation: Force tries should be avoided (force_try)
+/Users/yimingliao/Developer/NotBad/Packages/NotBadData/Sources/NotBadData/Persistence.swift:28:12: warning: Function Body Length Violation: Initializer body should span 60 lines or less excluding comments and whitespace: currently spans 80 lines (function_body_length)

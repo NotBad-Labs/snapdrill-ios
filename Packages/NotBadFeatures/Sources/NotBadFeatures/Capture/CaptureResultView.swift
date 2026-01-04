@@ -326,7 +326,10 @@ struct CaptureResultView: View {
         isRecognizing = true
         Task {
             do {
-                let newText = try await ocrService.recognizeText(from: image)
+                guard let cgImage = image.cgImage else {
+                    throw OCRError.invalidImage
+                }
+                let newText = try await ocrService.recognizeText(from: cgImage)
                 await MainActor.run {
                     self.content = newText
                     self.isRecognizing = false
@@ -354,62 +357,66 @@ struct CaptureResultView: View {
             }
         }
         
-        var savedImagePath: String?
-        if let image = image {
-            do {
-                savedImagePath = try imageStorage.saveImage(image)
-            } catch {
-                print("Failed to save image: \(error)")
+        Task {
+            var savedImagePath: String?
+            if let image = image {
+                do {
+                    savedImagePath = try await imageStorage.saveImage(image)
+                } catch {
+                    print("Failed to save image: \(error)")
+                }
+            }
+            
+            // Save answer image
+            var savedAnswerImagePath: String?
+            if let answerImage {
+                do {
+                    savedAnswerImagePath = try await imageStorage.saveImage(answerImage)
+                } catch {
+                    print("Failed to save answer image: \(error)")
+                }
+            }
+            
+            await MainActor.run {
+                let newItem = ReviewItemModel(
+                    content: content,
+                    imagePath: savedImagePath,
+                    subject: selectedSubject,
+                    source: selectedSource,
+                    tags: tagModels,
+                    answerText: answerText,
+                    answerImagePath: savedAnswerImagePath,
+                    difficulty: difficulty,
+                    grade: grade
+                )
+                modelContext.insert(newItem)
+                
+                // Mark as saved (prevents draft save on disappear)
+                isSaved = true
+                CaptureDraftService.shared.clearDraft()
+                
+                // Analytics
+                analyticsService.logEvent("capture_saved", properties: ["subject": selectedSubject])
+                
+                // Review Prompt
+                let count = UserDefaults.standard.integer(forKey: "capture_save_count") + 1
+                UserDefaults.standard.set(count, forKey: "capture_save_count")
+                
+                if count == 3 || count % 20 == 0 {
+                    let scenes = UIApplication.shared.connectedScenes
+                    if let scene = scenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                        AppStore.requestReview(in: scene)
+                    }
+                }
+                
+                // Feedback
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.success)
+                
+                // Pop to root (Capture Dashboard)
+                router.path = .init()
             }
         }
-        
-        // Save answer image
-        var savedAnswerImagePath: String?
-        if let answerImage {
-            do {
-                savedAnswerImagePath = try imageStorage.saveImage(answerImage)
-            } catch {
-                print("Failed to save answer image: \(error)")
-            }
-        }
-        
-        let newItem = ReviewItemModel(
-            content: content,
-            imagePath: savedImagePath,
-            subject: selectedSubject,
-            source: selectedSource,
-            tags: tagModels,
-            answerText: answerText,
-            answerImagePath: savedAnswerImagePath,
-            difficulty: difficulty,
-            grade: grade
-        )
-        modelContext.insert(newItem)
-        
-        // Mark as saved (prevents draft save on disappear)
-        isSaved = true
-        CaptureDraftService.shared.clearDraft()
-        
-        // Analytics
-        analyticsService.logEvent("capture_saved", properties: ["subject": selectedSubject])
-        
-        // Review Prompt
-        let count = UserDefaults.standard.integer(forKey: "capture_save_count") + 1
-        UserDefaults.standard.set(count, forKey: "capture_save_count")
-        
-        if count == 3 || count % 20 == 0 {
-            let scenes = UIApplication.shared.connectedScenes
-            if let scene = scenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-                AppStore.requestReview(in: scene)
-            }
-        }
-        
-        // Feedback
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
-        
-        // Pop to root (Capture Dashboard)
-        router.path = .init() 
     }
 }
 

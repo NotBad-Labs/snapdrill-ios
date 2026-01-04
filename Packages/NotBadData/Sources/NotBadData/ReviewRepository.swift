@@ -37,7 +37,13 @@ public class ReviewRepository {
     /// - Parameters:
     ///   - item: 核心条目数据
     ///   - subject: 学科分类（临时参数，未来应包含在 item 中）
-    public func save(_ item: ReviewItem, subject: String = "其他") {
+    /// - Throws: `DataError.duplicateItem` 如果 ID 已存在
+    public func save(_ item: ReviewItem, subject: String = "其他") throws {
+        // 检查唯一性
+        if let existing = try? fetchById(item.id), existing != nil {
+            throw DataError.duplicateItem(id: item.id)
+        }
+        
         let model = ReviewItemModel(
             id: item.id,
             content: item.content,
@@ -47,14 +53,13 @@ public class ReviewRepository {
             nextReviewAt: item.nextReviewAt,
             subject: subject,
             source: item.source,
-            tags: [], // Tags handling needs improvement in Repository if used
+            tags: [],
             answerText: item.answerText,
             answerImagePath: item.answerImagePath,
             difficulty: item.difficulty,
             grade: item.grade
         )
         modelContext.insert(model)
-        // Auto-save logic if needed, or rely on autosave
     }
     
     /// 获取所有复习条目
@@ -82,8 +87,47 @@ public class ReviewRepository {
         return try modelContext.fetchCount(descriptor)
     }
     
+    /// 根据 ID 查找条目
+    /// - Parameter id: 条目 ID
+    /// - Returns: 找到的条目，如果不存在则返回 nil
+    public func fetchById(_ id: UUID) throws -> ReviewItemModel? {
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { item in
+                item.id == id
+            }
+        )
+        return try modelContext.fetch(descriptor).first
+    }
+    
+    /// 更新条目
+    /// - Parameter item: 要更新的条目
+    /// - Throws: `DataError.notFound` 如果条目不存在
+    public func update(_ item: ReviewItem) throws {
+        guard let existing = try fetchById(item.id) else {
+            throw DataError.notFound(id: item.id, entityType: "ReviewItem")
+        }
+        
+        // 更新字段
+        existing.content = item.content
+        existing.imagePath = item.imagePath
+        existing.lastReviewedAt = item.lastReviewedAt
+        existing.nextReviewAt = item.nextReviewAt
+        existing.answerText = item.answerText
+        existing.answerImagePath = item.answerImagePath
+        existing.difficulty = item.difficulty
+        existing.grade = item.grade
+        existing.easeFactor = item.easeFactor
+        existing.interval = item.interval
+        existing.repetitions = item.repetitions
+    }
+    
     /// 删除条目
     public func delete(_ model: ReviewItemModel) {
         modelContext.delete(model)
+    }
+    
+    /// 保存上下文更改
+    public func save() throws {
+        try modelContext.save()
     }
 }

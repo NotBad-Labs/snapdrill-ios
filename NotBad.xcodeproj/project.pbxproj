@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AG_BF_FEATURES /* NotBadFeatures in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_FEATURES /* NotBadFeatures */; };
+		C16155E9ACF88F3D085C0A9A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0E66BDA302EA72542A2B2DE8 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0E66BDA302EA72542A2B2DE8 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = NotBad/Assets.xcassets; sourceTree = "<group>"; };
 		B27BD95F2E560D0600E69277 /* NotBad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NotBad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27BD9702E560D0800E69277 /* NotBadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NotBadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27BD97A2E560D0800E69277 /* NotBadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NotBadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -40,29 +42,21 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B27BD9612E560D0700E69277 /* NotBad */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = NotBad;
 			sourceTree = "<group>";
 		};
 		B27BD9732E560D0800E69277 /* NotBadTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = NotBadTests;
 			sourceTree = "<group>";
 		};
 		B27BD97D2E560D0800E69277 /* NotBadUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = NotBadUITests;
 			sourceTree = "<group>";
 		};
 		B2PACKAGES001 /* Packages */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Packages;
 			sourceTree = "<group>";
 		};
@@ -94,6 +88,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		19969A73D6FBAE29E8E5BCAE /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				0E66BDA302EA72542A2B2DE8 /* Assets.xcassets */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		B26C37822EE41DA5008D46F5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -114,6 +116,7 @@
 				B27BD9602E560D0600E69277 /* Products */,
 				B2B4A4B62F04F25600209449 /* Debug.xcconfig */,
 				B2B4A4B72F04F26F00209449 /* Release.xcconfig */,
+				19969A73D6FBAE29E8E5BCAE /* Resources */,
 			);
 			sourceTree = "<group>";
 		};
@@ -233,10 +236,10 @@
 			mainGroup = B27BD9562E560D0600E69277;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AG_PKG_FEATURES /* XCLocalSwiftPackageReference "NotBadFeatures" */,
-				B2PKG_CORE /* XCLocalSwiftPackageReference "NotBadCore" */,
-				B2PKG_DATA /* XCLocalSwiftPackageReference "NotBadData" */,
-				B2PKG_UI /* XCLocalSwiftPackageReference "NotBadUI" */,
+				AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/NotBadFeatures" */,
+				B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/NotBadCore" */,
+				B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/NotBadData" */,
+				B2PKG_UI /* XCLocalSwiftPackageReference "Packages/NotBadUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B27BD9602E560D0600E69277 /* Products */;
@@ -255,6 +258,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C16155E9ACF88F3D085C0A9A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,6 +292,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/swiftlint.log",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -340,7 +345,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = NotBad/NotBad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
@@ -375,7 +380,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = NotBad/NotBad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
@@ -535,7 +540,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -555,7 +560,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -574,7 +579,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.1.0;
@@ -592,7 +597,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.1.0;
@@ -648,19 +653,19 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		AG_PKG_FEATURES /* XCLocalSwiftPackageReference "NotBadFeatures" */ = {
+		AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/NotBadFeatures" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/NotBadFeatures;
 		};
-		B2PKG_CORE /* XCLocalSwiftPackageReference "NotBadCore" */ = {
+		B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/NotBadCore" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/NotBadCore;
 		};
-		B2PKG_DATA /* XCLocalSwiftPackageReference "NotBadData" */ = {
+		B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/NotBadData" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/NotBadData;
 		};
-		B2PKG_UI /* XCLocalSwiftPackageReference "NotBadUI" */ = {
+		B2PKG_UI /* XCLocalSwiftPackageReference "Packages/NotBadUI" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/NotBadUI;
 		};
@@ -669,7 +674,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		AG_PROD_FEATURES /* NotBadFeatures */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "NotBadFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/NotBadFeatures" */;
 			productName = NotBadFeatures;
 		};
 /* End XCSwiftPackageProductDependency section */

@@ -26,7 +26,7 @@ public struct SettingsView: View {
     
     // State for mock settings
     @AppStorage("appTintColor") private var appTintColorHex: String = "#007AFF"
-    @AppStorage("userName") private var userName: String = "Student"
+    @AppStorage("userName") private var userName: String = "同学"
     @AppStorage("userAvatar") private var userAvatar: String = "person.crop.circle.fill"
     @AppStorage("userAvatarColorIndex") private var userAvatarColorIndex: Int = 0
     
@@ -67,27 +67,77 @@ public struct SettingsView: View {
                             ]
                             let selectedColors = colors[userAvatarColorIndex < colors.count ? userAvatarColorIndex : 0]
                             
-                            Image(systemName: userAvatar)
-                                .font(.system(size: 60))
-                                .symbolRenderingMode(.hierarchical)
-                                .foregroundStyle(LinearGradient(colors: selectedColors, startPoint: .topLeading, endPoint: .bottomTrailing))
-                                .clipShape(Circle())
+                            if userAvatar.contains("images/"), let image = ImageStorage().loadImage(path: userAvatar) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 60, height: 60)
+                                    .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.white.opacity(0.5), lineWidth: 1))
+                            } else {
+                                Image(systemName: userAvatar)
+                                    .font(.system(size: 60))
+                                    .symbolRenderingMode(.hierarchical)
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: selectedColors,
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .clipShape(Circle())
+                            }
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(userName)
                                     .font(.title2.bold())
-                                Text("编辑个人资料") // Mock subtitle
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+                                    Text("编辑个人资料")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
                             }
                         }
                         .padding(.vertical, 4)
                     }
                 }
                 
-                // 2. Core Settings (Working Features)
+                // Study Experience Section (Priority)
+                Section("复习设置") {
+                    NavigationLink {
+                        ReviewAppearanceSettingsView(
+                            alignmentRaw: $alignmentRaw,
+                            fontSizeRaw: $fontSizeRaw,
+                            frontAlignmentRaw: $frontAlignmentRaw,
+                            frontFontSizeRaw: $frontFontSizeRaw
+                        )
+                    } label: {
+                        SettingsRow(icon: "eye.fill", color: .indigo, title: "卡片外观", value: "已定制")
+                    }
+                    
+                    NavigationLink {
+                        NotificationSettingsView()
+                    } label: {
+                        SettingsRow(icon: "bell.fill", color: .red, title: "复习提醒")
+                    }
+                }
+                
+                // Data & Cloud (Utility)
+                Section("数据与云同步") {
+                    NavigationLink {
+                        DataAndSyncSettingsView()
+                    } label: {
+                        SettingsRow(icon: "icloud.fill", color: .blue, title: "iCloud 同步与存储", value: "已开启")
+                    }
+                    
+                    NavigationLink {
+                        PrivacySettingsView()
+                    } label: {
+                        SettingsRow(icon: "hand.raised.fill", color: .gray, title: "隐私与导出")
+                    }
+                }
+                
+                // General Settings
                 Section("通用") {
-                    // 外观切换 (Working)
+                    // Appearance
                     Picker(selection: $appearanceMode) {
                         Text("跟随系统").tag(0)
                         Text("浅色").tag(1)
@@ -95,42 +145,31 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "paintpalette.fill", color: .cyan, title: "外观")
                     }
-                }
-                
-                // 3. Review Appearance (New)
-                Section("复习体验") {
-                     NavigationLink {
-                        ReviewAppearanceSettingsView(
-                            alignmentRaw: $alignmentRaw,
-                            fontSizeRaw: $fontSizeRaw,
-                            frontAlignmentRaw: $frontAlignmentRaw,
-                            frontFontSizeRaw: $frontFontSizeRaw
+                    
+                    NavigationLink {
+                        LanguageSettingsView()
+                    } label: {
+                        SettingsRow(
+                            icon: "globe",
+                            color: .purple,
+                            title: "语言",
+                            value: "简体中文"
                         )
-                     } label: {
-                        SettingsRow(icon: "eye.fill", color: .indigo, title: "卡片外观")
-                     }
+                    }
                 }
                 
-                // 4. Coming Soon
-                Section("即将上线") {
-                    SettingsRow(icon: "bell.fill", color: .red, title: "通知与声音")
-                    SettingsRow(icon: "star.fill", color: .purple, title: "NotBad 会员", isPremium: true)
-                    SettingsRow(icon: "icloud.fill", color: .blue, title: "iCloud 同步")
-                }
-                .foregroundStyle(.secondary)
-                
-                // 5. Data Management (Real Features)
-                Section("数据") {
+                // Data Management Section
+                Section("数据管理") {
                     Button {
                         showingSubjectManager = true
                     } label: {
-                         SettingsRow(icon: "folder.fill", color: .blue, title: "管理学科分类")
+                        SettingsRow(icon: "folder.fill", color: .blue, title: "管理学科分类")
                     }
                     
                     Button {
                         showingSourceManager = true
                     } label: {
-                         SettingsRow(icon: "doc.text.fill", color: .green, title: "管理来源")
+                        SettingsRow(icon: "doc.text.fill", color: .orange, title: "管理来源")
                     }
                     
                     if showingClearAlert { } // Trigger logic moved to modifier
@@ -145,6 +184,10 @@ public struct SettingsView: View {
                 Section("关于") {
                     NavigationLink(value: SettingsDestination.privacyPolicy) {
                         SettingsRow(icon: "hand.raised.fill", color: .gray, title: "隐私政策")
+                    }
+                    
+                    NavigationLink(value: SettingsDestination.termsOfService) {
+                        SettingsRow(icon: "doc.text.fill", color: .blue, title: "用户协议")
                     }
                 }
                 
@@ -175,6 +218,8 @@ public struct SettingsView: View {
                     LicenseView()
                 case .privacyPolicy:
                     PrivacyPolicyView()
+                case .termsOfService:
+                    TermsOfServiceView()
                 }
             }
             .alert("确实要清空吗？", isPresented: $showingClearAlert) {

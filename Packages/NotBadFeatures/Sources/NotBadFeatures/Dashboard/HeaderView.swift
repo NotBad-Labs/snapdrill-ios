@@ -9,19 +9,23 @@
 //
 
 import SwiftUI
+import NotBadCore
 
 /// 仪表盘顶部标题栏，包含日期和应用名称
 struct HeaderView: View {
     @AppStorage("userAvatar") private var userAvatar: String = "person.crop.circle.fill"
     @AppStorage("userAvatarColorIndex") private var userAvatarColorIndex: Int = 0
+    @AppStorage("userName") private var userName: String = "同学" // Use "同学" as default for new installs
     
     // Dynamic Greeting
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
+        let name = userName.isEmpty ? "同学" : userName
+        
         switch hour {
-        case 5..<12: return "早安，同学"
-        case 12..<18: return "午安，同学"
-        case 18..<22: return "晚上好，同学"
+        case 5..<12: return "早安，\(name)"
+        case 12..<18: return "午安，\(name)"
+        case 18..<22: return "晚上好，\(name)"
         default: return "夜深了，注意休息"
         }
     }
@@ -56,22 +60,32 @@ struct HeaderView: View {
                 // Navigate to Settings Tab via Notification
                 NotificationCenter.default.post(name: NSNotification.Name("SwitchToSettingsTab"), object: nil)
             } label: {
-                let colors: [[Color]] = [
-                    [.blue, .purple],
-                    [.orange, .red],
-                    [.green, .teal],
-                    [.pink, .indigo],
-                    [.gray, .black],
-                    [.yellow, .orange]
-                ]
-                let selectedColors = colors[userAvatarColorIndex < colors.count ? userAvatarColorIndex : 0]
-                
-                Image(systemName: userAvatar)
-                    .font(.system(size: 40))
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(LinearGradient(colors: selectedColors, startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .symbolEffect(.pulse, isActive: false) // Potential for interaction
-                    .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                if userAvatar.contains("images/"), let image = ImageStorage().loadImage(path: userAvatar) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 44, height: 44)
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                        .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                } else {
+                    let colors: [[Color]] = [
+                        [.blue, .purple],
+                        [.orange, .red],
+                        [.green, .teal],
+                        [.pink, .indigo],
+                        [.gray, .black],
+                        [.yellow, .orange]
+                    ]
+                    let selectedColors = colors[userAvatarColorIndex < colors.count ? userAvatarColorIndex : 0]
+                    
+                    Image(systemName: userAvatar)
+                        .font(.system(size: 40))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(LinearGradient(colors: selectedColors, startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .symbolEffect(.pulse, isActive: false) // Potential for interaction
+                        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                }
             }
         }
         .padding(.horizontal)

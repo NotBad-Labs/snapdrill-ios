@@ -240,7 +240,10 @@ public struct CaptureView: View {
     
     private func processImageOCR(_ image: UIImage) async {
         do {
-            let text = try await ocrService.recognizeText(from: image)
+            guard let cgImage = image.cgImage else {
+                throw OCRError.invalidImage
+            }
+            let text = try await ocrService.recognizeText(from: cgImage)
             await MainActor.run {
                 isProcessing = false
                 router.push(.scannerResult(content: text, image: image))

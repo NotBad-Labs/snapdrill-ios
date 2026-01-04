@@ -29,7 +29,7 @@ let package = Package(
                 .product(name: "Mantis", package: "Mantis")
             ],
             swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
+                .swiftLanguageMode(.v6)
             ]
         ),
         .testTarget(

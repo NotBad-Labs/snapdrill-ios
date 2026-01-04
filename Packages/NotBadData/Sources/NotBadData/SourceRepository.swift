@@ -26,7 +26,14 @@ public class SourceRepository {
     }
     
     /// 添加新来源
-    public func add(name: String, icon: String, colorHex: String) {
+    /// - Throws: `DataError.duplicateName` 如果来源名称已存在
+    public func add(name: String, icon: String, colorHex: String) throws {
+        // 检查名称唯一性
+        let existing = try fetchAll().first { $0.name == name }
+        if existing != nil {
+            throw DataError.duplicateName(name: name, entityType: "Source")
+        }
+        
         let count = try? modelContext.fetchCount(FetchDescriptor<SourceModel>())
         let sortOrder = count ?? 0
         let source = SourceModel(name: name, icon: icon, colorHex: colorHex, sortOrder: sortOrder)

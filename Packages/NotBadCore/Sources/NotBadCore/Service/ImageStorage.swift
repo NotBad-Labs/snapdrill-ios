@@ -30,33 +30,35 @@ public struct ImageStorage: Sendable {
     
     /// 保存图片到本地
     ///
-    /// 将 UIImage 压缩为 JPEG 格式并写入磁盘。
+    /// 将 UIImage 压缩为 JPEG 格式并异步写入磁盘。
     ///
     /// - Parameter image: 要保存的原始图片对象
     /// - Returns: 图片的相对路径 (例如 `"images/123-abc.jpg"`)，可用于后续存入数据库
     /// - Throws: `ImageStorageError` 如果图片数据转换失败或文件写入失败
-    public func saveImage(_ image: UIImage) throws -> String {
+    public func saveImage(_ image: UIImage) async throws -> String {
         guard let data = image.jpegData(compressionQuality: 0.8) else {
             throw ImageStorageError.invalidImageData
         }
         
-        // Ensure directory exists
-        let fileManager = FileManager.default
-        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let imagesDirectory = documentsURL.appendingPathComponent("images")
-        
-        if !fileManager.fileExists(atPath: imagesDirectory.path) {
-            try fileManager.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
-        }
-        
-        // Generate filename
-        let filename = UUID().uuidString + ".jpg"
-        let fileURL = imagesDirectory.appendingPathComponent(filename)
-        
-        // Write to disk
-        try data.write(to: fileURL)
-        
-        return "images/" + filename
+        return try await Task.detached {
+            // Ensure directory exists
+            let fileManager = FileManager.default
+            let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let imagesDirectory = documentsURL.appendingPathComponent("images")
+            
+            if !fileManager.fileExists(atPath: imagesDirectory.path) {
+                try fileManager.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
+            }
+            
+            // Generate filename
+            let filename = UUID().uuidString + ".jpg"
+            let fileURL = imagesDirectory.appendingPathComponent(filename)
+            
+            // Write to disk
+            try data.write(to: fileURL)
+            
+            return "images/" + filename
+        }.value
     }
     
     /// 从本地加载图片

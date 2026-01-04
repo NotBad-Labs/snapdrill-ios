@@ -17,19 +17,19 @@ import SwiftData
 @Model
 public final class SubjectModel {
     /// 唯一标识
-    @Attribute(.unique) public var id: UUID
+    public var id: UUID = UUID()
     
     /// 学科名称 (e.g. "Math", "语文")
-    public var name: String
+    public var name: String = ""
     
     /// 图标名称 (SF Symbol)
-    public var icon: String
+    public var icon: String = "book"
     
     /// 颜色名称 (Hex or System Color Name)
-    public var colorHex: String
+    public var colorHex: String = "#808080"
     
     /// 排序权重 (越小越靠前)
-    public var sortOrder: Int
+    public var sortOrder: Int = 0
     
     public init(
         id: UUID = UUID(),

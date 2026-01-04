@@ -13,9 +13,10 @@ import Foundation
 /// 采集服务 Actor
 ///
 /// 负责处理图像采集、OCR 识别等耗时任务。
+/// OCR 功能由 OCRService 提供。
 public actor CaptureService {
     /// 初始化采集服务
     public init() {}
     
-    // TODO: 实现图像处理和文字识别逻辑
+    // OCR functionality is provided by OCRService
 }

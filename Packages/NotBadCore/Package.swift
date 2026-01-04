@@ -22,7 +22,7 @@ let package = Package(
             name: "NotBadCore",
             dependencies: [],
             swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
+                .swiftLanguageMode(.v6)
             ]
         ),
         .testTarget(

@@ -106,9 +106,8 @@ struct SmartCameraView: View {
     }
     
     func cropAndFinish(image: UIImage, rect: CGRect) {
-        // TODO: Perform actual crop.
-        // For MVP, just pass full image for user to crop further or use approximate crop.
-        // Let's try to crop roughly using the Vision Rect.
+        // 使用 Vision 检测到的矩形区域裁剪图片
+        // 如果裁剪失败，则返回原始图片
         
         let crop = cropImage(image, to: rect)
         onCapture(crop ?? image)
