@@ -15,10 +15,10 @@ import PDFKit
 ///
 /// 该服务提供将 `ReviewItem` 数组转换为 PDF 文件的能力，支持自定义图片提供者以加载本地或远程图片。
 public final class PDFExportService: Sendable {
-    /// 全局共享实例
+    /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = PDFExportService()
     
-    private init() {}
+    public init() {}
     
     /// 生成包含指定题目的 PDF 数据
     /// 格式：每页一般 2-3 题，留出空白位置便于重做

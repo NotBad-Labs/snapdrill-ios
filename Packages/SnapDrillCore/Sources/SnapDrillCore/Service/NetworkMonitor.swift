@@ -17,9 +17,7 @@ import Network
 @MainActor
 @Observable
 public final class NetworkMonitor {
-    /// 共享实例
-    /// 共享实例 - 建议使用 Environment 注入
-    @available(*, deprecated, message: "Use Environment injection instead")
+    /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = NetworkMonitor()
     
     private let monitor = NWPathMonitor()

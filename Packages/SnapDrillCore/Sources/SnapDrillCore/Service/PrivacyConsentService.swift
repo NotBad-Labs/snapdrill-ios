@@ -24,6 +24,7 @@ public final class PrivacyConsentService: Sendable {
 
     // MARK: - Properties
 
+    /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = PrivacyConsentService()
 
     private let logger = Logger(subsystem: "com.snapdrill.app", category: "Privacy")
@@ -33,7 +34,7 @@ public final class PrivacyConsentService: Sendable {
 
     // MARK: - Initialization
 
-    private init() {}
+    public init() {}
 
     // MARK: - Public API
 

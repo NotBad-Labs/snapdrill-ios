@@ -22,6 +22,7 @@ public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
     
     // MARK: - Properties
     
+    /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = FirebaseAnalyticsService()
     
     private let logger = Logger(subsystem: "com.snapdrill.app", category: "FirebaseAnalytics")
@@ -29,7 +30,7 @@ public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
     
     // MARK: - Initialization
     
-    private init() {}
+    public init() {}
     
     /// 标记 Firebase 已配置完毕（由 SnapDrillApp 在 FirebaseApp.configure() 后调用）
     public func markConfigured() {

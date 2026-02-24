@@ -17,13 +17,14 @@ import FirebaseCrashlytics
 /// 提供应用级别的错误追踪和崩溃报告功能。
 @MainActor
 public final class CrashReportingService: CrashReportingProtocol {
+    /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = CrashReportingService()
     
     private let logger = Logger(subsystem: "com.snapdrill.app", category: "CrashReporting")
     private var isEnabled: Bool
     private var isFirebaseConfigured: Bool = false
     
-    private init() {
+    public init() {
         // 从 UserDefaults 读取设置
         self.isEnabled = UserDefaults.standard.bool(forKey: "crashReportingEnabled")
         

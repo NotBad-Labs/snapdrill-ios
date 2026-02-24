@@ -16,7 +16,7 @@ import OSLog
 /// 用于监控和记录应用关键操作的性能指标。
 /// 使用 `os_signpost` 进行高性能追踪。
 public actor PerformanceMonitor {
-    /// 共享实例
+    /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = PerformanceMonitor()
     
     private let logger = Logger(subsystem: "com.snapdrill.app", category: "Performance")
@@ -40,7 +40,7 @@ public actor PerformanceMonitor {
     private var metrics: [Metric] = []
     private let maxMetrics = 100
     
-    private init() {}
+    public init() {}
     
     /// 测量操作性能
     ///
