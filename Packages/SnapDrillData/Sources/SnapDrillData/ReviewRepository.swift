@@ -22,7 +22,7 @@ import SnapDrillCore
 ///
 /// - Important: 此类必须在 `@MainActor` 线程上使用，因为 SwiftData 的 `ModelContext` 通常绑定在主线程。
 @MainActor
-public class ReviewRepository {
+public class ReviewRepository: ReviewRepositoryProtocol {
     private let modelContext: ModelContext
     
     /// 初始化仓库

@@ -13,7 +13,7 @@ import Foundation
 import SnapDrillCore
 
 @MainActor
-public class SourceRepository {
+public class SourceRepository: SourceRepositoryProtocol {
     private let modelContext: ModelContext
     
     public init(modelContext: ModelContext) {

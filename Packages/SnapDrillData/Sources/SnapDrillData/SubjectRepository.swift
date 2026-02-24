@@ -16,7 +16,7 @@ import SwiftData
 ///
 /// 管理学科的增删改查及默认初始化。
 @MainActor
-public class SubjectRepository {
+public class SubjectRepository: SubjectRepositoryProtocol {
     private let modelContext: ModelContext
     
     public init(modelContext: ModelContext) {

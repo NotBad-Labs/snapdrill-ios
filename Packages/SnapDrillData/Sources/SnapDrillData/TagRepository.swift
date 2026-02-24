@@ -12,7 +12,7 @@ import SwiftData
 import Foundation
 
 @MainActor
-public class TagRepository {
+public class TagRepository: TagRepositoryProtocol {
     private let modelContext: ModelContext
     
     public init(modelContext: ModelContext) {
