@@ -12,13 +12,11 @@
 import Foundation
 import OSLog
 
-// NOTE: 取消注释下面的 import，并在 Xcode 中添加 FirebaseAnalytics SPM 依赖后才能使用
-// import FirebaseAnalytics
+import FirebaseAnalytics
 
 /// Firebase Analytics 实现的分析服务适配器
 ///
 /// 符合 `AnalyticsServiceProtocol`，将事件路由到 Firebase Analytics。
-/// 在 Firebase SPM 依赖接入前，会降级到 OSLog 记录。
 @MainActor
 public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
     
@@ -44,17 +42,20 @@ public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
     public func track(_ event: AnalyticsEvent, parameters: [String: String]) {
         let name = event.rawValue
         
-        // TODO: 启用 Firebase 后取消注释
-        // Analytics.logEvent(name, parameters: parameters)
+        // 只有在配置完成后才调用真实 SDK
+        if isFirebaseConfigured {
+            Analytics.logEvent(name, parameters: parameters)
+        }
         
         logger.debug("📈 [FirebaseAnalytics] event: \(name), params: \(parameters)")
     }
     
     public func trackScreen(_ screenName: String, parameters: [String: String]) {
-        // TODO: 启用 Firebase 后取消注释
-        // Analytics.logEvent(AnalyticsEventScreenView, parameters: [
-        //     AnalyticsParameterScreenName: screenName
-        // ])
+        if isFirebaseConfigured {
+            var params = parameters
+            params[AnalyticsParameterScreenName] = screenName
+            Analytics.logEvent(AnalyticsEventScreenView, parameters: params)
+        }
         
         logger.debug("📱 [FirebaseAnalytics] screen: \(screenName)")
     }
@@ -68,8 +69,9 @@ public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
     }
     
     public func setUserProperty(_ value: String, forKey key: String) {
-        // TODO: 启用 Firebase 后取消注释
-        // Analytics.setUserProperty(value, forName: key)
+        if isFirebaseConfigured {
+            Analytics.setUserProperty(value, forName: key)
+        }
         
         logger.debug("👤 [FirebaseAnalytics] setUserProperty \(key): \(value)")
     }

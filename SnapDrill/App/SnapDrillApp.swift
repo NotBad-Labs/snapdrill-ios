@@ -15,8 +15,7 @@ import SnapDrillFeatures
 import SnapDrillCore
 import TipKit
 
-// NOTE: Firebase SDK 接入后取消注释
-// import FirebaseCore
+import FirebaseCore
 
 // MARK: - AppDelegate（Firebase 初始化）
 
@@ -25,8 +24,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        // NOTE: Firebase SDK 接入后取消注释
-        // FirebaseApp.configure()
+        FirebaseApp.configure()
+        
+        // 通知服务 Firebase 已就绪
+        FirebaseAnalyticsService.shared.markConfigured()
+        CrashReportingService.shared.markConfigured()
+        
         return true
     }
 }

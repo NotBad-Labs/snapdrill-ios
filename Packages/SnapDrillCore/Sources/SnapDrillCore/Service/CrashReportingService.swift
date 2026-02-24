@@ -9,18 +9,18 @@
 //
 
 import Foundation
-import OSLog
+import FirebaseCrashlytics
 
 /// 崩溃报告服务
 ///
 /// 提供应用级别的错误追踪和崩溃报告功能。
-/// 在生产环境中，可以集成 Firebase Crashlytics 或 Sentry。
 @MainActor
 public final class CrashReportingService: CrashReportingProtocol {
     public static let shared = CrashReportingService()
     
     private let logger = Logger(subsystem: "com.LIAOYIMING.SnapDrill", category: "CrashReporting")
     private var isEnabled: Bool
+    private var isFirebaseConfigured: Bool = false
     
     private init() {
         // 从 UserDefaults 读取设置
@@ -36,6 +36,12 @@ public final class CrashReportingService: CrashReportingProtocol {
         setupExceptionHandler()
     }
     
+    /// 标记 Firebase 已配置完毕（由 SnapDrillApp 在 FirebaseApp.configure() 后调用）
+    public func markConfigured() {
+        isFirebaseConfigured = true
+        logger.info("✅ Firebase Crashlytics tracking ready")
+    }
+    
     /// 启用或禁用崩溃报告
     public func setEnabled(_ enabled: Bool) {
         isEnabled = enabled
@@ -49,21 +55,21 @@ public final class CrashReportingService: CrashReportingProtocol {
         
         logger.error("Error recorded: \(error.localizedDescription)")
         
-        // 记录上下文信息
-        for (key, value) in context {
-            logger.debug("Context - \(key): \(value)")
+        if isFirebaseConfigured {
+            Crashlytics.crashlytics().record(error: error, userInfo: context)
         }
         
-        // 在生产环境中，这里应该发送到远程服务器
-        // 例如: Crashlytics.crashlytics().record(error: error)
-        
-        // 保存到本地日志文件
+        // 保存到本地日志文件作为备份
         saveToLocalLog(error: error, context: context)
     }
     
     /// 记录自定义日志
     public func log(_ message: String, level: LogLevel = .info) {
         guard isEnabled else { return }
+        
+        if isFirebaseConfigured {
+            Crashlytics.crashlytics().log(message)
+        }
         
         switch level {
         case .debug:
@@ -79,9 +85,14 @@ public final class CrashReportingService: CrashReportingProtocol {
         }
     }
     
-    /// 设置用户标识符（用于追踪特定用户的问题）
+    /// 设置用户标识符
     public func setUserIdentifier(_ identifier: String) {
         guard isEnabled else { return }
+        
+        if isFirebaseConfigured {
+            Crashlytics.crashlytics().setUserID(identifier)
+        }
+        
         logger.info("User identifier set: \(identifier)")
         UserDefaults.standard.set(identifier, forKey: "crashReportingUserID")
     }
@@ -89,17 +100,24 @@ public final class CrashReportingService: CrashReportingProtocol {
     /// 设置自定义键值对
     public func setCustomValue(_ value: String, forKey key: String) {
         guard isEnabled else { return }
+        
+        if isFirebaseConfigured {
+            Crashlytics.crashlytics().setCustomValue(value, forKey: key)
+        }
+        
         logger.debug("Custom value set - \(key): \(value)")
     }
     
-    /// 记录面包屑（用户操作轨迹）
+    /// 记录面包屑
     public func leaveBreadcrumb(_ message: String, metadata: [String: String] = [:]) {
         guard isEnabled else { return }
-        logger.debug("Breadcrumb: \(message)")
         
-        for (key, value) in metadata {
-            logger.debug("  \(key): \(value)")
+        if isFirebaseConfigured {
+            let breadcrumb = metadata.isEmpty ? message : "\(message) | \(metadata)"
+            Crashlytics.crashlytics().log(breadcrumb)
         }
+        
+        logger.debug("Breadcrumb: \(message)")
     }
     
     // MARK: - Private Methods

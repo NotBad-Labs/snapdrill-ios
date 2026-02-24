@@ -16,11 +16,16 @@ let package = Package(
     platforms: [.iOS(.v18)],
     products: [
         .library(name: "SnapDrillCore", targets: ["SnapDrillCore"]),
+    dependencies: [
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.0.0")
     ],
     targets: [
         .target(
             name: "SnapDrillCore",
-            dependencies: [],
+            dependencies: [
+                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk")
+            ],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]
