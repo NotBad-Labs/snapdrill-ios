@@ -1,0 +1,97 @@
+/* 
+  Localizable.strings
+  SnapDrill
+
+  Created by SnapDrill Architect on 2026/01/03.
+  Copyright © 2026 SnapDrill Team. All rights reserved.
+  
+  English Localization Strings
+*/
+
+// MARK: - Common
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.save" = "Save";
+"common.delete" = "Delete";
+"common.edit" = "Edit";
+"common.done" = "Done";
+"common.retry" = "Retry";
+"common.close" = "Close";
+"common.loading" = "Loading...";
+"common.error" = "Error";
+
+// MARK: - Dashboard
+"dashboard.title" = "Dashboard";
+"dashboard.greeting" = "Hello";
+"dashboard.today_review" = "Today's Review";
+"dashboard.total_items" = "Total Items";
+"dashboard.start_review" = "Start Review";
+
+// MARK: - Library
+"library.title" = "Library";
+"library.all_items" = "All Items";
+"library.by_subject" = "By Subject";
+"library.by_source" = "By Source";
+"library.search_placeholder" = "Search items...";
+"library.no_items" = "No items yet";
+
+// MARK: - Review
+"review.title" = "Review";
+"review.question" = "Question";
+"review.answer" = "Answer";
+"review.show_answer" = "Show Answer";
+"review.hide_answer" = "Hide Answer";
+"review.difficulty" = "Difficulty";
+"review.completed" = "Completed";
+
+// MARK: - Capture
+"capture.title" = "Capture";
+"capture.scanning" = "Looking for question area...";
+"capture.tap_to_capture" = "Tap to capture";
+"capture.processing" = "Processing...";
+"capture.ocr_failed" = "Text recognition failed";
+
+// MARK: - Settings
+"settings.title" = "Settings";
+"settings.general" = "General";
+"settings.privacy" = "Privacy & Security";
+"settings.data_sync" = "Data & Cloud Sync";
+"settings.about" = "About";
+"settings.version" = "Version";
+
+// MARK: - Errors
+"errors.network_unavailable" = "Network connection unavailable";
+"errors.icloud_unavailable" = "iCloud unavailable";
+"errors.camera_permission_denied" = "Camera permission denied";
+"errors.photo_permission_denied" = "Photo library permission denied";
+"errors.export_failed" = "Export failed";
+"errors.import_failed" = "Import failed";
+"errors.data_corrupted" = "Data corrupted";
+
+// MARK: - Subjects
+"subjects.math" = "Math";
+"subjects.chinese" = "Chinese";
+"subjects.english" = "English";
+"subjects.physics" = "Physics";
+"subjects.chemistry" = "Chemistry";
+"subjects.biology" = "Biology";
+"subjects.history" = "History";
+"subjects.geography" = "Geography";
+"subjects.politics" = "Politics";
+"subjects.other" = "Other";
+
+// MARK: - Difficulty
+"difficulty.very_easy" = "Very Easy";
+"difficulty.easy" = "Easy";
+"difficulty.medium" = "Medium";
+"difficulty.hard" = "Hard";
+"difficulty.very_hard" = "Very Hard";
+
+// MARK: - Export
+"export.title" = "Export";
+"export.pdf" = "PDF";
+"export.csv" = "CSV";
+"export.json" = "JSON";
+"export.exporting" = "Exporting...";
+"export.success" = "Export successful";
+"export.failed" = "Export failed";

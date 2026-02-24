@@ -4,7 +4,7 @@
 
 set -e  # 遇到错误立即退出
 
-echo "🚀 NotBad TestFlight 自动上传"
+echo "🚀 SnapDrill TestFlight 自动上传"
 echo "================================"
 
 # 颜色定义
@@ -14,9 +14,9 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # 配置
-SCHEME="NotBad"
-ARCHIVE_PATH="$HOME/Desktop/NotBad.xcarchive"
-EXPORT_PATH="$HOME/Desktop/NotBad_Export"
+SCHEME="SnapDrill"
+ARCHIVE_PATH="$HOME/Desktop/SnapDrill.xcarchive"
+EXPORT_PATH="$HOME/Desktop/SnapDrill_Export"
 EXPORT_OPTIONS_PLIST="./ExportOptions.plist"
 
 echo ""
@@ -50,7 +50,7 @@ xcodebuild -exportArchive \
   -allowProvisioningUpdates \
   | xcpretty || true
 
-if [ ! -f "$EXPORT_PATH/NotBad.ipa" ]; then
+if [ ! -f "$EXPORT_PATH/SnapDrill.ipa" ]; then
     echo "${RED}❌ IPA 导出失败${NC}"
     exit 1
 fi
@@ -59,7 +59,7 @@ echo "${GREEN}✅ IPA 导出成功${NC}"
 echo ""
 echo "${YELLOW}步骤 4/5: 验证 IPA${NC}"
 xcrun altool --validate-app \
-  -f "$EXPORT_PATH/NotBad.ipa" \
+  -f "$EXPORT_PATH/SnapDrill.ipa" \
   -t ios \
   --apiKey YOUR_API_KEY \
   --apiIssuer YOUR_ISSUER_ID
@@ -84,7 +84,7 @@ case $choice in
         echo "请按以下步骤操作:"
         echo "1. 打开 Xcode"
         echo "2. 菜单栏: Window → Organizer"
-        echo "3. 选择 'NotBad' Archive"
+        echo "3. 选择 'SnapDrill' Archive"
         echo "4. 点击 'Distribute App'"
         echo "5. 选择 'TestFlight & App Store'"
         echo "6. 点击 'Upload'"
@@ -98,7 +98,7 @@ case $choice in
         read -p "Issuer ID: " issuer_id
         
         xcrun altool --upload-app \
-          -f "$EXPORT_PATH/NotBad.ipa" \
+          -f "$EXPORT_PATH/SnapDrill.ipa" \
           -t ios \
           --apiKey "$api_key" \
           --apiIssuer "$issuer_id"

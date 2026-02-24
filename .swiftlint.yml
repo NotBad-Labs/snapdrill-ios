@@ -24,7 +24,7 @@ opt_in_rules:
   - yoda_condition
 
 included:
-  - NotBad
+  - SnapDrill
   - Packages
 
 excluded:
@@ -35,7 +35,7 @@ excluded:
   - "**/Package.swift"
   - "**/.build"
   - "**/DerivedData"
-  - "**/Packages/NotBadData/Sources/NotBadData/DataSeeder.swift"
+  - "**/Packages/SnapDrillData/Sources/SnapDrillData/DataSeeder.swift"
 
 force_cast: warning
 force_try: warning

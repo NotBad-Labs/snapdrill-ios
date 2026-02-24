@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 require 'xcodeproj'
 
-project = Xcodeproj::Project.open('NotBad.xcodeproj')
-target = project.targets.find { |t| t.name == 'NotBad' }
+project = Xcodeproj::Project.open('SnapDrill.xcodeproj')
+target = project.targets.find { |t| t.name == 'SnapDrill' }
 
 if target
   puts "Checking Compile Sources phase for Assets.xcassets..."
@@ -19,5 +19,5 @@ if target
     puts "No Assets.xcassets found in Compile Sources."
   end
 else
-  puts "Error: Target NotBad not found."
+  puts "Error: Target SnapDrill not found."
 end

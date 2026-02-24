@@ -8,14 +8,14 @@ platform :ios do
     ensure_git_status_clean
 
     # 2. 增加 Build Number (需要先在 Xcode 设置 Versioning System 为 Apple Generic)
-    increment_build_number(xcodeproj: "NotBad.xcodeproj")
+    increment_build_number(xcodeproj: "SnapDrill.xcodeproj")
 
     # 3. 运行测试
-    run_tests(scheme: "NotBad")
+    run_tests(scheme: "SnapDrill")
 
     # 4. 编译 App
     build_app(
-      scheme: "NotBad",
+      scheme: "SnapDrill",
       export_method: "app-store",
       include_bitcode: true
     )

@@ -1,0 +1,17 @@
+//
+//  SnapDrillDataTests.swift
+//  SnapDrillData
+//
+//  Created by SnapDrill Labs on 2025/12/31.
+//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//
+//  SnapDrillData 数据层单元测试。
+//
+
+import XCTest
+import Testing
+@testable import SnapDrillData
+
+@Test func example() async throws {
+    // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+}

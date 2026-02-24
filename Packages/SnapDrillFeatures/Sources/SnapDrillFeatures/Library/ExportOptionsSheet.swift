@@ -1,0 +1,232 @@
+//
+//  ExportOptionsSheet.swift
+//  SnapDrillFeatures
+//
+//  Created by SnapDrill Labs on 2025/12/31.
+//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//
+//  导出选项配置页，允许用户选择要包含在 PDF 中的内容。
+//
+
+import SwiftUI
+import SnapDrillCore
+import SnapDrillData
+
+/// 导出选项面板
+///
+/// 提供多种导出格式选择，作为导出流程的起点。
+struct ExportOptionsSheet: View {
+    let items: [ReviewItemModel]
+    @Environment(\.dismiss) private var dismiss
+    
+    // Navigation
+    @State private var showingPDFPreview = false
+    @State private var showingWordShare = false
+    @State private var wordExportURL: URL?
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                Section("选择导出格式") {
+                    // 1. PDF / Print
+                    Button {
+                        showingPDFPreview = true
+                    } label: {
+                        Label {
+                            VStack(alignment: .leading) {
+                                Text("打印 / PDF")
+                                    .font(.headline)
+                                Text("A4 排版，适合打印复习")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "printer.fill")
+                                .foregroundStyle(.blue)
+                                .font(.title2)
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    
+                    // 2. Markdown (.md)
+                    // 使用原生 ShareLink，系统接管文件生成与分享
+                    ShareLink(
+                        item: ReviewExport(items: items.map { $0.toEntity() }, format: .markdown),
+                        preview: SharePreview("错题本 Markdown", image: Image(systemName: "doc.text"))
+                    ) {
+                        Label {
+                            VStack(alignment: .leading) {
+                                Text("Markdown (.md)")
+                                    .font(.headline)
+                                Text("适合 Notion / Obsidian")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "doc.text")
+                                .foregroundStyle(.purple)
+                                .font(.title2)
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    
+                    // 3. CSV (.csv)
+                    ShareLink(
+                        item: ReviewExport(items: items.map { $0.toEntity() }, format: .csv),
+                        preview: SharePreview("错题本数据 CSV", image: Image(systemName: "tablecells"))
+                    ) {
+                        Label {
+                            VStack(alignment: .leading) {
+                                Text("CSV 表格 (.csv)")
+                                    .font(.headline)
+                                Text("适合 Excel / Anki 制卡")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "tablecells")
+                                .foregroundStyle(.green)
+                                .font(.title2)
+                        }
+                        .padding(.vertical, 8)
+                    }
+                }
+                
+                Section {
+                    HStack {
+                        Spacer()
+                        Text("共 \(items.count) 道题目")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                    }
+                }
+                .listRowBackground(Color.clear)
+            }
+            .navigationTitle("导出错题")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("关闭") { dismiss() }
+                }
+            }
+            .navigationDestination(isPresented: $showingPDFPreview) {
+                ExportPreviewView(items: items)
+            }
+        }
+    }
+}
+
+// MARK: - Transferable Export Model
+import UniformTypeIdentifiers
+
+struct ReviewExport: Transferable {
+    let items: [ReviewItem] // Use disconnected DTO, not SwiftData Model
+    let format: ExportFormat
+    
+    enum ExportFormat {
+        case markdown
+        case csv
+        
+        var contentType: UTType {
+            switch self {
+            case .markdown: return .plainText // .markdown is ideal but .plainText ensures wide compatibility
+            case .csv: return .commaSeparatedText
+            }
+        }
+        
+        var fileExtension: String {
+            switch self {
+            case .markdown: return "md"
+            case .csv: return "csv"
+            }
+        }
+    }
+    
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(exportedContentType: .plainText) { export in
+            let content = export.generateContent()
+            return content.data(using: .utf8) ?? Data()
+        }
+        .suggestedFileName { export in
+            "SnapDrill_Export_\(Date().formatted(date: .numeric, time: .omitted)).\(export.format.fileExtension)"
+        }
+        
+        // Also support file URL export for apps that prefer files
+        FileRepresentation(exportedContentType: .plainText) { export in
+            let content = export.generateContent()
+            let tempParams = try? FileManager.default.url(
+                for: .itemReplacementDirectory,
+                in: .userDomainMask,
+                appropriateFor: URL(fileURLWithPath: ""),
+                create: true
+            )
+            let tempDir = tempParams ?? FileManager.default.temporaryDirectory
+            let fileName = "SnapDrill_Export_\(Date().formatted(date: .numeric, time: .omitted)).\(export.format.fileExtension)"
+            let fileURL = tempDir.appendingPathComponent(fileName)
+            try content.write(to: fileURL, atomically: true, encoding: .utf8)
+            return SentTransferredFile(fileURL)
+        }
+    }
+    
+    private func generateContent() -> String {
+        switch format {
+        case .markdown:
+            return generateMarkdown()
+        case .csv:
+            return generateCSV()
+        }
+    }
+    
+    private func generateMarkdown() -> String {
+        let formatter = ISO8601DateFormatter()
+        let dateString = formatter.string(from: Date())
+        
+        var md = """
+        ---
+        app: SnapDrill
+        exported_at: \(dateString)
+        count: \(items.count)
+        ---
+        
+        # 错题集
+        
+        """
+        
+        for (index, item) in items.enumerated() {
+            let createdStr = item.createdAt.formatted(date: .numeric, time: .shortened)
+            md += """
+            
+            ## \(index + 1). \(item.subject)
+            > 创建时间: \(createdStr)
+            
+            \(item.content)
+            
+            ---
+            """
+        }
+        return md
+    }
+    
+    private func generateCSV() -> String {
+        var csv = "ID,Subject,Content,CreatedAt,Source\n"
+        
+        for item in items {
+            let id = item.id.uuidString
+            let subject = item.subject
+            let content = item.content.replacingOccurrences(of: "\"", with: "\"\"")
+            let created = item.createdAt.description
+            let source = item.source
+            
+            let line = "\"\(id)\",\"\(subject)\",\"\(content)\",\"\(created)\",\"\(source)\"\n"
+            csv += line
+        }
+        return csv
+    }
+}
+
+#Preview {
+    ExportOptionsSheet(items: [
+        ReviewItemModel(content: "Sample Q1", subject: "Math"),
+        ReviewItemModel(content: "Sample Q2", subject: "Physics")
+    ])
+}

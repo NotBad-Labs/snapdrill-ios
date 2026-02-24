@@ -1,6 +1,6 @@
-# NotBad
+# SnapDrill
 
-**NotBad** 是一款个人智能学习助手 iOS 应用，旨在帮助用户通过间隔重复（Spaced Repetition）技术来采集、组织和复习知识。
+**SnapDrill** 是一款个人智能学习助手 iOS 应用，旨在帮助用户通过间隔重复（Spaced Repetition）技术来采集、组织和复习知识。
 
 ## 架构设计
 
@@ -11,14 +11,14 @@
 #### 1. 基础层 (Foundation Layers)
 这些模块为应用提供底层能力。
 
-- **[NotBadCore](Packages/NotBadCore/README.md)**: 核心逻辑层。包含领域实体、业务引擎 (Engine)、基础服务 (Service) 和通用工具 (Utils)。
-- **[NotBadData](Packages/NotBadData/README.md)**: 数据层。基于 SwiftData 的持久化和迁移管理。
-- **[NotBadUI](Packages/NotBadUI/README.md)**: 表现层。包含设计系统、通用组件 (ImageCropper) 和基础路由协议。
+- **[SnapDrillCore](Packages/SnapDrillCore/README.md)**: 核心逻辑层。包含领域实体、业务引擎 (Engine)、基础服务 (Service) 和通用工具 (Utils)。
+- **[SnapDrillData](Packages/SnapDrillData/README.md)**: 数据层。基于 SwiftData 的持久化和迁移管理。
+- **[SnapDrillUI](Packages/SnapDrillUI/README.md)**: 表现层。包含设计系统、通用组件 (ImageCropper) 和基础路由协议。
 
 #### 2. 功能层 (Feature Layer)
 所有具体的业务功能都整合在一个统一的模块中，以简化开发体验。
 
-- **[NotBadFeatures](Packages/NotBadFeatures/README.md)**: 
+- **[SnapDrillFeatures](Packages/SnapDrillFeatures/README.md)**: 
     - **Capture**: 智能扫描与 OCR。
     - **Library**: 题库管理与编辑。
     - **Dashboard**: 数据概览。
@@ -37,10 +37,10 @@
 
 ## 快速开始
 
-1.  克隆仓库: `git clone https://github.com/chramboliao/NotBad.git`
+1.  克隆仓库: `git clone https://github.com/chramboliao/SnapDrill.git`
 2.  安装依赖工具: 确保已安装 SwiftLint。
-3.  打开项目: 双击 `NotBad.xcodeproj`。
-4.  运行: 选择 `NotBad` Scheme，在模拟器或真机上运行。
+3.  打开项目: 双击 `SnapDrill.xcodeproj`。
+4.  运行: 选择 `SnapDrill` Scheme，在模拟器或真机上运行。
 
 ## 贡献
 
@@ -52,7 +52,7 @@
 
 ### 测试覆盖率
 
-[![codecov](https://codecov.io/gh/chramboliao/NotBad/branch/main/graph/badge.svg)](https://codecov.io/gh/chramboliao/NotBad)
+[![codecov](https://codecov.io/gh/chramboliao/SnapDrill/branch/main/graph/badge.svg)](https://codecov.io/gh/chramboliao/SnapDrill)
 
 - **目标覆盖率**: 60%+
 - **当前覆盖率**: 查看 CI 报告
@@ -62,11 +62,11 @@
 - **Xcode**: 按下 `Cmd+U`
 - **命令行**:
   ```bash
-  xcodebuild test -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 17'
+  xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'
   ```
 - **带覆盖率报告**:
   ```bash
-  xcodebuild test -scheme NotBad \
+  xcodebuild test -scheme SnapDrill \
     -destination 'platform=iOS Simulator,name=iPhone 17' \
     -enableCodeCoverage YES
   ```
@@ -75,17 +75,17 @@
 
 ```
 Tests/
-├── NotBadCoreTests/          # Service 层测试
+├── SnapDrillCoreTests/          # Service 层测试
 │   ├── OCRServiceTests
 │   ├── PDFExportServiceTests
 │   ├── CaptureServiceTests
 │   └── AnalyticsServiceTests
-├── NotBadDataTests/          # 数据层测试
+├── SnapDrillDataTests/          # 数据层测试
 │   ├── ReviewItemModelTests
 │   ├── ModelTests
 │   ├── ReviewRepositoryTests
 │   └── TestHelpers
-└── NotBadUITests/            # UI 测试（待添加）
+└── SnapDrillUITests/            # UI 测试（待添加）
 ```
 
 ## 文档

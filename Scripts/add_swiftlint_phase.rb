@@ -1,9 +1,9 @@
 require 'xcodeproj'
 
-project_path = 'NotBad.xcodeproj'
+project_path = 'SnapDrill.xcodeproj'
 project = Xcodeproj::Project.open(project_path)
 
-target_name = 'NotBad'
+target_name = 'SnapDrill'
 target = project.targets.find { |t| t.name == target_name }
 
 if target.nil?

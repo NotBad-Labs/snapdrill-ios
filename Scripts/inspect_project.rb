@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 require 'xcodeproj'
 
-project = Xcodeproj::Project.open('NotBad.xcodeproj')
-target = project.targets.find { |t| t.name == 'NotBad' }
+project = Xcodeproj::Project.open('SnapDrill.xcodeproj')
+target = project.targets.find { |t| t.name == 'SnapDrill' }
 
 puts "Target: #{target.name}"
 target.build_phases.each do |phase|
@@ -19,5 +19,5 @@ target.build_phases.each do |phase|
   end
 end
 
-group = project.main_group['NotBad']
-puts "Group 'NotBad' class: #{group.class}"
+group = project.main_group['SnapDrill']
+puts "Group 'SnapDrill' class: #{group.class}"

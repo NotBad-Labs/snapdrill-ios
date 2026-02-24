@@ -1,6 +1,6 @@
 # 贡献指南 (Contributing Guide)
 
-感谢您有兴趣为 **NotBad** 做出贡献！为了确保协作顺畅及代码质量，请遵循以下流程和规范。
+感谢您有兴趣为 **SnapDrill** 做出贡献！为了确保协作顺畅及代码质量，请遵循以下流程和规范。
 
 ## 开发流程
 
@@ -28,6 +28,6 @@
 
 在提交 PR 之前，请运行所有测试以确保没有回归问题：
 - 使用 `Cmd+U` 在 Xcode 中运行测试。
-- 或在终端运行: `xcodebuild test -scheme NotBad -destination 'platform=iOS Simulator,name=iPhone 16'`
+- 或在终端运行: `xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 16'`
 
 如有疑问，请联系项目维护者。

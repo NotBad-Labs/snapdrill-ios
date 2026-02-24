@@ -2,7 +2,7 @@
 import re
 import sys
 
-FILE_PATH = "NotBad.xcodeproj/project.pbxproj"
+FILE_PATH = "SnapDrill.xcodeproj/project.pbxproj"
 
 # IDS for new package
 PKG_ID = "AG_PKG_FEATURES"
@@ -15,14 +15,14 @@ BUILD_ID = "AG_BF_FEATURES"
 # Better strategy: Find lines containing the distinct names and remove them from specific lists.
 
 OBSOLETE_NAMES = [
-    "NotBadFeatureCapture",
-    "NotBadFeatureDashboard",
-    "NotBadFeatureLibrary",
-    "NotBadFeatureReview",
-    "NotBadFeatureSettings",
-    "NotBadEngine",
-    "NotBadService"
-    # NotBadUtils and NotBadSupport were not seen in the top-level references, so maybe they were transitive.
+    "SnapDrillFeatureCapture",
+    "SnapDrillFeatureDashboard",
+    "SnapDrillFeatureLibrary",
+    "SnapDrillFeatureReview",
+    "SnapDrillFeatureSettings",
+    "SnapDrillEngine",
+    "SnapDrillService"
+    # SnapDrillUtils and SnapDrillSupport were not seen in the top-level references, so maybe they were transitive.
 ]
 
 def update_pbxproj():
@@ -32,15 +32,15 @@ def update_pbxproj():
     # 1. Add Objects
     
     # XCLocalSwiftPackageReference
-    pkg_def = f'\t\t{PKG_ID} /* NotBadFeatures */ = {{isa = XCLocalSwiftPackageReference; relativePath = Packages/NotBadFeatures; }};\n'
+    pkg_def = f'\t\t{PKG_ID} /* SnapDrillFeatures */ = {{isa = XCLocalSwiftPackageReference; relativePath = Packages/SnapDrillFeatures; }};\n'
     content = re.sub(r'(\/\* Begin XCLocalSwiftPackageReference section \*/\n)', r'\1' + pkg_def, content)
 
     # XCSwiftPackageProductDependency
-    prod_def = f'\t\t{PROD_ID} /* NotBadFeatures */ = {{isa = XCSwiftPackageProductDependency; package = {PKG_ID} /* NotBadFeatures */; productName = NotBadFeatures; }};\n'
+    prod_def = f'\t\t{PROD_ID} /* SnapDrillFeatures */ = {{isa = XCSwiftPackageProductDependency; package = {PKG_ID} /* SnapDrillFeatures */; productName = SnapDrillFeatures; }};\n'
     content = re.sub(r'(\/\* Begin XCSwiftPackageProductDependency section \*/\n)', r'\1' + prod_def, content)
 
     # PBXBuildFile
-    bf_def = f'\t\t{BUILD_ID} /* NotBadFeatures in Frameworks */ = {{isa = PBXBuildFile; productRef = {PROD_ID} /* NotBadFeatures */; }};\n'
+    bf_def = f'\t\t{BUILD_ID} /* SnapDrillFeatures in Frameworks */ = {{isa = PBXBuildFile; productRef = {PROD_ID} /* SnapDrillFeatures */; }};\n'
     content = re.sub(r'(\/\* Begin PBXBuildFile section \*/\n)', r'\1' + bf_def, content)
 
     # 2. Update Arrays (Remove old, Add new)
@@ -58,7 +58,7 @@ def update_pbxproj():
     for line in iterator:
         
         # Check for start of relevant sections
-        if "isa = PBXNativeTarget;" in line and "NotBad" in line: # Main target
+        if "isa = PBXNativeTarget;" in line and "SnapDrill" in line: # Main target
             # Ideally we find the start of the section 
             pass 
         
@@ -128,18 +128,18 @@ def update_pbxproj():
     
     if "packageReferences = (" in content:
         # Regex substitute the end of list
-        content = content.replace("packageReferences = (", f"packageReferences = (\n\t\t\t\t{PKG_ID} /* NotBadFeatures */,", 1)
+        content = content.replace("packageReferences = (", f"packageReferences = (\n\t\t\t\t{PKG_ID} /* SnapDrillFeatures */,", 1)
         
-    # Find PBXNativeTarget "NotBad" packageProductDependencies
-    # We look for: isa = PBXNativeTarget; ... name = NotBad; ... packageProductDependencies = (
+    # Find PBXNativeTarget "SnapDrill" packageProductDependencies
+    # We look for: isa = PBXNativeTarget; ... name = SnapDrill; ... packageProductDependencies = (
     # This matches the target definition.
     # Note: Regex needs to match across lines.
     
-    match_target = re.search(r'(isa = PBXNativeTarget;.*?name = NotBad;.*?packageProductDependencies = \()', content, re.DOTALL)
+    match_target = re.search(r'(isa = PBXNativeTarget;.*?name = SnapDrill;.*?packageProductDependencies = \()', content, re.DOTALL)
     if match_target:
         span = match_target.span(1)
         # Insert after the opening parenthesis
-        content = content[:span[1]] + f"\n\t\t\t\t{PROD_ID} /* NotBadFeatures */," + content[span[1]:]
+        content = content[:span[1]] + f"\n\t\t\t\t{PROD_ID} /* SnapDrillFeatures */," + content[span[1]:]
 
     # Find PBXFrameworksBuildPhase
     # Look for the one that already had items (we removed them but the empty lines or section remains)
@@ -154,7 +154,7 @@ def update_pbxproj():
     match_frameworks = re.search(r'(isa = PBXFrameworksBuildPhase;.*?files = \()', content, re.DOTALL)
     if match_frameworks:
         span = match_frameworks.span(1)
-        content = content[:span[1]] + f"\n\t\t\t\t{BUILD_ID} /* NotBadFeatures in Frameworks */," + content[span[1]:]
+        content = content[:span[1]] + f"\n\t\t\t\t{BUILD_ID} /* SnapDrillFeatures in Frameworks */," + content[span[1]:]
 
     with open(FILE_PATH, "w") as f:
         f.write(content)

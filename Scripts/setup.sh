@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Setting up NotBad Development Environment..."
+echo "🚀 Setting up SnapDrill Development Environment..."
 
 # 1. Check Homebrew
 if ! which brew >/dev/null; then
