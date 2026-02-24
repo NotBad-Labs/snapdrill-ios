@@ -1,5 +1,5 @@
 //
-//  AnalyticsService.swift
+//  LocalStatsService.swift
 //  SnapDrillFeatures
 //
 //  Created by SnapDrill Labs on 2026/01/01.
@@ -14,7 +14,7 @@ import SnapDrillData
 ///
 /// 负责统计用户的学习行为数据，如今日录入题目数、复习情况等。
 /// 不涉及第三方埋点，仅基于本地 SwiftData 数据进行聚合。
-public enum AnalyticsService {
+public enum LocalStatsService {
     
     /// 统计今日新录入的题目数量
     @MainActor
