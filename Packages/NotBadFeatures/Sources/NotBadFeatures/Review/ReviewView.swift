@@ -349,7 +349,7 @@ public struct ReviewView: View {
         do {
             try modelContext.save()
         } catch {
-            print("Failed to save review result: \(error)")
+            NotBadLogger.generic.info("Failed to save review result: \(error)")
         }
     }
     

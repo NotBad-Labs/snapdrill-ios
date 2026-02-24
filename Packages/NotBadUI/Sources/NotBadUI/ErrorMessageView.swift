@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import NotBadCore
 
 /// 错误消息视图
 ///
@@ -92,7 +93,7 @@ public struct LoadingView: View {
         message: "无法加载数据，请检查网络连接后重试",
         actionTitle: "重试"
     ) {
-        print("Retry tapped")
+        NotBadLogger.generic.info("Retry tapped")
     }
 }
 

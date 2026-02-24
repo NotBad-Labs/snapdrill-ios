@@ -10,6 +10,7 @@
 
 import SwiftData
 import Foundation
+import NotBadCore
 
 @MainActor
 public class SourceRepository {
@@ -71,9 +72,9 @@ public class SourceRepository {
             }
             
             try modelContext.save()
-            print("Successfully seeded default sources.")
+            NotBadLogger.generic.info("Successfully seeded default sources.")
         } catch {
-            print("Failed to seed default sources: \(error)")
+            NotBadLogger.generic.info("Failed to seed default sources: \(error)")
         }
     }
 }

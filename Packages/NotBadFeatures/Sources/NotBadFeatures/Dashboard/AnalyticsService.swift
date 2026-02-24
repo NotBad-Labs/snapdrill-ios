@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NotBadCore
 import SwiftData
 import NotBadData
 
@@ -34,7 +35,7 @@ public enum AnalyticsService {
             // 为了保险起见，在大数据量下应使用 fetchCount。
             return try context.fetchCount(descriptor)
         } catch {
-            print("Failed to fetch daily stats: \(error)")
+            NotBadLogger.generic.info("Failed to fetch daily stats: \(error)")
             return 0
         }
     }

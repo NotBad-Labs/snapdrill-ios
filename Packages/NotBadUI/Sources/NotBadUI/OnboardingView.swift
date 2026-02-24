@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import NotBadCore
 
 /// 引导页面数据模型
 public struct OnboardingPage: Identifiable, Sendable {
@@ -268,6 +269,6 @@ public extension OnboardingPage {
 
 #Preview {
     OnboardingView(pages: OnboardingPage.defaultPages) {
-        print("Onboarding completed")
+        NotBadLogger.generic.info("Onboarding completed")
     }
 }

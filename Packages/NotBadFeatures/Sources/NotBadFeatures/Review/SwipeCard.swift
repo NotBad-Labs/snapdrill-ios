@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import NotBadCore
 
 /// 支持左右轻扫的手势卡片包装器
 ///
@@ -129,7 +130,7 @@ struct SwipeCard<Content: View>: View {
                     .shadow(radius: 5)
                     .overlay(Text("Swipe Me"))
             },
-            onRemove: { _ in print("Removed") }
+            onRemove: { _ in NotBadLogger.generic.info("Removed") }
         )
     }
 }

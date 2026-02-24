@@ -249,7 +249,7 @@ public struct CaptureView: View {
                 router.push(.scannerResult(content: text, image: image))
             }
         } catch {
-            print("OCR Error: \(error)")
+            NotBadLogger.generic.info("OCR Error: \(error)")
             await MainActor.run {
                 isProcessing = false
                 // Even if OCR fails, pass the image

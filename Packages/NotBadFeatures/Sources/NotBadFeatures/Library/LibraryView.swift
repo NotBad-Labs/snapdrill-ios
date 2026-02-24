@@ -66,7 +66,7 @@ public struct LibraryView: View {
             // Explicitly save to ensure Dashboard stats update immediately
             try? modelContext.save()
         } catch {
-            print("Failed to delete items: \(error)")
+            NotBadLogger.generic.info("Failed to delete items: \(error)")
         }
     }
     

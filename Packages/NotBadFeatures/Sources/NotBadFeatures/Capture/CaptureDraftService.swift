@@ -58,7 +58,7 @@ public class CaptureDraftService {
             defaults.set(data, forKey: draftMetadataKey)
         }
         
-        print("[DraftService] Draft saved.")
+        NotBadLogger.generic.info("[DraftService] Draft saved.")
     }
     
     public func loadDraft() -> Draft? {
@@ -83,7 +83,7 @@ public class CaptureDraftService {
         if let path = draftImagePath() {
             try? fileManager.removeItem(at: path)
         }
-        print("[DraftService] Draft cleared.")
+        NotBadLogger.generic.info("[DraftService] Draft cleared.")
     }
     
     // MARK: - Helpers

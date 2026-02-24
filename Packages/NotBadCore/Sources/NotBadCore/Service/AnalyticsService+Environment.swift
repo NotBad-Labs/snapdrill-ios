@@ -11,11 +11,11 @@
 import SwiftUI
 
 private struct AnalyticsServiceKey: EnvironmentKey {
-    static let defaultValue: any AnalyticsService = LoggingAnalyticsService()
+    static let defaultValue: some AnalyticsService = LoggingAnalyticsService()
 }
 
 public extension EnvironmentValues {
-    var analyticsService: any AnalyticsService {
+    var analyticsService: some AnalyticsService {
         get { self[AnalyticsServiceKey.self] }
         set { self[AnalyticsServiceKey.self] = newValue }
     }

@@ -235,7 +235,7 @@ struct EditSourceView: View {
                 try repo.add(name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
             } catch {
                 // 如果失败（如重复），静默失败或显示错误
-                print("Failed to add source: \(error.localizedDescription)")
+                NotBadLogger.generic.info("Failed to add source: \(error.localizedDescription)")
             }
         }
     }

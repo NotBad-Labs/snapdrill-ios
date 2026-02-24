@@ -192,7 +192,7 @@ struct EditProfileView: View {
                             userAvatar = path
                         }
                     } catch {
-                        print("Failed to save avatar: \(error)")
+                        NotBadLogger.generic.info("Failed to save avatar: \(error)")
                     }
                 }
             }

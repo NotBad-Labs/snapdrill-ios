@@ -258,7 +258,7 @@ struct LibraryEditView: View {
                     }
                 }
             case .failure(let error):
-                print("Failed to load image: \(error)")
+                NotBadLogger.generic.info("Failed to load image: \(error)")
             }
         }
     }
@@ -285,7 +285,7 @@ struct LibraryEditView: View {
                     self.isProcessing = false
                 }
             } catch {
-                print("OCR Error: \(error)")
+                NotBadLogger.generic.info("OCR Error: \(error)")
                 await MainActor.run {
                     self.isProcessing = false
                 }
@@ -342,7 +342,7 @@ struct LibraryEditView: View {
                 let newPath = try await imageStorage.saveImage(newImage)
                 item.imagePath = newPath
             } catch {
-                print("Failed to save new image: \(error)")
+                NotBadLogger.generic.info("Failed to save new image: \(error)")
             }
         }
         

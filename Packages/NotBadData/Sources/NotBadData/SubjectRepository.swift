@@ -9,6 +9,7 @@
 //
 
 import Foundation
+import NotBadCore
 import SwiftData
 
 /// 学科数据仓库
@@ -52,7 +53,7 @@ public class SubjectRepository {
                 try? modelContext.save()
             }
         } catch {
-            print("Failed to check subject count: \(error)")
+            NotBadLogger.generic.info("Failed to check subject count: \(error)")
         }
     }
     

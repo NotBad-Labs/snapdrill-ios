@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import NotBadCore
 import SwiftData
 import NotBadData
 
@@ -46,7 +47,7 @@ struct ResolvedExportSheet: View {
             let allItems = try modelContext.fetch(descriptor)
             self.resolvedItems = allItems.filter { ids.contains($0.id) }
         } catch {
-            print("Failed to resolve export items: \(error)")
+            NotBadLogger.generic.info("Failed to resolve export items: \(error)")
         }
     }
 }

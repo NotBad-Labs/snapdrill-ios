@@ -125,7 +125,7 @@ class CameraSessionManager: NSObject, @unchecked Sendable {
         // Input
         guard let backCamera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
               let input = try? AVCaptureDeviceInput(device: backCamera) else {
-            print("Error: Unable to access back camera")
+            NotBadLogger.generic.info("Error: Unable to access back camera")
             return
         }
         

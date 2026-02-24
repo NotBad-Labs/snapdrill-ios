@@ -335,7 +335,7 @@ struct CaptureResultView: View {
                     self.isRecognizing = false
                 }
             } catch {
-                print("Re-OCR failed: \(error)")
+                NotBadLogger.generic.info("Re-OCR failed: \(error)")
                 await MainActor.run {
                     self.isRecognizing = false
                 }
@@ -363,7 +363,7 @@ struct CaptureResultView: View {
                 do {
                     savedImagePath = try await imageStorage.saveImage(image)
                 } catch {
-                    print("Failed to save image: \(error)")
+                    NotBadLogger.generic.info("Failed to save image: \(error)")
                 }
             }
             
@@ -373,7 +373,7 @@ struct CaptureResultView: View {
                 do {
                     savedAnswerImagePath = try await imageStorage.saveImage(answerImage)
                 } catch {
-                    print("Failed to save answer image: \(error)")
+                    NotBadLogger.generic.info("Failed to save answer image: \(error)")
                 }
             }
             

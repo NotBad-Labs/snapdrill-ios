@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import NotBadCore
 
 /// 全屏图片预览视图
 ///
@@ -82,6 +83,6 @@ struct FullScreenImageView: View {
 
 #Preview {
     FullScreenImageView(image: UIImage(systemName: "photo") ?? UIImage()) {
-        print("Dismissed")
+        NotBadLogger.generic.info("Dismissed")
     }
 }

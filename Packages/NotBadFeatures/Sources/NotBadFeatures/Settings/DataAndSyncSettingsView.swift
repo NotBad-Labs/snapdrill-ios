@@ -186,7 +186,7 @@ struct DataAndSyncSettingsView: View {
             DispatchQueue.main.async {
                 isCheckingStatus = false
                 if let error = error {
-                    print("iCloud status error: \(error)")
+                    NotBadLogger.generic.info("iCloud status error: \(error)")
                     self.accountStatus = .couldNotDetermine
                 } else {
                     self.accountStatus = status
@@ -226,7 +226,7 @@ struct DataAndSyncSettingsView: View {
                     cacheSize = "0 MB"
                 }
             } catch {
-                print("Failed to clear cache: \(error)")
+                NotBadLogger.generic.info("Failed to clear cache: \(error)")
             }
         }
     }

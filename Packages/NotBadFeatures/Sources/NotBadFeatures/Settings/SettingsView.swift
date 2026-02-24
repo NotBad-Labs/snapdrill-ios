@@ -250,7 +250,7 @@ public struct SettingsView: View {
             let sourceRepo = SourceRepository(modelContext: modelContext)
             sourceRepo.seedDefaultSourcesIfNeeded()
         } catch {
-            print("Failed to clear data: \(error)")
+            NotBadLogger.generic.info("Failed to clear data: \(error)")
         }
     }
     
@@ -260,9 +260,9 @@ public struct SettingsView: View {
             let seeder = DataSeeder(container: modelContext.container)
             do {
                 let time = try await seeder.seedReviewItems(count: 100)
-                print("Success: \(time)s")
+                NotBadLogger.generic.info("Success: \(time)s")
             } catch {
-                print("Seeding failed: \(error)")
+                NotBadLogger.generic.info("Seeding failed: \(error)")
             }
             isGenerating = false
         }

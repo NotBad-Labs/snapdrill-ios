@@ -216,20 +216,20 @@ public struct ErrorBannerView: View {
 
 #Preview("Network Error") {
     ContextualErrorView(error: .networkUnavailable) {
-        print("Retry tapped")
+        NotBadLogger.generic.info("Retry tapped")
     }
 }
 
 #Preview("Camera Permission") {
     ContextualErrorView(error: .cameraPermissionDenied) {
-        print("Open Settings")
+        NotBadLogger.generic.info("Open Settings")
     }
 }
 
 #Preview("Error Banner") {
     VStack {
         ErrorBannerView(error: .iCloudUnavailable) {
-            print("Dismissed")
+            NotBadLogger.generic.info("Dismissed")
         }
         Spacer()
     }
