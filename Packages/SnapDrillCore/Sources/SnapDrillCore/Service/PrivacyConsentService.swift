@@ -1,0 +1,99 @@
+//
+//  PrivacyConsentService.swift
+//  SnapDrillCore
+//
+//  Created by SnapDrill Labs on 2026/02/24.
+//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//
+//  ATT (App Tracking Transparency) 隐私授权服务
+//
+
+import AppTrackingTransparency
+import Foundation
+import OSLog
+
+// MARK: - 隐私授权服务
+
+/// ATT 隐私授权服务
+///
+/// 封装 App Tracking Transparency 框架的授权流程。
+/// 遵循 Apple 最佳实践：在 App 启动后延迟弹窗，避免用户首次打开即被打断。
+/// Wraps ATT authorization with Apple-recommended delayed prompt behavior.
+@MainActor
+public final class PrivacyConsentService: Sendable {
+
+    // MARK: - Properties
+
+    public static let shared = PrivacyConsentService()
+
+    private let logger = Logger(subsystem: "com.snapdrill.app", category: "Privacy")
+
+    /// 用户是否已经做出过追踪授权决策
+    private static let hasRequestedTrackingKey = "privacyConsentRequested"
+
+    // MARK: - Initialization
+
+    private init() {}
+
+    // MARK: - Public API
+
+    /// 当前追踪授权状态
+    ///
+    /// Current ATT authorization status.
+    public var trackingStatus: ATTrackingManager.AuthorizationStatus {
+        ATTrackingManager.trackingAuthorizationStatus
+    }
+
+    /// 是否已获得追踪授权
+    ///
+    /// Whether the user has granted tracking authorization.
+    public var isTrackingAuthorized: Bool {
+        trackingStatus == .authorized
+    }
+
+    /// 请求追踪授权
+    ///
+    /// 遵循 Apple 最佳实践：
+    /// 1. 仅在用户尚未做出决策时弹窗
+    /// 2. 延迟至 App 进入稳定状态后再请求
+    ///
+    /// Request tracking authorization following Apple best practices.
+    /// Only prompts if the user hasn't already made a decision.
+    public func requestTrackingAuthorizationIfNeeded() async {
+        // 如果用户已经做出了决策（授权、拒绝或受限），跳过
+        guard trackingStatus == .notDetermined else {
+            logger.info("ATT 状态已确定: \(String(describing: self.trackingStatus.rawValue))，跳过弹窗")
+            return
+        }
+
+        // 延迟 2 秒，让用户先熟悉 App 界面
+        try? await Task.sleep(for: .seconds(2))
+
+        let status = await ATTrackingManager.requestTrackingAuthorization()
+
+        UserDefaults.standard.set(true, forKey: PrivacyConsentService.hasRequestedTrackingKey)
+
+        switch status {
+        case .authorized:
+            logger.info("✅ 用户授权追踪")
+        case .denied:
+            logger.info("❌ 用户拒绝追踪")
+        case .restricted:
+            logger.info("⚠️ 追踪受限（可能是家长控制）")
+        case .notDetermined:
+            logger.info("❓ ATT 状态仍未确定")
+        @unknown default:
+            logger.warning("未知 ATT 状态: \(status.rawValue)")
+        }
+    }
+
+    /// 是否需要显示自定义预弹窗说明
+    ///
+    /// 某些 App 会在系统弹窗之前先展示一个自定义的说明页，
+    /// 解释为什么需要追踪授权，以提高用户同意率。
+    /// Whether to show a custom pre-prompt explaining why tracking is needed.
+    public var shouldShowPrePrompt: Bool {
+        trackingStatus == .notDetermined &&
+        !UserDefaults.standard.bool(forKey: PrivacyConsentService.hasRequestedTrackingKey)
+    }
+}

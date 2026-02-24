@@ -78,6 +78,10 @@ struct SnapDrillApp: App {
                     let repository = SubjectRepository(modelContext: context)
                     repository.initializeDefaultsIfNeeded()
                 }
+                .task {
+                    // ATT 隐私授权（遵循 Apple 延迟弹窗最佳实践）
+                    await PrivacyConsentService.shared.requestTrackingAuthorizationIfNeeded()
+                }
         }
     }
 }

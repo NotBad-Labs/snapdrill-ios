@@ -16,6 +16,7 @@ let package = Package(
     platforms: [.iOS(.v18)],
     products: [
         .library(name: "SnapDrillCore", targets: ["SnapDrillCore"]),
+    ],
     dependencies: [
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.0.0")
     ],

@@ -9,6 +9,7 @@
 //
 
 import Foundation
+import OSLog
 import FirebaseCrashlytics
 
 /// 崩溃报告服务
