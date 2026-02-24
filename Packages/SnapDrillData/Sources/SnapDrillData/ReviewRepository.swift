@@ -67,6 +67,18 @@ public class ReviewRepository: ReviewRepositoryProtocol {
         let descriptor = FetchDescriptor<ReviewItemModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
         return try modelContext.fetch(descriptor)
     }
+
+    /// 分页获取复习条目
+    /// - Parameters:
+    ///   - limit: 每页数量（默认 50）
+    ///   - offset: 偏移量（默认 0）
+    /// - Returns: 指定范围内的条目
+    public func fetchPaginated(limit: Int = 50, offset: Int = 0) throws -> [ReviewItemModel] {
+        var descriptor = FetchDescriptor<ReviewItemModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        descriptor.fetchLimit = limit
+        descriptor.fetchOffset = offset
+        return try modelContext.fetch(descriptor)
+    }
     
     /// 获取待复习条目数量
     /// - Returns: `nextReviewAt` 早于或等于当前时间的条目数

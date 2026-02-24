@@ -23,6 +23,8 @@ public protocol ReviewRepositoryProtocol {
     func save(_ item: ReviewItem, subject: String) throws
     /// 获取所有复习条目
     func fetchAll() throws -> [ReviewItemModel]
+    /// 分页获取复习条目
+    func fetchPaginated(limit: Int, offset: Int) throws -> [ReviewItemModel]
     /// 获取待复习条目数量
     func fetchDueCount() throws -> Int
     /// 获取总条目数量

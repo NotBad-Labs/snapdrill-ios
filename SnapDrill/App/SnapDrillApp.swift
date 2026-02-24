@@ -20,16 +20,25 @@ import FirebaseCore
 // MARK: - AppDelegate（Firebase 初始化）
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
+    /// 服务容器（在 didFinishLaunching 中初始化 Firebase 后注入）
+    var serviceContainer: LiveServiceContainer?
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
-        
-        // 通知服务 Firebase 已就绪
-        FirebaseAnalyticsService.shared.markConfigured()
-        CrashReportingService.shared.markConfigured()
-        
+
+        // 创建服务容器并标记 Firebase 就绪
+        let container = LiveServiceContainer()
+        if let analytics = container.analytics as? FirebaseAnalyticsService {
+            analytics.markConfigured()
+        }
+        if let crash = container.crashReporting as? CrashReportingService {
+            crash.markConfigured()
+        }
+        self.serviceContainer = container
+
         return true
     }
 }
@@ -45,11 +54,13 @@ struct SnapDrillApp: App {
     /// 顶级导航协调器 (Coordinator State)
     @State private var appRouter = AppRouter()
     
-    /// 网络监控服务
-    @State private var networkMonitor = NetworkMonitor()
-    
     /// 外观模式设置 (0=System, 1=Light, 2=Dark)
     @AppStorage("appearanceMode") private var appearanceMode: Int = 0
+    
+    /// 服务容器（从 AppDelegate 获取或创建默认实例）
+    private var services: any ServiceContainer {
+        appDelegate.serviceContainer ?? LiveServiceContainer()
+    }
     
     private var colorScheme: ColorScheme? {
         switch appearanceMode {
@@ -64,7 +75,8 @@ struct SnapDrillApp: App {
             // 极简入口：仅负责注入环境和启动根视图
             AppRootView(router: appRouter)
                 .modelContainer(PersistenceController.shared.container)
-                .environment(networkMonitor)
+                .environment(\.services, services)
+                .environment(services.networkMonitor)
                 .preferredColorScheme(colorScheme)
                 .onAppear {
                     // Initialize TipKit
@@ -80,7 +92,7 @@ struct SnapDrillApp: App {
                 }
                 .task {
                     // ATT 隐私授权（遵循 Apple 延迟弹窗最佳实践）
-                    await PrivacyConsentService.shared.requestTrackingAuthorizationIfNeeded()
+                    await services.privacyConsent.requestTrackingAuthorizationIfNeeded()
                 }
         }
     }
