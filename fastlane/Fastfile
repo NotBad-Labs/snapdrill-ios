@@ -16,8 +16,7 @@ platform :ios do
     # 4. 编译 App
     build_app(
       scheme: "SnapDrill",
-      export_method: "app-store",
-      include_bitcode: true
+      export_method: "app-store"
     )
 
     # 5. 上传到 TestFlight

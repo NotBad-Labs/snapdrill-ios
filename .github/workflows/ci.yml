@@ -51,7 +51,7 @@ jobs:
           echo "📊 Code Coverage: ${COVERAGE}%"
           
           # 检查是否达到最低门槛
-          MIN_COVERAGE=60
+          MIN_COVERAGE=70
           if (( $(echo "$COVERAGE < $MIN_COVERAGE" | bc -l) )); then
             echo "❌ Coverage ${COVERAGE}% is below minimum ${MIN_COVERAGE}%"
             echo "::error::Code coverage is below the minimum threshold"
