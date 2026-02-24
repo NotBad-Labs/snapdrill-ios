@@ -11,6 +11,11 @@
 import UIKit
 import Vision
 
+/// 光学字符识别服务协议
+public protocol OCRServiceProtocol: Sendable {
+    func recognizeText(from cgImage: CGImage) async throws -> String
+}
+
 /// 光学字符识别服务
 ///
 /// 封装 Apple Vision 框架的 `VNRecognizeTextRequest`，提供异步的图片文字识别能力。
@@ -19,7 +24,7 @@ import Vision
 /// - 支持多语言识别（中文、英文）。
 /// - 自动进行语言校正。
 /// - 使用 `.accurate` 模式以确保最高识别率。
-public actor OCRService {
+public actor OCRService: OCRServiceProtocol {
     
     public init() {}
     

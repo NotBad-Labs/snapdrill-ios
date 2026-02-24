@@ -23,14 +23,8 @@ public struct DashboardView: View {
     @Bindable private var router: DashboardRouter
     @Environment(\.modelContext) private var modelContext
     
-    // State for dashboard data
-    // Counts are now handled reactively by child views (ReviewHeroCard, DailyStatsView)
-    @Query(sort: \SubjectModel.sortOrder) private var subjects: [SubjectModel]
+    @State private var viewModel = DashboardViewModel()
     
-    @State private var showingSubjectManager = false
-    @State private var showingComingSoon = false
-    @State private var showingDraftAlert = false
-
     // Modern Grid Layout
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -57,19 +51,18 @@ public struct DashboardView: View {
                         // 2. Hero Section (Review Status, Reactive)
                         ReviewHeroCard(
                             onStartReview: { router.navigateToReview() },
-                            onStartCapture: { checkDraftAndCapture() }
+                            onStartCapture: { viewModel.checkDraftAndCapture(router: router) }
                         )
                         
                         // 3. Bento Grid Actions
                         LazyVGrid(columns: columns, spacing: 12) {
-                            // Capture Card (Dominant Action)
                             BentoCard(
                                 title: "智能扫描",
                                 subtitle: "录入新题",
                                 icon: "camera.viewfinder",
                                 gradient: LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
                             ) {
-                                checkDraftAndCapture()
+                                viewModel.checkDraftAndCapture(router: router)
                             }
                             
                             // Library Card
@@ -96,7 +89,7 @@ public struct DashboardView: View {
                                     endPoint: .bottomTrailing
                                 )
                             ) {
-                                showingSubjectManager = true
+                                viewModel.showingSubjectManager = true
                             }
                         }
                         .padding(.horizontal)
@@ -104,45 +97,29 @@ public struct DashboardView: View {
                     .padding(.bottom, 40)
                 }
             }
-            .onAppear(perform: loadData)
+            .onAppear {
+                viewModel.loadData(modelContext: modelContext)
+            }
         }
-        .alert("敬请期待", isPresented: $showingComingSoon) {
+        .alert("敬请期待", isPresented: $viewModel.showingComingSoon) {
             Button("好", role: .cancel) { }
         } message: {
             Text("学习统计功能正在火速开发中...")
         }
-        .alert("恢复未完成的题目？", isPresented: $showingDraftAlert) {
+        .alert("恢复未完成的题目？", isPresented: $viewModel.showingDraftAlert) {
             Button("开始新的") {
-                CaptureDraftService.shared.clearDraft()
-                router.navigateToCapture()
+                viewModel.startNewCapture(router: router)
             }
             Button("恢复") {
-                if let draft = CaptureDraftService.shared.loadDraft() {
-                    router.navigateToCapture(withDraft: draft)
-                } else {
-                    router.navigateToCapture()
-                }
+                viewModel.restoreDraft(router: router)
             }
             Button("取消", role: .cancel) { }
         } message: {
             Text("您有上次未保存的拍摄内容，是否继续编辑？")
         }
-        .sheet(isPresented: $showingSubjectManager) {
+        .sheet(isPresented: $viewModel.showingSubjectManager) {
             SubjectManagerView()
         }
-    }
-    
-    private func checkDraftAndCapture() {
-        if CaptureDraftService.shared.hasDraft {
-            showingDraftAlert = true
-        } else {
-            router.navigateToCapture()
-        }
-    }
-
-    private func loadData() {
-        let subjectRepo = SubjectRepository(modelContext: modelContext)
-        subjectRepo.initializeDefaultsIfNeeded()
     }
 }
 

@@ -23,25 +23,7 @@ public struct CaptureView: View {
     @Bindable private var router: CaptureRouter
     @Environment(\.modelContext) private var modelContext
     
-    // Scanner State
-    @State private var isShowingScanner = false
-    @State private var isProcessing = false
-    
-    // Photo Picker State
-    @State private var selectedPhotoItem: PhotosPickerItem?
-    
-    // Service
-    private let ocrService = OCRService()
-    
-    @State private var isViewActive = false
-    
-    // Draft Recovery State
-    @State private var showDraftAlert = false
-    @State private var pendingDraft: CaptureDraftService.Draft?
-    
-    // Error State
-    @State private var showErrorAlert = false
-    @State private var errorMessage = ""
+    @State private var viewModel = CaptureViewModel()
     
     /// 初始化采集视图
     /// - Parameter router: 注入的路由器
@@ -86,11 +68,11 @@ public struct CaptureView: View {
                                 subtitle: "自动裁剪与识别",
                                 color: .blue
                             ) {
-                                isShowingScanner = true
+                                viewModel.isShowingScanner = true
                             }
                             
                             // 2. Photo Library
-                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                            PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
                                 CaptureMethodCardContent(
                                     icon: "photo.on.rectangle",
                                     title: "相册导入",
@@ -134,7 +116,7 @@ public struct CaptureView: View {
                 .scrollIndicators(.hidden)
                 
                 // Loading Overlay
-                if isProcessing {
+                if viewModel.isProcessing {
                     Color.black.opacity(0.4)
                     .ignoresSafeArea()
                     .overlay {
@@ -162,98 +144,44 @@ public struct CaptureView: View {
                 }
             }
             // Scanner Sheet
-            .fullScreenCover(isPresented: $isShowingScanner) {
+            .fullScreenCover(isPresented: $viewModel.isShowingScanner) {
                 SmartCameraView(
                     onCapture: { image in
-                        isShowingScanner = false
-                        processScannedImage(image)
+                        viewModel.isShowingScanner = false
+                        viewModel.processScannedImage(image, router: router)
                     },
                     onCancel: {
-                        isShowingScanner = false
+                        viewModel.isShowingScanner = false
                     }
                 )
             }
             // Photo Picker Handling
-            .onChange(of: selectedPhotoItem) { _, newItem in
+            .onChange(of: viewModel.selectedPhotoItem) { _, newItem in
                 if let newItem {
-                    loadPhoto(newItem)
+                    viewModel.loadPhoto(newItem, router: router)
                 }
             }
             .onAppear {
-                isViewActive = true
-                // Check for draft on appear
-                if let draft = CaptureDraftService.shared.loadDraft() {
-                    pendingDraft = draft
-                    showDraftAlert = true
-                }
+                viewModel.isViewActive = true
+                viewModel.checkDraftOnAppear()
             }
             .onDisappear {
-                isViewActive = false
+                viewModel.isViewActive = false
             }
-            .alert("恢复草稿", isPresented: $showDraftAlert) {
+            .alert("恢复草稿", isPresented: $viewModel.showDraftAlert) {
                 Button("继续编辑") {
-                    if let draft = pendingDraft {
-                        router.push(.scannerResult(content: draft.content, image: draft.image))
-                        CaptureDraftService.shared.clearDraft()
-                    }
-                    pendingDraft = nil
+                    viewModel.startEditingDraft(router: router)
                 }
                 Button("放弃", role: .destructive) {
-                    CaptureDraftService.shared.clearDraft()
-                    pendingDraft = nil
+                    viewModel.clearDraft()
                 }
             } message: {
                 Text("检测到未保存的采集内容，是否恢复？")
             }
-            .alert("错误", isPresented: $showErrorAlert) {
+            .alert("错误", isPresented: $viewModel.showErrorAlert) {
                 Button("确定", role: .cancel) { }
             } message: {
-                Text(errorMessage)
-            }
-        }
-    }
-    
-    private func loadPhoto(_ item: PhotosPickerItem) {
-        isProcessing = true
-        Task {
-            if let data = try? await item.loadTransferable(type: Data.self),
-               let image = UIImage(data: data) {
-                // Determine if we need OCR
-                await processImageOCR(image)
-            } else {
-                await MainActor.run {
-                    isProcessing = false
-                    errorMessage = "图片加载失败，请重试"
-                    showErrorAlert = true
-                }
-            }
-        }
-        selectedPhotoItem = nil // Reset picker
-    }
-    
-    private func processScannedImage(_ image: UIImage) {
-        isProcessing = true
-        Task {
-            await processImageOCR(image)
-        }
-    }
-    
-    private func processImageOCR(_ image: UIImage) async {
-        do {
-            guard let cgImage = image.cgImage else {
-                throw OCRError.invalidImage
-            }
-            let text = try await ocrService.recognizeText(from: cgImage)
-            await MainActor.run {
-                isProcessing = false
-                router.push(.scannerResult(content: text, image: image))
-            }
-        } catch {
-            SnapDrillLogger.generic.info("OCR Error: \(error)")
-            await MainActor.run {
-                isProcessing = false
-                // Even if OCR fails, pass the image
-                router.push(.scannerResult(content: "", image: image))
+                Text(viewModel.errorMessage)
             }
         }
     }
