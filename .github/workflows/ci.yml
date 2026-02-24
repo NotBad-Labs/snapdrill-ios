@@ -1,10 +1,10 @@
-name: NotBad CI
+name: SnapDrill CI
 
 on:
   push:
-    branches: [ "refactor/orphan", "main" ]
+    branches: [ "develop", "main" ]
   pull_request:
-    branches: [ "refactor/orphan", "main" ]
+    branches: [ "develop", "main" ]
 
 jobs:
   build:
@@ -27,14 +27,14 @@ jobs:
       - name: Build
         run: |
           xcodebuild build \
-            -scheme NotBad \
+            -scheme SnapDrill \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Test
         run: |
           xcodebuild test \
-            -scheme NotBad \
+            -scheme SnapDrill \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
             -resultBundlePath TestResults \
             -enableCodeCoverage YES \

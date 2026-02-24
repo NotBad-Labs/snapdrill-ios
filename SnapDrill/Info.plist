@@ -4,5 +4,9 @@
 <dict>
 	<key>LSHasLocalizedDisplayName</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>SnapDrill needs camera access to accurately scan and capture your study materials for OCR processing. / 小本本需要相机的访问权限，以便精准扫描并录入您的错题。</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SnapDrill needs photo library access to import existing study materials for analysis. / 小本本需要相册访问权限，以便从您的图库中导入复习资料进行分析。</string>
 </dict>
 </plist>
