@@ -350,7 +350,8 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = NotBad/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "需要相机权限来扫描错题";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要相册权限来选择错题图片";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -385,7 +386,8 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = NotBad/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "需要相机权限来扫描错题";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要相册权限来选择错题图片";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
