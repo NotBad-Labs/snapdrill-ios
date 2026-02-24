@@ -396,7 +396,7 @@ struct CaptureResultView: View {
                 CaptureDraftService.shared.clearDraft()
                 
                 // Analytics
-                analyticsService.logEvent("capture_saved", properties: ["subject": selectedSubject])
+                analyticsService.track(.captureSaved, parameters: ["subject": selectedSubject])
                 
                 // Review Prompt
                 let count = UserDefaults.standard.integer(forKey: "capture_save_count") + 1

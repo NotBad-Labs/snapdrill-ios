@@ -350,10 +350,9 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = SnapDrill/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "需要相机权限来扫描错题";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要相册权限来选择错题图片";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to scan and capture study materials. / 小本本需要相机权限以扫描录入错题。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import study materials. / 小本本需要相册权限以导入复习资料。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -365,7 +364,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.notbadhq.snapdrill;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -386,10 +385,9 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = SnapDrill/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "需要相机权限来扫描错题";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "需要相册权限来选择错题图片";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to scan and capture study materials. / 小本本需要相机权限以扫描录入错题。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import study materials. / 小本本需要相册权限以导入复习资料。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -401,7 +399,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.notbadhq.snapdrill;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -547,7 +545,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.notbadhq.snapdrillTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -567,7 +565,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.notbadhq.snapdrillTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -585,7 +583,7 @@
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.notbadhq.snapdrillUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -603,7 +601,7 @@
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.notbadhq.snapdrillUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;

@@ -16,7 +16,7 @@ import OSLog
 /// 提供应用级别的错误追踪和崩溃报告功能。
 /// 在生产环境中，可以集成 Firebase Crashlytics 或 Sentry。
 @MainActor
-public final class CrashReportingService: @unchecked Sendable {
+public final class CrashReportingService: CrashReportingProtocol {
     public static let shared = CrashReportingService()
     
     private let logger = Logger(subsystem: "com.LIAOYIMING.SnapDrill", category: "CrashReporting")
@@ -44,14 +44,14 @@ public final class CrashReportingService: @unchecked Sendable {
     }
     
     /// 记录非致命错误
-    public func recordError(_ error: Error, context: [String: Any] = [:]) {
+    public func recordError(_ error: Error, context: [String: String] = [:]) {
         guard isEnabled else { return }
         
         logger.error("Error recorded: \(error.localizedDescription)")
         
         // 记录上下文信息
         for (key, value) in context {
-            logger.debug("Context - \(key): \(String(describing: value))")
+            logger.debug("Context - \(key): \(value)")
         }
         
         // 在生产环境中，这里应该发送到远程服务器
@@ -93,37 +93,40 @@ public final class CrashReportingService: @unchecked Sendable {
     }
     
     /// 记录面包屑（用户操作轨迹）
-    public func leaveBreadcrumb(_ message: String, metadata: [String: Any] = [:]) {
+    public func leaveBreadcrumb(_ message: String, metadata: [String: String] = [:]) {
         guard isEnabled else { return }
         logger.debug("Breadcrumb: \(message)")
         
         for (key, value) in metadata {
-            logger.debug("  \(key): \(String(describing: value))")
+            logger.debug("  \(key): \(value)")
         }
     }
     
     // MARK: - Private Methods
     
     private func setupExceptionHandler() {
+        // ⚠️ 重要：NSSetUncaughtExceptionHandler 在崩溃信号线程同步调用。
+        // 此处绝对不能使用 async/await 或 DispatchQueue.main.async，
+        // 因为崩溃时主队列极大概率已死锁，异步 Task 永远不会被执行。
+        // 正确做法：在 handler 内直接进行信号安全的同步操作（os_log 是信号安全的）。
         NSSetUncaughtExceptionHandler { exception in
-            Task { @MainActor in
-                let error = NSError(
-                    domain: "UncaughtException",
-                    code: -1,
-                    userInfo: [
-                        NSLocalizedDescriptionKey: exception.reason ?? "Unknown exception",
-                        "callStackSymbols": exception.callStackSymbols
-                    ]
-                )
-                CrashReportingService.shared.recordError(error, context: [
-                    "exception": exception.name.rawValue,
-                    "reason": exception.reason ?? "Unknown"
-                ])
-            }
+            // 直接使用 os_log C 接口（信号安全），不经过任何 actor/dispatch
+            let reason = exception.reason ?? "Unknown reason"
+            let name = exception.name.rawValue
+            let symbols = exception.callStackSymbols.prefix(10).joined(separator: "\n")
+
+            // os_log 是异步写日志缓冲区，崩溃时内核会 flush，属于信号安全操作
+            os_log(
+                .fault,
+                dso: #dsohandle,
+                log: OSLog(subsystem: "com.LIAOYIMING.SnapDrill", category: "UncaughtException"),
+                "UncaughtException [%{public}@]: %{public}@\nCallStack:\n%{public}@",
+                name, reason, symbols
+            )
         }
     }
     
-    private func saveToLocalLog(error: Error, context: [String: Any]) {
+    private func saveToLocalLog(error: Error, context: [String: String]) {
         let logEntry: [String: Any] = [
             "timestamp": Date().ISO8601Format(),
             "error": error.localizedDescription,

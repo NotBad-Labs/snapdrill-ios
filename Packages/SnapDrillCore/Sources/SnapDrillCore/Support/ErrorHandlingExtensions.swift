@@ -103,7 +103,7 @@ extension Result {
     
     /// 记录错误到崩溃报告服务
     @MainActor
-    public func logError(context: [String: Any] = [:]) -> Result<Success, Failure> {
+    public func logError(context: [String: String] = [:]) -> Result<Success, Failure> {
         if case .failure(let error) = self {
             CrashReportingService.shared.recordError(error, context: context)
         }

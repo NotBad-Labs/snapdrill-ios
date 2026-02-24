@@ -15,11 +15,30 @@ import SnapDrillFeatures
 import SnapDrillCore
 import TipKit
 
+// NOTE: Firebase SDK 接入后取消注释
+// import FirebaseCore
+
+// MARK: - AppDelegate（Firebase 初始化）
+
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        // NOTE: Firebase SDK 接入后取消注释
+        // FirebaseApp.configure()
+        return true
+    }
+}
+
 /// 应用的主入口
 ///
 /// 负责配置应用的主窗口和根视图。
 @main
 struct SnapDrillApp: App {
+    /// Firebase / 系统级别生命周期桥接
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    
     /// 顶级导航协调器 (Coordinator State)
     @State private var appRouter = AppRouter()
     

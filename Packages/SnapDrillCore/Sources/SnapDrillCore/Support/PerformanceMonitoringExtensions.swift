@@ -36,8 +36,8 @@ extension PerformanceMonitor {
                 
                 AnalyticsTrackingService.shared.track(.appLaunched, parameters: [
                     "performance_operation": operation,
-                    "duration": duration,
-                    "is_slow": true
+                    "duration": "\(duration)",
+                    "is_slow": "true"
                 ])
             }
         }

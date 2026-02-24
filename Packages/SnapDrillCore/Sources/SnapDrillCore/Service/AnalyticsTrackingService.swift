@@ -20,8 +20,16 @@ public enum AnalyticsEvent: String {
     case reviewSessionStarted = "review_session_started"
     case reviewSessionCompleted = "review_session_completed"
     
+    // 屏幕浏览
+    case screenViewed = "screen_viewed"
+    
+    // 会话生命周期
+    case sessionStarted = "session_started"
+    case sessionEnded = "session_ended"
+    
     // 功能使用
     case cameraOpened = "camera_opened"
+    case captureSaved = "capture_saved"
     case ocrPerformed = "ocr_performed"
     case pdfExported = "pdf_exported"
     case dataExported = "data_exported"
@@ -40,7 +48,7 @@ public enum AnalyticsEvent: String {
 /// 提供用户行为分析和功能使用追踪。
 /// 在生产环境中，可以集成 Firebase Analytics、Mixpanel 或 Amplitude。
 @MainActor
-public final class AnalyticsTrackingService: @unchecked Sendable {
+public final class AnalyticsTrackingService: AnalyticsServiceProtocol {
     public static let shared = AnalyticsTrackingService()
     
     private let logger = Logger(subsystem: "com.LIAOYIMING.SnapDrill", category: "Analytics")
@@ -66,17 +74,19 @@ public final class AnalyticsTrackingService: @unchecked Sendable {
     }
     
     /// 追踪事件
-    public func track(_ event: AnalyticsEvent, parameters: [String: Any] = [:]) {
+    public func track(_ event: AnalyticsEvent, parameters: [String: String] = [:]) {
         guard isEnabled else { return }
         
         logger.info("Event tracked: \(event.rawValue)")
         
         var enrichedParameters = parameters
         enrichedParameters["timestamp"] = Date().ISO8601Format()
-        enrichedParameters["app_version"] = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+            enrichedParameters["app_version"] = version
+        }
         
         for (key, value) in enrichedParameters {
-            logger.debug("  \(key): \(String(describing: value))")
+            logger.debug("  \(key): \(value)")
         }
         
         // 在生产环境中，发送到分析服务
@@ -87,7 +97,7 @@ public final class AnalyticsTrackingService: @unchecked Sendable {
     }
     
     /// 追踪屏幕浏览
-    public func trackScreen(_ screenName: String, parameters: [String: Any] = [:]) {
+    public func trackScreen(_ screenName: String, parameters: [String: String] = [:]) {
         guard isEnabled else { return }
         
         logger.info("Screen viewed: \(screenName)")
@@ -95,7 +105,7 @@ public final class AnalyticsTrackingService: @unchecked Sendable {
         var params = parameters
         params["screen_name"] = screenName
         
-        track(.appLaunched, parameters: params)
+        track(.screenViewed, parameters: params)
     }
     
     /// 开始会话追踪
@@ -105,7 +115,7 @@ public final class AnalyticsTrackingService: @unchecked Sendable {
         sessionStartTime = Date()
         logger.info("Session started")
         
-        track(.appLaunched, parameters: [
+        track(.sessionStarted, parameters: [
             "session_start": Date().ISO8601Format()
         ])
     }
@@ -117,9 +127,9 @@ public final class AnalyticsTrackingService: @unchecked Sendable {
         let duration = Date().timeIntervalSince(startTime)
         logger.info("Session ended - Duration: \(duration)s")
         
-        track(.appLaunched, parameters: [
+        track(.sessionEnded, parameters: [
             "session_end": Date().ISO8601Format(),
-            "session_duration": duration
+            "session_duration": "\(duration)"
         ])
         
         sessionStartTime = nil
@@ -140,13 +150,13 @@ public final class AnalyticsTrackingService: @unchecked Sendable {
         guard isEnabled else { return }
         
         track(.appLaunched, parameters: [
-            "retention_day": daysSinceInstall
+            "retention_day": "\(daysSinceInstall)"
         ])
     }
     
     // MARK: - Private Methods
     
-    private func saveEventLocally(event: AnalyticsEvent, parameters: [String: Any]) {
+    private func saveEventLocally(event: AnalyticsEvent, parameters: [String: String]) {
         let eventData: [String: Any] = [
             "event": event.rawValue,
             "parameters": parameters

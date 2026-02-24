@@ -11,6 +11,7 @@
 import UIKit
 import AVFoundation
 import Vision
+import SnapDrillCore
 
 /// 智能相机控制器
 ///

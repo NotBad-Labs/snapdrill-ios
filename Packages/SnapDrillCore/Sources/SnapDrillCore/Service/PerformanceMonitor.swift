@@ -55,21 +55,12 @@ public actor PerformanceMonitor {
         _ block: () async throws -> T
     ) async rethrows -> T {
         let startTime = Date()
-        
-        defer {
-            let duration = Date().timeIntervalSince(startTime)
-            Task {
-                await self.recordMetric(
-                    Metric(
-                        operation: operation,
-                        duration: duration,
-                        metadata: metadata
-                    )
-                )
-            }
-        }
-        
-        return try await block()
+        // 先执行目标操作
+        let result = try await block()
+        // 操作完成后，在 actor 上下文内直接记录（无需额外 Task，已在 actor 内部）
+        let duration = Date().timeIntervalSince(startTime)
+        recordMetric(Metric(operation: operation, duration: duration, metadata: metadata))
+        return result
     }
     
     /// 记录性能指标

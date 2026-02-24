@@ -9,6 +9,7 @@
 //
 
 import UIKit
+import SnapDrillCore
 
 /// 负责管理拍照识题的草稿缓存
 ///

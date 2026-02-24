@@ -55,7 +55,7 @@
 
 ### 测试覆盖率
 
-[![codecov](https://codecov.io/gh/NotBad-Labs/snapdrill-ios/branch/main/graph/badge.svg)](https://codecov.io/gh/NotBad-Labs/snapdrill-ios)
+[![codecov](https://codecov.io/gh/snapdrill-ios/branch/main/graph/badge.svg)](https://codecov.io/gh/snapdrill-ios)
 
 - **目标覆盖率**: 60%+
 - **当前覆盖率**: 查看 CI 报告

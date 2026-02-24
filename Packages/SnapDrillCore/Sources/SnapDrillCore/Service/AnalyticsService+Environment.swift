@@ -10,12 +10,22 @@
 
 import SwiftUI
 
+// MARK: - EnvironmentKey
+
+// ⚠️ Swift 6 注意事项：
+// EnvironmentKey.defaultValue 不能使用 `some Protocol` 不透明类型，
+// 因为 getter 和 setter 的类型必须完全一致（existential `any Protocol` 可以）。
 private struct AnalyticsServiceKey: EnvironmentKey {
-    static let defaultValue: some AnalyticsService = LoggingAnalyticsService()
+    static var defaultValue: any AnalyticsServiceProtocol {
+        MainActor.assumeIsolated { AnalyticsTrackingService.shared }
+    }
 }
 
+// MARK: - EnvironmentValues Extension
+
 public extension EnvironmentValues {
-    var analyticsService: some AnalyticsService {
+    @MainActor
+    var analyticsService: any AnalyticsServiceProtocol {
         get { self[AnalyticsServiceKey.self] }
         set { self[AnalyticsServiceKey.self] = newValue }
     }

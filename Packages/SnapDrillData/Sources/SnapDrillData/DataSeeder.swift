@@ -282,7 +282,7 @@ public class DataSeeder {
     /// - Returns: 耗时（秒）
     public func seedReviewItems(count: Int) async throws -> TimeInterval {
         let startTime = Date()
-        SnapDrillLogger.generic.info("开始生成 \(mockData.count) 条高质量混合长短文本数据 (Background)")
+        SnapDrillLogger.generic.info("开始生成 \(self.mockData.count) 条高质量混合长短文本数据 (Background)")
         
         // Capture data needed for task to be Sendable
         let seedData = self.mockData
