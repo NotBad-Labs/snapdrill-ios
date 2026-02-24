@@ -91,30 +91,24 @@ public class PersistenceController {
                 logger.warning("⚠️ Recommendation: Delete app and reinstall to clear corrupted data")
                 
             } catch let fallbackError {
-                logger.critical("💀 In-memory fallback failed: \(fallbackError.localizedDescription)")
+                logger.critical("💀 In-memory fallback also failed: \(fallbackError.localizedDescription)")
                 logger.critical("Error details: \(String(describing: fallbackError))")
                 
-                fatalError("""
-                    SwiftData 初始化失败
-                    
-                    这是 iOS 26 的已知问题。请尝试：
-                    
-                    1. 完全删除应用
-                    2. 重启设备
-                    3. 重新安装应用
-                    
-                    如果问题持续：
-                    - 检查设备存储空间
-                    - 更新到最新 iOS 版本
-                    - 提交 bug 报告到 Apple
-                    
-                    技术详情：
-                    Primary error: \(error.localizedDescription)
-                    Fallback error: \(fallbackError.localizedDescription)
-                    
-                    已知问题：iOS 26.1 SwiftData 数组类型迁移失败
-                    参考：https://developer.apple.com/forums
-                    """)
+                // 优雅降级：创建最小化的空容器，避免 App 崩溃
+                // 用户数据将无法持久化，但 App 仍可运行
+                let emergencyConfig = ModelConfiguration(isStoredInMemoryOnly: true)
+                // swiftlint:disable:next force_try
+                self.container = try! ModelContainer(
+                    for: ReviewItemModel.self,
+                         SubjectModel.self,
+                         SourceModel.self,
+                         TagModel.self,
+                    configurations: emergencyConfig
+                )
+                self.isUsingInMemoryFallback = true
+                self.initializationError = PersistenceError.containerInitializationFailed(underlying: fallbackError)
+                
+                logger.critical("🆘 App 运行在紧急降级模式，数据不会被持久化")
             }
         }
     }

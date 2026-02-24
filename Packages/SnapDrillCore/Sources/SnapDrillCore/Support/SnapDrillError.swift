@@ -1,17 +1,17 @@
 //
-//  NBError.swift
-//  SnapDrillSupport
+//  SnapDrillError.swift
+//  SnapDrillCore
 //
 //  Created by SnapDrill Labs on 2025/12/30.
 //  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
 //
-//  定义全应用通用的错误类型 (SnapDrillError)。
+//  定义全应用通用的错误类型。
 //
 
 import Foundation
 
 /// 通用应用错误类型
-public enum NBError: LocalizedError {
+public enum SnapDrillError: LocalizedError {
     case dataNotFound
     case captureFailed
     case unknown(String)
