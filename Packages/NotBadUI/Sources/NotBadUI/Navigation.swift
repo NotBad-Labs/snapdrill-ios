@@ -2,8 +2,8 @@
 //  Navigation.swift
 //  NotBadUI
 //
-//  Created by Yiming Liao on 2025/12/29.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Feature 模块路由协议定义，提供统一的导航契约
 //

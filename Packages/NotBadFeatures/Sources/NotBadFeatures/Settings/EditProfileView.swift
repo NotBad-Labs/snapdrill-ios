@@ -2,7 +2,7 @@
 //  EditProfileView.swift
 //  NotBadFeatureSettings
 //
-//  Created by NotBad Architect on 2026/01/01.
+//  Created by NotBad Labs on 2026/01/01.
 //
 
 import SwiftUI

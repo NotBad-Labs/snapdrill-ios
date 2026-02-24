@@ -2,8 +2,8 @@
 //  ReviewDashboardView.swift
 //  NotBadFeatures
 //
-//  Created by NotBad Architect on 2026/01/01.
-//  Copyright © 2026 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2026/01/01.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  复习模块的“准备”面板 (Idle State)
 //  展示今日待复习概览，赋予用户开始学习的主动权。

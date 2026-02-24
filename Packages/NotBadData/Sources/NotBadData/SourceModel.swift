@@ -2,8 +2,8 @@
 //  SourceModel.swift
 //  NotBadData
 //
-//  Created by NotBad Architect on 2026/01/01.
-//  Copyright © 2026 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2026/01/01.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  来源数据模型 (Source)，例如：试卷、作业、教材等。
 //

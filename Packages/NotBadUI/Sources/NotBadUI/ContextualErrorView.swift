@@ -2,8 +2,8 @@
 //  ContextualErrorView.swift
 //  NotBadUI
 //
-//  Created by NotBad Architect on 2026/01/03.
-//  Copyright © 2026 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2026/01/03.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  上下文相关的错误提示视图
 //

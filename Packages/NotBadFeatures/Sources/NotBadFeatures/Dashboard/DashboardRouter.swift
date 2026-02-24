@@ -2,8 +2,8 @@
 //  DashboardRouter.swift
 //  NotBadFeatureDashboard
 //
-//  Created by Yiming Liao on 2025/12/29.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  首页看板路由，负责首页导航逻辑
 //

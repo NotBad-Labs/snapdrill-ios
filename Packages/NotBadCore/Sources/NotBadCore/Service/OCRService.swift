@@ -2,8 +2,8 @@
 //  OCRService.swift
 //  NotBadService
 //
-//  Created by Yiming Liao on 2025/12/30.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/30.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  OCR 服务，封装 Vision 框架提供图片文字识别能力。
 //

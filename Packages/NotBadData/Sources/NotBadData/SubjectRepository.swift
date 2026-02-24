@@ -2,8 +2,8 @@
 //  SubjectRepository.swift
 //  NotBadData
 //
-//  Created by Yiming Liao on 2025/12/30.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/30.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  学科数据的仓库层，负责 Default Subjects 的初始化与查询。
 //

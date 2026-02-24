@@ -2,8 +2,8 @@
 //  ReviewScheduler.swift
 //  NotBadCore
 //
-//  Created by Yiming Liao on 2025/12/31.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  复习调度引擎，实现 SM-2 间隔重复算法。
 //

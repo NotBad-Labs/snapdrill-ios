@@ -2,8 +2,8 @@
 //  TagModel.swift
 //  NotBadData
 //
-//  Created by Yiming Liao on 2025/12/30.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/30.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  标签数据模型 (SwiftData)，支持多对多关联。
 //

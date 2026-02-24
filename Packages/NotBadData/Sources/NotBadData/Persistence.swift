@@ -2,9 +2,9 @@
 //  Persistence.swift
 //  NotBadData
 //
-//  Created by Yiming Liao on 2025/12/29.
+//  Created by NotBad Labs on 2025/12/29.
 //  Updated by NotBad Architect on 2026/01/02.
-//  Copyright © 2025-2026 NotBad Team. All rights reserved.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SwiftData 持久化控制器，管理 ModelContainer
 //

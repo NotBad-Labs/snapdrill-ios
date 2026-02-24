@@ -2,8 +2,8 @@
 //  NBError.swift
 //  NotBadSupport
 //
-//  Created by NotBad Architect on 2025/12/30.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/30.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  定义全应用通用的错误类型 (NotBadError)。
 //

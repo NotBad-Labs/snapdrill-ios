@@ -2,8 +2,8 @@
 //  LibraryDetailView.swift
 //  NotBadFeatureLibrary
 //
-//  Created by Yiming Liao on 2025/12/29.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  错题详情页，展示题目的完整信息（原题、答案、解析）。
 //

@@ -2,8 +2,8 @@
 //  SFSymbolPickerView.swift
 //  NotBadFeatures
 //
-//  Created by NotBad Architect on 2026/01/01.
-//  Copyright © 2026 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2026/01/01.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SF Symbols 选择器，提供可搜索的系统图标选择功能。
 //

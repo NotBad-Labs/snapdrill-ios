@@ -2,8 +2,8 @@
 //  ExportOptionsSheet.swift
 //  NotBadFeatures
 //
-//  Created by NotBad Architect on 2025/12/31.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  导出选项配置页，允许用户选择要包含在 PDF 中的内容。
 //

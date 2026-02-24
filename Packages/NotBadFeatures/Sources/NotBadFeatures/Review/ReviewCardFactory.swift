@@ -2,8 +2,8 @@
 //  ReviewCardFactory.swift
 //  NotBadFeatures
 //
-//  Created by NotBad Architect on 2026/01/01.
-//  Copyright © 2026 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2026/01/01.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  工厂类，用于根据 ReviewItemModel 的类型生成对应的卡片视图。
 //  遵循工厂方法模式 (Factory Method Pattern) 以支持扩展性（如未来支持图片题、选择题等）。

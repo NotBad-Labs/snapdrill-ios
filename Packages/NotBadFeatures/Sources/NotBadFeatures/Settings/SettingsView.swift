@@ -2,8 +2,8 @@
 //  SettingsView.swift
 //  NotBadFeatureSettings
 //
-//  Created by Yiming Liao on 2025/12/29.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  设置功能主界面，提供应用参数配置
 //

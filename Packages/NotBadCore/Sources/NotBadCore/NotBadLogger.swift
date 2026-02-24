@@ -2,8 +2,8 @@
 //  NotBadLogger.swift
 //  NotBadCore
 //
-//  Created by Yiming Liao on 2025/12/31.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  统一日志管理中心，负责应用内所有日志的记录和分级。
 //

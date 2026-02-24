@@ -2,8 +2,8 @@
 //  ReviewCardContent.swift
 //  NotBadFeatures
 //
-//  Created by NotBad Architect on 2025/12/31.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  复习卡片的内容视图，展示题目和答案（翻转后）。
 //

@@ -2,8 +2,8 @@
 //  NotBadApp.swift
 //  NotBad
 //
-//  Created by Yiming Liao on 2025/12/29.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  应用入口文件，负责初始化应用和主界面配置
 //

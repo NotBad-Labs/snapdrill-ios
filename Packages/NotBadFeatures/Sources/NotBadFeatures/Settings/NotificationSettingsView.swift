@@ -2,7 +2,7 @@
 //  NotificationSettingsView.swift
 //  NotBadFeatures
 //
-//  Created by NotBad Architect on 2026/01/02.
+//  Created by NotBad Labs on 2026/01/02.
 //
 
 import SwiftUI

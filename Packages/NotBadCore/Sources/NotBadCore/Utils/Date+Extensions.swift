@@ -2,8 +2,8 @@
 //  Date+Extensions.swift
 //  NotBadUtils
 //
-//  Created by NotBad Architect on 2025/12/30.
-//  Copyright © 2025 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2025/12/30.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Date 扩展，提供常用的日期格式化和计算功能。
 //

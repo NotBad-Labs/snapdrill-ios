@@ -2,8 +2,8 @@
 //  TestHelpers.swift
 //  NotBadDataTests
 //
-//  Created by Antigravity AI on 2026/01/02.
-//  Copyright © 2026 NotBad Team. All rights reserved.
+//  Created by NotBad Labs on 2026/01/02.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  测试辅助工具和 Mock 对象
 //
