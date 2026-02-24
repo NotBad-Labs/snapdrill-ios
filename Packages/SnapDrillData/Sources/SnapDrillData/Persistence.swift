@@ -18,7 +18,7 @@ import SwiftData
 import OSLog
 import UIKit
 
-private let logger = Logger(subsystem: "com.LIAOYIMING.SnapDrill", category: "Persistence")
+private let logger = Logger(subsystem: "com.snapdrill.app", category: "Persistence")
 
 @MainActor
 public class PersistenceController {

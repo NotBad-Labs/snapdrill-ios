@@ -34,7 +34,7 @@ public final class AppConfiguration: @unchecked Sendable {
     
     /// 应用标识符
     public var bundleIdentifier: String {
-        Bundle.main.bundleIdentifier ?? "com.LIAOYIMING.SnapDrill"
+        Bundle.main.bundleIdentifier ?? "com.snapdrill.app"
     }
     
     /// 完整版本字符串

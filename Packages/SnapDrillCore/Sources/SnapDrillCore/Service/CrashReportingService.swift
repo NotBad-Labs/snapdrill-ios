@@ -18,7 +18,7 @@ import FirebaseCrashlytics
 public final class CrashReportingService: CrashReportingProtocol {
     public static let shared = CrashReportingService()
     
-    private let logger = Logger(subsystem: "com.LIAOYIMING.SnapDrill", category: "CrashReporting")
+    private let logger = Logger(subsystem: "com.snapdrill.app", category: "CrashReporting")
     private var isEnabled: Bool
     private var isFirebaseConfigured: Bool = false
     
@@ -137,7 +137,7 @@ public final class CrashReportingService: CrashReportingProtocol {
             os_log(
                 .fault,
                 dso: #dsohandle,
-                log: OSLog(subsystem: "com.LIAOYIMING.SnapDrill", category: "UncaughtException"),
+                log: OSLog(subsystem: "com.snapdrill.app", category: "UncaughtException"),
                 "UncaughtException [%{public}@]: %{public}@\nCallStack:\n%{public}@",
                 name, reason, symbols
             )

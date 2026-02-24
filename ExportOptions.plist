@@ -18,8 +18,8 @@
     <string>upload</string>
     <key>provisioningProfiles</key>
     <dict>
-        <key>com.LIAOYIMING.SnapDrill</key>
-        <string>iOS Team Provisioning Profile: com.LIAOYIMING.SnapDrill</string>
+        <key>com.snapdrill.app</key>
+        <string>iOS Team Provisioning Profile: com.snapdrill.app</string>
     </dict>
 </dict>
 </plist>

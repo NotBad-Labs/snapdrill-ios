@@ -19,7 +19,7 @@ public actor PerformanceMonitor {
     /// 共享实例
     public static let shared = PerformanceMonitor()
     
-    private let logger = Logger(subsystem: "com.LIAOYIMING.SnapDrill", category: "Performance")
+    private let logger = Logger(subsystem: "com.snapdrill.app", category: "Performance")
     
     /// 性能指标
     public struct Metric: Sendable {

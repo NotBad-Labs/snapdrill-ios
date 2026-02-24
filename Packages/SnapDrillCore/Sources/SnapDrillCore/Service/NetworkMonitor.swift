@@ -23,7 +23,7 @@ public final class NetworkMonitor {
     public static let shared = NetworkMonitor()
     
     private let monitor = NWPathMonitor()
-    private let queue = DispatchQueue(label: "com.LIAOYIMING.SnapDrill.NetworkMonitor")
+    private let queue = DispatchQueue(label: "com.snapdrill.app.NetworkMonitor")
     
     /// 当前网络状态
     public private(set) var isConnected: Bool = true

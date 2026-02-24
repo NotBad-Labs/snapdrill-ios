@@ -51,7 +51,7 @@ public enum AnalyticsEvent: String {
 public final class AnalyticsTrackingService: AnalyticsServiceProtocol {
     public static let shared = AnalyticsTrackingService()
     
-    private let logger = Logger(subsystem: "com.LIAOYIMING.SnapDrill", category: "Analytics")
+    private let logger = Logger(subsystem: "com.snapdrill.app", category: "Analytics")
     private var isEnabled: Bool
     private var sessionStartTime: Date?
     
