@@ -12,19 +12,15 @@ import SwiftUI
 import Observation
 import SnapDrillCore
 import SnapDrillUI
-import SwiftData
 import SnapDrillData
 import MessageUI
 
-/// 设置功能界面
-///
-/// 采用成熟的商业化设置页设计范式：个人信息 -> 通用设置 -> 反馈 -> 关于。
-/// 确保每个按钮点击都有响应。
+
 public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.repositories) private var repos
     
-    // State for mock settings
+    @State private var viewModel: SettingsViewModel?
     @AppStorage("appTintColor") private var appTintColorHex: String = "#007AFF"
     @AppStorage("userName") private var userName: String = "同学"
     @AppStorage("userAvatar") private var userAvatar: String = "person.crop.circle.fill"
@@ -231,37 +227,44 @@ public struct SettingsView: View {
                 SubjectManagerView()
             }
             .sheet(isPresented: $showingSourceManager) {
-                SourceManagerView(modelContext: modelContext)
+                SourceManagerView()
             }
         }
     }
     
     private func clearAllData() {
-        do {
-            try modelContext.delete(model: ReviewItemModel.self)
-            try modelContext.delete(model: SubjectModel.self)
-            try modelContext.delete(model: SourceModel.self)
-            // Re-init defaults
-            let subjectRepo = SubjectRepository(modelContext: modelContext)
-            subjectRepo.initializeDefaultsIfNeeded()
-            let sourceRepo = SourceRepository(modelContext: modelContext)
-            sourceRepo.seedDefaultSourcesIfNeeded()
-        } catch {
-            SnapDrillLogger.generic.info("Failed to clear data: \(error)")
-        }
+        initViewModelIfNeeded()
+        viewModel?.clearAllData()
     }
     
     private func generateMockData() {
+        initViewModelIfNeeded()
         isGenerating = true
         Task {
-            let seeder = DataSeeder(container: modelContext.container)
             do {
-                let time = try await seeder.seedReviewItems(count: 100)
-                SnapDrillLogger.generic.info("Success: \(time)s")
+                // seeder still needs a container for background context creation inside Data layer
+                // but we hide this inside VM
+                let time = try await viewModel?.generateMockData(count: 100, container: repos.container)
+                SnapDrillLogger.generic.info("Success: \(time ?? 0)s")
             } catch {
                 SnapDrillLogger.generic.info("Seeding failed: \(error)")
             }
             isGenerating = false
+        }
+    }
+    
+    private func initViewModelIfNeeded() {
+        if viewModel == nil {
+            viewModel = SettingsViewModel(
+                reviewRepo: repos.review,
+                subjectRepo: repos.subject,
+                sourceRepo: repos.source,
+                tagRepo: repos.tag
+            )
+            repos.subject.initializeDefaultsIfNeeded()
+            repos.source.seedDefaultSourcesIfNeeded()
+            
+            repos.review.save()
         }
     }
 }

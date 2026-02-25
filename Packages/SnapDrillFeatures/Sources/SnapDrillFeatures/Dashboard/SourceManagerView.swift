@@ -27,19 +27,20 @@ struct SourceManagerView: View {
             List {
                 if let vm = viewModel {
                     ForEach(vm.sources) { source in
-                    Button {
-                        editingSource = source
-                    } label: {
-                        HStack {
-                            Image(systemName: source.icon)
-                                .foregroundStyle(Color(hex: source.colorHex))
-                                .frame(width: 24)
-                            Text(source.name)
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
+                        Button {
+                            editingSource = source
+                        } label: {
+                            HStack {
+                                Image(systemName: source.icon)
+                                    .foregroundStyle(Color(hex: source.colorHex))
+                                    .frame(width: 24)
+                                Text(source.name)
+                                    .foregroundStyle(.primary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
                         }
                     }
                     .onDelete(perform: { offsets in vm.delete(at: offsets) })
@@ -228,8 +229,6 @@ struct EditSourceView: View {
                 // 如果失败（如重复），静默失败或显示错误
                 SnapDrillLogger.generic.info("Failed to add source: \(error.localizedDescription)")
             }
-}
-
         }
     }
 }

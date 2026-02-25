@@ -9,48 +9,39 @@
 //
 
 import SwiftUI
-import SnapDrillData
+import SnapDrillUI
 import SnapDrillCore
-import SwiftData
 
 struct LibraryFilterSheet: View {
     @Environment(\.dismiss) private var dismiss
-    
-    @Binding var selectedSubjects: Set<String>
-    @Binding var selectedTags: Set<String>
-    
-    @Query(sort: \SubjectModel.sortOrder) private var allSubjects: [SubjectModel]
-    @Query(sort: \TagModel.name) private var allTags: [TagModel]
-    
-    var onReset: () -> Void
-    var onApply: () -> Void
+    @Bindable var viewModel: LibraryViewModel
     
     var body: some View {
         NavigationStack {
             Form {
                 // Section: Subjects (动态从 SwiftData 获取)
                 Section("学科") {
-                    if allSubjects.isEmpty {
+                    if viewModel.subjects.isEmpty {
                         Text("暂无学科").foregroundStyle(.secondary)
                     } else {
-                        ForEach(allSubjects) { subject in
+                        ForEach(viewModel.subjects) { subject in
                             HStack {
                                 Image(systemName: subject.icon)
                                     .foregroundStyle(Color(hex: subject.colorHex))
                                     .frame(width: 20)
                                 Text(subject.name)
                                 Spacer()
-                                if selectedSubjects.contains(subject.name) {
+                                if viewModel.selectedSubjects.contains(subject.name) {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(.blue)
                                 }
                             }
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                if selectedSubjects.contains(subject.name) {
-                                    selectedSubjects.remove(subject.name)
+                                if viewModel.selectedSubjects.contains(subject.name) {
+                                    viewModel.selectedSubjects.remove(subject.name)
                                 } else {
-                                    selectedSubjects.insert(subject.name)
+                                    viewModel.selectedSubjects.insert(subject.name)
                                 }
                             }
                         }
@@ -59,24 +50,24 @@ struct LibraryFilterSheet: View {
                 
                 // Section: Tags
                 Section("标签") {
-                    if allTags.isEmpty {
+                    if viewModel.allTags.isEmpty {
                         Text("暂无标签").foregroundStyle(.secondary)
                     } else {
-                        ForEach(allTags) { tag in
+                        ForEach(viewModel.allTags) { tag in
                             HStack {
                                 Text(tag.name)
                                 Spacer()
-                                if selectedTags.contains(tag.name) {
+                                if viewModel.selectedTags.contains(tag.name) {
                                     Image(systemName: "checkmark")
                                         .foregroundStyle(.blue)
                                 }
                             }
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                if selectedTags.contains(tag.name) {
-                                    selectedTags.remove(tag.name)
+                                if viewModel.selectedTags.contains(tag.name) {
+                                    viewModel.selectedTags.remove(tag.name)
                                 } else {
-                                    selectedTags.insert(tag.name)
+                                    viewModel.selectedTags.insert(tag.name)
                                 }
                             }
                         }
@@ -88,13 +79,12 @@ struct LibraryFilterSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("重置") {
-                        onReset()
+                        viewModel.resetFilters()
                         dismiss()
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完成") {
-                        onApply()
                         dismiss()
                     }
                 }
@@ -105,10 +95,10 @@ struct LibraryFilterSheet: View {
 
 #Preview {
     LibraryFilterSheet(
-        selectedSubjects: .constant(["Math"]),
-        selectedTags: .constant(["Important"]),
-        onReset: {},
-        onApply: {}
+        viewModel: LibraryViewModel(
+            reviewRepo: PreviewRepositoryContainer().review,
+            subjectRepo: PreviewRepositoryContainer().subject,
+            tagRepo: PreviewRepositoryContainer().tag
+        )
     )
-    .modelContainer(for: TagModel.self, inMemory: true)
 }

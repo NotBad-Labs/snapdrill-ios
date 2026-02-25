@@ -10,13 +10,12 @@
 
 import SwiftUI
 import SnapDrillCore
-import SwiftData
 import SnapDrillData
 
 /// Helper to resolve IDs to Models for Export Sheet
 struct ResolvedExportSheet: View {
     let ids: Set<ReviewItemModel.ID>
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.repositories) private var repos
     @State private var resolvedItems: [ReviewItemModel] = []
     
     var body: some View {
@@ -43,9 +42,7 @@ struct ResolvedExportSheet: View {
         // Or fallback: Fetch all items and filter in memory.
         
         do {
-            let descriptor = FetchDescriptor<ReviewItemModel>()
-            let allItems = try modelContext.fetch(descriptor)
-            self.resolvedItems = allItems.filter { ids.contains($0.id) }
+            self.resolvedItems = try repos.review.fetchByIds(ids)
         } catch {
             SnapDrillLogger.generic.info("Failed to resolve export items: \(error)")
         }

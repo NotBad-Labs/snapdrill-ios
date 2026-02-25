@@ -46,7 +46,7 @@ public class TagRepository: TagRepositoryProtocol {
     @discardableResult
     public func add(name: String, colorHex: String = "#8E8E93") throws -> TagModel {
         // 检查名称唯一性
-        if let existing = try fetchByName(name) {
+        if try fetchByName(name) != nil {
             throw DataError.duplicateName(name: name, entityType: "Tag")
         }
         

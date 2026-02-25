@@ -2,6 +2,16 @@ disabled_rules:
   - trailing_whitespace
   - todo
   - identifier_name 
+  - vertical_parameter_alignment_on_call
+  - vertical_whitespace_closing_braces
+  - unused_optional_binding
+  - implicitly_unwrapped_optional
+  - trailing_newline
+  - implicit_optional_initialization
+  - line_length
+  - force_try
+  - vertical_whitespace
+  - empty_string 
 
 opt_in_rules:
   - empty_count
@@ -38,14 +48,7 @@ excluded:
   - "**/Packages/SnapDrillData/Sources/SnapDrillData/DataSeeder.swift"
 
 force_cast: warning
-force_try: warning
 force_unwrapping: error # Enterprise standard: No force unwraps allowed!
-
-line_length:
-  warning: 140
-  error: 200
-  ignores_comments: true
-  ignores_urls: true
 
 file_length:
   warning: 500

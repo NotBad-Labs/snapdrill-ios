@@ -92,6 +92,32 @@ public class ReviewRepository: ReviewRepositoryProtocol {
         return try modelContext.fetchCount(descriptor)
     }
     
+    /// 获取所有待复习条目 (高效过滤)
+    public func fetchDueItems() throws -> [ReviewItemModel] {
+        let now = Date()
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { item in
+                // swiftlint:disable:next force_unwrapping
+                item.nextReviewAt != nil && item.nextReviewAt! <= now
+            },
+            sortBy: [SortDescriptor(\.nextReviewAt, order: .forward)]
+        )
+        return try modelContext.fetch(descriptor)
+    }
+    
+    /// 获取今日已复习条目的数量 (高效过滤)
+    public func fetchTodayReviewedCount() throws -> Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { item in
+                // swiftlint:disable:next force_unwrapping
+                item.lastReviewedAt != nil && item.lastReviewedAt! >= today
+            }
+        )
+        return try modelContext.fetchCount(descriptor)
+    }
+    
     /// 获取今日新增条目数量
     public func fetchTodayCount() throws -> Int {
         let calendar = Calendar.current
@@ -124,6 +150,15 @@ public class ReviewRepository: ReviewRepositoryProtocol {
         return try modelContext.fetch(descriptor).first
     }
     
+    /// 批量根据 ID 获取模型
+    public func fetchByIds(_ ids: Set<UUID>) throws -> [ReviewItemModel] {
+        // 由于 #Predicate 对数组包含判定支持可能受限，采用保守的全量获取后内存过滤策略。
+        // Given that #Predicate may have issues with array containment in some SwiftData versions, 
+        // we opt for a safe memory-side filter.
+        let all = try fetchAll()
+        return all.filter { ids.contains($0.id) }
+    }
+    
     /// 更新条目
     /// - Parameter item: 要更新的条目
     /// - Throws: `DataError.notFound` 如果条目不存在
@@ -149,6 +184,11 @@ public class ReviewRepository: ReviewRepositoryProtocol {
     /// 删除条目
     public func delete(_ model: ReviewItemModel) {
         modelContext.delete(model)
+    }
+    
+    /// 清空所有数据
+    public func deleteAll() throws {
+        try modelContext.delete(model: ReviewItemModel.self)
     }
     
     /// 保存上下文更改

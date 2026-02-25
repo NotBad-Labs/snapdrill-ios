@@ -58,6 +58,11 @@ public class SourceRepository: SourceRepositoryProtocol {
         modelContext.delete(source)
     }
     
+    /// 清空所有来源
+    public func deleteAll() throws {
+        try modelContext.delete(model: SourceModel.self)
+    }
+    
     /// 初始化默认来源 (当数据库为空时)
     public func seedDefaultSourcesIfNeeded() {
         do {

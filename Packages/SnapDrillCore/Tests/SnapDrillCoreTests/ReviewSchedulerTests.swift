@@ -97,48 +97,42 @@ struct ReviewSchedulerTests {
         #expect(result.easeFactor < 2.5)
     }
 
-    // MARK: - Ease Factor 边界
-
-    @Test
-    func testEaseFactorNeverBelowMinimum() {
+    // MARK: - Ease Factor 边界 (Parameterized Test)
+    
+    @Test(
+        "验证算法在各种极端条件下的 Ease Factor 和 Interval 推演",
+        arguments: [
+            // (当前EF, 基础天数, 用户操作, 期望最短天数, 期望新EF下限)
+            (1.2, 5, ReviewRating.again, 0, 1.3),     // 跌破下限防御
+            (2.5, 10, ReviewRating.easy, 12, 2.6),    // 正常提升
+            (100.0, 365, ReviewRating.good, 365, 99.0)// 极高数据（例如未来由于脏数据写入）不要导致天数溢出或者崩溃
+        ]
+    )
+    func extremeStateTransitions(
+        easeFactor: Double,
+        interval: Int,
+        rating: ReviewRating,
+        expectedMinInterval: Int,
+        expectedMinEF: Double
+    ) {
         let scheduler = ReviewScheduler()
-        // 设置一个接近最低值的 easeFactor
-        let item = makeItem(easeFactor: 1.3)
-
-        let result = scheduler.scheduleNextReview(for: item, rating: .again)
-
-        #expect(result.easeFactor >= 1.3)
-    }
-
-    @Test
-    func testEasyRatingIncreasesEaseFactor() {
-        let scheduler = ReviewScheduler()
-        let item = makeItem(easeFactor: 2.5)
-
-        let result = scheduler.scheduleNextReview(for: item, rating: .easy)
-
-        #expect(result.easeFactor > 2.5)
+        let item = makeItem(repetitions: 5, interval: interval, easeFactor: easeFactor)
+        
+        let result = scheduler.scheduleNextReview(for: item, rating: rating)
+        
+        #expect(result.interval >= expectedMinInterval)
+        #expect(result.easeFactor >= expectedMinEF)
+        #expect(result.easeFactor >= 1.3, "绝对禁止系数掉穿 1.3")
     }
 
     // MARK: - intervalDescription
 
-    @Test
-    func testIntervalDescriptionAgain() {
+    @Test("验证展示文案对于用户反馈的正确性")
+    func testIntervalDescription() {
         let scheduler = ReviewScheduler()
         let item = makeItem()
 
-        let desc = scheduler.intervalDescription(for: .again, from: item)
-
-        #expect(desc == "10分钟")
-    }
-
-    @Test
-    func testIntervalDescriptionFirstGood() {
-        let scheduler = ReviewScheduler()
-        let item = makeItem()
-
-        let desc = scheduler.intervalDescription(for: .good, from: item)
-
-        #expect(desc == "明天")
+        #expect(scheduler.intervalDescription(for: .again, from: item) == "10分钟")
+        #expect(scheduler.intervalDescription(for: .good, from: item) == "明天")
     }
 }

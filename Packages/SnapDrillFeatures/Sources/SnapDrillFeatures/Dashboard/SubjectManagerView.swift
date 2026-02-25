@@ -13,7 +13,7 @@ import SnapDrillCore
 import SnapDrillData
 import SnapDrillUI
 
-// Keep existing SubjectManagerView ...
+
 struct SubjectManagerView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repos
@@ -28,24 +28,32 @@ struct SubjectManagerView: View {
             List {
                 if let vm = viewModel {
                     ForEach(vm.subjects) { subject in
-                    Button {
-                        editingSubject = subject
-                    } label: {
-                        HStack {
-                            Image(systemName: subject.icon)
-                                .foregroundStyle(Color(hex: subject.colorHex))
-                                .frame(width: 24)
-                            Text(subject.name)
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
+                        Button {
+                            editingSubject = subject
+                        } label: {
+                            HStack {
+                                Image(systemName: subject.icon)
+                                    .foregroundStyle(Color(hex: subject.colorHex))
+                                    .frame(width: 24)
+                                Text(subject.name)
+                                    .foregroundStyle(.primary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
                         }
                     }
+                    .onDelete(perform: { offsets in vm.delete(at: offsets) })
                 }
-                .onDelete(perform: { offsets in vm.delete(at: offsets) })
-                }
+            }
+            .alert("无法删除", isPresented: Binding(
+                get: { viewModel?.isDeletingInUse ?? false },
+                set: { newValue in viewModel?.isDeletingInUse = newValue }
+            )) {
+                Button("好", role: .cancel) { }
+            } message: {
+                Text("学科「\(viewModel?.pendingDeletionName ?? "")」下仍有题目，请先将题目移动到其他学科或删除对应题目。")
             }
             .navigationTitle("管理学科")
             .toolbar {
@@ -64,8 +72,6 @@ struct SubjectManagerView: View {
             .sheet(item: $editingSubject) { subject in
                 EditSubjectView(subject: subject)
             }
-        }
-    }
             .onAppear {
                 if viewModel == nil {
                     viewModel = SubjectManagerViewModel(repository: repos.subject)

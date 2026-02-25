@@ -61,15 +61,23 @@ public final class CaptureViewModel {
     public func loadPhoto(_ item: PhotosPickerItem, router: CaptureRouter) {
         isProcessing = true
         Task {
-            if let data = try? await item.loadTransferable(type: Data.self),
-               let image = UIImage(data: data) {
-                await processImageOCR(image, router: router)
-            } else {
-                await MainActor.run {
-                    self.isProcessing = false
-                    self.errorMessage = "无法加载图片"
-                    self.showErrorAlert = true
+            do {
+                if let data = try await item.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    await processImageOCR(image, router: router)
+                } else {
+                    await MainActor.run {
+                        self.isProcessing = false
+                        self.errorMessage = "无法加载图片"
+                        self.showErrorAlert = true
+                    }
                 }
+            } catch {
+                 await MainActor.run {
+                     self.isProcessing = false
+                     self.errorMessage = "加载图片失败: \(error.localizedDescription)"
+                     self.showErrorAlert = true
+                 }
             }
         }
         selectedPhotoItem = nil // Reset picker
@@ -90,7 +98,7 @@ public final class CaptureViewModel {
                 throw OCRError.invalidImage
             }
             let text = try await ocrService.recognizeText(from: cgImage)
-            
+    
             await MainActor.run {
                 self.isProcessing = false
                 if text.isEmpty {
@@ -108,3 +116,4 @@ public final class CaptureViewModel {
         }
     }
 }
+

@@ -14,7 +14,7 @@ import Foundation
 ///
 /// 集中管理应用的所有配置项，提供类型安全的访问方式。
 @MainActor
-public final class AppConfiguration: Sendable {
+public final class AppConfiguration {
     /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = AppConfiguration()
     

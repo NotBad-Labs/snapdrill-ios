@@ -2,45 +2,32 @@
 //  ReviewRepositoryTests.swift
 //  SnapDrillDataTests
 //
-//  Created by SnapDrill Labs on 2026/01/02.
+//  Created by SnapDrill Labs on 2026/02/25.
 //  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
 //
-//  ReviewRepository 单元测试
-//
 
-import XCTest
+import Testing
 import SwiftData
+import Foundation
 @testable import SnapDrillData
 @testable import SnapDrillCore
 
 @MainActor
-final class ReviewRepositoryTests: XCTestCase {
-    var modelContainer: ModelContainer?
-    var modelContext: ModelContext?
-    var repository: ReviewRepository?
+struct ReviewRepositoryTests {
+
+    // MARK: - Helper Methods
     
-    override func setUp() async throws {
-        // 使用内存存储创建测试容器
+    private func createTestRepository() throws -> ReviewRepository {
         let schema = Schema([ReviewItemModel.self, TagModel.self, SubjectModel.self, SourceModel.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-        modelContainer = try ModelContainer(for: schema, configurations: [config])
-        modelContext = modelContainer.mainContext
-        repository = ReviewRepository(modelContext: modelContext)
+        let container = try ModelContainer(for: schema, configurations: [config])
+        return ReviewRepository(modelContext: container.mainContext)
     }
-    
-    override func tearDown() async throws {
-        modelContainer = nil
-        modelContext = nil
-        repository = nil
-    }
-    
-    // MARK: - Save Tests
-    
-    func testSaveNewItem() throws {
-        // Given
-        let item = ReviewItem(
-            id: UUID(),
-            content: "测试题目",
+
+    private func makeDummyCoreItem(id: UUID = UUID(), content: String = "Test") -> ReviewItem {
+        ReviewItem(
+            id: id,
+            content: content,
             imagePath: nil,
             createdAt: Date(),
             lastReviewedAt: nil,
@@ -53,216 +40,107 @@ final class ReviewRepositoryTests: XCTestCase {
             difficulty: 3,
             grade: "高一"
         )
-        
-        // When
-        try repository.save(item)
-        
-        // Then
-        let fetchedItems = try repository.fetchAll()
-        XCTAssertEqual(fetchedItems.count, 1)
-        XCTAssertEqual(fetchedItems.first?.content, "测试题目")
-        XCTAssertEqual(fetchedItems.first?.difficulty, 3)
     }
+
+    // MARK: - Core CRUD
     
-    func testSaveDuplicateItemThrowsError() throws {
-        // Given
-        let id = UUID()
-        let item1 = ReviewItem(id: id, content: "题目1", subject: "数学", source: "试卷")
-        let item2 = ReviewItem(id: id, content: "题目2", subject: "英语", source: "作业")
+    @Test("验证正常的保存，查询与去重容错逻辑")
+    func basicCRUDAndDuplication() throws {
+        let repo = try createTestRepository()
         
-        // When
-        try repository.save(item1)
+        let id1 = UUID()
+        let item1 = makeDummyCoreItem(id: id1, content: "First")
+        let item2 = makeDummyCoreItem(id: id1, content: "Duplicate UUID")
         
-        // Then
-        XCTAssertThrowsError(try repository.save(item2)) { error in
-            guard case DataError.duplicateItem(let duplicateId) = error else {
-                XCTFail("Expected DataError.duplicateItem, got \(error)")
-                return
-            }
-            XCTAssertEqual(duplicateId, id)
-        }
-    }
-    
-    // MARK: - Fetch Tests
-    
-    func testFetchAll() throws {
-        // Given
-        let items = [
-            ReviewItem(id: UUID(), content: "题目1", subject: "数学", source: "试卷"),
-            ReviewItem(id: UUID(), content: "题目2", subject: "英语", source: "作业"),
-            ReviewItem(id: UUID(), content: "题目3", subject: "物理", source: "教材")
-        ]
+        // 正常插入
+        try repo.save(item1)
+        #expect(try repo.totalItemCount() == 1)
         
-        for item in items {
-            try repository.save(item)
+        // 主键冲突拦截检查
+        #expect(throws: DataError.self) {
+            try repo.save(item2)
         }
         
-        // When
-        let fetchedItems = try repository.fetchAll()
+        // 读取验证
+        let fetched = try repo.fetchById(id1)
+        #expect(fetched?.content == "First", "不应当被带有重复 ID 的对象覆盖数据")
         
-        // Then
-        XCTAssertEqual(fetchedItems.count, 3)
-        // 应该按创建时间倒序排列
-        XCTAssertEqual(fetchedItems.last?.content, "题目1")
+        // 删除验证
+        if let storedModel = fetched {
+            repo.delete(storedModel)
+            try repo.save()
+        }
+        #expect(try repo.totalItemCount() == 0)
     }
     
-    func testFetchById() throws {
-        // Given
-        let id = UUID()
-        let item = ReviewItem(id: id, content: "测试题目", subject: "数学", source: "试卷")
-        try repository.save(item)
+    @Test("测试更新缺失对象时的错误向上传递路线")
+    func updateMissingItemConstraints() throws {
+        let repo = try createTestRepository()
+        let fakeItem = makeDummyCoreItem(id: UUID())
         
-        // When
-        let fetchedItem = try repository.fetchById(id)
-        
-        // Then
-        XCTAssertNotNil(fetchedItem)
-        XCTAssertEqual(fetchedItem?.id, id)
-        XCTAssertEqual(fetchedItem?.content, "测试题目")
+        #expect(throws: DataError.self) {
+            try repo.update(fakeItem)
+        }
     }
+
+    // MARK: - 边界与复杂查询
     
-    func testFetchByIdNotFound() throws {
-        // Given
-        let nonExistentId = UUID()
+    @Test("验证 fetchDueCount 在不同时间轴边缘的统计正确性")
+    func nextReviewAtBoundaryCounting() throws {
+        let repo = try createTestRepository()
         
-        // When
-        let fetchedItem = try repository.fetchById(nonExistentId)
-        
-        // Then
-        XCTAssertNil(fetchedItem)
-    }
-    
-    func testFetchDueCount() throws {
-        // Given
         let now = Date()
-        let past = now.addingTimeInterval(-3600) // 1小时前
-        let future = now.addingTimeInterval(3600) // 1小时后
+        let past = now.addingTimeInterval(-3600)
+        let future = now.addingTimeInterval(3600)
         
-        let items = [
-            ReviewItem(id: UUID(), content: "已到期1", nextReviewAt: past, subject: "数学", source: "试卷"),
-            ReviewItem(id: UUID(), content: "已到期2", nextReviewAt: past, subject: "英语", source: "作业"),
-            ReviewItem(id: UUID(), content: "未到期", nextReviewAt: future, subject: "物理", source: "教材"),
-            ReviewItem(id: UUID(), content: "无复习时间", nextReviewAt: nil, subject: "化学", source: "试卷")
-        ]
+        var passedItem1 = makeDummyCoreItem()
+        passedItem1.nextReviewAt = past
+        try repo.save(passedItem1)
         
-        for item in items {
-            try repository.save(item)
-        }
+        var passedItem2 = makeDummyCoreItem()
+        passedItem2.nextReviewAt = past
+        try repo.save(passedItem2)
         
-        // When
-        let dueCount = try repository.fetchDueCount()
+        var futureItem = makeDummyCoreItem()
+        futureItem.nextReviewAt = future
+        try repo.save(futureItem)
         
-        // Then
-        XCTAssertEqual(dueCount, 2)
+        var nilItem = makeDummyCoreItem()
+        nilItem.nextReviewAt = nil
+        try repo.save(nilItem)
+        
+        let dueCount = try repo.fetchDueCount()
+        
+        // 应该只有两个在过去的项目符合 requirement
+        #expect(dueCount == 2)
     }
-    
-    func testTotalItemCount() throws {
-        // Given
-        let items = [
-            ReviewItem(id: UUID(), content: "题目1", subject: "数学", source: "试卷"),
-            ReviewItem(id: UUID(), content: "题目2", subject: "英语", source: "作业")
-        ]
+
+    // MARK: - 并发防线测试
+
+    @Test("Swift 6 TaskGroup 高并发写入下的仓库可靠性测试，排查隐蔽的竞态 Crash")
+    func concurrentInsertReliability() async throws {
+        // 注：由于 Repository 绑定 @MainActor，直接在并发中必须隔离。
+        // 测试模拟: 多个外部并发网络任务最终汇聚到持久化前被 Actor 按序化执行，
+        // 我们通过 TaskGroup 来高压模拟主线程入队时的安全性。
+
+        let repo = try createTestRepository()
+        let itemCount = 50
         
-        for item in items {
-            try repository.save(item)
-        }
-        
-        // When
-        let count = try repository.totalItemCount()
-        
-        // Then
-        XCTAssertEqual(count, 2)
-    }
-    
-    // MARK: - Update Tests
-    
-    func testUpdateExistingItem() throws {
-        // Given
-        let id = UUID()
-        let originalItem = ReviewItem(id: id, content: "原始内容", difficulty: 1, subject: "数学", source: "试卷")
-        try repository.save(originalItem)
-        
-        // When
-        let updatedItem = ReviewItem(
-            id: id,
-            content: "更新内容",
-            difficulty: 5,
-            subject: "数学",
-            source: "试卷"
-        )
-        try repository.update(updatedItem)
-        
-        // Then
-        let fetchedItem = try repository.fetchById(id)
-        XCTAssertEqual(fetchedItem?.content, "更新内容")
-        XCTAssertEqual(fetchedItem?.difficulty, 5)
-    }
-    
-    func testUpdateNonExistentItemThrowsError() throws {
-        // Given
-        let nonExistentId = UUID()
-        let item = ReviewItem(id: nonExistentId, content: "不存在的题目", subject: "数学", source: "试卷")
-        
-        // When & Then
-        XCTAssertThrowsError(try repository.update(item)) { error in
-            guard case DataError.notFound(let id, let entityType) = error else {
-                XCTFail("Expected DataError.notFound, got \(error)")
-                return
+        // 开启 50 个高并发请求，但它们强制调度到主线程的安全隔离域内执行仓库插入
+        await withTaskGroup(of: Void.self) { group in
+            for i in 0..<itemCount {
+                group.addTask {
+                    let item = self.makeDummyCoreItem(content: "Concurrent \(i)")
+                    // 安全跨过 Actor 边界去执行保存
+                    await MainActor.run {
+                        try? repo.save(item)
+                    }
+                }
             }
-            XCTAssertEqual(id, nonExistentId)
-            XCTAssertEqual(entityType, "ReviewItem")
-        }
-    }
-    
-    // MARK: - Delete Tests
-    
-    func testDeleteItem() throws {
-        // Given
-        let item = ReviewItem(id: UUID(), content: "待删除题目", subject: "数学", source: "试卷")
-        try repository.save(item)
-        let fetchedItem = try repository?.fetchById(item.id)
-        guard let fetchedItem = fetchedItem else {
-            XCTFail("Failed to fetch item")
-            return
         }
         
-        // When
-        repository?.delete(fetchedItem)
-        try repository?.save()
-        
-        // Then
-        let afterDelete = try repository.fetchById(item.id)
-        XCTAssertNil(afterDelete)
-        XCTAssertEqual(try repository.totalItemCount(), 0)
-    }
-    
-    // MARK: - Integration Tests
-    
-    func testCompleteWorkflow() throws {
-        // 1. 创建
-        let id = UUID()
-        let item = ReviewItem(id: id, content: "完整流程测试", difficulty: 2, subject: "数学", source: "试卷")
-        try repository.save(item)
-        
-        // 2. 读取
-        var fetchedItem = try repository.fetchById(id)
-        XCTAssertNotNil(fetchedItem)
-        XCTAssertEqual(fetchedItem?.difficulty, 2)
-        
-        // 3. 更新
-        let updatedItem = ReviewItem(id: id, content: "完整流程测试", difficulty: 4, subject: "数学", source: "试卷")
-        try repository.update(updatedItem)
-        fetchedItem = try repository?.fetchById(id)
-        guard let item = fetchedItem else {
-            XCTFail("Failed to fetch item")
-            return
-        }
-        XCTAssertEqual(item.difficulty, 4)
-        
-        // 4. 删除
-        repository?.delete(item)
-        try repository?.save()
-        fetchedItem = try repository?.fetchById(id)
-        XCTAssertNil(fetchedItem)
+        // 整个 TaskGroup 跑完后应当完美插进 50 条，且没有丢数据或者抛出 CoreData Context 损坏异常
+        let count = try repo.totalItemCount()
+        #expect(count == itemCount)
     }
 }

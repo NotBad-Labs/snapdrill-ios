@@ -31,14 +31,26 @@ public protocol ReviewRepositoryProtocol {
     func fetchTodayCount() throws -> Int
     /// 获取总条目数量
     func totalItemCount() throws -> Int
+    /// 获取今日待复习条目
+    func fetchDueItems() throws -> [ReviewItemModel]
+    /// 获取今日已复习的条目数量
+    func fetchTodayReviewedCount() throws -> Int
     /// 根据 ID 查找
     func fetchById(_ id: UUID) throws -> ReviewItemModel?
+    /// 批量根据 ID 获取模型
+    func fetchByIds(_ ids: Set<UUID>) throws -> [ReviewItemModel]
     /// 更新条目
     func update(_ item: ReviewItem) throws
     /// 删除条目
     func delete(_ model: ReviewItemModel)
+    /// 清空所有数据
+    func deleteAll() throws
     /// 保存上下文
     func save() throws
+    /// 级联更新学科名称
+    func updateSubjectUsage(from oldName: String, to newName: String) throws
+    /// 级联更新来源名称
+    func updateSourceUsage(from oldName: String, to newName: String) throws
 }
 
 // MARK: - SubjectRepository 协议
@@ -54,8 +66,16 @@ public protocol SubjectRepositoryProtocol {
     func update(_ subject: SubjectModel, name: String, icon: String, colorHex: String) throws
     /// 删除学科
     func delete(_ subject: SubjectModel)
+    /// 清空所有学科
+    func deleteAll() throws
     /// 初始化默认学科
     func initializeDefaultsIfNeeded()
+    /// 保存上下文
+    func save() throws
+    /// 获取特定学科下的题目数量
+    func countItems(named: String) throws -> Int
+    /// 检查学科是否被使用
+    func isSubjectInUse(_ subject: SubjectModel) throws -> Bool
 }
 
 // MARK: - SourceRepository 协议
@@ -71,8 +91,14 @@ public protocol SourceRepositoryProtocol {
     func update(_ source: SourceModel, name: String, icon: String, colorHex: String) throws
     /// 删除来源
     func delete(_ source: SourceModel)
+    /// 清空所有来源
+    func deleteAll() throws
     /// 初始化默认来源
     func seedDefaultSourcesIfNeeded()
+    /// 保存上下文
+    func save() throws
+    /// 获取特定来源下的题目数量
+    func countItems(named: String) throws -> Int
 }
 
 // MARK: - TagRepository 协议

@@ -44,7 +44,7 @@ struct CaptureViewModelTests {
     
     private func createTestImage() -> UIImage {
         UIGraphicsBeginImageContext(CGSize(width: 1, height: 1))
-        let image = UIGraphicsGetImageFromCurrentImageContext()!
+        let image = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
         UIGraphicsEndImageContext()
         return image
     }

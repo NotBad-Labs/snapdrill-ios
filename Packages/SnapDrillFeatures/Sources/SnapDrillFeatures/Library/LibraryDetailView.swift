@@ -12,7 +12,6 @@ import SwiftUI
 import SnapDrillData
 import SnapDrillUI
 import SnapDrillCore
-import SwiftData
 
 /// 题目详情视图
 ///

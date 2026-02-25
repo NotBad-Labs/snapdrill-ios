@@ -20,9 +20,9 @@ public final class PDFExportService: Sendable {
     
     public init() {}
     
-    /// 生成包含指定题目的 PDF 数据
+    /// 异步生成包含指定题目的 PDF 数据，支持中途取消
     /// 格式：每页一般 2-3 题，留出空白位置便于重做
-    public func createPDF(from items: [ReviewItem], imageProvider: (String) -> UIImage?) -> Data? {
+    public func createPDF(from items: [ReviewItem], imageProvider: @Sendable @escaping (String) -> UIImage?) async throws -> Data {
         let pdfMetaData = [
             kCGPDFContextCreator: "SnapDrill App",
             kCGPDFContextAuthor: "SnapDrill User"
@@ -36,20 +36,34 @@ public final class PDFExportService: Sendable {
         
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
         
+        // 渲染包含可能取消的操作
+        var renderError: Error?
+        
         let data = renderer.pdfData { (context) in
-            // Title Page
-            context.beginPage()
-            drawTitlePage(context: context.cgContext, rect: pageRect)
-            
-            // Items
-            // Layout: 2 items per page roughly.
-            let itemsPerPage = 2
-            let chunks = items.chunked(into: itemsPerPage)
-            
-            for chunk in chunks {
+            do {
+                // Title Page
                 context.beginPage()
-                drawItemsPage(context: context.cgContext, rect: pageRect, items: chunk, imageProvider: imageProvider)
+                drawTitlePage(context: context.cgContext, rect: pageRect)
+                
+                // Items
+                let itemsPerPage = 2
+                let chunks = items.chunked(into: itemsPerPage)
+                
+                for chunk in chunks {
+                    // Check for cooperative cancellation during the loop
+                    if Task.isCancelled {
+                        throw CancellationError()
+                    }
+                    context.beginPage()
+                    drawItemsPage(context: context.cgContext, rect: pageRect, items: chunk, imageProvider: imageProvider)
+                }
+            } catch {
+                renderError = error
             }
+        }
+        
+        if let renderError {
+            throw renderError
         }
         
         return data
@@ -73,7 +87,7 @@ public final class PDFExportService: Sendable {
          (subtitle as NSString).draw(at: CGPoint(x: (rect.width - subSize.width) / 2, y: y + size.height + 10), withAttributes: subAttrs)
     }
     
-    private func drawItemsPage(context: CGContext, rect: CGRect, items: [ReviewItem], imageProvider: (String) -> UIImage?) {
+    private func drawItemsPage(context: CGContext, rect: CGRect, items: [ReviewItem], imageProvider: @Sendable (String) -> UIImage?) {
         let margin: CGFloat = 40
         let availableHeight = rect.height - margin * 2
         let itemHeight = availableHeight / 2 // Half page per item
@@ -90,7 +104,7 @@ public final class PDFExportService: Sendable {
         }
     }
     
-    private func drawItem(context: CGContext, rect: CGRect, item: ReviewItem, imageProvider: (String) -> UIImage?) {
+    private func drawItem(context: CGContext, rect: CGRect, item: ReviewItem, imageProvider: @Sendable (String) -> UIImage?) {
         // Draw Image if exists
         var textYOffset = rect.minY
         

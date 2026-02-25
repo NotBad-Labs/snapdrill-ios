@@ -13,7 +13,7 @@ import PackageDescription
 
 let package = Package(
     name: "SnapDrillData",
-    platforms: [.iOS(.v18)],
+    platforms: [.iOS(.v18), .macOS(.v10_15)],
     products: [
         .library(name: "SnapDrillData", targets: ["SnapDrillData"]),
     ],

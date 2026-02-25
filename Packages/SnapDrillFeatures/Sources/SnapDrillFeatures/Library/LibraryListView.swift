@@ -9,70 +9,28 @@
 //
 
 import SwiftUI
-import SwiftData
-import SnapDrillCore
-import SnapDrillUI
 import SnapDrillData
+import SnapDrillCore
 
 /// A subview to handle the dynamic query based on searchText
 struct LibraryListView: View {
-    var searchText: String
-    @Binding var selectedSubjects: Set<String>
-    var selectedTags: Set<String>
-    
-    @Binding var selectedItemIDs: Set<ReviewItemModel.ID>
+    @Binding var selectedItemIDs: Set<UUID>
     
     @Bindable var router: LibraryRouter
+    @Bindable var viewModel: LibraryViewModel
     
-    @Query private var items: [ReviewItemModel]
-    @Query(sort: \SubjectModel.sortOrder) private var subjects: [SubjectModel]
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.editMode) private var editMode
     
     init(
-        searchText: String,
-        selectedSubjects: Binding<Set<String>>,
-        selectedTags: Set<String>,
-        selectedItemIDs: Binding<Set<ReviewItemModel.ID>>,
-        router: LibraryRouter
+        selectedItemIDs: Binding<Set<UUID>>,
+        router: LibraryRouter,
+        viewModel: LibraryViewModel
     ) {
-        self.searchText = searchText
-        self._selectedSubjects = selectedSubjects
-        self.selectedTags = selectedTags
         self._selectedItemIDs = selectedItemIDs
         self.router = router
-        
-        // Use local variable for logic
-        let subjectsFilter = selectedSubjects.wrappedValue
-        
-        // WrappedValue access in init is valid for struct initialization
-        if searchText.isEmpty && subjectsFilter.isEmpty && selectedTags.isEmpty {
-             _items = Query(sort: \ReviewItemModel.createdAt, order: .reverse)
-        } else {
-             _items = Query(
-                filter: #Predicate<ReviewItemModel> { item in
-                    (searchText.isEmpty || item.content.contains(searchText))
-                },
-                sort: \ReviewItemModel.createdAt,
-                order: .reverse
-            )
-        }
+        self.viewModel = viewModel
     }
     
-    // In-Memory Filter for complex logic (Sets)
-    var filteredItems: [ReviewItemModel] {
-        items.filter { item in
-            if !selectedSubjects.isEmpty {
-                if !selectedSubjects.contains(item.subject) { return false }
-            }
-            if !selectedTags.isEmpty {
-                guard let itemTags = item.tags else { return false }
-                let itemTagNames = Set(itemTags.map { $0.name })
-                if itemTagNames.isDisjoint(with: selectedTags) { return false }
-            }
-            return true
-        }
-    }
     
     var body: some View {
         List(selection: $selectedItemIDs) {
@@ -80,17 +38,13 @@ struct LibraryListView: View {
             Section {
                  ScrollView(.horizontal, showsIndicators: false) {
                      HStack(spacing: 12) {
-                         ForEach(subjects) { subject in
-                             SubjectCapsule(subject: subject, isSelected: selectedSubjects.contains(subject.name))
+                         ForEach(viewModel.subjects) { subject in
+                             SubjectCapsule(subject: subject, isSelected: viewModel.selectedSubjects.contains(subject.name))
                                  .onTapGesture {
-                                     if selectedSubjects.contains(subject.name) {
-                                         selectedSubjects.remove(subject.name)
+                                     if viewModel.selectedSubjects.contains(subject.name) {
+                                         viewModel.selectedSubjects.remove(subject.name)
                                      } else {
-                                          if selectedSubjects.contains(subject.name) {
-                                             selectedSubjects.remove(subject.name)
-                                          } else {
-                                              selectedSubjects.insert(subject.name)
-                                          }
+                                         viewModel.selectedSubjects.insert(subject.name)
                                      }
                                  }
                          }
@@ -102,8 +56,8 @@ struct LibraryListView: View {
                  .listRowBackground(Color.clear)
             }
             
-            if filteredItems.isEmpty {
-                if searchText.isEmpty && selectedSubjects.isEmpty && selectedTags.isEmpty {
+            if viewModel.filteredItems.isEmpty {
+                if viewModel.searchText.isEmpty && viewModel.selectedSubjects.isEmpty && viewModel.selectedTags.isEmpty {
                     ContentUnavailableView {
                         Label("暂无错题", systemImage: "books.vertical")
                     } description: {
@@ -115,10 +69,10 @@ struct LibraryListView: View {
                         .buttonStyle(.borderedProminent)
                     }
                 } else {
-                    ContentUnavailableView.search(text: searchText)
+                    ContentUnavailableView.search(text: viewModel.searchText)
                 }
             } else {
-                ForEach(filteredItems) { item in
+                ForEach(viewModel.filteredItems) { item in
                     Button(action: {
                         // In Edit Mode, selection is handled by List.
                         // In Normal Mode, navigate.
@@ -152,7 +106,10 @@ struct LibraryListView: View {
                     .listRowSeparator(.hidden)
                     .tag(item.id) // Critical for Selection
                 }
-                .onDelete(perform: deleteItems)
+                .onDelete { offsets in
+                    let idsToDelete = Set(offsets.map { viewModel.filteredItems[$0].id })
+                    viewModel.deleteItems(ids: idsToDelete)
+                }
                 .deleteDisabled(editMode?.wrappedValue.isEditing == true)
             }
         }
@@ -161,22 +118,16 @@ struct LibraryListView: View {
         .listRowSpacing(12) // iOS 26 airy layout
     }
     
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets where index < filteredItems.count {
-                modelContext.delete(filteredItems[index])
-            }
-        }
-    }
 }
 
 #Preview {
     LibraryListView(
-        searchText: "",
-        selectedSubjects: .constant([]),
-        selectedTags: [],
         selectedItemIDs: .constant([]),
-        router: LibraryRouter()
+        router: LibraryRouter(),
+        viewModel: LibraryViewModel(
+            reviewRepo: PreviewRepositoryContainer().review,
+            subjectRepo: PreviewRepositoryContainer().subject,
+            tagRepo: PreviewRepositoryContainer().tag
+        )
     )
-    .modelContainer(for: [SubjectModel.self, ReviewItemModel.self], inMemory: true)
 }

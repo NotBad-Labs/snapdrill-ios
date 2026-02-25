@@ -2,77 +2,20 @@
 //  PDFExportServiceTests.swift
 //  SnapDrillCoreTests
 //
-//  Created by SnapDrill Labs on 2026/01/03.
+//  Created by SnapDrill Labs on 2026/02/25.
 //  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
 //
-//  PDF 导出服务单元测试
-//
 
-import XCTest
+import Testing
 import UIKit
 @testable import SnapDrillCore
 
-final class PDFExportServiceTests: XCTestCase {
-    var service: PDFExportService?
+struct PDFExportServiceTests {
     
-    override func setUp() {
-        super.setUp()
-        service = PDFExportService.shared
-    }
+    // MARK: - Helper Methods
     
-    override func tearDown() {
-        service = nil
-        super.tearDown()
-    }
-    
-    func testServiceInitialization() {
-        guard let service = service else {
-            XCTFail("Service should be initialized")
-            return
-        }
-        XCTAssertNotNil(service, "PDFExportService should be initialized")
-    }
-    
-    func testCreatePDFWithEmptyItems() {
-        let emptyItems: [ReviewItem] = []
-        
-        let pdfData = service.createPDF(from: emptyItems) { _ in nil }
-        
-        // 即使没有项目，也应该生成 PDF（至少有标题页）
-        XCTAssertNotNil(pdfData, "PDF data should be generated even with empty items")
-        guard let data = pdfData else {
-            XCTFail("PDF data should not be nil")
-            return
-        }
-        XCTAssertFalse(data.isEmpty, "PDF data should not be empty")
-    }
-    
-    func testCreatePDFWithSingleItem() {
-        let testItem = ReviewItem(
-            id: UUID(),
-            content: "测试题目内容",
-            subject: "数学",
-            source: "期中考试",
-            difficulty: 3,
-            answerText: "测试答案",
-            imagePath: nil,
-            createdAt: Date(),
-            lastReviewedAt: nil,
-            nextReviewAt: Date()
-        )
-        
-        let pdfData = service.createPDF(from: [testItem]) { _ in nil }
-        
-        XCTAssertNotNil(pdfData, "PDF data should be generated")
-        guard let data = pdfData else {
-            XCTFail("PDF data should not be nil")
-            return
-        }
-        XCTAssertFalse(data.isEmpty, "PDF data should not be empty")
-    }
-    
-    func testCreatePDFWithMultipleItems() {
-        let items = (1...5).map { index in
+    private func createDummyItems(count: Int) -> [ReviewItem] {
+        return (1...count).map { index in
             ReviewItem(
                 id: UUID(),
                 content: "测试题目 \(index)",
@@ -80,76 +23,56 @@ final class PDFExportServiceTests: XCTestCase {
                 source: "测试",
                 difficulty: index % 5 + 1,
                 answerText: "答案 \(index)",
-                imagePath: nil,
                 createdAt: Date(),
                 lastReviewedAt: nil,
                 nextReviewAt: Date()
             )
         }
-        
-        let pdfData = service.createPDF(from: items) { _ in nil }
-        
-        XCTAssertNotNil(pdfData, "PDF data should be generated")
-        guard let data = pdfData else {
-            XCTFail("PDF data should not be nil")
-            return
-        }
-        XCTAssertFalse(data.isEmpty, "PDF data should not be empty")
-        // PDF 应该比单个项目的更大
     }
+
+    // MARK: - Normal Generation
     
-    func testCreatePDFWithImage() {
-        // 创建测试图片
-        let size = CGSize(width: 100, height: 100)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        let testImage = renderer.image { context in
-            UIColor.blue.setFill()
-            context.fill(CGRect(origin: .zero, size: size))
-        }
+    @Test("验证正常的从单条和多条记录生成 PDF")
+    func properGeneration() async throws {
+        let service = PDFExportService.shared
         
-        let testItem = ReviewItem(
-            id: UUID(),
-            content: "带图片的题目",
-            subject: "物理",
-            source: "测试",
-            difficulty: 3,
-            answerText: "答案",
-            imagePath: "test_image.jpg",
-            createdAt: Date(),
-            lastReviewedAt: nil,
-            nextReviewAt: Date()
-        )
+        let emptyData = try await service.createPDF(from: [], imageProvider: { _ in nil })
+        #expect(emptyData.isEmpty == false, "至少要生成标题页")
         
-        let pdfData = service.createPDF(from: [testItem]) { path in
-            return path == "test_image.jpg" ? testImage : nil
-        }
-        
-        XCTAssertNotNil(pdfData, "PDF with image should be generated")
-        guard let data = pdfData else {
-            XCTFail("PDF data should not be nil")
-            return
-        }
-        XCTAssertFalse(data.isEmpty, "PDF data should not be empty")
+        let singleItemData = try await service.createPDF(from: createDummyItems(count: 1), imageProvider: { _ in nil })
+        #expect(singleItemData.count > emptyData.count, "多一个项目的 PDF 应该更大")
     }
+
+    // MARK: - Concurrency & Cancellation
     
-    func testPDFPerformance() {
-        let items = (1...20).map { index in
-            ReviewItem(
-                id: UUID(),
-                content: "性能测试题目 \(index) - 这是一个较长的题目内容，用于测试 PDF 生成性能",
-                subject: "综合",
-                source: "性能测试",
-                difficulty: index % 5 + 1,
-                answerText: "详细答案 \(index)",
-                imagePath: nil,
-                createdAt: Date(),
-                lastReviewedAt: nil,
-                nextReviewAt: Date()
-            )
+    @Test("测试 Task Cooperative Cancellation: 导出大量数据时中途发起取消应该抛出 CancellationError")
+    func generationCancellation() async throws {
+        let service = PDFExportService.shared
+        // 伪造 1000 个超长题库，这会导致耗时的渲染循环
+        let heavyItems = createDummyItems(count: 1000)
+        
+        let task = Task {
+            try await service.createPDF(from: heavyItems) { _ in
+                // 模拟图片 IO 或解码耗时
+                Thread.sleep(forTimeInterval: 0.05)
+                return nil
+            }
         }
         
-        measure {
-            _ = service.createPDF(from: items) { _ in nil }
+        // 让任务先跑一点点
+        try await Task.sleep(nanoseconds: 50_000_000)
+        
+        // 关键点：发起取销
+        task.cancel()
+        
+        // 验证任务抛出了期待的结构化取消异常
+        do {
+            _ = try await task.value
+            Issue.record("任务没有正确响应取消，或者执行得太快没拦住。")
+        } catch is CancellationError {
+            // Excellent!
+        } catch {
+            Issue.record("抛出了非期望的错误类型: \(error)")
         }
     }
 }

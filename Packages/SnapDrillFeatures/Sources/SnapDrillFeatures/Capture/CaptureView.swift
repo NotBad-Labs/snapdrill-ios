@@ -13,7 +13,6 @@ import Observation
 import SnapDrillCore
 import SnapDrillUI
 import SnapDrillData
-import SwiftData
 import PhotosUI
 
 /// 采集功能界面
@@ -21,7 +20,7 @@ import PhotosUI
 /// 提供拍照识题和题目录入功能的入口。
 public struct CaptureView: View {
     @Bindable private var router: CaptureRouter
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.repositories) private var repos
     
     @State private var viewModel = CaptureViewModel()
     
@@ -140,7 +139,20 @@ public struct CaptureView: View {
                 case .placeholder:
                     ContentUnavailableView("即将上线", systemImage: "clock")
                 case .scannerResult(let content, let image):
-                    CaptureResultView(router: router, content: content, image: image)
+                    let analytics = Environment(\.analyticsService).wrappedValue
+                    let resultViewModel = CaptureResultViewModel(
+                        content: content,
+                        image: image,
+                        reviewRepository: repos.review,
+                        subjectRepository: repos.subject,
+                        sourceRepository: repos.source,
+                        tagRepository: repos.tag,
+                        ocrService: OCRService(),
+                        analyticsService: analytics,
+                        router: router
+                    )
+                    CaptureResultView(viewModel: resultViewModel)
+
                 }
             }
             // Scanner Sheet

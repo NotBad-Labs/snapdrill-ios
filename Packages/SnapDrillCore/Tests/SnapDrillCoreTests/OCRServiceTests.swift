@@ -2,87 +2,32 @@
 //  OCRServiceTests.swift
 //  SnapDrillCoreTests
 //
-//  Created by SnapDrill Labs on 2026/01/03.
+//  Created by SnapDrill Labs on 2026/02/25.
 //  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
 //
-//  OCR 服务单元测试
-//
 
-import XCTest
+import Testing
 import UIKit
 @testable import SnapDrillCore
 
-final class OCRServiceTests: XCTestCase {
-    var service: OCRService!
-    
-    override func setUp() async throws {
-        try await super.setUp()
-        service = OCRService()
-    }
-    
-    override func tearDown() async throws {
-        service = nil
-        try await super.tearDown()
-    }
-    
-    func testServiceInitialization() {
-        XCTAssertNotNil(service, "OCRService should be initialized")
-    }
-    
-    func testRecognizeTextWithEmptyImage() async throws {
-        // 创建一个简单的测试图片（纯色）
-        let size = CGSize(width: 100, height: 100)
+struct OCRServiceTests {
+
+    private func createSolidColorImage(size: CGSize, color: UIColor) throws -> CGImage {
         let renderer = UIGraphicsImageRenderer(size: size)
-        let testImage = renderer.image { context in
-            UIColor.white.setFill()
+        let image = renderer.image { context in
+            color.setFill()
             context.fill(CGRect(origin: .zero, size: size))
         }
-        
-        guard let cgImage = testImage.cgImage else {
-            XCTFail("Failed to create CGImage")
-            return
-        }
-        
-        // OCR 应该能处理这个图片，即使没有文字
-        let result = try await service.recognizeText(from: cgImage)
-        
-        // 结果应该是空字符串（因为图片中没有文字）
-        XCTAssertNotNil(result, "Result should not be nil")
+        guard let cgImage = image.cgImage else { throw NSError(domain: "test", code: -1) }
+        return cgImage
     }
-    
-    func testRecognizeTextWithValidImage() async throws {
-        // 创建一个简单的测试图片（纯色）
-        let size = CGSize(width: 100, height: 100)
+
+    private func createTextImage(text: String, size: CGSize = CGSize(width: 300, height: 100)) throws -> CGImage {
         let renderer = UIGraphicsImageRenderer(size: size)
-        let testImage = renderer.image { context in
-            UIColor.white.setFill()
-            context.fill(CGRect(origin: .zero, size: size))
-        }
-        
-        guard let cgImage = testImage.cgImage else {
-            XCTFail("Failed to create CGImage")
-            return
-        }
-        
-        // OCR 应该能处理这个图片，即使没有文字
-        let result = try await service.recognizeText(from: cgImage)
-        
-        // 结果应该是空字符串或空白（因为图片中没有文字）
-        XCTAssertNotNil(result, "Result should not be nil")
-        // 允许空结果，因为图片中没有文字
-    }
-    
-    func testRecognizeTextWithTextImage() async throws {
-        // 创建一个包含文字的图片
-        let size = CGSize(width: 300, height: 100)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        let textImage = renderer.image { context in
-            // 白色背景
+        let image = renderer.image { context in
             UIColor.white.setFill()
             context.fill(CGRect(origin: .zero, size: size))
             
-            // 绘制黑色文字
-            let text = "Hello World"
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 24),
                 .foregroundColor: UIColor.black
@@ -96,40 +41,41 @@ final class OCRServiceTests: XCTestCase {
             )
             (text as NSString).draw(in: textRect, withAttributes: attributes)
         }
+        guard let cgImage = image.cgImage else { throw NSError(domain: "test", code: -1) }
+        return cgImage
+    }
+
+    // MARK: - Core Functionality
+
+    @Test("验证清晰的文字图片能够被正确识别出内容，防范连白板图片都通过的假象")
+    func recognizeStandardText() async throws {
+        let service = OCRService()
+        let cgImage = try createTextImage(text: "Hello World")
         
-        guard let cgImage = textImage.cgImage else {
-            XCTFail("Failed to create CGImage")
-            return
-        }
-        
-        // 执行 OCR
         let result = try await service.recognizeText(from: cgImage)
         
-        // 验证结果
-        XCTAssertNotNil(result, "Result should not be nil")
-        // 注意：OCR 可能不完美，所以我们只检查结果不为空
-        // 在真实场景中，可能需要更宽松的断言
+        // 我们不再使用毫无意义的 XCTAssertNotNil(result)。
+        // OCR 至少要把部分文字抠出来，即便不是完美的，也应该包含核心词。
+        #expect(result.contains("Hello") || result.contains("World"), "OCR 连非常基础的 Hello World 都未能解析。返回结果: \(result)")
     }
-    
-    func testPerformanceOfOCR() async throws {
-        // 创建测试图片
-        let size = CGSize(width: 1000, height: 1000)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        let largeImage = renderer.image { context in
-            UIColor.white.setFill()
-            context.fill(CGRect(origin: .zero, size: size))
-        }
+
+    // MARK: - Boundary Conditions
+
+    @Test("极端：分辨率极小（如 1x1 或 10x10）毫无特征的点不可识别，应静默返回空而不崩溃")
+    func recognizeMicroNoisyImage() async throws {
+        let service = OCRService()
+        let microImage = try createSolidColorImage(size: CGSize(width: 5, height: 5), color: .black)
         
-        guard let cgImage = largeImage.cgImage else {
-            XCTFail("Failed to create CGImage")
-            return
-        }
+        let result = try await service.recognizeText(from: microImage)
+        #expect(result.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+    }
+
+    @Test("纯空白图片：解析应快速退出并返回空字符串")
+    func recognizeEmptyWhiteImage() async throws {
+        let service = OCRService()
+        let blankImage = try createSolidColorImage(size: CGSize(width: 500, height: 500), color: .white)
         
-        // 测量性能
-        measure {
-            Task {
-                _ = try? await service.recognizeText(from: cgImage)
-            }
-        }
+        let result = try await service.recognizeText(from: blankImage)
+        #expect(result.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
 }

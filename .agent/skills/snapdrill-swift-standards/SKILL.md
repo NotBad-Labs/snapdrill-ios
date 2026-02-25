@@ -20,10 +20,11 @@ description: SnapDrill 项目的 20 条核心 Swift 6 开发标准与架构规�
    - 这份文件长达 2300 行，包含从基础协议到最后打包的详细规范。
    - **红线不可触碰**：
      - **第 1 条**：所有类型必须遵循 `Sendable`；UI 状态统一使用 `@Observable` 宏和 `@MainActor` 隔离。
-     - **第 7 条**：协议声明的顺序有着铁血要求："Send Case Code Hash ID" （`Sendable, CaseIterable, Codable, Hashable, Identifiable`）。
-     - **第 20 条**：禁止 Mutable 值对象，`struct` 的属性一律使用 `let`，修改返回新实例。
+     - **第 7 条**：协议声明的顺序推荐为："Send Case Code Hash ID" （`Sendable, CaseIterable, Codable, Hashable, Identifiable`），不作为强制红线。
+     - **第 20 条**：拥抱值语义，`struct` 的属性允许使用 `var`，推荐使用 `mutating func` 实现高性能就地突变。
      - **第 24 条**：放弃传统的 `ObservableObject`，全面拥抱轻量级的 `@Observable` 宏。
      - **禁令区**：全域禁止 `print()`（必须走统一 `Logger`）；全面推行强类型错误（Typed Throws）。
+     - **合规隔离铁律 (Apple Developer Account)**：在明确获得 EIN 并注册“企业级苹果开发者账号”之前，**绝对禁止**修改项目工程的 Code Signing、Team ID、Bundle ID。**绝对禁止**接入需要 Apple Developer Portal 鉴权的云端能力（如 Push Notifications, iCloud Sync, Apple Sign-In, IAP 等），严格保持个人物理身份与公司数字实体的隔离。
 
 ## 🤖 AI 执行法则
 

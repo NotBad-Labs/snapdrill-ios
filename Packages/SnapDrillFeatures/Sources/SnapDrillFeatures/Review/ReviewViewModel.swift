@@ -10,7 +10,6 @@
 
 import Foundation
 import Observation
-import SwiftData
 import SnapDrillCore
 import SnapDrillData
 
@@ -34,7 +33,7 @@ enum ReviewPhase {
 /// - 每张卡片的评分与调度更新
 /// - 撤销上一次滑动
 ///
-/// - Important: 必须在 `@MainActor` 上下文使用，因为它持有并直接操作 `ModelContext`。
+/// - Important: 必须在 `@MainActor` 上下文使用。
 @Observable
 @MainActor
 final class ReviewViewModel {
@@ -58,6 +57,8 @@ final class ReviewViewModel {
 
     /// 今日已复习总数（跨会话持久）
     var reviewedTodayCount: Int = 0
+    /// 题库总题数
+    var totalItemsCount: Int = 0
     /// 本次会话开始时已完成的数量（用于进度条计算）
     var sessionStartReviewedCount: Int = 0
 
@@ -77,36 +78,38 @@ final class ReviewViewModel {
 
     // MARK: - Private
 
-    private let modelContext: ModelContext
+    private let sessionManager: ReviewSessionManagerProtocol
 
     // MARK: - Initialization
 
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
+    init(sessionManager: ReviewSessionManagerProtocol) {
+        self.sessionManager = sessionManager
     }
 
     // MARK: - Public API
 
-    /// 从数据库加载今日待复习数据，刷新统计
+    /// 从数据库异步加载今日待复习数据，刷新统计
     ///
     /// - Note: 仅在非复习进行中阶段切换 phase，避免打断用户
-    func loadData(allItems: [ReviewItemModel]) {
-        let now = Date()
-        let due = allItems.filter { item in
-            guard let next = item.nextReviewAt else { return true }
-            return next <= now
-        }.sorted { ($0.nextReviewAt ?? .distantPast) < ($1.nextReviewAt ?? .distantPast) }
-
-        reviewQueue = due
-
-        let today = Calendar.current.startOfDay(for: now)
-        reviewedTodayCount = allItems.filter { item in
-            guard let date = item.lastReviewedAt else { return false }
-            return date >= today
-        }.count
-
-        if phase != .reviewing {
-            phase = .idle
+    func loadDataAsync() async {
+        // Simulating heavy work check/load
+        do {
+            let due = try sessionManager.loadDueItems()
+            
+            // Check cancellation after heavy fetch
+            try Task.checkCancellation()
+            
+            reviewQueue = due
+            reviewedTodayCount = try sessionManager.loadTodayReviewedCount()
+            totalItemsCount = try sessionManager.loadTotalItemsCount()
+            
+            if phase != .reviewing {
+                phase = .idle
+            }
+        } catch is CancellationError {
+            // Silently handle cancellation
+        } catch {
+            SnapDrillLogger.generic.error("Failed to load review data: \(error)")
         }
     }
 
@@ -118,15 +121,15 @@ final class ReviewViewModel {
         isAnswerShown = false
 
         // 计算会话前已完成数，用于进度条连续显示
-        let today = Calendar.current.startOfDay(for: Date())
+        _ = Calendar.current.startOfDay(for: Date())
         sessionStartReviewedCount = workingItems.isEmpty ? 0 : reviewedTodayCount
 
         phase = .reviewing
     }
 
     /// 暂停并退出当前会话
-    func quitSession(allItems: [ReviewItemModel]) {
-        loadData(allItems: allItems)
+    func quitSession() {
+        loadData()
         phase = .idle
     }
 
@@ -166,18 +169,13 @@ final class ReviewViewModel {
             phase = .finished
         }
 
-        // SM-2 调度更新
+        // SM-2 调度更新并通过 SessionManager 报错
         let rating: ReviewRating = direction > 0 ? .good : .again
-        let scheduler = ReviewScheduler()
-        let updated = scheduler.scheduleNextReview(for: item.toEntity(), rating: rating)
-
-        item.lastReviewedAt = updated.lastReviewedAt
-        item.nextReviewAt = updated.nextReviewAt
-        item.easeFactor = updated.easeFactor
-        item.interval = updated.interval
-        item.repetitions = updated.repetitions
-
-        saveContext()
+        do {
+            try sessionManager.processSwipeResult(for: item, rating: rating)
+        } catch {
+            SnapDrillLogger.generic.error("ReviewViewModel: 处理滑动结果失败 \(error)")
+        }
     }
 
     /// 撤销上一次滑动
@@ -198,12 +196,5 @@ final class ReviewViewModel {
 
 
     // MARK: - Private Helpers
-
-    private func saveContext() {
-        do {
-            try modelContext.save()
-        } catch {
-            SnapDrillLogger.generic.error("ReviewViewModel: 保存失败 \(error)")
-        }
-    }
+    // (保存上下文逻辑已移至 SessionManager)
 }

@@ -60,19 +60,20 @@ struct ExportPreviewView: View {
         let coreItems = items.map { $0.toEntity() }
         
         // Run in background
-        DispatchQueue.global(qos: .userInitiated).async {
-            let data = PDFExportService.shared.createPDF(from: coreItems) { path in
-                // Image Provider closure: runs on thread?
-                // ImageStorage loadImage is main-thread safe? it uses UIImage(contentsOfFile), which is thread safe-ish but IO bound.
-                // We are in background, so it's fine.
-                // Need to construct full path. ImageStorage internal logic is `documentsDirectory.appending(path)`.
-                // Accessing ImageStorage from here.
-                return imageStorage.loadImage(path: path)
-            }
-            
-            DispatchQueue.main.async {
-                self.pdfData = data
-                self.isLoading = false
+        Task {
+            do {
+                let data = try await PDFExportService.shared.createPDF(from: coreItems) { path in
+                    return imageStorage.loadImage(path: path)
+                }
+                
+                await MainActor.run {
+                    self.pdfData = data
+                    self.isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.isLoading = false
+                }
             }
         }
     }

@@ -65,9 +65,10 @@ struct KnowledgePoints: Sendable {
 }
 ```
 
-### 3. @MainActor 标注
+### 3. @MainActor 标注与限制 (Anti-Abuse)
 
 UI 相关类型（ViewModel、View）使用 `@MainActor` 确保主线程执行。
+**注意：绝对禁止滥用 `@MainActor` 掩盖并发警告。繁重的 I/O 或核心算法（如 SM-2 调度）必须剥离在 `nonisolated` 或独立 `actor` 中，谨防阻塞主线程引发帧率崩塌。**
 
 ```swift
 // ✅ 正确
@@ -77,7 +78,7 @@ final class DashboardViewModel {
     var items: [ReviewItem] = []
     
     func loadData() {
-        // 自动在主线程执行
+        // 自动在主线程执行更新
     }
 }
 ```
@@ -139,9 +140,9 @@ func loadAllData() async {
 
 ## 二、协议遵循标准 (Protocol Conformance)
 
-### 7. 统一协议顺序
+### 7. 统一协议顺序 (推荐指南)
 
-遵循固定的协议声明顺序，便于代码审查和维护。
+推荐遵循固定的协议声明顺序，便于代码审查和维护。但这并非编译器红线。
 
 ```
 Sendable → CaseIterable → Codable → Hashable → Identifiable
@@ -404,23 +405,19 @@ public struct KnowledgePoints {
 
 ## 五、值对象设计标准 (Value Object Design)
 
-### 20. 不可变性
+### 20. 拥抱值语义 (In-Place Mutation)
 
-值对象属性使用 `let`，修改返回新实例。
+值对象（Struct）拥有 Copy-on-Write 和栈特权，不需要像函数式编程那样死板地全用 `let`。可以直接提供 `mutating func` 实现高性能就地突变。
 
 ```swift
 struct KnowledgePoints: Sendable {
-    // ✅ 不可变
-    let items: [String]
+    // ✅ 允许内部可变
+    var items: [String]
     
-    // ✅ 修改返回新实例
-    nonisolated func adding(_ point: String) -> KnowledgePoints {
-        KnowledgePoints(items + [point])
+    // ✅ 拥抱 Swift 性能核心，就地突变
+    mutating func add(_ point: String) {
+        items.append(point)
     }
-    
-    // ❌ 错误 - 可变状态
-    // var items: [String]
-    // mutating func add(_ point: String) { items.append(point) }
 }
 ```
 
@@ -520,6 +517,7 @@ class DashboardViewModel: ObservableObject {
 ```
 
 **`@Observable` 优势：**
+
 - 更精细的属性级别追踪（非整体对象）
 - 更少的内存开销和更高的性能
 - 无需 `@Published`，代码更简洁
@@ -1522,6 +1520,7 @@ let package = Package(
 ```
 
 **依赖规则：**
+
 - ✅ `SnapDrillUI` → `SnapDrillCore` (UI 依赖核心类型)
 - ✅ `SnapDrillData` → `SnapDrillCore` (数据层实现核心协议)
 - ✅ `SnapDrillApp` → 所有模块 (主应用组装)
@@ -1551,6 +1550,7 @@ let package = Package(
 在项目中配置 SwiftLint 自动检查代码风格。
 
 **安装 SwiftLint：**
+
 ```bash
 # 使用 Homebrew
 brew install swiftlint
@@ -1561,6 +1561,7 @@ brew install swiftlint
 ```
 
 **Xcode Build Phase 脚本：**
+
 ```bash
 # Build Phases → New Run Script Phase
 if which swiftlint > /dev/null; then
@@ -1648,11 +1649,13 @@ custom_rules:
 SwiftLint 检查风格，SwiftFormat 自动格式化。
 
 **安装：**
+
 ```bash
 brew install swiftformat
 ```
 
 **配置 `.swiftformat`：**
+
 ```
 # .swiftformat - 格式化规则
 
@@ -1674,6 +1677,7 @@ brew install swiftformat
 ```
 
 **格式化命令：**
+
 ```bash
 # 格式化整个项目
 swiftformat .
@@ -2272,59 +2276,69 @@ await refreshFromDB()  // 后台刷新
 开发完成后，使用此清单进行代码审计：
 
 ### 并发安全 ✓
+
 - [ ] 所有值对象遵循 `Sendable`
 - [ ] 计算属性标记 `nonisolated`
 - [ ] ViewModel 使用 `@MainActor` + `@Observable`
 - [ ] 异步操作使用 `async/await`
 
 ### 代码质量 ✓
+
 - [ ] 协议顺序：Send Case Code Hash ID
 - [ ] 使用 DocC 格式注释
 - [ ] MARK 分组清晰
 - [ ] 访问控制合理
 
 ### 设计系统 ✓
+
 - [ ] 无硬编码数值（间距、圆角、颜色）
 - [ ] 使用 DesignTokens 令牌
 - [ ] 使用 Color.brand 品牌色
 - [ ] 统一按钮/卡片样式
 
 ### 调试与发布 ✓
+
 - [ ] 所有 print 包裹 `#if DEBUG`
 - [ ] 无敏感信息泄露
 - [ ] 使用 emoji 分类日志
 
 ### 无障碍 ✓
+
 - [ ] 交互元素有 accessibilityLabel
 - [ ] 支持动态字体
 - [ ] 适配减少动画设置
 - [ ] 提供触觉反馈
 
 ### 测试 ✓
+
 - [ ] 使用 Swift Testing 框架
 - [ ] 中文测试名
 - [ ] 覆盖边界条件
 - [ ] Mock 外部依赖
 
 ### 模块化 ✓
+
 - [ ] 功能按模块拆分
 - [ ] 依赖方向正确（上层→下层）
 - [ ] 核心模块无 UI 依赖
 - [ ] 使用协议解耦
 
 ### 代码规范 ✓
+
 - [ ] 集成 SwiftLint
 - [ ] 配置 .swiftlint.yml
 - [ ] CI 自动检查
 - [ ] 统一代码格式
 
 ### 性能 ✓
+
 - [ ] 使用 Instruments 分析
 - [ ] 无主线程阻塞
 - [ ] 无内存泄漏
 - [ ] 性能测试覆盖关键路径
 
 ### 启动优化 ✓
+
 - [ ] 冷启动 < 400ms
 - [ ] 延迟非必要初始化
 - [ ] 首屏数据来自缓存
@@ -2349,6 +2363,7 @@ await refreshFromDB()  // 后台刷新
 ## 更新日志
 
 ### 2025-11-26 (第二次更新)
+
 - ⭐ **新增** 十七、模块化开发标准 (SPM 模块划分、依赖规则、编译优势)
 - ⭐ **新增** 十八、代码规范工具 (SwiftLint 配置、SwiftFormat、CI/CD 集成)
 - ⭐ **新增** 十九、性能调试工具 (Instruments 使用、Time Profiler、Leaks、SwiftUI 分析)
@@ -2357,6 +2372,7 @@ await refreshFromDB()  // 后台刷新
 - ⭐ **新增** 审计检查清单：模块化、代码规范、性能、启动优化
 
 ### 2025-11-26 (第一次更新)
+
 - ⭐ **新增** 十三、设计系统标准 (Design Tokens, Brand Colors, Button/Card Styles)
 - ⭐ **新增** 十四、调试与发布标准 (#if DEBUG, 日志规范, 敏感信息保护)
 - ⭐ **新增** 十五、无障碍标准 (VoiceOver, 动态字体, 减少动画, 触觉反馈)

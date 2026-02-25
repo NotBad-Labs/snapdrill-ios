@@ -61,6 +61,11 @@ public class SubjectRepository: SubjectRepositoryProtocol {
         modelContext.delete(subject)
     }
     
+    /// 清空所有学科
+    public func deleteAll() throws {
+        try modelContext.delete(model: SubjectModel.self)
+    }
+    
     /// 初始化默认学科（如果为空）
     public func initializeDefaultsIfNeeded() {
         do {

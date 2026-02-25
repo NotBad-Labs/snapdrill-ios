@@ -9,7 +9,7 @@
 //
 
 import UIKit
-import AVFoundation
+@preconcurrency import AVFoundation
 import Vision
 import SnapDrillCore
 
@@ -79,9 +79,72 @@ class SmartCameraViewController: UIViewController {
     }
 }
 
+// MARK: - Camera State Actor (Concurrency Safe)
+
+actor CameraStateActor {
+    private var smoothedRect: CGRect?
+    private var stabilityCounter: Int = 0
+    private let stabilityThreshold = 10
+    private let movementThreshold: CGFloat = 0.05
+    private var lastUpdateTime: TimeInterval = 0
+    
+    var lastDetectedRect: CGRect?
+    
+    func process(target: CGRect?, now: TimeInterval) -> (CGRect?, Bool) {
+        // Throttle updates
+        guard now - lastUpdateTime > 0.06 else {
+            return (smoothedRect, stabilityCounter > stabilityThreshold)
+        }
+        lastUpdateTime = now
+        
+        guard let target = target else {
+            stabilityCounter = 0
+            return (nil, false)
+        }
+        
+        let newRect: CGRect
+        if let current = smoothedRect {
+            // Low Pass Filter
+            let factor: CGFloat = 0.08
+            newRect = CGRect(
+                x: current.origin.x * (1 - factor) + target.origin.x * factor,
+                y: current.origin.y * (1 - factor) + target.origin.y * factor,
+                width: current.width * (1 - factor) + target.width * factor,
+                height: current.height * (1 - factor) + target.height * factor
+            )
+            
+            // Check delta for stability
+            let delta = abs(newRect.origin.x - current.origin.x) + abs(newRect.origin.y - current.origin.y)
+            if delta < movementThreshold {
+                stabilityCounter += 1
+            } else {
+                stabilityCounter = max(0, stabilityCounter - 1)
+            }
+        } else {
+            newRect = target
+            stabilityCounter = 0
+        }
+        
+        self.smoothedRect = newRect
+        let isStable = stabilityCounter > stabilityThreshold
+        
+        // Final Output
+        let padded = newRect.insetBy(dx: -0.1, dy: -0.1)
+        let finalRect = padded.intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
+        
+        self.lastDetectedRect = finalRect
+        return (finalRect, isStable)
+    }
+}
+
+import os // For OSAllocatedUnfairLock
+
 // MARK: - Camera Session Manager (Non-UI Logic)
 
-class CameraSessionManager: NSObject, @unchecked Sendable {
+// Applying @preconcurrency to the whole class isn't ideal, but since AVFoundation types
+// aren't fully audited for Sendable yet in iOS 17 SDK, we drop the explicit Sendable conformance
+// and manage synchronization manually via Queues and Actors.
+final class CameraSessionManager: NSObject {
     
     let session = AVCaptureSession()
     
@@ -90,27 +153,30 @@ class CameraSessionManager: NSObject, @unchecked Sendable {
     private let visionQueue = DispatchQueue(label: "com.snapdrill.visionQueue", qos: .userInitiated)
     private let sessionQueue = DispatchQueue(label: "com.snapdrill.sessionQueue")
     
-    // Smoothing & Stability
-    private var smoothedRect: CGRect?
-    private var stabilityCounter: Int = 0
-    private let stabilityThreshold = 10 // Number of stable frames to trigger "Green"
-    private let movementThreshold: CGFloat = 0.05 // Tolerance for considering "still"
+    private let stateActor = CameraStateActor()
     
-    // Callback now includes isStable flag
-    var onRegionDetected: ((CGRect?, Bool) -> Void)?
-    var onCapture: ((UIImage, CGRect) -> Void)?
+    // Atomic Flag for Backpressure
+    private let isProcessingFrame = OSAllocatedUnfairLock(initialState: false)
     
-    private var lastDetectedRect: CGRect?
-    private var lastUpdateTime: TimeInterval = 0
+    // The callbacks cross boundaries, so we mark the closures as @Sendable to satisfy
+    // Swift 6 strict concurrency checks during the Task jump. 
+    // The calling context (SmartCameraViewController) guarantees @MainActor dispatch.
+    var onRegionDetected: (@Sendable (CGRect?, Bool) -> Void)?
+    var onCapture: (@Sendable (UIImage, CGRect) -> Void)?
     
     override init() {
         super.init()
         configureSession()
     }
     
+    private struct CaptureSessionWrapper: @unchecked Sendable {
+        let session: AVCaptureSession
+    }
+    
     func startSession() {
+        let wrapper = CaptureSessionWrapper(session: self.session)
         sessionQueue.async {
-            self.session.startRunning()
+            wrapper.session.startRunning()
         }
     }
     
@@ -147,37 +213,11 @@ class CameraSessionManager: NSObject, @unchecked Sendable {
         
         session.commitConfiguration()
     }
-}
-
-// MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
-
-extension CameraSessionManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-        
-        let request = VNDetectTextRectanglesRequest { [weak self] request, _ in
-            guard let self = self else { return }
-            if let results = request.results as? [VNTextObservation] {
-                self.processVisionResults(results)
-            }
-        }
-        request.reportCharacterBoxes = false
-        
-        let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .right)
-        try? handler.perform([request])
-    }
-    
-    // swiftlint:disable:next function_body_length
-    private func processVisionResults(_ observations: [VNTextObservation]) {
-        // 1. Center-Weighted Clustering Logic
-        // Instead of unioning everything, we find the text block closest to center,
-        // and then group only its close neighbors.
-        
+    private static func extractTargetRect(from observations: [VNTextObservation]) -> CGRect? {
         let validObs = observations.filter { $0.boundingBox.height > 0.02 } // Filter noise
         guard !validObs.isEmpty else {
-            handleNoDetection()
-            return
+            return nil
         }
         
         // A. Find "Anchor" (Observation closest to center screen)
@@ -188,35 +228,21 @@ extension CameraSessionManager: AVCaptureVideoDataOutputSampleBufferDelegate {
             return hypot(boxCenter.x - point.x, boxCenter.y - point.y)
         }
         
-        // Find the observation closest to center (within reasonable range, e.g. 0.35 radius)
         let sortedByDistance = validObs.sorted {
             distance(from: $0.boundingBox, to: centerPoint) < distance(from: $1.boundingBox, to: centerPoint)
         }
         
         guard let anchor = sortedByDistance.first,
               distance(from: anchor.boundingBox, to: centerPoint) < 0.35 else {
-            // Nothing near center
-            handleNoDetection()
-            return
+            return nil
         }
         
         // B. Cluster Neighbors
-        // Expand from anchor to include nearby text blocks (e.g. same paragraph)
-        // Vertical distance is crucial (lines above/below), Horizontal can be wider.
-        
         var cluster: [VNTextObservation] = [anchor]
         var currentUnion = anchor.boundingBox
         
-        // Simple strategy: Filter all obs that intersect or are very close to the anchor's growing union
-        // Iterative expansion could be better, but single-pass proximity check is faster.
-        
         for obs in validObs where obs !== anchor {
             let box = obs.boundingBox
-            // Check vertical proximity to the current cluster area
-            // Ideally should check against specific lines, but let's check against center of anchor for simplicity first,
-            // or better: check if it overlaps vertical range of anchor expanded by threshold.
-            
-            // Check if this box is close to the anchor
             let distToAnchor = distance(from: box, to: CGPoint(x: anchor.boundingBox.midX, y: anchor.boundingBox.midY))
             
             if distToAnchor < 0.15 { // Close neighbors only
@@ -225,79 +251,84 @@ extension CameraSessionManager: AVCaptureVideoDataOutputSampleBufferDelegate {
             }
         }
         
-        // Update Raw Rect
-        let rawRect: CGRect? = currentUnion
-        
-        // 2. Smoothing & Stability Logic
-        
-        let now = Date().timeIntervalSince1970
-        // Throttle updates to ~15 FPS to reduce visual jitter perception
-        guard now - lastUpdateTime > 0.06 else { return }
-        lastUpdateTime = now
-        
-        guard let target = rawRect else {
-            // Lost track
-            handleNoDetection()
-            return
-        }
-        
-        if let current = smoothedRect {
-            // Low Pass Filter: new = old * (1 - factor) + target * factor
-            // Reduced factor for "heavier", smoother movement
-            let factor: CGFloat = 0.08
-            let newX = current.origin.x * (1 - factor) + target.origin.x * factor
-            let newY = current.origin.y * (1 - factor) + target.origin.y * factor
-            let newW = current.width * (1 - factor) + target.width * factor
-            let newH = current.height * (1 - factor) + target.height * factor
-            
-            let newRect = CGRect(x: newX, y: newY, width: newW, height: newH)
-            
-            // Check delta for stability
-            let delta = abs(newRect.origin.x - current.origin.x) + abs(newRect.origin.y - current.origin.y)
-            if delta < movementThreshold {
-                stabilityCounter += 1
-            } else {
-                stabilityCounter = max(0, stabilityCounter - 1)
-            }
-            
-            self.smoothedRect = newRect
-        } else {
-            self.smoothedRect = target
-            self.stabilityCounter = 0
-        }
-        
-        // 3. Final Output
-        let isStable = stabilityCounter > stabilityThreshold
-        
-        if let output = smoothedRect {
-             // Padding and clamping
-             // Increased padding to 0.1 (10%) to solve "tight box" issue
-            let padded = output.insetBy(dx: -0.1, dy: -0.1)
-            let finalRect = padded.intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
-            
-            self.lastDetectedRect = finalRect
-            onRegionDetected?(finalRect, isStable)
-        }
+        return currentUnion
     }
+}
+
+// MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
+
+extension CameraSessionManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     
-    private func handleNoDetection() {
-        let now = Date().timeIntervalSince1970
-        guard now - lastUpdateTime > 0.06 else { return }
-        lastUpdateTime = now
+    nonisolated func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         
-        self.stabilityCounter = 0
-        self.onRegionDetected?(nil, false)
+        // 1. Backpressure Strategy: Drop frames if we are still processing
+        let canProcess = isProcessingFrame.withLock { state -> Bool in
+            if state { return false }
+            state = true
+            return true
+        }
+        
+        guard canProcess else { return }
+        
+        // Release the lock when the frame processing is fully handed over or completed
+        defer {
+            isProcessingFrame.withLock { $0 = false }
+        }
+        
+        // 2. Strict Memory Pool: Wrap Vision pipeline in autoreleasepool
+        autoreleasepool {
+            guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+            
+            let localActor = self.stateActor
+            let localCallback = self.onRegionDetected
+            let request = VNDetectTextRectanglesRequest { request, _ in
+                if let results = request.results as? [VNTextObservation] {
+                    let targetRect = Self.extractTargetRect(from: results)
+                    let now = Date().timeIntervalSince1970
+                    
+                    Task {
+                        let (finalRect, isStable) = await localActor.process(target: targetRect, now: now)
+                        localCallback?(finalRect, isStable)
+                    }
+                }
+            }
+            request.reportCharacterBoxes = false
+            
+            let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .right)
+            try? handler.perform([request])
+        }
     }
 }
 
 // MARK: - AVCapturePhotoCaptureDelegate
 
 extension CameraSessionManager: AVCapturePhotoCaptureDelegate {
-    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        guard let data = photo.fileDataRepresentation(),
-              let image = UIImage(data: data) else { return }
+    nonisolated func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        guard let data = photo.fileDataRepresentation() else { return }
         
-        let rect = self.lastDetectedRect ?? CGRect(x: 0.1, y: 0.1, width: 0.8, height: 0.8)
-        onCapture?(image, rect)
+        // 3. Downsampling: Use ImageIO instead of UIImage(data:) to prevent OOM
+        let options = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: 2048 // Downsample to safe dimension
+        ] as CFDictionary
+        
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else {
+            SnapDrillLogger.capture.error("Failed to downsample captured photo.")
+            return
+        }
+        
+        let image = UIImage(cgImage: cgImage)
+        
+        // Capture local references to avoid capturing non-Sendable `self` in the Task
+        let localActor = self.stateActor
+        let localCallback = self.onCapture
+        
+        Task {
+            let rect = await localActor.lastDetectedRect ?? CGRect(x: 0.1, y: 0.1, width: 0.8, height: 0.8)
+            localCallback?(image, rect)
+        }
     }
 }

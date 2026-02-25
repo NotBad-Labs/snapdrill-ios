@@ -43,3 +43,35 @@ public final class DefaultRepositoryContainer: RepositoryContainer {
         self.tag = TagRepository(modelContext: modelContext)
     }
 }
+
+// MARK: - Preview Support
+
+/// 预览专用数据仓库容器
+///
+/// 使用内存中的 `ModelContext` 初始化仓库，防止预览污染真实数据库。
+@MainActor
+public final class PreviewRepositoryContainer: RepositoryContainer {
+    public let review: ReviewRepositoryProtocol
+    public let subject: SubjectRepositoryProtocol
+    public let source: SourceRepositoryProtocol
+    public let tag: TagRepositoryProtocol
+    
+    public init() {
+        // 创建内存中的 ModelContext
+        let schema = Schema([
+            ReviewItemModel.self,
+            SubjectModel.self,
+            SourceModel.self,
+            TagModel.self
+        ])
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try! ModelContainer(for: schema, configurations: [config])
+        let context = container.mainContext
+        
+        self.review = ReviewRepository(modelContext: context)
+        self.subject = SubjectRepository(modelContext: context)
+        self.source = SourceRepository(modelContext: context)
+        self.tag = TagRepository(modelContext: context)
+    }
+}
+

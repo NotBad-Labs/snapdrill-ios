@@ -6,13 +6,12 @@
 //
 
 import SwiftUI
-import SwiftData
 import SnapDrillData
 import UniformTypeIdentifiers
 
 /// 隐私设置页面
 struct PrivacySettingsView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.repositories) private var repos
     @AppStorage("analyticsEnabled") private var analyticsEnabled = false
     @AppStorage("crashReportingEnabled") private var crashReportingEnabled = true
     
@@ -94,8 +93,7 @@ struct PrivacySettingsView: View {
         exportError = nil
         
         do {
-            let repository = ReviewRepository(modelContext: modelContext)
-            let items = try repository.fetchAll()
+            let items = try repos.review.fetchAll()
             
             // Convert to Sendable value types before crossing actor boundary
             let exportableItems = items.map { item in

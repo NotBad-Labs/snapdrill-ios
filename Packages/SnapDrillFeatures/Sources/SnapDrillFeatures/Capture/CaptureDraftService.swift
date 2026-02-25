@@ -15,7 +15,7 @@ import SnapDrillCore
 ///
 /// 当用户意外退出编辑界面时，用于恢复之前的图片和识别文字。
 @MainActor
-public class CaptureDraftService {
+public class CaptureDraftService: CaptureDraftServiceProtocol {
     
     public static let shared = CaptureDraftService()
     

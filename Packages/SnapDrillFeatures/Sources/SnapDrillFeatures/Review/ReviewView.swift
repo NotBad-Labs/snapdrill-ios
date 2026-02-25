@@ -13,7 +13,6 @@ import Observation
 import SnapDrillCore
 import SnapDrillUI
 import SnapDrillData
-import SwiftData
 
 /// 复习会话界面
 ///
@@ -24,9 +23,8 @@ public struct ReviewView: View {
     // MARK: - Dependencies
 
     @Bindable private var router: ReviewRouter
+    @Environment(\.repositories) private var repos
     @State private var viewModel: ReviewViewModel?
-    @Query private var allItems: [ReviewItemModel]
-    @Environment(\.modelContext) private var modelContext
 
     // MARK: - Initialization
 
@@ -47,15 +45,16 @@ public struct ReviewView: View {
                     ProgressView()
                 }
             }
-            .onAppear {
+            .task {
                 if viewModel == nil {
-                    let vm = ReviewViewModel(modelContext: modelContext)
-                    vm.loadData(allItems: allItems)
+                    // 使用已注入的 repositories 容器
+                    let manager = ReviewSessionManager(repository: repos.review)
+                    let vm = ReviewViewModel(sessionManager: manager)
+                    await vm.loadDataAsync()
                     viewModel = vm
+                } else {
+                    await viewModel?.loadDataAsync()
                 }
-            }
-            .onChange(of: allItems) { _, _ in
-                viewModel?.loadData(allItems: allItems)
             }
         }
     }
@@ -73,7 +72,7 @@ public struct ReviewView: View {
                 ReviewDashboardView(
                     pendingCount: vm.reviewQueue.count,
                     reviewedCount: vm.reviewedTodayCount,
-                    totalItemsCount: allItems.count,
+                    totalItemsCount: vm.totalItemsCount,
                     onStart: { withAnimation { vm.startSession() } },
                     onEnter: { router.onNavigateToCapture?() }
                 )
@@ -90,7 +89,7 @@ public struct ReviewView: View {
                     subtitle: "太棒了！休息一下，明天继续。",
                     actionTitle: "好的",
                     action: {
-                        vm.loadData(allItems: allItems)
+                        vm.loadData()
                         withAnimation { vm.phase = .idle }
                     }
                 )
@@ -103,7 +102,7 @@ public struct ReviewView: View {
         .alert("确认暂停复习？", isPresented: Binding(get: { vm.showPauseAlert }, set: { vm.showPauseAlert = $0 })) {
             Button("继续", role: .cancel) { }
             Button("暂停", role: .destructive) {
-                withAnimation { vm.quitSession(allItems: allItems) }
+                withAnimation { vm.quitSession() }
             }
         } message: {
             Text("当前进度将保存，您可以稍后继续。")

@@ -20,7 +20,7 @@ import OSLog
 /// 遵循 Apple 最佳实践：在 App 启动后延迟弹窗，避免用户首次打开即被打断。
 /// Wraps ATT authorization with Apple-recommended delayed prompt behavior.
 @MainActor
-public final class PrivacyConsentService: Sendable {
+public final class PrivacyConsentService {
 
     // MARK: - Properties
 
