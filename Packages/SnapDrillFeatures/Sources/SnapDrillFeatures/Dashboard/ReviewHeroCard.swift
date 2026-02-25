@@ -9,7 +9,6 @@
 //
 
 import SwiftUI
-import SwiftData
 import SnapDrillData
 
 /// 仪表盘核心卡片：根据当前的复习数量动态展示不同的 UI 状态
@@ -24,17 +23,12 @@ struct ReviewHeroCard: View {
     /// 点击“录入题目”时的回调
     let onStartCapture: () -> Void
     
-    // Internal Query for Reactivity
-    @Query private var allItems: [ReviewItemModel]
+    let totalCount: Int
+    let dueCount: Int
     
-    // Computed Properties
-    private var totalCount: Int { allItems.count }
-    private var dueCount: Int {
-        let now = Date()
-        return allItems.filter { ($0.nextReviewAt ?? .distantPast) <= now }.count
-    }
-    
-    init(onStartReview: @escaping () -> Void, onStartCapture: @escaping () -> Void) {
+    init(totalCount: Int, dueCount: Int, onStartReview: @escaping () -> Void, onStartCapture: @escaping () -> Void) {
+        self.totalCount = totalCount
+        self.dueCount = dueCount
         self.onStartReview = onStartReview
         self.onStartCapture = onStartCapture
     }
@@ -140,6 +134,5 @@ struct ReviewHeroCard: View {
 }
 
 #Preview("Hero Card") {
-    ReviewHeroCard(onStartReview: {}, onStartCapture: {})
-        .modelContainer(for: ReviewItemModel.self, inMemory: true)
+    ReviewHeroCard(totalCount: 5, dueCount: 3, onStartReview: {}, onStartCapture: {})
 }

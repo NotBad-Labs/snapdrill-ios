@@ -10,15 +10,15 @@
 
 import SwiftUI
 import SnapDrillCore
-import SwiftData
 import SnapDrillData
 import SnapDrillUI
 
 // Keep existing SubjectManagerView ...
 struct SubjectManagerView: View {
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) var modelContext
-    @Query(sort: \SubjectModel.sortOrder) var subjects: [SubjectModel]
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.repositories) private var repos
+    
+    @State private var viewModel: SubjectManagerViewModel?
     
     @State private var showingAddSheet = false
     @State private var editingSubject: SubjectModel?
@@ -26,7 +26,8 @@ struct SubjectManagerView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(subjects) { subject in
+                if let vm = viewModel {
+                    ForEach(vm.subjects) { subject in
                     Button {
                         editingSubject = subject
                     } label: {
@@ -43,7 +44,8 @@ struct SubjectManagerView: View {
                         }
                     }
                 }
-                .onDelete(perform: deleteSubject)
+                .onDelete(perform: { offsets in vm.delete(at: offsets) })
+                }
             }
             .navigationTitle("管理学科")
             .toolbar {
@@ -64,19 +66,20 @@ struct SubjectManagerView: View {
             }
         }
     }
-    
-    func deleteSubject(at offsets: IndexSet) {
-        for index in offsets {
-            let subject = subjects[index]
-            modelContext.delete(subject)
+            .onAppear {
+                if viewModel == nil {
+                    viewModel = SubjectManagerViewModel(repository: repos.subject)
+                }
+                viewModel?.loadData()
+            }
         }
     }
 }
 
 /// 统一的添加/编辑学科视图
 struct EditSubjectView: View {
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) var modelContext
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.repositories) private var repos
     
     /// 如果为 nil，则为添加模式；否则为编辑模式
     let subject: SubjectModel?
@@ -207,20 +210,18 @@ struct EditSubjectView: View {
             return selectedColorHex
         }
     }
-    
     func saveSubject() {
+        let repo = repos.subject
         if let subject {
-            // 编辑模式：更新现有学科
-            subject.name = name.trimmingCharacters(in: .whitespaces)
-            subject.icon = selectedIcon
-            subject.colorHex = finalColorHex
+            do {
+                try repo.update(subject, name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
+            } catch {
+                SnapDrillLogger.generic.info("Failed to update subject: \(error.localizedDescription)")
+            }
         } else {
-            // 添加模式：创建新学科
-            let repo = SubjectRepository(modelContext: modelContext)
             do {
                 try repo.add(name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
             } catch {
-                // 如果失败（如重复），静默失败或显示错误
                 SnapDrillLogger.generic.info("Failed to add subject: \(error.localizedDescription)")
             }
         }
@@ -229,7 +230,6 @@ struct EditSubjectView: View {
 
 #Preview("Manager") {
     SubjectManagerView()
-        .modelContainer(for: SubjectModel.self, inMemory: true)
 }
 
 #Preview("Add Subject") {

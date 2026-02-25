@@ -9,7 +9,6 @@
 //
 
 import SwiftUI
-import SwiftData
 import Observation
 import SnapDrillCore
 import SnapDrillUI
@@ -21,7 +20,6 @@ import SnapDrillData
 /// 核心解决 "0待复习" 时的空洞感，将其转化为正反馈的 "任务完成" 状态。
 public struct DashboardView: View {
     @Bindable private var router: DashboardRouter
-    @Environment(\.modelContext) private var modelContext
     
     @State private var viewModel = DashboardViewModel()
     
@@ -50,6 +48,8 @@ public struct DashboardView: View {
                         // 2. Hero Section (Review Status)
                         // 2. Hero Section (Review Status, Reactive)
                         ReviewHeroCard(
+                            totalCount: viewModel.totalCount,
+                            dueCount: viewModel.dueCount,
                             onStartReview: { router.navigateToReview() },
                             onStartCapture: { viewModel.checkDraftAndCapture(router: router) }
                         )
@@ -76,7 +76,7 @@ public struct DashboardView: View {
                             }
                             
                             // Daily Insight (Real Data, Reactive)
-                            DailyStatsView()
+                            DailyStatsView(count: viewModel.todayItemsCount)
                             
                             // Settings/More
                             BentoCard(
@@ -98,7 +98,7 @@ public struct DashboardView: View {
                 }
             }
             .onAppear {
-                viewModel.loadData(modelContext: modelContext)
+                viewModel.loadData()
             }
         }
         .alert("敬请期待", isPresented: $viewModel.showingComingSoon) {
@@ -125,30 +125,20 @@ public struct DashboardView: View {
 
 #Preview {
     DashboardView(router: DashboardRouter())
-        .modelContainer(for: [SubjectModel.self, ReviewItemModel.self], inMemory: true)
 }
 
-/// 独立的今日统计视图，使用 @Query 实现自动刷新
+/// 独立的今日统计视图，由 ViewModel 传入数据
 struct DailyStatsView: View {
-    @Query private var todayItems: [ReviewItemModel]
+    let count: Int
     
-    init() {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: Date())
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? Date().addingTimeInterval(86400)
-        
-        // Dynamic Predicate for "Today"
-        let predicate = #Predicate<ReviewItemModel> { item in
-            item.createdAt >= startOfDay && item.createdAt < endOfDay
-        }
-        
-        _todayItems = Query(filter: predicate)
+    init(count: Int) {
+        self.count = count
     }
     
     var body: some View {
         BentoCard(
             title: "今日新增",
-            subtitle: "\(todayItems.count) 题",
+            subtitle: "\(count) 题",
             icon: "chart.bar.xaxis",
             gradient: LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing)
         ) {

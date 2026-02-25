@@ -353,6 +353,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to scan and capture study materials. / 小本本需要相机权限以扫描录入错题。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import study materials. / 小本本需要相册权限以导入复习资料。";
+                                INFOPLIST_KEY_NSUserTrackingUsageDescription = "SnapDrill needs this permission to provide personalized features and gather crash logs. / 小本本需要此权限以提供个性化体验和收集崩溃日志。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -388,6 +389,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to scan and capture study materials. / 小本本需要相机权限以扫描录入错题。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import study materials. / 小本本需要相册权限以导入复习资料。";
+                                INFOPLIST_KEY_NSUserTrackingUsageDescription = "SnapDrill needs this permission to provide personalized features and gather crash logs. / 小本本需要此权限以提供个性化体验和收集崩溃日志。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

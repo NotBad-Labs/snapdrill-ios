@@ -44,6 +44,23 @@ public class SubjectRepository: SubjectRepositoryProtocol {
         modelContext.insert(model)
     }
     
+    /// 更新学科
+    public func update(_ subject: SubjectModel, name: String, icon: String, colorHex: String) throws {
+        // 检查名称唯一性，排除自身
+        let existing = try fetchAll().first { $0.name == name && $0.id != subject.id }
+        if existing != nil {
+            throw DataError.duplicateName(name: name, entityType: "Subject")
+        }
+        subject.name = name
+        subject.icon = icon
+        subject.colorHex = colorHex
+    }
+    
+    /// 删除学科
+    public func delete(_ subject: SubjectModel) {
+        modelContext.delete(subject)
+    }
+    
     /// 初始化默认学科（如果为空）
     public func initializeDefaultsIfNeeded() {
         do {

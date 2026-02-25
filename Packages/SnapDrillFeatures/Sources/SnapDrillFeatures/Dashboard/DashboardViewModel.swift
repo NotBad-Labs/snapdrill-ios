@@ -8,7 +8,7 @@
 
 import Foundation
 import Observation
-import SwiftData
+import Observation
 import SnapDrillCore
 import SnapDrillData
 
@@ -22,17 +22,44 @@ public final class DashboardViewModel {
     public var showingComingSoon = false
     public var showingDraftAlert = false
     
-    public init() {}
+    /// 今日新增卡片数
+    public var todayItemsCount: Int = 0
+    /// 题库总卡片数量
+    public var totalCount: Int = 0
+    /// 今日待复习卡片数
+    public var dueCount: Int = 0
+    
+    private let draftService: CaptureDraftServiceProtocol
+    private let subjectRepository: SubjectRepositoryProtocol
+    private let reviewRepository: ReviewRepositoryProtocol
+    
+    public init(
+        draftService: CaptureDraftServiceProtocol = CaptureDraftService.shared,
+        subjectRepository: SubjectRepositoryProtocol? = nil,
+        reviewRepository: ReviewRepositoryProtocol? = nil
+    ) {
+        self.draftService = draftService
+        // 对于未提供实例的情况，我们在 View 侧通过 @Environment(\.repositories) 进行初始化和注入
+        self.subjectRepository = subjectRepository ?? DefaultRepositoryContainer().subject
+        self.reviewRepository = reviewRepository ?? DefaultRepositoryContainer().review
+    }
     
     // MARK: - Public API
     
-    public func loadData(modelContext: ModelContext) {
-        let subjectRepo = SubjectRepository(modelContext: modelContext)
-        subjectRepo.initializeDefaultsIfNeeded()
+    public func loadData() {
+        subjectRepository.initializeDefaultsIfNeeded()
+        
+        do {
+            todayItemsCount = try reviewRepository.fetchTodayCount()
+            totalCount = try reviewRepository.totalItemCount()
+            dueCount = try reviewRepository.fetchDueCount()
+        } catch {
+            SnapDrillLogger.generic.error("Failed to fetch today's items count: \(error)")
+        }
     }
     
     public func checkDraftAndCapture(router: DashboardRouter) {
-        if CaptureDraftService.shared.hasDraft {
+        if draftService.hasDraft {
             showingDraftAlert = true
         } else {
             router.navigateToCapture()
@@ -40,12 +67,12 @@ public final class DashboardViewModel {
     }
     
     public func startNewCapture(router: DashboardRouter) {
-        CaptureDraftService.shared.clearDraft()
+        draftService.clearDraft()
         router.navigateToCapture()
     }
     
     public func restoreDraft(router: DashboardRouter) {
-        if let draft = CaptureDraftService.shared.loadDraft() {
+        if let draft = draftService.loadDraft() {
             router.navigateToCapture(withDraft: draft)
         } else {
             router.navigateToCapture()

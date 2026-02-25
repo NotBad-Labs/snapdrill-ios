@@ -27,6 +27,8 @@ public protocol ReviewRepositoryProtocol {
     func fetchPaginated(limit: Int, offset: Int) throws -> [ReviewItemModel]
     /// 获取待复习条目数量
     func fetchDueCount() throws -> Int
+    /// 获取今日新增条目数量
+    func fetchTodayCount() throws -> Int
     /// 获取总条目数量
     func totalItemCount() throws -> Int
     /// 根据 ID 查找
@@ -48,6 +50,10 @@ public protocol SubjectRepositoryProtocol {
     func fetchAll() throws -> [SubjectModel]
     /// 添加学科
     func add(name: String, icon: String, colorHex: String) throws
+    /// 更新学科
+    func update(_ subject: SubjectModel, name: String, icon: String, colorHex: String) throws
+    /// 删除学科
+    func delete(_ subject: SubjectModel)
     /// 初始化默认学科
     func initializeDefaultsIfNeeded()
 }
@@ -61,6 +67,8 @@ public protocol SourceRepositoryProtocol {
     func fetchAll() throws -> [SourceModel]
     /// 添加来源
     func add(name: String, icon: String, colorHex: String) throws
+    /// 更新来源
+    func update(_ source: SourceModel, name: String, icon: String, colorHex: String) throws
     /// 删除来源
     func delete(_ source: SourceModel)
     /// 初始化默认来源

@@ -40,10 +40,9 @@ public class ReviewRepository: ReviewRepositoryProtocol {
     /// - Throws: `DataError.duplicateItem` 如果 ID 已存在
     public func save(_ item: ReviewItem, subject: String = "其他") throws {
         // 检查唯一性
-        if let existing = try? fetchById(item.id), existing != nil {
+        if (try? fetchById(item.id)) != nil {
             throw DataError.duplicateItem(id: item.id)
         }
-        
         let model = ReviewItemModel(
             id: item.id,
             content: item.content,
@@ -88,6 +87,20 @@ public class ReviewRepository: ReviewRepositoryProtocol {
             predicate: #Predicate<ReviewItemModel> { item in
                 // swiftlint:disable:next force_unwrapping
                 item.nextReviewAt != nil && item.nextReviewAt! <= now
+            }
+        )
+        return try modelContext.fetchCount(descriptor)
+    }
+    
+    /// 获取今日新增条目数量
+    public func fetchTodayCount() throws -> Int {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: Date())
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? Date().addingTimeInterval(86400)
+        
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: #Predicate<ReviewItemModel> { item in
+                item.createdAt >= startOfDay && item.createdAt < endOfDay
             }
         )
         return try modelContext.fetchCount(descriptor)

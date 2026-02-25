@@ -41,6 +41,18 @@ public class SourceRepository: SourceRepositoryProtocol {
         modelContext.insert(source)
     }
     
+    /// 更新来源
+    public func update(_ source: SourceModel, name: String, icon: String, colorHex: String) throws {
+        // 检查名称唯一性，排除自身
+        let existing = try fetchAll().first { $0.name == name && $0.id != source.id }
+        if existing != nil {
+            throw DataError.duplicateName(name: name, entityType: "Source")
+        }
+        source.name = name
+        source.icon = icon
+        source.colorHex = colorHex
+    }
+    
     /// 删除来源
     public func delete(_ source: SourceModel) {
         modelContext.delete(source)

@@ -9,30 +9,24 @@
 //
 
 import SwiftUI
-import SwiftData
+import SnapDrillCore
 import SnapDrillData
 import SnapDrillUI
-import SnapDrillCore
 
 struct SourceManagerView: View {
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) var modelContext
-    @Query(sort: \SourceModel.sortOrder) var sources: [SourceModel]
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.repositories) private var repos
+    
+    @State private var viewModel: SourceManagerViewModel?
     
     @State private var showingAddSheet = false
     @State private var editingSource: SourceModel?
     
-    // 用于初始化默认数据
-    private let repository: SourceRepository
-    
-    init(modelContext: ModelContext) {
-        self.repository = SourceRepository(modelContext: modelContext)
-    }
-    
     var body: some View {
         NavigationStack {
             List {
-                ForEach(sources) { source in
+                if let vm = viewModel {
+                    ForEach(vm.sources) { source in
                     Button {
                         editingSource = source
                     } label: {
@@ -48,8 +42,8 @@ struct SourceManagerView: View {
                                 .foregroundStyle(.tertiary)
                         }
                     }
+                    .onDelete(perform: { offsets in vm.delete(at: offsets) })
                 }
-                .onDelete(perform: deleteSource)
             }
             .navigationTitle("管理来源")
             .toolbar {
@@ -69,23 +63,18 @@ struct SourceManagerView: View {
                 EditSourceView(source: source)
             }
             .onAppear {
-                repository.seedDefaultSourcesIfNeeded()
+                if viewModel == nil {
+                    viewModel = SourceManagerViewModel(repository: repos.source)
+                }
+                viewModel?.loadData()
             }
-        }
-    }
-    
-    func deleteSource(at offsets: IndexSet) {
-        for index in offsets {
-            let source = sources[index]
-            modelContext.delete(source)
         }
     }
 }
 
-/// 统一的添加/编辑来源视图
 struct EditSourceView: View {
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.modelContext) var modelContext
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.repositories) private var repos
     
     /// 如果为 nil，则为添加模式；否则为编辑模式
     let source: SourceModel?
@@ -223,20 +212,24 @@ struct EditSourceView: View {
     }
     
     func saveSource() {
+        let repo = repos.source
         if let source {
             // 编辑模式：更新现有来源
-            source.name = name.trimmingCharacters(in: .whitespaces)
-            source.icon = selectedIcon
-            source.colorHex = finalColorHex
+            do {
+                try repo.update(source, name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
+            } catch {
+                SnapDrillLogger.generic.info("Failed to update source: \(error.localizedDescription)")
+            }
         } else {
             // 添加模式：创建新来源
-            let repo = SourceRepository(modelContext: modelContext)
             do {
                 try repo.add(name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
             } catch {
                 // 如果失败（如重复），静默失败或显示错误
                 SnapDrillLogger.generic.info("Failed to add source: \(error.localizedDescription)")
             }
+}
+
         }
     }
 }
