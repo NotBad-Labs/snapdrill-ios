@@ -102,7 +102,9 @@ public struct ReviewView: View {
         .alert("确认暂停复习？", isPresented: Binding(get: { vm.showPauseAlert }, set: { vm.showPauseAlert = $0 })) {
             Button("继续", role: .cancel) { }
             Button("暂停", role: .destructive) {
-                withAnimation { vm.quitSession() }
+                Task {
+                    await vm.quitSession()
+                }
             }
         } message: {
             Text("当前进度将保存，您可以稍后继续。")

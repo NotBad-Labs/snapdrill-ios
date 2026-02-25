@@ -269,6 +269,13 @@ public struct CaptureResultView: View {
         .onDisappear {
             viewModel.generateDraftIfNeeded()
         }
+        .alert("保存失败", isPresented: $viewModel.showErrorAlert) {
+            Button("好", role: .cancel) { }
+        } message: {
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+            }
+        }
     }
 }
 

@@ -156,14 +156,17 @@ public final class CrashReportingService: CrashReportingProtocol {
         ]
         
         // 保存到文件
-        if let logData = try? JSONSerialization.data(withJSONObject: logEntry, options: .prettyPrinted) {
+        do {
+            let logData = try JSONSerialization.data(withJSONObject: logEntry, options: .prettyPrinted)
             let logsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
                 .appendingPathComponent("Logs", isDirectory: true)
             
-            try? FileManager.default.createDirectory(at: logsDirectory, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: logsDirectory, withIntermediateDirectories: true)
             
             let logFile = logsDirectory.appendingPathComponent("crash_log_\(Date().timeIntervalSince1970).json")
-            try? logData.write(to: logFile)
+            try logData.write(to: logFile)
+        } catch {
+            logger.error("Failed to save local crash log: \(error.localizedDescription)")
         }
     }
 }

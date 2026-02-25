@@ -128,8 +128,8 @@ final class ReviewViewModel {
     }
 
     /// 暂停并退出当前会话
-    func quitSession() {
-        loadData()
+    func quitSession() async {
+        await loadDataAsync()
         phase = .idle
     }
 

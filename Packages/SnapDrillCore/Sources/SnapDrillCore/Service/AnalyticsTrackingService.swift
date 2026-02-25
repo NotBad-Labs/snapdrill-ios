@@ -163,14 +163,17 @@ public final class AnalyticsTrackingService: AnalyticsServiceProtocol {
             "parameters": parameters
         ]
         
-        if let data = try? JSONSerialization.data(withJSONObject: eventData, options: .prettyPrinted) {
+        do {
+            let data = try JSONSerialization.data(withJSONObject: eventData, options: .prettyPrinted)
             let analyticsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
                 .appendingPathComponent("Analytics", isDirectory: true)
             
-            try? FileManager.default.createDirectory(at: analyticsDirectory, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: analyticsDirectory, withIntermediateDirectories: true)
             
             let eventFile = analyticsDirectory.appendingPathComponent("event_\(Date().timeIntervalSince1970).json")
-            try? data.write(to: eventFile)
+            try data.write(to: eventFile)
+        } catch {
+            logger.error("Failed to save analytics event locally: \(error.localizedDescription)")
         }
     }
 }

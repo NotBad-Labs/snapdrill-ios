@@ -44,6 +44,8 @@ public final class CaptureResultViewModel {
     public var isRecognizing = false
     public var isCropping = false
     public var isSaved = false
+    public var showErrorAlert = false
+    public var errorMessage: String?
     
     // Dropdown Form Data (Replaces @Query)
     public private(set) var availableSubjects: [SubjectModel] = []
@@ -167,8 +169,9 @@ public final class CaptureResultViewModel {
             router.path.removeLast(router.path.count)
         } catch {
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
+            self.errorMessage = error.localizedDescription
+            self.showErrorAlert = true
             isSaved = false
-            // TODO: 显示错误给用户
         }
     }
     
