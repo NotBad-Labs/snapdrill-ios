@@ -49,6 +49,9 @@ public enum AnalyticsEvent: String {
 /// 在生产环境中，可以集成 Firebase Analytics、Mixpanel 或 Amplitude。
 @MainActor
 public final class AnalyticsTrackingService: AnalyticsServiceProtocol {
+    
+    // MARK: - Properties
+    
     /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = AnalyticsTrackingService()
     
@@ -56,7 +59,9 @@ public final class AnalyticsTrackingService: AnalyticsServiceProtocol {
     private var isEnabled: Bool
     private var sessionStartTime: Date?
     
-    public init() {
+    // MARK: - Initialization
+    
+    init() {
         self.isEnabled = UserDefaults.standard.bool(forKey: "analyticsEnabled")
         
         // 默认禁用（隐私优先）
@@ -155,7 +160,7 @@ public final class AnalyticsTrackingService: AnalyticsServiceProtocol {
         ])
     }
     
-    // MARK: - Private Methods
+    // MARK: - Private Helpers
     
     private func saveEventLocally(event: AnalyticsEvent, parameters: [String: String]) {
         let eventData: [String: Any] = [

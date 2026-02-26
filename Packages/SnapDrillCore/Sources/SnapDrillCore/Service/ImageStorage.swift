@@ -8,7 +8,17 @@
 //  图片存储服务，负责将图片持久化到本地文件系统。
 //
 
+#if canImport(UIKit)
 import UIKit
+#else
+import Foundation
+// Stub for non-iOS platforms to allow compilation
+public class UIImage: @unchecked Sendable {
+    public init?(data: Data) { return nil }
+    public init?(contentsOfFile: String) { return nil }
+    public func jpegData(compressionQuality: Double) -> Data? { return nil }
+}
+#endif
 
 /// 图片存储服务
 ///
@@ -26,7 +36,11 @@ import UIKit
 /// ```
 public struct ImageStorage: Sendable {
     
+    // MARK: - Initialization
+    
     public init() {}
+    
+    // MARK: - Public API
     
     /// 保存图片到本地
     ///

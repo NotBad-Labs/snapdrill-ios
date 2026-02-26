@@ -10,15 +10,32 @@
 
 import Foundation
 
+/// 远程配置同步协议
+///
+/// 定义了从远程（如 Firebase Remote Config）同步功能开关和配置项的标准。
+public protocol RemoteConfigurable: Sendable {
+    func fetchAndActivate() async throws
+    func bool(forKey key: String) -> Bool
+    func string(forKey key: String) -> String?
+    func double(forKey key: String) -> Double?
+}
+
 /// 应用配置
 ///
 /// 集中管理应用的所有配置项，提供类型安全的访问方式。
 @MainActor
 public final class AppConfiguration {
+    
+    // MARK: - Properties
+    
     /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = AppConfiguration()
     
+    // MARK: - Initialization
+    
     public init() {}
+    
+    // MARK: - Public API
     
     // MARK: - App Info
     
@@ -45,29 +62,55 @@ public final class AppConfiguration {
     // MARK: - Feature Flags
     
     /// 功能开关
+    @MainActor
     public struct FeatureFlags {
+        private static var remoteProvider: (any RemoteConfigurable)?
+        
+        /// 注册远程配置提供者
+        public static func registerRemoteProvider(_ provider: any RemoteConfigurable) {
+            self.remoteProvider = provider
+        }
+        
         /// 是否启用崩溃报告
         public static var crashReportingEnabled: Bool {
-            get { UserDefaults.standard.bool(forKey: "crashReportingEnabled") }
+            get { 
+                remoteProvider?.bool(forKey: "crashReportingEnabled") ?? 
+                UserDefaults.standard.bool(forKey: "crashReportingEnabled") 
+            }
             set { UserDefaults.standard.set(newValue, forKey: "crashReportingEnabled") }
         }
         
         /// 是否启用数据分析
         public static var analyticsEnabled: Bool {
-            get { UserDefaults.standard.bool(forKey: "analyticsEnabled") }
+            get { 
+                remoteProvider?.bool(forKey: "analyticsEnabled") ?? 
+                UserDefaults.standard.bool(forKey: "analyticsEnabled") 
+            }
             set { UserDefaults.standard.set(newValue, forKey: "analyticsEnabled") }
         }
         
         /// 是否启用 iCloud 同步
         public static var iCloudSyncEnabled: Bool {
-            get { UserDefaults.standard.bool(forKey: "iCloudSyncEnabled") }
+            get { 
+                remoteProvider?.bool(forKey: "iCloudSyncEnabled") ?? 
+                UserDefaults.standard.bool(forKey: "iCloudSyncEnabled") 
+            }
             set { UserDefaults.standard.set(newValue, forKey: "iCloudSyncEnabled") }
         }
         
         /// 是否启用性能监控
         public static var performanceMonitoringEnabled: Bool {
-            get { UserDefaults.standard.bool(forKey: "performanceMonitoringEnabled") }
+            get { 
+                remoteProvider?.bool(forKey: "performanceMonitoringEnabled") ?? 
+                UserDefaults.standard.bool(forKey: "performanceMonitoringEnabled") 
+            }
             set { UserDefaults.standard.set(newValue, forKey: "performanceMonitoringEnabled") }
+        }
+        
+        /// 远程强制关闭开关 (Kill-switch)
+        /// 如果返回 true，则应用应进入锁定或维护状态。
+        public static var isEmergencyKillSwitchActive: Bool {
+            remoteProvider?.bool(forKey: "emergencyKillSwitch") ?? false
         }
     }
     

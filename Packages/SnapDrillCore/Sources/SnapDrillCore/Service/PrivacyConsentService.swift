@@ -54,26 +54,13 @@ public final class PrivacyConsentService {
 
     /// 请求追踪授权
     ///
-    /// 遵循 Apple 最佳实践：
-    /// 1. 仅在用户尚未做出决策时弹窗
-    /// 2. 延迟至 App 进入稳定状态后再请求
-    ///
-    /// Request tracking authorization following Apple best practices.
-    /// Only prompts if the user hasn't already made a decision.
-    public func requestTrackingAuthorizationIfNeeded() async {
-        // 如果用户已经做出了决策（授权、拒绝或受限），跳过
-        guard trackingStatus == .notDetermined else {
-            logger.info("ATT 状态已确定: \(String(describing: self.trackingStatus.rawValue))，跳过弹窗")
-            return
-        }
-
-        // 延迟 2 秒，让用户先熟悉 App 界面
-        try? await Task.sleep(for: .seconds(2))
-
+    /// 直接请求系统彈窗，建议在预热界面点击“继续”后调用。
+    /// Directly requests system prompt.
+    public func requestTrackingAuthorization() async -> ATTrackingManager.AuthorizationStatus {
         let status = await ATTrackingManager.requestTrackingAuthorization()
-
+        
         UserDefaults.standard.set(true, forKey: PrivacyConsentService.hasRequestedTrackingKey)
-
+        
         switch status {
         case .authorized:
             logger.info("✅ 用户授权追踪")
@@ -86,6 +73,8 @@ public final class PrivacyConsentService {
         @unknown default:
             logger.warning("未知 ATT 状态: \(status.rawValue)")
         }
+        
+        return status
     }
 
     /// 是否需要显示自定义预弹窗说明

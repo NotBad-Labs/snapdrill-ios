@@ -9,7 +9,7 @@ Inherits from: [Global Constitution](file:///Users/yiming/.gemini/antigravity/GL
 
 ## 🏗️ 项目架构与技术栈
 
-- **Bundle ID**: `com.snapdrill.app` | **最低版本**: iOS 17.0
+- **Bundle ID**: `com.snapdrill.app` | **最低版本**: iOS 18.0
 - **技术栈**: Swift 6.2 + SwiftUI + SwiftData
 - **模块化**: SnapDrillFeatures → SnapDrillData/SnapDrillUI → SnapDrillCore (严禁逆向引用)
 - **质量核心**: **零技术债 (Zero Tech Debt)** - 绝不为了发布而牺牲代码质量。

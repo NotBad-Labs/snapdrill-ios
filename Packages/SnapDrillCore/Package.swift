@@ -13,7 +13,7 @@ import PackageDescription
 
 let package = Package(
     name: "SnapDrillCore",
-    platforms: [.iOS(.v18), .macOS(.v10_15)],
+    platforms: [.iOS(.v18), .macOS(.v14)],
     products: [
         .library(name: "SnapDrillCore", targets: ["SnapDrillCore"]),
     ],
@@ -25,7 +25,8 @@ let package = Package(
             name: "SnapDrillCore",
             dependencies: [
                 .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
-                .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk")
+                .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseRemoteConfig", package: "firebase-ios-sdk")
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6)

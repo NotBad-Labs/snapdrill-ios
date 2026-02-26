@@ -42,10 +42,16 @@ public enum ReviewRating: Int {
 /// - 之后: interval × EF
 public struct ReviewScheduler {
     
+    // MARK: - Properties
+    
     /// 最小难度因子
     private let minEaseFactor: Double = 1.3
     
+    // MARK: - Initialization
+    
     public init() {}
+    
+    // MARK: - Public API
     
     /// 根据评分计算下一次复习时间
     ///

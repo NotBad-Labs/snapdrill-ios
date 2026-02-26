@@ -8,7 +8,10 @@
 //  PDF 导出服务，负责将错题数据渲染为 PDF 文档。
 //
 
+import Foundation
+#if canImport(UIKit)
 import UIKit
+#endif
 import PDFKit
 
 /// 负责将错题列表生成 PDF 的服务类
@@ -20,6 +23,7 @@ public final class PDFExportService: Sendable {
     
     public init() {}
     
+    #if canImport(UIKit)
     /// 异步生成包含指定题目的 PDF 数据，支持中途取消
     /// 格式：每页一般 2-3 题，留出空白位置便于重做
     public func createPDF(from items: [ReviewItem], imageProvider: @Sendable @escaping (String) -> UIImage?) async throws -> Data {
@@ -69,6 +73,8 @@ public final class PDFExportService: Sendable {
         return data
     }
     
+    // MARK: - Drawings
+    
     private func drawTitlePage(context: CGContext, rect: CGRect) {
         let title = "SnapDrill 错题本"
         let font = UIFont.systemFont(ofSize: 36, weight: .bold)
@@ -97,10 +103,6 @@ public final class PDFExportService: Sendable {
             let contentRect = CGRect(x: margin, y: yOffset, width: rect.width - margin * 2, height: itemHeight - 20)
             
             drawItem(context: context, rect: contentRect, item: item, imageProvider: imageProvider)
-            
-            // Draw separator
-            // Separator Removed based on user feedback
-            // if index < items.count - 1 { ... }
         }
     }
     
@@ -141,6 +143,12 @@ public final class PDFExportService: Sendable {
             (item.content as NSString).draw(in: textRect, withAttributes: attrs)
         }
     }
+    #else
+    public func createPDF(from items: [ReviewItem], imageProvider: @Sendable @escaping (String) -> Any?) async throws -> Data {
+        // Fallback for non-iOS platforms
+        return Data()
+    }
+    #endif
 }
 
 extension Array {

@@ -13,10 +13,15 @@ import Foundation
 /// 采集服务 Actor
 ///
 /// 负责处理图像采集、OCR 识别等耗时任务。
-/// OCR 功能由 OCRService 提供。
+/// 此 Actor 作为采集流程的调度中心。
 public actor CaptureService {
+    
+    // MARK: - Initialization
+    
     /// 初始化采集服务
     public init() {}
     
-    // OCR functionality is provided by OCRService
+    // MARK: - Public API
+    
+    // TODO: UI Integration Pending - 多图识别与批处理逻辑待从此 Actor 导出
 }

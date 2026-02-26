@@ -11,6 +11,9 @@
 import Foundation
 
 public extension Date {
+    
+    // MARK: - Properties
+    
     /// 转换为 ISO8601 字符串 (YYYY-MM-DD)
     var iso8601DateString: String {
         let formatter = DateFormatter()

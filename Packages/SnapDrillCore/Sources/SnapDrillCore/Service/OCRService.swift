@@ -8,7 +8,9 @@
 //  OCR 服务，封装 Vision 框架提供图片文字识别能力。
 //
 
+#if canImport(UIKit)
 import UIKit
+#endif
 import Vision
 
 /// 光学字符识别服务协议
@@ -26,9 +28,12 @@ public protocol OCRServiceProtocol: Sendable {
 /// - 使用 `.accurate` 模式以确保最高识别率。
 public actor OCRService: OCRServiceProtocol {
     
+    // MARK: - Initialization
+    
     public init() {}
     
-    /// 从图片中识别文本
+    // MARK: - Public API
+    
     ///
     /// 异步执行文本识别任务。
     ///

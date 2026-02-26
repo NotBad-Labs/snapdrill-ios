@@ -17,19 +17,25 @@ import Network
 @MainActor
 @Observable
 public final class NetworkMonitor {
+    
+    // MARK: - Properties
+    
     /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = NetworkMonitor()
     
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "com.snapdrill.app.NetworkMonitor")
     
-    /// 当前网络状态
+    // MARK: - Status
+    
+    /// 当前网络是否已连接
     public private(set) var isConnected: Bool = true
     
-    /// 网络类型
+    /// 具体连接类型（WiFi, 蜂窝等）
     public private(set) var connectionType: ConnectionType = .unknown
     
-    /// 网络类型枚举
+    // MARK: - Types
+    
     public enum ConnectionType {
         case wifi
         case cellular
@@ -37,11 +43,14 @@ public final class NetworkMonitor {
         case unknown
     }
     
+    // MARK: - Initialization
+    
     public init() {
         startMonitoring()
     }
     
-    /// 开始监控网络状态
+    // MARK: - Private Helpers
+    
     private func startMonitoring() {
         monitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {

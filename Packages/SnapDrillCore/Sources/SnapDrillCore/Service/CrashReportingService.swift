@@ -17,6 +17,9 @@ import FirebaseCrashlytics
 /// 提供应用级别的错误追踪和崩溃报告功能。
 @MainActor
 public final class CrashReportingService: CrashReportingProtocol {
+    
+    // MARK: - Properties
+    
     /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = CrashReportingService()
     
@@ -24,7 +27,9 @@ public final class CrashReportingService: CrashReportingProtocol {
     private var isEnabled: Bool
     private var isFirebaseConfigured: Bool = false
     
-    public init() {
+    // MARK: - Initialization
+    
+    init() {
         // 从 UserDefaults 读取设置
         self.isEnabled = UserDefaults.standard.bool(forKey: "crashReportingEnabled")
         
@@ -37,6 +42,8 @@ public final class CrashReportingService: CrashReportingProtocol {
         
         setupExceptionHandler()
     }
+    
+    // MARK: - Public API
     
     /// 标记 Firebase 已配置完毕（由 SnapDrillApp 在 FirebaseApp.configure() 后调用）
     public func markConfigured() {
@@ -95,8 +102,13 @@ public final class CrashReportingService: CrashReportingProtocol {
             Crashlytics.crashlytics().setUserID(identifier)
         }
         
-        logger.info("User identifier set: \(identifier)")
-        UserDefaults.standard.set(identifier, forKey: "crashReportingUserID")
+        logger.info("User identifier set and secured in Keychain")
+        Task {
+            await KeychainService.shared.save(identifier, forKey: "crashReportingUserID")
+        }
+        
+        // 清理旧的明文存储（如果存在）
+        UserDefaults.standard.removeObject(forKey: "crashReportingUserID")
     }
     
     /// 设置自定义键值对

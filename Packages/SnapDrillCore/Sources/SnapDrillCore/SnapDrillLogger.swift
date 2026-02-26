@@ -15,22 +15,23 @@ import OSLog
 ///
 /// 使用 Apple 推荐的 `OSLog` (Unified Logging System) 进行高性能日志记录。
 /// 自动区分 Subsystem 和 Category，便于在控制台筛选。
+@available(iOS 14.0, macOS 11.0, *)
 public struct SnapDrillLogger {
-    /// 通用日志
+    /// 通用系统日志
     public static let generic = Logger(subsystem: "com.snapdrill.app", category: "Generic")
     
-    /// UI 层日志
+    /// 用户界面与交互日志
     public static let ui = Logger(subsystem: "com.snapdrill.app", category: "UI")
     
-    /// 数据层日志
+    /// 数据库与持久化日志
     public static let data = Logger(subsystem: "com.snapdrill.app", category: "Data")
     
-    /// 网络层日志
+    /// 网络请求与监控日志
     public static let network = Logger(subsystem: "com.snapdrill.app", category: "Network")
     
-    /// 业务逻辑日志 (Engine)
+    /// 核心业务引擎与调度逻辑日志
     public static let engine = Logger(subsystem: "com.snapdrill.app", category: "Engine")
     
-    /// 采集功能日志
+    /// 图片采集与 OCR 识别日志
     public static let capture = Logger(subsystem: "com.snapdrill.app", category: "Capture")
 }
