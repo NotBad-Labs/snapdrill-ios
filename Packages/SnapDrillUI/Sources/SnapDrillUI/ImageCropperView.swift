@@ -10,14 +10,20 @@
 
 import SwiftUI
 import UIKit
+#if canImport(UIKit)
 import Mantis
+#endif
 
 /// 9-Grid Image Cropper using Mantis library
 ///
 /// Features:
 /// - Robust cropping with rotation, aspect ratios, and more
 /// - Powered by Mantis (https://github.com/guoyingqi/Mantis)
+#if canImport(UIKit)
 public struct ImageCropperView: UIViewControllerRepresentable {
+    
+    // MARK: - Properties
+    
     let originalImage: UIImage
     // Changed to public for external access
     public var onCrop: (UIImage) -> Void
@@ -28,6 +34,8 @@ public struct ImageCropperView: UIViewControllerRepresentable {
         self.onCrop = onCrop
         self.onCancel = onCancel
     }
+    
+    // MARK: - UIViewControllerRepresentable
     
     public func makeCoordinator() -> Coordinator {
         Coordinator(onCrop: onCrop, onCancel: onCancel)
@@ -79,3 +87,11 @@ public struct ImageCropperView: UIViewControllerRepresentable {
         }
     }
 }
+#else
+public struct ImageCropperView: View {
+    public init(originalImage: Any, onCrop: @escaping (Any) -> Void, onCancel: @escaping () -> Void) {}
+    public var body: some View {
+        Text("Image cropping is only supported on iOS")
+    }
+}
+#endif

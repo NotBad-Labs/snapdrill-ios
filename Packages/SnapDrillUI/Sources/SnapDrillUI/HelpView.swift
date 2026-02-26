@@ -38,6 +38,9 @@ public struct HelpQuestion: Identifiable, Sendable {
 
 /// 帮助视图
 public struct HelpView: View {
+    
+    // MARK: - Properties
+    
     @State private var searchText = ""
     @State private var selectedTopic: HelpTopic?
     
@@ -69,6 +72,8 @@ public struct HelpView: View {
             )
         }
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         NavigationStack {

@@ -12,6 +12,9 @@ import SwiftUI
 
 /// 通用的 3D 翻转卡片容器
 public struct FlipView<Front: View, Back: View>: View {
+    
+    // MARK: - Properties
+    
     var isFlipped: Bool
     var front: () -> Front
     var back: () -> Back
@@ -25,6 +28,8 @@ public struct FlipView<Front: View, Back: View>: View {
         self.front = front
         self.back = back
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         ZStack {

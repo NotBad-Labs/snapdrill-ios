@@ -10,7 +10,7 @@
 
 import SwiftUI
 
-// MARK: - View Extensions for Accessibility
+// MARK: - View Extensions
 
 extension View {
     /// 添加无障碍标签和提示
@@ -102,6 +102,9 @@ extension View {
 
 /// 无障碍辅助工具
 public enum AccessibilityHelper {
+    
+    // MARK: - Public API
+    
     /// 生成复习项目的无障碍标签
     ///
     /// - Parameters:
@@ -133,6 +136,8 @@ public enum AccessibilityHelper {
     public static func exportButtonHint(format: String) -> String {
         return "轻点导出为 \(format) 格式"
     }
+    
+    // MARK: - Private Helpers
     
     /// 将难度数字转换为描述性文本
     ///

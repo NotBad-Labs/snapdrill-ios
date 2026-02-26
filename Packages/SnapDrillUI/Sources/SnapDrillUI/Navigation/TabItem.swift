@@ -13,11 +13,16 @@ import Foundation
 
 /// 定义应用中所有的 Tab 项
 public enum TabItem: Hashable, CaseIterable {
+    
+    // MARK: - Cases
+    
     case dashboard
     case library
     case capture
     case review
     case settings
+    
+    // MARK: - Properties
     
     public var title: String {
         switch self {

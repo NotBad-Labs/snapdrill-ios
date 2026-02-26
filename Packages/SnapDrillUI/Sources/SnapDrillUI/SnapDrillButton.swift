@@ -22,6 +22,9 @@ import SwiftUI
 /// }
 /// ```
 public struct SnapDrillButton: View {
+    
+    // MARK: - Properties
+    
     /// 按钮标题
     ///
     /// 显示在按钮中间的描述性文字。
@@ -40,6 +43,8 @@ public struct SnapDrillButton: View {
         self.title = title
         self.action = action
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         Button(title, action: action)

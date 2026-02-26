@@ -12,6 +12,9 @@ import SwiftUI
 
 /// 所有 Feature Router 必须遵循的协议
 public protocol Routable: AnyObject, Observable {
+    
+    // MARK: - Requirements
+    
     associatedtype Destination: Hashable
     
     var path: NavigationPath { get set }
@@ -23,6 +26,9 @@ public protocol Routable: AnyObject, Observable {
 
 /// 提供默认实现
 public extension Routable {
+    
+    // MARK: - Default Implementation
+    
     func push(_ destination: Destination) {
         path.append(destination)
     }

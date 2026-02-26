@@ -15,6 +15,9 @@ import SnapDrillCore
 ///
 /// 定义应用中常见的错误场景，每种错误都有对应的友好提示。
 public enum AppError: LocalizedError {
+    
+    // MARK: - Cases
+    
     case networkUnavailable
     case iCloudUnavailable
     case cameraPermissionDenied
@@ -24,6 +27,8 @@ public enum AppError: LocalizedError {
     case importFailed(String)
     case dataCorrupted
     case unknown(Error)
+    
+    // MARK: - Computed Properties
     
     public var errorDescription: String? {
         switch self {
@@ -114,6 +119,9 @@ public enum AppError: LocalizedError {
 ///
 /// 根据错误类型显示相应的图标、标题、描述和操作按钮。
 public struct ContextualErrorView: View {
+    
+    // MARK: - Properties
+    
     let error: AppError
     let onAction: (() -> Void)?
     
@@ -121,6 +129,8 @@ public struct ContextualErrorView: View {
         self.error = error
         self.onAction = onAction
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         VStack(spacing: 20) {

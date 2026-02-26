@@ -29,6 +29,9 @@ import SwiftUI
 /// ```
 @MainActor
 public protocol FeatureRouter: AnyObject, Observable {
+    
+    // MARK: - Requirements
+    
     /// 导航目标类型
     ///
     /// 通常是一个枚举，列出了该模块内所有可导航到的子页面。必须遵循 `Hashable` 以支持 SwiftUI 导航。
@@ -55,6 +58,9 @@ public protocol FeatureRouter: AnyObject, Observable {
 }
 
 public extension FeatureRouter {
+    
+    // MARK: - Default Implementation
+    
     func push(_ destination: Destination) {
         path.append(destination)
     }

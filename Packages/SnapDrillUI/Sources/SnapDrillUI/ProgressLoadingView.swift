@@ -14,6 +14,9 @@ import SwiftUI
 ///
 /// 用于显示带有进度百分比的加载状态，适用于导出、同步等长时间操作。
 public struct ProgressLoadingView: View {
+    
+    // MARK: - Properties
+    
     let message: String
     let progress: Double?
     
@@ -21,6 +24,8 @@ public struct ProgressLoadingView: View {
         self.message = message
         self.progress = progress
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         VStack(spacing: 20) {

@@ -29,6 +29,9 @@ public struct OnboardingPage: Identifiable, Sendable {
 
 /// 引导视图
 public struct OnboardingView: View {
+    
+    // MARK: - Properties
+    
     @Environment(\.dismiss) private var dismiss
     @State private var currentPage = 0
     
@@ -39,6 +42,8 @@ public struct OnboardingView: View {
         self.pages = pages
         self.onComplete = onComplete
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         VStack(spacing: 0) {

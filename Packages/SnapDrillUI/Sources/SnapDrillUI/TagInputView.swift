@@ -15,6 +15,9 @@ import SwiftUI
 /// 用户可以通过输入文本并按下空格或回车来添加标签。
 /// 组件会自动处理重复标签，并提供点击删除功能。
 public struct TagInputView: View {
+    
+    // MARK: - Properties
+    
     /// 已添加的标签集合
     @Binding var tags: [String]
     /// 当前正在输入的文本字符串
@@ -36,6 +39,8 @@ public struct TagInputView: View {
             $0.localizedCaseInsensitiveContains(text) && !tags.contains($0)
         }
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 8) {

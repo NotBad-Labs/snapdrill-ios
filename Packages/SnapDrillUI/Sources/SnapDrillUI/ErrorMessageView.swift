@@ -15,6 +15,9 @@ import SnapDrillCore
 ///
 /// 用于显示友好的错误提示，包含图标、标题、描述和操作按钮。
 public struct ErrorMessageView: View {
+    
+    // MARK: - Properties
+    
     let title: String
     let message: String
     let icon: String
@@ -34,6 +37,8 @@ public struct ErrorMessageView: View {
         self.actionTitle = actionTitle
         self.action = action
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         VStack(spacing: 16) {
