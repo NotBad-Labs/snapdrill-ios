@@ -19,6 +19,8 @@ public final class SettingsViewModel {
     private let sourceRepo: SourceRepositoryProtocol
     private let tagRepo: TagRepositoryProtocol
     
+    // MARK: - Initialization
+    
     public init(
         reviewRepo: ReviewRepositoryProtocol,
         subjectRepo: SubjectRepositoryProtocol,
@@ -31,7 +33,10 @@ public final class SettingsViewModel {
         self.tagRepo = tagRepo
     }
     
+    // MARK: - Public API
+    
     public func clearAllData() {
+        do {
             try reviewRepo.deleteAll()
             try subjectRepo.deleteAll()
             try sourceRepo.deleteAll()
@@ -40,7 +45,7 @@ public final class SettingsViewModel {
             subjectRepo.initializeDefaultsIfNeeded()
             sourceRepo.seedDefaultSourcesIfNeeded()
             
-            reviewRepo.save()
+            try reviewRepo.save()
             SnapDrillLogger.generic.info("Successfully cleared all data and re-seeded defaults.")
         } catch {
             SnapDrillLogger.generic.error("Failed to clear data: \(error)")
@@ -51,7 +56,7 @@ public final class SettingsViewModel {
         let seeder = DataSeeder(container: container)
         let time = try await seeder.seedReviewItems(count: count)
         // Ensure consistency after background seeding
-        try await Task { @MainActor in
+        await Task { @MainActor in
             try? reviewRepo.save()
         }.value
         return time

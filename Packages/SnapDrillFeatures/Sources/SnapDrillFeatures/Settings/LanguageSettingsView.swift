@@ -9,7 +9,12 @@ import SwiftUI
 
 /// 语言设置页面
 struct LanguageSettingsView: View {
+    
+    // MARK: - Properties
+    
     @AppStorage("appLanguage") private var appLanguage = "zh-Hans" // zh-Hans, en
+    
+    // MARK: - Body
     
     var body: some View {
         List {

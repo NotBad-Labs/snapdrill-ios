@@ -34,6 +34,9 @@ public enum SettingsDestination: Hashable {
 @MainActor
 @Observable
 public final class SettingsRouter: FeatureRouter {
+    
+    // MARK: - Properties
+    
     /// 导航路径栈
     public var path = NavigationPath()
     
@@ -41,5 +44,8 @@ public final class SettingsRouter: FeatureRouter {
     public typealias Destination = SettingsDestination
     
     /// 初始化路由器
+    
+    // MARK: - Initialization
+    
     public init() {}
 }

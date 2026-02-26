@@ -11,6 +11,9 @@ import UniformTypeIdentifiers
 
 /// 隐私设置页面
 struct PrivacySettingsView: View {
+    
+    // MARK: - Properties
+    
     @Environment(\.repositories) private var repos
     @AppStorage("analyticsEnabled") private var analyticsEnabled = false
     @AppStorage("crashReportingEnabled") private var crashReportingEnabled = true
@@ -88,6 +91,8 @@ struct PrivacySettingsView: View {
         }
     }
     
+    // MARK: - Private Helpers
+    
     private func exportData(format: ExportFormat) async {
         isExporting = true
         exportError = nil
@@ -107,7 +112,7 @@ struct PrivacySettingsView: View {
                     createdAt: item.createdAt,
                     lastReviewedAt: item.lastReviewedAt,
                     nextReviewAt: item.nextReviewAt,
-                    tags: item.tags?.map { $0.name } ?? []
+                    tags: item.tags.map { $0.name }
                 )
             }
             

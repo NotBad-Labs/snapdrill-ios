@@ -14,11 +14,16 @@ import SwiftUI
 ///
 /// 允许用户自定义卡片正面（题目）和背面（答案）的对齐方式与字体大小。
 struct ReviewAppearanceSettingsView: View {
+    
+    // MARK: - Properties
+    
     @Binding var alignmentRaw: String
     @Binding var fontSizeRaw: Double
     @Binding var frontAlignmentRaw: String
     @Binding var frontFontSizeRaw: Double
-
+    
+    // MARK: - Body
+    
     var body: some View {
         Form {
             // MARK: - 卡片正面

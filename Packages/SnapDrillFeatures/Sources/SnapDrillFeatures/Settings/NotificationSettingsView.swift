@@ -9,10 +9,15 @@ import SwiftUI
 
 /// 通知设置页面
 struct NotificationSettingsView: View {
+    
+    // MARK: - Properties
+    
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @AppStorage("soundEnabled") private var soundEnabled = true
     @AppStorage("badgeEnabled") private var badgeEnabled = true
     @AppStorage("notificationPreview") private var notificationPreview = 0 // 0=Full, 1=Name Only, 2=None
+    
+    // MARK: - Body
     
     var body: some View {
         List {

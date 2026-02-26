@@ -11,6 +11,9 @@
 import SwiftUI
 
 struct LicenseView: View {
+    
+    // MARK: - Body
+    
     var body: some View {
         List {
             Section(header: Text("开源库")) {
@@ -37,8 +40,13 @@ struct LicenseView: View {
 }
 
 struct LicenseDetailView: View {
+    
+    // MARK: - Properties
+    
     let title: String
     let licenseContent: String
+    
+    // MARK: - Body
     
     var body: some View {
         ScrollView {

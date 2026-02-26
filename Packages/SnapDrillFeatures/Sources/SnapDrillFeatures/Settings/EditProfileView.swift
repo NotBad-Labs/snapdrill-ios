@@ -11,6 +11,9 @@ import SnapDrillCore
 
 /// 用户资料编辑页面 - 专注学习场景
 struct EditProfileView: View {
+    
+    // MARK: - Properties
+    
     @Environment(\.dismiss) private var dismiss
     @AppStorage("userName") private var userName: String = "同学"
     @AppStorage("userMotto") private var userMotto: String = "" // Formerly bio
@@ -38,6 +41,8 @@ struct EditProfileView: View {
         let colors = gradients[userAvatarColorIndex < gradients.count ? userAvatarColorIndex : 0]
         return LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
     }
+    
+    // MARK: - Body
     
     var body: some View {
         List {

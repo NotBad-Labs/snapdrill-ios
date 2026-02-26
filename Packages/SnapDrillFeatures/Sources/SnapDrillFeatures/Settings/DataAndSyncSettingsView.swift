@@ -11,6 +11,9 @@ import SnapDrillCore
 
 /// 数据与云同步设置页面
 struct DataAndSyncSettingsView: View {
+    
+    // MARK: - Properties
+    
     // Cloud Sync
     @AppStorage("iCloudSyncEnabled") private var iCloudSyncEnabled = true
     @State private var accountStatus: CKAccountStatus = .couldNotDetermine
@@ -132,6 +135,8 @@ struct DataAndSyncSettingsView: View {
             }
         }
     }
+    
+    // MARK: - Private Helpers
     
     // MARK: - Status Logic
     

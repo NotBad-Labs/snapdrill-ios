@@ -14,12 +14,17 @@ import SwiftUI
 ///
 /// 提供统一的图标 + 标题 + 可选值的行样式，对齐 iOS 系统设置风格。
 struct SettingsRow: View {
+    
+    // MARK: - Properties
+    
     let icon: String
     let color: Color
     let title: String
     var value: String?
     var isPremium: Bool = false
-
+    
+    // MARK: - Body
+    
     var body: some View {
         HStack(spacing: 12) {
             // 图标背景框

@@ -13,12 +13,16 @@ import Observation
 import SnapDrillCore
 import SnapDrillUI
 import SnapDrillData
+#if canImport(UIKit)
+import UIKit
 import MessageUI
+#endif
 
 
 public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
     @Environment(\.repositories) private var repos
+    @Environment(\.modelContext) private var modelContext
     
     @State private var viewModel: SettingsViewModel?
     @AppStorage("appTintColor") private var appTintColorHex: String = "#007AFF"
@@ -41,9 +45,13 @@ public struct SettingsView: View {
     @AppStorage("cardFrontAlignment") private var frontAlignmentRaw: String = "center"
     @AppStorage("cardFrontFontSize") private var frontFontSizeRaw: Double = 32.0
     
+    // MARK: - Initialization
+    
     public init(router: SettingsRouter) {
         self.router = router
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         NavigationStack(path: $router.path) {
@@ -175,6 +183,12 @@ public struct SettingsView: View {
                 
                 // 6. About
                 Section("关于") {
+                    Button {
+                        showingMail = true
+                    } label: {
+                        SettingsRow(icon: "heart.text.square.fill", color: .pink, title: "反馈与支持")
+                    }
+                    
                     NavigationLink(value: SettingsDestination.privacyPolicy) {
                         SettingsRow(icon: "hand.raised.fill", color: .gray, title: "隐私政策")
                     }
@@ -229,8 +243,20 @@ public struct SettingsView: View {
             .sheet(isPresented: $showingSourceManager) {
                 SourceManagerView()
             }
+            .alert("意见反馈", isPresented: $showingMail) {
+                Button("复制邮箱") {
+                    #if canImport(UIKit)
+                    UIPasteboard.general.string = "support@snapdrill.app"
+                    #endif
+                }
+                Button("以后再说", role: .cancel) { }
+            } message: {
+                Text("感谢您参与小本本 Beta 测试！您可以发送邮件至 support@snapdrill.app，或直接在 TestFlight 中反馈。")
+            }
         }
     }
+    
+    // MARK: - Private Helpers
     
     private func clearAllData() {
         initViewModelIfNeeded()
@@ -244,7 +270,7 @@ public struct SettingsView: View {
             do {
                 // seeder still needs a container for background context creation inside Data layer
                 // but we hide this inside VM
-                let time = try await viewModel?.generateMockData(count: 100, container: repos.container)
+                let time = try await viewModel?.generateMockData(count: 100, container: modelContext.container)
                 SnapDrillLogger.generic.info("Success: \(time ?? 0)s")
             } catch {
                 SnapDrillLogger.generic.info("Seeding failed: \(error)")
@@ -264,7 +290,7 @@ public struct SettingsView: View {
             repos.subject.initializeDefaultsIfNeeded()
             repos.source.seedDefaultSourcesIfNeeded()
             
-            repos.review.save()
+            try? repos.review.save()
         }
     }
 }

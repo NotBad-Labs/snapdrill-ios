@@ -14,6 +14,8 @@ import SwiftUI
 public struct PrivacyPolicyView: View {
     public init() {}
     
+    // MARK: - Body
+    
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
