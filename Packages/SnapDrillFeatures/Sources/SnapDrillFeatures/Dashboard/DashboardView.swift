@@ -19,19 +19,24 @@ import SnapDrillData
 /// 采用现代化的 "Bento Box" 网格布局，提供清晰的信息层级和操作入口。
 /// 核心解决 "0待复习" 时的空洞感，将其转化为正反馈的 "任务完成" 状态。
 public struct DashboardView: View {
+    
+    // MARK: - Properties
+    
     @Bindable private var router: DashboardRouter
     
     @State private var viewModel = DashboardViewModel()
     
-    // Modern Grid Layout
+    // MARK: - Layout Constants
+    
     private let columns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
-    
     public init(router: DashboardRouter) {
         self.router = router
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         NavigationStack(path: $router.path) {

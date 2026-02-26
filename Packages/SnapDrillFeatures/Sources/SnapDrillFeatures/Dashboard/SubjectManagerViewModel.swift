@@ -41,12 +41,10 @@ public final class SubjectManagerViewModel {
     // MARK: - Public Actions
     
     public func loadData() {
-        do {
-            subjects = try repository.fetchAll().sorted(by: { $0.sortOrder < $1.sortOrder })
-        } catch {
-            SnapDrillLogger.generic.error("Failed to load subjects: \(error)")
-        }
+        subjects = (try? repository.fetchAll().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
     }
+    
+    // MARK: - Public API
     
     public func delete(at offsets: IndexSet) {
         isDeletingInUse = false

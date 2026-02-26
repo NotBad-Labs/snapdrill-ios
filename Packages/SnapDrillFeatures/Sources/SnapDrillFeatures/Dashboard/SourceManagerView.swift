@@ -14,6 +14,9 @@ import SnapDrillData
 import SnapDrillUI
 
 struct SourceManagerView: View {
+    
+    // MARK: - Properties
+    
     @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repos
     
@@ -21,6 +24,8 @@ struct SourceManagerView: View {
     
     @State private var showingAddSheet = false
     @State private var editingSource: SourceModel?
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {

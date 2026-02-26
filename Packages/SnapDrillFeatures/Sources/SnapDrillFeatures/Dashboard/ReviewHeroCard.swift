@@ -18,6 +18,9 @@ import SnapDrillData
 /// - 待复习任务状态
 /// - 任务已完成状态
 struct ReviewHeroCard: View {
+    
+    // MARK: - Properties
+    
     /// 点击“立即开始”复习时的回调
     let onStartReview: () -> Void
     /// 点击“录入题目”时的回调
@@ -32,6 +35,8 @@ struct ReviewHeroCard: View {
         self.onStartReview = onStartReview
         self.onStartCapture = onStartCapture
     }
+    
+    // MARK: - Body
     
     var body: some View {
         VStack {

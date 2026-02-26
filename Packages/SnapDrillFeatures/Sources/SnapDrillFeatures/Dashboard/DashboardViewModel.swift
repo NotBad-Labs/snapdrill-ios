@@ -28,6 +28,10 @@ public final class DashboardViewModel {
     /// 今日待复习卡片数
     public var dueCount: Int = 0
     
+    // MARK: - Dependencies
+    
+    @ObservationIgnored
+    nonisolated(unsafe) private var dataChangeObserver: Any?
     private let draftService: CaptureDraftServiceProtocol
     private let subjectRepository: SubjectRepositoryProtocol
     private let reviewRepository: ReviewRepositoryProtocol
@@ -41,10 +45,34 @@ public final class DashboardViewModel {
         // 对于未提供实例的情况，我们在 View 侧通过 @Environment(\.repositories) 进行初始化和注入
         self.subjectRepository = subjectRepository ?? DefaultRepositoryContainer().subject
         self.reviewRepository = reviewRepository ?? DefaultRepositoryContainer().review
+        
+        setupDataRetention()
+    }
+    
+    /// 设置数据变更监听，确保跨视图同步
+    private func setupDataRetention() {
+        dataChangeObserver = NotificationCenter.default.addObserver(
+            forName: .NSManagedObjectContextDidSave,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self else { return }
+                SnapDrillLogger.generic.info("📡 Data change detected, refreshing dashboard stats...")
+                self.loadData()
+            }
+        }
+    }
+    
+    deinit {
+        if let observer = dataChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     // MARK: - Public API
     
+    /// 加载并刷新仪表盘数据
     public func loadData() {
         subjectRepository.initializeDefaultsIfNeeded()
         

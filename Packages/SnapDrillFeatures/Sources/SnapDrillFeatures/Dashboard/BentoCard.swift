@@ -12,6 +12,9 @@ import SwiftUI
 
 /// Bento 风格的功能卡片，用于展示快捷操作链接
 struct BentoCard: View {
+    
+    // MARK: - Properties
+    
     /// 卡片标题
     let title: String
     /// 卡片副标题或描述
@@ -22,6 +25,8 @@ struct BentoCard: View {
     let gradient: LinearGradient
     /// 点击卡片时的操作回调
     let action: () -> Void
+    
+    // MARK: - Body
     
     var body: some View {
         Button(action: action) {

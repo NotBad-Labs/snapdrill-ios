@@ -15,6 +15,9 @@ import SnapDrillUI
 
 
 struct SubjectManagerView: View {
+    
+    // MARK: - Properties
+    
     @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repos
     
@@ -22,6 +25,8 @@ struct SubjectManagerView: View {
     
     @State private var showingAddSheet = false
     @State private var editingSubject: SubjectModel?
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {

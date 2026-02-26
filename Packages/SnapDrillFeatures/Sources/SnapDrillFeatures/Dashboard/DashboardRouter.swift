@@ -28,6 +28,9 @@ public enum DashboardDestination: Hashable {
 @MainActor
 @Observable
 public final class DashboardRouter: FeatureRouter {
+    
+    // MARK: - Properties
+    
     /// 导航路径栈
     public var path = NavigationPath()
     
@@ -42,8 +45,9 @@ public final class DashboardRouter: FeatureRouter {
     /// 跳转到采集模块的回调 (Optional draft to restore)
     public var onNavigateToCapture: ((CaptureDraftService.Draft?) -> Void)?
     
-    /// 初始化路由器
     public init() {}
+    
+    // MARK: - Public API
     
     /// 请求导航到复习页面
     public func navigateToReview() {

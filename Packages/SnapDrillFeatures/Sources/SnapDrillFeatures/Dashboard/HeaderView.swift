@@ -13,6 +13,9 @@ import SnapDrillCore
 
 /// 仪表盘顶部标题栏，包含日期和应用名称
 struct HeaderView: View {
+    
+    // MARK: - Properties
+    
     @AppStorage("userAvatar") private var userAvatar: String = "person.crop.circle.fill"
     @AppStorage("userAvatarColorIndex") private var userAvatarColorIndex: Int = 0
     @AppStorage("userName") private var userName: String = "同学" // Use "同学" as default for new installs
@@ -29,6 +32,8 @@ struct HeaderView: View {
         default: return "夜深了，注意休息"
         }
     }
+    
+    // MARK: - Body
     
     var body: some View {
         HStack(alignment: .center) {

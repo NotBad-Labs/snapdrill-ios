@@ -39,13 +39,11 @@ public final class SourceManagerViewModel {
     // MARK: - Public Actions
     
     public func loadData() {
-        do {
-            repository.seedDefaultSourcesIfNeeded()
-            sources = try repository.fetchAll().sorted(by: { $0.sortOrder < $1.sortOrder })
-        } catch {
-            SnapDrillLogger.generic.error("Failed to load sources: \(error)")
-        }
+        repository.seedDefaultSourcesIfNeeded()
+        sources = (try? repository.fetchAll().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
     }
+    
+    // MARK: - Public API
     
     public func delete(at offsets: IndexSet) {
         isDeletingInUse = false
