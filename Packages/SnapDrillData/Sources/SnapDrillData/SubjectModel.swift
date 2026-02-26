@@ -16,6 +16,9 @@ import SwiftData
 /// 用于支持用户自定义学科列表。
 @Model
 public final class SubjectModel {
+    
+    // MARK: - Properties
+    
     /// 唯一标识
     public var id: UUID = UUID()
     
@@ -30,6 +33,8 @@ public final class SubjectModel {
     
     /// 排序权重 (越小越靠前)
     public var sortOrder: Int = 0
+    
+    // MARK: - Initialization
     
     public init(
         id: UUID = UUID(),

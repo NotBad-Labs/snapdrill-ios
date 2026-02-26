@@ -13,6 +13,9 @@ import Foundation
 
 @Model
 public final class SourceModel {
+    
+    // MARK: - Properties
+    
     /// 来源名称
     public var name: String = ""
     
@@ -24,6 +27,8 @@ public final class SourceModel {
     
     /// 排序权重 (越小越靠前)
     public var sortOrder: Int = 0
+    
+    // MARK: - Initialization
     
     public init(name: String, icon: String = "doc.text", colorHex: String = "#808080", sortOrder: Int = 0) {
         self.name = name

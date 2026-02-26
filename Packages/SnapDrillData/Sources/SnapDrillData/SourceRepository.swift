@@ -14,11 +14,18 @@ import SnapDrillCore
 
 @MainActor
 public class SourceRepository: SourceRepositoryProtocol {
+    
+    // MARK: - Properties
+    
     private let modelContext: ModelContext
+    
+    // MARK: - Initialization
     
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
+    
+    // MARK: - Public API
     
     /// 获取所有来源
     public func fetchAll() throws -> [SourceModel] {
@@ -63,6 +70,8 @@ public class SourceRepository: SourceRepositoryProtocol {
         try modelContext.delete(model: SourceModel.self)
     }
     
+    // MARK: - Private Helpers
+    
     /// 初始化默认来源 (当数据库为空时)
     public func seedDefaultSourcesIfNeeded() {
         do {
@@ -93,5 +102,19 @@ public class SourceRepository: SourceRepositoryProtocol {
         } catch {
             SnapDrillLogger.generic.info("Failed to seed default sources: \(error)")
         }
+    }
+    
+    /// 保存上下文
+    public func save() throws {
+        try modelContext.save()
+    }
+    
+    /// 获取特定来源下的题目数量
+    public func countItems(named: String) throws -> Int {
+        let predicate = #Predicate<ReviewItemModel> { item in
+            item.sourceRawValue == named
+        }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        return try modelContext.fetchCount(descriptor)
     }
 }

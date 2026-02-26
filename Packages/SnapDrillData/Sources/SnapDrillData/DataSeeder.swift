@@ -19,11 +19,18 @@ import SnapDrillCore
 ///
 /// 仅用于调试和压力测试
 public class DataSeeder {
+    
+    // MARK: - Properties
+    
     private let container: ModelContainer
+    
+    // MARK: - Initialization
     
     public init(container: ModelContainer) {
         self.container = container
     }
+    
+    // MARK: - Public API
     
     // 真实的 Mock 数据源 (50短 + 50长)
     // swiftlint:disable line_length

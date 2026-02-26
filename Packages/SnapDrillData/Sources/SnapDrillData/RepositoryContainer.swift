@@ -36,6 +36,8 @@ public final class DefaultRepositoryContainer: RepositoryContainer {
     public let source: SourceRepositoryProtocol
     public let tag: TagRepositoryProtocol
     
+    // MARK: - Initialization
+    
     public init(modelContext: ModelContext = PersistenceController.shared.container.mainContext) {
         self.review = ReviewRepository(modelContext: modelContext)
         self.subject = SubjectRepository(modelContext: modelContext)

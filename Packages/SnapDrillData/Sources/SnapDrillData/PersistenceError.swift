@@ -14,6 +14,9 @@ import Foundation
 ///
 /// 定义 ModelContainer 初始化和持久化操作的错误类型。
 public enum PersistenceError: LocalizedError {
+    
+    // MARK: - Cases
+    
     /// 无法创建 ModelContainer
     case containerInitializationFailed(underlying: Error)
     
@@ -25,6 +28,8 @@ public enum PersistenceError: LocalizedError {
     
     /// CloudKit 配置错误
     case cloudKitConfigurationError(underlying: Error)
+    
+    // MARK: - Computed Properties
     
     public var errorDescription: String? {
         switch self {

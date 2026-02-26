@@ -13,11 +13,18 @@ import Foundation
 
 @MainActor
 public class TagRepository: TagRepositoryProtocol {
+    
+    // MARK: - Properties
+    
     private let modelContext: ModelContext
+    
+    // MARK: - Initialization
     
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
+    
+    // MARK: - Public API
     
     /// 获取所有标签
     public func fetchAll() throws -> [TagModel] {

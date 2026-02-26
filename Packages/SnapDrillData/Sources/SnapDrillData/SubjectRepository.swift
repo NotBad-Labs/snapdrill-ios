@@ -17,11 +17,18 @@ import SwiftData
 /// 管理学科的增删改查及默认初始化。
 @MainActor
 public class SubjectRepository: SubjectRepositoryProtocol {
+    
+    // MARK: - Properties
+    
     private let modelContext: ModelContext
+    
+    // MARK: - Initialization
     
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
+    
+    // MARK: - Public API
     
     /// 获取所有学科（按 sortOrder 排序）
     public func fetchAll() throws -> [SubjectModel] {
@@ -79,6 +86,8 @@ public class SubjectRepository: SubjectRepositoryProtocol {
         }
     }
     
+    // MARK: - Private Helpers
+    
     private func createDefaultSubjects() {
         // Simple localization check
         let isChinese = Locale.current.language.languageCode?.identifier == "zh"
@@ -114,5 +123,25 @@ public class SubjectRepository: SubjectRepositoryProtocol {
             )
             modelContext.insert(model)
         }
+    }
+    
+    /// 保存上下文
+    public func save() throws {
+        try modelContext.save()
+    }
+    
+    /// 获取特定学科下的题目数量
+    public func countItems(named: String) throws -> Int {
+        let predicate = #Predicate<ReviewItemModel> { item in
+            item.subjectRawValue == named
+        }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        return try modelContext.fetchCount(descriptor)
+    }
+    
+    /// 检查学科是否被使用
+    public func isSubjectInUse(_ subject: SubjectModel) throws -> Bool {
+        let count = try countItems(named: subject.name)
+        return count > 0
     }
 }

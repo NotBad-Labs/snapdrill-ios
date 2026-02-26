@@ -143,4 +143,38 @@ struct ReviewRepositoryTests {
         let count = try repo.totalItemCount()
         #expect(count == itemCount)
     }
+
+    // MARK: - 极值与异常数据测试
+    
+    @Test("验证保存空内容时的行为（目前允许保存，但应确保不崩溃）")
+    func emptyContentHandling() throws {
+        let repo = try createTestRepository()
+        let emptyItem = makeDummyCoreItem(content: "")
+        
+        try repo.save(emptyItem)
+        #expect(try repo.totalItemCount() == 1)
+        let fetched = try repo.fetchById(emptyItem.id)
+        #expect(fetched?.content == "")
+    }
+
+    @Test("验证删除一个包含关联项目的 Subject 时，系统的引用完整性表现")
+    func deleteSubjectWithItems() throws {
+        let repo = try createTestRepository()
+        let subjectName = "ToDelete"
+        
+        // 1. 创建项目
+        let item = makeDummyCoreItem()
+        try repo.save(item, subject: subjectName)
+        
+        // 2. 查找并删除 Subject
+        let descriptor = FetchDescriptor<SubjectModel>(predicate: #Predicate { $0.name == subjectName })
+        if let subject = try repo.modelContext.fetch(descriptor).first {
+            repo.modelContext.delete(subject)
+            try repo.save()
+        }
+        
+        // 3. 验证项目依然存在
+        let itemsCount = try repo.totalItemCount()
+        #expect(itemsCount == 1)
+    }
 }

@@ -12,11 +12,8 @@
 import SwiftData
 import Foundation
 
-/// 当前 Schema 版本
-///
-/// 注意：这是首次发布版本，不需要迁移计划。
-/// 未来如果需要修改数据模型，再创建 V2 版本和迁移计划。
-public enum SnapDrillSchema: VersionedSchema {
+/// 当前 Schema 版本 - V1
+public enum SnapDrillSchemaV1: VersionedSchema {
     public static let versionIdentifier: Schema.Version = .init(1, 0, 0)
     
     public static var models: [any PersistentModel.Type] {

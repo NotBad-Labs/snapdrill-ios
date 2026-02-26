@@ -14,6 +14,9 @@ import Foundation
 ///
 /// 定义所有数据访问和操作可能产生的错误类型。
 public enum DataError: LocalizedError {
+    
+    // MARK: - Cases
+    
     /// 尝试创建重复的实体
     case duplicateItem(id: UUID)
     
@@ -31,6 +34,8 @@ public enum DataError: LocalizedError {
     
     /// 数据验证失败
     case validationFailed(field: String, reason: String)
+    
+    // MARK: - Computed Properties
     
     public var errorDescription: String? {
         switch self {

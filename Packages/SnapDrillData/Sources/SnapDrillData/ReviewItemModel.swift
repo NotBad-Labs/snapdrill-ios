@@ -24,6 +24,9 @@ import SnapDrillCore
 /// - SeeAlso: `ReviewItem`
 @Model
 public final class ReviewItemModel {
+    
+    // MARK: - Properties
+    
     /// 唯一主键
     public var id: UUID = UUID()
     
@@ -74,6 +77,8 @@ public final class ReviewItemModel {
     /// 连续正确复习次数
     public var repetitions: Int = 0
     
+    // MARK: - Initialization
+    
     public init(
         id: UUID = UUID(),
         content: String,
@@ -83,7 +88,7 @@ public final class ReviewItemModel {
         nextReviewAt: Date? = nil,
         subject: String = "其他",
         source: String = "其他",
-        tags: [TagModel] = [],
+        tags: [TagModel]? = [],
         answerText: String = "",
         answerImagePath: String? = nil,
         difficulty: Int = 0,
@@ -114,6 +119,8 @@ public final class ReviewItemModel {
         self.repetitions = repetitions
     }
     
+    // MARK: - Public API
+    
     // 兼容旧代码的计算属性 (现在直接返回 String)
     public var subject: String {
         get { subjectRawValue }
@@ -136,7 +143,7 @@ public final class ReviewItemModel {
             nextReviewAt: nextReviewAt,
             subject: subject,
             source: source,
-            tags: tags?.map { $0.name } ?? [],
+            tags: (tags ?? []).map { $0.name },
             answerText: answerText,
             answerImagePath: answerImagePath,
             difficulty: difficulty,
