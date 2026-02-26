@@ -1,5 +1,8 @@
 # ADR 0003: 统一项目的 iOS 目标版本下限为 iOS 17.0
 
+> [!CAUTION]
+> **已废弃 (Superseded)**: 此决策已由 [ADR 0005](file:///Users/yiming/Developer/snapdrill-ios/docs/adr/0005-unify-minimum-ios-version-to-18-0.md) 取代，最低部署目标已提升至 iOS 18.0。
+
 **日期**: 2026-02-25
 **状态**: ✅ Accepted
 

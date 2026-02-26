@@ -25,3 +25,5 @@ Packages/**/.swiftpm/
 
 # Personal Configs
 xcuserdata/
+.env
+build_output.txt

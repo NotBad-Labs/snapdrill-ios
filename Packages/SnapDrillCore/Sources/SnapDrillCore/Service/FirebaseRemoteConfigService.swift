@@ -1,0 +1,60 @@
+//
+//  FirebaseRemoteConfigService.swift
+//  SnapDrillCore
+//
+//  Created by SnapDrill Labs on 2026/02/25.
+//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//
+
+import Foundation
+@preconcurrency import FirebaseRemoteConfig
+import OSLog
+
+/// Firebase Remote Config 实现的远程配置服务
+///
+/// 将 Firebase 远程配置映射到 AppConfiguration。
+@available(iOS 14.0, macOS 11.0, *)
+public final class FirebaseRemoteConfigService: RemoteConfigurable, @unchecked Sendable {
+    
+    // MARK: - Properties
+    
+    private let logger = Logger(subsystem: "com.snapdrill.app", category: "RemoteConfig")
+    private let remoteConfig = RemoteConfig.remoteConfig()
+    
+    // MARK: - Initialization
+    
+    public init() {
+        let settings = RemoteConfigSettings()
+        settings.minimumFetchInterval = 3600 // 1 hour for Beta
+        remoteConfig.configSettings = settings
+    }
+    
+    // MARK: - Public API
+    
+    /// 获取并激活最新的配置
+    public func fetchAndActivate() async throws {
+        let status = try await remoteConfig.fetchAndActivate()
+        switch status {
+        case .successFetchedFromRemote:
+            logger.info("✅ Remote Config fetched and activated from remote")
+        case .successUsingPreFetchedData:
+            logger.info("✅ Remote Config using pre-fetched data")
+        case .error:
+            logger.error("❌ Remote Config fetch failed")
+        @unknown default:
+            logger.warning("⚠️ Remote Config unknown status")
+        }
+    }
+    
+    public func bool(forKey key: String) -> Bool {
+        remoteConfig.configValue(forKey: key).boolValue
+    }
+    
+    public func string(forKey key: String) -> String? {
+        remoteConfig.configValue(forKey: key).stringValue
+    }
+    
+    public func double(forKey key: String) -> Double? {
+        remoteConfig.configValue(forKey: key).numberValue.doubleValue
+    }
+}
