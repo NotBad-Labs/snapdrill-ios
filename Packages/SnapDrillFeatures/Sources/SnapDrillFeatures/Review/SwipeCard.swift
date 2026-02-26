@@ -19,6 +19,9 @@ import SnapDrillCore
 ///   - onRemove: 当卡片被移出屏幕时的回调，返回方向（-1 为左，1 为右）
 ///   - externalSwipe: 外部触发滑动的绑定变量
 struct SwipeCard<Content: View>: View {
+    
+    // MARK: - Properties
+    
     let content: Content
     let onRemove: (Int) -> Void // -1 for Left (Next), 1 for Right (Prev/Forget)
     let onSwipeProgress: ((CGFloat) -> Void)? // Callback for drag offset
@@ -31,6 +34,8 @@ struct SwipeCard<Content: View>: View {
     private let threshold: CGFloat = 100
     private let rotationDegrees: Double = 15
     
+    // MARK: - Initialization
+    
     init(
         @ViewBuilder content: () -> Content,
         onRemove: @escaping (Int) -> Void,
@@ -42,6 +47,8 @@ struct SwipeCard<Content: View>: View {
         self._externalSwipe = externalSwipe
         self.onSwipeProgress = onSwipeProgress
     }
+    
+    // MARK: - Body
     
     var body: some View {
         GeometryReader { geometry in
@@ -98,6 +105,8 @@ struct SwipeCard<Content: View>: View {
                 }
         }
     }
+    
+    // MARK: - Private Helpers
     
     private func snapAway(direction: Int, width: CGFloat) {
         guard !hasFired else { return }

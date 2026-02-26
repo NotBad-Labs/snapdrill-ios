@@ -38,11 +38,9 @@ enum ReviewPhase {
 @MainActor
 final class ReviewViewModel {
 
-    // MARK: - 阶段状态
+    // MARK: - Properties
 
     var phase: ReviewPhase = .loading
-
-    // MARK: - 队列数据
 
     /// 今日全部待复习条目
     var reviewQueue: [ReviewItemModel] = []
@@ -53,7 +51,7 @@ final class ReviewViewModel {
     /// 撤销栈
     var undoStack: [ReviewItemModel] = []
 
-    // MARK: - 统计
+    // MARK: - Statistics
 
     /// 今日已复习总数（跨会话持久）
     var reviewedTodayCount: Int = 0
@@ -62,7 +60,7 @@ final class ReviewViewModel {
     /// 本次会话开始时已完成的数量（用于进度条计算）
     var sessionStartReviewedCount: Int = 0
 
-    // MARK: - UI 交互状态
+    // MARK: - State
 
     var isAnswerShown: Bool = false
     var swipeTrigger: Int?
@@ -71,12 +69,12 @@ final class ReviewViewModel {
     var lastInteractionTime: Date = .distantPast
     var currentSwipeOffset: CGFloat = 0
 
-    // MARK: - 常量
+    // MARK: - Constants
 
     /// 最小交互间隔（略长于卡片动画时长 0.5s），防止连击
     let minInteractionInterval: TimeInterval = 0.55
 
-    // MARK: - Private
+    // MARK: - Dependencies
 
     private let sessionManager: ReviewSessionManagerProtocol
 
@@ -110,6 +108,9 @@ final class ReviewViewModel {
             // Silently handle cancellation
         } catch {
             SnapDrillLogger.generic.error("Failed to load review data: \(error)")
+            if phase == .loading {
+                phase = .idle
+            }
         }
     }
 

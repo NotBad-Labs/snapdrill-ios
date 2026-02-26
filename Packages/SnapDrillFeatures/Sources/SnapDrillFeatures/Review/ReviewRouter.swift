@@ -30,6 +30,9 @@ public enum ReviewDestination: Hashable {
 @MainActor
 @Observable
 public final class ReviewRouter: FeatureRouter {
+    
+    // MARK: - Properties
+    
     /// 导航路径栈
     public var path = NavigationPath()
     
@@ -41,6 +44,8 @@ public final class ReviewRouter: FeatureRouter {
     
     /// 跳转到采集的回调
     public var onNavigateToCapture: (() -> Void)?
+    
+    // MARK: - Initialization
     
     /// 初始化路由器
     public init() {}

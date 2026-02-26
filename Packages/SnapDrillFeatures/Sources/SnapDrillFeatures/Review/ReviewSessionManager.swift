@@ -36,6 +36,8 @@ public final class ReviewSessionManager: ReviewSessionManagerProtocol {
     private let repository: ReviewRepositoryProtocol
     private let scheduler: ReviewScheduler
     
+    // MARK: - Initialization
+    
     public init(
         repository: ReviewRepositoryProtocol,
         scheduler: ReviewScheduler = ReviewScheduler()
@@ -43,6 +45,8 @@ public final class ReviewSessionManager: ReviewSessionManagerProtocol {
         self.repository = repository
         self.scheduler = scheduler
     }
+    
+    // MARK: - Public API
     
     public func loadDueItems() throws -> [ReviewItemModel] {
         return try repository.fetchDueItems()

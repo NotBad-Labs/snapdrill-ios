@@ -12,12 +12,17 @@ import SwiftUI
 
 /// 复习界面顶部进度指示器
 struct ReviewProgressHeader: View {
+    
+    // MARK: - Properties
+    
     /// 当前题目索引
     let current: Int
     /// 题目总数
     let total: Int
     /// 暂停回调
     let onPause: () -> Void
+    
+    // MARK: - Body
     
     var body: some View {
         HStack(spacing: 12) {

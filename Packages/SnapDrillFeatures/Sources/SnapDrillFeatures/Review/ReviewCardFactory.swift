@@ -18,6 +18,8 @@ import SnapDrillData
 /// 目前默认生成文本类型的卡片。
 public enum ReviewCardFactory {
     
+    // MARK: - Public API
+    
     /// 生成卡片正面视图
     /// - Parameter item: 复习数据模型
     /// - Returns: 针对该数据的正面视图

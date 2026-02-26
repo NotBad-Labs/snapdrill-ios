@@ -12,6 +12,9 @@ import SwiftUI
 
 /// 当没有复习任务或任务完成时的空状态视图
 struct ReviewEmptyStateView: View {
+    
+    // MARK: - Properties
+    
     /// 图标名称
     let icon: String
     /// 标题
@@ -22,6 +25,8 @@ struct ReviewEmptyStateView: View {
     let actionTitle: String?
     /// 按钮点击回调（可选）
     let action: (() -> Void)?
+    
+    // MARK: - Body
     
     var body: some View {
         VStack(spacing: 16) {

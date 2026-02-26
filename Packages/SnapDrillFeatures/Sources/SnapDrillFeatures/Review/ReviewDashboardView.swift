@@ -13,6 +13,9 @@ import SwiftUI
 import SnapDrillUI
 
 struct ReviewDashboardView: View {
+    
+    // MARK: - Properties
+    
     let pendingCount: Int
     let reviewedCount: Int // Today's Done
     let totalItemsCount: Int
@@ -170,6 +173,8 @@ struct ReviewDashboardView: View {
         // Add glass background to separate from the dynamic mesh behind it
         .background(.ultraThinMaterial)
     }
+    
+    // MARK: - Private Helpers
     
     private var iconName: String {
         if pendingCount > 0 {

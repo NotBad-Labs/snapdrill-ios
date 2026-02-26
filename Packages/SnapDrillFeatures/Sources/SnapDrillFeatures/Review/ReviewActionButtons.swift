@@ -14,6 +14,9 @@ import SwiftUI
 import SnapDrillCore
 
 struct ReviewActionButtons: View {
+    
+    // MARK: - Properties
+    
     let swipeOffset: CGFloat
     let onRate: (ReviewRating) -> Void
     
@@ -27,6 +30,8 @@ struct ReviewActionButtons: View {
     private let baseSize: CGFloat = 80
     private let maxScale: CGFloat = 1.4
     private let threshold: CGFloat = 100 // Threshold for max scale
+    
+    // MARK: - Body
     
     var body: some View {
         HStack {
@@ -79,6 +84,8 @@ struct ReviewActionButtons: View {
         .padding(.horizontal, 48) // Increased outer padding to prevent edge sticking
         .padding(.bottom, 10)
     }
+    
+    // MARK: - Private Helpers
     
     private func actionButton(icon: String, color: Color, rating: ReviewRating, scale: CGFloat) -> some View {
         Button(action: {

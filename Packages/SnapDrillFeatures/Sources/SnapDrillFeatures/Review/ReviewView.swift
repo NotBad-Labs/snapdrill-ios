@@ -20,8 +20,8 @@ import SnapDrillData
 /// 实现基于间隔重复算法（SM-2）的 Flashcard 复习流。
 public struct ReviewView: View {
 
-    // MARK: - Dependencies
-
+    // MARK: - Properties
+    
     @Bindable private var router: ReviewRouter
     @Environment(\.repositories) private var repos
     @State private var viewModel: ReviewViewModel?
@@ -89,8 +89,10 @@ public struct ReviewView: View {
                     subtitle: "太棒了！休息一下，明天继续。",
                     actionTitle: "好的",
                     action: {
-                        vm.loadData()
-                        withAnimation { vm.phase = .idle }
+                        Task {
+                            await vm.loadDataAsync()
+                            withAnimation { vm.phase = .idle }
+                        }
                     }
                 )
                 .transition(.scale.combined(with: .opacity))
@@ -132,16 +134,24 @@ public struct ReviewView: View {
 
                     SwipeCard(
                         content: {
-                            ReviewCardFactory.makeFront(for: item)
-                                .padding(.horizontal)
-                                .padding(.vertical, 32)
-                                .onTapGesture {
-                                    if isTop {
-                                        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-                                            vm.toggleAnswer()
-                                        }
+                            ZStack {
+                                ReviewCardFactory.makeFront(for: item)
+                                    .opacity(vm.isAnswerShown && isTop ? 0 : 1)
+                                    .rotation3DEffect(.degrees(vm.isAnswerShown && isTop ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+                                
+                                ReviewCardFactory.makeBack(for: item)
+                                    .opacity(vm.isAnswerShown && isTop ? 1 : 0)
+                                    .rotation3DEffect(.degrees(vm.isAnswerShown && isTop ? 0 : -180), axis: (x: 0, y: 1, z: 0))
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical, 32)
+                            .onTapGesture {
+                                if isTop {
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                                        vm.toggleAnswer()
                                     }
                                 }
+                            }
                         },
                         onRemove: { direction in
                             withAnimation(.spring(duration: 0.35)) {

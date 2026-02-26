@@ -15,6 +15,9 @@ import SnapDrillCore
 /// 复习卡片的视觉内容，展示题目正文和（可选的）答案
 /// 复习卡片正面：展示题目
 struct ReviewCardFront: View {
+    
+    // MARK: - Properties
+    
     let item: ReviewItemModel
     
     @State private var showingEditSheet = false
@@ -39,6 +42,8 @@ struct ReviewCardFront: View {
         default: return .leading
         }
     }
+    
+    // MARK: - Body
     
     var body: some View {
         VStack {
@@ -84,7 +89,8 @@ struct ReviewCardFront: View {
                 }
                 
                 // Tags (Scrollable if many)
-                if let tags = item.tags, !tags.isEmpty {
+                if !item.tags.isEmpty {
+                    let tags = item.tags
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 4) {
                             ForEach(tags) { tag in
@@ -153,12 +159,16 @@ struct ReviewCardFront: View {
 
 /// 复习卡片背面：展示答案
 struct ReviewCardBack: View {
+    
+    // MARK: - Properties
+    
     let item: ReviewItemModel
     
     // For loading answer image
     private let imageStorage = ImageStorage()
     
     @State private var showingEditSheet = false
+    @State private var loadedImage: UIImage?
     
     // User Preferences
     @AppStorage("cardContextAlignment") private var alignmentRaw: String = "leading"
@@ -227,14 +237,25 @@ struct ReviewCardBack: View {
                         .multilineTextAlignment(.leading)
                         .lineSpacing(6)
                     
-                    // Answer Image (if exists)
-                    if let imagePath = item.answerImagePath,
-                       let answerImage = imageStorage.loadImage(path: imagePath) {
-                        Image(uiImage: answerImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxHeight: 200)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    // Answer Image (if exists, Async Loaded)
+                    if let imagePath = item.answerImagePath {
+                        if let uiImage = loadedImage {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 200)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                        } else {
+                            // Placeholder during load
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.secondary.opacity(0.1))
+                                .frame(height: 150)
+                                .overlay(ProgressView())
+                                .task {
+                                    await loadImageAsync(path: imagePath)
+                                }
+                        }
                     }
                 }
                 .padding(24)
@@ -266,6 +287,19 @@ struct ReviewCardBack: View {
         .compositingGroup()
         .sheet(isPresented: $showingEditSheet) {
             LibraryEditView(item: item)
+        }
+    }
+    
+    // MARK: - Async Image Loading
+    
+    private func loadImageAsync(path: String) async {
+        // Simple Memory Cache check could be added here
+        let image = await Task.detached(priority: .userInitiated) {
+            imageStorage.loadImage(path: path)
+        }.value
+        
+        withAnimation(.easeOut(duration: 0.2)) {
+            self.loadedImage = image
         }
     }
 }
