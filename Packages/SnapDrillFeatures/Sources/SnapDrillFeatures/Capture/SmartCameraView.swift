@@ -12,6 +12,9 @@ import SwiftUI
 
 /// 智能相机 SwiftUI 视图
 struct SmartCameraView: View {
+    
+    // MARK: - Properties
+    
     var onCapture: (UIImage) -> Void
     var onCancel: () -> Void
     
@@ -29,6 +32,8 @@ struct SmartCameraView: View {
                     cropAndFinish(image: image, rect: rect)
                 }
             .ignoresSafeArea()
+            
+            // MARK: - Body
             
             // Overlay UI
             VStack {

@@ -142,7 +142,7 @@ import os // For OSAllocatedUnfairLock
 // MARK: - Camera Session Manager (Non-UI Logic)
 
 // Applying @preconcurrency to the whole class isn't ideal, but since AVFoundation types
-// aren't fully audited for Sendable yet in iOS 17 SDK, we drop the explicit Sendable conformance
+// aren't fully audited for Sendable yet in early iOS SDKs, we drop the explicit Sendable conformance
 // and manage synchronization manually via Queues and Actors.
 final class CameraSessionManager: NSObject {
     

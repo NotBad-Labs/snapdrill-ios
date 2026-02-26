@@ -19,8 +19,12 @@ import PhotosUI
 ///
 /// 提供拍照识题和题目录入功能的入口。
 public struct CaptureView: View {
+    
+    // MARK: - Properties
+    
     @Bindable private var router: CaptureRouter
     @Environment(\.repositories) private var repos
+    @Environment(\.analyticsService) private var analyticsService
     
     @State private var viewModel = CaptureViewModel()
     
@@ -29,6 +33,8 @@ public struct CaptureView: View {
     public init(router: CaptureRouter) {
         self.router = router
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         NavigationStack(path: $router.path) {
@@ -139,7 +145,6 @@ public struct CaptureView: View {
                 case .placeholder:
                     ContentUnavailableView("即将上线", systemImage: "clock")
                 case .scannerResult(let content, let image):
-                    let analytics = Environment(\.analyticsService).wrappedValue
                     let resultViewModel = CaptureResultViewModel(
                         content: content,
                         image: image,
@@ -148,7 +153,7 @@ public struct CaptureView: View {
                         sourceRepository: repos.source,
                         tagRepository: repos.tag,
                         ocrService: OCRService(),
-                        analyticsService: analytics,
+                        analyticsService: analyticsService,
                         router: router
                     )
                     CaptureResultView(viewModel: resultViewModel)
@@ -179,6 +184,7 @@ public struct CaptureView: View {
             }
             .onDisappear {
                 viewModel.isViewActive = false
+                viewModel.cancelOngoingTasks()
             }
             .alert("恢复草稿", isPresented: $viewModel.showDraftAlert) {
                 Button("继续编辑") {
@@ -198,6 +204,8 @@ public struct CaptureView: View {
         }
     }
 }
+
+// MARK: - Subviews
 
 // Helper for consistency between Button and PhotosPicker
 struct CaptureMethodCardContent: View {

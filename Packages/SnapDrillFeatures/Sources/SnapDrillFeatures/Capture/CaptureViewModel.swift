@@ -93,27 +93,49 @@ public final class CaptureViewModel {
     // MARK: - Private Logic
     
     private func processImageOCR(_ image: UIImage, router: CaptureRouter) async {
-        do {
-            guard let cgImage = image.cgImage else {
-                throw OCRError.invalidImage
-            }
-            let text = try await ocrService.recognizeText(from: cgImage)
-    
-            await MainActor.run {
-                self.isProcessing = false
-                if text.isEmpty {
-                    SnapDrillLogger.capture.warning("OCR returned empty text.")
+        ocrTask = Task {
+            do {
+                guard let cgImage = image.cgImage else {
+                    throw OCRError.invalidImage
                 }
-                router.push(.scannerResult(content: text, image: image))
-            }
-        } catch {
-            SnapDrillLogger.capture.error("OCR Check failed: \(error.localizedDescription)")
-            await MainActor.run {
-                self.isProcessing = false
-                // Even if OCR fails, pass the image
-                router.push(.scannerResult(content: "", image: image))
+                let text = try await ocrService.recognizeText(from: cgImage)
+                
+                // 检查任务是否已取消
+                try Task.checkCancellation()
+        
+                await MainActor.run { [weak self] in
+                    guard let self = self else { return }
+                    self.isProcessing = false
+                    if text.isEmpty {
+                        SnapDrillLogger.capture.warning("OCR returned empty text.")
+                    }
+                    router.push(.scannerResult(content: text, image: image))
+                }
+            } catch is CancellationError {
+                SnapDrillLogger.capture.info("OCR Task cancelled.")
+            } catch {
+                SnapDrillLogger.capture.error("OCR Check failed: \(error.localizedDescription)")
+                await MainActor.run { [weak self] in
+                    guard let self = self else { return }
+                    self.isProcessing = false
+                    // Even if OCR fails, pass the image
+                    router.push(.scannerResult(content: "", image: image))
+                }
             }
         }
+    }
+    
+    @ObservationIgnored
+    nonisolated(unsafe) private var ocrTask: Task<Void, Never>?
+    
+    public func cancelOngoingTasks() {
+        ocrTask?.cancel()
+        ocrTask = nil
+        isProcessing = false
+    }
+    
+    deinit {
+        ocrTask?.cancel()
     }
 }
 

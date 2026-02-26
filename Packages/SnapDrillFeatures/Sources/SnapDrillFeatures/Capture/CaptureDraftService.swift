@@ -87,7 +87,7 @@ public class CaptureDraftService: CaptureDraftServiceProtocol {
         SnapDrillLogger.generic.info("[DraftService] Draft cleared.")
     }
     
-    // MARK: - Helpers
+    // MARK: - Private Helpers
     
     private func draftImagePath() -> URL? {
         guard let cacheDir = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {

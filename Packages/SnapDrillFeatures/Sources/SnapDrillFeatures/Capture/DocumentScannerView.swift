@@ -26,6 +26,8 @@ import UIKit
 /// - 必须通过 `.sheet` 或 `.fullScreenCover` 模态呈现，不建议推入导航栈。
 struct DocumentScannerView: UIViewControllerRepresentable {
     
+    // MARK: - Properties
+    
     /// 扫描完成回调
     ///
     /// 当用户点击“保存”且至少有一页文档被扫描时调用。
@@ -59,6 +61,8 @@ struct DocumentScannerView: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+    
+    // MARK: - Coordinator
     
 @MainActor
     func makeCoordinator() -> Coordinator {

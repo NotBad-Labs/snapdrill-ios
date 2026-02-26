@@ -17,11 +17,16 @@ import PhotosUI
 
 /// 采集结果预览与编辑视图
 public struct CaptureResultView: View {
+    
+    // MARK: - Properties
+    
     @State var viewModel: CaptureResultViewModel
     
     public init(viewModel: CaptureResultViewModel) {
         self.viewModel = viewModel
     }
+    
+    // MARK: - Body
     
     public var body: some View {
         ScrollView {

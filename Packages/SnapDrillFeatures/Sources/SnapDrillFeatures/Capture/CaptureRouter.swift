@@ -33,6 +33,9 @@ public enum CaptureDestination: Hashable {
 @MainActor
 @Observable
 public final class CaptureRouter: FeatureRouter {
+    
+    // MARK: - Properties
+    
     /// 导航路径栈
     ///
     /// 绑定到 Feature 入口的 `NavigationStack(path: $router.path)`。
@@ -42,6 +45,8 @@ public final class CaptureRouter: FeatureRouter {
     
     /// 初始化路由器
     public init() {}
+    
+    // MARK: - Public API
     
     /// 恢复草稿
     public func restoreDraft(_ draft: CaptureDraftService.Draft) {

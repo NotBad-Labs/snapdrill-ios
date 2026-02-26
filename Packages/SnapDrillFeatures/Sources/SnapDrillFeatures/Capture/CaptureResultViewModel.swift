@@ -16,7 +16,7 @@ import SnapDrillData
 @Observable
 public final class CaptureResultViewModel {
     
-    // MARK: - View Data State
+    // MARK: - Properties
     
     public var content: String
     public var image: UIImage?
@@ -65,7 +65,7 @@ public final class CaptureResultViewModel {
     /// 识别任务句柄，用于取消旧任务防止竞态
     private var recognitionTask: Task<Void, Never>?
     
-    // MARK: - Init
+    // MARK: - Initialization
     
     public init(
         content: String,
@@ -89,7 +89,7 @@ public final class CaptureResultViewModel {
         self.router = router
     }
     
-    // MARK: - Public Intents
+    // MARK: - Public API
     
     /// 加载默认表单数据
     public func loadFormData() {
@@ -175,7 +175,7 @@ public final class CaptureResultViewModel {
         }
     }
     
-    // MARK: - Private Core Logic
+    // MARK: - Private Helpers
     
     private func processSelectedPhoto() {
         guard let item = answerPhotoItem else { return }
