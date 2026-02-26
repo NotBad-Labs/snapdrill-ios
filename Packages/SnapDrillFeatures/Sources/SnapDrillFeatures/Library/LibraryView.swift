@@ -29,6 +29,9 @@ import SnapDrillData
 /// - 使用 `NavigationStack` 绑定到注入的 ``LibraryRouter``。
 /// - 空状态时显示 `ContentUnavailableView`。
 public struct LibraryView: View {
+    
+    // MARK: - Properties
+    
     @Bindable private var router: LibraryRouter
     @Environment(\.repositories) private var repos
     
@@ -42,16 +45,13 @@ public struct LibraryView: View {
     @State private var isFilterPresented = false
     @State private var isFirstAppear = true
     
+    // MARK: - Initialization
+    
     public init(router: LibraryRouter) {
         self.router = router
     }
     
-    private func deleteSelectedItems() {
-        viewModel?.deleteItems(ids: selectedItemIDs)
-        withAnimation {
-            selectedItemIDs.removeAll()
-        }
-    }
+    // MARK: - Body
     
     public var body: some View {
         NavigationStack(path: $router.path) {
@@ -196,6 +196,15 @@ public struct LibraryView: View {
                 }
                 .ignoresSafeArea()
             }
+        }
+    }
+    
+    // MARK: - Private Helpers
+    
+    private func deleteSelectedItems() {
+        viewModel?.deleteItems(ids: selectedItemIDs)
+        withAnimation {
+            selectedItemIDs.removeAll()
         }
     }
 }

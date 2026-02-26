@@ -15,15 +15,25 @@ public final class LibraryViewModel {
     
     // MARK: - State
     
-    public var items: [ReviewItemModel] = []
+    public var filteredItems: [ReviewItemModel] = []
     public var subjects: [SubjectModel] = []
     public var allTags: [TagModel] = []
     
-    public var searchText: String = ""
-    public var selectedSubjects: Set<String> = []
-    public var selectedTags: Set<String> = []
+    public var searchText: String = "" {
+        didSet { triggerRefresh() }
+    }
+    public var selectedSubjects: Set<String> = [] {
+        didSet { triggerRefresh() }
+    }
+    public var selectedTags: Set<String> = [] {
+        didSet { triggerRefresh() }
+    }
     
     public var isLoading: Bool = false
+    private var currentPage: Int = 0
+    private let pageSize: Int = 50
+    @ObservationIgnored
+    nonisolated(unsafe) private var searchTask: Task<Void, Never>?
     
     // MARK: - Initialization
     
@@ -39,82 +49,101 @@ public final class LibraryViewModel {
     
     // MARK: - Public API
     
+    /// 加载基础元数据与初始数据
     public func loadDataAsync() async {
         isLoading = true
         defer { isLoading = false }
         
         do {
-            let items = try reviewRepo.fetchAll()
-            try Task.checkCancellation()
-            
-            let subjects = try subjectRepo.fetchAll()
-            try Task.checkCancellation()
-            
-            let tags = try tagRepo.fetchAll()
-            try Task.checkCancellation()
-            
-            self.items = items
-            self.subjects = subjects
-            self.allTags = tags
-        } catch is CancellationError {
-            // Context changed, ignore
+            self.subjects = try subjectRepo.fetchAll()
+            self.allTags = try tagRepo.fetchAll()
+            await refreshData()
         } catch {
-            SnapDrillLogger.generic.info("LibraryViewModel: Failed to load data: \(error)")
+            SnapDrillLogger.generic.info("LibraryViewModel: Failed to load meta data: \(error)")
         }
     }
     
-    /// 根据当前搜索文本和筛选条件过滤后的题目列表
-    public var filteredItems: [ReviewItemModel] {
-        items.filter { item in
-            // Search text filter
-            if !searchText.isEmpty {
-                if !item.content.localizedCaseInsensitiveContains(searchText) {
-                    return false
-                }
-            }
+    /// 触发防抖搜索/刷新
+    public func triggerRefresh() {
+        searchTask?.cancel()
+        searchTask = Task { [weak self] in
+            // Add a small debounce to avoid excessive DB hits during fast typing
+            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s
+            guard let self = self, !Task.isCancelled else { return }
+            await self.refreshData()
+        }
+    }
+    
+    // MARK: - Public API
+    
+    /// 执行数据加载与过滤 (异步)
+    public func refreshData() async {
+        do {
+            currentPage = 0
+            let results = try reviewRepo.fetchFiltered(
+                searchText: searchText,
+                subjects: selectedSubjects,
+                tags: selectedTags,
+                limit: pageSize,
+                offset: 0
+            )
             
-            // Subject filter
-            if !selectedSubjects.isEmpty {
-                if !selectedSubjects.contains(item.subject) {
-                    return false
-                }
-            }
+            guard !Task.isCancelled else { return }
+            self.filteredItems = results
+        } catch {
+            SnapDrillLogger.generic.error("LibraryViewModel: Refresh failed: \(error)")
+        }
+    }
+    
+    public func loadMore() async {
+        guard !isLoading else { return }
+        isLoading = true
+        defer { isLoading = false }
+        
+        do {
+            currentPage += 1
+            let nextItems = try reviewRepo.fetchFiltered(
+                searchText: searchText,
+                subjects: selectedSubjects,
+                tags: selectedTags,
+                limit: pageSize,
+                offset: currentPage * pageSize
+            )
             
-            // Tag filter
-            if !selectedTags.isEmpty {
-                guard let itemTags = item.tags else { return false }
-                let itemTagNames = Set(itemTags.map { $0.name })
-                if itemTagNames.isDisjoint(with: selectedTags) {
-                    return false
-                }
-            }
-            
-            return true
+            guard !Task.isCancelled else { return }
+            self.filteredItems.append(contentsOf: nextItems)
+        } catch {
+            SnapDrillLogger.generic.error("LibraryViewModel: Load more failed: \(error)")
         }
     }
     
     public func deleteItem(_ item: ReviewItemModel) {
         reviewRepo.delete(item)
         try? reviewRepo.save()
-        // Refresh local data
-        if let index = items.firstIndex(where: { $0.id == item.id }) {
-            items.remove(at: index)
-        }
+        filteredItems.removeAll { $0.id == item.id }
     }
     
     public func deleteItems(ids: Set<ReviewItemModel.ID>) {
-        let itemsToDelete = items.filter { ids.contains($0.id) }
-        for item in itemsToDelete {
-            reviewRepo.delete(item)
+        // 先获取这些模型
+        do {
+            let itemsToDelete = try reviewRepo.fetchByIds(ids)
+            for item in itemsToDelete {
+                reviewRepo.delete(item)
+            }
+            try reviewRepo.save()
+            filteredItems.removeAll { ids.contains($0.id) }
+        } catch {
+            SnapDrillLogger.generic.error("LibraryViewModel: Delete failed: \(error)")
         }
-        try? reviewRepo.save()
-        // Refresh local data
-        items.removeAll { ids.contains($0.id) }
     }
     
     public func resetFilters() {
+        searchText = ""
         selectedSubjects.removeAll()
         selectedTags.removeAll()
-        searchText = ""
+    }
+    
+    deinit {
+        searchTask?.cancel()
     }
 }

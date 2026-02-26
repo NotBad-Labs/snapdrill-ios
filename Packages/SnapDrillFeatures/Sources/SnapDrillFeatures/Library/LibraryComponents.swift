@@ -12,7 +12,7 @@ import SwiftUI
 import SnapDrillData
 import SnapDrillUI
 
-// MARK: - Reusable Components
+// MARK: - Components
 
 struct SubjectCapsule: View {
     let subject: SubjectModel

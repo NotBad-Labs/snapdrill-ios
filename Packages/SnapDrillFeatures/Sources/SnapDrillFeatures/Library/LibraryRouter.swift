@@ -32,6 +32,9 @@ public enum LibraryDestination: Hashable {
 @MainActor
 @Observable
 public final class LibraryRouter: FeatureRouter {
+    
+    // MARK: - Properties
+    
     /// 导航路径栈
     ///
     /// 驱动 `NavigationStack` 的状态源。
@@ -40,6 +43,8 @@ public final class LibraryRouter: FeatureRouter {
     
     /// 目标类型别名
     public typealias Destination = LibraryDestination
+    
+    // MARK: - Initialization
     
     /// 初始化路由器
     public init() {}

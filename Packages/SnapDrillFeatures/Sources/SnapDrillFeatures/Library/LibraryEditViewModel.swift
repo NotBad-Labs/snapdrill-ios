@@ -13,6 +13,9 @@ import SnapDrillCore
 @Observable
 @MainActor
 public class LibraryEditViewModel {
+    
+    // MARK: - State
+    
     public var content: String
     public var answer: String
     public var selectedSubject: String
@@ -26,10 +29,11 @@ public class LibraryEditViewModel {
     public var isCropping = false
     public var imageToCrop: UIImage?
     
-    // Form Data
     public var subjects: [SubjectModel] = []
     public var sources: [SourceModel] = []
     public var allTags: [TagModel] = []
+    
+    // MARK: - Dependencies
     
     private let item: ReviewItemModel
     private let reviewRepository: ReviewRepositoryProtocol
@@ -55,9 +59,11 @@ public class LibraryEditViewModel {
         self.answer = item.answerText
         self.selectedSubject = item.subject
         self.selectedSource = item.source
-        self.tagList = item.tags?.map { $0.name } ?? []
+        self.tagList = item.tags.map { $0.name }
         self.difficulty = item.difficulty
     }
+    
+    // MARK: - Public API
     
     public func loadData() {
         if displayedImage == nil, let path = item.imagePath {

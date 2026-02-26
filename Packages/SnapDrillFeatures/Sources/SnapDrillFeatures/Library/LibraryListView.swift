@@ -14,6 +14,9 @@ import SnapDrillCore
 
 /// A subview to handle the dynamic query based on searchText
 struct LibraryListView: View {
+    
+    // MARK: - Properties
+    
     @Binding var selectedItemIDs: Set<UUID>
     
     @Bindable var router: LibraryRouter
@@ -31,6 +34,7 @@ struct LibraryListView: View {
         self.viewModel = viewModel
     }
     
+    // MARK: - Body
     
     var body: some View {
         List(selection: $selectedItemIDs) {
@@ -111,6 +115,17 @@ struct LibraryListView: View {
                     viewModel.deleteItems(ids: idsToDelete)
                 }
                 .deleteDisabled(editMode?.wrappedValue.isEditing == true)
+                
+                // Infinite Scroll Trigger
+                if !viewModel.filteredItems.isEmpty {
+                    Color.clear
+                        .frame(height: 1)
+                        .onAppear {
+                            Task {
+                                await viewModel.loadMore()
+                            }
+                        }
+                }
             }
         }
         .scrollContentBackground(.hidden) // Key for Glass Effect

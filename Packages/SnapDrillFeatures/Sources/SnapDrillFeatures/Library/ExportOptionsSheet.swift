@@ -16,13 +16,17 @@ import SnapDrillData
 ///
 /// 提供多种导出格式选择，作为导出流程的起点。
 struct ExportOptionsSheet: View {
+    
+    // MARK: - Properties
+    
     let items: [ReviewItemModel]
     @Environment(\.dismiss) private var dismiss
     
-    // Navigation
     @State private var showingPDFPreview = false
     @State private var showingWordShare = false
     @State private var wordExportURL: URL?
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {

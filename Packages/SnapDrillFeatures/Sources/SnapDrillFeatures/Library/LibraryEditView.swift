@@ -16,29 +16,27 @@ import PhotosUI
 
 /// 题目编辑视图
 struct LibraryEditView: View {
+    
+    // MARK: - Properties
+    
     @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repos
     
-    // View Model
-    @State private var viewModel: LibraryEditViewModel?
+    /// 要编辑的题目数据模型
+    let item: ReviewItemModel
     
-    // Focus State for Keyboard
+    @State private var viewModel: LibraryEditViewModel?
     @FocusState private var isInputFocused: Bool
     
-    // Tag Input State is kept here as it's purely UI-local for the textfield
     @State private var tagInputText: String = ""
-    
-    // Image Handling
     @State private var isPickerPresented = false
     @State private var pickerSelection: PhotosPickerItem?
-    
-    let item: ReviewItemModel
     
     init(item: ReviewItemModel) {
         self.item = item
     }
     
-    private var actualViewModel: LibraryEditViewModel? { viewModel }
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {
@@ -178,68 +176,9 @@ struct LibraryEditView: View {
     
     private func metadataSection(vm: LibraryEditViewModel) -> some View {
         Section("属性") {
-            // Subject
-            HStack {
-                Text("学科")
-                Spacer()
-                
-                Menu {
-                    ForEach(vm.subjects) { subject in
-                        Button {
-                            vm.selectedSubject = subject.name
-                        } label: {
-                            Label(subject.name, systemImage: subject.icon)
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text(vm.selectedSubject.isEmpty ? "选择学科" : vm.selectedSubject)
-                            .foregroundStyle(vm.selectedSubject.isEmpty ? .secondary : .primary)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                    }
-                }
-            }
-            
-            // Source
-            HStack {
-                Text("来源")
-                Spacer()
-                
-                Menu {
-                    ForEach(vm.sources) { source in
-                        Button {
-                            vm.selectedSource = source.name
-                        } label: {
-                            Label(source.name, systemImage: source.icon)
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text(vm.selectedSource.isEmpty ? "选择来源" : vm.selectedSource)
-                            .foregroundStyle(vm.selectedSource.isEmpty ? .secondary : .primary)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
-                    }
-                }
-            }
-            
-            // Difficulty
-            HStack {
-                Text("难度")
-                Spacer()
-                HStack(spacing: 4) {
-                    ForEach(1...5, id: \.self) { star in
-                        Image(systemName: vm.difficulty >= star ? "star.fill" : "star")
-                            .foregroundStyle(.yellow)
-                            .onTapGesture {
-                                vm.difficulty = star
-                            }
-                    }
-                }
-            }
+            subjectPicker(vm: vm)
+            sourcePicker(vm: vm)
+            difficultyPicker(vm: vm)
             
             VStack(alignment: .leading) {
                 Text("标签")
@@ -248,6 +187,72 @@ struct LibraryEditView: View {
                     text: $tagInputText,
                     suggestions: vm.allTags.map { $0.name }
                 )
+            }
+        }
+    }
+    
+    private func subjectPicker(vm: LibraryEditViewModel) -> some View {
+        HStack {
+            Text("学科")
+            Spacer()
+            
+            Menu {
+                ForEach(vm.subjects) { subject in
+                    Button {
+                        vm.selectedSubject = subject.name
+                    } label: {
+                        Label(subject.name, systemImage: subject.icon)
+                    }
+                }
+            } label: {
+                HStack {
+                    Text(vm.selectedSubject.isEmpty ? "选择学科" : vm.selectedSubject)
+                        .foregroundStyle(vm.selectedSubject.isEmpty ? .secondary : .primary)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        }
+    }
+    
+    private func sourcePicker(vm: LibraryEditViewModel) -> some View {
+        HStack {
+            Text("来源")
+            Spacer()
+            
+            Menu {
+                ForEach(vm.sources) { source in
+                    Button {
+                        vm.selectedSource = source.name
+                    } label: {
+                        Label(source.name, systemImage: source.icon)
+                    }
+                }
+            } label: {
+                HStack {
+                    Text(vm.selectedSource.isEmpty ? "选择来源" : vm.selectedSource)
+                        .foregroundStyle(vm.selectedSource.isEmpty ? .secondary : .primary)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        }
+    }
+    
+    private func difficultyPicker(vm: LibraryEditViewModel) -> some View {
+        HStack {
+            Text("难度")
+            Spacer()
+            HStack(spacing: 4) {
+                ForEach(1...5, id: \.self) { star in
+                    Image(systemName: vm.difficulty >= star ? "star.fill" : "star")
+                        .foregroundStyle(.yellow)
+                        .onTapGesture {
+                            vm.difficulty = star
+                        }
+                }
             }
         }
     }

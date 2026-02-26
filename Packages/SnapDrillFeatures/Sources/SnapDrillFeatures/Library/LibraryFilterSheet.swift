@@ -13,8 +13,13 @@ import SnapDrillUI
 import SnapDrillCore
 
 struct LibraryFilterSheet: View {
+    
+    // MARK: - Properties
+    
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: LibraryViewModel
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {
@@ -93,12 +98,12 @@ struct LibraryFilterSheet: View {
     }
 }
 
-#Preview {
-    LibraryFilterSheet(
-        viewModel: LibraryViewModel(
-            reviewRepo: PreviewRepositoryContainer().review,
-            subjectRepo: PreviewRepositoryContainer().subject,
-            tagRepo: PreviewRepositoryContainer().tag
-        )
-    )
-}
+// #Preview {
+//     LibraryFilterSheet(
+//         viewModel: LibraryViewModel(
+//             reviewRepo: PreviewRepositoryContainer().review,
+//             subjectRepo: PreviewRepositoryContainer().subject,
+//             tagRepo: PreviewRepositoryContainer().tag
+//         )
+//     )
+// }

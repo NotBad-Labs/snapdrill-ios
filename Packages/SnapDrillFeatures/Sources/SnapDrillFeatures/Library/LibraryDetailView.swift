@@ -23,10 +23,17 @@ import SnapDrillCore
 /// - **复习状态**: 显示题目的创建时间和下一次计划复习时间。
 /// - **完整内容**: 可滚动的长文本区域，显示题目的详细描述。
 struct LibraryDetailView: View {
+    
+    // MARK: - Properties
+    
     @Bindable var router: LibraryRouter
     
     /// 要展示的题目数据模型
     let item: ReviewItemModel
+    
+    @State private var isEditing = false
+    @State private var showingFullScreenImage = false
+    @State private var fullScreenImage: UIImage?
     
     private let imageStorage = ImageStorage()
     
@@ -72,7 +79,8 @@ struct LibraryDetailView: View {
                         Spacer()
                     }
                     
-                    if let tags = item.tags, !tags.isEmpty {
+                    if !item.tags.isEmpty {
+                        let tags = item.tags
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
                                 ForEach(tags) { tag in
@@ -140,10 +148,6 @@ struct LibraryDetailView: View {
             }
         }
     }
-    
-    @State private var isEditing = false
-    @State private var showingFullScreenImage = false
-    @State private var fullScreenImage: UIImage?
 }
 
 #Preview {
