@@ -32,6 +32,9 @@ enum AppTab: Hashable {
 @MainActor
 @Observable
 final class AppRouter {
+    
+    // MARK: - Properties
+    
     /// 当前选中的 Tab
     var selectedTab: AppTab = .dashboard
     
@@ -45,6 +48,8 @@ final class AppRouter {
     let reviewRouter = ReviewRouter()
     /// 设置模块路由
     let settingsRouter = SettingsRouter()
+    
+    // MARK: - Initialization
     
     /// 初始化并设立绑定
     init() {

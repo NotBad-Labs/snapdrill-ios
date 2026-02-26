@@ -353,7 +353,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to scan and capture study materials. / 小本本需要相机权限以扫描录入错题。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import study materials. / 小本本需要相册权限以导入复习资料。";
-                                INFOPLIST_KEY_NSUserTrackingUsageDescription = "SnapDrill needs this permission to provide personalized features and gather crash logs. / 小本本需要此权限以提供个性化体验和收集崩溃日志。";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "SnapDrill needs this permission to measure feature usage and improve your study experience. / 小本本需要此权限以衡量功能使用情况，持续改进您的学习体验。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -389,6 +389,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to scan and capture study materials. / 小本本需要相机权限以扫描录入错题。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import study materials. / 小本本需要相册权限以导入复习资料。";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "SnapDrill needs this permission to measure feature usage and improve your study experience. / 小本本需要此权限以衡量功能使用情况，持续改进您的学习体验。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -464,7 +465,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -525,7 +526,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -544,7 +545,7 @@
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -564,7 +565,7 @@
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";

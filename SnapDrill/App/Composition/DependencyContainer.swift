@@ -9,23 +9,61 @@
 //
 
 import Foundation
+import SnapDrillCore
+import SnapDrillData
+import SnapDrillFeatures
 
-// 注意：实际项目中需要将 SnapDrillUtils 和 SnapDrillSupport 添加到主 Target 的 Link Binary With Libraries 中
-// import SnapDrillUtils
-// import SnapDrillSupport
-
-/// [Placeholder] 依赖注入容器
+/// 应用的依赖注入容器 (Composition Root)
 ///
-/// 这是一个架构占位符，用于未来集中管理依赖注入。
-/// 在大型应用中，这里会初始化所有的 Service 和 Repository，并将它们注入到 ViewModel 或 Router 中。
-///
-/// 目前 SnapDrill 采用手动组合的方式在 `SnapDrillApp` 中完成这一工作。
+/// 集中管理所有全局单例和长生命周期对象，确保应用拓扑结构清晰。
 @MainActor
 final class DependencyContainer {
+    
+    // MARK: - Properties
+    
     static let shared = DependencyContainer()
     
+    /// 全局服务容器 (Firebase, OCR, Analytics 等)
+    let services: any ServiceContainer
+    
+    /// 全局数据仓库容器 (SwiftData Repositories)
+    let repositories: any RepositoryContainer
+    
+    /// 顶级导航路由器
+    let router: AppRouter
+    
+    // MARK: - Initialization
+    
     private init() {
-        // Init Logger
-        // NBLogger.info("App Initialized")
+        // 1. 配置 Firebase (基础设施)
+        FirebaseBootstrap.configure()
+        
+        // 2. 初始化核心服务层
+        let liveServices = LiveServiceContainer()
+        
+        // 执行服务特定初始化
+        if let analytics = liveServices.analytics as? FirebaseAnalyticsService {
+            analytics.markConfigured()
+        }
+        if let crash = liveServices.crashReporting as? CrashReportingService {
+            crash.markConfigured()
+        }
+        
+        // 注册远程配置服务
+        let remoteConfig = FirebaseRemoteConfigService()
+        AppConfiguration.FeatureFlags.registerRemoteProvider(remoteConfig)
+        Task {
+            try? await remoteConfig.fetchAndActivate()
+        }
+        
+        self.services = liveServices
+        
+        // 3. 初始化持久化仓库层
+        self.repositories = DefaultRepositoryContainer()
+        
+        // 4. 初始化顶级路由器
+        self.router = AppRouter()
+        
+        SnapDrillLogger.generic.info("DependencyContainer: Composition Root initialized successfully.")
     }
 }

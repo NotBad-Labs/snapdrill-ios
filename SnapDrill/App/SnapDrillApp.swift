@@ -9,36 +9,21 @@
 //
 
 import SwiftUI
-import SwiftData
 import SnapDrillData
 import SnapDrillFeatures
 import SnapDrillCore
+import SnapDrillUI
 import TipKit
-
-import FirebaseCore
 
 // MARK: - AppDelegate（Firebase 初始化）
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
-    /// 服务容器（在 didFinishLaunching 中初始化 Firebase 后注入）
-    var serviceContainer: LiveServiceContainer?
-
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        FirebaseApp.configure()
-
-        // 创建服务容器并标记 Firebase 就绪
-        let container = LiveServiceContainer()
-        if let analytics = container.analytics as? FirebaseAnalyticsService {
-            analytics.markConfigured()
-        }
-        if let crash = container.crashReporting as? CrashReportingService {
-            crash.markConfigured()
-        }
-        self.serviceContainer = container
-
+        // 访问单例即可触发 DependencyContainer 内的 Firebase 等初始化
+        _ = DependencyContainer.shared
         return true
     }
 }
@@ -48,18 +33,22 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 /// 负责配置应用的主窗口和根视图。
 @main
 struct SnapDrillApp: App {
+    
+    // MARK: - Properties
+    
     /// Firebase / 系统级别生命周期桥接
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     
-    /// 顶级导航协调器 (Coordinator State)
-    @State private var appRouter = AppRouter()
+    /// 是否显示隐私预热弹窗
+    @State private var showingPrivacyPrePrompt: Bool = false
     
     /// 外观模式设置 (0=System, 1=Light, 2=Dark)
     @AppStorage("appearanceMode") private var appearanceMode: Int = 0
     
-    /// 服务容器（从 AppDelegate 获取或创建默认实例）
-    private var services: any ServiceContainer {
-        appDelegate.serviceContainer ?? LiveServiceContainer()
+    // MARK: - Computed Properties
+    
+    private var container: DependencyContainer {
+        DependencyContainer.shared
     }
     
     private var colorScheme: ColorScheme? {
@@ -70,29 +59,74 @@ struct SnapDrillApp: App {
         }
     }
     
+    // MARK: - Body
+    
     var body: some Scene {
         WindowGroup {
             // 极简入口：仅负责注入环境和启动根视图
-            AppRootView(router: appRouter)
-                .modelContainer(PersistenceController.shared.container)
-                .environment(\.services, services)
-                .environment(services.networkMonitor)
-                .preferredColorScheme(colorScheme)
-                .onAppear {
+            ZStack {
+                AppRootView(router: container.router)
+                    .modelContainer(PersistenceController.shared.container)
+                    .environment(\.services, container.services)
+                    .environment(container.services.networkMonitor)
+                    .environment(\.repositories, container.repositories)
+                    .preferredColorScheme(colorScheme)
+                    .blur(radius: AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive ? 10 : 0)
+                    .disabled(AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive)
+                
+                if AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive {
+                    VStack(spacing: 20) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 60))
+                            .foregroundStyle(.orange)
+                        
+                        Text("测试版维护中")
+                            .font(.title.bold())
+                        
+                        Text("当前测试版本正在进行紧急维护或已失效，请稍后再试或前往 TestFlight 下载最新版本。")
+                            .font(.body)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 40)
+                        
+                        Button("检查更新") {
+                            // Redirect to TestFlight or App Store
+                            if let url = URL(string: "https://beta.itunes.apple.com/v1/app/com.snapdrill.app") {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.large)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(.ultraThinMaterial)
+                    .transition(.opacity)
+                }
+            }
+                .sheet(isPresented: $showingPrivacyPrePrompt) {
+                    PrivacyPrePromptView {
+                        showingPrivacyPrePrompt = false
+                        Task {
+                            await container.services.privacyConsent.requestTrackingAuthorization()
+                        }
+                    }
+                }
+                .task {
+                    // 检查是否显示 ATT 隐私预热弹窗
+                    if container.services.privacyConsent.shouldShowPrePrompt {
+                        showingPrivacyPrePrompt = true
+                    }
+                    
+                    // Initialize default subjects on first launch in background
+                    let context = PersistenceController.shared.container.mainContext
+                    let repository = SubjectRepository(modelContext: context)
+                    repository.initializeDefaultsIfNeeded()
+                    
                     // Initialize TipKit
                     try? Tips.configure([
                         .displayFrequency(.immediate),
                         .datastoreLocation(.applicationDefault)
                     ])
-                    
-                    // Initialize default subjects on first launch
-                    let context = PersistenceController.shared.container.mainContext
-                    let repository = SubjectRepository(modelContext: context)
-                    repository.initializeDefaultsIfNeeded()
-                }
-                .task {
-                    // ATT 隐私授权（遵循 Apple 延迟弹窗最佳实践）
-                    await services.privacyConsent.requestTrackingAuthorizationIfNeeded()
                 }
         }
     }

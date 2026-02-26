@@ -17,6 +17,9 @@ import SnapDrillData
 /// 这里是所有 Feature 模块的物理聚合点。
 /// 它负责将 Router 状态绑定到具体的视图结构上。
 struct AppRootView: View {
+    
+    // MARK: - Properties
+    
     @Bindable var router: AppRouter
     
     var body: some View {
@@ -75,6 +78,8 @@ struct AppRootView: View {
             }
         }
     }
+    
+    // MARK: - Private Helpers
     
     /// 降级模式警告横幅
     @ViewBuilder
