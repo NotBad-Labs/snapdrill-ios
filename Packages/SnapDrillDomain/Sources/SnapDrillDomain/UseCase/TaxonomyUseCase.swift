@@ -162,12 +162,17 @@ public final class TaxonomyUseCase: TaxonomyUseCaseProtocol {
 }
 
 public enum DomainError: Error, LocalizedError {
+    /// 实体被引用，无法删除
     case entityInUse(entityName: String)
-    
+    /// 题目文字和图片不能同时为空
+    case invalidContent
+
     public var errorDescription: String? {
         switch self {
         case .entityInUse(let name):
             return "无法删除「\(name)」，因为它正在被使用。"
+        case .invalidContent:
+            return "题目文字和图片至少需要填写一项。"
         }
     }
 }
