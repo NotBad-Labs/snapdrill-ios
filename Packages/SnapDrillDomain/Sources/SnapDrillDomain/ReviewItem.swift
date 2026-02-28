@@ -84,8 +84,8 @@ public struct ReviewItem: Sendable, Identifiable, Codable, Hashable {
     public var answerText: String?
     /// 答案图片路径
     public var answerImagePath: String?
-    /// 难度 (1-5)
-    public var difficulty: Int
+    /// 难度（1-5 星）
+    public var difficulty: Difficulty
     /// 年级/掌握程度
     public var grade: String
     
@@ -110,7 +110,7 @@ public struct ReviewItem: Sendable, Identifiable, Codable, Hashable {
         tags: [String] = [],
         answerText: String? = nil,
         answerImagePath: String? = nil,
-        difficulty: Int = 0,
+        difficulty: Difficulty = .one,
         grade: String = "",
         easeFactor: Double = 2.5,
         interval: Int = 0,
