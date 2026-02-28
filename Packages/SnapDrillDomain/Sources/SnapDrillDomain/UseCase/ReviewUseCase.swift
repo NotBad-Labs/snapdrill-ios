@@ -2,7 +2,10 @@
 //  ReviewUseCase.swift
 //  SnapDrillDomain
 //
-//  Created by SnapDrill Labs on 2026/02/27.
+//  Created by NotBad Labs on 2026/02/27.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+//
+//  实现 ReviewUseCaseProtocol，处理题目的增删改查与复习调度。
 //
 
 import Foundation

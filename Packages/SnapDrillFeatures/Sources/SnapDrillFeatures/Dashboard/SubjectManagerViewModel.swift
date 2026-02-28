@@ -2,13 +2,13 @@
 //  SubjectManagerViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2026/02/25.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/25.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 
 import Foundation
 import Observation
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillCore
 
 @Observable
@@ -17,31 +17,24 @@ public final class SubjectManagerViewModel {
     
     // MARK: - State
     
-    public var subjects: [SubjectModel] = []
-    /// 标记是否由于题目引用导致删除被屏蔽
+    public var subjects: [Subject] = []
     public var isDeletingInUse = false
-    /// 待删除但受阻的名称
     public var pendingDeletionName = ""
     
     // MARK: - Dependencies
     
-    private let repository: SubjectRepositoryProtocol
-    private let reviewRepository: ReviewRepositoryProtocol
+    private let taxonomyUseCase: TaxonomyUseCaseProtocol
     
     // MARK: - Initialization
     
-    public init(
-        repository: SubjectRepositoryProtocol = DefaultRepositoryContainer().subject,
-        reviewRepository: ReviewRepositoryProtocol = DefaultRepositoryContainer().review
-    ) {
-        self.repository = repository
-        self.reviewRepository = reviewRepository
+    public init(taxonomyUseCase: TaxonomyUseCaseProtocol) {
+        self.taxonomyUseCase = taxonomyUseCase
     }
     
     // MARK: - Public Actions
     
     public func loadData() {
-        subjects = (try? repository.fetchAll().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
+        subjects = (try? taxonomyUseCase.getSubjects().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
     }
     
     // MARK: - Public API
@@ -51,44 +44,38 @@ public final class SubjectManagerViewModel {
         let itemsToDelete = offsets.map { subjects[$0] }
         for item in itemsToDelete {
             do {
-                let usageCount = try repository.countItems(named: item.name)
-                if usageCount > 0 {
+                if try !taxonomyUseCase.canDeleteSubject(name: item.name) {
                     isDeletingInUse = true
                     pendingDeletionName = item.name
-                    continue 
+                    continue
                 }
-                repository.delete(item)
-                try repository.save()
+                try taxonomyUseCase.deleteSubject(name: item.name)
             } catch {
-                SnapDrillLogger.generic.error("Failed to delete subject: \(error)")
+                SnapDrillLogger.generic.error("删除学科失败: \(error.localizedDescription)")
             }
         }
         loadData()
     }
     
-    public func saveSubject(subject: SubjectModel?, name: String, selectedIcon: String, finalColorHex: String) {
-        if let subject {
-            let oldName = subject.name
-            do {
-                if oldName != name {
-                    // CASCADING RENAME
-                    try reviewRepository.updateSubjectUsage(from: oldName, to: name)
-                }
-                try repository.update(subject, name: name, icon: selectedIcon, colorHex: finalColorHex)
-                try repository.save()
-                try reviewRepository.save() 
-                loadData()
-            } catch {
-                SnapDrillLogger.generic.error("Failed to update subject: \(error)")
+    public func saveSubject(subject: Subject?, name: String, selectedIcon: String, finalColorHex: String) {
+        do {
+            if let subject {
+                try taxonomyUseCase.updateSubject(
+                    oldName: subject.name,
+                    newName: name,
+                    icon: selectedIcon,
+                    colorHex: finalColorHex
+                )
+            } else {
+                try taxonomyUseCase.addSubject(
+                    name: name,
+                    icon: selectedIcon,
+                    colorHex: finalColorHex
+                )
             }
-        } else {
-            do {
-                try repository.add(name: name, icon: selectedIcon, colorHex: finalColorHex)
-                try repository.save()
-                loadData()
-            } catch {
-                SnapDrillLogger.generic.error("Failed to add subject: \(error)")
-            }
+            loadData()
+        } catch {
+            SnapDrillLogger.generic.error("保存学科失败: \(error.localizedDescription)")
         }
     }
 }

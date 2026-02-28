@@ -2,8 +2,8 @@
 //  ImageCropperView.swift
 //  SnapDrillUI
 //
-//  Shared component,//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Shared component,//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  图片裁剪视图，基于 Mantis 库封装 (或其他裁剪库)。
 //

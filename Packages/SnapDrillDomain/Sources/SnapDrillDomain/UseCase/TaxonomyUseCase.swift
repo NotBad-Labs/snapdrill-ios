@@ -2,7 +2,10 @@
 //  TaxonomyUseCase.swift
 //  SnapDrillDomain
 //
-//  Created by SnapDrill Labs on 2026/02/27.
+//  Created by NotBad Labs on 2026/02/27.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+//
+//  实现 TaxonomyUseCaseProtocol，管理学科、来源、标签与年级的增删改。
 //
 
 import Foundation

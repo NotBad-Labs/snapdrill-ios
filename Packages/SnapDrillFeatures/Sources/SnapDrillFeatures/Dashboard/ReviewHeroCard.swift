@@ -1,9 +1,9 @@
 //
 //  ReviewHeroCard.swift
-//  SnapDrillFeatureDashboard
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/31.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  首页核心卡片，根据复习数据动态展示状态。
 //

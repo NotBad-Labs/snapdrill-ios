@@ -1,9 +1,9 @@
 //
 //  LibraryView.swift
-//  SnapDrillFeatureLibrary
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  题库列表界面，支持题目浏览和筛选
 //
@@ -12,28 +12,15 @@ import SwiftUI
 import Observation
 import SnapDrillCore
 import SnapDrillUI
-import SnapDrillData
+import SnapDrillDomain
 
 /// 题库列表界面
-///
-/// 展示用户保存的所有题目列表，提供主要的浏览和管理功能。
-///
-/// ## 数据源
-/// 使用 SwiftData 查询（`@Query`）从数据库实时获取 `ReviewItemModel` 列表，
-/// 并按创建时间倒序排列（最新的在最前）。
-///
-/// ## 交互
-/// - **列表点击**: 跳转到 ``LibraryDetailView`` 查看详情。
-/// - **滑动删除**: 允许用户快速从数据库中移除题目。
-/// ## 视图结构
-/// - 使用 `NavigationStack` 绑定到注入的 ``LibraryRouter``。
-/// - 空状态时显示 `ContentUnavailableView`。
 public struct LibraryView: View {
     
     // MARK: - Properties
     
     @Bindable private var router: LibraryRouter
-    @Environment(\.repositories) private var repos
+    @Environment(\.useCases) private var useCases
     
     @State private var viewModel: LibraryViewModel?
     
@@ -67,7 +54,10 @@ public struct LibraryView: View {
                 }
             }
             .environment(\.editMode, $editMode)
-            .searchable(text: Bindable(viewModel ?? LibraryViewModel(reviewRepo: repos.review, subjectRepo: repos.subject, tagRepo: repos.tag)).searchText, prompt: "搜索题目内容")
+            .searchable(text: Binding(
+                get: { viewModel?.searchText ?? "" },
+                set: { viewModel?.searchText = $0 }
+            ), prompt: "搜索题目内容")
             .navigationTitle("题库")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -164,9 +154,8 @@ public struct LibraryView: View {
                 .task {
                     if isFirstAppear {
                         let vm = LibraryViewModel(
-                            reviewRepo: repos.review,
-                            subjectRepo: repos.subject,
-                            tagRepo: repos.tag
+                            reviewUseCase: useCases.review,
+                            taxonomyUseCase: useCases.taxonomy
                         )
                         self.viewModel = vm
                         await vm.loadDataAsync()
@@ -211,5 +200,4 @@ public struct LibraryView: View {
 
 #Preview {
     LibraryView(router: LibraryRouter())
-        .modelContainer(for: [SubjectModel.self, ReviewItemModel.self], inMemory: true)
 }

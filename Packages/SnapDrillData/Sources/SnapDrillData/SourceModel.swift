@@ -2,19 +2,23 @@
 //  SourceModel.swift
 //  SnapDrillData
 //
-//  Created by SnapDrill Labs on 2026/01/01.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/01/01.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  来源数据模型 (Source)，例如：试卷、作业、教材等。
 //
 
 import SwiftData
 import Foundation
+import SnapDrillDomain
 
 @Model
 public final class SourceModel {
     
     // MARK: - Properties
+    
+    /// 唯一标识
+    public var id: UUID = UUID()
     
     /// 来源名称
     public var name: String = ""
@@ -30,10 +34,23 @@ public final class SourceModel {
     
     // MARK: - Initialization
     
-    public init(name: String, icon: String = "doc.text", colorHex: String = "#808080", sortOrder: Int = 0) {
+    public init(id: UUID = UUID(), name: String, icon: String = "doc.text", colorHex: String = "#808080", sortOrder: Int = 0) {
+        self.id = id
         self.name = name
         self.icon = icon
         self.colorHex = colorHex
         self.sortOrder = sortOrder
+    }
+    
+    // MARK: - Mapping
+    
+    public func toEntity() -> Source {
+        Source(
+            id: id,
+            name: name,
+            icon: icon,
+            colorHex: colorHex,
+            sortOrder: sortOrder
+        )
     }
 }

@@ -2,8 +2,8 @@
 //  SubscriptionServiceProtocol.swift
 //  SnapDrillCore
 //
-//  Created by SnapDrill Labs on 2026/02/24.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/24.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  订阅服务协议，抽象 StoreKit 2 的购买逻辑
 //

@@ -2,7 +2,10 @@
 //  LanguageSettingsView.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2026/01/02.
+//  Created by NotBad Labs on 2026/01/02.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+//
+//  语言设置页面，引导用户前往系统设置修改应用语言。
 //
 
 import SwiftUI

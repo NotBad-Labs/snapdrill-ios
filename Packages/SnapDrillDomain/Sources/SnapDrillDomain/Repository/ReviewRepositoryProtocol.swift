@@ -2,7 +2,10 @@
 //  ReviewRepositoryProtocol.swift
 //  SnapDrillDomain
 //
-//  Created by SnapDrill Labs on 2026/02/27.
+//  Created by NotBad Labs on 2026/02/27.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+//
+//  定义复习条目仓库协议，屏蔽持久化实现细节。
 //
 
 import Foundation

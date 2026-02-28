@@ -2,8 +2,8 @@
 //  TaxonomyUseCaseTests.swift
 //  SnapDrillDomainTests
 //
-//  Created by SnapDrill Labs on 2026/02/28.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/28.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  TaxonomyUseCase 业务逻辑单元测试。
 //

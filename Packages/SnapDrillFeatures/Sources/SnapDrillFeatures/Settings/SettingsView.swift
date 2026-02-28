@@ -1,9 +1,9 @@
 //
 //  SettingsView.swift
-//  SnapDrillFeatureSettings
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  设置功能主界面，提供应用参数配置
 //
@@ -21,7 +21,7 @@ import MessageUI
 
 public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
-    @Environment(\.repositories) private var repos
+    @Environment(\.useCases) private var useCases
     @Environment(\.modelContext) private var modelContext
     
     @State private var viewModel: SettingsViewModel?
@@ -282,15 +282,9 @@ public struct SettingsView: View {
     private func initViewModelIfNeeded() {
         if viewModel == nil {
             viewModel = SettingsViewModel(
-                reviewRepo: repos.review,
-                subjectRepo: repos.subject,
-                sourceRepo: repos.source,
-                tagRepo: repos.tag
+                reviewUseCase: useCases.review,
+                taxonomyUseCase: useCases.taxonomy
             )
-            repos.subject.initializeDefaultsIfNeeded()
-            repos.source.seedDefaultSourcesIfNeeded()
-            
-            try? repos.review.save()
         }
     }
 }

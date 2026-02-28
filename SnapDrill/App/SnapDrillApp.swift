@@ -2,8 +2,8 @@
 //  SnapDrillApp.swift
 //  SnapDrill
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  应用入口文件，负责初始化应用和主界面配置
 //
@@ -69,7 +69,7 @@ struct SnapDrillApp: App {
                     .modelContainer(PersistenceController.shared.container)
                     .environment(\.services, container.services)
                     .environment(container.services.networkMonitor)
-                    .environment(\.repositories, container.repositories)
+                    .environment(\.useCases, container.useCaseContainer)
                     .preferredColorScheme(colorScheme)
                     .blur(radius: AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive ? 10 : 0)
                     .disabled(AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive)
@@ -116,11 +116,6 @@ struct SnapDrillApp: App {
                     if container.services.privacyConsent.shouldShowPrePrompt {
                         showingPrivacyPrePrompt = true
                     }
-                    
-                    // Initialize default subjects on first launch in background
-                    let context = PersistenceController.shared.container.mainContext
-                    let repository = SubjectRepository(modelContext: context)
-                    repository.initializeDefaultsIfNeeded()
                     
                     // Initialize TipKit
                     try? Tips.configure([

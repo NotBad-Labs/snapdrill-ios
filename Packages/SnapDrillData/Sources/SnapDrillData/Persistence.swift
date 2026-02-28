@@ -2,9 +2,8 @@
 //  Persistence.swift
 //  SnapDrillData
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Updated by SnapDrill Architect on 2026/01/02.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SwiftData 持久化控制器，管理 ModelContainer
 //

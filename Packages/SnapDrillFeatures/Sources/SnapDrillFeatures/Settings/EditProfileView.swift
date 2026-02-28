@@ -1,8 +1,11 @@
 //
 //  EditProfileView.swift
-//  SnapDrillFeatureSettings
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2026/01/01.
+//  Created by NotBad Labs on 2026/01/01.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+//
+//  用户信息编辑页面。
 //
 
 import SwiftUI

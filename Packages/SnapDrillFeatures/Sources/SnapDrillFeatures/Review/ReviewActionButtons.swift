@@ -2,8 +2,8 @@
 //  ReviewActionButtons.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2026/01/01.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/01/01.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  复习界面的底部操作按钮组。
 //  采用 iOS 电话界面的大圆形设计 (Big Circle Style)。
@@ -12,6 +12,7 @@
 
 import SwiftUI
 import SnapDrillCore
+import SnapDrillDomain
 
 struct ReviewActionButtons: View {
     

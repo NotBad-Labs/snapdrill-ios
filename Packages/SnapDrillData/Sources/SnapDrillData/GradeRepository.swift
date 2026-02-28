@@ -2,10 +2,10 @@
 //  GradeRepository.swift
 //  SnapDrillData
 //
-//  Created by SnapDrill Labs on 2026/02/28.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/28.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  核心职责：实现 GradeRepositoryProtocol，基于 SwiftData 持久化年级数据。
+//  实现 GradeRepositoryProtocol，基于 SwiftData 持久化年级数据。
 //
 
 import Foundation

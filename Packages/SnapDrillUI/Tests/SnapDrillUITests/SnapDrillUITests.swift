@@ -2,8 +2,8 @@
 //  SnapDrillUITests.swift
 //  SnapDrillUITests
 //
-//  Created by SnapDrill Labs on 2026/02/25.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/25.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  UI 组件单元测试：负责保证公共样式核心组件在不同状态下能够被安全实例化而不会引发致命的 SwiftUI 渲染崩溃。
 //

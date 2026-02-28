@@ -1,9 +1,9 @@
 //
 //  ReviewView.swift
-//  SnapDrillFeatureReview
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  复习会话界面（纯渲染层）— 业务逻辑已迁移至 ReviewViewModel
 //
@@ -12,18 +12,17 @@ import SwiftUI
 import Observation
 import SnapDrillCore
 import SnapDrillUI
-import SnapDrillData
+import SnapDrillDomain
 
 /// 复习会话界面
 ///
 /// 纯渲染层，通过 `ReviewViewModel` 驱动所有状态变化。
-/// 实现基于间隔重复算法（SM-2）的 Flashcard 复习流。
 public struct ReviewView: View {
 
     // MARK: - Properties
     
     @Bindable private var router: ReviewRouter
-    @Environment(\.repositories) private var repos
+    @Environment(\.useCases) private var useCases
     @State private var viewModel: ReviewViewModel?
 
     // MARK: - Initialization
@@ -47,8 +46,8 @@ public struct ReviewView: View {
             }
             .task {
                 if viewModel == nil {
-                    // 使用已注入的 repositories 容器
-                    let manager = ReviewSessionManager(repository: repos.review)
+                    // 使用领域容器注入
+                    let manager = ReviewSessionManager(useCase: useCases.review)
                     let vm = ReviewViewModel(sessionManager: manager)
                     await vm.loadDataAsync()
                     viewModel = vm
@@ -126,10 +125,10 @@ public struct ReviewView: View {
 
             Spacer()
 
-            // Card Stack（最多渲染 3 张）
+            // Card Stack
             ZStack {
-                ForEach(Array(vm.workingItems.prefix(3).reversed()), id: \.id) { item in
-                    let index = vm.workingItems.firstIndex(of: item) ?? 0
+                ForEach(Array(vm.workingItems.prefix(3).reversed())) { item in
+                    let index = vm.workingItems.firstIndex(where: { $0.id == item.id }) ?? 0
                     let isTop = index == 0
 
                     SwipeCard(
@@ -245,7 +244,7 @@ public struct ReviewView: View {
         CGFloat(index) * 15
     }
 
-    private func cardRotation(for item: ReviewItemModel, index: Int, vm: ReviewViewModel) -> Double {
+    private func cardRotation(for item: ReviewItem, index: Int, vm: ReviewViewModel) -> Double {
         guard index > 0, index < vm.workingItems.count else { return 0 }
         let seed = abs(item.id.hashValue)
         return Double(seed % 7) - 3.0
@@ -256,5 +255,4 @@ public struct ReviewView: View {
 
 #Preview {
     ReviewView(router: ReviewRouter())
-        .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

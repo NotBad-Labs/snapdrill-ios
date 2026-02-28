@@ -1,16 +1,17 @@
 //
 //  LibraryListView.swift
-//  SnapDrillFeatureLibrary
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/31.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  题库列表视图，展示特定筛选条件下的错题列表。
 //
 
 import SwiftUI
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillCore
+import SnapDrillData
 
 /// A subview to handle the dynamic query based on searchText
 struct LibraryListView: View {
@@ -56,7 +57,7 @@ struct LibraryListView: View {
                      .padding(.horizontal, 4)
                      .padding(.vertical, 8)
                  }
-                 .listRowInsets(EdgeInsets()) // Edge to edge
+                 .listRowInsets(EdgeInsets())
                  .listRowBackground(Color.clear)
             }
             
@@ -78,8 +79,6 @@ struct LibraryListView: View {
             } else {
                 ForEach(viewModel.filteredItems) { item in
                     Button(action: {
-                        // In Edit Mode, selection is handled by List.
-                        // In Normal Mode, navigate.
                         if editMode?.wrappedValue.isEditing == false {
                             router.push(.detail(item))
                         }
@@ -105,10 +104,10 @@ struct LibraryListView: View {
                             }
                         }
                     })
-                    .buttonStyle(.plain) // Standard list row style
-                    .listRowBackground(Rectangle().fill(.regularMaterial)) // Glass Cells
+                    .buttonStyle(.plain)
+                    .listRowBackground(Rectangle().fill(.regularMaterial))
                     .listRowSeparator(.hidden)
-                    .tag(item.id) // Critical for Selection
+                    .tag(item.id)
                 }
                 .onDelete { offsets in
                     let idsToDelete = Set(offsets.map { viewModel.filteredItems[$0].id })
@@ -128,21 +127,21 @@ struct LibraryListView: View {
                 }
             }
         }
-        .scrollContentBackground(.hidden) // Key for Glass Effect
+        .scrollContentBackground(.hidden)
         .background(Color.clear)
-        .listRowSpacing(12) // iOS 26 airy layout
+        .listRowSpacing(12)
     }
-    
 }
 
 #Preview {
+    let repos = PreviewRepositoryContainer()
+    let useCases = DefaultUseCaseContainer(repositories: repos)
     LibraryListView(
         selectedItemIDs: .constant([]),
         router: LibraryRouter(),
         viewModel: LibraryViewModel(
-            reviewRepo: PreviewRepositoryContainer().review,
-            subjectRepo: PreviewRepositoryContainer().subject,
-            tagRepo: PreviewRepositoryContainer().tag
+            reviewUseCase: useCases.review,
+            taxonomyUseCase: useCases.taxonomy
         )
     )
 }

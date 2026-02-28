@@ -3,8 +3,8 @@
 //  Package.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  功能模块包，包含 Dashboard, Review, Library, Settings 等业务模块。
 //
@@ -21,6 +21,7 @@ let package = Package(
         .package(path: "../SnapDrillCore"),
         .package(path: "../SnapDrillUI"),
         .package(path: "../SnapDrillData"),
+        .package(path: "../SnapDrillDomain"),
     ],
     targets: [
         .target(
@@ -28,7 +29,8 @@ let package = Package(
             dependencies: [
                 "SnapDrillCore",
                 "SnapDrillUI",
-                "SnapDrillData"
+                "SnapDrillData",
+                "SnapDrillDomain"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6)

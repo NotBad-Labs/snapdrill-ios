@@ -2,14 +2,14 @@
 //  ReviewCardContent.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/31.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  复习卡片的内容视图，展示题目和答案（翻转后）。
 //
 
 import SwiftUI
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillCore
 
 /// 复习卡片的视觉内容，展示题目正文和（可选的）答案
@@ -18,7 +18,7 @@ struct ReviewCardFront: View {
     
     // MARK: - Properties
     
-    let item: ReviewItemModel
+    let item: ReviewItem
     
     @State private var showingEditSheet = false
     
@@ -34,7 +34,6 @@ struct ReviewCardFront: View {
         }
     }
     
-    // Computed alignment for frame (SwiftUI frame alignment is distinct from text alignment)
     private var frameAlignment: Alignment {
         switch alignmentRaw {
         case "center": return .center
@@ -50,15 +49,12 @@ struct ReviewCardFront: View {
             Spacer()
             
             Text(item.content)
-                .font(.system(size: fontSizeRaw, weight: .bold, design: .serif)) // Elegant Serif for main content
+                .font(.system(size: fontSizeRaw, weight: .bold, design: .serif))
                 .multilineTextAlignment(alignment)
-                .lineSpacing(8)
-                .padding(.horizontal, 24)
                 .lineSpacing(8)
                 .padding(.horizontal, 24)
                 .foregroundStyle(.primary)
                 .frame(maxWidth: .infinity, alignment: frameAlignment)
-                .foregroundStyle(.primary)
             
             Spacer()
             
@@ -73,7 +69,7 @@ struct ReviewCardFront: View {
                     .background(Color.accentColor.opacity(0.8))
                     .clipShape(Capsule())
                 
-                // Difficulty Indicator (if set)
+                // Difficulty Indicator
                 if item.difficulty > 0 {
                     HStack(spacing: 2) {
                         ForEach(0..<item.difficulty, id: \.self) { _ in
@@ -88,13 +84,12 @@ struct ReviewCardFront: View {
                     .clipShape(Capsule())
                 }
                 
-                // Tags (Scrollable if many)
+                // Tags
                 if !item.tags.isEmpty {
-                    let tags = item.tags
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 4) {
-                            ForEach(tags) { tag in
-                                Text("#\(tag.name)")
+                            ForEach(item.tags, id: \.self) { tag in
+                                Text("#\(tag)")
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                                     .padding(.horizontal, 6)
@@ -113,11 +108,9 @@ struct ReviewCardFront: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             ZStack {
-                // Ceramic Body: Explicitly Opaque
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
-                    .fill(Color(UIColor.secondarySystemGroupedBackground)) // Thicker, more opaque feel
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
                 
-                // Subtle Gloss Gradient (Ceramic Sheen)
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .fill(
                         LinearGradient(
@@ -127,14 +120,11 @@ struct ReviewCardFront: View {
                         )
                     )
                 
-                // Thin Border Ring
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .strokeBorder(.white.opacity(0.5), lineWidth: 1)
             }
         )
-        // Elegant Shadow (Floating Effect)
         .shadow(color: Color.black.opacity(0.08), radius: 15, x: 0, y: 10)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         .overlay(alignment: .topTrailing) {
             Menu {
                 Button {
@@ -147,10 +137,9 @@ struct ReviewCardFront: View {
                     .font(.title2)
                     .foregroundStyle(.tertiary)
                     .padding(24)
-                    .contentShape(Circle()) // Circular touch target for elegant highlight
+                    .contentShape(Circle())
             }
         }
-        .compositingGroup()
         .sheet(isPresented: $showingEditSheet) {
             LibraryEditView(item: item)
         }
@@ -162,9 +151,8 @@ struct ReviewCardBack: View {
     
     // MARK: - Properties
     
-    let item: ReviewItemModel
+    let item: ReviewItem
     
-    // For loading answer image
     private let imageStorage = ImageStorage()
     
     @State private var showingEditSheet = false
@@ -182,7 +170,6 @@ struct ReviewCardBack: View {
         }
     }
     
-    // Computed alignment for frame
     private var frameAlignment: Alignment {
         switch alignmentRaw {
         case "center": return .center
@@ -193,18 +180,14 @@ struct ReviewCardBack: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header: Question Context
             HStack(alignment: .top) {
-                // Configurable Text
-                // Configurable Text
                 Text(item.content)
                     .font(.system(size: fontSizeRaw, weight: .medium, design: .serif))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(alignment)
-                    .lineLimit(3) // Allow a bit more context
+                    .lineLimit(3)
                     .frame(maxWidth: .infinity, alignment: frameAlignment)
                 
-                // Edit Button (Fixed right)
                 Menu {
                     Button {
                         showingEditSheet = true
@@ -215,8 +198,7 @@ struct ReviewCardBack: View {
                     Image(systemName: "ellipsis.circle.fill")
                         .font(.title2)
                         .foregroundStyle(.blue.opacity(0.8))
-                        .padding(12) // Slightly reduced padding for header context
-                        .background(Color.clear) // Ensure touch registration
+                        .padding(12)
                         .contentShape(Circle())
                 }
             }
@@ -228,7 +210,6 @@ struct ReviewCardBack: View {
                 .background(.quaternary)
                 .padding(.horizontal, 24)
             
-            // Body: Scrollable Answer
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(item.answerText)
@@ -237,7 +218,6 @@ struct ReviewCardBack: View {
                         .multilineTextAlignment(.leading)
                         .lineSpacing(6)
                     
-                    // Answer Image (if exists, Async Loaded)
                     if let imagePath = item.answerImagePath {
                         if let uiImage = loadedImage {
                             Image(uiImage: uiImage)
@@ -247,7 +227,6 @@ struct ReviewCardBack: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
                         } else {
-                            // Placeholder during load
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.secondary.opacity(0.1))
                                 .frame(height: 150)
@@ -264,11 +243,9 @@ struct ReviewCardBack: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             ZStack {
-                // Ceramic Body
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .fill(Color(UIColor.secondarySystemGroupedBackground))
                 
-                // Subtle Gloss (slightly different for back)
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .fill(
                         LinearGradient(
@@ -278,22 +255,17 @@ struct ReviewCardBack: View {
                         )
                     )
                  
-                // Border
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .strokeBorder(.secondary.opacity(0.1), lineWidth: 1)
             }
         )
         .shadow(color: Color.black.opacity(0.08), radius: 15, x: 0, y: 10)
-        .compositingGroup()
         .sheet(isPresented: $showingEditSheet) {
             LibraryEditView(item: item)
         }
     }
     
-    // MARK: - Async Image Loading
-    
     private func loadImageAsync(path: String) async {
-        // Simple Memory Cache check could be added here
         let image = await Task.detached(priority: .userInitiated) {
             imageStorage.loadImage(path: path)
         }.value
@@ -305,17 +277,13 @@ struct ReviewCardBack: View {
 }
 
 #Preview("Card Front") {
-    ReviewCardFront(item: ReviewItemModel(content: "Explain the Heisenberg Uncertainty Principle."))
+    ReviewCardFront(item: ReviewItem(id: UUID(), content: "Explain the Heisenberg Uncertainty Principle.", subject: "Physics"))
         .frame(height: 400)
         .padding()
 }
 
 #Preview("Card Back") {
-    let item = ReviewItemModel(
-        content: "Explain the Heisenberg Uncertainty Principle.",
-        answerText: "The uncertainty principle states that we cannot know both the position and speed of a particle with perfect accuracy."
-    )
-    ReviewCardBack(item: item)
+    ReviewCardBack(item: ReviewItem(id: UUID(), content: "Explain the Heisenberg Uncertainty Principle.", answerText: "Position and speed cannot both be known perfectly."))
         .frame(height: 400)
         .padding()
 }

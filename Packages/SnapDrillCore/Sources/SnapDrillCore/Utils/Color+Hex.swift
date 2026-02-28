@@ -1,9 +1,9 @@
 //
 //  Color+Hex.swift
-//  SnapDrillUtils
+//  SnapDrillCore
 //
-//  Created by SnapDrill Labs on 2025/12/30.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/30.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Color 扩展，提供十六进制颜色初始化功能。
 //

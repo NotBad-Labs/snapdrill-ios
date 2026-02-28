@@ -2,8 +2,8 @@
 //  FirebaseAnalyticsService.swift
 //  SnapDrillCore
 //
-//  Created by SnapDrill Labs on 2026/02/24.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/24.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Firebase Analytics 实现的 AnalyticsServiceProtocol 适配器。
 //  当 Firebase SDK 接入后，将此类替换 AnalyticsTrackingService。

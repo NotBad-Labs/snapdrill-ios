@@ -1,15 +1,17 @@
 //
 //  CaptureResultViewModel.swift
-//  SnapDrillFeatureCapture
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2026/02/25.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/24.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+//
+//  采集结果预览与编辑的 ViewModel，负责保存题目内容与图片。
 //
 
 import SwiftUI
 import PhotosUI
 import SnapDrillCore
-import SnapDrillData
+import SnapDrillDomain
 
 /// 采集结果预览与编辑的 ViewModel
 @MainActor
@@ -47,22 +49,21 @@ public final class CaptureResultViewModel {
     public var showErrorAlert = false
     public var errorMessage: String?
     
-    // Dropdown Form Data (Replaces @Query)
-    public private(set) var availableSubjects: [SubjectModel] = []
-    public private(set) var availableSources: [SourceModel] = []
-    public private(set) var availableTags: [TagModel] = []
+    // Dropdown Form Data (Domain Entities)
+    public private(set) var availableSubjects: [Subject] = []
+    public private(set) var availableSources: [Source] = []
+    public private(set) var availableTags: [Tag] = []
 
     // MARK: - Dependencies
-    
-    private let reviewRepository: ReviewRepositoryProtocol
-    private let subjectRepository: SubjectRepositoryProtocol
-    private let sourceRepository: SourceRepositoryProtocol
-    private let tagRepository: TagRepositoryProtocol
+
+    private let reviewUseCase: ReviewUseCaseProtocol
+    private let taxonomyUseCase: TaxonomyUseCaseProtocol
     private let ocrService: OCRServiceProtocol
     private let analyticsService: AnalyticsServiceProtocol
+    private let imageStorage: ImageStorage
     private let router: CaptureRouter
     
-    /// 识别任务句柄，用于取消旧任务防止竞态
+    /// 识别任务句柄
     private var recognitionTask: Task<Void, Never>?
     
     // MARK: - Initialization
@@ -70,22 +71,20 @@ public final class CaptureResultViewModel {
     public init(
         content: String,
         image: UIImage?,
-        reviewRepository: ReviewRepositoryProtocol,
-        subjectRepository: SubjectRepositoryProtocol,
-        sourceRepository: SourceRepositoryProtocol,
-        tagRepository: TagRepositoryProtocol,
+        reviewUseCase: ReviewUseCaseProtocol,
+        taxonomyUseCase: TaxonomyUseCaseProtocol,
         ocrService: OCRServiceProtocol,
         analyticsService: AnalyticsServiceProtocol,
+        imageStorage: ImageStorage = ImageStorage(),
         router: CaptureRouter
     ) {
         self.content = content
         self.image = image
-        self.reviewRepository = reviewRepository
-        self.subjectRepository = subjectRepository
-        self.sourceRepository = sourceRepository
-        self.tagRepository = tagRepository
+        self.reviewUseCase = reviewUseCase
+        self.taxonomyUseCase = taxonomyUseCase
         self.ocrService = ocrService
         self.analyticsService = analyticsService
+        self.imageStorage = imageStorage
         self.router = router
     }
     
@@ -94,9 +93,9 @@ public final class CaptureResultViewModel {
     /// 加载默认表单数据
     public func loadFormData() {
         do {
-            availableSubjects = try subjectRepository.fetchAll().sorted(by: { $0.sortOrder < $1.sortOrder })
-            availableSources = try sourceRepository.fetchAll().sorted(by: { $0.sortOrder < $1.sortOrder })
-            availableTags = try tagRepository.fetchAll().sorted(by: { $0.name < $1.name })
+            availableSubjects = try taxonomyUseCase.getSubjects().sorted(by: { $0.sortOrder < $1.sortOrder })
+            availableSources = try taxonomyUseCase.getSources().sorted(by: { $0.sortOrder < $1.sortOrder })
+            availableTags = try taxonomyUseCase.getAllTags().sorted(by: { $0.name < $1.name })
         } catch {
             SnapDrillLogger.generic.error("加载下拉表单失败: \(error.localizedDescription)")
         }
@@ -107,7 +106,6 @@ public final class CaptureResultViewModel {
         self.image = croppedImage
         self.isCropping = false
         
-        // 取消之前的识别任务，防止旧结果覆盖新结果
         recognitionTask?.cancel()
         recognitionTask = Task {
             await reRecognizeText(from: croppedImage)
@@ -119,40 +117,45 @@ public final class CaptureResultViewModel {
         self.isCropping = false
     }
     
-    /// 保存 Draft（当离开时触发）
+    /// 保存预览 Draft (离开时触发)
     public func generateDraftIfNeeded() {
         if !isSaved, let img = image, !content.isEmpty {
             CaptureDraftService.shared.saveDraft(image: img, content: content)
         }
     }
     
-    /// 保存最终复习记录
+    /// 保存正式题目
     public func saveResult() async {
         isSaved = true
         
         do {
-            // 解析 tags
-            var finalTags: [TagModel] = []
-            for tagName in tagList {
-                let tag = try tagRepository.getOrCreate(name: tagName, colorHex: "#CCCCCC")
-                finalTags.append(tag)
+            // 解析并同步标签
+            var finalTagNames: [String] = []
+            for name in tagList {
+                _ = try taxonomyUseCase.getOrCreateTag(name: name, colorHex: "#CCCCCC")
+                finalTagNames.append(name)
             }
-            try tagRepository.save()
             
-            // 构造新的 Review Item (Domain entity definition mismatch fix)
-            var item = ReviewItem(
+            // 持久化题目截图，获取本地相对路径
+            var savedImagePath: String?
+            if let img = image {
+                savedImagePath = try await imageStorage.saveImage(img)
+            }
+
+            // 构造领域对象
+            let item = ReviewItem(
                 content: content,
-                imagePath: nil, // Note: raw image doesn't construct imagePath here yet
+                imagePath: savedImagePath,
+                subject: selectedSubject,
                 source: selectedSource,
-                difficulty: difficulty
+                tags: finalTagNames,
+                answerText: answerText,
+                difficulty: difficulty,
+                grade: grade
             )
-            item.answerText = answerText
-            item.tags = finalTags.map { $0.name }
-            item.grade = grade
             
-            // 保存
-            try reviewRepository.save(item, subject: selectedSubject)
-            try reviewRepository.save()
+            // 下推业务用例
+            try reviewUseCase.captureNewItem(item)
             
             // 埋点
             analyticsService.track(
@@ -160,13 +163,14 @@ public final class CaptureResultViewModel {
                 parameters: [
                     "subject": selectedSubject,
                     "source": selectedSource,
-                    "has_image": String(image != nil),
                     "difficulty": String(difficulty)
                 ]
             )
             
-            // 跳转回 Dashboard (清除 Capture Stack)
+            // 清理并返回
+            CaptureDraftService.shared.clearDraft()
             router.path.removeLast(router.path.count)
+            
         } catch {
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
             self.errorMessage = error.localizedDescription
@@ -186,7 +190,7 @@ public final class CaptureResultViewModel {
                     self.answerImage = loadedImage
                 }
             } catch {
-                SnapDrillLogger.generic.error("无法加载答案图片: \(error.localizedDescription)")
+                SnapDrillLogger.generic.error("加载图片失败: \(error.localizedDescription)")
             }
         }
     }
@@ -196,24 +200,13 @@ public final class CaptureResultViewModel {
         defer { isRecognizing = false }
         
         do {
-            guard let cgImage = img.cgImage else {
-                throw OCRError.invalidImage
-            }
-            
-            // 检查任务是否已被取消
+            guard let cgImage = img.cgImage else { return }
             try Task.checkCancellation()
-            
-            // ocrService is actor, safely await result
             let newText = try await ocrService.recognizeText(from: cgImage)
-            
-            // 再次检查取消
             try Task.checkCancellation()
-            
             self.content = newText
-        } catch is CancellationError {
-            SnapDrillLogger.generic.info("OCR 任务被取消 (新任务已启动)")
         } catch {
-            SnapDrillLogger.generic.warning("重新 OCR 失败: \(error.localizedDescription)")
+            SnapDrillLogger.generic.warning("重新识别失败: \(error.localizedDescription)")
         }
     }
 }

@@ -1,9 +1,9 @@
 //
 //  SmartCameraView.swift
-//  SnapDrillFeatureCapture
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  智能相机视图，集成实时 OCR 识别与矩形检测。
 //

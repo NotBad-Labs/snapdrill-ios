@@ -1,23 +1,23 @@
 //
 //  LibraryComponents.swift
-//  SnapDrillFeatureLibrary
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/30.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/30.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  题库模块共享的小组件，如 SubjectCapsule。
 //
 
 import SwiftUI
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillUI
 
 // MARK: - Components
 
 struct SubjectCapsule: View {
-    let subject: SubjectModel
+    let subject: Subject
     let isSelected: Bool
-    
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: subject.icon)
@@ -35,8 +35,8 @@ struct SubjectCapsule: View {
 
 #Preview {
     HStack {
-        SubjectCapsule(subject: SubjectModel(name: "Math", icon: "function", colorHex: "#FF5733", sortOrder: 0), isSelected: true)
-        SubjectCapsule(subject: SubjectModel(name: "Physics", icon: "atom", colorHex: "#33FF57", sortOrder: 1), isSelected: false)
+        SubjectCapsule(subject: Subject(name: "Math", icon: "function", colorHex: "#FF5733", sortOrder: 0), isSelected: true)
+        SubjectCapsule(subject: Subject(name: "Physics", icon: "atom", colorHex: "#33FF57", sortOrder: 1), isSelected: false)
     }
     .padding()
 }

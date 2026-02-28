@@ -2,15 +2,15 @@
 //  ExportOptionsSheet.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/31.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  导出选项配置页，允许用户选择要包含在 PDF 中的内容。
 //
 
 import SwiftUI
 import SnapDrillCore
-import SnapDrillData
+import SnapDrillDomain
 
 /// 导出选项面板
 ///
@@ -19,7 +19,7 @@ struct ExportOptionsSheet: View {
     
     // MARK: - Properties
     
-    let items: [ReviewItemModel]
+    let items: [ReviewItem]
     @Environment(\.dismiss) private var dismiss
     
     @State private var showingPDFPreview = false
@@ -55,7 +55,7 @@ struct ExportOptionsSheet: View {
                     // 2. Markdown (.md)
                     // 使用原生 ShareLink，系统接管文件生成与分享
                     ShareLink(
-                        item: ReviewExport(items: items.map { $0.toEntity() }, format: .markdown),
+                        item: ReviewExport(items: items, format: .markdown),
                         preview: SharePreview("错题本 Markdown", image: Image(systemName: "doc.text"))
                     ) {
                         Label {
@@ -76,7 +76,7 @@ struct ExportOptionsSheet: View {
                     
                     // 3. CSV (.csv)
                     ShareLink(
-                        item: ReviewExport(items: items.map { $0.toEntity() }, format: .csv),
+                        item: ReviewExport(items: items, format: .csv),
                         preview: SharePreview("错题本数据 CSV", image: Image(systemName: "tablecells"))
                     ) {
                         Label {
@@ -229,8 +229,5 @@ struct ReviewExport: Transferable {
 }
 
 #Preview {
-    ExportOptionsSheet(items: [
-        ReviewItemModel(content: "Sample Q1", subject: "Math"),
-        ReviewItemModel(content: "Sample Q2", subject: "Physics")
-    ])
+    ExportOptionsSheet(items: [])
 }

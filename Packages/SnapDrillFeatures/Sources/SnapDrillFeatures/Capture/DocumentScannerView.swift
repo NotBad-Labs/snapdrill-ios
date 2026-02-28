@@ -1,9 +1,9 @@
 //
 //  DocumentScannerView.swift
-//  SnapDrillFeatureCapture
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/30.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/30.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  基于 VisionKit 的文档扫描视图 (VNDocumentCameraViewController 封装)。
 //

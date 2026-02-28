@@ -4,7 +4,7 @@
 > **已废弃 (Superseded)**: 此决策已由 [ADR 0005](file:///Users/yiming/Developer/snapdrill-ios/docs/adr/0005-unify-minimum-ios-version-to-18-0.md) 取代，最低部署目标已提升至 iOS 18.0。
 
 **日期**: 2026-02-25
-**状态**: ✅ Accepted
+**状态**: ~~Accepted~~ → **Superseded by [ADR 0005](0005-unify-minimum-ios-version-to-18-0.md)**
 
 ## 1. 背景 (Context)
 

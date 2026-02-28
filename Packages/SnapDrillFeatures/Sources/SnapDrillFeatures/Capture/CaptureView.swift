@@ -1,9 +1,9 @@
 //
 //  CaptureView.swift
-//  SnapDrillFeatureCapture
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  采集功能主界面，提供拍照识题入口
 //
@@ -23,7 +23,7 @@ public struct CaptureView: View {
     // MARK: - Properties
     
     @Bindable private var router: CaptureRouter
-    @Environment(\.repositories) private var repos
+    @Environment(\.useCases) private var useCases
     @Environment(\.analyticsService) private var analyticsService
     
     @State private var viewModel = CaptureViewModel()
@@ -148,10 +148,8 @@ public struct CaptureView: View {
                     let resultViewModel = CaptureResultViewModel(
                         content: content,
                         image: image,
-                        reviewRepository: repos.review,
-                        subjectRepository: repos.subject,
-                        sourceRepository: repos.source,
-                        tagRepository: repos.tag,
+                        reviewUseCase: useCases.review,
+                        taxonomyUseCase: useCases.taxonomy,
                         ocrService: OCRService(),
                         analyticsService: analyticsService,
                         router: router

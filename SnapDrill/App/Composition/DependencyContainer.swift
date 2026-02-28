@@ -2,8 +2,8 @@
 //  DependencyContainer.swift
 //  SnapDrill
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  依赖注入容器，管理全局服务实例。
 //

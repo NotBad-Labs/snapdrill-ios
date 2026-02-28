@@ -1,7 +1,17 @@
+//
+//  LibraryViewModel.swift
+//  SnapDrillFeatures
+//
+//  Created by NotBad Labs on 2026/02/24.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+//
+//  题库列表的状态管理与过滤逻辑，支持搜索、分页与多维度筛选。
+//
+
 import SwiftUI
 import Observation
 import SnapDrillCore
-import SnapDrillData
+import SnapDrillDomain
 
 @Observable
 @MainActor
@@ -9,15 +19,14 @@ public final class LibraryViewModel {
     
     // MARK: - Dependencies
     
-    private let reviewRepo: ReviewRepositoryProtocol
-    private let subjectRepo: SubjectRepositoryProtocol
-    private let tagRepo: TagRepositoryProtocol
+    private let reviewUseCase: ReviewUseCaseProtocol
+    private let taxonomyUseCase: TaxonomyUseCaseProtocol
     
     // MARK: - State
     
-    public var filteredItems: [ReviewItemModel] = []
-    public var subjects: [SubjectModel] = []
-    public var allTags: [TagModel] = []
+    public var filteredItems: [ReviewItem] = []
+    public var subjects: [Subject] = []
+    public var allTags: [Tag] = []
     
     public var searchText: String = "" {
         didSet { triggerRefresh() }
@@ -38,13 +47,11 @@ public final class LibraryViewModel {
     // MARK: - Initialization
     
     public init(
-        reviewRepo: ReviewRepositoryProtocol,
-        subjectRepo: SubjectRepositoryProtocol,
-        tagRepo: TagRepositoryProtocol
+        reviewUseCase: ReviewUseCaseProtocol,
+        taxonomyUseCase: TaxonomyUseCaseProtocol
     ) {
-        self.reviewRepo = reviewRepo
-        self.subjectRepo = subjectRepo
-        self.tagRepo = tagRepo
+        self.reviewUseCase = reviewUseCase
+        self.taxonomyUseCase = taxonomyUseCase
     }
     
     // MARK: - Public API
@@ -55,11 +62,11 @@ public final class LibraryViewModel {
         defer { isLoading = false }
         
         do {
-            self.subjects = try subjectRepo.fetchAll()
-            self.allTags = try tagRepo.fetchAll()
+            self.subjects = try taxonomyUseCase.getSubjects()
+            self.allTags = try taxonomyUseCase.getAllTags()
             await refreshData()
         } catch {
-            SnapDrillLogger.generic.info("LibraryViewModel: Failed to load meta data: \(error)")
+            SnapDrillLogger.generic.error("加载题库元数据失败: \(error.localizedDescription)")
         }
     }
     
@@ -67,34 +74,32 @@ public final class LibraryViewModel {
     public func triggerRefresh() {
         searchTask?.cancel()
         searchTask = Task { [weak self] in
-            // Add a small debounce to avoid excessive DB hits during fast typing
             try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s
             guard let self = self, !Task.isCancelled else { return }
             await self.refreshData()
         }
     }
     
-    // MARK: - Public API
-    
     /// 执行数据加载与过滤 (异步)
     public func refreshData() async {
         do {
             currentPage = 0
-            let results = try reviewRepo.fetchFiltered(
-                searchText: searchText,
+            let results = try reviewUseCase.searchLibrary(
+                query: searchText,
                 subjects: selectedSubjects,
                 tags: selectedTags,
-                limit: pageSize,
-                offset: 0
+                page: currentPage,
+                pageSize: pageSize
             )
             
             guard !Task.isCancelled else { return }
             self.filteredItems = results
         } catch {
-            SnapDrillLogger.generic.error("LibraryViewModel: Refresh failed: \(error)")
+            SnapDrillLogger.generic.error("刷新题库失败: \(error.localizedDescription)")
         }
     }
     
+    /// 加载更多（分页）
     public func loadMore() async {
         guard !isLoading else { return }
         isLoading = true
@@ -102,41 +107,40 @@ public final class LibraryViewModel {
         
         do {
             currentPage += 1
-            let nextItems = try reviewRepo.fetchFiltered(
-                searchText: searchText,
+            let nextItems = try reviewUseCase.searchLibrary(
+                query: searchText,
                 subjects: selectedSubjects,
                 tags: selectedTags,
-                limit: pageSize,
-                offset: currentPage * pageSize
+                page: currentPage,
+                pageSize: pageSize
             )
             
             guard !Task.isCancelled else { return }
             self.filteredItems.append(contentsOf: nextItems)
         } catch {
-            SnapDrillLogger.generic.error("LibraryViewModel: Load more failed: \(error)")
+            SnapDrillLogger.generic.error("加载更多题目失败: \(error.localizedDescription)")
         }
     }
     
-    public func deleteItem(_ item: ReviewItemModel) {
-        reviewRepo.delete(item)
-        try? reviewRepo.save()
-        filteredItems.removeAll { $0.id == item.id }
-    }
-    
-    public func deleteItems(ids: Set<ReviewItemModel.ID>) {
-        // 先获取这些模型
+    /// 删除单个题目
+    public func deleteItem(_ item: ReviewItem) {
         do {
-            let itemsToDelete = try reviewRepo.fetchByIds(ids)
-            for item in itemsToDelete {
-                reviewRepo.delete(item)
-            }
-            try reviewRepo.save()
-            filteredItems.removeAll { ids.contains($0.id) }
+            try reviewUseCase.deleteItem(id: item.id)
+            filteredItems.removeAll { $0.id == item.id }
         } catch {
-            SnapDrillLogger.generic.error("LibraryViewModel: Delete failed: \(error)")
+            SnapDrillLogger.generic.error("删除题目失败: \(error.localizedDescription)")
         }
     }
     
+    /// 批量删除题目
+    public func deleteItems(ids: Set<UUID>) {
+        for id in ids {
+            try? reviewUseCase.deleteItem(id: id)
+        }
+        filteredItems.removeAll { ids.contains($0.id) }
+    }
+    
+    /// 重置所有过滤器
     public func resetFilters() {
         searchText = ""
         selectedSubjects.removeAll()

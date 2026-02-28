@@ -1,64 +1,50 @@
 //
 //  SettingsViewModel.swift
-//  SnapDrillFeatureSettings
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Architect on 2026/02/25.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/25.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 
 import SwiftUI
 import SwiftData
+import Observation
 import SnapDrillCore
-import SnapDrillData
+import SnapDrillDomain
+import SnapDrillData // Keep for DataSeeder/ModelContainer debug tool
 
 @Observable
 @MainActor
 public final class SettingsViewModel {
-    private let reviewRepo: ReviewRepositoryProtocol
-    private let subjectRepo: SubjectRepositoryProtocol
-    private let sourceRepo: SourceRepositoryProtocol
-    private let tagRepo: TagRepositoryProtocol
+    private let reviewUseCase: ReviewUseCaseProtocol
+    private let taxonomyUseCase: TaxonomyUseCaseProtocol
     
     // MARK: - Initialization
     
     public init(
-        reviewRepo: ReviewRepositoryProtocol,
-        subjectRepo: SubjectRepositoryProtocol,
-        sourceRepo: SourceRepositoryProtocol,
-        tagRepo: TagRepositoryProtocol
+        reviewUseCase: ReviewUseCaseProtocol,
+        taxonomyUseCase: TaxonomyUseCaseProtocol
     ) {
-        self.reviewRepo = reviewRepo
-        self.subjectRepo = subjectRepo
-        self.sourceRepo = sourceRepo
-        self.tagRepo = tagRepo
+        self.reviewUseCase = reviewUseCase
+        self.taxonomyUseCase = taxonomyUseCase
     }
     
     // MARK: - Public API
     
     public func clearAllData() {
         do {
-            try reviewRepo.deleteAll()
-            try subjectRepo.deleteAll()
-            try sourceRepo.deleteAll()
+            try reviewUseCase.deleteAllData()
+            try taxonomyUseCase.deleteAllTaxonomy()
             
-            // Re-init defaults
-            subjectRepo.initializeDefaultsIfNeeded()
-            sourceRepo.seedDefaultSourcesIfNeeded()
-            
-            try reviewRepo.save()
-            SnapDrillLogger.generic.info("Successfully cleared all data and re-seeded defaults.")
+            SnapDrillLogger.generic.info("Successfully cleared all data via logic layer.")
         } catch {
             SnapDrillLogger.generic.error("Failed to clear data: \(error)")
         }
     }
     
-    public func generateMockData(count: Int, container: ModelContainer) async throws -> TimeInterval {
+    /// 注意：DataSeeder 属于底层调试工具，仍需 Container
+    public func generateMockData(count: Int, container: SwiftData.ModelContainer) async throws -> TimeInterval {
         let seeder = DataSeeder(container: container)
-        let time = try await seeder.seedReviewItems(count: count)
-        // Ensure consistency after background seeding
-        await Task { @MainActor in
-            try? reviewRepo.save()
-        }.value
-        return time
+        return try await seeder.seedReviewItems(count: count)
     }
 }

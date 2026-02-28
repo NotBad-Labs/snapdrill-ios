@@ -13,6 +13,7 @@
 这些模块为应用提供底层能力。
 
 - **[SnapDrillCore](Packages/SnapDrillCore/README.md)**: 核心逻辑层。包含领域实体、业务引擎 (Engine)、基础服务 (Service) 和通用工具 (Utils)。
+- **[SnapDrillDomain](Packages/SnapDrillDomain/)**: 领域用例层 (Clean Architecture)。包含 Repository 协议、UseCase 接口及 `UseCaseContainer`。
 - **[SnapDrillData](Packages/SnapDrillData/README.md)**: 数据层。基于 SwiftData 的持久化和迁移管理。
 - **[SnapDrillUI](Packages/SnapDrillUI/README.md)**: 表现层。包含设计系统、通用组件 (ImageCropper) 和基础路由协议。
 
@@ -34,7 +35,7 @@
 
 ## 环境要求
 
-- **Xcode**: 16.0+
+- **Xcode**: 26.0+
 - **iOS**: 18.0+
 - **SwiftLint**: 必需 (用于代码风格检查) `brew install swiftlint`
 

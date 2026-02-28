@@ -2,10 +2,10 @@
 //  ReviewItem.swift
 //  SnapDrillDomain
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  核心职责：定义题目复习条目领域实体（ReviewItem）。
+//  定义题目复习条目领域实体（ReviewItem）。
 //
 
 import Foundation

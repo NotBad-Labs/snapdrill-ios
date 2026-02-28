@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AG_BF_FEATURES /* SnapDrillFeatures in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_FEATURES /* SnapDrillFeatures */; };
-
+		B2BF_DOMAIN /* SnapDrillDomain in Frameworks */ = {isa = PBXBuildFile; productRef = B2PROD_DOMAIN /* SnapDrillDomain */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +37,40 @@
 		B2B4A4B72F04F26F00209449 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		B2BE0C9C2E727CC6001369C3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B2F0D1002F00000100AAA001 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		F18844132F52CC66008C2060 /* Promises.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Promises.xcodeproj; sourceTree = "<group>"; };
+		F188452A2F52CC68008C2060 /* TestApps.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = TestApps.xcodeproj; sourceTree = "<group>"; };
+		F18847B22F52CC69008C2060 /* GDTCCTWatchOSTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GDTCCTWatchOSTestApp.xcodeproj; sourceTree = "<group>"; };
+		F188487D2F52CC69008C2060 /* GDTWatchOSTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GDTWatchOSTestApp.xcodeproj; sourceTree = "<group>"; };
+		F18856572F52CCB3008C2060 /* ProtocolBuffers_iOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ProtocolBuffers_iOS.xcodeproj; sourceTree = "<group>"; };
+		F18856582F52CCB3008C2060 /* ProtocolBuffers_OSX.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ProtocolBuffers_OSX.xcodeproj; sourceTree = "<group>"; };
+		F18856592F52CCB3008C2060 /* ProtocolBuffers_tvOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ProtocolBuffers_tvOS.xcodeproj; sourceTree = "<group>"; };
+		F18861142F52CCB3008C2060 /* FirebasePodTest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FirebasePodTest.xcodeproj; sourceTree = "<group>"; };
+		F18862982F52CCB3008C2060 /* CombineSample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CombineSample.xcodeproj; sourceTree = "<group>"; };
+		F18862BE2F52CCB3008C2060 /* FirestoreSample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FirestoreSample.xcodeproj; sourceTree = "<group>"; };
+		F18862CE2F52CCB3008C2060 /* tvOSSample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = tvOSSample.xcodeproj; sourceTree = "<group>"; };
+		F18862E22F52CCB3008C2060 /* SampleWatchApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SampleWatchApp.xcodeproj; sourceTree = "<group>"; };
+		F18863012F52CCB3008C2060 /* ABTQA.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ABTQA.xcodeproj; sourceTree = "<group>"; };
+		F18863A42F52CCB4008C2060 /* FirebaseAITestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FirebaseAITestApp.xcodeproj; sourceTree = "<group>"; };
+		F188640E2F52CCB4008C2060 /* AppCheckCustomProvideApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = AppCheckCustomProvideApp.xcodeproj; sourceTree = "<group>"; };
+		F188641A2F52CCB4008C2060 /* FIRAppCheckTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FIRAppCheckTestApp.xcodeproj; sourceTree = "<group>"; };
+		F18865A92F52CCB4008C2060 /* AuthenticationExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = AuthenticationExample.xcodeproj; sourceTree = "<group>"; };
+		F18868492F52CCB4008C2060 /* FDLBuilderTestAppObjC.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FDLBuilderTestAppObjC.xcodeproj; sourceTree = "<group>"; };
+		F18869342F52CCB4008C2060 /* FIAMSwiftUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FIAMSwiftUI.xcodeproj; sourceTree = "<group>"; };
+		F18869522F52CCB4008C2060 /* InAppMessagingDisplay-Sample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "InAppMessagingDisplay-Sample.xcodeproj"; sourceTree = "<group>"; };
+		F188696C2F52CCB4008C2060 /* InAppMessaging-Example-iOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "InAppMessaging-Example-iOS.xcodeproj"; sourceTree = "<group>"; };
+		F1886A0E2F52CCB4008C2060 /* AdvancedSample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = AdvancedSample.xcodeproj; sourceTree = "<group>"; };
+		F1886A192F52CCB4008C2060 /* Sample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Sample.xcodeproj; sourceTree = "<group>"; };
+		F1886A242F52CCB4008C2060 /* SampleStandaloneWatchApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SampleStandaloneWatchApp.xcodeproj; sourceTree = "<group>"; };
+		F1886A3A2F52CCB4008C2060 /* SwiftUISample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SwiftUISample.xcodeproj; sourceTree = "<group>"; };
+		F1886ACA2F52CCB4008C2060 /* MLDownloaderTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = MLDownloaderTestApp.xcodeproj; sourceTree = "<group>"; };
+		F1886B982F52CCB4008C2060 /* FIRPerfE2E.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FIRPerfE2E.xcodeproj; sourceTree = "<group>"; };
+		F1886BE12F52CCB4008C2060 /* PerfTestRigApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = PerfTestRigApp.xcodeproj; sourceTree = "<group>"; };
+		F1886C772F52CCB4008C2060 /* FeatureRolloutsTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FeatureRolloutsTestApp.xcodeproj; sourceTree = "<group>"; };
+		F1886C8D2F52CCB4008C2060 /* RemoteConfigSampleApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = RemoteConfigSampleApp.xcodeproj; sourceTree = "<group>"; };
+		F1886CCB2F52CCB4008C2060 /* SwiftUISample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SwiftUISample.xcodeproj; sourceTree = "<group>"; };
+		F1886D022F52CCB4008C2060 /* AppQualityDevApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = AppQualityDevApp.xcodeproj; sourceTree = "<group>"; };
+		F1886E622F52CCB4008C2060 /* Firestore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Firestore.xcodeproj; sourceTree = "<group>"; };
+		F1886EE42F52CCB4008C2060 /* FrameworkMaker.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FrameworkMaker.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -68,6 +102,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AG_BF_FEATURES /* SnapDrillFeatures in Frameworks */,
+				B2BF_DOMAIN /* SnapDrillDomain in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +165,244 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		F18844192F52CC66008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F18845522F52CC68008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F18847BE2F52CC69008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F18848932F52CC69008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1885FF22F52CCB3008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1885FF42F52CCB3008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1885FF62F52CCB3008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F18863292F52CCB3008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F188632B2F52CCB3008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F188632D2F52CCB3008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F188632F2F52CCB3008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F18863312F52CCB3008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F18863332F52CCB3008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886EED2F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886EEF2F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886EF12F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886EF32F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886EF52F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886EF72F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886EF92F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886EFB2F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886EFD2F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886EFF2F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F012F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F032F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F052F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F072F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F092F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F0B2F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F0D2F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F0F2F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F112F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F132F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F1886F152F52CCB4008C2060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -152,6 +425,7 @@
 			name = SnapDrill;
 			packageProductDependencies = (
 				AG_PROD_FEATURES /* SnapDrillFeatures */,
+				B2PROD_DOMAIN /* SnapDrillDomain */,
 			);
 			productName = SnapDrill;
 			productReference = B27BD95F2E560D0600E69277 /* SnapDrill.app */;
@@ -240,10 +514,149 @@
 				B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/SnapDrillCore" */,
 				B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/SnapDrillData" */,
 				B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */,
+				B2PKG_DOMAIN /* XCLocalSwiftPackageReference "Packages/SnapDrillDomain" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B27BD9602E560D0600E69277 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = F18863292F52CCB3008C2060 /* Products */;
+					ProjectRef = F18863012F52CCB3008C2060 /* ABTQA.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886EED2F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886A0E2F52CCB4008C2060 /* AdvancedSample.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886EF92F52CCB4008C2060 /* Products */;
+					ProjectRef = F188640E2F52CCB4008C2060 /* AppCheckCustomProvideApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886EF32F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886D022F52CCB4008C2060 /* AppQualityDevApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F052F52CCB4008C2060 /* Products */;
+					ProjectRef = F18865A92F52CCB4008C2060 /* AuthenticationExample.xcodeproj */;
+				},
+				{
+					ProductGroup = F188632F2F52CCB3008C2060 /* Products */;
+					ProjectRef = F18862982F52CCB3008C2060 /* CombineSample.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F0F2F52CCB4008C2060 /* Products */;
+					ProjectRef = F18868492F52CCB4008C2060 /* FDLBuilderTestAppObjC.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F072F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886C772F52CCB4008C2060 /* FeatureRolloutsTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886EFD2F52CCB4008C2060 /* Products */;
+					ProjectRef = F18869342F52CCB4008C2060 /* FIAMSwiftUI.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886EEF2F52CCB4008C2060 /* Products */;
+					ProjectRef = F188641A2F52CCB4008C2060 /* FIRAppCheckTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886EF52F52CCB4008C2060 /* Products */;
+					ProjectRef = F18863A42F52CCB4008C2060 /* FirebaseAITestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F18863332F52CCB3008C2060 /* Products */;
+					ProjectRef = F18861142F52CCB3008C2060 /* FirebasePodTest.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F0B2F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886E622F52CCB4008C2060 /* Firestore.xcodeproj */;
+				},
+				{
+					ProductGroup = F188632B2F52CCB3008C2060 /* Products */;
+					ProjectRef = F18862BE2F52CCB3008C2060 /* FirestoreSample.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F152F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886B982F52CCB4008C2060 /* FIRPerfE2E.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F132F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886EE42F52CCB4008C2060 /* FrameworkMaker.xcodeproj */;
+				},
+				{
+					ProductGroup = F18847BE2F52CC69008C2060 /* Products */;
+					ProjectRef = F18847B22F52CC69008C2060 /* GDTCCTWatchOSTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F18848932F52CC69008C2060 /* Products */;
+					ProjectRef = F188487D2F52CC69008C2060 /* GDTWatchOSTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F0D2F52CCB4008C2060 /* Products */;
+					ProjectRef = F188696C2F52CCB4008C2060 /* InAppMessaging-Example-iOS.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F092F52CCB4008C2060 /* Products */;
+					ProjectRef = F18869522F52CCB4008C2060 /* InAppMessagingDisplay-Sample.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F012F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886ACA2F52CCB4008C2060 /* MLDownloaderTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F112F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886BE12F52CCB4008C2060 /* PerfTestRigApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F18844192F52CC66008C2060 /* Products */;
+					ProjectRef = F18844132F52CC66008C2060 /* Promises.xcodeproj */;
+				},
+				{
+					ProductGroup = F1885FF42F52CCB3008C2060 /* Products */;
+					ProjectRef = F18856572F52CCB3008C2060 /* ProtocolBuffers_iOS.xcodeproj */;
+				},
+				{
+					ProductGroup = F1885FF62F52CCB3008C2060 /* Products */;
+					ProjectRef = F18856582F52CCB3008C2060 /* ProtocolBuffers_OSX.xcodeproj */;
+				},
+				{
+					ProductGroup = F1885FF22F52CCB3008C2060 /* Products */;
+					ProjectRef = F18856592F52CCB3008C2060 /* ProtocolBuffers_tvOS.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886EF72F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886C8D2F52CCB4008C2060 /* RemoteConfigSampleApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886EFB2F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886A192F52CCB4008C2060 /* Sample.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886EFF2F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886A242F52CCB4008C2060 /* SampleStandaloneWatchApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F188632D2F52CCB3008C2060 /* Products */;
+					ProjectRef = F18862E22F52CCB3008C2060 /* SampleWatchApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886F032F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886CCB2F52CCB4008C2060 /* SwiftUISample.xcodeproj */;
+				},
+				{
+					ProductGroup = F1886EF12F52CCB4008C2060 /* Products */;
+					ProjectRef = F1886A3A2F52CCB4008C2060 /* SwiftUISample.xcodeproj */;
+				},
+				{
+					ProductGroup = F18845522F52CC68008C2060 /* Products */;
+					ProjectRef = F188452A2F52CC68008C2060 /* TestApps.xcodeproj */;
+				},
+				{
+					ProductGroup = F18863312F52CCB3008C2060 /* Products */;
+					ProjectRef = F18862CE2F52CCB3008C2060 /* tvOSSample.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				B27BD95E2E560D0600E69277 /* SnapDrill */,
@@ -258,7 +671,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,7 +757,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SnapDrill/SnapDrill.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
@@ -367,6 +779,7 @@
 				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.3;
@@ -381,7 +794,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SnapDrill/SnapDrill.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
@@ -403,6 +816,7 @@
 				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.3;
@@ -542,13 +956,14 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.3;
@@ -562,13 +977,14 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.3;
@@ -581,12 +997,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.3;
@@ -599,12 +1016,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = W5A8THDKW8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.3;
@@ -667,6 +1085,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillData;
 		};
+		B2PKG_DOMAIN /* XCLocalSwiftPackageReference "Packages/SnapDrillDomain" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SnapDrillDomain;
+		};
 		B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillUI;
@@ -678,6 +1100,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
 			productName = SnapDrillFeatures;
+		};
+		B2PROD_DOMAIN /* SnapDrillDomain */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2PKG_DOMAIN /* XCLocalSwiftPackageReference "Packages/SnapDrillDomain" */;
+			productName = SnapDrillDomain;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

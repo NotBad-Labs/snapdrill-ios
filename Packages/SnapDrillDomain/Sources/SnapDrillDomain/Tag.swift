@@ -2,10 +2,10 @@
 //  Tag.swift
 //  SnapDrillDomain
 //
-//  Created by SnapDrill Labs on 2026/02/27.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/27.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  核心职责：定义用户自定义标签领域实体。
+//  定义用户自定义标签领域实体。
 //
 
 import Foundation

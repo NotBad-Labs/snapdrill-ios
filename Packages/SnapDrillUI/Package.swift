@@ -3,8 +3,8 @@
 //  Package.swift
 //  SnapDrillUI
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  通用 UI 组件库，包含设计系统和基础控件。
 //

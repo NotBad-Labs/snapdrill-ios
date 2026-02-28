@@ -1,30 +1,29 @@
 //
 //  SubjectManagerView.swift
-//  SnapDrillFeatureDashboard
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/31.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  学科管理视图，允许用户添加、删除或重命名学科。
 //
 
 import SwiftUI
 import SnapDrillCore
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillUI
-
 
 struct SubjectManagerView: View {
     
     // MARK: - Properties
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.repositories) private var repos
+    @Environment(\.useCases) private var useCases
     
     @State private var viewModel: SubjectManagerViewModel?
     
     @State private var showingAddSheet = false
-    @State private var editingSubject: SubjectModel?
+    @State private var editingSubject: Subject?
     
     // MARK: - Body
     
@@ -72,14 +71,14 @@ struct SubjectManagerView: View {
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
-                EditSubjectView(subject: nil)
+                EditSubjectView(subject: nil, viewModel: viewModel)
             }
             .sheet(item: $editingSubject) { subject in
-                EditSubjectView(subject: subject)
+                EditSubjectView(subject: subject, viewModel: viewModel)
             }
-            .onAppear {
+            .task {
                 if viewModel == nil {
-                    viewModel = SubjectManagerViewModel(repository: repos.subject)
+                    viewModel = SubjectManagerViewModel(taxonomyUseCase: useCases.taxonomy)
                 }
                 viewModel?.loadData()
             }
@@ -90,10 +89,10 @@ struct SubjectManagerView: View {
 /// 统一的添加/编辑学科视图
 struct EditSubjectView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.repositories) private var repos
     
     /// 如果为 nil，则为添加模式；否则为编辑模式
-    let subject: SubjectModel?
+    let subject: Subject?
+    let viewModel: SubjectManagerViewModel?
     
     @State private var name: String = ""
     @State private var selectedIcon: String = "book"
@@ -103,11 +102,6 @@ struct EditSubjectView: View {
     @State private var showSymbolPicker: Bool = false
     
     let colors = ["#E57373", "#4FC3F7", "#AED581", "#7986CB", "#F06292", "#FFB74D", "#9575CD", "#90A4AE"]
-    let icons = [
-        "book", "text.book.closed", "function", "character.book.closed",
-        "atom", "flask", "leaf", "scroll", "globe", "paintbrush",
-        "music.note", "sportscourt", "gamecontroller", "camera", "heart", "star"
-    ]
     
     private var isEditing: Bool { subject != nil }
     private var canSave: Bool { !name.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -144,7 +138,6 @@ struct EditSubjectView: View {
                 }
                 
                 Section("选择颜色") {
-                    // 预设颜色
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 10) {
                         ForEach(colors, id: \.self) { hex in
                             Circle()
@@ -162,7 +155,6 @@ struct EditSubjectView: View {
                     }
                     .padding(.vertical, 8)
                     
-                    // 自定义颜色
                     HStack {
                         Text("自定义颜色")
                         Spacer()
@@ -196,15 +188,12 @@ struct EditSubjectView: View {
                 SFSymbolPickerView(selectedSymbol: $selectedIcon)
             }
             .onAppear {
-                // 如果是编辑模式，加载现有数据
                 if let subject {
                     name = subject.name
                     selectedIcon = subject.icon
                     selectedColorHex = subject.colorHex
                     
-                    // 检查是否为预设颜色
                     if !colors.contains(subject.colorHex) {
-                        // 非预设颜色，设置为自定义颜色
                         customColor = Color(hex: subject.colorHex)
                         useCustomColor = true
                     }
@@ -213,7 +202,6 @@ struct EditSubjectView: View {
         }
     }
     
-    /// 获取最终选择的颜色 Hex
     private var finalColorHex: String {
         if useCustomColor {
             return customColor.toHex() ?? "#4FC3F7"
@@ -221,33 +209,17 @@ struct EditSubjectView: View {
             return selectedColorHex
         }
     }
+    
     func saveSubject() {
-        let repo = repos.subject
-        if let subject {
-            do {
-                try repo.update(subject, name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
-            } catch {
-                SnapDrillLogger.generic.info("Failed to update subject: \(error.localizedDescription)")
-            }
-        } else {
-            do {
-                try repo.add(name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
-            } catch {
-                SnapDrillLogger.generic.info("Failed to add subject: \(error.localizedDescription)")
-            }
-        }
+        viewModel?.saveSubject(
+            subject: subject,
+            name: name.trimmingCharacters(in: .whitespaces),
+            selectedIcon: selectedIcon,
+            finalColorHex: finalColorHex
+        )
     }
 }
 
-#Preview("Manager") {
+#Preview {
     SubjectManagerView()
-}
-
-#Preview("Add Subject") {
-    EditSubjectView(subject: nil)
-}
-
-#Preview("Edit Subject") {
-    let subject = SubjectModel(name: "数学", icon: "function", colorHex: "#4FC3F7", sortOrder: 0)
-    EditSubjectView(subject: subject)
 }

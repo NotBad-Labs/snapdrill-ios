@@ -2,10 +2,10 @@
 //  Difficulty.swift
 //  SnapDrillDomain
 //
-//  Created by SnapDrill Labs on 2026/02/28.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/28.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  核心职责：定义题目难度等级枚举（1-5 星），替代裸 Int 表示。
+//  定义题目难度等级枚举（1-5 星），替代裸 Int 表示。
 //
 
 import Foundation

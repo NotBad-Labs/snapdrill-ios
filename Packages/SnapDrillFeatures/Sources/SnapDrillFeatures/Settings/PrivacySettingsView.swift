@@ -2,11 +2,14 @@
 //  PrivacySettingsView.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2026/01/02.
+//  Created by NotBad Labs on 2026/01/02.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+//
+//  隐私设置页面，管理数据收集与隐私选项。
 //
 
 import SwiftUI
-import SnapDrillData
+import SnapDrillDomain
 import UniformTypeIdentifiers
 
 /// 隐私设置页面
@@ -14,7 +17,7 @@ struct PrivacySettingsView: View {
     
     // MARK: - Properties
     
-    @Environment(\.repositories) private var repos
+    @Environment(\.useCases) private var useCases
     @AppStorage("analyticsEnabled") private var analyticsEnabled = false
     @AppStorage("crashReportingEnabled") private var crashReportingEnabled = true
     
@@ -93,12 +96,12 @@ struct PrivacySettingsView: View {
     
     // MARK: - Private Helpers
     
-    private func exportData(format: ExportFormat) async {
+    private func exportData(format: PrivacyDataExportFormat) async {
         isExporting = true
         exportError = nil
         
         do {
-            let items = try repos.review.fetchAll()
+            let items = try useCases.review.fetchAllItems()
             
             // Convert to Sendable value types before crossing actor boundary
             let exportableItems = items.map { item in
@@ -112,7 +115,7 @@ struct PrivacySettingsView: View {
                     createdAt: item.createdAt,
                     lastReviewedAt: item.lastReviewedAt,
                     nextReviewAt: item.nextReviewAt,
-                    tags: item.tags.map { $0.name }
+                    tags: item.tags
                 )
             }
             
@@ -147,18 +150,18 @@ struct ExportableItem: Sendable {
     let tags: [String]
 }
 
-/// 导出格式
-enum ExportFormat {
+/// 隐私数据导出格式（区别于题库导出的 ReviewExport.ExportFormat）
+enum PrivacyDataExportFormat {
     case json
     case csv
-    
+
     var fileExtension: String {
         switch self {
         case .json: return "json"
         case .csv: return "csv"
         }
     }
-    
+
     var mimeType: String {
         switch self {
         case .json: return "application/json"
@@ -169,7 +172,7 @@ enum ExportFormat {
 
 /// 数据导出器
 actor DataExporter {
-    func export(items: [ExportableItem], format: ExportFormat) throws -> URL {
+    func export(items: [ExportableItem], format: PrivacyDataExportFormat) throws -> URL {
         let data: Data
         
         switch format {
@@ -264,6 +267,5 @@ struct ShareSheet: UIViewControllerRepresentable {
 #Preview {
     NavigationStack {
         PrivacySettingsView()
-            .modelContainer(for: ReviewItemModel.self, inMemory: true)
     }
 }

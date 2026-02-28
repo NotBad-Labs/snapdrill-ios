@@ -1,9 +1,9 @@
 //
 //  CaptureResultView.swift
-//  SnapDrillFeatureCapture
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/30.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/30.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  采集结果预览视图，提供裁剪、重拍和确认功能。
 //

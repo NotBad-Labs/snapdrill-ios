@@ -2,8 +2,8 @@
 //  SnapshotTests.swift
 //  SnapDrillUITests
 //
-//  Created by SnapDrill Architect on 2026/02/25.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/25.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 
 import Testing

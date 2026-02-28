@@ -2,9 +2,8 @@
 //  MigrationPlan.swift
 //  SnapDrillData
 //
-//  Created by SnapDrill Labs on 2025/12/31.
-//  Updated by SnapDrill Architect on 2026/01/02.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SwiftData Schema 定义（首次发布版本，无需迁移计划）
 //

@@ -2,13 +2,13 @@
 //  SourceManagerViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2026/02/25.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/25.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 
 import Foundation
 import Observation
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillCore
 
 @Observable
@@ -17,30 +17,24 @@ public final class SourceManagerViewModel {
     
     // MARK: - State
     
-    public var sources: [SourceModel] = []
+    public var sources: [Source] = []
     public var isDeletingInUse = false
     public var pendingDeletionName = ""
     
     // MARK: - Dependencies
     
-    private let repository: SourceRepositoryProtocol
-    private let reviewRepository: ReviewRepositoryProtocol
+    private let taxonomyUseCase: TaxonomyUseCaseProtocol
     
     // MARK: - Initialization
     
-    public init(
-        repository: SourceRepositoryProtocol = DefaultRepositoryContainer().source,
-        reviewRepository: ReviewRepositoryProtocol = DefaultRepositoryContainer().review
-    ) {
-        self.repository = repository
-        self.reviewRepository = reviewRepository
+    public init(taxonomyUseCase: TaxonomyUseCaseProtocol) {
+        self.taxonomyUseCase = taxonomyUseCase
     }
     
     // MARK: - Public Actions
     
     public func loadData() {
-        repository.seedDefaultSourcesIfNeeded()
-        sources = (try? repository.fetchAll().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
+        sources = (try? taxonomyUseCase.getSources().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
     }
     
     // MARK: - Public API
@@ -50,44 +44,38 @@ public final class SourceManagerViewModel {
         let itemsToDelete = offsets.map { sources[$0] }
         for item in itemsToDelete {
             do {
-                let usageCount = try repository.countItems(named: item.name)
-                if usageCount > 0 {
+                if try !taxonomyUseCase.canDeleteSource(name: item.name) {
                     isDeletingInUse = true
                     pendingDeletionName = item.name
                     continue
                 }
-                repository.delete(item)
-                try repository.save()
+                try taxonomyUseCase.deleteSource(name: item.name)
             } catch {
-                SnapDrillLogger.generic.error("Failed to delete source: \(error)")
+                SnapDrillLogger.generic.error("删除来源失败: \(error.localizedDescription)")
             }
         }
         loadData()
     }
     
-    public func saveSource(source: SourceModel?, name: String, selectedIcon: String, finalColorHex: String) {
-        if let source {
-            let oldName = source.name
-            do {
-                if oldName != name {
-                    // CASCADING RENAME
-                    try reviewRepository.updateSourceUsage(from: oldName, to: name)
-                }
-                try repository.update(source, name: name, icon: selectedIcon, colorHex: finalColorHex)
-                try repository.save()
-                try reviewRepository.save()
-                loadData()
-            } catch {
-                SnapDrillLogger.generic.error("Failed to update source: \(error)")
+    public func saveSource(source: Source?, name: String, selectedIcon: String, finalColorHex: String) {
+        do {
+            if let source {
+                try taxonomyUseCase.updateSource(
+                    oldName: source.name,
+                    newName: name,
+                    icon: selectedIcon,
+                    colorHex: finalColorHex
+                )
+            } else {
+                try taxonomyUseCase.addSource(
+                    name: name,
+                    icon: selectedIcon,
+                    colorHex: finalColorHex
+                )
             }
-        } else {
-            do {
-                try repository.add(name: name, icon: selectedIcon, colorHex: finalColorHex)
-                try repository.save()
-                loadData()
-            } catch {
-                SnapDrillLogger.generic.error("Failed to add source: \(error)")
-            }
+            loadData()
+        } catch {
+            SnapDrillLogger.generic.error("保存来源失败: \(error.localizedDescription)")
         }
     }
 }

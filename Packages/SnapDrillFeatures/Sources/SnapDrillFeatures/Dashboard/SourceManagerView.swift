@@ -2,15 +2,15 @@
 //  SourceManagerView.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2026/01/01.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/01/01.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  来源管理视图，允许用户添加、删除或重命名来源。
 //
 
 import SwiftUI
 import SnapDrillCore
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillUI
 
 struct SourceManagerView: View {
@@ -18,12 +18,12 @@ struct SourceManagerView: View {
     // MARK: - Properties
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.repositories) private var repos
+    @Environment(\.useCases) private var useCases
     
     @State private var viewModel: SourceManagerViewModel?
     
     @State private var showingAddSheet = false
-    @State private var editingSource: SourceModel?
+    @State private var editingSource: Source?
     
     // MARK: - Body
     
@@ -63,14 +63,14 @@ struct SourceManagerView: View {
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
-                EditSourceView(source: nil)
+                EditSourceView(source: nil, viewModel: viewModel)
             }
             .sheet(item: $editingSource) { source in
-                EditSourceView(source: source)
+                EditSourceView(source: source, viewModel: viewModel)
             }
-            .onAppear {
+            .task {
                 if viewModel == nil {
-                    viewModel = SourceManagerViewModel(repository: repos.source)
+                    viewModel = SourceManagerViewModel(taxonomyUseCase: useCases.taxonomy)
                 }
                 viewModel?.loadData()
             }
@@ -80,25 +80,19 @@ struct SourceManagerView: View {
 
 struct EditSourceView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.repositories) private var repos
     
     /// 如果为 nil，则为添加模式；否则为编辑模式
-    let source: SourceModel?
+    let source: Source?
+    let viewModel: SourceManagerViewModel?
     
     @State private var name: String = ""
-    @State private var selectedIcon: String = "doc.text" // Default icon for source
-    @State private var selectedColorHex: String = "#808080" // Default gray
+    @State private var selectedIcon: String = "doc.text"
+    @State private var selectedColorHex: String = "#808080"
     @State private var customColor: Color = .gray
     @State private var useCustomColor: Bool = false
     @State private var showSymbolPicker: Bool = false
     
     let colors = ["#E57373", "#4FC3F7", "#AED581", "#7986CB", "#F06292", "#FFB74D", "#9575CD", "#90A4AE", "#808080"]
-    // Source related icons
-    let icons = [
-        "doc.text", "pencil.and.list.clipboard", "book.closed", "xmark.bin",
-        "questionmark.circle", "desktopcomputer", "video", "person.2",
-        "building.columns", "graduationcap", "globe", "bubble.left"
-    ]
     
     private var isEditing: Bool { source != nil }
     private var canSave: Bool { !name.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -135,7 +129,6 @@ struct EditSourceView: View {
                 }
                 
                 Section("选择颜色") {
-                    // 预设颜色
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 10) {
                         ForEach(colors, id: \.self) { hex in
                             Circle()
@@ -153,7 +146,6 @@ struct EditSourceView: View {
                     }
                     .padding(.vertical, 8)
                     
-                    // 自定义颜色
                     HStack {
                         Text("自定义颜色")
                         Spacer()
@@ -187,19 +179,15 @@ struct EditSourceView: View {
                 SFSymbolPickerView(selectedSymbol: $selectedIcon)
             }
             .onAppear {
-                // 如果是编辑模式，加载现有数据
                 if let source {
                     name = source.name
                     selectedIcon = source.icon
                     selectedColorHex = source.colorHex
                     
-                    // 检查是否为预设颜色
                     if !colors.contains(source.colorHex) {
-                        // 非预设颜色，设置为自定义颜色
                         customColor = Color(hex: source.colorHex)
                         useCustomColor = true
                     }
-                    // 如果是默认未设置颜色，可能是旧数据，初始化
                     if source.colorHex.isEmpty {
                         selectedColorHex = "#808080"
                     }
@@ -208,7 +196,6 @@ struct EditSourceView: View {
         }
     }
     
-    /// 获取最终选择的颜色 Hex
     private var finalColorHex: String {
         if useCustomColor {
             return customColor.toHex() ?? "#808080"
@@ -218,27 +205,15 @@ struct EditSourceView: View {
     }
     
     func saveSource() {
-        let repo = repos.source
-        if let source {
-            // 编辑模式：更新现有来源
-            do {
-                try repo.update(source, name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
-            } catch {
-                SnapDrillLogger.generic.info("Failed to update source: \(error.localizedDescription)")
-            }
-        } else {
-            // 添加模式：创建新来源
-            do {
-                try repo.add(name: name.trimmingCharacters(in: .whitespaces), icon: selectedIcon, colorHex: finalColorHex)
-            } catch {
-                // 如果失败（如重复），静默失败或显示错误
-                SnapDrillLogger.generic.info("Failed to add source: \(error.localizedDescription)")
-            }
-        }
+        viewModel?.saveSource(
+            source: source,
+            name: name.trimmingCharacters(in: .whitespaces),
+            selectedIcon: selectedIcon,
+            finalColorHex: finalColorHex
+        )
     }
 }
 
-#Preview("Manager") {
-    // Mock Env
-    Text("Need Context")
+#Preview {
+    SourceManagerView()
 }

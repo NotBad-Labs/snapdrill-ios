@@ -1,35 +1,27 @@
 //
 //  LibraryDetailView.swift
-//  SnapDrillFeatureLibrary
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/29.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/29.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  错题详情页，展示题目的完整信息（原题、答案、解析）。
 //
 
 import SwiftUI
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillUI
 import SnapDrillCore
 
 /// 题目详情视图
-///
-/// 展示单一 `ReviewItemModel` 的完整信息，包括图片、长文本和所有元数据。
-///
-/// ## 功能
-/// - **图片预览**: 如果题目包含图片，从 `ImageStorage` 加载并显示。
-/// - **元数据展示**: 使用 Badge 样式展示学科、来源和标签。
-/// - **复习状态**: 显示题目的创建时间和下一次计划复习时间。
-/// - **完整内容**: 可滚动的长文本区域，显示题目的详细描述。
 struct LibraryDetailView: View {
     
     // MARK: - Properties
     
     @Bindable var router: LibraryRouter
     
-    /// 要展示的题目数据模型
-    let item: ReviewItemModel
+    /// 要展示的题目数据模型 (Domain)
+    let item: ReviewItem
     
     @State private var isEditing = false
     @State private var showingFullScreenImage = false
@@ -80,11 +72,10 @@ struct LibraryDetailView: View {
                     }
                     
                     if !item.tags.isEmpty {
-                        let tags = item.tags
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
-                                ForEach(tags) { tag in
-                                    Text("#\(tag.name)")
+                                ForEach(item.tags, id: \.self) { tag in
+                                    Text("#\(tag)")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                         .padding(.horizontal, 8)
@@ -152,7 +143,6 @@ struct LibraryDetailView: View {
 
 #Preview {
     NavigationStack {
-        LibraryDetailView(router: LibraryRouter(), item: ReviewItemModel(content: "Sample Question"))
+        LibraryDetailView(router: LibraryRouter(), item: ReviewItem(id: UUID(), content: "Sample Domain Question", subject: "Math"))
     }
-    .modelContainer(for: ReviewItemModel.self, inMemory: true)
 }

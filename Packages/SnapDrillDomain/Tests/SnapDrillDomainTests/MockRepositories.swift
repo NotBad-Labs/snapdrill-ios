@@ -2,8 +2,8 @@
 //  MockRepositories.swift
 //  SnapDrillDomainTests
 //
-//  Created by SnapDrill Labs on 2026/02/28.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/28.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Domain 层单测用内存 Mock 仓库。
 //

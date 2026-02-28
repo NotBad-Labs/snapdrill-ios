@@ -2,10 +2,10 @@
 //  RepositoryContainer.swift
 //  SnapDrillData
 //
-//  Created by SnapDrill Labs on 2026/02/27.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/27.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  核心职责：定义数据层仓库容器协议及默认/预览实现，作为 Features 层访问持久化的统一入口。
+//  定义数据层仓库容器协议及默认/预览实现，作为 Features 层访问持久化的统一入口。
 //
 
 import Foundation

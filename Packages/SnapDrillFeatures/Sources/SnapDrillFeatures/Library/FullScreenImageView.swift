@@ -2,8 +2,8 @@
 //  FullScreenImageView.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2026/01/01.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/01/01.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  全屏图片预览组件，支持缩放和滑动关闭。
 //

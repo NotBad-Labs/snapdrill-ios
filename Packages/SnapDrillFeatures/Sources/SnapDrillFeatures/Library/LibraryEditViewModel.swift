@@ -1,18 +1,18 @@
 //
 //  LibraryEditViewModel.swift
-//  SnapDrillFeatureLibrary
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Architect on 2026/02/25.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2026/02/25.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 
 import SwiftUI
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillCore
 
 @Observable
 @MainActor
-public class LibraryEditViewModel {
+public final class LibraryEditViewModel {
     
     // MARK: - State
     
@@ -29,37 +29,32 @@ public class LibraryEditViewModel {
     public var isCropping = false
     public var imageToCrop: UIImage?
     
-    public var subjects: [SubjectModel] = []
-    public var sources: [SourceModel] = []
-    public var allTags: [TagModel] = []
+    public var subjects: [Subject] = []
+    public var sources: [Source] = []
+    public var allTags: [Tag] = []
     
     // MARK: - Dependencies
     
-    private let item: ReviewItemModel
-    private let reviewRepository: ReviewRepositoryProtocol
-    private let subjectRepository: SubjectRepositoryProtocol
-    private let sourceRepository: SourceRepositoryProtocol
-    private let tagRepository: TagRepositoryProtocol
+    private var item: ReviewItem
+    private let reviewUseCase: ReviewUseCaseProtocol
+    private let taxonomyUseCase: TaxonomyUseCaseProtocol
     private let imageStorage = ImageStorage()
     private let ocrService = OCRService()
     
     public init(
-        item: ReviewItemModel,
-        reviewRepository: ReviewRepositoryProtocol,
-        subjectRepository: SubjectRepositoryProtocol,
-        sourceRepository: SourceRepositoryProtocol,
-        tagRepository: TagRepositoryProtocol
+        item: ReviewItem,
+        reviewUseCase: ReviewUseCaseProtocol,
+        taxonomyUseCase: TaxonomyUseCaseProtocol
     ) {
         self.item = item
-        self.reviewRepository = reviewRepository
-        self.subjectRepository = subjectRepository
-        self.sourceRepository = sourceRepository
-        self.tagRepository = tagRepository
+        self.reviewUseCase = reviewUseCase
+        self.taxonomyUseCase = taxonomyUseCase
+        
         self.content = item.content
         self.answer = item.answerText
         self.selectedSubject = item.subject
         self.selectedSource = item.source
-        self.tagList = item.tags.map { $0.name }
+        self.tagList = item.tags
         self.difficulty = item.difficulty
     }
     
@@ -71,18 +66,12 @@ public class LibraryEditViewModel {
         }
         
         do {
-            self.subjects = try subjectRepository.fetchAll()
-            self.sources = try sourceRepository.fetchAll()
-            self.allTags = try tagRepository.fetchAll()
+            self.subjects = try taxonomyUseCase.getSubjects()
+            self.sources = try taxonomyUseCase.getSources()
+            self.allTags = try taxonomyUseCase.getAllTags()
         } catch {
-            SnapDrillLogger.generic.error("LibraryEditViewModel: Failed to load metadata: \(error)")
+            SnapDrillLogger.generic.error("加载元数据失败: \(error.localizedDescription)")
         }
-    }
-    
-    public func loadMetadata(subjects: [SubjectModel], sources: [SourceModel], tags: [TagModel]) {
-        self.subjects = subjects
-        self.sources = sources
-        self.allTags = tags
     }
     
     public func handleNewImage(_ image: UIImage) {
@@ -91,9 +80,7 @@ public class LibraryEditViewModel {
         
         Task {
             do {
-                guard let cgImage = image.cgImage else {
-                    throw OCRError.invalidImage
-                }
+                guard let cgImage = image.cgImage else { return }
                 let recognizedText = try await ocrService.recognizeText(from: cgImage)
                 
                 await MainActor.run {
@@ -101,7 +88,7 @@ public class LibraryEditViewModel {
                     self.isProcessing = false
                 }
             } catch {
-                SnapDrillLogger.generic.info("OCR Error: \(error)")
+                SnapDrillLogger.generic.info("OCR 识别失败: \(error.localizedDescription)")
                 await MainActor.run {
                     self.isProcessing = false
                 }
@@ -110,44 +97,45 @@ public class LibraryEditViewModel {
     }
     
     public func saveDraftIfNeeded() {
-        if !isSavedNormally, let _ = displayedImage {
-            // Note: CaptureDraftService singleton access
-            // CaptureDraftService.shared.saveDraft(image: image, content: content)
-            SnapDrillLogger.generic.info("saveDraftIfNeeded called")
-        }
+        // 后续可扩展草稿逻辑
     }
     
     public func save() async {
         isSavedNormally = true
         
+        // 更新领域对象属性
         item.content = content
         item.answerText = answer
         item.subject = selectedSubject
         item.source = selectedSource
         item.difficulty = difficulty
         
-        // Update Tags securely via Repository
-        var newTags: [TagModel] = []
+        // 同步标签
+        var finalTags: [String] = []
         for name in tagList {
             do {
-                // Defaulting to a generic color for new tags during quick edit
-                let tag = try tagRepository.getOrCreate(name: name, colorHex: "#9E9E9E")
-                newTags.append(tag)
+                _ = try taxonomyUseCase.getOrCreateTag(name: name, colorHex: "#9E9E9E")
+                finalTags.append(name)
             } catch {
-                SnapDrillLogger.generic.error("Failed to get/create tag '\(name)': \(error)")
+                SnapDrillLogger.generic.error("同步标签失败: \(error.localizedDescription)")
             }
         }
-        item.tags = newTags
+        item.tags = finalTags
         
+        // 处理图片保存
         if let newImage = displayedImage {
             do {
                 let newPath = try await imageStorage.saveImage(newImage)
                 item.imagePath = newPath
             } catch {
-                SnapDrillLogger.generic.info("Failed to save new image: \(error)")
+                SnapDrillLogger.generic.error("保存图片失败: \(error.localizedDescription)")
             }
         }
         
-        try? reviewRepository.save()
+        do {
+            try reviewUseCase.updateItem(item)
+        } catch {
+            SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
+        }
     }
 }

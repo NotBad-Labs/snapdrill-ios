@@ -2,21 +2,21 @@
 //  ExportPreviewView.swift
 //  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/31.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  该文件已废弃，其功能已被 ResolvedExportSheet 替代。
 //
 
 import SwiftUI
 import PDFKit
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillCore
 
 struct ExportPreviewView: View {
     @Environment(\.dismiss) private var dismiss
     
-    let items: [ReviewItemModel]
+    let items: [ReviewItem]
     
     @State private var pdfData: Data?
     @State private var isLoading = true
@@ -56,13 +56,10 @@ struct ExportPreviewView: View {
     }
     
     private func generatePDF() {
-        // Convert Models to Entities (Main Thread)
-        let coreItems = items.map { $0.toEntity() }
-        
         // Run in background
         Task {
             do {
-                let data = try await PDFExportService.shared.createPDF(from: coreItems) { path in
+                let data = try await PDFExportService.shared.createPDF(from: items) { path in
                     return imageStorage.loadImage(path: path)
                 }
                 
@@ -101,8 +98,5 @@ struct PDFKitRepresentedView: UIViewRepresentable {
 }
 
 #Preview {
-    ExportPreviewView(items: [
-        ReviewItemModel(content: "Sample Q1 for PDF", subject: "Math"),
-        ReviewItemModel(content: "Sample Q2 for PDF", subject: "Physics")
-    ])
+    ExportPreviewView(items: [])
 }

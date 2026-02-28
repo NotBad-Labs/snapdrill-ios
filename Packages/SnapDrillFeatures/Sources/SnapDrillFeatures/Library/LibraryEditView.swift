@@ -1,16 +1,16 @@
 //
 //  LibraryEditView.swift
-//  SnapDrillFeatureLibrary
+//  SnapDrillFeatures
 //
-//  Created by SnapDrill Labs on 2025/12/31.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Created by NotBad Labs on 2025/12/31.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  错题编辑页面，用于修改题目内容、标签和学科。
 //
 
 import SwiftUI
 import SnapDrillCore
-import SnapDrillData
+import SnapDrillDomain
 import SnapDrillUI
 import PhotosUI
 
@@ -20,10 +20,10 @@ struct LibraryEditView: View {
     // MARK: - Properties
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.repositories) private var repos
+    @Environment(\.useCases) private var useCases
     
-    /// 要编辑的题目数据模型
-    let item: ReviewItemModel
+    /// 要编辑的题目数据模型 (Domain)
+    let item: ReviewItem
     
     @State private var viewModel: LibraryEditViewModel?
     @FocusState private var isInputFocused: Bool
@@ -32,7 +32,7 @@ struct LibraryEditView: View {
     @State private var isPickerPresented = false
     @State private var pickerSelection: PhotosPickerItem?
     
-    init(item: ReviewItemModel) {
+    init(item: ReviewItem) {
         self.item = item
     }
     
@@ -73,9 +73,9 @@ struct LibraryEditView: View {
                     .disabled(viewModel?.isProcessing ?? false)
                 }
             }
-            .scrollDismissesKeyboard(.immediately) // Dismiss on ANY scroll
+            .scrollDismissesKeyboard(.immediately)
             .onTapGesture {
-                isInputFocused = false // Dismiss on background tap
+                isInputFocused = false
             }
             .onAppear {
                 loadData()
@@ -113,10 +113,8 @@ struct LibraryEditView: View {
         if viewModel == nil {
             viewModel = LibraryEditViewModel(
                 item: item,
-                reviewRepository: repos.review,
-                subjectRepository: repos.subject,
-                sourceRepository: repos.source,
-                tagRepository: repos.tag
+                reviewUseCase: useCases.review,
+                taxonomyUseCase: useCases.taxonomy
             )
         }
         viewModel?.loadData()
@@ -277,7 +275,7 @@ struct LibraryEditView: View {
 #Preview {
     NavigationStack {
         LibraryEditView(
-            item: ReviewItemModel(content: "Sample Question for Editing", subject: "Biology")
+            item: ReviewItem(id: UUID(), content: "Sample Domain Question", subject: "Math")
         )
     }
 }
