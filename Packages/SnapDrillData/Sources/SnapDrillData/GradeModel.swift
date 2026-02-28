@@ -1,0 +1,48 @@
+//
+//  GradeModel.swift
+//  SnapDrillData
+//
+//  Created by SnapDrill Labs on 2026/02/28.
+//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//
+//  核心职责：定义年级的 SwiftData 模型，与 Subject/Source 对等。
+//
+
+import Foundation
+import SwiftData
+import SnapDrillDomain
+
+/// 年级数据模型
+@Model
+public final class GradeModel {
+
+    // MARK: - Properties
+
+    /// 唯一标识
+    public var id: UUID = UUID()
+
+    /// 年级名称 (e.g. "高一", "初二")
+    public var name: String = ""
+
+    /// 排序权重（越小越靠前）
+    public var sortOrder: Int = 0
+
+    // MARK: - Initialization
+
+    public init(
+        id: UUID = UUID(),
+        name: String,
+        sortOrder: Int = 0
+    ) {
+        self.id = id
+        self.name = name
+        self.sortOrder = sortOrder
+    }
+
+    // MARK: - Mapping
+
+    /// 转换为 Domain 实体
+    public func toEntity() -> Grade {
+        Grade(id: id, name: name, sortOrder: sortOrder)
+    }
+}

@@ -157,6 +157,25 @@ public final class ReviewRepository: ReviewRepositoryProtocol {
         try modelContext.save()
     }
     
+    public func countByGrade(name: String) throws -> Int {
+        let targetName = name
+        let predicate = #Predicate<ReviewItemModel> { $0.grade == targetName }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        return try modelContext.fetchCount(descriptor)
+    }
+
+    public func updateGradeUsage(from oldName: String, to newName: String) throws {
+        let targetOldName = oldName
+        let predicate = #Predicate<ReviewItemModel> { $0.grade == targetOldName }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        let itemsToUpdate = try modelContext.fetch(descriptor)
+
+        for item in itemsToUpdate {
+            item.grade = newName
+        }
+        try modelContext.save()
+    }
+
     public func deleteAll() throws {
         try modelContext.delete(model: ReviewItemModel.self)
         try modelContext.save()

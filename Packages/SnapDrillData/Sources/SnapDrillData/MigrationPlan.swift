@@ -15,13 +15,14 @@ import Foundation
 /// 当前 Schema 版本 - V1
 public enum SnapDrillSchemaV1: VersionedSchema {
     public static let versionIdentifier: Schema.Version = .init(1, 0, 0)
-    
+
     public static var models: [any PersistentModel.Type] {
         [
             ReviewItemModel.self,
             SubjectModel.self,
             TagModel.self,
-            SourceModel.self
+            SourceModel.self,
+            GradeModel.self
         ]
     }
 }
