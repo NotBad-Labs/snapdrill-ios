@@ -1,120 +1,117 @@
-//
-//  SourceRepository.swift
-//  SnapDrillData
-//
-//  Created by SnapDrill Labs on 2026/01/01.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
-//
-//  来源数据仓储，负责 SourceModel 的增删改查。
-//
-
-import SwiftData
 import Foundation
+import SwiftData
 import SnapDrillCore
+import SnapDrillDomain
 
+/// 题目来源数据仓库的 SwiftData 实现
 @MainActor
-public class SourceRepository: SourceRepositoryProtocol {
-    
-    // MARK: - Properties
+public final class SourceRepository: SourceRepositoryProtocol {
     
     private let modelContext: ModelContext
-    
-    // MARK: - Initialization
     
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
     
-    // MARK: - Public API
+    // MARK: - SourceRepositoryProtocol
     
-    /// 获取所有来源
-    public func fetchAll() throws -> [SourceModel] {
+    public func fetchAll() throws -> [Source] {
         let descriptor = FetchDescriptor<SourceModel>(sortBy: [SortDescriptor(\.sortOrder)])
-        return try modelContext.fetch(descriptor)
+        return try modelContext.fetch(descriptor).map { $0.toEntity() }
     }
     
-    /// 添加新来源
-    /// - Throws: `DataError.duplicateName` 如果来源名称已存在
-    public func add(name: String, icon: String, colorHex: String) throws {
-        // 检查名称唯一性
-        let existing = try fetchAll().first { $0.name == name }
-        if existing != nil {
-            throw DataError.duplicateName(name: name, entityType: "Source")
+    public func fetchByName(_ name: String) throws -> Source? {
+        let targetName = name
+        let predicate = #Predicate<SourceModel> { $0.name == targetName }
+        let descriptor = FetchDescriptor<SourceModel>(predicate: predicate)
+        return try modelContext.fetch(descriptor).first?.toEntity()
+    }
+    
+    public func save(_ source: Source) throws {
+        if let existing = try fetchModelById(source.id) {
+            updateModel(existing, from: source)
+        } else {
+            // 检查名称唯一性
+            let name = source.name
+            let namePredicate = #Predicate<SourceModel> { $0.name == name }
+            let descriptor = FetchDescriptor<SourceModel>(predicate: namePredicate)
+            if try modelContext.fetchCount(descriptor) > 0 {
+                 throw DataError.duplicateName(name: name, entityType: "Source")
+            }
+            
+            let model = SourceModel(
+                id: source.id,
+                name: source.name,
+                icon: source.icon,
+                colorHex: source.colorHex,
+                sortOrder: source.sortOrder
+            )
+            modelContext.insert(model)
         }
-        
-        let count = try? modelContext.fetchCount(FetchDescriptor<SourceModel>())
-        let sortOrder = count ?? 0
-        let source = SourceModel(name: name, icon: icon, colorHex: colorHex, sortOrder: sortOrder)
-        modelContext.insert(source)
+        try modelContext.save()
     }
     
-    /// 更新来源
-    public func update(_ source: SourceModel, name: String, icon: String, colorHex: String) throws {
-        // 检查名称唯一性，排除自身
-        let existing = try fetchAll().first { $0.name == name && $0.id != source.id }
-        if existing != nil {
-            throw DataError.duplicateName(name: name, entityType: "Source")
+    public func delete(id: UUID) throws {
+        if let model = try fetchModelById(id) {
+            modelContext.delete(model)
+            try modelContext.save()
         }
-        source.name = name
-        source.icon = icon
-        source.colorHex = colorHex
     }
     
-    /// 删除来源
-    public func delete(_ source: SourceModel) {
-        modelContext.delete(source)
+    public func totalCount() throws -> Int {
+        let descriptor = FetchDescriptor<SourceModel>()
+        return try modelContext.fetchCount(descriptor)
     }
     
-    /// 清空所有来源
-    public func deleteAll() throws {
-        try modelContext.delete(model: SourceModel.self)
+    public func seedDefaultsIfNeeded() {
+        do {
+            if try totalCount() == 0 {
+                let isChinese = Locale.current.language.languageCode?.identifier == "zh"
+                // swiftlint:disable:next large_tuple
+                let defaults: [(String, String, String)] = isChinese ? [
+                    ("试卷", "doc.text", "#5C6BC0"),
+                    ("作业", "pencil.and.outline", "#42A5F5"),
+                    ("教材", "book", "#66BB6A"),
+                    ("错题本", "xmark.seal", "#EF5350"),
+                    ("其他", "ellipsis.circle", "#78909C")
+                ] : [
+                    ("Exam", "doc.text", "#5C6BC0"),
+                    ("Homework", "pencil.and.outline", "#42A5F5"),
+                    ("Textbook", "book", "#66BB6A"),
+                    ("Mistake Book", "xmark.seal", "#EF5350"),
+                    ("Other", "ellipsis.circle", "#78909C")
+                ]
+                
+                for (index, item) in defaults.enumerated() {
+                    let model = SourceModel(name: item.0, icon: item.1, colorHex: item.2, sortOrder: index)
+                    modelContext.insert(model)
+                }
+                try modelContext.save()
+            }
+        } catch {
+            SnapDrillLogger.generic.error("初始化默认来源失败: \(error.localizedDescription)")
+        }
     }
     
     // MARK: - Private Helpers
     
-    /// 初始化默认来源 (当数据库为空时)
-    public func seedDefaultSourcesIfNeeded() {
-        do {
-            let count = try modelContext.fetchCount(FetchDescriptor<SourceModel>())
-            guard count == 0 else { return }
-            
-            struct DefaultSource {
-                let name: String
-                let icon: String
-                let color: String
-            }
-            
-            let defaults: [DefaultSource] = [
-                DefaultSource(name: "试卷", icon: "doc.text", color: "#FF5733"),
-                DefaultSource(name: "作业", icon: "pencil.and.list.clipboard", color: "#33FF57"),
-                DefaultSource(name: "教材", icon: "book.closed", color: "#3357FF"),
-                DefaultSource(name: "错题本", icon: "xmark.bin", color: "#FFFF33"),
-                DefaultSource(name: "其他", icon: "questionmark.circle", color: "#808080")
-            ]
-            
-            for (index, item) in defaults.enumerated() {
-                let source = SourceModel(name: item.name, icon: item.icon, colorHex: item.color, sortOrder: index)
-                modelContext.insert(source)
-            }
-            
-            try modelContext.save()
-            SnapDrillLogger.generic.info("Successfully seeded default sources.")
-        } catch {
-            SnapDrillLogger.generic.info("Failed to seed default sources: \(error)")
-        }
+    private func fetchModelById(_ id: UUID) throws -> SourceModel? {
+        let targetId = id
+        let predicate = #Predicate<SourceModel> { $0.id == targetId }
+        var descriptor = FetchDescriptor<SourceModel>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
     }
     
-    /// 保存上下文
-    public func save() throws {
+    private func updateModel(_ model: SourceModel, from source: Source) {
+        model.name = source.name
+        model.icon = source.icon
+        model.colorHex = source.colorHex
+        model.sortOrder = source.sortOrder
+    }
+    
+    public func deleteAll() throws {
+        try modelContext.delete(model: SourceModel.self)
         try modelContext.save()
-    }
-    
-    /// 获取特定来源下的题目数量
-    public func countItems(named: String) throws -> Int {
-        let predicate = #Predicate<ReviewItemModel> { item in
-            item.sourceRawValue == named
-        }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor)
     }
 }

@@ -43,9 +43,8 @@ public final class SettingsRouter: FeatureRouter {
     /// 目标类型别名
     public typealias Destination = SettingsDestination
     
-    /// 初始化路由器
-    
     // MARK: - Initialization
-    
+
+    /// 初始化路由器
     public init() {}
 }
