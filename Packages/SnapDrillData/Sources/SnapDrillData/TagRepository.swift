@@ -2,85 +2,84 @@
 //  TagRepository.swift
 //  SnapDrillData
 //
-//  Created by SnapDrill Labs on 2026/01/02.
+//  Created by SnapDrill Labs on 2025/12/30.
 //  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
 //
-//  标签数据仓储，负责 TagModel 的增删改查。
+//  核心职责：实现 TagRepositoryProtocol，基于 SwiftData 持久化标签数据。
 //
 
-import SwiftData
 import Foundation
+import SwiftData
+import SnapDrillCore
+import SnapDrillDomain
 
+/// 标签数据仓库的 SwiftData 实现
 @MainActor
-public class TagRepository: TagRepositoryProtocol {
-    
-    // MARK: - Properties
+public final class TagRepository: TagRepositoryProtocol {
     
     private let modelContext: ModelContext
-    
-    // MARK: - Initialization
     
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
     
-    // MARK: - Public API
+    // MARK: - TagRepositoryProtocol
     
-    /// 获取所有标签
-    public func fetchAll() throws -> [TagModel] {
+    public func fetchAll() throws -> [Tag] {
         let descriptor = FetchDescriptor<TagModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-        return try modelContext.fetch(descriptor)
+        return try modelContext.fetch(descriptor).map { $0.toEntity() }
     }
     
-    /// 根据名称查找标签
-    /// - Parameter name: 标签名称
-    /// - Returns: 找到的标签，如果不存在则返回 nil
-    public func fetchByName(_ name: String) throws -> TagModel? {
-        let descriptor = FetchDescriptor<TagModel>(
-            predicate: #Predicate<TagModel> { tag in
-                tag.name == name
+    public func fetchByName(_ name: String) throws -> Tag? {
+        let predicate = #Predicate<TagModel> { $0.name == name }
+        var descriptor = FetchDescriptor<TagModel>(predicate: predicate)
+        descriptor.fetchLimit = 1 // 性能优化
+        return try modelContext.fetch(descriptor).first?.toEntity()
+    }
+    
+    public func save(_ tag: Tag) throws {
+        if let existing = try fetchModelById(tag.id) {
+            updateModel(existing, from: tag)
+        } else {
+            // 检查名称唯一性
+            if let name = try fetchByName(tag.name) {
+                // 如果 ID 不同但名字相同，视为冲突
+                if name.id != tag.id {
+                     throw DataError.duplicateName(name: tag.name, entityType: "Tag")
+                }
             }
-        )
+            
+            let model = TagModel(name: tag.name, colorHex: tag.colorHex)
+            model.id = tag.id // 显式保持 ID 一致
+            modelContext.insert(model)
+        }
+        try modelContext.save()
+    }
+    
+    public func delete(id: UUID) throws {
+        if let model = try fetchModelById(id) {
+            modelContext.delete(model)
+            try modelContext.save()
+        }
+    }
+    
+    // MARK: - Private Helpers
+    
+    private func fetchModelById(_ id: UUID) throws -> TagModel? {
+        let targetId = id
+        let predicate = #Predicate<TagModel> { $0.id == targetId }
+        var descriptor = FetchDescriptor<TagModel>(predicate: predicate)
+        descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
     }
     
-    /// 添加新标签
-    /// - Parameters:
-    ///   - name: 标签名称
-    ///   - colorHex: 颜色代码
-    /// - Throws: `DataError.duplicateName` 如果标签名称已存在
-    /// - Returns: 创建的标签
-    @discardableResult
-    public func add(name: String, colorHex: String = "#8E8E93") throws -> TagModel {
-        // 检查名称唯一性
-        if try fetchByName(name) != nil {
-            throw DataError.duplicateName(name: name, entityType: "Tag")
-        }
-        
-        let tag = TagModel(name: name, colorHex: colorHex)
-        modelContext.insert(tag)
-        return tag
+    private func updateModel(_ model: TagModel, from tag: Tag) {
+        model.name = tag.name
+        model.colorHex = tag.colorHex
     }
     
-    /// 获取或创建标签（如果不存在则创建）
-    /// - Parameters:
-    ///   - name: 标签名称
-    ///   - colorHex: 颜色代码（仅在创建时使用）
-    /// - Returns: 现有或新创建的标签
-    public func getOrCreate(name: String, colorHex: String = "#8E8E93") throws -> TagModel {
-        if let existing = try fetchByName(name) {
-            return existing
-        }
-        return try add(name: name, colorHex: colorHex)
-    }
-    
-    /// 删除标签
-    public func delete(_ tag: TagModel) {
-        modelContext.delete(tag)
-    }
-    
-    /// 保存上下文更改
-    public func save() throws {
+    public func deleteAll() throws {
+        try modelContext.delete(model: TagModel.self)
         try modelContext.save()
     }
 }

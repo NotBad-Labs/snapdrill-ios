@@ -1,3 +1,13 @@
+//
+//  SourceRepository.swift
+//  SnapDrillData
+//
+//  Created by SnapDrill Labs on 2026/01/01.
+//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//
+//  核心职责：实现 SourceRepositoryProtocol，基于 SwiftData 持久化来源数据。
+//
+
 import Foundation
 import SwiftData
 import SnapDrillCore

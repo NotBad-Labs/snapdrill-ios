@@ -12,6 +12,7 @@ import Foundation
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillFeatures
+import SnapDrillDomain
 
 /// 应用的依赖注入容器 (Composition Root)
 ///
@@ -28,7 +29,10 @@ final class DependencyContainer {
     
     /// 全局数据仓库容器 (SwiftData Repositories)
     let repositories: any RepositoryContainer
-    
+
+    /// 业务用例容器（Clean Architecture UseCase 层）
+    let useCaseContainer: any UseCaseContainer
+
     /// 顶级导航路由器
     let router: AppRouter
     
@@ -59,11 +63,18 @@ final class DependencyContainer {
         self.services = liveServices
         
         // 3. 初始化持久化仓库层
-        self.repositories = DefaultRepositoryContainer()
-        
-        // 4. 初始化顶级路由器
+        let repos = DefaultRepositoryContainer()
+        self.repositories = repos
+
+        // 3.5 初始化 UseCase 层（Clean Architecture）
+        self.useCaseContainer = DefaultUseCaseContainer(repositories: repos)
+
+        // 4. 首次启动时初始化默认学科数据
+        repos.subject.seedDefaultsIfNeeded()
+
+        // 5. 初始化顶级路由器
         self.router = AppRouter()
-        
+
         SnapDrillLogger.generic.info("DependencyContainer: Composition Root initialized successfully.")
     }
 }

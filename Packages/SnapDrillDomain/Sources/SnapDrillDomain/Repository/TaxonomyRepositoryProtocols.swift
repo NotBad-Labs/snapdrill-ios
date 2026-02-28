@@ -17,7 +17,7 @@ public protocol SubjectRepositoryProtocol: Sendable {
     func save(_ subject: Subject) throws
     func delete(id: UUID) throws
     func totalCount() throws -> Int
-    func initializeDefaultsIfNeeded()
+    func seedDefaultsIfNeeded()
     func deleteAll() throws
 }
 

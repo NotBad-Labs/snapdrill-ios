@@ -118,7 +118,7 @@ final class MockSubjectRepository: SubjectRepositoryProtocol {
     func save(_ subject: Subject) throws { subjects[subject.name] = subject }
     func delete(id: UUID) throws { subjects = subjects.filter { $0.value.id != id } }
     func totalCount() throws -> Int { subjects.count }
-    func initializeDefaultsIfNeeded() {}
+    func seedDefaultsIfNeeded() {}
     func deleteAll() throws { subjects.removeAll() }
 }
 

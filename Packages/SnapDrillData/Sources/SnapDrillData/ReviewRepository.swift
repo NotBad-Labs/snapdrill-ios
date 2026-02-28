@@ -1,3 +1,13 @@
+//
+//  ReviewRepository.swift
+//  SnapDrillData
+//
+//  Created by SnapDrill Labs on 2025/12/29.
+//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//
+//  核心职责：实现 ReviewRepositoryProtocol，基于 SwiftData 持久化复习条目。
+//
+
 import Foundation
 import SwiftData
 import SnapDrillCore

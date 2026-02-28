@@ -1,3 +1,13 @@
+//
+//  SubjectRepository.swift
+//  SnapDrillData
+//
+//  Created by SnapDrill Labs on 2025/12/30.
+//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//
+//  核心职责：实现 SubjectRepositoryProtocol，基于 SwiftData 持久化学科数据。
+//
+
 import Foundation
 import SwiftData
 import SnapDrillCore
@@ -63,7 +73,7 @@ public final class SubjectRepository: SubjectRepositoryProtocol {
         return try modelContext.fetchCount(descriptor)
     }
     
-    public func initializeDefaultsIfNeeded() {
+    public func seedDefaultsIfNeeded() {
         do {
             if try totalCount() == 0 {
                 let isChinese = Locale.current.language.languageCode?.identifier == "zh"

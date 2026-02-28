@@ -12,13 +12,10 @@ import SwiftData
 import Foundation
 import SnapDrillCore
 
-/// 用于生成测试数据的工具类
+/// 测试数据生成工具
 ///
-/// 仅用于调试和压力测试
-/// 用于生成测试数据的工具类
-///
-/// 仅用于调试和压力测试
-public class DataSeeder {
+/// 仅用于调试和压力测试，不参与生产流程。
+public final class DataSeeder {
     
     // MARK: - Properties
     
