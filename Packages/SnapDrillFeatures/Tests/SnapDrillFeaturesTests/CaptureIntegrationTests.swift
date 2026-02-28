@@ -5,56 +5,68 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  集成测试：验证数据变更通知触发 Dashboard 自动刷新统计数字。
+//
 
 import Testing
-import SwiftData
 import Foundation
+import SnapDrillDomain
+import SnapDrillCore
 @testable import SnapDrillFeatures
-@testable import SnapDrillCore
-@testable import SnapDrillData
+
+// MARK: - Tests
 
 @MainActor
+@Suite("Dashboard 数据变更集成测试")
 struct CaptureIntegrationTests {
-    
-    // Helper to create an in-memory ModelContext for testing.
-    private func createTestContext() throws -> ModelContext {
-        let schema = Schema(SnapDrillSchemaV1.models)
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: configuration)
-        return container.mainContext
-    }
 
-    @Test("验证采集保存后 Dashboard 统计数字能够实时更新")
-    func testCaptureSaveUpdatesDashboardStats() throws {
-        let context = try createTestContext()
-        
-        // 1. 初始化 Repository 和 ViewModel
-        let reviewRepo = ReviewRepository(modelContext: context)
-        let subjectRepo = SubjectRepository(modelContext: context)
-        
+    @Test("数据变更通知触发 Dashboard 自动刷新统计数字")
+    func dataChangeNotificationRefreshesDashboard() async throws {
+        let mockReview = MockReviewUseCaseForDashboard()
+        mockReview.totalItemCount = 0
+        mockReview.todayAddedCount = 0
+
         let dashboardVM = DashboardViewModel(
-            draftService: MockCaptureDraftService(),
-            subjectRepository: subjectRepo,
-            reviewRepository: reviewRepo
+            reviewUseCase: mockReview,
+            taxonomyUseCase: MockTaxonomyUseCaseForDashboard()
         )
-        
-        // 初始加载
+
         dashboardVM.loadData()
         #expect(dashboardVM.totalCount == 0)
-        
-        // 2. 模拟采集保存过程
-        let newItem = ReviewItem(
-            content: "Integrated Test Content",
-            source: "Test Source",
-            difficulty: 3
-        )
-        
-        try reviewRepo.save(newItem, subject: "Math")
-        try reviewRepo.save() // 触发通知
-        
-        // 3. 验证 Dashboard 是否自动刷新且数字正确
-        // 这里的异步通知会在主线程主循环中执行，loadData 也是同步触发的
+        #expect(dashboardVM.todayItemsCount == 0)
+
+        // 模拟新题目被采集并持久化后，UseCase 层发出数据变更通知
+        mockReview.totalItemCount = 1
+        mockReview.todayAddedCount = 1
+
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+
+        // 通知处理器内部以 Task { @MainActor in } 调度，需等待执行
+        try await Task.sleep(nanoseconds: 50_000_000) // 50ms
+
         #expect(dashboardVM.totalCount == 1)
         #expect(dashboardVM.todayItemsCount == 1)
+    }
+
+    @Test("多次数据变更通知触发多次刷新，最终值以最后一次为准")
+    func multipleNotificationsRefreshesAccumulate() async throws {
+        let mockReview = MockReviewUseCaseForDashboard()
+        mockReview.totalItemCount = 0
+
+        let dashboardVM = DashboardViewModel(
+            reviewUseCase: mockReview,
+            taxonomyUseCase: MockTaxonomyUseCaseForDashboard()
+        )
+
+        dashboardVM.loadData()
+        #expect(dashboardVM.totalCount == 0)
+
+        mockReview.totalItemCount = 5
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+
+        try await Task.sleep(nanoseconds: 50_000_000) // 50ms
+
+        #expect(dashboardVM.totalCount == 5)
     }
 }

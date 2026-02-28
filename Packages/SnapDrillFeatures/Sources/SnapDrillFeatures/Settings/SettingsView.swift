@@ -264,16 +264,14 @@ public struct SettingsView: View {
     }
     
     private func generateMockData() {
-        initViewModelIfNeeded()
         isGenerating = true
         Task {
             do {
-                // seeder still needs a container for background context creation inside Data layer
-                // but we hide this inside VM
-                let time = try await viewModel?.generateMockData(count: 100, container: modelContext.container)
-                SnapDrillLogger.generic.info("Success: \(time ?? 0)s")
+                let seeder = DataSeeder(container: modelContext.container)
+                let time = try await seeder.seedReviewItems(count: 100)
+                SnapDrillLogger.generic.info("生成测试数据成功: \(time)s")
             } catch {
-                SnapDrillLogger.generic.info("Seeding failed: \(error)")
+                SnapDrillLogger.generic.info("生成测试数据失败: \(error)")
             }
             isGenerating = false
         }

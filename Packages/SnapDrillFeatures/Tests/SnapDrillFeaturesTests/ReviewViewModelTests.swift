@@ -5,158 +5,175 @@
 //  Created by NotBad Labs on 2026/02/24.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  ReviewViewModel 单元测试，验证复习会话流程管理逻辑。
+//
 
 import Testing
 import Foundation
-import SwiftData
+import SnapDrillDomain
+import SnapDrillCore
 @testable import SnapDrillFeatures
-@testable import SnapDrillCore
-@testable import SnapDrillData
+
+// MARK: - Mock
 
 @MainActor
+final class MockReviewSessionManager: ReviewSessionManagerProtocol {
+    var dueItems: [ReviewItem] = []
+    var todayReviewedCount: Int = 0
+    var totalItemsCount: Int = 0
+
+    var processSwipeResultCalls: [(item: ReviewItem, rating: ReviewRating)] = []
+    var loadDueItemsError: Error?
+    var processSwipeError: Error?
+
+    func loadDueItems() throws -> [ReviewItem] {
+        if let error = loadDueItemsError { throw error }
+        return dueItems
+    }
+
+    func loadTodayReviewedCount() throws -> Int { todayReviewedCount }
+
+    func loadTotalItemsCount() throws -> Int { totalItemsCount }
+
+    func processSwipeResult(for item: ReviewItem, rating: ReviewRating) throws {
+        if let error = processSwipeError { throw error }
+        processSwipeResultCalls.append((item: item, rating: rating))
+    }
+}
+
+// MARK: - Tests
+
+@MainActor
+@Suite("ReviewViewModel 复习会话流程测试")
 struct ReviewViewModelTests {
 
-    // Helper to create an in-memory ModelContext for testing.
-    private func createTestContext() throws -> ModelContext {
-        let schema = Schema([ReviewItemModel.self])
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: configuration)
-        return ModelContext(container)
+    private func makeItem(content: String = "Test") -> ReviewItem {
+        ReviewItem(content: content, subject: "Math", source: "Manual", difficulty: .one)
     }
 
-    private func createDummyItems(count: Int, due: Bool = true) -> [ReviewItemModel] {
-        var items: [ReviewItemModel] = []
-        let now = Date()
-        for i in 0..<count {
-            let item = ReviewItemModel(
-                id: UUID(),
-                content: "Test Content \(i)",
-                createdAt: now,
-                subjectString: "Math",
-                sourceString: "Manual",
-                tags: []
-            )
-            // If it's due, the next review is in the past, else tomorrow
-            item.nextReviewAt = due ? now.addingTimeInterval(-3600) : now.addingTimeInterval(86400)
-            items.append(item)
-        }
-        return items
+    private func makeViewModel(
+        sessionManager: MockReviewSessionManager = MockReviewSessionManager()
+    ) -> ReviewViewModel {
+        ReviewViewModel(sessionManager: sessionManager)
     }
 
-    @Test
-    func testLoadDataFiltersDueItems() throws {
-        let context = try createTestContext()
-        let vm = ReviewViewModel(modelContext: context)
+    @Test("loadDataAsync 正确填充 reviewQueue 和统计数字，并将 phase 切换为 idle")
+    func loadDataAsyncPopulatesQueueAndStats() async {
+        let manager = MockReviewSessionManager()
+        manager.dueItems = [makeItem(content: "A"), makeItem(content: "B")]
+        manager.todayReviewedCount = 3
+        manager.totalItemsCount = 10
 
-        // 3 due, 2 not due
-        let dueItems = createDummyItems(count: 3, due: true)
-        let futureItems = createDummyItems(count: 2, due: false)
-        let allItems = dueItems + futureItems
+        let vm = makeViewModel(sessionManager: manager)
+        await vm.loadDataAsync()
 
-        vm.loadData(allItems: allItems)
-
-        // It should only queue the due items
-        #expect(vm.reviewQueue.count == 3)
+        #expect(vm.reviewQueue.count == 2)
+        #expect(vm.reviewedTodayCount == 3)
+        #expect(vm.totalItemsCount == 10)
         #expect(vm.phase == .idle)
     }
 
-    @Test
-    func testStartSessionConfiguresWorkingItems() throws {
-        let context = try createTestContext()
-        let vm = ReviewViewModel(modelContext: context)
+    @Test("loadDataAsync 出错时 phase 回退到 idle，不崩溃")
+    func loadDataAsyncErrorFallsBackToIdle() async {
+        let manager = MockReviewSessionManager()
+        manager.loadDueItemsError = NSError(domain: "test", code: -1)
 
-        let allItems = createDummyItems(count: 5, due: true)
-        vm.loadData(allItems: allItems)
-        
+        let vm = makeViewModel(sessionManager: manager)
+        await vm.loadDataAsync()
+
+        #expect(vm.phase == .idle)
+    }
+
+    @Test("startSession 将 reviewQueue 设置到 workingItems，并切换到 reviewing 状态")
+    func startSessionConfiguresWorkingItems() async {
+        let manager = MockReviewSessionManager()
+        manager.dueItems = [makeItem(), makeItem(), makeItem()]
+
+        let vm = makeViewModel(sessionManager: manager)
+        await vm.loadDataAsync()
         vm.startSession()
 
-        #expect(vm.workingItems.count == 5)
+        #expect(vm.workingItems.count == 3)
         #expect(vm.finishedItems == 0)
         #expect(vm.undoStack.isEmpty)
         #expect(vm.isAnswerShown == false)
         #expect(vm.phase == .reviewing)
     }
 
-    @Test
-    func testHandleSwipeCompletionGood() throws {
-        let context = try createTestContext()
-        let vm = ReviewViewModel(modelContext: context)
+    @Test("向右滑动以 .good 评分提交，队列清空后进入 finished 阶段")
+    func handleSwipeGoodRatingSubmittedQueueClearsFinished() async {
+        let manager = MockReviewSessionManager()
+        manager.dueItems = [makeItem(content: "单道题")]
 
-        let item = createDummyItems(count: 1, due: true)[0]
-        context.insert(item) // Needs to be inserted for save() to not trap if missing
-
-        vm.loadData(allItems: [item])
+        let vm = makeViewModel(sessionManager: manager)
+        await vm.loadDataAsync()
         vm.startSession()
 
-        // Give it a "good" swipe (direction 1)
         vm.handleSwipeCompletion(direction: 1)
 
-        // SM-2 logic check: interval should become 1, ease factor defaults to 2.5
-        #expect(item.interval == 1)
-        #expect(item.repetitions == 1)
-        #expect(item.easeFactor == 2.5)
-
+        #expect(manager.processSwipeResultCalls.count == 1)
+        #expect(manager.processSwipeResultCalls[0].rating == .good)
         #expect(vm.workingItems.isEmpty)
         #expect(vm.finishedItems == 1)
         #expect(vm.undoStack.count == 1)
         #expect(vm.phase == .finished)
     }
 
-    @Test
-    func testHandleSwipeCompletionAgain() throws {
-        let context = try createTestContext()
-        let vm = ReviewViewModel(modelContext: context)
+    @Test("向左滑动以 .again 评分提交")
+    func handleSwipeAgainRatingSubmitted() async {
+        let manager = MockReviewSessionManager()
+        manager.dueItems = [makeItem()]
 
-        let item = createDummyItems(count: 1, due: true)[0]
-        item.repetitions = 5
-        item.interval = 10
-        item.easeFactor = 2.6
-        context.insert(item)
-
-        vm.loadData(allItems: [item])
+        let vm = makeViewModel(sessionManager: manager)
+        await vm.loadDataAsync()
         vm.startSession()
 
-        // Give it an "again" / forgot swipe (direction -1)
         vm.handleSwipeCompletion(direction: -1)
 
-        // SM-2 logic check for forgot: interval resets, reps reset, ease drops
-        #expect(item.interval == 0)
-        #expect(item.repetitions == 0)
-        #expect(item.easeFactor < 2.6)
-        #expect(item.easeFactor >= 1.3) // Lower bound check
-
-        #expect(vm.workingItems.isEmpty)
-        #expect(vm.finishedItems == 1)
-        #expect(vm.undoStack.count == 1)
-        #expect(vm.phase == .finished)
+        #expect(manager.processSwipeResultCalls.count == 1)
+        #expect(manager.processSwipeResultCalls[0].rating == .again)
     }
 
-    @Test
-    func testUndoLastSwipe() throws {
-        let context = try createTestContext()
-        let vm = ReviewViewModel(modelContext: context)
+    @Test("undoLastSwipe 恢复 workingItems，从 finished 回到 reviewing")
+    func undoLastSwipeRestoresWorkingItems() async {
+        let manager = MockReviewSessionManager()
+        manager.dueItems = [makeItem()]
 
-        let item = createDummyItems(count: 1, due: true)[0]
-        // Save initial state prior to the swipe algorithm modding it
-        let initialRep = item.repetitions
-        let initialInterval = item.interval
-        let initialEase = item.easeFactor
-        
-        // We'll trust the caller restores DB state for undo, logic just handles stacks:
-        vm.loadData(allItems: [item])
+        let vm = makeViewModel(sessionManager: manager)
+        await vm.loadDataAsync()
         vm.startSession()
-        
-        // Swipe to complete
         vm.handleSwipeCompletion(direction: 1)
+
         #expect(vm.phase == .finished)
 
-        // Undo
         vm.undoLastSwipe()
-        
-        // Working items restored, phase back to reviewing
+
         #expect(vm.workingItems.count == 1)
         #expect(vm.finishedItems == 0)
         #expect(vm.undoStack.isEmpty)
         #expect(vm.phase == .reviewing)
+    }
+
+    @Test("undoLastSwipe 在 undoStack 为空时不改变状态")
+    func undoLastSwipeNoopWhenEmpty() async {
+        let vm = makeViewModel()
+        vm.handleSwipeCompletion(direction: 1) // workingItems 为空，不产生 undo
+
+        vm.undoLastSwipe() // 应无副作用
+
+        #expect(vm.workingItems.isEmpty)
+        #expect(vm.undoStack.isEmpty)
+    }
+
+    @Test("toggleAnswer 正确切换答案显示状态")
+    func toggleAnswerFlipsState() {
+        let vm = makeViewModel()
+        #expect(vm.isAnswerShown == false)
+
+        vm.toggleAnswer()
+        #expect(vm.isAnswerShown == true)
+
+        vm.toggleAnswer()
+        #expect(vm.isAnswerShown == false)
     }
 }

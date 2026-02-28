@@ -7,11 +7,9 @@
 //
 
 import SwiftUI
-import SwiftData
 import Observation
 import SnapDrillCore
 import SnapDrillDomain
-import SnapDrillData // Keep for DataSeeder/ModelContainer debug tool
 
 @Observable
 @MainActor
@@ -42,9 +40,4 @@ public final class SettingsViewModel {
         }
     }
     
-    /// 注意：DataSeeder 属于底层调试工具，仍需 Container
-    public func generateMockData(count: Int, container: SwiftData.ModelContainer) async throws -> TimeInterval {
-        let seeder = DataSeeder(container: container)
-        return try await seeder.seedReviewItems(count: count)
-    }
 }

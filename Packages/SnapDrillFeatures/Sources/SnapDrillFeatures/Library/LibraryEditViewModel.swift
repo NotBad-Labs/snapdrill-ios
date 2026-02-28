@@ -21,9 +21,11 @@ public final class LibraryEditViewModel {
     public var selectedSubject: String
     public var selectedSource: String
     public var tagList: [String]
-    public var difficulty: Int
+    public var difficulty: Difficulty
     
     public var displayedImage: UIImage?
+    /// 答案图片（新选择的，未持久化）
+    public var answerDisplayedImage: UIImage?
     public var isProcessing = false
     public var isSavedNormally = false
     public var isCropping = false
@@ -50,8 +52,8 @@ public final class LibraryEditViewModel {
         self.reviewUseCase = reviewUseCase
         self.taxonomyUseCase = taxonomyUseCase
         
-        self.content = item.content
-        self.answer = item.answerText
+        self.content = item.content ?? ""
+        self.answer = item.answerText ?? ""
         self.selectedSubject = item.subject
         self.selectedSource = item.source
         self.tagList = item.tags
@@ -63,6 +65,9 @@ public final class LibraryEditViewModel {
     public func loadData() {
         if displayedImage == nil, let path = item.imagePath {
             displayedImage = imageStorage.loadImage(path: path)
+        }
+        if answerDisplayedImage == nil, let path = item.answerImagePath {
+            answerDisplayedImage = imageStorage.loadImage(path: path)
         }
         
         do {
@@ -104,8 +109,8 @@ public final class LibraryEditViewModel {
         isSavedNormally = true
         
         // 更新领域对象属性
-        item.content = content
-        item.answerText = answer
+        item.content = content.isEmpty ? nil : content
+        item.answerText = answer.isEmpty ? nil : answer
         item.subject = selectedSubject
         item.source = selectedSource
         item.difficulty = difficulty
@@ -122,13 +127,23 @@ public final class LibraryEditViewModel {
         }
         item.tags = finalTags
         
-        // 处理图片保存
+        // 处理题目图片保存
         if let newImage = displayedImage {
             do {
                 let newPath = try await imageStorage.saveImage(newImage)
                 item.imagePath = newPath
             } catch {
-                SnapDrillLogger.generic.error("保存图片失败: \(error.localizedDescription)")
+                SnapDrillLogger.generic.error("保存题目图片失败: \(error.localizedDescription)")
+            }
+        }
+
+        // 处理答案图片保存
+        if let answerImg = answerDisplayedImage {
+            do {
+                let newPath = try await imageStorage.saveImage(answerImg)
+                item.answerImagePath = newPath
+            } catch {
+                SnapDrillLogger.generic.error("保存答案图片失败: \(error.localizedDescription)")
             }
         }
         

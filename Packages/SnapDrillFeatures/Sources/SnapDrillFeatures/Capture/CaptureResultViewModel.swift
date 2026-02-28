@@ -31,7 +31,7 @@ public final class CaptureResultViewModel {
     
     // Details Form State
     public var answerText: String = ""
-    public var difficulty: Int = 0
+    public var difficulty: Difficulty = .one
     public var grade: String = ""
     public var answerImage: UIImage?
     
@@ -142,14 +142,21 @@ public final class CaptureResultViewModel {
                 savedImagePath = try await imageStorage.saveImage(img)
             }
 
+            // 持久化答案图片
+            var savedAnswerImagePath: String?
+            if let answerImg = answerImage {
+                savedAnswerImagePath = try await imageStorage.saveImage(answerImg)
+            }
+
             // 构造领域对象
             let item = ReviewItem(
-                content: content,
+                content: content.isEmpty ? nil : content,
                 imagePath: savedImagePath,
                 subject: selectedSubject,
                 source: selectedSource,
                 tags: finalTagNames,
-                answerText: answerText,
+                answerText: answerText.isEmpty ? nil : answerText,
+                answerImagePath: savedAnswerImagePath,
                 difficulty: difficulty,
                 grade: grade
             )
@@ -163,7 +170,7 @@ public final class CaptureResultViewModel {
                 parameters: [
                     "subject": selectedSubject,
                     "source": selectedSource,
-                    "difficulty": String(difficulty)
+                    "difficulty": String(difficulty.rawValue)
                 ]
             )
             

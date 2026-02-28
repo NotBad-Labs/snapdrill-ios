@@ -26,6 +26,7 @@ public final class DefaultUseCaseContainer: UseCaseContainer {
             subjectRepo: repositories.subject,
             sourceRepo: repositories.source,
             tagRepo: repositories.tag,
+            gradeRepo: repositories.grade,
             reviewRepo: repositories.review
         )
     }

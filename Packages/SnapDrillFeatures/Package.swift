@@ -38,7 +38,7 @@ let package = Package(
         ),
         .testTarget(
             name: "SnapDrillFeaturesTests",
-            dependencies: ["SnapDrillFeatures"]
+            dependencies: ["SnapDrillFeatures", "SnapDrillDomain", "SnapDrillCore"]
         )
     ]
 )
