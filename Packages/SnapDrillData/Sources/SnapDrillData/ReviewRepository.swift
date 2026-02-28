@@ -92,10 +92,12 @@ public final class ReviewRepository: ReviewRepositoryProtocol {
         let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
         let subjectsArray = Array(subjects)
         
+        // swiftlint:disable force_unwrapping
         let predicate = #Predicate<ReviewItemModel> { item in
-            (normalizedSearch.isEmpty || (item.content ?? "").localizedStandardContains(normalizedSearch)) &&
+            (normalizedSearch.isEmpty || (item.content != nil && item.content!.localizedStandardContains(normalizedSearch))) &&
             (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue))
         }
+        // swiftlint:enable force_unwrapping
         
         var descriptor = FetchDescriptor<ReviewItemModel>(
             predicate: predicate,
@@ -195,11 +197,12 @@ public final class ReviewRepository: ReviewRepositoryProtocol {
 
     public func fetchDueItems() throws -> [ReviewItem] {
         let now = Date.now
-        // nil coalescing: 从未复习（nil）→ epoch <= now → true（属于待复习）
-        let epoch = Date(timeIntervalSince1970: 0)
+        // nil → 从未复习，始终属于待复习；非 nil → 判断是否已到期
+        // swiftlint:disable force_unwrapping
         let predicate = #Predicate<ReviewItemModel> { item in
-            (item.nextReviewAt ?? epoch) <= now
+            item.nextReviewAt == nil || item.nextReviewAt! <= now
         }
+        // swiftlint:enable force_unwrapping
         let descriptor = FetchDescriptor<ReviewItemModel>(
             predicate: predicate,
             sortBy: [SortDescriptor(\.createdAt, order: .forward)]
@@ -209,10 +212,11 @@ public final class ReviewRepository: ReviewRepositoryProtocol {
 
     public func fetchDueCount() throws -> Int {
         let now = Date.now
-        let epoch = Date(timeIntervalSince1970: 0)
+        // swiftlint:disable force_unwrapping
         let predicate = #Predicate<ReviewItemModel> { item in
-            (item.nextReviewAt ?? epoch) <= now
+            item.nextReviewAt == nil || item.nextReviewAt! <= now
         }
+        // swiftlint:enable force_unwrapping
         let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
         return try modelContext.fetchCount(descriptor)
     }
@@ -228,11 +232,12 @@ public final class ReviewRepository: ReviewRepositoryProtocol {
 
     public func fetchTodayReviewedCount() throws -> Int {
         let startOfToday = Calendar.current.startOfDay(for: Date.now)
-        // nil coalescing: 从未复习（nil）→ epoch >= startOfToday → false
-        let epoch = Date(timeIntervalSince1970: 0)
+        // nil → 从未复习，不计入今日已复习；非 nil → 判断是否在今天之后
+        // swiftlint:disable force_unwrapping
         let predicate = #Predicate<ReviewItemModel> { item in
-            (item.lastReviewedAt ?? epoch) >= startOfToday
+            item.lastReviewedAt != nil && item.lastReviewedAt! >= startOfToday
         }
+        // swiftlint:enable force_unwrapping
         let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
         return try modelContext.fetchCount(descriptor)
     }
