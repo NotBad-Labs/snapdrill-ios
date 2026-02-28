@@ -84,7 +84,7 @@ struct LibraryListView: View {
                         }
                     }, label: {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text(item.content)
+                            Text(item.content ?? "")
                                 .font(.headline)
                                 .lineLimit(2)
                                 .multilineTextAlignment(.leading)

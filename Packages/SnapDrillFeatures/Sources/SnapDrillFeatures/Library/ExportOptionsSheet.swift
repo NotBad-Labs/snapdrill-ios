@@ -217,7 +217,7 @@ struct ReviewExport: Transferable {
         for item in items {
             let id = item.id.uuidString
             let subject = item.subject
-            let content = item.content.replacingOccurrences(of: "\"", with: "\"\"")
+            let content = (item.content ?? "").replacingOccurrences(of: "\"", with: "\"\"")
             let created = item.createdAt.description
             let source = item.source
             

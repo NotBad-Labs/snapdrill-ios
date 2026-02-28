@@ -110,7 +110,7 @@ struct LibraryDetailView: View {
                 Divider()
                 
                 // Content
-                Text(item.content)
+                Text(item.content ?? "")
                     .font(.body)
                     .lineSpacing(6)
                     .padding(.horizontal)

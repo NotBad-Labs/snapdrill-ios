@@ -245,10 +245,10 @@ struct LibraryEditView: View {
             Spacer()
             HStack(spacing: 4) {
                 ForEach(1...5, id: \.self) { star in
-                    Image(systemName: vm.difficulty >= star ? "star.fill" : "star")
+                    Image(systemName: vm.difficulty.rawValue >= star ? "star.fill" : "star")
                         .foregroundStyle(.yellow)
                         .onTapGesture {
-                            vm.difficulty = star
+                            vm.difficulty = Difficulty(rawValue: star) ?? .one
                         }
                 }
             }

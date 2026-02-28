@@ -48,7 +48,7 @@ struct ReviewCardFront: View {
         VStack {
             Spacer()
             
-            Text(item.content)
+            Text(item.content ?? "")
                 .font(.system(size: fontSizeRaw, weight: .bold, design: .serif))
                 .multilineTextAlignment(alignment)
                 .lineSpacing(8)
@@ -70,9 +70,9 @@ struct ReviewCardFront: View {
                     .clipShape(Capsule())
                 
                 // Difficulty Indicator
-                if item.difficulty > 0 {
+                if item.difficulty.starCount > 0 {
                     HStack(spacing: 2) {
-                        ForEach(0..<item.difficulty, id: \.self) { _ in
+                        ForEach(0..<item.difficulty.starCount, id: \.self) { _ in
                             Image(systemName: "star.fill")
                                 .font(.caption2)
                                 .foregroundStyle(.yellow)
@@ -181,7 +181,7 @@ struct ReviewCardBack: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(alignment: .top) {
-                Text(item.content)
+                Text(item.content ?? "")
                     .font(.system(size: fontSizeRaw, weight: .medium, design: .serif))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(alignment)
@@ -212,11 +212,13 @@ struct ReviewCardBack: View {
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text(item.answerText)
-                        .font(.system(size: 20, weight: .regular, design: .default))
-                        .foregroundStyle(.primary)
-                        .multilineTextAlignment(.leading)
-                        .lineSpacing(6)
+                    if let answerText = item.answerText {
+                        Text(answerText)
+                            .font(.system(size: 20, weight: .regular, design: .default))
+                            .foregroundStyle(.primary)
+                            .multilineTextAlignment(.leading)
+                            .lineSpacing(6)
+                    }
                     
                     if let imagePath = item.answerImagePath {
                         if let uiImage = loadedImage {

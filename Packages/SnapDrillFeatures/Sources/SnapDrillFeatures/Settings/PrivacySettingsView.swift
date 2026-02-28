@@ -110,7 +110,7 @@ struct PrivacySettingsView: View {
                     content: item.content,
                     subject: item.subject,
                     source: item.source,
-                    difficulty: item.difficulty,
+                    difficulty: item.difficulty.rawValue,
                     answerText: item.answerText,
                     createdAt: item.createdAt,
                     lastReviewedAt: item.lastReviewedAt,
@@ -139,11 +139,11 @@ struct PrivacySettingsView: View {
 /// Sendable value type for export
 struct ExportableItem: Sendable {
     let id: UUID
-    let content: String
+    let content: String?
     let subject: String
     let source: String
     let difficulty: Int
-    let answerText: String
+    let answerText: String?
     let createdAt: Date
     let lastReviewedAt: Date?
     let nextReviewAt: Date?
@@ -194,11 +194,11 @@ actor DataExporter {
         let exportItems = items.map { item in
             [
                 "id": item.id.uuidString,
-                "content": item.content,
+                "content": item.content ?? "",
                 "subject": item.subject,
                 "source": item.source,
                 "difficulty": item.difficulty,
-                "answerText": item.answerText,
+                "answerText": item.answerText ?? "",
                 "createdAt": item.createdAt.ISO8601Format(),
                 "lastReviewedAt": item.lastReviewedAt?.ISO8601Format() ?? "",
                 "nextReviewAt": item.nextReviewAt?.ISO8601Format() ?? "",
@@ -215,11 +215,11 @@ actor DataExporter {
         for item in items {
             let row = [
                 item.id.uuidString,
-                escapeCSV(item.content),
+                escapeCSV(item.content ?? ""),
                 escapeCSV(item.subject),
                 escapeCSV(item.source),
                 "\(item.difficulty)",
-                escapeCSV(item.answerText),
+                escapeCSV(item.answerText ?? ""),
                 item.createdAt.ISO8601Format(),
                 item.lastReviewedAt?.ISO8601Format() ?? "",
                 item.nextReviewAt?.ISO8601Format() ?? "",
