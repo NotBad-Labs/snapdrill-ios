@@ -128,9 +128,8 @@ public final class PDFExportService: Sendable {
             textYOffset += drawHeight + 10
         }
 
-        // Draw Content Text
-        // Only if there is space
-        if textYOffset < rect.maxY {
+        // 绘制题目文字（内容可选，仅当有内容且有空间时绘制）
+        if let contentText = item.content, textYOffset < rect.maxY {
             let textRect = CGRect(x: rect.minX, y: textYOffset, width: rect.width, height: rect.height - (textYOffset - rect.minY))
 
             let paraStyle = NSMutableParagraphStyle()
@@ -140,7 +139,7 @@ public final class PDFExportService: Sendable {
                 .paragraphStyle: paraStyle
             ]
 
-            (item.content as NSString).draw(in: textRect, withAttributes: attrs)
+            (contentText as NSString).draw(in: textRect, withAttributes: attrs)
         }
     }
     #else

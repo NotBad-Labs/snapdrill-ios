@@ -14,7 +14,7 @@ import UIKit
 
 /// PDFExportable mock for test isolation (no SnapDrillDomain dependency in Core tests)
 private struct MockPDFItem: PDFExportable {
-    var content: String
+    var content: String?
     var imagePath: String?
 }
 

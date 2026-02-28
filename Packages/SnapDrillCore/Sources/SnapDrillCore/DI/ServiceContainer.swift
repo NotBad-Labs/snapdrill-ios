@@ -51,4 +51,7 @@ public protocol ServiceContainer: Sendable {
 
     /// 订阅服务
     var subscription: SubscriptionServiceProtocol { get }
+
+    /// 通知服务
+    var notification: NotificationServiceProtocol { get }
 }

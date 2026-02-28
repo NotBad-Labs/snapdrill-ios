@@ -29,6 +29,7 @@ public final class MockServiceContainer: ServiceContainer {
     public let appConfig: AppConfiguration
     public let privacyConsent: PrivacyConsentService
     public let subscription: SubscriptionServiceProtocol
+    public let notification: NotificationServiceProtocol
 
     // MARK: - Initialization
 
@@ -41,5 +42,6 @@ public final class MockServiceContainer: ServiceContainer {
         self.appConfig = AppConfiguration()
         self.privacyConsent = PrivacyConsentService()
         self.subscription = SubscriptionServiceMock()
+        self.notification = NotificationServiceMock()
     }
 }

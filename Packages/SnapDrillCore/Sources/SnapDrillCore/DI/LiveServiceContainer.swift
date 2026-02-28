@@ -29,6 +29,7 @@ public final class LiveServiceContainer: ServiceContainer {
     public let appConfig: AppConfiguration
     public let privacyConsent: PrivacyConsentService
     public let subscription: SubscriptionServiceProtocol
+    public let notification: NotificationServiceProtocol
 
     // MARK: - Initialization
 
@@ -39,10 +40,12 @@ public final class LiveServiceContainer: ServiceContainer {
     ///   - analytics: 分析服务实例（默认使用 Firebase 实现）
     ///   - crashReporting: 崩溃报告实例（默认使用 Firebase 实现）
     ///   - subscription: 订阅服务实例（默认使用 Mock，待 StoreKit 接入后替换）
+    ///   - notification: 通知服务实例（默认使用 Live 实现）
     public init(
         analytics: AnalyticsServiceProtocol? = nil,
         crashReporting: CrashReportingProtocol? = nil,
-        subscription: SubscriptionServiceProtocol? = nil
+        subscription: SubscriptionServiceProtocol? = nil,
+        notification: NotificationServiceProtocol? = nil
     ) {
         self.appConfig = AppConfiguration()
         self.performanceMonitor = PerformanceMonitor()
@@ -52,5 +55,6 @@ public final class LiveServiceContainer: ServiceContainer {
         self.analytics = analytics ?? FirebaseAnalyticsService()
         self.crashReporting = crashReporting ?? CrashReportingService()
         self.subscription = subscription ?? SubscriptionServiceMock()
+        self.notification = notification ?? LiveNotificationService()
     }
 }

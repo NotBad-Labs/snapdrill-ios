@@ -17,21 +17,25 @@ struct ServiceContainerTests {
 
     // MARK: - LiveServiceContainer
 
-    @Test
+    @Test("LiveServiceContainer 提供所有服务属性")
     func testLiveServiceContainerProvidesAllServices() {
         let container = LiveServiceContainer()
 
-        // 验证所有服务属性非 nil
-        #expect(container.analytics is AnalyticsTrackingService)
-        #expect(container.crashReporting is CrashReportingService)
-        #expect(container.configuration is AppConfiguration)
+        _ = container.analytics
+        _ = container.crashReporting
+        _ = container.performanceMonitor
+        _ = container.networkMonitor
+        _ = container.pdfExport
+        _ = container.appConfig
+        _ = container.privacyConsent
+        _ = container.subscription
+        _ = container.notification
     }
 
-    @Test
+    @Test("LiveServiceContainer 重复访问同一属性返回相同实例")
     func testLiveServiceContainerReturnsSameInstances() {
         let container = LiveServiceContainer()
 
-        // 访问两次应该返回相同实例
         let analytics1 = container.analytics
         let analytics2 = container.analytics
         #expect(analytics1 === analytics2)
@@ -39,26 +43,25 @@ struct ServiceContainerTests {
 
     // MARK: - MockServiceContainer
 
-    @Test
+    @Test("MockServiceContainer 提供所有 Mock 服务")
     func testMockServiceContainerProvidesAllServices() {
         let container = MockServiceContainer()
 
-        // Mock 容器也应提供所有服务
-        #expect(container.analytics is AnalyticsTrackingService)
-        #expect(container.crashReporting is CrashReportingService)
-        #expect(container.configuration is AppConfiguration)
+        #expect(container.analytics is AnalyticsServiceMock)
+        #expect(container.crashReporting is CrashReportingServiceMock)
+        #expect(container.notification is NotificationServiceMock)
     }
 
     // MARK: - ServiceContainer 协议
 
-    @Test
+    @Test("LiveServiceContainer 和 MockServiceContainer 均符合 ServiceContainer 协议")
     func testServiceContainerProtocolConformance() {
-        // 两种实现都应该符合协议
         let live: any ServiceContainer = LiveServiceContainer()
         let mock: any ServiceContainer = MockServiceContainer()
 
-        // 协议多态：可以统一使用
-        #expect(live.analytics is AnalyticsServiceProtocol)
-        #expect(mock.analytics is AnalyticsServiceProtocol)
+        #expect(live.analytics is any AnalyticsServiceProtocol)
+        #expect(mock.analytics is any AnalyticsServiceProtocol)
+        #expect(live.notification is any NotificationServiceProtocol)
+        #expect(mock.notification is any NotificationServiceProtocol)
     }
 }
