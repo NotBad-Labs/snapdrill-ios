@@ -1,11 +1,11 @@
 //
 //  ReviewItem.swift
-//  SnapDrillCore
+//  SnapDrillDomain
 //
 //  Created by SnapDrill Labs on 2025/12/29.
 //  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
 //
-//  复习条目核心数据模型，定义题目实体和学科类型
+//  核心职责：定义题目复习条目领域实体（ReviewItem）。
 //
 
 import Foundation
@@ -138,29 +138,3 @@ public struct ReviewItem: Sendable, Identifiable, Codable, Hashable {
     }
 }
 
-/// 学科预设
-public enum SubjectPreset: String, CaseIterable, Identifiable {
-    public var id: String { rawValue }
-    
-    case chinese = "语文"
-    case mathematics = "数学"
-    case english = "英语"
-    case physics = "物理"
-    case chemistry = "化学"
-    case biology = "生物"
-    case history = "历史"
-    case geography = "地理"
-    case politics = "政治"
-    case other = "其他"
-}
-
-/// 来源预设
-public enum ReviewSourcePreset: String, CaseIterable, Identifiable {
-    public var id: String { rawValue }
-    
-    case exam = "试卷"
-    case homework = "作业"
-    case textbook = "教材"
-    case wrongBook = "错题本"
-    case other = "其他"
-}

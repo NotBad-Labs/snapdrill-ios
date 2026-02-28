@@ -1,8 +1,11 @@
 //
-//  SubjectRepositoryProtocol.swift
+//  TaxonomyRepositoryProtocols.swift
 //  SnapDrillDomain
 //
 //  Created by SnapDrill Labs on 2026/02/27.
+//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//
+//  核心职责：定义分类数据（学科/来源/标签/年级）的仓库层协议。
 //
 
 import Foundation

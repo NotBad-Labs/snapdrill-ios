@@ -3,6 +3,9 @@
 //  SnapDrillDomain
 //
 //  Created by SnapDrill Labs on 2026/02/27.
+//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//
+//  核心职责：定义分类元数据（学科/来源/标签/年级）的业务用例协议。
 //
 
 import Foundation
