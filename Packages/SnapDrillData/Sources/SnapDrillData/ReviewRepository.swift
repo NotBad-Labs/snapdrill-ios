@@ -1,28 +1,16 @@
-//
-//  ReviewRepository.swift
-//  SnapDrillData
-//
-//  Created by SnapDrill Labs on 2025/12/30.
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
-//
-//  错题数据的增删改查仓库，封装 SwiftData 上下文操作。
-//
-
 import Foundation
 import SwiftData
 import SnapDrillCore
+import SnapDrillDomain
 
-/// 复习数据仓库
+/// 复习数据仓库的 SwiftData 实现
 ///
-/// 封装了基于 SwiftData 的 CRUD 操作，对外提供简洁的数据访问接口。
-///
-/// ## 职责
-/// - **隔离**: 隐藏 `ModelContext` 和 `FetchDescriptor` 的复杂性。
-/// - **转换**: 处理 `ReviewItem` (Core) 到 `ReviewItemModel` (Data) 的转换（虽目前通过外部转换，但逻辑属于此层）。
-///
-/// - Important: 此类必须在 `@MainActor` 线程上使用，因为 SwiftData 的 `ModelContext` 通常绑定在主线程。
+/// 职责：
+/// - 实现 `ReviewRepositoryProtocol`，使用领域实体 `ReviewItem` 进行通信。
+/// - 执行 SwiftData 的 CRUD 操作。
+/// - 负责 `ReviewItem` (Domain) 与 `ReviewItemModel` (Data) 之间的映射转换。
 @MainActor
-public class ReviewRepository: ReviewRepositoryProtocol {
+public final class ReviewRepository: ReviewRepositoryProtocol {
     
     // MARK: - Properties
     
@@ -30,232 +18,241 @@ public class ReviewRepository: ReviewRepositoryProtocol {
     
     // MARK: - Initialization
     
-    /// 初始化仓库
-    /// - Parameter modelContext: SwiftData 上下文，通常来自 `PersistenceController.shared.container.mainContext`
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
     
-    // MARK: - Public API
+    // MARK: - ReviewRepositoryProtocol
     
-    /// 保存新的复习条目
-    ///
-    /// 将 Core 层的 `ReviewItem` 创建并插入到数据库。
-    /// - Parameters:
-    ///   - item: 核心条目数据
-    ///   - subject: 学科分类（临时参数，未来应包含在 item 中）
-    /// - Throws: `DataError.duplicateItem` 如果 ID 已存在
-    public func save(_ item: ReviewItem, subject: String = "其他") throws {
-        // 检查唯一性
-        if (try? fetchById(item.id)) != nil {
-            throw DataError.duplicateItem(id: item.id)
+    public func save(_ item: ReviewItem) throws {
+        if let existing = try fetchModelById(item.id) {
+            // 更新现有模型
+            try updateModel(existing, from: item)
+        } else {
+            // 创建新模型，解析并关联 TagModel
+            let tagModels = try item.tags.map { try fetchOrCreateTagModel(name: $0) }
+            let model = ReviewItemModel(
+                id: item.id,
+                content: item.content,
+                imagePath: item.imagePath,
+                createdAt: item.createdAt,
+                lastReviewedAt: item.lastReviewedAt,
+                nextReviewAt: item.nextReviewAt,
+                subject: item.subject,
+                source: item.source,
+                tags: tagModels,
+                answerText: item.answerText,
+                answerImagePath: item.answerImagePath,
+                difficulty: item.difficulty.rawValue,
+                grade: item.grade,
+                easeFactor: item.easeFactor,
+                interval: item.interval,
+                repetitions: item.repetitions
+            )
+            modelContext.insert(model)
         }
-        let model = ReviewItemModel(
-            id: item.id,
-            content: item.content,
-            imagePath: item.imagePath,
-            createdAt: item.createdAt,
-            lastReviewedAt: item.lastReviewedAt,
-            nextReviewAt: item.nextReviewAt,
-            subject: subject,
-            source: item.source,
-            tags: [],
-            answerText: item.answerText,
-            answerImagePath: item.answerImagePath,
-            difficulty: item.difficulty,
-            grade: item.grade
-        )
-        modelContext.insert(model)
+        try modelContext.save()
     }
     
-    /// 获取所有复习条目
-    public func fetchAll() throws -> [ReviewItemModel] {
-        let descriptor = FetchDescriptor<ReviewItemModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-        return try modelContext.fetch(descriptor)
-    }
-
-    /// 分页且带过滤条件的获取
-    public func fetchFiltered(
-        searchText: String,
-        subjects: Set<String>,
-        tags: Set<String>, // Note: Complex many-to-many filtering might have limitations in some SwiftData versions
-        limit: Int = 50,
-        offset: Int = 0
-    ) throws -> [ReviewItemModel] {
-        let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
-        // Due to Swift 6 Predicate limitations with Set, convert to Array
-        let subjectsArray = Array(subjects)
-        
-        let predicate = #Predicate<ReviewItemModel> { item in
-            (normalizedSearch.isEmpty || item.content.localizedStandardContains(normalizedSearch)) &&
-            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue))
-        }
-        
-        let descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        
-        var finalDescriptor = descriptor
-        finalDescriptor.fetchLimit = limit
-        finalDescriptor.fetchOffset = offset
-        
-        // Final optimization: results from DB
-        let results = try modelContext.fetch(finalDescriptor)
-        
-        // Optional memory-side tag filter if tags set is not empty
-        if !tags.isEmpty {
-            return results.filter { item in
-                let itemTagNames = Set(item.tags.map { $0.name })
-                return !itemTagNames.isDisjoint(with: tags)
-            }
-        }
-        
-        return results
-    }
-
-    /// 分页获取复习条目
-    public func fetchPaginated(limit: Int = 50, offset: Int = 0) throws -> [ReviewItemModel] {
-        try fetchFiltered(searchText: "", subjects: [], tags: [], limit: limit, offset: offset)
+    public func fetchById(_ id: UUID) throws -> ReviewItem? {
+        try fetchModelById(id)?.toEntity()
     }
     
-    /// 获取待复习条目数量
-    /// - Returns: `nextReviewAt` 早于或等于当前时间的条目数
-    public func fetchDueCount() throws -> Int {
-        let now = Date()
-        let descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: #Predicate<ReviewItemModel> { item in
-                item.nextReviewAt.flatMap { $0 <= now } ?? false
-            }
-        )
-        return try modelContext.fetchCount(descriptor)
-    }
-    
-    /// 获取所有待复习条目 (高效过滤)
-    public func fetchDueItems() throws -> [ReviewItemModel] {
-        let now = Date()
-        let descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: #Predicate<ReviewItemModel> { item in
-                item.nextReviewAt.flatMap { $0 <= now } ?? false
-            },
-            sortBy: [SortDescriptor(\.nextReviewAt, order: .forward)]
-        )
-        return try modelContext.fetch(descriptor)
-    }
-    
-    /// 获取今日已复习条目的数量 (高效过滤)
-    public func fetchTodayReviewedCount() throws -> Int {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: #Predicate<ReviewItemModel> { item in
-                item.lastReviewedAt.flatMap { $0 >= today } ?? false
-            }
-        )
-        return try modelContext.fetchCount(descriptor)
-    }
-    
-    /// 获取今日新增条目数量
-    public func fetchTodayCount() throws -> Int {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: Date())
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? Date().addingTimeInterval(86400)
-        
-        let descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: #Predicate<ReviewItemModel> { item in
-                item.createdAt >= startOfDay && item.createdAt < endOfDay
-            }
-        )
-        return try modelContext.fetchCount(descriptor)
-    }
-    
-    /// 获取总条目数量
-    public func totalItemCount() throws -> Int {
-        let descriptor = FetchDescriptor<ReviewItemModel>()
-        return try modelContext.fetchCount(descriptor)
-    }
-    
-    /// 根据 ID 查找条目
-    /// - Parameter id: 条目 ID
-    /// - Returns: 找到的条目，如果不存在则返回 nil
-    public func fetchById(_ id: UUID) throws -> ReviewItemModel? {
-        let targetId = id
-        let predicate = #Predicate<ReviewItemModel> { item in
-            item.id == targetId
-        }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetch(descriptor).first
-    }
-    
-    /// 批量根据 ID 获取模型
-    public func fetchByIds(_ ids: Set<UUID>) throws -> [ReviewItemModel] {
-        // 由于 Swift 6 对 Set.contains 在 Predicate 中的推导存在已知崩溃，转为 Array
+    public func fetchByIds(_ ids: Set<UUID>) throws -> [ReviewItem] {
         let targetIds = Array(ids)
         let predicate = #Predicate<ReviewItemModel> { item in
             targetIds.contains(item.id)
         }
         let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetch(descriptor)
+        return try modelContext.fetch(descriptor).map { $0.toEntity() }
     }
     
-    /// 更新条目
-    /// - Parameter item: 要更新的条目
-    /// - Throws: `DataError.notFound` 如果条目不存在
-    public func update(_ item: ReviewItem) throws {
-        guard let existing = try fetchById(item.id) else {
-            throw DataError.notFound(id: item.id, entityType: "ReviewItem")
+    public func fetchAll() throws -> [ReviewItem] {
+        let descriptor = FetchDescriptor<ReviewItemModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        return try modelContext.fetch(descriptor).map { $0.toEntity() }
+    }
+    
+    public func fetchFiltered(
+        searchText: String,
+        subjects: Set<String>,
+        tags: Set<String>,
+        limit: Int,
+        offset: Int
+    ) throws -> [ReviewItem] {
+        let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        let subjectsArray = Array(subjects)
+        
+        let predicate = #Predicate<ReviewItemModel> { item in
+            (normalizedSearch.isEmpty || (item.content ?? "").localizedStandardContains(normalizedSearch)) &&
+            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue))
         }
         
-        // 更新字段
-        existing.content = item.content
-        existing.imagePath = item.imagePath
-        existing.lastReviewedAt = item.lastReviewedAt
-        existing.nextReviewAt = item.nextReviewAt
-        existing.answerText = item.answerText
-        existing.answerImagePath = item.answerImagePath
-        existing.difficulty = item.difficulty
-        existing.grade = item.grade
-        existing.easeFactor = item.easeFactor
-        existing.interval = item.interval
-        existing.repetitions = item.repetitions
+        var descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = limit
+        descriptor.fetchOffset = offset
+        
+        let models = try modelContext.fetch(descriptor)
+        
+        // 内存端过滤标签（SwiftData 目前对多对多 Predicate 支持有限）
+        if !tags.isEmpty {
+            return models.filter { model in
+                let itemTagNames = Set((model.tags ?? []).map { $0.name })
+                return !itemTagNames.isDisjoint(with: tags)
+            }.map { $0.toEntity() }
+        }
+        
+        return models.map { $0.toEntity() }
     }
     
-    /// 删除条目
-    public func delete(_ model: ReviewItemModel) {
-        modelContext.delete(model)
+    public func totalCount() throws -> Int {
+        let descriptor = FetchDescriptor<ReviewItemModel>()
+        return try modelContext.fetchCount(descriptor)
     }
     
-    /// 清空所有数据
-    public func deleteAll() throws {
-        try modelContext.delete(model: ReviewItemModel.self)
+    public func delete(id: UUID) throws {
+        if let model = try fetchModelById(id) {
+            modelContext.delete(model)
+            try modelContext.save()
+        }
     }
     
-    /// 保存上下文更改
-    public func save() throws {
+    public func countBySubject(name: String) throws -> Int {
+        let targetName = name
+        let predicate = #Predicate<ReviewItemModel> { $0.subjectRawValue == targetName }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        return try modelContext.fetchCount(descriptor)
+    }
+    
+    public func updateSubjectUsage(from oldName: String, to newName: String) throws {
+        let targetOldName = oldName
+        let predicate = #Predicate<ReviewItemModel> { $0.subjectRawValue == targetOldName }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        let itemsToUpdate = try modelContext.fetch(descriptor)
+        
+        for item in itemsToUpdate {
+            item.subjectRawValue = newName
+        }
         try modelContext.save()
     }
     
-    /// 级联更新学科名称
-    public func updateSubjectUsage(from oldName: String, to newName: String) throws {
-        let predicate = #Predicate<ReviewItemModel> { item in
-            item.subjectRawValue == oldName
-        }
+    public func countBySource(name: String) throws -> Int {
+        let targetName = name
+        let predicate = #Predicate<ReviewItemModel> { $0.sourceRawValue == targetName }
         let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        let items = try modelContext.fetch(descriptor)
-        for item in items {
-            item.subjectRawValue = newName
-        }
+        return try modelContext.fetchCount(descriptor)
     }
     
-    /// 级联更新来源名称
     public func updateSourceUsage(from oldName: String, to newName: String) throws {
-        let predicate = #Predicate<ReviewItemModel> { item in
-            item.sourceRawValue == oldName
-        }
+        let targetOldName = oldName
+        let predicate = #Predicate<ReviewItemModel> { $0.sourceRawValue == targetOldName }
         let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        let items = try modelContext.fetch(descriptor)
-        for item in items {
+        let itemsToUpdate = try modelContext.fetch(descriptor)
+        
+        for item in itemsToUpdate {
             item.sourceRawValue = newName
         }
+        try modelContext.save()
+    }
+    
+    public func deleteAll() throws {
+        try modelContext.delete(model: ReviewItemModel.self)
+        try modelContext.save()
+    }
+
+    // MARK: - Performance-Optimized Query Methods
+
+    public func fetchDueItems() throws -> [ReviewItem] {
+        let now = Date.now
+        // nil coalescing: 从未复习（nil）→ epoch <= now → true（属于待复习）
+        let epoch = Date(timeIntervalSince1970: 0)
+        let predicate = #Predicate<ReviewItemModel> { item in
+            (item.nextReviewAt ?? epoch) <= now
+        }
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.createdAt, order: .forward)]
+        )
+        return try modelContext.fetch(descriptor).map { $0.toEntity() }
+    }
+
+    public func fetchDueCount() throws -> Int {
+        let now = Date.now
+        let epoch = Date(timeIntervalSince1970: 0)
+        let predicate = #Predicate<ReviewItemModel> { item in
+            (item.nextReviewAt ?? epoch) <= now
+        }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        return try modelContext.fetchCount(descriptor)
+    }
+
+    public func fetchTodayCount() throws -> Int {
+        let startOfToday = Calendar.current.startOfDay(for: Date.now)
+        let predicate = #Predicate<ReviewItemModel> { item in
+            item.createdAt >= startOfToday
+        }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        return try modelContext.fetchCount(descriptor)
+    }
+
+    public func fetchTodayReviewedCount() throws -> Int {
+        let startOfToday = Calendar.current.startOfDay(for: Date.now)
+        // nil coalescing: 从未复习（nil）→ epoch >= startOfToday → false
+        let epoch = Date(timeIntervalSince1970: 0)
+        let predicate = #Predicate<ReviewItemModel> { item in
+            (item.lastReviewedAt ?? epoch) >= startOfToday
+        }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        return try modelContext.fetchCount(descriptor)
+    }
+
+    public func totalItemCount() throws -> Int {
+        try totalCount()
+    }
+
+    // MARK: - Private Helpers
+
+    /// 内部获取 SwiftData 模型，带性能优化
+    private func fetchModelById(_ id: UUID) throws -> ReviewItemModel? {
+        let targetId = id
+        let predicate = #Predicate<ReviewItemModel> { item in
+            item.id == targetId
+        }
+        var descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        descriptor.fetchLimit = 1 // P0 优化：确保只取一条，防止全表扫描
+        return try modelContext.fetch(descriptor).first
+    }
+
+    /// 按 name 查找已有 TagModel，若不存在则创建并插入
+    private func fetchOrCreateTagModel(name: String) throws -> TagModel {
+        let targetName = name
+        let predicate = #Predicate<TagModel> { $0.name == targetName }
+        var descriptor = FetchDescriptor<TagModel>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        if let existing = try modelContext.fetch(descriptor).first {
+            return existing
+        }
+        let newTag = TagModel(name: name)
+        modelContext.insert(newTag)
+        return newTag
+    }
+
+    private func updateModel(_ model: ReviewItemModel, from item: ReviewItem) throws {
+        model.content = item.content
+        model.imagePath = item.imagePath
+        model.lastReviewedAt = item.lastReviewedAt
+        model.nextReviewAt = item.nextReviewAt
+        model.subjectRawValue = item.subject
+        model.sourceRawValue = item.source
+        model.tags = try item.tags.map { try fetchOrCreateTagModel(name: $0) }
+        model.answerText = item.answerText
+        model.answerImagePath = item.answerImagePath
+        model.difficulty = item.difficulty.rawValue
+        model.grade = item.grade
+        model.easeFactor = item.easeFactor
+        model.interval = item.interval
+        model.repetitions = item.repetitions
     }
 }
