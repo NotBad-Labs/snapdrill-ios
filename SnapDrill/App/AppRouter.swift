@@ -54,10 +54,6 @@ final class AppRouter {
     /// 初始化并设立绑定
     init() {
         dashboardRouter.onNavigateToReview = { [weak self] in
-            // Review often has its own transition handling or needs to be instant if it triggers the "Slide Up" view internal to ReviewTab?
-            // User said Review "slides up" internally.
-            // But let's animate the tab switch itself to be smooth too if needed.
-            // Actually user LIKED Review transition. Let's touch Capture.
             self?.selectedTab = .review
         }
         
