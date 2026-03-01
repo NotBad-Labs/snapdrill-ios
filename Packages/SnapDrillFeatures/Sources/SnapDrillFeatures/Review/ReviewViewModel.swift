@@ -104,8 +104,6 @@ final class ReviewViewModel {
     func loadDataAsync() async {
         do {
             let due = try sessionManager.loadDueItems()
-            try Task.checkCancellation()
-            
             reviewQueue = due
             reviewedTodayCount = try sessionManager.loadTodayReviewedCount()
             totalItemsCount = try sessionManager.loadTotalItemsCount()

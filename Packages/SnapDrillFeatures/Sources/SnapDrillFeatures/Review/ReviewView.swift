@@ -24,6 +24,7 @@ public struct ReviewView: View {
     @Bindable private var router: ReviewRouter
     @Environment(\.useCases) private var useCases
     @State private var viewModel: ReviewViewModel?
+    @State private var isFirstAppear = true
 
     // MARK: - Initialization
 
@@ -45,12 +46,13 @@ public struct ReviewView: View {
                 }
             }
             .task {
-                if viewModel == nil {
-                    // 使用领域容器注入
+                if isFirstAppear {
+                    // 先赋值再加载，确保通知订阅在 loadDataAsync 之前生效
                     let manager = ReviewSessionManager(useCase: useCases.review)
                     let vm = ReviewViewModel(sessionManager: manager)
-                    await vm.loadDataAsync()
                     viewModel = vm
+                    await vm.loadDataAsync()
+                    isFirstAppear = false
                 } else {
                     await viewModel?.loadDataAsync()
                 }
