@@ -115,7 +115,11 @@ final class MockSubjectRepository: SubjectRepositoryProtocol {
 
     func fetchAll() throws -> [Subject] { Array(subjects.values) }
     func fetchByName(_ name: String) throws -> Subject? { subjects[name] }
-    func save(_ subject: Subject) throws { subjects[subject.name] = subject }
+    func save(_ subject: Subject) throws {
+        // 重命名时先移除旧 key（同 ID、不同 name），再写入新 key
+        subjects = subjects.filter { $0.value.id != subject.id }
+        subjects[subject.name] = subject
+    }
     func delete(id: UUID) throws { subjects = subjects.filter { $0.value.id != id } }
     func totalCount() throws -> Int { subjects.count }
     func seedDefaultsIfNeeded() {}
@@ -130,7 +134,10 @@ final class MockSourceRepository: SourceRepositoryProtocol {
 
     func fetchAll() throws -> [Source] { Array(sources.values) }
     func fetchByName(_ name: String) throws -> Source? { sources[name] }
-    func save(_ source: Source) throws { sources[source.name] = source }
+    func save(_ source: Source) throws {
+        sources = sources.filter { $0.value.id != source.id }
+        sources[source.name] = source
+    }
     func delete(id: UUID) throws { sources = sources.filter { $0.value.id != id } }
     func totalCount() throws -> Int { sources.count }
     func seedDefaultsIfNeeded() {}
@@ -145,7 +152,10 @@ final class MockGradeRepository: GradeRepositoryProtocol {
 
     func fetchAll() throws -> [Grade] { Array(grades.values) }
     func fetchByName(_ name: String) throws -> Grade? { grades[name] }
-    func save(_ grade: Grade) throws { grades[grade.name] = grade }
+    func save(_ grade: Grade) throws {
+        grades = grades.filter { $0.value.id != grade.id }
+        grades[grade.name] = grade
+    }
     func delete(id: UUID) throws { grades = grades.filter { $0.value.id != id } }
     func totalCount() throws -> Int { grades.count }
     func seedDefaultsIfNeeded() {}

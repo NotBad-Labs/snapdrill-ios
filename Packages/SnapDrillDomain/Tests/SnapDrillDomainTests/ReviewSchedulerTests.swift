@@ -41,7 +41,7 @@ struct ReviewSchedulerTests {
 
     @Test("第 2 次答对后 interval = 6 天")
     func secondCorrectIntervalIsSix() throws {
-        let item = makeItem(repetitions: 1, interval: 1)
+        let item = makeItem(interval: 1, repetitions: 1)
         let result = scheduler.scheduleNextReview(for: item, rating: .good)
         #expect(result.interval == 6)
         #expect(result.repetitions == 2)
@@ -86,21 +86,21 @@ struct ReviewSchedulerTests {
 
     @Test("easy 评分使 EF 增加 0.1")
     func easyRatingIncreasesEF() throws {
-        let item = makeItem(easeFactor: 2.5, repetitions: 1, interval: 1)
+        let item = makeItem(easeFactor: 2.5, interval: 1, repetitions: 1)
         let result = scheduler.scheduleNextReview(for: item, rating: .easy)
         #expect(abs(result.easeFactor - 2.6) < 0.001)
     }
 
     @Test("good 评分使 EF 减少 0.14")
     func goodRatingDecreasesEF() throws {
-        let item = makeItem(easeFactor: 2.5, repetitions: 1, interval: 1)
+        let item = makeItem(easeFactor: 2.5, interval: 1, repetitions: 1)
         let result = scheduler.scheduleNextReview(for: item, rating: .good)
         #expect(abs(result.easeFactor - 2.36) < 0.001)
     }
 
     @Test("hard 评分使 EF 减少 0.32")
     func hardRatingDecreasesEF() throws {
-        let item = makeItem(easeFactor: 2.5, repetitions: 1, interval: 1)
+        let item = makeItem(easeFactor: 2.5, interval: 1, repetitions: 1)
         let result = scheduler.scheduleNextReview(for: item, rating: .hard)
         #expect(abs(result.easeFactor - 2.18) < 0.001)
     }
@@ -110,14 +110,14 @@ struct ReviewSchedulerTests {
     @Test("EF 不会低于最小值 1.3")
     func efNeverDropsBelowMinimum() throws {
         // 从最小值 EF=1.3 再次 again 评分，应保持 1.3
-        let item = makeItem(easeFactor: 1.3, repetitions: 1, interval: 1)
+        let item = makeItem(easeFactor: 1.3, interval: 1, repetitions: 1)
         let result = scheduler.scheduleNextReview(for: item, rating: .again)
         #expect(result.easeFactor >= 1.3)
     }
 
     @Test("EF 在多次 hard 评分后不低于 1.3")
     func efStaysAboveMinimumAfterRepeatedHard() throws {
-        var item = makeItem(easeFactor: 1.4, repetitions: 2, interval: 6)
+        var item = makeItem(easeFactor: 1.4, interval: 6, repetitions: 2)
         for _ in 0..<10 {
             item = scheduler.scheduleNextReview(for: item, rating: .hard)
         }
