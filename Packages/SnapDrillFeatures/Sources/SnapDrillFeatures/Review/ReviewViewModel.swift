@@ -65,11 +65,37 @@ final class ReviewViewModel {
     // MARK: - Dependencies
 
     private let sessionManager: ReviewSessionManagerProtocol
+    @ObservationIgnored
+    nonisolated(unsafe) private var dataChangeObserver: Any?
 
     // MARK: - Initialization
 
     init(sessionManager: ReviewSessionManagerProtocol) {
         self.sessionManager = sessionManager
+        setupDataChangeObserver()
+    }
+
+    deinit {
+        if let observer = dataChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+
+    // MARK: - Private Setup
+
+    private func setupDataChangeObserver() {
+        dataChangeObserver = NotificationCenter.default.addObserver(
+            forName: .reviewDataDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                guard let self else { return }
+                // 仅在 idle 状态刷新，不打断正在进行的复习会话
+                guard self.phase != .reviewing else { return }
+                await self.loadDataAsync()
+            }
+        }
     }
 
     // MARK: - Public API
