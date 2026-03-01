@@ -203,8 +203,8 @@ struct ReviewExport: Transferable {
             ## \(index + 1). \(item.subject)
             > 创建时间: \(createdStr)
             
-            \(item.content)
-            
+            \(item.content ?? "")
+
             ---
             """
         }
