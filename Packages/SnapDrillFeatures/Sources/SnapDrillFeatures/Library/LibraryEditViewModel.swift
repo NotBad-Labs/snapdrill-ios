@@ -26,6 +26,8 @@ public final class LibraryEditViewModel {
     public var displayedImage: UIImage?
     /// 答案图片（新选择的，未持久化）
     public var answerDisplayedImage: UIImage?
+    /// 用户主动移除答案图片时置 true，save() 据此清空 answerImagePath
+    public var isAnswerImageCleared: Bool = false
     public var isProcessing = false
     public var isSavedNormally = false
     public var isCropping = false
@@ -79,6 +81,18 @@ public final class LibraryEditViewModel {
         }
     }
     
+    /// 移除答案图片
+    public func removeAnswerImage() {
+        answerDisplayedImage = nil
+        isAnswerImageCleared = true
+    }
+
+    /// 设置新的答案图片
+    public func handleNewAnswerImage(_ image: UIImage) {
+        answerDisplayedImage = image
+        isAnswerImageCleared = false
+    }
+
     public func handleNewImage(_ image: UIImage) {
         self.displayedImage = image
         self.isProcessing = true
@@ -145,6 +159,8 @@ public final class LibraryEditViewModel {
             } catch {
                 SnapDrillLogger.generic.error("保存答案图片失败: \(error.localizedDescription)")
             }
+        } else if isAnswerImageCleared {
+            item.answerImagePath = nil
         }
         
         do {

@@ -31,6 +31,7 @@ struct LibraryEditView: View {
     @State private var tagInputText: String = ""
     @State private var isPickerPresented = false
     @State private var pickerSelection: PhotosPickerItem?
+    @State private var answerPickerSelection: PhotosPickerItem?
     
     init(item: ReviewItem) {
         self.item = item
@@ -85,6 +86,11 @@ struct LibraryEditView: View {
             .onChange(of: pickerSelection) { _, newItem in
                 if let newItem {
                     loadTransferable(from: newItem)
+                }
+            }
+            .onChange(of: answerPickerSelection) { _, newItem in
+                if let newItem {
+                    loadAnswerTransferable(from: newItem)
                 }
             }
             // Cropper
@@ -169,6 +175,27 @@ struct LibraryEditView: View {
             TextEditor(text: Binding(get: { vm.answer }, set: { vm.answer = $0 }))
                 .frame(minHeight: 100)
                 .focused($isInputFocused)
+
+            if let answerImage = vm.answerDisplayedImage {
+                Image(uiImage: answerImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxHeight: 150)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .listRowInsets(EdgeInsets())
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 8)
+
+                Button(role: .destructive) {
+                    vm.removeAnswerImage()
+                } label: {
+                    Label("移除答案图片", systemImage: "trash")
+                }
+            } else {
+                PhotosPicker(selection: $answerPickerSelection, matching: .images) {
+                    Label("添加答案图片", systemImage: "photo.badge.plus")
+                }
+            }
         }
     }
     
@@ -267,6 +294,21 @@ struct LibraryEditView: View {
                 }
             case .failure(let error):
                 SnapDrillLogger.generic.info("Failed to load image: \(error)")
+            }
+        }
+    }
+
+    private func loadAnswerTransferable(from item: PhotosPickerItem) {
+        item.loadTransferable(type: Data.self) { result in
+            switch result {
+            case .success(let data):
+                if let data = data, let uiImage = UIImage(data: data) {
+                    Task { @MainActor in
+                        self.viewModel?.handleNewAnswerImage(uiImage)
+                    }
+                }
+            case .failure(let error):
+                SnapDrillLogger.generic.info("加载答案图片失败: \(error)")
             }
         }
     }
