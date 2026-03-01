@@ -36,6 +36,7 @@ public struct SettingsView: View {
     @State private var isGenerating = false
     @State private var showingSubjectManager = false
     @State private var showingSourceManager = false
+    @State private var showingGradeManager = false
     
     // Appearance Setting
     @AppStorage("appearanceMode") private var appearanceMode: Int = 0 // 0=System, 1=Light, 2=Dark
@@ -173,7 +174,13 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "doc.text.fill", color: .orange, title: "管理来源")
                     }
-                    
+
+                    Button {
+                        showingGradeManager = true
+                    } label: {
+                        SettingsRow(icon: "graduationcap.fill", color: .green, title: "管理年级")
+                    }
+
                     if showingClearAlert { } // Trigger logic moved to modifier
                     Button {
                         showingClearAlert = true
@@ -243,6 +250,9 @@ public struct SettingsView: View {
             }
             .sheet(isPresented: $showingSourceManager) {
                 SourceManagerView()
+            }
+            .sheet(isPresented: $showingGradeManager) {
+                GradeManagerView()
             }
             .alert("意见反馈", isPresented: $showingMail) {
                 Button("复制邮箱") {

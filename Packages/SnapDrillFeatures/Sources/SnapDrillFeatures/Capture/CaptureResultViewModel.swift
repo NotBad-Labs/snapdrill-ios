@@ -52,6 +52,7 @@ public final class CaptureResultViewModel {
     // Dropdown Form Data (Domain Entities)
     public private(set) var availableSubjects: [Subject] = []
     public private(set) var availableSources: [Source] = []
+    public private(set) var availableGrades: [Grade] = []
     public private(set) var availableTags: [Tag] = []
 
     // MARK: - Dependencies
@@ -95,6 +96,7 @@ public final class CaptureResultViewModel {
         do {
             availableSubjects = try taxonomyUseCase.getSubjects().sorted(by: { $0.sortOrder < $1.sortOrder })
             availableSources = try taxonomyUseCase.getSources().sorted(by: { $0.sortOrder < $1.sortOrder })
+            availableGrades = try taxonomyUseCase.getGrades().sorted(by: { $0.sortOrder < $1.sortOrder })
             availableTags = try taxonomyUseCase.getAllTags().sorted(by: { $0.name < $1.name })
         } catch {
             SnapDrillLogger.generic.error("加载下拉表单失败: \(error.localizedDescription)")

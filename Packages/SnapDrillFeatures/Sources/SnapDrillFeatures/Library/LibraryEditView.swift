@@ -203,6 +203,7 @@ struct LibraryEditView: View {
         Section("属性") {
             subjectPicker(vm: vm)
             sourcePicker(vm: vm)
+            gradePicker(vm: vm)
             difficultyPicker(vm: vm)
             
             VStack(alignment: .leading) {
@@ -266,6 +267,30 @@ struct LibraryEditView: View {
         }
     }
     
+    private func gradePicker(vm: LibraryEditViewModel) -> some View {
+        HStack {
+            Text("年级/程度")
+            Spacer()
+            Menu {
+                ForEach(vm.grades) { grade in
+                    Button {
+                        vm.grade = grade.name
+                    } label: {
+                        Text(grade.name)
+                    }
+                }
+            } label: {
+                HStack {
+                    Text(vm.grade.isEmpty ? "选择年级" : vm.grade)
+                        .foregroundStyle(vm.grade.isEmpty ? .secondary : .primary)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        }
+    }
+
     private func difficultyPicker(vm: LibraryEditViewModel) -> some View {
         HStack {
             Text("难度")

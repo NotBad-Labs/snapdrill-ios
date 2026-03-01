@@ -191,8 +191,21 @@ public struct CaptureResultView: View {
                         HStack {
                             Text("年级/程度")
                             Spacer()
-                            TextField("例如：高三", text: $viewModel.grade)
+                            TextField("选择或输入", text: $viewModel.grade)
                                 .multilineTextAlignment(.trailing)
+
+                            Menu {
+                                ForEach(viewModel.availableGrades) { grade in
+                                    Button {
+                                        viewModel.grade = grade.name
+                                    } label: {
+                                        Text(grade.name)
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "chevron.up.chevron.down")
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                         .padding()
                 

@@ -20,6 +20,7 @@ public final class LibraryEditViewModel {
     public var answer: String
     public var selectedSubject: String
     public var selectedSource: String
+    public var grade: String
     public var tagList: [String]
     public var difficulty: Difficulty
     
@@ -35,6 +36,7 @@ public final class LibraryEditViewModel {
     
     public var subjects: [Subject] = []
     public var sources: [Source] = []
+    public var grades: [Grade] = []
     public var allTags: [Tag] = []
     
     // MARK: - Dependencies
@@ -58,6 +60,7 @@ public final class LibraryEditViewModel {
         self.answer = item.answerText ?? ""
         self.selectedSubject = item.subject
         self.selectedSource = item.source
+        self.grade = item.grade
         self.tagList = item.tags
         self.difficulty = item.difficulty
     }
@@ -75,6 +78,7 @@ public final class LibraryEditViewModel {
         do {
             self.subjects = try taxonomyUseCase.getSubjects()
             self.sources = try taxonomyUseCase.getSources()
+            self.grades = try taxonomyUseCase.getGrades().sorted(by: { $0.sortOrder < $1.sortOrder })
             self.allTags = try taxonomyUseCase.getAllTags()
         } catch {
             SnapDrillLogger.generic.error("加载元数据失败: \(error.localizedDescription)")
@@ -127,6 +131,7 @@ public final class LibraryEditViewModel {
         item.answerText = answer.isEmpty ? nil : answer
         item.subject = selectedSubject
         item.source = selectedSource
+        item.grade = grade
         item.difficulty = difficulty
         
         // 同步标签
