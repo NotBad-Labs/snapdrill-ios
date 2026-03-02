@@ -12,6 +12,7 @@ import SwiftUI
 import SwiftData
 import Observation
 import SnapDrillCore
+import SnapDrillDomain
 import SnapDrillUI
 import SnapDrillData
 #if canImport(UIKit)
@@ -280,8 +281,9 @@ public struct SettingsView: View {
                 let seeder = DataSeeder(container: modelContext.container)
                 let time = try await seeder.seedReviewItems(count: 100)
                 SnapDrillLogger.generic.info("生成测试数据成功: \(time)s")
+                NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             } catch {
-                SnapDrillLogger.generic.info("生成测试数据失败: \(error)")
+                SnapDrillLogger.generic.error("生成测试数据失败: \(error.localizedDescription)")
             }
             isGenerating = false
         }
