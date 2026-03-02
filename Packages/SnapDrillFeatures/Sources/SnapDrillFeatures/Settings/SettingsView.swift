@@ -278,8 +278,9 @@ public struct SettingsView: View {
         isGenerating = true
         Task {
             do {
-                let seeder = DataSeeder(container: modelContext.container)
-                let time = try await seeder.seedReviewItems(count: 100)
+                // 直接使用 mainContext，确保数据写入后 ReviewRepository 立即可见
+                let seeder = DataSeeder(modelContext: modelContext)
+                let time = try seeder.seedReviewItems(count: 100)
                 SnapDrillLogger.generic.info("生成测试数据成功: \(time)s")
                 NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             } catch {

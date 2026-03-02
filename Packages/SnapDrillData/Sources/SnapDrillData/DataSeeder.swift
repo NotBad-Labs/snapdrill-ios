@@ -15,16 +15,18 @@ import SnapDrillCore
 /// 测试数据生成工具
 ///
 /// 仅用于调试和压力测试，不参与生产流程。
+/// 直接使用传入的 ModelContext（mainContext），避免跨 context 变更合并的时机竞争。
+@MainActor
 public final class DataSeeder {
-    
+
     // MARK: - Properties
-    
-    private let container: ModelContainer
-    
+
+    private let modelContext: ModelContext
+
     // MARK: - Initialization
-    
-    public init(container: ModelContainer) {
-        self.container = container
+
+    public init(modelContext: ModelContext) {
+        self.modelContext = modelContext
     }
     
     // MARK: - Public API
@@ -284,114 +286,93 @@ public final class DataSeeder {
     /// 批量生成测试数据 (100条高质量数据)
     /// - Parameter count: 忽略传入的count，固定生成 mockData 的数据
     /// - Returns: 耗时（秒）
-    public func seedReviewItems(count: Int) async throws -> TimeInterval {
+    public func seedReviewItems(count: Int) throws -> TimeInterval {
         let startTime = Date()
-        SnapDrillLogger.generic.info("开始生成 \(self.mockData.count) 条高质量混合长短文本数据 (Background)")
-        
-        // Capture data needed for task to be Sendable
-        let seedData = self.mockData
-        let container = self.container
-        
-        // Detached Task to run on background thread, keeping Main Thread free
-        return try await Task.detached(priority: .userInitiated) {
-            let context = ModelContext(container)
-            // Disable autosave for batch
-            context.autosaveEnabled = false
-            
-            // 扩展数据以达到请求的数量（如果需要更多）
-            var targetData = seedData
-            while targetData.count < count {
-                targetData.append(contentsOf: seedData)
+        SnapDrillLogger.generic.info("开始生成 \(self.mockData.count) 条高质量混合长短文本数据")
+
+        // 扩展数据以达到请求的数量（如果需要更多）
+        var targetData = mockData
+        while targetData.count < count {
+            targetData.append(contentsOf: mockData)
+        }
+        // 预定义源池
+        let sourcePool = ["模拟考试", "课本习题", "课外辅导", "网络资源", "历年真题"]
+
+        // 1. 同步所有学科 (Subjects)
+        let uniqueSubjects = Set(targetData.map { $0.sub })
+        for subName in uniqueSubjects {
+            let fetch = FetchDescriptor<SubjectModel>(predicate: #Predicate<SubjectModel> { $0.name == subName })
+            if (try? modelContext.fetch(fetch).first) == nil {
+                let icon = subName == "数学" ? "function" :
+                           subName == "物理" ? "atom" :
+                           subName == "化学" ? "flask" :
+                           subName == "生物" ? "leaf" :
+                           subName == "英语" ? "textformat.abc" : "book"
+                let newSub = SubjectModel(name: subName, icon: icon, colorHex: "#4A90E2", sortOrder: 0)
+                modelContext.insert(newSub)
             }
-            // 预定义源池
-            let sourcePool = ["模拟考试", "课本习题", "课外辅导", "网络资源", "历年真题"]
-            
-            // 1. 同步所有学科 (Subjects)
-            let uniqueSubjects = Set(targetData.map { $0.sub })
-            for subName in uniqueSubjects {
-                let fetch = FetchDescriptor<SubjectModel>(predicate: #Predicate<SubjectModel> { $0.name == subName })
-                if (try? context.fetch(fetch).first) == nil {
-                    // 简单的图标映射逻辑
-                    let icon = subName == "数学" ? "function" : 
-                               subName == "物理" ? "atom" : 
-                               subName == "化学" ? "flask" : 
-                               subName == "生物" ? "leaf" : 
-                               subName == "英语" ? "textformat.abc" : "book"
-                    
-                    let newSub = SubjectModel(name: subName, icon: icon, colorHex: "#4A90E2", sortOrder: 0)
-                    context.insert(newSub)
-                }
+        }
+
+        // 2. 同步所有来源 (Sources)
+        for sourceName in sourcePool {
+            let fetch = FetchDescriptor<SourceModel>(predicate: #Predicate<SourceModel> { $0.name == sourceName })
+            if (try? modelContext.fetch(fetch).first) == nil {
+                let icon = sourceName.contains("考试") ? "doc.text.fill" :
+                           sourceName.contains("习题") ? "book.closed.fill" :
+                           sourceName.contains("网络") ? "globe" : "folder"
+                let newSource = SourceModel(name: sourceName, icon: icon, colorHex: "#808080")
+                modelContext.insert(newSource)
             }
-            
-            // 2. 同步所有来源 (Sources)
-            for sourceName in sourcePool {
-                let fetch = FetchDescriptor<SourceModel>(predicate: #Predicate<SourceModel> { $0.name == sourceName })
-                if (try? context.fetch(fetch).first) == nil {
-                    let icon = sourceName.contains("考试") ? "doc.text.fill" :
-                               sourceName.contains("习题") ? "book.closed.fill" :
-                               sourceName.contains("网络") ? "globe" : "folder"
-                    
-                    let newSource = SourceModel(name: sourceName, icon: icon, colorHex: "#808080")
-                    context.insert(newSource)
-                }
-            }
-            
-            // 预定义标签池
-            let tagPool = ["必考", "易错", "真题", "重点", "压轴", "2024", "基础", "难点"]
-            
-            for (index, data) in targetData.enumerated() {
-                // 随机生成 0-3 个标签
-                let tagCount = Int.random(in: 0...3)
-                var assignedTags: [TagModel] = []
-                if tagCount > 0 {
-                    let randomTags = tagPool.shuffled().prefix(tagCount)
-                    for tagName in randomTags {
-                        // 查找或创建标签 (Simple logic for seeding)
-                        let fetch = FetchDescriptor<TagModel>(predicate: #Predicate<TagModel> { $0.name == tagName })
-                        if let existing = try? context.fetch(fetch).first {
-                            assignedTags.append(existing)
-                        } else {
-                            let newTag = TagModel(name: tagName)
-                            context.insert(newTag)
-                            assignedTags.append(newTag)
-                        }
+        }
+
+        // 预定义标签池
+        let tagPool = ["必考", "易错", "真题", "重点", "压轴", "2024", "基础", "难点"]
+
+        for (index, data) in targetData.enumerated() {
+            // 随机生成 0-3 个标签
+            let tagCount = Int.random(in: 0...3)
+            var assignedTags: [TagModel] = []
+            if tagCount > 0 {
+                let randomTags = tagPool.shuffled().prefix(tagCount)
+                for tagName in randomTags {
+                    let fetch = FetchDescriptor<TagModel>(predicate: #Predicate<TagModel> { $0.name == tagName })
+                    if let existing = try? modelContext.fetch(fetch).first {
+                        assignedTags.append(existing)
+                    } else {
+                        let newTag = TagModel(name: tagName)
+                        modelContext.insert(newTag)
+                        assignedTags.append(newTag)
                     }
                 }
-                
-                let item = ReviewItemModel(
-                    content: data.q,
-                    imagePath: nil,
-                    subject: data.sub,
-                    source: ["模拟考试", "课本习题", "课外辅导", "网络资源", "历年真题"].randomElement()!,
-                    tags: assignedTags
-                )
-                item.answerText = data.a
-                item.difficulty = Int.random(in: 1...5) // 随机难度 1-5
-                
-                // 随机化复习状态
-                item.createdAt = Date.now.addingTimeInterval(-Double.random(in: 0...(86400 * 5)))
-                
-                if index < Int(Double(count) * 0.8) {
-                    item.nextReviewAt = Date.now.addingTimeInterval(-Double.random(in: 100...86400))
-                } else {
-                    item.nextReviewAt = Date.now.addingTimeInterval(Double.random(in: 3600...86400))
-                }
-                
-                context.insert(item)
             }
-            
-            try context.save()
-            return Date().timeIntervalSince(startTime)
-        }.value
+
+            let item = ReviewItemModel(
+                content: data.q,
+                imagePath: nil,
+                subject: data.sub,
+                source: sourcePool.randomElement()!,
+                tags: assignedTags
+            )
+            item.answerText = data.a
+            item.difficulty = Int.random(in: 1...5)
+            item.createdAt = Date.now.addingTimeInterval(-Double.random(in: 0...(86400 * 5)))
+
+            if index < Int(Double(count) * 0.8) {
+                item.nextReviewAt = Date.now.addingTimeInterval(-Double.random(in: 100...86400))
+            } else {
+                item.nextReviewAt = Date.now.addingTimeInterval(Double.random(in: 3600...86400))
+            }
+
+            modelContext.insert(item)
+        }
+
+        try modelContext.save()
+        return Date().timeIntervalSince(startTime)
     }
-    
+
     /// 清空所有 ReviewItem
-    public func clearAll() async throws {
-        let container = self.container
-        try await Task.detached(priority: .userInitiated) {
-            let context = ModelContext(container)
-            try context.delete(model: ReviewItemModel.self)
-            try context.save()
-        }.value
+    public func clearAll() throws {
+        try modelContext.delete(model: ReviewItemModel.self)
+        try modelContext.save()
     }
 }
