@@ -258,11 +258,6 @@ public extension OnboardingPage {
             systemImage: "calendar.badge.clock"
         ),
         OnboardingPage(
-            title: "云端同步",
-            description: "使用 iCloud 自动同步，多设备无缝切换",
-            systemImage: "icloud.fill"
-        ),
-        OnboardingPage(
             title: "数据导出",
             description: "支持导出为 PDF、CSV 等格式，方便分享和打印",
             systemImage: "square.and.arrow.up.fill"

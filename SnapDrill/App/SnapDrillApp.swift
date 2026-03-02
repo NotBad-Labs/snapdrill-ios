@@ -41,6 +41,9 @@ struct SnapDrillApp: App {
     
     /// 是否显示隐私预热弹窗
     @State private var showingPrivacyPrePrompt: Bool = false
+
+    /// 引导页状态管理
+    @ObservedObject private var onboardingManager = OnboardingManager.shared
     
     /// 外观模式设置 (0=System, 1=Light, 2=Dark)
     @AppStorage("appearanceMode") private var appearanceMode: Int = 0
@@ -103,6 +106,15 @@ struct SnapDrillApp: App {
                     .transition(.opacity)
                 }
             }
+                .fullScreenCover(isPresented: $onboardingManager.shouldShowOnboarding) {
+                    OnboardingView(pages: OnboardingPage.defaultPages) {
+                        onboardingManager.completeOnboarding()
+                        // 引导完成后再触发 ATT 隐私预热，避免两个弹窗同时叠加
+                        if container.services.privacyConsent.shouldShowPrePrompt {
+                            showingPrivacyPrePrompt = true
+                        }
+                    }
+                }
                 .sheet(isPresented: $showingPrivacyPrePrompt) {
                     PrivacyPrePromptView {
                         showingPrivacyPrePrompt = false
@@ -112,16 +124,17 @@ struct SnapDrillApp: App {
                     }
                 }
                 .task {
-                    // 检查是否显示 ATT 隐私预热弹窗
-                    if container.services.privacyConsent.shouldShowPrePrompt {
-                        showingPrivacyPrePrompt = true
-                    }
-                    
-                    // Initialize TipKit
+                    // TipKit 初始化（与引导页状态无关，始终执行）
                     try? Tips.configure([
                         .displayFrequency(.immediate),
                         .datastoreLocation(.applicationDefault)
                     ])
+
+                    // 引导页显示期间暂缓 ATT 预热，由引导完成回调接管
+                    guard !onboardingManager.shouldShowOnboarding else { return }
+                    if container.services.privacyConsent.shouldShowPrePrompt {
+                        showingPrivacyPrePrompt = true
+                    }
                 }
         }
     }

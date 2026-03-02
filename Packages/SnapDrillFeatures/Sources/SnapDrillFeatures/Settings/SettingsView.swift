@@ -128,7 +128,7 @@ public struct SettingsView: View {
                     NavigationLink {
                         DataAndSyncSettingsView()
                     } label: {
-                        SettingsRow(icon: "icloud.fill", color: .blue, title: "iCloud 同步与存储", value: "已开启")
+                        SettingsRow(icon: "icloud.fill", color: .blue, title: "iCloud 同步与存储")
                     }
                     
                     NavigationLink {
@@ -224,7 +224,6 @@ public struct SettingsView: View {
             .listStyle(.insetGrouped) // The key to the Telegram look
             .navigationTitle("设置")
             .navigationBarTitleDisplayMode(.inline) // Telegram usually inline title or large
-            .searchable(text: .constant(""), prompt: "搜索设置") // Mock search
             .navigationDestination(for: SettingsDestination.self) { destination in
                 switch destination {
                 case .placeholder:
@@ -257,12 +256,12 @@ public struct SettingsView: View {
             .alert("意见反馈", isPresented: $showingMail) {
                 Button("复制邮箱") {
                     #if canImport(UIKit)
-                    UIPasteboard.general.string = "support@snapdrill.app"
+                    UIPasteboard.general.string = "hello@notbadhq.com"
                     #endif
                 }
                 Button("以后再说", role: .cancel) { }
             } message: {
-                Text("感谢您参与小本本 Beta 测试！您可以发送邮件至 support@snapdrill.app，或直接在 TestFlight 中反馈。")
+                Text("感谢您使用 SnapDrill！您可以发送邮件至 hello@notbadhq.com，或直接在 TestFlight 中反馈。")
             }
         }
     }

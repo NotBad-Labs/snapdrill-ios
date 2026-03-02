@@ -84,7 +84,15 @@ public struct PrivacyPolicyView: View {
                 // 第三方服务
                 sectionView(
                     title: "第三方服务",
-                    content: "SnapDrill 使用以下第三方服务：Apple iCloud（用于跨设备同步，可选）、Apple Vision Framework（用于 OCR 文字识别，本地处理）。我们不使用任何第三方分析或广告服务。"
+                    content: """
+                    SnapDrill 使用以下第三方服务：
+
+                    • Apple Vision Framework：用于 OCR 文字识别，完全在设备本地处理，数据不离开设备。
+                    • Firebase Analytics（Google）：匿名使用行为统计，用于了解功能使用情况并改进产品。不收集任何可识别个人身份的信息。
+                    • Firebase Crashlytics（Google）：崩溃日志收集，用于识别和修复应用稳定性问题。仅收集设备类型、操作系统版本及崩溃堆栈信息。
+
+                    我们不使用任何第三方广告服务，不会将您的数据用于广告目的。
+                    """
                 )
                 
                 // 儿童隐私
@@ -117,9 +125,9 @@ public struct PrivacyPolicyView: View {
                     content: """
                     如果您对本隐私政策有任何疑问或顾虑，请通过以下方式联系我们：
                     
-                    邮箱：support@snapdrillapp.com
-                    应用内反馈：设置 → 关于 → 反馈与建议
-                    
+                    邮箱：hello@notbadhq.com
+                    应用内反馈：设置 → 关于 → 反馈与支持
+
                     我们将在 48 小时内回复您的询问。
                     """
                 )

@@ -95,9 +95,9 @@ public struct TermsOfServiceView: View {
                 sectionView(
                     title: "知识产权",
                     content: """
-                    SnapDrill 应用及其所有内容、功能和特性（包括但不限于软件、文本、图形、标识、图标、图像）均由 SnapDrill Team 拥有，受中国和国际版权、商标和其他知识产权法律保护。
-                    
-                    "SnapDrill" 名称和标识是 SnapDrill Team 的商标。未经我们事先书面许可，您不得使用这些商标。
+                    SnapDrill 应用及其所有内容、功能和特性（包括但不限于软件、文本、图形、标识、图标、图像）均由 NotBad Labs L.L.C. 拥有，受美国及国际版权、商标和其他知识产权法律保护。
+
+                    "SnapDrill" 名称和标识是 NotBad Labs L.L.C. 的商标。未经我们事先书面许可，您不得使用这些商标。
                     """
                 )
                 
@@ -170,7 +170,7 @@ public struct TermsOfServiceView: View {
                 // 适用法律
                 sectionView(
                     title: "适用法律",
-                    content: "本协议受中华人民共和国法律管辖并按其解释。因本协议引起的任何争议应通过友好协商解决。如协商不成，应提交至应用开发者所在地有管辖权的人民法院解决。"
+                    content: "本协议受美国怀俄明州法律管辖并按其解释，不考虑法律冲突原则。因本协议引起的任何争议，双方应首先通过友好协商解决。如协商不成，双方同意提交至怀俄明州有管辖权的法院解决。"
                 )
                 
                 // 协议修改
@@ -192,7 +192,7 @@ public struct TermsOfServiceView: View {
                 // 完整协议
                 sectionView(
                     title: "完整协议",
-                    content: "本用户协议构成您与 SnapDrill Team 之间关于使用本应用的完整协议，并取代之前的所有口头或书面协议。"
+                    content: "本用户协议构成您与 NotBad Labs L.L.C. 之间关于使用本应用的完整协议，并取代之前的所有口头或书面协议。"
                 )
                 
                 // 联系我们
@@ -201,9 +201,9 @@ public struct TermsOfServiceView: View {
                     content: """
                     如果您对本用户协议有任何疑问，请通过以下方式联系我们：
                     
-                    邮箱：support@snapdrillapp.com
-                    应用内反馈：设置 → 关于 → 反馈与建议
-                    
+                    邮箱：hello@notbadhq.com
+                    应用内反馈：设置 → 关于 → 反馈与支持
+
                     我们将在 48 小时内回复您的询问。
                     """
                 )
