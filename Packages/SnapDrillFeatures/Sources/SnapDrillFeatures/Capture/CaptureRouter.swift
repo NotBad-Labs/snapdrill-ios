@@ -45,9 +45,18 @@ public final class CaptureRouter: FeatureRouter {
     
     /// 初始化路由器
     public init() {}
-    
+
+    /// 导航 push 事件回调（由测试注入，用于验证路由行为）
+    public var onPush: ((CaptureDestination) -> Void)?
+
     // MARK: - Public API
-    
+
+    /// 推入新导航目标（重写默认实现以支持测试钩子）
+    public func push(_ destination: CaptureDestination) {
+        path.append(destination)
+        onPush?(destination)
+    }
+
     /// 恢复草稿
     public func restoreDraft(_ draft: CaptureDraftService.Draft) {
         // Clear existing stack to be safe? Or just append?
