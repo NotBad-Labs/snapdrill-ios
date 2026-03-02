@@ -105,11 +105,7 @@ public struct CaptureView: View {
                                 subtitle: "从剪贴板读取",
                                 color: .gray
                             ) {
-                                if let string = UIPasteboard.general.string {
-                                    router.push(.scannerResult(content: string, image: nil))
-                                } else {
-                                    // Feedback for empty clipboard?
-                                }
+                                viewModel.pasteFromClipboard(router: router)
                             }
                         }
                         .padding(.horizontal)

@@ -57,11 +57,9 @@ public final class CaptureRouter: FeatureRouter {
         onPush?(destination)
     }
 
-    /// 恢复草稿
+    /// 恢复草稿（清空已有导航栈，重新推入编辑页）
     public func restoreDraft(_ draft: CaptureDraftService.Draft) {
-        // Clear existing stack to be safe? Or just append?
         path = NavigationPath()
-        // Push result view akin to finishing a capture
         path.append(CaptureDestination.scannerResult(content: draft.content, image: draft.image))
     }
 }

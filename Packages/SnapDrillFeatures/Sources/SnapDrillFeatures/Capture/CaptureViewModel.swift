@@ -83,6 +83,18 @@ public final class CaptureViewModel {
         selectedPhotoItem = nil // Reset picker
     }
     
+    /// 从剪贴板读取文本并跳转到编辑页
+    ///
+    /// 剪贴板为空或无文本时，展示错误提示。
+    public func pasteFromClipboard(router: CaptureRouter) {
+        if let text = UIPasteboard.general.string, !text.isEmpty {
+            router.push(.scannerResult(content: text, image: nil))
+        } else {
+            errorMessage = "剪贴板为空或没有可用的文本内容"
+            showErrorAlert = true
+        }
+    }
+
     public func processScannedImage(_ image: UIImage, router: CaptureRouter) {
         isProcessing = true
         Task {
