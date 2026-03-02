@@ -5,9 +5,12 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  PDF 导出服务测试，依赖 UIKit 渲染引擎，仅在 iOS 环境下运行。
+//
 
+#if canImport(UIKit)
 import Testing
-import UIKit
+import Foundation
 @testable import SnapDrillCore
 
 // MARK: - Test Double
@@ -60,7 +63,7 @@ struct PDFExportServiceTests {
         // 让任务先跑一点点
         try await Task.sleep(nanoseconds: 50_000_000)
 
-        // 关键点：发起取销
+        // 关键点：发起取消
         task.cancel()
 
         // 验证任务抛出了期待的结构化取消异常
@@ -68,9 +71,10 @@ struct PDFExportServiceTests {
             _ = try await task.value
             Issue.record("任务没有正确响应取消，或者执行得太快没拦住。")
         } catch is CancellationError {
-            // Excellent!
+            // 正确响应取消
         } catch {
             Issue.record("抛出了非期望的错误类型: \(error)")
         }
     }
 }
+#endif

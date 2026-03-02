@@ -38,7 +38,7 @@ struct ServiceContainerTests {
 
         let analytics1 = container.analytics
         let analytics2 = container.analytics
-        #expect(analytics1 === analytics2)
+        #expect(analytics1 as AnyObject === analytics2 as AnyObject)
     }
 
     // MARK: - MockServiceContainer

@@ -5,7 +5,10 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  OCR 服务单元测试，依赖 UIKit 渲染测试图片，仅在 iOS 环境下运行。
+//
 
+#if canImport(UIKit)
 import Testing
 import UIKit
 @testable import SnapDrillCore
@@ -27,7 +30,7 @@ struct OCRServiceTests {
         let image = renderer.image { context in
             UIColor.white.setFill()
             context.fill(CGRect(origin: .zero, size: size))
-            
+
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: UIFont.systemFont(ofSize: 24),
                 .foregroundColor: UIColor.black
@@ -51,9 +54,9 @@ struct OCRServiceTests {
     func recognizeStandardText() async throws {
         let service = OCRService()
         let cgImage = try createTextImage(text: "Hello World")
-        
+
         let result = try await service.recognizeText(from: cgImage)
-        
+
         // 我们不再使用毫无意义的 XCTAssertNotNil(result)。
         // OCR 至少要把部分文字抠出来，即便不是完美的，也应该包含核心词。
         #expect(result.contains("Hello") || result.contains("World"), "OCR 连非常基础的 Hello World 都未能解析。返回结果: \(result)")
@@ -65,7 +68,7 @@ struct OCRServiceTests {
     func recognizeMicroNoisyImage() async throws {
         let service = OCRService()
         let microImage = try createSolidColorImage(size: CGSize(width: 5, height: 5), color: .black)
-        
+
         let result = try await service.recognizeText(from: microImage)
         #expect(result.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
@@ -74,8 +77,9 @@ struct OCRServiceTests {
     func recognizeEmptyWhiteImage() async throws {
         let service = OCRService()
         let blankImage = try createSolidColorImage(size: CGSize(width: 500, height: 500), color: .white)
-        
+
         let result = try await service.recognizeText(from: blankImage)
         #expect(result.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
 }
+#endif
