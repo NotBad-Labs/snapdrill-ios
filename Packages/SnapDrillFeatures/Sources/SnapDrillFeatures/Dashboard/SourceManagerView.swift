@@ -51,6 +51,14 @@ struct SourceManagerView: View {
                     .onDelete(perform: { offsets in vm.delete(at: offsets) })
                 }
             }
+            .alert("无法删除", isPresented: Binding(
+                get: { viewModel?.isDeletingInUse ?? false },
+                set: { newValue in viewModel?.isDeletingInUse = newValue }
+            )) {
+                Button("好", role: .cancel) { }
+            } message: {
+                Text("来源「\(viewModel?.pendingDeletionName ?? "")」下仍有题目，请先将题目移动到其他来源或删除对应题目。")
+            }
             .navigationTitle("管理来源")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

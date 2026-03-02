@@ -5,6 +5,8 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  首页仪表盘 ViewModel，管理统计数据加载与快捷操作状态。
+//
 
 import Foundation
 import Observation
@@ -27,6 +29,8 @@ public final class DashboardViewModel {
     public var totalCount: Int = 0
     /// 今日待复习卡片数
     public var dueCount: Int = 0
+    /// 今日已复习卡片数（用于进度环）
+    public var reviewedTodayCount: Int = 0
     
     // MARK: - Dependencies
     
@@ -77,6 +81,7 @@ public final class DashboardViewModel {
             todayItemsCount = try reviewUseCase.getTodayAddedCount()
             totalCount = try reviewUseCase.getTotalItemCount()
             dueCount = try reviewUseCase.getDueCount()
+            reviewedTodayCount = try reviewUseCase.getTodayReviewedCount()
         } catch {
             SnapDrillLogger.generic.error("加载统计数据失败: \(error.localizedDescription)")
         }

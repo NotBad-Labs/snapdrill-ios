@@ -5,6 +5,8 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  学科管理 ViewModel，负责学科的增删改查与使用校验。
+//
 
 import Foundation
 import Observation

@@ -48,6 +48,7 @@ public struct DashboardView: View {
                             ReviewHeroCard(
                                 totalCount: viewModel.totalCount,
                                 dueCount: viewModel.dueCount,
+                                reviewedTodayCount: viewModel.reviewedTodayCount,
                                 onStartReview: { router.navigateToReview() },
                                 onStartCapture: { viewModel.checkDraftAndCapture(router: router) }
                             )
@@ -74,7 +75,9 @@ public struct DashboardView: View {
                                 }
                                 
                                 // Daily Insight (Real Data, Reactive)
-                                DailyStatsView(count: viewModel.todayItemsCount)
+                                DailyStatsView(count: viewModel.todayItemsCount) {
+                                    viewModel.showingComingSoon = true
+                                }
                                 
                                 // Settings/More
                                 BentoCard(
@@ -148,19 +151,20 @@ public struct DashboardView: View {
 /// 独立的今日统计视图，由 ViewModel 传入数据
 struct DailyStatsView: View {
     let count: Int
-    
-    init(count: Int) {
+    let action: () -> Void
+
+    init(count: Int, action: @escaping () -> Void) {
         self.count = count
+        self.action = action
     }
-    
+
     var body: some View {
         BentoCard(
             title: "今日新增",
             subtitle: "\(count) 题",
             icon: "chart.bar.xaxis",
-            gradient: LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing)
-        ) {
-            // No action
-        }
+            gradient: LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing),
+            action: action
+        )
     }
 }

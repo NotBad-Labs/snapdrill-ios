@@ -9,7 +9,6 @@
 //
 
 import SwiftUI
-import SnapDrillData
 
 /// 仪表盘核心卡片：根据当前的复习数量动态展示不同的 UI 状态
 ///
@@ -21,17 +20,26 @@ struct ReviewHeroCard: View {
     
     // MARK: - Properties
     
-    /// 点击“立即开始”复习时的回调
+    /// 点击”立即开始”复习时的回调
     let onStartReview: () -> Void
-    /// 点击“录入题目”时的回调
+    /// 点击”录入题目”时的回调
     let onStartCapture: () -> Void
-    
+
     let totalCount: Int
     let dueCount: Int
-    
-    init(totalCount: Int, dueCount: Int, onStartReview: @escaping () -> Void, onStartCapture: @escaping () -> Void) {
+    /// 今日已复习数量，用于计算进度环
+    let reviewedTodayCount: Int
+
+    init(
+        totalCount: Int,
+        dueCount: Int,
+        reviewedTodayCount: Int,
+        onStartReview: @escaping () -> Void,
+        onStartCapture: @escaping () -> Void
+    ) {
         self.totalCount = totalCount
         self.dueCount = dueCount
+        self.reviewedTodayCount = reviewedTodayCount
         self.onStartReview = onStartReview
         self.onStartCapture = onStartCapture
     }
@@ -95,14 +103,17 @@ struct ReviewHeroCard: View {
                         }
                     }
                     Spacer()
-                    // Dynamic Progress Circle
+                    // 今日复习进度环（已复习 / 今日总数）
+                    let totalToday = dueCount + reviewedTodayCount
+                    let progress = totalToday > 0 ? CGFloat(reviewedTodayCount) / CGFloat(totalToday) : 0
                     ZStack {
                         Circle()
                             .stroke(Color.white.opacity(0.3), lineWidth: 8)
                         Circle()
-                            .trim(from: 0, to: 0.7) // Mock progress
+                            .trim(from: 0, to: progress)
                             .stroke(Color.white, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                             .rotationEffect(.degrees(-90))
+                            .animation(.spring(duration: 0.5), value: progress)
                     }
                     .frame(width: 80, height: 80)
                 }
@@ -139,5 +150,5 @@ struct ReviewHeroCard: View {
 }
 
 #Preview("Hero Card") {
-    ReviewHeroCard(totalCount: 5, dueCount: 3, onStartReview: {}, onStartCapture: {})
+    ReviewHeroCard(totalCount: 5, dueCount: 3, reviewedTodayCount: 2, onStartReview: {}, onStartCapture: {})
 }
