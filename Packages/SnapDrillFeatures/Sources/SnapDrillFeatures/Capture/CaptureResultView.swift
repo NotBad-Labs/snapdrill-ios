@@ -12,7 +12,6 @@ import SwiftUI
 import SnapDrillCore
 import SnapDrillUI
 import SnapDrillDomain
-import StoreKit
 import PhotosUI
 
 /// 采集结果预览与编辑视图

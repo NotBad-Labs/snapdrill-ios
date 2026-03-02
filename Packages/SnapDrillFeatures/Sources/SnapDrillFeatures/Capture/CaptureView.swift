@@ -173,11 +173,9 @@ public struct CaptureView: View {
                 }
             }
             .onAppear {
-                viewModel.isViewActive = true
                 viewModel.checkDraftOnAppear()
             }
             .onDisappear {
-                viewModel.isViewActive = false
                 viewModel.cancelOngoingTasks()
             }
             .alert("恢复草稿", isPresented: $viewModel.showDraftAlert) {

@@ -108,13 +108,70 @@ struct LibraryDetailView: View {
                 .padding(.horizontal)
                 
                 Divider()
-                
-                // Content
-                Text(item.content ?? "")
-                    .font(.body)
-                    .lineSpacing(6)
-                    .padding(.horizontal)
-                
+
+                // Content（纯图片题时 content 为 nil，跳过渲染）
+                if let content = item.content, !content.isEmpty {
+                    Text(content)
+                        .font(.body)
+                        .lineSpacing(6)
+                        .padding(.horizontal)
+                }
+
+                // 难度与年级
+                HStack(spacing: 12) {
+                    HStack(spacing: 3) {
+                        ForEach(1...5, id: \.self) { level in
+                            Image(systemName: level <= item.difficulty.rawValue ? "star.fill" : "star")
+                                .font(.caption)
+                                .foregroundStyle(level <= item.difficulty.rawValue ? .orange : .gray.opacity(0.3))
+                        }
+                    }
+
+                    if !item.grade.isEmpty {
+                        Text(item.grade)
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.green.opacity(0.1))
+                            .foregroundStyle(.green)
+                            .clipShape(Capsule())
+                    }
+                }
+                .padding(.horizontal)
+
+                // 答案区
+                if item.answerText.map({ !$0.isEmpty }) ?? false || item.answerImagePath != nil {
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("参考答案", systemImage: "lightbulb.fill")
+                            .font(.headline)
+                            .foregroundStyle(.orange)
+                            .padding(.horizontal)
+
+                        if let answerText = item.answerText, !answerText.isEmpty {
+                            Text(answerText)
+                                .font(.body)
+                                .lineSpacing(6)
+                                .padding(.horizontal)
+                        }
+
+                        if let answerImagePath = item.answerImagePath,
+                           let answerImage = imageStorage.loadImage(path: answerImagePath) {
+                            Image(uiImage: answerImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 200)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .padding(.horizontal)
+                                .onTapGesture {
+                                    fullScreenImage = answerImage
+                                    showingFullScreenImage = true
+                                }
+                        }
+                    }
+                }
+
                 Spacer()
             }
             .padding(.top)

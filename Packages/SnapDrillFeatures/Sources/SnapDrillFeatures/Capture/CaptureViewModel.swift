@@ -21,7 +21,6 @@ public final class CaptureViewModel {
     public var isShowingScanner = false
     public var selectedPhotoItem: PhotosPickerItem?
     public var isProcessing = false
-    public var isViewActive = false
     public var showDraftAlert = false
     public var pendingDraft: CaptureDraftService.Draft? = nil
     public var showErrorAlert = false

@@ -38,14 +38,17 @@ public final class LibraryEditViewModel {
     public var sources: [Source] = []
     public var grades: [Grade] = []
     public var allTags: [Tag] = []
-    
+
     // MARK: - Dependencies
-    
+
     private var item: ReviewItem
     private let reviewUseCase: ReviewUseCaseProtocol
     private let taxonomyUseCase: TaxonomyUseCaseProtocol
     private let imageStorage = ImageStorage()
     private let ocrService = OCRService()
+
+    @ObservationIgnored
+    nonisolated(unsafe) private var ocrTask: Task<Void, Never>?
     
     public init(
         item: ReviewItem,
@@ -100,23 +103,26 @@ public final class LibraryEditViewModel {
     public func handleNewImage(_ image: UIImage) {
         self.displayedImage = image
         self.isProcessing = true
-        
-        Task {
+
+        ocrTask?.cancel()
+        ocrTask = Task {
             do {
                 guard let cgImage = image.cgImage else { return }
                 let recognizedText = try await ocrService.recognizeText(from: cgImage)
-                
-                await MainActor.run {
-                    self.content = recognizedText
-                    self.isProcessing = false
-                }
+                guard !Task.isCancelled else { return }
+                self.content = recognizedText
+                self.isProcessing = false
+            } catch is CancellationError {
+                SnapDrillLogger.generic.info("编辑页 OCR 任务已取消。")
             } catch {
                 SnapDrillLogger.generic.info("OCR 识别失败: \(error.localizedDescription)")
-                await MainActor.run {
-                    self.isProcessing = false
-                }
+                self.isProcessing = false
             }
         }
+    }
+
+    deinit {
+        ocrTask?.cancel()
     }
     
     public func saveDraftIfNeeded() {
