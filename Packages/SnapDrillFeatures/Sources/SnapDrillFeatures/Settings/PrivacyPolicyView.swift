@@ -131,6 +131,19 @@ public struct PrivacyPolicyView: View {
                     我们将在 48 小时内回复您的询问。
                     """
                 )
+                // 查看完整版
+                if let url = URL(string: "https://notbadhq.com/privacy") {
+                    Link(destination: url) {
+                        HStack(spacing: 4) {
+                            Text("在浏览器中查看完整版（中英双语）")
+                                .font(.footnote)
+                            Image(systemName: "arrow.up.right.square")
+                                .font(.footnote)
+                        }
+                        .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 8)
+                }
             }
             .padding()
         }
