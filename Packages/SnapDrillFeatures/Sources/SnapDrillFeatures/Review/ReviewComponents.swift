@@ -9,7 +9,6 @@
 //
 
 import SwiftUI
-import SnapDrillData
 
 // This file is now a placeholder after extracting components to:
 // - SwipeCard.swift

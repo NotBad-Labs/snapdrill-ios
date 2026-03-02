@@ -65,9 +65,9 @@ struct ReviewEmptyStateView: View {
 #Preview {
     ReviewEmptyStateView(
         icon: "checkmark.seal.fill",
-        title: "All Done!",
-        subtitle: "You've reviewed all your cards for today. Great job!",
-        actionTitle: "Return Home",
+        title: "今日复习完成",
+        subtitle: "太棒了！休息一下，明天继续。",
+        actionTitle: "好的",
         action: {}
     )
 }

@@ -10,7 +10,6 @@
 
 import SwiftUI
 
-/// 复习界面的艺术化渐变背景
 /// 复习界面的艺术化渐变背景 (Dynamic Mesh)
 struct ReviewBackground: View {
     @State private var animate = false

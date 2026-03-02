@@ -21,7 +21,10 @@ struct ReviewCardFront: View {
     let item: ReviewItem
     
     @State private var showingEditSheet = false
-    
+
+    private let imageStorage = ImageStorage()
+    @State private var loadedImage: UIImage?
+
     // User Preferences for Front Card
     @AppStorage("cardFrontAlignment") private var alignmentRaw: String = "center"
     @AppStorage("cardFrontFontSize") private var fontSizeRaw: Double = 32.0
@@ -48,13 +51,26 @@ struct ReviewCardFront: View {
         VStack {
             Spacer()
             
-            Text(item.content ?? "")
-                .font(.system(size: fontSizeRaw, weight: .bold, design: .serif))
-                .multilineTextAlignment(alignment)
-                .lineSpacing(8)
-                .padding(.horizontal, 24)
-                .foregroundStyle(.primary)
-                .frame(maxWidth: .infinity, alignment: frameAlignment)
+            // 题目图片（纯图片题或图文混合）
+            if let image = loadedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxHeight: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .padding(.horizontal, 24)
+            }
+
+            // 题目文字
+            if let content = item.content, !content.isEmpty {
+                Text(content)
+                    .font(.system(size: fontSizeRaw, weight: .bold, design: .serif))
+                    .multilineTextAlignment(alignment)
+                    .lineSpacing(8)
+                    .padding(.horizontal, 24)
+                    .foregroundStyle(.primary)
+                    .frame(maxWidth: .infinity, alignment: frameAlignment)
+            }
             
             Spacer()
             
@@ -140,9 +156,22 @@ struct ReviewCardFront: View {
                     .contentShape(Circle())
             }
         }
+        .task {
+            await loadFrontImage()
+        }
         .sheet(isPresented: $showingEditSheet) {
             LibraryEditView(item: item)
         }
+    }
+
+    // MARK: - Private Helpers
+
+    private func loadFrontImage() async {
+        guard let path = item.imagePath else { return }
+        let image = await Task.detached(priority: .userInitiated) {
+            imageStorage.loadImage(path: path)
+        }.value
+        loadedImage = image
     }
 }
 
@@ -181,13 +210,17 @@ struct ReviewCardBack: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(alignment: .top) {
-                Text(item.content ?? "")
-                    .font(.system(size: fontSizeRaw, weight: .medium, design: .serif))
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(alignment)
-                    .lineLimit(3)
-                    .frame(maxWidth: .infinity, alignment: frameAlignment)
-                
+                if let content = item.content, !content.isEmpty {
+                    Text(content)
+                        .font(.system(size: fontSizeRaw, weight: .medium, design: .serif))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(alignment)
+                        .lineLimit(3)
+                        .frame(maxWidth: .infinity, alignment: frameAlignment)
+                } else {
+                    Spacer()
+                }
+
                 Menu {
                     Button {
                         showingEditSheet = true
@@ -278,14 +311,14 @@ struct ReviewCardBack: View {
     }
 }
 
-#Preview("Card Front") {
-    ReviewCardFront(item: ReviewItem(id: UUID(), content: "Explain the Heisenberg Uncertainty Principle.", subject: "Physics"))
+#Preview("卡片正面") {
+    ReviewCardFront(item: ReviewItem(id: UUID(), content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。", subject: "数学"))
         .frame(height: 400)
         .padding()
 }
 
-#Preview("Card Back") {
-    ReviewCardBack(item: ReviewItem(id: UUID(), content: "Explain the Heisenberg Uncertainty Principle.", answerText: "Position and speed cannot both be known perfectly."))
+#Preview("卡片背面") {
+    ReviewCardBack(item: ReviewItem(id: UUID(), content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。", answerText: "∠B = ∠C = (180° - 36°) / 2 = 72°"))
         .frame(height: 400)
         .padding()
 }
