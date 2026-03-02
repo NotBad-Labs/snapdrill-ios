@@ -36,7 +36,7 @@ struct ReviewItemModelTests {
         #expect(model.sourceRawValue == "其他")
         #expect(model.easeFactor == 2.5, "SM-2 初始 ease factor 必须是 2.5")
         #expect(model.interval == 0)
-        #expect(model.difficulty == 0)
+        #expect(model.difficulty == 1, "新题默认难度为 1 星（Difficulty.one.rawValue）")
         #expect(model.tags?.isEmpty == true)
     }
     
