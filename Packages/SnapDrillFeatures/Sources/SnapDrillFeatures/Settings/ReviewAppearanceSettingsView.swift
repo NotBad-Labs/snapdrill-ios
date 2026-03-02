@@ -30,7 +30,7 @@ struct ReviewAppearanceSettingsView: View {
 
             Section("卡片正面 (题目)") {
                 HStack {
-                    Text("Sample Question")
+                    Text("已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
                         .font(.system(size: frontFontSizeRaw, weight: .bold, design: .serif))
                         .multilineTextAlignment(resolveTextAlignment(frontAlignmentRaw))
                         .frame(maxWidth: .infinity, alignment: resolveAlignment(frontAlignmentRaw))
@@ -62,7 +62,7 @@ struct ReviewAppearanceSettingsView: View {
 
             Section("卡片背面 (Header)") {
                 HStack {
-                    Text("Q: Sample Question Context")
+                    Text("题目：已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
                         .font(.system(size: fontSizeRaw, weight: .medium, design: .serif))
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(resolveTextAlignment(alignmentRaw))

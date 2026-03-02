@@ -11,46 +11,48 @@
 import SwiftUI
 
 /// 语言设置页面
+///
+/// iOS 不支持在 App 内直接切换语言，正确方式是引导用户前往系统设置。
 struct LanguageSettingsView: View {
-    
-    // MARK: - Properties
-    
-    @AppStorage("appLanguage") private var appLanguage = "zh-Hans" // zh-Hans, en
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         List {
             Section {
-                Button {
-                    appLanguage = "zh-Hans"
-                } label: {
-                    HStack {
-                        Text("简体中文")
-                            .foregroundStyle(.primary)
-                        Spacer()
-                        if appLanguage == "zh-Hans" {
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(.blue)
-                        }
+                HStack(spacing: 16) {
+                    Image(systemName: "globe")
+                        .font(.system(size: 32))
+                        .foregroundStyle(.blue)
+                        .frame(width: 48)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("语言由 iOS 系统控制")
+                            .font(.headline)
+                        Text("在系统设置中为 SnapDrill 单独指定语言。")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
                 }
-                
+                .padding(.vertical, 8)
+                .listRowBackground(Color.clear)
+            }
+
+            Section {
                 Button {
-                    appLanguage = "en"
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
                 } label: {
                     HStack {
-                        Text("English")
-                            .foregroundStyle(.primary)
+                        Text("打开系统设置")
                         Spacer()
-                        if appLanguage == "en" {
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(.blue)
-                        }
+                        Image(systemName: "arrow.up.right.square")
+                            .foregroundStyle(.secondary)
                     }
                 }
             } footer: {
-                Text("更改语言后需要重启应用")
+                Text("前往「设置 → SnapDrill → 语言」，选择偏好语言后重新启动应用即可生效。目前支持简体中文，更多语言持续开发中。")
             }
         }
         .navigationTitle("语言")

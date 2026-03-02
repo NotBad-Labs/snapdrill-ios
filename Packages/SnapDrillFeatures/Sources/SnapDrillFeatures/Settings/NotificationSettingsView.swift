@@ -78,7 +78,7 @@ struct NotificationSettingsView: View {
             }
             Button("取消", role: .cancel) { }
         } message: {
-            Text("请在「设置 → 通知 → 小本本」中开启通知权限，才能接收每日复习提醒。")
+            Text("请在「设置 → 通知 → SnapDrill」中开启通知权限，才能接收每日复习提醒。")
         }
         .onAppear {
             if viewModel == nil {
