@@ -54,8 +54,8 @@ public struct SnapDrillButton: View {
 
 #Preview {
     VStack(spacing: 20) {
-        SnapDrillButton(title: "Primary Button") { }
-        SnapDrillButton(title: "Another Action") { }
+        SnapDrillButton(title: "主要操作") { }
+        SnapDrillButton(title: "次要操作") { }
     }
     .padding()
 }

@@ -50,7 +50,11 @@ public class CaptureDraftService: CaptureDraftServiceProtocol {
         // 1. Save Image
         if let data = image.jpegData(compressionQuality: 0.8),
            let path = draftImagePath() {
-            try? data.write(to: path)
+            do {
+                try data.write(to: path)
+            } catch {
+                SnapDrillLogger.generic.warning("[DraftService] 草稿图片写入失败: \(error.localizedDescription)")
+            }
         }
         
         // 2. Save Metadata

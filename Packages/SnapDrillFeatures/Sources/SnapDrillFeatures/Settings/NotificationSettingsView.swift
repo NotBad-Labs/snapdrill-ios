@@ -25,6 +25,7 @@ struct NotificationSettingsView: View {
     @AppStorage("badgeEnabled") private var badgeEnabled = true
 
     @State private var viewModel: NotificationSettingsViewModel?
+    @State private var enableTask: Task<Void, Never>?
 
     // MARK: - Body
 
@@ -110,11 +111,14 @@ struct NotificationSettingsView: View {
 
     private func handleToggle(_ newValue: Bool) {
         if newValue {
-            Task {
+            enableTask?.cancel()
+            enableTask = Task {
                 let granted = await viewModel?.enable(hour: notificationHour, minute: notificationMinute) ?? false
                 notificationsEnabled = granted
             }
         } else {
+            enableTask?.cancel()
+            enableTask = nil
             viewModel?.disable()
             notificationsEnabled = false
         }

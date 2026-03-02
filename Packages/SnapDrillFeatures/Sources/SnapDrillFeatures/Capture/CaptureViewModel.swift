@@ -5,6 +5,8 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  相机拍摄、图库选图、OCR 识别的主 ViewModel。
+//
 
 import Foundation
 import Observation

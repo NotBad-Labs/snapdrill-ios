@@ -22,7 +22,7 @@ public struct PrivacyPolicyView: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 
-                Text("最后更新日期：2026年1月2日")
+                Text("最后更新日期：2026年3月")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.bottom, 10)
@@ -88,7 +88,7 @@ public struct PrivacyPolicyView: View {
                     SnapDrill 使用以下第三方服务：
 
                     • Apple Vision Framework：用于 OCR 文字识别，完全在设备本地处理，数据不离开设备。
-                    • Firebase Analytics（Google）：匿名使用行为统计，用于了解功能使用情况并改进产品。不收集任何可识别个人身份的信息。
+                    • Firebase Analytics（Google）：匿名使用行为统计，用于了解功能使用情况并改进产品。不收集任何可识别个人身份的信息。在 iOS 上，此功能仅在您通过「应用跟踪透明度（ATT）」授权后才会启用。
                     • Firebase Crashlytics（Google）：崩溃日志收集，用于识别和修复应用稳定性问题。仅收集设备类型、操作系统版本及崩溃堆栈信息。
 
                     我们不使用任何第三方广告服务，不会将您的数据用于广告目的。

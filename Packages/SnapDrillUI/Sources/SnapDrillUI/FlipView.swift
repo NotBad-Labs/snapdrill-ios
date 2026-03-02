@@ -74,17 +74,17 @@ private struct FlipOpacity: ViewModifier, @preconcurrency Animatable {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(.blue.gradient)
                     .frame(width: 300, height: 200)
-                    .overlay(Text("Front Side").foregroundColor(.white).font(.title))
+                    .overlay(Text("正面").foregroundColor(.white).font(.title))
             },
             back: {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(.orange.gradient)
                     .frame(width: 300, height: 200)
-                    .overlay(Text("Back Side").foregroundColor(.white).font(.title))
+                    .overlay(Text("背面").foregroundColor(.white).font(.title))
             }
         )
         
-        Button("Flip Card") {
+        Button("翻转卡片") {
             withAnimation(.spring()) {
                 isFlipped.toggle()
             }
