@@ -173,8 +173,8 @@ struct ReviewRepositoryTests {
         await withTaskGroup(of: Void.self) { group in
             for i in 0..<itemCount {
                 group.addTask {
-                    let item = self.makeDummyCoreItem(content: "Concurrent \(i)")
                     await MainActor.run {
+                        let item = self.makeDummyCoreItem(content: "Concurrent \(i)")
                         try? repo.save(item)
                     }
                 }

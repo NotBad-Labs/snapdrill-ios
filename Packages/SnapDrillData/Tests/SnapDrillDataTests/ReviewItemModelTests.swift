@@ -30,7 +30,7 @@ struct ReviewItemModelTests {
     func initializationDefaults() {
         let model = ReviewItemModel(content: "Empty Test")
         
-        #expect(model.id != UUID.zero)
+        #expect(model.id.uuidString != "00000000-0000-0000-0000-000000000000")
         #expect(model.content == "Empty Test")
         #expect(model.subjectRawValue == "其他")
         #expect(model.sourceRawValue == "其他")

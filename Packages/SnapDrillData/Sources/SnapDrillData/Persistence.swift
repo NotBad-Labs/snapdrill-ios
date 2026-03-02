@@ -44,7 +44,7 @@ public class PersistenceController {
             
             // 使用显式 Schema 初始化以增强稳定性
             self.container = try ModelContainer(for: schema, configurations: config)
-            self.isUsingInMemoryFallback = inMemory
+            self.isUsingInMemoryFallback = false
             self.initializationError = nil
             logger.info("✅ Container initialized successfully with SnapDrillSchemaV1")
             
