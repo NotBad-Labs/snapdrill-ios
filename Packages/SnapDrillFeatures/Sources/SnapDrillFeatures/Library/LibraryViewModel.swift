@@ -132,12 +132,18 @@ public final class LibraryViewModel {
         }
     }
     
-    /// 批量删除题目
+    /// 批量删除题目（仅移除实际删除成功的条目）
     public func deleteItems(ids: Set<UUID>) {
+        var successfullyDeleted: Set<UUID> = []
         for id in ids {
-            try? reviewUseCase.deleteItem(id: id)
+            do {
+                try reviewUseCase.deleteItem(id: id)
+                successfullyDeleted.insert(id)
+            } catch {
+                SnapDrillLogger.generic.error("批量删除失败（id=\(id)）: \(error.localizedDescription)")
+            }
         }
-        filteredItems.removeAll { ids.contains($0.id) }
+        filteredItems.removeAll { successfullyDeleted.contains($0.id) }
     }
     
     /// 重置所有过滤器

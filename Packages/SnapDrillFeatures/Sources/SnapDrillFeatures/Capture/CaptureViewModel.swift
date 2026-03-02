@@ -60,27 +60,27 @@ public final class CaptureViewModel {
     
     public func loadPhoto(_ item: PhotosPickerItem, router: CaptureRouter) {
         isProcessing = true
-        Task {
+        photoLoadTask = Task {
             do {
                 if let data = try await item.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
+                    guard !Task.isCancelled else { return }
                     await processImageOCR(image, router: router)
                 } else {
-                    await MainActor.run {
-                        self.isProcessing = false
-                        self.errorMessage = "无法加载图片"
-                        self.showErrorAlert = true
-                    }
+                    guard !Task.isCancelled else { return }
+                    self.isProcessing = false
+                    self.errorMessage = "无法加载图片"
+                    self.showErrorAlert = true
                 }
+            } catch is CancellationError {
+                SnapDrillLogger.capture.info("相册加载任务已取消。")
             } catch {
-                 await MainActor.run {
-                     self.isProcessing = false
-                     self.errorMessage = "加载图片失败: \(error.localizedDescription)"
-                     self.showErrorAlert = true
-                 }
+                self.isProcessing = false
+                self.errorMessage = "加载图片失败: \(error.localizedDescription)"
+                self.showErrorAlert = true
             }
         }
-        selectedPhotoItem = nil // Reset picker
+        selectedPhotoItem = nil
     }
     
     /// 从剪贴板读取文本并跳转到编辑页
@@ -139,15 +139,21 @@ public final class CaptureViewModel {
     
     @ObservationIgnored
     nonisolated(unsafe) private var ocrTask: Task<Void, Never>?
-    
+
+    @ObservationIgnored
+    nonisolated(unsafe) private var photoLoadTask: Task<Void, Never>?
+
     public func cancelOngoingTasks() {
         ocrTask?.cancel()
         ocrTask = nil
+        photoLoadTask?.cancel()
+        photoLoadTask = nil
         isProcessing = false
     }
-    
+
     deinit {
         ocrTask?.cancel()
+        photoLoadTask?.cancel()
     }
 }
 
