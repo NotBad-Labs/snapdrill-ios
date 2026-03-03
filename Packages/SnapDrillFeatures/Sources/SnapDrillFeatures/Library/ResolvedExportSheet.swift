@@ -11,13 +11,12 @@
 import SwiftUI
 import SnapDrillCore
 import SnapDrillData
-import SnapDrillDomain
 
 /// Helper to resolve IDs to Models for Export Sheet
 struct ResolvedExportSheet: View {
     let ids: Set<UUID>
     @Environment(\.repositories) private var repositories
-    @State private var resolvedItems: [ReviewItem] = []
+    @State private var resolvedItems: [ReviewExportSnapshot] = []
 
     var body: some View {
         ExportOptionsSheet(items: resolvedItems)
@@ -28,7 +27,7 @@ struct ResolvedExportSheet: View {
 
     private func resolveItems() {
         do {
-            self.resolvedItems = try repositories.review.fetchModels(by: ids).map { $0.toEntity() }
+            self.resolvedItems = try repositories.review.fetchModels(by: ids).map { $0.toExportSnapshot() }
         } catch {
             SnapDrillLogger.generic.error("解析导出题目失败: \(error.localizedDescription)")
         }

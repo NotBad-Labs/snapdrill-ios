@@ -21,7 +21,6 @@ let package = Package(
         .package(path: "../SnapDrillCore"),
         .package(path: "../SnapDrillUI"),
         .package(path: "../SnapDrillData"),
-        .package(path: "../SnapDrillDomain"),
     ],
     targets: [
         .target(
@@ -29,8 +28,7 @@ let package = Package(
             dependencies: [
                 "SnapDrillCore",
                 "SnapDrillUI",
-                "SnapDrillData",
-                "SnapDrillDomain"
+                "SnapDrillData"
             ],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
@@ -38,7 +36,7 @@ let package = Package(
         ),
         .testTarget(
             name: "SnapDrillFeaturesTests",
-            dependencies: ["SnapDrillFeatures", "SnapDrillDomain", "SnapDrillCore"]
+            dependencies: ["SnapDrillFeatures", "SnapDrillCore"]
         )
     ]
 )

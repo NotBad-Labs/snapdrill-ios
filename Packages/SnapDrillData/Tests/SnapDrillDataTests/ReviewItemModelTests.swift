@@ -40,40 +40,28 @@ struct ReviewItemModelTests {
         #expect(model.tags?.isEmpty == true)
     }
     
-    @Test(
-        "验证 Entity 到 Model 的双向数据完整转换不丢字段",
-        arguments: [
-            (2.5, 0, 0),        // 新题
-            (2.6, 6, 2),        // 复习过几次
-            (1.3, 0, 0)         // 极限边界惩罚
-        ]
-    )
-    func entityMappingCompleteness(easeFactor: Double, interval: Int, repetitions: Int) {
+    @Test("验证 toExportSnapshot 正确映射导出所需的六个字段")
+    func exportSnapshotMappingCompleteness() {
         let expectedID = UUID()
         let now = Date()
-        
+
         let model = ReviewItemModel(
             id: expectedID,
             content: "Math Formula",
+            imagePath: "test/image.jpg",
             createdAt: now,
             subject: "数学",
-            source: "试卷",
-            answerText: "E=mc^2",
-            easeFactor: easeFactor,
-            interval: interval,
-            repetitions: repetitions
+            source: "试卷"
         )
-        
-        let entity = model.toEntity()
-        
-        #expect(entity.id == expectedID)
-        #expect(entity.content == "Math Formula")
-        #expect(entity.subject == "数学")
-        #expect(entity.source == "试卷")
-        #expect(entity.answerText == "E=mc^2")
-        #expect(entity.easeFactor == easeFactor)
-        #expect(entity.interval == interval)
-        #expect(entity.repetitions == repetitions)
+
+        let snapshot = model.toExportSnapshot()
+
+        #expect(snapshot.id == expectedID)
+        #expect(snapshot.content == "Math Formula")
+        #expect(snapshot.imagePath == "test/image.jpg")
+        #expect(snapshot.subject == "数学")
+        #expect(snapshot.source == "试卷")
+        #expect(snapshot.createdAt == now)
     }
     
     // MARK: - Persistence Lifecycle & Constraint Checks

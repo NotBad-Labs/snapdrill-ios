@@ -10,7 +10,6 @@
 
 import Foundation
 import SwiftData
-import SnapDrillDomain
 
 /// 学科数据模型
 @Model
@@ -49,15 +48,4 @@ public final class SubjectModel {
         self.sortOrder = sortOrder
     }
 
-    // MARK: - Mapping
-
-    public func toEntity() -> Subject {
-        Subject(
-            id: id,
-            name: name,
-            icon: icon,
-            colorHex: colorHex,
-            sortOrder: sortOrder
-        )
-    }
 }

@@ -19,12 +19,11 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../SnapDrillCore"),
-        .package(path: "../SnapDrillDomain"),
     ],
     targets: [
         .target(
             name: "SnapDrillData",
-            dependencies: ["SnapDrillCore", "SnapDrillDomain"],
+            dependencies: ["SnapDrillCore"],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]

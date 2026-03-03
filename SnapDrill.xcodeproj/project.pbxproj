@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		AG_BF_FEATURES /* SnapDrillFeatures in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_FEATURES /* SnapDrillFeatures */; };
-		B2BF_DOMAIN /* SnapDrillDomain in Frameworks */ = {isa = PBXBuildFile; productRef = B2PROD_DOMAIN /* SnapDrillDomain */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,7 +101,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AG_BF_FEATURES /* SnapDrillFeatures in Frameworks */,
-				B2BF_DOMAIN /* SnapDrillDomain in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,7 +423,6 @@
 			name = SnapDrill;
 			packageProductDependencies = (
 				AG_PROD_FEATURES /* SnapDrillFeatures */,
-				B2PROD_DOMAIN /* SnapDrillDomain */,
 			);
 			productName = SnapDrill;
 			productReference = B27BD95F2E560D0600E69277 /* SnapDrill.app */;
@@ -514,7 +511,6 @@
 				B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/SnapDrillCore" */,
 				B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/SnapDrillData" */,
 				B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */,
-				B2PKG_DOMAIN /* XCLocalSwiftPackageReference "Packages/SnapDrillDomain" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B27BD9602E560D0600E69277 /* Products */;
@@ -1085,10 +1081,6 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillData;
 		};
-		B2PKG_DOMAIN /* XCLocalSwiftPackageReference "Packages/SnapDrillDomain" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/SnapDrillDomain;
-		};
 		B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillUI;
@@ -1100,11 +1092,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
 			productName = SnapDrillFeatures;
-		};
-		B2PROD_DOMAIN /* SnapDrillDomain */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B2PKG_DOMAIN /* XCLocalSwiftPackageReference "Packages/SnapDrillDomain" */;
-			productName = SnapDrillDomain;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

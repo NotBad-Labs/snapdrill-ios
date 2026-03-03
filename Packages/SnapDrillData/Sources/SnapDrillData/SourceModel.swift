@@ -10,7 +10,6 @@
 
 import SwiftData
 import Foundation
-import SnapDrillDomain
 
 @Model
 public final class SourceModel {
@@ -42,15 +41,4 @@ public final class SourceModel {
         self.sortOrder = sortOrder
     }
     
-    // MARK: - Mapping
-    
-    public func toEntity() -> Source {
-        Source(
-            id: id,
-            name: name,
-            icon: icon,
-            colorHex: colorHex,
-            sortOrder: sortOrder
-        )
-    }
 }

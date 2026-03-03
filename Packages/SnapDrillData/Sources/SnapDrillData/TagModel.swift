@@ -10,7 +10,6 @@
 
 import Foundation
 import SwiftData
-import SnapDrillDomain
 
 /// 标签模型
 @Model
@@ -36,9 +35,4 @@ public final class TagModel {
         self.createdAt = Date()
     }
 
-    // MARK: - Mapping
-
-    public func toEntity() -> Tag {
-        Tag(id: id, name: name, colorHex: colorHex)
-    }
 }

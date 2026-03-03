@@ -11,7 +11,6 @@
 import Foundation
 import SwiftData
 import SnapDrillCore
-import SnapDrillDomain
 
 /// 复习数据仓库的 SwiftData 实现
 @MainActor
@@ -27,93 +26,8 @@ public final class ReviewRepository {
         self.modelContext = modelContext
     }
     
-    // MARK: - ReviewRepositoryProtocol
-    
-    public func save(_ item: ReviewItem) throws {
-        if let existing = try fetchModelById(item.id) {
-            // 更新现有模型
-            try updateModel(existing, from: item)
-        } else {
-            // 创建新模型，解析并关联 TagModel
-            let tagModels = try item.tags.map { try fetchOrCreateTagModel(name: $0) }
-            let model = ReviewItemModel(
-                id: item.id,
-                content: item.content,
-                imagePath: item.imagePath,
-                createdAt: item.createdAt,
-                lastReviewedAt: item.lastReviewedAt,
-                nextReviewAt: item.nextReviewAt,
-                subject: item.subject,
-                source: item.source,
-                tags: tagModels,
-                answerText: item.answerText,
-                answerImagePath: item.answerImagePath,
-                difficulty: item.difficulty.rawValue,
-                grade: item.grade,
-                easeFactor: item.easeFactor,
-                interval: item.interval,
-                repetitions: item.repetitions
-            )
-            modelContext.insert(model)
-        }
-        try modelContext.save()
-    }
-    
-    public func fetchById(_ id: UUID) throws -> ReviewItem? {
-        try fetchModelById(id)?.toEntity()
-    }
-    
-    public func fetchByIds(_ ids: Set<UUID>) throws -> [ReviewItem] {
-        let targetIds = Array(ids)
-        let predicate = #Predicate<ReviewItemModel> { item in
-            targetIds.contains(item.id)
-        }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetch(descriptor).map { $0.toEntity() }
-    }
-    
-    public func fetchAll() throws -> [ReviewItem] {
-        let descriptor = FetchDescriptor<ReviewItemModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
-        return try modelContext.fetch(descriptor).map { $0.toEntity() }
-    }
-    
-    public func fetchFiltered(
-        searchText: String,
-        subjects: Set<String>,
-        tags: Set<String>,
-        limit: Int,
-        offset: Int
-    ) throws -> [ReviewItem] {
-        let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
-        let subjectsArray = Array(subjects)
-        
-        // swiftlint:disable force_unwrapping
-        let predicate = #Predicate<ReviewItemModel> { item in
-            (normalizedSearch.isEmpty || (item.content != nil && item.content!.localizedStandardContains(normalizedSearch))) &&
-            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue))
-        }
-        // swiftlint:enable force_unwrapping
-        
-        var descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        descriptor.fetchLimit = limit
-        descriptor.fetchOffset = offset
-        
-        let models = try modelContext.fetch(descriptor)
-        
-        // 内存端过滤标签（SwiftData 目前对多对多 Predicate 支持有限）
-        if !tags.isEmpty {
-            return models.filter { model in
-                let itemTagNames = Set((model.tags ?? []).map { $0.name })
-                return !itemTagNames.isDisjoint(with: tags)
-            }.map { $0.toEntity() }
-        }
-        
-        return models.map { $0.toEntity() }
-    }
-    
+    // MARK: - Public API
+
     public func totalCount() throws -> Int {
         let descriptor = FetchDescriptor<ReviewItemModel>()
         return try modelContext.fetchCount(descriptor)
@@ -189,21 +103,6 @@ public final class ReviewRepository {
     }
 
     // MARK: - Performance-Optimized Query Methods
-
-    public func fetchDueItems() throws -> [ReviewItem] {
-        let now = Date.now
-        // nil → 从未复习，始终属于待复习；非 nil → 判断是否已到期
-        // swiftlint:disable force_unwrapping
-        let predicate = #Predicate<ReviewItemModel> { item in
-            item.nextReviewAt == nil || item.nextReviewAt! <= now
-        }
-        // swiftlint:enable force_unwrapping
-        let descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.createdAt, order: .forward)]
-        )
-        return try modelContext.fetch(descriptor).map { $0.toEntity() }
-    }
 
     public func fetchDueCount() throws -> Int {
         let now = Date.now
@@ -340,34 +239,4 @@ public final class ReviewRepository {
         return try modelContext.fetch(descriptor).first
     }
 
-    /// 按 name 查找已有 TagModel，若不存在则创建并插入
-    private func fetchOrCreateTagModel(name: String) throws -> TagModel {
-        let targetName = name
-        let predicate = #Predicate<TagModel> { $0.name == targetName }
-        var descriptor = FetchDescriptor<TagModel>(predicate: predicate)
-        descriptor.fetchLimit = 1
-        if let existing = try modelContext.fetch(descriptor).first {
-            return existing
-        }
-        let newTag = TagModel(name: name)
-        modelContext.insert(newTag)
-        return newTag
-    }
-
-    private func updateModel(_ model: ReviewItemModel, from item: ReviewItem) throws {
-        model.content = item.content
-        model.imagePath = item.imagePath
-        model.lastReviewedAt = item.lastReviewedAt
-        model.nextReviewAt = item.nextReviewAt
-        model.subjectRawValue = item.subject
-        model.sourceRawValue = item.source
-        model.tags = try item.tags.map { try fetchOrCreateTagModel(name: $0) }
-        model.answerText = item.answerText
-        model.answerImagePath = item.answerImagePath
-        model.difficulty = item.difficulty.rawValue
-        model.grade = item.grade
-        model.easeFactor = item.easeFactor
-        model.interval = item.interval
-        model.repetitions = item.repetitions
-    }
 }

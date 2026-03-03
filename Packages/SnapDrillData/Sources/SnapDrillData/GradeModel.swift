@@ -10,7 +10,6 @@
 
 import Foundation
 import SwiftData
-import SnapDrillDomain
 
 /// 年级数据模型
 @Model
@@ -39,10 +38,4 @@ public final class GradeModel {
         self.sortOrder = sortOrder
     }
 
-    // MARK: - Mapping
-
-    /// 转换为 Domain 实体
-    public func toEntity() -> Grade {
-        Grade(id: id, name: name, sortOrder: sortOrder)
-    }
 }

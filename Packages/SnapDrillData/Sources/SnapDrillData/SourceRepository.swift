@@ -11,7 +11,6 @@
 import Foundation
 import SwiftData
 import SnapDrillCore
-import SnapDrillDomain
 
 /// 题目来源数据仓库的 SwiftData 实现
 @MainActor
@@ -23,44 +22,8 @@ public final class SourceRepository {
         self.modelContext = modelContext
     }
     
-    // MARK: - SourceRepositoryProtocol
-    
-    public func fetchAll() throws -> [Source] {
-        let descriptor = FetchDescriptor<SourceModel>(sortBy: [SortDescriptor(\.sortOrder)])
-        return try modelContext.fetch(descriptor).map { $0.toEntity() }
-    }
-    
-    public func fetchByName(_ name: String) throws -> Source? {
-        let targetName = name
-        let predicate = #Predicate<SourceModel> { $0.name == targetName }
-        let descriptor = FetchDescriptor<SourceModel>(predicate: predicate)
-        return try modelContext.fetch(descriptor).first?.toEntity()
-    }
-    
-    public func save(_ source: Source) throws {
-        if let existing = try fetchModelById(source.id) {
-            updateModel(existing, from: source)
-        } else {
-            // 检查名称唯一性
-            let name = source.name
-            let namePredicate = #Predicate<SourceModel> { $0.name == name }
-            let descriptor = FetchDescriptor<SourceModel>(predicate: namePredicate)
-            if try modelContext.fetchCount(descriptor) > 0 {
-                 throw DataError.duplicateName(name: name, entityType: "Source")
-            }
-            
-            let model = SourceModel(
-                id: source.id,
-                name: source.name,
-                icon: source.icon,
-                colorHex: source.colorHex,
-                sortOrder: source.sortOrder
-            )
-            modelContext.insert(model)
-        }
-        try modelContext.save()
-    }
-    
+    // MARK: - Public API
+
     public func delete(id: UUID) throws {
         if let model = try fetchModelById(id) {
             modelContext.delete(model)
@@ -145,13 +108,6 @@ public final class SourceRepository {
         var descriptor = FetchDescriptor<SourceModel>(predicate: predicate)
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
-    }
-    
-    private func updateModel(_ model: SourceModel, from source: Source) {
-        model.name = source.name
-        model.icon = source.icon
-        model.colorHex = source.colorHex
-        model.sortOrder = source.sortOrder
     }
     
     public func deleteAll() throws {

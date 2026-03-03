@@ -11,7 +11,6 @@
 import Foundation
 import SwiftData
 import SnapDrillCore
-import SnapDrillDomain
 
 /// 学科数据仓库的 SwiftData 实现
 @MainActor
@@ -23,44 +22,8 @@ public final class SubjectRepository {
         self.modelContext = modelContext
     }
     
-    // MARK: - SubjectRepositoryProtocol
-    
-    public func fetchAll() throws -> [Subject] {
-        let descriptor = FetchDescriptor<SubjectModel>(sortBy: [SortDescriptor(\.sortOrder)])
-        return try modelContext.fetch(descriptor).map { $0.toEntity() }
-    }
-    
-    public func fetchByName(_ name: String) throws -> Subject? {
-        let targetName = name
-        let predicate = #Predicate<SubjectModel> { $0.name == targetName }
-        let descriptor = FetchDescriptor<SubjectModel>(predicate: predicate)
-        return try modelContext.fetch(descriptor).first?.toEntity()
-    }
-    
-    public func save(_ subject: Subject) throws {
-        if let existing = try fetchModelById(subject.id) {
-            updateModel(existing, from: subject)
-        } else {
-            // 检查名称唯一性
-            let name = subject.name
-            let namePredicate = #Predicate<SubjectModel> { $0.name == name }
-            let descriptor = FetchDescriptor<SubjectModel>(predicate: namePredicate)
-            if try modelContext.fetchCount(descriptor) > 0 {
-                 throw DataError.duplicateName(name: name, entityType: "Subject")
-            }
-            
-            let model = SubjectModel(
-                id: subject.id,
-                name: subject.name,
-                icon: subject.icon,
-                colorHex: subject.colorHex,
-                sortOrder: subject.sortOrder
-            )
-            modelContext.insert(model)
-        }
-        try modelContext.save()
-    }
-    
+    // MARK: - Public API
+
     public func delete(id: UUID) throws {
         if let model = try fetchModelById(id) {
             modelContext.delete(model)
@@ -152,13 +115,6 @@ public final class SubjectRepository {
         var descriptor = FetchDescriptor<SubjectModel>(predicate: predicate)
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
-    }
-    
-    private func updateModel(_ model: SubjectModel, from subject: Subject) {
-        model.name = subject.name
-        model.icon = subject.icon
-        model.colorHex = subject.colorHex
-        model.sortOrder = subject.sortOrder
     }
     
     public func deleteAll() throws {

@@ -11,7 +11,6 @@
 import Foundation
 import SwiftData
 import SnapDrillCore
-import SnapDrillDomain
 
 /// 年级数据仓库的 SwiftData 实现
 @MainActor
@@ -27,38 +26,7 @@ public final class GradeRepository {
         self.modelContext = modelContext
     }
 
-    // MARK: - GradeRepositoryProtocol
-
-    public func fetchAll() throws -> [Grade] {
-        let descriptor = FetchDescriptor<GradeModel>(sortBy: [SortDescriptor(\.sortOrder)])
-        return try modelContext.fetch(descriptor).map { $0.toEntity() }
-    }
-
-    public func fetchByName(_ name: String) throws -> Grade? {
-        let targetName = name
-        let predicate = #Predicate<GradeModel> { $0.name == targetName }
-        var descriptor = FetchDescriptor<GradeModel>(predicate: predicate)
-        descriptor.fetchLimit = 1
-        return try modelContext.fetch(descriptor).first?.toEntity()
-    }
-
-    public func save(_ grade: Grade) throws {
-        if let existing = try fetchModelById(grade.id) {
-            existing.name = grade.name
-            existing.sortOrder = grade.sortOrder
-        } else {
-            let name = grade.name
-            let namePredicate = #Predicate<GradeModel> { $0.name == name }
-            let descriptor = FetchDescriptor<GradeModel>(predicate: namePredicate)
-            if try modelContext.fetchCount(descriptor) > 0 {
-                throw DataError.duplicateName(name: name, entityType: "Grade")
-            }
-
-            let model = GradeModel(id: grade.id, name: grade.name, sortOrder: grade.sortOrder)
-            modelContext.insert(model)
-        }
-        try modelContext.save()
-    }
+    // MARK: - Public API
 
     public func delete(id: UUID) throws {
         if let model = try fetchModelById(id) {

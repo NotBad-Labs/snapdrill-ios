@@ -10,7 +10,7 @@
 
 import SwiftUI
 import SnapDrillCore
-import SnapDrillDomain
+import SnapDrillData
 
 /// 导出选项面板
 ///
@@ -19,7 +19,7 @@ struct ExportOptionsSheet: View {
     
     // MARK: - Properties
     
-    let items: [ReviewItem]
+    let items: [ReviewExportSnapshot]
     @Environment(\.dismiss) private var dismiss
     
     @State private var showingPDFPreview = false
@@ -124,7 +124,7 @@ struct ExportOptionsSheet: View {
 import UniformTypeIdentifiers
 
 struct ReviewExport: Transferable {
-    let items: [ReviewItem] // Use disconnected DTO, not SwiftData Model
+    let items: [ReviewExportSnapshot]
     let format: ExportFormat
     
     enum ExportFormat {

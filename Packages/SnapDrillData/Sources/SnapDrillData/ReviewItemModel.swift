@@ -11,18 +11,10 @@
 import Foundation
 import SwiftData
 import SnapDrillCore
-import SnapDrillDomain
 
 /// SwiftData 数据模型
 ///
-/// 对应 `SnapDrillDomain` 中的 ``ReviewItem`` 实体，用于本地持久化存储。
-/// 它将 Domain 层的逻辑实体映射为数据库表结构。
-///
-/// ## 架构设计
-/// 这个模型通过 `toEntity()` 方法将自身转换为纯 Swift 结构体，供业务逻辑层使用。
-/// 这种设计隔离了数据库实现细节（SwiftData）和核心业务逻辑（Domain）。
-///
-/// - SeeAlso: `ReviewItem`
+/// 直接作领域对象使用，通过 `toExportSnapshot()` 提供导出用只读视图。
 @Model
 public final class ReviewItemModel {
     
@@ -140,25 +132,15 @@ public final class ReviewItemModel {
         set { sourceRawValue = newValue }
     }
     
-    // 转换为 Domain 实体
-    public func toEntity() -> ReviewItem {
-        ReviewItem(
+    /// 转为导出快照（仅含导出所需字段）
+    public func toExportSnapshot() -> ReviewExportSnapshot {
+        ReviewExportSnapshot(
             id: id,
             content: content,
             imagePath: imagePath,
-            createdAt: createdAt,
-            lastReviewedAt: lastReviewedAt,
-            nextReviewAt: nextReviewAt,
             subject: subject,
             source: source,
-            tags: (tags ?? []).map { $0.name },
-            answerText: answerText,
-            answerImagePath: answerImagePath,
-            difficulty: Difficulty(rawValue: difficulty) ?? .one,
-            grade: grade,
-            easeFactor: easeFactor,
-            interval: interval,
-            repetitions: repetitions
+            createdAt: createdAt
         )
     }
 }

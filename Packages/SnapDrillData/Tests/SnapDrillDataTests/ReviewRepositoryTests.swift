@@ -11,7 +11,7 @@
 import Testing
 import SwiftData
 import Foundation
-import SnapDrillDomain
+import SnapDrillCore
 @testable import SnapDrillData
 
 @Suite("ReviewRepository 单元测试")
@@ -33,20 +33,18 @@ struct ReviewRepositoryTests {
         return ReviewRepository(modelContext: container.mainContext)
     }
 
-    private func makeDummyCoreItem(id: UUID = UUID(), content: String? = "Test") -> ReviewItem {
-        ReviewItem(
+    private func makeDummyModel(
+        id: UUID = UUID(),
+        content: String? = "Test"
+    ) -> ReviewItemModel {
+        ReviewItemModel(
             id: id,
             content: content,
             imagePath: nil,
-            createdAt: Date(),
-            lastReviewedAt: nil,
-            nextReviewAt: nil,
             subject: "数学",
             source: "试卷",
-            tags: [],
             answerText: "测试答案",
-            answerImagePath: nil,
-            difficulty: .three,
+            difficulty: 3,
             grade: "高一"
         )
     }
@@ -58,23 +56,22 @@ struct ReviewRepositoryTests {
         let repo = try createTestRepository()
 
         let id = UUID()
-        let item = makeDummyCoreItem(id: id, content: "First")
+        let model = makeDummyModel(id: id, content: "First")
 
         // 新增
-        try repo.save(item)
+        try repo.insertAndSave(model)
         #expect(try repo.totalItemCount() == 1)
 
         // 读取
-        let fetched = try repo.fetchById(id)
+        let fetched = try repo.fetchModel(by: id)
         #expect(fetched?.content == "First")
 
-        // 同 UUID 再次保存 = Upsert（更新），不新增
-        var updated = item
-        updated.content = "Updated"
-        try repo.save(updated)
+        // 直接修改属性并保存 = Upsert（更新），不新增
+        fetched?.content = "Updated"
+        try repo.saveContext()
         #expect(try repo.totalItemCount() == 1)
 
-        let fetchedUpdated = try repo.fetchById(id)
+        let fetchedUpdated = try repo.fetchModel(by: id)
         #expect(fetchedUpdated?.content == "Updated")
 
         // 删除
@@ -92,22 +89,22 @@ struct ReviewRepositoryTests {
         let past = now.addingTimeInterval(-3600)
         let future = now.addingTimeInterval(3600)
 
-        var overdueItem1 = makeDummyCoreItem()
+        let overdueItem1 = makeDummyModel()
         overdueItem1.nextReviewAt = past
-        try repo.save(overdueItem1)
+        try repo.insertAndSave(overdueItem1)
 
-        var overdueItem2 = makeDummyCoreItem()
+        let overdueItem2 = makeDummyModel()
         overdueItem2.nextReviewAt = past
-        try repo.save(overdueItem2)
+        try repo.insertAndSave(overdueItem2)
 
-        var futureItem = makeDummyCoreItem()
+        let futureItem = makeDummyModel()
         futureItem.nextReviewAt = future
-        try repo.save(futureItem)
+        try repo.insertAndSave(futureItem)
 
         // nextReviewAt == nil → 视为待复习（从未复习过）
-        var nilItem = makeDummyCoreItem()
+        let nilItem = makeDummyModel()
         nilItem.nextReviewAt = nil
-        try repo.save(nilItem)
+        try repo.insertAndSave(nilItem)
 
         // 过去 2 条 + nil 1 条（epoch < now）= 3
         let dueCount = try repo.fetchDueCount()
@@ -120,17 +117,17 @@ struct ReviewRepositoryTests {
     func gradeCountAndCascadeUpdate() throws {
         let repo = try createTestRepository()
 
-        var item1 = makeDummyCoreItem()
+        let item1 = makeDummyModel()
         item1.grade = "高一"
-        try repo.save(item1)
+        try repo.insertAndSave(item1)
 
-        var item2 = makeDummyCoreItem()
+        let item2 = makeDummyModel()
         item2.grade = "高一"
-        try repo.save(item2)
+        try repo.insertAndSave(item2)
 
-        var item3 = makeDummyCoreItem()
+        let item3 = makeDummyModel()
         item3.grade = "高二"
-        try repo.save(item3)
+        try repo.insertAndSave(item3)
 
         #expect(try repo.countByGrade(name: "高一") == 2)
         #expect(try repo.countByGrade(name: "高二") == 1)
@@ -147,13 +144,13 @@ struct ReviewRepositoryTests {
     func subjectCountAndCascadeUpdate() throws {
         let repo = try createTestRepository()
 
-        var item1 = makeDummyCoreItem()
-        item1.subject = "数学"
-        try repo.save(item1)
+        let item1 = makeDummyModel()
+        item1.subjectRawValue = "数学"
+        try repo.insertAndSave(item1)
 
-        var item2 = makeDummyCoreItem()
-        item2.subject = "物理"
-        try repo.save(item2)
+        let item2 = makeDummyModel()
+        item2.subjectRawValue = "物理"
+        try repo.insertAndSave(item2)
 
         #expect(try repo.countBySubject(name: "数学") == 1)
 
@@ -174,8 +171,8 @@ struct ReviewRepositoryTests {
             for i in 0..<itemCount {
                 group.addTask {
                     await MainActor.run {
-                        let item = self.makeDummyCoreItem(content: "Concurrent \(i)")
-                        try? repo.save(item)
+                        let model = self.makeDummyModel(content: "Concurrent \(i)")
+                        try? repo.insertAndSave(model)
                     }
                 }
             }
@@ -190,12 +187,12 @@ struct ReviewRepositoryTests {
     @Test("content 为 nil 时依然可以保存（有 imagePath 的场景）")
     func nilContentWithImagePath() throws {
         let repo = try createTestRepository()
-        let item = makeDummyCoreItem(content: nil)
+        let model = makeDummyModel(content: nil)
 
-        try repo.save(item)
+        try repo.insertAndSave(model)
         #expect(try repo.totalItemCount() == 1)
 
-        let fetched = try repo.fetchById(item.id)
+        let fetched = try repo.fetchModel(by: model.id)
         #expect(fetched?.content == nil)
     }
 
@@ -203,11 +200,11 @@ struct ReviewRepositoryTests {
     func difficultyRawValueRoundTrip() throws {
         let repo = try createTestRepository()
 
-        var item = makeDummyCoreItem()
-        item.difficulty = .five
-        try repo.save(item)
+        let model = makeDummyModel()
+        model.difficulty = Difficulty.five.rawValue
+        try repo.insertAndSave(model)
 
-        let fetched = try repo.fetchById(item.id)
-        #expect(fetched?.difficulty == .five)
+        let fetched = try repo.fetchModel(by: model.id)
+        #expect(fetched?.difficulty == Difficulty.five.rawValue)
     }
 }

@@ -10,13 +10,13 @@
 
 import SwiftUI
 import PDFKit
-import SnapDrillDomain
 import SnapDrillCore
+import SnapDrillData
 
 struct ExportPreviewView: View {
     @Environment(\.dismiss) private var dismiss
     
-    let items: [ReviewItem]
+    let items: [ReviewExportSnapshot]
     
     @State private var pdfData: Data?
     @State private var isLoading = true
