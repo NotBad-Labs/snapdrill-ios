@@ -31,7 +31,7 @@ public final class DataSeeder {
     
     // MARK: - Public API
     
-    // 真实的 Mock 数据源 (50短 + 50长)
+    // 真实的 Mock 数据源（约 90 条混合长短文本，seedReviewItems 循环复用补足 count 条）
     // swiftlint:disable line_length
     private let mockData: [(q: String, a: String, sub: String)] = [
         // MARK: - 短文本 (Short Text)
@@ -283,8 +283,8 @@ public final class DataSeeder {
         ("What is the 'Internet of Things'?", "The network of physical objects—'things'—that are embedded with sensors, software, and other technologies for the purpose of connecting and exchanging data with other devices and systems over the internet.", "编程")
     ]
     
-    /// 批量生成测试数据 (100条高质量数据)
-    /// - Parameter count: 忽略传入的count，固定生成 mockData 的数据
+    /// 批量生成测试数据，不足 count 时循环复用 mockData 填满
+    /// - Parameter count: 目标数量；mockData 不足时自动循环复用补足
     /// - Returns: 耗时（秒）
     public func seedReviewItems(count: Int) throws -> TimeInterval {
         let startTime = Date()

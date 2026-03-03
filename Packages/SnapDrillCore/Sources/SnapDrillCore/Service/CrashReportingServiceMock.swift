@@ -5,6 +5,8 @@
 //  Created by NotBad Labs on 2026/02/24.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  崩溃报告服务测试替身，用于单元测试环境。
+//
 
 import Foundation
 

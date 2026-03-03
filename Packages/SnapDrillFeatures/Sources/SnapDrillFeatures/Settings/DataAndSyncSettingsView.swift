@@ -30,6 +30,8 @@ struct DataAndSyncSettingsView: View {
     @AppStorage("autoDeleteDays") private var autoDeleteDays = 30
     @State private var showingClearCacheAlert = false
     @State private var cacheSize: String = "计算中..."
+    @State private var cacheCalculateTask: Task<Void, Never>?
+    @State private var cacheClearTask: Task<Void, Never>?
     
     var body: some View {
         List {
@@ -137,6 +139,10 @@ struct DataAndSyncSettingsView: View {
                 checkAccountStatus()
             }
         }
+        .onDisappear {
+            cacheCalculateTask?.cancel()
+            cacheClearTask?.cancel()
+        }
     }
     
     // MARK: - Private Helpers
@@ -204,16 +210,18 @@ struct DataAndSyncSettingsView: View {
     }
     
     private func calculateCacheSize() {
-        Task {
+        cacheCalculateTask?.cancel()
+        cacheCalculateTask = Task {
             let size = await getCacheSize()
             await MainActor.run {
                 cacheSize = formatBytes(size)
             }
         }
     }
-    
+
     private func clearCache() {
-        Task {
+        cacheClearTask?.cancel()
+        cacheClearTask = Task {
             do {
                 // 清理临时目录
                 let tmpDir = FileManager.default.temporaryDirectory

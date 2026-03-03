@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2025/12/31.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  SwiftData Schema 定义（首次发布版本，无需迁移计划）
+//  SwiftData 数据迁移计划，管理各版本 Schema 变更。
 //
 
 import SwiftData

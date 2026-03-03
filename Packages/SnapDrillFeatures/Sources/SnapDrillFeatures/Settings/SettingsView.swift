@@ -34,6 +34,7 @@ public struct SettingsView: View {
     @State private var showingClearAlert = false
     @State private var showingMail = false
     @State private var isGenerating = false
+    @State private var seedTask: Task<Void, Never>?
     @State private var showingSubjectManager = false
     @State private var showingSourceManager = false
     @State private var showingGradeManager = false
@@ -263,6 +264,9 @@ public struct SettingsView: View {
             } message: {
                 Text("感谢您使用 SnapDrill！您可以发送邮件至 hello@notbadhq.com，或直接在 TestFlight 中反馈。")
             }
+            .onDisappear {
+                seedTask?.cancel()
+            }
         }
     }
     
@@ -275,7 +279,9 @@ public struct SettingsView: View {
     
     private func generateMockData() {
         isGenerating = true
-        Task {
+        seedTask?.cancel()
+        seedTask = Task {
+            defer { isGenerating = false }
             do {
                 // 直接使用 mainContext，确保数据写入后 ReviewRepository 立即可见
                 let seeder = DataSeeder(modelContext: modelContext)
@@ -285,7 +291,6 @@ public struct SettingsView: View {
             } catch {
                 SnapDrillLogger.generic.error("生成测试数据失败: \(error.localizedDescription)")
             }
-            isGenerating = false
         }
     }
     

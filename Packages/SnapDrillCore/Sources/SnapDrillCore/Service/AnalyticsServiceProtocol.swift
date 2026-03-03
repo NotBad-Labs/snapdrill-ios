@@ -5,6 +5,8 @@
 //  Created by NotBad Labs on 2026/02/24.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  分析服务协议，定义事件追踪的最小契约。
+//
 
 import Foundation
 

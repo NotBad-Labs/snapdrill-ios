@@ -68,53 +68,39 @@ final class CrashReportingServiceTests: XCTestCase {
         XCTAssertTrue(logFiles?.count ?? 0 > 0, "At least one log file should exist")
     }
     
-    func testLogLevels() {
-        // 测试不同日志级别
-        service.log("Debug message", level: .debug)
-        service.log("Info message", level: .info)
-        service.log("Warning message", level: .warning)
-        service.log("Error message", level: .error)
-        service.log("Critical message", level: .critical)
-        
-        // 这些调用不应该崩溃
-        XCTAssertTrue(true, "All log levels should work without crashing")
+    func testLogLevels_doesNotCrash() {
+        // Firebase Crashlytics 真实调用无法在 unit test 中验证结果，仅验证不崩溃
+        XCTAssertNoThrow(service.log("Debug message", level: .debug))
+        XCTAssertNoThrow(service.log("Info message", level: .info))
+        XCTAssertNoThrow(service.log("Warning message", level: .warning))
+        XCTAssertNoThrow(service.log("Error message", level: .error))
+        XCTAssertNoThrow(service.log("Critical message", level: .critical))
     }
-    
-    func testSetUserIdentifier() {
-        // setUserIdentifier 将 ID 异步存入 Keychain（非 UserDefaults），不应崩溃
-        service.setUserIdentifier("test-user-123")
-        service.setUserIdentifier("") // 清空
-        XCTAssertTrue(true, "Setting and clearing user identifier should not crash")
+
+    func testSetUserIdentifier_doesNotCrash() {
+        // setUserIdentifier 将 ID 异步存入 Keychain（非 UserDefaults），仅验证不崩溃
+        XCTAssertNoThrow(service.setUserIdentifier("test-user-123"))
+        XCTAssertNoThrow(service.setUserIdentifier(""))
     }
-    
-    func testSetCustomValue() {
-        // 测试设置自定义值（不应崩溃）
-        service.setCustomValue("testValue", forKey: "testKey")
-        XCTAssertTrue(true, "Setting custom values should not crash")
+
+    func testSetCustomValue_doesNotCrash() {
+        // Firebase Crashlytics 真实调用无法在 unit test 中验证结果，仅验证不崩溃
+        XCTAssertNoThrow(service.setCustomValue("testValue", forKey: "testKey"))
     }
-    
-    func testLeaveBreadcrumb() {
-        // 测试面包屑记录（不应崩溃）
-        service.leaveBreadcrumb("User tapped button", metadata: [
+
+    func testLeaveBreadcrumb_doesNotCrash() {
+        // Firebase Crashlytics 真实调用无法在 unit test 中验证结果，仅验证不崩溃
+        XCTAssertNoThrow(service.leaveBreadcrumb("User tapped button", metadata: [
             "screen": "Dashboard",
             "action": "tap"
-        ])
-        XCTAssertTrue(true, "Leaving breadcrumbs should not crash")
+        ]))
     }
-    
-    func testDisabledService() {
-        // 禁用服务
+
+    func testDisabledService_doesNotCrash() {
+        // Firebase Crashlytics 真实调用无法在 unit test 中验证结果，仅验证不崩溃
         service.setEnabled(false)
-        
-        // 尝试记录错误
         let testError = NSError(domain: "TestDomain", code: 200)
-        service.recordError(testError)
-        
-        // 验证没有创建日志文件（因为服务已禁用）
-        // 注意：这个测试可能需要清理之前的日志
-        XCTAssertTrue(true, "Disabled service should not crash")
-        
-        // 恢复启用状态
+        XCTAssertNoThrow(service.recordError(testError))
         service.setEnabled(true)
     }
 }

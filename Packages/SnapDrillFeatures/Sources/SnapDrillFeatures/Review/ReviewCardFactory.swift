@@ -14,21 +14,21 @@ import SnapDrillData
 /// 复习卡片工厂
 ///
 /// 负责根据题目数据生成对应的 Front（问题）和 Back（答案）视图。
-public enum ReviewCardFactory {
+enum ReviewCardFactory {
 
-    // MARK: - Public API
+    // MARK: - Internal API
 
     /// 生成卡片正面视图
     @MainActor
     @ViewBuilder
-    public static func makeFront(for item: ReviewItemModel) -> some View {
+    static func makeFront(for item: ReviewItemModel) -> some View {
         ReviewCardFront(item: item)
     }
 
     /// 生成卡片背面视图
     @MainActor
     @ViewBuilder
-    public static func makeBack(for item: ReviewItemModel) -> some View {
+    static func makeBack(for item: ReviewItemModel) -> some View {
         ReviewCardBack(item: item)
     }
 }

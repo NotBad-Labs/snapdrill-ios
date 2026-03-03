@@ -42,8 +42,7 @@ public struct HelpView: View {
     // MARK: - Properties
     
     @State private var searchText = ""
-    @State private var selectedTopic: HelpTopic?
-    
+
     let topics: [HelpTopic]
     
     public init(topics: [HelpTopic] = HelpTopic.defaultTopics) {
