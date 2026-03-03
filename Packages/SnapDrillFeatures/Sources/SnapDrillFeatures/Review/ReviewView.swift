@@ -24,7 +24,6 @@ public struct ReviewView: View {
     @Bindable private var router: ReviewRouter
     @Environment(\.repositories) private var repositories
     @State private var viewModel: ReviewViewModel?
-    @State private var isFirstAppear = true
 
     // MARK: - Initialization
 
@@ -46,15 +45,11 @@ public struct ReviewView: View {
                 }
             }
             .task {
-                if isFirstAppear {
-                    // 先赋值再加载，确保通知订阅在 loadDataAsync 之前生效
-                    let vm = ReviewViewModel(repository: repositories.review)
-                    viewModel = vm
-                    await vm.loadDataAsync()
-                    isFirstAppear = false
-                } else {
-                    await viewModel?.loadDataAsync()
+                // 先确保 ViewModel 存在（注册通知订阅），再加载数据
+                if viewModel == nil {
+                    viewModel = ReviewViewModel(repository: repositories.review)
                 }
+                await viewModel?.loadDataAsync()
             }
         }
     }

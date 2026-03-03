@@ -284,10 +284,10 @@ public struct SettingsView: View {
             defer { isGenerating = false }
             do {
                 // 直接使用 mainContext，确保数据写入后 ReviewRepository 立即可见
+                // DataSeeder.seedReviewItems 内部已在 save 后 post reviewDataDidChange
                 let seeder = DataSeeder(modelContext: modelContext)
                 let time = try seeder.seedReviewItems(count: 100)
                 SnapDrillLogger.generic.info("生成测试数据成功: \(time)s")
-                NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             } catch {
                 SnapDrillLogger.generic.error("生成测试数据失败: \(error.localizedDescription)")
             }
