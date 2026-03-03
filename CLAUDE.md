@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 @.claude/principles.md
 @.claude/architecture.md
 @.claude/refactoring-plan.md
+@.claude/infrastructure.md
 
 ## Commands
 
@@ -77,6 +78,17 @@ Each feature in `SnapDrillFeatures/Sources/SnapDrillFeatures/<FeatureName>/` fol
 ### Data Flow
 
 ViewModels are injected with concrete Repository classes (not protocols) via `@Environment`. ViewModels call `ReviewScheduler` (Core) for SM-2 scheduling. Views use `@Query` for reactive list updates. Views **never** touch `ModelContext` directly.
+
+## API 使用强制规则
+
+**修改任何代码前，必须先确认 API 真实存在，禁止凭名称推测。**
+
+检查顺序（三选一）：
+1. 查 `.claude/infrastructure.md`（所有公开接口的权威清单）
+2. 用 `Grep` 搜索现有调用方式（`grep -r "methodName"` 找真实用法）
+3. 用 `Read` 读源文件确认签名
+
+新增 API 时：写完后同步更新 `.claude/infrastructure.md`。
 
 ## Key Conventions
 
