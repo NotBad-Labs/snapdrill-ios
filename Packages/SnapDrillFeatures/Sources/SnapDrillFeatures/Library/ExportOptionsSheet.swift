@@ -23,8 +23,6 @@ struct ExportOptionsSheet: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var showingPDFPreview = false
-    @State private var showingWordShare = false
-    @State private var wordExportURL: URL?
     
     // MARK: - Body
     

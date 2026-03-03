@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2025/12/31.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  该文件已废弃，其功能已被 ResolvedExportSheet 替代。
+//  PDF 导出预览页，使用 PDFKit 渲染导出结果并提供分享/打印入口。
 //
 
 import SwiftUI
