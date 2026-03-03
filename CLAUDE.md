@@ -25,7 +25,6 @@ xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPho
 **Test (SPM package — macOS, no UIKit)**
 ```bash
 # 在各包目录下运行，不依赖 Xcode
-cd Packages/SnapDrillDomain && swift test
 cd Packages/SnapDrillCore && swift test   # UIKit 测试自动跳过
 cd Packages/SnapDrillData && swift test   # SwiftData Predicate 测试跳过（需 Xcode）
 ```
