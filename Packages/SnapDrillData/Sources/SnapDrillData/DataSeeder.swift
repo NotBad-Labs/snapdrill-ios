@@ -368,7 +368,7 @@ public final class DataSeeder {
 
         try modelContext.save()
         // 通知所有订阅者（ReviewViewModel）数据已变更，触发复习界面刷新
-        ReviewDataNotification.post()
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
         return Date().timeIntervalSince(startTime)
     }
 
@@ -376,6 +376,6 @@ public final class DataSeeder {
     public func clearAll() throws {
         try modelContext.delete(model: ReviewItemModel.self)
         try modelContext.save()
-        ReviewDataNotification.post()
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
     }
 }
