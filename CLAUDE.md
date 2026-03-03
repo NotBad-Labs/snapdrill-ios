@@ -41,12 +41,9 @@ brew install swiftlint
 
 ## Architecture
 
-SnapDrill is a spaced-repetition (flashcard) learning app built with Swift 6.2 + SwiftUI + SwiftData, targeting iOS 18.0+.
+SnapDrill is a spaced-repetition (flashcard) learning app built with Swift 6.2 + SwiftUI + SwiftData, targeting iOS 18.0+. It uses a **strict modular SPM architecture** where the main app target is a thin composition root.
 
-> **重构进行中**：正在删除 SnapDrillDomain 包，目标为 4 包架构。
-> 详见 `.claude/architecture.md`（目标架构）和 `.claude/refactoring-plan.md`（进度）。
-
-### Target Module Dependency Graph（目标，重构完成后）
+### Module Dependency Graph
 
 ```
 SnapDrillFeatures ──► SnapDrillData ──► SnapDrillCore (0 deps)

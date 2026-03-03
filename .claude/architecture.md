@@ -1,9 +1,6 @@
-# SnapDrill 目标架构
+# SnapDrill 架构（2026-03-03 最终状态）
 
-> 本文件描述**重构完成后**的目标状态。当前代码库仍处于过渡中（含 SnapDrillDomain）。
-> 重构进度见 `.claude/refactoring-plan.md`。
-
-## 目标包结构（4 包）
+## 包结构（4 包）
 
 ```
 SnapDrillCore    (0 deps)
@@ -16,6 +13,7 @@ SnapDrillData    (→ Core)
   └─ @Model 类（直接作领域对象，无映射层）
   └─ 具体 Repository 类（无协议）
   └─ PersistenceController / 迁移计划
+  └─ ReviewExportSnapshot（导出专用 Sendable 快照）
 
 SnapDrillUI      (→ Core)
   └─ 设计系统组件 / ImageCropper
@@ -66,7 +64,7 @@ DependencyContainer（@MainActor 单例）
 
 `DefaultUseCaseContainer` 已删除。`\.useCases` Environment key 已删除。
 
-## Feature 结构（不变）
+## Feature 结构
 
 ```
 SnapDrillFeatures/Sources/SnapDrillFeatures/<FeatureName>/
@@ -75,12 +73,23 @@ SnapDrillFeatures/Sources/SnapDrillFeatures/<FeatureName>/
   └─ <Feature>Router.swift（如有导航）
 ```
 
-## 当前状态 vs 目标状态
+## 关键设计决策
 
-| 指标 | 当前 | 目标 |
-|---|---|---|
-| SPM 包数 | 5（含 Domain） | 4 |
-| Swift 文件数 | ~180 | ~120 |
-| 协议数量 | ~15 | ~3（Service 层） |
-| 新增字段改动文件数 | ~6 | ~2 |
-| 跨 context 竞态风险 | 存在 | 消除（@Query 原生） |
+| 决策 | 结论 |
+|---|---|
+| Domain 层 | **已删除**（2026-03-03）。@Model 直接作领域对象 |
+| UseCase 层 | **已删除**（2026-03-03）。ViewModel 直接调 Repository |
+| Repository 协议 | **已删除**。具体类直接使用，测试用 in-memory ModelContainer |
+| Export DTO | `ReviewExportSnapshot`（6字段 Sendable struct），桥接 @Model → Transferable |
+| 列表驱动 | @Query（LibraryView 等），Repository.fetch（ReviewViewModel 状态机）|
+
+## 验证结果（最终状态）
+
+| 指标 | 值 |
+|---|---|
+| SPM 包数 | 4 |
+| Swift 文件数 | 162 |
+| SnapDrillCore swift test | 25/25 ✅ |
+| SnapDrillData swift test | 非 Predicate 测试全部通过 ✅ |
+| xcodebuild build | BUILD SUCCEEDED ✅ |
+| swiftlint | 0 violations ✅ |

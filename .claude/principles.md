@@ -92,5 +92,5 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 - 禁止 `@unchecked Sendable`、force unwrap `!`、`any` existentials
 - 禁止跨 `ModelContext` 写入后立即读取（竞态）
 - 禁止在 DEBUG 工具里引入生产级复杂度
-- 禁止新增 Domain 层或 DomainKit（我们正在删除它）
+- 禁止新增 Domain 层或 DomainKit（已删除，2026-03-03）
 - 禁止用值类型 struct 作领域对象（`@Model` 必须是 class）
