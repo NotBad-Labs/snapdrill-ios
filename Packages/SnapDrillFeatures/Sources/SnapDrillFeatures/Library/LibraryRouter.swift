@@ -5,20 +5,20 @@
 //  Created by NotBad Labs on 2025/12/29.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  题库模块路由，管理题库浏览导航
+//  题库模块路由，管理题库浏览导航。
 //
 
 import SwiftUI
 import Observation
 import SnapDrillUI
-import SnapDrillDomain
+import SnapDrillData
 
 /// 题库模块导航目标
 public enum LibraryDestination: Hashable {
     /// 占位页面
     case placeholder
     /// 题目详情
-    case detail(ReviewItem)
+    case detail(ReviewItemModel)
 }
 
 /// 题库模块路由器
@@ -28,7 +28,7 @@ public enum LibraryDestination: Hashable {
 ///
 /// ## 导航路径
 /// - **列表页**: 模块首页，展示题目列表。
-/// - **详情页**: `.detail(ReviewItem)`，展示题目的图片、完整文本及元数据。
+/// - **详情页**: `.detail(ReviewItemModel)`，展示题目的图片、完整文本及元数据。
 @MainActor
 @Observable
 public final class LibraryRouter: FeatureRouter {

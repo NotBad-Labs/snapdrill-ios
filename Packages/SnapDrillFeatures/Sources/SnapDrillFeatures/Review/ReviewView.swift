@@ -12,7 +12,7 @@ import SwiftUI
 import Observation
 import SnapDrillCore
 import SnapDrillUI
-import SnapDrillDomain
+import SnapDrillData
 
 /// 复习会话界面
 ///
@@ -22,7 +22,7 @@ public struct ReviewView: View {
     // MARK: - Properties
     
     @Bindable private var router: ReviewRouter
-    @Environment(\.useCases) private var useCases
+    @Environment(\.repositories) private var repositories
     @State private var viewModel: ReviewViewModel?
     @State private var isFirstAppear = true
 
@@ -48,8 +48,7 @@ public struct ReviewView: View {
             .task {
                 if isFirstAppear {
                     // 先赋值再加载，确保通知订阅在 loadDataAsync 之前生效
-                    let manager = ReviewSessionManager(useCase: useCases.review)
-                    let vm = ReviewViewModel(sessionManager: manager)
+                    let vm = ReviewViewModel(repository: repositories.review)
                     viewModel = vm
                     await vm.loadDataAsync()
                     isFirstAppear = false
@@ -246,7 +245,7 @@ public struct ReviewView: View {
         CGFloat(index) * 15
     }
 
-    private func cardRotation(for item: ReviewItem, index: Int, vm: ReviewViewModel) -> Double {
+    private func cardRotation(for item: ReviewItemModel, index: Int, vm: ReviewViewModel) -> Double {
         guard index > 0, index < vm.workingItems.count else { return 0 }
         let seed = abs(item.id.hashValue)
         return Double(seed % 7) - 3.0

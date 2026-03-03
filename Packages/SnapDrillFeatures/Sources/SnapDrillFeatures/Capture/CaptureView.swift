@@ -23,7 +23,7 @@ public struct CaptureView: View {
     // MARK: - Properties
     
     @Bindable private var router: CaptureRouter
-    @Environment(\.useCases) private var useCases
+    @Environment(\.repositories) private var repositories
     @Environment(\.analyticsService) private var analyticsService
     
     @State private var viewModel = CaptureViewModel()
@@ -144,8 +144,7 @@ public struct CaptureView: View {
                     let resultViewModel = CaptureResultViewModel(
                         content: content,
                         image: image,
-                        reviewUseCase: useCases.review,
-                        taxonomyUseCase: useCases.taxonomy,
+                        repositories: repositories,
                         ocrService: OCRService(),
                         analyticsService: analyticsService,
                         router: router

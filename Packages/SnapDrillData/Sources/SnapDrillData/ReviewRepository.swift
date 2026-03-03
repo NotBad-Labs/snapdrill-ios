@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2025/12/29.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  实现 ReviewRepositoryProtocol，基于 SwiftData 持久化复习条目。
+//  复习条目的 SwiftData 仓库实现，提供 CRUD、SM-2 调度辅助及分页查询。
 //
 
 import Foundation
@@ -14,13 +14,8 @@ import SnapDrillCore
 import SnapDrillDomain
 
 /// 复习数据仓库的 SwiftData 实现
-///
-/// 职责：
-/// - 实现 `ReviewRepositoryProtocol`，使用领域实体 `ReviewItem` 进行通信。
-/// - 执行 SwiftData 的 CRUD 操作。
-/// - 负责 `ReviewItem` (Domain) 与 `ReviewItemModel` (Data) 之间的映射转换。
 @MainActor
-public final class ReviewRepository: ReviewRepositoryProtocol {
+public final class ReviewRepository {
     
     // MARK: - Properties
     
@@ -244,6 +239,92 @@ public final class ReviewRepository: ReviewRepositoryProtocol {
 
     public func totalItemCount() throws -> Int {
         try totalCount()
+    }
+
+    // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）
+
+    /// 获取所有待复习条目的 SwiftData 模型
+    public func fetchDueModels() throws -> [ReviewItemModel] {
+        let now = Date.now
+        // swiftlint:disable force_unwrapping
+        let predicate = #Predicate<ReviewItemModel> { item in
+            item.nextReviewAt == nil || item.nextReviewAt! <= now
+        }
+        // swiftlint:enable force_unwrapping
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.createdAt, order: .forward)]
+        )
+        return try modelContext.fetch(descriptor)
+    }
+
+    /// 按 ID 获取单个 ReviewItemModel
+    public func fetchModel(by id: UUID) throws -> ReviewItemModel? {
+        try fetchModelById(id)
+    }
+
+    /// 按多个 ID 获取 ReviewItemModel 列表
+    public func fetchModels(by ids: Set<UUID>) throws -> [ReviewItemModel] {
+        let targetIds = Array(ids)
+        let predicate = #Predicate<ReviewItemModel> { item in
+            targetIds.contains(item.id)
+        }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        return try modelContext.fetch(descriptor)
+    }
+
+    /// 全量获取所有 ReviewItemModel
+    public func fetchAllModels() throws -> [ReviewItemModel] {
+        let descriptor = FetchDescriptor<ReviewItemModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        return try modelContext.fetch(descriptor)
+    }
+
+    /// 按筛选条件分页获取 ReviewItemModel
+    public func fetchFilteredModels(
+        searchText: String,
+        subjects: Set<String>,
+        tags: Set<String>,
+        limit: Int,
+        offset: Int
+    ) throws -> [ReviewItemModel] {
+        let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        let subjectsArray = Array(subjects)
+
+        // swiftlint:disable force_unwrapping
+        let predicate = #Predicate<ReviewItemModel> { item in
+            (normalizedSearch.isEmpty || (item.content != nil && item.content!.localizedStandardContains(normalizedSearch))) &&
+            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue))
+        }
+        // swiftlint:enable force_unwrapping
+
+        var descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = limit
+        descriptor.fetchOffset = offset
+
+        let models = try modelContext.fetch(descriptor)
+
+        if !tags.isEmpty {
+            return models.filter { model in
+                let itemTagNames = Set((model.tags ?? []).map { $0.name })
+                return !itemTagNames.isDisjoint(with: tags)
+            }
+        }
+
+        return models
+    }
+
+    /// 直接插入 ReviewItemModel 并保存
+    public func insertAndSave(_ model: ReviewItemModel) throws {
+        modelContext.insert(model)
+        try modelContext.save()
+    }
+
+    /// 保存 ModelContext（直接修改 @Model 属性后调用）
+    public func saveContext() throws {
+        try modelContext.save()
     }
 
     // MARK: - Private Helpers

@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+@.claude/principles.md
+@.claude/architecture.md
+@.claude/refactoring-plan.md
+
 ## Commands
 
 **Build & Run**
@@ -38,52 +42,45 @@ brew install swiftlint
 
 ## Architecture
 
-SnapDrill is a spaced-repetition (flashcard) learning app built with Swift 6.2 + SwiftUI + SwiftData, targeting iOS 18.0+. It uses a **strict modular SPM architecture** where the main app target is a thin composition root.
+SnapDrill is a spaced-repetition (flashcard) learning app built with Swift 6.2 + SwiftUI + SwiftData, targeting iOS 18.0+.
 
-### Module Dependency Graph
+> **重构进行中**：正在删除 SnapDrillDomain 包，目标为 4 包架构。
+> 详见 `.claude/architecture.md`（目标架构）和 `.claude/refactoring-plan.md`（进度）。
+
+### Target Module Dependency Graph（目标，重构完成后）
 
 ```
-SnapDrillFeatures ──► SnapDrillDomain ──► SnapDrillCore (0 deps)
-        │                   │
-        ▼                   ▼
-  SnapDrillData ──────► SnapDrillCore
-        │
-        ▼
-  SnapDrillUI ────────► SnapDrillCore
+SnapDrillFeatures ──► SnapDrillData ──► SnapDrillCore (0 deps)
+        │                                      ▲
+        └──────────► SnapDrillUI ──────────────┘
 ```
-
-**Strict rule**: reverse dependencies are forbidden. `SnapDrillCore` must never import any other local package.
 
 ### Packages
 
 | Package | Role |
 |---|---|
-| **SnapDrillCore** | Zero-dependency kernel: domain entities (protocol-based), OCR/Capture/ImageStorage services, spaced-repetition engine, utils |
-| **SnapDrillDomain** | Use case layer (Clean Architecture): `ReviewUseCase`, `TaxonomyUseCase`, repository protocols, `UseCaseContainer` |
-| **SnapDrillData** | SwiftData persistence: `*Model` classes, `*Repository` implementations, `PersistenceController`, migration plan |
-| **SnapDrillUI** | Shared design system, `ImageCropper`, routing base protocols |
-| **SnapDrillFeatures** | All product features: Capture, Library, Review, Dashboard, Settings — each as a folder with `View + ViewModel` |
+| **SnapDrillCore** | Zero-dependency kernel: SM-2 scheduler, OCR/ImageStorage/Logger, Difficulty/ReviewRating enums |
+| **SnapDrillData** | SwiftData `@Model` classes (direct domain objects), concrete `Repository` classes, `PersistenceController` |
+| **SnapDrillUI** | Shared design system, `ImageCropper` |
+| **SnapDrillFeatures** | All product features: Capture, Library, Review, Dashboard, Settings — `View + ViewModel` |
 
 ### Composition Root (`SnapDrill/App/`)
 
 `DependencyContainer` (singleton, `@MainActor`) wires everything at launch:
 1. `LiveServiceContainer` — OCR, analytics, crash reporting, network monitor, privacy consent
-2. `DefaultRepositoryContainer` — SwiftData repositories injected via `@Environment(\.repositories)`
-3. `DefaultUseCaseContainer` — use cases injected via `@Environment(\.useCases)`
-4. `AppRouter` — top-level navigation
-
-All dependencies flow into the view tree through SwiftUI `Environment` keys defined in `SnapDrillFeatures/Sources/SnapDrillFeatures/Environment/`.
+2. `RepositoryContainer` — SwiftData repositories injected via `@Environment(\.repositories)`
+3. `AppRouter` — top-level navigation
 
 ### Feature Structure Pattern
 
 Each feature in `SnapDrillFeatures/Sources/SnapDrillFeatures/<FeatureName>/` follows:
-- `<Feature>View.swift` — SwiftUI view, reads from ViewModel
+- `<Feature>View.swift` — SwiftUI view, `@Query` for list data, reads from ViewModel
 - `<Feature>ViewModel.swift` — `@Observable @MainActor final class`, all async state management
 - `<Feature>Router.swift` — navigation path management (where applicable)
 
 ### Data Flow
 
-Views read from `@Environment` to get repositories/use cases, pass them to ViewModels at init. ViewModels call UseCases (domain layer) or Repositories (data layer) directly. Views **never** touch `ModelContext` directly.
+ViewModels are injected with concrete Repository classes (not protocols) via `@Environment`. ViewModels call `ReviewScheduler` (Core) for SM-2 scheduling. Views use `@Query` for reactive list updates. Views **never** touch `ModelContext` directly.
 
 ## Key Conventions
 

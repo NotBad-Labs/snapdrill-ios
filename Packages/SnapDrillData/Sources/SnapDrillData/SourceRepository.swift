@@ -15,7 +15,7 @@ import SnapDrillDomain
 
 /// 题目来源数据仓库的 SwiftData 实现
 @MainActor
-public final class SourceRepository: SourceRepositoryProtocol {
+public final class SourceRepository {
     
     private let modelContext: ModelContext
     
@@ -103,8 +103,42 @@ public final class SourceRepository: SourceRepositoryProtocol {
         }
     }
     
+    // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）
+
+    /// 获取全部 SourceModel，按排序权重升序
+    public func fetchAllModels() throws -> [SourceModel] {
+        let descriptor = FetchDescriptor<SourceModel>(sortBy: [SortDescriptor(\.sortOrder)])
+        return try modelContext.fetch(descriptor)
+    }
+
+    /// 按名称查找 SourceModel
+    public func fetchModel(byName name: String) throws -> SourceModel? {
+        let targetName = name
+        let predicate = #Predicate<SourceModel> { $0.name == targetName }
+        var descriptor = FetchDescriptor<SourceModel>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    /// 直接插入 SourceModel 并保存（带名称唯一性校验）
+    public func insertAndSave(_ model: SourceModel) throws {
+        let name = model.name
+        let namePredicate = #Predicate<SourceModel> { $0.name == name }
+        let descriptor = FetchDescriptor<SourceModel>(predicate: namePredicate)
+        if try modelContext.fetchCount(descriptor) > 0 {
+            throw DataError.duplicateName(name: name, entityType: "Source")
+        }
+        modelContext.insert(model)
+        try modelContext.save()
+    }
+
+    /// 保存 ModelContext（直接修改 @Model 属性后调用）
+    public func saveContext() throws {
+        try modelContext.save()
+    }
+
     // MARK: - Private Helpers
-    
+
     private func fetchModelById(_ id: UUID) throws -> SourceModel? {
         let targetId = id
         let predicate = #Predicate<SourceModel> { $0.id == targetId }

@@ -5,13 +5,13 @@
 //  Created by NotBad Labs on 2026/02/24.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习会话的状态与业务逻辑管理，从 ReviewView 中提取。
+//  复习会话的状态与业务逻辑管理，直接依赖 ReviewRepository 和 ReviewScheduler。
 //
 
 import Foundation
 import Observation
 import SnapDrillCore
-import SnapDrillDomain
+import SnapDrillData
 
 // MARK: - ReviewPhase
 
@@ -34,14 +34,14 @@ final class ReviewViewModel {
 
     var phase: ReviewPhase = .loading
 
-    /// 今日全部待复习条目 (Domain)
-    var reviewQueue: [ReviewItem] = []
+    /// 今日全部待复习条目
+    var reviewQueue: [ReviewItemModel] = []
     /// 当前会话的工作栈
-    var workingItems: [ReviewItem] = []
+    var workingItems: [ReviewItemModel] = []
     /// 已完成卡片数量
     var finishedItems: Int = 0
     /// 撤销栈
-    var undoStack: [ReviewItem] = []
+    var undoStack: [ReviewItemModel] = []
 
     // MARK: - Statistics
 
@@ -64,14 +64,16 @@ final class ReviewViewModel {
 
     // MARK: - Dependencies
 
-    private let sessionManager: ReviewSessionManagerProtocol
+    private let repository: ReviewRepository
+    private let scheduler = ReviewScheduler()
+
     @ObservationIgnored
     nonisolated(unsafe) private var dataChangeObserver: Any?
 
     // MARK: - Initialization
 
-    init(sessionManager: ReviewSessionManagerProtocol) {
-        self.sessionManager = sessionManager
+    init(repository: ReviewRepository) {
+        self.repository = repository
         setupDataChangeObserver()
     }
 
@@ -103,11 +105,11 @@ final class ReviewViewModel {
     /// 异步加载复习数据
     func loadDataAsync() async {
         do {
-            let due = try sessionManager.loadDueItems()
+            let due = try repository.fetchDueModels()
             reviewQueue = due
-            reviewedTodayCount = try sessionManager.loadTodayReviewedCount()
-            totalItemsCount = try sessionManager.loadTotalItemsCount()
-            
+            reviewedTodayCount = try repository.fetchTodayReviewedCount()
+            totalItemsCount = try repository.totalItemCount()
+
             if phase != .reviewing {
                 phase = .idle
             }
@@ -126,7 +128,6 @@ final class ReviewViewModel {
         finishedItems = 0
         undoStack.removeAll()
         isAnswerShown = false
-
         sessionStartReviewedCount = reviewedTodayCount
         phase = .reviewing
     }
@@ -150,7 +151,7 @@ final class ReviewViewModel {
         swipeTrigger = direction
     }
 
-    /// 处理卡片滑动完成
+    /// 处理卡片滑动完成：更新 SM-2 状态并持久化
     func handleSwipeCompletion(direction: Int) {
         swipeTrigger = nil
         isProcessingSwipe = false
@@ -169,13 +170,25 @@ final class ReviewViewModel {
 
         let rating: ReviewRating = direction > 0 ? .good : .again
         do {
-            try sessionManager.processSwipeResult(for: item, rating: rating)
+            // 构建 SM-2 状态，调用调度引擎，直接写回 @Model 属性
+            let state = SM2State(
+                easeFactor: item.easeFactor,
+                interval: item.interval,
+                repetitions: item.repetitions
+            )
+            let newState = scheduler.scheduleNextReview(state: state, rating: rating)
+            item.easeFactor = newState.easeFactor
+            item.interval = newState.interval
+            item.repetitions = newState.repetitions
+            item.nextReviewAt = newState.nextReviewAt
+            item.lastReviewedAt = newState.lastReviewedAt
+            try repository.saveContext()
         } catch {
             SnapDrillLogger.generic.error("处理滑动结果失败: \(error.localizedDescription)")
         }
     }
 
-    /// 撤销上一次滑动
+    /// 撤销上一次滑动（仅恢复工作队列，不回滚 SM-2 状态）
     func undoLastSwipe() {
         guard !undoStack.isEmpty else { return }
         let item = undoStack.removeLast()

@@ -9,6 +9,7 @@
 //
 
 import Foundation
+import SnapDrillCore
 
 /// 复习条目实体
 ///

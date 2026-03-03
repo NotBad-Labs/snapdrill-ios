@@ -10,70 +10,71 @@
 
 import Foundation
 import Observation
-import SnapDrillDomain
+import SnapDrillData
 import SnapDrillCore
 
 @Observable
 @MainActor
 public final class SubjectManagerViewModel {
-    
+
     // MARK: - State
-    
-    public var subjects: [Subject] = []
+
+    public var subjects: [SubjectModel] = []
     public var isDeletingInUse = false
     public var pendingDeletionName = ""
-    
+
     // MARK: - Dependencies
-    
-    private let taxonomyUseCase: TaxonomyUseCaseProtocol
-    
+
+    private let repositories: RepositoryContainer
+
     // MARK: - Initialization
-    
-    public init(taxonomyUseCase: TaxonomyUseCaseProtocol) {
-        self.taxonomyUseCase = taxonomyUseCase
+
+    public init(repositories: RepositoryContainer) {
+        self.repositories = repositories
     }
-    
+
     // MARK: - Public Actions
-    
+
     public func loadData() {
-        subjects = (try? taxonomyUseCase.getSubjects().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
+        subjects = (try? repositories.subject.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
     }
-    
+
     // MARK: - Public API
-    
+
     public func delete(at offsets: IndexSet) {
         isDeletingInUse = false
         let itemsToDelete = offsets.map { subjects[$0] }
         for item in itemsToDelete {
             do {
-                if try !taxonomyUseCase.canDeleteSubject(name: item.name) {
+                let count = try repositories.review.countBySubject(name: item.name)
+                if count > 0 {
                     isDeletingInUse = true
                     pendingDeletionName = item.name
                     continue
                 }
-                try taxonomyUseCase.deleteSubject(name: item.name)
+                try repositories.subject.delete(id: item.id)
             } catch {
                 SnapDrillLogger.generic.error("删除学科失败: \(error.localizedDescription)")
             }
         }
         loadData()
     }
-    
-    public func saveSubject(subject: Subject?, name: String, selectedIcon: String, finalColorHex: String) {
+
+    public func saveSubject(subject: SubjectModel?, name: String, selectedIcon: String, finalColorHex: String) {
         do {
             if let subject {
-                try taxonomyUseCase.updateSubject(
-                    oldName: subject.name,
-                    newName: name,
-                    icon: selectedIcon,
-                    colorHex: finalColorHex
-                )
+                let oldName = subject.name
+                if oldName != name {
+                    try repositories.review.updateSubjectUsage(from: oldName, to: name)
+                }
+                subject.name = name
+                subject.icon = selectedIcon
+                subject.colorHex = finalColorHex
+                try repositories.subject.saveContext()
             } else {
-                try taxonomyUseCase.addSubject(
-                    name: name,
-                    icon: selectedIcon,
-                    colorHex: finalColorHex
-                )
+                let sortOrder = try repositories.subject.totalCount()
+                let model = SubjectModel(name: name, icon: selectedIcon, colorHex: finalColorHex, sortOrder: sortOrder)
+                try repositories.subject.insertAndSave(model)
             }
             loadData()
         } catch {

@@ -12,7 +12,7 @@ import SwiftUI
 import Observation
 import SnapDrillCore
 import SnapDrillUI
-import SnapDrillDomain
+import SnapDrillData
 
 /// 题库列表界面
 public struct LibraryView: View {
@@ -20,8 +20,8 @@ public struct LibraryView: View {
     // MARK: - Properties
     
     @Bindable private var router: LibraryRouter
-    @Environment(\.useCases) private var useCases
-    
+    @Environment(\.repositories) private var repositories
+
     @State private var viewModel: LibraryViewModel?
     
     // Native Selection State
@@ -153,10 +153,7 @@ public struct LibraryView: View {
                 }
                 .task {
                     if isFirstAppear {
-                        let vm = LibraryViewModel(
-                            reviewUseCase: useCases.review,
-                            taxonomyUseCase: useCases.taxonomy
-                        )
+                        let vm = LibraryViewModel(repositories: repositories)
                         self.viewModel = vm
                         await vm.loadDataAsync()
                         isFirstAppear = false

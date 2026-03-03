@@ -15,7 +15,7 @@ import SnapDrillDomain
 
 /// 标签数据仓库的 SwiftData 实现
 @MainActor
-public final class TagRepository: TagRepositoryProtocol {
+public final class TagRepository {
     
     private let modelContext: ModelContext
     
@@ -63,8 +63,31 @@ public final class TagRepository: TagRepositoryProtocol {
         }
     }
     
+    // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）
+
+    /// 获取全部 TagModel，按创建时间降序
+    public func fetchAllModels() throws -> [TagModel] {
+        let descriptor = FetchDescriptor<TagModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        return try modelContext.fetch(descriptor)
+    }
+
+    /// 按名称查找或创建 TagModel
+    public func fetchOrCreateModel(name: String, colorHex: String) throws -> TagModel {
+        let targetName = name
+        let predicate = #Predicate<TagModel> { $0.name == targetName }
+        var descriptor = FetchDescriptor<TagModel>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        if let existing = try modelContext.fetch(descriptor).first {
+            return existing
+        }
+        let newTag = TagModel(name: name, colorHex: colorHex)
+        modelContext.insert(newTag)
+        try modelContext.save()
+        return newTag
+    }
+
     // MARK: - Private Helpers
-    
+
     private func fetchModelById(_ id: UUID) throws -> TagModel? {
         let targetId = id
         let predicate = #Predicate<TagModel> { $0.id == targetId }

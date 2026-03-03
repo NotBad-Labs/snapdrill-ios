@@ -15,8 +15,8 @@ import SnapDrillUI
 
 public struct DashboardView: View {
     @Bindable private var router: DashboardRouter
-    @Environment(\.useCases) private var useCases
-    
+    @Environment(\.repositories) private var repositories
+
     @State private var viewModel: DashboardViewModel?
     
     // MARK: - Layout Constants
@@ -106,10 +106,7 @@ public struct DashboardView: View {
             }
             .onAppear {
                 if viewModel == nil {
-                    viewModel = DashboardViewModel(
-                        reviewUseCase: useCases.review,
-                        taxonomyUseCase: useCases.taxonomy
-                    )
+                    viewModel = DashboardViewModel(repositories: repositories)
                 }
             }
         }

@@ -9,7 +9,7 @@
 //
 
 import SwiftUI
-import SnapDrillDomain
+import SnapDrillData
 import UniformTypeIdentifiers
 
 /// 隐私设置页面
@@ -17,7 +17,7 @@ struct PrivacySettingsView: View {
     
     // MARK: - Properties
     
-    @Environment(\.useCases) private var useCases
+    @Environment(\.repositories) private var repositories
     @AppStorage("analyticsEnabled") private var analyticsEnabled = false
     @AppStorage("crashReportingEnabled") private var crashReportingEnabled = true
     
@@ -101,8 +101,8 @@ struct PrivacySettingsView: View {
         exportError = nil
         
         do {
-            let items = try useCases.review.fetchAllItems()
-            
+            let items = try repositories.review.fetchAllModels()
+
             // Convert to Sendable value types before crossing actor boundary
             let exportableItems = items.map { item in
                 ExportableItem(
@@ -110,12 +110,12 @@ struct PrivacySettingsView: View {
                     content: item.content,
                     subject: item.subject,
                     source: item.source,
-                    difficulty: item.difficulty.rawValue,
+                    difficulty: item.difficulty,
                     answerText: item.answerText,
                     createdAt: item.createdAt,
                     lastReviewedAt: item.lastReviewedAt,
                     nextReviewAt: item.nextReviewAt,
-                    tags: item.tags
+                    tags: (item.tags ?? []).map { $0.name }
                 )
             }
             

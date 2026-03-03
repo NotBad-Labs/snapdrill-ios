@@ -15,7 +15,7 @@ import SnapDrillDomain
 
 /// 学科数据仓库的 SwiftData 实现
 @MainActor
-public final class SubjectRepository: SubjectRepositoryProtocol {
+public final class SubjectRepository {
     
     private let modelContext: ModelContext
     
@@ -110,8 +110,42 @@ public final class SubjectRepository: SubjectRepositoryProtocol {
         }
     }
     
+    // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）
+
+    /// 获取全部 SubjectModel，按排序权重升序
+    public func fetchAllModels() throws -> [SubjectModel] {
+        let descriptor = FetchDescriptor<SubjectModel>(sortBy: [SortDescriptor(\.sortOrder)])
+        return try modelContext.fetch(descriptor)
+    }
+
+    /// 按名称查找 SubjectModel
+    public func fetchModel(byName name: String) throws -> SubjectModel? {
+        let targetName = name
+        let predicate = #Predicate<SubjectModel> { $0.name == targetName }
+        var descriptor = FetchDescriptor<SubjectModel>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    /// 直接插入 SubjectModel 并保存（带名称唯一性校验）
+    public func insertAndSave(_ model: SubjectModel) throws {
+        let name = model.name
+        let namePredicate = #Predicate<SubjectModel> { $0.name == name }
+        let descriptor = FetchDescriptor<SubjectModel>(predicate: namePredicate)
+        if try modelContext.fetchCount(descriptor) > 0 {
+            throw DataError.duplicateName(name: name, entityType: "Subject")
+        }
+        modelContext.insert(model)
+        try modelContext.save()
+    }
+
+    /// 保存 ModelContext（直接修改 @Model 属性后调用）
+    public func saveContext() throws {
+        try modelContext.save()
+    }
+
     // MARK: - Private Helpers
-    
+
     private func fetchModelById(_ id: UUID) throws -> SubjectModel? {
         let targetId = id
         let predicate = #Predicate<SubjectModel> { $0.id == targetId }

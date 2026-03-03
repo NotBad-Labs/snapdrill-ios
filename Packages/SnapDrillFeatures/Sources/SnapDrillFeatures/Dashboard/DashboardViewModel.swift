@@ -11,18 +11,18 @@
 import Foundation
 import Observation
 import SnapDrillCore
-import SnapDrillDomain
+import SnapDrillData
 
 @Observable
 @MainActor
 public final class DashboardViewModel {
-    
+
     // MARK: - State
-    
+
     public var showingSubjectManager = false
     public var showingComingSoon = false
     public var showingDraftAlert = false
-    
+
     /// 今日新增卡片数
     public var todayItemsCount: Int = 0
     /// 题库总卡片数量
@@ -31,28 +31,25 @@ public final class DashboardViewModel {
     public var dueCount: Int = 0
     /// 今日已复习卡片数（用于进度环）
     public var reviewedTodayCount: Int = 0
-    
+
     // MARK: - Dependencies
-    
+
     @ObservationIgnored
     nonisolated(unsafe) private var dataChangeObserver: Any?
     private let draftService: CaptureDraftServiceProtocol
-    private let reviewUseCase: ReviewUseCaseProtocol
-    private let taxonomyUseCase: TaxonomyUseCaseProtocol
-    
+    private let repositories: RepositoryContainer
+
     public init(
-        reviewUseCase: ReviewUseCaseProtocol,
-        taxonomyUseCase: TaxonomyUseCaseProtocol,
+        repositories: RepositoryContainer,
         draftService: CaptureDraftServiceProtocol = CaptureDraftService.shared
     ) {
-        self.reviewUseCase = reviewUseCase
-        self.taxonomyUseCase = taxonomyUseCase
+        self.repositories = repositories
         self.draftService = draftService
-        
+
         setupDataRetention()
     }
-    
-    /// 设置数据变更监听（监听 UseCase 层的应用级通知）
+
+    /// 设置数据变更监听
     private func setupDataRetention() {
         dataChangeObserver = NotificationCenter.default.addObserver(
             forName: .reviewDataDidChange,
@@ -66,27 +63,27 @@ public final class DashboardViewModel {
             }
         }
     }
-    
+
     deinit {
         if let observer = dataChangeObserver {
             NotificationCenter.default.removeObserver(observer)
         }
     }
-    
+
     // MARK: - Public API
-    
+
     /// 加载并刷新统计数据
     public func loadData() {
         do {
-            todayItemsCount = try reviewUseCase.getTodayAddedCount()
-            totalCount = try reviewUseCase.getTotalItemCount()
-            dueCount = try reviewUseCase.getDueCount()
-            reviewedTodayCount = try reviewUseCase.getTodayReviewedCount()
+            todayItemsCount = try repositories.review.fetchTodayCount()
+            totalCount = try repositories.review.totalItemCount()
+            dueCount = try repositories.review.fetchDueCount()
+            reviewedTodayCount = try repositories.review.fetchTodayReviewedCount()
         } catch {
             SnapDrillLogger.generic.error("加载统计数据失败: \(error.localizedDescription)")
         }
     }
-    
+
     public func checkDraftAndCapture(router: DashboardRouter) {
         if draftService.hasDraft {
             showingDraftAlert = true
@@ -94,12 +91,12 @@ public final class DashboardViewModel {
             router.navigateToCapture()
         }
     }
-    
+
     public func startNewCapture(router: DashboardRouter) {
         draftService.clearDraft()
         router.navigateToCapture()
     }
-    
+
     public func restoreDraft(router: DashboardRouter) {
         if let draft = draftService.loadDraft() {
             router.navigateToCapture(withDraft: draft)

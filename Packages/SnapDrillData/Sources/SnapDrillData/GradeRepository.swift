@@ -15,7 +15,7 @@ import SnapDrillDomain
 
 /// 年级数据仓库的 SwiftData 实现
 @MainActor
-public final class GradeRepository: GradeRepositoryProtocol {
+public final class GradeRepository {
 
     // MARK: - Properties
 
@@ -97,6 +97,40 @@ public final class GradeRepository: GradeRepositoryProtocol {
 
     public func deleteAll() throws {
         try modelContext.delete(model: GradeModel.self)
+        try modelContext.save()
+    }
+
+    // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）
+
+    /// 获取全部 GradeModel，按排序权重升序
+    public func fetchAllModels() throws -> [GradeModel] {
+        let descriptor = FetchDescriptor<GradeModel>(sortBy: [SortDescriptor(\.sortOrder)])
+        return try modelContext.fetch(descriptor)
+    }
+
+    /// 按名称查找 GradeModel
+    public func fetchModel(byName name: String) throws -> GradeModel? {
+        let targetName = name
+        let predicate = #Predicate<GradeModel> { $0.name == targetName }
+        var descriptor = FetchDescriptor<GradeModel>(predicate: predicate)
+        descriptor.fetchLimit = 1
+        return try modelContext.fetch(descriptor).first
+    }
+
+    /// 直接插入 GradeModel 并保存（带名称唯一性校验）
+    public func insertAndSave(_ model: GradeModel) throws {
+        let name = model.name
+        let namePredicate = #Predicate<GradeModel> { $0.name == name }
+        let descriptor = FetchDescriptor<GradeModel>(predicate: namePredicate)
+        if try modelContext.fetchCount(descriptor) > 0 {
+            throw DataError.duplicateName(name: name, entityType: "Grade")
+        }
+        modelContext.insert(model)
+        try modelContext.save()
+    }
+
+    /// 保存 ModelContext（直接修改 @Model 属性后调用）
+    public func saveContext() throws {
         try modelContext.save()
     }
 

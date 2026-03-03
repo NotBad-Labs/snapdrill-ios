@@ -10,23 +10,23 @@
 
 import SwiftUI
 import SnapDrillCore
-import SnapDrillDomain
+import SnapDrillData
 import SnapDrillUI
 
 struct SubjectManagerView: View {
-    
+
     // MARK: - Properties
-    
+
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.useCases) private var useCases
-    
+    @Environment(\.repositories) private var repositories
+
     @State private var viewModel: SubjectManagerViewModel?
-    
+
     @State private var showingAddSheet = false
-    @State private var editingSubject: Subject?
-    
+    @State private var editingSubject: SubjectModel?
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -78,7 +78,7 @@ struct SubjectManagerView: View {
             }
             .task {
                 if viewModel == nil {
-                    viewModel = SubjectManagerViewModel(taxonomyUseCase: useCases.taxonomy)
+                    viewModel = SubjectManagerViewModel(repositories: repositories)
                 }
                 viewModel?.loadData()
             }
@@ -89,30 +89,30 @@ struct SubjectManagerView: View {
 /// 统一的添加/编辑学科视图
 struct EditSubjectView: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     /// 如果为 nil，则为添加模式；否则为编辑模式
-    let subject: Subject?
+    let subject: SubjectModel?
     let viewModel: SubjectManagerViewModel?
-    
+
     @State private var name: String = ""
     @State private var selectedIcon: String = "book"
     @State private var selectedColorHex: String = "#4FC3F7"
     @State private var customColor: Color = .blue
     @State private var useCustomColor: Bool = false
     @State private var showSymbolPicker: Bool = false
-    
+
     let colors = ["#E57373", "#4FC3F7", "#AED581", "#7986CB", "#F06292", "#FFB74D", "#9575CD", "#90A4AE"]
-    
+
     private var isEditing: Bool { subject != nil }
     private var canSave: Bool { !name.trimmingCharacters(in: .whitespaces).isEmpty }
-    
+
     var body: some View {
         NavigationStack {
             Form {
                 Section("学科名称") {
                     TextField("例如：微积分", text: $name)
                 }
-                
+
                 Section("选择图标") {
                     Button {
                         showSymbolPicker = true
@@ -122,12 +122,12 @@ struct EditSubjectView: View {
                                 .font(.title2)
                                 .frame(width: 32, height: 32)
                                 .foregroundStyle(useCustomColor ? customColor : Color(hex: selectedColorHex))
-                            
+
                             Text(selectedIcon)
                                 .foregroundStyle(.primary)
-                            
+
                             Spacer()
-                            
+
                             Text("更多图标")
                                 .foregroundStyle(.secondary)
                             Image(systemName: "chevron.right")
@@ -136,7 +136,7 @@ struct EditSubjectView: View {
                         }
                     }
                 }
-                
+
                 Section("选择颜色") {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 10) {
                         ForEach(colors, id: \.self) { hex in
@@ -154,7 +154,7 @@ struct EditSubjectView: View {
                         }
                     }
                     .padding(.vertical, 8)
-                    
+
                     HStack {
                         Text("自定义颜色")
                         Spacer()
@@ -163,7 +163,7 @@ struct EditSubjectView: View {
                             .onChange(of: customColor) { _, _ in
                                 useCustomColor = true
                             }
-                        
+
                         if useCustomColor {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(.green)
@@ -192,7 +192,7 @@ struct EditSubjectView: View {
                     name = subject.name
                     selectedIcon = subject.icon
                     selectedColorHex = subject.colorHex
-                    
+
                     if !colors.contains(subject.colorHex) {
                         customColor = Color(hex: subject.colorHex)
                         useCustomColor = true
@@ -201,7 +201,7 @@ struct EditSubjectView: View {
             }
         }
     }
-    
+
     private var finalColorHex: String {
         if useCustomColor {
             return customColor.toHex() ?? "#4FC3F7"
@@ -209,7 +209,7 @@ struct EditSubjectView: View {
             return selectedColorHex
         }
     }
-    
+
     func saveSubject() {
         viewModel?.saveSubject(
             subject: subject,

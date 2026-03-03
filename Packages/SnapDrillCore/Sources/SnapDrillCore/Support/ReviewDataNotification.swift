@@ -1,6 +1,6 @@
 //
 //  ReviewDataNotification.swift
-//  SnapDrillDomain
+//  SnapDrillCore
 //
 //  Created by NotBad Labs on 2026/02/28.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
@@ -11,6 +11,6 @@
 import Foundation
 
 public extension Notification.Name {
-    /// 题目数据发生写操作后（新增、更新、删除）由 UseCase 层主动 post 的通知
+    /// 题目数据发生写操作后（新增、更新、删除）由业务层主动 post 的通知
     static let reviewDataDidChange = Notification.Name("com.snapdrill.reviewDataDidChange")
 }

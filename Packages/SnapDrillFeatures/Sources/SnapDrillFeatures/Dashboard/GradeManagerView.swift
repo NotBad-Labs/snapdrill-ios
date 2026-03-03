@@ -10,7 +10,7 @@
 
 import SwiftUI
 import SnapDrillCore
-import SnapDrillDomain
+import SnapDrillData
 
 /// 年级管理视图
 struct GradeManagerView: View {
@@ -18,11 +18,11 @@ struct GradeManagerView: View {
     // MARK: - Properties
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.useCases) private var useCases
+    @Environment(\.repositories) private var repositories
 
     @State private var viewModel: GradeManagerViewModel?
     @State private var showingAddSheet = false
-    @State private var editingGrade: Grade?
+    @State private var editingGrade: GradeModel?
 
     // MARK: - Body
 
@@ -74,7 +74,7 @@ struct GradeManagerView: View {
             }
             .task {
                 if viewModel == nil {
-                    viewModel = GradeManagerViewModel(taxonomyUseCase: useCases.taxonomy)
+                    viewModel = GradeManagerViewModel(repositories: repositories)
                 }
                 viewModel?.loadData()
             }
@@ -89,7 +89,7 @@ private struct EditGradeView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    let grade: Grade?
+    let grade: GradeModel?
     let viewModel: GradeManagerViewModel?
 
     @State private var name: String = ""

@@ -5,17 +5,19 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  题目编辑 ViewModel，直接操作 ReviewItemModel 进行持久化。
+//
 
 import SwiftUI
-import SnapDrillDomain
+import SnapDrillData
 import SnapDrillCore
 
 @Observable
 @MainActor
 public final class LibraryEditViewModel {
-    
+
     // MARK: - State
-    
+
     public var content: String
     public var answer: String
     public var selectedSubject: String
@@ -23,7 +25,7 @@ public final class LibraryEditViewModel {
     public var grade: String
     public var tagList: [String]
     public var difficulty: Difficulty
-    
+
     public var displayedImage: UIImage?
     /// 答案图片（新选择的，未持久化）
     public var answerDisplayedImage: UIImage?
@@ -33,43 +35,37 @@ public final class LibraryEditViewModel {
     public var isSavedNormally = false
     public var isCropping = false
     public var imageToCrop: UIImage?
-    
-    public var subjects: [Subject] = []
-    public var sources: [Source] = []
-    public var grades: [Grade] = []
-    public var allTags: [Tag] = []
+
+    public var subjects: [SubjectModel] = []
+    public var sources: [SourceModel] = []
+    public var grades: [GradeModel] = []
+    public var allTags: [TagModel] = []
 
     // MARK: - Dependencies
 
-    private var item: ReviewItem
-    private let reviewUseCase: ReviewUseCaseProtocol
-    private let taxonomyUseCase: TaxonomyUseCaseProtocol
+    private let item: ReviewItemModel
+    private let repositories: RepositoryContainer
     private let imageStorage = ImageStorage()
     private let ocrService = OCRService()
 
     @ObservationIgnored
     nonisolated(unsafe) private var ocrTask: Task<Void, Never>?
-    
-    public init(
-        item: ReviewItem,
-        reviewUseCase: ReviewUseCaseProtocol,
-        taxonomyUseCase: TaxonomyUseCaseProtocol
-    ) {
+
+    public init(item: ReviewItemModel, repositories: RepositoryContainer) {
         self.item = item
-        self.reviewUseCase = reviewUseCase
-        self.taxonomyUseCase = taxonomyUseCase
-        
+        self.repositories = repositories
+
         self.content = item.content ?? ""
         self.answer = item.answerText ?? ""
         self.selectedSubject = item.subject
         self.selectedSource = item.source
         self.grade = item.grade
-        self.tagList = item.tags
-        self.difficulty = item.difficulty
+        self.tagList = (item.tags ?? []).map { $0.name }
+        self.difficulty = item.difficultyValue
     }
-    
+
     // MARK: - Public API
-    
+
     public func loadData() {
         if displayedImage == nil, let path = item.imagePath {
             displayedImage = imageStorage.loadImage(path: path)
@@ -77,17 +73,17 @@ public final class LibraryEditViewModel {
         if answerDisplayedImage == nil, let path = item.answerImagePath {
             answerDisplayedImage = imageStorage.loadImage(path: path)
         }
-        
+
         do {
-            self.subjects = try taxonomyUseCase.getSubjects()
-            self.sources = try taxonomyUseCase.getSources()
-            self.grades = try taxonomyUseCase.getGrades().sorted(by: { $0.sortOrder < $1.sortOrder })
-            self.allTags = try taxonomyUseCase.getAllTags()
+            self.subjects = try repositories.subject.fetchAllModels()
+            self.sources = try repositories.source.fetchAllModels()
+            self.grades = try repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
+            self.allTags = try repositories.tag.fetchAllModels()
         } catch {
             SnapDrillLogger.generic.error("加载元数据失败: \(error.localizedDescription)")
         }
     }
-    
+
     /// 移除答案图片
     public func removeAnswerImage() {
         answerDisplayedImage = nil
@@ -124,34 +120,34 @@ public final class LibraryEditViewModel {
     deinit {
         ocrTask?.cancel()
     }
-    
+
     public func saveDraftIfNeeded() {
         // 后续可扩展草稿逻辑
     }
-    
+
     public func save() async {
         isSavedNormally = true
-        
-        // 更新领域对象属性
+
+        // 直接修改 @Model 属性
         item.content = content.isEmpty ? nil : content
         item.answerText = answer.isEmpty ? nil : answer
         item.subject = selectedSubject
         item.source = selectedSource
         item.grade = grade
-        item.difficulty = difficulty
-        
-        // 同步标签
-        var finalTags: [String] = []
+        item.difficultyValue = difficulty
+
+        // 同步标签（getOrCreate 确保 TagModel 存在）
+        var finalTagModels: [TagModel] = []
         for name in tagList {
             do {
-                _ = try taxonomyUseCase.getOrCreateTag(name: name, colorHex: "#9E9E9E")
-                finalTags.append(name)
+                let tagModel = try repositories.tag.fetchOrCreateModel(name: name, colorHex: "#9E9E9E")
+                finalTagModels.append(tagModel)
             } catch {
                 SnapDrillLogger.generic.error("同步标签失败: \(error.localizedDescription)")
             }
         }
-        item.tags = finalTags
-        
+        item.tags = finalTagModels
+
         // 处理题目图片保存
         if let newImage = displayedImage {
             do {
@@ -173,9 +169,16 @@ public final class LibraryEditViewModel {
         } else if isAnswerImageCleared {
             item.answerImagePath = nil
         }
-        
+
+        // 业务规则：题目文字和图片至少有一个
+        guard item.content != nil || item.imagePath != nil else {
+            SnapDrillLogger.generic.warning("保存失败：题目文字和图片均为空。")
+            return
+        }
+
         do {
-            try reviewUseCase.updateItem(item)
+            try repositories.review.saveContext()
+            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
         } catch {
             SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
         }

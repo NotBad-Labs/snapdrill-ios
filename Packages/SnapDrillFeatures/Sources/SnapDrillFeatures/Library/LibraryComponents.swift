@@ -9,13 +9,14 @@
 //
 
 import SwiftUI
-import SnapDrillDomain
+import SwiftData
+import SnapDrillData
 import SnapDrillUI
 
 // MARK: - Components
 
 struct SubjectCapsule: View {
-    let subject: Subject
+    let subject: SubjectModel
     let isSelected: Bool
 
     var body: some View {
@@ -34,9 +35,21 @@ struct SubjectCapsule: View {
 }
 
 #Preview {
+    let schema = Schema([SubjectModel.self])
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
+    let (math, physics): (SubjectModel, SubjectModel) = {
+        let m = SubjectModel(name: "Math", icon: "function", colorHex: "#FF5733", sortOrder: 0)
+        let p = SubjectModel(name: "Physics", icon: "atom", colorHex: "#33FF57", sortOrder: 1)
+        container.mainContext.insert(m)
+        container.mainContext.insert(p)
+        return (m, p)
+    }()
+
     HStack {
-        SubjectCapsule(subject: Subject(name: "Math", icon: "function", colorHex: "#FF5733", sortOrder: 0), isSelected: true)
-        SubjectCapsule(subject: Subject(name: "Physics", icon: "atom", colorHex: "#33FF57", sortOrder: 1), isSelected: false)
+        SubjectCapsule(subject: math, isSelected: true)
+        SubjectCapsule(subject: physics, isSelected: false)
     }
     .padding()
+    .modelContainer(container)
 }

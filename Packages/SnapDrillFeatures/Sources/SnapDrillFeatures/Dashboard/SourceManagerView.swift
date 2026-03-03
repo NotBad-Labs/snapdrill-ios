@@ -10,23 +10,23 @@
 
 import SwiftUI
 import SnapDrillCore
-import SnapDrillDomain
+import SnapDrillData
 import SnapDrillUI
 
 struct SourceManagerView: View {
-    
+
     // MARK: - Properties
-    
+
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.useCases) private var useCases
-    
+    @Environment(\.repositories) private var repositories
+
     @State private var viewModel: SourceManagerViewModel?
-    
+
     @State private var showingAddSheet = false
-    @State private var editingSource: Source?
-    
+    @State private var editingSource: SourceModel?
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -78,7 +78,7 @@ struct SourceManagerView: View {
             }
             .task {
                 if viewModel == nil {
-                    viewModel = SourceManagerViewModel(taxonomyUseCase: useCases.taxonomy)
+                    viewModel = SourceManagerViewModel(repositories: repositories)
                 }
                 viewModel?.loadData()
             }
@@ -88,30 +88,30 @@ struct SourceManagerView: View {
 
 struct EditSourceView: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     /// 如果为 nil，则为添加模式；否则为编辑模式
-    let source: Source?
+    let source: SourceModel?
     let viewModel: SourceManagerViewModel?
-    
+
     @State private var name: String = ""
     @State private var selectedIcon: String = "doc.text"
     @State private var selectedColorHex: String = "#808080"
     @State private var customColor: Color = .gray
     @State private var useCustomColor: Bool = false
     @State private var showSymbolPicker: Bool = false
-    
+
     let colors = ["#E57373", "#4FC3F7", "#AED581", "#7986CB", "#F06292", "#FFB74D", "#9575CD", "#90A4AE", "#808080"]
-    
+
     private var isEditing: Bool { source != nil }
     private var canSave: Bool { !name.trimmingCharacters(in: .whitespaces).isEmpty }
-    
+
     var body: some View {
         NavigationStack {
             Form {
                 Section("来源名称") {
                     TextField("例如：网课", text: $name)
                 }
-                
+
                 Section("选择图标") {
                     Button {
                         showSymbolPicker = true
@@ -121,12 +121,12 @@ struct EditSourceView: View {
                                 .font(.title2)
                                 .frame(width: 32, height: 32)
                                 .foregroundStyle(useCustomColor ? customColor : Color(hex: selectedColorHex))
-                            
+
                             Text(selectedIcon)
                                 .foregroundStyle(.primary)
-                            
+
                             Spacer()
-                            
+
                             Text("更多图标")
                                 .foregroundStyle(.secondary)
                             Image(systemName: "chevron.right")
@@ -135,7 +135,7 @@ struct EditSourceView: View {
                         }
                     }
                 }
-                
+
                 Section("选择颜色") {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 10) {
                         ForEach(colors, id: \.self) { hex in
@@ -153,7 +153,7 @@ struct EditSourceView: View {
                         }
                     }
                     .padding(.vertical, 8)
-                    
+
                     HStack {
                         Text("自定义颜色")
                         Spacer()
@@ -162,7 +162,7 @@ struct EditSourceView: View {
                             .onChange(of: customColor) { _, _ in
                                 useCustomColor = true
                             }
-                        
+
                         if useCustomColor {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(.green)
@@ -191,7 +191,7 @@ struct EditSourceView: View {
                     name = source.name
                     selectedIcon = source.icon
                     selectedColorHex = source.colorHex
-                    
+
                     if !colors.contains(source.colorHex) {
                         customColor = Color(hex: source.colorHex)
                         useCustomColor = true
@@ -203,7 +203,7 @@ struct EditSourceView: View {
             }
         }
     }
-    
+
     private var finalColorHex: String {
         if useCustomColor {
             return customColor.toHex() ?? "#808080"
@@ -211,7 +211,7 @@ struct EditSourceView: View {
             return selectedColorHex
         }
     }
-    
+
     func saveSource() {
         viewModel?.saveSource(
             source: source,

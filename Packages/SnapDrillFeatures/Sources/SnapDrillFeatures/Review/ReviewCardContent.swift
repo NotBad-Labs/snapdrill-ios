@@ -9,26 +9,25 @@
 //
 
 import SwiftUI
-import SnapDrillDomain
+import SwiftData
+import SnapDrillData
 import SnapDrillCore
 
-/// 复习卡片的视觉内容，展示题目正文和（可选的）答案
 /// 复习卡片正面：展示题目
 struct ReviewCardFront: View {
-    
-    // MARK: - Properties
-    
-    let item: ReviewItem
-    
-    @State private var showingEditSheet = false
 
+    // MARK: - Properties
+
+    let item: ReviewItemModel
+
+    @State private var showingEditSheet = false
     private let imageStorage = ImageStorage()
     @State private var loadedImage: UIImage?
 
-    // User Preferences for Front Card
+    // 用户偏好：正面卡片排版
     @AppStorage("cardFrontAlignment") private var alignmentRaw: String = "center"
     @AppStorage("cardFrontFontSize") private var fontSizeRaw: Double = 32.0
-    
+
     private var alignment: TextAlignment {
         switch alignmentRaw {
         case "center": return .center
@@ -36,7 +35,7 @@ struct ReviewCardFront: View {
         default: return .leading
         }
     }
-    
+
     private var frameAlignment: Alignment {
         switch alignmentRaw {
         case "center": return .center
@@ -44,13 +43,13 @@ struct ReviewCardFront: View {
         default: return .leading
         }
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         VStack {
             Spacer()
-            
+
             // 题目图片（纯图片题或图文混合）
             if let image = loadedImage {
                 Image(uiImage: image)
@@ -71,12 +70,12 @@ struct ReviewCardFront: View {
                     .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: frameAlignment)
             }
-            
+
             Spacer()
-            
+
             // Metadata Footer
             HStack(spacing: 8) {
-                // Subject Badge
+                // 学科徽标
                 Text(item.subject)
                     .font(.caption.bold())
                     .foregroundStyle(.white)
@@ -84,11 +83,12 @@ struct ReviewCardFront: View {
                     .padding(.vertical, 4)
                     .background(Color.accentColor.opacity(0.8))
                     .clipShape(Capsule())
-                
-                // Difficulty Indicator
-                if item.difficulty.starCount > 0 {
+
+                // 难度指示器
+                let starCount = item.difficultyValue.starCount
+                if starCount > 0 {
                     HStack(spacing: 2) {
-                        ForEach(0..<item.difficulty.starCount, id: \.self) { _ in
+                        ForEach(0..<starCount, id: \.self) { _ in
                             Image(systemName: "star.fill")
                                 .font(.caption2)
                                 .foregroundStyle(.yellow)
@@ -99,12 +99,13 @@ struct ReviewCardFront: View {
                     .background(.ultraThinMaterial)
                     .clipShape(Capsule())
                 }
-                
-                // Tags
-                if !item.tags.isEmpty {
+
+                // 标签
+                let tagNames = (item.tags ?? []).map { $0.name }
+                if !tagNames.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 4) {
-                            ForEach(item.tags, id: \.self) { tag in
+                            ForEach(tagNames, id: \.self) { tag in
                                 Text("#\(tag)")
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
@@ -126,7 +127,7 @@ struct ReviewCardFront: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .fill(Color(UIColor.secondarySystemGroupedBackground))
-                
+
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .fill(
                         LinearGradient(
@@ -135,7 +136,7 @@ struct ReviewCardFront: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                
+
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .strokeBorder(.white.opacity(0.5), lineWidth: 1)
             }
@@ -177,20 +178,19 @@ struct ReviewCardFront: View {
 
 /// 复习卡片背面：展示答案
 struct ReviewCardBack: View {
-    
+
     // MARK: - Properties
-    
-    let item: ReviewItem
-    
+
+    let item: ReviewItemModel
+
     private let imageStorage = ImageStorage()
-    
     @State private var showingEditSheet = false
     @State private var loadedImage: UIImage?
-    
-    // User Preferences
+
+    // 用户偏好：背面卡片排版
     @AppStorage("cardContextAlignment") private var alignmentRaw: String = "leading"
     @AppStorage("cardContextFontSize") private var fontSizeRaw: Double = 16.0
-    
+
     private var alignment: TextAlignment {
         switch alignmentRaw {
         case "center": return .center
@@ -198,7 +198,7 @@ struct ReviewCardBack: View {
         default: return .leading
         }
     }
-    
+
     private var frameAlignment: Alignment {
         switch alignmentRaw {
         case "center": return .center
@@ -206,7 +206,7 @@ struct ReviewCardBack: View {
         default: return .leading
         }
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(alignment: .top) {
@@ -238,21 +238,21 @@ struct ReviewCardBack: View {
             .padding(.horizontal, 24)
             .padding(.top, 24)
             .padding(.bottom, 16)
-            
+
             Divider()
                 .background(.quaternary)
                 .padding(.horizontal, 24)
-            
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    if let answerText = item.answerText {
+                    if let answerText = item.answerText, !answerText.isEmpty {
                         Text(answerText)
                             .font(.system(size: 20, weight: .regular, design: .default))
                             .foregroundStyle(.primary)
                             .multilineTextAlignment(.leading)
                             .lineSpacing(6)
                     }
-                    
+
                     if let imagePath = item.answerImagePath {
                         if let uiImage = loadedImage {
                             Image(uiImage: uiImage)
@@ -280,7 +280,7 @@ struct ReviewCardBack: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .fill(Color(UIColor.secondarySystemGroupedBackground))
-                
+
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .fill(
                         LinearGradient(
@@ -289,7 +289,7 @@ struct ReviewCardBack: View {
                             endPoint: .bottom
                         )
                     )
-                 
+
                 RoundedRectangle(cornerRadius: 32, style: .continuous)
                     .strokeBorder(.secondary.opacity(0.1), lineWidth: 1)
             }
@@ -299,26 +299,52 @@ struct ReviewCardBack: View {
             LibraryEditView(item: item)
         }
     }
-    
+
+    // MARK: - Private Helpers
+
     private func loadImageAsync(path: String) async {
         let image = await Task.detached(priority: .userInitiated) {
             imageStorage.loadImage(path: path)
         }.value
-        
+
         withAnimation(.easeOut(duration: 0.2)) {
             self.loadedImage = image
         }
     }
 }
 
+// MARK: - Previews
+
 #Preview("卡片正面") {
-    ReviewCardFront(item: ReviewItem(id: UUID(), content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。", subject: "数学"))
+    let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, TagModel.self, GradeModel.self])
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
+    let item: ReviewItemModel = {
+        let i = ReviewItemModel(content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。", subject: "数学")
+        container.mainContext.insert(i)
+        return i
+    }()
+    ReviewCardFront(item: item)
         .frame(height: 400)
         .padding()
+        .modelContainer(container)
 }
 
 #Preview("卡片背面") {
-    ReviewCardBack(item: ReviewItem(id: UUID(), content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。", answerText: "∠B = ∠C = (180° - 36°) / 2 = 72°"))
+    let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, TagModel.self, GradeModel.self])
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
+    let item: ReviewItemModel = {
+        let i = ReviewItemModel(
+            content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。",
+            subject: "数学",
+            answerText: "∠B = ∠C = (180° - 36°) / 2 = 72°"
+        )
+        container.mainContext.insert(i)
+        return i
+    }()
+    ReviewCardBack(item: item)
         .frame(height: 400)
         .padding()
+        .modelContainer(container)
 }

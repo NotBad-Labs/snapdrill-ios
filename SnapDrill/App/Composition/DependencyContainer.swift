@@ -5,14 +5,13 @@
 //  Created by NotBad Labs on 2025/12/29.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  依赖注入容器，管理全局服务实例。
+//  依赖注入容器（Composition Root），管理全局服务与仓库实例。
 //
 
 import Foundation
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillFeatures
-import SnapDrillDomain
 
 /// 应用的依赖注入容器 (Composition Root)
 ///
@@ -28,10 +27,7 @@ final class DependencyContainer {
     let services: any ServiceContainer
     
     /// 全局数据仓库容器 (SwiftData Repositories)
-    let repositories: any RepositoryContainer
-
-    /// 业务用例容器（Clean Architecture UseCase 层）
-    let useCaseContainer: any UseCaseContainer
+    let repositories: RepositoryContainer
 
     /// 顶级导航路由器
     let router: AppRouter
@@ -63,11 +59,8 @@ final class DependencyContainer {
         self.services = liveServices
         
         // 3. 初始化持久化仓库层
-        let repos = DefaultRepositoryContainer()
+        let repos = RepositoryContainer()
         self.repositories = repos
-
-        // 3.5 初始化 UseCase 层（Clean Architecture）
-        self.useCaseContainer = DefaultUseCaseContainer(repositories: repos)
 
         // 4. 首次启动时初始化默认学科数据
         repos.subject.seedDefaultsIfNeeded()

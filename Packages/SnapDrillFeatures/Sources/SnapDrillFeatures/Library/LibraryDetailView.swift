@@ -9,31 +9,32 @@
 //
 
 import SwiftUI
-import SnapDrillDomain
+import SwiftData
+import SnapDrillData
 import SnapDrillUI
 import SnapDrillCore
 
 /// 题目详情视图
 struct LibraryDetailView: View {
-    
+
     // MARK: - Properties
-    
+
     @Bindable var router: LibraryRouter
-    
-    /// 要展示的题目数据模型 (Domain)
-    let item: ReviewItem
-    
+
+    /// 要展示的题目数据模型
+    let item: ReviewItemModel
+
     @State private var isEditing = false
     @State private var showingFullScreenImage = false
     @State private var fullScreenImage: UIImage?
-    
+
     private let imageStorage = ImageStorage()
-    
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // Image Header
-                if let imagePath = item.imagePath, 
+                if let imagePath = item.imagePath,
                    let image = imageStorage.loadImage(path: imagePath) {
                     Image(uiImage: image)
                         .resizable()
@@ -46,7 +47,7 @@ struct LibraryDetailView: View {
                             showingFullScreenImage = true
                         }
                 }
-                
+
                 // Meta Info
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
@@ -58,7 +59,7 @@ struct LibraryDetailView: View {
                             .background(Color.blue.opacity(0.1))
                             .foregroundStyle(.blue)
                             .clipShape(Capsule())
-                        
+
                         // Source Badge
                         Text(item.source)
                             .font(.subheadline)
@@ -67,14 +68,15 @@ struct LibraryDetailView: View {
                             .background(Color.secondary.opacity(0.1))
                             .foregroundStyle(.secondary)
                             .clipShape(Capsule())
-                        
+
                         Spacer()
                     }
-                    
-                    if !item.tags.isEmpty {
+
+                    let tagNames = (item.tags ?? []).map { $0.name }
+                    if !tagNames.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
-                                ForEach(item.tags, id: \.self) { tag in
+                                ForEach(tagNames, id: \.self) { tag in
                                     Text("#\(tag)")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
@@ -86,14 +88,14 @@ struct LibraryDetailView: View {
                             }
                         }
                     }
-                    
+
                     HStack {
                         Label(item.createdAt.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        
+
                         Spacer()
-                        
+
                         if let nextReview = item.nextReviewAt {
                             Text("下次复习: \(nextReview.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.caption)
@@ -106,7 +108,7 @@ struct LibraryDetailView: View {
                     }
                 }
                 .padding(.horizontal)
-                
+
                 Divider()
 
                 // Content（纯图片题时 content 为 nil，跳过渲染）
@@ -121,9 +123,9 @@ struct LibraryDetailView: View {
                 HStack(spacing: 12) {
                     HStack(spacing: 3) {
                         ForEach(1...5, id: \.self) { level in
-                            Image(systemName: level <= item.difficulty.rawValue ? "star.fill" : "star")
+                            Image(systemName: level <= item.difficulty ? "star.fill" : "star")
                                 .font(.caption)
-                                .foregroundStyle(level <= item.difficulty.rawValue ? .orange : .gray.opacity(0.3))
+                                .foregroundStyle(level <= item.difficulty ? .orange : .gray.opacity(0.3))
                         }
                     }
 
@@ -199,7 +201,16 @@ struct LibraryDetailView: View {
 }
 
 #Preview {
+    let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, TagModel.self, GradeModel.self])
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
+    let item: ReviewItemModel = {
+        let i = ReviewItemModel(content: "Sample Domain Question", subject: "Math")
+        container.mainContext.insert(i)
+        return i
+    }()
     NavigationStack {
-        LibraryDetailView(router: LibraryRouter(), item: ReviewItem(id: UUID(), content: "Sample Domain Question", subject: "Math"))
+        LibraryDetailView(router: LibraryRouter(), item: item)
     }
+    .modelContainer(container)
 }

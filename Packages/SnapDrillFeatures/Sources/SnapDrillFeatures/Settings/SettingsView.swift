@@ -12,7 +12,6 @@ import SwiftUI
 import SwiftData
 import Observation
 import SnapDrillCore
-import SnapDrillDomain
 import SnapDrillUI
 import SnapDrillData
 #if canImport(UIKit)
@@ -23,7 +22,7 @@ import MessageUI
 
 public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
-    @Environment(\.useCases) private var useCases
+    @Environment(\.repositories) private var repositories
     @Environment(\.modelContext) private var modelContext
     
     @State private var viewModel: SettingsViewModel?
@@ -292,10 +291,7 @@ public struct SettingsView: View {
     
     private func initViewModelIfNeeded() {
         if viewModel == nil {
-            viewModel = SettingsViewModel(
-                reviewUseCase: useCases.review,
-                taxonomyUseCase: useCases.taxonomy
-            )
+            viewModel = SettingsViewModel(repositories: repositories)
         }
     }
 }

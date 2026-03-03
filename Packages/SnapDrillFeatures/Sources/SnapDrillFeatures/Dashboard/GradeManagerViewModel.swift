@@ -10,7 +10,7 @@
 
 import Foundation
 import Observation
-import SnapDrillDomain
+import SnapDrillData
 import SnapDrillCore
 
 @Observable
@@ -19,24 +19,24 @@ public final class GradeManagerViewModel {
 
     // MARK: - Properties
 
-    public var grades: [Grade] = []
+    public var grades: [GradeModel] = []
     public var isDeletingInUse = false
     public var pendingDeletionName = ""
 
     // MARK: - Dependencies
 
-    private let taxonomyUseCase: TaxonomyUseCaseProtocol
+    private let repositories: RepositoryContainer
 
     // MARK: - Initialization
 
-    public init(taxonomyUseCase: TaxonomyUseCaseProtocol) {
-        self.taxonomyUseCase = taxonomyUseCase
+    public init(repositories: RepositoryContainer) {
+        self.repositories = repositories
     }
 
     // MARK: - Public API
 
     public func loadData() {
-        grades = (try? taxonomyUseCase.getGrades().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
+        grades = (try? repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
     }
 
     public func delete(at offsets: IndexSet) {
@@ -44,12 +44,13 @@ public final class GradeManagerViewModel {
         let itemsToDelete = offsets.map { grades[$0] }
         for item in itemsToDelete {
             do {
-                if try !taxonomyUseCase.canDeleteGrade(name: item.name) {
+                let count = try repositories.review.countByGrade(name: item.name)
+                if count > 0 {
                     isDeletingInUse = true
                     pendingDeletionName = item.name
                     continue
                 }
-                try taxonomyUseCase.deleteGrade(name: item.name)
+                try repositories.grade.delete(id: item.id)
             } catch {
                 SnapDrillLogger.generic.error("删除年级失败: \(error.localizedDescription)")
             }
@@ -57,12 +58,19 @@ public final class GradeManagerViewModel {
         loadData()
     }
 
-    public func saveGrade(grade: Grade?, name: String) {
+    public func saveGrade(grade: GradeModel?, name: String) {
         do {
             if let grade {
-                try taxonomyUseCase.updateGrade(oldName: grade.name, newName: name)
+                let oldName = grade.name
+                if oldName != name {
+                    try repositories.review.updateGradeUsage(from: oldName, to: name)
+                }
+                grade.name = name
+                try repositories.grade.saveContext()
             } else {
-                try taxonomyUseCase.addGrade(name: name)
+                let sortOrder = try repositories.grade.totalCount()
+                let model = GradeModel(name: name, sortOrder: sortOrder)
+                try repositories.grade.insertAndSave(model)
             }
             loadData()
         } catch {

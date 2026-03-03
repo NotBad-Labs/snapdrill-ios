@@ -72,7 +72,7 @@ struct SnapDrillApp: App {
                     .modelContainer(PersistenceController.shared.container)
                     .environment(\.services, container.services)
                     .environment(container.services.networkMonitor)
-                    .environment(\.useCases, container.useCaseContainer)
+                    .environment(\.repositories, container.repositories)
                     .preferredColorScheme(colorScheme)
                     .blur(radius: AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive ? 10 : 0)
                     .disabled(AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive)

@@ -5,75 +5,73 @@
 //  Created by NotBad Labs on 2026/02/24.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  采集结果预览与编辑的 ViewModel，负责保存题目内容与图片。
+//  采集结果预览与编辑的 ViewModel，直接通过 RepositoryContainer 保存题目内容与图片。
 //
 
 import SwiftUI
 import PhotosUI
 import SnapDrillCore
-import SnapDrillDomain
+import SnapDrillData
 
 /// 采集结果预览与编辑的 ViewModel
 @MainActor
 @Observable
 public final class CaptureResultViewModel {
-    
+
     // MARK: - Properties
-    
+
     public var content: String
     public var image: UIImage?
-    
-    // Taxonomy Information
+
+    // 分类信息
     public var selectedSubject: String = "数学"
     public var selectedSource: String = "试卷"
     public var tagList: [String] = []
     public var tagInputText: String = ""
-    
-    // Details Form State
+
+    // 详情表单
     public var answerText: String = ""
     public var difficulty: Difficulty = .one
     public var grade: String = ""
     public var answerImage: UIImage?
-    
-    // Photo Picker State
+
+    // 相册选择器状态
     public var answerPhotoItem: PhotosPickerItem? {
         didSet {
             processSelectedPhoto()
         }
     }
-    
-    // UI State
+
+    // UI 状态
     public var isRecognizing = false
     public var isCropping = false
     public var isSaved = false
     public var showErrorAlert = false
     public var errorMessage: String?
-    
-    // Dropdown Form Data (Domain Entities)
-    public private(set) var availableSubjects: [Subject] = []
-    public private(set) var availableSources: [Source] = []
-    public private(set) var availableGrades: [Grade] = []
-    public private(set) var availableTags: [Tag] = []
+
+    // 下拉表单数据（@Model 类型）
+    public private(set) var availableSubjects: [SubjectModel] = []
+    public private(set) var availableSources: [SourceModel] = []
+    public private(set) var availableGrades: [GradeModel] = []
+    public private(set) var availableTags: [TagModel] = []
 
     // MARK: - Dependencies
 
-    private let reviewUseCase: ReviewUseCaseProtocol
-    private let taxonomyUseCase: TaxonomyUseCaseProtocol
+    private let repositories: RepositoryContainer
     private let ocrService: OCRServiceProtocol
     private let analyticsService: AnalyticsServiceProtocol
     private let imageStorage: ImageStorage
     private let router: CaptureRouter
-    
+
     /// 识别任务句柄
     private var recognitionTask: Task<Void, Never>?
-    
+
     // MARK: - Initialization
-    
+
     public init(
         content: String,
         image: UIImage?,
-        reviewUseCase: ReviewUseCaseProtocol,
-        taxonomyUseCase: TaxonomyUseCaseProtocol,
+        repositories: RepositoryContainer,
         ocrService: OCRServiceProtocol,
         analyticsService: AnalyticsServiceProtocol,
         imageStorage: ImageStorage = ImageStorage(),
@@ -81,63 +79,72 @@ public final class CaptureResultViewModel {
     ) {
         self.content = content
         self.image = image
-        self.reviewUseCase = reviewUseCase
-        self.taxonomyUseCase = taxonomyUseCase
+        self.repositories = repositories
         self.ocrService = ocrService
         self.analyticsService = analyticsService
         self.imageStorage = imageStorage
         self.router = router
     }
-    
+
     // MARK: - Public API
-    
+
     /// 加载默认表单数据
     public func loadFormData() {
         do {
-            availableSubjects = try taxonomyUseCase.getSubjects().sorted(by: { $0.sortOrder < $1.sortOrder })
-            availableSources = try taxonomyUseCase.getSources().sorted(by: { $0.sortOrder < $1.sortOrder })
-            availableGrades = try taxonomyUseCase.getGrades().sorted(by: { $0.sortOrder < $1.sortOrder })
-            availableTags = try taxonomyUseCase.getAllTags().sorted(by: { $0.name < $1.name })
+            availableSubjects = try repositories.subject.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
+            availableSources = try repositories.source.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
+            availableGrades = try repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
+            availableTags = try repositories.tag.fetchAllModels().sorted(by: { $0.name < $1.name })
         } catch {
             SnapDrillLogger.generic.error("加载下拉表单失败: \(error.localizedDescription)")
         }
     }
-    
+
     /// 处理裁切结果
     public func handleImageCrop(_ croppedImage: UIImage) {
         self.image = croppedImage
         self.isCropping = false
-        
+
         recognitionTask?.cancel()
         recognitionTask = Task {
             await reRecognizeText(from: croppedImage)
         }
     }
-    
+
     /// 取消裁切
     public func cancelCrop() {
         self.isCropping = false
     }
-    
-    /// 保存预览 Draft (离开时触发)
+
+    /// 保存预览草稿（离开时触发）
     public func generateDraftIfNeeded() {
         if !isSaved, let img = image, !content.isEmpty {
             CaptureDraftService.shared.saveDraft(image: img, content: content)
         }
     }
-    
+
     /// 保存正式题目
     public func saveResult() async {
         isSaved = true
-        
+
         do {
-            // 解析并同步标签
-            var finalTagNames: [String] = []
-            for name in tagList {
-                _ = try taxonomyUseCase.getOrCreateTag(name: name, colorHex: "#CCCCCC")
-                finalTagNames.append(name)
+            // 业务规则：题目文字和图片至少有一个
+            let contentValue = content.isEmpty ? nil : content
+            guard contentValue != nil || image != nil else {
+                throw NSError(
+                    domain: "SnapDrill",
+                    code: 0,
+                    userInfo: [NSLocalizedDescriptionKey: "题目文字和图片不能同时为空"]
+                )
             }
-            
+
+            // 解析并同步标签
+            var finalTagModels: [TagModel] = []
+            for name in tagList {
+                let tagModel = try repositories.tag.fetchOrCreateModel(name: name, colorHex: "#CCCCCC")
+                finalTagModels.append(tagModel)
+            }
+
             // 持久化题目截图，获取本地相对路径
             var savedImagePath: String?
             if let img = image {
@@ -150,22 +157,22 @@ public final class CaptureResultViewModel {
                 savedAnswerImagePath = try await imageStorage.saveImage(answerImg)
             }
 
-            // 构造领域对象
-            let item = ReviewItem(
-                content: content.isEmpty ? nil : content,
+            // 构造 @Model 对象并插入
+            let model = ReviewItemModel(
+                content: contentValue,
                 imagePath: savedImagePath,
                 subject: selectedSubject,
                 source: selectedSource,
-                tags: finalTagNames,
+                tags: finalTagModels,
                 answerText: answerText.isEmpty ? nil : answerText,
                 answerImagePath: savedAnswerImagePath,
-                difficulty: difficulty,
+                difficulty: difficulty.rawValue,
                 grade: grade
             )
-            
-            // 下推业务用例
-            try reviewUseCase.captureNewItem(item)
-            
+            try repositories.review.insertAndSave(model)
+
+            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+
             // 埋点
             analyticsService.track(
                 .captureSaved,
@@ -175,11 +182,11 @@ public final class CaptureResultViewModel {
                     "difficulty": String(difficulty.rawValue)
                 ]
             )
-            
+
             // 清理并返回
             CaptureDraftService.shared.clearDraft()
             router.path.removeLast(router.path.count)
-            
+
         } catch {
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
             self.errorMessage = error.localizedDescription
@@ -187,9 +194,9 @@ public final class CaptureResultViewModel {
             isSaved = false
         }
     }
-    
+
     // MARK: - Private Helpers
-    
+
     private func processSelectedPhoto() {
         guard let item = answerPhotoItem else { return }
         Task {
@@ -203,11 +210,11 @@ public final class CaptureResultViewModel {
             }
         }
     }
-    
+
     private func reRecognizeText(from img: UIImage) async {
         isRecognizing = true
         defer { isRecognizing = false }
-        
+
         do {
             guard let cgImage = img.cgImage else { return }
             try Task.checkCancellation()

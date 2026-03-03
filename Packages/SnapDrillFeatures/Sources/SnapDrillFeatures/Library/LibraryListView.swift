@@ -9,7 +9,7 @@
 //
 
 import SwiftUI
-import SnapDrillDomain
+import SwiftData
 import SnapDrillCore
 import SnapDrillData
 
@@ -134,14 +134,14 @@ struct LibraryListView: View {
 }
 
 #Preview {
-    let repos = PreviewRepositoryContainer()
-    let useCases = DefaultUseCaseContainer(repositories: repos)
+    let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, TagModel.self, GradeModel.self])
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
+    let repos = RepositoryContainer(modelContext: container.mainContext)
     LibraryListView(
         selectedItemIDs: .constant([]),
         router: LibraryRouter(),
-        viewModel: LibraryViewModel(
-            reviewUseCase: useCases.review,
-            taxonomyUseCase: useCases.taxonomy
-        )
+        viewModel: LibraryViewModel(repositories: repos)
     )
+    .modelContainer(container)
 }

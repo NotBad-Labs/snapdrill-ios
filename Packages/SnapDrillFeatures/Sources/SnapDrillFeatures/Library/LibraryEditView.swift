@@ -9,31 +9,32 @@
 //
 
 import SwiftUI
+import SwiftData
 import SnapDrillCore
-import SnapDrillDomain
+import SnapDrillData
 import SnapDrillUI
 import PhotosUI
 
 /// 题目编辑视图
 struct LibraryEditView: View {
-    
+
     // MARK: - Properties
-    
+
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.useCases) private var useCases
-    
-    /// 要编辑的题目数据模型 (Domain)
-    let item: ReviewItem
-    
+    @Environment(\.repositories) private var repositories
+
+    /// 要编辑的题目数据模型
+    let item: ReviewItemModel
+
     @State private var viewModel: LibraryEditViewModel?
     @FocusState private var isInputFocused: Bool
-    
+
     @State private var tagInputText: String = ""
     @State private var isPickerPresented = false
     @State private var pickerSelection: PhotosPickerItem?
     @State private var answerPickerSelection: PhotosPickerItem?
-    
-    init(item: ReviewItem) {
+
+    init(item: ReviewItemModel) {
         self.item = item
     }
     
@@ -117,11 +118,7 @@ struct LibraryEditView: View {
     
     private func loadData() {
         if viewModel == nil {
-            viewModel = LibraryEditViewModel(
-                item: item,
-                reviewUseCase: useCases.review,
-                taxonomyUseCase: useCases.taxonomy
-            )
+            viewModel = LibraryEditViewModel(item: item, repositories: repositories)
         }
         viewModel?.loadData()
     }
@@ -340,9 +337,16 @@ struct LibraryEditView: View {
 }
 
 #Preview {
+    let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, TagModel.self, GradeModel.self])
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
+    let item: ReviewItemModel = {
+        let i = ReviewItemModel(content: "Sample Question", subject: "Math")
+        container.mainContext.insert(i)
+        return i
+    }()
     NavigationStack {
-        LibraryEditView(
-            item: ReviewItem(id: UUID(), content: "Sample Domain Question", subject: "Math")
-        )
+        LibraryEditView(item: item)
     }
+    .modelContainer(container)
 }
