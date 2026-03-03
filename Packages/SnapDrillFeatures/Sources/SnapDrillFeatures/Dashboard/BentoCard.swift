@@ -10,11 +10,11 @@
 
 import SwiftUI
 
-/// Bento 风格的功能卡片，用于展示快捷操作链接
+/// Bento 风格的功能卡片，用于展示快捷操作链接或纯数据展示
 struct BentoCard: View {
-    
+
     // MARK: - Properties
-    
+
     /// 卡片标题
     let title: String
     /// 卡片副标题或描述
@@ -23,43 +23,65 @@ struct BentoCard: View {
     let icon: String
     /// 图标的渐变色背景
     let gradient: LinearGradient
-    /// 点击卡片时的操作回调
-    let action: () -> Void
-    
+    /// 点击回调，nil 时卡片为纯展示模式（不可交互）
+    let action: (() -> Void)?
+
+    init(
+        title: String,
+        subtitle: String,
+        icon: String,
+        gradient: LinearGradient,
+        action: (() -> Void)? = nil
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.icon = icon
+        self.gradient = gradient
+        self.action = action
+    }
+
     // MARK: - Body
-    
+
     var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading) {
-                HStack {
-                    Image(systemName: icon)
-                        .font(.title2)
-                        .foregroundStyle(gradient) // Gradient Text/Icon
-                        .padding(8)
-                        .background(.ultraThickMaterial) // Contrast
-                        .clipShape(Circle())
-                    Spacer()
-                }
-                
-                Spacer()
-                
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(.primary) // Auto adapting
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(16)
-            .frame(height: 120)
-            .background(.regularMaterial) // Glass Effect
-            .clipShape(RoundedRectangle(cornerRadius: 24)) // More rounded for "iOS 26"
-            .overlay(
-                RoundedRectangle(cornerRadius: 24)
-                    .stroke(.white.opacity(0.2), lineWidth: 1) // Glass Border
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5) // Softer shadow
+        if let action {
+            Button(action: action) { cardContent }
+        } else {
+            cardContent
         }
+    }
+
+    // MARK: - Private Helpers
+
+    private var cardContent: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(gradient)
+                    .padding(8)
+                    .background(.ultraThickMaterial)
+                    .clipShape(Circle())
+                Spacer()
+            }
+
+            Spacer()
+
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(.primary)
+            Text(subtitle)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(16)
+        .frame(height: 120)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
     }
 }
 

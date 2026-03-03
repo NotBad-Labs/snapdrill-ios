@@ -20,7 +20,6 @@ public final class DashboardViewModel {
     // MARK: - State
 
     public var showingSubjectManager = false
-    public var showingComingSoon = false
     public var showingDraftAlert = false
 
     /// 今日新增卡片数

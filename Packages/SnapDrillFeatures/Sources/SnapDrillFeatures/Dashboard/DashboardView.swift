@@ -74,10 +74,8 @@ public struct DashboardView: View {
                                     NotificationCenter.default.post(name: NSNotification.Name("SwitchToLibraryTab"), object: nil)
                                 }
                                 
-                                // Daily Insight (Real Data, Reactive)
-                                DailyStatsView(count: viewModel.todayItemsCount) {
-                                    viewModel.showingComingSoon = true
-                                }
+                                // Daily Insight (纯展示，暂无详情页)
+                                DailyStatsView(count: viewModel.todayItemsCount)
                                 
                                 // Settings/More
                                 BentoCard(
@@ -110,14 +108,6 @@ public struct DashboardView: View {
                 }
             }
         }
-        .alert("敬请期待", isPresented: Binding(
-            get: { viewModel?.showingComingSoon ?? false },
-            set: { viewModel?.showingComingSoon = $0 }
-        )) {
-            Button("好", role: .cancel) { }
-        } message: {
-            Text("学习统计功能正在火速开发中...")
-        }
         .alert("恢复未完成的题目？", isPresented: Binding(
             get: { viewModel?.showingDraftAlert ?? false },
             set: { viewModel?.showingDraftAlert = $0 }
@@ -145,23 +135,16 @@ public struct DashboardView: View {
     DashboardView(router: DashboardRouter())
 }
 
-/// 独立的今日统计视图，由 ViewModel 传入数据
+/// 独立的今日统计视图，纯展示（无跳转）
 struct DailyStatsView: View {
     let count: Int
-    let action: () -> Void
-
-    init(count: Int, action: @escaping () -> Void) {
-        self.count = count
-        self.action = action
-    }
 
     var body: some View {
         BentoCard(
             title: "今日新增",
             subtitle: "\(count) 题",
             icon: "chart.bar.xaxis",
-            gradient: LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing),
-            action: action
+            gradient: LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing)
         )
     }
 }
