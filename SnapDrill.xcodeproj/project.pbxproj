@@ -759,9 +759,9 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to scan and capture study materials. / 小本本需要相机权限以扫描录入错题。";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import study materials. / 小本本需要相册权限以导入复习资料。";
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "SnapDrill needs this permission to measure feature usage and improve your study experience. / 小本本需要此权限以衡量功能使用情况，持续改进您的学习体验。";
+				INFOPLIST_KEY_NSCameraUsageDescription = "小本本需要相机权限以扫描录入错题。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "小本本需要相册权限以导入复习资料。";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "小本本需要此权限以衡量功能使用情况，持续改进您的学习体验。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -796,9 +796,9 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to scan and capture study materials. / 小本本需要相机权限以扫描录入错题。";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import study materials. / 小本本需要相册权限以导入复习资料。";
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "SnapDrill needs this permission to measure feature usage and improve your study experience. / 小本本需要此权限以衡量功能使用情况，持续改进您的学习体验。";
+				INFOPLIST_KEY_NSCameraUsageDescription = "小本本需要相机权限以扫描录入错题。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "小本本需要相册权限以导入复习资料。";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "小本本需要此权限以衡量功能使用情况，持续改进您的学习体验。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
