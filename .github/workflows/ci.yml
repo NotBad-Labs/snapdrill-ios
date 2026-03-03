@@ -1,25 +1,41 @@
 name: SnapDrill CI
 
 on:
-  push:
-    branches: [ "develop", "main" ]
+  # 只在 PR 时自动触发（减少不必要的排队）
   pull_request:
     branches: [ "develop", "main" ]
+  # 手动触发
+  workflow_dispatch:
 
 jobs:
   build:
     name: Build & Test
-    runs-on: macos-26
+    # 使用 Mac mini 自托管 runner（离线时任务排队等待，免费）
+    runs-on: [self-hosted, macOS]
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_26.2.app
+        # 自动检测已安装的 Xcode，优先最新版
+        run: |
+          if [ -d "/Applications/Xcode_26.3.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_26.3.app
+          elif [ -d "/Applications/Xcode_26.2.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_26.2.app
+          else
+            echo "Using default Xcode: $(xcode-select -p)"
+          fi
+          xcodebuild -version
 
-      - name: Install SwiftLint
-        run: brew install swiftlint
+      - name: Check SwiftLint
+        run: |
+          if ! which swiftlint > /dev/null; then
+            brew install swiftlint
+          fi
+          swiftlint version
 
       - name: Lint
         run: swiftlint --strict
@@ -47,15 +63,12 @@ jobs:
 
       - name: Check Code Coverage
         run: |
-          # 生成覆盖率报告
           xcrun xccov view --report --json TestResults.xcresult > coverage.json
-          
-          # 提取覆盖率百分比
+
           COVERAGE=$(python3 -c "import json; data=json.load(open('coverage.json')); print(data['lineCoverage']*100)")
-          
+
           echo "📊 Code Coverage: ${COVERAGE}%"
-          
-          # 检查是否达到最低门槛
+
           MIN_COVERAGE=70
           if (( $(echo "$COVERAGE < $MIN_COVERAGE" | bc -l) )); then
             echo "❌ Coverage ${COVERAGE}% is below minimum ${MIN_COVERAGE}%"
