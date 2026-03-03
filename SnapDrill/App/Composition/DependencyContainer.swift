@@ -62,8 +62,10 @@ final class DependencyContainer {
         let repos = RepositoryContainer()
         self.repositories = repos
 
-        // 4. 首次启动时初始化默认学科数据
+        // 4. 首次启动时初始化默认分类数据
         repos.subject.seedDefaultsIfNeeded()
+        repos.source.seedDefaultsIfNeeded()
+        repos.grade.seedDefaultsIfNeeded()
 
         // 5. 初始化顶级路由器
         self.router = AppRouter()

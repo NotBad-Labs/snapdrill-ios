@@ -167,7 +167,7 @@ public struct SettingsView: View {
                     Button {
                         showingSubjectManager = true
                     } label: {
-                        SettingsRow(icon: "folder.fill", color: .blue, title: "管理学科分类")
+                        SettingsRow(icon: "folder.fill", color: .blue, title: "管理学科")
                     }
                     
                     Button {
