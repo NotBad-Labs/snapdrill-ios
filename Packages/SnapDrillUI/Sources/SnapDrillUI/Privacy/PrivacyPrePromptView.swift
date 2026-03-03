@@ -19,8 +19,6 @@ public struct PrivacyPrePromptView: View {
 
     private let onContinue: () -> Void
 
-    @Environment(\.openURL) private var openURL
-
     private var isChinese: Bool {
         Locale.current.language.languageCode?.identifier == "zh"
     }
@@ -84,15 +82,6 @@ public struct PrivacyPrePromptView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
 
-                Button {
-                    if let url = URL(string: "https://www.notbadhq.com/privacy") {
-                        openURL(url)
-                    }
-                } label: {
-                    Text(isChinese ? "了解更多" : "Learn More")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
