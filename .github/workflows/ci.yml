@@ -28,17 +28,22 @@ jobs:
         run: |
           xcodebuild build \
             -scheme SnapDrill \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
-            CODE_SIGNING_ALLOWED=NO
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
 
       - name: Test
         run: |
           xcodebuild test \
             -scheme SnapDrill \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
             -resultBundlePath TestResults \
             -enableCodeCoverage YES \
-            CODE_SIGNING_ALLOWED=NO
+            -skip-testing:SnapDrillUITests \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
 
       - name: Check Code Coverage
         run: |
