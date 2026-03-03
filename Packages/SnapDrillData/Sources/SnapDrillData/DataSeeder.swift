@@ -61,7 +61,7 @@ public final class DataSeeder {
         ("地球自转周期？", "24小时", "地理"),
         ("太阳系最大的行星？", "木星", "地理"),
         ("《西游记》作者？", "吴承恩", "语文"),
-        ("红灯停，绿灯？", "行", "常识"),
+        ("红灯停，绿灯？", "行", "语文"),
         ("Apple starts with?", "A", "英语"),
         ("1+2+3=?", "6", "数学"),
         ("2*3=?", "6", "数学"),
@@ -82,9 +82,9 @@ public final class DataSeeder {
         ("King of jungle?", "Lion", "生物"),
         ("Largest mammal?", "Blue Whale", "生物"),
         ("Man's best friend?", "Dog", "生物"),
-        ("Output of print('Hello')?", "Hello", "编程"),
-        ("What language is iOS built in?", "Swift / Obj-C", "编程"),
-        ("What comes after Tuesday?", "Wednesday", "常识"),
+        ("Output of print('Hello')?", "Hello", "数学"),
+        ("What language is iOS built in?", "Swift / Obj-C", "数学"),
+        ("What comes after Tuesday?", "Wednesday", "英语"),
         
         // MARK: - 长文本 (Long Text)
         (
@@ -159,7 +159,7 @@ public final class DataSeeder {
         (
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
             "This is a standard placeholder text used to demonstrate the visual form of a document or a typeface without relying on meaningful content. It is derived from Cicero's 'De Finibus Bonorum et Malorum'.",
-            "测试"
+            "数学"
         ),
         (
             """
@@ -197,7 +197,7 @@ public final class DataSeeder {
             - GPU accelerated.
             - Lightweight compared to UIView.
             """,
-            "编程"
+            "数学"
         ),
         (
             """
@@ -251,36 +251,36 @@ public final class DataSeeder {
         // ... (Repeating pattern for varied lengths)
         ("Describe the water cycle.", "Evaporation -> Condensation -> Precipitation -> Collection. Then repeats.", "地理"),
         ("Explain the properties of Acids.", "1. Sour taste.\n2. Turn blue litmus paper red.\n3. pH < 7.\n4. React with bases to form salt and water.\n5. Corrosive.", "化学"),
-        ("Define 'Inflation' in economics.", "Inflation is a general increase in prices and fall in the purchasing value of money.", "经济"),
+        ("Define 'Inflation' in economics.", "Inflation is a general increase in prices and fall in the purchasing value of money.", "政治"),
         ("What is the Pythagorean Theorem used for?", "It is used to find the length of a side of a right triangle when the other two sides are known. Formula: a² + b² = c².", "数学"),
-        ("Who painted the Mona Lisa?", "Leonardo da Vinci, a Polymath of the High Renaissance who was active as a painter, draughtsman, engineer, scientist, theorist, sculptor and architect.", "艺术"),
-        ("Explain 'Cloud Computing'.", "The delivery of different services through the Internet, including data storage, servers, databases, networking, and software.", "编程"),
+        ("Who painted the Mona Lisa?", "Leonardo da Vinci, a Polymath of the High Renaissance who was active as a painter, draughtsman, engineer, scientist, theorist, sculptor and architect.", "语文"),
+        ("Explain 'Cloud Computing'.", "The delivery of different services through the Internet, including data storage, servers, databases, networking, and software.", "数学"),
         ("What is a Black Hole?", "A region of spacetime where gravity is so strong that nothing—no particles or even electromagnetic radiation such as light—can escape from it.", "物理"),
         ("List 5 renewable energy sources.", "1. Solar Energy\n2. Wind Energy\n3. Hydro Energy\n4. Tidal Energy\n5. Geothermal Energy", "地理"),
         ("What is the function of the Kidneys?", "Removal of toxins, metabolic waste, and excess ions from the blood; regulation of blood volume, chemical composition, and pH.", "生物"),
         ("Translate 'Failure is the mother of success' to Chinese.", "失败是成功之母。", "英语"),
         
         ("Why is the sky blue?", "Because molecules in the air scatter blue light from the sun more than they scatter red light. This scattering is called Rayleigh scattering.", "物理"),
-        ("What is a stock market?", "A marketplace where securities, such as shares of public companies, are issued and traded.", "经济"),
-        ("Explain the concept of 'Karma'.", "The sum of a person's actions in this and previous states of existence, viewed as deciding their fate in future existences.", "哲学"),
-        ("Difference between RAM and ROM?", "RAM is volatile memory used for temporary storage while processing. ROM is non-volatile memory used for permanent storage of firmware.", "编程"),
+        ("What is a stock market?", "A marketplace where securities, such as shares of public companies, are issued and traded.", "政治"),
+        ("Explain the concept of 'Karma'.", "The sum of a person's actions in this and previous states of existence, viewed as deciding their fate in future existences.", "历史"),
+        ("Difference between RAM and ROM?", "RAM is volatile memory used for temporary storage while processing. ROM is non-volatile memory used for permanent storage of firmware.", "数学"),
         ("What is the Great Wall of China?", "A series of fortifications that were built across the historical northern borders of ancient Chinese states and Imperial China as protection against various nomadic groups.", "历史"),
         ("Define 'Democracy'.", "A system of government by the whole population or all the eligible members of a state, typically through elected representatives.", "政治"),
         ("What is Global Warming?", "The long-term heating of Earth's climate system observed since the pre-industrial period (between 1850 and 1900) due to human activities.", "地理"),
-        ("Explain 'Supply and Demand'.", "The amount of a commodity, product, or service available and the desire of buyers for it, considered as factors regulating its price.", "经济"),
+        ("Explain 'Supply and Demand'.", "The amount of a commodity, product, or service available and the desire of buyers for it, considered as factors regulating its price.", "政治"),
         ("What is a virus (biological)?", "A submicroscopic infectious agent that replicates only inside the living cells of an organism.", "生物"),
         ("Who is Aristotle?", "A Greek philosopher and polymath during the Classical period in Ancient Greece. Taught by Plato, was the founder of the Lyceum.", "历史"),
         
         ("Calculate 15% of 80.", "15/100 * 80 = 0.15 * 80 = 12.", "数学"),
         ("What is a Prime Meridian?", "The planet's line of zero degrees longitude. Slicing the earth along the circle of the prime meridian would divide it into Eastern and Western hemispheres.", "地理"),
-        ("Explain the rules of Football (Soccer).", "1. Two teams of 11 players.\n2. Score by getting ball into opponents goal.\n3. No hands allowed (except goalie).\n4. 90 minutes game time.", "体育"),
-        ("What is Jazz?", "A music genre that originated in the African-American communities of New Orleans, Louisiana, United States, in the late 19th and early 20th centuries.", "艺术"),
-        ("Define 'Algorithm'.", "A process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.", "编程"),
+        ("Explain the rules of Football (Soccer).", "1. Two teams of 11 players.\n2. Score by getting ball into opponents goal.\n3. No hands allowed (except goalie).\n4. 90 minutes game time.", "生物"),
+        ("What is Jazz?", "A music genre that originated in the African-American communities of New Orleans, Louisiana, United States, in the late 19th and early 20th centuries.", "语文"),
+        ("Define 'Algorithm'.", "A process or set of rules to be followed in calculations or other problem-solving operations, especially by a computer.", "数学"),
         ("What is the purpose of the United Nations?", "To maintain international peace and security, develop friendly relations among nations, achieve international co-operation, and be a centre for harmonizing the actions of nations.", "政治"),
-        ("Explain the 'Butterfly Effect'.", "The sensitive dependence on initial conditions in which a small change in one state of a deterministic nonlinear system can result in large differences in a later state.", "科普"),
-        ("What is Blockchain?", "A growing list of records, called blocks, that are linked using cryptography. Each block contains a cryptographic hash of the previous block, a timestamp, and transaction data.", "编程"),
+        ("Explain the 'Butterfly Effect'.", "The sensitive dependence on initial conditions in which a small change in one state of a deterministic nonlinear system can result in large differences in a later state.", "物理"),
+        ("What is Blockchain?", "A growing list of records, called blocks, that are linked using cryptography. Each block contains a cryptographic hash of the previous block, a timestamp, and transaction data.", "数学"),
         ("Who is Marie Curie?", "A Polish and naturalized-French physicist and chemist who conducted pioneering research on radioactivity. The first woman to win a Nobel Prize.", "历史"),
-        ("What is the 'Internet of Things'?", "The network of physical objects—'things'—that are embedded with sensors, software, and other technologies for the purpose of connecting and exchanging data with other devices and systems over the internet.", "编程")
+        ("What is the 'Internet of Things'?", "The network of physical objects—'things'—that are embedded with sensors, software, and other technologies for the purpose of connecting and exchanging data with other devices and systems over the internet.", "数学")
     ]
     
     /// 批量生成测试数据，不足 count 时循环复用 mockData 填满
@@ -295,35 +295,8 @@ public final class DataSeeder {
         while targetData.count < count {
             targetData.append(contentsOf: mockData)
         }
-        // 预定义源池
-        let sourcePool = ["模拟考试", "课本习题", "课外辅导", "网络资源", "历年真题"]
-
-        // 1. 同步所有学科 (Subjects)
-        let uniqueSubjects = Set(targetData.map { $0.sub })
-        for subName in uniqueSubjects {
-            let fetch = FetchDescriptor<SubjectModel>(predicate: #Predicate<SubjectModel> { $0.name == subName })
-            if (try? modelContext.fetch(fetch).first) == nil {
-                let icon = subName == "数学" ? "function" :
-                           subName == "物理" ? "atom" :
-                           subName == "化学" ? "flask" :
-                           subName == "生物" ? "leaf" :
-                           subName == "英语" ? "textformat.abc" : "book"
-                let newSub = SubjectModel(name: subName, icon: icon, colorHex: "#4A90E2", sortOrder: 0)
-                modelContext.insert(newSub)
-            }
-        }
-
-        // 2. 同步所有来源 (Sources)
-        for sourceName in sourcePool {
-            let fetch = FetchDescriptor<SourceModel>(predicate: #Predicate<SourceModel> { $0.name == sourceName })
-            if (try? modelContext.fetch(fetch).first) == nil {
-                let icon = sourceName.contains("考试") ? "doc.text.fill" :
-                           sourceName.contains("习题") ? "book.closed.fill" :
-                           sourceName.contains("网络") ? "globe" : "folder"
-                let newSource = SourceModel(name: sourceName, icon: icon, colorHex: "#808080")
-                modelContext.insert(newSource)
-            }
-        }
+        // 预定义源池（与 SourceRepository 默认来源一致，App 启动时已由 seedDefaultsIfNeeded 播种）
+        let sourcePool = ["试卷", "作业", "教材", "错题本", "其他"]
 
         // 预定义标签池
         let tagPool = ["必考", "易错", "真题", "重点", "压轴", "2024", "基础", "难点"]
