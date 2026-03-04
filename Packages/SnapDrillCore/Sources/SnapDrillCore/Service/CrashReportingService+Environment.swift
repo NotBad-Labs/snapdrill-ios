@@ -14,7 +14,7 @@ import SwiftUI
 
 private struct CrashReportingServiceKey: EnvironmentKey {
     static var defaultValue: any CrashReportingProtocol {
-        MainActor.assumeIsolated { CrashReportingService.shared }
+        MainActor.assumeIsolated { CrashReportingServiceMock() }
     }
 }
 

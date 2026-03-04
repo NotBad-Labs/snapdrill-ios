@@ -7,8 +7,9 @@
 //
 
 import Foundation
-@preconcurrency import FirebaseRemoteConfig
 import OSLog
+@preconcurrency import FirebaseRemoteConfig
+import SnapDrillCore
 
 /// Firebase Remote Config 实现的远程配置服务
 ///

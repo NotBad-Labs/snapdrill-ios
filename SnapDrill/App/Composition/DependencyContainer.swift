@@ -12,6 +12,7 @@ import Foundation
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillFeatures
+import SnapDrillInfrastructure
 
 /// 应用的依赖注入容器 (Composition Root)
 ///
@@ -35,39 +36,39 @@ final class DependencyContainer {
     // MARK: - Initialization
     
     private init() {
-        // 1. 配置 Firebase (基础设施)
+        // 1. 配置 Firebase（基础设施层）
         FirebaseBootstrap.configure()
-        
-        // 2. 初始化核心服务层
-        let liveServices = LiveServiceContainer()
-        
-        // 执行服务特定初始化
-        if let analytics = liveServices.analytics as? FirebaseAnalyticsService {
-            analytics.markConfigured()
-        }
-        if let crash = liveServices.crashReporting as? CrashReportingService {
-            crash.markConfigured()
-        }
-        
-        // 注册远程配置服务
+
+        // 2. 初始化 Firebase 具体服务
+        let analyticsService = FirebaseAnalyticsService()
+        analyticsService.markConfigured()
+        let crashService = CrashReportingService()
+        crashService.markConfigured()
+
+        // 3. 注册远程配置服务
         let remoteConfig = FirebaseRemoteConfigService()
         AppConfiguration.FeatureFlags.registerRemoteProvider(remoteConfig)
         Task {
             try? await remoteConfig.fetchAndActivate()
         }
-        
+
+        // 4. 初始化核心服务容器（注入 Firebase 实现）
+        let liveServices = LiveServiceContainer(
+            analytics: analyticsService,
+            crashReporting: crashService
+        )
         self.services = liveServices
         
-        // 3. 初始化持久化仓库层
+        // 5. 初始化持久化仓库层
         let repos = RepositoryContainer()
         self.repositories = repos
 
-        // 4. 首次启动时初始化默认分类数据
+        // 6. 首次启动时初始化默认分类数据
         repos.subject.seedDefaultsIfNeeded()
         repos.source.seedDefaultsIfNeeded()
         repos.grade.seedDefaultsIfNeeded()
 
-        // 5. 初始化顶级路由器
+        // 7. 初始化顶级路由器
         self.router = AppRouter()
 
         SnapDrillLogger.generic.info("DependencyContainer: Composition Root initialized successfully.")

@@ -10,6 +10,15 @@
 
 import Foundation
 
+/// 日志级别
+public enum LogLevel {
+    case debug
+    case info
+    case warning
+    case error
+    case critical
+}
+
 /// 崩溃报告服务协议
 ///
 /// 抽象崩溃报告和错误追踪的实现。支持记录非致命错误、日志、面包屑以及用户标识符设置。

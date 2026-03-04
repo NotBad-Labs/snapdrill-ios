@@ -35,10 +35,9 @@ public final class LiveServiceContainer: ServiceContainer {
 
     /// 创建生产服务容器
     ///
-    /// 使用 Firebase 驱动的分析和崩溃服务。
     /// - Parameters:
-    ///   - analytics: 分析服务实例（默认使用 Firebase 实现）
-    ///   - crashReporting: 崩溃报告实例（默认使用 Firebase 实现）
+    ///   - analytics: 分析服务实例（生产环境由 DependencyContainer 注入 FirebaseAnalyticsService）
+    ///   - crashReporting: 崩溃报告实例（生产环境由 DependencyContainer 注入 CrashReportingService）
     ///   - subscription: 订阅服务实例（默认使用 Mock，待 StoreKit 接入后替换）
     ///   - notification: 通知服务实例（默认使用 Live 实现）
     public init(
@@ -52,8 +51,8 @@ public final class LiveServiceContainer: ServiceContainer {
         self.networkMonitor = NetworkMonitor()
         self.pdfExport = PDFExportService()
         self.privacyConsent = PrivacyConsentService()
-        self.analytics = analytics ?? FirebaseAnalyticsService()
-        self.crashReporting = crashReporting ?? CrashReportingService()
+        self.analytics = analytics ?? AnalyticsServiceMock()
+        self.crashReporting = crashReporting ?? CrashReportingServiceMock()
         self.subscription = subscription ?? SubscriptionServiceMock()
         self.notification = notification ?? LiveNotificationService()
     }

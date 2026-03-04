@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AG_BF_FEATURES /* SnapDrillFeatures in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_FEATURES /* SnapDrillFeatures */; };
+		B2INFRA_BF /* SnapDrillInfrastructure in Frameworks */ = {isa = PBXBuildFile; productRef = B2INFRA_PROD /* SnapDrillInfrastructure */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,6 +29,45 @@
 		B2B4A4B72F04F26F00209449 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		B2BE0C9C2E727CC6001369C3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B2F0D1002F00000100AAA001 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		F17B54872F5883A90005C752 /* GDTCCTWatchOSTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GDTCCTWatchOSTestApp.xcodeproj; sourceTree = "<group>"; };
+		F17B55272F5883A90005C752 /* GDTWatchOSTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GDTWatchOSTestApp.xcodeproj; sourceTree = "<group>"; };
+		F17B6E692F5885210005C752 /* FirebasePodTest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FirebasePodTest.xcodeproj; sourceTree = "<group>"; };
+		F17B6FFB2F5885210005C752 /* CombineSample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CombineSample.xcodeproj; sourceTree = "<group>"; };
+		F17B70212F5885210005C752 /* FirestoreSample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FirestoreSample.xcodeproj; sourceTree = "<group>"; };
+		F17B70312F5885210005C752 /* tvOSSample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = tvOSSample.xcodeproj; sourceTree = "<group>"; };
+		F17B70452F5885210005C752 /* SampleWatchApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SampleWatchApp.xcodeproj; sourceTree = "<group>"; };
+		F17B70642F5885210005C752 /* ABTQA.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ABTQA.xcodeproj; sourceTree = "<group>"; };
+		F17B70D32F5885210005C752 /* FirebaseAITestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FirebaseAITestApp.xcodeproj; sourceTree = "<group>"; };
+		F17B713D2F5885210005C752 /* AppCheckCustomProvideApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = AppCheckCustomProvideApp.xcodeproj; sourceTree = "<group>"; };
+		F17B71492F5885210005C752 /* FIRAppCheckTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FIRAppCheckTestApp.xcodeproj; sourceTree = "<group>"; };
+		F17B72D82F5885210005C752 /* AuthenticationExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = AuthenticationExample.xcodeproj; sourceTree = "<group>"; };
+		F17B75782F5885210005C752 /* FDLBuilderTestAppObjC.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FDLBuilderTestAppObjC.xcodeproj; sourceTree = "<group>"; };
+		F17B76632F5885210005C752 /* FIAMSwiftUI.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FIAMSwiftUI.xcodeproj; sourceTree = "<group>"; };
+		F17B76812F5885210005C752 /* InAppMessagingDisplay-Sample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "InAppMessagingDisplay-Sample.xcodeproj"; sourceTree = "<group>"; };
+		F17B769B2F5885210005C752 /* InAppMessaging-Example-iOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "InAppMessaging-Example-iOS.xcodeproj"; sourceTree = "<group>"; };
+		F17B773D2F5885210005C752 /* AdvancedSample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = AdvancedSample.xcodeproj; sourceTree = "<group>"; };
+		F17B77482F5885210005C752 /* Sample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Sample.xcodeproj; sourceTree = "<group>"; };
+		F17B77532F5885210005C752 /* SampleStandaloneWatchApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SampleStandaloneWatchApp.xcodeproj; sourceTree = "<group>"; };
+		F17B77692F5885210005C752 /* SwiftUISample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SwiftUISample.xcodeproj; sourceTree = "<group>"; };
+		F17B77F92F5885210005C752 /* MLDownloaderTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = MLDownloaderTestApp.xcodeproj; sourceTree = "<group>"; };
+		F17B78C72F5885210005C752 /* FIRPerfE2E.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FIRPerfE2E.xcodeproj; sourceTree = "<group>"; };
+		F17B79102F5885210005C752 /* PerfTestRigApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = PerfTestRigApp.xcodeproj; sourceTree = "<group>"; };
+		F17B79A62F5885210005C752 /* FeatureRolloutsTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FeatureRolloutsTestApp.xcodeproj; sourceTree = "<group>"; };
+		F17B79BC2F5885210005C752 /* RemoteConfigSampleApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = RemoteConfigSampleApp.xcodeproj; sourceTree = "<group>"; };
+		F17B79FA2F5885210005C752 /* SwiftUISample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SwiftUISample.xcodeproj; sourceTree = "<group>"; };
+		F17B7A312F5885210005C752 /* AppQualityDevApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = AppQualityDevApp.xcodeproj; sourceTree = "<group>"; };
+		F17B7E5F2F5885210005C752 /* Firestore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Firestore.xcodeproj; sourceTree = "<group>"; };
+		F17B7EFA2F5885210005C752 /* FrameworkMaker.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FrameworkMaker.xcodeproj; sourceTree = "<group>"; };
+		F17B7FC12F5885210005C752 /* ClientApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ClientApp.xcodeproj; sourceTree = "<group>"; };
+		F17B7FD72F5885210005C752 /* CocoapodsIntegrationTest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = CocoapodsIntegrationTest.xcodeproj; sourceTree = "<group>"; };
+		F17B80E42F5885210005C752 /* SymbolCollisionTest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SymbolCollisionTest.xcodeproj; sourceTree = "<group>"; };
+		F17B81C82F5885210005C752 /* GDTCCTWatchOSTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GDTCCTWatchOSTestApp.xcodeproj; sourceTree = "<group>"; };
+		F17B82682F5885210005C752 /* GDTWatchOSTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GDTWatchOSTestApp.xcodeproj; sourceTree = "<group>"; };
+		F17B839D2F5885210005C752 /* TestApps.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = TestApps.xcodeproj; sourceTree = "<group>"; };
+		F17B95FF2F5885C00005C752 /* ProtocolBuffers_iOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ProtocolBuffers_iOS.xcodeproj; sourceTree = "<group>"; };
+		F17B96002F5885C00005C752 /* ProtocolBuffers_OSX.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ProtocolBuffers_OSX.xcodeproj; sourceTree = "<group>"; };
+		F17B96012F5885C00005C752 /* ProtocolBuffers_tvOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ProtocolBuffers_tvOS.xcodeproj; sourceTree = "<group>"; };
+		F17BA1A72F5885C60005C752 /* Promises.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Promises.xcodeproj; sourceTree = "<group>"; };
 		F18844132F52CC66008C2060 /* Promises.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Promises.xcodeproj; sourceTree = "<group>"; };
 		F188452A2F52CC68008C2060 /* TestApps.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = TestApps.xcodeproj; sourceTree = "<group>"; };
 		F18847B22F52CC69008C2060 /* GDTCCTWatchOSTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GDTCCTWatchOSTestApp.xcodeproj; sourceTree = "<group>"; };
@@ -88,6 +128,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AG_BF_FEATURES /* SnapDrillFeatures in Frameworks */,
+				B2INFRA_BF /* SnapDrillInfrastructure in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,6 +178,279 @@
 			children = (
 				B27BD95F2E560D0600E69277 /* SnapDrill.app */,
 				B27BD97A2E560D0800E69277 /* SnapDrillUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B55532F5883A90005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B55552F5883A90005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B889E2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88A02F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88A22F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88A42F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88A62F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88A82F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88AA2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88AC2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88AE2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88B02F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88B22F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88B42F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88B62F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88B82F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88BA2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88BC2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88BE2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88C02F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88C22F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88C42F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88C62F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88C82F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88CA2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88CC2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88CE2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88D02F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88D22F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88D42F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88D62F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88D82F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88DA2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88DC2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B88DE2F5885210005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B9C972F5885C00005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B9C992F5885C00005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17B9C9B2F5885C00005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F17BA1AE2F5885C60005C752 /* Products */ = {
+			isa = PBXGroup;
+			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -401,6 +715,7 @@
 			name = SnapDrill;
 			packageProductDependencies = (
 				AG_PROD_FEATURES /* SnapDrillFeatures */,
+				B2INFRA_PROD /* SnapDrillInfrastructure */,
 			);
 			productName = SnapDrill;
 			productReference = B27BD95F2E560D0600E69277 /* SnapDrill.app */;
@@ -464,6 +779,7 @@
 				B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/SnapDrillCore" */,
 				B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/SnapDrillData" */,
 				B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */,
+				B2PKG_INFRA /* XCLocalSwiftPackageReference "Packages/SnapDrillInfrastructure" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B27BD9602E560D0600E69277 /* Products */;
@@ -474,12 +790,28 @@
 					ProjectRef = F18863012F52CCB3008C2060 /* ABTQA.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B88BA2F5885210005C752 /* Products */;
+					ProjectRef = F17B70642F5885210005C752 /* ABTQA.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88C42F5885210005C752 /* Products */;
+					ProjectRef = F17B773D2F5885210005C752 /* AdvancedSample.xcodeproj */;
+				},
+				{
 					ProductGroup = F1886EED2F52CCB4008C2060 /* Products */;
 					ProjectRef = F1886A0E2F52CCB4008C2060 /* AdvancedSample.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B889E2F5885210005C752 /* Products */;
+					ProjectRef = F17B713D2F5885210005C752 /* AppCheckCustomProvideApp.xcodeproj */;
+				},
+				{
 					ProductGroup = F1886EF92F52CCB4008C2060 /* Products */;
 					ProjectRef = F188640E2F52CCB4008C2060 /* AppCheckCustomProvideApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88D22F5885210005C752 /* Products */;
+					ProjectRef = F17B7A312F5885210005C752 /* AppQualityDevApp.xcodeproj */;
 				},
 				{
 					ProductGroup = F1886EF32F52CCB4008C2060 /* Products */;
@@ -490,8 +822,28 @@
 					ProjectRef = F18865A92F52CCB4008C2060 /* AuthenticationExample.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B88B22F5885210005C752 /* Products */;
+					ProjectRef = F17B72D82F5885210005C752 /* AuthenticationExample.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88A42F5885210005C752 /* Products */;
+					ProjectRef = F17B7FC12F5885210005C752 /* ClientApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88CC2F5885210005C752 /* Products */;
+					ProjectRef = F17B7FD72F5885210005C752 /* CocoapodsIntegrationTest.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88AA2F5885210005C752 /* Products */;
+					ProjectRef = F17B6FFB2F5885210005C752 /* CombineSample.xcodeproj */;
+				},
+				{
 					ProductGroup = F188632F2F52CCB3008C2060 /* Products */;
 					ProjectRef = F18862982F52CCB3008C2060 /* CombineSample.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88CE2F5885210005C752 /* Products */;
+					ProjectRef = F17B75782F5885210005C752 /* FDLBuilderTestAppObjC.xcodeproj */;
 				},
 				{
 					ProductGroup = F1886F0F2F52CCB4008C2060 /* Products */;
@@ -502,12 +854,28 @@
 					ProjectRef = F1886C772F52CCB4008C2060 /* FeatureRolloutsTestApp.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B88BC2F5885210005C752 /* Products */;
+					ProjectRef = F17B79A62F5885210005C752 /* FeatureRolloutsTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88C22F5885210005C752 /* Products */;
+					ProjectRef = F17B76632F5885210005C752 /* FIAMSwiftUI.xcodeproj */;
+				},
+				{
 					ProductGroup = F1886EFD2F52CCB4008C2060 /* Products */;
 					ProjectRef = F18869342F52CCB4008C2060 /* FIAMSwiftUI.xcodeproj */;
 				},
 				{
 					ProductGroup = F1886EEF2F52CCB4008C2060 /* Products */;
 					ProjectRef = F188641A2F52CCB4008C2060 /* FIRAppCheckTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88AE2F5885210005C752 /* Products */;
+					ProjectRef = F17B71492F5885210005C752 /* FIRAppCheckTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88C82F5885210005C752 /* Products */;
+					ProjectRef = F17B70D32F5885210005C752 /* FirebaseAITestApp.xcodeproj */;
 				},
 				{
 					ProductGroup = F1886EF52F52CCB4008C2060 /* Products */;
@@ -518,20 +886,48 @@
 					ProjectRef = F18861142F52CCB3008C2060 /* FirebasePodTest.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B88CA2F5885210005C752 /* Products */;
+					ProjectRef = F17B6E692F5885210005C752 /* FirebasePodTest.xcodeproj */;
+				},
+				{
 					ProductGroup = F1886F0B2F52CCB4008C2060 /* Products */;
 					ProjectRef = F1886E622F52CCB4008C2060 /* Firestore.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88C62F5885210005C752 /* Products */;
+					ProjectRef = F17B7E5F2F5885210005C752 /* Firestore.xcodeproj */;
 				},
 				{
 					ProductGroup = F188632B2F52CCB3008C2060 /* Products */;
 					ProjectRef = F18862BE2F52CCB3008C2060 /* FirestoreSample.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B88DE2F5885210005C752 /* Products */;
+					ProjectRef = F17B70212F5885210005C752 /* FirestoreSample.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88A62F5885210005C752 /* Products */;
+					ProjectRef = F17B78C72F5885210005C752 /* FIRPerfE2E.xcodeproj */;
+				},
+				{
 					ProductGroup = F1886F152F52CCB4008C2060 /* Products */;
 					ProjectRef = F1886B982F52CCB4008C2060 /* FIRPerfE2E.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B88B02F5885210005C752 /* Products */;
+					ProjectRef = F17B7EFA2F5885210005C752 /* FrameworkMaker.xcodeproj */;
+				},
+				{
 					ProductGroup = F1886F132F52CCB4008C2060 /* Products */;
 					ProjectRef = F1886EE42F52CCB4008C2060 /* FrameworkMaker.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88DA2F5885210005C752 /* Products */;
+					ProjectRef = F17B81C82F5885210005C752 /* GDTCCTWatchOSTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B55552F5883A90005C752 /* Products */;
+					ProjectRef = F17B54872F5883A90005C752 /* GDTCCTWatchOSTestApp.xcodeproj */;
 				},
 				{
 					ProductGroup = F18847BE2F52CC69008C2060 /* Products */;
@@ -542,16 +938,40 @@
 					ProjectRef = F188487D2F52CC69008C2060 /* GDTWatchOSTestApp.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B88B82F5885210005C752 /* Products */;
+					ProjectRef = F17B82682F5885210005C752 /* GDTWatchOSTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B55532F5883A90005C752 /* Products */;
+					ProjectRef = F17B55272F5883A90005C752 /* GDTWatchOSTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88D82F5885210005C752 /* Products */;
+					ProjectRef = F17B769B2F5885210005C752 /* InAppMessaging-Example-iOS.xcodeproj */;
+				},
+				{
 					ProductGroup = F1886F0D2F52CCB4008C2060 /* Products */;
 					ProjectRef = F188696C2F52CCB4008C2060 /* InAppMessaging-Example-iOS.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88B62F5885210005C752 /* Products */;
+					ProjectRef = F17B76812F5885210005C752 /* InAppMessagingDisplay-Sample.xcodeproj */;
 				},
 				{
 					ProductGroup = F1886F092F52CCB4008C2060 /* Products */;
 					ProjectRef = F18869522F52CCB4008C2060 /* InAppMessagingDisplay-Sample.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B88BE2F5885210005C752 /* Products */;
+					ProjectRef = F17B77F92F5885210005C752 /* MLDownloaderTestApp.xcodeproj */;
+				},
+				{
 					ProductGroup = F1886F012F52CCB4008C2060 /* Products */;
 					ProjectRef = F1886ACA2F52CCB4008C2060 /* MLDownloaderTestApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88D02F5885210005C752 /* Products */;
+					ProjectRef = F17B79102F5885210005C752 /* PerfTestRigApp.xcodeproj */;
 				},
 				{
 					ProductGroup = F1886F112F52CCB4008C2060 /* Products */;
@@ -562,6 +982,14 @@
 					ProjectRef = F18844132F52CC66008C2060 /* Promises.xcodeproj */;
 				},
 				{
+					ProductGroup = F17BA1AE2F5885C60005C752 /* Products */;
+					ProjectRef = F17BA1A72F5885C60005C752 /* Promises.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B9C992F5885C00005C752 /* Products */;
+					ProjectRef = F17B95FF2F5885C00005C752 /* ProtocolBuffers_iOS.xcodeproj */;
+				},
+				{
 					ProductGroup = F1885FF42F52CCB3008C2060 /* Products */;
 					ProjectRef = F18856572F52CCB3008C2060 /* ProtocolBuffers_iOS.xcodeproj */;
 				},
@@ -570,8 +998,20 @@
 					ProjectRef = F18856582F52CCB3008C2060 /* ProtocolBuffers_OSX.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B9C972F5885C00005C752 /* Products */;
+					ProjectRef = F17B96002F5885C00005C752 /* ProtocolBuffers_OSX.xcodeproj */;
+				},
+				{
 					ProductGroup = F1885FF22F52CCB3008C2060 /* Products */;
 					ProjectRef = F18856592F52CCB3008C2060 /* ProtocolBuffers_tvOS.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B9C9B2F5885C00005C752 /* Products */;
+					ProjectRef = F17B96012F5885C00005C752 /* ProtocolBuffers_tvOS.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88D62F5885210005C752 /* Products */;
+					ProjectRef = F17B79BC2F5885210005C752 /* RemoteConfigSampleApp.xcodeproj */;
 				},
 				{
 					ProductGroup = F1886EF72F52CCB4008C2060 /* Products */;
@@ -582,8 +1022,20 @@
 					ProjectRef = F1886A192F52CCB4008C2060 /* Sample.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B88A02F5885210005C752 /* Products */;
+					ProjectRef = F17B77482F5885210005C752 /* Sample.xcodeproj */;
+				},
+				{
 					ProductGroup = F1886EFF2F52CCB4008C2060 /* Products */;
 					ProjectRef = F1886A242F52CCB4008C2060 /* SampleStandaloneWatchApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88AC2F5885210005C752 /* Products */;
+					ProjectRef = F17B77532F5885210005C752 /* SampleStandaloneWatchApp.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88D42F5885210005C752 /* Products */;
+					ProjectRef = F17B70452F5885210005C752 /* SampleWatchApp.xcodeproj */;
 				},
 				{
 					ProductGroup = F188632D2F52CCB3008C2060 /* Products */;
@@ -598,8 +1050,28 @@
 					ProjectRef = F1886A3A2F52CCB4008C2060 /* SwiftUISample.xcodeproj */;
 				},
 				{
+					ProductGroup = F17B88C02F5885210005C752 /* Products */;
+					ProjectRef = F17B77692F5885210005C752 /* SwiftUISample.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88DC2F5885210005C752 /* Products */;
+					ProjectRef = F17B79FA2F5885210005C752 /* SwiftUISample.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88A22F5885210005C752 /* Products */;
+					ProjectRef = F17B80E42F5885210005C752 /* SymbolCollisionTest.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88A82F5885210005C752 /* Products */;
+					ProjectRef = F17B839D2F5885210005C752 /* TestApps.xcodeproj */;
+				},
+				{
 					ProductGroup = F18845522F52CC68008C2060 /* Products */;
 					ProjectRef = F188452A2F52CC68008C2060 /* TestApps.xcodeproj */;
+				},
+				{
+					ProductGroup = F17B88B42F5885210005C752 /* Products */;
+					ProjectRef = F17B70312F5885210005C752 /* tvOSSample.xcodeproj */;
 				},
 				{
 					ProductGroup = F18863312F52CCB3008C2060 /* Products */;
@@ -955,6 +1427,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillData;
 		};
+		B2PKG_INFRA /* XCLocalSwiftPackageReference "Packages/SnapDrillInfrastructure" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SnapDrillInfrastructure;
+		};
 		B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillUI;
@@ -966,6 +1442,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
 			productName = SnapDrillFeatures;
+		};
+		B2INFRA_PROD /* SnapDrillInfrastructure */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B2PKG_INFRA /* XCLocalSwiftPackageReference "Packages/SnapDrillInfrastructure" */;
+			productName = SnapDrillInfrastructure;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
