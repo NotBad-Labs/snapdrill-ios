@@ -52,7 +52,5 @@ jobs:
             CODE_SIGN_IDENTITY=""
 
       - name: Test (SnapDrillCore)
+        # SnapDrillData 的 swift test 在 macOS 会因 SwiftData #Predicate SIGTRAP 失败，须通过 Xcode (iOS Simulator) 运行
         run: swift test --package-path Packages/SnapDrillCore
-
-      - name: Test (SnapDrillData)
-        run: swift test --package-path Packages/SnapDrillData
