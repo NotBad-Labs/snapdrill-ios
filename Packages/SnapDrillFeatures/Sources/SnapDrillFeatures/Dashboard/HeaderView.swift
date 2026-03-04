@@ -63,7 +63,7 @@ struct HeaderView: View {
             // Avatar / Profile
             Button {
                 // Navigate to Settings Tab via Notification
-                NotificationCenter.default.post(name: NSNotification.Name("SwitchToSettingsTab"), object: nil)
+                NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
             } label: {
                 if userAvatar.contains("images/"), let image = ImageStorage().loadImage(path: userAvatar) {
                     Image(uiImage: image)

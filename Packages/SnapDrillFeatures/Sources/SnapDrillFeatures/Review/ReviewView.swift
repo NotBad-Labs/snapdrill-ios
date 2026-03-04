@@ -96,6 +96,10 @@ public struct ReviewView: View {
         .toolbar(vm.phase == .reviewing ? .hidden : .visible, for: .navigationBar)
         .toolbar(vm.phase == .reviewing ? .hidden : .visible, for: .tabBar)
         .animation(.spring(response: 0.5, dampingFraction: 0.8), value: vm.phase)
+        // HIG：完成整组复习是正向结果，用 success 反馈强化成就感
+        .sensoryFeedback(.success, trigger: vm.phase) { _, newPhase in
+            newPhase == .finished
+        }
         .alert("确认暂停复习？", isPresented: Binding(get: { vm.showPauseAlert }, set: { vm.showPauseAlert = $0 })) {
             Button("继续", role: .cancel) { }
             Button("暂停", role: .destructive) {
@@ -170,6 +174,8 @@ public struct ReviewView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, 12)
+            // HIG：卡片翻转用 light，符合翻动物理感知
+            .sensoryFeedback(.impact(weight: .light), trigger: vm.isAnswerShown)
 
             bottomControl(vm: vm)
                 .padding(.bottom, 40)

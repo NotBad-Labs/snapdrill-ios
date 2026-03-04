@@ -43,55 +43,70 @@ public struct DashboardView: View {
                         VStack(spacing: 20) {
                             // 1. Header Area
                             HeaderView()
-                            
-                            // 2. Hero Section (Review Status, Reactive)
-                            ReviewHeroCard(
-                                totalCount: viewModel.totalCount,
-                                dueCount: viewModel.dueCount,
-                                reviewedTodayCount: viewModel.reviewedTodayCount,
-                                onStartReview: { router.navigateToReview() },
-                                onStartCapture: { viewModel.checkDraftAndCapture(router: router) }
-                            )
-                            
-                            // 3. Bento Grid Actions
-                            LazyVGrid(columns: columns, spacing: 12) {
-                                BentoCard(
-                                    title: "智能扫描",
-                                    subtitle: "录入新题",
-                                    icon: "camera.viewfinder",
-                                    gradient: LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
-                                ) {
-                                    viewModel.checkDraftAndCapture(router: router)
+
+                            if viewModel.totalCount == 0 {
+                                // 空状态：引导用户采集第一道题
+                                ContentUnavailableView {
+                                    Label("还没有任何题目", systemImage: "books.vertical")
+                                } description: {
+                                    Text("拍摄一道错题，开始你的间隔复习之旅")
+                                } actions: {
+                                    Button("去采集") {
+                                        viewModel.checkDraftAndCapture(router: router)
+                                    }
+                                    .buttonStyle(.borderedProminent)
                                 }
-                                
-                                // Library Card
-                                BentoCard(
-                                    title: "题库浏览",
-                                    subtitle: "管理知识",
-                                    icon: "books.vertical.fill",
-                                    gradient: LinearGradient(colors: [.orange, .pink], startPoint: .topLeading, endPoint: .bottomTrailing)
-                                ) {
-                                    NotificationCenter.default.post(name: NSNotification.Name("SwitchToLibraryTab"), object: nil)
+                                .padding(.top, 40)
+                            } else {
+                                // 2. Hero Section (Review Status, Reactive)
+                                ReviewHeroCard(
+                                    totalCount: viewModel.totalCount,
+                                    dueCount: viewModel.dueCount,
+                                    reviewedTodayCount: viewModel.reviewedTodayCount,
+                                    onStartReview: { router.navigateToReview() },
+                                    onStartCapture: { viewModel.checkDraftAndCapture(router: router) }
+                                )
+
+                                // 3. Bento Grid Actions
+                                LazyVGrid(columns: columns, spacing: 12) {
+                                    BentoCard(
+                                        title: "智能扫描",
+                                        subtitle: "录入新题",
+                                        icon: "camera.viewfinder",
+                                        gradient: LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                    ) {
+                                        viewModel.checkDraftAndCapture(router: router)
+                                    }
+
+                                    // Library Card
+                                    BentoCard(
+                                        title: "题库浏览",
+                                        subtitle: "管理知识",
+                                        icon: "books.vertical.fill",
+                                        gradient: LinearGradient(colors: [.orange, .pink], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                    ) {
+                                        NotificationCenter.default.post(name: .switchToLibraryTab, object: nil)
+                                    }
+
+                                    // Daily Insight (纯展示，暂无详情页)
+                                    DailyStatsView(count: viewModel.todayItemsCount)
+
+                                    // Settings/More
+                                    BentoCard(
+                                        title: "科目管理",
+                                        subtitle: "自定义",
+                                        icon: "square.grid.2x2",
+                                        gradient: LinearGradient(
+                                            colors: [.gray.opacity(0.8), .gray],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    ) {
+                                        viewModel.isShowingSubjectManager = true
+                                    }
                                 }
-                                
-                                // Daily Insight (纯展示，暂无详情页)
-                                DailyStatsView(count: viewModel.todayItemsCount)
-                                
-                                // Settings/More
-                                BentoCard(
-                                    title: "科目管理",
-                                    subtitle: "自定义",
-                                    icon: "square.grid.2x2",
-                                    gradient: LinearGradient(
-                                        colors: [.gray.opacity(0.8), .gray],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                ) {
-                                    viewModel.isShowingSubjectManager = true
-                                }
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
                         }
                         .padding(.bottom, 40)
                     }

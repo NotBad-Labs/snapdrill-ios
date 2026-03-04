@@ -143,7 +143,7 @@ public struct LibraryView: View {
                     }
                 }
                 .toolbar(editMode.isEditing ? .hidden : .visible, for: .tabBar)
-                .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToLibraryTab"))) { notification in
+                .onReceive(NotificationCenter.default.publisher(for: .switchToLibraryTab)) { notification in
                     if let userInfo = notification.userInfo,
                        let subject = userInfo["subject"] as? String,
                        let vm = viewModel {

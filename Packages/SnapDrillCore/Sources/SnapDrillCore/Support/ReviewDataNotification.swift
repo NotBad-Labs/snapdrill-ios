@@ -13,4 +13,11 @@ import Foundation
 public extension Notification.Name {
     /// 题目数据发生写操作后（新增、更新、删除）由业务层主动 post 的通知
     static let reviewDataDidChange = Notification.Name("com.snapdrill.reviewDataDidChange")
+
+    /// 切换到「采集」Tab
+    static let switchToCaptureTab  = Notification.Name("com.snapdrill.switchToCaptureTab")
+    /// 切换到「题库」Tab
+    static let switchToLibraryTab  = Notification.Name("com.snapdrill.switchToLibraryTab")
+    /// 切换到「设置」Tab
+    static let switchToSettingsTab = Notification.Name("com.snapdrill.switchToSettingsTab")
 }

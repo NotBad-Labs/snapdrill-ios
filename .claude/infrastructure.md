@@ -4,7 +4,7 @@
 > 不在此文件中的 API 必须先读源文件确认，或新建后再写入此文件。
 > **不得凭名称推测方法存在**。
 
-最后更新：2026-03-03（基于完整源码扫描）
+最后更新：2026-03-04（新增 Tab 切换通知名）
 
 ---
 
@@ -15,14 +15,20 @@
 ```swift
 // 文件：Support/ReviewDataNotification.swift
 public extension Notification.Name {
+    /// 题目数据写操作后 post
     static let reviewDataDidChange = Notification.Name("com.snapdrill.reviewDataDidChange")
+    /// Tab 切换（2026-03-04，禁止使用裸字符串 NSNotification.Name("SwitchTo*Tab")）
+    static let switchToCaptureTab  = Notification.Name("com.snapdrill.switchToCaptureTab")
+    static let switchToLibraryTab  = Notification.Name("com.snapdrill.switchToLibraryTab")
+    static let switchToSettingsTab = Notification.Name("com.snapdrill.switchToSettingsTab")
 }
 
 // 发送方式（唯一正确写法）：
 NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+NotificationCenter.default.post(name: .switchToCaptureTab, object: nil)
 
-// 监听方式：
-NotificationCenter.default.addObserver(forName: .reviewDataDidChange, object: nil, queue: .main) { _ in ... }
+// 监听方式（SwiftUI）：
+.onReceive(NotificationCenter.default.publisher(for: .switchToCaptureTab)) { _ in ... }
 ```
 
 ### 日志

@@ -49,6 +49,14 @@ public final class CaptureResultViewModel {
     public var showErrorAlert = false
     public var errorMessage: String?
 
+    // 新建分类 Alert 状态
+    public var showNewSubjectAlert = false
+    public var newSubjectName = ""
+    public var showNewSourceAlert = false
+    public var newSourceName = ""
+    public var showNewGradeAlert = false
+    public var newGradeName = ""
+
     // 下拉表单数据（@Model 类型）
     public private(set) var availableSubjects: [SubjectModel] = []
     public private(set) var availableSources: [SourceModel] = []
@@ -97,6 +105,51 @@ public final class CaptureResultViewModel {
             availableTags = try repositories.tag.fetchAllModels().sorted(by: { $0.name < $1.name })
         } catch {
             SnapDrillLogger.generic.error("加载下拉表单失败: \(error.localizedDescription)")
+        }
+    }
+
+    /// 创建新学科并选中
+    public func confirmNewSubject() {
+        let trimmed = newSubjectName.trimmingCharacters(in: .whitespaces)
+        newSubjectName = ""
+        guard !trimmed.isEmpty else { return }
+        do {
+            let model = SubjectModel(name: trimmed, icon: "book", colorHex: "#808080", sortOrder: availableSubjects.count)
+            try repositories.subject.insertAndSave(model)
+            availableSubjects = try repositories.subject.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
+            selectedSubject = trimmed
+        } catch {
+            SnapDrillLogger.generic.error("新建学科失败: \(error.localizedDescription)")
+        }
+    }
+
+    /// 创建新来源并选中
+    public func confirmNewSource() {
+        let trimmed = newSourceName.trimmingCharacters(in: .whitespaces)
+        newSourceName = ""
+        guard !trimmed.isEmpty else { return }
+        do {
+            let model = SourceModel(name: trimmed)
+            try repositories.source.insertAndSave(model)
+            availableSources = try repositories.source.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
+            selectedSource = trimmed
+        } catch {
+            SnapDrillLogger.generic.error("新建来源失败: \(error.localizedDescription)")
+        }
+    }
+
+    /// 创建新年级并选中
+    public func confirmNewGrade() {
+        let trimmed = newGradeName.trimmingCharacters(in: .whitespaces)
+        newGradeName = ""
+        guard !trimmed.isEmpty else { return }
+        do {
+            let model = GradeModel(name: trimmed)
+            try repositories.grade.insertAndSave(model)
+            availableGrades = try repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
+            grade = trimmed
+        } catch {
+            SnapDrillLogger.generic.error("新建年级失败: \(error.localizedDescription)")
         }
     }
 

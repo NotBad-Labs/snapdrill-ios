@@ -92,3 +92,37 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 - 禁止在 DEBUG 工具里引入生产级复杂度
 - 禁止新增 Domain 层或 DomainKit（已删除，2026-03-03）
 - 禁止用值类型 struct 作领域对象（`@Model` 必须是 class）
+
+## Git 工作流规范（2026-03-04 确立）
+
+### 分支结构
+
+```
+main      ← 生产环境（App Store），只接受来自 develop 的 PR，每次发布打 tag
+develop   ← TestFlight 集成分支，只接受来自 feature/fix/chore 分支的 PR
+feat/xxx  ← 新功能，从 develop 分叉
+fix/xxx   ← Bug 修复，从 develop 分叉
+chore/xxx ← 工具/配置/发布，从 develop 分叉
+hotfix/xxx← 紧急修复，从 main 分叉，PR 合并到 main + develop
+```
+
+### 铁律
+
+- **禁止直接向 `develop` 或 `main` 提交任何内容**（commit / push / merge）
+- 每个任务必须：建 Issue → 建分支 → 改代码 → PR → CI → 合并
+- PR 必须关联 Issue（`Closes #N`）
+- 发布到 App Store 时：develop → PR → main → 打 tag（v1.x.0）
+
+### 每次任务 SOP
+
+```bash
+git checkout develop && git pull          # 基于最新 develop
+gh issue create                           # 建 Issue
+git checkout -b fix/xxx                   # 新建工作分支
+# 改代码...
+swiftlint --strict && xcodebuild build    # 本地验证
+git add <具体文件>                         # 精确 stage
+git commit -m "fix: ... Closes #N"
+git push -u origin fix/xxx
+gh pr create --base develop               # 建 PR，触发 Mac mini CI
+```
