@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2026/02/27.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  数据层仓库容器，作为 Features 层访问持久化的统一入口。
+//  仓库容器，聚合所有 Repository 并提供统一数据清理入口。
 //
 
 import Foundation

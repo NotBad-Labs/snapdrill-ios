@@ -19,8 +19,8 @@ public final class DashboardViewModel {
 
     // MARK: - State
 
-    public var showingSubjectManager = false
-    public var showingDraftAlert = false
+    public var isShowingSubjectManager = false
+    public var isShowingDraftAlert = false
 
     /// 今日新增卡片数
     public var todayItemsCount: Int = 0
@@ -85,7 +85,7 @@ public final class DashboardViewModel {
 
     public func checkDraftAndCapture(router: DashboardRouter) {
         if draftService.hasDraft {
-            showingDraftAlert = true
+            isShowingDraftAlert = true
         } else {
             router.navigateToCapture()
         }

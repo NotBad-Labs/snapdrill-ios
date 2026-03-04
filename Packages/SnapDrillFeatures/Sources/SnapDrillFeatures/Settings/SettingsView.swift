@@ -34,6 +34,7 @@ public struct SettingsView: View {
     @State private var showingClearAlert = false
     @State private var showingMail = false
     @State private var isGenerating = false
+    @State private var seedTask: Task<Void, Never>?
     @State private var showingSubjectManager = false
     @State private var showingSourceManager = false
     @State private var showingGradeManager = false
@@ -166,7 +167,7 @@ public struct SettingsView: View {
                     Button {
                         showingSubjectManager = true
                     } label: {
-                        SettingsRow(icon: "folder.fill", color: .blue, title: "管理学科分类")
+                        SettingsRow(icon: "folder.fill", color: .blue, title: "管理学科")
                     }
                     
                     Button {
@@ -263,6 +264,9 @@ public struct SettingsView: View {
             } message: {
                 Text("感谢您使用 SnapDrill！您可以发送邮件至 hello@notbadhq.com，或直接在 TestFlight 中反馈。")
             }
+            .onDisappear {
+                seedTask?.cancel()
+            }
         }
     }
     
@@ -275,17 +279,18 @@ public struct SettingsView: View {
     
     private func generateMockData() {
         isGenerating = true
-        Task {
+        seedTask?.cancel()
+        seedTask = Task {
+            defer { isGenerating = false }
             do {
                 // 直接使用 mainContext，确保数据写入后 ReviewRepository 立即可见
+                // DataSeeder.seedReviewItems 内部已在 save 后 post reviewDataDidChange
                 let seeder = DataSeeder(modelContext: modelContext)
                 let time = try seeder.seedReviewItems(count: 100)
                 SnapDrillLogger.generic.info("生成测试数据成功: \(time)s")
-                NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             } catch {
                 SnapDrillLogger.generic.error("生成测试数据失败: \(error.localizedDescription)")
             }
-            isGenerating = false
         }
     }
     

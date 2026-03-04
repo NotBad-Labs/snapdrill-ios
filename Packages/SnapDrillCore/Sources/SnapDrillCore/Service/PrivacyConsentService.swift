@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2026/02/24.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  ATT (App Tracking Transparency) 隐私授权服务
+//  隐私授权服务，管理 ATT 等系统权限请求流程。
 //
 
 import AppTrackingTransparency

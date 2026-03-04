@@ -24,6 +24,7 @@ extension PerformanceMonitor {
         let duration = Date().timeIntervalSince(startTime)
         
         // 如果超过阈值，记录到其他服务
+        // 注：此 Task 为性能埋点副作用，日志丢失不影响业务正确性，无需句柄
         if duration > threshold {
             Task { @MainActor in
                 CrashReportingService.shared.leaveBreadcrumb(

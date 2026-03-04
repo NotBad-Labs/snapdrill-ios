@@ -5,6 +5,8 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  Keychain 封装，提供安全的本地凭证读写接口。
+//
 
 import Foundation
 import Security

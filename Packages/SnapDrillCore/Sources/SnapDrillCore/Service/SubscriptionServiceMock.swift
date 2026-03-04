@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2026/02/24.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  订阅服务 Mock 实现，用于单元测试和 SwiftUI Preview
+//  订阅服务测试替身，首发阶段模拟全功能解锁状态。
 //
 
 import Foundation

@@ -29,9 +29,10 @@ public final class SettingsViewModel {
     public func clearAllData() {
         do {
             try repositories.deleteAllData()
-            SnapDrillLogger.generic.info("Successfully cleared all data.")
+            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            SnapDrillLogger.generic.info("所有数据已清空，已通知 UI 刷新。")
         } catch {
-            SnapDrillLogger.generic.error("Failed to clear data: \(error)")
+            SnapDrillLogger.generic.error("清空数据失败: \(error)")
         }
     }
 }

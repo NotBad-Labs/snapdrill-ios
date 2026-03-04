@@ -106,13 +106,13 @@ public final class ReviewRepository {
 
     public func fetchDueCount() throws -> Int {
         let now = Date.now
-        // swiftlint:disable force_unwrapping
-        let predicate = #Predicate<ReviewItemModel> { item in
-            item.nextReviewAt == nil || item.nextReviewAt! <= now
-        }
-        // swiftlint:enable force_unwrapping
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor)
+        // #Predicate 对 Optional<Date> 的 force-unwrap 在当前 SwiftData 版本中
+        // SQLite 转译行为不可靠，改为全量 fetch 后内存过滤，确保结果正确。
+        let all = try modelContext.fetch(FetchDescriptor<ReviewItemModel>())
+        return all.filter { item in
+            guard let date = item.nextReviewAt else { return true }
+            return date <= now
+        }.count
     }
 
     public func fetchTodayCount() throws -> Int {
@@ -126,14 +126,12 @@ public final class ReviewRepository {
 
     public func fetchTodayReviewedCount() throws -> Int {
         let startOfToday = Calendar.current.startOfDay(for: Date.now)
-        // nil → 从未复习，不计入今日已复习；非 nil → 判断是否在今天之后
-        // swiftlint:disable force_unwrapping
-        let predicate = #Predicate<ReviewItemModel> { item in
-            item.lastReviewedAt != nil && item.lastReviewedAt! >= startOfToday
-        }
-        // swiftlint:enable force_unwrapping
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor)
+        // 同 fetchDueCount，避免 #Predicate + Optional force-unwrap 的转译问题。
+        let all = try modelContext.fetch(FetchDescriptor<ReviewItemModel>())
+        return all.filter { item in
+            guard let date = item.lastReviewedAt else { return false }
+            return date >= startOfToday
+        }.count
     }
 
     public func totalItemCount() throws -> Int {
@@ -145,16 +143,16 @@ public final class ReviewRepository {
     /// 获取所有待复习条目的 SwiftData 模型
     public func fetchDueModels() throws -> [ReviewItemModel] {
         let now = Date.now
-        // swiftlint:disable force_unwrapping
-        let predicate = #Predicate<ReviewItemModel> { item in
-            item.nextReviewAt == nil || item.nextReviewAt! <= now
-        }
-        // swiftlint:enable force_unwrapping
-        let descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.createdAt, order: .forward)]
+        // #Predicate 对 Optional<Date> 的 force-unwrap 在当前 SwiftData 版本中
+        // SQLite 转译行为不可靠（nilnil 条目能正确命中，但非 nil 的过期日期无法命中），
+        // 改为全量 fetch 后内存过滤，彻底规避该 bug。
+        let all = try modelContext.fetch(
+            FetchDescriptor<ReviewItemModel>(sortBy: [SortDescriptor(\.createdAt, order: .forward)])
         )
-        return try modelContext.fetch(descriptor)
+        return all.filter { item in
+            guard let date = item.nextReviewAt else { return true }
+            return date <= now
+        }
     }
 
     /// 按 ID 获取单个 ReviewItemModel

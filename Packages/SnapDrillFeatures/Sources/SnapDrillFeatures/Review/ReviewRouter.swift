@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2025/12/29.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习模块路由，管理复习会话导航
+//  复习模块路由，管理复习卡片页面的导航路径。
 //
 
 import SwiftUI

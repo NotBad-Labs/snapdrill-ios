@@ -26,6 +26,7 @@ struct NotificationSettingsView: View {
 
     @State private var viewModel: NotificationSettingsViewModel?
     @State private var enableTask: Task<Void, Never>?
+    @State private var rescheduleTask: Task<Void, Never>?
 
     // MARK: - Body
 
@@ -104,7 +105,8 @@ struct NotificationSettingsView: View {
                 let comps = Calendar.current.dateComponents([.hour, .minute], from: newDate)
                 notificationHour = comps.hour ?? 20
                 notificationMinute = comps.minute ?? 0
-                Task { await viewModel?.reschedule(hour: notificationHour, minute: notificationMinute) }
+                rescheduleTask?.cancel()
+                rescheduleTask = Task { await viewModel?.reschedule(hour: notificationHour, minute: notificationMinute) }
             }
         )
     }

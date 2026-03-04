@@ -51,7 +51,7 @@ public actor PerformanceMonitor {
     
     // MARK: - Public API
     
-    ///
+    /// 测量指定操作的执行时间并记录到内部指标
     /// - Parameters:
     ///   - operation: 操作名称
     ///   - metadata: 额外元数据

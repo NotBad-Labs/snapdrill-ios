@@ -88,7 +88,7 @@ public struct DashboardView: View {
                                         endPoint: .bottomTrailing
                                     )
                                 ) {
-                                    viewModel.showingSubjectManager = true
+                                    viewModel.isShowingSubjectManager = true
                                 }
                             }
                             .padding(.horizontal)
@@ -109,8 +109,8 @@ public struct DashboardView: View {
             }
         }
         .alert("恢复未完成的题目？", isPresented: Binding(
-            get: { viewModel?.showingDraftAlert ?? false },
-            set: { viewModel?.showingDraftAlert = $0 }
+            get: { viewModel?.isShowingDraftAlert ?? false },
+            set: { viewModel?.isShowingDraftAlert = $0 }
         )) {
             Button("开始新的") {
                 viewModel?.startNewCapture(router: router)
@@ -123,8 +123,8 @@ public struct DashboardView: View {
             Text("您有上次未保存的拍摄内容，是否继续编辑？")
         }
         .sheet(isPresented: Binding(
-            get: { viewModel?.showingSubjectManager ?? false },
-            set: { viewModel?.showingSubjectManager = $0 }
+            get: { viewModel?.isShowingSubjectManager ?? false },
+            set: { viewModel?.isShowingSubjectManager = $0 }
         )) {
             SubjectManagerView()
         }
