@@ -36,7 +36,11 @@ public final class SourceManagerViewModel {
     // MARK: - Public Actions
 
     public func loadData() {
-        sources = (try? repositories.source.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
+        do {
+            sources = try repositories.source.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
+        } catch {
+            SnapDrillLogger.data.error("加载来源列表失败: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - Public API

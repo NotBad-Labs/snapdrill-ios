@@ -402,7 +402,8 @@ public func setUserProperty(_ value: String, forName name: String)
 public init()
 public func fetchAndActivate() async throws
 public func bool(forKey key: String) -> Bool
-public func string(forKey key: String) -> String
+public func string(forKey key: String) -> String?
+public func double(forKey key: String) -> Double?
 ```
 
 ### CrashReportingService（@MainActor final class，遵循 CrashReportingProtocol）

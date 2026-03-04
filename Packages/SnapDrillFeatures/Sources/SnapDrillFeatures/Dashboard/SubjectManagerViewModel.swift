@@ -36,7 +36,11 @@ public final class SubjectManagerViewModel {
     // MARK: - Public Actions
 
     public func loadData() {
-        subjects = (try? repositories.subject.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
+        do {
+            subjects = try repositories.subject.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
+        } catch {
+            SnapDrillLogger.data.error("加载学科列表失败: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - Public API

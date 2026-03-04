@@ -13,7 +13,8 @@ import Foundation
 /// 远程配置同步协议
 ///
 /// 定义了从远程（如 Firebase Remote Config）同步功能开关和配置项的标准。
-public protocol RemoteConfigurable: Sendable {
+@MainActor
+public protocol RemoteConfigurable {
     func fetchAndActivate() async throws
     func bool(forKey key: String) -> Bool
     func string(forKey key: String) -> String?
