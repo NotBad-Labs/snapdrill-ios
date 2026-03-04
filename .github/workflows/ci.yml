@@ -32,6 +32,8 @@ jobs:
 
       - name: Check SwiftLint
         run: |
+          echo "$HOME/bin" >> $GITHUB_PATH
+          export PATH="$HOME/bin:$PATH"
           if ! which swiftlint > /dev/null; then
             brew install swiftlint
           fi
