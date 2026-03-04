@@ -126,9 +126,15 @@ public final class LibraryEditViewModel {
     }
 
     public func save() async {
-        isSavedNormally = true
+        // 业务规则验证先行：在修改任何 @Model 属性之前完成，防止脏数据被意外持久化
+        let willHaveContent = !content.isEmpty
+        let willHaveImage = displayedImage != nil
+        guard willHaveContent || willHaveImage else {
+            SnapDrillLogger.generic.warning("保存失败：题目文字和图片均为空。")
+            return
+        }
 
-        // 直接修改 @Model 属性
+        // 验证通过后再修改 @Model 属性
         item.content = content.isEmpty ? nil : content
         item.answerText = answer.isEmpty ? nil : answer
         item.subject = selectedSubject
@@ -170,14 +176,9 @@ public final class LibraryEditViewModel {
             item.answerImagePath = nil
         }
 
-        // 业务规则：题目文字和图片至少有一个
-        guard item.content != nil || item.imagePath != nil else {
-            SnapDrillLogger.generic.warning("保存失败：题目文字和图片均为空。")
-            return
-        }
-
         do {
             try repositories.review.saveContext()
+            isSavedNormally = true
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
         } catch {
             SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
