@@ -100,9 +100,9 @@ public struct CaptureResultView: View {
                         HStack {
                             Text("学科")
                             Spacer()
-                            TextField("选择或输入", text: $viewModel.selectedSubject)
-                                .multilineTextAlignment(.trailing)
-                    
+                            Text(viewModel.selectedSubject)
+                                .foregroundStyle(.secondary)
+
                             Menu {
                                 ForEach(viewModel.availableSubjects) { subject in
                                     Button {
@@ -110,6 +110,12 @@ public struct CaptureResultView: View {
                                     } label: {
                                         Label(subject.name, systemImage: subject.icon)
                                     }
+                                }
+                                Divider()
+                                Button {
+                                    viewModel.showNewSubjectAlert = true
+                                } label: {
+                                    Label("新建学科", systemImage: "plus")
                                 }
                             } label: {
                                 Image(systemName: "chevron.up.chevron.down")
@@ -124,9 +130,9 @@ public struct CaptureResultView: View {
                         HStack {
                             Text("来源")
                             Spacer()
-                            TextField("选择或输入", text: $viewModel.selectedSource)
-                                .multilineTextAlignment(.trailing)
-                    
+                            Text(viewModel.selectedSource)
+                                .foregroundStyle(.secondary)
+
                             Menu {
                                 ForEach(viewModel.availableSources) { source in
                                     Button {
@@ -134,6 +140,12 @@ public struct CaptureResultView: View {
                                     } label: {
                                         Label(source.name, systemImage: source.icon)
                                     }
+                                }
+                                Divider()
+                                Button {
+                                    viewModel.showNewSourceAlert = true
+                                } label: {
+                                    Label("新建来源", systemImage: "plus")
                                 }
                             } label: {
                                 Image(systemName: "chevron.up.chevron.down")
@@ -189,8 +201,8 @@ public struct CaptureResultView: View {
                         HStack {
                             Text("年级/程度")
                             Spacer()
-                            TextField("选择或输入", text: $viewModel.grade)
-                                .multilineTextAlignment(.trailing)
+                            Text(viewModel.grade.isEmpty ? "未选择" : viewModel.grade)
+                                .foregroundStyle(viewModel.grade.isEmpty ? .tertiary : .secondary)
 
                             Menu {
                                 ForEach(viewModel.availableGrades) { grade in
@@ -199,6 +211,12 @@ public struct CaptureResultView: View {
                                     } label: {
                                         Text(grade.name)
                                     }
+                                }
+                                Divider()
+                                Button {
+                                    viewModel.showNewGradeAlert = true
+                                } label: {
+                                    Label("新建年级", systemImage: "plus")
                                 }
                             } label: {
                                 Image(systemName: "chevron.up.chevron.down")
@@ -284,6 +302,27 @@ public struct CaptureResultView: View {
         }
         .onDisappear {
             viewModel.generateDraftIfNeeded()
+        }
+        .alert("新建学科", isPresented: $viewModel.showNewSubjectAlert) {
+            TextField("学科名称", text: $viewModel.newSubjectName)
+            Button("创建") { viewModel.confirmNewSubject() }
+            Button("取消", role: .cancel) { viewModel.newSubjectName = "" }
+        } message: {
+            Text("输入新学科名称，创建后自动选中")
+        }
+        .alert("新建来源", isPresented: $viewModel.showNewSourceAlert) {
+            TextField("来源名称", text: $viewModel.newSourceName)
+            Button("创建") { viewModel.confirmNewSource() }
+            Button("取消", role: .cancel) { viewModel.newSourceName = "" }
+        } message: {
+            Text("输入新来源名称，创建后自动选中")
+        }
+        .alert("新建年级", isPresented: $viewModel.showNewGradeAlert) {
+            TextField("年级名称", text: $viewModel.newGradeName)
+            Button("创建") { viewModel.confirmNewGrade() }
+            Button("取消", role: .cancel) { viewModel.newGradeName = "" }
+        } message: {
+            Text("输入新年级名称，创建后自动选中")
         }
         .alert("保存失败", isPresented: $viewModel.showErrorAlert) {
             Button("好", role: .cancel) { }
