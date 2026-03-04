@@ -58,7 +58,6 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 - 功能：Capture / Library / Review / Dashboard / Settings（5个）
 - 用户：单用户，本地优先，无后端
-- 目标文件数：~100 个 Swift 文件
 - 目标包数：4 个 SPM 包（Core / Data / UI / Features）
 - 每新增一个字段，最多改动 3 个文件
 
@@ -67,7 +66,6 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 - Swift 6 strict concurrency，优先 actor isolation，不用锁
 - 所有 ViewModel：`@Observable @MainActor final class`
 - Prefer async/await；`Task` 必须保存句柄，禁止 fire-and-forget
-- 禁止 `@unchecked Sendable`、force unwrap `!`
 
 ## 依赖注入
 
