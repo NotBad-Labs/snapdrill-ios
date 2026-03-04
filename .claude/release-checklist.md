@@ -77,3 +77,8 @@
 - [ ] Build Number 已更新（每次发版 +1，只改 `Configs/Shared.xcconfig`）
 - [ ] 没有 Debug 专用 UI 暴露在外
 - [ ] 没有硬编码的测试账号或假数据
+
+## 文档健康检查（每次发版必做）
+
+- [ ] `MEMORY.md` 行数 ≤ 120（超过则先审计剪枝）
+- [ ] 检查是否有新内容同时存在于 `MEMORY.md` 和 `.claude/` 文件（若有，保留权威文档，MEMORY.md 改为指针）
