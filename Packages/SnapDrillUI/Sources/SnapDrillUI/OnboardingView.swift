@@ -34,6 +34,7 @@ public struct OnboardingView: View {
     
     @Environment(\.dismiss) private var dismiss
     @State private var currentPage = 0
+    @State private var completionFeedbackTrigger = false
     
     let pages: [OnboardingPage]
     let onComplete: () -> Void
@@ -94,9 +95,14 @@ public struct OnboardingView: View {
             .padding()
         }
         .accessibleGroup(label: "欢迎引导")
+        // HIG：翻页用 light（翻书感），完成引导用 success（正向仪式感）
+        .sensoryFeedback(.impact(weight: .light), trigger: currentPage)
+        .sensoryFeedback(.success, trigger: completionFeedbackTrigger)
     }
     
     private func completeOnboarding() {
+        // 先触发 success 反馈，再 dismiss（确保震动在视图消失前完成）
+        completionFeedbackTrigger.toggle()
         onComplete()
         dismiss()
     }

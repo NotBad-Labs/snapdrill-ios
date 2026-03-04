@@ -323,7 +323,7 @@ public final class DataSeeder {
                 content: data.q,
                 imagePath: nil,
                 subject: data.sub,
-                source: sourcePool.randomElement()!,
+                source: sourcePool.randomElement() ?? "其他",
                 tags: assignedTags
             )
             item.answerText = data.a

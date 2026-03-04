@@ -16,7 +16,7 @@ import SnapDrillData
 // MARK: - ReviewPhase
 
 /// 复习流程阶段状态机
-enum ReviewPhase {
+enum ReviewPhase: Equatable {
     case loading
     case idle       // 仪表盘
     case reviewing  // 卡片复习中

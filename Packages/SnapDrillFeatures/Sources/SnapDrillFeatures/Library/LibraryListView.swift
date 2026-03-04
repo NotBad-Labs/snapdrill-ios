@@ -69,7 +69,7 @@ struct LibraryListView: View {
                         Text("去拍摄你的第一道错题吧")
                     } actions: {
                         Button("去采集") {
-                            NotificationCenter.default.post(name: NSNotification.Name("SwitchToCaptureTab"), object: nil)
+                            NotificationCenter.default.post(name: .switchToCaptureTab, object: nil)
                         }
                         .buttonStyle(.borderedProminent)
                     }

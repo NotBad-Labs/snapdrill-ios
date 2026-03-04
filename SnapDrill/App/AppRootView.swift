@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 import SnapDrillFeatures
 import SnapDrillData
 
@@ -55,17 +56,17 @@ struct AppRootView: View {
                     }
                     .tag(AppTab.settings)
             }
-            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToCaptureTab"))) { _ in
+            .onReceive(NotificationCenter.default.publisher(for: .switchToCaptureTab)) { _ in
                 withAnimation(.spring(duration: 0.4)) {
                     router.selectedTab = .capture
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToLibraryTab"))) { _ in
+            .onReceive(NotificationCenter.default.publisher(for: .switchToLibraryTab)) { _ in
                 withAnimation(.spring(duration: 0.4)) {
                     router.selectedTab = .library
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToSettingsTab"))) { _ in
+            .onReceive(NotificationCenter.default.publisher(for: .switchToSettingsTab)) { _ in
                 withAnimation(.spring(duration: 0.4)) {
                     router.selectedTab = .settings
                 }
