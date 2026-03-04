@@ -11,6 +11,7 @@
 import Foundation
 import OSLog
 import FirebaseCrashlytics
+import SnapDrillCore
 
 /// 崩溃报告服务
 ///
@@ -29,7 +30,7 @@ public final class CrashReportingService: CrashReportingProtocol {
     
     // MARK: - Initialization
     
-    init() {
+    public init() {
         // 从 UserDefaults 读取设置
         self.isEnabled = UserDefaults.standard.bool(forKey: "crashReportingEnabled")
         
@@ -183,11 +184,4 @@ public final class CrashReportingService: CrashReportingProtocol {
     }
 }
 
-/// 日志级别
-public enum LogLevel {
-    case debug
-    case info
-    case warning
-    case error
-    case critical
-}
+// LogLevel 已移至 SnapDrillCore/CrashReportingProtocol.swift

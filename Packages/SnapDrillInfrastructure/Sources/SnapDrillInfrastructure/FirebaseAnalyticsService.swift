@@ -10,8 +10,8 @@
 
 import Foundation
 import OSLog
-
 import FirebaseAnalytics
+import SnapDrillCore
 
 /// Firebase Analytics 实现的分析服务适配器
 ///
