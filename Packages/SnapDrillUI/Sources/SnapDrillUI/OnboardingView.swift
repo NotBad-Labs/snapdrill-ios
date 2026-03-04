@@ -197,12 +197,13 @@ public struct FeatureTooltip: View {
 }
 
 /// 引导管理器
+@Observable
 @MainActor
-public final class OnboardingManager: ObservableObject {
+public final class OnboardingManager {
     public static let shared = OnboardingManager()
-    
-    @Published public var shouldShowOnboarding: Bool
-    @Published public var shouldShowFeatureTooltip: [String: Bool] = [:]
+
+    public var shouldShowOnboarding: Bool
+    public var shouldShowFeatureTooltip: [String: Bool] = [:]
     
     private init() {
         self.shouldShowOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")

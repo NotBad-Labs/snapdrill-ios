@@ -43,7 +43,7 @@ struct SnapDrillApp: App {
     @State private var showingPrivacyPrePrompt: Bool = false
 
     /// 引导页状态管理
-    @ObservedObject private var onboardingManager = OnboardingManager.shared
+    @State private var onboardingManager = OnboardingManager.shared
     
     /// 外观模式设置 (0=System, 1=Light, 2=Dark)
     @AppStorage("appearanceMode") private var appearanceMode: Int = 0
