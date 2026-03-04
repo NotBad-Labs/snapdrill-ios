@@ -1,6 +1,6 @@
-# SnapDrill 架构（2026-03-03 最终状态）
+# SnapDrill 架构（2026-03-04 最终状态）
 
-## 包结构（4 包）
+## 包结构（5 包）
 
 ```
 SnapDrillCore    (0 deps)
@@ -22,6 +22,10 @@ SnapDrillFeatures (→ Core, Data, UI)
   └─ View（@Query 驱动，纯渲染）
   └─ ViewModel（@Observable @MainActor final class）
 
+SnapDrillInfrastructure (→ Core; 仅 SnapDrill/App 可 import)
+  └─ Firebase 全部实现（Analytics / Crashlytics / RemoteConfig）
+  └─ FirebaseBootstrap
+
 SnapDrill/App（薄壳组合根）
   └─ DependencyContainer（唯一单例）
   └─ AppRouter
@@ -33,9 +37,12 @@ SnapDrill/App（薄壳组合根）
 SnapDrillFeatures ──► SnapDrillData ──► SnapDrillCore
         │                                     ▲
         └──────────► SnapDrillUI ─────────────┘
+
+SnapDrill/App ──► SnapDrillInfrastructure ──► SnapDrillCore
 ```
 
 反向依赖禁止。SnapDrillCore 不得 import 任何本地包。
+SnapDrillInfrastructure 只能被 SnapDrill/App 直接依赖，Features/Data/UI/Core 均禁止 import。
 
 ## 数据流
 
@@ -83,13 +90,13 @@ SnapDrillFeatures/Sources/SnapDrillFeatures/<FeatureName>/
 | Export DTO | `ReviewExportSnapshot`（6字段 Sendable struct），桥接 @Model → Transferable |
 | 列表驱动 | @Query（LibraryView 等），Repository.fetch（ReviewViewModel 状态机）|
 
-## 验证结果（最终状态）
+## 验证结果（2026-03-04）
 
 | 指标 | 值 |
 |---|---|
-| SPM 包数 | 4 |
-| Swift 文件数 | 162 |
-| SnapDrillCore swift test | 25/25 ✅ |
+| SPM 包数 | 5 |
+| Swift 文件数 | 157 |
+| SnapDrillCore swift test | 25/25 ✅（无 Firebase 依赖）|
 | SnapDrillData swift test | 非 Predicate 测试全部通过 ✅ |
 | xcodebuild build | BUILD SUCCEEDED ✅ |
 | swiftlint | 0 violations ✅ |

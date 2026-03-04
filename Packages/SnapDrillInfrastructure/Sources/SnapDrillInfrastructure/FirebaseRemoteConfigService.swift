@@ -15,7 +15,8 @@ import SnapDrillCore
 ///
 /// 将 Firebase 远程配置映射到 AppConfiguration。
 @available(iOS 14.0, macOS 11.0, *)
-public final class FirebaseRemoteConfigService: RemoteConfigurable, @unchecked Sendable {
+@MainActor
+public final class FirebaseRemoteConfigService: RemoteConfigurable {
     
     // MARK: - Properties
     

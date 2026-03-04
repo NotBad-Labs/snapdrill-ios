@@ -36,7 +36,11 @@ public final class GradeManagerViewModel {
     // MARK: - Public API
 
     public func loadData() {
-        grades = (try? repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })) ?? []
+        do {
+            grades = try repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
+        } catch {
+            SnapDrillLogger.data.error("加载年级列表失败: \(error.localizedDescription)")
+        }
     }
 
     public func delete(at offsets: IndexSet) {
