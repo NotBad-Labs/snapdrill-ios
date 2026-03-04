@@ -167,19 +167,42 @@ public final class CrashReportingService: CrashReportingProtocol {
             "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown",
             "osVersion": ProcessInfo.processInfo.operatingSystemVersionString
         ]
-        
-        // 保存到文件
+
         do {
             let logData = try JSONSerialization.data(withJSONObject: logEntry, options: .prettyPrinted)
-            let logsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                .appendingPathComponent("Logs", isDirectory: true)
-            
+            // 使用 Library/Application Support 而非 Documents：
+            // 日志属于内部数据，不应暴露给用户或被 iCloud 备份
+            let logsDirectory = FileManager.default
+                .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("SnapDrill/Logs", isDirectory: true)
+
             try FileManager.default.createDirectory(at: logsDirectory, withIntermediateDirectories: true)
-            
+
+            // 清理 7 天前的旧日志，防止无限累积
+            pruneOldLogs(in: logsDirectory, olderThan: 7)
+
             let logFile = logsDirectory.appendingPathComponent("crash_log_\(Date().timeIntervalSince1970).json")
             try logData.write(to: logFile)
         } catch {
             logger.error("Failed to save local crash log: \(error.localizedDescription)")
+        }
+    }
+
+    /// 删除目录中超过指定天数的 JSON 日志文件
+    private func pruneOldLogs(in directory: URL, olderThan days: Int) {
+        let cutoff = Date().addingTimeInterval(-Double(days) * 86_400)
+        let fileManager = FileManager.default
+        guard let files = try? fileManager.contentsOfDirectory(
+            at: directory,
+            includingPropertiesForKeys: [.creationDateKey],
+            options: .skipsHiddenFiles
+        ) else { return }
+
+        for file in files where file.pathExtension == "json" {
+            let created = (try? file.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? .distantPast
+            if created < cutoff {
+                try? fileManager.removeItem(at: file)
+            }
         }
     }
 }
