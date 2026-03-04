@@ -4,7 +4,7 @@
 > 不在此文件中的 API 必须先读源文件确认，或新建后再写入此文件。
 > **不得凭名称推测方法存在**。
 
-最后更新：2026-03-04（新增 Tab 切换通知名）
+最后更新：2026-03-04（新增 SnapDrillInfrastructure 包，Firebase 实现迁出 Core）
 
 ---
 
@@ -370,6 +370,53 @@ struct BentoCard: View {
     init(title: String, subtitle: String, icon: String,
          gradient: LinearGradient, action: (() -> Void)? = nil)
 }
+```
+
+---
+
+## SnapDrillInfrastructure（Firebase 实现，2026-03-04 新建）
+
+> **重要**：仅 `SnapDrill/App` 目标直接 import 此包（通过 DependencyContainer）。
+> 任何其他包（Core / Data / UI / Features）禁止 import SnapDrillInfrastructure。
+
+### FirebaseBootstrap
+
+```swift
+public enum FirebaseBootstrap {
+    public static func configure()  // 调用 FirebaseApp.configure()
+}
+```
+
+### FirebaseAnalyticsService（@MainActor final class，遵循 AnalyticsServiceProtocol）
+
+```swift
+public init()
+public func markConfigured()
+public func track(event: AnalyticsEvent)
+public func setUserProperty(_ value: String, forName name: String)
+```
+
+### FirebaseRemoteConfigService（@MainActor final class，遵循 RemoteConfigProtocol）
+
+```swift
+public init()
+public func fetchAndActivate() async throws
+public func bool(forKey key: String) -> Bool
+public func string(forKey key: String) -> String
+```
+
+### CrashReportingService（@MainActor final class，遵循 CrashReportingProtocol）
+
+```swift
+public static let shared: CrashReportingService
+public init()                                              // public（跨模块可访问）
+public func markConfigured()
+public func setEnabled(_ enabled: Bool)
+public func recordError(_ error: Error, context: [String: String])
+public func log(_ message: String, level: LogLevel)
+public func setUserIdentifier(_ identifier: String)
+public func setCustomValue(_ value: String, forKey key: String)
+public func leaveBreadcrumb(_ message: String, metadata: [String: String])
 ```
 
 ---
