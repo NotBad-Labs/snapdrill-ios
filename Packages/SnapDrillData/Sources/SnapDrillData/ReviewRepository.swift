@@ -34,10 +34,17 @@ public final class ReviewRepository {
     }
     
     public func delete(id: UUID) throws {
-        if let model = try fetchModelById(id) {
-            modelContext.delete(model)
-            try modelContext.save()
+        guard let model = try fetchModelById(id) else { return }
+        // 删除关联图片文件（先于模型删除，确保路径可读）
+        let imageStorage = ImageStorage()
+        if let path = model.imagePath {
+            try? imageStorage.deleteImage(path: path)
         }
+        if let path = model.answerImagePath {
+            try? imageStorage.deleteImage(path: path)
+        }
+        modelContext.delete(model)
+        try modelContext.save()
     }
     
     public func countBySubject(name: String) throws -> Int {
@@ -98,6 +105,17 @@ public final class ReviewRepository {
     }
 
     public func deleteAll() throws {
+        // 先收集所有图片路径，再批量删除文件，最后删除记录
+        let allModels = try fetchAllModels()
+        let imageStorage = ImageStorage()
+        for model in allModels {
+            if let path = model.imagePath {
+                try? imageStorage.deleteImage(path: path)
+            }
+            if let path = model.answerImagePath {
+                try? imageStorage.deleteImage(path: path)
+            }
+        }
         try modelContext.delete(model: ReviewItemModel.self)
         try modelContext.save()
     }
