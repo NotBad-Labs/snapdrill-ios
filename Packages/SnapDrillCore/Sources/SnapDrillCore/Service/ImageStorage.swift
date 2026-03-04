@@ -75,6 +75,17 @@ public struct ImageStorage: Sendable {
         }.value
     }
     
+    /// 删除本地图片
+    /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
+    /// - Throws: `ImageStorageError.fileNotFound` 如果文件不存在；其他 FileManager 错误
+    public func deleteImage(path: String) throws {
+        let fileManager = FileManager.default
+        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsURL.appendingPathComponent(path)
+        guard fileManager.fileExists(atPath: fileURL.path) else { return }
+        try fileManager.removeItem(at: fileURL)
+    }
+
     /// 从本地加载图片
     /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
     /// - Returns: 加载的 UIImage，如果失败返回 nil
