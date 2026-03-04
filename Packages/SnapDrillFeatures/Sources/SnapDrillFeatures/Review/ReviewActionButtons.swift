@@ -30,6 +30,10 @@ struct ReviewActionButtons: View {
     private let baseSize: CGFloat = 80
     private let maxScale: CGFloat = 1.4
     private let threshold: CGFloat = 100 // Threshold for max scale
+
+    // 触觉反馈触发器（递增计数器确保每次都能触发变化）
+    @State private var primaryFeedbackTrigger = 0   // 评分按钮：medium impact
+    @State private var secondaryFeedbackTrigger = 0 // 次要按钮：light impact
     
     // MARK: - Body
     
@@ -49,25 +53,37 @@ struct ReviewActionButtons: View {
             // Middle Controls (Integrated)
             HStack(spacing: 24) {
                 // Undo
-                Button(action: onUndo) {
-                    Image(systemName: "arrow.counterclockwise")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(isUndoEnabled ? Color.primary : Color.secondary.opacity(0.3))
-                        .frame(width: 44, height: 44)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
+                Button(
+                    action: {
+                        secondaryFeedbackTrigger += 1
+                        onUndo()
+                    },
+                    label: {
+                        Image(systemName: "arrow.counterclockwise")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(isUndoEnabled ? Color.primary : Color.secondary.opacity(0.3))
+                            .frame(width: 44, height: 44)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                    }
+                )
                 .disabled(!isUndoEnabled)
-                
+
                 // Toggle Answer
-                Button(action: onToggleAnswer) {
-                     Image(systemName: isAnswerShown ? "eye.slash" : "eye")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(isAnswerShown ? Color.secondary : Color.blue)
-                        .frame(width: 44, height: 44)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
+                Button(
+                    action: {
+                        secondaryFeedbackTrigger += 1
+                        onToggleAnswer()
+                    },
+                    label: {
+                        Image(systemName: isAnswerShown ? "eye.slash" : "eye")
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundStyle(isAnswerShown ? Color.secondary : Color.blue)
+                            .frame(width: 44, height: 44)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                    }
+                )
             }
             
             Spacer()
@@ -83,12 +99,16 @@ struct ReviewActionButtons: View {
         }
         .padding(.horizontal, 48) // Increased outer padding to prevent edge sticking
         .padding(.bottom, 10)
+        // HIG：评分按钮用 medium（决定性操作），次要操作用 light
+        .sensoryFeedback(.impact(weight: .medium), trigger: primaryFeedbackTrigger)
+        .sensoryFeedback(.impact(weight: .light), trigger: secondaryFeedbackTrigger)
     }
     
     // MARK: - Private Helpers
     
     private func actionButton(icon: String, color: Color, rating: ReviewRating, scale: CGFloat) -> some View {
         Button(action: {
+            primaryFeedbackTrigger += 1
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                 onRate(rating)
             }
