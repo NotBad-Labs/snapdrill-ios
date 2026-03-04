@@ -127,6 +127,7 @@ public struct ImageStorage {
     public init()
     public func saveImage(_ image: UIImage) async throws -> String
     public func loadImage(path: String) -> UIImage?
+    public func deleteImage(path: String) throws  // 新增 2026-03-04，文件不存在时静默跳过
 }
 
 // PDFExportService（final class）
