@@ -87,12 +87,25 @@ public class PersistenceController {
     /// 执行数据全量擦除（重置数据库）
     /// 仅限从 UI 触发或初始化严重失败时调用
     public func wipeAllData() {
-        logger.warning("🚨 Wiping all persistent data as requested")
-        // 获取数据库 URL 并删除文件
-        let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("default.store") // SwiftData 默认存储路径
-        
-        try? FileManager.default.removeItem(at: url)
-        logger.info("✅ Data wipe completed. Restart app to re-initialize.")
+        logger.warning("Wiping all persistent data as requested")
+        // 通过 container.configurations 动态获取真实存储路径，避免硬编码路径
+        for config in container.configurations {
+            let url = config.url
+            do {
+                // 删除主存储文件及 SQLite WAL 附属文件（-shm / -wal 后缀附加在原文件名后）
+                let relatedURLs = [
+                    url,
+                    URL(fileURLWithPath: url.path + "-shm"),
+                    URL(fileURLWithPath: url.path + "-wal")
+                ]
+                for fileURL in relatedURLs where FileManager.default.fileExists(atPath: fileURL.path) {
+                    try FileManager.default.removeItem(at: fileURL)
+                    logger.info("Removed: \(fileURL.lastPathComponent)")
+                }
+            } catch {
+                logger.error("Failed to remove store file: \(error.localizedDescription)")
+            }
+        }
+        logger.info("Data wipe completed. Restart app to re-initialize.")
     }
 }
