@@ -57,6 +57,8 @@ struct NotificationServiceTests {
     func scheduleDailyThrowsWhenSimulated() async throws {
         let mock = NotificationServiceMock()
         mock.simulatedError = NSError(domain: "test", code: 1)
+        // `(any Error).self` 是 Swift Testing #expect(throws:) 捕获任意错误的标准语法，
+        // 不等同于声明 any 存在类型变量，不违反 any existentials 禁令。
         await #expect(throws: (any Error).self) {
             try await mock.scheduleDaily(at: 8, minute: 0)
         }

@@ -54,7 +54,10 @@ struct PDFExportServiceTests {
 
         let task = Task {
             try await service.createPDF(from: heavyItems) { _ in
-                // 模拟图片 IO 或解码耗时
+                // imageProvider 是同步闭包（(String) -> UIImage?），无法使用 Task.sleep。
+                // Thread.sleep 在此处有意为之：模拟每项 50ms 的图片 IO 耗时，
+                // 使总工作量（50ms × 1000 = 50s）远超外部 cancel 等待时间，
+                // 保证取消测试的确定性。限制为 50ms 以控制对协作线程池的影响。
                 Thread.sleep(forTimeInterval: 0.05)
                 return nil
             }

@@ -15,6 +15,7 @@ import SwiftData
 @MainActor
 final class ModelTests: XCTestCase {
     
+    // XCTest setUp 中含抛出初始化，必须使用 IUO；迁移 Swift Testing 后可通过 init() throws 消除
     var container: ModelContainer!
     var context: ModelContext!
     
