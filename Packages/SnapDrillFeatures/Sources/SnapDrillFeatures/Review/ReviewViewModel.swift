@@ -194,6 +194,12 @@ final class ReviewViewModel {
             item.lastReviewedAt = newState.lastReviewedAt
             try repository.saveContext()
         } catch {
+            // 持久化失败：回滚 @Model 字段，避免内存与磁盘状态不一致
+            item.easeFactor = previousState.easeFactor
+            item.interval = previousState.interval
+            item.repetitions = previousState.repetitions
+            item.nextReviewAt = previousState.nextReviewAt
+            item.lastReviewedAt = previousState.lastReviewedAt
             SnapDrillLogger.generic.error("处理滑动结果失败: \(error.localizedDescription)")
         }
     }
@@ -214,7 +220,7 @@ final class ReviewViewModel {
             SnapDrillLogger.generic.error("撤销保存失败: \(error.localizedDescription)")
         }
         workingItems.insert(entry.item, at: 0)
-        finishedItems -= 1
+        finishedItems = max(0, finishedItems - 1)
         isAnswerShown = false
         if phase == .finished {
             phase = .reviewing
