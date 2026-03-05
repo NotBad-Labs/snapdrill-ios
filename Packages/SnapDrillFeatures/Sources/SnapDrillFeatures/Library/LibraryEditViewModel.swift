@@ -194,8 +194,8 @@ public final class LibraryEditViewModel {
             // 回滚 mainContext：撤销本次所有内存变更（@Model 属性修改、Tag 插入）
             // 单用户本地架构下 rollback 影响范围仅限本次 save() 调用
             repositories.review.rollbackContext()
-            if let path = newImagePath { try? imageStorage.deleteImage(path: path) }
-            if let path = newAnswerImagePath { try? imageStorage.deleteImage(path: path) }
+            if let path = newImagePath { bestEffortDeleteImage(path: path) }
+            if let path = newAnswerImagePath { bestEffortDeleteImage(path: path) }
             SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
         }
     }
@@ -223,7 +223,7 @@ public final class LibraryEditViewModel {
                 answerPath = try await imageStorage.saveImage(answerImg)
             } catch {
                 // 清理已写入的题目图片（孤儿文件）
-                if let path = imagePath { try? imageStorage.deleteImage(path: path) }
+                if let path = imagePath { bestEffortDeleteImage(path: path) }
                 SnapDrillLogger.generic.error("保存答案图片失败: \(error.localizedDescription)")
                 throw error
             }
@@ -240,10 +240,19 @@ public final class LibraryEditViewModel {
         oldAnswerPath: String?,
         newAnswerPath: String?
     ) {
-        if newImagePath != nil, let old = oldImagePath { try? imageStorage.deleteImage(path: old) }
+        if newImagePath != nil, let old = oldImagePath { bestEffortDeleteImage(path: old) }
         // 答案图片：被替换或被主动移除时均删除旧文件
         if newAnswerPath != nil || isAnswerImageCleared, let old = oldAnswerPath {
-            try? imageStorage.deleteImage(path: old)
+            bestEffortDeleteImage(path: old)
+        }
+    }
+
+    /// 删除图片文件，失败时记录日志（best-effort，不向上抛出）
+    private func bestEffortDeleteImage(path: String) {
+        do {
+            try imageStorage.deleteImage(path: path)
+        } catch {
+            SnapDrillLogger.generic.error("清理图片文件失败: \(error.localizedDescription)")
         }
     }
 }
