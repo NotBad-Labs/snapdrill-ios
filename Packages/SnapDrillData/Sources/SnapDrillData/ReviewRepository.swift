@@ -54,16 +54,15 @@ public final class ReviewRepository {
         return try modelContext.fetchCount(descriptor)
     }
     
+    /// 将所有题目的 subjectRawValue 从旧名改为新名（纯内存操作，调用方负责 saveContext）
     public func updateSubjectUsage(from oldName: String, to newName: String) throws {
         let targetOldName = oldName
         let predicate = #Predicate<ReviewItemModel> { $0.subjectRawValue == targetOldName }
         let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
         let itemsToUpdate = try modelContext.fetch(descriptor)
-        
         for item in itemsToUpdate {
             item.subjectRawValue = newName
         }
-        try modelContext.save()
     }
     
     public func countBySource(name: String) throws -> Int {
@@ -73,16 +72,15 @@ public final class ReviewRepository {
         return try modelContext.fetchCount(descriptor)
     }
     
+    /// 将所有题目的 sourceRawValue 从旧名改为新名（纯内存操作，调用方负责 saveContext）
     public func updateSourceUsage(from oldName: String, to newName: String) throws {
         let targetOldName = oldName
         let predicate = #Predicate<ReviewItemModel> { $0.sourceRawValue == targetOldName }
         let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
         let itemsToUpdate = try modelContext.fetch(descriptor)
-        
         for item in itemsToUpdate {
             item.sourceRawValue = newName
         }
-        try modelContext.save()
     }
     
     public func countByGrade(name: String) throws -> Int {
@@ -92,16 +90,15 @@ public final class ReviewRepository {
         return try modelContext.fetchCount(descriptor)
     }
 
+    /// 将所有题目的 grade 从旧名改为新名（纯内存操作，调用方负责 saveContext）
     public func updateGradeUsage(from oldName: String, to newName: String) throws {
         let targetOldName = oldName
         let predicate = #Predicate<ReviewItemModel> { $0.grade == targetOldName }
         let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
         let itemsToUpdate = try modelContext.fetch(descriptor)
-
         for item in itemsToUpdate {
             item.grade = newName
         }
-        try modelContext.save()
     }
 
     public func deleteAll() throws {
