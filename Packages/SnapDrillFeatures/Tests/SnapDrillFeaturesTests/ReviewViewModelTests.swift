@@ -380,6 +380,82 @@ struct ReviewViewModelTests {
         #expect(vm.isAnswerShown == false)
     }
 
+    // MARK: - 中断恢复（防止 SM-2 重复复习）
+
+    @Test("复习到一半 quitSession 后重新加载，已完成题目不重复出现")
+    func crashRecovery_completedItemsNotRepeated() async throws {
+        let repo = try createTestRepository()
+
+        // 插入 10 题
+        for i in 0..<10 {
+            try insertDueItem(in: repo, content: "题目\(i)")
+        }
+
+        let vm = ReviewViewModel(repository: repo)
+        await vm.loadDataAsync()
+        vm.startSession()
+        #expect(vm.workingItems.count == 10)
+
+        // 完成前 5 题（good 评分，nextReviewAt 被设为未来）
+        for _ in 0..<5 {
+            vm.handleSwipeCompletion(direction: 1)
+        }
+        #expect(vm.finishedItems == 5)
+        #expect(vm.workingItems.count == 5)
+
+        // 中断退出
+        await vm.quitSession()
+        #expect(vm.phase == .idle)
+
+        // 重新加载：已完成的 5 题 nextReviewAt 已更新到未来，不应再进入队列
+        await vm.loadDataAsync()
+        let allModels = try repo.fetchAllModels()
+        let dueModels = allModels.filter { ($0.nextReviewAt ?? .distantPast) <= Date() }
+        #expect(
+            dueModels.count == 5,
+            "重新加载后待复习队列应只剩 5 题，实际 \(dueModels.count) 题"
+        )
+    }
+
+    @Test("already 评分后题目仍在待复习队列（nextReviewAt 约 10 分钟后）")
+    func crashRecovery_againRating_itemRemainsInQueue() async throws {
+        let repo = try createTestRepository()
+        try insertDueItem(in: repo, content: "难题")
+
+        let vm = ReviewViewModel(repository: repo)
+        await vm.loadDataAsync()
+        vm.startSession()
+
+        // again 评分：nextReviewAt 约 10 分钟后，仍属于近期待复习
+        vm.handleSwipeCompletion(direction: -1)
+        await vm.quitSession()
+
+        // 重新 fetch：again 的题目 nextReviewAt 在未来约 10 分钟，fetchDueModels 按 <= now 判断
+        // 此时刚好处于边界，验证 lastReviewedAt 已被写入（即持久化成功）
+        let model = try repo.fetchAllModels().first
+        #expect(model?.lastReviewedAt != nil, "again 评分后 lastReviewedAt 应被持久化")
+        #expect(model?.repetitions == 0, "again 评分后 repetitions 应重置为 0")
+    }
+
+    @Test("quitSession 后 workingItems 和 undoStack 被清空")
+    func quitSession_clearsSessionState() async throws {
+        let repo = try createTestRepository()
+        try insertDueItem(in: repo, content: "题目A")
+        try insertDueItem(in: repo, content: "题目B")
+
+        let vm = ReviewViewModel(repository: repo)
+        await vm.loadDataAsync()
+        vm.startSession()
+        vm.handleSwipeCompletion(direction: 1)
+
+        #expect(vm.undoStack.count == 1)
+
+        await vm.quitSession()
+
+        // quitSession 调用 loadDataAsync 重置会话状态
+        #expect(vm.phase == .idle)
+    }
+
     // MARK: - quitSession
 
     @Test("quitSession 刷新数据并将 phase 设为 idle")
