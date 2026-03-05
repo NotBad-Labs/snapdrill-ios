@@ -195,6 +195,11 @@ public final class ReviewRepository {
     }
 
     /// 按筛选条件分页获取 ReviewItemModel
+    ///
+    /// - 无 tag 过滤：使用数据库级分页（高效路径）
+    /// - 有 tag 过滤：全量加载 search+subject 匹配项后内存过滤 tag，再按 offset/limit 切片。
+    ///   SwiftData #Predicate 不支持 many-to-many 关联查询，必须内存端处理；
+    ///   使用数据库 fetchLimit + 内存 tag 过滤会导致分页数量不可控，用户"找不到"已有题目。
     public func fetchFilteredModels(
         searchText: String,
         subjects: Set<String>,
@@ -212,23 +217,31 @@ public final class ReviewRepository {
         }
         // swiftlint:enable force_unwrapping
 
-        var descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: predicate,
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        descriptor.fetchLimit = limit
-        descriptor.fetchOffset = offset
+        let sortDescriptor = SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)
 
-        let models = try modelContext.fetch(descriptor)
-
-        if !tags.isEmpty {
-            return models.filter { model in
+        if tags.isEmpty {
+            // 无 tag 过滤：直接使用数据库分页
+            var descriptor = FetchDescriptor<ReviewItemModel>(
+                predicate: predicate,
+                sortBy: [sortDescriptor]
+            )
+            descriptor.fetchLimit = limit
+            descriptor.fetchOffset = offset
+            return try modelContext.fetch(descriptor)
+        } else {
+            // 有 tag 过滤：全量拉取 search+subject 匹配项，内存过滤 tag，再切片分页
+            let descriptor = FetchDescriptor<ReviewItemModel>(
+                predicate: predicate,
+                sortBy: [sortDescriptor]
+            )
+            let allMatching = try modelContext.fetch(descriptor)
+            let tagFiltered = allMatching.filter { model in
                 let itemTagNames = Set((model.tags ?? []).map { $0.name })
                 return !itemTagNames.isDisjoint(with: tags)
             }
+            guard offset < tagFiltered.count else { return [] }
+            return Array(tagFiltered[offset..<min(offset + limit, tagFiltered.count)])
         }
-
-        return models
     }
 
     /// 直接插入 ReviewItemModel 并保存
