@@ -61,6 +61,8 @@ final class ReviewViewModel {
     // MARK: - Constants
 
     let minInteractionInterval: TimeInterval = 0.55
+    /// undoStack 最大容量，防止长时间复习导致内存无限增长
+    let undoStackCapacity: Int = 20
 
     // MARK: - Dependencies
 
@@ -161,6 +163,10 @@ final class ReviewViewModel {
 
         let removed = workingItems.removeFirst()
         undoStack.append(removed)
+        // 超出容量时丢弃最旧的一条，防止内存无限增长
+        if undoStack.count > undoStackCapacity {
+            undoStack.removeFirst()
+        }
         finishedItems += 1
         isAnswerShown = false
 
