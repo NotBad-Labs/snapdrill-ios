@@ -161,6 +161,9 @@ public struct LibraryView: View {
                         await viewModel?.loadDataAsync()
                     }
                 }
+                .onDisappear {
+                    viewModel?.cancelTasks()
+                }
         }
         .background {
             // Liquid Mesh Gradient
