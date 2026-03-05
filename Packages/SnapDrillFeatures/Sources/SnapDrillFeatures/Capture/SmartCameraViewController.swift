@@ -146,7 +146,9 @@ import os // For OSAllocatedUnfairLock
 // and manage synchronization manually via Queues and Actors.
 final class CameraSessionManager: NSObject {
     
-    let session = AVCaptureSession()
+    // AVCaptureSession 在当前 SDK 版本尚未标注 Sendable；
+    // 此实例在 sessionQueue 与 visionQueue 上只读访问，nonisolated(unsafe) 是 Swift 6 标准过渡方案
+    nonisolated(unsafe) let session = AVCaptureSession()
     
     private let videoOutput = AVCaptureVideoDataOutput()
     private let photoOutput = AVCapturePhotoOutput()
@@ -169,14 +171,9 @@ final class CameraSessionManager: NSObject {
         configureSession()
     }
     
-    private struct CaptureSessionWrapper: @unchecked Sendable {
-        let session: AVCaptureSession
-    }
-    
     func startSession() {
-        let wrapper = CaptureSessionWrapper(session: self.session)
         sessionQueue.async {
-            wrapper.session.startRunning()
+            self.session.startRunning()
         }
     }
     

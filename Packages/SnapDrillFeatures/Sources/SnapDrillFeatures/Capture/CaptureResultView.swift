@@ -18,8 +18,9 @@ public struct CaptureResultView: View {
     
     // MARK: - Properties
     
-    @State var viewModel: CaptureResultViewModel
-    
+    // @Bindable 用于外部传入的 @Observable 对象，不持有所有权（区别于 @State）
+    @Bindable var viewModel: CaptureResultViewModel
+
     public init(viewModel: CaptureResultViewModel) {
         self.viewModel = viewModel
     }

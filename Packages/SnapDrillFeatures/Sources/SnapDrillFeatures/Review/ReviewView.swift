@@ -49,7 +49,11 @@ public struct ReviewView: View {
                 if viewModel == nil {
                     viewModel = ReviewViewModel(repository: repositories.review)
                 }
+                viewModel?.startObservingDataChanges()
                 await viewModel?.loadDataAsync()
+            }
+            .onDisappear {
+                viewModel?.cancelObserving()
             }
         }
     }

@@ -72,36 +72,33 @@ final class ReviewViewModel {
     private let scheduler = ReviewScheduler()
 
     @ObservationIgnored
-    nonisolated(unsafe) private var dataChangeObserver: Any?
+    private var dataChangeTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
     init(repository: ReviewRepository) {
         self.repository = repository
-        setupDataChangeObserver()
     }
 
-    deinit {
-        if let observer = dataChangeObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
-    }
+    // MARK: - Public API
 
-    // MARK: - Private Setup
-
-    private func setupDataChangeObserver() {
-        dataChangeObserver = NotificationCenter.default.addObserver(
-            forName: .reviewDataDidChange,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                guard let self else { return }
+    /// 启动数据变更监听（在 View 的 onAppear 调用）
+    func startObservingDataChanges() {
+        dataChangeTask?.cancel()
+        dataChangeTask = Task { [weak self] in
+            for await _ in NotificationCenter.default.notifications(named: .reviewDataDidChange) {
+                guard let self else { break }
                 // 仅在 idle 状态刷新，不打断正在进行的复习会话
-                guard self.phase != .reviewing else { return }
+                guard self.phase != .reviewing else { continue }
                 await self.loadDataAsync()
             }
         }
+    }
+
+    /// 取消数据变更监听（在 View 的 onDisappear 调用）
+    func cancelObserving() {
+        dataChangeTask?.cancel()
+        dataChangeTask = nil
     }
 
     // MARK: - Public API
