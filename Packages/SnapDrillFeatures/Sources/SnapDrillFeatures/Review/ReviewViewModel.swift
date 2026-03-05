@@ -216,9 +216,11 @@ final class ReviewViewModel {
         do {
             try repository.saveContext()
         } catch {
-            // 持久化失败：通过 SwiftData 官方 rollback 恢复所有未保存变更
+            // 持久化失败：回滚 @Model 变更，并提前返回，阻止后续 UI 状态更新，
+            // 防止磁盘与内存（workingItems / finishedItems）产生不一致。
             repository.rollbackContext()
             SnapDrillLogger.generic.error("撤销保存失败: \(error.localizedDescription)")
+            return
         }
         workingItems.insert(entry.item, at: 0)
         // @MainActor 保证单线程访问，max(0,...) 仅作防御性下界保护，无竞态风险
