@@ -87,7 +87,9 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 ## 禁止事项
 
 - 禁止为"可测试性"添加只有一个实现的协议（测试用 in-memory `ModelContainer`）
-- 禁止 `@unchecked Sendable`、force unwrap `!`、`any` existentials
+- 禁止 `@unchecked Sendable`、force unwrap `!`、`any` existentials，以下两种场景除外，且须加注释说明理由：
+  1. `EnvironmentKey.Value` 为跨模块协议类型（消除 `any` 需打破依赖方向边界，后者是更核心的规则）
+  2. 无 associated type / Self 约束的协议作为集合元素类型（`[any PDFExportable]`，框架限制，非设计懒惰）
 - 禁止跨 `ModelContext` 写入后立即读取（竞态）
 - 禁止在 DEBUG 工具里引入生产级复杂度
 - 禁止新增 Domain 层或 DomainKit（已删除，2026-03-03）

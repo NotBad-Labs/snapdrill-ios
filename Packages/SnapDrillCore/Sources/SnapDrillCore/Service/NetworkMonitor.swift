@@ -53,9 +53,11 @@ public final class NetworkMonitor {
     
     private func startMonitoring() {
         monitor.pathUpdateHandler = { [weak self] path in
-            DispatchQueue.main.async {
-                self?.isConnected = path.status == .satisfied
-                self?.connectionType = self?.getConnectionType(from: path) ?? .unknown
+            // Task { @MainActor in } 替代 DispatchQueue.main.async，确保 Swift 6 严格 Actor 隔离边界。
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.isConnected = path.status == .satisfied
+                self.connectionType = self.getConnectionType(from: path)
             }
         }
         monitor.start(queue: queue)

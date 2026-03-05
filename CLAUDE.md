@@ -96,6 +96,8 @@ ViewModels are injected with concrete Repository classes (not protocols) via `@E
 - All ViewModels: `@Observable @MainActor final class`
 - Async `Task`s must store handles and support cancellation — no fire-and-forget I/O tasks
 - Forbidden: `@unchecked Sendable`, force-unwrap `!`, `any` existentials
+  - Exception 1: `EnvironmentKey.Value` holding a cross-module protocol type (eliminating `any` would require breaking the dependency direction — a more fundamental rule)
+  - Exception 2: Protocols with no associated type / Self requirements used as collection element types (e.g. `[any PDFExportable]` — framework limitation, not design laziness); must add comment explaining reason
 - Use `nonisolated` on computed properties of value types that don't need actor isolation
 
 **Logging**
