@@ -33,8 +33,13 @@ public final class DashboardViewModel {
 
     // MARK: - Dependencies
 
+    /// 监听 reviewDataDidChange 通知的长驻任务句柄
+    /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
-    nonisolated(unsafe) private var dataChangeObserver: Any?
+    private var dataChangeTask: Task<Void, Never>?
+    /// 防抖任务句柄：新通知到来时 cancel 旧任务，避免批量写库时冗余查询
+    @ObservationIgnored
+    private var pendingRefreshTask: Task<Void, Never>?
     private let draftService: CaptureDraftServiceProtocol
     private let repositories: RepositoryContainer
 
@@ -45,28 +50,7 @@ public final class DashboardViewModel {
         self.repositories = repositories
         self.draftService = draftService
 
-        setupDataRetention()
-    }
-
-    /// 设置数据变更监听
-    private func setupDataRetention() {
-        dataChangeObserver = NotificationCenter.default.addObserver(
-            forName: .reviewDataDidChange,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self else { return }
-                SnapDrillLogger.generic.info("数据发生变更，刷新仪表盘...")
-                self.loadData()
-            }
-        }
-    }
-
-    deinit {
-        if let observer = dataChangeObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
+        setupDataChangeObserver()
     }
 
     // MARK: - Public API
@@ -90,6 +74,14 @@ public final class DashboardViewModel {
         }
     }
 
+    /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）
+    public func cancelTasks() {
+        dataChangeTask?.cancel()
+        dataChangeTask = nil
+        pendingRefreshTask?.cancel()
+        pendingRefreshTask = nil
+    }
+
     public func checkDraftAndCapture(router: DashboardRouter) {
         if draftService.hasDraft {
             isShowingDraftAlert = true
@@ -108,6 +100,25 @@ public final class DashboardViewModel {
             router.navigateToCapture(withDraft: draft)
         } else {
             router.navigateToCapture()
+        }
+    }
+
+    // MARK: - Private Helpers
+
+    /// 用 async notification stream 监听数据变更，无需 NotificationCenter token + deinit 清理
+    private func setupDataChangeObserver() {
+        dataChangeTask = Task {
+            for await _ in NotificationCenter.default.notifications(named: .reviewDataDidChange) {
+                guard !Task.isCancelled else { break }
+                // 防抖：cancel 上一次待执行的刷新，避免批量写库触发冗余查询
+                pendingRefreshTask?.cancel()
+                pendingRefreshTask = Task {
+                    try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+                    guard !Task.isCancelled else { return }
+                    SnapDrillLogger.generic.info("数据发生变更，刷新仪表盘...")
+                    loadData()
+                }
+            }
         }
     }
 }

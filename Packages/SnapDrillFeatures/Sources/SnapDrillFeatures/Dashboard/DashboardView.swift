@@ -122,6 +122,9 @@ public struct DashboardView: View {
                     viewModel = DashboardViewModel(repositories: repositories)
                 }
             }
+            .onDisappear {
+                viewModel?.cancelTasks()
+            }
         }
         .alert("恢复未完成的题目？", isPresented: Binding(
             get: { viewModel?.isShowingDraftAlert ?? false },
