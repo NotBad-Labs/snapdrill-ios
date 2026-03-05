@@ -50,9 +50,11 @@ payload = {
     "generationConfig": {"temperature": 0.1},
 }
 
+GEMINI_MODEL = "gemini-3.1-pro-preview"
+
 url = (
     "https://generativelanguage.googleapis.com/v1beta"
-    f"/models/gemini-2.0-flash:generateContent?key={api_key}"
+    f"/models/{GEMINI_MODEL}:generateContent?key={api_key}"
 )
 
 try:
@@ -70,7 +72,7 @@ except Exception as e:
 comment = (
     "## Gemini Code Review\n\n"
     + review_text
-    + "\n\n---\n*由 Gemini 自动生成。合并前请人工确认。*"
+    + f"\n\n---\n*由 Gemini 自动生成（模型：`{GEMINI_MODEL}`）。合并前请人工确认。*"
 )
 
 with open("review_comment.txt", "w", encoding="utf-8") as f:
