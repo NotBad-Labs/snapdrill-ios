@@ -216,6 +216,8 @@ final class ReviewViewModel {
         do {
             try repository.saveContext()
         } catch {
+            // 持久化失败：通过 SwiftData 官方 rollback 恢复所有未保存变更
+            repository.rollbackContext()
             SnapDrillLogger.generic.error("撤销保存失败: \(error.localizedDescription)")
         }
         workingItems.insert(entry.item, at: 0)
