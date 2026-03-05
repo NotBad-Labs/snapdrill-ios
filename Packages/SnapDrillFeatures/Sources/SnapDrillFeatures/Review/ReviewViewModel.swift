@@ -66,6 +66,8 @@ final class ReviewViewModel {
 
     // MARK: - Dependencies
 
+    // ReviewRepository 标注为 @MainActor final class，
+    // 在 @MainActor ViewModel 中调用其方法（含 saveContext）完全线程安全。
     private let repository: ReviewRepository
     private let scheduler = ReviewScheduler()
 
@@ -170,6 +172,25 @@ final class ReviewViewModel {
             lastReviewedAt: item.lastReviewedAt
         )
 
+        // 先写 @Model 并尝试持久化；保存成功后才更新 UI 状态，
+        // 确保持久化失败时 rollback 可完整还原，不留部分更新。
+        let rating: ReviewRating = direction > 0 ? .good : .again
+        let newState = scheduler.scheduleNextReview(state: previousState, rating: rating)
+        item.easeFactor = newState.easeFactor
+        item.interval = newState.interval
+        item.repetitions = newState.repetitions
+        item.nextReviewAt = newState.nextReviewAt
+        item.lastReviewedAt = newState.lastReviewedAt
+        do {
+            try repository.saveContext()
+        } catch {
+            // 持久化失败：回滚 @Model 变更并提前返回，UI 状态保持不变
+            repository.rollbackContext()
+            SnapDrillLogger.generic.error("处理滑动结果失败: \(error.localizedDescription)")
+            return
+        }
+
+        // 持久化成功后更新 UI 状态
         let removed = workingItems.removeFirst()
         undoStack.append((item: removed, previousState: previousState))
         // 超出容量时丢弃最旧的一条，防止内存无限增长
@@ -178,23 +199,8 @@ final class ReviewViewModel {
         }
         finishedItems += 1
         isAnswerShown = false
-
         if workingItems.isEmpty {
             phase = .finished
-        }
-
-        let rating: ReviewRating = direction > 0 ? .good : .again
-        do {
-            // 构建 SM-2 状态，调用调度引擎，直接写回 @Model 属性
-            let newState = scheduler.scheduleNextReview(state: previousState, rating: rating)
-            item.easeFactor = newState.easeFactor
-            item.interval = newState.interval
-            item.repetitions = newState.repetitions
-            item.nextReviewAt = newState.nextReviewAt
-            item.lastReviewedAt = newState.lastReviewedAt
-            try repository.saveContext()
-        } catch {
-            SnapDrillLogger.generic.error("处理滑动结果失败: \(error.localizedDescription)")
         }
     }
 
@@ -211,10 +217,17 @@ final class ReviewViewModel {
         do {
             try repository.saveContext()
         } catch {
+            // 持久化失败：先将 entry 放回栈，确保用户可再次尝试撤销；
+            // 再 rollback @Model，恢复字段为滑动后状态；最后提前返回，
+            // 阻止 workingItems/finishedItems 更新，防止内存与磁盘不一致。
+            undoStack.append(entry)
+            repository.rollbackContext()
             SnapDrillLogger.generic.error("撤销保存失败: \(error.localizedDescription)")
+            return
         }
         workingItems.insert(entry.item, at: 0)
-        finishedItems -= 1
+        // @MainActor 保证单线程访问，max(0,...) 仅作防御性下界保护，无竞态风险
+        finishedItems = max(0, finishedItems - 1)
         isAnswerShown = false
         if phase == .finished {
             phase = .reviewing

@@ -206,6 +206,7 @@ public func fetchFilteredModels(searchText: String, subjects: Set<String>,
 // 写入
 public func insertAndSave(_ model: ReviewItemModel) throws
 public func saveContext() throws
+public func rollbackContext()          // saveContext 失败时调用，回滚所有未持久化变更
 public func delete(id: UUID) throws
 public func deleteAll() throws
 

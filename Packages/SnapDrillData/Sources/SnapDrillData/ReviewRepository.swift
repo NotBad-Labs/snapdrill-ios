@@ -255,6 +255,11 @@ public final class ReviewRepository {
         try modelContext.save()
     }
 
+    /// 回滚 ModelContext 中所有未持久化的变更（saveContext 失败时调用）
+    public func rollbackContext() {
+        modelContext.rollback()
+    }
+
     // MARK: - Private Helpers
 
     /// 内部获取 SwiftData 模型，带性能优化
