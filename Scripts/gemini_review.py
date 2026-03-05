@@ -4,7 +4,7 @@
 import os
 import sys
 import urllib.error
-from gemini_utils import call_gemini_with_fallback
+from gemini_utils import call_gemini_with_fallback, MODELS_FAST
 
 pr_title = os.environ.get("PR_TITLE", "")
 api_key  = os.environ.get("GEMINI_API_KEY", "")
@@ -46,7 +46,8 @@ prompt = (
 )
 
 try:
-    review_text, used_model = call_gemini_with_fallback(prompt, api_key, timeout=120)
+    # PR diff review 使用快速审查链（GA 稳定优先，~40K 字符无需旗舰模型）
+    review_text, used_model = call_gemini_with_fallback(prompt, api_key, timeout=120, models=MODELS_FAST)
 except Exception as e:
     review_text = f"⚠️ Gemini API 调用失败（所有模型均不可用）：{e}"
     used_model = "N/A"
