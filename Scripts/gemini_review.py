@@ -52,7 +52,7 @@ payload = {
 
 url = (
     "https://generativelanguage.googleapis.com/v1beta"
-    f"/models/gemini-2.0-flash:generateContent?key={api_key}"
+    f"/models/gemini-3.1-pro-preview:generateContent?key={api_key}"
 )
 
 try:
