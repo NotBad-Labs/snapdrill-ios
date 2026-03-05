@@ -96,8 +96,8 @@ struct LibraryDetailView: View {
 
                         Spacer()
 
-                        if let nextReview = item.nextReviewAt {
-                            Text("下次复习: \(nextReview.formatted(date: .abbreviated, time: .omitted))")
+                        if item.isScheduled {
+                            Text("下次复习: \(item.nextReviewAt.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.caption)
                                 .foregroundStyle(.blue)
                         } else {

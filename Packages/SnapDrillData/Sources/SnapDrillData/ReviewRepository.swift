@@ -122,13 +122,11 @@ public final class ReviewRepository {
 
     public func fetchDueCount() throws -> Int {
         let now = Date.now
-        // #Predicate 对 Optional<Date> 的 force-unwrap 在当前 SwiftData 版本中
-        // SQLite 转译行为不可靠，改为全量 fetch 后内存过滤，确保结果正确。
-        let all = try modelContext.fetch(FetchDescriptor<ReviewItemModel>())
-        return all.filter { item in
-            guard let date = item.nextReviewAt else { return true }
-            return date <= now
-        }.count
+        // Schema V2 起 nextReviewAt 为非可选 Date（默认 distantPast = 立即到期），
+        // 可直接使用 #Predicate 让 SQLite 完成过滤，避免全表扫描内存炸弹。
+        let predicate = #Predicate<ReviewItemModel> { $0.nextReviewAt <= now }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        return try modelContext.fetchCount(descriptor)
     }
 
     public func fetchTodayCount() throws -> Int {
@@ -142,12 +140,13 @@ public final class ReviewRepository {
 
     public func fetchTodayReviewedCount() throws -> Int {
         let startOfToday = Calendar.current.startOfDay(for: Date.now)
-        // 同 fetchDueCount，避免 #Predicate + Optional force-unwrap 的转译问题。
-        let all = try modelContext.fetch(FetchDescriptor<ReviewItemModel>())
-        return all.filter { item in
-            guard let date = item.lastReviewedAt else { return false }
-            return date >= startOfToday
-        }.count
+        // Schema V2 起 lastReviewedAt 为非可选 Date（distantPast 表示从未复习），
+        // distantPast < startOfToday，自动排除未复习条目，可直接使用数据库级过滤。
+        let predicate = #Predicate<ReviewItemModel> { item in
+            item.lastReviewedAt >= startOfToday
+        }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        return try modelContext.fetchCount(descriptor)
     }
 
     public func totalItemCount() throws -> Int {
@@ -159,16 +158,14 @@ public final class ReviewRepository {
     /// 获取所有待复习条目的 SwiftData 模型
     public func fetchDueModels() throws -> [ReviewItemModel] {
         let now = Date.now
-        // #Predicate 对 Optional<Date> 的 force-unwrap 在当前 SwiftData 版本中
-        // SQLite 转译行为不可靠（nilnil 条目能正确命中，但非 nil 的过期日期无法命中），
-        // 改为全量 fetch 后内存过滤，彻底规避该 bug。
-        let all = try modelContext.fetch(
-            FetchDescriptor<ReviewItemModel>(sortBy: [SortDescriptor(\.createdAt, order: .forward)])
+        // Schema V2 起 nextReviewAt 为非可选 Date（distantPast 表示立即到期），
+        // 可直接使用 #Predicate 让 SQLite 完成过滤，避免全表扫描内存炸弹。
+        let predicate = #Predicate<ReviewItemModel> { $0.nextReviewAt <= now }
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.createdAt, order: .forward)]
         )
-        return all.filter { item in
-            guard let date = item.nextReviewAt else { return true }
-            return date <= now
-        }
+        return try modelContext.fetch(descriptor)
     }
 
     /// 按 ID 获取单个 ReviewItemModel

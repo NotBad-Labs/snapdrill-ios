@@ -182,8 +182,9 @@ final class ReviewViewModel {
         item.easeFactor = newState.easeFactor
         item.interval = newState.interval
         item.repetitions = newState.repetitions
-        item.nextReviewAt = newState.nextReviewAt
-        item.lastReviewedAt = newState.lastReviewedAt
+        // SM2State 的 Date? 解包：distantPast 作为"从未复习/立即到期"哨兵值
+        item.nextReviewAt = newState.nextReviewAt ?? Date.distantPast
+        item.lastReviewedAt = newState.lastReviewedAt ?? Date.distantPast
         do {
             try repository.saveContext()
         } catch {
@@ -215,8 +216,8 @@ final class ReviewViewModel {
         entry.item.easeFactor = entry.previousState.easeFactor
         entry.item.interval = entry.previousState.interval
         entry.item.repetitions = entry.previousState.repetitions
-        entry.item.nextReviewAt = entry.previousState.nextReviewAt
-        entry.item.lastReviewedAt = entry.previousState.lastReviewedAt
+        entry.item.nextReviewAt = entry.previousState.nextReviewAt ?? Date.distantPast
+        entry.item.lastReviewedAt = entry.previousState.lastReviewedAt ?? Date.distantPast
         do {
             try repository.saveContext()
         } catch {
