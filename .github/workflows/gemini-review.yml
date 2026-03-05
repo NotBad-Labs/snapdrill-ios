@@ -22,7 +22,7 @@ jobs:
       - name: Generate PR diff (Swift & config files only)
         run: |
           git diff origin/${{ github.base_ref }}...HEAD \
-            -- '*.swift' '*.yml' '*.yaml' '*.xcconfig' '*.json' \
+            -- '*.swift' '*.yml' '*.yaml' '*.xcconfig' '*.json' '*.py' \
             > pr_diff.txt
           echo "Diff size: $(wc -c < pr_diff.txt) bytes"
 
