@@ -172,6 +172,25 @@ final class ReviewViewModel {
             lastReviewedAt: item.lastReviewedAt
         )
 
+        // 先写 @Model 并尝试持久化；保存成功后才更新 UI 状态，
+        // 确保持久化失败时 rollback 可完整还原，不留部分更新。
+        let rating: ReviewRating = direction > 0 ? .good : .again
+        let newState = scheduler.scheduleNextReview(state: previousState, rating: rating)
+        item.easeFactor = newState.easeFactor
+        item.interval = newState.interval
+        item.repetitions = newState.repetitions
+        item.nextReviewAt = newState.nextReviewAt
+        item.lastReviewedAt = newState.lastReviewedAt
+        do {
+            try repository.saveContext()
+        } catch {
+            // 持久化失败：回滚 @Model 变更并提前返回，UI 状态保持不变
+            repository.rollbackContext()
+            SnapDrillLogger.generic.error("处理滑动结果失败: \(error.localizedDescription)")
+            return
+        }
+
+        // 持久化成功后更新 UI 状态
         let removed = workingItems.removeFirst()
         undoStack.append((item: removed, previousState: previousState))
         // 超出容量时丢弃最旧的一条，防止内存无限增长
@@ -180,26 +199,8 @@ final class ReviewViewModel {
         }
         finishedItems += 1
         isAnswerShown = false
-
         if workingItems.isEmpty {
             phase = .finished
-        }
-
-        let rating: ReviewRating = direction > 0 ? .good : .again
-        do {
-            // 构建 SM-2 状态，调用调度引擎，直接写回 @Model 属性
-            let newState = scheduler.scheduleNextReview(state: previousState, rating: rating)
-            item.easeFactor = newState.easeFactor
-            item.interval = newState.interval
-            item.repetitions = newState.repetitions
-            item.nextReviewAt = newState.nextReviewAt
-            item.lastReviewedAt = newState.lastReviewedAt
-            try repository.saveContext()
-        } catch {
-            // 持久化失败：通过 SwiftData 官方 rollback 恢复所有未保存变更，
-            // 确保内存与磁盘状态一致
-            repository.rollbackContext()
-            SnapDrillLogger.generic.error("处理滑动结果失败: \(error.localizedDescription)")
         }
     }
 
