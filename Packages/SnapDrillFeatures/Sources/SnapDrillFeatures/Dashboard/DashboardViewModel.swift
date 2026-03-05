@@ -72,12 +72,19 @@ public final class DashboardViewModel {
     // MARK: - Public API
 
     /// 加载并刷新统计数据
+    ///
+    /// 先将所有统计值读取到局部变量，全部成功后再统一写入属性，
+    /// 避免中途抛出异常导致 UI 呈现部分更新的不一致状态。
     public func loadData() {
         do {
-            todayItemsCount = try repositories.review.fetchTodayCount()
-            totalCount = try repositories.review.totalItemCount()
-            dueCount = try repositories.review.fetchDueCount()
-            reviewedTodayCount = try repositories.review.fetchTodayReviewedCount()
+            let today = try repositories.review.fetchTodayCount()
+            let total = try repositories.review.totalItemCount()
+            let due = try repositories.review.fetchDueCount()
+            let reviewed = try repositories.review.fetchTodayReviewedCount()
+            todayItemsCount = today
+            totalCount = total
+            dueCount = due
+            reviewedTodayCount = reviewed
         } catch {
             SnapDrillLogger.generic.error("加载统计数据失败: \(error.localizedDescription)")
         }

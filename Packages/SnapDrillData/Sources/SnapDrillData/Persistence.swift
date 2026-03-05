@@ -75,9 +75,11 @@ public class PersistenceController {
             let container = try ModelContainer(for: Schema(SnapDrillSchemaV1.models), configurations: fallbackConfig)
             return (container, true)
         } catch {
-            logger.critical("💀 Critical failure: Even in-memory fallback failed.")
-            // 最后的保命措施：如果内存模式也失败，我们至少不应该在这里奔溃应用
-            // 在生产环境中，这里应该抛出错误让上层 UI 展示引导修复页面
+            // 内存模式的 ModelContainer 创建失败：此属于不可恢复的系统级错误。
+            // 内存模式不依赖磁盘，若仍失败说明 SwiftData/系统层存在根本性问题。
+            // 此时无法提供任何 ModelContext，继续运行只会产生更难调试的崩溃，
+            // 直接 fatalError 以保证 Crash Report 能精确定位问题根因。
+            logger.critical("💀 Critical: In-memory ModelContainer also failed. Unrecoverable. Error: \(error.localizedDescription)")
             fatalError("SwiftData initialization failed significantly: \(error.localizedDescription)")
         }
     }
