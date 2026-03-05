@@ -117,8 +117,8 @@ public final class SubjectRepository {
         return try modelContext.fetch(descriptor).first
     }
     
+    /// 纯内存操作：将所有学科标记为待删除。调用方负责 saveContext()。
     public func deleteAll() throws {
         try modelContext.delete(model: SubjectModel.self)
-        try modelContext.save()
     }
 }

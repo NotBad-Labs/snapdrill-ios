@@ -10,6 +10,7 @@
 
 import Foundation
 import SwiftData
+import SnapDrillCore
 
 // MARK: - Default Implementation
 
@@ -34,14 +35,42 @@ public final class RepositoryContainer {
 
     // MARK: - 跨仓库协调操作
 
-    /// 删除所有复习数据与分类数据
+    /// 原子删除所有复习数据与分类数据。
+    /// 先收集图片路径，再批量内存删除，统一 save 一次；
+    /// save 成功后清理图片文件（文件操作不可回滚，仅 best-effort）；
+    /// save 失败时 rollback，数据库记录全部还原。
     public func deleteAllData() throws {
+        let imagePaths = try review.collectAllImagePaths()
         try review.deleteAll()
-        try deleteAllTaxonomy()
+        try deleteAllTaxonomyInMemory()
+        do {
+            try review.saveContext()
+        } catch {
+            review.rollbackContext()
+            throw error
+        }
+        // save 成功后清理图片文件（best-effort）
+        let storage = ImageStorage()
+        for path in imagePaths {
+            try? storage.deleteImage(path: path)
+        }
     }
 
-    /// 删除所有分类数据（学科、来源、标签、年级）
+    /// 原子删除所有分类数据（学科、来源、标签、年级）。
     public func deleteAllTaxonomy() throws {
+        try deleteAllTaxonomyInMemory()
+        do {
+            try review.saveContext()
+        } catch {
+            review.rollbackContext()
+            throw error
+        }
+    }
+
+    // MARK: - Private Helpers
+
+    /// 纯内存操作：标记所有分类数据待删除，不 save。
+    private func deleteAllTaxonomyInMemory() throws {
         try subject.deleteAll()
         try source.deleteAll()
         try tag.deleteAll()

@@ -110,8 +110,8 @@ public final class SourceRepository {
         return try modelContext.fetch(descriptor).first
     }
     
+    /// 纯内存操作：将所有来源标记为待删除。调用方负责 saveContext()。
     public func deleteAll() throws {
         try modelContext.delete(model: SourceModel.self)
-        try modelContext.save()
     }
 }

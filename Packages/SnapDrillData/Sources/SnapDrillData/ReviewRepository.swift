@@ -101,20 +101,21 @@ public final class ReviewRepository {
         }
     }
 
-    public func deleteAll() throws {
-        // 先收集所有图片路径，再批量删除文件，最后删除记录
+    /// 收集所有题目的图片路径，供调用方在 saveContext 成功后清理磁盘文件
+    public func collectAllImagePaths() throws -> [String] {
         let allModels = try fetchAllModels()
-        let imageStorage = ImageStorage()
+        var paths: [String] = []
         for model in allModels {
-            if let path = model.imagePath {
-                try? imageStorage.deleteImage(path: path)
-            }
-            if let path = model.answerImagePath {
-                try? imageStorage.deleteImage(path: path)
-            }
+            if let path = model.imagePath { paths.append(path) }
+            if let path = model.answerImagePath { paths.append(path) }
         }
+        return paths
+    }
+
+    /// 纯内存操作：将所有题目标记为待删除。调用方负责 saveContext()，
+    /// saveContext 成功后再调用 ImageStorage.deleteImage 清理图片文件。
+    public func deleteAll() throws {
         try modelContext.delete(model: ReviewItemModel.self)
-        try modelContext.save()
     }
 
     // MARK: - Performance-Optimized Query Methods
