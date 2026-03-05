@@ -45,34 +45,65 @@ prompt = (
     + "\n```"
 )
 
-payload = {
-    "contents": [{"parts": [{"text": prompt}]}],
-    "generationConfig": {"temperature": 0.1},
-}
+# 模型降级链：首选最新最强，遇到 503/超时自动降级
+GEMINI_MODELS = [
+    "gemini-3.1-pro-preview",   # 首选
+    "gemini-2.5-pro-preview",   # 备用
+    "gemini-2.0-flash",         # 兜底
+]
 
-GEMINI_MODEL = "gemini-3.1-pro-preview"
+import urllib.error
 
-url = (
-    "https://generativelanguage.googleapis.com/v1beta"
-    f"/models/{GEMINI_MODEL}:generateContent?key={api_key}"
-)
+def call_gemini_with_fallback(prompt_text: str, api_key: str, timeout: int = 120) -> tuple[str, str]:
+    """
+    依次尝试 GEMINI_MODELS，遇到 503/超时/连接错误自动降级。
+    返回 (响应文本, 实际使用的模型名)。
+    """
+    payload = {
+        "contents": [{"parts": [{"text": prompt_text}]}],
+        "generationConfig": {"temperature": 0.1},
+    }
+    last_error = None
+    for model in GEMINI_MODELS:
+        url = (
+            "https://generativelanguage.googleapis.com/v1beta"
+            f"/models/{model}:generateContent?key={api_key}"
+        )
+        print(f"尝试模型：{model}...")
+        try:
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+            )
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                result = json.loads(resp.read())
+                text = result["candidates"][0]["content"]["parts"][0]["text"]
+                print(f"✅ 成功（模型：{model}）")
+                return text, model
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 503):
+                print(f"⚠️ {model} 返回 HTTP {e.code}，降级...")
+                last_error = e
+                continue
+            else:
+                raise
+        except Exception as e:
+            print(f"⚠️ {model} 调用失败（{e}），降级...")
+            last_error = e
+            continue
+    raise RuntimeError(f"所有模型均不可用，最后错误：{last_error}")
 
 try:
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        result = json.loads(resp.read())
-        review_text = result["candidates"][0]["content"]["parts"][0]["text"]
+    review_text, used_model = call_gemini_with_fallback(prompt, api_key)
 except Exception as e:
-    review_text = f"⚠️ Gemini API 调用失败：{e}"
+    review_text = f"⚠️ Gemini API 调用失败（所有模型均不可用）：{e}"
+    used_model = "N/A"
 
 comment = (
     "## Gemini Code Review\n\n"
     + review_text
-    + f"\n\n---\n*由 Gemini 自动生成（模型：`{GEMINI_MODEL}`）。合并前请人工确认。*"
+    + f"\n\n---\n*由 Gemini 自动生成（模型：`{used_model}`）。合并前请人工确认。*"
 )
 
 with open("review_comment.txt", "w", encoding="utf-8") as f:

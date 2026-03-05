@@ -146,29 +146,63 @@ prompt = (
     f"```swift\n{code_content}\n```"
 )
 
-payload = {
-    "contents": [{"parts": [{"text": prompt}]}],
-    "generationConfig": {"temperature": 0.1},
-}
+# 模型降级链：首选最新最强，遇到 503/超时自动降级
+GEMINI_MODELS = [
+    "gemini-3.1-pro-preview",   # 首选：最新最强，Preview 阶段可能不稳定
+    "gemini-2.5-pro-preview",   # 备用：稳定性更好
+    "gemini-2.0-flash",         # 兜底：最快最稳定
+]
 
-GEMINI_MODEL = "gemini-3.1-pro-preview"
-url = (
-    "https://generativelanguage.googleapis.com/v1beta"
-    f"/models/{GEMINI_MODEL}:generateContent?key={api_key}"
-)
+import urllib.error
 
-print(f"调用 Gemini API（模型：{GEMINI_MODEL}）...")
+def call_gemini_with_fallback(prompt_text: str, api_key: str, timeout: int = 300) -> tuple[str, str]:
+    """
+    依次尝试 GEMINI_MODELS 中的模型，遇到 503/超时/连接错误自动降级。
+    返回 (响应文本, 实际使用的模型名)。
+    4xx 错误（认证失败等）不重试，直接抛出。
+    """
+    payload = {
+        "contents": [{"parts": [{"text": prompt_text}]}],
+        "generationConfig": {"temperature": 0.1},
+    }
+    last_error = None
+    for model in GEMINI_MODELS:
+        url = (
+            "https://generativelanguage.googleapis.com/v1beta"
+            f"/models/{model}:generateContent?key={api_key}"
+        )
+        print(f"尝试模型：{model}...")
+        try:
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+            )
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                result = json.loads(resp.read())
+                text = result["candidates"][0]["content"]["parts"][0]["text"]
+                print(f"✅ 成功（模型：{model}）")
+                return text, model
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 503):
+                print(f"⚠️ {model} 返回 HTTP {e.code}，降级到下一个模型...")
+                last_error = e
+                continue
+            else:
+                # 4xx（401/403 等）不重试
+                raise
+        except Exception as e:
+            print(f"⚠️ {model} 调用失败（{e}），降级到下一个模型...")
+            last_error = e
+            continue
+    raise RuntimeError(f"所有模型均不可用，最后错误：{last_error}")
+
+print(f"调用 Gemini API（含自动降级）...")
 try:
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(req, timeout=300) as resp:
-        result = json.loads(resp.read())
-        review_text = result["candidates"][0]["content"]["parts"][0]["text"]
+    review_text, used_model = call_gemini_with_fallback(prompt, api_key)
 except Exception as e:
-    review_text = f"⚠️ Gemini API 调用失败：{e}"
+    review_text = f"⚠️ Gemini API 调用失败（所有模型均不可用）：{e}"
+    used_model = "N/A"
 
 module_label = module.upper()
 phase_label  = {"architecture": "架构审查", "tests": "测试审查", "both": "综合审查"}.get(phase, phase)
@@ -178,7 +212,7 @@ comment = (
     f"**审查范围**：{review_target}（{included_count} 个文件）\n\n"
     "---\n\n"
     + review_text
-    + f"\n\n---\n*由 Gemini 自动生成（模型：`{GEMINI_MODEL}`）。结论仅供参考，最终决策由团队确认。*"
+    + f"\n\n---\n*由 Gemini 自动生成（模型：`{used_model}`）。结论仅供参考，最终决策由团队确认。*"
 )
 
 output_file = f"review_{module}_{phase}.txt"
