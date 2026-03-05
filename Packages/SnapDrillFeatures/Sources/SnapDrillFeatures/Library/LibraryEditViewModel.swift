@@ -48,8 +48,10 @@ public final class LibraryEditViewModel {
     private let imageStorage = ImageStorage()
     private let ocrService = OCRService()
 
+    /// OCR 任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
+    /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
-    nonisolated(unsafe) private var ocrTask: Task<Void, Never>?
+    private var ocrTask: Task<Void, Never>?
 
     public init(item: ReviewItemModel, repositories: RepositoryContainer) {
         self.item = item
@@ -117,8 +119,10 @@ public final class LibraryEditViewModel {
         }
     }
 
-    deinit {
+    /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）
+    public func cancelTasks() {
         ocrTask?.cancel()
+        ocrTask = nil
     }
 
     public func saveDraftIfNeeded() {
@@ -126,7 +130,7 @@ public final class LibraryEditViewModel {
     }
 
     public func save() async {
-        // 业务规则验证先行：在修改任何 @Model 属性之前完成，防止脏数据被意外持久化
+        // 业务规则验证先行
         let willHaveContent = !content.isEmpty
         let willHaveImage = displayedImage != nil
         guard willHaveContent || willHaveImage else {
@@ -134,7 +138,22 @@ public final class LibraryEditViewModel {
             return
         }
 
-        // 验证通过后再修改 @Model 属性
+        // 记录旧图片路径，save 成功后删除（替换图片时清理旧文件）
+        let oldImagePath = item.imagePath
+        let oldAnswerImagePath = item.answerImagePath
+
+        // 1. 先执行耗时异步 IO（@Model 属性尚未修改，不存在跨挂起点脏状态）
+        let newImagePath: String?
+        let newAnswerImagePath: String?
+        do {
+            (newImagePath, newAnswerImagePath) = try await persistImages()
+        } catch {
+            // IO 失败时 @Model 未被修改，无需 rollback，直接返回
+            SnapDrillLogger.generic.error("保存图片失败，中断保存: \(error.localizedDescription)")
+            return
+        }
+
+        // 2. IO 完成后集中修改 @Model 属性（纯内存同步操作，无 await）
         item.content = content.isEmpty ? nil : content
         item.answerText = answer.isEmpty ? nil : answer
         item.subject = selectedSubject
@@ -142,7 +161,7 @@ public final class LibraryEditViewModel {
         item.grade = grade
         item.difficultyValue = difficulty
 
-        // 同步标签（getOrCreate 确保 TagModel 存在）
+        // 同步标签（fetchOrCreateModel 是纯内存操作）
         var finalTagModels: [TagModel] = []
         for name in tagList {
             do {
@@ -154,34 +173,86 @@ public final class LibraryEditViewModel {
         }
         item.tags = finalTagModels
 
-        // 处理题目图片保存
-        if let newImage = displayedImage {
-            do {
-                let newPath = try await imageStorage.saveImage(newImage)
-                item.imagePath = newPath
-            } catch {
-                SnapDrillLogger.generic.error("保存题目图片失败: \(error.localizedDescription)")
-            }
-        }
-
-        // 处理答案图片保存
-        if let answerImg = answerDisplayedImage {
-            do {
-                let newPath = try await imageStorage.saveImage(answerImg)
-                item.answerImagePath = newPath
-            } catch {
-                SnapDrillLogger.generic.error("保存答案图片失败: \(error.localizedDescription)")
-            }
+        // 设置图片路径
+        if let path = newImagePath { item.imagePath = path }
+        if let path = newAnswerImagePath {
+            item.answerImagePath = path
         } else if isAnswerImageCleared {
             item.answerImagePath = nil
         }
 
+        // 3. 立即保存
         do {
             try repositories.review.saveContext()
             isSavedNormally = true
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            deleteReplacedImages(
+                oldImagePath: oldImagePath, newImagePath: newImagePath,
+                oldAnswerPath: oldAnswerImagePath, newAnswerPath: newAnswerImagePath
+            )
         } catch {
+            // 回滚 mainContext：撤销本次所有内存变更（@Model 属性修改、Tag 插入）
+            // 单用户本地架构下 rollback 影响范围仅限本次 save() 调用
+            repositories.review.rollbackContext()
+            if let path = newImagePath { bestEffortDeleteImage(path: path) }
+            if let path = newAnswerImagePath { bestEffortDeleteImage(path: path) }
             SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - Private Helpers
+
+    /// 持久化题目图片和答案图片，返回新写入的路径。
+    /// 不修改 @Model 属性（由 save() 在 IO 完成后统一赋值）。
+    /// 答案图片保存失败时自动清理已写入的题目图片，防止孤儿文件。
+    private func persistImages() async throws -> (imagePath: String?, answerPath: String?) {
+        var imagePath: String?
+
+        if let newImage = displayedImage {
+            do {
+                imagePath = try await imageStorage.saveImage(newImage)
+            } catch {
+                SnapDrillLogger.generic.error("保存题目图片失败: \(error.localizedDescription)")
+                throw error
+            }
+        }
+
+        var answerPath: String?
+        if let answerImg = answerDisplayedImage {
+            do {
+                answerPath = try await imageStorage.saveImage(answerImg)
+            } catch {
+                // 清理已写入的题目图片（孤儿文件）
+                if let path = imagePath { bestEffortDeleteImage(path: path) }
+                SnapDrillLogger.generic.error("保存答案图片失败: \(error.localizedDescription)")
+                throw error
+            }
+        }
+
+        return (imagePath, answerPath)
+    }
+
+    /// save 成功后删除被替换的旧图片文件（best-effort）
+    /// 注：主图片不允许清空（UI 只提供替换功能），无需处理主图片被清空的情况
+    private func deleteReplacedImages(
+        oldImagePath: String?,
+        newImagePath: String?,
+        oldAnswerPath: String?,
+        newAnswerPath: String?
+    ) {
+        if newImagePath != nil, let old = oldImagePath { bestEffortDeleteImage(path: old) }
+        // 答案图片：被替换或被主动移除时均删除旧文件
+        if newAnswerPath != nil || isAnswerImageCleared, let old = oldAnswerPath {
+            bestEffortDeleteImage(path: old)
+        }
+    }
+
+    /// 删除图片文件，失败时记录日志（best-effort，不向上抛出）
+    private func bestEffortDeleteImage(path: String) {
+        do {
+            try imageStorage.deleteImage(path: path)
+        } catch {
+            SnapDrillLogger.generic.error("清理图片文件失败: \(error.localizedDescription)")
         }
     }
 }
