@@ -41,6 +41,8 @@ public final class LibraryViewModel {
     private var currentPage: Int = 0
     private let pageSize: Int = 50
     @ObservationIgnored
+    // nonisolated(unsafe)：Task.cancel() 是线程安全的，deinit 调用安全；
+    // 仅在 @MainActor 上写入，deinit 只读取引用后调用 cancel()，无数据竞争。
     nonisolated(unsafe) private var searchTask: Task<Void, Never>?
 
     // MARK: - Initialization
@@ -101,16 +103,19 @@ public final class LibraryViewModel {
         defer { isLoading = false }
 
         do {
-            currentPage += 1
+            // 先计算下一页索引，fetch 成功后再写回 currentPage，
+            // 避免 fetch 抛出异常时 currentPage 已递增导致后续跳页。
+            let nextPage = currentPage + 1
             let nextItems = try repositories.review.fetchFilteredModels(
                 searchText: searchText,
                 subjects: selectedSubjects,
                 tags: selectedTags,
                 limit: pageSize,
-                offset: currentPage * pageSize
+                offset: nextPage * pageSize
             )
 
             guard !Task.isCancelled else { return }
+            currentPage = nextPage
             self.filteredItems.append(contentsOf: nextItems)
         } catch {
             SnapDrillLogger.generic.error("加载更多题目失败: \(error.localizedDescription)")
