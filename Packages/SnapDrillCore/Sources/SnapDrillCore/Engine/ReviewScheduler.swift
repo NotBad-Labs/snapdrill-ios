@@ -31,6 +31,8 @@ public struct ReviewScheduler {
     // MARK: - Properties
 
     private let minEaseFactor: Double = 1.3
+    /// 单次间隔上限（365 天），防止 SM-2 累乘后产生不切实际的超长周期
+    private let maxInterval: Int = 365
 
     // MARK: - Initialization
 
@@ -51,7 +53,9 @@ public struct ReviewScheduler {
 
         let q = Double(rating.rawValue)
         let efDelta = 0.1 - (5.0 - q) * (0.08 + (5.0 - q) * 0.02)
-        var newEF = state.easeFactor + efDelta
+        // 输入校验：确保基础 easeFactor 不低于最小值，防止异常历史数据影响计算结果
+        let safeEF = max(state.easeFactor, minEaseFactor)
+        var newEF = safeEF + efDelta
         newEF = max(newEF, minEaseFactor)
         result.easeFactor = newEF
 
@@ -69,7 +73,7 @@ public struct ReviewScheduler {
             case 2:
                 newInterval = 6
             default:
-                newInterval = Int(ceil(Double(state.interval) * newEF))
+                newInterval = min(Int(ceil(Double(state.interval) * newEF)), maxInterval)
             }
 
             result.interval = newInterval
@@ -98,9 +102,12 @@ public struct ReviewScheduler {
         } else if interval < 7 {
             return "\(interval)天"
         } else if interval < 30 {
-            return "\(interval / 7)周"
+            // 四舍五入避免截断（如 13 天 = 1.86 周 → 显示"2周"而非"1周"）
+            let weeks = max(1, Int((Double(interval) / 7.0).rounded()))
+            return "\(weeks)周"
         } else {
-            return "\(interval / 30)个月"
+            let months = max(1, Int((Double(interval) / 30.0).rounded()))
+            return "\(months)个月"
         }
     }
 }
