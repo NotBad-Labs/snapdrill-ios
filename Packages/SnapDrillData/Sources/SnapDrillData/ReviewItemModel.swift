@@ -132,6 +132,14 @@ public final class ReviewItemModel {
         set { sourceRawValue = newValue }
     }
     
+    /// 是否已安排下次复习（false 表示从未复习或重置后的初始状态）
+    ///
+    /// 封装哨兵值语义，避免调用方直接比较 `Date.distantPast`。
+    @Transient
+    public var isScheduled: Bool {
+        nextReviewAt != .distantPast
+    }
+
     /// 转为导出快照（仅含导出所需字段）
     public func toExportSnapshot() -> ReviewExportSnapshot {
         ReviewExportSnapshot(

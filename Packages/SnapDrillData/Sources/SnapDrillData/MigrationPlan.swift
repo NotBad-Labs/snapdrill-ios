@@ -15,6 +15,8 @@ import Foundation
 public enum SnapDrillSchemaV1: VersionedSchema {
     public static let versionIdentifier: Schema.Version = .init(1, 0, 0)
 
+    // `any PersistentModel.Type` 和 `any VersionedSchema.Type` 是 SwiftData 框架强制要求的 API 签名，
+    // 属于"框架强制 any"例外，不违反项目禁止 any existentials 的原则。
     public static var models: [any PersistentModel.Type] {
         [
             ReviewItemModel.self,
