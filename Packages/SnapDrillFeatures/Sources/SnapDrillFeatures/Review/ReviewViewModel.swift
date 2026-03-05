@@ -114,7 +114,9 @@ final class ReviewViewModel {
             reviewedTodayCount = try repository.fetchTodayReviewedCount()
             totalItemsCount = try repository.totalItemCount()
 
-            if phase != .reviewing {
+            // 仅在初始加载阶段（.loading）才切换为 .idle；
+            // 不覆盖 .finished（防止数据刷新通知将"今日完成"页强制踢回仪表盘）
+            if phase == .loading {
                 phase = .idle
             }
         } catch is CancellationError {
@@ -133,7 +135,8 @@ final class ReviewViewModel {
         undoStack.removeAll()
         isAnswerShown = false
         sessionStartReviewedCount = reviewedTodayCount
-        phase = .reviewing
+        // 队列为空时直接进入 finished，防止进入 reviewing 后无卡片可操作的死状态
+        phase = workingItems.isEmpty ? .finished : .reviewing
     }
 
     /// 暂停并退出当前会话
