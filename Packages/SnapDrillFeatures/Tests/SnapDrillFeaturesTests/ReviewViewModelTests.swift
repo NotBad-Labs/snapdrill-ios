@@ -269,6 +269,30 @@ struct ReviewViewModelTests {
         #expect(vm.workingItems.isEmpty)
     }
 
+    @Test("undoLastSwipe 完整回滚 SM-2 状态到滑动前，避免数据损坏")
+    func undoLastSwipe_rollsBackSM2State() async throws {
+        let repo = try createTestRepository()
+        let model = ReviewItemModel(content: "回滚测试题", subject: "数学", source: "试卷")
+        model.nextReviewAt = Date().addingTimeInterval(-3600)
+        model.easeFactor = 2.8; model.interval = 5; model.repetitions = 3
+        try repo.insertAndSave(model)
+        let vm = ReviewViewModel(repository: repo)
+        await vm.loadDataAsync(); vm.startSession()
+        // 记录滑动前 SM-2 字段
+        let origEF = model.easeFactor; let origInterval = model.interval
+        let origRep = model.repetitions; let origNext = model.nextReviewAt
+        // good 评分后 SM-2 字段被修改
+        vm.handleSwipeCompletion(direction: 1)
+        #expect(model.interval > origInterval, "good 评分后 interval 应增大")
+        // 撤销后持久化层应完整恢复
+        vm.undoLastSwipe()
+        let restored = try repo.fetchAllModels().first(where: { $0.id == model.id })
+        #expect(restored?.easeFactor == origEF, "undo 后 easeFactor 应回到滑动前")
+        #expect(restored?.interval == origInterval, "undo 后 interval 应回到滑动前")
+        #expect(restored?.repetitions == origRep, "undo 后 repetitions 应回到滑动前")
+        #expect(restored?.nextReviewAt == origNext, "undo 后 nextReviewAt 应回到滑动前")
+    }
+
     // MARK: - triggerButtonRating 防抖
 
     @Test("triggerButtonRating 快速连续调用时第二次被防抖忽略")

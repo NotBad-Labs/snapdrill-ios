@@ -40,8 +40,8 @@ final class ReviewViewModel {
     var workingItems: [ReviewItemModel] = []
     /// 已完成卡片数量
     var finishedItems: Int = 0
-    /// 撤销栈
-    var undoStack: [ReviewItemModel] = []
+    /// 撤销栈（同时记录滑动前的 SM-2 状态，确保 undo 可完整回滚数据）
+    var undoStack: [(item: ReviewItemModel, previousState: SM2State)] = []
 
     // MARK: - Statistics
 
@@ -161,8 +161,17 @@ final class ReviewViewModel {
 
         guard let item = workingItems.first else { return }
 
+        // 在修改 SM-2 字段前，保存旧状态供 undo 完整回滚
+        let previousState = SM2State(
+            easeFactor: item.easeFactor,
+            interval: item.interval,
+            repetitions: item.repetitions,
+            nextReviewAt: item.nextReviewAt,
+            lastReviewedAt: item.lastReviewedAt
+        )
+
         let removed = workingItems.removeFirst()
-        undoStack.append(removed)
+        undoStack.append((item: removed, previousState: previousState))
         // 超出容量时丢弃最旧的一条，防止内存无限增长
         if undoStack.count > undoStackCapacity {
             undoStack.removeFirst()
@@ -177,12 +186,7 @@ final class ReviewViewModel {
         let rating: ReviewRating = direction > 0 ? .good : .again
         do {
             // 构建 SM-2 状态，调用调度引擎，直接写回 @Model 属性
-            let state = SM2State(
-                easeFactor: item.easeFactor,
-                interval: item.interval,
-                repetitions: item.repetitions
-            )
-            let newState = scheduler.scheduleNextReview(state: state, rating: rating)
+            let newState = scheduler.scheduleNextReview(state: previousState, rating: rating)
             item.easeFactor = newState.easeFactor
             item.interval = newState.interval
             item.repetitions = newState.repetitions
@@ -194,11 +198,22 @@ final class ReviewViewModel {
         }
     }
 
-    /// 撤销上一次滑动（仅恢复工作队列，不回滚 SM-2 状态）
+    /// 撤销上一次滑动，同时回滚 SM-2 状态并持久化
     func undoLastSwipe() {
         guard !undoStack.isEmpty else { return }
-        let item = undoStack.removeLast()
-        workingItems.insert(item, at: 0)
+        let entry = undoStack.removeLast()
+        // 将 SM-2 字段回滚到滑动前的旧状态
+        entry.item.easeFactor = entry.previousState.easeFactor
+        entry.item.interval = entry.previousState.interval
+        entry.item.repetitions = entry.previousState.repetitions
+        entry.item.nextReviewAt = entry.previousState.nextReviewAt
+        entry.item.lastReviewedAt = entry.previousState.lastReviewedAt
+        do {
+            try repository.saveContext()
+        } catch {
+            SnapDrillLogger.generic.error("撤销保存失败: \(error.localizedDescription)")
+        }
+        workingItems.insert(entry.item, at: 0)
         finishedItems -= 1
         isAnswerShown = false
         if phase == .finished {
