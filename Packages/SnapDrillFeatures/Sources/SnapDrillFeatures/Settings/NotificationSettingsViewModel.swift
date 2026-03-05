@@ -21,6 +21,10 @@ final class NotificationSettingsViewModel {
 
     /// 用户拒绝权限时置 true，用于展示引导 Alert
     var isPermissionDenied: Bool = false
+    /// enable() 执行期间为 true，防止并发重入（View 层据此禁用 Toggle）
+    var isRequesting: Bool = false
+    /// reschedule() 失败时赋值，View 层据此展示错误 Alert
+    var rescheduleError: String?
 
     // MARK: - Dependencies
 
@@ -38,6 +42,10 @@ final class NotificationSettingsViewModel {
     ///
     /// - Returns: 权限是否已授予（用于回写 @AppStorage）
     func enable(hour: Int, minute: Int) async -> Bool {
+        guard !isRequesting else { return false }
+        isRequesting = true
+        defer { isRequesting = false }
+
         let granted = await notificationService.requestPermission()
         guard granted else {
             isPermissionDenied = true
@@ -62,6 +70,7 @@ final class NotificationSettingsViewModel {
             try await notificationService.scheduleDaily(at: hour, minute: minute)
         } catch {
             SnapDrillLogger.generic.error("更新通知时间失败: \(error.localizedDescription)")
+            rescheduleError = error.localizedDescription
         }
     }
 }

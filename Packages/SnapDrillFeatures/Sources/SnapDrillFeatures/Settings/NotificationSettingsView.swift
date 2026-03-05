@@ -39,6 +39,7 @@ struct NotificationSettingsView: View {
                         handleToggle(newValue)
                     }
                 ))
+                .disabled(viewModel?.isRequesting ?? false)
 
                 if notificationsEnabled {
                     DatePicker(
@@ -81,6 +82,16 @@ struct NotificationSettingsView: View {
             Button("取消", role: .cancel) { }
         } message: {
             Text("请在「设置 → 通知 → SnapDrill」中开启通知权限，才能接收每日复习提醒。")
+        }
+        .alert("更新提醒时间失败", isPresented: Binding(
+            get: { viewModel?.rescheduleError != nil },
+            set: { if !$0 { viewModel?.rescheduleError = nil } }
+        )) {
+            Button("好", role: .cancel) { viewModel?.rescheduleError = nil }
+        } message: {
+            if let errorMessage = viewModel?.rescheduleError {
+                Text(errorMessage)
+            }
         }
         .onAppear {
             if viewModel == nil {
