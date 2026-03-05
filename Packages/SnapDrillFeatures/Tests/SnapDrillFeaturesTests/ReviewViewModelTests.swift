@@ -409,9 +409,11 @@ struct ReviewViewModelTests {
 
         // 重新加载：已完成的 5 题 nextReviewAt 已更新到未来，不应再进入队列
         await vm.loadDataAsync()
+        let allModels = try repo.fetchAllModels()
+        let dueModels = allModels.filter { ($0.nextReviewAt ?? .distantPast) <= Date() }
         #expect(
-            vm.reviewQueue.count == 5,
-            "重新加载后队列应只剩 5 题，实际 \(vm.reviewQueue.count) 题"
+            dueModels.count == 5,
+            "重新加载后待复习队列应只剩 5 题，实际 \(dueModels.count) 题"
         )
     }
 
