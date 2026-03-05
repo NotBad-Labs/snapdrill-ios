@@ -302,6 +302,7 @@ public struct CaptureResultView: View {
         }
         .onDisappear {
             viewModel.generateDraftIfNeeded()
+            viewModel.cancelTasks()
         }
         .alert("新建学科", isPresented: $viewModel.showNewSubjectAlert) {
             TextField("学科名称", text: $viewModel.newSubjectName)

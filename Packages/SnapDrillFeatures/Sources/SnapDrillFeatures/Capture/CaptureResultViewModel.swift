@@ -71,9 +71,8 @@ public final class CaptureResultViewModel {
     private let imageStorage: ImageStorage
     private let router: CaptureRouter
 
-    /// 识别任务句柄（nonisolated(unsafe)：Task.cancel() 线程安全，deinit 中仅调用 cancel）
-    @ObservationIgnored
-    nonisolated(unsafe) private var recognitionTask: Task<Void, Never>?
+    /// 识别任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
+    private var recognitionTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -95,11 +94,13 @@ public final class CaptureResultViewModel {
         self.router = router
     }
 
-    deinit {
-        recognitionTask?.cancel()
-    }
-
     // MARK: - Public API
+
+    /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）
+    public func cancelTasks() {
+        recognitionTask?.cancel()
+        recognitionTask = nil
+    }
 
     /// 加载默认表单数据
     public func loadFormData() {
@@ -249,7 +250,9 @@ public final class CaptureResultViewModel {
             router.path.removeLast(router.path.count)
 
         } catch {
-            // 首先回滚 context，清除脏 Tag 和脏 ReviewItemModel
+            // 回滚 mainContext：清除本次操作插入的脏 Tag 和脏 ReviewItemModel。
+            // 单用户本地优先架构下，saveResult 执行期间 mainContext 不存在其他并发未保存变更，
+            // rollback 影响范围仅限本次调用，不会丢失其他模块的数据。
             repositories.review.rollbackContext()
             // 再清理已写入磁盘的孤儿图片文件
             if let path = savedImagePath {
