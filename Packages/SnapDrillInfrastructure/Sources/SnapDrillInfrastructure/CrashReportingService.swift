@@ -13,6 +13,17 @@ import OSLog
 import FirebaseCrashlytics
 import SnapDrillCore
 
+// MARK: - 本地崩溃日志数据结构
+
+/// 本地崩溃日志条目（强类型 Codable，替代 [String: Any]）
+private struct LocalCrashLogEntry: Codable {
+    let timestamp: String
+    let error: String
+    let context: [String: String]
+    let appVersion: String
+    let osVersion: String
+}
+
 /// 崩溃报告服务
 ///
 /// 提供应用级别的错误追踪和崩溃报告功能。
@@ -24,7 +35,8 @@ public final class CrashReportingService: CrashReportingProtocol {
     /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = CrashReportingService()
     
-    private let logger = Logger(subsystem: "com.snapdrill.app", category: "CrashReporting")
+    // 崩溃信号安全专用：OSLog 静态实例避免崩溃时动态分配内存
+    private static let crashLog = OSLog(subsystem: "com.snapdrill.app", category: "UncaughtException")
     private var isEnabled: Bool
     private var isFirebaseConfigured: Bool = false
     
@@ -49,21 +61,21 @@ public final class CrashReportingService: CrashReportingProtocol {
     /// 标记 Firebase 已配置完毕（由 SnapDrillApp 在 FirebaseApp.configure() 后调用）
     public func markConfigured() {
         isFirebaseConfigured = true
-        logger.info("✅ Firebase Crashlytics tracking ready")
+        SnapDrillLogger.generic.info("Firebase Crashlytics tracking ready")
     }
     
     /// 启用或禁用崩溃报告
     public func setEnabled(_ enabled: Bool) {
         isEnabled = enabled
         UserDefaults.standard.set(enabled, forKey: "crashReportingEnabled")
-        logger.info("Crash reporting \(enabled ? "enabled" : "disabled")")
+        SnapDrillLogger.generic.info("Crash reporting \(enabled ? "enabled" : "disabled")")
     }
     
     /// 记录非致命错误
     public func recordError(_ error: Error, context: [String: String] = [:]) {
         guard isEnabled else { return }
         
-        logger.error("Error recorded: \(error.localizedDescription)")
+        SnapDrillLogger.generic.error("Error recorded: \(error.localizedDescription)")
         
         if isFirebaseConfigured {
             Crashlytics.crashlytics().record(error: error, userInfo: context)
@@ -83,15 +95,15 @@ public final class CrashReportingService: CrashReportingProtocol {
         
         switch level {
         case .debug:
-            logger.debug("\(message)")
+            SnapDrillLogger.generic.debug("\(message)")
         case .info:
-            logger.info("\(message)")
+            SnapDrillLogger.generic.info("\(message)")
         case .warning:
-            logger.warning("\(message)")
+            SnapDrillLogger.generic.warning("\(message)")
         case .error:
-            logger.error("\(message)")
+            SnapDrillLogger.generic.error("\(message)")
         case .critical:
-            logger.critical("\(message)")
+            SnapDrillLogger.generic.critical("\(message)")
         }
     }
     
@@ -103,7 +115,7 @@ public final class CrashReportingService: CrashReportingProtocol {
             Crashlytics.crashlytics().setUserID(identifier)
         }
         
-        logger.info("User identifier set and secured in Keychain")
+        SnapDrillLogger.generic.info("User identifier set and secured in Keychain")
         Task {
             await KeychainService.shared.save(identifier, forKey: "crashReportingUserID")
         }
@@ -120,7 +132,7 @@ public final class CrashReportingService: CrashReportingProtocol {
             Crashlytics.crashlytics().setCustomValue(value, forKey: key)
         }
         
-        logger.debug("Custom value set - \(key): \(value)")
+        SnapDrillLogger.generic.debug("Custom value set - \(key): \(value)")
     }
     
     /// 记录面包屑
@@ -132,7 +144,7 @@ public final class CrashReportingService: CrashReportingProtocol {
             Crashlytics.crashlytics().log(breadcrumb)
         }
         
-        logger.debug("Breadcrumb: \(message)")
+        SnapDrillLogger.generic.debug("Breadcrumb: \(message)")
     }
     
     // MARK: - Private Methods
@@ -149,10 +161,11 @@ public final class CrashReportingService: CrashReportingProtocol {
             let symbols = exception.callStackSymbols.prefix(10).joined(separator: "\n")
 
             // os_log 是异步写日志缓冲区，崩溃时内核会 flush，属于信号安全操作
+            // 使用预分配的静态 OSLog 实例，避免崩溃时动态内存分配
             os_log(
                 .fault,
                 dso: #dsohandle,
-                log: OSLog(subsystem: "com.snapdrill.app", category: "UncaughtException"),
+                log: CrashReportingService.crashLog,
                 "UncaughtException [%{public}@]: %{public}@\nCallStack:\n%{public}@",
                 name, reason, symbols
             )
@@ -160,16 +173,19 @@ public final class CrashReportingService: CrashReportingProtocol {
     }
     
     private func saveToLocalLog(error: Error, context: [String: String]) {
-        let logEntry: [String: Any] = [
-            "timestamp": Date().ISO8601Format(),
-            "error": error.localizedDescription,
-            "context": context,
-            "appVersion": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown",
-            "osVersion": ProcessInfo.processInfo.operatingSystemVersionString
-        ]
+        // 使用强类型 Codable 结构体替代 [String: Any]，消除 Any existential 违规
+        let entry = LocalCrashLogEntry(
+            timestamp: Date().ISO8601Format(),
+            error: error.localizedDescription,
+            context: context,
+            appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown",
+            osVersion: ProcessInfo.processInfo.operatingSystemVersionString
+        )
 
         do {
-            let logData = try JSONSerialization.data(withJSONObject: logEntry, options: .prettyPrinted)
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let logData = try encoder.encode(entry)
             // 使用 Library/Application Support 而非 Documents：
             // 日志属于内部数据，不应暴露给用户或被 iCloud 备份
             let logsDirectory = FileManager.default
@@ -184,7 +200,7 @@ public final class CrashReportingService: CrashReportingProtocol {
             let logFile = logsDirectory.appendingPathComponent("crash_log_\(Date().timeIntervalSince1970).json")
             try logData.write(to: logFile)
         } catch {
-            logger.error("Failed to save local crash log: \(error.localizedDescription)")
+            SnapDrillLogger.generic.error("本地崩溃日志写入失败: \(error.localizedDescription)")
         }
     }
 

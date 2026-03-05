@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import OSLog
 @preconcurrency import FirebaseRemoteConfig
 import SnapDrillCore
 
@@ -20,7 +19,6 @@ public final class FirebaseRemoteConfigService: RemoteConfigurable {
     
     // MARK: - Properties
     
-    private let logger = Logger(subsystem: "com.snapdrill.app", category: "RemoteConfig")
     private let remoteConfig = RemoteConfig.remoteConfig()
     
     // MARK: - Initialization
@@ -38,13 +36,13 @@ public final class FirebaseRemoteConfigService: RemoteConfigurable {
         let status = try await remoteConfig.fetchAndActivate()
         switch status {
         case .successFetchedFromRemote:
-            logger.info("✅ Remote Config fetched and activated from remote")
+            SnapDrillLogger.generic.info("Remote Config fetched and activated from remote")
         case .successUsingPreFetchedData:
-            logger.info("✅ Remote Config using pre-fetched data")
+            SnapDrillLogger.generic.info("Remote Config using pre-fetched data")
         case .error:
-            logger.error("❌ Remote Config fetch failed")
+            SnapDrillLogger.generic.error("Remote Config fetch failed")
         @unknown default:
-            logger.warning("⚠️ Remote Config unknown status")
+            SnapDrillLogger.generic.warning("Remote Config unknown status")
         }
     }
     
