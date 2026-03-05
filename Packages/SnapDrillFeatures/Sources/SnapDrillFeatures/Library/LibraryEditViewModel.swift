@@ -49,6 +49,8 @@ public final class LibraryEditViewModel {
     private let ocrService = OCRService()
 
     /// OCR 任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
+    /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
+    @ObservationIgnored
     private var ocrTask: Task<Void, Never>?
 
     public init(item: ReviewItemModel, repositories: RepositoryContainer) {
@@ -128,7 +130,7 @@ public final class LibraryEditViewModel {
     }
 
     public func save() async {
-        // 业务规则验证先行：在修改任何 @Model 属性之前完成，防止脏数据被意外持久化
+        // 业务规则验证先行
         let willHaveContent = !content.isEmpty
         let willHaveImage = displayedImage != nil
         guard willHaveContent || willHaveImage else {
@@ -140,11 +142,18 @@ public final class LibraryEditViewModel {
         let oldImagePath = item.imagePath
         let oldAnswerImagePath = item.answerImagePath
 
-        // 跟踪本次新写入的图片路径，save 失败时清理（避免孤儿文件）
-        var newImagePath: String?
-        var newAnswerImagePath: String?
+        // 1. 先执行耗时异步 IO（@Model 属性尚未修改，不存在跨挂起点脏状态）
+        let newImagePath: String?
+        let newAnswerImagePath: String?
+        do {
+            (newImagePath, newAnswerImagePath) = try await persistImages()
+        } catch {
+            // IO 失败时 @Model 未被修改，无需 rollback，直接返回
+            SnapDrillLogger.generic.error("保存图片失败，中断保存: \(error.localizedDescription)")
+            return
+        }
 
-        // 验证通过后再修改 @Model 属性（内存操作）
+        // 2. IO 完成后集中修改 @Model 属性（纯内存同步操作，无 await）
         item.content = content.isEmpty ? nil : content
         item.answerText = answer.isEmpty ? nil : answer
         item.subject = selectedSubject
@@ -152,7 +161,7 @@ public final class LibraryEditViewModel {
         item.grade = grade
         item.difficultyValue = difficulty
 
-        // 同步标签（fetchOrCreateModel 现在是纯内存操作，不内部 save）
+        // 同步标签（fetchOrCreateModel 是纯内存操作）
         var finalTagModels: [TagModel] = []
         for name in tagList {
             do {
@@ -164,8 +173,15 @@ public final class LibraryEditViewModel {
         }
         item.tags = finalTagModels
 
-        (newImagePath, newAnswerImagePath) = await persistImages()
+        // 设置图片路径
+        if let path = newImagePath { item.imagePath = path }
+        if let path = newAnswerImagePath {
+            item.answerImagePath = path
+        } else if isAnswerImageCleared {
+            item.answerImagePath = nil
+        }
 
+        // 3. 立即保存
         do {
             try repositories.review.saveContext()
             isSavedNormally = true
@@ -186,31 +202,31 @@ public final class LibraryEditViewModel {
 
     // MARK: - Private Helpers
 
-    /// 持久化题目图片和答案图片，返回新写入的路径（供 save 失败时清理）
-    private func persistImages() async -> (imagePath: String?, answerPath: String?) {
+    /// 持久化题目图片和答案图片，返回新写入的路径。
+    /// 不修改 @Model 属性（由 save() 在 IO 完成后统一赋值）。
+    /// 答案图片保存失败时自动清理已写入的题目图片，防止孤儿文件。
+    private func persistImages() async throws -> (imagePath: String?, answerPath: String?) {
         var imagePath: String?
-        var answerPath: String?
 
         if let newImage = displayedImage {
             do {
-                let path = try await imageStorage.saveImage(newImage)
-                imagePath = path
-                item.imagePath = path
+                imagePath = try await imageStorage.saveImage(newImage)
             } catch {
                 SnapDrillLogger.generic.error("保存题目图片失败: \(error.localizedDescription)")
+                throw error
             }
         }
 
+        var answerPath: String?
         if let answerImg = answerDisplayedImage {
             do {
-                let path = try await imageStorage.saveImage(answerImg)
-                answerPath = path
-                item.answerImagePath = path
+                answerPath = try await imageStorage.saveImage(answerImg)
             } catch {
+                // 清理已写入的题目图片（孤儿文件）
+                if let path = imagePath { try? imageStorage.deleteImage(path: path) }
                 SnapDrillLogger.generic.error("保存答案图片失败: \(error.localizedDescription)")
+                throw error
             }
-        } else if isAnswerImageCleared {
-            item.answerImagePath = nil
         }
 
         return (imagePath, answerPath)
