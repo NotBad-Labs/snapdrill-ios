@@ -9,7 +9,6 @@
 //
 
 import Foundation
-import OSLog
 import FirebaseAnalytics
 import SnapDrillCore
 
@@ -24,7 +23,6 @@ public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
     /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = FirebaseAnalyticsService()
     
-    private let logger = Logger(subsystem: "com.snapdrill.app", category: "FirebaseAnalytics")
     private var isFirebaseConfigured: Bool = false
     
     // MARK: - Initialization
@@ -34,7 +32,7 @@ public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
     /// 标记 Firebase 已配置完毕（由 SnapDrillApp 在 FirebaseApp.configure() 后调用）
     public func markConfigured() {
         isFirebaseConfigured = true
-        logger.info("✅ Firebase Analytics configured")
+        SnapDrillLogger.generic.info("Firebase Analytics configured")
     }
     
     // MARK: - AnalyticsServiceProtocol
@@ -47,7 +45,7 @@ public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
             Analytics.logEvent(name, parameters: parameters)
         }
         
-        logger.debug("📈 [FirebaseAnalytics] event: \(name), params: \(parameters)")
+        SnapDrillLogger.generic.debug("[FirebaseAnalytics] event: \(name), params: \(parameters)")
     }
     
     public func trackScreen(_ screenName: String, parameters: [String: String]) {
@@ -57,15 +55,15 @@ public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
             Analytics.logEvent(AnalyticsEventScreenView, parameters: params)
         }
         
-        logger.debug("📱 [FirebaseAnalytics] screen: \(screenName)")
+        SnapDrillLogger.generic.debug("[FirebaseAnalytics] screen: \(screenName)")
     }
     
     public func startSession() {
-        logger.debug("▶️ [FirebaseAnalytics] session started")
+        SnapDrillLogger.generic.debug("[FirebaseAnalytics] session started")
     }
     
     public func endSession() {
-        logger.debug("⏹️ [FirebaseAnalytics] session ended")
+        SnapDrillLogger.generic.debug("[FirebaseAnalytics] session ended")
     }
     
     public func setUserProperty(_ value: String, forKey key: String) {
@@ -73,7 +71,7 @@ public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
             Analytics.setUserProperty(value, forName: key)
         }
         
-        logger.debug("👤 [FirebaseAnalytics] setUserProperty \(key): \(value)")
+        SnapDrillLogger.generic.debug("[FirebaseAnalytics] setUserProperty \(key): \(value)")
     }
     
     public func trackRetention(daysSinceInstall: Int) {
