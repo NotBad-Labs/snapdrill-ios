@@ -124,5 +124,14 @@ swiftlint --strict && xcodebuild build    # 本地验证
 git add <具体文件>                         # 精确 stage
 git commit -m "fix: ... Closes #N"
 git push -u origin fix/xxx
-gh pr create --base develop               # 建 PR，触发 Mac mini CI
+gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini Review
 ```
+
+### Gemini Review 铁律（2026-03-05 确立）
+
+**所有由 Claude 创建的 PR，必须等待 Gemini 自动 review comment 出现后，由用户确认再合并。**
+
+- Gemini Review 由 `.github/workflows/gemini-review.yml` 自动触发（PR opened/synchronize）
+- 使用 `ubuntu-latest` runner，不占用 Mac mini 资源
+- Review 结果以 comment 形式贴回 PR，🔴 严重问题必须修复后重新提交
+- 4 月 1 日 GitHub Pro 生效后，同步启用 Branch Protection（require 1 approval）
