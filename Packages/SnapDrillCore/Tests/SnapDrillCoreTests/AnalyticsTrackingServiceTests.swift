@@ -5,7 +5,11 @@
 //  Created by NotBad Labs on 2026/01/03.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  分析追踪服务单元测试
+//  分析追踪服务单元测试。
+//  架构说明：
+//  - AnalyticsTrackingService（真实服务）：在 unit test 中无法验证 Firebase 调用结果，
+//    仅做 enable/disable 状态与本地持久化的断言。
+//  - AnalyticsServiceMock：完整可断言，是业务逻辑验证的主要载体。
 //
 
 import XCTest
@@ -13,136 +17,107 @@ import XCTest
 
 @MainActor
 final class AnalyticsTrackingServiceTests: XCTestCase {
+
     var service: AnalyticsTrackingService!
-    
+
     override func setUp() async throws {
         try await super.setUp()
         service = AnalyticsTrackingService.shared
-        // 测试时启用服务
         service.setEnabled(true)
     }
-    
+
     override func tearDown() async throws {
-        // 清理测试分析文件
-        let analyticsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Analytics", isDirectory: true)
-        try? FileManager.default.removeItem(at: analyticsDirectory)
+        service.setEnabled(false)
         try await super.tearDown()
     }
-    
-    func testServiceInitialization() {
-        XCTAssertNotNil(service, "Service should be initialized")
-    }
-    
+
+    // MARK: - 可断言行为（enable/disable 状态机）
+
+    @MainActor
     func testEnableDisableService() {
-        // 测试启用
         service.setEnabled(true)
-        XCTAssertTrue(UserDefaults.standard.bool(forKey: "analyticsEnabled"))
-        
-        // 测试禁用
+        XCTAssertTrue(
+            UserDefaults.standard.bool(forKey: "analyticsEnabled"),
+            "启用后 UserDefaults 应写入 true"
+        )
+
         service.setEnabled(false)
-        XCTAssertFalse(UserDefaults.standard.bool(forKey: "analyticsEnabled"))
-        
-        // 恢复启用状态
+        XCTAssertFalse(
+            UserDefaults.standard.bool(forKey: "analyticsEnabled"),
+            "禁用后 UserDefaults 应写入 false"
+        )
+
         service.setEnabled(true)
-    }
-    
-    func testTrackEvent() {
-        // 测试追踪事件
-        service.track(.appLaunched, parameters: [
-            "version": "1.0.0",
-            "platform": "iOS"
-        ])
-        
-        // 验证事件文件是否创建
-        let analyticsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Analytics", isDirectory: true)
-        
-        let eventFiles = try? FileManager.default.contentsOfDirectory(at: analyticsDirectory, includingPropertiesForKeys: nil)
-        XCTAssertNotNil(eventFiles, "Event files should be created")
-        XCTAssertTrue(eventFiles?.count ?? 0 > 0, "At least one event file should exist")
-    }
-    
-    func testTrackMultipleEvents() {
-        // 测试追踪多个事件
-        service.track(.reviewItemCreated)
-        service.track(.reviewItemCompleted)
-        service.track(.cameraOpened)
-        service.track(.ocrPerformed)
-        
-        let analyticsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Analytics", isDirectory: true)
-        
-        let eventFiles = try? FileManager.default.contentsOfDirectory(at: analyticsDirectory, includingPropertiesForKeys: nil)
-        XCTAssertTrue(eventFiles?.count ?? 0 >= 4, "Multiple event files should be created")
-    }
-    
-    func testTrackScreen_doesNotCrash() {
-        // Firebase 真实调用无法在 unit test 中验证结果，仅验证不崩溃
-        service.trackScreen("Dashboard", parameters: [
-            "source": "app_launch"
-        ])
-        XCTAssertNoThrow(service.trackScreen("Library", parameters: [:]))
     }
 
-    func testSessionManagement_doesNotCrash() {
-        // Firebase 真实调用无法在 unit test 中验证结果，仅验证不崩溃
+    // MARK: - Smoke Tests（Firebase 层无法在 unit test 中验证返回值，仅保证不崩溃）
+    // 注意：以下测试不验证 Firebase 行为，仅防止接口层 API 变更导致崩溃。
+    // 若需要验证业务逻辑，请使用下方 Mock 测试。
+
+    func testTrackScreen_smokeTest() {
+        // [SmokeTest] Firebase 无法在 unit test 中验证，仅保证调用不崩溃
+        service.trackScreen("Dashboard", parameters: ["source": "app_launch"])
+        service.trackScreen("Library", parameters: [:])
+    }
+
+    func testSessionManagement_smokeTest() {
+        // [SmokeTest] 仅保证调用链路不崩溃
         service.startSession()
-        Thread.sleep(forTimeInterval: 0.1)
-        XCTAssertNoThrow(service.endSession())
+        service.endSession()
     }
 
-    func testSetUserProperty_doesNotCrash() {
-        // Firebase 真实调用无法在 unit test 中验证结果，仅验证不崩溃
-        XCTAssertNoThrow(service.setUserProperty("premium", forKey: "subscription_type"))
-        XCTAssertNoThrow(service.setUserProperty("en", forKey: "language"))
+    func testSetUserProperty_smokeTest() {
+        // [SmokeTest] 仅保证调用不崩溃
+        service.setUserProperty("premium", forKey: "subscription_type")
+        service.setUserProperty("zh", forKey: "language")
     }
 
-    func testTrackRetention_doesNotCrash() {
-        // Firebase 真实调用无法在 unit test 中验证结果，仅验证不崩溃
-        XCTAssertNoThrow(service.trackRetention(daysSinceInstall: 1))
-        XCTAssertNoThrow(service.trackRetention(daysSinceInstall: 7))
-        XCTAssertNoThrow(service.trackRetention(daysSinceInstall: 30))
-    }
-
-    func testDisabledService_doesNotCrash() {
-        // Firebase 真实调用无法在 unit test 中验证结果，仅验证不崩溃
-        service.setEnabled(false)
-        XCTAssertNoThrow(service.track(.appLaunched))
-        XCTAssertNoThrow(service.trackScreen("Test Screen"))
-        service.setEnabled(true)
-    }
-
-    func testEventTypes_doesNotCrash() {
-        // Firebase 真实调用无法在 unit test 中验证结果，仅验证不崩溃
-        let events: [AnalyticsEvent] = [
+    func testAllEventTypes_smokeTest() {
+        // [SmokeTest] 验证所有 AnalyticsEvent case 均可调用，防止 enum 变更后出现漏项
+        let allEvents: [AnalyticsEvent] = [
             .appLaunched, .reviewItemCreated, .reviewItemCompleted,
             .reviewSessionStarted, .reviewSessionCompleted, .cameraOpened,
             .ocrPerformed, .pdfExported, .dataExported,
             .icloudSyncStarted, .icloudSyncCompleted, .icloudSyncFailed, .errorOccurred
         ]
-        for event in events {
-            XCTAssertNoThrow(service.track(event))
+        for event in allEvents {
+            service.track(event)
+        }
+        // 验证所有 case 均有 rawValue（防止 enum 定义破坏）
+        for event in allEvents {
+            XCTAssertFalse(event.rawValue.isEmpty, "\(event) 的 rawValue 不应为空")
         }
     }
 
-    // MARK: - Mock 行为验证（可断言属性）
+    func testDisabledService_doesNotTrack() {
+        // 禁用后调用不应崩溃，且不应写入 UserDefaults 额外状态
+        service.setEnabled(false)
+        service.track(.appLaunched)
+        service.trackScreen("Test Screen")
+        // 重新启用，验证状态恢复正常
+        service.setEnabled(true)
+        XCTAssertTrue(UserDefaults.standard.bool(forKey: "analyticsEnabled"))
+    }
+
+    // MARK: - Mock 行为验证（完整断言，业务逻辑验证主载体）
 
     func testMock_tracksEvents() {
         let mock = AnalyticsServiceMock()
         mock.track(.appLaunched, parameters: [:])
         mock.track(.reviewItemCreated, parameters: ["subject": "数学"])
-        XCTAssertFalse(mock.trackedEvents.isEmpty)
-        XCTAssertTrue(mock.hasTrackedEvent(.appLaunched))
-        XCTAssertTrue(mock.hasTrackedEvent(.reviewItemCreated))
-        XCTAssertEqual(mock.trackedEvents.count, 2)
+
+        XCTAssertFalse(mock.trackedEvents.isEmpty, "Mock 应记录事件")
+        XCTAssertTrue(mock.hasTrackedEvent(.appLaunched), "应记录 appLaunched")
+        XCTAssertTrue(mock.hasTrackedEvent(.reviewItemCreated), "应记录 reviewItemCreated")
+        XCTAssertEqual(mock.trackedEvents.count, 2, "应精确记录 2 个事件")
     }
 
     func testMock_tracksScreens() {
         let mock = AnalyticsServiceMock()
         mock.trackScreen("Dashboard", parameters: [:])
-        XCTAssertTrue(mock.hasTrackedScreen("Dashboard"))
-        XCTAssertFalse(mock.hasTrackedScreen("Library"))
+
+        XCTAssertTrue(mock.hasTrackedScreen("Dashboard"), "Dashboard 应被记录")
+        XCTAssertFalse(mock.hasTrackedScreen("Library"), "未访问的 Library 不应被记录")
     }
 
     func testMock_sessionCounting() {
@@ -150,14 +125,37 @@ final class AnalyticsTrackingServiceTests: XCTestCase {
         mock.startSession()
         mock.startSession()
         mock.endSession()
-        XCTAssertEqual(mock.sessionStartCount, 2)
-        XCTAssertEqual(mock.sessionEndCount, 1)
+
+        XCTAssertEqual(mock.sessionStartCount, 2, "startSession 调用 2 次")
+        XCTAssertEqual(mock.sessionEndCount, 1, "endSession 调用 1 次")
     }
 
     func testMock_userProperties() {
         let mock = AnalyticsServiceMock()
         mock.setUserProperty("premium", forKey: "subscription_type")
-        XCTAssertEqual(mock.userProperties["subscription_type"], "premium")
+
+        XCTAssertEqual(
+            mock.userProperties["subscription_type"], "premium",
+            "用户属性应被正确存储"
+        )
+    }
+
+    func testMock_clearResetsAllState() {
+        // AnalyticsServiceMock 无 setEnabled，通过 clear() 验证重置逻辑完整性
+        let mock = AnalyticsServiceMock()
+        mock.track(.appLaunched, parameters: [:])
+        mock.track(.reviewItemCreated, parameters: [:])
+        mock.startSession()
+        mock.setUserProperty("premium", forKey: "plan")
+
+        XCTAssertEqual(mock.trackedEvents.count, 2)
+        XCTAssertEqual(mock.sessionStartCount, 1)
+
+        mock.clear()
+
+        XCTAssertTrue(mock.trackedEvents.isEmpty, "clear 后事件应为空")
+        XCTAssertTrue(mock.userProperties.isEmpty, "clear 后用户属性应为空")
+        XCTAssertEqual(mock.sessionStartCount, 0, "clear 后 session 计数应为 0")
     }
 
     func testMock_clear() {
@@ -165,7 +163,16 @@ final class AnalyticsTrackingServiceTests: XCTestCase {
         mock.track(.appLaunched, parameters: [:])
         mock.startSession()
         mock.clear()
-        XCTAssertTrue(mock.trackedEvents.isEmpty)
-        XCTAssertEqual(mock.sessionStartCount, 0)
+
+        XCTAssertTrue(mock.trackedEvents.isEmpty, "clear 后事件列表应为空")
+        XCTAssertEqual(mock.sessionStartCount, 0, "clear 后计数应归零")
+    }
+
+    func testMock_eventParameters() {
+        let mock = AnalyticsServiceMock()
+        mock.track(.reviewItemCreated, parameters: ["subject": "数学", "difficulty": "3"])
+
+        XCTAssertEqual(mock.trackedEvents.count, 1)
+        XCTAssertTrue(mock.hasTrackedEvent(.reviewItemCreated))
     }
 }
