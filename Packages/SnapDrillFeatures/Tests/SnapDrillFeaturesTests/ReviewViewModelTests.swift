@@ -269,6 +269,103 @@ struct ReviewViewModelTests {
         #expect(vm.workingItems.isEmpty)
     }
 
+    // MARK: - triggerButtonRating 防抖
+
+    @Test("triggerButtonRating 快速连续调用时第二次被防抖忽略")
+    func triggerButtonRating_rapidCalls_secondCallIgnored() throws {
+        let repo = try createTestRepository()
+        let vm = ReviewViewModel(repository: repo)
+
+        // 第一次调用：设置 isProcessingSwipe = true，swipeTrigger 被赋值
+        vm.triggerButtonRating(1)
+        #expect(vm.swipeTrigger == 1)
+        #expect(vm.isProcessingSwipe == true)
+
+        // 立即第二次调用：isProcessingSwipe 为 true，guard 拦截
+        vm.triggerButtonRating(-1)
+        // swipeTrigger 不应被覆盖为 -1
+        #expect(vm.swipeTrigger == 1, "防抖应阻止第二次快速调用覆盖 swipeTrigger")
+    }
+
+    @Test("triggerButtonRating 在 minInteractionInterval 内重复调用被节流")
+    func triggerButtonRating_withinCooldown_throttled() throws {
+        let repo = try createTestRepository()
+        let vm = ReviewViewModel(repository: repo)
+
+        // 手动设置 lastInteractionTime 为刚才（模拟刚触发过）
+        vm.lastInteractionTime = Date()
+        vm.isProcessingSwipe = false // 确保 isProcessingSwipe 不拦截
+
+        vm.triggerButtonRating(1)
+        // 未超过 minInteractionInterval，应被节流
+        #expect(vm.swipeTrigger == nil, "冷却期内调用应被节流")
+    }
+
+    @Test("handleSwipeCompletion 重置 isProcessingSwipe，允许下一次触发")
+    func handleSwipeCompletion_resetsProcessingFlag() async throws {
+        let repo = try createTestRepository()
+        try insertDueItem(in: repo, content: "防抖重置测试题")
+
+        let vm = ReviewViewModel(repository: repo)
+        await vm.loadDataAsync()
+        vm.startSession()
+
+        // 触发第一次
+        vm.triggerButtonRating(1)
+        #expect(vm.isProcessingSwipe == true)
+
+        // 滑动完成后重置
+        vm.handleSwipeCompletion(direction: 1)
+        #expect(vm.isProcessingSwipe == false, "滑动完成后 isProcessingSwipe 应被重置")
+    }
+
+    // MARK: - undoStack 容量上限
+
+    @Test("undoStack 超过上限时自动丢弃最旧条目")
+    func undoStack_exceedsCapacity_dropsOldestEntry() async throws {
+        let repo = try createTestRepository()
+        let capacity = 20
+
+        // 插入比上限多 1 条题目
+        for i in 0..<(capacity + 1) {
+            try insertDueItem(in: repo, content: "题目\(i)")
+        }
+
+        let vm = ReviewViewModel(repository: repo)
+        await vm.loadDataAsync()
+        vm.startSession()
+
+        // 滑完所有题目
+        for _ in 0..<(capacity + 1) {
+            vm.handleSwipeCompletion(direction: 1)
+        }
+
+        #expect(
+            vm.undoStack.count == capacity,
+            "undoStack 不应超过 \(capacity) 条，实际 \(vm.undoStack.count) 条"
+        )
+    }
+
+    @Test("undoStack 未超限时不丢弃条目")
+    func undoStack_withinCapacity_retainsAllEntries() async throws {
+        let repo = try createTestRepository()
+        let count = 5
+
+        for i in 0..<count {
+            try insertDueItem(in: repo, content: "题目\(i)")
+        }
+
+        let vm = ReviewViewModel(repository: repo)
+        await vm.loadDataAsync()
+        vm.startSession()
+
+        for _ in 0..<count {
+            vm.handleSwipeCompletion(direction: 1)
+        }
+
+        #expect(vm.undoStack.count == count, "未超限时应保留全部 \(count) 条")
+    }
+
     // MARK: - toggleAnswer
 
     @Test("toggleAnswer 每次调用切换 isAnswerShown")
