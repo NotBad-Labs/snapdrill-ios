@@ -196,12 +196,9 @@ final class ReviewViewModel {
             item.lastReviewedAt = newState.lastReviewedAt
             try repository.saveContext()
         } catch {
-            // 持久化失败：回滚 @Model 字段，避免内存与磁盘状态不一致
-            item.easeFactor = previousState.easeFactor
-            item.interval = previousState.interval
-            item.repetitions = previousState.repetitions
-            item.nextReviewAt = previousState.nextReviewAt
-            item.lastReviewedAt = previousState.lastReviewedAt
+            // 持久化失败：通过 SwiftData 官方 rollback 恢复所有未保存变更，
+            // 确保内存与磁盘状态一致
+            repository.rollbackContext()
             SnapDrillLogger.generic.error("处理滑动结果失败: \(error.localizedDescription)")
         }
     }
