@@ -53,9 +53,8 @@ public struct ReviewScheduler {
 
         let q = Double(rating.rawValue)
         let efDelta = 0.1 - (5.0 - q) * (0.08 + (5.0 - q) * 0.02)
-        // 输入校验：确保基础 easeFactor 不低于最小值，防止异常历史数据影响计算结果
-        let safeEF = max(state.easeFactor, minEaseFactor)
-        var newEF = safeEF + efDelta
+        // 使用原始 easeFactor 计算，输出再 clamp，保留完整历史学习曲线
+        var newEF = state.easeFactor + efDelta
         newEF = max(newEF, minEaseFactor)
         result.easeFactor = newEF
 
