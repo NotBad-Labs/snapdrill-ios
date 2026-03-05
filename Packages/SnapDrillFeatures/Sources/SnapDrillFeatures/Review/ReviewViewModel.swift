@@ -217,8 +217,10 @@ final class ReviewViewModel {
         do {
             try repository.saveContext()
         } catch {
-            // 持久化失败：回滚 @Model 变更，并提前返回，阻止后续 UI 状态更新，
-            // 防止磁盘与内存（workingItems / finishedItems）产生不一致。
+            // 持久化失败：先将 entry 放回栈，确保用户可再次尝试撤销；
+            // 再 rollback @Model，恢复字段为滑动后状态；最后提前返回，
+            // 阻止 workingItems/finishedItems 更新，防止内存与磁盘不一致。
+            undoStack.append(entry)
             repository.rollbackContext()
             SnapDrillLogger.generic.error("撤销保存失败: \(error.localizedDescription)")
             return
