@@ -82,6 +82,9 @@ struct LibraryEditView: View {
             .onAppear {
                 loadData()
             }
+            .onDisappear {
+                viewModel?.cancelTasks()
+            }
             // Image Picker
             .photosPicker(isPresented: $isPickerPresented, selection: $pickerSelection, matching: .images)
             .onChange(of: pickerSelection) { _, newItem in

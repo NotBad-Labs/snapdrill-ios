@@ -48,8 +48,8 @@ public final class LibraryEditViewModel {
     private let imageStorage = ImageStorage()
     private let ocrService = OCRService()
 
-    @ObservationIgnored
-    nonisolated(unsafe) private var ocrTask: Task<Void, Never>?
+    /// OCR 任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
+    private var ocrTask: Task<Void, Never>?
 
     public init(item: ReviewItemModel, repositories: RepositoryContainer) {
         self.item = item
@@ -117,8 +117,10 @@ public final class LibraryEditViewModel {
         }
     }
 
-    deinit {
+    /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）
+    public func cancelTasks() {
         ocrTask?.cancel()
+        ocrTask = nil
     }
 
     public func saveDraftIfNeeded() {
@@ -134,7 +136,15 @@ public final class LibraryEditViewModel {
             return
         }
 
-        // 验证通过后再修改 @Model 属性
+        // 记录旧图片路径，save 成功后删除（替换图片时清理旧文件）
+        let oldImagePath = item.imagePath
+        let oldAnswerImagePath = item.answerImagePath
+
+        // 跟踪本次新写入的图片路径，save 失败时清理（避免孤儿文件）
+        var newImagePath: String?
+        var newAnswerImagePath: String?
+
+        // 验证通过后再修改 @Model 属性（内存操作）
         item.content = content.isEmpty ? nil : content
         item.answerText = answer.isEmpty ? nil : answer
         item.subject = selectedSubject
@@ -142,7 +152,7 @@ public final class LibraryEditViewModel {
         item.grade = grade
         item.difficultyValue = difficulty
 
-        // 同步标签（getOrCreate 确保 TagModel 存在）
+        // 同步标签（fetchOrCreateModel 现在是纯内存操作，不内部 save）
         var finalTagModels: [TagModel] = []
         for name in tagList {
             do {
@@ -154,21 +164,48 @@ public final class LibraryEditViewModel {
         }
         item.tags = finalTagModels
 
-        // 处理题目图片保存
+        (newImagePath, newAnswerImagePath) = await persistImages()
+
+        do {
+            try repositories.review.saveContext()
+            isSavedNormally = true
+            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            deleteReplacedImages(
+                oldImagePath: oldImagePath, newImagePath: newImagePath,
+                oldAnswerPath: oldAnswerImagePath, newAnswerPath: newAnswerImagePath
+            )
+        } catch {
+            // 回滚 mainContext：撤销本次所有内存变更（@Model 属性修改、Tag 插入）
+            // 单用户本地架构下 rollback 影响范围仅限本次 save() 调用
+            repositories.review.rollbackContext()
+            if let path = newImagePath { try? imageStorage.deleteImage(path: path) }
+            if let path = newAnswerImagePath { try? imageStorage.deleteImage(path: path) }
+            SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - Private Helpers
+
+    /// 持久化题目图片和答案图片，返回新写入的路径（供 save 失败时清理）
+    private func persistImages() async -> (imagePath: String?, answerPath: String?) {
+        var imagePath: String?
+        var answerPath: String?
+
         if let newImage = displayedImage {
             do {
-                let newPath = try await imageStorage.saveImage(newImage)
-                item.imagePath = newPath
+                let path = try await imageStorage.saveImage(newImage)
+                imagePath = path
+                item.imagePath = path
             } catch {
                 SnapDrillLogger.generic.error("保存题目图片失败: \(error.localizedDescription)")
             }
         }
 
-        // 处理答案图片保存
         if let answerImg = answerDisplayedImage {
             do {
-                let newPath = try await imageStorage.saveImage(answerImg)
-                item.answerImagePath = newPath
+                let path = try await imageStorage.saveImage(answerImg)
+                answerPath = path
+                item.answerImagePath = path
             } catch {
                 SnapDrillLogger.generic.error("保存答案图片失败: \(error.localizedDescription)")
             }
@@ -176,12 +213,18 @@ public final class LibraryEditViewModel {
             item.answerImagePath = nil
         }
 
-        do {
-            try repositories.review.saveContext()
-            isSavedNormally = true
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
-        } catch {
-            SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
-        }
+        return (imagePath, answerPath)
+    }
+
+    /// save 成功后删除被替换的旧图片文件（best-effort）
+    private func deleteReplacedImages(
+        oldImagePath: String?,
+        newImagePath: String?,
+        oldAnswerPath: String?,
+        newAnswerPath: String?
+    ) {
+        if newImagePath != nil, let old = oldImagePath { try? imageStorage.deleteImage(path: old) }
+        if newAnswerPath != nil, let old = oldAnswerPath { try? imageStorage.deleteImage(path: old) }
+        if isAnswerImageCleared, let old = oldAnswerPath { try? imageStorage.deleteImage(path: old) }
     }
 }
