@@ -2,9 +2,9 @@
 # 核心职责：读取 PR diff，调用 Gemini API 生成 code review，写入 review_comment.txt
 
 import os
-import json
-import urllib.request
 import sys
+import urllib.error
+from gemini_utils import call_gemini_with_fallback
 
 pr_title = os.environ.get("PR_TITLE", "")
 api_key  = os.environ.get("GEMINI_API_KEY", "")
@@ -45,58 +45,8 @@ prompt = (
     + "\n```"
 )
 
-# 模型降级链（2026-03 实际可用模型，按代码审查能力 + 稳定性排序）
-# 来源：https://ai.google.dev/gemini-api/docs/models
-GEMINI_MODELS = [
-    "gemini-3.1-pro-preview",   # 首选：最强，Preview 阶段不稳定
-    "gemini-2.5-pro",           # 备用：GA 稳定，能力接近 3.1-pro
-    "gemini-2.5-flash",         # 兜底：GA 稳定快，保证审查能完成
-]
-
-import urllib.error
-
-def call_gemini_with_fallback(prompt_text: str, api_key: str, timeout: int = 120) -> tuple[str, str]:
-    """
-    依次尝试 GEMINI_MODELS，遇到 503/超时/连接错误自动降级。
-    返回 (响应文本, 实际使用的模型名)。
-    """
-    payload = {
-        "contents": [{"parts": [{"text": prompt_text}]}],
-        "generationConfig": {"temperature": 0.1},
-    }
-    last_error = None
-    for model in GEMINI_MODELS:
-        url = (
-            "https://generativelanguage.googleapis.com/v1beta"
-            f"/models/{model}:generateContent?key={api_key}"
-        )
-        print(f"尝试模型：{model}...")
-        try:
-            req = urllib.request.Request(
-                url,
-                data=json.dumps(payload).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
-            )
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                result = json.loads(resp.read())
-                text = result["candidates"][0]["content"]["parts"][0]["text"]
-                print(f"✅ 成功（模型：{model}）")
-                return text, model
-        except urllib.error.HTTPError as e:
-            if e.code in (429, 503):
-                print(f"⚠️ {model} 返回 HTTP {e.code}，降级...")
-                last_error = e
-                continue
-            else:
-                raise
-        except Exception as e:
-            print(f"⚠️ {model} 调用失败（{e}），降级...")
-            last_error = e
-            continue
-    raise RuntimeError(f"所有模型均不可用，最后错误：{last_error}")
-
 try:
-    review_text, used_model = call_gemini_with_fallback(prompt, api_key)
+    review_text, used_model = call_gemini_with_fallback(prompt, api_key, timeout=120)
 except Exception as e:
     review_text = f"⚠️ Gemini API 调用失败（所有模型均不可用）：{e}"
     used_model = "N/A"
