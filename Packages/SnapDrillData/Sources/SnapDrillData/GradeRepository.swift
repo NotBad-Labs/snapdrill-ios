@@ -63,9 +63,9 @@ public final class GradeRepository {
         }
     }
 
+    /// 纯内存操作：将所有年级标记为待删除。调用方负责 saveContext()。
     public func deleteAll() throws {
         try modelContext.delete(model: GradeModel.self)
-        try modelContext.save()
     }
 
     // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）

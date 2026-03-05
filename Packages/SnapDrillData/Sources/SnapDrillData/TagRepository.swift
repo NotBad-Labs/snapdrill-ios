@@ -39,7 +39,9 @@ public final class TagRepository {
         return try modelContext.fetch(descriptor)
     }
 
-    /// 按名称查找或创建 TagModel
+    /// 按名称查找或创建 TagModel（纯内存操作）。
+    /// 若已存在则直接返回；若不存在则 insert 但不 save。
+    /// 调用方负责统一 saveContext()，失败时 rollbackContext() 可清除脏 Tag。
     public func fetchOrCreateModel(name: String, colorHex: String) throws -> TagModel {
         let targetName = name
         let predicate = #Predicate<TagModel> { $0.name == targetName }
@@ -50,7 +52,6 @@ public final class TagRepository {
         }
         let newTag = TagModel(name: name, colorHex: colorHex)
         modelContext.insert(newTag)
-        try modelContext.save()
         return newTag
     }
 
@@ -64,8 +65,8 @@ public final class TagRepository {
         return try modelContext.fetch(descriptor).first
     }
     
+    /// 纯内存操作：将所有标签标记为待删除。调用方负责 saveContext()。
     public func deleteAll() throws {
         try modelContext.delete(model: TagModel.self)
-        try modelContext.save()
     }
 }
