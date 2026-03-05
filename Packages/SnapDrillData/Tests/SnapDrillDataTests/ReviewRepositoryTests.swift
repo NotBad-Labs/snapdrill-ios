@@ -207,4 +207,54 @@ struct ReviewRepositoryTests {
         let fetched = try repo.fetchModel(by: model.id)
         #expect(fetched?.difficulty == Difficulty.five.rawValue)
     }
+
+    // MARK: - 极限数据边界（Issue #57）
+
+    @Test("超大文本（5 万字）写入后内容可完整检索")
+    func largeTextContentRoundTrip() throws {
+        let repo = try createTestRepository()
+
+        // 生成约 5 万字的重复文本（每段 15 字，共 2500 段）
+        let largeContent = String(repeating: "这是一段用于边界测试的内容。", count: 2500)
+        let model = makeDummyModel(content: largeContent)
+        let savedId = model.id
+        try repo.insertAndSave(model)
+
+        // 用 fetchAllModels 避免 #Predicate 在 macOS swift test 的 SIGTRAP 限制
+        let fetched = try repo.fetchAllModels().first(where: { $0.id == savedId })
+        #expect(fetched?.content == largeContent, "超大文本写入后应能完整检索，无截断")
+    }
+
+    @Test("四字节扩展字符（Zalgo、复杂 Emoji）写入后可正确读回")
+    func specialUnicodeContentRoundTrip() throws {
+        let repo = try createTestRepository()
+
+        // Zalgo 文本（组合变音符号堆叠）
+        let zalgoText = "H̷̡̪̯ͨ͊̽̅̾̎ello̯͜͡W̙ͅo̮ͅr̼̕ld"
+        // 多字节复杂 Emoji（家庭+肤色+ZWJ 序列）
+        let complexEmoji = "👨‍👩‍👧‍👦🏳️‍🌈🇨🇳"
+        let mixedContent = "\(zalgoText) \(complexEmoji)"
+
+        let model = makeDummyModel(content: mixedContent)
+        let savedId = model.id
+        try repo.insertAndSave(model)
+
+        let fetched = try repo.fetchAllModels().first(where: { $0.id == savedId })
+        #expect(fetched?.content == mixedContent, "特殊 Unicode 字符写入后应原样读回")
+    }
+
+    @Test("answerText 包含特殊字符时写入与检索正确")
+    func specialUnicodeAnswerTextRoundTrip() throws {
+        let repo = try createTestRepository()
+
+        // 数学符号 + 换行 + 制表符 + 零宽字符
+        let specialAnswer = "∫₀^∞ e⁻ˣ dx = 1\n换行\t制表符\u{200B}零宽空格"
+        let model = makeDummyModel()
+        let savedId = model.id
+        model.answerText = specialAnswer
+        try repo.insertAndSave(model)
+
+        let fetched = try repo.fetchAllModels().first(where: { $0.id == savedId })
+        #expect(fetched?.answerText == specialAnswer, "含特殊字符的 answerText 应完整保留")
+    }
 }
