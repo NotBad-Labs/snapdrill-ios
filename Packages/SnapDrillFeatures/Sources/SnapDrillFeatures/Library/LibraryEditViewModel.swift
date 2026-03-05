@@ -233,6 +233,7 @@ public final class LibraryEditViewModel {
     }
 
     /// save 成功后删除被替换的旧图片文件（best-effort）
+    /// 注：主图片不允许清空（UI 只提供替换功能），无需处理主图片被清空的情况
     private func deleteReplacedImages(
         oldImagePath: String?,
         newImagePath: String?,
@@ -240,7 +241,9 @@ public final class LibraryEditViewModel {
         newAnswerPath: String?
     ) {
         if newImagePath != nil, let old = oldImagePath { try? imageStorage.deleteImage(path: old) }
-        if newAnswerPath != nil, let old = oldAnswerPath { try? imageStorage.deleteImage(path: old) }
-        if isAnswerImageCleared, let old = oldAnswerPath { try? imageStorage.deleteImage(path: old) }
+        // 答案图片：被替换或被主动移除时均删除旧文件
+        if newAnswerPath != nil || isAnswerImageCleared, let old = oldAnswerPath {
+            try? imageStorage.deleteImage(path: old)
+        }
     }
 }
