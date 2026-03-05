@@ -12,8 +12,9 @@
 import UIKit
 #else
 import Foundation
-// Stub for non-iOS platforms to allow compilation
-public class UIImage: @unchecked Sendable {
+// 非 iOS 平台编译 stub（swift test 使用）。
+// struct 天然满足 Sendable，无需 @unchecked 绕过编译器检查。
+public struct UIImage: Sendable {
     public init?(data: Data) { return nil }
     public init?(contentsOfFile: String) { return nil }
     public func jpegData(compressionQuality: Double) -> Data? { return nil }
