@@ -40,10 +40,10 @@ public final class LibraryViewModel {
     public var isLoading: Bool = false
     private var currentPage: Int = 0
     private let pageSize: Int = 50
+    /// 搜索防抖任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
+    /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
-    // nonisolated(unsafe)：Task.cancel() 是线程安全的，deinit 调用安全；
-    // 仅在 @MainActor 上写入，deinit 只读取引用后调用 cancel()，无数据竞争。
-    nonisolated(unsafe) private var searchTask: Task<Void, Never>?
+    private var searchTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -153,7 +153,9 @@ public final class LibraryViewModel {
         selectedTags.removeAll()
     }
 
-    deinit {
+    /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）
+    public func cancelTasks() {
         searchTask?.cancel()
+        searchTask = nil
     }
 }
