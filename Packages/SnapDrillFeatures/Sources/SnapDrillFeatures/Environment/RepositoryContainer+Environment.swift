@@ -27,9 +27,12 @@ private struct RepositoryContainerKey: EnvironmentKey {
                 GradeModel.self
             ])
             let config = ModelConfiguration(isStoredInMemoryOnly: true)
-            // swiftlint:disable:next force_try
-            let container = try! ModelContainer(for: schema, configurations: [config])
-            return RepositoryContainer(modelContext: container.mainContext)
+            do {
+                let container = try ModelContainer(for: schema, configurations: [config])
+                return RepositoryContainer(modelContext: container.mainContext)
+            } catch {
+                fatalError("无法创建预览/测试用内存 ModelContainer：\(error)")
+            }
         }
     }()
 }

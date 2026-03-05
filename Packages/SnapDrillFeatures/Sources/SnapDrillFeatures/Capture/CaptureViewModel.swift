@@ -140,22 +140,18 @@ public final class CaptureViewModel {
     }
     
     @ObservationIgnored
-    nonisolated(unsafe) private var ocrTask: Task<Void, Never>?
+    private var ocrTask: Task<Void, Never>?
 
     @ObservationIgnored
-    nonisolated(unsafe) private var photoLoadTask: Task<Void, Never>?
+    private var photoLoadTask: Task<Void, Never>?
 
+    /// 取消所有进行中的任务（由 View 的 onDisappear 调用）
     public func cancelOngoingTasks() {
         ocrTask?.cancel()
         ocrTask = nil
         photoLoadTask?.cancel()
         photoLoadTask = nil
         isProcessing = false
-    }
-
-    deinit {
-        ocrTask?.cancel()
-        photoLoadTask?.cancel()
     }
 }
 

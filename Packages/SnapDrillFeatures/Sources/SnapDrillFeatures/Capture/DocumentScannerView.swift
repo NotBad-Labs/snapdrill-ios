@@ -32,17 +32,17 @@ struct DocumentScannerView: UIViewControllerRepresentable {
     ///
     /// 当用户点击“保存”且至少有一页文档被扫描时调用。
     /// - Parameter image: 处理后的文档图片（已矫正、裁剪）。
-    var onCompletion: (UIImage) -> Void
-    
+    var onCompletion: @MainActor (UIImage) -> Void
+
     /// 取消回调
     ///
-    /// 当用户点击“取消”按钮时调用。
-    var onCancel: () -> Void
-    
+    /// 当用户点击”取消”按钮时调用。
+    var onCancel: @MainActor () -> Void
+
     /// 错误回调
     ///
     /// 当扫描过程发生系统错误时调用。
-    var onError: (Error) -> Void
+    var onError: @MainActor (Error) -> Void
     
     func makeUIViewController(context: Context) -> UIViewController {
         #if targetEnvironment(simulator)
@@ -74,50 +74,57 @@ struct DocumentScannerView: UIViewControllerRepresentable {
     }
 }
 
-class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate, @unchecked Sendable {
-    let onCompletion: (UIImage) -> Void
-    let onCancel: () -> Void
-    let onError: (Error) -> Void
-    
-    init(onCompletion: @escaping (UIImage) -> Void, onCancel: @escaping () -> Void, onError: @escaping (Error) -> Void) {
+// Coordinator 使用 @MainActor 保护闭包属性；
+// VisionKit delegate 回调方法标注 nonisolated，在方法内显式跳回主线程，
+// 替换 @unchecked Sendable 以满足 Swift 6 严格并发要求。
+@MainActor
+class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
+    let onCompletion: @MainActor (UIImage) -> Void
+    let onCancel: @MainActor () -> Void
+    let onError: @MainActor (Error) -> Void
+
+    init(
+        onCompletion: @escaping @MainActor (UIImage) -> Void,
+        onCancel: @escaping @MainActor () -> Void,
+        onError: @escaping @MainActor (Error) -> Void
+    ) {
         self.onCompletion = onCompletion
         self.onCancel = onCancel
         self.onError = onError
     }
-    
+
     #if !targetEnvironment(simulator)
-    func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan) {
-        // 1. Extract data synchronously (we are on Main Thread at runtime, so this is safe)
+    // VisionKit delegate 回调由系统在主线程发起，nonisolated 允许跨 actor 接收调用
+    nonisolated func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan) {
+        // 同步提取数据（主线程安全），再跳回 MainActor 更新 UI
         let pageCount = scan.pageCount
         guard pageCount >= 1 else {
-            Task { @MainActor in
+            Task { @MainActor [self] in
                 controller.dismiss(animated: true) {
                     self.onCancel()
                 }
             }
             return
         }
-        
+
         let image = scan.imageOfPage(at: pageCount - 1)
-        
-        // 2. perform UI updates on MainActor using extracted Sendable data (UIImage)
-        Task { @MainActor in
+        Task { @MainActor [self] in
             controller.dismiss(animated: true) {
                 self.onCompletion(image)
             }
         }
     }
-    
-    func documentCameraViewControllerDidCancel(_ controller: VNDocumentCameraViewController) {
-        Task { @MainActor in
+
+    nonisolated func documentCameraViewControllerDidCancel(_ controller: VNDocumentCameraViewController) {
+        Task { @MainActor [self] in
             controller.dismiss(animated: true) {
                 self.onCancel()
             }
         }
     }
-    
-    func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFailWithError error: Error) {
-        Task { @MainActor in
+
+    nonisolated func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFailWithError error: Error) {
+        Task { @MainActor [self] in
             controller.dismiss(animated: true) {
                 self.onError(error)
             }
