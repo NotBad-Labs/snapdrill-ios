@@ -52,8 +52,9 @@ public struct ReviewScheduler {
         result.lastReviewedAt = now
 
         let q = Double(rating.rawValue)
+        // efDelta 仅依赖评分 q，与 easeFactor 无关；在输出侧 clamp 而非输入侧，
+        // 确保即使历史 easeFactor 偏低，增量仍基于真实历史值计算，保留完整学习曲线。
         let efDelta = 0.1 - (5.0 - q) * (0.08 + (5.0 - q) * 0.02)
-        // 使用原始 easeFactor 计算，输出再 clamp，保留完整历史学习曲线
         var newEF = state.easeFactor + efDelta
         newEF = max(newEF, minEaseFactor)
         result.easeFactor = newEF
