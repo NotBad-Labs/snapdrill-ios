@@ -2,10 +2,12 @@
 # 核心职责：读取指定模块的所有 Swift 文件，调用 Gemini API 生成全项目审查报告
 
 import os
-import json
-import urllib.request
 import sys
 import glob
+import json
+import urllib.request
+import urllib.error
+from gemini_utils import call_gemini_with_fallback
 
 module     = os.environ.get("MODULE", "all")
 api_key    = os.environ.get("GEMINI_API_KEY", "")
@@ -146,29 +148,12 @@ prompt = (
     f"```swift\n{code_content}\n```"
 )
 
-payload = {
-    "contents": [{"parts": [{"text": prompt}]}],
-    "generationConfig": {"temperature": 0.1},
-}
-
-GEMINI_MODEL = "gemini-3.1-pro-preview"
-url = (
-    "https://generativelanguage.googleapis.com/v1beta"
-    f"/models/{GEMINI_MODEL}:generateContent?key={api_key}"
-)
-
-print(f"调用 Gemini API（模型：{GEMINI_MODEL}）...")
+print(f"调用 Gemini API（含自动降级，降级链见 gemini_utils.py）...")
 try:
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(req, timeout=300) as resp:
-        result = json.loads(resp.read())
-        review_text = result["candidates"][0]["content"]["parts"][0]["text"]
+    review_text, used_model = call_gemini_with_fallback(prompt, api_key)
 except Exception as e:
-    review_text = f"⚠️ Gemini API 调用失败：{e}"
+    review_text = f"⚠️ Gemini API 调用失败（所有模型均不可用）：{e}"
+    used_model = "N/A"
 
 module_label = module.upper()
 phase_label  = {"architecture": "架构审查", "tests": "测试审查", "both": "综合审查"}.get(phase, phase)
@@ -178,7 +163,7 @@ comment = (
     f"**审查范围**：{review_target}（{included_count} 个文件）\n\n"
     "---\n\n"
     + review_text
-    + f"\n\n---\n*由 Gemini 自动生成（模型：`{GEMINI_MODEL}`）。结论仅供参考，最终决策由团队确认。*"
+    + f"\n\n---\n*由 Gemini 自动生成（模型：`{used_model}`）。结论仅供参考，最终决策由团队确认。*"
 )
 
 output_file = f"review_{module}_{phase}.txt"

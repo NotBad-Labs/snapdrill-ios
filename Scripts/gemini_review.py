@@ -2,9 +2,9 @@
 # 核心职责：读取 PR diff，调用 Gemini API 生成 code review，写入 review_comment.txt
 
 import os
-import json
-import urllib.request
 import sys
+import urllib.error
+from gemini_utils import call_gemini_with_fallback, MODELS_FAST
 
 pr_title = os.environ.get("PR_TITLE", "")
 api_key  = os.environ.get("GEMINI_API_KEY", "")
@@ -45,34 +45,17 @@ prompt = (
     + "\n```"
 )
 
-payload = {
-    "contents": [{"parts": [{"text": prompt}]}],
-    "generationConfig": {"temperature": 0.1},
-}
-
-GEMINI_MODEL = "gemini-3.1-pro-preview"
-
-url = (
-    "https://generativelanguage.googleapis.com/v1beta"
-    f"/models/{GEMINI_MODEL}:generateContent?key={api_key}"
-)
-
 try:
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        result = json.loads(resp.read())
-        review_text = result["candidates"][0]["content"]["parts"][0]["text"]
+    # PR diff review 使用快速审查链（GA 稳定优先，~40K 字符无需旗舰模型）
+    review_text, used_model = call_gemini_with_fallback(prompt, api_key, timeout=120, models=MODELS_FAST)
 except Exception as e:
-    review_text = f"⚠️ Gemini API 调用失败：{e}"
+    review_text = f"⚠️ Gemini API 调用失败（所有模型均不可用）：{e}"
+    used_model = "N/A"
 
 comment = (
     "## Gemini Code Review\n\n"
     + review_text
-    + f"\n\n---\n*由 Gemini 自动生成（模型：`{GEMINI_MODEL}`）。合并前请人工确认。*"
+    + f"\n\n---\n*由 Gemini 自动生成（模型：`{used_model}`）。合并前请人工确认。*"
 )
 
 with open("review_comment.txt", "w", encoding="utf-8") as f:
