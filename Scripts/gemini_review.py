@@ -45,11 +45,12 @@ prompt = (
     + "\n```"
 )
 
-# 模型降级链：首选最新最强，遇到 503/超时自动降级
+# 模型降级链（2026-03 实际可用模型，按代码审查能力 + 稳定性排序）
+# 来源：https://ai.google.dev/gemini-api/docs/models
 GEMINI_MODELS = [
-    "gemini-3.1-pro-preview",   # 首选
-    "gemini-2.5-pro-preview",   # 备用
-    "gemini-2.0-flash",         # 兜底
+    "gemini-3.1-pro-preview",   # 首选：最强，Preview 阶段不稳定
+    "gemini-2.5-pro",           # 备用：GA 稳定，能力接近 3.1-pro
+    "gemini-2.5-flash",         # 兜底：GA 稳定快，保证审查能完成
 ]
 
 import urllib.error

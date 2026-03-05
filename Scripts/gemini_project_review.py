@@ -146,11 +146,16 @@ prompt = (
     f"```swift\n{code_content}\n```"
 )
 
-# 模型降级链：首选最新最强，遇到 503/超时自动降级
+# 模型降级链（2026-03 实际可用模型，按代码审查能力 + 稳定性排序）
+# 来源：https://ai.google.dev/gemini-api/docs/models
+# - gemini-3.1-pro-preview：最强，但 Preview 阶段持续 503
+# - gemini-2.5-pro：GA 稳定版，能力接近 3.1-pro，首选备用
+# - gemini-2.5-flash：GA 稳定快，兜底保证审查能完成
+# 已排除：gemini-3-pro-preview（3月9日下线）、gemini-2.0-flash（弃用中）
 GEMINI_MODELS = [
-    "gemini-3.1-pro-preview",   # 首选：最新最强，Preview 阶段可能不稳定
-    "gemini-2.5-pro-preview",   # 备用：稳定性更好
-    "gemini-2.0-flash",         # 兜底：最快最稳定
+    "gemini-3.1-pro-preview",
+    "gemini-2.5-pro",
+    "gemini-2.5-flash",
 ]
 
 import urllib.error
