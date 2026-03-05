@@ -242,7 +242,13 @@ public final class ReviewRepository {
         }
     }
 
-    /// 直接插入 ReviewItemModel 并保存
+    /// 纯内存操作：将 ReviewItemModel 插入 context 但不 save。
+    /// 调用方在所有内存操作完成后统一调用 saveContext()，失败时 rollbackContext() 清除脏数据。
+    public func insert(_ model: ReviewItemModel) {
+        modelContext.insert(model)
+    }
+
+    /// 插入 ReviewItemModel 并立即保存（单步原子操作，适用于独立保存场景）
     public func insertAndSave(_ model: ReviewItemModel) throws {
         modelContext.insert(model)
         try modelContext.save()

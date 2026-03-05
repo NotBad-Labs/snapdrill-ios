@@ -98,7 +98,8 @@ public final class CaptureViewModel {
 
     public func processScannedImage(_ image: UIImage, router: CaptureRouter) {
         isProcessing = true
-        Task {
+        // 保存句柄到 photoLoadTask，使 cancelOngoingTasks() 可取消此任务
+        photoLoadTask = Task {
             await processImageOCR(image, router: router)
         }
     }

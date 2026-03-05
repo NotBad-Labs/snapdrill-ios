@@ -71,8 +71,9 @@ public final class CaptureResultViewModel {
     private let imageStorage: ImageStorage
     private let router: CaptureRouter
 
-    /// 识别任务句柄
-    private var recognitionTask: Task<Void, Never>?
+    /// 识别任务句柄（nonisolated(unsafe)：Task.cancel() 线程安全，deinit 中仅调用 cancel）
+    @ObservationIgnored
+    nonisolated(unsafe) private var recognitionTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -92,6 +93,10 @@ public final class CaptureResultViewModel {
         self.analyticsService = analyticsService
         self.imageStorage = imageStorage
         self.router = router
+    }
+
+    deinit {
+        recognitionTask?.cancel()
     }
 
     // MARK: - Public API
@@ -178,8 +183,6 @@ public final class CaptureResultViewModel {
 
     /// 保存正式题目
     public func saveResult() async {
-        isSaved = true
-
         // 声明在 do 块外，确保 catch 中可访问以清理孤儿文件
         var savedImagePath: String?
         var savedAnswerImagePath: String?
@@ -195,7 +198,7 @@ public final class CaptureResultViewModel {
                 )
             }
 
-            // 解析并同步标签
+            // 解析并同步标签（纯内存操作，fetchOrCreateModel 不再内部 save）
             var finalTagModels: [TagModel] = []
             for name in tagList {
                 let tagModel = try repositories.tag.fetchOrCreateModel(name: name, colorHex: "#CCCCCC")
@@ -212,7 +215,7 @@ public final class CaptureResultViewModel {
                 savedAnswerImagePath = try await imageStorage.saveImage(answerImg)
             }
 
-            // 构造 @Model 对象并插入
+            // 构造 @Model 对象并插入（纯内存），再统一 saveContext
             let model = ReviewItemModel(
                 content: contentValue,
                 imagePath: savedImagePath,
@@ -224,8 +227,11 @@ public final class CaptureResultViewModel {
                 difficulty: difficulty.rawValue,
                 grade: grade
             )
-            try repositories.review.insertAndSave(model)
+            repositories.review.insert(model)
+            try repositories.review.saveContext()
 
+            // 保存成功后才标记 isSaved
+            isSaved = true
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
 
             // 埋点
@@ -243,7 +249,9 @@ public final class CaptureResultViewModel {
             router.path.removeLast(router.path.count)
 
         } catch {
-            // 清理已写入磁盘但未成功关联到 @Model 的孤儿图片文件
+            // 首先回滚 context，清除脏 Tag 和脏 ReviewItemModel
+            repositories.review.rollbackContext()
+            // 再清理已写入磁盘的孤儿图片文件
             if let path = savedImagePath {
                 try? imageStorage.deleteImage(path: path)
             }
@@ -253,7 +261,6 @@ public final class CaptureResultViewModel {
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
             self.errorMessage = error.localizedDescription
             self.showErrorAlert = true
-            isSaved = false
         }
     }
 
