@@ -219,6 +219,7 @@ final class ReviewViewModel {
             SnapDrillLogger.generic.error("撤销保存失败: \(error.localizedDescription)")
         }
         workingItems.insert(entry.item, at: 0)
+        // @MainActor 保证单线程访问，max(0,...) 仅作防御性下界保护，无竞态风险
         finishedItems = max(0, finishedItems - 1)
         isAnswerShown = false
         if phase == .finished {
