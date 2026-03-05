@@ -180,6 +180,10 @@ public final class CaptureResultViewModel {
     public func saveResult() async {
         isSaved = true
 
+        // 声明在 do 块外，确保 catch 中可访问以清理孤儿文件
+        var savedImagePath: String?
+        var savedAnswerImagePath: String?
+
         do {
             // 业务规则：题目文字和图片至少有一个
             let contentValue = content.isEmpty ? nil : content
@@ -199,13 +203,11 @@ public final class CaptureResultViewModel {
             }
 
             // 持久化题目截图，获取本地相对路径
-            var savedImagePath: String?
             if let img = image {
                 savedImagePath = try await imageStorage.saveImage(img)
             }
 
             // 持久化答案图片
-            var savedAnswerImagePath: String?
             if let answerImg = answerImage {
                 savedAnswerImagePath = try await imageStorage.saveImage(answerImg)
             }
@@ -241,6 +243,13 @@ public final class CaptureResultViewModel {
             router.path.removeLast(router.path.count)
 
         } catch {
+            // 清理已写入磁盘但未成功关联到 @Model 的孤儿图片文件
+            if let path = savedImagePath {
+                try? imageStorage.deleteImage(path: path)
+            }
+            if let path = savedAnswerImagePath {
+                try? imageStorage.deleteImage(path: path)
+            }
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
             self.errorMessage = error.localizedDescription
             self.showErrorAlert = true
