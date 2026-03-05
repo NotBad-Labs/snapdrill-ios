@@ -78,6 +78,8 @@ public final class GradeManagerViewModel {
             }
             loadData()
         } catch {
+            // 回滚所有未持久化变更（含级联重命名的内存修改），防止脏数据污染 mainContext
+            repositories.review.rollbackContext()
             SnapDrillLogger.generic.error("保存年级失败: \(error.localizedDescription)")
         }
     }

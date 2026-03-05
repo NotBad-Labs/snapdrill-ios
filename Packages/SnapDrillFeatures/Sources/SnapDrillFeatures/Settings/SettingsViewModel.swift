@@ -32,6 +32,9 @@ public final class SettingsViewModel {
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             SnapDrillLogger.generic.info("所有数据已清空，已通知 UI 刷新。")
         } catch {
+            // deleteAllData 内部为多步写入，部分已落盘的步骤无法通过 rollback 撤回；
+            // 此处 rollback 仅清理内存脏状态，防止未落盘的待删对象被后续操作意外持久化
+            repositories.review.rollbackContext()
             SnapDrillLogger.generic.error("清空数据失败: \(error)")
         }
     }
