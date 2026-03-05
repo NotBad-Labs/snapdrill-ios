@@ -11,7 +11,7 @@
 import SwiftData
 import Foundation
 
-/// 当前 Schema 版本 - V1
+/// Schema V1（1.0.0）— 初始版本
 public enum SnapDrillSchemaV1: VersionedSchema {
     public static let versionIdentifier: Schema.Version = .init(1, 0, 0)
 
@@ -26,41 +26,37 @@ public enum SnapDrillSchemaV1: VersionedSchema {
     }
 }
 
-// MARK: - 未来版本示例（当需要时取消注释）
-
-/*
-/// 版本 2 示例 - 添加新字段时使用
+/// Schema V2（2.0.0）— nextReviewAt / lastReviewedAt 由 Date? 改为 Date（默认 distantPast）
+/// SwiftData lightweight 迁移自动将现有 NULL 列填充为模型默认值 Date.distantPast，
+/// 消除 Optional<Date> 的 #Predicate 转译 Bug 导致的全表扫描内存炸弹。
 public enum SnapDrillSchemaV2: VersionedSchema {
     public static let versionIdentifier: Schema.Version = .init(2, 0, 0)
-    
+
     public static var models: [any PersistentModel.Type] {
         [
             ReviewItemModel.self,
             SubjectModel.self,
             TagModel.self,
-            SourceModel.self
+            SourceModel.self,
+            GradeModel.self
         ]
     }
 }
 
-/// 迁移计划示例
+/// 迁移计划：V1 → V2（lightweight，无自定义数据转换）
 public enum SnapDrillMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
-        [
-            SnapDrillSchema.self,
-            SnapDrillSchemaV2.self
-        ]
+        [SnapDrillSchemaV1.self, SnapDrillSchemaV2.self]
     }
-    
+
     public static var stages: [MigrationStage] {
-        [
-            migrateV1toV2
-        ]
+        [migrateV1toV2]
     }
-    
+
+    // lightweight 迁移：SwiftData 自动将 nextReviewAt/lastReviewedAt 的 NULL 值
+    // 填充为 Date.distantPast（模型中声明的默认值），无需手动数据转换。
     static let migrateV1toV2 = MigrationStage.lightweight(
-        fromVersion: SnapDrillSchema.self,
+        fromVersion: SnapDrillSchemaV1.self,
         toVersion: SnapDrillSchemaV2.self
     )
 }
-*/

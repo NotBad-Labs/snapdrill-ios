@@ -101,12 +101,12 @@ struct ReviewRepositoryTests {
         futureItem.nextReviewAt = future
         try repo.insertAndSave(futureItem)
 
-        // nextReviewAt == nil → 视为待复习（从未复习过）
+        // nextReviewAt == Date.distantPast → 视为待复习（从未复习过，distantPast <= now 恒成立）
         let nilItem = makeDummyModel()
-        nilItem.nextReviewAt = nil
+        // 默认值即 Date.distantPast，无需显式赋值
         try repo.insertAndSave(nilItem)
 
-        // 过去 2 条 + nil 1 条（epoch < now）= 3
+        // 过去 2 条 + distantPast 1 条（distantPast < now）= 3
         let dueCount = try repo.fetchDueCount()
         #expect(dueCount == 3)
     }

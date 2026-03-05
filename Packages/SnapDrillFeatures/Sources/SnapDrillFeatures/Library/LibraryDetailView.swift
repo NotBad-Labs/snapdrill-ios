@@ -96,8 +96,9 @@ struct LibraryDetailView: View {
 
                         Spacer()
 
-                        if let nextReview = item.nextReviewAt {
-                            Text("下次复习: \(nextReview.formatted(date: .abbreviated, time: .omitted))")
+                        // distantPast 表示从未复习/尚未安排
+                        if item.nextReviewAt != Date.distantPast {
+                            Text("下次复习: \(item.nextReviewAt.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.caption)
                                 .foregroundStyle(.blue)
                         } else {

@@ -34,11 +34,11 @@ public final class ReviewItemModel {
     /// 创建时间
     public var createdAt: Date = Date()
     
-    /// 上次复习时间
-    public var lastReviewedAt: Date?
-    
-    /// 下次计划复习时间
-    public var nextReviewAt: Date?
+    /// 上次复习时间（distantPast 表示从未复习）
+    public var lastReviewedAt: Date = Date.distantPast
+
+    /// 下次计划复习时间（distantPast 表示尚未安排，立即到期）
+    public var nextReviewAt: Date = Date.distantPast
     
     // 存储枚举的原始值
     /// 学科 (String)
@@ -84,8 +84,8 @@ public final class ReviewItemModel {
         content: String? = nil,
         imagePath: String? = nil,
         createdAt: Date = Date(),
-        lastReviewedAt: Date? = nil,
-        nextReviewAt: Date? = nil,
+        lastReviewedAt: Date = .distantPast,
+        nextReviewAt: Date = .distantPast,
         subject: String = "其他",
         source: String = "其他",
         tags: [TagModel]? = [],
