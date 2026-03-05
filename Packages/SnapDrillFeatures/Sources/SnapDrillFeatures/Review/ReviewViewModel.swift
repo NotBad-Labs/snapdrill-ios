@@ -66,6 +66,8 @@ final class ReviewViewModel {
 
     // MARK: - Dependencies
 
+    // ReviewRepository 标注为 @MainActor final class，
+    // 在 @MainActor ViewModel 中调用其方法（含 saveContext）完全线程安全。
     private let repository: ReviewRepository
     private let scheduler = ReviewScheduler()
 
