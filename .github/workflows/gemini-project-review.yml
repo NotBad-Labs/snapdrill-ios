@@ -74,6 +74,8 @@ jobs:
 
       - name: Create GitHub Issue
         uses: actions/github-script@v7
+        env:
+          REVIEW_BODY: ${{ steps.read_review.outputs.content }}
         with:
           script: |
             const module = '${{ inputs.module }}';
@@ -81,7 +83,8 @@ jobs:
             const phaseLabel = { architecture: '架构审查', tests: '测试审查', both: '综合审查' }[phase] || phase;
             const now = new Date().toISOString().split('T')[0];
 
-            const body = `${{ steps.read_review.outputs.content }}`;
+            // 通过环境变量读取，避免 Markdown 反引号破坏 JS 模板字符串
+            const body = process.env.REVIEW_BODY;
 
             await github.rest.issues.create({
               owner: context.repo.owner,
