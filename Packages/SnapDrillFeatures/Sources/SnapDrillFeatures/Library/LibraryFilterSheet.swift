@@ -30,25 +30,28 @@ struct LibraryFilterSheet: View {
                         Text("暂无学科").foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.subjects) { subject in
-                            HStack {
-                                Image(systemName: subject.icon)
-                                    .foregroundStyle(Color(hex: subject.colorHex))
-                                    .frame(width: 20)
-                                Text(subject.name)
-                                Spacer()
-                                if viewModel.selectedSubjects.contains(subject.name) {
-                                    Image(systemName: "checkmark")
-                                        .foregroundStyle(.blue)
-                                }
-                            }
-                            .contentShape(Rectangle())
-                            .onTapGesture {
+                            Button {
                                 if viewModel.selectedSubjects.contains(subject.name) {
                                     viewModel.selectedSubjects.remove(subject.name)
                                 } else {
                                     viewModel.selectedSubjects.insert(subject.name)
                                 }
+                            } label: {
+                                HStack {
+                                    Image(systemName: subject.icon)
+                                        .foregroundStyle(Color(hex: subject.colorHex))
+                                        .frame(width: 20)
+                                    Text(subject.name)
+                                        .foregroundStyle(.primary)
+                                    Spacer()
+                                    if viewModel.selectedSubjects.contains(subject.name) {
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(.blue)
+                                    }
+                                }
+                                .contentShape(Rectangle())
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -59,22 +62,25 @@ struct LibraryFilterSheet: View {
                         Text("暂无标签").foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.allTags) { tag in
-                            HStack {
-                                Text(tag.name)
-                                Spacer()
-                                if viewModel.selectedTags.contains(tag.name) {
-                                    Image(systemName: "checkmark")
-                                        .foregroundStyle(.blue)
-                                }
-                            }
-                            .contentShape(Rectangle())
-                            .onTapGesture {
+                            Button {
                                 if viewModel.selectedTags.contains(tag.name) {
                                     viewModel.selectedTags.remove(tag.name)
                                 } else {
                                     viewModel.selectedTags.insert(tag.name)
                                 }
+                            } label: {
+                                HStack {
+                                    Text(tag.name)
+                                        .foregroundStyle(.primary)
+                                    Spacer()
+                                    if viewModel.selectedTags.contains(tag.name) {
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(.blue)
+                                    }
+                                }
+                                .contentShape(Rectangle())
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                 }

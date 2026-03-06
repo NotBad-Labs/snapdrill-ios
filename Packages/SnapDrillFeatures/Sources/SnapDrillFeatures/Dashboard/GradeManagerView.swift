@@ -38,9 +38,6 @@ struct GradeManagerView: View {
                                 Text(grade.name)
                                     .foregroundStyle(.primary)
                                 Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
                             }
                         }
                     }

@@ -42,9 +42,6 @@ struct SourceManagerView: View {
                                 Text(source.name)
                                     .foregroundStyle(.primary)
                                 Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
                             }
                         }
                     }
@@ -129,9 +126,6 @@ struct EditSourceView: View {
 
                             Text("更多图标")
                                 .foregroundStyle(.secondary)
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
                         }
                     }
                 }
