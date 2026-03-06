@@ -1,5 +1,41 @@
 # SnapDrill 架构原则
 
+## Apple 原生优先铁律（2026-03-06 确立，永不变更）
+
+**所有 UX/UI/交互改动，必须先找到苹果官方 App 或 HIG 文档中的对应模式，照搬。禁止自创交互。**
+
+> 单人团队无法在设计上胜过苹果。照抄苹果原生 = 用户零学习成本 + 最高品质下限。
+
+### 检查顺序（每次改 UI 前必走）
+
+1. **找参考 App**：Settings / Contacts / Reminders / Notes / Photos / Calendar 是最权威的参考
+2. **查 HIG**：[developer.apple.com/design/human-interface-guidelines](https://developer.apple.com/design/human-interface-guidelines)
+3. **查 SwiftUI 文档**：优先用平台原生控件，禁止自己实现已有控件的功能
+
+### 常用模式速查（经过确认的正确做法）
+
+| 场景 | 正确做法 | 禁止做法 |
+|---|---|---|
+| Form 中选择一个值（短列表） | `Picker(.menu)` | `Menu` 包裹整行 |
+| Form 中选择一个值（长列表） | `NavigationLink` → 勾选列表 | 自制 Sheet |
+| 非 Form 上下文内联选择（无新建） | `Picker(.menu)`，点击区为右侧控件 | 全行 `Menu` label |
+| 非 Form 上下文内联选择（含新建） | `Menu`，label 仅覆盖右侧（值+chevron），左侧标签在 HStack 外 | 全行作为 Menu label |
+| 破坏性操作确认 | `confirmationDialog` / `.alert` | 自制弹窗 |
+| 分享 / 导出 | `ShareLink` / `confirmationDialog` | 自制底部 Sheet |
+| 列表批量选择 | `List(selection:)` + 长按进入 `editMode` | 自制 checkbox |
+| 导航到详情 | `NavigationLink` | `Button` + 手动 push |
+| 删除列表项 | `.onDelete` / 左滑删除 | 自制滑动手势 |
+| 全行可点 = 整行是点击区 | 仅用于 `NavigationLink`（有 `>` 箭头） | 把整行作为 `Menu` / `Picker` label |
+
+### 核心心智模型
+
+- **整行可点击 + `>` 箭头** = 语义是"会导航到新页面"，用 `NavigationLink`
+- **右侧值 + 小箭头** = 语义是"原地选择"，用 `Picker(.menu)`
+- **从底部弹出列表** = 语义是"选择一个操作/确认破坏性行为"，用 `confirmationDialog`
+- **Sheet** = 语义是"临时全屏子流程"，不用于简单选值
+
+---
+
 ## 奥卡姆剃刀检查清单
 
 在新增任何抽象、协议、层、文件之前，必须能回答这些问题：

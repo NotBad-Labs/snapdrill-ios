@@ -97,65 +97,68 @@ public struct CaptureResultView: View {
                         .padding(.horizontal)
             
                     VStack(spacing: 0) {
-                        // Subject — Menu label 覆盖整行，确保任意位置均可点击
-                        Menu {
-                            ForEach(viewModel.availableSubjects) { subject in
+                        // Subject — Menu label 仅覆盖右侧（当前值 + chevron），弹出框锚定右侧，左侧标签始终可见
+                        // 支持内联新建：Things 3 / Notion / Apple Notes 均采用此模式
+                        HStack {
+                            Text("学科")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Menu {
+                                ForEach(viewModel.availableSubjects) { subject in
+                                    Button {
+                                        viewModel.selectedSubject = subject.name
+                                    } label: {
+                                        Label(subject.name, systemImage: subject.icon)
+                                    }
+                                }
+                                Divider()
                                 Button {
-                                    viewModel.selectedSubject = subject.name
+                                    viewModel.showNewSubjectAlert = true
                                 } label: {
-                                    Label(subject.name, systemImage: subject.icon)
+                                    Label("新建学科", systemImage: "plus")
+                                }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text(viewModel.selectedSubject)
+                                        .foregroundStyle(.secondary)
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
                                 }
                             }
-                            Divider()
-                            Button {
-                                viewModel.showNewSubjectAlert = true
-                            } label: {
-                                Label("新建学科", systemImage: "plus")
-                            }
-                        } label: {
-                            HStack {
-                                Text("学科")
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                Text(viewModel.selectedSubject)
-                                    .foregroundStyle(.secondary)
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .contentShape(Rectangle())
                         }
                         .padding()
 
                         Divider().padding(.leading)
 
-                        // Source — Menu label 覆盖整行，确保任意位置均可点击
-                        Menu {
-                            ForEach(viewModel.availableSources) { source in
+                        // Source — 同上：Menu label 仅右侧，保留内联新建
+                        HStack {
+                            Text("来源")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Menu {
+                                ForEach(viewModel.availableSources) { source in
+                                    Button {
+                                        viewModel.selectedSource = source.name
+                                    } label: {
+                                        Label(source.name, systemImage: source.icon)
+                                    }
+                                }
+                                Divider()
                                 Button {
-                                    viewModel.selectedSource = source.name
+                                    viewModel.showNewSourceAlert = true
                                 } label: {
-                                    Label(source.name, systemImage: source.icon)
+                                    Label("新建来源", systemImage: "plus")
+                                }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text(viewModel.selectedSource)
+                                        .foregroundStyle(.secondary)
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
                                 }
                             }
-                            Divider()
-                            Button {
-                                viewModel.showNewSourceAlert = true
-                            } label: {
-                                Label("新建来源", systemImage: "plus")
-                            }
-                        } label: {
-                            HStack {
-                                Text("来源")
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                Text(viewModel.selectedSource)
-                                    .foregroundStyle(.secondary)
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .contentShape(Rectangle())
                         }
                         .padding()
                 
@@ -202,33 +205,34 @@ public struct CaptureResultView: View {
                 
                         Divider().padding(.leading)
                 
-                        // Grade/Mastery — Menu label 覆盖整行，确保任意位置均可点击
-                        Menu {
-                            ForEach(viewModel.availableGrades) { grade in
+                        // Grade/Mastery — 同上：Menu label 仅右侧，保留内联新建
+                        HStack {
+                            Text("年级/程度")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Menu {
+                                ForEach(viewModel.availableGrades) { grade in
+                                    Button {
+                                        viewModel.grade = grade.name
+                                    } label: {
+                                        Text(grade.name)
+                                    }
+                                }
+                                Divider()
                                 Button {
-                                    viewModel.grade = grade.name
+                                    viewModel.showNewGradeAlert = true
                                 } label: {
-                                    Text(grade.name)
+                                    Label("新建年级", systemImage: "plus")
+                                }
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text(viewModel.grade.isEmpty ? "未选择" : viewModel.grade)
+                                        .foregroundStyle(viewModel.grade.isEmpty ? .tertiary : .secondary)
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
                                 }
                             }
-                            Divider()
-                            Button {
-                                viewModel.showNewGradeAlert = true
-                            } label: {
-                                Label("新建年级", systemImage: "plus")
-                            }
-                        } label: {
-                            HStack {
-                                Text("年级/程度")
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                Text(viewModel.grade.isEmpty ? "未选择" : viewModel.grade)
-                                    .foregroundStyle(viewModel.grade.isEmpty ? .tertiary : .secondary)
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .contentShape(Rectangle())
                         }
                         .padding()
                 
