@@ -25,7 +25,7 @@ struct ReviewAppearanceSettingsView: View {
     // MARK: - Body
     
     var body: some View {
-        List {
+        Form {
             // MARK: - 卡片正面
 
             Section("卡片正面 (题目)") {
@@ -91,7 +91,6 @@ struct ReviewAppearanceSettingsView: View {
                 }
             }
         }
-        .listStyle(.insetGrouped)
         .navigationTitle("卡片外观")
         .navigationBarTitleDisplayMode(.inline)
     }
