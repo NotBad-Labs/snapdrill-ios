@@ -25,6 +25,8 @@ public final class PDFExportService: Sendable {
     public init() {}
 
     #if canImport(UIKit)
+    // any PDFExportable：无 associated type / Self 约束的协议作为集合元素，
+    // 允许异构集合（不同 PDFExportable 实现类型混传），见 CLAUDE.md Exception 2。
     /// 异步生成包含指定题目的 PDF 数据，支持中途取消
     /// 格式：每页一般 2-3 题，留出空白位置便于重做
     public func createPDF(from items: [any PDFExportable], imageProvider: @Sendable @escaping (String) -> UIImage?) async throws -> Data {
