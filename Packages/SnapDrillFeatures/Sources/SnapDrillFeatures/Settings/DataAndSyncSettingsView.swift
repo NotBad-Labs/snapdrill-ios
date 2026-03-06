@@ -32,6 +32,7 @@ struct DataAndSyncSettingsView: View {
     @State private var cacheSize: String = "计算中..."
     @State private var cacheCalculateTask: Task<Void, Never>?
     @State private var cacheClearTask: Task<Void, Never>?
+    @State private var accountCheckTask: Task<Void, Never>?
     
     var body: some View {
         List {
@@ -123,6 +124,7 @@ struct DataAndSyncSettingsView: View {
                 Text("自动归档长期未复习的题目，保持题库轻量化。归档后的题目仍可搜索但不会自动安排复习。")
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("数据与云同步")
         .navigationBarTitleDisplayMode(.inline)
         .alert("清理缓存", isPresented: $showingClearCacheAlert) {
@@ -142,6 +144,7 @@ struct DataAndSyncSettingsView: View {
         .onDisappear {
             cacheCalculateTask?.cancel()
             cacheClearTask?.cancel()
+            accountCheckTask?.cancel()
         }
     }
     
@@ -195,16 +198,16 @@ struct DataAndSyncSettingsView: View {
         }
         
         isCheckingStatus = true
-        // Use container identifier if set, otherwise default
-        CKContainer.default().accountStatus { status, error in
-            DispatchQueue.main.async {
+        accountCheckTask?.cancel()
+        accountCheckTask = Task { @MainActor in
+            do {
+                let status = try await CKContainer.default().accountStatus()
                 isCheckingStatus = false
-                if let error = error {
-                    SnapDrillLogger.generic.info("iCloud status error: \(error)")
-                    self.accountStatus = .couldNotDetermine
-                } else {
-                    self.accountStatus = status
-                }
+                accountStatus = status
+            } catch {
+                isCheckingStatus = false
+                SnapDrillLogger.generic.info("iCloud status error: \(error)")
+                accountStatus = .couldNotDetermine
             }
         }
     }

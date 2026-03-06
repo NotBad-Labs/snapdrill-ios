@@ -92,6 +92,7 @@ struct ReviewAppearanceSettingsView: View {
             }
         }
         .navigationTitle("卡片外观")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     // MARK: - Private Helpers

@@ -21,10 +21,19 @@ struct LanguageSettingsView: View {
         List {
             Section {
                 HStack(spacing: 16) {
-                    Image(systemName: "globe")
-                        .font(.system(size: 32))
-                        .foregroundStyle(.blue)
-                        .frame(width: 48)
+                    // 渐变图标容器（与 SettingsRow 保持一致）
+                    ZStack {
+                        LinearGradient(
+                            colors: [.green, .teal],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        Image(systemName: "globe")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("语言由 iOS 系统控制")
@@ -48,13 +57,14 @@ struct LanguageSettingsView: View {
                         Text("打开系统设置")
                         Spacer()
                         Image(systemName: "arrow.up.right.square")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.tint)
                     }
                 }
             } footer: {
                 Text("前往「设置 → SnapDrill → 语言」，选择偏好语言后重新启动应用即可生效。目前支持简体中文，更多语言持续开发中。")
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("语言")
         .navigationBarTitleDisplayMode(.inline)
     }
