@@ -205,12 +205,12 @@ public final class ReviewRepository {
         let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
         let subjectsArray = Array(subjects)
 
-        // swiftlint:disable force_unwrapping
+        // #Predicate 内禁止 force unwrap（! 在 SQLite 转译语义未定义）；
+        // 用可选链 ?.localizedStandardContains == true 替代，行为等价且安全。
         let predicate = #Predicate<ReviewItemModel> { item in
-            (normalizedSearch.isEmpty || (item.content != nil && item.content!.localizedStandardContains(normalizedSearch))) &&
+            (normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true) &&
             (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue))
         }
-        // swiftlint:enable force_unwrapping
 
         let sortDescriptor = SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)
 
