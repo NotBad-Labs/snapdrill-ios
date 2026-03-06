@@ -68,6 +68,7 @@ struct NotificationSettingsView: View {
                 Text("声音和角标设置在下次触发通知时生效")
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("通知与提醒")
         .navigationBarTitleDisplayMode(.inline)
         .alert("通知权限被拒绝", isPresented: Binding(

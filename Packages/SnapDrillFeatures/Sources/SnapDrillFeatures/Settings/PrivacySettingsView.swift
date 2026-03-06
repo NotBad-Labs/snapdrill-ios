@@ -58,6 +58,16 @@ struct PrivacySettingsView: View {
                     }
                 }
                 .disabled(isExporting)
+                // confirmationDialog 挂在 Button 上，确保锚点在触发元素附近
+                .confirmationDialog("选择导出格式", isPresented: $showingExportOptions, titleVisibility: .visible) {
+                    Button("JSON 格式") {
+                        Task { await exportData(format: .json) }
+                    }
+                    Button("CSV 格式") {
+                        Task { await exportData(format: .csv) }
+                    }
+                    Button("取消", role: .cancel) {}
+                }
             } header: {
                 Text("数据管理")
             } footer: {
@@ -72,21 +82,9 @@ struct PrivacySettingsView: View {
                 }
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("隐私与安全")
         .navigationBarTitleDisplayMode(.inline)
-        .confirmationDialog("选择导出格式", isPresented: $showingExportOptions, titleVisibility: .visible) {
-            Button("JSON 格式") {
-                Task {
-                    await exportData(format: .json)
-                }
-            }
-            Button("CSV 格式") {
-                Task {
-                    await exportData(format: .csv)
-                }
-            }
-            Button("取消", role: .cancel) {}
-        }
         .sheet(isPresented: $showingShareSheet) {
             if let url = exportedFileURL {
                 ShareSheet(items: [url])

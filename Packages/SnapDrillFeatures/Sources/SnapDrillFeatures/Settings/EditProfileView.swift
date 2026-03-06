@@ -169,6 +169,7 @@ struct EditProfileView: View {
                 }
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle(L10n.EditProfile.title)
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(L10n.EditProfile.chooseAvatarSource, isPresented: $showingPhotoOptions) {

@@ -16,7 +16,7 @@ struct LicenseView: View {
     
     var body: some View {
         List {
-            Section(header: Text("开源库")) {
+            Section("开源库") {
                 NavigationLink(destination: LicenseDetailView(title: "Mantis", licenseContent: mantisLicense)) {
                     VStack(alignment: .leading) {
                         Text("Mantis")
@@ -44,6 +44,7 @@ struct LicenseView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .listStyle(.insetGrouped)
         .navigationTitle("开源许可")
         .navigationBarTitleDisplayMode(.inline)
     }
