@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 **Build & Run**
-Open `SnapDrill.xcodeproj` in Xcode 26.0+ (current env: Xcode 26.3), select the `SnapDrill` scheme, and run on an iOS 18 simulator or physical device (primary test device: iPhone 17).
+Open `SnapDrill.xcodeproj` in Xcode 26.0+ (current env: Xcode 26.3), select the `SnapDrill` scheme, and run on an iOS 26 simulator or physical device (primary test device: iPhone 17).
 
 **Lint**
 ```bash
@@ -42,7 +42,7 @@ brew install swiftlint
 
 ## Architecture
 
-SnapDrill is a spaced-repetition (flashcard) learning app built with Swift 6.2 + SwiftUI + SwiftData, targeting iOS 18.0+. It uses a **strict modular SPM architecture** where the main app target is a thin composition root.
+SnapDrill is a spaced-repetition (flashcard) learning app built with Swift 6.2 + SwiftUI + SwiftData, targeting iOS 26.0+. It uses a **strict modular SPM architecture** where the main app target is a thin composition root.
 
 ### Module Dependency Graph
 
