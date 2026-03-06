@@ -15,11 +15,16 @@ import PhotosUI
 
 /// 采集结果预览与编辑视图
 public struct CaptureResultView: View {
-    
+
     // MARK: - Properties
-    
+
     // @Bindable 用于外部传入的 @Observable 对象，不持有所有权（区别于 @State）
     @Bindable var viewModel: CaptureResultViewModel
+
+    // 选择器弹窗状态（confirmationDialog 替代 Menu，整行可点且不遮盖行内容）
+    @State private var showSubjectDialog = false
+    @State private var showSourceDialog = false
+    @State private var showGradeDialog = false
 
     public init(viewModel: CaptureResultViewModel) {
         self.viewModel = viewModel
@@ -97,21 +102,9 @@ public struct CaptureResultView: View {
                         .padding(.horizontal)
             
                     VStack(spacing: 0) {
-                        // Subject — Menu label 覆盖整行，确保任意位置均可点击
-                        Menu {
-                            ForEach(viewModel.availableSubjects) { subject in
-                                Button {
-                                    viewModel.selectedSubject = subject.name
-                                } label: {
-                                    Label(subject.name, systemImage: subject.icon)
-                                }
-                            }
-                            Divider()
-                            Button {
-                                viewModel.showNewSubjectAlert = true
-                            } label: {
-                                Label("新建学科", systemImage: "plus")
-                            }
+                        // Subject — Button 整行可点，confirmationDialog 从底部弹出（iOS Action Sheet）
+                        Button {
+                            showSubjectDialog = true
                         } label: {
                             HStack {
                                 Text("学科")
@@ -125,25 +118,20 @@ public struct CaptureResultView: View {
                             }
                             .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                         .padding()
+                        .confirmationDialog("选择学科", isPresented: $showSubjectDialog, titleVisibility: .visible) {
+                            ForEach(viewModel.availableSubjects) { subject in
+                                Button(subject.name) { viewModel.selectedSubject = subject.name }
+                            }
+                            Button("新建学科") { viewModel.showNewSubjectAlert = true }
+                        }
 
                         Divider().padding(.leading)
 
-                        // Source — Menu label 覆盖整行，确保任意位置均可点击
-                        Menu {
-                            ForEach(viewModel.availableSources) { source in
-                                Button {
-                                    viewModel.selectedSource = source.name
-                                } label: {
-                                    Label(source.name, systemImage: source.icon)
-                                }
-                            }
-                            Divider()
-                            Button {
-                                viewModel.showNewSourceAlert = true
-                            } label: {
-                                Label("新建来源", systemImage: "plus")
-                            }
+                        // Source — Button 整行可点，confirmationDialog 从底部弹出（iOS Action Sheet）
+                        Button {
+                            showSourceDialog = true
                         } label: {
                             HStack {
                                 Text("来源")
@@ -157,7 +145,14 @@ public struct CaptureResultView: View {
                             }
                             .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                         .padding()
+                        .confirmationDialog("选择来源", isPresented: $showSourceDialog, titleVisibility: .visible) {
+                            ForEach(viewModel.availableSources) { source in
+                                Button(source.name) { viewModel.selectedSource = source.name }
+                            }
+                            Button("新建来源") { viewModel.showNewSourceAlert = true }
+                        }
                 
                         Divider().padding(.leading)
                 
@@ -202,21 +197,9 @@ public struct CaptureResultView: View {
                 
                         Divider().padding(.leading)
                 
-                        // Grade/Mastery — Menu label 覆盖整行，确保任意位置均可点击
-                        Menu {
-                            ForEach(viewModel.availableGrades) { grade in
-                                Button {
-                                    viewModel.grade = grade.name
-                                } label: {
-                                    Text(grade.name)
-                                }
-                            }
-                            Divider()
-                            Button {
-                                viewModel.showNewGradeAlert = true
-                            } label: {
-                                Label("新建年级", systemImage: "plus")
-                            }
+                        // Grade/Mastery — Button 整行可点，confirmationDialog 从底部弹出（iOS Action Sheet）
+                        Button {
+                            showGradeDialog = true
                         } label: {
                             HStack {
                                 Text("年级/程度")
@@ -230,7 +213,14 @@ public struct CaptureResultView: View {
                             }
                             .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                         .padding()
+                        .confirmationDialog("选择年级/程度", isPresented: $showGradeDialog, titleVisibility: .visible) {
+                            ForEach(viewModel.availableGrades) { grade in
+                                Button(grade.name) { viewModel.grade = grade.name }
+                            }
+                            Button("新建年级") { viewModel.showNewGradeAlert = true }
+                        }
                 
                         Divider().padding(.leading)
                 

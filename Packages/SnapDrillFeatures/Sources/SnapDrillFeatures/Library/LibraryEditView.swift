@@ -218,78 +218,36 @@ struct LibraryEditView: View {
     }
     
     private func subjectPicker(vm: LibraryEditViewModel) -> some View {
-        // Menu label 覆盖整行，确保任意位置均可点击
-        Menu {
+        // Form 行原生支持整行点击；Picker(.menu) 弹出框锚定右侧，左侧标签始终可见
+        Picker("学科", selection: Binding(get: { vm.selectedSubject }, set: { vm.selectedSubject = $0 })) {
+            Text("选择学科").tag("")
             ForEach(vm.subjects) { subject in
-                Button {
-                    vm.selectedSubject = subject.name
-                } label: {
-                    Label(subject.name, systemImage: subject.icon)
-                }
+                Label(subject.name, systemImage: subject.icon).tag(subject.name)
             }
-        } label: {
-            HStack {
-                Text("学科")
-                    .foregroundStyle(.primary)
-                Spacer()
-                Text(vm.selectedSubject.isEmpty ? "选择学科" : vm.selectedSubject)
-                    .foregroundStyle(vm.selectedSubject.isEmpty ? .secondary : .primary)
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
-            .contentShape(Rectangle())
         }
+        .pickerStyle(.menu)
     }
 
     private func sourcePicker(vm: LibraryEditViewModel) -> some View {
-        // Menu label 覆盖整行，确保任意位置均可点击
-        Menu {
+        // Form 行原生支持整行点击；Picker(.menu) 弹出框锚定右侧，左侧标签始终可见
+        Picker("来源", selection: Binding(get: { vm.selectedSource }, set: { vm.selectedSource = $0 })) {
+            Text("选择来源").tag("")
             ForEach(vm.sources) { source in
-                Button {
-                    vm.selectedSource = source.name
-                } label: {
-                    Label(source.name, systemImage: source.icon)
-                }
+                Label(source.name, systemImage: source.icon).tag(source.name)
             }
-        } label: {
-            HStack {
-                Text("来源")
-                    .foregroundStyle(.primary)
-                Spacer()
-                Text(vm.selectedSource.isEmpty ? "选择来源" : vm.selectedSource)
-                    .foregroundStyle(vm.selectedSource.isEmpty ? .secondary : .primary)
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
-            .contentShape(Rectangle())
         }
+        .pickerStyle(.menu)
     }
 
     private func gradePicker(vm: LibraryEditViewModel) -> some View {
-        // Menu label 覆盖整行，确保任意位置均可点击
-        Menu {
+        // Form 行原生支持整行点击；Picker(.menu) 弹出框锚定右侧，左侧标签始终可见
+        Picker("年级/程度", selection: Binding(get: { vm.grade }, set: { vm.grade = $0 })) {
+            Text("选择年级").tag("")
             ForEach(vm.grades) { grade in
-                Button {
-                    vm.grade = grade.name
-                } label: {
-                    Text(grade.name)
-                }
+                Text(grade.name).tag(grade.name)
             }
-        } label: {
-            HStack {
-                Text("年级/程度")
-                    .foregroundStyle(.primary)
-                Spacer()
-                Text(vm.grade.isEmpty ? "选择年级" : vm.grade)
-                    .foregroundStyle(vm.grade.isEmpty ? .secondary : .primary)
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
-            .contentShape(Rectangle())
         }
+        .pickerStyle(.menu)
     }
 
     private func difficultyPicker(vm: LibraryEditViewModel) -> some View {
