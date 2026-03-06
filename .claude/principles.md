@@ -1,5 +1,34 @@
 # SnapDrill 架构原则
 
+## 决策前研究铁律（2026-03-06 确立，永不变更）
+
+**在写任何不确定的实现前，必须先做研究，再决定方案。禁止想当然写代码。**
+
+适用范围：UI/UX 交互、技术方案选型、并发模式、系统框架 API 行为——凡是不确定的，必走研究流程。
+
+### UI/UX 决策研究流程
+
+1. **Apple 原生 App**：Settings / Contacts / Notes / Reminders / Files / Photos 如何解决同类问题？
+2. **行业标杆 App**：同类场景在微信、支付宝、Notion、Things 3、Spotify 等高质量 App 中怎么做？
+3. **Apple HIG 文档**：[developer.apple.com/design/human-interface-guidelines](https://developer.apple.com/design/human-interface-guidelines) 有无明确推荐？
+4. **综合判断**：Apple 理念高度参考，但不刻板遵循；原则性与灵活性相统一。
+
+### 技术实现研究流程
+
+1. **Apple 官方开发者文档**：[developer.apple.com/documentation](https://developer.apple.com/documentation) — 目标 API/框架的行为、线程安全性、官方推荐用法是什么？
+2. **WWDC Sessions**：有无相关 session 讲解最佳实践？
+3. **现有代码库**：项目内已有类似问题的处理方式是什么？保持一致。
+4. **综合判断**：文档说什么就用什么，不凭经验推测系统行为。
+
+### 判断框架
+
+- Apple 文档有明确推荐 → 直接采用
+- Apple 文档无明确推荐 + 行业有惯例 → 采用惯例，注释说明理由
+- Apple 推荐 + 行业有更好实践（UI/UX）→ 选更好实践，注释说明理由
+- 完全自创 → 有明确理由才允许，否则必须先研究再开工
+
+---
+
 ## Apple 原生优先铁律（2026-03-06 确立，永不变更）
 
 **所有 UX/UI/交互改动，必须先找到苹果官方 App 或 HIG 文档中的对应模式，照搬。禁止自创交互。**
