@@ -88,7 +88,7 @@ struct LibraryListView: View {
                                 .font(.headline)
                                 .lineLimit(2)
                                 .multilineTextAlignment(.leading)
-                            
+
                             HStack(spacing: 8) {
                                 Text(item.subject)
                                     .font(.caption2.bold())
@@ -97,7 +97,7 @@ struct LibraryListView: View {
                                     .background(Color.blue.opacity(0.1))
                                     .foregroundStyle(.blue)
                                     .clipShape(Capsule())
-                                
+
                                 Text(item.createdAt.formatted(date: .abbreviated, time: .shortened))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
@@ -105,6 +105,12 @@ struct LibraryListView: View {
                         }
                     })
                     .buttonStyle(.plain)
+                    // 长按进入多选模式（iOS 标准交互）
+                    .simultaneousGesture(
+                        LongPressGesture(minimumDuration: 0.4).onEnded { _ in
+                            withAnimation { editMode?.wrappedValue = .active }
+                        }
+                    )
                     .listRowBackground(Rectangle().fill(.regularMaterial))
                     .listRowSeparator(.hidden)
                     .tag(item.id)

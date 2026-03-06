@@ -89,7 +89,11 @@ public struct DashboardView: View {
                                     }
 
                                     // Daily Insight (纯展示，暂无详情页)
-                                    DailyStatsView(count: viewModel.todayItemsCount)
+                                    DailyStatsView(
+                                        todayItemsCount: viewModel.todayItemsCount,
+                                        reviewedTodayCount: viewModel.reviewedTodayCount,
+                                        dueCount: viewModel.dueCount
+                                    )
 
                                     // Settings/More
                                     BentoCard(
@@ -153,16 +157,53 @@ public struct DashboardView: View {
     DashboardView(router: DashboardRouter())
 }
 
-/// 独立的今日统计视图，纯展示（无跳转）
+/// 多维今日统计卡片：今日新增 / 今日复习 / 待复习（纯展示，无跳转）
 struct DailyStatsView: View {
-    let count: Int
+    let todayItemsCount: Int
+    let reviewedTodayCount: Int
+    let dueCount: Int
 
     var body: some View {
-        BentoCard(
-            title: "今日新增",
-            subtitle: "\(count) 题",
-            icon: "chart.bar.xaxis",
-            gradient: LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: "chart.bar.xaxis")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+                Spacer()
+            }
+
+            Spacer(minLength: 0)
+
+            VStack(alignment: .leading, spacing: 6) {
+                StatRow(label: "今日新增", value: todayItemsCount, color: .white)
+                StatRow(label: "今日复习", value: reviewedTodayCount, color: .white.opacity(0.85))
+                StatRow(label: "待复习", value: dueCount, color: .white.opacity(0.85))
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, minHeight: 120)
+        .background(
+            LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing)
         )
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+/// 统计行：标签 + 数值
+private struct StatRow: View {
+    let label: String
+    let value: Int
+    let color: Color
+
+    var body: some View {
+        HStack {
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(color.opacity(0.8))
+            Spacer()
+            Text("\(value) 题")
+                .font(.caption.bold())
+                .foregroundStyle(color)
+        }
     }
 }
