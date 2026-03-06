@@ -61,33 +61,20 @@ public struct LibraryView: View {
             .navigationTitle("题库")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    HStack {
-                        if editMode.isEditing {
-                            Button("完成") {
-                                withAnimation {
-                                    editMode = .inactive
-                                    selectedItemIDs.removeAll()
-                                }
+                    if editMode.isEditing {
+                        Button("完成") {
+                            withAnimation {
+                                editMode = .inactive
+                                selectedItemIDs.removeAll()
                             }
-                            .fontWeight(.bold)
-                        } else {
-                            Menu {
-                                Button {
-                                    withAnimation {
-                                        editMode = .active
-                                    }
-                                } label: {
-                                    Label("选择题目", systemImage: "checkmark.circle")
-                                }
-                                
-                                Button {
-                                    isFilterPresented = true
-                                } label: {
-                                    Label("筛选与排序", systemImage: "line.3.horizontal.decrease.circle")
-                                }
-                            } label: {
-                                Label("管理", systemImage: "ellipsis.circle")
-                            }
+                        }
+                        .fontWeight(.bold)
+                    } else {
+                        // 长按列表项进入多选模式（iOS 标准交互）；此按钮仅保留筛选入口
+                        Button {
+                            isFilterPresented = true
+                        } label: {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
                         }
                     }
                 }
