@@ -27,8 +27,8 @@ public final class TagModel {
     public var createdAt: Date = Date()
 
     // Relationship
-    @Relationship(deleteRule: .nullify)
     /// 关联的题目（Many-to-Many）
+    @Relationship(deleteRule: .nullify)
     public var items: [ReviewItemModel]? = []
 
     // MARK: - Initialization

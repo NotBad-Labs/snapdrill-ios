@@ -99,6 +99,8 @@ public final class CaptureResultViewModel {
 
     /// 识别任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
     private var recognitionTask: Task<Void, Never>?
+    /// 相册图片加载任务句柄（连续切换图片时取消前一个，避免竞态）
+    private var photoLoadTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -135,6 +137,8 @@ public final class CaptureResultViewModel {
     public func cancelTasks() {
         recognitionTask?.cancel()
         recognitionTask = nil
+        photoLoadTask?.cancel()
+        photoLoadTask = nil
     }
 
     /// 加载默认表单数据
@@ -312,7 +316,8 @@ public final class CaptureResultViewModel {
 
     private func processSelectedPhoto() {
         guard let item = answerPhotoItem else { return }
-        Task {
+        photoLoadTask?.cancel()
+        photoLoadTask = Task {
             do {
                 if let data = try await item.loadTransferable(type: Data.self),
                    let loadedImage = UIImage(data: data) {
