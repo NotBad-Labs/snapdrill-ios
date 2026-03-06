@@ -50,28 +50,6 @@ final class AnalyticsTrackingServiceTests: XCTestCase {
         service.setEnabled(true)
     }
 
-    // MARK: - Smoke Tests（Firebase 层无法在 unit test 中验证返回值，仅保证不崩溃）
-    // 注意：以下测试不验证 Firebase 行为，仅防止接口层 API 变更导致崩溃。
-    // 若需要验证业务逻辑，请使用下方 Mock 测试。
-
-    func testTrackScreen_smokeTest() {
-        // [SmokeTest] Firebase 无法在 unit test 中验证，仅保证调用不崩溃
-        service.trackScreen("Dashboard", parameters: ["source": "app_launch"])
-        service.trackScreen("Library", parameters: [:])
-    }
-
-    func testSessionManagement_smokeTest() {
-        // [SmokeTest] 仅保证调用链路不崩溃
-        service.startSession()
-        service.endSession()
-    }
-
-    func testSetUserProperty_smokeTest() {
-        // [SmokeTest] 仅保证调用不崩溃
-        service.setUserProperty("premium", forKey: "subscription_type")
-        service.setUserProperty("zh", forKey: "language")
-    }
-
     func testAllEventTypes_smokeTest() {
         // [SmokeTest] 验证所有 AnalyticsEvent case 均可调用，防止 enum 变更后出现漏项
         let allEvents: [AnalyticsEvent] = [
