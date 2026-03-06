@@ -79,6 +79,23 @@ Each feature in `SnapDrillFeatures/Sources/SnapDrillFeatures/<FeatureName>/` fol
 
 ViewModels are injected with concrete Repository classes (not protocols) via `@Environment`. ViewModels call `ReviewScheduler` (Core) for SM-2 scheduling. Views use `@Query` for reactive list updates. Views **never** touch `ModelContext` directly.
 
+## 编写代码前强制研究声明（每次必走）
+
+**在提出任何非平凡方案前，必须先输出研究声明，否则视为违反铁律。**
+
+格式（直接输出，不得省略）：
+```
+研究确认：
+- Apple 文档：[查了什么 / 不适用（原因）]
+- 现有代码库：[找到的参考模式]
+- HIG / 行业惯例：[查了什么 / 不适用（原因）]
+```
+
+**用户质量检查触发词：「铁律？」**
+收到后必须立即补充完整研究声明，再继续。
+
+平凡改动（typo、单行 bug fix、明确指定的机械改动）可免声明，但需说明"免声明理由"。
+
 ## API 使用强制规则
 
 **修改任何代码前，必须先确认 API 真实存在，禁止凭名称推测。**
