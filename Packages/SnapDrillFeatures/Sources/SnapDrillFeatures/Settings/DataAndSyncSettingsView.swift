@@ -32,6 +32,7 @@ struct DataAndSyncSettingsView: View {
     @State private var cacheSize: String = "计算中..."
     @State private var cacheCalculateTask: Task<Void, Never>?
     @State private var cacheClearTask: Task<Void, Never>?
+    @State private var accountCheckTask: Task<Void, Never>?
     
     var body: some View {
         List {
@@ -196,8 +197,8 @@ struct DataAndSyncSettingsView: View {
         }
         
         isCheckingStatus = true
-        // Use container identifier if set, otherwise default
-        Task { @MainActor in
+        accountCheckTask?.cancel()
+        accountCheckTask = Task { @MainActor in
             do {
                 let status = try await CKContainer.default().accountStatus()
                 isCheckingStatus = false

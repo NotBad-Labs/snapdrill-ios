@@ -35,6 +35,8 @@ public struct SettingsView: View {
     @State private var showingMail = false
     @State private var isGenerating = false
     @State private var seedTask: Task<Void, Never>?
+    @State private var clearTask: Task<Void, Never>?
+    private let imageStorage = ImageStorage()
     @State private var showingSubjectManager = false
     @State private var showingSourceManager = false
     @State private var showingGradeManager = false
@@ -264,7 +266,7 @@ public struct SettingsView: View {
         ]
         let selectedColors = colors[userAvatarColorIndex < colors.count ? userAvatarColorIndex : 0]
 
-        if userAvatar.contains("images/"), let image = ImageStorage().loadImage(path: userAvatar) {
+        if userAvatar.contains("images/"), let image = imageStorage.loadImage(path: userAvatar) {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
@@ -286,7 +288,8 @@ public struct SettingsView: View {
     private func clearAllData() {
         initViewModelIfNeeded()
         guard let vm = viewModel else { return }
-        Task { await vm.clearAllData() }
+        clearTask?.cancel()
+        clearTask = Task { await vm.clearAllData() }
     }
 
     private func generateMockData() {
