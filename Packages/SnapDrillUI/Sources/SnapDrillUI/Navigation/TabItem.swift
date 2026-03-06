@@ -24,6 +24,7 @@ public enum TabItem: Hashable, CaseIterable {
     
     // MARK: - Properties
     
+    /// Tab 的显示名称（本地化文本）
     public var title: String {
         switch self {
         case .dashboard: return "首页"
@@ -34,6 +35,7 @@ public enum TabItem: Hashable, CaseIterable {
         }
     }
     
+    /// Tab 对应的 SF Symbol 图标名称
     public var iconName: String {
         switch self {
         case .dashboard: return "house"

@@ -13,14 +13,20 @@ import Observation
 import SnapDrillData
 import SnapDrillCore
 
+/// 年级管理 ViewModel
+///
+/// 负责年级列表的加载、新增、编辑和删除（含使用中校验）。与 `SubjectManagerViewModel` 结构对等。
 @Observable
 @MainActor
 public final class GradeManagerViewModel {
 
     // MARK: - Properties
 
+    /// 当前年级列表（按 sortOrder 排序）
     public var grades: [GradeModel] = []
+    /// 是否因年级被使用而阻止删除
     public var isDeletingInUse = false
+    /// 触发删除保护时正在尝试删除的年级名称
     public var pendingDeletionName = ""
 
     // MARK: - Dependencies
@@ -35,6 +41,7 @@ public final class GradeManagerViewModel {
 
     // MARK: - Public API
 
+    /// 从数据库加载年级列表
     public func loadData() {
         do {
             grades = try repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
@@ -43,6 +50,7 @@ public final class GradeManagerViewModel {
         }
     }
 
+    /// 删除指定位置的年级；若年级仍被题目引用，置 `isDeletingInUse` 为 `true`
     public func delete(at offsets: IndexSet) {
         isDeletingInUse = false
         let itemsToDelete = offsets.map { grades[$0] }
@@ -62,6 +70,10 @@ public final class GradeManagerViewModel {
         loadData()
     }
 
+    /// 新建或更新年级
+    /// - Parameters:
+    ///   - grade: 传入现有 `GradeModel` 表示编辑，传 `nil` 表示新建
+    ///   - name: 年级名称
     public func saveGrade(grade: GradeModel?, name: String) {
         do {
             if let grade {

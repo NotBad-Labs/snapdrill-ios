@@ -13,10 +13,15 @@ import SnapDrillCore
 
 /// 引导页面数据模型
 public struct OnboardingPage: Identifiable, Sendable {
+    /// 唯一标识
     public let id = UUID()
+    /// 页面标题
     public let title: String
+    /// 页面描述文本
     public let description: String
+    /// 自定义图片资源名称（优先级低于 `systemImage`）
     public let imageName: String
+    /// SF Symbol 名称；若设置，优先显示系统图标而非 `imageName`
     public let systemImage: String?
     
     public init(title: String, description: String, imageName: String = "", systemImage: String? = nil) {
@@ -197,12 +202,17 @@ public struct FeatureTooltip: View {
 }
 
 /// 引导管理器
+///
+/// 负责持久化引导完成状态，并判断是否需要展示功能提示气泡。
 @Observable
 @MainActor
 public final class OnboardingManager {
+    /// 共享实例
     public static let shared = OnboardingManager()
 
+    /// 是否需要显示引导流程（首次启动为 `true`，完成后持久化为 `false`）
     public var shouldShowOnboarding: Bool
+    /// 各功能提示的显示状态缓存，key 为功能标识符
     public var shouldShowFeatureTooltip: [String: Bool] = [:]
     
     private init() {

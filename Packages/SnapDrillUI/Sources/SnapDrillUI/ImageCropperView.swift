@@ -23,7 +23,9 @@ public struct ImageCropperView: UIViewControllerRepresentable {
     
     let originalImage: UIImage
     // Changed to public for external access
+    /// 裁剪完成后的回调，参数为裁剪后的图片
     public var onCrop: (UIImage) -> Void
+    /// 用户取消裁剪时的回调
     public var onCancel: () -> Void
     
     public init(originalImage: UIImage, onCrop: @escaping (UIImage) -> Void, onCancel: @escaping () -> Void) {
@@ -33,24 +35,28 @@ public struct ImageCropperView: UIViewControllerRepresentable {
     }
     
     // MARK: - UIViewControllerRepresentable
-    
+
+    /// 创建并返回 Mantis 代理协调器
     public func makeCoordinator() -> Coordinator {
         Coordinator(onCrop: onCrop, onCancel: onCancel)
     }
-    
+
+    /// 创建 Mantis CropViewController 实例
     public func makeUIViewController(context: Context) -> UIViewController {
         var config = Mantis.Config()
         config.cropToolbarConfig.mode = .normal
-        
+
         let cropViewController = Mantis.cropViewController(image: originalImage, config: config)
         cropViewController.delegate = context.coordinator
         return cropViewController
     }
-    
+
+    /// 状态更新时调用，图片裁剪视图无需动态更新
     public func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
         // No updates needed
     }
-    
+
+    /// Mantis 裁剪事件代理
     public class Coordinator: NSObject, CropViewControllerDelegate {
         var onCrop: (UIImage) -> Void
         var onCancel: () -> Void

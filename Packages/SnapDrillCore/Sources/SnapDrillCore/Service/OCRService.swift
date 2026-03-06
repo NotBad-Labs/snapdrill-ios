@@ -77,6 +77,8 @@ public actor OCRService: OCRServiceProtocol {
     }
 }
 
+/// OCR 识别操作错误
 public enum OCRError: Error {
+    /// 传入的图片无效或无法被 Vision 框架处理
     case invalidImage
 }

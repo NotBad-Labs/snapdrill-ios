@@ -13,6 +13,10 @@ import Observation
 import SnapDrillCore
 import SnapDrillData
 
+/// 题库列表 ViewModel
+///
+/// 管理多维度过滤（搜索文本、学科、标签）、分页加载和数据刷新逻辑。
+/// 由于 SwiftData many-to-many Predicate 限制，过滤在内存端完成。
 @Observable
 @MainActor
 public final class LibraryViewModel {
@@ -23,20 +27,27 @@ public final class LibraryViewModel {
 
     // MARK: - State
 
+    /// 当前过滤条件下的题目列表（支持分页追加）
     public var filteredItems: [ReviewItemModel] = []
+    /// 所有学科列表，用于过滤选项
     public var subjects: [SubjectModel] = []
+    /// 所有标签列表，用于过滤选项
     public var allTags: [TagModel] = []
 
+    /// 搜索文本（变更时触发防抖刷新）
     public var searchText: String = "" {
         didSet { triggerRefresh() }
     }
+    /// 已选中的学科过滤集合（变更时触发防抖刷新）
     public var selectedSubjects: Set<String> = [] {
         didSet { triggerRefresh() }
     }
+    /// 已选中的标签过滤集合（变更时触发防抖刷新）
     public var selectedTags: Set<String> = [] {
         didSet { triggerRefresh() }
     }
 
+    /// 是否正在加载数据
     public var isLoading: Bool = false
     private var currentPage: Int = 0
     private let pageSize: Int = 50

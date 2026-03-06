@@ -13,6 +13,9 @@ import Observation
 import SnapDrillCore
 import SnapDrillData
 
+/// 设置页 ViewModel
+///
+/// 处理设置页面的数据操作（如清除全部数据）。
 @Observable
 @MainActor
 public final class SettingsViewModel {
@@ -26,6 +29,9 @@ public final class SettingsViewModel {
 
     // MARK: - Public API
 
+    /// 清空所有题目数据并通知 UI 刷新
+    ///
+    /// 操作不可撤销，失败时自动回滚 `mainContext` 以防止脏数据。
     public func clearAllData() async {
         do {
             try await repositories.deleteAllData()

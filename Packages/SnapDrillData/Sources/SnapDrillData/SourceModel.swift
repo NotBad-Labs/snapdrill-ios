@@ -11,6 +11,10 @@
 import SwiftData
 import Foundation
 
+/// 来源数据模型
+///
+/// 表示题目的来源类别（如试卷、作业、教材等），用于对题库进行分类管理。
+/// 每个 `ReviewItemModel` 可关联一个来源名称。
 @Model
 public final class SourceModel {
     

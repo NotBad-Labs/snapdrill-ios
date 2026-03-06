@@ -36,10 +36,15 @@ public final class NetworkMonitor {
     
     // MARK: - Types
     
+    /// 网络连接类型
     public enum ConnectionType {
+        /// Wi-Fi 连接
         case wifi
+        /// 蜂窝数据连接（4G/5G）
         case cellular
+        /// 有线以太网连接
         case wired
+        /// 未知连接类型或无网络
         case unknown
     }
     

@@ -20,22 +20,33 @@ public final class CaptureResultViewModel {
 
     // MARK: - Properties
 
+    /// OCR 识别的题目文本（用户可编辑）
     public var content: String
+    /// 题目截图（可为 `nil` 表示纯文字题）
     public var image: UIImage?
 
     // 分类信息
+    /// 当前选中的学科名称
     public var selectedSubject: String = "数学"
+    /// 当前选中的来源名称
     public var selectedSource: String = "试卷"
+    /// 标签列表（字符串形式）
     public var tagList: [String] = []
+    /// 标签输入框当前文本
     public var tagInputText: String = ""
 
     // 详情表单
+    /// 答案文本
     public var answerText: String = ""
+    /// 题目难度
     public var difficulty: Difficulty = .one
+    /// 年级
     public var grade: String = ""
+    /// 答案图片（可为 `nil`）
     public var answerImage: UIImage?
 
     // 相册选择器状态
+    /// 用户从相册选择的答案图片项（变更时自动触发图片加载）
     public var answerPhotoItem: PhotosPickerItem? {
         didSet {
             processSelectedPhoto()
@@ -43,24 +54,39 @@ public final class CaptureResultViewModel {
     }
 
     // UI 状态
+    /// 是否正在重新识别 OCR
     public var isRecognizing = false
+    /// 是否正在显示图片裁剪界面
     public var isCropping = false
+    /// 是否已成功保存（用于触发返回导航）
     public var isSaved = false
+    /// 是否弹出错误提示
     public var showErrorAlert = false
+    /// 错误提示文本
     public var errorMessage: String?
 
     // 新建分类 Alert 状态
+    /// 是否显示新建学科 Alert
     public var showNewSubjectAlert = false
+    /// 新建学科输入文本
     public var newSubjectName = ""
+    /// 是否显示新建来源 Alert
     public var showNewSourceAlert = false
+    /// 新建来源输入文本
     public var newSourceName = ""
+    /// 是否显示新建年级 Alert
     public var showNewGradeAlert = false
+    /// 新建年级输入文本
     public var newGradeName = ""
 
     // 下拉表单数据（@Model 类型）
+    /// 可选学科列表
     public private(set) var availableSubjects: [SubjectModel] = []
+    /// 可选来源列表
     public private(set) var availableSources: [SourceModel] = []
+    /// 可选年级列表
     public private(set) var availableGrades: [GradeModel] = []
+    /// 可选标签列表
     public private(set) var availableTags: [TagModel] = []
 
     // MARK: - Dependencies
