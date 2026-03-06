@@ -18,7 +18,8 @@
 |---|---|---|
 | Form 中选择一个值（短列表） | `Picker(.menu)` | `Menu` 包裹整行 |
 | Form 中选择一个值（长列表） | `NavigationLink` → 勾选列表 | 自制 Sheet |
-| 非 Form 上下文内联选择 | `Picker(.menu)`，点击区为右侧控件 | 全行 `Menu` label |
+| 非 Form 上下文内联选择（无新建） | `Picker(.menu)`，点击区为右侧控件 | 全行 `Menu` label |
+| 非 Form 上下文内联选择（含新建） | `Menu`，label 仅覆盖右侧（值+chevron），左侧标签在 HStack 外 | 全行作为 Menu label |
 | 破坏性操作确认 | `confirmationDialog` / `.alert` | 自制弹窗 |
 | 分享 / 导出 | `ShareLink` / `confirmationDialog` | 自制底部 Sheet |
 | 列表批量选择 | `List(selection:)` + 长按进入 `editMode` | 自制 checkbox |
