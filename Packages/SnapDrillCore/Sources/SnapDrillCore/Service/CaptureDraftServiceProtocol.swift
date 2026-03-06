@@ -1,13 +1,14 @@
 //
 //  CaptureDraftServiceProtocol.swift
-//  SnapDrillFeatures
+//  SnapDrillCore
 //
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  定义采集草稿服务协议，支持图片裁剪与临时状态管理。
+//  定义采集草稿服务协议，支持图片裁剪与临时状态管理。跨域共用（Dashboard 检测、Capture 消费）。
 //
 
+#if canImport(UIKit)
 import UIKit
 
 /// 采集草稿服务协议
@@ -27,3 +28,4 @@ public protocol CaptureDraftServiceProtocol {
     /// 清除已保存的草稿（删除磁盘文件和 UserDefaults 记录）
     func clearDraft()
 }
+#endif

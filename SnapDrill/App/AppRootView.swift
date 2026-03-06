@@ -10,8 +10,12 @@
 
 import SwiftUI
 import SnapDrillCore
-import SnapDrillFeatures
 import SnapDrillData
+import SnapDrillFeatureCapture
+import SnapDrillFeatureLibrary
+import SnapDrillFeatureReview
+import SnapDrillFeatureDashboard
+import SnapDrillFeatureSettings
 
 /// 应用根视图 (Composition Root UI)
 ///

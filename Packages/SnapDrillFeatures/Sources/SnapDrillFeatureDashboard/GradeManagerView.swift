@@ -13,7 +13,7 @@ import SnapDrillCore
 import SnapDrillData
 
 /// 年级管理视图
-struct GradeManagerView: View {
+public struct GradeManagerView: View {
 
     // MARK: - Properties
 
@@ -24,9 +24,11 @@ struct GradeManagerView: View {
     @State private var showingAddSheet = false
     @State private var editingGrade: GradeModel?
 
+    public init() {}
+
     // MARK: - Body
 
-    var body: some View {
+    public var body: some View {
         NavigationStack {
             List {
                 if let vm = viewModel {

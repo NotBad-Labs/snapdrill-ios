@@ -7,7 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AG_BF_FEATURES /* SnapDrillFeatures in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_FEATURES /* SnapDrillFeatures */; };
+		AG_BF_CAPTURE /* SnapDrillFeatureCapture in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_CAPTURE /* SnapDrillFeatureCapture */; };
+		AG_BF_LIBRARY /* SnapDrillFeatureLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */; };
+		AG_BF_REVIEW /* SnapDrillFeatureReview in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_REVIEW /* SnapDrillFeatureReview */; };
+		AG_BF_DASHBOARD /* SnapDrillFeatureDashboard in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */; };
+		AG_BF_SETTINGS /* SnapDrillFeatureSettings in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_SETTINGS /* SnapDrillFeatureSettings */; };
 		B2INFRA_BF /* SnapDrillInfrastructure in Frameworks */ = {isa = PBXBuildFile; productRef = B2INFRA_PROD /* SnapDrillInfrastructure */; };
 /* End PBXBuildFile section */
 
@@ -127,7 +131,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AG_BF_FEATURES /* SnapDrillFeatures in Frameworks */,
+				AG_BF_CAPTURE /* SnapDrillFeatureCapture in Frameworks */,
+				AG_BF_LIBRARY /* SnapDrillFeatureLibrary in Frameworks */,
+				AG_BF_REVIEW /* SnapDrillFeatureReview in Frameworks */,
+				AG_BF_DASHBOARD /* SnapDrillFeatureDashboard in Frameworks */,
+				AG_BF_SETTINGS /* SnapDrillFeatureSettings in Frameworks */,
 				B2INFRA_BF /* SnapDrillInfrastructure in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -714,7 +722,11 @@
 			);
 			name = SnapDrill;
 			packageProductDependencies = (
-				AG_PROD_FEATURES /* SnapDrillFeatures */,
+				AG_PROD_CAPTURE /* SnapDrillFeatureCapture */,
+				AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */,
+				AG_PROD_REVIEW /* SnapDrillFeatureReview */,
+				AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */,
+				AG_PROD_SETTINGS /* SnapDrillFeatureSettings */,
 				B2INFRA_PROD /* SnapDrillInfrastructure */,
 			);
 			productName = SnapDrill;
@@ -1438,10 +1450,30 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AG_PROD_FEATURES /* SnapDrillFeatures */ = {
+		AG_PROD_CAPTURE /* SnapDrillFeatureCapture */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
-			productName = SnapDrillFeatures;
+			productName = SnapDrillFeatureCapture;
+		};
+		AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			productName = SnapDrillFeatureLibrary;
+		};
+		AG_PROD_REVIEW /* SnapDrillFeatureReview */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			productName = SnapDrillFeatureReview;
+		};
+		AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			productName = SnapDrillFeatureDashboard;
+		};
+		AG_PROD_SETTINGS /* SnapDrillFeatureSettings */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			productName = SnapDrillFeatureSettings;
 		};
 		B2INFRA_PROD /* SnapDrillInfrastructure */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -14,14 +14,18 @@ import SwiftUI
 ///
 /// 提供可搜索的网格布局，让用户从常用 SF Symbols 中选择图标。
 /// 支持手动输入图标名称以访问完整的 5000+ 图标库。
-struct SFSymbolPickerView: View {
+public struct SFSymbolPickerView: View {
     @Environment(\.dismiss) var dismiss
-    
+
     @Binding var selectedSymbol: String
-    
+
     @State private var searchText = ""
     @State private var manualInput = ""
     @State private var showManualInput = false
+
+    public init(selectedSymbol: Binding<String>) {
+        self._selectedSymbol = selectedSymbol
+    }
     
     // 常用图标分类
     private let categories: [(name: String, symbols: [String])] = [
@@ -94,7 +98,7 @@ struct SFSymbolPickerView: View {
         return allSymbols.filter { $0.localizedCaseInsensitiveContains(searchText) }
     }
     
-    var body: some View {
+    public var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 // 搜索栏

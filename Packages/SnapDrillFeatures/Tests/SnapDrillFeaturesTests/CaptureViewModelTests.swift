@@ -10,7 +10,7 @@ import XCTest
 import SwiftData
 import Testing
 import UIKit
-@testable import SnapDrillFeatures
+@testable import SnapDrillFeatureCapture
 @testable import SnapDrillCore
 
 // MARK: - Mocks

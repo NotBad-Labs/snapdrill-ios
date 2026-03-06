@@ -12,6 +12,7 @@ import SwiftUI
 import SwiftData
 import SnapDrillData
 import SnapDrillCore
+import SnapDrillFeatureLibrary
 
 /// 复习卡片正面：展示题目
 struct ReviewCardFront: View {

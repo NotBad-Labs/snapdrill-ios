@@ -10,9 +10,13 @@
 
 import SwiftUI
 import SnapDrillData
-import SnapDrillFeatures
 import SnapDrillCore
 import SnapDrillUI
+import SnapDrillFeatureCapture
+import SnapDrillFeatureLibrary
+import SnapDrillFeatureReview
+import SnapDrillFeatureDashboard
+import SnapDrillFeatureSettings
 import TipKit
 
 // MARK: - AppDelegate（Firebase 初始化）

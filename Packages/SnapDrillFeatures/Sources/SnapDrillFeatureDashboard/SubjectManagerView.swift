@@ -1,11 +1,11 @@
 //
-//  SourceManagerView.swift
+//  SubjectManagerView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/01/01.
+//  Created by NotBad Labs on 2025/12/31.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  来源管理视图，允许用户添加、删除或重命名来源。
+//  学科管理视图，允许用户添加、删除或重命名学科。
 //
 
 import SwiftUI
@@ -13,33 +13,35 @@ import SnapDrillCore
 import SnapDrillData
 import SnapDrillUI
 
-struct SourceManagerView: View {
+public struct SubjectManagerView: View {
 
     // MARK: - Properties
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repositories
 
-    @State private var viewModel: SourceManagerViewModel?
+    @State private var viewModel: SubjectManagerViewModel?
 
     @State private var showingAddSheet = false
-    @State private var editingSource: SourceModel?
+    @State private var editingSubject: SubjectModel?
+
+    public init() {}
 
     // MARK: - Body
 
-    var body: some View {
+    public var body: some View {
         NavigationStack {
             List {
                 if let vm = viewModel {
-                    ForEach(vm.sources) { source in
+                    ForEach(vm.subjects) { subject in
                         Button {
-                            editingSource = source
+                            editingSubject = subject
                         } label: {
                             HStack {
-                                Image(systemName: source.icon)
-                                    .foregroundStyle(Color(hex: source.colorHex))
+                                Image(systemName: subject.icon)
+                                    .foregroundStyle(Color(hex: subject.colorHex))
                                     .frame(width: 24)
-                                Text(source.name)
+                                Text(subject.name)
                                     .foregroundStyle(.primary)
                                 Spacer()
                             }
@@ -54,9 +56,9 @@ struct SourceManagerView: View {
             )) {
                 Button("好", role: .cancel) { }
             } message: {
-                Text("来源「\(viewModel?.pendingDeletionName ?? "")」下仍有题目，请先将题目移动到其他来源或删除对应题目。")
+                Text("学科「\(viewModel?.pendingDeletionName ?? "")」下仍有题目，请先将题目移动到其他学科或删除对应题目。")
             }
-            .navigationTitle("管理来源")
+            .navigationTitle("管理学科")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("关闭") { dismiss() }
@@ -68,14 +70,14 @@ struct SourceManagerView: View {
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
-                EditSourceView(source: nil, viewModel: viewModel)
+                EditSubjectView(subject: nil, viewModel: viewModel)
             }
-            .sheet(item: $editingSource) { source in
-                EditSourceView(source: source, viewModel: viewModel)
+            .sheet(item: $editingSubject) { subject in
+                EditSubjectView(subject: subject, viewModel: viewModel)
             }
             .task {
                 if viewModel == nil {
-                    viewModel = SourceManagerViewModel(repositories: repositories)
+                    viewModel = SubjectManagerViewModel(repositories: repositories)
                 }
                 viewModel?.loadData()
             }
@@ -83,30 +85,31 @@ struct SourceManagerView: View {
     }
 }
 
-struct EditSourceView: View {
+/// 统一的添加/编辑学科视图
+struct EditSubjectView: View {
     @Environment(\.dismiss) private var dismiss
 
     /// 如果为 nil，则为添加模式；否则为编辑模式
-    let source: SourceModel?
-    let viewModel: SourceManagerViewModel?
+    let subject: SubjectModel?
+    let viewModel: SubjectManagerViewModel?
 
     @State private var name: String = ""
-    @State private var selectedIcon: String = "doc.text"
-    @State private var selectedColorHex: String = "#808080"
-    @State private var customColor: Color = .gray
+    @State private var selectedIcon: String = "book"
+    @State private var selectedColorHex: String = "#4FC3F7"
+    @State private var customColor: Color = .blue
     @State private var useCustomColor: Bool = false
     @State private var showSymbolPicker: Bool = false
 
-    let colors = ["#E57373", "#4FC3F7", "#AED581", "#7986CB", "#F06292", "#FFB74D", "#9575CD", "#90A4AE", "#808080"]
+    let colors = ["#E57373", "#4FC3F7", "#AED581", "#7986CB", "#F06292", "#FFB74D", "#9575CD", "#90A4AE"]
 
-    private var isEditing: Bool { source != nil }
+    private var isEditing: Bool { subject != nil }
     private var canSave: Bool { !name.trimmingCharacters(in: .whitespaces).isEmpty }
 
     var body: some View {
         NavigationStack {
             Form {
-                Section("来源名称") {
-                    TextField("例如：网课", text: $name)
+                Section("学科名称") {
+                    TextField("例如：微积分", text: $name)
                 }
 
                 Section("选择图标") {
@@ -164,14 +167,14 @@ struct EditSourceView: View {
                     }
                 }
             }
-            .navigationTitle(isEditing ? "编辑来源" : "添加来源")
+            .navigationTitle(isEditing ? "编辑学科" : "添加学科")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("保存") {
-                        saveSource()
+                        saveSubject()
                         dismiss()
                     }
                     .disabled(!canSave)
@@ -181,17 +184,14 @@ struct EditSourceView: View {
                 SFSymbolPickerView(selectedSymbol: $selectedIcon)
             }
             .onAppear {
-                if let source {
-                    name = source.name
-                    selectedIcon = source.icon
-                    selectedColorHex = source.colorHex
+                if let subject {
+                    name = subject.name
+                    selectedIcon = subject.icon
+                    selectedColorHex = subject.colorHex
 
-                    if !colors.contains(source.colorHex) {
-                        customColor = Color(hex: source.colorHex)
+                    if !colors.contains(subject.colorHex) {
+                        customColor = Color(hex: subject.colorHex)
                         useCustomColor = true
-                    }
-                    if source.colorHex.isEmpty {
-                        selectedColorHex = "#808080"
                     }
                 }
             }
@@ -200,15 +200,15 @@ struct EditSourceView: View {
 
     private var finalColorHex: String {
         if useCustomColor {
-            return customColor.toHex() ?? "#808080"
+            return customColor.toHex() ?? "#4FC3F7"
         } else {
             return selectedColorHex
         }
     }
 
-    func saveSource() {
-        viewModel?.saveSource(
-            source: source,
+    func saveSubject() {
+        viewModel?.saveSubject(
+            subject: subject,
             name: name.trimmingCharacters(in: .whitespaces),
             selectedIcon: selectedIcon,
             finalColorHex: finalColorHex
@@ -217,5 +217,5 @@ struct EditSourceView: View {
 }
 
 #Preview {
-    SourceManagerView()
+    SubjectManagerView()
 }

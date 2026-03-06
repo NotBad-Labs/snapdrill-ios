@@ -1,6 +1,6 @@
 //
 //  RepositoryContainer+Environment.swift
-//  SnapDrillFeatures
+//  SnapDrillData
 //
 //  Created by NotBad Labs on 2026/03/02.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
@@ -10,7 +10,6 @@
 
 import SwiftUI
 import SwiftData
-import SnapDrillData
 
 // MARK: - Environment Key
 

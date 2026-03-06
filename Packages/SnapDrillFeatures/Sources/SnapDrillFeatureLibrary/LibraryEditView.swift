@@ -16,7 +16,7 @@ import SnapDrillUI
 import PhotosUI
 
 /// 题目编辑视图
-struct LibraryEditView: View {
+public struct LibraryEditView: View {
 
     // MARK: - Properties
 
@@ -34,13 +34,13 @@ struct LibraryEditView: View {
     @State private var pickerSelection: PhotosPickerItem?
     @State private var answerPickerSelection: PhotosPickerItem?
 
-    init(item: ReviewItemModel) {
+    public init(item: ReviewItemModel) {
         self.item = item
     }
     
     // MARK: - Body
     
-    var body: some View {
+    public var body: some View {
         NavigationStack {
             Form {
                 if let vm = viewModel {

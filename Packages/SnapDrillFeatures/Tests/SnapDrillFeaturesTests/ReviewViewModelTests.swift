@@ -11,7 +11,7 @@
 import Testing
 import SwiftData
 import Foundation
-@testable import SnapDrillFeatures
+@testable import SnapDrillFeatureReview
 @testable import SnapDrillData
 @testable import SnapDrillCore
 
