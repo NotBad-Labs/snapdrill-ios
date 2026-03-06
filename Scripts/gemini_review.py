@@ -4,7 +4,7 @@
 import os
 import sys
 import urllib.error
-from gemini_utils import call_gemini_with_fallback, MODELS_FAST
+from gemini_utils import call_gemini_with_fallback, MODELS_DEEP
 
 pr_title = os.environ.get("PR_TITLE", "")
 api_key  = os.environ.get("GEMINI_API_KEY", "")
@@ -20,6 +20,20 @@ if not diff.strip():
 
 if len(diff) > 40000:
     diff = diff[:40000] + "\n\n[... diff 过长，已截断 ...]"
+
+# 读取变动 Swift 文件的完整内容，为 Gemini 提供充足上下文，减少因 diff 窗口过窄导致的误报
+full_files = ""
+if os.path.exists("full_files.txt"):
+    with open("full_files.txt", "r", encoding="utf-8", errors="replace") as f:
+        full_files = f.read()
+    if len(full_files) > 80000:
+        full_files = full_files[:80000].rsplit('\n', 1)[0] + "\n\n[... 完整文件内容过长，已截断 ...]"
+
+full_files_section = (
+    "\n\n变动 Swift 文件完整内容（用于完整上下文，避免误报）：\n```\n"
+    + full_files
+    + "\n```"
+) if full_files.strip() else ""
 
 prompt = (
     "你是一个经验丰富的 iOS Swift 代码审查专家。请审查以下 PR。\n\n"
@@ -43,11 +57,12 @@ prompt = (
     "PR Diff:\n```\n"
     + diff
     + "\n```"
+    + full_files_section
 )
 
 try:
-    # PR diff review 使用快速审查链（GA 稳定优先，~40K 字符无需旗舰模型）
-    review_text, used_model = call_gemini_with_fallback(prompt, api_key, timeout=120, models=MODELS_FAST)
+    # PR diff review 使用深度审查链（附加完整文件后 prompt 增至 ~120K 字符，需要更强推理）
+    review_text, used_model = call_gemini_with_fallback(prompt, api_key, timeout=180, models=MODELS_DEEP)
 except Exception as e:
     review_text = f"⚠️ Gemini API 调用失败（所有模型均不可用）：{e}"
     used_model = "N/A"
