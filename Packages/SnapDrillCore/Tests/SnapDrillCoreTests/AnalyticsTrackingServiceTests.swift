@@ -18,11 +18,11 @@ import XCTest
 @MainActor
 final class AnalyticsTrackingServiceTests: XCTestCase {
 
-    var service: AnalyticsTrackingService!
+    // AnalyticsTrackingService 是单例，直接赋初值消除 IUO
+    var service = AnalyticsTrackingService.shared
 
     override func setUp() async throws {
         try await super.setUp()
-        service = AnalyticsTrackingService.shared
         service.setEnabled(true)
     }
 

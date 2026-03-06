@@ -54,14 +54,14 @@ struct ServiceContainerTests {
 
     // MARK: - ServiceContainer 协议
 
-    @Test("LiveServiceContainer 和 MockServiceContainer 均符合 ServiceContainer 协议")
-    func testServiceContainerProtocolConformance() {
-        let live: any ServiceContainer = LiveServiceContainer()
-        let mock: any ServiceContainer = MockServiceContainer()
+    @Test("MockServiceContainer 各属性返回正确的 Mock 实现类型")
+    func testMockServiceContainerImplementationTypes() {
+        // 编译期静态保证 ServiceContainer 协议符合性；
+        // 此处验证 MockServiceContainer 正确注入各 Mock 实现。
+        let mock = MockServiceContainer()
 
-        #expect(live.analytics is any AnalyticsServiceProtocol)
-        #expect(mock.analytics is any AnalyticsServiceProtocol)
-        #expect(live.notification is any NotificationServiceProtocol)
-        #expect(mock.notification is any NotificationServiceProtocol)
+        #expect(mock.analytics is AnalyticsServiceMock)
+        #expect(mock.crashReporting is CrashReportingServiceMock)
+        #expect(mock.notification is NotificationServiceMock)
     }
 }
