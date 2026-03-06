@@ -247,12 +247,14 @@ public final class LibraryEditViewModel {
         }
     }
 
-    /// 删除图片文件，失败时记录日志（best-effort，不向上抛出）
+    /// 删除图片文件，失败时记录日志（best-effort，不向上抛出；async 避免阻塞主线程）
     private func bestEffortDeleteImage(path: String) {
-        do {
-            try imageStorage.deleteImage(path: path)
-        } catch {
-            SnapDrillLogger.generic.error("清理图片文件失败: \(error.localizedDescription)")
+        Task {
+            do {
+                try await imageStorage.deleteImage(path: path)
+            } catch {
+                SnapDrillLogger.generic.error("清理图片文件失败: \(error.localizedDescription)")
+            }
         }
     }
 }

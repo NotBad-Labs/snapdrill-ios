@@ -33,15 +33,15 @@ public final class ReviewRepository {
         return try modelContext.fetchCount(descriptor)
     }
     
-    public func delete(id: UUID) throws {
+    public func delete(id: UUID) async throws {
         guard let model = try fetchModelById(id) else { return }
-        // 删除关联图片文件（先于模型删除，确保路径可读）
+        // 删除关联图片文件（先于模型删除，确保路径可读；async 避免阻塞主线程）
         let imageStorage = ImageStorage()
         if let path = model.imagePath {
-            try? imageStorage.deleteImage(path: path)
+            try? await imageStorage.deleteImage(path: path)
         }
         if let path = model.answerImagePath {
-            try? imageStorage.deleteImage(path: path)
+            try? await imageStorage.deleteImage(path: path)
         }
         modelContext.delete(model)
         try modelContext.save()

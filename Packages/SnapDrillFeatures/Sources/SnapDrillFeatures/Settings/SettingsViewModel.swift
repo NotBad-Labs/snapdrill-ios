@@ -26,9 +26,9 @@ public final class SettingsViewModel {
 
     // MARK: - Public API
 
-    public func clearAllData() {
+    public func clearAllData() async {
         do {
-            try repositories.deleteAllData()
+            try await repositories.deleteAllData()
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             SnapDrillLogger.generic.info("所有数据已清空，已通知 UI 刷新。")
         } catch {

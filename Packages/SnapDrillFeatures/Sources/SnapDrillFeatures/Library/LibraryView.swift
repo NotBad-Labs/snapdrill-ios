@@ -178,7 +178,9 @@ public struct LibraryView: View {
     // MARK: - Private Helpers
     
     private func deleteSelectedItems() {
-        viewModel?.deleteItems(ids: selectedItemIDs)
+        guard let vm = viewModel else { return }
+        let ids = selectedItemIDs
+        Task { await vm.deleteItems(ids: ids) }
         withAnimation {
             selectedItemIDs.removeAll()
         }

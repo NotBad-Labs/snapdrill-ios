@@ -274,7 +274,8 @@ public struct SettingsView: View {
     
     private func clearAllData() {
         initViewModelIfNeeded()
-        viewModel?.clearAllData()
+        guard let vm = viewModel else { return }
+        Task { await vm.clearAllData() }
     }
     
     private func generateMockData() {
