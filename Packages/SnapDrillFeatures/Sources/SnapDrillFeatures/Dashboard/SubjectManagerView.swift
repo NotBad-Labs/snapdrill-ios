@@ -42,9 +42,6 @@ struct SubjectManagerView: View {
                                 Text(subject.name)
                                     .foregroundStyle(.primary)
                                 Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
                             }
                         }
                     }
@@ -130,9 +127,6 @@ struct EditSubjectView: View {
 
                             Text("更多图标")
                                 .foregroundStyle(.secondary)
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
                         }
                     }
                 }

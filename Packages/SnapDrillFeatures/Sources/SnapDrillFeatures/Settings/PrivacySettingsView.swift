@@ -49,11 +49,11 @@ struct PrivacySettingsView: View {
                             Text("导出中...")
                                 .foregroundStyle(.secondary)
                         } else {
+                            // 省略 foregroundStyle 让系统 tint 色（蓝色）表达可点击语义
                             Text("导出我的数据")
-                                .foregroundStyle(.primary)
                             Spacer()
                             Image(systemName: "square.and.arrow.up")
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.tint)
                         }
                     }
                 }

@@ -27,6 +27,7 @@ struct EditProfileView: View {
     // Custom Avatar Handling
     @State private var selectedItem: PhotosPickerItem?
     @State private var showingPhotoOptions = false
+    @State private var showingPhotosPicker = false
     @State private var showingSymbolPicker = false
     private let imageStorage = ImageStorage()
     
@@ -171,22 +172,27 @@ struct EditProfileView: View {
         .navigationTitle(L10n.EditProfile.title)
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(L10n.EditProfile.chooseAvatarSource, isPresented: $showingPhotoOptions) {
-            PhotosPicker(selection: $selectedItem, matching: .images) {
+            // PhotosPicker 不能嵌入 confirmationDialog action builder（不可靠），
+            // 改为 plain Button 触发 .photosPicker(isPresented:) modifier
+            Button {
+                showingPhotosPicker = true
+            } label: {
                 Label(L10n.EditProfile.fromPhotoLibrary, systemImage: "photo.on.rectangle")
             }
-            
+
             Button {
                 showingSymbolPicker = true
             } label: {
                 Label(L10n.EditProfile.systemIcon, systemImage: "star.circle")
             }
-            
+
             if userAvatar.contains("images/") {
                 Button(L10n.EditProfile.removeAvatar, role: .destructive) {
                     userAvatar = "person.crop.circle.fill"
                 }
             }
         }
+        .photosPicker(isPresented: $showingPhotosPicker, selection: $selectedItem, matching: .images)
         .sheet(isPresented: $showingSymbolPicker) {
             SFSymbolPickerView(selectedSymbol: $userAvatar)
         }
