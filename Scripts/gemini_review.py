@@ -21,6 +21,20 @@ if not diff.strip():
 if len(diff) > 40000:
     diff = diff[:40000] + "\n\n[... diff 过长，已截断 ...]"
 
+# 读取变动 Swift 文件的完整内容，为 Gemini 提供充足上下文，减少因 diff 窗口过窄导致的误报
+full_files = ""
+if os.path.exists("full_files.txt"):
+    with open("full_files.txt", "r", encoding="utf-8", errors="replace") as f:
+        full_files = f.read()
+    if len(full_files) > 80000:
+        full_files = full_files[:80000] + "\n\n[... 完整文件内容过长，已截断 ...]"
+
+full_files_section = (
+    "\n\n变动 Swift 文件完整内容（用于完整上下文，避免误报）：\n```\n"
+    + full_files
+    + "\n```"
+) if full_files.strip() else ""
+
 prompt = (
     "你是一个经验丰富的 iOS Swift 代码审查专家。请审查以下 PR。\n\n"
     f"PR 标题：{pr_title}\n\n"
@@ -43,6 +57,7 @@ prompt = (
     "PR Diff:\n```\n"
     + diff
     + "\n```"
+    + full_files_section
 )
 
 try:

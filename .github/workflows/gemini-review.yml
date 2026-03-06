@@ -26,6 +26,19 @@ jobs:
             > pr_diff.txt
           echo "Diff size: $(wc -c < pr_diff.txt) bytes"
 
+      - name: Collect full content of changed Swift files
+        run: |
+          git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.swift' > changed_swift_files.txt
+          > full_files.txt
+          while IFS= read -r file; do
+            if [ -f "$file" ]; then
+              echo "=== FILE: $file ===" >> full_files.txt
+              cat "$file" >> full_files.txt
+              echo -e "\n" >> full_files.txt
+            fi
+          done < changed_swift_files.txt
+          echo "Full files size: $(wc -c < full_files.txt) bytes"
+
       - name: Gemini code review
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
