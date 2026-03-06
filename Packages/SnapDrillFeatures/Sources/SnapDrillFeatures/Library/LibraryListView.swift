@@ -117,7 +117,7 @@ struct LibraryListView: View {
                 }
                 .onDelete { offsets in
                     let idsToDelete = Set(offsets.map { viewModel.filteredItems[$0].id })
-                    viewModel.deleteItems(ids: idsToDelete)
+                    Task { await viewModel.deleteItems(ids: idsToDelete) }
                 }
                 .deleteDisabled(editMode?.wrappedValue.isEditing == true)
                 

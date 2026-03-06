@@ -245,22 +245,18 @@ public final class CaptureResultViewModel {
                 ]
             )
 
-            // 清理并返回
+            // 清理并返回：仅弹出当前页，保留调用方的导航历史
             CaptureDraftService.shared.clearDraft()
-            router.path.removeLast(router.path.count)
+            if !router.path.isEmpty {
+                router.path.removeLast()
+            }
 
         } catch {
             // 回滚 mainContext：清除本次操作插入的脏 Tag 和脏 ReviewItemModel。
             // 单用户本地优先架构下，saveResult 执行期间 mainContext 不存在其他并发未保存变更，
             // rollback 影响范围仅限本次调用，不会丢失其他模块的数据。
             repositories.review.rollbackContext()
-            // 再清理已写入磁盘的孤儿图片文件
-            if let path = savedImagePath {
-                try? imageStorage.deleteImage(path: path)
-            }
-            if let path = savedAnswerImagePath {
-                try? imageStorage.deleteImage(path: path)
-            }
+            await cleanupOrphanImages(imagePath: savedImagePath, answerImagePath: savedAnswerImagePath)
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
             self.errorMessage = error.localizedDescription
             self.showErrorAlert = true
@@ -268,6 +264,16 @@ public final class CaptureResultViewModel {
     }
 
     // MARK: - Private Helpers
+
+    /// 清理保存失败时已写入磁盘的孤儿图片文件（best-effort，async 避免阻塞主线程）
+    private func cleanupOrphanImages(imagePath: String?, answerImagePath: String?) async {
+        if let path = imagePath {
+            try? await imageStorage.deleteImage(path: path)
+        }
+        if let path = answerImagePath {
+            try? await imageStorage.deleteImage(path: path)
+        }
+    }
 
     private func processSelectedPhoto() {
         guard let item = answerPhotoItem else { return }

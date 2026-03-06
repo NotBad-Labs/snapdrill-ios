@@ -123,9 +123,9 @@ public final class LibraryViewModel {
     }
 
     /// 删除单个题目
-    public func deleteItem(_ item: ReviewItemModel) {
+    public func deleteItem(_ item: ReviewItemModel) async {
         do {
-            try repositories.review.delete(id: item.id)
+            try await repositories.review.delete(id: item.id)
             filteredItems.removeAll { $0.id == item.id }
         } catch {
             SnapDrillLogger.generic.error("删除题目失败: \(error.localizedDescription)")
@@ -133,11 +133,11 @@ public final class LibraryViewModel {
     }
 
     /// 批量删除题目（仅移除实际删除成功的条目）
-    public func deleteItems(ids: Set<UUID>) {
+    public func deleteItems(ids: Set<UUID>) async {
         var successfullyDeleted: Set<UUID> = []
         for id in ids {
             do {
-                try repositories.review.delete(id: id)
+                try await repositories.review.delete(id: id)
                 successfullyDeleted.insert(id)
             } catch {
                 SnapDrillLogger.generic.error("批量删除失败（id=\(id)）: \(error.localizedDescription)")

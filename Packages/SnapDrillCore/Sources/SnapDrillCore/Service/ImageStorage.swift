@@ -77,14 +77,20 @@ public struct ImageStorage: Sendable {
     }
     
     /// 删除本地图片
+    ///
+    /// Apple 官方文档明确要求文件 I/O 必须异步执行，避免阻塞主线程。
+    /// 与 `saveImage` 保持一致，通过 `Task.detached` 在后台线程执行文件删除。
+    ///
     /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
-    /// - Throws: `ImageStorageError.fileNotFound` 如果文件不存在；其他 FileManager 错误
-    public func deleteImage(path: String) throws {
-        let fileManager = FileManager.default
-        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsURL.appendingPathComponent(path)
-        guard fileManager.fileExists(atPath: fileURL.path) else { return }
-        try fileManager.removeItem(at: fileURL)
+    /// - Throws: 文件删除失败时抛出 FileManager 错误；文件不存在时静默返回
+    public func deleteImage(path: String) async throws {
+        try await Task.detached {
+            let fileManager = FileManager.default
+            let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let fileURL = documentsURL.appendingPathComponent(path)
+            guard fileManager.fileExists(atPath: fileURL.path) else { return }
+            try fileManager.removeItem(at: fileURL)
+        }.value
     }
 
     /// 从本地加载图片

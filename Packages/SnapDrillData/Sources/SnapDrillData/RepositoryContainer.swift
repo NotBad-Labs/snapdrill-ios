@@ -39,7 +39,7 @@ public final class RepositoryContainer {
     /// 先收集图片路径，再批量内存删除，统一 save 一次；
     /// save 成功后清理图片文件（文件操作不可回滚，仅 best-effort）；
     /// save 失败时 rollback，数据库记录全部还原。
-    public func deleteAllData() throws {
+    public func deleteAllData() async throws {
         let imagePaths = try review.collectAllImagePaths()
         try review.deleteAll()
         try deleteAllTaxonomyInMemory()
@@ -49,10 +49,10 @@ public final class RepositoryContainer {
             review.rollbackContext()
             throw error
         }
-        // save 成功后清理图片文件（best-effort）
+        // save 成功后清理图片文件（best-effort，async 避免阻塞主线程）
         let storage = ImageStorage()
         for path in imagePaths {
-            try? storage.deleteImage(path: path)
+            try? await storage.deleteImage(path: path)
         }
     }
 
