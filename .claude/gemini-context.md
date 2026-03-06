@@ -67,6 +67,27 @@ in-memory `ModelContainer` 满足——测试直接用内存数据库，无需 M
 **理由**：Swift 6 并发安全的基本要求，与项目规模无关。这三项是**硬性禁止**，
 不受项目增长影响，无修改触发条件。
 
+**`any` existentials 的已批准例外（必须在代码中注释说明理由）：**
+
+- **Exception 1**：`EnvironmentKey.Value` 持有跨模块协议类型（如 `any ServiceContainer`）。
+  消除 `any` 需打破 Features → Core 的依赖方向，违反更核心的架构规则，故允许。
+- **Exception 2**：无 associated type / Self 约束的协议作为集合元素类型，例如
+  `[any PDFExportable]`。SwiftData 或 API 设计要求异构集合时允许，非设计懒惰。
+  典型位置：`PDFExportService.createPDF(from items: [any PDFExportable], ...)`。
+
+**`force unwrap !` / `try!` 的已批准例外：**
+
+- **Preview-only 初始化**：`PreviewRepositoryContainer.init()` 中的
+  `try! ModelContainer(for: schema, configurations: [config])`（`isStoredInMemoryOnly: true`
+  的 ModelContainer 在运行时不可能失败，失败意味着内存分配错误，属不可恢复程序错误）。
+  必须配合 `// swiftlint:disable:next force_try` 注释标注。
+
+**`.v26` SPM 版本后缀说明（非错误）：**
+
+- 项目所有 SPM 包的 `Package.swift` 均使用 `.package(url: "...", exact: ".v26")` 格式，
+  `.v26` 是该项目对 Xcode 26 / Swift 6.2 兼容包的版本命名约定，**不是版本号错误**，
+  审查时请勿标记为问题。
+
 ### 约束 5：禁止 `print()`，必须使用 `SnapDrillLogger`
 
 **理由**：`print()` 在生产环境不可过滤，`SnapDrillLogger`（基于 `os.Logger`）

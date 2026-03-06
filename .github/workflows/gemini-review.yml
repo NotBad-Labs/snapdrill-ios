@@ -26,17 +26,21 @@ jobs:
             > pr_diff.txt
           echo "Diff size: $(wc -c < pr_diff.txt) bytes"
 
-      - name: Collect full content of changed Swift files
+      - name: Collect full content of ALL Swift files
         run: |
-          git -c core.quotePath=false diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.swift' > changed_swift_files.txt
+          # 收集全量 Swift 文件（而非仅变动文件），让 Gemini 可以看到 ViewModel 声明、
+          # 协议实现等未变动但与 diff 强相关的上下文，减少因窗口截断导致的假阳性。
           > full_files.txt
-          while IFS= read -r file; do
-            if [ -f "$file" ]; then
+          find . -name "*.swift" \
+            ! -path "./.build/*" \
+            ! -path "./build/*" \
+            ! -path "./.swiftpm/*" \
+            | sort \
+            | while IFS= read -r file; do
               echo "=== FILE: $file ===" >> full_files.txt
               cat "$file" >> full_files.txt
               echo "" >> full_files.txt
-            fi
-          done < changed_swift_files.txt
+            done
           echo "Full files size: $(wc -c < full_files.txt) bytes"
 
       - name: Gemini code review
