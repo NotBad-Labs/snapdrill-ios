@@ -27,7 +27,7 @@ if os.path.exists("full_files.txt"):
     with open("full_files.txt", "r", encoding="utf-8", errors="replace") as f:
         full_files = f.read()
     if len(full_files) > 80000:
-        full_files = full_files[:80000] + "\n\n[... 完整文件内容过长，已截断 ...]"
+        full_files = full_files[:80000].rsplit('\n', 1)[0] + "\n\n[... 完整文件内容过长，已截断 ...]"
 
 full_files_section = (
     "\n\n变动 Swift 文件完整内容（用于完整上下文，避免误报）：\n```\n"
