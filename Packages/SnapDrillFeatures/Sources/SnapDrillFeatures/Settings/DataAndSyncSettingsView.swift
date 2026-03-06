@@ -144,6 +144,7 @@ struct DataAndSyncSettingsView: View {
         .onDisappear {
             cacheCalculateTask?.cancel()
             cacheClearTask?.cancel()
+            accountCheckTask?.cancel()
         }
     }
     

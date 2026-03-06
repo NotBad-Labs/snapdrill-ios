@@ -223,6 +223,7 @@ public struct SettingsView: View {
             }
             .onDisappear {
                 seedTask?.cancel()
+                clearTask?.cancel()
             }
         }
     }
