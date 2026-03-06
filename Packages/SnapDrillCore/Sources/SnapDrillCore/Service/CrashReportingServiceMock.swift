@@ -22,6 +22,7 @@ public final class CrashReportingServiceMock: CrashReportingProtocol {
     public private(set) var customValues: [String: String] = [:]
     public private(set) var breadcrumbs: [(message: String, metadata: [String: String])] = []
 
+    /// 创建空的崩溃报告 Mock 实例
     public init() {}
 
     // MARK: - CrashReportingProtocol

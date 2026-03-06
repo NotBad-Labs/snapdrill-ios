@@ -28,11 +28,21 @@ public actor PerformanceMonitor {
     
     /// 单个性能测量指标
     public struct Metric: Sendable {
+        /// 操作名称，如 `"Database.fetchDue"`
         public let operation: String
+        /// 操作耗时（秒）
         public let duration: TimeInterval
+        /// 记录时间戳
         public let timestamp: Date
+        /// 附加元数据，用于进一步上下文描述
         public let metadata: [String: String]
-        
+
+        /// 创建性能指标
+        /// - Parameters:
+        ///   - operation: 操作名称
+        ///   - duration: 耗时（秒）
+        ///   - timestamp: 记录时间戳，默认为当前时间
+        ///   - metadata: 附加元数据，默认为空
         public init(operation: String, duration: TimeInterval, timestamp: Date = Date(), metadata: [String: String] = [:]) {
             self.operation = operation
             self.duration = duration
@@ -46,7 +56,8 @@ public actor PerformanceMonitor {
     private let maxMetrics = 100
     
     // MARK: - Initialization
-    
+
+    /// 创建性能监控器实例；通常通过 `ServiceContainer` 注入，直接调用 `shared` 亦可
     public init() {}
     
     // MARK: - Public API

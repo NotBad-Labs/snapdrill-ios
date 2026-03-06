@@ -12,10 +12,12 @@ import SwiftUI
 
 /// 用户协议视图
 public struct TermsOfServiceView: View {
+    /// 创建用户协议视图
     public init() {}
     
     // MARK: - Body
     
+    /// 用户协议内容视图
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {

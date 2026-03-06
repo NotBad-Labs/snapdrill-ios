@@ -102,6 +102,15 @@ public final class CaptureResultViewModel {
 
     // MARK: - Initialization
 
+    /// 创建采集结果 ViewModel
+    /// - Parameters:
+    ///   - content: OCR 识别的初始文本
+    ///   - image: 拍摄图片（纯文字题为 `nil`）
+    ///   - repositories: 仓库容器（用于读取分类选项并保存题目）
+    ///   - ocrService: OCR 识别服务
+    ///   - analyticsService: 分析服务
+    ///   - imageStorage: 图片存储服务，默认使用 `ImageStorage()`
+    ///   - router: 采集流程路由器
     public init(
         content: String,
         image: UIImage?,

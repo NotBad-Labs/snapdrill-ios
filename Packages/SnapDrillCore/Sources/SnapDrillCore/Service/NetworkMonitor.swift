@@ -49,7 +49,8 @@ public final class NetworkMonitor {
     }
     
     // MARK: - Initialization
-    
+
+    /// 创建网络监控器并立即开始监听网络状态变化
     public init() {
         startMonitoring()
     }

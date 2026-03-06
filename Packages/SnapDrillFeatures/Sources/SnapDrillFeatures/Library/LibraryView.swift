@@ -34,12 +34,15 @@ public struct LibraryView: View {
     
     // MARK: - Initialization
     
+    /// 创建题库列表视图
+    /// - Parameter router: 注入的路由器
     public init(router: LibraryRouter) {
         self.router = router
     }
     
     // MARK: - Body
     
+    /// 题库列表界面的视图层次
     public var body: some View {
         NavigationStack(path: $router.path) {
             ZStack(alignment: .bottom) {

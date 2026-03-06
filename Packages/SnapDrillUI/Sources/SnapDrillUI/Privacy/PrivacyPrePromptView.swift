@@ -23,6 +23,8 @@ public struct PrivacyPrePromptView: View {
         Locale.current.language.languageCode?.identifier == "zh"
     }
 
+    /// 创建隐私授权预热弹窗
+    /// - Parameter onContinue: 用户点击"继续"后的回调（通常触发系统 ATT 弹窗）
     public init(onContinue: @escaping () -> Void) {
         self.onContinue = onContinue
     }

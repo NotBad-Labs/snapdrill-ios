@@ -48,6 +48,10 @@ public final class DashboardViewModel {
     private let draftService: CaptureDraftServiceProtocol
     private let repositories: RepositoryContainer
 
+    /// 创建仪表盘 ViewModel
+    /// - Parameters:
+    ///   - repositories: 应用的数据仓库容器
+    ///   - draftService: 草稿服务，默认使用 `CaptureDraftService.shared`
     public init(
         repositories: RepositoryContainer,
         draftService: CaptureDraftServiceProtocol = CaptureDraftService.shared

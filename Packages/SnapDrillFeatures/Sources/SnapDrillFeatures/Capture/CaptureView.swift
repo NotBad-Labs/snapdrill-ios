@@ -36,6 +36,7 @@ public struct CaptureView: View {
     
     // MARK: - Body
     
+    /// 采集功能界面的视图层次
     public var body: some View {
         NavigationStack(path: $router.path) {
             ZStack {

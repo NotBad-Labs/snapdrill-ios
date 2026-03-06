@@ -26,6 +26,11 @@ public struct TagInputView: View {
     /// 可选的标签建议列表
     var suggestions: [String] = []
     
+    /// 创建标签输入组件
+    /// - Parameters:
+    ///   - tags: 已添加的标签绑定列表
+    ///   - text: 当前输入文本绑定
+    ///   - suggestions: 可选的标签建议列表，用于自动补全
     public init(tags: Binding<[String]>, text: Binding<String>, suggestions: [String] = []) {
         self._tags = tags
         self._text = text

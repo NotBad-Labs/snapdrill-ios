@@ -27,12 +27,15 @@ public struct ReviewView: View {
 
     // MARK: - Initialization
 
+    /// 创建复习会话视图
+    /// - Parameter router: 注入的路由器
     public init(router: ReviewRouter) {
         self.router = router
     }
 
     // MARK: - Body
 
+    /// 复习会话界面的视图层次
     public var body: some View {
         NavigationStack(path: $router.path) {
             ZStack {

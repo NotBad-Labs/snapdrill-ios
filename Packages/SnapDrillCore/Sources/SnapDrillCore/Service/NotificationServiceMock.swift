@@ -35,6 +35,7 @@ public final class NotificationServiceMock: NotificationServiceProtocol {
 
     // MARK: - Initialization
 
+    /// 创建通知服务 Mock 实例，默认模拟授权成功
     public init() {}
 
     // MARK: - NotificationServiceProtocol

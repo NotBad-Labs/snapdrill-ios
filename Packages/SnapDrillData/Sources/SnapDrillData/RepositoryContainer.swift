@@ -17,14 +17,21 @@ import SnapDrillCore
 /// 数据仓库容器（具体类，直接注入到 SwiftUI Environment）
 @MainActor
 public final class RepositoryContainer {
+    /// 复习题目仓库
     public let review: ReviewRepository
+    /// 学科分类仓库
     public let subject: SubjectRepository
+    /// 来源分类仓库
     public let source: SourceRepository
+    /// 标签仓库
     public let tag: TagRepository
+    /// 年级分类仓库
     public let grade: GradeRepository
 
     // MARK: - Initialization
 
+    /// 创建仓库容器
+    /// - Parameter modelContext: 共享的 ModelContext，默认使用 `PersistenceController.shared.container.mainContext`
     public init(modelContext: ModelContext = PersistenceController.shared.container.mainContext) {
         self.review = ReviewRepository(modelContext: modelContext)
         self.subject = SubjectRepository(modelContext: modelContext)
@@ -83,12 +90,18 @@ public final class RepositoryContainer {
 /// 预览专用数据仓库容器（使用内存 ModelContainer）
 @MainActor
 public final class PreviewRepositoryContainer {
+    /// 复习题目仓库
     public let review: ReviewRepository
+    /// 学科分类仓库
     public let subject: SubjectRepository
+    /// 来源分类仓库
     public let source: SourceRepository
+    /// 标签仓库
     public let tag: TagRepository
+    /// 年级分类仓库
     public let grade: GradeRepository
 
+    /// 创建内存预览容器
     public init() {
         let schema = Schema([
             ReviewItemModel.self,

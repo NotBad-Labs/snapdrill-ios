@@ -21,12 +21,15 @@ public struct CaptureResultView: View {
     // @Bindable 用于外部传入的 @Observable 对象，不持有所有权（区别于 @State）
     @Bindable var viewModel: CaptureResultViewModel
 
+    /// 创建采集结果视图
+    /// - Parameter viewModel: 注入的 ViewModel
     public init(viewModel: CaptureResultViewModel) {
         self.viewModel = viewModel
     }
     
     // MARK: - Body
     
+    /// 采集结果预览与编辑的视图层次
     public var body: some View {
         ScrollView {
             VStack(spacing: 24) {

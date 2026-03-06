@@ -24,6 +24,12 @@ public struct OnboardingPage: Identifiable, Sendable {
     /// SF Symbol 名称；若设置，优先显示系统图标而非 `imageName`
     public let systemImage: String?
     
+    /// 创建引导页面数据
+    /// - Parameters:
+    ///   - title: 页面标题
+    ///   - description: 页面描述文本
+    ///   - imageName: 自定义图片资源名称（低优先级）
+    ///   - systemImage: SF Symbol 名称；若设置，优先显示系统图标
     public init(title: String, description: String, imageName: String = "", systemImage: String? = nil) {
         self.title = title
         self.description = description
@@ -44,6 +50,10 @@ public struct OnboardingView: View {
     let pages: [OnboardingPage]
     let onComplete: () -> Void
     
+    /// 创建引导视图
+    /// - Parameters:
+    ///   - pages: 引导页面列表
+    ///   - onComplete: 用户完成引导后的回调
     public init(pages: [OnboardingPage], onComplete: @escaping () -> Void) {
         self.pages = pages
         self.onComplete = onComplete
@@ -162,6 +172,11 @@ public struct FeatureTooltip: View {
     let message: String
     let onDismiss: () -> Void
     
+    /// 创建功能提示气泡
+    /// - Parameters:
+    ///   - title: 提示标题
+    ///   - message: 提示正文
+    ///   - onDismiss: 用户关闭时的回调
     public init(title: String, message: String, onDismiss: @escaping () -> Void) {
         self.title = title
         self.message = message

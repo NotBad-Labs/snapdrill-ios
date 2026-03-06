@@ -13,11 +13,17 @@ import SnapDrillCore
 
 /// 导出专用只读快照——仅含导出所需字段，满足 Sendable 和 PDFExportable。
 public struct ReviewExportSnapshot: Sendable, Identifiable {
+    /// 题目唯一标识符
     public let id: UUID
+    /// 题目内容文本
     public let content: String?
+    /// 图片相对路径
     public let imagePath: String?
+    /// 所属学科
     public let subject: String
+    /// 题目来源
     public let source: String
+    /// 创建时间
     public let createdAt: Date
 }
 

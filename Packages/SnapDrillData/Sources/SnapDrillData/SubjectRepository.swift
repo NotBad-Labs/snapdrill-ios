@@ -18,12 +18,17 @@ public final class SubjectRepository {
     
     private let modelContext: ModelContext
     
+    /// 创建学科数据仓库
+    /// - Parameter modelContext: 当前 ModelContext
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
     
     // MARK: - Public API
 
+    /// 删除指定学科并立即保存
+    /// - Parameter id: 要删除的学科 UUID
+    /// - Throws: SwiftData save 错误
     public func delete(id: UUID) throws {
         if let model = try fetchModelById(id) {
             modelContext.delete(model)
@@ -31,11 +36,14 @@ public final class SubjectRepository {
         }
     }
     
+    /// 返回学科总数
+    /// - Throws: SwiftData fetch 错误
     public func totalCount() throws -> Int {
         let descriptor = FetchDescriptor<SubjectModel>()
         return try modelContext.fetchCount(descriptor)
     }
     
+    /// 若数据库中无学科数据，则自动插入预设学科（首次启动时调用）
     public func seedDefaultsIfNeeded() {
         do {
             if try totalCount() == 0 {

@@ -79,6 +79,24 @@ public final class ReviewItemModel {
     
     // MARK: - Initialization
     
+    /// 创建复习题目
+    /// - Parameters:
+    ///   - id: 题目唯一 ID，默认自动生成
+    ///   - content: 题目文字内容
+    ///   - imagePath: 题目图片相对路径
+    ///   - createdAt: 创建时间
+    ///   - lastReviewedAt: 上次复习时间
+    ///   - nextReviewAt: 下次计划复习时间
+    ///   - subject: 所属学科名称
+    ///   - source: 题目来源
+    ///   - tags: 关联标签
+    ///   - answerText: 答案文本
+    ///   - answerImagePath: 答案图片路径
+    ///   - difficulty: 难度原始值（1-5）
+    ///   - grade: 适用年级
+    ///   - easeFactor: SM-2 难度因子
+    ///   - interval: SM-2 当前间隔天数
+    ///   - repetitions: SM-2 连续正确次数
     public init(
         id: UUID = UUID(),
         content: String? = nil,
@@ -122,11 +140,13 @@ public final class ReviewItemModel {
     // MARK: - Public API
     
     // 兼容旧代码的计算属性 (现在直接返回 String)
+    /// 学科名称（等价于 `subjectRawValue`，保留用于向后兼容）
     public var subject: String {
         get { subjectRawValue }
         set { subjectRawValue = newValue }
     }
-    
+
+    /// 题目来源（等价于 `sourceRawValue`，保留用于向后兼容）
     public var source: String {
         get { sourceRawValue }
         set { sourceRawValue = newValue }

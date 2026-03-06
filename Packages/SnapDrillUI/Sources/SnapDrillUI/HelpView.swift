@@ -21,6 +21,11 @@ public struct HelpTopic: Identifiable, Sendable {
     /// 该主题下的问题列表
     public let questions: [HelpQuestion]
     
+    /// 创建帮助主题
+    /// - Parameters:
+    ///   - title: 主题标题
+    ///   - icon: SF Symbol 图标名称
+    ///   - questions: 该主题下的问答列表
     public init(title: String, icon: String, questions: [HelpQuestion]) {
         self.title = title
         self.icon = icon
@@ -37,6 +42,10 @@ public struct HelpQuestion: Identifiable, Sendable {
     /// 答案文本
     public let answer: String
     
+    /// 创建帮助问答条目
+    /// - Parameters:
+    ///   - question: 问题文本
+    ///   - answer: 答案文本
     public init(question: String, answer: String) {
         self.question = question
         self.answer = answer
@@ -52,6 +61,8 @@ public struct HelpView: View {
 
     let topics: [HelpTopic]
     
+    /// 创建帮助视图
+    /// - Parameter topics: 帮助主题列表，默认使用内置预设主题
     public init(topics: [HelpTopic] = HelpTopic.defaultTopics) {
         self.topics = topics
     }
@@ -123,6 +134,12 @@ public struct QuickHelpCard: View {
     let icon: String
     let action: () -> Void
     
+    /// 创建快速帮助卡片
+    /// - Parameters:
+    ///   - title: 卡片标题
+    ///   - description: 卡片描述文本
+    ///   - icon: SF Symbol 图标名称
+    ///   - action: 点击卡片时的回调
     public init(title: String, description: String, icon: String, action: @escaping () -> Void) {
         self.title = title
         self.description = description

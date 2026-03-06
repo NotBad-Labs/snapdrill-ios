@@ -37,6 +37,13 @@ public struct SubscriptionProduct: Sendable, Identifiable, Hashable {
 
     // MARK: - Initialization
 
+    /// 创建订阅商品
+    /// - Parameters:
+    ///   - id: App Store Connect 中的 Product ID
+    ///   - displayName: 商品显示名称
+    ///   - description: 商品描述
+    ///   - displayPrice: 格式化后的价格字符串（如 `"$4.99/月"`）
+    ///   - period: 订阅周期
     public init(
         id: String,
         displayName: String,

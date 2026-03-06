@@ -25,6 +25,8 @@ public final class DataSeeder {
 
     // MARK: - Initialization
 
+    /// 创建测试数据生成器
+    /// - Parameter modelContext: 用于写入数据的 ModelContext（通常为 mainContext）
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }

@@ -20,6 +20,9 @@ import MessageUI
 #endif
 
 
+/// 设置功能主界面
+///
+/// 采用 Telegram 风格渐变图标 + iOS 26 glass profile 区，提供外观、数据管理和关于等各类设置入口。
 public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
     @Environment(\.repositories) private var repositories
@@ -52,12 +55,15 @@ public struct SettingsView: View {
 
     // MARK: - Initialization
 
+    /// 创建设置视图
+    /// - Parameter router: 注入的路由器
     public init(router: SettingsRouter) {
         self.router = router
     }
 
     // MARK: - Body
 
+    /// 设置主界面的视图层次
     public var body: some View {
         NavigationStack(path: $router.path) {
             List {

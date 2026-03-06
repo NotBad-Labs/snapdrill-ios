@@ -20,6 +20,10 @@ public struct ProgressLoadingView: View {
     let message: String
     let progress: Double?
     
+    /// 创建进度加载视图
+    /// - Parameters:
+    ///   - message: 加载提示文本
+    ///   - progress: 进度值（0.0–1.0）；为 `nil` 时显示不确定进度指示器
     public init(message: String, progress: Double? = nil) {
         self.message = message
         self.progress = progress
@@ -61,6 +65,8 @@ public struct ProgressLoadingView: View {
 public struct SkeletonLoadingView: View {
     let itemCount: Int
     
+    /// 创建骨架屏加载视图
+    /// - Parameter itemCount: 占位行数，默认 5
     public init(itemCount: Int = 5) {
         self.itemCount = itemCount
     }

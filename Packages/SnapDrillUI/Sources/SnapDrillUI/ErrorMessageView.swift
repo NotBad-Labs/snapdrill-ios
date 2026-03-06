@@ -24,6 +24,13 @@ public struct ErrorMessageView: View {
     let actionTitle: String?
     let action: (() -> Void)?
     
+    /// 创建错误消息视图
+    /// - Parameters:
+    ///   - title: 错误标题
+    ///   - message: 错误详情文本
+    ///   - icon: SF Symbol 图标名称，默认为警告三角
+    ///   - actionTitle: 操作按钮文字；为 `nil` 时不显示按钮
+    ///   - action: 操作按钮点击回调；为 `nil` 时不显示按钮
     public init(
         title: String,
         message: String,
@@ -71,10 +78,12 @@ public struct ErrorMessageView: View {
     }
 }
 
-/// 加载视图
+/// 通用加载视图，显示旋转进度指示器和可选提示文本
 public struct LoadingView: View {
     let message: String
-    
+
+    /// 创建加载视图
+    /// - Parameter message: 加载提示文本，默认为 "加载中..."
     public init(message: String = "加载中...") {
         self.message = message
     }

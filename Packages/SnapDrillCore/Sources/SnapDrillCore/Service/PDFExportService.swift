@@ -21,6 +21,7 @@ public final class PDFExportService: Sendable {
     /// 共享实例 - 建议使用 ServiceContainer 注入
     public static let shared = PDFExportService()
 
+    /// 创建 PDF 导出服务实例；通常通过 `ServiceContainer` 注入
     public init() {}
 
     #if canImport(UIKit)
