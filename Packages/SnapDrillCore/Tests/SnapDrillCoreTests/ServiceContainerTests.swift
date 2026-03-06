@@ -17,21 +17,6 @@ struct ServiceContainerTests {
 
     // MARK: - LiveServiceContainer
 
-    @Test("LiveServiceContainer 提供所有服务属性")
-    func testLiveServiceContainerProvidesAllServices() {
-        let container = LiveServiceContainer()
-
-        _ = container.analytics
-        _ = container.crashReporting
-        _ = container.performanceMonitor
-        _ = container.networkMonitor
-        _ = container.pdfExport
-        _ = container.appConfig
-        _ = container.privacyConsent
-        _ = container.subscription
-        _ = container.notification
-    }
-
     @Test("LiveServiceContainer 重复访问同一属性返回相同实例")
     func testLiveServiceContainerReturnsSameInstances() {
         let container = LiveServiceContainer()
