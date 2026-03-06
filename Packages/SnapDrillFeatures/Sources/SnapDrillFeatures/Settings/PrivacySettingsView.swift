@@ -74,7 +74,7 @@ struct PrivacySettingsView: View {
         }
         .navigationTitle("隐私与安全")
         .navigationBarTitleDisplayMode(.inline)
-        .confirmationDialog("选择导出格式", isPresented: $showingExportOptions) {
+        .confirmationDialog("选择导出格式", isPresented: $showingExportOptions, titleVisibility: .visible) {
             Button("JSON 格式") {
                 Task {
                     await exportData(format: .json)

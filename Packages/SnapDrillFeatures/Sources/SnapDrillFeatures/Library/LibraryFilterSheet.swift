@@ -49,6 +49,7 @@ struct LibraryFilterSheet: View {
                                             .foregroundStyle(.blue)
                                     }
                                 }
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                         }
@@ -77,6 +78,7 @@ struct LibraryFilterSheet: View {
                                             .foregroundStyle(.blue)
                                     }
                                 }
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                         }
