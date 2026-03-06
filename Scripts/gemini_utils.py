@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # 核心职责：Gemini API 调用工具，提供带自动降级的模型路由
+# 注：Scripts/ 目录下的 CI Python 脚本使用 print() 输出到 GitHub Actions 日志，
+#     SnapDrillLogger 是 Swift 框架不适用于此，CLAUDE.md 的 print() 禁令仅适用于 Swift 代码。
 
 import json
 import urllib.request
