@@ -127,7 +127,7 @@ public struct ImageStorage {
     public init()
     public func saveImage(_ image: UIImage) async throws -> String
     public func loadImage(path: String) -> UIImage?
-    public func deleteImage(path: String) throws  // 新增 2026-03-04，文件不存在时静默跳过
+    public func deleteImage(path: String) async throws  // async 2026-03-06，Apple 文档要求文件 I/O 异步；文件不存在时静默跳过
 }
 
 // PDFExportService（final class）
@@ -207,7 +207,7 @@ public func fetchFilteredModels(searchText: String, subjects: Set<String>,
 public func insertAndSave(_ model: ReviewItemModel) throws
 public func saveContext() throws
 public func rollbackContext()          // saveContext 失败时调用，回滚所有未持久化变更
-public func delete(id: UUID) throws
+public func delete(id: UUID) async throws  // async 2026-03-06，内部含文件 I/O
 public func deleteAll() throws
 
 // 级联更新
@@ -250,7 +250,7 @@ public let tag: TagRepository
 public let grade: GradeRepository
 
 public init(modelContext: ModelContext = PersistenceController.shared.container.mainContext)
-public func deleteAllData() throws
+public func deleteAllData() async throws  // async 2026-03-06，内部含文件 I/O
 public func deleteAllTaxonomy() throws
 ```
 
