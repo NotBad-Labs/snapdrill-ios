@@ -9,7 +9,7 @@ Inherits from: [Global Constitution](file:///Users/yiming/.gemini/antigravity/GL
 
 ## 🏗️ 项目架构与技术栈
 
-- **Bundle ID**: `com.snapdrill.app` | **最低版本**: iOS 18.0
+- **Bundle ID**: `com.snapdrill.app` | **最低版本**: iOS 26.0
 - **技术栈**: Swift 6.2 + SwiftUI + SwiftData
 - **模块化**: SnapDrillFeatures → SnapDrillData/SnapDrillUI → SnapDrillCore (严禁逆向引用)
 - **质量核心**: **零技术债 (Zero Tech Debt)** - 绝不为了发布而牺牲代码质量。
@@ -24,7 +24,7 @@ Inherits from: [Global Constitution](file:///Users/yiming/.gemini/antigravity/GL
 
 ### 2. 数据生命线 (Data Integrity)
 
-- **Repo 封装**: View/ViewModel 不直接操作 `ModelContext`，必须通过 Repository 协议。
+- **Repo 封装**: View/ViewModel 不直接操作 `ModelContext`，必须通过具体 Repository 类（无协议，已删除）。
 - **强一致性**:
   - 严禁 `try?` 静默失败（关键保存/初始化路径）。
   - 级联重写：分类重命名必须级联更新记录。
@@ -34,7 +34,7 @@ Inherits from: [Global Constitution](file:///Users/yiming/.gemini/antigravity/GL
 
 - **日志系统**: 禁止 `print()`，使用 `SnapDrillLogger`。
 - **强制约束**: 严禁强制解包 `!`，严禁使用 `any` 类型。
-- **双语注释**: 公开 API 必须提供中英双语 DocC 文档。
+- **注释语言**: 公开 API 必须提供 `///` DocC 注释，使用**中文描述**，参数名保留英文。
 
 ## 📍 关键原则文件索引
 

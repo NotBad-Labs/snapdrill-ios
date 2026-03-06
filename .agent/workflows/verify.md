@@ -99,7 +99,7 @@ description: 对 AI 生成代码执行 V.E.R.I.F.Y. 六步验证协议
 如果涉及逻辑变更，运行相关单元测试：
 
 ```bash
-xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 16 Pro' -only-testing:SnapDrillCoreTests
+xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SnapDrillCoreTests
 ```
 
 ---
