@@ -13,6 +13,9 @@ import Observation
 import SnapDrillCore
 import SnapDrillUI
 
+/// 首页仪表盘视图
+///
+/// 展示今日复习进度概览（待复习数、已复习数、题库总数）和快捷入口（开始复习、新建采集）。
 public struct DashboardView: View {
     @Bindable private var router: DashboardRouter
     @Environment(\.repositories) private var repositories

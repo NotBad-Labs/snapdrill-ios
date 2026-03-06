@@ -14,18 +14,28 @@ import SnapDrillCore
 import SwiftUI
 import PhotosUI
 
+/// 采集功能主 ViewModel
+///
+/// 负责协调相机扫描、相册选图、OCR 识别等流程，并驱动导航跳转到结果编辑页。
 @Observable
 @MainActor
 public final class CaptureViewModel {
-    
+
     // MARK: - State
-    
+
+    /// 是否正在显示文档扫描器
     public var isShowingScanner = false
+    /// 用户从相册选择的照片项
     public var selectedPhotoItem: PhotosPickerItem?
+    /// 是否正在执行 OCR 或图片加载
     public var isProcessing = false
+    /// 是否弹出草稿恢复提示
     public var showDraftAlert = false
+    /// 当前待恢复的草稿（弹窗显示时有值）
     public var pendingDraft: CaptureDraftService.Draft? = nil
+    /// 是否弹出错误提示
     public var showErrorAlert = false
+    /// 错误提示文本
     public var errorMessage = ""
     
     // MARK: - Dependencies
@@ -40,6 +50,7 @@ public final class CaptureViewModel {
     
     // MARK: - Public API
     
+    /// 页面出现时检查是否有未完成草稿，若有则弹出恢复提示
     public func checkDraftOnAppear() {
         if let draft = CaptureDraftService.shared.loadDraft() {
             pendingDraft = draft
@@ -47,6 +58,7 @@ public final class CaptureViewModel {
         }
     }
     
+    /// 恢复草稿并导航到结果编辑页
     public func startEditingDraft(router: CaptureRouter) {
         if let draft = pendingDraft {
             router.push(.scannerResult(content: draft.content, image: draft.image))
@@ -54,11 +66,13 @@ public final class CaptureViewModel {
         clearDraft()
     }
     
+    /// 丢弃当前草稿并清除持久化记录
     public func clearDraft() {
         CaptureDraftService.shared.clearDraft()
         pendingDraft = nil
     }
     
+    /// 加载相册图片并触发 OCR 识别流程
     public func loadPhoto(_ item: PhotosPickerItem, router: CaptureRouter) {
         isProcessing = true
         photoLoadTask = Task {
@@ -96,6 +110,7 @@ public final class CaptureViewModel {
         }
     }
 
+    /// 处理文档扫描仪返回的图片并触发 OCR 识别流程
     public func processScannedImage(_ image: UIImage, router: CaptureRouter) {
         isProcessing = true
         // 保存句柄到 photoLoadTask，使 cancelOngoingTasks() 可取消此任务

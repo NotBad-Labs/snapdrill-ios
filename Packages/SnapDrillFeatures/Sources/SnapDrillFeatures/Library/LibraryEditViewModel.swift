@@ -12,18 +12,28 @@ import SwiftUI
 import SnapDrillData
 import SnapDrillCore
 
+/// 题目编辑 ViewModel
+///
+/// 管理现有题目的编辑状态，包括图片替换（含 OCR 重新识别）、分类信息更新和持久化保存。
 @Observable
 @MainActor
 public final class LibraryEditViewModel {
 
     // MARK: - State
 
+    /// 题目正文（`nil` 表示纯图片题）
     public var content: String
+    /// 答案文本
     public var answer: String
+    /// 当前选中的学科名称
     public var selectedSubject: String
+    /// 当前选中的来源名称
     public var selectedSource: String
+    /// 当前选中的年级名称
     public var grade: String
+    /// 标签列表（字符串形式）
     public var tagList: [String]
+    /// 题目难度
     public var difficulty: Difficulty
 
     public var displayedImage: UIImage?
@@ -68,6 +78,7 @@ public final class LibraryEditViewModel {
 
     // MARK: - Public API
 
+    /// 加载图片和分类元数据（学科/来源/年级/标签）
     public func loadData() {
         if displayedImage == nil, let path = item.imagePath {
             displayedImage = imageStorage.loadImage(path: path)
@@ -98,6 +109,7 @@ public final class LibraryEditViewModel {
         isAnswerImageCleared = false
     }
 
+    /// 替换题目图片并触发 OCR 重新识别
     public func handleNewImage(_ image: UIImage) {
         self.displayedImage = image
         self.isProcessing = true
@@ -125,10 +137,15 @@ public final class LibraryEditViewModel {
         ocrTask = nil
     }
 
+    /// 保存草稿（预留接口，暂无实现）
     public func saveDraftIfNeeded() {
         // 后续可扩展草稿逻辑
     }
 
+    /// 将当前编辑内容持久化到数据库
+    ///
+    /// 先异步写入图片文件，IO 完成后统一修改 `@Model` 属性再调用 `saveContext()`。
+    /// 失败时自动 `rollbackContext()` 并清理孤儿图片文件。
     public func save() async {
         // 业务规则验证先行
         let willHaveContent = !content.isEmpty

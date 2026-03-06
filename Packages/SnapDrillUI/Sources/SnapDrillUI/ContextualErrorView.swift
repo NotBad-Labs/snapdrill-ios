@@ -17,19 +17,29 @@ import SnapDrillCore
 public enum AppError: LocalizedError {
     
     // MARK: - Cases
-    
+
+    /// 网络不可用
     case networkUnavailable
+    /// iCloud 不可用（未登录或配额已满）
     case iCloudUnavailable
+    /// 相机权限被拒绝
     case cameraPermissionDenied
+    /// 相册权限被拒绝
     case photoLibraryPermissionDenied
+    /// OCR 文字识别失败，携带失败详情
     case ocrFailed(String)
+    /// 数据导出失败，携带失败详情
     case exportFailed(String)
+    /// 数据导入失败，携带失败详情
     case importFailed(String)
+    /// 数据文件已损坏
     case dataCorrupted
+    /// 其他未知错误，携带原始错误
     case unknown(Error)
-    
+
     // MARK: - Computed Properties
-    
+
+    /// 面向用户的错误标题（遵循 `LocalizedError`）
     public var errorDescription: String? {
         switch self {
         case .networkUnavailable:
@@ -53,6 +63,7 @@ public enum AppError: LocalizedError {
         }
     }
     
+    /// 给用户的恢复建议（遵循 `LocalizedError`）
     public var recoverySuggestion: String? {
         switch self {
         case .networkUnavailable:
@@ -76,6 +87,7 @@ public enum AppError: LocalizedError {
         }
     }
     
+    /// 错误对应的 SF Symbol 名称
     public var icon: String {
         switch self {
         case .networkUnavailable:
@@ -99,6 +111,7 @@ public enum AppError: LocalizedError {
         }
     }
     
+    /// 操作按钮标题；`nil` 表示该错误无可操作项
     public var actionTitle: String? {
         switch self {
         case .cameraPermissionDenied, .photoLibraryPermissionDenied:

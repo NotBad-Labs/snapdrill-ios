@@ -218,6 +218,8 @@ public struct AccessibilityAnnouncement {
 
 /// 无障碍通知优先级
 public enum AccessibilityNotificationPriority {
+    /// 标准优先级，使用 `screenChanged` 通知
     case `default`
+    /// 高优先级，使用 `announcement` 通知（立即打断 VoiceOver 当前朗读）
     case high
 }

@@ -13,14 +13,20 @@ import Observation
 import SnapDrillData
 import SnapDrillCore
 
+/// 来源管理 ViewModel
+///
+/// 负责来源列表的加载、新增、编辑和删除（含使用中校验）。与 `SubjectManagerViewModel` 结构对等。
 @Observable
 @MainActor
 public final class SourceManagerViewModel {
 
     // MARK: - State
 
+    /// 当前来源列表（按 sortOrder 排序）
     public var sources: [SourceModel] = []
+    /// 是否因来源被使用而阻止删除
     public var isDeletingInUse = false
+    /// 触发删除保护时正在尝试删除的来源名称
     public var pendingDeletionName = ""
 
     // MARK: - Dependencies
@@ -35,6 +41,7 @@ public final class SourceManagerViewModel {
 
     // MARK: - Public Actions
 
+    /// 从数据库加载来源列表
     public func loadData() {
         do {
             sources = try repositories.source.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
@@ -45,6 +52,7 @@ public final class SourceManagerViewModel {
 
     // MARK: - Public API
 
+    /// 删除指定位置的来源；若来源仍被题目引用，置 `isDeletingInUse` 为 `true`
     public func delete(at offsets: IndexSet) {
         isDeletingInUse = false
         let itemsToDelete = offsets.map { sources[$0] }
@@ -64,6 +72,12 @@ public final class SourceManagerViewModel {
         loadData()
     }
 
+    /// 新建或更新来源
+    /// - Parameters:
+    ///   - source: 传入现有 `SourceModel` 表示编辑，传 `nil` 表示新建
+    ///   - name: 来源名称
+    ///   - selectedIcon: SF Symbol 图标名称
+    ///   - finalColorHex: 颜色 Hex 字符串
     public func saveSource(source: SourceModel?, name: String, selectedIcon: String, finalColorHex: String) {
         do {
             if let source {

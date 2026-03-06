@@ -13,13 +13,18 @@ import Observation
 import SnapDrillCore
 import SnapDrillData
 
+/// 首页仪表盘 ViewModel
+///
+/// 负责加载复习统计数据、监听数据变更通知并触发刷新，以及处理草稿恢复流程。
 @Observable
 @MainActor
 public final class DashboardViewModel {
 
     // MARK: - State
 
+    /// 是否正在显示学科管理器 Sheet
     public var isShowingSubjectManager = false
+    /// 是否正在显示草稿恢复提示 Alert
     public var isShowingDraftAlert = false
 
     /// 今日新增卡片数
@@ -82,6 +87,7 @@ public final class DashboardViewModel {
         pendingRefreshTask = nil
     }
 
+    /// 检查是否有未完成草稿；若有则弹出提示，否则直接导航到采集页
     public func checkDraftAndCapture(router: DashboardRouter) {
         if draftService.hasDraft {
             isShowingDraftAlert = true
@@ -90,11 +96,13 @@ public final class DashboardViewModel {
         }
     }
 
+    /// 丢弃现有草稿并开始新建采集
     public func startNewCapture(router: DashboardRouter) {
         draftService.clearDraft()
         router.navigateToCapture()
     }
 
+    /// 恢复草稿并导航到采集编辑页（无草稿时直接跳转采集页）
     public func restoreDraft(router: DashboardRouter) {
         if let draft = draftService.loadDraft() {
             router.navigateToCapture(withDraft: draft)

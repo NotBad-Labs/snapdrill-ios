@@ -29,9 +29,13 @@ public class CaptureDraftService: CaptureDraftServiceProtocol {
     
     // MARK: - Models
     
+    /// 草稿数据结构，携带图片、识别文本和保存时间
     public struct Draft {
+        /// 拍摄的原始图片
         public let image: UIImage
+        /// OCR 识别文本（可为空字符串）
         public let content: String
+        /// 草稿保存时间
         public let date: Date
     }
     

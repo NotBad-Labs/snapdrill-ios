@@ -13,14 +13,20 @@ import Observation
 import SnapDrillData
 import SnapDrillCore
 
+/// 学科管理 ViewModel
+///
+/// 负责学科列表的加载、新增、编辑和删除（含使用中校验）。
 @Observable
 @MainActor
 public final class SubjectManagerViewModel {
 
     // MARK: - State
 
+    /// 当前学科列表（按 sortOrder 排序）
     public var subjects: [SubjectModel] = []
+    /// 是否因学科被使用而阻止删除
     public var isDeletingInUse = false
+    /// 触发删除保护时正在尝试删除的学科名称
     public var pendingDeletionName = ""
 
     // MARK: - Dependencies
@@ -35,6 +41,7 @@ public final class SubjectManagerViewModel {
 
     // MARK: - Public Actions
 
+    /// 从数据库加载学科列表
     public func loadData() {
         do {
             subjects = try repositories.subject.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
@@ -45,6 +52,7 @@ public final class SubjectManagerViewModel {
 
     // MARK: - Public API
 
+    /// 删除指定位置的学科；若学科仍被题目引用，置 `isDeletingInUse` 为 `true`
     public func delete(at offsets: IndexSet) {
         isDeletingInUse = false
         let itemsToDelete = offsets.map { subjects[$0] }
@@ -64,6 +72,12 @@ public final class SubjectManagerViewModel {
         loadData()
     }
 
+    /// 新建或更新学科
+    /// - Parameters:
+    ///   - subject: 传入现有 `SubjectModel` 表示编辑，传 `nil` 表示新建
+    ///   - name: 学科名称
+    ///   - selectedIcon: SF Symbol 图标名称
+    ///   - finalColorHex: 颜色 Hex 字符串
     public func saveSubject(subject: SubjectModel?, name: String, selectedIcon: String, finalColorHex: String) {
         do {
             if let subject {

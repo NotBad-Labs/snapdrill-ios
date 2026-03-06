@@ -12,9 +12,13 @@ import SwiftUI
 
 /// 帮助主题
 public struct HelpTopic: Identifiable, Sendable {
+    /// 唯一标识
     public let id = UUID()
+    /// 主题标题（如"开始使用"、"智能拍摄"）
     public let title: String
+    /// 主题图标（SF Symbol 名称）
     public let icon: String
+    /// 该主题下的问题列表
     public let questions: [HelpQuestion]
     
     public init(title: String, icon: String, questions: [HelpQuestion]) {
@@ -26,8 +30,11 @@ public struct HelpTopic: Identifiable, Sendable {
 
 /// 帮助问题
 public struct HelpQuestion: Identifiable, Sendable {
+    /// 唯一标识
     public let id = UUID()
+    /// 问题文本
     public let question: String
+    /// 答案文本
     public let answer: String
     
     public init(question: String, answer: String) {

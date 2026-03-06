@@ -107,6 +107,8 @@ public struct ImageStorage: Sendable {
     }
 }
 
+/// 图片存储操作错误
 public enum ImageStorageError: Error {
+    /// 无法将 UIImage 转换为 JPEG 数据（通常表示图片对象已损坏）
     case invalidImageData
 }
