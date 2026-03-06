@@ -5,43 +5,41 @@
 //  Created by NotBad Labs on 2026/02/24.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  设置列表行组件（从 SettingsView.swift 拆分）
+//  设置列表行组件，Telegram 风格渐变图标。
 //
 
 import SwiftUI
 
 /// 设置页通用行组件
 ///
-/// 提供统一的图标 + 标题 + 可选值的行样式，对齐 iOS 系统设置风格。
+/// 图标背景使用双色线性渐变（topLeading → bottomTrailing），对齐 Telegram 设计风格。
 struct SettingsRow: View {
-    
+
     // MARK: - Properties
-    
+
     let icon: String
-    let color: Color
+    let gradientStart: Color
+    let gradientEnd: Color
     let title: String
     var value: String?
-    var isPremium: Bool = false
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         HStack(spacing: 12) {
-            // 图标背景框
+            // 渐变图标容器（Telegram 核心视觉特征）
             ZStack {
-                if isPremium {
-                    LinearGradient(colors: [.purple, .blue], startPoint: .topLeading, endPoint: .bottomTrailing)
-                } else {
-                    color
-                }
-            }
-            .frame(width: 28, height: 28)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
-            .overlay(
+                LinearGradient(
+                    colors: [gradientStart, gradientEnd],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
                 Image(systemName: icon)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(.white)
-            )
+            }
+            .frame(width: 30, height: 30)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Text(title)
                 .font(.body)
