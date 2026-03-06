@@ -29,6 +29,7 @@ struct EditProfileView: View {
     @State private var showingPhotoOptions = false
     @State private var showingPhotosPicker = false
     @State private var showingSymbolPicker = false
+    @State private var imageLoadTask: Task<Void, Never>?
     private let imageStorage = ImageStorage()
     
     // Gradient presets
@@ -198,7 +199,8 @@ struct EditProfileView: View {
             SFSymbolPickerView(selectedSymbol: $userAvatar)
         }
         .onChange(of: selectedItem) { _, newValue in
-            Task {
+            imageLoadTask?.cancel()
+            imageLoadTask = Task {
                 if let data = try? await newValue?.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
                     do {
@@ -211,6 +213,9 @@ struct EditProfileView: View {
                     }
                 }
             }
+        }
+        .onDisappear {
+            imageLoadTask?.cancel()
         }
     }
 }

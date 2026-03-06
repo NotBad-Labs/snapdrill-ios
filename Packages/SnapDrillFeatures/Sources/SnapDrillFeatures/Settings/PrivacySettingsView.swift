@@ -26,6 +26,7 @@ struct PrivacySettingsView: View {
     @State private var exportedFileURL: URL?
     @State private var isExporting = false
     @State private var exportError: String?
+    @State private var exportTask: Task<Void, Never>?
     
     var body: some View {
         List {
@@ -61,10 +62,12 @@ struct PrivacySettingsView: View {
                 // confirmationDialog 挂在 Button 上，确保锚点在触发元素附近
                 .confirmationDialog("选择导出格式", isPresented: $showingExportOptions, titleVisibility: .visible) {
                     Button("JSON 格式") {
-                        Task { await exportData(format: .json) }
+                        exportTask?.cancel()
+                        exportTask = Task { await exportData(format: .json) }
                     }
                     Button("CSV 格式") {
-                        Task { await exportData(format: .csv) }
+                        exportTask?.cancel()
+                        exportTask = Task { await exportData(format: .csv) }
                     }
                     Button("取消", role: .cancel) {}
                 }
@@ -89,6 +92,9 @@ struct PrivacySettingsView: View {
             if let url = exportedFileURL {
                 ShareSheet(items: [url])
             }
+        }
+        .onDisappear {
+            exportTask?.cancel()
         }
     }
     
