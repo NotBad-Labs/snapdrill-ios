@@ -33,6 +33,7 @@ public final class MockServiceContainer: ServiceContainer {
 
     // MARK: - Initialization
 
+    /// 创建全 Mock 实现的服务容器，适用于单元测试和 SwiftUI Preview
     public init() {
         self.analytics = AnalyticsServiceMock()
         self.crashReporting = CrashReportingServiceMock()

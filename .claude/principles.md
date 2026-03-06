@@ -209,11 +209,31 @@ git push -u origin fix/xxx
 gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini Review
 ```
 
-### Gemini Review 铁律（2026-03-05 确立）
+### Code Review 铁律（2026-03-05 确立，2026-03-06 更新）
 
-**所有由 Claude 创建的 PR，必须等待 Gemini 自动 review comment 出现后，由用户确认再合并。**
+**所有由 Claude 创建的 PR，必须完成双重 review 后，由用户确认再合并。**
 
-- Gemini Review 由 `.github/workflows/gemini-review.yml` 自动触发（PR opened/synchronize）
+#### 1. Gemini GitHub Action（自动，diff 级别）
+
+- 由 `.github/workflows/gemini-review.yml` 自动触发（PR opened/synchronize）
 - 使用 `ubuntu-latest` runner，不占用 Mac mini 资源
-- Review 结果以 comment 形式贴回 PR，🔴 严重问题必须修复后重新提交
+- 只看 diff，可能因缺乏上下文产生误判（如看不到文件头部的 `@Observable` 标注）
+- Review 结果以 PR comment 形式自动贴回
+
+#### 2. Antigravity 全量 Review（手动，全代码库级别）
+
+- 在 Antigravity IDE 中手动触发，可访问完整代码库，误判率低于纯 diff review
+- 使用 `.claude/gemini-context.md` 中的架构约束作为上下文
+- Review 完成后，将结果以 comment 形式**手动发布到对应 GitHub PR**（不保存本地文件）
+
+#### 判断规则
+
+- 两个 review 均无 🔴 严重问题 → 可合并
+- 任一 review 有 🔴 → 修复后重新提交，重新触发 review
+- 两个 review 结论冲突 → 以 Antigravity 全量 review 为准（上下文更完整）
+
+#### Review 存档
+
+所有 review 结果以 **GitHub PR comment** 形式永久存储，不再保存本地 `.claude/reviews/` 文件。
+
 - 4 月 1 日 GitHub Pro 生效后，同步启用 Branch Protection（require 1 approval）

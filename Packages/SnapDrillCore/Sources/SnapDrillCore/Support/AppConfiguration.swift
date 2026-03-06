@@ -33,7 +33,8 @@ public final class AppConfiguration {
     public static let shared = AppConfiguration()
     
     // MARK: - Initialization
-    
+
+    /// 创建应用配置实例；通常通过 `ServiceContainer` 注入
     public init() {}
     
     // MARK: - Public API
@@ -212,6 +213,7 @@ public final class AppConfiguration {
         case staging
         case production
         
+        /// 当前运行环境（DEBUG 下为 `.development`，否则为 `.production`）
         public static var current: Environment {
             #if DEBUG
             return .development

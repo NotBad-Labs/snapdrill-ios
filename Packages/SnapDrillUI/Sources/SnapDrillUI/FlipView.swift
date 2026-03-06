@@ -19,6 +19,11 @@ public struct FlipView<Front: View, Back: View>: View {
     var front: () -> Front
     var back: () -> Back
     
+    /// 创建翻转卡片容器
+    /// - Parameters:
+    ///   - isFlipped: 为 `true` 时显示背面，`false` 时显示正面
+    ///   - front: 正面内容视图构建器
+    ///   - back: 背面内容视图构建器
     public init(
         isFlipped: Bool,
         @ViewBuilder front: @escaping () -> Front,

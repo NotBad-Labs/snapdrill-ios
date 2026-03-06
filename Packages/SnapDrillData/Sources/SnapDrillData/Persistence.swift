@@ -16,8 +16,10 @@ public class PersistenceController {
 
     // MARK: - Properties
 
+    /// 共享持久化控制器实例（生产环境使用磁盘存储）
     public static let shared = PersistenceController()
 
+    /// SwiftData ModelContainer，用于创建 ModelContext
     public let container: ModelContainer
 
     /// 标记是否使用内存存储（降级模式）
@@ -28,6 +30,8 @@ public class PersistenceController {
 
     // MARK: - Initialization
 
+    /// 创建持久化控制器
+    /// - Parameter inMemory: 为 `true` 时使用内存存储（用于测试 / Preview），默认使用磁盘持久化
     public init(inMemory: Bool = false) {
         SnapDrillLogger.data.info("🔧 Initializing SwiftData with SnapDrillMigrationPlan")
 

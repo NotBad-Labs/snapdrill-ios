@@ -18,12 +18,17 @@ public final class SourceRepository {
     
     private let modelContext: ModelContext
     
+    /// 创建来源数据仓库
+    /// - Parameter modelContext: 当前 ModelContext
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
-    
+
     // MARK: - Public API
 
+    /// 删除指定来源并立即保存
+    /// - Parameter id: 要删除的来源 UUID
+    /// - Throws: SwiftData save 错误
     public func delete(id: UUID) throws {
         if let model = try fetchModelById(id) {
             modelContext.delete(model)
@@ -31,11 +36,14 @@ public final class SourceRepository {
         }
     }
     
+    /// 返回来源总数
+    /// - Throws: SwiftData fetch 错误
     public func totalCount() throws -> Int {
         let descriptor = FetchDescriptor<SourceModel>()
         return try modelContext.fetchCount(descriptor)
     }
     
+    /// 若来源列表为空，则写入本地化默认来源（中文或英文）
     public func seedDefaultsIfNeeded() {
         do {
             if try totalCount() == 0 {

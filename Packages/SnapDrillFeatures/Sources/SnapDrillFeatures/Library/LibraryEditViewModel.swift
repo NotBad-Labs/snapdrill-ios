@@ -36,19 +36,28 @@ public final class LibraryEditViewModel {
     /// 题目难度
     public var difficulty: Difficulty
 
+    /// 当前显示的题目图片（新选择或原始图片）
     public var displayedImage: UIImage?
     /// 答案图片（新选择的，未持久化）
     public var answerDisplayedImage: UIImage?
     /// 用户主动移除答案图片时置 true，save() 据此清空 answerImagePath
     public var isAnswerImageCleared: Bool = false
+    /// 是否正在执行 OCR 或图片处理操作
     public var isProcessing = false
+    /// 是否已正常保存（用于触发返回导航）
     public var isSavedNormally = false
+    /// 是否正在显示图片裁剪界面
     public var isCropping = false
+    /// 待裁剪的图片（显示裁剪界面时有值）
     public var imageToCrop: UIImage?
 
+    /// 可选学科列表
     public var subjects: [SubjectModel] = []
+    /// 可选来源列表
     public var sources: [SourceModel] = []
+    /// 可选年级列表
     public var grades: [GradeModel] = []
+    /// 可选标签列表
     public var allTags: [TagModel] = []
 
     // MARK: - Dependencies
@@ -63,6 +72,10 @@ public final class LibraryEditViewModel {
     @ObservationIgnored
     private var ocrTask: Task<Void, Never>?
 
+    /// 创建题目编辑 ViewModel
+    /// - Parameters:
+    ///   - item: 要编辑的题目模型
+    ///   - repositories: 应用的数据仓库容器
     public init(item: ReviewItemModel, repositories: RepositoryContainer) {
         self.item = item
         self.repositories = repositories

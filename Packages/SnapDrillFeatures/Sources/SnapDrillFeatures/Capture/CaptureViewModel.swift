@@ -44,6 +44,8 @@ public final class CaptureViewModel {
     
     // MARK: - Initialization
     
+    /// 创建采集功能 ViewModel
+    /// - Parameter ocrService: OCR 识别服务，默认使用 `OCRService()`
     public init(ocrService: OCRServiceProtocol = OCRService()) {
         self.ocrService = ocrService
     }

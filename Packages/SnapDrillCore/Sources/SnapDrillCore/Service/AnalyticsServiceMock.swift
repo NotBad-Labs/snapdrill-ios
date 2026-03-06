@@ -25,6 +25,7 @@ public final class AnalyticsServiceMock: AnalyticsServiceProtocol {
     public private(set) var userProperties: [String: String] = [:]
     public private(set) var retentionTracking: [Int] = []
 
+    /// 创建空的分析服务 Mock 实例
     public init() {}
 
     // MARK: - AnalyticsServiceProtocol

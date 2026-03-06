@@ -23,7 +23,8 @@ public enum SnapDrillError: LocalizedError {
     case unknown(String)
     
     // MARK: - Computed Properties
-    
+
+    /// 本地化错误描述，用于 UI 展示
     public var errorDescription: String? {
         switch self {
         case .dataNotFound:

@@ -36,6 +36,7 @@ public struct ReviewScheduler {
 
     // MARK: - Initialization
 
+    /// 创建 SM-2 调度器实例
     public init() {}
 
     // MARK: - Public API

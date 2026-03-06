@@ -20,6 +20,7 @@ public actor KeychainService {
     
     // MARK: - Properties
     
+    /// 共享 Keychain 服务实例
     public static let shared = KeychainService()
     
     private let logger = Logger(subsystem: "com.snapdrill.app", category: "Keychain")

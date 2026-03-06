@@ -21,18 +21,26 @@ public final class ReviewRepository {
     private let modelContext: ModelContext
     
     // MARK: - Initialization
-    
+
+    /// 创建复习数据仓库
+    /// - Parameter modelContext: 当前上下文，应与 `PersistenceController.shared.container.mainContext` 一致
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
     
     // MARK: - Public API
 
+    /// 返回数据库中所有题目总数
+    /// - Throws: SwiftData fetch 错误
     public func totalCount() throws -> Int {
         let descriptor = FetchDescriptor<ReviewItemModel>()
         return try modelContext.fetchCount(descriptor)
     }
     
+    /// 删除指定题目及其关联图片文件
+    /// - Parameter id: 要删除的题目 UUID
+    /// - Throws: 图片删除或数据库 save 失败时抛出
+    /// - Note: async 是因为内部包含文件 I/O（删除图片），避免阻塞主线程
     public func delete(id: UUID) async throws {
         guard let model = try fetchModelById(id) else { return }
         // 删除关联图片文件（先于模型删除，确保路径可读；async 避免阻塞主线程）
@@ -47,6 +55,9 @@ public final class ReviewRepository {
         try modelContext.save()
     }
     
+    /// 返回指定学科的题目数量
+    /// - Parameter name: 学科名称
+    /// - Throws: SwiftData fetch 错误
     public func countBySubject(name: String) throws -> Int {
         let targetName = name
         let predicate = #Predicate<ReviewItemModel> { $0.subjectRawValue == targetName }
@@ -65,6 +76,9 @@ public final class ReviewRepository {
         }
     }
     
+    /// 返回指定来源的题目数量
+    /// - Parameter name: 来源名称
+    /// - Throws: SwiftData fetch 错误
     public func countBySource(name: String) throws -> Int {
         let targetName = name
         let predicate = #Predicate<ReviewItemModel> { $0.sourceRawValue == targetName }
@@ -83,6 +97,9 @@ public final class ReviewRepository {
         }
     }
     
+    /// 返回指定年级的题目数量
+    /// - Parameter name: 年级名称
+    /// - Throws: SwiftData fetch 错误
     public func countByGrade(name: String) throws -> Int {
         let targetName = name
         let predicate = #Predicate<ReviewItemModel> { $0.grade == targetName }
@@ -120,6 +137,8 @@ public final class ReviewRepository {
 
     // MARK: - Performance-Optimized Query Methods
 
+    /// 返回当前到期待复习的题目数量
+    /// - Throws: SwiftData fetch 错误
     public func fetchDueCount() throws -> Int {
         let now = Date.now
         // Schema V2 起 nextReviewAt 为非可选 Date（默认 distantPast = 立即到期），
@@ -129,6 +148,8 @@ public final class ReviewRepository {
         return try modelContext.fetchCount(descriptor)
     }
 
+    /// 返回今日新增的题目数量
+    /// - Throws: SwiftData fetch 错误
     public func fetchTodayCount() throws -> Int {
         let startOfToday = Calendar.current.startOfDay(for: Date.now)
         let predicate = #Predicate<ReviewItemModel> { item in
@@ -138,6 +159,8 @@ public final class ReviewRepository {
         return try modelContext.fetchCount(descriptor)
     }
 
+    /// 返回今日已复习的题目数量
+    /// - Throws: SwiftData fetch 错误
     public func fetchTodayReviewedCount() throws -> Int {
         let startOfToday = Calendar.current.startOfDay(for: Date.now)
         // Schema V2 起 lastReviewedAt 为非可选 Date（distantPast 表示从未复习），
@@ -149,6 +172,8 @@ public final class ReviewRepository {
         return try modelContext.fetchCount(descriptor)
     }
 
+    /// 返回数据库中所有题目总数（`totalCount()` 的别名）
+    /// - Throws: SwiftData fetch 错误
     public func totalItemCount() throws -> Int {
         try totalCount()
     }

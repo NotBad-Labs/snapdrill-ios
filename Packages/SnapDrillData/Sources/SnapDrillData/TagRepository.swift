@@ -18,12 +18,17 @@ public final class TagRepository {
     
     private let modelContext: ModelContext
     
+    /// 创建标签数据仓库
+    /// - Parameter modelContext: 当前 ModelContext
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
-    
+
     // MARK: - Public API
 
+    /// 删除指定标签并立即保存
+    /// - Parameter id: 要删除的标签 UUID
+    /// - Throws: SwiftData save 错误
     public func delete(id: UUID) throws {
         if let model = try fetchModelById(id) {
             modelContext.delete(model)

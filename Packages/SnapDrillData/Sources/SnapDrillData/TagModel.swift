@@ -17,17 +17,26 @@ public final class TagModel {
 
     // MARK: - Properties
 
+    /// 标签唯一标识符
     public var id: UUID = UUID()
+    /// 标签名称
     public var name: String = ""
+    /// 标签颜色（Hex 字符串，如 `"#8E8E93"`）
     public var colorHex: String = "#8E8E93"
+    /// 创建时间
     public var createdAt: Date = Date()
 
     // Relationship
+    /// 关联的题目（Many-to-Many）
     @Relationship(deleteRule: .nullify)
     public var items: [ReviewItemModel]? = []
 
     // MARK: - Initialization
 
+    /// 创建标签
+    /// - Parameters:
+    ///   - name: 标签名称
+    ///   - colorHex: 标签颜色 Hex 字符串，默认灰色 `"#8E8E93"`
     public init(name: String, colorHex: String = "#8E8E93") {
         self.id = UUID()
         self.name = name

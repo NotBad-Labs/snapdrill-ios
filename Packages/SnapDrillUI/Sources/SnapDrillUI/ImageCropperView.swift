@@ -28,6 +28,11 @@ public struct ImageCropperView: UIViewControllerRepresentable {
     /// 用户取消裁剪时的回调
     public var onCancel: () -> Void
     
+    /// 创建图片裁剪视图
+    /// - Parameters:
+    ///   - originalImage: 待裁剪的原始图片
+    ///   - onCrop: 裁剪完成后的回调，参数为裁剪后的 `UIImage`
+    ///   - onCancel: 用户取消裁剪时的回调
     public init(originalImage: UIImage, onCrop: @escaping (UIImage) -> Void, onCancel: @escaping () -> Void) {
         self.originalImage = originalImage
         self.onCrop = onCrop
@@ -61,6 +66,10 @@ public struct ImageCropperView: UIViewControllerRepresentable {
         var onCrop: (UIImage) -> Void
         var onCancel: () -> Void
         
+        /// 创建裁剪代理协调器
+        /// - Parameters:
+        ///   - onCrop: 裁剪完成回调
+        ///   - onCancel: 取消/失败回调
         public init(onCrop: @escaping (UIImage) -> Void, onCancel: @escaping () -> Void) {
             self.onCrop = onCrop
             self.onCancel = onCancel

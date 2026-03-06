@@ -10,11 +10,14 @@
 
 import SwiftUI
 
+/// 隐私政策展示视图（符合 GDPR/CCPA/App Store 要求）
 public struct PrivacyPolicyView: View {
+    /// 创建隐私政策视图
     public init() {}
     
     // MARK: - Body
     
+    /// 隐私政策内容视图
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {

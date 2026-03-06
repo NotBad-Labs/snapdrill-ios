@@ -28,12 +28,15 @@ public struct DashboardView: View {
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
+    /// 创建仪表盘视图
+    /// - Parameter router: 注入的路由器
     public init(router: DashboardRouter) {
         self.router = router
     }
     
     // MARK: - Body
     
+    /// 首页仪表盘的视图层次
     public var body: some View {
         NavigationStack(path: $router.path) {
             ZStack {

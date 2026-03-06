@@ -19,6 +19,7 @@ public final class LiveNotificationService: NotificationServiceProtocol {
 
     // MARK: - Initialization
 
+    /// 创建通知服务生产实例
     public init() {}
 
     // MARK: - NotificationServiceProtocol

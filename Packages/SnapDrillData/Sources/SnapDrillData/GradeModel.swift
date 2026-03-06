@@ -28,6 +28,11 @@ public final class GradeModel {
 
     // MARK: - Initialization
 
+    /// 创建年级模型
+    /// - Parameters:
+    ///   - id: 唯一标识，默认自动生成
+    ///   - name: 年级名称，如 "高一"
+    ///   - sortOrder: 排序权重，默认 0
     public init(
         id: UUID = UUID(),
         name: String,

@@ -46,10 +46,12 @@ public class CaptureDraftService: CaptureDraftServiceProtocol {
     
     // MARK: - Public API
     
+    /// 当前是否存在未保存的草稿（遵循 `CaptureDraftServiceProtocol`）
     public var hasDraft: Bool {
         return defaults.object(forKey: draftMetadataKey) != nil
     }
     
+    /// 将图片和识别文本保存为草稿（遵循 `CaptureDraftServiceProtocol`）
     public func saveDraft(image: UIImage, content: String) {
         // 1. Save Image
         if let data = image.jpegData(compressionQuality: 0.8),
@@ -70,6 +72,7 @@ public class CaptureDraftService: CaptureDraftServiceProtocol {
         SnapDrillLogger.generic.info("[DraftService] Draft saved.")
     }
     
+    /// 读取已保存的草稿；不存在或数据损坏时返回 `nil`（遵循 `CaptureDraftServiceProtocol`）
     public func loadDraft() -> Draft? {
         // 1. Load Metadata
         guard let data = defaults.data(forKey: draftMetadataKey),
@@ -87,6 +90,7 @@ public class CaptureDraftService: CaptureDraftServiceProtocol {
         return Draft(image: image, content: metadata.content, date: Date(timeIntervalSince1970: metadata.timestamp))
     }
     
+    /// 清除已保存的草稿（遵循 `CaptureDraftServiceProtocol`）
     public func clearDraft() {
         defaults.removeObject(forKey: draftMetadataKey)
         if let path = draftImagePath() {

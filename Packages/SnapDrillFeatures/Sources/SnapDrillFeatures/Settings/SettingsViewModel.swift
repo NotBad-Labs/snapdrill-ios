@@ -23,6 +23,8 @@ public final class SettingsViewModel {
 
     // MARK: - Initialization
 
+    /// 创建设置页 ViewModel
+    /// - Parameter repositories: 应用的数据仓库容器
     public init(repositories: RepositoryContainer) {
         self.repositories = repositories
     }

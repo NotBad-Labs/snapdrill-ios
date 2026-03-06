@@ -34,6 +34,7 @@ public final class PrivacyConsentService {
 
     // MARK: - Initialization
 
+    /// 创建隐私授权服务实例；通常通过 `ServiceContainer` 注入
     public init() {}
 
     // MARK: - Public API

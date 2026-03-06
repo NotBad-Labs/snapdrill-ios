@@ -34,6 +34,13 @@ public final class SubjectModel {
 
     // MARK: - Initialization
 
+    /// 创建学科模型
+    /// - Parameters:
+    ///   - id: 唯一标识，默认自动生成
+    ///   - name: 学科名称，如 "数学"
+    ///   - icon: SF Symbol 图标名称
+    ///   - colorHex: Hex 颜色字符串，如 `"#5C6BC0"`
+    ///   - sortOrder: 排序权重（越小越靠前）
     public init(
         id: UUID = UUID(),
         name: String,

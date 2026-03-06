@@ -99,9 +99,20 @@ public final class CaptureResultViewModel {
 
     /// 识别任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
     private var recognitionTask: Task<Void, Never>?
+    /// 相册图片加载任务句柄（连续切换图片时取消前一个，避免竞态）
+    private var photoLoadTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
+    /// 创建采集结果 ViewModel
+    /// - Parameters:
+    ///   - content: OCR 识别的初始文本
+    ///   - image: 拍摄图片（纯文字题为 `nil`）
+    ///   - repositories: 仓库容器（用于读取分类选项并保存题目）
+    ///   - ocrService: OCR 识别服务
+    ///   - analyticsService: 分析服务
+    ///   - imageStorage: 图片存储服务，默认使用 `ImageStorage()`
+    ///   - router: 采集流程路由器
     public init(
         content: String,
         image: UIImage?,
@@ -126,6 +137,8 @@ public final class CaptureResultViewModel {
     public func cancelTasks() {
         recognitionTask?.cancel()
         recognitionTask = nil
+        photoLoadTask?.cancel()
+        photoLoadTask = nil
     }
 
     /// 加载默认表单数据
@@ -303,7 +316,8 @@ public final class CaptureResultViewModel {
 
     private func processSelectedPhoto() {
         guard let item = answerPhotoItem else { return }
-        Task {
+        photoLoadTask?.cancel()
+        photoLoadTask = Task {
             do {
                 if let data = try await item.loadTransferable(type: Data.self),
                    let loadedImage = UIImage(data: data) {

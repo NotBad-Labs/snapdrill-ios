@@ -45,6 +45,7 @@ public final class DashboardRouter: FeatureRouter {
     /// 跳转到采集模块的回调 (Optional draft to restore)
     public var onNavigateToCapture: ((CaptureDraftService.Draft?) -> Void)?
     
+    /// 创建首页看板路由器
     public init() {}
     
     // MARK: - Public API

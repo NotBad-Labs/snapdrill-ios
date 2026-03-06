@@ -29,7 +29,8 @@ public protocol OCRServiceProtocol: Sendable {
 public actor OCRService: OCRServiceProtocol {
     
     // MARK: - Initialization
-    
+
+    /// 创建 OCR 服务实例
     public init() {}
     
     // MARK: - Public API

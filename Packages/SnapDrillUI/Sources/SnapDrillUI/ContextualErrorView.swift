@@ -138,6 +138,10 @@ public struct ContextualErrorView: View {
     let error: AppError
     let onAction: (() -> Void)?
     
+    /// 创建上下文错误视图
+    /// - Parameters:
+    ///   - error: 要展示的错误类型
+    ///   - onAction: 操作按钮点击回调；为 `nil` 时不显示按钮
     public init(error: AppError, onAction: (() -> Void)? = nil) {
         self.error = error
         self.onAction = onAction
@@ -190,6 +194,10 @@ public struct ErrorBannerView: View {
     let error: AppError
     let onDismiss: () -> Void
     
+    /// 创建内联错误横幅
+    /// - Parameters:
+    ///   - error: 要展示的错误类型
+    ///   - onDismiss: 用户点击关闭时的回调
     public init(error: AppError, onDismiss: @escaping () -> Void) {
         self.error = error
         self.onDismiss = onDismiss

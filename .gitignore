@@ -27,3 +27,7 @@ Packages/**/.swiftpm/
 xcuserdata/
 .env
 build_output.txt
+
+# Claude Code — local only
+.claude/reviews/
+.claude/settings.local.json
