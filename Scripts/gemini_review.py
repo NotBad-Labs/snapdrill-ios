@@ -76,7 +76,7 @@ prompt = (
 
 try:
     # PR diff review 使用深度审查链（注入全量文件后 prompt 可达 ~500K 字符，需要更强推理）
-    review_text, used_model = call_gemini_with_fallback(prompt, api_key, timeout=180, models=MODELS_DEEP)
+    review_text, used_model = call_gemini_with_fallback(prompt, api_key, timeout=300, models=MODELS_DEEP)
 except Exception as e:
     review_text = f"⚠️ Gemini API 调用失败（所有模型均不可用）：{e}"
     used_model = "N/A"
