@@ -218,76 +218,77 @@ struct LibraryEditView: View {
     }
     
     private func subjectPicker(vm: LibraryEditViewModel) -> some View {
-        HStack {
-            Text("学科")
-            Spacer()
-            
-            Menu {
-                ForEach(vm.subjects) { subject in
-                    Button {
-                        vm.selectedSubject = subject.name
-                    } label: {
-                        Label(subject.name, systemImage: subject.icon)
-                    }
-                }
-            } label: {
-                HStack {
-                    Text(vm.selectedSubject.isEmpty ? "选择学科" : vm.selectedSubject)
-                        .foregroundStyle(vm.selectedSubject.isEmpty ? .secondary : .primary)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
+        // Menu label 覆盖整行，确保任意位置均可点击
+        Menu {
+            ForEach(vm.subjects) { subject in
+                Button {
+                    vm.selectedSubject = subject.name
+                } label: {
+                    Label(subject.name, systemImage: subject.icon)
                 }
             }
+        } label: {
+            HStack {
+                Text("学科")
+                    .foregroundStyle(.primary)
+                Spacer()
+                Text(vm.selectedSubject.isEmpty ? "选择学科" : vm.selectedSubject)
+                    .foregroundStyle(vm.selectedSubject.isEmpty ? .secondary : .primary)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .contentShape(Rectangle())
         }
     }
-    
+
     private func sourcePicker(vm: LibraryEditViewModel) -> some View {
-        HStack {
-            Text("来源")
-            Spacer()
-            
-            Menu {
-                ForEach(vm.sources) { source in
-                    Button {
-                        vm.selectedSource = source.name
-                    } label: {
-                        Label(source.name, systemImage: source.icon)
-                    }
-                }
-            } label: {
-                HStack {
-                    Text(vm.selectedSource.isEmpty ? "选择来源" : vm.selectedSource)
-                        .foregroundStyle(vm.selectedSource.isEmpty ? .secondary : .primary)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
+        // Menu label 覆盖整行，确保任意位置均可点击
+        Menu {
+            ForEach(vm.sources) { source in
+                Button {
+                    vm.selectedSource = source.name
+                } label: {
+                    Label(source.name, systemImage: source.icon)
                 }
             }
+        } label: {
+            HStack {
+                Text("来源")
+                    .foregroundStyle(.primary)
+                Spacer()
+                Text(vm.selectedSource.isEmpty ? "选择来源" : vm.selectedSource)
+                    .foregroundStyle(vm.selectedSource.isEmpty ? .secondary : .primary)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .contentShape(Rectangle())
         }
     }
-    
+
     private func gradePicker(vm: LibraryEditViewModel) -> some View {
-        HStack {
-            Text("年级/程度")
-            Spacer()
-            Menu {
-                ForEach(vm.grades) { grade in
-                    Button {
-                        vm.grade = grade.name
-                    } label: {
-                        Text(grade.name)
-                    }
-                }
-            } label: {
-                HStack {
-                    Text(vm.grade.isEmpty ? "选择年级" : vm.grade)
-                        .foregroundStyle(vm.grade.isEmpty ? .secondary : .primary)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
+        // Menu label 覆盖整行，确保任意位置均可点击
+        Menu {
+            ForEach(vm.grades) { grade in
+                Button {
+                    vm.grade = grade.name
+                } label: {
+                    Text(grade.name)
                 }
             }
+        } label: {
+            HStack {
+                Text("年级/程度")
+                    .foregroundStyle(.primary)
+                Spacer()
+                Text(vm.grade.isEmpty ? "选择年级" : vm.grade)
+                    .foregroundStyle(vm.grade.isEmpty ? .secondary : .primary)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .contentShape(Rectangle())
         }
     }
 
