@@ -9,6 +9,13 @@ from gemini_utils import call_gemini_with_fallback, MODELS_DEEP
 pr_title = os.environ.get("PR_TITLE", "")
 api_key  = os.environ.get("GEMINI_API_KEY", "")
 
+# 读取项目架构上下文（约束、例外规则等），减少 Gemini 因规则不完整导致的假阳性
+gemini_context = ""
+context_path = os.path.join(os.path.dirname(__file__), "..", ".claude", "gemini-context.md")
+if os.path.exists(context_path):
+    with open(context_path, "r", encoding="utf-8", errors="replace") as f:
+        gemini_context = f.read()
+
 with open("pr_diff.txt", "r", encoding="utf-8", errors="replace") as f:
     diff = f.read()
 
@@ -21,22 +28,29 @@ if not diff.strip():
 if len(diff) > 40000:
     diff = diff[:40000] + "\n\n[... diff 过长，已截断 ...]"
 
-# 读取变动 Swift 文件的完整内容，为 Gemini 提供充足上下文，减少因 diff 窗口过窄导致的误报
+# 读取全量 Swift 文件内容，让 Gemini 看到未变动的 ViewModel 声明等关键上下文，减少假阳性
 full_files = ""
 if os.path.exists("full_files.txt"):
     with open("full_files.txt", "r", encoding="utf-8", errors="replace") as f:
         full_files = f.read()
-    if len(full_files) > 80000:
-        full_files = full_files[:80000].rsplit('\n', 1)[0] + "\n\n[... 完整文件内容过长，已截断 ...]"
+    if len(full_files) > 400000:
+        full_files = full_files[:400000].rsplit('\n', 1)[0] + "\n\n[... 完整文件内容过长，已截断 ...]"
 
 full_files_section = (
-    "\n\n变动 Swift 文件完整内容（用于完整上下文，避免误报）：\n```\n"
+    "\n\n全量 Swift 文件内容（完整代码库上下文，用于避免因仅看 diff 产生的误报）：\n```\n"
     + full_files
     + "\n```"
 ) if full_files.strip() else ""
 
+context_section = (
+    "以下是本项目的架构约束与例外规则，审查时必须遵照执行：\n\n"
+    + gemini_context
+    + "\n\n---\n\n"
+) if gemini_context.strip() else ""
+
 prompt = (
-    "你是一个经验丰富的 iOS Swift 代码审查专家。请审查以下 PR。\n\n"
+    context_section
+    + "你是一个经验丰富的 iOS Swift 代码审查专家。请审查以下 PR。\n\n"
     f"PR 标题：{pr_title}\n\n"
     "审查重点（按优先级）：\n"
     "1. **逻辑错误和边界情况** — 潜在崩溃、空指针、数组越界\n"
@@ -61,7 +75,7 @@ prompt = (
 )
 
 try:
-    # PR diff review 使用深度审查链（附加完整文件后 prompt 增至 ~120K 字符，需要更强推理）
+    # PR diff review 使用深度审查链（注入全量文件后 prompt 可达 ~500K 字符，需要更强推理）
     review_text, used_model = call_gemini_with_fallback(prompt, api_key, timeout=180, models=MODELS_DEEP)
 except Exception as e:
     review_text = f"⚠️ Gemini API 调用失败（所有模型均不可用）：{e}"
