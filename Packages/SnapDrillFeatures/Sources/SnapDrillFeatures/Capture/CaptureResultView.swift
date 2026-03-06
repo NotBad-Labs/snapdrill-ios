@@ -97,65 +97,35 @@ public struct CaptureResultView: View {
                         .padding(.horizontal)
             
                     VStack(spacing: 0) {
-                        // Subject — Menu label 覆盖整行，确保任意位置均可点击
-                        Menu {
-                            ForEach(viewModel.availableSubjects) { subject in
-                                Button {
-                                    viewModel.selectedSubject = subject.name
-                                } label: {
-                                    Label(subject.name, systemImage: subject.icon)
+                        // Subject — HIG: 非 Form 上下文用 Picker(.menu)，右侧为点击区，弹出框锚定右侧
+                        HStack {
+                            Text("学科")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Picker("学科", selection: $viewModel.selectedSubject) {
+                                ForEach(viewModel.availableSubjects) { subject in
+                                    Label(subject.name, systemImage: subject.icon).tag(subject.name)
                                 }
                             }
-                            Divider()
-                            Button {
-                                viewModel.showNewSubjectAlert = true
-                            } label: {
-                                Label("新建学科", systemImage: "plus")
-                            }
-                        } label: {
-                            HStack {
-                                Text("学科")
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                Text(viewModel.selectedSubject)
-                                    .foregroundStyle(.secondary)
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .contentShape(Rectangle())
+                            .pickerStyle(.menu)
+                            .labelsHidden()
                         }
                         .padding()
 
                         Divider().padding(.leading)
 
-                        // Source — Menu label 覆盖整行，确保任意位置均可点击
-                        Menu {
-                            ForEach(viewModel.availableSources) { source in
-                                Button {
-                                    viewModel.selectedSource = source.name
-                                } label: {
-                                    Label(source.name, systemImage: source.icon)
+                        // Source — HIG: 非 Form 上下文用 Picker(.menu)，右侧为点击区，弹出框锚定右侧
+                        HStack {
+                            Text("来源")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Picker("来源", selection: $viewModel.selectedSource) {
+                                ForEach(viewModel.availableSources) { source in
+                                    Label(source.name, systemImage: source.icon).tag(source.name)
                                 }
                             }
-                            Divider()
-                            Button {
-                                viewModel.showNewSourceAlert = true
-                            } label: {
-                                Label("新建来源", systemImage: "plus")
-                            }
-                        } label: {
-                            HStack {
-                                Text("来源")
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                Text(viewModel.selectedSource)
-                                    .foregroundStyle(.secondary)
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .contentShape(Rectangle())
+                            .pickerStyle(.menu)
+                            .labelsHidden()
                         }
                         .padding()
                 
@@ -202,33 +172,19 @@ public struct CaptureResultView: View {
                 
                         Divider().padding(.leading)
                 
-                        // Grade/Mastery — Menu label 覆盖整行，确保任意位置均可点击
-                        Menu {
-                            ForEach(viewModel.availableGrades) { grade in
-                                Button {
-                                    viewModel.grade = grade.name
-                                } label: {
-                                    Text(grade.name)
+                        // Grade/Mastery — HIG: 非 Form 上下文用 Picker(.menu)，右侧为点击区，弹出框锚定右侧
+                        HStack {
+                            Text("年级/程度")
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Picker("年级/程度", selection: $viewModel.grade) {
+                                Text("未选择").tag("")
+                                ForEach(viewModel.availableGrades) { grade in
+                                    Text(grade.name).tag(grade.name)
                                 }
                             }
-                            Divider()
-                            Button {
-                                viewModel.showNewGradeAlert = true
-                            } label: {
-                                Label("新建年级", systemImage: "plus")
-                            }
-                        } label: {
-                            HStack {
-                                Text("年级/程度")
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                Text(viewModel.grade.isEmpty ? "未选择" : viewModel.grade)
-                                    .foregroundStyle(viewModel.grade.isEmpty ? .tertiary : .secondary)
-                                Image(systemName: "chevron.up.chevron.down")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .contentShape(Rectangle())
+                            .pickerStyle(.menu)
+                            .labelsHidden()
                         }
                         .padding()
                 
@@ -310,27 +266,6 @@ public struct CaptureResultView: View {
         .onDisappear {
             viewModel.generateDraftIfNeeded()
             viewModel.cancelTasks()
-        }
-        .alert("新建学科", isPresented: $viewModel.showNewSubjectAlert) {
-            TextField("学科名称", text: $viewModel.newSubjectName)
-            Button("创建") { viewModel.confirmNewSubject() }
-            Button("取消", role: .cancel) { viewModel.newSubjectName = "" }
-        } message: {
-            Text("输入新学科名称，创建后自动选中")
-        }
-        .alert("新建来源", isPresented: $viewModel.showNewSourceAlert) {
-            TextField("来源名称", text: $viewModel.newSourceName)
-            Button("创建") { viewModel.confirmNewSource() }
-            Button("取消", role: .cancel) { viewModel.newSourceName = "" }
-        } message: {
-            Text("输入新来源名称，创建后自动选中")
-        }
-        .alert("新建年级", isPresented: $viewModel.showNewGradeAlert) {
-            TextField("年级名称", text: $viewModel.newGradeName)
-            Button("创建") { viewModel.confirmNewGrade() }
-            Button("取消", role: .cancel) { viewModel.newGradeName = "" }
-        } message: {
-            Text("输入新年级名称，创建后自动选中")
         }
         .alert("保存失败", isPresented: $viewModel.showErrorAlert) {
             Button("好", role: .cancel) { }
