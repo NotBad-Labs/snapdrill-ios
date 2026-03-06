@@ -25,7 +25,7 @@ View 层通过 `@Environment(\.repositories)` 和 `@Environment(\.services)` 获
 - ``CaptureViewModel`` — 协调相机扫描、相册选图、OCR 识别流程
 - ``CaptureResultViewModel`` — 采集结果的预览与表单编辑，支持保存到数据库
 - ``CaptureDraftServiceProtocol`` — 草稿服务协议
-- `CaptureDraftService` — 草稿的磁盘持久化实现
+- ``CaptureDraftService`` — 草稿的磁盘持久化实现
 
 ### Library（题库）
 
@@ -34,7 +34,7 @@ View 层通过 `@Environment(\.repositories)` 和 `@Environment(\.services)` 获
 
 ### Review（复习）
 
-- `ReviewViewModel` — 复习会话状态机，调用 `ReviewScheduler` 计算 SM-2 调度
+- ``ReviewViewModel`` — 复习会话状态机，调用 ``ReviewScheduler`` 计算 SM-2 调度
 
 ### Settings（设置）
 
