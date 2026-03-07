@@ -12,6 +12,7 @@ import SwiftUI
 import Observation
 import SnapDrillCore
 import SnapDrillUI
+import SnapDrillFeatureLibrary
 
 /// 首页仪表盘视图
 ///
