@@ -28,12 +28,13 @@ if not diff.strip():
 if len(diff) > 40000:
     diff = diff[:40000] + "\n\n[... diff 过长，已截断 ...]"
 
-# 判断是否为纯文档 PR（仅 .md 文件变更，无 .swift 变更）
-is_doc_only = all(
-    line.startswith("diff --git") and line.endswith(".md")
+# 判断是否为非代码 PR（无 .swift 变更时使用文档审查 prompt）
+has_swift_files = any(
+    line.startswith("diff --git") and line.endswith(".swift")
     for line in diff.splitlines()
     if line.startswith("diff --git")
 )
+is_doc_only = not has_swift_files
 
 # 读取全量 Swift 文件内容，让 Gemini 看到未变动的 ViewModel 声明等关键上下文，减少假阳性
 full_files = ""
