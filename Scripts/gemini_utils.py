@@ -9,19 +9,18 @@ import urllib.error
 
 GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
-# 模型降级链（2026-03，基于 https://ai.google.dev/gemini-api/docs/models）
+# 模型降级链（2026-03-07，基于 https://ai.google.dev/gemini-api/docs/models）
 #
-# 成本优化（2026-03-07）：从 3.1-pro-preview 切换到 3.1-flash-lite-preview，
-# 输入 $0.25/M、输出 $1.50/M，比 3.1-pro 便宜约 10 倍，review 质量满足需求。
+# 成本优化策略：首选 gemini-3.1-flash-lite-preview（$0.25/$1.50 per M tokens），
+# 比 3.1-pro-preview 便宜约 10 倍，PR review 质量满足需求。
 #
 # 深度审查链（全模块架构 review，~300K 字符）：
-#   gemini-3.1-flash-lite-preview → gemini-2.5-pro → gemini-2.5-flash
+#   flash-lite-preview（成本最优）→ 2.5-pro（质量保障）→ 2.5-flash（可用性兜底）
 #
-# 快速审查链（PR diff review，~40K 字符，GA 稳定优先）：
-#   gemini-3.1-flash-lite-preview → gemini-2.5-flash
+# 快速审查链（PR diff review，~40K 字符，成本优先 + GA 可用性兜底）：
+#   flash-lite-preview（成本最优）→ 2.5-flash（GA 稳定兜底）
 #
-# gemini-3-pro-preview：3月9日下线，已排除。
-# gemini-2.0-flash：弃用中，已排除。
+# 已排除：gemini-3-pro-preview（3月9日下线）、gemini-2.0-flash（弃用中）
 
 MODELS_DEEP = [
     "gemini-3.1-flash-lite-preview",  # 成本最优，$0.25/$1.50 per M tokens
