@@ -10,7 +10,11 @@
 
 import SwiftUI
 import Observation
-import SnapDrillFeatures
+import SnapDrillFeatureCapture
+import SnapDrillFeatureLibrary
+import SnapDrillFeatureReview
+import SnapDrillFeatureDashboard
+import SnapDrillFeatureSettings
 
 /// 应用的一级导航标签
 enum AppTab: Hashable {

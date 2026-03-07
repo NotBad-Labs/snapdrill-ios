@@ -6,7 +6,7 @@
 //  Created by NotBad Labs on 2025/12/29.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  功能模块包，包含 Dashboard, Review, Library, Settings 等业务模块。
+//  功能模块包，按功能域拆为 5 个独立 target，编译器强制约束跨域类型访问。
 //
 
 import PackageDescription
@@ -15,7 +15,11 @@ let package = Package(
     name: "SnapDrillFeatures",
     platforms: [.iOS(.v26), .macOS(.v14)],
     products: [
-        .library(name: "SnapDrillFeatures", targets: ["SnapDrillFeatures"]),
+        .library(name: "SnapDrillFeatureCapture",   targets: ["SnapDrillFeatureCapture"]),
+        .library(name: "SnapDrillFeatureLibrary",   targets: ["SnapDrillFeatureLibrary"]),
+        .library(name: "SnapDrillFeatureReview",    targets: ["SnapDrillFeatureReview"]),
+        .library(name: "SnapDrillFeatureDashboard", targets: ["SnapDrillFeatureDashboard"]),
+        .library(name: "SnapDrillFeatureSettings",  targets: ["SnapDrillFeatureSettings"]),
     ],
     dependencies: [
         .package(path: "../SnapDrillCore"),
@@ -24,19 +28,46 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "SnapDrillFeatures",
-            dependencies: [
-                "SnapDrillCore",
-                "SnapDrillUI",
-                "SnapDrillData"
-            ],
-            swiftSettings: [
-                .swiftLanguageMode(.v6)
-            ]
+            name: "SnapDrillFeatureCapture",
+            dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        .target(
+            name: "SnapDrillFeatureLibrary",
+            dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        // SnapDrillFeatureReview 依赖 SnapDrillFeatureLibrary：
+        // ReviewCardContent 内嵌 LibraryEditView（复习时编辑卡片内容）。
+        .target(
+            name: "SnapDrillFeatureReview",
+            dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData",
+                           "SnapDrillFeatureLibrary"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        .target(
+            name: "SnapDrillFeatureDashboard",
+            dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
+        // SnapDrillFeatureSettings 依赖 SnapDrillFeatureDashboard：
+        // SettingsView 包含 SubjectManagerView / SourceManagerView / GradeManagerView（管理学科/来源/年级）。
+        .target(
+            name: "SnapDrillFeatureSettings",
+            dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData",
+                           "SnapDrillFeatureDashboard"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "SnapDrillFeaturesTests",
-            dependencies: ["SnapDrillFeatures", "SnapDrillCore"]
-        )
+            dependencies: [
+                "SnapDrillFeatureCapture",
+                "SnapDrillFeatureLibrary",
+                "SnapDrillFeatureReview",
+                "SnapDrillFeatureDashboard",
+                "SnapDrillFeatureSettings",
+                "SnapDrillCore"
+            ]
+        ),
     ]
 )

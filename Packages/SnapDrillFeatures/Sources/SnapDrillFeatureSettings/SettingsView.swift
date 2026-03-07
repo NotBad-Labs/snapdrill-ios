@@ -14,6 +14,7 @@ import Observation
 import SnapDrillCore
 import SnapDrillUI
 import SnapDrillData
+import SnapDrillFeatureDashboard
 #if canImport(UIKit)
 import UIKit
 import MessageUI

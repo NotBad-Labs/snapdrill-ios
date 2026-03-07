@@ -10,6 +10,7 @@
 
 import SwiftUI
 import Observation
+import SnapDrillCore
 import SnapDrillUI
 import UIKit
 

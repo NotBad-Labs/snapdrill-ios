@@ -11,7 +11,6 @@
 import Foundation
 import SnapDrillCore
 import SnapDrillData
-import SnapDrillFeatures
 import SnapDrillInfrastructure
 
 /// 应用的依赖注入容器 (Composition Root)
