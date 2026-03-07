@@ -11,7 +11,7 @@
 import SwiftUI
 import PhotosUI
 import SnapDrillCore
-import SnapDrillFeatureDashboard
+import SnapDrillFeatureLibrary
 
 /// 用户资料编辑页面 - 专注学习场景
 struct EditProfileView: View {

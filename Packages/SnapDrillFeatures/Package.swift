@@ -45,17 +45,20 @@ let package = Package(
                            "SnapDrillFeatureLibrary"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
+        // SnapDrillFeatureDashboard 依赖 SnapDrillFeatureLibrary：
+        // DashboardView 使用 SubjectManagerView（分类管理，迁入 Library 后引用）。
         .target(
             name: "SnapDrillFeatureDashboard",
-            dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData"],
+            dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData",
+                           "SnapDrillFeatureLibrary"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
-        // SnapDrillFeatureSettings 依赖 SnapDrillFeatureDashboard：
-        // SettingsView 包含 SubjectManagerView / SourceManagerView / GradeManagerView（管理学科/来源/年级）。
+        // SnapDrillFeatureSettings 依赖 SnapDrillFeatureLibrary：
+        // SettingsView 包含 SubjectManagerView / SourceManagerView / GradeManagerView（分类管理，语义归 Library）。
         .target(
             name: "SnapDrillFeatureSettings",
             dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData",
-                           "SnapDrillFeatureDashboard"],
+                           "SnapDrillFeatureLibrary"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
