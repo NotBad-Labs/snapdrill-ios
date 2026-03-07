@@ -2,6 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+@.claude/product.md
 @.claude/principles.md
 @.claude/architecture.md
 @.claude/refactoring-plan.md
