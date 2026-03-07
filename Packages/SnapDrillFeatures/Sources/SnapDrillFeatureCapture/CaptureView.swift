@@ -175,6 +175,13 @@ public struct CaptureView: View {
             .onAppear {
                 viewModel.checkDraftOnAppear()
             }
+            // 连续录入：保存成功后自动重新打开摄像头
+            .onChange(of: router.shouldReopenScanner) { _, shouldReopen in
+                if shouldReopen {
+                    router.shouldReopenScanner = false
+                    viewModel.isShowingScanner = true
+                }
+            }
             .onDisappear {
                 viewModel.cancelOngoingTasks()
             }

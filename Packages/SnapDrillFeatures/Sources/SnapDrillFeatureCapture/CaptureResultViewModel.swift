@@ -25,11 +25,11 @@ public final class CaptureResultViewModel {
     /// 题目截图（可为 `nil` 表示纯文字题）
     public var image: UIImage?
 
-    // 分类信息
+    // 分类信息（自动推断：沿用上次录入的学科/来源，减少重复操作）
     /// 当前选中的学科名称
-    public var selectedSubject: String = "数学"
+    public var selectedSubject: String = UserDefaults.standard.string(forKey: "lastSelectedSubject") ?? "数学"
     /// 当前选中的来源名称
-    public var selectedSource: String = "试卷"
+    public var selectedSource: String = UserDefaults.standard.string(forKey: "lastSelectedSource") ?? "试卷"
     /// 标签列表（字符串形式）
     public var tagList: [String] = []
     /// 标签输入框当前文本
@@ -274,6 +274,10 @@ public final class CaptureResultViewModel {
             isSaved = true
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
 
+            // 自动推断：持久化本次选择，下次录入时自动填充
+            UserDefaults.standard.set(selectedSubject, forKey: "lastSelectedSubject")
+            UserDefaults.standard.set(selectedSource, forKey: "lastSelectedSource")
+
             // 埋点
             analyticsService.track(
                 .captureSaved,
@@ -284,11 +288,12 @@ public final class CaptureResultViewModel {
                 ]
             )
 
-            // 清理并返回：仅弹出当前页，保留调用方的导航历史
+            // 连续录入：清理并返回摄像头，而非方式选择菜单
             CaptureDraftService.shared.clearDraft()
             if !router.path.isEmpty {
                 router.path.removeLast()
             }
+            router.shouldReopenScanner = true
 
         } catch {
             // 回滚 mainContext：清除本次操作插入的脏 Tag 和脏 ReviewItemModel。
