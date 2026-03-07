@@ -319,20 +319,26 @@ struct ReviewCardBack: View {
     private func loadQuestionImage() async {
         guard item.content == nil || item.content?.isEmpty == true,
               let path = item.imagePath else { return }
-        let image = await Task.detached(priority: .userInitiated) {
-            imageStorage.loadImage(path: path)
-        }.value
-        loadedQuestionImage = image
+        if let image = await loadImage(from: path) {
+            withAnimation(.easeOut(duration: 0.2)) {
+                self.loadedQuestionImage = image
+            }
+        }
     }
 
     private func loadAnswerImage(path: String) async {
-        let image = await Task.detached(priority: .userInitiated) {
+        if let image = await loadImage(from: path) {
+            withAnimation(.easeOut(duration: 0.2)) {
+                self.loadedAnswerImage = image
+            }
+        }
+    }
+
+    private func loadImage(from path: String) async -> UIImage? {
+        // 显式捕获 imageStorage，避免隐式捕获 self
+        await Task.detached(priority: .userInitiated) { [imageStorage] in
             imageStorage.loadImage(path: path)
         }.value
-
-        withAnimation(.easeOut(duration: 0.2)) {
-            self.loadedAnswerImage = image
-        }
     }
 }
 
