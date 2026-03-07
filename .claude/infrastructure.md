@@ -4,7 +4,7 @@
 > 不在此文件中的 API 必须先读源文件确认，或新建后再写入此文件。
 > **不得凭名称推测方法存在**。
 
-最后更新：2026-03-04（新增 SnapDrillInfrastructure 包，Firebase 实现迁出 Core）
+最后更新：2026-03-07（Core cleanup：删除 CaptureService 空壳；PDFExportService 从 Capture/ 移至 Service/；分类管理视图迁入 SnapDrillFeatureLibrary）
 
 ---
 
@@ -130,7 +130,7 @@ public struct ImageStorage {
     public func deleteImage(path: String) async throws  // async 2026-03-06，Apple 文档要求文件 I/O 异步；文件不存在时静默跳过
 }
 
-// PDFExportService（final class）
+// PDFExportService（final class，路径：Service/PDFExportService.swift）
 public final class PDFExportService {
     public static let shared: PDFExportService
     public func createPDF(from items: [any PDFExportable],
