@@ -45,6 +45,13 @@ public struct SettingsView: View {
     @State private var showingSourceManager = false
     @State private var showingGradeManager = false
 
+    // 录入字段可见性（产品规格：学科默认开，其余默认关）
+    @AppStorage("captureFieldSubject") private var showSubjectField: Bool = true
+    @AppStorage("captureFieldSource") private var showSourceField: Bool = false
+    @AppStorage("captureFieldDifficulty") private var showDifficultyField: Bool = false
+    @AppStorage("captureFieldGrade") private var showGradeField: Bool = false
+    @AppStorage("captureFieldAnswer") private var showAnswerField: Bool = false
+
     // Appearance Setting
     @AppStorage("appearanceMode") private var appearanceMode: Int = 0
     @AppStorage("cardContextAlignment") private var alignmentRaw: String = "leading"
@@ -79,7 +86,35 @@ public struct SettingsView: View {
                     .listRowSeparator(.hidden)
                 }
 
-                // 2. 复习设置
+                // 2. 录入字段配置
+                Section("录入字段") {
+                    Toggle(isOn: $showSubjectField) {
+                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: "学科")
+                    }
+                    .listRowSeparator(.hidden)
+
+                    Toggle(isOn: $showSourceField) {
+                        SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: "来源")
+                    }
+                    .listRowSeparator(.hidden)
+
+                    Toggle(isOn: $showDifficultyField) {
+                        SettingsRow(icon: "star.fill", gradientStart: .yellow, gradientEnd: .orange, title: "难度")
+                    }
+                    .listRowSeparator(.hidden)
+
+                    Toggle(isOn: $showGradeField) {
+                        SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: "年级")
+                    }
+                    .listRowSeparator(.hidden)
+
+                    Toggle(isOn: $showAnswerField) {
+                        SettingsRow(icon: "text.bubble.fill", gradientStart: .purple, gradientEnd: .pink, title: "答案")
+                    }
+                    .listRowSeparator(.hidden)
+                }
+
+                // 3. 复习设置
                 Section("复习设置") {
                     NavigationLink {
                         ReviewAppearanceSettingsView(
@@ -101,7 +136,7 @@ public struct SettingsView: View {
                     .listRowSeparator(.hidden)
                 }
 
-                // 3. 数据与云同步
+                // 4. 数据与云同步
                 Section("数据与云同步") {
                     NavigationLink {
                         DataAndSyncSettingsView()
@@ -118,7 +153,7 @@ public struct SettingsView: View {
                     .listRowSeparator(.hidden)
                 }
 
-                // 4. 通用
+                // 5. 通用
                 Section("通用") {
                     Picker(selection: $appearanceMode) {
                         Text("跟随系统").tag(0)
@@ -137,7 +172,7 @@ public struct SettingsView: View {
                     .listRowSeparator(.hidden)
                 }
 
-                // 5. 数据管理
+                // 6. 数据管理
                 Section("数据管理") {
                     Button { showingSubjectManager = true } label: {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: "管理学科")
@@ -160,7 +195,7 @@ public struct SettingsView: View {
                     .listRowSeparator(.hidden)
                 }
 
-                // 6. 关于
+                // 7. 关于
                 Section("关于") {
                     Button { showingMail = true } label: {
                         SettingsRow(icon: "heart.text.square.fill", gradientStart: .pink, gradientEnd: .red, title: "反馈与支持")

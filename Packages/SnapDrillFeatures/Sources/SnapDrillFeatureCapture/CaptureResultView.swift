@@ -21,6 +21,13 @@ public struct CaptureResultView: View {
     // @Bindable 用于外部传入的 @Observable 对象，不持有所有权（区别于 @State）
     @Bindable var viewModel: CaptureResultViewModel
 
+    // 录入字段可见性（与 SettingsView 共享同一组 @AppStorage key）
+    @AppStorage("captureFieldSubject") private var showSubjectField: Bool = true
+    @AppStorage("captureFieldSource") private var showSourceField: Bool = false
+    @AppStorage("captureFieldDifficulty") private var showDifficultyField: Bool = false
+    @AppStorage("captureFieldGrade") private var showGradeField: Bool = false
+    @AppStorage("captureFieldAnswer") private var showAnswerField: Bool = false
+
     /// 创建采集结果视图
     /// - Parameter viewModel: 注入的 ViewModel
     public init(viewModel: CaptureResultViewModel) {
@@ -93,81 +100,83 @@ public struct CaptureResultView: View {
                 }
                 .padding(.horizontal)
         
-                // Metadata Form
+                // Metadata Form（字段按 Settings 中的开关条件渲染）
                 VStack(alignment: .leading, spacing: 20) {
                     Text("分类信息")
                         .font(.headline)
                         .padding(.horizontal)
-            
+
                     VStack(spacing: 0) {
                         // Subject — Menu label 仅覆盖右侧（当前值 + chevron），弹出框锚定右侧，左侧标签始终可见
                         // 支持内联新建：Things 3 / Notion / Apple Notes 均采用此模式
-                        HStack {
-                            Text("学科")
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            Menu {
-                                ForEach(viewModel.availableSubjects) { subject in
+                        if showSubjectField {
+                            HStack {
+                                Text("学科")
+                                    .foregroundStyle(.primary)
+                                Spacer()
+                                Menu {
+                                    ForEach(viewModel.availableSubjects) { subject in
+                                        Button {
+                                            viewModel.selectedSubject = subject.name
+                                        } label: {
+                                            Label(subject.name, systemImage: subject.icon)
+                                        }
+                                    }
+                                    Divider()
                                     Button {
-                                        viewModel.selectedSubject = subject.name
+                                        viewModel.showNewSubjectAlert = true
                                     } label: {
-                                        Label(subject.name, systemImage: subject.icon)
+                                        Label("新建学科", systemImage: "plus")
+                                    }
+                                } label: {
+                                    HStack(spacing: 4) {
+                                        Text(viewModel.selectedSubject)
+                                            .foregroundStyle(.secondary)
+                                        Image(systemName: "chevron.up.chevron.down")
+                                            .font(.caption2)
+                                            .foregroundStyle(.tertiary)
                                     }
                                 }
-                                Divider()
-                                Button {
-                                    viewModel.showNewSubjectAlert = true
-                                } label: {
-                                    Label("新建学科", systemImage: "plus")
-                                }
-                            } label: {
-                                HStack(spacing: 4) {
-                                    Text(viewModel.selectedSubject)
-                                        .foregroundStyle(.secondary)
-                                    Image(systemName: "chevron.up.chevron.down")
-                                        .font(.caption2)
-                                        .foregroundStyle(.tertiary)
-                                }
                             }
+                            .padding()
                         }
-                        .padding()
-
-                        Divider().padding(.leading)
 
                         // Source — 同上：Menu label 仅右侧，保留内联新建
-                        HStack {
-                            Text("来源")
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            Menu {
-                                ForEach(viewModel.availableSources) { source in
+                        if showSourceField {
+                            if showSubjectField { Divider().padding(.leading) }
+                            HStack {
+                                Text("来源")
+                                    .foregroundStyle(.primary)
+                                Spacer()
+                                Menu {
+                                    ForEach(viewModel.availableSources) { source in
+                                        Button {
+                                            viewModel.selectedSource = source.name
+                                        } label: {
+                                            Label(source.name, systemImage: source.icon)
+                                        }
+                                    }
+                                    Divider()
                                     Button {
-                                        viewModel.selectedSource = source.name
+                                        viewModel.showNewSourceAlert = true
                                     } label: {
-                                        Label(source.name, systemImage: source.icon)
+                                        Label("新建来源", systemImage: "plus")
+                                    }
+                                } label: {
+                                    HStack(spacing: 4) {
+                                        Text(viewModel.selectedSource)
+                                            .foregroundStyle(.secondary)
+                                        Image(systemName: "chevron.up.chevron.down")
+                                            .font(.caption2)
+                                            .foregroundStyle(.tertiary)
                                     }
                                 }
-                                Divider()
-                                Button {
-                                    viewModel.showNewSourceAlert = true
-                                } label: {
-                                    Label("新建来源", systemImage: "plus")
-                                }
-                            } label: {
-                                HStack(spacing: 4) {
-                                    Text(viewModel.selectedSource)
-                                        .foregroundStyle(.secondary)
-                                    Image(systemName: "chevron.up.chevron.down")
-                                        .font(.caption2)
-                                        .foregroundStyle(.tertiary)
-                                }
                             }
+                            .padding()
                         }
-                        .padding()
-                
-                        Divider().padding(.leading)
-                
-                        // Tags
+
+                        // Tags（始终可用，不可关闭）
+                        if showSubjectField || showSourceField { Divider().padding(.leading) }
                         VStack(alignment: .leading) {
                             Text("标签")
                             TagInputView(
@@ -183,103 +192,109 @@ public struct CaptureResultView: View {
                     .padding(.horizontal)
                 }
         
-                // Details Form (Answer & difficulty)
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("题目详情")
-                        .font(.headline)
-                        .padding(.horizontal)
-            
-                    VStack(spacing: 0) {
-                        // Difficulty
-                        HStack {
-                            Text("难度")
-                            Spacer()
-                            HStack(spacing: 4) {
-                                ForEach(1...5, id: \.self) { level in
-                                    Image(systemName: level <= viewModel.difficulty.rawValue ? "star.fill" : "star")
-                                        .foregroundStyle(level <= viewModel.difficulty.rawValue ? .orange : .gray.opacity(0.3))
-                                        .onTapGesture {
-                                            viewModel.difficulty = Difficulty(rawValue: level) ?? .one
+                // Details Form（难度、年级、答案 — 全部关闭时整个 section 隐藏）
+                if showDifficultyField || showGradeField || showAnswerField {
+                    VStack(alignment: .leading, spacing: 20) {
+                        Text("题目详情")
+                            .font(.headline)
+                            .padding(.horizontal)
+
+                        VStack(spacing: 0) {
+                            // Difficulty
+                            if showDifficultyField {
+                                HStack {
+                                    Text("难度")
+                                    Spacer()
+                                    HStack(spacing: 4) {
+                                        ForEach(1...5, id: \.self) { level in
+                                            Image(systemName: level <= viewModel.difficulty.rawValue ? "star.fill" : "star")
+                                                .foregroundStyle(level <= viewModel.difficulty.rawValue ? .orange : .gray.opacity(0.3))
+                                                .onTapGesture {
+                                                    viewModel.difficulty = Difficulty(rawValue: level) ?? .one
+                                                }
                                         }
-                                }
-                            }
-                        }
-                        .padding()
-                
-                        Divider().padding(.leading)
-                
-                        // Grade/Mastery — 同上：Menu label 仅右侧，保留内联新建
-                        HStack {
-                            Text("年级/程度")
-                                .foregroundStyle(.primary)
-                            Spacer()
-                            Menu {
-                                ForEach(viewModel.availableGrades) { grade in
-                                    Button {
-                                        viewModel.grade = grade.name
-                                    } label: {
-                                        Text(grade.name)
                                     }
                                 }
-                                Divider()
-                                Button {
-                                    viewModel.showNewGradeAlert = true
-                                } label: {
-                                    Label("新建年级", systemImage: "plus")
-                                }
-                            } label: {
-                                HStack(spacing: 4) {
-                                    Text(viewModel.grade.isEmpty ? "未选择" : viewModel.grade)
-                                        .foregroundStyle(viewModel.grade.isEmpty ? .tertiary : .secondary)
-                                    Image(systemName: "chevron.up.chevron.down")
-                                        .font(.caption2)
-                                        .foregroundStyle(.tertiary)
-                                }
+                                .padding()
                             }
-                        }
-                        .padding()
-                
-                        Divider().padding(.leading)
-                
-                        // Answer
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("参考答案")
-                            TextEditor(text: $viewModel.answerText)
-                                .frame(minHeight: 80)
-                                .scrollContentBackground(.hidden) // For iOS 16+
-                                .background(Color(UIColor.tertiarySystemFill))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                    
-                            // Answer Image Picker
-                            HStack {
-                                if let answerImage = viewModel.answerImage {
-                                    Image(uiImage: answerImage)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(maxHeight: 100)
+
+                            // Grade/Mastery — 同上：Menu label 仅右侧，保留内联新建
+                            if showGradeField {
+                                if showDifficultyField { Divider().padding(.leading) }
+                                HStack {
+                                    Text("年级/程度")
+                                        .foregroundStyle(.primary)
+                                    Spacer()
+                                    Menu {
+                                        ForEach(viewModel.availableGrades) { grade in
+                                            Button {
+                                                viewModel.grade = grade.name
+                                            } label: {
+                                                Text(grade.name)
+                                            }
+                                        }
+                                        Divider()
+                                        Button {
+                                            viewModel.showNewGradeAlert = true
+                                        } label: {
+                                            Label("新建年级", systemImage: "plus")
+                                        }
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            Text(viewModel.grade.isEmpty ? "未选择" : viewModel.grade)
+                                                .foregroundStyle(viewModel.grade.isEmpty ? .tertiary : .secondary)
+                                            Image(systemName: "chevron.up.chevron.down")
+                                                .font(.caption2)
+                                                .foregroundStyle(.tertiary)
+                                        }
+                                    }
+                                }
+                                .padding()
+                            }
+
+                            // Answer
+                            if showAnswerField {
+                                if showDifficultyField || showGradeField { Divider().padding(.leading) }
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("参考答案")
+                                    TextEditor(text: $viewModel.answerText)
+                                        .frame(minHeight: 80)
+                                        .scrollContentBackground(.hidden)
+                                        .background(Color(UIColor.tertiarySystemFill))
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                            
-                                    Button(role: .destructive) {
-                                        viewModel.answerImage = nil
-                                    } label: {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundStyle(.red)
+
+                                    // Answer Image Picker
+                                    HStack {
+                                        if let answerImage = viewModel.answerImage {
+                                            Image(uiImage: answerImage)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(maxHeight: 100)
+                                                .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                                            Button(role: .destructive) {
+                                                viewModel.answerImage = nil
+                                            } label: {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundStyle(.red)
+                                            }
+                                        }
+
+                                        Spacer()
+
+                                        PhotosPicker(selection: $viewModel.answerPhotoItem, matching: .images) {
+                                            Label("添加答案图片", systemImage: "photo.badge.plus")
+                                                .font(.subheadline)
+                                        }
                                     }
                                 }
-                        
-                                Spacer()
-                        
-                                PhotosPicker(selection: $viewModel.answerPhotoItem, matching: .images) {
-                                    Label("添加答案图片", systemImage: "photo.badge.plus")
-                                        .font(.subheadline)
-                                }
+                                .padding()
                             }
                         }
-                        .padding()
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal)
                     }
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal)
                 }
         
                 Spacer(minLength: 20)
