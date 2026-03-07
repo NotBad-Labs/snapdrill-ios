@@ -1,4 +1,4 @@
-# SnapDrill 架构（2026-03-04 最终状态）
+# SnapDrill 架构（2026-03-07 最终状态）
 
 ## 包结构（5 包）
 
@@ -18,9 +18,12 @@ SnapDrillData    (→ Core)
 SnapDrillUI      (→ Core)
   └─ 设计系统组件 / ImageCropper
 
-SnapDrillFeatures (→ Core, Data, UI)
-  └─ View（@Query 驱动，纯渲染）
-  └─ ViewModel（@Observable @MainActor final class）
+SnapDrillFeatures（5 个独立 target）
+  SnapDrillFeatureCapture   (→ Core, Data, UI)
+  SnapDrillFeatureLibrary   (→ Core, Data, UI)  ← 含分类管理（Subject/Source/Grade）
+  SnapDrillFeatureReview    (→ Core, Data, UI, Library)
+  SnapDrillFeatureDashboard (→ Core, Data, UI, Library)
+  SnapDrillFeatureSettings  (→ Core, Data, UI, Library)
 
 SnapDrillInfrastructure (→ Core; 仅 SnapDrill/App 可 import)
   └─ Firebase 全部实现（Analytics / Crashlytics / RemoteConfig）
@@ -90,13 +93,26 @@ SnapDrillFeatures/Sources/SnapDrillFeatures/<FeatureName>/
 | Export DTO | `ReviewExportSnapshot`（6字段 Sendable struct），桥接 @Model → Transferable |
 | 列表驱动 | @Query（LibraryView 等），Repository.fetch（ReviewViewModel 状态机）|
 
-## 验证结果（2026-03-04）
+## Feature 间依赖（2026-03-07 精化）
+
+```
+SnapDrillFeatureCapture   ──► Core, Data, UI
+SnapDrillFeatureLibrary   ──► Core, Data, UI
+SnapDrillFeatureReview    ──► Core, Data, UI, Library（LibraryEditView 嵌入复习卡）
+SnapDrillFeatureDashboard ──► Core, Data, UI, Library（SubjectManagerView）
+SnapDrillFeatureSettings  ──► Core, Data, UI, Library（SubjectManager / SourceManager / GradeManager）
+```
+
+分类管理视图（SubjectManagerView 等）语义归属 Library（题目元数据 CRUD），
+不属 Dashboard（统计看板）。Settings 直接依赖 Library，无需经由 Dashboard。
+
+## 验证结果（2026-03-07）
 
 | 指标 | 值 |
 |---|---|
 | SPM 包数 | 5 |
 | Swift 文件数 | 157 |
-| SnapDrillCore swift test | 25/25 ✅（无 Firebase 依赖）|
+| SnapDrillCore swift test | 24/24 ✅（无 Firebase 依赖）|
 | SnapDrillData swift test | 非 Predicate 测试全部通过 ✅ |
 | xcodebuild build | BUILD SUCCEEDED ✅ |
 | swiftlint | 0 violations ✅ |
