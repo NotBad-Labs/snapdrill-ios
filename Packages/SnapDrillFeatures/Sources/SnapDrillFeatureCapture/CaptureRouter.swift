@@ -41,6 +41,8 @@ public final class CaptureRouter: FeatureRouter {
     ///
     /// 绑定到 Feature 入口的 `NavigationStack(path: $router.path)`。
     public var path = NavigationPath()
+    /// 保存成功后置 true，CaptureView 监听此标志自动重新打开摄像头（连续录入）
+    public var shouldReopenScanner = false
     /// 目标类型别名
     public typealias Destination = CaptureDestination
     
