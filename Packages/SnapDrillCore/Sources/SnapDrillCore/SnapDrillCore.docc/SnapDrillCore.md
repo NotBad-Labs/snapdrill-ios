@@ -22,12 +22,11 @@
 
 - ``OCRService`` — 基于 Vision 框架的图片文字识别（遵循 `OCRServiceProtocol`）
 - ``ImageStorage`` — 图片本地持久化（存储在 `Documents/images/`）
-- ``PDFExportService`` — 将题目列表渲染为 PDF 文档
-- ``CaptureService`` — 相机会话管理
 
-### 草稿服务（`Service/` 子目录）
+### 服务（`Service/` 子目录）
 
 - ``CaptureDraftService`` — 跨域草稿缓存（Dashboard 检测 / Capture 消费），`@MainActor` 单例
+- ``PDFExportService`` — 从 `[any PDFExportable]` 生成 PDF Data
 
 ### 协议
 
