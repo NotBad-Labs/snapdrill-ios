@@ -20,11 +20,18 @@
 - ``LibraryEditView`` — 题目编辑表单（`public`，供 Review 模块复用）
 - ``LibraryFilterSheet`` — 按学科、来源、标签多维过滤
 - ``ExportPreviewView`` — PDF 导出预览
+- ``SubjectManagerView`` — 学科管理（新增、重命名、删除，`public`，供 Settings/Dashboard 复用）
+- ``SourceManagerView`` — 来源管理（`public`，供 Settings/Dashboard 复用）
+- ``GradeManagerView`` — 年级管理（`public`，供 Settings/Dashboard 复用）
+- ``SFSymbolPickerView`` — SF Symbol 图标选择器（`public`，供分类管理复用）
 
 ### 视图模型
 
 - ``LibraryViewModel`` — 管理搜索文字、过滤条件和分页加载
 - ``LibraryEditViewModel`` — 管理单题字段编辑和保存
+- ``SubjectManagerViewModel`` — 学科增删改及级联更新 `ReviewItemModel`
+- ``SourceManagerViewModel`` — 来源增删改及级联更新
+- ``GradeManagerViewModel`` — 年级增删改及级联更新
 
 ### 导航
 
