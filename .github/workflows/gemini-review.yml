@@ -19,10 +19,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate PR diff (Swift & config files only)
+      - name: Generate PR diff (Swift, config & doc files)
         run: |
           git diff origin/${{ github.base_ref }}...HEAD \
-            -- '*.swift' '*.yml' '*.yaml' '*.xcconfig' '*.json' '*.py' \
+            -- '*.swift' '*.yml' '*.yaml' '*.xcconfig' '*.json' '*.py' '*.md' \
             > pr_diff.txt
           echo "Diff size: $(wc -c < pr_diff.txt) bytes"
 
