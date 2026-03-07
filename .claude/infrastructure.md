@@ -136,6 +136,33 @@ public final class PDFExportService {
     public func createPDF(from items: [any PDFExportable],
                           imageProvider: @Sendable @escaping (String) -> UIImage?) async throws -> Data
 }
+
+// CaptureDraftServiceProtocol（@MainActor protocol，路径：Service/CaptureDraftServiceProtocol.swift）
+// #if canImport(UIKit)
+@MainActor
+public protocol CaptureDraftServiceProtocol {
+    var hasDraft: Bool { get }
+    func saveDraft(image: UIImage, content: String)
+    func loadDraft() -> CaptureDraftService.Draft?
+    func clearDraft()
+}
+
+// CaptureDraftService（@MainActor final class，路径：Service/CaptureDraftService.swift）
+// #if canImport(UIKit)
+@MainActor
+public final class CaptureDraftService: CaptureDraftServiceProtocol {
+    public static let shared: CaptureDraftService
+    public var hasDraft: Bool { get }
+    public func saveDraft(image: UIImage, content: String)
+    public func loadDraft() -> Draft?
+    public func clearDraft()
+
+    public struct Draft {
+        public let image: UIImage
+        public let content: String
+        public let date: Date
+    }
+}
 ```
 
 ---
