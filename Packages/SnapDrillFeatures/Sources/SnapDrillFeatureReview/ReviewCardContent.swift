@@ -186,7 +186,9 @@ struct ReviewCardBack: View {
 
     private let imageStorage = ImageStorage()
     @State private var showingEditSheet = false
-    @State private var loadedImage: UIImage?
+    @State private var loadedAnswerImage: UIImage?
+    // 纯图片题（content == nil）时，背面 header 同步展示题目图，让用户记得题目是什么
+    @State private var loadedQuestionImage: UIImage?
 
     // 用户偏好：背面卡片排版
     @AppStorage("cardContextAlignment") private var alignmentRaw: String = "leading"
@@ -218,6 +220,14 @@ struct ReviewCardBack: View {
                         .multilineTextAlignment(alignment)
                         .lineLimit(3)
                         .frame(maxWidth: .infinity, alignment: frameAlignment)
+                } else if let image = loadedQuestionImage {
+                    // 纯图片题：在背面 header 展示题目图，让用户看到题目上下文
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxHeight: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
                     Spacer()
                 }
@@ -255,7 +265,7 @@ struct ReviewCardBack: View {
                     }
 
                     if let imagePath = item.answerImagePath {
-                        if let uiImage = loadedImage {
+                        if let uiImage = loadedAnswerImage {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
@@ -268,7 +278,7 @@ struct ReviewCardBack: View {
                                 .frame(height: 150)
                                 .overlay(ProgressView())
                                 .task {
-                                    await loadImageAsync(path: imagePath)
+                                    await loadAnswerImage(path: imagePath)
                                 }
                         }
                     }
@@ -296,6 +306,9 @@ struct ReviewCardBack: View {
             }
         )
         .shadow(color: Color.black.opacity(0.08), radius: 15, x: 0, y: 10)
+        .task {
+            await loadQuestionImage()
+        }
         .sheet(isPresented: $showingEditSheet) {
             LibraryEditView(item: item)
         }
@@ -303,13 +316,22 @@ struct ReviewCardBack: View {
 
     // MARK: - Private Helpers
 
-    private func loadImageAsync(path: String) async {
+    private func loadQuestionImage() async {
+        guard item.content == nil || item.content?.isEmpty == true,
+              let path = item.imagePath else { return }
+        let image = await Task.detached(priority: .userInitiated) {
+            imageStorage.loadImage(path: path)
+        }.value
+        loadedQuestionImage = image
+    }
+
+    private func loadAnswerImage(path: String) async {
         let image = await Task.detached(priority: .userInitiated) {
             imageStorage.loadImage(path: path)
         }.value
 
         withAnimation(.easeOut(duration: 0.2)) {
-            self.loadedImage = image
+            self.loadedAnswerImage = image
         }
     }
 }
