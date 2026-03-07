@@ -209,9 +209,9 @@ git push -u origin fix/xxx
 gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini Review
 ```
 
-### Code Review 铁律（2026-03-05 确立，2026-03-06 更新）
+### Code Review 铁律（2026-03-05 确立，2026-03-07 更新）
 
-**所有由 Claude 创建的 PR，必须完成双重 review 后，由用户确认再合并。**
+**所有由 Claude 创建的 PR，必须完成三方 review 后，由用户确认再合并。**
 
 #### 1. Gemini GitHub Action（自动，diff 级别）
 
@@ -219,18 +219,37 @@ gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini
 - 使用 `ubuntu-latest` runner，不占用 Mac mini 资源
 - 只看 diff，可能因缺乏上下文产生误判（如看不到文件头部的 `@Observable` 标注）
 - Review 结果以 PR comment 形式自动贴回
+- **Claude 负责主动轮询**（`gh pr view --comments`），不得要求用户通知
 
 #### 2. Antigravity 全量 Review（手动，全代码库级别）
 
-- 在 Antigravity IDE 中手动触发，可访问完整代码库，误判率低于纯 diff review
-- 使用 `.claude/gemini-context.md` 中的架构约束作为上下文
+- Claude 撰写包含架构约束的 review 提示词，用户在 Antigravity IDE 中触发
+- 可访问完整代码库，误判率低于纯 diff review
 - Review 完成后，将结果以 comment 形式**手动发布到对应 GitHub PR**（不保存本地文件）
+
+#### 3. Claude 独立核实（每条 finding 必走）
+
+无论 Gemini 还是 Antigravity 的结论，Claude 必须独立核实后再给出判断：
+1. 读源文件确认问题是否真实存在
+2. 对照 CLAUDE.md 确认是否属于已批准例外
+3. 必要时查 Apple 文档或 Swift 规范
 
 #### 判断规则
 
-- 两个 review 均无 🔴 严重问题 → 可合并
-- 任一 review 有 🔴 → 修复后重新提交，重新触发 review
-- 两个 review 结论冲突 → 以 Antigravity 全量 review 为准（上下文更完整）
+- 三方均无 🔴 严重问题 → 可合并
+- 任一方有 🔴 → 修复后重新提交，重新触发 review 循环
+- Gemini 与 Antigravity 结论冲突 → 以 Antigravity 为准（上下文更完整），但 Claude 须独立核实，不可盲从
+
+#### fix 提交后的 re-review 规则（2026-03-07 确立）
+
+修复提交推送后：
+
+**Gemini**：自动重新触发，Claude 主动轮询确认，无需用户干预。
+
+**Antigravity 二次 review**：
+- **需要**：fix 引入新业务逻辑、新跨模块依赖、新文件（非纯结构性）
+- **不需要**：纯结构性修复（文件拆分/重命名、访问控制修饰符、import 调整），且 Gemini re-review 无 🔴，Claude 已独立核实
+- Claude 须在 PR comment 或回复中说明"不需要二次 review"的理由，用户最终确认合并
 
 #### Review 存档
 
