@@ -11,27 +11,25 @@ GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
 # 模型降级链（2026-03，基于 https://ai.google.dev/gemini-api/docs/models）
 #
-# 深度审查链（全模块架构 review，~300K 字符，需要最强推理）：
-#   gemini-3.1-pro-preview → gemini-2.5-pro → gemini-2.5-flash
+# 深度审查链（全模块架构 review，~300K 字符）：
+#   gemini-3.1-flash-lite-preview → gemini-2.5-flash
+#   成本优化（2026-03-07）：从 3.1-pro-preview 切换到 3.1-flash-lite-preview，
+#   输入 $0.25/M、输出 $1.50/M，比 3.1-pro 便宜约 10 倍，review 质量满足需求。
 #
 # 快速审查链（PR diff review，~40K 字符，GA 稳定优先）：
-#   gemini-2.5-flash → gemini-2.5-pro
+#   gemini-2.5-flash → gemini-3.1-flash-lite-preview
 #
-# Flash Preview（gemini-3-flash-preview / gemini-3.1-flash-lite-preview）
-# 未纳入：同为 Preview 阶段，与 3.1-pro-preview 共享不稳定基础设施，
-#          无法作为可靠降级目标；gemini-2.5-flash（GA）已满足快速审查需求。
 # gemini-3-pro-preview：3月9日下线，已排除。
 # gemini-2.0-flash：弃用中，已排除。
 
 MODELS_DEEP = [
-    "gemini-3.1-pro-preview",   # 最强推理，Preview 持续 503 时自动降级
-    "gemini-2.5-pro",           # GA 稳定，能力接近 3.1-pro，首选备用
-    "gemini-2.5-flash",         # GA 稳定快，兜底保证审查能完成
+    "gemini-3.1-flash-lite-preview",  # 成本最优，$0.25/$1.50 per M tokens
+    "gemini-2.5-flash",               # GA 稳定，兜底保证审查能完成
 ]
 
 MODELS_FAST = [
-    "gemini-2.5-flash",         # GA 稳定快，PR diff 首选
-    "gemini-2.5-pro",           # GA 稳定，flash 失败时升级保障质量
+    "gemini-2.5-flash",               # GA 稳定快，PR diff 首选
+    "gemini-3.1-flash-lite-preview",  # flash 失败时降级
 ]
 
 
