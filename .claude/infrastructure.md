@@ -93,11 +93,6 @@ public protocol PDFExportable {
     var imagePath: String? { get }
 }
 
-// OCRServiceProtocol
-public protocol OCRServiceProtocol {
-    func recognizeText(from cgImage: CGImage) async throws -> String
-}
-
 // NotificationServiceProtocol（@MainActor）
 public protocol NotificationServiceProtocol {
     func requestPermission() async -> Bool
@@ -122,7 +117,7 @@ public protocol ServiceContainer {
 ### 其他核心类型
 
 ```swift
-// ImageStorage（struct）
+// ImageStorage（struct）— 文件路径：Capture/ImageStorage.swift
 public struct ImageStorage {
     public init()
     public func saveImage(_ image: UIImage) async throws -> String
@@ -130,11 +125,42 @@ public struct ImageStorage {
     public func deleteImage(path: String) async throws  // async 2026-03-06，Apple 文档要求文件 I/O 异步；文件不存在时静默跳过
 }
 
-// PDFExportService（final class）
+// PDFExportService（final class）— 文件路径：Capture/PDFExportService.swift
 public final class PDFExportService {
     public static let shared: PDFExportService
     public func createPDF(from items: [any PDFExportable],
                           imageProvider: @Sendable @escaping (String) -> UIImage?) async throws -> Data
+}
+
+// CaptureDraftService（@MainActor final class，单例）— 文件路径：Service/CaptureDraftService.swift
+// #if canImport(UIKit) 保护（UIImage 依赖，macOS swift test 不可用）
+@MainActor
+public final class CaptureDraftService: CaptureDraftServiceProtocol {
+    public static let shared: CaptureDraftService
+    public var hasDraft: Bool { get }
+    public func saveDraft(image: UIImage, content: String)
+    public func loadDraft() -> CaptureDraftService.Draft?
+    public func clearDraft()
+
+    public struct Draft {
+        public let image: UIImage
+        public let content: String
+        public let date: Date
+    }
+}
+
+// CaptureDraftServiceProtocol — 文件路径：Service/CaptureDraftServiceProtocol.swift
+@MainActor
+public protocol CaptureDraftServiceProtocol {
+    var hasDraft: Bool { get }
+    func saveDraft(image: UIImage, content: String)
+    func loadDraft() -> CaptureDraftService.Draft?
+    func clearDraft()
+}
+
+// OCRServiceProtocol — 文件路径：Service/OCRServiceProtocol.swift
+public protocol OCRServiceProtocol: Sendable {
+    func recognizeText(from cgImage: CGImage) async throws -> String
 }
 ```
 
