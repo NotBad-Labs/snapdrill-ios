@@ -10,21 +10,25 @@
 
 import SwiftUI
 import CloudKit
+import UniformTypeIdentifiers
 import SnapDrillCore
+import SnapDrillData
 
 /// 数据与云同步设置页面
 struct DataAndSyncSettingsView: View {
-    
+
     // MARK: - Properties
-    
+
+    @Bindable var viewModel: SettingsViewModel
+
     // Cloud Sync
     @AppStorage("iCloudSyncEnabled") private var iCloudSyncEnabled = true
     @State private var accountStatus: CKAccountStatus = .couldNotDetermine
     @State private var isCheckingStatus = false
-    
+
     // Network Status
     @Environment(NetworkMonitor.self) private var networkMonitor
-    
+
     // Storage Cache
     @AppStorage("autoDeleteOldItems") private var autoDeleteOldItems = false
     @AppStorage("autoDeleteDays") private var autoDeleteDays = 30
@@ -33,6 +37,15 @@ struct DataAndSyncSettingsView: View {
     @State private var cacheCalculateTask: Task<Void, Never>?
     @State private var cacheClearTask: Task<Void, Never>?
     @State private var accountCheckTask: Task<Void, Never>?
+
+    // Backup / Restore
+    @State private var backupTask: Task<Void, Never>?
+    @State private var restoreTask: Task<Void, Never>?
+    @State private var showingRestoreConfirmation = false
+    @State private var showingRestoreFilePicker = false
+    @State private var showingShareSheet = false
+    @State private var showingBackupError = false
+    @State private var showingRestoreSuccess = false
     
     var body: some View {
         List {
@@ -106,6 +119,57 @@ struct DataAndSyncSettingsView: View {
                 }
             }
             
+            // Backup / Restore
+            Section {
+                // 备份按钮
+                Button {
+                    backupTask?.cancel()
+                    backupTask = Task {
+                        await viewModel.createBackup()
+                        if viewModel.backupFileURL != nil {
+                            showingShareSheet = true
+                        } else if viewModel.backupError != nil {
+                            showingBackupError = true
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Label("备份数据", systemImage: "arrow.up.doc")
+                        Spacer()
+                        if viewModel.isBackupInProgress && viewModel.backupFileURL == nil {
+                            ProgressView()
+                                .controlSize(.small)
+                        }
+                    }
+                }
+                .disabled(viewModel.isBackupInProgress)
+
+                // 恢复按钮
+                Button {
+                    showingRestoreConfirmation = true
+                } label: {
+                    Label("恢复数据", systemImage: "arrow.down.doc")
+                }
+                .disabled(viewModel.isBackupInProgress)
+
+                // 进度条（备份/恢复过程中显示）
+                if viewModel.isBackupInProgress {
+                    VStack(alignment: .leading, spacing: 6) {
+                        if !viewModel.backupStatusMessage.isEmpty {
+                            Text(viewModel.backupStatusMessage)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        ProgressView(value: viewModel.backupProgress, total: 1.0)
+                    }
+                    .padding(.vertical, 4)
+                }
+            } header: {
+                Text("备份与恢复")
+            } footer: {
+                Text("备份文件包含所有题目、分类设置和图片。恢复操作将替换当前全部数据。")
+            }
+
             // Cache Storage
             Section {
                 HStack {
@@ -163,6 +227,59 @@ struct DataAndSyncSettingsView: View {
             cacheCalculateTask?.cancel()
             cacheClearTask?.cancel()
             accountCheckTask?.cancel()
+            backupTask?.cancel()
+            restoreTask?.cancel()
+        }
+        .confirmationDialog(
+            "恢复数据",
+            isPresented: $showingRestoreConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("选择备份文件", role: .destructive) {
+                showingRestoreFilePicker = true
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("恢复将替换当前所有数据，此操作不可撤销。恢复前会自动备份当前数据到临时目录。")
+        }
+        .fileImporter(
+            isPresented: $showingRestoreFilePicker,
+            allowedContentTypes: [UTType(filenameExtension: "snapdrill") ?? .zip, .zip],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                restoreTask?.cancel()
+                restoreTask = Task {
+                    await viewModel.restoreFromBackup(fileURL: url)
+                    if viewModel.backupError != nil {
+                        showingBackupError = true
+                    } else {
+                        showingRestoreSuccess = true
+                    }
+                }
+            case .failure(let error):
+                viewModel.backupError = error.localizedDescription
+                showingBackupError = true
+            }
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            if let url = viewModel.backupFileURL {
+                ShareSheet(items: [url])
+            }
+        }
+        .alert("操作失败", isPresented: $showingBackupError) {
+            Button("确定") {
+                viewModel.backupError = nil
+            }
+        } message: {
+            Text(viewModel.backupError ?? "未知错误")
+        }
+        .alert("恢复成功", isPresented: $showingRestoreSuccess) {
+            Button("确定") {}
+        } message: {
+            Text(viewModel.backupStatusMessage)
         }
     }
     
@@ -308,8 +425,6 @@ struct DataAndSyncSettingsView: View {
     }
 }
 
-#Preview {
-    NavigationStack {
-        DataAndSyncSettingsView()
-    }
-}
+// Preview 需要 RepositoryContainer 初始化 SettingsViewModel，
+// 但 PreviewRepositoryContainer 无法直接转为 RepositoryContainer。
+// 通过 Xcode GUI 运行 Preview 时可正常显示。

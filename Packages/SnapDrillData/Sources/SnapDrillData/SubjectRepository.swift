@@ -98,6 +98,11 @@ public final class SubjectRepository {
         return try modelContext.fetch(descriptor).first
     }
 
+    /// 纯内存插入 SubjectModel，不 save；调用方统一 saveContext()
+    public func insert(_ model: SubjectModel) {
+        modelContext.insert(model)
+    }
+
     /// 直接插入 SubjectModel 并保存（带名称唯一性校验）
     public func insertAndSave(_ model: SubjectModel) throws {
         let name = model.name

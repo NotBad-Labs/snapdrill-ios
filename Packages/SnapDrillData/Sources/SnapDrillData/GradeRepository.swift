@@ -93,6 +93,11 @@ public final class GradeRepository {
         return try modelContext.fetch(descriptor).first
     }
 
+    /// 纯内存插入 GradeModel，不 save；调用方统一 saveContext()
+    public func insert(_ model: GradeModel) {
+        modelContext.insert(model)
+    }
+
     /// 直接插入 GradeModel 并保存（带名称唯一性校验）
     public func insertAndSave(_ model: GradeModel) throws {
         let name = model.name

@@ -252,6 +252,7 @@ public func updateGradeUsage(from oldName: String, to newName: String) throws
 public init(modelContext: ModelContext)
 public func fetchAllModels() throws -> [SubjectModel / SourceModel / GradeModel]
 public func fetchModel(byName name: String) throws -> SubjectModel? / SourceModel? / GradeModel?
+public func insert(_ model: SubjectModel / ...)       // 纯内存插入，不 save
 public func insertAndSave(_ model: SubjectModel / ...) throws
 public func saveContext() throws
 public func delete(id: UUID) throws
@@ -282,6 +283,8 @@ public let grade: GradeRepository
 public init(modelContext: ModelContext = PersistenceController.shared.container.mainContext)
 public func deleteAllData() async throws  // async 2026-03-06，内部含文件 I/O
 public func deleteAllTaxonomy() throws
+public func collectBackupPayload() throws -> BackupPayload  // 收集全量数据为 Sendable DTO
+public func restoreFromPayload(_ payload: BackupPayload) async throws  // 全量替换恢复
 ```
 
 ### ReviewExportSnapshot（struct，Sendable，Identifiable，PDFExportable）
@@ -305,6 +308,59 @@ public func seedReviewItems(count: Int) throws -> TimeInterval
 // 完成后自动 post: NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
 public func clearAll() throws
 // 完成后自动 post: NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+```
+
+### BackupService（actor）
+
+```swift
+public actor BackupService {
+    public typealias ProgressHandler = @Sendable (Int, Int) -> Void
+    public init()
+    public func createBackup(payload: BackupPayload, manifest: BackupManifest,
+                             imageBasePath: URL, onProgress: ProgressHandler? = nil) throws -> URL
+    public func readManifest(from backupURL: URL) throws -> BackupManifest
+    public func extractPayload(from backupURL: URL) throws -> BackupPayload
+    public func restoreImages(from backupURL: URL, to imageBasePath: URL,
+                              onProgress: ProgressHandler? = nil) throws
+}
+```
+
+### BackupManifest / BackupPayload / BackupDTO（Codable, Sendable）
+
+```swift
+// BackupManifest — 备份文件元数据清单
+public struct BackupManifest: Codable, Sendable {
+    public let schemaVersion: Int
+    public let createdAt: Date
+    public let appVersion: String
+    public let itemCount: Int
+    public static let currentSchemaVersion = 1
+}
+
+// BackupPayload — data.json 顶层结构
+public struct BackupPayload: Codable, Sendable {
+    public let reviewItems: [ReviewItemBackupDTO]
+    public let subjects: [SubjectBackupDTO]
+    public let sources: [SourceBackupDTO]
+    public let grades: [GradeBackupDTO]
+    public let tags: [TagBackupDTO]
+}
+
+// 各 DTO：ReviewItemBackupDTO, SubjectBackupDTO, SourceBackupDTO, GradeBackupDTO, TagBackupDTO
+// 与对应 @Model 字段一一映射，TagModel 关系用 tagNames: [String] 表达
+```
+
+### BackupError（LocalizedError）
+
+```swift
+public enum BackupError: LocalizedError {
+    case archiveCreationFailed
+    case invalidArchive
+    case missingManifest
+    case missingDataFile
+    case schemaVersionTooNew(fileVersion: Int, appVersion: Int)
+    case insufficientDiskSpace
+}
 ```
 
 ---
@@ -394,6 +450,10 @@ public init(item: ReviewItemModel, repositories: RepositoryContainer,
 
 // SettingsViewModel
 public init(repositories: RepositoryContainer)
+public func clearAllData() async
+public func createBackup() async              // 创建 .snapdrill 备份文件，结果存入 backupFileURL
+public func restoreFromBackup(fileURL: URL) async  // 全量恢复（含恢复前自动备份）
+// Observable 属性：backupProgress, isBackupInProgress, backupStatusMessage, backupError, backupFileURL
 ```
 
 ### BentoCard（Dashboard 内部组件）

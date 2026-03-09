@@ -91,6 +91,11 @@ public final class SourceRepository {
         return try modelContext.fetch(descriptor).first
     }
 
+    /// 纯内存插入 SourceModel，不 save；调用方统一 saveContext()
+    public func insert(_ model: SourceModel) {
+        modelContext.insert(model)
+    }
+
     /// 直接插入 SourceModel 并保存（带名称唯一性校验）
     public func insertAndSave(_ model: SourceModel) throws {
         let name = model.name
