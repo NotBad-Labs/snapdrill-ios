@@ -74,6 +74,92 @@ public final class RepositoryContainer {
         }
     }
 
+    // MARK: - Backup / Restore
+
+    /// 收集全量备份数据（转换为 Sendable DTO）
+    ///
+    /// 在 MainActor 上读取所有 @Model 数据并转为值类型 DTO，
+    /// 供 BackupService（actor）在后台线程打包 ZIP。
+    public func collectBackupPayload() throws -> BackupPayload {
+        let items = try review.fetchAllModels()
+        let allSubjects = try subject.fetchAllModels()
+        let allSources = try source.fetchAllModels()
+        let allGrades = try grade.fetchAllModels()
+        let allTags = try tag.fetchAllModels()
+
+        return BackupPayload(
+            reviewItems: items.map { $0.toBackupDTO() },
+            subjects: allSubjects.map { $0.toBackupDTO() },
+            sources: allSources.map { $0.toBackupDTO() },
+            grades: allGrades.map { $0.toBackupDTO() },
+            tags: allTags.map { $0.toBackupDTO() }
+        )
+    }
+
+    /// 从备份 DTO 恢复全量数据
+    ///
+    /// 先删除所有现有数据（含图片文件），再从 DTO 重建全部 Model 和关系。
+    /// 整个数据库操作是原子的：insert 全部完成后统一 save，失败时 rollback。
+    ///
+    /// - Parameter payload: 反序列化后的备份数据
+    public func restoreFromPayload(_ payload: BackupPayload) async throws {
+        // 1. 删除全部现有数据
+        try await deleteAllData()
+
+        // 2. 重建分类模型
+        for dto in payload.subjects {
+            let model = SubjectModel(id: dto.id, name: dto.name, icon: dto.icon, colorHex: dto.colorHex, sortOrder: dto.sortOrder)
+            subject.insert(model)
+        }
+        for dto in payload.sources {
+            let model = SourceModel(id: dto.id, name: dto.name, icon: dto.icon, colorHex: dto.colorHex, sortOrder: dto.sortOrder)
+            source.insert(model)
+        }
+        for dto in payload.grades {
+            let model = GradeModel(id: dto.id, name: dto.name, sortOrder: dto.sortOrder)
+            grade.insert(model)
+        }
+
+        // 3. 重建标签（先创建，后续用于关联）
+        var tagsByName: [String: TagModel] = [:]
+        for dto in payload.tags {
+            let model = try tag.fetchOrCreateModel(name: dto.name, colorHex: dto.colorHex)
+            tagsByName[dto.name] = model
+        }
+
+        // 4. 重建题目并关联标签
+        for dto in payload.reviewItems {
+            let itemTags = dto.tagNames.compactMap { tagsByName[$0] }
+            let model = ReviewItemModel(
+                id: dto.id,
+                content: dto.content,
+                imagePath: dto.imagePath,
+                createdAt: dto.createdAt,
+                lastReviewedAt: dto.lastReviewedAt,
+                nextReviewAt: dto.nextReviewAt,
+                subject: dto.subject,
+                source: dto.source,
+                tags: itemTags,
+                answerText: dto.answerText,
+                answerImagePath: dto.answerImagePath,
+                difficulty: dto.difficulty,
+                grade: dto.grade,
+                easeFactor: dto.easeFactor,
+                interval: dto.interval,
+                repetitions: dto.repetitions
+            )
+            review.insert(model)
+        }
+
+        // 5. 原子持久化
+        do {
+            try review.saveContext()
+        } catch {
+            review.rollbackContext()
+            throw error
+        }
+    }
+
     // MARK: - Private Helpers
 
     /// 纯内存操作：标记所有分类数据待删除，不 save。

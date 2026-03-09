@@ -19,11 +19,15 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../SnapDrillCore"),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.19"),
     ],
     targets: [
         .target(
             name: "SnapDrillData",
-            dependencies: ["SnapDrillCore"],
+            dependencies: [
+                "SnapDrillCore",
+                .product(name: "ZIPFoundation", package: "ZIPFoundation"),
+            ],
             swiftSettings: [
                 .swiftLanguageMode(.v6)
             ]

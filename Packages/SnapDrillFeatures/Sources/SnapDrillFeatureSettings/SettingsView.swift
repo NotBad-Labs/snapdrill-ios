@@ -142,7 +142,9 @@ public struct SettingsView: View {
                 // 4. 数据与云同步
                 Section {
                     NavigationLink {
-                        DataAndSyncSettingsView()
+                        if let viewModel {
+                            DataAndSyncSettingsView(viewModel: viewModel)
+                        }
                     } label: {
                         SettingsRow(icon: "icloud.fill", gradientStart: .blue, gradientEnd: .cyan, title: "iCloud 同步与存储")
                     }
