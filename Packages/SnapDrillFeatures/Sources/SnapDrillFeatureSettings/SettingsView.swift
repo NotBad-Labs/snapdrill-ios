@@ -142,9 +142,7 @@ public struct SettingsView: View {
                 // 4. 数据与云同步
                 Section {
                     NavigationLink {
-                        if let viewModel {
-                            DataAndSyncSettingsView(viewModel: viewModel)
-                        }
+                        DataAndSyncSettingsView(viewModel: ensureViewModel())
                     } label: {
                         SettingsRow(icon: "icloud.fill", gradientStart: .blue, gradientEnd: .cyan, title: "iCloud 同步与存储")
                     }
@@ -343,8 +341,7 @@ public struct SettingsView: View {
     }
 
     private func clearAllData() {
-        initViewModelIfNeeded()
-        guard let vm = viewModel else { return }
+        let vm = ensureViewModel()
         clearTask?.cancel()
         clearTask = Task { await vm.clearAllData() }
     }
@@ -364,9 +361,11 @@ public struct SettingsView: View {
         }
     }
 
-    private func initViewModelIfNeeded() {
-        if viewModel == nil {
-            viewModel = SettingsViewModel(repositories: repositories)
-        }
+    @discardableResult
+    private func ensureViewModel() -> SettingsViewModel {
+        if let viewModel { return viewModel }
+        let vm = SettingsViewModel(repositories: repositories)
+        viewModel = vm
+        return vm
     }
 }

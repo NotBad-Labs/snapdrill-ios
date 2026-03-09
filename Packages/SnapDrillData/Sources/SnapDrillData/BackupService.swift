@@ -185,7 +185,13 @@ public actor BackupService {
         }
 
         for (index, entry) in imageEntries.enumerated() {
-            let destinationURL = imageBasePath.appendingPathComponent(entry.path)
+            // 防御路径遍历攻击：确保解压目标在 imageBasePath 内
+            let destinationURL = imageBasePath.appendingPathComponent(entry.path).standardizedFileURL
+            guard destinationURL.path.hasPrefix(imageBasePath.standardizedFileURL.path) else {
+                SnapDrillLogger.generic.warning("跳过可疑路径: \(entry.path)")
+                onProgress?(index + 1, totalImages)
+                continue
+            }
 
             // 确保父目录存在
             let parentDir = destinationURL.deletingLastPathComponent()

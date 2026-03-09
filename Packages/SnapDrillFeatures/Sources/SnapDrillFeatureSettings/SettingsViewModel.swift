@@ -164,16 +164,25 @@ public final class SettingsViewModel {
 
             backupStatusMessage = "正在恢复图片..."
 
-            // 5. 恢复图片文件
+            // 5. 恢复图片文件（数据库已恢复，图片失败不回滚数据库）
             let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            try await backupService.restoreImages(
-                from: fileURL,
-                to: documentsURL
-            ) { [weak self] current, total in
-                Task { @MainActor in
-                    guard let self else { return }
-                    self.backupProgress = total > 0 ? Double(current) / Double(total) : 1.0
+            do {
+                try await backupService.restoreImages(
+                    from: fileURL,
+                    to: documentsURL
+                ) { [weak self] current, total in
+                    Task { @MainActor in
+                        guard let self else { return }
+                        self.backupProgress = total > 0 ? Double(current) / Double(total) : 1.0
+                    }
                 }
+            } catch {
+                // 数据库已恢复成功，但图片恢复失败——提示用户可重新恢复
+                SnapDrillLogger.generic.error("图片恢复失败（数据已恢复）: \(error)")
+                NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+                backupStatusMessage = "数据已恢复，但部分图片恢复失败。可尝试重新恢复以修复图片。"
+                isBackupInProgress = false
+                return
             }
 
             // 6. 通知 UI 刷新
