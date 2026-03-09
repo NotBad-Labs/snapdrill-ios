@@ -72,6 +72,7 @@ final class DashboardViewModelTests {
         #expect(vm.totalCount == 0)
         #expect(vm.dueCount == 0)
         #expect(vm.reviewedTodayCount == 0)
+        vm.cancelTasks()
     }
 
     @Test("loadData 正确统计题目数量")
@@ -87,6 +88,7 @@ final class DashboardViewModelTests {
 
         #expect(vm.totalCount == 2)
         #expect(vm.todayItemsCount == 2)
+        vm.cancelTasks()
     }
 
     // MARK: - checkDraftAndCapture
@@ -101,6 +103,7 @@ final class DashboardViewModelTests {
         vm.checkDraftAndCapture(router: router)
 
         #expect(vm.isShowingDraftAlert == true)
+        vm.cancelTasks()
     }
 
     @Test("checkDraftAndCapture 无草稿时导航到采集")
@@ -117,6 +120,7 @@ final class DashboardViewModelTests {
 
         #expect(vm.isShowingDraftAlert == false)
         #expect(navigated == true)
+        vm.cancelTasks()
     }
 
     // MARK: - startNewCapture
@@ -135,6 +139,7 @@ final class DashboardViewModelTests {
 
         #expect(draftService.clearDraftCallCount == 1)
         #expect(navigated == true)
+        vm.cancelTasks()
     }
 
     // MARK: - restoreDraft
@@ -155,6 +160,7 @@ final class DashboardViewModelTests {
 
         #expect(receivedDraft != nil)
         #expect(receivedDraft?.content == "草稿")
+        vm.cancelTasks()
     }
 
     @Test("restoreDraft 无草稿时直接导航")
@@ -173,6 +179,7 @@ final class DashboardViewModelTests {
         vm.restoreDraft(router: router)
 
         #expect(navigated == true)
+        vm.cancelTasks()
     }
 
     // MARK: - cancelTasks
@@ -194,7 +201,9 @@ final class DashboardViewModelTests {
         let vm = DashboardViewModel(repositories: repos)
         #expect(vm.totalCount == 0)
 
-        // 发送通知，等待防抖 + 处理
+        // 让 MainActor 上的 notification 监听 Task 有时间启动 for-await 循环
+        try await Task.sleep(nanoseconds: 50_000_000)
+        // 发送通知，等待 100ms 防抖 + loadData 执行
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
         try await Task.sleep(nanoseconds: 300_000_000)
 

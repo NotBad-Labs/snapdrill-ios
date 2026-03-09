@@ -57,10 +57,12 @@ jobs:
 
       - name: Test (SnapDrillFeatures)
         # UIKit 依赖的测试必须通过 iOS Simulator 运行；使用 SPM 自动生成的 scheme
+        # -parallel-testing-enabled NO：避免跨 suite 并行执行时 ModelContainer 竞态
         run: |
           xcodebuild test \
             -scheme SnapDrillFeaturesTests \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -parallel-testing-enabled NO \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
