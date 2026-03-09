@@ -5,9 +5,9 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  CaptureViewModel 核心路径单元测试：草稿、OCR 扫描处理。
+//
 
-import XCTest
-import SwiftData
 import Testing
 import UIKit
 @testable import SnapDrillFeatureCapture
@@ -19,14 +19,14 @@ import UIKit
 final class MockOCRService: OCRServiceProtocol {
     var recognizeTextResult: String = ""
     var recognizeTextError: Error?
-    
+
     var recognizeTextCallCount = 0
     var lastImage: CGImage?
-    
+
     func recognizeText(from image: CGImage) async throws -> String {
         recognizeTextCallCount += 1
         lastImage = image
-        
+
         if let error = recognizeTextError {
             throw error
         }
@@ -34,48 +34,42 @@ final class MockOCRService: OCRServiceProtocol {
     }
 }
 
+@Suite("CaptureViewModel 草稿与扫描测试")
 @MainActor
 struct CaptureViewModelTests {
-    
-    // MARK: - Helper Methods
-    
+
+    // MARK: - Helpers
+
     private func cleanUpDraft() {
         CaptureDraftService.shared.clearDraft()
     }
-    
-    private func createTestImage() -> UIImage {
-        UIGraphicsBeginImageContext(CGSize(width: 1, height: 1))
-        let image = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
-        UIGraphicsEndImageContext()
-        return image
-    }
-    
-    // MARK: - Tests
-    
-    @Test
+
+    // MARK: - 草稿
+
+    @Test("checkDraftOnAppear 有草稿时显示弹窗")
     func testCheckDraftOnAppear_WithDraft_ShowsAlert() {
         cleanUpDraft()
         CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
-        
+
         let viewModel = CaptureViewModel(ocrService: MockOCRService())
-        
+
         viewModel.checkDraftOnAppear()
-        
+
         #expect(viewModel.showDraftAlert == true)
         #expect(viewModel.pendingDraft != nil)
         #expect(viewModel.pendingDraft?.content == "Draft Content")
-        
+
         cleanUpDraft()
     }
-    
-    @Test
+
+    @Test("startEditingDraft 推送路由并清除草稿")
     func testStartEditingDraft_PushesToRouterAndClearsDraft() {
         cleanUpDraft()
         CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
-        
+
         let viewModel = CaptureViewModel(ocrService: MockOCRService())
         viewModel.checkDraftOnAppear()
-        
+
         let router = CaptureRouter()
         var pushCalled = false
         router.onPush = { destination in
@@ -86,103 +80,85 @@ struct CaptureViewModelTests {
                 Issue.record("Expected .scannerResult destination")
             }
         }
-        
+
         viewModel.startEditingDraft(router: router)
-        
+
         #expect(pushCalled == true)
         #expect(viewModel.pendingDraft == nil)
         #expect(CaptureDraftService.shared.hasDraft == false)
-        
+
         cleanUpDraft()
     }
-    
-    @Test
+
+    @Test("clearDraft 清除草稿")
     func testClearDraft_RemovesDraft() {
         cleanUpDraft()
         CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
-        
+
         let viewModel = CaptureViewModel(ocrService: MockOCRService())
         viewModel.checkDraftOnAppear()
-        
+
         viewModel.clearDraft()
-        
+
         #expect(viewModel.pendingDraft == nil)
         #expect(CaptureDraftService.shared.hasDraft == false)
-        
+
         cleanUpDraft()
     }
-    
-    @Test
-    func testProcessScannedImage_Success_PushesResult() async {
+
+    // MARK: - OCR 扫描
+
+    @Test("processScannedImage 成功时推送识别结果")
+    func testProcessScannedImage_Success_PushesResult() async throws {
         let mockOCR = MockOCRService()
         mockOCR.recognizeTextResult = "Recognized Text"
-        
+
         let viewModel = CaptureViewModel(ocrService: mockOCR)
         let router = CaptureRouter()
-        
-        let exp = expectation(description: "Push called")
+
         var pushCalled = false
         router.onPush = { destination in
             if case let .scannerResult(content, _) = destination {
                 #expect(content == "Recognized Text")
                 pushCalled = true
-                exp.fulfill()
             }
         }
-        
+
         viewModel.processScannedImage(createTestImage(), router: router)
-        
+
         #expect(viewModel.isProcessing == true)
-        
-        await fulfillment(of: [exp], timeout: 2.0)
-        
+
+        // 等待 OCR Task 完成
+        try await Task.sleep(nanoseconds: 300_000_000)
+
         #expect(pushCalled == true)
         #expect(mockOCR.recognizeTextCallCount == 1)
         #expect(viewModel.isProcessing == false)
     }
-    
-    @Test
-    func testProcessScannedImage_Error_PushesEmptyResult() async {
+
+    @Test("processScannedImage 失败时推送空内容")
+    func testProcessScannedImage_Error_PushesEmptyResult() async throws {
         let mockOCR = MockOCRService()
         mockOCR.recognizeTextError = NSError(domain: "test", code: -1, userInfo: nil)
-        
+
         let viewModel = CaptureViewModel(ocrService: mockOCR)
         let router = CaptureRouter()
-        
-        let exp = expectation(description: "Push called despite error")
+
         var pushCalled = false
         router.onPush = { destination in
             if case let .scannerResult(content, _) = destination {
-                #expect(content == "") // Empty content on error
+                #expect(content == "")
                 pushCalled = true
-                exp.fulfill()
             }
         }
-        
+
         viewModel.processScannedImage(createTestImage(), router: router)
-        
-        await fulfillment(of: [exp], timeout: 2.0)
-        
+
+        // 等待 OCR Task 完成
+        try await Task.sleep(nanoseconds: 300_000_000)
+
         #expect(pushCalled == true)
         #expect(mockOCR.recognizeTextCallCount == 1)
         #expect(viewModel.isProcessing == false)
-    }
-    
-    // Helper to wrap XCTestExpectation logic to work within Swift Testing
-    private func expectation(description: String) -> XCTestExpectation {
-        return XCTestExpectation(description: description)
-    }
-    
-    private func fulfillment(of expectations: [XCTestExpectation], timeout: TimeInterval) async {
-        // Simple async wait replacement for XCTestExpectation in async Swift Testing
-        let start = Date()
-        while Date().timeIntervalSince(start) < timeout {
-            let allFulfilled = expectations.allSatisfy { $0.expectedFulfillmentCount == 0 } // Basic proxy
-            if !expectations.isEmpty { // We can't actually assert XCTestExpectation state easily in Swift Testing without full XCTest
-                // Instead, just wait a bit, the async Task completes very fast.
-                try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
-                break // Assuming it finishes fast
-            }
-        }
     }
 }
