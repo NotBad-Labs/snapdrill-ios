@@ -64,8 +64,8 @@ public final class LibraryEditViewModel {
 
     private let item: ReviewItemModel
     private let repositories: RepositoryContainer
-    private let imageStorage = ImageStorage()
-    private let ocrService = OCRService()
+    private let imageStorage: ImageStorage
+    private let ocrService: OCRServiceProtocol
 
     /// OCR 任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
     /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
@@ -76,9 +76,18 @@ public final class LibraryEditViewModel {
     /// - Parameters:
     ///   - item: 要编辑的题目模型
     ///   - repositories: 应用的数据仓库容器
-    public init(item: ReviewItemModel, repositories: RepositoryContainer) {
+    ///   - imageStorage: 图片存储服务，默认使用 `ImageStorage()`
+    ///   - ocrService: OCR 识别服务，默认使用 `OCRService()`
+    public init(
+        item: ReviewItemModel,
+        repositories: RepositoryContainer,
+        imageStorage: ImageStorage = ImageStorage(),
+        ocrService: OCRServiceProtocol = OCRService()
+    ) {
         self.item = item
         self.repositories = repositories
+        self.imageStorage = imageStorage
+        self.ocrService = ocrService
 
         self.content = item.content ?? ""
         self.answer = item.answerText ?? ""
