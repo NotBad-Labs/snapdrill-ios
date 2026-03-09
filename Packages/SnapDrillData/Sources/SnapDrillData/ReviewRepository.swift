@@ -224,6 +224,7 @@ public final class ReviewRepository {
         searchText: String,
         subjects: Set<String>,
         tags: Set<String>,
+        sortDescriptors: [SortDescriptor<ReviewItemModel>] = [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
         limit: Int,
         offset: Int
     ) throws -> [ReviewItemModel] {
@@ -237,13 +238,11 @@ public final class ReviewRepository {
             (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue))
         }
 
-        let sortDescriptor = SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)
-
         if tags.isEmpty {
             // 无 tag 过滤：直接使用数据库分页
             var descriptor = FetchDescriptor<ReviewItemModel>(
                 predicate: predicate,
-                sortBy: [sortDescriptor]
+                sortBy: sortDescriptors
             )
             descriptor.fetchLimit = limit
             descriptor.fetchOffset = offset
@@ -252,7 +251,7 @@ public final class ReviewRepository {
             // 有 tag 过滤：全量拉取 search+subject 匹配项，内存过滤 tag，再切片分页
             let descriptor = FetchDescriptor<ReviewItemModel>(
                 predicate: predicate,
-                sortBy: [sortDescriptor]
+                sortBy: sortDescriptors
             )
             let allMatching = try modelContext.fetch(descriptor)
             let tagFiltered = allMatching.filter { model in

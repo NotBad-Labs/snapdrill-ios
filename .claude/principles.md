@@ -256,3 +256,16 @@ gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini
 所有 review 结果以 **GitHub PR comment** 形式永久存储，不再保存本地 `.claude/reviews/` 文件。
 
 - 4 月 1 日 GitHub Pro 生效后，同步启用 Branch Protection（require 1 approval）
+
+#### Review 发现的技术债追踪铁律（2026-03-10 确立）
+
+**每次 PR review 核实后，凡是"有效但不在本 PR 范围"的问题，必须立即创建 GitHub Issue 追踪。禁止只说"不采纳"就丢掉。**
+
+具体流程：
+1. Claude 独立核实每条 review finding
+2. 对于判定为"真实问题，但不属于本 PR 范围"的 finding，**必须在合并前创建 Issue**
+3. Issue 标题格式：`chore: {问题描述}`，body 中注明来源 PR 编号和 review 原文
+4. 相似主题的 finding 合并为一个 Issue（避免碎片化）
+5. PR 合并 comment 或回复中列出新建的 Issue 编号，形成闭环
+
+**违反后果**：技术债无追踪 = 技术债不存在 = 永远不会修复。这比 review 本身不发现问题更危险。

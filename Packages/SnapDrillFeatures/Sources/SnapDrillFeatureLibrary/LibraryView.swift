@@ -73,11 +73,32 @@ public struct LibraryView: View {
                         }
                         .fontWeight(.bold)
                     } else {
-                        // 长按列表项进入多选模式（iOS 标准交互）；此按钮仅保留筛选入口
-                        Button {
-                            isFilterPresented = true
-                        } label: {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
+                        HStack(spacing: 12) {
+                            // 排序（Apple Reminders 风格 Menu）
+                            if let vm = viewModel {
+                                Menu {
+                                    ForEach(LibrarySortOption.allCases) { option in
+                                        Button {
+                                            vm.sortOption = option
+                                        } label: {
+                                            if vm.sortOption == option {
+                                                Label(option.displayName, systemImage: "checkmark")
+                                            } else {
+                                                Text(option.displayName)
+                                            }
+                                        }
+                                    }
+                                } label: {
+                                    Image(systemName: "arrow.up.arrow.down")
+                                }
+                            }
+
+                            // 筛选
+                            Button {
+                                isFilterPresented = true
+                            } label: {
+                                Image(systemName: "line.3.horizontal.decrease.circle")
+                            }
                         }
                     }
                 }
