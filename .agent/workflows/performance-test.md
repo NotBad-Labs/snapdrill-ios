@@ -12,7 +12,7 @@ description: 使用 Instruments 进行标准性能分析与测试
 运行以下命令进行 Release 环境构建与单元测试性能收集：
 
 ```bash
-xcodebuild test -scheme SnapDrill -configuration Release -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+xcodebuild test -scheme SnapDrill -configuration Release -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
 ### 2. Instruments 手动分析

@@ -77,7 +77,7 @@ DependencyContainer（@MainActor 单例）
 ## Feature 结构
 
 ```
-SnapDrillFeatures/Sources/SnapDrillFeatures/<FeatureName>/
+SnapDrillFeatures/Sources/SnapDrillFeature<Name>/
   ├─ <Feature>View.swift
   ├─ <Feature>ViewModel.swift
   └─ <Feature>Router.swift（如有导航）

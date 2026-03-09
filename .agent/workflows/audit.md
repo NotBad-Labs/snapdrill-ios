@@ -15,7 +15,7 @@ description: 自动审计代码库是否违反全局禁令（如 print, any 类�
 | 项目 | 说明 |
 |---|---|
 | `print()` | 生产代码禁止使用 |
-| `any` 类型 | Swift 6 代码禁止使用 |
+| `any` 类型 | Swift 6 代码禁止使用（已批准例外见 `.claude/principles.md` 约束 4） |
 | 硬编码敏感字串 | 扫描 `API_KEY`, `PASSWORD` 等 |
 
 ### 强制要求

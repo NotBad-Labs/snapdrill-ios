@@ -12,9 +12,9 @@
 //  SnapDrill...
 //
 //  Created by ...
-//  Copyright © 2026 SnapDrill Labs L.L.C. All rights reserved.
+//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  核心职责：一句话描述该文件的功能。
+//  一句话描述该文件的功能。
 //
 ```
 
@@ -65,7 +65,7 @@ func handleSwipeCompletion(direction: Int)
 ## 4. 语言规范
 
 - **注释语言**: 强制使用 **中文**（Simplified Chinese）。对于极其通用的专业术语（如 SM-2, OCR）可保留英文。
-- **DocC**: 公开 API 鼓励提供中英双语描述，但基础逻辑必须有中文。
+- **DocC**: 公开 API 使用中文 `///` 注释；参数名可保留英文。
 
 ## 5. 交互与 UI 连通性
 

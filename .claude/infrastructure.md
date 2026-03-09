@@ -76,8 +76,8 @@ public enum ReviewRating: Int {
     case easy  = 5
 }
 
-// Difficulty（enum, CaseIterable, Identifiable, Hashable）
-public enum Difficulty: Int {
+// Difficulty（enum, CaseIterable, Sendable, Codable, Identifiable, Hashable）
+public enum Difficulty: Int, CaseIterable, Sendable, Codable, Identifiable, Hashable {
     case one = 1, two = 2, three = 3, four = 4, five = 5
     var id: Int { rawValue }
     var starCount: Int { rawValue }
@@ -177,8 +177,8 @@ public var id: UUID
 public var content: String?
 public var imagePath: String?
 public var createdAt: Date
-public var lastReviewedAt: Date?
-public var nextReviewAt: Date?
+public var lastReviewedAt: Date       // 默认 .distantPast（Schema V2 起非可选）
+public var nextReviewAt: Date         // 默认 .distantPast（Schema V2 起非可选）
 public var subjectRawValue: String   // 直接存学科字符串
 public var sourceRawValue: String    // 直接存来源字符串
 public var tags: [TagModel]?
@@ -194,13 +194,14 @@ public var repetitions: Int
 public var subject: String { get set }  // 等价于 subjectRawValue
 public var source: String { get set }   // 等价于 sourceRawValue
 public var difficultyValue: Difficulty { get set }
+public var isScheduled: Bool { get }   // nextReviewAt != .distantPast
 
 // 方法
 public func toExportSnapshot() -> ReviewExportSnapshot
 
 // 主 init（所有参数均有默认值）
 public init(id: UUID = UUID(), content: String? = nil, imagePath: String? = nil,
-            createdAt: Date = Date(), lastReviewedAt: Date? = nil, nextReviewAt: Date? = nil,
+            createdAt: Date = Date(), lastReviewedAt: Date = .distantPast, nextReviewAt: Date = .distantPast,
             subject: String = "其他", source: String = "其他", tags: [TagModel]? = [],
             answerText: String? = nil, answerImagePath: String? = nil,
             difficulty: Int = 1, grade: String = "", easeFactor: Double = 2.5,
@@ -231,10 +232,12 @@ public func fetchFilteredModels(searchText: String, subjects: Set<String>,
                                 tags: Set<String>, limit: Int, offset: Int) throws -> [ReviewItemModel]
 
 // 写入
+public func insert(_ model: ReviewItemModel)       // 纯内存插入，不 save；调用方统一 saveContext()
 public func insertAndSave(_ model: ReviewItemModel) throws
 public func saveContext() throws
 public func rollbackContext()          // saveContext 失败时调用，回滚所有未持久化变更
 public func delete(id: UUID) async throws  // async 2026-03-06，内部含文件 I/O
+public func collectAllImagePaths() throws -> [String]  // 收集所有题目图片路径，供删除前清理
 public func deleteAll() throws
 
 // 级联更新
@@ -332,13 +335,14 @@ public struct ImageCropperView: UIViewControllerRepresentable {
                 onCancel: @escaping () -> Void)
 }
 
-// Routable（protocol，所有 Router 遵循）
-public protocol Routable: AnyObject, Observable {
+// FeatureRouter（@MainActor protocol，所有 Router 遵循）
+@MainActor
+public protocol FeatureRouter: AnyObject, Observable {
     associatedtype Destination: Hashable
     var path: NavigationPath { get set }
     func push(_ destination: Destination)
     func pop()
-    func popToRoot()
+    func reset()
 }
 
 // TabItem（enum）

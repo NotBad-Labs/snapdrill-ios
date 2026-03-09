@@ -1,6 +1,6 @@
 # SnapDrill
 
-**SnapDrill** 是一款个人智能学习助手 iOS 应用，旨在帮助用户通过间隔重复（Spaced Repetition）技术来采集、组织和复习知识。
+**SnapDrill** 是一款面向学生和家长的练习题数字化存档与间隔重复复习工具，帮助用户以最低成本完成"看到题目 → 数字化存档"的过程。
 
 ## 架构设计
 
@@ -16,26 +16,28 @@
 - **[SnapDrillData](Packages/SnapDrillData/README.md)**: 数据层。基于 SwiftData 的 `@Model` 类（直接作领域对象）、具体 Repository 类、持久化控制器和迁移计划。
 - **[SnapDrillUI](Packages/SnapDrillUI/README.md)**: 表现层。包含设计系统、通用组件 (ImageCropper) 和基础路由协议。
 
+- **[SnapDrillInfrastructure](Packages/SnapDrillInfrastructure/)**: 基础设施层。Firebase 实现（Analytics/Crashlytics/RemoteConfig），仅 `SnapDrill/App` 可 import。
+
 #### 2. 功能层 (Feature Layer)
 
-所有具体的业务功能都整合在一个统一的模块中，以简化开发体验。
+业务功能拆分为 5 个独立 SPM target，编译器强制模块边界。
 
 - **[SnapDrillFeatures](Packages/SnapDrillFeatures/README.md)**:
-  - **Capture**: 智能扫描与 OCR。
-  - **Library**: 题库管理与编辑。
-  - **Dashboard**: 数据概览。
-  - **Review**: 复习流程。
-  - **Settings**: 设置与关于。
+  - **SnapDrillFeatureCapture**: 智能扫描与 OCR。
+  - **SnapDrillFeatureLibrary**: 题库管理、编辑与分类管理（学科/来源/年级）。
+  - **SnapDrillFeatureDashboard**: 数据概览。
+  - **SnapDrillFeatureReview**: 复习流程。
+  - **SnapDrillFeatureSettings**: 设置与关于。
 
 ### 其他
 
 - **Scripts**: 自动化脚本与开发者工具。
-- **Composition**: 应用层的胶水代码与依赖注入占位符。
+- **SnapDrill/App**: 薄壳组合根（DependencyContainer + AppRouter）。
 
 ## 环境要求
 
 - **Xcode**: 26.0+
-- **iOS**: 18.0+
+- **iOS**: 26.0+
 - **SwiftLint**: 必需 (用于代码风格检查) `brew install swiftlint`
 
 ## 快速开始
@@ -55,7 +57,7 @@
 
 ### 测试覆盖率
 
-[![codecov](https://codecov.io/gh/snapdrill-ios/branch/main/graph/badge.svg)](https://codecov.io/gh/snapdrill-ios)
+<!-- codecov badge placeholder: 待配置 CI 后启用 -->
 
 - **目标覆盖率**: 60%+
 - **当前覆盖率**: 查看 CI 报告
@@ -80,18 +82,10 @@
 ### 测试结构
 
 ```
-Tests/
-├── SnapDrillCoreTests/          # Service 层测试
-│   ├── OCRServiceTests
-│   ├── PDFExportServiceTests
-│   ├── CaptureServiceTests
-│   └── AnalyticsServiceTests
-├── SnapDrillDataTests/          # 数据层测试
-│   ├── ReviewItemModelTests
-│   ├── ModelTests
-│   ├── ReviewRepositoryTests
-│   └── TestHelpers
-└── SnapDrillUITests/            # UI 测试（待添加）
+Packages/
+├── SnapDrillCore/Tests/         # 核心服务测试（OCR、PDF 导出、SM-2 调度）
+├── SnapDrillData/Tests/         # 数据层测试（Model、Repository）
+└── SnapDrillFeatures/Tests/     # 功能模块测试（需通过 Xcode GUI 运行）
 ```
 
 ## 文档

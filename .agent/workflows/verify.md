@@ -112,7 +112,7 @@ xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPho
 请自我审视这段代码：
 1. 有什么可以优化的地方？
 2. 是否存在代码重复？
-3. 是否符合项目的架构规范（参考 .agent/rules/）？
+3. 是否符合项目的架构规范（参考 .claude/principles.md）？
 4. 性能是否可以提升？
 5. 可读性是否足够好？
 ```

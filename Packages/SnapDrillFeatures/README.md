@@ -1,33 +1,40 @@
-
 # SnapDrillFeatures
 
 **功能模块集 (Feature Modules Collection)**
 
-`SnapDrillFeatures` 是应用的主要业务逻辑载体，它将原来的多个分散模块整合为一个统一的编译单元，以提高聚合度和编译速度。
+`SnapDrillFeatures` 包含 5 个**独立 SPM target**，编译器强制模块边界。每个 target 独立编译，禁止未声明的跨模块访问。
 
 ## 模块清单
 
-### 1. Capture (采集)
-- **职责**: 文档扫描、拍照、OCR 识别。
-- **关键类**: `SmartCameraView`, `CaptureResultView`.
+### 1. SnapDrillFeatureCapture (采集)
+- **职责**: 拍照扫描、相册导入、OCR 识别、手动录入、裁剪、连续录入。
+- **关键类**: `CaptureView`, `CaptureResultView`, `SmartCameraView`, `CaptureResultViewModel`.
 
-### 2. Library (题库)
-- **职责**: 浏览、编辑和管理已保存的错题。
-- **关键类**: `LibraryView`, `LibraryDetailView`.
+### 2. SnapDrillFeatureLibrary (题库)
+- **职责**: 浏览、编辑、搜索、多维过滤、PDF 导出；分类管理（学科/来源/年级）。
+- **关键类**: `LibraryView`, `LibraryDetailView`, `LibraryEditView`, `SubjectManagerView`, `SourceManagerView`, `GradeManagerView`.
 
-### 3. Review (复习)
-- **职责**: 提供沉浸式的 Flashcard 复习体验。
-- **关键类**: `ReviewView`.
+### 3. SnapDrillFeatureReview (复习)
+- **职责**: 卡片翻转复习、滑动评分、SM-2 调度。
+- **关键类**: `ReviewView`, `ReviewViewModel`.
+- **依赖**: Library（LibraryEditView 嵌入复习卡）。
 
-### 4. Dashboard (仪表盘)
-- **职责**: 首页概览，展示复习进度统计。
-- **关键类**: `DashboardView`.
+### 4. SnapDrillFeatureDashboard (仪表盘)
+- **职责**: 首页概览、今日统计、待复习计数。
+- **关键类**: `DashboardView`, `DashboardViewModel`.
+- **依赖**: Library（SubjectManagerView）。
 
-### 5. Settings (设置)
-- **职责**: 应用配置、关于页面、开源许可。
-- **关键类**: `SettingsView`, `LicenseView`.
+### 5. SnapDrillFeatureSettings (设置)
+- **职责**: 录入字段配置、外观设置、数据同步、通知提醒、隐私导出。
+- **关键类**: `SettingsView`, `DataAndSyncSettingsView`, `ReviewAppearanceSettingsView`.
+- **依赖**: Library（分类管理视图）。
 
-## 依赖关系
-- `SnapDrillCore`: 获取业务逻辑和服务。
-- `SnapDrillUI`: 使用 UI 组件。
-- `SnapDrillData`: 进行数据读写。
+## 模块间依赖
+
+```
+SnapDrillFeatureCapture   ──► Core, Data, UI
+SnapDrillFeatureLibrary   ──► Core, Data, UI
+SnapDrillFeatureReview    ──► Core, Data, UI, Library
+SnapDrillFeatureDashboard ──► Core, Data, UI, Library
+SnapDrillFeatureSettings  ──► Core, Data, UI, Library
+```
