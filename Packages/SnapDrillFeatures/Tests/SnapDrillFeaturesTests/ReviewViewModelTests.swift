@@ -15,13 +15,18 @@ import Foundation
 @testable import SnapDrillData
 @testable import SnapDrillCore
 
-@Suite("ReviewViewModel 状态机与 SM-2 调度测试")
+@Suite("ReviewViewModel 状态机与 SM-2 调度测试", .serialized)
 @MainActor
-struct ReviewViewModelTests {
+final class ReviewViewModelTests {
 
-    // MARK: - Helpers
+    // MARK: - 存储属性（每次 @Test 执行前由 Swift Testing 调用 init() 重建）
 
-    private func createTestRepository() throws -> ReviewRepository {
+    /// ModelContainer 必须作为实例属性保活：ModelContext 对 ModelContainer 持弱引用，
+    /// 若 container 被提前释放，后续 insert/fetch/save 均会 crash（x0 = nil, brk #1）。
+    private let container: ModelContainer
+    private let repo: ReviewRepository
+
+    init() throws {
         let schema = Schema([
             ReviewItemModel.self,
             TagModel.self,
@@ -30,31 +35,42 @@ struct ReviewViewModelTests {
             GradeModel.self
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: [config])
-        return ReviewRepository(modelContext: container.mainContext)
+        container = try ModelContainer(for: schema, configurations: [config])
+        repo = ReviewRepository(modelContext: container.mainContext)
     }
 
-    /// 插入一个 nextReviewAt 在过去的条目（即立即待复习）
+    // MARK: - Helpers
+
+    /// 插入一个 nextReviewAt 在过去的条目（即立即待复习）。
+    /// 仅调用 insert()（不 save），在 in-memory 容器中已立即可查询。
+    /// 避免调用 save() 触发 SwiftData iOS 26 关系验证路径的 brk #1 崩溃。
     @discardableResult
     private func insertDueItem(
-        in repo: ReviewRepository,
         content: String = "测试题",
         repetitions: Int = 0,
         interval: Int = 0
-    ) throws -> ReviewItemModel {
+    ) -> ReviewItemModel {
         let model = ReviewItemModel(content: content, subject: "数学", source: "试卷")
         model.nextReviewAt = Date().addingTimeInterval(-3600)
         model.repetitions = repetitions
         model.interval = interval
-        try repo.insertAndSave(model)
+        repo.insert(model)
         return model
+    }
+
+    /// 批量插入多个待复习条目（仅 insert，不 save）
+    private func insertDueItems(count: Int) {
+        for i in 0..<count {
+            let model = ReviewItemModel(content: "题目\(i)", subject: "数学", source: "试卷")
+            model.nextReviewAt = Date().addingTimeInterval(-3600)
+            repo.insert(model)
+        }
     }
 
     // MARK: - 初始状态
 
     @Test("ViewModel 初始 phase 为 loading")
     func initialPhaseIsLoading() throws {
-        let repo = try createTestRepository()
         let vm = ReviewViewModel(repository: repo)
         #expect(vm.phase == .loading)
         #expect(vm.reviewQueue.isEmpty)
@@ -66,7 +82,6 @@ struct ReviewViewModelTests {
 
     @Test("空数据库时 loadDataAsync 将 phase 变为 idle，队列为空")
     func loadDataAsync_emptyDatabase_idleAndEmptyQueue() async throws {
-        let repo = try createTestRepository()
         let vm = ReviewViewModel(repository: repo)
 
         await vm.loadDataAsync()
@@ -78,15 +93,13 @@ struct ReviewViewModelTests {
 
     @Test("loadDataAsync 正确区分待复习与未来条目")
     func loadDataAsync_distinguishesDueFromFuture() async throws {
-        let repo = try createTestRepository()
-
-        try insertDueItem(in: repo, content: "过期题A")
-        try insertDueItem(in: repo, content: "过期题B")
+        insertDueItem(content: "过期题A")
+        insertDueItem(content: "过期题B")
 
         // 未来条目不计入 reviewQueue
         let futureItem = ReviewItemModel(content: "未来题", subject: "物理", source: "课本")
         futureItem.nextReviewAt = Date().addingTimeInterval(86400)
-        try repo.insertAndSave(futureItem)
+        repo.insert(futureItem)
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -100,9 +113,8 @@ struct ReviewViewModelTests {
 
     @Test("startSession 将 reviewQueue 复制到 workingItems 并进入 reviewing")
     func startSession_copiesQueueAndEntersReviewing() async throws {
-        let repo = try createTestRepository()
-        try insertDueItem(in: repo, content: "题目A")
-        try insertDueItem(in: repo, content: "题目B")
+        insertDueItem(content: "题目A")
+        insertDueItem(content: "题目B")
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -117,8 +129,7 @@ struct ReviewViewModelTests {
 
     @Test("startSession 清除上次会话的残留状态")
     func startSession_resetsResidualSessionState() async throws {
-        let repo = try createTestRepository()
-        try insertDueItem(in: repo)
+        insertDueItem()
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -138,8 +149,7 @@ struct ReviewViewModelTests {
 
     @Test("向右滑（good）更新 SM-2 状态并持久化到 @Model")
     func handleSwipe_rightGood_updatesSM2AndPersists() async throws {
-        let repo = try createTestRepository()
-        let model = try insertDueItem(in: repo, content: "SM-2 好题")
+        let model = insertDueItem(content: "SM-2 好题")
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -162,9 +172,8 @@ struct ReviewViewModelTests {
 
     @Test("向左滑（again）将 repetitions 和 interval 重置为 0")
     func handleSwipe_leftAgain_resetsSM2Counters() async throws {
-        let repo = try createTestRepository()
         // 已有进度的条目
-        let model = try insertDueItem(in: repo, content: "SM-2 难题", repetitions: 3, interval: 6)
+        let model = insertDueItem(content: "SM-2 难题", repetitions: 3, interval: 6)
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -180,8 +189,7 @@ struct ReviewViewModelTests {
 
     @Test("最后一张卡片滑走后 phase 变为 finished")
     func handleSwipe_lastCard_phaseBecomesFinished() async throws {
-        let repo = try createTestRepository()
-        try insertDueItem(in: repo)
+        insertDueItem()
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -195,9 +203,8 @@ struct ReviewViewModelTests {
 
     @Test("非最后一张卡片滑走后 phase 保持 reviewing")
     func handleSwipe_notLastCard_phaseRemainsReviewing() async throws {
-        let repo = try createTestRepository()
-        try insertDueItem(in: repo, content: "题目A")
-        try insertDueItem(in: repo, content: "题目B")
+        insertDueItem(content: "题目A")
+        insertDueItem(content: "题目B")
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -211,7 +218,6 @@ struct ReviewViewModelTests {
 
     @Test("空队列时 handleSwipeCompletion 不崩溃")
     func handleSwipe_emptyQueue_noOp() throws {
-        let repo = try createTestRepository()
         let vm = ReviewViewModel(repository: repo)
         // 未调用 startSession，workingItems 为空
         vm.handleSwipeCompletion(direction: 1) // 不应崩溃
@@ -222,8 +228,7 @@ struct ReviewViewModelTests {
 
     @Test("undoLastSwipe 将条目移回 workingItems 头部")
     func undoLastSwipe_restoresItemToFrontOfQueue() async throws {
-        let repo = try createTestRepository()
-        let model = try insertDueItem(in: repo, content: "可撤销题")
+        let model = insertDueItem(content: "可撤销题")
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -244,8 +249,7 @@ struct ReviewViewModelTests {
 
     @Test("finished 状态下 undoLastSwipe 恢复为 reviewing")
     func undoLastSwipe_fromFinished_resumesReviewing() async throws {
-        let repo = try createTestRepository()
-        try insertDueItem(in: repo)
+        insertDueItem()
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -261,7 +265,6 @@ struct ReviewViewModelTests {
 
     @Test("undoStack 为空时 undoLastSwipe 无操作")
     func undoLastSwipe_emptyStack_noOp() throws {
-        let repo = try createTestRepository()
         let vm = ReviewViewModel(repository: repo)
 
         #expect(!vm.isUndoEnabled)
@@ -271,11 +274,10 @@ struct ReviewViewModelTests {
 
     @Test("undoLastSwipe 完整回滚 SM-2 状态到滑动前，避免数据损坏")
     func undoLastSwipe_rollsBackSM2State() async throws {
-        let repo = try createTestRepository()
         let model = ReviewItemModel(content: "回滚测试题", subject: "数学", source: "试卷")
         model.nextReviewAt = Date().addingTimeInterval(-3600)
         model.easeFactor = 2.8; model.interval = 5; model.repetitions = 3
-        try repo.insertAndSave(model)
+        repo.insert(model)
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync(); vm.startSession()
         // 记录滑动前 SM-2 字段
@@ -297,7 +299,6 @@ struct ReviewViewModelTests {
 
     @Test("triggerButtonRating 快速连续调用时第二次被防抖忽略")
     func triggerButtonRating_rapidCalls_secondCallIgnored() throws {
-        let repo = try createTestRepository()
         let vm = ReviewViewModel(repository: repo)
 
         // 第一次调用：设置 isProcessingSwipe = true，swipeTrigger 被赋值
@@ -313,7 +314,6 @@ struct ReviewViewModelTests {
 
     @Test("triggerButtonRating 在 minInteractionInterval 内重复调用被节流")
     func triggerButtonRating_withinCooldown_throttled() throws {
-        let repo = try createTestRepository()
         let vm = ReviewViewModel(repository: repo)
 
         // 手动设置 lastInteractionTime 为刚才（模拟刚触发过）
@@ -327,8 +327,7 @@ struct ReviewViewModelTests {
 
     @Test("handleSwipeCompletion 重置 isProcessingSwipe，允许下一次触发")
     func handleSwipeCompletion_resetsProcessingFlag() async throws {
-        let repo = try createTestRepository()
-        try insertDueItem(in: repo, content: "防抖重置测试题")
+        insertDueItem(content: "防抖重置测试题")
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -347,13 +346,10 @@ struct ReviewViewModelTests {
 
     @Test("undoStack 超过上限时自动丢弃最旧条目")
     func undoStack_exceedsCapacity_dropsOldestEntry() async throws {
-        let repo = try createTestRepository()
         let capacity = 20
 
-        // 插入比上限多 1 条题目
-        for i in 0..<(capacity + 1) {
-            try insertDueItem(in: repo, content: "题目\(i)")
-        }
+        // 批量插入（仅 insert，不 save），避免触发 SwiftData iOS 26 关系验证路径的 brk #1 崩溃
+        insertDueItems(count: capacity + 1)
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -372,12 +368,10 @@ struct ReviewViewModelTests {
 
     @Test("undoStack 未超限时不丢弃条目")
     func undoStack_withinCapacity_retainsAllEntries() async throws {
-        let repo = try createTestRepository()
         let count = 5
 
-        for i in 0..<count {
-            try insertDueItem(in: repo, content: "题目\(i)")
-        }
+        // 批量插入（仅 insert，不 save），避免触发 SwiftData iOS 26 关系验证路径的 brk #1 崩溃
+        insertDueItems(count: count)
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -394,7 +388,6 @@ struct ReviewViewModelTests {
 
     @Test("toggleAnswer 每次调用切换 isAnswerShown")
     func toggleAnswer_togglesVisibility() throws {
-        let repo = try createTestRepository()
         let vm = ReviewViewModel(repository: repo)
 
         #expect(vm.isAnswerShown == false)
@@ -408,12 +401,8 @@ struct ReviewViewModelTests {
 
     @Test("复习到一半 quitSession 后重新加载，已完成题目不重复出现")
     func crashRecovery_completedItemsNotRepeated() async throws {
-        let repo = try createTestRepository()
-
-        // 插入 10 题
-        for i in 0..<10 {
-            try insertDueItem(in: repo, content: "题目\(i)")
-        }
+        // 批量插入 10 题（仅 insert，不 save），避免触发 SwiftData iOS 26 关系验证路径的 brk #1 崩溃
+        insertDueItems(count: 10)
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -443,8 +432,7 @@ struct ReviewViewModelTests {
 
     @Test("already 评分后题目仍在待复习队列（nextReviewAt 约 10 分钟后）")
     func crashRecovery_againRating_itemRemainsInQueue() async throws {
-        let repo = try createTestRepository()
-        try insertDueItem(in: repo, content: "难题")
+        insertDueItem(content: "难题")
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -463,9 +451,8 @@ struct ReviewViewModelTests {
 
     @Test("quitSession 后 workingItems 和 undoStack 被清空")
     func quitSession_clearsSessionState() async throws {
-        let repo = try createTestRepository()
-        try insertDueItem(in: repo, content: "题目A")
-        try insertDueItem(in: repo, content: "题目B")
+        insertDueItem(content: "题目A")
+        insertDueItem(content: "题目B")
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()
@@ -484,8 +471,7 @@ struct ReviewViewModelTests {
 
     @Test("quitSession 刷新数据并将 phase 设为 idle")
     func quitSession_refreshesAndReturnsIdle() async throws {
-        let repo = try createTestRepository()
-        try insertDueItem(in: repo)
+        insertDueItem()
 
         let vm = ReviewViewModel(repository: repo)
         await vm.loadDataAsync()

@@ -98,8 +98,12 @@ public final class CaptureResultViewModel {
     private let router: CaptureRouter
 
     /// 识别任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
+    /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
+    @ObservationIgnored
     private var recognitionTask: Task<Void, Never>?
     /// 相册图片加载任务句柄（连续切换图片时取消前一个，避免竞态）
+    /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
+    @ObservationIgnored
     private var photoLoadTask: Task<Void, Never>?
 
     // MARK: - Initialization

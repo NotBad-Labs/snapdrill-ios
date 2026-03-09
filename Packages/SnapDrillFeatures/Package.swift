@@ -69,7 +69,8 @@ let package = Package(
                 "SnapDrillFeatureReview",
                 "SnapDrillFeatureDashboard",
                 "SnapDrillFeatureSettings",
-                "SnapDrillCore"
+                "SnapDrillCore",
+                "SnapDrillData"
             ]
         ),
     ]

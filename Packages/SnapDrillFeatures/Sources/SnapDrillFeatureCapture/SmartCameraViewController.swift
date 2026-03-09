@@ -172,8 +172,10 @@ final class CameraSessionManager: NSObject {
     }
     
     func startSession() {
+        // 局部捕获 session，避免在 @Sendable 闭包中捕获非 Sendable 的 self
+        let capturedSession = session
         sessionQueue.async {
-            self.session.startRunning()
+            capturedSession.startRunning()
         }
     }
     

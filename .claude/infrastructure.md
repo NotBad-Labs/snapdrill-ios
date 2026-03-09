@@ -389,7 +389,8 @@ public init(content: String, image: UIImage?, repositories: RepositoryContainer,
             imageStorage: ImageStorage = ImageStorage(), router: CaptureRouter)
 
 // LibraryEditViewModel
-public init(item: ReviewItemModel, repositories: RepositoryContainer)
+public init(item: ReviewItemModel, repositories: RepositoryContainer,
+            imageStorage: ImageStorage = ImageStorage(), ocrService: OCRServiceProtocol = OCRService())
 
 // SettingsViewModel
 public init(repositories: RepositoryContainer)
