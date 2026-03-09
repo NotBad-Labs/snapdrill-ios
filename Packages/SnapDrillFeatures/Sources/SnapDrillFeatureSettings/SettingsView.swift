@@ -45,6 +45,9 @@ public struct SettingsView: View {
     @State private var showingSourceManager = false
     @State private var showingGradeManager = false
 
+    // iCloud 同步状态（用于数据风险提示）
+    @AppStorage("iCloudSyncEnabled") private var iCloudSyncEnabled: Bool = true
+
     // 录入字段可见性（产品规格：学科默认开，其余默认关）
     @AppStorage("captureFieldSubject") private var showSubjectField: Bool = true
     @AppStorage("captureFieldSource") private var showSourceField: Bool = false
@@ -137,7 +140,7 @@ public struct SettingsView: View {
                 }
 
                 // 4. 数据与云同步
-                Section("数据与云同步") {
+                Section {
                     NavigationLink {
                         DataAndSyncSettingsView()
                     } label: {
@@ -151,6 +154,15 @@ public struct SettingsView: View {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: "隐私与导出")
                     }
                     .listRowSeparator(.hidden)
+                } header: {
+                    Text("数据与云同步")
+                } footer: {
+                    // 数据风险提示：iCloud 同步关闭时在主设置页醒目提醒
+                    if !iCloudSyncEnabled {
+                        Label("本地模式：卸载 App 将永久丢失所有数据", systemImage: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
                 }
 
                 // 5. 通用
