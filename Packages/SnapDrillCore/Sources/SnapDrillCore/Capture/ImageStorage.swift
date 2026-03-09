@@ -110,22 +110,31 @@ public struct ImageStorage: Sendable {
     // MARK: - Private Helpers
 
     #if canImport(UIKit)
-    /// 长边超过 maxLongSide 时等比缩放，否则原图返回
+    /// 长边物理像素超过 maxLongSide 时等比缩放，否则原图返回
+    ///
+    /// - Note: 使用 `format.scale = 1.0` 确保按物理像素而非逻辑点渲染，
+    ///   避免 UIGraphicsImageRenderer 默认使用屏幕 scale（@3x）导致图片反而放大。
     static func resizedIfNeeded(_ image: UIImage, maxLongSide: CGFloat) -> UIImage {
-        let size = image.size
-        let longSide = max(size.width, size.height)
+        // 计算物理像素尺寸（image.size 是逻辑点，需乘以 scale）
+        let pixelWidth = image.size.width * image.scale
+        let pixelHeight = image.size.height * image.scale
+        let longSide = max(pixelWidth, pixelHeight)
         guard longSide > maxLongSide else { return image }
 
-        let scale = maxLongSide / longSide
-        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
-        let renderer = UIGraphicsImageRenderer(size: newSize)
+        let ratio = maxLongSide / longSide
+        let newSize = CGSize(width: pixelWidth * ratio, height: pixelHeight * ratio)
+
+        // scale = 1.0：输出尺寸即物理像素，不受屏幕 scale 影响
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: newSize))
         }
     }
     #else
     /// 非 UIKit 平台 stub，直接返回原图
-    static func resizedIfNeeded(_ image: UIImage, maxLongSide: Double) -> UIImage {
+    static func resizedIfNeeded(_ image: UIImage, maxLongSide: CGFloat) -> UIImage {
         image
     }
     #endif
