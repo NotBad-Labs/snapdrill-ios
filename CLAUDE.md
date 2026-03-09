@@ -15,7 +15,7 @@ Open `SnapDrill.xcodeproj` in Xcode 26.0+ (current env: Xcode 26.3), select the 
 
 **Lint**
 ```bash
-swiftlint                     # Run from repo root; config is .swiftlint.yml
+swiftlint --strict             # Run from repo root; config is .swiftlint.yml
 bash Scripts/lint.sh          # Wrapper that checks if swiftlint is installed first
 ```
 
@@ -43,7 +43,7 @@ brew install swiftlint
 
 ## Architecture
 
-SnapDrill is a spaced-repetition (flashcard) learning app built with Swift 6.2 + SwiftUI + SwiftData, targeting iOS 26.0+. It uses a **strict modular SPM architecture** where the main app target is a thin composition root.
+SnapDrill is a question archiving and spaced-repetition review app for students and parents, built with Swift 6.2 + SwiftUI + SwiftData, targeting iOS 26.0+. It uses a **strict modular SPM architecture** where the main app target is a thin composition root.
 
 ### Module Dependency Graph
 
@@ -51,6 +51,8 @@ SnapDrill is a spaced-repetition (flashcard) learning app built with Swift 6.2 +
 SnapDrillFeatures ──► SnapDrillData ──► SnapDrillCore (0 deps)
         │                                      ▲
         └──────────► SnapDrillUI ──────────────┘
+
+SnapDrill/App ──► SnapDrillInfrastructure ──► SnapDrillCore
 ```
 
 ### Packages
@@ -60,7 +62,8 @@ SnapDrillFeatures ──► SnapDrillData ──► SnapDrillCore (0 deps)
 | **SnapDrillCore** | Zero-dependency kernel: SM-2 scheduler, OCR/ImageStorage/Logger, Difficulty/ReviewRating enums |
 | **SnapDrillData** | SwiftData `@Model` classes (direct domain objects), concrete `Repository` classes, `PersistenceController` |
 | **SnapDrillUI** | Shared design system, `ImageCropper` |
-| **SnapDrillFeatures** | All product features: Capture, Library, Review, Dashboard, Settings — `View + ViewModel` |
+| **SnapDrillFeatures** | 5 independent SPM targets: Capture, Library, Review, Dashboard, Settings — `View + ViewModel` |
+| **SnapDrillInfrastructure** | Firebase implementations (Analytics/Crashlytics/RemoteConfig); only `SnapDrill/App` may import |
 
 ### Composition Root (`SnapDrill/App/`)
 
@@ -71,14 +74,14 @@ SnapDrillFeatures ──► SnapDrillData ──► SnapDrillCore (0 deps)
 
 ### Feature Structure Pattern
 
-Each feature in `SnapDrillFeatures/Sources/SnapDrillFeatures/<FeatureName>/` follows:
-- `<Feature>View.swift` — SwiftUI view, `@Query` for list data, reads from ViewModel
+Each feature in `SnapDrillFeatures/Sources/SnapDrillFeature<Name>/` follows:
+- `<Feature>View.swift` — SwiftUI view, reads from ViewModel (Dashboard uses `@Query` for statistics; Library uses Repository.fetch via ViewModel due to SwiftData many-to-many limitation)
 - `<Feature>ViewModel.swift` — `@Observable @MainActor final class`, all async state management
 - `<Feature>Router.swift` — navigation path management (where applicable)
 
 ### Data Flow
 
-ViewModels are injected with concrete Repository classes (not protocols) via `@Environment`. ViewModels call `ReviewScheduler` (Core) for SM-2 scheduling. Views use `@Query` for reactive list updates. Views **never** touch `ModelContext` directly.
+ViewModels are injected with concrete Repository classes (not protocols) via `@Environment`. ViewModels call `ReviewScheduler` (Core) for SM-2 scheduling. Dashboard uses `@Query` for reactive statistics; other features use Repository.fetch via ViewModel. Views **never** touch `ModelContext` directly.
 
 ## 编写代码前强制研究声明（每次必走）
 
@@ -135,7 +138,7 @@ ViewModels are injected with concrete Repository classes (not protocols) via `@E
 **File Header**
 Every file must have the standard Xcode copyright header followed by a one-line responsibility comment:
 ```swift
-//  核心职责：一句话描述该文件的功能。
+//  一句话描述该文件的功能。
 ```
 
 **Comments**: Use Simplified Chinese for all comments. Public APIs get DocC (`///`) with Chinese description; parameter names may remain English.

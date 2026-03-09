@@ -9,6 +9,20 @@ Version scheme: `MAJOR.MINOR.PATCH` (App Store) + build number.
 
 ## [Unreleased]
 
+### Added
+- **SnapDrillInfrastructure** 包（2026-03-04）：Firebase 实现独立为单独 SPM 包，
+  仅 `SnapDrill/App` 可 import，Features/Data/UI/Core 均禁止依赖。
+- **录入字段配置系统**（P0）：学科默认开启，难度/来源/年级/答案默认关闭，
+  用户在设置中按需开关，录入界面只显示已开启的字段。
+- **数据丢失风险提示**：iCloud 同步关闭时，设置页和数据同步页显示橙色警告。
+- **自动推断 + 连续录入**：保存后自动沿用上次学科/来源，直接返回摄像头。
+
+### Changed
+- **SnapDrillFeatures 拆分为 5 个独立 SPM target**（PR #170）：
+  Capture、Library、Review、Dashboard、Settings 各自独立编译，
+  编译器强制模块边界。分类管理视图迁入 Library target。
+- **纯图片题复习卡片背面展示题目图**（PR #180）。
+
 ### Fixed
 - **复习页面** 生成测试数据后复习队列不刷新的根本原因：移除 `ReviewView` 中
   不稳定的 `isFirstAppear` 状态机，改为 `viewModel == nil` 判断，保证每次
@@ -16,7 +30,7 @@ Version scheme: `MAJOR.MINOR.PATCH` (App Store) + build number.
 - **设置页面** 删除 `generateMockData()` 中的冗余通知，`DataSeeder` 已在
   `save()` 后统一 post `reviewDataDidChange`，避免双发导致竞态。
 
-### Changed
+### Changed (Code Quality)
 - 代码质量全量审计修复（F01–F07，约 97 项）：
   - **F01** `Task` 句柄补全：`SettingsView`、`DataAndSyncSettingsView`、
     `NotificationSettingsView` 异步 Task 现均存储句柄并在视图消失时取消；
@@ -53,7 +67,7 @@ Version scheme: `MAJOR.MINOR.PATCH` (App Store) + build number.
   消除所有 `toEntity()` 映射代码。
 - `DataSeeder` 改为接受并使用 `mainContext`，避免跨 Context 合并时机竞争。
 - `RepositoryContainer` 升级为聚合容器，提供统一数据清理入口。
-- SPM 包由 5 个精简为 4 个（Core / Data / UI / Features）。
+- SPM 包由 5 个精简为 4 个（Core / Data / UI / Features），后于 2026-03-04 新增 Infrastructure 包恢复为 5 个。
 - API 基础设施清单 (`.claude/infrastructure.md`) 建立，防止凭空捏造接口。
 - 功能验收标准与发版前检查清单 (`ACCEPTANCE.md`) 建立。
 
@@ -90,4 +104,4 @@ Version scheme: `MAJOR.MINOR.PATCH` (App Store) + build number.
 - Firebase Analytics + Crashlytics 集成
 - ATT (App Tracking Transparency) 隐私授权流程
 - SwiftData 持久化 + iCloud CloudKit 同步
-- 4 个 SPM 包模块化架构（Core / Data / UI / Features）
+- SPM 包模块化架构（Core / Data / UI / Features）

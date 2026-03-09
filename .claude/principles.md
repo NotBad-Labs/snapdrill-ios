@@ -123,7 +123,7 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 - 功能：Capture / Library / Review / Dashboard / Settings（5个）
 - 用户：单用户，本地优先，无后端
-- 目标包数：4 个 SPM 包（Core / Data / UI / Features）
+- 目标包数：5 个 SPM 包（Core / Data / UI / Features / Infrastructure）
 - 每新增一个字段，最多改动 3 个文件
 
 ## 并发规则

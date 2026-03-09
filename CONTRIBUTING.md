@@ -6,9 +6,9 @@
 
 1.  **Issue**: 在开始任何工作之前，请确保有一个相关的 GitHub Issue，并在评论区告知您正在处理。
 2.  **Branch**: 从 `develop` 分支检出新分支。
-    - 分支命名规范: `feature/your-feature-name` 或 `fix/issue-id-description`。
-3.  **Commit**: 提交信息应清晰简洁。
-    - 推荐格式: `[Feature] Add specific functionality` 或 `[Fix] Resolve crash in settings`。
+    - 分支命名规范: `feat/xxx`, `fix/xxx`, `chore/xxx`, `hotfix/xxx`。
+3.  **Commit**: 使用 Conventional Commits 格式。
+    - 推荐格式: `feat: 新功能描述 Closes #N` 或 `fix: 修复描述 Closes #N`。
 4.  **Pull Request**: 提交 PR 到 `develop` 分支。
     - 确保所有 CI 检查通过。
     - 请求至少一名维护者进行 Code Review。

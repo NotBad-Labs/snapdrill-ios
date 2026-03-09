@@ -21,6 +21,9 @@ Inherits from: [Global Constitution](file:///Users/yiming/.gemini/antigravity/GL
 - **UI 隔离**: 所有 ViewModel 强制标记 `@Observable @MainActor`。
 - **任务管理**: 异步 `Task` 必须具备明确的句柄管理和取消逻辑（Cancellation Check），严禁无取消机制的 OCR/IO 任务。
 - **绝对禁令**: 严禁使用 `@unchecked Sendable`。
+- **`any` existentials**: 默认禁止，以下例外须加注释说明理由：
+  - `EnvironmentKey.Value` 为跨模块协议类型（消除 `any` 需打破依赖方向）
+  - 无 associated type / Self 约束的协议作为集合元素（如 `[any PDFExportable]`，框架限制）
 
 ### 2. 数据生命线 (Data Integrity)
 
@@ -33,10 +36,12 @@ Inherits from: [Global Constitution](file:///Users/yiming/.gemini/antigravity/GL
 ### 3. 代码质量与禁令
 
 - **日志系统**: 禁止 `print()`，使用 `SnapDrillLogger`。
-- **强制约束**: 严禁强制解包 `!`，严禁使用 `any` 类型。
+- **强制约束**: 严禁强制解包 `!`，`any` 类型受限使用（见上方例外清单）。
 - **注释语言**: 公开 API 必须提供 `///` DocC 注释，使用**中文描述**，参数名保留英文。
 
 ## 📍 关键原则文件索引
 
-1. **架构铁律**: 详见 [copilot_rules_full.md](file:///Users/yiming/Developer/snapdrill-ios/.agent/skills/snapdrill-swift-standards/copilot_rules_full.md)
-2. **20 条宪法**: 详见 [swift6_rules_full.md](file:///Users/yiming/Developer/snapdrill-ios/.agent/skills/snapdrill-swift-standards/swift6_rules_full.md)
+1. **架构与原则**: `.claude/principles.md`（决策前研究铁律、Apple 原生优先、并发规则、Git 工作流）
+2. **架构总览**: `.claude/architecture.md`（5 包结构、依赖图、DI 链路）
+3. **API 权威参考**: `.claude/infrastructure.md`（所有公开接口签名）
+4. **产品思维**: `.claude/product.md`（用户旅程、功能边界、商业化策略）

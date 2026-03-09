@@ -2,7 +2,7 @@
 
 ## 状态
 
-已决定 (Accepted)
+已被取代 (Superseded) — 项目已升级至 iOS 26.0+（2026-03-04），本 ADR 记录的 iOS 18.0 下限不再适用。
 
 ## 上下文
 
@@ -31,4 +31,4 @@
 
 ---
 最后更新: 2026-02-26
-批准人: SnapDrill Labs Architect / yiming (User)
+批准人: NotBad Labs / yiming (User)

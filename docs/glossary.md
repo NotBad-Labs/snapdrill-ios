@@ -10,11 +10,11 @@
 
 | 术语 (Term) | 中文含义 | 描述与使用场景 (Description) | 关联代码实体 |
 | --- | --- | --- | --- |
-| **ReviewItem** | 复习条目 / 题目 | 整个应用最核心的数据单元，代表一道错题或一个知识点。 | `ReviewItem`, `ReviewItemModel` |
+| **ReviewItem** | 复习条目 / 题目 | 整个应用最核心的数据单元，代表一道错题或一个知识点。 | `ReviewItemModel`（`@Model`，直接作领域对象） |
 | **Content** | 内容 / 题干 | 题目的具体文字描述，通常来源于用户的输入或对图片的 OCR 识别结果。 | `ReviewItem.content` |
 | **Answer / AnswerText** | 答案 | 题目的参考答案文本。 | `ReviewItem.answerText` |
-| **Subject** | 学科 | 题目所属的具体学科（如：数学、语文、物理）。 | `SubjectModel`, `SubjectPreset` |
-| **Source** | 来源 | 题目的最初出处（如：试卷、作业、错题本）。 | `SourceModel`, `ReviewSourcePreset` |
+| **Subject** | 学科 | 题目所属的具体学科（如：数学、语文、物理）。 | `SubjectModel` |
+| **Source** | 来源 | 题目的最初出处（如：试卷、作业、错题本）。 | `SourceModel` |
 | **Tag** | 标签 | 用户自定义的分类标签，通常支持多个标签关联到一个题目上。 | `TagModel` |
 | **Grade** | 年级 / 阶段 | 题目所属的学习阶段或年级（如：高一、初三）。 | `ReviewItem.grade` |
 | **Difficulty** | 难度 | 题目的难度等级（通常为 1-5 星）。 | `ReviewItem.difficulty` |
@@ -64,21 +64,21 @@ SnapDrill 依赖间隔重复（Spaced Repetition）算法来调度题目的复�
 | **ReviewCard** | 复习卡片 | UI 层面展示题目内容的组件结构。 | `ReviewCardContent` |
 | **SwipeCard** | 滑动卡片 | 允许用户通过手势（左滑/右滑）进行交互的容器层。 | `SwipeCard` |
 | **Rating** | 评级 | 用户翻看答案后对自己掌握程度的评估（如：忘记、困难、良好、简单），作为 SM-2 算法的输入。 | `ReviewRatingView` |
-| **Session** | 会话 | 一次完整的卡片刷题流。 | `ReviewSessionManager` |
+| **Session** | 会话 | 一次完整的卡片刷题流。 | `ReviewViewModel`（状态机管理复习会话） |
 
 ---
 
-## 🏛 5. 架构抽象层 (Architecture Layers)
+## 🏛 5. 架构层次 (Architecture Layers)
 
-SnapDrill 严格遵守的 MVVM + Clean Architecture。
+SnapDrill 采用 MVVM 架构，`@Model` 直接作领域对象（无独立 Domain/Entity 层，2026-03-03 删除）。
 
 | 术语 (Term) | 中文含义 | 描述与使用场景 (Description) |
 | --- | --- | --- |
-| **Model** | 数据层实体 | 如 `ReviewItemModel`，属于 SwiftData 所管辖的边界，**不应越界到 View 中直接使用**。 |
-| **Entity** | 领域层实体 | 如 `ReviewItem`，是纯 Swift Struct，不受任何第三方库（如 SwiftData）绑定，可在各层间自由流动。 |
-| **Repository** | 存储库 | 抽象了底层数据存储的具体实现（如 `ReviewRepository`），向 ViewModel 暴露基于 `Entity` 的 CRUD 协议接口。 |
+| **@Model** | 数据层 + 领域层实体 | 如 `ReviewItemModel`，SwiftData `@Model` 类直接作领域对象，无独立 Domain struct 映射。 |
+| **Repository** | 存储库 | 具体类（无协议），如 `ReviewRepository`，向 ViewModel 暴露 CRUD 方法。测试通过 in-memory `ModelContainer` 实现。 |
+| **ViewModel** | 视图模型 | `@Observable @MainActor final class`，直接调用 Repository（无 UseCase 层）。 |
 | **Router** | 路由 | 管理基于 SwiftUI `NavigationStack` 的视图跳转和注入。 |
-| **Service / Engine** | 服务 / 引擎 | 封装了纯粹的业务逻辑、算法，或是调用第三方 API 的工具类（如 `OCRService`, `ReviewScheduler`）。 |
+| **Service / Engine** | 服务 / 引擎 | 封装业务逻辑、算法或第三方 API（如 `OCRService`, `ReviewScheduler`）。 |
 
 ---
 

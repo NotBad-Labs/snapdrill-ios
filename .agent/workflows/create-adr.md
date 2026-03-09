@@ -1,5 +1,5 @@
 ---
-description: 按照 adr-guide.md 规范自动创建新的架构决策记录 (ADR)
+description: 按照项目规范自动创建新的架构决策记录 (ADR)
 ---
 
 # 创建架构决策记录 (ADR)
@@ -9,15 +9,15 @@ description: 按照 adr-guide.md 规范自动创建新的架构决策记录 (ADR
 ## 执行步骤
 
 1. **自动识别编号和目录**:
-   - 默认存储路径: `docs/ADR/` (如不存在则自动创建)
-   - 自动扫描该目录以获取下一个可用的 ADR 编号 (例如 `ADR-001`)
+   - 默认存储路径: `docs/adr/` (如不存在则自动创建)
+   - 自动扫描该目录以获取下一个可用的 ADR 编号（四位数字，如 `0006`）
 
 2. **生成模板**:
 
-   使用 `write_to_file` 工具在 `docs/ADR/` 下创建一个名为 `ADR-###-[描述].md` 的文件。模板内容如下：
+   使用 `write_to_file` 工具在 `docs/adr/` 下创建一个名为 `0006-[描述].md` 的文件。模板内容如下：
 
    ```markdown
-   # ADR-###: [描述]
+   # ADR 0006: [描述]
 
    *   **Status**: Proposed
    *   **Owner**: [姓名/Agent]
@@ -40,5 +40,5 @@ description: 按照 adr-guide.md 规范自动创建新的架构决策记录 (ADR
 
 ## 注意事项
 
-- 编号必须是三位数字 (001, 002...)。
-- 遵循 `docs/adr-guide.md` 中的“历史不可变”原则。
+- 编号必须是四位数字 (0001, 0002...)，与现有 ADR 格式一致。
+- ADR 一旦 Accepted，内容不可修改；如需变更，创建新 ADR 并标记旧 ADR 为 Superseded。

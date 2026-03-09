@@ -8,9 +8,9 @@
 
 ## 项目基本事实
 
-- **技术栈**：Swift 6.2 + SwiftUI + SwiftData，iOS 18.0+
-- **规模**：5 个 SPM 包，~160 个 Swift 文件，单开发者维护
-- **产品定位**：本地优先单用户间隔重复学习 App，无后端，无多设备同步
+- **技术栈**：Swift 6.2 + SwiftUI + SwiftData，iOS 26.0+
+- **规模**：5 个 SPM 包（Core / Data / UI / Features / Infrastructure），~170 个 Swift 文件，单开发者维护
+- **产品定位**：本地优先单用户练习题数字化存档与间隔重复复习 App，无后端（iCloud 同步为 Pro 付费功能，规划中）
 - **核心算法**：SM-2（SuperMemo 2）间隔重复调度
 - **并发模型**：Swift 6 strict concurrency，所有 ViewModel 为 `@Observable @MainActor final class`
 
