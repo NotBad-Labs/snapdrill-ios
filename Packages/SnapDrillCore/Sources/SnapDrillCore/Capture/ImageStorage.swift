@@ -51,7 +51,8 @@ public struct ImageStorage: Sendable {
     /// - Returns: 图片的相对路径 (例如 `"images/123-abc.jpg"`)，可用于后续存入数据库
     /// - Throws: `ImageStorageError` 如果图片数据转换失败或文件写入失败
     public func saveImage(_ image: UIImage) async throws -> String {
-        guard let data = image.jpegData(compressionQuality: 0.8) else {
+        let resized = Self.resizedIfNeeded(image, maxLongSide: 2000)
+        guard let data = resized.jpegData(compressionQuality: 0.8) else {
             throw ImageStorageError.invalidImageData
         }
         
@@ -105,6 +106,29 @@ public struct ImageStorage: Sendable {
         
         return UIImage(contentsOfFile: fileURL.path)
     }
+
+    // MARK: - Private Helpers
+
+    #if canImport(UIKit)
+    /// 长边超过 maxLongSide 时等比缩放，否则原图返回
+    static func resizedIfNeeded(_ image: UIImage, maxLongSide: CGFloat) -> UIImage {
+        let size = image.size
+        let longSide = max(size.width, size.height)
+        guard longSide > maxLongSide else { return image }
+
+        let scale = maxLongSide / longSide
+        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+    }
+    #else
+    /// 非 UIKit 平台 stub，直接返回原图
+    static func resizedIfNeeded(_ image: UIImage, maxLongSide: Double) -> UIImage {
+        image
+    }
+    #endif
 }
 
 /// 图片存储操作错误
