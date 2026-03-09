@@ -68,6 +68,7 @@ public final class SettingsViewModel {
     /// 收集所有数据和图片，打包为 .snapdrill (ZIP) 文件。
     /// 完成后将文件 URL 存入 `backupFileURL`，供 View 层触发分享。
     public func createBackup() async {
+        guard !isBackupInProgress else { return }
         isBackupInProgress = true
         backupProgress = 0
         backupError = nil
@@ -124,6 +125,7 @@ public final class SettingsViewModel {
     ///
     /// - Parameter fileURL: 用户选择的 .snapdrill 备份文件路径
     public func restoreFromBackup(fileURL: URL) async {
+        guard !isBackupInProgress else { return }
         isBackupInProgress = true
         backupProgress = 0
         backupError = nil
