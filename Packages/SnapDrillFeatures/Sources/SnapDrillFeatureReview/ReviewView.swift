@@ -85,12 +85,10 @@ public struct ReviewView: View {
                     .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
 
             case .finished:
-                ReviewEmptyStateView(
-                    icon: "checkmark.seal.fill",
-                    title: "今日复习完成",
-                    subtitle: "太棒了！休息一下，明天继续。",
-                    actionTitle: "好的",
-                    action: {
+                ReviewSessionSummaryView(
+                    goodCount: vm.sessionGoodCount,
+                    againCount: vm.sessionAgainCount,
+                    onDismiss: {
                         Task {
                             await vm.loadDataAsync()
                             withAnimation { vm.phase = .idle }
