@@ -23,6 +23,15 @@ enum ReviewPhase: Equatable {
     case finished   // 今日完成
 }
 
+// MARK: - UndoEntry
+
+/// 撤销栈条目，记录滑动前的 SM-2 状态和评分
+struct UndoEntry {
+    let item: ReviewItemModel
+    let previousState: SM2State
+    let rating: ReviewRating
+}
+
 // MARK: - ReviewViewModel
 
 /// 复习会话 ViewModel
@@ -40,14 +49,18 @@ final class ReviewViewModel {
     var workingItems: [ReviewItemModel] = []
     /// 已完成卡片数量
     var finishedItems: Int = 0
-    /// 撤销栈（同时记录滑动前的 SM-2 状态，确保 undo 可完整回滚数据）
-    var undoStack: [(item: ReviewItemModel, previousState: SM2State)] = []
+    /// 撤销栈（记录滑动前的 SM-2 状态和评分，确保 undo 可完整回滚数据和统计）
+    var undoStack: [UndoEntry] = []
 
     // MARK: - Statistics
 
     var reviewedTodayCount: Int = 0
     var totalItemsCount: Int = 0
     var sessionStartReviewedCount: Int = 0
+    /// 本次会话中"记得"（右滑）的卡片数
+    var sessionGoodCount: Int = 0
+    /// 本次会话中"忘记"（左滑）的卡片数
+    var sessionAgainCount: Int = 0
 
     // MARK: - State
 
@@ -129,6 +142,8 @@ final class ReviewViewModel {
     func startSession() {
         workingItems = reviewQueue
         finishedItems = 0
+        sessionGoodCount = 0
+        sessionAgainCount = 0
         undoStack.removeAll()
         isAnswerShown = false
         sessionStartReviewedCount = reviewedTodayCount
@@ -193,7 +208,12 @@ final class ReviewViewModel {
 
         // 持久化成功后更新 UI 状态
         let removed = workingItems.removeFirst()
-        undoStack.append((item: removed, previousState: previousState))
+        undoStack.append(UndoEntry(item: removed, previousState: previousState, rating: rating))
+        if rating == .good {
+            sessionGoodCount += 1
+        } else {
+            sessionAgainCount += 1
+        }
         // 超出容量时丢弃最旧的一条，防止内存无限增长
         if undoStack.count > undoStackCapacity {
             undoStack.removeFirst()
@@ -229,6 +249,11 @@ final class ReviewViewModel {
         workingItems.insert(entry.item, at: 0)
         // @MainActor 保证单线程访问，max(0,...) 仅作防御性下界保护，无竞态风险
         finishedItems = max(0, finishedItems - 1)
+        if entry.rating == .good {
+            sessionGoodCount = max(0, sessionGoodCount - 1)
+        } else {
+            sessionAgainCount = max(0, sessionAgainCount - 1)
+        }
         isAnswerShown = false
         if phase == .finished {
             phase = .reviewing
