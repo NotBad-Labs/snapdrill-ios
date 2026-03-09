@@ -13,6 +13,45 @@ import Observation
 import SnapDrillCore
 import SnapDrillData
 
+/// 题库列表排序选项
+public enum LibrarySortOption: String, CaseIterable, Identifiable {
+    /// 按创建时间倒序（最新在前）
+    case createdAt
+    /// 按学科升序（A→Z）
+    case subject
+    /// 按难度倒序（最难在前）
+    case difficulty
+    /// 按复习状态升序（最紧急在前）
+    case reviewStatus
+
+    public var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .createdAt: "时间"
+        case .subject: "学科"
+        case .difficulty: "难度"
+        case .reviewStatus: "复习状态"
+        }
+    }
+
+    var sortDescriptors: [SortDescriptor<ReviewItemModel>] {
+        switch self {
+        case .createdAt:
+            [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
+        case .subject:
+            [SortDescriptor(\ReviewItemModel.subjectRawValue, order: .forward),
+             SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
+        case .difficulty:
+            [SortDescriptor(\ReviewItemModel.difficulty, order: .reverse),
+             SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
+        case .reviewStatus:
+            [SortDescriptor(\ReviewItemModel.nextReviewAt, order: .forward),
+             SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
+        }
+    }
+}
+
 /// 题库列表 ViewModel
 ///
 /// 管理多维度过滤（搜索文本、学科、标签）、分页加载和数据刷新逻辑。
@@ -44,6 +83,10 @@ public final class LibraryViewModel {
     }
     /// 已选中的标签过滤集合（变更时触发防抖刷新）
     public var selectedTags: Set<String> = [] {
+        didSet { triggerRefresh() }
+    }
+    /// 当前排序方式（变更时触发刷新）
+    public var sortOption: LibrarySortOption = .createdAt {
         didSet { triggerRefresh() }
     }
 
@@ -98,6 +141,7 @@ public final class LibraryViewModel {
                 searchText: searchText,
                 subjects: selectedSubjects,
                 tags: selectedTags,
+                sortDescriptors: sortOption.sortDescriptors,
                 limit: pageSize,
                 offset: 0
             )
@@ -123,6 +167,7 @@ public final class LibraryViewModel {
                 searchText: searchText,
                 subjects: selectedSubjects,
                 tags: selectedTags,
+                sortDescriptors: sortOption.sortDescriptors,
                 limit: pageSize,
                 offset: nextPage * pageSize
             )

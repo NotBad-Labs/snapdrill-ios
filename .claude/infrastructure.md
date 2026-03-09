@@ -229,7 +229,9 @@ public func fetchModel(by id: UUID) throws -> ReviewItemModel?
 public func fetchModels(by ids: Set<UUID>) throws -> [ReviewItemModel]
 public func fetchAllModels() throws -> [ReviewItemModel]
 public func fetchFilteredModels(searchText: String, subjects: Set<String>,
-                                tags: Set<String>, limit: Int, offset: Int) throws -> [ReviewItemModel]
+                                tags: Set<String>,
+                                sortDescriptors: [SortDescriptor<ReviewItemModel>] = [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
+                                limit: Int, offset: Int) throws -> [ReviewItemModel]
 
 // 写入
 public func insert(_ model: ReviewItemModel)       // 纯内存插入，不 save；调用方统一 saveContext()
