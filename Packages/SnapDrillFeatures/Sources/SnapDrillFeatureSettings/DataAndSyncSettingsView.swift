@@ -49,21 +49,9 @@ struct DataAndSyncSettingsView: View {
     
     var body: some View {
         List {
-            // 数据风险提示（iCloud 同步关闭时醒目警告）
             if !iCloudSyncEnabled {
                 Section {
-                    Label {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("本地数据模式")
-                                .font(.subheadline.bold())
-                            Text("卸载 App 将永久丢失所有错题数据。建议定期手动备份，或开启 iCloud 同步。")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    } icon: {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
-                    }
+                    LocalDataWarningView(compact: false)
                 }
             }
 

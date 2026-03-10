@@ -45,14 +45,44 @@ struct SettingsRow: View {
                 .font(.body)
                 .foregroundStyle(.primary)
 
-            Spacer()
-
+            // Spacer 仅在有 value 时插入，避免 Toggle 包裹时小屏挤压开关
             if let value {
+                Spacer()
                 Text(value)
                     .font(.body)
                     .foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, 2)
+        // preference 向上传播，消除每个调用点重复 .listRowSeparator(.hidden)
+        .listRowSeparator(.hidden)
+    }
+}
+
+/// iCloud 同步关闭时的数据风险提示（共享组件，SettingsView footer 和 DataAndSyncSettingsView 顶部共用）
+struct LocalDataWarningView: View {
+
+    /// 紧凑模式（单行 Label，用于 Section footer）
+    let compact: Bool
+
+    var body: some View {
+        if compact {
+            Label("本地模式：卸载 App 将永久丢失所有数据", systemImage: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundStyle(.orange)
+        } else {
+            Label {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("本地数据模式")
+                        .font(.subheadline.bold())
+                    Text("卸载 App 将永久丢失所有错题数据。建议定期手动备份，或开启 iCloud 同步。")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } icon: {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+            }
+        }
     }
 }

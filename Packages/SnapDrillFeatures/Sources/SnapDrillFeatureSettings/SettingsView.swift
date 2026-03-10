@@ -94,27 +94,27 @@ public struct SettingsView: View {
                     Toggle(isOn: $showSubjectField) {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: "学科")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     Toggle(isOn: $showSourceField) {
                         SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: "来源")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     Toggle(isOn: $showDifficultyField) {
                         SettingsRow(icon: "star.fill", gradientStart: .yellow, gradientEnd: .orange, title: "难度")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     Toggle(isOn: $showGradeField) {
                         SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: "年级")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     Toggle(isOn: $showAnswerField) {
                         SettingsRow(icon: "text.bubble.fill", gradientStart: .purple, gradientEnd: .pink, title: "答案")
                     }
-                    .listRowSeparator(.hidden)
+
                 }
 
                 // 3. 复习设置
@@ -129,14 +129,14 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "eye.fill", gradientStart: .indigo, gradientEnd: .blue, title: "卡片外观")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     NavigationLink {
                         NotificationSettingsView()
                     } label: {
                         SettingsRow(icon: "bell.fill", gradientStart: .red, gradientEnd: .orange, title: "复习提醒")
                     }
-                    .listRowSeparator(.hidden)
+
                 }
 
                 // 4. 数据与云同步
@@ -146,22 +146,19 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "icloud.fill", gradientStart: .blue, gradientEnd: .cyan, title: "iCloud 同步与存储")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     NavigationLink {
                         PrivacySettingsView()
                     } label: {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: "隐私与导出")
                     }
-                    .listRowSeparator(.hidden)
+
                 } header: {
                     Text("数据与云同步")
                 } footer: {
-                    // 数据风险提示：iCloud 同步关闭时在主设置页醒目提醒
                     if !iCloudSyncEnabled {
-                        Label("本地模式：卸载 App 将永久丢失所有数据", systemImage: "exclamationmark.triangle.fill")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
+                        LocalDataWarningView(compact: true)
                     }
                 }
 
@@ -174,14 +171,14 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "paintpalette.fill", gradientStart: .purple, gradientEnd: .pink, title: "外观")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     NavigationLink {
                         LanguageSettingsView()
                     } label: {
                         SettingsRow(icon: "globe", gradientStart: .green, gradientEnd: .teal, title: "语言", value: "简体中文")
                     }
-                    .listRowSeparator(.hidden)
+
                 }
 
                 // 6. 数据管理
@@ -189,22 +186,22 @@ public struct SettingsView: View {
                     Button { showingSubjectManager = true } label: {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: "管理学科")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     Button { showingSourceManager = true } label: {
                         SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: "管理来源")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     Button { showingGradeManager = true } label: {
                         SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: "管理年级")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     Button { showingClearAlert = true } label: {
                         SettingsRow(icon: "trash.fill", gradientStart: .red, gradientEnd: .pink, title: "清空所有数据")
                     }
-                    .listRowSeparator(.hidden)
+
                 }
 
                 // 7. 关于
@@ -212,17 +209,17 @@ public struct SettingsView: View {
                     Button { showingMail = true } label: {
                         SettingsRow(icon: "heart.text.square.fill", gradientStart: .pink, gradientEnd: .red, title: "反馈与支持")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     NavigationLink(value: SettingsDestination.privacyPolicy) {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: "隐私政策")
                     }
-                    .listRowSeparator(.hidden)
+
 
                     NavigationLink(value: SettingsDestination.termsOfService) {
                         SettingsRow(icon: "doc.text.fill", gradientStart: .blue, gradientEnd: .teal, title: "用户协议")
                     }
-                    .listRowSeparator(.hidden)
+
                 }
 
 #if DEBUG
@@ -237,7 +234,7 @@ public struct SettingsView: View {
                         }
                     }
                     .disabled(isGenerating)
-                    .listRowSeparator(.hidden)
+
                 }
 #endif
             }
