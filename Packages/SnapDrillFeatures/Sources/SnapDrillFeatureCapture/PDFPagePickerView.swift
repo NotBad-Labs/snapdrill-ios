@@ -146,6 +146,7 @@ struct PDFPagePickerView: View {
     /// 仅对选中的单页异步渲染全尺寸图（长边 ≤ 2048px），然后打开裁剪器
     private func renderFullSizeAndCrop(pageIndex: Int) {
         guard let page = document?.page(at: pageIndex) else { return }
+        renderTask?.cancel()
         isRendering = true
         renderTask = Task {
             // 嵌套 detached task 脱离 MainActor，避免 2048px 渲染阻塞 UI
