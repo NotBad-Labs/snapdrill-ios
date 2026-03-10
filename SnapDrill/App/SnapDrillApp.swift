@@ -130,7 +130,7 @@ struct SnapDrillApp: App {
                 // Share Extension 深链接处理：从共享容器读取图片并进入采集流程
                 .onOpenURL { url in
                     guard url.scheme == "snapdrill", url.host == "share" else { return }
-                    container.router.handleShareExtensionURL()
+                    container.router.handleShareExtensionURL(url)
                 }
                 .task {
                     // TipKit 初始化（与引导页状态无关，始终执行）
