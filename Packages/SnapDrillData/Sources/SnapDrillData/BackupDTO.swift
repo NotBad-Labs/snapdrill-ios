@@ -37,6 +37,9 @@ public struct BackupManifest: Codable, Sendable {
 // MARK: - Review Item DTO
 
 /// ReviewItemModel 的序列化表示
+///
+/// 使用自定义 `init(from:)` + `decodeIfPresent` 确保 Schema V2 新增字段时，
+/// 旧版本备份文件（缺少新字段）仍可正常解析。
 public struct ReviewItemBackupDTO: Codable, Sendable {
     public let id: UUID
     public let content: String?
@@ -54,6 +57,64 @@ public struct ReviewItemBackupDTO: Codable, Sendable {
     public let easeFactor: Double
     public let interval: Int
     public let repetitions: Int
+
+    // V2 新增字段在此追加，init(from:) 中用 decodeIfPresent + 默认值即可兼容 V1 备份
+
+    public init(
+        id: UUID,
+        content: String?,
+        imagePath: String?,
+        createdAt: Date,
+        lastReviewedAt: Date,
+        nextReviewAt: Date,
+        subject: String,
+        source: String,
+        tagNames: [String],
+        answerText: String?,
+        answerImagePath: String?,
+        difficulty: Int,
+        grade: String,
+        easeFactor: Double,
+        interval: Int,
+        repetitions: Int
+    ) {
+        self.id = id
+        self.content = content
+        self.imagePath = imagePath
+        self.createdAt = createdAt
+        self.lastReviewedAt = lastReviewedAt
+        self.nextReviewAt = nextReviewAt
+        self.subject = subject
+        self.source = source
+        self.tagNames = tagNames
+        self.answerText = answerText
+        self.answerImagePath = answerImagePath
+        self.difficulty = difficulty
+        self.grade = grade
+        self.easeFactor = easeFactor
+        self.interval = interval
+        self.repetitions = repetitions
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        content = try c.decodeIfPresent(String.self, forKey: .content)
+        imagePath = try c.decodeIfPresent(String.self, forKey: .imagePath)
+        createdAt = try c.decodeIfPresent(Date.self, forKey: .createdAt) ?? .distantPast
+        lastReviewedAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewedAt) ?? .distantPast
+        nextReviewAt = try c.decodeIfPresent(Date.self, forKey: .nextReviewAt) ?? .distantPast
+        subject = try c.decodeIfPresent(String.self, forKey: .subject) ?? "其他"
+        source = try c.decodeIfPresent(String.self, forKey: .source) ?? "其他"
+        tagNames = try c.decodeIfPresent([String].self, forKey: .tagNames) ?? []
+        answerText = try c.decodeIfPresent(String.self, forKey: .answerText)
+        answerImagePath = try c.decodeIfPresent(String.self, forKey: .answerImagePath)
+        difficulty = try c.decodeIfPresent(Int.self, forKey: .difficulty) ?? 1
+        grade = try c.decodeIfPresent(String.self, forKey: .grade) ?? ""
+        easeFactor = try c.decodeIfPresent(Double.self, forKey: .easeFactor) ?? 2.5
+        interval = try c.decodeIfPresent(Int.self, forKey: .interval) ?? 0
+        repetitions = try c.decodeIfPresent(Int.self, forKey: .repetitions) ?? 0
+    }
 }
 
 // MARK: - Subject DTO
@@ -65,6 +126,19 @@ public struct SubjectBackupDTO: Codable, Sendable {
     public let icon: String
     public let colorHex: String
     public let sortOrder: Int
+
+    public init(id: UUID, name: String, icon: String, colorHex: String, sortOrder: Int) {
+        self.id = id; self.name = name; self.icon = icon; self.colorHex = colorHex; self.sortOrder = sortOrder
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        icon = try c.decodeIfPresent(String.self, forKey: .icon) ?? "book.fill"
+        colorHex = try c.decodeIfPresent(String.self, forKey: .colorHex) ?? "#007AFF"
+        sortOrder = try c.decodeIfPresent(Int.self, forKey: .sortOrder) ?? 0
+    }
 }
 
 // MARK: - Source DTO
@@ -76,6 +150,19 @@ public struct SourceBackupDTO: Codable, Sendable {
     public let icon: String
     public let colorHex: String
     public let sortOrder: Int
+
+    public init(id: UUID, name: String, icon: String, colorHex: String, sortOrder: Int) {
+        self.id = id; self.name = name; self.icon = icon; self.colorHex = colorHex; self.sortOrder = sortOrder
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        icon = try c.decodeIfPresent(String.self, forKey: .icon) ?? "doc.text.fill"
+        colorHex = try c.decodeIfPresent(String.self, forKey: .colorHex) ?? "#007AFF"
+        sortOrder = try c.decodeIfPresent(Int.self, forKey: .sortOrder) ?? 0
+    }
 }
 
 // MARK: - Grade DTO
@@ -85,6 +172,17 @@ public struct GradeBackupDTO: Codable, Sendable {
     public let id: UUID
     public let name: String
     public let sortOrder: Int
+
+    public init(id: UUID, name: String, sortOrder: Int) {
+        self.id = id; self.name = name; self.sortOrder = sortOrder
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        sortOrder = try c.decodeIfPresent(Int.self, forKey: .sortOrder) ?? 0
+    }
 }
 
 // MARK: - Tag DTO
@@ -94,6 +192,17 @@ public struct TagBackupDTO: Codable, Sendable {
     public let id: UUID
     public let name: String
     public let colorHex: String
+
+    public init(id: UUID, name: String, colorHex: String) {
+        self.id = id; self.name = name; self.colorHex = colorHex
+    }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        name = try c.decode(String.self, forKey: .name)
+        colorHex = try c.decodeIfPresent(String.self, forKey: .colorHex) ?? "#007AFF"
+    }
 }
 
 // MARK: - Top-level Payload

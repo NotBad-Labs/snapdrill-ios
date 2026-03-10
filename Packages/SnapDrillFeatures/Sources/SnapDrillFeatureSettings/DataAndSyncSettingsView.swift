@@ -264,11 +264,15 @@ struct DataAndSyncSettingsView: View {
                 showingBackupError = true
             }
         }
-        .sheet(isPresented: $showingShareSheet) {
-            if let url = viewModel.backupFileURL {
-                ShareSheet(items: [url])
+        .sheet(
+            isPresented: $showingShareSheet,
+            onDismiss: { viewModel.cleanupBackupFile() },
+            content: {
+                if let url = viewModel.backupFileURL {
+                    ShareSheet(items: [url])
+                }
             }
-        }
+        )
         .alert("操作失败", isPresented: $showingBackupError) {
             Button("确定") {
                 viewModel.backupError = nil
