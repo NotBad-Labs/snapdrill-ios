@@ -90,12 +90,13 @@ public actor BackupService {
 
         // 4. 逐个写入图片（Store 模式，不压缩——JPEG 已压缩）
         let totalImages = uniqueImagePaths.count
+        // 节流：仅在百分比变化 >= 1% 时回调，避免 2000 张图创建 2000 个 MainActor 微任务
+        var lastReportedPercent = -1
         for (index, relativePath) in uniqueImagePaths.enumerated() {
             let absoluteURL = imageBasePath.appendingPathComponent(relativePath)
             guard fileManager.fileExists(atPath: absoluteURL.path) else {
-                // 图片缺失时跳过，记录日志
                 SnapDrillLogger.generic.warning("备份跳过缺失图片: \(relativePath)")
-                onProgress?(index + 1, totalImages)
+                reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
                 continue
             }
 
@@ -107,7 +108,7 @@ public actor BackupService {
                 compressionMethod: .none,
                 provider: { position, size in fileData[Int(position) ..< Int(position) + size] }
             )
-            onProgress?(index + 1, totalImages)
+            reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
         }
 
         return backupURL
@@ -184,12 +185,13 @@ public actor BackupService {
             try fileManager.createDirectory(at: imagesDir, withIntermediateDirectories: true)
         }
 
+        var lastReportedPercent = -1
         for (index, entry) in imageEntries.enumerated() {
             // 防御路径遍历攻击：确保解压目标在 imageBasePath 内
             let destinationURL = imageBasePath.appendingPathComponent(entry.path).standardizedFileURL
             guard destinationURL.path.hasPrefix(imageBasePath.standardizedFileURL.path) else {
                 SnapDrillLogger.generic.warning("跳过可疑路径: \(entry.path)")
-                onProgress?(index + 1, totalImages)
+                reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
                 continue
             }
 
@@ -205,7 +207,18 @@ public actor BackupService {
             }
             try fileData.write(to: destinationURL)
 
-            onProgress?(index + 1, totalImages)
+            reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
+        }
+    }
+    // MARK: - Private Helpers
+
+    /// 节流进度回调：仅在整数百分比变化时触发，避免高频 MainActor 微任务
+    private func reportProgress(_ current: Int, _ total: Int, lastPercent: inout Int, handler: ProgressHandler?) {
+        guard let handler else { return }
+        let percent = total > 0 ? current * 100 / total : 100
+        if percent != lastPercent {
+            lastPercent = percent
+            handler(current, total)
         }
     }
 }

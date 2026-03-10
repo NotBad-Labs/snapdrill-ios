@@ -200,6 +200,17 @@ public final class SettingsViewModel {
         isBackupInProgress = false
     }
 
+    /// 清理备份产生的临时文件
+    ///
+    /// 在 ShareSheet 关闭后调用，删除临时目录中的 .snapdrill 文件。
+    public func cleanupBackupFile() {
+        guard let url = backupFileURL else { return }
+        try? FileManager.default.removeItem(at: url)
+        backupFileURL = nil
+        backupStatusMessage = ""
+        SnapDrillLogger.generic.info("已清理备份临时文件: \(url.lastPathComponent)")
+    }
+
     // MARK: - Private Helpers
 
     /// 恢复前自动备份当前数据到临时目录（best-effort，不中断恢复流程）
