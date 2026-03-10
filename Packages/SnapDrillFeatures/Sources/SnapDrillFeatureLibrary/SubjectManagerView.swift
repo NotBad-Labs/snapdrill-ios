@@ -50,18 +50,18 @@ public struct SubjectManagerView: View {
                     .onDelete(perform: { offsets in vm.delete(at: offsets) })
                 }
             }
-            .alert("无法删除", isPresented: Binding(
+            .alert(L10n.Library.cannotDeleteInUse, isPresented: Binding(
                 get: { viewModel?.isDeletingInUse ?? false },
                 set: { newValue in viewModel?.isDeletingInUse = newValue }
             )) {
-                Button("好", role: .cancel) { }
+                Button(L10n.Common.ok, role: .cancel) { }
             } message: {
-                Text("学科「\(viewModel?.pendingDeletionName ?? "")」下仍有题目，请先将题目移动到其他学科或删除对应题目。")
+                Text(L10n.Library.subjectHasItems(viewModel?.pendingDeletionName ?? ""))
             }
-            .navigationTitle("管理学科")
+            .navigationTitle(L10n.Library.subjectManager)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("关闭") { dismiss() }
+                    Button(L10n.Common.close) { dismiss() }
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingAddSheet = true }, label: {
@@ -108,11 +108,11 @@ struct EditSubjectView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("学科名称") {
-                    TextField("例如：微积分", text: $name)
+                Section(L10n.Library.name) {
+                    TextField(L10n.Library.namePlaceholder, text: $name)
                 }
 
-                Section("选择图标") {
+                Section(L10n.Library.icon) {
                     Button {
                         showSymbolPicker = true
                     } label: {
@@ -127,13 +127,13 @@ struct EditSubjectView: View {
 
                             Spacer()
 
-                            Text("更多图标")
+                            Text(L10n.Library.iconPicker)
                                 .foregroundStyle(.secondary)
                         }
                     }
                 }
 
-                Section("选择颜色") {
+                Section(L10n.Library.color) {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 10) {
                         ForEach(colors, id: \.self) { hex in
                             Circle()
@@ -152,7 +152,7 @@ struct EditSubjectView: View {
                     .padding(.vertical, 8)
 
                     HStack {
-                        Text("自定义颜色")
+                        Text(L10n.Library.customColor)
                         Spacer()
                         ColorPicker("", selection: $customColor, supportsOpacity: false)
                             .labelsHidden()
@@ -167,13 +167,13 @@ struct EditSubjectView: View {
                     }
                 }
             }
-            .navigationTitle(isEditing ? "编辑学科" : "添加学科")
+            .navigationTitle(isEditing ? L10n.Library.editSubject : L10n.Library.addSubject)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") {
+                    Button(L10n.Common.save) {
                         saveSubject()
                         dismiss()
                     }

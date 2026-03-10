@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 
 /// 复习会话完成后的摘要统计视图
 ///
@@ -37,19 +38,19 @@ struct ReviewSessionSummaryView: View {
                 .symbolEffect(.bounce, value: true)
 
             // 标题
-            Text("今日复习完成")
+            Text(L10n.Review.summaryTitle)
                 .font(.title2.bold())
 
             // 统计卡片
             HStack(spacing: 16) {
                 statCard(
-                    title: "掌握",
+                    title: L10n.Review.summaryGood,
                     count: goodCount,
                     color: .green,
                     icon: "checkmark.circle.fill"
                 )
                 statCard(
-                    title: "待加强",
+                    title: L10n.Review.summaryAgain,
                     count: againCount,
                     color: .orange,
                     icon: "arrow.counterclockwise.circle.fill"
@@ -66,7 +67,7 @@ struct ReviewSessionSummaryView: View {
 
             // 按钮
             Button(action: onDismiss) {
-                Text("好的")
+                Text(L10n.Review.summaryDismiss)
                     .font(.headline)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
@@ -104,14 +105,14 @@ struct ReviewSessionSummaryView: View {
 
     private var encouragementText: String {
         let total = goodCount + againCount
-        guard total > 0 else { return "休息一下，明天继续。" }
+        guard total > 0 else { return L10n.Review.encourageRest }
         if againCount == 0 {
-            return "全部掌握，太棒了！"
+            return L10n.Review.encourageAllGood
         }
         if goodCount == 0 {
-            return "别灰心，多复习几次就记住了！"
+            return L10n.Review.encourageKeepGoing
         }
-        return "继续加油，\(againCount) 题稍后会再出现。"
+        return L10n.Review.encouragePartial(againCount)
     }
 }
 

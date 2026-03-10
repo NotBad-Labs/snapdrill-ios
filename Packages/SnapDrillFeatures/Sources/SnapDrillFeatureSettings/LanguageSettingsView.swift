@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 
 /// 语言设置页面
 ///
@@ -36,9 +37,9 @@ struct LanguageSettingsView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("语言由 iOS 系统控制")
+                        Text(L10n.Settings.languageControlledBySystem)
                             .font(.headline)
-                        Text("在系统设置中为 SnapDrill 单独指定语言。")
+                        Text(L10n.Settings.languageSystemHint)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -54,18 +55,18 @@ struct LanguageSettingsView: View {
                     }
                 } label: {
                     HStack {
-                        Text("打开系统设置")
+                        Text(L10n.Settings.openSystemSettings)
                         Spacer()
                         Image(systemName: "arrow.up.right.square")
                             .foregroundStyle(.tint)
                     }
                 }
             } footer: {
-                Text("前往「设置 → SnapDrill → 语言」，选择偏好语言后重新启动应用即可生效。目前支持简体中文，更多语言持续开发中。")
+                Text(L10n.Settings.languageFooter)
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("语言")
+        .navigationTitle(L10n.Settings.language)
         .navigationBarTitleDisplayMode(.inline)
     }
 }

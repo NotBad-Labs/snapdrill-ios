@@ -33,7 +33,7 @@ struct NotificationSettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle("启用每日复习提醒", isOn: Binding(
+                Toggle(L10n.Settings.enableDailyReminder, isOn: Binding(
                     get: { notificationsEnabled },
                     set: { newValue in
                         handleToggle(newValue)
@@ -43,52 +43,52 @@ struct NotificationSettingsView: View {
 
                 if notificationsEnabled {
                     DatePicker(
-                        "提醒时间",
+                        L10n.Settings.reminderTime,
                         selection: reminderTimeBinding,
                         displayedComponents: .hourAndMinute
                     )
                 }
             } header: {
-                Text("每日提醒")
+                Text(L10n.Settings.dailyReminderSection)
             } footer: {
                 Text(notificationsEnabled
-                    ? "将在每天 \(notificationHour):\(String(format: "%02d", notificationMinute)) 提醒你复习今日题目"
-                    : "开启后系统将在固定时间推送复习提醒"
+                    ? L10n.Settings.reminderEnabledFooter(notificationHour, String(format: "%02d", notificationMinute))
+                    : L10n.Settings.reminderDisabledFooter
                 )
             }
 
             Section {
-                Toggle("声音", isOn: $soundEnabled)
+                Toggle(L10n.Settings.sound, isOn: $soundEnabled)
                     .disabled(!notificationsEnabled)
-                Toggle("角标", isOn: $badgeEnabled)
+                Toggle(L10n.Settings.badge, isOn: $badgeEnabled)
                     .disabled(!notificationsEnabled)
             } header: {
-                Text("通知样式")
+                Text(L10n.Settings.notificationStyle)
             } footer: {
-                Text("声音和角标设置在下次触发通知时生效")
+                Text(L10n.Settings.notificationStyleFooter)
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("通知与提醒")
+        .navigationTitle(L10n.Settings.notificationAndReminder)
         .navigationBarTitleDisplayMode(.inline)
-        .alert("通知权限被拒绝", isPresented: Binding(
+        .alert(L10n.Settings.permissionDeniedTitle, isPresented: Binding(
             get: { viewModel?.isPermissionDenied ?? false },
             set: { newValue in viewModel?.isPermissionDenied = newValue }
         )) {
-            Button("去设置") {
+            Button(L10n.Settings.goToSettings) {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
                     UIApplication.shared.open(url)
                 }
             }
-            Button("取消", role: .cancel) { }
+            Button(L10n.Common.cancel, role: .cancel) { }
         } message: {
-            Text("请在「设置 → 通知 → SnapDrill」中开启通知权限，才能接收每日复习提醒。")
+            Text(L10n.Settings.permissionDeniedMessage)
         }
-        .alert("更新提醒时间失败", isPresented: Binding(
+        .alert(L10n.Settings.rescheduleFailedTitle, isPresented: Binding(
             get: { viewModel?.rescheduleError != nil },
             set: { if !$0 { viewModel?.rescheduleError = nil } }
         )) {
-            Button("好", role: .cancel) { viewModel?.rescheduleError = nil }
+            Button(L10n.Common.ok, role: .cancel) { viewModel?.rescheduleError = nil }
         } message: {
             if let errorMessage = viewModel?.rescheduleError {
                 Text(errorMessage)

@@ -33,7 +33,7 @@ struct DataAndSyncSettingsView: View {
     @AppStorage(UDKey.autoDeleteOldItems) private var autoDeleteOldItems = false
     @AppStorage(UDKey.autoDeleteDays) private var autoDeleteDays = 30
     @State private var showingClearCacheAlert = false
-    @State private var cacheSize: String = "计算中..."
+    @State private var cacheSize: String = L10n.Settings.calculating
     @State private var cacheCalculateTask: Task<Void, Never>?
     @State private var cacheClearTask: Task<Void, Never>?
     @State private var accountCheckTask: Task<Void, Never>?
@@ -58,7 +58,7 @@ struct DataAndSyncSettingsView: View {
             // Cloud Sync Section (Real Logic)
             Section {
                 Toggle(isOn: $iCloudSyncEnabled) {
-                    Text("启用 iCloud 同步")
+                    Text(L10n.Settings.enableICloudSync)
                         .foregroundStyle(.primary)
                 }
                 .onChange(of: iCloudSyncEnabled) { _, _ in
@@ -72,7 +72,7 @@ struct DataAndSyncSettingsView: View {
                         if isCheckingStatus {
                             ProgressView()
                                 .controlSize(.small)
-                            Text("检查账户状态...")
+                            Text(L10n.Settings.checkingAccountStatus)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         } else {
@@ -90,20 +90,20 @@ struct DataAndSyncSettingsView: View {
                     .padding(.vertical, 4)
                 }
             } header: {
-                Text("云同步")
+                Text(L10n.Settings.cloudSync)
             } footer: {
                 if !networkMonitor.isConnected {
                     HStack {
                         Image(systemName: "wifi.slash")
                             .foregroundStyle(.orange)
-                        Text("当前离线，数据将在网络恢复后自动同步")
+                        Text(L10n.Settings.offlineSyncHint)
                             .foregroundStyle(.orange)
                     }
                     .font(.caption)
                 } else if iCloudSyncEnabled {
-                    Text("数据将自动在您的 Apple 设备间保持同步。请确保在系统设置中开启 iCloud 云盘。")
+                    Text(L10n.Settings.icloudSyncFooter)
                 } else {
-                    Text("同步已关闭。数据仅保存在本机。")
+                    Text(L10n.Settings.syncDisabledFooter)
                 }
             }
             
@@ -122,7 +122,7 @@ struct DataAndSyncSettingsView: View {
                     }
                 } label: {
                     HStack {
-                        Label("备份数据", systemImage: "arrow.up.doc")
+                        Label(L10n.Settings.backupData, systemImage: "arrow.up.doc")
                         Spacer()
                         if viewModel.isBackupInProgress && viewModel.backupFileURL == nil {
                             ProgressView()
@@ -136,7 +136,7 @@ struct DataAndSyncSettingsView: View {
                 Button {
                     showingRestoreConfirmation = true
                 } label: {
-                    Label("恢复数据", systemImage: "arrow.down.doc")
+                    Label(L10n.Settings.restoreData, systemImage: "arrow.down.doc")
                 }
                 .disabled(viewModel.isBackupInProgress)
 
@@ -153,57 +153,57 @@ struct DataAndSyncSettingsView: View {
                     .padding(.vertical, 4)
                 }
             } header: {
-                Text("备份与恢复")
+                Text(L10n.Settings.backup)
             } footer: {
-                Text("备份文件包含所有题目、分类设置和图片。恢复操作将替换当前全部数据。")
+                Text(L10n.Settings.backupFooter)
             }
 
             // Cache Storage
             Section {
                 HStack {
-                    Text("媒体缓存占用")
+                    Text(L10n.Settings.mediaCacheUsage)
                     Spacer()
                     Text(cacheSize)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 Button(role: .destructive) {
                     showingClearCacheAlert = true
                 } label: {
-                    Text("清理缓存")
+                    Text(L10n.Settings.clearCache)
                 }
             } header: {
-                Text("存储空间")
+                Text(L10n.Settings.storageSpace)
             }
             
             // Auto Cleanup
             Section {
-                Toggle("自动归档旧题目", isOn: $autoDeleteOldItems)
-                
+                Toggle(L10n.Settings.autoArchiveOldItems, isOn: $autoDeleteOldItems)
+
                 if autoDeleteOldItems {
-                    Picker("归档时间", selection: $autoDeleteDays) {
-                        Text("30 天前").tag(30)
-                        Text("60 天前").tag(60)
-                        Text("90 天前").tag(90)
-                        Text("180 天前").tag(180)
+                    Picker(L10n.Settings.archiveTime, selection: $autoDeleteDays) {
+                        Text(L10n.Settings.daysAgo30).tag(30)
+                        Text(L10n.Settings.daysAgo60).tag(60)
+                        Text(L10n.Settings.daysAgo90).tag(90)
+                        Text(L10n.Settings.daysAgo180).tag(180)
                     }
                 }
             } header: {
-                Text("数据维护")
+                Text(L10n.Settings.dataMaintenance)
             } footer: {
-                Text("自动归档长期未复习的题目，保持题库轻量化。归档后的题目仍可搜索但不会自动安排复习。")
+                Text(L10n.Settings.dataMaintenanceFooter)
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("数据与云同步")
+        .navigationTitle(L10n.Settings.dataAndSync)
         .navigationBarTitleDisplayMode(.inline)
-        .alert("清理缓存", isPresented: $showingClearCacheAlert) {
-            Button("清理", role: .destructive) {
+        .alert(L10n.Settings.clearCacheTitle, isPresented: $showingClearCacheAlert) {
+            Button(L10n.Settings.clearCacheAction, role: .destructive) {
                 clearCache()
             }
-            Button("取消", role: .cancel) {}
+            Button(L10n.Common.cancel, role: .cancel) {}
         } message: {
-            Text("清理缓存不会删除您的题目数据，仅删除临时图片和下载的资源。")
+            Text(L10n.Settings.clearCacheMessage)
         }
         .onAppear {
             calculateCacheSize()
@@ -219,16 +219,16 @@ struct DataAndSyncSettingsView: View {
             restoreTask?.cancel()
         }
         .confirmationDialog(
-            "恢复数据",
+            L10n.Settings.restoreDialogTitle,
             isPresented: $showingRestoreConfirmation,
             titleVisibility: .visible
         ) {
-            Button("选择备份文件", role: .destructive) {
+            Button(L10n.Settings.selectBackupFile, role: .destructive) {
                 showingRestoreFilePicker = true
             }
-            Button("取消", role: .cancel) {}
+            Button(L10n.Common.cancel, role: .cancel) {}
         } message: {
-            Text("恢复将替换当前所有数据，此操作不可撤销。恢复前会自动备份当前数据到临时目录。")
+            Text(L10n.Settings.restoreDialogMessage)
         }
         .fileImporter(
             isPresented: $showingRestoreFilePicker,
@@ -261,15 +261,15 @@ struct DataAndSyncSettingsView: View {
                 }
             }
         )
-        .alert("操作失败", isPresented: $showingBackupError) {
-            Button("确定") {
+        .alert(L10n.Settings.operationFailed, isPresented: $showingBackupError) {
+            Button(L10n.Common.ok) {
                 viewModel.backupError = nil
             }
         } message: {
-            Text(viewModel.backupError ?? "未知错误")
+            Text(viewModel.backupError ?? L10n.Settings.unknownError)
         }
-        .alert("恢复成功", isPresented: $showingRestoreSuccess) {
-            Button("确定") {}
+        .alert(L10n.Settings.restoreSuccess, isPresented: $showingRestoreSuccess) {
+            Button(L10n.Common.ok) {}
         } message: {
             Text(viewModel.backupStatusMessage)
         }
@@ -294,22 +294,22 @@ struct DataAndSyncSettingsView: View {
     
     private var statusTitle: String {
         switch accountStatus {
-        case .available: return "iCloud 运行正常"
-        case .noAccount: return "未登录 iCloud"
-        case .restricted: return "iCloud 受限"
-        case .temporarilyUnavailable: return "暂时服务不可用"
-        case .couldNotDetermine: return "无法获取状态"
-        @unknown default: return "未知状态"
+        case .available: return L10n.Settings.icloudRunning
+        case .noAccount: return L10n.Settings.icloudNotLoggedIn
+        case .restricted: return L10n.Settings.icloudStatusRestricted
+        case .temporarilyUnavailable: return L10n.Settings.icloudTemporarilyUnavailable
+        case .couldNotDetermine: return L10n.Settings.icloudCannotDetermine
+        @unknown default: return L10n.Settings.icloudUnknown
         }
     }
-    
+
     private var statusMessage: String {
         switch accountStatus {
-        case .available: return "正在后台自动同步数据"
-        case .noAccount: return "请在系统设置中登录 Apple ID"
-        case .restricted: return "请检查屏幕使用时间设置"
-        case .temporarilyUnavailable: return "请检查网络连接"
-        case .couldNotDetermine: return DataAndSyncSettingsView.isCloudKitConfigured ? "请稍后重试" : "需在 Xcode 开启 iCloud 能力"
+        case .available: return L10n.Settings.icloudSyncingInBackground
+        case .noAccount: return L10n.Settings.icloudLoginPrompt
+        case .restricted: return L10n.Settings.icloudCheckScreenTime
+        case .temporarilyUnavailable: return L10n.Settings.icloudCheckNetwork
+        case .couldNotDetermine: return DataAndSyncSettingsView.isCloudKitConfigured ? L10n.Settings.icloudRetryLater : L10n.Settings.icloudNeedXcodeCapability
         @unknown default: return ""
         }
     }

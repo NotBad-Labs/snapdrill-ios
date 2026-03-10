@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 
 /// 设置页通用行组件
 ///
@@ -67,15 +68,15 @@ struct LocalDataWarningView: View {
 
     var body: some View {
         if compact {
-            Label("本地模式：卸载 App 将永久丢失所有数据", systemImage: "exclamationmark.triangle.fill")
+            Label(L10n.Settings.localModeWarning, systemImage: "exclamationmark.triangle.fill")
                 .font(.caption)
                 .foregroundStyle(.orange)
         } else {
             Label {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("本地数据模式")
+                    Text(L10n.Settings.localDataModeTitle)
                         .font(.subheadline.bold())
-                    Text("卸载 App 将永久丢失所有错题数据。建议定期手动备份，或开启 iCloud 同步。")
+                    Text(L10n.Settings.localDataModeMessage)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

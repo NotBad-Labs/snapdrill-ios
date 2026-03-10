@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 
 /// 仪表盘核心卡片：根据当前的复习数量动态展示不同的 UI 状态
 ///
@@ -53,16 +54,16 @@ struct ReviewHeroCard: View {
                 // Guide them to add first item
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("欢迎使用")
+                        Text(L10n.Dashboard.welcome)
                             .font(.title2.bold())
                             .foregroundStyle(.white)
-                        
-                        Text("添加第一道错题，开启复习之旅")
+
+                        Text(L10n.Dashboard.welcomeSubtitle)
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.9))
-                        
+
                         Button(action: onStartCapture) {
-                            Label("录入题目", systemImage: "plus.circle.fill")
+                            Label(L10n.Dashboard.captureItem, systemImage: "plus.circle.fill")
                                 .font(.subheadline.bold())
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
@@ -84,7 +85,7 @@ struct ReviewHeroCard: View {
                 // Scenario 2: Has Tasks (Due > 0)
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("今日待复习")
+                        Text(L10n.Dashboard.todayDue)
                             .font(.headline)
                             .foregroundStyle(.white.opacity(0.9))
                         
@@ -93,7 +94,7 @@ struct ReviewHeroCard: View {
                             .foregroundStyle(.white)
                         
                         Button(action: onStartReview) {
-                            Text("立即开始")
+                            Text(L10n.Dashboard.startNow)
                                 .font(.subheadline.bold())
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
@@ -125,11 +126,11 @@ struct ReviewHeroCard: View {
                 // Scenario 3: All Caught Up (Total > 0, Due == 0)
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("太棒了！")
+                        Text(L10n.Dashboard.allDone)
                             .font(.title2.bold())
                             .foregroundStyle(.primary)
-                        
-                        Text("今日复习任务已清空")
+
+                        Text(L10n.Dashboard.allDoneSubtitle)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }

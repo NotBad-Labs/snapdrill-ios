@@ -18,18 +18,18 @@ struct HeaderView: View {
     
     @AppStorage(UDKey.userAvatar) private var userAvatar: String = "person.crop.circle.fill"
     @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
-    @AppStorage(UDKey.userName) private var userName: String = "同学"
-    
+    @AppStorage(UDKey.userName) private var userName: String = L10n.Dashboard.defaultName
+
     // Dynamic Greeting
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
-        let name = userName.isEmpty ? "同学" : userName
-        
+        let name = userName.isEmpty ? L10n.Dashboard.defaultName : userName
+
         switch hour {
-        case 5..<12: return "早安，\(name)"
-        case 12..<18: return "午安，\(name)"
-        case 18..<22: return "晚上好，\(name)"
-        default: return "夜深了，注意休息"
+        case 5..<12: return L10n.Dashboard.greetingMorning(name)
+        case 12..<18: return L10n.Dashboard.greetingAfternoon(name)
+        case 18..<22: return L10n.Dashboard.greetingEvening(name)
+        default: return L10n.Dashboard.greetingNight
         }
     }
     

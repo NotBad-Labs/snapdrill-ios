@@ -52,7 +52,7 @@ public struct LibraryEditView: View {
                     ProgressView()
                 }
             }
-            .navigationTitle("编辑题目")
+            .navigationTitle(L10n.Library.editTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -60,11 +60,11 @@ public struct LibraryEditView: View {
                         viewModel?.saveDraftIfNeeded()
                         dismiss()
                     }, label: {
-                        Text("取消")
+                        Text(L10n.Common.cancel)
                     })
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") {
+                    Button(L10n.Common.save) {
                         if let vm = viewModel {
                             Task {
                                 await vm.save()
@@ -129,7 +129,7 @@ public struct LibraryEditView: View {
     // MARK: - Subviews
     
     private func imageSection(vm: LibraryEditViewModel) -> some View {
-        Section("题目图片") {
+        Section(L10n.Library.questionImage) {
             ZStack {
                 if let image = vm.displayedImage {
                     Image(uiImage: image)
@@ -138,7 +138,7 @@ public struct LibraryEditView: View {
                         .frame(maxHeight: 200)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 } else {
-                    ContentUnavailableView("无图片", systemImage: "photo.badge.exclamationmark")
+                    ContentUnavailableView(L10n.Library.noImage, systemImage: "photo.badge.exclamationmark")
                         .frame(height: 150)
                 }
                 
@@ -156,14 +156,14 @@ public struct LibraryEditView: View {
             Button(action: {
                 isPickerPresented = true
             }, label: {
-                Label("更换图片 & 重新识别", systemImage: "arrow.triangle.2.circlepath.camera")
+                Label(L10n.Library.changeImage, systemImage: "arrow.triangle.2.circlepath.camera")
             })
             .disabled(vm.isProcessing)
         }
     }
     
     private func contentSection(vm: LibraryEditViewModel) -> some View {
-        Section("题目内容") {
+        Section(L10n.Library.questionText) {
             TextEditor(text: Binding(get: { vm.content }, set: { vm.content = $0 }))
                 .frame(minHeight: 120)
                 .focused($isInputFocused)
@@ -171,7 +171,7 @@ public struct LibraryEditView: View {
     }
     
     private func answerSection(vm: LibraryEditViewModel) -> some View {
-        Section("参考答案") {
+        Section(L10n.Library.answerSection) {
             TextEditor(text: Binding(get: { vm.answer }, set: { vm.answer = $0 }))
                 .frame(minHeight: 100)
                 .focused($isInputFocused)
@@ -189,25 +189,25 @@ public struct LibraryEditView: View {
                 Button(role: .destructive) {
                     vm.removeAnswerImage()
                 } label: {
-                    Label("移除答案图片", systemImage: "trash")
+                    Label(L10n.Library.removeAnswerImage, systemImage: "trash")
                 }
             } else {
                 PhotosPicker(selection: $answerPickerSelection, matching: .images) {
-                    Label("添加答案图片", systemImage: "photo.badge.plus")
+                    Label(L10n.Library.addAnswerImage, systemImage: "photo.badge.plus")
                 }
             }
         }
     }
     
     private func metadataSection(vm: LibraryEditViewModel) -> some View {
-        Section("属性") {
+        Section(L10n.Library.metadata) {
             subjectPicker(vm: vm)
             sourcePicker(vm: vm)
             gradePicker(vm: vm)
             difficultyPicker(vm: vm)
             
             VStack(alignment: .leading) {
-                Text("标签")
+                Text(L10n.Library.filterTags)
                 TagInputView(
                     tags: Binding(get: { vm.tagList }, set: { vm.tagList = $0 }),
                     text: $tagInputText,
@@ -219,8 +219,8 @@ public struct LibraryEditView: View {
     
     private func subjectPicker(vm: LibraryEditViewModel) -> some View {
         // HIG: Form 上下文 Picker(.menu)，整行自动可点，弹出框锚定右侧，左侧标签始终可见
-        Picker("学科", selection: Binding(get: { vm.selectedSubject }, set: { vm.selectedSubject = $0 })) {
-            Text("选择学科").tag("")
+        Picker(L10n.Library.filterSubjects, selection: Binding(get: { vm.selectedSubject }, set: { vm.selectedSubject = $0 })) {
+            Text(L10n.Library.filterSubjects).tag("")
             ForEach(vm.subjects) { subject in
                 Label(subject.name, systemImage: subject.icon).tag(subject.name)
             }
@@ -230,8 +230,8 @@ public struct LibraryEditView: View {
 
     private func sourcePicker(vm: LibraryEditViewModel) -> some View {
         // HIG: Form 上下文 Picker(.menu)，整行自动可点，弹出框锚定右侧，左侧标签始终可见
-        Picker("来源", selection: Binding(get: { vm.selectedSource }, set: { vm.selectedSource = $0 })) {
-            Text("选择来源").tag("")
+        Picker(L10n.Capture.source, selection: Binding(get: { vm.selectedSource }, set: { vm.selectedSource = $0 })) {
+            Text(L10n.Capture.source).tag("")
             ForEach(vm.sources) { source in
                 Label(source.name, systemImage: source.icon).tag(source.name)
             }
@@ -241,8 +241,8 @@ public struct LibraryEditView: View {
 
     private func gradePicker(vm: LibraryEditViewModel) -> some View {
         // HIG: Form 上下文 Picker(.menu)，整行自动可点，弹出框锚定右侧，左侧标签始终可见
-        Picker("年级/程度", selection: Binding(get: { vm.grade }, set: { vm.grade = $0 })) {
-            Text("选择年级").tag("")
+        Picker(L10n.Capture.grade, selection: Binding(get: { vm.grade }, set: { vm.grade = $0 })) {
+            Text(L10n.Capture.grade).tag("")
             ForEach(vm.grades) { grade in
                 Text(grade.name).tag(grade.name)
             }
@@ -252,7 +252,7 @@ public struct LibraryEditView: View {
 
     private func difficultyPicker(vm: LibraryEditViewModel) -> some View {
         HStack {
-            Text("难度")
+            Text(L10n.Capture.difficulty)
             Spacer()
             HStack(spacing: 4) {
                 ForEach(1...5, id: \.self) { star in

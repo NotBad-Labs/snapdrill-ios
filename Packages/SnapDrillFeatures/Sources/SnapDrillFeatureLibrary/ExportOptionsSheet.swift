@@ -29,16 +29,16 @@ struct ExportOptionsSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("选择导出格式") {
+                Section(L10n.Library.exportTitle) {
                     // 1. PDF / Print
                     Button {
                         showingPDFPreview = true
                     } label: {
                         Label {
                             VStack(alignment: .leading) {
-                                Text("打印 / PDF")
+                                Text(L10n.Library.exportPDF)
                                     .font(.headline)
-                                Text("A4 排版，适合打印复习")
+                                Text(L10n.Library.exportPDFHint)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -54,13 +54,13 @@ struct ExportOptionsSheet: View {
                     // 使用原生 ShareLink，系统接管文件生成与分享
                     ShareLink(
                         item: ReviewExport(items: items, format: .markdown),
-                        preview: SharePreview("错题本 Markdown", image: Image(systemName: "doc.text"))
+                        preview: SharePreview(L10n.Library.exportMarkdown, image: Image(systemName: "doc.text"))
                     ) {
                         Label {
                             VStack(alignment: .leading) {
-                                Text("Markdown (.md)")
+                                Text(L10n.Library.exportMarkdown)
                                     .font(.headline)
-                                Text("适合 Notion / Obsidian")
+                                Text(L10n.Library.exportMarkdownHint)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -75,13 +75,13 @@ struct ExportOptionsSheet: View {
                     // 3. CSV (.csv)
                     ShareLink(
                         item: ReviewExport(items: items, format: .csv),
-                        preview: SharePreview("错题本数据 CSV", image: Image(systemName: "tablecells"))
+                        preview: SharePreview(L10n.Library.exportCSV, image: Image(systemName: "tablecells"))
                     ) {
                         Label {
                             VStack(alignment: .leading) {
-                                Text("CSV 表格 (.csv)")
+                                Text(L10n.Library.exportCSV)
                                     .font(.headline)
-                                Text("适合 Excel / Anki 制卡")
+                                Text(L10n.Library.exportCSVHint)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -97,18 +97,18 @@ struct ExportOptionsSheet: View {
                 Section {
                     HStack {
                         Spacer()
-                        Text("共 \(items.count) 道题目")
+                        Text(L10n.Common.itemCount(items.count))
                             .foregroundStyle(.secondary)
                         Spacer()
                     }
                 }
                 .listRowBackground(Color.clear)
             }
-            .navigationTitle("导出错题")
+            .navigationTitle(L10n.Library.export)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("关闭") { dismiss() }
+                    Button(L10n.Common.close) { dismiss() }
                 }
             }
             .navigationDestination(isPresented: $showingPDFPreview) {

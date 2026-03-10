@@ -53,7 +53,7 @@ struct PDFPagePickerView: View {
         ZStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("共 \(pageCount) 页，点击选择要录入的页面")
+                    Text(L10n.Capture.pdfPageHint(pageCount))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.horizontal)
@@ -82,7 +82,7 @@ struct PDFPagePickerView: View {
                             ProgressView()
                                 .controlSize(.large)
                                 .tint(.white)
-                            Text(isRendering ? "正在加载..." : "正在识别...")
+                            Text(isRendering ? L10n.Capture.loadingPage : L10n.Capture.recognizingPage)
                                 .foregroundStyle(.white)
                                 .font(.headline)
                         }
@@ -92,7 +92,7 @@ struct PDFPagePickerView: View {
                     }
             }
         }
-        .navigationTitle("选择页面")
+        .navigationTitle(L10n.Capture.selectPage)
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $isShowingCropper) {
             if let image = fullSizeImage {
@@ -134,7 +134,7 @@ struct PDFPagePickerView: View {
                     .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
             }
 
-            Text("第 \(pageIndex + 1) 页")
+            Text(L10n.Capture.pageNumber(pageIndex + 1))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
