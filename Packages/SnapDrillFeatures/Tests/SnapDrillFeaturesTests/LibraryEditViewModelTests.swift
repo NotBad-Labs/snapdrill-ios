@@ -158,10 +158,10 @@ final class LibraryEditViewModelTests {
         vm.handleNewImage(createTestImage())
 
         #expect(vm.isProcessing == true)
-        // 轮询等待 OCR 任务完成（替代固定 300ms sleep）
-        try await waitUntil { mockOCR.recognizeTextCallCount == 1 }
+        // 轮询等待 OCR 任务完成（观测 ViewModel 最终状态，而非 Mock 中间状态）
+        try await waitUntil { vm.isProcessing == false }
         #expect(vm.content == "OCR 新文本")
-        #expect(vm.isProcessing == false)
+        #expect(mockOCR.recognizeTextCallCount == 1)
     }
 
     // MARK: - save

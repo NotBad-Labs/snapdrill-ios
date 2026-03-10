@@ -281,9 +281,10 @@ final class CaptureResultViewModelTests {
         vm.handleImageCrop(croppedImage)
 
         #expect(vm.isCropping == false)
-        // 轮询等待 OCR 任务完成（替代固定 sleep）
-        try await waitUntil { mockOCR.recognizeTextCallCount == 1 }
+        // 轮询等待 OCR 任务完成（观测 ViewModel 最终状态，而非 Mock 中间状态）
+        try await waitUntil { vm.isRecognizing == false }
         #expect(vm.content == "重新识别文本")
+        #expect(mockOCR.recognizeTextCallCount == 1)
     }
 
     // MARK: - cancelTasks
