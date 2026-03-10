@@ -317,45 +317,48 @@ struct FieldSelectionOnboardingView: View {
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField = false
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        // ScrollView 确保小屏设备（iPhone SE）不会截断内容
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 24) {
+                Spacer(minLength: 24)
 
-            Image(systemName: "slider.horizontal.3")
-                .font(.system(size: 80))
-                .foregroundStyle(.blue)
-                .accessibleImage(label: "字段配置")
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 60))
+                    .foregroundStyle(.blue)
+                    .accessibleImage(label: "字段配置")
 
-            Text("选择录入字段")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .accessibleHeader("选择录入字段")
+                Text("选择录入字段")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .accessibleHeader("选择录入字段")
 
-            Text("选择录入题目时需要填写的字段，之后可在设置中随时调整")
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
+                Text("选择录入题目时需要填写的字段，之后可在设置中随时调整")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
 
-            VStack(spacing: 0) {
-                fieldToggle("学科", icon: "folder.fill", isOn: $showSubjectField)
-                Divider().padding(.leading, 52)
-                fieldToggle("来源", icon: "doc.text.fill", isOn: $showSourceField)
-                Divider().padding(.leading, 52)
-                fieldToggle("难度", icon: "star.fill", isOn: $showDifficultyField)
-                Divider().padding(.leading, 52)
-                fieldToggle("年级", icon: "graduationcap.fill", isOn: $showGradeField)
-                Divider().padding(.leading, 52)
-                fieldToggle("答案", icon: "text.bubble.fill", isOn: $showAnswerField)
+                VStack(spacing: 0) {
+                    fieldToggle("学科", icon: "folder.fill", isOn: $showSubjectField)
+                    Divider().padding(.leading, 52)
+                    fieldToggle("来源", icon: "doc.text.fill", isOn: $showSourceField)
+                    Divider().padding(.leading, 52)
+                    fieldToggle("难度", icon: "star.fill", isOn: $showDifficultyField)
+                    Divider().padding(.leading, 52)
+                    fieldToggle("年级", icon: "graduationcap.fill", isOn: $showGradeField)
+                    Divider().padding(.leading, 52)
+                    fieldToggle("答案", icon: "text.bubble.fill", isOn: $showAnswerField)
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(.secondarySystemGroupedBackground))
+                )
+                .padding(.horizontal, 24)
+
+                Spacer(minLength: 24)
             }
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.secondarySystemGroupedBackground))
-            )
-            .padding(.horizontal, 24)
-
-            Spacer()
+            .padding()
         }
-        .padding()
     }
 
     @ViewBuilder
