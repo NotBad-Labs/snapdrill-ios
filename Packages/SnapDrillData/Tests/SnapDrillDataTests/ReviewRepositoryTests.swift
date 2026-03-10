@@ -52,7 +52,7 @@ struct ReviewRepositoryTests {
     // MARK: - 基础 CRUD
 
     @Test("正常保存、Upsert 与删除流程")
-    func basicCRUDFlow() throws {
+    func basicCRUDFlow() async throws {
         let repo = try createTestRepository()
 
         let id = UUID()
@@ -75,7 +75,7 @@ struct ReviewRepositoryTests {
         #expect(fetchedUpdated?.content == "Updated")
 
         // 删除
-        try repo.delete(id: id)
+        try await repo.delete(id: id)
         #expect(try repo.totalItemCount() == 0)
     }
 

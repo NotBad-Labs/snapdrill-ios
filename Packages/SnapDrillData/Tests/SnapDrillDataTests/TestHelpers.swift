@@ -89,6 +89,20 @@ extension TagModel {
     }
 }
 
+// MARK: - GradeModel Mock
+
+extension GradeModel {
+    static func mock(
+        name: String = "高一",
+        sortOrder: Int = 0
+    ) -> GradeModel {
+        GradeModel(
+            name: name,
+            sortOrder: sortOrder
+        )
+    }
+}
+
 // MARK: - Test Container Helper
 
 @MainActor
@@ -100,6 +114,7 @@ class TestModelContainer {
                  SubjectModel.self,
                  SourceModel.self,
                  TagModel.self,
+                 GradeModel.self,
             configurations: config
         )
     }
