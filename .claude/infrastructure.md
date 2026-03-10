@@ -269,6 +269,7 @@ public func seedDefaultsIfNeeded()
 public init(modelContext: ModelContext)
 public func fetchAllModels() throws -> [TagModel]
 public func fetchOrCreateModel(name: String, colorHex: String) throws -> TagModel
+public func saveContext() throws
 public func delete(id: UUID) throws
 public func deleteAll() throws
 ```

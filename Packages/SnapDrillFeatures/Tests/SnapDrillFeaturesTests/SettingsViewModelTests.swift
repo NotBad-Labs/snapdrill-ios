@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2026/03/09.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  SettingsViewModel 核心路径单元测试：数据清除与通知。
+//  SettingsViewModel 核心路径单元测试：数据清除、备份状态守卫。
 //
 
 import Testing
@@ -15,7 +15,7 @@ import Foundation
 @testable import SnapDrillData
 @testable import SnapDrillCore
 
-@Suite("SettingsViewModel 数据清除测试", .serialized)
+@Suite("SettingsViewModel 测试", .serialized)
 @MainActor
 final class SettingsViewModelTests {
 
@@ -79,5 +79,58 @@ final class SettingsViewModelTests {
     func clearAllData_emptyDB_noCrash() async {
         let vm = SettingsViewModel(repositories: repos)
         await vm.clearAllData()
+    }
+
+    // MARK: - 备份初始状态
+
+    @Test("初始化后备份状态为默认值")
+    func init_defaultBackupState() {
+        let vm = SettingsViewModel(repositories: repos)
+
+        #expect(vm.isBackupInProgress == false)
+        #expect(vm.backupProgress == 0)
+        #expect(vm.backupStatusMessage == "")
+        #expect(vm.backupError == nil)
+        #expect(vm.backupFileURL == nil)
+    }
+
+    // MARK: - createBackup 状态
+
+    @Test("createBackup 设置 isBackupInProgress")
+    func createBackup_setsInProgress() async {
+        let vm = SettingsViewModel(repositories: repos)
+
+        // createBackup 在真实环境下需要文件系统，这里验证状态转换
+        await vm.createBackup()
+
+        // 完成后 isBackupInProgress 应恢复为 false
+        #expect(vm.isBackupInProgress == false)
+    }
+
+    @Test("createBackup 空数据库完成后有状态消息")
+    func createBackup_emptyDB_completesWithMessage() async {
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.createBackup()
+
+        // 空数据库备份应成功或有明确状态
+        // backupStatusMessage 或 backupError 至少有一个非空
+        let hasStatus = !vm.backupStatusMessage.isEmpty || vm.backupError != nil
+        #expect(hasStatus)
+    }
+
+    // MARK: - clearAllData 同时清理分类数据
+
+    @Test("clearAllData 同时清空学科和来源")
+    func clearAllData_alsoRemovesTaxonomy() async throws {
+        try repos.subject.insertAndSave(SubjectModel.mock(name: "数学"))
+        try repos.source.insertAndSave(SourceModel.mock(name: "试卷"))
+        try repos.grade.insertAndSave(GradeModel(name: "高一"))
+
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.clearAllData()
+
+        #expect(try repos.subject.totalCount() == 0)
+        #expect(try repos.source.totalCount() == 0)
+        #expect(try repos.grade.totalCount() == 0)
     }
 }

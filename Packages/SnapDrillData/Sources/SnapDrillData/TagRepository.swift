@@ -70,6 +70,11 @@ public final class TagRepository {
         return try modelContext.fetch(descriptor).first
     }
     
+    /// 持久化当前上下文的所有变更
+    public func saveContext() throws {
+        try modelContext.save()
+    }
+
     /// 纯内存操作：将所有标签标记为待删除。调用方负责 saveContext()。
     public func deleteAll() throws {
         try modelContext.delete(model: TagModel.self)
