@@ -50,18 +50,18 @@ public struct SourceManagerView: View {
                     .onDelete(perform: { offsets in vm.delete(at: offsets) })
                 }
             }
-            .alert("无法删除", isPresented: Binding(
+            .alert(L10n.Library.cannotDeleteInUse, isPresented: Binding(
                 get: { viewModel?.isDeletingInUse ?? false },
                 set: { newValue in viewModel?.isDeletingInUse = newValue }
             )) {
-                Button("好", role: .cancel) { }
+                Button(L10n.Common.ok, role: .cancel) { }
             } message: {
-                Text("来源「\(viewModel?.pendingDeletionName ?? "")」下仍有题目，请先将题目移动到其他来源或删除对应题目。")
+                Text(L10n.Library.sourceHasItems(viewModel?.pendingDeletionName ?? ""))
             }
-            .navigationTitle("管理来源")
+            .navigationTitle(L10n.Library.sourceManager)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("关闭") { dismiss() }
+                    Button(L10n.Common.close) { dismiss() }
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingAddSheet = true }, label: {
@@ -107,11 +107,11 @@ struct EditSourceView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("来源名称") {
-                    TextField("例如：网课", text: $name)
+                Section(L10n.Library.name) {
+                    TextField(L10n.Library.namePlaceholder, text: $name)
                 }
 
-                Section("选择图标") {
+                Section(L10n.Library.icon) {
                     Button {
                         showSymbolPicker = true
                     } label: {
@@ -126,13 +126,13 @@ struct EditSourceView: View {
 
                             Spacer()
 
-                            Text("更多图标")
+                            Text(L10n.Library.iconPicker)
                                 .foregroundStyle(.secondary)
                         }
                     }
                 }
 
-                Section("选择颜色") {
+                Section(L10n.Library.color) {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 10) {
                         ForEach(colors, id: \.self) { hex in
                             Circle()
@@ -151,7 +151,7 @@ struct EditSourceView: View {
                     .padding(.vertical, 8)
 
                     HStack {
-                        Text("自定义颜色")
+                        Text(L10n.Library.customColor)
                         Spacer()
                         ColorPicker("", selection: $customColor, supportsOpacity: false)
                             .labelsHidden()
@@ -166,13 +166,13 @@ struct EditSourceView: View {
                     }
                 }
             }
-            .navigationTitle(isEditing ? "编辑来源" : "添加来源")
+            .navigationTitle(isEditing ? L10n.Library.editSource : L10n.Library.addSource)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") {
+                    Button(L10n.Common.save) {
                         saveSource()
                         dismiss()
                     }

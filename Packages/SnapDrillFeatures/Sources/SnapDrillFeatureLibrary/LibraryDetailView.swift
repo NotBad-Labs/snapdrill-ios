@@ -97,11 +97,11 @@ struct LibraryDetailView: View {
                         Spacer()
 
                         if item.isScheduled {
-                            Text("下次复习: \(item.nextReviewAt.formatted(date: .abbreviated, time: .omitted))")
+                            Text("\(L10n.Library.nextReview): \(item.nextReviewAt.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.caption)
                                 .foregroundStyle(.blue)
                         } else {
-                            Text("待安排")
+                            Text(L10n.Library.notScheduled)
                                 .font(.caption)
                                 .foregroundStyle(.orange)
                         }
@@ -146,7 +146,7 @@ struct LibraryDetailView: View {
                     Divider()
 
                     VStack(alignment: .leading, spacing: 12) {
-                        Label("参考答案", systemImage: "lightbulb.fill")
+                        Label(L10n.Library.answerSection, systemImage: "lightbulb.fill")
                             .font(.headline)
                             .foregroundStyle(.orange)
                             .padding(.horizontal)
@@ -178,11 +178,11 @@ struct LibraryDetailView: View {
             }
             .padding(.top)
         }
-        .navigationTitle("题目详情")
+        .navigationTitle(L10n.Library.detail)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("编辑") {
+                Button(L10n.Common.edit) {
                     isEditing = true
                 }
             }

@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 
 /// 复习卡片外观设置页
 ///
@@ -28,7 +29,7 @@ struct ReviewAppearanceSettingsView: View {
         Form {
             // MARK: - 卡片正面
 
-            Section("卡片正面 (题目)") {
+            Section(L10n.Settings.cardFrontSection) {
                 HStack {
                     Text("已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
                         .font(.system(size: frontFontSizeRaw, weight: .bold, design: .serif))
@@ -40,16 +41,16 @@ struct ReviewAppearanceSettingsView: View {
                 }
                 .listRowBackground(Color.clear)
 
-                Picker("对齐方式", selection: $frontAlignmentRaw) {
-                    Text("左对齐").tag("leading")
-                    Text("居中").tag("center")
-                    Text("右对齐").tag("trailing")
+                Picker(L10n.Settings.alignment, selection: $frontAlignmentRaw) {
+                    Text(L10n.Settings.alignLeft).tag("leading")
+                    Text(L10n.Settings.alignCenter).tag("center")
+                    Text(L10n.Settings.alignRight).tag("trailing")
                 }
 
                 VStack(alignment: .leading) {
-                    Text("字体大小: \(Int(frontFontSizeRaw))")
+                    Text(L10n.Settings.fontSizeLabel(Int(frontFontSizeRaw)))
                     Slider(value: $frontFontSizeRaw, in: 20...48, step: 1) {
-                        Text("字体大小")
+                        Text(L10n.Settings.fontSize)
                     } minimumValueLabel: {
                         Text("A").font(.system(size: 14))
                     } maximumValueLabel: {
@@ -60,7 +61,7 @@ struct ReviewAppearanceSettingsView: View {
 
             // MARK: - 卡片背面
 
-            Section("卡片背面 (Header)") {
+            Section(L10n.Settings.cardBackSection) {
                 HStack {
                     Text("题目：已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
                         .font(.system(size: fontSizeRaw, weight: .medium, design: .serif))
@@ -73,16 +74,16 @@ struct ReviewAppearanceSettingsView: View {
                 }
                 .listRowBackground(Color.clear)
 
-                Picker("对齐方式", selection: $alignmentRaw) {
-                    Text("左对齐").tag("leading")
-                    Text("居中").tag("center")
-                    Text("右对齐").tag("trailing")
+                Picker(L10n.Settings.alignment, selection: $alignmentRaw) {
+                    Text(L10n.Settings.alignLeft).tag("leading")
+                    Text(L10n.Settings.alignCenter).tag("center")
+                    Text(L10n.Settings.alignRight).tag("trailing")
                 }
 
                 VStack(alignment: .leading) {
-                    Text("字体大小: \(Int(fontSizeRaw))")
+                    Text(L10n.Settings.fontSizeLabel(Int(fontSizeRaw)))
                     Slider(value: $fontSizeRaw, in: 12...24, step: 1) {
-                        Text("字体大小")
+                        Text(L10n.Settings.fontSize)
                     } minimumValueLabel: {
                         Text("A").font(.system(size: 12))
                     } maximumValueLabel: {
@@ -91,7 +92,7 @@ struct ReviewAppearanceSettingsView: View {
                 }
             }
         }
-        .navigationTitle("卡片外观")
+        .navigationTitle(L10n.Settings.cardAppearanceTitle)
         .navigationBarTitleDisplayMode(.inline)
     }
 

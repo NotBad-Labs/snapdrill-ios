@@ -60,12 +60,12 @@ public struct LibraryView: View {
             .searchable(text: Binding(
                 get: { viewModel?.searchText ?? "" },
                 set: { viewModel?.searchText = $0 }
-            ), prompt: "搜索题目内容")
-            .navigationTitle("题库")
+            ), prompt: L10n.Library.searchPlaceholder)
+            .navigationTitle(L10n.Library.title)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     if editMode.isEditing {
-                        Button("完成") {
+                        Button(L10n.Common.done) {
                             withAnimation {
                                 editMode = .inactive
                                 selectedItemIDs.removeAll()
@@ -108,21 +108,21 @@ public struct LibraryView: View {
                         Button(role: .destructive) {
                             showDeleteConfirmation = true
                         } label: {
-                            Label("删除", systemImage: "trash")
+                            Label(L10n.Common.delete, systemImage: "trash")
                         }
                         .disabled(selectedItemIDs.isEmpty)
-                        .confirmationDialog("确认删除", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-                            Button("删除 \(selectedItemIDs.count) 个项目", role: .destructive) {
+                        .confirmationDialog(L10n.Library.deleteConfirmTitle, isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+                            Button(L10n.Library.selectedCount(selectedItemIDs.count), role: .destructive) {
                                 deleteSelectedItems()
                             }
-                            Button("取消", role: .cancel) { }
+                            Button(L10n.Common.cancel, role: .cancel) { }
                         } message: {
-                            Text("此操作无法撤销。")
+                            Text(L10n.Library.deleteConfirmMessage)
                         }
                         
                         Spacer()
                         
-                        Text("已选 \(selectedItemIDs.count) 项")
+                        Text(L10n.Library.selectedCount(selectedItemIDs.count))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         
@@ -131,7 +131,7 @@ public struct LibraryView: View {
                         Button {
                             isExportSheetPresented = true
                         } label: {
-                            Label("导出/分享", systemImage: "square.and.arrow.up")
+                            Label(L10n.Library.export, systemImage: "square.and.arrow.up")
                         }
                         .disabled(selectedItemIDs.isEmpty)
                     }
@@ -148,7 +148,7 @@ public struct LibraryView: View {
             .navigationDestination(for: LibraryDestination.self) { destination in
                     switch destination {
                     case .placeholder:
-                        Text("即将上线")
+                        Text(L10n.Common.comingSoon)
                     case .detail(let item):
                         LibraryDetailView(router: router, item: item)
                     }

@@ -65,7 +65,7 @@ public struct CaptureView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         
-                        Text("录入方式")
+                        Text(L10n.Capture.entryMethodTitle)
                             .font(.headline)
                             .padding(.horizontal)
                         
@@ -73,8 +73,8 @@ public struct CaptureView: View {
                             // 1. Smart Scanner
                             CaptureMethodCard(
                                 icon: "camera.viewfinder",
-                                title: "拍照识题",
-                                subtitle: "自动裁剪与识别",
+                                title: L10n.Capture.cameraTitle,
+                                subtitle: L10n.Capture.cameraSubtitle,
                                 color: .blue
                             ) {
                                 viewModel.isShowingScanner = true
@@ -84,8 +84,8 @@ public struct CaptureView: View {
                             PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
                                 CaptureMethodCardContent(
                                     icon: "photo.on.rectangle",
-                                    title: "相册导入",
-                                    subtitle: "识别已有照片",
+                                    title: L10n.Capture.albumTitle,
+                                    subtitle: L10n.Capture.albumSubtitle,
                                     color: .purple
                                 )
                             }
@@ -94,8 +94,8 @@ public struct CaptureView: View {
                             // 3. Manual
                             CaptureMethodCard(
                                 icon: "keyboard",
-                                title: "手动录入",
-                                subtitle: "纯文本编辑",
+                                title: L10n.Capture.manualTitle,
+                                subtitle: L10n.Capture.manualSubtitle,
                                 color: .orange
                             ) {
                                 // Navigate to result view with empty state
@@ -105,8 +105,8 @@ public struct CaptureView: View {
                             // 4. Clipboard
                             CaptureMethodCard(
                                 icon: "doc.on.clipboard",
-                                title: "粘贴板",
-                                subtitle: "从剪贴板读取",
+                                title: L10n.Capture.clipboardTitle,
+                                subtitle: L10n.Capture.clipboardSubtitle,
                                 color: .gray
                             ) {
                                 viewModel.pasteFromClipboard(router: router)
@@ -118,8 +118,8 @@ public struct CaptureView: View {
                         // 5. PDF Import（独立全宽行，避免 2 列网格奇数不对称）
                         CaptureMethodCard(
                             icon: "doc.richtext",
-                            title: "PDF 导入",
-                            subtitle: "从文件选择 PDF",
+                            title: L10n.Capture.pdfTitle,
+                            subtitle: L10n.Capture.pdfSubtitle,
                             color: .red
                         ) {
                             viewModel.isShowingPDFPicker = true
@@ -141,7 +141,7 @@ public struct CaptureView: View {
                             ProgressView()
                                 .controlSize(.large)
                                 .tint(.white)
-                            Text("正在处理...")
+                            Text(L10n.Common.processing)
                                 .foregroundStyle(.white)
                                 .font(.headline)
                         }
@@ -151,11 +151,11 @@ public struct CaptureView: View {
                     }
                 }
             }
-            .navigationTitle("采集")
+            .navigationTitle(L10n.Capture.title)
             .navigationDestination(for: CaptureDestination.self) { destination in
                 switch destination {
                 case .placeholder:
-                    ContentUnavailableView("即将上线", systemImage: "clock")
+                    ContentUnavailableView(L10n.Common.comingSoon, systemImage: "clock")
                 case .scannerResult(let content, let image):
                     let resultViewModel = CaptureResultViewModel(
                         content: content,
@@ -243,15 +243,15 @@ public struct CaptureView: View {
                     }
                 }
             }
-            .alert("恢复草稿", isPresented: $viewModel.showDraftAlert) {
-                Button("继续编辑") {
+            .alert(L10n.Capture.draftAlertTitle, isPresented: $viewModel.showDraftAlert) {
+                Button(L10n.Capture.draftContinue) {
                     viewModel.startEditingDraft(router: router)
                 }
-                Button("放弃", role: .destructive) {
+                Button(L10n.Common.discard, role: .destructive) {
                     viewModel.clearDraft()
                 }
             } message: {
-                Text("检测到未保存的采集内容，是否恢复？")
+                Text(L10n.Capture.draftAlertMessage)
             }
             .fileImporter(
                 isPresented: $viewModel.isShowingPDFPicker,
@@ -263,12 +263,12 @@ public struct CaptureView: View {
                     guard let url = urls.first else { return }
                     viewModel.loadPDF(url, router: router)
                 case .failure(let error):
-                    viewModel.errorMessage = "选择文件失败: \(error.localizedDescription)"
+                    viewModel.errorMessage = L10n.Capture.filePickerError(error.localizedDescription)
                     viewModel.showErrorAlert = true
                 }
             }
-            .alert("错误", isPresented: $viewModel.showErrorAlert) {
-                Button("确定", role: .cancel) { }
+            .alert(L10n.Common.error, isPresented: $viewModel.showErrorAlert) {
+                Button(L10n.Common.ok, role: .cancel) { }
             } message: {
                 Text(viewModel.errorMessage)
             }

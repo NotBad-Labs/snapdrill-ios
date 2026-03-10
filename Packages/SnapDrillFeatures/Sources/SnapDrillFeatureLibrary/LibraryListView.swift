@@ -64,11 +64,11 @@ struct LibraryListView: View {
             if viewModel.filteredItems.isEmpty {
                 if viewModel.searchText.isEmpty && viewModel.selectedSubjects.isEmpty && viewModel.selectedTags.isEmpty {
                     ContentUnavailableView {
-                        Label("暂无错题", systemImage: "books.vertical")
+                        Label(L10n.Library.noItems, systemImage: "books.vertical")
                     } description: {
-                        Text("去拍摄你的第一道错题吧")
+                        Text(L10n.Library.noItemsHint)
                     } actions: {
-                        Button("去采集") {
+                        Button(L10n.Dashboard.goCapture) {
                             NotificationCenter.default.post(name: .switchToCaptureTab, object: nil)
                         }
                         .buttonStyle(.borderedProminent)

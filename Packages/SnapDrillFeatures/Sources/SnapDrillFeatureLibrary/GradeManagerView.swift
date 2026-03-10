@@ -46,18 +46,18 @@ public struct GradeManagerView: View {
                     .onDelete(perform: { offsets in vm.delete(at: offsets) })
                 }
             }
-            .alert("无法删除", isPresented: Binding(
+            .alert(L10n.Library.cannotDeleteInUse, isPresented: Binding(
                 get: { viewModel?.isDeletingInUse ?? false },
                 set: { newValue in viewModel?.isDeletingInUse = newValue }
             )) {
-                Button("好", role: .cancel) { }
+                Button(L10n.Common.ok, role: .cancel) { }
             } message: {
-                Text("年级「\(viewModel?.pendingDeletionName ?? "")」下仍有题目，请先将题目移动到其他年级或删除对应题目。")
+                Text(L10n.Library.gradeHasItems(viewModel?.pendingDeletionName ?? ""))
             }
-            .navigationTitle("管理年级")
+            .navigationTitle(L10n.Library.gradeManager)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("关闭") { dismiss() }
+                    Button(L10n.Common.close) { dismiss() }
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingAddSheet = true }, label: {
@@ -99,17 +99,17 @@ private struct EditGradeView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("年级名称") {
-                    TextField("例如：高三", text: $name)
+                Section(L10n.Library.name) {
+                    TextField(L10n.Library.namePlaceholder, text: $name)
                 }
             }
-            .navigationTitle(isEditing ? "编辑年级" : "添加年级")
+            .navigationTitle(isEditing ? L10n.Library.editGrade : L10n.Library.addGrade)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") {
+                    Button(L10n.Common.save) {
                         viewModel?.saveGrade(grade: grade, name: name.trimmingCharacters(in: .whitespaces))
                         dismiss()
                     }

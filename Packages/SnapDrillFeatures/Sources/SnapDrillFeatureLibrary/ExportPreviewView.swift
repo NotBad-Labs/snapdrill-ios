@@ -27,24 +27,24 @@ struct ExportPreviewView: View {
         NavigationStack {
             VStack {
                 if isLoading {
-                    ProgressView("正在生成 PDF...")
+                    ProgressView(L10n.Library.generating)
                 } else if let pdfData = pdfData, let document = PDFDocument(data: pdfData) {
                     PDFKitRepresentedView(document: document)
                 } else {
-                    ContentUnavailableView("生成失败", systemImage: "exclamationmark.triangle")
+                    ContentUnavailableView(L10n.Library.generateFailed, systemImage: "exclamationmark.triangle")
                 }
             }
-            .navigationTitle("导出预览")
+            .navigationTitle(L10n.Library.exportPreview)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("关闭") { dismiss() }
+                    Button(L10n.Common.close) { dismiss() }
                 }
                 
                 if let pdfData = pdfData {
                     ToolbarItem(placement: .confirmationAction) {
                         ShareLink(item: URL(fileURLWithPath: saveToTemp(pdfData: pdfData))) {
-                            Label("分享/打印", systemImage: "square.and.arrow.up")
+                            Label(L10n.Library.shareOrPrint, systemImage: "square.and.arrow.up")
                         }
                     }
                 }

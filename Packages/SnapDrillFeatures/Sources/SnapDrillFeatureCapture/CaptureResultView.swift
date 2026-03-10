@@ -80,10 +80,10 @@ public struct CaptureResultView: View {
                 // Editor
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Text("题目内容")
+                        Text(L10n.Capture.questionContent)
                             .font(.headline)
                         if viewModel.isRecognizing {
-                            Text("正在重新识别...")
+                            Text(L10n.Capture.reRecognizing)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -102,7 +102,7 @@ public struct CaptureResultView: View {
         
                 // Metadata Form（字段按 Settings 中的开关条件渲染）
                 VStack(alignment: .leading, spacing: 20) {
-                    Text("分类信息")
+                    Text(L10n.Capture.categoryInfo)
                         .font(.headline)
                         .padding(.horizontal)
 
@@ -111,7 +111,7 @@ public struct CaptureResultView: View {
                         // 支持内联新建：Things 3 / Notion / Apple Notes 均采用此模式
                         if showSubjectField {
                             HStack {
-                                Text("学科")
+                                Text(L10n.Capture.subject)
                                     .foregroundStyle(.primary)
                                 Spacer()
                                 Menu {
@@ -126,7 +126,7 @@ public struct CaptureResultView: View {
                                     Button {
                                         viewModel.showNewSubjectAlert = true
                                     } label: {
-                                        Label("新建学科", systemImage: "plus")
+                                        Label(L10n.Capture.newSubject, systemImage: "plus")
                                     }
                                 } label: {
                                     HStack(spacing: 4) {
@@ -145,7 +145,7 @@ public struct CaptureResultView: View {
                         if showSourceField {
                             if showSubjectField { Divider().padding(.leading) }
                             HStack {
-                                Text("来源")
+                                Text(L10n.Capture.source)
                                     .foregroundStyle(.primary)
                                 Spacer()
                                 Menu {
@@ -160,7 +160,7 @@ public struct CaptureResultView: View {
                                     Button {
                                         viewModel.showNewSourceAlert = true
                                     } label: {
-                                        Label("新建来源", systemImage: "plus")
+                                        Label(L10n.Capture.newSource, systemImage: "plus")
                                     }
                                 } label: {
                                     HStack(spacing: 4) {
@@ -178,7 +178,7 @@ public struct CaptureResultView: View {
                         // Tags（始终可用，不可关闭）
                         if showSubjectField || showSourceField { Divider().padding(.leading) }
                         VStack(alignment: .leading) {
-                            Text("标签")
+                            Text(L10n.Capture.tags)
                             TagInputView(
                                 tags: $viewModel.tagList,
                                 text: $viewModel.tagInputText,
@@ -195,7 +195,7 @@ public struct CaptureResultView: View {
                 // Details Form（难度、年级、答案 — 全部关闭时整个 section 隐藏）
                 if showDifficultyField || showGradeField || showAnswerField {
                     VStack(alignment: .leading, spacing: 20) {
-                        Text("题目详情")
+                        Text(L10n.Capture.questionDetails)
                             .font(.headline)
                             .padding(.horizontal)
 
@@ -203,7 +203,7 @@ public struct CaptureResultView: View {
                             // Difficulty
                             if showDifficultyField {
                                 HStack {
-                                    Text("难度")
+                                    Text(L10n.Capture.difficulty)
                                     Spacer()
                                     HStack(spacing: 4) {
                                         ForEach(1...5, id: \.self) { level in
@@ -222,7 +222,7 @@ public struct CaptureResultView: View {
                             if showGradeField {
                                 if showDifficultyField { Divider().padding(.leading) }
                                 HStack {
-                                    Text("年级/程度")
+                                    Text(L10n.Capture.grade)
                                         .foregroundStyle(.primary)
                                     Spacer()
                                     Menu {
@@ -237,11 +237,11 @@ public struct CaptureResultView: View {
                                         Button {
                                             viewModel.showNewGradeAlert = true
                                         } label: {
-                                            Label("新建年级", systemImage: "plus")
+                                            Label(L10n.Capture.newGrade, systemImage: "plus")
                                         }
                                     } label: {
                                         HStack(spacing: 4) {
-                                            Text(viewModel.grade.isEmpty ? "未选择" : viewModel.grade)
+                                            Text(viewModel.grade.isEmpty ? L10n.Common.notSelected : viewModel.grade)
                                                 .foregroundStyle(viewModel.grade.isEmpty ? .tertiary : .secondary)
                                             Image(systemName: "chevron.up.chevron.down")
                                                 .font(.caption2)
@@ -256,7 +256,7 @@ public struct CaptureResultView: View {
                             if showAnswerField {
                                 if showDifficultyField || showGradeField { Divider().padding(.leading) }
                                 VStack(alignment: .leading, spacing: 12) {
-                                    Text("参考答案")
+                                    Text(L10n.Capture.answer)
                                     TextEditor(text: $viewModel.answerText)
                                         .frame(minHeight: 80)
                                         .scrollContentBackground(.hidden)
@@ -283,7 +283,7 @@ public struct CaptureResultView: View {
                                         Spacer()
 
                                         PhotosPicker(selection: $viewModel.answerPhotoItem, matching: .images) {
-                                            Label("添加答案图片", systemImage: "photo.badge.plus")
+                                            Label(L10n.Capture.addAnswerImage, systemImage: "photo.badge.plus")
                                                 .font(.subheadline)
                                         }
                                     }
@@ -306,14 +306,14 @@ public struct CaptureResultView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button("保存") {
+                Button(L10n.Common.save) {
                     viewModel.save()
                 }
                 .fontWeight(.bold)
                 .disabled(viewModel.isRecognizing || viewModel.isSaving)
             }
         }
-        .navigationTitle("预览与编辑")
+        .navigationTitle(L10n.Capture.previewAndEdit)
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $viewModel.isCropping) {
             if let currentImage = viewModel.image {
@@ -333,29 +333,29 @@ public struct CaptureResultView: View {
             viewModel.saveDraftOnDisappear()
             viewModel.cancelTasks()
         }
-        .alert("新建学科", isPresented: $viewModel.showNewSubjectAlert) {
-            TextField("学科名称", text: $viewModel.newSubjectName)
-            Button("创建") { viewModel.confirmNewSubject() }
-            Button("取消", role: .cancel) { viewModel.newSubjectName = "" }
+        .alert(L10n.Capture.newSubject, isPresented: $viewModel.showNewSubjectAlert) {
+            TextField(L10n.Capture.subjectNamePlaceholder, text: $viewModel.newSubjectName)
+            Button(L10n.Common.create) { viewModel.confirmNewSubject() }
+            Button(L10n.Common.cancel, role: .cancel) { viewModel.newSubjectName = "" }
         } message: {
-            Text("输入新学科名称，创建后自动选中")
+            Text(L10n.Capture.newSubjectMessage)
         }
-        .alert("新建来源", isPresented: $viewModel.showNewSourceAlert) {
-            TextField("来源名称", text: $viewModel.newSourceName)
-            Button("创建") { viewModel.confirmNewSource() }
-            Button("取消", role: .cancel) { viewModel.newSourceName = "" }
+        .alert(L10n.Capture.newSource, isPresented: $viewModel.showNewSourceAlert) {
+            TextField(L10n.Capture.sourceNamePlaceholder, text: $viewModel.newSourceName)
+            Button(L10n.Common.create) { viewModel.confirmNewSource() }
+            Button(L10n.Common.cancel, role: .cancel) { viewModel.newSourceName = "" }
         } message: {
-            Text("输入新来源名称，创建后自动选中")
+            Text(L10n.Capture.newSourceMessage)
         }
-        .alert("新建年级", isPresented: $viewModel.showNewGradeAlert) {
-            TextField("年级名称", text: $viewModel.newGradeName)
-            Button("创建") { viewModel.confirmNewGrade() }
-            Button("取消", role: .cancel) { viewModel.newGradeName = "" }
+        .alert(L10n.Capture.newGrade, isPresented: $viewModel.showNewGradeAlert) {
+            TextField(L10n.Capture.gradeNamePlaceholder, text: $viewModel.newGradeName)
+            Button(L10n.Common.create) { viewModel.confirmNewGrade() }
+            Button(L10n.Common.cancel, role: .cancel) { viewModel.newGradeName = "" }
         } message: {
-            Text("输入新年级名称，创建后自动选中")
+            Text(L10n.Capture.newGradeMessage)
         }
-        .alert("保存失败", isPresented: $viewModel.showErrorAlert) {
-            Button("好", role: .cancel) { }
+        .alert(L10n.Capture.saveFailed, isPresented: $viewModel.showErrorAlert) {
+            Button(L10n.Common.ok, role: .cancel) { }
         } message: {
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)

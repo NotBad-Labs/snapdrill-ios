@@ -105,15 +105,15 @@ public struct ReviewView: View {
         .sensoryFeedback(.success, trigger: vm.phase) { _, newPhase in
             newPhase == .finished
         }
-        .alert("确认暂停复习？", isPresented: Binding(get: { vm.showPauseAlert }, set: { vm.showPauseAlert = $0 })) {
-            Button("继续", role: .cancel) { }
-            Button("暂停", role: .destructive) {
+        .alert(L10n.Review.pauseAlertTitle, isPresented: Binding(get: { vm.showPauseAlert }, set: { vm.showPauseAlert = $0 })) {
+            Button(L10n.Review.pauseContinue, role: .cancel) { }
+            Button(L10n.Review.pauseConfirm, role: .destructive) {
                 Task {
                     await vm.quitSession()
                 }
             }
         } message: {
-            Text("当前进度将保存，您可以稍后继续。")
+            Text(L10n.Review.pauseMessage)
         }
     }
 
@@ -221,10 +221,10 @@ public struct ReviewView: View {
 
             if isTop {
                 if dragOffset < -50 {
-                    stampLabel("忘记", color: .red, rotation: 15, xOffset: 80)
+                    stampLabel(L10n.Review.stampForgot, color: .red, rotation: 15, xOffset: 80)
                         .opacity(Double(abs(dragOffset) / 200))
                 } else if dragOffset > 50 {
-                    stampLabel("记得", color: .green, rotation: -15, xOffset: -80)
+                    stampLabel(L10n.Review.stampRemember, color: .green, rotation: -15, xOffset: -80)
                         .opacity(Double(abs(dragOffset) / 200))
                 }
             }

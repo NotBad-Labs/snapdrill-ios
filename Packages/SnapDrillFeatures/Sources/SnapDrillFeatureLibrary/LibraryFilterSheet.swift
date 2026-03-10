@@ -25,9 +25,9 @@ struct LibraryFilterSheet: View {
         NavigationStack {
             Form {
                 // Section: Subjects (动态从 SwiftData 获取)
-                Section("学科") {
+                Section(L10n.Library.filterSubjects) {
                     if viewModel.subjects.isEmpty {
-                        Text("暂无学科").foregroundStyle(.secondary)
+                        Text(L10n.Library.noItems).foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.subjects) { subject in
                             Button {
@@ -57,9 +57,9 @@ struct LibraryFilterSheet: View {
                 }
                 
                 // Section: Tags
-                Section("标签") {
+                Section(L10n.Library.filterTags) {
                     if viewModel.allTags.isEmpty {
-                        Text("暂无标签").foregroundStyle(.secondary)
+                        Text(L10n.Library.noItems).foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.allTags) { tag in
                             Button {
@@ -85,17 +85,17 @@ struct LibraryFilterSheet: View {
                     }
                 }
             }
-            .navigationTitle("筛选")
+            .navigationTitle(L10n.Library.filter)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("重置") {
+                    Button(L10n.Common.reset) {
                         viewModel.resetFilters()
                         dismiss()
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("完成") {
+                    Button(L10n.Common.done) {
                         dismiss()
                     }
                 }

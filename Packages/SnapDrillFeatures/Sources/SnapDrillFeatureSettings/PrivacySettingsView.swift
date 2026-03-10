@@ -32,12 +32,12 @@ struct PrivacySettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle("使用数据分析", isOn: $analyticsEnabled)
-                Toggle("崩溃报告", isOn: $crashReportingEnabled)
+                Toggle(L10n.Settings.useAnalytics, isOn: $analyticsEnabled)
+                Toggle(L10n.Settings.crashReporting, isOn: $crashReportingEnabled)
             } header: {
-                Text("数据收集")
+                Text(L10n.Settings.dataCollection)
             } footer: {
-                Text("帮助我们改进应用体验，您的数据将被匿名处理")
+                Text(L10n.Settings.dataCollectionFooter)
             }
             
             Section {
@@ -48,11 +48,11 @@ struct PrivacySettingsView: View {
                         if isExporting {
                             ProgressView()
                                 .controlSize(.small)
-                            Text("导出中...")
+                            Text(L10n.Settings.exporting)
                                 .foregroundStyle(.secondary)
                         } else {
                             // 省略 foregroundStyle 让系统 tint 色（蓝色）表达可点击语义
-                            Text("导出我的数据")
+                            Text(L10n.Settings.exportMyData)
                             Spacer()
                             Image(systemName: "square.and.arrow.up")
                                 .foregroundStyle(.tint)
@@ -61,21 +61,21 @@ struct PrivacySettingsView: View {
                 }
                 .disabled(isExporting)
                 // confirmationDialog 挂在 Button 上，确保锚点在触发元素附近
-                .confirmationDialog("选择导出格式", isPresented: $showingExportOptions, titleVisibility: .visible) {
-                    Button("JSON 格式") {
+                .confirmationDialog(L10n.Settings.chooseExportFormat, isPresented: $showingExportOptions, titleVisibility: .visible) {
+                    Button(L10n.Settings.jsonFormat) {
                         exportTask?.cancel()
                         exportTask = Task { await exportData(format: .json) }
                     }
-                    Button("CSV 格式") {
+                    Button(L10n.Settings.csvFormat) {
                         exportTask?.cancel()
                         exportTask = Task { await exportData(format: .csv) }
                     }
-                    Button("取消", role: .cancel) {}
+                    Button(L10n.Common.cancel, role: .cancel) {}
                 }
             } header: {
-                Text("数据管理")
+                Text(L10n.Settings.dataManagement)
             } footer: {
-                Text("导出所有学习数据为 JSON 或 CSV 格式")
+                Text(L10n.Settings.exportDataFooter)
             }
             
             if let error = exportError {
@@ -87,7 +87,7 @@ struct PrivacySettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("隐私与安全")
+        .navigationTitle(L10n.Settings.privacyAndSecurity)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingShareSheet) {
             if let url = exportedFileURL {
@@ -134,7 +134,7 @@ struct PrivacySettingsView: View {
             }
         } catch {
             await MainActor.run {
-                exportError = "导出失败: \(error.localizedDescription)"
+                exportError = L10n.Settings.exportFailed(error.localizedDescription)
                 isExporting = false
             }
         }

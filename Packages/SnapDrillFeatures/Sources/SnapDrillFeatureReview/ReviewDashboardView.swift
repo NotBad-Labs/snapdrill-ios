@@ -10,6 +10,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 import SnapDrillUI
 
 struct ReviewDashboardView: View {
@@ -63,7 +64,7 @@ struct ReviewDashboardView: View {
                                 Text("\(pendingCount)")
                                     .font(.system(size: 44, weight: .bold, design: .rounded))
                                     .foregroundStyle(.primary)
-                                Text("待复习")
+                                Text(L10n.Review.pending)
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
@@ -76,14 +77,14 @@ struct ReviewDashboardView: View {
                                 Text("\(reviewedCount)")
                                     .font(.system(size: 44, weight: .bold, design: .rounded))
                                     .foregroundStyle(.green)
-                                Text("已完成")
+                                Text(L10n.Review.completed)
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
                         }
                     } else {
                         // SCENARIO 1: Fresh Start
-                        Text("今日复习")
+                        Text(L10n.Review.todayReview)
                             .font(.title2)
                             .foregroundStyle(.secondary)
                         
@@ -91,26 +92,26 @@ struct ReviewDashboardView: View {
                             .font(.system(size: 64, weight: .bold, design: .rounded))
                             .foregroundStyle(.primary)
                         
-                        Text("张卡片待处理")
+                        Text(L10n.Review.cardsPending)
                             .font(.headline)
                             .foregroundStyle(.secondary)
                     }
                 } else if totalItemsCount == 0 {
                     // Empty State
-                    Text("欢迎回来")
+                    Text(L10n.Review.welcomeBack)
                         .font(.title2.bold())
                         .foregroundStyle(.primary)
                     
-                    Text("还没有题目，快去录入吧！")
+                    Text(L10n.Review.emptyHint)
                         .font(.body)
                         .foregroundStyle(.secondary)
                 } else {
                     // SCENARIO 3: Finished
-                    Text("太棒了！")
+                    Text(L10n.Review.excellent)
                         .font(.title2.bold())
                         .foregroundStyle(.primary)
                     
-                    Text("今日已复习 \(reviewedCount) 张")
+                    Text(L10n.Review.reviewedToday(reviewedCount))
                         .font(.body)
                         .foregroundStyle(.secondary)
                 }
@@ -123,7 +124,7 @@ struct ReviewDashboardView: View {
                 Button(action: onStart) {
                     HStack {
                         Image(systemName: "play.fill")
-                        Text("开始复习")
+                        Text(L10n.Review.startReview)
                     }
                     .font(.title3.bold())
                     .foregroundStyle(.white)
@@ -144,7 +145,7 @@ struct ReviewDashboardView: View {
             } else if totalItemsCount == 0 {
                 // Empty Action: Navigate for collection
                 Button(action: onEnter) {
-                    Text("去采集")
+                    Text(L10n.Dashboard.goCapture)
                         .font(.headline)
                         .foregroundStyle(.blue)
                         .padding()
@@ -157,7 +158,7 @@ struct ReviewDashboardView: View {
                 Button(action: {}, label: {
                     HStack {
                         Image(systemName: "moon.stars.fill")
-                        Text("去休息")
+                        Text(L10n.Review.goRest)
                     }
                     .font(.headline)
                     .foregroundStyle(.secondary)

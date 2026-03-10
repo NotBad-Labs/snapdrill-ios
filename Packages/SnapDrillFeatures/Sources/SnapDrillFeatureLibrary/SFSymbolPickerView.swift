@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 
 /// SF Symbols 选择器视图
 ///
@@ -105,7 +106,7 @@ public struct SFSymbolPickerView: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(.secondary)
-                    TextField("搜索图标名称 (英文)", text: $searchText)
+                    TextField(L10n.Library.iconSearch, text: $searchText)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
@@ -117,12 +118,12 @@ public struct SFSymbolPickerView: View {
                 // 手动输入区域
                 if showManualInput {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("手动输入图标名称")
+                        Text(L10n.Library.iconManualInput)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         
                         HStack {
-                            TextField("例如: book.circle.fill", text: $manualInput)
+                            TextField(L10n.Library.iconManualPlaceholder, text: $manualInput)
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled()
                             
@@ -133,7 +134,7 @@ public struct SFSymbolPickerView: View {
                                     .frame(width: 32, height: 32)
                             }
                             
-                            Button("使用") {
+                            Button(L10n.Common.ok) {
                                 if !manualInput.isEmpty {
                                     selectedSymbol = manualInput
                                     dismiss()
@@ -187,23 +188,23 @@ public struct SFSymbolPickerView: View {
                         
                         if filteredSymbols.isEmpty {
                             ContentUnavailableView(
-                                "未找到匹配的图标",
+                                L10n.Library.noSearchResults,
                                 systemImage: "magnifyingglass",
-                                description: Text("尝试搜索其他关键词，或点击「手动输入」使用完整的 SF Symbols")
+                                description: Text(L10n.Library.noSearchResultsHint)
                             )
                             .padding()
                         }
                     }
                 }
             }
-            .navigationTitle("选择图标")
+            .navigationTitle(L10n.Library.iconPicker)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }
+                    Button(L10n.Common.cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    Button(showManualInput ? "收起" : "手动输入") {
+                    Button(showManualInput ? L10n.Common.close : L10n.Library.iconManualInput) {
                         withAnimation {
                             showManualInput.toggle()
                         }

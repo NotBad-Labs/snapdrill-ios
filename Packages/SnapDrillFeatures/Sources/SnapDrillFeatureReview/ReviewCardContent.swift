@@ -148,7 +148,7 @@ struct ReviewCardFront: View {
                 Button {
                     showingEditSheet = true
                 } label: {
-                    Label("编辑题目", systemImage: "pencil")
+                    Label(L10n.Library.editQuestion, systemImage: "pencil")
                 }
             } label: {
                 Image(systemName: "ellipsis.circle.fill")
@@ -236,7 +236,7 @@ struct ReviewCardBack: View {
                     Button {
                         showingEditSheet = true
                     } label: {
-                        Label("编辑内容", systemImage: "pencil")
+                        Label(L10n.Library.editContent, systemImage: "pencil")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle.fill")

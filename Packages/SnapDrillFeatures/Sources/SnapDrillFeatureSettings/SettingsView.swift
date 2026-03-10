@@ -90,35 +90,35 @@ public struct SettingsView: View {
                 }
 
                 // 2. 录入字段配置
-                Section("录入字段") {
+                Section(L10n.Settings.captureFields) {
                     Toggle(isOn: $showSubjectField) {
-                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: "学科")
+                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.fieldSubject)
                     }
 
 
                     Toggle(isOn: $showSourceField) {
-                        SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: "来源")
+                        SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.fieldSource)
                     }
 
 
                     Toggle(isOn: $showDifficultyField) {
-                        SettingsRow(icon: "star.fill", gradientStart: .yellow, gradientEnd: .orange, title: "难度")
+                        SettingsRow(icon: "star.fill", gradientStart: .yellow, gradientEnd: .orange, title: L10n.Settings.fieldDifficulty)
                     }
 
 
                     Toggle(isOn: $showGradeField) {
-                        SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: "年级")
+                        SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.fieldGrade)
                     }
 
 
                     Toggle(isOn: $showAnswerField) {
-                        SettingsRow(icon: "text.bubble.fill", gradientStart: .purple, gradientEnd: .pink, title: "答案")
+                        SettingsRow(icon: "text.bubble.fill", gradientStart: .purple, gradientEnd: .pink, title: L10n.Settings.fieldAnswer)
                     }
 
                 }
 
                 // 3. 复习设置
-                Section("复习设置") {
+                Section(L10n.Settings.reviewSettings) {
                     NavigationLink {
                         ReviewAppearanceSettingsView(
                             alignmentRaw: $alignmentRaw,
@@ -127,14 +127,14 @@ public struct SettingsView: View {
                             frontFontSizeRaw: $frontFontSizeRaw
                         )
                     } label: {
-                        SettingsRow(icon: "eye.fill", gradientStart: .indigo, gradientEnd: .blue, title: "卡片外观")
+                        SettingsRow(icon: "eye.fill", gradientStart: .indigo, gradientEnd: .blue, title: L10n.Settings.cardAppearance)
                     }
 
 
                     NavigationLink {
                         NotificationSettingsView()
                     } label: {
-                        SettingsRow(icon: "bell.fill", gradientStart: .red, gradientEnd: .orange, title: "复习提醒")
+                        SettingsRow(icon: "bell.fill", gradientStart: .red, gradientEnd: .orange, title: L10n.Settings.reviewReminder)
                     }
 
                 }
@@ -144,18 +144,18 @@ public struct SettingsView: View {
                     NavigationLink {
                         DataAndSyncSettingsView(viewModel: ensureViewModel())
                     } label: {
-                        SettingsRow(icon: "icloud.fill", gradientStart: .blue, gradientEnd: .cyan, title: "iCloud 同步与存储")
+                        SettingsRow(icon: "icloud.fill", gradientStart: .blue, gradientEnd: .cyan, title: L10n.Settings.dataAndSync)
                     }
 
 
                     NavigationLink {
                         PrivacySettingsView()
                     } label: {
-                        SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: "隐私与导出")
+                        SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: L10n.Settings.privacyAndExport)
                     }
 
                 } header: {
-                    Text("数据与云同步")
+                    Text(L10n.Settings.dataAndSync)
                 } footer: {
                     if !iCloudSyncEnabled {
                         LocalDataWarningView(compact: true)
@@ -163,74 +163,74 @@ public struct SettingsView: View {
                 }
 
                 // 5. 通用
-                Section("通用") {
+                Section(L10n.Settings.general) {
                     Picker(selection: $appearanceMode) {
-                        Text("跟随系统").tag(0)
-                        Text("浅色").tag(1)
-                        Text("深色").tag(2)
+                        Text(L10n.Settings.followSystem).tag(0)
+                        Text(L10n.Settings.lightMode).tag(1)
+                        Text(L10n.Settings.darkMode).tag(2)
                     } label: {
-                        SettingsRow(icon: "paintpalette.fill", gradientStart: .purple, gradientEnd: .pink, title: "外观")
+                        SettingsRow(icon: "paintpalette.fill", gradientStart: .purple, gradientEnd: .pink, title: L10n.Settings.appearance)
                     }
 
 
                     NavigationLink {
                         LanguageSettingsView()
                     } label: {
-                        SettingsRow(icon: "globe", gradientStart: .green, gradientEnd: .teal, title: "语言", value: "简体中文")
+                        SettingsRow(icon: "globe", gradientStart: .green, gradientEnd: .teal, title: L10n.Settings.language, value: L10n.Settings.simplifiedChinese)
                     }
 
                 }
 
                 // 6. 数据管理
-                Section("数据管理") {
+                Section(L10n.Settings.dataManagement) {
                     Button { showingSubjectManager = true } label: {
-                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: "管理学科")
+                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.manageSubjects)
                     }
 
 
                     Button { showingSourceManager = true } label: {
-                        SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: "管理来源")
+                        SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.manageSources)
                     }
 
 
                     Button { showingGradeManager = true } label: {
-                        SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: "管理年级")
+                        SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.manageGrades)
                     }
 
 
                     Button { showingClearAlert = true } label: {
-                        SettingsRow(icon: "trash.fill", gradientStart: .red, gradientEnd: .pink, title: "清空所有数据")
+                        SettingsRow(icon: "trash.fill", gradientStart: .red, gradientEnd: .pink, title: L10n.Settings.clearAllData)
                     }
 
                 }
 
                 // 7. 关于
-                Section("关于") {
+                Section(L10n.Settings.about) {
                     Button { showingMail = true } label: {
-                        SettingsRow(icon: "heart.text.square.fill", gradientStart: .pink, gradientEnd: .red, title: "反馈与支持")
+                        SettingsRow(icon: "heart.text.square.fill", gradientStart: .pink, gradientEnd: .red, title: L10n.Settings.feedbackAndSupport)
                     }
 
 
                     NavigationLink(value: SettingsDestination.privacyPolicy) {
-                        SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: "隐私政策")
+                        SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: L10n.Settings.privacyPolicy)
                     }
 
 
                     NavigationLink(value: SettingsDestination.termsOfService) {
-                        SettingsRow(icon: "doc.text.fill", gradientStart: .blue, gradientEnd: .teal, title: "用户协议")
+                        SettingsRow(icon: "doc.text.fill", gradientStart: .blue, gradientEnd: .teal, title: L10n.Settings.termsOfService)
                     }
 
                 }
 
 #if DEBUG
-                Section("调试") {
+                Section(L10n.Settings.debugTitle) {
                     Button {
                         generateMockData()
                     } label: {
                         if isGenerating {
-                            HStack { ProgressView(); Text("生成中...") }
+                            HStack { ProgressView(); Text(L10n.Settings.generating) }
                         } else {
-                            SettingsRow(icon: "hammer.fill", gradientStart: .blue, gradientEnd: .purple, title: "生成测试数据 (100条)")
+                            SettingsRow(icon: "hammer.fill", gradientStart: .blue, gradientEnd: .purple, title: L10n.Settings.generateTestData(100))
                         }
                     }
                     .disabled(isGenerating)
@@ -239,12 +239,12 @@ public struct SettingsView: View {
 #endif
             }
             .listStyle(.insetGrouped)
-            .navigationTitle("设置")
+            .navigationTitle(L10n.Settings.title)
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: SettingsDestination.self) { destination in
                 switch destination {
                 case .placeholder:
-                    Text("即将上线")
+                    Text(L10n.Common.comingSoon)
                 case .licenses:
                     LicenseView()
                 case .privacyPolicy:
@@ -253,24 +253,24 @@ public struct SettingsView: View {
                     TermsOfServiceView()
                 }
             }
-            .alert("确实要清空吗？", isPresented: $showingClearAlert) {
-                Button("取消", role: .cancel) { }
-                Button("清空", role: .destructive) { clearAllData() }
+            .alert(L10n.Settings.clearConfirmTitle, isPresented: $showingClearAlert) {
+                Button(L10n.Common.cancel, role: .cancel) { }
+                Button(L10n.Settings.clearConfirmButton, role: .destructive) { clearAllData() }
             } message: {
-                Text("此操作将删除所有题目和学科分类，且不可恢复。")
+                Text(L10n.Settings.clearConfirmMessage)
             }
             .sheet(isPresented: $showingSubjectManager) { SubjectManagerView() }
             .sheet(isPresented: $showingSourceManager) { SourceManagerView() }
             .sheet(isPresented: $showingGradeManager) { GradeManagerView() }
-            .alert("意见反馈", isPresented: $showingMail) {
-                Button("复制邮箱") {
+            .alert(L10n.Settings.feedbackTitle, isPresented: $showingMail) {
+                Button(L10n.Settings.copyEmail) {
                     #if canImport(UIKit)
                     UIPasteboard.general.string = "hello@notbadhq.com"
                     #endif
                 }
-                Button("以后再说", role: .cancel) { }
+                Button(L10n.Settings.maybeLater, role: .cancel) { }
             } message: {
-                Text("感谢您使用 SnapDrill！您可以发送邮件至 hello@notbadhq.com，或直接在 TestFlight 中反馈。")
+                Text(L10n.Settings.feedbackMessage)
             }
             .onDisappear {
                 seedTask?.cancel()
@@ -291,7 +291,7 @@ public struct SettingsView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(userName)
                     .font(.title3.bold())
-                Text("编辑个人资料")
+                Text(L10n.Settings.editProfileSubtitle)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

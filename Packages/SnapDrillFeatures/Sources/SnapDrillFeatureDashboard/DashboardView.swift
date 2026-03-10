@@ -54,11 +54,11 @@ public struct DashboardView: View {
                             if viewModel.totalCount == 0 {
                                 // 空状态：引导用户采集第一道题
                                 ContentUnavailableView {
-                                    Label("还没有任何题目", systemImage: "books.vertical")
+                                    Label(L10n.Dashboard.emptyTitle, systemImage: "books.vertical")
                                 } description: {
-                                    Text("拍摄一道错题，开始你的间隔复习之旅")
+                                    Text(L10n.Dashboard.emptyDescription)
                                 } actions: {
-                                    Button("去采集") {
+                                    Button(L10n.Dashboard.goCapture) {
                                         viewModel.checkDraftAndCapture(router: router)
                                     }
                                     .buttonStyle(.borderedProminent)
@@ -77,8 +77,8 @@ public struct DashboardView: View {
                                 // 3. Bento Grid Actions
                                 LazyVGrid(columns: columns, spacing: 12) {
                                     BentoCard(
-                                        title: "智能扫描",
-                                        subtitle: "录入新题",
+                                        title: L10n.Dashboard.smartScan,
+                                        subtitle: L10n.Dashboard.addNew,
                                         icon: "camera.viewfinder",
                                         gradient: LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
                                     ) {
@@ -87,8 +87,8 @@ public struct DashboardView: View {
 
                                     // Library Card
                                     BentoCard(
-                                        title: "题库浏览",
-                                        subtitle: "管理知识",
+                                        title: L10n.Dashboard.browseLibrary,
+                                        subtitle: L10n.Dashboard.manageKnowledge,
                                         icon: "books.vertical.fill",
                                         gradient: LinearGradient(colors: [.orange, .pink], startPoint: .topLeading, endPoint: .bottomTrailing)
                                     ) {
@@ -104,8 +104,8 @@ public struct DashboardView: View {
 
                                     // Settings/More
                                     BentoCard(
-                                        title: "科目管理",
-                                        subtitle: "自定义",
+                                        title: L10n.Dashboard.subjectManage,
+                                        subtitle: L10n.Dashboard.customize,
                                         icon: "square.grid.2x2",
                                         gradient: LinearGradient(
                                             colors: [.gray.opacity(0.8), .gray],
@@ -137,19 +137,19 @@ public struct DashboardView: View {
                 viewModel?.cancelTasks()
             }
         }
-        .alert("恢复未完成的题目？", isPresented: Binding(
+        .alert(L10n.Dashboard.draftAlertTitle, isPresented: Binding(
             get: { viewModel?.isShowingDraftAlert ?? false },
             set: { viewModel?.isShowingDraftAlert = $0 }
         )) {
-            Button("开始新的") {
+            Button(L10n.Dashboard.draftStartNew) {
                 viewModel?.startNewCapture(router: router)
             }
-            Button("恢复") {
+            Button(L10n.Dashboard.draftRestore) {
                 viewModel?.restoreDraft(router: router)
             }
-            Button("取消", role: .cancel) { }
+            Button(L10n.Common.cancel, role: .cancel) { }
         } message: {
-            Text("您有上次未保存的拍摄内容，是否继续编辑？")
+            Text(L10n.Dashboard.draftAlertMessage)
         }
         .sheet(isPresented: Binding(
             get: { viewModel?.isShowingSubjectManager ?? false },
@@ -182,9 +182,9 @@ struct DailyStatsView: View {
             Spacer(minLength: 0)
 
             VStack(alignment: .leading, spacing: 6) {
-                StatRow(label: "今日新增", value: todayItemsCount, color: .white)
-                StatRow(label: "今日复习", value: reviewedTodayCount, color: .white.opacity(0.85))
-                StatRow(label: "待复习", value: dueCount, color: .white.opacity(0.85))
+                StatRow(label: L10n.Dashboard.todayAdded, value: todayItemsCount, color: .white)
+                StatRow(label: L10n.Dashboard.todayReviewed, value: reviewedTodayCount, color: .white.opacity(0.85))
+                StatRow(label: L10n.Dashboard.dueReview, value: dueCount, color: .white.opacity(0.85))
             }
         }
         .padding()
@@ -208,7 +208,7 @@ private struct StatRow: View {
                 .font(.caption2)
                 .foregroundStyle(color.opacity(0.8))
             Spacer()
-            Text("\(value) 题")
+            Text(L10n.Common.itemCountShort(value))
                 .font(.caption.bold())
                 .foregroundStyle(color)
         }
