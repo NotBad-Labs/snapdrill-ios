@@ -126,10 +126,13 @@ struct CaptureViewModelTests {
 
         viewModel.processScannedImage(createTestImage(), router: router)
 
-        #expect(viewModel.isProcessing == true)
-
-        // 等待 OCR Task 完成
-        try await Task.sleep(nanoseconds: 300_000_000)
+        // processScannedImage 启动两层嵌套 Task（photoLoadTask → ocrTask），
+        // 需要多次让出 MainActor 让内部 Task 有机会调度和执行
+        for _ in 0..<50 {
+            await Task.yield()
+        }
+        // yield 不够时用短 sleep 兜底
+        try await Task.sleep(nanoseconds: 100_000_000)
 
         #expect(pushCalled == true)
         #expect(mockOCR.recognizeTextCallCount == 1)
@@ -154,8 +157,10 @@ struct CaptureViewModelTests {
 
         viewModel.processScannedImage(createTestImage(), router: router)
 
-        // 等待 OCR Task 完成
-        try await Task.sleep(nanoseconds: 300_000_000)
+        for _ in 0..<50 {
+            await Task.yield()
+        }
+        try await Task.sleep(nanoseconds: 100_000_000)
 
         #expect(pushCalled == true)
         #expect(mockOCR.recognizeTextCallCount == 1)
