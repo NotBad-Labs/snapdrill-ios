@@ -269,3 +269,45 @@ gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini
 5. PR 合并 comment 或回复中列出新建的 Issue 编号，形成闭环
 
 **违反后果**：技术债无追踪 = 技术债不存在 = 永远不会修复。这比 review 本身不发现问题更危险。
+
+## 工作优先级金字塔铁律（2026-03-10 确立，永不变更）
+
+**所有改进工作（修复、重构、测试、优化）必须按用户价值金字塔从高到低逐层推进。上层未清零前，禁止进入下一层。**
+
+### 金字塔分层（对应产品价值金字塔）
+
+```
+Layer 0 — 录入层（生命线）
+  采集功能的 bug、并发安全、性能、测试覆盖
+  对应：CaptureViewModel, CaptureResultViewModel, OCR, ImageStorage, CaptureDraftService
+
+Layer 1 — 管理层（核心体验）
+  题库管理的 bug、代码质量、测试覆盖
+  对应：LibraryViewModel, LibraryEditViewModel, Repository, 搜索/过滤/导出
+
+Layer 2 — 复习层（锦上添花）
+  复习功能的 bug、算法、测试覆盖
+  对应：ReviewViewModel, ReviewScheduler, SM-2
+
+Layer 3 — 基础设施层（支撑）
+  Dashboard、Settings、备份、日志、UI 组件、国际化
+  对应：DashboardViewModel, SettingsViewModel, BackupService, SnapDrillUI
+
+Layer 4 — 行政与规划
+  发版、CI/CD、账号、文档同步
+```
+
+### 执行规则
+
+1. **逐层推进**：当前层所有 open issues 处理完毕（关闭或标记 `blocked`）后，方可进入下一层
+2. **层内状态声明**：每次开始一个 issue 前，必须输出当前层的完整状态：
+   ```
+   === Layer N 状态（{层名}）===
+   ✅ #xxx — {已完成的}
+   🔄 #xxx — {当前正在做的}
+   ⏳ #xxx — {待做的}
+   🚫 #xxx — {blocked，原因：...}
+   ```
+3. **阻塞豁免**：某 issue 被外部因素阻塞（等用户决策、等第三方、等硬件）时，标记 `blocked` 并说明原因，可临时推进下一层。阻塞解除后必须立即回到高层
+4. **层清零确认**：一层全部完成后，输出清零声明，用户确认后进入下一层
+5. **新发现问题归层**：工作中新发现的问题，按金字塔归入对应层，不打断当前工作流（除非是当前层或更高层的 blocker）
