@@ -152,7 +152,7 @@ public final class SettingsViewModel {
             backupStatusMessage = "正在恢复前自动备份当前数据..."
 
             // 2. 恢复前自动备份当前数据（安全网）
-            await createAutoBackupBeforeRestore()
+            let autoBackupURL = await createAutoBackupBeforeRestore()
 
             backupStatusMessage = "正在读取备份数据..."
 
@@ -187,7 +187,10 @@ public final class SettingsViewModel {
                 return
             }
 
-            // 6. 通知 UI 刷新
+            // 6. 恢复成功，清理自动备份临时文件
+            cleanupAutoBackup(autoBackupURL)
+
+            // 7. 通知 UI 刷新
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             backupStatusMessage = "恢复完成"
             SnapDrillLogger.generic.info("恢复完成: \(manifest.itemCount) 道题目")
@@ -214,12 +217,14 @@ public final class SettingsViewModel {
     // MARK: - Private Helpers
 
     /// 恢复前自动备份当前数据到临时目录（best-effort，不中断恢复流程）
-    private func createAutoBackupBeforeRestore() async {
+    ///
+    /// - Returns: 自动备份文件 URL（恢复成功后应清理），备份失败或无数据时返回 nil
+    private func createAutoBackupBeforeRestore() async -> URL? {
         do {
             let payload = try repositories.collectBackupPayload()
             let itemCount = payload.reviewItems.count
             // 没有数据时无需备份
-            guard itemCount > 0 else { return }
+            guard itemCount > 0 else { return nil }
 
             let manifest = BackupManifest(
                 schemaVersion: BackupManifest.currentSchemaVersion,
@@ -234,9 +239,18 @@ public final class SettingsViewModel {
                 imageBasePath: documentsURL
             )
             SnapDrillLogger.generic.info("恢复前自动备份已保存: \(url.lastPathComponent)")
+            return url
         } catch {
             // 自动备份失败不中断恢复流程，仅记录日志
             SnapDrillLogger.generic.warning("恢复前自动备份失败（不影响恢复操作）: \(error)")
+            return nil
         }
+    }
+
+    /// 清理恢复前的自动备份临时文件
+    private func cleanupAutoBackup(_ url: URL?) {
+        guard let url else { return }
+        try? FileManager.default.removeItem(at: url)
+        SnapDrillLogger.generic.info("已清理恢复前自动备份: \(url.lastPathComponent)")
     }
 }
