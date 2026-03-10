@@ -17,6 +17,16 @@ import Foundation
 /// 未来添加 `.strings` 文件即可支持多语言。
 public enum L10n {
 
+    // MARK: - AppRoot
+
+    public enum AppRoot {
+        public static let degradedModeTitle = NSLocalizedString("app_root.degraded_mode_title", value: "数据保护模式", comment: "降级模式标题")
+        public static let degradedModeDescription = NSLocalizedString("app_root.degraded_mode_description", value: "数据仅保存在内存中，重启后将丢失。建议重启应用以恢复正常。", comment: "降级模式描述")
+        public static let maintenanceTitle = NSLocalizedString("app_root.maintenance_title", value: "测试版维护中", comment: "维护页标题")
+        public static let maintenanceDescription = NSLocalizedString("app_root.maintenance_description", value: "当前测试版本正在进行紧急维护或已失效，请稍后再试或前往 TestFlight 下载最新版本。", comment: "维护页描述")
+        public static let checkUpdate = NSLocalizedString("app_root.check_update", value: "检查更新", comment: "检查更新按钮")
+    }
+
     // MARK: - Common
 
     public enum Common {
@@ -118,6 +128,8 @@ public enum L10n {
     // MARK: - Dashboard
 
     public enum Dashboard {
+        public static let title = NSLocalizedString("dashboard.title", value: "首页", comment: "首页 Tab 标题")
+
         // 空状态
         public static let emptyTitle = NSLocalizedString("dashboard.empty_title", value: "还没有任何题目", comment: "空状态标题")
         public static let emptyDescription = NSLocalizedString("dashboard.empty_description", value: "拍摄一道错题，开始你的间隔复习之旅", comment: "空状态描述")

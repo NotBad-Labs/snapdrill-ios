@@ -32,31 +32,31 @@ struct AppRootView: View {
             TabView(selection: $router.selectedTab) {
                 DashboardView(router: router.dashboardRouter)
                     .tabItem {
-                        Label("首页", systemImage: "house")
+                        Label(L10n.Dashboard.title, systemImage: "house")
                     }
                     .tag(AppTab.dashboard)
-                
+
                 LibraryView(router: router.libraryRouter)
                     .tabItem {
-                        Label("题库", systemImage: "books.vertical")
+                        Label(L10n.Library.title, systemImage: "books.vertical")
                     }
                     .tag(AppTab.library)
-                
+
                 CaptureView(router: router.captureRouter)
                     .tabItem {
-                        Label("采集", systemImage: "camera")
+                        Label(L10n.Capture.title, systemImage: "camera")
                     }
                     .tag(AppTab.capture)
-                
+
                 ReviewView(router: router.reviewRouter)
                     .tabItem {
-                        Label("复习", systemImage: "clock.arrow.circlepath")
+                        Label(L10n.Review.title, systemImage: "clock.arrow.circlepath")
                     }
                     .tag(AppTab.review)
-                
+
                 SettingsView(router: router.settingsRouter)
                     .tabItem {
-                        Label("设置", systemImage: "gear")
+                        Label(L10n.Settings.title, systemImage: "gear")
                     }
                     .tag(AppTab.settings)
             }
@@ -96,11 +96,11 @@ struct AppRootView: View {
                     .foregroundStyle(.white)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("数据保护模式")
+                    Text(L10n.AppRoot.degradedModeTitle)
                         .font(.headline)
                         .foregroundStyle(.white)
-                    
-                    Text("数据仅保存在内存中，重启后将丢失。建议重启应用以恢复正常。")
+
+                    Text(L10n.AppRoot.degradedModeDescription)
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.9))
                 }

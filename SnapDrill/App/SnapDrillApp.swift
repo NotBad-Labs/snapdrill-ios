@@ -87,16 +87,16 @@ struct SnapDrillApp: App {
                             .font(.system(size: 60))
                             .foregroundStyle(.orange)
                         
-                        Text("测试版维护中")
+                        Text(L10n.AppRoot.maintenanceTitle)
                             .font(.title.bold())
-                        
-                        Text("当前测试版本正在进行紧急维护或已失效，请稍后再试或前往 TestFlight 下载最新版本。")
+
+                        Text(L10n.AppRoot.maintenanceDescription)
                             .font(.body)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 40)
-                        
-                        Button("检查更新") {
+
+                        Button(L10n.AppRoot.checkUpdate) {
                             // Redirect to TestFlight or App Store
                             if let url = URL(string: "https://beta.itunes.apple.com/v1/app/com.snapdrill.app") {
                                 UIApplication.shared.open(url)
