@@ -88,8 +88,7 @@ struct TagRepositoryTests {
         _ = try repo.fetchOrCreateModel(name: "标签2", colorHex: "#111111")
 
         try repo.deleteAll()
-        // deleteAll 是纯内存操作，需要手动 save（但 TagRepository 无 saveContext）
-        // 验证 fetchAllModels 在 save 前仍反映内存状态
+        try repo.saveContext()
         let all = try repo.fetchAllModels()
         #expect(all.isEmpty)
     }
