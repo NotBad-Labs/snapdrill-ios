@@ -325,12 +325,7 @@ public final class CaptureResultViewModel {
                 ]
             )
 
-            // 连续录入：清理并返回摄像头，而非方式选择菜单
-            CaptureDraftService.shared.clearDraft()
-            if !router.path.isEmpty {
-                router.path.removeLast()
-            }
-            router.shouldReopenScanner = true
+            navigateAfterSave()
 
         } catch {
             // 回滚 mainContext：清除本次操作插入的脏 Tag 和脏 ReviewItemModel。
@@ -345,6 +340,22 @@ public final class CaptureResultViewModel {
     }
 
     // MARK: - Private Helpers
+
+    /// 保存成功后的导航：连续裁剪模式弹出裁剪器，拍照模式重新打开摄像头
+    private func navigateAfterSave() {
+        CaptureDraftService.shared.clearDraft()
+        if !router.path.isEmpty {
+            router.path.removeLast()
+        }
+
+        // 连续裁剪模式：相册导入时保存后自动弹出裁剪器（同一张原图裁剪不同区域）
+        // 非相册导入（拍照/手动/粘贴板）：走原有逻辑重新打开摄像头
+        if router.originalAlbumImage != nil {
+            router.shouldContinuousCrop = true
+        } else {
+            router.shouldReopenScanner = true
+        }
+    }
 
     /// 清理保存失败时已写入磁盘的孤儿图片文件（best-effort，async 避免阻塞主线程）
     private func cleanupOrphanImages(imagePath: String?, answerImagePath: String?) async {

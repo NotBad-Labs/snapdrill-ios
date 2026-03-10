@@ -28,6 +28,8 @@ public struct CaptureView: View {
     @Environment(\.analyticsService) private var analyticsService
     
     @State private var viewModel = CaptureViewModel()
+    /// 连续裁剪模式：是否正在显示裁剪器
+    @State private var isShowingContinuousCropper = false
     
     /// 初始化采集视图
     /// - Parameter router: 注入的路由器
@@ -190,11 +192,36 @@ public struct CaptureView: View {
             .onAppear {
                 viewModel.checkDraftOnAppear()
             }
-            // 连续录入：保存成功后自动重新打开摄像头
+            // 连续录入：保存成功后自动重新打开摄像头（拍照模式）
             .onChange(of: router.shouldReopenScanner) { _, shouldReopen in
                 if shouldReopen {
                     router.shouldReopenScanner = false
                     viewModel.isShowingScanner = true
+                }
+            }
+            // 连续裁剪：保存成功后自动弹出裁剪器（相册导入模式，同一张原图裁剪不同区域）
+            .onChange(of: router.shouldContinuousCrop) { _, shouldCrop in
+                if shouldCrop {
+                    router.shouldContinuousCrop = false
+                    isShowingContinuousCropper = true
+                }
+            }
+            .fullScreenCover(isPresented: $isShowingContinuousCropper) {
+                if let originalImage = router.originalAlbumImage {
+                    ImageCropperView(
+                        originalImage: originalImage,
+                        onCrop: { croppedImage in
+                            isShowingContinuousCropper = false
+                            // 对裁剪结果做 OCR 后推入编辑页
+                            viewModel.processScannedImage(croppedImage, router: router)
+                        },
+                        onCancel: {
+                            // 用户点取消 = 结束连续裁剪模式
+                            isShowingContinuousCropper = false
+                            router.originalAlbumImage = nil
+                        }
+                    )
+                    .ignoresSafeArea()
                 }
             }
             .onDisappear {
@@ -205,6 +232,8 @@ public struct CaptureView: View {
             .onChange(of: router.path) {
                 if router.path.isEmpty {
                     router.pdfDocument = nil
+                    // 不在此清理 originalAlbumImage：连续裁剪模式下
+                    // path 会在每次保存后变为 empty，需保留原图供下次裁剪
                 }
             }
             .alert("恢复草稿", isPresented: $viewModel.showDraftAlert) {

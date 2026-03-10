@@ -46,6 +46,10 @@ public final class CaptureRouter: FeatureRouter {
     public var path = NavigationPath()
     /// 保存成功后置 true，CaptureView 监听此标志自动重新打开摄像头（连续录入）
     public var shouldReopenScanner = false
+    /// 连续裁剪模式：保存后自动弹出裁剪器，CaptureView 监听此标志
+    public var shouldContinuousCrop = false
+    /// 相册导入的原始图片（连续裁剪时保持不变，用户每次裁剪不同区域）
+    public var originalAlbumImage: UIImage?
     /// PDF 导入时暂存的文档对象（PDFDocument 非 Hashable，无法通过 NavigationPath 传递）
     public var pdfDocument: PDFDocument?
     /// 目标类型别名
