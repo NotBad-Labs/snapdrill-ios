@@ -110,18 +110,20 @@ public struct CaptureView: View {
                                 viewModel.pasteFromClipboard(router: router)
                             }
 
-                            // 5. PDF Import
-                            CaptureMethodCard(
-                                icon: "doc.richtext",
-                                title: "PDF 导入",
-                                subtitle: "从文件选择 PDF",
-                                color: .red
-                            ) {
-                                viewModel.isShowingPDFPicker = true
-                            }
                         }
                         .padding(.horizontal)
-                        
+
+                        // 5. PDF Import（独立全宽行，避免 2 列网格奇数不对称）
+                        CaptureMethodCard(
+                            icon: "doc.richtext",
+                            title: "PDF 导入",
+                            subtitle: "从文件选择 PDF",
+                            color: .red
+                        ) {
+                            viewModel.isShowingPDFPicker = true
+                        }
+                        .padding(.horizontal)
+
                         Spacer()
                     }
                     .padding(.top)
@@ -163,8 +165,8 @@ public struct CaptureView: View {
                     )
                     CaptureResultView(viewModel: resultViewModel)
 
-                case .pdfPagePicker(let pages):
-                    PDFPagePickerView(pages: pages, router: router)
+                case .pdfPagePicker:
+                    PDFPagePickerView(router: router)
                 }
             }
             // Scanner Sheet

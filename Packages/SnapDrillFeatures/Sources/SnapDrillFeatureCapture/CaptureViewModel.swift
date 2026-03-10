@@ -124,64 +124,39 @@ public final class CaptureViewModel {
         }
     }
     
-    /// 加载 PDF 文件并渲染各页为图片，跳转到页面选择器
+    /// 加载 PDF 文件并存入 Router，跳转到页面选择器
+    ///
+    /// 仅加载 PDFDocument 对象（轻量），不预渲染任何页面图片。
+    /// 页面缩略图和全尺寸渲染由 PDFPagePickerView 按需执行。
     ///
     /// - Parameters:
-    ///   - url: 用户选择的 PDF 文件路径（安全域访问由调用方管理）
+    ///   - url: 用户选择的 PDF 文件路径
     ///   - router: 采集模块路由器
     public func loadPDF(_ url: URL, router: CaptureRouter) {
         isProcessing = true
-        pdfLoadTask = Task {
-            defer { isProcessing = false }
-            let accessing = url.startAccessingSecurityScopedResource()
-            defer { if accessing { url.stopAccessingSecurityScopedResource() } }
-
-            guard let document = PDFDocument(url: url) else {
-                errorMessage = "无法打开 PDF 文件"
-                showErrorAlert = true
-                return
-            }
-
-            let pageCount = document.pageCount
-            guard pageCount > 0 else {
-                errorMessage = "PDF 文件不包含任何页面"
-                showErrorAlert = true
-                return
-            }
-
-            // 逐页渲染为 UIImage（限制长边 2048px，与相机一致）
-            var images: [UIImage] = []
-            for index in 0 ..< pageCount {
-                guard !Task.isCancelled else { return }
-                guard let page = document.page(at: index) else { continue }
-                if let image = renderPDFPage(page) {
-                    images.append(image)
-                }
-            }
-
-            guard !Task.isCancelled, !images.isEmpty else { return }
-            router.push(.pdfPagePicker(pages: images))
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if accessing { url.stopAccessingSecurityScopedResource() }
+            isProcessing = false
         }
+
+        guard let document = PDFDocument(url: url) else {
+            errorMessage = "无法打开 PDF 文件"
+            showErrorAlert = true
+            return
+        }
+
+        guard document.pageCount > 0 else {
+            errorMessage = "PDF 文件不包含任何页面"
+            showErrorAlert = true
+            return
+        }
+
+        router.pdfDocument = document
+        router.push(.pdfPagePicker)
     }
 
     // MARK: - Private Logic
-
-    /// 将 PDF 页面渲染为 UIImage，长边不超过 2048px
-    private func renderPDFPage(_ page: PDFPage) -> UIImage? {
-        let pageRect = page.bounds(for: .mediaBox)
-        let maxDimension: CGFloat = 2048
-        let scale = min(maxDimension / pageRect.width, maxDimension / pageRect.height, 2.0)
-        let renderSize = CGSize(width: pageRect.width * scale, height: pageRect.height * scale)
-
-        let renderer = UIGraphicsImageRenderer(size: renderSize)
-        return renderer.image { context in
-            UIColor.white.setFill()
-            context.fill(CGRect(origin: .zero, size: renderSize))
-            context.cgContext.translateBy(x: 0, y: renderSize.height)
-            context.cgContext.scaleBy(x: scale, y: -scale)
-            page.draw(with: .mediaBox, to: context.cgContext)
-        }
-    }
     
     private func processImageOCR(_ image: UIImage, router: CaptureRouter) async {
         ocrTask = Task {
@@ -222,17 +197,12 @@ public final class CaptureViewModel {
     @ObservationIgnored
     private var photoLoadTask: Task<Void, Never>?
 
-    @ObservationIgnored
-    private var pdfLoadTask: Task<Void, Never>?
-
     /// 取消所有进行中的任务（由 View 的 onDisappear 调用）
     public func cancelOngoingTasks() {
         ocrTask?.cancel()
         ocrTask = nil
         photoLoadTask?.cancel()
         photoLoadTask = nil
-        pdfLoadTask?.cancel()
-        pdfLoadTask = nil
         isProcessing = false
     }
 }
