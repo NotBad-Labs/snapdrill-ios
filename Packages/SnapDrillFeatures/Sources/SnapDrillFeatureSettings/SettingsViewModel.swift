@@ -153,6 +153,8 @@ public final class SettingsViewModel {
 
             // 2. 恢复前自动备份当前数据（安全网）
             let autoBackupURL = await createAutoBackupBeforeRestore()
+            // 无论恢复成功、图片失败 return、还是数据库异常 throw，都清理临时文件
+            defer { cleanupAutoBackup(autoBackupURL) }
 
             backupStatusMessage = "正在读取备份数据..."
 
@@ -187,10 +189,7 @@ public final class SettingsViewModel {
                 return
             }
 
-            // 6. 恢复成功，清理自动备份临时文件
-            cleanupAutoBackup(autoBackupURL)
-
-            // 7. 通知 UI 刷新
+            // 6. 通知 UI 刷新
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             backupStatusMessage = "恢复完成"
             SnapDrillLogger.generic.info("恢复完成: \(manifest.itemCount) 道题目")
