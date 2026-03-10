@@ -29,7 +29,9 @@ struct PDFPagePickerView: View {
 
     @State private var isShowingCropper = false
     @State private var fullSizeImage: UIImage?
+    @State private var isRendering = false
     @State private var isProcessingOCR = false
+    @State private var renderTask: Task<Void, Never>?
     @State private var ocrTask: Task<Void, Never>?
 
     private let ocrService: OCRServiceProtocol = OCRService()
@@ -71,8 +73,8 @@ struct PDFPagePickerView: View {
                 .padding(.vertical)
             }
 
-            // OCR 处理中遮罩
-            if isProcessingOCR {
+            // 渲染或 OCR 处理中遮罩
+            if isRendering || isProcessingOCR {
                 Color.black.opacity(0.4)
                     .ignoresSafeArea()
                     .overlay {
@@ -80,7 +82,7 @@ struct PDFPagePickerView: View {
                             ProgressView()
                                 .controlSize(.large)
                                 .tint(.white)
-                            Text("正在识别...")
+                            Text(isRendering ? "正在加载..." : "正在识别...")
                                 .foregroundStyle(.white)
                                 .font(.headline)
                         }
@@ -109,8 +111,12 @@ struct PDFPagePickerView: View {
             }
         }
         .onDisappear {
+            renderTask?.cancel()
+            renderTask = nil
             ocrTask?.cancel()
             ocrTask = nil
+            // 离开页面选择器时释放 PDFDocument 内存
+            router.pdfDocument = nil
         }
     }
 
@@ -139,15 +145,23 @@ struct PDFPagePickerView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    /// 仅对选中的单页渲染全尺寸图（长边 ≤ 2048px），然后打开裁剪器
+    /// 仅对选中的单页异步渲染全尺寸图（长边 ≤ 2048px），然后打开裁剪器
     private func renderFullSizeAndCrop(pageIndex: Int) {
         guard let page = document?.page(at: pageIndex) else { return }
-        fullSizeImage = renderPDFPage(page)
-        isShowingCropper = true
+        isRendering = true
+        renderTask = Task {
+            let image = renderPDFPage(page)
+            guard !Task.isCancelled else { return }
+            isRendering = false
+            fullSizeImage = image
+            isShowingCropper = true
+        }
     }
 
     /// 将 PDF 页面渲染为 UIImage，长边不超过 2048px
-    private func renderPDFPage(_ page: PDFPage) -> UIImage {
+    ///
+    /// UIGraphicsImageRenderer 自 iOS 10 起线程安全，可在任意线程调用。
+    private nonisolated func renderPDFPage(_ page: PDFPage) -> UIImage {
         let pageRect = page.bounds(for: .mediaBox)
         let maxDimension: CGFloat = 2048
         let scale = min(maxDimension / pageRect.width, maxDimension / pageRect.height, 2.0)

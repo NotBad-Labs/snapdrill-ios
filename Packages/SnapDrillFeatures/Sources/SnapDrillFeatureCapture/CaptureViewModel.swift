@@ -126,8 +126,8 @@ public final class CaptureViewModel {
     
     /// 加载 PDF 文件并存入 Router，跳转到页面选择器
     ///
-    /// 仅加载 PDFDocument 对象（轻量），不预渲染任何页面图片。
-    /// 页面缩略图和全尺寸渲染由 PDFPagePickerView 按需执行。
+    /// 在安全域权限窗口内用 `Data(contentsOf:)` 完整读取文件数据，
+    /// 再通过 `PDFDocument(data:)` 构建文档对象，避免权限释放后懒加载失败。
     ///
     /// - Parameters:
     ///   - url: 用户选择的 PDF 文件路径
@@ -140,7 +140,14 @@ public final class CaptureViewModel {
             isProcessing = false
         }
 
-        guard let document = PDFDocument(url: url) else {
+        // 在安全域权限窗口内完整读取数据，避免 PDFDocument 懒加载时权限已失效
+        guard let data = try? Data(contentsOf: url) else {
+            errorMessage = "无法读取 PDF 文件"
+            showErrorAlert = true
+            return
+        }
+
+        guard let document = PDFDocument(data: data) else {
             errorMessage = "无法打开 PDF 文件"
             showErrorAlert = true
             return
