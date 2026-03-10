@@ -10,6 +10,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import ImageIO
 #else
 import Foundation
 // 非 iOS 平台编译 stub（swift test 使用）。
@@ -36,47 +37,43 @@ public struct UIImage: Sendable {
 ///         └── ...
 /// ```
 public struct ImageStorage: Sendable {
-    
+
     // MARK: - Initialization
-    
+
     public init() {}
-    
+
     // MARK: - Public API
-    
+
     /// 保存图片到本地
     ///
     /// 将 UIImage 压缩为 JPEG 格式并异步写入磁盘。
+    /// 大图使用 ImageIO 流式下采样，避免 UIGraphicsImageRenderer 的双倍内存峰值。
     ///
     /// - Parameter image: 要保存的原始图片对象
     /// - Returns: 图片的相对路径 (例如 `"images/123-abc.jpg"`)，可用于后续存入数据库
     /// - Throws: `ImageStorageError` 如果图片数据转换失败或文件写入失败
     public func saveImage(_ image: UIImage) async throws -> String {
-        let resized = Self.resizedIfNeeded(image, maxLongSide: 2000)
-        guard let data = resized.jpegData(compressionQuality: 0.8) else {
+        guard let data = Self.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8) else {
             throw ImageStorageError.invalidImageData
         }
-        
+
         return try await Task.detached {
-            // Ensure directory exists
             let fileManager = FileManager.default
             let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
             let imagesDirectory = documentsURL.appendingPathComponent("images")
-            
+
             if !fileManager.fileExists(atPath: imagesDirectory.path) {
                 try fileManager.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
             }
-            
-            // Generate filename
+
             let filename = UUID().uuidString + ".jpg"
             let fileURL = imagesDirectory.appendingPathComponent(filename)
-            
-            // Write to disk
             try data.write(to: fileURL)
-            
+
             return "images/" + filename
         }.value
     }
-    
+
     /// 删除本地图片
     ///
     /// Apple 官方文档明确要求文件 I/O 必须异步执行，避免阻塞主线程。
@@ -101,41 +98,64 @@ public struct ImageStorage: Sendable {
         let fileManager = FileManager.default
         let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let fileURL = documentsURL.appendingPathComponent(path)
-        
+
         guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
-        
+
         return UIImage(contentsOfFile: fileURL.path)
     }
 
     // MARK: - Private Helpers
 
     #if canImport(UIKit)
-    /// 长边物理像素超过 maxLongSide 时等比缩放，否则原图返回
+    /// 将 UIImage 压缩为 JPEG Data，大图通过 ImageIO 流式下采样
     ///
-    /// - Note: 使用 `format.scale = 1.0` 确保按物理像素而非逻辑点渲染，
-    ///   避免 UIGraphicsImageRenderer 默认使用屏幕 scale（@3x）导致图片反而放大。
-    static func resizedIfNeeded(_ image: UIImage, maxLongSide: CGFloat) -> UIImage {
+    /// 内存优化策略：
+    /// - 无需缩放时：直接 `jpegData(compressionQuality:)`，单次编码
+    /// - 需要缩放时：先编码为 JPEG Data，再通过 ImageIO `CGImageSourceCreateThumbnailAtIndex`
+    ///   流式解码为目标尺寸的 CGImage，最后编码为 JPEG Data
+    ///   避免 UIGraphicsImageRenderer 同时持有原图位图（~48MB@12MP）+ 缩放画布的双倍峰值
+    ///
+    /// - Parameters:
+    ///   - image: 原始图片
+    ///   - maxLongSide: 长边物理像素上限
+    ///   - quality: JPEG 压缩质量（0.0-1.0）
+    /// - Returns: 压缩后的 JPEG Data，失败返回 nil
+    static func compressedJPEGData(from image: UIImage, maxLongSide: CGFloat, quality: CGFloat) -> Data? {
         // 计算物理像素尺寸（image.size 是逻辑点，需乘以 scale）
         let pixelWidth = image.size.width * image.scale
         let pixelHeight = image.size.height * image.scale
         let longSide = max(pixelWidth, pixelHeight)
-        guard longSide > maxLongSide else { return image }
 
-        let ratio = maxLongSide / longSide
-        let newSize = CGSize(width: pixelWidth * ratio, height: pixelHeight * ratio)
-
-        // scale = 1.0：输出尺寸即物理像素，不受屏幕 scale 影响
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1.0
-        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
-        return renderer.image { _ in
-            image.draw(in: CGRect(origin: .zero, size: newSize))
+        // 无需缩放：直接编码，单次 JPEG 压缩
+        guard longSide > maxLongSide else {
+            return image.jpegData(compressionQuality: quality)
         }
+
+        // 需要缩放：先编码为 JPEG Data，再通过 ImageIO 流式下采样
+        guard let jpegData = image.jpegData(compressionQuality: quality),
+              let source = CGImageSourceCreateWithData(jpegData as CFData, nil) else {
+            return nil
+        }
+
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: Int(maxLongSide)
+        ]
+
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            // fallback：ImageIO 失败时返回未缩放的 JPEG 数据
+            return jpegData
+        }
+
+        // 从下采样的 CGImage 生成最终 JPEG Data
+        return UIImage(cgImage: cgImage).jpegData(compressionQuality: quality)
     }
     #else
-    /// 非 UIKit 平台 stub，直接返回原图
-    static func resizedIfNeeded(_ image: UIImage, maxLongSide: CGFloat) -> UIImage {
-        image
+    /// 非 UIKit 平台 stub
+    static func compressedJPEGData(from image: UIImage, maxLongSide: CGFloat, quality: CGFloat) -> Data? {
+        image.jpegData(compressionQuality: quality)
     }
     #endif
 }
