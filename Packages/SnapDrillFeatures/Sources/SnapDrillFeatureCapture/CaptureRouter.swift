@@ -20,6 +20,8 @@ public enum CaptureDestination: Hashable {
     case placeholder
     /// 扫描结果预览/编辑页面 (含图片)
     case scannerResult(content: String, image: UIImage?)
+    /// PDF 页面选择器（传入各页渲染后的图片）
+    case pdfPagePicker(pages: [UIImage])
 }
 
 /// 采集模块路由器

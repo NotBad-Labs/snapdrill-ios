@@ -13,6 +13,7 @@ import Observation
 import SnapDrillCore
 import SwiftUI
 import PhotosUI
+import PDFKit
 
 /// 采集功能主 ViewModel
 ///
@@ -37,6 +38,8 @@ public final class CaptureViewModel {
     public var showErrorAlert = false
     /// 错误提示文本
     public var errorMessage = ""
+    /// 是否正在显示 PDF 文件选择器
+    public var isShowingPDFPicker = false
     
     // MARK: - Dependencies
     
@@ -121,7 +124,64 @@ public final class CaptureViewModel {
         }
     }
     
+    /// 加载 PDF 文件并渲染各页为图片，跳转到页面选择器
+    ///
+    /// - Parameters:
+    ///   - url: 用户选择的 PDF 文件路径（安全域访问由调用方管理）
+    ///   - router: 采集模块路由器
+    public func loadPDF(_ url: URL, router: CaptureRouter) {
+        isProcessing = true
+        pdfLoadTask = Task {
+            defer { isProcessing = false }
+            let accessing = url.startAccessingSecurityScopedResource()
+            defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+
+            guard let document = PDFDocument(url: url) else {
+                errorMessage = "无法打开 PDF 文件"
+                showErrorAlert = true
+                return
+            }
+
+            let pageCount = document.pageCount
+            guard pageCount > 0 else {
+                errorMessage = "PDF 文件不包含任何页面"
+                showErrorAlert = true
+                return
+            }
+
+            // 逐页渲染为 UIImage（限制长边 2048px，与相机一致）
+            var images: [UIImage] = []
+            for index in 0 ..< pageCount {
+                guard !Task.isCancelled else { return }
+                guard let page = document.page(at: index) else { continue }
+                if let image = renderPDFPage(page) {
+                    images.append(image)
+                }
+            }
+
+            guard !Task.isCancelled, !images.isEmpty else { return }
+            router.push(.pdfPagePicker(pages: images))
+        }
+    }
+
     // MARK: - Private Logic
+
+    /// 将 PDF 页面渲染为 UIImage，长边不超过 2048px
+    private func renderPDFPage(_ page: PDFPage) -> UIImage? {
+        let pageRect = page.bounds(for: .mediaBox)
+        let maxDimension: CGFloat = 2048
+        let scale = min(maxDimension / pageRect.width, maxDimension / pageRect.height, 2.0)
+        let renderSize = CGSize(width: pageRect.width * scale, height: pageRect.height * scale)
+
+        let renderer = UIGraphicsImageRenderer(size: renderSize)
+        return renderer.image { context in
+            UIColor.white.setFill()
+            context.fill(CGRect(origin: .zero, size: renderSize))
+            context.cgContext.translateBy(x: 0, y: renderSize.height)
+            context.cgContext.scaleBy(x: scale, y: -scale)
+            page.draw(with: .mediaBox, to: context.cgContext)
+        }
+    }
     
     private func processImageOCR(_ image: UIImage, router: CaptureRouter) async {
         ocrTask = Task {
@@ -162,12 +222,17 @@ public final class CaptureViewModel {
     @ObservationIgnored
     private var photoLoadTask: Task<Void, Never>?
 
+    @ObservationIgnored
+    private var pdfLoadTask: Task<Void, Never>?
+
     /// 取消所有进行中的任务（由 View 的 onDisappear 调用）
     public func cancelOngoingTasks() {
         ocrTask?.cancel()
         ocrTask = nil
         photoLoadTask?.cancel()
         photoLoadTask = nil
+        pdfLoadTask?.cancel()
+        pdfLoadTask = nil
         isProcessing = false
     }
 }

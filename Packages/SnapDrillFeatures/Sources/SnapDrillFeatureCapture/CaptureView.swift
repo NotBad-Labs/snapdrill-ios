@@ -14,6 +14,7 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillData
 import PhotosUI
+import UniformTypeIdentifiers
 
 /// 采集功能界面
 ///
@@ -108,6 +109,16 @@ public struct CaptureView: View {
                             ) {
                                 viewModel.pasteFromClipboard(router: router)
                             }
+
+                            // 5. PDF Import
+                            CaptureMethodCard(
+                                icon: "doc.richtext",
+                                title: "PDF 导入",
+                                subtitle: "从文件选择 PDF",
+                                color: .red
+                            ) {
+                                viewModel.isShowingPDFPicker = true
+                            }
                         }
                         .padding(.horizontal)
                         
@@ -152,6 +163,8 @@ public struct CaptureView: View {
                     )
                     CaptureResultView(viewModel: resultViewModel)
 
+                case .pdfPagePicker(let pages):
+                    PDFPagePickerView(pages: pages, router: router)
                 }
             }
             // Scanner Sheet
@@ -194,6 +207,20 @@ public struct CaptureView: View {
                 }
             } message: {
                 Text("检测到未保存的采集内容，是否恢复？")
+            }
+            .fileImporter(
+                isPresented: $viewModel.isShowingPDFPicker,
+                allowedContentTypes: [.pdf],
+                allowsMultipleSelection: false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    guard let url = urls.first else { return }
+                    viewModel.loadPDF(url, router: router)
+                case .failure(let error):
+                    viewModel.errorMessage = "选择文件失败: \(error.localizedDescription)"
+                    viewModel.showErrorAlert = true
+                }
             }
             .alert("错误", isPresented: $viewModel.showErrorAlert) {
                 Button("确定", role: .cancel) { }
