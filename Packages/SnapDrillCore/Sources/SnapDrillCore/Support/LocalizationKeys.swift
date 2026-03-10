@@ -595,6 +595,7 @@ public enum L10n {
         public static let exportFailed = NSLocalizedString("errors.export_failed", value: "导出失败", comment: "导出失败错误")
         public static let importFailed = NSLocalizedString("errors.import_failed", value: "导入失败", comment: "导入失败错误")
         public static let dataCorrupted = NSLocalizedString("errors.data_corrupted", value: "数据损坏", comment: "数据损坏错误")
+        public static let encodingFailed = NSLocalizedString("errors.encoding_failed", value: "数据编码失败", comment: "数据编码失败错误")
     }
 
     // MARK: - Subjects (预设学科)

@@ -253,7 +253,7 @@ enum ExportError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .encodingFailed:
-            return "数据编码失败"
+            return L10n.Errors.encodingFailed
         }
     }
 }
