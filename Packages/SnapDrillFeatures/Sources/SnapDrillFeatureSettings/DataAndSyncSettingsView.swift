@@ -22,7 +22,7 @@ struct DataAndSyncSettingsView: View {
     @Bindable var viewModel: SettingsViewModel
 
     // Cloud Sync
-    @AppStorage("iCloudSyncEnabled") private var iCloudSyncEnabled = true
+    @AppStorage(UDKey.iCloudSyncEnabled) private var iCloudSyncEnabled = true
     @State private var accountStatus: CKAccountStatus = .couldNotDetermine
     @State private var isCheckingStatus = false
 
@@ -30,8 +30,8 @@ struct DataAndSyncSettingsView: View {
     @Environment(NetworkMonitor.self) private var networkMonitor
 
     // Storage Cache
-    @AppStorage("autoDeleteOldItems") private var autoDeleteOldItems = false
-    @AppStorage("autoDeleteDays") private var autoDeleteDays = 30
+    @AppStorage(UDKey.autoDeleteOldItems) private var autoDeleteOldItems = false
+    @AppStorage(UDKey.autoDeleteDays) private var autoDeleteDays = 30
     @State private var showingClearCacheAlert = false
     @State private var cacheSize: String = "计算中..."
     @State private var cacheCalculateTask: Task<Void, Never>?

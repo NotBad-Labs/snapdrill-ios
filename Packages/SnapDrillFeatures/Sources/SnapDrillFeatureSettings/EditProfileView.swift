@@ -19,11 +19,11 @@ struct EditProfileView: View {
     // MARK: - Properties
     
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("userName") private var userName: String = "同学"
-    @AppStorage("userMotto") private var userMotto: String = "" // Formerly bio
-    @AppStorage("dailyReviewGoal") private var dailyReviewGoal: Int = 20
-    @AppStorage("userAvatar") private var userAvatar: String = "person.crop.circle.fill"
-    @AppStorage("userAvatarColorIndex") private var userAvatarColorIndex: Int = 0
+    @AppStorage(UDKey.userName) private var userName: String = "同学"
+    @AppStorage(UDKey.userMotto) private var userMotto: String = "" // Formerly bio
+    @AppStorage(UDKey.dailyReviewGoal) private var dailyReviewGoal: Int = 20
+    @AppStorage(UDKey.userAvatar) private var userAvatar: String = "person.crop.circle.fill"
+    @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
     
     // Custom Avatar Handling
     @State private var selectedItem: PhotosPickerItem?

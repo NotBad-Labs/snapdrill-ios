@@ -44,13 +44,13 @@ public final class CrashReportingService: CrashReportingProtocol {
     
     public init() {
         // 从 UserDefaults 读取设置
-        self.isEnabled = UserDefaults.standard.bool(forKey: "crashReportingEnabled")
-        
+        self.isEnabled = UserDefaults.standard.bool(forKey: UDKey.crashReportingEnabled)
+
         // 默认启用
-        if !UserDefaults.standard.bool(forKey: "crashReportingConfigured") {
+        if !UserDefaults.standard.bool(forKey: UDKey.crashReportingConfigured) {
             self.isEnabled = true
-            UserDefaults.standard.set(true, forKey: "crashReportingEnabled")
-            UserDefaults.standard.set(true, forKey: "crashReportingConfigured")
+            UserDefaults.standard.set(true, forKey: UDKey.crashReportingEnabled)
+            UserDefaults.standard.set(true, forKey: UDKey.crashReportingConfigured)
         }
         
         setupExceptionHandler()

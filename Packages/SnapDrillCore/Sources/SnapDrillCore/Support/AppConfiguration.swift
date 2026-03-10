@@ -76,37 +76,37 @@ public final class AppConfiguration {
         /// 是否启用崩溃报告
         public static var crashReportingEnabled: Bool {
             get { 
-                remoteProvider?.bool(forKey: "crashReportingEnabled") ?? 
-                UserDefaults.standard.bool(forKey: "crashReportingEnabled") 
+                remoteProvider?.bool(forKey: UDKey.crashReportingEnabled) ??
+                UserDefaults.standard.bool(forKey: UDKey.crashReportingEnabled)
             }
-            set { UserDefaults.standard.set(newValue, forKey: "crashReportingEnabled") }
+            set { UserDefaults.standard.set(newValue, forKey: UDKey.crashReportingEnabled) }
         }
         
         /// 是否启用数据分析
         public static var analyticsEnabled: Bool {
             get { 
-                remoteProvider?.bool(forKey: "analyticsEnabled") ?? 
-                UserDefaults.standard.bool(forKey: "analyticsEnabled") 
+                remoteProvider?.bool(forKey: UDKey.analyticsEnabled) ??
+                UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled)
             }
-            set { UserDefaults.standard.set(newValue, forKey: "analyticsEnabled") }
+            set { UserDefaults.standard.set(newValue, forKey: UDKey.analyticsEnabled) }
         }
         
         /// 是否启用 iCloud 同步
         public static var iCloudSyncEnabled: Bool {
             get { 
-                remoteProvider?.bool(forKey: "iCloudSyncEnabled") ?? 
-                UserDefaults.standard.bool(forKey: "iCloudSyncEnabled") 
+                remoteProvider?.bool(forKey: UDKey.iCloudSyncEnabled) ??
+                UserDefaults.standard.bool(forKey: UDKey.iCloudSyncEnabled)
             }
-            set { UserDefaults.standard.set(newValue, forKey: "iCloudSyncEnabled") }
+            set { UserDefaults.standard.set(newValue, forKey: UDKey.iCloudSyncEnabled) }
         }
         
         /// 是否启用性能监控
         public static var performanceMonitoringEnabled: Bool {
             get { 
-                remoteProvider?.bool(forKey: "performanceMonitoringEnabled") ?? 
-                UserDefaults.standard.bool(forKey: "performanceMonitoringEnabled") 
+                remoteProvider?.bool(forKey: UDKey.performanceMonitoringEnabled) ??
+                UserDefaults.standard.bool(forKey: UDKey.performanceMonitoringEnabled)
             }
-            set { UserDefaults.standard.set(newValue, forKey: "performanceMonitoringEnabled") }
+            set { UserDefaults.standard.set(newValue, forKey: UDKey.performanceMonitoringEnabled) }
         }
         
         /// 远程强制关闭开关 (Kill-switch)
@@ -162,20 +162,20 @@ public final class AppConfiguration {
     public struct ReviewConfiguration {
         /// 每日复习目标数量
         public static var dailyReviewGoal: Int {
-            get { UserDefaults.standard.integer(forKey: "dailyReviewGoal") }
-            set { UserDefaults.standard.set(newValue, forKey: "dailyReviewGoal") }
+            get { UserDefaults.standard.integer(forKey: UDKey.dailyReviewGoal) }
+            set { UserDefaults.standard.set(newValue, forKey: UDKey.dailyReviewGoal) }
         }
         
         /// 是否启用复习提醒
         public static var reviewReminderEnabled: Bool {
-            get { UserDefaults.standard.bool(forKey: "reviewReminderEnabled") }
-            set { UserDefaults.standard.set(newValue, forKey: "reviewReminderEnabled") }
+            get { UserDefaults.standard.bool(forKey: UDKey.reviewReminderEnabled) }
+            set { UserDefaults.standard.set(newValue, forKey: UDKey.reviewReminderEnabled) }
         }
         
         /// 复习提醒时间
         public static var reviewReminderTime: Date? {
-            get { UserDefaults.standard.object(forKey: "reviewReminderTime") as? Date }
-            set { UserDefaults.standard.set(newValue, forKey: "reviewReminderTime") }
+            get { UserDefaults.standard.object(forKey: UDKey.reviewReminderTime) as? Date }
+            set { UserDefaults.standard.set(newValue, forKey: UDKey.reviewReminderTime) }
         }
     }
     
@@ -194,14 +194,14 @@ public final class AppConfiguration {
         
         /// 是否启用详细日志
         public static var verboseLoggingEnabled: Bool {
-            get { UserDefaults.standard.bool(forKey: "verboseLoggingEnabled") }
-            set { UserDefaults.standard.set(newValue, forKey: "verboseLoggingEnabled") }
+            get { UserDefaults.standard.bool(forKey: UDKey.verboseLoggingEnabled) }
+            set { UserDefaults.standard.set(newValue, forKey: UDKey.verboseLoggingEnabled) }
         }
         
         /// 是否显示性能指标
         public static var showPerformanceMetrics: Bool {
-            get { UserDefaults.standard.bool(forKey: "showPerformanceMetrics") }
-            set { UserDefaults.standard.set(newValue, forKey: "showPerformanceMetrics") }
+            get { UserDefaults.standard.bool(forKey: UDKey.showPerformanceMetrics) }
+            set { UserDefaults.standard.set(newValue, forKey: UDKey.showPerformanceMetrics) }
         }
     }
     

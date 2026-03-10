@@ -27,9 +27,9 @@ public final class CaptureResultViewModel {
 
     // 分类信息（自动推断：沿用上次录入的学科/来源，减少重复操作）
     /// 当前选中的学科名称
-    public var selectedSubject: String = UserDefaults.standard.string(forKey: "lastSelectedSubject") ?? "数学"
+    public var selectedSubject: String = UserDefaults.standard.string(forKey: UDKey.lastSelectedSubject) ?? "数学"
     /// 当前选中的来源名称
-    public var selectedSource: String = UserDefaults.standard.string(forKey: "lastSelectedSource") ?? "试卷"
+    public var selectedSource: String = UserDefaults.standard.string(forKey: UDKey.lastSelectedSource) ?? "试卷"
     /// 标签列表（字符串形式）
     public var tagList: [String] = []
     /// 标签输入框当前文本
@@ -312,8 +312,8 @@ public final class CaptureResultViewModel {
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
 
             // 自动推断：持久化本次选择，下次录入时自动填充
-            UserDefaults.standard.set(selectedSubject, forKey: "lastSelectedSubject")
-            UserDefaults.standard.set(selectedSource, forKey: "lastSelectedSource")
+            UserDefaults.standard.set(selectedSubject, forKey: UDKey.lastSelectedSubject)
+            UserDefaults.standard.set(selectedSource, forKey: UDKey.lastSelectedSource)
 
             // 埋点
             analyticsService.track(

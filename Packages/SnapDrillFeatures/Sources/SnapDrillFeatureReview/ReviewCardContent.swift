@@ -26,8 +26,8 @@ struct ReviewCardFront: View {
     @State private var loadedImage: UIImage?
 
     // 用户偏好：正面卡片排版
-    @AppStorage("cardFrontAlignment") private var alignmentRaw: String = "center"
-    @AppStorage("cardFrontFontSize") private var fontSizeRaw: Double = 32.0
+    @AppStorage(UDKey.cardFrontAlignment) private var alignmentRaw: String = "center"
+    @AppStorage(UDKey.cardFrontFontSize) private var fontSizeRaw: Double = 32.0
 
     private var alignment: TextAlignment {
         switch alignmentRaw {

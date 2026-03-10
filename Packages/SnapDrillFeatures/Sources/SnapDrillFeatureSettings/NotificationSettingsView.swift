@@ -18,11 +18,11 @@ struct NotificationSettingsView: View {
 
     @Environment(\.services) private var services
 
-    @AppStorage("notificationsEnabled") private var notificationsEnabled = false
-    @AppStorage("notificationHour") private var notificationHour: Int = 20
-    @AppStorage("notificationMinute") private var notificationMinute: Int = 0
-    @AppStorage("soundEnabled") private var soundEnabled = true
-    @AppStorage("badgeEnabled") private var badgeEnabled = true
+    @AppStorage(UDKey.notificationsEnabled) private var notificationsEnabled = false
+    @AppStorage(UDKey.notificationHour) private var notificationHour: Int = 20
+    @AppStorage(UDKey.notificationMinute) private var notificationMinute: Int = 0
+    @AppStorage(UDKey.soundEnabled) private var soundEnabled = true
+    @AppStorage(UDKey.badgeEnabled) private var badgeEnabled = true
 
     @State private var viewModel: NotificationSettingsViewModel?
     @State private var enableTask: Task<Void, Never>?

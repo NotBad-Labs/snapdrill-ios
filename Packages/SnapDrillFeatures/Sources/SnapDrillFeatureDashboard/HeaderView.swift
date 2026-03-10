@@ -16,9 +16,9 @@ struct HeaderView: View {
     
     // MARK: - Properties
     
-    @AppStorage("userAvatar") private var userAvatar: String = "person.crop.circle.fill"
-    @AppStorage("userAvatarColorIndex") private var userAvatarColorIndex: Int = 0
-    @AppStorage("userName") private var userName: String = "同学" // Use "同学" as default for new installs
+    @AppStorage(UDKey.userAvatar) private var userAvatar: String = "person.crop.circle.fill"
+    @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
+    @AppStorage(UDKey.userName) private var userName: String = "同学"
     
     // Dynamic Greeting
     private var greeting: String {
