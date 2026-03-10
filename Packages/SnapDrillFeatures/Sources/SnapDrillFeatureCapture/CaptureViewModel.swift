@@ -151,8 +151,8 @@ public final class CaptureViewModel {
 
         // 检查文件大小，超过阈值时弹出警告让用户确认
         do {
-            let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
-            let fileSize = (attributes[.size] as? Int) ?? 0
+            let resourceValues = try url.resourceValues(forKeys: [.fileSizeKey])
+            let fileSize = resourceValues.fileSize ?? 0
             if fileSize > Self.largeFileThreshold {
                 let sizeMB = fileSize / (1024 * 1024)
                 largeFileSizeMB = sizeMB

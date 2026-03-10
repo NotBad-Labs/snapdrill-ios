@@ -222,6 +222,9 @@ final class PDFThumbnailCache {
     private let document: PDFDocument
     private let thumbnailSize: CGSize
 
+    /// PDF 文档的 Data 快照，供 Task.detached 内重建文档使用（避免非 Sendable 的 PDFPage 跨隔离域）
+    private let documentData: Data?
+
     @ObservationIgnored
     private var generationTasks: [Int: Task<Void, Never>] = [:]
 
@@ -234,6 +237,7 @@ final class PDFThumbnailCache {
     init(document: PDFDocument, thumbnailSize: CGSize) {
         self.document = document
         self.thumbnailSize = thumbnailSize
+        self.documentData = document.dataRepresentation()
     }
 
     // MARK: - Public API
@@ -243,17 +247,20 @@ final class PDFThumbnailCache {
     func requestThumbnail(for pageIndex: Int) {
         // 已缓存或正在生成中，跳过
         guard thumbnails[pageIndex] == nil, !pendingPages.contains(pageIndex) else { return }
-        guard let page = document.page(at: pageIndex) else { return }
+        guard document.page(at: pageIndex) != nil else { return }
 
         pendingPages.insert(pageIndex)
         let size = thumbnailSize
+        let docData = documentData
         generationTasks[pageIndex] = Task {
-            // 在后台线程生成缩略图（PDFPage.thumbnail 线程安全）
-            let image = await Task.detached {
-                page.thumbnail(of: size, for: .mediaBox)
+            let image: UIImage? = await Task.detached {
+                guard let data = docData,
+                      let doc = PDFDocument(data: data),
+                      let page = doc.page(at: pageIndex) else { return nil }
+                return page.thumbnail(of: size, for: .mediaBox)
             }.value
 
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled, let image else { return }
             thumbnails[pageIndex] = image
             pendingPages.remove(pageIndex)
             generationTasks.removeValue(forKey: pageIndex)
