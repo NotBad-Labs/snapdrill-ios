@@ -122,8 +122,8 @@ final class SettingsViewModelTests {
 
     @Test("clearAllData 同时清空学科和来源")
     func clearAllData_alsoRemovesTaxonomy() async throws {
-        try repos.subject.insertAndSave(SubjectModel.mock(name: "数学"))
-        try repos.source.insertAndSave(SourceModel.mock(name: "试卷"))
+        try repos.subject.insertAndSave(SubjectModel(name: "数学", icon: "function", colorHex: "#FF0000", sortOrder: 0))
+        try repos.source.insertAndSave(SourceModel(name: "试卷"))
         try repos.grade.insertAndSave(GradeModel(name: "高一"))
 
         let vm = SettingsViewModel(repositories: repos)
