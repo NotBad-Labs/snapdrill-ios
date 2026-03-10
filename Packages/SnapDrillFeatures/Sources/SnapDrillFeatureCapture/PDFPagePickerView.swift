@@ -18,7 +18,7 @@ import SnapDrillData
 ///
 /// 从 `CaptureRouter.pdfDocument` 读取 PDF 文档，以网格形式展示各页的轻量缩略图。
 /// 用户点击页面后，仅对该页渲染全尺寸图（长边 ≤ 2048px），然后进入裁剪→OCR→保存流程。
-/// 按需渲染策略避免一次性加载所有页面导致内存溢出。
+/// 缩略图通过 ``PDFThumbnailCache`` 异步生成并缓存，LazyVGrid 滚动不掉帧。
 struct PDFPagePickerView: View {
 
     // MARK: - Properties
@@ -33,6 +33,7 @@ struct PDFPagePickerView: View {
     @State private var isProcessingOCR = false
     @State private var renderTask: Task<Void, Never>?
     @State private var ocrTask: Task<Void, Never>?
+    @State private var thumbnailCache: PDFThumbnailCache?
 
     private let ocrService: OCRServiceProtocol = OCRService()
 
@@ -110,29 +111,31 @@ struct PDFPagePickerView: View {
                 )
             }
         }
+        .onAppear {
+            // 初始化缩略图缓存（仅在首次出现时创建）
+            if thumbnailCache == nil, let doc = document {
+                thumbnailCache = PDFThumbnailCache(document: doc, thumbnailSize: thumbnailSize)
+            }
+        }
         .onDisappear {
             renderTask?.cancel()
             renderTask = nil
             ocrTask?.cancel()
             ocrTask = nil
+            thumbnailCache?.cancelAll()
         }
     }
 
     // MARK: - Private Helpers
 
-    /// 使用 PDFPage.thumbnail() 生成轻量缩略图（内存友好）
+    /// 异步缩略图卡片，使用缓存避免重复计算
     @ViewBuilder
     private func pageCard(pageIndex: Int) -> some View {
         VStack(spacing: 8) {
-            if let page = document?.page(at: pageIndex) {
-                let thumbnail = page.thumbnail(of: thumbnailSize, for: .mediaBox)
-                Image(uiImage: thumbnail)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 240)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
-            }
+            PDFThumbnailView(cache: thumbnailCache, pageIndex: pageIndex)
+                .frame(maxHeight: 240)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
 
             Text(L10n.Capture.pageNumber(pageIndex + 1))
                 .font(.caption)
@@ -194,6 +197,117 @@ struct PDFPagePickerView: View {
             guard !Task.isCancelled else { return }
             isProcessingOCR = false
             router.push(.scannerResult(content: ocrText, image: image))
+        }
+    }
+}
+
+// MARK: - PDFThumbnailCache
+
+/// PDF 缩略图异步缓存
+///
+/// 在后台线程生成缩略图并缓存到内存字典中，避免 LazyVGrid 滚动时重复调用
+/// `PDFPage.thumbnail(of:for:)` 导致掉帧。每页缩略图仅生成一次。
+@MainActor
+@Observable
+final class PDFThumbnailCache {
+
+    // MARK: - Properties
+
+    /// 已缓存的缩略图（pageIndex → UIImage）
+    private(set) var thumbnails: [Int: UIImage] = [:]
+
+    /// 正在生成中的页面索引集合（防止重复提交）
+    private var pendingPages: Set<Int> = []
+
+    private let document: PDFDocument
+    private let thumbnailSize: CGSize
+
+    /// PDF 文档的 Data 快照，供 Task.detached 内重建文档使用（避免非 Sendable 的 PDFPage 跨隔离域）
+    private let documentData: Data?
+
+    @ObservationIgnored
+    private var generationTasks: [Int: Task<Void, Never>] = [:]
+
+    // MARK: - Initialization
+
+    /// 创建缩略图缓存
+    /// - Parameters:
+    ///   - document: PDF 文档
+    ///   - thumbnailSize: 缩略图尺寸（点）
+    init(document: PDFDocument, thumbnailSize: CGSize) {
+        self.document = document
+        self.thumbnailSize = thumbnailSize
+        self.documentData = document.dataRepresentation()
+    }
+
+    // MARK: - Public API
+
+    /// 请求指定页面的缩略图，若未缓存则异步生成
+    /// - Parameter pageIndex: 页面索引
+    func requestThumbnail(for pageIndex: Int) {
+        // 已缓存或正在生成中，跳过
+        guard thumbnails[pageIndex] == nil, !pendingPages.contains(pageIndex) else { return }
+        guard document.page(at: pageIndex) != nil else { return }
+
+        pendingPages.insert(pageIndex)
+        let size = thumbnailSize
+        let docData = documentData
+        generationTasks[pageIndex] = Task {
+            let image: UIImage? = await Task.detached {
+                guard let data = docData,
+                      let doc = PDFDocument(data: data),
+                      let page = doc.page(at: pageIndex) else { return nil }
+                return page.thumbnail(of: size, for: .mediaBox)
+            }.value
+
+            guard !Task.isCancelled, let image else { return }
+            thumbnails[pageIndex] = image
+            pendingPages.remove(pageIndex)
+            generationTasks.removeValue(forKey: pageIndex)
+        }
+    }
+
+    /// 取消所有进行中的缩略图生成任务
+    func cancelAll() {
+        for task in generationTasks.values {
+            task.cancel()
+        }
+        generationTasks.removeAll()
+        pendingPages.removeAll()
+    }
+}
+
+// MARK: - PDFThumbnailView
+
+/// 异步缩略图视图
+///
+/// 出现时向 ``PDFThumbnailCache`` 请求缩略图，缓存命中后立即展示。
+/// 加载中显示占位 ProgressView，确保流畅滚动体验。
+private struct PDFThumbnailView: View {
+
+    let cache: PDFThumbnailCache?
+    let pageIndex: Int
+
+    var body: some View {
+        Group {
+            if let thumbnail = cache?.thumbnails[pageIndex] {
+                Image(uiImage: thumbnail)
+                    .resizable()
+                    .scaledToFit()
+                    .transition(.opacity)
+            } else {
+                // 占位：与缩略图同比例的灰色区域 + 加载指示器
+                Rectangle()
+                    .fill(Color(.systemGray5))
+                    .aspectRatio(3.0 / 4.0, contentMode: .fit)
+                    .overlay {
+                        ProgressView()
+                    }
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: cache?.thumbnails[pageIndex] != nil)
+        .onAppear {
+            cache?.requestThumbnail(for: pageIndex)
         }
     }
 }

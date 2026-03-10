@@ -40,6 +40,12 @@ public final class CaptureViewModel {
     public var errorMessage = ""
     /// 是否正在显示 PDF 文件选择器
     public var isShowingPDFPicker = false
+    /// 是否显示 PDF 大文件警告对话框
+    public var showLargeFileAlert = false
+    /// 大文件警告中显示的文件大小（MB）
+    public var largeFileSizeMB = 0
+    /// 暂存待确认导入的 PDF URL（用户确认大文件警告后使用）
+    public var pendingPDFURL: URL?
     
     // MARK: - Dependencies
     
@@ -128,17 +134,53 @@ public final class CaptureViewModel {
         }
     }
     
+    /// 大文件阈值（字节），超过此值时弹出警告
+    private static let largeFileThreshold: Int = 50 * 1024 * 1024 // 50 MB
+
     /// 加载 PDF 文件并存入 Router，跳转到页面选择器
     ///
     /// 在安全域权限窗口内用 `Data(contentsOf:)` 完整读取文件数据，
     /// 再通过 `PDFDocument(data:)` 构建文档对象，避免权限释放后懒加载失败。
+    /// 超过 50 MB 的文件会弹出警告，用户确认后才继续导入。
     ///
     /// - Parameters:
     ///   - url: 用户选择的 PDF 文件路径
     ///   - router: 采集模块路由器
     public func loadPDF(_ url: URL, router: CaptureRouter) {
-        isProcessing = true
         let accessing = url.startAccessingSecurityScopedResource()
+
+        // 检查文件大小，超过阈值时弹出警告让用户确认
+        do {
+            let resourceValues = try url.resourceValues(forKeys: [.fileSizeKey])
+            let fileSize = resourceValues.fileSize ?? 0
+            if fileSize > Self.largeFileThreshold {
+                let sizeMB = fileSize / (1024 * 1024)
+                largeFileSizeMB = sizeMB
+                pendingPDFURL = url
+                showLargeFileAlert = true
+                SnapDrillLogger.capture.warning("PDF 文件较大（\(sizeMB) MB），弹出用户确认")
+                if accessing { url.stopAccessingSecurityScopedResource() }
+                return
+            }
+        } catch {
+            SnapDrillLogger.capture.error("读取文件属性失败: \(error.localizedDescription)")
+            // 属性读取失败不阻塞导入，继续后续流程
+        }
+
+        performLoadPDF(url, router: router, accessing: accessing)
+    }
+
+    /// 用户确认大文件警告后继续导入 PDF
+    public func confirmLargeFileImport(router: CaptureRouter) {
+        guard let url = pendingPDFURL else { return }
+        pendingPDFURL = nil
+        let accessing = url.startAccessingSecurityScopedResource()
+        performLoadPDF(url, router: router, accessing: accessing)
+    }
+
+    /// 实际执行 PDF 加载逻辑（内部方法，由 loadPDF 和 confirmLargeFileImport 共用）
+    private func performLoadPDF(_ url: URL, router: CaptureRouter, accessing: Bool) {
+        isProcessing = true
         defer {
             if accessing { url.stopAccessingSecurityScopedResource() }
             isProcessing = false

@@ -119,6 +119,20 @@ public enum L10n {
             String(format: NSLocalizedString("capture.page_number", value: "第 %d 页", comment: "第 N 页"), number)
         }
 
+        // PDF 大文件警告
+        public static let pdfFileTooLargeTitle = NSLocalizedString(
+            "capture.pdf_file_too_large_title", value: "文件较大", comment: "PDF 文件过大警告标题")
+        public static let pdfContinueAnyway = NSLocalizedString(
+            "capture.pdf_continue_anyway", value: "继续导入", comment: "PDF 文件过大时继续导入按钮")
+
+        /// PDF 文件过大警告内容
+        /// - Parameter sizeMB: 文件大小（MB）
+        public static func pdfFileTooLarge(_ sizeMB: Int) -> String {
+            String(format: NSLocalizedString(
+                "capture.pdf_file_too_large", value: "PDF 文件大小为 %d MB，可能导致内存不足，建议使用更小的文件",
+                comment: "PDF 文件过大警告内容"), sizeMB)
+        }
+
         // 文件选择错误
         public static func filePickerError(_ message: String) -> String {
             String(format: NSLocalizedString("capture.file_picker_error", value: "选择文件失败: %@", comment: "文件选择器错误"), message)
@@ -707,5 +721,28 @@ public enum LocalizationHelper {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+
+    // MARK: - AppRoot
+
+    /// 应用层级字符串（主工程 App target 专用）
+    public enum AppRoot {
+        // 降级模式
+        public static let degradedModeTitle = NSLocalizedString(
+            "app.degraded_mode_title", value: "数据保护模式", comment: "降级模式警告标题")
+        public static let degradedModeDescription = NSLocalizedString(
+            "app.degraded_mode_description",
+            value: "数据仅保存在内存中，重启后将丢失。建议重启应用以恢复正常。",
+            comment: "降级模式警告描述")
+
+        // 紧急维护
+        public static let maintenanceTitle = NSLocalizedString(
+            "app.maintenance_title", value: "测试版维护中", comment: "紧急维护标题")
+        public static let maintenanceDescription = NSLocalizedString(
+            "app.maintenance_description",
+            value: "当前测试版本正在进行紧急维护或已失效，请稍后再试或前往 TestFlight 下载最新版本。",
+            comment: "紧急维护描述")
+        public static let checkUpdate = NSLocalizedString(
+            "app.check_update", value: "检查更新", comment: "检查更新按钮")
     }
 }
