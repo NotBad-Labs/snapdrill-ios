@@ -22,11 +22,11 @@ public struct CaptureResultView: View {
     @Bindable var viewModel: CaptureResultViewModel
 
     // 录入字段可见性（与 SettingsView 共享同一组 @AppStorage key）
-    @AppStorage("captureFieldSubject") private var showSubjectField: Bool = true
-    @AppStorage("captureFieldSource") private var showSourceField: Bool = false
-    @AppStorage("captureFieldDifficulty") private var showDifficultyField: Bool = false
-    @AppStorage("captureFieldGrade") private var showGradeField: Bool = false
-    @AppStorage("captureFieldAnswer") private var showAnswerField: Bool = false
+    @AppStorage(UDKey.captureFieldSubject) private var showSubjectField: Bool = true
+    @AppStorage(UDKey.captureFieldSource) private var showSourceField: Bool = false
+    @AppStorage(UDKey.captureFieldDifficulty) private var showDifficultyField: Bool = false
+    @AppStorage(UDKey.captureFieldGrade) private var showGradeField: Bool = false
+    @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
 
     /// 创建采集结果视图
     /// - Parameter viewModel: 注入的 ViewModel

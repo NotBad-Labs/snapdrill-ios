@@ -231,12 +231,12 @@ public final class OnboardingManager {
     public var shouldShowFeatureTooltip: [String: Bool] = [:]
     
     private init() {
-        self.shouldShowOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+        self.shouldShowOnboarding = !UserDefaults.standard.bool(forKey: UDKey.hasCompletedOnboarding)
     }
     
     /// 完成引导
     public func completeOnboarding() {
-        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        UserDefaults.standard.set(true, forKey: UDKey.hasCompletedOnboarding)
         shouldShowOnboarding = false
     }
     
@@ -246,26 +246,26 @@ public final class OnboardingManager {
             return cached
         }
         
-        let hasShown = UserDefaults.standard.bool(forKey: "hasShownTooltip_\(feature)")
+        let hasShown = UserDefaults.standard.bool(forKey: "\(UDKey.hasShownTooltipPrefix)\(feature)")
         shouldShowFeatureTooltip[feature] = !hasShown
         return !hasShown
     }
     
     /// 标记功能提示已显示
     public func markTooltipShown(for feature: String) {
-        UserDefaults.standard.set(true, forKey: "hasShownTooltip_\(feature)")
+        UserDefaults.standard.set(true, forKey: "\(UDKey.hasShownTooltipPrefix)\(feature)")
         shouldShowFeatureTooltip[feature] = false
     }
     
     /// 重置所有引导状态
     public func resetAll() {
-        UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+        UserDefaults.standard.set(false, forKey: UDKey.hasCompletedOnboarding)
         shouldShowOnboarding = true
         shouldShowFeatureTooltip.removeAll()
         
         // 清除所有提示记录
         let keys = UserDefaults.standard.dictionaryRepresentation().keys
-        for key in keys where key.hasPrefix("hasShownTooltip_") {
+        for key in keys where key.hasPrefix(UDKey.hasShownTooltipPrefix) {
             UserDefaults.standard.removeObject(forKey: key)
         }
     }

@@ -23,7 +23,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     private let defaults = UserDefaults.standard
 
     private let draftImageName = "draft_capture.jpg"
-    private let draftMetadataKey = "capture_draft_metadata"
+    private let draftMetadataKey = UDKey.captureDraftMetadata
 
     private init() {}
 

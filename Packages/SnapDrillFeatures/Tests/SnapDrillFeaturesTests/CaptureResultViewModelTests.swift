@@ -222,8 +222,8 @@ final class CaptureResultViewModelTests {
         await ctx.vm.saveResult()
 
         #expect(ctx.analytics.hasTrackedEvent(.captureSaved))
-        #expect(UserDefaults.standard.string(forKey: "lastSelectedSubject") == "物理")
-        #expect(UserDefaults.standard.string(forKey: "lastSelectedSource") == "作业")
+        #expect(UserDefaults.standard.string(forKey: UDKey.lastSelectedSubject) == "物理")
+        #expect(UserDefaults.standard.string(forKey: UDKey.lastSelectedSource) == "作业")
     }
 
     // MARK: - generateDraftIfNeeded

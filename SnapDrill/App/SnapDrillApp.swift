@@ -50,7 +50,7 @@ struct SnapDrillApp: App {
     @State private var onboardingManager = OnboardingManager.shared
     
     /// 外观模式设置 (0=System, 1=Light, 2=Dark)
-    @AppStorage("appearanceMode") private var appearanceMode: Int = 0
+    @AppStorage(UDKey.appearanceMode) private var appearanceMode: Int = 0
     
     // MARK: - Computed Properties
     

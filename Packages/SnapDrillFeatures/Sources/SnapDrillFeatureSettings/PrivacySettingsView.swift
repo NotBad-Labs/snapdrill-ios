@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 import SnapDrillData
 import UniformTypeIdentifiers
 
@@ -18,8 +19,8 @@ struct PrivacySettingsView: View {
     // MARK: - Properties
     
     @Environment(\.repositories) private var repositories
-    @AppStorage("analyticsEnabled") private var analyticsEnabled = false
-    @AppStorage("crashReportingEnabled") private var crashReportingEnabled = true
+    @AppStorage(UDKey.analyticsEnabled) private var analyticsEnabled = false
+    @AppStorage(UDKey.crashReportingEnabled) private var crashReportingEnabled = true
     
     @State private var showingExportOptions = false
     @State private var showingShareSheet = false

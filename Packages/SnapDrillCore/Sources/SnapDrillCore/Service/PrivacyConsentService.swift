@@ -30,7 +30,7 @@ public final class PrivacyConsentService {
     private let logger = Logger(subsystem: "com.snapdrill.app", category: "Privacy")
 
     /// 用户是否已经做出过追踪授权决策
-    private static let hasRequestedTrackingKey = "privacyConsentRequested"
+    private static let hasRequestedTrackingKey = UDKey.privacyConsentRequested
 
     // MARK: - Initialization
 

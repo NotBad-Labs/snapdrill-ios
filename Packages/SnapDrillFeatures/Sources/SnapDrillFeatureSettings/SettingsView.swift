@@ -30,10 +30,10 @@ public struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var viewModel: SettingsViewModel?
-    @AppStorage("appTintColor") private var appTintColorHex: String = "#007AFF"
-    @AppStorage("userName") private var userName: String = "同学"
-    @AppStorage("userAvatar") private var userAvatar: String = "person.crop.circle.fill"
-    @AppStorage("userAvatarColorIndex") private var userAvatarColorIndex: Int = 0
+    @AppStorage(UDKey.appTintColor) private var appTintColorHex: String = "#007AFF"
+    @AppStorage(UDKey.userName) private var userName: String = "同学"
+    @AppStorage(UDKey.userAvatar) private var userAvatar: String = "person.crop.circle.fill"
+    @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
 
     @State private var showingClearAlert = false
     @State private var showingMail = false
@@ -46,23 +46,23 @@ public struct SettingsView: View {
     @State private var showingGradeManager = false
 
     // iCloud 同步状态（用于数据风险提示）
-    @AppStorage("iCloudSyncEnabled") private var iCloudSyncEnabled: Bool = true
+    @AppStorage(UDKey.iCloudSyncEnabled) private var iCloudSyncEnabled: Bool = true
 
     // 录入字段可见性（产品规格：学科默认开，其余默认关）
-    @AppStorage("captureFieldSubject") private var showSubjectField: Bool = true
-    @AppStorage("captureFieldSource") private var showSourceField: Bool = false
-    @AppStorage("captureFieldDifficulty") private var showDifficultyField: Bool = false
-    @AppStorage("captureFieldGrade") private var showGradeField: Bool = false
-    @AppStorage("captureFieldAnswer") private var showAnswerField: Bool = false
+    @AppStorage(UDKey.captureFieldSubject) private var showSubjectField: Bool = true
+    @AppStorage(UDKey.captureFieldSource) private var showSourceField: Bool = false
+    @AppStorage(UDKey.captureFieldDifficulty) private var showDifficultyField: Bool = false
+    @AppStorage(UDKey.captureFieldGrade) private var showGradeField: Bool = false
+    @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
 
     // Appearance Setting
-    @AppStorage("appearanceMode") private var appearanceMode: Int = 0
-    @AppStorage("cardContextAlignment") private var alignmentRaw: String = "leading"
-    @AppStorage("cardContextFontSize") private var fontSizeRaw: Double = 16.0
+    @AppStorage(UDKey.appearanceMode) private var appearanceMode: Int = 0
+    @AppStorage(UDKey.cardContextAlignment) private var alignmentRaw: String = "leading"
+    @AppStorage(UDKey.cardContextFontSize) private var fontSizeRaw: Double = 16.0
 
     // Front Card Appearance
-    @AppStorage("cardFrontAlignment") private var frontAlignmentRaw: String = "center"
-    @AppStorage("cardFrontFontSize") private var frontFontSizeRaw: Double = 32.0
+    @AppStorage(UDKey.cardFrontAlignment) private var frontAlignmentRaw: String = "center"
+    @AppStorage(UDKey.cardFrontFontSize) private var frontFontSizeRaw: Double = 32.0
 
     // MARK: - Initialization
 

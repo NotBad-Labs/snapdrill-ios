@@ -62,20 +62,20 @@ public final class AnalyticsTrackingService: AnalyticsServiceProtocol {
     // MARK: - Initialization
     
     init() {
-        self.isEnabled = UserDefaults.standard.bool(forKey: "analyticsEnabled")
-        
+        self.isEnabled = UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled)
+
         // 默认禁用（隐私优先）
-        if !UserDefaults.standard.bool(forKey: "analyticsConfigured") {
+        if !UserDefaults.standard.bool(forKey: UDKey.analyticsConfigured) {
             self.isEnabled = false
-            UserDefaults.standard.set(false, forKey: "analyticsEnabled")
-            UserDefaults.standard.set(true, forKey: "analyticsConfigured")
+            UserDefaults.standard.set(false, forKey: UDKey.analyticsEnabled)
+            UserDefaults.standard.set(true, forKey: UDKey.analyticsConfigured)
         }
     }
     
     /// 启用或禁用分析
     public func setEnabled(_ enabled: Bool) {
         isEnabled = enabled
-        UserDefaults.standard.set(enabled, forKey: "analyticsEnabled")
+        UserDefaults.standard.set(enabled, forKey: UDKey.analyticsEnabled)
         logger.info("Analytics \(enabled ? "enabled" : "disabled")")
     }
     
