@@ -51,7 +51,8 @@ public struct ImageStorage: Sendable {
     /// - Returns: 图片的相对路径 (例如 `"images/123-abc.jpg"`)，可用于后续存入数据库
     /// - Throws: `ImageStorageError` 如果图片数据转换失败或文件写入失败
     public func saveImage(_ image: UIImage) async throws -> String {
-        guard let data = image.jpegData(compressionQuality: 0.8) else {
+        let resized = Self.resizedIfNeeded(image, maxLongSide: 2000)
+        guard let data = resized.jpegData(compressionQuality: 0.8) else {
             throw ImageStorageError.invalidImageData
         }
         
@@ -105,6 +106,38 @@ public struct ImageStorage: Sendable {
         
         return UIImage(contentsOfFile: fileURL.path)
     }
+
+    // MARK: - Private Helpers
+
+    #if canImport(UIKit)
+    /// 长边物理像素超过 maxLongSide 时等比缩放，否则原图返回
+    ///
+    /// - Note: 使用 `format.scale = 1.0` 确保按物理像素而非逻辑点渲染，
+    ///   避免 UIGraphicsImageRenderer 默认使用屏幕 scale（@3x）导致图片反而放大。
+    static func resizedIfNeeded(_ image: UIImage, maxLongSide: CGFloat) -> UIImage {
+        // 计算物理像素尺寸（image.size 是逻辑点，需乘以 scale）
+        let pixelWidth = image.size.width * image.scale
+        let pixelHeight = image.size.height * image.scale
+        let longSide = max(pixelWidth, pixelHeight)
+        guard longSide > maxLongSide else { return image }
+
+        let ratio = maxLongSide / longSide
+        let newSize = CGSize(width: pixelWidth * ratio, height: pixelHeight * ratio)
+
+        // scale = 1.0：输出尺寸即物理像素，不受屏幕 scale 影响
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+    }
+    #else
+    /// 非 UIKit 平台 stub，直接返回原图
+    static func resizedIfNeeded(_ image: UIImage, maxLongSide: CGFloat) -> UIImage {
+        image
+    }
+    #endif
 }
 
 /// 图片存储操作错误
