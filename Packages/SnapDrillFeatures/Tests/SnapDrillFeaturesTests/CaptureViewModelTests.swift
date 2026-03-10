@@ -47,9 +47,9 @@ struct CaptureViewModelTests {
     // MARK: - 草稿
 
     @Test("checkDraftOnAppear 有草稿时显示弹窗")
-    func testCheckDraftOnAppear_WithDraft_ShowsAlert() {
+    func testCheckDraftOnAppear_WithDraft_ShowsAlert() async {
         cleanUpDraft()
-        CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
+        await CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
 
         let viewModel = CaptureViewModel(ocrService: MockOCRService())
 
@@ -63,9 +63,9 @@ struct CaptureViewModelTests {
     }
 
     @Test("startEditingDraft 推送路由并清除草稿")
-    func testStartEditingDraft_PushesToRouterAndClearsDraft() {
+    func testStartEditingDraft_PushesToRouterAndClearsDraft() async {
         cleanUpDraft()
-        CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
+        await CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
 
         let viewModel = CaptureViewModel(ocrService: MockOCRService())
         viewModel.checkDraftOnAppear()
@@ -91,9 +91,9 @@ struct CaptureViewModelTests {
     }
 
     @Test("clearDraft 清除草稿")
-    func testClearDraft_RemovesDraft() {
+    func testClearDraft_RemovesDraft() async {
         cleanUpDraft()
-        CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
+        await CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
 
         let viewModel = CaptureViewModel(ocrService: MockOCRService())
         viewModel.checkDraftOnAppear()

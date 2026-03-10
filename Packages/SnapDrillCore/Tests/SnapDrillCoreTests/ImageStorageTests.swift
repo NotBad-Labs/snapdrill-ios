@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2026/03/10.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  ImageStorage 文件 I/O 与缩放逻辑测试。
+//  ImageStorage 文件 I/O 与 ImageIO 下采样逻辑测试。
 
 import Testing
 import Foundation
@@ -50,82 +50,49 @@ struct ImageStorageTests {
         #expect(result == nil)
     }
 
-    // MARK: - resizedIfNeeded & saveImage（UIKit 平台）
+    // MARK: - compressedJPEGData & saveImage（UIKit 平台）
 
     #if canImport(UIKit)
-    @Test("resizedIfNeeded 长边未超限时返回原图")
-    func resizedIfNeeded_withinLimit_returnsOriginal() {
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1.0
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 100, height: 200), format: format)
-        let image = renderer.image { ctx in
-            UIColor.red.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 100, height: 200))
-        }
+    @Test("compressedJPEGData 长边未超限时直接编码不缩放")
+    func compressedJPEGData_withinLimit_noResize() throws {
+        let image = createTestImage(width: 100, height: 200)
 
-        let result = ImageStorage.resizedIfNeeded(image, maxLongSide: 2000)
-        #expect(result === image)
+        let data = try #require(ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8))
+        let decoded = try #require(UIImage(data: data))
+
+        #expect(abs(decoded.size.width - 100) <= 1)
+        #expect(abs(decoded.size.height - 200) <= 1)
     }
 
-    @Test("resizedIfNeeded 长边超限时等比缩放到目标像素")
-    func resizedIfNeeded_exceedsLimit_scalesDown() {
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1.0
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 3000, height: 2000), format: format)
-        let image = renderer.image { ctx in
-            UIColor.blue.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 3000, height: 2000))
-        }
+    @Test("compressedJPEGData 长边超限时通过 ImageIO 下采样")
+    func compressedJPEGData_exceedsLimit_scalesDown() throws {
+        let image = createTestImage(width: 3000, height: 2000)
 
-        let result = ImageStorage.resizedIfNeeded(image, maxLongSide: 2000)
-        let resultPixelWidth = result.size.width * result.scale
-        let resultPixelHeight = result.size.height * result.scale
-        let longSide = max(resultPixelWidth, resultPixelHeight)
+        let data = try #require(ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8))
+        let decoded = try #require(UIImage(data: data))
 
+        let longSide = max(decoded.size.width, decoded.size.height)
         #expect(abs(longSide - 2000) <= 1)
-        let ratio = resultPixelWidth / resultPixelHeight
-        #expect(abs(ratio - 1.5) < 0.01)
+        let ratio = decoded.size.width / decoded.size.height
+        #expect(abs(ratio - 1.5) < 0.02)
     }
 
-    @Test("resizedIfNeeded 高 scale 图片按物理像素计算")
-    func resizedIfNeeded_highScale_usesPixelDimensions() {
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 3.0
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 800, height: 800), format: format)
-        let image = renderer.image { ctx in
-            UIColor.green.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 800, height: 800))
-        }
-
+    @Test("compressedJPEGData 高 scale 图片按物理像素计算")
+    func compressedJPEGData_highScale_usesPixelDimensions() throws {
+        let image = createTestImage(width: 800, height: 800, scale: 3.0)
+        // 物理像素 2400x2400，应触发缩放
         #expect(image.scale == 3.0)
-        let result = ImageStorage.resizedIfNeeded(image, maxLongSide: 2000)
-        let resultLongSide = max(result.size.width * result.scale, result.size.height * result.scale)
-        #expect(abs(resultLongSide - 2000) <= 1)
-    }
 
-    @Test("resizedIfNeeded 输出 scale 为 1.0")
-    func resizedIfNeeded_outputScale_isOne() {
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 2.0
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 2000, height: 1000), format: format)
-        let image = renderer.image { ctx in
-            UIColor.red.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 2000, height: 1000))
-        }
+        let data = try #require(ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8))
+        let decoded = try #require(UIImage(data: data))
 
-        let result = ImageStorage.resizedIfNeeded(image, maxLongSide: 2000)
-        #expect(result.scale == 1.0)
+        let longSide = max(decoded.size.width, decoded.size.height)
+        #expect(abs(longSide - 2000) <= 1)
     }
 
     @Test("saveImage 保存后 loadImage 可读回")
     func saveImage_thenLoad_roundTrip() async throws {
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1.0
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 50, height: 50), format: format)
-        let image = renderer.image { ctx in
-            UIColor.red.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 50, height: 50))
-        }
+        let image = createTestImage(width: 50, height: 50)
 
         let path = try await storage.saveImage(image)
         #expect(path.hasPrefix("images/"))
@@ -136,6 +103,18 @@ struct ImageStorageTests {
 
         // 清理
         try await storage.deleteImage(path: path)
+    }
+
+    // MARK: - Test Helpers
+
+    private func createTestImage(width: CGFloat, height: CGFloat, scale: CGFloat = 1.0) -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height), format: format)
+        return renderer.image { ctx in
+            UIColor.red.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        }
     }
     #endif
 }

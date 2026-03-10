@@ -33,21 +33,21 @@ struct CaptureDraftServiceTests {
     }
 
     @Test("saveDraft 后 hasDraft 为 true")
-    func saveDraft_setsHasDraft() {
+    func saveDraft_setsHasDraft() async {
         cleanup()
         let image = createTestImage()
-        service.saveDraft(image: image, content: "测试内容")
+        await service.saveDraft(image: image, content: "测试内容")
 
         #expect(service.hasDraft == true)
         cleanup()
     }
 
     @Test("saveDraft → loadDraft 内容完整")
-    func saveDraft_thenLoad_contentPreserved() {
+    func saveDraft_thenLoad_contentPreserved() async {
         cleanup()
         let image = createTestImage()
         let content = "OCR 识别文本"
-        service.saveDraft(image: image, content: content)
+        await service.saveDraft(image: image, content: content)
 
         let draft = service.loadDraft()
         #expect(draft != nil)
@@ -57,10 +57,10 @@ struct CaptureDraftServiceTests {
     }
 
     @Test("saveDraft → loadDraft 时间戳合理")
-    func saveDraft_thenLoad_timestampReasonable() {
+    func saveDraft_thenLoad_timestampReasonable() async {
         cleanup()
         let beforeSave = Date()
-        service.saveDraft(image: createTestImage(), content: "")
+        await service.saveDraft(image: createTestImage(), content: "")
         let afterSave = Date()
 
         let draft = service.loadDraft()
@@ -73,9 +73,9 @@ struct CaptureDraftServiceTests {
     }
 
     @Test("clearDraft 后 hasDraft 恢复 false")
-    func clearDraft_resetsState() {
+    func clearDraft_resetsState() async {
         cleanup()
-        service.saveDraft(image: createTestImage(), content: "临时")
+        await service.saveDraft(image: createTestImage(), content: "临时")
         #expect(service.hasDraft == true)
 
         service.clearDraft()
@@ -84,9 +84,9 @@ struct CaptureDraftServiceTests {
     }
 
     @Test("saveDraft 空字符串 content 可正常存取")
-    func saveDraft_emptyContent_roundTrip() {
+    func saveDraft_emptyContent_roundTrip() async {
         cleanup()
-        service.saveDraft(image: createTestImage(), content: "")
+        await service.saveDraft(image: createTestImage(), content: "")
 
         let draft = service.loadDraft()
         #expect(draft?.content == "")
@@ -94,10 +94,10 @@ struct CaptureDraftServiceTests {
     }
 
     @Test("连续 saveDraft 覆盖旧草稿")
-    func saveDraft_twice_overwritesPrevious() {
+    func saveDraft_twice_overwritesPrevious() async {
         cleanup()
-        service.saveDraft(image: createTestImage(), content: "第一次")
-        service.saveDraft(image: createTestImage(), content: "第二次")
+        await service.saveDraft(image: createTestImage(), content: "第一次")
+        await service.saveDraft(image: createTestImage(), content: "第二次")
 
         let draft = service.loadDraft()
         #expect(draft?.content == "第二次")
@@ -105,10 +105,10 @@ struct CaptureDraftServiceTests {
     }
 
     @Test("saveDraft 含 Unicode 特殊字符")
-    func saveDraft_unicodeContent_preserved() {
+    func saveDraft_unicodeContent_preserved() async {
         cleanup()
         let content = "∫₀^∞ e⁻ˣ dx = 1\n👨‍👩‍👧‍👦"
-        service.saveDraft(image: createTestImage(), content: content)
+        await service.saveDraft(image: createTestImage(), content: content)
 
         let draft = service.loadDraft()
         #expect(draft?.content == content)

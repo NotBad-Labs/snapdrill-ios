@@ -142,7 +142,7 @@ public final class PDFExportService {
 @MainActor
 public protocol CaptureDraftServiceProtocol {
     var hasDraft: Bool { get }
-    func saveDraft(image: UIImage, content: String)
+    func saveDraft(image: UIImage, content: String) async
     func loadDraft() -> CaptureDraftService.Draft?
     func clearDraft()
 }
@@ -153,7 +153,7 @@ public protocol CaptureDraftServiceProtocol {
 public final class CaptureDraftService: CaptureDraftServiceProtocol {
     public static let shared: CaptureDraftService
     public var hasDraft: Bool { get }
-    public func saveDraft(image: UIImage, content: String)
+    public func saveDraft(image: UIImage, content: String) async
     public func loadDraft() -> Draft?
     public func clearDraft()
 
@@ -446,6 +446,10 @@ public init(ocrService: OCRServiceProtocol = OCRService())
 public init(content: String, image: UIImage?, repositories: RepositoryContainer,
             ocrService: OCRServiceProtocol, analyticsService: AnalyticsServiceProtocol,
             imageStorage: ImageStorage = ImageStorage(), router: CaptureRouter)
+public func save()                         // 触发保存并存储 Task 句柄（由 View 调用）
+public func saveResult() async             // 保存正式题目（内部实现）
+public func generateDraftIfNeeded() async  // 保存预览草稿（async，测试可直接 await）
+public func saveDraftOnDisappear()         // 触发草稿保存并存储 Task 句柄（由 View 的 onDisappear 调用）
 
 // LibraryEditViewModel
 public init(item: ReviewItemModel, repositories: RepositoryContainer,

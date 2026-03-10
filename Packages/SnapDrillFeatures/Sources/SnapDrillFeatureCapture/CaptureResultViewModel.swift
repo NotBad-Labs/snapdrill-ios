@@ -60,6 +60,8 @@ public final class CaptureResultViewModel {
     public var isCropping = false
     /// 是否已成功保存（用于触发返回导航）
     public var isSaved = false
+    /// 是否正在执行保存操作（防止双击重复写入）
+    public var isSaving = false
     /// 是否弹出错误提示
     public var showErrorAlert = false
     /// 错误提示文本
@@ -105,6 +107,12 @@ public final class CaptureResultViewModel {
     /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
     private var photoLoadTask: Task<Void, Never>?
+    /// 保存任务句柄（页面退出时可取消，避免状态不一致）
+    @ObservationIgnored
+    private var saveTask: Task<Void, Never>?
+    /// 草稿保存任务句柄（onDisappear 触发，best-effort）
+    @ObservationIgnored
+    private var draftSaveTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -137,12 +145,17 @@ public final class CaptureResultViewModel {
 
     // MARK: - Public API
 
-    /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）
+    /// 取消进行中的异步任务（由 View 的 onDisappear 调用）
+    ///
+    /// 不取消 `draftSaveTask`：草稿保存是 best-effort 操作，
+    /// 即使页面消失也应允许其完成，否则用户的编辑内容会丢失。
     public func cancelTasks() {
         recognitionTask?.cancel()
         recognitionTask = nil
         photoLoadTask?.cancel()
         photoLoadTask = nil
+        saveTask?.cancel()
+        saveTask = nil
     }
 
     /// 加载默认表单数据
@@ -218,10 +231,30 @@ public final class CaptureResultViewModel {
         self.isCropping = false
     }
 
-    /// 保存预览草稿（离开时触发）
-    public func generateDraftIfNeeded() {
+    /// 保存预览草稿（async，文件 I/O 在后台执行；测试可直接 await）
+    public func generateDraftIfNeeded() async {
         if !isSaved, let img = image, !content.isEmpty {
-            CaptureDraftService.shared.saveDraft(image: img, content: content)
+            await CaptureDraftService.shared.saveDraft(image: img, content: content)
+        }
+    }
+
+    /// 触发草稿保存并存储 Task 句柄（由 View 的 onDisappear 调用）
+    public func saveDraftOnDisappear() {
+        draftSaveTask = Task {
+            await generateDraftIfNeeded()
+        }
+    }
+
+    /// 触发保存并存储 Task 句柄（由 View 调用，替代裸 Task 包裹）
+    ///
+    /// 使用 `isSaving` 布尔锁而非 `Task.cancel()` 防双击：
+    /// `saveResult()` 内部无 `checkCancellation()` 检查点，cancel 无法实际阻止旧任务执行。
+    public func save() {
+        guard !isSaving else { return }
+        isSaving = true
+        saveTask = Task {
+            defer { self.isSaving = false }
+            await saveResult()
         }
     }
 
