@@ -100,10 +100,8 @@ final class LibraryViewModelTests {
 
         let vm = createVM()
         vm.selectedSubjects = ["数学"]
-        // 等待防抖完成
-        try await Task.sleep(nanoseconds: 400_000_000)
-
-        #expect(vm.filteredItems.count == 1)
+        // 轮询等待防抖完成（替代固定 400ms sleep）
+        try await waitUntil { vm.filteredItems.count == 1 }
         #expect(vm.filteredItems.first?.content == "数学题")
     }
 
@@ -114,9 +112,7 @@ final class LibraryViewModelTests {
 
         let vm = createVM()
         vm.searchText = "函数"
-        try await Task.sleep(nanoseconds: 400_000_000)
-
-        #expect(vm.filteredItems.count == 1)
+        try await waitUntil { vm.filteredItems.count == 1 }
         #expect(vm.filteredItems.first?.content == "二次函数题")
     }
 
@@ -127,13 +123,10 @@ final class LibraryViewModelTests {
 
         let vm = createVM()
         vm.selectedSubjects = ["数学"]
-        try await Task.sleep(nanoseconds: 400_000_000)
-        #expect(vm.filteredItems.count == 1)
+        try await waitUntil { vm.filteredItems.count == 1 }
 
         vm.resetFilters()
-        try await Task.sleep(nanoseconds: 400_000_000)
-
-        #expect(vm.filteredItems.count == 2)
+        try await waitUntil { vm.filteredItems.count == 2 }
         #expect(vm.searchText.isEmpty)
         #expect(vm.selectedSubjects.isEmpty)
         #expect(vm.selectedTags.isEmpty)

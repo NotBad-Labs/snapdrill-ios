@@ -14,6 +14,35 @@ import UIKit
 @testable import SnapDrillData
 @testable import SnapDrillFeatureCapture
 
+// MARK: - Polling Helper
+
+/// 轮询等待条件满足，替代 Task.sleep 固定等待
+///
+/// 每 10ms 检查一次条件，条件满足立即返回；超时则抛出错误。
+/// 比固定 sleep 更确定性（条件满足即返回）且更快（不必等满固定时长）。
+///
+/// - Parameters:
+///   - timeout: 最大等待时间（默认 2 秒，覆盖 CI 慢速场景）
+///   - description: 超时时的错误描述
+///   - condition: 检查条件闭包
+@MainActor
+func waitUntil(
+    timeout: Duration = .seconds(2),
+    _ description: String = "条件未在超时前满足",
+    condition: @escaping () -> Bool
+) async throws {
+    let deadline = ContinuousClock.now + timeout
+    while !condition() {
+        guard ContinuousClock.now < deadline else {
+            struct WaitTimeoutError: Error, CustomStringConvertible {
+                let description: String
+            }
+            throw WaitTimeoutError(description: description)
+        }
+        try await Task.sleep(for: .milliseconds(10))
+    }
+}
+
 // MARK: - Image Helper
 
 /// 创建 1x1 测试图片（无文件 IO）
