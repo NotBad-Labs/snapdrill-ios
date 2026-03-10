@@ -7,15 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A01B35A73AF8EB04AE89C531 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878FD4D1374D5FB2E8EC65BA /* ShareViewController.swift */; };
 		AG_BF_CAPTURE /* SnapDrillFeatureCapture in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_CAPTURE /* SnapDrillFeatureCapture */; };
+		AG_BF_DASHBOARD /* SnapDrillFeatureDashboard in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */; };
 		AG_BF_LIBRARY /* SnapDrillFeatureLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */; };
 		AG_BF_REVIEW /* SnapDrillFeatureReview in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_REVIEW /* SnapDrillFeatureReview */; };
-		AG_BF_DASHBOARD /* SnapDrillFeatureDashboard in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */; };
 		AG_BF_SETTINGS /* SnapDrillFeatureSettings in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_SETTINGS /* SnapDrillFeatureSettings */; };
 		B2INFRA_BF /* SnapDrillInfrastructure in Frameworks */ = {isa = PBXBuildFile; productRef = B2INFRA_PROD /* SnapDrillInfrastructure */; };
+		B8989386BBFDC051AA9CE0CC /* SnapDrillShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		EEE65CAC5AB70C45F3AD6138 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA32671808D3119C17D44A68 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		476BBD2C3C76074DFC775765 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B27BD9572E560D0600E69277 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1461CA3057053272D0AE578A;
+			remoteInfo = SnapDrillShare;
+		};
 		B27BD97B2E560D0800E69277 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B27BD9572E560D0600E69277 /* Project object */;
@@ -25,14 +35,33 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		D986938E14E3A8A9CD01A0AD /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B8989386BBFDC051AA9CE0CC /* SnapDrillShare.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		0E66BDA302EA72542A2B2DE8 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = SnapDrill/Assets.xcassets; sourceTree = "<group>"; };
+		878FD4D1374D5FB2E8EC65BA /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		B27BD95F2E560D0600E69277 /* SnapDrill.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapDrill.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27BD97A2E560D0800E69277 /* SnapDrillUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapDrillUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2B4A4B62F04F25600209449 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		B2B4A4B72F04F26F00209449 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		B2BE0C9C2E727CC6001369C3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B2F0D1002F00000100AAA001 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		BF7AEDC6657987201B810182 /* SnapDrillShare.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = SnapDrillShare.entitlements; sourceTree = "<group>"; };
+		CA32671808D3119C17D44A68 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SnapDrillShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E0555FD25CF9F78E20E8A85B /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F17B54872F5883A90005C752 /* GDTCCTWatchOSTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GDTCCTWatchOSTestApp.xcodeproj; sourceTree = "<group>"; };
 		F17B55272F5883A90005C752 /* GDTWatchOSTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GDTWatchOSTestApp.xcodeproj; sourceTree = "<group>"; };
 		F17B6E692F5885210005C752 /* FirebasePodTest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FirebasePodTest.xcodeproj; sourceTree = "<group>"; };
@@ -111,22 +140,36 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B27BD9612E560D0700E69277 /* SnapDrill */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = SnapDrill;
 			sourceTree = "<group>";
 		};
 		B27BD97D2E560D0800E69277 /* SnapDrillUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = SnapDrillUITests;
 			sourceTree = "<group>";
 		};
 		B2PACKAGES001 /* Packages */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Packages;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		24F971F2A3D59C9E4CDF83E8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEE65CAC5AB70C45F3AD6138 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B27BD95C2E560D0600E69277 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -150,6 +193,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0086BEF0ADB6D0B77CC1C815 /* SnapDrillShare */ = {
+			isa = PBXGroup;
+			children = (
+				878FD4D1374D5FB2E8EC65BA /* ShareViewController.swift */,
+				E0555FD25CF9F78E20E8A85B /* Info.plist */,
+				BF7AEDC6657987201B810182 /* SnapDrillShare.entitlements */,
+			);
+			name = SnapDrillShare;
+			path = SnapDrillShare;
+			sourceTree = "<group>";
+		};
 		19969A73D6FBAE29E8E5BCAE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -158,9 +212,18 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		795C2B77E338BFABF19FE66A /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				CA32671808D3119C17D44A68 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
 		B26C37822EE41DA5008D46F5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				795C2B77E338BFABF19FE66A /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -178,6 +241,7 @@
 				B2B4A4B62F04F25600209449 /* Debug.xcconfig */,
 				B2B4A4B72F04F26F00209449 /* Release.xcconfig */,
 				19969A73D6FBAE29E8E5BCAE /* Resources */,
+				0086BEF0ADB6D0B77CC1C815 /* SnapDrillShare */,
 			);
 			sourceTree = "<group>";
 		};
@@ -186,6 +250,7 @@
 			children = (
 				B27BD95F2E560D0600E69277 /* SnapDrill.app */,
 				B27BD97A2E560D0800E69277 /* SnapDrillUITests.xctest */,
+				D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -704,6 +769,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1461CA3057053272D0AE578A /* SnapDrillShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 767557A5F06687F85BBC7251 /* Build configuration list for PBXNativeTarget "SnapDrillShare" */;
+			buildPhases = (
+				DBC297D6BC723240E1501B37 /* Sources */,
+				24F971F2A3D59C9E4CDF83E8 /* Frameworks */,
+				BD3639BF35EFBE799B6261FF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SnapDrillShare;
+			productName = SnapDrillShare;
+			productReference = D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		B27BD95E2E560D0600E69277 /* SnapDrill */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B27BD9832E560D0800E69277 /* Build configuration list for PBXNativeTarget "SnapDrill" */;
@@ -712,10 +794,12 @@
 				B27BD95B2E560D0600E69277 /* Sources */,
 				B27BD95C2E560D0600E69277 /* Frameworks */,
 				B27BD95D2E560D0600E69277 /* Resources */,
+				D986938E14E3A8A9CD01A0AD /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0B1EAB07FC58E6A9E95EA481 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B27BD9612E560D0700E69277 /* SnapDrill */,
@@ -787,11 +871,11 @@
 			mainGroup = B27BD9562E560D0600E69277;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */,
-				B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/SnapDrillCore" */,
-				B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/SnapDrillData" */,
-				B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */,
-				B2PKG_INFRA /* XCLocalSwiftPackageReference "Packages/SnapDrillInfrastructure" */,
+				AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */,
+				B2PKG_CORE /* XCLocalSwiftPackageReference "SnapDrillCore" */,
+				B2PKG_DATA /* XCLocalSwiftPackageReference "SnapDrillData" */,
+				B2PKG_UI /* XCLocalSwiftPackageReference "SnapDrillUI" */,
+				B2PKG_INFRA /* XCLocalSwiftPackageReference "SnapDrillInfrastructure" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B27BD9602E560D0600E69277 /* Products */;
@@ -1094,6 +1178,7 @@
 			targets = (
 				B27BD95E2E560D0600E69277 /* SnapDrill */,
 				B27BD9792E560D0800E69277 /* SnapDrillUITests */,
+				1461CA3057053272D0AE578A /* SnapDrillShare */,
 			);
 		};
 /* End PBXProject section */
@@ -1107,6 +1192,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B27BD9782E560D0800E69277 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD3639BF35EFBE799B6261FF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1152,9 +1244,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DBC297D6BC723240E1501B37 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A01B35A73AF8EB04AE89C531 /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0B1EAB07FC58E6A9E95EA481 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SnapDrillShare;
+			target = 1461CA3057053272D0AE578A /* SnapDrillShare */;
+			targetProxy = 476BBD2C3C76074DFC775765 /* PBXContainerItemProxy */;
+		};
 		B27BD97C2E560D0800E69277 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B27BD95E2E560D0600E69277 /* SnapDrill */;
@@ -1163,6 +1269,33 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		89A188B89E94F98F1A1943CA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = SnapDrillShare/SnapDrillShare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = W5A8THDKW8;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SnapDrillShare/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.3;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		B27BD9842E560D0800E69277 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1175,6 +1308,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.app</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
 				INFOPLIST_KEY_NSCameraUsageDescription = "小本本需要相机权限以扫描录入错题。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "小本本需要相册权限以导入复习资料。";
 				INFOPLIST_KEY_NSUserTrackingUsageDescription = "小本本需要此权限以衡量功能使用情况，持续改进您的学习体验。";
@@ -1210,6 +1344,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.app</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
 				INFOPLIST_KEY_NSCameraUsageDescription = "小本本需要相机权限以扫描录入错题。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "小本本需要相册权限以导入复习资料。";
 				INFOPLIST_KEY_NSUserTrackingUsageDescription = "小本本需要此权限以衡量功能使用情况，持续改进您的学习体验。";
@@ -1394,9 +1529,44 @@
 			};
 			name = Release;
 		};
+		C32C510541F7E2AA7CB1DA27 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = SnapDrillShare/SnapDrillShare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = W5A8THDKW8;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SnapDrillShare/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.3;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		767557A5F06687F85BBC7251 /* Build configuration list for PBXNativeTarget "SnapDrillShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				89A188B89E94F98F1A1943CA /* Release */,
+				C32C510541F7E2AA7CB1DA27 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B27BD95A2E560D0600E69277 /* Build configuration list for PBXProject "SnapDrill" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1427,23 +1597,23 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */ = {
+		AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillFeatures;
 		};
-		B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/SnapDrillCore" */ = {
+		B2PKG_CORE /* XCLocalSwiftPackageReference "SnapDrillCore" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillCore;
 		};
-		B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/SnapDrillData" */ = {
+		B2PKG_DATA /* XCLocalSwiftPackageReference "SnapDrillData" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillData;
 		};
-		B2PKG_INFRA /* XCLocalSwiftPackageReference "Packages/SnapDrillInfrastructure" */ = {
+		B2PKG_INFRA /* XCLocalSwiftPackageReference "SnapDrillInfrastructure" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillInfrastructure;
 		};
-		B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */ = {
+		B2PKG_UI /* XCLocalSwiftPackageReference "SnapDrillUI" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillUI;
 		};
@@ -1452,32 +1622,32 @@
 /* Begin XCSwiftPackageProductDependency section */
 		AG_PROD_CAPTURE /* SnapDrillFeatureCapture */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
 			productName = SnapDrillFeatureCapture;
+		};
+		AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
+			productName = SnapDrillFeatureDashboard;
 		};
 		AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
 			productName = SnapDrillFeatureLibrary;
 		};
 		AG_PROD_REVIEW /* SnapDrillFeatureReview */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
 			productName = SnapDrillFeatureReview;
-		};
-		AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
-			productName = SnapDrillFeatureDashboard;
 		};
 		AG_PROD_SETTINGS /* SnapDrillFeatureSettings */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
 			productName = SnapDrillFeatureSettings;
 		};
 		B2INFRA_PROD /* SnapDrillInfrastructure */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B2PKG_INFRA /* XCLocalSwiftPackageReference "Packages/SnapDrillInfrastructure" */;
+			package = B2PKG_INFRA /* XCLocalSwiftPackageReference "SnapDrillInfrastructure" */;
 			productName = SnapDrillInfrastructure;
 		};
 /* End XCSwiftPackageProductDependency section */

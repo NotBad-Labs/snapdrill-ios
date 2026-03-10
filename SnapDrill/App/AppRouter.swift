@@ -10,6 +10,7 @@
 
 import SwiftUI
 import Observation
+import UIKit
 import SnapDrillFeatureCapture
 import SnapDrillFeatureLibrary
 import SnapDrillFeatureReview
@@ -77,5 +78,35 @@ final class AppRouter {
         reviewRouter.onNavigateToCapture = { [weak self] in
             self?.selectedTab = .capture
         }
+    }
+
+    // MARK: - Public API
+
+    /// App Groups 共享容器标识符
+    private static let appGroupID = "group.com.snapdrill.app"
+    /// 待处理图片在共享容器中的文件名（与 ShareViewController 一致）
+    private static let pendingFileName = "pending_share.jpg"
+
+    /// 处理 Share Extension 传入的深链接
+    ///
+    /// 从 App Groups 共享容器读取待处理图片，切换到采集 Tab 并进入 OCR 编辑流程。
+    /// 处理完成后自动清理临时文件。
+    func handleShareExtensionURL() {
+        guard let containerURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: Self.appGroupID
+        ) else { return }
+
+        let pendingURL = containerURL.appendingPathComponent(Self.pendingFileName)
+        guard FileManager.default.fileExists(atPath: pendingURL.path),
+              let data = try? Data(contentsOf: pendingURL),
+              let image = UIImage(data: data) else { return }
+
+        // 清理临时文件
+        try? FileManager.default.removeItem(at: pendingURL)
+
+        // 切换到采集 Tab，重置导航栈后推入编辑页
+        selectedTab = .capture
+        captureRouter.path = NavigationPath()
+        captureRouter.push(.scannerResult(content: "", image: image))
     }
 }
