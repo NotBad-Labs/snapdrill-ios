@@ -10,6 +10,8 @@
 
 import SwiftUI
 import Observation
+import UIKit
+import SnapDrillCore
 import SnapDrillFeatureCapture
 import SnapDrillFeatureLibrary
 import SnapDrillFeatureReview
@@ -76,6 +78,54 @@ final class AppRouter {
         
         reviewRouter.onNavigateToCapture = { [weak self] in
             self?.selectedTab = .capture
+        }
+    }
+
+    // MARK: - Public API
+
+    /// App Groups 共享容器标识符
+    private static let appGroupID = "group.com.snapdrill.app"
+
+    /// 处理 Share Extension 传入的深链接
+    ///
+    /// 从 URL 参数中解析文件名，在 App Groups 共享容器中读取对应图片，
+    /// 切换到采集 Tab 并进入 OCR 编辑流程。处理完成后自动清理临时文件。
+    ///
+    /// - Parameter url: 深链接 URL，格式为 `snapdrill://share?file=<UUID>.jpg`
+    func handleShareExtensionURL(_ url: URL) {
+        // 解析文件名参数
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let fileName = components.queryItems?.first(where: { $0.name == "file" })?.value,
+              !fileName.isEmpty else {
+            SnapDrillLogger.capture.error("Share Extension URL 缺少 file 参数: \(url.absoluteString)")
+            return
+        }
+
+        guard let containerURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: Self.appGroupID
+        ) else {
+            SnapDrillLogger.capture.error("无法获取 App Groups 共享容器路径")
+            return
+        }
+
+        let pendingURL = containerURL.appendingPathComponent(fileName)
+        guard FileManager.default.fileExists(atPath: pendingURL.path),
+              let data = try? Data(contentsOf: pendingURL),
+              let image = UIImage(data: data) else {
+            SnapDrillLogger.capture.error("无法读取共享容器中的图片文件: \(fileName)")
+            return
+        }
+
+        // 清理临时文件
+        try? FileManager.default.removeItem(at: pendingURL)
+
+        // 先切换 Tab 并重置导航栈，延迟一个 RunLoop 周期后再 push，
+        // 避免 Tab 切换动画与导航 push 在同一帧竞争导致 push 丢失
+        selectedTab = .capture
+        captureRouter.path = NavigationPath()
+        Task {
+            try? await Task.sleep(for: .milliseconds(100))
+            captureRouter.push(.scannerResult(content: "", image: image))
         }
     }
 }
