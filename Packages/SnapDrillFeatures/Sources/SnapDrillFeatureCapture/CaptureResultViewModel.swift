@@ -143,7 +143,10 @@ public final class CaptureResultViewModel {
 
     // MARK: - Public API
 
-    /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）
+    /// 取消进行中的异步任务（由 View 的 onDisappear 调用）
+    ///
+    /// 不取消 `draftSaveTask`：草稿保存是 best-effort 操作，
+    /// 即使页面消失也应允许其完成，否则用户的编辑内容会丢失。
     public func cancelTasks() {
         recognitionTask?.cancel()
         recognitionTask = nil
@@ -151,8 +154,6 @@ public final class CaptureResultViewModel {
         photoLoadTask = nil
         saveTask?.cancel()
         saveTask = nil
-        draftSaveTask?.cancel()
-        draftSaveTask = nil
     }
 
     /// 加载默认表单数据
@@ -244,6 +245,8 @@ public final class CaptureResultViewModel {
 
     /// 触发保存并存储 Task 句柄（由 View 调用，替代裸 Task 包裹）
     public func save() {
+        // 取消前一个未完成的保存任务（防止快速双击导致并发写入）
+        saveTask?.cancel()
         saveTask = Task {
             await saveResult()
         }
