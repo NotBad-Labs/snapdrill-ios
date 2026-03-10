@@ -78,6 +78,8 @@ public final class CaptureViewModel {
     }
     
     /// 加载相册图片并触发 OCR 识别流程
+    ///
+    /// 同时将原图存入 `router.originalAlbumImage`，用于连续裁剪模式。
     public func loadPhoto(_ item: PhotosPickerItem, router: CaptureRouter) {
         isProcessing = true
         photoLoadTask = Task {
@@ -85,6 +87,8 @@ public final class CaptureViewModel {
                 if let data = try await item.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
                     guard !Task.isCancelled else { return }
+                    // 存储原图用于连续裁剪（保存后可从同一张图裁剪不同区域）
+                    router.originalAlbumImage = image
                     await processImageOCR(image, router: router)
                 } else {
                     guard !Task.isCancelled else { return }
