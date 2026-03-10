@@ -13,6 +13,7 @@ import Observation
 import SnapDrillCore
 import SnapDrillUI
 import UIKit
+import PDFKit
 
 /// 采集模块导航目标
 public enum CaptureDestination: Hashable {
@@ -20,6 +21,8 @@ public enum CaptureDestination: Hashable {
     case placeholder
     /// 扫描结果预览/编辑页面 (含图片)
     case scannerResult(content: String, image: UIImage?)
+    /// PDF 页面选择器（文档存储在 CaptureRouter.pdfDocument 中）
+    case pdfPagePicker
 }
 
 /// 采集模块路由器
@@ -43,6 +46,8 @@ public final class CaptureRouter: FeatureRouter {
     public var path = NavigationPath()
     /// 保存成功后置 true，CaptureView 监听此标志自动重新打开摄像头（连续录入）
     public var shouldReopenScanner = false
+    /// PDF 导入时暂存的文档对象（PDFDocument 非 Hashable，无法通过 NavigationPath 传递）
+    public var pdfDocument: PDFDocument?
     /// 目标类型别名
     public typealias Destination = CaptureDestination
     

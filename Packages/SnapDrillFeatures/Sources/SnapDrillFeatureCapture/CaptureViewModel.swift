@@ -13,6 +13,7 @@ import Observation
 import SnapDrillCore
 import SwiftUI
 import PhotosUI
+import PDFKit
 
 /// 采集功能主 ViewModel
 ///
@@ -37,6 +38,8 @@ public final class CaptureViewModel {
     public var showErrorAlert = false
     /// 错误提示文本
     public var errorMessage = ""
+    /// 是否正在显示 PDF 文件选择器
+    public var isShowingPDFPicker = false
     
     // MARK: - Dependencies
     
@@ -121,6 +124,45 @@ public final class CaptureViewModel {
         }
     }
     
+    /// 加载 PDF 文件并存入 Router，跳转到页面选择器
+    ///
+    /// 在安全域权限窗口内用 `Data(contentsOf:)` 完整读取文件数据，
+    /// 再通过 `PDFDocument(data:)` 构建文档对象，避免权限释放后懒加载失败。
+    ///
+    /// - Parameters:
+    ///   - url: 用户选择的 PDF 文件路径
+    ///   - router: 采集模块路由器
+    public func loadPDF(_ url: URL, router: CaptureRouter) {
+        isProcessing = true
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if accessing { url.stopAccessingSecurityScopedResource() }
+            isProcessing = false
+        }
+
+        // 在安全域权限窗口内完整读取数据，避免 PDFDocument 懒加载时权限已失效
+        guard let data = try? Data(contentsOf: url) else {
+            errorMessage = "无法读取 PDF 文件"
+            showErrorAlert = true
+            return
+        }
+
+        guard let document = PDFDocument(data: data) else {
+            errorMessage = "无法打开 PDF 文件"
+            showErrorAlert = true
+            return
+        }
+
+        guard document.pageCount > 0 else {
+            errorMessage = "PDF 文件不包含任何页面"
+            showErrorAlert = true
+            return
+        }
+
+        router.pdfDocument = document
+        router.push(.pdfPagePicker)
+    }
+
     // MARK: - Private Logic
     
     private func processImageOCR(_ image: UIImage, router: CaptureRouter) async {

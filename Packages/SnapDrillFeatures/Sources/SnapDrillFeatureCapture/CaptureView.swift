@@ -14,6 +14,7 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillData
 import PhotosUI
+import UniformTypeIdentifiers
 
 /// 采集功能界面
 ///
@@ -108,9 +109,21 @@ public struct CaptureView: View {
                             ) {
                                 viewModel.pasteFromClipboard(router: router)
                             }
+
                         }
                         .padding(.horizontal)
-                        
+
+                        // 5. PDF Import（独立全宽行，避免 2 列网格奇数不对称）
+                        CaptureMethodCard(
+                            icon: "doc.richtext",
+                            title: "PDF 导入",
+                            subtitle: "从文件选择 PDF",
+                            color: .red
+                        ) {
+                            viewModel.isShowingPDFPicker = true
+                        }
+                        .padding(.horizontal)
+
                         Spacer()
                     }
                     .padding(.top)
@@ -152,6 +165,8 @@ public struct CaptureView: View {
                     )
                     CaptureResultView(viewModel: resultViewModel)
 
+                case .pdfPagePicker:
+                    PDFPagePickerView(router: router)
                 }
             }
             // Scanner Sheet
@@ -185,6 +200,13 @@ public struct CaptureView: View {
             .onDisappear {
                 viewModel.cancelOngoingTasks()
             }
+            // 导航栈回到根视图时释放 PDF 文档内存（不能在 PDFPagePickerView.onDisappear 中清理，
+            // 因为 NavigationStack push 新页面时也会触发子视图的 onDisappear）
+            .onChange(of: router.path) {
+                if router.path.isEmpty {
+                    router.pdfDocument = nil
+                }
+            }
             .alert("恢复草稿", isPresented: $viewModel.showDraftAlert) {
                 Button("继续编辑") {
                     viewModel.startEditingDraft(router: router)
@@ -194,6 +216,20 @@ public struct CaptureView: View {
                 }
             } message: {
                 Text("检测到未保存的采集内容，是否恢复？")
+            }
+            .fileImporter(
+                isPresented: $viewModel.isShowingPDFPicker,
+                allowedContentTypes: [.pdf],
+                allowsMultipleSelection: false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    guard let url = urls.first else { return }
+                    viewModel.loadPDF(url, router: router)
+                case .failure(let error):
+                    viewModel.errorMessage = "选择文件失败: \(error.localizedDescription)"
+                    viewModel.showErrorAlert = true
+                }
             }
             .alert("错误", isPresented: $viewModel.showErrorAlert) {
                 Button("确定", role: .cancel) { }
