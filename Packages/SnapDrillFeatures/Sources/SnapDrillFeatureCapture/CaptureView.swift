@@ -200,10 +200,14 @@ public struct CaptureView: View {
                 }
             }
             // 连续裁剪：保存成功后自动弹出裁剪器（相册导入模式，同一张原图裁剪不同区域）
+            // 延迟弹出：等退栈动画完成后再呈现 fullScreenCover，避免同帧竞争
             .onChange(of: router.shouldContinuousCrop) { _, shouldCrop in
                 if shouldCrop {
                     router.shouldContinuousCrop = false
-                    isShowingContinuousCropper = true
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(150))
+                        isShowingContinuousCropper = true
+                    }
                 }
             }
             .fullScreenCover(isPresented: $isShowingContinuousCropper) {
@@ -232,8 +236,11 @@ public struct CaptureView: View {
             .onChange(of: router.path) {
                 if router.path.isEmpty {
                     router.pdfDocument = nil
-                    // 不在此清理 originalAlbumImage：连续裁剪模式下
-                    // path 会在每次保存后变为 empty，需保留原图供下次裁剪
+                    // 精准区分：shouldContinuousCrop 在 saveResult 中同步设置且先于退栈，
+                    // 若此标志为 false，说明是用户手动点返回，需释放原图内存
+                    if !router.shouldContinuousCrop {
+                        router.originalAlbumImage = nil
+                    }
                 }
             }
             .alert("恢复草稿", isPresented: $viewModel.showDraftAlert) {

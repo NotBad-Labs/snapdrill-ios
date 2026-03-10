@@ -344,15 +344,24 @@ public final class CaptureResultViewModel {
     /// 保存成功后的导航：连续裁剪模式弹出裁剪器，拍照模式重新打开摄像头
     private func navigateAfterSave() {
         CaptureDraftService.shared.clearDraft()
-        if !router.path.isEmpty {
-            router.path.removeLast()
-        }
 
-        // 连续裁剪模式：相册导入时保存后自动弹出裁剪器（同一张原图裁剪不同区域）
-        // 非相册导入（拍照/手动/粘贴板）：走原有逻辑重新打开摄像头
+        // 连续裁剪模式：同步设置标志（供 CaptureView 的 path onChange 判断是否保留原图），
+        // 退栈后延迟触发裁剪器弹出，避免退栈动画与 fullScreenCover 在同帧竞争
         if router.originalAlbumImage != nil {
             router.shouldContinuousCrop = true
+            if !router.path.isEmpty {
+                router.path.removeLast()
+            }
+        } else if router.pdfDocument != nil {
+            // PDF 模式：仅退栈，不触发摄像头（PDF 有自己的页面选择流程）
+            if !router.path.isEmpty {
+                router.path.removeLast()
+            }
         } else {
+            // 拍照/手动/粘贴板模式：退栈并重新打开摄像头
+            if !router.path.isEmpty {
+                router.path.removeLast()
+            }
             router.shouldReopenScanner = true
         }
     }
