@@ -59,8 +59,14 @@ public struct OnboardingView: View {
         self.onComplete = onComplete
     }
     
+    /// 总页数（介绍页 + 字段选择页）
+    private var totalPages: Int { pages.count + 1 }
+
+    /// 字段选择页的 tag 索引
+    private var fieldSelectionIndex: Int { pages.count }
+
     // MARK: - Body
-    
+
     public var body: some View {
         VStack(spacing: 0) {
             // 跳过按钮
@@ -72,17 +78,19 @@ public struct OnboardingView: View {
                 .foregroundStyle(.secondary)
                 .padding()
             }
-            
+
             // 页面内容
             TabView(selection: $currentPage) {
                 ForEach(Array(pages.enumerated()), id: \.element.id) { index, page in
                     OnboardingPageView(page: page)
                         .tag(index)
                 }
+                FieldSelectionOnboardingView()
+                    .tag(fieldSelectionIndex)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
-            
+
             // 底部按钮
             HStack(spacing: 16) {
                 if currentPage > 0 {
@@ -93,11 +101,11 @@ public struct OnboardingView: View {
                     }
                     .buttonStyle(.bordered)
                 }
-                
+
                 Spacer()
-                
-                Button(currentPage == pages.count - 1 ? "开始使用" : "下一页") {
-                    if currentPage == pages.count - 1 {
+
+                Button(currentPage == totalPages - 1 ? "开始使用" : "下一页") {
+                    if currentPage == totalPages - 1 {
                         completeOnboarding()
                     } else {
                         withAnimation {
@@ -295,6 +303,75 @@ public extension OnboardingPage {
             systemImage: "square.and.arrow.up.fill"
         )
     ]
+}
+
+// MARK: - Field Selection
+
+/// Onboarding 字段选择页，让用户在首次使用前配置录入字段
+struct FieldSelectionOnboardingView: View {
+
+    @AppStorage(UDKey.captureFieldSubject) private var showSubjectField = true
+    @AppStorage(UDKey.captureFieldSource) private var showSourceField = false
+    @AppStorage(UDKey.captureFieldDifficulty) private var showDifficultyField = false
+    @AppStorage(UDKey.captureFieldGrade) private var showGradeField = false
+    @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField = false
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Image(systemName: "slider.horizontal.3")
+                .font(.system(size: 80))
+                .foregroundStyle(.blue)
+                .accessibleImage(label: "字段配置")
+
+            Text("选择录入字段")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .accessibleHeader("选择录入字段")
+
+            Text("选择录入题目时需要填写的字段，之后可在设置中随时调整")
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+
+            VStack(spacing: 0) {
+                fieldToggle("学科", icon: "folder.fill", isOn: $showSubjectField)
+                Divider().padding(.leading, 52)
+                fieldToggle("来源", icon: "doc.text.fill", isOn: $showSourceField)
+                Divider().padding(.leading, 52)
+                fieldToggle("难度", icon: "star.fill", isOn: $showDifficultyField)
+                Divider().padding(.leading, 52)
+                fieldToggle("年级", icon: "graduationcap.fill", isOn: $showGradeField)
+                Divider().padding(.leading, 52)
+                fieldToggle("答案", icon: "text.bubble.fill", isOn: $showAnswerField)
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.secondarySystemGroupedBackground))
+            )
+            .padding(.horizontal, 24)
+
+            Spacer()
+        }
+        .padding()
+    }
+
+    @ViewBuilder
+    private func fieldToggle(_ title: String, icon: String, isOn: Binding<Bool>) -> some View {
+        Toggle(isOn: isOn) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                    .foregroundStyle(.blue)
+                    .frame(width: 28)
+                Text(title)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+    }
 }
 
 // MARK: - Preview
