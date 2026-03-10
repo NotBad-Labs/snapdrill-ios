@@ -57,6 +57,7 @@ public enum UDKey {
     public static let analyticsConfigured = "analyticsConfigured"
     public static let crashReportingEnabled = "crashReportingEnabled"
     public static let crashReportingConfigured = "crashReportingConfigured"
+    public static let crashReportingUserID = "crashReportingUserID"
     public static let iCloudSyncEnabled = "iCloudSyncEnabled"
     public static let performanceMonitoringEnabled = "performanceMonitoringEnabled"
 
@@ -86,6 +87,12 @@ public enum UDKey {
     // MARK: - Draft Service
 
     public static let captureDraftMetadata = "capture_draft_metadata"
+
+    // MARK: - Onboarding
+
+    public static let hasCompletedOnboarding = "hasCompletedOnboarding"
+    /// 功能提示前缀，实际 key 为 `hasShownTooltip_\(feature)`
+    public static let hasShownTooltipPrefix = "hasShownTooltip_"
 
     // MARK: - Debug
 

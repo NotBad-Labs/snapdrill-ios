@@ -67,7 +67,7 @@ public final class CrashReportingService: CrashReportingProtocol {
     /// 启用或禁用崩溃报告
     public func setEnabled(_ enabled: Bool) {
         isEnabled = enabled
-        UserDefaults.standard.set(enabled, forKey: "crashReportingEnabled")
+        UserDefaults.standard.set(enabled, forKey: UDKey.crashReportingEnabled)
         SnapDrillLogger.generic.info("Crash reporting \(enabled ? "enabled" : "disabled")")
     }
     
@@ -117,11 +117,11 @@ public final class CrashReportingService: CrashReportingProtocol {
         
         SnapDrillLogger.generic.info("User identifier set and secured in Keychain")
         Task {
-            await KeychainService.shared.save(identifier, forKey: "crashReportingUserID")
+            await KeychainService.shared.save(identifier, forKey: UDKey.crashReportingUserID)
         }
         
         // 清理旧的明文存储（如果存在）
-        UserDefaults.standard.removeObject(forKey: "crashReportingUserID")
+        UserDefaults.standard.removeObject(forKey: UDKey.crashReportingUserID)
     }
     
     /// 设置自定义键值对

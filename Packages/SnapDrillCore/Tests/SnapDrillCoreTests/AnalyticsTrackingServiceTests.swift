@@ -37,13 +37,13 @@ final class AnalyticsTrackingServiceTests: XCTestCase {
     func testEnableDisableService() {
         service.setEnabled(true)
         XCTAssertTrue(
-            UserDefaults.standard.bool(forKey: "analyticsEnabled"),
+            UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled),
             "启用后 UserDefaults 应写入 true"
         )
 
         service.setEnabled(false)
         XCTAssertFalse(
-            UserDefaults.standard.bool(forKey: "analyticsEnabled"),
+            UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled),
             "禁用后 UserDefaults 应写入 false"
         )
 
@@ -74,7 +74,7 @@ final class AnalyticsTrackingServiceTests: XCTestCase {
         service.trackScreen("Test Screen")
         // 重新启用，验证状态恢复正常
         service.setEnabled(true)
-        XCTAssertTrue(UserDefaults.standard.bool(forKey: "analyticsEnabled"))
+        XCTAssertTrue(UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled))
     }
 
     // MARK: - Mock 行为验证（完整断言，业务逻辑验证主载体）
