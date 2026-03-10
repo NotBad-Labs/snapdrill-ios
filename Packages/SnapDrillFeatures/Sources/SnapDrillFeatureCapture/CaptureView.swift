@@ -272,6 +272,17 @@ public struct CaptureView: View {
             } message: {
                 Text(viewModel.errorMessage)
             }
+            // PDF 大文件警告
+            .alert(L10n.Capture.pdfFileTooLargeTitle, isPresented: $viewModel.showLargeFileAlert) {
+                Button(L10n.Capture.pdfContinueAnyway) {
+                    viewModel.confirmLargeFileImport(router: router)
+                }
+                Button(L10n.Common.cancel, role: .cancel) {
+                    viewModel.pendingPDFURL = nil
+                }
+            } message: {
+                Text(L10n.Capture.pdfFileTooLarge(viewModel.largeFileSizeMB))
+            }
         }
     }
 }
