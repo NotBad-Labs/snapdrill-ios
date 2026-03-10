@@ -201,13 +201,11 @@ final class DashboardViewModelTests {
         let vm = DashboardViewModel(repositories: repos)
         #expect(vm.totalCount == 0)
 
-        // 让 MainActor 上的 notification 监听 Task 有时间启动 for-await 循环
-        try await Task.sleep(nanoseconds: 50_000_000)
-        // 发送通知，等待 100ms 防抖 + loadData 执行
+        // 让 for-await 循环启动（短暂让出 MainActor）
+        await Task.yield()
+        // 发送通知，轮询等待防抖 + loadData 完成
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
-        try await Task.sleep(nanoseconds: 300_000_000)
-
-        #expect(vm.totalCount == 1)
+        try await waitUntil { vm.totalCount == 1 }
         vm.cancelTasks()
     }
 }
