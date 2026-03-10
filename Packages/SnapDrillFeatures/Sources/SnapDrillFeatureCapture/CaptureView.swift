@@ -200,6 +200,13 @@ public struct CaptureView: View {
             .onDisappear {
                 viewModel.cancelOngoingTasks()
             }
+            // 导航栈回到根视图时释放 PDF 文档内存（不能在 PDFPagePickerView.onDisappear 中清理，
+            // 因为 NavigationStack push 新页面时也会触发子视图的 onDisappear）
+            .onChange(of: router.path) {
+                if router.path.isEmpty {
+                    router.pdfDocument = nil
+                }
+            }
             .alert("恢复草稿", isPresented: $viewModel.showDraftAlert) {
                 Button("继续编辑") {
                     viewModel.startEditingDraft(router: router)

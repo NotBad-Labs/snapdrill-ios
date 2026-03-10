@@ -115,8 +115,6 @@ struct PDFPagePickerView: View {
             renderTask = nil
             ocrTask?.cancel()
             ocrTask = nil
-            // 离开页面选择器时释放 PDFDocument 内存
-            router.pdfDocument = nil
         }
     }
 
@@ -150,7 +148,10 @@ struct PDFPagePickerView: View {
         guard let page = document?.page(at: pageIndex) else { return }
         isRendering = true
         renderTask = Task {
-            let image = renderPDFPage(page)
+            // 嵌套 detached task 脱离 MainActor，避免 2048px 渲染阻塞 UI
+            let image = await Task.detached {
+                Self.renderPDFPage(page)
+            }.value
             guard !Task.isCancelled else { return }
             isRendering = false
             fullSizeImage = image
@@ -161,7 +162,7 @@ struct PDFPagePickerView: View {
     /// 将 PDF 页面渲染为 UIImage，长边不超过 2048px
     ///
     /// UIGraphicsImageRenderer 自 iOS 10 起线程安全，可在任意线程调用。
-    private nonisolated func renderPDFPage(_ page: PDFPage) -> UIImage {
+    private static nonisolated func renderPDFPage(_ page: PDFPage) -> UIImage {
         let pageRect = page.bounds(for: .mediaBox)
         let maxDimension: CGFloat = 2048
         let scale = min(maxDimension / pageRect.width, maxDimension / pageRect.height, 2.0)
