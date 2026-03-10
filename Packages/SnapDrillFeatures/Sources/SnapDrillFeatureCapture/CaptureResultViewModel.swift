@@ -60,6 +60,8 @@ public final class CaptureResultViewModel {
     public var isCropping = false
     /// 是否已成功保存（用于触发返回导航）
     public var isSaved = false
+    /// 是否正在执行保存操作（防止双击重复写入）
+    public var isSaving = false
     /// 是否弹出错误提示
     public var showErrorAlert = false
     /// 错误提示文本
@@ -244,10 +246,14 @@ public final class CaptureResultViewModel {
     }
 
     /// 触发保存并存储 Task 句柄（由 View 调用，替代裸 Task 包裹）
+    ///
+    /// 使用 `isSaving` 布尔锁而非 `Task.cancel()` 防双击：
+    /// `saveResult()` 内部无 `checkCancellation()` 检查点，cancel 无法实际阻止旧任务执行。
     public func save() {
-        // 取消前一个未完成的保存任务（防止快速双击导致并发写入）
-        saveTask?.cancel()
+        guard !isSaving else { return }
+        isSaving = true
         saveTask = Task {
+            defer { self.isSaving = false }
             await saveResult()
         }
     }

@@ -310,7 +310,7 @@ public struct CaptureResultView: View {
                     viewModel.save()
                 }
                 .fontWeight(.bold)
-                .disabled(viewModel.isRecognizing)
+                .disabled(viewModel.isRecognizing || viewModel.isSaving)
             }
         }
         .navigationTitle("预览与编辑")
