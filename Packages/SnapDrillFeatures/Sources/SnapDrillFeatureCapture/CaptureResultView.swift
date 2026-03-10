@@ -307,7 +307,7 @@ public struct CaptureResultView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button("保存") {
-                    Task { await viewModel.saveResult() }
+                    viewModel.save()
                 }
                 .fontWeight(.bold)
                 .disabled(viewModel.isRecognizing)
@@ -330,7 +330,7 @@ public struct CaptureResultView: View {
             }
         }
         .onDisappear {
-            viewModel.generateDraftIfNeeded()
+            viewModel.saveDraftOnDisappear()
             viewModel.cancelTasks()
         }
         .alert("新建学科", isPresented: $viewModel.showNewSubjectAlert) {

@@ -229,34 +229,34 @@ final class CaptureResultViewModelTests {
     // MARK: - generateDraftIfNeeded
 
     @Test("generateDraftIfNeeded 未保存且有内容时生成草稿")
-    func generateDraftIfNeeded_unsavedWithContent_savesDraft() throws {
+    func generateDraftIfNeeded_unsavedWithContent_savesDraft() async throws {
         CaptureDraftService.shared.clearDraft()
         let ctx = createVM(content: "草稿内容", image: createTestImage())
 
-        ctx.vm.generateDraftIfNeeded()
+        await ctx.vm.generateDraftIfNeeded()
 
         #expect(CaptureDraftService.shared.hasDraft == true)
         CaptureDraftService.shared.clearDraft()
     }
 
     @Test("generateDraftIfNeeded 已保存时不生成草稿")
-    func generateDraftIfNeeded_alreadySaved_noDraft() throws {
+    func generateDraftIfNeeded_alreadySaved_noDraft() async throws {
         CaptureDraftService.shared.clearDraft()
         let ctx = createVM(content: "已保存", image: createTestImage())
         // 模拟已保存
         ctx.vm.isSaved = true
 
-        ctx.vm.generateDraftIfNeeded()
+        await ctx.vm.generateDraftIfNeeded()
 
         #expect(CaptureDraftService.shared.hasDraft == false)
     }
 
     @Test("generateDraftIfNeeded 无内容时不生成草稿")
-    func generateDraftIfNeeded_emptyContent_noDraft() throws {
+    func generateDraftIfNeeded_emptyContent_noDraft() async throws {
         CaptureDraftService.shared.clearDraft()
         let ctx = createVM(content: "", image: createTestImage())
 
-        ctx.vm.generateDraftIfNeeded()
+        await ctx.vm.generateDraftIfNeeded()
 
         #expect(CaptureDraftService.shared.hasDraft == false)
     }

@@ -19,10 +19,12 @@ public protocol CaptureDraftServiceProtocol {
     /// 当前是否存在未保存的草稿
     var hasDraft: Bool { get }
     /// 将图片和已识别文本保存为草稿
+    ///
+    /// JPEG 压缩和文件写入为异步操作，避免阻塞主线程。
     /// - Parameters:
     ///   - image: 拍摄的原始图片
     ///   - content: OCR 识别文本（可为空字符串）
-    func saveDraft(image: UIImage, content: String)
+    func saveDraft(image: UIImage, content: String) async
     /// 读取已保存的草稿；不存在或数据损坏时返回 `nil`
     func loadDraft() -> CaptureDraftService.Draft?
     /// 清除已保存的草稿（删除磁盘文件和 UserDefaults 记录）

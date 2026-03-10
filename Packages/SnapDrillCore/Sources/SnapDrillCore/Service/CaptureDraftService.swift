@@ -52,8 +52,12 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     }
 
     /// 将图片和识别文本保存为草稿（遵循 `CaptureDraftServiceProtocol`）
-    public func saveDraft(image: UIImage, content: String) {
-        // 1. Save Image
+    ///
+    /// async 签名使调用方可在 Task 中执行（如 onDisappear），不直接阻塞 UI 事件循环。
+    /// UIImage 非 Sendable，JPEG 压缩和文件写入无法安全移至后台，仍在 MainActor 执行。
+    /// 草稿图片已压缩（JPEG 0.8），I/O 量小（通常 < 500KB），阻塞时间可接受。
+    public func saveDraft(image: UIImage, content: String) async {
+        // 1. JPEG 压缩 + 写入文件
         if let data = image.jpegData(compressionQuality: 0.8),
            let path = draftImagePath() {
             do {
@@ -63,7 +67,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
             }
         }
 
-        // 2. Save Metadata
+        // 2. 元数据写入 UserDefaults
         let metadata = DraftMetadata(content: content, timestamp: Date().timeIntervalSince1970)
         if let data = try? JSONEncoder().encode(metadata) {
             defaults.set(data, forKey: draftMetadataKey)
