@@ -288,6 +288,8 @@ gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini
 - **不需要**：纯结构性修复（文件拆分/重命名、访问控制修饰符、import 调整），且 Gemini re-review 无 🔴，Claude 已独立核实
 - Claude 须在 PR comment 或回复中说明"不需要二次 review"的理由，用户最终确认合并
 
+**验收铁律**：reviewer 提出建议 → 开发者采纳修改 → **必须让同一 reviewer 验收实现是否符合意图**。这是验收，不是自审。禁止以「采纳了 reviewer 自己的建议所以不需要 re-review」为由跳过验收。
+
 #### Review 存档
 
 所有 review 结果以 **GitHub PR comment** 形式永久存储，不再保存本地 `.claude/reviews/` 文件。
