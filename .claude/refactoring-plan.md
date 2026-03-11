@@ -2,6 +2,8 @@
 
 **状态：全部阶段已完成，2026-03-03 commit `aa5e1de`**
 
+> 本文档为历史记录。当前架构规则已收归 `.claude/principles.md` 和 `.claude/architecture.md`。
+
 ## 完成的阶段
 
 | 阶段 | 内容 | 状态 |
