@@ -133,10 +133,6 @@ public enum L10n {
                 comment: "PDF 文件过大警告内容"), sizeMB)
         }
 
-        // 文件选择错误
-        public static func filePickerError(_ message: String) -> String {
-            String(format: NSLocalizedString("capture.file_picker_error", value: "选择文件失败: %@", comment: "文件选择器错误"), message)
-        }
     }
 
     // MARK: - Dashboard
@@ -622,6 +618,28 @@ public enum L10n {
         public static let importFailed = NSLocalizedString("errors.import_failed", value: "导入失败", comment: "导入失败错误")
         public static let dataCorrupted = NSLocalizedString("errors.data_corrupted", value: "数据损坏", comment: "数据损坏错误")
         public static let encodingFailed = NSLocalizedString("errors.encoding_failed", value: "数据编码失败", comment: "数据编码失败错误")
+
+        // 采集模块
+        public static let imageLoadFailed = NSLocalizedString("errors.image_load_failed", value: "无法加载图片，请确认图片文件未损坏后重试", comment: "图片加载失败")
+        public static let imageDecodeFailed = NSLocalizedString("errors.image_decode_failed", value: "图片格式无法识别，请尝试使用其他图片", comment: "图片解码失败")
+        public static let clipboardEmpty = NSLocalizedString("errors.clipboard_empty", value: "剪贴板为空或没有可用的文本内容", comment: "剪贴板为空")
+        public static let pdfReadFailed = NSLocalizedString("errors.pdf_read_failed", value: "无法读取 PDF 文件，请确认文件未损坏", comment: "PDF 读取失败")
+        public static let pdfParseFailed = NSLocalizedString("errors.pdf_parse_failed", value: "PDF 文件格式无法解析，请尝试其他文件", comment: "PDF 解析失败")
+        public static let pdfEmpty = NSLocalizedString("errors.pdf_empty", value: "PDF 文件不包含任何页面", comment: "PDF 为空")
+        public static func filePickerFailed(_ detail: String) -> String {
+            String(format: NSLocalizedString("errors.file_picker_failed", value: "文件选择失败：%@", comment: "文件选择器错误"), detail)
+        }
+
+        // 保存模块
+        public static let saveFailed = NSLocalizedString("errors.save_failed", value: "保存失败，请检查存储空间后重试", comment: "题目保存失败")
+        public static func createTaxonomyFailed(_ name: String) -> String {
+            String(format: NSLocalizedString("errors.create_taxonomy_failed", value: "新建「%@」失败，请重试", comment: "分类创建失败"), name)
+        }
+
+        // 备份恢复
+        public static let backupFailed = NSLocalizedString("errors.backup_failed", value: "备份失败，请检查存储空间后重试", comment: "备份失败")
+        public static let restoreFailed = NSLocalizedString("errors.restore_failed", value: "恢复失败，请确认备份文件未损坏后重试", comment: "恢复失败")
+        public static let fileAccessDenied = NSLocalizedString("errors.file_access_denied", value: "无法访问选择的文件", comment: "文件访问被拒绝")
     }
 
     // MARK: - Subjects (预设学科)
