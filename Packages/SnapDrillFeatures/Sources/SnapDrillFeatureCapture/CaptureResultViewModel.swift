@@ -375,10 +375,20 @@ public final class CaptureResultViewModel {
     /// 清理保存失败时已写入磁盘的孤儿图片文件（best-effort，async 避免阻塞主线程）
     private func cleanupOrphanImages(imagePath: String?, answerImagePath: String?) async {
         if let path = imagePath {
-            try? await imageStorage.deleteImage(path: path)
+            do {
+                try await imageStorage.deleteImage(path: path)
+            } catch {
+                // best-effort: 孤儿图片删除失败仅记日志，不影响用户操作
+                SnapDrillLogger.data.warning("孤儿题目图片清理失败: \(error.localizedDescription)")
+            }
         }
         if let path = answerImagePath {
-            try? await imageStorage.deleteImage(path: path)
+            do {
+                try await imageStorage.deleteImage(path: path)
+            } catch {
+                // best-effort: 孤儿答案图片删除失败仅记日志，不影响用户操作
+                SnapDrillLogger.data.warning("孤儿答案图片清理失败: \(error.localizedDescription)")
+            }
         }
     }
 

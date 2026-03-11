@@ -156,6 +156,7 @@ struct ReviewExport: Transferable {
         // Also support file URL export for apps that prefer files
         FileRepresentation(exportedContentType: .plainText) { export in
             let content = export.generateContent()
+            // best-effort: 优先使用系统推荐目录，失败时回退到 temporaryDirectory
             let tempParams = try? FileManager.default.url(
                 for: .itemReplacementDirectory,
                 in: .userDomainMask,

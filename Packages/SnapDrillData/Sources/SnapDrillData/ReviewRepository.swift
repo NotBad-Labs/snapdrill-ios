@@ -46,10 +46,20 @@ public final class ReviewRepository {
         // 删除关联图片文件（先于模型删除，确保路径可读；async 避免阻塞主线程）
         let imageStorage = ImageStorage()
         if let path = model.imagePath {
-            try? await imageStorage.deleteImage(path: path)
+            do {
+                try await imageStorage.deleteImage(path: path)
+            } catch {
+                // best-effort: 图片文件可能已被手动删除，不阻塞模型删除
+                SnapDrillLogger.data.warning("题目图片删除失败: \(error.localizedDescription)")
+            }
         }
         if let path = model.answerImagePath {
-            try? await imageStorage.deleteImage(path: path)
+            do {
+                try await imageStorage.deleteImage(path: path)
+            } catch {
+                // best-effort: 答案图片同上
+                SnapDrillLogger.data.warning("答案图片删除失败: \(error.localizedDescription)")
+            }
         }
         modelContext.delete(model)
         try modelContext.save()

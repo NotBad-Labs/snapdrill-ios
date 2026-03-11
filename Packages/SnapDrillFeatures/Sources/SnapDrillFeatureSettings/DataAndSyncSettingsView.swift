@@ -357,13 +357,15 @@ struct DataAndSyncSettingsView: View {
                 let tmpDir = FileManager.default.temporaryDirectory
                 let tmpContents = try FileManager.default.contentsOfDirectory(at: tmpDir, includingPropertiesForKeys: nil)
                 for url in tmpContents {
+                    // best-effort: 单个临时文件删除失败不中断批量清理
                     try? FileManager.default.removeItem(at: url)
                 }
-                
+
                 // 清理缓存目录
                 if let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
                     let cacheContents = try FileManager.default.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: nil)
                     for url in cacheContents {
+                        // best-effort: 同上
                         try? FileManager.default.removeItem(at: url)
                     }
                 }

@@ -469,6 +469,22 @@ final class ReviewViewModelTests {
 
     // MARK: - quitSession
 
+    @Test("空队列 startSession 不崩溃；finished 后再滑无效")
+    func startSession_emptyQueue_andFinishedNoOp() async throws {
+        let vm1 = ReviewViewModel(repository: repo)
+        await vm1.loadDataAsync()
+        vm1.startSession()
+        #expect(vm1.workingItems.isEmpty)
+        insertDueItem()
+        let vm2 = ReviewViewModel(repository: repo)
+        await vm2.loadDataAsync()
+        vm2.startSession()
+        vm2.handleSwipeCompletion(direction: 1)
+        #expect(vm2.phase == .finished)
+        vm2.handleSwipeCompletion(direction: 1)
+        #expect(vm2.finishedItems == 1, "finished 后不应增加 finishedItems")
+    }
+
     @Test("quitSession 刷新数据并将 phase 设为 idle")
     func quitSession_refreshesAndReturnsIdle() async throws {
         insertDueItem()
@@ -479,7 +495,6 @@ final class ReviewViewModelTests {
         #expect(vm.phase == .reviewing)
 
         await vm.quitSession()
-
         #expect(vm.phase == .idle)
     }
 }

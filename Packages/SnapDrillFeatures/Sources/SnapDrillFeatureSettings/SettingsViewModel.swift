@@ -207,7 +207,12 @@ public final class SettingsViewModel {
     /// 在 ShareSheet 关闭后调用，删除临时目录中的 .snapdrill 文件。
     public func cleanupBackupFile() {
         guard let url = backupFileURL else { return }
-        try? FileManager.default.removeItem(at: url)
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            // best-effort: 临时文件清理失败仅记日志，系统会自动清理 tmp 目录
+            SnapDrillLogger.generic.warning("备份临时文件清理失败: \(error.localizedDescription)")
+        }
         backupFileURL = nil
         backupStatusMessage = ""
         SnapDrillLogger.generic.info("已清理备份临时文件: \(url.lastPathComponent)")
@@ -249,7 +254,12 @@ public final class SettingsViewModel {
     /// 清理恢复前的自动备份临时文件
     private func cleanupAutoBackup(_ url: URL?) {
         guard let url else { return }
-        try? FileManager.default.removeItem(at: url)
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            // best-effort: 自动备份临时文件清理失败仅记日志
+            SnapDrillLogger.generic.warning("恢复前自动备份临时文件清理失败: \(error.localizedDescription)")
+        }
         SnapDrillLogger.generic.info("已清理恢复前自动备份: \(url.lastPathComponent)")
     }
 }

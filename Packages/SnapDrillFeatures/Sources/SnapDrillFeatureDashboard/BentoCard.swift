@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 
 /// Bento 风格的功能卡片，用于展示快捷操作链接或纯数据展示
 struct BentoCard: View {
@@ -88,15 +89,15 @@ struct BentoCard: View {
 #Preview {
     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
         BentoCard(
-            title: "智能扫描",
-            subtitle: "录入新题",
+            title: L10n.Dashboard.smartScan,
+            subtitle: L10n.Dashboard.addNew,
             icon: "camera.viewfinder",
             gradient: LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing),
             action: {}
         )
         BentoCard(
-            title: "题库浏览",
-            subtitle: "管理知识",
+            title: L10n.Dashboard.browseLibrary,
+            subtitle: L10n.Dashboard.manageKnowledge,
             icon: "books.vertical.fill",
             gradient: LinearGradient(colors: [.orange, .pink], startPoint: .topLeading, endPoint: .bottomTrailing),
             action: {}

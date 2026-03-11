@@ -616,6 +616,7 @@ public enum L10n {
         public static let photoPermissionDenied = NSLocalizedString("errors.photo_permission_denied", value: "相册权限被拒绝", comment: "相册权限错误")
         public static let ocrFailed = NSLocalizedString("errors.ocr_failed", value: "文字识别失败", comment: "OCR 识别失败错误")
         public static let exportFailed = NSLocalizedString("errors.export_failed", value: "导出失败，请稍后重试", comment: "导出失败错误")
+        public static let exportWriteDetail = NSLocalizedString("errors.export_write_detail", value: "PDF 文件写入失败，请检查设备存储空间后重试", comment: "PDF 写入失败详情")
         public static let importFailed = NSLocalizedString("errors.import_failed", value: "导入失败", comment: "导入失败错误")
         public static let dataCorrupted = NSLocalizedString("errors.data_corrupted", value: "数据损坏", comment: "数据损坏错误")
         public static let encodingFailed = NSLocalizedString("errors.encoding_failed", value: "数据编码失败", comment: "数据编码失败错误")

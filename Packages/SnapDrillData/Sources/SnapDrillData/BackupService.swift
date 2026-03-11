@@ -49,7 +49,7 @@ public actor BackupService {
             .replacingOccurrences(of: ":", with: "-")
         let backupURL = tempDir.appendingPathComponent("SnapDrill_Backup_\(timestamp).snapdrill")
 
-        // 清理可能存在的旧文件
+        // best-effort: 清理可能存在的旧文件，不存在时静默跳过
         try? fileManager.removeItem(at: backupURL)
 
         // 创建 ZIP 归档

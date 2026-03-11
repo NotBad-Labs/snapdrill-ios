@@ -82,8 +82,8 @@ public enum AppError: LocalizedError {
             return "无法导入数据。\(detail.isEmpty ? "请确保文件格式正确。" : detail)"
         case .dataCorrupted:
             return "数据文件已损坏，无法读取。请尝试重新启动应用。"
-        case .unknown(let error):
-            return "发生了意外错误：\(error.localizedDescription)"
+        case .unknown:
+            return "发生了意外错误，请稍后重试"
         }
     }
     

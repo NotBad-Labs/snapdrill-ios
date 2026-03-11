@@ -15,12 +15,14 @@ import SnapDrillData
 
 struct ExportPreviewView: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     let items: [ReviewExportSnapshot]
-    
+
     @State private var pdfData: Data?
     @State private var isLoading = true
-    
+    @State private var tempFileURL: URL?
+    @State private var showWriteError = false
+
     private let imageStorage = ImageStorage()
     
     var body: some View {
@@ -41,9 +43,9 @@ struct ExportPreviewView: View {
                     Button(L10n.Common.close) { dismiss() }
                 }
                 
-                if let pdfData = pdfData {
+                if let url = tempFileURL {
                     ToolbarItem(placement: .confirmationAction) {
-                        ShareLink(item: URL(fileURLWithPath: saveToTemp(pdfData: pdfData))) {
+                        ShareLink(item: url) {
                             Label(L10n.Library.shareOrPrint, systemImage: "square.and.arrow.up")
                         }
                     }
@@ -52,20 +54,25 @@ struct ExportPreviewView: View {
             .task {
                 generatePDF()
             }
+            .alert(L10n.Errors.exportFailed, isPresented: $showWriteError) {
+                Button(L10n.Common.ok, role: .cancel) {}
+            } message: {
+                Text(L10n.Errors.exportWriteDetail)
+            }
         }
     }
     
     private func generatePDF() {
-        // Run in background
         Task {
             do {
                 let data = try await PDFExportService.shared.createPDF(from: items) { path in
                     return imageStorage.loadImage(path: path)
                 }
-                
+
                 await MainActor.run {
                     self.pdfData = data
                     self.isLoading = false
+                    saveToTemp(pdfData: data)
                 }
             } catch {
                 await MainActor.run {
@@ -75,11 +82,16 @@ struct ExportPreviewView: View {
         }
     }
     
-    private func saveToTemp(pdfData: Data) -> String {
+    private func saveToTemp(pdfData: Data) {
         let fileName = "SnapDrill_Mistakes_\(Date().formatted(date: .numeric, time: .omitted)).pdf"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-        try? pdfData.write(to: tempURL)
-        return tempURL.path
+        do {
+            try pdfData.write(to: tempURL)
+            self.tempFileURL = tempURL
+        } catch {
+            SnapDrillLogger.generic.error("PDF 临时文件写入失败: \(error.localizedDescription)")
+            showWriteError = true
+        }
     }
 }
 

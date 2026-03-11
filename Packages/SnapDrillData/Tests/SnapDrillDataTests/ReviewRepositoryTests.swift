@@ -243,6 +243,53 @@ struct ReviewRepositoryTests {
         #expect(fetched?.content == mixedContent, "特殊 Unicode 字符写入后应原样读回")
     }
 
+    // MARK: - 错误路径
+
+    @Test("fetchFilteredModels 无匹配时返回空数组")
+    func fetchFilteredModels_whenNoMatch_shouldReturnEmpty() throws {
+        let repo = try createTestRepository()
+        let model = makeDummyModel(content: "数学题")
+        try repo.insertAndSave(model)
+
+        let results = try repo.fetchFilteredModels(
+            searchText: "绝对不会匹配的内容xyz",
+            subjects: Set<String>(),
+            tags: Set<String>(),
+            limit: 20,
+            offset: 0
+        )
+        #expect(results.isEmpty)
+    }
+
+    @Test("updateSubjectUsage 无匹配项时不抛出异常")
+    func updateSubjectUsage_whenNoItemsMatch_shouldNotThrow() throws {
+        let repo = try createTestRepository()
+        let model = makeDummyModel()
+        model.subjectRawValue = "数学"
+        try repo.insertAndSave(model)
+
+        // 更新不存在的学科名，应静默完成
+        try repo.updateSubjectUsage(from: "不存在的学科", to: "新学科")
+        // 原数据不变
+        #expect(try repo.countBySubject(name: "数学") == 1)
+    }
+
+    @Test("fetchFilteredModels 带 tag 过滤且 offset 超出范围时返回空数组")
+    func fetchFilteredModels_withTagFilter_offsetExceedsTotal_shouldReturnEmpty() throws {
+        let repo = try createTestRepository()
+        let model = makeDummyModel(content: "有标签的题")
+        try repo.insertAndSave(model)
+
+        let results = try repo.fetchFilteredModels(
+            searchText: "",
+            subjects: Set<String>(),
+            tags: Set(["不存在的标签"]),
+            limit: 20,
+            offset: 0
+        )
+        #expect(results.isEmpty)
+    }
+
     @Test("answerText 包含特殊字符时写入与检索正确")
     func specialUnicodeAnswerTextRoundTrip() throws {
         let repo = try createTestRepository()

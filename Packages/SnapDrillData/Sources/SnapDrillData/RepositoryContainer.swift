@@ -59,7 +59,12 @@ public final class RepositoryContainer {
         // save 成功后清理图片文件（best-effort，async 避免阻塞主线程）
         let storage = ImageStorage()
         for path in imagePaths {
-            try? await storage.deleteImage(path: path)
+            do {
+                try await storage.deleteImage(path: path)
+            } catch {
+                // best-effort: 单张图片删除失败不中断批量清理
+                SnapDrillLogger.data.warning("批量清理图片失败(\(path)): \(error.localizedDescription)")
+            }
         }
     }
 

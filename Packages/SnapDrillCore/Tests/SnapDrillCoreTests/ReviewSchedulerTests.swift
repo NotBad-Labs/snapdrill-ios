@@ -154,4 +154,42 @@ struct ReviewSchedulerTests {
         let desc = scheduler.intervalDescription(for: .good, from: state)
         #expect(desc == "明天")
     }
+
+    // MARK: - 边界条件
+
+    @Test("EF 为最小值 1.3 时 good 评分不使 EF 降至 1.3 以下")
+    func scheduleNextReview_whenEaseFactorIsMinimum_shouldClampToMinimum() throws {
+        let state = makeState(easeFactor: 1.3, interval: 6, repetitions: 2)
+        let result = scheduler.scheduleNextReview(state: state, rating: .good)
+        #expect(result.easeFactor >= 1.3, "EF 不应低于最小值 1.3")
+    }
+
+    @Test("从 distantPast 的 nextReviewAt 开始调度后 nextReviewAt 设为合理未来时间")
+    func scheduleNextReview_withDistantPastDate_shouldScheduleFromNow() throws {
+        var state = makeState(repetitions: 0)
+        state.nextReviewAt = .distantPast
+
+        let before = Date()
+        let result = scheduler.scheduleNextReview(state: state, rating: .good)
+        let after = Date()
+
+        guard let nextReview = result.nextReviewAt else {
+            Issue.record("nextReviewAt 不应为 nil")
+            return
+        }
+        // 第一次 good：interval = 1 天，nextReviewAt 应在 (now + ~1天) 附近
+        let oneDayFromNow = before.addingTimeInterval(86400 - 1)
+        let oneDayFromAfter = after.addingTimeInterval(86400 + 1)
+        #expect(nextReview >= oneDayFromNow, "nextReviewAt 应在约 1 天后")
+        #expect(nextReview <= oneDayFromAfter, "nextReviewAt 不应超过约 1 天")
+    }
+
+    @Test("连续多次 again 评分后 EF 保持在 1.3 以上")
+    func scheduleNextReview_repeatedAgain_efNeverBelowMinimum() throws {
+        var state = makeState(easeFactor: 2.5, interval: 6, repetitions: 3)
+        for _ in 0..<20 {
+            state = scheduler.scheduleNextReview(state: state, rating: .again)
+        }
+        #expect(state.easeFactor >= 1.3, "多次 again 后 EF 仍应 >= 1.3")
+    }
 }

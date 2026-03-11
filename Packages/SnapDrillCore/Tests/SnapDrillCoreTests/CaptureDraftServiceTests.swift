@@ -115,6 +115,48 @@ struct CaptureDraftServiceTests {
         cleanup()
     }
 
+    // MARK: - 错误路径
+
+    @Test("loadDraft 元数据损坏时返回 nil 而非崩溃")
+    func loadDraft_whenMetadataCorrupted_shouldReturnNil() {
+        cleanup()
+        // 写入无法解码为 DraftMetadata 的垃圾数据
+        let corruptedData = Data("not-valid-json".utf8)
+        UserDefaults.standard.set(corruptedData, forKey: "com.snapdrill.captureDraftMetadata")
+
+        let draft = service.loadDraft()
+        #expect(draft == nil, "元数据损坏时应返回 nil")
+        cleanup()
+    }
+
+    @Test("clearDraft 草稿文件已不存在时不抛出异常")
+    func clearDraft_whenFileAlreadyDeleted_shouldNotThrow() async {
+        cleanup()
+        // 先保存再手动删除图片文件，模拟文件已被系统清理
+        await service.saveDraft(image: createTestImage(), content: "将被删除")
+        if let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
+            let imagePath = cacheDir.appendingPathComponent("draft_capture.jpg")
+            try? FileManager.default.removeItem(at: imagePath)
+        }
+        // clearDraft 不应崩溃
+        service.clearDraft()
+        #expect(service.hasDraft == false)
+    }
+
+    @Test("loadDraft 图片文件不存在但元数据有效时返回 nil")
+    func loadDraft_whenImageMissing_shouldReturnNil() async {
+        cleanup()
+        await service.saveDraft(image: createTestImage(), content: "有元数据无图片")
+        // 手动删除图片文件
+        if let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
+            let imagePath = cacheDir.appendingPathComponent("draft_capture.jpg")
+            try? FileManager.default.removeItem(at: imagePath)
+        }
+        let draft = service.loadDraft()
+        #expect(draft == nil, "图片文件丢失时应返回 nil")
+        cleanup()
+    }
+
     // MARK: - Private Helpers
 
     private func createTestImage() -> UIImage {

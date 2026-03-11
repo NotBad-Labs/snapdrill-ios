@@ -69,8 +69,11 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
 
         // 2. 元数据写入 UserDefaults
         let metadata = DraftMetadata(content: content, timestamp: Date().timeIntervalSince1970)
-        if let data = try? JSONEncoder().encode(metadata) {
+        do {
+            let data = try JSONEncoder().encode(metadata)
             defaults.set(data, forKey: draftMetadataKey)
+        } catch {
+            SnapDrillLogger.capture.error("[DraftService] 草稿元数据编码失败: \(error.localizedDescription)")
         }
 
         SnapDrillLogger.generic.info("[DraftService] Draft saved.")
@@ -80,12 +83,14 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     public func loadDraft() -> Draft? {
         // 1. Load Metadata
         guard let data = defaults.data(forKey: draftMetadataKey),
+              // best-effort: 元数据损坏时静默返回 nil，由调用方处理缺失草稿
               let metadata = try? JSONDecoder().decode(DraftMetadata.self, from: data) else {
             return nil
         }
 
         // 2. Load Image
         guard let path = draftImagePath(),
+              // best-effort: 图片文件读取失败时静默返回 nil，同上
               let imageData = try? Data(contentsOf: path),
               let image = UIImage(data: imageData) else {
             return nil
@@ -98,6 +103,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     public func clearDraft() {
         defaults.removeObject(forKey: draftMetadataKey)
         if let path = draftImagePath() {
+            // best-effort: 草稿图片已不存在时静默跳过
             try? fileManager.removeItem(at: path)
         }
         SnapDrillLogger.generic.info("[DraftService] Draft cleared.")
