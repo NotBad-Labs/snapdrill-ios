@@ -31,3 +31,5 @@ build_output.txt
 # Claude Code — local only
 .claude/reviews/
 .claude/settings.local.json
+.claude/session-log.txt
+.claude/hooks/
