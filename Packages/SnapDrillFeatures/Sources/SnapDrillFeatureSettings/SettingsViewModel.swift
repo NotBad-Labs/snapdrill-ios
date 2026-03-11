@@ -109,7 +109,7 @@ public final class SettingsViewModel {
             backupStatusMessage = "备份完成"
             SnapDrillLogger.generic.info("备份完成: \(itemCount) 道题目")
         } catch {
-            backupError = error.localizedDescription
+            backupError = L10n.Errors.backupFailed
             backupStatusMessage = ""
             SnapDrillLogger.generic.error("备份失败: \(error)")
         }
@@ -133,7 +133,7 @@ public final class SettingsViewModel {
 
         // 安全域访问（fileImporter 选择的文件在安全沙箱外）
         guard fileURL.startAccessingSecurityScopedResource() else {
-            backupError = "无法访问选择的文件"
+            backupError = L10n.Errors.fileAccessDenied
             isBackupInProgress = false
             return
         }
@@ -194,7 +194,7 @@ public final class SettingsViewModel {
             backupStatusMessage = "恢复完成"
             SnapDrillLogger.generic.info("恢复完成: \(manifest.itemCount) 道题目")
         } catch {
-            backupError = error.localizedDescription
+            backupError = L10n.Errors.restoreFailed
             backupStatusMessage = ""
             SnapDrillLogger.generic.error("恢复失败: \(error)")
         }

@@ -247,8 +247,8 @@ struct DataAndSyncSettingsView: View {
                         showingRestoreSuccess = true
                     }
                 }
-            case .failure(let error):
-                viewModel.backupError = error.localizedDescription
+            case .failure:
+                viewModel.backupError = L10n.Errors.fileAccessDenied
                 showingBackupError = true
             }
         }

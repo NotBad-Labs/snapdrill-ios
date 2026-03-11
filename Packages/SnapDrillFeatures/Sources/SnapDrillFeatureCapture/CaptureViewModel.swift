@@ -99,14 +99,14 @@ public final class CaptureViewModel {
                 } else {
                     guard !Task.isCancelled else { return }
                     self.isProcessing = false
-                    self.errorMessage = "无法加载图片"
+                    self.errorMessage = L10n.Errors.imageDecodeFailed
                     self.showErrorAlert = true
                 }
             } catch is CancellationError {
                 SnapDrillLogger.capture.info("相册加载任务已取消。")
             } catch {
                 self.isProcessing = false
-                self.errorMessage = "加载图片失败: \(error.localizedDescription)"
+                self.errorMessage = L10n.Errors.imageLoadFailed
                 self.showErrorAlert = true
             }
         }
@@ -120,7 +120,7 @@ public final class CaptureViewModel {
         if let text = UIPasteboard.general.string, !text.isEmpty {
             router.push(.scannerResult(content: text, image: nil))
         } else {
-            errorMessage = "剪贴板为空或没有可用的文本内容"
+            errorMessage = L10n.Errors.clipboardEmpty
             showErrorAlert = true
         }
     }
@@ -188,19 +188,19 @@ public final class CaptureViewModel {
 
         // 在安全域权限窗口内完整读取数据，避免 PDFDocument 懒加载时权限已失效
         guard let data = try? Data(contentsOf: url) else {
-            errorMessage = "无法读取 PDF 文件"
+            errorMessage = L10n.Errors.pdfReadFailed
             showErrorAlert = true
             return
         }
 
         guard let document = PDFDocument(data: data) else {
-            errorMessage = "无法打开 PDF 文件"
+            errorMessage = L10n.Errors.pdfParseFailed
             showErrorAlert = true
             return
         }
 
         guard document.pageCount > 0 else {
-            errorMessage = "PDF 文件不包含任何页面"
+            errorMessage = L10n.Errors.pdfEmpty
             showErrorAlert = true
             return
         }

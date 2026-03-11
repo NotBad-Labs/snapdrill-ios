@@ -182,6 +182,8 @@ public final class CaptureResultViewModel {
             selectedSubject = trimmed
         } catch {
             SnapDrillLogger.generic.error("新建学科失败: \(error.localizedDescription)")
+            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
+            self.showErrorAlert = true
         }
     }
 
@@ -197,6 +199,8 @@ public final class CaptureResultViewModel {
             selectedSource = trimmed
         } catch {
             SnapDrillLogger.generic.error("新建来源失败: \(error.localizedDescription)")
+            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
+            self.showErrorAlert = true
         }
     }
 
@@ -212,6 +216,8 @@ public final class CaptureResultViewModel {
             grade = trimmed
         } catch {
             SnapDrillLogger.generic.error("新建年级失败: \(error.localizedDescription)")
+            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
+            self.showErrorAlert = true
         }
     }
 
@@ -334,7 +340,7 @@ public final class CaptureResultViewModel {
             repositories.review.rollbackContext()
             await cleanupOrphanImages(imagePath: savedImagePath, answerImagePath: savedAnswerImagePath)
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
-            self.errorMessage = error.localizedDescription
+            self.errorMessage = L10n.Errors.saveFailed
             self.showErrorAlert = true
         }
     }
