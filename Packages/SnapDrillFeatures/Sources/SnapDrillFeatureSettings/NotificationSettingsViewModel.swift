@@ -70,7 +70,7 @@ final class NotificationSettingsViewModel {
             try await notificationService.scheduleDaily(at: hour, minute: minute)
         } catch {
             SnapDrillLogger.generic.error("更新通知时间失败: \(error.localizedDescription)")
-            rescheduleError = error.localizedDescription
+            rescheduleError = L10n.Settings.rescheduleFailedMessage
         }
     }
 }

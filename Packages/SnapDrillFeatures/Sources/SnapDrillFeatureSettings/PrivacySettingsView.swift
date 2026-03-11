@@ -134,7 +134,7 @@ struct PrivacySettingsView: View {
             }
         } catch {
             await MainActor.run {
-                exportError = L10n.Settings.exportFailed(error.localizedDescription)
+                exportError = L10n.Errors.exportFailed
                 isExporting = false
             }
         }

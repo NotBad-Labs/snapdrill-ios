@@ -263,7 +263,7 @@ public struct CaptureView: View {
                     guard let url = urls.first else { return }
                     viewModel.loadPDF(url, router: router)
                 case .failure(let error):
-                    viewModel.errorMessage = L10n.Errors.filePickerFailed(error.localizedDescription)
+                    viewModel.errorMessage = L10n.Errors.filePickerFailed
                     viewModel.showErrorAlert = true
                 }
             }
