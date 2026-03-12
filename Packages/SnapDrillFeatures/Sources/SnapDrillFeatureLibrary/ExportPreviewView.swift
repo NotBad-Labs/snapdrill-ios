@@ -20,7 +20,9 @@ struct ExportPreviewView: View {
     
     @State private var pdfData: Data?
     @State private var isLoading = true
-    
+    @State private var tempPDFURL: URL?
+    @State private var showSaveError = false
+
     private let imageStorage = ImageStorage()
     
     var body: some View {
@@ -41,13 +43,16 @@ struct ExportPreviewView: View {
                     Button(L10n.Common.close) { dismiss() }
                 }
                 
-                if let pdfData = pdfData {
+                if let tempPDFURL {
                     ToolbarItem(placement: .confirmationAction) {
-                        ShareLink(item: URL(fileURLWithPath: saveToTemp(pdfData: pdfData))) {
+                        ShareLink(item: tempPDFURL) {
                             Label(L10n.Library.shareOrPrint, systemImage: "square.and.arrow.up")
                         }
                     }
                 }
+            }
+            .alert(L10n.Errors.exportFailed, isPresented: $showSaveError) {
+                Button(L10n.Common.ok, role: .cancel) {}
             }
             .task {
                 generatePDF()
@@ -66,6 +71,7 @@ struct ExportPreviewView: View {
                 await MainActor.run {
                     self.pdfData = data
                     self.isLoading = false
+                    self.saveToTemp(pdfData: data)
                 }
             } catch {
                 await MainActor.run {
@@ -75,11 +81,16 @@ struct ExportPreviewView: View {
         }
     }
     
-    private func saveToTemp(pdfData: Data) -> String {
+    private func saveToTemp(pdfData: Data) {
         let fileName = "SnapDrill_Mistakes_\(Date().formatted(date: .numeric, time: .omitted)).pdf"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-        try? pdfData.write(to: tempURL)
-        return tempURL.path
+        do {
+            try pdfData.write(to: tempURL)
+            self.tempPDFURL = tempURL
+        } catch {
+            SnapDrillLogger.generic.error("PDF 写入临时文件失败: \(error.localizedDescription)")
+            self.showSaveError = true
+        }
     }
 }
 
