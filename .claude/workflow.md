@@ -110,6 +110,7 @@ gh issue create                           # 建 Issue
 git checkout -b fix/xxx                   # 新建工作分支
 # 改代码...
 swiftlint --strict && xcodebuild build    # 本地验证
+# 对照 definition-of-done.md 逐项自检     # DoD 自检
 git add <具体文件>                         # 精确 stage
 git commit -m "fix: ... Closes #N"
 git push -u origin fix/xxx
@@ -261,5 +262,5 @@ gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini
 
 - **发布检查清单**：`.claude/release-checklist.md`
 - **Review 提示词指南**：`.claude/review-prompt-guide.md`
-- **验收标准模板**：`.claude/acceptance-criteria.md`
+- **DoD（PR 合并标准）**：`.claude/definition-of-done.md`
 - **审计清单**：`.claude/audit-checklist.md`
