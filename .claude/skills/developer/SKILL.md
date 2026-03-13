@@ -34,7 +34,7 @@ allowed-tools:
 - 交互设计决策（→ UX 设计师）
 - 异常路径全面审计（→ QA 工程师）
 
-## 编码规范（来自 principles.md）
+## 编码规范（来自 conventions.md）
 
 ### 日志
 - 使用 `SnapDrillLogger`，禁止 `print()`

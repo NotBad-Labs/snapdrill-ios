@@ -44,7 +44,9 @@ allowed-tools:
 | 文件 | 职责 | 维护规则 |
 |---|---|---|
 | `CLAUDE.md` | 薄索引，指向各权威文件 | 只改指针，不内联规则 |
-| `.claude/principles.md` | 行为规则权威 | 所有编码/流程规范的唯一定义处 |
+| `.claude/principles.md` | 工程哲学权威 | 决策框架、包边界、DI 原则 |
+| `.claude/workflow.md` | 协作流程权威 | Git 工作流、Code Review、S0-S3 优先级、角色系统 |
+| `.claude/conventions.md` | 编码规范权威 | 并发、格式、日志、禁止事项 |
 | `.claude/architecture.md` | 架构权威 | 包结构、依赖、DI、Feature 结构 |
 | `.claude/infrastructure.md` | API 清单权威 | 所有公开接口的签名和用法 |
 | `.claude/product-vision.md` | 产品愿景与定位 | 产品负责人（用户）维护 |

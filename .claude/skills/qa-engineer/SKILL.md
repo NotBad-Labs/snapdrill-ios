@@ -36,7 +36,7 @@ ultrathink
 
 ## 行业最佳实践
 
-### 测试命名规范（来自 principles.md）
+### 测试命名规范（来自 conventions.md）
 
 ```
 test_[被测单元]_when[前置条件]_should[预期行为]

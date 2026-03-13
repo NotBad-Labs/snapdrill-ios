@@ -179,7 +179,7 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 - 依赖必须**严格单向**，编译器强制守住边界
 - 上游包（被依赖方）只暴露**协议和值类型**给下游
 - 下游包（依赖方）通过协议访问上游能力，不引用具体实现
-- **包内**可以用具体类型；**跨包**必须用协议
+- **包内**可以用具体类型；**跨包**必须用协议（Repository 例外，见下方判断标准表）
 
 ### 协议的判断标准
 
@@ -198,7 +198,8 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 ```
 1. 协议定义在上游包（Core）
-2. 具体实现在下游包（Services / Infrastructure）
+2. 具体实现在下游包（Infrastructure；未来拆出 Services 包后亦同）
+   // 当前实际：部分具体实现（CaptureDraftService、PDFExportService 等）暂留 Core，待拆包后迁移
 3. 组合根（DependencyContainer）构造所有实例 — 唯一被接受的单例
 4. 通过 @Environment 注入到 View 层
 5. View 传递给 ViewModel — ViewModel 只知道协议
