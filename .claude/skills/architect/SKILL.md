@@ -39,30 +39,11 @@ ultrathink
 
 ## 行业最佳实践
 
-### SnapDrill 架构铁律（来自 architecture.md + principles.md）
-
-1. **5 包结构**：Core → Data → UI → Features → Infrastructure，严格单向依赖
-2. **@Model = 领域对象**：无 Domain 层、无 UseCase 层、无 Repository 协议
-3. **Swift 6 strict concurrency**：actor isolation 优先，不用锁
-4. **ViewModel 模式**：`@Observable @MainActor final class`
-5. **DI**：SwiftUI `@Environment` 注入，`DependencyContainer` 是唯一单例
-
-### 奥卡姆剃刀检查清单
-
-1. 这个抽象解决了哪个具体问题？（"未来可能有用" = 不加）
-2. 有没有更简单的方式？（Swift 原生能做到的不造轮子）
-3. 删掉这一层还能工作吗？（能 = 不该存在）
-4. 这个协议有几个实现？（1 个 = 不必要）
-5. 改一个需求要动几个文件？（>3 = 警告）
-
-### 研究声明（技术实现部分）
-
-```
-研究确认：
-- Apple 文档：[查了什么 / 不适用（原因）]
-- 现有代码库：[找到的参考模式]
-- WWDC Sessions：[查了什么 / 不适用（原因）]
-```
+> 架构铁律详见 `architecture.md`（包结构、依赖图、DI 链路）+ `principles.md`（包边界原则、DI 原则、@Query 使用原则）
+>
+> 奥卡姆剃刀检查清单详见 `principles.md`「奥卡姆剃刀检查清单」
+>
+> 研究声明格式详见 `principles.md`「决策前研究铁律 → 研究声明输出格式」
 
 ## 检查清单
 

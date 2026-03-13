@@ -41,15 +41,9 @@ ultrathink
 2. **遵从性**：流畅的动效和精美的界面帮助用户理解内容并与之互动，不会与内容竞争
 3. **深度**：层次分明的视觉层和逼真的动效传达层级关系，有助于理解
 
-### 交互模式速查（来自 principles.md「Apple 原生优先铁律」）
+### 交互模式速查
 
-| 场景 | 正确模式 |
-|---|---|
-| Form 内选值（短列表） | `Picker(.menu)` |
-| Form 内选值（长列表） | `NavigationLink` → 勾选列表 |
-| 破坏性操作确认 | `confirmationDialog` |
-| 列表批量选择 | `List(selection:)` + editMode |
-| 导航到详情 | `NavigationLink`（有 > 箭头） |
+> 详见 `principles.md`「Apple 原生优先铁律 → 常用模式速查 + 核心心智模型」
 
 ### Airbnb 交互设计三原则
 
@@ -59,10 +53,7 @@ ultrathink
 
 ### SnapDrill 特定交互约束
 
-- **采集流程**：步骤越少越好（product-vision.md 第一原则）
-- **字段配置**：默认只展示学科，其余按需开启
-- **连续录入**：保存后回到摄像头，不回 Dashboard
-- **复习卡片**：正面原题 → 点击翻面 → 左右滑动评分
+> 详见 `product-vision.md`「产品原则」+ `product-requirements.md`「连续录入设计」「字段可配置系统」
 
 ## 检查清单
 

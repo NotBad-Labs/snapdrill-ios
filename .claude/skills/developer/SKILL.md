@@ -34,38 +34,9 @@ allowed-tools:
 - 交互设计决策（→ UX 设计师）
 - 异常路径全面审计（→ QA 工程师）
 
-## 编码规范（来自 conventions.md）
+## 编码规范
 
-### 日志
-- 使用 `SnapDrillLogger`，禁止 `print()`
-
-### 错误处理
-- 关键路径（save/init）：禁止 `try?`，必须 `do/catch`
-- 清理路径（delete temp file）：允许 `try?`，加日志或 `// best-effort: [原因]`
-
-### 代码组织（MARK 顺序）
-1. `// MARK: - Properties`
-2. `// MARK: - Initialization`
-3. `// MARK: - Public API`
-4. `// MARK: - View Body / Lifecycle`
-5. `// MARK: - Private Helpers`
-6. `// MARK: - Preview`
-
-### 文件头
-```swift
-//  一句话描述该文件的功能。
-```
-
-### 注释
-- 全部简体中文
-- `public` API 用 DocC（`///`）
-- `private`/`internal` 用 `//`
-
-### 禁止事项
-- `@unchecked Sendable`（除标注例外）
-- force unwrap `!`
-- `any` existentials（除标注例外）
-- fire-and-forget `Task`（必须保存句柄）
+> 完整编码规范详见 `conventions.md`（并发、日志、错误处理、MARK 顺序、文件头、注释、禁止事项）
 
 ## 检查清单
 

@@ -44,15 +44,7 @@
 | **PDFExportable** | Core/Service | PDF 导出数据适配 | 无 associated type 的轻量协议，允许异构集合 `[any PDFExportable]` |
 | **FeatureRouter** | UI/Navigation | 功能模块导航 | 统一导航模式，每个 Feature 遵循相同的 push/pop/reset 接口 |
 
-### 协议存在的判断标准
-
-| 场景 | 是否需要协议 | 理由 |
-|---|---|---|
-| SwiftData Repository | **否** | 有 in-memory ModelContainer 替代测试 |
-| 跨包服务 | **是** | 无替代测试手段 + 依赖方向控制 |
-| 包内工具类 | **否** | 无跨包需求 |
-
-详见 `principles.md`「包边界与依赖方向原则」。
+> 协议存在的判断标准详见 `principles.md`「包边界与依赖方向原则 → 协议的判断标准」
 
 ## 算法与引擎
 
