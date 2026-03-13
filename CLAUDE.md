@@ -51,6 +51,10 @@ SnapDrill is a question archiving and spaced-repetition review app for students 
 
 详见 `.claude/architecture.md`（包结构、依赖图、DI 链路、Feature 结构、数据流）。
 
+## Architecture Decision Records
+
+修改架构前必须先查 `.claude/decisions/` 目录，确认是否有相关 ADR。已记录的决策经过深思熟虑，不得在未经用户批准的情况下推翻。新增架构决策时须同步创建 ADR。
+
 ## 编写代码前强制研究声明
 
 详见 `.claude/principles.md`「决策前研究铁律」（含研究流程、判断框架、输出格式）。

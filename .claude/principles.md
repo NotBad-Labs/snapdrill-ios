@@ -134,6 +134,8 @@
 
 ### 核心哲学：@Model = 领域对象（2026-03-03 确认）
 
+> 完整决策记录见 `decisions/ADR-001`（含被否决方案和重新评估条件）。
+
 SwiftData 的 `@Model` 是轻量的，不是 NSManagedObject。对于本地优先的单体 App：
 - `@Model` 直接就是领域对象，不需要映射为 Domain struct
 - Domain struct + `toEntity()` 映射层 = 零收益的纯维护成本
@@ -168,6 +170,8 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 ## 包边界与依赖方向原则（2026-03-13 确立）
 
+> 完整决策记录见 `decisions/ADR-003`（5 包结构）、`decisions/ADR-005`（Infrastructure 隔离）。
+
 ### 包划分标准
 
 - 包的划分依据是**职责边界**，不是文件数量
@@ -193,6 +197,8 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 ---
 
 ## 依赖注入原则（2026-03-13 确立）
+
+> 完整决策记录见 `decisions/ADR-004`（含 4 个被否决的反模式和理由）。
 
 ### 唯一正确的 DI 模式
 
