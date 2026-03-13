@@ -79,6 +79,10 @@ SnapDrill is a question archiving and spaced-repetition review app for students 
 
 详见 `.claude/conventions.md`（并发规则、View 层约束、日志/错误处理/MARK 顺序/文件头/注释、禁止事项）。
 
+## Definition of Done
+
+PR 合并前必须对照 `.claude/definition-of-done.md` 逐项自检。涉及用户可见功能的 PR 还需满足功能级 DoD。
+
 ## Workflow
 
 详见 `.claude/workflow.md`（Git 工作流、Code Review 三方流程、工作优先级框架 S0-S3、角色换帽制度）。
