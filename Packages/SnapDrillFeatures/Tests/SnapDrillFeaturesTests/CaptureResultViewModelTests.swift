@@ -287,6 +287,43 @@ final class CaptureResultViewModelTests {
         #expect(mockOCR.recognizeTextCallCount == 1)
     }
 
+    // MARK: - save 双击防护
+
+    @Test("save 正在保存时第二次调用被忽略（isSaving 防双击）")
+    func save_doubleTapGuard() async throws {
+        let ctx = createVM(content: "防双击测试")
+
+        // 第一次调用：设置 isSaving = true 并启动 saveTask
+        ctx.vm.save()
+        #expect(ctx.vm.isSaving == true)
+
+        // 第二次调用：isSaving 为 true，guard 拦截
+        ctx.vm.save()
+
+        // 等待保存完成
+        try await waitUntil("保存完成") { ctx.vm.isSaving == false }
+        #expect(ctx.vm.isSaved == true)
+
+        // 验证只保存了一次（不是两次）
+        let items = try ctx.repos.review.fetchAllModels()
+        #expect(items.count == 1)
+    }
+
+    @Test("saveResult 保存失败时设置 showErrorAlert 和 errorMessage")
+    func saveResult_failure_showsAlert() async throws {
+        // 验证路径：文字和图片都为空 → 业务规则抛错 → catch 块执行
+        let ctx = createVM(content: "", image: nil)
+
+        await ctx.vm.saveResult()
+
+        #expect(ctx.vm.isSaved == false)
+        #expect(ctx.vm.showErrorAlert == true)
+        #expect(ctx.vm.errorMessage != nil)
+        // 确认没有数据被持久化
+        let count = try ctx.repos.review.totalCount()
+        #expect(count == 0)
+    }
+
     // MARK: - cancelTasks
 
     @Test("cancelTasks 不崩溃")
