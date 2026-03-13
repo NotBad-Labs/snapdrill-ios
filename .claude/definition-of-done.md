@@ -47,6 +47,7 @@
 | 修改包结构/依赖方向 | `architecture.md` |
 | 修改编码规范/约定 | `conventions.md` |
 | 修改工作流程 | `workflow.md` |
+| 引入有决策上下文的临时方案 | `technical-debt-ledger.md` |
 
 ### Review 流程
 
