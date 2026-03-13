@@ -230,6 +230,4 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 ## 技术债标记
 
-**`NotificationCenter.reviewDataDidChange`**：跨模块刷新通知。当 @Query 被引入到更多 View 后，大部分通知调用会自然消解（SwiftData 自动响应写入）。这是有意为之的渐进式清理路径，不是设计缺陷。
-
-**ServiceContainer 中的 .shared 单例**（2026-03-13 标记）：`CaptureDraftService.shared`、`PDFExportService.shared`、`PerformanceMonitor.shared`、`NetworkMonitor.shared`、`AppConfiguration.shared`、`OnboardingManager.shared` 均应迁移到 DI 注入。在 Core → Core + Services 拆包时统一清理。
+> 详见 `technical-debt-ledger.md`（架构级技术债台账）

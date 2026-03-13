@@ -53,18 +53,13 @@ ultrathink
 | M9 | 不安全的数据存储 | SwiftData 加密、图片路径 |
 | M10 | 不充分的密码学 | 备份文件加密（未来） |
 
-### SnapDrill 隐私铁律（来自 product-business.md）
+### SnapDrill 隐私铁律
 
-- **零个人信息收集**：无注册、无手机号、无学校年级
-- **纯本地 + iCloud**：用户数据不经过自建服务器
-- **Firebase Analytics**：仅匿名行为数据，不收集 PII
-- **ATT**：用户明确同意后才追踪
+> 详见 `product-business.md`「隐私策略」（零个人信息收集、纯本地 + iCloud、ATT 策略）
 
-### Apple 隐私清单要求
+### 错误处理安全规范
 
-- 每个使用 Privacy API 的框架需声明 `PrivacyInfo.xcprivacy`
-- 声明数据收集类型和用途
-- App Store 隐私标签必须与实际一致
+> 详见 `conventions.md`「错误处理」（关键路径禁止 `try?`、清理路径 best-effort 规则）
 
 ## 检查清单
 

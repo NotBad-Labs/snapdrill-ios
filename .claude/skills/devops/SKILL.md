@@ -36,38 +36,13 @@ allowed-tools:
 
 ## 当前基础设施
 
-### CI/CD
-
-| 组件 | 配置 |
-|---|---|
-| Runner | Mac mini（`ssh admin@192.168.1.224`），自托管，ARM64 |
-| 触发 | PR 到 develop/main 时触发 |
-| 服务名 | launchd 自动启动 |
-| Labels | `self-hosted,macOS,ARM64` |
-
-### 构建配置
-
-| 配置 | 说明 |
-|---|---|
-| 版本号来源 | `Configs/Shared.xcconfig`（唯一来源） |
-| MARKETING_VERSION | 用户可见版本号 |
-| CURRENT_PROJECT_VERSION | Build 号 |
-
-### 发布流程
-
-```
-开发 → PR → develop → TestFlight Internal
-develop → PR → main → Tag → App Store
-```
-
-TestFlight 步骤：Xcode → Product → Archive → Organizer → Distribute App
-
-### GitHub Actions Workflows
-
-| Workflow | 用途 |
-|---|---|
-| CI Build & Test | PR 时构建 + 测试 |
-| Gemini Review | PR 时自动 Code Review |
+> CI/CD 配置详见 `.github/workflows/` 目录下的 YAML 文件
+>
+> Git 工作流与发布流程详见 `workflow.md`「Git 工作流规范」
+>
+> 发版检查清单详见 `release-checklist.md`
+>
+> 版本号管理：唯一来源 `Configs/Shared.xcconfig`（`MARKETING_VERSION` + `CURRENT_PROJECT_VERSION`）
 
 ## 检查清单
 

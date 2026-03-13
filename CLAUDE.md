@@ -69,6 +69,11 @@ SnapDrill is a question archiving and spaced-repetition review app for students 
 详见 `.claude/principles.md`「决策前研究铁律」（含研究流程、判断框架、输出格式）。
 用户质量检查触发词：「铁律？」
 
+## Glossary（术语对照表）
+
+核心概念、协议职责边界、算法术语见 `.claude/glossary.md`。
+概念的含义和职责看术语表，API 签名和调用方式看 `infrastructure.md`。
+
 ## API 使用强制规则
 
 详见 `.claude/infrastructure.md` 顶部「使用规则」。

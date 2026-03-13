@@ -43,25 +43,13 @@ allowed-tools:
 3. **Milestone = 版本**：v1.0、v1.5、v2.0
 4. **状态追踪**：Issue open/closed + PR status
 
-### S0-S3 优先级执行规则（来自 workflow.md）
+### S0-S3 优先级执行规则
 
-1. S0 全部处理完毕后方可处理 S1，依此类推
-2. Fast-Track 例外：高级别阻塞时可做低级别 Quick Win
-3. 每个 Issue 开始前输出状态声明
-4. 级别清零后输出确认
+> 详见 `workflow.md`「工作优先级框架」（严重度分级、同级排序、执行规则）
 
 ### 发版检查清单
 
-```
-- [ ] 所有目标 Issue 已关闭
-- [ ] MARKETING_VERSION 已更新（Shared.xcconfig）
-- [ ] CURRENT_PROJECT_VERSION 已递增
-- [ ] swiftlint --strict 零 violations
-- [ ] xcodebuild build 成功
-- [ ] 相关测试通过
-- [ ] Changelog 已准备
-- [ ] Archive → TestFlight 上传成功
-```
+> 详见 `release-checklist.md`
 
 ## 检查清单
 

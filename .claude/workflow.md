@@ -263,4 +263,4 @@ gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini
 - **发布检查清单**：`.claude/release-checklist.md`
 - **Review 提示词指南**：`.claude/review-prompt-guide.md`
 - **DoD（PR 合并标准）**：`.claude/definition-of-done.md`
-- **审计清单**：`.claude/audit-checklist.md`
+- **术语对照表**：`.claude/glossary.md`

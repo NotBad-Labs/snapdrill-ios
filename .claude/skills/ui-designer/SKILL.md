@@ -46,13 +46,7 @@ ultrathink
 
 ### SnapDrill 设计系统现状
 
-| 元素 | 当前状态 |
-|---|---|
-| 颜色 | `Color+Hex.swift` 扩展，需规范化为语义色 |
-| 组件 | SnapDrillButton、FlipView、TagInputView、BentoCard |
-| 图标 | SF Symbols |
-| 字体 | 系统默认（SF Pro） |
-| 间距 | 尚未统一规范 |
+> 公开组件清单详见 `infrastructure.md`「SnapDrillUI（公开组件）」
 
 ### Spotify 设计系统原则
 
