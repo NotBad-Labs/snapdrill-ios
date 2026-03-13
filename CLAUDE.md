@@ -79,6 +79,12 @@ SnapDrill is a question archiving and spaced-repetition review app for students 
 
 详见 `.claude/conventions.md`（并发规则、View 层约束、日志/错误处理/MARK 顺序/文件头/注释、禁止事项）。
 
+## Technical Debt Ledger
+
+架构级技术债汇总见 `.claude/technical-debt-ledger.md`。
+日常技术债用 GitHub Issue + `tech-debt` label 追踪。
+引入有决策上下文的临时方案时，须同步更新 Ledger。
+
 ## Definition of Done
 
 PR 合并前必须对照 `.claude/definition-of-done.md` 逐项自检。涉及用户可见功能的 PR 还需满足功能级 DoD。
