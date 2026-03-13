@@ -165,7 +165,8 @@ struct BackupServiceTests {
         )
         defer { cleanup(backupURL) }
 
-        // 至少触发过进度回调（1 张图片）
+        // 等待 actor 内的 increment Task 完成调度
+        try await Task.sleep(for: .milliseconds(50))
         let count = await callCount.value
         #expect(count > 0)
     }
