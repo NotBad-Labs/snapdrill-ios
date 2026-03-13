@@ -28,10 +28,12 @@ date: 2026-03-13
 
 - **为什么否决**：绕过 DI，产生隐式全局状态。ViewModel 直接调用 `SomeService.shared` 时，依赖关系不可见，测试时无法替换。多个 AI 协作者在不同会话中可能各自创建新的 `.shared` 单例，导致单例泛滥
 - **现状**：6 个历史遗留 `.shared` 单例（CaptureDraftService、PDFExportService、PerformanceMonitor、NetworkMonitor、AppConfiguration、OnboardingManager）列为技术债，待 Core → Core + Services 拆包时统一清理
+- **何时重新评估**：不适用——`.shared` 单例是公认的反模式，方向是逐步清理而非重新采用
 
 ### 方案 B：ViewModel 构造函数默认参数 `= ConcreteType()`
 
 - **为什么否决**：隐式耦合具体实现。View 层不经过 @Environment 就能创建 ViewModel，绕过了整个 DI 链路。测试时虽然可以传入替代实现，但生产代码中的默认值掩盖了真实依赖
+- **何时重新评估**：不适用——默认参数隐式耦合的问题是结构性的，不因场景变化而改变
 
 ### 方案 C：第三方 DI 框架（Swinject、Factory 等）
 
@@ -41,6 +43,7 @@ date: 2026-03-13
 ### 方案 D：@Environment 直接注入具体类型
 
 - **为什么否决**：`@Environment(ConcreteType.self)` 绕过协议抽象，下游包直接依赖上游具体实现，破坏依赖方向原则
+- **何时重新评估**：不适用——绕过协议抽象的问题是架构原则性的，不因场景变化而改变
 
 ## 后果
 

@@ -48,6 +48,7 @@ App ──► Infrastructure ──► Core
 ### 方案 C：Core + Data 合并为一个包
 
 - **为什么否决**：Core 是零依赖的纯逻辑包（SM-2 算法、OCR 封装），可以在 macOS 命令行跑 `swift test`。Data 依赖 SwiftData 框架。合并后 Core 的可独立测试性丧失
+- **何时重新评估**：如果 Core 包的独立测试价值不再显著（如所有测试都需要 Xcode 环境），合并可减少包管理开销
 
 ## 后果
 

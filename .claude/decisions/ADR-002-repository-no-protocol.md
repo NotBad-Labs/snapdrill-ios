@@ -24,10 +24,12 @@ date: 2026-03-03
 
 - **为什么否决**：每个 Repository 协议只有一个生产实现（具体 Repository 类），Mock 实现是额外的维护负担。in-memory ModelContainer 提供的是**真实的 SwiftData 行为**（包括 Predicate 查询、关系、级联删除），Mock 反而可能掩盖真实 bug
 - **补充证据**：PR #249 的 Gemini Review 曾发现 Mock 测试通过但实际行为不一致的问题，印证了 in-memory 测试优于 Mock 测试
+- **何时重新评估**：如果 SwiftData in-memory ModelContainer 在某些场景下无法模拟生产行为（如特定迁移路径），需要 Mock 作为补充
 
 ### 方案 B：跨包时用协议，包内用具体类
 
 - **为什么否决**：当前 Repository 从 SnapDrillData 暴露给 SnapDrillFeatures，确实跨包。但 Repository 有 in-memory ModelContainer 这一替代测试手段，属于 `principles.md` 协议判断标准的明确例外。跨包 ≠ 必须协议，关键是有无替代测试手段
+- **何时重新评估**：如果需要多种数据源后端（如 CloudKit + 本地混合查询），Repository 协议可为不同后端提供统一接口
 
 ## 后果
 

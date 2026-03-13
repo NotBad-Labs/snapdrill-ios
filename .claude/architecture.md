@@ -88,13 +88,18 @@ SnapDrillFeatures/Sources/SnapDrillFeature<Name>/
 
 ## 关键设计决策
 
-| 决策 | 结论 |
-|---|---|
-| Domain 层 | **已删除**（2026-03-03）。@Model 直接作领域对象 |
-| UseCase 层 | **已删除**（2026-03-03）。ViewModel 直接调 Repository |
-| Repository 协议 | **已删除**。具体类直接使用，测试用 in-memory ModelContainer |
-| Export DTO | `ReviewExportSnapshot`（6字段 Sendable struct），桥接 @Model → Transferable |
-| 列表驱动 | @Query（LibraryView 等），Repository.fetch（ReviewViewModel 状态机）|
+| 决策 | 结论 | ADR |
+|---|---|---|
+| Domain 层 | **已删除**（2026-03-03）。@Model 直接作领域对象 | [ADR-001](decisions/ADR-001-model-as-domain-object.md) |
+| UseCase 层 | **已删除**（2026-03-03）。ViewModel 直接调 Repository | [ADR-001](decisions/ADR-001-model-as-domain-object.md) |
+| Repository 协议 | **已删除**。具体类直接使用，测试用 in-memory ModelContainer | [ADR-002](decisions/ADR-002-repository-no-protocol.md) |
+| 持久化框架 | SwiftData（非 CoreData / SQLite / Realm） | [ADR-006](decisions/ADR-006-swiftdata-over-coredata.md) |
+| 包结构 | 5 包严格单向依赖 | [ADR-003](decisions/ADR-003-five-package-structure.md) |
+| DI 模式 | DependencyContainer 唯一单例 + @Environment | [ADR-004](decisions/ADR-004-dependency-injection-pattern.md) |
+| Infrastructure 隔离 | Firebase 封装在独立包，仅 App 可 import | [ADR-005](decisions/ADR-005-infrastructure-isolation.md) |
+| 复习算法 | SM-2（经典，简单，与产品定位匹配） | [ADR-007](decisions/ADR-007-sm2-algorithm.md) |
+| Export DTO | `ReviewExportSnapshot`（6字段 Sendable struct），桥接 @Model → Transferable | — |
+| 列表驱动 | @Query（LibraryView 等），Repository.fetch（ReviewViewModel 状态机）| — |
 
 ## Feature 间依赖（2026-03-07 精化）
 

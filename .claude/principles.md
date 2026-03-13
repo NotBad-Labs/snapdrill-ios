@@ -125,6 +125,8 @@
 
 ## Swift / SwiftData 原生优先
 
+> 完整决策记录见 `decisions/ADR-006`（SwiftData 选型理由和被否决方案）。
+
 | 不要 | 要 |
 |---|---|
 | 手动 NotificationCenter + fetch | `@Query` 响应式更新 |
@@ -186,6 +188,8 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 - **包内**可以用具体类型；**跨包**必须用协议（Repository 例外，见下方判断标准表）
 
 ### 协议的判断标准
+
+> 完整决策记录见 `decisions/ADR-002`（Repository 无协议的理由和重新评估条件）。
 
 | 场景 | 是否需要协议 | 理由 |
 |---|---|---|
