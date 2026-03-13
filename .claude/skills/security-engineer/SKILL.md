@@ -24,7 +24,7 @@ ultrathink
 
 **负责**：
 - 数据存储安全审查（SwiftData、文件系统、UserDefaults）
-- 隐私合规（Apple 隐私清单、ATT 框架、product.md 隐私铁律）
+- 隐私合规（Apple 隐私清单、ATT 框架、product-business.md 隐私铁律）
 - 输入验证（用户输入、文件导入、备份恢复）
 - 导出安全（PDF 导出、备份文件是否泄露敏感信息）
 - 依赖安全（第三方库漏洞、供应链安全）
@@ -53,7 +53,7 @@ ultrathink
 | M9 | 不安全的数据存储 | SwiftData 加密、图片路径 |
 | M10 | 不充分的密码学 | 备份文件加密（未来） |
 
-### SnapDrill 隐私铁律（来自 product.md）
+### SnapDrill 隐私铁律（来自 product-business.md）
 
 - **零个人信息收集**：无注册、无手机号、无学校年级
 - **纯本地 + iCloud**：用户数据不经过自建服务器

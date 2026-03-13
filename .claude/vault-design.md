@@ -1,7 +1,7 @@
 # 多 Profile（Vault）架构设计
 
 > v1.5 规划文档，2026-03-10 创建
-> 产品依据：`product.md` 旅程 5 — 多孩家庭没有 Profile = 产品不可用
+> 产品依据：`product-journeys.md` 旅程 5 — 多孩家庭没有 Profile = 产品不可用
 
 ## 设计理念
 
