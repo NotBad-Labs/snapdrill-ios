@@ -2,10 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-@.claude/product.md
+@.claude/product-vision.md
+@.claude/product-requirements.md
+@.claude/product-journeys.md
+@.claude/product-business.md
 @.claude/principles.md
 @.claude/architecture.md
-@.claude/refactoring-plan.md
+@.claude/workflow.md
+@.claude/conventions.md
 @.claude/infrastructure.md
 
 ## Commands
@@ -60,7 +64,8 @@ SnapDrill is a question archiving and spaced-repetition review app for students 
 
 ## Key Conventions
 
-详见 `.claude/principles.md` 以下章节：
-- **并发规则** — Swift 6 strict concurrency、ViewModel 模式、Task 句柄
-- **编码规范** — 日志、错误处理、MARK 顺序、文件头、注释语言、孤儿功能禁止
-- **禁止事项** — `@unchecked Sendable`、force unwrap、`any` existentials 例外等
+详见 `.claude/conventions.md`（并发规则、View 层约束、日志/错误处理/MARK 顺序/文件头/注释、禁止事项）。
+
+## Workflow
+
+详见 `.claude/workflow.md`（Git 工作流、Code Review 三方流程、工作优先级框架 S0-S3、角色换帽制度）。

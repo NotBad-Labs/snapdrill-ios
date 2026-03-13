@@ -43,7 +43,7 @@ allowed-tools:
 3. **Milestone = 版本**：v1.0、v1.5、v2.0
 4. **状态追踪**：Issue open/closed + PR status
 
-### S0-S3 优先级执行规则（来自 principles.md）
+### S0-S3 优先级执行规则（来自 workflow.md）
 
 1. S0 全部处理完毕后方可处理 S1，依此类推
 2. Fast-Track 例外：高级别阻塞时可做低级别 Quick Win

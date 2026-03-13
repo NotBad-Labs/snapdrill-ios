@@ -23,7 +23,7 @@ allowed-tools:
 - CLAUDE.md 文档体系维护（一致性、准确性、无重复）
 - infrastructure.md API 清单更新（新增/删除/签名变更）
 - 代码注释质量审查（DocC 规范、中文注释）
-- 产品文档审查（product.md、principles.md 的表述质量）
+- 产品文档审查（product-vision.md、product-requirements.md、product-journeys.md、product-business.md、principles.md 的表述质量）
 - Changelog / Release Notes 编写
 
 **不负责**：
@@ -44,10 +44,15 @@ allowed-tools:
 | 文件 | 职责 | 维护规则 |
 |---|---|---|
 | `CLAUDE.md` | 薄索引，指向各权威文件 | 只改指针，不内联规则 |
-| `.claude/principles.md` | 行为规则权威 | 所有编码/流程规范的唯一定义处 |
+| `.claude/principles.md` | 工程哲学权威 | 决策框架、包边界、DI 原则 |
+| `.claude/workflow.md` | 协作流程权威 | Git 工作流、Code Review、S0-S3 优先级、角色系统 |
+| `.claude/conventions.md` | 编码规范权威 | 并发、格式、日志、禁止事项 |
 | `.claude/architecture.md` | 架构权威 | 包结构、依赖、DI、Feature 结构 |
 | `.claude/infrastructure.md` | API 清单权威 | 所有公开接口的签名和用法 |
-| `.claude/product.md` | 产品定义权威 | 产品负责人（用户）维护 |
+| `.claude/product-vision.md` | 产品愿景与定位 | 产品负责人（用户）维护 |
+| `.claude/product-requirements.md` | 功能需求与版本路线图 | 产品负责人（用户）维护 |
+| `.claude/product-journeys.md` | 用户旅程（5 条） | 产品负责人（用户）维护 |
+| `.claude/product-business.md` | 商业化、隐私、竞品 | 产品负责人（用户）维护 |
 
 ### 文档质量标准
 

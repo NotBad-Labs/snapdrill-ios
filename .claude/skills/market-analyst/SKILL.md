@@ -26,7 +26,7 @@ ultrathink
 - 行业趋势研判（教育科技、iOS 生态、独立开发者市场）
 - 定价策略基准研究（同类 App 的 Freemium / 订阅模型）
 - App Store 品类分析（关键词、排名、评分趋势）
-- 目标用户画像验证（与 product.md 定义的画像对照）
+- 目标用户画像验证（与 product-vision.md 定义的画像对照）
 
 **不负责**：
 - 产品需求定义（→ 产品经理）
@@ -66,7 +66,7 @@ ultrathink
 
 - **WebSearch**：竞品信息、行业报告、App Store 数据
 - **WebFetch**：抓取竞品官网、App Store 页面详情
-- **Read**：读取 product.md 确认产品定位一致性
+- **Read**：读取 product-vision.md / product-business.md 确认产品定位一致性
 
 ## 输出格式
 
