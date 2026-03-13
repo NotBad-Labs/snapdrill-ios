@@ -125,6 +125,8 @@
 
 ## Swift / SwiftData 原生优先
 
+> 完整决策记录见 `decisions/ADR-006`（SwiftData 选型理由和被否决方案）。
+
 | 不要 | 要 |
 |---|---|
 | 手动 NotificationCenter + fetch | `@Query` 响应式更新 |
@@ -133,6 +135,8 @@
 | UseCase 透传 Repository 方法 | ViewModel 直接调用 Repository |
 
 ### 核心哲学：@Model = 领域对象（2026-03-03 确认）
+
+> 完整决策记录见 `decisions/ADR-001`（含被否决方案和重新评估条件）。
 
 SwiftData 的 `@Model` 是轻量的，不是 NSManagedObject。对于本地优先的单体 App：
 - `@Model` 直接就是领域对象，不需要映射为 Domain struct
@@ -168,6 +172,8 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 ## 包边界与依赖方向原则（2026-03-13 确立）
 
+> 完整决策记录见 `decisions/ADR-003`（5 包结构）、`decisions/ADR-005`（Infrastructure 隔离）。
+
 ### 包划分标准
 
 - 包的划分依据是**职责边界**，不是文件数量
@@ -183,6 +189,8 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 ### 协议的判断标准
 
+> 完整决策记录见 `decisions/ADR-002`（Repository 无协议的理由和重新评估条件）。
+
 | 场景 | 是否需要协议 | 理由 |
 |---|---|---|
 | SwiftData Repository | 否 | 有 in-memory ModelContainer 替代测试 |
@@ -193,6 +201,8 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 ---
 
 ## 依赖注入原则（2026-03-13 确立）
+
+> 完整决策记录见 `decisions/ADR-004`（含 4 个被否决的反模式和理由）。
 
 ### 唯一正确的 DI 模式
 
