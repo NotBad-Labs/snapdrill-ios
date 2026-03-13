@@ -8,7 +8,7 @@
 >
 > 新增 API 时：写完后同步更新本文件。
 
-最后更新：2026-03-07（Core cleanup：删除 CaptureService 空壳；PDFExportService 从 Capture/ 移至 Service/；分类管理视图迁入 SnapDrillFeatureLibrary）
+最后更新：2026-03-13（宏观架构审查：修正 API 签名、补充缺失类型、删除不存在 API）
 
 ---
 
@@ -102,6 +102,27 @@ public protocol OCRServiceProtocol {
     func recognizeText(from cgImage: CGImage) async throws -> String
 }
 
+// AnalyticsServiceProtocol（@MainActor, Sendable）
+@MainActor
+public protocol AnalyticsServiceProtocol: Sendable {
+    func track(_ event: AnalyticsEvent, parameters: [String: String])
+    func trackScreen(_ screenName: String, parameters: [String: String])
+    func startSession()
+    func endSession()
+    func setUserProperty(_ value: String, forKey key: String)
+    func trackRetention(daysSinceInstall: Int)
+}
+
+// CrashReportingProtocol（@MainActor, Sendable）
+@MainActor
+public protocol CrashReportingProtocol: Sendable {
+    func recordError(_ error: Error, context: [String: String])
+    func log(_ message: String, level: LogLevel)
+    func setUserIdentifier(_ identifier: String)
+    func setCustomValue(_ value: String, forKey key: String)
+    func leaveBreadcrumb(_ message: String, metadata: [String: String])
+}
+
 // NotificationServiceProtocol（@MainActor）
 public protocol NotificationServiceProtocol {
     func requestPermission() async -> Bool
@@ -120,6 +141,98 @@ public protocol ServiceContainer {
     var privacyConsent: PrivacyConsentService { get }
     var subscription: SubscriptionServiceProtocol { get }
     var notification: NotificationServiceProtocol { get }
+}
+```
+
+### 枚举与辅助类型
+
+```swift
+// AnalyticsEvent（enum）
+public enum AnalyticsEvent: String {
+    case appLaunched, reviewItemCreated, reviewItemCompleted
+    case reviewSessionStarted, reviewSessionCompleted
+    case screenViewed
+    case sessionStarted, sessionEnded
+    case cameraOpened, captureSaved, ocrPerformed, pdfExported, dataExported
+    case icloudSyncStarted, icloudSyncCompleted, icloudSyncFailed
+    case errorOccurred
+}
+
+// LogLevel（enum）
+public enum LogLevel {
+    case debug, info, warning, error, critical
+}
+
+// OCRError（enum, Error）
+public enum OCRError: Error {
+    case invalidImage
+}
+
+// ImageStorageError（enum, Error）
+public enum ImageStorageError: Error {
+    case invalidImageData
+}
+```
+
+### 服务实现（Core 包）
+
+```swift
+// OCRService（actor，遵循 OCRServiceProtocol）
+public actor OCRService: OCRServiceProtocol {
+    public init()
+    public func recognizeText(from cgImage: CGImage) async throws -> String
+}
+
+// AnalyticsTrackingService（@MainActor final class，遵循 AnalyticsServiceProtocol）
+// 本地日志实现，生产环境由 FirebaseAnalyticsService 替代
+@MainActor
+public final class AnalyticsTrackingService: AnalyticsServiceProtocol {
+    public static let shared: AnalyticsTrackingService
+    public func setEnabled(_ enabled: Bool)
+    public func track(_ event: AnalyticsEvent, parameters: [String: String])
+    public func trackScreen(_ screenName: String, parameters: [String: String])
+    public func startSession()
+    public func endSession()
+    public func setUserProperty(_ value: String, forKey key: String)
+    public func trackRetention(daysSinceInstall: Int)
+}
+
+// PerformanceMonitor（actor）
+public actor PerformanceMonitor {
+    public static let shared: PerformanceMonitor
+    public init()
+    public func measure<T>(_ operation: String, metadata: [String: String] = [:],
+                           _ block: () async throws -> T) async rethrows -> T
+    public func measureDatabase<T>(_ operation: String,
+                                   _ block: () async throws -> T) async rethrows -> T
+    public func measureNetwork<T>(_ operation: String,
+                                  _ block: () async throws -> T) async rethrows -> T
+    public func measureUI<T>(_ operation: String,
+                             _ block: () async throws -> T) async rethrows -> T
+    public func getMetrics() -> [Metric]
+    public func getAverageDuration(for operation: String) -> TimeInterval?
+    public func getPerformanceReport() -> String
+    public func clearMetrics()
+
+    public struct Metric: Sendable {
+        public let operation: String
+        public let duration: TimeInterval
+        public let timestamp: Date
+        public let metadata: [String: String]
+    }
+}
+
+// NetworkMonitor（@MainActor @Observable final class）
+@MainActor @Observable
+public final class NetworkMonitor {
+    public static let shared: NetworkMonitor
+    public init()
+    public private(set) var isConnected: Bool
+    public private(set) var connectionType: ConnectionType
+
+    public enum ConnectionType {
+        case wifi, cellular, wired, unknown
+    }
 }
 ```
 
@@ -276,6 +389,7 @@ public func fetchOrCreateModel(name: String, colorHex: String) throws -> TagMode
 public func saveContext() throws
 public func delete(id: UUID) throws
 public func deleteAll() throws
+// 注意：TagRepository 没有 totalCount()，与 Subject/Source/Grade Repository 不同
 ```
 
 ### RepositoryContainer（@MainActor final class）
@@ -495,10 +609,15 @@ public enum FirebaseBootstrap {
 ### FirebaseAnalyticsService（@MainActor final class，遵循 AnalyticsServiceProtocol）
 
 ```swift
+public static let shared: FirebaseAnalyticsService
 public init()
 public func markConfigured()
-public func track(event: AnalyticsEvent)
-public func setUserProperty(_ value: String, forName name: String)
+public func track(_ event: AnalyticsEvent, parameters: [String: String])
+public func trackScreen(_ screenName: String, parameters: [String: String])
+public func startSession()
+public func endSession()
+public func setUserProperty(_ value: String, forKey key: String)
+public func trackRetention(daysSinceInstall: Int)
 ```
 
 ### FirebaseRemoteConfigService（@MainActor final class，遵循 RemoteConfigProtocol）

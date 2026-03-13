@@ -30,7 +30,7 @@
 
 | ID | 描述 | 来源 | 偿还条件 |
 |---|---|---|---|
-| TD-2 | 6 个 `.shared` 单例（CaptureDraftService、PDFExportService、PerformanceMonitor、NetworkMonitor、AppConfiguration、OnboardingManager）待迁移到 DI 注入；部分具体实现暂留 Core 包 | [principles.md](principles.md) 技术债标记 + [ADR-003](decisions/ADR-003-five-package-structure.md) + [ADR-004](decisions/ADR-004-dependency-injection-pattern.md) 技术债节 | Core → Core + Services 拆包时统一清理 |
+| TD-2 | 9 个 `.shared` 单例待迁移到 DI 注入：CaptureDraftService、PDFExportService、PerformanceMonitor、NetworkMonitor、AppConfiguration、OnboardingManager、KeychainService、PrivacyConsentService、AnalyticsTrackingService；部分具体实现暂留 Core 包。另有 PersistenceController.shared（SwiftData 入口，由 DependencyContainer 持有）和 Infrastructure 包内 2 个（FirebaseAnalyticsService、CrashReportingService，已通过 ServiceContainer DI 注入） | [principles.md](principles.md) 技术债标记 + [ADR-003](decisions/ADR-003-five-package-structure.md) + [ADR-004](decisions/ADR-004-dependency-injection-pattern.md) 技术债节 | Core → Core + Services 拆包时统一清理 |
 
 ### 渐进消解
 

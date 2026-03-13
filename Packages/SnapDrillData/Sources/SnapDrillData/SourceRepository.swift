@@ -33,6 +33,7 @@ public final class SourceRepository {
         if let model = try fetchModelById(id) {
             modelContext.delete(model)
             try modelContext.save()
+            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
         }
     }
     
@@ -106,11 +107,13 @@ public final class SourceRepository {
         }
         modelContext.insert(model)
         try modelContext.save()
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
     }
 
     /// 保存 ModelContext（直接修改 @Model 属性后调用）
     public func saveContext() throws {
         try modelContext.save()
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
     }
 
     // MARK: - Private Helpers

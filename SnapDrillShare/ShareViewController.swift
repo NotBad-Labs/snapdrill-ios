@@ -27,13 +27,19 @@ final class ShareViewController: UIViewController {
     /// Extension 专用日志
     private static let logger = Logger(subsystem: "com.snapdrill.share", category: "ShareExtension")
 
+    private var shareTask: Task<Void, Never>?
+
     // MARK: - View Body / Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        Task {
+        shareTask = Task {
             await handleSharedContent()
         }
+    }
+
+    deinit {
+        shareTask?.cancel()
     }
 
     // MARK: - Private Helpers
