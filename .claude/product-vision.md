@@ -1,7 +1,5 @@
 # SnapDrill 产品愿景
 
-> **下游影响**：`product-requirements.md`、`product-journeys.md`、`product-business.md`、`principles.md`
->
 > 本文件定义「为什么做」——使命、定位、用户、原则。极少变更（除非 pivot）。
 > 「做什么」见 `product-requirements.md`，「用户视角验证」见 `product-journeys.md`，「怎么卖」见 `product-business.md`。
 >

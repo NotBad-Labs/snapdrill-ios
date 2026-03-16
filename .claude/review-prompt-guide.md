@@ -1,7 +1,6 @@
 # Antigravity Review 提示词写作规范
 
 > **上游依赖**：`workflow.md`（Code Review 铁律、操作手册）
-> **下游影响**：无
 >
 > 每次为 PR 撰写 Antigravity review 提示词时，参照此规范。
 > 目标：风格统一、关注点完整、简洁自然语言、聚焦本次变更的特有风险。

@@ -1,7 +1,6 @@
 # 多 Profile（Vault）架构设计
 
 > **上游依赖**：`product-requirements.md`（v1.5 路线图）、`product-journeys.md`（旅程 5 — 多孩家庭）
-> **下游影响**：未来 v1.5 实现时影响 `architecture.md`、`infrastructure.md`
 >
 > v1.5 规划文档，2026-03-10 创建。当前为前瞻性设计，未进入实现阶段。
 

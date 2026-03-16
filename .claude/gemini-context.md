@@ -1,7 +1,6 @@
 # SnapDrill — Gemini 审查上下文
 
 > **上游依赖**：`architecture.md`（包结构）、`conventions.md`（编码规范）、`principles.md`（工程哲学）
-> **下游影响**：无
 >
 > 本文件供 Gemini GitHub Action 自动 review 使用，注入项目基本事实与架构约束。
 > 所有约束的完整定义在权威文档中，本文件只做精简摘要和指针。

@@ -1,7 +1,6 @@
 # SnapDrill 协作流程
 
 > **上游依赖**：`principles.md`（工程哲学、决策框架）
-> **下游影响**：无
 >
 > 本文件定义「怎么协作」——Git 工作流、Code Review、优先级框架、角色系统。
 > 「怎么想」见 `principles.md`，「怎么写代码」见 `conventions.md`。
