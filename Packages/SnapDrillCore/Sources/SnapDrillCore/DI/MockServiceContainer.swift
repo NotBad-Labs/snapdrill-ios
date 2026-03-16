@@ -22,13 +22,9 @@ public final class MockServiceContainer: ServiceContainer {
     // MARK: - ServiceContainer
 
     public let analytics: AnalyticsServiceProtocol
-    public let crashReporting: CrashReportingProtocol
-    public let performanceMonitor: PerformanceMonitor
-    public let networkMonitor: NetworkMonitor
     public let pdfExport: PDFExportService
     public let appConfig: AppConfiguration
     public let privacyConsent: PrivacyConsentService
-    public let subscription: SubscriptionServiceProtocol
     public let notification: NotificationServiceProtocol
 
     // MARK: - Initialization
@@ -36,13 +32,9 @@ public final class MockServiceContainer: ServiceContainer {
     /// 创建全 Mock 实现的服务容器，适用于单元测试和 SwiftUI Preview
     public init() {
         self.analytics = AnalyticsServiceMock()
-        self.crashReporting = CrashReportingServiceMock()
-        self.performanceMonitor = PerformanceMonitor()
-        self.networkMonitor = NetworkMonitor()
         self.pdfExport = PDFExportService()
         self.appConfig = AppConfiguration()
         self.privacyConsent = PrivacyConsentService()
-        self.subscription = SubscriptionServiceMock()
         self.notification = NotificationServiceMock()
     }
 }

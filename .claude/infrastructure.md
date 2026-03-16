@@ -8,7 +8,7 @@
 >
 > 新增 API 时：写完后同步更新本文件。
 
-最后更新：2026-03-13（宏观架构审查：修正 API 签名、补充缺失类型、删除不存在 API）
+最后更新：2026-03-13（删除 ~1,200 行投机性基础设施代码，ServiceContainer 9→5 属性）
 
 ---
 
@@ -113,16 +113,6 @@ public protocol AnalyticsServiceProtocol: Sendable {
     func trackRetention(daysSinceInstall: Int)
 }
 
-// CrashReportingProtocol（@MainActor, Sendable）
-@MainActor
-public protocol CrashReportingProtocol: Sendable {
-    func recordError(_ error: Error, context: [String: String])
-    func log(_ message: String, level: LogLevel)
-    func setUserIdentifier(_ identifier: String)
-    func setCustomValue(_ value: String, forKey key: String)
-    func leaveBreadcrumb(_ message: String, metadata: [String: String])
-}
-
 // NotificationServiceProtocol（@MainActor）
 public protocol NotificationServiceProtocol {
     func requestPermission() async -> Bool
@@ -133,14 +123,88 @@ public protocol NotificationServiceProtocol {
 // ServiceContainer（protocol, @MainActor）
 public protocol ServiceContainer {
     var analytics: AnalyticsServiceProtocol { get }
-    var crashReporting: CrashReportingProtocol { get }
-    var performanceMonitor: PerformanceMonitor { get }
-    var networkMonitor: NetworkMonitor { get }
     var pdfExport: PDFExportService { get }
     var appConfig: AppConfiguration { get }
     var privacyConsent: PrivacyConsentService { get }
-    var subscription: SubscriptionServiceProtocol { get }
     var notification: NotificationServiceProtocol { get }
+}
+```
+
+### 应用配置
+
+```swift
+// RemoteConfigurable（@MainActor protocol，路径：Support/AppConfiguration.swift）
+@MainActor
+public protocol RemoteConfigurable {
+    func fetchAndActivate() async throws
+    func bool(forKey key: String) -> Bool
+    func string(forKey key: String) -> String?
+    func double(forKey key: String) -> Double?
+}
+
+// AppConfiguration（@MainActor final class，路径：Support/AppConfiguration.swift）
+@MainActor
+public final class AppConfiguration {
+    public static let shared: AppConfiguration
+    public init()
+
+    // App Info
+    public var appVersion: String { get }
+    public var buildNumber: String { get }
+    public var bundleIdentifier: String { get }
+    public var fullVersion: String { get }
+
+    // Environment
+    public var environment: Environment { get }
+    public var isProduction: Bool { get }
+    public func resetToDefaults()
+
+    public enum Environment {
+        case development, staging, production
+        public static var current: Environment { get }
+    }
+
+    @MainActor
+    public struct FeatureFlags {
+        public static func registerRemoteProvider(_ provider: any RemoteConfigurable)
+        public static var crashReportingEnabled: Bool { get set }
+        public static var analyticsEnabled: Bool { get set }
+        public static var iCloudSyncEnabled: Bool { get set }
+        public static var isEmergencyKillSwitchActive: Bool { get }  // 远程 kill-switch，只读
+    }
+}
+
+// PrivacyConsentService（@MainActor final class，路径：Service/PrivacyConsentService.swift）
+// #if canImport(AppTrackingTransparency)
+@MainActor
+public final class PrivacyConsentService {
+    public static let shared: PrivacyConsentService
+    public init()
+    public var trackingStatus: ATTrackingManager.AuthorizationStatus { get }
+    public var isTrackingAuthorized: Bool { get }
+    public func requestTrackingAuthorization() async -> ATTrackingManager.AuthorizationStatus
+    public var shouldShowPrePrompt: Bool { get }  // 首次未决策时为 true
+}
+```
+
+### DI 容器实现
+
+```swift
+// LiveServiceContainer（@MainActor final class，路径：DI/LiveServiceContainer.swift）
+@MainActor
+public final class LiveServiceContainer: ServiceContainer {
+    public init(
+        analytics: AnalyticsServiceProtocol? = nil,   // nil → AnalyticsServiceMock()
+        notification: NotificationServiceProtocol? = nil  // nil → LiveNotificationService()
+    )
+    // 内部自动创建：AppConfiguration(), PDFExportService(), PrivacyConsentService()
+}
+
+// MockServiceContainer（@MainActor final class，路径：DI/MockServiceContainer.swift）
+@MainActor
+public final class MockServiceContainer: ServiceContainer {
+    public init()
+    // 全部 Mock 实现，适用于单元测试和 SwiftUI Preview
 }
 ```
 
@@ -156,11 +220,6 @@ public enum AnalyticsEvent: String {
     case cameraOpened, captureSaved, ocrPerformed, pdfExported, dataExported
     case icloudSyncStarted, icloudSyncCompleted, icloudSyncFailed
     case errorOccurred
-}
-
-// LogLevel（enum）
-public enum LogLevel {
-    case debug, info, warning, error, critical
 }
 
 // OCRError（enum, Error）
@@ -183,57 +242,6 @@ public actor OCRService: OCRServiceProtocol {
     public func recognizeText(from cgImage: CGImage) async throws -> String
 }
 
-// AnalyticsTrackingService（@MainActor final class，遵循 AnalyticsServiceProtocol）
-// 本地日志实现，生产环境由 FirebaseAnalyticsService 替代
-@MainActor
-public final class AnalyticsTrackingService: AnalyticsServiceProtocol {
-    public static let shared: AnalyticsTrackingService
-    public func setEnabled(_ enabled: Bool)
-    public func track(_ event: AnalyticsEvent, parameters: [String: String])
-    public func trackScreen(_ screenName: String, parameters: [String: String])
-    public func startSession()
-    public func endSession()
-    public func setUserProperty(_ value: String, forKey key: String)
-    public func trackRetention(daysSinceInstall: Int)
-}
-
-// PerformanceMonitor（actor）
-public actor PerformanceMonitor {
-    public static let shared: PerformanceMonitor
-    public init()
-    public func measure<T>(_ operation: String, metadata: [String: String] = [:],
-                           _ block: () async throws -> T) async rethrows -> T
-    public func measureDatabase<T>(_ operation: String,
-                                   _ block: () async throws -> T) async rethrows -> T
-    public func measureNetwork<T>(_ operation: String,
-                                  _ block: () async throws -> T) async rethrows -> T
-    public func measureUI<T>(_ operation: String,
-                             _ block: () async throws -> T) async rethrows -> T
-    public func getMetrics() -> [Metric]
-    public func getAverageDuration(for operation: String) -> TimeInterval?
-    public func getPerformanceReport() -> String
-    public func clearMetrics()
-
-    public struct Metric: Sendable {
-        public let operation: String
-        public let duration: TimeInterval
-        public let timestamp: Date
-        public let metadata: [String: String]
-    }
-}
-
-// NetworkMonitor（@MainActor @Observable final class）
-@MainActor @Observable
-public final class NetworkMonitor {
-    public static let shared: NetworkMonitor
-    public init()
-    public private(set) var isConnected: Bool
-    public private(set) var connectionType: ConnectionType
-
-    public enum ConnectionType {
-        case wifi, cellular, wired, unknown
-    }
-}
 ```
 
 ### 其他核心类型
@@ -620,7 +628,7 @@ public func setUserProperty(_ value: String, forKey key: String)
 public func trackRetention(daysSinceInstall: Int)
 ```
 
-### FirebaseRemoteConfigService（@MainActor final class，遵循 RemoteConfigProtocol）
+### FirebaseRemoteConfigService（@MainActor final class，遵循 RemoteConfigurable）
 
 ```swift
 public init()
@@ -628,20 +636,6 @@ public func fetchAndActivate() async throws
 public func bool(forKey key: String) -> Bool
 public func string(forKey key: String) -> String?
 public func double(forKey key: String) -> Double?
-```
-
-### CrashReportingService（@MainActor final class，遵循 CrashReportingProtocol）
-
-```swift
-public static let shared: CrashReportingService
-public init()                                              // public（跨模块可访问）
-public func markConfigured()
-public func setEnabled(_ enabled: Bool)
-public func recordError(_ error: Error, context: [String: String])
-public func log(_ message: String, level: LogLevel)
-public func setUserIdentifier(_ identifier: String)
-public func setCustomValue(_ value: String, forKey key: String)
-public func leaveBreadcrumb(_ message: String, metadata: [String: String])
 ```
 
 ---

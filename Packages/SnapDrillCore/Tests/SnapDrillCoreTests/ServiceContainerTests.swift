@@ -33,7 +33,6 @@ struct ServiceContainerTests {
         let container = MockServiceContainer()
 
         #expect(container.analytics is AnalyticsServiceMock)
-        #expect(container.crashReporting is CrashReportingServiceMock)
         #expect(container.notification is NotificationServiceMock)
     }
 
@@ -46,7 +45,6 @@ struct ServiceContainerTests {
         let mock = MockServiceContainer()
 
         #expect(mock.analytics is AnalyticsServiceMock)
-        #expect(mock.crashReporting is CrashReportingServiceMock)
         #expect(mock.notification is NotificationServiceMock)
     }
 }
