@@ -2,6 +2,8 @@
 
 **SnapDrill** 是一款面向学生和家长的练习题数字化存档与间隔重复复习工具，帮助用户以最低成本完成"看到题目 → 数字化存档"的过程。
 
+**[项目状态看板](STATUS.md)** — 当前阶段：v1.0 架构夯实
+
 ## 架构设计
 
 项目采用基于 Swift Package Manager (SPM) 的 **严格模块化架构 (Strict Modular Architecture)**。主 App Target 仅仅是一个薄层，负责将各功能模块组合在一起。

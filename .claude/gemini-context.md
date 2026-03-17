@@ -10,8 +10,8 @@
 ## 项目基本事实
 
 - **技术栈**：Swift 6.2 + SwiftUI + SwiftData，iOS 26.0+
-- **规模**：5 个 SPM 包（Core / Data / UI / Features / Infrastructure），~180 个 Swift 文件
-- **产品定位**：本地优先单用户练习题数字化存档与间隔重复复习 App
+- **规模**：5 个 SPM 包（Core / Data / UI / Features / Infrastructure），~176 个 Swift 文件
+- **产品定位**：本地优先单用户练习题数字化存档与间隔重复复习 App（面向全球发布，中国和美国为 T1 核心市场）
 - **并发模型**：Swift 6 strict concurrency，所有 ViewModel 为 `@Observable @MainActor final class`
 
 ## 包结构
