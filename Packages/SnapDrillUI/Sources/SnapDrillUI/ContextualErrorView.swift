@@ -18,10 +18,6 @@ public enum AppError: LocalizedError {
     
     // MARK: - Cases
 
-    /// 网络不可用
-    case networkUnavailable
-    /// iCloud 不可用（未登录或配额已满）
-    case iCloudUnavailable
     /// 相机权限被拒绝
     case cameraPermissionDenied
     /// 相册权限被拒绝
@@ -42,10 +38,6 @@ public enum AppError: LocalizedError {
     /// 面向用户的错误标题（遵循 `LocalizedError`）
     public var errorDescription: String? {
         switch self {
-        case .networkUnavailable:
-            return L10n.Errors.networkUnavailable
-        case .iCloudUnavailable:
-            return L10n.Errors.icloudUnavailable
         case .cameraPermissionDenied:
             return L10n.Errors.cameraPermissionDenied
         case .photoLibraryPermissionDenied:
@@ -66,10 +58,6 @@ public enum AppError: LocalizedError {
     /// 给用户的恢复建议（遵循 `LocalizedError`）
     public var recoverySuggestion: String? {
         switch self {
-        case .networkUnavailable:
-            return "请检查网络连接后重试。部分功能在离线模式下可能不可用。"
-        case .iCloudUnavailable:
-            return "请检查 iCloud 设置并确保已登录。数据将暂时保存在本地。"
         case .cameraPermissionDenied:
             return "请在「设置」→「SnapDrill」→「相机」中允许访问相机权限。"
         case .photoLibraryPermissionDenied:
@@ -90,10 +78,6 @@ public enum AppError: LocalizedError {
     /// 错误对应的 SF Symbol 名称
     public var icon: String {
         switch self {
-        case .networkUnavailable:
-            return "wifi.slash"
-        case .iCloudUnavailable:
-            return "icloud.slash"
         case .cameraPermissionDenied:
             return "camera.fill"
         case .photoLibraryPermissionDenied:
@@ -116,8 +100,6 @@ public enum AppError: LocalizedError {
         switch self {
         case .cameraPermissionDenied, .photoLibraryPermissionDenied:
             return L10n.Common.openSettings
-        case .networkUnavailable, .iCloudUnavailable:
-            return L10n.Common.retry
         case .ocrFailed, .exportFailed, .importFailed:
             return L10n.Common.retry
         case .dataCorrupted:
@@ -245,12 +227,6 @@ public struct ErrorBannerView: View {
     }
 }
 
-#Preview("Network Error") {
-    ContextualErrorView(error: .networkUnavailable) {
-        SnapDrillLogger.generic.info("Retry tapped")
-    }
-}
-
 #Preview("Camera Permission") {
     ContextualErrorView(error: .cameraPermissionDenied) {
         SnapDrillLogger.generic.info("Open Settings")
@@ -259,7 +235,7 @@ public struct ErrorBannerView: View {
 
 #Preview("Error Banner") {
     VStack {
-        ErrorBannerView(error: .iCloudUnavailable) {
+        ErrorBannerView(error: .ocrFailed("测试错误")) {
             SnapDrillLogger.generic.info("Dismissed")
         }
         Spacer()

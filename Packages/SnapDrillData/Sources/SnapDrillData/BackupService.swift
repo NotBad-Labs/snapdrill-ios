@@ -53,7 +53,10 @@ public actor BackupService {
         try? fileManager.removeItem(at: backupURL)
 
         // 创建 ZIP 归档
-        guard let archive = Archive(url: backupURL, accessMode: .create) else {
+        let archive: Archive
+        do {
+            archive = try Archive(url: backupURL, accessMode: .create)
+        } catch {
             throw BackupError.archiveCreationFailed
         }
 
@@ -121,7 +124,10 @@ public actor BackupService {
     /// - Parameter backupURL: .snapdrill 文件路径
     /// - Returns: 备份清单信息
     public func readManifest(from backupURL: URL) throws -> BackupManifest {
-        guard let archive = Archive(url: backupURL, accessMode: .read) else {
+        let archive: Archive
+        do {
+            archive = try Archive(url: backupURL, accessMode: .read)
+        } catch {
             throw BackupError.invalidArchive
         }
         guard let manifestEntry = archive["manifest.json"] else {
@@ -143,7 +149,10 @@ public actor BackupService {
     /// - Parameter backupURL: .snapdrill 文件路径
     /// - Returns: 反序列化的数据载荷
     public func extractPayload(from backupURL: URL) throws -> BackupPayload {
-        guard let archive = Archive(url: backupURL, accessMode: .read) else {
+        let archive: Archive
+        do {
+            archive = try Archive(url: backupURL, accessMode: .read)
+        } catch {
             throw BackupError.invalidArchive
         }
         guard let dataEntry = archive["data.json"] else {
@@ -171,7 +180,10 @@ public actor BackupService {
         to imageBasePath: URL,
         onProgress: ProgressHandler? = nil
     ) throws {
-        guard let archive = Archive(url: backupURL, accessMode: .read) else {
+        let archive: Archive
+        do {
+            archive = try Archive(url: backupURL, accessMode: .read)
+        } catch {
             throw BackupError.invalidArchive
         }
 

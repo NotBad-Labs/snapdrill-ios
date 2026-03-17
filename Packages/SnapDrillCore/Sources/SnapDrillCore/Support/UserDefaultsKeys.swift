@@ -56,7 +56,6 @@ public enum UDKey {
     public static let analyticsEnabled = "analyticsEnabled"
     public static let analyticsConfigured = "analyticsConfigured"
     public static let crashReportingEnabled = "crashReportingEnabled"
-    public static let iCloudSyncEnabled = "iCloudSyncEnabled"
 
     // MARK: - Review Settings
 
@@ -71,11 +70,6 @@ public enum UDKey {
     public static let notificationMinute = "notificationMinute"
     public static let soundEnabled = "soundEnabled"
     public static let badgeEnabled = "badgeEnabled"
-
-    // MARK: - Data & Sync
-
-    public static let autoDeleteOldItems = "autoDeleteOldItems"
-    public static let autoDeleteDays = "autoDeleteDays"
 
     // MARK: - Privacy
 

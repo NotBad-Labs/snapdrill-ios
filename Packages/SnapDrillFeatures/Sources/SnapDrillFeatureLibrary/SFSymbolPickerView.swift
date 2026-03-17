@@ -28,75 +28,36 @@ public struct SFSymbolPickerView: View {
         self._selectedSymbol = selectedSymbol
     }
     
-    // 常用图标分类
-    private let categories: [(name: String, symbols: [String])] = [
-        ("学习 & 教育", [
-            "book", "book.fill", "books.vertical", "books.vertical.fill",
-            "text.book.closed", "text.book.closed.fill", "bookmark", "bookmark.fill",
-            "graduationcap", "graduationcap.fill", "pencil", "pencil.circle",
-            "highlighter", "note.text", "doc.text", "doc.text.fill"
-        ]),
-        ("科学 & 数学", [
-            "function", "sum", "percent", "plusminus",
-            "atom", "atom.fill", "flask", "flask.fill",
-            "testtube.2", "brain", "brain.head.profile", "waveform.path.ecg"
-        ]),
-        ("艺术 & 创意", [
-            "paintbrush", "paintbrush.fill", "paintpalette", "paintpalette.fill",
-            "pencil.tip", "pencil.tip.crop.circle", "scribble", "scribble.variable",
-            "theatermasks", "theatermasks.fill", "music.note", "music.note.list"
-        ]),
-        ("自然 & 地理", [
-            "globe", "globe.americas", "globe.europe.africa", "globe.asia.australia",
-            "leaf", "leaf.fill", "tree", "tree.fill",
-            "flame", "flame.fill", "drop", "drop.fill"
-        ]),
-        ("运动 & 健康", [
-            "sportscourt", "sportscourt.fill", "figure.run", "figure.walk",
-            "figure.basketball", "figure.tennis", "football", "football.fill",
-            "basketball", "basketball.fill", "soccerball", "tennisball"
-        ]),
-        ("科技 & 设备", [
-            "desktopcomputer", "laptopcomputer", "iphone", "ipad",
-            "gamecontroller", "gamecontroller.fill", "keyboard", "keyboard.fill",
-            "cpu", "cpu.fill", "memorychip", "memorychip.fill"
-        ]),
-        ("符号 & 形状", [
-            "star", "star.fill", "heart", "heart.fill",
-            "circle", "circle.fill", "square", "square.fill",
-            "triangle", "triangle.fill", "diamond", "diamond.fill"
-        ]),
-        ("箭头 & 导航", [
-            "arrow.up", "arrow.down", "arrow.left", "arrow.right",
-            "arrow.up.circle", "arrow.down.circle", "chevron.up", "chevron.down",
-            "location", "location.fill", "mappin", "mappin.circle"
-        ]),
-        ("媒体 & 相机", [
-            "camera", "camera.fill", "video", "video.fill",
-            "photo", "photo.fill", "film", "film.fill",
-            "speaker", "speaker.fill", "mic", "mic.fill"
-        ]),
-        ("通用", [
-            "house", "house.fill", "gear", "gear.circle",
-            "person", "person.fill", "person.2", "person.2.fill",
-            "bell", "bell.fill", "envelope", "envelope.fill",
-            "calendar", "calendar.circle", "clock", "clock.fill",
-            "folder", "folder.fill", "tag", "tag.fill",
-            "flag", "flag.fill", "link", "link.circle"
-        ])
+    // 预设教育图标集（~20 个，PR§系统字段选项管理定义）
+    private let presetIcons: [String] = [
+        "function",              // 数学
+        "book.fill",             // 语文
+        "character.textbox",     // 英语
+        "flask.fill",            // 化学
+        "atom",                  // 物理
+        "leaf.fill",             // 生物
+        "globe.asia.australia",  // 地理
+        "clock.fill",            // 历史
+        "person.2.fill",         // 政治/社会
+        "paintpalette.fill",     // 美术
+        "music.note",            // 音乐
+        "figure.run",            // 体育
+        "cpu",                   // 信息技术
+        "brain",                 // 科学
+        "graduationcap.fill",    // 综合
+        "star.fill",             // 通用
+        "bookmark.fill",         // 阅读
+        "pencil",                // 写作
+        "doc.text.fill",         // 试卷
+        "folder.fill"            // 其他
     ]
     
-    /// 所有图标的扁平列表
-    private var allSymbols: [String] {
-        categories.flatMap { $0.symbols }
-    }
-    
     /// 过滤后的图标
-    private var filteredSymbols: [String] {
+    private var filteredIcons: [String] {
         if searchText.isEmpty {
-            return allSymbols
+            return presetIcons
         }
-        return allSymbols.filter { $0.localizedCaseInsensitiveContains(searchText) }
+        return presetIcons.filter { $0.localizedCaseInsensitiveContains(searchText) }
     }
     
     public var body: some View {
@@ -152,48 +113,23 @@ public struct SFSymbolPickerView: View {
                 
                 // 图标网格
                 ScrollView {
-                    if searchText.isEmpty && !showManualInput {
-                        // 分类显示
-                        LazyVStack(alignment: .leading, spacing: 20) {
-                            ForEach(categories, id: \.name) { category in
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text(category.name)
-                                        .font(.headline)
-                                        .padding(.horizontal)
-                                    
-                                    LazyVGrid(
-                                        columns: [GridItem(.adaptive(minimum: 50))],
-                                        spacing: 12
-                                    ) {
-                                        ForEach(category.symbols, id: \.self) { symbol in
-                                            symbolButton(symbol)
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                }
-                            }
+                    LazyVGrid(
+                        columns: [GridItem(.adaptive(minimum: 50))],
+                        spacing: 12
+                    ) {
+                        ForEach(filteredIcons, id: \.self) { symbol in
+                            symbolButton(symbol)
                         }
-                        .padding(.vertical)
-                    } else {
-                        // 搜索结果
-                        LazyVGrid(
-                            columns: [GridItem(.adaptive(minimum: 50))],
-                            spacing: 12
-                        ) {
-                            ForEach(filteredSymbols, id: \.self) { symbol in
-                                symbolButton(symbol)
-                            }
-                        }
+                    }
+                    .padding()
+
+                    if filteredIcons.isEmpty {
+                        ContentUnavailableView(
+                            L10n.Library.noSearchResults,
+                            systemImage: "magnifyingglass",
+                            description: Text(L10n.Library.noSearchResultsHint)
+                        )
                         .padding()
-                        
-                        if filteredSymbols.isEmpty {
-                            ContentUnavailableView(
-                                L10n.Library.noSearchResults,
-                                systemImage: "magnifyingglass",
-                                description: Text(L10n.Library.noSearchResultsHint)
-                            )
-                            .padding()
-                        }
                     }
                 }
             }
