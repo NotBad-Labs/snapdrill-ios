@@ -1,7 +1,6 @@
 # SnapDrill 工程哲学
 
 > **上游依赖**：`product-vision.md`（产品定位）、`product-requirements.md`（功能需求）
-> **下游影响**：`architecture.md`、`workflow.md`、`conventions.md`、`infrastructure.md`
 >
 > 本文件定义「怎么想」——决策框架和工程哲学。
 > 「怎么协作」见 `workflow.md`，「怎么写代码」见 `conventions.md`。

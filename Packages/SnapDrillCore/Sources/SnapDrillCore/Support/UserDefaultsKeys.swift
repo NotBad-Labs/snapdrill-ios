@@ -56,10 +56,7 @@ public enum UDKey {
     public static let analyticsEnabled = "analyticsEnabled"
     public static let analyticsConfigured = "analyticsConfigured"
     public static let crashReportingEnabled = "crashReportingEnabled"
-    public static let crashReportingConfigured = "crashReportingConfigured"
-    public static let crashReportingUserID = "crashReportingUserID"
     public static let iCloudSyncEnabled = "iCloudSyncEnabled"
-    public static let performanceMonitoringEnabled = "performanceMonitoringEnabled"
 
     // MARK: - Review Settings
 
@@ -94,8 +91,4 @@ public enum UDKey {
     /// 功能提示前缀，实际 key 为 `hasShownTooltip_\(feature)`
     public static let hasShownTooltipPrefix = "hasShownTooltip_"
 
-    // MARK: - Debug
-
-    public static let verboseLoggingEnabled = "verboseLoggingEnabled"
-    public static let showPerformanceMetrics = "showPerformanceMetrics"
 }

@@ -1,7 +1,6 @@
 # SnapDrill 术语对照表（Glossary）
 
 > **上游依赖**：`architecture.md`（包结构、数据流）、`principles.md`（设计哲学）
-> **下游影响**：`infrastructure.md`（API 命名应与术语一致）
 >
 > 本文件定义项目中核心概念的含义和职责边界。
 > API 签名见 `infrastructure.md`，架构决策理由见 `decisions/`。
@@ -16,7 +15,7 @@
 | **SnapDrillData** | 数据持久化包 | @Model 定义、Repository 实现、SwiftData 迁移计划、备份/恢复。依赖 Core |
 | **SnapDrillUI** | 设计系统包 | 可复用 UI 组件（FlipView、TagInputView、ImageCropper 等）。依赖 Core，不依赖 Data |
 | **SnapDrillFeatures** | 功能模块包 | 5 个独立 target（Capture/Library/Review/Dashboard/Settings），每个含 View + ViewModel + Router |
-| **SnapDrillInfrastructure** | 基础设施隔离包 | Firebase 全部实现（Analytics/Crashlytics/RemoteConfig）。仅 App target 可 import |
+| **SnapDrillInfrastructure** | 基础设施隔离包 | Firebase 全部实现（Analytics/RemoteConfig）。仅 App target 可 import |
 
 ## 架构概念
 
@@ -38,8 +37,6 @@
 | **CaptureDraftServiceProtocol** | Core/Service | 采集草稿保存/加载 | 跨包服务，测试需要 mock |
 | **NotificationServiceProtocol** | Core/Service | 本地通知调度 | 跨包服务，测试需要 mock（系统通知无法在测试中真实触发） |
 | **AnalyticsServiceProtocol** | Core/Service | 埋点事件追踪 | 跨包服务，生产用 Firebase，测试用 Mock |
-| **CrashReportingProtocol** | Core/Service | 崩溃上报 | 同上 |
-| **SubscriptionServiceProtocol** | Core/Service | 订阅状态查询 | 当前为 Mock（全功能免费），未来替换为 StoreKit 2 实现 |
 | **RemoteConfigurable** | Core/Support | 远程配置读取 | Firebase Remote Config 抽象 |
 | **PDFExportable** | Core/Service | PDF 导出数据适配 | 无 associated type 的轻量协议，允许异构集合 `[any PDFExportable]` |
 | **FeatureRouter** | UI/Navigation | 功能模块导航 | 统一导航模式，每个 Feature 遵循相同的 push/pop/reset 接口 |

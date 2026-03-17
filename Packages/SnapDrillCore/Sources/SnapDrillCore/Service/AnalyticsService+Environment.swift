@@ -17,7 +17,7 @@ import SwiftUI
 // 因为 getter 和 setter 的类型必须完全一致（existential `any Protocol` 可以）。
 private struct AnalyticsServiceKey: EnvironmentKey {
     static var defaultValue: any AnalyticsServiceProtocol {
-        MainActor.assumeIsolated { AnalyticsTrackingService.shared }
+        MainActor.assumeIsolated { AnalyticsServiceMock() }
     }
 }
 

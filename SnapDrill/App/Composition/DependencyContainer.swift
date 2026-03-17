@@ -41,8 +41,6 @@ final class DependencyContainer {
         // 2. 初始化 Firebase 具体服务
         let analyticsService = FirebaseAnalyticsService()
         analyticsService.markConfigured()
-        let crashService = CrashReportingService()
-        crashService.markConfigured()
 
         // 3. 注册远程配置服务
         let remoteConfig = FirebaseRemoteConfigService()
@@ -53,8 +51,7 @@ final class DependencyContainer {
 
         // 4. 初始化核心服务容器（注入 Firebase 实现）
         let liveServices = LiveServiceContainer(
-            analytics: analyticsService,
-            crashReporting: crashService
+            analytics: analyticsService
         )
         self.services = liveServices
         

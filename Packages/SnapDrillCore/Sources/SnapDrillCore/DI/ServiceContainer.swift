@@ -31,15 +31,6 @@ public protocol ServiceContainer: Sendable {
     /// 分析服务
     var analytics: AnalyticsServiceProtocol { get }
 
-    /// 崩溃报告服务
-    var crashReporting: CrashReportingProtocol { get }
-
-    /// 性能监控服务
-    var performanceMonitor: PerformanceMonitor { get }
-
-    /// 网络状态监控
-    var networkMonitor: NetworkMonitor { get }
-
     /// PDF 导出服务
     var pdfExport: PDFExportService { get }
 
@@ -48,9 +39,6 @@ public protocol ServiceContainer: Sendable {
 
     /// 隐私授权服务
     var privacyConsent: PrivacyConsentService { get }
-
-    /// 订阅服务
-    var subscription: SubscriptionServiceProtocol { get }
 
     /// 通知服务
     var notification: NotificationServiceProtocol { get }

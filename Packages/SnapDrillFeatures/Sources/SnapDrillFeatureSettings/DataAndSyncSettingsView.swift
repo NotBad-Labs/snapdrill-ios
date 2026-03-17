@@ -26,9 +26,6 @@ struct DataAndSyncSettingsView: View {
     @State private var accountStatus: CKAccountStatus = .couldNotDetermine
     @State private var isCheckingStatus = false
 
-    // Network Status
-    @Environment(NetworkMonitor.self) private var networkMonitor
-
     // Storage Cache
     @AppStorage(UDKey.autoDeleteOldItems) private var autoDeleteOldItems = false
     @AppStorage(UDKey.autoDeleteDays) private var autoDeleteDays = 30
@@ -92,15 +89,7 @@ struct DataAndSyncSettingsView: View {
             } header: {
                 Text(L10n.Settings.cloudSync)
             } footer: {
-                if !networkMonitor.isConnected {
-                    HStack {
-                        Image(systemName: "wifi.slash")
-                            .foregroundStyle(.orange)
-                        Text(L10n.Settings.offlineSyncHint)
-                            .foregroundStyle(.orange)
-                    }
-                    .font(.caption)
-                } else if iCloudSyncEnabled {
+                if iCloudSyncEnabled {
                     Text(L10n.Settings.icloudSyncFooter)
                 } else {
                     Text(L10n.Settings.syncDisabledFooter)

@@ -1,7 +1,6 @@
 # TestFlight 发版前检查清单
 
 > **上游依赖**：`definition-of-done.md`（发版级 DoD 指向本文件）、`workflow.md`（发版流程）
-> **下游影响**：无
 >
 > 每次 build 推送到 TestFlight 前，在真机上走完以下流程。
 > 标注 ❌ 的项目必须修复后才能发版。
