@@ -45,9 +45,6 @@ public struct SettingsView: View {
     @State private var showingSourceManager = false
     @State private var showingGradeManager = false
 
-    // iCloud 同步状态（用于数据风险提示）
-    @AppStorage(UDKey.iCloudSyncEnabled) private var iCloudSyncEnabled: Bool = true
-
     // 录入字段可见性（产品规格：学科默认开，其余默认关）
     @AppStorage(UDKey.captureFieldSubject) private var showSubjectField: Bool = true
     @AppStorage(UDKey.captureFieldSource) private var showSourceField: Bool = false
@@ -156,10 +153,6 @@ public struct SettingsView: View {
 
                 } header: {
                     Text(L10n.Settings.dataAndSync)
-                } footer: {
-                    if !iCloudSyncEnabled {
-                        LocalDataWarningView(compact: true)
-                    }
                 }
 
                 // 5. 通用

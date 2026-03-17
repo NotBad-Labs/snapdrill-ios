@@ -26,9 +26,6 @@ public enum PersistenceError: LocalizedError {
     /// 存储不可用
     case storageUnavailable(reason: String)
     
-    /// CloudKit 配置错误
-    case cloudKitConfigurationError(underlying: Error)
-    
     // MARK: - Computed Properties
     
     public var errorDescription: String? {
@@ -39,8 +36,6 @@ public enum PersistenceError: LocalizedError {
             return "数据迁移失败 (\(from) → \(to)): \(error.localizedDescription)"
         case .storageUnavailable(let reason):
             return "存储不可用: \(reason)"
-        case .cloudKitConfigurationError(let error):
-            return "iCloud 配置错误: \(error.localizedDescription)"
         }
     }
     
@@ -52,8 +47,6 @@ public enum PersistenceError: LocalizedError {
             return "数据迁移失败，应用将使用临时存储。请联系技术支持。"
         case .storageUnavailable:
             return "请检查设备存储空间是否充足"
-        case .cloudKitConfigurationError:
-            return "请检查 iCloud 设置或在系统设置中登录 Apple ID"
         }
     }
 }

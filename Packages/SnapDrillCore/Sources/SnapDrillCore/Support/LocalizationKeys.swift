@@ -610,8 +610,6 @@ public enum L10n {
     // MARK: - Errors
 
     public enum Errors {
-        public static let networkUnavailable = NSLocalizedString("errors.network_unavailable", value: "网络不可用", comment: "网络不可用错误")
-        public static let icloudUnavailable = NSLocalizedString("errors.icloud_unavailable", value: "iCloud 不可用", comment: "iCloud 不可用错误")
         public static let cameraPermissionDenied = NSLocalizedString("errors.camera_permission_denied", value: "相机权限被拒绝", comment: "相机权限错误")
         public static let photoPermissionDenied = NSLocalizedString("errors.photo_permission_denied", value: "相册权限被拒绝", comment: "相册权限错误")
         public static let ocrFailed = NSLocalizedString("errors.ocr_failed", value: "文字识别失败", comment: "OCR 识别失败错误")

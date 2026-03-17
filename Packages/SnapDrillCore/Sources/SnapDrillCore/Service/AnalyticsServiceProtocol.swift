@@ -33,11 +33,6 @@ public enum AnalyticsEvent: String {
     case pdfExported = "pdf_exported"
     case dataExported = "data_exported"
 
-    // iCloud 同步
-    case icloudSyncStarted = "icloud_sync_started"
-    case icloudSyncCompleted = "icloud_sync_completed"
-    case icloudSyncFailed = "icloud_sync_failed"
-
     // 错误
     case errorOccurred = "error_occurred"
 }

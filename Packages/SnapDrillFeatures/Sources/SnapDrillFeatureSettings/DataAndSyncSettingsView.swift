@@ -5,35 +5,26 @@
 //  Created by NotBad Labs on 2026/01/02.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  数据与同步设置页面，管理数据导出、清空等操作。
+//  数据设置页面，管理备份恢复和缓存清理。
 //
 
 import SwiftUI
-import CloudKit
 import UniformTypeIdentifiers
 import SnapDrillCore
 import SnapDrillData
 
-/// 数据与云同步设置页面
+/// 数据设置页面
 struct DataAndSyncSettingsView: View {
 
     // MARK: - Properties
 
     @Bindable var viewModel: SettingsViewModel
 
-    // Cloud Sync
-    @AppStorage(UDKey.iCloudSyncEnabled) private var iCloudSyncEnabled = true
-    @State private var accountStatus: CKAccountStatus = .couldNotDetermine
-    @State private var isCheckingStatus = false
-
     // Storage Cache
-    @AppStorage(UDKey.autoDeleteOldItems) private var autoDeleteOldItems = false
-    @AppStorage(UDKey.autoDeleteDays) private var autoDeleteDays = 30
     @State private var showingClearCacheAlert = false
     @State private var cacheSize: String = L10n.Settings.calculating
     @State private var cacheCalculateTask: Task<Void, Never>?
     @State private var cacheClearTask: Task<Void, Never>?
-    @State private var accountCheckTask: Task<Void, Never>?
 
     // Backup / Restore
     @State private var backupTask: Task<Void, Never>?
@@ -43,59 +34,9 @@ struct DataAndSyncSettingsView: View {
     @State private var showingShareSheet = false
     @State private var showingBackupError = false
     @State private var showingRestoreSuccess = false
-    
+
     var body: some View {
         List {
-            if !iCloudSyncEnabled {
-                Section {
-                    LocalDataWarningView(compact: false)
-                }
-            }
-
-            // Cloud Sync Section (Real Logic)
-            Section {
-                Toggle(isOn: $iCloudSyncEnabled) {
-                    Text(L10n.Settings.enableICloudSync)
-                        .foregroundStyle(.primary)
-                }
-                .onChange(of: iCloudSyncEnabled) { _, _ in
-                    if iCloudSyncEnabled {
-                        checkAccountStatus()
-                    }
-                }
-                
-                if iCloudSyncEnabled {
-                    HStack {
-                        if isCheckingStatus {
-                            ProgressView()
-                                .controlSize(.small)
-                            Text(L10n.Settings.checkingAccountStatus)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        } else {
-                            statusIcon
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(statusTitle)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.primary)
-                                Text(statusMessage)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
-            } header: {
-                Text(L10n.Settings.cloudSync)
-            } footer: {
-                if iCloudSyncEnabled {
-                    Text(L10n.Settings.icloudSyncFooter)
-                } else {
-                    Text(L10n.Settings.syncDisabledFooter)
-                }
-            }
-            
             // Backup / Restore
             Section {
                 // 备份按钮
@@ -164,24 +105,6 @@ struct DataAndSyncSettingsView: View {
             } header: {
                 Text(L10n.Settings.storageSpace)
             }
-            
-            // Auto Cleanup
-            Section {
-                Toggle(L10n.Settings.autoArchiveOldItems, isOn: $autoDeleteOldItems)
-
-                if autoDeleteOldItems {
-                    Picker(L10n.Settings.archiveTime, selection: $autoDeleteDays) {
-                        Text(L10n.Settings.daysAgo30).tag(30)
-                        Text(L10n.Settings.daysAgo60).tag(60)
-                        Text(L10n.Settings.daysAgo90).tag(90)
-                        Text(L10n.Settings.daysAgo180).tag(180)
-                    }
-                }
-            } header: {
-                Text(L10n.Settings.dataMaintenance)
-            } footer: {
-                Text(L10n.Settings.dataMaintenanceFooter)
-            }
         }
         .listStyle(.insetGrouped)
         .navigationTitle(L10n.Settings.dataAndSync)
@@ -196,14 +119,10 @@ struct DataAndSyncSettingsView: View {
         }
         .onAppear {
             calculateCacheSize()
-            if iCloudSyncEnabled {
-                checkAccountStatus()
-            }
         }
         .onDisappear {
             cacheCalculateTask?.cancel()
             cacheClearTask?.cancel()
-            accountCheckTask?.cancel()
             backupTask?.cancel()
             restoreTask?.cancel()
         }
@@ -263,71 +182,9 @@ struct DataAndSyncSettingsView: View {
             Text(viewModel.backupStatusMessage)
         }
     }
-    
-    // MARK: - Private Helpers
-    
-    // MARK: - Status Logic
-    
-    private var statusIcon: some View {
-        switch accountStatus {
-        case .available:
-            return Image(systemName: "checkmark.icloud.fill").foregroundStyle(.green)
-        case .noAccount, .restricted, .couldNotDetermine:
-            return Image(systemName: "exclamationmark.icloud.fill").foregroundStyle(.orange)
-        case .temporarilyUnavailable:
-            return Image(systemName: "arrow.triangle.2.circlepath.icloud.fill").foregroundStyle(.yellow)
-        @unknown default:
-            return Image(systemName: "icloud").foregroundStyle(.gray)
-        }
-    }
-    
-    private var statusTitle: String {
-        switch accountStatus {
-        case .available: return L10n.Settings.icloudRunning
-        case .noAccount: return L10n.Settings.icloudNotLoggedIn
-        case .restricted: return L10n.Settings.icloudStatusRestricted
-        case .temporarilyUnavailable: return L10n.Settings.icloudTemporarilyUnavailable
-        case .couldNotDetermine: return L10n.Settings.icloudCannotDetermine
-        @unknown default: return L10n.Settings.icloudUnknown
-        }
-    }
 
-    private var statusMessage: String {
-        switch accountStatus {
-        case .available: return L10n.Settings.icloudSyncingInBackground
-        case .noAccount: return L10n.Settings.icloudLoginPrompt
-        case .restricted: return L10n.Settings.icloudCheckScreenTime
-        case .temporarilyUnavailable: return L10n.Settings.icloudCheckNetwork
-        case .couldNotDetermine: return DataAndSyncSettingsView.isCloudKitConfigured ? L10n.Settings.icloudRetryLater : L10n.Settings.icloudNeedXcodeCapability
-        @unknown default: return ""
-        }
-    }
-    
-    // SAFETY GATE: Change this to true ONLY after enabling iCloud in Xcode -> Signing & Capabilities
-    private static let isCloudKitConfigured = true
-    
-    private func checkAccountStatus() {
-        // Prevent crash if entitlement is missing
-        guard Self.isCloudKitConfigured else {
-            self.accountStatus = .couldNotDetermine
-            return
-        }
-        
-        isCheckingStatus = true
-        accountCheckTask?.cancel()
-        accountCheckTask = Task { @MainActor in
-            do {
-                let status = try await CKContainer.default().accountStatus()
-                isCheckingStatus = false
-                accountStatus = status
-            } catch {
-                isCheckingStatus = false
-                SnapDrillLogger.generic.info("iCloud status error: \(error)")
-                accountStatus = .couldNotDetermine
-            }
-        }
-    }
-    
+    // MARK: - Private Helpers
+
     private func calculateCacheSize() {
         cacheCalculateTask?.cancel()
         cacheCalculateTask = Task {
@@ -348,7 +205,7 @@ struct DataAndSyncSettingsView: View {
                 for url in tmpContents {
                     try? FileManager.default.removeItem(at: url)
                 }
-                
+
                 // 清理缓存目录
                 if let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
                     let cacheContents = try FileManager.default.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: nil)
@@ -356,7 +213,7 @@ struct DataAndSyncSettingsView: View {
                         try? FileManager.default.removeItem(at: url)
                     }
                 }
-                
+
                 await MainActor.run {
                     cacheSize = "0 MB"
                 }
@@ -365,27 +222,27 @@ struct DataAndSyncSettingsView: View {
             }
         }
     }
-    
+
     private func getCacheSize() async -> Int64 {
         var totalSize: Int64 = 0
-        
+
         // 计算临时目录大小
         let tmpDir = FileManager.default.temporaryDirectory
         totalSize += directorySize(at: tmpDir)
-        
+
         // 计算缓存目录大小
         if let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
             totalSize += directorySize(at: cacheDir)
         }
-        
+
         return totalSize
     }
-    
+
     private func directorySize(at url: URL) -> Int64 {
         guard let enumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.fileSizeKey]) else {
             return 0
         }
-        
+
         var size: Int64 = 0
         for case let fileURL as URL in enumerator {
             guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey]),
@@ -394,10 +251,10 @@ struct DataAndSyncSettingsView: View {
             }
             size += Int64(fileSize)
         }
-        
+
         return size
     }
-    
+
     private func formatBytes(_ bytes: Int64) -> String {
         let formatter = ByteCountFormatter()
         formatter.allowedUnits = [.useKB, .useMB, .useGB]

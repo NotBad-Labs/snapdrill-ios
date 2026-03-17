@@ -39,7 +39,8 @@ public struct ReviewView: View {
     public var body: some View {
         NavigationStack(path: $router.path) {
             ZStack {
-                ReviewBackground()
+                Color(UIColor.secondarySystemBackground)
+                    .ignoresSafeArea()
 
                 if let vm = viewModel {
                     reviewContent(vm: vm)

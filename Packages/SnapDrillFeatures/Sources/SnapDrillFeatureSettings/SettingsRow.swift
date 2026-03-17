@@ -60,30 +60,3 @@ struct SettingsRow: View {
     }
 }
 
-/// iCloud 同步关闭时的数据风险提示（共享组件，SettingsView footer 和 DataAndSyncSettingsView 顶部共用）
-struct LocalDataWarningView: View {
-
-    /// 紧凑模式（单行 Label，用于 Section footer）
-    let compact: Bool
-
-    var body: some View {
-        if compact {
-            Label(L10n.Settings.localModeWarning, systemImage: "exclamationmark.triangle.fill")
-                .font(.caption)
-                .foregroundStyle(.orange)
-        } else {
-            Label {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.Settings.localDataModeTitle)
-                        .font(.subheadline.bold())
-                    Text(L10n.Settings.localDataModeMessage)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            } icon: {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
-            }
-        }
-    }
-}

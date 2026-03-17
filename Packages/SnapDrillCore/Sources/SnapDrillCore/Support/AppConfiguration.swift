@@ -91,15 +91,6 @@ public final class AppConfiguration {
             set { UserDefaults.standard.set(newValue, forKey: UDKey.analyticsEnabled) }
         }
         
-        /// 是否启用 iCloud 同步
-        public static var iCloudSyncEnabled: Bool {
-            get { 
-                remoteProvider?.bool(forKey: UDKey.iCloudSyncEnabled) ??
-                UserDefaults.standard.bool(forKey: UDKey.iCloudSyncEnabled)
-            }
-            set { UserDefaults.standard.set(newValue, forKey: UDKey.iCloudSyncEnabled) }
-        }
-        
         /// 远程强制关闭开关 (Kill-switch)
         /// 如果返回 true，则应用应进入锁定或维护状态。
         public static var isEmergencyKillSwitchActive: Bool {
@@ -139,8 +130,7 @@ public final class AppConfiguration {
     
     /// 重置所有配置到默认值
     public func resetToDefaults() {
-        FeatureFlags.crashReportingEnabled = true
+        FeatureFlags.crashReportingEnabled = false
         FeatureFlags.analyticsEnabled = false
-        FeatureFlags.iCloudSyncEnabled = true
     }
 }
