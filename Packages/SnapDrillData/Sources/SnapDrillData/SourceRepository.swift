@@ -51,17 +51,17 @@ public final class SourceRepository {
                 let isChinese = Locale.current.language.languageCode?.identifier == "zh"
                 // swiftlint:disable:next large_tuple
                 let defaults: [(String, String, String)] = isChinese ? [
-                    ("试卷", "doc.text", "#5C6BC0"),
-                    ("作业", "pencil.and.outline", "#42A5F5"),
-                    ("教材", "book", "#66BB6A"),
-                    ("错题本", "xmark.seal", "#EF5350"),
-                    ("其他", "ellipsis.circle", "#78909C")
+                    ("试卷", "doc.text.fill", "#5C6BC0"),
+                    ("作业", "pencil", "#42A5F5"),
+                    ("教材", "book.fill", "#66BB6A"),
+                    ("错题本", "star.fill", "#EF5350"),
+                    ("其他", "folder.fill", "#78909C")
                 ] : [
-                    ("Exam", "doc.text", "#5C6BC0"),
-                    ("Homework", "pencil.and.outline", "#42A5F5"),
-                    ("Textbook", "book", "#66BB6A"),
-                    ("Mistake Book", "xmark.seal", "#EF5350"),
-                    ("Other", "ellipsis.circle", "#78909C")
+                    ("Exam", "doc.text.fill", "#5C6BC0"),
+                    ("Homework", "pencil", "#42A5F5"),
+                    ("Textbook", "book.fill", "#66BB6A"),
+                    ("Mistake Book", "star.fill", "#EF5350"),
+                    ("Other", "folder.fill", "#78909C")
                 ]
                 
                 for (index, item) in defaults.enumerated() {

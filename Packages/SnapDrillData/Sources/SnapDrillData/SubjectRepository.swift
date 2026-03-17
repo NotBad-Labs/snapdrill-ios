@@ -51,24 +51,24 @@ public final class SubjectRepository {
                 let isChinese = Locale.current.language.languageCode?.identifier == "zh"
                 // swiftlint:disable:next large_tuple
                 let defaults: [(String, String, String)] = isChinese ? [
-                    ("语文", "text.book.closed", "#E57373"),
+                    ("语文", "book.fill", "#E57373"),
                     ("数学", "function", "#4FC3F7"),
-                    ("英语", "character.book.closed", "#AED581"),
+                    ("英语", "character.textbox", "#AED581"),
                     ("物理", "atom", "#7986CB"),
-                    ("化学", "flask", "#F06292"),
-                    ("生物", "leaf", "#81C784"),
-                    ("历史", "scroll", "#DCE775"),
+                    ("化学", "flask.fill", "#F06292"),
+                    ("生物", "leaf.fill", "#81C784"),
+                    ("历史", "clock.fill", "#DCE775"),
                     ("地理", "globe.asia.australia", "#4DB6AC"),
-                    ("政治", "building.columns", "#FFB74D")
+                    ("政治", "person.2.fill", "#FFB74D")
                 ] : [
                     ("Math", "function", "#4FC3F7"),
-                    ("English", "character.book.closed", "#AED581"),
+                    ("English", "character.textbox", "#AED581"),
                     ("Physics", "atom", "#7986CB"),
-                    ("Chemistry", "flask", "#F06292"),
-                    ("Biology", "leaf", "#81C784"),
-                    ("History", "scroll", "#DCE775"),
-                    ("Geography", "globe.americas", "#4DB6AC"),
-                    ("Art", "paintbrush", "#FFB74D")
+                    ("Chemistry", "flask.fill", "#F06292"),
+                    ("Biology", "leaf.fill", "#81C784"),
+                    ("History", "clock.fill", "#DCE775"),
+                    ("Geography", "globe.asia.australia", "#4DB6AC"),
+                    ("Art", "paintpalette.fill", "#FFB74D")
                 ]
                 
                 for (index, item) in defaults.enumerated() {

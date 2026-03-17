@@ -167,9 +167,8 @@ public final class AppConfiguration {
     @MainActor
     public struct FeatureFlags {
         public static func registerRemoteProvider(_ provider: any RemoteConfigurable)
-        public static var crashReportingEnabled: Bool { get set }
+        public static var crashReportingEnabled: Bool { get set }  // 默认 false
         public static var analyticsEnabled: Bool { get set }
-        public static var iCloudSyncEnabled: Bool { get set }
         public static var isEmergencyKillSwitchActive: Bool { get }  // 远程 kill-switch，只读
     }
 }
@@ -218,7 +217,6 @@ public enum AnalyticsEvent: String {
     case screenViewed
     case sessionStarted, sessionEnded
     case cameraOpened, captureSaved, ocrPerformed, pdfExported, dataExported
-    case icloudSyncStarted, icloudSyncCompleted, icloudSyncFailed
     case errorOccurred
 }
 
