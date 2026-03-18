@@ -38,6 +38,11 @@ final class DependencyContainer {
         // 1. 配置 Firebase（基础设施层）
         FirebaseBootstrap.configure()
 
+        // 1b. 读取用户偏好设置 Crashlytics 收集开关
+        FirebaseBootstrap.setCrashlyticsEnabled(
+            AppConfiguration.FeatureFlags.crashReportingEnabled
+        )
+
         // 2. 初始化 Firebase 具体服务
         let analyticsService = FirebaseAnalyticsService()
         analyticsService.markConfigured()
