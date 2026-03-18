@@ -113,6 +113,9 @@ public final class CaptureResultViewModel {
     /// 草稿保存任务句柄（onDisappear 触发，best-effort）
     @ObservationIgnored
     private var draftSaveTask: Task<Void, Never>?
+    /// 导航延迟任务句柄（保存成功后等待触觉反馈）
+    @ObservationIgnored
+    private var navigateTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -156,6 +159,8 @@ public final class CaptureResultViewModel {
         photoLoadTask = nil
         saveTask?.cancel()
         saveTask = nil
+        navigateTask?.cancel()
+        navigateTask = nil
     }
 
     /// 加载默认表单数据
@@ -352,10 +357,20 @@ public final class CaptureResultViewModel {
 
     // MARK: - Private Helpers
 
-    /// 保存成功后的导航：连续裁剪模式弹出裁剪器，拍照模式重新打开摄像头
+    /// 保存成功后的导航：短暂延迟让触觉反馈生效，再执行退栈
     private func navigateAfterSave() {
         CaptureDraftService.shared.clearDraft()
 
+        // 延迟 0.3s 让触觉反馈生效，用户可感知保存成功
+        navigateTask = Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            performNavigation()
+        }
+    }
+
+    /// 执行实际的退栈导航
+    private func performNavigation() {
         // 连续裁剪模式：同步设置标志（供 CaptureView 的 path onChange 判断是否保留原图），
         // 退栈后延迟触发裁剪器弹出，避免退栈动画与 fullScreenCover 在同帧竞争
         if router.originalAlbumImage != nil {

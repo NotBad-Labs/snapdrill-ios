@@ -354,6 +354,9 @@ public struct CaptureResultView: View {
         } message: {
             Text(L10n.Capture.newGradeMessage)
         }
+        .sensoryFeedback(.success, trigger: viewModel.isSaved) { _, newValue in
+            newValue
+        }
         .alert(L10n.Capture.saveFailed, isPresented: $viewModel.showErrorAlert) {
             Button(L10n.Common.ok, role: .cancel) { }
         } message: {

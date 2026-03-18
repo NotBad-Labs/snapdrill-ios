@@ -25,6 +25,7 @@ public struct ReviewView: View {
     @Environment(\.repositories) private var repositories
     @Environment(\.analyticsService) private var analyticsService
     @State private var viewModel: ReviewViewModel?
+    @State private var showReviewTooltip = false
 
     // MARK: - Initialization
 
@@ -94,8 +95,7 @@ public struct ReviewView: View {
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
 
             case .reviewing:
-                reviewSessionView(vm: vm)
-                    .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
+                reviewingPhaseView(vm: vm)
 
             case .finished:
                 ReviewSessionSummaryView(
@@ -128,6 +128,34 @@ public struct ReviewView: View {
         } message: {
             Text(L10n.Review.pauseMessage)
         }
+    }
+
+    // MARK: - Reviewing Phase (with tooltip)
+
+    @ViewBuilder
+    private func reviewingPhaseView(vm: ReviewViewModel) -> some View {
+        reviewSessionView(vm: vm)
+            .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
+            .overlay(alignment: .top) {
+                if showReviewTooltip {
+                    FeatureTooltip(
+                        title: L10n.Review.tooltipTitle,
+                        message: L10n.Review.tooltipMessage
+                    ) {
+                        withAnimation { showReviewTooltip = false }
+                        OnboardingManager.shared.markTooltipShown(for: "review_swipe")
+                    }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .padding(.top, 60)
+                }
+            }
+            .onAppear {
+                if OnboardingManager.shared.shouldShowTooltip(for: "review_swipe") {
+                    withAnimation(.easeOut(duration: 0.3).delay(0.5)) {
+                        showReviewTooltip = true
+                    }
+                }
+            }
     }
 
     // MARK: - Review Session View
