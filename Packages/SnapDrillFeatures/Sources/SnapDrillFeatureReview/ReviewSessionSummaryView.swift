@@ -10,6 +10,7 @@
 
 import SwiftUI
 import SnapDrillCore
+import SnapDrillUI
 
 /// 复习会话完成后的摘要统计视图
 ///
@@ -36,6 +37,7 @@ struct ReviewSessionSummaryView: View {
                 .font(.system(size: 60))
                 .foregroundStyle(.green.opacity(0.8))
                 .symbolEffect(.bounce, value: true)
+                .accessibilityHidden(true)
 
             // 标题
             Text(L10n.Review.summaryTitle)
@@ -101,6 +103,7 @@ struct ReviewSessionSummaryView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .accessibleGroup(label: L10n.Accessibility.statCard(title: title, count: count))
     }
 
     private var encouragementText: String {

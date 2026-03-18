@@ -39,7 +39,7 @@ struct ReviewDashboardView: View {
                     )
                     .frame(width: 200, height: 200)
                     .blur(radius: 20)
-                
+
                 Image(systemName: iconName)
                     .font(.system(size: 80))
                     .foregroundStyle(
@@ -52,6 +52,7 @@ struct ReviewDashboardView: View {
                     .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
             }
             .padding(.top, 40)
+            .accessibilityHidden(true)
             
             // Text Summary
             VStack(spacing: 16) {
@@ -68,10 +69,12 @@ struct ReviewDashboardView: View {
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
-                            
+                            .accessibleGroup(label: L10n.Accessibility.pendingReview(count: pendingCount))
+
                             Divider()
                                 .frame(height: 40)
-                            
+                                .accessibilityHidden(true)
+
                             // Done (Right)
                             VStack(spacing: 4) {
                                 Text("\(reviewedCount)")
@@ -81,20 +84,24 @@ struct ReviewDashboardView: View {
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
+                            .accessibleGroup(label: L10n.Accessibility.reviewedToday(count: reviewedCount))
                         }
                     } else {
                         // SCENARIO 1: Fresh Start
-                        Text(L10n.Review.todayReview)
-                            .font(.title2)
-                            .foregroundStyle(.secondary)
-                        
-                        Text("\(pendingCount)")
-                            .font(.system(size: 64, weight: .bold, design: .rounded))
-                            .foregroundStyle(.primary)
-                        
-                        Text(L10n.Review.cardsPending)
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
+                        VStack(spacing: 16) {
+                            Text(L10n.Review.todayReview)
+                                .font(.title2)
+                                .foregroundStyle(.secondary)
+
+                            Text("\(pendingCount)")
+                                .font(.system(size: 64, weight: .bold, design: .rounded))
+                                .foregroundStyle(.primary)
+
+                            Text(L10n.Review.cardsPending)
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .accessibleGroup(label: L10n.Accessibility.pendingReview(count: pendingCount))
                     }
                 } else if totalItemsCount == 0 {
                     // Empty State
@@ -140,6 +147,7 @@ struct ReviewDashboardView: View {
                     .clipShape(Capsule())
                     .shadow(color: .blue.opacity(0.3), radius: 15, x: 0, y: 8)
                 }
+                .accessibilityHint(L10n.Accessibility.startReviewHint)
                 .padding(.horizontal, 40)
                 .padding(.bottom, 60)
             } else if totalItemsCount == 0 {

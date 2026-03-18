@@ -10,6 +10,7 @@
 
 import SwiftUI
 import SnapDrillCore
+import SnapDrillUI
 
 /// 支持左右轻扫的手势卡片包装器
 ///
@@ -102,6 +103,13 @@ struct SwipeCard<Content: View>: View {
                             externalSwipe = nil
                         }
                     }
+                }
+                // VoiceOver 替代方案：通过 Actions 菜单完成滑动操作
+                .accessibilityAction(named: L10n.Review.stampRemember) {
+                    snapAway(direction: 1, width: geometry.size.width)
+                }
+                .accessibilityAction(named: L10n.Review.stampForgot) {
+                    snapAway(direction: -1, width: geometry.size.width)
                 }
         }
     }

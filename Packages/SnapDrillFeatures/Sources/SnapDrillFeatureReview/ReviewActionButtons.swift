@@ -47,6 +47,8 @@ struct ReviewActionButtons: View {
                 rating: .again,
                 scale: calculateScale(for: .again)
             )
+            .accessibilityLabel(L10n.Review.stampForgot)
+            .accessibilityHint(L10n.Accessibility.forgotHint)
             
             Spacer()
             
@@ -68,6 +70,8 @@ struct ReviewActionButtons: View {
                     }
                 )
                 .disabled(!isUndoEnabled)
+                .accessibilityLabel(L10n.Accessibility.undo)
+                .accessibilityHint(L10n.Accessibility.undoHint)
 
                 // Toggle Answer
                 Button(
@@ -84,6 +88,7 @@ struct ReviewActionButtons: View {
                             .clipShape(Circle())
                     }
                 )
+                .accessibilityLabel(isAnswerShown ? L10n.Accessibility.hideAnswer : L10n.Accessibility.showAnswer)
             }
             
             Spacer()
@@ -96,6 +101,8 @@ struct ReviewActionButtons: View {
                 rating: .good,
                 scale: calculateScale(for: .good)
             )
+            .accessibilityLabel(L10n.Review.stampRemember)
+            .accessibilityHint(L10n.Accessibility.rememberHint)
         }
         .padding(.horizontal, 48) // Increased outer padding to prevent edge sticking
         .padding(.bottom, 10)

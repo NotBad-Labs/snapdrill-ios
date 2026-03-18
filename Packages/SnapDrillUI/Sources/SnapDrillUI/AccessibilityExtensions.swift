@@ -137,13 +137,11 @@ public enum AccessibilityHelper {
         return "轻点导出为 \(format) 格式"
     }
     
-    // MARK: - Private Helpers
-    
     /// 将难度数字转换为描述性文本
     ///
     /// - Parameter difficulty: 难度值 (1-5)
     /// - Returns: 难度描述
-    private static func difficultyDescription(_ difficulty: Int) -> String {
+    public static func difficultyDescription(_ difficulty: Int) -> String {
         switch difficulty {
         case 1: return "非常简单"
         case 2: return "简单"
@@ -210,7 +208,9 @@ public struct AccessibilityAnnouncement {
         priority: AccessibilityNotificationPriority = .default
     ) {
         #if os(iOS)
-        let notification: UIAccessibility.Notification = priority == .high ? .announcement : .screenChanged
+        // .announcement = 标准文本播报，不重置焦点
+        // .screenChanged = 屏幕整体变化，会重置 VoiceOver 焦点到第一个元素
+        let notification: UIAccessibility.Notification = priority == .high ? .screenChanged : .announcement
         UIAccessibility.post(notification: notification, argument: message)
         #endif
     }
@@ -218,8 +218,8 @@ public struct AccessibilityAnnouncement {
 
 /// 无障碍通知优先级
 public enum AccessibilityNotificationPriority {
-    /// 标准优先级，使用 `screenChanged` 通知
+    /// 标准优先级，使用 `announcement` 通知（播报文本，不重置焦点）
     case `default`
-    /// 高优先级，使用 `announcement` 通知（立即打断 VoiceOver 当前朗读）
+    /// 高优先级，使用 `screenChanged` 通知（播报文本并重置 VoiceOver 焦点）
     case high
 }

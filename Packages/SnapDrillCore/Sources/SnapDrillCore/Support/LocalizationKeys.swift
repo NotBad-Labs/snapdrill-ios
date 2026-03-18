@@ -1073,6 +1073,66 @@ public enum L10n {
         public static let questionIsFree = NSLocalizedString("help.question_is_free", value: "应用是免费的吗？", comment: "帮助问题")
         public static let answerIsFree = NSLocalizedString("help.answer_is_free", value: "SnapDrill 核心功能完全免费，包括无限录题、OCR 识别、分类管理和间隔复习。高级功能（如 iCloud 同步、高级导出格式）可通过订阅 Pro 解锁。我们绝不限制录入数量。", comment: "帮助答案")
     }
+
+    // MARK: - Accessibility
+
+    public enum Accessibility {
+        // 复习卡片
+        public static let flipToAnswer = NSLocalizedString("accessibility.flip_to_answer", value: "双击翻转查看答案", comment: "VoiceOver 翻卡提示")
+        public static let flipToQuestion = NSLocalizedString("accessibility.flip_to_question", value: "双击翻转回到题目", comment: "VoiceOver 翻卡提示")
+        public static let flippedToAnswer = NSLocalizedString("accessibility.flipped_to_answer", value: "已翻到答案面", comment: "VoiceOver 翻卡公告")
+        public static let flippedToQuestion = NSLocalizedString("accessibility.flipped_to_question", value: "已翻到题目面", comment: "VoiceOver 翻卡公告")
+        public static let showAnswer = NSLocalizedString("accessibility.show_answer", value: "显示答案", comment: "VoiceOver 翻面按钮")
+        public static let hideAnswer = NSLocalizedString("accessibility.hide_answer", value: "隐藏答案", comment: "VoiceOver 翻面按钮")
+        public static let undo = NSLocalizedString("accessibility.undo", value: "撤销", comment: "VoiceOver 撤销按钮")
+        public static let undoHint = NSLocalizedString("accessibility.undo_hint", value: "撤销上一次滑动评估", comment: "VoiceOver 撤销按钮提示")
+        public static let pauseReview = NSLocalizedString("accessibility.pause_review", value: "暂停复习", comment: "VoiceOver 暂停按钮")
+        public static let moreActions = NSLocalizedString("accessibility.more_actions", value: "更多操作", comment: "VoiceOver 省略号菜单")
+        public static let questionImage = NSLocalizedString("accessibility.question_image", value: "题目图片", comment: "VoiceOver 题目图片")
+        public static let answerImage = NSLocalizedString("accessibility.answer_image", value: "答案图片", comment: "VoiceOver 答案图片")
+        public static let forgotHint = NSLocalizedString("accessibility.forgot_hint", value: "标记为忘记，稍后会再次出现", comment: "VoiceOver 忘记按钮提示")
+        public static let rememberHint = NSLocalizedString("accessibility.remember_hint", value: "标记为记得，延长复习间隔", comment: "VoiceOver 记得按钮提示")
+
+        // 复习摘要
+        public static func summaryAnnouncement(good: Int, again: Int) -> String {
+            String(format: NSLocalizedString("accessibility.summary_announcement", value: "复习完成，掌握 %d 题，待加强 %d 题", comment: "VoiceOver 复习摘要公告"), good, again)
+        }
+        public static func statCard(title: String, count: Int) -> String {
+            String(format: NSLocalizedString("accessibility.stat_card", value: "%@ %d 题", comment: "VoiceOver 统计卡片"), title, count)
+        }
+
+        // 复习 Dashboard
+        public static func pendingReview(count: Int) -> String {
+            String(format: NSLocalizedString("accessibility.pending_review", value: "待复习 %d 道题", comment: "VoiceOver 待复习数"), count)
+        }
+        public static func reviewedToday(count: Int) -> String {
+            String(format: NSLocalizedString("accessibility.reviewed_today", value: "今日已复习 %d 道题", comment: "VoiceOver 已复习数"), count)
+        }
+        public static let startReviewHint = NSLocalizedString("accessibility.start_review_hint", value: "开始今日复习会话", comment: "VoiceOver 开始复习提示")
+
+        // 标签
+        public static func deleteTag(_ name: String) -> String {
+            String(format: NSLocalizedString("accessibility.delete_tag", value: "删除标签%@", comment: "VoiceOver 删除标签按钮"), name)
+        }
+        public static func addTag(_ name: String) -> String {
+            String(format: NSLocalizedString("accessibility.add_tag", value: "添加标签%@", comment: "VoiceOver 添加标签按钮"), name)
+        }
+
+        // 难度
+        public static func starRating(difficulty: Int, maxStars: Int = 5) -> String {
+            let desc = NSLocalizedString("accessibility.difficulty_\(difficulty)", value: {
+                switch difficulty {
+                case 1: return "非常简单"
+                case 2: return "简单"
+                case 3: return "中等"
+                case 4: return "困难"
+                case 5: return "非常困难"
+                default: return "未知"
+                }
+            }(), comment: "VoiceOver 难度描述")
+            return String(format: NSLocalizedString("accessibility.star_rating", value: "难度 %d 星（共 %d 星），%@", comment: "VoiceOver 难度星级"), difficulty, maxStars, desc)
+        }
+    }
 }
 
 // swiftlint:enable type_body_length file_length
