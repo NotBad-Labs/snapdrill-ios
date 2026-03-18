@@ -91,7 +91,11 @@ public struct ImageStorage: Sendable {
         }.value
     }
 
-    /// 从本地加载图片
+    /// 从本地加载图片（同步）
+    ///
+    /// 仅用于必须同步的上下文（如 UIGraphicsPDFRenderer 闭包）。
+    /// SwiftUI View 中请使用 `loadImageAsync(path:)` 避免阻塞主线程。
+    ///
     /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
     /// - Returns: 加载的 UIImage，如果失败返回 nil
     public func loadImage(path: String) -> UIImage? {
@@ -102,6 +106,57 @@ public struct ImageStorage: Sendable {
         guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
 
         return UIImage(contentsOfFile: fileURL.path)
+    }
+
+    /// 从本地加载图片（异步，后台线程）
+    ///
+    /// 在 `Task.detached` 中执行磁盘 I/O，避免阻塞主线程。
+    /// SwiftUI View 中应通过 `.task` + `@State` 配合使用。
+    ///
+    /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
+    /// - Returns: 加载的 UIImage，如果失败返回 nil
+    public func loadImageAsync(path: String) async -> UIImage? {
+        await Task.detached(priority: .userInitiated) { [self] in
+            self.loadImage(path: path)
+        }.value
+    }
+
+    /// 从本地加载降采样图片（同步，ImageIO 流式解码）
+    ///
+    /// 使用 `CGImageSourceCreateThumbnailAtIndex` 流式解码，
+    /// 不将全分辨率位图加载到内存（12MP JPEG ~48MB 位图 → 降采样后 ~2MB）。
+    /// 适用于 PDF 导出等需要同步访问但不需要全分辨率的场景。
+    ///
+    /// - Parameters:
+    ///   - path: 图片的相对路径 (e.g., "images/xyz.jpg")
+    ///   - maxLongSide: 长边像素上限（默认 1200，A4 150dpi 足够）
+    /// - Returns: 降采样后的 UIImage，失败时回退到 `loadImage(path:)`
+    public func loadDownsampledImage(path: String, maxLongSide: Int = 1200) -> UIImage? {
+        #if canImport(UIKit)
+        let fileManager = FileManager.default
+        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let fileURL = documentsURL.appendingPathComponent(path)
+
+        guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
+
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxLongSide
+        ]
+
+        guard let source = CGImageSourceCreateWithURL(fileURL as CFURL, nil),
+              let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            // ImageIO 失败时回退到全分辨率加载（可能导致内存峰值偏高）
+            SnapDrillLogger.generic.warning("ImageIO 降采样失败，回退到全分辨率加载: \(path)")
+            return UIImage(contentsOfFile: fileURL.path)
+        }
+
+        return UIImage(cgImage: cgImage)
+        #else
+        return loadImage(path: path)
+        #endif
     }
 
     // MARK: - Private Helpers

@@ -27,25 +27,34 @@ struct LibraryDetailView: View {
     @State private var isEditing = false
     @State private var showingFullScreenImage = false
     @State private var fullScreenImage: UIImage?
+    @State private var loadedImage: UIImage?
+    @State private var loadedAnswerImage: UIImage?
 
     private let imageStorage = ImageStorage()
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Image Header
-                if let imagePath = item.imagePath,
-                   let image = imageStorage.loadImage(path: imagePath) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxHeight: 250)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .padding(.horizontal)
-                        .onTapGesture {
-                            fullScreenImage = image
-                            showingFullScreenImage = true
-                        }
+                // Image Header（异步加载，避免阻塞主线程）
+                if item.imagePath != nil {
+                    if let image = loadedImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxHeight: 250)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .padding(.horizontal)
+                            .onTapGesture {
+                                fullScreenImage = image
+                                showingFullScreenImage = true
+                            }
+                    } else {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.secondary.opacity(0.1))
+                            .frame(height: 200)
+                            .overlay(ProgressView())
+                            .padding(.horizontal)
+                    }
                 }
 
                 // Meta Info
@@ -158,18 +167,25 @@ struct LibraryDetailView: View {
                                 .padding(.horizontal)
                         }
 
-                        if let answerImagePath = item.answerImagePath,
-                           let answerImage = imageStorage.loadImage(path: answerImagePath) {
-                            Image(uiImage: answerImage)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxHeight: 200)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                                .padding(.horizontal)
-                                .onTapGesture {
-                                    fullScreenImage = answerImage
-                                    showingFullScreenImage = true
-                                }
+                        if item.answerImagePath != nil {
+                            if let answerImage = loadedAnswerImage {
+                                Image(uiImage: answerImage)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(maxHeight: 200)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .padding(.horizontal)
+                                    .onTapGesture {
+                                        fullScreenImage = answerImage
+                                        showingFullScreenImage = true
+                                    }
+                            } else {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.secondary.opacity(0.1))
+                                    .frame(height: 150)
+                                    .overlay(ProgressView())
+                                    .padding(.horizontal)
+                            }
                         }
                     }
                 }
@@ -177,6 +193,16 @@ struct LibraryDetailView: View {
                 Spacer()
             }
             .padding(.top)
+        }
+        .task(id: item.imagePath) {
+            guard let path = item.imagePath else { loadedImage = nil; return }
+            let image = await imageStorage.loadImageAsync(path: path)
+            if !Task.isCancelled { loadedImage = image }
+        }
+        .task(id: item.answerImagePath) {
+            guard let path = item.answerImagePath else { loadedAnswerImage = nil; return }
+            let image = await imageStorage.loadImageAsync(path: path)
+            if !Task.isCancelled { loadedAnswerImage = image }
         }
         .navigationTitle(L10n.Library.detail)
         .navigationBarTitleDisplayMode(.inline)
@@ -198,6 +224,7 @@ struct LibraryDetailView: View {
             }
         }
     }
+
 }
 
 #Preview {
