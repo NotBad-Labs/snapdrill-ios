@@ -428,6 +428,10 @@ public enum L10n {
         public static let clearConfirmTitle = NSLocalizedString("settings.clear_confirm_title", value: "确认清空所有数据？", comment: "清空确认标题")
         public static let clearConfirmMessage = NSLocalizedString("settings.clear_confirm_message", value: "此操作将删除所有题目、分类和标签，且不可恢复。", comment: "清空确认信息")
         public static let clearConfirmButton = NSLocalizedString("settings.clear_confirm_button", value: "清空所有", comment: "确认清空按钮")
+        public static let clearFailed = NSLocalizedString("settings.clear_failed", value: "清空数据失败，请稍后重试", comment: "清空数据失败错误")
+        public static let dangerZone = NSLocalizedString("settings.danger_zone", value: "危险操作", comment: "危险操作分区标题")
+        public static let dangerZoneFooter = NSLocalizedString("settings.danger_zone_footer", value: "以下操作不可撤销，请谨慎使用", comment: "危险操作分区说明")
+        public static let categoryManagement = NSLocalizedString("settings.category_management", value: "分类管理", comment: "分类管理分区标题")
 
         // 关于
         public static let about = NSLocalizedString("settings.about", value: "关于", comment: "关于区标题")

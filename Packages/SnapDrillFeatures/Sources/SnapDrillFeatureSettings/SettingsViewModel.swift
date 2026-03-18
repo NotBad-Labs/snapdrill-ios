@@ -34,6 +34,8 @@ public final class SettingsViewModel {
     public var backupError: String?
     /// 备份完成后的文件 URL（用于 ShareLink）
     public var backupFileURL: URL?
+    /// 清空数据操作的错误信息
+    public var clearError: String?
 
     // MARK: - Initialization
 
@@ -49,6 +51,7 @@ public final class SettingsViewModel {
     ///
     /// 操作不可撤销，失败时自动回滚 `mainContext` 以防止脏数据。
     public func clearAllData() async {
+        clearError = nil
         do {
             try await repositories.deleteAllData()
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
@@ -58,6 +61,7 @@ public final class SettingsViewModel {
             // 此处 rollback 仅清理内存脏状态，防止未落盘的待删对象被后续操作意外持久化
             repositories.review.rollbackContext()
             SnapDrillLogger.generic.error("清空数据失败: \(error)")
+            clearError = L10n.Settings.clearFailed
         }
     }
 
