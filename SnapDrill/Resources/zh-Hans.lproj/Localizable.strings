@@ -528,7 +528,7 @@
 "help.answer_data_loss" = "数据默认存储在本设备上，卸载应用会导致数据永久丢失。建议定期手动备份，或升级 Pro 后使用 iCloud 自动同步。";
 
 "help.question_data_safe" = "我的数据安全吗？";
-"help.answer_data_safe" = "所有数据都存储在您的设备和 iCloud 账号中，我们不会收集或上传您的个人数据。崩溃报告和分析数据都是匿名的。";
+"help.answer_data_safe" = "所有数据都存储在您的设备本地，我们不会收集或上传您的个人数据。崩溃报告和分析数据都是匿名的。";
 
 "help.question_disable_analytics" = "如何关闭数据分析？";
 "help.answer_disable_analytics" = "进入「设置」-「隐私与安全」，关闭「数据分析」开关。这不会影响应用的核心功能。";

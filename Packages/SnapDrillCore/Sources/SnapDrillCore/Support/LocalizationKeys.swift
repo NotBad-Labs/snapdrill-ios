@@ -1034,7 +1034,7 @@ public enum L10n {
 
         // 隐私与安全
         public static let questionDataSafe = NSLocalizedString("help.question_data_safe", value: "我的数据安全吗？", comment: "帮助问题")
-        public static let answerDataSafe = NSLocalizedString("help.answer_data_safe", value: "所有数据都存储在您的设备和 iCloud 账号中，我们不会收集或上传您的个人数据。崩溃报告和分析数据都是匿名的。", comment: "帮助答案")
+        public static let answerDataSafe = NSLocalizedString("help.answer_data_safe", value: "所有数据都存储在您的设备本地，我们不会收集或上传您的个人数据。崩溃报告和分析数据都是匿名的。", comment: "帮助答案")
         public static let questionDisableAnalytics = NSLocalizedString("help.question_disable_analytics", value: "如何关闭数据分析？", comment: "帮助问题")
         public static let answerDisableAnalytics = NSLocalizedString("help.answer_disable_analytics", value: "进入「设置」-「隐私与安全」，关闭「数据分析」开关。这不会影响应用的核心功能。", comment: "帮助答案")
         public static let questionPermissions = NSLocalizedString("help.question_permissions", value: "相机和相册权限用于什么？", comment: "帮助问题")

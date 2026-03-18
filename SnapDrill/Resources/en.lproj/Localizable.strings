@@ -528,7 +528,7 @@
 "help.answer_data_loss" = "Data is stored on this device by default. Uninstalling the app will permanently delete all data. We recommend creating regular backups, or subscribing to Pro for iCloud automatic sync.";
 
 "help.question_data_safe" = "Is my data safe?";
-"help.answer_data_safe" = "All data is stored on your device and in your iCloud account. We do not collect or upload any personal data. Crash reports and analytics are anonymous.";
+"help.answer_data_safe" = "All data is stored locally on your device. We do not collect or upload any personal data. Crash reports and analytics are anonymous.";
 
 "help.question_disable_analytics" = "How do I disable analytics?";
 "help.answer_disable_analytics" = "Go to Settings > Privacy & Security and toggle off \"Analytics\". This will not affect core app functionality.";
