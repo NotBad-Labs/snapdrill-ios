@@ -74,31 +74,37 @@ public final class AppConfiguration {
         }
         
         /// 是否启用崩溃报告（产品要求默认开启）
+        ///
+        /// 优先级：用户本地设置 > 远程配置 > 产品默认值（true）。
+        /// 隐私选择是用户的绝对权利，远程配置不得覆盖用户显式选择。
         public static var crashReportingEnabled: Bool {
             get {
+                // 1. 用户显式设置（最高优先级 — 隐私选择不可被远程覆盖）
+                if UserDefaults.standard.object(forKey: UDKey.crashReportingEnabled) != nil {
+                    return UserDefaults.standard.bool(forKey: UDKey.crashReportingEnabled)
+                }
+                // 2. 远程配置（用户未设置时，允许远程调整默认行为）
                 if let remote = remoteProvider?.bool(forKey: UDKey.crashReportingEnabled) {
                     return remote
                 }
-                // UserDefaults.bool(forKey:) 对未设置的 key 返回 false，
-                // 但产品要求默认开启，需显式区分"未设置"与"用户关闭"
-                if UserDefaults.standard.object(forKey: UDKey.crashReportingEnabled) == nil {
-                    return true
-                }
-                return UserDefaults.standard.bool(forKey: UDKey.crashReportingEnabled)
+                // 3. 产品默认值（首启且无远程配置）
+                return true
             }
             set { UserDefaults.standard.set(newValue, forKey: UDKey.crashReportingEnabled) }
         }
 
         /// 是否启用数据分析（产品要求默认开启）
+        ///
+        /// 优先级同 `crashReportingEnabled`：用户本地 > 远程配置 > 默认值。
         public static var analyticsEnabled: Bool {
             get {
+                if UserDefaults.standard.object(forKey: UDKey.analyticsEnabled) != nil {
+                    return UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled)
+                }
                 if let remote = remoteProvider?.bool(forKey: UDKey.analyticsEnabled) {
                     return remote
                 }
-                if UserDefaults.standard.object(forKey: UDKey.analyticsEnabled) == nil {
-                    return true
-                }
-                return UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled)
+                return true
             }
             set { UserDefaults.standard.set(newValue, forKey: UDKey.analyticsEnabled) }
         }

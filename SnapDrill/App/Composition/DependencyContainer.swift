@@ -38,9 +38,12 @@ final class DependencyContainer {
         // 1. 配置 Firebase（基础设施层）
         FirebaseBootstrap.configure()
 
-        // 1b. 读取用户偏好设置 Crashlytics 收集开关
+        // 1b. 读取用户隐私偏好，同步到 Firebase SDK
         FirebaseBootstrap.setCrashlyticsEnabled(
             AppConfiguration.FeatureFlags.crashReportingEnabled
+        )
+        FirebaseBootstrap.setAnalyticsEnabled(
+            AppConfiguration.FeatureFlags.analyticsEnabled
         )
 
         // 2. 初始化 Firebase 具体服务
@@ -81,6 +84,9 @@ final class DependencyContainer {
             MainActor.assumeIsolated {
                 FirebaseBootstrap.setCrashlyticsEnabled(
                     AppConfiguration.FeatureFlags.crashReportingEnabled
+                )
+                FirebaseBootstrap.setAnalyticsEnabled(
+                    AppConfiguration.FeatureFlags.analyticsEnabled
                 )
             }
         }

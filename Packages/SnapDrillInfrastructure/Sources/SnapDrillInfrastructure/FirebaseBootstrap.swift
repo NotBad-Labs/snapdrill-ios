@@ -6,6 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 
+import FirebaseAnalytics
 import FirebaseCore
 import FirebaseCrashlytics
 
@@ -18,11 +19,18 @@ public enum FirebaseBootstrap {
         FirebaseApp.configure()
     }
 
-    /// 设置 Crashlytics 数据收集开关
+    /// 设置 Crashlytics 数据收集开关（持久化跨启动）
     ///
     /// 在 `configure()` 之后调用，读取用户隐私偏好。
     /// - Parameter enabled: 是否允许收集崩溃报告
     public static func setCrashlyticsEnabled(_ enabled: Bool) {
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(enabled)
+    }
+
+    /// 设置 Analytics 数据收集开关
+    ///
+    /// - Parameter enabled: 是否允许收集匿名使用数据
+    public static func setAnalyticsEnabled(_ enabled: Bool) {
+        Analytics.setAnalyticsCollectionEnabled(enabled)
     }
 }

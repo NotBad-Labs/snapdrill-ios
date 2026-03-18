@@ -610,6 +610,7 @@ struct BentoCard: View {
 public enum FirebaseBootstrap {
     public static func configure()  // 调用 FirebaseApp.configure()
     public static func setCrashlyticsEnabled(_ enabled: Bool)  // 设置 Crashlytics 数据收集开关（持久化跨启动）
+    public static func setAnalyticsEnabled(_ enabled: Bool)    // 设置 Analytics 数据收集开关
 }
 ```
 
