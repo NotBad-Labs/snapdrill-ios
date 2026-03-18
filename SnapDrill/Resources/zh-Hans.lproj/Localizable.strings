@@ -25,45 +25,22 @@
 
 // MARK: - Dashboard
 "dashboard.title" = "仪表板";
-"dashboard.greeting" = "你好";
-"dashboard.today_review" = "今日复习";
-"dashboard.total_items" = "总题目";
-"dashboard.start_review" = "开始复习";
 
 // MARK: - Library
 "library.title" = "题库";
-"library.all_items" = "所有题目";
-"library.by_subject" = "按学科";
-"library.by_source" = "按来源";
 "library.search_placeholder" = "搜索题目...";
 "library.no_items" = "暂无题目";
 
 // MARK: - Review
 "review.title" = "复习";
-"review.question" = "题目";
-"review.answer" = "答案";
-"review.show_answer" = "显示答案";
-"review.hide_answer" = "隐藏答案";
-"review.difficulty" = "难度";
 "review.completed" = "已完成";
-"review.forgot" = "忘记";
-"review.remember" = "记得";
-"review.hard" = "模糊";
-"review.good" = "熟悉";
-"review.easy" = "简单";
 
 // MARK: - Capture
 "capture.title" = "拍摄";
-"capture.scanning" = "寻找题目区域...";
-"capture.tap_to_capture" = "点击拍摄";
-"capture.processing" = "处理中...";
-"capture.ocr_failed" = "文字识别失败";
 
 // MARK: - Settings
 "settings.title" = "设置";
 "settings.general" = "通用";
-"settings.privacy" = "隐私与安全";
-"settings.data_sync" = "数据与云同步";
 "settings.about" = "关于";
 "settings.version" = "版本";
 
@@ -84,14 +61,36 @@
 "edit_profile.choose_avatar_source" = "选择头像来源";
 
 // MARK: - Errors
-"errors.network_unavailable" = "网络连接不可用";
-"errors.icloud_unavailable" = "iCloud 不可用";
 "errors.camera_permission_denied" = "相机权限被拒绝";
 "errors.photo_permission_denied" = "相册权限被拒绝";
 "errors.export_failed" = "导出失败";
 "errors.import_failed" = "导入失败";
 "errors.data_corrupted" = "数据已损坏";
 "errors.ocr_failed" = "文字识别失败";
+"errors.encoding_failed" = "数据编码失败";
+"errors.image_load_failed" = "无法加载图片，请确认图片文件未损坏后重试";
+"errors.image_decode_failed" = "图片格式无法识别，请尝试使用其他图片";
+"errors.clipboard_empty" = "剪贴板为空或没有可用的文本内容";
+"errors.pdf_read_failed" = "无法读取 PDF 文件，请确认文件未损坏";
+"errors.pdf_parse_failed" = "PDF 文件格式无法解析，请尝试其他文件";
+"errors.pdf_empty" = "PDF 文件不包含任何页面";
+"errors.file_picker_failed" = "文件选择失败，请检查文件或稍后重试";
+"errors.save_failed" = "保存失败，请检查存储空间后重试";
+"errors.create_taxonomy_failed" = "新建「%@」失败，请重试";
+"errors.backup_failed" = "备份失败，请检查存储空间后重试";
+"errors.restore_failed" = "恢复失败，请确认备份文件未损坏后重试";
+"errors.file_access_denied" = "无法访问选择的文件，请重新选取";
+
+// MARK: - Onboarding
+"onboarding.skip" = "跳过";
+"onboarding.previous" = "上一页";
+"onboarding.next" = "下一页";
+"onboarding.get_started" = "开始使用";
+"onboarding.accessibility_group" = "欢迎引导";
+
+// MARK: - Notification
+"notification.daily.title" = "复习时间到";
+"notification.daily.body" = "今天的错题还在等你，快来复习吧！";
 
 // MARK: - Subjects
 "subjects.math" = "数学";
