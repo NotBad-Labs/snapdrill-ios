@@ -371,9 +371,6 @@
 "settings.card_back_section" = "Card Back (Header)";
 "settings.alignment" = "Alignment";
 "settings.font_size_label" = "Font Size: %d";
-"settings.local_mode_warning" = "Local mode: Uninstalling will permanently delete all data";
-"settings.local_data_mode_title" = "Local Data Mode";
-"settings.local_data_mode_message" = "Uninstalling will permanently delete all your data. We recommend creating regular backups or enabling iCloud sync.";
 "settings.debug_title" = "Developer Debug";
 "settings.generate_mock_data" = "Generate Mock Data";
 "settings.clear_mock_data" = "Clear Mock Data";
@@ -458,8 +455,159 @@
 "onboarding.next" = "Next";
 "onboarding.get_started" = "Get Started";
 "onboarding.accessibility_group" = "Welcome Guide";
+"onboarding.page_welcome_title" = "Welcome to SnapDrill";
+"onboarding.page_welcome_description" = "Smart question management for better learning";
+"onboarding.page_capture_title" = "Smart Capture";
+"onboarding.page_capture_description" = "Use your camera to quickly capture questions with automatic text recognition";
+"onboarding.page_review_title" = "Scientific Review";
+"onboarding.page_review_description" = "Smart review scheduling based on the Ebbinghaus forgetting curve";
+"onboarding.page_export_title" = "Data Export";
+"onboarding.page_export_description" = "Export to PDF, CSV and more for easy sharing and printing";
+"onboarding.field_config_title" = "Choose Input Fields";
+"onboarding.field_config_description" = "Select the fields to fill when adding questions. You can change this anytime in Settings.";
+"onboarding.field_subject" = "Subject";
+"onboarding.field_source" = "Source";
+"onboarding.field_difficulty" = "Difficulty";
+"onboarding.field_grade" = "Grade";
+"onboarding.field_answer" = "Answer";
+"onboarding.dismiss_tooltip" = "Dismiss tooltip";
+"onboarding.field_config_icon" = "Field configuration";
+"onboarding.field_config_header" = "Choose Input Fields";
 
 // MARK: - Notification
 
 "notification.daily.title" = "Review Time";
 "notification.daily.body" = "Your questions are waiting — time to review!";
+
+// MARK: - Help
+
+"help.title" = "Help Center";
+"help.search_prompt" = "Search help...";
+
+"help.topic_getting_started" = "Getting Started";
+"help.topic_smart_capture" = "Smart Capture";
+"help.topic_review_system" = "Review System";
+"help.topic_data_management" = "Data Management";
+"help.topic_privacy_security" = "Privacy & Security";
+"help.topic_faq" = "FAQ";
+
+"help.question_add_first_item" = "How do I add my first question?";
+"help.answer_add_first_item" = "Tap the \"+\" button on the main screen and choose \"Camera\" or \"Photo Library\". The app will automatically recognize the text. You can also enter the question and answer manually.";
+
+"help.question_start_review" = "How do I start reviewing?";
+"help.answer_start_review" = "Tap \"Start Review\" on the Dashboard. The app will schedule questions for you based on a spaced repetition algorithm.";
+
+"help.question_set_subject_source" = "How do I set subject and source?";
+"help.answer_set_subject_source" = "When adding or editing a question, you can select a subject (e.g., Math, Chinese) and a source (e.g., Midterm Exam, Homework) for easy categorization.";
+
+"help.question_best_capture" = "How do I get the best capture results?";
+"help.answer_best_capture" = "Ensure good lighting, place the question on a flat surface, and keep the camera steady. The app will automatically detect the question area.";
+
+"help.question_ocr_inaccurate" = "What if text recognition is inaccurate?";
+"help.answer_ocr_inaccurate" = "You can manually edit the recognized text. For best results, keep the text clear and well-lit, and avoid glare and shadows.";
+
+"help.question_crop_image" = "Can I crop images?";
+"help.answer_crop_image" = "Yes. After capturing, you'll enter a cropping screen where you can adjust the area to keep only the question portion.";
+
+"help.question_review_schedule" = "How is the review schedule arranged?";
+"help.answer_review_schedule" = "The app uses a spaced repetition algorithm to schedule reviews at optimal intervals. The first review is after 1 day, then intervals gradually increase (3, 7, 15, 30 days).";
+
+"help.question_mark_difficulty" = "How do I mark question difficulty?";
+"help.answer_mark_difficulty" = "During review, you can rate each question's difficulty (1–5 stars). The app adjusts review frequency accordingly — harder questions appear more often.";
+
+"help.question_custom_review" = "Can I customize the review schedule?";
+"help.answer_custom_review" = "The app currently uses a scientifically backed algorithm for scheduling. You can adjust your daily review goal in Settings.";
+
+"help.question_data_backup" = "How do I back up my data?";
+"help.answer_data_backup" = "We recommend creating regular manual backups. Go to Settings > Backup & Restore and tap \"Create Backup\". With a Pro subscription, you can also use iCloud automatic sync.";
+
+"help.question_export_data" = "How do I export my data?";
+"help.answer_export_data" = "Go to Settings > Privacy & Security > Export Data, choose a format (PDF, CSV, or JSON), and the app will generate a file you can share or save.";
+
+"help.question_data_loss" = "Could I lose my data?";
+"help.answer_data_loss" = "Data is stored on this device by default. Uninstalling the app will permanently delete all data. We recommend creating regular backups, or subscribing to Pro for iCloud automatic sync.";
+
+"help.question_data_safe" = "Is my data safe?";
+"help.answer_data_safe" = "All data is stored locally on your device. We do not collect or upload any personal data. Crash reports and analytics are anonymous.";
+
+"help.question_disable_analytics" = "How do I disable analytics?";
+"help.answer_disable_analytics" = "Go to Settings > Privacy & Security and toggle off \"Analytics\". This will not affect core app functionality.";
+
+"help.question_permissions" = "What are camera and photo permissions used for?";
+"help.answer_permissions" = "Camera access is used to capture questions, and photo library access is used to import images. We only request permissions when you use these features and do not access other photos.";
+
+"help.question_crash_or_lag" = "What if the app crashes or lags?";
+"help.answer_crash_or_lag" = "Try restarting the app. If the issue persists, clear the cache in Settings. We automatically collect crash reports (if enabled) and work to fix issues promptly.";
+
+"help.question_contact_support" = "How do I contact support?";
+"help.answer_contact_support" = "Go to Settings > About > Feedback & Support, or email us at support@snapdrill.app.";
+
+"help.question_is_free" = "Is the app free?";
+"help.answer_is_free" = "SnapDrill's core features are completely free, including unlimited question capture, OCR recognition, categorization, and spaced repetition review. Advanced features (such as iCloud sync and premium export formats) are available with a Pro subscription. We will never limit the number of questions you can capture.";
+
+// MARK: - Terms of Service
+
+"terms.title" = "Terms of Service";
+"terms.last_updated" = "Last Updated: January 2, 2026";
+"terms.acceptance_title" = "Acceptance of Terms";
+"terms.acceptance_content" = "Welcome to SnapDrill! By downloading, installing, or using this app, you agree to comply with all terms and conditions of this agreement. If you do not agree to these terms, please do not use this app.";
+"terms.service_title" = "Service Description";
+"terms.service_content" = "SnapDrill is a personal learning assistant app designed to help users capture, organize, and review knowledge through spaced repetition.\n\nKey features include:\n• Smart scanning & OCR text recognition\n• Question management and categorization\n• Spaced repetition review system\n• Data export (PDF/JSON/CSV)";
+"terms.data_storage_title" = "Data Storage";
+"terms.data_storage_content" = "SnapDrill does not require an account to use. All data is stored locally on your device by default.\n\nYou are responsible for:\n• Keeping your device secure\n• Regularly backing up important data\n• Note: Uninstalling the app will permanently delete all local data";
+"terms.license_title" = "License Grant";
+"terms.license_content" = "We grant you a limited, non-exclusive, non-transferable, revocable license to use the SnapDrill app on your personal device.\n\nYou may not:\n• Copy, modify, or reverse-engineer the app\n• Sell, rent, or transfer the app\n• Remove any copyright or proprietary notices\n• Use the app for illegal purposes";
+"terms.user_content_title" = "User Content";
+"terms.user_content_content" = "All content you create in the app (including text, images, notes, etc.) belongs to you.\n\nYou represent and warrant that:\n• You own or have the necessary rights to the content you upload\n• Your content does not infringe any third-party rights\n• Your content does not contain illegal, harmful, or inappropriate material\n\nWe do not access, use, or share your personal learning content.";
+"terms.ip_title" = "Intellectual Property";
+"terms.ip_content" = "The SnapDrill app and all its content, features, and functionality (including but not limited to software, text, graphics, logos, icons, and images) are owned by NotBad Labs L.L.C. and are protected by U.S. and international copyright, trademark, and other intellectual property laws.\n\nThe \"SnapDrill\" name and logo are trademarks of NotBad Labs L.L.C. You may not use these trademarks without our prior written permission.";
+"terms.disclaimer_title" = "Disclaimer";
+"terms.disclaimer_content" = "The SnapDrill app is provided on an \"as is\" and \"as available\" basis, without any express or implied warranties.\n\nWe do not guarantee that:\n• The app will be error-free or uninterrupted\n• Defects will be corrected\n• The app will meet your specific requirements\n• OCR recognition accuracy\n\nYour use of this app is at your own risk.";
+"terms.liability_title" = "Limitation of Liability";
+"terms.liability_content" = "To the maximum extent permitted by law, NotBad Labs L.L.C. and its affiliates shall not be liable for:\n\n• Any indirect, incidental, special, or consequential damages\n• Data loss or corruption\n• Business interruption or loss of profits\n• Any damages arising from the use or inability to use the app\n\nWe recommend that you regularly back up important data.";
+"terms.backup_title" = "Data Backup";
+"terms.backup_content" = "While we strive to ensure data security and reliability, we strongly recommend that you:\n\n• Regularly export data using the in-app backup feature\n• Keep copies of important content\n\nWe are not responsible for data loss.";
+"terms.changes_title" = "Service Changes and Termination";
+"terms.changes_content" = "We reserve the right to modify, suspend, or terminate the app or any of its features at any time without prior notice.\n\nWe may:\n• Update app features\n• Fix bugs and security vulnerabilities\n• Improve user experience\n\nYou may stop using the app and delete it at any time.";
+"terms.third_party_title" = "Third-Party Links";
+"terms.third_party_content" = "The app may contain links to third-party websites or services. We are not responsible for the content, privacy policies, or practices of these third-party websites. You access third-party links at your own risk.";
+"terms.law_title" = "Governing Law";
+"terms.law_content" = "This agreement shall be governed by and construed in accordance with the laws of the State of Wyoming, United States, without regard to conflict of law principles. Any disputes arising from this agreement shall first be resolved through good-faith negotiation. If negotiation fails, both parties agree to submit to the jurisdiction of the courts in Wyoming.";
+"terms.modification_title" = "Agreement Modifications";
+"terms.modification_content" = "We reserve the right to modify this agreement at any time. If there are significant changes, we will notify you through in-app notifications or by updating the date.\n\nContinued use of the app after modifications constitutes your acceptance of the revised terms. If you do not agree to the revised terms, please stop using the app.";
+"terms.severability_title" = "Severability";
+"terms.severability_content" = "If any provision of this agreement is found to be invalid or unenforceable, that provision shall be removed and the remaining provisions shall remain in effect.";
+"terms.entire_agreement_title" = "Entire Agreement";
+"terms.entire_agreement_content" = "This agreement constitutes the entire agreement between you and NotBad Labs L.L.C. regarding the use of this app, and supersedes all prior oral or written agreements.";
+"terms.contact_title" = "Contact Us";
+"terms.contact_content" = "If you have any questions about this agreement, please contact us:\n\nEmail: hello@notbadhq.com\nIn-app feedback: Settings > About > Feedback & Support\n\nWe will respond to your inquiry within 48 hours.";
+
+// MARK: - Privacy Policy
+
+"privacy.title" = "Privacy Policy";
+"privacy.last_updated" = "Last Updated: March 2026";
+"privacy.intro_title" = "Introduction";
+"privacy.intro_content" = "Welcome to SnapDrill! We take your privacy very seriously. This privacy policy explains how we collect, use, store, and protect your personal information. By using the SnapDrill app, you agree to the practices described in this privacy policy.";
+"privacy.collection_title" = "Information We Collect";
+"privacy.collection_content" = "SnapDrill is a fully offline-first app. We do not actively collect your personal information. All data you create in the app (including questions, images, notes, etc.) is stored on your device.\n\nContent you create: question text, uploaded or captured images, subject categories and tags, review records and progress.\n\nAutomatically collected information: app crash logs (used only to improve app stability), device type and OS version (used for compatibility testing).";
+"privacy.icloud_title" = "iCloud Sync (Future Feature)";
+"privacy.icloud_content" = "iCloud sync is a planned Pro subscription feature and is not available in the current version. When available in the future:\n\nYour data will be synced between your devices through Apple's iCloud service. All data is stored in your personal iCloud account, and we cannot access your iCloud data. Data transfers are encrypted by Apple. You can turn off iCloud sync at any time in Settings.";
+"privacy.usage_title" = "Data Usage";
+"privacy.usage_content" = "We use the information collected solely for: providing core functionality (storing and managing your question data), improving the app (analyzing crash logs to fix bugs), user support (responding to your feedback and support requests).\n\nWe will not: sell your personal information, use your data for advertising purposes, or share your learning content with third parties.";
+"privacy.security_title" = "Data Security";
+"privacy.security_content" = "We take the following measures to protect your data: local storage (data is stored on your device, protected by iOS sandbox), no servers (we do not operate servers to store your data), manual backup (you can export and restore data using the in-app backup feature).";
+"privacy.rights_title" = "Your Rights";
+"privacy.rights_content" = "You have full control over your data: right of access (you can view all data in the app at any time), right to export (export your data through the Export feature), right to delete (you can delete individual questions or clear all data), right to backup (protect your data through the backup feature).\n\nTo completely delete all data, choose \"Clear All Data\" in Settings or uninstall the app.";
+"privacy.third_party_title" = "Third-Party Services";
+"privacy.third_party_content" = "SnapDrill uses the following third-party services:\n\n• Apple Vision Framework: used for OCR text recognition, processed entirely on-device. Data never leaves your device.\n• Firebase Analytics (Google): anonymous usage analytics to understand feature usage and improve the product. No personally identifiable information is collected. On iOS, this feature is only enabled after you grant authorization through App Tracking Transparency (ATT).\n• Firebase Crashlytics (Google): crash log collection to identify and fix app stability issues. Only device type, OS version, and crash stack information are collected.\n\nWe do not use any third-party advertising services and will not use your data for advertising purposes.";
+"privacy.children_title" = "Children's Privacy";
+"privacy.children_content" = "SnapDrill is suitable for users of all ages. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and discover that your child has provided us with personal information without your consent, please contact us and we will take steps to delete the information.";
+"privacy.gdpr_title" = "GDPR Compliance (EU Users)";
+"privacy.gdpr_content" = "If you are located in the European Union, you have the right to access, correct, delete, restrict processing, and data portability. Since SnapDrill does not collect or store your data on our servers, you can exercise these rights directly through the app's built-in features.";
+"privacy.ccpa_title" = "CCPA Compliance (California Users)";
+"privacy.ccpa_content" = "If you are a California resident, you have the right to know the categories of personal information we collect, know whether we sell your personal information (we do not), and delete your personal information. SnapDrill does not sell your personal information or share your learning content with third parties.";
+"privacy.update_title" = "Privacy Policy Updates";
+"privacy.update_content" = "We may update this privacy policy from time to time. If there are significant changes, we will notify you through in-app notifications or by updating the date. We recommend that you regularly review this policy to understand how we protect your information.";
+"privacy.contact_title" = "Contact Us";
+"privacy.contact_content" = "If you have any questions or concerns about this privacy policy, please contact us:\n\nEmail: hello@notbadhq.com\nIn-app feedback: Settings > About > Feedback & Support\n\nWe will respond to your inquiry within 48 hours.";
+"privacy.view_full_version" = "View full version in browser (bilingual)";

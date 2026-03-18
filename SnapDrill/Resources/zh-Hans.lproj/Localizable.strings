@@ -1,14 +1,23 @@
-/* 
+/*
   Localizable.strings
   SnapDrill
 
-  Created by SnapDrill Architect on 2026/01/03.
-  Copyright © 2026 SnapDrill Team. All rights reserved.
-  
-  中文本地化字符串
+  Created by NotBad Labs on 2026/01/03.
+  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+
+  中文本地化字符串 — 与 en.lproj/Localizable.strings 完全对齐
 */
 
+// MARK: - AppRoot
+
+"app_root.degraded_mode_title" = "数据保护模式";
+"app_root.degraded_mode_description" = "数据仅保存在内存中，重启后将丢失。建议重启应用以恢复正常。";
+"app_root.maintenance_title" = "测试版维护中";
+"app_root.maintenance_description" = "当前测试版本正在进行紧急维护或已失效，请稍后再试或前往 TestFlight 下载最新版本。";
+"app_root.check_update" = "检查更新";
+
 // MARK: - Common
+
 "common.ok" = "确定";
 "common.cancel" = "取消";
 "common.save" = "保存";
@@ -17,43 +26,369 @@
 "common.done" = "完成";
 "common.retry" = "重试";
 "common.close" = "关闭";
-"common.loading" = "加载中...";
+"common.loading" = "加载中";
 "common.error" = "错误";
+"common.create" = "创建";
+"common.discard" = "放弃";
+"common.reset" = "重置";
+"common.not_selected" = "未选择";
+"common.processing" = "正在处理...";
+"common.coming_soon" = "即将上线";
 "common.open_settings" = "打开设置";
 "common.restart_app" = "重启应用";
 "common.unknown_error" = "未知错误";
-
-// MARK: - Dashboard
-"dashboard.title" = "仪表板";
-
-// MARK: - Library
-"library.title" = "题库";
-"library.search_placeholder" = "搜索题目...";
-"library.no_items" = "暂无题目";
-
-// MARK: - Review
-"review.title" = "复习";
-"review.completed" = "已完成";
+"common.item_count" = "%d 道题";
+"common.item_count_short" = "%d 题";
 
 // MARK: - Capture
-"capture.title" = "拍摄";
+
+"capture.title" = "采集";
+"capture.entry_method_title" = "录入方式";
+"capture.camera_title" = "拍照识题";
+"capture.camera_subtitle" = "自动裁剪与识别";
+"capture.album_title" = "相册导入";
+"capture.album_subtitle" = "识别已有照片";
+"capture.manual_title" = "手动录入";
+"capture.manual_subtitle" = "纯文本编辑";
+"capture.clipboard_title" = "粘贴板";
+"capture.clipboard_subtitle" = "从剪贴板读取";
+"capture.pdf_title" = "PDF 导入";
+"capture.pdf_subtitle" = "从文件选择 PDF";
+"capture.draft_alert_title" = "恢复草稿";
+"capture.draft_continue" = "继续编辑";
+"capture.draft_alert_message" = "检测到未保存的采集内容，是否恢复？";
+"capture.preview_and_edit" = "预览与编辑";
+"capture.question_content" = "题目内容";
+"capture.re_recognizing" = "正在重新识别...";
+"capture.category_info" = "分类信息";
+"capture.question_details" = "题目详情";
+"capture.subject" = "学科";
+"capture.source" = "来源";
+"capture.tags" = "标签";
+"capture.difficulty" = "难度";
+"capture.grade" = "年级/程度";
+"capture.answer" = "参考答案";
+"capture.add_answer_image" = "添加答案图片";
+"capture.save_failed" = "保存失败";
+"capture.new_subject" = "新建学科";
+"capture.subject_name_placeholder" = "学科名称";
+"capture.new_subject_message" = "输入新学科名称，创建后自动选中";
+"capture.new_source" = "新建来源";
+"capture.source_name_placeholder" = "来源名称";
+"capture.new_source_message" = "输入新来源名称，创建后自动选中";
+"capture.new_grade" = "新建年级";
+"capture.grade_name_placeholder" = "年级名称";
+"capture.new_grade_message" = "输入新年级名称，创建后自动选中";
+"capture.select_page" = "选择页面";
+"capture.loading_page" = "正在加载...";
+"capture.recognizing_page" = "正在识别...";
+"capture.pdf_file_too_large_title" = "文件较大";
+"capture.pdf_continue_anyway" = "继续导入";
+"capture.pdf_file_too_large" = "PDF 文件大小为 %d MB，可能导致内存不足，建议使用更小的文件";
+"capture.pdf_page_hint" = "共 %d 页，点击选择要录入的页面";
+"capture.page_number" = "第 %d 页";
+
+// MARK: - Dashboard
+
+"dashboard.title" = "首页";
+"dashboard.empty_title" = "还没有任何题目";
+"dashboard.empty_description" = "拍摄一道错题，开始你的间隔复习之旅";
+"dashboard.go_capture" = "去采集";
+"dashboard.smart_scan" = "智能扫描";
+"dashboard.add_new" = "录入新题";
+"dashboard.browse_library" = "题库浏览";
+"dashboard.manage_knowledge" = "管理知识";
+"dashboard.subject_manage" = "科目管理";
+"dashboard.customize" = "自定义";
+"dashboard.today_added" = "今日新增";
+"dashboard.today_reviewed" = "今日复习";
+"dashboard.due_review" = "待复习";
+"dashboard.draft_alert_title" = "恢复未完成的题目？";
+"dashboard.draft_start_new" = "开始新的";
+"dashboard.draft_restore" = "恢复";
+"dashboard.draft_alert_message" = "您有上次未保存的拍摄内容，是否继续编辑？";
+"dashboard.welcome" = "欢迎使用";
+"dashboard.welcome_subtitle" = "添加第一道错题，开启复习之旅";
+"dashboard.capture_item" = "录入题目";
+"dashboard.today_due" = "今日待复习";
+"dashboard.start_now" = "立即开始";
+"dashboard.all_done" = "太棒了！";
+"dashboard.all_done_subtitle" = "今日复习任务已清空";
+"dashboard.default_name" = "同学";
+"dashboard.greeting_night" = "夜深了，注意休息";
+"dashboard.greeting_morning" = "早安，%@";
+"dashboard.greeting_afternoon" = "午安，%@";
+"dashboard.greeting_evening" = "晚上好，%@";
+
+// MARK: - Library
+
+"library.title" = "题库";
+"library.search_placeholder" = "搜索题目";
+"library.no_items" = "还没有题目";
+"library.no_items_hint" = "拍摄或导入题目后将在此处显示";
+"library.no_search_results" = "无结果";
+"library.no_search_results_hint" = "尝试调整搜索词或过滤条件";
+"library.sort_by_date" = "按时间";
+"library.sort_by_subject" = "按学科";
+"library.sort_by_difficulty" = "按难度";
+"library.all_subjects" = "全部";
+"library.no_content" = "无文字内容";
+"library.detail" = "题目详情";
+"library.question_image" = "题目图片";
+"library.question_text" = "题目内容";
+"library.answer_section" = "参考答案";
+"library.answer_text" = "答案文本";
+"library.answer_image" = "答案图片";
+"library.no_answer" = "暂无答案";
+"library.created_at" = "录入时间";
+"library.next_review" = "下次复习";
+"library.not_scheduled" = "未安排";
+"library.edit_title" = "编辑题目";
+"library.edit_question" = "编辑题目";
+"library.edit_content" = "编辑内容";
+"library.no_image" = "无图片";
+"library.change_image" = "更换图片 & 重新识别";
+"library.remove_answer_image" = "移除答案图片";
+"library.add_answer_image" = "添加答案图片";
+"library.metadata" = "属性";
+"library.filter" = "过滤";
+"library.filter_subjects" = "学科";
+"library.filter_tags" = "标签";
+"library.export" = "导出";
+"library.export_title" = "导出选项";
+"library.export_pdf" = "PDF / 打印";
+"library.export_pdf_hint" = "适合打印复习";
+"library.export_markdown" = "Markdown";
+"library.export_markdown_hint" = "适合笔记软件";
+"library.export_csv" = "CSV";
+"library.export_csv_hint" = "适合表格处理";
+"library.export_preview" = "导出预览";
+"library.share_or_print" = "分享 / 打印";
+"library.generating" = "正在生成...";
+"library.generate_failed" = "生成失败";
+"library.select_items" = "选择";
+"library.delete_selected" = "删除";
+"library.export_selected" = "导出";
+"library.delete_confirm_title" = "确认删除";
+"library.delete_confirm_message" = "此操作不可撤销，确定要删除选中的题目吗？";
+"library.subject_manager" = "管理学科";
+"library.source_manager" = "管理来源";
+"library.grade_manager" = "管理年级";
+"library.add_subject" = "添加学科";
+"library.edit_subject" = "编辑学科";
+"library.add_source" = "添加来源";
+"library.edit_source" = "编辑来源";
+"library.add_grade" = "添加年级";
+"library.edit_grade" = "编辑年级";
+"library.name" = "名称";
+"library.icon" = "图标";
+"library.color" = "颜色";
+"library.custom_color" = "自定义颜色";
+"library.name_placeholder" = "请输入名称";
+"library.cannot_delete_in_use" = "无法删除";
+"library.cannot_delete_message" = "该项正在被 %d 道题使用，请先修改相关题目。";
+"library.selected_count" = "已选 %d 项";
+"library.icon_picker" = "选择图标";
+"library.icon_search" = "搜索图标";
+"library.icon_manual_input" = "手动输入";
+"library.icon_manual_placeholder" = "输入 SF Symbol 名称";
+"library.full_screen_image" = "查看图片";
+"library.subject_has_items" = "学科「%@」下仍有题目，请先将题目移动到其他学科或删除对应题目。";
+"library.source_has_items" = "来源「%@」下仍有题目，请先将题目移动到其他来源或删除对应题目。";
+"library.grade_has_items" = "年级「%@」下仍有题目，请先将题目移动到其他年级或删除对应题目。";
+
+// MARK: - Review
+
+"review.title" = "复习";
+"review.completed" = "已完成";
+"review.pause_alert_title" = "确认暂停复习？";
+"review.pause_continue" = "继续";
+"review.pause_confirm" = "暂停";
+"review.pause_message" = "当前进度将保存，您可以稍后继续。";
+"review.stamp_forgot" = "忘记";
+"review.stamp_remember" = "记得";
+"review.pending" = "待复习";
+"review.today_review" = "今日复习";
+"review.cards_pending" = "张卡片待处理";
+"review.welcome_back" = "欢迎回来";
+"review.empty_hint" = "还没有题目，快去录入吧！";
+"review.excellent" = "太棒了！";
+"review.start_review" = "开始复习";
+"review.go_rest" = "去休息";
+"review.reviewed_today" = "今日已复习 %d 张";
+"review.summary_title" = "今日复习完成";
+"review.summary_good" = "掌握";
+"review.summary_again" = "待加强";
+"review.summary_dismiss" = "好的";
+"review.encourage_rest" = "休息一下，明天继续。";
+"review.encourage_all_good" = "全部掌握，太棒了！";
+"review.encourage_keep_going" = "别灰心，多复习几次就记住了！";
+"review.encourage_partial" = "继续加油，%d 题稍后会再出现。";
 
 // MARK: - Settings
+
 "settings.title" = "设置";
 "settings.general" = "通用";
 "settings.about" = "关于";
 "settings.version" = "版本";
+"settings.capture_fields" = "录入字段";
+"settings.field_subject" = "学科";
+"settings.field_source" = "来源";
+"settings.field_difficulty" = "难度";
+"settings.field_grade" = "年级";
+"settings.field_answer" = "答案";
+"settings.review_settings" = "复习设置";
+"settings.card_appearance" = "卡片外观";
+"settings.review_reminder" = "复习提醒";
+"settings.privacy_export" = "隐私与导出";
+"settings.data_and_sync" = "数据与云同步";
+"settings.appearance" = "外观";
+"settings.follow_system" = "跟随系统";
+"settings.light_mode" = "浅色";
+"settings.dark_mode" = "深色";
+"settings.language" = "语言";
+"settings.simplified_chinese" = "简体中文";
+"settings.data_management" = "数据管理";
+"settings.manage_subjects" = "管理学科";
+"settings.manage_sources" = "管理来源";
+"settings.manage_grades" = "管理年级";
+"settings.clear_all_data" = "清空所有数据";
+"settings.clear_confirm_title" = "确认清空所有数据？";
+"settings.clear_confirm_message" = "此操作将删除所有题目、分类和标签，且不可恢复。";
+"settings.clear_confirm_button" = "清空所有";
+"settings.privacy_policy" = "隐私政策";
+"settings.terms_of_service" = "服务条款";
+"settings.licenses" = "开源许可";
+"settings.notification_title" = "复习提醒";
+"settings.daily_reminder" = "每日复习提醒";
+"settings.reminder_time" = "提醒时间";
+"settings.reminder_sound" = "提醒声音";
+"settings.reminder_badge" = "图标标记";
+"settings.notification_denied" = "通知权限未开启";
+"settings.notification_denied_message" = "请在 iPhone 设置中开启 SnapDrill 的通知权限。";
+"settings.go_to_settings" = "前往设置";
+"settings.language_title" = "语言设置";
+"settings.language_hint" = "应用语言跟随系统设置。如需更改，请在 iPhone 的「设置 > 通用 > 语言与地区」中调整。";
+"settings.open_system_settings" = "打开系统设置";
+"settings.current_language" = "当前语言";
+"settings.backup" = "备份与恢复";
+"settings.create_backup" = "创建备份";
+"settings.restore_backup" = "恢复备份";
+"settings.backup_hint" = "备份文件包含所有题目和分类数据";
+"settings.restore_confirm_title" = "确认恢复？";
+"settings.restore_confirm_message" = "恢复将覆盖当前所有数据，恢复前会自动创建备份。";
+"settings.restore_confirm_button" = "恢复";
+"settings.local_data_warning" = "数据仅存储在本设备，卸载应用将丢失所有数据。建议定期创建备份。";
+"settings.privacy_title" = "隐私与数据导出";
+"settings.analytics_enabled" = "匿名使用统计";
+"settings.analytics_hint" = "帮助我们改进应用体验，不收集任何个人信息。";
+"settings.crash_reporting" = "崩溃报告";
+"settings.crash_reporting_hint" = "自动发送匿名崩溃信息，帮助修复问题。";
+"settings.data_export" = "数据导出";
+"settings.export_json" = "导出为 JSON";
+"settings.export_csv" = "导出为 CSV";
+"settings.export_hint" = "导出所有题目数据，可用于数据迁移或备份。";
+"settings.card_appearance_title" = "卡片外观";
+"settings.card_front" = "正面（题目）";
+"settings.card_back" = "背面（答案 Header）";
+"settings.text_alignment" = "文字对齐";
+"settings.align_left" = "左对齐";
+"settings.align_center" = "居中";
+"settings.align_right" = "右对齐";
+"settings.font_size" = "字体大小";
+"settings.preview_text" = "预览效果文字";
+"settings.edit_profile" = "个人资料";
+"settings.nickname" = "昵称";
+"settings.nickname_placeholder" = "请输入昵称";
+"settings.daily_goal" = "每日复习目标";
+"settings.cards_unit" = "张";
+"settings.motto" = "学习座右铭";
+"settings.motto_placeholder" = "写一句话激励自己...";
+"settings.motto_footer" = "座右铭将显示在个人资料中";
+"settings.theme_color" = "图标主题色";
+"settings.avatar_source" = "选择头像来源";
+"settings.from_photo_library" = "从相册选择";
+"settings.system_icon" = "使用系统图标";
+"settings.remove_avatar" = "移除当前头像";
+"settings.feedback_and_support" = "反馈与支持";
+"settings.feedback_title" = "意见反馈";
+"settings.copy_email" = "复制邮箱";
+"settings.maybe_later" = "以后再说";
+"settings.feedback_message" = "感谢您使用 SnapDrill！您可以发送邮件至 hello@notbadhq.com，或直接在 TestFlight 中反馈。";
+"settings.edit_profile_subtitle" = "编辑个人资料";
+"settings.backup_data" = "备份数据";
+"settings.restore_data" = "恢复数据";
+"settings.backup_footer" = "备份文件包含所有题目、分类设置和图片。恢复操作将替换当前全部数据。";
+"settings.restore_dialog_title" = "恢复数据";
+"settings.select_backup_file" = "选择备份文件";
+"settings.restore_dialog_message" = "恢复将替换当前所有数据，此操作不可撤销。恢复前会自动备份当前数据到临时目录。";
+"settings.operation_failed" = "操作失败";
+"settings.unknown_error" = "未知错误";
+"settings.restore_success" = "恢复成功";
+"settings.storage_space" = "存储空间";
+"settings.media_cache_usage" = "媒体缓存占用";
+"settings.calculating" = "计算中...";
+"settings.clear_cache" = "清理缓存";
+"settings.clear_cache_title" = "清理缓存";
+"settings.clear_cache_action" = "清理";
+"settings.clear_cache_message" = "清理缓存不会删除您的题目数据，仅删除临时图片和下载的资源。";
+"settings.data_maintenance" = "数据维护";
+"settings.auto_archive_old_items" = "自动归档旧题目";
+"settings.archive_time" = "归档时间";
+"settings.days_ago_30" = "30 天前";
+"settings.days_ago_60" = "60 天前";
+"settings.days_ago_90" = "90 天前";
+"settings.days_ago_180" = "180 天前";
+"settings.data_maintenance_footer" = "自动归档长期未复习的题目，保持题库轻量化。归档后的题目仍可搜索但不会自动安排复习。";
+"settings.enable_daily_reminder" = "启用每日复习提醒";
+"settings.daily_reminder_section" = "每日提醒";
+"settings.notification_style" = "通知样式";
+"settings.sound" = "声音";
+"settings.badge" = "角标";
+"settings.notification_style_footer" = "声音和角标设置在下次触发通知时生效";
+"settings.notification_and_reminder" = "通知与提醒";
+"settings.permission_denied_title" = "通知权限被拒绝";
+"settings.permission_denied_message" = "请在「设置 → 通知 → SnapDrill」中开启通知权限，才能接收每日复习提醒。";
+"settings.reschedule_failed_title" = "更新提醒时间失败";
+"settings.reschedule_failed_message" = "无法设置提醒时间，请稍后重试";
+"settings.reminder_enabled_footer" = "将在每天 %d:%@ 提醒你复习今日题目";
+"settings.reminder_disabled_footer" = "开启后系统将在固定时间推送复习提醒";
+"settings.data_collection" = "数据收集";
+"settings.use_analytics" = "使用数据分析";
+"settings.data_collection_footer" = "帮助我们改进应用体验，您的数据将被匿名处理";
+"settings.export_my_data" = "导出我的数据";
+"settings.exporting" = "导出中...";
+"settings.choose_export_format" = "选择导出格式";
+"settings.json_format" = "JSON 格式";
+"settings.csv_format" = "CSV 格式";
+"settings.export_data_footer" = "导出所有学习数据为 JSON 或 CSV 格式";
+"settings.privacy_and_security" = "隐私与安全";
+"settings.export_failed" = "导出失败: %@";
+"settings.language_controlled_by_system" = "语言由 iOS 系统控制";
+"settings.language_system_hint" = "在系统设置中为 SnapDrill 单独指定语言。";
+"settings.language_footer" = "前往「设置 → SnapDrill → 语言」，选择偏好语言后重新启动应用即可生效。目前支持简体中文，更多语言持续开发中。";
+"settings.card_front_section" = "卡片正面 (题目)";
+"settings.card_back_section" = "卡片背面 (Header)";
+"settings.alignment" = "对齐方式";
+"settings.font_size_label" = "字体大小: %d";
+"settings.debug_title" = "开发调试";
+"settings.generate_mock_data" = "生成模拟数据";
+"settings.clear_mock_data" = "清空模拟数据";
+"settings.generating" = "生成中...";
+"settings.generate_test_data" = "生成测试数据 (%d条)";
+
 
 // MARK: - Edit Profile
+
 "edit_profile.title" = "个人资料";
 "edit_profile.set_avatar" = "设置头像";
 "edit_profile.nickname" = "昵称";
 "edit_profile.nickname_placeholder" = "请输入昵称";
 "edit_profile.daily_goal" = "每日目标";
-"edit_profile.cards_count" = "张";
+"edit_profile.cards_count" = "张题目";
 "edit_profile.motto" = "学习座右铭";
 "edit_profile.motto_placeholder" = "写一句话激励自己...";
-"edit_profile.motto_footer" = "这句话将显示在首页，时刻激励你前行。";
+"edit_profile.motto_footer" = "这句话会显示在首页，每次打开都能看到";
 "edit_profile.theme_color" = "图标主题色";
 "edit_profile.from_photo_library" = "从相册选择";
 "edit_profile.system_icon" = "使用系统图标";
@@ -61,12 +396,13 @@
 "edit_profile.choose_avatar_source" = "选择头像来源";
 
 // MARK: - Errors
+
 "errors.camera_permission_denied" = "相机权限被拒绝";
 "errors.photo_permission_denied" = "相册权限被拒绝";
-"errors.export_failed" = "导出失败";
-"errors.import_failed" = "导入失败";
-"errors.data_corrupted" = "数据已损坏";
 "errors.ocr_failed" = "文字识别失败";
+"errors.export_failed" = "导出失败，请稍后重试";
+"errors.import_failed" = "导入失败";
+"errors.data_corrupted" = "数据损坏";
 "errors.encoding_failed" = "数据编码失败";
 "errors.image_load_failed" = "无法加载图片，请确认图片文件未损坏后重试";
 "errors.image_decode_failed" = "图片格式无法识别，请尝试使用其他图片";
@@ -81,18 +417,8 @@
 "errors.restore_failed" = "恢复失败，请确认备份文件未损坏后重试";
 "errors.file_access_denied" = "无法访问选择的文件，请重新选取";
 
-// MARK: - Onboarding
-"onboarding.skip" = "跳过";
-"onboarding.previous" = "上一页";
-"onboarding.next" = "下一页";
-"onboarding.get_started" = "开始使用";
-"onboarding.accessibility_group" = "欢迎引导";
-
-// MARK: - Notification
-"notification.daily.title" = "复习时间到";
-"notification.daily.body" = "今天的错题还在等你，快来复习吧！";
-
 // MARK: - Subjects
+
 "subjects.math" = "数学";
 "subjects.chinese" = "语文";
 "subjects.english" = "英语";
@@ -105,6 +431,7 @@
 "subjects.other" = "其他";
 
 // MARK: - Difficulty
+
 "difficulty.very_easy" = "非常简单";
 "difficulty.easy" = "简单";
 "difficulty.medium" = "中等";
@@ -112,10 +439,175 @@
 "difficulty.very_hard" = "非常困难";
 
 // MARK: - Export
+
 "export.title" = "导出";
-"export.pdf" = "PDF";
-"export.csv" = "CSV";
-"export.json" = "JSON";
-"export.exporting" = "正在导出...";
+"export.pdf" = "PDF格式";
+"export.csv" = "CSV格式";
+"export.json" = "JSON格式";
+"export.exporting" = "导出中";
 "export.success" = "导出成功";
 "export.failed" = "导出失败";
+
+// MARK: - Onboarding
+
+"onboarding.skip" = "跳过";
+"onboarding.previous" = "上一页";
+"onboarding.next" = "下一页";
+"onboarding.get_started" = "开始使用";
+"onboarding.accessibility_group" = "欢迎引导";
+"onboarding.page_welcome_title" = "欢迎使用 SnapDrill";
+"onboarding.page_welcome_description" = "智能错题管理，让学习更高效";
+"onboarding.page_capture_title" = "智能拍摄";
+"onboarding.page_capture_description" = "使用相机快速捕捉错题，自动识别文字内容";
+"onboarding.page_review_title" = "科学复习";
+"onboarding.page_review_description" = "基于艾宾浩斯遗忘曲线，智能安排复习计划";
+"onboarding.page_export_title" = "数据导出";
+"onboarding.page_export_description" = "支持导出为 PDF、CSV 等格式，方便分享和打印";
+"onboarding.field_config_title" = "选择录入字段";
+"onboarding.field_config_description" = "选择录入题目时需要填写的字段，之后可在设置中随时调整";
+"onboarding.field_subject" = "学科";
+"onboarding.field_source" = "来源";
+"onboarding.field_difficulty" = "难度";
+"onboarding.field_grade" = "年级";
+"onboarding.field_answer" = "答案";
+"onboarding.dismiss_tooltip" = "关闭提示";
+"onboarding.field_config_icon" = "字段配置";
+"onboarding.field_config_header" = "选择录入字段";
+
+// MARK: - Notification
+
+"notification.daily.title" = "复习时间到";
+"notification.daily.body" = "今天的错题还在等你，快来复习吧！";
+
+// MARK: - Help
+
+"help.title" = "帮助中心";
+"help.search_prompt" = "搜索帮助...";
+
+"help.topic_getting_started" = "开始使用";
+"help.topic_smart_capture" = "智能拍摄";
+"help.topic_review_system" = "复习系统";
+"help.topic_data_management" = "数据管理";
+"help.topic_privacy_security" = "隐私与安全";
+"help.topic_faq" = "常见问题";
+
+"help.question_add_first_item" = "如何添加第一道错题？";
+"help.answer_add_first_item" = "点击主界面的「+」按钮，选择「拍摄」或「从相册选择」，系统会自动识别题目内容。您也可以手动输入题目和答案。";
+
+"help.question_start_review" = "如何开始复习？";
+"help.answer_start_review" = "在仪表板中点击「开始复习」按钮，系统会根据艾宾浩斯遗忘曲线为您安排今日需要复习的题目。";
+
+"help.question_set_subject_source" = "如何设置学科和来源？";
+"help.answer_set_subject_source" = "在添加或编辑错题时，可以选择学科（如数学、语文等）和来源（如期中考试、作业等），方便后续分类查看。";
+
+"help.question_best_capture" = "如何获得最佳拍摄效果？";
+"help.answer_best_capture" = "确保光线充足，将题目放在平整的表面上，保持相机稳定。系统会自动检测题目区域并提示您拍摄。";
+
+"help.question_ocr_inaccurate" = "文字识别不准确怎么办？";
+"help.answer_ocr_inaccurate" = "您可以在识别后手动编辑题目内容。建议拍摄时保持题目清晰、光线充足，避免反光和阴影。";
+
+"help.question_crop_image" = "可以裁剪图片吗？";
+"help.answer_crop_image" = "可以。拍摄后会进入裁剪界面，您可以调整裁剪区域，确保只保留题目部分。";
+
+"help.question_review_schedule" = "复习计划是如何安排的？";
+"help.answer_review_schedule" = "系统基于艾宾浩斯遗忘曲线，在最佳时间点提醒您复习。首次复习在 1 天后，之后间隔逐渐延长（3天、7天、15天、30天）。";
+
+"help.question_mark_difficulty" = "如何标记题目难度？";
+"help.answer_mark_difficulty" = "在复习时，您可以为每道题目标记难度（1-5星）。系统会根据难度调整复习频率，难题会更频繁地出现。";
+
+"help.question_custom_review" = "可以自定义复习计划吗？";
+"help.answer_custom_review" = "目前系统使用科学的复习算法自动安排。您可以在设置中调整每日复习目标数量。";
+
+"help.question_data_backup" = "如何备份我的数据？";
+"help.answer_data_backup" = "建议定期手动备份。进入「设置」-「备份与恢复」，点击「创建备份」即可。升级 Pro 后还可使用 iCloud 自动同步。";
+
+"help.question_export_data" = "如何导出数据？";
+"help.answer_export_data" = "进入「设置」-「隐私与安全」-「导出数据」，选择导出格式（PDF、CSV、JSON），系统会生成文件供您分享或备份。";
+
+"help.question_data_loss" = "数据会丢失吗？";
+"help.answer_data_loss" = "数据默认存储在本设备上，卸载应用会导致数据永久丢失。建议定期手动备份，或升级 Pro 后使用 iCloud 自动同步。";
+
+"help.question_data_safe" = "我的数据安全吗？";
+"help.answer_data_safe" = "所有数据都存储在您的设备本地，我们不会收集或上传您的个人数据。崩溃报告和分析数据都是匿名的。";
+
+"help.question_disable_analytics" = "如何关闭数据分析？";
+"help.answer_disable_analytics" = "进入「设置」-「隐私与安全」，关闭「数据分析」开关。这不会影响应用的核心功能。";
+
+"help.question_permissions" = "相机和相册权限用于什么？";
+"help.answer_permissions" = "相机权限用于拍摄错题，相册权限用于从相册选择图片。我们只在您使用相关功能时请求权限，不会访问其他照片。";
+
+"help.question_crash_or_lag" = "应用崩溃或卡顿怎么办？";
+"help.answer_crash_or_lag" = "请尝试重启应用。如果问题持续，可以在设置中清除缓存。我们会自动收集崩溃报告（如果您已启用）并尽快修复。";
+
+"help.question_contact_support" = "如何联系技术支持？";
+"help.answer_contact_support" = "您可以通过「设置」-「关于」-「反馈与支持」联系我们，或发送邮件到 support@snapdrill.app。";
+
+"help.question_is_free" = "应用是免费的吗？";
+"help.answer_is_free" = "SnapDrill 核心功能完全免费，包括无限录题、OCR 识别、分类管理和间隔复习。高级功能（如 iCloud 同步、高级导出格式）可通过订阅 Pro 解锁。我们绝不限制录入数量。";
+
+// MARK: - Terms of Service
+
+"terms.title" = "用户协议";
+"terms.last_updated" = "最后更新日期：2026年1月2日";
+"terms.acceptance_title" = "接受条款";
+"terms.acceptance_content" = "欢迎使用 SnapDrill！通过下载、安装或使用本应用，您同意遵守本用户协议的所有条款和条件。如果您不同意这些条款，请不要使用本应用。";
+"terms.service_title" = "服务描述";
+"terms.service_content" = "SnapDrill 是一款个人学习助手应用，旨在帮助用户通过间隔重复技术来采集、组织和复习知识。\n\n主要功能包括：\n• 智能扫描与 OCR 文字识别\n• 错题管理和分类\n• 间隔重复复习系统\n• 数据导出（PDF/JSON/CSV）";
+"terms.data_storage_title" = "数据存储";
+"terms.data_storage_content" = "SnapDrill 无需创建账户即可使用，所有数据默认存储在您的设备本地。\n\n您有责任：\n• 保护您的设备安全\n• 定期备份重要数据\n• 注意：卸载应用将永久删除所有本地数据";
+"terms.license_title" = "许可授权";
+"terms.license_content" = "我们授予您有限的、非独占的、不可转让的、可撤销的许可，允许您在个人设备上使用 SnapDrill 应用。\n\n您不得：\n• 复制、修改或反编译应用\n• 出售、出租或转让应用\n• 移除任何版权或所有权声明\n• 将应用用于非法目的";
+"terms.user_content_title" = "用户内容";
+"terms.user_content_content" = "您在应用中创建的所有内容（包括文本、图片、笔记等）归您所有。\n\n您声明并保证：\n• 您拥有上传内容的所有权或必要权利\n• 您的内容不侵犯任何第三方的权利\n• 您的内容不包含非法、有害或不当的材料\n\n我们不会访问、使用或分享您的个人学习内容。";
+"terms.ip_title" = "知识产权";
+"terms.ip_content" = "SnapDrill 应用及其所有内容、功能和特性（包括但不限于软件、文本、图形、标识、图标、图像）均由 NotBad Labs L.L.C. 拥有，受美国及国际版权、商标和其他知识产权法律保护。\n\n\"SnapDrill\" 名称和标识是 NotBad Labs L.L.C. 的商标。未经我们事先书面许可，您不得使用这些商标。";
+"terms.disclaimer_title" = "免责声明";
+"terms.disclaimer_content" = "SnapDrill 应用按\"现状\"和\"可用\"基础提供，不提供任何明示或暗示的保证。\n\n我们不保证：\n• 应用将无错误或不间断运行\n• 缺陷将被纠正\n• 应用将满足您的特定需求\n• OCR 识别的准确性\n\n您使用本应用的风险由您自行承担。";
+"terms.liability_title" = "责任限制";
+"terms.liability_content" = "在法律允许的最大范围内，NotBad Labs L.L.C. 及其关联方不对以下情况承担责任：\n\n• 任何间接、偶然、特殊或后果性损害\n• 数据丢失或损坏\n• 业务中断或利润损失\n• 因使用或无法使用应用而产生的任何损害\n\n建议您定期备份重要数据。";
+"terms.backup_title" = "数据备份";
+"terms.backup_content" = "虽然我们努力确保数据的安全性和可靠性，但我们强烈建议您：\n\n• 定期通过应用内的备份功能导出数据\n• 保留重要内容的副本\n\n我们不对数据丢失承担责任。";
+"terms.changes_title" = "服务变更和终止";
+"terms.changes_content" = "我们保留随时修改、暂停或终止应用或其任何功能的权利，无需事先通知。\n\n我们可能会：\n• 更新应用功能\n• 修复 bug 和安全漏洞\n• 改进用户体验\n\n您可以随时停止使用应用并删除它。";
+"terms.third_party_title" = "第三方链接";
+"terms.third_party_content" = "应用可能包含指向第三方网站或服务的链接。我们不对这些第三方网站的内容、隐私政策或做法负责。访问第三方链接的风险由您自行承担。";
+"terms.law_title" = "适用法律";
+"terms.law_content" = "本协议受美国怀俄明州法律管辖并按其解释，不考虑法律冲突原则。因本协议引起的任何争议，双方应首先通过友好协商解决。如协商不成，双方同意提交至怀俄明州有管辖权的法院解决。";
+"terms.modification_title" = "协议修改";
+"terms.modification_content" = "我们保留随时修改本用户协议的权利。如有重大变更，我们将通过应用内通知或更新日期告知您。\n\n修改后继续使用应用即表示您接受修改后的条款。如果您不同意修改后的条款，请停止使用应用。";
+"terms.severability_title" = "可分割性";
+"terms.severability_content" = "如果本协议的任何条款被认定为无效或不可执行，该条款将被删除，其余条款将继续有效。";
+"terms.entire_agreement_title" = "完整协议";
+"terms.entire_agreement_content" = "本用户协议构成您与 NotBad Labs L.L.C. 之间关于使用本应用的完整协议，并取代之前的所有口头或书面协议。";
+"terms.contact_title" = "联系我们";
+"terms.contact_content" = "如果您对本用户协议有任何疑问，请通过以下方式联系我们：\n\n邮箱：hello@notbadhq.com\n应用内反馈：设置 → 关于 → 反馈与支持\n\n我们将在 48 小时内回复您的询问。";
+
+// MARK: - Privacy Policy
+
+"privacy.title" = "隐私政策";
+"privacy.last_updated" = "最后更新日期：2026年3月";
+"privacy.intro_title" = "引言";
+"privacy.intro_content" = "欢迎使用 SnapDrill！我们非常重视您的隐私。本隐私政策说明了我们如何收集、使用、存储和保护您的个人信息。使用 SnapDrill 应用即表示您同意本隐私政策中描述的做法。";
+"privacy.collection_title" = "我们收集的信息";
+"privacy.collection_content" = "SnapDrill 是一款完全离线优先的应用，我们不会主动收集您的个人信息。您在应用中创建的所有数据（包括错题内容、图片、笔记等）都存储在您的设备上。\n\n您创建的内容：错题文本、上传或拍摄的图片、学科分类和标签、复习记录和进度。\n\n自动收集的信息：应用崩溃日志（仅用于改进应用稳定性）、设备类型和操作系统版本（用于兼容性测试）。";
+"privacy.icloud_title" = "iCloud 同步（未来功能）";
+"privacy.icloud_content" = "iCloud 同步是计划中的 Pro 付费功能，当前版本尚未提供。未来启用后：\n\n您的数据将通过 Apple 的 iCloud 服务在您的设备之间同步。所有数据都存储在您的个人 iCloud 账户中，我们无法访问您的 iCloud 数据。数据传输由 Apple 加密保护。您可以随时在设置中关闭 iCloud 同步。";
+"privacy.usage_title" = "数据使用";
+"privacy.usage_content" = "我们使用收集的信息仅用于：提供核心功能（存储和管理您的错题数据）、改进应用（分析崩溃日志以修复 bug）、用户支持（回应您的反馈和技术支持请求）。\n\n我们不会：出售您的个人信息、将您的数据用于广告目的、与第三方共享您的学习内容。";
+"privacy.security_title" = "数据安全";
+"privacy.security_content" = "我们采取以下措施保护您的数据：本地存储（数据存储在您的设备上，受 iOS 沙盒保护）、无服务器（我们不运行服务器存储您的数据）、手动备份（您可以通过应用内的备份功能导出和恢复数据）。";
+"privacy.rights_title" = "您的权利";
+"privacy.rights_content" = "您对自己的数据拥有完全控制权：访问权（您可以随时查看应用中的所有数据）、导出权（通过\"导出\"功能导出您的数据）、删除权（您可以删除单个错题或清空所有数据）、备份权（通过备份功能保护您的数据）。\n\n如需完全删除所有数据，请在设置中选择\"清空所有数据\"或卸载应用。";
+"privacy.third_party_title" = "第三方服务";
+"privacy.third_party_content" = "SnapDrill 使用以下第三方服务：\n\n• Apple Vision Framework：用于 OCR 文字识别，完全在设备本地处理，数据不离开设备。\n• Firebase Analytics（Google）：匿名使用行为统计，用于了解功能使用情况并改进产品。不收集任何可识别个人身份的信息。在 iOS 上，此功能仅在您通过「应用跟踪透明度（ATT）」授权后才会启用。\n• Firebase Crashlytics（Google）：崩溃日志收集，用于识别和修复应用稳定性问题。仅收集设备类型、操作系统版本及崩溃堆栈信息。\n\n我们不使用任何第三方广告服务，不会将您的数据用于广告目的。";
+"privacy.children_title" = "儿童隐私";
+"privacy.children_content" = "SnapDrill 适合所有年龄段的用户使用。我们不会有意收集 13 岁以下儿童的个人信息。如果您是家长或监护人，发现您的孩子在未经您同意的情况下向我们提供了个人信息，请联系我们，我们将采取措施删除相关信息。";
+"privacy.gdpr_title" = "GDPR 合规（欧盟用户）";
+"privacy.gdpr_content" = "如果您位于欧盟，您享有访问、更正、删除、限制处理和数据可携带等权利。由于 SnapDrill 不收集或存储您的数据在我们的服务器上，您可以通过应用内功能直接行使这些权利。";
+"privacy.ccpa_title" = "CCPA 合规（加州用户）";
+"privacy.ccpa_content" = "如果您是加州居民，您享有了解我们收集的个人信息类别、了解我们是否出售您的个人信息（我们不会）、删除您的个人信息等权利。SnapDrill 不会出售您的个人信息，也不会与第三方共享您的学习内容。";
+"privacy.update_title" = "隐私政策更新";
+"privacy.update_content" = "我们可能会不时更新本隐私政策。如有重大变更，我们将通过应用内通知或更新日期告知您。建议您定期查看本政策以了解我们如何保护您的信息。";
+"privacy.contact_title" = "联系我们";
+"privacy.contact_content" = "如果您对本隐私政策有任何疑问或顾虑，请通过以下方式联系我们：\n\n邮箱：hello@notbadhq.com\n应用内反馈：设置 → 关于 → 反馈与支持\n\n我们将在 48 小时内回复您的询问。";
+"privacy.view_full_version" = "在浏览器中查看完整版（中英双语）";

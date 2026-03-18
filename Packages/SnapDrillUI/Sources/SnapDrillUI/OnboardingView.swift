@@ -206,7 +206,7 @@ public struct FeatureTooltip: View {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(.secondary)
                 }
-                .accessibleButton(label: "关闭提示")
+                .accessibleButton(label: L10n.Onboarding.dismissTooltip)
             }
             
             Text(message)
@@ -283,23 +283,23 @@ public final class OnboardingManager {
 public extension OnboardingPage {
     static let defaultPages: [OnboardingPage] = [
         OnboardingPage(
-            title: "欢迎使用 SnapDrill",
-            description: "智能错题管理，让学习更高效",
+            title: L10n.Onboarding.pageWelcomeTitle,
+            description: L10n.Onboarding.pageWelcomeDescription,
             systemImage: "book.fill"
         ),
         OnboardingPage(
-            title: "智能拍摄",
-            description: "使用相机快速捕捉错题，自动识别文字内容",
+            title: L10n.Onboarding.pageCaptureTitle,
+            description: L10n.Onboarding.pageCaptureDescription,
             systemImage: "camera.fill"
         ),
         OnboardingPage(
-            title: "科学复习",
-            description: "基于艾宾浩斯遗忘曲线，智能安排复习计划",
+            title: L10n.Onboarding.pageReviewTitle,
+            description: L10n.Onboarding.pageReviewDescription,
             systemImage: "calendar.badge.clock"
         ),
         OnboardingPage(
-            title: "数据导出",
-            description: "支持导出为 PDF、CSV 等格式，方便分享和打印",
+            title: L10n.Onboarding.pageExportTitle,
+            description: L10n.Onboarding.pageExportDescription,
             systemImage: "square.and.arrow.up.fill"
         )
     ]
@@ -325,29 +325,29 @@ struct FieldSelectionOnboardingView: View {
                 Image(systemName: "slider.horizontal.3")
                     .font(.system(size: 60))
                     .foregroundStyle(.blue)
-                    .accessibleImage(label: "字段配置")
+                    .accessibleImage(label: L10n.Onboarding.fieldConfigIcon)
 
-                Text("选择录入字段")
+                Text(L10n.Onboarding.fieldConfigTitle)
                     .font(.title)
                     .fontWeight(.bold)
-                    .accessibleHeader("选择录入字段")
+                    .accessibleHeader(L10n.Onboarding.fieldConfigHeader)
 
-                Text("选择录入题目时需要填写的字段，之后可在设置中随时调整")
+                Text(L10n.Onboarding.fieldConfigDescription)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
 
                 VStack(spacing: 0) {
-                    fieldToggle("学科", icon: "folder.fill", isOn: $showSubjectField)
+                    fieldToggle(L10n.Onboarding.fieldSubject, icon: "folder.fill", isOn: $showSubjectField)
                     Divider().padding(.leading, 52)
-                    fieldToggle("来源", icon: "doc.text.fill", isOn: $showSourceField)
+                    fieldToggle(L10n.Onboarding.fieldSource, icon: "doc.text.fill", isOn: $showSourceField)
                     Divider().padding(.leading, 52)
-                    fieldToggle("难度", icon: "star.fill", isOn: $showDifficultyField)
+                    fieldToggle(L10n.Onboarding.fieldDifficulty, icon: "star.fill", isOn: $showDifficultyField)
                     Divider().padding(.leading, 52)
-                    fieldToggle("年级", icon: "graduationcap.fill", isOn: $showGradeField)
+                    fieldToggle(L10n.Onboarding.fieldGrade, icon: "graduationcap.fill", isOn: $showGradeField)
                     Divider().padding(.leading, 52)
-                    fieldToggle("答案", icon: "text.bubble.fill", isOn: $showAnswerField)
+                    fieldToggle(L10n.Onboarding.fieldAnswer, icon: "text.bubble.fill", isOn: $showAnswerField)
                 }
                 .background(
                     RoundedRectangle(cornerRadius: 12)

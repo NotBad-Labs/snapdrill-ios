@@ -8,6 +8,7 @@
 //  帮助和常见问题视图
 //
 
+import SnapDrillCore
 import SwiftUI
 
 /// 帮助主题
@@ -120,8 +121,8 @@ public struct HelpView: View {
                     }
                 }
             }
-            .searchable(text: $searchText, prompt: "搜索帮助...")
-            .navigationTitle("帮助中心")
+            .searchable(text: $searchText, prompt: L10n.Help.searchPrompt)
+            .navigationTitle(L10n.Help.title)
             .navigationBarTitleDisplayMode(.large)
         }
     }
@@ -195,110 +196,110 @@ public struct QuickHelpCard: View {
 public extension HelpTopic {
     static let defaultTopics: [HelpTopic] = [
         HelpTopic(
-            title: "开始使用",
+            title: L10n.Help.topicGettingStarted,
             icon: "play.circle.fill",
             questions: [
                 HelpQuestion(
-                    question: "如何添加第一道错题？",
-                    answer: "点击主界面的「+」按钮，选择「拍摄」或「从相册选择」，系统会自动识别题目内容。您也可以手动输入题目和答案。"
+                    question: L10n.Help.questionAddFirstItem,
+                    answer: L10n.Help.answerAddFirstItem
                 ),
                 HelpQuestion(
-                    question: "如何开始复习？",
-                    answer: "在仪表板中点击「开始复习」按钮，系统会根据艾宾浩斯遗忘曲线为您安排今日需要复习的题目。"
+                    question: L10n.Help.questionStartReview,
+                    answer: L10n.Help.answerStartReview
                 ),
                 HelpQuestion(
-                    question: "如何设置学科和来源？",
-                    answer: "在添加或编辑错题时，可以选择学科（如数学、语文等）和来源（如期中考试、作业等），方便后续分类查看。"
+                    question: L10n.Help.questionSetSubjectSource,
+                    answer: L10n.Help.answerSetSubjectSource
                 )
             ]
         ),
         HelpTopic(
-            title: "智能拍摄",
+            title: L10n.Help.topicSmartCapture,
             icon: "camera.fill",
             questions: [
                 HelpQuestion(
-                    question: "如何获得最佳拍摄效果？",
-                    answer: "确保光线充足，将题目放在平整的表面上，保持相机稳定。系统会自动检测题目区域并提示您拍摄。"
+                    question: L10n.Help.questionBestCapture,
+                    answer: L10n.Help.answerBestCapture
                 ),
                 HelpQuestion(
-                    question: "文字识别不准确怎么办？",
-                    answer: "您可以在识别后手动编辑题目内容。建议拍摄时保持题目清晰、光线充足，避免反光和阴影。"
+                    question: L10n.Help.questionOcrInaccurate,
+                    answer: L10n.Help.answerOcrInaccurate
                 ),
                 HelpQuestion(
-                    question: "可以裁剪图片吗？",
-                    answer: "可以。拍摄后会进入裁剪界面，您可以调整裁剪区域，确保只保留题目部分。"
+                    question: L10n.Help.questionCropImage,
+                    answer: L10n.Help.answerCropImage
                 )
             ]
         ),
         HelpTopic(
-            title: "复习系统",
+            title: L10n.Help.topicReviewSystem,
             icon: "calendar.badge.clock",
             questions: [
                 HelpQuestion(
-                    question: "复习计划是如何安排的？",
-                    answer: "系统基于艾宾浩斯遗忘曲线，在最佳时间点提醒您复习。首次复习在 1 天后，之后间隔逐渐延长（3天、7天、15天、30天）。"
+                    question: L10n.Help.questionReviewSchedule,
+                    answer: L10n.Help.answerReviewSchedule
                 ),
                 HelpQuestion(
-                    question: "如何标记题目难度？",
-                    answer: "在复习时，您可以为每道题目标记难度（1-5星）。系统会根据难度调整复习频率，难题会更频繁地出现。"
+                    question: L10n.Help.questionMarkDifficulty,
+                    answer: L10n.Help.answerMarkDifficulty
                 ),
                 HelpQuestion(
-                    question: "可以自定义复习计划吗？",
-                    answer: "目前系统使用科学的复习算法自动安排。您可以在设置中调整每日复习目标数量。"
+                    question: L10n.Help.questionCustomReview,
+                    answer: L10n.Help.answerCustomReview
                 )
             ]
         ),
         HelpTopic(
-            title: "数据管理",
+            title: L10n.Help.topicDataManagement,
             icon: "icloud.fill",
             questions: [
                 HelpQuestion(
-                    question: "如何启用 iCloud 同步？",
-                    answer: "进入「设置」-「数据与云同步」，开启「启用 iCloud 同步」。确保您已登录 iCloud 账号。"
+                    question: L10n.Help.questionDataBackup,
+                    answer: L10n.Help.answerDataBackup
                 ),
                 HelpQuestion(
-                    question: "如何导出数据？",
-                    answer: "进入「设置」-「隐私与安全」-「导出数据」，选择导出格式（PDF、CSV、JSON），系统会生成文件供您分享或备份。"
+                    question: L10n.Help.questionExportData,
+                    answer: L10n.Help.answerExportData
                 ),
                 HelpQuestion(
-                    question: "数据会丢失吗？",
-                    answer: "启用 iCloud 同步后，数据会自动备份到云端。即使更换设备，登录相同的 iCloud 账号即可恢复数据。"
+                    question: L10n.Help.questionDataLoss,
+                    answer: L10n.Help.answerDataLoss
                 )
             ]
         ),
         HelpTopic(
-            title: "隐私与安全",
+            title: L10n.Help.topicPrivacySecurity,
             icon: "lock.shield.fill",
             questions: [
                 HelpQuestion(
-                    question: "我的数据安全吗？",
-                    answer: "所有数据都存储在您的设备和 iCloud 账号中，我们不会收集或上传您的个人数据。崩溃报告和分析数据都是匿名的。"
+                    question: L10n.Help.questionDataSafe,
+                    answer: L10n.Help.answerDataSafe
                 ),
                 HelpQuestion(
-                    question: "如何关闭数据分析？",
-                    answer: "进入「设置」-「隐私与安全」，关闭「数据分析」开关。这不会影响应用的核心功能。"
+                    question: L10n.Help.questionDisableAnalytics,
+                    answer: L10n.Help.answerDisableAnalytics
                 ),
                 HelpQuestion(
-                    question: "相机和相册权限用于什么？",
-                    answer: "相机权限用于拍摄错题，相册权限用于从相册选择图片。我们只在您使用相关功能时请求权限，不会访问其他照片。"
+                    question: L10n.Help.questionPermissions,
+                    answer: L10n.Help.answerPermissions
                 )
             ]
         ),
         HelpTopic(
-            title: "常见问题",
+            title: L10n.Help.topicFaq,
             icon: "questionmark.circle.fill",
             questions: [
                 HelpQuestion(
-                    question: "应用崩溃或卡顿怎么办？",
-                    answer: "请尝试重启应用。如果问题持续，可以在设置中清除缓存。我们会自动收集崩溃报告（如果您已启用）并尽快修复。"
+                    question: L10n.Help.questionCrashOrLag,
+                    answer: L10n.Help.answerCrashOrLag
                 ),
                 HelpQuestion(
-                    question: "如何联系技术支持？",
-                    answer: "您可以通过「设置」-「关于」-「反馈与支持」联系我们，或发送邮件到 support@snapdrill.app。"
+                    question: L10n.Help.questionContactSupport,
+                    answer: L10n.Help.answerContactSupport
                 ),
                 HelpQuestion(
-                    question: "应用是免费的吗？",
-                    answer: "是的，SnapDrill 完全免费，没有内购或订阅。我们致力于为所有学生提供优质的学习工具。"
+                    question: L10n.Help.questionIsFree,
+                    answer: L10n.Help.answerIsFree
                 )
             ]
         )
