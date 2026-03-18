@@ -200,7 +200,7 @@ public final class LibraryEditViewModel {
         } catch {
             // IO 失败时 @Model 未被修改，无需 rollback，但须通知用户
             SnapDrillLogger.generic.error("保存图片失败，中断保存: \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
+            errorMessage = L10n.Errors.saveFailed
             showErrorAlert = true
             return
         }
@@ -224,7 +224,7 @@ public final class LibraryEditViewModel {
             if let path = newImagePath { bestEffortDeleteImage(path: path) }
             if let path = newAnswerImagePath { bestEffortDeleteImage(path: path) }
             SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
-            errorMessage = error.localizedDescription
+            errorMessage = L10n.Errors.saveFailed
             showErrorAlert = true
         }
     }

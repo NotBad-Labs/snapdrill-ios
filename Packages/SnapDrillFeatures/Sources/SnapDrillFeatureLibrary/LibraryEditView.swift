@@ -75,7 +75,7 @@ public struct LibraryEditView: View {
                             }
                         }
                     }
-                    .disabled(viewModel?.isProcessing ?? false || viewModel?.isSaving ?? false)
+                    .disabled((viewModel?.isProcessing ?? false) || (viewModel?.isSaving ?? false))
                 }
             }
             .scrollDismissesKeyboard(.immediately)
