@@ -259,6 +259,10 @@
 "settings.clear_confirm_title" = "Clear All Data?";
 "settings.clear_confirm_message" = "This will delete all questions, categories, and tags. This action cannot be undone.";
 "settings.clear_confirm_button" = "Clear All";
+"settings.clear_failed" = "Failed to clear data. Please try again later.";
+"settings.danger_zone" = "Danger Zone";
+"settings.danger_zone_footer" = "The following actions are irreversible. Please use with caution.";
+"settings.category_management" = "Category Management";
 "settings.privacy_policy" = "Privacy Policy";
 "settings.terms_of_service" = "Terms of Service";
 "settings.licenses" = "Open Source Licenses";

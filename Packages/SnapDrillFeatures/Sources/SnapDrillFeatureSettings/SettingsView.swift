@@ -36,6 +36,7 @@ public struct SettingsView: View {
     @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
 
     @State private var showingClearAlert = false
+    @State private var showingClearError = false
     @State private var showingMail = false
     @State private var isGenerating = false
     @State private var seedTask: Task<Void, Never>?
@@ -174,27 +175,31 @@ public struct SettingsView: View {
 
                 }
 
-                // 6. 数据管理
-                Section(L10n.Settings.dataManagement) {
+                // 6. 分类管理
+                Section(L10n.Settings.categoryManagement) {
                     Button { showingSubjectManager = true } label: {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.manageSubjects)
                     }
-
 
                     Button { showingSourceManager = true } label: {
                         SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.manageSources)
                     }
 
-
                     Button { showingGradeManager = true } label: {
                         SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.manageGrades)
                     }
+                }
 
-
+                // 7. 危险操作（独立分区，与日常操作物理隔离）
+                Section {
                     Button { showingClearAlert = true } label: {
                         SettingsRow(icon: "trash.fill", gradientStart: .red, gradientEnd: .pink, title: L10n.Settings.clearAllData)
                     }
-
+                } header: {
+                    Text(L10n.Settings.dangerZone)
+                        .foregroundStyle(.red)
+                } footer: {
+                    Text(L10n.Settings.dangerZoneFooter)
                 }
 
                 // 7. 关于
@@ -251,6 +256,11 @@ public struct SettingsView: View {
                 Button(L10n.Settings.clearConfirmButton, role: .destructive) { clearAllData() }
             } message: {
                 Text(L10n.Settings.clearConfirmMessage)
+            }
+            .alert(L10n.Settings.operationFailed, isPresented: $showingClearError) {
+                Button(L10n.Common.ok) { viewModel?.clearError = nil }
+            } message: {
+                Text(viewModel?.clearError ?? L10n.Settings.unknownError)
             }
             .sheet(isPresented: $showingSubjectManager) { SubjectManagerView() }
             .sheet(isPresented: $showingSourceManager) { SourceManagerView() }
@@ -333,7 +343,12 @@ public struct SettingsView: View {
     private func clearAllData() {
         let vm = ensureViewModel()
         clearTask?.cancel()
-        clearTask = Task { await vm.clearAllData() }
+        clearTask = Task {
+            await vm.clearAllData()
+            if vm.clearError != nil {
+                showingClearError = true
+            }
+        }
     }
 
     private func generateMockData() {

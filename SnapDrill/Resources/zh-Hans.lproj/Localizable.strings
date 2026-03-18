@@ -259,6 +259,10 @@
 "settings.clear_confirm_title" = "确认清空所有数据？";
 "settings.clear_confirm_message" = "此操作将删除所有题目、分类和标签，且不可恢复。";
 "settings.clear_confirm_button" = "清空所有";
+"settings.clear_failed" = "清空数据失败，请稍后重试";
+"settings.danger_zone" = "危险操作";
+"settings.danger_zone_footer" = "以下操作不可撤销，请谨慎使用";
+"settings.category_management" = "分类管理";
 "settings.privacy_policy" = "隐私政策";
 "settings.terms_of_service" = "服务条款";
 "settings.licenses" = "开源许可";
