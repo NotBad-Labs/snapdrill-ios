@@ -68,11 +68,14 @@ public struct LibraryEditView: View {
                         if let vm = viewModel {
                             Task {
                                 await vm.save()
-                                dismiss()
+                                // 仅保存成功时关闭页面，失败时留在原地显示错误
+                                if vm.isSavedNormally {
+                                    dismiss()
+                                }
                             }
                         }
                     }
-                    .disabled(viewModel?.isProcessing ?? false)
+                    .disabled((viewModel?.isProcessing ?? false) || (viewModel?.isSaving ?? false))
                 }
             }
             .scrollDismissesKeyboard(.immediately)
@@ -84,6 +87,14 @@ public struct LibraryEditView: View {
             }
             .onDisappear {
                 viewModel?.cancelTasks()
+            }
+            .alert(L10n.Errors.saveFailed, isPresented: Binding(
+                get: { viewModel?.showErrorAlert ?? false },
+                set: { viewModel?.showErrorAlert = $0 }
+            )) {
+                Button(L10n.Common.ok) {}
+            } message: {
+                Text(viewModel?.errorMessage ?? "")
             }
             // Image Picker
             .photosPicker(isPresented: $isPickerPresented, selection: $pickerSelection, matching: .images)
