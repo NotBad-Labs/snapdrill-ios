@@ -166,6 +166,7 @@
 "library.share_or_print" = "Share / Print";
 "library.generating" = "Generating...";
 "library.generate_failed" = "Generation Failed";
+"library.clear_filters" = "Clear";
 "library.select_items" = "Select";
 "library.delete_selected" = "Delete";
 "library.export_selected" = "Export";
@@ -205,6 +206,8 @@
 "review.pause_continue" = "Continue";
 "review.pause_confirm" = "Pause";
 "review.pause_message" = "Your progress will be saved. You can continue later.";
+"review.tooltip_title" = "Review Tips";
+"review.tooltip_message" = "Tap the card to flip and see the answer. Swipe left if you forgot, swipe right if you remember.";
 "review.stamp_forgot" = "Forgot";
 "review.stamp_remember" = "Remember";
 "review.pending" = "Pending";

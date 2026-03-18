@@ -280,6 +280,9 @@ public enum L10n {
         public static let generating = NSLocalizedString("library.generating", value: "正在生成...", comment: "正在生成")
         public static let generateFailed = NSLocalizedString("library.generate_failed", value: "生成失败", comment: "生成失败")
 
+        // 过滤
+        public static let clearFilters = NSLocalizedString("library.clear_filters", value: "清除", comment: "清除过滤条件按钮")
+
         // 批量操作
         public static let selectItems = NSLocalizedString("library.select_items", value: "选择", comment: "选择模式按钮")
         public static let deleteSelected = NSLocalizedString("library.delete_selected", value: "删除", comment: "删除已选")
@@ -345,6 +348,10 @@ public enum L10n {
         public static let pauseContinue = NSLocalizedString("review.pause_continue", value: "继续", comment: "继续按钮")
         public static let pauseConfirm = NSLocalizedString("review.pause_confirm", value: "暂停", comment: "暂停按钮")
         public static let pauseMessage = NSLocalizedString("review.pause_message", value: "当前进度将保存，您可以稍后继续。", comment: "暂停提示")
+
+        // 功能提示
+        public static let tooltipTitle = NSLocalizedString("review.tooltip_title", value: "复习小技巧", comment: "复习提示标题")
+        public static let tooltipMessage = NSLocalizedString("review.tooltip_message", value: "点击卡片翻面查看答案，左滑表示忘了，右滑表示记得", comment: "复习提示内容")
 
         // 滑动标记
         public static let stampForgot = NSLocalizedString("review.stamp_forgot", value: "忘记", comment: "忘记标记")

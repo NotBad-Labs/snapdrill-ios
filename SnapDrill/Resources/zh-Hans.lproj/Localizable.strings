@@ -166,6 +166,7 @@
 "library.share_or_print" = "分享 / 打印";
 "library.generating" = "正在生成...";
 "library.generate_failed" = "生成失败";
+"library.clear_filters" = "清除";
 "library.select_items" = "选择";
 "library.delete_selected" = "删除";
 "library.export_selected" = "导出";
@@ -205,6 +206,8 @@
 "review.pause_continue" = "继续";
 "review.pause_confirm" = "暂停";
 "review.pause_message" = "当前进度将保存，你可以稍后继续。";
+"review.tooltip_title" = "复习小技巧";
+"review.tooltip_message" = "点击卡片翻面查看答案，左滑表示忘了，右滑表示记得";
 "review.stamp_forgot" = "忘记";
 "review.stamp_remember" = "记得";
 "review.pending" = "待复习";

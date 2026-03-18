@@ -61,6 +61,42 @@ struct LibraryListView: View {
                  .listRowBackground(Color.clear)
             }
             
+            // 活跃过滤指示器：标签过滤时显示，方便用户感知和快速清除
+            if !viewModel.selectedTags.isEmpty {
+                Section {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(Array(viewModel.selectedTags), id: \.self) { tag in
+                                HStack(spacing: 4) {
+                                    Text(tag)
+                                        .font(.caption)
+                                    Button {
+                                        viewModel.selectedTags.remove(tag)
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.caption2)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(.blue.opacity(0.1))
+                                .foregroundStyle(.blue)
+                                .clipShape(Capsule())
+                            }
+                            Button(L10n.Library.clearFilters) {
+                                viewModel.selectedTags.removeAll()
+                            }
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 4)
+                    }
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                }
+            }
+
             if viewModel.filteredItems.isEmpty {
                 if viewModel.searchText.isEmpty && viewModel.selectedSubjects.isEmpty && viewModel.selectedTags.isEmpty {
                     ContentUnavailableView {
