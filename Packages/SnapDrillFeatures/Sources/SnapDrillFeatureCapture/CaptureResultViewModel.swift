@@ -326,14 +326,15 @@ public final class CaptureResultViewModel {
             UserDefaults.standard.set(selectedSource, forKey: UDKey.lastSelectedSource)
 
             // 埋点
-            analyticsService.track(
-                .captureSaved,
-                parameters: [
-                    "subject": selectedSubject,
-                    "source": selectedSource,
-                    "difficulty": String(difficulty.rawValue)
-                ]
-            )
+            analyticsService.track(.captureSaved, parameters: [
+                "subject": selectedSubject,
+                "source": selectedSource,
+                "difficulty": String(difficulty.rawValue)
+            ])
+            analyticsService.track(.reviewItemCreated, parameters: [
+                "has_image": image != nil ? "true" : "false",
+                "has_content": !content.isEmpty ? "true" : "false"
+            ])
 
             navigateAfterSave()
 

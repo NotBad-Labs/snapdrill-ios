@@ -16,7 +16,7 @@ import Foundation
 @MainActor
 public protocol RemoteConfigurable {
     func fetchAndActivate() async throws
-    func bool(forKey key: String) -> Bool
+    func bool(forKey key: String) -> Bool?
     func string(forKey key: String) -> String?
     func double(forKey key: String) -> Double?
 }

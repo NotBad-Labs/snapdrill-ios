@@ -46,8 +46,11 @@ public final class FirebaseRemoteConfigService: RemoteConfigurable {
         }
     }
     
-    public func bool(forKey key: String) -> Bool {
-        remoteConfig.configValue(forKey: key).boolValue
+    public func bool(forKey key: String) -> Bool? {
+        let value = remoteConfig.configValue(forKey: key)
+        // .static = key 未在远程配置中设置，返回 nil 让调用方使用产品默认值
+        guard value.source != .static else { return nil }
+        return value.boolValue
     }
     
     public func string(forKey key: String) -> String? {

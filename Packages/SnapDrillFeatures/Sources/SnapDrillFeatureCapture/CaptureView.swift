@@ -182,6 +182,9 @@ public struct CaptureView: View {
                         viewModel.isShowingScanner = false
                     }
                 )
+                .onAppear {
+                    analyticsService.track(.cameraOpened, parameters: [:])
+                }
             }
             // Photo Picker Handling
             .onChange(of: viewModel.selectedPhotoItem) { _, newItem in

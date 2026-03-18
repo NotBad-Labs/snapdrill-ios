@@ -71,7 +71,7 @@ final class ReviewViewModelTests {
 
     @Test("ViewModel 初始 phase 为 loading")
     func initialPhaseIsLoading() throws {
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         #expect(vm.phase == .loading)
         #expect(vm.reviewQueue.isEmpty)
         #expect(vm.workingItems.isEmpty)
@@ -82,7 +82,7 @@ final class ReviewViewModelTests {
 
     @Test("空数据库时 loadDataAsync 将 phase 变为 idle，队列为空")
     func loadDataAsync_emptyDatabase_idleAndEmptyQueue() async throws {
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
 
         await vm.loadDataAsync()
 
@@ -101,7 +101,7 @@ final class ReviewViewModelTests {
         futureItem.nextReviewAt = Date().addingTimeInterval(86400)
         repo.insert(futureItem)
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
 
         #expect(vm.reviewQueue.count == 2)
@@ -116,7 +116,7 @@ final class ReviewViewModelTests {
         insertDueItem(content: "题目A")
         insertDueItem(content: "题目B")
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -131,7 +131,7 @@ final class ReviewViewModelTests {
     func startSession_resetsResidualSessionState() async throws {
         insertDueItem()
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
 
         // 模拟旧会话残留
@@ -151,7 +151,7 @@ final class ReviewViewModelTests {
     func handleSwipe_rightGood_updatesSM2AndPersists() async throws {
         let model = insertDueItem(content: "SM-2 好题")
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -175,7 +175,7 @@ final class ReviewViewModelTests {
         // 已有进度的条目
         let model = insertDueItem(content: "SM-2 难题", repetitions: 3, interval: 6)
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -191,7 +191,7 @@ final class ReviewViewModelTests {
     func handleSwipe_lastCard_phaseBecomesFinished() async throws {
         insertDueItem()
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -206,7 +206,7 @@ final class ReviewViewModelTests {
         insertDueItem(content: "题目A")
         insertDueItem(content: "题目B")
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -218,7 +218,7 @@ final class ReviewViewModelTests {
 
     @Test("空队列时 handleSwipeCompletion 不崩溃")
     func handleSwipe_emptyQueue_noOp() throws {
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         // 未调用 startSession，workingItems 为空
         vm.handleSwipeCompletion(direction: 1) // 不应崩溃
         #expect(vm.finishedItems == 0)
@@ -230,7 +230,7 @@ final class ReviewViewModelTests {
     func undoLastSwipe_restoresItemToFrontOfQueue() async throws {
         let model = insertDueItem(content: "可撤销题")
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -251,7 +251,7 @@ final class ReviewViewModelTests {
     func undoLastSwipe_fromFinished_resumesReviewing() async throws {
         insertDueItem()
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -265,7 +265,7 @@ final class ReviewViewModelTests {
 
     @Test("undoStack 为空时 undoLastSwipe 无操作")
     func undoLastSwipe_emptyStack_noOp() throws {
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
 
         #expect(!vm.isUndoEnabled)
         vm.undoLastSwipe() // 不应崩溃
@@ -278,7 +278,7 @@ final class ReviewViewModelTests {
         model.nextReviewAt = Date().addingTimeInterval(-3600)
         model.easeFactor = 2.8; model.interval = 5; model.repetitions = 3
         repo.insert(model)
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync(); vm.startSession()
         // 记录滑动前 SM-2 字段
         let origEF = model.easeFactor; let origInterval = model.interval
@@ -299,7 +299,7 @@ final class ReviewViewModelTests {
 
     @Test("triggerButtonRating 快速连续调用时第二次被防抖忽略")
     func triggerButtonRating_rapidCalls_secondCallIgnored() throws {
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
 
         // 第一次调用：设置 isProcessingSwipe = true，swipeTrigger 被赋值
         vm.triggerButtonRating(1)
@@ -314,7 +314,7 @@ final class ReviewViewModelTests {
 
     @Test("triggerButtonRating 在 minInteractionInterval 内重复调用被节流")
     func triggerButtonRating_withinCooldown_throttled() throws {
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
 
         // 手动设置 lastInteractionTime 为刚才（模拟刚触发过）
         vm.lastInteractionTime = Date()
@@ -329,7 +329,7 @@ final class ReviewViewModelTests {
     func handleSwipeCompletion_resetsProcessingFlag() async throws {
         insertDueItem(content: "防抖重置测试题")
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -351,7 +351,7 @@ final class ReviewViewModelTests {
         // 批量插入（仅 insert，不 save），避免触发 SwiftData iOS 26 关系验证路径的 brk #1 崩溃
         insertDueItems(count: capacity + 1)
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -373,7 +373,7 @@ final class ReviewViewModelTests {
         // 批量插入（仅 insert，不 save），避免触发 SwiftData iOS 26 关系验证路径的 brk #1 崩溃
         insertDueItems(count: count)
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -388,7 +388,7 @@ final class ReviewViewModelTests {
 
     @Test("toggleAnswer 每次调用切换 isAnswerShown")
     func toggleAnswer_togglesVisibility() throws {
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
 
         #expect(vm.isAnswerShown == false)
         vm.toggleAnswer()
@@ -404,7 +404,7 @@ final class ReviewViewModelTests {
         // 批量插入 10 题（仅 insert，不 save），避免触发 SwiftData iOS 26 关系验证路径的 brk #1 崩溃
         insertDueItems(count: 10)
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
         #expect(vm.workingItems.count == 10)
@@ -434,7 +434,7 @@ final class ReviewViewModelTests {
     func crashRecovery_againRating_itemRemainsInQueue() async throws {
         insertDueItem(content: "难题")
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
 
@@ -454,7 +454,7 @@ final class ReviewViewModelTests {
         insertDueItem(content: "题目A")
         insertDueItem(content: "题目B")
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
         vm.handleSwipeCompletion(direction: 1)
@@ -473,7 +473,7 @@ final class ReviewViewModelTests {
     func quitSession_refreshesAndReturnsIdle() async throws {
         insertDueItem()
 
-        let vm = ReviewViewModel(repository: repo)
+        let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         await vm.loadDataAsync()
         vm.startSession()
         #expect(vm.phase == .reviewing)

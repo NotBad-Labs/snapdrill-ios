@@ -84,14 +84,16 @@ final class ReviewViewModel {
     // 在 @MainActor ViewModel 中调用其方法（含 saveContext）完全线程安全。
     private let repository: ReviewRepository
     private let scheduler = ReviewScheduler()
+    private let analyticsService: AnalyticsServiceProtocol
 
     @ObservationIgnored
     private var dataChangeTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
-    init(repository: ReviewRepository) {
+    init(repository: ReviewRepository, analyticsService: AnalyticsServiceProtocol) {
         self.repository = repository
+        self.analyticsService = analyticsService
     }
 
     // MARK: - Public API
@@ -158,6 +160,9 @@ final class ReviewViewModel {
         sessionStartReviewedCount = reviewedTodayCount
         // 队列为空时直接进入 finished，防止进入 reviewing 后无卡片可操作的死状态
         phase = workingItems.isEmpty ? .finished : .reviewing
+        analyticsService.track(.reviewSessionStarted, parameters: [
+            "queue_size": "\(workingItems.count)"
+        ])
     }
 
     /// 暂停并退出当前会话
@@ -229,8 +234,16 @@ final class ReviewViewModel {
         }
         finishedItems += 1
         isAnswerShown = false
+        analyticsService.track(.reviewItemCompleted, parameters: [
+            "rating": rating == .good ? "good" : "again"
+        ])
         if workingItems.isEmpty {
             phase = .finished
+            analyticsService.track(.reviewSessionCompleted, parameters: [
+                "total": "\(finishedItems)",
+                "good": "\(sessionGoodCount)",
+                "again": "\(sessionAgainCount)"
+            ])
         }
     }
 

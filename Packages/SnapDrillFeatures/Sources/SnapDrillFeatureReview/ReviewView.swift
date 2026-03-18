@@ -23,6 +23,7 @@ public struct ReviewView: View {
     
     @Bindable private var router: ReviewRouter
     @Environment(\.repositories) private var repositories
+    @Environment(\.analyticsService) private var analyticsService
     @State private var viewModel: ReviewViewModel?
 
     // MARK: - Initialization
@@ -51,7 +52,7 @@ public struct ReviewView: View {
             .task {
                 // 先确保 ViewModel 存在（注册通知订阅），再加载数据
                 if viewModel == nil {
-                    viewModel = ReviewViewModel(repository: repositories.review)
+                    viewModel = ReviewViewModel(repository: repositories.review, analyticsService: analyticsService)
                 }
                 viewModel?.startObservingDataChanges()
                 await viewModel?.loadDataAsync()

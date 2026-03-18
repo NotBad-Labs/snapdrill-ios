@@ -19,6 +19,7 @@ struct PrivacySettingsView: View {
     // MARK: - Properties
     
     @Environment(\.repositories) private var repositories
+    @Environment(\.analyticsService) private var analyticsService
     @AppStorage(UDKey.analyticsEnabled) private var analyticsEnabled = false
     @AppStorage(UDKey.crashReportingEnabled) private var crashReportingEnabled = true
     
@@ -131,6 +132,10 @@ struct PrivacySettingsView: View {
                 exportedFileURL = fileURL
                 showingShareSheet = true
                 isExporting = false
+                analyticsService.track(.dataExported, parameters: [
+                    "format": format.fileExtension,
+                    "item_count": "\(exportableItems.count)"
+                ])
             }
         } catch {
             await MainActor.run {
