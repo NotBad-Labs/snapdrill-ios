@@ -627,6 +627,10 @@ public enum L10n {
         public static let pdfEmpty = NSLocalizedString("errors.pdf_empty", value: "PDF 文件不包含任何页面", comment: "PDF 为空")
         public static let filePickerFailed = NSLocalizedString("errors.file_picker_failed", value: "文件选择失败，请检查文件或稍后重试", comment: "文件选择器错误")
 
+        // 数据加载
+        public static let loadFailed = NSLocalizedString("errors.load_failed", value: "加载失败", comment: "数据加载失败标题")
+        public static let tryAgainLater = NSLocalizedString("errors.try_again_later", value: "请稍后重试，或重启应用", comment: "加载失败恢复建议")
+
         // 保存模块
         public static let saveFailed = NSLocalizedString("errors.save_failed", value: "保存失败，请检查存储空间后重试", comment: "题目保存失败")
         public static func createTaxonomyFailed(_ name: String) -> String {

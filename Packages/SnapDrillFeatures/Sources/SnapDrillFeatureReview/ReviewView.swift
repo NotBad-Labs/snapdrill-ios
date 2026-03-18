@@ -71,6 +71,17 @@ public struct ReviewView: View {
             case .loading:
                 ProgressView()
 
+            case .error:
+                ContentUnavailableView {
+                    Label(L10n.Errors.loadFailed, systemImage: "exclamationmark.triangle")
+                } description: {
+                    Text(L10n.Errors.tryAgainLater)
+                } actions: {
+                    Button(L10n.Common.retry) {
+                        Task { await vm.retryLoading() }
+                    }
+                }
+
             case .idle:
                 ReviewDashboardView(
                     pendingCount: vm.reviewQueue.count,
