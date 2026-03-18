@@ -110,30 +110,35 @@ public struct ImageStorage: Sendable {
     /// 将 UIImage 压缩为 JPEG Data，大图通过 ImageIO 流式下采样
     ///
     /// 内存优化策略：
-    /// - 无需缩放时：直接 `jpegData(compressionQuality:)`，单次编码
+    /// - 无需缩放时：通过 CGImageDestination 直接从 CGImage 编码（剥离 EXIF GPS）
     /// - 需要缩放时：先编码为 JPEG Data，再通过 ImageIO `CGImageSourceCreateThumbnailAtIndex`
-    ///   流式解码为目标尺寸的 CGImage，最后编码为 JPEG Data
+    ///   流式解码为目标尺寸的 CGImage，最后通过 CGImageDestination 编码
     ///   避免 UIGraphicsImageRenderer 同时持有原图位图（~48MB@12MP）+ 缩放画布的双倍峰值
+    ///
+    /// 安全策略：
+    /// - 所有路径统一使用 `jpegDataStrippingLocation` 编码最终输出
+    /// - CGImageDestination 从 CGImage 编码时不携带 EXIF 元数据（含 GPS 位置），
+    ///   确保产品「零个人信息收集」的隐私承诺在图片层面也成立
     ///
     /// - Parameters:
     ///   - image: 原始图片
     ///   - maxLongSide: 长边物理像素上限
     ///   - quality: JPEG 压缩质量（0.0-1.0）
-    /// - Returns: 压缩后的 JPEG Data，失败返回 nil
+    /// - Returns: 压缩后的 JPEG Data（不含 GPS 元数据），失败返回 nil
     static func compressedJPEGData(from image: UIImage, maxLongSide: CGFloat, quality: CGFloat) -> Data? {
         // 计算物理像素尺寸（image.size 是逻辑点，需乘以 scale）
         let pixelWidth = image.size.width * image.scale
         let pixelHeight = image.size.height * image.scale
         let longSide = max(pixelWidth, pixelHeight)
 
-        // 无需缩放：直接编码，单次 JPEG 压缩
+        // 无需缩放：直接从 CGImage 编码（剥离 EXIF GPS）
         guard longSide > maxLongSide else {
-            return image.jpegData(compressionQuality: quality)
+            return jpegDataStrippingLocation(from: image.cgImage, quality: quality)
         }
 
-        // 需要缩放：先编码为 JPEG Data，再通过 ImageIO 流式下采样
-        guard let jpegData = image.jpegData(compressionQuality: quality),
-              let source = CGImageSourceCreateWithData(jpegData as CFData, nil) else {
+        // 需要缩放：先编码为临时 JPEG Data（仅作为 ImageIO 输入，不作最终输出）
+        guard let tempData = image.jpegData(compressionQuality: quality),
+              let source = CGImageSourceCreateWithData(tempData as CFData, nil) else {
             return nil
         }
 
@@ -145,12 +150,38 @@ public struct ImageStorage: Sendable {
         ]
 
         guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            // fallback：ImageIO 失败时返回未缩放的 JPEG 数据
-            return jpegData
+            // fallback：ImageIO 失败时从原始 CGImage 编码（同样剥离 GPS）
+            return jpegDataStrippingLocation(from: image.cgImage, quality: quality)
         }
 
-        // 从下采样的 CGImage 生成最终 JPEG Data
-        return UIImage(cgImage: cgImage).jpegData(compressionQuality: quality)
+        // 从下采样的 CGImage 编码最终 JPEG Data（CGImage 不携带 EXIF，天然无 GPS）
+        return jpegDataStrippingLocation(from: cgImage, quality: quality)
+    }
+
+    /// 从 CGImage 编码 JPEG Data，不包含位置元数据
+    ///
+    /// CGImage 是纯像素数据容器，不携带 EXIF 元数据（与 UIImage 不同）。
+    /// 通过 CGImageDestination 直接从 CGImage 编码，确保输出不含 GPS 经纬度、
+    /// 设备型号等隐私敏感的 EXIF 字段。
+    ///
+    /// - Parameters:
+    ///   - cgImage: 源像素数据
+    ///   - quality: JPEG 压缩质量（0.0-1.0）
+    /// - Returns: 不含位置元数据的 JPEG Data，CGImage 为 nil 时返回 nil
+    private static func jpegDataStrippingLocation(from cgImage: CGImage?, quality: CGFloat) -> Data? {
+        guard let cgImage else { return nil }
+        let mutableData = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(
+            mutableData, "public.jpeg" as CFString, 1, nil
+        ) else { return nil }
+
+        let properties: [CFString: Any] = [
+            kCGImageDestinationLossyCompressionQuality: quality
+        ]
+        CGImageDestinationAddImage(destination, cgImage, properties as CFDictionary)
+
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return mutableData as Data
     }
     #else
     /// 非 UIKit 平台 stub
