@@ -90,6 +90,8 @@ product-vision.md（为什么做 — 几乎不变）
 
 | 状态 | Issue | 内容 |
 |---|---|---|
+| ⬜ | [#348](../../issues/348) | 协议契约形式化 — 跨包协议缺少行为保证文档 |
+| ⬜ | [#349](../../issues/349) | AccessibilityHelper 硬编码中文 — 未走 NSLocalizedString |
 | ⬜ | [#319](../../issues/319) | CSV 导出 Excel 公式注入防护 |
 | ⬜ | [#285](../../issues/285) | 清理 PREMATURE 类型 — iCloud/网络相关枚举 |
 | ⬜ | [#286](../../issues/286) | SHAPE_CONCERN 接口确认 |

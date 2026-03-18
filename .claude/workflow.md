@@ -206,6 +206,33 @@ gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini
 
 **违反后果**：技术债无追踪 = 技术债不存在 = 永远不会修复。这比 review 本身不发现问题更危险。
 
+### PR 全流程纪律（2026-03-19 正式化，来源：2026-03-18 六条协作反馈）
+
+以下六条规则在 2026-03-18 的密集协作中逐条确立，现正式化为 PR 流程的组成部分。
+
+**1. PR 创建后立即写 review 提示词**
+`gh pr create` 后的下一步必须是按 `review-prompt-guide.md` 撰写 Antigravity / Xcode Intelligence 的 review 提示词。不写提示词 = review 无法启动 = PR 滞留。
+
+**2. PR 未合并前禁止推进下一任务**
+完整 review 流程：轮询 Gemini → 写 Antigravity/Xcode 提示词 → 核实所有 finding → 用户确认合并。跳过 review 直接推进 = 技术债失控。
+
+**3. 禁止自审自批**
+修复 review finding 后，必须让**原 reviewer** 验收实现是否符合意图。不能因为「采纳了 reviewer 的建议」就自己宣布可合并。验收铁律已在上方「fix 提交后的 re-review 规则」中详述。
+
+**4. 范围外发现立即建 Issue**
+口头说"后续处理"但不建 Issue = 事实上遗忘。具体流程已在上方「Review 发现的技术债追踪铁律」中详述。
+
+**5. Review 轮询查两处**
+Gemini 和外部 reviewer 的结果可能出现在不同位置：
+- `gh pr view --json comments`（PR comment）
+- `gh pr view --json reviews`（PR review）
+两处都必须查，遗漏任一 = review 结论不完整。
+
+**6. STATUS.md 驱动工作节奏**
+- 每次新对话开头**必读** `STATUS.md` 恢复上下文
+- 每个 PR 合并后**必更新** `STATUS.md`
+- STATUS.md 是项目的单一实时状态源，不更新 = 下次对话失忆
+
 ---
 
 ## 工作优先级框架（2026-03-11 重写，取代原「金字塔铁律」）
