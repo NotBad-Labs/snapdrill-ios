@@ -73,20 +73,32 @@ public final class AppConfiguration {
             self.remoteProvider = provider
         }
         
-        /// 是否启用崩溃报告
+        /// 是否启用崩溃报告（产品要求默认开启）
         public static var crashReportingEnabled: Bool {
-            get { 
-                remoteProvider?.bool(forKey: UDKey.crashReportingEnabled) ??
-                UserDefaults.standard.bool(forKey: UDKey.crashReportingEnabled)
+            get {
+                if let remote = remoteProvider?.bool(forKey: UDKey.crashReportingEnabled) {
+                    return remote
+                }
+                // UserDefaults.bool(forKey:) 对未设置的 key 返回 false，
+                // 但产品要求默认开启，需显式区分"未设置"与"用户关闭"
+                if UserDefaults.standard.object(forKey: UDKey.crashReportingEnabled) == nil {
+                    return true
+                }
+                return UserDefaults.standard.bool(forKey: UDKey.crashReportingEnabled)
             }
             set { UserDefaults.standard.set(newValue, forKey: UDKey.crashReportingEnabled) }
         }
-        
-        /// 是否启用数据分析
+
+        /// 是否启用数据分析（产品要求默认开启）
         public static var analyticsEnabled: Bool {
-            get { 
-                remoteProvider?.bool(forKey: UDKey.analyticsEnabled) ??
-                UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled)
+            get {
+                if let remote = remoteProvider?.bool(forKey: UDKey.analyticsEnabled) {
+                    return remote
+                }
+                if UserDefaults.standard.object(forKey: UDKey.analyticsEnabled) == nil {
+                    return true
+                }
+                return UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled)
             }
             set { UserDefaults.standard.set(newValue, forKey: UDKey.analyticsEnabled) }
         }
@@ -128,9 +140,9 @@ public final class AppConfiguration {
     
     // MARK: - Reset
     
-    /// 重置所有配置到默认值
+    /// 重置所有配置到产品定义的默认值（默认开启）
     public func resetToDefaults() {
-        FeatureFlags.crashReportingEnabled = false
-        FeatureFlags.analyticsEnabled = false
+        FeatureFlags.crashReportingEnabled = true
+        FeatureFlags.analyticsEnabled = true
     }
 }

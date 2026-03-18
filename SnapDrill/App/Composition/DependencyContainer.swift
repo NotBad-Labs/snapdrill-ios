@@ -72,6 +72,19 @@ final class DependencyContainer {
         // 7. 初始化顶级路由器
         self.router = AppRouter()
 
+        // 8. 监听隐私偏好变更，运行时同步到 Firebase SDK
+        NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            MainActor.assumeIsolated {
+                FirebaseBootstrap.setCrashlyticsEnabled(
+                    AppConfiguration.FeatureFlags.crashReportingEnabled
+                )
+            }
+        }
+
         SnapDrillLogger.generic.info("DependencyContainer: Composition Root initialized successfully.")
     }
 }
