@@ -141,6 +141,8 @@ final class ReviewViewModel {
 
     /// 重试加载数据（从错误状态恢复）
     func retryLoading() async {
+        // 防止重复点击：仅在 error 状态下允许重试
+        guard phase == .error else { return }
         phase = .loading
         await loadDataAsync()
     }
