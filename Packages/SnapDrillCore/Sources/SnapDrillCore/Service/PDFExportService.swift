@@ -61,8 +61,12 @@ public final class PDFExportService: Sendable {
                     if Task.isCancelled {
                         throw CancellationError()
                     }
-                    context.beginPage()
-                    drawItemsPage(context: context.cgContext, rect: pageRect, items: chunk, imageProvider: imageProvider)
+                    // autoreleasepool 确保每页渲染后释放图片位图和 CoreGraphics 临时对象，
+                    // 避免 50+ 题导出时全部堆积在内存导致 OOM
+                    try autoreleasepool {
+                        context.beginPage()
+                        drawItemsPage(context: context.cgContext, rect: pageRect, items: chunk, imageProvider: imageProvider)
+                    }
                 }
             } catch {
                 renderError = error

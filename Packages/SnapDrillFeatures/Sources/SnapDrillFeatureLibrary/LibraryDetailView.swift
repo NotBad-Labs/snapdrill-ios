@@ -194,8 +194,19 @@ struct LibraryDetailView: View {
             }
             .padding(.top)
         }
-        .task {
-            await loadImages()
+        .task(id: item.imagePath) {
+            if let path = item.imagePath {
+                loadedImage = await imageStorage.loadImageAsync(path: path)
+            } else {
+                loadedImage = nil
+            }
+        }
+        .task(id: item.answerImagePath) {
+            if let path = item.answerImagePath {
+                loadedAnswerImage = await imageStorage.loadImageAsync(path: path)
+            } else {
+                loadedAnswerImage = nil
+            }
         }
         .navigationTitle(L10n.Library.detail)
         .navigationBarTitleDisplayMode(.inline)
@@ -218,16 +229,6 @@ struct LibraryDetailView: View {
         }
     }
 
-    // MARK: - Private Helpers
-
-    private func loadImages() async {
-        if let path = item.imagePath {
-            loadedImage = await imageStorage.loadImageAsync(path: path)
-        }
-        if let path = item.answerImagePath {
-            loadedAnswerImage = await imageStorage.loadImageAsync(path: path)
-        }
-    }
 }
 
 #Preview {

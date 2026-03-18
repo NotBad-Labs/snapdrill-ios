@@ -148,7 +148,8 @@ public struct ImageStorage: Sendable {
 
         guard let source = CGImageSourceCreateWithURL(fileURL as CFURL, nil),
               let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            // ImageIO 失败时回退到全分辨率加载
+            // ImageIO 失败时回退到全分辨率加载（可能导致内存峰值偏高）
+            SnapDrillLogger.generic.warning("ImageIO 降采样失败，回退到全分辨率加载: \(path)")
             return UIImage(contentsOfFile: fileURL.path)
         }
 
