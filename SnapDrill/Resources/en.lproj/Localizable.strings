@@ -418,6 +418,14 @@
 "errors.backup_failed" = "Backup failed. Please check storage space and try again.";
 "errors.restore_failed" = "Restore failed. Please make sure the backup file is not corrupted.";
 "errors.file_access_denied" = "Unable to access the selected file. Please try again.";
+"errors.camera_permission_help" = "Go to Settings → SnapDrill → Camera to grant access.";
+"errors.photo_permission_help" = "Go to Settings → SnapDrill → Photos to grant access.";
+"errors.ocr_failed_help" = "Make sure the image is clear and contains text.";
+"errors.export_failed_help" = "Please try again later.";
+"errors.import_failed_help" = "Make sure the file format is correct.";
+"errors.data_corrupted_help" = "Data file is corrupted. Please try restarting the app.";
+"errors.unknown_error_help" = "Please try again later, or restart the app if the issue persists.";
+"errors.error_occurred" = "An error occurred";
 
 // MARK: - Subjects
 

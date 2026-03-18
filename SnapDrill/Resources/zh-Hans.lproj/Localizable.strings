@@ -44,12 +44,12 @@
 
 "capture.title" = "采集";
 "capture.entry_method_title" = "录入方式";
-"capture.camera_title" = "拍照识题";
+"capture.camera_title" = "拍照录题";
 "capture.camera_subtitle" = "自动裁剪与识别";
 "capture.album_title" = "相册导入";
 "capture.album_subtitle" = "识别已有照片";
 "capture.manual_title" = "手动录入";
-"capture.manual_subtitle" = "纯文本编辑";
+"capture.manual_subtitle" = "直接输入题目";
 "capture.clipboard_title" = "粘贴板";
 "capture.clipboard_subtitle" = "从剪贴板读取";
 "capture.pdf_title" = "PDF 导入";
@@ -106,7 +106,7 @@
 "dashboard.draft_alert_title" = "恢复未完成的题目？";
 "dashboard.draft_start_new" = "开始新的";
 "dashboard.draft_restore" = "恢复";
-"dashboard.draft_alert_message" = "您有上次未保存的拍摄内容，是否继续编辑？";
+"dashboard.draft_alert_message" = "你有上次未保存的拍摄内容，是否继续编辑？";
 "dashboard.welcome" = "欢迎使用";
 "dashboard.welcome_subtitle" = "添加第一道错题，开启复习之旅";
 "dashboard.capture_item" = "录入题目";
@@ -114,7 +114,7 @@
 "dashboard.start_now" = "立即开始";
 "dashboard.all_done" = "太棒了！";
 "dashboard.all_done_subtitle" = "今日复习任务已清空";
-"dashboard.default_name" = "同学";
+"dashboard.default_name" = "用户";
 "dashboard.greeting_night" = "夜深了，注意休息";
 "dashboard.greeting_morning" = "早安，%@";
 "dashboard.greeting_afternoon" = "午安，%@";
@@ -204,7 +204,7 @@
 "review.pause_alert_title" = "确认暂停复习？";
 "review.pause_continue" = "继续";
 "review.pause_confirm" = "暂停";
-"review.pause_message" = "当前进度将保存，您可以稍后继续。";
+"review.pause_message" = "当前进度将保存，你可以稍后继续。";
 "review.stamp_forgot" = "忘记";
 "review.stamp_remember" = "记得";
 "review.pending" = "待复习";
@@ -314,7 +314,7 @@
 "settings.feedback_title" = "意见反馈";
 "settings.copy_email" = "复制邮箱";
 "settings.maybe_later" = "以后再说";
-"settings.feedback_message" = "感谢您使用 SnapDrill！您可以发送邮件至 hello@notbadhq.com，或直接在 TestFlight 中反馈。";
+"settings.feedback_message" = "感谢你使用 SnapDrill！你可以发送邮件至 hello@notbadhq.com，或直接在 TestFlight 中反馈。";
 "settings.edit_profile_subtitle" = "编辑个人资料";
 "settings.backup_data" = "备份数据";
 "settings.restore_data" = "恢复数据";
@@ -331,7 +331,7 @@
 "settings.clear_cache" = "清理缓存";
 "settings.clear_cache_title" = "清理缓存";
 "settings.clear_cache_action" = "清理";
-"settings.clear_cache_message" = "清理缓存不会删除您的题目数据，仅删除临时图片和下载的资源。";
+"settings.clear_cache_message" = "清理缓存不会删除你的题目数据，仅删除临时图片和下载的资源。";
 "settings.data_maintenance" = "数据维护";
 "settings.auto_archive_old_items" = "自动归档旧题目";
 "settings.archive_time" = "归档时间";
@@ -355,7 +355,7 @@
 "settings.reminder_disabled_footer" = "开启后系统将在固定时间推送复习提醒";
 "settings.data_collection" = "数据收集";
 "settings.use_analytics" = "使用数据分析";
-"settings.data_collection_footer" = "帮助我们改进应用体验，您的数据将被匿名处理";
+"settings.data_collection_footer" = "帮助我们改进应用体验，你的数据将被匿名处理";
 "settings.export_my_data" = "导出我的数据";
 "settings.exporting" = "导出中...";
 "settings.choose_export_format" = "选择导出格式";
@@ -418,6 +418,14 @@
 "errors.backup_failed" = "备份失败，请检查存储空间后重试";
 "errors.restore_failed" = "恢复失败，请确认备份文件未损坏后重试";
 "errors.file_access_denied" = "无法访问选择的文件，请重新选取";
+"errors.camera_permission_help" = "请在「设置」→「SnapDrill」→「相机」中允许访问";
+"errors.photo_permission_help" = "请在「设置」→「SnapDrill」→「照片」中允许访问";
+"errors.ocr_failed_help" = "请确保图片清晰且包含文字内容";
+"errors.export_failed_help" = "请稍后重试";
+"errors.import_failed_help" = "请确保文件格式正确";
+"errors.data_corrupted_help" = "数据文件已损坏，请尝试重新启动应用";
+"errors.unknown_error_help" = "请稍后重试，如问题持续请重启应用";
+"errors.error_occurred" = "发生错误";
 
 // MARK: - Subjects
 
@@ -494,55 +502,55 @@
 "help.topic_faq" = "常见问题";
 
 "help.question_add_first_item" = "如何添加第一道错题？";
-"help.answer_add_first_item" = "点击主界面的「+」按钮，选择「拍摄」或「从相册选择」，系统会自动识别题目内容。您也可以手动输入题目和答案。";
+"help.answer_add_first_item" = "点击主界面的「+」按钮，选择「拍摄」或「从相册选择」，系统会自动识别题目内容。你也可以手动输入题目和答案。";
 
 "help.question_start_review" = "如何开始复习？";
-"help.answer_start_review" = "在仪表板中点击「开始复习」按钮，系统会根据艾宾浩斯遗忘曲线为您安排今日需要复习的题目。";
+"help.answer_start_review" = "在仪表板中点击「开始复习」按钮，系统会根据艾宾浩斯遗忘曲线为你安排今日需要复习的题目。";
 
 "help.question_set_subject_source" = "如何设置学科和来源？";
 "help.answer_set_subject_source" = "在添加或编辑错题时，可以选择学科（如数学、语文等）和来源（如期中考试、作业等），方便后续分类查看。";
 
 "help.question_best_capture" = "如何获得最佳拍摄效果？";
-"help.answer_best_capture" = "确保光线充足，将题目放在平整的表面上，保持相机稳定。系统会自动检测题目区域并提示您拍摄。";
+"help.answer_best_capture" = "确保光线充足，将题目放在平整的表面上，保持相机稳定。系统会自动检测题目区域并提示你拍摄。";
 
 "help.question_ocr_inaccurate" = "文字识别不准确怎么办？";
-"help.answer_ocr_inaccurate" = "您可以在识别后手动编辑题目内容。建议拍摄时保持题目清晰、光线充足，避免反光和阴影。";
+"help.answer_ocr_inaccurate" = "你可以在识别后手动编辑题目内容。建议拍摄时保持题目清晰、光线充足，避免反光和阴影。";
 
 "help.question_crop_image" = "可以裁剪图片吗？";
-"help.answer_crop_image" = "可以。拍摄后会进入裁剪界面，您可以调整裁剪区域，确保只保留题目部分。";
+"help.answer_crop_image" = "可以。拍摄后会进入裁剪界面，你可以调整裁剪区域，确保只保留题目部分。";
 
 "help.question_review_schedule" = "复习计划是如何安排的？";
-"help.answer_review_schedule" = "系统基于艾宾浩斯遗忘曲线，在最佳时间点提醒您复习。首次复习在 1 天后，之后间隔逐渐延长（3天、7天、15天、30天）。";
+"help.answer_review_schedule" = "系统基于艾宾浩斯遗忘曲线，在最佳时间点提醒你复习。首次复习在 1 天后，之后间隔逐渐延长（3天、7天、15天、30天）。";
 
 "help.question_mark_difficulty" = "如何标记题目难度？";
-"help.answer_mark_difficulty" = "在复习时，您可以为每道题目标记难度（1-5星）。系统会根据难度调整复习频率，难题会更频繁地出现。";
+"help.answer_mark_difficulty" = "在复习时，你可以为每道题目标记难度（1-5星）。系统会根据难度调整复习频率，难题会更频繁地出现。";
 
 "help.question_custom_review" = "可以自定义复习计划吗？";
-"help.answer_custom_review" = "目前系统使用科学的复习算法自动安排。您可以在设置中调整每日复习目标数量。";
+"help.answer_custom_review" = "目前系统使用科学的复习算法自动安排。你可以在设置中调整每日复习目标数量。";
 
 "help.question_data_backup" = "如何备份我的数据？";
 "help.answer_data_backup" = "建议定期手动备份。进入「设置」-「备份与恢复」，点击「创建备份」即可。升级 Pro 后还可使用 iCloud 自动同步。";
 
 "help.question_export_data" = "如何导出数据？";
-"help.answer_export_data" = "进入「设置」-「隐私与安全」-「导出数据」，选择导出格式（PDF、CSV、JSON），系统会生成文件供您分享或备份。";
+"help.answer_export_data" = "进入「设置」-「隐私与安全」-「导出数据」，选择导出格式（PDF、CSV、JSON），系统会生成文件供你分享或备份。";
 
 "help.question_data_loss" = "数据会丢失吗？";
 "help.answer_data_loss" = "数据默认存储在本设备上，卸载应用会导致数据永久丢失。建议定期手动备份，或升级 Pro 后使用 iCloud 自动同步。";
 
 "help.question_data_safe" = "我的数据安全吗？";
-"help.answer_data_safe" = "所有数据都存储在您的设备本地，我们不会收集或上传您的个人数据。崩溃报告和分析数据都是匿名的。";
+"help.answer_data_safe" = "所有数据都存储在你的设备本地，我们不会收集或上传你的个人数据。崩溃报告和分析数据都是匿名的。";
 
 "help.question_disable_analytics" = "如何关闭数据分析？";
 "help.answer_disable_analytics" = "进入「设置」-「隐私与安全」，关闭「数据分析」开关。这不会影响应用的核心功能。";
 
 "help.question_permissions" = "相机和相册权限用于什么？";
-"help.answer_permissions" = "相机权限用于拍摄错题，相册权限用于从相册选择图片。我们只在您使用相关功能时请求权限，不会访问其他照片。";
+"help.answer_permissions" = "相机权限用于拍摄错题，相册权限用于从相册选择图片。我们只在你使用相关功能时请求权限，不会访问其他照片。";
 
 "help.question_crash_or_lag" = "应用崩溃或卡顿怎么办？";
-"help.answer_crash_or_lag" = "请尝试重启应用。如果问题持续，可以在设置中清除缓存。我们会自动收集崩溃报告（如果您已启用）并尽快修复。";
+"help.answer_crash_or_lag" = "请尝试重启应用。如果问题持续，可以在设置中清除缓存。我们会自动收集崩溃报告（如果你已启用）并尽快修复。";
 
 "help.question_contact_support" = "如何联系技术支持？";
-"help.answer_contact_support" = "您可以通过「设置」-「关于」-「反馈与支持」联系我们，或发送邮件到 support@snapdrill.app。";
+"help.answer_contact_support" = "你可以通过「设置」-「关于」-「反馈与支持」联系我们，或发送邮件到 support@snapdrill.app。";
 
 "help.question_is_free" = "应用是免费的吗？";
 "help.answer_is_free" = "SnapDrill 核心功能完全免费，包括无限录题、OCR 识别、分类管理和间隔复习。高级功能（如 iCloud 同步、高级导出格式）可通过订阅 Pro 解锁。我们绝不限制录入数量。";

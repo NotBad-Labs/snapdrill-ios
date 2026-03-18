@@ -627,6 +627,16 @@ public enum L10n {
         public static let pdfEmpty = NSLocalizedString("errors.pdf_empty", value: "PDF 文件不包含任何页面", comment: "PDF 为空")
         public static let filePickerFailed = NSLocalizedString("errors.file_picker_failed", value: "文件选择失败，请检查文件或稍后重试", comment: "文件选择器错误")
 
+        // 恢复建议（ContextualErrorView 用）
+        public static let cameraPermissionHelp = NSLocalizedString("errors.camera_permission_help", value: "请在「设置」→「SnapDrill」→「相机」中允许访问", comment: "相机权限恢复建议")
+        public static let photoPermissionHelp = NSLocalizedString("errors.photo_permission_help", value: "请在「设置」→「SnapDrill」→「照片」中允许访问", comment: "相册权限恢复建议")
+        public static let ocrFailedHelp = NSLocalizedString("errors.ocr_failed_help", value: "请确保图片清晰且包含文字内容", comment: "OCR 失败恢复建议")
+        public static let exportFailedHelp = NSLocalizedString("errors.export_failed_help", value: "请稍后重试", comment: "导出失败恢复建议")
+        public static let importFailedHelp = NSLocalizedString("errors.import_failed_help", value: "请确保文件格式正确", comment: "导入失败恢复建议")
+        public static let dataCorruptedHelp = NSLocalizedString("errors.data_corrupted_help", value: "数据文件已损坏，请尝试重新启动应用", comment: "数据损坏恢复建议")
+        public static let unknownErrorHelp = NSLocalizedString("errors.unknown_error_help", value: "请稍后重试，如问题持续请重启应用", comment: "未知错误恢复建议")
+        public static let errorOccurred = NSLocalizedString("errors.error_occurred", value: "发生错误", comment: "通用错误后备文本")
+
         // 数据加载
         public static let loadFailed = NSLocalizedString("errors.load_failed", value: "加载失败", comment: "数据加载失败标题")
         public static let tryAgainLater = NSLocalizedString("errors.try_again_later", value: "请稍后重试，或重启应用", comment: "加载失败恢复建议")
