@@ -84,14 +84,36 @@
 "edit_profile.choose_avatar_source" = "选择头像来源";
 
 // MARK: - Errors
-"errors.network_unavailable" = "网络连接不可用";
-"errors.icloud_unavailable" = "iCloud 不可用";
 "errors.camera_permission_denied" = "相机权限被拒绝";
 "errors.photo_permission_denied" = "相册权限被拒绝";
 "errors.export_failed" = "导出失败";
 "errors.import_failed" = "导入失败";
 "errors.data_corrupted" = "数据已损坏";
 "errors.ocr_failed" = "文字识别失败";
+"errors.encoding_failed" = "数据编码失败";
+"errors.image_load_failed" = "无法加载图片，请确认图片文件未损坏后重试";
+"errors.image_decode_failed" = "图片格式无法识别，请尝试使用其他图片";
+"errors.clipboard_empty" = "剪贴板为空或没有可用的文本内容";
+"errors.pdf_read_failed" = "无法读取 PDF 文件，请确认文件未损坏";
+"errors.pdf_parse_failed" = "PDF 文件格式无法解析，请尝试其他文件";
+"errors.pdf_empty" = "PDF 文件不包含任何页面";
+"errors.file_picker_failed" = "文件选择失败，请检查文件或稍后重试";
+"errors.save_failed" = "保存失败，请检查存储空间后重试";
+"errors.create_taxonomy_failed" = "新建「%@」失败，请重试";
+"errors.backup_failed" = "备份失败，请检查存储空间后重试";
+"errors.restore_failed" = "恢复失败，请确认备份文件未损坏后重试";
+"errors.file_access_denied" = "无法访问选择的文件，请重新选取";
+
+// MARK: - Onboarding
+"onboarding.skip" = "跳过";
+"onboarding.previous" = "上一页";
+"onboarding.next" = "下一页";
+"onboarding.get_started" = "开始使用";
+"onboarding.accessibility_group" = "欢迎引导";
+
+// MARK: - Notification
+"notification.daily.title" = "复习时间到";
+"notification.daily.body" = "今天的错题还在等你，快来复习吧！";
 
 // MARK: - Subjects
 "subjects.math" = "数学";

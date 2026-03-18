@@ -57,6 +57,13 @@ public enum L10n {
         public static func itemCountShort(_ count: Int) -> String {
             String(format: NSLocalizedString("common.item_count_short", value: "%d 题", comment: "题目数量（短格式）"), count)
         }
+
+        // Onboarding
+        public static let onboardingSkip = NSLocalizedString("onboarding.skip", value: "跳过", comment: "引导页跳过按钮")
+        public static let onboardingPrevious = NSLocalizedString("onboarding.previous", value: "上一页", comment: "引导页上一页按钮")
+        public static let onboardingNext = NSLocalizedString("onboarding.next", value: "下一页", comment: "引导页下一页按钮")
+        public static let onboardingGetStarted = NSLocalizedString("onboarding.get_started", value: "开始使用", comment: "引导页开始使用按钮")
+        public static let onboardingAccessibilityGroup = NSLocalizedString("onboarding.accessibility_group", value: "欢迎引导", comment: "引导页无障碍分组标签")
     }
 
     // MARK: - Capture
@@ -760,4 +767,5 @@ public enum LocalizationHelper {
         public static let checkUpdate = NSLocalizedString(
             "app.check_update", value: "检查更新", comment: "检查更新按钮")
     }
+
 }

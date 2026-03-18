@@ -1,14 +1,23 @@
-/* 
+/*
   Localizable.strings
   SnapDrill
 
-  Created by SnapDrill Architect on 2026/01/03.
-  Copyright © 2026 SnapDrill Team. All rights reserved.
-  
-  English Localization Strings
+  Created by NotBad Labs on 2026/01/03.
+  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+
+  English Localization — complete coverage of all L10n keys
 */
 
+// MARK: - AppRoot
+
+"app_root.degraded_mode_title" = "Data Protection Mode";
+"app_root.degraded_mode_description" = "Data is stored in memory only and will be lost after restart. Please restart the app to restore normal operation.";
+"app_root.maintenance_title" = "Under Maintenance";
+"app_root.maintenance_description" = "This beta version is undergoing maintenance or has expired. Please try again later or download the latest version from TestFlight.";
+"app_root.check_update" = "Check for Update";
+
 // MARK: - Common
+
 "common.ok" = "OK";
 "common.cancel" = "Cancel";
 "common.save" = "Save";
@@ -19,23 +28,185 @@
 "common.close" = "Close";
 "common.loading" = "Loading...";
 "common.error" = "Error";
+"common.create" = "Create";
+"common.discard" = "Discard";
+"common.reset" = "Reset";
+"common.not_selected" = "Not Selected";
+"common.processing" = "Processing...";
+"common.coming_soon" = "Coming Soon";
+"common.open_settings" = "Open Settings";
+"common.restart_app" = "Restart App";
+"common.unknown_error" = "Unknown Error";
+"common.item_count" = "%d items";
+"common.item_count_short" = "%d";
+
+// MARK: - Capture
+
+"capture.title" = "Capture";
+"capture.scanning" = "Looking for question area...";
+"capture.tap_to_capture" = "Tap to capture";
+"capture.processing" = "Processing...";
+"capture.ocr_failed" = "Text recognition failed";
+"capture.entry_method_title" = "Capture Method";
+"capture.camera_title" = "Camera";
+"capture.camera_subtitle" = "Auto crop & recognize";
+"capture.album_title" = "Photo Library";
+"capture.album_subtitle" = "Import from photos";
+"capture.manual_title" = "Manual Entry";
+"capture.manual_subtitle" = "Text editing";
+"capture.clipboard_title" = "Clipboard";
+"capture.clipboard_subtitle" = "Paste from clipboard";
+"capture.pdf_title" = "PDF Import";
+"capture.pdf_subtitle" = "Select a PDF file";
+"capture.draft_alert_title" = "Restore Draft";
+"capture.draft_continue" = "Continue Editing";
+"capture.draft_alert_message" = "Unsaved capture content detected. Would you like to restore it?";
+"capture.preview_and_edit" = "Preview & Edit";
+"capture.question_content" = "Question Content";
+"capture.re_recognizing" = "Re-recognizing...";
+"capture.category_info" = "Category Info";
+"capture.question_details" = "Question Details";
+"capture.subject" = "Subject";
+"capture.source" = "Source";
+"capture.tags" = "Tags";
+"capture.difficulty" = "Difficulty";
+"capture.grade" = "Grade";
+"capture.answer" = "Answer";
+"capture.add_answer_image" = "Add Answer Image";
+"capture.save_failed" = "Save Failed";
+"capture.new_subject" = "New Subject";
+"capture.subject_name_placeholder" = "Subject name";
+"capture.new_subject_message" = "Enter a new subject name. It will be auto-selected after creation.";
+"capture.new_source" = "New Source";
+"capture.source_name_placeholder" = "Source name";
+"capture.new_source_message" = "Enter a new source name. It will be auto-selected after creation.";
+"capture.new_grade" = "New Grade";
+"capture.grade_name_placeholder" = "Grade name";
+"capture.new_grade_message" = "Enter a new grade name. It will be auto-selected after creation.";
+"capture.select_page" = "Select Page";
+"capture.loading_page" = "Loading...";
+"capture.recognizing_page" = "Recognizing...";
+"capture.pdf_page_hint" = "%d pages total. Tap to select a page to capture.";
+"capture.page_number" = "Page %d";
 
 // MARK: - Dashboard
+
 "dashboard.title" = "Dashboard";
 "dashboard.greeting" = "Hello";
 "dashboard.today_review" = "Today's Review";
 "dashboard.total_items" = "Total Items";
 "dashboard.start_review" = "Start Review";
+"dashboard.empty_title" = "No items yet";
+"dashboard.empty_description" = "Capture a question to start your spaced repetition journey";
+"dashboard.go_capture" = "Capture";
+"dashboard.smart_scan" = "Smart Scan";
+"dashboard.add_new" = "Add New";
+"dashboard.browse_library" = "Library";
+"dashboard.manage_knowledge" = "Manage";
+"dashboard.subject_manage" = "Subjects";
+"dashboard.customize" = "Customize";
+"dashboard.today_added" = "Added Today";
+"dashboard.today_reviewed" = "Reviewed Today";
+"dashboard.due_review" = "Due for Review";
+"dashboard.draft_alert_title" = "Restore unfinished capture?";
+"dashboard.draft_start_new" = "Start New";
+"dashboard.draft_restore" = "Restore";
+"dashboard.draft_alert_message" = "You have unsaved capture content from last time. Continue editing?";
+"dashboard.welcome" = "Welcome";
+"dashboard.welcome_subtitle" = "Add your first question to begin";
+"dashboard.capture_item" = "Capture Item";
+"dashboard.today_due" = "Due Today";
+"dashboard.start_now" = "Start Now";
+"dashboard.all_done" = "All Done!";
+"dashboard.all_done_subtitle" = "Today's review is complete";
+"dashboard.default_name" = "Student";
+"dashboard.greeting_night" = "It's late, get some rest";
+"dashboard.greeting_morning" = "Good morning, %@";
+"dashboard.greeting_afternoon" = "Good afternoon, %@";
+"dashboard.greeting_evening" = "Good evening, %@";
 
 // MARK: - Library
+
 "library.title" = "Library";
 "library.all_items" = "All Items";
 "library.by_subject" = "By Subject";
 "library.by_source" = "By Source";
 "library.search_placeholder" = "Search items...";
 "library.no_items" = "No items yet";
+"library.no_items_hint" = "Items will appear here after you capture or import them";
+"library.no_search_results" = "No Results";
+"library.no_search_results_hint" = "Try adjusting your search terms or filters";
+"library.sort_by_date" = "By Date";
+"library.sort_by_subject" = "By Subject";
+"library.sort_by_difficulty" = "By Difficulty";
+"library.all_subjects" = "All";
+"library.no_content" = "No text content";
+"library.detail" = "Details";
+"library.question_image" = "Question Image";
+"library.question_text" = "Question Text";
+"library.answer_section" = "Answer";
+"library.answer_text" = "Answer Text";
+"library.answer_image" = "Answer Image";
+"library.no_answer" = "No answer yet";
+"library.created_at" = "Created";
+"library.next_review" = "Next Review";
+"library.not_scheduled" = "Not Scheduled";
+"library.edit_title" = "Edit Item";
+"library.edit_question" = "Edit Question";
+"library.edit_content" = "Edit Content";
+"library.no_image" = "No Image";
+"library.change_image" = "Change Image & Re-recognize";
+"library.remove_answer_image" = "Remove Answer Image";
+"library.add_answer_image" = "Add Answer Image";
+"library.metadata" = "Properties";
+"library.filter" = "Filter";
+"library.filter_subjects" = "Subjects";
+"library.filter_tags" = "Tags";
+"library.export" = "Export";
+"library.export_title" = "Export Options";
+"library.export_pdf" = "PDF / Print";
+"library.export_pdf_hint" = "Best for printing";
+"library.export_markdown" = "Markdown";
+"library.export_markdown_hint" = "Best for note apps";
+"library.export_csv" = "CSV";
+"library.export_csv_hint" = "Best for spreadsheets";
+"library.export_preview" = "Export Preview";
+"library.share_or_print" = "Share / Print";
+"library.generating" = "Generating...";
+"library.generate_failed" = "Generation Failed";
+"library.select_items" = "Select";
+"library.delete_selected" = "Delete";
+"library.export_selected" = "Export";
+"library.delete_confirm_title" = "Confirm Delete";
+"library.delete_confirm_message" = "This action cannot be undone. Are you sure you want to delete the selected items?";
+"library.subject_manager" = "Manage Subjects";
+"library.source_manager" = "Manage Sources";
+"library.grade_manager" = "Manage Grades";
+"library.add_subject" = "Add Subject";
+"library.edit_subject" = "Edit Subject";
+"library.add_source" = "Add Source";
+"library.edit_source" = "Edit Source";
+"library.add_grade" = "Add Grade";
+"library.edit_grade" = "Edit Grade";
+"library.name" = "Name";
+"library.icon" = "Icon";
+"library.color" = "Color";
+"library.custom_color" = "Custom Color";
+"library.name_placeholder" = "Enter name";
+"library.cannot_delete_in_use" = "Cannot Delete";
+"library.cannot_delete_message" = "This item is used by %d questions. Please modify or delete those questions first.";
+"library.selected_count" = "%d selected";
+"library.icon_picker" = "Choose Icon";
+"library.icon_search" = "Search icons";
+"library.icon_manual_input" = "Manual Input";
+"library.icon_manual_placeholder" = "Enter SF Symbol name";
+"library.full_screen_image" = "View Image";
+"library.subject_has_items" = "Subject \"%@\" still has questions. Please move them to another subject or delete them first.";
+"library.source_has_items" = "Source \"%@\" still has questions. Please move them to another source or delete them first.";
+"library.grade_has_items" = "Grade \"%@\" still has questions. Please move them to another grade or delete them first.";
 
 // MARK: - Review
+
 "review.title" = "Review";
 "review.question" = "Question";
 "review.answer" = "Answer";
@@ -43,32 +214,257 @@
 "review.hide_answer" = "Hide Answer";
 "review.difficulty" = "Difficulty";
 "review.completed" = "Completed";
-
-// MARK: - Capture
-"capture.title" = "Capture";
-"capture.scanning" = "Looking for question area...";
-"capture.tap_to_capture" = "Tap to capture";
-"capture.processing" = "Processing...";
-"capture.ocr_failed" = "Text recognition failed";
+"review.forgot" = "Forgot";
+"review.remember" = "Remember";
+"review.hard" = "Hard";
+"review.good" = "Good";
+"review.easy" = "Easy";
+"review.pause_alert_title" = "Pause Review?";
+"review.pause_continue" = "Continue";
+"review.pause_confirm" = "Pause";
+"review.pause_message" = "Your progress will be saved. You can continue later.";
+"review.stamp_forgot" = "Forgot";
+"review.stamp_remember" = "Remember";
+"review.pending" = "Pending";
+"review.today_review" = "Today's Review";
+"review.cards_pending" = "cards pending";
+"review.welcome_back" = "Welcome Back";
+"review.empty_hint" = "No items yet. Go capture some!";
+"review.excellent" = "Excellent!";
+"review.start_review" = "Start Review";
+"review.go_rest" = "Take a Break";
+"review.reviewed_today" = "Reviewed %d today";
+"review.summary_title" = "Review Complete";
+"review.summary_good" = "Mastered";
+"review.summary_again" = "Needs Practice";
+"review.summary_dismiss" = "OK";
+"review.encourage_rest" = "Take a break and continue tomorrow.";
+"review.encourage_all_good" = "All mastered, great job!";
+"review.encourage_keep_going" = "Don't worry, a few more reviews and you'll get it!";
+"review.encourage_partial" = "Keep going! %d items will come back later.";
 
 // MARK: - Settings
+
 "settings.title" = "Settings";
 "settings.general" = "General";
 "settings.privacy" = "Privacy & Security";
 "settings.data_sync" = "Data & Cloud Sync";
 "settings.about" = "About";
 "settings.version" = "Version";
+"settings.capture_fields" = "Capture Fields";
+"settings.field_subject" = "Subject";
+"settings.field_source" = "Source";
+"settings.field_difficulty" = "Difficulty";
+"settings.field_grade" = "Grade";
+"settings.field_answer" = "Answer";
+"settings.review_settings" = "Review";
+"settings.card_appearance" = "Card Appearance";
+"settings.review_reminder" = "Review Reminder";
+"settings.privacy_export" = "Privacy & Export";
+"settings.data_and_sync" = "Data & Sync";
+"settings.appearance" = "Appearance";
+"settings.follow_system" = "System";
+"settings.light_mode" = "Light";
+"settings.dark_mode" = "Dark";
+"settings.language" = "Language";
+"settings.simplified_chinese" = "Simplified Chinese";
+"settings.data_management" = "Data";
+"settings.manage_subjects" = "Manage Subjects";
+"settings.manage_sources" = "Manage Sources";
+"settings.manage_grades" = "Manage Grades";
+"settings.clear_all_data" = "Clear All Data";
+"settings.clear_confirm_title" = "Clear All Data?";
+"settings.clear_confirm_message" = "This will delete all questions, categories, and tags. This action cannot be undone.";
+"settings.clear_confirm_button" = "Clear All";
+"settings.privacy_policy" = "Privacy Policy";
+"settings.terms_of_service" = "Terms of Service";
+"settings.licenses" = "Open Source Licenses";
+"settings.notification_title" = "Review Reminder";
+"settings.daily_reminder" = "Daily Review Reminder";
+"settings.reminder_time" = "Reminder Time";
+"settings.reminder_sound" = "Sound";
+"settings.reminder_badge" = "Badge";
+"settings.notification_denied" = "Notifications Disabled";
+"settings.notification_denied_message" = "Please enable notifications for SnapDrill in iPhone Settings.";
+"settings.go_to_settings" = "Open Settings";
+"settings.language_title" = "Language";
+"settings.language_hint" = "App language follows system settings. To change, go to iPhone Settings > General > Language & Region.";
+"settings.open_system_settings" = "Open System Settings";
+"settings.current_language" = "Current Language";
+"settings.icloud_sync" = "iCloud Sync";
+"settings.icloud_hint" = "When enabled, your data will sync across all devices";
+"settings.icloud_status_checking" = "Checking...";
+"settings.icloud_status_available" = "iCloud Available";
+"settings.icloud_status_unavailable" = "iCloud Unavailable";
+"settings.icloud_status_restricted" = "iCloud Restricted";
+"settings.backup" = "Backup & Restore";
+"settings.create_backup" = "Create Backup";
+"settings.restore_backup" = "Restore Backup";
+"settings.backup_hint" = "Backup files include all questions and category data";
+"settings.restore_confirm_title" = "Confirm Restore?";
+"settings.restore_confirm_message" = "Restoring will replace all current data. A backup will be created automatically before restoring.";
+"settings.restore_confirm_button" = "Restore";
+"settings.local_data_warning" = "Data is stored on this device only. Uninstalling the app will permanently delete all data. We recommend creating regular backups.";
+"settings.privacy_title" = "Privacy & Data Export";
+"settings.analytics_enabled" = "Anonymous Usage Analytics";
+"settings.analytics_hint" = "Help us improve the app experience. No personal information is collected.";
+"settings.crash_reporting" = "Crash Reports";
+"settings.crash_reporting_hint" = "Automatically send anonymous crash data to help fix issues.";
+"settings.data_export" = "Data Export";
+"settings.export_json" = "Export as JSON";
+"settings.export_csv" = "Export as CSV";
+"settings.export_hint" = "Export all your data for migration or backup.";
+"settings.card_appearance_title" = "Card Appearance";
+"settings.card_front" = "Front (Question)";
+"settings.card_back" = "Back (Answer Header)";
+"settings.text_alignment" = "Text Alignment";
+"settings.align_left" = "Left";
+"settings.align_center" = "Center";
+"settings.align_right" = "Right";
+"settings.font_size" = "Font Size";
+"settings.preview_text" = "Preview text";
+"settings.edit_profile" = "Profile";
+"settings.nickname" = "Nickname";
+"settings.nickname_placeholder" = "Enter nickname";
+"settings.daily_goal" = "Daily Review Goal";
+"settings.cards_unit" = "cards";
+"settings.motto" = "Motto";
+"settings.motto_placeholder" = "Write something to motivate yourself...";
+"settings.motto_footer" = "Your motto will be displayed on your profile";
+"settings.theme_color" = "Icon Theme Color";
+"settings.avatar_source" = "Choose Avatar Source";
+"settings.from_photo_library" = "Choose from Photos";
+"settings.system_icon" = "Use System Icon";
+"settings.remove_avatar" = "Remove Current Avatar";
+"settings.feedback_and_support" = "Feedback & Support";
+"settings.feedback_title" = "Feedback";
+"settings.copy_email" = "Copy Email";
+"settings.maybe_later" = "Maybe Later";
+"settings.feedback_message" = "Thank you for using SnapDrill! You can send feedback to hello@notbadhq.com, or submit directly through TestFlight.";
+"settings.edit_profile_subtitle" = "Edit Profile";
+"settings.enable_icloud_sync" = "Enable iCloud Sync";
+"settings.checking_account_status" = "Checking account status...";
+"settings.cloud_sync" = "Cloud Sync";
+"settings.icloud_running" = "iCloud Running";
+"settings.icloud_not_logged_in" = "Not Signed In";
+"settings.icloud_temporarily_unavailable" = "Temporarily Unavailable";
+"settings.icloud_cannot_determine" = "Cannot Determine Status";
+"settings.icloud_unknown" = "Unknown Status";
+"settings.icloud_syncing_in_background" = "Syncing data in the background";
+"settings.icloud_login_prompt" = "Please sign in with Apple ID in System Settings";
+"settings.icloud_check_screen_time" = "Please check Screen Time settings";
+"settings.icloud_check_network" = "Please check your network connection";
+"settings.icloud_retry_later" = "Please try again later";
+"settings.icloud_need_xcode_capability" = "iCloud capability required in Xcode";
+"settings.offline_sync_hint" = "Currently offline. Data will sync when network is restored.";
+"settings.icloud_sync_footer" = "Data will automatically stay in sync across your Apple devices. Make sure iCloud Drive is enabled in System Settings.";
+"settings.sync_disabled_footer" = "Sync is disabled. Data is stored locally only.";
+"settings.backup_data" = "Backup Data";
+"settings.restore_data" = "Restore Data";
+"settings.backup_footer" = "Backup files include all questions, categories, and images. Restoring will replace all current data.";
+"settings.restore_dialog_title" = "Restore Data";
+"settings.select_backup_file" = "Select Backup File";
+"settings.restore_dialog_message" = "Restoring will replace all current data. This cannot be undone. A backup of current data will be created automatically.";
+"settings.operation_failed" = "Operation Failed";
+"settings.unknown_error" = "Unknown Error";
+"settings.restore_success" = "Restore Successful";
+"settings.storage_space" = "Storage";
+"settings.media_cache_usage" = "Media Cache";
+"settings.calculating" = "Calculating...";
+"settings.clear_cache" = "Clear Cache";
+"settings.clear_cache_title" = "Clear Cache";
+"settings.clear_cache_action" = "Clear";
+"settings.clear_cache_message" = "Clearing the cache will not delete your questions. Only temporary images and downloaded resources will be removed.";
+"settings.data_maintenance" = "Data Maintenance";
+"settings.auto_archive_old_items" = "Auto-archive Old Items";
+"settings.archive_time" = "Archive After";
+"settings.days_ago_30" = "30 days";
+"settings.days_ago_60" = "60 days";
+"settings.days_ago_90" = "90 days";
+"settings.days_ago_180" = "180 days";
+"settings.data_maintenance_footer" = "Automatically archive items that haven't been reviewed for a long time. Archived items can still be searched but won't be scheduled for review.";
+"settings.enable_daily_reminder" = "Enable Daily Reminder";
+"settings.daily_reminder_section" = "Daily Reminder";
+"settings.notification_style" = "Notification Style";
+"settings.sound" = "Sound";
+"settings.badge" = "Badge";
+"settings.notification_style_footer" = "Sound and badge settings will take effect on the next notification";
+"settings.notification_and_reminder" = "Notifications & Reminders";
+"settings.permission_denied_title" = "Notifications Denied";
+"settings.permission_denied_message" = "Please enable notifications for SnapDrill in Settings > Notifications to receive daily review reminders.";
+"settings.reschedule_failed_title" = "Failed to Update Reminder";
+"settings.reschedule_failed_message" = "Unable to set reminder time. Please try again later.";
+"settings.reminder_enabled_footer" = "You'll be reminded to review at %d:%@ every day";
+"settings.reminder_disabled_footer" = "Enable to receive daily review reminders at a fixed time";
+"settings.data_collection" = "Data Collection";
+"settings.use_analytics" = "Usage Analytics";
+"settings.data_collection_footer" = "Help us improve the app. Your data is anonymized.";
+"settings.export_my_data" = "Export My Data";
+"settings.exporting" = "Exporting...";
+"settings.choose_export_format" = "Choose Export Format";
+"settings.json_format" = "JSON Format";
+"settings.csv_format" = "CSV Format";
+"settings.export_data_footer" = "Export all your study data as JSON or CSV";
+"settings.privacy_and_security" = "Privacy & Security";
+"settings.export_failed" = "Export failed: %@";
+"settings.language_controlled_by_system" = "Language follows iOS system";
+"settings.language_system_hint" = "Set a preferred language for SnapDrill in System Settings.";
+"settings.language_footer" = "Go to Settings > SnapDrill > Language, select your preferred language, then restart the app. Currently supports Simplified Chinese, with more languages coming soon.";
+"settings.card_front_section" = "Card Front (Question)";
+"settings.card_back_section" = "Card Back (Header)";
+"settings.alignment" = "Alignment";
+"settings.font_size_label" = "Font Size: %d";
+"settings.local_mode_warning" = "Local mode: Uninstalling will permanently delete all data";
+"settings.local_data_mode_title" = "Local Data Mode";
+"settings.local_data_mode_message" = "Uninstalling will permanently delete all your data. We recommend creating regular backups or enabling iCloud sync.";
+"settings.debug_title" = "Developer Debug";
+"settings.generate_mock_data" = "Generate Mock Data";
+"settings.clear_mock_data" = "Clear Mock Data";
+"settings.generating" = "Generating...";
+"settings.generate_test_data" = "Generate Test Data (%d items)";
+"settings.privacy_and_export" = "Privacy & Export";
+
+// MARK: - Edit Profile
+
+"edit_profile.title" = "Profile";
+"edit_profile.set_avatar" = "Set Avatar";
+"edit_profile.nickname" = "Nickname";
+"edit_profile.nickname_placeholder" = "Enter nickname";
+"edit_profile.daily_goal" = "Daily Goal";
+"edit_profile.cards_count" = "cards";
+"edit_profile.motto" = "Study Motto";
+"edit_profile.motto_placeholder" = "Write something to motivate yourself...";
+"edit_profile.motto_footer" = "This will be displayed on your dashboard as daily motivation.";
+"edit_profile.theme_color" = "Icon Theme Color";
+"edit_profile.from_photo_library" = "Choose from Photos";
+"edit_profile.system_icon" = "Use System Icon";
+"edit_profile.remove_avatar" = "Remove Current Avatar";
+"edit_profile.choose_avatar_source" = "Choose Avatar Source";
 
 // MARK: - Errors
-"errors.network_unavailable" = "Network connection unavailable";
-"errors.icloud_unavailable" = "iCloud unavailable";
+
 "errors.camera_permission_denied" = "Camera permission denied";
 "errors.photo_permission_denied" = "Photo library permission denied";
-"errors.export_failed" = "Export failed";
+"errors.ocr_failed" = "Text recognition failed";
+"errors.export_failed" = "Export failed. Please try again later.";
 "errors.import_failed" = "Import failed";
 "errors.data_corrupted" = "Data corrupted";
+"errors.encoding_failed" = "Data encoding failed";
+"errors.image_load_failed" = "Unable to load image. Please make sure the file is not corrupted.";
+"errors.image_decode_failed" = "Image format not recognized. Please try a different image.";
+"errors.clipboard_empty" = "Clipboard is empty or has no usable text";
+"errors.pdf_read_failed" = "Unable to read PDF file. Please make sure the file is not corrupted.";
+"errors.pdf_parse_failed" = "PDF format not recognized. Please try a different file.";
+"errors.pdf_empty" = "PDF file contains no pages";
+"errors.file_picker_failed" = "File selection failed. Please check the file or try again.";
+"errors.save_failed" = "Save failed. Please check storage space and try again.";
+"errors.create_taxonomy_failed" = "Failed to create \"%@\". Please try again.";
+"errors.backup_failed" = "Backup failed. Please check storage space and try again.";
+"errors.restore_failed" = "Restore failed. Please make sure the backup file is not corrupted.";
+"errors.file_access_denied" = "Unable to access the selected file. Please try again.";
 
 // MARK: - Subjects
+
 "subjects.math" = "Math";
 "subjects.chinese" = "Chinese";
 "subjects.english" = "English";
@@ -81,6 +477,7 @@
 "subjects.other" = "Other";
 
 // MARK: - Difficulty
+
 "difficulty.very_easy" = "Very Easy";
 "difficulty.easy" = "Easy";
 "difficulty.medium" = "Medium";
@@ -88,6 +485,7 @@
 "difficulty.very_hard" = "Very Hard";
 
 // MARK: - Export
+
 "export.title" = "Export";
 "export.pdf" = "PDF";
 "export.csv" = "CSV";
@@ -95,3 +493,16 @@
 "export.exporting" = "Exporting...";
 "export.success" = "Export successful";
 "export.failed" = "Export failed";
+
+// MARK: - Onboarding
+
+"onboarding.skip" = "Skip";
+"onboarding.previous" = "Previous";
+"onboarding.next" = "Next";
+"onboarding.get_started" = "Get Started";
+"onboarding.accessibility_group" = "Welcome Guide";
+
+// MARK: - Notification
+
+"notification.daily.title" = "Review Time";
+"notification.daily.body" = "Your questions are waiting — time to review!";
