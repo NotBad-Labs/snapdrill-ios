@@ -1,8 +1,8 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-03-18
+> 最后更新：2026-03-18（PR #299 合并后）
 >
-> 当前阶段：**v1.0 发布冲刺**（本地化补全 + 隐私修复 + 质量收尾）
+> 当前阶段：**v1.0 发布冲刺**（S1 本地化 ✅ → S2 隐私修复 + 质量收尾）
 >
 > 蓝图基准线：[#287](../../issues/287) Step A→B→C 已完成（57 条能力，95% 代码已实现）
 
@@ -10,16 +10,7 @@
 
 ## 当前焦点（按严重度排序）
 
-### S1 — 本地化补全（ACT-1 剩余）
-
-| 状态 | Issue | 内容 |
-|---|---|---|
-| ⬜ | [#294](../../issues/294) | zh-Hans.strings 补齐至 100% 覆盖率 |
-| ⬜ | [#295](../../issues/295) | OnboardingView 内容页 ~18 个硬编码字符串 |
-| ⬜ | [#291](../../issues/291) | HelpView 30+ FAQ 硬编码中文字符串 |
-| ⬜ | [#292](../../issues/292) | TermsOfServiceView + PrivacyPolicyView 法律文档 |
-| ⬜ | [#296](../../issues/296) | 清理 LocalizationKeys 死键和键前缀分裂 |
-| ⬜ | [#297](../../issues/297) | en.lproj/InfoPlist.strings 隐私权限字符串英文翻译缺失 |
+### ~~S1 — 本地化补全（ACT-1）~~ ✅ 已清零（PR #299）
 
 ### S2 — 隐私 + 体验修复
 
@@ -36,6 +27,8 @@
 | ⬜ | [#286](../../issues/286) | 产品确认 — SHAPE_CONCERN 接口（图标/卡片/自动删除） |
 | ⬜ | [#284](../../issues/284) | 评估 HelpView 帮助系统产品定位 |
 | ⬜ | [#264](../../issues/264) | Share Extension URL 消毒 + EXIF GPS 验证 |
+| ⬜ | [#300](../../issues/300) | L10n.Common onboarding 键迁移到 L10n.Onboarding |
+| ⬜ | [#301](../../issues/301) | 清理 library.export_markdown 无产品需求支撑的键 |
 
 ---
 
@@ -61,17 +54,12 @@
 | ✅ | [#277](../../issues/277) | PerformanceMonitoringExtensions fire-and-forget（已删除） |
 | ✅ | [#278](../../issues/278) | SourceRepository 通知缺失 |
 
-### M3: 本地化 — 🔄 进行中
+### M3: 本地化 — ✅ 完成
 
 | 状态 | Issue | 内容 |
 |---|---|---|
 | ✅ | PR [#293](../../pull/293) | 第二波本地化 — en.strings 全量覆盖 + OnboardingView 迁移 |
-| ⬜ | [#294](../../issues/294) | zh-Hans.strings 补齐 |
-| ⬜ | [#295](../../issues/295) | OnboardingView 硬编码字符串 |
-| ⬜ | [#291](../../issues/291) | HelpView FAQ 本地化 |
-| ⬜ | [#292](../../issues/292) | 法律文档本地化 |
-| ⬜ | [#296](../../issues/296) | LocalizationKeys 清理 |
-| ⬜ | [#297](../../issues/297) | InfoPlist.strings 英文翻译 |
+| ✅ | PR [#299](../../pull/299) | 第三波本地化 — 全量 i18n 覆盖（#291 #292 #294 #295 #296 #297） |
 
 ### M4: 质量与合规
 
@@ -98,6 +86,8 @@
 
 | 日期 | Issue/PR | 内容 |
 |---|---|---|
+| 2026-03-18 | [#299](../../pull/299) | 第三波本地化 — 全量 i18n 覆盖 + 死键清理 + 内容修正（#291-#297） |
+| 2026-03-18 | [#298](../../pull/298) | STATUS.md 看板更新至真实状态 |
 | 2026-03-18 | [#293](../../pull/293) | 第二波本地化 — en.strings 全量覆盖 + OnboardingView 迁移 |
 | 2026-03-18 | [#289](../../pull/289) | 全球市场策略更新 + 项目看板 + review 流程改进 |
 | 2026-03-18 | — | Pre-#287 Issue 审计：关闭 #259/#263/#269，拆分 #261→#297 |
