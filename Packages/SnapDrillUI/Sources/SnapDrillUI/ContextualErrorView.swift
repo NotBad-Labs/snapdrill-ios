@@ -59,19 +59,24 @@ public enum AppError: LocalizedError {
     public var recoverySuggestion: String? {
         switch self {
         case .cameraPermissionDenied:
-            return "请在「设置」→「SnapDrill」→「相机」中允许访问相机权限。"
+            return L10n.Errors.cameraPermissionHelp
         case .photoLibraryPermissionDenied:
-            return "请在「设置」→「SnapDrill」→「照片」中允许访问相册权限。"
+            return L10n.Errors.photoPermissionHelp
         case .ocrFailed(let detail):
-            return "无法识别图片中的文字。\(detail.isEmpty ? "请确保图片清晰且包含文字内容。" : detail)"
+            if !detail.isEmpty { SnapDrillLogger.generic.error("OCR 失败细节: \(detail)") }
+            return L10n.Errors.ocrFailedHelp
         case .exportFailed(let detail):
-            return "无法导出数据。\(detail.isEmpty ? "请稍后重试。" : detail)"
+            if !detail.isEmpty { SnapDrillLogger.generic.error("导出失败细节: \(detail)") }
+            return L10n.Errors.exportFailedHelp
         case .importFailed(let detail):
-            return "无法导入数据。\(detail.isEmpty ? "请确保文件格式正确。" : detail)"
+            if !detail.isEmpty { SnapDrillLogger.generic.error("导入失败细节: \(detail)") }
+            return L10n.Errors.importFailedHelp
         case .dataCorrupted:
-            return "数据文件已损坏，无法读取。请尝试重新启动应用。"
+            return L10n.Errors.dataCorruptedHelp
         case .unknown(let error):
-            return "发生了意外错误：\(error.localizedDescription)"
+            // 仅记录技术细节到日志，不暴露给用户（隐私 + 安全）
+            SnapDrillLogger.generic.error("未知错误: \(error.localizedDescription)")
+            return L10n.Errors.unknownErrorHelp
         }
     }
     
@@ -139,7 +144,7 @@ public struct ContextualErrorView: View {
                 .symbolRenderingMode(.hierarchical)
             
             VStack(spacing: 12) {
-                Text(error.errorDescription ?? "发生错误")
+                Text(error.errorDescription ?? L10n.Errors.errorOccurred)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundStyle(.primary)
@@ -192,7 +197,7 @@ public struct ErrorBannerView: View {
                 .foregroundStyle(.white)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(error.errorDescription ?? "发生错误")
+                Text(error.errorDescription ?? L10n.Errors.errorOccurred)
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundStyle(.white)
