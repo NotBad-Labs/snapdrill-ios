@@ -1,3 +1,7 @@
 /* Localized Bundle Display Name */
 "CFBundleDisplayName" = "SnapDrill";
 "CFBundleName" = "SnapDrill";
+
+/* Privacy - Camera and Photo Library Usage Descriptions */
+"NSCameraUsageDescription" = "SnapDrill needs camera access to scan and capture questions.";
+"NSPhotoLibraryUsageDescription" = "SnapDrill needs photo library access to import study materials.";
