@@ -43,17 +43,13 @@
 // MARK: - Capture
 
 "capture.title" = "Capture";
-"capture.scanning" = "Looking for question area...";
-"capture.tap_to_capture" = "Tap to capture";
-"capture.processing" = "Processing...";
-"capture.ocr_failed" = "Text recognition failed";
 "capture.entry_method_title" = "Capture Method";
 "capture.camera_title" = "Camera";
 "capture.camera_subtitle" = "Auto crop & recognize";
 "capture.album_title" = "Photo Library";
-"capture.album_subtitle" = "Import from photos";
+"capture.album_subtitle" = "Import from Photos";
 "capture.manual_title" = "Manual Entry";
-"capture.manual_subtitle" = "Text editing";
+"capture.manual_subtitle" = "Type manually";
 "capture.clipboard_title" = "Clipboard";
 "capture.clipboard_subtitle" = "Paste from clipboard";
 "capture.pdf_title" = "PDF Import";
@@ -92,10 +88,6 @@
 // MARK: - Dashboard
 
 "dashboard.title" = "Dashboard";
-"dashboard.greeting" = "Hello";
-"dashboard.today_review" = "Today's Review";
-"dashboard.total_items" = "Total Items";
-"dashboard.start_review" = "Start Review";
 "dashboard.empty_title" = "No items yet";
 "dashboard.empty_description" = "Capture a question to start your spaced repetition journey";
 "dashboard.go_capture" = "Capture";
@@ -128,9 +120,6 @@
 // MARK: - Library
 
 "library.title" = "Library";
-"library.all_items" = "All Items";
-"library.by_subject" = "By Subject";
-"library.by_source" = "By Source";
 "library.search_placeholder" = "Search items...";
 "library.no_items" = "No items yet";
 "library.no_items_hint" = "Items will appear here after you capture or import them";
@@ -208,17 +197,7 @@
 // MARK: - Review
 
 "review.title" = "Review";
-"review.question" = "Question";
-"review.answer" = "Answer";
-"review.show_answer" = "Show Answer";
-"review.hide_answer" = "Hide Answer";
-"review.difficulty" = "Difficulty";
 "review.completed" = "Completed";
-"review.forgot" = "Forgot";
-"review.remember" = "Remember";
-"review.hard" = "Hard";
-"review.good" = "Good";
-"review.easy" = "Easy";
 "review.pause_alert_title" = "Pause Review?";
 "review.pause_continue" = "Continue";
 "review.pause_confirm" = "Pause";
@@ -247,8 +226,6 @@
 
 "settings.title" = "Settings";
 "settings.general" = "General";
-"settings.privacy" = "Privacy & Security";
-"settings.data_sync" = "Data & Cloud Sync";
 "settings.about" = "About";
 "settings.version" = "Version";
 "settings.capture_fields" = "Capture Fields";
@@ -291,12 +268,6 @@
 "settings.language_hint" = "App language follows system settings. To change, go to iPhone Settings > General > Language & Region.";
 "settings.open_system_settings" = "Open System Settings";
 "settings.current_language" = "Current Language";
-"settings.icloud_sync" = "iCloud Sync";
-"settings.icloud_hint" = "When enabled, your data will sync across all devices";
-"settings.icloud_status_checking" = "Checking...";
-"settings.icloud_status_available" = "iCloud Available";
-"settings.icloud_status_unavailable" = "iCloud Unavailable";
-"settings.icloud_status_restricted" = "iCloud Restricted";
 "settings.backup" = "Backup & Restore";
 "settings.create_backup" = "Create Backup";
 "settings.restore_backup" = "Restore Backup";
@@ -342,23 +313,6 @@
 "settings.maybe_later" = "Maybe Later";
 "settings.feedback_message" = "Thank you for using SnapDrill! You can send feedback to hello@notbadhq.com, or submit directly through TestFlight.";
 "settings.edit_profile_subtitle" = "Edit Profile";
-"settings.enable_icloud_sync" = "Enable iCloud Sync";
-"settings.checking_account_status" = "Checking account status...";
-"settings.cloud_sync" = "Cloud Sync";
-"settings.icloud_running" = "iCloud Running";
-"settings.icloud_not_logged_in" = "Not Signed In";
-"settings.icloud_temporarily_unavailable" = "Temporarily Unavailable";
-"settings.icloud_cannot_determine" = "Cannot Determine Status";
-"settings.icloud_unknown" = "Unknown Status";
-"settings.icloud_syncing_in_background" = "Syncing data in the background";
-"settings.icloud_login_prompt" = "Please sign in with Apple ID in System Settings";
-"settings.icloud_check_screen_time" = "Please check Screen Time settings";
-"settings.icloud_check_network" = "Please check your network connection";
-"settings.icloud_retry_later" = "Please try again later";
-"settings.icloud_need_xcode_capability" = "iCloud capability required in Xcode";
-"settings.offline_sync_hint" = "Currently offline. Data will sync when network is restored.";
-"settings.icloud_sync_footer" = "Data will automatically stay in sync across your Apple devices. Make sure iCloud Drive is enabled in System Settings.";
-"settings.sync_disabled_footer" = "Sync is disabled. Data is stored locally only.";
 "settings.backup_data" = "Backup Data";
 "settings.restore_data" = "Restore Data";
 "settings.backup_footer" = "Backup files include all questions, categories, and images. Restoring will replace all current data.";
@@ -422,7 +376,7 @@
 "settings.clear_mock_data" = "Clear Mock Data";
 "settings.generating" = "Generating...";
 "settings.generate_test_data" = "Generate Test Data (%d items)";
-"settings.privacy_and_export" = "Privacy & Export";
+
 
 // MARK: - Edit Profile
 

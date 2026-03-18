@@ -25,45 +25,22 @@
 
 // MARK: - Dashboard
 "dashboard.title" = "仪表板";
-"dashboard.greeting" = "你好";
-"dashboard.today_review" = "今日复习";
-"dashboard.total_items" = "总题目";
-"dashboard.start_review" = "开始复习";
 
 // MARK: - Library
 "library.title" = "题库";
-"library.all_items" = "所有题目";
-"library.by_subject" = "按学科";
-"library.by_source" = "按来源";
 "library.search_placeholder" = "搜索题目...";
 "library.no_items" = "暂无题目";
 
 // MARK: - Review
 "review.title" = "复习";
-"review.question" = "题目";
-"review.answer" = "答案";
-"review.show_answer" = "显示答案";
-"review.hide_answer" = "隐藏答案";
-"review.difficulty" = "难度";
 "review.completed" = "已完成";
-"review.forgot" = "忘记";
-"review.remember" = "记得";
-"review.hard" = "模糊";
-"review.good" = "熟悉";
-"review.easy" = "简单";
 
 // MARK: - Capture
 "capture.title" = "拍摄";
-"capture.scanning" = "寻找题目区域...";
-"capture.tap_to_capture" = "点击拍摄";
-"capture.processing" = "处理中...";
-"capture.ocr_failed" = "文字识别失败";
 
 // MARK: - Settings
 "settings.title" = "设置";
 "settings.general" = "通用";
-"settings.privacy" = "隐私与安全";
-"settings.data_sync" = "数据与云同步";
 "settings.about" = "关于";
 "settings.version" = "版本";
 
