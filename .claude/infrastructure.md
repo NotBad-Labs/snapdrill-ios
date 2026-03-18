@@ -249,7 +249,9 @@ public actor OCRService: OCRServiceProtocol {
 public struct ImageStorage {
     public init()
     public func saveImage(_ image: UIImage) async throws -> String
-    public func loadImage(path: String) -> UIImage?
+    public func loadImage(path: String) -> UIImage?  // 同步，仅用于 PDF 渲染等必须同步的上下文
+    public func loadImageAsync(path: String) async -> UIImage?  // 异步，SwiftUI View 中使用
+    public func loadDownsampledImage(path: String, maxLongSide: Int = 1200) -> UIImage?  // ImageIO 流式解码，不加载全分辨率位图
     public func deleteImage(path: String) async throws  // async 2026-03-06，Apple 文档要求文件 I/O 异步；文件不存在时静默跳过
 }
 
