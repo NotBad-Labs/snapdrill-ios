@@ -82,6 +82,9 @@
 "capture.select_page" = "Select Page";
 "capture.loading_page" = "Loading...";
 "capture.recognizing_page" = "Recognizing...";
+"capture.pdf_file_too_large_title" = "Large File";
+"capture.pdf_continue_anyway" = "Continue Import";
+"capture.pdf_file_too_large" = "PDF file is %d MB, which may cause memory issues. We recommend using a smaller file.";
 "capture.pdf_page_hint" = "%d pages total. Tap to select a page to capture.";
 "capture.page_number" = "Page %d";
 
