@@ -21,6 +21,7 @@ enum ReviewPhase: Equatable {
     case idle       // 仪表盘
     case reviewing  // 卡片复习中
     case finished   // 今日完成
+    case error      // 数据加载失败
 }
 
 // MARK: - UndoEntry
@@ -133,9 +134,15 @@ final class ReviewViewModel {
         } catch {
             SnapDrillLogger.generic.error("加载复习数据失败: \(error.localizedDescription)")
             if phase == .loading {
-                phase = .idle
+                phase = .error
             }
         }
+    }
+
+    /// 重试加载数据（从错误状态恢复）
+    func retryLoading() async {
+        phase = .loading
+        await loadDataAsync()
     }
 
     /// 开始复习会话

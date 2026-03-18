@@ -411,6 +411,8 @@
 "errors.pdf_parse_failed" = "PDF format not recognized. Please try a different file.";
 "errors.pdf_empty" = "PDF file contains no pages";
 "errors.file_picker_failed" = "File selection failed. Please check the file or try again.";
+"errors.load_failed" = "Failed to Load";
+"errors.try_again_later" = "Please try again later, or restart the app.";
 "errors.save_failed" = "Save failed. Please check storage space and try again.";
 "errors.create_taxonomy_failed" = "Failed to create \"%@\". Please try again.";
 "errors.backup_failed" = "Backup failed. Please check storage space and try again.";

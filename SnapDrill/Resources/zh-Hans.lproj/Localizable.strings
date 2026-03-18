@@ -411,6 +411,8 @@
 "errors.pdf_parse_failed" = "PDF 文件格式无法解析，请尝试其他文件";
 "errors.pdf_empty" = "PDF 文件不包含任何页面";
 "errors.file_picker_failed" = "文件选择失败，请检查文件或稍后重试";
+"errors.load_failed" = "加载失败";
+"errors.try_again_later" = "请稍后重试，或重启应用";
 "errors.save_failed" = "保存失败，请检查存储空间后重试";
 "errors.create_taxonomy_failed" = "新建「%@」失败，请重试";
 "errors.backup_failed" = "备份失败，请检查存储空间后重试";
