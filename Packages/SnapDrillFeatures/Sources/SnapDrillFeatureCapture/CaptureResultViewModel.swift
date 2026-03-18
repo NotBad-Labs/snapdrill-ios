@@ -239,7 +239,8 @@ public final class CaptureResultViewModel {
 
     /// 保存预览草稿（async，文件 I/O 在后台执行；测试可直接 await）
     public func generateDraftIfNeeded() async {
-        if !isSaved, let img = image, !content.isEmpty {
+        // 纯图片题（OCR 空）也要保存草稿，防止意外退出时照片丢失
+        if !isSaved, let img = image {
             await CaptureDraftService.shared.saveDraft(image: img, content: content)
         }
     }

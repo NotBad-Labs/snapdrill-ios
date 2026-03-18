@@ -46,6 +46,12 @@ public final class LibraryEditViewModel {
     public var isProcessing = false
     /// 是否已正常保存（用于触发返回导航）
     public var isSavedNormally = false
+    /// 是否正在保存中（双击防护）
+    public var isSaving = false
+    /// 保存失败时的错误信息
+    public var showErrorAlert = false
+    /// 保存失败时的错误描述
+    public var errorMessage = ""
     /// 是否正在显示图片裁剪界面
     public var isCropping = false
     /// 待裁剪的图片（显示裁剪界面时有值）
@@ -169,6 +175,11 @@ public final class LibraryEditViewModel {
     /// 先异步写入图片文件，IO 完成后统一修改 `@Model` 属性再调用 `saveContext()`。
     /// 失败时自动 `rollbackContext()` 并清理孤儿图片文件。
     public func save() async {
+        // 双击防护
+        guard !isSaving else { return }
+        isSaving = true
+        defer { isSaving = false }
+
         // 业务规则验证先行
         let willHaveContent = !content.isEmpty
         let willHaveImage = displayedImage != nil
@@ -187,12 +198,41 @@ public final class LibraryEditViewModel {
         do {
             (newImagePath, newAnswerImagePath) = try await persistImages()
         } catch {
-            // IO 失败时 @Model 未被修改，无需 rollback，直接返回
+            // IO 失败时 @Model 未被修改，无需 rollback，但须通知用户
             SnapDrillLogger.generic.error("保存图片失败，中断保存: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+            showErrorAlert = true
             return
         }
 
         // 2. IO 完成后集中修改 @Model 属性（纯内存同步操作，无 await）
+        applyChangesToModel(newImagePath: newImagePath, newAnswerImagePath: newAnswerImagePath)
+
+        // 3. 立即保存
+        do {
+            try repositories.review.saveContext()
+            isSavedNormally = true
+            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            deleteReplacedImages(
+                oldImagePath: oldImagePath, newImagePath: newImagePath,
+                oldAnswerPath: oldAnswerImagePath, newAnswerPath: newAnswerImagePath
+            )
+        } catch {
+            // 回滚 mainContext：撤销本次所有内存变更（@Model 属性修改、Tag 插入）
+            // 单用户本地架构下 rollback 影响范围仅限本次 save() 调用
+            repositories.review.rollbackContext()
+            if let path = newImagePath { bestEffortDeleteImage(path: path) }
+            if let path = newAnswerImagePath { bestEffortDeleteImage(path: path) }
+            SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+            showErrorAlert = true
+        }
+    }
+
+    // MARK: - Private Helpers
+
+    /// 将编辑状态同步到 @Model 属性（纯内存操作，无 await）
+    private func applyChangesToModel(newImagePath: String?, newAnswerImagePath: String?) {
         item.content = content.isEmpty ? nil : content
         item.answerText = answer.isEmpty ? nil : answer
         item.subject = selectedSubject
@@ -219,27 +259,7 @@ public final class LibraryEditViewModel {
         } else if isAnswerImageCleared {
             item.answerImagePath = nil
         }
-
-        // 3. 立即保存
-        do {
-            try repositories.review.saveContext()
-            isSavedNormally = true
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
-            deleteReplacedImages(
-                oldImagePath: oldImagePath, newImagePath: newImagePath,
-                oldAnswerPath: oldAnswerImagePath, newAnswerPath: newAnswerImagePath
-            )
-        } catch {
-            // 回滚 mainContext：撤销本次所有内存变更（@Model 属性修改、Tag 插入）
-            // 单用户本地架构下 rollback 影响范围仅限本次 save() 调用
-            repositories.review.rollbackContext()
-            if let path = newImagePath { bestEffortDeleteImage(path: path) }
-            if let path = newAnswerImagePath { bestEffortDeleteImage(path: path) }
-            SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
-        }
     }
-
-    // MARK: - Private Helpers
 
     /// 持久化题目图片和答案图片，返回新写入的路径。
     /// 不修改 @Model 属性（由 save() 在 IO 完成后统一赋值）。
