@@ -38,6 +38,14 @@ final class DependencyContainer {
         // 1. 配置 Firebase（基础设施层）
         FirebaseBootstrap.configure()
 
+        // 1b. 读取用户隐私偏好，同步到 Firebase SDK
+        FirebaseBootstrap.setCrashlyticsEnabled(
+            AppConfiguration.FeatureFlags.crashReportingEnabled
+        )
+        FirebaseBootstrap.setAnalyticsEnabled(
+            AppConfiguration.FeatureFlags.analyticsEnabled
+        )
+
         // 2. 初始化 Firebase 具体服务
         let analyticsService = FirebaseAnalyticsService()
         analyticsService.markConfigured()
@@ -66,6 +74,22 @@ final class DependencyContainer {
 
         // 7. 初始化顶级路由器
         self.router = AppRouter()
+
+        // 8. 监听隐私偏好变更，运行时同步到 Firebase SDK
+        NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            MainActor.assumeIsolated {
+                FirebaseBootstrap.setCrashlyticsEnabled(
+                    AppConfiguration.FeatureFlags.crashReportingEnabled
+                )
+                FirebaseBootstrap.setAnalyticsEnabled(
+                    AppConfiguration.FeatureFlags.analyticsEnabled
+                )
+            }
+        }
 
         SnapDrillLogger.generic.info("DependencyContainer: Composition Root initialized successfully.")
     }
