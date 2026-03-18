@@ -179,10 +179,11 @@ gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini
 
 **Gemini**：自动重新触发，Claude 主动轮询确认，无需用户干预。
 
-**Antigravity 二次 review**：
+**Antigravity / Xcode Intelligence 后续 review**：
 - **需要**：fix 引入新业务逻辑、新跨模块依赖、新文件（非纯结构性）
 - **不需要**：纯结构性修复（文件拆分/重命名、访问控制修饰符、import 调整），且 Gemini re-review 无严重问题，Claude 已独立核实
-- Claude 须在 PR comment 或回复中说明"不需要二次 review"的理由，用户最终确认合并
+- Claude 须在 PR comment 或回复中说明"不需要后续 review"的理由，用户最终确认合并
+- **提示词规则**：后续 review 按 reviewer 分别写提示词（验收各自的 finding），不再共用同一份。详见 `review-prompt-guide.md`「后续 Review」章节
 
 **验收铁律**：reviewer 提出建议 → 开发者采纳修改 → **必须让同一 reviewer 验收实现是否符合意图**。这是验收，不是自审。禁止以「采纳了 reviewer 自己的建议所以不需要 re-review」为由跳过验收。
 
