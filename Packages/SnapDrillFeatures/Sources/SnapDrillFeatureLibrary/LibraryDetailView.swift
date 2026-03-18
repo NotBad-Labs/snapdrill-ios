@@ -195,18 +195,14 @@ struct LibraryDetailView: View {
             .padding(.top)
         }
         .task(id: item.imagePath) {
-            if let path = item.imagePath {
-                loadedImage = await imageStorage.loadImageAsync(path: path)
-            } else {
-                loadedImage = nil
-            }
+            guard let path = item.imagePath else { loadedImage = nil; return }
+            let image = await imageStorage.loadImageAsync(path: path)
+            if !Task.isCancelled { loadedImage = image }
         }
         .task(id: item.answerImagePath) {
-            if let path = item.answerImagePath {
-                loadedAnswerImage = await imageStorage.loadImageAsync(path: path)
-            } else {
-                loadedAnswerImage = nil
-            }
+            guard let path = item.answerImagePath else { loadedAnswerImage = nil; return }
+            let image = await imageStorage.loadImageAsync(path: path)
+            if !Task.isCancelled { loadedAnswerImage = image }
         }
         .navigationTitle(L10n.Library.detail)
         .navigationBarTitleDisplayMode(.inline)
