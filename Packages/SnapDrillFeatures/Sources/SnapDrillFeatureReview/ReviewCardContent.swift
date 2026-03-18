@@ -12,6 +12,7 @@ import SwiftUI
 import SwiftData
 import SnapDrillData
 import SnapDrillCore
+import SnapDrillUI
 import SnapDrillFeatureLibrary
 
 /// 复习卡片正面：展示题目
@@ -59,6 +60,7 @@ struct ReviewCardFront: View {
                     .frame(maxHeight: 200)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .padding(.horizontal, 24)
+                    .accessibleImage(label: L10n.Accessibility.questionImage)
             }
 
             // 题目文字
@@ -84,6 +86,7 @@ struct ReviewCardFront: View {
                     .padding(.vertical, 4)
                     .background(Color.accentColor.opacity(0.8))
                     .clipShape(Capsule())
+                    .accessibilityLabel("\(L10n.Settings.fieldSubject)：\(item.subject)")
 
                 // 难度指示器
                 let starCount = item.difficultyValue.starCount
@@ -99,6 +102,8 @@ struct ReviewCardFront: View {
                     .padding(.vertical, 4)
                     .background(.ultraThinMaterial)
                     .clipShape(Capsule())
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(L10n.Accessibility.starRating(difficulty: starCount))
                 }
 
                 // 标签
@@ -118,6 +123,8 @@ struct ReviewCardFront: View {
                         }
                     }
                     .frame(height: 24)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(L10n.Capture.tags)：\(tagNames.joined(separator: "、"))")
                 }
             }
             .padding(.horizontal, 24)
@@ -157,6 +164,7 @@ struct ReviewCardFront: View {
                     .padding(24)
                     .contentShape(Circle())
             }
+            .accessibilityLabel(L10n.Accessibility.moreActions)
         }
         .task {
             await loadFrontImage()
@@ -228,6 +236,7 @@ struct ReviewCardBack: View {
                         .frame(maxHeight: 80)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibleImage(label: L10n.Accessibility.questionImage)
                 } else {
                     Spacer()
                 }
@@ -245,6 +254,7 @@ struct ReviewCardBack: View {
                         .padding(12)
                         .contentShape(Circle())
                 }
+                .accessibilityLabel(L10n.Accessibility.moreActions)
             }
             .padding(.horizontal, 24)
             .padding(.top, 24)
@@ -272,6 +282,7 @@ struct ReviewCardBack: View {
                                 .frame(maxHeight: 200)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                                .accessibleImage(label: L10n.Accessibility.answerImage)
                         } else {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.secondary.opacity(0.1))

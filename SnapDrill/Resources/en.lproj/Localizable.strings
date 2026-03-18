@@ -628,3 +628,25 @@
 "privacy.contact_title" = "Contact Us";
 "privacy.contact_content" = "If you have any questions or concerns about this privacy policy, please contact us:\n\nEmail: hello@notbadhq.com\nIn-app feedback: Settings > About > Feedback & Support\n\nWe will respond to your inquiry within 48 hours.";
 "privacy.view_full_version" = "View full version in browser (bilingual)";
+
+// MARK: - Accessibility (VoiceOver)
+"accessibility.flip_to_answer" = "Double tap to flip and view answer";
+"accessibility.flip_to_question" = "Double tap to flip back to question";
+"accessibility.flipped_to_answer" = "Flipped to answer side";
+"accessibility.flipped_to_question" = "Flipped to question side";
+"accessibility.show_answer" = "Show answer";
+"accessibility.hide_answer" = "Hide answer";
+"accessibility.undo" = "Undo";
+"accessibility.undo_hint" = "Undo last swipe rating";
+"accessibility.pause_review" = "Pause review";
+"accessibility.more_actions" = "More actions";
+"accessibility.question_image" = "Question image";
+"accessibility.answer_image" = "Answer image";
+"accessibility.forgot_hint" = "Mark as forgot, will appear again soon";
+"accessibility.remember_hint" = "Mark as remembered, extend review interval";
+"accessibility.summary_announcement" = "Review complete, mastered %d, needs practice %d";
+"accessibility.pending_review" = "%d items due for review";
+"accessibility.reviewed_today" = "Reviewed %d items today";
+"accessibility.start_review_hint" = "Start today's review session";
+"accessibility.delete_tag" = "Delete tag %@";
+"accessibility.add_tag" = "Add tag %@";

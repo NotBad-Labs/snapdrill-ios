@@ -66,11 +66,13 @@ public struct TagInputView: View {
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 })
+                                .accessibilityLabel("删除标签\(tag)")
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(Color.blue.opacity(0.1))
                             .clipShape(Capsule())
+                            .accessibilityElement(children: .combine)
                         }
                     }
                 }
@@ -127,6 +129,7 @@ public struct TagInputView: View {
                                         .foregroundStyle(.primary)
                                         .clipShape(Capsule())
                                 }
+                                .accessibilityLabel("添加标签\(suggestion)")
                             }
                         }
                         .padding(.top, 8)

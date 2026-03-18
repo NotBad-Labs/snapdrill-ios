@@ -137,13 +137,11 @@ public enum AccessibilityHelper {
         return "轻点导出为 \(format) 格式"
     }
     
-    // MARK: - Private Helpers
-    
     /// 将难度数字转换为描述性文本
     ///
     /// - Parameter difficulty: 难度值 (1-5)
     /// - Returns: 难度描述
-    private static func difficultyDescription(_ difficulty: Int) -> String {
+    public static func difficultyDescription(_ difficulty: Int) -> String {
         switch difficulty {
         case 1: return "非常简单"
         case 2: return "简单"

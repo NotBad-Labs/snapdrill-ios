@@ -171,61 +171,91 @@ public struct ReviewView: View {
 
             Spacer()
 
-            // Card Stack
-            ZStack {
-                ForEach(Array(vm.workingItems.prefix(3).reversed())) { item in
-                    let index = vm.workingItems.firstIndex(where: { $0.id == item.id }) ?? 0
-                    let isTop = index == 0
-
-                    SwipeCard(
-                        content: {
-                            ZStack {
-                                ReviewCardFactory.makeFront(for: item)
-                                    .opacity(vm.isAnswerShown && isTop ? 0 : 1)
-                                    .rotation3DEffect(.degrees(vm.isAnswerShown && isTop ? 180 : 0), axis: (x: 0, y: 1, z: 0))
-                                
-                                ReviewCardFactory.makeBack(for: item)
-                                    .opacity(vm.isAnswerShown && isTop ? 1 : 0)
-                                    .rotation3DEffect(.degrees(vm.isAnswerShown && isTop ? 0 : -180), axis: (x: 0, y: 1, z: 0))
-                            }
-                            .padding(.horizontal)
-                            .padding(.vertical, 32)
-                            .onTapGesture {
-                                if isTop {
-                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-                                        vm.toggleAnswer()
-                                    }
-                                }
-                            }
-                        },
-                        onRemove: { direction in
-                            withAnimation(.spring(duration: 0.35)) {
-                                vm.handleSwipeCompletion(direction: direction)
-                            }
-                        },
-                        externalSwipe: isTop
-                            ? Binding(get: { vm.swipeTrigger }, set: { vm.swipeTrigger = $0 })
-                            : .constant(nil),
-                        onSwipeProgress: isTop ? { offset in
-                            vm.currentSwipeOffset = offset
-                        } : nil
-                    )
-                    .allowsHitTesting(isTop)
-                    .scaleEffect(cardScale(for: index))
-                    .offset(y: cardOffset(for: index))
-                    .rotationEffect(.degrees(cardRotation(for: item, index: index, vm: vm)))
-                    .zIndex(Double(vm.workingItems.count - index))
-                    .overlay(actionStampOverlay(isTop: isTop, vm: vm))
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.horizontal, 12)
-            // HIG：卡片翻转用 light，符合翻动物理感知
-            .sensoryFeedback(.impact(weight: .light), trigger: vm.isAnswerShown)
+            cardStack(vm: vm)
 
             bottomControl(vm: vm)
                 .padding(.bottom, 40)
         }
+    }
+
+    // MARK: - Card Stack
+
+    @ViewBuilder
+    private func cardStack(vm: ReviewViewModel) -> some View {
+        ZStack {
+            ForEach(Array(vm.workingItems.prefix(3).reversed())) { item in
+                let index = vm.workingItems.firstIndex(where: { $0.id == item.id }) ?? 0
+                let isTop = index == 0
+
+                SwipeCard(
+                    content: { flipCardContent(item: item, isTop: isTop, vm: vm) },
+                    onRemove: { direction in
+                        withAnimation(.spring(duration: 0.35)) {
+                            vm.handleSwipeCompletion(direction: direction)
+                        }
+                    },
+                    externalSwipe: isTop
+                        ? Binding(get: { vm.swipeTrigger }, set: { vm.swipeTrigger = $0 })
+                        : .constant(nil),
+                    onSwipeProgress: isTop ? { offset in
+                        vm.currentSwipeOffset = offset
+                    } : nil
+                )
+                .allowsHitTesting(isTop)
+                .scaleEffect(cardScale(for: index))
+                .offset(y: cardOffset(for: index))
+                .rotationEffect(.degrees(cardRotation(for: item, index: index, vm: vm)))
+                .zIndex(Double(vm.workingItems.count - index))
+                .overlay(actionStampOverlay(isTop: isTop, vm: vm))
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 12)
+        // HIG：卡片翻转用 light，符合翻动物理感知
+        .sensoryFeedback(.impact(weight: .light), trigger: vm.isAnswerShown)
+        .onChange(of: vm.isAnswerShown) { _, isShown in
+            AccessibilityAnnouncement.announce(
+                isShown ? L10n.Accessibility.flippedToAnswer : L10n.Accessibility.flippedToQuestion
+            )
+        }
+        .onChange(of: vm.phase) { _, newPhase in
+            if newPhase == .finished {
+                AccessibilityAnnouncement.announce(
+                    L10n.Accessibility.summaryAnnouncement(good: vm.sessionGoodCount, again: vm.sessionAgainCount),
+                    priority: .high
+                )
+            }
+        }
+    }
+
+    // MARK: - Flip Card Content
+
+    @ViewBuilder
+    private func flipCardContent(item: ReviewItemModel, isTop: Bool, vm: ReviewViewModel) -> some View {
+        ZStack {
+            ReviewCardFactory.makeFront(for: item)
+                .opacity(vm.isAnswerShown && isTop ? 0 : 1)
+                .rotation3DEffect(.degrees(vm.isAnswerShown && isTop ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+
+            ReviewCardFactory.makeBack(for: item)
+                .opacity(vm.isAnswerShown && isTop ? 1 : 0)
+                .rotation3DEffect(.degrees(vm.isAnswerShown && isTop ? 0 : -180), axis: (x: 0, y: 1, z: 0))
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 32)
+        .onTapGesture {
+            if isTop {
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                    vm.toggleAnswer()
+                }
+            }
+        }
+        .accessibilityAction(.default) {
+            if isTop { vm.toggleAnswer() }
+        }
+        .accessibilityHint(vm.isAnswerShown && isTop
+            ? L10n.Accessibility.flipToQuestion
+            : L10n.Accessibility.flipToAnswer)
     }
 
     // MARK: - Bottom Control
@@ -280,6 +310,7 @@ public struct ReviewView: View {
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(color, lineWidth: 4))
             .rotationEffect(.degrees(rotation))
             .offset(x: xOffset, y: -100)
+            .accessibilityHidden(true)
     }
 
     // MARK: - Visual Math

@@ -142,12 +142,14 @@ public struct ContextualErrorView: View {
                 .font(.system(size: 56))
                 .foregroundStyle(.orange)
                 .symbolRenderingMode(.hierarchical)
-            
+                .accessibilityHidden(true)
+
             VStack(spacing: 12) {
                 Text(error.errorDescription ?? L10n.Errors.errorOccurred)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundStyle(.primary)
+                    .accessibilityAddTraits(.isHeader)
                 
                 if let suggestion = error.recoverySuggestion {
                     Text(suggestion)

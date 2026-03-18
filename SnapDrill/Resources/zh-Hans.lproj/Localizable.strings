@@ -628,3 +628,25 @@
 "privacy.contact_title" = "联系我们";
 "privacy.contact_content" = "如果您对本隐私政策有任何疑问或顾虑，请通过以下方式联系我们：\n\n邮箱：hello@notbadhq.com\n应用内反馈：设置 → 关于 → 反馈与支持\n\n我们将在 48 小时内回复您的询问。";
 "privacy.view_full_version" = "在浏览器中查看完整版（中英双语）";
+
+// MARK: - Accessibility (VoiceOver)
+"accessibility.flip_to_answer" = "双击翻转查看答案";
+"accessibility.flip_to_question" = "双击翻转回到题目";
+"accessibility.flipped_to_answer" = "已翻到答案面";
+"accessibility.flipped_to_question" = "已翻到题目面";
+"accessibility.show_answer" = "显示答案";
+"accessibility.hide_answer" = "隐藏答案";
+"accessibility.undo" = "撤销";
+"accessibility.undo_hint" = "撤销上一次滑动评估";
+"accessibility.pause_review" = "暂停复习";
+"accessibility.more_actions" = "更多操作";
+"accessibility.question_image" = "题目图片";
+"accessibility.answer_image" = "答案图片";
+"accessibility.forgot_hint" = "标记为忘记，稍后会再次出现";
+"accessibility.remember_hint" = "标记为记得，延长复习间隔";
+"accessibility.summary_announcement" = "复习完成，掌握 %d 题，待加强 %d 题";
+"accessibility.pending_review" = "待复习 %d 道题";
+"accessibility.reviewed_today" = "今日已复习 %d 道题";
+"accessibility.start_review_hint" = "开始今日复习会话";
+"accessibility.delete_tag" = "删除标签%@";
+"accessibility.add_tag" = "添加标签%@";
