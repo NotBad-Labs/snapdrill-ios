@@ -1098,7 +1098,7 @@ public enum L10n {
             String(format: NSLocalizedString("accessibility.summary_announcement", value: "复习完成，掌握 %d 题，待加强 %d 题", comment: "VoiceOver 复习摘要公告"), good, again)
         }
         public static func statCard(title: String, count: Int) -> String {
-            "\(title) \(count) 题"
+            String(format: NSLocalizedString("accessibility.stat_card", value: "%@ %d 题", comment: "VoiceOver 统计卡片"), title, count)
         }
 
         // 复习 Dashboard
@@ -1120,16 +1120,17 @@ public enum L10n {
 
         // 难度
         public static func starRating(difficulty: Int, maxStars: Int = 5) -> String {
-            let desc: String
-            switch difficulty {
-            case 1: desc = "非常简单"
-            case 2: desc = "简单"
-            case 3: desc = "中等"
-            case 4: desc = "困难"
-            case 5: desc = "非常困难"
-            default: desc = "未知"
-            }
-            return "难度 \(difficulty) 星（共 \(maxStars) 星），\(desc)"
+            let desc = NSLocalizedString("accessibility.difficulty_\(difficulty)", value: {
+                switch difficulty {
+                case 1: return "非常简单"
+                case 2: return "简单"
+                case 3: return "中等"
+                case 4: return "困难"
+                case 5: return "非常困难"
+                default: return "未知"
+                }
+            }(), comment: "VoiceOver 难度描述")
+            return String(format: NSLocalizedString("accessibility.star_rating", value: "难度 %d 星（共 %d 星），%@", comment: "VoiceOver 难度星级"), difficulty, maxStars, desc)
         }
     }
 }

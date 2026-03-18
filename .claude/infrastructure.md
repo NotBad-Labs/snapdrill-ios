@@ -536,6 +536,37 @@ public enum TabItem: Hashable, CaseIterable {
     var title: String { get }
     var iconName: String { get }
 }
+
+// Accessibility View Extensions
+extension View {
+    public func accessible(label:hint:value:) -> some View
+    public func accessibleButton(label:hint:) -> some View
+    public func accessibleHeader(_ label: String) -> some View
+    public func accessibleImage(label:isDecorative:) -> some View
+    public func accessibleGroup(label:combineChildren:) -> some View
+}
+
+// AccessibilityHelper（enum）
+public enum AccessibilityHelper {
+    public static func reviewItemLabel(content:subject:difficulty:) -> String
+    public static func reviewButtonHint(count:) -> String
+    public static func exportButtonHint(format:) -> String
+    public static func difficultyDescription(_ difficulty: Int) -> String
+    public static func progressDescription(current:total:) -> String
+    public static func dateDescription(_ date: Date) -> String
+}
+
+// AccessibilityAnnouncement（@MainActor struct）
+@MainActor
+public struct AccessibilityAnnouncement {
+    public static func announce(_ message: String, priority: AccessibilityNotificationPriority = .default)
+}
+
+// AccessibilityNotificationPriority（enum）
+public enum AccessibilityNotificationPriority {
+    case `default`  // .announcement（播报文本，不重置焦点）
+    case high       // .screenChanged（播报文本并重置焦点）
+}
 ```
 
 ---

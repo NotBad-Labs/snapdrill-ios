@@ -66,7 +66,9 @@ public struct TagInputView: View {
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 })
-                                .accessibilityLabel("删除标签\(tag)")
+                                // TODO: Swift 6 ForEach 类型推断冲突，暂无法 import SnapDrillCore
+                // 对应 L10n key: L10n.Accessibility.deleteTag
+                .accessibilityLabel("删除标签\(tag)")
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
@@ -129,6 +131,8 @@ public struct TagInputView: View {
                                         .foregroundStyle(.primary)
                                         .clipShape(Capsule())
                                 }
+                                // TODO: Swift 6 ForEach 类型推断冲突，暂无法 import SnapDrillCore
+                                // 对应 L10n key: L10n.Accessibility.addTag
                                 .accessibilityLabel("添加标签\(suggestion)")
                             }
                         }

@@ -650,3 +650,10 @@
 "accessibility.start_review_hint" = "开始今日复习会话";
 "accessibility.delete_tag" = "删除标签%@";
 "accessibility.add_tag" = "添加标签%@";
+"accessibility.stat_card" = "%@ %d 题";
+"accessibility.star_rating" = "难度 %d 星（共 %d 星），%@";
+"accessibility.difficulty_1" = "非常简单";
+"accessibility.difficulty_2" = "简单";
+"accessibility.difficulty_3" = "中等";
+"accessibility.difficulty_4" = "困难";
+"accessibility.difficulty_5" = "非常困难";

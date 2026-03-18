@@ -650,3 +650,10 @@
 "accessibility.start_review_hint" = "Start today's review session";
 "accessibility.delete_tag" = "Delete tag %@";
 "accessibility.add_tag" = "Add tag %@";
+"accessibility.stat_card" = "%@ %d items";
+"accessibility.star_rating" = "Difficulty %d stars (out of %d), %@";
+"accessibility.difficulty_1" = "Very Easy";
+"accessibility.difficulty_2" = "Easy";
+"accessibility.difficulty_3" = "Medium";
+"accessibility.difficulty_4" = "Hard";
+"accessibility.difficulty_5" = "Very Hard";
