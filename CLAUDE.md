@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 启动时强制加载（每次对话第一步，无例外）
+
+**必须**在回复用户第一条消息前，按顺序读取以下文件恢复上下文：
+1. `STATUS.md` — 项目当前状态快照（什么在进行中、下一步是什么）
+2. `.claude/session-log.md` — 最近 3 条工作日志（上次做了什么、决策了什么、下次接续什么）
+
+读完后向用户简要确认当前状态，再开始工作。跳过此步骤 = 失忆 = 重复劳动。
+
 @.claude/product-vision.md
 @.claude/product-requirements.md
 @.claude/product-journeys.md
