@@ -17,7 +17,8 @@ struct ExportPreviewView: View {
     @Environment(\.dismiss) private var dismiss
     
     let items: [ReviewExportSnapshot]
-    
+    @Environment(\.analyticsService) private var analyticsService
+
     @State private var pdfData: Data?
     @State private var isLoading = true
     @State private var tempPDFURL: URL?
@@ -76,6 +77,9 @@ struct ExportPreviewView: View {
                     self.pdfData = data
                     self.isLoading = false
                     self.saveToTemp(pdfData: data)
+                    analyticsService.track(.pdfExported, parameters: [
+                        "item_count": "\(items.count)"
+                    ])
                 }
             } catch {
                 await MainActor.run {

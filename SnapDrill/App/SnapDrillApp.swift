@@ -51,6 +51,9 @@ struct SnapDrillApp: App {
     
     /// 外观模式设置 (0=System, 1=Light, 2=Dark)
     @AppStorage(UDKey.appearanceMode) private var appearanceMode: Int = 0
+
+    /// 场景生命周期，用于追踪 session 事件
+    @Environment(\.scenePhase) private var scenePhase
     
     // MARK: - Computed Properties
     
@@ -76,6 +79,7 @@ struct SnapDrillApp: App {
                     .modelContainer(PersistenceController.shared.container)
                     .environment(\.services, container.services)
                     .environment(\.repositories, container.repositories)
+                    .environment(\.analyticsService, container.services.analytics)
                     .preferredColorScheme(colorScheme)
                     .blur(radius: AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive ? 10 : 0)
                     .disabled(AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive)
@@ -138,10 +142,25 @@ struct SnapDrillApp: App {
                         .datastoreLocation(.applicationDefault)
                     ])
 
+                    // App 启动事件（每次冷启动追踪一次）
+                    container.services.analytics.track(.appLaunched, parameters: [
+                        "version": container.services.appConfig.fullVersion
+                    ])
+
                     // 引导页显示期间暂缓 ATT 预热，由引导完成回调接管
                     guard !onboardingManager.shouldShowOnboarding else { return }
                     if container.services.privacyConsent.shouldShowPrePrompt {
                         showingPrivacyPrePrompt = true
+                    }
+                }
+                .onChange(of: scenePhase) { _, newPhase in
+                    switch newPhase {
+                    case .active:
+                        container.services.analytics.startSession()
+                    case .background:
+                        container.services.analytics.endSession()
+                    default:
+                        break
                     }
                 }
         }

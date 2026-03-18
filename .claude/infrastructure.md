@@ -137,7 +137,7 @@ public protocol ServiceContainer {
 @MainActor
 public protocol RemoteConfigurable {
     func fetchAndActivate() async throws
-    func bool(forKey key: String) -> Bool
+    func bool(forKey key: String) -> Bool?
     func string(forKey key: String) -> String?
     func double(forKey key: String) -> Double?
 }
@@ -556,7 +556,7 @@ public enum TabItem: Hashable, CaseIterable {
 
 ```swift
 // ReviewViewModel
-init(repository: ReviewRepository)
+init(repository: ReviewRepository, analyticsService: AnalyticsServiceProtocol)
 
 // LibraryViewModel
 public init(repositories: RepositoryContainer)
