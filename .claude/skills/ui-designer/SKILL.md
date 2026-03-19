@@ -65,6 +65,11 @@ ultrathink
 - [ ] 在最小屏幕（iPhone SE）和最大屏幕上是否都可用？
 - [ ] 新组件是否可以用现有组件替代？
 
+## Gotchas
+
+1. **iOS 26 Liquid Glass 浮动 Tab Bar 样式**：自定义突出按钮（大号/居中/突出色）违反 Apple HIG 且与 Liquid Glass 浮动 Tab Bar 样式冲突
+2. **不用 emoji 除非用户明确要求**：代码注释、文档、UI 文案中一律不使用 emoji
+
 ## 输出格式
 
 ```markdown

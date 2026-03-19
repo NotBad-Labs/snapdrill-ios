@@ -71,6 +71,12 @@ ultrathink
 - [ ] Firebase 配置文件（GoogleService-Info.plist）是否在 .gitignore 中？
 - [ ] 隐私清单是否与实际数据使用一致？
 
+## Gotchas
+
+1. **ImageStorage.saveImage 必须剥离 EXIF GPS**：用户拍照保存的图片可能包含地理位置信息，保存前须清除 EXIF 元数据中的 GPS 字段
+2. **CSV 导出需防 Excel 公式注入**：以 `=`、`+`、`-`、`@` 开头的单元格值须在前面加 tab 字符，防止 Excel 自动执行公式
+3. **CaptureDraftService.shared 单例状态在测试间泄漏**：单例的草稿状态跨测试用例持续存在，测试前须 `clearDraft()` 重置
+
 ## 输出格式
 
 ```markdown

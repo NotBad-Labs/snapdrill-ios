@@ -65,6 +65,12 @@ ultrathink
 - [ ] 状态转换：从 A 状态到 B 状态的过渡自然吗？
 - [ ] Apple 原生 App（Settings/Notes/Reminders）是怎么解决同类问题的？
 
+## Gotchas
+
+1. **禁止把整行 HStack 作为 Menu label**：会导致弹出框锚点错误 + 内容闪烁消失，Menu label 仅覆盖右侧控件（值+chevron）
+2. **控件语义必须精确**：`Picker(.menu)` = 原地选值，`NavigationLink` = 跳页导航，`confirmationDialog` = 破坏性操作/分享确认
+3. **目标用户是 35 岁妈妈，不是开发者**：所有交互设计以家长友好为基线——零学习曲线、不假设用户理解技术概念
+
 ## 输出格式
 
 ```markdown
