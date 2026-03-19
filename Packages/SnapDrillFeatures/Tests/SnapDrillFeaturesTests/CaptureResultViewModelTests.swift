@@ -251,10 +251,12 @@ final class CaptureResultViewModelTests {
         #expect(CaptureDraftService.shared.hasDraft == false)
     }
 
-    @Test("generateDraftIfNeeded 无内容时不生成草稿")
-    func generateDraftIfNeeded_emptyContent_noDraft() async throws {
+    @Test("generateDraftIfNeeded 无内容且无图片时不生成草稿")
+    func generateDraftIfNeeded_emptyContentNoImage_noDraft() async throws {
         CaptureDraftService.shared.clearDraft()
-        let ctx = createVM(content: "", image: createTestImage())
+        // PR #336 放宽草稿条件：image != nil 即保存（不看 content）
+        // 因此测试"不保存"须同时去掉图片
+        let ctx = createVM(content: "", image: nil)
 
         await ctx.vm.generateDraftIfNeeded()
 
@@ -281,8 +283,10 @@ final class CaptureResultViewModelTests {
         vm.handleImageCrop(croppedImage)
 
         #expect(vm.isCropping == false)
-        // 轮询等待 OCR 任务完成（观测 ViewModel 最终状态，而非 Mock 中间状态）
-        try await waitUntil { vm.isRecognizing == false }
+        // 先等 OCR 任务启动（isRecognizing 变为 true），再等完成（变回 false）
+        // 避免竞态：isRecognizing 初始值为 false，直接等 false 会立即返回
+        try await waitUntil("OCR 任务启动") { vm.isRecognizing == true || mockOCR.recognizeTextCallCount > 0 }
+        try await waitUntil("OCR 任务完成") { vm.isRecognizing == false }
         #expect(vm.content == "重新识别文本")
         #expect(mockOCR.recognizeTextCallCount == 1)
     }
