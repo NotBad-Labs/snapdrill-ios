@@ -68,6 +68,11 @@ ultrathink
 - **WebFetch**：抓取竞品官网、App Store 页面详情
 - **Read**：读取 product-vision.md / product-business.md 确认产品定位一致性
 
+## Gotchas
+
+1. **iOS 独占——不考虑 Android/HarmonyOS**：SnapDrill 深度依赖 Apple 原生能力（Vision OCR、Foundation Models、CloudKit），跨平台分析无参考价值
+2. **错题本赛道三梯队**：巨头附属（喵喵机/小猿口算）、垂直工具（蜜蜂试卷/橙果）、独立小众——SnapDrill 切入的是「隐私+简洁+原生体验」的空白象限
+
 ## 输出格式
 
 ```markdown

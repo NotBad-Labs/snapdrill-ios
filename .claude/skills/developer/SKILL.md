@@ -47,6 +47,13 @@ allowed-tools:
 - [ ] `try?` 使用符合规范？（关键路径无 `try?`，清理路径有日志）
 - [ ] Task 句柄已保存？有 `cancelTasks()` 方法？
 
+## Gotchas
+
+1. **`try?` 关键路径禁用**：save/init 等关键路径必须 `do/catch`，`try?` 仅允许清理路径且必须加日志或 `// best-effort` 注释
+2. **Task 句柄必须保存，禁止 fire-and-forget**：使用 `@ObservationIgnored private var xxxTask: Task<Void, Never>?` 保存句柄，添加 `cancelTasks()` 在 `.onDisappear` 调用
+3. **NotificationCenter 用 async `for await` 替代 `addObserver`**：Swift 6 并发安全要求，使用 `for await _ in NotificationCenter.default.notifications(named:)`
+4. **`@Observable` 属性不用 `@ObservationIgnored` 标记 Task 句柄会触发无意义 UI 刷新**：Task 赋值变更会被观察系统捕获，导致 View 重绘
+
 ## 输出格式
 
 代码实现后，简要说明：

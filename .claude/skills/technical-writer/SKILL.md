@@ -62,6 +62,12 @@ allowed-tools:
 - [ ] 新增的 `public` API 是否有 DocC 注释？
 - [ ] 注释语言是否统一（简体中文）？
 
+## Gotchas
+
+1. **活文档需 Last verified 日期，ADR 不需要**：`infrastructure.md` 等活文档每次更新须标注最后验证日期，ADR 是决策快照不需要时效标注
+2. **`infrastructure.md` 是 API 单一事实来源（SSOT）**：新增/删除/修改任何 public API 后必须同步更新此文件，否则下游协作者会引用错误签名
+3. **公司名 NotBad Labs L.L.C.**：不是 SnapDrill Labs，文件头版权声明和文档中必须使用正确公司名
+
 ## 输出格式
 
 ```markdown

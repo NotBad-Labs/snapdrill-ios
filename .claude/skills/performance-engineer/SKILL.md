@@ -70,6 +70,11 @@ ultrathink
 - [ ] 是否有潜在的内存泄漏？（循环引用、未释放的大对象）
 - [ ] 新增的 Task 是否保存了句柄？（防止泄漏）
 
+## Gotchas
+
+1. **ImageStorage.loadImage 必须异步**：PR #339 修复过同步主线程阻塞问题，SwiftUI View 中必须使用 `loadImageAsync` 或 `loadDownsampledImage`
+2. **PDF 导出大量图片需 autoreleasepool 防 OOM**：批量渲染图片到 PDF 时，每张图片处理后须释放内存，否则内存峰值可能触发系统 kill
+
 ## 输出格式
 
 ```markdown

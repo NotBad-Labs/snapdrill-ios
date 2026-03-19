@@ -53,6 +53,12 @@ allowed-tools:
 - [ ] xcconfig 配置是否与 pbxproj 一致？（无覆盖定义）
 - [ ] 新增的 target/scheme 是否已加入 CI？
 
+## Gotchas
+
+1. **Mac mini CI runner**：`ssh admin@192.168.1.224`（免密），Runner 名 `mac-mini`（`self-hosted,macOS,ARM64`），仅 PR 到 develop/main 时触发
+2. **`xcodebuild build` 不编译测试 target**：测试编译错误须通过 `swift test` 或 Xcode GUI 才能发现，CI 仅 build 不能替代测试编译验证
+3. **DerivedData 损坏时需清理重建**：遇到诡异编译错误先 `rm -rf ~/Library/Developer/Xcode/DerivedData/SnapDrill-*` 再重试
+
 ## 输出格式
 
 ```markdown
