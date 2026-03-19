@@ -91,6 +91,23 @@ final class DashboardViewModelTests {
         vm.cancelTasks()
     }
 
+    @Test("loadData 有待复习题目时 dueCount 正确")
+    func loadData_dueCount() throws {
+        // 创建一道已到复习时间的题目
+        let item = ReviewItemModel(content: "待复习题目")
+        item.nextReviewAt = Date.distantPast
+        item.repetitions = 1
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = DashboardViewModel(repositories: repos)
+        vm.loadData()
+
+        #expect(vm.dueCount == 1)
+        #expect(vm.totalCount == 1)
+        vm.cancelTasks()
+    }
+
     // MARK: - checkDraftAndCapture
 
     @Test("checkDraftAndCapture 有草稿时显示弹窗")

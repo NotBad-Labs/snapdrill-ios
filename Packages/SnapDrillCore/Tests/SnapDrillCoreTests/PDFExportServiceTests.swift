@@ -44,6 +44,42 @@ struct PDFExportServiceTests {
         #expect(singleItemData.count > emptyData.count, "多一个项目的 PDF 应该更大")
     }
 
+    // MARK: - 多页分页
+
+    @Test("5 个 items 跨多页生成 PDF")
+    func multiPageGeneration() async throws {
+        let service = PDFExportService.shared
+        let items = createDummyItems(count: 5)
+
+        let data = try await service.createPDF(from: items, imageProvider: { _ in nil })
+
+        // 5 items / 2 per page = 3 数据页 + 1 标题页 = 4 页
+        // 验证 PDF 比单页大（间接验证多页）
+        let singleItemData = try await service.createPDF(from: createDummyItems(count: 1), imageProvider: { _ in nil })
+        #expect(data.count > singleItemData.count)
+    }
+
+    @Test("imageProvider 返回 nil 时不崩溃")
+    func imageNotFound_noCrash() async throws {
+        let service = PDFExportService.shared
+        let items = [MockPDFItem(content: "有图路径但图片不存在", imagePath: "nonexistent/image.jpg")]
+
+        let data = try await service.createPDF(from: items, imageProvider: { _ in nil })
+
+        #expect(data.isEmpty == false)
+    }
+
+    @Test("纯图片题（content 为 nil）不崩溃")
+    func nilContent_imageOnly_noCrash() async throws {
+        let service = PDFExportService.shared
+        let items = [MockPDFItem(content: nil, imagePath: "some/image.jpg")]
+
+        // imageProvider 返回 nil（无真实图片），但 content 也为 nil——验证不崩溃
+        let data = try await service.createPDF(from: items, imageProvider: { _ in nil })
+
+        #expect(data.isEmpty == false)
+    }
+
     // MARK: - Concurrency & Cancellation
 
     @Test("测试 Task Cooperative Cancellation: 导出大量数据时中途发起取消应该抛出 CancellationError")

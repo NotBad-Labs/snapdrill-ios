@@ -121,4 +121,26 @@ final class SourceManagerViewModelTests {
         #expect(vm.pendingDeletionName == "试卷")
         #expect(vm.sources.count == 1)
     }
+
+    // MARK: - 边界条件
+
+    @Test("saveSource 重命名为已存在的来源名称时题目级联正确")
+    func saveSource_renameToExistingName() throws {
+        let sourceA = SourceModel(name: "试卷", icon: "doc.text", colorHex: "#808080", sortOrder: 0)
+        let sourceB = SourceModel(name: "课本", icon: "book", colorHex: "#0000FF", sortOrder: 1)
+        try repos.source.insertAndSave(sourceA)
+        try repos.source.insertAndSave(sourceB)
+
+        let item = ReviewItemModel(content: "题目", source: "试卷")
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = SourceManagerViewModel(repositories: repos)
+        vm.loadData()
+
+        let examSource = vm.sources.first(where: { $0.name == "试卷" })
+        vm.saveSource(source: examSource, name: "课本", selectedIcon: "doc.text", finalColorHex: "#808080")
+
+        #expect(item.source == "课本")
+    }
 }
