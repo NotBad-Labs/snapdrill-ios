@@ -217,11 +217,13 @@ final class SettingsViewModelTests {
         // 4. 从备份恢复
         await vm.restoreFromBackup(fileURL: backupURL)
 
-        // 5. 验证恢复结果
+        // 5. 验证恢复结果——数量和内容字段均完整
         #expect(vm.backupError == nil)
         #expect(vm.isBackupInProgress == false)
-        let countAfterRestore = try repos.review.totalCount()
-        #expect(countAfterRestore == 1)
+        let restoredItems = try repos.review.fetchAllModels()
+        #expect(restoredItems.count == 1)
+        #expect(restoredItems.first?.content == "恢复测试题目")
+        #expect(restoredItems.first?.subject == "英语")
     }
 
     @Test("restoreFromBackup 成功后发送 reviewDataDidChange 通知")
