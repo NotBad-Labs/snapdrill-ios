@@ -263,6 +263,60 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 ---
 
+## 测试策略（2026-03-19 确立）
+
+> **研究基础**：Kent Beck「Canon TDD」(2023)、DHH「TDD is Dead」(2014)、Beck-DHH-Fowler 三方辩论结论、
+> Google Testing Philosophy、Rich Hickey「Simple Made Easy」、Apple WWDC24 Swift Testing、
+> SnapDrill 项目实际经验（#347 flaky tests、ADR-002 Repository 无协议）。
+
+### 核心原则
+
+- **测试行为（behavior），不测试实现（implementation）**（Google 测试哲学）
+- **好架构比好测试更重要**——"A bad design with a complete test suite is still a bad design."（Rich Hickey）
+- **TDD 是方式之一，不是唯一方式**——Beck/Fowler/DHH 三方辩论的共识
+- **不为 mock 而加协议**——"test-induced design damage"（DHH）是真实风险，SnapDrill 的 ADR-002 已规避
+
+### 推荐流程
+
+```
+需求 → 关键接口草案（仅跨包协议）→ 核心逻辑 TDD → 外围代码补测试 → 接口随实现迭代
+```
+
+不是严格线性流程，而是思考方向。写着写着才发现接口该怎么设计是正常的——过早固化接口反而是负担。
+
+### 分层策略：在对的层次用对的方法
+
+| 代码层 | 测试策略 | 理由 |
+|---|---|---|
+| **纯算法**（SM-2、CSV 转义、间隔计算） | **TDD（test-first）** | 输入输出明确，TDD 回报最高 |
+| **ViewModel 状态机**（Review、Capture 等） | **Test-after**（实现稳定后补测试） | 接口在开发中频繁变化，test-first 会产生大量废弃测试 |
+| **Repository CRUD** | **Test-after**（用 in-memory ModelContainer） | 行为简单，不需要协议，不需要 mock |
+| **跨包协议契约** | **Contract-first**（先写 DocC 契约文档） | 先定义"承诺什么"，再实现 |
+| **SwiftUI View** | **不写单元测试** | Preview + 手动验证；测试 View = 测试框架本身 |
+| **胶水代码 / 配置** | **不写单元测试** | ROI 太低 |
+| **探索性原型** | **不写测试** | 方案不确定时硬写测试只会产生废弃测试，稳定后再补 |
+
+### SwiftData 测试的正确姿势
+
+```swift
+// 用 in-memory ModelContainer，不需要 Repository 协议，不 mock SwiftData
+let config = ModelConfiguration(isStoredInMemoryOnly: true)
+let container = try ModelContainer(for: ReviewItemModel.self, configurations: config)
+let repo = ReviewRepository(modelContext: container.mainContext)
+```
+
+- **不 mock 你不拥有的类型**（Google 原则）——不 mock SwiftData、不 mock UIKit
+- ViewModel 测试直接实例化，注入 in-memory Repository，不经过 SwiftUI
+
+### 禁止事项
+
+- 禁止为了可测试性添加只有一个实现的协议（已有 in-memory 替代手段时）
+- 禁止对 SwiftUI View 层写单元测试（用 Preview + Snapshot 替代）
+- 禁止在探索阶段强制 test-first（等方案稳定后补测试）
+- 禁止追求覆盖率数字而写无价值测试（"几乎不提供价值的测试，可能因脆弱性和 flakiness 产生净负面影响"——Google）
+
+---
+
 ## 技术债标记
 
 > 详见 `technical-debt-ledger.md`（架构级技术债台账）
