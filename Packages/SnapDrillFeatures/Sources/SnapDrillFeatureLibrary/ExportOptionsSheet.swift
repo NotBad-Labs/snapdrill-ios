@@ -50,29 +50,7 @@ struct ExportOptionsSheet: View {
                         .padding(.vertical, 8)
                     }
                     
-                    // 2. Markdown (.md)
-                    // 使用原生 ShareLink，系统接管文件生成与分享
-                    ShareLink(
-                        item: ReviewExport(items: items, format: .markdown),
-                        preview: SharePreview(L10n.Library.exportMarkdown, image: Image(systemName: "doc.text"))
-                    ) {
-                        Label {
-                            VStack(alignment: .leading) {
-                                Text(L10n.Library.exportMarkdown)
-                                    .font(.headline)
-                                Text(L10n.Library.exportMarkdownHint)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "doc.text")
-                                .foregroundStyle(.purple)
-                                .font(.title2)
-                        }
-                        .padding(.vertical, 8)
-                    }
-                    
-                    // 3. CSV (.csv)
+                    // 2. CSV (.csv)
                     ShareLink(
                         item: ReviewExport(items: items, format: .csv),
                         preview: SharePreview(L10n.Library.exportCSV, image: Image(systemName: "tablecells"))
@@ -126,19 +104,16 @@ struct ReviewExport: Transferable {
     let format: ExportFormat
     
     enum ExportFormat {
-        case markdown
         case csv
-        
+
         var contentType: UTType {
             switch self {
-            case .markdown: return .plainText // .markdown is ideal but .plainText ensures wide compatibility
             case .csv: return .commaSeparatedText
             }
         }
-        
+
         var fileExtension: String {
             switch self {
-            case .markdown: return "md"
             case .csv: return "csv"
             }
         }
@@ -172,43 +147,11 @@ struct ReviewExport: Transferable {
     
     private func generateContent() -> String {
         switch format {
-        case .markdown:
-            return generateMarkdown()
         case .csv:
             return generateCSV()
         }
     }
-    
-    private func generateMarkdown() -> String {
-        let formatter = ISO8601DateFormatter()
-        let dateString = formatter.string(from: Date())
-        
-        var md = """
-        ---
-        app: SnapDrill
-        exported_at: \(dateString)
-        count: \(items.count)
-        ---
-        
-        # 错题集
-        
-        """
-        
-        for (index, item) in items.enumerated() {
-            let createdStr = item.createdAt.formatted(date: .numeric, time: .shortened)
-            md += """
-            
-            ## \(index + 1). \(item.subject)
-            > 创建时间: \(createdStr)
-            
-            \(item.content ?? "")
 
-            ---
-            """
-        }
-        return md
-    }
-    
     private func generateCSV() -> String {
         var csv = "ID,Subject,Content,CreatedAt,Source\n"
 

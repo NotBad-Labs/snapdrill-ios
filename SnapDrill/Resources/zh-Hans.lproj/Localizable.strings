@@ -158,8 +158,6 @@
 "library.export_title" = "导出选项";
 "library.export_pdf" = "PDF / 打印";
 "library.export_pdf_hint" = "适合打印复习";
-"library.export_markdown" = "Markdown";
-"library.export_markdown_hint" = "适合笔记软件";
 "library.export_csv" = "CSV";
 "library.export_csv_hint" = "适合表格处理";
 "library.export_preview" = "导出预览";
