@@ -51,6 +51,7 @@
 | 修改工作流程 | `workflow.md` |
 | 引入有决策上下文的临时方案 | `technical-debt-ledger.md` |
 | 新增/修改用户可见功能 | `release-checklist.md` |
+| 产品决策变更（推迟/删除/替换） | 创建执行 Issue + workflow.md「决策变更收尾规则」 |
 
 ### Review 流程
 
