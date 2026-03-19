@@ -50,6 +50,7 @@
 | 修改编码规范/约定 | `conventions.md` |
 | 修改工作流程 | `workflow.md` |
 | 引入有决策上下文的临时方案 | `technical-debt-ledger.md` |
+| 新增/修改用户可见功能 | `release-checklist.md` |
 
 ### Review 流程
 

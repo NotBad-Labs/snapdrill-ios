@@ -5,43 +5,39 @@
 //  Created by NotBad Labs on 2026/01/02.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  PersistenceController 单元测试
+//  PersistenceController 单元测试（Swift Testing）。
 //
 
-import XCTest
+import Testing
 import SwiftData
 @testable import SnapDrillData
 
+@Suite("PersistenceController 测试")
 @MainActor
-final class PersistenceControllerTests: XCTestCase {
-    
-    func testInitializeWithInMemory() throws {
-        // When
+struct PersistenceControllerTests {
+
+    @Test("in-memory 初始化成功")
+    func initializeWithInMemory() throws {
         let controller = PersistenceController(inMemory: true)
-        
-        // Then
-        XCTAssertNotNil(controller.container)
-        XCTAssertFalse(controller.isUsingInMemoryFallback)
-        XCTAssertNil(controller.initializationError)
+
+        #expect(controller.container != nil)
+        #expect(controller.isUsingInMemoryFallback == false)
+        #expect(controller.initializationError == nil)
     }
-    
-    func testContainerIsAccessible() throws {
-        // Given
-        let controller = PersistenceController(inMemory: true)
-        
-        // When
-        let context = controller.container.mainContext
-        
-        // Then
-        XCTAssertNotNil(context)
-    }
-    
-    func testCanInsertAndFetchData() throws {
-        // Given
+
+    @Test("container 的 mainContext 可访问")
+    func containerIsAccessible() throws {
         let controller = PersistenceController(inMemory: true)
         let context = controller.container.mainContext
-        
-        // When
+
+        #expect(context != nil)
+    }
+
+    @Test("插入数据后可以查询")
+    func canInsertAndFetchData() throws {
+        let controller = PersistenceController(inMemory: true)
+        let context = controller.container.mainContext
+
         let model = ReviewItemModel(
             id: UUID(),
             content: "测试题目",
@@ -50,35 +46,31 @@ final class PersistenceControllerTests: XCTestCase {
         )
         context.insert(model)
         try context.save()
-        
-        // Then
+
         let descriptor = FetchDescriptor<ReviewItemModel>()
         let items = try context.fetch(descriptor)
-        XCTAssertEqual(items.count, 1)
-        XCTAssertEqual(items.first?.content, "测试题目")
+        #expect(items.count == 1)
+        #expect(items.first?.content == "测试题目")
     }
-    
-    func testSharedInstanceIsAccessible() {
-        // When
+
+    @Test("shared 单例可访问")
+    func sharedInstanceIsAccessible() {
         let shared = PersistenceController.shared
-        
-        // Then
-        XCTAssertNotNil(shared.container)
+
+        #expect(shared.container != nil)
     }
-    
-    func testFallbackFlagInitiallyFalse() {
-        // Given
+
+    @Test("fallback 标记初始值为 false")
+    func fallbackFlagInitiallyFalse() {
         let controller = PersistenceController(inMemory: true)
-        
-        // Then
-        XCTAssertFalse(controller.isUsingInMemoryFallback)
+
+        #expect(controller.isUsingInMemoryFallback == false)
     }
-    
-    func testErrorPropertyInitiallyNil() {
-        // Given
+
+    @Test("error 属性初始值为 nil")
+    func errorPropertyInitiallyNil() {
         let controller = PersistenceController(inMemory: true)
-        
-        // Then
-        XCTAssertNil(controller.initializationError)
+
+        #expect(controller.initializationError == nil)
     }
 }
