@@ -197,11 +197,16 @@ public actor BackupService {
             try fileManager.createDirectory(at: imagesDir, withIntermediateDirectories: true)
         }
 
+        let basePath = imageBasePath.standardizedFileURL.path + "/"
         var lastReportedPercent = -1
         for (index, entry) in imageEntries.enumerated() {
-            // 防御路径遍历攻击：确保解压目标在 imageBasePath 内
+            // 防御路径遍历攻击（ZipSlip）：双重检查
+            // 1. entry.path 不得包含 ".." 路径分量（源头拦截）
+            // 2. 解析后的绝对路径必须在 imageBasePath/ 内（basePath 带尾 "/" 防止前缀误匹配）
+            let pathComponents = entry.path.split(separator: "/")
             let destinationURL = imageBasePath.appendingPathComponent(entry.path).standardizedFileURL
-            guard destinationURL.path.hasPrefix(imageBasePath.standardizedFileURL.path) else {
+            guard !pathComponents.contains(".."),
+                  destinationURL.path.hasPrefix(basePath) else {
                 SnapDrillLogger.generic.warning("跳过可疑路径: \(entry.path)")
                 reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
                 continue

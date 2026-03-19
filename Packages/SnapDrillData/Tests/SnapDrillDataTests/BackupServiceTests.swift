@@ -209,4 +209,91 @@ struct BackupServiceTests {
         #expect(extracted.reviewItems.isEmpty)
         #expect(extracted.subjects.isEmpty)
     }
+
+    // MARK: - 路径遍历防御
+
+    @Test("restoreImages 跳过含 .. 的路径遍历条目")
+    func restoreImages_skipsPathTraversal() async throws {
+        let service = BackupService()
+
+        // 构造含路径遍历的 payload：imagePath 指向 ../evil.jpg
+        let payload = BackupPayload(
+            reviewItems: [
+                ReviewItemBackupDTO(
+                    id: UUID(),
+                    content: "恶意条目",
+                    imagePath: "../evil.jpg",
+                    createdAt: Date(),
+                    lastReviewedAt: .distantPast,
+                    nextReviewAt: .distantPast,
+                    subject: "数学",
+                    source: "作业",
+                    tagNames: [],
+                    answerText: nil,
+                    answerImagePath: nil,
+                    difficulty: 1,
+                    grade: "",
+                    easeFactor: 2.5,
+                    interval: 0,
+                    repetitions: 0
+                )
+            ],
+            subjects: [], sources: [], grades: [], tags: []
+        )
+        let manifest = makeSampleManifest()
+
+        // 创建临时目录并放一个 ../evil.jpg 文件模拟攻击
+        let sourceDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("PathTraversalTest_\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: sourceDir, withIntermediateDirectories: true)
+        defer { cleanup(sourceDir) }
+
+        // 创建备份（不含图片，因为 ../evil.jpg 文件不存在会被跳过）
+        let backupURL = try await service.createBackup(
+            payload: payload,
+            manifest: manifest,
+            imageBasePath: sourceDir
+        )
+        defer { cleanup(backupURL) }
+
+        // 恢复到新目录——不应在目标目录外创建文件
+        let restoreDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("RestoreTraversalTest_\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: restoreDir, withIntermediateDirectories: true)
+        defer { cleanup(restoreDir) }
+
+        // 恢复不应崩溃
+        try await service.restoreImages(from: backupURL, to: restoreDir)
+
+        // 验证目标目录外没有被写入 evil.jpg
+        let evilPath = restoreDir.deletingLastPathComponent().appendingPathComponent("evil.jpg")
+        #expect(!FileManager.default.fileExists(atPath: evilPath.path))
+    }
+
+    @Test("restoreImages 跳过前缀误匹配的路径")
+    func restoreImages_skipsPrefixMismatch() async throws {
+        // 验证 hasPrefix 加 "/" 后缀的防护
+        // 场景：imageBasePath = /tmp/foo, 攻击路径解析后 = /tmp/foobar/evil
+        // 旧代码 hasPrefix("/tmp/foo") = true（误匹配），新代码 hasPrefix("/tmp/foo/") = false
+        let service = BackupService()
+        let payload = BackupPayload(
+            reviewItems: [], subjects: [], sources: [], grades: [], tags: []
+        )
+        let manifest = makeSampleManifest(itemCount: 0)
+
+        let sourceDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("PrefixTest_\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: sourceDir, withIntermediateDirectories: true)
+        defer { cleanup(sourceDir) }
+
+        let backupURL = try await service.createBackup(
+            payload: payload,
+            manifest: manifest,
+            imageBasePath: sourceDir
+        )
+        defer { cleanup(backupURL) }
+
+        // 恢复不应崩溃（空 payload 无图片条目）
+        try await service.restoreImages(from: backupURL, to: sourceDir)
+    }
 }
