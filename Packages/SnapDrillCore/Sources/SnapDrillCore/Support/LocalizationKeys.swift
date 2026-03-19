@@ -58,17 +58,16 @@ public enum L10n {
             String(format: NSLocalizedString("common.item_count_short", value: "%d 题", comment: "题目数量（短格式）"), count)
         }
 
-        // Onboarding
-        public static let onboardingSkip = NSLocalizedString("onboarding.skip", value: "跳过", comment: "引导页跳过按钮")
-        public static let onboardingPrevious = NSLocalizedString("onboarding.previous", value: "上一页", comment: "引导页上一页按钮")
-        public static let onboardingNext = NSLocalizedString("onboarding.next", value: "下一页", comment: "引导页下一页按钮")
-        public static let onboardingGetStarted = NSLocalizedString("onboarding.get_started", value: "开始使用", comment: "引导页开始使用按钮")
-        public static let onboardingAccessibilityGroup = NSLocalizedString("onboarding.accessibility_group", value: "欢迎引导", comment: "引导页无障碍分组标签")
     }
 
     // MARK: - Onboarding
 
     public enum Onboarding {
+        public static let skip = NSLocalizedString("onboarding.skip", value: "跳过", comment: "引导页跳过按钮")
+        public static let previous = NSLocalizedString("onboarding.previous", value: "上一页", comment: "引导页上一页按钮")
+        public static let next = NSLocalizedString("onboarding.next", value: "下一页", comment: "引导页下一页按钮")
+        public static let getStarted = NSLocalizedString("onboarding.get_started", value: "开始使用", comment: "引导页开始使用按钮")
+        public static let accessibilityGroup = NSLocalizedString("onboarding.accessibility_group", value: "欢迎引导", comment: "引导页无障碍分组标签")
         public static let pageWelcomeTitle = NSLocalizedString("onboarding.page_welcome_title", value: "欢迎使用 SnapDrill", comment: "引导页欢迎标题")
         public static let pageWelcomeDescription = NSLocalizedString("onboarding.page_welcome_description", value: "智能错题管理，让学习更高效", comment: "引导页欢迎描述")
         public static let pageCaptureTitle = NSLocalizedString("onboarding.page_capture_title", value: "智能拍摄", comment: "引导页拍摄标题")
