@@ -68,10 +68,10 @@ final class SettingsViewModelTests {
         ) { _ in
             notificationReceived = true
         }
+        defer { NotificationCenter.default.removeObserver(observer) }
 
         await vm.clearAllData()
 
-        NotificationCenter.default.removeObserver(observer)
         #expect(notificationReceived == true)
     }
 
@@ -250,10 +250,10 @@ final class SettingsViewModelTests {
         ) { _ in
             notificationReceived = true
         }
+        defer { NotificationCenter.default.removeObserver(observer) }
 
         await vm.restoreFromBackup(fileURL: backupURL)
 
-        NotificationCenter.default.removeObserver(observer)
         #expect(notificationReceived == true)
     }
 
