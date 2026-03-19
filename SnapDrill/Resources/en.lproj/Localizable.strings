@@ -381,8 +381,6 @@
 "settings.clear_mock_data" = "Clear Mock Data";
 "settings.generating" = "Generating...";
 "settings.generate_test_data" = "Generate Test Data (%d items)";
-
-
 // MARK: - Edit Profile
 
 "edit_profile.title" = "Profile";
@@ -494,72 +492,9 @@
 "notification.daily.title" = "Review Time";
 "notification.daily.body" = "Your questions are waiting — time to review!";
 
-// MARK: - Help
+// MARK: - Help (removed — v1.0 uses external web FAQ)
 
-"help.title" = "Help Center";
-"help.search_prompt" = "Search help...";
-
-"help.topic_getting_started" = "Getting Started";
-"help.topic_smart_capture" = "Smart Capture";
-"help.topic_review_system" = "Review System";
-"help.topic_data_management" = "Data Management";
-"help.topic_privacy_security" = "Privacy & Security";
-"help.topic_faq" = "FAQ";
-
-"help.question_add_first_item" = "How do I add my first question?";
-"help.answer_add_first_item" = "Tap the \"+\" button on the main screen and choose \"Camera\" or \"Photo Library\". The app will automatically recognize the text. You can also enter the question and answer manually.";
-
-"help.question_start_review" = "How do I start reviewing?";
-"help.answer_start_review" = "Tap \"Start Review\" on the Dashboard. The app will schedule questions for you based on a spaced repetition algorithm.";
-
-"help.question_set_subject_source" = "How do I set subject and source?";
-"help.answer_set_subject_source" = "When adding or editing a question, you can select a subject (e.g., Math, Chinese) and a source (e.g., Midterm Exam, Homework) for easy categorization.";
-
-"help.question_best_capture" = "How do I get the best capture results?";
-"help.answer_best_capture" = "Ensure good lighting, place the question on a flat surface, and keep the camera steady. The app will automatically detect the question area.";
-
-"help.question_ocr_inaccurate" = "What if text recognition is inaccurate?";
-"help.answer_ocr_inaccurate" = "You can manually edit the recognized text. For best results, keep the text clear and well-lit, and avoid glare and shadows.";
-
-"help.question_crop_image" = "Can I crop images?";
-"help.answer_crop_image" = "Yes. After capturing, you'll enter a cropping screen where you can adjust the area to keep only the question portion.";
-
-"help.question_review_schedule" = "How is the review schedule arranged?";
-"help.answer_review_schedule" = "The app uses a spaced repetition algorithm to schedule reviews at optimal intervals. The first review is after 1 day, then intervals gradually increase (3, 7, 15, 30 days).";
-
-"help.question_mark_difficulty" = "How do I mark question difficulty?";
-"help.answer_mark_difficulty" = "During review, you can rate each question's difficulty (1–5 stars). The app adjusts review frequency accordingly — harder questions appear more often.";
-
-"help.question_custom_review" = "Can I customize the review schedule?";
-"help.answer_custom_review" = "The app currently uses a scientifically backed algorithm for scheduling. You can adjust your daily review goal in Settings.";
-
-"help.question_data_backup" = "How do I back up my data?";
-"help.answer_data_backup" = "We recommend creating regular manual backups. Go to Settings > Backup & Restore and tap \"Create Backup\". With a Pro subscription, you can also use iCloud automatic sync.";
-
-"help.question_export_data" = "How do I export my data?";
-"help.answer_export_data" = "Go to Settings > Privacy & Security > Export Data, choose a format (PDF, CSV, or JSON), and the app will generate a file you can share or save.";
-
-"help.question_data_loss" = "Could I lose my data?";
-"help.answer_data_loss" = "Data is stored on this device by default. Uninstalling the app will permanently delete all data. We recommend creating regular backups, or subscribing to Pro for iCloud automatic sync.";
-
-"help.question_data_safe" = "Is my data safe?";
-"help.answer_data_safe" = "All data is stored locally on your device. We do not collect or upload any personal data. Crash reports and analytics are anonymous.";
-
-"help.question_disable_analytics" = "How do I disable analytics?";
-"help.answer_disable_analytics" = "Go to Settings > Privacy & Security and toggle off \"Analytics\". This will not affect core app functionality.";
-
-"help.question_permissions" = "What are camera and photo permissions used for?";
-"help.answer_permissions" = "Camera access is used to capture questions, and photo library access is used to import images. We only request permissions when you use these features and do not access other photos.";
-
-"help.question_crash_or_lag" = "What if the app crashes or lags?";
-"help.answer_crash_or_lag" = "Try restarting the app. If the issue persists, clear the cache in Settings. We automatically collect crash reports (if enabled) and work to fix issues promptly.";
-
-"help.question_contact_support" = "How do I contact support?";
-"help.answer_contact_support" = "Go to Settings > About > Feedback & Support, or email us at support@snapdrill.app.";
-
-"help.question_is_free" = "Is the app free?";
-"help.answer_is_free" = "SnapDrill's core features are completely free, including unlimited question capture, OCR recognition, categorization, and spaced repetition review. Advanced features (such as iCloud sync and premium export formats) are available with a Pro subscription. We will never limit the number of questions you can capture.";
-
+// MARK: - Terms of Service (next section below)
 // MARK: - Terms of Service
 
 "terms.title" = "Terms of Service";

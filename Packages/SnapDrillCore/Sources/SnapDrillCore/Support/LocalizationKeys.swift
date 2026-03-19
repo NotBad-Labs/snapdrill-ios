@@ -1007,69 +1007,7 @@ public enum L10n {
         public static let viewFullVersion = NSLocalizedString("privacy.view_full_version", value: "在浏览器中查看完整版（中英双语）", comment: "查看完整版链接文字")
     }
 
-    // MARK: - Help
-
-    public enum Help {
-        // 导航与搜索
-        public static let title = NSLocalizedString("help.title", value: "帮助中心", comment: "帮助中心导航标题")
-        public static let searchPrompt = NSLocalizedString("help.search_prompt", value: "搜索帮助...", comment: "帮助搜索栏占位符")
-
-        // 主题标题
-        public static let topicGettingStarted = NSLocalizedString("help.topic_getting_started", value: "开始使用", comment: "帮助主题标题")
-        public static let topicSmartCapture = NSLocalizedString("help.topic_smart_capture", value: "智能拍摄", comment: "帮助主题标题")
-        public static let topicReviewSystem = NSLocalizedString("help.topic_review_system", value: "复习系统", comment: "帮助主题标题")
-        public static let topicDataManagement = NSLocalizedString("help.topic_data_management", value: "数据管理", comment: "帮助主题标题")
-        public static let topicPrivacySecurity = NSLocalizedString("help.topic_privacy_security", value: "隐私与安全", comment: "帮助主题标题")
-        public static let topicFaq = NSLocalizedString("help.topic_faq", value: "常见问题", comment: "帮助主题标题")
-
-        // 开始使用
-        public static let questionAddFirstItem = NSLocalizedString("help.question_add_first_item", value: "如何添加第一道错题？", comment: "帮助问题")
-        public static let answerAddFirstItem = NSLocalizedString("help.answer_add_first_item", value: "点击主界面的「+」按钮，选择「拍摄」或「从相册选择」，系统会自动识别题目内容。您也可以手动输入题目和答案。", comment: "帮助答案")
-        public static let questionStartReview = NSLocalizedString("help.question_start_review", value: "如何开始复习？", comment: "帮助问题")
-        public static let answerStartReview = NSLocalizedString("help.answer_start_review", value: "在仪表板中点击「开始复习」按钮，系统会根据艾宾浩斯遗忘曲线为您安排今日需要复习的题目。", comment: "帮助答案")
-        public static let questionSetSubjectSource = NSLocalizedString("help.question_set_subject_source", value: "如何设置学科和来源？", comment: "帮助问题")
-        public static let answerSetSubjectSource = NSLocalizedString("help.answer_set_subject_source", value: "在添加或编辑错题时，可以选择学科（如数学、语文等）和来源（如期中考试、作业等），方便后续分类查看。", comment: "帮助答案")
-
-        // 智能拍摄
-        public static let questionBestCapture = NSLocalizedString("help.question_best_capture", value: "如何获得最佳拍摄效果？", comment: "帮助问题")
-        public static let answerBestCapture = NSLocalizedString("help.answer_best_capture", value: "确保光线充足，将题目放在平整的表面上，保持相机稳定。系统会自动检测题目区域并提示您拍摄。", comment: "帮助答案")
-        public static let questionOcrInaccurate = NSLocalizedString("help.question_ocr_inaccurate", value: "文字识别不准确怎么办？", comment: "帮助问题")
-        public static let answerOcrInaccurate = NSLocalizedString("help.answer_ocr_inaccurate", value: "您可以在识别后手动编辑题目内容。建议拍摄时保持题目清晰、光线充足，避免反光和阴影。", comment: "帮助答案")
-        public static let questionCropImage = NSLocalizedString("help.question_crop_image", value: "可以裁剪图片吗？", comment: "帮助问题")
-        public static let answerCropImage = NSLocalizedString("help.answer_crop_image", value: "可以。拍摄后会进入裁剪界面，您可以调整裁剪区域，确保只保留题目部分。", comment: "帮助答案")
-
-        // 复习系统
-        public static let questionReviewSchedule = NSLocalizedString("help.question_review_schedule", value: "复习计划是如何安排的？", comment: "帮助问题")
-        public static let answerReviewSchedule = NSLocalizedString("help.answer_review_schedule", value: "系统基于艾宾浩斯遗忘曲线，在最佳时间点提醒您复习。首次复习在 1 天后，之后间隔逐渐延长（3天、7天、15天、30天）。", comment: "帮助答案")
-        public static let questionMarkDifficulty = NSLocalizedString("help.question_mark_difficulty", value: "如何标记题目难度？", comment: "帮助问题")
-        public static let answerMarkDifficulty = NSLocalizedString("help.answer_mark_difficulty", value: "在复习时，您可以为每道题目标记难度（1-5星）。系统会根据难度调整复习频率，难题会更频繁地出现。", comment: "帮助答案")
-        public static let questionCustomReview = NSLocalizedString("help.question_custom_review", value: "可以自定义复习计划吗？", comment: "帮助问题")
-        public static let answerCustomReview = NSLocalizedString("help.answer_custom_review", value: "目前系统使用科学的复习算法自动安排。您可以在设置中调整每日复习目标数量。", comment: "帮助答案")
-
-        // 数据管理
-        public static let questionDataBackup = NSLocalizedString("help.question_data_backup", value: "如何备份我的数据？", comment: "帮助问题")
-        public static let answerDataBackup = NSLocalizedString("help.answer_data_backup", value: "建议定期手动备份。进入「设置」-「备份与恢复」，点击「创建备份」即可。升级 Pro 后还可使用 iCloud 自动同步。", comment: "帮助答案")
-        public static let questionExportData = NSLocalizedString("help.question_export_data", value: "如何导出数据？", comment: "帮助问题")
-        public static let answerExportData = NSLocalizedString("help.answer_export_data", value: "进入「设置」-「隐私与安全」-「导出数据」，选择导出格式（PDF、CSV、JSON），系统会生成文件供您分享或备份。", comment: "帮助答案")
-        public static let questionDataLoss = NSLocalizedString("help.question_data_loss", value: "数据会丢失吗？", comment: "帮助问题")
-        public static let answerDataLoss = NSLocalizedString("help.answer_data_loss", value: "数据默认存储在本设备上，卸载应用会导致数据永久丢失。建议定期手动备份，或升级 Pro 后使用 iCloud 自动同步。", comment: "帮助答案")
-
-        // 隐私与安全
-        public static let questionDataSafe = NSLocalizedString("help.question_data_safe", value: "我的数据安全吗？", comment: "帮助问题")
-        public static let answerDataSafe = NSLocalizedString("help.answer_data_safe", value: "所有数据都存储在您的设备本地，我们不会收集或上传您的个人数据。崩溃报告和分析数据都是匿名的。", comment: "帮助答案")
-        public static let questionDisableAnalytics = NSLocalizedString("help.question_disable_analytics", value: "如何关闭数据分析？", comment: "帮助问题")
-        public static let answerDisableAnalytics = NSLocalizedString("help.answer_disable_analytics", value: "进入「设置」-「隐私与安全」，关闭「数据分析」开关。这不会影响应用的核心功能。", comment: "帮助答案")
-        public static let questionPermissions = NSLocalizedString("help.question_permissions", value: "相机和相册权限用于什么？", comment: "帮助问题")
-        public static let answerPermissions = NSLocalizedString("help.answer_permissions", value: "相机权限用于拍摄错题，相册权限用于从相册选择图片。我们只在您使用相关功能时请求权限，不会访问其他照片。", comment: "帮助答案")
-
-        // 常见问题
-        public static let questionCrashOrLag = NSLocalizedString("help.question_crash_or_lag", value: "应用崩溃或卡顿怎么办？", comment: "帮助问题")
-        public static let answerCrashOrLag = NSLocalizedString("help.answer_crash_or_lag", value: "请尝试重启应用。如果问题持续，可以在设置中清除缓存。我们会自动收集崩溃报告（如果您已启用）并尽快修复。", comment: "帮助答案")
-        public static let questionContactSupport = NSLocalizedString("help.question_contact_support", value: "如何联系技术支持？", comment: "帮助问题")
-        public static let answerContactSupport = NSLocalizedString("help.answer_contact_support", value: "您可以通过「设置」-「关于」-「反馈与支持」联系我们，或发送邮件到 support@snapdrill.app。", comment: "帮助答案")
-        public static let questionIsFree = NSLocalizedString("help.question_is_free", value: "应用是免费的吗？", comment: "帮助问题")
-        public static let answerIsFree = NSLocalizedString("help.answer_is_free", value: "SnapDrill 核心功能完全免费，包括无限录题、OCR 识别、分类管理和间隔复习。高级功能（如 iCloud 同步、高级导出格式）可通过订阅 Pro 解锁。我们绝不限制录入数量。", comment: "帮助答案")
-    }
+    // MARK: - Help（v1.0 帮助入口跳转外部网页 FAQ，App 内 FAQ 已移除）
 
     // MARK: - Accessibility
 

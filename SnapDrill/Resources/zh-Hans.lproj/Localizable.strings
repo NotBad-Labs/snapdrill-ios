@@ -381,8 +381,6 @@
 "settings.clear_mock_data" = "清空模拟数据";
 "settings.generating" = "生成中...";
 "settings.generate_test_data" = "生成测试数据 (%d条)";
-
-
 // MARK: - Edit Profile
 
 "edit_profile.title" = "个人资料";
@@ -495,70 +493,6 @@
 "notification.daily.body" = "今天的错题还在等你，快来复习吧！";
 
 // MARK: - Help
-
-"help.title" = "帮助中心";
-"help.search_prompt" = "搜索帮助...";
-
-"help.topic_getting_started" = "开始使用";
-"help.topic_smart_capture" = "智能拍摄";
-"help.topic_review_system" = "复习系统";
-"help.topic_data_management" = "数据管理";
-"help.topic_privacy_security" = "隐私与安全";
-"help.topic_faq" = "常见问题";
-
-"help.question_add_first_item" = "如何添加第一道错题？";
-"help.answer_add_first_item" = "点击主界面的「+」按钮，选择「拍摄」或「从相册选择」，系统会自动识别题目内容。你也可以手动输入题目和答案。";
-
-"help.question_start_review" = "如何开始复习？";
-"help.answer_start_review" = "在仪表板中点击「开始复习」按钮，系统会根据艾宾浩斯遗忘曲线为你安排今日需要复习的题目。";
-
-"help.question_set_subject_source" = "如何设置学科和来源？";
-"help.answer_set_subject_source" = "在添加或编辑错题时，可以选择学科（如数学、语文等）和来源（如期中考试、作业等），方便后续分类查看。";
-
-"help.question_best_capture" = "如何获得最佳拍摄效果？";
-"help.answer_best_capture" = "确保光线充足，将题目放在平整的表面上，保持相机稳定。系统会自动检测题目区域并提示你拍摄。";
-
-"help.question_ocr_inaccurate" = "文字识别不准确怎么办？";
-"help.answer_ocr_inaccurate" = "你可以在识别后手动编辑题目内容。建议拍摄时保持题目清晰、光线充足，避免反光和阴影。";
-
-"help.question_crop_image" = "可以裁剪图片吗？";
-"help.answer_crop_image" = "可以。拍摄后会进入裁剪界面，你可以调整裁剪区域，确保只保留题目部分。";
-
-"help.question_review_schedule" = "复习计划是如何安排的？";
-"help.answer_review_schedule" = "系统基于艾宾浩斯遗忘曲线，在最佳时间点提醒你复习。首次复习在 1 天后，之后间隔逐渐延长（3天、7天、15天、30天）。";
-
-"help.question_mark_difficulty" = "如何标记题目难度？";
-"help.answer_mark_difficulty" = "在复习时，你可以为每道题目标记难度（1-5星）。系统会根据难度调整复习频率，难题会更频繁地出现。";
-
-"help.question_custom_review" = "可以自定义复习计划吗？";
-"help.answer_custom_review" = "目前系统使用科学的复习算法自动安排。你可以在设置中调整每日复习目标数量。";
-
-"help.question_data_backup" = "如何备份我的数据？";
-"help.answer_data_backup" = "建议定期手动备份。进入「设置」-「备份与恢复」，点击「创建备份」即可。升级 Pro 后还可使用 iCloud 自动同步。";
-
-"help.question_export_data" = "如何导出数据？";
-"help.answer_export_data" = "进入「设置」-「隐私与安全」-「导出数据」，选择导出格式（PDF、CSV、JSON），系统会生成文件供你分享或备份。";
-
-"help.question_data_loss" = "数据会丢失吗？";
-"help.answer_data_loss" = "数据默认存储在本设备上，卸载应用会导致数据永久丢失。建议定期手动备份，或升级 Pro 后使用 iCloud 自动同步。";
-
-"help.question_data_safe" = "我的数据安全吗？";
-"help.answer_data_safe" = "所有数据都存储在你的设备本地，我们不会收集或上传你的个人数据。崩溃报告和分析数据都是匿名的。";
-
-"help.question_disable_analytics" = "如何关闭数据分析？";
-"help.answer_disable_analytics" = "进入「设置」-「隐私与安全」，关闭「数据分析」开关。这不会影响应用的核心功能。";
-
-"help.question_permissions" = "相机和相册权限用于什么？";
-"help.answer_permissions" = "相机权限用于拍摄错题，相册权限用于从相册选择图片。我们只在你使用相关功能时请求权限，不会访问其他照片。";
-
-"help.question_crash_or_lag" = "应用崩溃或卡顿怎么办？";
-"help.answer_crash_or_lag" = "请尝试重启应用。如果问题持续，可以在设置中清除缓存。我们会自动收集崩溃报告（如果你已启用）并尽快修复。";
-
-"help.question_contact_support" = "如何联系技术支持？";
-"help.answer_contact_support" = "你可以通过「设置」-「关于」-「反馈与支持」联系我们，或发送邮件到 support@snapdrill.app。";
-
-"help.question_is_free" = "应用是免费的吗？";
-"help.answer_is_free" = "SnapDrill 核心功能完全免费，包括无限录题、OCR 识别、分类管理和间隔复习。高级功能（如 iCloud 同步、高级导出格式）可通过订阅 Pro 解锁。我们绝不限制录入数量。";
 
 // MARK: - Terms of Service
 
