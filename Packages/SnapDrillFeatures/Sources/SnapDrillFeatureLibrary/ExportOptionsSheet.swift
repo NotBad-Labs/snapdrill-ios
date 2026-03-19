@@ -211,18 +211,28 @@ struct ReviewExport: Transferable {
     
     private func generateCSV() -> String {
         var csv = "ID,Subject,Content,CreatedAt,Source\n"
-        
+
         for item in items {
-            let id = item.id.uuidString
-            let subject = item.subject
-            let content = (item.content ?? "").replacingOccurrences(of: "\"", with: "\"\"")
-            let created = item.createdAt.description
-            let source = item.source
-            
-            let line = "\"\(id)\",\"\(subject)\",\"\(content)\",\"\(created)\",\"\(source)\"\n"
-            csv += line
+            let row = [
+                item.id.uuidString,
+                escapeCSVField(item.subject),
+                escapeCSVField(item.content ?? ""),
+                item.createdAt.description,
+                escapeCSVField(item.source)
+            ].joined(separator: ",")
+            csv += row + "\n"
         }
         return csv
+    }
+
+    /// CSV 转义 + Excel 公式注入防护
+    private func escapeCSVField(_ string: String) -> String {
+        var value = string
+        if let first = value.first, "=+\\-@".contains(first) {
+            value = "\t" + value
+        }
+        let escaped = value.replacingOccurrences(of: "\"", with: "\"\"")
+        return "\"\(escaped)\""
     }
 }
 
