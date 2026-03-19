@@ -28,6 +28,10 @@ public final class SubjectManagerViewModel {
     public var isDeletingInUse = false
     /// 触发删除保护时正在尝试删除的学科名称
     public var pendingDeletionName = ""
+    /// 是否因重命名目标名称已存在而阻止保存
+    public var isDuplicateName = false
+    /// 触发重名保护时的目标名称
+    public var duplicateNameValue = ""
 
     // MARK: - Dependencies
 
@@ -80,11 +84,20 @@ public final class SubjectManagerViewModel {
     ///   - name: 学科名称
     ///   - selectedIcon: SF Symbol 图标名称
     ///   - finalColorHex: 颜色 Hex 字符串
-    public func saveSubject(subject: SubjectModel?, name: String, selectedIcon: String, finalColorHex: String) {
+    /// - Returns: 保存是否成功（重名时返回 `false`，View 层据此决定是否 dismiss）
+    @discardableResult
+    public func saveSubject(subject: SubjectModel?, name: String, selectedIcon: String, finalColorHex: String) -> Bool {
+        isDuplicateName = false
         do {
             if let subject {
                 let oldName = subject.name
                 if oldName != name {
+                    // 检查目标名称是否已被其他学科占用
+                    if let existing = try repositories.subject.fetchModel(byName: name), existing.id != subject.id {
+                        isDuplicateName = true
+                        duplicateNameValue = name
+                        return false
+                    }
                     try repositories.review.updateSubjectUsage(from: oldName, to: name)
                 }
                 subject.name = name
@@ -92,15 +105,23 @@ public final class SubjectManagerViewModel {
                 subject.colorHex = finalColorHex
                 try repositories.subject.saveContext()
             } else {
+                // 新建时也检查重名
+                if (try repositories.subject.fetchModel(byName: name)) != nil {
+                    isDuplicateName = true
+                    duplicateNameValue = name
+                    return false
+                }
                 let sortOrder = try repositories.subject.totalCount()
                 let model = SubjectModel(name: name, icon: selectedIcon, colorHex: finalColorHex, sortOrder: sortOrder)
                 try repositories.subject.insertAndSave(model)
             }
             loadData()
+            return true
         } catch {
             // 回滚所有未持久化变更（含级联重命名的内存修改），防止脏数据污染 mainContext
             repositories.review.rollbackContext()
             SnapDrillLogger.generic.error("保存学科失败: \(error.localizedDescription)")
+            return false
         }
     }
 }

@@ -28,6 +28,10 @@ public final class SourceManagerViewModel {
     public var isDeletingInUse = false
     /// 触发删除保护时正在尝试删除的来源名称
     public var pendingDeletionName = ""
+    /// 是否因重命名目标名称已存在而阻止保存
+    public var isDuplicateName = false
+    /// 触发重名保护时的目标名称
+    public var duplicateNameValue = ""
 
     // MARK: - Dependencies
 
@@ -80,11 +84,19 @@ public final class SourceManagerViewModel {
     ///   - name: 来源名称
     ///   - selectedIcon: SF Symbol 图标名称
     ///   - finalColorHex: 颜色 Hex 字符串
-    public func saveSource(source: SourceModel?, name: String, selectedIcon: String, finalColorHex: String) {
+    /// - Returns: 保存是否成功（重名时返回 `false`，View 层据此决定是否 dismiss）
+    @discardableResult
+    public func saveSource(source: SourceModel?, name: String, selectedIcon: String, finalColorHex: String) -> Bool {
+        isDuplicateName = false
         do {
             if let source {
                 let oldName = source.name
                 if oldName != name {
+                    if let existing = try repositories.source.fetchModel(byName: name), existing.id != source.id {
+                        isDuplicateName = true
+                        duplicateNameValue = name
+                        return false
+                    }
                     try repositories.review.updateSourceUsage(from: oldName, to: name)
                 }
                 source.name = name
@@ -92,15 +104,21 @@ public final class SourceManagerViewModel {
                 source.colorHex = finalColorHex
                 try repositories.source.saveContext()
             } else {
+                if (try repositories.source.fetchModel(byName: name)) != nil {
+                    isDuplicateName = true
+                    duplicateNameValue = name
+                    return false
+                }
                 let sortOrder = try repositories.source.totalCount()
                 let model = SourceModel(name: name, icon: selectedIcon, colorHex: finalColorHex, sortOrder: sortOrder)
                 try repositories.source.insertAndSave(model)
             }
             loadData()
+            return true
         } catch {
-            // 回滚所有未持久化变更（含级联重命名的内存修改），防止脏数据污染 mainContext
             repositories.review.rollbackContext()
             SnapDrillLogger.generic.error("保存来源失败: \(error.localizedDescription)")
+            return false
         }
     }
 }

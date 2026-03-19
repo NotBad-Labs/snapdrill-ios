@@ -195,6 +195,8 @@
 "library.subject_has_items" = "学科「%@」下仍有题目，请先将题目移动到其他学科或删除对应题目。";
 "library.source_has_items" = "来源「%@」下仍有题目，请先将题目移动到其他来源或删除对应题目。";
 "library.grade_has_items" = "年级「%@」下仍有题目，请先将题目移动到其他年级或删除对应题目。";
+"library.duplicate_name" = "名称已存在";
+"library.duplicate_name_message" = "「%@」已被使用，请输入其他名称。";
 
 // MARK: - Review
 

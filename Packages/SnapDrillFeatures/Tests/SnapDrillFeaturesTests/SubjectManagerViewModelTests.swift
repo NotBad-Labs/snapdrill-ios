@@ -145,12 +145,13 @@ final class SubjectManagerViewModelTests {
         let mathSubject = vm.subjects.first(where: { $0.name == "数学" })
         vm.saveSubject(subject: mathSubject, name: "物理", selectedIcon: "function", finalColorHex: "#FF0000")
 
-        // 题目应级联更新到"物理"
-        #expect(item.subject == "物理")
+        // 重名被阻止：题目不应级联（因为保存被拦截）
+        #expect(item.subject == "数学")
+        #expect(vm.isDuplicateName == true)
+        #expect(vm.duplicateNameValue == "物理")
 
-        // Known limitation: 生产代码不阻止重名，重命名后会产生两个同名 Model
-        // 见 Issue #370
+        // 不应产生两个同名选项
         let physicsCount = vm.subjects.filter { $0.name == "物理" }.count
-        #expect(physicsCount == 2, "当前行为：重命名产生两个同名选项（#370 修复后应为 1）")
+        #expect(physicsCount == 1)
     }
 }

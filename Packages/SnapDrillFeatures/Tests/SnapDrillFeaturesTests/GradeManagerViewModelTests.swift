@@ -141,10 +141,12 @@ final class GradeManagerViewModelTests {
         let grade3 = vm.grades.first(where: { $0.name == "三年级" })
         vm.saveGrade(grade: grade3, name: "四年级")
 
-        #expect(item.grade == "四年级")
+        // 重名被阻止：题目不应级联
+        #expect(item.grade == "三年级")
+        #expect(vm.isDuplicateName == true)
+        #expect(vm.duplicateNameValue == "四年级")
 
-        // Known limitation: 生产代码不阻止重名，见 Issue #370
         let grade4Count = vm.grades.filter { $0.name == "四年级" }.count
-        #expect(grade4Count == 2, "当前行为：重命名产生两个同名选项（#370 修复后应为 1）")
+        #expect(grade4Count == 1)
     }
 }

@@ -195,6 +195,8 @@
 "library.subject_has_items" = "Subject \"%@\" still has questions. Please move them to another subject or delete them first.";
 "library.source_has_items" = "Source \"%@\" still has questions. Please move them to another source or delete them first.";
 "library.grade_has_items" = "Grade \"%@\" still has questions. Please move them to another grade or delete them first.";
+"library.duplicate_name" = "Name Already Exists";
+"library.duplicate_name_message" = "\"%@\" is already in use. Please enter a different name.";
 
 // MARK: - Review
 
