@@ -246,8 +246,17 @@ actor DataExporter {
         return data
     }
     
+    /// CSV 转义 + Excel 公式注入防护
+    ///
+    /// 对 `=`, `+`, `-`, `@` 开头的值添加 tab 前缀，阻止 Excel 解析为公式。
+    /// 参考：OWASP CSV Injection Prevention Cheat Sheet
     private func escapeCSV(_ string: String) -> String {
-        let escaped = string.replacingOccurrences(of: "\"", with: "\"\"")
+        var value = string
+        // Excel 公式注入防护：危险前缀加 tab 前缀使其成为纯文本
+        if let first = value.first, "=+\\-@".contains(first) {
+            value = "\t" + value
+        }
+        let escaped = value.replacingOccurrences(of: "\"", with: "\"\"")
         return "\"\(escaped)\""
     }
 }
