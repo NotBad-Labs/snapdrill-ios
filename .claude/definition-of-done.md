@@ -6,6 +6,8 @@
 > 具体编码规则见 `conventions.md`，Review 流程见 `workflow.md`，发版检查见 `release-checklist.md`。
 >
 > **使用方式**：PR 创建前，逐项核对。无法判断的项标注 `[待用户确认]`。
+>
+> Last verified: 2026-03-19（全量审计，与当前 PR 流程一致）
 
 ---
 

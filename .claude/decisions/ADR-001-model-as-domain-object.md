@@ -2,6 +2,8 @@
 id: ADR-001
 status: Accepted
 date: 2026-03-03
+implementation: Complete
+verified: 2026-03-19
 ---
 
 # ADR-001: @Model 直接作领域对象（删除 Domain 层）

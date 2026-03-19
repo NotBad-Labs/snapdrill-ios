@@ -1,6 +1,8 @@
 # SnapDrill 架构（2026-03-07 最终状态）
 
 > **上游依赖**：`principles.md`（工程哲学、包边界原则、DI 原则）
+>
+> Last verified: 2026-03-19（全量审计，与代码库一致）
 
 ## 包结构（5 包）
 
@@ -113,12 +115,12 @@ SnapDrillFeatureSettings  ──► Core, Data, UI, Library（SubjectManager / S
 分类管理视图（SubjectManagerView 等）语义归属 Library（题目元数据 CRUD），
 不属 Dashboard（统计看板）。Settings 直接依赖 Library，无需经由 Dashboard。
 
-## 验证结果（2026-03-16 更新）
+## 验证结果（2026-03-19 更新）
 
 | 指标 | 值 |
 |---|---|
 | SPM 包数 | 5 |
-| Swift 文件数 | 176 |
+| Swift 文件数 | 174（137 production + 37 tests） |
 | SnapDrillCore swift test | 37/37 ✅（无 Firebase 依赖）|
 | SnapDrillData swift test | macOS `swift test` 运行时崩溃（XCTest 框架限制），须通过 Xcode Simulator 验证 |
 | xcodebuild build | BUILD SUCCEEDED ✅ |

@@ -2,6 +2,8 @@
 id: ADR-003
 status: Accepted
 date: 2026-03-07
+implementation: Complete
+verified: 2026-03-19
 ---
 
 # ADR-003: 5 包结构与严格单向依赖

@@ -235,6 +235,34 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 ---
 
+## 文档治理（2026-03-19 确立）
+
+> **研究基础**：Google g3doc 新鲜度系统、GitLab SSOT 声明、Nygard ADR 不可变快照哲学、
+> AWS ADR 生命周期、Martin Fowler 文档形状论。
+
+### 文档分类
+
+| 类型 | 示例 | 新鲜度追踪 | 理由 |
+|---|---|---|---|
+| **活文档** | architecture.md、infrastructure.md、conventions.md、technical-debt-ledger.md、definition-of-done.md | 加 `Last verified: YYYY-MM-DD` | 会随代码变化而过时 |
+| **快照** | decisions/ADR-*.md、session-log.md | 不加新鲜度字段 | ADR 是不可变的时间点决策记录（Nygard 哲学） |
+| **产品文档** | product-vision.md、product-requirements.md 等 | 不加 | 产品负责人领域，按发版节奏更新 |
+| **Memory** | memory/*.md | 不加 | frontmatter 已含元数据 |
+
+### 三条治理规则
+
+1. **活文档加 `Last verified`**：仅在实际 review 内容与代码一致性后更新日期。改 typo ≠ verified。自动更新 timestamp 会污染信号
+2. **ADR 不可变 + Status 生命周期**：`Proposed → Accepted → Superseded`。决策变了就新建 ADR supersede 旧的，不修改原文。加 `implementation: Complete / Partial / Not Started` 和 `verified: YYYY-MM-DD` 字段追踪实施状态
+3. **发版前全量扫描**：每次准备 TestFlight/App Store 发布时，扫描所有 `.claude/` 文档是否与代码一致。事件驱动，不设日历节奏（1 人 + AI 团队靠事件驱动更高效）
+
+### SSOT 规则
+
+- **API 签名、配置值**：严格 SSOT，唯一真值在 `infrastructure.md`
+- **概念解释、架构概述**：允许摘要性复制 + 指回权威源（阅读体验优先于 DRY）
+- **多处提到同一信息时**：标注哪份是权威文档（已有的 `> 上游依赖` 声明即是）
+
+---
+
 ## 技术债标记
 
 > 详见 `technical-debt-ledger.md`（架构级技术债台账）
