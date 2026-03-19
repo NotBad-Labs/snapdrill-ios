@@ -31,8 +31,6 @@
 
 - ``OnboardingView`` — 首次启动引导流程视图
 - ``OnboardingManager`` — 持久化引导完成状态，管理功能提示气泡
-- ``HelpView`` — 折叠式帮助中心，支持全文搜索
-- ``QuickHelpCard`` — 可点击帮助快捷入口卡片
 
 ### 无障碍
 
