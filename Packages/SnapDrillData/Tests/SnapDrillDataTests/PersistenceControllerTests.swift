@@ -53,7 +53,7 @@ struct PersistenceControllerTests {
         #expect(items.first?.content == "测试题目")
     }
 
-    @Test("shared 单例可访问")
+    @Test("shared 单例可访问", .disabled("访问 shared 会触发真实 SQLite 文件创建，影响测试隔离性"))
     func sharedInstanceIsAccessible() {
         let shared = PersistenceController.shared
 

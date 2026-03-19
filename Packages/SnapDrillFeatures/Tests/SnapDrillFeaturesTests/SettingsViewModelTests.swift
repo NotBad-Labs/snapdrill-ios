@@ -194,8 +194,12 @@ final class SettingsViewModelTests {
 
     @Test("restoreFromBackup 正常路径：round-trip 恢复")
     func restoreFromBackup_roundTrip() async throws {
-        // 1. 准备原始数据
+        // 1. 准备原始数据——使用非默认 SM-2 值，区分"正确恢复"和"默认值重建"
         let item = ReviewItemModel(content: "恢复测试题目", subject: "英语")
+        item.easeFactor = 1.8
+        item.interval = 7
+        item.repetitions = 3
+        item.nextReviewAt = Date(timeIntervalSinceReferenceDate: 800_000_000)
         repos.review.insert(item)
         try repos.review.saveContext()
         try repos.subject.insertAndSave(SubjectModel(name: "英语", icon: "textformat.abc", colorHex: "#0000FF", sortOrder: 0))
@@ -217,11 +221,17 @@ final class SettingsViewModelTests {
         // 4. 从备份恢复
         await vm.restoreFromBackup(fileURL: backupURL)
 
-        // 5. 验证恢复结果
+        // 5. 验证恢复结果——数量、内容字段、SM-2 调度字段均完整
         #expect(vm.backupError == nil)
         #expect(vm.isBackupInProgress == false)
-        let countAfterRestore = try repos.review.totalCount()
-        #expect(countAfterRestore == 1)
+        let restoredItems = try repos.review.fetchAllModels()
+        #expect(restoredItems.count == 1)
+        let restored = restoredItems.first
+        #expect(restored?.content == "恢复测试题目")
+        #expect(restored?.subject == "英语")
+        #expect(restored?.easeFactor == 1.8)
+        #expect(restored?.interval == 7)
+        #expect(restored?.repetitions == 3)
     }
 
     @Test("restoreFromBackup 成功后发送 reviewDataDidChange 通知")
