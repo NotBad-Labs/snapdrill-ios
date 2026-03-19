@@ -59,12 +59,6 @@ public struct OnboardingView: View {
         self.onComplete = onComplete
     }
     
-    /// 总页数（介绍页 + 字段选择页）
-    private var totalPages: Int { pages.count + 1 }
-
-    /// 字段选择页的 tag 索引
-    private var fieldSelectionIndex: Int { pages.count }
-
     // MARK: - Body
 
     public var body: some View {
@@ -85,8 +79,6 @@ public struct OnboardingView: View {
                     OnboardingPageView(page: page)
                         .tag(index)
                 }
-                FieldSelectionOnboardingView()
-                    .tag(fieldSelectionIndex)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
@@ -104,8 +96,8 @@ public struct OnboardingView: View {
 
                 Spacer()
 
-                Button(currentPage == totalPages - 1 ? L10n.Onboarding.getStarted : L10n.Onboarding.next) {
-                    if currentPage == totalPages - 1 {
+                Button(currentPage == pages.count - 1 ? L10n.Onboarding.getStarted : L10n.Onboarding.next) {
+                    if currentPage == pages.count - 1 {
                         completeOnboarding()
                     } else {
                         withAnimation {
