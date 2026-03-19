@@ -91,20 +91,25 @@ final class DashboardViewModelTests {
         vm.cancelTasks()
     }
 
-    @Test("loadData 有待复习题目时 dueCount 正确")
+    @Test("loadData 区分到期和未到期题目的 dueCount")
     func loadData_dueCount() throws {
-        // 创建一道已到复习时间的题目
-        let item = ReviewItemModel(content: "待复习题目")
-        item.nextReviewAt = Date.distantPast
-        item.repetitions = 1
-        repos.review.insert(item)
+        // 一道已到期的题目（1 小时前到期）
+        let dueItem = ReviewItemModel(content: "待复习题目")
+        dueItem.nextReviewAt = Date(timeIntervalSinceNow: -3600)
+        repos.review.insert(dueItem)
+
+        // 一道未到期的题目（远未来）
+        let futureItem = ReviewItemModel(content: "未到期题目")
+        futureItem.nextReviewAt = Date.distantFuture
+        repos.review.insert(futureItem)
+
         try repos.review.saveContext()
 
         let vm = DashboardViewModel(repositories: repos)
         vm.loadData()
 
+        #expect(vm.totalCount == 2)
         #expect(vm.dueCount == 1)
-        #expect(vm.totalCount == 1)
         vm.cancelTasks()
     }
 

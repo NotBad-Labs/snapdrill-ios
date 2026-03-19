@@ -53,8 +53,8 @@ struct PDFExportServiceTests {
 
         let data = try await service.createPDF(from: items, imageProvider: { _ in nil })
 
-        // 5 items / 2 per page = 3 数据页 + 1 标题页 = 4 页
-        // 验证 PDF 比单页大（间接验证多页）
+        // 5 items 应触发多页渲染（2 items/page + 1 标题页）
+        // 此处验证产出数据量显著大于单 item
         let singleItemData = try await service.createPDF(from: createDummyItems(count: 1), imageProvider: { _ in nil })
         #expect(data.count > singleItemData.count)
     }
@@ -69,12 +69,12 @@ struct PDFExportServiceTests {
         #expect(data.isEmpty == false)
     }
 
-    @Test("纯图片题（content 为 nil）不崩溃")
-    func nilContent_imageOnly_noCrash() async throws {
+    @Test("content 和 image 均为空的题目不崩溃")
+    func emptyItem_noCrash() async throws {
         let service = PDFExportService.shared
         let items = [MockPDFItem(content: nil, imagePath: "some/image.jpg")]
 
-        // imageProvider 返回 nil（无真实图片），但 content 也为 nil——验证不崩溃
+        // content 为 nil 且 imageProvider 返回 nil——验证空白题目不崩溃
         let data = try await service.createPDF(from: items, imageProvider: { _ in nil })
 
         #expect(data.isEmpty == false)

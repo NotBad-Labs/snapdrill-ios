@@ -147,5 +147,10 @@ final class SubjectManagerViewModelTests {
 
         // 题目应级联更新到"物理"
         #expect(item.subject == "物理")
+
+        // Known limitation: 生产代码不阻止重名，重命名后会产生两个同名 Model
+        // 见 Issue #370
+        let physicsCount = vm.subjects.filter { $0.name == "物理" }.count
+        #expect(physicsCount == 2, "当前行为：重命名产生两个同名选项（#370 修复后应为 1）")
     }
 }
