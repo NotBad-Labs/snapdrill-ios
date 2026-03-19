@@ -1,16 +1,17 @@
 # 压缩后上下文恢复指引（自动注入，勿手动编辑）
 
-> 此内容在 context 压缩后由 hook 自动注入。
+> 此内容在 context 压缩后自动注入。
 > 规则已在 CLAUDE.md / principles.md 中（系统指令，压缩不影响），此处不重复。
 > 本文件的唯一职责：帮助你快速重建压缩前的会话状态。
+>
+> Last verified: 2026-03-19
 
 ## 立即执行以下步骤
 
-1. **了解当前分支和最近提交**：运行 `git status` 和 `git log --oneline -5`
-2. **了解待处理的工作**：运行 `gh issue list --state open --label claude-code`
-3. **检查是否有活跃计划**：查看 `.claude/plans/` 目录
-4. **检查本次会话的文件修改记录**：如果 `.claude/session-log.txt` 存在，读取它了解本次会话改过哪些文件
-5. **向用户确认**：简要说明你恢复到的上下文理解，请用户确认或纠正
+1. **读取 STATUS.md 和 session-log.md**：恢复项目当前状态和最近工作记录（CLAUDE.md 强制要求）
+2. **了解当前分支和最近提交**：运行 `git status` 和 `git log --oneline -5`
+3. **了解待处理的工作**：运行 `gh issue list --state open --label claude-code`
+4. **向用户确认**：简要说明你恢复到的上下文理解，请用户确认或纠正
 
 ## 注意
 

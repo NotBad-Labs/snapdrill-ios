@@ -6,6 +6,8 @@
 > 「怎么想」见 `principles.md`，「怎么协作」见 `workflow.md`。
 >
 > **注意**：UI/UX 编码约束见 `principles.md`「Apple 原生优先铁律」（常用模式速查表、核心心智模型）。
+>
+> Last verified: 2026-03-19（全量审计，与代码库一致）
 
 ---
 

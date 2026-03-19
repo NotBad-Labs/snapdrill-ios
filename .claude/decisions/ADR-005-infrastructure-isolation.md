@@ -2,6 +2,8 @@
 id: ADR-005
 status: Accepted
 date: 2026-03-04
+implementation: Complete
+verified: 2026-03-19
 ---
 
 # ADR-005: SnapDrillInfrastructure 包隔离（Firebase 封装）

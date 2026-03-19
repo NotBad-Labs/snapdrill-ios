@@ -2,6 +2,9 @@
 id: ADR-004
 status: Accepted
 date: 2026-03-13
+implementation: Partial
+implementation_note: 6 个 .shared 单例仍在活跃使用（见 TD-2），目标 v1.5 拆包时统一迁移
+verified: 2026-03-19
 ---
 
 # ADR-004: DependencyContainer 唯一单例（DI 模式）

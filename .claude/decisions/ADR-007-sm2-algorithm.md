@@ -2,6 +2,8 @@
 id: ADR-007
 status: Accepted
 date: 2026-03-01
+implementation: Complete
+verified: 2026-03-19
 ---
 
 # ADR-007: SM-2 间隔重复算法选型

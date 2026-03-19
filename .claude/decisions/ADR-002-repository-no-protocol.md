@@ -2,6 +2,8 @@
 id: ADR-002
 status: Accepted
 date: 2026-03-03
+implementation: Complete
+verified: 2026-03-19
 ---
 
 # ADR-002: Repository 无协议（in-memory ModelContainer 替代测试）

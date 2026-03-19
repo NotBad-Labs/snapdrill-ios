@@ -2,6 +2,8 @@
 id: ADR-006
 status: Accepted
 date: 2026-03-01
+implementation: Complete
+verified: 2026-03-19
 ---
 
 # ADR-006: SwiftData 而非 CoreData
