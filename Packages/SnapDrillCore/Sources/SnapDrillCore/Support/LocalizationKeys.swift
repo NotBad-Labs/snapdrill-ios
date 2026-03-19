@@ -270,8 +270,6 @@ public enum L10n {
         public static let exportTitle = NSLocalizedString("library.export_title", value: "导出选项", comment: "导出选项标题")
         public static let exportPDF = NSLocalizedString("library.export_pdf", value: "PDF / 打印", comment: "PDF 导出")
         public static let exportPDFHint = NSLocalizedString("library.export_pdf_hint", value: "适合打印复习", comment: "PDF 导出提示")
-        public static let exportMarkdown = NSLocalizedString("library.export_markdown", value: "Markdown", comment: "Markdown 导出")
-        public static let exportMarkdownHint = NSLocalizedString("library.export_markdown_hint", value: "适合笔记软件", comment: "Markdown 提示")
         public static let exportCSV = NSLocalizedString("library.export_csv", value: "CSV", comment: "CSV 导出")
         public static let exportCSVHint = NSLocalizedString("library.export_csv_hint", value: "适合表格处理", comment: "CSV 提示")
         public static let exportPreview = NSLocalizedString("library.export_preview", value: "导出预览", comment: "导出预览页标题")

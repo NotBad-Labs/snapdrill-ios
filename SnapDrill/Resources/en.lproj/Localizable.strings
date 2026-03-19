@@ -158,8 +158,6 @@
 "library.export_title" = "Export Options";
 "library.export_pdf" = "PDF / Print";
 "library.export_pdf_hint" = "Best for printing";
-"library.export_markdown" = "Markdown";
-"library.export_markdown_hint" = "Best for note apps";
 "library.export_csv" = "CSV";
 "library.export_csv_hint" = "Best for spreadsheets";
 "library.export_preview" = "Export Preview";
