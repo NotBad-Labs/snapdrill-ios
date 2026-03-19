@@ -28,20 +28,20 @@ product-vision.md（为什么做 — 几乎不变）
 
 ### 线 A：产品技术债（S3）
 
-S0/S1/S2 已清零。剩余 S3 按影响排序：
+S0/S1/S2/S3 全部清零 ✅
 
 | 状态 | Issue | 内容 |
 |---|---|---|
 | ✅ | [#347](../../issues/347) | Flaky tests → CI 红色 → PR #353 |
 | ✅ | [#319](../../issues/319) | CSV 导出 Excel 公式注入防护 → PR #354 |
 | ✅ | [#349](../../issues/349) | AccessibilityHelper 硬编码中文 → PR #355 |
-| ⬜ | [#348](../../issues/348) | 协议契约形式化 — 跨包协议缺少行为保证文档 |
-| ⬜ | [#285](../../issues/285) | 清理 PREMATURE 类型 — iCloud/网络相关枚举 |
-| ⬜ | [#286](../../issues/286) | SHAPE_CONCERN 接口确认 |
-| ⬜ | [#284](../../issues/284) | HelpView 帮助系统产品定位 |
-| ⬜ | [#264](../../issues/264) | Share Extension URL 消毒 + EXIF GPS |
-| ⬜ | [#300](../../issues/300) | L10n.Common onboarding 键迁移 |
-| ⬜ | [#301](../../issues/301) | export_markdown 无产品支撑的键清理 |
+| ✅ | [#348](../../issues/348) | 协议契约形式化 → PR #357 |
+| ✅ | [#285](../../issues/285) | PREMATURE 类型 — 已在 PR #290 中删除，关闭 |
+| ✅ | [#286](../../issues/286) | SHAPE_CONCERN — 审查确认保留，关闭 |
+| ✅ | [#284](../../issues/284) | HelpView 死代码移除（-511 行）→ PR #360 |
+| ✅ | [#264](../../issues/264) | Share Extension + EXIF — EXIF 已修复 + SE 未实现，关闭 |
+| ✅ | [#300](../../issues/300) | L10n onboarding 键迁移 → PR #358 |
+| ✅ | [#301](../../issues/301) | Markdown 导出移除（图片内容断裂）→ PR #359 |
 
 ### 线 B：工程体系完善
 
@@ -99,6 +99,11 @@ S0/S1/S2 已清零。剩余 S3 按影响排序：
 
 | 日期 | Issue/PR | 内容 |
 |---|---|---|
+| 2026-03-19 | [#360](../../pull/360) | chore: 移除 App 内帮助系统 -511 行（Closes #284）|
+| 2026-03-19 | [#359](../../pull/359) | chore: 移除 Markdown 导出（Closes #301）|
+| 2026-03-19 | [#358](../../pull/358) | chore: L10n onboarding 键迁移（Closes #300）|
+| 2026-03-19 | [#357](../../pull/357) | chore: 协议契约形式化（Closes #348）|
+| 2026-03-19 | [#356](../../pull/356) | chore: STATUS.md 重构 — 双线并行结构 |
 | 2026-03-19 | [#355](../../pull/355) | fix: AccessibilityHelper 硬编码中文迁移到 L10n（Closes #349）|
 | 2026-03-19 | [#354](../../pull/354) | fix: CSV 导出 Excel 公式注入防护（Closes #319）|
 | 2026-03-19 | [#353](../../pull/353) | fix: CaptureResultViewModelTests 3 个 flaky test 修复（Closes #347）|
