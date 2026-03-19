@@ -13,11 +13,35 @@ import Foundation
 /// 远程配置同步协议
 ///
 /// 定义了从远程（如 Firebase Remote Config）同步功能开关和配置项的标准。
+///
+/// ## 行为保证
+/// - `fetchAndActivate()` 从远程拉取最新配置并激活，网络不可用时抛出错误
+/// - 查询方法（`bool`/`string`/`double`）返回已激活的本地缓存值，不触发网络请求
+/// - 线程安全：`@MainActor` 隔离
+///
+/// ## 返回值语义
+/// - `nil` = 远程未配置此 key（从未 fetch 过，或 key 不存在于远程配置中）
+/// - 非 `nil` = 远程已配置的值（含默认值和已覆盖值）
+///
+/// ## 不保证
+/// - 调用频率不受限（实现方可能有内部节流，如 Firebase 的 12 小时最小间隔）
+/// - fetch 后立即可用（激活可能有短暂延迟）
 @MainActor
 public protocol RemoteConfigurable {
+    /// 从远程拉取最新配置并激活
+    /// - Throws: 网络错误或服务端错误
     func fetchAndActivate() async throws
+
+    /// 查询布尔配置项
+    /// - Returns: 配置值；key 不存在时返回 `nil`
     func bool(forKey key: String) -> Bool?
+
+    /// 查询字符串配置项
+    /// - Returns: 配置值；key 不存在时返回 `nil`
     func string(forKey key: String) -> String?
+
+    /// 查询浮点配置项
+    /// - Returns: 配置值；key 不存在时返回 `nil`
     func double(forKey key: String) -> Double?
 }
 
