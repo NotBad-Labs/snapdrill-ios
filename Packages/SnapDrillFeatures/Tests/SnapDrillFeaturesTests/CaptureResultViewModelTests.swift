@@ -283,10 +283,9 @@ final class CaptureResultViewModelTests {
         vm.handleImageCrop(croppedImage)
 
         #expect(vm.isCropping == false)
-        // 先等 OCR 任务启动（isRecognizing 变为 true），再等完成（变回 false）
-        // 避免竞态：isRecognizing 初始值为 false，直接等 false 会立即返回
-        try await waitUntil("OCR 任务启动") { vm.isRecognizing == true || mockOCR.recognizeTextCallCount > 0 }
-        try await waitUntil("OCR 任务完成") { vm.isRecognizing == false }
+        // 等 OCR 任务完成：要求 callCount > 0（确保任务跑过）且 isRecognizing == false（确保完成）
+        // 避免竞态：isRecognizing 初始值为 false，仅检查 false 会立即返回
+        try await waitUntil("OCR 任务完成") { !vm.isRecognizing && mockOCR.recognizeTextCallCount > 0 }
         #expect(vm.content == "重新识别文本")
         #expect(mockOCR.recognizeTextCallCount == 1)
     }
