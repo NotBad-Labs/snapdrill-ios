@@ -657,3 +657,7 @@
 "accessibility.difficulty_3" = "Medium";
 "accessibility.difficulty_4" = "Hard";
 "accessibility.difficulty_5" = "Very Hard";
+"accessibility.review_item_label" = "%@ question, difficulty %@, content: %@";
+"accessibility.review_button_hint" = "Tap to start reviewing %d questions";
+"accessibility.export_button_hint" = "Tap to export as %@ format";
+"accessibility.progress_description" = "Completed %d of %d, progress %d%%";

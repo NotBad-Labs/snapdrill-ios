@@ -1110,6 +1110,32 @@ public enum L10n {
         }
         public static let startReviewHint = NSLocalizedString("accessibility.start_review_hint", value: "开始今日复习会话", comment: "VoiceOver 开始复习提示")
 
+        // AccessibilityHelper 使用的键
+        public static func reviewItemLabel(subject: String, difficulty: String, content: String) -> String {
+            String(format: NSLocalizedString("accessibility.review_item_label", value: "%@题目，难度%@，内容：%@", comment: "VoiceOver 复习项目完整标签"), subject, difficulty, content)
+        }
+        public static func reviewButtonHint(count: Int) -> String {
+            String(format: NSLocalizedString("accessibility.review_button_hint", value: "轻点开始复习 %d 道题目", comment: "VoiceOver 复习按钮提示"), count)
+        }
+        public static func exportButtonHint(format: String) -> String {
+            String(format: NSLocalizedString("accessibility.export_button_hint", value: "轻点导出为 %@ 格式", comment: "VoiceOver 导出按钮提示"), format)
+        }
+        public static func progressDescription(current: Int, total: Int, percentage: Int) -> String {
+            String(format: NSLocalizedString("accessibility.progress_description", value: "已完成 %d 道，共 %d 道，进度 %d%%", comment: "VoiceOver 进度描述"), current, total, percentage)
+        }
+        public static func difficultyLevel(_ difficulty: Int) -> String {
+            NSLocalizedString("accessibility.difficulty_\(difficulty)", value: {
+                switch difficulty {
+                case 1: return "非常简单"
+                case 2: return "简单"
+                case 3: return "中等"
+                case 4: return "困难"
+                case 5: return "非常困难"
+                default: return "未知"
+                }
+            }(), comment: "VoiceOver 难度描述")
+        }
+
         // 标签
         public static func deleteTag(_ name: String) -> String {
             String(format: NSLocalizedString("accessibility.delete_tag", value: "删除标签%@", comment: "VoiceOver 删除标签按钮"), name)

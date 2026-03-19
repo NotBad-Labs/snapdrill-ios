@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 
 // MARK: - View Extensions
 
@@ -118,40 +119,33 @@ public enum AccessibilityHelper {
         difficulty: Int
     ) -> String {
         let difficultyText = difficultyDescription(difficulty)
-        return "\(subject)题目，难度\(difficultyText)，内容：\(content)"
+        return L10n.Accessibility.reviewItemLabel(subject: subject, difficulty: difficultyText, content: content)
     }
-    
+
     /// 生成复习按钮的无障碍提示
     ///
     /// - Parameter count: 待复习数量
     /// - Returns: 无障碍提示文本
     public static func reviewButtonHint(count: Int) -> String {
-        return "轻点开始复习 \(count) 道题目"
+        L10n.Accessibility.reviewButtonHint(count: count)
     }
-    
+
     /// 生成导出按钮的无障碍提示
     ///
     /// - Parameter format: 导出格式
     /// - Returns: 无障碍提示文本
     public static func exportButtonHint(format: String) -> String {
-        return "轻点导出为 \(format) 格式"
+        L10n.Accessibility.exportButtonHint(format: format)
     }
-    
+
     /// 将难度数字转换为描述性文本
     ///
     /// - Parameter difficulty: 难度值 (1-5)
     /// - Returns: 难度描述
     public static func difficultyDescription(_ difficulty: Int) -> String {
-        switch difficulty {
-        case 1: return "非常简单"
-        case 2: return "简单"
-        case 3: return "中等"
-        case 4: return "困难"
-        case 5: return "非常困难"
-        default: return "未知"
-        }
+        L10n.Accessibility.difficultyLevel(difficulty)
     }
-    
+
     /// 生成进度的无障碍描述
     ///
     /// - Parameters:
@@ -160,9 +154,9 @@ public enum AccessibilityHelper {
     /// - Returns: 进度描述
     public static func progressDescription(current: Int, total: Int) -> String {
         let percentage = total > 0 ? Int(Double(current) / Double(total) * 100) : 0
-        return "已完成 \(current) 道，共 \(total) 道，进度 \(percentage)%"
+        return L10n.Accessibility.progressDescription(current: current, total: total, percentage: percentage)
     }
-    
+
     /// 生成日期的无障碍描述
     ///
     /// - Parameter date: 日期
@@ -171,7 +165,8 @@ public enum AccessibilityHelper {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
-        formatter.locale = Locale(identifier: "zh_CN")
+        // 跟随系统语言，不硬编码 zh_CN
+        formatter.locale = Locale.current
         return formatter.string(from: date)
     }
 }
