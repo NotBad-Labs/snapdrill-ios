@@ -121,4 +121,30 @@ final class GradeManagerViewModelTests {
         #expect(vm.pendingDeletionName == "三年级")
         #expect(vm.grades.count == 1)
     }
+
+    // MARK: - 边界条件
+
+    @Test("saveGrade 重命名为已存在的年级名称时题目级联正确")
+    func saveGrade_renameToExistingName() throws {
+        let gradeA = GradeModel(name: "三年级", sortOrder: 0)
+        let gradeB = GradeModel(name: "四年级", sortOrder: 1)
+        try repos.grade.insertAndSave(gradeA)
+        try repos.grade.insertAndSave(gradeB)
+
+        let item = ReviewItemModel(content: "题目", grade: "三年级")
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = GradeManagerViewModel(repositories: repos)
+        vm.loadData()
+
+        let grade3 = vm.grades.first(where: { $0.name == "三年级" })
+        vm.saveGrade(grade: grade3, name: "四年级")
+
+        #expect(item.grade == "四年级")
+
+        // Known limitation: 生产代码不阻止重名，见 Issue #370
+        let grade4Count = vm.grades.filter { $0.name == "四年级" }.count
+        #expect(grade4Count == 2, "当前行为：重命名产生两个同名选项（#370 修复后应为 1）")
+    }
 }

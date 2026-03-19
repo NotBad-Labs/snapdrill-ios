@@ -91,6 +91,28 @@ final class DashboardViewModelTests {
         vm.cancelTasks()
     }
 
+    @Test("loadData 区分到期和未到期题目的 dueCount")
+    func loadData_dueCount() throws {
+        // 一道已到期的题目（1 小时前到期）
+        let dueItem = ReviewItemModel(content: "待复习题目")
+        dueItem.nextReviewAt = Date(timeIntervalSinceNow: -3600)
+        repos.review.insert(dueItem)
+
+        // 一道未到期的题目（远未来）
+        let futureItem = ReviewItemModel(content: "未到期题目")
+        futureItem.nextReviewAt = Date.distantFuture
+        repos.review.insert(futureItem)
+
+        try repos.review.saveContext()
+
+        let vm = DashboardViewModel(repositories: repos)
+        vm.loadData()
+
+        #expect(vm.totalCount == 2)
+        #expect(vm.dueCount == 1)
+        vm.cancelTasks()
+    }
+
     // MARK: - checkDraftAndCapture
 
     @Test("checkDraftAndCapture 有草稿时显示弹窗")

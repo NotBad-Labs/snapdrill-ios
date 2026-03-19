@@ -122,4 +122,35 @@ final class SubjectManagerViewModelTests {
         #expect(vm.pendingDeletionName == "数学")
         #expect(vm.subjects.count == 1)
     }
+
+    // MARK: - 边界条件
+
+    @Test("saveSubject 重命名为已存在的学科名称时题目级联正确")
+    func saveSubject_renameToExistingName() throws {
+        // 准备两个学科
+        let subjectA = SubjectModel(name: "数学", icon: "function", colorHex: "#FF0000", sortOrder: 0)
+        let subjectB = SubjectModel(name: "物理", icon: "atom", colorHex: "#00FF00", sortOrder: 1)
+        try repos.subject.insertAndSave(subjectA)
+        try repos.subject.insertAndSave(subjectB)
+
+        // 一道数学题
+        let item = ReviewItemModel(content: "数学题", subject: "数学")
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = SubjectManagerViewModel(repositories: repos)
+        vm.loadData()
+
+        // 将"数学"重命名为"物理"（已存在的名称）
+        let mathSubject = vm.subjects.first(where: { $0.name == "数学" })
+        vm.saveSubject(subject: mathSubject, name: "物理", selectedIcon: "function", finalColorHex: "#FF0000")
+
+        // 题目应级联更新到"物理"
+        #expect(item.subject == "物理")
+
+        // Known limitation: 生产代码不阻止重名，重命名后会产生两个同名 Model
+        // 见 Issue #370
+        let physicsCount = vm.subjects.filter { $0.name == "物理" }.count
+        #expect(physicsCount == 2, "当前行为：重命名产生两个同名选项（#370 修复后应为 1）")
+    }
 }
