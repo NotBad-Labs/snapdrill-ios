@@ -333,6 +333,12 @@ public enum L10n {
         public static func gradeHasItems(_ name: String) -> String {
             String(format: NSLocalizedString("library.grade_has_items", value: "年级「%@」下仍有题目，请先将题目移动到其他年级或删除对应题目。", comment: "年级删除受阻"), name)
         }
+
+        // 分类管理 — 重名提示
+        public static let duplicateName = NSLocalizedString("library.duplicate_name", value: "名称已存在", comment: "重名弹窗标题")
+        public static func duplicateNameMessage(_ name: String) -> String {
+            String(format: NSLocalizedString("library.duplicate_name_message", value: "「%@」已被使用，请输入其他名称。", comment: "重名提示"), name)
+        }
     }
 
     // MARK: - Review

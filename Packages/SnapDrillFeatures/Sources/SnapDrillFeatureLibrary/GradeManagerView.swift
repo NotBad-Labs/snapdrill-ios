@@ -110,11 +110,21 @@ private struct EditGradeView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L10n.Common.save) {
-                        viewModel?.saveGrade(grade: grade, name: name.trimmingCharacters(in: .whitespaces))
-                        dismiss()
+                        let success = viewModel?.saveGrade(grade: grade, name: name.trimmingCharacters(in: .whitespaces)) ?? false
+                        if success {
+                            dismiss()
+                        }
                     }
                     .disabled(!canSave)
                 }
+            }
+            .alert(L10n.Library.duplicateName, isPresented: Binding(
+                get: { viewModel?.isDuplicateName ?? false },
+                set: { newValue in viewModel?.isDuplicateName = newValue }
+            )) {
+                Button(L10n.Common.ok, role: .cancel) { }
+            } message: {
+                Text(L10n.Library.duplicateNameMessage(viewModel?.duplicateNameValue ?? ""))
             }
             .onAppear {
                 if let grade {

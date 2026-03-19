@@ -173,11 +173,20 @@ struct EditSourceView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L10n.Common.save) {
-                        saveSource()
-                        dismiss()
+                        if saveSource() {
+                            dismiss()
+                        }
                     }
                     .disabled(!canSave)
                 }
+            }
+            .alert(L10n.Library.duplicateName, isPresented: Binding(
+                get: { viewModel?.isDuplicateName ?? false },
+                set: { newValue in viewModel?.isDuplicateName = newValue }
+            )) {
+                Button(L10n.Common.ok, role: .cancel) { }
+            } message: {
+                Text(L10n.Library.duplicateNameMessage(viewModel?.duplicateNameValue ?? ""))
             }
             .sheet(isPresented: $showSymbolPicker) {
                 SFSymbolPickerView(selectedSymbol: $selectedIcon)
@@ -208,13 +217,14 @@ struct EditSourceView: View {
         }
     }
 
-    func saveSource() {
+    @discardableResult
+    func saveSource() -> Bool {
         viewModel?.saveSource(
             source: source,
             name: name.trimmingCharacters(in: .whitespaces),
             selectedIcon: selectedIcon,
             finalColorHex: finalColorHex
-        )
+        ) ?? false
     }
 }
 

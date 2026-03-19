@@ -141,10 +141,12 @@ final class SourceManagerViewModelTests {
         let examSource = vm.sources.first(where: { $0.name == "试卷" })
         vm.saveSource(source: examSource, name: "课本", selectedIcon: "doc.text", finalColorHex: "#808080")
 
-        #expect(item.source == "课本")
+        // 重名被阻止：题目不应级联
+        #expect(item.source == "试卷")
+        #expect(vm.isDuplicateName == true)
+        #expect(vm.duplicateNameValue == "课本")
 
-        // Known limitation: 生产代码不阻止重名，见 Issue #370
         let bookCount = vm.sources.filter { $0.name == "课本" }.count
-        #expect(bookCount == 2, "当前行为：重命名产生两个同名选项（#370 修复后应为 1）")
+        #expect(bookCount == 1)
     }
 }

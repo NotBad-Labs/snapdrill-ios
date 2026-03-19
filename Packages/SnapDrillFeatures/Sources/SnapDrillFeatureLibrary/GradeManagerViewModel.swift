@@ -28,6 +28,10 @@ public final class GradeManagerViewModel {
     public var isDeletingInUse = false
     /// 触发删除保护时正在尝试删除的年级名称
     public var pendingDeletionName = ""
+    /// 是否因重命名目标名称已存在而阻止保存
+    public var isDuplicateName = false
+    /// 触发重名保护时的目标名称
+    public var duplicateNameValue = ""
 
     // MARK: - Dependencies
 
@@ -76,25 +80,39 @@ public final class GradeManagerViewModel {
     /// - Parameters:
     ///   - grade: 传入现有 `GradeModel` 表示编辑，传 `nil` 表示新建
     ///   - name: 年级名称
-    public func saveGrade(grade: GradeModel?, name: String) {
+    /// - Returns: 保存是否成功（重名时返回 `false`，View 层据此决定是否 dismiss）
+    @discardableResult
+    public func saveGrade(grade: GradeModel?, name: String) -> Bool {
+        isDuplicateName = false
         do {
             if let grade {
                 let oldName = grade.name
                 if oldName != name {
+                    if let existing = try repositories.grade.fetchModel(byName: name), existing.id != grade.id {
+                        isDuplicateName = true
+                        duplicateNameValue = name
+                        return false
+                    }
                     try repositories.review.updateGradeUsage(from: oldName, to: name)
                 }
                 grade.name = name
                 try repositories.grade.saveContext()
             } else {
+                if (try repositories.grade.fetchModel(byName: name)) != nil {
+                    isDuplicateName = true
+                    duplicateNameValue = name
+                    return false
+                }
                 let sortOrder = try repositories.grade.totalCount()
                 let model = GradeModel(name: name, sortOrder: sortOrder)
                 try repositories.grade.insertAndSave(model)
             }
             loadData()
+            return true
         } catch {
-            // 回滚所有未持久化变更（含级联重命名的内存修改），防止脏数据污染 mainContext
             repositories.review.rollbackContext()
             SnapDrillLogger.generic.error("保存年级失败: \(error.localizedDescription)")
+            return false
         }
     }
 }
