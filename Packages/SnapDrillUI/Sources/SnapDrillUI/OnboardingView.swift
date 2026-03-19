@@ -72,7 +72,7 @@ public struct OnboardingView: View {
             // 跳过按钮
             HStack {
                 Spacer()
-                Button(L10n.Common.onboardingSkip) {
+                Button(L10n.Onboarding.skip) {
                     completeOnboarding()
                 }
                 .foregroundStyle(.secondary)
@@ -94,7 +94,7 @@ public struct OnboardingView: View {
             // 底部按钮
             HStack(spacing: 16) {
                 if currentPage > 0 {
-                    Button(L10n.Common.onboardingPrevious) {
+                    Button(L10n.Onboarding.previous) {
                         withAnimation {
                             currentPage -= 1
                         }
@@ -104,7 +104,7 @@ public struct OnboardingView: View {
 
                 Spacer()
 
-                Button(currentPage == totalPages - 1 ? L10n.Common.onboardingGetStarted : L10n.Common.onboardingNext) {
+                Button(currentPage == totalPages - 1 ? L10n.Onboarding.getStarted : L10n.Onboarding.next) {
                     if currentPage == totalPages - 1 {
                         completeOnboarding()
                     } else {
@@ -117,7 +117,7 @@ public struct OnboardingView: View {
             }
             .padding()
         }
-        .accessibleGroup(label: L10n.Common.onboardingAccessibilityGroup)
+        .accessibleGroup(label: L10n.Onboarding.accessibilityGroup)
         // HIG：翻页用 light（翻书感），完成引导用 success（正向仪式感）
         .sensoryFeedback(.impact(weight: .light), trigger: currentPage)
         .sensoryFeedback(.success, trigger: completionFeedbackTrigger)
