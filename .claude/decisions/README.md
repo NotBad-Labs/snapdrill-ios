@@ -13,6 +13,7 @@
 | [ADR-005](ADR-005-infrastructure-isolation.md) | SnapDrillInfrastructure 包隔离（Firebase 封装） | Accepted | 2026-03-04 |
 | [ADR-006](ADR-006-swiftdata-over-coredata.md) | SwiftData 而非 CoreData | Accepted | 2026-03-01 |
 | [ADR-007](ADR-007-sm2-algorithm.md) | SM-2 间隔重复算法选型 | Accepted | 2026-03-01 |
+| [ADR-008](ADR-008-voiceover-scope-deferral.md) | VoiceOver 全覆盖推迟到 v1.5 | Accepted | 2026-03-19 |
 
 ## 创建新 ADR
 

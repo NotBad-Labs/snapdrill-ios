@@ -272,11 +272,15 @@ Apple HIG 明确反对首次启动时要求用户配置（"Avoid asking for setu
 
 ---
 
-## 无障碍（2026-03-16 补全）
+## 无障碍（2026-03-16 补全，2026-03-19 ADR-008 调整范围）
 
-支持 iOS 基础无障碍功能：
-- VoiceOver 辅助标签（所有可交互元素提供语义化描述）
-- VoiceOver 公告（操作完成后播报结果，如「题目已保存」）
+SnapDrill 是拍照+图片密集型工具，核心流程天然依赖视觉，视障用户不是目标用户群。
+无障碍支持按版本分层推进，不追求 v1.0 全覆盖。
+
+| 版本 | 范围 | 说明 |
+|---|---|---|
+| v1.0 | 复习功能 VoiceOver + 共享基础设施 | Review feature 辅助标签/公告 + AccessibilityHelper 等工具类（ADR-008） |
+| v1.5 | 全功能 VoiceOver 覆盖 | Dashboard / Capture / Library / Settings 各 View 补齐辅助标签 |
 
 ---
 
@@ -389,7 +393,7 @@ Apple HIG 明确反对首次启动时要求用户配置（"Avoid asking for setu
 - 开源许可展示（Firebase SDK 等第三方库，App Store 合规要求）
 
 **无障碍**
-- VoiceOver 辅助标签和公告
+- 复习功能 VoiceOver 辅助标签和公告（ADR-008：全覆盖推迟到 v1.5）
 
 ### v1.5（规划中）
 
@@ -401,6 +405,7 @@ Apple HIG 明确反对首次启动时要求用户配置（"Avoid asking for setu
 - PDF 导入（P1）
 - Word 导出（Pro 付费）
 - App 内语言切换（不依赖系统设置）
+- VoiceOver 全功能覆盖（Dashboard / Capture / Library / Settings）（ADR-008）
 
 ### v2.0（远期）
 

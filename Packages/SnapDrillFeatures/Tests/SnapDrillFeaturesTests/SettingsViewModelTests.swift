@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2026/03/09.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  SettingsViewModel 核心路径单元测试：数据清除、备份状态守卫。
+//  SettingsViewModel 核心路径单元测试：数据清除、备份/恢复状态机、guard 防护。
 //
 
 import Testing
@@ -132,5 +132,176 @@ final class SettingsViewModelTests {
         #expect(try repos.subject.totalCount() == 0)
         #expect(try repos.source.totalCount() == 0)
         #expect(try repos.grade.totalCount() == 0)
+    }
+
+    // MARK: - createBackup 完整路径
+
+    @Test("createBackup 有数据时生成 backupFileURL")
+    func createBackup_withData_producesFileURL() async throws {
+        // 插入测试数据
+        let item = ReviewItemModel(content: "备份测试题目", subject: "数学")
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.createBackup()
+
+        #expect(vm.backupFileURL != nil)
+        #expect(vm.backupError == nil)
+        #expect(vm.isBackupInProgress == false)
+        #expect(vm.backupStatusMessage == "备份完成")
+
+        // 清理临时文件
+        if let url = vm.backupFileURL {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
+    @Test("createBackup 空数据库也能成功")
+    func createBackup_emptyDB_succeeds() async {
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.createBackup()
+
+        // 空数据备份应成功（生成含空 payload 的 ZIP）
+        #expect(vm.backupFileURL != nil)
+        #expect(vm.backupError == nil)
+        #expect(vm.isBackupInProgress == false)
+
+        // 清理临时文件
+        if let url = vm.backupFileURL {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
+    @Test("createBackup 完成后 isBackupInProgress 恢复为 false")
+    func createBackup_resetsInProgressAfterCompletion() async throws {
+        let item = ReviewItemModel(content: "题目")
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.createBackup()
+
+        #expect(vm.isBackupInProgress == false)
+
+        // 清理
+        if let url = vm.backupFileURL {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
+    // MARK: - restoreFromBackup 完整路径
+
+    @Test("restoreFromBackup 正常路径：round-trip 恢复")
+    func restoreFromBackup_roundTrip() async throws {
+        // 1. 准备原始数据
+        let item = ReviewItemModel(content: "恢复测试题目", subject: "英语")
+        repos.review.insert(item)
+        try repos.review.saveContext()
+        try repos.subject.insertAndSave(SubjectModel(name: "英语", icon: "textformat.abc", colorHex: "#0000FF", sortOrder: 0))
+
+        // 2. 创建备份
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.createBackup()
+        guard let backupURL = vm.backupFileURL else {
+            Issue.record("备份文件 URL 为 nil")
+            return
+        }
+        defer { try? FileManager.default.removeItem(at: backupURL) }
+
+        // 3. 清空数据
+        await vm.clearAllData()
+        let countAfterClear = try repos.review.totalCount()
+        #expect(countAfterClear == 0)
+
+        // 4. 从备份恢复
+        await vm.restoreFromBackup(fileURL: backupURL)
+
+        // 5. 验证恢复结果
+        #expect(vm.backupError == nil)
+        #expect(vm.isBackupInProgress == false)
+        let countAfterRestore = try repos.review.totalCount()
+        #expect(countAfterRestore == 1)
+    }
+
+    @Test("restoreFromBackup 成功后发送 reviewDataDidChange 通知")
+    func restoreFromBackup_postsNotification() async throws {
+        // 准备备份文件
+        let item = ReviewItemModel(content: "通知测试")
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.createBackup()
+        guard let backupURL = vm.backupFileURL else {
+            Issue.record("备份文件 URL 为 nil")
+            return
+        }
+        defer { try? FileManager.default.removeItem(at: backupURL) }
+
+        // 清空后恢复，监听通知
+        await vm.clearAllData()
+
+        var notificationReceived = false
+        let observer = NotificationCenter.default.addObserver(
+            forName: .reviewDataDidChange,
+            object: nil,
+            queue: .main
+        ) { _ in
+            notificationReceived = true
+        }
+
+        await vm.restoreFromBackup(fileURL: backupURL)
+
+        NotificationCenter.default.removeObserver(observer)
+        #expect(notificationReceived == true)
+    }
+
+    @Test("restoreFromBackup 完成后 isBackupInProgress 恢复为 false")
+    func restoreFromBackup_resetsInProgressAfterCompletion() async throws {
+        let item = ReviewItemModel(content: "题目")
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.createBackup()
+        guard let backupURL = vm.backupFileURL else {
+            Issue.record("备份文件 URL 为 nil")
+            return
+        }
+        defer { try? FileManager.default.removeItem(at: backupURL) }
+
+        await vm.restoreFromBackup(fileURL: backupURL)
+
+        #expect(vm.isBackupInProgress == false)
+    }
+
+    // MARK: - cleanupBackupFile
+
+    @Test("cleanupBackupFile 清理后 backupFileURL 为 nil")
+    func cleanupBackupFile_clearsURL() async throws {
+        let item = ReviewItemModel(content: "题目")
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.createBackup()
+        #expect(vm.backupFileURL != nil)
+
+        vm.cleanupBackupFile()
+
+        #expect(vm.backupFileURL == nil)
+        #expect(vm.backupStatusMessage == "")
+    }
+
+    @Test("cleanupBackupFile 无文件时不崩溃")
+    func cleanupBackupFile_noFile_noCrash() {
+        let vm = SettingsViewModel(repositories: repos)
+        #expect(vm.backupFileURL == nil)
+
+        // 不应崩溃
+        vm.cleanupBackupFile()
+
+        #expect(vm.backupFileURL == nil)
     }
 }
