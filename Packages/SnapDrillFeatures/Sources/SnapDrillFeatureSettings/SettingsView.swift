@@ -142,6 +142,8 @@ public struct SettingsView: View {
                     NavigationLink {
                         if let viewModel {
                             DataAndSyncSettingsView(viewModel: viewModel)
+                        } else {
+                            ProgressView()
                         }
                     } label: {
                         SettingsRow(icon: "icloud.fill", gradientStart: .blue, gradientEnd: .cyan, title: L10n.Settings.dataAndSync)
