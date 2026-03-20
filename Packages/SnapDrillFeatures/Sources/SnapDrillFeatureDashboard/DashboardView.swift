@@ -155,7 +155,17 @@ public struct DashboardView: View {
             get: { viewModel?.isShowingSubjectManager ?? false },
             set: { viewModel?.isShowingSubjectManager = $0 }
         )) {
-            SubjectManagerView()
+            // Sheet 场景需要 NavigationStack 宿主（SubjectManagerView 自身不再包含）
+            NavigationStack {
+                SubjectManagerView()
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button(L10n.Common.close) {
+                                viewModel?.isShowingSubjectManager = false
+                            }
+                        }
+                    }
+            }
         }
     }
 }

@@ -207,11 +207,14 @@ public struct CaptureResultView: View {
                                     Spacer()
                                     HStack(spacing: 4) {
                                         ForEach(1...5, id: \.self) { level in
-                                            Image(systemName: level <= viewModel.difficulty.rawValue ? "star.fill" : "star")
-                                                .foregroundStyle(level <= viewModel.difficulty.rawValue ? .orange : .gray.opacity(0.3))
-                                                .onTapGesture {
-                                                    viewModel.difficulty = Difficulty(rawValue: level) ?? .one
-                                                }
+                                            Button {
+                                                viewModel.difficulty = Difficulty(rawValue: level) ?? .one
+                                            } label: {
+                                                Image(systemName: level <= viewModel.difficulty.rawValue ? "star.fill" : "star")
+                                                    .foregroundStyle(level <= viewModel.difficulty.rawValue ? .orange : .gray.opacity(0.3))
+                                            }
+                                            .buttonStyle(.plain)
+                                            .accessibilityLabel(L10n.Accessibility.starRating(difficulty: level))
                                         }
                                     }
                                 }

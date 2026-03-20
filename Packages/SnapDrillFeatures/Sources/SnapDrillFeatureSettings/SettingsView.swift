@@ -42,9 +42,6 @@ public struct SettingsView: View {
     @State private var seedTask: Task<Void, Never>?
     @State private var clearTask: Task<Void, Never>?
     private let imageStorage = ImageStorage()
-    @State private var showingSubjectManager = false
-    @State private var showingSourceManager = false
-    @State private var showingGradeManager = false
 
     // 录入字段可见性（产品规格：学科默认开，其余默认关）
     @AppStorage(UDKey.captureFieldSubject) private var showSubjectField: Bool = true
@@ -181,15 +178,21 @@ public struct SettingsView: View {
 
                 // 6. 分类管理
                 Section(L10n.Settings.categoryManagement) {
-                    Button { showingSubjectManager = true } label: {
+                    NavigationLink {
+                        SubjectManagerView()
+                    } label: {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.manageSubjects)
                     }
 
-                    Button { showingSourceManager = true } label: {
+                    NavigationLink {
+                        SourceManagerView()
+                    } label: {
                         SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.manageSources)
                     }
 
-                    Button { showingGradeManager = true } label: {
+                    NavigationLink {
+                        GradeManagerView()
+                    } label: {
                         SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.manageGrades)
                     }
                 }
@@ -266,9 +269,6 @@ public struct SettingsView: View {
             } message: {
                 Text(viewModel?.clearError ?? L10n.Settings.unknownError)
             }
-            .sheet(isPresented: $showingSubjectManager) { SubjectManagerView() }
-            .sheet(isPresented: $showingSourceManager) { SourceManagerView() }
-            .sheet(isPresented: $showingGradeManager) { GradeManagerView() }
             .alert(L10n.Settings.feedbackTitle, isPresented: $showingMail) {
                 Button(L10n.Settings.copyEmail) {
                     #if canImport(UIKit)

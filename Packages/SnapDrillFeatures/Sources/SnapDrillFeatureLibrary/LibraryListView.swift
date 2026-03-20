@@ -24,7 +24,9 @@ struct LibraryListView: View {
     @Bindable var viewModel: LibraryViewModel
     
     @Environment(\.editMode) private var editMode
-    
+    @State private var swipeDeleteIDs: Set<UUID> = []
+    @State private var showSwipeDeleteConfirm = false
+
     init(
         selectedItemIDs: Binding<Set<UUID>>,
         router: LibraryRouter,
@@ -44,14 +46,16 @@ struct LibraryListView: View {
                  ScrollView(.horizontal, showsIndicators: false) {
                      HStack(spacing: 12) {
                          ForEach(viewModel.subjects) { subject in
-                             SubjectCapsule(subject: subject, isSelected: viewModel.selectedSubjects.contains(subject.name))
-                                 .onTapGesture {
-                                     if viewModel.selectedSubjects.contains(subject.name) {
-                                         viewModel.selectedSubjects.remove(subject.name)
-                                     } else {
-                                         viewModel.selectedSubjects.insert(subject.name)
-                                     }
+                             Button {
+                                 if viewModel.selectedSubjects.contains(subject.name) {
+                                     viewModel.selectedSubjects.remove(subject.name)
+                                 } else {
+                                     viewModel.selectedSubjects.insert(subject.name)
                                  }
+                             } label: {
+                                 SubjectCapsule(subject: subject, isSelected: viewModel.selectedSubjects.contains(subject.name))
+                             }
+                             .buttonStyle(.plain)
                          }
                      }
                      .padding(.horizontal, 4)
@@ -114,11 +118,9 @@ struct LibraryListView: View {
                 }
             } else {
                 ForEach(viewModel.filteredItems) { item in
-                    Button(action: {
-                        if editMode?.wrappedValue.isEditing == false {
-                            router.push(.detail(item))
-                        }
-                    }, label: {
+                    // NavigationLink 提供标准 > 箭头和 VoiceOver 导航语义；
+                    // List(selection:) 在 editMode 下自动禁用导航，无需手动 guard
+                    NavigationLink(value: LibraryDestination.detail(item)) {
                         VStack(alignment: .leading, spacing: 6) {
                             Text(item.content ?? "")
                                 .font(.headline)
@@ -139,8 +141,7 @@ struct LibraryListView: View {
                                     .foregroundStyle(.secondary)
                             }
                         }
-                    })
-                    .buttonStyle(.plain)
+                    }
                     // 长按进入多选模式（iOS 标准交互）
                     .simultaneousGesture(
                         LongPressGesture(minimumDuration: 0.4).onEnded { _ in
@@ -152,8 +153,9 @@ struct LibraryListView: View {
                     .tag(item.id)
                 }
                 .onDelete { offsets in
-                    let idsToDelete = Set(offsets.map { viewModel.filteredItems[$0].id })
-                    Task { await viewModel.deleteItems(ids: idsToDelete) }
+                    // SnapDrill 无回收站，删除不可逆，需确认
+                    swipeDeleteIDs = Set(offsets.map { viewModel.filteredItems[$0].id })
+                    showSwipeDeleteConfirm = true
                 }
                 .deleteDisabled(editMode?.wrappedValue.isEditing == true)
                 
@@ -172,6 +174,17 @@ struct LibraryListView: View {
         .scrollContentBackground(.hidden)
         .background(Color.clear)
         .listRowSpacing(12)
+        .confirmationDialog(L10n.Library.deleteConfirmTitle, isPresented: $showSwipeDeleteConfirm, titleVisibility: .visible) {
+            Button(L10n.Common.delete, role: .destructive) {
+                Task { await viewModel.deleteItems(ids: swipeDeleteIDs) }
+                swipeDeleteIDs.removeAll()
+            }
+            Button(L10n.Common.cancel, role: .cancel) {
+                swipeDeleteIDs.removeAll()
+            }
+        } message: {
+            Text(L10n.Library.deleteConfirmMessage)
+        }
     }
 }
 
