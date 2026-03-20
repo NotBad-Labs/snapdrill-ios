@@ -178,6 +178,17 @@ hotfix/xxx← 紧急修复，从 main 分叉，PR 合并到 main + develop
 - PR 必须关联 Issue（`Closes #N`）
 - 发布到 App Store 时：develop → PR → main → 打 tag（v1.x.0）
 
+#### 文档化例外：STATUS.md 直接推送（2026-03-20 确立）
+
+`STATUS.md` 和 `session-log.md` 是状态追踪文件，不含代码逻辑，允许直接 commit + push 到 develop：
+- 不需要 Code Review（review 的是代码，不是状态记录）
+- 不需要 CI 验证（不影响编译和测试）
+- 每次开 PR 只为推状态文件是流程浪费
+
+**执行方式**：PR 合并后执行 `/update-status`（skill），仅 stage 这两个文件，commit message 固定为 `chore: 更新项目状态看板`。
+
+> **实证**（2026-03-20）：STATUS.md 本地更新后需要等下一个 PR 才能推到 GitHub，导致 GitHub 看板永远落后一步。
+
 ### 每次任务 SOP
 
 ```bash

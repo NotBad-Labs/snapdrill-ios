@@ -47,12 +47,11 @@ done
 
 采纳后推送 fix commit，等 Gemini re-review。
 
-### 5. 合并后立即更新 STATUS.md
+### 5. 合并后立即更新 STATUS.md + 推送
 
 **事件驱动的自动行为，不问用户。**
-- 更新线 A/B 状态表
-- 添加到「近期完成」
-- 提交为独立 PR 或打包到下一个改动中
+- 更新状态表（⬜ → ✅）
+- 执行 `/update-status` 直接推送到 develop（文档化例外，不需要 PR）
 
 ### 6. Review 轮询查两处
 
@@ -66,8 +65,8 @@ gh pr view {N} --json reviews   # PR review
 ### Gemini 经常审 diff 之外的代码
 Gemini 的"严重"问题有很高概率是 pre-existing 问题，不在当前 PR 范围内。每条 finding 必须确认是否在 diff 中。
 
-### STATUS.md 在 git checkout 时会被覆盖
-本地未提交的 STATUS.md 改动会在 `git checkout develop` 时丢失。STATUS.md 的改动应该作为 PR 的一部分提交，或合并后立即单独 PR。
+### STATUS.md 合并后立即推送
+PR 合并后执行 `/update-status` 直接推送，不等下一个 PR。详见 `workflow.md`「文档化例外」。
 
 ### 禁止自审自批
 修复 review finding 后，必须让原 reviewer 验收。不能自己宣布可合并。
