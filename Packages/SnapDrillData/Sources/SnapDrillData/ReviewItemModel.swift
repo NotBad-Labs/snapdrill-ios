@@ -18,13 +18,12 @@ import SnapDrillCore
 @Model
 public final class ReviewItemModel {
 
+    // 索引：提升高频查询性能（Schema V3 新增，见 MigrationPlan.swift）
     #Index<ReviewItemModel>(
         [\.createdAt],         // 题库列表默认排序
         [\.nextReviewAt],      // 待复习查询
         [\.subjectRawValue]    // 按学科过滤
     )
-
-    #Unique<ReviewItemModel>([\.id])
 
     // MARK: - Properties
 

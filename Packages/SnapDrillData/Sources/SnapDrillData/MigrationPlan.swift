@@ -45,14 +45,33 @@ public enum SnapDrillSchemaV2: VersionedSchema {
     }
 }
 
-/// 迁移计划：V1 → V2（lightweight，无自定义数据转换）
+/// Schema V3（3.0.0）— 添加 #Index 提升查询性能
+///
+/// ReviewItemModel 新增 `#Index`（createdAt / nextReviewAt / subjectRawValue），
+/// 优化题库列表排序、待复习查询和学科过滤的查询速度。
+/// lightweight 迁移：SwiftData 自动创建索引，无需手动数据转换。
+public enum SnapDrillSchemaV3: VersionedSchema {
+    public static let versionIdentifier: Schema.Version = .init(3, 0, 0)
+
+    public static var models: [any PersistentModel.Type] {
+        [
+            ReviewItemModel.self,
+            SubjectModel.self,
+            TagModel.self,
+            SourceModel.self,
+            GradeModel.self
+        ]
+    }
+}
+
+/// 迁移计划：V1 → V2 → V3
 public enum SnapDrillMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
-        [SnapDrillSchemaV1.self, SnapDrillSchemaV2.self]
+        [SnapDrillSchemaV1.self, SnapDrillSchemaV2.self, SnapDrillSchemaV3.self]
     }
 
     public static var stages: [MigrationStage] {
-        [migrateV1toV2]
+        [migrateV1toV2, migrateV2toV3]
     }
 
     // lightweight 迁移：SwiftData 自动将 nextReviewAt/lastReviewedAt 的 NULL 值
@@ -60,5 +79,11 @@ public enum SnapDrillMigrationPlan: SchemaMigrationPlan {
     static let migrateV1toV2 = MigrationStage.lightweight(
         fromVersion: SnapDrillSchemaV1.self,
         toVersion: SnapDrillSchemaV2.self
+    )
+
+    // lightweight 迁移：SwiftData 自动创建 #Index 索引，无需手动数据转换。
+    static let migrateV2toV3 = MigrationStage.lightweight(
+        fromVersion: SnapDrillSchemaV2.self,
+        toVersion: SnapDrillSchemaV3.self
     )
 }

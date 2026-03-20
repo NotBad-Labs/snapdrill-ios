@@ -52,10 +52,19 @@ public final class ReviewRepository {
         // DB 删除成功后清理图片文件（best-effort：文件删除失败不影响数据一致性）
         let imageStorage = ImageStorage()
         if let path = imagePath {
-            try? await imageStorage.deleteImage(path: path) // best-effort: 图片清理失败不回滚 DB
+            do {
+                try await imageStorage.deleteImage(path: path)
+            } catch {
+                // best-effort: 图片清理失败不回滚 DB，仅记录便于排查孤儿文件
+                SnapDrillLogger.data.warning("图片清理失败（\(path)）: \(error.localizedDescription)")
+            }
         }
         if let path = answerImagePath {
-            try? await imageStorage.deleteImage(path: path) // best-effort: 同上
+            do {
+                try await imageStorage.deleteImage(path: path)
+            } catch {
+                SnapDrillLogger.data.warning("答案图清理失败（\(path)）: \(error.localizedDescription)")
+            }
         }
     }
     
