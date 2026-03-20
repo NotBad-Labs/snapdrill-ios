@@ -29,36 +29,27 @@ struct AppRootView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
+            // Tab struct（iOS 18+）：自动获得 Liquid Glass 效果
             TabView(selection: $router.selectedTab) {
-                DashboardView(router: router.dashboardRouter)
-                    .tabItem {
-                        Label(L10n.Dashboard.title, systemImage: "house")
-                    }
-                    .tag(AppTab.dashboard)
+                Tab(L10n.Dashboard.title, systemImage: "house", value: AppTab.dashboard) {
+                    DashboardView(router: router.dashboardRouter)
+                }
 
-                LibraryView(router: router.libraryRouter)
-                    .tabItem {
-                        Label(L10n.Library.title, systemImage: "books.vertical")
-                    }
-                    .tag(AppTab.library)
+                Tab(L10n.Library.title, systemImage: "books.vertical", value: AppTab.library) {
+                    LibraryView(router: router.libraryRouter)
+                }
 
-                CaptureView(router: router.captureRouter)
-                    .tabItem {
-                        Label(L10n.Capture.title, systemImage: "camera")
-                    }
-                    .tag(AppTab.capture)
+                Tab(L10n.Capture.title, systemImage: "camera", value: AppTab.capture) {
+                    CaptureView(router: router.captureRouter)
+                }
 
-                ReviewView(router: router.reviewRouter)
-                    .tabItem {
-                        Label(L10n.Review.title, systemImage: "clock.arrow.circlepath")
-                    }
-                    .tag(AppTab.review)
+                Tab(L10n.Review.title, systemImage: "clock.arrow.circlepath", value: AppTab.review) {
+                    ReviewView(router: router.reviewRouter)
+                }
 
-                SettingsView(router: router.settingsRouter)
-                    .tabItem {
-                        Label(L10n.Settings.title, systemImage: "gear")
-                    }
-                    .tag(AppTab.settings)
+                Tab(L10n.Settings.title, systemImage: "gear", value: AppTab.settings) {
+                    SettingsView(router: router.settingsRouter)
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: .switchToCaptureTab)) { _ in
                 withAnimation(.spring(duration: 0.4)) {
