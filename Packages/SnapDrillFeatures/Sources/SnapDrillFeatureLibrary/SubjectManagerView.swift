@@ -17,7 +17,6 @@ public struct SubjectManagerView: View {
 
     // MARK: - Properties
 
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repositories
 
     @State private var viewModel: SubjectManagerViewModel?
@@ -30,8 +29,7 @@ public struct SubjectManagerView: View {
     // MARK: - Body
 
     public var body: some View {
-        NavigationStack {
-            List {
+        List {
                 if let vm = viewModel {
                     ForEach(vm.subjects) { subject in
                         Button {
@@ -60,9 +58,7 @@ public struct SubjectManagerView: View {
             }
             .navigationTitle(L10n.Library.subjectManager)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Common.close) { dismiss() }
-                }
+                // push 场景由系统 Back 按钮处理，不需要 dismiss 按钮
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingAddSheet = true }, label: {
                         Image(systemName: "plus")
@@ -81,7 +77,6 @@ public struct SubjectManagerView: View {
                 }
                 viewModel?.loadData()
             }
-        }
     }
 }
 

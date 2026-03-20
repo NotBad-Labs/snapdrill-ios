@@ -17,7 +17,6 @@ public struct SourceManagerView: View {
 
     // MARK: - Properties
 
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repositories
 
     @State private var viewModel: SourceManagerViewModel?
@@ -30,8 +29,7 @@ public struct SourceManagerView: View {
     // MARK: - Body
 
     public var body: some View {
-        NavigationStack {
-            List {
+        List {
                 if let vm = viewModel {
                     ForEach(vm.sources) { source in
                         Button {
@@ -60,9 +58,6 @@ public struct SourceManagerView: View {
             }
             .navigationTitle(L10n.Library.sourceManager)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Common.close) { dismiss() }
-                }
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingAddSheet = true }, label: {
                         Image(systemName: "plus")
@@ -81,7 +76,6 @@ public struct SourceManagerView: View {
                 }
                 viewModel?.loadData()
             }
-        }
     }
 }
 

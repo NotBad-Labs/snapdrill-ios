@@ -17,7 +17,6 @@ public struct GradeManagerView: View {
 
     // MARK: - Properties
 
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repositories
 
     @State private var viewModel: GradeManagerViewModel?
@@ -29,8 +28,7 @@ public struct GradeManagerView: View {
     // MARK: - Body
 
     public var body: some View {
-        NavigationStack {
-            List {
+        List {
                 if let vm = viewModel {
                     ForEach(vm.grades) { grade in
                         Button {
@@ -56,9 +54,6 @@ public struct GradeManagerView: View {
             }
             .navigationTitle(L10n.Library.gradeManager)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Common.close) { dismiss() }
-                }
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingAddSheet = true }, label: {
                         Image(systemName: "plus")
@@ -77,7 +72,6 @@ public struct GradeManagerView: View {
                 }
                 viewModel?.loadData()
             }
-        }
     }
 }
 

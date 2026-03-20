@@ -282,7 +282,7 @@ public struct LibraryEditView: View {
                             .foregroundStyle(.yellow)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("\(star) \(L10n.Capture.difficulty)")
+                    .accessibilityLabel(L10n.Accessibility.starRating(difficulty: star))
                 }
             }
         }

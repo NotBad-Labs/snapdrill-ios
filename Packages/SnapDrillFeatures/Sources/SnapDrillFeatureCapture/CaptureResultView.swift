@@ -214,7 +214,7 @@ public struct CaptureResultView: View {
                                                     .foregroundStyle(level <= viewModel.difficulty.rawValue ? .orange : .gray.opacity(0.3))
                                             }
                                             .buttonStyle(.plain)
-                                            .accessibilityLabel("\(level) \(L10n.Capture.difficulty)")
+                                            .accessibilityLabel(L10n.Accessibility.starRating(difficulty: level))
                                         }
                                     }
                                 }
