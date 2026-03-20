@@ -69,4 +69,4 @@
 
 - `Collection[safe:]` — 安全数组下标访问，防止越界崩溃
 - `Date.iso8601DateString` — ISO8601 日期字符串（YYYY-MM-DD）
-- `Date.relativeDescription(relativeTo:)` — 中文相对时间描述
+- `Date.relativeDescription(relativeTo:)` — 相对时间描述（L10n 本地化）
