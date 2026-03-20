@@ -227,6 +227,11 @@
 "review.encourage_all_good" = "All mastered, great job!";
 "review.encourage_keep_going" = "Don't worry, a few more reviews and you'll get it!";
 "review.encourage_partial" = "Keep going! %d items will come back later.";
+"review.interval_minutes" = "10 min";
+"review.interval_tomorrow" = "Tomorrow";
+"review.interval_days" = "%d days";
+"review.interval_weeks" = "%d weeks";
+"review.interval_months" = "%d months";
 
 // MARK: - Settings
 
