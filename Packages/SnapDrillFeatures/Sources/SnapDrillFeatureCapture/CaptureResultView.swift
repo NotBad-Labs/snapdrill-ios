@@ -281,6 +281,10 @@ public struct CaptureResultView: View {
                                                 Image(systemName: "xmark.circle.fill")
                                                     .foregroundStyle(.red)
                                             }
+                                            // HIG：破坏性操作用 warning 反馈
+                                            .sensoryFeedback(.warning, trigger: viewModel.answerImage) { old, new in
+                                                old != nil && new == nil
+                                            }
                                         }
 
                                         Spacer()
