@@ -8,7 +8,7 @@
 >
 > 新增 API 时：写完后同步更新本文件。
 
-最后更新：2026-03-19（PR #342 Analytics 埋点接入、PR #346 VoiceOver 无障碍）
+最后更新：2026-03-20（PR #393 错误处理用户反馈补全）
 >
 > Last verified: 2026-03-19（全量审计，与代码库一致）
 
@@ -590,9 +590,12 @@ public enum AccessibilityNotificationPriority {
 ```swift
 // ReviewViewModel
 init(repository: ReviewRepository, analyticsService: AnalyticsServiceProtocol)
+var operationError: String?  // 滑动保存/撤销失败时设值，View 展示 alert
 
 // LibraryViewModel
 public init(repositories: RepositoryContainer)
+public var errorMessage: String?  // 数据加载失败时设值
+public var deleteError: String?   // 删除操作失败时设值
 
 // DashboardViewModel
 public init(repositories: RepositoryContainer,

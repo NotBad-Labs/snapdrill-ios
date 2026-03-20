@@ -654,6 +654,10 @@ public enum L10n {
         // 数据加载
         public static let loadFailed = NSLocalizedString("errors.load_failed", value: "加载失败", comment: "数据加载失败标题")
         public static let tryAgainLater = NSLocalizedString("errors.try_again_later", value: "请稍后重试，或重启应用", comment: "加载失败恢复建议")
+        public static let deleteFailed = NSLocalizedString("errors.delete_failed", value: "删除失败，请稍后重试", comment: "题目删除失败")
+        public static let pdfGenerateFailed = NSLocalizedString("errors.pdf_generate_failed", value: "PDF 生成失败，请稍后重试", comment: "PDF 生成失败")
+        public static let reviewSaveFailed = NSLocalizedString("errors.review_save_failed", value: "复习记录保存失败，请重试", comment: "复习评分持久化失败")
+        public static let formDataLoadFailed = NSLocalizedString("errors.form_data_load_failed", value: "表单数据加载失败，请返回重试", comment: "采集表单下拉数据加载失败")
 
         // 保存模块
         public static let saveFailed = NSLocalizedString("errors.save_failed", value: "保存失败，请检查存储空间后重试", comment: "题目保存失败")

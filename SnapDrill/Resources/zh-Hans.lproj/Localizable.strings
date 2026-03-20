@@ -418,6 +418,10 @@
 "errors.file_picker_failed" = "文件选择失败，请检查文件或稍后重试";
 "errors.load_failed" = "加载失败";
 "errors.try_again_later" = "请稍后重试，或重启应用";
+"errors.delete_failed" = "删除失败，请稍后重试";
+"errors.pdf_generate_failed" = "PDF 生成失败，请稍后重试";
+"errors.review_save_failed" = "复习记录保存失败，请重试";
+"errors.form_data_load_failed" = "表单数据加载失败，请返回重试";
 "errors.save_failed" = "保存失败，请检查存储空间后重试";
 "errors.create_taxonomy_failed" = "新建「%@」失败，请重试";
 "errors.backup_failed" = "备份失败，请检查存储空间后重试";

@@ -23,6 +23,7 @@ struct ExportPreviewView: View {
     @State private var isLoading = true
     @State private var tempPDFURL: URL?
     @State private var showSaveError = false
+    @State private var showGenerateError = false
 
     private let imageStorage = ImageStorage()
     
@@ -55,6 +56,10 @@ struct ExportPreviewView: View {
             .alert(L10n.Errors.exportFailed, isPresented: $showSaveError) {
                 Button(L10n.Common.ok, role: .cancel) {}
             }
+            .alert(L10n.Errors.pdfGenerateFailed, isPresented: $showGenerateError) {
+                Button(L10n.Common.retry) { generatePDF() }
+                Button(L10n.Common.cancel, role: .cancel) { dismiss() }
+            }
             .task {
                 generatePDF()
             }
@@ -82,8 +87,10 @@ struct ExportPreviewView: View {
                     ])
                 }
             } catch {
+                SnapDrillLogger.generic.error("PDF 生成失败: \(error.localizedDescription)")
                 await MainActor.run {
                     self.isLoading = false
+                    self.showGenerateError = true
                 }
             }
         }

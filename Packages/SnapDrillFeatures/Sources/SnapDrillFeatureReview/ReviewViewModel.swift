@@ -68,6 +68,8 @@ final class ReviewViewModel {
     var isAnswerShown: Bool = false
     var swipeTrigger: Int?
     var showPauseAlert: Bool = false
+    /// 操作错误信息（保存/撤销失败时展示）
+    var operationError: String?
     var isProcessingSwipe: Bool = false
     var lastInteractionTime: Date = .distantPast
     var currentSwipeOffset: CGFloat = 0
@@ -217,6 +219,7 @@ final class ReviewViewModel {
             // 持久化失败：回滚 @Model 变更并提前返回，UI 状态保持不变
             repository.rollbackContext()
             SnapDrillLogger.generic.error("处理滑动结果失败: \(error.localizedDescription)")
+            operationError = L10n.Errors.reviewSaveFailed
             return
         }
 
@@ -266,6 +269,7 @@ final class ReviewViewModel {
             undoStack.append(entry)
             repository.rollbackContext()
             SnapDrillLogger.generic.error("撤销保存失败: \(error.localizedDescription)")
+            operationError = L10n.Errors.reviewSaveFailed
             return
         }
         workingItems.insert(entry.item, at: 0)

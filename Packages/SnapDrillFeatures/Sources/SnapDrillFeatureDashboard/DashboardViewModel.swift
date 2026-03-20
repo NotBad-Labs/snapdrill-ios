@@ -79,6 +79,8 @@ public final class DashboardViewModel {
             dueCount = due
             reviewedTodayCount = reviewed
         } catch {
+            // Dashboard 统计失败是 S3 级别：数据不影响任何操作流程，用户下次进入自动重试；
+            // 不在 UI 展示错误状态，避免在首页增加不必要的视觉干扰
             SnapDrillLogger.generic.error("加载统计数据失败: \(error.localizedDescription)")
         }
     }

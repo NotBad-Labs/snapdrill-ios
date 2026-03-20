@@ -118,15 +118,31 @@ public struct ReviewView: View {
         .sensoryFeedback(.success, trigger: vm.phase) { _, newPhase in
             newPhase == .finished
         }
-        .alert(L10n.Review.pauseAlertTitle, isPresented: Binding(get: { vm.showPauseAlert }, set: { vm.showPauseAlert = $0 })) {
-            Button(L10n.Review.pauseContinue, role: .cancel) { }
-            Button(L10n.Review.pauseConfirm, role: .destructive) {
-                Task {
-                    await vm.quitSession()
+        .modifier(ReviewAlertsModifier(vm: vm))
+    }
+
+    // MARK: - Alerts
+
+    /// 复习页面的 alert 集合，提取为 ViewModifier 以控制 reviewContent 方法体长度
+    private struct ReviewAlertsModifier: ViewModifier {
+        let vm: ReviewViewModel
+
+        func body(content: Content) -> some View {
+            content
+                .alert(L10n.Review.pauseAlertTitle, isPresented: Binding(get: { vm.showPauseAlert }, set: { vm.showPauseAlert = $0 })) {
+                    Button(L10n.Review.pauseContinue, role: .cancel) { }
+                    Button(L10n.Review.pauseConfirm, role: .destructive) {
+                        Task { await vm.quitSession() }
+                    }
+                } message: {
+                    Text(L10n.Review.pauseMessage)
                 }
-            }
-        } message: {
-            Text(L10n.Review.pauseMessage)
+                .alert(L10n.Errors.reviewSaveFailed, isPresented: Binding(
+                    get: { vm.operationError != nil },
+                    set: { if !$0 { vm.operationError = nil } }
+                )) {
+                    Button(L10n.Common.ok, role: .cancel) {}
+                }
         }
     }
 
