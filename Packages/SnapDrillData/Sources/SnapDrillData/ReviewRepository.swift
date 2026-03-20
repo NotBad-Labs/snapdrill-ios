@@ -43,16 +43,20 @@ public final class ReviewRepository {
     /// - Note: async 是因为内部包含文件 I/O（删除图片），避免阻塞主线程
     public func delete(id: UUID) async throws {
         guard let model = try fetchModelById(id) else { return }
-        // 删除关联图片文件（先于模型删除，确保路径可读；async 避免阻塞主线程）
-        let imageStorage = ImageStorage()
-        if let path = model.imagePath {
-            try? await imageStorage.deleteImage(path: path)
-        }
-        if let path = model.answerImagePath {
-            try? await imageStorage.deleteImage(path: path)
-        }
+        // 先保存路径再删 DB，确保 DB 操作成功后才清理图片文件；
+        // 如果先删图片再 save DB 失败，会出现 DB 记录在但图片已删的孤儿状态
+        let imagePath = model.imagePath
+        let answerImagePath = model.answerImagePath
         modelContext.delete(model)
         try modelContext.save()
+        // DB 删除成功后清理图片文件（best-effort：文件删除失败不影响数据一致性）
+        let imageStorage = ImageStorage()
+        if let path = imagePath {
+            try? await imageStorage.deleteImage(path: path) // best-effort: 图片清理失败不回滚 DB
+        }
+        if let path = answerImagePath {
+            try? await imageStorage.deleteImage(path: path) // best-effort: 同上
+        }
     }
     
     /// 返回指定学科的题目数量
