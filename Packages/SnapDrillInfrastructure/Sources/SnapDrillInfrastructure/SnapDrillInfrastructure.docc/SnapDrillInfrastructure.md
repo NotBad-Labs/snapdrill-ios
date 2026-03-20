@@ -22,9 +22,10 @@ Firebase 基础设施实现层，封装 Analytics、Crashlytics 和 Remote Confi
 
 ### 崩溃监控
 
-- ``CrashReportingService`` — 遵循 `CrashReportingProtocol`，基于 Firebase Crashlytics
+崩溃报告通过 `FirebaseBootstrap.setCrashlyticsEnabled(_:)` 控制开关，
+无独立 Service 类（Crashlytics 由 Firebase SDK 直接管理）。
 
 ### 远程配置
 
-- ``FirebaseRemoteConfigService`` — 遵循 `RemoteConfigProtocol`，拉取并激活远程参数，
-  驱动 `AppConfiguration.FeatureFlags`（包括 Emergency Kill Switch）
+- ``FirebaseRemoteConfigService`` — 遵循 `RemoteConfigurable`（定义在 `SnapDrillCore`），
+  拉取并激活远程参数，驱动 `AppConfiguration.FeatureFlags`（包括 Emergency Kill Switch）

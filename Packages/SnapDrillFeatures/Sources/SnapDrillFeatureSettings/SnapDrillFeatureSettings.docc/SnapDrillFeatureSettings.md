@@ -6,9 +6,9 @@
 
 `SnapDrillFeatureSettings` 提供应用全局配置入口：
 通知时间、深色/浅色/跟随系统外观切换、隐私授权状态、数据清除，
-以及学科/来源/年级分类的管理入口（复用 `SnapDrillFeatureDashboard` 的管理视图）。
+以及学科/来源/年级分类的管理入口（复用 `SnapDrillFeatureLibrary` 的管理视图）。
 
-依赖：`SnapDrillCore` · `SnapDrillData` · `SnapDrillUI` · `SnapDrillFeatureDashboard`
+依赖：`SnapDrillCore` · `SnapDrillData` · `SnapDrillUI` · `SnapDrillFeatureLibrary`
 
 ## 核心类型
 

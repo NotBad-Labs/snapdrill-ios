@@ -36,6 +36,14 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 - ``ReviewExportSnapshot`` — 6 字段 `Sendable` 快照，用于跨 actor 边界传递题目数据
 
+### 备份与恢复
+
+- ``BackupService`` — `.snapdrill` 备份文件的创建和解压（actor）
+- ``BackupManifest`` — 备份文件元数据清单（schema 版本、条目数）
+- ``BackupPayload`` — 备份数据传输对象顶层结构
+- ``BackupError`` — 备份操作错误类型
+- ``DataSeeder`` — 开发调试用的测试数据生成器
+
 ## Schema 版本
 
 当前为 V2，迁移计划见 `MigrationPlan.swift`。
