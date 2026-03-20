@@ -178,8 +178,10 @@ struct ReviewCardFront: View {
 
     private func loadFrontImage() async {
         guard let path = item.imagePath else { return }
-        let image = await Task.detached(priority: .userInitiated) {
-            imageStorage.loadImage(path: path)
+        // 卡片显示区域约 400px，降采样到 800px 足够 2x Retina 清晰度，
+        // 避免加载 2000px+ 全分辨率图片（每张 ~8-12MB 解码后内存）
+        let image = await Task.detached(priority: .userInitiated) { [imageStorage] in
+            imageStorage.loadDownsampledImage(path: path, maxLongSide: 800)
         }.value
         loadedImage = image
     }
@@ -347,8 +349,9 @@ struct ReviewCardBack: View {
 
     private func loadImage(from path: String) async -> UIImage? {
         // 显式捕获 imageStorage，避免隐式捕获 self
+        // 降采样到 800px，与正面卡片一致，避免全分辨率解码
         await Task.detached(priority: .userInitiated) { [imageStorage] in
-            imageStorage.loadImage(path: path)
+            imageStorage.loadDownsampledImage(path: path, maxLongSide: 800)
         }.value
     }
 }

@@ -110,10 +110,10 @@ final class LibraryEditViewModelTests {
     // MARK: - loadData
 
     @Test("loadData 加载分类元数据")
-    func loadData_loadsTaxonomy() throws {
+    func loadData_loadsTaxonomy() async throws {
         let ctx = try createVM()
 
-        ctx.vm.loadData()
+        await ctx.vm.loadData()
 
         #expect(ctx.vm.subjects.count >= 1)
         #expect(ctx.vm.sources.count >= 1)
