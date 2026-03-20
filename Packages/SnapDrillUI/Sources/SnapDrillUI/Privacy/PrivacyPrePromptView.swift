@@ -5,6 +5,8 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  ATT 隐私授权预热弹窗，在系统弹窗前向用户解释追踪权限用途。
+//
 
 import SwiftUI
 import SnapDrillCore

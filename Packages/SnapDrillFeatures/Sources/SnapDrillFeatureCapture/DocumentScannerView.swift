@@ -78,7 +78,7 @@ struct DocumentScannerView: UIViewControllerRepresentable {
 // VisionKit delegate 回调方法标注 nonisolated，在方法内显式跳回主线程，
 // 替换 @unchecked Sendable 以满足 Swift 6 严格并发要求。
 @MainActor
-class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
+final class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
     let onCompletion: @MainActor (UIImage) -> Void
     let onCancel: @MainActor () -> Void
     let onError: @MainActor (Error) -> Void

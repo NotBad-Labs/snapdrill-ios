@@ -109,7 +109,7 @@ struct PrivacySettingsView: View {
         do {
             let items = try repositories.review.fetchAllModels()
 
-            // Convert to Sendable value types before crossing actor boundary
+            // 跨 actor 边界前转换为 Sendable 值类型
             let exportableItems = items.map { item in
                 ExportableItem(
                     id: item.id,
@@ -146,7 +146,7 @@ struct PrivacySettingsView: View {
     }
 }
 
-/// Sendable value type for export
+/// 导出专用的 Sendable 值类型
 struct ExportableItem: Sendable {
     let id: UUID
     let content: String?
@@ -272,7 +272,7 @@ enum ExportError: LocalizedError {
     }
 }
 
-/// ShareSheet for UIKit integration
+/// UIKit 分享面板桥接
 struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
     

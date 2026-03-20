@@ -17,7 +17,7 @@ import SnapDrillCore
 ///
 /// 负责管理相机 UI 和 Vision 结果的展示。
 /// 具体的 Session 管理和 Vision 处理委托给 `CameraSessionManager`。
-class SmartCameraViewController: UIViewController {
+final class SmartCameraViewController: UIViewController {
     
     // MARK: - API
     
@@ -55,13 +55,13 @@ class SmartCameraViewController: UIViewController {
     }
     
     private func setupManager() {
-        // Setup Preview
+        // 设置预览层
         let preview = AVCaptureVideoPreviewLayer(session: manager.session)
         preview.videoGravity = .resizeAspectFill
         view.layer.addSublayer(preview)
         self.previewLayer = preview
         
-        // Setup Callbacks
+        // 设置回调
         manager.onRegionDetected = { [weak self] rect, isStable in
             Task { @MainActor in
                 self?.onRegionDetected?(rect, isStable)
@@ -74,7 +74,7 @@ class SmartCameraViewController: UIViewController {
             }
         }
         
-        // Start Session
+        // 启动会话
         manager.startSession()
     }
 }
@@ -91,7 +91,7 @@ actor CameraStateActor {
     var lastDetectedRect: CGRect?
     
     func process(target: CGRect?, now: TimeInterval) -> (CGRect?, Bool) {
-        // Throttle updates
+        // 节流：限制更新频率
         guard now - lastUpdateTime > 0.06 else {
             return (smoothedRect, stabilityCounter > stabilityThreshold)
         }
@@ -104,7 +104,7 @@ actor CameraStateActor {
         
         let newRect: CGRect
         if let current = smoothedRect {
-            // Low Pass Filter
+            // 低通滤波器
             let factor: CGFloat = 0.08
             newRect = CGRect(
                 x: current.origin.x * (1 - factor) + target.origin.x * factor,
@@ -113,7 +113,7 @@ actor CameraStateActor {
                 height: current.height * (1 - factor) + target.height * factor
             )
             
-            // Check delta for stability
+            // 检查位移变化量判断稳定性
             let delta = abs(newRect.origin.x - current.origin.x) + abs(newRect.origin.y - current.origin.y)
             if delta < movementThreshold {
                 stabilityCounter += 1
@@ -128,7 +128,7 @@ actor CameraStateActor {
         self.smoothedRect = newRect
         let isStable = stabilityCounter > stabilityThreshold
         
-        // Final Output
+        // 最终输出
         let padded = newRect.insetBy(dx: -0.1, dy: -0.1)
         let finalRect = padded.intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
         
@@ -137,13 +137,12 @@ actor CameraStateActor {
     }
 }
 
-import os // For OSAllocatedUnfairLock
+import os // OSAllocatedUnfairLock 所在模块
 
 // MARK: - Camera Session Manager (Non-UI Logic)
 
-// Applying @preconcurrency to the whole class isn't ideal, but since AVFoundation types
-// aren't fully audited for Sendable yet in early iOS SDKs, we drop the explicit Sendable conformance
-// and manage synchronization manually via Queues and Actors.
+// 对整个类标注 @preconcurrency 并不理想，但由于 AVFoundation 类型在当前 iOS SDK 中尚未完成 Sendable 审计，
+// 因此放弃显式 Sendable 遵循，改用 Queue 和 Actor 手动管理同步。
 final class CameraSessionManager: NSObject {
     
     // AVCaptureSession 在当前 SDK 版本尚未标注 Sendable；
@@ -157,12 +156,11 @@ final class CameraSessionManager: NSObject {
     
     private let stateActor = CameraStateActor()
     
-    // Atomic Flag for Backpressure
+    // 背压控制的原子标志位
     private let isProcessingFrame = OSAllocatedUnfairLock(initialState: false)
     
-    // The callbacks cross boundaries, so we mark the closures as @Sendable to satisfy
-    // Swift 6 strict concurrency checks during the Task jump. 
-    // The calling context (SmartCameraViewController) guarantees @MainActor dispatch.
+    // 回调闭包跨越隔离边界，标记为 @Sendable 以满足 Swift 6 严格并发检查。
+    // 调用方（SmartCameraViewController）保证在 @MainActor 上分发。
     var onRegionDetected: (@Sendable (CGRect?, Bool) -> Void)?
     var onCapture: (@Sendable (UIImage, CGRect) -> Void)?
     
@@ -188,7 +186,7 @@ final class CameraSessionManager: NSObject {
         session.beginConfiguration()
         session.sessionPreset = .photo
         
-        // Input
+        // 输入源
         guard let backCamera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
               let input = try? AVCaptureDeviceInput(device: backCamera) else {
             SnapDrillLogger.generic.info("Error: Unable to access back camera")
@@ -199,13 +197,13 @@ final class CameraSessionManager: NSObject {
             session.addInput(input)
         }
         
-        // Video Output
+        // 视频输出
         videoOutput.setSampleBufferDelegate(self, queue: visionQueue)
         if session.canAddOutput(videoOutput) {
             session.addOutput(videoOutput)
         }
         
-        // Photo Output
+        // 拍照输出
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
         }
@@ -214,12 +212,12 @@ final class CameraSessionManager: NSObject {
     }
     
     private static func extractTargetRect(from observations: [VNTextObservation]) -> CGRect? {
-        let validObs = observations.filter { $0.boundingBox.height > 0.02 } // Filter noise
+        let validObs = observations.filter { $0.boundingBox.height > 0.02 } // 过滤噪声
         guard !validObs.isEmpty else {
             return nil
         }
         
-        // A. Find "Anchor" (Observation closest to center screen)
+        // A. 找到"锚点"（距离屏幕中心最近的文本观测）
         let centerPoint = CGPoint(x: 0.5, y: 0.5)
         
         func distance(from box: CGRect, to point: CGPoint) -> CGFloat {
@@ -236,7 +234,7 @@ final class CameraSessionManager: NSObject {
             return nil
         }
         
-        // B. Cluster Neighbors
+        // B. 聚类邻近文本
         var cluster: [VNTextObservation] = [anchor]
         var currentUnion = anchor.boundingBox
         
@@ -244,7 +242,7 @@ final class CameraSessionManager: NSObject {
             let box = obs.boundingBox
             let distToAnchor = distance(from: box, to: CGPoint(x: anchor.boundingBox.midX, y: anchor.boundingBox.midY))
             
-            if distToAnchor < 0.15 { // Close neighbors only
+            if distToAnchor < 0.15 { // 仅取近邻
                 cluster.append(obs)
                 currentUnion = currentUnion.union(box)
             }
@@ -260,7 +258,7 @@ extension CameraSessionManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     nonisolated func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         
-        // 1. Backpressure Strategy: Drop frames if we are still processing
+        // 1. 背压策略：如果上一帧仍在处理中，丢弃当前帧
         let canProcess = isProcessingFrame.withLock { state -> Bool in
             if state { return false }
             state = true
@@ -269,12 +267,12 @@ extension CameraSessionManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         
         guard canProcess else { return }
         
-        // Release the lock when the frame processing is fully handed over or completed
+        // 帧处理完成或交接后释放锁
         defer {
             isProcessingFrame.withLock { $0 = false }
         }
         
-        // 2. Strict Memory Pool: Wrap Vision pipeline in autoreleasepool
+        // 2. 严格内存池：将 Vision 管线包裹在 autoreleasepool 中
         autoreleasepool {
             guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
             
@@ -305,12 +303,12 @@ extension CameraSessionManager: AVCapturePhotoCaptureDelegate {
     nonisolated func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         guard let data = photo.fileDataRepresentation() else { return }
         
-        // 3. Downsampling: Use ImageIO instead of UIImage(data:) to prevent OOM
+        // 3. 降采样：使用 ImageIO 代替 UIImage(data:) 以防止 OOM
         let options = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
             kCGImageSourceShouldCacheImmediately: true,
-            kCGImageSourceThumbnailMaxPixelSize: 2048 // Downsample to safe dimension
+            kCGImageSourceThumbnailMaxPixelSize: 2048 // 降采样到安全尺寸
         ] as CFDictionary
         
         guard let source = CGImageSourceCreateWithData(data as CFData, nil),
@@ -321,7 +319,7 @@ extension CameraSessionManager: AVCapturePhotoCaptureDelegate {
         
         let image = UIImage(cgImage: cgImage)
         
-        // Capture local references to avoid capturing non-Sendable `self` in the Task
+        // 捕获局部引用，避免在 Task 中捕获非 Sendable 的 self
         let localActor = self.stateActor
         let localCallback = self.onCapture
         

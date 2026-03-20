@@ -1,9 +1,11 @@
 //
 //  FirebaseRemoteConfigService.swift
-//  SnapDrillCore
+//  SnapDrillInfrastructure
 //
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+//
+//  Firebase Remote Config 远程配置服务，遵循 RemoteConfigurable 协议。
 //
 
 import Foundation

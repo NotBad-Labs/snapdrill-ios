@@ -49,7 +49,7 @@ public struct TagInputView: View {
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Chips Container
+            // 标签胶囊容器
             if !tags.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
@@ -80,7 +80,7 @@ public struct TagInputView: View {
                 }
             }
             
-            // Input Field with Suggestions
+            // 输入框与建议列表
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
                     Image(systemName: "tag")
@@ -96,7 +96,7 @@ public struct TagInputView: View {
                                         text = ""
                                     }
                                 } else if newTag.isEmpty {
-                                    text = "" // Clear just space
+                                    text = "" // 清除仅含空格的输入
                                 }
                             }
                         }
@@ -112,7 +112,7 @@ public struct TagInputView: View {
                         }
                 }
                 
-                // Suggestions List
+                // 建议列表
                 if !filteredSuggestions.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {

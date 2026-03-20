@@ -135,7 +135,7 @@ public final class CaptureViewModel {
     }
     
     /// 大文件阈值（字节），超过此值时弹出警告
-    private static let largeFileThreshold: Int = 50 * 1024 * 1024 // 50 MB
+    private static let largeFileThreshold: Int = 50 * 1024 * 1024 // 50 MB 阈值
 
     /// 加载 PDF 文件并存入 Router，跳转到页面选择器
     ///
@@ -221,23 +221,23 @@ public final class CaptureViewModel {
                 
                 // 检查任务是否已取消
                 try Task.checkCancellation()
-        
+
                 await MainActor.run { [weak self] in
                     guard let self = self else { return }
                     self.isProcessing = false
                     if text.isEmpty {
-                        SnapDrillLogger.capture.warning("OCR returned empty text.")
+                        SnapDrillLogger.capture.warning("OCR 识别结果为空文本。")
                     }
                     router.push(.scannerResult(content: text, image: image))
                 }
             } catch is CancellationError {
-                SnapDrillLogger.capture.info("OCR Task cancelled.")
+                SnapDrillLogger.capture.info("OCR 任务已取消。")
             } catch {
-                SnapDrillLogger.capture.error("OCR Check failed: \(error.localizedDescription)")
+                SnapDrillLogger.capture.error("OCR 识别失败: \(error.localizedDescription)")
                 await MainActor.run { [weak self] in
                     guard let self = self else { return }
                     self.isProcessing = false
-                    // Even if OCR fails, pass the image
+                    // 即使 OCR 失败，也将图片传递到结果页
                     router.push(.scannerResult(content: "", image: image))
                 }
             }

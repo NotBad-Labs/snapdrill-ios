@@ -20,16 +20,16 @@ struct ReviewActionButtons: View {
     let swipeOffset: CGFloat
     let onRate: (ReviewRating) -> Void
     
-    // Secondary Actions
+    // 次要操作
     let onUndo: () -> Void
     let onToggleAnswer: () -> Void
     let isUndoEnabled: Bool
     let isAnswerShown: Bool
     
-    // Config
+    // 配置
     private let baseSize: CGFloat = 80
     private let maxScale: CGFloat = 1.4
-    private let threshold: CGFloat = 100 // Threshold for max scale
+    private let threshold: CGFloat = 100 // 触发最大缩放的阈值
 
     // 触觉反馈触发器（递增计数器确保每次都能触发变化）
     @State private var primaryFeedbackTrigger = 0   // 评分按钮：medium impact
@@ -39,8 +39,8 @@ struct ReviewActionButtons: View {
     
     var body: some View {
         HStack {
-            // [Forgot] - Red X
-            // Scale up if swiping LEFT (negative offset)
+            // [忘了] - 红色叉号
+            // 左滑（负偏移）时放大
             actionButton(
                 icon: "xmark",
                 color: .red,
@@ -52,9 +52,9 @@ struct ReviewActionButtons: View {
             
             Spacer()
             
-            // Middle Controls (Integrated)
+            // 中间控件（集成式）
             HStack(spacing: 24) {
-                // Undo
+                // 撤销
                 Button(
                     action: {
                         secondaryFeedbackTrigger += 1
@@ -73,7 +73,7 @@ struct ReviewActionButtons: View {
                 .accessibilityLabel(L10n.Accessibility.undo)
                 .accessibilityHint(L10n.Accessibility.undoHint)
 
-                // Toggle Answer
+                // 切换答案显示
                 Button(
                     action: {
                         // 触觉反馈由 ReviewView.sensoryFeedback(trigger: vm.isAnswerShown) 统一处理
@@ -93,8 +93,8 @@ struct ReviewActionButtons: View {
             
             Spacer()
             
-            // [Remember] - Green Checkmark
-            // Scale up if swiping RIGHT (positive offset)
+            // [记得] - 绿色对勾
+            // 右滑（正偏移）时放大
             actionButton(
                 icon: "checkmark",
                 color: .green,
@@ -104,7 +104,7 @@ struct ReviewActionButtons: View {
             .accessibilityLabel(L10n.Review.stampRemember)
             .accessibilityHint(L10n.Accessibility.rememberHint)
         }
-        .padding(.horizontal, 48) // Increased outer padding to prevent edge sticking
+        .padding(.horizontal, 48) // 加大外边距防止按钮贴边
         .padding(.bottom, 10)
         // HIG：评分按钮用 medium（决定性操作），撤销用 light
         .sensoryFeedback(.impact(weight: .medium), trigger: primaryFeedbackTrigger)
@@ -125,33 +125,33 @@ struct ReviewActionButtons: View {
                     .fill(color)
                 
                 Image(systemName: icon)
-                    .font(.system(size: 32, weight: .bold)) // Bold Icon
+                    .font(.system(size: 32, weight: .bold)) // 粗体图标
                     .foregroundStyle(.white)
             }
             .frame(width: baseSize, height: baseSize)
-            .shadow(color: color.opacity(0.4), radius: 15, x: 0, y: 8) // Glow
-            .scaleEffect(scale) // Interactive Linkage
+            .shadow(color: color.opacity(0.4), radius: 15, x: 0, y: 8) // 光晕效果
+            .scaleEffect(scale) // 与滑动联动
             .animation(.interactiveSpring(response: 0.35, dampingFraction: 0.7), value: scale)
         })
     }
     
-    // Calculate dynamic scale based on swipe offset
+    // 根据滑动偏移量计算动态缩放比例
     private func calculateScale(for type: ReviewRating) -> CGFloat {
         var progress: CGFloat = 0
         
         switch type {
-        case .again: // Left Swipe (< 0)
+        case .again: // 左滑（< 0）
             if swipeOffset < 0 {
                 progress = min(abs(swipeOffset) / threshold, 1.0)
             }
-        case .good: // Right Swipe (> 0)
+        case .good: // 右滑（> 0）
             if swipeOffset > 0 {
                 progress = min(abs(swipeOffset) / threshold, 1.0)
             }
         default: break
         }
         
-        // Base scale 1.0 -> Max scale 1.4
+        // 基础缩放 1.0 -> 最大缩放 1.4
         return 1.0 + (progress * (maxScale - 1.0))
     }
 }
