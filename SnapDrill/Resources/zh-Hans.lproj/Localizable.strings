@@ -37,6 +37,11 @@
 "common.open_settings" = "打开设置";
 "common.restart_app" = "重启应用";
 "common.unknown_error" = "未知错误";
+"common.today" = "今天";
+"common.tomorrow" = "明天";
+"common.yesterday" = "昨天";
+"common.days_later" = "%d天后";
+"common.days_ago" = "%d天前";
 "common.item_count" = "%d 道题";
 "common.item_count_short" = "%d 题";
 
@@ -227,6 +232,11 @@
 "review.encourage_all_good" = "全部掌握，太棒了！";
 "review.encourage_keep_going" = "别灰心，多复习几次就记住了！";
 "review.encourage_partial" = "继续加油，%d 题稍后会再出现。";
+"review.interval_minutes" = "10分钟";
+"review.interval_tomorrow" = "明天";
+"review.interval_days" = "%d天";
+"review.interval_weeks" = "%d周";
+"review.interval_months" = "%d个月";
 
 // MARK: - Settings
 

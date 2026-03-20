@@ -50,6 +50,17 @@ public enum L10n {
         public static let restartApp = NSLocalizedString("common.restart_app", value: "重启应用", comment: "重启应用按钮")
         public static let unknownError = NSLocalizedString("common.unknown_error", value: "未知错误", comment: "未知错误")
 
+        // 相对日期
+        public static let today = NSLocalizedString("common.today", value: "今天", comment: "今天")
+        public static let tomorrow = NSLocalizedString("common.tomorrow", value: "明天", comment: "明天")
+        public static let yesterday = NSLocalizedString("common.yesterday", value: "昨天", comment: "昨天")
+        public static func daysLater(_ days: Int) -> String {
+            String(format: NSLocalizedString("common.days_later", value: "%d天后", comment: "N天后"), days)
+        }
+        public static func daysAgo(_ days: Int) -> String {
+            String(format: NSLocalizedString("common.days_ago", value: "%d天前", comment: "N天前"), days)
+        }
+
         public static func itemCount(_ count: Int) -> String {
             String(format: NSLocalizedString("common.item_count", value: "%d 道题", comment: "题目数量"), count)
         }
@@ -388,6 +399,19 @@ public enum L10n {
 
         public static func encouragePartial(_ count: Int) -> String {
             String(format: NSLocalizedString("review.encourage_partial", value: "继续加油，%d 题稍后会再出现。", comment: "鼓励语-部分掌握"), count)
+        }
+
+        // SM-2 间隔描述
+        public static let intervalMinutes = NSLocalizedString("review.interval_minutes", value: "10分钟", comment: "SM-2 间隔：10分钟后")
+        public static let intervalTomorrow = NSLocalizedString("review.interval_tomorrow", value: "明天", comment: "SM-2 间隔：明天")
+        public static func intervalDays(_ days: Int) -> String {
+            String(format: NSLocalizedString("review.interval_days", value: "%d天", comment: "SM-2 间隔：N天"), days)
+        }
+        public static func intervalWeeks(_ weeks: Int) -> String {
+            String(format: NSLocalizedString("review.interval_weeks", value: "%d周", comment: "SM-2 间隔：N周"), weeks)
+        }
+        public static func intervalMonths(_ months: Int) -> String {
+            String(format: NSLocalizedString("review.interval_months", value: "%d个月", comment: "SM-2 间隔：N个月"), months)
         }
     }
 
