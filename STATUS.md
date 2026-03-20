@@ -1,6 +1,6 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-03-20（S1 + S2 清零，S3 已完成 4/7）
+> 最后更新：2026-03-20（S1 + S2 清零，S3 已完成 5/7）
 >
 > 本文件是项目的**单一实时状态源**。每次新对话必须先读此文件恢复上下文。
 > 每个 PR 合并后必须同步更新。
@@ -49,7 +49,7 @@ Xcode Intelligence 完成 8 维度代码审计（~141 个发现），Claude 核�
 
 | 状态 | Issue | 内容 |
 |---|---|---|
-| ⬜ | [#384](../../issues/384) | SwiftUI 现代化 — .task 迁移 + Combine→async + 冗余注入清理 |
+| ✅ | [#384](../../issues/384) → PR #401 | SwiftUI 现代化 — Combine→async + static DateFormatter |
 | ✅ | [#385](../../issues/385) → PR #398 | DocC landing page 修复 — ghost symbols + 依赖错误 |
 | ⬜ | [#386](../../issues/386) | 注释语言统一 — 英文→中文 + 文件头修复 + MARK 规范化 |
 | ✅ | [#387](../../issues/387) → PR #397 | 触觉反馈补全 — 快门 + 删除答案图 + 翻卡去重 |
