@@ -47,11 +47,24 @@ public struct LibraryView: View {
         NavigationStack(path: $router.path) {
             ZStack(alignment: .bottom) {
                 if let vm = viewModel {
-                    LibraryListView(
-                        selectedItemIDs: $selectedItemIDs,
-                        router: router,
-                        viewModel: vm
-                    )
+                    if vm.errorMessage != nil && vm.filteredItems.isEmpty {
+                        // 加载失败且无缓存数据：全屏错误 + 重试
+                        ContentUnavailableView {
+                            Label(L10n.Errors.loadFailed, systemImage: "exclamationmark.triangle")
+                        } description: {
+                            Text(L10n.Errors.tryAgainLater)
+                        } actions: {
+                            Button(L10n.Common.retry) {
+                                Task { await vm.loadDataAsync() }
+                            }
+                        }
+                    } else {
+                        LibraryListView(
+                            selectedItemIDs: $selectedItemIDs,
+                            router: router,
+                            viewModel: vm
+                        )
+                    }
                 } else {
                     ProgressView()
                 }
@@ -152,6 +165,12 @@ public struct LibraryView: View {
                     case .detail(let item):
                         LibraryDetailView(router: router, item: item)
                     }
+                }
+                .alert(L10n.Errors.deleteFailed, isPresented: Binding(
+                    get: { viewModel?.deleteError != nil },
+                    set: { if !$0 { viewModel?.deleteError = nil } }
+                )) {
+                    Button(L10n.Common.ok, role: .cancel) {}
                 }
                 .toolbar(editMode.isEditing ? .hidden : .visible, for: .tabBar)
                 .onReceive(NotificationCenter.default.publisher(for: .switchToLibraryTab)) { notification in

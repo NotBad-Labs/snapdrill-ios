@@ -172,6 +172,8 @@ public final class CaptureResultViewModel {
             availableTags = try repositories.tag.fetchAllModels().sorted(by: { $0.name < $1.name })
         } catch {
             SnapDrillLogger.generic.error("加载下拉表单失败: \(error.localizedDescription)")
+            errorMessage = L10n.Errors.formDataLoadFailed
+            showErrorAlert = true
         }
     }
 

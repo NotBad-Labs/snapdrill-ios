@@ -92,6 +92,10 @@ public final class LibraryViewModel {
 
     /// 是否正在加载数据
     public var isLoading: Bool = false
+    /// 数据加载错误信息（非 nil 时 View 应展示错误状态）
+    public var errorMessage: String?
+    /// 删除操作错误信息（非 nil 时 View 展示 alert）
+    public var deleteError: String?
     private var currentPage: Int = 0
     private let pageSize: Int = 50
     /// 搜索防抖任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
@@ -117,9 +121,11 @@ public final class LibraryViewModel {
         do {
             self.subjects = try repositories.subject.fetchAllModels()
             self.allTags = try repositories.tag.fetchAllModels()
+            self.errorMessage = nil
             await refreshData()
         } catch {
             SnapDrillLogger.generic.error("加载题库元数据失败: \(error.localizedDescription)")
+            self.errorMessage = L10n.Errors.loadFailed
         }
     }
 
@@ -148,8 +154,10 @@ public final class LibraryViewModel {
 
             guard !Task.isCancelled else { return }
             self.filteredItems = results
+            self.errorMessage = nil
         } catch {
             SnapDrillLogger.generic.error("刷新题库失败: \(error.localizedDescription)")
+            self.errorMessage = L10n.Errors.loadFailed
         }
     }
 
@@ -177,6 +185,7 @@ public final class LibraryViewModel {
             self.filteredItems.append(contentsOf: nextItems)
         } catch {
             SnapDrillLogger.generic.error("加载更多题目失败: \(error.localizedDescription)")
+            // 分页失败不覆盖已有数据的 errorMessage，仅 log
         }
     }
 
@@ -187,6 +196,7 @@ public final class LibraryViewModel {
             filteredItems.removeAll { $0.id == item.id }
         } catch {
             SnapDrillLogger.generic.error("删除题目失败: \(error.localizedDescription)")
+            self.deleteError = L10n.Errors.deleteFailed
         }
     }
 
@@ -202,6 +212,9 @@ public final class LibraryViewModel {
             }
         }
         filteredItems.removeAll { successfullyDeleted.contains($0.id) }
+        if successfullyDeleted.count < ids.count {
+            self.deleteError = L10n.Errors.deleteFailed
+        }
     }
 
     /// 重置所有过滤器

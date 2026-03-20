@@ -35,6 +35,8 @@ public final class DashboardViewModel {
     public var dueCount: Int = 0
     /// 今日已复习卡片数（用于进度环）
     public var reviewedTodayCount: Int = 0
+    /// 统计数据加载失败标记
+    public var hasLoadError: Bool = false
 
     // MARK: - Dependencies
 
@@ -78,8 +80,10 @@ public final class DashboardViewModel {
             totalCount = total
             dueCount = due
             reviewedTodayCount = reviewed
+            hasLoadError = false
         } catch {
             SnapDrillLogger.generic.error("加载统计数据失败: \(error.localizedDescription)")
+            hasLoadError = true
         }
     }
 
