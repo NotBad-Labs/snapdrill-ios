@@ -115,7 +115,7 @@ public struct CaptureView: View {
                         }
                         .padding(.horizontal)
 
-                        // 5. PDF Import（独立全宽行，避免 2 列网格奇数不对称）
+                        // 5. PDF 导入（独立全宽行，避免 2 列网格奇数不对称）
                         CaptureMethodCard(
                             icon: "doc.richtext",
                             title: L10n.Capture.pdfTitle,
