@@ -82,8 +82,8 @@ public struct LibraryEditView: View {
             .onTapGesture {
                 isInputFocused = false
             }
-            .onAppear {
-                loadData()
+            .task {
+                await loadData()
             }
             .onDisappear {
                 viewModel?.cancelTasks()
@@ -130,11 +130,11 @@ public struct LibraryEditView: View {
         }
     }
     
-    private func loadData() {
+    private func loadData() async {
         if viewModel == nil {
             viewModel = LibraryEditViewModel(item: item, repositories: repositories)
         }
-        viewModel?.loadData()
+        await viewModel?.loadData()
     }
     
     // MARK: - Subviews

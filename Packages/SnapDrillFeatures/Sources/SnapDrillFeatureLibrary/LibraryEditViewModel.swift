@@ -107,12 +107,13 @@ public final class LibraryEditViewModel {
     // MARK: - Public API
 
     /// 加载图片和分类元数据（学科/来源/年级/标签）
-    public func loadData() {
+    public func loadData() async {
+        // 异步加载图片，避免同步 I/O 阻塞主线程（编辑页打开卡顿）
         if displayedImage == nil, let path = item.imagePath {
-            displayedImage = imageStorage.loadImage(path: path)
+            displayedImage = await imageStorage.loadImageAsync(path: path)
         }
         if answerDisplayedImage == nil, let path = item.answerImagePath {
-            answerDisplayedImage = imageStorage.loadImage(path: path)
+            answerDisplayedImage = await imageStorage.loadImageAsync(path: path)
         }
 
         do {
