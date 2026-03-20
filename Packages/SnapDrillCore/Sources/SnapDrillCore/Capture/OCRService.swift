@@ -40,7 +40,8 @@ public actor OCRService: OCRServiceProtocol {
         // Swift-native Vision API（iOS 18+），无需 continuation 和 callback
         var request = RecognizeTextRequest()
         request.recognitionLevel = .accurate
-        request.automaticallyDetectsLanguage = true
+        request.usesLanguageCorrection = true
+        // 中英文混合场景下显式指定优于自动检测，避免中文试卷上的英文被误判为全英文档
         request.recognitionLanguages = [.init(identifier: "zh-Hans"), .init(identifier: "en-US")]
 
         let observations = try await request.perform(on: cgImage)
