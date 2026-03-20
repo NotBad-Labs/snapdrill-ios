@@ -82,6 +82,24 @@
 3. 三方结论汇总 → 差异点重点讨论 → 差异即盲区
 4. 汇总后创建 Issue 追踪每个新发现
 
+### 周期性全量审计节奏（2026-03-21 确立，来源：Xcode 审计复盘 第五章）
+
+PR review 是 diff 级别审计，无法发现全局性问题（API 过时、规范违反积累、DocC ghost symbols）。
+需要定期全代码库审计作为补充。
+
+| 时机 | 审计方式 | 范围 | 触发者 |
+|---|---|---|---|
+| 每个 PR | Gemini（自动）+ Xcode/Antigravity（视复杂度） | diff 级别 | 自动/Claude |
+| TestFlight 发版前 | Xcode 8 维度全量审计 | 全代码库 | 用户 |
+| 规则变更后 | Grep compliance check → Issue | 已有代码 | Claude |
+| WWDC 后 | 新 API 对照扫描 | 已有代码 | 用户/Claude |
+
+- TestFlight 发版前审计是**发版阻断项**——未完成审计不允许推 TestFlight build
+- 规则变更后的 compliance check 在规则更新的同一回复中完成（不跨会话）
+
+> **实证**：#305 终审后代码继续演进（PR #336-#379），新模式未被再次审计，
+> 直到 #376 Xcode 8 维度审计才发现 141 个问题。
+
 ### 研究声明归属
 
 - **技术实现研究**（Apple 文档、WWDC、框架 API）：归属**架构师帽**

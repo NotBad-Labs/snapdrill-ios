@@ -77,6 +77,17 @@
 - 用户明确指定了具体改法的机械改动
 - 纯文档/注释修改（不涉及代码行为变更）
 
+### 维护模式研究规则（2026-03-21 确立，来源：Xcode 审计复盘 盲区 1）
+
+研究铁律不仅适用于新代码，也适用于**修改已有代码时**：
+
+- **每次 touch 一个文件时**，检查该文件使用的 API 是否有当前 SDK（iOS 26 / Swift 6.2）的更新替代方案
+- 特别关注：回调风格 API → async 原生替代、`DateFormatter` → `Date.formatted()` FormatStyle、旧 SwiftUI modifier → 新声明式 API
+- **规则变更后回溯执行**：每次更新 conventions.md / principles.md 的规则时，Grep 扫描已有代码的违反情况，创建 compliance check Issue
+
+> **实证**：OCR 使用 `VNRecognizeTextRequest`（iOS 13 回调风格），iOS 18+ 已有 `RecognizeTextRequest`。
+> 200+ 处英文注释违反"注释全部使用简体中文"规则——规则建立后未回溯执行。
+
 ---
 
 ## Apple 原生优先铁律（2026-03-06 确立，核心精神不变，表述持续优化）

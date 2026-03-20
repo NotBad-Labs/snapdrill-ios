@@ -45,17 +45,33 @@ let repo = ReviewRepository(modelContext: container.mainContext)
 ```
 不需要协议，不需要 Mock。测试完整的 SwiftData 行为栈。
 
-### 6. 迁移
-`MigrationPlan.swift` 管理 Schema V1→V2 迁移。新增字段时：
-1. 在 `@Model` 加字段（带默认值）
-2. 新建 Schema 版本
-3. 加 `MigrationStage`
-4. 最多改 3 个文件是警戒线
+### 6. 迁移（2026-03-21 更新，来源：Xcode 审计复盘 盲区 3 + WWDC25）
+
+`MigrationPlan.swift` 管理 Schema 版本迁移。**以下任一操作都需要新建 VersionedSchema**：
+1. 新增/删除/重命名 `@Model` 属性
+2. 添加或修改 `#Index` 宏（影响 Schema hash）
+3. 添加或修改 `#Unique` 宏（影响 Schema hash）
+4. 修改属性的 `@Attribute` 配置
+
+步骤：在 `@Model` 做修改 → 新建 SchemaVN → 加 `MigrationStage` → 最多改 3 个文件
+
+**常见错误**：`#Index`/`#Unique` 看起来只是"性能标注"，实际参与 Schema hash 计算。
+直接在现有 Schema 中添加 = 已安装用户的 DB 迁移失败。
+
+> **实证**：PR #399 — 在 SchemaV2 中添加 `#Index`，需要新建 SchemaV3。
 
 ### 7. insert vs insertAndSave
 - `insert()` = 纯内存插入，不 save。批量操作后统一 `saveContext()`
 - `insertAndSave()` = insert + save，单条操作用
 - `saveContext()` 失败时调 `rollbackContext()` 回滚
+
+### 8. 删除操作顺序（2026-03-21 新增，来源：Xcode 审计复盘）
+
+删除题目涉及 DB 记录和图片文件两个资源。正确顺序：
+1. **先删 DB 记录**（`modelContext.delete` + `saveContext()`）
+2. **再删图片文件**（best-effort，失败只 log 不回滚）
+
+错误顺序（先删图片再 save DB）：DB save 失败 → 图片已不可逆删除 → S0 数据不一致。
 
 ## 参考
 

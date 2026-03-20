@@ -76,8 +76,11 @@
 ### 额外检查
 
 - [ ] 影响用户数据的改动 → S0/S1 场景验证（参照 `workflow.md`「工作优先级框架」的判级标准）
-- [ ] `@Model` 属性变更 → 确认是否需要更新 `SchemaMigrationPlan`
+- [ ] `@Model` 属性变更 → 确认是否需要更新 `SchemaMigrationPlan`（含 `#Index`/`#Unique` 宏变更）
 - [ ] UI 改动 → 研究声明已输出（见 `principles.md`「决策前研究铁律」和「Apple 原生优先铁律」）
+- [ ] 修改已有文件 → 确认文件中使用的 API 无 iOS 26 / Swift 6.2 更新替代方案（2026-03-21，盲区 1）
+- [ ] 新增或修改 `catch` 块 → 确认用户可见的错误反馈存在（不是只有日志）（2026-03-21，盲区 5）
+- [ ] 新增图片加载代码 → 确认使用 `loadDownsampledImage` 而非 `loadImage`（除非需要原始分辨率）（2026-03-21，盲区 4）
 
 ---
 

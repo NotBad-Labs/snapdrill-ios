@@ -27,6 +27,9 @@
 - View = 纯渲染，不含业务逻辑，不做网络/持久化调用
 - 状态全部在 ViewModel 中
 - View 从 `@Environment` 取依赖，传给 ViewModel
+- Modifier 生命周期意识（2026-03-21 确立，来源：Xcode 审计复盘 盲区 6）：
+  - `.sensoryFeedback`、`.task`、`.onReceive` 等有生命周期的 modifier 应挂在**稳定的父 View** 上，不挂在 `if let` / `if-else` 条件分支内（条件分支 = View 创建/销毁，modifier 随 View 失效）
+  - 改变 View 呈现方式（Sheet → push、sync → async、添加条件分支）时，必须列出受影响的 modifier 并逐一验证
 
 ---
 
@@ -41,6 +44,17 @@
 
 - 关键路径（save/init）：禁止 `try?`，必须 `do/catch`
 - 清理路径（delete temp file）：允许 `try?`，但必须加日志或注释 `// best-effort: [原因]`
+- 用户视角检查（2026-03-21 确立，来源：Xcode 审计复盘 盲区 5）：每个 `catch` 块必须回答两个问题：
+  1. **用户会看到什么？** 如果答案是「空白/无反应/loading 卡死」→ 必须添加 error state + UI 反馈
+  2. **用户能做什么？** 如果用户无法重试或理解发生了什么 → 必须提供操作指引（重试按钮、错误提示）
+
+---
+
+## 图片加载（2026-03-21 确立，来源：Xcode 审计复盘 盲区 4）
+
+- 默认使用 `loadDownsampledImage(path:maxLongSide:)`，按实际显示尺寸降采样
+- `loadImage(path:)` 仅用于需要原始分辨率的场景（PDF 导出、OCR 识别）
+- 新增图片加载代码时，必须评估：显示区域尺寸 vs 加载分辨率（全分辨率 vs 降采样可差 10 倍内存）
 
 ---
 
