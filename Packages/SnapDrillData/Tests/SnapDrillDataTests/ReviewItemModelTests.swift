@@ -5,6 +5,8 @@
 //  Created by NotBad Labs on 2026/02/25.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
+//  ReviewItemModel 单元测试，验证模型属性默认值与计算属性行为。
+//
 
 import Testing
 import SwiftData

@@ -46,7 +46,7 @@ public struct CaptureView: View {
                 Color(.systemGroupedBackground)
                     .ignoresSafeArea()
                 
-                // Abstract Mesh Gradient Simulation (iOS 18+)
+                // 抽象网格渐变模拟（iOS 18+）
                 GeometryReader { proxy in
                     Circle()
                         .fill(Color.blue.opacity(0.15))
@@ -70,7 +70,7 @@ public struct CaptureView: View {
                             .padding(.horizontal)
                         
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                            // 1. Smart Scanner
+                            // 1. 智能扫描
                             CaptureMethodCard(
                                 icon: "camera.viewfinder",
                                 title: L10n.Capture.cameraTitle,
@@ -80,7 +80,7 @@ public struct CaptureView: View {
                                 viewModel.isShowingScanner = true
                             }
                             
-                            // 2. Photo Library
+                            // 2. 相册导入
                             PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
                                 CaptureMethodCardContent(
                                     icon: "photo.on.rectangle",
@@ -89,20 +89,20 @@ public struct CaptureView: View {
                                     color: .purple
                                 )
                             }
-                            .buttonStyle(.plain) // Important for Card look
+                            .buttonStyle(.plain) // 保持卡片外观
                             
-                            // 3. Manual
+                            // 3. 手动录入
                             CaptureMethodCard(
                                 icon: "keyboard",
                                 title: L10n.Capture.manualTitle,
                                 subtitle: L10n.Capture.manualSubtitle,
                                 color: .orange
                             ) {
-                                // Navigate to result view with empty state
+                                // 以空状态导航到结果编辑页
                                 router.push(.scannerResult(content: "", image: nil))
                             }
                             
-                            // 4. Clipboard
+                            // 4. 剪贴板粘贴
                             CaptureMethodCard(
                                 icon: "doc.on.clipboard",
                                 title: L10n.Capture.clipboardTitle,
@@ -115,7 +115,7 @@ public struct CaptureView: View {
                         }
                         .padding(.horizontal)
 
-                        // 5. PDF Import（独立全宽行，避免 2 列网格奇数不对称）
+                        // 5. PDF 导入（独立全宽行，避免 2 列网格奇数不对称）
                         CaptureMethodCard(
                             icon: "doc.richtext",
                             title: L10n.Capture.pdfTitle,
@@ -132,7 +132,7 @@ public struct CaptureView: View {
                 }
                 .scrollIndicators(.hidden)
                 
-                // Loading Overlay
+                // 加载中遮罩
                 if viewModel.isProcessing {
                     Color.black.opacity(0.4)
                     .ignoresSafeArea()
@@ -171,7 +171,7 @@ public struct CaptureView: View {
                     PDFPagePickerView(router: router)
                 }
             }
-            // Scanner Sheet
+            // 扫描器全屏覆盖
             .fullScreenCover(isPresented: $viewModel.isShowingScanner) {
                 SmartCameraView(
                     onCapture: { image in
@@ -186,7 +186,7 @@ public struct CaptureView: View {
                     analyticsService.track(.cameraOpened, parameters: [:])
                 }
             }
-            // Photo Picker Handling
+            // 相册选择器处理
             .onChange(of: viewModel.selectedPhotoItem) { _, newItem in
                 if let newItem {
                     viewModel.loadPhoto(newItem, router: router)
@@ -292,7 +292,7 @@ public struct CaptureView: View {
 
 // MARK: - Subviews
 
-// Helper for consistency between Button and PhotosPicker
+// Button 和 PhotosPicker 共享的卡片内容视图
 struct CaptureMethodCardContent: View {
     let icon: String
     let title: String

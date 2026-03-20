@@ -12,7 +12,7 @@ import SwiftData
 import SnapDrillCore
 
 @MainActor
-public class PersistenceController {
+public final class PersistenceController {
 
     // MARK: - Properties
 

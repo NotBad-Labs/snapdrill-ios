@@ -1,9 +1,11 @@
 //
 //  FirebaseBootstrap.swift
-//  SnapDrillCore
+//  SnapDrillInfrastructure
 //
 //  Created by NotBad Labs on 2026/02/26.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
+//
+//  Firebase 初始化引导，封装 FirebaseApp.configure 及数据收集开关。
 //
 
 import FirebaseAnalytics
