@@ -14,10 +14,20 @@ public extension Date {
     
     // MARK: - Properties
     
-    /// 转换为 ISO8601 字符串 (YYYY-MM-DD)
+    /// 转换为本地时区的日期字符串 (YYYY-MM-DD)
+    ///
+    /// 使用 static DateFormatter 避免每次调用创建实例（DateFormatter 初始化是重量级操作）。
+    /// 不使用 `.formatted(.iso8601)` 是因为 ISO8601 FormatStyle 默认 UTC 时区，
+    /// 在 UTC+ 时区（如中国）会导致日期差一天。
     var iso8601DateString: String {
-        self.formatted(.iso8601.year().month().day().dateSeparator(.dash))
+        Self.iso8601Formatter.string(from: self)
     }
+
+    private static let iso8601Formatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
     
     /// 相对时间描述（中文）
     /// 例如：“今天”，“2天后”
