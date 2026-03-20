@@ -70,7 +70,11 @@ struct SmartCameraView: View {
                         }
                     }
                     .padding(.bottom, 40)
-                    
+                    // HIG：快门按下用 medium impact 模拟物理反馈
+                    .sensoryFeedback(.impact(weight: .medium), trigger: shouldCapture) { _, newValue in
+                        newValue
+                    }
+
                     Spacer()
                 }
             }

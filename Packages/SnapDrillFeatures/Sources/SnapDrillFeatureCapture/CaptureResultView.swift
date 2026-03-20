@@ -290,6 +290,11 @@ public struct CaptureResultView: View {
                                                 .font(.subheadline)
                                         }
                                     }
+                                    // HIG：破坏性操作用 warning 反馈；挂在 HStack（稳定父视图）上，
+                                    // 避免挂在 if let 条件分支内导致 modifier 随 View 移除而失效
+                                    .sensoryFeedback(.warning, trigger: viewModel.answerImage) { old, new in
+                                        old != nil && new == nil
+                                    }
                                 }
                                 .padding()
                             }

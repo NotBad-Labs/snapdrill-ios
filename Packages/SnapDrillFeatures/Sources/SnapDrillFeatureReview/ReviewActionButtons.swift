@@ -76,7 +76,7 @@ struct ReviewActionButtons: View {
                 // Toggle Answer
                 Button(
                     action: {
-                        secondaryFeedbackTrigger += 1
+                        // 触觉反馈由 ReviewView.sensoryFeedback(trigger: vm.isAnswerShown) 统一处理
                         onToggleAnswer()
                     },
                     label: {
@@ -106,7 +106,7 @@ struct ReviewActionButtons: View {
         }
         .padding(.horizontal, 48) // Increased outer padding to prevent edge sticking
         .padding(.bottom, 10)
-        // HIG：评分按钮用 medium（决定性操作），次要操作用 light
+        // HIG：评分按钮用 medium（决定性操作），撤销用 light
         .sensoryFeedback(.impact(weight: .medium), trigger: primaryFeedbackTrigger)
         .sensoryFeedback(.impact(weight: .light), trigger: secondaryFeedbackTrigger)
     }
