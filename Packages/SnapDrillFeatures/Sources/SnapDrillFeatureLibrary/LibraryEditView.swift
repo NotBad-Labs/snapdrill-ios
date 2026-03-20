@@ -148,6 +148,10 @@ public struct LibraryEditView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(maxHeight: 200)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else if item.imagePath != nil {
+                    // 有图片路径但尚未加载完成（async I/O）
+                    ProgressView()
+                        .frame(height: 150)
                 } else {
                     ContentUnavailableView(L10n.Library.noImage, systemImage: "photo.badge.exclamationmark")
                         .frame(height: 150)
@@ -202,6 +206,10 @@ public struct LibraryEditView: View {
                 } label: {
                     Label(L10n.Library.removeAnswerImage, systemImage: "trash")
                 }
+            } else if item.answerImagePath != nil {
+                // 有答案图路径但尚未加载完成
+                ProgressView()
+                    .frame(height: 100)
             } else {
                 PhotosPicker(selection: $answerPickerSelection, matching: .images) {
                     Label(L10n.Library.addAnswerImage, systemImage: "photo.badge.plus")
