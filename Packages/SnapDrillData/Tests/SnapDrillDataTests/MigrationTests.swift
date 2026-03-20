@@ -22,19 +22,23 @@ struct MigrationTests {
     func schemaV1Initialization() throws {
         let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: config)
-
-        #expect(container != nil)
+        _ = try ModelContainer(for: schema, configurations: config)
         #expect(SnapDrillSchemaV1.versionIdentifier == Schema.Version(1, 0, 0))
+    }
+
+    @Test("V2 Schema 能够成功加载所有核心模型")
+    func schemaV2Initialization() throws {
+        let schema = Schema(SnapDrillSchemaV2.models)
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        _ = try ModelContainer(for: schema, configurations: config)
+        #expect(SnapDrillSchemaV2.versionIdentifier == Schema.Version(2, 0, 0))
     }
 
     @Test("V3 Schema（当前版本）能够成功加载所有核心模型")
     func schemaV3Initialization() throws {
         let schema = Schema(SnapDrillSchemaV3.models)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: config)
-
-        #expect(container != nil)
+        _ = try ModelContainer(for: schema, configurations: config)
         #expect(SnapDrillSchemaV3.versionIdentifier == Schema.Version(3, 0, 0))
     }
 
@@ -77,9 +81,9 @@ struct MigrationTests {
     @Test("所有 Schema 版本引用相同的 Model 集合")
     func allSchemasReferSameModels() {
         // 所有 VersionedSchema 都引用当前的 @Model 类（SwiftData 设计约束）
-        let v1Models = Set(SnapDrillSchemaV1.models.map { String(describing: $0) })
-        let v2Models = Set(SnapDrillSchemaV2.models.map { String(describing: $0) })
-        let v3Models = Set(SnapDrillSchemaV3.models.map { String(describing: $0) })
+        let v1Models = Set(SnapDrillSchemaV1.models.map { ObjectIdentifier($0) })
+        let v2Models = Set(SnapDrillSchemaV2.models.map { ObjectIdentifier($0) })
+        let v3Models = Set(SnapDrillSchemaV3.models.map { ObjectIdentifier($0) })
         #expect(v1Models == v2Models)
         #expect(v2Models == v3Models)
     }
@@ -89,8 +93,7 @@ struct MigrationTests {
     @Test("PersistenceController 在极端损坏情况下能保护 App 运行")
     func persistenceFallbackLogic() {
         let controller = PersistenceController(inMemory: true)
-
-        #expect(controller.container != nil)
+        // container 是非可选类型，初始化失败会走 fallback 路径而非返回 nil
         #expect(controller.initializationError == nil || controller.isUsingInMemoryFallback)
     }
 
