@@ -29,16 +29,29 @@ public extension Date {
         return formatter
     }()
     
-    /// 相对时间描述（系统自动本地化）
+    /// 相对时间描述（L10n 本地化）
     ///
-    /// 使用 `RelativeDateTimeFormatter` 系统 API，自动处理多语言。
-    /// 例如：中文”今天”/”2天后”，英文”today”/”in 2 days”。
+    /// 保留原始精确天数逻辑，仅将硬编码中文替换为 L10n 键。
+    /// 不使用 `RelativeDateTimeFormatter`：它的粒度不适合复习场景
+    /// （”今天”变”现在”、7-13天都显示”下周”丢失精度）。
     func relativeDescription(relativeTo other: Date = Date()) -> String {
-        // 每次创建 RelativeDateTimeFormatter（轻量级，不像 DateFormatter）
-        // 系统自动处理多语言，输出如”今天”/”明天”/”2天后”
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        formatter.dateTimeStyle = .named
-        return formatter.localizedString(for: self, relativeTo: other)
+        let calendar = Calendar.current
+        if calendar.isDateInToday(self) {
+            return L10n.Common.today
+        } else if calendar.isDateInTomorrow(self) {
+            return L10n.Common.tomorrow
+        } else if calendar.isDateInYesterday(self) {
+            return L10n.Common.yesterday
+        }
+
+        let components = calendar.dateComponents([.day], from: calendar.startOfDay(for: other), to: calendar.startOfDay(for: self))
+        if let days = components.day {
+            if days > 0 {
+                return L10n.Common.daysLater(days)
+            } else {
+                return L10n.Common.daysAgo(abs(days))
+            }
+        }
+        return self.iso8601DateString
     }
 }

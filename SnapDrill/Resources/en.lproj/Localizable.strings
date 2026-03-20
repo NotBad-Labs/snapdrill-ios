@@ -37,6 +37,11 @@
 "common.open_settings" = "Open Settings";
 "common.restart_app" = "Restart App";
 "common.unknown_error" = "Unknown Error";
+"common.today" = "Today";
+"common.tomorrow" = "Tomorrow";
+"common.yesterday" = "Yesterday";
+"common.days_later" = "In %d days";
+"common.days_ago" = "%d days ago";
 "common.item_count" = "%d items";
 "common.item_count_short" = "%d";
 
@@ -230,8 +235,8 @@
 "review.interval_minutes" = "10 min";
 "review.interval_tomorrow" = "Tomorrow";
 "review.interval_days" = "%d days";
-"review.interval_weeks" = "%d weeks";
-"review.interval_months" = "%d months";
+"review.interval_weeks" = "%d wk";
+"review.interval_months" = "%d mo";
 
 // MARK: - Settings
 

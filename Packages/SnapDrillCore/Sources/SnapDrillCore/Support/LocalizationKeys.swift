@@ -50,6 +50,17 @@ public enum L10n {
         public static let restartApp = NSLocalizedString("common.restart_app", value: "重启应用", comment: "重启应用按钮")
         public static let unknownError = NSLocalizedString("common.unknown_error", value: "未知错误", comment: "未知错误")
 
+        // 相对日期
+        public static let today = NSLocalizedString("common.today", value: "今天", comment: "今天")
+        public static let tomorrow = NSLocalizedString("common.tomorrow", value: "明天", comment: "明天")
+        public static let yesterday = NSLocalizedString("common.yesterday", value: "昨天", comment: "昨天")
+        public static func daysLater(_ days: Int) -> String {
+            String(format: NSLocalizedString("common.days_later", value: "%d天后", comment: "N天后"), days)
+        }
+        public static func daysAgo(_ days: Int) -> String {
+            String(format: NSLocalizedString("common.days_ago", value: "%d天前", comment: "N天前"), days)
+        }
+
         public static func itemCount(_ count: Int) -> String {
             String(format: NSLocalizedString("common.item_count", value: "%d 道题", comment: "题目数量"), count)
         }
