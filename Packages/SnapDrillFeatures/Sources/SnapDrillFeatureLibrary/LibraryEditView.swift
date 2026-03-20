@@ -275,11 +275,14 @@ public struct LibraryEditView: View {
             Spacer()
             HStack(spacing: 4) {
                 ForEach(1...5, id: \.self) { star in
-                    Image(systemName: vm.difficulty.rawValue >= star ? "star.fill" : "star")
-                        .foregroundStyle(.yellow)
-                        .onTapGesture {
-                            vm.difficulty = Difficulty(rawValue: star) ?? .one
-                        }
+                    Button {
+                        vm.difficulty = Difficulty(rawValue: star) ?? .one
+                    } label: {
+                        Image(systemName: vm.difficulty.rawValue >= star ? "star.fill" : "star")
+                            .foregroundStyle(.yellow)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(star) \(L10n.Capture.difficulty)")
                 }
             }
         }
