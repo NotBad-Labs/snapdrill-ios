@@ -79,6 +79,8 @@ struct SnapDrillApp: App {
                     .modelContainer(PersistenceController.shared.container)
                     .environment(\.services, container.services)
                     .environment(\.repositories, container.repositories)
+                    // analyticsService 单独注入：5 个 View 直接使用 \.analyticsService，
+                    // 虽然 \.services 已包含 analytics，但移除此行会让它们回退到 Mock 默认值
                     .environment(\.analyticsService, container.services.analytics)
                     .preferredColorScheme(colorScheme)
                     .blur(radius: AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive ? 10 : 0)

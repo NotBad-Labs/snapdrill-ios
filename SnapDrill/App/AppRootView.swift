@@ -51,19 +51,20 @@ struct AppRootView: View {
                     SettingsView(router: router.settingsRouter)
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: .switchToCaptureTab)) { _ in
-                withAnimation(.spring(duration: 0.4)) {
-                    router.selectedTab = .capture
+            // conventions.md: Combine .onReceive → async notification stream
+            .task {
+                for await _ in NotificationCenter.default.notifications(named: .switchToCaptureTab) {
+                    withAnimation(.spring(duration: 0.4)) { router.selectedTab = .capture }
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: .switchToLibraryTab)) { _ in
-                withAnimation(.spring(duration: 0.4)) {
-                    router.selectedTab = .library
+            .task {
+                for await _ in NotificationCenter.default.notifications(named: .switchToLibraryTab) {
+                    withAnimation(.spring(duration: 0.4)) { router.selectedTab = .library }
                 }
             }
-            .onReceive(NotificationCenter.default.publisher(for: .switchToSettingsTab)) { _ in
-                withAnimation(.spring(duration: 0.4)) {
-                    router.selectedTab = .settings
+            .task {
+                for await _ in NotificationCenter.default.notifications(named: .switchToSettingsTab) {
+                    withAnimation(.spring(duration: 0.4)) { router.selectedTab = .settings }
                 }
             }
             

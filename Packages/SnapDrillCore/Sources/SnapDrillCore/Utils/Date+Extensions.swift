@@ -16,9 +16,7 @@ public extension Date {
     
     /// 转换为 ISO8601 字符串 (YYYY-MM-DD)
     var iso8601DateString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: self)
+        self.formatted(.iso8601.year().month().day().dateSeparator(.dash))
     }
     
     /// 相对时间描述（中文）
