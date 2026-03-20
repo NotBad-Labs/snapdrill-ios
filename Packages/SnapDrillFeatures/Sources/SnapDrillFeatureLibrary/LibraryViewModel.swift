@@ -185,7 +185,8 @@ public final class LibraryViewModel {
             self.filteredItems.append(contentsOf: nextItems)
         } catch {
             SnapDrillLogger.generic.error("加载更多题目失败: \(error.localizedDescription)")
-            // 分页失败不覆盖已有数据的 errorMessage，仅 log
+            // 分页失败不覆盖已有数据的 errorMessage，仅 log；
+            // 避免用户已浏览的列表突然被错误状态替换
         }
     }
 

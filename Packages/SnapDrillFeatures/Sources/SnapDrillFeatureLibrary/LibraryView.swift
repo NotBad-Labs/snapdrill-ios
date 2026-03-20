@@ -48,7 +48,8 @@ public struct LibraryView: View {
             ZStack(alignment: .bottom) {
                 if let vm = viewModel {
                     if vm.errorMessage != nil && vm.filteredItems.isEmpty {
-                        // 加载失败且无缓存数据：全屏错误 + 重试
+                        // 仅在无缓存数据时展示全屏错误；有缓存时保留已有列表，
+                        // 避免刷新失败导致用户已浏览的内容消失
                         ContentUnavailableView {
                             Label(L10n.Errors.loadFailed, systemImage: "exclamationmark.triangle")
                         } description: {
