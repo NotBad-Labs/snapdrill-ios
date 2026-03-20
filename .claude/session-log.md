@@ -10,6 +10,58 @@
 
 ---
 
+## 2026-03-19 Session
+
+### 完成
+
+**线 A 产品技术债全部清零（10/10）**：
+- PR #353：Flaky tests 修复（草稿条件不同步 + waitUntil 竞态）
+- PR #354：CSV Excel 公式注入防护（OWASP tab 前缀）
+- PR #355：AccessibilityHelper 硬编码中文迁移到 L10n
+- PR #357：4 个跨包协议补齐 DocC 行为保证
+- PR #358：L10n.Common onboarding 键迁移到 L10n.Onboarding
+- PR #359：移除 Markdown 导出（图片内容导出后引用断裂）
+- PR #360：移除 App 内帮助系统 -511 行（改为外部网页 FAQ）
+- #285/#286/#264：审查后关闭（已在之前 PR 中修复或确认保留）
+
+**线 B 工程体系全部清零（5/5）**：
+- PR #350：第 4 条元原则 + PR 全流程纪律正式化
+- PR #351：测试策略原则（分层 TDD，横向研究 Beck/DHH/Fowler/Hickey/Google）
+- PR #352：文档治理体系（全量审计 ~40 文件 + Last verified + ADR 实施状态）
+- PR #362：Skills 体系改进（2 新 Skill + 16 个 Gotchas）
+- #329：研究沉淀并入 #328，关闭
+
+**STATUS.md 重构**：从"发布驱动"改为"双线并行"结构
+
+### 关键决策
+
+- **测试策略**：不全面 TDD，分层施策（纯算法 TDD / ViewModel test-after / View 不测）
+- **文档治理**：活文档加 Last verified，ADR 不加（快照哲学），事件驱动审计
+- **Markdown 导出移除**：SnapDrill 内容是图片密集错题，MD 导出后图片引用断裂，对家长/学生无价值
+- **HelpView 移除**：8 个对标 App 中 7 个用外部网页 FAQ，Apple HIG 推荐 TipKit 不推荐集中式 FAQ
+- **战略目标澄清**：木桶原则——不追求某块板特别长，确保没有明显短板。发布是质量达标后的自然结果
+
+### 教训（已写入 memory）
+
+- PR 合并后必须立即更新 STATUS.md（事件驱动，不问用户）
+- PR 创建后自动后台轮询 review（不需要用户下命令）
+- STATUS.md 不能只留在本地未提交——git checkout 会覆盖
+
+### 横向研究
+
+- TDD/Interface-First：Beck/DHH/Fowler/Hickey/Google + 外部专家咨询
+- 文档治理：Google g3doc / GitLab SSOT / Nygard ADR / AWS ADR lifecycle
+- 帮助系统：Bear/Things 3/Day One/GoodNotes/Anki/Apple HIG
+- 导出格式：Bear 12 格式 / Anki / Day One / Apple Notes iOS 26 Markdown
+
+### 下次接续
+
+- 线 A + 线 B 全部清零，无待处理 Issue
+- 下一步：审视项目整体，找短板（木桶原则），而非急着推发布
+- 外部阻塞：#161 Build 6 / #162 GitHub Pro / #163 公司开发者账号
+
+---
+
 ## 2026-03-18 Session（第三次）
 
 ### 完成

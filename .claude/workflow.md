@@ -246,18 +246,32 @@ gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini
 
 - 4 月 1 日 GitHub Pro 生效后，同步启用 Branch Protection（require 1 approval）
 
-### Review 发现的技术债追踪铁律（2026-03-10 确立）
+### 发现即追踪铁律（2026-03-20 确立，泛化自 2026-03-10 PR review 追踪规则）
 
-**每次 PR review 核实后，凡是"有效但不在本 PR 范围"的问题，必须立即创建 GitHub Issue 追踪。禁止只说"不采纳"就丢掉。**
+**任何已验证的发现，如果不在当前工作范围内立即处理，必须创建 GitHub Issue 追踪。**
 
-具体流程：
+适用于所有发现场景——PR review、审计核实、实现过程、代码阅读、真机验收。
+"排除"不是"不追踪"的同义词。"顺手修"不是追踪机制。
+
+> **实证**（2026-03-20）：#376 Xcode 8 维度审计核实中，Claude 排除了 3 个发现（"不建 Issue"），
+> 经 Xcode Intelligence 独立验收，2 个被否决追回并入现有 Issue。
+> 根因：追踪规则仅覆盖 PR review 语境，审计排除未被视为"范围外发现"。
+
+**违反后果**：不建 Issue = 事实上遗忘 = 永远不会修复。
+
+#### PR review 场景的具体流程
+
 1. Claude 独立核实每条 review finding
 2. 对于判定为"真实问题，但不属于本 PR 范围"的 finding，**必须在合并前创建 Issue**
 3. Issue 标题格式：`chore: {问题描述}`，body 中注明来源 PR 编号和 review 原文
 4. 相似主题的 finding 合并为一个 Issue（避免碎片化）
 5. PR 合并 comment 或回复中列出新建的 Issue 编号，形成闭环
 
-**违反后果**：技术债无追踪 = 技术债不存在 = 永远不会修复。这比 review 本身不发现问题更危险。
+#### 审计/核实场景的具体流程
+
+1. 每个被"排除"或"降级"的发现，必须说明理由
+2. 排除理由需经独立方验收（多方独立审计铁律）
+3. 验收否决的发现，并入现有 Issue 或新建 Issue
 
 ### PR 全流程纪律（2026-03-19 正式化，来源：2026-03-18 六条协作反馈）
 
@@ -273,7 +287,7 @@ gh pr create --base develop               # 建 PR，触发 Mac mini CI + Gemini
 修复 review finding 后，必须让**原 reviewer** 验收实现是否符合意图。不能因为「采纳了 reviewer 的建议」就自己宣布可合并。验收铁律已在上方「fix 提交后的 re-review 规则」中详述。
 
 **4. 范围外发现立即建 Issue**
-口头说"后续处理"但不建 Issue = 事实上遗忘。具体流程已在上方「Review 发现的技术债追踪铁律」中详述。
+口头说"后续处理"但不建 Issue = 事实上遗忘。具体流程已在上方「发现即追踪铁律」中详述。
 
 **5. Review 轮询查两处**
 Gemini 和外部 reviewer 的结果可能出现在不同位置：

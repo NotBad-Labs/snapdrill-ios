@@ -1,6 +1,6 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-03-19（双线并行：产品技术债清理 + 工程体系完善）
+> 最后更新：2026-03-20（Xcode 8 维度全量审计核实完成，11 个 Issue 已创建）
 >
 > 本文件是项目的**单一实时状态源**。每次新对话必须先读此文件恢复上下文。
 > 每个 PR 合并后必须同步更新。
@@ -16,7 +16,8 @@ product-vision.md（为什么做 — 几乎不变）
   → product-requirements.md（做什么 — 每版本更新）
     → #287 蓝图（纵向：代码是否实现了需求）✅ 完成
     → #305 全链路终审（横向：需求是否合理 + 产品是否准备好了）✅ 完成
-      → 修复 PR（S0 ✅ → S1 ✅ → S2 ✅ → S3 进行中）
+      → 修复 PR（S0 ✅ → S1 ✅ → S2 ✅ → S3 ✅ 全部清零）
+      → 短板审计（测试补全 + 文档一致性 + ADR-008）✅ PR #365
   → 工程体系（怎么做 — 持续优化）
     → principles.md / workflow.md / conventions.md / ADR
     → 测试策略 / 文档治理 / 协作纪律
@@ -24,7 +25,56 @@ product-vision.md（为什么做 — 几乎不变）
 
 ---
 
-## 当前工作（双线并行）
+## 当前工作
+
+### Xcode 8 维度全量审计（#376 → 11 个 Issue）
+
+Xcode Intelligence 完成 8 维度代码审计（~141 个发现），Claude 核实后合并为 11 个可执行 Issue。
+
+**S1 流程阻断（1 个）**
+
+| 状态 | Issue | 内容 |
+|---|---|---|
+| ⬜ | [#380](../../issues/380) | 错误处理用户反馈缺失 — 6 个静默失败路径 |
+
+**S2 体验受损（3 个）**
+
+| 状态 | Issue | 内容 |
+|---|---|---|
+| ⬜ | [#381](../../issues/381) | iOS 26 API 迁移 — OCR RecognizeTextRequest + TabView Tab struct |
+| ⬜ | [#382](../../issues/382) | HIG 违规修复 — NavigationLink + 星级无障碍 + 分类管理导航 |
+| ⬜ | [#383](../../issues/383) | 图片加载性能 — 复习卡片下采样 + LibraryEdit 同步 I/O |
+
+**S3 打磨优化（7 个）**
+
+| 状态 | Issue | 内容 |
+|---|---|---|
+| ⬜ | [#384](../../issues/384) | SwiftUI 现代化 — .task 迁移 + Combine→async + 冗余注入清理 |
+| ⬜ | [#385](../../issues/385) | DocC landing page 修复 — ghost symbols + 依赖错误 |
+| ⬜ | [#386](../../issues/386) | 注释语言统一 — 英文→中文 + 文件头修复 + MARK 规范化 |
+| ⬜ | [#387](../../issues/387) | 触觉反馈补全 — 6 个交互位置 |
+| ⬜ | [#388](../../issues/388) | SwiftData 改进 — 索引 + 删除顺序 + Schema 版本对齐 |
+| ⬜ | [#389](../../issues/389) | 硬编码中文字符串迁移到 L10n |
+| ⬜ | [#390](../../issues/390) | Schema V1→V2 迁移数据验证测试 |
+
+### 短板审计（已完成）
+
+<details>
+<summary>展开查看</summary>
+
+| 状态 | Issue/PR | 内容 |
+|---|---|---|
+| ✅ | [#364](../../issues/364) → PR #365 | 备份/恢复 ViewModel 测试补全（8 tests）+ 代码卫生 + ADR-008 |
+| ✅ | — | release-checklist.md 全量审计（补充 5 个遗漏功能） |
+| ✅ | [#378](../../issues/378) → PR #379 | SettingsView 运行时警告修复（真机验收发现） |
+| ✅ | [#376](../../issues/376) → PR #377 | 决策变更收尾规则 — Claude × Xcode 双方研究成果落地 |
+| ✅ | [#374](../../issues/374) → PR #375 | Onboarding 移除字段选择页 — 违反 Apple HIG（真机验收发现） |
+| ✅ | [#370](../../issues/370) → PR #373 | Manager 重命名防重名 — 阻止产生同名选项（S2 缺陷修复） |
+| ✅ | [#371](../../issues/371) → PR #372 | release-checklist.md 第二轮补全（14 项）+ round-trip SM-2 验证 |
+| ✅ | [#368](../../issues/368) → PR #369 | Phase 4 次要测试补充（7 tests）— 发现 #370 重名缺陷 |
+| ✅ | [#366](../../issues/366) → PR #367 | BackupService 路径遍历防护增强（ZipSlip） |
+
+</details>
 
 ### 线 A：产品技术债（S3）
 
@@ -89,7 +139,7 @@ S0/S1/S2/S3 全部清零 ✅
 
 | Issue | 内容 | 阻塞 |
 |---|---|---|
-| [#161](../../issues/161) | TestFlight Build 6 | 线 A/B 完成后 |
+| [#161](../../issues/161) | TestFlight Build 6 | 短板审计完成后 |
 | [#162](../../issues/162) | GitHub Pro Branch Protection | 4 月 1 日 |
 | [#163](../../issues/163) | 公司 Apple 开发者账号 | DUNS 就绪后 |
 
@@ -99,6 +149,14 @@ S0/S1/S2/S3 全部清零 ✅
 
 | 日期 | Issue/PR | 内容 |
 |---|---|---|
+| 2026-03-19 | [#379](../../pull/379) | fix: SettingsView 运行时警告 — ensureViewModel 反模式修复（Closes #378）|
+| 2026-03-19 | [#377](../../pull/377) | chore: 决策变更收尾规则 — Claude × Xcode 双方研究（Closes #376）|
+| 2026-03-19 | [#375](../../pull/375) | fix: Onboarding 移除字段选择页 — 违反 Apple HIG（Closes #374）|
+| 2026-03-19 | [#373](../../pull/373) | fix: Manager 重命名防重名 — 阻止产生同名选项（Closes #370）|
+| 2026-03-19 | [#372](../../pull/372) | chore: release-checklist.md 第二轮补全 — 14 项 v1.0 功能覆盖（Closes #371）|
+| 2026-03-19 | [#369](../../pull/369) | test: Phase 4 次要测试补充 — PDF 多页 + Manager 重名 + Dashboard 统计（Closes #368）|
+| 2026-03-19 | [#367](../../pull/367) | fix: BackupService 路径遍历防护增强 ZipSlip（Closes #366）|
+| 2026-03-19 | [#365](../../pull/365) | test: 备份/恢复测试补全 + ADR-008 VoiceOver 推迟 + 代码卫生（Closes #364）|
 | 2026-03-19 | [#362](../../pull/362) | chore: Skills 体系改进 — 2 新 Skill + 16 Gotchas（Closes #328）|
 | 2026-03-19 | [#360](../../pull/360) | chore: 移除 App 内帮助系统 -511 行（Closes #284）|
 | 2026-03-19 | [#359](../../pull/359) | chore: 移除 Markdown 导出（Closes #301）|
