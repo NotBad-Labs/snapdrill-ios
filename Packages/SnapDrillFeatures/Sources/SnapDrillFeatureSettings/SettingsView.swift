@@ -27,6 +27,7 @@ import MessageUI
 public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
     @Environment(\.repositories) private var repositories
+    // 仅用于 #if DEBUG DataSeeder，正式功能通过 RepositoryContainer 访问
     @Environment(\.modelContext) private var modelContext
 
     @State private var viewModel: SettingsViewModel?

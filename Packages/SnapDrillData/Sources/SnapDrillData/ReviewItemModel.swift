@@ -17,9 +17,16 @@ import SnapDrillCore
 /// 直接作领域对象使用，通过 `toExportSnapshot()` 提供导出用只读视图。
 @Model
 public final class ReviewItemModel {
-    
+
+    // 索引：提升高频查询性能（Schema V3 新增，见 MigrationPlan.swift）
+    #Index<ReviewItemModel>(
+        [\.createdAt],         // 题库列表默认排序
+        [\.nextReviewAt],      // 待复习查询
+        [\.subjectRawValue]    // 按学科过滤
+    )
+
     // MARK: - Properties
-    
+
     /// 唯一主键
     public var id: UUID = UUID()
     
@@ -155,7 +162,7 @@ public final class ReviewItemModel {
     /// 是否已安排下次复习（false 表示从未复习或重置后的初始状态）
     ///
     /// 封装哨兵值语义，避免调用方直接比较 `Date.distantPast`。
-    @Transient
+    /// SwiftData 不存储计算属性，无需 `@Transient` 标注。
     public var isScheduled: Bool {
         nextReviewAt != .distantPast
     }

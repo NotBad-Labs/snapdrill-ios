@@ -23,7 +23,12 @@ public struct BackupManifest: Codable, Sendable {
     /// 题目总数
     public let itemCount: Int
 
-    /// 当前 Schema 版本——每次 Model 字段变更时递增
+    /// 当前备份 Schema 版本——每次 BackupDTO 字段变更时递增
+    ///
+    /// **与 SwiftData Schema 版本的对应关系**：
+    /// - BackupManifest.currentSchemaVersion = 1 → SwiftData SchemaV3（MigrationPlan.swift）
+    /// - 两者独立管理：BackupDTO 版本变更不一定伴随 SwiftData 迁移，反之亦然
+    /// - 新增 SwiftData Schema 版本时，评估是否需要同步更新备份 Schema
     public static let currentSchemaVersion = 1
 
     public init(schemaVersion: Int, createdAt: Date, appVersion: String, itemCount: Int) {

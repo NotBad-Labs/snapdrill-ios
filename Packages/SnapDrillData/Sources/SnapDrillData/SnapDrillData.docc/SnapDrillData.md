@@ -46,7 +46,7 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ## Schema 版本
 
-当前为 V2，迁移计划见 `MigrationPlan.swift`。
+当前为 V3，迁移计划见 `MigrationPlan.swift`。
 
 ## 禁止模式
 
