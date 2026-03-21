@@ -1,5 +1,7 @@
 # SnapDrill 项目全貌 — 从愿景到落地的完整链路
 
+> Last verified: 2026-03-21
+>
 > 本文件展示项目从「为什么做」到「交付上线」的完整链条。
 > 每一层不仅说明**有什么**，还说明与上下游的**关节**——输入是什么、输出是什么、谁约束谁。
 >
@@ -118,7 +120,7 @@
 | **转换机制** | 每个代码改动通过 Git 工作流流转：Issue → 分支 → PR → Review → 合并 |
 | **验证手段** | 三方 Code Review（Gemini 自动 + Antigravity/Xcode 手动 + Claude 核实） |
 | **断裂风险** | 跳过 Review 直推 → Git 铁律禁止；Review 结论不追踪 → 发现即追踪铁律 |
-| **实证** | PR #303 经三轮 Review 迭代才发现优先级反转 bug |
+| **实证** | PR #303 经三轮 Review 迭代才发现 Feature Flag 死开关问题（用户切换无效） |
 
 ### 关节 5→6：协作 → 质量
 
@@ -201,13 +203,18 @@ Level 4: 全量代码审计（发版前，全代码库）
 | HOW/实现 | `infrastructure.md` | API 权威参考（SSOT） |
 | HOW/实现 | `technical-debt-ledger.md` | 已知技术债台账 |
 | HOW/协作 | `workflow.md` | Git 工作流、Review、优先级、角色 |
+| HOW/设计 | `vault-design.md` | 多 Profile (Vault) 架构前瞻设计（v1.5） |
+| HOW/设计 | `decisions/README.md` | ADR 索引 |
 | HOW/协作 | `review-prompt-guide.md` | Review 提示词模板 |
-| HOW/协作 | `skills/` | 16 个角色 Skill 文件 |
+| HOW/协作 | `gemini-context.md` | Gemini GitHub Action review 上下文 |
+| HOW/协作 | `skills/` | 19 个 Skill 文件（16 角色 + 3 工具） |
 | QUALITY | `definition-of-done.md` | PR 合并标准 |
 | QUALITY | `release-checklist.md` | 发版门槛 |
 | QUALITY | `capability-traceability.md` | 蓝图验证矩阵 |
 | QUALITY | `postmortem-*.md` | 审计复盘记录 |
 | 跨层 | `CLAUDE.md` | 入口文件，强制加载顺序 |
+| 跨层 | `compact-reminder.md` | 上下文压缩后恢复指引（自动注入） |
+| 跨层 | `project-map.md` | 项目全貌链路图（本文件） |
 | 跨层 | `STATUS.md` | 实时状态看板 |
 | 跨层 | `session-log.md` | 工作历史日志 |
 | 跨层 | `memory/` | 跨会话行为记忆 |
