@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 
 struct LicenseView: View {
     
@@ -16,7 +17,7 @@ struct LicenseView: View {
     
     var body: some View {
         List {
-            Section("开源库") {
+            Section(L10n.Settings.openSourceSection) {
                 NavigationLink(destination: LicenseDetailView(title: "Mantis", licenseContent: mantisLicense)) {
                     VStack(alignment: .leading) {
                         Text("Mantis")
@@ -39,13 +40,13 @@ struct LicenseView: View {
             }
 
             Section {
-                Text("本应用使用了以上优秀的开源软件，感谢所有贡献者。")
+                Text(L10n.Settings.openSourceThanks)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("开源许可")
+        .navigationTitle(L10n.Settings.openSourceTitle)
         .navigationBarTitleDisplayMode(.inline)
     }
 }

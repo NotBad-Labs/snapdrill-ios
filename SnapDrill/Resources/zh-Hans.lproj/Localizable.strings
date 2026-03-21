@@ -92,6 +92,9 @@
 "capture.pdf_file_too_large" = "PDF 文件大小为 %d MB，可能导致内存不足，建议使用更小的文件";
 "capture.pdf_page_hint" = "共 %d 页，点击选择要录入的页面";
 "capture.page_number" = "第 %d 页";
+"capture.camera_scanning_hint" = "寻找题目区域...";
+"capture.default_subject" = "数学";
+"capture.default_source" = "试卷";
 
 // MARK: - Dashboard
 
@@ -136,6 +139,11 @@
 "library.sort_by_date" = "按时间";
 "library.sort_by_subject" = "按学科";
 "library.sort_by_difficulty" = "按难度";
+"library.sort_by_review_status" = "按复习状态";
+"library.sort_time" = "时间";
+"library.sort_subject" = "学科";
+"library.sort_difficulty" = "难度";
+"library.sort_review_status" = "复习状态";
 "library.all_subjects" = "全部";
 "library.no_content" = "无文字内容";
 "library.detail" = "题目详情";
@@ -393,6 +401,19 @@
 "settings.clear_mock_data" = "清空模拟数据";
 "settings.generating" = "生成中...";
 "settings.generate_test_data" = "生成测试数据 (%d条)";
+"settings.backup_preparing_data" = "正在准备数据...";
+"settings.backup_complete" = "备份完成";
+"settings.restore_verifying" = "正在验证备份文件...";
+"settings.restore_auto_backup" = "正在恢复前自动备份当前数据...";
+"settings.restore_reading_data" = "正在读取备份数据...";
+"settings.restore_images" = "正在恢复图片...";
+"settings.restore_complete" = "恢复完成";
+"settings.restore_partial_image_failure" = "数据已恢复，但部分图片恢复失败。可尝试重新恢复以修复图片。";
+"settings.backup_packing_items" = "正在打包 %d 道题目...";
+"settings.restore_restoring_items" = "正在恢复 %d 道题目...";
+"settings.open_source_section" = "开源库";
+"settings.open_source_thanks" = "本应用使用了以上优秀的开源软件，感谢所有贡献者。";
+"settings.open_source_title" = "开源许可";
 // MARK: - Edit Profile
 
 "edit_profile.title" = "个人资料";
@@ -445,6 +466,10 @@
 "errors.data_corrupted_help" = "数据文件已损坏，请尝试重新启动应用";
 "errors.unknown_error_help" = "请稍后重试，如问题持续请重启应用";
 "errors.error_occurred" = "发生错误";
+"errors.content_and_image_empty" = "题目文字和图片不能同时为空";
+"errors.data_not_found" = "未找到请求的数据。";
+"errors.capture_failed" = "图像采集或识别失败。";
+"errors.unknown_error_with_message" = "未知错误: %@";
 
 // MARK: - Subjects
 
@@ -576,6 +601,11 @@
 "privacy.contact_title" = "联系我们";
 "privacy.contact_content" = "如果您对本隐私政策有任何疑问或顾虑，请通过以下方式联系我们：\n\n邮箱：hello@notbadhq.com\n应用内反馈：设置 → 关于 → 反馈与支持\n\n我们将在 48 小时内回复您的询问。";
 "privacy.view_full_version" = "在浏览器中查看完整版（中英双语）";
+
+// MARK: - Privacy Pre-Prompt (ATT)
+"privacy.pre_prompt_title" = "帮助小本本变得更好";
+"privacy.pre_prompt_description" = "通过允许追踪，我们可以衡量功能的使用情况，并更快速地修复潜在的崩溃，为您提供更好的学习体验。您的数据仍将保持匿名，仅用于产品改进。";
+"privacy.pre_prompt_continue" = "继续";
 
 // MARK: - Accessibility (VoiceOver)
 "accessibility.flip_to_answer" = "双击翻转查看答案";

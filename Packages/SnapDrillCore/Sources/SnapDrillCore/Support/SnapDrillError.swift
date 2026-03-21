@@ -28,11 +28,11 @@ public enum SnapDrillError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .dataNotFound:
-            return "未找到请求的数据。"
+            return L10n.Errors.dataNotFound
         case .captureFailed:
-            return "图像采集或识别失败。"
+            return L10n.Errors.captureFailed
         case .unknown(let message):
-            return "未知错误: \(message)"
+            return L10n.Errors.unknownErrorWithMessage(message)
         }
     }
 }

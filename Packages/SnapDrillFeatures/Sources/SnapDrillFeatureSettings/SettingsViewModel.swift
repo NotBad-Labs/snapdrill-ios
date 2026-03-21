@@ -77,7 +77,7 @@ public final class SettingsViewModel {
         backupProgress = 0
         backupError = nil
         backupFileURL = nil
-        backupStatusMessage = "正在准备数据..."
+        backupStatusMessage = L10n.Settings.backupPreparingData
 
         do {
             // 1. 收集数据（MainActor 上）
@@ -95,7 +95,7 @@ public final class SettingsViewModel {
             // 2. 获取 Documents 目录路径
             let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 
-            backupStatusMessage = "正在打包 \(itemCount) 道题目..."
+            backupStatusMessage = L10n.Settings.backupPackingItems(itemCount)
 
             // 3. 在 BackupService actor 上打包 ZIP
             let url = try await backupService.createBackup(
@@ -110,7 +110,7 @@ public final class SettingsViewModel {
             }
 
             backupFileURL = url
-            backupStatusMessage = "备份完成"
+            backupStatusMessage = L10n.Settings.backupComplete
             SnapDrillLogger.generic.info("备份完成: \(itemCount) 道题目")
         } catch {
             backupError = L10n.Errors.backupFailed
@@ -133,7 +133,7 @@ public final class SettingsViewModel {
         isBackupInProgress = true
         backupProgress = 0
         backupError = nil
-        backupStatusMessage = "正在验证备份文件..."
+        backupStatusMessage = L10n.Settings.restoreVerifying
 
         // 安全域访问（fileImporter 选择的文件在安全沙箱外）
         guard fileURL.startAccessingSecurityScopedResource() else {
@@ -153,24 +153,24 @@ public final class SettingsViewModel {
                 )
             }
 
-            backupStatusMessage = "正在恢复前自动备份当前数据..."
+            backupStatusMessage = L10n.Settings.restoreAutoBackup
 
             // 2. 恢复前自动备份当前数据（安全网）
             let autoBackupURL = await createAutoBackupBeforeRestore()
             // 无论恢复成功、图片失败 return、还是数据库异常 throw，都清理临时文件
             defer { cleanupAutoBackup(autoBackupURL) }
 
-            backupStatusMessage = "正在读取备份数据..."
+            backupStatusMessage = L10n.Settings.restoreReadingData
 
             // 3. 提取 payload
             let payload = try await backupService.extractPayload(from: fileURL)
 
-            backupStatusMessage = "正在恢复 \(manifest.itemCount) 道题目..."
+            backupStatusMessage = L10n.Settings.restoreRestoringItems(manifest.itemCount)
 
             // 4. 恢复数据库
             try await repositories.restoreFromPayload(payload)
 
-            backupStatusMessage = "正在恢复图片..."
+            backupStatusMessage = L10n.Settings.restoreImages
 
             // 5. 恢复图片文件（数据库已恢复，图片失败不回滚数据库）
             let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -188,14 +188,14 @@ public final class SettingsViewModel {
                 // 数据库已恢复成功，但图片恢复失败——提示用户可重新恢复
                 SnapDrillLogger.generic.error("图片恢复失败（数据已恢复）: \(error)")
                 NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
-                backupStatusMessage = "数据已恢复，但部分图片恢复失败。可尝试重新恢复以修复图片。"
+                backupStatusMessage = L10n.Settings.restorePartialImageFailure
                 isBackupInProgress = false
                 return
             }
 
             // 6. 通知 UI 刷新
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
-            backupStatusMessage = "恢复完成"
+            backupStatusMessage = L10n.Settings.restoreComplete
             SnapDrillLogger.generic.info("恢复完成: \(manifest.itemCount) 道题目")
         } catch {
             backupError = L10n.Errors.restoreFailed

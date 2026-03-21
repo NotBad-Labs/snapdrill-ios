@@ -27,9 +27,9 @@ public final class CaptureResultViewModel {
 
     // 分类信息（自动推断：沿用上次录入的学科/来源，减少重复操作）
     /// 当前选中的学科名称
-    public var selectedSubject: String = UserDefaults.standard.string(forKey: UDKey.lastSelectedSubject) ?? "数学"
+    public var selectedSubject: String = UserDefaults.standard.string(forKey: UDKey.lastSelectedSubject) ?? L10n.Capture.defaultSubject
     /// 当前选中的来源名称
-    public var selectedSource: String = UserDefaults.standard.string(forKey: UDKey.lastSelectedSource) ?? "试卷"
+    public var selectedSource: String = UserDefaults.standard.string(forKey: UDKey.lastSelectedSource) ?? L10n.Capture.defaultSource
     /// 标签列表（字符串形式）
     public var tagList: [String] = []
     /// 标签输入框当前文本
@@ -288,7 +288,7 @@ public final class CaptureResultViewModel {
                 throw NSError(
                     domain: "SnapDrill",
                     code: 0,
-                    userInfo: [NSLocalizedDescriptionKey: "题目文字和图片不能同时为空"]
+                    userInfo: [NSLocalizedDescriptionKey: L10n.Errors.contentAndImageEmpty]
                 )
             }
 

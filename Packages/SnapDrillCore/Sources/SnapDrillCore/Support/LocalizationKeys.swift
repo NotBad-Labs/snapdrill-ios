@@ -159,6 +159,13 @@ public enum L10n {
             String(format: NSLocalizedString("capture.page_number", value: "第 %d 页", comment: "第 N 页"), number)
         }
 
+        // 相机取景
+        public static let cameraScanningHint = NSLocalizedString("capture.camera_scanning_hint", value: "寻找题目区域...", comment: "相机扫描提示")
+
+        // 默认值（自动推断兜底）
+        public static let defaultSubject = NSLocalizedString("capture.default_subject", value: "数学", comment: "默认学科")
+        public static let defaultSource = NSLocalizedString("capture.default_source", value: "试卷", comment: "默认来源")
+
         // PDF 大文件警告
         public static let pdfFileTooLargeTitle = NSLocalizedString(
             "capture.pdf_file_too_large_title", value: "文件较大", comment: "PDF 文件过大警告标题")
@@ -244,6 +251,13 @@ public enum L10n {
         public static let sortByDate = NSLocalizedString("library.sort_by_date", value: "按时间", comment: "按时间排序")
         public static let sortBySubject = NSLocalizedString("library.sort_by_subject", value: "按学科", comment: "按学科排序")
         public static let sortByDifficulty = NSLocalizedString("library.sort_by_difficulty", value: "按难度", comment: "按难度排序")
+        public static let sortByReviewStatus = NSLocalizedString("library.sort_by_review_status", value: "按复习状态", comment: "按复习状态排序")
+
+        // 排序短名（LibrarySortOption.displayName 用）
+        public static let sortTime = NSLocalizedString("library.sort_time", value: "时间", comment: "排序选项：时间")
+        public static let sortSubject = NSLocalizedString("library.sort_subject", value: "学科", comment: "排序选项：学科")
+        public static let sortDifficulty = NSLocalizedString("library.sort_difficulty", value: "难度", comment: "排序选项：难度")
+        public static let sortReviewStatus = NSLocalizedString("library.sort_review_status", value: "复习状态", comment: "排序选项：复习状态")
 
         // 列表
         public static let allSubjects = NSLocalizedString("library.all_subjects", value: "全部", comment: "全部学科")
@@ -492,6 +506,29 @@ public enum L10n {
         public static let restoreConfirmButton = NSLocalizedString("settings.restore_confirm_button", value: "恢复", comment: "确认恢复按钮")
         public static let localDataWarning = NSLocalizedString("settings.local_data_warning", value: "数据仅存储在本设备，卸载应用将丢失所有数据。建议定期创建备份。", comment: "本地数据警告")
 
+        // 备份状态消息
+        public static let backupPreparingData = NSLocalizedString("settings.backup_preparing_data", value: "正在准备数据...", comment: "备份状态：准备数据")
+        public static let backupComplete = NSLocalizedString("settings.backup_complete", value: "备份完成", comment: "备份状态：完成")
+        public static let restoreVerifying = NSLocalizedString("settings.restore_verifying", value: "正在验证备份文件...", comment: "恢复状态：验证中")
+        public static let restoreAutoBackup = NSLocalizedString("settings.restore_auto_backup", value: "正在恢复前自动备份当前数据...", comment: "恢复状态：自动备份")
+        public static let restoreReadingData = NSLocalizedString("settings.restore_reading_data", value: "正在读取备份数据...", comment: "恢复状态：读取数据")
+        public static let restoreImages = NSLocalizedString("settings.restore_images", value: "正在恢复图片...", comment: "恢复状态：恢复图片")
+        public static let restoreComplete = NSLocalizedString("settings.restore_complete", value: "恢复完成", comment: "恢复状态：完成")
+        public static let restorePartialImageFailure = NSLocalizedString("settings.restore_partial_image_failure", value: "数据已恢复，但部分图片恢复失败。可尝试重新恢复以修复图片。", comment: "恢复状态：图片部分失败")
+
+        public static func backupPackingItems(_ count: Int) -> String {
+            String(format: NSLocalizedString("settings.backup_packing_items", value: "正在打包 %d 道题目...", comment: "备份状态：打包题目"), count)
+        }
+
+        public static func restoreRestoringItems(_ count: Int) -> String {
+            String(format: NSLocalizedString("settings.restore_restoring_items", value: "正在恢复 %d 道题目...", comment: "恢复状态：恢复题目"), count)
+        }
+
+        // 开源许可
+        public static let openSourceSection = NSLocalizedString("settings.open_source_section", value: "开源库", comment: "开源库区标题")
+        public static let openSourceThanks = NSLocalizedString("settings.open_source_thanks", value: "本应用使用了以上优秀的开源软件，感谢所有贡献者。", comment: "开源库致谢")
+        public static let openSourceTitle = NSLocalizedString("settings.open_source_title", value: "开源许可", comment: "开源许可页标题")
+
         // 隐私设置
         public static let privacyTitle = NSLocalizedString("settings.privacy_title", value: "隐私与数据导出", comment: "隐私设置标题")
         public static let analyticsEnabled = NSLocalizedString("settings.analytics_enabled", value: "匿名使用统计", comment: "匿名使用统计")
@@ -693,6 +730,16 @@ public enum L10n {
         public static let backupFailed = NSLocalizedString("errors.backup_failed", value: "备份失败，请检查存储空间后重试", comment: "备份失败")
         public static let restoreFailed = NSLocalizedString("errors.restore_failed", value: "恢复失败，请确认备份文件未损坏后重试", comment: "恢复失败")
         public static let fileAccessDenied = NSLocalizedString("errors.file_access_denied", value: "无法访问选择的文件，请重新选取", comment: "文件访问被拒绝")
+
+        // 业务验证
+        public static let contentAndImageEmpty = NSLocalizedString("errors.content_and_image_empty", value: "题目文字和图片不能同时为空", comment: "保存时内容和图片均为空")
+
+        // SnapDrillError 描述
+        public static let dataNotFound = NSLocalizedString("errors.data_not_found", value: "未找到请求的数据。", comment: "SnapDrillError.dataNotFound 描述")
+        public static let captureFailed = NSLocalizedString("errors.capture_failed", value: "图像采集或识别失败。", comment: "SnapDrillError.captureFailed 描述")
+        public static func unknownErrorWithMessage(_ message: String) -> String {
+            String(format: NSLocalizedString("errors.unknown_error_with_message", value: "未知错误: %@", comment: "SnapDrillError.unknown 描述"), message)
+        }
     }
 
     // MARK: - Subjects (预设学科)
@@ -1039,6 +1086,14 @@ public enum L10n {
             comment: "联系我们内容"
         )
         public static let viewFullVersion = NSLocalizedString("privacy.view_full_version", value: "在浏览器中查看完整版（中英双语）", comment: "查看完整版链接文字")
+    }
+
+    // MARK: - Privacy（ATT 预热弹窗）
+
+    public enum PrivacyPrePrompt {
+        public static let title = NSLocalizedString("privacy.pre_prompt_title", value: "帮助小本本变得更好", comment: "ATT 预热弹窗标题")
+        public static let description = NSLocalizedString("privacy.pre_prompt_description", value: "通过允许追踪，我们可以衡量功能的使用情况，并更快速地修复潜在的崩溃，为您提供更好的学习体验。您的数据仍将保持匿名，仅用于产品改进。", comment: "ATT 预热弹窗描述")
+        public static let continueButton = NSLocalizedString("privacy.pre_prompt_continue", value: "继续", comment: "ATT 预热弹窗继续按钮")
     }
 
     // MARK: - Help（v1.0 帮助入口跳转外部网页 FAQ，App 内 FAQ 已移除）

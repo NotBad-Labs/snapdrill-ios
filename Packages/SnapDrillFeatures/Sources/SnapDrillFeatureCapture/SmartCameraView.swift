@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillCore
 
 /// 智能相机 SwiftUI 视图
 struct SmartCameraView: View {
@@ -99,7 +100,7 @@ struct SmartCameraView: View {
             .allowsHitTesting(false)
             
             if !isStable {
-                 Text("寻找题目区域...")
+                 Text(L10n.Capture.cameraScanningHint)
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.8))
                     .padding(8)

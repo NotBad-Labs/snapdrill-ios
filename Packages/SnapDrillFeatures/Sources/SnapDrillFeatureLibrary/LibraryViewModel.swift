@@ -28,10 +28,10 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .createdAt: "时间"
-        case .subject: "学科"
-        case .difficulty: "难度"
-        case .reviewStatus: "复习状态"
+        case .createdAt: L10n.Library.sortTime
+        case .subject: L10n.Library.sortSubject
+        case .difficulty: L10n.Library.sortDifficulty
+        case .reviewStatus: L10n.Library.sortReviewStatus
         }
     }
 
