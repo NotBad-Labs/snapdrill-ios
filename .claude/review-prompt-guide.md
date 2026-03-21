@@ -47,8 +47,14 @@
 - 🟡 建议改进（命名不一致、可优化但不影响正确性）
 - 🟢 信息提示（风格建议、未来改进方向）
 
-请在回复末尾附加一行水印，格式如下（替换为你实际使用的模型名称）：
-> 由 {工具名} 自动生成（模型：{模型名称和版本}）。合并前请人工确认。
+请在回复末尾附加一行水印，格式如下（替换为你实际使用的 IDE/载体 和模型名称）：
+> 由 {IDE/载体名} 自动生成（模型：{模型名称和版本}）。合并前请人工确认。
+
+水印必须同时声明**载体**（运行环境）和**模型**（AI 模型），以便区分同一模型在不同载体上的 review：
+- Claude Code CLI（终端）：`由 Claude Code CLI 自动生成（模型：Claude Opus 4.6）`
+- Xcode Intelligence：`由 Xcode Intelligence 自动生成（模型：Claude Opus 4.6）`
+- Antigravity：`由 Antigravity 自动生成（模型：Gemini 2.5 Pro）`
+- Gemini GitHub Action：`由 Gemini 自动生成（模型：gemini-3.1-flash-lite-preview）`
 
 请通过 `gh pr comment #N --body "..."` 将 Review 结果发布到 GitHub PR #N（注意：使用 pr comment，不是 pr review）。
 ```
@@ -136,8 +142,14 @@
 - 🟡 建议改进（命名不一致、可优化但不影响正确性）
 - 🟢 信息提示（风格建议、未来改进方向）
 
-请在回复末尾附加一行水印，格式如下（替换为你实际使用的模型名称）：
-> 由 {工具名} 自动生成（模型：{模型名称和版本}）。合并前请人工确认。
+请在回复末尾附加一行水印，格式如下（替换为你实际使用的 IDE/载体 和模型名称）：
+> 由 {IDE/载体名} 自动生成（模型：{模型名称和版本}）。合并前请人工确认。
+
+水印必须同时声明**载体**（运行环境）和**模型**（AI 模型），以便区分同一模型在不同载体上的 review：
+- Claude Code CLI（终端）：`由 Claude Code CLI 自动生成（模型：Claude Opus 4.6）`
+- Xcode Intelligence：`由 Xcode Intelligence 自动生成（模型：Claude Opus 4.6）`
+- Antigravity：`由 Antigravity 自动生成（模型：Gemini 2.5 Pro）`
+- Gemini GitHub Action：`由 Gemini 自动生成（模型：gemini-3.1-flash-lite-preview）`
 
 请通过 `gh pr comment #232 --body "..."` 将 Review 结果发布到 GitHub PR #232（注意：使用 pr comment，不是 pr review）。
 ```
