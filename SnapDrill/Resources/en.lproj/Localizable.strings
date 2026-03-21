@@ -92,6 +92,9 @@
 "capture.pdf_file_too_large" = "PDF file is %d MB, which may cause memory issues. We recommend using a smaller file.";
 "capture.pdf_page_hint" = "%d pages total. Tap to select a page to capture.";
 "capture.page_number" = "Page %d";
+"capture.camera_scanning_hint" = "Scanning for question area...";
+"capture.default_subject" = "Math";
+"capture.default_source" = "Exam Paper";
 
 // MARK: - Dashboard
 
@@ -136,6 +139,11 @@
 "library.sort_by_date" = "By Date";
 "library.sort_by_subject" = "By Subject";
 "library.sort_by_difficulty" = "By Difficulty";
+"library.sort_by_review_status" = "By Review Status";
+"library.sort_time" = "Time";
+"library.sort_subject" = "Subject";
+"library.sort_difficulty" = "Difficulty";
+"library.sort_review_status" = "Review Status";
 "library.all_subjects" = "All";
 "library.no_content" = "No text content";
 "library.detail" = "Details";
@@ -393,6 +401,19 @@
 "settings.clear_mock_data" = "Clear Mock Data";
 "settings.generating" = "Generating...";
 "settings.generate_test_data" = "Generate Test Data (%d items)";
+"settings.backup_preparing_data" = "Preparing data...";
+"settings.backup_packing_items" = "Packing %d items...";
+"settings.backup_complete" = "Backup complete";
+"settings.restore_verifying" = "Verifying backup file...";
+"settings.restore_auto_backup" = "Creating auto-backup before restore...";
+"settings.restore_reading_data" = "Reading backup data...";
+"settings.restore_restoring_items" = "Restoring %d items...";
+"settings.restore_images" = "Restoring images...";
+"settings.restore_complete" = "Restore complete";
+"settings.restore_partial_image_failure" = "Data restored, but some images failed to restore. You can try restoring again to fix images.";
+"settings.open_source_section" = "Open Source Libraries";
+"settings.open_source_thanks" = "This app uses the excellent open source software listed above. Thanks to all contributors.";
+"settings.open_source_title" = "Open Source Licenses";
 // MARK: - Edit Profile
 
 "edit_profile.title" = "Profile";
@@ -445,6 +466,10 @@
 "errors.data_corrupted_help" = "Data file is corrupted. Please try restarting the app.";
 "errors.unknown_error_help" = "Please try again later, or restart the app if the issue persists.";
 "errors.error_occurred" = "An error occurred";
+"errors.content_and_image_empty" = "Question text and image cannot both be empty.";
+"errors.data_not_found" = "The requested data was not found.";
+"errors.capture_failed" = "Image capture or recognition failed.";
+"errors.unknown_error_with_message" = "Unknown error: %@";
 
 // MARK: - Subjects
 
@@ -577,6 +602,11 @@
 "privacy.contact_title" = "Contact Us";
 "privacy.contact_content" = "If you have any questions or concerns about this privacy policy, please contact us:\n\nEmail: hello@notbadhq.com\nIn-app feedback: Settings > About > Feedback & Support\n\nWe will respond to your inquiry within 48 hours.";
 "privacy.view_full_version" = "View full version in browser (bilingual)";
+
+// MARK: - Privacy Pre-Prompt (ATT)
+"privacy.pre_prompt_title" = "Help SnapDrill Improve";
+"privacy.pre_prompt_description" = "By allowing tracking, we can measure feature usage and fix issues faster, giving you a better learning experience. Your data remains anonymous and is only used for product improvement.";
+"privacy.pre_prompt_continue" = "Continue";
 
 // MARK: - Accessibility (VoiceOver)
 "accessibility.flip_to_answer" = "Double tap to flip and view answer";

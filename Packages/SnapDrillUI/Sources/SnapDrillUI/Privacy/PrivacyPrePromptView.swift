@@ -21,10 +21,6 @@ public struct PrivacyPrePromptView: View {
 
     private let onContinue: () -> Void
 
-    private var isChinese: Bool {
-        Locale.current.language.languageCode?.identifier == "zh"
-    }
-
     /// 创建隐私授权预热弹窗
     /// - Parameter onContinue: 用户点击"继续"后的回调（通常触发系统 ATT 弹窗）
     public init(onContinue: @escaping () -> Void) {
@@ -60,12 +56,10 @@ public struct PrivacyPrePromptView: View {
 
             // Title & Description
             VStack(spacing: 12) {
-                Text(isChinese ? "帮助小本本变得更好" : "Help SnapDrill Improve")
+                Text(L10n.PrivacyPrePrompt.title)
                     .font(.title2.bold())
 
-                Text(isChinese
-                    ? "通过允许追踪，我们可以衡量功能的使用情况，并更快速地修复潜在的崩溃，为您提供更好的学习体验。您的数据仍将保持匿名，仅用于产品改进。"
-                    : "By allowing tracking, we can measure feature usage and fix issues faster, giving you a better learning experience. Your data remains anonymous and is only used for product improvement.")
+                Text(L10n.PrivacyPrePrompt.description)
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
@@ -77,7 +71,7 @@ public struct PrivacyPrePromptView: View {
             // Actions
             VStack(spacing: 16) {
                 Button(action: onContinue) {
-                    Text(isChinese ? "继续" : "Continue")
+                    Text(L10n.PrivacyPrePrompt.continueButton)
                         .font(.headline)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
