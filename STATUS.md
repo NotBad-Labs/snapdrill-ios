@@ -1,6 +1,6 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-03-21（Xcode 8 维度审计 11 个 Issue 全部清零 ✅）
+> 最后更新：2026-03-21（项目全貌链路图 + 看板更新）
 >
 > 本文件是项目的**单一实时状态源**。每次新对话必须先读此文件恢复上下文。
 > 每个 PR 合并后必须同步更新。
@@ -11,51 +11,43 @@
 
 **战略目标**：把项目做好——逻辑自洽、高效合理。发布是质量达标后的自然结果，不是驱动力。
 
+> 完整链路图见 [`.claude/project-map.md`](.claude/project-map.md)（7 层 + 层间关节 + 四级质量门）
+
 ```
-product-vision.md（为什么做 — 几乎不变）
-  → product-requirements.md（做什么 — 每版本更新）
-    → #287 蓝图（纵向：代码是否实现了需求）✅ 完成
-    → #305 全链路终审（横向：需求是否合理 + 产品是否准备好了）✅ 完成
-      → 修复 PR（S0 ✅ → S1 ✅ → S2 ✅ → S3 ✅ 全部清零）
-      → 短板审计（测试补全 + 文档一致性 + ADR-008）✅ PR #365
-  → 工程体系（怎么做 — 持续优化）
-    → principles.md / workflow.md / conventions.md / ADR
-    → 测试策略 / 文档治理 / 协作纪律
+WHY（愿景）→ WHAT（需求+旅程+商业）→ HOW/设计（哲学+架构+ADR）
+  → HOW/实现（规范+API+技术债）→ HOW/协作（工作流+Review+角色）
+  → QUALITY（DoD+发布清单+蓝图+终审+审计+复盘）→ DELIVERY（Issue→PR→CI→发布）
+  → 用户反馈 → 回到 WHY/WHAT（闭环）
 ```
+
+**验证历程**：
+- #287 蓝图验证（纵向：57 条能力核对）✅
+- #305 全链路终审（横向：7 帽子 + 三方审计）✅ → S0-S3 全部修复
+- #376 全量代码审计（8 维度，141 个发现 → 11 个 Issue）✅ 全部清零
+- #404 审计复盘（7 类系统性盲区 → 编入文档体系）✅
 
 ---
 
 ## 当前工作
 
-### Xcode 8 维度全量审计（#376 → 11 个 Issue）
+### 🔄 项目全貌链路图（#406）
+
+从愿景到落地的 7 层完整链路 + 层间关节展示。`.claude/project-map.md` 初稿已写，待 Xcode Intelligence 评审。
+
+### Xcode 8 维度全量审计（#376 → 11/11 清零 ✅，已折叠）
+
+<details>
+<summary>展开查看</summary>
 
 Xcode Intelligence 完成 8 维度代码审计（~141 个发现），Claude 核实后合并为 11 个可执行 Issue。
 
-**S1 流程阻断（1 个）**
+**S1**：#380 → PR #393 ✅
+**S2**：#381 → PR #396 | #382 → PR #395 | #383 → PR #394 ✅
+**S3**：#384 → PR #401 | #385 → PR #398 | #386 → PR #403 | #387 → PR #397 | #388 → PR #399 | #389 → PR #402 | #390 → PR #400 ✅
 
-| 状态 | Issue | 内容 |
-|---|---|---|
-| ✅ | [#380](../../issues/380) → PR #393 | 错误处理用户反馈缺失 — 6 个静默失败路径 |
+复盘：[#404](../../issues/404) → 7 类系统性盲区分析 → 编入 principles.md / conventions.md / workflow.md ✅
 
-**S2 体验受损（3 个）**
-
-| 状态 | Issue | 内容 |
-|---|---|---|
-| ✅ | [#381](../../issues/381) → PR #396 | iOS 26 API 迁移 — OCR RecognizeTextRequest + TabView Tab struct |
-| ✅ | [#382](../../issues/382) → PR #395 | HIG 违规修复 — NavigationLink + 星级无障碍 + 分类管理导航 |
-| ✅ | [#383](../../issues/383) → PR #394 | 图片加载性能 — 复习卡片下采样 + LibraryEdit 异步 I/O |
-
-**S3 打磨优化（7 个）**
-
-| 状态 | Issue | 内容 |
-|---|---|---|
-| ✅ | [#384](../../issues/384) → PR #401 | SwiftUI 现代化 — Combine→async + static DateFormatter |
-| ✅ | [#385](../../issues/385) → PR #398 | DocC landing page 修复 — ghost symbols + 依赖错误 |
-| ✅ | [#386](../../issues/386) → PR #403 | 代码一致性 — final + 文件头 + 英文注释→中文（~86 处）|
-| ✅ | [#387](../../issues/387) → PR #397 | 触觉反馈补全 — 快门 + 删除答案图 + 翻卡去重 |
-| ✅ | [#388](../../issues/388) → PR #399 | SwiftData 改进 — #Index + 删除顺序 + SchemaV3 迁移 |
-| ✅ | [#389](../../issues/389) → PR #402 | 硬编码中文→L10n（relativeDescription + intervalDescription）|
-| ✅ | [#390](../../issues/390) → PR #400 | Schema 迁移测试补全（8 tests，含 V3 + MigrationPlan 完整性）|
+</details>
 
 ### 短板审计（已完成）
 
@@ -120,7 +112,7 @@ S0/S1/S2/S3 全部清零 ✅
 
 ## 已完成里程碑
 
-### M1: 文档体系 ✅ | M2: 架构审查 + 蓝图 ✅ | M3: 本地化 ✅ | M4: 全链路终审 + S0-S2 修复 ✅
+### M1: 文档体系 ✅ | M2: 架构审查 + 蓝图 ✅ | M3: 本地化 ✅ | M4: 全链路终审 ✅ | M5: 全量审计 + 复盘 ✅
 
 <details>
 <summary>展开查看详情</summary>
@@ -133,13 +125,15 @@ S0/S1/S2/S3 全部清零 ✅
 
 **M4**: #305 全链路终审（7 帽子 + 三方审计）→ 2×S0 + 3×S1 + 13×S2 全部修复（PR #336-#346）
 
+**M5**: #376 Xcode 8 维度审计（141 发现 → 11 Issue → PR #393-#403 全部清零）+ #404 复盘（7 类盲区 → 5 文档更新）
+
 </details>
 
 ### 发布准备（外部阻塞）
 
 | Issue | 内容 | 阻塞 |
 |---|---|---|
-| [#161](../../issues/161) | TestFlight Build 6 | 短板审计完成后 |
+| [#161](../../issues/161) | TestFlight Build 6 | M5 审计清零后（✅ 已解除）|
 | [#162](../../issues/162) | GitHub Pro Branch Protection | 4 月 1 日 |
 | [#163](../../issues/163) | 公司 Apple 开发者账号 | DUNS 就绪后 |
 
@@ -149,6 +143,19 @@ S0/S1/S2/S3 全部清零 ✅
 
 | 日期 | Issue/PR | 内容 |
 |---|---|---|
+| 2026-03-21 | [#404](../../issues/404) | postmortem: Xcode 审计复盘 — 7 类系统性盲区 → 5 个文档更新 |
+| 2026-03-20 | [#403](../../pull/403) | chore: 代码一致性 — final + 文件头 + 英文注释→中文（Closes #386）|
+| 2026-03-20 | [#402](../../pull/402) | chore: 硬编码中文→L10n（Closes #389）|
+| 2026-03-20 | [#401](../../pull/401) | chore: SwiftUI 现代化 — Combine→async + DateFormatter（Closes #384）|
+| 2026-03-20 | [#400](../../pull/400) | test: Schema 迁移测试补全（Closes #390）|
+| 2026-03-20 | [#399](../../pull/399) | chore: SwiftData 改进 — 索引 + 删除顺序 + SchemaV3（Closes #388）|
+| 2026-03-20 | [#398](../../pull/398) | fix: DocC landing page 修复 — ghost symbols + 依赖错误（Closes #385）|
+| 2026-03-20 | [#397](../../pull/397) | chore: 触觉反馈补全（Closes #387）|
+| 2026-03-20 | [#396](../../pull/396) | chore: iOS 26 API 迁移 — OCR + TabView（Closes #381）|
+| 2026-03-20 | [#395](../../pull/395) | fix: HIG 违规修复（Closes #382）|
+| 2026-03-20 | [#394](../../pull/394) | fix: 图片加载性能（Closes #383）|
+| 2026-03-20 | [#393](../../pull/393) | fix: 错误处理用户反馈缺失（Closes #380）|
+| 2026-03-20 | [#392](../../pull/392) | chore: 文档对齐 — 发现即追踪铁律（Closes #391）|
 | 2026-03-19 | [#379](../../pull/379) | fix: SettingsView 运行时警告 — ensureViewModel 反模式修复（Closes #378）|
 | 2026-03-19 | [#377](../../pull/377) | chore: 决策变更收尾规则 — Claude × Xcode 双方研究（Closes #376）|
 | 2026-03-19 | [#375](../../pull/375) | fix: Onboarding 移除字段选择页 — 违反 Apple HIG（Closes #374）|
@@ -195,4 +202,4 @@ S0/S1/S2/S3 全部清零 ✅
 - **核心职责**：新对话的上下文恢复源 + 实时工作追踪
 - **更新频率**：每个 PR 合并后
 - **状态图例**：✅ 完成 | 🔄 进行中 | ⬜ 待处理 | 🚫 阻塞
-- **溯源链**：product-vision.md → product-requirements.md → #287(纵向) + #305(横向) → Issue → PR
+- **溯源链**：详见 [`.claude/project-map.md`](.claude/project-map.md)（7 层链路 + 层间关节）

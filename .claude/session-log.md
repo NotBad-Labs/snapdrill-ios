@@ -10,6 +10,59 @@
 
 ---
 
+## 2026-03-21 Session
+
+### 完成
+
+- **项目全貌链路图**（#406）：创建 `.claude/project-map.md`，展示从愿景到落地的 7 层完整链路 + 层间关节 + 四级质量门
+- **STATUS.md 全面更新**：补充 3-20 的 13 个 PR、#404 复盘状态、M5 里程碑、更新溯源链指向 project-map
+- **审计复盘编入文档体系**（承接 #404）：7 类系统性盲区 → principles.md / conventions.md / workflow.md 更新
+
+### 关键决策
+
+- **项目全貌独立文件**：project-map.md 独立于 STATUS.md，STATUS.md 只保留指针。理由：全貌是结构性文档（少变），看板是实时状态（频变），职责不同
+- **7 层分层 + 关节设计**：不仅展示每层有什么，还展示层间的转换机制（输入/输出/约束），用实证说明关节断裂的后果
+
+### 下次接续
+
+- #406 PR 待 Xcode Intelligence 评审
+- 外部阻塞：#161 Build 6（审计阻塞已解除）/ #162 GitHub Pro / #163 公司开发者账号
+
+---
+
+## 2026-03-20 Session
+
+### 完成
+
+**Xcode 审计 11 个 Issue 全部清零**（PR #392-#403）：
+- PR #393：错误处理用户反馈 — 6 个静默失败路径补全（S1）
+- PR #394：图片加载性能 — 复习卡片下采样 + LibraryEdit 异步 I/O（S2）
+- PR #395：HIG 违规修复 — NavigationLink + 星级无障碍（S2）
+- PR #396：iOS 26 API 迁移 — OCR RecognizeTextRequest + TabView Tab struct（S2）
+- PR #397：触觉反馈补全 — 快门 + 删除答案图 + 翻卡去重（S3）
+- PR #398：DocC landing page — ghost symbols + 依赖错误（S3）
+- PR #399：SwiftData 改进 — #Index + 删除顺序 + SchemaV3 迁移（S3）
+- PR #400：Schema 迁移测试补全 — 8 tests（S3）
+- PR #401：SwiftUI 现代化 — Combine→async + DateFormatter→FormatStyle（S3）
+- PR #402：硬编码中文→L10n（S3）
+- PR #403：代码一致性 — final + 文件头 + 英文注释→中文 ~86 处（S3）
+
+**审计复盘**（#404）：
+- Xcode 8 维度审计复盘报告 — 7 类系统性盲区分析
+- 复盘教训编入 principles.md / conventions.md / workflow.md
+
+### 关键决策
+
+- **7 类盲区分类**：新 API 感知、周期审计节奏、Schema 迁移、图片降采样、错误用户视角、modifier 生命周期、文档同步
+- **维护模式研究规则**：每次 touch 一个文件时检查 API 是否有 iOS 26 更新替代方案
+
+### 下次接续
+
+- 线 A + 线 B + Xcode 审计全部清零，无待处理 Issue
+- 审视项目整体状态，找短板
+
+---
+
 ## 2026-03-19 Session
 
 ### 完成
