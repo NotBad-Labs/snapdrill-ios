@@ -109,8 +109,8 @@
 | 维度 | 说明 |
 |---|---|
 | **转换机制** | architecture.md 定包边界 → conventions.md 定编码标准 → infrastructure.md 定 API 签名 |
-| **验证手段** | swiftlint --strict + xcodebuild build（编译器强制依赖方向） |
-| **断裂风险** | API 文档与代码不同步 → 新增 API 必须同步更新 infrastructure.md |
+| **验证手段** | swiftlint --strict + xcodebuild build（编译器强制依赖方向）+ PR Review 检查非机械规范对齐（如 SSOT 同步） |
+| **断裂风险** | API 文档与代码不同步 → 新增 API 必须同步更新 infrastructure.md；编译器只拦截依赖方向，SSOT 同步靠 PR Review 兜底 |
 | **实证** | #376 审计发现 conventions.md 中图片加载规则缺失 → 补充后全量 Grep 扫描 |
 
 ### 关节 4→5：实现 → 协作
