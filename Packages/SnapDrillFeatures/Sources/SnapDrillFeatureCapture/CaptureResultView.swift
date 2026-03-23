@@ -72,9 +72,6 @@ public struct CaptureResultView: View {
                         .disabled(viewModel.isRecognizing)
                     }
                     .padding(.horizontal)
-                    .onTapGesture {
-                        viewModel.isCropping = true
-                    }
                 }
         
                 // Editor

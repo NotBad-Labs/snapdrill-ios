@@ -17,6 +17,16 @@ import Foundation
 /// 未来添加 `.strings` 文件即可支持多语言。
 public enum L10n {
 
+    // MARK: - Tab
+
+    public enum Tab {
+        public static let dashboard = NSLocalizedString("tab.dashboard", value: "首页", comment: "Tab 栏：首页")
+        public static let library = NSLocalizedString("tab.library", value: "题库", comment: "Tab 栏：题库")
+        public static let capture = NSLocalizedString("tab.capture", value: "采集", comment: "Tab 栏：采集")
+        public static let review = NSLocalizedString("tab.review", value: "复习", comment: "Tab 栏：复习")
+        public static let settings = NSLocalizedString("tab.settings", value: "设置", comment: "Tab 栏：设置")
+    }
+
     // MARK: - AppRoot
 
     public enum AppRoot {
@@ -161,6 +171,7 @@ public enum L10n {
 
         // 相机取景
         public static let cameraScanningHint = NSLocalizedString("capture.camera_scanning_hint", value: "寻找题目区域...", comment: "相机扫描提示")
+        public static let ocrFailedHint = NSLocalizedString("capture.ocr_failed_hint", value: "文字识别失败，请手动输入内容", comment: "OCR 失败时提示用户手动输入")
 
         // 默认值（自动推断兜底）
         public static let defaultSubject = NSLocalizedString("capture.default_subject", value: "数学", comment: "默认学科")
@@ -528,6 +539,7 @@ public enum L10n {
         public static let openSourceSection = NSLocalizedString("settings.open_source_section", value: "开源库", comment: "开源库区标题")
         public static let openSourceThanks = NSLocalizedString("settings.open_source_thanks", value: "本应用使用了以上优秀的开源软件，感谢所有贡献者。", comment: "开源库致谢")
         public static let openSourceTitle = NSLocalizedString("settings.open_source_title", value: "开源许可", comment: "开源许可页标题")
+        public static let avatarColor = NSLocalizedString("settings.avatar_color", value: "头像颜色", comment: "头像颜色选择器无障碍标签")
 
         // 隐私设置
         public static let privacyTitle = NSLocalizedString("settings.privacy_title", value: "隐私与数据导出", comment: "隐私设置标题")
@@ -788,6 +800,10 @@ public enum L10n {
         public static let exporting = NSLocalizedString("export.exporting", value: "导出中", comment: "导出中")
         public static let success = NSLocalizedString("export.success", value: "导出成功", comment: "导出成功")
         public static let failed = NSLocalizedString("export.failed", value: "导出失败", comment: "导出失败")
+        public static let pdfTitle = NSLocalizedString("export.pdf_title", value: "SnapDrill 错题本", comment: "PDF 导出封面标题")
+        public static func pdfGenerationDate(_ date: String) -> String {
+            String(format: NSLocalizedString("export.pdf_generation_date", value: "生成日期: %@", comment: "PDF 导出封面副标题"), date)
+        }
     }
 
     // MARK: - TermsOfService

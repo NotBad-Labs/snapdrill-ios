@@ -147,22 +147,25 @@ struct EditProfileView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(0..<gradients.count, id: \.self) { index in
-                                Circle()
-                                    .fill(LinearGradient(
-                                        colors: gradients[index],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ))
-                                    .frame(width: 44, height: 44)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color.primary, lineWidth: userAvatarColorIndex == index ? 3 : 0)
-                                    )
-                                    .onTapGesture {
-                                        withAnimation {
-                                            userAvatarColorIndex = index
-                                        }
+                                Button {
+                                    withAnimation {
+                                        userAvatarColorIndex = index
                                     }
+                                } label: {
+                                    Circle()
+                                        .fill(LinearGradient(
+                                            colors: gradients[index],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ))
+                                        .frame(width: 44, height: 44)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.primary, lineWidth: userAvatarColorIndex == index ? 3 : 0)
+                                        )
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(L10n.Settings.avatarColor)
                             }
                         }
                         .padding(.vertical, 8)

@@ -93,6 +93,7 @@
 "capture.pdf_page_hint" = "%d pages total. Tap to select a page to capture.";
 "capture.page_number" = "Page %d";
 "capture.camera_scanning_hint" = "Scanning for question area...";
+"capture.ocr_failed_hint" = "Text recognition failed. Please enter content manually.";
 "capture.default_subject" = "Math";
 "capture.default_source" = "Exam Paper";
 
@@ -640,3 +641,20 @@
 "accessibility.review_button_hint" = "Tap to start reviewing %d questions";
 "accessibility.export_button_hint" = "Tap to export as %@ format";
 "accessibility.progress_description" = "Completed %d of %d, progress %d%%";
+
+// MARK: - Tab Bar
+"tab.dashboard" = "Home";
+"tab.library" = "Library";
+"tab.capture" = "Capture";
+"tab.review" = "Review";
+"tab.settings" = "Settings";
+
+// MARK: - Export (PDF title)
+"export.pdf_title" = "SnapDrill Mistake Collection";
+"export.pdf_generation_date" = "Generated: %@";
+
+// MARK: - Settings (avatar color)
+"settings.avatar_color" = "Avatar Color";
+
+// MARK: - Errors (image load)
+"errors.image_load_failed" = "Image failed to load";

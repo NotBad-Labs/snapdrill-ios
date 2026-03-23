@@ -181,32 +181,43 @@ public final class CaptureViewModel {
     /// 实际执行 PDF 加载逻辑（内部方法，由 loadPDF 和 confirmLargeFileImport 共用）
     private func performLoadPDF(_ url: URL, router: CaptureRouter, accessing: Bool) {
         isProcessing = true
-        defer {
+
+        // 后台读取 PDF 数据，避免大文件阻塞主线程
+        pdfLoadTask = Task {
+            // 在安全域权限窗口内后台读取原始数据
+            let data: Data? = await Task.detached(priority: .userInitiated) {
+                try? Data(contentsOf: url)
+            }.value
+
             if accessing { url.stopAccessingSecurityScopedResource() }
+            guard !Task.isCancelled else { return }
+
+            guard let data else {
+                isProcessing = false
+                errorMessage = L10n.Errors.pdfReadFailed
+                showErrorAlert = true
+                return
+            }
+
+            // PDFDocument 不是 Sendable，必须在主线程创建
+            guard let document = PDFDocument(data: data) else {
+                isProcessing = false
+                errorMessage = L10n.Errors.pdfParseFailed
+                showErrorAlert = true
+                return
+            }
+
+            guard document.pageCount > 0 else {
+                isProcessing = false
+                errorMessage = L10n.Errors.pdfEmpty
+                showErrorAlert = true
+                return
+            }
+
             isProcessing = false
+            router.pdfDocument = document
+            router.push(.pdfPagePicker)
         }
-
-        // 在安全域权限窗口内完整读取数据，避免 PDFDocument 懒加载时权限已失效
-        guard let data = try? Data(contentsOf: url) else {
-            errorMessage = L10n.Errors.pdfReadFailed
-            showErrorAlert = true
-            return
-        }
-
-        guard let document = PDFDocument(data: data) else {
-            errorMessage = L10n.Errors.pdfParseFailed
-            showErrorAlert = true
-            return
-        }
-
-        guard document.pageCount > 0 else {
-            errorMessage = L10n.Errors.pdfEmpty
-            showErrorAlert = true
-            return
-        }
-
-        router.pdfDocument = document
-        router.push(.pdfPagePicker)
     }
 
     // MARK: - Private Logic
@@ -237,7 +248,9 @@ public final class CaptureViewModel {
                 await MainActor.run { [weak self] in
                     guard let self = self else { return }
                     self.isProcessing = false
-                    // 即使 OCR 失败，也将图片传递到结果页
+                    // OCR 失败时提示用户，仍跳转到结果页让用户手动输入
+                    self.errorMessage = L10n.Capture.ocrFailedHint
+                    self.showErrorAlert = true
                     router.push(.scannerResult(content: "", image: image))
                 }
             }
@@ -246,6 +259,8 @@ public final class CaptureViewModel {
     
     @ObservationIgnored
     private var ocrTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var pdfLoadTask: Task<Void, Never>?
 
     @ObservationIgnored
     private var photoLoadTask: Task<Void, Never>?
@@ -256,6 +271,8 @@ public final class CaptureViewModel {
         ocrTask = nil
         photoLoadTask?.cancel()
         photoLoadTask = nil
+        pdfLoadTask?.cancel()
+        pdfLoadTask = nil
         isProcessing = false
     }
 }

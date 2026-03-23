@@ -131,17 +131,20 @@ struct EditSubjectView: View {
                 Section(L10n.Library.color) {
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 10) {
                         ForEach(colors, id: \.self) { hex in
-                            Circle()
-                                .fill(Color(hex: hex))
-                                .frame(width: 30, height: 30)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.primary, lineWidth: (!useCustomColor && selectedColorHex == hex) ? 2 : 0)
-                                )
-                                .onTapGesture {
-                                    selectedColorHex = hex
-                                    useCustomColor = false
-                                }
+                            Button {
+                                selectedColorHex = hex
+                                useCustomColor = false
+                            } label: {
+                                Circle()
+                                    .fill(Color(hex: hex))
+                                    .frame(width: 30, height: 30)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.primary, lineWidth: (!useCustomColor && selectedColorHex == hex) ? 2 : 0)
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(L10n.Library.color)
                         }
                     }
                     .padding(.vertical, 8)

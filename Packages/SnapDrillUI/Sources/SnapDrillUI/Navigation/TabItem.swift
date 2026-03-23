@@ -10,28 +10,29 @@
 
 import SwiftUI
 import Foundation
+import SnapDrillCore
 
 /// 定义应用中所有的 Tab 项
 public enum TabItem: Hashable, CaseIterable {
-    
+
     // MARK: - Cases
-    
+
     case dashboard
     case library
     case capture
     case review
     case settings
-    
+
     // MARK: - Properties
-    
+
     /// Tab 的显示名称（本地化文本）
     public var title: String {
         switch self {
-        case .dashboard: return "首页"
-        case .library: return "题库"
-        case .capture: return "采集"
-        case .review: return "复习"
-        case .settings: return "设置"
+        case .dashboard: return L10n.Tab.dashboard
+        case .library: return L10n.Tab.library
+        case .capture: return L10n.Tab.capture
+        case .review: return L10n.Tab.review
+        case .settings: return L10n.Tab.settings
         }
     }
     

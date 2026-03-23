@@ -83,7 +83,7 @@ public final class PDFExportService: Sendable {
     // MARK: - Drawings
 
     private func drawTitlePage(context: CGContext, rect: CGRect) {
-        let title = "SnapDrill 错题本"
+        let title = L10n.Export.pdfTitle
         let font = UIFont.systemFont(ofSize: 36, weight: .bold)
         let attrs: [NSAttributedString.Key: Any] = [.font: font]
 
@@ -93,7 +93,7 @@ public final class PDFExportService: Sendable {
 
         (title as NSString).draw(at: CGPoint(x: x, y: y), withAttributes: attrs)
 
-        let subtitle = "生成日期: \(Date().formatted(date: .abbreviated, time: .shortened))"
+        let subtitle = L10n.Export.pdfGenerationDate(Date().formatted(date: .abbreviated, time: .shortened))
         let subFont = UIFont.systemFont(ofSize: 14)
         let subAttrs: [NSAttributedString.Key: Any] = [.font: subFont, .foregroundColor: UIColor.gray]
         let subSize = subtitle.size(withAttributes: subAttrs)

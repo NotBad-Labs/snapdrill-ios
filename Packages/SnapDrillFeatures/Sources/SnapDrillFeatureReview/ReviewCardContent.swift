@@ -197,6 +197,7 @@ struct ReviewCardBack: View {
     private let imageStorage = ImageStorage()
     @State private var showingEditSheet = false
     @State private var loadedAnswerImage: UIImage?
+    @State private var answerImageLoadFailed = false
     // 纯图片题（content == nil）时，背面 header 同步展示题目图，让用户记得题目是什么
     @State private var loadedQuestionImage: UIImage?
 
@@ -285,6 +286,21 @@ struct ReviewCardBack: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
                                 .accessibleImage(label: L10n.Accessibility.answerImage)
+                        } else if answerImageLoadFailed {
+                            // 图片加载失败占位
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.secondary.opacity(0.1))
+                                .frame(height: 150)
+                                .overlay {
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "photo.badge.exclamationmark")
+                                            .font(.title2)
+                                            .foregroundStyle(.secondary)
+                                        Text(L10n.Errors.imageLoadFailed)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                         } else {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.secondary.opacity(0.1))
@@ -344,6 +360,8 @@ struct ReviewCardBack: View {
             withAnimation(.easeOut(duration: 0.2)) {
                 self.loadedAnswerImage = image
             }
+        } else {
+            self.answerImageLoadFailed = true
         }
     }
 

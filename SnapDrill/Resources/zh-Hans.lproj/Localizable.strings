@@ -93,6 +93,7 @@
 "capture.pdf_page_hint" = "共 %d 页，点击选择要录入的页面";
 "capture.page_number" = "第 %d 页";
 "capture.camera_scanning_hint" = "寻找题目区域...";
+"capture.ocr_failed_hint" = "文字识别失败，请手动输入内容";
 "capture.default_subject" = "数学";
 "capture.default_source" = "试卷";
 
@@ -639,3 +640,20 @@
 "accessibility.review_button_hint" = "轻点开始复习 %d 道题目";
 "accessibility.export_button_hint" = "轻点导出为 %@ 格式";
 "accessibility.progress_description" = "已完成 %d 道，共 %d 道，进度 %d%%";
+
+// MARK: - Tab Bar
+"tab.dashboard" = "首页";
+"tab.library" = "题库";
+"tab.capture" = "采集";
+"tab.review" = "复习";
+"tab.settings" = "设置";
+
+// MARK: - Export (PDF title)
+"export.pdf_title" = "SnapDrill 错题本";
+"export.pdf_generation_date" = "生成日期: %@";
+
+// MARK: - Settings (avatar color)
+"settings.avatar_color" = "头像颜色";
+
+// MARK: - Errors (image load)
+"errors.image_load_failed" = "图片加载失败";
