@@ -38,8 +38,12 @@ public final class LibraryEditViewModel {
 
     /// 当前显示的题目图片（新选择或原始图片）
     public var displayedImage: UIImage?
+    /// 题目图片加载失败标志
+    public var imageLoadFailed = false
     /// 答案图片（新选择的，未持久化）
     public var answerDisplayedImage: UIImage?
+    /// 答案图片加载失败标志
+    public var answerImageLoadFailed = false
     /// 用户主动移除答案图片时置 true，save() 据此清空 answerImagePath
     public var isAnswerImageCleared: Bool = false
     /// 是否正在执行 OCR 或图片处理操作
@@ -110,10 +114,20 @@ public final class LibraryEditViewModel {
     public func loadData() async {
         // 异步加载图片，避免同步 I/O 阻塞主线程（编辑页打开卡顿）
         if displayedImage == nil, let path = item.imagePath {
-            displayedImage = await imageStorage.loadImageAsync(path: path)
+            let loaded = await imageStorage.loadImageAsync(path: path)
+            if let loaded {
+                displayedImage = loaded
+            } else {
+                imageLoadFailed = true
+            }
         }
         if answerDisplayedImage == nil, let path = item.answerImagePath {
-            answerDisplayedImage = await imageStorage.loadImageAsync(path: path)
+            let loaded = await imageStorage.loadImageAsync(path: path)
+            if let loaded {
+                answerDisplayedImage = loaded
+            } else {
+                answerImageLoadFailed = true
+            }
         }
 
         do {

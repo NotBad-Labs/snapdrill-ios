@@ -148,6 +148,10 @@ public struct LibraryEditView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(maxHeight: 200)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else if vm.imageLoadFailed {
+                    // 图片加载失败占位
+                    ContentUnavailableView(L10n.Errors.imageLoadFailed, systemImage: "photo.badge.exclamationmark")
+                        .frame(height: 150)
                 } else if item.imagePath != nil {
                     // 有图片路径但尚未加载完成（async I/O）
                     ProgressView()
