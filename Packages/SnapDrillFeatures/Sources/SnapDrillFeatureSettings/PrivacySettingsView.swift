@@ -193,7 +193,7 @@ actor DataExporter {
         }
         
         // 保存到临时目录
-        let fileName = "SnapDrill_Export_\(Date().formatted(date: .numeric, time: .omitted)).\(format.fileExtension)"
+        let fileName = "SnapDrill_Export_\(Date().filenameDateString).\(format.fileExtension)"
         let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         
         try data.write(to: fileURL)
