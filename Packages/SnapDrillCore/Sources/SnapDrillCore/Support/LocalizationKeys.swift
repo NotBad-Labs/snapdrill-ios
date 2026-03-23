@@ -754,6 +754,58 @@ public enum L10n {
         }
     }
 
+    // MARK: - DataErrors（数据层错误）
+
+    public enum DataErrors {
+        public static func duplicateItem(_ id: String) -> String {
+            String(format: NSLocalizedString("data_errors.duplicate_item", value: "该项目已存在 (ID: %@)", comment: "重复项目"), id)
+        }
+        public static func duplicateName(_ name: String, _ type: String) -> String {
+            String(format: NSLocalizedString("data_errors.duplicate_name", value: "%@ '%@' 已存在", comment: "重复名称"), type, name)
+        }
+        public static func notFound(_ type: String, _ id: String) -> String {
+            String(format: NSLocalizedString("data_errors.not_found", value: "%@ 不存在 (ID: %@)", comment: "项目不存在"), type, id)
+        }
+        public static func invalidState(_ reason: String) -> String {
+            String(format: NSLocalizedString("data_errors.invalid_state", value: "数据状态无效: %@", comment: "无效数据状态"), reason)
+        }
+        public static func databaseError(_ message: String) -> String {
+            String(format: NSLocalizedString("data_errors.database_error", value: "数据库操作失败: %@", comment: "数据库错误"), message)
+        }
+        public static func validationFailed(_ field: String, _ reason: String) -> String {
+            String(format: NSLocalizedString("data_errors.validation_failed", value: "字段 '%@' 验证失败: %@", comment: "验证失败"), field, reason)
+        }
+        public static let recoverySuggestionDuplicate = NSLocalizedString("data_errors.recovery_duplicate", value: "请使用不同的名称或检查是否已存在相同项目", comment: "重复项恢复建议")
+        public static let recoverySuggestionNotFound = NSLocalizedString("data_errors.recovery_not_found", value: "请刷新列表或检查项目是否已被删除", comment: "未找到恢复建议")
+        public static let recoverySuggestionInvalidState = NSLocalizedString("data_errors.recovery_invalid_state", value: "请重新加载数据或联系技术支持", comment: "无效状态恢复建议")
+        public static let recoverySuggestionDatabase = NSLocalizedString("data_errors.recovery_database", value: "请重试操作，如果问题持续请重启应用", comment: "数据库错误恢复建议")
+        public static let recoverySuggestionValidation = NSLocalizedString("data_errors.recovery_validation", value: "请检查输入内容是否符合要求", comment: "验证失败恢复建议")
+    }
+
+    // MARK: - PersistenceErrors（持久化错误）
+
+    public enum PersistenceErrors {
+        public static let containerInitFailed = NSLocalizedString("persistence_errors.container_init_failed", value: "数据库初始化失败", comment: "容器初始化失败")
+        public static let migrationFailed = NSLocalizedString("persistence_errors.migration_failed", value: "数据迁移失败", comment: "迁移失败")
+        public static let storageUnavailable = NSLocalizedString("persistence_errors.storage_unavailable", value: "存储空间不可用", comment: "存储不可用")
+        public static let recoveryContainerInit = NSLocalizedString("persistence_errors.recovery_container_init", value: "请重启应用，如果问题持续请联系技术支持", comment: "容器初始化恢复建议")
+        public static let recoveryMigration = NSLocalizedString("persistence_errors.recovery_migration", value: "请尝试更新到最新版本，如果问题持续请联系技术支持", comment: "迁移恢复建议")
+        public static let recoveryStorage = NSLocalizedString("persistence_errors.recovery_storage", value: "请检查设备存储空间是否充足", comment: "存储恢复建议")
+    }
+
+    // MARK: - BackupErrors（备份错误）
+
+    public enum BackupErrors {
+        public static let archiveCreationFailed = NSLocalizedString("backup_errors.archive_creation_failed", value: "无法创建备份文件", comment: "备份创建失败")
+        public static let invalidArchive = NSLocalizedString("backup_errors.invalid_archive", value: "备份文件格式无效或已损坏", comment: "无效备份")
+        public static let missingManifest = NSLocalizedString("backup_errors.missing_manifest", value: "备份文件缺少清单信息", comment: "缺少清单")
+        public static let missingDataFile = NSLocalizedString("backup_errors.missing_data_file", value: "备份文件中缺少数据文件", comment: "缺少数据")
+        public static func schemaVersionTooNew(_ fileVersion: Int, _ appVersion: Int) -> String {
+            String(format: NSLocalizedString("backup_errors.schema_version_too_new", value: "备份文件版本（%d）高于当前应用支持的版本（%d），请更新应用", comment: "版本过新"), fileVersion, appVersion)
+        }
+        public static let insufficientDiskSpace = NSLocalizedString("backup_errors.insufficient_disk_space", value: "磁盘空间不足，无法完成操作", comment: "空间不足")
+    }
+
     // MARK: - Subjects (预设学科)
 
     public enum Subjects {

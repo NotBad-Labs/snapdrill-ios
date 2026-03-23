@@ -220,7 +220,8 @@ actor DataExporter {
     }
     
     private func exportCSV(items: [ExportableItem]) throws -> Data {
-        var csv = "ID,内容,学科,来源,难度,答案,创建时间,上次复习,下次复习,标签\n"
+        // CSV 列标题使用英文（技术数据格式行业惯例，与 ExportOptionsSheet 一致）
+        var csv = "ID,Content,Subject,Source,Difficulty,Answer,CreatedAt,LastReviewed,NextReview,Tags\n"
         
         for item in items {
             let row = [

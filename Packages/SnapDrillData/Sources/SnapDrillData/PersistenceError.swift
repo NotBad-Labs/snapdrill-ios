@@ -9,44 +9,45 @@
 //
 
 import Foundation
+import SnapDrillCore
 
 /// 持久化层错误
 ///
 /// 定义 ModelContainer 初始化和持久化操作的错误类型。
 public enum PersistenceError: LocalizedError {
-    
+
     // MARK: - Cases
-    
+
     /// 无法创建 ModelContainer
     case containerInitializationFailed(underlying: Error)
-    
+
     /// Schema 迁移失败
     case migrationFailed(from: String, to: String, underlying: Error)
-    
+
     /// 存储不可用
     case storageUnavailable(reason: String)
-    
+
     // MARK: - Computed Properties
-    
+
     public var errorDescription: String? {
         switch self {
         case .containerInitializationFailed(let error):
-            return "数据库初始化失败: \(error.localizedDescription)"
+            return L10n.PersistenceErrors.containerInitFailed + ": \(error.localizedDescription)"
         case .migrationFailed(let from, let to, let error):
-            return "数据迁移失败 (\(from) → \(to)): \(error.localizedDescription)"
+            return L10n.PersistenceErrors.migrationFailed + " (\(from) → \(to)): \(error.localizedDescription)"
         case .storageUnavailable(let reason):
-            return "存储不可用: \(reason)"
+            return L10n.PersistenceErrors.storageUnavailable + ": \(reason)"
         }
     }
-    
+
     public var recoverySuggestion: String? {
         switch self {
         case .containerInitializationFailed:
-            return "应用将使用临时存储，数据在重启后会丢失。请尝试重启应用。"
+            return L10n.PersistenceErrors.recoveryContainerInit
         case .migrationFailed:
-            return "数据迁移失败，应用将使用临时存储。请联系技术支持。"
+            return L10n.PersistenceErrors.recoveryMigration
         case .storageUnavailable:
-            return "请检查设备存储空间是否充足"
+            return L10n.PersistenceErrors.recoveryStorage
         }
     }
 }

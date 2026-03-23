@@ -260,17 +260,17 @@ public enum BackupError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .archiveCreationFailed:
-            return "无法创建备份文件"
+            return L10n.BackupErrors.archiveCreationFailed
         case .invalidArchive:
-            return "备份文件格式无效或已损坏"
+            return L10n.BackupErrors.invalidArchive
         case .missingManifest:
-            return "备份文件缺少元数据信息"
+            return L10n.BackupErrors.missingManifest
         case .missingDataFile:
-            return "备份文件缺少数据内容"
-        case .schemaVersionTooNew:
-            return "该备份文件由更新版本的 App 创建，请先更新 SnapDrill"
+            return L10n.BackupErrors.missingDataFile
+        case .schemaVersionTooNew(let fileVersion, let appVersion):
+            return L10n.BackupErrors.schemaVersionTooNew(fileVersion, appVersion)
         case .insufficientDiskSpace:
-            return "磁盘空间不足，无法完成操作"
+            return L10n.BackupErrors.insufficientDiskSpace
         }
     }
 }

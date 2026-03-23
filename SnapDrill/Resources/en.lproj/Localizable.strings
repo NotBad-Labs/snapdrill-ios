@@ -658,3 +658,32 @@
 
 // MARK: - Errors (image load)
 "errors.image_load_failed" = "Image failed to load";
+
+// MARK: - DataErrors
+"data_errors.duplicate_item" = "This item already exists (ID: %@)";
+"data_errors.duplicate_name" = "%@ '%@' already exists";
+"data_errors.not_found" = "%@ not found (ID: %@)";
+"data_errors.invalid_state" = "Invalid data state: %@";
+"data_errors.database_error" = "Database operation failed: %@";
+"data_errors.validation_failed" = "Field '%@' validation failed: %@";
+"data_errors.recovery_duplicate" = "Please use a different name or check if the item already exists";
+"data_errors.recovery_not_found" = "Please refresh the list or check if the item has been deleted";
+"data_errors.recovery_invalid_state" = "Please reload data or contact support";
+"data_errors.recovery_database" = "Please try again. If the problem persists, restart the app";
+"data_errors.recovery_validation" = "Please check that the input meets the requirements";
+
+// MARK: - PersistenceErrors
+"persistence_errors.container_init_failed" = "Database initialization failed";
+"persistence_errors.migration_failed" = "Data migration failed";
+"persistence_errors.storage_unavailable" = "Storage unavailable";
+"persistence_errors.recovery_container_init" = "Please restart the app. If the problem persists, contact support";
+"persistence_errors.recovery_migration" = "Please update to the latest version. If the problem persists, contact support";
+"persistence_errors.recovery_storage" = "Please check that your device has sufficient storage space";
+
+// MARK: - BackupErrors
+"backup_errors.archive_creation_failed" = "Unable to create backup file";
+"backup_errors.invalid_archive" = "Backup file is invalid or corrupted";
+"backup_errors.missing_manifest" = "Backup file is missing manifest information";
+"backup_errors.missing_data_file" = "Backup file is missing data content";
+"backup_errors.schema_version_too_new" = "Backup file version (%d) is newer than the app supports (%d). Please update the app";
+"backup_errors.insufficient_disk_space" = "Insufficient disk space to complete the operation";
