@@ -96,7 +96,7 @@ public struct LibraryEditView: View {
             } message: {
                 Text(viewModel?.errorMessage ?? "")
             }
-            // Image Picker
+            // 图片选择器
             .photosPicker(isPresented: $isPickerPresented, selection: $pickerSelection, matching: .images)
             .onChange(of: pickerSelection) { _, newItem in
                 if let newItem {
@@ -108,7 +108,7 @@ public struct LibraryEditView: View {
                     loadAnswerTransferable(from: newItem)
                 }
             }
-            // Cropper
+            // 裁剪器
             .fullScreenCover(isPresented: Binding(
                 get: { viewModel?.isCropping ?? false },
                 set: { viewModel?.isCropping = $0 }
@@ -161,7 +161,7 @@ public struct LibraryEditView: View {
                         .frame(height: 150)
                 }
                 
-                // Loading Overlay
+                // 加载遮罩
                 if vm.isProcessing {
                     Color.black.opacity(0.3)
                     ProgressView()

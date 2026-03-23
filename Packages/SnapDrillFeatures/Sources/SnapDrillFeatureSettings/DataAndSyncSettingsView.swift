@@ -20,13 +20,13 @@ struct DataAndSyncSettingsView: View {
 
     @Bindable var viewModel: SettingsViewModel
 
-    // Storage Cache
+    // 存储缓存
     @State private var showingClearCacheAlert = false
     @State private var cacheSize: String = L10n.Settings.calculating
     @State private var cacheCalculateTask: Task<Void, Never>?
     @State private var cacheClearTask: Task<Void, Never>?
 
-    // Backup / Restore
+    // 备份 / 恢复
     @State private var backupTask: Task<Void, Never>?
     @State private var restoreTask: Task<Void, Never>?
     @State private var showingRestoreConfirmation = false
@@ -37,7 +37,7 @@ struct DataAndSyncSettingsView: View {
 
     var body: some View {
         List {
-            // Backup / Restore
+            // 备份 / 恢复
             Section {
                 // 备份按钮
                 Button {
@@ -88,7 +88,7 @@ struct DataAndSyncSettingsView: View {
                 Text(L10n.Settings.backupFooter)
             }
 
-            // Cache Storage
+            // 缓存存储
             Section {
                 HStack {
                     Text(L10n.Settings.mediaCacheUsage)

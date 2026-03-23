@@ -28,7 +28,7 @@ struct ReviewProgressHeader: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // Pause Button (Icon Only)
+            // 暂停按钮
             Button(action: onPause) {
                 Image(systemName: "pause.circle.fill")
                     .font(.system(size: 24))

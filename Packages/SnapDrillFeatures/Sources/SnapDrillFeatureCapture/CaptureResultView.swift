@@ -40,7 +40,7 @@ public struct CaptureResultView: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Image Preview
+                // 图片预览
                 if let image = viewModel.image {
                     ZStack(alignment: .bottomTrailing) {
                         Image(uiImage: image)
@@ -74,7 +74,7 @@ public struct CaptureResultView: View {
                     .padding(.horizontal)
                 }
         
-                // Editor
+                // 编辑区
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Text(L10n.Capture.questionContent)
@@ -197,7 +197,7 @@ public struct CaptureResultView: View {
                             .padding(.horizontal)
 
                         VStack(spacing: 0) {
-                            // Difficulty
+                            // 难度
                             if showDifficultyField {
                                 HStack {
                                     Text(L10n.Capture.difficulty)
@@ -252,7 +252,7 @@ public struct CaptureResultView: View {
                                 .padding()
                             }
 
-                            // Answer
+                            // 答案
                             if showAnswerField {
                                 if showDifficultyField || showGradeField { Divider().padding(.leading) }
                                 VStack(alignment: .leading, spacing: 12) {
@@ -263,7 +263,7 @@ public struct CaptureResultView: View {
                                         .background(Color(UIColor.tertiarySystemFill))
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                                    // Answer Image Picker
+                                    // 答案图片选择
                                     HStack {
                                         if let answerImage = viewModel.answerImage {
                                             Image(uiImage: answerImage)

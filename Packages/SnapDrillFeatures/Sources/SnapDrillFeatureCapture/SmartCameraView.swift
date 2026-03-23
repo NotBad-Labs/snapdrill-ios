@@ -36,9 +36,9 @@ struct SmartCameraView: View {
             
             // MARK: - Body
             
-            // Overlay UI
+            // 覆盖层 UI
             VStack {
-                // Top Bar
+                // 顶部栏
                 HStack {
                     Button(action: onCancel) {
                         Image(systemName: "xmark")
@@ -54,11 +54,11 @@ struct SmartCameraView: View {
                 
                 Spacer()
                 
-                // Bottom Bar
+                // 底部栏
                 HStack {
                     Spacer()
                     
-                    // Shutter Button
+                    // 快门按钮
                     Button(action: takePhoto) {
                         ZStack {
                             Circle()
@@ -80,7 +80,7 @@ struct SmartCameraView: View {
                 }
             }
             
-            // Magic Frame Overlay
+            // 智能取景框覆盖层
             GeometryReader { geo in
                 let targetRect = detectedRect ?? CGRect(x: 0.1, y: 0.4, width: 0.8, height: 0.2) // Default Search Area centered
                 
@@ -124,12 +124,12 @@ struct SmartCameraView: View {
     }
     
     func cropImage(_ image: UIImage, to normalizedRect: CGRect) -> UIImage? {
-        // 1. Normalize Orientation
-        // Vision coordinates (0,0 bottom-left) correspond to the LOGICAL image (Upright).
-        // If the UIImage is .right (Rotated 90 deg), direct CGImage cropping will be wrong.
-        // We draw the image upright first to ensure coordinate systems match.
+        // 1. 标准化方向
+        // Vision 坐标系 (0,0 左下角) 对应逻辑上正立的图片。
+        // 如果 UIImage 方向是 .right（旋转 90 度），直接裁剪 CGImage 会出错。
+        // 先将图片绘制为正立方向，确保坐标系匹配。
         
-        // Use UIGraphicsImageRenderer for modern, thread-safe drawing
+        // 使用 UIGraphicsImageRenderer 进行线程安全的绘制
         let format = UIGraphicsImageRendererFormat()
         format.scale = image.scale // Keep original scale
         format.opaque = false
@@ -139,11 +139,11 @@ struct SmartCameraView: View {
             image.draw(in: CGRect(origin: .zero, size: image.size))
         }
         
-        // 2. Convert Normalized Rect (Bottom-Left) to Image Coordinates (Top-Left)
+        // 2. 将归一化矩形（左下角原点）转换为图片坐标（左上角原点）
         let width = normalizedImage.size.width
         let height = normalizedImage.size.height
         
-        // Vision Y is from bottom, Image Y is from top.
+        // Vision Y 轴从底部开始，Image Y 轴从顶部开始
         // rectY = (1 - visionY - visionHeight) * imageHeight
         let rectY = (1 - normalizedRect.origin.y - normalizedRect.height) * height
         let rectX = normalizedRect.origin.x * width
@@ -152,7 +152,7 @@ struct SmartCameraView: View {
         
         let cropRect = CGRect(x: rectX, y: rectY, width: rectW, height: rectH)
         
-        // 3. Crop
+        // 3. 裁剪
         guard let cgImage = normalizedImage.cgImage?.cropping(to: cropRect) else { return nil }
         return UIImage(cgImage: cgImage, scale: image.scale, orientation: .up)
     }

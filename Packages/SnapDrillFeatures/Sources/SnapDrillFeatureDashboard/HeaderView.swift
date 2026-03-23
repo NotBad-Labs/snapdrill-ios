@@ -20,7 +20,7 @@ struct HeaderView: View {
     @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
     @AppStorage(UDKey.userName) private var userName: String = L10n.Dashboard.defaultName
 
-    // Dynamic Greeting
+    // 动态问候语
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
         let name = userName.isEmpty ? L10n.Dashboard.defaultName : userName
@@ -38,7 +38,7 @@ struct HeaderView: View {
     var body: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 6) {
-                // Date & Weather (Privacy Balanced)
+                // 日期显示
                 HStack(spacing: 6) {
                     Image(systemName: "calendar")
                         .font(.caption2)
@@ -52,7 +52,7 @@ struct HeaderView: View {
                 .background(.ultraThinMaterial)
                 .clipShape(Capsule())
                 
-                // Greeting
+                // 问候语
                 Text(greeting)
                     .font(.title2.bold())
                     .foregroundStyle(.primary)
@@ -60,9 +60,9 @@ struct HeaderView: View {
             
             Spacer()
             
-            // Avatar / Profile
+            // 头像 / 个人资料
             Button {
-                // Navigate to Settings Tab via Notification
+                // 通过通知跳转到设置页
                 NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
             } label: {
                 if userAvatar.contains("images/"), let image = ImageStorage().loadImage(path: userAvatar) {

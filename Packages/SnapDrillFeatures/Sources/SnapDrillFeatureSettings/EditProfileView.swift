@@ -25,7 +25,7 @@ struct EditProfileView: View {
     @AppStorage(UDKey.userAvatar) private var userAvatar: String = "person.crop.circle.fill"
     @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
     
-    // Custom Avatar Handling
+    // 自定义头像处理
     @State private var selectedItem: PhotosPickerItem?
     @State private var showingPhotoOptions = false
     @State private var showingPhotosPicker = false
@@ -33,7 +33,7 @@ struct EditProfileView: View {
     @State private var imageLoadTask: Task<Void, Never>?
     private let imageStorage = ImageStorage()
     
-    // Gradient presets
+    // 渐变色预设
     private let gradients: [[Color]] = [
         [.blue, .purple],       // 0: Default
         [.orange, .red],        // 1: Warm
@@ -52,10 +52,10 @@ struct EditProfileView: View {
     
     var body: some View {
         List {
-            // Avatar Section - Clean & Focused
+            // 头像区域
             Section {
                 VStack(spacing: 16) {
-                    // Large Centered Avatar
+                    // 居中大头像
                     Group {
                         if userAvatar.contains("images/"), let image = imageStorage.loadImage(path: userAvatar) {
                             Image(uiImage: image)
@@ -78,7 +78,7 @@ struct EditProfileView: View {
                         }
                     }
                     
-                    // Set Profile Photo Button
+                    // 设置头像按钮
                     Button {
                         showingPhotoOptions = true
                     } label: {
@@ -96,9 +96,9 @@ struct EditProfileView: View {
                 .listRowBackground(Color.clear)
             }
             
-            // Basic Info Section
+            // 基本信息
             Section {
-                // Name Field
+                // 昵称
                 HStack {
                     Text(L10n.EditProfile.nickname)
                         .foregroundStyle(.primary)
@@ -107,7 +107,7 @@ struct EditProfileView: View {
                         .multilineTextAlignment(.trailing)
                 }
                 
-                // Study Goal
+                // 每日目标
                 HStack {
                     Text(L10n.EditProfile.dailyGoal)
                         .foregroundStyle(.primary)
@@ -124,7 +124,7 @@ struct EditProfileView: View {
                 Text(L10n.EditProfile.title)
             }
             
-            // Motto Section (Replaces generic Bio)
+            // 座右铭
             Section {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(L10n.EditProfile.motto)
@@ -141,7 +141,7 @@ struct EditProfileView: View {
                     .foregroundStyle(.secondary)
             }
             
-            // Icon Theme Section (only if using SF Symbol)
+            // 图标主题色（仅使用 SF Symbol 时显示）
             if !userAvatar.contains("images/") {
                 Section(L10n.EditProfile.themeColor) {
                     ScrollView(.horizontal, showsIndicators: false) {

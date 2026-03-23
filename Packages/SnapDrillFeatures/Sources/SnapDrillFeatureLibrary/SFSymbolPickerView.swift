@@ -158,12 +158,12 @@ public struct SFSymbolPickerView: View {
             dismiss()
         } label: {
             ZStack {
-                // Liquid Glass Background
+                // 毛玻璃背景
                 RoundedRectangle(cornerRadius: 12)
                     .fill(.ultraThinMaterial)
                     .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
                 
-                // Selection Highlight
+                // 选中高亮
                 if selectedSymbol == symbol {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color.blue, lineWidth: 2)

@@ -48,16 +48,16 @@ public final class PDFExportService: Sendable {
 
         let data = renderer.pdfData { (context) in
             do {
-                // Title Page
+                // 封面页
                 context.beginPage()
                 drawTitlePage(context: context.cgContext, rect: pageRect)
 
-                // Items
+                // 题目内容
                 let itemsPerPage = 2
                 let chunks = items.chunked(into: itemsPerPage)
 
                 for chunk in chunks {
-                    // Check for cooperative cancellation during the loop
+                    // 协作式取消检查
                     if Task.isCancelled {
                         throw CancellationError()
                     }
@@ -114,7 +114,7 @@ public final class PDFExportService: Sendable {
     }
 
     private func drawItem(context: CGContext, rect: CGRect, item: any PDFExportable, imageProvider: @Sendable (String) -> UIImage?) {
-        // Draw Image if exists
+        // 绘制图片（如果有）
         var textYOffset = rect.minY
 
         if let path = item.imagePath, let image = imageProvider(path) {
@@ -151,7 +151,7 @@ public final class PDFExportService: Sendable {
     }
     #else
     public func createPDF(from items: [any PDFExportable], imageProvider: @Sendable @escaping (String) -> Any?) async throws -> Data {
-        // Fallback for non-iOS platforms
+        // 非 iOS 平台的兜底实现
         return Data()
     }
     #endif

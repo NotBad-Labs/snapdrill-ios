@@ -32,7 +32,7 @@ struct FullScreenImageView: View {
                 .scaleEffect(scale)
                 .offset(y: offset.height + dragOffset.height)
                 .gesture(
-                    // Pinch to Zoom
+                    // 捏合缩放
                     MagnificationGesture()
                         .onChanged { value in
                             scale = max(1.0, min(value, 4.0))
@@ -44,7 +44,7 @@ struct FullScreenImageView: View {
                         }
                 )
                 .gesture(
-                    // Drag to Dismiss
+                    // 拖拽关闭
                     DragGesture()
                         .updating($dragOffset) { value, state, _ in
                             if scale == 1.0 {

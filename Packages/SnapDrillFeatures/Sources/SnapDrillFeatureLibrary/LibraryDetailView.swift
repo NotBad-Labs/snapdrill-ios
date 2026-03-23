@@ -57,10 +57,10 @@ struct LibraryDetailView: View {
                     }
                 }
 
-                // Meta Info
+                // 元信息
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        // Subject Badge
+                        // 学科徽标
                         Text(item.subject)
                             .font(.subheadline.bold())
                             .padding(.horizontal, 10)
@@ -69,7 +69,7 @@ struct LibraryDetailView: View {
                             .foregroundStyle(.blue)
                             .clipShape(Capsule())
 
-                        // Source Badge
+                        // 来源徽标
                         Text(item.source)
                             .font(.subheadline)
                             .padding(.horizontal, 10)
