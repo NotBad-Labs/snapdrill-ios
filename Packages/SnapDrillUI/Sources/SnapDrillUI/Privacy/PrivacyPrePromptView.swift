@@ -33,7 +33,7 @@ public struct PrivacyPrePromptView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            // Icon Group (Glassmorphism inspired)
+            // 图标组（毛玻璃风格）
             ZStack {
                 Circle()
                     .fill(Color.blue.opacity(0.1))
@@ -54,7 +54,7 @@ public struct PrivacyPrePromptView: View {
             }
             .padding(.bottom, 20)
 
-            // Title & Description
+            // 标题与说明
             VStack(spacing: 12) {
                 Text(L10n.PrivacyPrePrompt.title)
                     .font(.title2.bold())
@@ -68,7 +68,7 @@ public struct PrivacyPrePromptView: View {
 
             Spacer()
 
-            // Actions
+            // 操作按钮
             VStack(spacing: 16) {
                 Button(action: onContinue) {
                     Text(L10n.PrivacyPrePrompt.continueButton)
@@ -87,7 +87,7 @@ public struct PrivacyPrePromptView: View {
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .background {
-            // Subtle Radial Gradient
+            // 淡色径向渐变
             RadialGradient(colors: [Color.blue.opacity(0.05), .clear], center: .top, startRadius: 0, endRadius: 300)
                 .ignoresSafeArea()
         }

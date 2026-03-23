@@ -41,7 +41,7 @@ struct LibraryListView: View {
     
     var body: some View {
         List(selection: $selectedItemIDs) {
-            // Subject Filter Header
+            // 学科过滤器
             Section {
                  ScrollView(.horizontal, showsIndicators: false) {
                      HStack(spacing: 12) {
@@ -159,7 +159,7 @@ struct LibraryListView: View {
                 }
                 .deleteDisabled(editMode?.wrappedValue.isEditing == true)
                 
-                // Infinite Scroll Trigger
+                // 无限滚动触发器
                 if !viewModel.filteredItems.isEmpty {
                     Color.clear
                         .frame(height: 1)

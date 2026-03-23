@@ -26,8 +26,19 @@ public extension Date {
     private static let iso8601Formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
+        // Apple QA1480：固定格式 DateFormatter 必须设 POSIX locale，
+        // 否则在非公历日历设备（泰国佛历、日本年号）上会产生错误年份
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         return formatter
     }()
+
+    /// 文件名安全的日期字符串 (2026-03-23)
+    ///
+    /// 用于导出文件名。不使用 `.formatted(date: .numeric)` 是因为
+    /// en-US locale 下产生 `3/23/2026`（含路径分隔符 `/`），导致文件创建失败。
+    var filenameDateString: String {
+        Self.iso8601Formatter.string(from: self)
+    }
     
     /// 相对时间描述（L10n 本地化）
     ///

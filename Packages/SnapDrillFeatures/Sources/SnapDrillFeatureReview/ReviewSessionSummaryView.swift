@@ -26,6 +26,9 @@ struct ReviewSessionSummaryView: View {
     /// 点击"好的"后的回调
     let onDismiss: () -> Void
 
+    // Dynamic Type 支持：统计数字随系统字号缩放
+    @ScaledMetric(relativeTo: .largeTitle) private var statFontSize: CGFloat = 36
+
     // MARK: - Body
 
     var body: some View {
@@ -94,7 +97,7 @@ struct ReviewSessionSummaryView: View {
                 .font(.title2)
                 .foregroundStyle(color)
             Text("\(count)")
-                .font(.system(size: 36, weight: .bold, design: .rounded))
+                .font(.system(size: statFontSize, weight: .bold, design: .rounded))
                 .foregroundStyle(.primary)
             Text(title)
                 .font(.subheadline)

@@ -48,16 +48,16 @@ public final class PDFExportService: Sendable {
 
         let data = renderer.pdfData { (context) in
             do {
-                // Title Page
+                // 封面页
                 context.beginPage()
                 drawTitlePage(context: context.cgContext, rect: pageRect)
 
-                // Items
+                // 题目内容
                 let itemsPerPage = 2
                 let chunks = items.chunked(into: itemsPerPage)
 
                 for chunk in chunks {
-                    // Check for cooperative cancellation during the loop
+                    // 协作式取消检查
                     if Task.isCancelled {
                         throw CancellationError()
                     }
@@ -83,7 +83,7 @@ public final class PDFExportService: Sendable {
     // MARK: - Drawings
 
     private func drawTitlePage(context: CGContext, rect: CGRect) {
-        let title = "SnapDrill 错题本"
+        let title = L10n.Export.pdfTitle
         let font = UIFont.systemFont(ofSize: 36, weight: .bold)
         let attrs: [NSAttributedString.Key: Any] = [.font: font]
 
@@ -93,7 +93,7 @@ public final class PDFExportService: Sendable {
 
         (title as NSString).draw(at: CGPoint(x: x, y: y), withAttributes: attrs)
 
-        let subtitle = "生成日期: \(Date().formatted(date: .abbreviated, time: .shortened))"
+        let subtitle = L10n.Export.pdfGenerationDate(Date().formatted(date: .abbreviated, time: .shortened))
         let subFont = UIFont.systemFont(ofSize: 14)
         let subAttrs: [NSAttributedString.Key: Any] = [.font: subFont, .foregroundColor: UIColor.gray]
         let subSize = subtitle.size(withAttributes: subAttrs)
@@ -114,7 +114,7 @@ public final class PDFExportService: Sendable {
     }
 
     private func drawItem(context: CGContext, rect: CGRect, item: any PDFExportable, imageProvider: @Sendable (String) -> UIImage?) {
-        // Draw Image if exists
+        // 绘制图片（如果有）
         var textYOffset = rect.minY
 
         if let path = item.imagePath, let image = imageProvider(path) {
@@ -151,7 +151,7 @@ public final class PDFExportService: Sendable {
     }
     #else
     public func createPDF(from items: [any PDFExportable], imageProvider: @Sendable @escaping (String) -> Any?) async throws -> Data {
-        // Fallback for non-iOS platforms
+        // 非 iOS 平台的兜底实现
         return Data()
     }
     #endif

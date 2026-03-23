@@ -24,7 +24,7 @@ public struct LibraryView: View {
 
     @State private var viewModel: LibraryViewModel?
     
-    // Native Selection State
+    // 原生选择状态
     @State private var selectedItemIDs: Set<UUID> = []
     @State private var isExportSheetPresented = false
     @State private var editMode: EditMode = .inactive
@@ -197,7 +197,7 @@ public struct LibraryView: View {
                 }
         }
         .background {
-            // Liquid Mesh Gradient
+            // 液态渐变背景
             ZStack {
                 Color(UIColor.systemGroupedBackground)
                 

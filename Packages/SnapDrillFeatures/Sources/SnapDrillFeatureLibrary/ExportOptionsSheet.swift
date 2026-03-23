@@ -125,7 +125,7 @@ struct ReviewExport: Transferable {
             return content.data(using: .utf8) ?? Data()
         }
         .suggestedFileName { export in
-            "SnapDrill_Export_\(Date().formatted(date: .numeric, time: .omitted)).\(export.format.fileExtension)"
+            "SnapDrill_Export_\(Date().filenameDateString).\(export.format.fileExtension)"
         }
         
         // Also support file URL export for apps that prefer files
@@ -138,7 +138,7 @@ struct ReviewExport: Transferable {
                 create: true
             )
             let tempDir = tempParams ?? FileManager.default.temporaryDirectory
-            let fileName = "SnapDrill_Export_\(Date().formatted(date: .numeric, time: .omitted)).\(export.format.fileExtension)"
+            let fileName = "SnapDrill_Export_\(Date().filenameDateString).\(export.format.fileExtension)"
             let fileURL = tempDir.appendingPathComponent(fileName)
             try content.write(to: fileURL, atomically: true, encoding: .utf8)
             return SentTransferredFile(fileURL)

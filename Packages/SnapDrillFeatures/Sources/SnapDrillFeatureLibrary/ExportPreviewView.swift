@@ -97,7 +97,7 @@ struct ExportPreviewView: View {
     }
     
     private func saveToTemp(pdfData: Data) {
-        let fileName = "SnapDrill_Mistakes_\(Date().formatted(date: .numeric, time: .omitted)).pdf"
+        let fileName = "SnapDrill_Mistakes_\(Date().filenameDateString).pdf"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         do {
             try pdfData.write(to: tempURL)

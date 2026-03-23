@@ -89,19 +89,19 @@ private struct SkeletonItemView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Title skeleton
+            // 标题骨架
             RoundedRectangle(cornerRadius: 4)
                 .fill(Color.gray.opacity(0.3))
                 .frame(height: 20)
                 .frame(maxWidth: .infinity)
             
-            // Subtitle skeleton
+            // 副标题骨架
             RoundedRectangle(cornerRadius: 4)
                 .fill(Color.gray.opacity(0.3))
                 .frame(height: 16)
                 .frame(width: 200)
             
-            // Content skeleton
+            // 内容骨架
             RoundedRectangle(cornerRadius: 4)
                 .fill(Color.gray.opacity(0.3))
                 .frame(height: 14)

@@ -26,7 +26,7 @@ public final class TagModel {
     /// 创建时间
     public var createdAt: Date = Date()
 
-    // Relationship
+    // 关联关系
     /// 关联的题目（Many-to-Many）
     @Relationship(deleteRule: .nullify)
     public var items: [ReviewItemModel]? = []

@@ -16,25 +16,25 @@ struct CornerBracketShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         
-        // Ensure corner length isn't too long
+        // 确保角标长度不超过边长的三分之一
         let length = min(min(rect.width, rect.height) / 3, cornerLength)
         
-        // Top Left
+        // 左上角
         path.move(to: CGPoint(x: rect.minX, y: rect.minY + length))
         path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
         path.addLine(to: CGPoint(x: rect.minX + length, y: rect.minY))
         
-        // Top Right
+        // 右上角
         path.move(to: CGPoint(x: rect.maxX - length, y: rect.minY))
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + length))
         
-        // Bottom Right
+        // 右下角
         path.move(to: CGPoint(x: rect.maxX, y: rect.maxY - length))
         path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
         path.addLine(to: CGPoint(x: rect.maxX - length, y: rect.maxY))
         
-        // Bottom Left
+        // 左下角
         path.move(to: CGPoint(x: rect.minX + length, y: rect.maxY))
         path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
         path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY - length))

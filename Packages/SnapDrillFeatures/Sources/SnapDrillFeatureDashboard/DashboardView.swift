@@ -41,7 +41,7 @@ public struct DashboardView: View {
     public var body: some View {
         NavigationStack(path: $router.path) {
             ZStack {
-                // Background
+                // 背景
                 Color(UIColor.systemGroupedBackground)
                     .ignoresSafeArea()
                 
@@ -85,7 +85,7 @@ public struct DashboardView: View {
                                         viewModel.checkDraftAndCapture(router: router)
                                     }
 
-                                    // Library Card
+                                    // 题库卡片
                                     BentoCard(
                                         title: L10n.Dashboard.browseLibrary,
                                         subtitle: L10n.Dashboard.manageKnowledge,
@@ -102,7 +102,7 @@ public struct DashboardView: View {
                                         dueCount: viewModel.dueCount
                                     )
 
-                                    // Settings/More
+                                    // 设置/更多
                                     BentoCard(
                                         title: L10n.Dashboard.subjectManage,
                                         subtitle: L10n.Dashboard.customize,

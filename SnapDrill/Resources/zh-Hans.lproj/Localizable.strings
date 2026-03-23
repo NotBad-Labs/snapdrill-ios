@@ -93,6 +93,7 @@
 "capture.pdf_page_hint" = "共 %d 页，点击选择要录入的页面";
 "capture.page_number" = "第 %d 页";
 "capture.camera_scanning_hint" = "寻找题目区域...";
+"capture.ocr_failed_hint" = "文字识别失败，请手动输入内容";
 "capture.default_subject" = "数学";
 "capture.default_source" = "试卷";
 
@@ -639,3 +640,49 @@
 "accessibility.review_button_hint" = "轻点开始复习 %d 道题目";
 "accessibility.export_button_hint" = "轻点导出为 %@ 格式";
 "accessibility.progress_description" = "已完成 %d 道，共 %d 道，进度 %d%%";
+
+// MARK: - Tab Bar
+"tab.dashboard" = "首页";
+"tab.library" = "题库";
+"tab.capture" = "采集";
+"tab.review" = "复习";
+"tab.settings" = "设置";
+
+// MARK: - Export (PDF title)
+"export.pdf_title" = "SnapDrill 错题本";
+"export.pdf_generation_date" = "生成日期: %@";
+
+// MARK: - Settings (avatar color)
+"settings.avatar_color" = "头像颜色";
+
+// MARK: - Errors (image load)
+"errors.image_load_failed" = "图片加载失败";
+
+// MARK: - DataErrors
+"data_errors.duplicate_item" = "该项目已存在 (ID: %@)";
+"data_errors.duplicate_name" = "%@ '%@' 已存在";
+"data_errors.not_found" = "%@ 不存在 (ID: %@)";
+"data_errors.invalid_state" = "数据状态无效: %@";
+"data_errors.database_error" = "数据库操作失败: %@";
+"data_errors.validation_failed" = "字段 '%@' 验证失败: %@";
+"data_errors.recovery_duplicate" = "请使用不同的名称或检查是否已存在相同项目";
+"data_errors.recovery_not_found" = "请刷新列表或检查项目是否已被删除";
+"data_errors.recovery_invalid_state" = "请重新加载数据或联系技术支持";
+"data_errors.recovery_database" = "请重试操作，如果问题持续请重启应用";
+"data_errors.recovery_validation" = "请检查输入内容是否符合要求";
+
+// MARK: - PersistenceErrors
+"persistence_errors.container_init_failed" = "数据库初始化失败";
+"persistence_errors.migration_failed" = "数据迁移失败";
+"persistence_errors.storage_unavailable" = "存储空间不可用";
+"persistence_errors.recovery_container_init" = "请重启应用，如果问题持续请联系技术支持";
+"persistence_errors.recovery_migration" = "请尝试更新到最新版本，如果问题持续请联系技术支持";
+"persistence_errors.recovery_storage" = "请检查设备存储空间是否充足";
+
+// MARK: - BackupErrors
+"backup_errors.archive_creation_failed" = "无法创建备份文件";
+"backup_errors.invalid_archive" = "备份文件格式无效或已损坏";
+"backup_errors.missing_manifest" = "备份文件缺少清单信息";
+"backup_errors.missing_data_file" = "备份文件中缺少数据文件";
+"backup_errors.schema_version_too_new" = "备份文件版本（%d）高于当前应用支持的版本（%d），请更新应用";
+"backup_errors.insufficient_disk_space" = "磁盘空间不足，无法完成操作";

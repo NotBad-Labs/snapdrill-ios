@@ -51,12 +51,12 @@ public struct SettingsView: View {
     @AppStorage(UDKey.captureFieldGrade) private var showGradeField: Bool = false
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
 
-    // Appearance Setting
+    // 外观设置
     @AppStorage(UDKey.appearanceMode) private var appearanceMode: Int = 0
     @AppStorage(UDKey.cardContextAlignment) private var alignmentRaw: String = "leading"
     @AppStorage(UDKey.cardContextFontSize) private var fontSizeRaw: Double = 16.0
 
-    // Front Card Appearance
+    // 正面卡片外观
     @AppStorage(UDKey.cardFrontAlignment) private var frontAlignmentRaw: String = "center"
     @AppStorage(UDKey.cardFrontFontSize) private var frontFontSizeRaw: Double = 32.0
 

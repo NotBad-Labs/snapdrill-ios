@@ -76,12 +76,10 @@ final class DependencyContainer {
         self.router = AppRouter()
 
         // 8. 监听隐私偏好变更，运行时同步到 Firebase SDK
-        NotificationCenter.default.addObserver(
-            forName: UserDefaults.didChangeNotification,
-            object: nil,
-            queue: .main
-        ) { _ in
-            MainActor.assumeIsolated {
+        // 使用 async for await 替代 addObserver 回调（conventions.md 并发规则）
+        Task { [weak analyticsService] in
+            for await _ in NotificationCenter.default.notifications(named: UserDefaults.didChangeNotification) {
+                guard analyticsService != nil else { break }
                 FirebaseBootstrap.setCrashlyticsEnabled(
                     AppConfiguration.FeatureFlags.crashReportingEnabled
                 )
