@@ -42,8 +42,13 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 2. **Antigravity / Xcode**（手动）：Claude 写提示词（见 `review-prompt-guide.md`），用户触发
 3. **Claude 核实**：每条 finding 读源文件确认真实性
 
-fix 提交后：Gemini 自动 re-review；引入新逻辑的 fix 需原 reviewer 验收。
-**发现即追踪**：范围外发现必须建 Issue，"后续处理"不建 Issue = 事实上遗忘。
+**PR 纪律**：
+- PR 创建后立即写 review 提示词（不写 = review 无法启动）
+- PR 未合并前禁止推进下一任务
+- 禁止自审自批——fix 后必须让原 reviewer 验收
+- 范围外发现立即建 Issue（"后续处理"不建 Issue = 事实上遗忘）
+- 轮询查 `comments` + `reviews` 两处
+- PR 合并后立即更新 STATUS.md
 
 ---
 
@@ -66,5 +71,8 @@ Issue 未关闭 = 收尾未完成。
 | **S3** | 更好但不紧急 | UI 打磨、测试补充、重构 |
 
 **S0 vs S1 区分**：用户还能重试 = S1；数据已不可逆消失 = S0。
+- `try?` 静默吞掉保存错误且用户已离开 → S0（不可逆）
+- 保存失败但弹窗提示且状态保留可重试 → S1（可恢复）
+- 编辑后保存失败且补的答案丢失 → S0（不可逆）
 **同级排序**：采集 > 管理 > 导出 > 复习 > 设置（按用户频率）。
 **执行**：S0 清零 → S1 → S2 → S3，严格按序。

@@ -40,14 +40,6 @@ SPM 包仅声明 iOS 平台，`swift test` 不可用，须通过 Xcode Simulator
 SnapDrill：练习题数字化存档 + 间隔重复复习 App。Swift 6.2 + SwiftUI + SwiftData，iOS 26.0+。
 详见 `architecture.md`（包结构、依赖图、DI 链路）。
 
-## 关键规则（详见 conventions.md）
-
-- 所有 ViewModel：`@Observable @MainActor final class`
-- 禁止 `print()`、`try?`（关键路径）、`@unchecked Sendable`、`force unwrap !`
-- `@Model` 直接作领域对象，无 Domain 层，无 UseCase 层，无 Repository 协议
-- 修改代码前用 `Grep`/`Read` 确认 API 存在，禁止凭名称推测
-- PR 合并前对照 `.claude/definition-of-done.md` 自检
-
 ## 架构决策
 
 记录在 `architecture.md`（关键设计决策表）和 `principles.md`（决策理由和重新评估条件）。
