@@ -49,46 +49,10 @@
 3. 打开项目: 双击 `SnapDrill.xcodeproj`。
 4. 运行: 选择 `SnapDrill` Scheme，在模拟器或真机上运行。
 
-## 贡献
-
-请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 了解如何参与项目开发、分支管理及代码规范。
-
 ## 测试
 
-项目包含完整的测试套件，包括单元测试、集成测试和 UI 测试。
-
-### 测试覆盖率
-
-<!-- codecov badge placeholder: 待配置 CI 后启用 -->
-
-- **目标覆盖率**: 60%+
-- **当前覆盖率**: 查看 CI 报告
-
-### 运行测试
-
-- **Xcode**: 按下 `Cmd+U`
-- **命令行**:
-
-  ```bash
-  xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'
-  ```
-
-- **带覆盖率报告**:
-
-  ```bash
-  xcodebuild test -scheme SnapDrill \
-    -destination 'platform=iOS Simulator,name=iPhone 17' \
-    -enableCodeCoverage YES
-  ```
-
-### 测试结构
-
-```
-Packages/
-├── SnapDrillCore/Tests/         # 核心服务测试（OCR、PDF 导出、SM-2 调度）
-├── SnapDrillData/Tests/         # 数据层测试（Model、Repository）
-└── SnapDrillFeatures/Tests/     # 功能模块测试（需通过 Xcode GUI 运行）
-```
+- **Xcode**: `Cmd+U`
+- **命令行**: `xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
 
 ## 文档
 

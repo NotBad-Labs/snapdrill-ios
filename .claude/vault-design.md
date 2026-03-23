@@ -254,7 +254,7 @@ func delete(_ profileID: String) throws {
 - 备份文件名：`SnapDrill_小明_2026-03-10.snapdrill`
 - 恢复时选择目标 Profile
 - 现有 BackupService API 无需改动（已按 RepositoryContainer 粒度工作）
-- 单 Profile 备份策略 v1.5 足够；如需"全量备份所有 Profile"，列入 v2.0
+- 单 Profile 备份策略 v1.5 足够；如需"全量备份所有 Profile"，列入后续版本
 
 ## UI 设计
 
@@ -281,19 +281,19 @@ func delete(_ profileID: String) throws {
 
 ## 已知限制与预警
 
-### iCloud 多 Container 限制（v2.0 预警）
+### iCloud 多 Container 限制（v1.5 iCloud 同步预警）
 
 Apple 的 `SwiftData + CloudKit`（`NSPersistentCloudKitContainer`）不支持
 同时绑定多个本地 Container 或动态切换绑定源。
-v2.0 实现 iCloud 按 Profile 同步时，可能需要：
+v1.5 实现 iCloud 按 Profile 同步时，可能需要：
 - 方案 A：所有 Profile 数据合并到单一 Container，用 `profileID` 字段区分（放弃物理隔离）
 - 方案 B：使用手动 CloudKit API（`CKRecord` + `CKDatabase`）而非 SwiftData 自动同步
-- 需在 v2.0 架构评审时提前决策
+- 需在 iCloud 同步架构评审时提前决策
 
 ## 不在此范围
 
-- iCloud 按 Profile 同步（v2.0，见上方预警）
-- Profile 导出/导入分享（v2.0）
+- iCloud 按 Profile 同步（v1.5 iCloud 同步功能的一部分，见上方预警）
+- Profile 导出/导入分享（后续版本）
 - 家长模式 / 权限控制（待产品决策）
 
 ## 实现顺序（v1.5 开发时）

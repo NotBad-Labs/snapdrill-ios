@@ -36,17 +36,10 @@ bash Scripts/lint.sh          # Wrapper that checks if swiftlint is installed fi
 xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
-**Test (SPM package — macOS, no UIKit)**
-```bash
-# 在各包目录下运行，不依赖 Xcode
-cd Packages/SnapDrillCore && swift test   # UIKit 测试自动跳过
-cd Packages/SnapDrillData && swift test   # SwiftData Predicate 测试跳过（需 Xcode）
-```
+**Test (SPM package)**
+所有 SPM 包仅声明 iOS 平台，`swift test` 命令行不可用。须通过 Xcode Simulator 运行测试。
 
-**Test (UIKit 依赖 / SnapDrillFeatures)**
-必须通过 Xcode GUI 运行（`swift test` 不支持 UIKit 依赖，`-only-testing:SnapDrillFeaturesTests` 命令无效）。
-
-**注意**：`xcodebuild build` 不编译测试 target，测试编译错误须通过 `swift test` 或 Xcode 才能发现。
+**注意**：`xcodebuild build` 不编译测试 target，测试编译错误须通过 Xcode 才能发现。
 
 **Install SwiftLint (required)**
 ```bash

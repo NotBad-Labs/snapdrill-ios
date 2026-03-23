@@ -40,7 +40,7 @@ allowed-tools:
 
 1. **Issue = 最小工作单元**：一个 Issue 对应一个 PR
 2. **Label 分类**：`claude-code`（AI 生成）、`bug`、`enhancement`、`chore`
-3. **Milestone = 版本**：v1.0、v1.5、v2.0
+3. **Milestone = 版本**：v1.0、v1.5
 4. **状态追踪**：Issue open/closed + PR status
 
 ### S0-S3 优先级执行规则
