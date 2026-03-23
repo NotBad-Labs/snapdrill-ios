@@ -76,7 +76,7 @@ struct ReviewCardFront: View {
 
             Spacer()
 
-            // Metadata Footer
+            // 元数据底栏
             HStack(spacing: 8) {
                 // 学科徽标
                 Text(item.subject)
@@ -271,7 +271,7 @@ struct ReviewCardBack: View {
                 VStack(alignment: .leading, spacing: 16) {
                     if let answerText = item.answerText, !answerText.isEmpty {
                         Text(answerText)
-                            .font(.system(size: 20, weight: .regular, design: .default))
+                            .font(.title3)
                             .foregroundStyle(.primary)
                             .multilineTextAlignment(.leading)
                             .lineSpacing(6)

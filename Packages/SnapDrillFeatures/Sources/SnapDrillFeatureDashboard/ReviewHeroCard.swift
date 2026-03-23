@@ -18,9 +18,9 @@ import SnapDrillCore
 /// - 待复习任务状态
 /// - 任务已完成状态
 struct ReviewHeroCard: View {
-    
+
     // MARK: - Properties
-    
+
     /// 点击”立即开始”复习时的回调
     let onStartReview: () -> Void
     /// 点击”录入题目”时的回调
@@ -30,6 +30,9 @@ struct ReviewHeroCard: View {
     let dueCount: Int
     /// 今日已复习数量，用于计算进度环
     let reviewedTodayCount: Int
+
+    // Dynamic Type 支持：待复习数字随系统字号缩放
+    @ScaledMetric(relativeTo: .largeTitle) private var dueFontSize: CGFloat = 48
 
     init(
         totalCount: Int,
@@ -50,8 +53,8 @@ struct ReviewHeroCard: View {
     var body: some View {
         VStack {
             if totalCount == 0 {
-                // Scenario 1: New User (Zero Data)
-                // Guide them to add first item
+                // 场景 1：新用户（无数据）
+                // 引导用户添加第一道题
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(L10n.Dashboard.welcome)
@@ -82,7 +85,7 @@ struct ReviewHeroCard: View {
                     LinearGradient(colors: [.orange, .red], startPoint: .topLeading, endPoint: .bottomTrailing)
                 )
             } else if dueCount > 0 {
-                // Scenario 2: Has Tasks (Due > 0)
+                // 场景 2：有待复习题目（待复习 > 0）
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(L10n.Dashboard.todayDue)
@@ -90,7 +93,7 @@ struct ReviewHeroCard: View {
                             .foregroundStyle(.white.opacity(0.9))
                         
                         Text("\(dueCount)")
-                            .font(.system(size: 48, weight: .bold, design: .rounded))
+                            .font(.system(size: dueFontSize, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
                         
                         Button(action: onStartReview) {
@@ -123,7 +126,7 @@ struct ReviewHeroCard: View {
                     LinearGradient(colors: [.indigo, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
                 )
             } else {
-                // Scenario 3: All Caught Up (Total > 0, Due == 0)
+                // 场景 3：全部完成（总数 > 0，待复习 == 0）
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(L10n.Dashboard.allDone)

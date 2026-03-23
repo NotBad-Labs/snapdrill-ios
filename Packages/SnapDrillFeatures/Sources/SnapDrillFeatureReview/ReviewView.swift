@@ -27,6 +27,9 @@ public struct ReviewView: View {
     @State private var viewModel: ReviewViewModel?
     @State private var showReviewTooltip = false
 
+    // Dynamic Type 支持：滑动印章文字随系统字号缩放
+    @ScaledMetric(relativeTo: .largeTitle) private var stampFontSize: CGFloat = 40
+
     // MARK: - Initialization
 
     /// 创建复习会话视图
@@ -320,7 +323,7 @@ public struct ReviewView: View {
 
     private func stampLabel(_ text: String, color: Color, rotation: Double, xOffset: CGFloat) -> some View {
         Text(text)
-            .font(.system(size: 40, weight: .heavy, design: .rounded))
+            .font(.system(size: stampFontSize, weight: .heavy, design: .rounded))
             .foregroundColor(color)
             .padding()
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(color, lineWidth: 4))

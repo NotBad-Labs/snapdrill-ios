@@ -14,20 +14,24 @@ import SnapDrillCore
 import SnapDrillUI
 
 struct ReviewDashboardView: View {
-    
+
     // MARK: - Properties
-    
+
     let pendingCount: Int
     let reviewedCount: Int // Today's Done
     let totalItemsCount: Int
     let onStart: () -> Void
     let onEnter: () -> Void
+
+    // Dynamic Type 支持：装饰性统计数字随系统字号缩放
+    @ScaledMetric(relativeTo: .largeTitle) private var statFontSize: CGFloat = 44
+    @ScaledMetric(relativeTo: .largeTitle) private var heroFontSize: CGFloat = 64
     
     var body: some View {
         VStack(spacing: 40) {
             Spacer()
             
-            // Hero Visual
+            // 主视觉区域
             ZStack {
                 Circle()
                     .fill(
@@ -54,16 +58,16 @@ struct ReviewDashboardView: View {
             .padding(.top, 40)
             .accessibilityHidden(true)
             
-            // Text Summary
+            // 文字摘要
             VStack(spacing: 16) {
                 if pendingCount > 0 {
                     if reviewedCount > 0 {
-                        // SCENARIO 2: Interrupted / In-Progress (Split Stats)
+                        // 场景 2：中断 / 进行中（分列统计）
                         HStack(spacing: 40) {
-                            // Pending (Left)
+                            // 待复习（左侧）
                             VStack(spacing: 4) {
                                 Text("\(pendingCount)")
-                                    .font(.system(size: 44, weight: .bold, design: .rounded))
+                                    .font(.system(size: statFontSize, weight: .bold, design: .rounded))
                                     .foregroundStyle(.primary)
                                 Text(L10n.Review.pending)
                                     .font(.subheadline)
@@ -75,10 +79,10 @@ struct ReviewDashboardView: View {
                                 .frame(height: 40)
                                 .accessibilityHidden(true)
 
-                            // Done (Right)
+                            // 已完成（右侧）
                             VStack(spacing: 4) {
                                 Text("\(reviewedCount)")
-                                    .font(.system(size: 44, weight: .bold, design: .rounded))
+                                    .font(.system(size: statFontSize, weight: .bold, design: .rounded))
                                     .foregroundStyle(.green)
                                 Text(L10n.Review.completed)
                                     .font(.subheadline)
@@ -87,14 +91,14 @@ struct ReviewDashboardView: View {
                             .accessibleGroup(label: L10n.Accessibility.reviewedToday(count: reviewedCount))
                         }
                     } else {
-                        // SCENARIO 1: Fresh Start
+                        // 场景 1：全新开始
                         VStack(spacing: 16) {
                             Text(L10n.Review.todayReview)
                                 .font(.title2)
                                 .foregroundStyle(.secondary)
 
                             Text("\(pendingCount)")
-                                .font(.system(size: 64, weight: .bold, design: .rounded))
+                                .font(.system(size: heroFontSize, weight: .bold, design: .rounded))
                                 .foregroundStyle(.primary)
 
                             Text(L10n.Review.cardsPending)
@@ -104,7 +108,7 @@ struct ReviewDashboardView: View {
                         .accessibleGroup(label: L10n.Accessibility.pendingReview(count: pendingCount))
                     }
                 } else if totalItemsCount == 0 {
-                    // Empty State
+                    // 空状态
                     Text(L10n.Review.welcomeBack)
                         .font(.title2.bold())
                         .foregroundStyle(.primary)
@@ -113,7 +117,7 @@ struct ReviewDashboardView: View {
                         .font(.body)
                         .foregroundStyle(.secondary)
                 } else {
-                    // SCENARIO 3: Finished
+                    // 场景 3：已完成
                     Text(L10n.Review.excellent)
                         .font(.title2.bold())
                         .foregroundStyle(.primary)
@@ -126,7 +130,7 @@ struct ReviewDashboardView: View {
             
             Spacer()
             
-            // Actions
+            // 操作按钮
             if pendingCount > 0 {
                 Button(action: onStart) {
                     HStack {
@@ -151,7 +155,7 @@ struct ReviewDashboardView: View {
                 .padding(.horizontal, 40)
                 .padding(.bottom, 60)
             } else if totalItemsCount == 0 {
-                // Empty Action: Navigate for collection
+                // 空状态操作：跳转去采集
                 Button(action: onEnter) {
                     Text(L10n.Dashboard.goCapture)
                         .font(.headline)
@@ -162,7 +166,7 @@ struct ReviewDashboardView: View {
                 }
                 .padding(.bottom, 60)
             } else {
-                // Done Action: Rest
+                // 完成操作：休息
                 Button(action: {}, label: {
                     HStack {
                         Image(systemName: "moon.stars.fill")
@@ -179,7 +183,7 @@ struct ReviewDashboardView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // Add glass background to separate from the dynamic mesh behind it
+        // 添加毛玻璃背景，与后面的动态渐变网格分离
         .background(.ultraThinMaterial)
     }
     
