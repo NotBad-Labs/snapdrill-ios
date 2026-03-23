@@ -9,20 +9,23 @@
 
 ### 完成
 
-- **PR #415 创建**（Issue #414）：产品文档体系审计
+- **PR #415 合并**（Issue #414）：产品文档体系审计
   - 6 个审计发现修复（隐私措辞、合规描述、成功信号等）
-  - 文档瘦身 -1824 行（删除旧文档、废弃工作流）
-  - 删除 ADR 目录（决策已内嵌在 architecture.md / principles.md）
-  - STATUS.md / session-log.md 精简（删除堆积历史）
-- Gemini review 通过（无 🔴），等待 Xcode + Antigravity review
+  - 文档大幅瘦身：删除 ADR 目录（9 文件）、project-map、vault-design、旧文档共 58 文件 -3357 行
+  - 三方 review（Gemini + Xcode Intelligence + Antigravity）→ 修复所有 🔴（隐私措辞 6 处遗漏 + ADR 引用 12 处残留 + ML Kit 修正）
+  - STATUS.md 和 session-log.md 精简为极简格式
+- **Issue #416 创建**：product-vision.md 依赖树验证
+  - 16 个文件受愿景文档影响（8 直接 + 5 二跳 + 2 三跳 + 1 四跳）
+  - 等待第三方独立验证依赖关系完整性
 
 ### 关键决策
 
-- 文档体系审计是当前最高优先级，代码变更暂停
 - ADR 可删除：所有决策已在 architecture.md 和 principles.md 中完整覆盖
-- Review 提示词不预设背景：让审查者从头读文档自行发现问题
+- Review 提示词不预设背景：让审查者从头读文档自行发现问题（feedback 已存入 memory）
+- 过时文档统统删除，减轻认知负担
 
 ### 下次接续
 
-- 等待三方 review 结果 → 核实 → 合并
-- 继续审计下游文档（principles.md → architecture.md → conventions.md）
+- 等待 #416 第三方验证结果
+- 人工复核文档体系，发现问题开新 PR
+- 后续可继续审计下游文档（principles.md → architecture.md → conventions.md）
