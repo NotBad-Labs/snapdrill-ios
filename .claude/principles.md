@@ -132,7 +132,7 @@
 
 ## Swift / SwiftData 原生优先
 
-> 完整决策记录见 `decisions/ADR-006`（SwiftData 选型理由和被否决方案）。
+> 选型理由：SwiftData 原生集成 SwiftUI（@Query 响应式）、零配置、Swift 类型安全。被否决：CoreData（冗余 ObjC 桥接）、SQLite（无声明式绑定）、Realm（第三方依赖）。
 
 | 不要 | 要 |
 |---|---|
@@ -143,7 +143,7 @@
 
 ### 核心哲学：@Model = 领域对象（2026-03-03 确认）
 
-> 完整决策记录见 `decisions/ADR-001`（含被否决方案和重新评估条件）。
+> 被否决：Domain struct + toEntity() 映射层（零收益纯维护成本）。重新评估条件：引入后端 API 或多设备同步需独立于 SwiftData 的领域层。
 
 SwiftData 的 `@Model` 是轻量的，不是 NSManagedObject。对于本地优先的单体 App：
 - `@Model` 直接就是领域对象，不需要映射为 Domain struct
@@ -179,7 +179,7 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 ## 包边界与依赖方向原则（2026-03-13 确立）
 
-> 完整决策记录见 `decisions/ADR-003`（5 包结构）、`decisions/ADR-005`（Infrastructure 隔离）。
+> 5 包结构理由见 `architecture.md`。Infrastructure 隔离理由：Firebase SDK 不应污染业务包，仅 App 壳 import。
 
 ### 包划分标准
 
@@ -196,7 +196,7 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 ### 协议的判断标准
 
-> 完整决策记录见 `decisions/ADR-002`（Repository 无协议的理由和重新评估条件）。
+> Repository 无协议理由：有 in-memory ModelContainer 替代测试手段，加协议是 test-induced design damage。重新评估条件：出现第二个 Repository 实现。
 
 | 场景 | 是否需要协议 | 理由 |
 |---|---|---|
@@ -209,7 +209,7 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 
 ## 依赖注入原则（2026-03-13 确立）
 
-> 完整决策记录见 `decisions/ADR-004`（含 4 个被否决的反模式和理由）。
+> 被否决的 4 个反模式：.shared 直接调用、ViewModel 默认参数耦合具体类、View 直接调用服务、@Environment 注入具体类型。
 
 ### 唯一正确的 DI 模式
 
@@ -245,14 +245,14 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 | 类型 | 示例 | 新鲜度追踪 | 理由 |
 |---|---|---|---|
 | **活文档** | architecture.md、infrastructure.md、conventions.md、technical-debt-ledger.md、definition-of-done.md | 加 `Last verified: YYYY-MM-DD` | 会随代码变化而过时 |
-| **快照** | decisions/ADR-*.md、session-log.md | 不加新鲜度字段 | ADR 是不可变的时间点决策记录（Nygard 哲学） |
+| **快照** | session-log.md | 不加新鲜度字段 | 时间点记录 |
 | **产品文档** | product-vision.md、product-requirements.md 等 | 不加 | 产品负责人领域，按发版节奏更新 |
 | **Memory** | memory/*.md | 不加 | frontmatter 已含元数据 |
 
 ### 三条治理规则
 
 1. **活文档加 `Last verified`**：仅在实际 review 内容与代码一致性后更新日期。改 typo ≠ verified。自动更新 timestamp 会污染信号
-2. **ADR 不可变 + Status 生命周期**：`Proposed → Accepted → Superseded`。决策变了就新建 ADR supersede 旧的，不修改原文。加 `implementation: Complete / Partial / Not Started` 和 `verified: YYYY-MM-DD` 字段追踪实施状态
+2. **架构决策直接记录在 architecture.md 和 principles.md 中**，不使用独立 ADR 文件（决策和理由在同一处，减少维护负担）
 3. **发版前全量扫描**：每次准备 TestFlight/App Store 发布时，扫描所有 `.claude/` 文档是否与代码一致。事件驱动，不设日历节奏（1 人 + AI 团队靠事件驱动更高效）
 
 ### SSOT 规则
@@ -274,7 +274,7 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 - **测试行为（behavior），不测试实现（implementation）**（Google 测试哲学）
 - **好架构比好测试更重要**——"A bad design with a complete test suite is still a bad design."（Rich Hickey）
 - **TDD 是方式之一，不是唯一方式**——Beck/Fowler/DHH 三方辩论的共识
-- **不为 mock 而加协议**——"test-induced design damage"（DHH）是真实风险，SnapDrill 的 ADR-002 已规避
+- **不为 mock 而加协议**——"test-induced design damage"（DHH）是真实风险，SnapDrill 的 Repository 无协议决策已规避
 
 ### 推荐流程
 

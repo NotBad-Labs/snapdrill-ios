@@ -57,7 +57,7 @@ ultrathink
 ## Gotchas
 
 1. **SwiftData `#Predicate` macOS SIGTRAP**：`#Predicate` 在 macOS `swift test` 环境下会触发 SIGTRAP 崩溃（已知框架限制），必须通过 Xcode Simulator 验证
-2. **不为 mock 加协议（ADR-002）**：Repository 有 in-memory ModelContainer 替代测试手段，禁止为「可测试性」添加只有一个实现的协议
+2. **不为 mock 加协议**：Repository 有 in-memory ModelContainer 替代测试手段，禁止为「可测试性」添加只有一个实现的协议
 3. **包边界严格单向，反向依赖编译器拦截**：Core 不得 import 任何本地包，Infrastructure 仅 App 可 import，违反即编译失败
 
 ## 输出格式

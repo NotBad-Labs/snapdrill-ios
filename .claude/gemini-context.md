@@ -25,13 +25,13 @@ SnapDrillFeatures ──► SnapDrillData ──► SnapDrillCore（零依赖）
 SnapDrill/App ──► SnapDrillInfrastructure ──► SnapDrillCore
 ```
 
-## 架构约束（精简版，完整理由见 ADR）
+## 架构约束（完整理由见 principles.md）
 
-| 约束 | ADR | 可修改触发条件 |
-|---|---|---|
-| 禁止 Domain 层 / Domain struct | [ADR-001](decisions/ADR-001-model-as-domain-object.md) | 引入后端 API / 多设备同步 / @Model 超 20 属性 |
-| 禁止 UseCase 层 | [ADR-001](decisions/ADR-001-model-as-domain-object.md) | 3+ ViewModel 共享同一逻辑 / 跨 Repository 编排 |
-| Repository 无协议 | [ADR-002](decisions/ADR-002-repository-no-protocol.md) | 出现第二个实现 / 需脱离 SwiftData 环境测试 |
+| 约束 | 可修改触发条件 |
+|---|---|
+| 禁止 Domain 层 / Domain struct | 引入后端 API / 多设备同步 / @Model 超 20 属性 |
+| 禁止 UseCase 层 | 3+ ViewModel 共享同一逻辑 / 跨 Repository 编排 |
+| Repository 无协议 | 出现第二个实现 / 需脱离 SwiftData 环境测试 |
 | 禁止 `any` / `!` / `@unchecked Sendable` | `conventions.md` | 硬性禁止（已批准例外见 conventions.md） |
 | 禁止 `print()` | `conventions.md` | 硬性禁止 |
 

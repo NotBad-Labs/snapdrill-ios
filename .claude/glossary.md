@@ -3,7 +3,7 @@
 > **上游依赖**：`architecture.md`（包结构、数据流）、`principles.md`（设计哲学）
 >
 > 本文件定义项目中核心概念的含义和职责边界。
-> API 签名见 `infrastructure.md`，架构决策理由见 `decisions/`。
+> API 签名见 `infrastructure.md`，架构决策理由见 `architecture.md` 和 `principles.md`。
 
 ---
 
@@ -21,11 +21,11 @@
 
 | 术语 | 含义 | 在本项目中的具体表现 |
 |---|---|---|
-| **@Model** | SwiftData 的持久化宏，标注在 class 上使其成为数据库实体 | 直接作为领域对象使用，无 Domain struct 映射层（[ADR-001](decisions/ADR-001-model-as-domain-object.md)） |
-| **Repository** | 封装数据库读写操作的 @MainActor 类 | 使用具体类而非协议，测试通过 in-memory ModelContainer 替代（[ADR-002](decisions/ADR-002-repository-no-protocol.md)） |
+| **@Model** | SwiftData 的持久化宏，标注在 class 上使其成为数据库实体 | 直接作为领域对象使用，无 Domain struct 映射层 |
+| **Repository** | 封装数据库读写操作的 @MainActor 类 | 使用具体类而非协议，测试通过 in-memory ModelContainer 替代 |
 | **ModelContext** | SwiftData 的数据库操作上下文（类似 CoreData 的 NSManagedObjectContext） | 由 PersistenceController 创建，通过 Repository 间接访问，View 层不直接接触 |
 | **@Query** | SwiftUI 宏，声明式监听 SwiftData 数据变化并自动刷新 View | 适用于列表展示和简单统计；复杂业务逻辑、跨源聚合、状态机流程不使用（见 `principles.md`） |
-| **DependencyContainer** | 组合根单例（@MainActor），构造所有服务和仓库实例 | 唯一被接受的单例，通过 @Environment 注入到 View 层（[ADR-004](decisions/ADR-004-dependency-injection-pattern.md)） |
+| **DependencyContainer** | 组合根单例（@MainActor），构造所有服务和仓库实例 | 唯一被接受的单例，通过 @Environment 注入到 View 层 |
 | **FeatureRouter** | 功能模块的导航路由协议 | 每个 Feature 有独立 Router，持有 NavigationPath，管理页面跳转 |
 
 ## 协议与接口
@@ -47,7 +47,7 @@
 
 | 术语 | 含义 |
 |---|---|
-| **SM-2** | SuperMemo 2 间隔重复算法（1987），根据用户自评调整复习间隔。选型理由见 [ADR-007](decisions/ADR-007-sm2-algorithm.md) |
+| **SM-2** | SuperMemo 2 间隔重复算法（1987），根据用户自评调整复习间隔 |
 | **SM2State** | SM-2 算法的状态值类型（easeFactor / interval / repetitions / nextReviewAt / lastReviewedAt） |
 | **ReviewScheduler** | SM-2 调度器（struct），输入当前状态和评分，输出新状态。纯函数，无副作用 |
 | **ReviewRating** | 用户复习评分枚举：Again(0) / Hard(2) / Good(3) / Easy(5)。UI 层只暴露 Again 和 Good |
