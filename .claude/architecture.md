@@ -139,7 +139,7 @@ SnapDrillFeatureSettings  ──► Core, Data, UI, Library（SubjectManager / S
 
 | 能力 | Apple（iOS/iPadOS） | HarmonyOS | Android |
 |---|---|---|---|
-| 印刷体 OCR | 18 种语言，中文专用模型，端上运行 | 10 种语言 | Google ML Kit（需联网） |
+| 印刷体 OCR | 18 种语言，中文专用模型，端上运行 | 10 种语言 | Google ML Kit（端上可用，中文支持弱于 Apple Vision） |
 | 实时文字区域检测 | VNDetectTextRectanglesRequest | 无平台级 API | 无平台级 API |
 | 文档扫描 | VNDocumentCameraViewController（系统级） | 无 | 无平台级 API |
 | 端上 AI | Foundation Models（iOS 26+） | 无对应 | 无对应 |

@@ -47,7 +47,7 @@ ultrathink
 | M3 | 不安全的认证/授权 | 无后端，风险低 |
 | M4 | 不充分的输入/输出验证 | 备份文件导入、OCR 文本 |
 | M5 | 不安全的通信 | iCloud 同步（Apple 负责） |
-| M6 | 不充分的隐私控制 | 核心关注：零个人信息收集 |
+| M6 | 不充分的隐私控制 | 核心关注：零可识别个人信息收集 |
 | M7 | 不充分的二进制保护 | 可评估（非优先） |
 | M8 | 安全配置错误 | Firebase 配置、ATS |
 | M9 | 不安全的数据存储 | SwiftData 加密、图片路径 |
@@ -55,7 +55,7 @@ ultrathink
 
 ### SnapDrill 隐私铁律
 
-> 详见 `product-business.md`「隐私策略」（零个人信息收集、纯本地 + iCloud、ATT 策略）
+> 详见 `product-business.md`「隐私策略」（零可识别个人信息收集、纯本地 + iCloud、ATT 策略）
 
 ### 错误处理安全规范
 

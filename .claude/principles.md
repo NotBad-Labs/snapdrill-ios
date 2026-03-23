@@ -274,7 +274,7 @@ LibraryView 有三维动态过滤（searchText + subjects + tags）+ 分页。Ta
 - **测试行为（behavior），不测试实现（implementation）**（Google 测试哲学）
 - **好架构比好测试更重要**——"A bad design with a complete test suite is still a bad design."（Rich Hickey）
 - **TDD 是方式之一，不是唯一方式**——Beck/Fowler/DHH 三方辩论的共识
-- **不为 mock 而加协议**——"test-induced design damage"（DHH）是真实风险，SnapDrill 的 ADR-002 已规避
+- **不为 mock 而加协议**——"test-induced design damage"（DHH）是真实风险，SnapDrill 的 Repository 无协议决策已规避
 
 ### 推荐流程
 

@@ -10,13 +10,13 @@ allowed-tools:
 
 # SwiftData Patterns（SnapDrill 专用）
 
-## 核心决策（ADR 快速索引）
+## 核心决策（详见 architecture.md / principles.md）
 
-| 决策 | 结论 | ADR |
-|---|---|---|
-| @Model = 领域对象 | 无 Domain struct，无映射层 | ADR-001 |
-| Repository 无协议 | in-memory ModelContainer 替代 Mock | ADR-002 |
-| SwiftData > CoreData | 原生 Swift 宏，简洁 API | ADR-006 |
+| 决策 | 结论 |
+|---|---|
+| @Model = 领域对象 | 无 Domain struct，无映射层 |
+| Repository 无协议 | in-memory ModelContainer 替代 Mock |
+| SwiftData > CoreData | 原生 Swift 宏，简洁 API |
 
 ## Gotchas（踩过的坑）
 

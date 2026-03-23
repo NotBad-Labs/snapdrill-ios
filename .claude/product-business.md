@@ -107,7 +107,7 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 
 **Declared Age Range API**（iOS 26+）：v1.5 评估是否集成。该 API 允许 App 声明目标用户年龄段（under 13 / 13-15 / 16-17 / over 18），Apple 据此调整 App Store 展示策略。SnapDrill 的目标用户横跨多个年龄段（家长 + 6-18 岁学生），需评估最优声明方式。
 
-**COPPA / 儿童隐私合规姿态**：SnapDrill 不收集任何个人信息（零注册、零追踪），天然满足 COPPA 的「不收集即不违规」底线。匿名分析数据收集可由用户在设置中关闭。
+**COPPA / 儿童隐私合规姿态**：SnapDrill 不收集任何可识别个人信息（零注册、无跨应用追踪），天然满足 COPPA 的「不收集即不违规」底线。匿名分析数据收集可由用户在设置中关闭。
 
 ---
 
