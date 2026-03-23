@@ -89,7 +89,7 @@
   2. 无 associated type / Self 约束的协议作为集合元素类型（`[any PDFExportable]`，框架限制，非设计懒惰）
 - 禁止跨 `ModelContext` 写入后立即读取（竞态）
 - 禁止在 DEBUG 工具里引入生产级复杂度
-- 禁止引入 Domain 层 / UseCase 层 / Repository 协议（理由及重新评估条件见 [ADR-001](decisions/ADR-001-model-as-domain-object.md)、[ADR-002](decisions/ADR-002-repository-no-protocol.md)）
+- 禁止引入 Domain 层 / UseCase 层 / Repository 协议（@Model 直接作领域对象，测试用 in-memory ModelContainer）
 - 禁止用值类型 struct 作领域对象（`@Model` 必须是 class）
 
 ---

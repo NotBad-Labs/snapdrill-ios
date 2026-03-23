@@ -45,7 +45,7 @@
 | 改动类型 | 可能需要更新的文档 |
 |---|---|
 | 新增/修改公开 API | `infrastructure.md` |
-| 新增架构决策 | ADR + `decisions/README.md` |
+| 新增架构决策 | `architecture.md` + `principles.md` |
 | 修改包结构/依赖方向 | `architecture.md` |
 | 修改编码规范/约定 | `conventions.md` |
 | 修改工作流程 | `workflow.md` |

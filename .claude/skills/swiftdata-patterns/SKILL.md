@@ -61,4 +61,4 @@ let repo = ReviewRepository(modelContext: container.mainContext)
 
 - `infrastructure.md`：所有 Repository API 签名
 - `principles.md`：@Query 使用原则、@Model = 领域对象
-- `decisions/ADR-001`、`ADR-002`、`ADR-006`
+- `principles.md`（@Model = 领域对象、Repository 无协议、SwiftData 选型）

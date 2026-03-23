@@ -52,18 +52,10 @@ SnapDrill is a question archiving and spaced-repetition review app for students 
 
 详见 `.claude/architecture.md`（包结构、依赖图、DI 链路、Feature 结构、数据流）。
 
-## Architecture Decision Records
+## 架构决策
 
-修改架构前必须先查 `.claude/decisions/` 目录，确认是否有相关 ADR。已记录的决策经过深思熟虑，不得在未经用户批准的情况下推翻。
-
-**何时创建新 ADR**：
-- 新增或删除 SPM 包
-- 引入或移除第三方依赖
-- 改变数据流方向（如新增跨包依赖）
-- 改变 DI 模式或测试策略
-- 选择或替换核心框架（持久化、网络、AI 等）
-
-新增架构决策时须同步创建 ADR，并更新 `decisions/README.md` 索引。
+架构决策记录在 `architecture.md`（关键设计决策表）和 `principles.md`（决策理由和重新评估条件）中。
+修改架构前必须先查这两个文件，已记录的决策不得在未经用户批准的情况下推翻。
 
 ## 编写代码前强制研究声明
 
