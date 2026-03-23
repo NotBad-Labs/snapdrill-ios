@@ -231,6 +231,34 @@ public enum OCRError: Error {
 public enum ImageStorageError: Error {
     case invalidImageData
 }
+
+// SnapDrillError（enum, LocalizedError，路径：Support/SnapDrillError.swift）
+public enum SnapDrillError: LocalizedError {
+    case dataNotFound
+    case captureFailed
+    case unknown(message: String)
+}
+```
+
+### DataError / PersistenceError（SnapDrillData 包）
+
+```swift
+// DataError（enum, LocalizedError，路径：DataError.swift）
+public enum DataError: LocalizedError {
+    case duplicateItem(id: UUID)
+    case duplicateName(name: String, entityType: String)
+    case notFound(id: UUID, entityType: String)
+    case invalidState(reason: String)
+    case databaseError(underlying: Error)
+    case validationFailed(field: String, reason: String)
+}
+
+// PersistenceError（enum, LocalizedError，路径：PersistenceError.swift）
+public enum PersistenceError: LocalizedError {
+    case containerInitializationFailed(underlying: Error)
+    case migrationFailed(from: String, to: String, underlying: Error)
+    case storageUnavailable(reason: String)
+}
 ```
 
 ### 服务实现（Core 包）
