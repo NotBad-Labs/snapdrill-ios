@@ -65,9 +65,9 @@ SnapDrill 的存在意义：**用最简交互、核心功能零成本、极致�
 
 ### 市场与平台
 
-SnapDrill 面向全球发布，中国大陆和美国为核心市场。**iOS / iPadOS 是唯一平台**，不考虑 Android 和 HarmonyOS——Apple 平台提供了端上 OCR、文档扫描、AI、同步等跨平台无法复制的原生能力，这是 SnapDrill 的技术壁垒。技术细节和平台对比见 `architecture.md`§平台技术能力。
+SnapDrill 面向全球发布，中国大陆和美国为核心市场。**iOS / iPadOS 是唯一平台**，不考虑 Android 和 HarmonyOS——Apple 平台提供了端上 OCR、文档扫描、AI、同步等跨平台无法复制的原生能力，这是 SnapDrill 的技术壁垒。技术细节见 `architecture.md`§技术声明。
 
-SnapDrill 是 iOS 原生精品，技术壁垒见 `architecture.md`§技术声明。首发版本 iPhone 优先打磨，iPad 作为 Universal App 兼容运行，iPad 分屏/大屏专属优化列入后续版本。
+首发版本 iPhone 优先打磨，iPad 作为 Universal App 兼容运行，iPad 分屏/大屏专属优化列入后续版本。
 市场分级策略、发布主体、语言策略、App Store 年龄分级等 GTM 执行细节见 `product-business.md`§发布策略。
 
 ---
