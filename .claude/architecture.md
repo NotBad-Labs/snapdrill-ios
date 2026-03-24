@@ -13,6 +13,14 @@
 | DI 模式 | DependencyContainer 唯一单例 + @Environment | — |
 | Infrastructure 隔离 | Firebase 封装在独立包，仅 App 可 import | — |
 | 复习算法 | SM-2 | — |
+| @Query | 列表展示 + 简单统计用 @Query；复杂业务/状态机用 Repository.fetch | SwiftData 完善 Predicate |
+
+## DI 链路
+
+```
+DependencyContainer → LiveServiceContainer → .environment(\.services)
+                    → RepositoryContainer  → .environment(\.repositories)
+```
 
 ## 技术声明（防止 AI 产生错误假设）
 

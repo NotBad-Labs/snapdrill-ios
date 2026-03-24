@@ -1,5 +1,14 @@
 # 编码规范（SwiftLint 管不到的规则）
 
+## View 层
+
+- View = 纯渲染，ViewModel 持有状态，View 通过 @Environment → ViewModel 注入依赖
+- DI 链路：协议在 Core → 实现在下游 → DependencyContainer 构造 → @Environment 注入 → View 传给 ViewModel
+
+## 日志
+
+- SnapDrillLogger 子系统：`.generic` / `.ui` / `.data` / `.network` / `.engine` / `.capture`
+
 ## 并发
 
 - 所有 ViewModel：`@Observable @MainActor final class`
