@@ -5,6 +5,31 @@
 
 ---
 
+## 2026-03-24 Session
+
+### 完成
+
+- **DocC 覆盖率摸底**：整体 75%（Features 93% / UI 76% / Data 72% / Core 55% / Infrastructure 21%）
+- **Apple 官方立场确认**：无百分比指标，Swift API Design Guidelines 要求「every declaration」都写文档注释
+- **PR #422 文档交叉审计**（Issue #421）：
+  - Claude 自审 7 项，修复 TD-2 单例数量（5→8）
+  - Xcode Intelligence 独立审计发现 5 个问题（3 个 dangling reference + 2 个精确性问题）
+  - 全部修复后 Xcode 验收发现 1 个遗漏（product-vision.md 第 68 行），追加修复
+  - 等待 Xcode 二次验收后合并
+
+### 关键决策
+
+- DocC 覆盖率提升排在文档审计之后，不急于动手
+- DocC 策略将与 Xcode Intelligence 讨论，利用其 Apple 生态优势
+- 交叉审计模式确立：谁提出问题谁复核
+
+### 下次接续
+
+- PR #422 等 Xcode 二次验收后合并
+- 与 Xcode Intelligence 探讨 DocC 覆盖率策略
+
+---
+
 ## 2026-03-23 Session
 
 ### 完成
