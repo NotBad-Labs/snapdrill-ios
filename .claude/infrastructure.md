@@ -8,13 +8,13 @@
 | 错误写法 | 正确写法 | 为什么错 |
 |---|---|---|
 | `repository.save(model)` | `repository.insertAndSave(model)` | 没有 save() 方法 |
-| `repository.fetch(id:)` | `repository.fetchModel(by: id)` | 方法名不同 |
+| `repository.fetch(id:)` | `reviewRepository.fetchModel(by: id)`；其他 Repository 用 `fetchModel(byName:)` | 方法名不同，且各 Repository 签名不同 |
 | `ReviewItemModel.save()` | 通过 Repository 保存 | @Model 没有 save() |
 | `SM2State.update(...)` | `scheduler.scheduleNextReview()` 返回新值 | SM2State 是值类型，不原地修改 |
 | `SnapDrillLogger.log("...")` | `SnapDrillLogger.generic.error("...")` | 没有 .log()，用子系统 |
 | `ReviewDataNotification.post()` | `NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)` | 没有静态 post() |
 | `repository.insert()` 后以为已存盘 | 必须调 `saveContext()` 或用 `insertAndSave()` | insert() 只做内存操作 |
-| `saveContext()` 失败后继续操作 | 失败后调 `rollbackContext()` 回滚 | 不回滚则内存脏状态污染后续写入（S0） |
+| `saveContext()` 失败后继续操作 | 失败后调 `rollbackContext()` 回滚（目前仅 ReviewRepository 实现） | 不回滚则内存脏状态污染后续写入（S0） |
 | `ImageStorage.loadImage()` 在 View 中用 | 用 `loadImageAsync()` 或 `loadDownsampledImage()` | loadImage() 是同步的，阻塞主线程 |
 | PDF 批量渲染不加 autoreleasepool | `for chunk in items { try autoreleasepool { ... } }` | 批量图片渲染会 OOM |
 
