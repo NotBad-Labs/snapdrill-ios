@@ -37,7 +37,7 @@
 项目约束见 CLAUDE.md 和 .claude/ 目录。除上述重点外，请同时关注：
 - Swift 6 strict concurrency 合规（@MainActor、Task 句柄、Sendable）
 - 是否有更原生的 Apple API 可替代自定义实现
-- 与 infrastructure.md 公开接口清单的一致性（新增/修改的 public API 是否已同步）
+- 与 infrastructure.md 常见错误防范表的一致性（新增/修改的 public API 是否遵循已知陷阱）
 - 内存与性能影响（尤其图片加载、大列表、频繁 I/O 场景）
 ```
 
@@ -134,7 +134,7 @@
 项目约束见 CLAUDE.md 和 .claude/ 目录。除上述重点外，请同时关注：
 - Swift 6 strict concurrency 合规（@MainActor、Task 句柄、Sendable）
 - 是否有更原生的 Apple API 可替代自定义实现
-- 与 infrastructure.md 公开接口清单的一致性（新增/修改的 public API 是否已同步）
+- 与 infrastructure.md 常见错误防范表的一致性（新增/修改的 public API 是否遵循已知陷阱）
 - 内存与性能影响（尤其图片加载、大列表、频繁 I/O 场景）
 
 输出格式：按严重程度分类——
