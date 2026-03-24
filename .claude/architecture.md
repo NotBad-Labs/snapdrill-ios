@@ -34,5 +34,5 @@ DependencyContainer → LiveServiceContainer → .environment(\.services)
 | ID | 描述 | 偿还条件 |
 |---|---|---|
 | TD-1 | tags 过滤在内存端（#Predicate 不支持 many-to-many） | Apple 完善 SwiftData Predicate |
-| TD-2 | 5 个 .shared 单例待迁移到 DI | Core → Core + Services 拆包时 |
+| TD-2 | 8 个 .shared 单例待迁移到 DI | Core → Core + Services 拆包时 |
 | TD-3 | NotificationCenter 跨模块刷新 | @Query 引入更多 View 后消解 |
