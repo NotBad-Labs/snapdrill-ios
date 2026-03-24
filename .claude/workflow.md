@@ -29,6 +29,7 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 ```
 
 **铁律**：禁止直推 develop/main。每个任务：Issue → 分支 → PR（`Closes #N`）→ Review → 合并。
+**PR 合并前**：编译通过 + SwiftLint 0 violations + 新增 public API 有 DocC 注释 + 文档同步。
 
 **例外**：STATUS.md / session-log.md 允许直推 develop（状态追踪文件，不需要 review）。
 

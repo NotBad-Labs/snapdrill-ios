@@ -22,7 +22,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `.claude/product-business.md` | 讨论商业化、隐私策略、竞品时 |
 | `.claude/principles.md` | 做架构决策、技术选型时 |
 | `.claude/workflow.md` | 创建 PR、Code Review、Issue 管理时 |
-| `.claude/glossary.md` | 需要理解项目术语时 |
 | `.claude/session-log.md` | 需要回顾上次对话做了什么时 |
 
 ## Commands
