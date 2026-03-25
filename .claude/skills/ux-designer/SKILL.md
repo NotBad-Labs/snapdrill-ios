@@ -53,7 +53,7 @@ ultrathink
 
 ### SnapDrill 特定交互约束
 
-> 详见 `product-vision.md`「产品原则」+ `product-requirements.md`「连续录入设计」「字段可配置系统」
+> 详见 `product-vision.md`「产品原则」+ `product-design.md`「连续录入设计」「字段可配置系统」
 
 ## 检查清单
 
