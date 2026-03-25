@@ -66,6 +66,8 @@ public final class CaptureResultViewModel {
     public var showErrorAlert = false
     /// 错误提示文本
     public var errorMessage: String?
+    /// 是否显示首次保存后的字段配置引导提示
+    public var showFieldConfigGuide = false
 
     // 新建分类 Alert 状态
     /// 是否显示新建学科 Alert
@@ -324,26 +326,7 @@ public final class CaptureResultViewModel {
             repositories.review.insert(model)
             try repositories.review.saveContext()
 
-            // 保存成功后才标记 isSaved
-            isSaved = true
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
-
-            // 自动推断：持久化本次选择，下次录入时自动填充
-            UserDefaults.standard.set(selectedSubject, forKey: UDKey.lastSelectedSubject)
-            UserDefaults.standard.set(selectedSource, forKey: UDKey.lastSelectedSource)
-
-            // 埋点
-            analyticsService.track(.captureSaved, parameters: [
-                "subject": selectedSubject,
-                "source": selectedSource,
-                "difficulty": String(difficulty.rawValue)
-            ])
-            analyticsService.track(.reviewItemCreated, parameters: [
-                "has_image": image != nil ? "true" : "false",
-                "has_content": !content.isEmpty ? "true" : "false"
-            ])
-
-            navigateAfterSave()
+            handleSaveSuccess()
 
         } catch {
             // 回滚 mainContext：清除本次操作插入的脏 Tag 和脏 ReviewItemModel。
@@ -357,7 +340,42 @@ public final class CaptureResultViewModel {
         }
     }
 
+    /// 关闭字段配置引导后继续导航
+    public func dismissFieldConfigGuide() {
+        showFieldConfigGuide = false
+        navigateAfterSave()
+    }
+
     // MARK: - Private Helpers
+
+    /// 保存成功后的善后：通知、推断持久化、埋点、引导检查
+    private func handleSaveSuccess() {
+        isSaved = true
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+
+        // 自动推断：持久化本次选择，下次录入时自动填充
+        UserDefaults.standard.set(selectedSubject, forKey: UDKey.lastSelectedSubject)
+        UserDefaults.standard.set(selectedSource, forKey: UDKey.lastSelectedSource)
+
+        // 埋点
+        analyticsService.track(.captureSaved, parameters: [
+            "subject": selectedSubject,
+            "source": selectedSource,
+            "difficulty": String(difficulty.rawValue)
+        ])
+        analyticsService.track(.reviewItemCreated, parameters: [
+            "has_image": image != nil ? "true" : "false",
+            "has_content": !content.isEmpty ? "true" : "false"
+        ])
+
+        // 首次保存后显示字段配置引导（仅一次）
+        if OnboardingManager.shared.shouldShowTooltip(for: "field_config") {
+            showFieldConfigGuide = true
+            OnboardingManager.shared.markTooltipShown(for: "field_config")
+        } else {
+            navigateAfterSave()
+        }
+    }
 
     /// 保存成功后的导航：短暂延迟让触觉反馈生效，再执行退栈
     private func navigateAfterSave() {

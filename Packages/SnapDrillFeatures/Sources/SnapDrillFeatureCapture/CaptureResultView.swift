@@ -362,6 +362,21 @@ public struct CaptureResultView: View {
         .sensoryFeedback(.success, trigger: viewModel.isSaved) { _, newValue in
             newValue
         }
+        .overlay(alignment: .bottom) {
+            if viewModel.showFieldConfigGuide {
+                FeatureTooltip(
+                    title: L10n.Onboarding.fieldConfigTitle,
+                    message: L10n.Onboarding.fieldConfigDescription
+                ) {
+                    withAnimation {
+                        viewModel.dismissFieldConfigGuide()
+                    }
+                }
+                .padding()
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeOut(duration: 0.3), value: viewModel.showFieldConfigGuide)
         .alert(L10n.Capture.saveFailed, isPresented: $viewModel.showErrorAlert) {
             Button(L10n.Common.ok, role: .cancel) { }
         } message: {
