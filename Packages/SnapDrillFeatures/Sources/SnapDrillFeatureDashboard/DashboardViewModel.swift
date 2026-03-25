@@ -127,7 +127,8 @@ public final class DashboardViewModel {
                 // 防抖：cancel 上一次待执行的刷新，避免批量写库触发冗余查询
                 pendingRefreshTask?.cancel()
                 pendingRefreshTask = Task {
-                    try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+                    // best-effort: 防抖延迟，取消不影响正确性
+                    try? await Task.sleep(nanoseconds: 100_000_000)
                     guard !Task.isCancelled else { return }
                     SnapDrillLogger.generic.info("数据发生变更，刷新仪表盘...")
                     loadData()

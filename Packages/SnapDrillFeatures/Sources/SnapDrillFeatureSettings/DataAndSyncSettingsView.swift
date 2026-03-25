@@ -218,7 +218,7 @@ struct DataAndSyncSettingsView: View {
                     cacheSize = "0 MB"
                 }
             } catch {
-                SnapDrillLogger.generic.info("Failed to clear cache: \(error)")
+                SnapDrillLogger.generic.error("Failed to clear cache: \(error.localizedDescription)")
             }
         }
     }

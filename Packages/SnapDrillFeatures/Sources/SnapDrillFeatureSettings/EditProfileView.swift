@@ -213,7 +213,7 @@ struct EditProfileView: View {
                             userAvatar = path
                         }
                     } catch {
-                        SnapDrillLogger.generic.info("Failed to save avatar: \(error)")
+                        SnapDrillLogger.generic.error("Failed to save avatar: \(error.localizedDescription)")
                     }
                 }
             }

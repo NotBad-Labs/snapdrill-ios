@@ -13,12 +13,13 @@ import SnapDrillCore
 
 /// 仪表盘顶部标题栏，包含日期和应用名称
 struct HeaderView: View {
-    
+
     // MARK: - Properties
-    
+
     @AppStorage(UDKey.userAvatar) private var userAvatar: String = "person.crop.circle.fill"
     @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
     @AppStorage(UDKey.userName) private var userName: String = L10n.Dashboard.defaultName
+    @State private var avatarImage: UIImage?
 
     // 动态问候语
     private var greeting: String {
@@ -65,7 +66,7 @@ struct HeaderView: View {
                 // 通过通知跳转到设置页
                 NotificationCenter.default.post(name: .switchToSettingsTab, object: nil)
             } label: {
-                if userAvatar.contains("images/"), let image = ImageStorage().loadImage(path: userAvatar) {
+                if userAvatar.contains("images/"), let image = avatarImage {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
@@ -94,7 +95,14 @@ struct HeaderView: View {
             }
         }
         .padding(.horizontal)
-        .padding(.top, 10) // Slightly adjusted padding
+        .padding(.top, 10)
+        .task(id: userAvatar) {
+            guard userAvatar.contains("images/") else {
+                avatarImage = nil
+                return
+            }
+            avatarImage = await ImageStorage().loadImageAsync(path: userAvatar)
+        }
     }
 }
 
