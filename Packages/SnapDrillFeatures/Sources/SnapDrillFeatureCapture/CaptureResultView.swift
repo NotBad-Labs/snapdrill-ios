@@ -315,7 +315,7 @@ public struct CaptureResultView: View {
                     viewModel.save()
                 }
                 .fontWeight(.bold)
-                .disabled(viewModel.isRecognizing || viewModel.isSaving)
+                .disabled(viewModel.isRecognizing || viewModel.isSaving || viewModel.showFieldConfigGuide)
             }
         }
         .navigationTitle(L10n.Capture.previewAndEdit)

@@ -12,6 +12,7 @@ import SwiftUI
 import PhotosUI
 import SnapDrillCore
 import SnapDrillData
+import SnapDrillUI
 
 /// 采集结果预览与编辑的 ViewModel
 @MainActor
@@ -341,7 +342,11 @@ public final class CaptureResultViewModel {
     }
 
     /// 关闭字段配置引导后继续导航
+    /// 关闭字段配置引导后标记为已读并继续导航
+    /// 标记时序：用户关闭时标记（与 ReviewView tooltip 模式一致）
     public func dismissFieldConfigGuide() {
+        guard showFieldConfigGuide else { return }
+        OnboardingManager.shared.markTooltipShown(for: "field_config")
         showFieldConfigGuide = false
         navigateAfterSave()
     }
@@ -368,10 +373,9 @@ public final class CaptureResultViewModel {
             "has_content": !content.isEmpty ? "true" : "false"
         ])
 
-        // 首次保存后显示字段配置引导（仅一次）
+        // 首次保存后显示字段配置引导（仅一次，用户关闭时才标记为已读）
         if OnboardingManager.shared.shouldShowTooltip(for: "field_config") {
             showFieldConfigGuide = true
-            OnboardingManager.shared.markTooltipShown(for: "field_config")
         } else {
             navigateAfterSave()
         }
