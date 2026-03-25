@@ -1,6 +1,6 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-03-25（PR #424 合并 — Diátaxis 重构 + Milestone 1 关闭 + Tag v1.0-doc-baseline）
+> 最后更新：2026-03-25（可追溯性审计方案定稿，三方审查完成，即将执行）
 >
 > 每次新对话必读此文件恢复上下文。
 
@@ -8,14 +8,15 @@
 
 ## 当前状态
 
-**Milestone 1「v1.0 架构与文档基线」已关闭。** 代码审计（3 轮）+ 文档审计（4 轮）+ Diátaxis 重构全部完成。Git tag `v1.0-doc-baseline` 标记当前基线。
+**Milestone 1「v1.0 架构与文档基线」已关闭。** Git tag `v1.0-doc-baseline`。
 
-DocC 覆盖率摸底完成：整体 75%（Core 55%、Infrastructure 21% 为薄弱点）。
+文档→代码可追溯性审计方案已定稿（`.claude/traceability-audit-plan.md`）。三方审查完成（Xcode 方案为主），5 个维度、S0-S3 严重度、三方分工确定。DocC 覆盖率降级（战术问题，让位于可追溯性这个战略问题）。
 
 ### 优先级
 
-1. 与 Xcode Intelligence 探讨 DocC 覆盖率策略
-2. TestFlight Build 6
+1. 执行可追溯性审计（Claude: 维度 2+4 / Xcode: 维度 1+5 / Antigravity: 维度 3）
+2. 审计发现修复
+3. TestFlight Build 6
 
 ## 外部阻塞
 

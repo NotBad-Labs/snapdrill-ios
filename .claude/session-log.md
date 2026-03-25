@@ -11,23 +11,28 @@
 
 - **WWDC 2021-2025 技术综述文档评估**：对下载文件夹的 WWDC 技术演进文档做 SnapDrill 关联度分析
 - **技术方向存入记忆**：Foundation Models Framework（题目结构化解析）+ App Intents（系统级可见性）
-- **文档体系 Diátaxis 重构**：
-  - 横向研究：Diátaxis 框架、Arc42、PRD vs Design Doc、CLAUDE.md 最佳实践
-  - 全量分析 42 个项目自有 .md 文件的纯粹度
-  - 从 product-requirements.md 拆出 product-design.md（7 段设计决策迁出）
-  - product-requirements.md 瘦身 29%（434→307 行）
-  - 更新全部交叉引用（6 个文件 7 处）
-  - 修复 feature_request.md 过时引用
+- **文档体系 Diátaxis 重构**（PR #424 合并，Issue #423）：
+  - 横向研究 4 个框架（Diátaxis、Arc42、PRD vs Design Doc、CLAUDE.md 最佳实践）
+  - 全量分析 42 个项目自有 .md 文件纯粹度
+  - 新建 product-design.md，product-requirements.md 瘦身 29%
+  - 三方 review 全部通过（0 🔴 0 🟡）
+- **Milestone 1「v1.0 架构与文档基线」关闭**：22 个 Issue 归入，Git tag `v1.0-doc-baseline`
+- **可追溯性审计方案**（`.claude/traceability-audit-plan.md`）：
+  - 草案撰写 → 三方独立审查（Issue #423 comment）
+  - 采纳 Xcode 方案为主（维度 4 扩展、View 按模块、S0-S3 严重度、测试行为覆盖）
+  - Antigravity 的第三方依赖备案检查纳入维度 4
+  - 方案定稿，5 维度 + 三方分工确定
 
 ### 关键决策
 
-- 采用 Diátaxis 框架（Explanation/Reference/How-to）作为文档分类标准
-- product-design.md = Explanation（设计决策/铁律），product-requirements.md = Reference（功能规格+路线图）
+- Diátaxis 框架作为文档分类标准
+- DocC 覆盖率降级（战术），可追溯性审计优先（战略）
+- 审计方案采纳 Xcode Intelligence 方案为主
 
 ### 下次接续
 
-- 文档重构 PR review + 合并
-- DocC 覆盖率策略
+- 执行可追溯性审计（Claude: 维度 2+4 / Xcode: 维度 1+5 / Antigravity: 维度 3）
+- 审计发现修复
 - TestFlight Build 6
 
 ---
