@@ -38,10 +38,25 @@
   - 结果：0 S0、0 S1、2 S2、3 S3
   - 报告已发 Issue #423
 
+- **审计三方审查完成**（Issue #423 comment #4-5）：
+  - Antigravity：FeatureTooltip "幻觉"指控（经核实为 Antigravity 误判，代码确实存在）
+  - Xcode：Finding #1 升级 S1（确认字段配置引导集成缺失）+ try? 计数修正 + try! Preview 记录
+  - 修正后结果：0 S0、1 S1、1 S2、3 S3
+- **S1 修复**（PR #427，Issue #425）：CaptureResultViewModel 保存后集成 OnboardingManager 字段配置引导
+- **发现 pre-existing 编译错误**：PDFPagePickerView.swift:156 sending 参数（Xcode 26.4 引入）
+
+### 关键决策
+
+- Diátaxis 框架作为文档分类标准
+- DocC 覆盖率降级（战术），可追溯性审计优先（战略）
+- 审计方案采纳 Xcode Intelligence 方案为主
+- 审计由 Claude 执行全部 5 维度 + Xcode/Antigravity 审查（非分维度分工）
+
 ### 下次接续
 
-- Xcode/Antigravity 审查审计报告
-- 审计发现修复（2 S2 + 3 S3）
+- PR #427 review + 合并
+- PDFPagePickerView sending 参数编译错误修复
+- Issue #426 S2/S3 发现修复
 - TestFlight Build 6
 
 ---
