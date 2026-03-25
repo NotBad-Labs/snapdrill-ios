@@ -5,6 +5,33 @@
 
 ---
 
+## 2026-03-25 Session
+
+### 完成
+
+- **WWDC 2021-2025 技术综述文档评估**：对下载文件夹的 WWDC 技术演进文档做 SnapDrill 关联度分析
+- **技术方向存入记忆**：Foundation Models Framework（题目结构化解析）+ App Intents（系统级可见性）
+- **文档体系 Diátaxis 重构**：
+  - 横向研究：Diátaxis 框架、Arc42、PRD vs Design Doc、CLAUDE.md 最佳实践
+  - 全量分析 42 个项目自有 .md 文件的纯粹度
+  - 从 product-requirements.md 拆出 product-design.md（7 段设计决策迁出）
+  - product-requirements.md 瘦身 29%（434→307 行）
+  - 更新全部交叉引用（6 个文件 7 处）
+  - 修复 feature_request.md 过时引用
+
+### 关键决策
+
+- 采用 Diátaxis 框架（Explanation/Reference/How-to）作为文档分类标准
+- product-design.md = Explanation（设计决策/铁律），product-requirements.md = Reference（功能规格+路线图）
+
+### 下次接续
+
+- 文档重构 PR review + 合并
+- DocC 覆盖率策略
+- TestFlight Build 6
+
+---
+
 ## 2026-03-24 Session
 
 ### 完成
