@@ -17,7 +17,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 文件 | 何时读取 |
 |---|---|
 | `.claude/product-vision.md` | 讨论产品方向、新功能、用户画像时 |
-| `.claude/product-requirements.md` | 讨论具体功能需求、版本路线图时 |
+| `.claude/product-design.md` | 涉及 UI/UX 设计决策、交互铁律、设计理由时 |
+| `.claude/product-requirements.md` | 讨论具体功能规格、版本路线图时 |
 | `.claude/product-journeys.md` | 验证用户体验、审查 UI 流程时 |
 | `.claude/product-business.md` | 讨论商业化、隐私策略、竞品时 |
 | `.claude/principles.md` | 做架构决策、技术选型时 |

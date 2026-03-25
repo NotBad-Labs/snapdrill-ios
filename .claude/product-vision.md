@@ -1,7 +1,7 @@
 # SnapDrill 产品愿景
 
 > 本文件定义「为什么做」——使命、定位、用户、原则。极少变更（除非 pivot）。
-> 「做什么」见 `product-requirements.md`，「用户视角验证」见 `product-journeys.md`，「怎么卖」见 `product-business.md`。
+> 「怎么设计」见 `product-design.md`，「做什么」见 `product-requirements.md`，「用户视角验证」见 `product-journeys.md`，「怎么卖」见 `product-business.md`。
 >
 > **本文档由产品负责人维护**，开发者（Claude）不得擅自修改产品定位和原则。
 
@@ -122,5 +122,5 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 
 1. **所有功能需求**必须能追溯到本文档中的某个产品原则或用户场景
 2. **架构决策**如果与产品定位冲突，以产品定位为准
-3. **测试优先级**按用户价值金字塔排序：录入 > 管理 > 复习
-4. **双框架分工**：功能迭代优先级遵循本文档的用户价值金字塔（录入 > 管理 > 复习），缺陷修复与技术债清理遵循 `workflow.md` 的 S0-S3 严重度框架
+3. **测试优先级**按用户价值金字塔（见 `product-design.md`）排序：录入 > 管理 > 复习
+4. **双框架分工**：功能迭代优先级遵循用户价值金字塔（见 `product-design.md`，录入 > 管理 > 复习），缺陷修复与技术债清理遵循 `workflow.md` 的 S0-S3 严重度框架
