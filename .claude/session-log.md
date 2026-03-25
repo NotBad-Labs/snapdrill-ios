@@ -15,7 +15,7 @@
   - Claude 自审 7 项，修复 TD-2 单例数量（5→8）
   - Xcode Intelligence 独立审计发现 5 个问题（3 个 dangling reference + 2 个精确性问题）
   - 全部修复后 Xcode 验收发现 1 个遗漏（product-vision.md 第 68 行），追加修复
-  - 等待 Xcode 二次验收后合并
+  - Xcode 二次验收通过，PR #422 已合并
 
 ### 关键决策
 
@@ -25,8 +25,8 @@
 
 ### 下次接续
 
-- PR #422 等 Xcode 二次验收后合并
 - 与 Xcode Intelligence 探讨 DocC 覆盖率策略
+- TestFlight Build 6
 
 ---
 
