@@ -15,6 +15,11 @@ import SwiftData
 @Model
 public final class GradeModel {
 
+    // MARK: - Unique Constraints
+
+    /// 年级名称唯一约束（SchemaV4）
+    #Unique<GradeModel>([\.name])
+
     // MARK: - Properties
 
     /// 唯一标识

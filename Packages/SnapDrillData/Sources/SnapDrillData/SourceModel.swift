@@ -17,7 +17,12 @@ import Foundation
 /// 每个 `ReviewItemModel` 可关联一个来源名称。
 @Model
 public final class SourceModel {
-    
+
+    // MARK: - Unique Constraints
+
+    /// 来源名称唯一约束（SchemaV4）
+    #Unique<SourceModel>([\.name])
+
     // MARK: - Properties
     
     /// 唯一标识
