@@ -64,14 +64,34 @@ public enum SnapDrillSchemaV3: VersionedSchema {
     }
 }
 
-/// 迁移计划：V1 → V2 → V3
+/// Schema V4（4.0.0）— 添加 #Unique 唯一约束
+///
+/// TagModel.name / SubjectModel.name / SourceModel.name / GradeModel.name
+/// 各添加 `#Unique` 宏，在数据库层面保证名称唯一。
+/// lightweight 迁移：SwiftData 自动创建 UNIQUE 约束，无需手动数据转换。
+/// 前提：现有数据中不存在同名记录（内部测试阶段已确认）。
+public enum SnapDrillSchemaV4: VersionedSchema {
+    public static let versionIdentifier: Schema.Version = .init(4, 0, 0)
+
+    public static var models: [any PersistentModel.Type] {
+        [
+            ReviewItemModel.self,
+            SubjectModel.self,
+            TagModel.self,
+            SourceModel.self,
+            GradeModel.self
+        ]
+    }
+}
+
+/// 迁移计划：V1 → V2 → V3 → V4
 public enum SnapDrillMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
-        [SnapDrillSchemaV1.self, SnapDrillSchemaV2.self, SnapDrillSchemaV3.self]
+        [SnapDrillSchemaV1.self, SnapDrillSchemaV2.self, SnapDrillSchemaV3.self, SnapDrillSchemaV4.self]
     }
 
     public static var stages: [MigrationStage] {
-        [migrateV1toV2, migrateV2toV3]
+        [migrateV1toV2, migrateV2toV3, migrateV3toV4]
     }
 
     // lightweight 迁移：SwiftData 自动将 nextReviewAt/lastReviewedAt 的 NULL 值
@@ -85,5 +105,11 @@ public enum SnapDrillMigrationPlan: SchemaMigrationPlan {
     static let migrateV2toV3 = MigrationStage.lightweight(
         fromVersion: SnapDrillSchemaV2.self,
         toVersion: SnapDrillSchemaV3.self
+    )
+
+    // lightweight 迁移：SwiftData 自动创建 UNIQUE 约束，无需手动数据转换。
+    static let migrateV3toV4 = MigrationStage.lightweight(
+        fromVersion: SnapDrillSchemaV3.self,
+        toVersion: SnapDrillSchemaV4.self
     )
 }

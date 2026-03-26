@@ -15,6 +15,11 @@ import SwiftData
 @Model
 public final class TagModel {
 
+    // MARK: - Unique Constraints
+
+    /// 标签名称唯一约束（SchemaV4）
+    #Unique<TagModel>([\.name])
+
     // MARK: - Properties
 
     /// 标签唯一标识符

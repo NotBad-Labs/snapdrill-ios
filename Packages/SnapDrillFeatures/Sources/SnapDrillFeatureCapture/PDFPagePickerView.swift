@@ -153,10 +153,13 @@ struct PDFPagePickerView: View {
         guard let page = document?.page(at: pageIndex) else { return }
         renderTask?.cancel()
         isRendering = true
+        // PDFPage（NSObject）读操作线程安全，但类型未遵循 Sendable。
+        // nonisolated(unsafe) 显式声明此跨隔离域传递是安全的。
+        nonisolated(unsafe) let sendablePage = page
         renderTask = Task {
             // 嵌套 detached task 脱离 MainActor，避免 2048px 渲染阻塞 UI
             let image = await Task.detached {
-                Self.renderPDFPage(page)
+                Self.renderPDFPage(sendablePage)
             }.value
             guard !Task.isCancelled else { return }
             isRendering = false
