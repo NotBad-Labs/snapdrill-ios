@@ -55,6 +55,8 @@
 - **难度**
 - **复习状态**
 
+搜索使用 SwiftUI `.searchable` 修饰符（标准导航栏搜索栏），基于 OCR 文字内容匹配。
+
 ---
 
 ## 导出能力（2026-03-16 补全）
@@ -96,6 +98,8 @@ Apple HIG 明确反对首次启动时要求用户配置（"Avoid asking for setu
 首次使用某功能时弹出轻量提示气泡（如首次进入过滤页提示「可多选学科」）。
 每个提示只显示一次，不打扰。
 
+技术实现：评估迁移到 Apple TipKit 框架（iOS 17+）。TipKit 提供标准化的提示气泡样式、频率控制和持久化，替代当前自定义的 OnboardingManager + FeatureTooltip。迁移后可删除自定义实现，减少维护成本。
+
 ### 帮助中心（2026-03-18 #304 终审修订）
 
 设置页提供帮助入口，跳转到外部网页 FAQ。行业验证：Bear、Things 3、Notion、Day One 全部使用外部网站 FAQ，不在 App 内构建搜索系统。
@@ -123,13 +127,14 @@ Apple HIG 明确反对首次启动时要求用户配置（"Avoid asking for setu
 
 ### 通知细节
 
+- 通知权限请求时机：**仅在用户主动开启提醒开关时触发**系统授权弹窗（HIG: 用户理解价值后才请求，不在首次启动时请求）
 - 每日复习提醒：开关 + 时间选择（小时/分钟）
 - 通知声音开关
 - App 图标角标开关（角标 = 图标右上角红色数字气泡，显示待复习数）
 
 ### 外观
 
-- 外观模式：跟随系统 / 浅色 / 深色
+- 外观模式：跟随系统（默认）/ 浅色 / 深色。HIG 建议跟随系统，但三选项是行业惯例（Telegram、Bear、Notion），Apple 不因此拒审
 
 ### 存储维护
 
@@ -148,15 +153,14 @@ Apple HIG 明确反对首次启动时要求用户配置（"Avoid asking for setu
 
 ---
 
-## 无障碍（2026-03-16 补全，2026-03-19 调整范围）
+## 无障碍（2026-03-16 补全，2026-03-26 升级为 v1.0 全覆盖）
 
 SnapDrill 是拍照+图片密集型工具，核心流程天然依赖视觉，视障用户不是目标用户群。
-无障碍支持按版本分层推进，不追求 v1.0 全覆盖。
+但 Apple VoiceOver 评估标准要求"所有常见任务可完成"，v1.0 补齐全模块 VoiceOver 支持后在 App Store Connect 声明。
 
 | 版本 | 范围 | 说明 |
 |---|---|---|
-| v1.0 | 复习功能 VoiceOver + 共享基础设施 | Review feature 辅助标签/公告 + AccessibilityHelper 等工具类 |
-| v1.5 | 全功能 VoiceOver 覆盖 | Dashboard / Capture / Library / Settings 各 View 补齐辅助标签 |
+| v1.0 | 全模块 VoiceOver | Review（已完成）+ Dashboard / Capture / Library / Settings 补齐辅助标签/提示/公告 |
 
 ---
 
