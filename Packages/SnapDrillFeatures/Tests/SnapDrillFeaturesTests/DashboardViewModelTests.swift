@@ -169,7 +169,7 @@ final class DashboardViewModelTests {
     @Test("restoreDraft 有草稿时带草稿导航")
     func restoreDraft_withDraft_navigatesWithDraft() {
         let draftService = MockDraftService()
-        let draft = CaptureDraftService.Draft(image: createTestImage(), content: "草稿", date: Date())
+        let draft = CaptureDraftService.Draft(image: createTestImage(), content: "草稿", date: Date(), subject: "数学")
         draftService.savedDraft = draft
         draftService.hasDraft = true
         let vm = DashboardViewModel(repositories: repos, draftService: draftService)
