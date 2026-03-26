@@ -11,6 +11,7 @@
 import SwiftUI
 import PhotosUI
 import SnapDrillCore
+import SnapDrillUI
 import SnapDrillFeatureLibrary
 
 /// 用户资料编辑页面 - 专注学习场景
@@ -85,11 +86,13 @@ struct EditProfileView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "camera.fill")
                                 .font(.system(size: 16))
+                                .accessibilityHidden(true)
                             Text(L10n.EditProfile.setAvatar)
                                 .font(.body)
                         }
                         .foregroundStyle(.blue)
                     }
+                    .accessibilityHint(L10n.Accessibility.setAvatarHint)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
@@ -165,7 +168,8 @@ struct EditProfileView: View {
                                         )
                                 }
                                 .buttonStyle(.plain)
-                                .accessibilityLabel(L10n.Settings.avatarColor)
+                                .accessibilityLabel(L10n.Accessibility.avatarColorName(index))
+                                .accessibilityAddTraits(userAvatarColorIndex == index ? .isSelected : [])
                             }
                         }
                         .padding(.vertical, 8)

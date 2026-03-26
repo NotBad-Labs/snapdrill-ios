@@ -12,6 +12,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import SnapDrillCore
 import SnapDrillData
+import SnapDrillUI
 
 /// 数据设置页面
 struct DataAndSyncSettingsView: View {
@@ -45,6 +46,7 @@ struct DataAndSyncSettingsView: View {
                 } icon: {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
+                        .accessibilityHidden(true)
                 }
             }
 
@@ -72,6 +74,7 @@ struct DataAndSyncSettingsView: View {
                     }
                 }
                 .disabled(viewModel.isBackupInProgress)
+                .accessibilityHint(L10n.Accessibility.backupDataHint)
 
                 // 恢复按钮
                 Button {
@@ -80,6 +83,7 @@ struct DataAndSyncSettingsView: View {
                     Label(L10n.Settings.restoreData, systemImage: "arrow.down.doc")
                 }
                 .disabled(viewModel.isBackupInProgress)
+                .accessibilityHint(L10n.Accessibility.restoreDataHint)
 
                 // 进度条（备份/恢复过程中显示）
                 if viewModel.isBackupInProgress {
@@ -92,6 +96,7 @@ struct DataAndSyncSettingsView: View {
                         ProgressView(value: viewModel.backupProgress, total: 1.0)
                     }
                     .padding(.vertical, 4)
+                    .accessibleGroup(label: viewModel.backupStatusMessage)
                 }
             } header: {
                 Text(L10n.Settings.backup)

@@ -90,26 +90,27 @@ public struct SettingsView: View {
                     Toggle(isOn: $showSubjectField) {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.fieldSubject)
                     }
-
+                    .accessibilityHint(L10n.Accessibility.fieldSubjectHint)
 
                     Toggle(isOn: $showSourceField) {
                         SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.fieldSource)
                     }
-
+                    .accessibilityHint(L10n.Accessibility.fieldSourceHint)
 
                     Toggle(isOn: $showDifficultyField) {
                         SettingsRow(icon: "star.fill", gradientStart: .yellow, gradientEnd: .orange, title: L10n.Settings.fieldDifficulty)
                     }
-
+                    .accessibilityHint(L10n.Accessibility.fieldDifficultyHint)
 
                     Toggle(isOn: $showGradeField) {
                         SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.fieldGrade)
                     }
-
+                    .accessibilityHint(L10n.Accessibility.fieldGradeHint)
 
                     Toggle(isOn: $showAnswerField) {
                         SettingsRow(icon: "text.bubble.fill", gradientStart: .purple, gradientEnd: .pink, title: L10n.Settings.fieldAnswer)
                     }
+                    .accessibilityHint(L10n.Accessibility.fieldAnswerHint)
 
                 }
 
@@ -203,6 +204,7 @@ public struct SettingsView: View {
                     Button { showingClearAlert = true } label: {
                         SettingsRow(icon: "trash.fill", gradientStart: .red, gradientEnd: .pink, title: L10n.Settings.clearAllData)
                     }
+                    .accessibilityHint(L10n.Accessibility.clearAllDataHint)
                 } header: {
                     Text(L10n.Settings.dangerZone)
                         .foregroundStyle(.red)
@@ -240,6 +242,7 @@ public struct SettingsView: View {
                         }
                     }
                     .disabled(isGenerating)
+                    .accessibilityHint(L10n.Accessibility.generateTestDataHint)
 
                 }
 #endif

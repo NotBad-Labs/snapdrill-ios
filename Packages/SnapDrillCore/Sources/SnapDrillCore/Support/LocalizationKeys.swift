@@ -1301,6 +1301,39 @@ public enum L10n {
             String(format: NSLocalizedString("accessibility.select_icon", value: "图标 %@", comment: "VoiceOver 选择图标"), symbol)
         }
 
+        // Settings
+        public static let fieldSubjectHint = NSLocalizedString("accessibility.field_subject_hint", value: "开启后录入时显示学科选择", comment: "VoiceOver 学科字段提示")
+        public static let fieldSourceHint = NSLocalizedString("accessibility.field_source_hint", value: "开启后录入时显示来源选择", comment: "VoiceOver 来源字段提示")
+        public static let fieldDifficultyHint = NSLocalizedString("accessibility.field_difficulty_hint", value: "开启后录入时显示难度选择", comment: "VoiceOver 难度字段提示")
+        public static let fieldGradeHint = NSLocalizedString("accessibility.field_grade_hint", value: "开启后录入时显示年级选择", comment: "VoiceOver 年级字段提示")
+        public static let fieldAnswerHint = NSLocalizedString("accessibility.field_answer_hint", value: "开启后录入时显示答案输入", comment: "VoiceOver 答案字段提示")
+        public static let clearAllDataHint = NSLocalizedString("accessibility.clear_all_data_hint", value: "删除所有题目、标签和复习记录，不可恢复", comment: "VoiceOver 清除数据提示")
+        public static let generateTestDataHint = NSLocalizedString("accessibility.generate_test_data_hint", value: "生成模拟数据用于调试", comment: "VoiceOver 生成测试数据提示")
+        public static let setAvatarHint = NSLocalizedString("accessibility.set_avatar_hint", value: "从相册或系统图标中选择头像", comment: "VoiceOver 设置头像提示")
+        public static func avatarColorName(_ index: Int) -> String {
+            let names = [
+                NSLocalizedString("accessibility.color_blue_purple", value: "蓝紫", comment: "VoiceOver 颜色"),
+                NSLocalizedString("accessibility.color_warm_orange", value: "暖橙", comment: "VoiceOver 颜色"),
+                NSLocalizedString("accessibility.color_green", value: "绿色", comment: "VoiceOver 颜色"),
+                NSLocalizedString("accessibility.color_pink_indigo", value: "粉紫", comment: "VoiceOver 颜色"),
+                NSLocalizedString("accessibility.color_gray_black", value: "灰黑", comment: "VoiceOver 颜色"),
+                NSLocalizedString("accessibility.color_sunny_yellow", value: "明黄", comment: "VoiceOver 颜色")
+            ]
+            let name = index < names.count ? names[index] : ""
+            return String(format: NSLocalizedString("accessibility.avatar_color_name", value: "主题色 %@", comment: "VoiceOver 头像颜色名称"), name)
+        }
+        public static let enableReminderHint = NSLocalizedString("accessibility.enable_reminder_hint", value: "每天定时提醒你复习到期的题目", comment: "VoiceOver 开启提醒提示")
+        public static let soundToggleHint = NSLocalizedString("accessibility.sound_toggle_hint", value: "提醒时播放提示音", comment: "VoiceOver 声音开关提示")
+        public static let badgeToggleHint = NSLocalizedString("accessibility.badge_toggle_hint", value: "在应用图标上显示待复习数量", comment: "VoiceOver 角标开关提示")
+        public static func fontSizeValue(_ size: Int) -> String {
+            String(format: NSLocalizedString("accessibility.font_size_value", value: "%d 磅", comment: "VoiceOver 字号值"), size)
+        }
+        public static let backupDataHint = NSLocalizedString("accessibility.backup_data_hint", value: "导出完整数据备份文件", comment: "VoiceOver 备份数据提示")
+        public static let restoreDataHint = NSLocalizedString("accessibility.restore_data_hint", value: "从备份文件恢复所有数据，会覆盖当前数据", comment: "VoiceOver 恢复数据提示")
+        public static let analyticsToggleHint = NSLocalizedString("accessibility.analytics_toggle_hint", value: "匿名使用数据帮助我们改进产品", comment: "VoiceOver 分析开关提示")
+        public static let crashReportingHint = NSLocalizedString("accessibility.crash_reporting_hint", value: "自动发送崩溃报告帮助修复问题", comment: "VoiceOver 崩溃报告提示")
+        public static let exportDataHint = NSLocalizedString("accessibility.export_data_hint", value: "导出个人数据副本", comment: "VoiceOver 导出数据提示")
+
         // 难度
         private static func difficultyDescription(_ difficulty: Int) -> String {
             NSLocalizedString("accessibility.difficulty_\(difficulty)", value: {

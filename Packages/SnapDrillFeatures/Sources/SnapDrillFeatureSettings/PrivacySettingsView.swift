@@ -34,7 +34,9 @@ struct PrivacySettingsView: View {
         List {
             Section {
                 Toggle(L10n.Settings.useAnalytics, isOn: $analyticsEnabled)
+                    .accessibilityHint(L10n.Accessibility.analyticsToggleHint)
                 Toggle(L10n.Settings.crashReporting, isOn: $crashReportingEnabled)
+                    .accessibilityHint(L10n.Accessibility.crashReportingHint)
             } header: {
                 Text(L10n.Settings.dataCollection)
             } footer: {
@@ -61,6 +63,7 @@ struct PrivacySettingsView: View {
                     }
                 }
                 .disabled(isExporting)
+                .accessibilityHint(L10n.Accessibility.exportDataHint)
                 // confirmationDialog 挂在 Button 上，确保锚点在触发元素附近
                 .confirmationDialog(L10n.Settings.chooseExportFormat, isPresented: $showingExportOptions, titleVisibility: .visible) {
                     Button(L10n.Settings.jsonFormat) {
