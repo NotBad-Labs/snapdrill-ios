@@ -10,6 +10,7 @@
 
 import SwiftUI
 import SnapDrillCore
+import SnapDrillUI
 
 /// 仪表盘核心卡片：根据当前的复习数量动态展示不同的 UI 状态
 ///
@@ -74,11 +75,13 @@ struct ReviewHeroCard: View {
                                 .foregroundStyle(Color.orange)
                                 .clipShape(Capsule())
                         }
+                        .accessibleButton(label: L10n.Dashboard.captureItem, hint: L10n.Accessibility.captureFirstItemHint)
                     }
                     Spacer()
                     Image(systemName: "flag.checkered.2.crossed")
                         .font(.system(size: 50))
                         .foregroundStyle(.white.opacity(0.8))
+                        .accessibilityHidden(true)
                 }
                 .padding(24)
                 .background(
@@ -88,14 +91,17 @@ struct ReviewHeroCard: View {
                 // 场景 2：有待复习题目（待复习 > 0）
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(L10n.Dashboard.todayDue)
-                            .font(.headline)
-                            .foregroundStyle(.white.opacity(0.9))
-                        
-                        Text("\(dueCount)")
-                            .font(.system(size: dueFontSize, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(L10n.Dashboard.todayDue)
+                                .font(.headline)
+                                .foregroundStyle(.white.opacity(0.9))
+
+                            Text("\(dueCount)")
+                                .font(.system(size: dueFontSize, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+                        }
+                        .accessibleGroup(label: L10n.Accessibility.dueCountLabel(count: dueCount))
+
                         Button(action: onStartReview) {
                             Text(L10n.Dashboard.startNow)
                                 .font(.subheadline.bold())
@@ -105,6 +111,7 @@ struct ReviewHeroCard: View {
                                 .foregroundStyle(Color.blue)
                                 .clipShape(Capsule())
                         }
+                        .accessibleButton(label: L10n.Dashboard.startNow, hint: L10n.Accessibility.startReviewNowHint)
                     }
                     Spacer()
                     // 今日复习进度环（已复习 / 今日总数）
@@ -120,6 +127,7 @@ struct ReviewHeroCard: View {
                             .animation(.spring(duration: 0.5), value: progress)
                     }
                     .frame(width: 80, height: 80)
+                    .accessibleGroup(label: L10n.Accessibility.reviewProgressLabel(reviewed: reviewedTodayCount, total: totalToday))
                 }
                 .padding(24)
                 .background(
@@ -142,7 +150,9 @@ struct ReviewHeroCard: View {
                         .font(.system(size: 60))
                         .foregroundStyle(Color.green.gradient)
                         .symbolEffect(.bounce, value: true)
+                        .accessibilityHidden(true)
                 }
+                .accessibleGroup(label: L10n.Accessibility.allDoneLabel)
                 .padding(24)
                 .background(.regularMaterial) // Use material for cards
             }

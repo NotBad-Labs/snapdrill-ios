@@ -56,6 +56,7 @@ struct ReviewAppearanceSettingsView: View {
                     } maximumValueLabel: {
                         Text("A").font(.system(size: 24))
                     }
+                    .accessibilityValue(L10n.Accessibility.fontSizeValue(Int(frontFontSizeRaw)))
                 }
             }
 
@@ -89,6 +90,7 @@ struct ReviewAppearanceSettingsView: View {
                     } maximumValueLabel: {
                         Text("A").font(.system(size: 24))
                     }
+                    .accessibilityValue(L10n.Accessibility.fontSizeValue(Int(fontSizeRaw)))
                 }
             }
         }

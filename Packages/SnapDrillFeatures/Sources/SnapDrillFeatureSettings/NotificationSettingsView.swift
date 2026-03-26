@@ -40,6 +40,7 @@ struct NotificationSettingsView: View {
                     }
                 ))
                 .disabled(viewModel?.isRequesting ?? false)
+                .accessibilityHint(L10n.Accessibility.enableReminderHint)
 
                 if notificationsEnabled {
                     DatePicker(
@@ -60,8 +61,10 @@ struct NotificationSettingsView: View {
             Section {
                 Toggle(L10n.Settings.sound, isOn: $soundEnabled)
                     .disabled(!notificationsEnabled)
+                    .accessibilityHint(L10n.Accessibility.soundToggleHint)
                 Toggle(L10n.Settings.badge, isOn: $badgeEnabled)
                     .disabled(!notificationsEnabled)
+                    .accessibilityHint(L10n.Accessibility.badgeToggleHint)
             } header: {
                 Text(L10n.Settings.notificationStyle)
             } footer: {

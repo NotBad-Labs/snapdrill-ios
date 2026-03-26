@@ -48,6 +48,8 @@ struct LibraryDetailView: View {
                                 fullScreenImage = image
                                 showingFullScreenImage = true
                             }
+                            .accessibleImage(label: L10n.Accessibility.questionImage)
+                            .accessibilityHint(L10n.Accessibility.tapToEnlarge)
                     } else {
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.secondary.opacity(0.1))
@@ -80,6 +82,7 @@ struct LibraryDetailView: View {
 
                         Spacer()
                     }
+                    .accessibleGroup(label: L10n.Accessibility.metadataGroup(subject: item.subject, source: item.source, difficulty: item.difficulty))
 
                     let tagNames = (item.tags ?? []).map { $0.name }
                     if !tagNames.isEmpty {
@@ -137,6 +140,7 @@ struct LibraryDetailView: View {
                                 .foregroundStyle(level <= item.difficulty ? .orange : .gray.opacity(0.3))
                         }
                     }
+                    .accessibleGroup(label: L10n.Accessibility.starRating(difficulty: item.difficulty))
 
                     if !item.grade.isEmpty {
                         Text(item.grade)
@@ -179,6 +183,8 @@ struct LibraryDetailView: View {
                                         fullScreenImage = answerImage
                                         showingFullScreenImage = true
                                     }
+                                    .accessibleImage(label: L10n.Accessibility.answerImage)
+                                    .accessibilityHint(L10n.Accessibility.tapToEnlarge)
                             } else {
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.secondary.opacity(0.1))

@@ -48,6 +48,7 @@ public struct CaptureResultView: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(maxHeight: 200)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .accessibleImage(label: L10n.Accessibility.questionImage)
                             .overlay {
                                 if viewModel.isRecognizing {
                                     ZStack {
@@ -68,6 +69,7 @@ public struct CaptureResultView: View {
                                 .background(Color.black.opacity(0.6))
                                 .clipShape(Circle())
                         })
+                        .accessibleButton(label: L10n.Accessibility.cropImage, hint: L10n.Accessibility.cropImageHint)
                         .padding(8)
                         .disabled(viewModel.isRecognizing)
                     }

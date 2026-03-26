@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SnapDrillUI
 
 /// Bento 风格的功能卡片，用于展示快捷操作链接或纯数据展示
 struct BentoCard: View {
@@ -45,6 +46,7 @@ struct BentoCard: View {
     var body: some View {
         if let action {
             Button(action: action) { cardContent }
+                .accessibleButton(label: title, hint: subtitle)
         } else {
             cardContent
         }
@@ -61,6 +63,7 @@ struct BentoCard: View {
                     .padding(8)
                     .background(.ultraThickMaterial)
                     .clipShape(Circle())
+                    .accessibilityHidden(true)
                 Spacer()
             }
 

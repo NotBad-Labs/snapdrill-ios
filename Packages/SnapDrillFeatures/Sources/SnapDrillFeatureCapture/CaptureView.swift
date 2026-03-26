@@ -75,7 +75,8 @@ public struct CaptureView: View {
                                 icon: "camera.viewfinder",
                                 title: L10n.Capture.cameraTitle,
                                 subtitle: L10n.Capture.cameraSubtitle,
-                                color: .blue
+                                color: .blue,
+                                accessibilityHint: L10n.Accessibility.cameraHint
                             ) {
                                 viewModel.isShowingScanner = true
                             }
@@ -90,13 +91,15 @@ public struct CaptureView: View {
                                 )
                             }
                             .buttonStyle(.plain) // 保持卡片外观
+                            .accessibleButton(label: L10n.Capture.albumTitle, hint: L10n.Accessibility.albumHint)
                             
                             // 3. 手动录入
                             CaptureMethodCard(
                                 icon: "keyboard",
                                 title: L10n.Capture.manualTitle,
                                 subtitle: L10n.Capture.manualSubtitle,
-                                color: .orange
+                                color: .orange,
+                                accessibilityHint: L10n.Accessibility.manualHint
                             ) {
                                 // 以空状态导航到结果编辑页
                                 router.push(.scannerResult(content: "", image: nil))
@@ -107,7 +110,8 @@ public struct CaptureView: View {
                                 icon: "doc.on.clipboard",
                                 title: L10n.Capture.clipboardTitle,
                                 subtitle: L10n.Capture.clipboardSubtitle,
-                                color: .gray
+                                color: .gray,
+                                accessibilityHint: L10n.Accessibility.clipboardHint
                             ) {
                                 viewModel.pasteFromClipboard(router: router)
                             }
@@ -120,7 +124,8 @@ public struct CaptureView: View {
                             icon: "doc.richtext",
                             title: L10n.Capture.pdfTitle,
                             subtitle: L10n.Capture.pdfSubtitle,
-                            color: .red
+                            color: .red,
+                            accessibilityHint: L10n.Accessibility.pdfHint
                         ) {
                             viewModel.isShowingPDFPicker = true
                         }
@@ -148,6 +153,7 @@ public struct CaptureView: View {
                         .padding(32)
                         .background(.ultraThinMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .accessible(label: L10n.Accessibility.processingOverlay)
                     }
                 }
             }
@@ -307,6 +313,7 @@ struct CaptureMethodCardContent: View {
                 .frame(width: 60, height: 60)
                 .background(color.opacity(0.1))
                 .clipShape(Circle())
+                .accessibilityHidden(true)
             
             Text(title)
                 .font(.headline)
@@ -333,12 +340,30 @@ struct CaptureMethodCard: View {
     let title: String
     let subtitle: String
     let color: Color
+    let accessibilityHintText: String
     let action: () -> Void
-    
+
+    init(
+        icon: String,
+        title: String,
+        subtitle: String,
+        color: Color,
+        accessibilityHint: String = "",
+        action: @escaping () -> Void
+    ) {
+        self.icon = icon
+        self.title = title
+        self.subtitle = subtitle
+        self.color = color
+        self.accessibilityHintText = accessibilityHint
+        self.action = action
+    }
+
     var body: some View {
         Button(action: action) {
             CaptureMethodCardContent(icon: icon, title: title, subtitle: subtitle, color: color)
         }
+        .accessibleButton(label: title, hint: accessibilityHintText.isEmpty ? subtitle : accessibilityHintText)
     }
 }
 

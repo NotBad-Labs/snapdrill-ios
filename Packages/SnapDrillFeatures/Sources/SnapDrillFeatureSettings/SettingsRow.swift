@@ -41,6 +41,7 @@ struct SettingsRow: View {
             }
             .frame(width: 30, height: 30)
             .clipShape(RoundedRectangle(cornerRadius: 8))
+            .accessibilityHidden(true)
 
             Text(title)
                 .font(.body)

@@ -148,6 +148,7 @@ public struct LibraryEditView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(maxHeight: 200)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .accessibleImage(label: L10n.Library.questionImage)
                 } else if vm.imageLoadFailed {
                     // 图片加载失败占位
                     ContentUnavailableView(L10n.Errors.imageLoadFailed, systemImage: "photo.badge.exclamationmark")
@@ -201,6 +202,7 @@ public struct LibraryEditView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(maxHeight: 150)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .accessibleImage(label: L10n.Library.answerSection)
                     .listRowInsets(EdgeInsets())
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 8)

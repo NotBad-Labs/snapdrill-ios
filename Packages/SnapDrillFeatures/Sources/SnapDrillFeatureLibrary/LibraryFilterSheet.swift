@@ -52,6 +52,7 @@ struct LibraryFilterSheet: View {
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .accessibilityAddTraits(viewModel.selectedSubjects.contains(subject.name) ? .isSelected : [])
                         }
                     }
                 }
@@ -81,6 +82,7 @@ struct LibraryFilterSheet: View {
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .accessibilityAddTraits(viewModel.selectedTags.contains(tag.name) ? .isSelected : [])
                         }
                     }
                 }

@@ -67,6 +67,7 @@ struct PDFPagePickerView: View {
                                 pageCard(pageIndex: index)
                             }
                             .buttonStyle(.plain)
+                            .accessibleButton(label: L10n.Accessibility.pdfPageButton(page: index + 1))
                         }
                     }
                     .padding(.horizontal)
@@ -90,6 +91,7 @@ struct PDFPagePickerView: View {
                         .padding(32)
                         .background(.ultraThinMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .accessible(label: L10n.Accessibility.processingOverlay)
                     }
             }
         }
@@ -303,6 +305,7 @@ private struct PDFThumbnailView: View {
                     .overlay {
                         ProgressView()
                     }
+                    .accessible(label: L10n.Accessibility.pdfLoadingThumbnail)
             }
         }
         .animation(.easeInOut(duration: 0.2), value: cache?.thumbnails[pageIndex] != nil)

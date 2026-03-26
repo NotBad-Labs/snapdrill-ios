@@ -35,6 +35,7 @@ struct LanguageSettingsView: View {
                     }
                     .frame(width: 48, height: 48)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .accessibilityHidden(true)
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(L10n.Settings.languageControlledBySystem)
@@ -59,6 +60,7 @@ struct LanguageSettingsView: View {
                         Spacer()
                         Image(systemName: "arrow.up.right.square")
                             .foregroundStyle(.tint)
+                            .accessibilityHidden(true)
                     }
                 }
             } footer: {

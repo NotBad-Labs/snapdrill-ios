@@ -11,6 +11,7 @@
 import SwiftUI
 import SnapDrillCore
 import SnapDrillData
+import SnapDrillUI
 
 /// 导出选项面板
 ///
@@ -49,6 +50,7 @@ struct ExportOptionsSheet: View {
                         }
                         .padding(.vertical, 8)
                     }
+                    .accessibleButton(label: L10n.Library.exportPDF, hint: L10n.Accessibility.exportPDFHint)
                     
                     // 2. CSV (.csv)
                     ShareLink(
@@ -70,6 +72,7 @@ struct ExportOptionsSheet: View {
                         }
                         .padding(.vertical, 8)
                     }
+                    .accessibleButton(label: L10n.Library.exportCSV, hint: L10n.Accessibility.exportCSVHint)
                 }
                 
                 Section {
