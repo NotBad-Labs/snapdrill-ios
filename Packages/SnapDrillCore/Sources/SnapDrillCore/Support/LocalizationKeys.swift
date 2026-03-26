@@ -1254,6 +1254,23 @@ public enum L10n {
             String(format: NSLocalizedString("accessibility.daily_stats_label", value: "今日统计：新增 %d 题，已复习 %d 题，待复习 %d 题", comment: "VoiceOver 每日统计"), added, reviewed, due)
         }
 
+        // 采集模块
+        public static let takePhoto = NSLocalizedString("accessibility.take_photo", value: "拍照", comment: "VoiceOver 快门按钮")
+        public static let cancelCamera = NSLocalizedString("accessibility.cancel_camera", value: "取消拍照", comment: "VoiceOver 取消相机按钮")
+        public static let cameraHint = NSLocalizedString("accessibility.camera_hint", value: "打开相机拍摄题目", comment: "VoiceOver 拍照录入提示")
+        public static let albumHint = NSLocalizedString("accessibility.album_hint", value: "从相册选择题目图片", comment: "VoiceOver 相册导入提示")
+        public static let manualHint = NSLocalizedString("accessibility.manual_hint", value: "手动输入题目文字", comment: "VoiceOver 手动录入提示")
+        public static let clipboardHint = NSLocalizedString("accessibility.clipboard_hint", value: "读取剪贴板中的文字或图片", comment: "VoiceOver 粘贴板提示")
+        public static let pdfHint = NSLocalizedString("accessibility.pdf_hint", value: "选择 PDF 文件导入题目", comment: "VoiceOver PDF 导入提示")
+        public static let cropImage = NSLocalizedString("accessibility.crop_image", value: "裁剪图片", comment: "VoiceOver 裁剪按钮")
+        public static let cropImageHint = NSLocalizedString("accessibility.crop_image_hint", value: "裁剪题目图片区域", comment: "VoiceOver 裁剪按钮提示")
+        public static let reRecognizeHint = NSLocalizedString("accessibility.re_recognize_hint", value: "对裁剪后的图片重新进行文字识别", comment: "VoiceOver 重新识别提示")
+        public static func pdfPageButton(page: Int) -> String {
+            String(format: NSLocalizedString("accessibility.pdf_page_button", value: "第 %d 页，轻点选择此页", comment: "VoiceOver PDF 页面按钮"), page)
+        }
+        public static let pdfLoadingThumbnail = NSLocalizedString("accessibility.pdf_loading_thumbnail", value: "正在加载缩略图", comment: "VoiceOver PDF 缩略图加载中")
+        public static let processingOverlay = NSLocalizedString("accessibility.processing_overlay", value: "正在处理中，请稍候", comment: "VoiceOver 处理中遮罩")
+
         // 难度
         public static func starRating(difficulty: Int, maxStars: Int = 5) -> String {
             let desc = NSLocalizedString("accessibility.difficulty_\(difficulty)", value: {

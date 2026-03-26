@@ -10,6 +10,7 @@
 
 import SwiftUI
 import SnapDrillCore
+import SnapDrillUI
 
 /// 智能相机 SwiftUI 视图
 struct SmartCameraView: View {
@@ -48,6 +49,7 @@ struct SmartCameraView: View {
                             .background(.ultraThinMaterial)
                             .clipShape(Circle())
                     }
+                    .accessibleButton(label: L10n.Accessibility.cancelCamera)
                     Spacer()
                 }
                 .padding()
@@ -70,6 +72,7 @@ struct SmartCameraView: View {
                                 .frame(width: 60, height: 60)
                         }
                     }
+                    .accessibleButton(label: L10n.Accessibility.takePhoto)
                     .padding(.bottom, 40)
                     // HIG：快门按下用 medium impact 模拟物理反馈
                     .sensoryFeedback(.impact(weight: .medium), trigger: shouldCapture) { _, newValue in
@@ -98,6 +101,7 @@ struct SmartCameraView: View {
                     // .opacity(0.8) // Keep it crisp
             }
             .allowsHitTesting(false)
+            .accessibilityHidden(true)
             
             if !isStable {
                  Text(L10n.Capture.cameraScanningHint)
