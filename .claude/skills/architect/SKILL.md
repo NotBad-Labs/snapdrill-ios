@@ -39,7 +39,7 @@ ultrathink
 
 ## 行业最佳实践
 
-> 架构铁律详见 `architecture.md`（包结构、依赖图、DI 链路）+ `principles.md`（包边界原则、DI 原则、@Query 使用原则）
+> 架构铁律详见 `principles.md`（包边界原则、DI 原则、@Query 使用原则）+ `tech-pitfalls.md`（Apple 技术能力边界）
 >
 > 奥卡姆剃刀检查清单详见 `principles.md`「奥卡姆剃刀检查清单」
 >

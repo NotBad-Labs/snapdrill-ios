@@ -16,9 +16,9 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 
 **开始解决问题前，必须主动读取以下文件：**
 
-- `.claude/architecture.md` — 设计决策、DI 链路、技术声明、技术债
 - `.claude/conventions.md` — SwiftLint 管不到的编码规则
 - `.claude/infrastructure.md` — 实际踩过的 API 坑
+- `.claude/tech-pitfalls.md` — Apple 技术能力边界（防止 AI 错误假设）
 - `.claude/workflow.md` — 开发闭环（看板四列 + Scope 控制 + 协作模式）
 - `.claude/principles.md` — 工程哲学 + Apple 原生优先
 
@@ -38,8 +38,8 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 
 SnapDrill：练习题数字化存档 + 间隔重复复习 App。
 技术栈：SwiftUI · SwiftData · iOS 26.0+
-包结构和依赖方向见各 `Packages/*/Package.swift`，架构决策见 `architecture.md`。
-已记录的决策不得在未经用户批准的情况下推翻。
+包结构和依赖方向见各 `Packages/*/Package.swift`。
+架构决策（Domain 层/UseCase 层/Repository 协议已删除、SwiftData、DI Container + @Environment）不得在未经用户批准的情况下推翻。
 
 ## 执行铁律
 

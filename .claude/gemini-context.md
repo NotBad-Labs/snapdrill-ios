@@ -1,6 +1,6 @@
 # SnapDrill — Gemini 审查上下文
 
-> **上游依赖**：`architecture.md`（包结构）、`conventions.md`（编码规范）、`principles.md`（工程哲学）
+> **上游依赖**：`conventions.md`（编码规范）、`principles.md`（工程哲学）、`tech-pitfalls.md`（技术能力边界）
 >
 > 本文件供 Gemini GitHub Action 自动 review 使用，注入项目基本事实与架构约束。
 > 所有约束的完整定义在权威文档中，本文件只做精简摘要和指针。
@@ -16,7 +16,7 @@
 
 ## 包结构
 
-详见 `architecture.md`。依赖方向严格单向，反向依赖禁止。
+依赖方向严格单向，反向依赖禁止。详见各 `Packages/*/Package.swift`。
 
 ```
 SnapDrillFeatures ──► SnapDrillData ──► SnapDrillCore（零依赖）
