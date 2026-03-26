@@ -105,9 +105,9 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 - SnapDrill 的主操作者是家长（非儿童直接使用），定位为「家庭教育工具」而非「儿童 App」
 - 4+ 年龄分级已足以覆盖目标用户群
 
-**Declared Age Range API**（iOS 26+）：v1.5 评估是否集成。该 API 允许 App 声明目标用户年龄段（under 13 / 13-15 / 16-17 / over 18），Apple 据此调整 App Store 展示策略。SnapDrill 的目标用户横跨多个年龄段（家长 + 6-18 岁学生），需评估最优声明方式。
+**Declared Age Range API**（iOS 26+）：v1.5 评估是否集成。该 API 允许 App **请求用户分享其年龄范围**（由系统从 Apple Account 获取，需家长同意），App 据此提供年龄适宜的体验。注意：这不是 App 声明自己的目标年龄段，而是 App 向系统请求用户的年龄信息。API 签名：`AgeRangeService.requestAgeRange(ageGates:)`。SnapDrill 的目标用户横跨多个年龄段（家长 + 6-18 岁学生），需评估是否及如何使用。美国多州（Utah、Louisiana、Texas）已立法要求年龄核实，v1.5 时需关注合规要求。
 
-**COPPA / 儿童隐私合规姿态**：SnapDrill 不收集任何可识别个人信息（零注册、无跨应用追踪），天然满足 COPPA 的「不收集即不违规」底线。匿名分析数据收集可由用户在设置中关闭。
+**COPPA / 儿童隐私合规姿态**：SnapDrill 不收集用户自愿提供以外的个人信息（零注册、无跨应用追踪）。但需注意：Firebase Analytics/Crashlytics SDK 默认收集设备标识符（IDFV），在 COPPA 框架下"持久标识符"可能被视为"个人信息"。当前缓解措施：用户可在设置中关闭数据收集。未来考虑：对于明确面向儿童的使用场景，评估 Analytics 是否应默认关闭。
 
 ---
 
