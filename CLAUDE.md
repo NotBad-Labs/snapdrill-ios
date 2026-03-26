@@ -38,7 +38,7 @@ SPM 包仅声明 iOS 平台，`swift test` 不可用，须通过 Xcode Simulator
 ## Architecture
 
 SnapDrill：练习题数字化存档 + 间隔重复复习 App。Swift 6.2 + SwiftUI + SwiftData，iOS 26.0+。
-详见 `architecture.md`（包结构、依赖图、DI 链路）。
+详见 `architecture.md`（设计决策、DI 链路、技术声明、技术债）。包结构见各 Package.swift。
 
 ## 架构决策
 
