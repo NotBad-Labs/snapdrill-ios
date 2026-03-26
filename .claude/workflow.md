@@ -56,9 +56,8 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 **所有 PR 必须完成 review 后，由用户确认再合并。**
 
-1. **Gemini**（自动）：PR push 触发，Claude 轮询 `gh pr view --json comments,reviews`
-2. **Xcode Intelligence**（手动）：Claude 写提示词，用户触发
-3. **Claude 核实**：每条 finding 读源文件确认真实性
+1. **Xcode Intelligence**：Claude Code 写提示词，用户触发，结果发到 GitHub Issue/PR comment
+2. **Claude Code 核实**：每条 finding 读源文件确认真实性
 
 **纪律**：
 - PR 未合并前禁止推进下一任务

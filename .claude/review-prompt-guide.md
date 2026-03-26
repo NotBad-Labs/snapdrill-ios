@@ -53,8 +53,6 @@
 水印必须同时声明**载体**（运行环境）和**模型**（AI 模型），以便区分同一模型在不同载体上的 review：
 - Claude Code CLI（终端）：`由 Claude Code CLI 自动生成（模型：Claude Opus 4.6）`
 - Xcode Intelligence：`由 Xcode Intelligence 自动生成（模型：Claude Opus 4.6）`
-- Antigravity：`由 Antigravity 自动生成（模型：Gemini 2.5 Pro）`
-- Gemini GitHub Action：`由 Gemini 自动生成（模型：gemini-3.1-flash-lite-preview）`
 
 请通过 `gh pr comment #N --body "..."` 将 Review 结果发布到 GitHub PR #N（注意：使用 pr comment，不是 pr review）。
 ```
@@ -73,7 +71,7 @@
 
 参照 `workflow.md`「fix 提交后的 re-review 规则」：
 - **需要**：fix 引入新业务逻辑、新跨模块依赖、新文件
-- **不需要**：纯结构性修复（重命名、访问控制、import 调整），且 Gemini re-review 无严重问题
+- **不需要**：纯结构性修复（重命名、访问控制、import 调整）
 
 ### 结构
 
@@ -148,8 +146,6 @@
 水印必须同时声明**载体**（运行环境）和**模型**（AI 模型），以便区分同一模型在不同载体上的 review：
 - Claude Code CLI（终端）：`由 Claude Code CLI 自动生成（模型：Claude Opus 4.6）`
 - Xcode Intelligence：`由 Xcode Intelligence 自动生成（模型：Claude Opus 4.6）`
-- Antigravity：`由 Antigravity 自动生成（模型：Gemini 2.5 Pro）`
-- Gemini GitHub Action：`由 Gemini 自动生成（模型：gemini-3.1-flash-lite-preview）`
 
 请通过 `gh pr comment #232 --body "..."` 将 Review 结果发布到 GitHub PR #232（注意：使用 pr comment，不是 pr review）。
 ```
