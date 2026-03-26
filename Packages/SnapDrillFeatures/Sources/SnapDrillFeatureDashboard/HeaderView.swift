@@ -10,6 +10,7 @@
 
 import SwiftUI
 import SnapDrillCore
+import SnapDrillUI
 
 /// 仪表盘顶部标题栏，包含日期和应用名称
 struct HeaderView: View {
@@ -43,6 +44,7 @@ struct HeaderView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "calendar")
                         .font(.caption2)
+                        .accessibilityHidden(true)
                     Text(Date().formatted(date: .complete, time: .omitted))
                         .font(.caption)
                         .fontWeight(.medium)
@@ -93,6 +95,7 @@ struct HeaderView: View {
                         .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
                 }
             }
+            .accessibleButton(label: L10n.Accessibility.profile, hint: L10n.Accessibility.profileHint)
         }
         .padding(.horizontal)
         .padding(.top, 10)

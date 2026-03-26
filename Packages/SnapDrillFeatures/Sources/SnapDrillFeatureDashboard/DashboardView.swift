@@ -186,6 +186,7 @@ struct DailyStatsView: View {
                 Image(systemName: "chart.bar.xaxis")
                     .font(.title2)
                     .foregroundStyle(.white)
+                    .accessibilityHidden(true)
                 Spacer()
             }
 
@@ -203,6 +204,7 @@ struct DailyStatsView: View {
             LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing)
         )
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .accessibleGroup(label: L10n.Accessibility.dailyStatsLabel(added: todayItemsCount, reviewed: reviewedTodayCount, due: dueCount))
     }
 }
 
