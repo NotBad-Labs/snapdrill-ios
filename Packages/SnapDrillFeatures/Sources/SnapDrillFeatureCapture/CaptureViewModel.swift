@@ -34,6 +34,18 @@ public final class CaptureViewModel {
     public var showDraftAlert = false
     /// 当前待恢复的草稿（弹窗显示时有值）
     public var pendingDraft: CaptureDraftService.Draft? = nil
+
+    /// 草稿提示详情文案（含学科和编辑时间）
+    public var draftAlertMessage: String {
+        guard let draft = pendingDraft else {
+            return L10n.Capture.draftAlertMessage
+        }
+        let timeAgo = draft.date.relativeDescription()
+        if let subject = draft.subject, !subject.isEmpty {
+            return "有一道\(subject)题未保存，上次编辑于\(timeAgo)。"
+        }
+        return "有一道题未保存，上次编辑于\(timeAgo)。"
+    }
     /// 是否弹出错误提示
     public var showErrorAlert = false
     /// 错误提示文本

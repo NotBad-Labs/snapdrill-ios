@@ -248,7 +248,7 @@ public final class CaptureResultViewModel {
     public func generateDraftIfNeeded() async {
         // 纯图片题（OCR 空）和纯文字题都要保存草稿，防止意外退出时内容丢失
         if !isSaved, let img = image {
-            await CaptureDraftService.shared.saveDraft(image: img, content: content)
+            await CaptureDraftService.shared.saveDraft(image: img, content: content, subject: selectedSubject)
         }
         // 纯文字题（无图片但有文字）的草稿通过 content 非空也应触发保存
         // 当前 CaptureDraftService.saveDraft 要求 image 参数，纯文字题无图片时暂不保存

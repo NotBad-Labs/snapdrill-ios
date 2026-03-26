@@ -24,7 +24,8 @@ public protocol CaptureDraftServiceProtocol {
     /// - Parameters:
     ///   - image: 拍摄的原始图片
     ///   - content: OCR 识别文本（可为空字符串）
-    func saveDraft(image: UIImage, content: String) async
+    ///   - subject: 当前选中的学科（用于恢复提示展示）
+    func saveDraft(image: UIImage, content: String, subject: String?) async
     /// 读取已保存的草稿；不存在或数据损坏时返回 `nil`
     func loadDraft() -> CaptureDraftService.Draft?
     /// 清除已保存的草稿（删除磁盘文件和 UserDefaults 记录）

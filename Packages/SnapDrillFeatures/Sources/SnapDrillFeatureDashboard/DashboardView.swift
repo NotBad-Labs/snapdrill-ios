@@ -149,7 +149,7 @@ public struct DashboardView: View {
             }
             Button(L10n.Common.cancel, role: .cancel) { }
         } message: {
-            Text(L10n.Dashboard.draftAlertMessage)
+            Text(viewModel?.draftAlertMessage ?? L10n.Dashboard.draftAlertMessage)
         }
         .sheet(isPresented: Binding(
             get: { viewModel?.isShowingSubjectManager ?? false },
