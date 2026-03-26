@@ -318,6 +318,8 @@ public enum L10n {
 
         // 批量操作
         public static let selectItems = NSLocalizedString("library.select_items", value: "选择", comment: "选择模式按钮")
+        public static let selectAll = NSLocalizedString("library.select_all", value: "全选", comment: "全选按钮")
+        public static let deselectAll = NSLocalizedString("library.deselect_all", value: "取消全选", comment: "取消全选按钮")
         public static let deleteSelected = NSLocalizedString("library.delete_selected", value: "删除", comment: "删除已选")
         public static let exportSelected = NSLocalizedString("library.export_selected", value: "导出", comment: "导出已选")
 

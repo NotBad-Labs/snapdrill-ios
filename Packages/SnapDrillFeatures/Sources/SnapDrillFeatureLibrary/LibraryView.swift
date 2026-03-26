@@ -77,6 +77,21 @@ public struct LibraryView: View {
             ), prompt: L10n.Library.searchPlaceholder)
             .navigationTitle(L10n.Library.title)
             .toolbar {
+                // 编辑模式左上角：全选 / 取消全选（Apple 文件 App 模式）
+                if editMode.isEditing {
+                    ToolbarItem(placement: .topBarLeading) {
+                        let allIDs = Set(viewModel?.filteredItems.map(\.id) ?? [])
+                        let isAllSelected = !allIDs.isEmpty && selectedItemIDs == allIDs
+                        Button(isAllSelected ? L10n.Library.deselectAll : L10n.Library.selectAll) {
+                            if isAllSelected {
+                                selectedItemIDs.removeAll()
+                            } else {
+                                selectedItemIDs = allIDs
+                            }
+                        }
+                    }
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     if editMode.isEditing {
                         Button(L10n.Common.done) {
