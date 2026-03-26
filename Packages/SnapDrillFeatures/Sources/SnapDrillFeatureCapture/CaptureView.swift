@@ -254,7 +254,7 @@ public struct CaptureView: View {
                     viewModel.clearDraft()
                 }
             } message: {
-                Text(L10n.Capture.draftAlertMessage)
+                Text(viewModel.draftAlertMessage)
             }
             .fileImporter(
                 isPresented: $viewModel.isShowingPDFPicker,

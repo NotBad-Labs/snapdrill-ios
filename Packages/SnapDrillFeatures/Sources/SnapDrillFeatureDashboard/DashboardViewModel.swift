@@ -93,6 +93,18 @@ public final class DashboardViewModel {
         pendingRefreshTask = nil
     }
 
+    /// 草稿提示详情文案（含学科和编辑时间）
+    public var draftAlertMessage: String {
+        guard let draft = draftService.loadDraft() else {
+            return L10n.Dashboard.draftAlertMessage
+        }
+        let timeAgo = draft.date.relativeDescription()
+        if let subject = draft.subject, !subject.isEmpty {
+            return "有一道\(subject)题未保存，上次编辑于\(timeAgo)。"
+        }
+        return "有一道题未保存，上次编辑于\(timeAgo)。"
+    }
+
     /// 检查是否有未完成草稿；若有则弹出提示，否则直接导航到采集页
     public func checkDraftAndCapture(router: DashboardRouter) {
         if draftService.hasDraft {

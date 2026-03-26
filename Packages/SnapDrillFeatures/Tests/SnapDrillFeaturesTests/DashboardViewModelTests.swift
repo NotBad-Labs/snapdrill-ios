@@ -24,7 +24,7 @@ final class MockDraftService: CaptureDraftServiceProtocol {
     var savedDraft: CaptureDraftService.Draft?
     var clearDraftCallCount = 0
 
-    func saveDraft(image: UIImage, content: String) async {
+    func saveDraft(image: UIImage, content: String, subject: String?) async {
         hasDraft = true
     }
 
