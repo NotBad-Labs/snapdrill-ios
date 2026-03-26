@@ -57,8 +57,8 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     /// UIImage 非 Sendable，JPEG 压缩和文件写入无法安全移至后台，仍在 MainActor 执行。
     /// 草稿图片已压缩（JPEG 0.8），I/O 量小（通常 < 500KB），阻塞时间可接受。
     public func saveDraft(image: UIImage, content: String) async {
-        // 1. JPEG 压缩 + 写入文件
-        if let data = image.jpegData(compressionQuality: 0.8),
+        // 1. JPEG 压缩 + 写入文件（通过 ImageStorage 剥离 EXIF GPS，保护用户位置隐私）
+        if let data = ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8),
            let path = draftImagePath() {
             do {
                 try data.write(to: path)

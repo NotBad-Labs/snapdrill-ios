@@ -20,7 +20,7 @@ struct PrivacySettingsView: View {
     
     @Environment(\.repositories) private var repositories
     @Environment(\.analyticsService) private var analyticsService
-    @AppStorage(UDKey.analyticsEnabled) private var analyticsEnabled = false
+    @AppStorage(UDKey.analyticsEnabled) private var analyticsEnabled = true
     @AppStorage(UDKey.crashReportingEnabled) private var crashReportingEnabled = true
     
     @State private var showingExportOptions = false
