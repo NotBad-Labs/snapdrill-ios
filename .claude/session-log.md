@@ -9,37 +9,43 @@
 
 ### 完成
 
-**审计（3 层）**
-- 技术审计 #428：131 文件逐个遍历，1 S0 + 6 S2 + 9 S3
-- 产品审计 #430：隐私路径 / 用户旅程 / 设计铁律，2 VIOLATION + 6 CONCERN
-- HIG 对标 #436：26 项 × 两方交叉验证（Claude + Xcode），0 VIOLATION + 8 MINOR_GAP
+**审计**
+- 技术审计 #428：131 文件，1 S0 + 6 S2 + 9 S3
+- 产品审计 #430：3 维度交叉验证，2 VIOLATION + 6 CONCERN
+- HIG 对标 #436：26 项 × Claude+Xcode 交叉验证，0 VIOLATION + 8 MINOR_GAP
 
-**合并 PR x6**
-- #429：技术+产品修复（S0/S2/P0/P1 + 对齐默认值 + 图标 88 个 + 卸载警告 + GPS 剥离）
-- #434：草稿提示细节 + 7 天过期（#431 #432）
-- #435：题库全选按钮（#433）
-- #427：字段配置引导集成（#425）
-- #437：HIG 文档修订
-- #439：VoiceOver 全模块 + P2 文档对齐（#438）
+**合并 PR x8**：#427 #429 #434 #435 #437 #439 #441 + 状态推送
 
-**横向研究 x4**：草稿箱模式 / 图标选择器 / 导出按钮 / HIG 对标
+**iOS 26 技术栈研究 #440**
+- Swift 6.3：actor 隔离更严格，Approachable Concurrency 5 个子特性
+- Vision：RecognizeTextRequest 已是最新 struct API；RecognizeDocumentsRequest 不适用
+- SwiftData：@Unique 已实施（SchemaV4），类继承不需要
+- Foundation Models：contentTagging v1.5 规划
+- App Intents：v1.5 规划
+- Liquid Glass：无冲突
+- PDFPagePickerView 编译错误修复（nonisolated(unsafe)）
 
-**产品决策 x6**：对齐三选项 / 图标 88 个 / 草稿箱不做 / 全选按钮 / VoiceOver 全覆盖 / 外观对标 Telegram
+**VoiceOver 全模块补齐**（Xcode 执行 4 批 + Claude 复核）
+- Dashboard 5 文件 + Capture 5 文件 + Library 12 文件 + Settings 9 文件
+- 61 个 L10n.Accessibility 键
 
-**协作模式确立**：Claude Code 统筹复核 + Xcode Intelligence 主力执行
+**横向研究 x5**：草稿箱 / 图标选择器 / 导出按钮 / HIG / iOS 26 技术栈
+
+**产品决策 x7**：对齐三选项 / 图标 88 个 / 草稿箱不做 / 全选按钮 / VoiceOver 全覆盖 / 外观对标 Telegram / @Unique 唯一约束
+
+**协作模式确立**：Claude Code 统筹+复核，Xcode Intelligence 主力执行，GitHub Issue comment 交流
 
 ### 关键发现
 
-- 技术审计没碰产品文档是严重方法论缺陷——代码写得对不等于做的是产品要的
-- Apple 提醒事项用 60 预设图标不开放全量 SF Symbol，验证了我们 88 个预设的决策
-- Declared Age Range API 文档描述方向完全错误（App 声明 vs 请求用户年龄）
-- COPPA "不收集即不违规" 过于简化——Firebase IDFV 在 COPPA 下可能算"个人信息"
+- 技术审计不碰产品文档是方法论缺陷
+- RecognizeDocumentsRequest 对裁剪后单题图片不适用（Claude 初始评估 P0 过于乐观）
+- Xcode 误判"TipKit 已在使用"（实际是自定义 OnboardingManager）
+- PDFPage nonisolated(unsafe) 实际安全（只读+无并发），Gemini 理论担忧不构成风险
 
 ### 下次接续
 
-- 文档体系 × Apple 开发理念深层对齐
-- PDFPagePickerView sending 参数编译错误修复
-- TestFlight Build 6
+- 文档体系 × Apple 开发理念深层对齐（维度 3+4）
+- TestFlight Build 6（编译错误已全部修复，可以尝试）
 
 ---
 
