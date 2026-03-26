@@ -11,6 +11,7 @@
 import SwiftUI
 import SnapDrillCore
 import SnapDrillData
+import SnapDrillUI
 
 /// 年级管理视图
 public struct GradeManagerView: View {
@@ -40,6 +41,7 @@ public struct GradeManagerView: View {
                                 Spacer()
                             }
                         }
+                        .accessibilityHint(L10n.Accessibility.editGradeHint(grade.name))
                     }
                     .onDelete(perform: { offsets in vm.delete(at: offsets) })
                 }
@@ -58,6 +60,7 @@ public struct GradeManagerView: View {
                     Button(action: { showingAddSheet = true }, label: {
                         Image(systemName: "plus")
                     })
+                    .accessibilityHint(L10n.Accessibility.addGradeHint)
                 }
             }
             .sheet(isPresented: $showingAddSheet) {

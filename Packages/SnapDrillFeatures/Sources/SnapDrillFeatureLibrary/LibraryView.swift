@@ -89,6 +89,7 @@ public struct LibraryView: View {
                                 selectedItemIDs = allIDs
                             }
                         }
+                        .accessibilityValue(L10n.Accessibility.selectAllButton(selected: selectedItemIDs.count, total: allIDs.count))
                     }
                 }
 

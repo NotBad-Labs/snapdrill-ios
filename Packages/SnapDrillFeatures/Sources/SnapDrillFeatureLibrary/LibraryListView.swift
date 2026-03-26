@@ -12,6 +12,7 @@ import SwiftUI
 import SwiftData
 import SnapDrillCore
 import SnapDrillData
+import SnapDrillUI
 
 /// A subview to handle the dynamic query based on searchText
 struct LibraryListView: View {
@@ -56,6 +57,8 @@ struct LibraryListView: View {
                                  SubjectCapsule(subject: subject, isSelected: viewModel.selectedSubjects.contains(subject.name))
                              }
                              .buttonStyle(.plain)
+                             .accessibleButton(label: L10n.Accessibility.filterSubject(subject.name))
+                             .accessibilityAddTraits(viewModel.selectedSubjects.contains(subject.name) ? .isSelected : [])
                          }
                      }
                      .padding(.horizontal, 4)
@@ -81,6 +84,7 @@ struct LibraryListView: View {
                                             .font(.caption2)
                                     }
                                     .buttonStyle(.plain)
+                                    .accessibleButton(label: L10n.Accessibility.removeTagFilter(tag))
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
@@ -148,6 +152,7 @@ struct LibraryListView: View {
                             withAnimation { editMode?.wrappedValue = .active }
                         }
                     )
+                    .accessibilityHint(L10n.Accessibility.longPressToSelect)
                     .listRowBackground(Rectangle().fill(.regularMaterial))
                     .listRowSeparator(.hidden)
                     .tag(item.id)

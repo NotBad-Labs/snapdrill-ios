@@ -31,6 +31,7 @@ struct SubjectCapsule: View {
         .foregroundStyle(isSelected ? .white : Color(hex: subject.colorHex))
         .clipShape(Capsule())
         .animation(.spring, value: isSelected)
+        .accessibilityLabel(subject.name)
     }
 }
 

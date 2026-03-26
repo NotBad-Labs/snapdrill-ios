@@ -10,6 +10,7 @@
 
 import SwiftUI
 import SnapDrillCore
+import SnapDrillUI
 
 /// 教育图标选择器
 ///
@@ -176,6 +177,7 @@ public struct SFSymbolPickerView: View {
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
                     TextField(L10n.Library.iconSearch, text: $searchText)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -257,6 +259,8 @@ public struct SFSymbolPickerView: View {
             .contentShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(L10n.Accessibility.selectIcon(symbol))
+        .accessibilityAddTraits(selectedSymbol == symbol ? .isSelected : [])
     }
 }
 

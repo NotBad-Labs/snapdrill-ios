@@ -12,6 +12,7 @@ import SwiftUI
 import PDFKit
 import SnapDrillCore
 import SnapDrillData
+import SnapDrillUI
 
 struct ExportPreviewView: View {
     @Environment(\.dismiss) private var dismiss
@@ -32,8 +33,10 @@ struct ExportPreviewView: View {
             VStack {
                 if isLoading {
                     ProgressView(L10n.Library.generating)
+                        .accessible(label: L10n.Accessibility.generatingPDF)
                 } else if let pdfData = pdfData, let document = PDFDocument(data: pdfData) {
                     PDFKitRepresentedView(document: document)
+                        .accessible(label: L10n.Accessibility.pdfPreviewLabel)
                 } else {
                     ContentUnavailableView(L10n.Library.generateFailed, systemImage: "exclamationmark.triangle")
                 }

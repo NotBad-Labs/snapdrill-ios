@@ -10,6 +10,7 @@
 
 import SwiftUI
 import SnapDrillCore
+import SnapDrillUI
 
 /// 全屏图片预览视图
 ///
@@ -31,6 +32,7 @@ struct FullScreenImageView: View {
                 .aspectRatio(contentMode: .fit)
                 .scaleEffect(scale)
                 .offset(y: offset.height + dragOffset.height)
+                .accessibleImage(label: L10n.Accessibility.fullScreenQuestionImage)
                 .gesture(
                     // 捏合缩放
                     MagnificationGesture()
@@ -76,6 +78,7 @@ struct FullScreenImageView: View {
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.white.opacity(0.8))
             }
+            .accessibleButton(label: L10n.Accessibility.closeFullScreenImage)
             .padding()
         }
     }

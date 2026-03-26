@@ -1271,9 +1271,39 @@ public enum L10n {
         public static let pdfLoadingThumbnail = NSLocalizedString("accessibility.pdf_loading_thumbnail", value: "正在加载缩略图", comment: "VoiceOver PDF 缩略图加载中")
         public static let processingOverlay = NSLocalizedString("accessibility.processing_overlay", value: "正在处理中，请稍候", comment: "VoiceOver 处理中遮罩")
 
+        // 题库模块
+        public static func selectAllButton(selected: Int, total: Int) -> String {
+            String(format: NSLocalizedString("accessibility.select_all_button", value: "已选中 %d 项，共 %d 项", comment: "VoiceOver 全选按钮值"), selected, total)
+        }
+        public static func filterSubject(_ name: String) -> String {
+            String(format: NSLocalizedString("accessibility.filter_subject", value: "过滤 %@", comment: "VoiceOver 学科过滤按钮"), name)
+        }
+        public static func removeTagFilter(_ name: String) -> String {
+            String(format: NSLocalizedString("accessibility.remove_tag_filter", value: "移除标签过滤 %@", comment: "VoiceOver 移除标签过滤"), name)
+        }
+        public static let longPressToSelect = NSLocalizedString("accessibility.long_press_to_select", value: "长按进入多选模式", comment: "VoiceOver 长按多选提示")
+        public static let tapToEnlarge = NSLocalizedString("accessibility.tap_to_enlarge", value: "轻点放大查看", comment: "VoiceOver 图片点击放大提示")
+        public static func metadataGroup(subject: String, source: String, difficulty: Int) -> String {
+            let diffDesc = difficultyDescription(difficulty)
+            return String(format: NSLocalizedString("accessibility.metadata_group", value: "%@ · %@ · 难度%@", comment: "VoiceOver 元数据组合"), subject, source, diffDesc)
+        }
+        public static let closeFullScreenImage = NSLocalizedString("accessibility.close_full_screen_image", value: "关闭全屏图片", comment: "VoiceOver 关闭全屏图片")
+        public static let fullScreenQuestionImage = NSLocalizedString("accessibility.full_screen_question_image", value: "题目图片全屏预览", comment: "VoiceOver 全屏题目图片")
+        public static let exportPDFHint = NSLocalizedString("accessibility.export_pdf_hint", value: "生成 PDF 格式导出", comment: "VoiceOver 导出 PDF 提示")
+        public static let exportCSVHint = NSLocalizedString("accessibility.export_csv_hint", value: "生成 CSV 格式导出", comment: "VoiceOver 导出 CSV 提示")
+        public static let pdfPreviewLabel = NSLocalizedString("accessibility.pdf_preview_label", value: "PDF 预览", comment: "VoiceOver PDF 预览")
+        public static let generatingPDF = NSLocalizedString("accessibility.generating_pdf", value: "正在生成 PDF，请稍候", comment: "VoiceOver PDF 生成中")
+        public static let addGradeHint = NSLocalizedString("accessibility.add_grade_hint", value: "添加新的年级或学习阶段", comment: "VoiceOver 添加年级提示")
+        public static func editGradeHint(_ name: String) -> String {
+            String(format: NSLocalizedString("accessibility.edit_grade_hint", value: "编辑年级 %@", comment: "VoiceOver 编辑年级提示"), name)
+        }
+        public static func selectIcon(_ symbol: String) -> String {
+            String(format: NSLocalizedString("accessibility.select_icon", value: "图标 %@", comment: "VoiceOver 选择图标"), symbol)
+        }
+
         // 难度
-        public static func starRating(difficulty: Int, maxStars: Int = 5) -> String {
-            let desc = NSLocalizedString("accessibility.difficulty_\(difficulty)", value: {
+        private static func difficultyDescription(_ difficulty: Int) -> String {
+            NSLocalizedString("accessibility.difficulty_\(difficulty)", value: {
                 switch difficulty {
                 case 1: return "非常简单"
                 case 2: return "简单"
@@ -1283,6 +1313,9 @@ public enum L10n {
                 default: return "未知"
                 }
             }(), comment: "VoiceOver 难度描述")
+        }
+        public static func starRating(difficulty: Int, maxStars: Int = 5) -> String {
+            let desc = difficultyDescription(difficulty)
             return String(format: NSLocalizedString("accessibility.star_rating", value: "难度 %d 星（共 %d 星），%@", comment: "VoiceOver 难度星级"), difficulty, maxStars, desc)
         }
     }
