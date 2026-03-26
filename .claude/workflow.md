@@ -112,7 +112,7 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 - [ ] 范围外发现已建 Issue（不在本 PR 处理）
 - [ ] PR description 包含：变更摘要 + 测试计划
 
-**例外**：STATUS.md / session-log.md 允许直推 develop（状态追踪文件，不需要 review）。
+**例外**：STATUS.md 允许直推 develop（状态追踪文件，不需要 review）。
 
 ---
 

@@ -6,10 +6,11 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 
 ## 启动（Boot）
 
-**回复用户第一条消息前，必须依次执行：**
+**回复用户第一条消息前，必须执行：**
 
-1. 读取 `STATUS.md` — 恢复当前工作上下文（在做什么、卡在哪）
-2. 读取 `.claude/session-log.md` — 恢复最近对话记录（做了什么、下次接续什么）
+1. 读取 `STATUS.md` — 恢复当前工作上下文（在做什么、优先级、外部阻塞）
+
+对话记录由 Auto Memory 自动管理（`~/.claude/projects/` 下的 MEMORY.md），无需手动加载。
 
 ## 全局上下文（每次对话强制加载）
 
@@ -62,13 +63,12 @@ xcodebuild build-for-testing \
 
 ## 记忆固化（State Write-back）
 
-**以下时机必须主动更新状态文件：**
+**以下时机必须主动更新：**
 
-- PR 合并后 → 更新 `STATUS.md`
-- 对话即将结束时 → 更新 `.claude/session-log.md`
+- PR 合并后 → 更新 `STATUS.md`（允许直推 develop，不需要 PR）
 - 产品决策变更时 → 同一回复中 Grep 影响范围 → 创建执行 Issue
 
-STATUS.md 和 session-log.md 允许直推 develop（状态追踪文件例外，不需要 PR）。
+对话记录由 Auto Memory 自动管理，无需手动维护。
 
 ## 协作模式
 

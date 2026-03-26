@@ -1,6 +1,6 @@
 ---
 name: update-status
-description: PR 合并后将 STATUS.md 和 session-log.md 直接推送到 develop。文档化例外——状态追踪文件不需要走 PR 流程。
+description: PR 合并后将 STATUS.md 直接推送到 develop。文档化例外——状态追踪文件不需要走 PR 流程。
 allowed-tools:
   - Bash
   - Read
@@ -28,7 +28,7 @@ fi
 ### 2. 检查是否有待推送的状态变更
 
 ```bash
-git status STATUS.md .claude/session-log.md
+git status STATUS.md
 ```
 
 如果无变更，提示「STATUS.md 已是最新，无需推送」并退出。
@@ -36,23 +36,23 @@ git status STATUS.md .claude/session-log.md
 ### 3. 精确 stage + commit + push
 
 ```bash
-git add STATUS.md .claude/session-log.md
+git add STATUS.md
 git commit -m "chore: 更新项目状态看板
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 git push origin develop
 ```
 
-**只 add 这两个文件**，不使用 `git add .` 或 `git add -A`。
+**只 add STATUS.md**，不使用 `git add .` 或 `git add -A`。
 
 ## 文档化例外
 
-STATUS.md 和 session-log.md 是状态追踪文件，不含代码逻辑：
+STATUS.md 是状态追踪文件，不含代码逻辑：
 - 不需要 Code Review（review 的是代码，不是状态记录）
 - 不需要 CI 验证（不影响编译和测试）
 - 每次开 PR 只为推状态文件是流程浪费
 
-此例外已在 `workflow.md`「Git 工作流规范 → 铁律」中文档化。
+此例外已在 `workflow.md`「Git 工作流」中文档化。
 
 ## 注意事项
 
