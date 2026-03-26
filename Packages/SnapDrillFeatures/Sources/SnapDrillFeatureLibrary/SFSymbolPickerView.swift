@@ -5,61 +5,170 @@
 //  Created by NotBad Labs on 2026/01/01.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  SF Symbols 选择器，提供可搜索的系统图标选择功能。
+//  教育图标选择器，提供 ~70 个按学科分类的预设 SF Symbols。
 //
 
 import SwiftUI
 import SnapDrillCore
 
-/// SF Symbols 选择器视图
+/// 教育图标选择器
 ///
-/// 提供可搜索的网格布局，让用户从常用 SF Symbols 中选择图标。
-/// 支持手动输入图标名称以访问完整的 5000+ 图标库。
+/// 提供约 70 个教育/学科相关的 SF Symbol 预设，按类别分组展示。
+/// 支持搜索过滤。不开放全量 SF Symbol 访问——预设已覆盖所有学科场景。
 public struct SFSymbolPickerView: View {
     @Environment(\.dismiss) var dismiss
 
     @Binding var selectedSymbol: String
 
     @State private var searchText = ""
-    @State private var manualInput = ""
-    @State private var showManualInput = false
 
     public init(selectedSymbol: Binding<String>) {
         self._selectedSymbol = selectedSymbol
     }
-    
-    // 预设教育图标集（~20 个，PR§系统字段选项管理定义）
-    private let presetIcons: [String] = [
-        "function",              // 数学
-        "book.fill",             // 语文
-        "character.textbox",     // 英语
-        "flask.fill",            // 化学
-        "atom",                  // 物理
-        "leaf.fill",             // 生物
-        "globe.asia.australia",  // 地理
-        "clock.fill",            // 历史
-        "person.2.fill",         // 政治/社会
-        "paintpalette.fill",     // 美术
-        "music.note",            // 音乐
-        "figure.run",            // 体育
-        "cpu",                   // 信息技术
-        "brain",                 // 科学
-        "graduationcap.fill",    // 综合
-        "star.fill",             // 通用
-        "bookmark.fill",         // 阅读
-        "pencil",                // 写作
-        "doc.text.fill",         // 试卷
-        "folder.fill"            // 其他
-    ]
-    
-    /// 过滤后的图标
-    private var filteredIcons: [String] {
-        if searchText.isEmpty {
-            return presetIcons
-        }
-        return presetIcons.filter { $0.localizedCaseInsensitiveContains(searchText) }
+
+    // MARK: - 教育图标预设（按类别分组）
+
+    private struct IconCategory: Identifiable {
+        let id = UUID()
+        let name: String
+        let symbols: [String]
     }
-    
+
+    private let categories: [IconCategory] = [
+        IconCategory(name: "学术", symbols: [
+            "graduationcap.fill",
+            "backpack.fill",
+            "studentdesk",
+            "brain",
+            "lightbulb.fill",
+            "sparkles"
+        ]),
+        IconCategory(name: "书籍/阅读", symbols: [
+            "book.fill",
+            "books.vertical.fill",
+            "book.closed.fill",
+            "text.book.closed.fill",
+            "magazine.fill",
+            "newspaper.fill",
+            "bookmark.fill"
+        ]),
+        IconCategory(name: "书写/文具", symbols: [
+            "pencil",
+            "pencil.tip",
+            "pencil.and.ruler",
+            "highlighter",
+            "eraser.fill",
+            "scribble.variable",
+            "square.and.pencil"
+        ]),
+        IconCategory(name: "数学/逻辑", symbols: [
+            "function",
+            "x.squareroot",
+            "number",
+            "percent",
+            "chart.bar.fill",
+            "chart.pie.fill",
+            "chart.line.uptrend.xyaxis"
+        ]),
+        IconCategory(name: "理化/实验", symbols: [
+            "atom",
+            "flask.fill",
+            "molecule",
+            "bolt.fill",
+            "flame.fill",
+            "thermometer.medium",
+            "waveform",
+            "gyroscope"
+        ]),
+        IconCategory(name: "生物/自然", symbols: [
+            "leaf.fill",
+            "tree.fill",
+            "dna",
+            "pawprint.fill",
+            "bird.fill",
+            "fish.fill",
+            "ant.fill",
+            "hare.fill"
+        ]),
+        IconCategory(name: "地理/地图", symbols: [
+            "globe.asia.australia",
+            "globe.americas",
+            "globe.europe.africa",
+            "map.fill",
+            "mappin.circle.fill",
+            "mountain.2.fill"
+        ]),
+        IconCategory(name: "历史/社会", symbols: [
+            "clock.fill",
+            "building.columns.fill",
+            "person.2.fill",
+            "flag.fill",
+            "scroll.fill"
+        ]),
+        IconCategory(name: "语言/文字", symbols: [
+            "character.textbox",
+            "character.book.closed.fill",
+            "textformat.abc",
+            "text.bubble.fill",
+            "mic.fill"
+        ]),
+        IconCategory(name: "音乐/艺术", symbols: [
+            "music.note",
+            "music.note.list",
+            "paintpalette.fill",
+            "paintbrush.fill",
+            "theatermasks.fill",
+            "camera.fill"
+        ]),
+        IconCategory(name: "体育/运动", symbols: [
+            "figure.run",
+            "dumbbell.fill",
+            "sportscourt.fill",
+            "basketball.fill",
+            "soccerball",
+            "tennis.racket"
+        ]),
+        IconCategory(name: "技术/信息", symbols: [
+            "cpu",
+            "desktopcomputer",
+            "keyboard.fill",
+            "gearshape.fill",
+            "wrench.and.screwdriver.fill",
+            "network"
+        ]),
+        IconCategory(name: "文档/分类", symbols: [
+            "doc.text.fill",
+            "folder.fill",
+            "tray.full.fill",
+            "archivebox.fill",
+            "tag.fill"
+        ]),
+        IconCategory(name: "度量/奖励", symbols: [
+            "ruler.fill",
+            "level.fill",
+            "star.fill",
+            "medal.fill",
+            "trophy.fill"
+        ])
+    ]
+
+    /// 搜索过滤后的类别（空搜索时返回全部）
+    private var filteredCategories: [IconCategory] {
+        if searchText.isEmpty {
+            return categories
+        }
+        let query = searchText.lowercased()
+        return categories.compactMap { cat in
+            let matched = cat.symbols.filter {
+                $0.lowercased().contains(query) || cat.name.lowercased().contains(query)
+            }
+            guard !matched.isEmpty else { return nil }
+            return IconCategory(name: cat.name, symbols: matched)
+        }
+    }
+
+    // MARK: - Body
+
     public var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -75,55 +184,32 @@ public struct SFSymbolPickerView: View {
                 .background(Color(.systemGray6))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding()
-                
-                // 手动输入区域
-                if showManualInput {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(L10n.Library.iconManualInput)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        
-                        HStack {
-                            TextField(L10n.Library.iconManualPlaceholder, text: $manualInput)
-                                .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled()
-                            
-                            // 预览
-                            if !manualInput.isEmpty {
-                                Image(systemName: manualInput)
-                                    .font(.title2)
-                                    .frame(width: 32, height: 32)
-                            }
-                            
-                            Button(L10n.Common.ok) {
-                                if !manualInput.isEmpty {
-                                    selectedSymbol = manualInput
-                                    dismiss()
+
+                // 分类网格
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 20) {
+                        ForEach(filteredCategories) { category in
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(category.name)
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.secondary)
+                                    .padding(.horizontal, 4)
+
+                                LazyVGrid(
+                                    columns: [GridItem(.adaptive(minimum: 50))],
+                                    spacing: 12
+                                ) {
+                                    ForEach(category.symbols, id: \.self) { symbol in
+                                        symbolButton(symbol)
+                                    }
                                 }
                             }
-                            .disabled(manualInput.isEmpty)
-                        }
-                        .padding(12)
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
-                    .padding(.horizontal)
-                    .padding(.bottom)
-                }
-                
-                // 图标网格
-                ScrollView {
-                    LazyVGrid(
-                        columns: [GridItem(.adaptive(minimum: 50))],
-                        spacing: 12
-                    ) {
-                        ForEach(filteredIcons, id: \.self) { symbol in
-                            symbolButton(symbol)
                         }
                     }
                     .padding()
 
-                    if filteredIcons.isEmpty {
+                    if filteredCategories.isEmpty {
                         ContentUnavailableView(
                             L10n.Library.noSearchResults,
                             systemImage: "magnifyingglass",
@@ -139,18 +225,12 @@ public struct SFSymbolPickerView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.Common.cancel) { dismiss() }
                 }
-                ToolbarItem(placement: .primaryAction) {
-                    Button(showManualInput ? L10n.Common.close : L10n.Library.iconManualInput) {
-                        withAnimation {
-                            showManualInput.toggle()
-                        }
-                    }
-                    .font(.subheadline)
-                }
             }
         }
     }
-    
+
+    // MARK: - Components
+
     @ViewBuilder
     private func symbolButton(_ symbol: String) -> some View {
         Button {
@@ -158,21 +238,19 @@ public struct SFSymbolPickerView: View {
             dismiss()
         } label: {
             ZStack {
-                // 毛玻璃背景
                 RoundedRectangle(cornerRadius: 12)
                     .fill(.ultraThinMaterial)
                     .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
-                
-                // 选中高亮
+
                 if selectedSymbol == symbol {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color.blue, lineWidth: 2)
                 }
-                
+
                 Image(systemName: symbol)
                     .font(.system(size: 24))
-                    .foregroundStyle(.primary) // Use primary color for native look
-                    .symbolRenderingMode(.hierarchical) // The true "native" system look
+                    .foregroundStyle(.primary)
+                    .symbolRenderingMode(.hierarchical)
                     .frame(width: 30, height: 30)
             }
             .frame(width: 50, height: 50)
@@ -183,6 +261,6 @@ public struct SFSymbolPickerView: View {
 }
 
 #Preview {
-    @Previewable @State var selected = "book"
+    @Previewable @State var selected = "book.fill"
     SFSymbolPickerView(selectedSymbol: $selected)
 }

@@ -109,6 +109,7 @@ final class AppRouter {
         }
 
         let pendingURL = containerURL.appendingPathComponent(fileName)
+        // best-effort: Share Extension 临时文件可能已被系统清理
         guard FileManager.default.fileExists(atPath: pendingURL.path),
               let data = try? Data(contentsOf: pendingURL),
               let image = UIImage(data: data) else {
@@ -116,7 +117,7 @@ final class AppRouter {
             return
         }
 
-        // 清理临时文件
+        // best-effort: 临时文件清理，失败不影响功能
         try? FileManager.default.removeItem(at: pendingURL)
 
         // 先切换 Tab 并重置导航栈，延迟一个 RunLoop 周期后再 push，
@@ -124,6 +125,7 @@ final class AppRouter {
         selectedTab = .capture
         captureRouter.path = NavigationPath()
         Task {
+            // best-effort: 等待 Tab 切换动画完成，取消不影响正确性
             try? await Task.sleep(for: .milliseconds(100))
             captureRouter.push(.scannerResult(content: "", image: image))
         }

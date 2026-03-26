@@ -54,6 +54,7 @@ final class DependencyContainer {
         let remoteConfig = FirebaseRemoteConfigService()
         AppConfiguration.FeatureFlags.registerRemoteProvider(remoteConfig)
         Task {
+            // best-effort: 远程配置拉取失败不阻塞启动，本地默认值兜底
             try? await remoteConfig.fetchAndActivate()
         }
 

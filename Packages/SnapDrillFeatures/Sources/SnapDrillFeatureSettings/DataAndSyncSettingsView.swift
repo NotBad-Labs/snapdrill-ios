@@ -37,6 +37,17 @@ struct DataAndSyncSettingsView: View {
 
     var body: some View {
         List {
+            // 本地数据警告
+            Section {
+                Label {
+                    Text(L10n.Settings.localDataWarning)
+                        .font(.subheadline)
+                } icon: {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                }
+            }
+
             // 备份 / 恢复
             Section {
                 // 备份按钮
@@ -218,7 +229,7 @@ struct DataAndSyncSettingsView: View {
                     cacheSize = "0 MB"
                 }
             } catch {
-                SnapDrillLogger.generic.info("Failed to clear cache: \(error)")
+                SnapDrillLogger.generic.error("Failed to clear cache: \(error.localizedDescription)")
             }
         }
     }

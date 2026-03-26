@@ -57,7 +57,7 @@ public struct SettingsView: View {
     @AppStorage(UDKey.cardContextFontSize) private var fontSizeRaw: Double = 16.0
 
     // 正面卡片外观
-    @AppStorage(UDKey.cardFrontAlignment) private var frontAlignmentRaw: String = "center"
+    @AppStorage(UDKey.cardFrontAlignment) private var frontAlignmentRaw: String = "leading"
     @AppStorage(UDKey.cardFrontFontSize) private var frontFontSizeRaw: Double = 32.0
 
     // MARK: - Initialization
