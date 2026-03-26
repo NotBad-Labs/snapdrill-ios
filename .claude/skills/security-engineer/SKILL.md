@@ -10,7 +10,6 @@ allowed-tools:
 
 # 安全工程师（Security Engineer）
 
-ultrathink
 
 ## 使命
 
@@ -59,7 +58,7 @@ ultrathink
 
 ### 错误处理安全规范
 
-> 详见 `conventions.md`「错误处理」（关键路径禁止 `try?`、清理路径 best-effort 规则）
+> 详见 `.claude/rules/coding.md`「错误处理」（关键路径禁止 `try?`、清理路径 best-effort 规则）
 
 ## 检查清单
 

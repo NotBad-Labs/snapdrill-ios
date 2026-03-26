@@ -19,7 +19,7 @@ allowed-tools:
 ### 1. 写 Xcode Review 提示词
 
 为 Xcode Intelligence 撰写 review 提示词，输出给用户复制。
-提示词应包含：PR 变更范围、重点检查项、项目约束（conventions.md 要点）。
+提示词应包含：PR 变更范围、重点检查项、项目约束（.claude/rules/coding.md 要点）。
 
 ### 2. 核实每条 Finding
 

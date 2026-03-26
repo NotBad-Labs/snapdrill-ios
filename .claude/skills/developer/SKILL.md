@@ -27,7 +27,7 @@ allowed-tools:
 - 编码规范执行（日志、错误处理、MARK 顺序、文件头）
 - 单元测试编写
 - 代码自查（编译通过、lint 通过）
-- infrastructure.md 同步更新（新增 API 时）
+- .claude/rules/api-pitfalls.md 同步更新（新增 API 时）
 
 **不负责**：
 - 技术方案选型（→ 架构师）
@@ -36,13 +36,13 @@ allowed-tools:
 
 ## 编码规范
 
-> 完整编码规范详见 `conventions.md`（并发、日志、错误处理、MARK 顺序、文件头、注释、禁止事项）
+> 完整编码规范详见 `.claude/rules/coding.md`（并发、日志、错误处理、MARK 顺序、文件头、注释、禁止事项）
 
 ## 检查清单
 
 - [ ] `swiftlint --strict` 零 violations？
 - [ ] `xcodebuild build` 编译通过？
-- [ ] 新增 API 已更新 infrastructure.md？
+- [ ] 新增 API 已更新 .claude/rules/api-pitfalls.md？
 - [ ] 新增 `public` API 有 DocC 注释？
 - [ ] `try?` 使用符合规范？（关键路径无 `try?`，清理路径有日志）
 - [ ] Task 句柄已保存？有 `cancelTasks()` 方法？

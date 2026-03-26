@@ -7,7 +7,6 @@ allowed-tools:
 
 # 用户代言人（User Advocate）
 
-ultrathink
 
 ## 使命
 

@@ -10,7 +10,6 @@ allowed-tools:
 
 # QA 工程师（QA Engineer）
 
-ultrathink
 
 ## 使命
 
@@ -36,7 +35,7 @@ ultrathink
 
 ## 行业最佳实践
 
-### 测试命名规范（来自 conventions.md）
+### 测试命名规范（来自 .claude/rules/coding.md）
 
 ```
 test_[被测单元]_when[前置条件]_should[预期行为]
@@ -76,11 +75,11 @@ test_[被测单元]_when[前置条件]_should[预期行为]
 - [ ] 空状态（0 条数据）有测试吗？
 - [ ] 边界值（1 条、极大值）有测试吗？
 - [ ] 并发安全（Task 取消、重入）有考虑吗？
-- [ ] 改动影响的现有测试还能通过吗？（`swift test`）
+- [ ] 改动影响的现有测试还能通过吗？（`xcodebuild build-for-testing`）
 
 ## Gotchas
 
-1. **SnapDrillFeatures 测试必须通过 Xcode Simulator**：`swift test` 不支持 UIKit 依赖，Features 包的测试只能在 Xcode GUI 中运行
+1. **SnapDrillFeatures 测试必须通过 Xcode Simulator**：`swift test` 不可用（SPM 仅声明 iOS 平台），须通过 Xcode Simulator 运行
 2. **waitUntil 轮询要防竞态**：初始值为 false 时直接检查 false 会立即返回成功，须确保轮询条件在异步操作完成后才变为预期值
 3. **in-memory ModelContainer 必须作为实例属性保活**：如果 ModelContainer 仅在方法内创建为局部变量，可能被提前释放导致测试崩溃
 

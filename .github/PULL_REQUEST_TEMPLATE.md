@@ -18,5 +18,5 @@ Closes #
 
 - [ ] `swiftlint --strict` 无 violation
 - [ ] `xcodebuild build` BUILD SUCCEEDED
-- [ ] 新增 public API 已同步更新 `.claude/infrastructure.md`
-- [ ] 变更不违反 `.claude/principles.md` 中的架构约束
+- [ ] 新增 public API 已同步更新 `.claude/rules/api-pitfalls.md`
+- [ ] 变更不违反 `.claude/rules/` 中的架构约束

@@ -40,7 +40,7 @@ allowed-tools:
 >
 > Git 工作流与发布流程详见 `workflow.md`「Git 工作流规范」
 >
-> 发版检查清单详见 `release-checklist.md`
+> 发版检查清单详见 `references/release-checklist.md`
 >
 > 版本号管理：唯一来源 `Configs/Shared.xcconfig`（`MARKETING_VERSION` + `CURRENT_PROJECT_VERSION`）
 
@@ -56,7 +56,7 @@ allowed-tools:
 ## Gotchas
 
 1. **Mac mini CI runner**：`ssh admin@192.168.1.224`（免密），Runner 名 `mac-mini`（`self-hosted,macOS,ARM64`），仅 PR 到 develop/main 时触发
-2. **`xcodebuild build` 不编译测试 target**：测试编译错误须通过 `swift test` 或 Xcode GUI 才能发现，CI 仅 build 不能替代测试编译验证
+2. **`xcodebuild build` 不编译测试 target**：测试编译错误须通过 `xcodebuild build-for-testing` 或 Xcode GUI 才能发现，CI 仅 build 不能替代测试编译验证
 3. **DerivedData 损坏时需清理重建**：遇到诡异编译错误先 `rm -rf ~/Library/Developer/Xcode/DerivedData/SnapDrill-*` 再重试
 
 ## 输出格式
@@ -73,3 +73,7 @@ allowed-tools:
 | # | 改进项 | 当前 | 目标 | 工程量 |
 |---|---|---|---|---|
 ```
+
+## 参考文件
+
+- TestFlight 发版前检查清单见 [references/release-checklist.md](references/release-checklist.md)

@@ -12,7 +12,6 @@ allowed-tools:
 
 # 架构师（Software Architect）
 
-ultrathink
 
 ## 使命
 
@@ -39,11 +38,11 @@ ultrathink
 
 ## 行业最佳实践
 
-> 架构铁律详见 `principles.md`（包边界原则、DI 原则、@Query 使用原则）+ `tech-pitfalls.md`（Apple 技术能力边界）
+> 架构铁律详见 `.claude/rules/engineering.md` + `.claude/rules/apple-native.md`（包边界原则、DI 原则、@Query 使用原则）+ `rules/apple-limits.md`（Apple 技术能力边界）
 >
-> 奥卡姆剃刀检查清单详见 `principles.md`「奥卡姆剃刀检查清单」
+> 奥卡姆剃刀检查清单详见 `.claude/rules/engineering.md` + `.claude/rules/apple-native.md`「奥卡姆剃刀检查清单」
 >
-> 研究声明格式详见 `principles.md`「决策前研究铁律 → 研究声明输出格式」
+> 研究声明格式详见 `.claude/rules/engineering.md` + `.claude/rules/apple-native.md`「决策前研究铁律 → 研究声明输出格式」
 
 ## 检查清单
 
@@ -52,11 +51,11 @@ ultrathink
 - [ ] 并发安全性确认（哪个线程/actor？有竞态风险吗？）
 - [ ] 新增文件数是否合理？（改一个需求 ≤3 个文件）
 - [ ] 有没有更简单的方案？（奥卡姆剃刀 5 条全过）
-- [ ] infrastructure.md 中的 API 是否涵盖所需接口？
+- [ ] .claude/rules/api-pitfalls.md 中的 API 是否涵盖所需接口？
 
 ## Gotchas
 
-1. **SwiftData `#Predicate` macOS SIGTRAP**：`#Predicate` 在 macOS `swift test` 环境下会触发 SIGTRAP 崩溃（已知框架限制），必须通过 Xcode Simulator 验证
+1. **SwiftData `#Predicate` macOS SIGTRAP**：`#Predicate` 在 macOS `swift test` 环境下会 SIGTRAP，必须通过 `xcodebuild build-for-testing` 或 Xcode Simulator 验证
 2. **不为 mock 加协议**：Repository 有 in-memory ModelContainer 替代测试手段，禁止为「可测试性」添加只有一个实现的协议
 3. **包边界严格单向，反向依赖编译器拦截**：Core 不得 import 任何本地包，Infrastructure 仅 App 可 import，违反即编译失败
 

@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/*.swift"
+---
+
 # 编码规范（SwiftLint 管不到的规则）
 
 ## View 层

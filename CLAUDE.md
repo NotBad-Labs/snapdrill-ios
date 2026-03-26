@@ -14,13 +14,11 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 
 ## 全局上下文（每次对话强制加载）
 
-**开始解决问题前，必须主动读取以下文件：**
+**开始解决问题前，必须主动读取：**
 
-- `.claude/conventions.md` — SwiftLint 管不到的编码规则
-- `.claude/infrastructure.md` — 实际踩过的 API 坑
-- `.claude/tech-pitfalls.md` — Apple 技术能力边界（防止 AI 错误假设）
-- `.claude/workflow.md` — 开发闭环（看板四列 + Scope 控制 + 协作模式）
-- `.claude/principles.md` — 工程哲学 + Apple 原生优先
+- `.claude/workflow.md` — 开发闭环（看板 + Git + Review + 优先级）
+
+编码规范、API 踩坑、Apple 能力边界、工程哲学、Apple 原生模式、测试策略均已迁移到 `.claude/rules/`，碰到相关文件时自动加载，无需手动读取。
 
 ## 按需上下文（涉及时读取）
 
