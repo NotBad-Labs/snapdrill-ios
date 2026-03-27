@@ -35,7 +35,7 @@ allowed-tools:
 
 ## 行业最佳实践
 
-### 测试命名规范（来自 .claude/rules/coding.md）
+### 测试命名规范
 
 ```
 test_[被测单元]_when[前置条件]_should[预期行为]

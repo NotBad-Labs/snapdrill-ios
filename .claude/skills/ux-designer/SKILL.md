@@ -42,7 +42,7 @@ allowed-tools:
 
 ### 交互模式速查
 
-> 详见 `.claude/rules/engineering.md` + `.claude/rules/apple-native.md`「Apple 原生优先铁律 → 常用模式速查 + 核心心智模型」
+> Apple 原生模式详见 `.claude/rules/apple-native.md`
 
 ### Airbnb 交互设计三原则
 

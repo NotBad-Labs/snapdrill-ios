@@ -1,6 +1,6 @@
 # 手动 Review 提示词写作规范
 
-> **上游依赖**：`workflow.md`（Code Review 铁律、操作手册）
+> **上游依赖**：`workflow.md`（Code Review）
 >
 > 每次为 PR 撰写手动 review 提示词时，参照此规范。
 > 适用于：**Antigravity**（全量代码上下文）和 **Xcode Intelligence Review**（项目内上下文）。
@@ -69,7 +69,7 @@
 
 ### 何时需要后续 review
 
-参照 `workflow.md`「fix 提交后的 re-review 规则」：
+参照 `workflow.md` Code Review 纪律：
 - **需要**：fix 引入新业务逻辑、新跨模块依赖、新文件
 - **不需要**：纯结构性修复（重命名、访问控制、import 调整）
 

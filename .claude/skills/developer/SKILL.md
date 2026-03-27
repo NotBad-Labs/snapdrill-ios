@@ -41,7 +41,7 @@ allowed-tools:
 ## 检查清单
 
 - [ ] `swiftlint --strict` 零 violations？
-- [ ] `xcodebuild build` 编译通过？
+- [ ] `xcodebuild build-for-testing` 编译通过（含测试 target）？
 - [ ] 新增 API 已更新 .claude/rules/api-pitfalls.md？
 - [ ] 新增 `public` API 有 DocC 注释？
 - [ ] `try?` 使用符合规范？（关键路径无 `try?`，清理路径有日志）

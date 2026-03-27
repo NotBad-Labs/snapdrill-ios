@@ -17,6 +17,6 @@ Closes #
 ## Checklist
 
 - [ ] `swiftlint --strict` 无 violation
-- [ ] `xcodebuild build` BUILD SUCCEEDED
+- [ ] `xcodebuild build-for-testing` BUILD SUCCEEDED（含测试 target）
 - [ ] 新增 public API 已同步更新 `.claude/rules/api-pitfalls.md`
 - [ ] 变更不违反 `.claude/rules/` 中的架构约束

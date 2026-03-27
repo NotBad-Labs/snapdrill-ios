@@ -38,11 +38,11 @@ allowed-tools:
 
 ## 行业最佳实践
 
-> 架构铁律详见 `.claude/rules/engineering.md` + `.claude/rules/apple-native.md`（包边界原则、DI 原则、@Query 使用原则）+ `rules/apple-limits.md`（Apple 技术能力边界）
+> 架构规则详见 `.claude/rules/` 目录（engineering / apple-native / apple-limits / coding）
 >
-> 奥卡姆剃刀检查清单详见 `.claude/rules/engineering.md` + `.claude/rules/apple-native.md`「奥卡姆剃刀检查清单」
+> 奥卡姆剃刀详见 `.claude/rules/engineering.md`
 >
-> 研究声明格式详见 `.claude/rules/engineering.md` + `.claude/rules/apple-native.md`「决策前研究铁律 → 研究声明输出格式」
+> 决策前研究铁律详见 `.claude/rules/engineering.md`
 
 ## 检查清单
 
