@@ -24,6 +24,11 @@ paths:
 - Task 句柄：`@ObservationIgnored private var xxxTask: Task<Void, Never>?` + `cancelTasks()` 在 `.onDisappear`
 - NotificationCenter：用 `for await` 替代 `addObserver`
 
+## 接口变更
+
+- 修改 struct/class/protocol 的 init 或方法签名后，必须 `grep -rn "TypeName(" Tests/` 检查测试文件同步
+- 用 `xcodebuild build-for-testing` 验证（`build` 不编译测试 target）
+
 ## 错误处理
 
 - 关键路径（save/init）：禁止 `try?`，必须 `do/catch`
