@@ -1,6 +1,6 @@
 # SnapDrill 协作流程
 
-> 开发闭环、Git 工作流、Code Review、优先级。工程哲学见 `.claude/rules/engineering.md`，协作模式见 `CLAUDE.md`。
+> 开发闭环、Git 工作流、Code Review、优先级。工程哲学见 `../.claude/rules/engineering.md`，协作模式见 `../CLAUDE.md`。
 
 ---
 

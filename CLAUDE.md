@@ -16,7 +16,7 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 
 **开始解决问题前，必须主动读取：**
 
-- `.claude/workflow.md` — 开发闭环（看板 + Git + Review + 优先级）
+- `docs/workflow.md` — 开发闭环（看板 + Git + Review + 优先级）
 
 编码规范、API 踩坑、Apple 能力边界、工程哲学、Apple 原生模式、测试策略均已迁移到 `.claude/rules/`，碰到相关文件时自动加载，无需手动读取。
 
@@ -24,11 +24,11 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 
 | 文件 | 何时读取 |
 |---|---|
-| `.claude/product-vision.md` | 讨论产品方向、新功能、用户画像时 |
-| `.claude/product-design.md` | 涉及 UI/UX 设计决策、交互铁律时 |
-| `.claude/product-requirements.md` | 讨论功能规格、版本路线图时 |
-| `.claude/product-journeys.md` | 验证用户体验、审查 UI 流程时 |
-| `.claude/product-business.md` | 讨论商业化、隐私策略、竞品时 |
+| `docs/product/product-vision.md` | 讨论产品方向、新功能、用户画像时 |
+| `docs/product/product-design.md` | 涉及 UI/UX 设计决策、交互铁律时 |
+| `docs/product/product-requirements.md` | 讨论功能规格、版本路线图时 |
+| `docs/product/product-journeys.md` | 验证用户体验、审查 UI 流程时 |
+| `docs/product/product-business.md` | 讨论商业化、隐私策略、竞品时 |
 
 **铁律**：修改任何代码前，必须先读取相关的产品文档确认需求。不碰产品文档就写代码是方法论缺陷。
 
@@ -78,7 +78,7 @@ xcodebuild build-for-testing \
 
 交流方式：GitHub Issue comment（Xcode 可直接读写，无需用户复制粘贴）。
 
-## 开发闭环（详见 workflow.md）
+## 开发闭环（详见 docs/workflow.md）
 
 ```
 Shaped → Building (WIP≤2) → Reviewing → Done

@@ -2,7 +2,15 @@
 
 **SnapDrill** 是一款面向学生和家长的练习题数字化存档与间隔重复复习工具，帮助用户以最低成本完成"看到题目 → 数字化存档"的过程。
 
-**[项目状态看板](STATUS.md)** — 当前阶段：v1.0 架构夯实
+**[项目状态看板](STATUS.md)**
+
+## 文档
+
+| 文档 | 用途 |
+|---|---|
+| [产品文档](docs/product/) | 愿景、设计、需求、用户旅程、商业化 |
+| [开发流程](docs/workflow.md) | 看板、Git、Code Review、优先级 |
+| [DocC API 文档](Packages/) | Xcode: Product > Build Documentation |
 
 ## 架构设计
 
@@ -44,7 +52,7 @@
 
 ## 快速开始
 
-1. 克隆仓库: `git clone https://github.com/chramboliao/SnapDrill.git`
+1. 克隆仓库: `git clone https://github.com/NotBad-Labs/snapdrill-ios.git`
 2. 安装依赖工具: 确保已安装 SwiftLint。
 3. 打开项目: 双击 `SnapDrill.xcodeproj`。
 4. 运行: 选择 `SnapDrill` Scheme，在模拟器或真机上运行。
@@ -54,7 +62,3 @@
 - **Xcode**: `Cmd+U`
 - **命令行**: `xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
 
-## 文档
-
-所有模块均提供 Apple **DocC** 文档。
-查看方式：Xcode 菜单栏 **Product > Build Documentation**。
