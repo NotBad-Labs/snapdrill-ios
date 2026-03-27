@@ -1,6 +1,6 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-03-26
+> 最后更新：2026-03-27
 > 编译状态：✅ 0 errors · 0 lint violations
 > Open PR：0 · Open Issue：3（全部外部阻塞）
 
@@ -8,13 +8,12 @@
 
 ## 当前焦点
 
-文档体系清理与对齐中。CLAUDE.md 已重写，session-log.md 已迁移到 Auto Memory。
+文档全量复核已完成。6 文档 48KB 交叉审查 + 15 项代码验证 + 5 项 Apple API 验证，7 处修复已合并（#446）。
 
 ## 下一步
 
 | 优先级 | 事项 |
 |---|---|
-| P0 | 继续按加载顺序复核剩余文档（architecture → conventions → infrastructure → workflow → principles → 产品文档） |
 | P1 | TestFlight Build 6（编译错误已全部修复） |
 | P1 | #440 维度 3+4（SwiftUI 架构最佳实践 + 竞品技术差距） |
 
