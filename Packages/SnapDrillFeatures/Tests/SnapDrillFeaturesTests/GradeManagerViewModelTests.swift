@@ -16,7 +16,6 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("GradeManagerViewModel 年级管理测试", .serialized)
-@MainActor
 final class GradeManagerViewModelTests {
 
     private let container: ModelContainer

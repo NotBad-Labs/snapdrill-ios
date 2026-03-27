@@ -8,19 +8,8 @@
 //  图片存储服务，负责将图片持久化到本地文件系统。
 //
 
-#if canImport(UIKit)
 import UIKit
 import ImageIO
-#else
-import Foundation
-// 非 iOS 平台编译 stub（swift test 使用）。
-// struct 天然满足 Sendable，无需 @unchecked 绕过编译器检查。
-public struct UIImage: Sendable {
-    public init?(data: Data) { return nil }
-    public init?(contentsOfFile: String) { return nil }
-    public func jpegData(compressionQuality: Double) -> Data? { return nil }
-}
-#endif
 
 /// 图片存储服务
 ///
@@ -40,7 +29,7 @@ public struct ImageStorage: Sendable {
 
     // MARK: - Initialization
 
-    public init() {}
+    nonisolated public init() {}
 
     // MARK: - Public API
 
@@ -52,7 +41,7 @@ public struct ImageStorage: Sendable {
     /// - Parameter image: 要保存的原始图片对象
     /// - Returns: 图片的相对路径 (例如 `"images/123-abc.jpg"`)，可用于后续存入数据库
     /// - Throws: `ImageStorageError` 如果图片数据转换失败或文件写入失败
-    public func saveImage(_ image: UIImage) async throws -> String {
+    nonisolated public func saveImage(_ image: UIImage) async throws -> String {
         guard let data = Self.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8) else {
             throw ImageStorageError.invalidImageData
         }
@@ -81,7 +70,7 @@ public struct ImageStorage: Sendable {
     ///
     /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
     /// - Throws: 文件删除失败时抛出 FileManager 错误；文件不存在时静默返回
-    public func deleteImage(path: String) async throws {
+    nonisolated public func deleteImage(path: String) async throws {
         try await Task.detached {
             let fileManager = FileManager.default
             let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -98,7 +87,7 @@ public struct ImageStorage: Sendable {
     ///
     /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
     /// - Returns: 加载的 UIImage，如果失败返回 nil
-    public func loadImage(path: String) -> UIImage? {
+    nonisolated public func loadImage(path: String) -> UIImage? {
         let fileManager = FileManager.default
         let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let fileURL = documentsURL.appendingPathComponent(path)
@@ -115,7 +104,7 @@ public struct ImageStorage: Sendable {
     ///
     /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
     /// - Returns: 加载的 UIImage，如果失败返回 nil
-    public func loadImageAsync(path: String) async -> UIImage? {
+    nonisolated public func loadImageAsync(path: String) async -> UIImage? {
         await Task.detached(priority: .userInitiated) { [self] in
             self.loadImage(path: path)
         }.value
@@ -131,8 +120,7 @@ public struct ImageStorage: Sendable {
     ///   - path: 图片的相对路径 (e.g., "images/xyz.jpg")
     ///   - maxLongSide: 长边像素上限（默认 1200，A4 150dpi 足够）
     /// - Returns: 降采样后的 UIImage，失败时回退到 `loadImage(path:)`
-    public func loadDownsampledImage(path: String, maxLongSide: Int = 1200) -> UIImage? {
-        #if canImport(UIKit)
+    nonisolated public func loadDownsampledImage(path: String, maxLongSide: Int = 1200) -> UIImage? {
         let fileManager = FileManager.default
         let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let fileURL = documentsURL.appendingPathComponent(path)
@@ -154,14 +142,10 @@ public struct ImageStorage: Sendable {
         }
 
         return UIImage(cgImage: cgImage)
-        #else
-        return loadImage(path: path)
-        #endif
     }
 
     // MARK: - Private Helpers
 
-    #if canImport(UIKit)
     /// 将 UIImage 压缩为 JPEG Data，大图通过 ImageIO 流式下采样
     ///
     /// 内存优化策略：
@@ -180,7 +164,7 @@ public struct ImageStorage: Sendable {
     ///   - maxLongSide: 长边物理像素上限
     ///   - quality: JPEG 压缩质量（0.0-1.0）
     /// - Returns: 压缩后的 JPEG Data（不含 GPS 元数据），失败返回 nil
-    static func compressedJPEGData(from image: UIImage, maxLongSide: CGFloat, quality: CGFloat) -> Data? {
+    nonisolated static func compressedJPEGData(from image: UIImage, maxLongSide: CGFloat, quality: CGFloat) -> Data? {
         // 计算物理像素尺寸（image.size 是逻辑点，需乘以 scale）
         let pixelWidth = image.size.width * image.scale
         let pixelHeight = image.size.height * image.scale
@@ -223,7 +207,7 @@ public struct ImageStorage: Sendable {
     ///   - cgImage: 源像素数据
     ///   - quality: JPEG 压缩质量（0.0-1.0）
     /// - Returns: 不含位置元数据的 JPEG Data，CGImage 为 nil 时返回 nil
-    private static func jpegDataStrippingLocation(from cgImage: CGImage?, quality: CGFloat) -> Data? {
+    nonisolated private static func jpegDataStrippingLocation(from cgImage: CGImage?, quality: CGFloat) -> Data? {
         guard let cgImage else { return nil }
         let mutableData = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(
@@ -238,12 +222,6 @@ public struct ImageStorage: Sendable {
         guard CGImageDestinationFinalize(destination) else { return nil }
         return mutableData as Data
     }
-    #else
-    /// 非 UIKit 平台 stub
-    static func compressedJPEGData(from image: UIImage, maxLongSide: CGFloat, quality: CGFloat) -> Data? {
-        image.jpegData(compressionQuality: quality)
-    }
-    #endif
 }
 
 /// 图片存储操作错误

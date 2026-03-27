@@ -15,7 +15,6 @@ import SnapDrillCore
 @testable import SnapDrillData
 
 @Suite("ReviewRepository 单元测试")
-@MainActor
 struct ReviewRepositoryTests {
 
     // MARK: - Helpers
@@ -220,7 +219,7 @@ struct ReviewRepositoryTests {
         let savedId = model.id
         try repo.insertAndSave(model)
 
-        // 用 fetchAllModels 避免 #Predicate 在 macOS swift test 的 SIGTRAP 限制
+        // fetchAllModels + 内存端 filter 避免 #Predicate many-to-many 崩溃
         let fetched = try repo.fetchAllModels().first(where: { $0.id == savedId })
         #expect(fetched?.content == largeContent, "超大文本写入后应能完整检索，无截断")
     }

@@ -11,6 +11,13 @@
 
 import PackageDescription
 
+let sharedSwiftSettings: [SwiftSetting] = [
+    .swiftLanguageMode(.v6),
+    .defaultIsolation(MainActor.self),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+]
+
 let package = Package(
     name: "SnapDrillInfrastructure",
     platforms: [.iOS(.v26)],
@@ -31,9 +38,7 @@ let package = Package(
                 .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
                 .product(name: "SnapDrillCore", package: "SnapDrillCore")
             ],
-            swiftSettings: [
-                .swiftLanguageMode(.v6)
-            ]
+            swiftSettings: sharedSwiftSettings
         )
     ]
 )

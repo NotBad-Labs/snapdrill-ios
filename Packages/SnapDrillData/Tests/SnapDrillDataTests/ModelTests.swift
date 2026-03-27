@@ -13,7 +13,6 @@ import Foundation
 import SwiftData
 @testable import SnapDrillData
 
-@MainActor
 struct ModelTests {
 
     var container: ModelContainer

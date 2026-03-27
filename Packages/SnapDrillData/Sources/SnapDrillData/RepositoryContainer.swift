@@ -15,7 +15,6 @@ import SnapDrillCore
 // MARK: - Default Implementation
 
 /// 数据仓库容器（具体类，直接注入到 SwiftUI Environment）
-@MainActor
 public final class RepositoryContainer {
     /// 复习题目仓库
     public let review: ReviewRepository
@@ -174,7 +173,6 @@ public final class RepositoryContainer {
 // MARK: - Preview Support
 
 /// 预览专用数据仓库容器（使用内存 ModelContainer）
-@MainActor
 public final class PreviewRepositoryContainer {
     /// 复习题目仓库
     public let review: ReviewRepository

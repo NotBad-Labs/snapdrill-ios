@@ -16,7 +16,6 @@ import Foundation
 ///
 /// 持有所有服务的真实实例，在 App 启动时由 `SnapDrillApp` 创建并注入。
 /// Production service container holding real service instances.
-@MainActor
 public final class LiveServiceContainer: ServiceContainer {
 
     // MARK: - ServiceContainer

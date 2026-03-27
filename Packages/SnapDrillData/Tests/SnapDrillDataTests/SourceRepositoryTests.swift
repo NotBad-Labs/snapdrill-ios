@@ -15,7 +15,6 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("SourceRepository 单元测试", .serialized)
-@MainActor
 struct SourceRepositoryTests {
 
     private func createRepo() throws -> SourceRepository {

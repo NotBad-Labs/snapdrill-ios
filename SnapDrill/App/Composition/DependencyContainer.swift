@@ -16,7 +16,6 @@ import SnapDrillInfrastructure
 /// 应用的依赖注入容器 (Composition Root)
 ///
 /// 集中管理所有全局单例和长生命周期对象，确保应用拓扑结构清晰。
-@MainActor
 final class DependencyContainer {
     
     // MARK: - Properties

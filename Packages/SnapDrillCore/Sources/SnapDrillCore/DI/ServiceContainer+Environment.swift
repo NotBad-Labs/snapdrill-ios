@@ -15,7 +15,6 @@ import SwiftUI
 /// 服务容器 Environment Key
 ///
 /// 默认值为 Mock 容器，确保 Preview 无需额外配置即可运行。
-@MainActor
 private struct ServiceContainerKey: EnvironmentKey {
     nonisolated static let defaultValue: any ServiceContainer = {
         // 使用 MainActor.assumeIsolated 来安全创建默认值

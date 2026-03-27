@@ -15,7 +15,6 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("GradeRepository 单元测试", .serialized)
-@MainActor
 struct GradeRepositoryTests {
 
     private func createRepo() throws -> GradeRepository {

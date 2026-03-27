@@ -9,9 +9,7 @@
 //
 
 import Foundation
-#if canImport(UIKit)
 import UIKit
-#endif
 import PDFKit
 
 /// 负责将错题列表生成 PDF 的服务类
@@ -24,7 +22,6 @@ public final class PDFExportService: Sendable {
     /// 创建 PDF 导出服务实例；通常通过 `ServiceContainer` 注入
     public init() {}
 
-    #if canImport(UIKit)
     // any PDFExportable：无 associated type / Self 约束的协议作为集合元素，
     // 允许异构集合（不同 PDFExportable 实现类型混传），见 CLAUDE.md Exception 2。
     /// 异步生成包含指定题目的 PDF 数据，支持中途取消
@@ -63,7 +60,7 @@ public final class PDFExportService: Sendable {
                     }
                     // autoreleasepool 确保每页渲染后释放图片位图和 CoreGraphics 临时对象，
                     // 避免 50+ 题导出时全部堆积在内存导致 OOM
-                    try autoreleasepool {
+                    autoreleasepool {
                         context.beginPage()
                         drawItemsPage(context: context.cgContext, rect: pageRect, items: chunk, imageProvider: imageProvider)
                     }
@@ -149,12 +146,6 @@ public final class PDFExportService: Sendable {
             (contentText as NSString).draw(in: textRect, withAttributes: attrs)
         }
     }
-    #else
-    public func createPDF(from items: [any PDFExportable], imageProvider: @Sendable @escaping (String) -> Any?) async throws -> Data {
-        // 非 iOS 平台的兜底实现
-        return Data()
-    }
-    #endif
 }
 
 extension Array {

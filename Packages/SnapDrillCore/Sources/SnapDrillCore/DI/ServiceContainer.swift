@@ -35,7 +35,6 @@ import Foundation
 ///
 /// ## 不保证
 /// - 属性的具体实现类型（调用方只应依赖协议或此处声明的具体类型）
-@MainActor
 public protocol ServiceContainer: Sendable {
     /// 分析服务（协议类型，生产环境为 Firebase 实现，测试为 Mock）
     var analytics: AnalyticsServiceProtocol { get }

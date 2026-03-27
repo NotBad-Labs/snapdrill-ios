@@ -25,7 +25,6 @@ import UIKit
 ///   - timeout: 最大等待时间（默认 2 秒，覆盖 CI 慢速场景）
 ///   - description: 超时时的错误描述
 ///   - condition: 检查条件闭包
-@MainActor
 func waitUntil(
     timeout: Duration = .seconds(2),
     _ description: String = "条件未在超时前满足",
@@ -74,7 +73,6 @@ final class MockOCRServiceShared: OCRServiceProtocol, @unchecked Sendable {
 // MARK: - Seed Helpers
 
 /// 在 Repository 中插入默认学科、来源和年级（多数 ViewModel 测试需要）
-@MainActor
 func seedDefaultTaxonomy(repos: RepositoryContainer) throws {
     let subject = SubjectModel(name: "数学", icon: "function", colorHex: "#FF0000", sortOrder: 0)
     try repos.subject.insertAndSave(subject)

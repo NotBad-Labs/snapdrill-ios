@@ -14,7 +14,6 @@ import UserNotifications
 /// 通知服务生产实现
 ///
 /// 封装 `UNUserNotificationCenter`，提供权限请求和每日复习提醒调度。
-@MainActor
 public final class LiveNotificationService: NotificationServiceProtocol {
 
     // MARK: - Initialization

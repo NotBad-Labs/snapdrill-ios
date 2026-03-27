@@ -16,7 +16,6 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("SourceManagerViewModel 来源管理测试", .serialized)
-@MainActor
 final class SourceManagerViewModelTests {
 
     private let container: ModelContainer

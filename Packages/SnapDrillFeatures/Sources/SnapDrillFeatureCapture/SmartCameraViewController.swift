@@ -161,8 +161,9 @@ final class CameraSessionManager: NSObject {
     
     // 回调闭包跨越隔离边界，标记为 @Sendable 以满足 Swift 6 严格并发检查。
     // 调用方（SmartCameraViewController）保证在 @MainActor 上分发。
-    var onRegionDetected: (@Sendable (CGRect?, Bool) -> Void)?
-    var onCapture: (@Sendable (UIImage, CGRect) -> Void)?
+    // nonisolated(unsafe)：在 MainActor 上设置，在 nonisolated 委托方法中读取。
+    nonisolated(unsafe) var onRegionDetected: (@Sendable (CGRect?, Bool) -> Void)?
+    nonisolated(unsafe) var onCapture: (@Sendable (UIImage, CGRect) -> Void)?
     
     override init() {
         super.init()
@@ -211,7 +212,7 @@ final class CameraSessionManager: NSObject {
         session.commitConfiguration()
     }
     
-    private static func extractTargetRect(from observations: [VNTextObservation]) -> CGRect? {
+    nonisolated private static func extractTargetRect(from observations: [VNTextObservation]) -> CGRect? {
         let validObs = observations.filter { $0.boundingBox.height > 0.02 } // 过滤噪声
         guard !validObs.isEmpty else {
             return nil

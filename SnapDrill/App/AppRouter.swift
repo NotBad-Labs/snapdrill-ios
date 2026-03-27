@@ -35,7 +35,6 @@ enum AppTab: Hashable {
 /// 应用层级路由器
 ///
 /// 负责管理一级 Tab 切换和各功能模块的子路由。
-@MainActor
 @Observable
 final class AppRouter {
     

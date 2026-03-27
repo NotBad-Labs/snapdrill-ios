@@ -31,7 +31,6 @@ public enum SettingsDestination: Hashable {
 ///
 /// ## 扩展性
 /// - **SettingsDestination**: 目前虽仅有占位符，但设计上支持嵌套的设置详情页。
-@MainActor
 @Observable
 public final class SettingsRouter: FeatureRouter {
     

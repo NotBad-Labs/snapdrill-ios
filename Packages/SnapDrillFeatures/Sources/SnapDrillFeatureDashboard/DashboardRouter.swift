@@ -26,7 +26,6 @@ public enum DashboardDestination: Hashable {
 /// ## 职责
 /// - 作为应用的入口路由，未来可能处理 DeepLink 跳转到其他模块的逻辑。
 /// - 管理 Dashboard 内部的任何子页面跳转。
-@MainActor
 @Observable
 public final class DashboardRouter: FeatureRouter {
     

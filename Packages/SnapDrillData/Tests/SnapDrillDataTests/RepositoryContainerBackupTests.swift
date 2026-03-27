@@ -15,7 +15,6 @@ import SnapDrillCore
 @testable import SnapDrillData
 
 @Suite("RepositoryContainer 备份/恢复测试")
-@MainActor
 struct RepositoryContainerBackupTests {
 
     // MARK: - Helpers

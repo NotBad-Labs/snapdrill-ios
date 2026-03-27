@@ -16,7 +16,6 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("ReviewViewModel 状态机与 SM-2 调度测试", .serialized)
-@MainActor
 final class ReviewViewModelTests {
 
     // MARK: - 存储属性（每次 @Test 执行前由 Swift Testing 调用 init() 重建）

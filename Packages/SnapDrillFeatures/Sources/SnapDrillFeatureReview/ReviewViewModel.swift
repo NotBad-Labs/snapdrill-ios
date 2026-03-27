@@ -37,7 +37,6 @@ struct UndoEntry {
 
 /// 复习会话 ViewModel
 @Observable
-@MainActor
 final class ReviewViewModel {
 
     // MARK: - Properties

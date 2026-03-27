@@ -8,13 +8,11 @@
 //  采集草稿服务，负责暂时保存未确认的拍摄内容。跨域共用（Dashboard 检测、Capture 消费）。
 //
 
-#if canImport(UIKit)
 import UIKit
 
 /// 负责管理拍照识题的草稿缓存
 ///
 /// 当用户意外退出编辑界面时，用于恢复之前的图片和识别文字。
-@MainActor
 public final class CaptureDraftService: CaptureDraftServiceProtocol {
 
     public static let shared = CaptureDraftService()
@@ -130,4 +128,3 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
         return cacheDir.appendingPathComponent(draftImageName)
     }
 }
-#endif

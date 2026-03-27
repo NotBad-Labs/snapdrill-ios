@@ -13,7 +13,6 @@ import SwiftData
 import SnapDrillCore
 
 /// 学科数据仓库的 SwiftData 实现
-@MainActor
 public final class SubjectRepository {
     
     private let modelContext: ModelContext

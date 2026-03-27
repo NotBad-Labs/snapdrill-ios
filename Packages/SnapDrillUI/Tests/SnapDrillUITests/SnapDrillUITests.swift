@@ -12,13 +12,11 @@
 //  - 局限：SwiftUI 视图树深度断言需要 ViewInspector，当前未引入该依赖。
 //
 
-#if canImport(UIKit)
 import Testing
 import UIKit
 import SwiftUI
 @testable import SnapDrillUI
 
-@MainActor
 struct SnapDrillUITests {
 
     // MARK: - Smoke Tests（防止 @Environment 强解包崩溃）
@@ -71,4 +69,3 @@ struct SnapDrillUITests {
         #expect(hc.view.bounds.height > 0)
     }
 }
-#endif

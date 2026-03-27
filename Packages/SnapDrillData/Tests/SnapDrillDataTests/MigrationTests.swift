@@ -13,7 +13,6 @@ import SwiftData
 import Foundation
 @testable import SnapDrillData
 
-@MainActor
 struct MigrationTests {
 
     // MARK: - Schema 初始化

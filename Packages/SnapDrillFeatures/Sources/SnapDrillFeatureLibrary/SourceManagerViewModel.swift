@@ -17,7 +17,6 @@ import SnapDrillCore
 ///
 /// 负责来源列表的加载、新增、编辑和删除（含使用中校验）。与 `SubjectManagerViewModel` 结构对等。
 @Observable
-@MainActor
 public final class SourceManagerViewModel {
 
     // MARK: - State

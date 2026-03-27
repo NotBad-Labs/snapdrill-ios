@@ -16,7 +16,6 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("SubjectManagerViewModel 学科管理测试", .serialized)
-@MainActor
 final class SubjectManagerViewModelTests {
 
     private let container: ModelContainer

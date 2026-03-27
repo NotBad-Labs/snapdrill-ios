@@ -26,7 +26,6 @@ import Foundation
 /// ## 不保证
 /// - 调用频率不受限（实现方可能有内部节流，如 Firebase 的 12 小时最小间隔）
 /// - fetch 后立即可用（激活可能有短暂延迟）
-@MainActor
 public protocol RemoteConfigurable {
     /// 从远程拉取最新配置并激活
     /// - Throws: 网络错误或服务端错误
@@ -48,7 +47,6 @@ public protocol RemoteConfigurable {
 /// 应用配置
 ///
 /// 集中管理应用的所有配置项，提供类型安全的访问方式。
-@MainActor
 public final class AppConfiguration {
     
     // MARK: - Properties
@@ -88,7 +86,6 @@ public final class AppConfiguration {
     // MARK: - Feature Flags
     
     /// 功能开关
-    @MainActor
     public struct FeatureFlags {
         private static var remoteProvider: (any RemoteConfigurable)?
         

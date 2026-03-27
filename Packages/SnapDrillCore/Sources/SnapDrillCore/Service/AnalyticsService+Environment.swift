@@ -24,7 +24,6 @@ private struct AnalyticsServiceKey: EnvironmentKey {
 // MARK: - EnvironmentValues Extension
 
 public extension EnvironmentValues {
-    @MainActor
     var analyticsService: any AnalyticsServiceProtocol {
         get { self[AnalyticsServiceKey.self] }
         set { self[AnalyticsServiceKey.self] = newValue }

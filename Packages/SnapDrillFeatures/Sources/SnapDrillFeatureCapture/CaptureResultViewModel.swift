@@ -15,7 +15,6 @@ import SnapDrillData
 import SnapDrillUI
 
 /// 采集结果预览与编辑的 ViewModel
-@MainActor
 @Observable
 public final class CaptureResultViewModel {
 

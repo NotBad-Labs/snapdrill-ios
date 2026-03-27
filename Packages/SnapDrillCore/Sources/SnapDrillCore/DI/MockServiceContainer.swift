@@ -16,7 +16,6 @@ import Foundation
 ///
 /// 所有服务都使用 Mock 实现，不依赖外部系统。
 /// All services use mock implementations with no external dependencies.
-@MainActor
 public final class MockServiceContainer: ServiceContainer {
 
     // MARK: - ServiceContainer

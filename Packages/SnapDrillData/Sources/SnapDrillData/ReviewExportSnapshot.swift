@@ -12,7 +12,7 @@ import Foundation
 import SnapDrillCore
 
 /// 导出专用只读快照——仅含导出所需字段，满足 Sendable 和 PDFExportable。
-public struct ReviewExportSnapshot: Sendable, Identifiable {
+nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     /// 题目唯一标识符
     public let id: UUID
     /// 题目内容文本

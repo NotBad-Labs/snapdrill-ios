@@ -13,7 +13,6 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("ReviewScheduler SM-2 算法测试")
-@MainActor
 struct ReviewSchedulerTests {
 
     // MARK: - Helpers

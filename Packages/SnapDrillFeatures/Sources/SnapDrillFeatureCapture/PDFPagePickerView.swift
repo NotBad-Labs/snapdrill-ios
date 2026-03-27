@@ -212,7 +212,6 @@ struct PDFPagePickerView: View {
 ///
 /// 在后台线程生成缩略图并缓存到内存字典中，避免 LazyVGrid 滚动时重复调用
 /// `PDFPage.thumbnail(of:for:)` 导致掉帧。每页缩略图仅生成一次。
-@MainActor
 @Observable
 final class PDFThumbnailCache {
 

@@ -16,7 +16,6 @@ import SnapDrillCore
 ///
 /// 管理现有题目的编辑状态，包括图片替换（含 OCR 重新识别）、分类信息更新和持久化保存。
 @Observable
-@MainActor
 public final class LibraryEditViewModel {
 
     // MARK: - State

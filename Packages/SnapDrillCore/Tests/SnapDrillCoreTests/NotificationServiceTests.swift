@@ -12,7 +12,6 @@ import Testing
 import Foundation
 @testable import SnapDrillCore
 
-@MainActor
 @Suite("NotificationServiceMock 测试")
 struct NotificationServiceTests {
 
