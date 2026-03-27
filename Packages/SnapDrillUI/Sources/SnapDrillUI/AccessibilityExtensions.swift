@@ -191,7 +191,6 @@ extension Font {
 // MARK: - Accessibility Announcements
 
 /// 无障碍公告
-@MainActor
 public struct AccessibilityAnnouncement {
     /// 发送无障碍公告
     ///
@@ -202,12 +201,10 @@ public struct AccessibilityAnnouncement {
         _ message: String,
         priority: AccessibilityNotificationPriority = .default
     ) {
-        #if os(iOS)
         // .announcement = 标准文本播报，不重置焦点
         // .screenChanged = 屏幕整体变化，会重置 VoiceOver 焦点到第一个元素
         let notification: UIAccessibility.Notification = priority == .high ? .screenChanged : .announcement
         UIAccessibility.post(notification: notification, argument: message)
-        #endif
     }
 }
 

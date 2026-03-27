@@ -14,7 +14,6 @@ import Foundation
 ///
 /// 抽象 `UNUserNotificationCenter` 的权限请求和每日提醒调度，
 /// 使 SettingsViewModel 不直接依赖系统 API。
-@MainActor
 public protocol NotificationServiceProtocol: Sendable {
     /// 请求通知权限
     ///

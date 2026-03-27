@@ -16,7 +16,6 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("SettingsViewModel 测试", .serialized)
-@MainActor
 final class SettingsViewModelTests {
 
     private let container: ModelContainer

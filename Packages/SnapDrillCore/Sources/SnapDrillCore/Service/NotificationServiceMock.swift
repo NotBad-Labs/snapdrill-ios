@@ -13,7 +13,6 @@ import Foundation
 /// 通知服务 Mock 实现
 ///
 /// 记录所有方法调用，不依赖 `UNUserNotificationCenter`，适用于单元测试和 Preview。
-@MainActor
 public final class NotificationServiceMock: NotificationServiceProtocol {
 
     // MARK: - 测试追踪

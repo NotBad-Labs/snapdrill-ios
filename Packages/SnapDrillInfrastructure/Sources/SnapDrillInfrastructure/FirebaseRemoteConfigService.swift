@@ -9,14 +9,12 @@
 //
 
 import Foundation
-@preconcurrency import FirebaseRemoteConfig
+import FirebaseRemoteConfig
 import SnapDrillCore
 
 /// Firebase Remote Config 实现的远程配置服务
 ///
 /// 将 Firebase 远程配置映射到 AppConfiguration。
-@available(iOS 14.0, macOS 11.0, *)
-@MainActor
 public final class FirebaseRemoteConfigService: RemoteConfigurable {
     
     // MARK: - Properties

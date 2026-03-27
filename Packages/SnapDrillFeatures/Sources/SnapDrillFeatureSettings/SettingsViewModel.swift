@@ -17,7 +17,6 @@ import SnapDrillData
 ///
 /// 处理设置页面的数据操作（如清除全部数据、备份/恢复）。
 @Observable
-@MainActor
 public final class SettingsViewModel {
     private let repositories: RepositoryContainer
     private let backupService = BackupService()

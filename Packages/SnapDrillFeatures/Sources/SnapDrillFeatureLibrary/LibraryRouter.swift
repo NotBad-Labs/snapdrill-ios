@@ -29,7 +29,6 @@ public enum LibraryDestination: Hashable {
 /// ## 导航路径
 /// - **列表页**: 模块首页，展示题目列表。
 /// - **详情页**: `.detail(ReviewItemModel)`，展示题目的图片、完整文本及元数据。
-@MainActor
 @Observable
 public final class LibraryRouter: FeatureRouter {
 

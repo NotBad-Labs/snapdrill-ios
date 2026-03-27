@@ -12,7 +12,6 @@ import Testing
 import Foundation
 @testable import SnapDrillCore
 
-@MainActor
 struct ServiceContainerTests {
 
     // MARK: - LiveServiceContainer

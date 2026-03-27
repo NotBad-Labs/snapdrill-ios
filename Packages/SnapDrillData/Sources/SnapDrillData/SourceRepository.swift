@@ -13,7 +13,6 @@ import SwiftData
 import SnapDrillCore
 
 /// 题目来源数据仓库的 SwiftData 实现
-@MainActor
 public final class SourceRepository {
     
     private let modelContext: ModelContext

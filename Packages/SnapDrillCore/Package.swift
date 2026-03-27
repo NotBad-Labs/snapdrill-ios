@@ -11,6 +11,13 @@
 
 import PackageDescription
 
+let sharedSwiftSettings: [SwiftSetting] = [
+    .swiftLanguageMode(.v6),
+    .defaultIsolation(MainActor.self),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+]
+
 let package = Package(
     name: "SnapDrillCore",
     platforms: [.iOS(.v26)],
@@ -22,13 +29,12 @@ let package = Package(
         .target(
             name: "SnapDrillCore",
             dependencies: [],
-            swiftSettings: [
-                .swiftLanguageMode(.v6)
-            ]
+            swiftSettings: sharedSwiftSettings
         ),
         .testTarget(
             name: "SnapDrillCoreTests",
-            dependencies: ["SnapDrillCore"]
+            dependencies: ["SnapDrillCore"],
+            swiftSettings: sharedSwiftSettings
         )
     ]
 )

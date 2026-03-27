@@ -57,7 +57,6 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
 /// 管理多维度过滤（搜索文本、学科、标签）、分页加载和数据刷新逻辑。
 /// 由于 SwiftData many-to-many Predicate 限制，过滤在内存端完成。
 @Observable
-@MainActor
 public final class LibraryViewModel {
 
     // MARK: - Dependencies

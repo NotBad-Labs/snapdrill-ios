@@ -150,7 +150,7 @@ struct PrivacySettingsView: View {
 }
 
 /// 导出专用的 Sendable 值类型
-struct ExportableItem: Sendable {
+nonisolated struct ExportableItem: Sendable {
     let id: UUID
     let content: String?
     let subject: String
@@ -164,7 +164,7 @@ struct ExportableItem: Sendable {
 }
 
 /// 隐私数据导出格式（区别于题库导出的 ReviewExport.ExportFormat）
-enum PrivacyDataExportFormat {
+nonisolated enum PrivacyDataExportFormat {
     case json
     case csv
 

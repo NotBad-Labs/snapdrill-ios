@@ -19,14 +19,12 @@ enum ReviewCardFactory {
     // MARK: - Internal API
 
     /// 生成卡片正面视图
-    @MainActor
     @ViewBuilder
     static func makeFront(for item: ReviewItemModel) -> some View {
         ReviewCardFront(item: item)
     }
 
     /// 生成卡片背面视图
-    @MainActor
     @ViewBuilder
     static func makeBack(for item: ReviewItemModel) -> some View {
         ReviewCardBack(item: item)

@@ -15,7 +15,6 @@ import Foundation
 
 // MARK: - Mock Notification Service
 
-@MainActor
 final class MockNotificationService: NotificationServiceProtocol {
     var requestPermissionResult: Bool = true
     var requestPermissionCallCount = 0
@@ -45,7 +44,6 @@ final class MockNotificationService: NotificationServiceProtocol {
 }
 
 @Suite("NotificationSettingsViewModel 通知设置测试")
-@MainActor
 struct NotificationSettingsViewModelTests {
 
     // MARK: - enable

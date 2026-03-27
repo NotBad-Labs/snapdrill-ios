@@ -13,7 +13,6 @@ import SwiftData
 import SnapDrillCore
 
 /// 复习数据仓库的 SwiftData 实现
-@MainActor
 public final class ReviewRepository {
     
     // MARK: - Properties

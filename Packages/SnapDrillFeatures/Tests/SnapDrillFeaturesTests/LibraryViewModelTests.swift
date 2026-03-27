@@ -16,7 +16,6 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("LibraryViewModel 过滤与分页测试", .serialized)
-@MainActor
 final class LibraryViewModelTests {
 
     // MARK: - 存储属性（每次 @Test 执行前由 Swift Testing 调用 init() 重建）

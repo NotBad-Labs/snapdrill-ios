@@ -13,7 +13,6 @@ import SwiftData
 
 // MARK: - Environment Key
 
-@MainActor
 private struct RepositoryContainerKey: EnvironmentKey {
     nonisolated static let defaultValue: RepositoryContainer = {
         MainActor.assumeIsolated {

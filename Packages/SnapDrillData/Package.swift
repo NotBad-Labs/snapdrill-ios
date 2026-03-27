@@ -11,6 +11,13 @@
 
 import PackageDescription
 
+let sharedSwiftSettings: [SwiftSetting] = [
+    .swiftLanguageMode(.v6),
+    .defaultIsolation(MainActor.self),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+]
+
 let package = Package(
     name: "SnapDrillData",
     platforms: [.iOS(.v26)],
@@ -28,13 +35,12 @@ let package = Package(
                 "SnapDrillCore",
                 .product(name: "ZIPFoundation", package: "ZIPFoundation"),
             ],
-            swiftSettings: [
-                .swiftLanguageMode(.v6)
-            ]
+            swiftSettings: sharedSwiftSettings
         ),
         .testTarget(
             name: "SnapDrillDataTests",
-            dependencies: ["SnapDrillData"]
+            dependencies: ["SnapDrillData"],
+            swiftSettings: sharedSwiftSettings
         ),
     ]
 )

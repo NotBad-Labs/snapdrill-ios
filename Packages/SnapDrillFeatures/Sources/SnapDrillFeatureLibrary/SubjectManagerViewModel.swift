@@ -17,7 +17,6 @@ import SnapDrillCore
 ///
 /// 负责学科列表的加载、新增、编辑和删除（含使用中校验）。
 @Observable
-@MainActor
 public final class SubjectManagerViewModel {
 
     // MARK: - State

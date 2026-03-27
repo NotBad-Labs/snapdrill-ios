@@ -23,6 +23,15 @@ paths:
 | `ImageStorage.loadImage()` 在 View 中用 | 用 `loadImageAsync()` 或 `loadDownsampledImage()` | loadImage() 同步阻塞主线程 |
 | PDF 批量渲染不加 autoreleasepool | `for chunk in items { try autoreleasepool { ... } }` | 批量图片渲染会 OOM |
 
+## defaultIsolation 陷阱
+
+| 陷阱 | 后果 | 正确做法 |
+|---|---|---|
+| 纯数据 struct 未标 `nonisolated` | 跨 actor 边界编译失败 | DTO/Snapshot/L10n 等标 `nonisolated` |
+| `Sendable` 类有可变状态但无显式 `@MainActor` | "mutable stored property" 编译错误 | 此类保留显式 `@MainActor` |
+| `static let` Logger 常量未标 `nonisolated` | nonisolated 上下文无法访问 | 用 `nonisolated`（Logger 是 Sendable，不需要 unsafe） |
+| AVFoundation 回调属性默认 MainActor | nonisolated delegate 无法读取 | 用 `nonisolated(unsafe)` |
+
 ## SwiftData 陷阱
 
 | 陷阱 | 后果 | 正确做法 |

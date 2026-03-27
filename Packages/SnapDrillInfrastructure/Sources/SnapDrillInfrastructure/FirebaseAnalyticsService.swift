@@ -15,8 +15,7 @@ import SnapDrillCore
 /// Firebase Analytics 实现的分析服务适配器
 ///
 /// 符合 `AnalyticsServiceProtocol`，将事件路由到 Firebase Analytics。
-@MainActor
-public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
+@MainActor public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
     
     // MARK: - Properties
     

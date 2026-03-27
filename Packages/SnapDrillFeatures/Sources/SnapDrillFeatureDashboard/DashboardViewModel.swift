@@ -17,7 +17,6 @@ import SnapDrillData
 ///
 /// 负责加载复习统计数据、监听数据变更通知并触发刷新，以及处理草稿恢复流程。
 @Observable
-@MainActor
 public final class DashboardViewModel {
 
     // MARK: - State

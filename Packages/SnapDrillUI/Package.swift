@@ -11,6 +11,13 @@
 
 import PackageDescription
 
+let sharedSwiftSettings: [SwiftSetting] = [
+    .swiftLanguageMode(.v6),
+    .defaultIsolation(MainActor.self),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+]
+
 let package = Package(
     name: "SnapDrillUI",
     platforms: [.iOS(.v26)],
@@ -28,13 +35,12 @@ let package = Package(
                 "SnapDrillCore",
                 .product(name: "Mantis", package: "Mantis")
             ],
-            swiftSettings: [
-                .swiftLanguageMode(.v6)
-            ]
+            swiftSettings: sharedSwiftSettings
         ),
         .testTarget(
             name: "SnapDrillUITests",
-            dependencies: ["SnapDrillUI"]
+            dependencies: ["SnapDrillUI"],
+            swiftSettings: sharedSwiftSettings
         ),
     ]
 )

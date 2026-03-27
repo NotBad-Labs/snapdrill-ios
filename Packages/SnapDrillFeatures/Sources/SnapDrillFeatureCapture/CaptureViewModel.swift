@@ -19,7 +19,6 @@ import PDFKit
 ///
 /// 负责协调相机扫描、相册选图、OCR 识别等流程，并驱动导航跳转到结果编辑页。
 @Observable
-@MainActor
 public final class CaptureViewModel {
 
     // MARK: - State

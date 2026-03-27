@@ -105,7 +105,6 @@ extension GradeModel {
 
 // MARK: - Test Container Helper
 
-@MainActor
 class TestModelContainer {
     static func create() throws -> ModelContainer {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)

@@ -17,7 +17,6 @@ import UIKit
 @testable import SnapDrillCore
 
 @Suite("LibraryEditViewModel 编辑与保存测试", .serialized)
-@MainActor
 final class LibraryEditViewModelTests {
 
     // MARK: - 存储属性（每次 @Test 执行前由 Swift Testing 调用 init() 重建）

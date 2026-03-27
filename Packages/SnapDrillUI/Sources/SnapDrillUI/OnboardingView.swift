@@ -220,7 +220,6 @@ public struct FeatureTooltip: View {
 ///
 /// 负责持久化引导完成状态，并判断是否需要展示功能提示气泡。
 @Observable
-@MainActor
 public final class OnboardingManager {
     /// 共享实例
     public static let shared = OnboardingManager()

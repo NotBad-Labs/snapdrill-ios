@@ -8,7 +8,6 @@
 //  PDF 导出服务测试，依赖 UIKit 渲染引擎，仅在 iOS 环境下运行。
 //
 
-#if canImport(UIKit)
 import Testing
 import Foundation
 @testable import SnapDrillCore
@@ -116,4 +115,3 @@ struct PDFExportServiceTests {
         }
     }
 }
-#endif

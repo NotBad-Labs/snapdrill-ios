@@ -14,7 +14,6 @@ import Foundation
 @testable import SnapDrillData
 @testable import SnapDrillCore
 
-@MainActor
 struct ReviewItemModelTests {
     
     // MARK: - Helper Methods

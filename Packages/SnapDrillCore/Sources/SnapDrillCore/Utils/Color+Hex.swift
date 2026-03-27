@@ -10,7 +10,6 @@
 
 import SwiftUI
 
-@available(iOS 14.0, macOS 11.0, *)
 extension Color {
     /// Initialize Color from Hex string (e.g. "#FF5733" or "FF5733")
     public init(hex: String) {
@@ -40,26 +39,14 @@ extension Color {
     
     /// Convert Color to Hex string (e.g. "#FF5733")
     public func toHex() -> String? {
-        #if canImport(UIKit)
         let color = UIColor(self)
-        #elseif canImport(AppKit)
-        let color = NSColor(self)
-        #else
-        return nil
-        #endif
         
         var red: CGFloat = 0
         var green: CGFloat = 0
         var blue: CGFloat = 0
         var alpha: CGFloat = 0
         
-        #if canImport(UIKit)
         let success = color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        #elseif canImport(AppKit)
-        let success = color.usingColorSpace(.sRGB)?.getRed(&red, green: &green, blue: &blue, alpha: &alpha) != nil
-        #else
-        let success = false
-        #endif
         
         guard success else {
             return nil

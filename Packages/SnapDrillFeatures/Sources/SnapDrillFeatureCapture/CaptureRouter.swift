@@ -34,7 +34,6 @@ public enum CaptureDestination: Hashable {
 /// 1. **首页**: 显示采集方式选择菜单（相机、相册、手写）。
 /// 2. **扫描**: 进入 ``DocumentScannerView`` 进行文档扫描。
 /// 3. **结果**: 跳转至 ``CaptureResultView`` 进行预览、编辑元数据和保存。
-@MainActor
 @Observable
 public final class CaptureRouter: FeatureRouter {
     

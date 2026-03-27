@@ -15,7 +15,7 @@ import Foundation
 /// 使用枚举组织所有本地化字符串，提供类型安全的访问方式。
 /// 所有条目使用 `NSLocalizedString(_:value:comment:)` 确保中文为默认值，
 /// 未来添加 `.strings` 文件即可支持多语言。
-public enum L10n {
+nonisolated public enum L10n {
 
     // MARK: - Tab
 

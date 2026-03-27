@@ -13,7 +13,7 @@ import Foundation
 // MARK: - Manifest
 
 /// 备份文件的元数据清单
-public struct BackupManifest: Codable, Sendable {
+nonisolated public struct BackupManifest: Codable, Sendable {
     /// 备份格式版本（用于向前兼容判断）
     public let schemaVersion: Int
     /// 备份创建时间
@@ -49,7 +49,7 @@ public struct BackupManifest: Codable, Sendable {
 ///
 /// 使用自定义 `init(from:)` + `decodeIfPresent` 确保 Schema V2 新增字段时，
 /// 旧版本备份文件（缺少新字段）仍可正常解析。
-public struct ReviewItemBackupDTO: Codable, Sendable {
+nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
     public let id: UUID
     public let content: String?
     public let imagePath: String?
@@ -129,7 +129,7 @@ public struct ReviewItemBackupDTO: Codable, Sendable {
 // MARK: - Subject DTO
 
 /// SubjectModel 的序列化表示
-public struct SubjectBackupDTO: Codable, Sendable {
+nonisolated public struct SubjectBackupDTO: Codable, Sendable {
     public let id: UUID
     public let name: String
     public let icon: String
@@ -153,7 +153,7 @@ public struct SubjectBackupDTO: Codable, Sendable {
 // MARK: - Source DTO
 
 /// SourceModel 的序列化表示
-public struct SourceBackupDTO: Codable, Sendable {
+nonisolated public struct SourceBackupDTO: Codable, Sendable {
     public let id: UUID
     public let name: String
     public let icon: String
@@ -177,7 +177,7 @@ public struct SourceBackupDTO: Codable, Sendable {
 // MARK: - Grade DTO
 
 /// GradeModel 的序列化表示
-public struct GradeBackupDTO: Codable, Sendable {
+nonisolated public struct GradeBackupDTO: Codable, Sendable {
     public let id: UUID
     public let name: String
     public let sortOrder: Int
@@ -197,7 +197,7 @@ public struct GradeBackupDTO: Codable, Sendable {
 // MARK: - Tag DTO
 
 /// TagModel 的序列化表示
-public struct TagBackupDTO: Codable, Sendable {
+nonisolated public struct TagBackupDTO: Codable, Sendable {
     public let id: UUID
     public let name: String
     public let colorHex: String
@@ -217,7 +217,7 @@ public struct TagBackupDTO: Codable, Sendable {
 // MARK: - Top-level Payload
 
 /// 备份文件中 data.json 的顶层结构
-public struct BackupPayload: Codable, Sendable {
+nonisolated public struct BackupPayload: Codable, Sendable {
     public let reviewItems: [ReviewItemBackupDTO]
     public let subjects: [SubjectBackupDTO]
     public let sources: [SourceBackupDTO]
@@ -243,7 +243,6 @@ public struct BackupPayload: Codable, Sendable {
 
 extension ReviewItemModel {
     /// 转换为备份 DTO（纯值类型，可跨 actor 传递）
-    @MainActor
     func toBackupDTO() -> ReviewItemBackupDTO {
         ReviewItemBackupDTO(
             id: id,

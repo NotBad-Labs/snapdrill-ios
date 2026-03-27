@@ -8,9 +8,7 @@
 //  OCR 服务，封装 Vision 框架提供图片文字识别能力。
 //
 
-#if canImport(UIKit)
 import UIKit
-#endif
 import Vision
 
 /// 光学字符识别服务

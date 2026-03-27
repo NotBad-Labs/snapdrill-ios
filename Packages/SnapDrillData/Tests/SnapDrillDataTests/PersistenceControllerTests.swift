@@ -13,7 +13,6 @@ import SwiftData
 @testable import SnapDrillData
 
 @Suite("PersistenceController 测试")
-@MainActor
 struct PersistenceControllerTests {
 
     @Test("in-memory 初始化成功")

@@ -7,13 +7,11 @@
 //
 //  CaptureDraftService 草稿生命周期测试（UIKit 平台专用）。
 
-#if canImport(UIKit)
 import Testing
 import UIKit
 @testable import SnapDrillCore
 
 @Suite("CaptureDraftService 单元测试", .serialized)
-@MainActor
 struct CaptureDraftServiceTests {
 
     private let service = CaptureDraftService.shared
@@ -127,4 +125,3 @@ struct CaptureDraftServiceTests {
         }
     }
 }
-#endif

@@ -11,6 +11,13 @@
 
 import PackageDescription
 
+let sharedSwiftSettings: [SwiftSetting] = [
+    .swiftLanguageMode(.v6),
+    .defaultIsolation(MainActor.self),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+]
+
 let package = Package(
     name: "SnapDrillFeatures",
     platforms: [.iOS(.v26)],
@@ -30,12 +37,12 @@ let package = Package(
         .target(
             name: "SnapDrillFeatureCapture",
             dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData"],
-            swiftSettings: [.swiftLanguageMode(.v6)]
+            swiftSettings: sharedSwiftSettings
         ),
         .target(
             name: "SnapDrillFeatureLibrary",
             dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData"],
-            swiftSettings: [.swiftLanguageMode(.v6)]
+            swiftSettings: sharedSwiftSettings
         ),
         // SnapDrillFeatureReview 依赖 SnapDrillFeatureLibrary：
         // ReviewCardContent 内嵌 LibraryEditView（复习时编辑卡片内容）。
@@ -43,7 +50,7 @@ let package = Package(
             name: "SnapDrillFeatureReview",
             dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData",
                            "SnapDrillFeatureLibrary"],
-            swiftSettings: [.swiftLanguageMode(.v6)]
+            swiftSettings: sharedSwiftSettings
         ),
         // SnapDrillFeatureDashboard 依赖 SnapDrillFeatureLibrary：
         // DashboardView 使用 SubjectManagerView（分类管理，迁入 Library 后引用）。
@@ -51,7 +58,7 @@ let package = Package(
             name: "SnapDrillFeatureDashboard",
             dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData",
                            "SnapDrillFeatureLibrary"],
-            swiftSettings: [.swiftLanguageMode(.v6)]
+            swiftSettings: sharedSwiftSettings
         ),
         // SnapDrillFeatureSettings 依赖 SnapDrillFeatureLibrary：
         // SettingsView 包含 SubjectManagerView / SourceManagerView / GradeManagerView（分类管理，语义归 Library）。
@@ -59,7 +66,7 @@ let package = Package(
             name: "SnapDrillFeatureSettings",
             dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData",
                            "SnapDrillFeatureLibrary"],
-            swiftSettings: [.swiftLanguageMode(.v6)]
+            swiftSettings: sharedSwiftSettings
         ),
         .testTarget(
             name: "SnapDrillFeaturesTests",
@@ -71,7 +78,8 @@ let package = Package(
                 "SnapDrillFeatureSettings",
                 "SnapDrillCore",
                 "SnapDrillData"
-            ]
+            ],
+            swiftSettings: sharedSwiftSettings
         ),
     ]
 )

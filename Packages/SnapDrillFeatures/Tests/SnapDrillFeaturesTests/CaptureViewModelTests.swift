@@ -15,7 +15,6 @@ import UIKit
 
 // MARK: - Mocks
 
-@MainActor
 final class MockOCRService: OCRServiceProtocol {
     var recognizeTextResult: String = ""
     var recognizeTextError: Error?
@@ -35,7 +34,6 @@ final class MockOCRService: OCRServiceProtocol {
 }
 
 @Suite("CaptureViewModel 草稿与扫描测试")
-@MainActor
 struct CaptureViewModelTests {
 
     // MARK: - Helpers

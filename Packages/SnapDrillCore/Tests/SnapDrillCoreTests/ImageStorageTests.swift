@@ -9,9 +9,7 @@
 
 import Testing
 import Foundation
-#if canImport(UIKit)
 import UIKit
-#endif
 @testable import SnapDrillCore
 
 @Suite("ImageStorage 单元测试")
@@ -52,7 +50,6 @@ struct ImageStorageTests {
 
     // MARK: - compressedJPEGData & saveImage（UIKit 平台）
 
-    #if canImport(UIKit)
     @Test("compressedJPEGData 长边未超限时直接编码不缩放")
     func compressedJPEGData_withinLimit_noResize() throws {
         let image = createTestImage(width: 100, height: 200)
@@ -116,5 +113,4 @@ struct ImageStorageTests {
             ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
         }
     }
-    #endif
 }

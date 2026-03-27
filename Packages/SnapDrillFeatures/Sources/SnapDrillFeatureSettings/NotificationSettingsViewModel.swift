@@ -14,7 +14,6 @@ import SnapDrillCore
 
 /// 通知设置 ViewModel
 @Observable
-@MainActor
 final class NotificationSettingsViewModel {
 
     // MARK: - Properties

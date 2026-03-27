@@ -18,7 +18,6 @@ import UIKit
 
 // MARK: - Mock DraftService
 
-@MainActor
 final class MockDraftService: CaptureDraftServiceProtocol {
     var hasDraft: Bool = false
     var savedDraft: CaptureDraftService.Draft?
@@ -40,7 +39,6 @@ final class MockDraftService: CaptureDraftServiceProtocol {
 }
 
 @Suite("DashboardViewModel 统计与草稿测试", .serialized)
-@MainActor
 final class DashboardViewModelTests {
 
     // MARK: - 存储属性

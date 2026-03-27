@@ -16,7 +16,6 @@ import SnapDrillCore
 ///
 /// 仅用于调试和压力测试，不参与生产流程。
 /// 直接使用传入的 ModelContext（mainContext），避免跨 context 变更合并的时机竞争。
-@MainActor
 public final class DataSeeder {
 
     // MARK: - Properties

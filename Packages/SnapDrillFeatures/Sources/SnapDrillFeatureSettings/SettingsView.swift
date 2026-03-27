@@ -15,10 +15,8 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillData
 import SnapDrillFeatureLibrary
-#if canImport(UIKit)
 import UIKit
 import MessageUI
-#endif
 
 
 /// 设置功能主界面
@@ -275,9 +273,7 @@ public struct SettingsView: View {
             }
             .alert(L10n.Settings.feedbackTitle, isPresented: $showingMail) {
                 Button(L10n.Settings.copyEmail) {
-                    #if canImport(UIKit)
                     UIPasteboard.general.string = "hello@notbadhq.com"
-                    #endif
                 }
                 Button(L10n.Settings.maybeLater, role: .cancel) { }
             } message: {

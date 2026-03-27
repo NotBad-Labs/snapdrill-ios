@@ -64,7 +64,6 @@ struct DocumentScannerView: UIViewControllerRepresentable {
     
     // MARK: - Coordinator
     
-@MainActor
     func makeCoordinator() -> Coordinator {
         Coordinator(
             onCompletion: onCompletion,
@@ -74,10 +73,8 @@ struct DocumentScannerView: UIViewControllerRepresentable {
     }
 }
 
-// Coordinator 使用 @MainActor 保护闭包属性；
-// VisionKit delegate 回调方法标注 nonisolated，在方法内显式跳回主线程，
-// 替换 @unchecked Sendable 以满足 Swift 6 严格并发要求。
-@MainActor
+// Coordinator 使用 defaultIsolation(MainActor) 保护闭包属性；
+// VisionKit delegate 回调方法标注 nonisolated，在方法内显式跳回主线程。
 final class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
     let onCompletion: @MainActor (UIImage) -> Void
     let onCancel: @MainActor () -> Void

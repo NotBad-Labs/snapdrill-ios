@@ -13,7 +13,6 @@ import SwiftData
 import SnapDrillCore
 
 /// 标签数据仓库的 SwiftData 实现
-@MainActor
 public final class TagRepository {
     
     private let modelContext: ModelContext

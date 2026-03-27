@@ -13,7 +13,6 @@ import Foundation
 /// 统计分析服务 Mock 实现，用于单元测试
 ///
 /// 由于类标注了 `@MainActor`，所有方法均在主线程执行，无需额外的锁保护。
-@MainActor
 public final class AnalyticsServiceMock: AnalyticsServiceProtocol {
 
     // MARK: - 记录属性
