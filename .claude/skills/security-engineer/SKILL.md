@@ -23,7 +23,7 @@ allowed-tools:
 
 **负责**：
 - 数据存储安全审查（SwiftData、文件系统、UserDefaults）
-- 隐私合规（Apple 隐私清单、ATT 框架、product-business.md 隐私铁律）
+- 隐私合规（Apple 隐私清单、ATT 框架、docs/product/product-business.md 隐私铁律）
 - 输入验证（用户输入、文件导入、备份恢复）
 - 导出安全（PDF 导出、备份文件是否泄露敏感信息）
 - 依赖安全（第三方库漏洞、供应链安全）
@@ -54,7 +54,7 @@ allowed-tools:
 
 ### SnapDrill 隐私铁律
 
-> 详见 `product-business.md`「隐私策略」（零可识别个人信息收集、纯本地 + iCloud、ATT 策略）
+> 详见 `docs/product/product-business.md`「隐私策略」（零可识别个人信息收集、纯本地 + iCloud、ATT 策略）
 
 ### 错误处理安全规范
 

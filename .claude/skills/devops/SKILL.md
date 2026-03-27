@@ -38,7 +38,7 @@ allowed-tools:
 
 > CI/CD 配置详见 `.github/workflows/` 目录下的 YAML 文件
 >
-> Git 工作流与发布流程详见 `workflow.md`「Git 工作流规范」
+> Git 工作流与发布流程详见 `docs/workflow.md`「Git 工作流规范」
 >
 > 发版检查清单详见 `references/release-checklist.md`
 >

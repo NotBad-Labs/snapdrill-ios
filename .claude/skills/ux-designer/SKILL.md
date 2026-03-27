@@ -52,7 +52,7 @@ allowed-tools:
 
 ### SnapDrill 特定交互约束
 
-> 详见 `product-vision.md`「产品原则」+ `product-design.md`「连续录入设计」「字段可配置系统」
+> 详见 `docs/product/product-vision.md`「产品原则」+ `docs/product/product-design.md`「连续录入设计」「字段可配置系统」
 
 ## 检查清单
 
