@@ -37,7 +37,7 @@ SnapDrill 的存在意义：**用最简交互、核心功能零成本、极致�
 
 - **简洁**：功能克制，界面干净，录入路径最短——对标竞品「杂」和「糙」
 - **私有**：所有数据来自用户主动提供，平台不提供内容，用户拥有自己的数据，零可识别个人信息收集
-- **原生体验**：深度依赖 Apple 平台原生能力，不做跨平台妥协。技术能力边界见 `rules/apple-limits.md`
+- **原生体验**：深度依赖 Apple 平台原生能力，不做跨平台妥协。技术能力边界见 `../../.claude/rules/apple-limits.md`
 
 ---
 
@@ -65,7 +65,7 @@ SnapDrill 的存在意义：**用最简交互、核心功能零成本、极致�
 
 ### 市场与平台
 
-SnapDrill 面向全球发布，中国大陆和美国为核心市场。**iOS / iPadOS 是唯一平台**，不考虑 Android 和 HarmonyOS——Apple 平台提供了端上 OCR、文档扫描、AI、同步等跨平台无法复制的原生能力，这是 SnapDrill 的技术壁垒。技术能力边界见 `rules/apple-limits.md`。
+SnapDrill 面向全球发布，中国大陆和美国为核心市场。**iOS / iPadOS 是唯一平台**，不考虑 Android 和 HarmonyOS——Apple 平台提供了端上 OCR、文档扫描、AI、同步等跨平台无法复制的原生能力，这是 SnapDrill 的技术壁垒。技术能力边界见 `../../.claude/rules/apple-limits.md`。
 
 首发版本 iPhone 优先打磨，iPad 作为 Universal App 兼容运行，iPad 分屏/大屏专属优化列入后续版本。
 市场分级策略、发布主体、语言策略、App Store 年龄分级等 GTM 执行细节见 `product-business.md`§发布策略。
@@ -93,7 +93,7 @@ SnapDrill 面向全球发布，中国大陆和美国为核心市场。**iOS / iP
 ### 4. 数据属于用户（隐私是核心差异化）
 
 用户的题目、图片、笔记是私有财产。
-支持导出（PDF、未来可能的其他格式）。
+支持导出（PDF / JSON / CSV，详见 `product-requirements.md`§导出能力）。
 不做社交、不做内容平台、不做推荐算法。
 SnapDrill **不收集任何可识别个人信息**（no personally identifiable information）。没有注册，没有手机号，没有学校年级。
 匿名使用数据（Firebase Analytics / Crashlytics）默认开启，用户可随时在设置中关闭，详见 `product-requirements.md`§使用数据。
