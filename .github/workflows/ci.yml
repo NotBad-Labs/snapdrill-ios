@@ -54,20 +54,10 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
 
-      - name: Test (SnapDrillCore)
-        # SPM 包声明 iOS 平台，swift test 走 macOS 工具链会找不到 UIKit
-        # 必须通过 iOS Simulator 运行
-        run: |
-          xcodebuild test \
-            -scheme SnapDrillCore \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
-            -parallel-testing-enabled NO \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
-
-      - name: Test (SnapDrillFeatures)
-        # UIKit 依赖的测试必须通过 iOS Simulator 运行；使用 SPM 自动生成的 scheme
+      - name: Test
+        # SnapDrillFeaturesTests 是唯一配有 test action 的自动生成 scheme
+        # SnapDrillCore/Data 的库 scheme 无 test action，其测试编译由 build-for-testing 保证
+        # TODO: 在 Xcode 中创建包含全部测试 target 的 shared scheme，提交到 git
         # -parallel-testing-enabled NO：避免跨 suite 并行执行时 ModelContainer 竞态
         run: |
           xcodebuild test \
