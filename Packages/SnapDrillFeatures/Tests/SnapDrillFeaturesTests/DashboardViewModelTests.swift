@@ -18,6 +18,7 @@ import UIKit
 
 // MARK: - Mock DraftService
 
+@MainActor
 final class MockDraftService: CaptureDraftServiceProtocol {
     var hasDraft: Bool = false
     var savedDraft: CaptureDraftService.Draft?

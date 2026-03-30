@@ -15,6 +15,7 @@ import Foundation
 
 // MARK: - Mock Notification Service
 
+@MainActor
 final class MockNotificationService: NotificationServiceProtocol {
     var requestPermissionResult: Bool = true
     var requestPermissionCallCount = 0

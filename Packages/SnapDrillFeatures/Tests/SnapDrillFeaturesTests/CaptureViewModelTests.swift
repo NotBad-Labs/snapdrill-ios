@@ -15,6 +15,7 @@ import UIKit
 
 // MARK: - Mocks
 
+@MainActor
 final class MockOCRService: OCRServiceProtocol {
     var recognizeTextResult: String = ""
     var recognizeTextError: Error?
