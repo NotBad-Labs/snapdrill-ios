@@ -3,6 +3,7 @@ paths:
   - "**/*.swift"
 ---
 
+<!-- last verified: 2026-03-30 -->
 # Apple 技术能力边界（防止 AI 错误假设）
 
 ## Vision / OCR
