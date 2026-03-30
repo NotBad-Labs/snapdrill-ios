@@ -21,7 +21,9 @@ jobs:
       - name: Select Xcode
         # 自动检测已安装的 Xcode，优先最新版
         run: |
-          if [ -d "/Applications/Xcode_26.3.app" ]; then
+          if [ -d "/Applications/Xcode_26.4.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_26.4.app
+          elif [ -d "/Applications/Xcode_26.3.app" ]; then
             sudo xcode-select -s /Applications/Xcode_26.3.app
           elif [ -d "/Applications/Xcode_26.2.app" ]; then
             sudo xcode-select -s /Applications/Xcode_26.2.app
@@ -43,8 +45,9 @@ jobs:
         run: swiftlint --strict
 
       - name: Build
+        # build-for-testing 比 build 更严格——会编译测试 target
         run: |
-          xcodebuild build \
+          xcodebuild build-for-testing \
             -scheme SnapDrill \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             CODE_SIGNING_ALLOWED=NO \
@@ -52,8 +55,16 @@ jobs:
             CODE_SIGN_IDENTITY=""
 
       - name: Test (SnapDrillCore)
-        # SnapDrillCore 无 UIKit 依赖，可直接 swift test
-        run: swift test --package-path Packages/SnapDrillCore
+        # SPM 包声明 iOS 平台，swift test 走 macOS 工具链会找不到 UIKit
+        # 必须通过 iOS Simulator 运行
+        run: |
+          xcodebuild test \
+            -scheme SnapDrillCore \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -parallel-testing-enabled NO \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
 
       - name: Test (SnapDrillFeatures)
         # UIKit 依赖的测试必须通过 iOS Simulator 运行；使用 SPM 自动生成的 scheme
