@@ -57,6 +57,31 @@ struct LibraryFilterSheet: View {
                     }
                 }
                 
+                // Section: Difficulty
+                Section(L10n.Library.filterDifficulty) {
+                    ForEach(Difficulty.allCases) { difficulty in
+                        Button {
+                            if viewModel.selectedDifficulties.contains(difficulty.rawValue) {
+                                viewModel.selectedDifficulties.remove(difficulty.rawValue)
+                            } else {
+                                viewModel.selectedDifficulties.insert(difficulty.rawValue)
+                            }
+                        } label: {
+                            HStack {
+                                Text(String(repeating: "⭐", count: difficulty.starCount))
+                                Spacer()
+                                if viewModel.selectedDifficulties.contains(difficulty.rawValue) {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(.blue)
+                                }
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityAddTraits(viewModel.selectedDifficulties.contains(difficulty.rawValue) ? .isSelected : [])
+                    }
+                }
+
                 // Section: Tags
                 Section(L10n.Library.filterTags) {
                     if viewModel.allTags.isEmpty {

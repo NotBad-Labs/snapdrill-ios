@@ -84,6 +84,10 @@ public final class LibraryViewModel {
     public var selectedTags: Set<String> = [] {
         didSet { triggerRefresh() }
     }
+    /// 已选中的难度过滤集合（变更时触发防抖刷新）
+    public var selectedDifficulties: Set<Int> = [] {
+        didSet { triggerRefresh() }
+    }
     /// 当前排序方式（变更时触发刷新）
     public var sortOption: LibrarySortOption = .createdAt {
         didSet { triggerRefresh() }
@@ -146,6 +150,7 @@ public final class LibraryViewModel {
                 searchText: searchText,
                 subjects: selectedSubjects,
                 tags: selectedTags,
+                difficulties: selectedDifficulties,
                 sortDescriptors: sortOption.sortDescriptors,
                 limit: pageSize,
                 offset: 0
@@ -174,6 +179,7 @@ public final class LibraryViewModel {
                 searchText: searchText,
                 subjects: selectedSubjects,
                 tags: selectedTags,
+                difficulties: selectedDifficulties,
                 sortDescriptors: sortOption.sortDescriptors,
                 limit: pageSize,
                 offset: nextPage * pageSize
@@ -222,6 +228,7 @@ public final class LibraryViewModel {
         searchText = ""
         selectedSubjects.removeAll()
         selectedTags.removeAll()
+        selectedDifficulties.removeAll()
     }
 
     /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）
