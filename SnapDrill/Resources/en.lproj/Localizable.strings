@@ -64,6 +64,7 @@
 "capture.draft_alert_message" = "Unsaved capture content detected. Would you like to restore it?";
 "capture.preview_and_edit" = "Preview & Edit";
 "capture.question_content" = "Question Content";
+"capture.copy_content" = "Copy Text";
 "capture.re_recognizing" = "Re-recognizing...";
 "capture.category_info" = "Category Info";
 "capture.question_details" = "Question Details";

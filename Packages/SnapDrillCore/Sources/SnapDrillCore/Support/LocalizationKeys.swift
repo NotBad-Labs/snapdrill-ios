@@ -133,6 +133,7 @@ nonisolated public enum L10n {
         // 结果编辑页
         public static let previewAndEdit = NSLocalizedString("capture.preview_and_edit", value: "预览与编辑", comment: "预览与编辑页标题")
         public static let questionContent = NSLocalizedString("capture.question_content", value: "题目内容", comment: "题目内容标签")
+        public static let copyContent = NSLocalizedString("capture.copy_content", value: "复制文本", comment: "复制 OCR 文本到剪贴板按钮")
         public static let reRecognizing = NSLocalizedString("capture.re_recognizing", value: "正在重新识别...", comment: "重新 OCR 识别中")
         public static let categoryInfo = NSLocalizedString("capture.category_info", value: "分类信息", comment: "分类信息标签")
         public static let questionDetails = NSLocalizedString("capture.question_details", value: "题目详情", comment: "题目详情标签")
@@ -1267,6 +1268,7 @@ nonisolated public enum L10n {
         public static let cropImage = NSLocalizedString("accessibility.crop_image", value: "裁剪图片", comment: "VoiceOver 裁剪按钮")
         public static let cropImageHint = NSLocalizedString("accessibility.crop_image_hint", value: "裁剪题目图片区域", comment: "VoiceOver 裁剪按钮提示")
         public static let reRecognizeHint = NSLocalizedString("accessibility.re_recognize_hint", value: "对裁剪后的图片重新进行文字识别", comment: "VoiceOver 重新识别提示")
+        public static let copyContentHint = NSLocalizedString("accessibility.copy_content_hint", value: "将识别文字复制到剪贴板", comment: "VoiceOver 复制文本按钮提示")
         public static func pdfPageButton(page: Int) -> String {
             String(format: NSLocalizedString("accessibility.pdf_page_button", value: "第 %d 页，轻点选择此页", comment: "VoiceOver PDF 页面按钮"), page)
         }

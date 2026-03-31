@@ -64,6 +64,7 @@
 "capture.draft_alert_message" = "检测到未保存的采集内容，是否恢复？";
 "capture.preview_and_edit" = "预览与编辑";
 "capture.question_content" = "题目内容";
+"capture.copy_content" = "复制文本";
 "capture.re_recognizing" = "正在重新识别...";
 "capture.category_info" = "分类信息";
 "capture.question_details" = "题目详情";
