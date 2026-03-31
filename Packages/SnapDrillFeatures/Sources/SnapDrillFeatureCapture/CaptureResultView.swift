@@ -86,6 +86,23 @@ public struct CaptureResultView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
+                        Spacer()
+                        // 复制 OCR 文本到剪贴板
+                        if !viewModel.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            Button {
+                                UIPasteboard.general.string = viewModel.content
+                                viewModel.copyConfirmationCount += 1
+                            } label: {
+                                Image(systemName: "doc.on.doc")
+                                    .font(.body)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .accessibleButton(
+                                label: L10n.Capture.copyContent,
+                                hint: L10n.Accessibility.copyContentHint
+                            )
+                            .sensoryFeedback(.success, trigger: viewModel.copyConfirmationCount)
+                        }
                     }
             
                     TextEditor(text: $viewModel.content)
