@@ -67,8 +67,12 @@ struct LibraryFilterSheet: View {
                                 viewModel.selectedDifficulties.insert(difficulty.rawValue)
                             }
                         } label: {
-                            HStack {
-                                Text(String(repeating: "⭐", count: difficulty.starCount))
+                            HStack(spacing: 2) {
+                                ForEach(0..<difficulty.starCount, id: \.self) { _ in
+                                    Image(systemName: "star.fill")
+                                        .foregroundStyle(.orange)
+                                        .font(.caption)
+                                }
                                 Spacer()
                                 if viewModel.selectedDifficulties.contains(difficulty.rawValue) {
                                     Image(systemName: "checkmark")
@@ -78,6 +82,10 @@ struct LibraryFilterSheet: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel(L10n.Accessibility.starRating(
+                            difficulty: difficulty.starCount,
+                            maxStars: Difficulty.allCases.count
+                        ))
                         .accessibilityAddTraits(viewModel.selectedDifficulties.contains(difficulty.rawValue) ? .isSelected : [])
                     }
                 }
