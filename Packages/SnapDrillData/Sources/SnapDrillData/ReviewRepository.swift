@@ -153,7 +153,7 @@ public final class ReviewRepository {
     /// - Throws: SwiftData fetch 错误
     public func fetchDueCount() throws -> Int {
         let now = Date.now
-        // Schema V2 起 nextReviewAt 为非可选 Date（默认 distantPast = 立即到期），
+        // nextReviewAt 为非可选 Date（默认 distantPast = 立即到期），
         // 可直接使用 #Predicate 让 SQLite 完成过滤，避免全表扫描内存炸弹。
         let predicate = #Predicate<ReviewItemModel> { $0.nextReviewAt <= now }
         let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
@@ -175,7 +175,7 @@ public final class ReviewRepository {
     /// - Throws: SwiftData fetch 错误
     public func fetchTodayReviewedCount() throws -> Int {
         let startOfToday = Calendar.current.startOfDay(for: Date.now)
-        // Schema V2 起 lastReviewedAt 为非可选 Date（distantPast 表示从未复习），
+        // lastReviewedAt 为非可选 Date（distantPast 表示从未复习），
         // distantPast < startOfToday，自动排除未复习条目，可直接使用数据库级过滤。
         let predicate = #Predicate<ReviewItemModel> { item in
             item.lastReviewedAt >= startOfToday
@@ -195,7 +195,7 @@ public final class ReviewRepository {
     /// 获取所有待复习条目的 SwiftData 模型
     public func fetchDueModels() throws -> [ReviewItemModel] {
         let now = Date.now
-        // Schema V2 起 nextReviewAt 为非可选 Date（distantPast 表示立即到期），
+        // nextReviewAt 为非可选 Date（distantPast 表示立即到期），
         // 可直接使用 #Predicate 让 SQLite 完成过滤，避免全表扫描内存炸弹。
         let predicate = #Predicate<ReviewItemModel> { $0.nextReviewAt <= now }
         let descriptor = FetchDescriptor<ReviewItemModel>(
