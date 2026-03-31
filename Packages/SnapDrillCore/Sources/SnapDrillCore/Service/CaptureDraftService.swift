@@ -59,7 +59,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     /// UIImage 非 Sendable，JPEG 压缩和文件写入无法安全移至后台，仍在 MainActor 执行。
     /// 草稿图片已压缩（JPEG 0.8），I/O 量小（通常 < 500KB），阻塞时间可接受。
     public func saveDraft(image: UIImage? = nil, content: String, subject: String? = nil) async {
-        // 1. JPEG 压缩 + 写入文件（有图片时才执行；纯文字草稿跳过图片保存）
+        // 1. 图片处理：有图片时写入文件，无图片时清理旧文件（防止上一张图片残留）
         if let image,
            let data = ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8),
            let path = draftImagePath() {
@@ -68,6 +68,9 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
             } catch {
                 SnapDrillLogger.generic.warning("[DraftService] 草稿图片写入失败: \(error.localizedDescription)")
             }
+        } else if let path = draftImagePath() {
+            // best-effort: 纯文字草稿覆盖带图草稿时，删除残留图片文件
+            try? fileManager.removeItem(at: path)
         }
 
         // 2. 元数据写入 UserDefaults

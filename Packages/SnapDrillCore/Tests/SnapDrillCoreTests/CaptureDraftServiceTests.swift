@@ -50,7 +50,7 @@ struct CaptureDraftServiceTests {
         let draft = service.loadDraft()
         #expect(draft != nil)
         #expect(draft?.content == content)
-        #expect(draft?.image.size.width > 0)
+        #expect(draft?.image?.size.width ?? 0 > 0)
         cleanup()
     }
 
@@ -110,6 +110,35 @@ struct CaptureDraftServiceTests {
 
         let draft = service.loadDraft()
         #expect(draft?.content == content)
+        cleanup()
+    }
+
+    // MARK: - 纯文字草稿
+
+    @Test("纯文字草稿（无图片）round-trip 正常")
+    func saveDraft_textOnly_roundTrip() async {
+        cleanup()
+        await service.saveDraft(image: nil, content: "手动输入的文字内容")
+
+        let draft = service.loadDraft()
+        #expect(draft != nil)
+        #expect(draft?.content == "手动输入的文字内容")
+        #expect(draft?.image == nil)
+        cleanup()
+    }
+
+    @Test("纯文字草稿覆盖带图草稿后，图片文件被清理")
+    func saveDraft_textOverwritesImage_imageFileRemoved() async {
+        cleanup()
+        // 先保存带图草稿
+        await service.saveDraft(image: createTestImage(), content: "有图")
+        #expect(service.loadDraft()?.image != nil)
+
+        // 再保存纯文字草稿，应覆盖图片
+        await service.saveDraft(image: nil, content: "纯文字")
+        let draft = service.loadDraft()
+        #expect(draft?.content == "纯文字")
+        #expect(draft?.image == nil)
         cleanup()
     }
 
