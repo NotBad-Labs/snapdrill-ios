@@ -3,6 +3,7 @@ paths:
   - "**/*.swift"
 ---
 
+<!-- last verified: 2026-03-30 -->
 # 编码规范（SwiftLint 管不到的规则）
 
 ## View 层

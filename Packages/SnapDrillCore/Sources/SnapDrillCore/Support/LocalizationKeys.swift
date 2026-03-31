@@ -759,29 +759,10 @@ nonisolated public enum L10n {
     // MARK: - DataErrors（数据层错误）
 
     public enum DataErrors {
-        public static func duplicateItem(_ id: String) -> String {
-            String(format: NSLocalizedString("data_errors.duplicate_item", value: "该项目已存在 (ID: %@)", comment: "重复项目"), id)
-        }
         public static func duplicateName(_ name: String, _ type: String) -> String {
             String(format: NSLocalizedString("data_errors.duplicate_name", value: "%@ '%@' 已存在", comment: "重复名称"), type, name)
         }
-        public static func notFound(_ type: String, _ id: String) -> String {
-            String(format: NSLocalizedString("data_errors.not_found", value: "%@ 不存在 (ID: %@)", comment: "项目不存在"), type, id)
-        }
-        public static func invalidState(_ reason: String) -> String {
-            String(format: NSLocalizedString("data_errors.invalid_state", value: "数据状态无效: %@", comment: "无效数据状态"), reason)
-        }
-        public static func databaseError(_ message: String) -> String {
-            String(format: NSLocalizedString("data_errors.database_error", value: "数据库操作失败: %@", comment: "数据库错误"), message)
-        }
-        public static func validationFailed(_ field: String, _ reason: String) -> String {
-            String(format: NSLocalizedString("data_errors.validation_failed", value: "字段 '%@' 验证失败: %@", comment: "验证失败"), field, reason)
-        }
         public static let recoverySuggestionDuplicate = NSLocalizedString("data_errors.recovery_duplicate", value: "请使用不同的名称或检查是否已存在相同项目", comment: "重复项恢复建议")
-        public static let recoverySuggestionNotFound = NSLocalizedString("data_errors.recovery_not_found", value: "请刷新列表或检查项目是否已被删除", comment: "未找到恢复建议")
-        public static let recoverySuggestionInvalidState = NSLocalizedString("data_errors.recovery_invalid_state", value: "请重新加载数据或联系技术支持", comment: "无效状态恢复建议")
-        public static let recoverySuggestionDatabase = NSLocalizedString("data_errors.recovery_database", value: "请重试操作，如果问题持续请重启应用", comment: "数据库错误恢复建议")
-        public static let recoverySuggestionValidation = NSLocalizedString("data_errors.recovery_validation", value: "请检查输入内容是否符合要求", comment: "验证失败恢复建议")
     }
 
     // MARK: - PersistenceErrors（持久化错误）
