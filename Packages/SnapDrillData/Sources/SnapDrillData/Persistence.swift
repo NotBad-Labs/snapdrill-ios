@@ -48,13 +48,13 @@ public final class PersistenceController {
                 config = ModelConfiguration()
             }
             self.container = try ModelContainer(
-                for: Schema(SnapDrillSchemaV4.models),
+                for: Schema(SnapDrillSchemaV1.models),
                 migrationPlan: SnapDrillMigrationPlan.self,
                 configurations: config
             )
             self.isUsingInMemoryFallback = false
             self.initializationError = nil
-            SnapDrillLogger.data.info("✅ Container initialized successfully with SnapDrillSchemaV4")
+            SnapDrillLogger.data.info("✅ Container initialized successfully with SnapDrillSchemaV1")
 
         } catch {
             SnapDrillLogger.data.error("❌ Primary initialization failed: \(error.localizedDescription)")
@@ -75,7 +75,7 @@ public final class PersistenceController {
         do {
             SnapDrillLogger.data.warning("Attempting in-memory fallback to keep app running...")
             let fallbackConfig = ModelConfiguration(isStoredInMemoryOnly: true)
-            let container = try ModelContainer(for: Schema(SnapDrillSchemaV4.models), configurations: fallbackConfig)
+            let container = try ModelContainer(for: Schema(SnapDrillSchemaV1.models), configurations: fallbackConfig)
             return (container, true)
         } catch {
             SnapDrillLogger.data.critical("💀 Critical: In-memory ModelContainer also failed. Error: \(error.localizedDescription)")

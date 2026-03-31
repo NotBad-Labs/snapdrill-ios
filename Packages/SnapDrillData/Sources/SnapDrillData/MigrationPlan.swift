@@ -5,13 +5,16 @@
 //  Created by NotBad Labs on 2025/12/31.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  SwiftData 数据迁移计划，管理各版本 Schema 变更。
+//  SwiftData Schema 定义与迁移计划。
 //
 
 import SwiftData
 import Foundation
 
-/// Schema V1（1.0.0）— 初始版本
+/// Schema V1（1.0.0）— v1.0 发布基线
+///
+/// 包含所有 Model 的完整定义。`#Unique` 不可用（CloudKit 不兼容），
+/// 名称唯一性由 Repository 层业务逻辑保证（DataError.duplicateName）。
 public enum SnapDrillSchemaV1: VersionedSchema {
     public static let versionIdentifier: Schema.Version = .init(1, 0, 0)
 
@@ -28,88 +31,16 @@ public enum SnapDrillSchemaV1: VersionedSchema {
     }
 }
 
-/// Schema V2（2.0.0）— nextReviewAt / lastReviewedAt 由 Date? 改为 Date（默认 distantPast）
-/// SwiftData lightweight 迁移自动将现有 NULL 列填充为模型默认值 Date.distantPast，
-/// 消除 Optional<Date> 的 #Predicate 转译 Bug 导致的全表扫描内存炸弹。
-public enum SnapDrillSchemaV2: VersionedSchema {
-    public static let versionIdentifier: Schema.Version = .init(2, 0, 0)
-
-    public static var models: [any PersistentModel.Type] {
-        [
-            ReviewItemModel.self,
-            SubjectModel.self,
-            TagModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ]
-    }
-}
-
-/// Schema V3（3.0.0）— 添加 #Index 提升查询性能
+/// 迁移计划
 ///
-/// ReviewItemModel 新增 `#Index`（createdAt / nextReviewAt / subjectRawValue），
-/// 优化题库列表排序、待复习查询和学科过滤的查询速度。
-/// lightweight 迁移：SwiftData 自动创建索引，无需手动数据转换。
-public enum SnapDrillSchemaV3: VersionedSchema {
-    public static let versionIdentifier: Schema.Version = .init(3, 0, 0)
-
-    public static var models: [any PersistentModel.Type] {
-        [
-            ReviewItemModel.self,
-            SubjectModel.self,
-            TagModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ]
-    }
-}
-
-/// Schema V4（4.0.0）— 添加 #Unique 唯一约束
-///
-/// TagModel.name / SubjectModel.name / SourceModel.name / GradeModel.name
-/// 各添加 `#Unique` 宏，在数据库层面保证名称唯一。
-/// lightweight 迁移：SwiftData 自动创建 UNIQUE 约束，无需手动数据转换。
-/// 前提：现有数据中不存在同名记录（内部测试阶段已确认）。
-public enum SnapDrillSchemaV4: VersionedSchema {
-    public static let versionIdentifier: Schema.Version = .init(4, 0, 0)
-
-    public static var models: [any PersistentModel.Type] {
-        [
-            ReviewItemModel.self,
-            SubjectModel.self,
-            TagModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ]
-    }
-}
-
-/// 迁移计划：V1 → V2 → V3 → V4
+/// v1.0 发布前无存量用户，仅保留单一 Schema 版本。
+/// 未来需要 Schema 变更时，新增 V2 并添加 MigrationStage。
 public enum SnapDrillMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
-        [SnapDrillSchemaV1.self, SnapDrillSchemaV2.self, SnapDrillSchemaV3.self, SnapDrillSchemaV4.self]
+        [SnapDrillSchemaV1.self]
     }
 
     public static var stages: [MigrationStage] {
-        [migrateV1toV2, migrateV2toV3, migrateV3toV4]
+        []
     }
-
-    // lightweight 迁移：SwiftData 自动将 nextReviewAt/lastReviewedAt 的 NULL 值
-    // 填充为 Date.distantPast（模型中声明的默认值），无需手动数据转换。
-    static let migrateV1toV2 = MigrationStage.lightweight(
-        fromVersion: SnapDrillSchemaV1.self,
-        toVersion: SnapDrillSchemaV2.self
-    )
-
-    // lightweight 迁移：SwiftData 自动创建 #Index 索引，无需手动数据转换。
-    static let migrateV2toV3 = MigrationStage.lightweight(
-        fromVersion: SnapDrillSchemaV2.self,
-        toVersion: SnapDrillSchemaV3.self
-    )
-
-    // lightweight 迁移：SwiftData 自动创建 UNIQUE 约束，无需手动数据转换。
-    static let migrateV3toV4 = MigrationStage.lightweight(
-        fromVersion: SnapDrillSchemaV3.self,
-        toVersion: SnapDrillSchemaV4.self
-    )
 }
