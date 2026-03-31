@@ -83,6 +83,7 @@ struct SnapDrillApp: App {
                     .modelContainer(profileManager.activeContainer)
                     .environment(\.services, container.services)
                     .environment(\.repositories, profileManager.activeRepositories)
+                    .environment(\.profileManager, profileManager)
                     .id(profileManager.activeProfileId)
                     // analyticsService 单独注入：5 个 View 直接使用 \.analyticsService，
                     // 虽然 \.services 已包含 analytics，但移除此行会让它们回退到 Mock 默认值
