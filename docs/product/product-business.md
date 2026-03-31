@@ -102,7 +102,7 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 **Kids Category 决策**：**不申请**。理由：
 - Kids Category 限制较多（禁止外部链接、禁止第三方 SDK 向儿童发送数据等）
 - SnapDrill 使用第三方分析和崩溃报告 SDK，虽然不收集个人信息，但技术上属于第三方 SDK
-- SnapDrill 的主操作者是家长（非儿童直接使用），定位为「家庭教育工具」而非「儿童 App」
+- SnapDrill 的主操作者是家长（非儿童直接使用），定位为「家庭场景的效率工具」而非「儿童 App」
 - 4+ 年龄分级已足以覆盖目标用户群
 
 **Declared Age Range API**（iOS 26+）：v1.5 评估是否集成。该 API 允许 App **请求用户分享其年龄范围**（由系统从 Apple Account 获取，需家长同意），App 据此提供年龄适宜的体验。注意：这不是 App 声明自己的目标年龄段，而是 App 向系统请求用户的年龄信息。SwiftUI 用法：`@Environment(\.requestAgeRange)`；UIKit 用法：`AgeRangeService.requestAgeRange(ageGates:_:_:in:)`，支持最多 3 个 age gate 阈值。SnapDrill 的目标用户横跨多个年龄段（家长 + 6-18 岁学生），需评估是否及如何使用。美国多州（Utah、Louisiana、Texas）已立法要求年龄核实，v1.5 时需关注合规要求。

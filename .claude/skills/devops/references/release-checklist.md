@@ -5,7 +5,7 @@
 > 每次 build 推送到 TestFlight 前，在真机上走完以下流程。
 > 标注 ❌ 的项目必须修复后才能发版。
 >
-> Last verified: 2026-03-19（第二轮审计，逐条对齐 docs/product/product-requirements.md v1.0 功能清单）
+> Last verified: 2026-03-30（第三轮审计，补充 Multi-Profile 验证条目）
 
 ---
 
@@ -88,6 +88,14 @@
 - [ ] 帮助中心：跳转到外部网页 FAQ，链接可打开
 - [ ] 生成测试数据后：题库和复习界面均刷新
 - [ ] 清空数据后：题库和复习界面均清空
+
+## 多 Profile（v1.0，2026-03-30 新增）
+
+- [ ] Profile 创建：可创建新 Profile（如「孩子A」「孩子B」）
+- [ ] Profile 切换：设置页或 Dashboard 头像区域可切换，切换后题库/统计/复习进度完全独立
+- [ ] Profile 数据隔离：不同 Profile 的题目互不可见
+- [ ] Profile 持久化：切换后再切回，原 Profile 数据完整保留
+- [ ] Profile 备份恢复：.snapdrill 备份文件包含所有 Profile 数据，恢复后各 Profile 完整
 
 ## 数据与同步
 
