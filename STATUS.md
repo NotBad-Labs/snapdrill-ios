@@ -1,19 +1,17 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-03-31
+> 最后更新：2026-04-01
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：1（#462 采集管线体验改进） · Open Issue：3
+> Open PR：0 · Open Issue：2（全部外部阻塞）
 
 ---
 
 ## 当前焦点
 
-采集管线体验改进 PR #462 待 Review。
-
-待 Review：
-- #462 fix: 采集管线体验改进 — OCR 重试 + 稳定性提示 + 参数微调（8 文件，+60/-16）
+v1.0 功能开发 + 采集管线改进全部完成，等待 TestFlight Build 6 + 真机测试。
 
 已合并：
+- #462 fix: 采集管线体验改进 — OCR 重试 + 稳定性提示 + 参数微调
 - #460 fix: 相机权限缺失处理 — 拒绝/受限时引导用户开启
 - #458 feat: PDF 导出增强 — 去答案打印 + 留白答题区 + 页眉页码
 - #456 chore: 清理 Schema V2/V3/V4 过期注释
@@ -27,8 +25,8 @@
 | 优先级 | 事项 |
 |---|---|
 | P1 | TestFlight Build 6（所有功能已就绪，构建验证） |
-| P1 | 真机测试：Multi-Profile + PDF 导出增强 |
-| P2 | 采集管线改进（OCR 失败重试、纯文本草稿保存）— 见 #452 |
+| P1 | 真机测试：Multi-Profile + PDF 导出增强 + 相机权限 + OCR 重试 |
+| P2 | 纯文本草稿保存（已有 TODO，CaptureDraftService 扩展）— 见 #452 |
 | P3 | SM-2 驱动「生成复习卷」功能设计 — 见 #452 |
 
 ## 产品决策记录
@@ -51,7 +49,7 @@
 
 | Issue | 内容 | 解除条件 |
 |---|---|---|
-| #162 | GitHub Pro Branch Protection | 明天（4 月 1 日） |
+| #162 | GitHub Pro Branch Protection | 今天（4 月 1 日） |
 | #163 | 公司 Apple 开发者账号 | DUNS 就绪后 |
 
 ## 里程碑
