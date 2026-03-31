@@ -15,11 +15,6 @@ import SwiftData
 @Model
 public final class SubjectModel {
 
-    // MARK: - Unique Constraints
-
-    /// 学科名称唯一约束（SchemaV4）
-    #Unique<SubjectModel>([\.name])
-
     // MARK: - Properties
 
     /// 唯一标识

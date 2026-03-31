@@ -18,11 +18,6 @@ import Foundation
 @Model
 public final class SourceModel {
 
-    // MARK: - Unique Constraints
-
-    /// 来源名称唯一约束（SchemaV4）
-    #Unique<SourceModel>([\.name])
-
     // MARK: - Properties
     
     /// 唯一标识
