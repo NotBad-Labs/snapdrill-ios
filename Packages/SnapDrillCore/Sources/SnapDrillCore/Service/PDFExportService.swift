@@ -354,6 +354,9 @@ public final class PDFExportService: Sendable {
         context.setLineDash(phase: 0, lengths: [4, 4])
         context.stroke(rect.insetBy(dx: 0, dy: 2))
 
+        // 重置虚线状态，引导线应为实线
+        context.setLineDash(phase: 0, lengths: [])
+
         // 内部水平引导线（每 25pt 一条）
         context.setStrokeColor(UIColor.systemGray5.cgColor)
         context.setLineWidth(0.3)
