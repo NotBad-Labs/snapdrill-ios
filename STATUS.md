@@ -2,18 +2,16 @@
 
 > 最后更新：2026-03-31
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：1（#460 相机权限） · Open Issue：3
+> Open PR：0 · Open Issue：2（全部外部阻塞）
 
 ---
 
 ## 当前焦点
 
-PDF 导出增强已合并。相机权限处理 PR #460 待 Review。
-
-待 Review：
-- #460 fix: 相机权限缺失处理 — 拒绝/受限时引导用户开启（2 文件，+41/-3）
+v1.0 功能开发全部完成，等待 TestFlight Build 6 + 真机测试。
 
 已合并：
+- #460 fix: 相机权限缺失处理 — 拒绝/受限时引导用户开启
 - #458 feat: PDF 导出增强 — 去答案打印 + 留白答题区 + 页眉页码
 - #456 chore: 清理 Schema V2/V3/V4 过期注释
 - #454 fix: 移除 #Unique 宏解决 CloudKit 真机崩溃 + Schema V1 简化
