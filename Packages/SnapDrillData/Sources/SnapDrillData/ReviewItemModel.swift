@@ -175,7 +175,12 @@ public final class ReviewItemModel {
             imagePath: imagePath,
             subject: subject,
             source: source,
-            createdAt: createdAt
+            difficulty: difficulty,
+            answerText: answerText,
+            createdAt: createdAt,
+            lastReviewedAt: lastReviewedAt == .distantPast ? nil : lastReviewedAt,
+            nextReviewAt: nextReviewAt == .distantPast ? nil : nextReviewAt,
+            tags: tags?.map(\.name) ?? []
         )
     }
 }
