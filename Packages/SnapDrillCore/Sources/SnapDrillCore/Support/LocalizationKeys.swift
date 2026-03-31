@@ -303,6 +303,7 @@ nonisolated public enum L10n {
         // 过滤
         public static let filter = NSLocalizedString("library.filter", value: "过滤", comment: "过滤按钮")
         public static let filterSubjects = NSLocalizedString("library.filter_subjects", value: "学科", comment: "过滤学科标签")
+        public static let filterDifficulty = NSLocalizedString("library.filter_difficulty", value: "难度", comment: "过滤难度标签")
         public static let filterTags = NSLocalizedString("library.filter_tags", value: "标签", comment: "过滤标签标签")
 
         // 导出

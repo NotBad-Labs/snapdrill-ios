@@ -236,18 +236,21 @@ public final class ReviewRepository {
         searchText: String,
         subjects: Set<String>,
         tags: Set<String>,
+        difficulties: Set<Int> = [],
         sortDescriptors: [SortDescriptor<ReviewItemModel>] = [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
         limit: Int,
         offset: Int
     ) throws -> [ReviewItemModel] {
         let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
         let subjectsArray = Array(subjects)
+        let difficultiesArray = Array(difficulties)
 
         // #Predicate 内禁止 force unwrap（! 在 SQLite 转译语义未定义）；
         // 用可选链 ?.localizedStandardContains == true 替代，行为等价且安全。
         let predicate = #Predicate<ReviewItemModel> { item in
             (normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true) &&
-            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue))
+            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue)) &&
+            (difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty))
         }
 
         if tags.isEmpty {

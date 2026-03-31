@@ -171,6 +171,7 @@
 "library.metadata" = "Properties";
 "library.filter" = "Filter";
 "library.filter_subjects" = "Subjects";
+"library.filter_difficulty" = "Difficulty";
 "library.filter_tags" = "Tags";
 "library.export" = "Export";
 "library.export_title" = "Export Options";

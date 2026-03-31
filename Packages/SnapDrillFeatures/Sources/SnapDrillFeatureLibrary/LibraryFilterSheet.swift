@@ -57,6 +57,39 @@ struct LibraryFilterSheet: View {
                     }
                 }
                 
+                // Section: Difficulty
+                Section(L10n.Library.filterDifficulty) {
+                    ForEach(Difficulty.allCases) { difficulty in
+                        Button {
+                            if viewModel.selectedDifficulties.contains(difficulty.rawValue) {
+                                viewModel.selectedDifficulties.remove(difficulty.rawValue)
+                            } else {
+                                viewModel.selectedDifficulties.insert(difficulty.rawValue)
+                            }
+                        } label: {
+                            HStack(spacing: 2) {
+                                ForEach(0..<difficulty.starCount, id: \.self) { _ in
+                                    Image(systemName: "star.fill")
+                                        .foregroundStyle(.orange)
+                                        .font(.caption)
+                                }
+                                Spacer()
+                                if viewModel.selectedDifficulties.contains(difficulty.rawValue) {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(.blue)
+                                }
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(L10n.Accessibility.starRating(
+                            difficulty: difficulty.starCount,
+                            maxStars: Difficulty.allCases.count
+                        ))
+                        .accessibilityAddTraits(viewModel.selectedDifficulties.contains(difficulty.rawValue) ? .isSelected : [])
+                    }
+                }
+
                 // Section: Tags
                 Section(L10n.Library.filterTags) {
                     if viewModel.allTags.isEmpty {

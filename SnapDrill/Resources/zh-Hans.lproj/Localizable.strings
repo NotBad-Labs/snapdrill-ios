@@ -171,6 +171,7 @@
 "library.metadata" = "属性";
 "library.filter" = "过滤";
 "library.filter_subjects" = "学科";
+"library.filter_difficulty" = "难度";
 "library.filter_tags" = "标签";
 "library.export" = "导出";
 "library.export_title" = "导出选项";
