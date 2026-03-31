@@ -24,9 +24,12 @@ struct ExportOptionsSheet: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var showingPDFPreview = false
-    
+    @State private var hideAnswers = true
+    @State private var showBlankAnswerArea = true
+    @State private var showHeader = true
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -75,6 +78,14 @@ struct ExportOptionsSheet: View {
                     .accessibleButton(label: L10n.Library.exportCSV, hint: L10n.Accessibility.exportCSVHint)
                 }
                 
+                Section(L10n.Export.pdfOptions) {
+                    Toggle(L10n.Export.hideAnswers, isOn: $hideAnswers)
+                    if hideAnswers {
+                        Toggle(L10n.Export.showBlankArea, isOn: $showBlankAnswerArea)
+                    }
+                    Toggle(L10n.Export.showHeader, isOn: $showHeader)
+                }
+
                 Section {
                     HStack {
                         Spacer()
@@ -93,7 +104,14 @@ struct ExportOptionsSheet: View {
                 }
             }
             .navigationDestination(isPresented: $showingPDFPreview) {
-                ExportPreviewView(items: items)
+                ExportPreviewView(
+                    items: items,
+                    options: PDFExportOptions(
+                        hideAnswers: hideAnswers,
+                        showBlankAnswerArea: showBlankAnswerArea,
+                        showHeader: showHeader
+                    )
+                )
             }
         }
     }

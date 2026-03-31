@@ -652,6 +652,14 @@
 // MARK: - Export (PDF title)
 "export.pdf_title" = "SnapDrill Mistake Collection";
 "export.pdf_generation_date" = "Generated: %@";
+"export.hide_answers" = "Hide Answers";
+"export.answer_label" = "Answer: ";
+"export.show_blank_area" = "Show Answer Area";
+"export.show_header" = "Show Header & Page Numbers";
+"export.mixed_subject" = "Mixed Subjects";
+"export.default_subject" = "Mistake Collection";
+"export.pdf_options" = "Print Options";
+"export.page_number" = "Page %d of %d";
 
 // MARK: - Settings (avatar color)
 "settings.avatar_color" = "Avatar Color";

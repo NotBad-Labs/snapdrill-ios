@@ -847,6 +847,16 @@ nonisolated public enum L10n {
         public static func pdfGenerationDate(_ date: String) -> String {
             String(format: NSLocalizedString("export.pdf_generation_date", value: "生成日期: %@", comment: "PDF 导出封面副标题"), date)
         }
+        public static let hideAnswers = NSLocalizedString("export.hide_answers", value: "隐藏答案", comment: "导出选项：隐藏答案开关")
+        public static let answerLabel = NSLocalizedString("export.answer_label", value: "答案：", comment: "PDF 导出中答案区域前缀")
+        public static let showBlankArea = NSLocalizedString("export.show_blank_area", value: "显示答题区", comment: "导出选项：显示答题留白区开关")
+        public static let showHeader = NSLocalizedString("export.show_header", value: "显示页眉页码", comment: "导出选项：显示页眉页码开关")
+        public static let mixedSubject = NSLocalizedString("export.mixed_subject", value: "综合练习", comment: "PDF 页眉：多学科混合时显示")
+        public static let defaultSubject = NSLocalizedString("export.default_subject", value: "错题本", comment: "PDF 页眉：无学科信息时的默认标题")
+        public static let pdfOptions = NSLocalizedString("export.pdf_options", value: "打印选项", comment: "导出选项区域标题")
+        public static func pageNumber(_ current: Int, _ total: Int) -> String {
+            String(format: NSLocalizedString("export.page_number", value: "第 %d/%d 页", comment: "PDF 页眉：页码"), current, total)
+        }
     }
 
     // MARK: - TermsOfService

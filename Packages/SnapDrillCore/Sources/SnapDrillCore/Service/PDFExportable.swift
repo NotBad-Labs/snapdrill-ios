@@ -31,4 +31,13 @@ public protocol PDFExportable: Sendable {
     var content: String? { get }
     /// 题目图片的存储路径（相对路径）；纯文字题时为 `nil`
     var imagePath: String? { get }
+    /// 答案文本；无答案时为 `nil`
+    var answerText: String? { get }
+    /// 导出用学科名称；用于 PDF 页眉显示
+    var exportSubject: String? { get }
+}
+
+extension PDFExportable {
+    public var answerText: String? { nil }
+    public var exportSubject: String? { nil }
 }

@@ -651,6 +651,14 @@
 // MARK: - Export (PDF title)
 "export.pdf_title" = "SnapDrill 错题本";
 "export.pdf_generation_date" = "生成日期: %@";
+"export.hide_answers" = "隐藏答案";
+"export.answer_label" = "答案：";
+"export.show_blank_area" = "显示答题区";
+"export.show_header" = "显示页眉页码";
+"export.mixed_subject" = "综合练习";
+"export.default_subject" = "错题本";
+"export.pdf_options" = "打印选项";
+"export.page_number" = "第 %d/%d 页";
 
 // MARK: - Settings (avatar color)
 "settings.avatar_color" = "头像颜色";

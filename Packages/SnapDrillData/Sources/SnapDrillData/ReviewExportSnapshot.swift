@@ -37,4 +37,7 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     public let tags: [String]
 }
 
-extension ReviewExportSnapshot: PDFExportable {}
+extension ReviewExportSnapshot: PDFExportable {
+    /// 桥接 `subject: String` → 协议的 `exportSubject: String?`
+    public var exportSubject: String? { subject }
+}
