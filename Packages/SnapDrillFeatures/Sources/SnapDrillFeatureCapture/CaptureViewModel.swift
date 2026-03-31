@@ -8,6 +8,7 @@
 //  相机拍摄、图库选图、OCR 识别的主 ViewModel。
 //
 
+import AVFoundation
 import Foundation
 import Observation
 import SnapDrillCore
@@ -49,6 +50,8 @@ public final class CaptureViewModel {
     public var showErrorAlert = false
     /// 错误提示文本
     public var errorMessage = ""
+    /// 是否弹出相机权限拒绝提示（需要"打开设置"按钮，区别于通用错误 alert）
+    public var showCameraPermissionDenied = false
     /// 是否正在显示 PDF 文件选择器
     public var isShowingPDFPicker = false
     /// 是否显示 PDF 大文件警告对话框
@@ -71,7 +74,26 @@ public final class CaptureViewModel {
     }
     
     // MARK: - Public API
-    
+
+    /// 检查相机权限，未授权时弹出引导提示
+    ///
+    /// - Returns: `true` 表示权限已授权，可以打开相机；`false` 表示权限被拒绝或受限
+    public func checkCameraPermission() async -> Bool {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
+        case .authorized:
+            return true
+        case .notDetermined:
+            return await AVCaptureDevice.requestAccess(for: .video)
+        case .denied, .restricted:
+            showCameraPermissionDenied = true
+            return false
+        @unknown default:
+            showCameraPermissionDenied = true
+            return false
+        }
+    }
+
     /// 页面出现时检查是否有未完成草稿，若有则弹出恢复提示
     public func checkDraftOnAppear() {
         if let draft = CaptureDraftService.shared.loadDraft() {
