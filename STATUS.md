@@ -2,13 +2,16 @@
 
 > 最后更新：2026-03-31
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：0 · Open Issue：2（全部外部阻塞）
+> Open PR：1（#462 采集管线体验改进） · Open Issue：3
 
 ---
 
 ## 当前焦点
 
-v1.0 功能开发全部完成，等待 TestFlight Build 6 + 真机测试。
+采集管线体验改进 PR #462 待 Review。
+
+待 Review：
+- #462 fix: 采集管线体验改进 — OCR 重试 + 稳定性提示 + 参数微调（8 文件，+60/-16）
 
 已合并：
 - #460 fix: 相机权限缺失处理 — 拒绝/受限时引导用户开启
