@@ -54,7 +54,8 @@ public final class CaptureViewModel {
     public var showCameraPermissionDenied = false
     /// 是否弹出 OCR 失败重试提示（需要"重新识别"和"继续编辑"按钮）
     public var showOCRRetryAlert = false
-    /// OCR 失败时暂存的图片和路由器引用，用于重试
+    /// OCR 失败时暂存的图片和路由器引用，用于重试（不被 View 观察）
+    @ObservationIgnored
     public var pendingOCRImage: UIImage?
     @ObservationIgnored
     public var pendingOCRRouter: CaptureRouter?
