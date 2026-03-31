@@ -8,6 +8,7 @@
 //  SwiftData 持久化控制器，管理 ModelContainer 生命周期与 Schema 迁移。
 //
 
+import Foundation
 import SwiftData
 import SnapDrillCore
 
@@ -15,7 +16,7 @@ public final class PersistenceController {
 
     // MARK: - Properties
 
-    /// 共享持久化控制器实例（生产环境使用磁盘存储）
+    /// 共享持久化控制器实例（兼容旧代码，Multi-Profile 模式下由 ProfileManager 管理）
     public static let shared = PersistenceController()
 
     /// SwiftData ModelContainer，用于创建 ModelContext
@@ -30,12 +31,22 @@ public final class PersistenceController {
     // MARK: - Initialization
 
     /// 创建持久化控制器
-    /// - Parameter inMemory: 为 `true` 时使用内存存储（用于测试 / Preview），默认使用磁盘持久化
-    public init(inMemory: Bool = false) {
+    /// - Parameters:
+    ///   - inMemory: 为 `true` 时使用内存存储（用于测试 / Preview），默认使用磁盘持久化
+    ///   - storeURL: 指定数据库文件路径。传 nil 使用系统默认路径（兼容旧代码）。
+    ///     Profile 模式下传入 `profiles/<id>/default.store`。
+    public init(inMemory: Bool = false, storeURL: URL? = nil) {
         SnapDrillLogger.data.info("🔧 Initializing SwiftData with SnapDrillMigrationPlan")
 
         do {
-            let config = ModelConfiguration(isStoredInMemoryOnly: inMemory)
+            let config: ModelConfiguration
+            if inMemory {
+                config = ModelConfiguration(isStoredInMemoryOnly: true)
+            } else if let storeURL {
+                config = ModelConfiguration(url: storeURL)
+            } else {
+                config = ModelConfiguration()
+            }
             self.container = try ModelContainer(
                 for: Schema(SnapDrillSchemaV4.models),
                 migrationPlan: SnapDrillMigrationPlan.self,
@@ -67,10 +78,6 @@ public final class PersistenceController {
             let container = try ModelContainer(for: Schema(SnapDrillSchemaV4.models), configurations: fallbackConfig)
             return (container, true)
         } catch {
-            // 内存模式的 ModelContainer 创建失败：此属于不可恢复的系统级错误。
-            // 内存模式不依赖磁盘，若仍失败说明 SwiftData/系统层存在根本性问题。
-            // 此时无法提供任何 ModelContext，继续运行只会产生更难调试的崩溃，
-            // 直接 fatalError 以保证 Crash Report 能精确定位问题根因。
             SnapDrillLogger.data.critical("💀 Critical: In-memory ModelContainer also failed. Error: \(error.localizedDescription)")
             fatalError("SwiftData initialization failed significantly: \(error.localizedDescription)")
         }

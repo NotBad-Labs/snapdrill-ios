@@ -17,7 +17,7 @@ import Foundation
 /// @AppStorage(UDKey.userName) var userName = "同学"
 /// UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled)
 /// ```
-public enum UDKey {
+nonisolated public enum UDKey {
 
     // MARK: - User Profile
 
@@ -78,6 +78,11 @@ public enum UDKey {
     // MARK: - Draft Service
 
     public static let captureDraftMetadata = "capture_draft_metadata"
+
+    // MARK: - Profile
+
+    /// 当前活跃的 Profile ID（UUID 字符串）
+    public static let activeProfileId = "activeProfileId"
 
     // MARK: - Onboarding
 
