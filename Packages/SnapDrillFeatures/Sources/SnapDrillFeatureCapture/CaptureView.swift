@@ -297,6 +297,15 @@ public struct CaptureView: View {
             } message: {
                 Text(L10n.Capture.pdfFileTooLarge(viewModel.largeFileSizeMB))
             }
+            // OCR 失败重试
+            .alert(L10n.Capture.ocrFailedHint, isPresented: $viewModel.showOCRRetryAlert) {
+                Button(L10n.Capture.ocrRetry) {
+                    viewModel.retryOCR()
+                }
+                Button(L10n.Capture.ocrContinueEdit, role: .cancel) {
+                    viewModel.skipOCRAndEdit()
+                }
+            }
             // 相机权限拒绝引导
             .alert(L10n.Errors.cameraPermissionDenied, isPresented: $viewModel.showCameraPermissionDenied) {
                 Button(L10n.Common.openSettings) {

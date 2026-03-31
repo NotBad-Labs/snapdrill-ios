@@ -103,15 +103,15 @@ struct SmartCameraView: View {
             .allowsHitTesting(false)
             .accessibilityHidden(true)
             
-            if !isStable {
-                 Text(L10n.Capture.cameraScanningHint)
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.8))
-                    .padding(8)
-                    .background(.black.opacity(0.4))
-                    .clipShape(Capsule())
-                    .padding(.top, 100)
-            }
+            // 状态提示文字
+            Text(isStable ? L10n.Capture.cameraReadyHint : L10n.Capture.cameraScanningHint)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.8))
+                .padding(8)
+                .background(isStable ? Color.green.opacity(0.6) : Color.black.opacity(0.4))
+                .clipShape(Capsule())
+                .padding(.top, 100)
+                .animation(.easeInOut(duration: 0.3), value: isStable)
         }
     }
     
