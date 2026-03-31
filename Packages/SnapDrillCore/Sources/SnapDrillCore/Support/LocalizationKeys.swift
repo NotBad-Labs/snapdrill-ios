@@ -171,7 +171,10 @@ nonisolated public enum L10n {
 
         // 相机取景
         public static let cameraScanningHint = NSLocalizedString("capture.camera_scanning_hint", value: "寻找题目区域...", comment: "相机扫描提示")
+        public static let cameraReadyHint = NSLocalizedString("capture.camera_ready_hint", value: "可以拍摄了", comment: "相机稳定后提示可以拍摄")
         public static let ocrFailedHint = NSLocalizedString("capture.ocr_failed_hint", value: "文字识别失败，请手动输入内容", comment: "OCR 失败时提示用户手动输入")
+        public static let ocrRetry = NSLocalizedString("capture.ocr_retry", value: "重新识别", comment: "OCR 失败后重试按钮")
+        public static let ocrContinueEdit = NSLocalizedString("capture.ocr_continue_edit", value: "继续编辑", comment: "OCR 失败后继续手动编辑按钮")
 
         // 默认值（自动推断兜底）
         public static let defaultSubject = NSLocalizedString("capture.default_subject", value: "数学", comment: "默认学科")

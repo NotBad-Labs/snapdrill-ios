@@ -93,7 +93,10 @@
 "capture.pdf_page_hint" = "%d pages total. Tap to select a page to capture.";
 "capture.page_number" = "Page %d";
 "capture.camera_scanning_hint" = "Scanning for question area...";
+"capture.camera_ready_hint" = "Ready to capture";
 "capture.ocr_failed_hint" = "Text recognition failed. Please enter content manually.";
+"capture.ocr_retry" = "Retry Recognition";
+"capture.ocr_continue_edit" = "Continue Editing";
 "capture.default_subject" = "Math";
 "capture.default_source" = "Exam Paper";
 

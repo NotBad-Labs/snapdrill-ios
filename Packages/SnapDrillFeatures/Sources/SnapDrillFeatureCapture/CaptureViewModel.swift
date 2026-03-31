@@ -52,6 +52,12 @@ public final class CaptureViewModel {
     public var errorMessage = ""
     /// 是否弹出相机权限拒绝提示（需要"打开设置"按钮，区别于通用错误 alert）
     public var showCameraPermissionDenied = false
+    /// 是否弹出 OCR 失败重试提示（需要"重新识别"和"继续编辑"按钮）
+    public var showOCRRetryAlert = false
+    /// OCR 失败时暂存的图片和路由器引用，用于重试
+    public var pendingOCRImage: UIImage?
+    @ObservationIgnored
+    public var pendingOCRRouter: CaptureRouter?
     /// 是否正在显示 PDF 文件选择器
     public var isShowingPDFPicker = false
     /// 是否显示 PDF 大文件警告对话框
@@ -146,6 +152,25 @@ public final class CaptureViewModel {
         selectedPhotoItem = nil
     }
     
+    /// OCR 失败后用户选择重新识别
+    public func retryOCR() {
+        guard let image = pendingOCRImage, let router = pendingOCRRouter else { return }
+        pendingOCRImage = nil
+        pendingOCRRouter = nil
+        isProcessing = true
+        Task {
+            await processImageOCR(image, router: router)
+        }
+    }
+
+    /// OCR 失败后用户选择继续编辑（跳转到空白编辑页）
+    public func skipOCRAndEdit() {
+        guard let image = pendingOCRImage, let router = pendingOCRRouter else { return }
+        pendingOCRImage = nil
+        pendingOCRRouter = nil
+        router.push(.scannerResult(content: "", image: image))
+    }
+
     /// 从剪贴板读取文本并跳转到编辑页
     ///
     /// 剪贴板为空或无文本时，展示错误提示。
@@ -281,10 +306,10 @@ public final class CaptureViewModel {
                 await MainActor.run { [weak self] in
                     guard let self = self else { return }
                     self.isProcessing = false
-                    // OCR 失败时提示用户，仍跳转到结果页让用户手动输入
-                    self.errorMessage = L10n.Capture.ocrFailedHint
-                    self.showErrorAlert = true
-                    router.push(.scannerResult(content: "", image: image))
+                    // 暂存图片和路由器，弹出重试 alert 让用户选择
+                    self.pendingOCRImage = image
+                    self.pendingOCRRouter = router
+                    self.showOCRRetryAlert = true
                 }
             }
         }

@@ -93,7 +93,10 @@
 "capture.pdf_page_hint" = "共 %d 页，点击选择要录入的页面";
 "capture.page_number" = "第 %d 页";
 "capture.camera_scanning_hint" = "寻找题目区域...";
+"capture.camera_ready_hint" = "可以拍摄了";
 "capture.ocr_failed_hint" = "文字识别失败，请手动输入内容";
+"capture.ocr_retry" = "重新识别";
+"capture.ocr_continue_edit" = "继续编辑";
 "capture.default_subject" = "数学";
 "capture.default_source" = "试卷";
 

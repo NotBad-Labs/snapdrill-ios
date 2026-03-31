@@ -84,7 +84,7 @@ final class SmartCameraViewController: UIViewController {
 actor CameraStateActor {
     private var smoothedRect: CGRect?
     private var stabilityCounter: Int = 0
-    private let stabilityThreshold = 10
+    private let stabilityThreshold = 8
     private let movementThreshold: CGFloat = 0.05
     private var lastUpdateTime: TimeInterval = 0
     
@@ -105,7 +105,7 @@ actor CameraStateActor {
         let newRect: CGRect
         if let current = smoothedRect {
             // 低通滤波器
-            let factor: CGFloat = 0.08
+            let factor: CGFloat = 0.10
             newRect = CGRect(
                 x: current.origin.x * (1 - factor) + target.origin.x * factor,
                 y: current.origin.y * (1 - factor) + target.origin.y * factor,
