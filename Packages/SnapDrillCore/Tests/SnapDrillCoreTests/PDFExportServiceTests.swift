@@ -18,6 +18,8 @@ import Foundation
 private struct MockPDFItem: PDFExportable {
     var content: String?
     var imagePath: String?
+    var answerText: String?
+    var exportSubject: String?
 }
 
 struct PDFExportServiceTests {
@@ -27,6 +29,17 @@ struct PDFExportServiceTests {
     private func createDummyItems(count: Int) -> [MockPDFItem] {
         return (1...count).map { index in
             MockPDFItem(content: "测试题目 \(index)", imagePath: nil)
+        }
+    }
+
+    private func createItemsWithAnswers(count: Int) -> [MockPDFItem] {
+        return (1...count).map { index in
+            MockPDFItem(
+                content: "测试题目 \(index)",
+                imagePath: nil,
+                answerText: "测试答案 \(index)",
+                exportSubject: "数学"
+            )
         }
     }
 
@@ -113,5 +126,79 @@ struct PDFExportServiceTests {
         } catch {
             Issue.record("抛出了非期望的错误类型: \(error)")
         }
+    }
+
+    // MARK: - 导出选项测试
+
+    @Test("向后兼容：不传 options 仍能正常生成 PDF")
+    func backwardCompatibility() async throws {
+        let service = PDFExportService.shared
+        let items = createDummyItems(count: 2)
+
+        // 不传 options 参数（使用默认值）
+        let data = try await service.createPDF(from: items, imageProvider: { _ in nil })
+        #expect(data.isEmpty == false)
+    }
+
+    @Test("显示答案 vs 隐藏答案产生不同大小的 PDF")
+    func showAnswersVsHideAnswers() async throws {
+        let service = PDFExportService.shared
+        let items = createItemsWithAnswers(count: 3)
+
+        let hideOptions = PDFExportOptions(hideAnswers: true, showBlankAnswerArea: false, showHeader: false)
+        let showOptions = PDFExportOptions(hideAnswers: false, showBlankAnswerArea: false, showHeader: false)
+
+        let hiddenData = try await service.createPDF(from: items, options: hideOptions, imageProvider: { _ in nil })
+        let shownData = try await service.createPDF(from: items, options: showOptions, imageProvider: { _ in nil })
+
+        // 显示答案的 PDF 应该比隐藏答案的更大（包含更多渲染内容）
+        #expect(shownData.count > hiddenData.count)
+    }
+
+    @Test("answerText 为 nil 时显示答案不崩溃")
+    func showAnswersWithNilAnswer() async throws {
+        let service = PDFExportService.shared
+        let items = [MockPDFItem(content: "无答案的题目", imagePath: nil, answerText: nil)]
+        let options = PDFExportOptions(hideAnswers: false, showBlankAnswerArea: false, showHeader: true)
+
+        let data = try await service.createPDF(from: items, options: options, imageProvider: { _ in nil })
+        #expect(data.isEmpty == false)
+    }
+
+    @Test("留白答题区正常生成 PDF")
+    func blankAnswerArea() async throws {
+        let service = PDFExportService.shared
+        let items = createDummyItems(count: 3)
+        let options = PDFExportOptions(hideAnswers: true, showBlankAnswerArea: true, showHeader: true)
+
+        let data = try await service.createPDF(from: items, options: options, imageProvider: { _ in nil })
+        #expect(data.isEmpty == false)
+    }
+
+    @Test("单一学科页眉正常显示")
+    func singleSubjectHeader() async throws {
+        let service = PDFExportService.shared
+        let items = [
+            MockPDFItem(content: "题1", exportSubject: "数学"),
+            MockPDFItem(content: "题2", exportSubject: "数学")
+        ]
+
+        let subject = service.resolveSubject(from: items)
+        #expect(subject == "数学")
+    }
+
+    @Test("混合学科页眉显示综合练习")
+    func mixedSubjectHeader() async throws {
+        let service = PDFExportService.shared
+        let items = [
+            MockPDFItem(content: "题1", exportSubject: "数学"),
+            MockPDFItem(content: "题2", exportSubject: "语文")
+        ]
+
+        let subject = service.resolveSubject(from: items)
+        // resolveSubject 在多学科时返回 L10n.Export.mixedSubject 的值
+        #expect(subject.isEmpty == false)
+        #expect(subject != "数学")
+        #expect(subject != "语文")
     }
 }
