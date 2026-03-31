@@ -70,7 +70,7 @@ public struct CaptureView: View {
                             .padding(.horizontal)
                         
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                            // 1. 智能扫描
+                            // 1. 智能扫描（先检查权限再打开相机）
                             CaptureMethodCard(
                                 icon: "camera.viewfinder",
                                 title: L10n.Capture.cameraTitle,
@@ -78,7 +78,12 @@ public struct CaptureView: View {
                                 color: .blue,
                                 accessibilityHint: L10n.Accessibility.cameraHint
                             ) {
-                                viewModel.isShowingScanner = true
+                                Task {
+                                    let granted = await viewModel.checkCameraPermission()
+                                    if granted {
+                                        viewModel.isShowingScanner = true
+                                    }
+                                }
                             }
                             
                             // 2. 相册导入
@@ -291,6 +296,17 @@ public struct CaptureView: View {
                 }
             } message: {
                 Text(L10n.Capture.pdfFileTooLarge(viewModel.largeFileSizeMB))
+            }
+            // 相机权限拒绝引导
+            .alert(L10n.Errors.cameraPermissionDenied, isPresented: $viewModel.showCameraPermissionDenied) {
+                Button(L10n.Common.openSettings) {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                Button(L10n.Common.cancel, role: .cancel) { }
+            } message: {
+                Text(L10n.Errors.cameraPermissionHelp)
             }
         }
     }
