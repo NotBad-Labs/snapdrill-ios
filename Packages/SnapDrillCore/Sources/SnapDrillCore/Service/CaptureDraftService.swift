@@ -29,8 +29,8 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
 
     /// 草稿数据结构，携带图片、识别文本、学科和保存时间
     public struct Draft {
-        /// 拍摄的原始图片
-        public let image: UIImage
+        /// 拍摄的原始图片（纯文字草稿为 nil）
+        public let image: UIImage?
         /// OCR 识别文本（可为空字符串）
         public let content: String
         /// 草稿保存时间
@@ -58,9 +58,10 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     /// async 签名使调用方可在 Task 中执行（如 onDisappear），不直接阻塞 UI 事件循环。
     /// UIImage 非 Sendable，JPEG 压缩和文件写入无法安全移至后台，仍在 MainActor 执行。
     /// 草稿图片已压缩（JPEG 0.8），I/O 量小（通常 < 500KB），阻塞时间可接受。
-    public func saveDraft(image: UIImage, content: String, subject: String? = nil) async {
-        // 1. JPEG 压缩 + 写入文件（通过 ImageStorage 剥离 EXIF GPS，保护用户位置隐私）
-        if let data = ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8),
+    public func saveDraft(image: UIImage? = nil, content: String, subject: String? = nil) async {
+        // 1. JPEG 压缩 + 写入文件（有图片时才执行；纯文字草稿跳过图片保存）
+        if let image,
+           let data = ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8),
            let path = draftImagePath() {
             do {
                 try data.write(to: path)
@@ -95,11 +96,11 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
             return nil
         }
 
-        // 3. Load Image
-        guard let path = draftImagePath(),
-              let imageData = try? Data(contentsOf: path),
-              let image = UIImage(data: imageData) else {
-            return nil
+        // 3. 尝试加载图片（纯文字草稿无图片文件，image 为 nil 是合法状态）
+        var image: UIImage?
+        if let path = draftImagePath(),
+           let imageData = try? Data(contentsOf: path) {
+            image = UIImage(data: imageData)
         }
 
         return Draft(
