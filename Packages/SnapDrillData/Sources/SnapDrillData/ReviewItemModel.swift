@@ -18,7 +18,7 @@ import SnapDrillCore
 @Model
 public final class ReviewItemModel {
 
-    // 索引：提升高频查询性能（Schema V3 新增，见 MigrationPlan.swift）
+    // 索引：提升高频查询性能
     #Index<ReviewItemModel>(
         [\.createdAt],         // 题库列表默认排序
         [\.nextReviewAt],      // 待复习查询
@@ -57,7 +57,7 @@ public final class ReviewItemModel {
     @Relationship(deleteRule: .nullify, inverse: \TagModel.items)
     public var tags: [TagModel]? = []
     
-    // MARK: - Schema V2 Fields
+    // MARK: - 答案与难度
     /// 答案文本（可选）
     public var answerText: String?
     
@@ -132,7 +132,6 @@ public final class ReviewItemModel {
         self.sourceRawValue = source
         self.tags = tags
         
-        // V2
         self.answerText = answerText
         self.answerImagePath = answerImagePath
         self.difficulty = difficulty

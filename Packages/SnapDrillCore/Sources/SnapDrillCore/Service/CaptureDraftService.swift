@@ -42,7 +42,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     private struct DraftMetadata: Codable {
         let content: String
         let timestamp: TimeInterval
-        /// 保存时选中的学科（V2 新增，旧草稿缺失时 decode 为 nil）
+        /// 保存时选中的学科（旧草稿缺失时 decode 为 nil）
         let subject: String?
     }
 

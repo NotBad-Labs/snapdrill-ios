@@ -22,19 +22,16 @@ nonisolated public struct BackupManifest: Codable, Sendable {
     public let appVersion: String
     /// 题目总数
     public let itemCount: Int
-    /// 学习者名称（Multi-Profile，V3 新增，旧备份为 nil）
+    /// 学习者名称（Multi-Profile，旧备份为 nil）
     public let profileName: String?
 
     /// 当前备份 Schema 版本——每次 BackupDTO 字段变更时递增
     ///
-    /// **与 SwiftData Schema 版本的对应关系**：
-    /// - BackupManifest.currentSchemaVersion = 3 → SwiftData SchemaV4 + Multi-Profile
-    /// - 两者独立管理：BackupDTO 版本变更不一定伴随 SwiftData 迁移，反之亦然
-    /// - 新增 SwiftData Schema 版本时，评估是否需要同步更新备份 Schema
+    /// 备份 Schema 与 SwiftData Schema 独立管理：版本变更不一定同步。
     ///
     /// **版本历史**：
-    /// - 1 → SwiftData SchemaV3：初始备份格式
-    /// - 2 → SwiftData SchemaV4：Tag/Subject/Source/Grade 添加 name 唯一约束
+    /// - 1 → 初始备份格式
+    /// - 2 → Tag/Subject/Source/Grade 字段扩展
     /// - 3 → Multi-Profile：新增 profileName 字段
     public static let currentSchemaVersion = 3
 
@@ -51,7 +48,7 @@ nonisolated public struct BackupManifest: Codable, Sendable {
 
 /// ReviewItemModel 的序列化表示
 ///
-/// 使用自定义 `init(from:)` + `decodeIfPresent` 确保 Schema V2 新增字段时，
+/// 使用自定义 `init(from:)` + `decodeIfPresent` 确保新增字段时，
 /// 旧版本备份文件（缺少新字段）仍可正常解析。
 nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
     public let id: UUID
@@ -71,7 +68,7 @@ nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
     public let interval: Int
     public let repetitions: Int
 
-    // V2 新增字段在此追加，init(from:) 中用 decodeIfPresent + 默认值即可兼容 V1 备份
+    // 新增字段在此追加，init(from:) 中用 decodeIfPresent + 默认值即可兼容旧备份
 
     public init(
         id: UUID,
