@@ -2,25 +2,25 @@
 
 > 最后更新：2026-03-31
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：2 · Open Issue：3（全部外部阻塞）
+> Open PR：3 · Open Issue：2（全部外部阻塞）
 
 ---
 
 ## 当前焦点
 
-全量审计修复已完成，Multi-Profile 设计方案已确定（独立数据库 / Vault 方式）。
+Multi-Profile 功能已实现（独立数据库 / Vault 模式），待 review 合并。
 
 | PR | 内容 | 状态 |
 |---|---|---|
 | #449 | CI 修复（swift test → xcodebuild test） | Open，CI pending |
-| #450 | 审计修复（CSV 统一 + 帮助中心 #448 + 死代码清理） | Open，待 review |
+| #450 | 审计修复（CSV 统一 + 帮助中心 Closes #448 + 死代码清理） | Open，待 review |
+| #451 | Multi-Profile（Vault 模式，3 commits） | Open，待 review |
 
 ## 下一步
 
 | 优先级 | 事项 |
 |---|---|
-| P0 | Multi-Profile 实现（v1.0 必须，设计已完成，见 plan 文件） |
-| P1 | PR #449 + #450 合并 |
+| P0 | PR #449 + #450 + #451 合并 |
 | P1 | TestFlight Build 6（DocC 已确认，仅剩构建验证） |
 
 ## 产品决策记录
@@ -36,7 +36,6 @@
 
 | Issue | 内容 | 解除条件 |
 |---|---|---|
-| #161 | TestFlight Build 6 | ~~DocC 策略确定~~ ✅ 已确认（2026-03-30） |
 | #162 | GitHub Pro Branch Protection | 明天（4 月 1 日） |
 | #163 | 公司 Apple 开发者账号 | DUNS 就绪后 |
 
