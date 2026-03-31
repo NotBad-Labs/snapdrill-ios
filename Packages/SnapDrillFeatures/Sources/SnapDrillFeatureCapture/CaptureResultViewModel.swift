@@ -60,8 +60,8 @@ public final class CaptureResultViewModel {
     public var isCropping = false
     /// 是否已成功保存（用于触发返回导航）
     public var isSaved = false
-    /// 复制文本到剪贴板后的确认反馈（触发 sensoryFeedback）
-    public var showCopyConfirmation = false
+    /// 复制文本到剪贴板的计数器（每次递增触发 sensoryFeedback，Bool 只能触发一次）
+    public var copyConfirmationCount = 0
     /// 是否正在执行保存操作（防止双击重复写入）
     public var isSaving = false
     /// 是否弹出错误提示

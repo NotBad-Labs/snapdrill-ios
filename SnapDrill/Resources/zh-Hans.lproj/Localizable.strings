@@ -644,6 +644,7 @@
 "accessibility.review_button_hint" = "轻点开始复习 %d 道题目";
 "accessibility.export_button_hint" = "轻点导出为 %@ 格式";
 "accessibility.progress_description" = "已完成 %d 道，共 %d 道，进度 %d%%";
+"accessibility.copy_content_hint" = "将识别文字复制到剪贴板";
 
 // MARK: - Tab Bar
 "tab.dashboard" = "首页";

@@ -645,6 +645,7 @@
 "accessibility.review_button_hint" = "Tap to start reviewing %d questions";
 "accessibility.export_button_hint" = "Tap to export as %@ format";
 "accessibility.progress_description" = "Completed %d of %d, progress %d%%";
+"accessibility.copy_content_hint" = "Copy recognized text to clipboard";
 
 // MARK: - Tab Bar
 "tab.dashboard" = "Home";
