@@ -17,22 +17,27 @@ import SnapDrillInfrastructure
 ///
 /// 集中管理所有全局单例和长生命周期对象，确保应用拓扑结构清晰。
 final class DependencyContainer {
-    
+
     // MARK: - Properties
-    
+
     static let shared = DependencyContainer()
-    
+
     /// 全局服务容器 (Firebase, OCR, Analytics 等)
     let services: any ServiceContainer
-    
-    /// 全局数据仓库容器 (SwiftData Repositories)
-    let repositories: RepositoryContainer
+
+    /// Profile 管理器（Vault 模式核心）
+    let profileManager: ProfileManager
+
+    /// 当前活跃的数据仓库容器（代理到 profileManager）
+    var repositories: RepositoryContainer {
+        profileManager.activeRepositories
+    }
 
     /// 顶级导航路由器
     let router: AppRouter
-    
+
     // MARK: - Initialization
-    
+
     private init() {
         // 1. 配置 Firebase（基础设施层）
         FirebaseBootstrap.configure()
@@ -53,7 +58,6 @@ final class DependencyContainer {
         let remoteConfig = FirebaseRemoteConfigService()
         AppConfiguration.FeatureFlags.registerRemoteProvider(remoteConfig)
         Task {
-            // best-effort: 远程配置拉取失败不阻塞启动，本地默认值兜底
             try? await remoteConfig.fetchAndActivate()
         }
 
@@ -62,21 +66,20 @@ final class DependencyContainer {
             analytics: analyticsService
         )
         self.services = liveServices
-        
-        // 5. 初始化持久化仓库层
-        let repos = RepositoryContainer()
-        self.repositories = repos
+
+        // 5. 初始化 ProfileManager（内含首次迁移 + ModelContainer 创建）
+        let manager = ProfileManager()
+        self.profileManager = manager
 
         // 6. 首次启动时初始化默认分类数据
-        repos.subject.seedDefaultsIfNeeded()
-        repos.source.seedDefaultsIfNeeded()
-        repos.grade.seedDefaultsIfNeeded()
+        manager.activeRepositories.subject.seedDefaultsIfNeeded()
+        manager.activeRepositories.source.seedDefaultsIfNeeded()
+        manager.activeRepositories.grade.seedDefaultsIfNeeded()
 
         // 7. 初始化顶级路由器
         self.router = AppRouter()
 
         // 8. 监听隐私偏好变更，运行时同步到 Firebase SDK
-        // 使用 async for await 替代 addObserver 回调（conventions.md 并发规则）
         Task { [weak analyticsService] in
             for await _ in NotificationCenter.default.notifications(named: UserDefaults.didChangeNotification) {
                 guard analyticsService != nil else { break }

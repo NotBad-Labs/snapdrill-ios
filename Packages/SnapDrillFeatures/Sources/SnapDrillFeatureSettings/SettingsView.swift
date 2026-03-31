@@ -25,6 +25,7 @@ import MessageUI
 public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
     @Environment(\.repositories) private var repositories
+    @Environment(\.profileManager) private var profileManager
     // 仅用于 #if DEBUG DataSeeder，正式功能通过 RepositoryContainer 访问
     @Environment(\.modelContext) private var modelContext
 
@@ -81,6 +82,10 @@ public struct SettingsView: View {
                     }
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
+
+                    NavigationLink(value: SettingsDestination.profileList) {
+                        SettingsRow(icon: "person.2.fill", gradientStart: .cyan, gradientEnd: .blue, title: L10n.Settings.switchLearner)
+                    }
                 }
 
                 // 2. 录入字段配置
@@ -264,6 +269,8 @@ public struct SettingsView: View {
                     PrivacyPolicyView()
                 case .termsOfService:
                     TermsOfServiceView()
+                case .profileList:
+                    ProfileListView(profileManager: profileManager)
                 }
             }
             .alert(L10n.Settings.clearConfirmTitle, isPresented: $showingClearAlert) {

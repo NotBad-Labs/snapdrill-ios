@@ -44,6 +44,17 @@ public final class SettingsViewModel {
         self.repositories = repositories
     }
 
+    // MARK: - Helpers
+
+    /// 获取当前活跃 Profile 的目录路径
+    private static func activeProfileDirectory() -> URL {
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        if let profileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId) {
+            return docs.appendingPathComponent("profiles").appendingPathComponent(profileId)
+        }
+        return docs
+    }
+
     // MARK: - Public API
 
     /// 清空所有题目数据并通知 UI 刷新
@@ -84,15 +95,17 @@ public final class SettingsViewModel {
             let itemCount = payload.reviewItems.count
 
             let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+            let profileName = UserDefaults.standard.string(forKey: UDKey.userName)
             let manifest = BackupManifest(
                 schemaVersion: BackupManifest.currentSchemaVersion,
                 createdAt: Date(),
                 appVersion: appVersion,
-                itemCount: itemCount
+                itemCount: itemCount,
+                profileName: profileName
             )
 
-            // 2. 获取 Documents 目录路径
-            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            // 2. 获取当前 Profile 目录路径
+            let imageBasePath = Self.activeProfileDirectory()
 
             backupStatusMessage = L10n.Settings.backupPackingItems(itemCount)
 
@@ -100,7 +113,7 @@ public final class SettingsViewModel {
             let url = try await backupService.createBackup(
                 payload: payload,
                 manifest: manifest,
-                imageBasePath: documentsURL
+                imageBasePath: imageBasePath
             ) { [weak self] current, total in
                 Task { @MainActor in
                     guard let self else { return }
@@ -172,11 +185,10 @@ public final class SettingsViewModel {
             backupStatusMessage = L10n.Settings.restoreImages
 
             // 5. 恢复图片文件（数据库已恢复，图片失败不回滚数据库）
-            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             do {
                 try await backupService.restoreImages(
                     from: fileURL,
-                    to: documentsURL
+                    to: Self.activeProfileDirectory()
                 ) { [weak self] current, total in
                     Task { @MainActor in
                         guard let self else { return }
@@ -232,13 +244,13 @@ public final class SettingsViewModel {
                 schemaVersion: BackupManifest.currentSchemaVersion,
                 createdAt: Date(),
                 appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
-                itemCount: itemCount
+                itemCount: itemCount,
+                profileName: UserDefaults.standard.string(forKey: UDKey.userName)
             )
-            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             let url = try await backupService.createBackup(
                 payload: payload,
                 manifest: manifest,
-                imageBasePath: documentsURL
+                imageBasePath: Self.activeProfileDirectory()
             )
             SnapDrillLogger.generic.info("恢复前自动备份已保存: \(url.lastPathComponent)")
             return url

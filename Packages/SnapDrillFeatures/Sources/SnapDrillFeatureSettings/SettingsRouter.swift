@@ -22,6 +22,8 @@ public enum SettingsDestination: Hashable {
     case privacyPolicy
     /// 用户协议页面
     case termsOfService
+    /// 学习者管理页面
+    case profileList
 }
 
 /// 设置模块路由器

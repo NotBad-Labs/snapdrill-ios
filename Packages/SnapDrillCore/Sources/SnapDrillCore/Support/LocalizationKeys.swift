@@ -581,6 +581,13 @@ nonisolated public enum L10n {
         public static let systemIcon = NSLocalizedString("settings.system_icon", value: "使用系统图标", comment: "使用系统图标")
         public static let removeAvatar = NSLocalizedString("settings.remove_avatar", value: "移除当前头像", comment: "移除当前头像")
 
+        // Profile 管理
+        public static let switchLearner = NSLocalizedString("settings.switch_learner", value: "切换学习者", comment: "切换学习者入口")
+        public static let addLearner = NSLocalizedString("settings.add_learner", value: "添加学习者", comment: "添加学习者按钮")
+        public static let deleteLearnerConfirm = NSLocalizedString("settings.delete_learner_confirm", value: "删除后该学习者的所有题目、复习进度和图片将永久丢失，无法恢复。", comment: "删除学习者确认")
+        public static let learnerName = NSLocalizedString("settings.learner_name", value: "学习者名称", comment: "学习者名称输入")
+        public static let currentLearner = NSLocalizedString("settings.current_learner", value: "当前", comment: "当前学习者标记")
+
         // 反馈
         public static let feedbackAndSupport = NSLocalizedString("settings.feedback_and_support", value: "反馈与支持", comment: "反馈与支持")
         public static let feedbackTitle = NSLocalizedString("settings.feedback_title", value: "意见反馈", comment: "意见反馈弹窗标题")

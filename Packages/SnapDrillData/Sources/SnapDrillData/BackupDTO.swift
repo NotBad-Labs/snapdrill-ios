@@ -22,24 +22,28 @@ nonisolated public struct BackupManifest: Codable, Sendable {
     public let appVersion: String
     /// 题目总数
     public let itemCount: Int
+    /// 学习者名称（Multi-Profile，V3 新增，旧备份为 nil）
+    public let profileName: String?
 
     /// 当前备份 Schema 版本——每次 BackupDTO 字段变更时递增
     ///
     /// **与 SwiftData Schema 版本的对应关系**：
-    /// - BackupManifest.currentSchemaVersion = 2 → SwiftData SchemaV4（MigrationPlan.swift）
+    /// - BackupManifest.currentSchemaVersion = 3 → SwiftData SchemaV4 + Multi-Profile
     /// - 两者独立管理：BackupDTO 版本变更不一定伴随 SwiftData 迁移，反之亦然
     /// - 新增 SwiftData Schema 版本时，评估是否需要同步更新备份 Schema
     ///
     /// **版本历史**：
     /// - 1 → SwiftData SchemaV3：初始备份格式
     /// - 2 → SwiftData SchemaV4：Tag/Subject/Source/Grade 添加 name 唯一约束
-    public static let currentSchemaVersion = 2
+    /// - 3 → Multi-Profile：新增 profileName 字段
+    public static let currentSchemaVersion = 3
 
-    public init(schemaVersion: Int, createdAt: Date, appVersion: String, itemCount: Int) {
+    public init(schemaVersion: Int, createdAt: Date, appVersion: String, itemCount: Int, profileName: String? = nil) {
         self.schemaVersion = schemaVersion
         self.createdAt = createdAt
         self.appVersion = appVersion
         self.itemCount = itemCount
+        self.profileName = profileName
     }
 }
 

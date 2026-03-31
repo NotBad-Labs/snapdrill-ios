@@ -27,9 +27,29 @@ import ImageIO
 /// ```
 public struct ImageStorage: Sendable {
 
+    // MARK: - Properties
+
+    /// 图片存储根目录（Documents/ 或 Profile 目录）
+    private let baseDirectory: URL
+
     // MARK: - Initialization
 
-    nonisolated public init() {}
+    /// 创建图片存储服务
+    /// - Parameter baseDirectory: 图片存储根目录。传 nil 时自动从 UserDefaults 读取
+    ///   活跃 Profile 目录（`Documents/profiles/<activeProfileId>/`），
+    ///   若无 Profile 配置则回退到 Documents 根目录。
+    nonisolated public init(baseDirectory: URL? = nil) {
+        if let baseDirectory {
+            self.baseDirectory = baseDirectory
+        } else {
+            let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            if let profileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId) {
+                self.baseDirectory = docs.appendingPathComponent("profiles").appendingPathComponent(profileId)
+            } else {
+                self.baseDirectory = docs
+            }
+        }
+    }
 
     // MARK: - Public API
 
@@ -46,10 +66,10 @@ public struct ImageStorage: Sendable {
             throw ImageStorageError.invalidImageData
         }
 
+        let base = baseDirectory
         return try await Task.detached {
             let fileManager = FileManager.default
-            let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            let imagesDirectory = documentsURL.appendingPathComponent("images")
+            let imagesDirectory = base.appendingPathComponent("images")
 
             if !fileManager.fileExists(atPath: imagesDirectory.path) {
                 try fileManager.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
@@ -71,10 +91,10 @@ public struct ImageStorage: Sendable {
     /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
     /// - Throws: 文件删除失败时抛出 FileManager 错误；文件不存在时静默返回
     nonisolated public func deleteImage(path: String) async throws {
+        let base = baseDirectory
         try await Task.detached {
             let fileManager = FileManager.default
-            let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            let fileURL = documentsURL.appendingPathComponent(path)
+            let fileURL = base.appendingPathComponent(path)
             guard fileManager.fileExists(atPath: fileURL.path) else { return }
             try fileManager.removeItem(at: fileURL)
         }.value
@@ -89,8 +109,7 @@ public struct ImageStorage: Sendable {
     /// - Returns: 加载的 UIImage，如果失败返回 nil
     nonisolated public func loadImage(path: String) -> UIImage? {
         let fileManager = FileManager.default
-        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsURL.appendingPathComponent(path)
+        let fileURL = baseDirectory.appendingPathComponent(path)
 
         guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
 
@@ -122,8 +141,7 @@ public struct ImageStorage: Sendable {
     /// - Returns: 降采样后的 UIImage，失败时回退到 `loadImage(path:)`
     nonisolated public func loadDownsampledImage(path: String, maxLongSide: Int = 1200) -> UIImage? {
         let fileManager = FileManager.default
-        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileURL = documentsURL.appendingPathComponent(path)
+        let fileURL = baseDirectory.appendingPathComponent(path)
 
         guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
 
