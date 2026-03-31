@@ -156,15 +156,20 @@ struct ReviewExport: Transferable {
     }
 
     private func generateCSV() -> String {
-        var csv = "ID,Subject,Content,CreatedAt,Source\n"
+        var csv = "ID,Content,Subject,Source,Difficulty,Answer,CreatedAt,LastReviewed,NextReview,Tags\n"
 
         for item in items {
             let row = [
                 item.id.uuidString,
-                escapeCSVField(item.subject),
                 escapeCSVField(item.content ?? ""),
-                item.createdAt.description,
-                escapeCSVField(item.source)
+                escapeCSVField(item.subject),
+                escapeCSVField(item.source),
+                "\(item.difficulty)",
+                escapeCSVField(item.answerText ?? ""),
+                item.createdAt.ISO8601Format(),
+                item.lastReviewedAt?.ISO8601Format() ?? "",
+                item.nextReviewAt?.ISO8601Format() ?? "",
+                escapeCSVField(item.tags.joined(separator: "; "))
             ].joined(separator: ",")
             csv += row + "\n"
         }

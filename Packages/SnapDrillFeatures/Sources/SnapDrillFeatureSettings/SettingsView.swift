@@ -216,6 +216,12 @@ public struct SettingsView: View {
                         SettingsRow(icon: "heart.text.square.fill", gradientStart: .pink, gradientEnd: .red, title: L10n.Settings.feedbackAndSupport)
                     }
 
+                    if let helpURL = URL(string: "https://notbadhq.com/snapdrill/faq") {
+                        Link(destination: helpURL) {
+                            SettingsRow(icon: "questionmark.circle.fill", gradientStart: .teal, gradientEnd: .green, title: L10n.Settings.helpCenter)
+                        }
+                        .accessibilityHint("打开外部网页查看常见问题")
+                    }
 
                     NavigationLink(value: SettingsDestination.privacyPolicy) {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: L10n.Settings.privacyPolicy)

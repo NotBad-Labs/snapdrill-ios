@@ -493,6 +493,7 @@ nonisolated public enum L10n {
         public static let privacyPolicy = NSLocalizedString("settings.privacy_policy", value: "隐私政策", comment: "隐私政策")
         public static let termsOfService = NSLocalizedString("settings.terms_of_service", value: "服务条款", comment: "服务条款")
         public static let licenses = NSLocalizedString("settings.licenses", value: "开源许可", comment: "开源许可")
+        public static let helpCenter = NSLocalizedString("settings.help_center", value: "帮助中心", comment: "帮助中心")
 
         // 通知设置
         public static let notificationTitle = NSLocalizedString("settings.notification_title", value: "复习提醒", comment: "通知设置标题")

@@ -11,7 +11,7 @@
 import Foundation
 import SnapDrillCore
 
-/// 导出专用只读快照——仅含导出所需字段，满足 Sendable 和 PDFExportable。
+/// 导出专用只读快照——满足 Sendable 和 PDFExportable，供 PDF 和 CSV 导出共用。
 nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     /// 题目唯一标识符
     public let id: UUID
@@ -23,8 +23,18 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     public let subject: String
     /// 题目来源
     public let source: String
+    /// 难度等级 (1-5)
+    public let difficulty: Int
+    /// 答案文本
+    public let answerText: String?
     /// 创建时间
     public let createdAt: Date
+    /// 上次复习时间
+    public let lastReviewedAt: Date?
+    /// 下次计划复习时间
+    public let nextReviewAt: Date?
+    /// 标签列表
+    public let tags: [String]
 }
 
 extension ReviewExportSnapshot: PDFExportable {}
