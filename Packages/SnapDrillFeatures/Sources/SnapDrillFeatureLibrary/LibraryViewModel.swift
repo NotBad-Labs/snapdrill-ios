@@ -223,6 +223,26 @@ public final class LibraryViewModel {
         }
     }
 
+    /// 批量为选中题目添加标签
+    public func addTagsToItems(ids: Set<UUID>, tagNames: Set<String>) async {
+        do {
+            let items = try repositories.review.fetchModels(by: ids)
+            for item in items {
+                var currentTags = item.tags ?? []
+                let currentNames = Set(currentTags.map(\.name))
+                for name in tagNames where !currentNames.contains(name) {
+                    let tag = try repositories.tag.fetchOrCreateModel(name: name, colorHex: "007AFF")
+                    currentTags.append(tag)
+                }
+                item.tags = currentTags
+            }
+            try repositories.review.saveContext()
+        } catch {
+            SnapDrillLogger.generic.error("批量打标签失败: \(error.localizedDescription)")
+            self.deleteError = L10n.Errors.deleteFailed
+        }
+    }
+
     /// 重置所有过滤器
     public func resetFilters() {
         searchText = ""

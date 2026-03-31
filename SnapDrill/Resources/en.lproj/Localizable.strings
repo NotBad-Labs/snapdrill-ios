@@ -173,6 +173,8 @@
 "library.filter_subjects" = "Subjects";
 "library.filter_difficulty" = "Difficulty";
 "library.filter_tags" = "Tags";
+"library.batch_tag" = "Tag";
+"library.batch_tag_hint" = "Add tags to %d items";
 "library.export" = "Export";
 "library.export_title" = "Export Options";
 "library.export_pdf" = "PDF / Print";

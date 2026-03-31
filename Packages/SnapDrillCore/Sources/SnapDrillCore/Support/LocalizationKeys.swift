@@ -306,6 +306,12 @@ nonisolated public enum L10n {
         public static let filterDifficulty = NSLocalizedString("library.filter_difficulty", value: "难度", comment: "过滤难度标签")
         public static let filterTags = NSLocalizedString("library.filter_tags", value: "标签", comment: "过滤标签标签")
 
+        // 批量标签
+        public static let batchTag = NSLocalizedString("library.batch_tag", value: "标签", comment: "批量打标签按钮")
+        public static func batchTagHint(_ count: Int) -> String {
+            String(format: NSLocalizedString("library.batch_tag_hint", value: "为 %d 道题添加标签", comment: "批量打标签提示"), count)
+        }
+
         // 导出
         public static let export = NSLocalizedString("library.export", value: "导出", comment: "导出按钮")
         public static let exportTitle = NSLocalizedString("library.export_title", value: "导出选项", comment: "导出选项标题")

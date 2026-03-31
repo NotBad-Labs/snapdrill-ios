@@ -31,6 +31,7 @@ public struct LibraryView: View {
     @State private var showDeleteConfirmation = false
     @State private var isFilterPresented = false
     @State private var isFirstAppear = true
+    @State private var isBatchTagPresented = false
     
     // MARK: - Initialization
     
@@ -151,13 +152,23 @@ public struct LibraryView: View {
                         }
                         
                         Spacer()
-                        
+
+                        // 批量打标签
+                        Button {
+                            isBatchTagPresented = true
+                        } label: {
+                            Label(L10n.Library.batchTag, systemImage: "tag")
+                        }
+                        .disabled(selectedItemIDs.isEmpty)
+
+                        Spacer()
+
                         Text(L10n.Library.selectedCount(selectedItemIDs.count))
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        
+
                         Spacer()
-                        
+
                         Button {
                             isExportSheetPresented = true
                         } label: {
@@ -174,6 +185,11 @@ public struct LibraryView: View {
             }
             .sheet(isPresented: $isExportSheetPresented) {
                 ResolvedExportSheet(ids: selectedItemIDs)
+            }
+            .sheet(isPresented: $isBatchTagPresented) {
+                if let vm = viewModel {
+                    BatchTagSheet(viewModel: vm, selectedItemIDs: selectedItemIDs)
+                }
             }
             .navigationDestination(for: LibraryDestination.self) { destination in
                     switch destination {
