@@ -166,8 +166,8 @@ final class LibraryViewModelTests {
 
     // MARK: - 删除
 
-    @Test("deleteItem 删除单条并更新列表")
-    func deleteItem_removesFromList() async throws {
+    @Test("softDeleteItems 单条软删除并从列表移除")
+    func softDeleteItem_removesFromList() async throws {
         let model = ReviewItemModel(content: "待删除", subject: "数学")
         repos.review.insert(model)
 
@@ -179,8 +179,9 @@ final class LibraryViewModelTests {
             Issue.record("filteredItems 应有 1 条数据")
             return
         }
-        await vm.deleteItem(firstItem)
+        vm.softDeleteItems(ids: [firstItem.id])
         #expect(vm.filteredItems.isEmpty)
+        #expect(vm.showUndoToast == true)
     }
 
     @Test("softDeleteItems 批量软删除 + 从列表移除")
