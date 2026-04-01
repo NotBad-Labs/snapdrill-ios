@@ -672,9 +672,9 @@ nonisolated public enum L10n {
         }
 
         // 语言设置详情
-        public static let languageControlledBySystem = NSLocalizedString("settings.language_controlled_by_system", value: "语言由 iOS 系统控制", comment: "语言由系统控制")
-        public static let languageSystemHint = NSLocalizedString("settings.language_system_hint", value: "在系统设置中为 SnapDrill 单独指定语言。", comment: "语言系统设置提示")
-        public static let languageFooter = NSLocalizedString("settings.language_footer", value: "前往「设置 → SnapDrill → 语言」，选择偏好语言后重新启动应用即可生效。目前支持简体中文，更多语言持续开发中。", comment: "语言设置说明")
+        public static let languageRestartHint = NSLocalizedString("settings.language_restart_hint", value: "切换语言后需重启应用生效", comment: "语言切换重启提示")
+        public static let languageChangeTitle = NSLocalizedString("settings.language_change_title", value: "语言已切换", comment: "语言切换成功弹窗标题")
+        public static let languageChangeMessage = NSLocalizedString("settings.language_change_message", value: "请重新启动应用以应用新语言", comment: "语言切换重启说明")
 
         // 卡片外观详情
         public static let cardFrontSection = NSLocalizedString("settings.card_front_section", value: "卡片正面 (题目)", comment: "卡片正面区标题")

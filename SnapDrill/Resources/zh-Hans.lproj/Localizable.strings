@@ -397,9 +397,9 @@
 "settings.export_data_footer" = "导出所有学习数据为 JSON 或 CSV 格式";
 "settings.privacy_and_security" = "隐私与安全";
 "settings.export_failed" = "导出失败: %@";
-"settings.language_controlled_by_system" = "语言由 iOS 系统控制";
-"settings.language_system_hint" = "在系统设置中为 SnapDrill 单独指定语言。";
-"settings.language_footer" = "前往「设置 → SnapDrill → 语言」，选择偏好语言后重新启动应用即可生效。目前支持简体中文，更多语言持续开发中。";
+"settings.language_restart_hint" = "切换语言后需重启应用生效";
+"settings.language_change_title" = "语言已切换";
+"settings.language_change_message" = "请重新启动应用以应用新语言";
 "settings.card_front_section" = "卡片正面 (题目)";
 "settings.card_back_section" = "卡片背面 (Header)";
 "settings.alignment" = "对齐方式";

@@ -397,9 +397,9 @@
 "settings.export_data_footer" = "Export all your study data as JSON or CSV";
 "settings.privacy_and_security" = "Privacy & Security";
 "settings.export_failed" = "Export failed: %@";
-"settings.language_controlled_by_system" = "Language follows iOS system";
-"settings.language_system_hint" = "Set a preferred language for SnapDrill in System Settings.";
-"settings.language_footer" = "Go to Settings > SnapDrill > Language, select your preferred language, then restart the app. Currently supports Simplified Chinese, with more languages coming soon.";
+"settings.language_restart_hint" = "Restart the app to apply language changes";
+"settings.language_change_title" = "Language Changed";
+"settings.language_change_message" = "Please restart the app to apply the new language";
 "settings.card_front_section" = "Card Front (Question)";
 "settings.card_back_section" = "Card Back (Header)";
 "settings.alignment" = "Alignment";
