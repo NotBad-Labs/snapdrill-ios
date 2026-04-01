@@ -40,22 +40,45 @@ v1.5 功能批量实现中，12 个 PR 已合并。仅剩 Share Extension。
 |---|---|---|
 | P1 | Share Extension | 需用户在 Xcode 创建 target 后写代码 |
 
-### 待做（依赖外部条件，3 项）
+### 待 Review（5 个 PR）
+
+| PR | 功能 | 状态 |
+|---|---|---|
+| #491 | 题目分享（卡片图片） | 待 Review |
+| #492 | 批量导出原图 ZIP | 待 Review |
+| #493 | TipKit 迁移 | 待 Review |
+| #494 | iPad 大屏优化 | 待 Review |
+| #495 | 数据导入（CSV） | 待 Review |
+
+### 已确认无需开发（代码已有）
+
+- #481 批量删除 — 选择模式 + softDeleteItems 已支持批量
+- #478 一图连续裁剪 — CaptureRouter.shouldContinuousCrop 已完整实现
+
+### 待做（依赖公司 Apple 开发者账号）
 
 | Issue | 内容 | 解除条件 |
 |---|---|---|
+| #163 | 公司 Apple 开发者账号 | Enrollment 已提交（ID: 83VZW7VJKK），等 Apple 审核 1-3 天 |
+| #477 | Share Extension | 需 Xcode 创建 target + App Group 配置 |
+| #479 | StoreKit 付费墙 | 需 App Store Connect 配置产品 |
+| #485 | iCloud 同步 | 需 CloudKit Container + StoreKit |
+| #486 | Word 导出 | 需 StoreKit |
+| #487 | 组卷排版打印 | 需 StoreKit |
+| #488 | 高级统计 + 趋势图 | 需 StoreKit |
+| #490 | App Store 提交准备 | 需公司账号 + 真机验证 |
 | #161 | TestFlight Build 6 | 需真机验证 |
-| #162 | GitHub Pro Branch Protection | 等 GitHub Pro 今天生效 |
-| #163 | 公司 Apple 开发者账号 | 等 DUNS 就绪 |
+| #162 | GitHub Pro Branch Protection | 等 GitHub Pro 生效 |
 
-### 暂缓（产品策略已定，等用户验证后实施）
+### 暂缓（Phase 4，探索性）
 
 | 事项 | 定位 |
 |---|---|
-| StoreKit / 付费墙 | v1.0 全免费，验证后实施 |
-| iCloud 同步 | Pro 付费功能 |
-| Word 导出 | Pro 付费功能 |
-| SM-2 智能组卷 | Pro 付费功能 |
+| 手写体识别增强 | 需 PoC 验证识别率 |
+| AI 辅助拆题 | 需 Foundation Models PoC |
+| 端上 AI 集成 | 等 iOS 26 正式发布 |
+| 数理化公式识别 | 无 Apple 原生 API |
+| 去手写/试卷还原 | 需第三方方案 |
 | 探索性 PoC（Foundation Models / App Intents） | 技术预研 |
 
 ## 产品决策记录
