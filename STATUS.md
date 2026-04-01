@@ -2,7 +2,7 @@
 
 > 最后更新：2026-04-01
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：0 · Open Issue：2（全部外部阻塞）
+> Open PR：0 · Open Issue：4（#162 #163 外部阻塞，#161 等真机，#452 讨论存档）
 
 ---
 
