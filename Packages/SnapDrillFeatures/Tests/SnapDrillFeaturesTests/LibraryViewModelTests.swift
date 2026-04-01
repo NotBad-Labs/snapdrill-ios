@@ -183,8 +183,8 @@ final class LibraryViewModelTests {
         #expect(vm.filteredItems.isEmpty)
     }
 
-    @Test("deleteItems 批量删除")
-    func deleteItems_batchRemoves() async throws {
+    @Test("softDeleteItems 批量软删除 + 从列表移除")
+    func softDeleteItems_batchRemoves() async throws {
         var ids: Set<UUID> = []
         for i in 0..<3 {
             let model = ReviewItemModel(content: "题目\(i)", subject: "数学")
@@ -197,9 +197,11 @@ final class LibraryViewModelTests {
         await vm.refreshData()
         #expect(vm.filteredItems.count == 4)
 
-        await vm.deleteItems(ids: ids)
+        vm.softDeleteItems(ids: ids)
+        // 软删除立即从列表移除
         #expect(vm.filteredItems.count == 1)
         #expect(vm.filteredItems.first?.content == "保留的题目")
+        #expect(vm.showUndoToast == true)
     }
 
     // MARK: - cancelTasks
