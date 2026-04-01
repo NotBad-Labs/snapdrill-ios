@@ -173,6 +173,8 @@
 "library.filter_subjects" = "Subjects";
 "library.filter_difficulty" = "Difficulty";
 "library.filter_tags" = "Tags";
+"library.batch_tag" = "Tag";
+"library.batch_tag_hint" = "Add tags to %d items";
 "library.export" = "Export";
 "library.export_title" = "Export Options";
 "library.export_pdf" = "PDF / Print";
@@ -456,6 +458,7 @@
 "errors.load_failed" = "Failed to Load";
 "errors.try_again_later" = "Please try again later, or restart the app.";
 "errors.delete_failed" = "Delete failed. Please try again later.";
+"errors.batch_tag_failed" = "Tag operation failed. Please try again later.";
 "errors.pdf_generate_failed" = "PDF generation failed. Please try again later.";
 "errors.review_save_failed" = "Failed to save review progress. Please try again.";
 "errors.form_data_load_failed" = "Failed to load form data. Please go back and try again.";

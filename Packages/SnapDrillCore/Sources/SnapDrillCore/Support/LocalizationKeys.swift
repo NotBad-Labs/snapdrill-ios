@@ -306,6 +306,12 @@ nonisolated public enum L10n {
         public static let filterDifficulty = NSLocalizedString("library.filter_difficulty", value: "难度", comment: "过滤难度标签")
         public static let filterTags = NSLocalizedString("library.filter_tags", value: "标签", comment: "过滤标签标签")
 
+        // 批量标签
+        public static let batchTag = NSLocalizedString("library.batch_tag", value: "标签", comment: "批量打标签按钮")
+        public static func batchTagHint(_ count: Int) -> String {
+            String(format: NSLocalizedString("library.batch_tag_hint", value: "为 %d 道题添加标签", comment: "批量打标签提示"), count)
+        }
+
         // 导出
         public static let export = NSLocalizedString("library.export", value: "导出", comment: "导出按钮")
         public static let exportTitle = NSLocalizedString("library.export_title", value: "导出选项", comment: "导出选项标题")
@@ -743,6 +749,7 @@ nonisolated public enum L10n {
         public static let loadFailed = NSLocalizedString("errors.load_failed", value: "加载失败", comment: "数据加载失败标题")
         public static let tryAgainLater = NSLocalizedString("errors.try_again_later", value: "请稍后重试，或重启应用", comment: "加载失败恢复建议")
         public static let deleteFailed = NSLocalizedString("errors.delete_failed", value: "删除失败，请稍后重试", comment: "题目删除失败")
+        public static let batchTagFailed = NSLocalizedString("errors.batch_tag_failed", value: "标签操作失败，请稍后重试", comment: "批量打标签失败")
         public static let pdfGenerateFailed = NSLocalizedString("errors.pdf_generate_failed", value: "PDF 生成失败，请稍后重试", comment: "PDF 生成失败")
         public static let reviewSaveFailed = NSLocalizedString("errors.review_save_failed", value: "复习记录保存失败，请重试", comment: "复习评分持久化失败")
         public static let formDataLoadFailed = NSLocalizedString("errors.form_data_load_failed", value: "表单数据加载失败，请返回重试", comment: "采集表单下拉数据加载失败")
