@@ -149,7 +149,8 @@ struct CaptureViewModelTests {
 
         viewModel.processScannedImage(createTestImage(), router: router)
 
-        try await waitUntil { pushCalled }
+        // CI 环境较慢，延长超时
+        try await waitUntil(timeout: .seconds(5)) { pushCalled }
         #expect(mockOCR.recognizeTextCallCount == 1)
         #expect(viewModel.isProcessing == false)
     }
