@@ -28,7 +28,7 @@ public final class PDFExportService: Sendable {
     private static let pageHeight: CGFloat = 841.8  // A4 height
     private static let margin: CGFloat = 40
     private static let headerHeight: CGFloat = 25   // 页眉占用高度（含分隔线）
-    private static let itemsPerPage = 2
+    // itemsPerPage 已移至 PDFExportOptions，此处不再硬编码
 
     // any PDFExportable：无 associated type / Self 约束的协议作为集合元素，
     // 允许异构集合（不同 PDFExportable 实现类型混传），见 CLAUDE.md Exception 2。
@@ -49,7 +49,7 @@ public final class PDFExportService: Sendable {
         let pageRect = CGRect(x: 0, y: 0, width: Self.pageWidth, height: Self.pageHeight)
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
 
-        let totalPages = max(1, Int(ceil(Double(items.count) / Double(Self.itemsPerPage))))
+        let totalPages = max(1, Int(ceil(Double(items.count) / Double(options.itemsPerPage))))
         let subjectText = resolveSubject(from: items)
         let dateText = Date().formatted(date: .abbreviated, time: .omitted)
 
@@ -63,7 +63,7 @@ public final class PDFExportService: Sendable {
                 drawTitlePage(context: context.cgContext, rect: pageRect)
 
                 // 题目内容
-                let chunks = items.chunked(into: Self.itemsPerPage)
+                let chunks = items.chunked(into: options.itemsPerPage)
 
                 for (pageIndex, chunk) in chunks.enumerated() {
                     // 协作式取消检查
@@ -201,7 +201,7 @@ public final class PDFExportService: Sendable {
     ) {
         let topOffset = options.showHeader ? Self.margin + Self.headerHeight : Self.margin
         let availableHeight = rect.height - topOffset - Self.margin
-        let itemHeight = availableHeight / CGFloat(Self.itemsPerPage)
+        let itemHeight = availableHeight / CGFloat(options.itemsPerPage)
 
         for (index, item) in items.enumerated() {
             let yOffset = topOffset + CGFloat(index) * itemHeight

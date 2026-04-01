@@ -189,6 +189,7 @@
 "library.select_items" = "Select";
 "library.delete_selected" = "Delete";
 "library.export_selected" = "Export";
+"library.print_single" = "Print";
 "library.delete_confirm_title" = "Confirm Delete";
 "library.delete_confirm_message" = "This action cannot be undone. Are you sure you want to delete the selected items?";
 "library.subject_manager" = "Manage Subjects";
@@ -271,6 +272,10 @@
 "settings.review_reminder" = "Review Reminder";
 "settings.privacy_export" = "Privacy & Export";
 "settings.data_and_sync" = "Data & Sync";
+"settings.storage_management" = "Storage";
+"settings.storage_images" = "Question Images";
+"settings.storage_total" = "Total Usage";
+"settings.storage_footer" = "Shows storage usage for the current profile. Images are automatically compressed to save space.";
 "settings.appearance" = "Appearance";
 "settings.follow_system" = "System";
 "settings.light_mode" = "Light";
@@ -667,6 +672,7 @@
 "export.show_header" = "Show Header & Page Numbers";
 "export.mixed_subject" = "Mixed Subjects";
 "export.default_subject" = "Mistake Collection";
+"export.items_per_page" = "Items per Page";
 "export.pdf_options" = "Print Options";
 "export.page_number" = "Page %d of %d";
 

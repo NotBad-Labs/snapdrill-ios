@@ -21,15 +21,19 @@ nonisolated public struct PDFExportOptions: Sendable {
     public var showBlankAnswerArea: Bool
     /// 是否显示页眉和页码
     public var showHeader: Bool
+    /// 每页题目数量（1 = 大图整页，2 = 默认，4 = 小题紧凑）
+    public var itemsPerPage: Int
 
     public init(
         hideAnswers: Bool = true,
         showBlankAnswerArea: Bool = true,
-        showHeader: Bool = true
+        showHeader: Bool = true,
+        itemsPerPage: Int = 2
     ) {
         self.hideAnswers = hideAnswers
         self.showBlankAnswerArea = showBlankAnswerArea
         self.showHeader = showHeader
+        self.itemsPerPage = itemsPerPage
     }
 
     /// 默认配置：隐藏答案 + 显示答题区 + 显示页眉

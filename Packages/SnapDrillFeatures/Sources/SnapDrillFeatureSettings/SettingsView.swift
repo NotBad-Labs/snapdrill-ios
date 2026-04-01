@@ -153,6 +153,12 @@ public struct SettingsView: View {
 
 
                     NavigationLink {
+                        StorageManagementView()
+                    } label: {
+                        SettingsRow(icon: "internaldrive.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.storageManagement)
+                    }
+
+                    NavigationLink {
                         PrivacySettingsView()
                     } label: {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: L10n.Settings.privacyAndExport)

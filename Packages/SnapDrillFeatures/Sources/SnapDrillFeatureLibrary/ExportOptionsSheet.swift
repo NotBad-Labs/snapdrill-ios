@@ -27,6 +27,7 @@ struct ExportOptionsSheet: View {
     @State private var hideAnswers = true
     @State private var showBlankAnswerArea = true
     @State private var showHeader = true
+    @State private var itemsPerPage = 2
 
     // MARK: - Body
 
@@ -84,6 +85,11 @@ struct ExportOptionsSheet: View {
                         Toggle(L10n.Export.showBlankArea, isOn: $showBlankAnswerArea)
                     }
                     Toggle(L10n.Export.showHeader, isOn: $showHeader)
+                    Picker(L10n.Export.itemsPerPage, selection: $itemsPerPage) {
+                        Text("1").tag(1)
+                        Text("2").tag(2)
+                        Text("4").tag(4)
+                    }
                 }
 
                 Section {
@@ -109,7 +115,8 @@ struct ExportOptionsSheet: View {
                     options: PDFExportOptions(
                         hideAnswers: hideAnswers,
                         showBlankAnswerArea: showBlankAnswerArea,
-                        showHeader: showHeader
+                        showHeader: showHeader,
+                        itemsPerPage: itemsPerPage
                     )
                 )
             }

@@ -29,6 +29,8 @@ struct LibraryDetailView: View {
     @State private var fullScreenImage: UIImage?
     @State private var loadedImage: UIImage?
     @State private var loadedAnswerImage: UIImage?
+    @State private var printPDFURL: URL?
+    @State private var isShowingShareSheet = false
 
     private let imageStorage = ImageStorage()
 
@@ -214,8 +216,18 @@ struct LibraryDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(L10n.Common.edit) {
-                    isEditing = true
+                HStack(spacing: 16) {
+                    // 单题快速打印
+                    Button {
+                        printSingleItem()
+                    } label: {
+                        Image(systemName: "printer")
+                    }
+                    .accessibleButton(label: L10n.Library.printSingle)
+
+                    Button(L10n.Common.edit) {
+                        isEditing = true
+                    }
                 }
             }
         }
@@ -229,8 +241,47 @@ struct LibraryDetailView: View {
                 }
             }
         }
+        .sheet(isPresented: $isShowingShareSheet) {
+            if let url = printPDFURL {
+                ShareSheet(activityItems: [url])
+            }
+        }
     }
 
+    // MARK: - 单题快速打印
+
+    private func printSingleItem() {
+        Task {
+            let snapshot = item.toExportSnapshot()
+            let storage = imageStorage
+            let service = PDFExportService()
+            let options = PDFExportOptions(itemsPerPage: 1)
+            do {
+                let data = try await service.createPDF(
+                    from: [snapshot],
+                    options: options,
+                    imageProvider: { path in storage.loadImage(path: path) }
+                )
+                let url = FileManager.default.temporaryDirectory.appendingPathComponent("SnapDrill_Print.pdf")
+                try data.write(to: url)
+                printPDFURL = url
+                isShowingShareSheet = true
+            } catch {
+                SnapDrillLogger.generic.error("单题打印 PDF 生成失败: \(error.localizedDescription)")
+            }
+        }
+    }
+}
+
+/// 系统分享表的 UIKit 桥接
+private struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {
