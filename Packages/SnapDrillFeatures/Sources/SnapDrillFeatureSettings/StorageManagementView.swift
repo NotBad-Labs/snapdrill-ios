@@ -35,17 +35,6 @@ struct StorageManagementView: View {
                     }
                 }
 
-                HStack {
-                    Label(L10n.Settings.storageTotal, systemImage: "internaldrive.fill")
-                    Spacer()
-                    if isLoading {
-                        ProgressView()
-                    } else {
-                        Text(formattedSize(imageSize))
-                            .foregroundStyle(.secondary)
-                            .fontWeight(.medium)
-                    }
-                }
             } footer: {
                 Text(L10n.Settings.storageFooter)
             }
