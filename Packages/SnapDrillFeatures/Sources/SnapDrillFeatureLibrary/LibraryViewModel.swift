@@ -97,8 +97,8 @@ public final class LibraryViewModel {
     public var isLoading: Bool = false
     /// 数据加载错误信息（非 nil 时 View 应展示错误状态）
     public var errorMessage: String?
-    /// 删除操作错误信息（非 nil 时 View 展示 alert）
-    public var deleteError: String?
+    /// 操作错误信息（非 nil 时 View 展示 alert，用于删除、打标签等操作）
+    public var operationError: String?
     private var currentPage: Int = 0
     private let pageSize: Int = 50
     /// 搜索防抖任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
@@ -202,7 +202,7 @@ public final class LibraryViewModel {
             filteredItems.removeAll { $0.id == item.id }
         } catch {
             SnapDrillLogger.generic.error("删除题目失败: \(error.localizedDescription)")
-            self.deleteError = L10n.Errors.deleteFailed
+            self.operationError = L10n.Errors.deleteFailed
         }
     }
 
@@ -219,7 +219,7 @@ public final class LibraryViewModel {
         }
         filteredItems.removeAll { successfullyDeleted.contains($0.id) }
         if successfullyDeleted.count < ids.count {
-            self.deleteError = L10n.Errors.deleteFailed
+            self.operationError = L10n.Errors.deleteFailed
         }
     }
 
@@ -239,7 +239,7 @@ public final class LibraryViewModel {
             try repositories.review.saveContext()
         } catch {
             SnapDrillLogger.generic.error("批量打标签失败: \(error.localizedDescription)")
-            self.deleteError = L10n.Errors.deleteFailed
+            self.operationError = L10n.Errors.batchTagFailed
         }
     }
 

@@ -199,9 +199,9 @@ public struct LibraryView: View {
                         LibraryDetailView(router: router, item: item)
                     }
                 }
-                .alert(L10n.Errors.deleteFailed, isPresented: Binding(
-                    get: { viewModel?.deleteError != nil },
-                    set: { if !$0 { viewModel?.deleteError = nil } }
+                .alert(viewModel?.operationError ?? "", isPresented: Binding(
+                    get: { viewModel?.operationError != nil },
+                    set: { if !$0 { viewModel?.operationError = nil } }
                 )) {
                     Button(L10n.Common.ok, role: .cancel) {}
                 }

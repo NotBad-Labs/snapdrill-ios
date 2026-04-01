@@ -458,6 +458,7 @@
 "errors.load_failed" = "加载失败";
 "errors.try_again_later" = "请稍后重试，或重启应用";
 "errors.delete_failed" = "删除失败，请稍后重试";
+"errors.batch_tag_failed" = "标签操作失败，请稍后重试";
 "errors.pdf_generate_failed" = "PDF 生成失败，请稍后重试";
 "errors.review_save_failed" = "复习记录保存失败，请重试";
 "errors.form_data_load_failed" = "表单数据加载失败，请返回重试";
