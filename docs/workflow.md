@@ -18,6 +18,9 @@ Shaped → Building (WIP≤2) → Reviewing → Done
 ## 问题
 [用户遇到了什么问题？]
 
+## MoSCoW
+- [ ] Must / [ ] Should / [ ] Could
+
 ## Appetite
 - [ ] Small（1-2 天）/ Medium（3-5 天）/ Large（1-2 周）
 
@@ -27,8 +30,10 @@ Shaped → Building (WIP≤2) → Reviewing → Done
 ## No-Go（不做什么）
 -
 
-## 验收标准
-1.
+## 验收标准（Given-When-Then）
+1. Given [前置条件]
+   When [用户操作]
+   Then [预期结果]
 ```
 
 ### Scope 控制
@@ -49,6 +54,27 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 **铁律**：禁止直推 develop/main。每个任务：Issue → 分支 → PR（`Closes #N`）→ Review → 合并。
 
 **例外**：STATUS.md 允许直推 develop。
+
+---
+
+## Definition of Done（PR 合并前检查清单）
+
+### 代码质量
+- [ ] `swiftlint --strict` 0 violations
+- [ ] `xcodebuild build-for-testing` 0 errors
+- [ ] 改接口签名后 `grep -rn "TypeName(" Tests/` 检查测试同步
+- [ ] Xcode Review 核实通过（UI 改动必须）
+
+### 功能完整性
+- [ ] 验收标准（Given-When-Then）全部通过
+- [ ] 异常路径已考虑（空数据、权限拒绝、网络断开）
+- [ ] VoiceOver 辅助标签已补齐（新增 UI 元素）
+
+### 文档同步
+- [ ] `product-requirements.md` 已更新（新增功能）
+- [ ] `api-reference.md` 已更新（新增/变更 public 接口）
+- [ ] 新增第三方库 → 更新开源许可展示
+- [ ] 合并后立即更新 `STATUS.md`
 
 ---
 

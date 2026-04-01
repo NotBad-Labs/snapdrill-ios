@@ -33,6 +33,7 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 | `docs/tech/api-reference.md` | 查询 Protocol 定义、Repository/Service 公开方法时 |
 | `docs/tech/compliance.md` | 讨论隐私合规、App Store 审核、数据处理时 |
 | `docs/tech/deployment.md` | 讨论发布流程、CI/CD、版本管理时 |
+| `docs/tech/non-functional-requirements.md` | 讨论性能指标、内存限制、存储基准时 |
 
 **铁律**：修改任何代码前，必须先读取相关的产品文档确认需求。不碰产品文档就写代码是方法论缺陷。
 
