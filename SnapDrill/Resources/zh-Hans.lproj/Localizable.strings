@@ -191,7 +191,9 @@
 "library.export_selected" = "导出";
 "library.print_single" = "打印";
 "library.delete_confirm_title" = "确认删除";
-"library.delete_confirm_message" = "此操作不可撤销，确定要删除选中的题目吗？";
+"library.delete_confirm_message" = "删除后可在 5 秒内撤销";
+"library.deleted_count" = "已删除 %d 道题";
+"library.undo" = "撤销";
 "library.subject_manager" = "管理学科";
 "library.source_manager" = "管理来源";
 "library.grade_manager" = "管理年级";

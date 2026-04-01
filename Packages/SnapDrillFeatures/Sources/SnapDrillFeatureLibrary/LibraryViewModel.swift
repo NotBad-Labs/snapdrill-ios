@@ -99,6 +99,17 @@ public final class LibraryViewModel {
     public var errorMessage: String?
     /// 操作错误信息（非 nil 时 View 展示 alert，用于删除、打标签等操作）
     public var operationError: String?
+    /// 撤销 Toast 状态
+    public var showUndoToast = false
+    /// 待删除的题目数量（Toast 显示用）
+    public var pendingDeletionCount = 0
+    /// 软删除暂存区
+    @ObservationIgnored
+    private var pendingDeletionIDs: Set<UUID> = []
+    @ObservationIgnored
+    private var pendingDeletionItems: [ReviewItemModel] = []
+    @ObservationIgnored
+    private var commitDeletionTask: Task<Void, Never>?
     private var currentPage: Int = 0
     private let pageSize: Int = 50
     /// 搜索防抖任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
@@ -195,32 +206,70 @@ public final class LibraryViewModel {
         }
     }
 
-    /// 删除单个题目
-    public func deleteItem(_ item: ReviewItemModel) async {
-        do {
-            try await repositories.review.delete(id: item.id)
-            filteredItems.removeAll { $0.id == item.id }
-        } catch {
-            SnapDrillLogger.generic.error("删除题目失败: \(error.localizedDescription)")
-            self.operationError = L10n.Errors.deleteFailed
+    /// 软删除题目（从列表移除，暂存 5 秒后真正删除，支持撤销）
+    public func softDeleteItems(ids: Set<UUID>) {
+        // 取消上一次的延迟删除（如果有），先提交
+        commitDeletionTask?.cancel()
+        if !pendingDeletionIDs.isEmpty {
+            Task { await commitDeletion() }
+        }
+
+        // 暂存待删除的题目
+        pendingDeletionItems = filteredItems.filter { ids.contains($0.id) }
+        pendingDeletionIDs = ids
+        pendingDeletionCount = ids.count
+
+        // 从列表中移除（视觉即时反馈）
+        withAnimation {
+            filteredItems.removeAll { ids.contains($0.id) }
+            showUndoToast = true
+        }
+
+        // 5 秒后真正删除
+        commitDeletionTask = Task {
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            await commitDeletion()
         }
     }
 
-    /// 批量删除题目（仅移除实际删除成功的条目）
-    public func deleteItems(ids: Set<UUID>) async {
-        var successfullyDeleted: Set<UUID> = []
+    /// 撤销删除（恢复暂存的题目到列表）
+    public func undoDelete() {
+        commitDeletionTask?.cancel()
+        commitDeletionTask = nil
+
+        withAnimation {
+            filteredItems.append(contentsOf: pendingDeletionItems)
+            // 恢复原始排序（按 ID 匹配，避免追加到末尾）
+            filteredItems.sort { $0.createdAt > $1.createdAt }
+            showUndoToast = false
+        }
+
+        pendingDeletionIDs.removeAll()
+        pendingDeletionItems.removeAll()
+        pendingDeletionCount = 0
+    }
+
+    /// 真正执行数据库删除（软删除倒计时结束后调用）
+    private func commitDeletion() async {
+        let ids = pendingDeletionIDs
+        guard !ids.isEmpty else { return }
+
         for id in ids {
             do {
                 try await repositories.review.delete(id: id)
-                successfullyDeleted.insert(id)
             } catch {
-                SnapDrillLogger.generic.error("批量删除失败（id=\(id)）: \(error.localizedDescription)")
+                SnapDrillLogger.generic.error("删除题目失败（id=\(id)）: \(error.localizedDescription)")
             }
         }
-        filteredItems.removeAll { successfullyDeleted.contains($0.id) }
-        if successfullyDeleted.count < ids.count {
-            self.operationError = L10n.Errors.deleteFailed
+
+        pendingDeletionIDs.removeAll()
+        pendingDeletionItems.removeAll()
+
+        withAnimation {
+            showUndoToast = false
         }
+        pendingDeletionCount = 0
     }
 
     /// 批量为选中题目添加标签

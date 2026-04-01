@@ -181,7 +181,7 @@ struct LibraryListView: View {
         .listRowSpacing(12)
         .confirmationDialog(L10n.Library.deleteConfirmTitle, isPresented: $showSwipeDeleteConfirm, titleVisibility: .visible) {
             Button(L10n.Common.delete, role: .destructive) {
-                Task { await viewModel.deleteItems(ids: swipeDeleteIDs) }
+                viewModel.softDeleteItems(ids: swipeDeleteIDs)
                 swipeDeleteIDs.removeAll()
             }
             Button(L10n.Common.cancel, role: .cancel) {
