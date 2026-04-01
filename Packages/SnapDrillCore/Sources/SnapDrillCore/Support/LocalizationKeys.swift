@@ -333,6 +333,7 @@ nonisolated public enum L10n {
         public static let deselectAll = NSLocalizedString("library.deselect_all", value: "取消全选", comment: "取消全选按钮")
         public static let deleteSelected = NSLocalizedString("library.delete_selected", value: "删除", comment: "删除已选")
         public static let exportSelected = NSLocalizedString("library.export_selected", value: "导出", comment: "导出已选")
+        public static let printSingle = NSLocalizedString("library.print_single", value: "打印", comment: "单题打印按钮")
 
         // 删除确认
         public static let deleteConfirmTitle = NSLocalizedString("library.delete_confirm_title", value: "确认删除", comment: "删除确认标题")
@@ -474,6 +475,10 @@ nonisolated public enum L10n {
 
         // 数据与同步
         public static let dataAndSync = NSLocalizedString("settings.data_and_sync", value: "数据与云同步", comment: "数据与云同步")
+        public static let storageManagement = NSLocalizedString("settings.storage_management", value: "存储管理", comment: "存储管理")
+        public static let storageImages = NSLocalizedString("settings.storage_images", value: "题目图片", comment: "图片存储占用")
+        public static let storageTotal = NSLocalizedString("settings.storage_total", value: "总占用", comment: "总存储占用")
+        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示当前 Profile 的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
 
         // 通用
         public static let general = NSLocalizedString("settings.general", value: "通用", comment: "通用区标题")
@@ -865,6 +870,7 @@ nonisolated public enum L10n {
         public static let showHeader = NSLocalizedString("export.show_header", value: "显示页眉页码", comment: "导出选项：显示页眉页码开关")
         public static let mixedSubject = NSLocalizedString("export.mixed_subject", value: "综合练习", comment: "PDF 页眉：多学科混合时显示")
         public static let defaultSubject = NSLocalizedString("export.default_subject", value: "错题本", comment: "PDF 页眉：无学科信息时的默认标题")
+        public static let itemsPerPage = NSLocalizedString("export.items_per_page", value: "每页题数", comment: "导出选项：每页题目数量")
         public static let pdfOptions = NSLocalizedString("export.pdf_options", value: "打印选项", comment: "导出选项区域标题")
         public static func pageNumber(_ current: Int, _ total: Int) -> String {
             String(format: NSLocalizedString("export.page_number", value: "第 %d/%d 页", comment: "PDF 页眉：页码"), current, total)

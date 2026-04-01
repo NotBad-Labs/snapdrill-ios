@@ -189,6 +189,7 @@
 "library.select_items" = "选择";
 "library.delete_selected" = "删除";
 "library.export_selected" = "导出";
+"library.print_single" = "打印";
 "library.delete_confirm_title" = "确认删除";
 "library.delete_confirm_message" = "此操作不可撤销，确定要删除选中的题目吗？";
 "library.subject_manager" = "管理学科";
@@ -271,6 +272,10 @@
 "settings.review_reminder" = "复习提醒";
 "settings.privacy_export" = "隐私与导出";
 "settings.data_and_sync" = "数据与云同步";
+"settings.storage_management" = "存储管理";
+"settings.storage_images" = "题目图片";
+"settings.storage_total" = "总占用";
+"settings.storage_footer" = "显示当前 Profile 的存储占用。图片会自动压缩以节省空间。";
 "settings.appearance" = "外观";
 "settings.follow_system" = "跟随系统";
 "settings.light_mode" = "浅色";
@@ -666,6 +671,7 @@
 "export.show_header" = "显示页眉页码";
 "export.mixed_subject" = "综合练习";
 "export.default_subject" = "错题本";
+"export.items_per_page" = "每页题数";
 "export.pdf_options" = "打印选项";
 "export.page_number" = "第 %d/%d 页";
 

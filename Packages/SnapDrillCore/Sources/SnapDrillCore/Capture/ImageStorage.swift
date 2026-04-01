@@ -162,6 +162,31 @@ public struct ImageStorage: Sendable {
         return UIImage(cgImage: cgImage)
     }
 
+    // MARK: - 存储统计
+
+    /// 计算图片目录的总占用字节数
+    public func imageDirectorySize() async -> Int64 {
+        let imagesDir = baseDirectory.appendingPathComponent("images")
+        return await Task.detached(priority: .utility) {
+            Self.directorySize(at: imagesDir)
+        }.value
+    }
+
+    /// 计算指定目录的总字节数（递归遍历所有文件）
+    nonisolated private static func directorySize(at url: URL) -> Int64 {
+        let fm = FileManager.default
+        guard let enumerator = fm.enumerator(at: url, includingPropertiesForKeys: [.fileSizeKey], options: [.skipsHiddenFiles]) else {
+            return 0
+        }
+        var totalSize: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            if let size = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+                totalSize += Int64(size)
+            }
+        }
+        return totalSize
+    }
+
     // MARK: - Private Helpers
 
     /// 将 UIImage 压缩为 JPEG Data，大图通过 ImageIO 流式下采样
