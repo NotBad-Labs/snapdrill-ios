@@ -9,6 +9,7 @@
 //
 
 import Testing
+import TipKit
 import SwiftData
 import Foundation
 import UIKit
@@ -337,48 +338,6 @@ final class CaptureResultViewModelTests {
 
     // MARK: - 字段配置引导
 
-    @Test("saveResult 首次保存后 showFieldConfigGuide 为 true")
-    func saveResult_firstSave_showsFieldConfigGuide() async throws {
-        // 重置引导状态，确保 tooltip 可触发
-        OnboardingManager.shared.resetAll()
-
-        let ctx = createVM(content: "引导测试")
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-
-        await ctx.vm.saveResult()
-
-        #expect(ctx.vm.isSaved == true)
-        #expect(ctx.vm.showFieldConfigGuide == true)
-    }
-
-    @Test("saveResult 第二次保存 showFieldConfigGuide 为 false")
-    func saveResult_secondSave_noFieldConfigGuide() async throws {
-        // 先标记 tooltip 已展示
-        OnboardingManager.shared.markTooltipShown(for: "field_config")
-
-        let ctx = createVM(content: "第二次保存")
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-
-        await ctx.vm.saveResult()
-
-        #expect(ctx.vm.isSaved == true)
-        #expect(ctx.vm.showFieldConfigGuide == false)
-    }
-
-    @Test("dismissFieldConfigGuide 重置状态")
-    func dismissFieldConfigGuide_resetsState() async throws {
-        OnboardingManager.shared.resetAll()
-
-        let ctx = createVM(content: "dismiss 测试")
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-
-        await ctx.vm.saveResult()
-        #expect(ctx.vm.showFieldConfigGuide == true)
-
-        ctx.vm.dismissFieldConfigGuide()
-        #expect(ctx.vm.showFieldConfigGuide == false)
-    }
+    // 字段配置引导已迁移到 TipKit（.popoverTip 在 View 层自动管理），
+    // ViewModel 不再持有 showFieldConfigGuide 状态，无需测试。
 }

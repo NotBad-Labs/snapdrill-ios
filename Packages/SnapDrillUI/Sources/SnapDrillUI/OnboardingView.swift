@@ -166,59 +166,9 @@ struct OnboardingPageView: View {
     }
 }
 
-/// 功能提示气泡
-public struct FeatureTooltip: View {
-    let title: String
-    let message: String
-    let onDismiss: () -> Void
-    
-    /// 创建功能提示气泡
-    /// - Parameters:
-    ///   - title: 提示标题
-    ///   - message: 提示正文
-    ///   - onDismiss: 用户关闭时的回调
-    public init(title: String, message: String, onDismiss: @escaping () -> Void) {
-        self.title = title
-        self.message = message
-        self.onDismiss = onDismiss
-    }
-    
-    public var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(title)
-                    .font(.headline)
-                    .accessibleHeader(title)
-                
-                Spacer()
-                
-                Button {
-                    onDismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                }
-                .accessibleButton(label: L10n.Onboarding.dismissTooltip)
-            }
-            
-            Text(message)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .accessible(label: message)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.background)
-                .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
-        )
-        .padding()
-    }
-}
-
 /// 引导管理器
 ///
-/// 负责持久化引导完成状态，并判断是否需要展示功能提示气泡。
+/// 负责持久化引导完成状态。功能提示已迁移到 TipKit（见 SnapDrillTips.swift）。
 @Observable
 public final class OnboardingManager {
     /// 共享实例
@@ -226,47 +176,21 @@ public final class OnboardingManager {
 
     /// 是否需要显示引导流程（首次启动为 `true`，完成后持久化为 `false`）
     public var shouldShowOnboarding: Bool
-    /// 各功能提示的显示状态缓存，key 为功能标识符
-    public var shouldShowFeatureTooltip: [String: Bool] = [:]
-    
+
     private init() {
         self.shouldShowOnboarding = !UserDefaults.standard.bool(forKey: UDKey.hasCompletedOnboarding)
     }
-    
+
     /// 完成引导
     public func completeOnboarding() {
         UserDefaults.standard.set(true, forKey: UDKey.hasCompletedOnboarding)
         shouldShowOnboarding = false
     }
-    
-    /// 检查是否应该显示功能提示
-    public func shouldShowTooltip(for feature: String) -> Bool {
-        if let cached = shouldShowFeatureTooltip[feature] {
-            return cached
-        }
-        
-        let hasShown = UserDefaults.standard.bool(forKey: "\(UDKey.hasShownTooltipPrefix)\(feature)")
-        shouldShowFeatureTooltip[feature] = !hasShown
-        return !hasShown
-    }
-    
-    /// 标记功能提示已显示
-    public func markTooltipShown(for feature: String) {
-        UserDefaults.standard.set(true, forKey: "\(UDKey.hasShownTooltipPrefix)\(feature)")
-        shouldShowFeatureTooltip[feature] = false
-    }
-    
-    /// 重置所有引导状态
+
+    /// 重置引导状态
     public func resetAll() {
         UserDefaults.standard.set(false, forKey: UDKey.hasCompletedOnboarding)
         shouldShowOnboarding = true
-        shouldShowFeatureTooltip.removeAll()
-        
-        // 清除所有提示记录
-        let keys = UserDefaults.standard.dictionaryRepresentation().keys
-        for key in keys where key.hasPrefix(UDKey.hasShownTooltipPrefix) {
-            UserDefaults.standard.removeObject(forKey: key)
-        }
     }
 }
 

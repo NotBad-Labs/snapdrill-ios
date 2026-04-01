@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import TipKit
 import SnapDrillCore
 import SnapDrillUI
 import PhotosUI
@@ -334,7 +335,7 @@ public struct CaptureResultView: View {
                     viewModel.save()
                 }
                 .fontWeight(.bold)
-                .disabled(viewModel.isRecognizing || viewModel.isSaving || viewModel.showFieldConfigGuide)
+                .disabled(viewModel.isRecognizing || viewModel.isSaving)
             }
         }
         .navigationTitle(L10n.Capture.previewAndEdit)
@@ -381,21 +382,7 @@ public struct CaptureResultView: View {
         .sensoryFeedback(.success, trigger: viewModel.isSaved) { _, newValue in
             newValue
         }
-        .overlay(alignment: .bottom) {
-            if viewModel.showFieldConfigGuide {
-                FeatureTooltip(
-                    title: L10n.Onboarding.fieldConfigTitle,
-                    message: L10n.Onboarding.fieldConfigDescription
-                ) {
-                    withAnimation {
-                        viewModel.dismissFieldConfigGuide()
-                    }
-                }
-                .padding()
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
-        }
-        .animation(.easeOut(duration: 0.3), value: viewModel.showFieldConfigGuide)
+        .popoverTip(viewModel.fieldConfigTip, arrowEdge: .bottom)
         .alert(L10n.Capture.saveFailed, isPresented: $viewModel.showErrorAlert) {
             Button(L10n.Common.ok, role: .cancel) { }
         } message: {
