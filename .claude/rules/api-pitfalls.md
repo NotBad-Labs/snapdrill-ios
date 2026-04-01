@@ -3,7 +3,7 @@ paths:
   - "**/*.swift"
 ---
 
-<!-- last verified: 2026-03-31 -->
+<!-- last verified: 2026-04-01 -->
 # API 易错点速查
 
 > 修改代码前用 `Grep` / `Read` 确认 API 真实存在，禁止凭名称推测。
@@ -41,4 +41,17 @@ paths:
 | `#Predicate` 中写 many-to-many 过滤 | 运行崩溃 | fetch 全量后内存端过滤 |
 | macOS `swift test` 跑 #Predicate 测试 | SIGTRAP | 必须通过 Xcode iOS Simulator 运行 |
 | 新增 @Model 字段不加默认值 | 迁移失败 | 字段带默认值 + 新建 Schema 版本 |
-| `#Unique<Model>([\.field])` + CloudKit entitlement | 真机 fatalError（Simulator 不崩） | 删除 `#Unique`，在 Repository 层用 `fetchOrCreateModel` + `DataError.duplicateName` 保证业务唯一性 |
+| `#Unique<Model>([\.field])` + CloudKit entitlement | 真机 fatalError（Simulator 不崩） | ❌ **禁止使用 `#Unique`**（PR #454 已全量删除）— 在 Repository 层用 `fetchOrCreateModel` + `DataError.duplicateName` 保证业务唯一性 |
+
+## 删除撤销陷阱（v1.5 新增）
+
+| 陷阱 | 后果 | 正确做法 |
+|---|---|---|
+| Toast 倒计时 Task 未在 View 消失时取消 | 内存泄漏或对已释放对象操作 | 在 `.onDisappear` 中取消 Task，或将 Task 句柄保存为实例属性 |
+| 软删除后立即查询未排除已删除项 | 已删除题目仍出现在列表中 | 查询 Predicate 加 `isDeleted == false` 条件 |
+
+## 多 Profile 陷阱（v1.5 新增）
+
+| 陷阱 | 后果 | 正确做法 |
+|---|---|---|
+| Profile 切换后 ViewModel 持有旧 Profile 的数据 | 显示错误 Profile 的题目 | 切换 Profile 时重建 ViewModel 或刷新数据源 |

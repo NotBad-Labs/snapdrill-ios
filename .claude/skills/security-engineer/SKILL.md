@@ -75,6 +75,8 @@ allowed-tools:
 1. **ImageStorage.saveImage 必须剥离 EXIF GPS**：用户拍照保存的图片可能包含地理位置信息，保存前须清除 EXIF 元数据中的 GPS 字段
 2. **CSV 导出需防 Excel 公式注入**：以 `=`、`+`、`-`、`@` 开头的单元格值须在前面加 tab 字符，防止 Excel 自动执行公式
 3. **CaptureDraftService.shared 单例状态在测试间泄漏**：单例的草稿状态跨测试用例持续存在，测试前须 `clearDraft()` 重置
+4. **多 Profile 备份恢复隐私边界**：备份文件包含所有 Profile 数据，恢复时须验证 Profile 间的数据隔离不被破坏
+5. **删除撤销临时状态**：软删除期间（5 秒窗口）题目数据仍在内存和磁盘中，须确保不会通过搜索或导出泄露已标记删除的数据
 
 ## 输出格式
 

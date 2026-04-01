@@ -82,6 +82,9 @@ test_[被测单元]_when[前置条件]_should[预期行为]
 1. **SnapDrillFeatures 测试必须通过 Xcode Simulator**：`swift test` 不可用（SPM 仅声明 iOS 平台），须通过 Xcode Simulator 运行
 2. **waitUntil 轮询要防竞态**：初始值为 false 时直接检查 false 会立即返回成功，须确保轮询条件在异步操作完成后才变为预期值
 3. **in-memory ModelContainer 必须作为实例属性保活**：如果 ModelContainer 仅在方法内创建为局部变量，可能被提前释放导致测试崩溃
+4. **删除撤销 5 秒倒计时竞态**：Toast Task 取消 + 软删除永久化的时序需测试，尤其是用户在倒计时期间切换页面或关闭 App 的场景
+5. **多 Profile 数据隔离**：切换 Profile 后查询必须使用新 Profile 的上下文，测试须验证跨 Profile 数据不会泄漏
+6. **OCR 重试逻辑**：测试需覆盖重试成功和重试耗尽两个路径，以及超时稳定性提示的显示
 
 ## 输出格式
 
