@@ -131,26 +131,18 @@ struct CaptureViewModelTests {
         #expect(viewModel.isProcessing == false)
     }
 
-    @Test("processScannedImage 失败时推送空内容")
-    func testProcessScannedImage_Error_PushesEmptyResult() async throws {
+    @Test("processScannedImage 失败时弹出重试 alert")
+    func testProcessScannedImage_Error_ShowsRetryAlert() async throws {
         let mockOCR = MockOCRService()
         mockOCR.recognizeTextError = NSError(domain: "test", code: -1, userInfo: nil)
 
         let viewModel = CaptureViewModel(ocrService: mockOCR)
         let router = CaptureRouter()
 
-        var pushCalled = false
-        router.onPush = { destination in
-            if case let .scannerResult(content, _) = destination {
-                #expect(content == "")
-                pushCalled = true
-            }
-        }
-
         viewModel.processScannedImage(createTestImage(), router: router)
 
-        // CI 环境较慢，延长超时
-        try await waitUntil(timeout: .seconds(5)) { pushCalled }
+        // OCR 失败时弹出重试 alert（#462 OCR 重试功能），不直接 push
+        try await waitUntil(timeout: .seconds(5)) { viewModel.showOCRRetryAlert }
         #expect(mockOCR.recognizeTextCallCount == 1)
         #expect(viewModel.isProcessing == false)
     }
