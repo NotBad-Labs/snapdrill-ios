@@ -176,7 +176,7 @@ public struct SettingsView: View {
                     NavigationLink {
                         LanguageSettingsView()
                     } label: {
-                        SettingsRow(icon: "globe", gradientStart: .green, gradientEnd: .teal, title: L10n.Settings.language, value: L10n.Settings.simplifiedChinese)
+                        SettingsRow(icon: "globe", gradientStart: .green, gradientEnd: .teal, title: L10n.Settings.language, value: AppLanguage.current.displayName)
                     }
 
                 }
