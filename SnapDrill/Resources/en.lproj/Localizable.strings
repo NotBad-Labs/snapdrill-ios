@@ -191,7 +191,9 @@
 "library.export_selected" = "Export";
 "library.print_single" = "Print";
 "library.delete_confirm_title" = "Confirm Delete";
-"library.delete_confirm_message" = "This action cannot be undone. Are you sure you want to delete the selected items?";
+"library.delete_confirm_message" = "You can undo within 5 seconds";
+"library.deleted_count" = "Deleted %d items";
+"library.undo" = "Undo";
 "library.subject_manager" = "Manage Subjects";
 "library.source_manager" = "Manage Sources";
 "library.grade_manager" = "Manage Grades";

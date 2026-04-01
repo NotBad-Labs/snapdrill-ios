@@ -70,6 +70,28 @@ public struct LibraryView: View {
                 } else {
                     ProgressView()
                 }
+
+                // 撤销删除 Toast
+                if let vm = viewModel, vm.showUndoToast {
+                    HStack(spacing: 12) {
+                        Text(L10n.Library.deletedCount(vm.pendingDeletionCount))
+                            .font(.subheadline)
+                            .foregroundStyle(.white)
+                        Spacer()
+                        Button(L10n.Library.undo) {
+                            vm.undoDelete()
+                        }
+                        .font(.subheadline.bold())
+                        .foregroundStyle(.yellow)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(.black.opacity(0.85))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 8)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
             .environment(\.editMode, $editMode)
             .searchable(text: Binding(
@@ -256,7 +278,7 @@ public struct LibraryView: View {
     private func deleteSelectedItems() {
         guard let vm = viewModel else { return }
         let ids = selectedItemIDs
-        Task { await vm.deleteItems(ids: ids) }
+        vm.softDeleteItems(ids: ids)
         withAnimation {
             selectedItemIDs.removeAll()
         }

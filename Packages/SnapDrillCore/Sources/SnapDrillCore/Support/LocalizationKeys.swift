@@ -337,7 +337,11 @@ nonisolated public enum L10n {
 
         // 删除确认
         public static let deleteConfirmTitle = NSLocalizedString("library.delete_confirm_title", value: "确认删除", comment: "删除确认标题")
-        public static let deleteConfirmMessage = NSLocalizedString("library.delete_confirm_message", value: "此操作不可撤销，确定要删除选中的题目吗？", comment: "删除确认信息")
+        public static let deleteConfirmMessage = NSLocalizedString("library.delete_confirm_message", value: "删除后可在 5 秒内撤销", comment: "删除确认信息")
+        public static func deletedCount(_ count: Int) -> String {
+            String(format: NSLocalizedString("library.deleted_count", value: "已删除 %d 道题", comment: "撤销 Toast 显示已删除数量"), count)
+        }
+        public static let undo = NSLocalizedString("library.undo", value: "撤销", comment: "撤销删除按钮")
 
         // 分类管理
         public static let subjectManager = NSLocalizedString("library.subject_manager", value: "管理学科", comment: "管理学科")

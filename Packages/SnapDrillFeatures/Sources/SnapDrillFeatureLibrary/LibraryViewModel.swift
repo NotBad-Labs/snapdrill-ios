@@ -99,6 +99,17 @@ public final class LibraryViewModel {
     public var errorMessage: String?
     /// 操作错误信息（非 nil 时 View 展示 alert，用于删除、打标签等操作）
     public var operationError: String?
+    /// 撤销 Toast 状态
+    public var showUndoToast = false
+    /// 待删除的题目数量（Toast 显示用）
+    public var pendingDeletionCount = 0
+    /// 软删除暂存区
+    @ObservationIgnored
+    private var pendingDeletionIDs: Set<UUID> = []
+    @ObservationIgnored
+    private var pendingDeletionItems: [ReviewItemModel] = []
+    @ObservationIgnored
+    private var commitDeletionTask: Task<Void, Never>?
     private var currentPage: Int = 0
     private let pageSize: Int = 50
     /// 搜索防抖任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
@@ -195,31 +206,88 @@ public final class LibraryViewModel {
         }
     }
 
-    /// 删除单个题目
-    public func deleteItem(_ item: ReviewItemModel) async {
-        do {
-            try await repositories.review.delete(id: item.id)
-            filteredItems.removeAll { $0.id == item.id }
-        } catch {
-            SnapDrillLogger.generic.error("删除题目失败: \(error.localizedDescription)")
-            self.operationError = L10n.Errors.deleteFailed
+    /// 软删除题目（从列表移除，暂存 5 秒后真正删除，支持撤销）
+    public func softDeleteItems(ids: Set<UUID>) {
+        // Bug fix: 先同步提交上一次的 pending（用捕获的局部变量避免竞态）
+        commitDeletionTask?.cancel()
+        if !pendingDeletionIDs.isEmpty {
+            let previousIDs = pendingDeletionIDs
+            pendingDeletionIDs.removeAll()
+            pendingDeletionItems.removeAll()
+            Task { await performDeletion(ids: previousIDs) }
+        }
+
+        // 暂存待删除的题目
+        pendingDeletionItems = filteredItems.filter { ids.contains($0.id) }
+        pendingDeletionIDs = ids
+        pendingDeletionCount = ids.count
+
+        // 从列表中移除（视觉即时反馈）
+        withAnimation {
+            filteredItems.removeAll { ids.contains($0.id) }
+            showUndoToast = true
+        }
+
+        // 5 秒后真正删除
+        commitDeletionTask = Task {
+            try? await Task.sleep(for: .seconds(5))
+            guard !Task.isCancelled else { return }
+            await commitDeletion()
         }
     }
 
-    /// 批量删除题目（仅移除实际删除成功的条目）
-    public func deleteItems(ids: Set<UUID>) async {
-        var successfullyDeleted: Set<UUID> = []
+    /// 撤销删除（恢复暂存的题目到列表）
+    public func undoDelete() {
+        commitDeletionTask?.cancel()
+        commitDeletionTask = nil
+
+        // Bug fix: 使用当前排序选项而非硬编码 createdAt
+        let descriptors = sortOption.sortDescriptors
+
+        withAnimation {
+            filteredItems.append(contentsOf: pendingDeletionItems)
+            filteredItems.sort { lhs, rhs in
+                for descriptor in descriptors {
+                    switch descriptor.compare(lhs, rhs) {
+                    case .orderedAscending: return true
+                    case .orderedDescending: return false
+                    case .orderedSame: continue
+                    }
+                }
+                return false
+            }
+            showUndoToast = false
+        }
+
+        pendingDeletionIDs.removeAll()
+        pendingDeletionItems.removeAll()
+        pendingDeletionCount = 0
+    }
+
+    /// 真正执行数据库删除（软删除倒计时结束后调用）
+    private func commitDeletion() async {
+        let ids = pendingDeletionIDs
+        guard !ids.isEmpty else { return }
+
+        pendingDeletionIDs.removeAll()
+        pendingDeletionItems.removeAll()
+
+        await performDeletion(ids: ids)
+
+        withAnimation {
+            showUndoToast = false
+        }
+        pendingDeletionCount = 0
+    }
+
+    /// 执行数据库删除（抽取公共逻辑，供 commitDeletion 和连续删除提交共用）
+    private func performDeletion(ids: Set<UUID>) async {
         for id in ids {
             do {
                 try await repositories.review.delete(id: id)
-                successfullyDeleted.insert(id)
             } catch {
-                SnapDrillLogger.generic.error("批量删除失败（id=\(id)）: \(error.localizedDescription)")
+                SnapDrillLogger.generic.error("删除题目失败（id=\(id)）: \(error.localizedDescription)")
             }
-        }
-        filteredItems.removeAll { successfullyDeleted.contains($0.id) }
-        if successfullyDeleted.count < ids.count {
-            self.operationError = L10n.Errors.deleteFailed
         }
     }
 
@@ -255,5 +323,13 @@ public final class LibraryViewModel {
     public func cancelTasks() {
         searchTask?.cancel()
         searchTask = nil
+        // 页面离开时，如果有 pending 删除，立即提交（不丢失删除操作）
+        if !pendingDeletionIDs.isEmpty {
+            commitDeletionTask?.cancel()
+            let ids = pendingDeletionIDs
+            pendingDeletionIDs.removeAll()
+            pendingDeletionItems.removeAll()
+            Task { await performDeletion(ids: ids) }
+        }
     }
 }
