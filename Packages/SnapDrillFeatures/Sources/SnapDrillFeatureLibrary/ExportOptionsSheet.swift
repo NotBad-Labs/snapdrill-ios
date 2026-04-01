@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import ZIPFoundation
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillUI
@@ -28,6 +29,10 @@ struct ExportOptionsSheet: View {
     @State private var showBlankAnswerArea = true
     @State private var showHeader = true
     @State private var itemsPerPage = 2
+    @State private var isExportingZIP = false
+    @State private var zipURL: URL?
+    @State private var isShowingZIPShare = false
+    @State private var showNoImagesAlert = false
 
     // MARK: - Body
 
@@ -77,6 +82,31 @@ struct ExportOptionsSheet: View {
                         .padding(.vertical, 8)
                     }
                     .accessibleButton(label: L10n.Library.exportCSV, hint: L10n.Accessibility.exportCSVHint)
+
+                    // 3. 原图 ZIP
+                    Button {
+                        exportImagesZIP()
+                    } label: {
+                        Label {
+                            VStack(alignment: .leading) {
+                                Text(L10n.Library.exportImages)
+                                    .font(.headline)
+                                Text(L10n.Library.exportImagesHint)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            if isExportingZIP {
+                                ProgressView()
+                            } else {
+                                Image(systemName: "photo.on.rectangle.angled")
+                                    .foregroundStyle(.purple)
+                                    .font(.title2)
+                            }
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    .disabled(isExportingZIP)
                 }
                 
                 Section(L10n.Export.pdfOptions) {
@@ -109,6 +139,14 @@ struct ExportOptionsSheet: View {
                     Button(L10n.Common.close) { dismiss() }
                 }
             }
+            .sheet(isPresented: $isShowingZIPShare) {
+                if let url = zipURL {
+                    ZIPShareSheet(activityItems: [url])
+                }
+            }
+            .alert(L10n.Library.noImages, isPresented: $showNoImagesAlert) {
+                Button(L10n.Common.close, role: .cancel) { }
+            }
             .navigationDestination(isPresented: $showingPDFPreview) {
                 ExportPreviewView(
                     items: items,
@@ -122,6 +160,73 @@ struct ExportOptionsSheet: View {
             }
         }
     }
+
+    // MARK: - ZIP 导出
+
+    private func exportImagesZIP() {
+        let imagePaths = items.compactMap(\.imagePath)
+        guard !imagePaths.isEmpty else {
+            showNoImagesAlert = true
+            return
+        }
+
+        isExportingZIP = true
+        let storage = ImageStorage()
+
+        Task.detached {
+            do {
+                let tempDir = FileManager.default.temporaryDirectory
+                let zipName = "SnapDrill_Images_\(Date().filenameDateString).zip"
+                let zipURL = tempDir.appendingPathComponent(zipName)
+
+                // 如果已有同名文件则先清理
+                try? FileManager.default.removeItem(at: zipURL)
+
+                let archive = try Archive(url: zipURL, accessMode: .create)
+
+                for (index, path) in imagePaths.enumerated() {
+                    try autoreleasepool {
+                        guard let image = storage.loadImage(path: path),
+                              let data = image.jpegData(compressionQuality: 0.9) else {
+                            return
+                        }
+                        let fileName = "\(index + 1)_\(URL(fileURLWithPath: path).lastPathComponent)"
+                        try archive.addEntry(
+                            with: fileName,
+                            type: .file,
+                            uncompressedSize: Int64(data.count),
+                            compressionMethod: .none,
+                            provider: { position, size in
+                                data[Int(position) ..< Int(position) + size]
+                            }
+                        )
+                    }
+                }
+
+                await MainActor.run {
+                    self.zipURL = zipURL
+                    self.isExportingZIP = false
+                    self.isShowingZIPShare = true
+                }
+            } catch {
+                SnapDrillLogger.generic.error("ZIP 导出失败: \(error.localizedDescription)")
+                await MainActor.run {
+                    self.isExportingZIP = false
+                }
+            }
+        }
+    }
+}
+
+/// ZIP 分享的 UIKit 桥接
+private struct ZIPShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 // MARK: - Transferable Export Model
