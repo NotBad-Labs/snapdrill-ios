@@ -8,9 +8,10 @@
 
 ## 当前焦点
 
-v1.5 功能批量实现中，9/10 项已合并。仅剩 Share Extension。
+v1.5 功能批量实现中，12 个 PR 已合并。仅剩 Share Extension。
 
-已合并（v1.5 批次）：
+### 已完成（v1.5 批次，12 个 PR）
+
 - #476 feat: 删除撤销 — 软删除 + Toast 5 秒撤销
 - #474 feat: 单题快速打印 + 每页题数可选 + 存储管理
 - #472 feat: App 内语言切换 — 中文/英文直选
@@ -18,25 +19,44 @@ v1.5 功能批量实现中，9/10 项已合并。仅剩 Share Extension。
 - #468 feat: 难度过滤
 - #466 feat: OCR 结果复制到剪贴板
 - #464 feat: 纯文本草稿保存
-
-已合并（v1.0 批次）：
 - #462 fix: 采集管线体验改进 — OCR 重试 + 稳定性提示 + 参数微调
 - #460 fix: 相机权限缺失处理
 - #458 feat: PDF 导出增强 — 去答案打印 + 留白答题区 + 页眉页码
 - #456 chore: 清理 Schema V2/V3/V4 过期注释
 - #454 fix: 移除 #Unique 宏解决 CloudKit 真机崩溃
+- 商业化策略 + 免费/付费分层文档
+
+### 已完成（v1.0 批次）
+
 - #451 Multi-Profile 完整实现
 - #450 审计修复
 - #449 CI 修复
 
 ## 下一步
 
-| 优先级 | 事项 |
+### 待做（不依赖外部，1 项）
+
+| 优先级 | 事项 | 备注 |
+|---|---|---|
+| P1 | Share Extension | 需用户在 Xcode 创建 target 后写代码 |
+
+### 待做（依赖外部条件，3 项）
+
+| Issue | 内容 | 解除条件 |
+|---|---|---|
+| #161 | TestFlight Build 6 | 需真机验证 |
+| #162 | GitHub Pro Branch Protection | 等 GitHub Pro 今天生效 |
+| #163 | 公司 Apple 开发者账号 | 等 DUNS 就绪 |
+
+### 暂缓（产品策略已定，等用户验证后实施）
+
+| 事项 | 定位 |
 |---|---|
-| P1 | Share Extension（v1.5 最后一项） |
-| P1 | TestFlight Build 6 + 真机测试 |
-| P2 | StoreKit / 付费墙（产品策略已确立，等用户验证） |
-| P2 | iCloud 同步（Pro 付费功能） |
+| StoreKit / 付费墙 | v1.0 全免费，验证后实施 |
+| iCloud 同步 | Pro 付费功能 |
+| Word 导出 | Pro 付费功能 |
+| SM-2 智能组卷 | Pro 付费功能 |
+| 探索性 PoC（Foundation Models / App Intents） | 技术预研 |
 
 ## 产品决策记录
 
@@ -54,13 +74,6 @@ v1.5 功能批量实现中，9/10 项已合并。仅剩 Share Extension。
 - 涉及 UI/外观的改动，优先让 Xcode Review（Xcode 能观测 UI）
 - STATUS.md 先更新再写 Xcode Review 提示词（两边共享状态）
 - Xcode 提出问题 → 修复后让 Xcode 复核，不自审自批
-
-## 外部阻塞
-
-| Issue | 内容 | 解除条件 |
-|---|---|---|
-| #162 | GitHub Pro Branch Protection | 今天（4 月 1 日） |
-| #163 | 公司 Apple 开发者账号 | DUNS 就绪后 |
 
 ## 里程碑
 
