@@ -625,6 +625,22 @@ nonisolated public enum L10n {
         public static let backupData = NSLocalizedString("settings.backup_data", value: "备份数据", comment: "备份数据按钮")
         public static let restoreData = NSLocalizedString("settings.restore_data", value: "恢复数据", comment: "恢复数据按钮")
         public static let backupFooter = NSLocalizedString("settings.backup_footer", value: "备份文件包含所有题目、分类设置和图片。恢复操作将替换当前全部数据。", comment: "备份说明")
+
+        // 数据导入
+        public static let importData = NSLocalizedString("settings.import_data", value: "数据导入", comment: "数据导入区标题")
+        public static let importCSV = NSLocalizedString("settings.import_csv", value: "导入 CSV", comment: "导入 CSV")
+        public static let importCSVHint = NSLocalizedString("settings.import_csv_hint", value: "从 CSV 文件导入题目数据（需包含 Content 或 Subject 列）", comment: "CSV 导入说明")
+        public static let importReading = NSLocalizedString("settings.import_reading", value: "正在读取文件…", comment: "导入状态：读取")
+        public static let importParsing = NSLocalizedString("settings.import_parsing", value: "正在解析数据…", comment: "导入状态：解析")
+        public static func importSaving(_ count: Int) -> String {
+            String(format: NSLocalizedString("settings.import_saving", value: "正在导入 %d 道题…", comment: "导入状态：保存"), count)
+        }
+        public static func importComplete(_ count: Int) -> String {
+            String(format: NSLocalizedString("settings.import_complete", value: "成功导入 %d 道题", comment: "导入完成"), count)
+        }
+        public static let importFailed = NSLocalizedString("settings.import_failed", value: "导入失败", comment: "导入失败")
+        public static let importNoValidRows = NSLocalizedString("settings.import_no_valid_rows", value: "CSV 文件中没有有效数据行", comment: "无有效行")
+        public static let importCSVFormat = NSLocalizedString("settings.import_csv_format", value: "CSV 首行需包含列名：Content, Subject, Difficulty, Answer, Tags 等", comment: "CSV 格式说明")
         public static let restoreDialogTitle = NSLocalizedString("settings.restore_dialog_title", value: "恢复数据", comment: "恢复数据对话框标题")
         public static let selectBackupFile = NSLocalizedString("settings.select_backup_file", value: "选择备份文件", comment: "选择备份文件按钮")
         public static let restoreDialogMessage = NSLocalizedString("settings.restore_dialog_message", value: "恢复将替换当前所有数据，此操作不可撤销。恢复前会自动备份当前数据到临时目录。", comment: "恢复对话框提示")
