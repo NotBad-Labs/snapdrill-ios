@@ -93,10 +93,10 @@ SnapDrill 面向全球发布，中国大陆和美国为核心市场。**iOS / iP
 ### 4. 数据属于用户（隐私是核心差异化）
 
 用户的题目、图片、笔记是私有财产。
-支持导出（PDF / JSON / CSV，详见 `product-requirements.md`§导出能力）。
+支持导出（PDF / JSON / CSV，详见 `product-requirements.md`§导出与打印能力）。
 不做社交、不做内容平台、不做推荐算法。
 SnapDrill **不收集任何可识别个人信息**（no personally identifiable information）。没有注册，没有手机号，没有学校年级。
-匿名使用数据（Firebase Analytics / Crashlytics）默认开启，用户可随时在设置中关闭，详见 `product-requirements.md`§使用数据。
+匿名使用数据（Firebase Analytics / Crashlytics）默认开启，用户可随时在设置中关闭，详见 `product-requirements.md`§使用数据（Analytics + 崩溃报告）。
 详细隐私策略见 `product-business.md`。
 
 ### 5. 家长友好（可能比"学生友好"更重要）

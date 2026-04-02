@@ -29,6 +29,7 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 | `docs/product/product-requirements.md` | 讨论功能规格、版本路线图时 |
 | `docs/product/product-journeys.md` | 验证用户体验、审查 UI 流程时 |
 | `docs/product/product-business.md` | 讨论商业化、隐私策略、竞品时 |
+| `docs/product/product-cases.md` | 写 Issue 验收标准、审查异常路径、QA 回归时 |
 | `docs/tech/architecture.md` | 讨论架构、模块边界、DI、新开发者入门时 |
 | `docs/tech/api-reference.md` | 查询 Protocol 定义、Repository/Service 公开方法时 |
 | `docs/tech/compliance.md` | 讨论隐私合规、App Store 审核、数据处理时 |
