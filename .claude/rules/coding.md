@@ -34,7 +34,7 @@ paths:
 
 - 关键路径（save/init）：禁止 `try?`，必须 `do/catch`
 - 清理路径：允许 `try?` + `// best-effort: [原因]`
-- **Typed throws（新代码必须）**：优先使用 `throws(SpecificError)` 强类型错误（Swift 5.9+），如 `throws(DataError)`、`throws(OCRError)`。旧代码渐进迁移
+- **Typed throws（新代码必须）**：优先使用 `throws(SpecificError)` 强类型错误（Swift 6.0+ SE-0413），如 `throws(DataError)`、`throws(OCRError)`。旧代码渐进迁移
 
 ## 注释
 
