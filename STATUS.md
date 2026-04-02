@@ -8,10 +8,11 @@
 
 ## 当前焦点
 
-v1.5 功能批量实现中，17 个 PR 已合并。仅剩 Share Extension。
+v1.5 功能批量实现中，18 个 PR 已合并。仅剩 Share Extension。
 
-### 已完成（文档审计批次，5 个 PR）
+### 已完成（文档审计批次，6 个 PR）
 
+- #505 docs: design 文档结构性审计修复（重写 216→345 行，新增 5 章节）
 - #503 fix: vision 产品价值链修正 — iCloud 同步是付费核心引擎
 - #502 docs: vision 外部专家评审微调（物理环境鲁棒性、不贩卖焦虑、多 Profile 业务指标）
 - #501 docs: vision 根文档审计修复 + 旅程 6/7 补全（Claude + Codex 交叉审计，8 项 PO 决策）
