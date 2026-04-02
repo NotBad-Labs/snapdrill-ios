@@ -181,6 +181,10 @@
 "library.export_pdf_hint" = "Best for printing";
 "library.export_csv" = "CSV";
 "library.export_csv_hint" = "Best for spreadsheets";
+"library.export_images" = "Images ZIP";
+"library.export_images_hint" = "Export all question images";
+"library.exporting_images" = "Packing images…";
+"library.no_images" = "No images in selected items";
 "library.export_preview" = "Export Preview";
 "library.share_or_print" = "Share / Print";
 "library.generating" = "Generating...";
