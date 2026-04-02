@@ -36,15 +36,19 @@ Runner：Mac mini 自托管（self-hosted, macOS）
 步骤：
   1. Select Xcode（自动检测最新版本）
   2. SwiftLint --strict
-  3. xcodebuild build-for-testing（编译 + 测试 target）
-  4. xcodebuild test -scheme SnapDrillFeaturesTests（运行测试）
+  3. xcodebuild build-for-testing
+     -destination 'platform=iOS Simulator,name=iPhone 17'
+     CODE_SIGNING_ALLOWED=NO
+  4. xcodebuild test -scheme SnapDrillFeaturesTests
+     -parallel-testing-enabled NO
 ```
+
+注：SnapDrillFeaturesTests 是唯一有 test action 的 shared scheme。
 
 ### Mac mini Runner
 
-- 地址：`ssh admin@192.168.1.224`
+- 自托管 runner（self-hosted, macOS）
 - 离线时任务排队等待
-- Xcode 版本：26.2 / 26.3 / 26.4（自动选最新）
 
 ---
 
@@ -112,7 +116,7 @@ Runner：Mac mini 自托管（self-hosted, macOS）
 
 | 环境 | 用途 | Firebase 配置 |
 |---|---|---|
-| Debug | 本地开发 + Simulator | GoogleService-Info.plist（dev） |
-| Release | TestFlight + App Store | GoogleService-Info.plist（prod） |
+| Debug | 本地开发 + Simulator | GoogleService-Info.plist |
+| Release | TestFlight + App Store | GoogleService-Info.plist |
 
-**注意**：`GoogleService-Info.plist` 在 `.gitignore` 中，不提交到 Git。
+**注意**：当前使用单一 `GoogleService-Info.plist`（已提交到 Git）。如需 dev/prod 分离，可通过 Build Phase Script 按 Configuration 切换。

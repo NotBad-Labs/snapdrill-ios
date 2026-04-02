@@ -34,6 +34,7 @@ paths:
 
 - 关键路径（save/init）：禁止 `try?`，必须 `do/catch`
 - 清理路径：允许 `try?` + `// best-effort: [原因]`
+- **Typed throws（新代码必须）**：优先使用 `throws(SpecificError)` 强类型错误（Swift 5.9+），如 `throws(DataError)`、`throws(OCRError)`。旧代码渐进迁移
 
 ## 注释
 
@@ -43,6 +44,6 @@ paths:
 ## 禁止
 
 - `@unchecked Sendable`、`force unwrap !`、`print()`
-- `any` existentials（两个例外：EnvironmentKey.Value 跨模块协议、无 associated type 协议集合）
+- `any` existentials（三个例外：EnvironmentKey.Value 跨模块协议、无 associated type 协议集合如 `[any PDFExportable]`、Protocol 作为函数参数类型）
 - Domain 层 / UseCase 层 / Repository 协议 / struct 领域对象
 - 跨 ModelContext 写后立即读
