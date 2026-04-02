@@ -1,49 +1,29 @@
 # SnapDrill 内部 API 参考
-
-> 各 Package 的公开接口（Protocol + public 方法）。替换任一模块的实现只需遵循对应 Protocol。
->
-> 架构全景见 `architecture.md`，API 易错点见 `../../.claude/rules/api-pitfalls.md`。
-
----
+> 各 Package 的公开接口。架构全景见 architecture.md。
 
 ## SnapDrillCore — Protocol 定义
 
-### ServiceContainer（服务容器）
-
+### `NotificationServiceProtocol`
 ```swift
-// DI/ServiceContainer.swift
-public protocol ServiceContainer: Sendable {
-    var analytics: AnalyticsServiceProtocol { get }
-    var pdfExport: PDFExportService { get }
-    var appConfig: AppConfiguration { get }
-    var privacyConsent: PrivacyConsentService { get }
-    var notification: NotificationServiceProtocol { get }
+public protocol NotificationServiceProtocol: Sendable {
+    func requestPermission() async -> Bool
+    func scheduleDaily(at hour: Int, minute: Int) async throws
+    func cancelAll()
 }
 ```
 
-Environment Key: `\.services`
-
----
-
-### OCRServiceProtocol（OCR 识别）
-
+### `CaptureDraftServiceProtocol`
 ```swift
-// Service/OCRServiceProtocol.swift
-public protocol OCRServiceProtocol: Sendable {
-    func recognizeText(from cgImage: CGImage) async throws -> String
+public protocol CaptureDraftServiceProtocol {
+    var hasDraft: Bool { get }
+    func saveDraft(image: UIImage?, content: String, subject: String?) async
+    func loadDraft() -> CaptureDraftService.Draft?
+    func clearDraft()
 }
 ```
 
-- 实现：`OCRService`（Apple Vision 高精度模式）
-- 返回：识别文本，多行 `\n` 分隔；无文字返回空字符串
-- 错误：`OCRError.invalidImage` 或 Vision 框架错误
-
----
-
-### AnalyticsServiceProtocol（分析埋点）
-
+### `AnalyticsServiceProtocol`
 ```swift
-// Service/AnalyticsServiceProtocol.swift
 public protocol AnalyticsServiceProtocol: Sendable {
     func track(_ event: AnalyticsEvent, parameters: [String: String])
     func trackScreen(_ screenName: String, parameters: [String: String])
@@ -54,49 +34,15 @@ public protocol AnalyticsServiceProtocol: Sendable {
 }
 ```
 
-- 实现：`FirebaseAnalyticsService`（Infrastructure 层）
-- Mock：`AnalyticsServiceMock`（测试用，无操作）
-- Environment Key: `\.analyticsService`
-
----
-
-### NotificationServiceProtocol（通知）
-
+### `OCRServiceProtocol`
 ```swift
-// Service/NotificationServiceProtocol.swift
-public protocol NotificationServiceProtocol: Sendable {
-    func requestPermission() async -> Bool
-    func scheduleDaily(at hour: Int, minute: Int) async throws
-    func cancelAll()
+public protocol OCRServiceProtocol: Sendable {
+    func recognizeText(from cgImage: CGImage) async throws -> String
 }
 ```
 
-- 实现：`LiveNotificationService`（UNUserNotificationCenter）
-- Mock：`NotificationServiceMock`
-
----
-
-### CaptureDraftServiceProtocol（草稿）
-
+### `PDFExportable`
 ```swift
-// Service/CaptureDraftServiceProtocol.swift
-public protocol CaptureDraftServiceProtocol {
-    var hasDraft: Bool { get }
-    func saveDraft(image: UIImage?, content: String, subject: String?) async
-    func loadDraft() -> CaptureDraftService.Draft?
-    func clearDraft()
-}
-```
-
-- 实现：`CaptureDraftService.shared`（单例）
-- 草稿 7 天自动过期
-
----
-
-### PDFExportable（PDF 导出数据源）
-
-```swift
-// Service/PDFExportable.swift
 public protocol PDFExportable: Sendable {
     var content: String? { get }
     var imagePath: String? { get }
@@ -105,14 +51,8 @@ public protocol PDFExportable: Sendable {
 }
 ```
 
-- 遵循者：`ReviewExportSnapshot`（SnapDrillData）
-
----
-
-### RemoteConfigurable（远程配置）
-
+### `RemoteConfigurable`
 ```swift
-// Support/AppConfiguration.swift
 public protocol RemoteConfigurable {
     func fetchAndActivate() async throws
     func bool(forKey key: String) -> Bool?
@@ -121,14 +61,486 @@ public protocol RemoteConfigurable {
 }
 ```
 
-- 实现：`FirebaseRemoteConfigService`（Infrastructure 层）
+### `ServiceContainer`
+```swift
+public protocol ServiceContainer: Sendable {
+    var analytics: AnalyticsServiceProtocol { get }
+    var pdfExport: PDFExportService { get }
+    var appConfig: AppConfiguration { get }
+    var privacyConsent: PrivacyConsentService { get }
+    var notification: NotificationServiceProtocol { get }
+}
+```
 
----
+## SnapDrillCore — Service 公开方法
 
-### FeatureRouter（路由协议）
+### `ReviewScheduler`
+```swift
+public struct ReviewScheduler {
+    public init() {}
+    public func scheduleNextReview(state: SM2State, rating: ReviewRating) -> SM2State
+    public func intervalDescription(for rating: ReviewRating, from state: SM2State) -> String
+}
+```
+
+### `PDFExportService`
+```swift
+public final class PDFExportService: Sendable {
+    public static let shared = PDFExportService()
+    public init() {}
+    public func createPDF(
+        from items: [any PDFExportable],
+        options: PDFExportOptions = .default,
+        imageProvider: @Sendable @escaping (String) -> UIImage?
+    ) async throws -> Data
+}
+```
+
+### `CaptureDraftService`
+```swift
+public final class CaptureDraftService: CaptureDraftServiceProtocol {
+    public static let shared = CaptureDraftService()
+
+    public struct Draft {
+        public let image: UIImage?
+        public let content: String
+        public let date: Date
+        public let subject: String?
+    }
+
+    public var hasDraft: Bool { get }
+    public func saveDraft(image: UIImage? = nil, content: String, subject: String? = nil) async
+    public func loadDraft() -> Draft?
+    public func clearDraft()
+}
+```
+
+### `LiveNotificationService`
+```swift
+public final class LiveNotificationService: NotificationServiceProtocol {
+    public init() {}
+    public func requestPermission() async -> Bool
+    public func scheduleDaily(at hour: Int, minute: Int) async throws
+    public func cancelAll()
+}
+```
+
+### `NotificationServiceMock`
+```swift
+public final class NotificationServiceMock: NotificationServiceProtocol {
+    public var simulatedPermissionGranted: Bool = true
+    public var simulatedError: Error?
+    public private(set) var requestPermissionCallCount = 0
+    public private(set) var scheduledHours: [(hour: Int, minute: Int)] = []
+    public private(set) var cancelAllCallCount = 0
+
+    public init() {}
+    public func requestPermission() async -> Bool
+    public func scheduleDaily(at hour: Int, minute: Int) async throws
+    public func cancelAll()
+    public func reset()
+}
+```
+
+### `AnalyticsServiceMock`
+```swift
+public final class AnalyticsServiceMock: AnalyticsServiceProtocol {
+    public private(set) var trackedEvents: [(event: AnalyticsEvent, parameters: [String: String])] = []
+    public private(set) var trackedScreens: [(screen: String, parameters: [String: String])] = []
+    public private(set) var sessionStartCount = 0
+    public private(set) var sessionEndCount = 0
+    public private(set) var userProperties: [String: String] = [:]
+    public private(set) var retentionTracking: [Int] = []
+
+    public init() {}
+    public func track(_ event: AnalyticsEvent, parameters: [String: String])
+    public func trackScreen(_ screenName: String, parameters: [String: String])
+    public func startSession()
+    public func endSession()
+    public func setUserProperty(_ value: String, forKey key: String)
+    public func trackRetention(daysSinceInstall: Int)
+    public func hasTrackedEvent(_ event: AnalyticsEvent) -> Bool
+    public func hasTrackedScreen(_ screenName: String) -> Bool
+    public func clear()
+}
+```
+
+### `PrivacyConsentService`
+```swift
+public final class PrivacyConsentService {
+    public static let shared = PrivacyConsentService()
+    public init() {}
+    public var trackingStatus: ATTrackingManager.AuthorizationStatus { get }
+    public var isTrackingAuthorized: Bool { get }
+    public func requestTrackingAuthorization() async -> ATTrackingManager.AuthorizationStatus
+    public var shouldShowPrePrompt: Bool { get }
+}
+```
+
+### `OCRService`
+```swift
+public actor OCRService: OCRServiceProtocol {
+    public init() {}
+    public func recognizeText(from cgImage: CGImage) async throws -> String
+}
+```
+
+### `ImageStorage`
+```swift
+public struct ImageStorage: Sendable {
+    nonisolated public init(baseDirectory: URL? = nil)
+    nonisolated public func saveImage(_ image: UIImage) async throws -> String
+    nonisolated public func deleteImage(path: String) async throws
+    nonisolated public func loadImage(path: String) -> UIImage?
+    nonisolated public func loadImageAsync(path: String) async -> UIImage?
+    nonisolated public func loadDownsampledImage(path: String, maxLongSide: Int = 1200) -> UIImage?
+    public func imageDirectorySize() async -> Int64
+}
+```
+
+### `AppConfiguration`
+```swift
+public final class AppConfiguration {
+    public static let shared = AppConfiguration()
+    public init() {}
+    public var appVersion: String { get }
+    public var buildNumber: String { get }
+    public var bundleIdentifier: String { get }
+    public var fullVersion: String { get }
+    public var environment: Environment { get }
+    public var isProduction: Bool { get }
+    public func resetToDefaults()
+
+    public struct FeatureFlags {
+        public static func registerRemoteProvider(_ provider: any RemoteConfigurable)
+        public static var crashReportingEnabled: Bool { get set }
+        public static var analyticsEnabled: Bool { get set }
+        public static var isEmergencyKillSwitchActive: Bool { get }
+    }
+
+    public enum Environment {
+        public static var current: Environment { get }
+    }
+}
+```
+
+## SnapDrillCore — 公开类型
+
+### 核心枚举 / 值类型
+```swift
+public enum Difficulty: Int, CaseIterable, Sendable, Codable, Identifiable, Hashable
+public enum ReviewRating: Int
+public struct SM2State: Sendable
+nonisolated public struct Profile: Codable, Identifiable, Sendable, Equatable
+nonisolated public struct PDFExportOptions: Sendable
+public enum AnalyticsEvent: String
+public struct SnapDrillLogger
+public enum SnapDrillError: LocalizedError
+public enum OCRError: Error
+public enum ImageStorageError: Error
+```
+
+### `SM2State`
+```swift
+public struct SM2State: Sendable {
+    public var easeFactor: Double
+    public var interval: Int
+    public var repetitions: Int
+    public var nextReviewAt: Date?
+    public var lastReviewedAt: Date?
+    public init(
+        easeFactor: Double = 2.5,
+        interval: Int = 0,
+        repetitions: Int = 0,
+        nextReviewAt: Date? = nil,
+        lastReviewedAt: Date? = nil
+    )
+}
+```
+
+### `Profile`
+```swift
+nonisolated public struct Profile: Codable, Identifiable, Sendable, Equatable {
+    public let id: UUID
+    public var name: String
+    public var avatar: String
+    public var avatarColorIndex: Int
+    public let createdAt: Date
+    public init(
+        id: UUID = UUID(),
+        name: String,
+        avatar: String = "person.crop.circle.fill",
+        avatarColorIndex: Int = 0,
+        createdAt: Date = Date()
+    )
+}
+```
+
+### `PDFExportOptions`
+```swift
+nonisolated public struct PDFExportOptions: Sendable {
+    public var hideAnswers: Bool
+    public var showBlankAnswerArea: Bool
+    public var showHeader: Bool
+    public var itemsPerPage: Int
+    public init(
+        hideAnswers: Bool = true,
+        showBlankAnswerArea: Bool = true,
+        showHeader: Bool = true,
+        itemsPerPage: Int = 2
+    )
+    public static let `default` = PDFExportOptions()
+}
+```
+
+### 依赖注入 / 工具类型
+```swift
+public final class LiveServiceContainer: ServiceContainer
+public final class MockServiceContainer: ServiceContainer
+public extension EnvironmentValues
+public extension Notification.Name
+public extension Collection
+public extension Color
+```
+
+## SnapDrillData — Repository 公开方法
+
+### `ReviewRepository`
+```swift
+public final class ReviewRepository {
+    public init(modelContext: ModelContext)
+    public func totalCount() throws -> Int
+    public func delete(id: UUID) async throws
+    public func countBySubject(name: String) throws -> Int
+    public func updateSubjectUsage(from oldName: String, to newName: String) throws
+    public func countBySource(name: String) throws -> Int
+    public func updateSourceUsage(from oldName: String, to newName: String) throws
+    public func countByGrade(name: String) throws -> Int
+    public func updateGradeUsage(from oldName: String, to newName: String) throws
+    public func collectAllImagePaths() throws -> [String]
+    public func deleteAll() throws
+    public func fetchDueCount() throws -> Int
+    public func fetchTodayCount() throws -> Int
+    public func fetchTodayReviewedCount() throws -> Int
+    public func totalItemCount() throws -> Int
+    public func fetchDueModels() throws -> [ReviewItemModel]
+    public func fetchModel(by id: UUID) throws -> ReviewItemModel?
+    public func fetchModels(by ids: Set<UUID>) throws -> [ReviewItemModel]
+    public func fetchAllModels() throws -> [ReviewItemModel]
+    public func fetchFilteredModels(
+        searchText: String,
+        subjects: Set<String>,
+        tags: Set<String>,
+        difficulties: Set<Int> = [],
+        sortDescriptors: [SortDescriptor<ReviewItemModel>] = [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
+        limit: Int,
+        offset: Int
+    ) throws -> [ReviewItemModel]
+    public func insert(_ model: ReviewItemModel)
+    public func insertAndSave(_ model: ReviewItemModel) throws
+    public func saveContext() throws
+    public func rollbackContext()
+}
+```
+
+### `SubjectRepository`
+```swift
+public final class SubjectRepository {
+    public init(modelContext: ModelContext)
+    public func delete(id: UUID) throws
+    public func totalCount() throws -> Int
+    public func seedDefaultsIfNeeded()
+    public func fetchAllModels() throws -> [SubjectModel]
+    public func fetchModel(byName name: String) throws -> SubjectModel?
+    public func insert(_ model: SubjectModel)
+    public func insertAndSave(_ model: SubjectModel) throws
+    public func saveContext() throws
+    public func deleteAll() throws
+}
+```
+
+### `SourceRepository`
+```swift
+public final class SourceRepository {
+    public init(modelContext: ModelContext)
+    public func delete(id: UUID) throws
+    public func totalCount() throws -> Int
+    public func seedDefaultsIfNeeded()
+    public func fetchAllModels() throws -> [SourceModel]
+    public func fetchModel(byName name: String) throws -> SourceModel?
+    public func insert(_ model: SourceModel)
+    public func insertAndSave(_ model: SourceModel) throws
+    public func saveContext() throws
+    public func deleteAll() throws
+}
+```
+
+### `GradeRepository`
+```swift
+public final class GradeRepository {
+    public init(modelContext: ModelContext)
+    public func delete(id: UUID) throws
+    public func totalCount() throws -> Int
+    public func seedDefaultsIfNeeded()
+    public func deleteAll() throws
+    public func fetchAllModels() throws -> [GradeModel]
+    public func fetchModel(byName name: String) throws -> GradeModel?
+    public func insert(_ model: GradeModel)
+    public func insertAndSave(_ model: GradeModel) throws
+    public func saveContext() throws
+}
+```
+
+### `TagRepository`
+```swift
+public final class TagRepository {
+    public init(modelContext: ModelContext)
+    public func delete(id: UUID) throws
+    public func fetchAllModels() throws -> [TagModel]
+    public func fetchOrCreateModel(name: String, colorHex: String) throws -> TagModel
+    public func saveContext() throws
+    public func deleteAll() throws
+}
+```
+
+### `RepositoryContainer`
+```swift
+public final class RepositoryContainer {
+    public let review: ReviewRepository
+    public let subject: SubjectRepository
+    public let source: SourceRepository
+    public let tag: TagRepository
+    public let grade: GradeRepository
+
+    public init(modelContext: ModelContext = PersistenceController.shared.container.mainContext)
+    public func deleteAllData() async throws
+    public func deleteAllTaxonomy() throws
+    public func collectBackupPayload() throws -> BackupPayload
+    public func restoreFromPayload(_ payload: BackupPayload) async throws
+}
+
+public final class PreviewRepositoryContainer {
+    public let review: ReviewRepository
+    public let subject: SubjectRepository
+    public let source: SourceRepository
+    public let tag: TagRepository
+    public let grade: GradeRepository
+    public init()
+}
+```
+
+## SnapDrillData — Model 字段
+
+### `ReviewItemModel`
+
+| 字段 | Swift 声明 |
+| --- | --- |
+| id | `public var id: UUID = UUID()` |
+| content | `public var content: String?` |
+| imagePath | `public var imagePath: String?` |
+| createdAt | `public var createdAt: Date = Date()` |
+| lastReviewedAt | `public var lastReviewedAt: Date = Date.distantPast` |
+| nextReviewAt | `public var nextReviewAt: Date = Date.distantPast` |
+| subjectRawValue | `public var subjectRawValue: String = "其他"` |
+| sourceRawValue | `public var sourceRawValue: String = "其他"` |
+| tags | `public var tags: [TagModel]? = []` |
+| answerText | `public var answerText: String?` |
+| answerImagePath | `public var answerImagePath: String?` |
+| difficulty | `public var difficulty: Int = 1` |
+| difficultyValue | `public var difficultyValue: Difficulty` |
+| grade | `public var grade: String = ""` |
+| easeFactor | `public var easeFactor: Double = 2.5` |
+| interval | `public var interval: Int = 0` |
+| repetitions | `public var repetitions: Int = 0` |
+| subject | `public var subject: String` |
+| source | `public var source: String` |
+| isScheduled | `public var isScheduled: Bool` |
 
 ```swift
-// SnapDrillUI/Navigation.swift
+public init(
+    id: UUID = UUID(),
+    content: String? = nil,
+    imagePath: String? = nil,
+    createdAt: Date = Date(),
+    lastReviewedAt: Date = .distantPast,
+    nextReviewAt: Date = .distantPast,
+    subject: String = "其他",
+    source: String = "其他",
+    tags: [TagModel]? = [],
+    answerText: String? = nil,
+    answerImagePath: String? = nil,
+    difficulty: Int = 1,
+    grade: String = "",
+    easeFactor: Double = 2.5,
+    interval: Int = 0,
+    repetitions: Int = 0
+)
+
+public func toExportSnapshot() -> ReviewExportSnapshot
+```
+
+### 其他公开模型
+```swift
+public final class SubjectModel
+public final class SourceModel
+public final class GradeModel
+public final class TagModel
+nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable
+nonisolated public struct BackupManifest: Codable, Sendable
+nonisolated public struct ReviewItemBackupDTO: Codable, Sendable
+nonisolated public struct SubjectBackupDTO: Codable, Sendable
+nonisolated public struct SourceBackupDTO: Codable, Sendable
+nonisolated public struct GradeBackupDTO: Codable, Sendable
+nonisolated public struct TagBackupDTO: Codable, Sendable
+nonisolated public struct BackupPayload: Codable, Sendable
+```
+
+## SnapDrillData — 备份/Profile
+
+### `BackupService`
+```swift
+public actor BackupService {
+    public typealias ProgressHandler = @Sendable (Int, Int) -> Void
+    public init() {}
+    public func createBackup(
+        payload: BackupPayload,
+        manifest: BackupManifest,
+        imageBasePath: URL,
+        onProgress: ProgressHandler? = nil
+    ) throws -> URL
+    public func readManifest(from backupURL: URL) throws -> BackupManifest
+    public func extractPayload(from backupURL: URL) throws -> BackupPayload
+    public func restoreImages(
+        from backupURL: URL,
+        to imageBasePath: URL,
+        onProgress: ProgressHandler? = nil
+    ) throws
+}
+```
+
+### `ProfileManager`
+```swift
+public final class ProfileManager {
+    public private(set) var profiles: [Profile] = []
+    public private(set) var activeProfileId: UUID
+    public private(set) var activeContainer: ModelContainer
+    public private(set) var activeRepositories: RepositoryContainer
+    public private(set) var activeImageStorage: ImageStorage
+
+    public init()
+    public var activeProfile: Profile? { get }
+    public func switchProfile(to profileId: UUID)
+    @discardableResult
+    public func createProfile(name: String) -> Profile
+    public func deleteProfile(id: UUID) throws
+    public func renameProfile(id: UUID, newName: String)
+}
+```
+
+## SnapDrillUI — 公开类型
+
+### 协议 / 导航
+```swift
 public protocol FeatureRouter: AnyObject, Observable {
     associatedtype Destination: Hashable
     var path: NavigationPath { get set }
@@ -136,232 +548,170 @@ public protocol FeatureRouter: AnyObject, Observable {
     func pop()
     func reset()
 }
+
+public enum TabItem: Hashable, CaseIterable
 ```
 
-- 已提供默认实现（push/pop/reset）
-- 各 Feature 定义自己的 Destination enum
-
----
-
-## SnapDrillCore — Service 公开方法
-
-### ImageStorage（图片存储）
-
+### View 入口
 ```swift
-// Capture/ImageStorage.swift
-nonisolated public init(baseDirectory: URL? = nil)
+public struct SnapDrillButton: View
+public init(title: String, action: @escaping () -> Void)
 
-// 保存（下采样 2000px，JPEG 0.8）→ 返回相对路径 "images/uuid.jpg"
-nonisolated public func saveImage(_ image: UIImage) async throws -> String
+public struct TagInputView: View
+public init(tags: Binding<[String]>, text: Binding<String>, suggestions: [String] = [])
 
-// 删除图片文件
-nonisolated public func deleteImage(path: String) async throws
+public struct ProgressLoadingView: View
+public init(message: String, progress: Double? = nil)
 
-// 同步加载（仅限 PDFRenderer 闭包内使用，会阻塞调用线程）
-nonisolated public func loadImage(path: String) -> UIImage?
+public struct SkeletonLoadingView: View
+public init(itemCount: Int = 5)
 
-// 异步加载（View 中推荐使用）
-nonisolated public func loadImageAsync(path: String) async -> UIImage?
+public struct PrivacyPrePromptView: View
+public init(onContinue: @escaping () -> Void)
 
-// 下采样加载（大图内存优化，默认 1200px）
-nonisolated public func loadDownsampledImage(path: String, maxLongSide: Int = 1200) -> UIImage?
+public struct FlipView<Front: View, Back: View>: View
+public init(
+    isFlipped: Bool,
+    @ViewBuilder front: @escaping () -> Front,
+    @ViewBuilder back: @escaping () -> Back
+)
 
-// 图片目录总占用字节
-public func imageDirectorySize() async -> Int64
+public struct ImageCropperView: UIViewControllerRepresentable
+public init(originalImage: UIImage, onCrop: @escaping (UIImage) -> Void, onCancel: @escaping () -> Void)
+
+public struct ErrorMessageView: View
+public init(
+    title: String,
+    message: String,
+    icon: String = "exclamationmark.triangle.fill",
+    actionTitle: String? = nil,
+    action: (() -> Void)? = nil
+)
+
+public struct LoadingView: View
+public init(message: String = "加载中...")
+
+public struct OnboardingPage: Identifiable, Sendable
+public init(title: String, description: String, imageName: String = "", systemImage: String? = nil)
+
+public struct OnboardingView: View
+public init(pages: [OnboardingPage], onComplete: @escaping () -> Void)
+
+public struct FeatureTooltip: View
+public init(title: String, message: String, onDismiss: @escaping () -> Void)
+
+public final class OnboardingManager
+public func completeOnboarding()
+public func shouldShowTooltip(for feature: String) -> Bool
+public func markTooltipShown(for feature: String)
+public func resetAll()
+
+public struct ContextualErrorView: View
+public init(error: AppError, onAction: (() -> Void)? = nil)
+
+public struct ErrorBannerView: View
+public init(error: AppError, onDismiss: @escaping () -> Void)
 ```
 
----
-
-### PDFExportService（PDF 导出）
-
+### 其他公开辅助类型
 ```swift
-// Service/PDFExportService.swift
-public func createPDF(
-    from items: [any PDFExportable],
-    options: PDFExportOptions = .default,
-    imageProvider: @Sendable @escaping (String) -> UIImage?
-) async throws -> Data
+public enum AccessibilityHelper
+public struct AccessibilityAnnouncement
+public enum AccessibilityNotificationPriority
+public enum AppError: LocalizedError
 ```
 
-PDFExportOptions:
+## SnapDrillInfrastructure — 公开类型
+
+### `FirebaseAnalyticsService`
 ```swift
-public var hideAnswers: Bool = true           // 隐藏答案
-public var showBlankAnswerArea: Bool = true   // 留白答题区
-public var showHeader: Bool = true            // 页眉页码
-public var itemsPerPage: Int = 2              // 每页题数
-```
-
----
-
-### SM2State + ReviewScheduler（复习调度）
-
-```swift
-// Engine/SM2State.swift
-public struct SM2State: Sendable {
-    public var easeFactor: Double    // 初始 2.5
-    public var interval: Int        // 天
-    public var repetitions: Int     // 连续正确次数
-}
-
-// Engine/ReviewScheduler.swift
-public func scheduleNextReview(state: SM2State, rating: ReviewRating) -> SM2State
-public func intervalDescription(for rating: ReviewRating, from state: SM2State) -> String
-```
-
----
-
-## SnapDrillData — Repository 公开方法
-
-### ReviewRepository（题目）
-
-```swift
-// 查询
-public func totalCount() throws -> Int
-public func fetchPaginated(page: Int, pageSize: Int) throws -> ([ReviewItemModel], Int)
-public func fetchFiltered(
-    subjectNames: [String]?, sourceNames: [String]?, gradeNames: [String]?,
-    tagNames: [String]?, searchText: String?,
-    sortBy: FetchDescriptor<ReviewItemModel>.SortDescriptor?
-) throws -> [ReviewItemModel]
-public func fetchExportSnapshots() throws -> [ReviewExportSnapshot]
-
-// 写入
-public func insert(_ model: ReviewItemModel)         // 纯内存
-public func insertAndSave(_ model: ReviewItemModel) throws  // 含持久化
-public func saveContext() throws
-public func rollbackContext()
-
-// 删除（含图片清理）
-public func delete(id: UUID) async throws
-public func deleteAll() throws
-
-// 分类引用计数和级联更新
-public func countBySubject(name: String) throws -> Int
-public func updateSubjectUsage(from oldName: String, to newName: String) throws
-// Source, Grade, Tag 同理
-```
-
----
-
-### SubjectRepository / SourceRepository / GradeRepository（分类）
-
-```swift
-public func fetchAllModels() throws -> [Model]           // 按 sortOrder 升序
-public func fetchModel(byName name: String) throws -> Model?
-public func insert(_ model: Model)
-public func insertAndSave(_ model: Model) throws         // 含名称唯一性校验
-public func delete(id: UUID) throws
-public func seedDefaultsIfNeeded()                        // 首次启动初始化
-public func saveContext() throws
-public func rollbackContext()
-```
-
----
-
-### TagRepository（标签）
-
-```swift
-public func fetchAllModels() throws -> [TagModel]
-public func fetchOrCreateModel(name: String, colorHex: String) throws -> TagModel
-public func delete(id: UUID) throws
-public func deleteAll() throws
-public func saveContext() throws
-```
-
-- `fetchOrCreateModel` 只 insert 不 save，调用方统一 saveContext()
-
----
-
-### RepositoryContainer（聚合）
-
-```swift
-public let review: ReviewRepository
-public let subject: SubjectRepository
-public let source: SourceRepository
-public let tag: TagRepository
-public let grade: GradeRepository
-
-public func deleteAllData() async throws              // 清空所有数据
-public func collectBackupPayload() throws -> BackupPayload
-public func restoreFromPayload(_ payload: BackupPayload) throws
-```
-
-Environment Key: `\.repositories`
-
----
-
-### ProfileManager（多 Profile）
-
-```swift
-public private(set) var profiles: [Profile]
-public private(set) var activeProfileId: UUID
-public private(set) var activeContainer: ModelContainer
-public private(set) var activeRepositories: RepositoryContainer
-public private(set) var activeImageStorage: ImageStorage
-
-public var activeProfile: Profile? { get }
-public func createProfile(name: String) throws -> Profile
-public func renameProfile(id: UUID, newName: String) throws
-public func deleteProfile(id: UUID) async throws
-public func switchProfile(id: UUID) throws
-```
-
-Environment Key: `\.profileManager`
-
----
-
-### BackupService（备份/恢复）
-
-```swift
-public actor BackupService {
-    public func createBackup(
-        payload: BackupPayload, manifest: BackupManifest,
-        imageBasePath: URL, onProgress: ProgressHandler?
-    ) throws -> URL
-
-    public func readManifest(from backupURL: URL) throws -> BackupManifest
-    public func extractPayload(from backupURL: URL) throws -> BackupPayload
-    public func restoreImages(
-        from backupURL: URL, to imageBasePath: URL,
-        onProgress: ProgressHandler?
-    ) throws
+@MainActor public final class FirebaseAnalyticsService: AnalyticsServiceProtocol {
+    public static let shared = FirebaseAnalyticsService()
+    public init() {}
+    public func markConfigured()
+    public func track(_ event: AnalyticsEvent, parameters: [String: String])
+    public func trackScreen(_ screenName: String, parameters: [String: String])
+    public func startSession()
+    public func endSession()
+    public func setUserProperty(_ value: String, forKey key: String)
+    public func trackRetention(daysSinceInstall: Int)
 }
 ```
 
----
+### `FirebaseRemoteConfigService`
+```swift
+public final class FirebaseRemoteConfigService: RemoteConfigurable {
+    public init()
+    public func fetchAndActivate() async throws
+    public func bool(forKey key: String) -> Bool?
+    public func string(forKey key: String) -> String?
+    public func double(forKey key: String) -> Double?
+}
+```
 
-## SnapDrillData — Model 字段
-
-### ReviewItemModel
-
-| 字段 | 类型 | 默认值 | 说明 |
-|---|---|---|---|
-| `id` | UUID | auto | 主键 |
-| `content` | String? | nil | 题目文字（与 imagePath 至少一个非 nil） |
-| `imagePath` | String? | nil | 题目图片相对路径 |
-| `answerText` | String? | nil | 答案文字 |
-| `answerImagePath` | String? | nil | 答案图片 |
-| `subjectRawValue` | String | "其他" | 学科 |
-| `sourceRawValue` | String | "其他" | 来源 |
-| `grade` | String | "" | 年级 |
-| `difficulty` | Int | 1 | 难度 1-5 |
-| `tags` | [TagModel]? | [] | 多对多标签 |
-| `easeFactor` | Double | 2.5 | SM-2 难度因子 |
-| `interval` | Int | 0 | SM-2 间隔天数 |
-| `repetitions` | Int | 0 | SM-2 连续正确次数 |
-| `createdAt` | Date | now | 创建时间 |
-| `lastReviewedAt` | Date | distantPast | 上次复习 |
-| `nextReviewAt` | Date | distantPast | 下次复习 |
-
----
+### `FirebaseBootstrap`
+```swift
+public enum FirebaseBootstrap {
+    public static func configure()
+    public static func setCrashlyticsEnabled(_ enabled: Bool)
+    public static func setAnalyticsEnabled(_ enabled: Bool)
+}
+```
 
 ## 错误类型
 
-| 模块 | 错误 | 场景 |
-|---|---|---|
-| Core | `OCRError.invalidImage` | CGImage 为 nil |
-| Core | `ImageStorageError.invalidImageData` | JPEG 压缩失败 |
-| Data | `DataError.duplicateName` | 学科/来源/年级重名 |
-| Data | `PersistenceError.containerCreationFailed` | SwiftData 初始化失败 |
-| Data | `BackupError.invalidArchive` | ZIP 文件损坏 |
-| Data | `ProfileError.profileNotFound` | Profile ID 不存在 |
+### Core
+```swift
+public enum SnapDrillError: LocalizedError {
+    case dataNotFound
+    case captureFailed
+    case unknown(String)
+}
+
+public enum OCRError: Error {
+    case invalidImage
+}
+
+public enum ImageStorageError: Error {
+    case invalidImageData
+}
+```
+
+### Data
+```swift
+public enum DataError: LocalizedError {
+    case duplicateName(name: String, entityType: String)
+}
+
+public enum PersistenceError: LocalizedError {
+    case containerInitializationFailed(underlying: Error)
+    case migrationFailed(from: String, to: String, underlying: Error)
+    case storageUnavailable(reason: String)
+}
+
+public enum BackupError: LocalizedError {
+    case archiveCreationFailed
+    case invalidArchive
+    case missingManifest
+    case missingDataFile
+    case schemaVersionTooNew(fileVersion: Int, appVersion: Int)
+    case insufficientDiskSpace
+}
+
+public enum ProfileError: LocalizedError {
+    case cannotDeleteLastProfile
+}
+```
+
+### UI
+```swift
+public enum AppError: LocalizedError {
+    case cameraPermissionDenied
+    case photoLibraryPermissionDenied
+    case ocrFailed(String)
+    case exportFailed(String)
+    case importFailed(String)
+    case dataCorrupted
+    case unknown(Error)
+}
+```
