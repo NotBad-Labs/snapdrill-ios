@@ -32,7 +32,8 @@ struct EditProfileView: View {
     @State private var showingPhotosPicker = false
     @State private var showingSymbolPicker = false
     @State private var imageLoadTask: Task<Void, Never>?
-    private let imageStorage = ImageStorage()
+    @Environment(\.profileManager) private var profileManager
+    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
     
     // 渐变色预设
     private let gradients: [[Color]] = [

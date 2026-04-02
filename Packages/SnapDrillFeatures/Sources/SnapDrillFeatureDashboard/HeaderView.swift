@@ -20,6 +20,7 @@ struct HeaderView: View {
     @AppStorage(UDKey.userAvatar) private var userAvatar: String = "person.crop.circle.fill"
     @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
     @AppStorage(UDKey.userName) private var userName: String = L10n.Dashboard.defaultName
+    @Environment(\.profileManager) private var profileManager
     @State private var avatarImage: UIImage?
 
     // 动态问候语
@@ -104,7 +105,7 @@ struct HeaderView: View {
                 avatarImage = nil
                 return
             }
-            avatarImage = await ImageStorage().loadImageAsync(path: userAvatar)
+            avatarImage = await profileManager.activeImageStorage.loadImageAsync(path: userAvatar)
         }
     }
 }

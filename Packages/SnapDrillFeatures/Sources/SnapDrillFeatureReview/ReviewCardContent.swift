@@ -23,7 +23,8 @@ struct ReviewCardFront: View {
     let item: ReviewItemModel
 
     @State private var showingEditSheet = false
-    private let imageStorage = ImageStorage()
+    @Environment(\.profileManager) private var profileManager
+    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
     @State private var loadedImage: UIImage?
 
     // 用户偏好：正面卡片排版
@@ -194,7 +195,8 @@ struct ReviewCardBack: View {
 
     let item: ReviewItemModel
 
-    private let imageStorage = ImageStorage()
+    @Environment(\.profileManager) private var profileManager
+    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
     @State private var showingEditSheet = false
     @State private var loadedAnswerImage: UIImage?
     @State private var answerImageLoadFailed = false

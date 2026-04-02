@@ -41,7 +41,7 @@ public struct SettingsView: View {
     @State private var isGenerating = false
     @State private var seedTask: Task<Void, Never>?
     @State private var clearTask: Task<Void, Never>?
-    private let imageStorage = ImageStorage()
+    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     // 录入字段可见性（产品规格：学科默认开，其余默认关）
     @AppStorage(UDKey.captureFieldSubject) private var showSubjectField: Bool = true

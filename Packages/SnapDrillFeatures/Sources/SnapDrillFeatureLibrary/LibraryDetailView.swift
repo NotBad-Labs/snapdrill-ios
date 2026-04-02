@@ -32,7 +32,9 @@ struct LibraryDetailView: View {
     @State private var printPDFURL: URL?
     @State private var isShowingShareSheet = false
 
-    private let imageStorage = ImageStorage()
+    @Environment(\.profileManager) private var profileManager
+    @Environment(\.services) private var services
+    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     var body: some View {
         ScrollView {
@@ -254,7 +256,7 @@ struct LibraryDetailView: View {
         Task {
             let snapshot = item.toExportSnapshot()
             let storage = imageStorage
-            let service = PDFExportService()
+            let service = services.pdfExport
             let options = PDFExportOptions(itemsPerPage: 1)
             do {
                 let data = try await service.createPDF(
