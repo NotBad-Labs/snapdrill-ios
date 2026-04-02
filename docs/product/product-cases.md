@@ -98,7 +98,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 **Applies to**: v1.0
 
 **Preconditions**:
-- 当前 Profile 题库中已有 1 道以上题目（空库见 Boundary B16）
+- 当前 Profile 题库中已有 1 道以上题目（空库见 Boundary B17）
 
 **Success path**:
 1. 用户进入题库，系统默认按录入时间倒序展示当前 Profile 下的题目列表
@@ -194,7 +194,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 **Variants & Exceptions**:
 - [Variant] 手势与按钮是等价输入；按钮是 gesture fallback（HIG Mobility 要求）
 - [Variant] 图片题复习时必须显示图片，OCR 仅为辅助
-- [Exception] 当前无到期题：Dashboard 与 Review 入口显示空状态，不进入空白卡片流（见 Boundary B18）
+- [Exception] 当前无到期题：Dashboard 与 Review 入口显示空状态，不进入空白卡片流（见 Boundary B19）
 - [Exception] 某题缺少答案：允许翻面进入空答案状态，但仍可完成"记得/不记得"评估
 - [Exception] 单题复习状态更新失败：必须阻止该题被标记为已完成本轮复习，并提示重试，避免假完成
 
@@ -342,8 +342,8 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 | B07 | 导出 PDF/JSON/CSV 时磁盘写满 | 提示导出失败，清理临时文件 | 不生成损坏文件，原数据不受影响 | S1 |
 | B08 | 导入图片/PDF 损坏或不可读 | 提示文件不可用，允许重新选择 | 现有数据不变 | S1 |
 | B09 | 备份版本高于当前 App | 拒绝恢复，提示升级 App | 现有数据不变 | S1 |
-| B10 | Undo window 内 App 进入后台 | 返回前台后状态可理解地收敛 | 不出现幽灵记录 | S1 |
-| B11 | Undo window 内 App 被杀死 | 下次启动收敛到确定状态 | 不因进程终止导致不可解释的数据丢失 | S1 |
+| B10 | Undo window 内 App 进入后台 | 返回前台后状态可理解地收敛 | 不出现幽灵记录，不发生不可逆数据丢失 | S0 |
+| B11 | Undo window 内 App 被杀死 | 下次启动收敛到确定状态 | 不因进程终止导致不可解释的数据丢失 | S0 |
 | B12 | 批量打标签/删除部分失败 | 反馈成功/失败数量 | 已成功项保留，失败项不写半状态 | S1 |
 | B13 | 连续保存重复点击 | 忽略重复点击或 disable 保存按钮 | 不产生重复题目记录 | S1 |
 | B14 | Camera 权限拒绝/受限 | 提示权限说明 + 跳转系统设置入口 | 不创建空题目 | S2 |
