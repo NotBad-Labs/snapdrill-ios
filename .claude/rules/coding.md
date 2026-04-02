@@ -34,7 +34,10 @@ paths:
 
 - 关键路径（save/init）：禁止 `try?`，必须 `do/catch`
 - 清理路径：允许 `try?` + `// best-effort: [原因]`
-- **Typed throws（新代码必须）**：优先使用 `throws(SpecificError)` 强类型错误（Swift 6.0+ SE-0413），如 `throws(DataError)`、`throws(OCRError)`。旧代码渐进迁移
+- **Typed throws（SE-0413，Swift 6.0+）**：
+  - **业务验证方法**（查重、权限判断、格式校验）：使用 `throws(SpecificError)`，如 `throws(DataError)`、`throws(OCRError)`
+  - **纯 CRUD 代理方法**（直接包装 SwiftData `save`/`fetch`、`FileManager`、`URLSession`）：保持原生 `throws`，不做无意义包装
+  - **禁止**：在强类型错误枚举中定义 `case underlying(Error)` 逃生舱——这破坏 exhaustive 检查的意义
 
 ## 注释
 
