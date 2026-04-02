@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import TipKit
 import SnapDrillCore
 
 /// 引导页面数据模型
@@ -187,10 +188,11 @@ public final class OnboardingManager {
         shouldShowOnboarding = false
     }
 
-    /// 重置引导状态
+    /// 重置引导状态（含 TipKit 提示重置）
     public func resetAll() {
         UserDefaults.standard.set(false, forKey: UDKey.hasCompletedOnboarding)
         shouldShowOnboarding = true
+        try? Tips.resetDatastore()
     }
 }
 
