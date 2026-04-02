@@ -2,7 +2,7 @@
 
 > 最后更新：2026-04-02
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：7（#491-#495 待 Review，#525 DI 重构待 Xcode 验证） · Open Issue：5（#162 #163 外部阻塞，#161 等真机，#452 讨论存档，#524 typed throws）
+> Open PR：0 · Open Issue：5（#162 #163 外部阻塞，#161 等真机，#452 讨论存档，#524 typed throws）
 
 ---
 
@@ -16,8 +16,8 @@
 |---|---|---|
 | ~~P1~~ | ~~PR #525 DI 注入修复（ImageStorage + PDFExportService）~~ | ✅ 已合并（125 tests 通过） |
 | ~~P1~~ | ~~Issue #521 DI 全部重构~~ | ✅ #525 + #526 已合并（125 tests 通过） |
+| ~~P2~~ | ~~#491-#495 五个功能 PR~~ | ✅ 全部 Review + 修复后合并 |
 | P2 | Issue #524 Typed throws 渐进迁移 | 待排期 |
-| P2 | #491-#495 五个功能 PR | 待 Review |
 
 ### 已完成（文档审计批次，15 个 PR）
 
@@ -66,15 +66,13 @@
 |---|---|---|
 | P1 | Share Extension | 需用户在 Xcode 创建 target 后写代码 |
 
-### 待 Review（5 个 PR）
+### 已完成（功能 PR 批次，5 个 PR — Review + 修复后合并）
 
-| PR | 功能 | 状态 |
-|---|---|---|
-| #491 | 题目分享（卡片图片） | 待 Review |
-| #492 | 批量导出原图 ZIP | 待 Review |
-| #493 | TipKit 迁移 | 待 Review |
-| #494 | iPad 大屏优化 | 待 Review |
-| #495 | 数据导入（CSV） | 待 Review |
+- #494 feat: iPad 分屏/大屏优化 — sidebarAdaptable + 动态 grid 列数
+- #493 chore: TipKit 迁移 — 替代自定义 FeatureTooltip（+Tips.resetDatastore 修复）
+- #491 feat: 题目分享卡片 — ImageRenderer 生成分享图片（+UIScreen.main 废弃修复）
+- #492 feat: 批量导出原图 ZIP（+ImageStorage DI 注入 + 失败反馈 + deflate 压缩）
+- #495 feat: CSV 数据导入（+RFC 4180 合规 + difficulty 范围 + Task.yield）
 
 ### 已确认无需开发（代码已有）
 
