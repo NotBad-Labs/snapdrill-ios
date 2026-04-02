@@ -23,7 +23,9 @@ struct ExportOptionsSheet: View {
     
     let items: [ReviewExportSnapshot]
     @Environment(\.dismiss) private var dismiss
-    
+    @Environment(\.profileManager) private var profileManager
+    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
+
     @State private var showingPDFPreview = false
     @State private var hideAnswers = true
     @State private var showBlankAnswerArea = true
@@ -33,6 +35,7 @@ struct ExportOptionsSheet: View {
     @State private var zipURL: URL?
     @State private var isShowingZIPShare = false
     @State private var showNoImagesAlert = false
+    @State private var showExportError = false
 
     // MARK: - Body
 
@@ -147,6 +150,9 @@ struct ExportOptionsSheet: View {
             .alert(L10n.Library.noImages, isPresented: $showNoImagesAlert) {
                 Button(L10n.Common.close, role: .cancel) { }
             }
+            .alert(L10n.Errors.exportFailed, isPresented: $showExportError) {
+                Button(L10n.Common.close, role: .cancel) { }
+            }
             .navigationDestination(isPresented: $showingPDFPreview) {
                 ExportPreviewView(
                     items: items,
@@ -171,7 +177,7 @@ struct ExportOptionsSheet: View {
         }
 
         isExportingZIP = true
-        let storage = ImageStorage()
+        let storage = imageStorage
 
         Task.detached {
             do {
@@ -195,7 +201,7 @@ struct ExportOptionsSheet: View {
                             with: fileName,
                             type: .file,
                             uncompressedSize: Int64(data.count),
-                            compressionMethod: .none,
+                            compressionMethod: .deflate,
                             provider: { position, size in
                                 data[Int(position) ..< Int(position) + size]
                             }
@@ -212,6 +218,7 @@ struct ExportOptionsSheet: View {
                 SnapDrillLogger.generic.error("ZIP 导出失败: \(error.localizedDescription)")
                 await MainActor.run {
                     self.isExportingZIP = false
+                    self.showExportError = true
                 }
             }
         }
