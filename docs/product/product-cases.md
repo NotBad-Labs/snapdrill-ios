@@ -85,7 +85,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 
 **References**:
 - `product-vision.md`：`1. 录入体验是生命线`、`4. 数据属于用户（隐私是核心差异化）`
-- `product-design.md`：`采集入口设计（2026-03-09 更新，经 Apple HIG 研究修正）`、`OCR 定位（2026-03-07 确立）`、`图片存储策略（2026-03-07 确立，2026-03-26 HIG 对标修订）`、`字段可配置系统（2026-03-07 确立）`、`连续录入设计（2026-03-07 确立）`
+- `product-design.md`：`采集入口设计 [P1, P6]`、`OCR 定位 [P1, P6]`、`图片存储策略 [P1, P4]`、`字段可配置系统 [P1, P2]`、`连续录入设计 [P1]`
 - `product-requirements.md`：`录入方式优先级`、`OCR 识别能力演进路线（2026-04-02 版本归属修正）`、`草稿恢复（2026-03-16 补全，2026-04-02 版本归属修正）`、`v1.0（当前，功能完整）`
 - `product-journeys.md`：`旅程 1：做完试卷，拍照录入错题`、`旅程 2：从微信群导入老师发的题目`、`旅程 5：家长帮小学生录入`
 
@@ -130,7 +130,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 - 题目始终归属于当前 Profile，不得因搜索、过滤、编辑跨 Profile 泄露数据
 
 **References**:
-- `product-design.md`：`字段可配置系统（2026-03-07 确立）`、`系统字段 vs 用户标签的区别（2026-03-07 确立）`、`系统字段选项管理（2026-03-16 补全）`、`批量操作设计（2026-04-01 确立）`
+- `product-design.md`：`字段可配置系统 [P1, P2]`、`批量操作设计 [P2]`
 - `product-requirements.md`：`题库排序与过滤（2026-03-16 补全，2026-04-02 版本归属修正）`、`功能边界（MoSCoW 分类）`、`v1.0（当前，功能完整）`
 - `product-journeys.md`：`旅程 3：整理和管理已有题目`
 
@@ -167,7 +167,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 - 删除与撤销必须限定在当前 Profile，不得影响其他 Profile 数据
 
 **References**:
-- `product-design.md`：`删除撤销设计（2026-04-01 确立）`、`批量操作设计（2026-04-01 确立）`、`多 Profile 设计（2026-03-30 确立）`
+- `product-design.md`：`删除撤销设计 [P4]`、`批量操作设计 [P2]`、`多 Profile 设计 [P5]`
 - `product-requirements.md`：`功能边界（MoSCoW 分类）`、`v1.0（当前，功能完整）`
 - `product-journeys.md`：`旅程 3：整理和管理已有题目`、`插曲：误删和撤销`
 
@@ -204,7 +204,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 - 复习结果摘要必须与本轮成功提交的评估结果一致
 
 **References**:
-- `product-design.md`：`图片存储策略（2026-03-07 确立，2026-03-26 HIG 对标修订）`、`复习功能的克制原则（2026-03-07 确立）`、`复习交互规则（2026-03-26 HIG 对标补充）`
+- `product-design.md`：`图片存储策略 [P1, P4]`、`复习设计 [P3, P5]`
 - `product-requirements.md`：`功能边界（MoSCoW 分类）`、`v1.0（当前，功能完整）`
 - `product-journeys.md`：`旅程 4：复习到期题目`
 
@@ -321,8 +321,8 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 
 **References**:
 - `product-vision.md`：`目标用户`、`成功信号（设计校准器）`
-- `product-design.md`：`多 Profile 设计（2026-03-30 确立）`
-- `product-requirements.md`：`家长模式：边界讨论（待定）`、`v1.0（当前，功能完整）`
+- `product-design.md`：`多 Profile 设计 [P5]`
+- `product-requirements.md`：`v1.0（当前，功能完整）`
 - `product-journeys.md`：`旅程 5：家长帮小学生录入`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`
 
