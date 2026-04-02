@@ -8,10 +8,11 @@
 
 ## 当前焦点
 
-v1.5 功能批量实现中，14 个 PR 已合并。仅剩 Share Extension。
+v1.5 功能批量实现中，15 个 PR 已合并。仅剩 Share Extension。
 
-### 已完成（文档审计批次，2 个 PR）
+### 已完成（文档审计批次，3 个 PR）
 
+- #501 docs: vision 根文档审计修复 + 旅程 6/7 补全（Claude + Codex 交叉审计，8 项 PO 决策）
 - #497 docs: 产品文档体系审计修复 + 用例/边界规格（Claude + Codex 交叉审计）
 - #499 chore: Codex 子 agent 委派规范
 
