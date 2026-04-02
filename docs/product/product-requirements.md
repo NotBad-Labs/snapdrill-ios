@@ -220,7 +220,6 @@ SnapDrill 是拍照+图片密集型工具，核心流程天然依赖视觉，视
 - 批量导出原图（ZIP）
 - 数据导入（CSV 导入）
 - iPad 大屏优化
-- 一图连续裁剪
 - 批量导入增强（AI 辅助拆题，探索性）
 - 手写体识别增强（探索性）
 - 端上 AI 集成（探索性）
@@ -344,7 +343,7 @@ SnapDrill 是拍照+图片密集型工具，核心流程天然依赖视觉，视
 - 组卷排版打印（P1，Pro 付费；SM-2 驱动智能选题 → 自动排版 → PDF/打印）
 
 **同步与存储**
-- iCloud CloudKit 同步（Pro 付费）
+- iCloud CloudKit 同步（Pro 付费，付费核心引擎）：同步范围为全部 Profile（与备份策略对齐），基于 Apple CloudKit，利用设备已有 Apple ID。设计决策见 `product-design.md`§iCloud 同步设计
 
 **平台优化**
 - iPad 分屏/大屏专属优化
