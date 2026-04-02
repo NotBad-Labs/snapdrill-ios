@@ -279,7 +279,7 @@ struct LibraryDetailView: View {
         )
 
         let renderer = ImageRenderer(content: cardView)
-        renderer.scale = UIScreen.main.scale
+        renderer.scale = UITraitCollection.current.displayScale
         guard let uiImage = renderer.uiImage else {
             SnapDrillLogger.generic.error("分享卡片图片渲染失败")
             return
