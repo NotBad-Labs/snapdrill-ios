@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import TipKit
 import Observation
 import SnapDrillCore
 import SnapDrillUI
@@ -25,7 +26,7 @@ public struct ReviewView: View {
     @Environment(\.repositories) private var repositories
     @Environment(\.analyticsService) private var analyticsService
     @State private var viewModel: ReviewViewModel?
-    @State private var showReviewTooltip = false
+    private let reviewSwipeTip = ReviewSwipeTip()
 
     // Dynamic Type 支持：滑动印章文字随系统字号缩放
     @ScaledMetric(relativeTo: .largeTitle) private var stampFontSize: CGFloat = 40
@@ -155,26 +156,7 @@ public struct ReviewView: View {
     private func reviewingPhaseView(vm: ReviewViewModel) -> some View {
         reviewSessionView(vm: vm)
             .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
-            .overlay(alignment: .top) {
-                if showReviewTooltip {
-                    FeatureTooltip(
-                        title: L10n.Review.tooltipTitle,
-                        message: L10n.Review.tooltipMessage
-                    ) {
-                        withAnimation { showReviewTooltip = false }
-                        OnboardingManager.shared.markTooltipShown(for: "review_swipe")
-                    }
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .padding(.top, 60)
-                }
-            }
-            .onAppear {
-                if OnboardingManager.shared.shouldShowTooltip(for: "review_swipe") {
-                    withAnimation(.easeOut(duration: 0.3).delay(0.5)) {
-                        showReviewTooltip = true
-                    }
-                }
-            }
+            .popoverTip(reviewSwipeTip, arrowEdge: .top)
     }
 
     // MARK: - Review Session View

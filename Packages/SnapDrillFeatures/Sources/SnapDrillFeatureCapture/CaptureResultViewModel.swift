@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import TipKit
 import PhotosUI
 import SnapDrillCore
 import SnapDrillData
@@ -68,8 +69,8 @@ public final class CaptureResultViewModel {
     public var showErrorAlert = false
     /// 错误提示文本
     public var errorMessage: String?
-    /// 是否显示首次保存后的字段配置引导提示
-    public var showFieldConfigGuide = false
+    /// TipKit 字段配置提示（首次保存后自动显示）
+    public let fieldConfigTip = FieldConfigTip()
 
     // 新建分类 Alert 状态
     /// 是否显示新建学科 Alert
@@ -340,16 +341,6 @@ public final class CaptureResultViewModel {
         }
     }
 
-    /// 关闭字段配置引导后继续导航
-    /// 关闭字段配置引导后标记为已读并继续导航
-    /// 标记时序：用户关闭时标记（与 ReviewView tooltip 模式一致）
-    public func dismissFieldConfigGuide() {
-        guard showFieldConfigGuide else { return }
-        OnboardingManager.shared.markTooltipShown(for: "field_config")
-        showFieldConfigGuide = false
-        navigateAfterSave()
-    }
-
     // MARK: - Private Helpers
 
     /// 保存成功后的善后：通知、推断持久化、埋点、引导检查
@@ -372,12 +363,8 @@ public final class CaptureResultViewModel {
             "has_content": !content.isEmpty ? "true" : "false"
         ])
 
-        // 首次保存后显示字段配置引导（仅一次，用户关闭时才标记为已读）
-        if OnboardingManager.shared.shouldShowTooltip(for: "field_config") {
-            showFieldConfigGuide = true
-        } else {
-            navigateAfterSave()
-        }
+        // TipKit 自动管理字段配置引导的显示（.popoverTip 在 View 层处理）
+        navigateAfterSave()
     }
 
     /// 保存成功后的导航：短暂延迟让触觉反馈生效，再执行退栈
