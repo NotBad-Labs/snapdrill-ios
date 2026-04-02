@@ -36,6 +36,11 @@ struct DataAndSyncSettingsView: View {
     @State private var showingBackupError = false
     @State private var showingRestoreSuccess = false
 
+    // 数据导入
+    @State private var importTask: Task<Void, Never>?
+    @State private var showingImportFilePicker = false
+    @State private var showingImportSuccess = false
+
     var body: some View {
         List {
             // 本地数据警告
@@ -104,6 +109,28 @@ struct DataAndSyncSettingsView: View {
                 Text(L10n.Settings.backupFooter)
             }
 
+            // 数据导入
+            Section {
+                Button {
+                    showingImportFilePicker = true
+                } label: {
+                    HStack {
+                        Label(L10n.Settings.importCSV, systemImage: "square.and.arrow.down")
+                        Spacer()
+                        if viewModel.isBackupInProgress && !viewModel.backupStatusMessage.isEmpty
+                            && viewModel.backupStatusMessage.contains("导入") {
+                            ProgressView()
+                                .controlSize(.small)
+                        }
+                    }
+                }
+                .disabled(viewModel.isBackupInProgress)
+            } header: {
+                Text(L10n.Settings.importData)
+            } footer: {
+                Text(L10n.Settings.importCSVFormat)
+            }
+
             // 缓存存储
             Section {
                 HStack {
@@ -141,6 +168,7 @@ struct DataAndSyncSettingsView: View {
             cacheClearTask?.cancel()
             backupTask?.cancel()
             restoreTask?.cancel()
+            importTask?.cancel()
         }
         .confirmationDialog(
             L10n.Settings.restoreDialogTitle,
@@ -193,6 +221,33 @@ struct DataAndSyncSettingsView: View {
             Text(viewModel.backupError ?? L10n.Settings.unknownError)
         }
         .alert(L10n.Settings.restoreSuccess, isPresented: $showingRestoreSuccess) {
+            Button(L10n.Common.ok) {}
+        } message: {
+            Text(viewModel.backupStatusMessage)
+        }
+        .fileImporter(
+            isPresented: $showingImportFilePicker,
+            allowedContentTypes: [.commaSeparatedText, .plainText],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                importTask?.cancel()
+                importTask = Task {
+                    await viewModel.importCSV(fileURL: url)
+                    if viewModel.backupError != nil {
+                        showingBackupError = true
+                    } else {
+                        showingImportSuccess = true
+                    }
+                }
+            case .failure:
+                viewModel.backupError = L10n.Errors.fileAccessDenied
+                showingBackupError = true
+            }
+        }
+        .alert(L10n.Settings.importData, isPresented: $showingImportSuccess) {
             Button(L10n.Common.ok) {}
         } message: {
             Text(viewModel.backupStatusMessage)

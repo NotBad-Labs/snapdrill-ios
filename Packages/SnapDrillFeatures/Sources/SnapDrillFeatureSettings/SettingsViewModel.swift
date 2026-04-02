@@ -228,6 +228,147 @@ public final class SettingsViewModel {
         SnapDrillLogger.generic.info("已清理备份临时文件: \(url.lastPathComponent)")
     }
 
+    // MARK: - CSV 导入
+
+    /// 从 CSV 文件导入题目数据
+    ///
+    /// CSV 首行为列名，支持的列：Content, Subject, Source, Difficulty, Answer, Grade, Tags。
+    /// 列名不区分大小写，缺失列使用默认值。
+    public func importCSV(fileURL: URL) async {
+        guard !isBackupInProgress else { return }
+        isBackupInProgress = true
+        backupProgress = 0
+        backupError = nil
+        backupStatusMessage = L10n.Settings.importReading
+
+        let accessing = fileURL.startAccessingSecurityScopedResource()
+        defer { if accessing { fileURL.stopAccessingSecurityScopedResource() } }
+
+        do {
+            let csvString = try String(contentsOf: fileURL, encoding: .utf8)
+            backupStatusMessage = L10n.Settings.importParsing
+
+            let rows = parseCSV(csvString)
+            guard !rows.isEmpty else {
+                backupError = L10n.Settings.importNoValidRows
+                isBackupInProgress = false
+                backupStatusMessage = ""
+                return
+            }
+
+            backupStatusMessage = L10n.Settings.importSaving(rows.count)
+
+            // 批量创建 ReviewItemModel（每 50 条 yield 一次，避免长时间阻塞主线程）
+            for (index, row) in rows.enumerated() {
+                let model = ReviewItemModel(
+                    content: row["content"],
+                    subject: row["subject"] ?? "",
+                    source: row["source"] ?? "",
+                    answerText: row["answer"],
+                    difficulty: min(5, max(1, Int(row["difficulty"] ?? "1") ?? 1)),
+                    grade: row["grade"] ?? ""
+                )
+                repositories.review.insert(model)
+
+                // 处理标签
+                if let tagsString = row["tags"], !tagsString.isEmpty {
+                    let tagNames = tagsString.components(separatedBy: ";").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+                    for tagName in tagNames {
+                        let tag = try repositories.tag.fetchOrCreateModel(name: tagName, colorHex: "")
+                        model.tags = (model.tags ?? []) + [tag]
+                    }
+                }
+
+                backupProgress = Double(index + 1) / Double(rows.count)
+
+                // 每 50 条让出主线程，让 UI 更新进度
+                if (index + 1).isMultiple(of: 50) {
+                    await Task.yield()
+                }
+            }
+
+            try repositories.review.saveContext()
+
+            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            backupStatusMessage = L10n.Settings.importComplete(rows.count)
+            SnapDrillLogger.generic.info("CSV 导入完成: \(rows.count) 道题")
+        } catch {
+            repositories.review.rollbackContext()
+            backupError = L10n.Settings.importFailed
+            backupStatusMessage = ""
+            SnapDrillLogger.generic.error("CSV 导入失败: \(error)")
+        }
+
+        isBackupInProgress = false
+    }
+
+    /// 解析 CSV 文本为字典数组
+    ///
+    /// - Returns: 每行一个字典，key 为列名（小写），value 为字段值
+    private func parseCSV(_ csvString: String) -> [[String: String]] {
+        let lines = csvString.components(separatedBy: .newlines).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+        guard lines.count >= 2 else { return [] }
+
+        let headers = parseCSVLine(lines[0]).map { $0.lowercased().trimmingCharacters(in: .whitespaces) }
+        guard !headers.isEmpty else { return [] }
+
+        var results: [[String: String]] = []
+        for lineIndex in 1..<lines.count {
+            let values = parseCSVLine(lines[lineIndex])
+            var row: [String: String] = [:]
+            for (index, header) in headers.enumerated() where index < values.count {
+                let value = values[index].trimmingCharacters(in: .whitespaces)
+                if !value.isEmpty {
+                    row[header] = value
+                }
+            }
+            // 至少有 content 或 subject 才算有效行
+            if row["content"] != nil || row["subject"] != nil {
+                results.append(row)
+            }
+        }
+        return results
+    }
+
+    /// 解析单行 CSV（RFC 4180 合规：支持转义双引号 "" 和带引号字段）
+    private func parseCSVLine(_ line: String) -> [String] {
+        var fields: [String] = []
+        var current = ""
+        var inQuotes = false
+        var index = line.startIndex
+
+        while index < line.endIndex {
+            let char = line[index]
+            if inQuotes {
+                if char == "\"" {
+                    let next = line.index(after: index)
+                    if next < line.endIndex, line[next] == "\"" {
+                        // RFC 4180: "" 转义为单个 "
+                        current.append("\"")
+                        index = line.index(after: next)
+                        continue
+                    } else {
+                        inQuotes = false
+                    }
+                } else {
+                    current.append(char)
+                }
+            } else {
+                if char == "\"" {
+                    inQuotes = true
+                } else if char == "," {
+                    fields.append(current)
+                    current = ""
+                } else {
+                    current.append(char)
+                }
+            }
+            index = line.index(after: index)
+        }
+        fields.append(current)
+        return fields
+    }
+
     // MARK: - Private Helpers
 
     /// 恢复前自动备份当前数据到临时目录（best-effort，不中断恢复流程）

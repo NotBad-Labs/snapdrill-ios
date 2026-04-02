@@ -365,6 +365,16 @@
 "settings.backup_data" = "Backup Data";
 "settings.restore_data" = "Restore Data";
 "settings.backup_footer" = "Backup files include all questions, categories, and images. Restoring will replace all current data.";
+"settings.import_data" = "Data Import";
+"settings.import_csv" = "Import CSV";
+"settings.import_csv_hint" = "Import questions from a CSV file (must contain Content or Subject column)";
+"settings.import_reading" = "Reading file…";
+"settings.import_parsing" = "Parsing data…";
+"settings.import_saving" = "Importing %d questions…";
+"settings.import_complete" = "Successfully imported %d questions";
+"settings.import_failed" = "Import Failed";
+"settings.import_no_valid_rows" = "No valid data rows in CSV file";
+"settings.import_csv_format" = "CSV header must include column names: Content, Subject, Difficulty, Answer, Tags, etc.";
 "settings.restore_dialog_title" = "Restore Data";
 "settings.select_backup_file" = "Select Backup File";
 "settings.restore_dialog_message" = "Restoring will replace all current data. This cannot be undone. A backup of current data will be created automatically.";
