@@ -15,7 +15,7 @@
 | 优先级 | 事项 | 状态 |
 |---|---|---|
 | ~~P1~~ | ~~PR #525 DI 注入修复（ImageStorage + PDFExportService）~~ | ✅ 已合并（125 tests 通过） |
-| P1 | Issue #521 DI 剩余重构（OCRService + PrivacySettingsView） | 可推进 |
+| ~~P1~~ | ~~Issue #521 DI 全部重构~~ | ✅ #525 + #526 已合并（125 tests 通过） |
 | P2 | Issue #524 Typed throws 渐进迁移 | 待排期 |
 | P2 | #491-#495 五个功能 PR | 待 Review |
 
