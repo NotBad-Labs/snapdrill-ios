@@ -242,6 +242,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 
 **References**:
 - `product-vision.md`：`4. 数据属于用户（隐私是核心差异化）`
+- `product-design.md`：`导出与打印设计 [P4 数据属于用户]`
 - `product-requirements.md`：`导出与打印能力（2026-04-02 版本归属修正）`、`设置与个性化（2026-03-16 补全）`、`v1.0（当前，功能完整）`
 - `product-journeys.md`：`旅程 3：整理和管理已有题目`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`
@@ -283,7 +284,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 
 **References**:
 - `product-vision.md`：`4. 数据属于用户（隐私是核心差异化）`
-- `product-design.md`：`多 Profile 设计（2026-03-30 确立）`
+- `product-design.md`：`备份与恢复设计 [P4 数据安全]`、`多 Profile 设计 [P5 家长友好]`
 - `product-requirements.md`：`功能边界（MoSCoW 分类）`、`v1.0（当前，功能完整）`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`、`隐私策略（2026-03-07 确立，Bear 模式）`
 
