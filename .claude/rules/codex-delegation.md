@@ -12,10 +12,10 @@ Codex 作为 Claude Code 的子 agent 运行，不自动继承 `CLAUDE.md`、`.c
 
 | 任务类型 | 必读文件 |
 |---|---|
-| 产品/设计相关 | `docs/product/product-vision.md`、相关的 design/requirements/cases |
-| 代码实现 | `CLAUDE.md`（执行铁律）、相关 `.claude/rules/*.md` |
-| 审计/Review | `docs/workflow.md`（DoD + S0-S3）、被审对象的全部上下文 |
-| 全部任务 | `STATUS.md`（当前工作上下文） |
+| 全部任务 | `STATUS.md`、`docs/workflow.md`（DoD + S0-S3 + Git 工作流） |
+| 产品/设计相关 | `docs/product/product-vision.md`、`docs/product/product-design.md`、`docs/product/product-requirements.md`、`docs/product/product-cases.md`（按需选读） |
+| 代码实现 | `CLAUDE.md`（执行铁律）、相关 `.claude/rules/*.md`（coding/testing/apple-native 等） |
+| 审计/Review | 被审对象的全部上下文 + 上游依赖文档 |
 
 ### 2. 关键约束摘要
 
@@ -25,6 +25,7 @@ Codex 作为 Claude Code 的子 agent 运行，不自动继承 `CLAUDE.md`、`.c
 - **工程哲学**：奥卡姆剃刀，先研究再动手，N > 3 是警告
 - **编码铁律**：swiftlint --strict 0 violations + xcodebuild build-for-testing 0 errors
 - **数据安全**：零注册、纯本地、图片是真相、Profile 隔离
+- **开发纪律**：修改代码前必须先读产品文档；改接口签名后必须 grep 测试同步；UI 改动必须经 Xcode Review；PR 未合并前禁止推进下一任务
 
 ### 3. 输出约束
 
