@@ -258,14 +258,14 @@ public final class SettingsViewModel {
 
             backupStatusMessage = L10n.Settings.importSaving(rows.count)
 
-            // 批量创建 ReviewItemModel
+            // 批量创建 ReviewItemModel（每 50 条 yield 一次，避免长时间阻塞主线程）
             for (index, row) in rows.enumerated() {
                 let model = ReviewItemModel(
                     content: row["content"],
                     subject: row["subject"] ?? "",
                     source: row["source"] ?? "",
                     answerText: row["answer"],
-                    difficulty: Int(row["difficulty"] ?? "1") ?? 1,
+                    difficulty: min(5, max(1, Int(row["difficulty"] ?? "1") ?? 1)),
                     grade: row["grade"] ?? ""
                 )
                 repositories.review.insert(model)
@@ -280,6 +280,11 @@ public final class SettingsViewModel {
                 }
 
                 backupProgress = Double(index + 1) / Double(rows.count)
+
+                // 每 50 条让出主线程，让 UI 更新进度
+                if (index + 1).isMultiple(of: 50) {
+                    await Task.yield()
+                }
             }
 
             try repositories.review.saveContext()
@@ -325,21 +330,40 @@ public final class SettingsViewModel {
         return results
     }
 
-    /// 解析单行 CSV（处理带引号的字段）
+    /// 解析单行 CSV（RFC 4180 合规：支持转义双引号 "" 和带引号字段）
     private func parseCSVLine(_ line: String) -> [String] {
         var fields: [String] = []
         var current = ""
         var inQuotes = false
+        var index = line.startIndex
 
-        for char in line {
-            if char == "\"" {
-                inQuotes.toggle()
-            } else if char == "," && !inQuotes {
-                fields.append(current)
-                current = ""
+        while index < line.endIndex {
+            let char = line[index]
+            if inQuotes {
+                if char == "\"" {
+                    let next = line.index(after: index)
+                    if next < line.endIndex, line[next] == "\"" {
+                        // RFC 4180: "" 转义为单个 "
+                        current.append("\"")
+                        index = line.index(after: next)
+                        continue
+                    } else {
+                        inQuotes = false
+                    }
+                } else {
+                    current.append(char)
+                }
             } else {
-                current.append(char)
+                if char == "\"" {
+                    inQuotes = true
+                } else if char == "," {
+                    fields.append(current)
+                    current = ""
+                } else {
+                    current.append(char)
+                }
             }
+            index = line.index(after: index)
         }
         fields.append(current)
         return fields
