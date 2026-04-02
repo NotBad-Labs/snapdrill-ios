@@ -15,21 +15,17 @@ import UniformTypeIdentifiers
 
 /// 隐私设置页面
 struct PrivacySettingsView: View {
-    
+
     // MARK: - Properties
-    
+
     @Environment(\.repositories) private var repositories
     @Environment(\.analyticsService) private var analyticsService
     @AppStorage(UDKey.analyticsEnabled) private var analyticsEnabled = true
     @AppStorage(UDKey.crashReportingEnabled) private var crashReportingEnabled = true
-    
+
     @State private var showingExportOptions = false
-    @State private var showingShareSheet = false
-    @State private var exportedFileURL: URL?
-    @State private var isExporting = false
-    @State private var exportError: String?
-    @State private var exportTask: Task<Void, Never>?
-    
+    @State private var viewModel: PrivacySettingsViewModel?
+
     var body: some View {
         List {
             Section {
@@ -42,19 +38,18 @@ struct PrivacySettingsView: View {
             } footer: {
                 Text(L10n.Settings.dataCollectionFooter)
             }
-            
+
             Section {
                 Button {
                     showingExportOptions = true
                 } label: {
                     HStack {
-                        if isExporting {
+                        if viewModel?.isExporting == true {
                             ProgressView()
                                 .controlSize(.small)
                             Text(L10n.Settings.exporting)
                                 .foregroundStyle(.secondary)
                         } else {
-                            // 省略 foregroundStyle 让系统 tint 色（蓝色）表达可点击语义
                             Text(L10n.Settings.exportMyData)
                             Spacer()
                             Image(systemName: "square.and.arrow.up")
@@ -62,17 +57,14 @@ struct PrivacySettingsView: View {
                         }
                     }
                 }
-                .disabled(isExporting)
+                .disabled(viewModel?.isExporting == true)
                 .accessibilityHint(L10n.Accessibility.exportDataHint)
-                // confirmationDialog 挂在 Button 上，确保锚点在触发元素附近
                 .confirmationDialog(L10n.Settings.chooseExportFormat, isPresented: $showingExportOptions, titleVisibility: .visible) {
                     Button(L10n.Settings.jsonFormat) {
-                        exportTask?.cancel()
-                        exportTask = Task { await exportData(format: .json) }
+                        viewModel?.startExport(format: .json)
                     }
                     Button(L10n.Settings.csvFormat) {
-                        exportTask?.cancel()
-                        exportTask = Task { await exportData(format: .csv) }
+                        viewModel?.startExport(format: .csv)
                     }
                     Button(L10n.Common.cancel, role: .cancel) {}
                 }
@@ -81,8 +73,8 @@ struct PrivacySettingsView: View {
             } footer: {
                 Text(L10n.Settings.exportDataFooter)
             }
-            
-            if let error = exportError {
+
+            if let error = viewModel?.exportError {
                 Section {
                     Text(error)
                         .foregroundStyle(.red)
@@ -93,198 +85,26 @@ struct PrivacySettingsView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(L10n.Settings.privacyAndSecurity)
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showingShareSheet) {
-            if let url = exportedFileURL {
+        .sheet(isPresented: Binding(
+            get: { viewModel?.showingShareSheet ?? false },
+            set: { viewModel?.showingShareSheet = $0 }
+        )) {
+            if let url = viewModel?.exportedFileURL {
                 ShareSheet(items: [url])
             }
         }
-        .onDisappear {
-            exportTask?.cancel()
-        }
-    }
-    
-    // MARK: - Private Helpers
-    
-    private func exportData(format: PrivacyDataExportFormat) async {
-        isExporting = true
-        exportError = nil
-        
-        do {
-            let items = try repositories.review.fetchAllModels()
-
-            // 跨 actor 边界前转换为 Sendable 值类型
-            let exportableItems = items.map { item in
-                ExportableItem(
-                    id: item.id,
-                    content: item.content,
-                    subject: item.subject,
-                    source: item.source,
-                    difficulty: item.difficulty,
-                    answerText: item.answerText,
-                    createdAt: item.createdAt,
-                    lastReviewedAt: item.lastReviewedAt,
-                    nextReviewAt: item.nextReviewAt,
-                    tags: (item.tags ?? []).map { $0.name }
+        .onAppear {
+            if viewModel == nil {
+                viewModel = PrivacySettingsViewModel(
+                    repositories: repositories,
+                    analyticsService: analyticsService
                 )
             }
-            
-            let exporter = DataExporter()
-            let fileURL = try await exporter.export(items: exportableItems, format: format)
-            
-            await MainActor.run {
-                exportedFileURL = fileURL
-                showingShareSheet = true
-                isExporting = false
-                analyticsService.track(.dataExported, parameters: [
-                    "format": format.fileExtension,
-                    "item_count": "\(exportableItems.count)"
-                ])
-            }
-        } catch {
-            await MainActor.run {
-                exportError = L10n.Errors.exportFailed
-                isExporting = false
-            }
+        }
+        .onDisappear {
+            viewModel?.cancelExport()
         }
     }
-}
-
-/// 导出专用的 Sendable 值类型
-nonisolated struct ExportableItem: Sendable {
-    let id: UUID
-    let content: String?
-    let subject: String
-    let source: String
-    let difficulty: Int
-    let answerText: String?
-    let createdAt: Date
-    let lastReviewedAt: Date?
-    let nextReviewAt: Date?
-    let tags: [String]
-}
-
-/// 隐私数据导出格式（区别于题库导出的 ReviewExport.ExportFormat）
-nonisolated enum PrivacyDataExportFormat {
-    case json
-    case csv
-
-    var fileExtension: String {
-        switch self {
-        case .json: return "json"
-        case .csv: return "csv"
-        }
-    }
-
-    var mimeType: String {
-        switch self {
-        case .json: return "application/json"
-        case .csv: return "text/csv"
-        }
-    }
-}
-
-/// 数据导出器
-actor DataExporter {
-    func export(items: [ExportableItem], format: PrivacyDataExportFormat) throws -> URL {
-        let data: Data
-        
-        switch format {
-        case .json:
-            data = try exportJSON(items: items)
-        case .csv:
-            data = try exportCSV(items: items)
-        }
-        
-        // 保存到临时目录
-        let fileName = "SnapDrill_Export_\(Date().filenameDateString).\(format.fileExtension)"
-        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-        
-        try data.write(to: fileURL)
-        return fileURL
-    }
-    
-    private func exportJSON(items: [ExportableItem]) throws -> Data {
-        let exportItems = items.map { item in
-            [
-                "id": item.id.uuidString,
-                "content": item.content ?? "",
-                "subject": item.subject,
-                "source": item.source,
-                "difficulty": item.difficulty,
-                "answerText": item.answerText ?? "",
-                "createdAt": item.createdAt.ISO8601Format(),
-                "lastReviewedAt": item.lastReviewedAt?.ISO8601Format() ?? "",
-                "nextReviewAt": item.nextReviewAt?.ISO8601Format() ?? "",
-                "tags": item.tags.joined(separator: ", ")
-            ] as [String: Any]
-        }
-        
-        return try JSONSerialization.data(withJSONObject: exportItems, options: .prettyPrinted)
-    }
-    
-    private func exportCSV(items: [ExportableItem]) throws -> Data {
-        // CSV 列标题使用英文（技术数据格式行业惯例，与 ExportOptionsSheet 一致）
-        var csv = "ID,Content,Subject,Source,Difficulty,Answer,CreatedAt,LastReviewed,NextReview,Tags\n"
-        
-        for item in items {
-            let row = [
-                item.id.uuidString,
-                escapeCSV(item.content ?? ""),
-                escapeCSV(item.subject),
-                escapeCSV(item.source),
-                "\(item.difficulty)",
-                escapeCSV(item.answerText ?? ""),
-                item.createdAt.ISO8601Format(),
-                item.lastReviewedAt?.ISO8601Format() ?? "",
-                item.nextReviewAt?.ISO8601Format() ?? "",
-                escapeCSV(item.tags.joined(separator: "; "))
-            ].joined(separator: ",")
-            
-            csv += row + "\n"
-        }
-        
-        guard let data = csv.data(using: .utf8) else {
-            throw ExportError.encodingFailed
-        }
-        
-        return data
-    }
-    
-    /// CSV 转义 + Excel 公式注入防护
-    ///
-    /// 对 `=`, `+`, `-`, `@` 开头的值添加 tab 前缀，阻止 Excel 解析为公式。
-    /// 参考：OWASP CSV Injection Prevention Cheat Sheet
-    private func escapeCSV(_ string: String) -> String {
-        var value = string
-        // Excel 公式注入防护：危险前缀加 tab 前缀使其成为纯文本
-        if let first = value.first, "=+\\-@".contains(first) {
-            value = "\t" + value
-        }
-        let escaped = value.replacingOccurrences(of: "\"", with: "\"\"")
-        return "\"\(escaped)\""
-    }
-}
-
-enum ExportError: LocalizedError {
-    case encodingFailed
-    
-    var errorDescription: String? {
-        switch self {
-        case .encodingFailed:
-            return L10n.Errors.encodingFailed
-        }
-    }
-}
-
-/// UIKit 分享面板桥接
-struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-    
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-    
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {
