@@ -128,15 +128,15 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 判断「我们做对了吗」的标准，每条配可衡量的代理指标：
 
 - 一个 35 岁的妈妈完成 Onboarding 后，能在 30 秒内完成第一道题的录入
-  - Proxy: Analytics 事件 `first_save_latency`（Onboarding 完成 → 首次保存的秒数），P50 < 30s
+  - Proxy: UX 测试实际计时；发布后追加 Analytics 事件 `first_save_latency` 测量（需扩展 AnalyticsEvent enum），P50 < 30s
 - 用户连续使用一周后，题库题目数 > 10（说明录入摩擦足够低，值得持续使用）
-  - Proxy: Analytics 事件 `weekly_problem_count`（周新增题目数分布），P50 > 10
+  - Proxy: GA4 derived metric（基于匿名 session 的 `problem_saved` 事件聚合），或 App Store Connect 留存数据
 - App Store 自然搜索下载占比 > 70%（口碑增长而非营销拉动）
   - Proxy: App Store Connect 搜索来源数据
 - 多孩家庭的家长能独立管理每个孩子的题库，互不干扰（Profile 切换，已实现）
   - Proxy: 功能测试 + Use Case 7 验收
 - 家长能看到孩子整理成果并分享（展示价值感）
-  - Proxy: 题目分享功能使用率（Analytics 事件 `share_question_card`）
+  - Proxy: 题目分享功能上线后追加 Analytics 事件追踪（依赖 PR #491 合并）
 
 ---
 
