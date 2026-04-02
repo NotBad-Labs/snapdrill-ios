@@ -1,43 +1,9 @@
 # SnapDrill 产品用例与边界规格
 
 > 本文件定义「怎么验收」——可执行行为规格，供 Issue 验收标准引用、QA 回归基线。
->
-> **本文档由开发者（Claude）维护**，产品决策变更时同步更新。
-
----
-
-## 文档治理
-
-### 各层职责
-
-| 文档 | 定义 | 变更频率 |
-|---|---|---|
-| `product-vision.md` | 为什么做（使命、定位、原则） | 极少（pivot 时） |
-| `product-design.md` | 为什么这样设计（交互铁律、设计取舍） | 低（设计修订时） |
-| `product-requirements.md` | 做什么（功能范围、版本归属、MoSCoW） | 中（每版本迭代） |
-| `product-journeys.md` | 用户视角验证（叙事体、情绪、主路径完整性） | 低（新场景时） |
-| **`product-cases.md`** | **怎么验收（前置条件 → 行为 → 数据保证）** | **中（功能变更时）** |
-
-### 冲突优先级
-
-design > cases > requirements。设计铁律优先于行为规格，行为规格优先于功能清单。
-
-### 引用规则
-
-- Issue 的 Given-When-Then 应引用本文档的具体 Use Case 编号和 Boundary Case ID（如 B01）
-- 本文档不重复设计理由（引用 design），不重复功能清单（引用 requirements），不重复用户叙事（引用 journeys）
-
-### 本文档是什么
-
-- 可执行行为规格，面向开发、Issue、QA、回归测试
-- 将需求拆成可验证的 Goal / Preconditions / Success path / Exceptions / Data guarantees
-- 默认引用上游文档，不重复设计理由
-
-### 本文档不是什么
-
-- 不是设计决策文档，不解释为什么采用该交互
-- 不是用户叙事文档，不替代 `product-journeys.md`
-- 不是版本规划文档，不替代 `product-requirements.md`
+> 不重复设计理由（引用 design），不重复功能清单（引用 requirements），不重复用户叙事（引用 journeys）。
+> Issue 的 Given-When-Then 引用本文档的 Use Case 编号和 Boundary ID（如 B01）。
+> 冲突优先级：design > cases > requirements。
 
 ---
 
@@ -85,7 +51,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 
 **References**:
 - `product-vision.md`：`1. 录入体验是生命线`、`4. 数据属于用户（隐私是核心差异化）`
-- `product-design.md`：`采集入口设计 [P1, P6]`、`OCR 定位 [P1, P6]`、`图片存储策略 [P1, P4]`、`字段可配置系统 [P1, P2]`、`连续录入设计 [P1]`
+- `product-design.md`：`信息架构 [P1, P2]`、`OCR 定位 [P1, P6]`、`图片存储策略 [P1, P4]`、`字段可配置系统 [P1, P2]`、`连续录入设计 [P1]`、`草稿恢复设计 [P4]`
 - `product-requirements.md`：`录入方式优先级`、`OCR 识别能力演进路线（2026-04-02 版本归属修正）`、`草稿恢复（2026-03-16 补全，2026-04-02 版本归属修正）`、`v1.0（当前，功能完整）`
 - `product-journeys.md`：`旅程 1：做完试卷，拍照录入错题`、`旅程 2：从微信群导入老师发的题目`、`旅程 5：家长帮小学生录入`
 
@@ -177,7 +143,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 
 **Goal**: 从 Dashboard 进入待复习列表，完成翻卡、自我评估，并更新 SM-2 复习状态。
 
-**Applies to**: v1.0（附加值定位，非核心能力）
+**Applies to**: v1.0
 
 **Preconditions**:
 - 当前 Profile 存在到期复习题目（无到期题见 Boundary B18）
@@ -192,7 +158,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 7. 全部到期题处理完成后，系统展示简洁结果摘要（"N 题掌握，M 题待加强"）并返回上一级
 
 **Variants & Exceptions**:
-- [Variant] 手势与按钮是等价输入；按钮是 gesture fallback（HIG Mobility 要求）
+- [Variant] 手势与按钮是等价输入
 - [Variant] 图片题复习时必须显示图片，OCR 仅为辅助
 - [Exception] 当前无到期题：Dashboard 与 Review 入口显示空状态，不进入空白卡片流（见 Boundary B19）
 - [Exception] 某题缺少答案：允许翻面进入空答案状态，但仍可完成"记得/不记得"评估
@@ -228,8 +194,7 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 6. 用户在隐私设置页发起 JSON 或 CSV 导出；系统生成当前 Profile 可携带数据文件
 
 **Variants & Exceptions**:
-- [Variant] PDF 导出面向"整理一份错题卷"；快速打印面向"临时打印几道题"
-- [Variant] JSON/CSV 属于数据可携带导出，从隐私设置页触发，不依赖题库过滤主路径
+- [Variant] JSON/CSV 从隐私设置页触发，不依赖题库过滤主路径
 - [Exception] 导出结果集为空：不得生成空文件；必须提示无可导出题目
 - [Exception] 文件写入失败或磁盘空间不足：不得提示导出成功；已生成的临时文件必须清理
 - [Exception] 打印不可用（无 AirPrint 打印机）：必须停留在打印前状态并给出失败反馈，不得误记为已打印
@@ -355,4 +320,4 @@ design > cases > requirements。设计铁律优先于行为规格，行为规格
 | B19 | 无到期复习题 | Dashboard 显示 0 待复习，Review 不进入空卡片流 | 不创建伪复习记录 | S2 |
 | B20 | OCR 返回空文本 | 允许继续编辑保存图片题 | 图片和手填字段正常保存 | S2 |
 | B21 | 通知权限拒绝后再次开启提醒开关 | 提示权限已被系统拒绝，引导跳转系统设置 | 不发送本地通知 | S2 |
-| B22 | 未裁剪直接保存整页试卷（大尺寸图片） | 适用更宽松的压缩阈值（保留更高分辨率），或给予裁剪引导提示 | 图片清晰度满足再次放大查看需求 | S2 |
+| B22 | 未裁剪直接保存整页试卷（大尺寸图片） | 给予裁剪引导提示，或保留更高清晰度 | 图片清晰度满足再次放大查看需求 | S2 |
