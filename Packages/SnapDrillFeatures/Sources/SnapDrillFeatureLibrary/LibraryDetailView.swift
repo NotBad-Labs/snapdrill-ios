@@ -203,6 +203,8 @@ struct LibraryDetailView: View {
                 Spacer()
             }
             .padding(.top)
+            .frame(maxWidth: 700)
+            .frame(maxWidth: .infinity)
         }
         .task(id: item.imagePath) {
             guard let path = item.imagePath else { loadedImage = nil; return }

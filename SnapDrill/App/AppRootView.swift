@@ -30,6 +30,7 @@ struct AppRootView: View {
     var body: some View {
         ZStack(alignment: .top) {
             // Tab struct（iOS 18+）：自动获得 Liquid Glass 效果
+            // iPad 上自动切换为侧边栏导航
             TabView(selection: $router.selectedTab) {
                 Tab(L10n.Dashboard.title, systemImage: "house", value: AppTab.dashboard) {
                     DashboardView(router: router.dashboardRouter)
@@ -51,6 +52,7 @@ struct AppRootView: View {
                     SettingsView(router: router.settingsRouter)
                 }
             }
+            .tabViewStyle(.sidebarAdaptable)
             // conventions.md: Combine .onReceive → async notification stream
             .task {
                 for await _ in NotificationCenter.default.notifications(named: .switchToCaptureTab) {

@@ -24,11 +24,13 @@ public struct DashboardView: View {
     @State private var viewModel: DashboardViewModel?
     
     // MARK: - Layout Constants
-    
-    private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
+
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .regular ? 3 : 2
+        return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
+    }
     /// 创建仪表盘视图
     /// - Parameter router: 注入的路由器
     public init(router: DashboardRouter) {
