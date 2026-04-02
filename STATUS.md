@@ -1,14 +1,19 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-01
+> 最后更新：2026-04-02
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：0 · Open Issue：4（#162 #163 外部阻塞，#161 等真机，#452 讨论存档）
+> Open PR：5（#491-#495 待 Review） · Open Issue：4（#162 #163 外部阻塞，#161 等真机，#452 讨论存档）
 
 ---
 
 ## 当前焦点
 
-v1.5 功能批量实现中，12 个 PR 已合并。仅剩 Share Extension。
+v1.5 功能批量实现中，14 个 PR 已合并。仅剩 Share Extension。
+
+### 已完成（文档审计批次，2 个 PR）
+
+- #497 docs: 产品文档体系审计修复 + 用例/边界规格（Claude + Codex 交叉审计）
+- #499 chore: Codex 子 agent 委派规范
 
 ### 已完成（v1.5 批次，12 个 PR）
 
