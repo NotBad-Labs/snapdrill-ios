@@ -2,16 +2,28 @@
 
 > 最后更新：2026-04-02
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：5（#491-#495 待 Review） · Open Issue：4（#162 #163 外部阻塞，#161 等真机，#452 讨论存档）
+> Open PR：7（#491-#495 待 Review，#525 DI 重构待 Xcode 验证） · Open Issue：5（#162 #163 外部阻塞，#161 等真机，#452 讨论存档，#524 typed throws）
 
 ---
 
 ## 当前焦点
 
-v1.5 功能批量实现中，23 个 PR 已合并。仅剩 Share Extension。
+文档全量审计完成（产品层 6 + 技术层 5 = 11 个文档）。进入代码重构阶段。
 
-### 已完成（文档审计批次，11 个 PR）
+### 待处理
 
+| 优先级 | 事项 | 状态 |
+|---|---|---|
+| P1 | PR #525 DI 注入修复（ImageStorage + PDFExportService） | 待 Xcode 编译验证（网络阻塞） |
+| P1 | Issue #521 DI 剩余重构（OCRService + PrivacySettingsView） | 待 #525 合并后推进 |
+| P2 | Issue #524 Typed throws 渐进迁移 | 待排期 |
+| P2 | #491-#495 五个功能 PR | 待 Review |
+
+### 已完成（文档审计批次，15 个 PR）
+
+- #523 docs: api-reference.md 基于代码完整重写（368→717 行）
+- #522 docs: tech 文档全量审计 + coding.md typed throws 规则
+- #519 docs: Gemini 外部审计（缓存误删 B23、Profile 删除 B24、iCloud 旅程 8）
 - #518 docs: GLM4.7 外部审计采纳（合规预案、评估框架、竞品更新策略、风险评估）
 - #517 docs: 第二轮全量实质内容审计（6 个文档合并）
 - #510 docs: business 审计修复 — 价值链对齐 + Pro 表分离 + 数据安全承诺
