@@ -8,10 +8,12 @@
 
 ## 当前焦点
 
-v1.5 功能批量实现中，21 个 PR 已合并。仅剩 Share Extension。
+v1.5 功能批量实现中，23 个 PR 已合并。仅剩 Share Extension。
 
-### 已完成（文档审计批次，9 个 PR）
+### 已完成（文档审计批次，11 个 PR）
 
+- #518 docs: GLM4.7 外部审计采纳（合规预案、评估框架、竞品更新策略、风险评估）
+- #517 docs: 第二轮全量实质内容审计（6 个文档合并）
 - #510 docs: business 审计修复 — 价值链对齐 + Pro 表分离 + 数据安全承诺
 - #508 docs: requirements 审计修复 + design 金字塔拆分
 - #506 docs: design 外部专家评审微调（iCloud fallback、备份向后兼容、无感创建、B22）
