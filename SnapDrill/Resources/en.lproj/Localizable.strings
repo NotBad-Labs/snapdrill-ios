@@ -190,6 +190,8 @@
 "library.delete_selected" = "Delete";
 "library.export_selected" = "Export";
 "library.print_single" = "Print";
+"library.share" = "Share";
+"library.share_card_title" = "SnapDrill Question Card";
 "library.delete_confirm_title" = "Confirm Delete";
 "library.delete_confirm_message" = "You can undo within 5 seconds";
 "library.deleted_count" = "Deleted %d items";

@@ -334,6 +334,8 @@ nonisolated public enum L10n {
         public static let deleteSelected = NSLocalizedString("library.delete_selected", value: "删除", comment: "删除已选")
         public static let exportSelected = NSLocalizedString("library.export_selected", value: "导出", comment: "导出已选")
         public static let printSingle = NSLocalizedString("library.print_single", value: "打印", comment: "单题打印按钮")
+        public static let share = NSLocalizedString("library.share", value: "分享", comment: "分享按钮")
+        public static let shareCardTitle = NSLocalizedString("library.share_card_title", value: "SnapDrill 错题卡", comment: "分享卡片标题")
 
         // 删除确认
         public static let deleteConfirmTitle = NSLocalizedString("library.delete_confirm_title", value: "确认删除", comment: "删除确认标题")

@@ -31,6 +31,8 @@ struct LibraryDetailView: View {
     @State private var loadedAnswerImage: UIImage?
     @State private var printPDFURL: URL?
     @State private var isShowingShareSheet = false
+    @State private var shareImage: UIImage?
+    @State private var isShowingShareCardSheet = false
 
     @Environment(\.profileManager) private var profileManager
     @Environment(\.services) private var services
@@ -221,6 +223,14 @@ struct LibraryDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 HStack(spacing: 16) {
+                    // 分享题目卡片
+                    Button {
+                        shareQuestionCard()
+                    } label: {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                    .accessibleButton(label: L10n.Library.share)
+
                     // 单题快速打印
                     Button {
                         printSingleItem()
@@ -250,6 +260,32 @@ struct LibraryDetailView: View {
                 ShareSheet(activityItems: [url])
             }
         }
+        .sheet(isPresented: $isShowingShareCardSheet) {
+            if let image = shareImage {
+                ShareSheet(activityItems: [image])
+            }
+        }
+    }
+
+    // MARK: - 分享题目卡片
+
+    private func shareQuestionCard() {
+        let cardView = ShareCardView(
+            content: item.content,
+            image: loadedImage,
+            subject: item.subject,
+            difficulty: item.difficulty,
+            tags: (item.tags ?? []).map(\.name)
+        )
+
+        let renderer = ImageRenderer(content: cardView)
+        renderer.scale = UITraitCollection.current.displayScale
+        guard let uiImage = renderer.uiImage else {
+            SnapDrillLogger.generic.error("分享卡片图片渲染失败")
+            return
+        }
+        shareImage = uiImage
+        isShowingShareCardSheet = true
     }
 
     // MARK: - 单题快速打印
