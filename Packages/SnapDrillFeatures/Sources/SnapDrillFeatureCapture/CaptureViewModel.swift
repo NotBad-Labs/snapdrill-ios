@@ -70,7 +70,7 @@ public final class CaptureViewModel {
     
     // MARK: - Dependencies
     
-    private let ocrService: OCRServiceProtocol
+    public let ocrService: OCRServiceProtocol
     
     // MARK: - Initialization
     

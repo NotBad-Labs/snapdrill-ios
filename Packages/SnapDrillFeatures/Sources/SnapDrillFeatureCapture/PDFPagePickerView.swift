@@ -35,7 +35,7 @@ struct PDFPagePickerView: View {
     @State private var ocrTask: Task<Void, Never>?
     @State private var thumbnailCache: PDFThumbnailCache?
 
-    private let ocrService: OCRServiceProtocol = OCRService()
+    var ocrService: OCRServiceProtocol = OCRService()
 
     /// 缩略图尺寸（点）
     private let thumbnailSize = CGSize(width: 300, height: 400)

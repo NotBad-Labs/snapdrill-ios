@@ -172,14 +172,14 @@ public struct CaptureView: View {
                         content: content,
                         image: image,
                         repositories: repositories,
-                        ocrService: OCRService(),
+                        ocrService: viewModel.ocrService,
                         analyticsService: analyticsService,
                         router: router
                     )
                     CaptureResultView(viewModel: resultViewModel)
 
                 case .pdfPagePicker:
-                    PDFPagePickerView(router: router)
+                    PDFPagePickerView(router: router, ocrService: viewModel.ocrService)
                 }
             }
             // 扫描器全屏覆盖
