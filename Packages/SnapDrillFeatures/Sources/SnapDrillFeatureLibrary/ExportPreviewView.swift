@@ -27,7 +27,8 @@ struct ExportPreviewView: View {
     @State private var showSaveError = false
     @State private var showGenerateError = false
 
-    private let imageStorage = ImageStorage()
+    @Environment(\.profileManager) private var profileManager
+    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
     
     var body: some View {
         NavigationStack {

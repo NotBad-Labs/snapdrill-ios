@@ -19,7 +19,8 @@ struct StorageManagementView: View {
     @State private var imageSize: Int64 = 0
     @State private var isLoading = true
 
-    private let imageStorage = ImageStorage()
+    @Environment(\.profileManager) private var profileManager
+    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     var body: some View {
         List {
