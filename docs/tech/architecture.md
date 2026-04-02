@@ -1,6 +1,6 @@
 # SnapDrill 技术架构
 
-> 面向新开发者的架构全景图。编码规范见 `.claude/rules/coding.md`，API 易错点见 `.claude/rules/api-pitfalls.md`。
+> 面向新开发者的架构全景图。
 
 ---
 
@@ -17,6 +17,7 @@ SnapDrill.app（薄壳，Composition Root）
     │   └── FeatureSettings     设置（依赖 Library）
     │
     ├── SnapDrillUI（公共 UI 组件 + 路由协议）
+    │   └── 外部依赖：Mantis（图片裁剪）
     │
     ├── SnapDrillData（SwiftData Model + Repository + 备份）
     │   └── 外部依赖：ZIPFoundation
@@ -50,11 +51,14 @@ DependencyContainer.shared（App 启动时初始化）
 
 | Key | 类型 | 用途 |
 |---|---|---|
-| `\.services` | `ServiceContainer` | OCR、PDF、分析、通知等服务 |
+| `\.services` | `ServiceContainer` | PDF 导出、通知、隐私授权、Analytics |
 | `\.repositories` | `RepositoryContainer` | 数据读写 |
 | `\.profileManager` | `ProfileManager` | 多 Profile 切换 |
 | `\.analyticsService` | `AnalyticsServiceProtocol` | 埋点 |
 | `.modelContainer()` | `ModelContainer` | SwiftData |
+
+**Remote Config 链路**：
+DependencyContainer → FirebaseRemoteConfigService → AppConfiguration → FeatureFlags（含 isEmergencyKillSwitchActive）
 
 ---
 
@@ -79,19 +83,26 @@ SwiftData @Model（持久化）
 - Repository 的 `insert()` 是纯内存操作，必须显式调 `saveContext()` 才持久化
 - `saveContext()` 失败后必须 `rollbackContext()` 回滚内存脏状态
 
+**跨模块刷新机制**：
+`Notification.Name.reviewDataDidChange`（定义在 SnapDrillCore/Support/ReviewDataNotification.swift）。Repository 在数据变更后 post，ViewModel 通过 `for await` 监听并刷新 UI。
+
+**错误处理策略**：
+- DB save/rollback：原子性保证，失败必须回滚
+- 图片文件 I/O：best-effort，部分失败不回滚数据库（图片丢失不影响题目主记录）
+
 ---
 
 ## 模块职责
 
 ### SnapDrillCore（零依赖核心层）
 
-| 模块 | 职责 |
+| 目录 | 职责 |
 |---|---|
-| `DI/` | ServiceContainer 协议 + Environment Key |
-| `Service/` | OCR、PDF 导出、草稿、隐私授权、通知 |
-| `Engine/` | SM-2 复习调度算法 |
-| `Capture/` | ImageStorage 图片存储 |
-| `Support/` | L10n、UserDefaults Key、AppConfiguration、SnapDrillLogger、TipKit |
+| `DI/` | ServiceContainer 协议 + LiveServiceContainer + MockServiceContainer + Environment Key |
+| `Service/` | Protocol 定义（OCRServiceProtocol、PDFExportable、NotificationServiceProtocol、AnalyticsServiceProtocol） |
+| `Capture/` | OCRService（实现）、ImageStorage（图片存储） |
+| `Engine/` | SM-2 复习调度算法（ReviewScheduler） |
+| `Support/` | L10n、UserDefaultsKeys、AppConfiguration、SnapDrillLogger、ReviewDataNotification、CaptureDraftService |
 
 ### SnapDrillData
 
@@ -101,8 +112,14 @@ SwiftData @Model（持久化）
 | `*Repository.swift` | 数据访问层，封装 ModelContext |
 | `RepositoryContainer` | Repository 聚合 + Environment 注入 |
 | `BackupService` | .snapdrill (ZIP) 备份/恢复 |
-| `ProfileManager` | 多 Profile / Vault 切换（独立数据库 + 图片目录） |
+| `BackupDTO` | 备份数据传输对象 |
+| `ProfileManager` | 多 Profile / Vault 切换（独立数据库 + 图片目录 + per-profile UserDefaults） |
+| `ProfileMigration` | Profile 结构迁移（老版本升级） |
 | `MigrationPlan` | SwiftData Schema 版本迁移 |
+| `Persistence` | ModelContainer 工厂 |
+| `DataError` / `PersistenceError` | 错误类型定义 |
+| `DataSeeder` | 初始数据填充（默认学科/来源） |
+| `ReviewExportSnapshot` | 复习数据导出快照 |
 
 ### SnapDrillUI
 
@@ -110,7 +127,8 @@ SwiftData @Model（持久化）
 |---|---|
 | `Navigation.swift` | FeatureRouter 协议（push/pop/reset） |
 | `OnboardingView` | 引导页 + OnboardingManager |
-| 公共组件 | SnapDrillButton, TagInputView, FlipView, ImageCropperView 等 |
+| `ImageCropperView` | 图片裁剪（依赖 Mantis） |
+| 公共组件 | SnapDrillButton, TagInputView, FlipView 等 |
 
 ### SnapDrillFeatures
 
@@ -122,6 +140,26 @@ SwiftData @Model（持久化）
 ### SnapDrillInfrastructure
 
 Firebase SDK 隔离层。Core 层通过 Protocol（AnalyticsServiceProtocol, RemoteConfigurable）与之解耦。替换 Firebase 只需修改此层 + DependencyContainer，不影响其他模块。
+
+---
+
+## Multi-Profile 实现
+
+ProfileManager 采用 Vault 模式：
+- 每个 Profile 拥有独立的 SwiftData ModelContainer + 图片存储目录
+- 切换 Profile 时重建 ModelContainer 和 RepositoryContainer
+- **Per-Profile UserDefaults 隔离**：字段配置（开启的系统字段）、自动推断历史、复习目标等通过 `perProfileKeys` / `savePreferences` / `loadPreferences` 管理
+- **全局状态**：TipKit tooltip、Onboarding 完成、VoiceOver 设置不随 Profile 切换
+
+---
+
+## Soft Delete + Undo 实现
+
+LibraryViewModel 管理 5 秒撤销窗口：
+- `softDeleteItems()` — 标记删除，从列表移除，启动 5 秒 Timer
+- `undoDelete()` — 恢复标记，取消 Timer
+- `commitDeletion()` — Timer 到期后永久删除（Repository 级别）
+- 批量删除复用同一套机制
 
 ---
 
@@ -143,9 +181,9 @@ Firebase SDK 隔离层。Core 层通过 Protocol（AnalyticsServiceProtocol, Rem
 
 | 层 | 策略 | 运行方式 |
 |---|---|---|
-| Repository | in-memory ModelContainer | Xcode Simulator（`swift test` 不可用） |
+| Repository | in-memory ModelContainer | Xcode Simulator |
 | ViewModel | Mock Repository + Mock Service | Xcode Simulator |
 | Service（纯逻辑） | 直接测试 | Xcode Simulator |
 | View | 不测 | — |
 
-**CI**：Mac mini 自托管 runner，`xcodebuild build-for-testing` + `xcodebuild test -scheme SnapDrillFeaturesTests`。
+`swift test` 不可用（SPM 包仅声明 iOS 平台），必须通过 Xcode Simulator 运行。

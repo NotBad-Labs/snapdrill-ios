@@ -18,12 +18,12 @@
 | 匿名崩溃报告 | 是（可关闭） | Firebase Crashlytics（Google 服务器） | 设置页开关 |
 | 手机号/邮箱/姓名 | **不收集** | — | — |
 | 学校/年级/位置 | **不收集** | — | — |
-| 广告标识符（IDFA） | 按 ATT 授权 | — | 系统弹窗 |
+| 广告标识符（IDFA） | **不收集** | — | App 声明 Not Tracking |
 
 ### 零可识别个人信息（Zero PII）
 
 SnapDrill 不收集任何可识别个人信息。没有注册、没有手机号、没有学校年级。
-这是与竞品的核心差异化，也是合规负担极轻的根本原因。
+这是与竞品的核心差异化，也是合规负担较轻的根本原因。
 
 ---
 
@@ -39,16 +39,17 @@ SnapDrill 不收集任何可识别个人信息。没有注册、没有手机号�
 
 | 声明项 | 状态 |
 |---|---|
-| NSPrivacyTracking | false（默认），ATT 授权后可变更 |
-| NSPrivacyTrackingDomains | Firebase 相关域名 |
-| NSPrivacyCollectedDataTypes | Analytics（匿名事件计数），Crash Data（匿名堆栈） |
-| NSPrivacyAccessedAPITypes | UserDefaults（AppStorage），FileTimestamp（文件管理） |
+| NSPrivacyTracking | false（静态，不追踪） |
+| NSPrivacyTrackingDomains | 空数组（不追踪 = 无需声明域名） |
+| NSPrivacyCollectedDataTypes | Analytics（匿名事件计数）、Crash Data（匿名堆栈）、OtherDiagnosticData |
+| NSPrivacyAccessedAPITypes | UserDefaults（AppStorage）、FileTimestamp（文件管理）、DiskSpace、SystemBootTime |
 
-### ATT（App Tracking Transparency）
+### Tracking 姿态
 
-- 预询问流程：先显示自定义说明页，再触发系统 ATT 弹窗
-- 用户拒绝后不影响任何功能
-- Analytics 默认开启，用户可在设置中关闭
+- App 整体声明 **Not Tracking**（NSPrivacyTracking = false）
+- 不使用 IDFA，不触发 ATT 弹窗
+- Analytics 收集匿名事件计数，不关联用户身份，不用于广告追踪
+- 用户可在设置中关闭 Analytics
 
 ---
 
@@ -73,7 +74,7 @@ FTC "directed to children" 核心标准对照：
 |---|---|
 | 数据可携带权 | ✅ JSON/CSV 导出（隐私设置页） |
 | 删除权 | ✅ 用户可删除任意题目，卸载即全删 |
-| 知情同意 | ✅ Analytics 默认开启但可关闭，ATT 预询问 |
+| 知情同意 | ✅ Analytics 默认开启但可关闭 |
 | 数据最小化 | ✅ 零 PII 收集 |
 | 跨境传输 | ⚠️ Firebase 数据存储在 Google 服务器（匿名数据） |
 | 中国区 iCloud | 云上贵州运营，数据存储在中国境内（v1.5 同步功能） |
