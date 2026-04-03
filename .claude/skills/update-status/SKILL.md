@@ -37,7 +37,7 @@ git status STATUS.md
 
 ```bash
 git add STATUS.md
-git commit -m "chore: 更新项目状态看板
+git commit -m "status: 更新项目状态看板
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 git push origin develop
@@ -58,4 +58,4 @@ STATUS.md 是状态追踪文件，不含代码逻辑：
 
 - 如果 develop 有远程更新（其他 PR 刚合并），先 `git pull` 再 push
 - 如果有其他未提交的代码变更混在工作区，**不要执行**——先处理代码变更
-- commit message 固定为 `chore: 更新项目状态看板`，不需要关联 Issue
+- commit message 固定为 `status: ...`（描述本次更新内容），不需要关联 Issue

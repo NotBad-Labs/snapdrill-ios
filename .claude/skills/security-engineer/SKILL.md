@@ -67,7 +67,7 @@ allowed-tools:
 - [ ] 导出的文件是否包含不应泄露的信息？（路径、设备信息）
 - [ ] 错误信息是否暴露了系统内部细节？（`localizedDescription` 检查）
 - [ ] 第三方依赖是否有已知漏洞？
-- [ ] Firebase 配置文件（GoogleService-Info.plist）是否在 .gitignore 中？
+- [ ] Firebase 配置文件（GoogleService-Info.plist）管理策略是否与 `docs/tech/deployment.md` 一致？
 - [ ] 隐私清单是否与实际数据使用一致？
 
 ## Gotchas

@@ -1,4 +1,4 @@
-<!-- last verified: 2026-04-02 -->
+<!-- last verified: 2026-04-03 -->
 # Codex 子 agent 委派规范
 
 Codex 作为 Claude Code 的子 agent 运行，不自动继承 `CLAUDE.md`、`.claude/rules/`、产品文档体系。
@@ -21,11 +21,12 @@ Codex 作为 Claude Code 的子 agent 运行，不自动继承 `CLAUDE.md`、`.c
 
 即使指定了文件读取，也应在 prompt 中内联关键约束，防止 Codex 跳过或遗漏：
 
-- **产品定位**：效率工具，不是教育平台。录入 > 管理 > 复习
+- **产品定位**：效率工具，不是教育平台。采集/录入 > 管理 > 导出/打印 > 复习
 - **工程哲学**：奥卡姆剃刀，先研究再动手，N > 3 是警告
 - **编码铁律**：swiftlint --strict 0 violations + xcodebuild build-for-testing 0 errors
 - **数据安全**：零注册、纯本地、图片是真相、Profile 隔离
-- **开发纪律**：修改代码前必须先读产品文档；改接口签名后必须 grep 测试同步；UI 改动必须经 Xcode Review；PR 未合并前禁止推进下一任务
+- **开发纪律**：修改代码前必须先读产品文档；改接口签名后必须 grep 测试同步；UI 改动必须经 Xcode Review；PR 未合并前禁止推进下一任务；Review 结论必须留痕
+- **优先级**：S0（数据丢失）> S1（流程阻断）> S2（有摩擦）> S3（不紧急）
 
 ### 3. 输出约束
 

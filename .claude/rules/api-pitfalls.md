@@ -3,7 +3,7 @@ paths:
   - "**/*.swift"
 ---
 
-<!-- last verified: 2026-04-01 -->
+<!-- last verified: 2026-04-03 -->
 # API 易错点速查
 
 > 修改代码前用 `Grep` / `Read` 确认 API 真实存在，禁止凭名称推测。
@@ -48,7 +48,7 @@ paths:
 | 陷阱 | 后果 | 正确做法 |
 |---|---|---|
 | Toast 倒计时 Task 未在 View 消失时取消 | 内存泄漏或对已释放对象操作 | 在 `.onDisappear` 中取消 Task，或将 Task 句柄保存为实例属性 |
-| 软删除后立即查询未排除已删除项 | 已删除题目仍出现在列表中 | 查询 Predicate 加 `isDeleted == false` 条件 |
+| 软删除后立即查询未排除待删除项 | 已标记删除的题目仍出现在列表中 | 当前实现为 ViewModel 级 5 秒待提交删除（非模型级 isDeleted 字段），从列表临时移除后延时执行真实删除 |
 
 ## 多 Profile 陷阱（v1.5 新增）
 
