@@ -3,7 +3,7 @@ paths:
   - "**/*.swift"
 ---
 
-<!-- last verified: 2026-03-30 -->
+<!-- last verified: 2026-04-03 -->
 # 编码规范（SwiftLint 管不到的规则）
 
 ## View 层
@@ -20,7 +20,7 @@ paths:
 - 启用 `defaultIsolation(MainActor.self)`：所有代码默认 MainActor 隔离
 - **禁止手写 `@MainActor`**（冗余），唯一例外：`Sendable` 协议 + 可变状态的类需显式标注
 - ViewModel 声明：`@Observable final class`（不需要 `@MainActor`）
-- 后台执行：`Task.detached` 或 `@concurrent`
+- 后台执行：`Task.detached`（当前实践）；Swift 6.2 `@concurrent` 可作为未来替代
 - 纯计算 struct/enum 跨 actor 使用：标记 `nonisolated`（如 ImageStorage、DTO、L10n）
 - Task 句柄：`@ObservationIgnored private var xxxTask: Task<Void, Never>?` + `cancelTasks()` 在 `.onDisappear`
 - NotificationCenter：用 `for await` 替代 `addObserver`

@@ -38,7 +38,7 @@ allowed-tools:
 
 > CI/CD 配置详见 `.github/workflows/` 目录下的 YAML 文件
 >
-> Git 工作流与发布流程详见 `docs/workflow.md`「Git 工作流规范」
+> Git 工作流详见 `docs/workflow.md`，发布流程详见 `docs/tech/deployment.md`
 >
 > 发版检查清单详见 `references/release-checklist.md`
 >
@@ -55,7 +55,7 @@ allowed-tools:
 
 ## Gotchas
 
-1. **Mac mini CI runner**：`ssh admin@192.168.1.224`（免密），Runner 名 `mac-mini`（`self-hosted,macOS,ARM64`），仅 PR 到 develop/main 时触发
+1. **Mac mini CI runner**：`ssh admin@192.168.1.224`（免密），Runner label `[self-hosted, macOS]`，触发条件以 `.github/workflows/ci.yml` 为准（含 workflow_dispatch）
 2. **`xcodebuild build` 不编译测试 target**：测试编译错误须通过 `xcodebuild build-for-testing` 或 Xcode GUI 才能发现，CI 仅 build 不能替代测试编译验证
 3. **DerivedData 损坏时需清理重建**：遇到诡异编译错误先 `rm -rf ~/Library/Developer/Xcode/DerivedData/SnapDrill-*` 再重试
 

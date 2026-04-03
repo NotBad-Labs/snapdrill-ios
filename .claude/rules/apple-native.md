@@ -3,7 +3,7 @@ paths:
   - "**/*.swift"
 ---
 
-<!-- last verified: 2026-03-30 -->
+<!-- last verified: 2026-04-03 -->
 # Apple 原生优先
 
 **UI 改动必须先找 Apple 原生 App 或 HIG 中的对应模式。禁止自创交互。**
@@ -16,7 +16,7 @@ paths:
 | 编辑取消确认 | `.interactiveDismissDisabled` + 系统确认 | 自制拦截 |
 | 导航详情 | `NavigationLink` | `Button` + push |
 | 删除 | `.onDelete` / 左滑 | 自制手势 |
-| 功能提示 | TipKit（评估迁移中） | 自制气泡 |
+| 功能提示 | TipKit | 自制气泡 |
 | 搜索 | `.searchable` 修饰符 | 自制搜索栏 |
 
 ## iOS 26

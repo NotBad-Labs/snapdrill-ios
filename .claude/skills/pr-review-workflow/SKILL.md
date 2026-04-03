@@ -32,12 +32,21 @@ allowed-tools:
 
 采纳后推送 fix commit。
 
-### 4. 合并后更新 STATUS.md
+### 4. 用户确认后合并
+
+所有 PR 必须经用户确认后方可合并。禁止自审自批。
+
+### 5. Review 留痕
+
+Review 结论必须记录在 PR comment 或 PR 描述中。Review 无留痕的 PR 不得合并。
+
+### 6. 合并后更新 STATUS.md
 
 执行 `/update-status` 直接推送到 develop。
 
 ## Gotchas
 
 - **禁止自审自批**：fix 后必须让原 reviewer 验收
+- **Review 无留痕不得合并**：结论必须在 PR comment 或描述中可追溯
 - **STATUS.md 合并后立即推送**：不等下一个 PR
 - **Review 查两处**：`gh pr view --json comments` + `--json reviews`

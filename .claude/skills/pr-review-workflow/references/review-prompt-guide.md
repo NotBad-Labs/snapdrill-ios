@@ -3,7 +3,7 @@
 > **上游依赖**：`docs/workflow.md`（Code Review）
 >
 > 每次为 PR 撰写手动 review 提示词时，参照此规范。
-> 适用于：**Antigravity**（全量代码上下文）和 **Xcode Intelligence Review**（项目内上下文）。
+> 适用于：**外部 Reviewer**（如 Antigravity 等全量代码上下文工具，可选）和 **Xcode Intelligence Review**（项目内上下文）。
 > 目标：风格统一、关注点完整、简洁自然语言、聚焦本次变更的特有风险。
 
 ---
@@ -107,7 +107,7 @@
 - **不重复架构全貌**——reviewer 拥有代码上下文
 - **审查重点中按需引用文件**，不单独罗列文件清单
 - **总长度不超过 25 行**——提示词过长反而稀释重点
-- **首次 review 控制变量**：Antigravity 和 Xcode Intelligence Review 使用完全相同的提示词，差异只来自模型本身
+- **首次 review**：如使用多个 reviewer，可使用相同提示词（控制变量），差异来自模型本身
 - **后续 review 分别写**：针对各 reviewer 的特定 finding 撰写验收提示词
 
 ---

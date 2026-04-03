@@ -47,7 +47,8 @@ test_[被测单元]_when[前置条件]_should[预期行为]
 
 | 代码类型 | 策略 |
 |---|---|
-| 纯逻辑（算法、数据转换、Repository） | 测试先行（TDD） |
+| 纯算法 / Extension | 测试先行（TDD） |
+| Repository | in-memory ModelContainer，Test-after |
 | Bug 修复 | 先写复现测试，再修复 |
 | UI 探索 / 框架集成 | 先写代码确认行为，再补测试 |
 
