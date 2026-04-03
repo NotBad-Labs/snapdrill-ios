@@ -6,6 +6,9 @@ allowed-tools:
   - Read
   - Grep
   - Edit
+context: fork
+disable-model-invocation: true
+user-invocable: true
 ---
 
 # PR Review 工作流

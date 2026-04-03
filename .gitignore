@@ -32,4 +32,4 @@ build_output.txt
 .claude/reviews/
 .claude/settings.local.json
 .claude/session-log.txt
-.claude/hooks/
+.claude/validation-status.json.*

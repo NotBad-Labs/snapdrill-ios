@@ -5,6 +5,9 @@ allowed-tools:
   - Bash
   - Read
   - Edit
+context: fork
+disable-model-invocation: true
+user-invocable: true
 ---
 
 # /update-status — 状态看板推送
