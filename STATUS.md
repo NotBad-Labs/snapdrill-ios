@@ -1,6 +1,6 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-02
+> 最后更新：2026-04-03
 > 编译状态：✅ 0 errors · 0 lint violations
 > Open PR：0 · Open Issue：5（#162 #163 外部阻塞，#161 等真机，#452 讨论存档，#524 typed throws）
 
@@ -8,7 +8,7 @@
 
 ## 当前焦点
 
-文档全量审计完成（产品层 6 + 技术层 5 = 11 个文档）。进入代码重构阶段。
+文档全量审计完成（产品层 6 + 技术层 5 + 项目/模块文档 18 = 29 个文档）。进入代码重构阶段。
 
 ### 待处理
 
@@ -19,7 +19,15 @@
 | ~~P2~~ | ~~#491-#495 五个功能 PR~~ | ✅ 全部 Review + 修复后合并 |
 | P2 | Issue #524 Typed throws 渐进迁移 | 待排期 |
 
-### 已完成（文档审计批次，15 个 PR）
+### 已完成（文档审计第二轮，#527）
+
+- #528 chore: 项目文档第二轮审计 — 18 个文档（Claude + Codex 交叉审计 + 外部专家 3 方）
+  - Batch 1: workflow.md + GitHub 模板对齐（Issue 模板补全 Shape 字段、PR Checklist 4→13 项、Review 留痕、S0-S3 label）
+  - Batch 2: README + 5 Package README + Scripts（修复 17 个问题，含 5 个幽灵类型）
+  - Batch 3: 8 个 DocC 文档（修复 21 个问题，internal 类型改单反引号 + 散文描述）
+  - 架构决策：DocC internal 类型策略（四方一致选 A：不改 public，用单反引号）
+
+### 已完成（文档审计第一轮，15 个 PR）
 
 - #523 docs: api-reference.md 基于代码完整重写（368→717 行）
 - #522 docs: tech 文档全量审计 + coding.md typed throws 规则
