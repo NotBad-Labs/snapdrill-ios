@@ -16,19 +16,17 @@
 ### 视图
 
 - ``ReviewView`` — 复习会话主界面，管理卡片展示和进度
-- ``ReviewDashboardView`` — 今日复习统计看板
-- ``ReviewCardContent`` — 卡片正背面内容渲染（含内嵌编辑入口）
-
-### 视图模型
-
-- ``ReviewViewModel`` — 复习会话状态机（展示 → 翻转 → 评分 → 切换），
-  直接调用 `ReviewScheduler` 计算 SM-2 调度
 
 ### 导航
 
 - ``ReviewRouter`` — 管理复习会话内的导航（含"前往题库"跨模块跳转回调）
 
-### 卡片组件
+### 内部组件
 
-- ``SwipeCard`` — 支持左右滑动手势的卡片容器
-- ``ReviewActionButtons`` — Again / Hard / Good / Easy 评分按钮组
+复习会话由 `ReviewViewModel` 状态机驱动（展示 → 翻转 → 评分 → 切换），
+直接调用 `ReviewScheduler` 计算 SM-2 调度。
+卡片正反面由 `ReviewCardFront` / `ReviewCardBack` 渲染，
+滑动手势由 `SwipeCard` 容器承载，
+评分按钮由 `ReviewActionButtons` 组件提供。
+复习统计看板 `ReviewDashboardView`、会话总结 `ReviewSessionSummaryView`
+和空状态 `ReviewEmptyStateView` 均为模块内部实现。

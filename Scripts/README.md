@@ -14,7 +14,10 @@
 | `add_swiftlint_phase.rb` | 为 Xcode Target 自动添加 SwiftLint Build Phase |
 | `fix_duplicate_assets.rb` | 清理 Asset Catalog 中的重复资源 |
 | `inspect_project.rb` | 检查 `.xcodeproj` 项目文件结构 |
-| `ci-local.sh` | 本地模拟 CI 流程（lint + build） |
+| `ci-local.sh` | 本地模拟 CI 流程（lint + build + test） |
 | `post_review.sh` | 将 Review 结果发布到 GitHub PR |
+| `gemini_project_review.py` | 调用 Gemini API 进行项目级审计 |
+| `gemini_review.py` | 调用 Gemini API 进行代码审查 |
+| `gemini_utils.py` | Gemini 脚本共享工具函数 |
 
 此目录不包含任何生产环境代码。

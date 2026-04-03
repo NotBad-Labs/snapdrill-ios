@@ -80,16 +80,18 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ## Code Review
 
-**所有 PR 必须完成 review 后，由用户确认再合并。**
+**所有 PR 必须完成 review 后，由用户确认再合并。Review 结论必须留痕。**
 
-1. **Xcode Intelligence**：Claude Code 写提示词，用户触发，结果发到 GitHub Issue/PR comment
+1. **Xcode Review**：Claude Code 写提示词，用户在 Xcode 触发
 2. **Claude Code 核实**：每条 finding 读源文件确认真实性
+3. **留痕**：Review 结论必须记录在 PR comment 或 PR 描述中
 
 **纪律**：
 - PR 未合并前禁止推进下一任务
 - 禁止自审自批
 - 范围外发现立即建 Issue
 - PR 合并后立即更新 STATUS.md
+- Review 无留痕的 PR 不得合并
 
 ---
 

@@ -4,9 +4,10 @@
 
 ## 概述
 
-`SnapDrillFeatureCapture` 负责将现实中的题目转化为数字卡片：
-用户通过相机拍摄或文档扫描获取图片，Vision OCR 自动提取题目文字，
-用户确认后保存至题库。意外退出时自动保存草稿（由 `CaptureDraftService` 管理）。
+`SnapDrillFeatureCapture` 负责将现实中的题目转化为数字卡片。
+支持多种采集方式：相机拍照、文档扫描、相册导入、PDF 导入和纯文本手动录入。
+Vision OCR 自动提取题目文字，用户确认后保存至题库。
+意外退出时自动保存草稿（由 `CaptureDraftService` 管理），支持连续裁剪一图多题。
 
 依赖：`SnapDrillCore` · `SnapDrillData` · `SnapDrillUI`
 
@@ -14,7 +15,7 @@
 
 ### 视图
 
-- ``CaptureView`` — 采集入口，含相机取景和扫描触发
+- ``CaptureView`` — 采集入口，整合相机、相册、PDF、手动录入等多种采集方式
 - ``CaptureResultView`` — OCR 结果确认与编辑，保存题目至题库
 
 ### 视图模型
@@ -26,7 +27,9 @@
 
 - ``CaptureRouter`` — 管理采集流程内部导航（取景 → 结果确认）
 
-### 相机组件
+### 内部组件
 
-- ``SmartCameraView`` — 实时取景器，支持手动对焦和裁剪框
-- ``DocumentScannerView`` — 系统文档扫描器（`VNDocumentCameraViewController`）封装
+相机取景由 `SmartCameraView` 驱动，支持手动对焦和裁剪框；
+文档扫描通过 `DocumentScannerView` 封装 `VNDocumentCameraViewController`；
+PDF 导入通过 `PDFPagePickerView` 选择页面后转为图片。
+这些组件为模块内部实现，不对外暴露。

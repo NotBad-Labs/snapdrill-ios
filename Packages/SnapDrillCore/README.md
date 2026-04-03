@@ -1,14 +1,14 @@
 # SnapDrillCore
 
-**零依赖内核 (Zero-Dependency Kernel)**
+**核心逻辑层 (Core Logic Layer)**
 
-`SnapDrillCore` 包含应用共享的业务模型、基础服务、算法引擎和通用工具。不依赖任何本地包或 UI 框架。
+`SnapDrillCore` 包含应用共享的业务模型、基础服务、算法引擎和通用工具。不依赖任何本地包。部分服务因处理图片/颜色而 import UIKit/SwiftUI。
 
 ## 组成部分
 
 ### 1. Model (业务模型)
 - `Difficulty`: 难度枚举（1-5 星）
-- `SubscriptionProduct` / `SubscriptionStatus`: 订阅相关类型
+- `Profile`: 用户 Profile 值类型（Multi-Profile 支持）
 
 ### 2. Engine (算法引擎)
 - `ReviewScheduler`: SM-2 间隔重复调度器
@@ -19,21 +19,27 @@
 - `OCRService` / `OCRServiceProtocol`: 文本识别（基于 Apple Vision）
 - `ImageStorage`: 图片文件管理（保存/加载/删除）
 - `PDFExportService`: PDF 导出服务
+- `PDFExportOptions`: PDF 导出配置（去答案、留白、页眉等）
 - `CaptureDraftService` / `CaptureDraftServiceProtocol`: 采集草稿缓存
-- `AnalyticsServiceProtocol` / `CrashReportingProtocol`: 分析与崩溃上报协议
+- `AnalyticsServiceProtocol` / `AnalyticsEvent`: 分析服务协议与事件枚举
 - `NotificationServiceProtocol`: 通知服务协议
-- `SubscriptionServiceProtocol`: 订阅服务协议
-- `NetworkMonitor`: 网络状态监控
 - `PrivacyConsentService`: 隐私授权管理
-- `AppConfiguration`: 应用配置（含 FeatureFlags）
+- `PDFExportable`: PDF 导出能力协议
 
-### 4. Support (支撑类型)
-- `ReviewDataNotification`: 跨模块通知名定义
+### 4. DI (依赖注入)
+- `ServiceContainer`: 服务容器协议
+- `LiveServiceContainer`: 生产环境服务容器
+- `MockServiceContainer`: 测试用 Mock 容器
+
+### 5. Support (支撑类型)
+- `AppConfiguration` / `RemoteConfigurable`: 应用配置与远程配置协议
+- `Notification.Name` 扩展: 跨模块通知名（reviewDataDidChange 等）
 - `SnapDrillLogger`: 日志系统（基于 os.Logger）
-- `ServiceContainer` / `LiveServiceContainer`: 服务容器协议与实现
+- `SnapDrillError` / `OCRError` / `ImageStorageError`: 错误类型
+- `SnapDrillTips`: TipKit 提示定义
 
-### 5. Utils (通用工具)
+### 6. Utils (通用工具)
 - `Date+Extension`, `Collection+Safe`, `Color+Hex` 等基础扩展
 
 ## 依赖
-- *无依赖*（纯 Swift）
+- *无本地包依赖*（纯 Swift + Apple 框架）

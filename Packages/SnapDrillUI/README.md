@@ -22,15 +22,21 @@
 - **AppError**: 应用级错误枚举，携带用户友好文案和对应 SF Symbol
 - **ContextualErrorView**: 全屏错误占位视图
 - **ErrorBannerView**: 内联非阻断性错误横幅
+- **ErrorMessageView**: 带重试按钮的错误消息视图
+- **LoadingView**: 通用加载状态视图
+- **ProgressLoadingView**: 带进度百分比的加载视图
+- **SkeletonLoadingView**: 骨架屏加载占位视图
 
-### 引导与帮助
-- **OnboardingView**: 首次启动引导流程视图
-- **OnboardingManager**: 持久化引导完成状态，管理功能提示气泡
+### 引导与隐私
+- **OnboardingView** / **OnboardingPage**: 首次启动引导流程视图
+- **OnboardingManager**: 持久化引导完成状态
+- **PrivacyPrePromptView**: 隐私权限预询问视图
 
 ### 无障碍
 - `View.accessible(label:hint:value:)` / `View.accessibleButton(label:hint:)`: 统一无障碍标签设置
 - **AccessibilityHelper**: 生成复习项、进度、日期的无障碍文本
 - **AccessibilityAnnouncement**: 发送 VoiceOver 公告
+- **AccessibilityNotificationPriority**: 通知优先级控制
 
 ### 扩展工具
 - `Collection[safe:]`: 安全下标访问

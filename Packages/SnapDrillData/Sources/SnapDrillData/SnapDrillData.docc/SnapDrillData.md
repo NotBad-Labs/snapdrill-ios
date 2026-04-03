@@ -27,14 +27,15 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 - ``GradeRepository`` — 年级的 CRUD
 - ``TagRepository`` — 标签的 fetch-or-create
 
-### 容器
+### 容器与持久化
 
 - ``RepositoryContainer`` — 聚合所有 Repository 的单一入口，通过 `@Environment(\.repositories)` 注入
 - ``PersistenceController`` — 配置 `ModelContainer`，管理 Schema 迁移
+- ``ProfileManager`` — Multi-Profile 管理（创建/切换/删除 Profile，驱动 ModelContainer 重建）
 
 ### 导出
 
-- ``ReviewExportSnapshot`` — 6 字段 `Sendable` 快照，用于跨 actor 边界传递题目数据
+- ``ReviewExportSnapshot`` — Sendable 快照（含 id、题干、图片路径、难度、标签等 11 个字段），用于跨 actor 边界传递题目数据
 
 ### 备份与恢复
 
@@ -47,6 +48,11 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 ## Schema 版本
 
 当前为 V4（V1→V2 日期默认值 → V3 索引 → V4 唯一约束），迁移计划见 `MigrationPlan.swift`。
+
+## 依赖
+
+- `SnapDrillCore`：引用核心类型（Difficulty、ReviewRating 等）
+- `ZIPFoundation`：ZIP 压缩/解压（备份归档）
 
 ## 禁止模式
 

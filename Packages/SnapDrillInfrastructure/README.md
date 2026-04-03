@@ -24,6 +24,6 @@
 
 ## 依赖
 - `SnapDrillCore`: 引用协议定义和核心类型
-- `FirebaseAnalytics` / `FirebaseCrashlytics` / `FirebaseRemoteConfig`: Firebase SDK
+- `FirebaseCore` / `FirebaseAnalytics` / `FirebaseCrashlytics` / `FirebaseRemoteConfig`: Firebase SDK
 
 > 详细 API 参考见 DocC 文档：`SnapDrillInfrastructure.docc/SnapDrillInfrastructure.md`
