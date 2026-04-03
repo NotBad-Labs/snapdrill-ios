@@ -291,7 +291,7 @@
 - `product-vision.md`：`目标用户`、`成功信号（设计校准器）`
 - `product-design.md`：`多 Profile 设计 [P5]`
 - `product-requirements.md`：`v1.0（当前，功能完整）`
-- `product-journeys.md`：`旅程 1：家长帮小学生录入 + 多孩管理`
+- `product-journeys.md`：`旅程 0：首次打开 App`、`旅程 1：家长帮小学生录入 + 多孩管理`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`
 
 ---
