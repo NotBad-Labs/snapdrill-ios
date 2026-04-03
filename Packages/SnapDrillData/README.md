@@ -18,14 +18,17 @@
 - `SubjectRepository` / `SourceRepository` / `GradeRepository`: 分类管理
 - `TagRepository`: 标签管理（含 fetchOrCreate）
 
-### 其他
+### 数据管理
 - `RepositoryContainer`: 聚合容器，统一数据清理入口
+- `BackupService`: 数据备份与恢复（JSON + 图片 ZIP 归档）
+- `ProfileManager`: Multi-Profile 管理（创建/切换/删除 Profile）
 - `ReviewExportSnapshot`: 导出专用 Sendable 快照（桥接 @Model → Transferable）
 - `PersistenceController`: ModelContainer 配置与迁移
 - `DataSeeder`: 测试数据生成器
 
 ## 依赖
 - `SnapDrillCore`: 引用核心类型（Difficulty、ReviewRating 等）
+- `ZIPFoundation`: ZIP 压缩/解压（备份归档）
 
 ## 关键用法
 ```swift

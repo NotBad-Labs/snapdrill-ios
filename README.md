@@ -8,7 +8,8 @@
 
 | 文档 | 用途 |
 |---|---|
-| [产品文档](docs/product/) | 愿景、设计、需求、用户旅程、商业化 |
+| [产品文档](docs/product/) | 愿景、设计、需求、用户旅程、商业化、用例 |
+| [技术文档](docs/tech/) | 架构、API 参考、合规、部署、非功能性需求 |
 | [开发流程](docs/workflow.md) | 看板、Git、Code Review、优先级 |
 | [DocC API 文档](Packages/) | Xcode: Product > Build Documentation |
 
@@ -60,5 +61,5 @@
 ## 测试
 
 - **Xcode**: `Cmd+U`
-- **命令行**: `xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
-
+- **命令行（运行测试）**: `xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
+- **命令行（仅编译验证，含测试 target）**: `xcodebuild build-for-testing -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
