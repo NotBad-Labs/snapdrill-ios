@@ -43,6 +43,7 @@ Bear / Day One / Ulysses 等 iOS 独立 App 已验证此模式多年，Apple 审
 **免费版体验完整性保障**：
 - 单设备无限录题 + 无广告 + 纯本地 = 完整可用的产品
 - `.snapdrill` 手动备份/恢复 = 免费用户换手机不丢数据，也是抵御"绑架数据"指控的盾牌。此承诺建立在备份格式持续向后兼容之上（见 `product-design.md`§备份与恢复设计 + `product-requirements.md`§备份与恢复）
+  - 当前实现状态：代码仅备份活跃 Profile（Issue #531 已立项修复）
 - 付费解锁的是「增值体验」（多设备流转、高级导出），不是「基础能力」
 
 **数据迁移方案**：
@@ -98,12 +99,12 @@ iCloud 同步是打通这个闭环的引擎，组卷排版是配套杀招。
 ## 隐私策略（2026-03-07 确立，Bear 模式）
 
 SnapDrill **不收集任何可识别个人信息**（no personally identifiable information）。没有注册，没有手机号，没有学校年级。
-匿名使用数据（Firebase Analytics / Crashlytics）默认开启，用户可在设置中关闭。
+匿名使用数据采用两个独立开关，分别控制 Firebase Analytics 和 Crashlytics，默认开启，用户可在设置中分别关闭。
 
 | 维度 | 竞品（喵喵机/橙果等） | SnapDrill |
 |---|---|---|
 | 注册 | 手机号必须 | 无注册 |
-| 数据收集 | 姓名、学校、年级、位置 | 零可识别个人信息（仅匿名 Analytics，可关闭） |
+| 数据收集 | 姓名、学校、年级、位置 | 零可识别个人信息（匿名 Analytics / Crashlytics 独立开关，可分别关闭） |
 | 存储 | 自建云端 | 纯本地 + iCloud（Apple 负责） |
 | 合规负担 | 极重（ICP+等保+审计+儿童隐私） | 较轻（App 备案 + Apple 审核，不主动收集用户数据） |
 
@@ -170,7 +171,7 @@ FTC 判定 COPPA "directed to children" 的核心标准与 SnapDrill 的对照�
 
 **当前合规措施**：
 - 零注册、零可识别个人信息收集
-- 匿名使用数据默认开启，用户可在设置中关闭
+- 匿名使用数据默认开启，Analytics 和 Crashlytics 可在设置中分别关闭
 - Privacy Manifest 声明数据不关联、不追踪
 
 **App Store 营销注意事项**：避免使用 "children""kids""儿童教育" 等触发 FTC/Apple 审查的措辞，强调"效率工具""数字化归档""家长和学生"。
