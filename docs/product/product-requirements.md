@@ -296,7 +296,7 @@ v1.0 补齐全模块 VoiceOver 支持，在 App Store Connect 声明无障碍兼
 
 **多 Profile**
 - 多 Profile / 多题库隔离（本地切换，参考 Obsidian Vault 切换，覆盖多孩家庭场景）
-  - 当前实现状态：代码仅备份活跃 Profile（Issue #531 已立项修复）
+  > 实现状态：当前代码仅备份活跃 Profile（Issue #531 已立项修复，产品承诺以全部 Profile 为准）
 
 **设置与个性化**
 - 用户资料（昵称/座右铭/头像/每日目标，纯本地）
