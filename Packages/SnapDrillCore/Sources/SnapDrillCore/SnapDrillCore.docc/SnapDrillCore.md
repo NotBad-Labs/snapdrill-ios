@@ -1,22 +1,26 @@
 # ``SnapDrillCore``
 
-零依赖核心库，提供 SM-2 调度算法、OCR 服务、图片存储、采集草稿、日志和通用工具。
+核心逻辑层，提供 SM-2 调度算法、OCR 服务、图片存储、采集草稿、日志和通用工具。
 
 ## 概述
 
-`SnapDrillCore` 是整个模块体系的最底层，不依赖任何本地包。
+`SnapDrillCore` 是整个模块体系的最底层，不依赖任何本地包（部分服务因处理图片/颜色而 import UIKit/SwiftUI）。
 所有其他包（`SnapDrillData`、`SnapDrillUI`、五个 Feature 包）均可安全 import。
 
 依赖方向：`SnapDrillFeature*` / `SnapDrillData` / `SnapDrillUI` ──► `SnapDrillCore`
 
 ## 主要类型
 
+### 业务模型
+
+- ``Difficulty`` — 题目难度等级（1-5 星）
+- ``Profile`` — 用户 Profile 值类型（Multi-Profile 支持）
+
 ### 复习调度引擎
 
 - ``ReviewScheduler`` — SM-2 间隔重复算法的核心实现
 - ``SM2State`` — 封装单道题目的复习状态（ease factor、interval、repetitions）
 - ``ReviewRating`` — 用户评价（Again / Hard / Good / Easy）
-- ``Difficulty`` — 题目难度等级（1–5 星）
 
 ### 采集能力（`Capture/` 子目录）
 
@@ -27,6 +31,9 @@
 
 - ``CaptureDraftService`` — 跨域草稿缓存（Dashboard 检测 / Capture 消费），`@MainActor` 单例
 - ``PDFExportService`` — 从 `[any PDFExportable]` 生成 PDF Data
+- ``PDFExportOptions`` — PDF 导出配置（去答案、留白答题区、页眉页码等）
+- ``PrivacyConsentService`` — ATT 隐私授权请求与状态查询
+- ``LiveNotificationService`` — 本地推送通知调度
 
 ### 协议
 
@@ -38,14 +45,12 @@
 - ``NotificationServiceProtocol`` — 本地通知调度协议
 - ``RemoteConfigurable`` — 远程配置读取协议
 
-### 枚举
+### 枚举与错误
 
 - ``AnalyticsEvent`` — Analytics 事件类型定义
-
-### 服务
-
-- ``PrivacyConsentService`` — ATT 隐私授权请求与状态查询
-- ``LiveNotificationService`` — 本地推送通知调度
+- ``SnapDrillError`` — 应用级通用错误
+- ``OCRError`` — OCR 识别错误
+- ``ImageStorageError`` — 图片存储错误
 
 ### 配置
 
