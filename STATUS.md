@@ -2,22 +2,27 @@
 
 > 最后更新：2026-04-03
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：0 · Open Issue：5（#162 #163 外部阻塞，#161 等真机，#452 讨论存档，#524 typed throws）
+> Open PR：0 · Open Issue：14（#531 全 Profile 备份、#532 TipKit 隔离、#162 #163 外部阻塞、#161 等真机 等）
 
 ---
 
 ## 当前焦点
 
-文档全量审计完成（产品层 6 + 技术层 5 + 项目/模块文档 18 = 29 个文档）。进入代码重构阶段。
+三方全量文档交叉审计完成（48 个文档，Claude + Codex + Gemini 独立审计 + 5 位外部专家决策咨询）。进入代码实现阶段。
 
 ### 待处理
 
 | 优先级 | 事项 | 状态 |
 |---|---|---|
-| ~~P1~~ | ~~PR #525 DI 注入修复（ImageStorage + PDFExportService）~~ | ✅ 已合并（125 tests 通过） |
-| ~~P1~~ | ~~Issue #521 DI 全部重构~~ | ✅ #525 + #526 已合并（125 tests 通过） |
-| ~~P2~~ | ~~#491-#495 五个功能 PR~~ | ✅ 全部 Review + 修复后合并 |
+| P1 | Issue #531 备份支持全部 Profile | 待排期（用户拍板：数据属于用户） |
+| P2 | Issue #532 TipKit 状态按 Profile 隔离 | 待排期（Gemini 独有发现） |
 | P2 | Issue #524 Typed throws 渐进迁移 | 待排期 |
+
+### 已完成（三方全量文档交叉审计，#530）
+
+- #533 chore: 全量文档交叉审计修复（compliance COPPA/GDPR-K 分析、ATT 修正、幽灵 API 清理、architecture 4 处修正等 34 个问题）
+- #529 chore: AI 文档审计（rules 7 + skills 10 = 17 个文档对齐代码）
+- 新建 #531（全 Profile 备份）+ #532（TipKit Profile 隔离）
 
 ### 已完成（文档审计第二轮，#527）
 
