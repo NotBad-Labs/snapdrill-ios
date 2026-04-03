@@ -15,17 +15,27 @@ PR 合并后、STATUS.md 已在本地更新完成时执行。
 
 ## 执行流程
 
-### 1. 确认在 develop 分支
+### 1. 检查工作区是否干净
+
+```bash
+# 先检查是否有未提交的代码变更（STATUS.md 除外）
+if git diff --name-only HEAD | grep -v STATUS.md | grep -q .; then
+  echo "工作区有未提交的代码变更，请先处理后再推送 STATUS.md"
+  exit 1
+fi
+```
+
+### 2. 确认在 develop 分支
 
 ```bash
 current_branch=$(git branch --show-current)
 if [ "$current_branch" != "develop" ]; then
-  echo "⚠️ 当前不在 develop 分支（$current_branch），先切换"
+  echo "当前不在 develop 分支（$current_branch），先切换"
   git checkout develop && git pull
 fi
 ```
 
-### 2. 检查是否有待推送的状态变更
+### 3. 检查是否有待推送的状态变更
 
 ```bash
 git status STATUS.md
@@ -33,7 +43,7 @@ git status STATUS.md
 
 如果无变更，提示「STATUS.md 已是最新，无需推送」并退出。
 
-### 3. 精确 stage + commit + push
+### 4. 精确 stage + commit + push
 
 ```bash
 git add STATUS.md

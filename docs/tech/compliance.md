@@ -46,25 +46,87 @@ SnapDrill 不收集任何可识别个人信息。没有注册、没有手机号�
 
 ### Tracking 姿态
 
-- App 整体声明 **Not Tracking**（NSPrivacyTracking = false）
-- 不使用 IDFA，不触发 ATT 弹窗
-- Analytics 收集匿名事件计数，不关联用户身份，不用于广告追踪
-- 用户可在设置中关闭 Analytics
+- App 在 Privacy Manifest 中声明 `NSPrivacyTracking = false`，当前产品口径为 **Not Tracking**
+- 代码中存在 ATT 授权链路：`SnapDrillApp` 在 Onboarding 完成后检查 `PrivacyConsentService.shouldShowPrePrompt`；若为 true，先展示 `PrivacyPrePromptView`，用户点击继续后调用 `PrivacyConsentService.requestTrackingAuthorization()` 触发系统 ATT 弹窗
+- 当前源码未检出 IDFA / `ASIdentifierManager` / `advertisingIdentifier` 的直接读取代码；题目内容不用于第三方广告画像或 behavioral advertising
+- Analytics / Crashlytics 为匿名遥测，用户可在设置中关闭；数据收集开关由 `AppConfiguration.FeatureFlags.analyticsEnabled` 与 `crashReportingEnabled` 控制
 
 ---
 
-## COPPA 合规姿态
+## COPPA / GDPR-K 年龄合规分析
 
-SnapDrill 定位为**效率工具**（utility tool），不是教育工具：
-- 不提供任何教育内容（无课本/试卷/题库）
-- 所有内容由用户自主拍摄录入
-- 类比：Scanner Pro、备忘录——学生也用，但不是"面向儿童的 App"
+### 用户年龄与实际使用路径
 
-FTC "directed to children" 核心标准对照：
-1. **视觉设计和语气** — 成熟、家长友好，非幼稚卡通风格
-2. **面向儿童的内容** — 不提供，所有数据来自用户
-3. **营销对象** — 面向家长和学生，非专门面向 <13 岁儿童
-4. **App Store 分类** — 未进入 Kids Category
+SnapDrill 的目标场景是家庭教育中的练习题数字化存档，真实使用人群分三层：
+
+- **小学阶段（约 7-8 岁起）**：通常不独立使用手机，实际操作者是家长
+- **初中阶段（约 12-15 岁）**：学生开始独立使用，家长可能辅助
+- **高中阶段（约 15-18 岁）**：学生独立使用为主
+
+SnapDrill 不是"默认面向低龄儿童独立使用"的产品；更准确的描述是：**面向家长与中学生的原生效率工具**，并覆盖"家长替低龄孩子录题"的家庭场景。
+
+### 产品属性判断
+
+SnapDrill 的产品定位是 efficiency tool，而不是内容型 education service：
+
+- 不提供教材、书籍、题库、试卷或课程内容
+- 不做内容分发、推荐算法、社交互动、儿童社区或儿童广告
+- 所有题目图片、OCR 文本、答案、标签与分类数据，均由用户主动录入
+- 产品核心价值是"采集 → 存储 → 整理 → 导出/打印"，而不是向儿童提供内容消费体验
+
+### Firebase `app_instance_id` 与 persistent identifier 分析
+
+虽然 SnapDrill 不收集 name / email / phone 等直接身份信息，但启用 Firebase Analytics 时，SDK 会处理 `app_instance_id` 一类的 app-scoped identifier：
+
+- 它不直接识别真实姓名，但可在一段时间内识别同一 app instance
+- 在 COPPA 语境下，persistent identifier 属于 personal information 范畴
+- 在 GDPR 语境下，这类 identifier 更接近 pseudonymous personal data
+
+因此不能简单写成"零 PII = 与儿童隐私规则无关"。更准确的表述：核心离线功能接近"无 personal data 外发"的本地工具路径；启用 Firebase 的遥测路径仍需按 persistent identifier 风险管理。
+
+### COPPA `directed to children` 标准逐项对照
+
+| 因素 | SnapDrill 评估 |
+|---|---|
+| Subject matter | 题目扫描/整理/导出/复习流程，不提供儿童娱乐或教育内容 |
+| Visual content | 成熟、克制、家长友好，不采用低龄卡通或角色化包装 |
+| Language / tone | 文案面向家长与中学生，强调效率/整理/隐私 |
+| Activities | 拍照/OCR/编辑/导出/复习，不含儿童社交或游戏化激励 |
+| Characters / child appeal | 未使用儿童角色、动画 IP 或玩具化元素 |
+| Advertising | 不做 behavioral advertising，不接入广告网络 |
+| Empirical audience | 小学阶段家长是操作者，中学生可独立使用（mixed household use） |
+| App Store classification | 不申请 Kids Category，4+ 年龄分级 |
+
+结论：SnapDrill 更接近 general-audience / mixed-audience utility app，不宜自我表述为 child-directed app。
+
+### FTC 2025 Final Rule 的影响
+
+FTC 于 2025-04-22 发布 COPPA Final Rule amendments，合规落地截止日为 **2026-04-22**。对 SnapDrill 的影响：
+
+- 影响存在但有限（不做广告、不开儿童社交、不收集账号身份信息）
+- 需关注第三方 persistent identifier 与产品定位表述的一致性
+- 若未来进入 COPPA 适用区间，新规带来的额外压力主要在：third-party disclosure 说明、persistent identifier 约束、信息安全与数据保留要求
+
+### 现阶段防御性措施
+
+- Analytics / Crashlytics 可由用户关闭
+- 不收集 name / email / phone / school / location 等直接身份信息
+- 不建立账号体系，不要求注册登录
+- 不做 behavioral advertising，不接入广告 SDK
+- 题目数据默认保存在本地，由用户主动录入、导出、删除
+
+### 重新评估触发条件
+
+出现以下任一变化时，需重新评估 COPPA / GDPR-K 结论：
+
+- 进入 Kids Category
+- App Store 元数据开始明显面向 children / kids under 13 营销
+- 新增账号体系、云端用户身份或家长-孩子关联账号
+- 新增广告 SDK、cross-app tracking 或 behavioral advertising
+- 新增开放社区、聊天、UGC 分享或排行榜
+- 新增需要直接识别儿童身份的信息字段
+
+> 本节属于 engineering / product compliance assessment，不替代正式 legal opinion。
 
 ---
 
@@ -77,7 +139,7 @@ FTC "directed to children" 核心标准对照：
 | 知情同意 | ✅ Analytics 默认开启但可关闭 |
 | 数据最小化 | ✅ 零 PII 收集 |
 | 跨境传输 | ⚠️ Firebase 数据存储在 Google 服务器（匿名数据） |
-| 中国区 iCloud | 云上贵州运营，数据存储在中国境内（v1.5 同步功能） |
+| 中国区 iCloud | 云上贵州运营，数据存储在中国境内（v1.5 规划，当前未实现） |
 
 ---
 

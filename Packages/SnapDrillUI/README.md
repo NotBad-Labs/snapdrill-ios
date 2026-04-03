@@ -38,10 +38,6 @@
 - **AccessibilityAnnouncement**: 发送 VoiceOver 公告
 - **AccessibilityNotificationPriority**: 通知优先级控制
 
-### 扩展工具
-- `Collection[safe:]`: 安全下标访问
-- `Date` 格式化与相对描述
-
 ## 依赖
 - `SnapDrillCore`: 引用核心类型（日志、错误）
 - `Mantis`: 图片裁剪库（MIT License）

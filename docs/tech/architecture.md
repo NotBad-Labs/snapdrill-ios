@@ -17,7 +17,8 @@ SnapDrill.app（薄壳，Composition Root）
     │   └── FeatureSettings     设置（依赖 Library）
     │
     ├── SnapDrillUI（公共 UI 组件 + 路由协议）
-    │   └── 外部依赖：Mantis（图片裁剪）
+    │   ├── 内部依赖：SnapDrillCore
+│   └── 外部依赖：Mantis（图片裁剪）
     │
     ├── SnapDrillData（SwiftData Model + Repository + 备份）
     │   └── 外部依赖：ZIPFoundation
@@ -65,26 +66,27 @@ DependencyContainer → FirebaseRemoteConfigService → AppConfiguration → Fea
 ## 数据流
 
 ```
-View（纯渲染）
-  │ @Environment(\.repositories)
+View（渲染层 + 依赖装配）
+  │ 通过 @Environment 注入 repositories / services / router
   ▼
-ViewModel（@Observable，持有状态）
-  │ repositories.review.fetchFiltered(...)
+ViewModel（@Observable，持有状态与业务流程）
+  │ 通过 Repository 执行查询、保存、通知监听
   ▼
 Repository（封装 ModelContext 操作）
-  │ modelContext.fetch / insert / save
+  │ modelContext.fetch / insert / save / rollback
   ▼
 SwiftData @Model（持久化）
 ```
 
 **铁律**：
-- View 不直接访问 Repository，必须通过 ViewModel
-- ViewModel 不持有 ModelContext，通过 Repository 操作
+- View 不直接持有 `ModelContext`，也不在 View 层编写持久化业务规则
+- 当前代码允许部分 View 通过 `@Environment(\.repositories)` 获取 `RepositoryContainer`，用于依赖装配、构造 ViewModel、NavigationDestination / Sheet 注入，以及少量轻量数据动作
+- 复杂状态编排、保存流程、错误恢复与通知监听仍应放在 ViewModel
 - Repository 的 `insert()` 是纯内存操作，必须显式调 `saveContext()` 才持久化
 - `saveContext()` 失败后必须 `rollbackContext()` 回滚内存脏状态
 
 **跨模块刷新机制**：
-`Notification.Name.reviewDataDidChange`（定义在 SnapDrillCore/Support/ReviewDataNotification.swift）。Repository 在数据变更后 post，ViewModel 通过 `for await` 监听并刷新 UI。
+`Notification.Name.reviewDataDidChange`（定义在 `SnapDrillCore/Support/ReviewDataNotification.swift`）。发布方包括 Repository（`SubjectRepository` / `SourceRepository` / `GradeRepository`）和部分 Feature 层写操作入口（`CaptureResultViewModel`、`LibraryEditViewModel`、`SettingsViewModel`、`DataSeeder`）。监听方主要是 `DashboardViewModel` 与 `ReviewViewModel`，通过 `for await` 订阅并刷新 UI。
 
 **错误处理策略**：
 - DB save/rollback：原子性保证，失败必须回滚
@@ -173,7 +175,7 @@ LibraryViewModel 管理 5 秒撤销窗口：
 | Repository 封装 ModelContext | 避免 View/ViewModel 直接操作数据库 |
 | ProfileManager Vault 模式 | 每个 Profile 独立数据库，参考 Obsidian，切换时重建 ModelContainer |
 | Firebase 隔离到 Infrastructure | Core 层保持零外部依赖，可随时替换分析/崩溃报告方案 |
-| defaultIsolation(MainActor) | Swift 6.3 全局 MainActor 隔离，减少并发标注噪音 |
+| defaultIsolation(MainActor) | 基于 swift-tools-version 6.2，统一使用 `.defaultIsolation(MainActor.self)` 减少并发标注噪音 |
 
 ---
 

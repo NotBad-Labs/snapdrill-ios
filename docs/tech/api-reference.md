@@ -597,14 +597,20 @@ public init(title: String, description: String, imageName: String = "", systemIm
 public struct OnboardingView: View
 public init(pages: [OnboardingPage], onComplete: @escaping () -> Void)
 
-public struct FeatureTooltip: View
-public init(title: String, message: String, onDismiss: @escaping () -> Void)
-
 public final class OnboardingManager
+public var shouldShowOnboarding: Bool
 public func completeOnboarding()
-public func shouldShowTooltip(for feature: String) -> Bool
-public func markTooltipShown(for feature: String)
 public func resetAll()
+
+public struct ReviewSwipeTip: Tip
+public var title: Text { get }
+public var message: Text? { get }
+public var image: Image? { get }
+
+public struct FieldConfigTip: Tip
+public var title: Text { get }
+public var message: Text? { get }
+public var image: Image? { get }
 
 public struct ContextualErrorView: View
 public init(error: AppError, onAction: (() -> Void)? = nil)
