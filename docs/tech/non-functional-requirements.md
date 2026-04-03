@@ -45,7 +45,7 @@
 | **零 PII** | 不收集任何可识别个人信息 |
 | **端上处理** | OCR 在设备上执行，图片不上传云端 |
 | **EXIF 剥离** | 保存图片前清除 GPS 等位置信息 |
-| **Analytics 可关闭** | 设置页单一开关控制 Firebase Analytics + Crashlytics |
+| **Analytics 可关闭** | 设置页两个独立开关分别控制 Firebase Analytics 和 Crashlytics |
 | **Not Tracking** | Privacy Manifest 声明 NSPrivacyTracking = false，不使用 IDFA |
 | **CSV 注入防护** | 导出 CSV 时以 `=+\-@` 开头的值前加 tab |
 

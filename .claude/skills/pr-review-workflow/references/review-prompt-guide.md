@@ -54,7 +54,7 @@
 - Claude Code CLI（终端）：`由 Claude Code CLI 自动生成（模型：Claude Opus 4.6）`
 - Xcode Intelligence：`由 Xcode Intelligence 自动生成（模型：Claude Opus 4.6）`
 
-请通过 `gh pr comment #N --body "..."` 将 Review 结果发布到 GitHub PR #N（注意：使用 pr comment，不是 pr review）。
+请通过 `gh pr comment N --body "..."` 将 Review 结果发布到 GitHub PR #N（注意：使用 pr comment，不是 pr review）。
 ```
 
 ---
@@ -147,7 +147,7 @@
 - Claude Code CLI（终端）：`由 Claude Code CLI 自动生成（模型：Claude Opus 4.6）`
 - Xcode Intelligence：`由 Xcode Intelligence 自动生成（模型：Claude Opus 4.6）`
 
-请通过 `gh pr comment #232 --body "..."` 将 Review 结果发布到 GitHub PR #232（注意：使用 pr comment，不是 pr review）。
+请通过 `gh pr comment 232 --body "..."` 将 Review 结果发布到 GitHub PR #232（注意：使用 pr comment，不是 pr review）。
 ```
 
 ## 示例（后续 review — Antigravity 验收）
@@ -166,7 +166,7 @@
 
 {固定收尾}
 
-请通过 `gh pr comment #339 --body "..."` 将 Review 结果发布到 GitHub PR #339（注意：使用 pr comment，不是 pr review）。
+请通过 `gh pr comment 339 --body "..."` 将 Review 结果发布到 GitHub PR #339（注意：使用 pr comment，不是 pr review）。
 ```
 
 注意：这份只发给 Antigravity（提出问题的 reviewer）。如果 Xcode Intelligence 首次 review 也提出了不同的问题并被修复，则单独给 Xcode 写一份验收提示词。

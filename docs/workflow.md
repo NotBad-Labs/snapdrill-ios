@@ -21,8 +21,11 @@ Shaped → Building (WIP≤2) → Reviewing → Done
 ## MoSCoW
 - [ ] Must / [ ] Should / [ ] Could
 
+## Severity
+- [ ] S0（数据不可逆丢失）/ [ ] S1（流程完全阻断）/ [ ] S2（能完成但有摩擦）/ [ ] S3（更好但不紧急）
+
 ## Appetite
-- [ ] Small（1-2 天）/ Medium（3-5 天）/ Large（1-2 周）
+- [ ] Small（1-2 天）/ [ ] Medium（3-5 天）/ [ ] Large（1-2 周）
 
 ## Scope（做什么）
 -
