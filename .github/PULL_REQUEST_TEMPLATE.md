@@ -16,7 +16,27 @@ Closes #
 
 ## Checklist
 
-- [ ] `swiftlint --strict` 无 violation
-- [ ] `xcodebuild build-for-testing` BUILD SUCCEEDED（含测试 target）
-- [ ] 新增 public API 已同步更新 `.claude/rules/api-pitfalls.md`
+### 代码质量
+
+- [ ] `swiftlint --strict` 0 violations
+- [ ] `xcodebuild build-for-testing` 0 errors
+- [ ] 改接口签名后已 `grep -rn "TypeName(" Tests/` 检查测试同步
 - [ ] 变更不违反 `.claude/rules/` 中的架构约束
+
+### 功能完整性
+
+- [ ] 验收标准（Given-When-Then）全部通过
+- [ ] 异常路径已考虑（空数据、权限拒绝、网络断开）
+- [ ] 新增 UI 元素已补齐 VoiceOver 辅助标签
+- [ ] UI 改动已经 Xcode Review 核实
+
+### 文档同步
+
+- [ ] `product-requirements.md` 已更新（如有新增功能）
+- [ ] `api-reference.md` 已更新（如有新增/变更 public 接口）
+- [ ] 新增第三方库已更新开源许可展示
+- [ ] 合并后更新 `STATUS.md`
+
+### Review
+
+- [ ] Review 结论已留痕（PR comment 或 PR 描述）
