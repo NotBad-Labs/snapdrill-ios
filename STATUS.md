@@ -8,7 +8,7 @@
 
 ## 当前焦点
 
-三方全量文档交叉审计完成（48 个文档，Claude + Codex + Gemini 独立审计 + 5 位外部专家决策咨询）。进入代码实现阶段。
+产品文档深度审计完成（八方审计：Claude/Codex/Gemini x2/Coze/GLM/DeepSeek/Codex Xcode）。进入代码实现阶段。
 
 ### 待处理
 
@@ -17,6 +17,10 @@
 | P1 | Issue #531 备份支持全部 Profile | 待排期（用户拍板：数据属于用户） |
 | P2 | Issue #532 TipKit 状态按 Profile 隔离 | 待排期（Gemini 独有发现） |
 | P2 | Issue #524 Typed throws 渐进迁移 | 待排期 |
+
+### 已完成（产品文档深度审计，#534）
+
+- #535 chore: 产品文档深度审计修复 Batch 1+2（术语表新建、备份/恢复注记、SM-2 分层、Dashboard 修正、旅程 parent-first 重排、Antigravity 二次验收通过）
 
 ### 已完成（三方全量文档交叉审计，#530）
 
