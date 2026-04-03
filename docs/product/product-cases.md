@@ -53,7 +53,7 @@
 - `product-vision.md`：`1. 录入体验是生命线`、`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`信息架构 [P1, P2]`、`OCR 定位 [P1, P6]`、`图片存储策略 [P1, P4]`、`字段可配置系统 [P1, P2]`、`连续录入设计 [P1]`、`草稿恢复设计 [P4]`
 - `product-requirements.md`：`录入方式优先级`、`OCR 识别能力演进路线（2026-04-02 版本归属修正）`、`草稿恢复（2026-03-16 补全，2026-04-02 版本归属修正）`、`v1.0（当前，功能完整）`
-- `product-journeys.md`：`旅程 2：做完试卷，拍照录入错题`、`旅程 3：从微信群导入老师发的题目`、`旅程 1：家长帮小学生录入 + 多孩管理`
+- `product-journeys.md`：`旅程 0：首次打开 App`、`旅程 2：做完试卷，拍照录入错题`、`旅程 3：从微信群导入老师发的题目`、`旅程 1：家长帮小学生录入 + 多孩管理`、`旅程 9：OCR 失败手动修正`
 
 ---
 
@@ -253,6 +253,7 @@
 - `product-vision.md`：`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`备份与恢复设计 [P4 数据安全]`、`多 Profile 设计 [P5 家长友好]`
 - `product-requirements.md`：`功能边界（MoSCoW 分类）`、`v1.0（当前，功能完整）`
+- `product-journeys.md`：`旅程 1：家长帮小学生录入 + 多孩管理`、`旅程 10：免费用户换机恢复`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`、`隐私策略（2026-03-07 确立，Bear 模式）`
 
 ---
@@ -290,7 +291,7 @@
 - `product-vision.md`：`目标用户`、`成功信号（设计校准器）`
 - `product-design.md`：`多 Profile 设计 [P5]`
 - `product-requirements.md`：`v1.0（当前，功能完整）`
-- `product-journeys.md`：`旅程 1：家长帮小学生录入 + 多孩管理`
+- `product-journeys.md`：`旅程 0：首次打开 App`、`旅程 1：家长帮小学生录入 + 多孩管理`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`
 
 ---
@@ -326,3 +327,4 @@
 | B23 | 媒体缓存清理误删题目原图 | 缓存清理只清理 Caches/ 临时文件，不触碰 Documents/ 或 Application Support/ | 任何缓存清理不得导致题目原图、备份文件、SwiftData 数据丢失 | S0 |
 | B24 | 用户尝试删除最后一个 Profile | 删除按钮 disabled，提示「至少保留一个 Profile」 | 设备上始终存在至少一个 Profile，不出现零 Profile 崩溃 | S1 |
 | B25 | 切换 Profile 后 TipKit 提示状态 | 隔离策略待定（Issue #532）；当前实现为全局 | 最终行为必须与产品决策一致 | S2 |
+| B26 | 删除非最后 Profile | 二次确认；删除后级联移除该 Profile 的题库、图片、复习进度与配置；若删除的是当前活跃 Profile，UI 自动 fallback 到剩余 Profile 并提示 | 不得遗留孤儿数据、错误引用或活跃 Profile 悬空状态 | S1 |
