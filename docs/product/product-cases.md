@@ -326,3 +326,4 @@
 | B23 | 媒体缓存清理误删题目原图 | 缓存清理只清理 Caches/ 临时文件，不触碰 Documents/ 或 Application Support/ | 任何缓存清理不得导致题目原图、备份文件、SwiftData 数据丢失 | S0 |
 | B24 | 用户尝试删除最后一个 Profile | 删除按钮 disabled，提示「至少保留一个 Profile」 | 设备上始终存在至少一个 Profile，不出现零 Profile 崩溃 | S1 |
 | B25 | 切换 Profile 后 TipKit 提示状态 | 隔离策略待定（Issue #532）；当前实现为全局 | 最终行为必须与产品决策一致 | S2 |
+| B26 | 删除非最后 Profile | 二次确认；删除后级联移除该 Profile 的题库、图片、复习进度与配置；若删除的是当前活跃 Profile，UI 自动 fallback 到剩余 Profile 并提示 | 不得遗留孤儿数据、错误引用或活跃 Profile 悬空状态 | S1 |
