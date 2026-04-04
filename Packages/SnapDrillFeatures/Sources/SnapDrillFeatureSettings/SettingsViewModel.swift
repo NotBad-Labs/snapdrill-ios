@@ -169,8 +169,6 @@ public final class SettingsViewModel {
 
             // 2. 恢复前自动备份当前数据（安全网）
             let autoBackupURL = await createAutoBackupBeforeRestore()
-            // 无论恢复成功、图片失败 return、还是数据库异常 throw，都清理临时文件
-            defer { cleanupAutoBackup(autoBackupURL) }
 
             backupStatusMessage = L10n.Settings.restoreReadingData
 
@@ -184,7 +182,7 @@ public final class SettingsViewModel {
 
             backupStatusMessage = L10n.Settings.restoreImages
 
-            // 5. 恢复图片文件（数据库已恢复，图片失败不回滚数据库）
+            // 5. 恢复图片文件
             do {
                 try await backupService.restoreImages(
                     from: fileURL,
@@ -196,15 +194,23 @@ public final class SettingsViewModel {
                     }
                 }
             } catch {
-                // 数据库已恢复成功，但图片恢复失败——提示用户可重新恢复
-                SnapDrillLogger.generic.error("图片恢复失败（数据已恢复）: \(error)")
-                NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
-                backupStatusMessage = L10n.Settings.restorePartialImageFailure
+                // 图片恢复失败 → 从自动备份回滚到恢复前状态
+                SnapDrillLogger.generic.error("图片恢复失败，开始回滚: \(error)")
+                if let autoBackupURL {
+                    await rollbackFromAutoBackup(autoBackupURL)
+                } else {
+                    // 无自动备份（恢复前无数据或备份失败），无法回滚
+                    backupError = L10n.Errors.restoreFailed
+                    backupStatusMessage = ""
+                }
                 isBackupInProgress = false
                 return
             }
 
-            // 6. 通知 UI 刷新
+            // 6. 恢复完全成功 → 清理自动备份
+            cleanupAutoBackup(autoBackupURL)
+
+            // 7. 通知 UI 刷新
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             backupStatusMessage = L10n.Settings.restoreComplete
             SnapDrillLogger.generic.info("恢复完成: \(manifest.itemCount) 道题目")
@@ -370,6 +376,28 @@ public final class SettingsViewModel {
     }
 
     // MARK: - Private Helpers
+
+    /// 从自动备份回滚到恢复前状态（图片恢复失败时调用）
+    private func rollbackFromAutoBackup(_ fileURL: URL) async {
+        backupStatusMessage = L10n.Settings.restoreAutoBackup
+        do {
+            let payload = try await backupService.extractPayload(from: fileURL)
+            try await repositories.restoreFromPayload(payload)
+            try await backupService.restoreImages(
+                from: fileURL,
+                to: Self.activeProfileDirectory()
+            ) { _, _ in }
+            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            backupStatusMessage = L10n.Settings.restorePartialImageFailure
+            SnapDrillLogger.generic.info("已回滚到恢复前状态")
+            cleanupAutoBackup(fileURL)
+        } catch {
+            // 回滚也失败 → 保留自动备份供用户手动恢复
+            SnapDrillLogger.generic.error("回滚失败，自动备份保留在: \(fileURL.path)")
+            backupError = L10n.Errors.restoreFailed
+            backupStatusMessage = ""
+        }
+    }
 
     /// 恢复前自动备份当前数据到临时目录（best-effort，不中断恢复流程）
     ///
