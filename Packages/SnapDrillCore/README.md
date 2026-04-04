@@ -36,7 +36,7 @@
 - `Notification.Name` 扩展: 跨模块通知名（reviewDataDidChange 等）
 - `SnapDrillLogger`: 日志系统（基于 os.Logger）
 - `SnapDrillError` / `OCRError` / `ImageStorageError`: 错误类型
-- `SnapDrillTips`: TipKit 提示定义
+- `ReviewSwipeTip` / `FieldConfigTip`: TipKit 提示定义
 
 ### 6. Utils (通用工具)
 - `Date+Extension`, `Collection+Safe`, `Color+Hex` 等基础扩展
