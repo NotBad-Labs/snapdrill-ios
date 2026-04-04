@@ -2,19 +2,20 @@
 
 > 最后更新：2026-04-04
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：0 · Open Issue：14（#531 全 Profile 备份、#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 TestFlight Build 6 等）
+> Open PR：0 · Open Issue：15（#542 恢复原子性 S0、#531 全 Profile 备份 S0、#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 TestFlight Build 6 等）
 
 ---
 
 ## 当前焦点
 
-文档体系 + Claude Code 配置全面升级完成。进入代码实现阶段。
+v2.0 版本升级 + 全量文档审计（55 份，R1-R5 + 补审）完成。进入代码实现阶段。
 
 ### 待处理
 
 | 优先级 | 事项 | 状态 |
 |---|---|---|
-| P1 | Issue #531 备份支持全部 Profile | 待排期（用户拍板：数据属于用户） |
+| P0 | Issue #542 恢复原子性缺口 — 图片失败不回滚 + 自动备份被无条件清理 | S0，待排期（Codex 交叉审计发现） |
+| P1 | Issue #531 备份支持全部 Profile | S0，待排期（用户拍板：数据属于用户） |
 | P2 | Issue #532 TipKit 状态按 Profile 隔离 | 待排期（Gemini 独有发现） |
 | P2 | Issue #540 Hooks 扩展（需深入研究协议） | 待排期 |
 
