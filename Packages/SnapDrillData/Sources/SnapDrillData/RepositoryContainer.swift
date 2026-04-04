@@ -79,14 +79,16 @@ public final class RepositoryContainer {
     ///
     /// 在 MainActor 上读取所有 @Model 数据并转为值类型 DTO，
     /// 供 BackupService（actor）在后台线程打包 ZIP。
-    public func collectBackupPayload() throws -> BackupPayload {
+    public func collectProfileBackupData(profileName: String, profileId: UUID) throws -> ProfileBackupData {
         let items = try review.fetchAllModels()
         let allSubjects = try subject.fetchAllModels()
         let allSources = try source.fetchAllModels()
         let allGrades = try grade.fetchAllModels()
         let allTags = try tag.fetchAllModels()
 
-        return BackupPayload(
+        return ProfileBackupData(
+            profileName: profileName,
+            profileId: profileId,
             reviewItems: items.map { $0.toBackupDTO() },
             subjects: allSubjects.map { $0.toBackupDTO() },
             sources: allSources.map { $0.toBackupDTO() },
@@ -100,34 +102,34 @@ public final class RepositoryContainer {
     /// 先删除所有现有数据（含图片文件），再从 DTO 重建全部 Model 和关系。
     /// 整个数据库操作是原子的：insert 全部完成后统一 save，失败时 rollback。
     ///
-    /// - Parameter payload: 反序列化后的备份数据
-    public func restoreFromPayload(_ payload: BackupPayload) async throws {
+    /// - Parameter profileData: 单个 Profile 的备份数据
+    public func restoreFromProfileData(_ profileData: ProfileBackupData) async throws {
         // 1. 删除全部现有数据
         try await deleteAllData()
 
         // 2. 重建分类模型
-        for dto in payload.subjects {
+        for dto in profileData.subjects {
             let model = SubjectModel(id: dto.id, name: dto.name, icon: dto.icon, colorHex: dto.colorHex, sortOrder: dto.sortOrder)
             subject.insert(model)
         }
-        for dto in payload.sources {
+        for dto in profileData.sources {
             let model = SourceModel(id: dto.id, name: dto.name, icon: dto.icon, colorHex: dto.colorHex, sortOrder: dto.sortOrder)
             source.insert(model)
         }
-        for dto in payload.grades {
+        for dto in profileData.grades {
             let model = GradeModel(id: dto.id, name: dto.name, sortOrder: dto.sortOrder)
             grade.insert(model)
         }
 
         // 3. 重建标签（先创建，后续用于关联）
         var tagsByName: [String: TagModel] = [:]
-        for dto in payload.tags {
+        for dto in profileData.tags {
             let model = try tag.fetchOrCreateModel(name: dto.name, colorHex: dto.colorHex)
             tagsByName[dto.name] = model
         }
 
         // 4. 重建题目并关联标签
-        for dto in payload.reviewItems {
+        for dto in profileData.reviewItems {
             let itemTags = dto.tagNames.compactMap { tagsByName[$0] }
             let model = ReviewItemModel(
                 id: dto.id,

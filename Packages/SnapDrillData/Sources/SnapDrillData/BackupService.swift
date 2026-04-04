@@ -32,15 +32,15 @@ public actor BackupService {
     /// 将全量数据序列化为 JSON + 图片目录，打包为 ZIP 文件存储到临时目录。
     ///
     /// - Parameters:
-    ///   - payload: 所有模型数据的 Codable 快照
+    ///   - payload: 所有 Profile 数据的 Codable 快照
     ///   - manifest: 备份元数据清单
-    ///   - imageBasePath: 图片根目录（Documents 目录的绝对路径）
+    ///   - profileDirectories: 每个 Profile 的图片目录（与 payload.profiles 一一对应）
     ///   - onProgress: 进度回调（当前已处理图片数 / 总图片数）
     /// - Returns: 生成的 .snapdrill 文件 URL（位于临时目录）
     public func createBackup(
         payload: BackupPayload,
         manifest: BackupManifest,
-        imageBasePath: URL,
+        profileDirectories: [URL],
         onProgress: ProgressHandler? = nil
     ) throws -> URL {
         let fileManager = FileManager.default
@@ -82,39 +82,66 @@ public actor BackupService {
             provider: { position, size in payloadData[Int(position) ..< Int(position) + size] }
         )
 
-        // 3. 收集所有图片路径
-        var allImagePaths: [String] = []
-        for item in payload.reviewItems {
-            if let path = item.imagePath { allImagePaths.append(path) }
-            if let path = item.answerImagePath { allImagePaths.append(path) }
-        }
-        // 去重（同一张图可能被多个题目引用）
-        let uniqueImagePaths = Array(Set(allImagePaths))
-
-        // 4. 逐个写入图片（Store 模式，不压缩——JPEG 已压缩）
-        let totalImages = uniqueImagePaths.count
-        // 节流：仅在百分比变化 >= 1% 时回调，避免 2000 张图创建 2000 个 MainActor 微任务
-        var lastReportedPercent = -1
-        for (index, relativePath) in uniqueImagePaths.enumerated() {
-            let absoluteURL = imageBasePath.appendingPathComponent(relativePath)
-            guard fileManager.fileExists(atPath: absoluteURL.path) else {
-                SnapDrillLogger.generic.warning("备份跳过缺失图片: \(relativePath)")
-                reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
-                continue
-            }
-
-            let fileData = try Data(contentsOf: absoluteURL)
-            try archive.addEntry(
-                with: relativePath,
-                type: .file,
-                uncompressedSize: Int64(fileData.count),
-                compressionMethod: .none,
-                provider: { position, size in fileData[Int(position) ..< Int(position) + size] }
-            )
-            reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
-        }
+        // 3. 逐个 Profile 写入图片
+        try writeProfileImages(
+            to: archive, payload: payload,
+            profileDirectories: profileDirectories, onProgress: onProgress
+        )
 
         return backupURL
+    }
+
+    /// 将各 Profile 的图片写入 ZIP 归档（Store 模式，不压缩——JPEG 已压缩）
+    private func writeProfileImages(
+        to archive: Archive,
+        payload: BackupPayload,
+        profileDirectories: [URL],
+        onProgress: ProgressHandler?
+    ) throws {
+        let fileManager = FileManager.default
+        var totalImages = 0
+        for profileData in payload.profiles {
+            for item in profileData.reviewItems {
+                if item.imagePath != nil { totalImages += 1 }
+                if item.answerImagePath != nil { totalImages += 1 }
+            }
+        }
+
+        var processedImages = 0
+        var lastReportedPercent = -1
+
+        for (profileIndex, profileData) in payload.profiles.enumerated() {
+            let imageBasePath = profileIndex < profileDirectories.count
+                ? profileDirectories[profileIndex] : profileDirectories[0]
+
+            var imagePaths: [String] = []
+            for item in profileData.reviewItems {
+                if let path = item.imagePath { imagePaths.append(path) }
+                if let path = item.answerImagePath { imagePaths.append(path) }
+            }
+
+            let profilePrefix = "profiles/\(profileData.profileId.uuidString)"
+            for relativePath in Set(imagePaths) {
+                let absoluteURL = imageBasePath.appendingPathComponent(relativePath)
+                guard fileManager.fileExists(atPath: absoluteURL.path) else {
+                    SnapDrillLogger.generic.warning("备份跳过缺失图片: \(relativePath)")
+                    processedImages += 1
+                    reportProgress(processedImages, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
+                    continue
+                }
+
+                let fileData = try Data(contentsOf: absoluteURL)
+                try archive.addEntry(
+                    with: "\(profilePrefix)/\(relativePath)",
+                    type: .file,
+                    uncompressedSize: Int64(fileData.count),
+                    compressionMethod: .none,
+                    provider: { position, size in fileData[Int(position) ..< Int(position) + size] }
+                )
+                processedImages += 1
+                reportProgress(processedImages, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
+            }
+        }
     }
 
     // MARK: - Import
@@ -169,14 +196,16 @@ public actor BackupService {
         return try decoder.decode(BackupPayload.self, from: payloadData)
     }
 
-    /// 从备份文件中恢复图片到 Documents/images/ 目录
+    /// 从备份文件中恢复指定 Profile 的图片
     ///
     /// - Parameters:
     ///   - backupURL: .snapdrill 文件路径
-    ///   - imageBasePath: 图片根目录（Documents 目录的绝对路径）
+    ///   - profileId: 要恢复的 Profile ID（对应 ZIP 中 profiles/<id>/ 前缀）
+    ///   - imageBasePath: 目标 Profile 的图片目录
     ///   - onProgress: 进度回调（当前已恢复图片数 / 总图片数）
     public func restoreImages(
         from backupURL: URL,
+        profileId: UUID,
         to imageBasePath: URL,
         onProgress: ProgressHandler? = nil
     ) throws {
@@ -187,8 +216,9 @@ public actor BackupService {
             throw BackupError.invalidArchive
         }
 
-        // 筛选 images/ 目录下的条目
-        let imageEntries = archive.filter { $0.path.hasPrefix("images/") && $0.type == .file }
+        // 筛选该 Profile 的图片条目：profiles/<id>/images/...
+        let prefix = "profiles/\(profileId.uuidString)/images/"
+        let imageEntries = archive.filter { $0.path.hasPrefix(prefix) && $0.type == .file }
         let totalImages = imageEntries.count
 
         let fileManager = FileManager.default
@@ -200,11 +230,12 @@ public actor BackupService {
         let basePath = imageBasePath.standardizedFileURL.path + "/"
         var lastReportedPercent = -1
         for (index, entry) in imageEntries.enumerated() {
-            // 防御路径遍历攻击（ZipSlip）：双重检查
-            // 1. entry.path 不得包含 ".." 路径分量（源头拦截）
-            // 2. 解析后的绝对路径必须在 imageBasePath/ 内（basePath 带尾 "/" 防止前缀误匹配）
-            let pathComponents = entry.path.split(separator: "/")
-            let destinationURL = imageBasePath.appendingPathComponent(entry.path).standardizedFileURL
+            // 去掉 profiles/<id>/ 前缀，得到相对路径（如 images/xxx.jpg）
+            let profilePrefix = "profiles/\(profileId.uuidString)/"
+            let relativePath = String(entry.path.dropFirst(profilePrefix.count))
+
+            let pathComponents = relativePath.split(separator: "/")
+            let destinationURL = imageBasePath.appendingPathComponent(relativePath).standardizedFileURL
             guard !pathComponents.contains(".."),
                   destinationURL.path.hasPrefix(basePath) else {
                 SnapDrillLogger.generic.warning("跳过可疑路径: \(entry.path)")
@@ -212,7 +243,6 @@ public actor BackupService {
                 continue
             }
 
-            // 确保父目录存在
             let parentDir = destinationURL.deletingLastPathComponent()
             if !fileManager.fileExists(atPath: parentDir.path) {
                 try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true)

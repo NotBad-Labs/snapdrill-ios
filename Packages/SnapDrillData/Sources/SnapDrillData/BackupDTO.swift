@@ -20,10 +20,12 @@ nonisolated public struct BackupManifest: Codable, Sendable {
     public let createdAt: Date
     /// App 版本号（Marketing Version）
     public let appVersion: String
-    /// 题目总数
-    public let itemCount: Int
-    /// 学习者名称（Multi-Profile，旧备份为 nil）
-    public let profileName: String?
+    /// 所有 Profile 题目总数
+    public let totalItemCount: Int
+    /// 备份中包含的 Profile 数量
+    public let profileCount: Int
+    /// 所有 Profile 名称
+    public let profileNames: [String]
 
     /// 当前备份 Schema 版本——每次 BackupDTO 字段变更时递增
     ///
@@ -32,15 +34,17 @@ nonisolated public struct BackupManifest: Codable, Sendable {
     /// **版本历史**：
     /// - 1 → 初始备份格式
     /// - 2 → Tag/Subject/Source/Grade 字段扩展
-    /// - 3 → Multi-Profile：新增 profileName 字段
-    public static let currentSchemaVersion = 3
+    /// - 3 → Multi-Profile：新增 profileName 字段（单 Profile）
+    /// - 4 → 全 Profile 备份：profiles 数组结构（#531）
+    public static let currentSchemaVersion = 4
 
-    public init(schemaVersion: Int, createdAt: Date, appVersion: String, itemCount: Int, profileName: String? = nil) {
+    public init(schemaVersion: Int, createdAt: Date, appVersion: String, totalItemCount: Int, profileCount: Int, profileNames: [String]) {
         self.schemaVersion = schemaVersion
         self.createdAt = createdAt
         self.appVersion = appVersion
-        self.itemCount = itemCount
-        self.profileName = profileName
+        self.totalItemCount = totalItemCount
+        self.profileCount = profileCount
+        self.profileNames = profileNames
     }
 }
 
@@ -215,10 +219,12 @@ nonisolated public struct TagBackupDTO: Codable, Sendable {
     }
 }
 
-// MARK: - Top-level Payload
+// MARK: - Profile Backup Data
 
-/// 备份文件中 data.json 的顶层结构
-nonisolated public struct BackupPayload: Codable, Sendable {
+/// 单个 Profile 的备份数据
+nonisolated public struct ProfileBackupData: Codable, Sendable {
+    public let profileName: String
+    public let profileId: UUID
     public let reviewItems: [ReviewItemBackupDTO]
     public let subjects: [SubjectBackupDTO]
     public let sources: [SourceBackupDTO]
@@ -226,17 +232,32 @@ nonisolated public struct BackupPayload: Codable, Sendable {
     public let tags: [TagBackupDTO]
 
     public init(
+        profileName: String,
+        profileId: UUID,
         reviewItems: [ReviewItemBackupDTO],
         subjects: [SubjectBackupDTO],
         sources: [SourceBackupDTO],
         grades: [GradeBackupDTO],
         tags: [TagBackupDTO]
     ) {
+        self.profileName = profileName
+        self.profileId = profileId
         self.reviewItems = reviewItems
         self.subjects = subjects
         self.sources = sources
         self.grades = grades
         self.tags = tags
+    }
+}
+
+// MARK: - Top-level Payload
+
+/// 备份文件中 data.json 的顶层结构（全 Profile）
+nonisolated public struct BackupPayload: Codable, Sendable {
+    public let profiles: [ProfileBackupData]
+
+    public init(profiles: [ProfileBackupData]) {
+        self.profiles = profiles
     }
 }
 

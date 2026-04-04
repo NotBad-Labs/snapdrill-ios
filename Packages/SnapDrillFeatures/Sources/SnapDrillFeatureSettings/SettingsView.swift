@@ -300,7 +300,7 @@ public struct SettingsView: View {
             }
             .onAppear {
                 if viewModel == nil {
-                    viewModel = SettingsViewModel(repositories: repositories)
+                    viewModel = SettingsViewModel(repositories: repositories, profileManager: profileManager)
                 }
             }
             .onDisappear {
