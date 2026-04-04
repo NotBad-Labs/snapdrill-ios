@@ -1,14 +1,14 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-03
+> 最后更新：2026-04-04
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：0 · Open Issue：14（#531 全 Profile 备份、#532 TipKit 隔离、#162 #163 外部阻塞、#161 等真机 等）
+> Open PR：0 · Open Issue：15（#531 全 Profile 备份、#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 等真机 等）
 
 ---
 
 ## 当前焦点
 
-产品文档深度审计完成（八方审计：Claude/Codex/Gemini x2/Coze/GLM/DeepSeek/Codex Xcode）。进入代码实现阶段。
+文档体系 + Claude Code 配置全面升级完成。进入代码实现阶段。
 
 ### 待处理
 
@@ -17,11 +17,19 @@
 | P1 | Issue #531 备份支持全部 Profile | 待排期（用户拍板：数据属于用户） |
 | P2 | Issue #532 TipKit 状态按 Profile 隔离 | 待排期（Gemini 独有发现） |
 | P2 | Issue #524 Typed throws 渐进迁移 | 待排期 |
+| P2 | Issue #540 Hooks 扩展（需深入研究协议） | 待排期 |
+
+### 已完成（Claude Code 配置改进）
+
+- #541 chore: CLAUDE.md 收敛 104→75 行（协作模式迁到 rules、执行铁律精简、按需上下文压缩，Codex 两轮验收通过）
+- #539 chore: Skills frontmatter 升级（pr-review-workflow + update-status 加 context:fork + disable-model-invocation）+ 项目级 settings.json + log-file-change.sh 路径修复
+- #538 fix: compact-reminder.md 恢复（2026-03-23 文档瘦身误删，hook 失效修复）
+- #537 chore: apple-native.md 吸收 MiniMax iOS Skill（Anti-Patterns + 布局基线 + Dynamic Type + 语义色 + Accessibility + 权限请求）
 
 ### 已完成（产品文档深度审计，#534）
 
-- #536 chore: 产品文档深度审计修复 Batch 3+4（Onboarding/失败/换机旅程、免费层定义、商业模型框架、空状态/错误/可访问性设计、数据可携带权矩阵、B26 Profile 删除、Antigravity 三轮验收通过）
-- #535 chore: 产品文档深度审计修复 Batch 1+2（术语表新建、备份/恢复注记、SM-2 分层、Dashboard 修正、旅程 parent-first 重排、Antigravity 二次验收通过）
+- #536 chore: Batch 3+4（Onboarding/失败/换机旅程、免费层定义、商业模型框架、空状态/错误/可访问性设计、数据可携带权矩阵、B26 Profile 删除，Antigravity 三轮验收通过）
+- #535 chore: Batch 1+2（术语表新建、备份/恢复注记、SM-2 分层、Dashboard 修正、旅程 parent-first 重排，Antigravity 二次验收通过）
 
 ### 已完成（三方全量文档交叉审计，#530）
 
