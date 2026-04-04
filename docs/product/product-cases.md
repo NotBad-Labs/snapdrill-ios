@@ -11,7 +11,6 @@
 
 **Goal**: 通过任一录入入口创建一道题目，完成裁剪、OCR、元数据填写并保存入库。
 
-**Applies to**: v1.0
 
 **Preconditions**:
 - 当前 Profile 已选定
@@ -52,7 +51,7 @@
 **References**:
 - `product-vision.md`：`1. 录入体验是生命线`、`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`信息架构 [P1, P2]`、`OCR 定位 [P1, P6]`、`图片存储策略 [P1, P4]`、`字段可配置系统 [P1, P2]`、`连续录入设计 [P1]`、`草稿恢复设计 [P4]`
-- `product-requirements.md`：`录入方式优先级`、`OCR 识别能力演进路线（2026-04-02 版本归属修正）`、`草稿恢复（2026-03-16 补全，2026-04-02 版本归属修正）`、`v1.0（当前，功能完整）`
+- `product-requirements.md`：`录入方式优先级`、`OCR 识别能力演进路线（2026-04-02 版本归属修正）`、`草稿恢复（2026-03-16 补全，2026-04-02 版本归属修正）`、`功能全景`
 - `product-journeys.md`：`旅程 0：首次打开 App`、`旅程 2：做完试卷，拍照录入错题`、`旅程 3：从微信群导入老师发的题目`、`旅程 1：家长帮小学生录入 + 多孩管理`、`旅程 9：OCR 失败手动修正`
 
 ---
@@ -61,7 +60,6 @@
 
 **Goal**: 在题库中定位已有题目，并完成搜索、过滤、排序、编辑、补答案、批量打标签。
 
-**Applies to**: v1.0
 
 **Preconditions**:
 - 当前 Profile 题库中已有 1 道以上题目（空库见 Boundary B17）
@@ -97,7 +95,7 @@
 
 **References**:
 - `product-design.md`：`字段可配置系统 [P1, P2]`、`批量操作设计 [P2]`
-- `product-requirements.md`：`题库排序与过滤（2026-03-16 补全，2026-04-02 版本归属修正）`、`功能边界（MoSCoW 分类）`、`v1.0（当前，功能完整）`
+- `product-requirements.md`：`题库排序与过滤（2026-03-16 补全，2026-04-02 版本归属修正）`、`功能边界（MoSCoW 分类）`、`功能全景`
 - `product-journeys.md`：`旅程 4：整理和管理已有题目`
 
 ---
@@ -106,7 +104,6 @@
 
 **Goal**: 安全删除单题或多题，并在 5 秒 Toast undo window 内支持撤销。
 
-**Applies to**: v1.0
 
 **Preconditions**:
 - 当前 Profile 题库中存在待删除题目
@@ -134,7 +131,7 @@
 
 **References**:
 - `product-design.md`：`删除撤销设计 [P4]`、`批量操作设计 [P2]`、`多 Profile 设计 [P5]`
-- `product-requirements.md`：`功能边界（MoSCoW 分类）`、`v1.0（当前，功能完整）`
+- `product-requirements.md`：`功能边界（MoSCoW 分类）`、`功能全景`
 - `product-journeys.md`：`旅程 4：整理和管理已有题目`、`插曲：误删和撤销`
 
 ---
@@ -143,7 +140,6 @@
 
 **Goal**: 从 Dashboard 进入待复习列表，完成翻卡、自我评估，并更新 SM-2 复习状态。
 
-**Applies to**: v1.0
 
 **Preconditions**:
 - 当前 Profile 存在到期复习题目（无到期题见 Boundary B18）
@@ -171,7 +167,7 @@
 
 **References**:
 - `product-design.md`：`图片存储策略 [P1, P4]`、`复习设计 [P3, P5]`
-- `product-requirements.md`：`功能边界（MoSCoW 分类）`、`v1.0（当前，功能完整）`
+- `product-requirements.md`：`功能边界（MoSCoW 分类）`、`功能全景`
 - `product-journeys.md`：`旅程 5：复习到期题目`
 
 ---
@@ -180,7 +176,6 @@
 
 **Goal**: 将题库中的题目导出为 PDF、直接打印，或导出 JSON/CSV 数据。
 
-**Applies to**: v1.0
 
 **Preconditions**:
 - 当前 Profile 下存在可导出题目
@@ -209,7 +204,7 @@
 **References**:
 - `product-vision.md`：`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`导出与打印设计 [P4 数据属于用户]`
-- `product-requirements.md`：`导出与打印能力（2026-04-02 版本归属修正）`、`设置与个性化（2026-03-16 补全）`、`v1.0（当前，功能完整）`
+- `product-requirements.md`：`导出与打印能力（2026-04-02 版本归属修正）`、`设置与个性化（2026-03-16 补全）`、`功能全景`
 - `product-journeys.md`：`旅程 4：整理和管理已有题目`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`
 
@@ -219,7 +214,6 @@
 
 **Goal**: 创建 `.snapdrill` 手动备份文件，并从备份文件恢复当前设备数据。
 
-**Applies to**: v1.0
 
 **Preconditions**:
 - 备份：当前设备存在至少一个 Profile 含数据
@@ -252,7 +246,7 @@
 **References**:
 - `product-vision.md`：`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`备份与恢复设计 [P4 数据安全]`、`多 Profile 设计 [P5 家长友好]`
-- `product-requirements.md`：`功能边界（MoSCoW 分类）`、`v1.0（当前，功能完整）`
+- `product-requirements.md`：`功能边界（MoSCoW 分类）`、`功能全景`
 - `product-journeys.md`：`旅程 1：家长帮小学生录入 + 多孩管理`、`旅程 10：免费用户换机恢复`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`、`隐私策略（2026-03-07 确立，Bear 模式）`
 
@@ -262,7 +256,6 @@
 
 **Goal**: 在同一设备上切换不同孩子/用户的 Profile，并保持数据完全隔离。
 
-**Applies to**: v1.0
 
 **Preconditions**:
 - 设备上已存在 2 个及以上 Profile（首个 Profile 在 Onboarding 时自动创建）
@@ -290,7 +283,7 @@
 **References**:
 - `product-vision.md`：`目标用户`、`成功信号（设计校准器）`
 - `product-design.md`：`多 Profile 设计 [P5]`
-- `product-requirements.md`：`v1.0（当前，功能完整）`
+- `product-requirements.md`：`功能全景`
 - `product-journeys.md`：`旅程 0：首次打开 App`、`旅程 1：家长帮小学生录入 + 多孩管理`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`
 

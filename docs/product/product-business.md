@@ -30,7 +30,7 @@ Bear / Day One / Ulysses 等 iOS 独立 App 已验证此模式多年，Apple 审
 | 手动备份/恢复 | Word 导出 |
 | — | 高级统计 + 趋势图 |
 
-免费层包含 MoSCoW Must + Should 全部功能，Pro 层包含 Could 中的增值项。完整功能清单见 `product-requirements.md`§v1.0 和 §v1.5。
+免费层包含 MoSCoW Must + Should 全部功能，Pro 层包含 Could 中的增值项。完整功能清单见 `product-requirements.md`§功能全景。
 探索性商业化方向见 `product-requirements.md`§待评估。
 
 **分层原则**（2026-04-01 讨论确立）：
@@ -70,9 +70,9 @@ iCloud 同步是打通这个闭环的引擎，组卷排版是配套杀招。
 
 ### 定价策略（2026-04-01 确立，横向研究 Infuse / Bear / Craft 后决策）
 
-**v1.0 全免费发布**——先积累口碑和用户基数，不上订阅。
+**全免费发布**——先积累口碑和用户基数，不上订阅。
 
-**v1.x 引入 Pro 订阅**——iCloud 同步为核心付费点，附带高级导出等增值功能。
+**Pro 订阅（iCloud 同步就绪后引入）**——iCloud 同步为核心付费点，附带高级导出等增值功能。
 
 **分市场定价**（Apple 允许每个 Storefront 独立设定订阅价格）：
 
@@ -131,7 +131,7 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 
 **技术实现**：参照 Bear（意大利独立工作室 Shiny Frog 开发）的模式——
 - 同步基于 Apple CloudKit，利用设备已有的 Apple ID 凭证，无需单独注册
-- 中国区 iCloud 由云上贵州运营，数据存储在中国境内。中国大陆 iCloud 同步体验可能与其他市场有差异，v1.5 实现时做针对性测试
+- 中国区 iCloud 由云上贵州运营，数据存储在中国境内。中国大陆 iCloud 同步体验可能与其他市场有差异，iCloud 同步实现时做针对性测试
 - 开启 Apple Advanced Data Protection 后，CloudKit 数据端到端加密，只有用户能解密
 
 数据安全承诺见 `product-vision.md`§数据安全子条款 和 `product-design.md`§备份与恢复设计。
@@ -154,7 +154,7 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 
 **发布主体**：NotBad Labs L.L.C.（美国）单一主体覆盖全球 App Store，无需各地区设立公司。Apple 统一处理全球付款和税务代扣。
 
-**语言策略**：v1.0 中文 + 英文双语；后续按 T2 市场下载数据追加日文、韩文等本地化。
+**语言策略**：中文 + 英文双语；后续按 T2 市场下载数据追加日文、韩文等本地化。
 
 ### App Store 年龄分级策略（2026-03-23 确立）
 
@@ -166,7 +166,7 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 - SnapDrill 的主操作者是家长（非儿童直接使用），定位为「家庭场景的效率工具」而非「儿童 App」
 - 4+ 年龄分级已足以覆盖目标用户群
 
-**Declared Age Range API**（iOS 26+）：v1.5 评估是否集成。该 API 允许 App 请求用户分享其年龄范围（由系统从 Apple Account 获取，需家长同意）。SnapDrill 的目标用户横跨多个年龄段（家长 + 6-18 岁学生），需评估是否及如何使用。美国多州已立法要求年龄核实，v1.5 时持续关注。
+**Declared Age Range API**（iOS 26+）：后续评估是否集成。该 API 允许 App 请求用户分享其年龄范围（由系统从 Apple Account 获取，需家长同意）。SnapDrill 的目标用户横跨多个年龄段（家长 + 6-18 岁学生），需评估是否及如何使用。美国多州已立法要求年龄核实，持续关注。
 
 **COPPA / 儿童隐私合规姿态**（2026-03-30 更新）：
 
@@ -191,7 +191,7 @@ FTC 判定 COPPA "directed to children" 的核心标准与 SnapDrill 的对照�
 
 **App Store 营销注意事项**：避免使用 "children""kids""儿童教育" 等触发 FTC/Apple 审查的措辞，强调"效率工具""数字化归档""家长和学生"。
 
-**v1.5 评估**：如 App Store 审核或法律咨询认为需更严格合规，再考虑 Declared Age Range API 集成或 Analytics 默认关闭。美国多州已立法要求年龄核实，v1.5 时持续关注。
+**后续评估**：如 App Store 审核或法律咨询认为需更严格合规，再考虑 Declared Age Range API 集成或 Analytics 默认关闭。美国多州已立法要求年龄核实，持续关注。
 
 ### 隐私合规风险应对预案
 
@@ -278,10 +278,10 @@ SnapDrill 是"数字化归档工具"——用户为了留存有价值的题目�
 |---|---|---|---|---|
 | **市场** | 竞品复制"免费 + iCloud 同步"模式 | 中 | 高 | 强化差异化（零注册 + 隐私 + iOS 原生）；Pro 层叠加智能组卷等难复制功能 |
 | **市场** | 巨头推出独立错题工具，流量碾压 | 低 | 高 | 巨头依赖题库引流，与工具定位不同赛道；专注 iOS 原生细分市场 |
-| **技术** | Apple Vision 中文手写体识别率不足 | 中 | 中 | v1.0 定位印刷体（已验证）；手写体作为探索性功能，不依赖其作为核心 |
-| **技术** | iCloud CloudKit 中国区性能不稳定 | 中 | 中 | v1.5 前做中国区专项测试；.snapdrill 手动备份作为降级方案 |
+| **技术** | Apple Vision 中文手写体识别率不足 | 中 | 中 | 当前定位印刷体（已验证）；手写体作为探索性功能，不依赖其作为核心 |
+| **技术** | iCloud CloudKit 中国区性能不稳定 | 中 | 中 | iCloud 同步上线前做中国区专项测试；.snapdrill 手动备份作为降级方案 |
 | **技术** | iCloud 5GB 容量击穿 | 中 | 中 | 设置页展示空间占用与风险提示；保留手动备份/恢复作为降级出口；必要时引导用户清理或升级 iCloud 空间 |
 | **合规** | COPPA 审查认定"directed to children" | 低 | 高 | 维持效率工具定位；预备 Declared Age Range API（详见合规风险应对预案） |
 | **合规** | 中国数据合规新规覆盖工具类 App | 低 | 中 | 纯本地 + iCloud 架构天然合规；持续关注监管动态 |
 | **用户** | 家长期望 App 提供题库/解题等教育内容 | 中 | 中 | ASO 和 Onboarding 明确"归档工具"定位；用免费 + 隐私建立信任 |
-| **用户** | 付费意愿低于预期 | 中 | 中 | v1.0 全免费验证价值；14 天 Trial 降低决策门槛；Lifetime 兜底 |
+| **用户** | 付费意愿低于预期 | 中 | 中 | 全免费阶段验证价值；14 天 Trial 降低决策门槛；Lifetime 兜底 |
