@@ -79,6 +79,9 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 - [ ] 新增第三方库 → 更新开源许可展示
 - [ ] 合并后立即更新 `STATUS.md`
 
+### Review
+- [ ] Review 结论已留痕（PR comment 或 PR 描述）
+
 ---
 
 ## Code Review

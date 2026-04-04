@@ -150,7 +150,7 @@ Firebase SDK 隔离层。Core 层通过 Protocol（AnalyticsServiceProtocol, Rem
 ProfileManager 采用 Vault 模式：
 - 每个 Profile 拥有独立的 SwiftData ModelContainer + 图片存储目录
 - 切换 Profile 时重建 ModelContainer 和 RepositoryContainer
-- **Per-Profile UserDefaults 隔离**：字段配置（开启的系统字段）、自动推断历史、复习目标等通过 `perProfileKeys` / `savePreferences` / `loadPreferences` 管理
+- **Per-Profile UserDefaults 隔离**：字段配置（开启的系统字段）、自动推断历史、复习目标等由 `ProfileManager` 内部通过 `perProfileKeys` 等机制管理（`savePreferences`/`loadPreferences` 为内部实现），切换 Profile 时自动保存/加载
 - **全局状态**：TipKit tooltip、Onboarding 完成、VoiceOver 设置不随 Profile 切换
 
 ---

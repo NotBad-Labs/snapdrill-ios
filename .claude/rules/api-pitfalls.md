@@ -43,14 +43,14 @@ paths:
 | 新增 @Model 字段不加默认值 | 迁移失败 | 字段带默认值 + 新建 Schema 版本 |
 | `#Unique<Model>([\.field])` + CloudKit entitlement | 真机 fatalError（Simulator 不崩） | ❌ **禁止使用 `#Unique`**（PR #454 已全量删除）— 在 Repository 层用 `fetchOrCreateModel` + `DataError.duplicateName` 保证业务唯一性 |
 
-## 删除撤销陷阱（v1.5 新增）
+## 删除撤销陷阱
 
 | 陷阱 | 后果 | 正确做法 |
 |---|---|---|
 | Toast 倒计时 Task 未在 View 消失时取消 | 内存泄漏或对已释放对象操作 | 在 `.onDisappear` 中取消 Task，或将 Task 句柄保存为实例属性 |
 | 软删除后立即查询未排除待删除项 | 已标记删除的题目仍出现在列表中 | 当前实现为 ViewModel 级 5 秒待提交删除（非模型级 isDeleted 字段），从列表临时移除后延时执行真实删除 |
 
-## 多 Profile 陷阱（v1.5 新增）
+## 多 Profile 陷阱
 
 | 陷阱 | 后果 | 正确做法 |
 |---|---|---|

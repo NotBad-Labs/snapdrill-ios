@@ -300,7 +300,10 @@ public final class MockServiceContainer: ServiceContainer
 public extension EnvironmentValues
 public extension Notification.Name
 public extension Collection
-public extension Color
+public extension Color {
+    init(hex: String)
+    func toHex() -> String?
+}
 ```
 
 ## SnapDrillData — Repository 公开方法
@@ -536,6 +539,8 @@ public final class ProfileManager {
     public func renameProfile(id: UUID, newName: String)
 }
 ```
+
+`ProfileManager` 内部维护 `static let perProfileKeys: [String]`（非 public API），用于定义需要按 Profile 隔离并在切换时自动保存/加载的 UserDefaults 键集合。
 
 ## SnapDrillUI — 公开类型
 

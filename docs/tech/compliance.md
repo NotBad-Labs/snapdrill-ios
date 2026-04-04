@@ -33,7 +33,7 @@ SnapDrill 不收集任何可识别个人信息。没有注册、没有手机号�
 
 - **分级**：4+（Unrestricted）
 - **Kids Category**：不申请（使用 Firebase SDK，技术上属于第三方 SDK）
-- **Declared Age Range API**（iOS 26+）：v1.5 评估
+- **Declared Age Range API**（iOS 26+）：后续评估（当产品进入未成年人敏感场景或引入相关流程时）
 
 ### Apple Privacy Manifest
 
@@ -106,6 +106,7 @@ FTC 于 2025-04-22 发布 COPPA Final Rule amendments，合规落地截止日为
 - 影响存在但有限（不做广告、不开儿童社交、不收集账号身份信息）
 - 需关注第三方 persistent identifier 与产品定位表述的一致性
 - 若未来进入 COPPA 适用区间，新规带来的额外压力主要在：third-party disclosure 说明、persistent identifier 约束、信息安全与数据保留要求
+- 风险标注：截至 **2026-04-04**，距离合规截止日 **2026-04-22** 仅剩 **18 天**，需立即确认当前合规评估状态（已完成 / 进行中 / 未启动）并留痕
 
 ### 现阶段防御性措施
 
@@ -138,8 +139,8 @@ FTC 于 2025-04-22 发布 COPPA Final Rule amendments，合规落地截止日为
 | 删除权 | ✅ 用户可删除任意题目，卸载即全删 |
 | 知情同意 | ✅ Analytics 默认开启但可关闭 |
 | 数据最小化 | ✅ 零 PII 收集 |
-| 跨境传输 | ⚠️ Firebase 数据存储在 Google 服务器（匿名数据） |
-| 中国区 iCloud | 云上贵州运营，数据存储在中国境内（v1.5 规划，当前未实现） |
+| 跨境传输 | ⚠️ Firebase 数据存储在 Google 服务器（包含 `app_instance_id` 等 pseudonymous data，需按跨境传输合规要求管理） |
+| 中国区 iCloud | 云上贵州运营，数据存储在中国境内（iCloud 同步实现时评估，当前未实现） |
 
 ---
 
