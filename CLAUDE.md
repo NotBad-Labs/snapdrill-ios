@@ -12,7 +12,7 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 2. **决策导航** — 基于 STATUS.md 当前状态，主动向用户建议下一步优先事项：
    - 按 `docs/workflow.md` 的 S0-S3 严重度排序：有 S0/S1 未解决 → 最高优先
    - 按 WIP 限制：有待 Review PR 未合并 → 先 Review 再开新任务
-   - 按价值链：采集 > 管理 > 导出/打印 > 复习（见 `product-design.md`）
+   - 按价值链：采集 > 管理 > 导出/打印 > 复习（见 `docs/product/product-design.md`）
    - 按外部阻塞：被阻塞的事项跳过，标注阻塞原因
    - 输出格式："**建议优先做 X**，原因：Y。备选：Z。"
 
@@ -64,6 +64,7 @@ xcodebuild build-for-testing \
 ```
 
 **只有 0 errors + 0 violations 才能向用户回复"完成"或提交代码。**
+完整 DoD 和 Code Review 规范（含 Xcode Review、文档同步、Review 留痕）见 `docs/workflow.md`。
 `swift test` 不可用（SPM 仅声明 iOS 平台）；`xcodebuild build` 不编译测试 target。
 完整陷阱清单见 `.claude/rules/coding.md`。
 
@@ -71,5 +72,5 @@ xcodebuild build-for-testing \
 
 **以下时机必须主动更新：**
 
-- PR 合并后 → 更新 `STATUS.md`（允许直推 develop，不需要 PR）
+- PR 合并后 → 更新 `STATUS.md`（STATUS.md 允许直推 develop，见 `docs/workflow.md` L59）
 - 产品决策变更时 → 同一回复中 Grep 影响范围 → 创建执行 Issue

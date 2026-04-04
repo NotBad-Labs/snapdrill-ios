@@ -2,7 +2,7 @@
 
 > 最后更新：2026-04-04
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：0 · Open Issue：15（#531 全 Profile 备份、#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 等真机 等）
+> Open PR：0 · Open Issue：14（#531 全 Profile 备份、#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 TestFlight Build 6 等）
 
 ---
 
@@ -16,7 +16,6 @@
 |---|---|---|
 | P1 | Issue #531 备份支持全部 Profile | 待排期（用户拍板：数据属于用户） |
 | P2 | Issue #532 TipKit 状态按 Profile 隔离 | 待排期（Gemini 独有发现） |
-| P2 | Issue #524 Typed throws 渐进迁移 | 待排期 |
 | P2 | Issue #540 Hooks 扩展（需深入研究协议） | 待排期 |
 
 ### 已完成（Claude Code 配置改进）
@@ -85,12 +84,6 @@
 - #449 CI 修复
 
 ## 下一步
-
-### 待做（不依赖外部，1 项）
-
-| 优先级 | 事项 | 备注 |
-|---|---|---|
-| P1 | Share Extension | 需用户在 Xcode 创建 target 后写代码 |
 
 ### 已完成（功能 PR 批次，5 个 PR — Review + 修复后合并）
 
