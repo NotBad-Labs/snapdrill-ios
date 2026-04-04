@@ -28,8 +28,20 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 
 ## 按需上下文（涉及时读取）
 
-- 产品：`docs/product/` 下 vision / design / requirements / journeys / business / cases / glossary
-- 技术：`docs/tech/` 下 architecture / api-reference / compliance / deployment / non-functional-requirements
+| 场景 | 读取 |
+|---|---|
+| 产品方向、新功能、用户画像 | `docs/product/product-vision.md` |
+| UI/UX 设计决策、交互 | `docs/product/product-design.md` |
+| 功能规格、版本路线图 | `docs/product/product-requirements.md` |
+| 用户体验验证、UI 流程 | `docs/product/product-journeys.md` |
+| 商业化、隐私、竞品 | `docs/product/product-business.md` |
+| 验收标准、异常路径、QA | `docs/product/product-cases.md` |
+| 术语定义 | `docs/product/product-glossary.md` |
+| 架构、模块边界、DI | `docs/tech/architecture.md` |
+| API 签名查询 | `docs/tech/api-reference.md` |
+| 隐私合规、App Store 审核 | `docs/tech/compliance.md` |
+| 发布流程、CI/CD | `docs/tech/deployment.md` |
+| 性能、内存、存储 | `docs/tech/non-functional-requirements.md` |
 
 **铁律**：修改任何代码前，必须先读取相关的产品文档确认需求。不碰产品文档就写代码是方法论缺陷。
 
@@ -42,8 +54,18 @@ SnapDrill：练习题数字化存档 + 间隔重复复习 App。
 
 ## 执行铁律
 
-每次修改代码后必须通过 `swiftlint --strict` + `xcodebuild build-for-testing`（0 errors + 0 violations）。
-完整命令、参数和陷阱清单见 `.claude/rules/coding.md`。
+每次修改代码后必须验证：
+
+```bash
+swiftlint --strict
+xcodebuild build-for-testing \
+  -scheme SnapDrill \
+  -destination 'platform=iOS Simulator,name=iPhone 17'
+```
+
+**只有 0 errors + 0 violations 才能向用户回复"完成"或提交代码。**
+`swift test` 不可用（SPM 仅声明 iOS 平台）；`xcodebuild build` 不编译测试 target。
+完整陷阱清单见 `.claude/rules/coding.md`。
 
 ## 记忆固化（State Write-back）
 
