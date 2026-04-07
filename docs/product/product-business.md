@@ -46,7 +46,7 @@ Bear / Day One / Ulysses 等 iOS 独立 App 已验证此模式多年，Apple 审
 
 | 环节 | 免费层能力 | 边界说明 |
 |---|---|---|
-| 采集 | Camera / Photos / PDF / Manual / Clipboard 全入口可用；Document Scan 部分实现；无限录题；OCR 展示、复制、手动修正可用 | 不限制录入数量，不做"每日 N 题" |
+| 采集 | Camera / Photos / PDF / Manual / Clipboard(文本) 全入口可用；Document Scan 部分实现；无限录题；OCR 展示、复制、手动修正可用 | 不限制录入数量，不做"每日 N 题" |
 | 管理 | 搜索、学科/标签/难度过滤、排序、编辑、批量打标签、批量删除、Multi-Profile | 单设备内题库完整可管理，多孩家庭可直接使用 |
 | 导出 | PDF、PDF 增强（去答案打印/留白/页眉页码）、单题快速打印、JSON、CSV、`.snapdrill` 手动备份/恢复 | 导出/打印是基础能力，不作为订阅门槛。注意：基础"去答案打印"（隐藏答案字段）是免费功能，与 Pro 的"图片处理增强"（AI 去手写/去批改痕迹）是不同层面 |
 | 复习 | 基础 SM-2 间隔重复复习、Dashboard 待复习入口、复习卡片外观设置 | 复习是免费附加值，不做强制付费墙 |

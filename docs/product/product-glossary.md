@@ -9,7 +9,7 @@
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **采集** | Capture | 从外部载体（相机/相册/PDF/剪贴板/Share Extension）获取题目图片并进入录入流程的全过程。文档扫描部分实现 | `SnapDrillFeatureCapture` (Features) |
+| **采集** | Capture | 从外部载体（相机/相册/PDF/剪贴板文本/Share Extension）获取题目内容并进入录入流程的全过程。文档扫描部分实现 | `SnapDrillFeatureCapture` (Features) |
 | **录入** | Create / Save | 完成题目编辑（OCR 文本、答案、分类、标签）并保存到题库的动作 | `CaptureResultViewModel.save()` (Features) |
 | **题库** | Library | 已保存题目的集合，支持浏览、搜索、过滤、编辑、导出 | `SnapDrillFeatureLibrary` (Features) |
 | **导出** | Export | 将题目数据从 App 输出为外部格式（PDF/JSON/CSV/ZIP/分享卡片） | `ExportOptionsSheet` (Features) |
