@@ -31,4 +31,4 @@ xcodebuild build-for-testing \
 - PR 未合并前禁止推进下一任务
 - Review 结论必须留痕
 - PR 合并后立即更新 `STATUS.md`（允许直推 develop）
-- 价值链：采集 > 管理 > 导出/打印 > 复习
+- 价值链：采集 > 管理 > 导出/打印（复习是独立附加值）
