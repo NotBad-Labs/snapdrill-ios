@@ -70,5 +70,5 @@
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
 | **免费层** | Free Tier | 全部基础功能，单设备完整体验（采集 → 管理 → 导出/打印） | — |
-| **Pro** | Pro Subscription | 付费订阅层（iCloud 同步/图片处理增强/智能组卷/Word 导出/高级统计等增值能力） | — |
+| **Pro** | Pro Subscription | 付费订阅层（iCloud 同步/图片处理增强（免费限次体验）/智能组卷/Word 导出/高级统计等增值能力） | — |
 | **Grandfather** | Grandfather Pricing | 老用户保留原价的涨价策略 | — |
