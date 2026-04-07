@@ -130,7 +130,7 @@
 | AI 辅助拆题 | 需 Foundation Models PoC |
 | 端上 AI 集成 | 等 iOS 26 正式发布 |
 | 数理化公式识别 | 无 Apple 原生 API |
-| 去手写/试卷还原 | 需第三方方案 |
+| 去手写/去批改痕迹/试卷还原 | Pro 付费（免费限次体验），需第三方端上方案 PoC |
 | 探索性 PoC（Foundation Models / App Intents） | 技术预研 |
 
 ## 产品决策记录
