@@ -51,7 +51,7 @@
 **References**:
 - `product-vision.md`：`1. 录入体验是生命线`、`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`信息架构 [P1, P2]`、`OCR 定位 [P1, P6]`、`图片存储策略 [P1, P4]`、`字段可配置系统 [P1, P2]`、`连续录入设计 [P1]`、`草稿恢复设计 [P4]`
-- `product-requirements.md`：`录入方式优先级`、`OCR 识别能力演进路线（2026-04-02 版本归属修正）`、`草稿恢复（2026-03-16 补全，2026-04-02 版本归属修正）`、`功能全景`
+- `product-requirements.md`：`录入方式优先级`、`OCR 识别能力演进路线`、`草稿恢复`、`功能全景`
 - `product-journeys.md`：`旅程 0：首次打开 App`、`旅程 2：做完试卷，拍照录入错题`、`旅程 3：从微信群导入老师发的题目`、`旅程 1：家长帮小学生录入 + 多孩管理`、`旅程 9：OCR 失败手动修正`
 
 ---
@@ -96,7 +96,7 @@
 
 **References**:
 - `product-design.md`：`字段可配置系统 [P1, P2]`、`批量操作设计 [P2]`
-- `product-requirements.md`：`题库排序与过滤（2026-03-16 补全，2026-04-02 版本归属修正）`、`功能边界（MoSCoW 分类）`、`功能全景`
+- `product-requirements.md`：`题库排序与过滤`、`功能边界（MoSCoW 分类）`、`功能全景`
 - `product-journeys.md`：`旅程 4：整理和管理已有题目`
 
 ---
@@ -205,7 +205,7 @@
 **References**:
 - `product-vision.md`：`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`导出与打印设计 [P4 数据属于用户]`
-- `product-requirements.md`：`导出与打印能力（2026-04-02 版本归属修正）`、`设置与个性化（2026-03-16 补全）`、`功能全景`
+- `product-requirements.md`：`导出与打印能力`、`设置与个性化`、`功能全景`
 - `product-journeys.md`：`旅程 4：整理和管理已有题目`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`
 
@@ -223,7 +223,6 @@
 **Success path**:
 1. 用户在设置中发起手动备份
 2. 系统打包当前设备本地数据为 `.snapdrill` 文件，包含全部 Profile、题目、图片引用、元数据、复习进度
-   > 实现状态：当前代码仅备份活跃 Profile（Issue #531 已立项修复，产品承诺以全部 Profile 为准）
 3. 系统生成备份文件并交由用户保存/分享
 4. 用户选择 `.snapdrill` 文件发起恢复
 5. 系统先校验文件可读性、结构完整性、版本兼容性
