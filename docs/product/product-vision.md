@@ -90,7 +90,7 @@ GTM 执行细节见 `product-business.md`§发布策略。
 ### 2. 简洁即正义
 
 功能克制。宁可少做，不可做杂。
-每新增一个功能前，先问：这会让"录入→管理→复习"的主路径变复杂吗？
+每新增一个功能前，先问：这会让"录入→管理→导出/打印"的主路径变复杂吗？
 
 ### 3. 免费即门槛
 
@@ -139,7 +139,7 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 | 早期留存价值 | D7 留存用户的题库题目数中位数 > 10 | Analytics：D7 活跃设备的 `library_count` |
 | 有机增长占比 | App Store 自然搜索下载占比 > 70% | App Store Connect：Search / Browse vs 外部来源 |
 | Multi-Profile 可用性 | 多孩家庭家长能独立管理每个孩子的题库，互不干扰；跨 Profile 数据泄漏事件 = 0 | 定性验证（用户测试）+ 自动化：跨 Profile 数据泄漏作为 S0 级 Bug 追踪 |
-| 分享闭环 | 家长能看到并分享孩子的整理成果 | Analytics 事件：`share_card_generated` 发生率 |
+| 成果分发 | 家长能导出或分享孩子的整理成果（通过系统分享菜单，非社交功能） | Analytics 事件：`share_card_generated` 发生率 |
 | 价值链完成率 | 用户完成"管理 → 导出/打印"闭环 | Analytics 事件：`pdf_exported` 或 `print_triggered` 至少 1 次的用户占 D30 活跃用户比例 |
 
 **注意**：以上指标在发布前仅作为设计校准方向，具体事件名和口径以 Analytics 埋点实现时为准。发布后用真实数据验证假设，不达标的信号需回溯设计决策。
