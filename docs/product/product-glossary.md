@@ -1,8 +1,7 @@
 # SnapDrill 术语表
 
-> 本文件是产品文档体系的术语唯一来源（Single Source of Truth）。
-> 所有产品文档、技术文档、AI 规则和代码命名应遵循本表定义。
-> 如需新增或修改术语，在本文件更新后同步下游文档。
+> 产品术语参考表。新增或修改术语时在本文件更新后同步下游文档。
+> PR Review 时通过 DoD checklist 检查术语一致性（见 `docs/workflow.md`§DoD）。
 
 ---
 
