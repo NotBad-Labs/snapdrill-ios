@@ -17,7 +17,7 @@
 swiftlint --strict
 xcodebuild build-for-testing \
   -scheme SnapDrill \
-  -destination 'generic/platform=iOS Simulator'
+  -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
 - `swift test` 不可用（SPM 仅声明 iOS 平台）

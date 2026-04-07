@@ -37,7 +37,7 @@ Runner：Mac mini 自托管（self-hosted, macOS）
   1. Select Xcode（自动检测最新版本）
   2. SwiftLint --strict
   3. xcodebuild build-for-testing
-     -destination 'generic/platform=iOS Simulator'
+     -destination 'platform=iOS Simulator,name=iPhone 17'
      CODE_SIGNING_ALLOWED=NO
   4. xcodebuild test -scheme SnapDrillFeaturesTests
      -parallel-testing-enabled NO

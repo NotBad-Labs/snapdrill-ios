@@ -61,5 +61,5 @@
 ## 测试
 
 - **Xcode**: `Cmd+U`
-- **命令行（运行测试）**: `xcodebuild test -scheme SnapDrill -destination 'generic/platform=iOS Simulator'`
-- **命令行（仅编译验证，含测试 target）**: `xcodebuild build-for-testing -scheme SnapDrill -destination 'generic/platform=iOS Simulator'`
+- **命令行（运行测试）**: `xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
+- **命令行（仅编译验证，含测试 target）**: `xcodebuild build-for-testing -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
