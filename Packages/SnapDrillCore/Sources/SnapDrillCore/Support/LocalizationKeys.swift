@@ -613,6 +613,9 @@ nonisolated public enum L10n {
         public static let deleteLearnerConfirm = NSLocalizedString("settings.delete_learner_confirm", value: "删除后该学习者的所有题目、复习进度和图片将永久丢失，无法恢复。", comment: "删除学习者确认")
         public static let learnerName = NSLocalizedString("settings.learner_name", value: "学习者名称", comment: "学习者名称输入")
         public static let currentLearner = NSLocalizedString("settings.current_learner", value: "当前", comment: "当前学习者标记")
+        public static let draftExistsTitle = NSLocalizedString("settings.draft_exists_title", value: "存在未保存的草稿", comment: "切换学习者时草稿提示标题")
+        public static let draftExistsMessage = NSLocalizedString("settings.draft_exists_message", value: "当前有未完成的录入草稿，切换学习者后草稿将被丢弃。", comment: "切换学习者时草稿提示详情")
+        public static let discardDraft = NSLocalizedString("settings.discard_draft", value: "放弃草稿并切换", comment: "放弃草稿确认按钮")
 
         // 反馈
         public static let feedbackAndSupport = NSLocalizedString("settings.feedback_and_support", value: "反馈与支持", comment: "反馈与支持")
