@@ -2,23 +2,25 @@
 
 > 最后更新：2026-04-07
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：0 · Open Issue：13（#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 TestFlight Build 6 等）
+> Open PR：0 · Open Issue：14（#556 Profile 切换 S0 保护、#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 TestFlight Build 6 等）
 
 ---
 
 ## 当前焦点
 
-全量文档审计（55 份）+ S0 数据安全修复完成。下一优先级：#532 TipKit 决策（2026-04-15 前）。
+三方对抗性审计（Claude+Codex+Coze）完成，35 个发现全量修复。下一优先级：#556 Profile 切换 S0 保护 → #532 TipKit 决策（2026-04-15 前）。
 
 ### 待处理
 
 | 优先级 | 事项 | 状态 |
 |---|---|---|
+| P0 | Issue #556 Profile 切换 S0 保护（未保存编辑/进行中任务需拦截） | 待开发（三方审计 Codex 独有发现） |
 | P2 | Issue #532 TipKit 状态按 Profile 隔离 | 待决策，2026-04-15 前（Gemini 独有发现） |
 | P2 | Issue #540 Hooks 扩展（需深入研究协议） | 待排期 |
 
 ### 已完成（产品文档审计修复）
 
+- #557 docs: 三方对抗性审计修复 — Claude+Codex+Coze 35 个发现全量修复（首次三方独立审计+独立 Review 闭环；Coze 脚本升级：完整文件模式+项目基线注入+网络搜索验证）
 - #554 docs: 文档体系架构重构 — Glossary 定位修正 + 信息去重 + 未实现标注（首次三方审查：Claude+Codex+Coze，Coze 独有发现 2 项已修正）
 - #551 docs: 竞品分析补全 — 新增隐形竞品分析（Apple 备忘录/Notion/GoodNotes，Codex 事实性核验修正通过）
 - #552 docs: 成功指标量化 — 6 条成功信号改为可度量表格（Codex 审查 + journeys 口径同步）
