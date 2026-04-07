@@ -254,6 +254,27 @@ SnapDrill 是"数字化归档工具"——用户为了留存有价值的题目�
 
 目标用户群（中小学生及家长）与 Anki 用户群重叠度低，SnapDrill 面向的是"不知道间隔重复但需要存档练习题"的大众市场。
 
+### 隐形竞品：通用工具的替代威胁
+
+除错题本赛道的直接竞品外，用户可能用通用工具替代 SnapDrill 的部分功能。这些通用工具不直接竞争错题本市场，但覆盖了采集和存储环节。
+
+| 通用工具 | 覆盖的能力 | 未覆盖的练习题场景 |
+|---|---|---|
+| **Apple 备忘录 + 扫描文稿** | 免费扫描（自动边缘检测/透视校正）、OCR 文字搜索（Live Text）、iCloud 同步、文件夹/标签/Smart Folder 过滤 | 未提供题目语义结构（科目/难度/答案配对）、未提供连续裁剪同一张图的采集流程、未提供按学科/难度过滤后导出练习卷、未提供 Multi-Profile 隔离、未提供间隔重复复习 |
+| **Notion** | 数据库驱动的结构化笔记、模板、Education Plan（主要面向高等教育，K-12 适用性有限） | 未提供原生文档扫描、对扫描件 OCR 能力有限（依赖前置 OCR）、学习场景需用户自建模板配置成本较高、未提供间隔重复复习 |
+| **GoodNotes** | 手写 OCR 搜索、PDF 标注、Study Sets + Smart Learn（基于 spaced repetition 的复习系统） | 未提供面向练习题的结构化采集流程和元数据管理、未提供 Multi-Profile 隔离。定价：年订阅或一次性买断（Special Edition） |
+
+**为什么 Apple 备忘录不是充分替代**：
+- 备忘录扫描的是通用"文档"，SnapDrill 采集的是"题目"——题目有科目、难度、答案、标签等结构化元数据，备忘录未提供这些维度
+- 备忘录未提供"连续裁剪同一张图上的多道题"的采集流程优化
+- 备忘录虽支持标签和 Smart Folder 过滤，但不支持按科目/难度维度过滤后导出练习卷
+- 备忘录未提供 Multi-Profile 隔离（多孩家庭场景）
+- 备忘录未提供间隔重复复习系统
+
+**观察**：通用工具覆盖了"拍照存档"的基础需求，但未针对"练习题管理"场景做优化。SnapDrill 的差异化在于题目语义结构、针对练习题的采集流程和导出/打印闭环——这些是通用工具通过配置难以复制的垂直能力。
+
+> 核验来源（2026-04-07）：[Apple Notes 扫描](https://support.apple.com/en-asia/108963)、[Apple Notes 标签](https://support.apple.com/en-us/102288)、[Notion Education](https://www.notion.com/product/notion-for-education)、[GoodNotes Smart Learn](https://support.goodnotes.com/hc/en-us/articles/7353756529551)、[GoodNotes 定价](https://www.goodnotes.com/pricing)
+
 ---
 
 ## 商业模型假设
