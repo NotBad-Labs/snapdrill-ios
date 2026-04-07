@@ -21,7 +21,7 @@ Codex 作为 Claude Code 的子 agent 运行，不自动继承 `CLAUDE.md`、`.c
 
 即使指定了文件读取，也应在 prompt 中内联关键约束，防止 Codex 跳过或遗漏：
 
-- **产品定位**：效率工具，不是教育平台。采集/录入 > 管理 > 导出/打印 > 复习
+- **产品定位**：效率工具，不是教育平台。价值链：采集 > 管理 > 导出/打印（复习是独立附加值）
 - **工程哲学**：奥卡姆剃刀，先研究再动手，N > 3 是警告
 - **编码铁律**：swiftlint --strict 0 violations + xcodebuild build-for-testing 0 errors
 - **数据安全**：零注册、纯本地、图片是真相、Profile 隔离
