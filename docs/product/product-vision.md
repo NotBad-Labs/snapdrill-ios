@@ -131,16 +131,18 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 
 ## 成功信号（设计校准器）
 
-判断「我们做对了吗」的定性标准：
+判断「我们做对了吗」的可度量标准：
 
-- 一个 35 岁的妈妈完成 Onboarding 后，能在 30 秒内录入第一道题
-- 用户连续使用一周后，题库题目数 > 10
-- App Store 自然搜索下载占比 > 70%（口碑增长而非营销拉动）
-- 多孩家庭的家长能独立管理每个孩子的题库，互不干扰
-- 家长能看到并分享孩子的整理成果
-- 用户完成"管理 → 导出/打印"闭环（价值链终点可达）
+| 信号 | 度量定义 | 数据来源 |
+|---|---|---|
+| 首次录入效率 | 从进入采集页到保存成功 ≤ 30 秒（首次录入，不含 Onboarding 时间） | Analytics 事件：`capture_start` → `item_saved` 时间差 |
+| 早期留存价值 | D7 留存用户的题库题目数中位数 > 10 | Analytics：D7 活跃设备的 `library_count` |
+| 有机增长占比 | App Store 自然搜索下载占比 > 70% | App Store Connect：Search / Browse vs 外部来源 |
+| Multi-Profile 可用性 | 多孩家庭家长能独立管理每个孩子的题库，互不干扰；跨 Profile 数据泄漏事件 = 0 | 定性验证（用户测试）+ 自动化：跨 Profile 数据泄漏作为 S0 级 Bug 追踪 |
+| 分享闭环 | 家长能看到并分享孩子的整理成果 | Analytics 事件：`share_card_generated` 发生率 |
+| 价值链完成率 | 用户完成"管理 → 导出/打印"闭环 | Analytics 事件：`pdf_exported` 或 `print_triggered` 至少 1 次的用户占 D30 活跃用户比例 |
 
-代理指标（Analytics 事件定义、衡量口径）待发布前在 `product-requirements.md` 中补充定义。
+**注意**：以上指标在发布前仅作为设计校准方向，具体事件名和口径以 Analytics 埋点实现时为准。发布后用真实数据验证假设，不达标的信号需回溯设计决策。
 
 ---
 
