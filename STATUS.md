@@ -2,7 +2,7 @@
 
 > 最后更新：2026-04-07
 > 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：0 · Open Issue：14（#556 Profile 切换 S0 保护、#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 TestFlight Build 6 等）
+> Open PR：1（#558 Profile 切换 S0 保护） · Open Issue：12（#556 Profile 切换 S0、#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 TestFlight Build 6 等）
 
 ---
 
@@ -21,6 +21,7 @@
 ### 已完成（产品文档审计修复）
 
 - #557 docs: 三方对抗性审计修复 — Claude+Codex+Coze 35 个发现全量修复（首次三方独立审计+独立 Review 闭环；Coze 脚本升级：完整文件模式+项目基线注入+网络搜索验证）
+- Issue 清理：三方独立审查后关闭 #452（产品战略复核，已被审计覆盖）、#477（Share Extension，代码已完整实现）；更新 #540/#162/#161 描述
 - #554 docs: 文档体系架构重构 — Glossary 定位修正 + 信息去重 + 未实现标注（首次三方审查：Claude+Codex+Coze，Coze 独有发现 2 项已修正）
 - #551 docs: 竞品分析补全 — 新增隐形竞品分析（Apple 备忘录/Notion/GoodNotes，Codex 事实性核验修正通过）
 - #552 docs: 成功指标量化 — 6 条成功信号改为可度量表格（Codex 审查 + journeys 口径同步）
