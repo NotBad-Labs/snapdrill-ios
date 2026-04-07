@@ -77,6 +77,7 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 - [ ] `product-requirements.md` 已更新（新增功能）
 - [ ] `api-reference.md` 已更新（新增/变更 public 接口）
 - [ ] 新增第三方库 → 更新开源许可展示
+- [ ] 术语与 `product-glossary.md` 一致（新增或修改产品概念时）
 - [ ] 合并后立即更新 `STATUS.md`
 
 ### Review
