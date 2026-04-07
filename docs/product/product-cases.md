@@ -15,10 +15,10 @@
 **Preconditions**:
 - 当前 Profile 已选定
 - 用户位于采集入口或可一步进入采集入口
-- Camera / Photos / Document Scan / PDF：用户已选择或可选择有效输入源
+- Camera / Photos / PDF / Clipboard：用户已选择或可选择有效输入源（Document Scan 部分实现）
 
 **Success path**:
-1. 用户从 Camera、Photos、Document Scan、PDF import 或 Manual edit 进入录题流程
+1. 用户从 Camera、Photos、PDF import、Clipboard 或 Manual edit 进入录题流程（Document Scan 部分实现）
 2. 系统展示可编辑的题目载体：图片来源进入裁剪；Manual edit 进入文本/图片编辑
 3. 系统对图片内容执行 OCR；识别结果展示给用户，可编辑、可复制到剪贴板，但不阻塞保存
 4. 系统保留题目图片作为主内容真相；OCR 文本作为展示、搜索索引、可复制文本
@@ -31,7 +31,7 @@
 **Variants & Exceptions**:
 - [Variant] Camera：支持实时文字区域检测、稳定性指示器、自动框选
 - [Variant] Photos：支持同一张图连续裁剪多题，保存后同图再次出现，不必重复选图
-- [Variant] Document Scan：支持系统级多页扫描；每页按单题继续裁剪录入
+- [Variant] Document Scan [部分实现]：支持系统级多页扫描；每页按单题继续裁剪录入
 - [Variant] PDF import：支持逐页预览、页面选择、裁剪后录入
 - [Variant] Manual edit：允许无图片保存纯文本题目，也允许补充图片
 - [Exception] Camera 权限拒绝或受限：不可进入拍照；必须给出权限说明与跳转系统设置入口
