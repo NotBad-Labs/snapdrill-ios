@@ -7,7 +7,7 @@
 ## 模块清单
 
 ### 1. SnapDrillFeatureCapture (采集)
-- **职责**: 拍照扫描、相册导入、OCR 识别、手动录入、裁剪、连续录入。
+- **职责**: 拍照扫描、相册导入、剪贴板文本导入、PDF 导入、OCR 识别、手动录入、裁剪、连续录入。
 - **关键入口**: `CaptureView`, `CaptureRouter`.
 
 ### 2. SnapDrillFeatureLibrary (题库)

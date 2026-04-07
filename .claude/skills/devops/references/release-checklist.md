@@ -95,7 +95,7 @@
 - [ ] Profile 切换：设置页或 Dashboard 头像区域可切换，切换后题库/统计/复习进度完全独立
 - [ ] Profile 数据隔离：不同 Profile 的题目互不可见
 - [ ] Profile 持久化：切换后再切回，原 Profile 数据完整保留
-- [ ] Profile 备份恢复：当前仅覆盖当前激活 Profile（全 Profile 备份缺口跟踪 Issue #531）
+- [ ] Profile 备份恢复：全 Profile 备份/恢复（#531 已修复）
 
 ## 数据与同步
 

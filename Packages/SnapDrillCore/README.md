@@ -39,7 +39,7 @@
 - `ReviewSwipeTip` / `FieldConfigTip`: TipKit 提示定义
 
 ### 6. Utils (通用工具)
-- `Date+Extension`, `Collection+Safe`, `Color+Hex` 等基础扩展
+- `Date+Extensions`, `Collection+Safe`, `Color+Hex` 等基础扩展
 
 ## 依赖
 - *无本地包依赖*（纯 Swift + Apple 框架）

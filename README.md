@@ -47,7 +47,7 @@
 
 ## 环境要求
 
-- **Xcode**: 26.0+
+- **Xcode**: 26.4+
 - **iOS**: 26.0+
 - **SwiftLint**: 必需 (用于代码风格检查) `brew install swiftlint`
 

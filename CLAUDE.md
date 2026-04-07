@@ -60,7 +60,7 @@ SnapDrill：练习题数字化存档 + 间隔重复复习 App。
 swiftlint --strict
 xcodebuild build-for-testing \
   -scheme SnapDrill \
-  -destination 'platform=iOS Simulator,name=iPhone 17'
+  -destination 'generic/platform=iOS Simulator'
 ```
 
 **只有 0 errors + 0 violations 才能向用户回复"完成"或提交代码。**

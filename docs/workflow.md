@@ -65,7 +65,7 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 ### 代码质量
 - [ ] `swiftlint --strict` 0 violations
 - [ ] `xcodebuild build-for-testing` 0 errors
-- [ ] 改接口签名后 `grep -rn "TypeName(" Tests/` 检查测试同步
+- [ ] 改接口签名后 `grep -rn "TypeName(" Packages/*/Tests/` 检查测试同步
 - [ ] Xcode Review 核实通过（UI 改动必须）
 
 ### 功能完整性

@@ -101,10 +101,11 @@ SwiftData @Model（持久化）
 | 目录 | 职责 |
 |---|---|
 | `DI/` | ServiceContainer 协议 + LiveServiceContainer + MockServiceContainer + Environment Key |
-| `Service/` | Protocol 定义（OCRServiceProtocol、PDFExportable、NotificationServiceProtocol、AnalyticsServiceProtocol） |
+| `Service/` | Protocol 定义 + 实现（OCRServiceProtocol、PDFExportService、NotificationServiceProtocol、AnalyticsServiceProtocol、CaptureDraftService、PrivacyConsentService） |
 | `Capture/` | OCRService（实现）、ImageStorage（图片存储） |
-| `Engine/` | SM-2 复习调度算法（ReviewScheduler） |
-| `Support/` | L10n、UserDefaultsKeys、AppConfiguration、SnapDrillLogger、ReviewDataNotification、CaptureDraftService |
+| `Engine/` | SM-2 复习调度算法（ReviewScheduler、SM2State、ReviewRating） |
+| `Support/` | L10n、UserDefaultsKeys、AppConfiguration、ReviewDataNotification、SnapDrillTips |
+| 根目录 | SnapDrillLogger（基于 os.Logger 的结构化日志） |
 
 ### SnapDrillData
 

@@ -508,13 +508,14 @@ public actor BackupService {
     public func createBackup(
         payload: BackupPayload,
         manifest: BackupManifest,
-        imageBasePath: URL,
+        profileDirectories: [URL],
         onProgress: ProgressHandler? = nil
     ) throws -> URL
     public func readManifest(from backupURL: URL) throws -> BackupManifest
     public func extractPayload(from backupURL: URL) throws -> BackupPayload
     public func restoreImages(
         from backupURL: URL,
+        profileId: UUID,
         to imageBasePath: URL,
         onProgress: ProgressHandler? = nil
     ) throws

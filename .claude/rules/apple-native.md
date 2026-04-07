@@ -40,7 +40,8 @@ paths:
 - **8pt 间距网格**：padding/spacing/margin 对齐 8 的倍数（8/16/24/32/40/48），4pt 用于微调
 - **主操作放 thumb zone**（屏幕下半部分）
 - **内容在 Safe Area 内**：`.ignoresSafeArea()` 仅用于背景填充，不用于文本或交互元素
-- **支持所有屏幕尺寸**：iPhone SE (375pt) 到 Pro Max (430pt)，用 Size Classes 适配
+- **支持所有屏幕尺寸**：iPhone SE (375pt) 到最新 Pro Max，用 Size Classes 适配
+- **iPad 适配**：使用 `sidebarAdaptable` TabView 样式 + 动态 grid 列数（horizontalSizeClass 响应）
 
 ## Typography 与 Dynamic Type
 
