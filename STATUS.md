@@ -19,6 +19,7 @@
 
 ### 已完成（产品文档审计修复）
 
+- #554 docs: 文档体系架构重构 — Glossary 定位修正 + 信息去重 + 未实现标注（首次三方审查：Claude+Codex+Coze，Coze 独有发现 2 项已修正）
 - #551 docs: 竞品分析补全 — 新增隐形竞品分析（Apple 备忘录/Notion/GoodNotes，Codex 事实性核验修正通过）
 - #552 docs: 成功指标量化 — 6 条成功信号改为可度量表格（Codex 审查 + journeys 口径同步）
 - #548 docs: Pro 层增强 — 图片处理增强纳入 Pro 规划（横向研究 7 款 App，Codex 对抗性审查通过）
