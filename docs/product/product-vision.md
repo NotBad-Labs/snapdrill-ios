@@ -138,7 +138,7 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 | 首次录入效率 | 从进入采集页到保存成功 ≤ 30 秒（首次录入，不含 Onboarding 时间） | Analytics 事件：`capture_start` → `item_saved` 时间差 |
 | 早期留存价值 | D7 留存用户的题库题目数中位数 > 10 | Analytics：D7 活跃设备的 `library_count` |
 | 有机增长占比 | App Store 自然搜索下载占比 > 70% | App Store Connect：Search / Browse vs 外部来源 |
-| Multi-Profile 可用性 | 多孩家庭家长能独立管理每个孩子的题库，互不干扰 | 定性验证（用户测试），无自动化指标 |
+| Multi-Profile 可用性 | 多孩家庭家长能独立管理每个孩子的题库，互不干扰；跨 Profile 数据泄漏事件 = 0 | 定性验证（用户测试）+ 自动化：跨 Profile 数据泄漏作为 S0 级 Bug 追踪 |
 | 分享闭环 | 家长能看到并分享孩子的整理成果 | Analytics 事件：`share_card_generated` 发生率 |
 | 价值链完成率 | 用户完成"管理 → 导出/打印"闭环 | Analytics 事件：`pdf_exported` 或 `print_triggered` 至少 1 次的用户占 D30 活跃用户比例 |
 
