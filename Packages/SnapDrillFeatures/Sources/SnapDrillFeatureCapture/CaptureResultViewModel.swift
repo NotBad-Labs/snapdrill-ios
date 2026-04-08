@@ -363,11 +363,13 @@ public final class CaptureResultViewModel {
             "has_content": !content.isEmpty ? "true" : "false"
         ])
 
-        // Profile 级字段配置引导：首次保存后提示
+        // Profile 级字段配置引导：首次保存后提示，展示期间暂缓导航
         if profileTipState.showFieldConfigTip {
             showFieldConfigTip = true
+            // 导航在 dismissFieldConfigTip() 中触发
+        } else {
+            navigateAfterSave()
         }
-        navigateAfterSave()
     }
 
     /// 保存成功后的导航：短暂延迟让触觉反馈生效，再执行退栈
@@ -430,10 +432,11 @@ public final class CaptureResultViewModel {
         }
     }
 
-    /// 关闭字段配置引导提示
+    /// 关闭字段配置引导提示，然后触发导航
     public func dismissFieldConfigTip() {
         showFieldConfigTip = false
         profileTipState.markFieldConfigSeen()
+        navigateAfterSave()
     }
 
     private func reRecognizeText(from img: UIImage) async {

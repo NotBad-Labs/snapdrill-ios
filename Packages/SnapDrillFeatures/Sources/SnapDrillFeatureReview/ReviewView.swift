@@ -156,7 +156,7 @@ public struct ReviewView: View {
         reviewSessionView(vm: vm)
             .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
             .popover(isPresented: $profileTipState.showReviewSwipeTip, arrowEdge: .top) {
-                tipPopoverContent(
+                TipPopoverContent(
                     icon: "hand.draw",
                     title: L10n.Review.tooltipTitle,
                     message: L10n.Review.tooltipMessage
@@ -337,33 +337,6 @@ public struct ReviewView: View {
         return Double(seed % 7) - 3.0
     }
 
-    // MARK: - Profile Tip Popover
-
-    private func tipPopoverContent(
-        icon: String,
-        title: String,
-        message: String,
-        onDismiss: @escaping () -> Void
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .foregroundStyle(.tint)
-                Text(title)
-                    .font(.headline)
-            }
-            Text(message)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Button(L10n.Common.ok) {
-                onDismiss()
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-        }
-        .padding()
-        .frame(width: 280)
-        .presentationCompactAdaptation(.popover)
-    }
 }
 
 // MARK: - Preview
