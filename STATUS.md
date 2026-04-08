@@ -8,7 +8,15 @@
 
 ## 当前焦点
 
-全量文档审计（56 份）+ CI 修复完成。下一优先级：#532 TipKit 决策（2026-04-15 前）。
+知识演进体系建立完成（KNOWLEDGE_MAP + freshness + Codex 委派升级）。下一优先级：#532 TipKit 决策（2026-04-15 前）。
+
+### 已完成（知识演进体系）
+
+- `2538e120` chore: KNOWLEDGE_MAP 三层分类 + freshness 元数据 + Codex 委派升级
+  - 三方讨论（Claude+Codex/GPT-5.4+Coze）设计知识管理架构
+  - Deep Research 报告时效性审计：15 项过时发现
+  - Codex 插件 v1.0.2→v1.0.3，研究任务改用 GPT-5.4
+  - 评估 MemPalace（20K stars）后决定不引入
 
 ### 待处理
 
