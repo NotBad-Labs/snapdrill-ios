@@ -119,7 +119,6 @@
 | Issue | 内容 | 解除条件 |
 |---|---|---|
 | #163 | 公司 Apple 开发者账号 | Enrollment 已提交（ID: 83VZW7VJKK），等 Apple 审核 1-3 天 |
-| #477 | Share Extension | 需 Xcode 创建 target + App Group 配置 |
 | #479 | StoreKit 付费墙 | 需 App Store Connect 配置产品 |
 | #485 | iCloud 同步 | 需 CloudKit Container + StoreKit |
 | #486 | Word 导出 | 需 StoreKit |

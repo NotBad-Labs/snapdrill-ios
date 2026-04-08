@@ -19,5 +19,6 @@
 | `gemini_project_review.py` | 调用 Gemini API 进行项目级审计 |
 | `gemini_review.py` | 调用 Gemini API 进行代码审查 |
 | `gemini_utils.py` | Gemini 脚本共享工具函数 |
+| `coze-review.sh` | Coze Bot 产品文档对抗性审查（支持 diff / 完整文件 / 多文件模式） |
 
 此目录不包含任何生产环境代码。

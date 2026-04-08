@@ -27,7 +27,7 @@ xcodebuild build-for-testing \
 
 - 架构决策未经用户批准不可推翻
 - 修改代码前必须先读产品文档
-- 改接口签名后 `grep -rn "TypeName(" Tests/` 检查同步
+- 改接口签名后 `grep -rn "TypeName(" Packages/*/Tests/` 检查同步
 - PR 未合并前禁止推进下一任务
 - Review 结论必须留痕
 - PR 合并后立即更新 `STATUS.md`（允许直推 develop）
