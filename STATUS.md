@@ -2,13 +2,26 @@
 
 > 最后更新：2026-04-08
 > 编译状态：✅ 0 errors · 0 lint violations · CI 绿色
-> Open PR：0 · Open Issue：11（#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 TestFlight Build 6 等）
+> Open PR：1（#566 智能组卷，待 Xcode Review）· Open Issue：10
 
 ---
 
 ## 当前焦点
 
-知识演进体系建立完成（KNOWLEDGE_MAP + freshness + Codex 委派升级）。下一优先级：#532 TipKit 决策（2026-04-15 前）。
+PR #566 智能组卷（feat/487-smart-paper）待 Xcode Review UI 验证。三方设计 + 三方审查已完成，5 项 finding 已修复。
+
+### 进行中
+
+| PR | 内容 | 状态 |
+|---|---|---|
+| #566 | feat: #487 智能组卷 — SM-2 选题 + 配置页 + PDF 预览 | 待 Xcode Review |
+
+### 今日已完成
+
+- #565 fix: #564 ExportPreviewView actor isolation 警告（已合并）
+- #563 fix: #532 TipKit 状态按 Profile 隔离（已合并）
+- `.claude/rules/coding.md` + `api-pitfalls.md` 新增 Task 闭包 actor isolation 规则
+- Codex 插件手动更新 v1.0.2 → v1.0.3
 
 ### 已完成（知识演进体系）
 
@@ -22,7 +35,6 @@
 
 | 优先级 | 事项 | 状态 |
 |---|---|---|
-| P2 | Issue #532 TipKit 状态按 Profile 隔离 | 待决策，2026-04-15 前（Gemini 独有发现） |
 | P2 | Issue #540 Hooks 扩展（需深入研究协议） | 待排期 |
 
 ### 已完成（CI 修复）
