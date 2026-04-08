@@ -167,7 +167,6 @@ public final class SettingsViewModel {
     }
 
     // MARK: - Restore
-
     /// 从备份文件恢复数据
     ///
     /// 恢复前先自动备份当前数据到临时目录（安全网），然后全量替换。
@@ -385,6 +384,7 @@ public final class SettingsViewModel {
 
     /// 逐个 Profile 恢复数据库和图片
     private func restoreAllProfiles(from fileURL: URL, payload: BackupPayload, autoBackupURL: URL?) async throws {
+        let originalActiveProfileId = profileManager.activeProfileId
         for profileData in payload.profiles {
             // 查找或创建对应 Profile
             let targetProfile: Profile
@@ -399,8 +399,10 @@ public final class SettingsViewModel {
                 profileManager.switchProfile(to: targetProfile.id)
             }
 
-            // 恢复数据库
-            try await profileManager.activeRepositories.restoreFromProfileData(profileData)
+            // 原始活跃 Profile 用 self.repositories（与 createBackup 对称）
+            let targetRepos = (targetProfile.id == originalActiveProfileId)
+                ? repositories : profileManager.activeRepositories
+            try await targetRepos.restoreFromProfileData(profileData)
 
             // 恢复图片
             let profileDir = Self.profileDirectory(for: targetProfile.id)
