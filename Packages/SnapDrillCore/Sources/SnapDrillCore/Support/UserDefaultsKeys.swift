@@ -90,4 +90,11 @@ nonisolated public enum UDKey {
     /// 功能提示前缀，实际 key 为 `hasShownTooltip_\(feature)`
     public static let hasShownTooltipPrefix = "hasShownTooltip_"
 
+    // MARK: - Profile-level Tip State
+
+    /// 复习滑动手势提示是否已展示（per-profile 隔离）
+    public static let tipReviewSwipeSeen = "tip.reviewSwipe.v1.seen"
+    /// 字段配置引导提示是否已展示（per-profile 隔离）
+    public static let tipFieldConfigSeen = "tip.fieldConfig.v1.seen"
+
 }

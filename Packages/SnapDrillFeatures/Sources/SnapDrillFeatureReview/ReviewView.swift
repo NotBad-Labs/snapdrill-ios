@@ -9,7 +9,6 @@
 //
 
 import SwiftUI
-import TipKit
 import Observation
 import SnapDrillCore
 import SnapDrillUI
@@ -26,7 +25,7 @@ public struct ReviewView: View {
     @Environment(\.repositories) private var repositories
     @Environment(\.analyticsService) private var analyticsService
     @State private var viewModel: ReviewViewModel?
-    private let reviewSwipeTip = ReviewSwipeTip()
+    @State private var profileTipState = ProfileTipState()
 
     // Dynamic Type 支持：滑动印章文字随系统字号缩放
     @ScaledMetric(relativeTo: .largeTitle) private var stampFontSize: CGFloat = 40
@@ -156,7 +155,15 @@ public struct ReviewView: View {
     private func reviewingPhaseView(vm: ReviewViewModel) -> some View {
         reviewSessionView(vm: vm)
             .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
-            .popoverTip(reviewSwipeTip, arrowEdge: .top)
+            .popover(isPresented: $profileTipState.showReviewSwipeTip, arrowEdge: .top) {
+                tipPopoverContent(
+                    icon: "hand.draw",
+                    title: L10n.Review.tooltipTitle,
+                    message: L10n.Review.tooltipMessage
+                ) {
+                    profileTipState.markReviewSwipeSeen()
+                }
+            }
     }
 
     // MARK: - Review Session View
@@ -328,6 +335,34 @@ public struct ReviewView: View {
         guard index > 0, index < vm.workingItems.count else { return 0 }
         let seed = abs(item.id.hashValue)
         return Double(seed % 7) - 3.0
+    }
+
+    // MARK: - Profile Tip Popover
+
+    private func tipPopoverContent(
+        icon: String,
+        title: String,
+        message: String,
+        onDismiss: @escaping () -> Void
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .foregroundStyle(.tint)
+                Text(title)
+                    .font(.headline)
+            }
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Button(L10n.Common.ok) {
+                onDismiss()
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .padding()
+        .frame(width: 280)
+        .presentationCompactAdaptation(.popover)
     }
 }
 

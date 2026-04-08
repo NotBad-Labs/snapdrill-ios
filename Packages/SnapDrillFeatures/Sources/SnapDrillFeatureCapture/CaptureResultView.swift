@@ -9,7 +9,6 @@
 //
 
 import SwiftUI
-import TipKit
 import SnapDrillCore
 import SnapDrillUI
 import PhotosUI
@@ -382,7 +381,26 @@ public struct CaptureResultView: View {
         .sensoryFeedback(.success, trigger: viewModel.isSaved) { _, newValue in
             newValue
         }
-        .popoverTip(viewModel.fieldConfigTip, arrowEdge: .bottom)
+        .popover(isPresented: $viewModel.showFieldConfigTip, arrowEdge: .bottom) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "slider.horizontal.3")
+                        .foregroundStyle(.tint)
+                    Text(L10n.Onboarding.fieldConfigTitle)
+                        .font(.headline)
+                }
+                Text(L10n.Onboarding.fieldConfigDescription)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Button(L10n.Common.ok) {
+                    viewModel.dismissFieldConfigTip()
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+            .padding()
+            .frame(width: 280)
+            .presentationCompactAdaptation(.popover)
+        }
         .alert(L10n.Capture.saveFailed, isPresented: $viewModel.showErrorAlert) {
             Button(L10n.Common.ok, role: .cancel) { }
         } message: {
