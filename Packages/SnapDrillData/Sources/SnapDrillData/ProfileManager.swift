@@ -71,7 +71,8 @@ public final class ProfileManager {
         UDKey.reviewReminderEnabled, UDKey.reviewReminderTime,
         UDKey.notificationsEnabled, UDKey.notificationHour, UDKey.notificationMinute,
         UDKey.soundEnabled, UDKey.badgeEnabled,
-        UDKey.captureDraftMetadata
+        UDKey.captureDraftMetadata,
+        UDKey.tipReviewSwipeSeen, UDKey.tipFieldConfigSeen
     ]
 
     // MARK: - Initialization

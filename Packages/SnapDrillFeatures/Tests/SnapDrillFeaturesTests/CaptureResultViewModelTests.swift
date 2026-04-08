@@ -338,6 +338,7 @@ final class CaptureResultViewModelTests {
 
     // MARK: - 字段配置引导
 
-    // 字段配置引导已迁移到 TipKit（.popoverTip 在 View 层自动管理），
-    // ViewModel 不再持有 showFieldConfigGuide 状态，无需测试。
+    // 字段配置引导由 ProfileTipState 管理（per-profile UserDefaults 隔离），
+    // ViewModel 通过 showFieldConfigTip / dismissFieldConfigTip() 控制展示。
+    // ProfileTipState 的状态依赖 UserDefaults，集成测试在 Profile 切换场景中覆盖。
 }

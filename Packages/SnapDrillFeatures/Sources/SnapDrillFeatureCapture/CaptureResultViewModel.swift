@@ -9,7 +9,6 @@
 //
 
 import SwiftUI
-import TipKit
 import PhotosUI
 import SnapDrillCore
 import SnapDrillData
@@ -69,8 +68,9 @@ public final class CaptureResultViewModel {
     public var showErrorAlert = false
     /// 错误提示文本
     public var errorMessage: String?
-    /// TipKit 字段配置提示（首次保存后自动显示）
-    public let fieldConfigTip = FieldConfigTip()
+    /// 字段配置引导提示（per-profile 隔离，由 ProfileTipState 管理）
+    public var showFieldConfigTip = false
+    private let profileTipState = ProfileTipState()
 
     // 新建分类 Alert 状态
     /// 是否显示新建学科 Alert
@@ -363,8 +363,13 @@ public final class CaptureResultViewModel {
             "has_content": !content.isEmpty ? "true" : "false"
         ])
 
-        // TipKit 自动管理字段配置引导的显示（.popoverTip 在 View 层处理）
-        navigateAfterSave()
+        // Profile 级字段配置引导：首次保存后提示，展示期间暂缓导航
+        if profileTipState.showFieldConfigTip {
+            showFieldConfigTip = true
+            // 导航在 dismissFieldConfigTip() 中触发
+        } else {
+            navigateAfterSave()
+        }
     }
 
     /// 保存成功后的导航：短暂延迟让触觉反馈生效，再执行退栈
@@ -425,6 +430,13 @@ public final class CaptureResultViewModel {
                 SnapDrillLogger.generic.error("加载图片失败: \(error.localizedDescription)")
             }
         }
+    }
+
+    /// 关闭字段配置引导提示，然后触发导航
+    public func dismissFieldConfigTip() {
+        showFieldConfigTip = false
+        profileTipState.markFieldConfigSeen()
+        navigateAfterSave()
     }
 
     private func reRecognizeText(from img: UIImage) async {

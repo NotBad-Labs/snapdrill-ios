@@ -188,11 +188,12 @@ public final class OnboardingManager {
         shouldShowOnboarding = false
     }
 
-    /// 重置引导状态（含 TipKit 提示重置）
+    /// 重置引导状态（含 TipKit 设备级提示 + Profile 级提示）
     public func resetAll() {
         UserDefaults.standard.set(false, forKey: UDKey.hasCompletedOnboarding)
         shouldShowOnboarding = true
         try? Tips.resetDatastore()
+        ProfileTipState().resetAll()
     }
 }
 
