@@ -926,6 +926,24 @@ nonisolated public enum L10n {
         }
     }
 
+    // MARK: - Statistics
+
+    public enum Statistics {
+        public static let title = NSLocalizedString("statistics.title", value: "学习分析", comment: "统计页标题")
+        public static let subjectTrend = NSLocalizedString("statistics.subject_trend", value: "学科错题趋势", comment: "学科趋势图标题")
+        public static let last30Days = NSLocalizedString("statistics.last_30_days", value: "最近 30 天", comment: "时间范围标签")
+        public static let difficultyDistribution = NSLocalizedString("statistics.difficulty_distribution", value: "难度分布", comment: "难度分布图标题")
+        public static let weakSubjects = NSLocalizedString("statistics.weak_subjects", value: "薄弱学科", comment: "薄弱学科排行标题")
+        public static let weakSubjectsHint = NSLocalizedString("statistics.weak_subjects_hint", value: "待复习题目最多的学科", comment: "薄弱学科排行副标题")
+        public static let noData = NSLocalizedString("statistics.no_data", value: "暂无数据", comment: "统计空状态标题")
+        public static let noDataHint = NSLocalizedString("statistics.no_data_hint", value: "采集一些题目后即可查看学习分析", comment: "统计空状态描述")
+        public static let proRequired = NSLocalizedString("statistics.pro_required", value: "升级 Pro 解锁学习分析", comment: "Pro 门控提示")
+        public static let questionsCount = NSLocalizedString("statistics.questions_count", value: "题", comment: "题数单位")
+        public static func dueCount(_ count: Int) -> String {
+            String(format: NSLocalizedString("statistics.due_count", value: "待复习 %d 题", comment: "薄弱学科待复习数"), count)
+        }
+    }
+
     // MARK: - TermsOfService
 
     public enum TermsOfService {

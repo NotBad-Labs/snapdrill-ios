@@ -22,6 +22,7 @@ public struct DashboardView: View {
     @Environment(\.repositories) private var repositories
 
     @State private var viewModel: DashboardViewModel?
+    @State private var analyticsViewModel: DashboardAnalyticsViewModel?
     
     // MARK: - Layout Constants
 
@@ -119,6 +120,11 @@ public struct DashboardView: View {
                                     }
                                 }
                                 .padding(.horizontal)
+
+                                // 4. 高级统计区
+                                if let analyticsVM = analyticsViewModel {
+                                    DashboardAnalyticsView(viewModel: analyticsVM)
+                                }
                             }
                         }
                         .padding(.bottom, 40)
@@ -134,9 +140,15 @@ public struct DashboardView: View {
                 if viewModel == nil {
                     viewModel = DashboardViewModel(repositories: repositories)
                 }
+                if analyticsViewModel == nil {
+                    let vm = DashboardAnalyticsViewModel(repositories: repositories)
+                    analyticsViewModel = vm
+                    vm.loadAnalytics()
+                }
             }
             .onDisappear {
                 viewModel?.cancelTasks()
+                analyticsViewModel?.cancelTasks()
             }
         }
         .alert(L10n.Dashboard.draftAlertTitle, isPresented: Binding(
