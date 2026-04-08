@@ -15,12 +15,12 @@ Vision OCR 自动提取题目文字，用户确认后保存至题库。
 
 ### 视图
 
-- ``CaptureView`` — 采集入口，整合相机、相册、PDF、手动录入等多种采集方式
+- ``CaptureView`` — 采集入口，整合相机、相册、PDF、剪贴板文本、手动录入等多种采集方式
 - ``CaptureResultView`` — OCR 结果确认与编辑，保存题目至题库
 
 ### 视图模型
 
-- ``CaptureViewModel`` — 管理相机状态和 OCR 触发
+- ``CaptureViewModel`` — 管理相机权限检查（`checkCameraPermission`）、OCR 触发、草稿检测（`checkDraftOnAppear`）和剪贴板导入
 - ``CaptureResultViewModel`` — 管理识别结果编辑、图片裁剪和保存逻辑
 
 ### 导航

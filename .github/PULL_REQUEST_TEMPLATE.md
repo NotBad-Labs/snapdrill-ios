@@ -23,6 +23,7 @@ Closes #
 - [ ] 改接口签名后已 `grep -rn "TypeName(" Packages/*/Tests/` 检查测试同步
 - [ ] Xcode Review 核实通过（UI 改动必须）
 - [ ] 变更不违反 `.claude/rules/` 中的架构约束
+- [ ] 涉及数据读写时已确认 Profile 隔离（不跨 Profile 泄露数据）
 
 ### 功能完整性
 

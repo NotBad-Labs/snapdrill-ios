@@ -25,7 +25,7 @@
 - **依赖**: Library（SubjectManagerView）。
 
 ### 5. SnapDrillFeatureSettings (设置)
-- **职责**: 录入字段配置、外观设置、数据同步、通知提醒、隐私导出。
+- **职责**: 录入字段配置、外观设置（App 主题 + 复习卡片）、数据管理（备份/恢复，未来 iCloud 同步）、通知提醒、隐私导出。
 - **关键入口**: `SettingsView`, `SettingsRouter`.
 - **依赖**: Library（分类管理视图）。
 
