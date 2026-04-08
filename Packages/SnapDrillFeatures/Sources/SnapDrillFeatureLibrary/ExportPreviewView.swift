@@ -31,43 +31,37 @@ struct ExportPreviewView: View {
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                if isLoading {
-                    ProgressView(L10n.Library.generating)
-                        .accessible(label: L10n.Accessibility.generatingPDF)
-                } else if let pdfData = pdfData, let document = PDFDocument(data: pdfData) {
-                    PDFKitRepresentedView(document: document)
-                        .accessible(label: L10n.Accessibility.pdfPreviewLabel)
-                } else {
-                    ContentUnavailableView(L10n.Library.generateFailed, systemImage: "exclamationmark.triangle")
-                }
+        VStack {
+            if isLoading {
+                ProgressView(L10n.Library.generating)
+                    .accessible(label: L10n.Accessibility.generatingPDF)
+            } else if let pdfData = pdfData, let document = PDFDocument(data: pdfData) {
+                PDFKitRepresentedView(document: document)
+                    .accessible(label: L10n.Accessibility.pdfPreviewLabel)
+            } else {
+                ContentUnavailableView(L10n.Library.generateFailed, systemImage: "exclamationmark.triangle")
             }
-            .navigationTitle(L10n.Library.exportPreview)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Common.close) { dismiss() }
-                }
-                
-                if let tempPDFURL {
-                    ToolbarItem(placement: .confirmationAction) {
-                        ShareLink(item: tempPDFURL) {
-                            Label(L10n.Library.shareOrPrint, systemImage: "square.and.arrow.up")
-                        }
+        }
+        .navigationTitle(L10n.Library.exportPreview)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if let tempPDFURL {
+                ToolbarItem(placement: .confirmationAction) {
+                    ShareLink(item: tempPDFURL) {
+                        Label(L10n.Library.shareOrPrint, systemImage: "square.and.arrow.up")
                     }
                 }
             }
-            .alert(L10n.Errors.exportFailed, isPresented: $showSaveError) {
-                Button(L10n.Common.ok, role: .cancel) {}
-            }
-            .alert(L10n.Errors.pdfGenerateFailed, isPresented: $showGenerateError) {
-                Button(L10n.Common.retry) { generatePDF() }
-                Button(L10n.Common.cancel, role: .cancel) { dismiss() }
-            }
-            .task {
-                generatePDF()
-            }
+        }
+        .alert(L10n.Errors.exportFailed, isPresented: $showSaveError) {
+            Button(L10n.Common.ok, role: .cancel) {}
+        }
+        .alert(L10n.Errors.pdfGenerateFailed, isPresented: $showGenerateError) {
+            Button(L10n.Common.retry) { generatePDF() }
+            Button(L10n.Common.cancel, role: .cancel) { dismiss() }
+        }
+        .task {
+            generatePDF()
         }
     }
     

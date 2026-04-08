@@ -261,6 +261,7 @@ struct SmartPaperView: View {
                                 Image(systemName: "star.fill")
                                     .font(.caption)
                                     .foregroundStyle(.orange)
+                                    .accessibilityHidden(true)
                             }
                         }
                         Spacer()
@@ -270,7 +271,7 @@ struct SmartPaperView: View {
                         }
                     }
                 }
-                .accessibilityLabel(L10n.SmartPaper.difficultyFilter + " \(difficulty.starCount)")
+                .accessibilityLabel(L10n.Accessibility.difficultyLevel(difficulty.rawValue))
             }
         }
         .navigationTitle(L10n.SmartPaper.difficultyFilter)
