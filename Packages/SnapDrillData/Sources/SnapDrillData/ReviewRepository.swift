@@ -190,6 +190,41 @@ public final class ReviewRepository {
         try totalCount()
     }
 
+    // MARK: - Smart Selection（智能选题，供组卷排版打印使用）
+
+    /// 基于 SM-2 紧迫度智能选题：优先选逾期和不熟练的题目
+    ///
+    /// 排序策略：nextReviewAt ASC（越早到期越优先）→ repetitions ASC（越不熟练越优先）。
+    /// `nextReviewAt == .distantPast` 表示从未复习，排在最前面。
+    /// - Parameters:
+    ///   - limit: 最大选题数量
+    ///   - subjects: 学科筛选（空 = 不限）
+    ///   - difficulties: 难度筛选（空 = 不限）
+    /// - Returns: 按紧迫度排序的题目列表
+    public func fetchSmartSelection(
+        limit: Int,
+        subjects: Set<String> = [],
+        difficulties: Set<Int> = []
+    ) throws -> [ReviewItemModel] {
+        let subjectsArray = Array(subjects)
+        let difficultiesArray = Array(difficulties)
+
+        let predicate = #Predicate<ReviewItemModel> { item in
+            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue)) &&
+            (difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty))
+        }
+
+        var descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: predicate,
+            sortBy: [
+                SortDescriptor(\.nextReviewAt, order: .forward),
+                SortDescriptor(\.repetitions, order: .forward)
+            ]
+        )
+        descriptor.fetchLimit = limit
+        return try modelContext.fetch(descriptor)
+    }
+
     // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）
 
     /// 获取所有待复习条目的 SwiftData 模型

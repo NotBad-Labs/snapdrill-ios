@@ -32,6 +32,7 @@ public struct LibraryView: View {
     @State private var isFilterPresented = false
     @State private var isFirstAppear = true
     @State private var isBatchTagPresented = false
+    @State private var isSmartPaperPresented = false
     
     // MARK: - Initialization
     
@@ -127,6 +128,14 @@ public struct LibraryView: View {
                         .fontWeight(.bold)
                     } else {
                         HStack(spacing: 12) {
+                            // 智能组卷
+                            Button {
+                                isSmartPaperPresented = true
+                            } label: {
+                                Image(systemName: "doc.richtext")
+                            }
+                            .accessibleButton(label: L10n.SmartPaper.title, hint: L10n.SmartPaper.subtitle)
+
                             // 排序（Apple Reminders 风格 Menu）
                             if let vm = viewModel {
                                 Menu {
@@ -207,6 +216,9 @@ public struct LibraryView: View {
             }
             .sheet(isPresented: $isExportSheetPresented) {
                 ResolvedExportSheet(ids: selectedItemIDs)
+            }
+            .sheet(isPresented: $isSmartPaperPresented) {
+                SmartPaperView()
             }
             .sheet(isPresented: $isBatchTagPresented) {
                 if let vm = viewModel {

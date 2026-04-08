@@ -23,17 +23,21 @@ nonisolated public struct PDFExportOptions: Sendable {
     public var showHeader: Bool
     /// 每页题目数量（1 = 大图整页，2 = 默认，4 = 小题紧凑）
     public var itemsPerPage: Int
+    /// 自定义封面标题（nil 时使用默认"SnapDrill 错题本"）
+    public var customTitle: String?
 
     public init(
         hideAnswers: Bool = true,
         showBlankAnswerArea: Bool = true,
         showHeader: Bool = true,
-        itemsPerPage: Int = 2
+        itemsPerPage: Int = 2,
+        customTitle: String? = nil
     ) {
         self.hideAnswers = hideAnswers
         self.showBlankAnswerArea = showBlankAnswerArea
         self.showHeader = showHeader
         self.itemsPerPage = itemsPerPage
+        self.customTitle = customTitle
     }
 
     /// 默认配置：隐藏答案 + 显示答题区 + 显示页眉
