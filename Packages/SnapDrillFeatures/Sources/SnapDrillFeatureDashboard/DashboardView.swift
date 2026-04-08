@@ -148,6 +148,7 @@ public struct DashboardView: View {
             }
             .onDisappear {
                 viewModel?.cancelTasks()
+                analyticsViewModel?.cancelTasks()
             }
         }
         .alert(L10n.Dashboard.draftAlertTitle, isPresented: Binding(

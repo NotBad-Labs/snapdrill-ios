@@ -16,7 +16,7 @@ import SnapDrillData
 // MARK: - 数据模型
 
 /// 学科趋势数据点（按天 × 学科）
-struct SubjectTrendPoint: Identifiable {
+nonisolated struct SubjectTrendPoint: Identifiable {
     let id = UUID()
     let date: Date
     let subject: String
@@ -24,14 +24,14 @@ struct SubjectTrendPoint: Identifiable {
 }
 
 /// 难度分布数据点
-struct DifficultyBucket: Identifiable {
+nonisolated struct DifficultyBucket: Identifiable {
     let id = UUID()
     let difficulty: Int
     let count: Int
 }
 
 /// 薄弱学科排行项
-struct WeakSubjectItem: Identifiable {
+nonisolated struct WeakSubjectItem: Identifiable {
     let id = UUID()
     let subject: String
     let dueCount: Int
@@ -65,6 +65,11 @@ final class DashboardAnalyticsViewModel {
 
     private let repositories: RepositoryContainer
 
+    @ObservationIgnored
+    private var dataChangeTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var pendingRefreshTask: Task<Void, Never>?
+
     // MARK: - Pro 门控
 
     // TODO: 替换为 StoreKit 订阅状态检查（#479 就绪后）
@@ -72,6 +77,15 @@ final class DashboardAnalyticsViewModel {
 
     init(repositories: RepositoryContainer) {
         self.repositories = repositories
+        setupDataChangeObserver()
+    }
+
+    /// 取消所有进行中的异步任务
+    func cancelTasks() {
+        dataChangeTask?.cancel()
+        dataChangeTask = nil
+        pendingRefreshTask?.cancel()
+        pendingRefreshTask = nil
     }
 
     // MARK: - Public API
@@ -158,5 +172,23 @@ final class DashboardAnalyticsViewModel {
             .sorted { $0.dueCount > $1.dueCount }
             .prefix(5)
             .map { $0 }
+    }
+
+    // MARK: - Data Change Observer
+
+    /// 监听 reviewDataDidChange 通知，防抖 200ms 后刷新统计
+    private func setupDataChangeObserver() {
+        dataChangeTask = Task {
+            for await _ in NotificationCenter.default.notifications(named: .reviewDataDidChange) {
+                guard !Task.isCancelled else { break }
+                pendingRefreshTask?.cancel()
+                pendingRefreshTask = Task {
+                    // best-effort: 防抖延迟
+                    try? await Task.sleep(nanoseconds: 200_000_000)
+                    guard !Task.isCancelled else { return }
+                    loadAnalytics()
+                }
+            }
+        }
     }
 }

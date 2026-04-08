@@ -73,6 +73,8 @@ struct DashboardAnalyticsView: View {
         .padding()
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L10n.Statistics.subjectTrend + " " + L10n.Statistics.last30Days)
     }
 
     // MARK: - 难度分布
@@ -96,6 +98,8 @@ struct DashboardAnalyticsView: View {
         .padding()
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L10n.Statistics.difficultyDistribution)
     }
 
     // MARK: - 薄弱学科排行
@@ -136,6 +140,7 @@ struct DashboardAnalyticsView: View {
             Image(systemName: "chart.line.uptrend.xyaxis")
                 .font(.largeTitle)
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             Text(L10n.Statistics.noData)
                 .font(.headline)
             Text(L10n.Statistics.noDataHint)
