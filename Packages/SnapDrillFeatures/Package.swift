@@ -32,6 +32,7 @@ let package = Package(
         .package(path: "../SnapDrillCore"),
         .package(path: "../SnapDrillUI"),
         .package(path: "../SnapDrillData"),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.19"),
     ],
     targets: [
         .target(
@@ -41,7 +42,10 @@ let package = Package(
         ),
         .target(
             name: "SnapDrillFeatureLibrary",
-            dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData"],
+            dependencies: [
+                "SnapDrillCore", "SnapDrillUI", "SnapDrillData",
+                .product(name: "ZIPFoundation", package: "ZIPFoundation"),
+            ],
             swiftSettings: sharedSwiftSettings
         ),
         // SnapDrillFeatureReview 依赖 SnapDrillFeatureLibrary：

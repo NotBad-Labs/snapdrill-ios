@@ -41,6 +41,7 @@ public struct SettingsView: View {
     @State private var isGenerating = false
     @State private var seedTask: Task<Void, Never>?
     @State private var clearTask: Task<Void, Never>?
+    @State private var settingsAvatarImage: UIImage?
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     // 录入字段可见性（产品规格：学科默认开，其余默认关）
@@ -307,6 +308,17 @@ public struct SettingsView: View {
                 seedTask?.cancel()
                 clearTask?.cancel()
             }
+            .task(id: userAvatar) {
+                if userAvatar.contains("images/") {
+                    let storage = imageStorage
+                    let path = userAvatar
+                    settingsAvatarImage = await Task.detached {
+                        storage.loadImage(path: path)
+                    }.value
+                } else {
+                    settingsAvatarImage = nil
+                }
+            }
         }
     }
 
@@ -349,7 +361,7 @@ public struct SettingsView: View {
         ]
         let selectedColors = colors[userAvatarColorIndex < colors.count ? userAvatarColorIndex : 0]
 
-        if userAvatar.contains("images/"), let image = imageStorage.loadImage(path: userAvatar) {
+        if let image = settingsAvatarImage {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()

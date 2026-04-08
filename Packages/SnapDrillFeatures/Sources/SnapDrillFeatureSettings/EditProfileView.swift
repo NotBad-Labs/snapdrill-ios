@@ -32,6 +32,7 @@ struct EditProfileView: View {
     @State private var showingPhotosPicker = false
     @State private var showingSymbolPicker = false
     @State private var imageLoadTask: Task<Void, Never>?
+    @State private var avatarImage: UIImage?
     @Environment(\.profileManager) private var profileManager
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
     
@@ -59,7 +60,7 @@ struct EditProfileView: View {
                 VStack(spacing: 16) {
                     // 居中大头像
                     Group {
-                        if userAvatar.contains("images/"), let image = imageStorage.loadImage(path: userAvatar) {
+                        if let image = avatarImage {
                             Image(uiImage: image)
                                 .resizable()
                                 .scaledToFill()
@@ -225,6 +226,17 @@ struct EditProfileView: View {
         }
         .onDisappear {
             imageLoadTask?.cancel()
+        }
+        .task(id: userAvatar) {
+            if userAvatar.contains("images/") {
+                let storage = imageStorage
+                let path = userAvatar
+                avatarImage = await Task.detached {
+                    storage.loadImage(path: path)
+                }.value
+            } else {
+                avatarImage = nil
+            }
         }
     }
 }
