@@ -33,6 +33,7 @@ paths:
 | `Sendable` 类有可变状态但无显式 `@MainActor` | "mutable stored property" 编译错误 | 此类保留显式 `@MainActor` |
 | `static let` Logger 常量未标 `nonisolated` | nonisolated 上下文无法访问 | 用 `nonisolated`（Logger 是 Sendable，不需要 unsafe） |
 | AVFoundation 回调属性默认 MainActor | nonisolated delegate 无法读取 | 用 `nonisolated(unsafe)` |
+| `Task {}` 内直接访问 `@Environment`/computed property | clean build 不报，IDE 增量编译黄色警告 | 进入 Task 前 `let local = prop` 捕获（类型须 Sendable） |
 
 ## SwiftData 陷阱
 

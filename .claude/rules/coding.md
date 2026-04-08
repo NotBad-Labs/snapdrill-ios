@@ -23,6 +23,7 @@ paths:
 - 后台执行：`Task.detached`（当前实践）；`@concurrent`（Swift 6.2+ 可用）可作为替代
 - 纯计算 struct/enum 跨 actor 使用：标记 `nonisolated`（如 ImageStorage、DTO、L10n）
 - Task 句柄：`@ObservationIgnored private var xxxTask: Task<Void, Never>?` + `cancelTasks()` 在 `.onDisappear`
+- **Task 闭包中禁止直接访问 MainActor 属性**：`Task {}` / `Task.detached {}` 内不得引用 `@Environment`、`@State`、computed property 等 MainActor 隔离属性。必须在进入 Task 前用 `let localVar = mainActorProp` 捕获到局部变量（要求类型为 `Sendable`）。原因：clean build 可能不报警告，但 Xcode 增量编译会捕获 actor isolation 违规
 - NotificationCenter：用 `for await` 替代 `addObserver`
 
 ## 接口变更
