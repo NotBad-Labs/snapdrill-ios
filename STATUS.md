@@ -1,22 +1,26 @@
 # SnapDrill 项目状态看板
 
 > 最后更新：2026-04-08
-> 编译状态：✅ 0 errors · 0 lint violations
-> Open PR：1（#558 Profile 切换 S0 保护） · Open Issue：12（#556 Profile 切换 S0、#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 TestFlight Build 6 等）
+> 编译状态：✅ 0 errors · 0 lint violations · CI 绿色
+> Open PR：0 · Open Issue：11（#532 TipKit 隔离、#540 Hooks 扩展、#162 #163 外部阻塞、#161 TestFlight Build 6 等）
 
 ---
 
 ## 当前焦点
 
-三方对抗性审计（Claude+Codex+Coze）完成，35 个发现全量修复。下一优先级：#556 Profile 切换 S0 保护 → #532 TipKit 决策（2026-04-15 前）。
+全量文档审计（56 份）+ CI 修复完成。下一优先级：#532 TipKit 决策（2026-04-15 前）。
 
 ### 待处理
 
 | 优先级 | 事项 | 状态 |
 |---|---|---|
-| P0 | Issue #556 Profile 切换 S0 保护（未保存编辑/进行中任务需拦截） | 待开发（三方审计 Codex 独有发现） |
 | P2 | Issue #532 TipKit 状态按 Profile 隔离 | 待决策，2026-04-15 前（Gemini 独有发现） |
 | P2 | Issue #540 Hooks 扩展（需深入研究协议） | 待排期 |
+
+### 已完成（CI 修复）
+
+- #562 fix: CI 连续 4 天全红修复 — restoreFromBackup repos 对称性（三方一致诊断：备份/恢复 repos 不一致）
+- #558 fix: Profile 切换 S0 保护 — 草稿拦截 + .strings 本地化（Xcode Review 通过）
 
 ### 已完成（产品文档审计修复）
 
