@@ -697,6 +697,11 @@
 // MARK: - Settings (avatar color)
 "settings.avatar_color" = "Avatar Color";
 
+// MARK: - Settings (Profile switch draft guard)
+"settings.draft_exists_title" = "Unsaved Draft Found";
+"settings.draft_exists_message" = "You have an unfinished capture draft. Switching learner will discard it.";
+"settings.discard_draft" = "Discard & Switch";
+
 // MARK: - Errors (image load)
 "errors.image_load_failed" = "Image failed to load";
 
