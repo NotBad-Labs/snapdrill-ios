@@ -16,7 +16,10 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
    - 按外部阻塞：被阻塞的事项跳过，标注阻塞原因
    - 输出格式："**建议优先做 X**，原因：Y。备选：Z。"
 
+3. **知识过期检查** — 扫描 `.claude/rules/` 的 `last verified` 日期，超过 30 天的标注提醒（不阻塞工作）
+
 对话记录由 Auto Memory 自动管理（`~/.claude/projects/` 下的 MEMORY.md），无需手动加载。
+知识分层与演进追踪见 `docs/KNOWLEDGE_MAP.md`。
 
 ## 全局上下文（每次对话强制加载）
 
@@ -74,3 +77,5 @@ xcodebuild build-for-testing \
 
 - PR 合并后 → 更新 `STATUS.md`（STATUS.md 允许直推 develop，见 `docs/workflow.md` L59）
 - 产品决策变更时 → 同一回复中 Grep 影响范围 → 创建执行 Issue
+- 知识变更时 → 按 `docs/KNOWLEDGE_MAP.md` 的知识卫生规则同步受影响文档
+- 修复非预期问题后 → 评估是否需要写入 `api-pitfalls.md` 或创建 feedback 文件（踩坑即录入）

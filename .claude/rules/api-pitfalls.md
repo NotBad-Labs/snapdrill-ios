@@ -4,6 +4,7 @@ paths:
 ---
 
 <!-- last verified: 2026-04-03 -->
+<!-- freshness: max_age_days=60, decay_trigger=[ios_release, swift_update], layer=snapshot -->
 # API 易错点速查
 
 > 修改代码前用 `Grep` / `Read` 确认 API 真实存在，禁止凭名称推测。

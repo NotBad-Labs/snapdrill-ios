@@ -4,6 +4,7 @@ paths:
 ---
 
 <!-- last verified: 2026-03-30 -->
+<!-- freshness: max_age_days=60, decay_trigger=[wwdc, ios_release], layer=snapshot -->
 # Apple 技术能力边界（防止 AI 错误假设）
 
 ## Vision / OCR

@@ -1,3 +1,5 @@
+<!-- last verified: 2026-04-07 -->
+<!-- freshness: max_age_days=30, decay_trigger=[code_change], layer=snapshot -->
 # SnapDrill 内部 API 参考
 > 各 Package 的公开接口。架构全景见 architecture.md。
 
