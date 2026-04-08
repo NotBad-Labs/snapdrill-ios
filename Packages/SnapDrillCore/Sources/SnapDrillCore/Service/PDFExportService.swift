@@ -60,7 +60,7 @@ public final class PDFExportService: Sendable {
             do {
                 // 封面页
                 context.beginPage()
-                drawTitlePage(context: context.cgContext, rect: pageRect)
+                drawTitlePage(context: context.cgContext, rect: pageRect, options: options)
 
                 // 题目内容
                 let chunks = items.chunked(into: options.itemsPerPage)
@@ -172,8 +172,8 @@ public final class PDFExportService: Sendable {
 
     // MARK: - 封面页
 
-    private func drawTitlePage(context: CGContext, rect: CGRect) {
-        let title = L10n.Export.pdfTitle
+    private func drawTitlePage(context: CGContext, rect: CGRect, options: PDFExportOptions) {
+        let title = options.customTitle ?? L10n.Export.pdfTitle
         let font = UIFont.systemFont(ofSize: 36, weight: .bold)
         let attrs: [NSAttributedString.Key: Any] = [.font: font]
 

@@ -906,6 +906,26 @@ nonisolated public enum L10n {
         }
     }
 
+    // MARK: - SmartPaper
+
+    public enum SmartPaper {
+        public static let title = NSLocalizedString("smart_paper.title", value: "智能组卷", comment: "智能组卷页标题")
+        public static let subtitle = NSLocalizedString("smart_paper.subtitle", value: "自动选出最需要复习的题目，生成练习卷", comment: "智能组卷副标题")
+        public static let generate = NSLocalizedString("smart_paper.generate", value: "生成试卷", comment: "生成试卷按钮")
+        public static let questionCount = NSLocalizedString("smart_paper.question_count", value: "题目数量", comment: "选题数量配置项")
+        public static let subjectFilter = NSLocalizedString("smart_paper.subject_filter", value: "学科", comment: "学科筛选配置项")
+        public static let difficultyFilter = NSLocalizedString("smart_paper.difficulty_filter", value: "难度", comment: "难度筛选配置项")
+        public static let allSubjects = NSLocalizedString("smart_paper.all_subjects", value: "全部学科", comment: "学科筛选：不限")
+        public static let allDifficulties = NSLocalizedString("smart_paper.all_difficulties", value: "全部难度", comment: "难度筛选：不限")
+        public static let noItemsTitle = NSLocalizedString("smart_paper.no_items_title", value: "暂无可选题目", comment: "无题目时的空状态标题")
+        public static let noItemsMessage = NSLocalizedString("smart_paper.no_items_message", value: "当前筛选条件下没有题目，请调整筛选或先采集一些题目", comment: "无题目时的空状态描述")
+        public static let pdfTitle = NSLocalizedString("smart_paper.pdf_title", value: "智能复习卷", comment: "智能组卷 PDF 封面标题")
+        public static let proRequired = NSLocalizedString("smart_paper.pro_required", value: "此功能需要 Pro 订阅", comment: "付费门控提示")
+        public static func selectedCount(_ count: Int) -> String {
+            String(format: NSLocalizedString("smart_paper.selected_count", value: "已选 %d 题", comment: "已选题目数量"), count)
+        }
+    }
+
     // MARK: - TermsOfService
 
     public enum TermsOfService {
