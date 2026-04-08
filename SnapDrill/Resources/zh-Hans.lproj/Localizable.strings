@@ -680,6 +680,11 @@
 // MARK: - Settings (avatar color)
 "settings.avatar_color" = "头像颜色";
 
+// MARK: - Settings (Profile switch draft guard)
+"settings.draft_exists_title" = "存在未保存的草稿";
+"settings.draft_exists_message" = "当前有未完成的录入草稿，切换学习者后草稿将被丢弃。";
+"settings.discard_draft" = "放弃草稿并切换";
+
 // MARK: - Errors (image load)
 "errors.image_load_failed" = "图片加载失败";
 
