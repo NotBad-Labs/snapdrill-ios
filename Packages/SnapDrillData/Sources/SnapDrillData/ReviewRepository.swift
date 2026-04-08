@@ -190,6 +190,19 @@ public final class ReviewRepository {
         try totalCount()
     }
 
+    // MARK: - Analytics（统计分析查询，供高级统计使用）
+
+    /// 获取指定日期之后创建的所有题目（用于趋势图按天聚合）
+    public func fetchItemsCreatedSince(_ date: Date) throws -> [ReviewItemModel] {
+        let sinceDate = date
+        let predicate = #Predicate<ReviewItemModel> { $0.createdAt >= sinceDate }
+        let descriptor = FetchDescriptor<ReviewItemModel>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.createdAt, order: .forward)]
+        )
+        return try modelContext.fetch(descriptor)
+    }
+
     // MARK: - Smart Selection（智能选题，供组卷排版打印使用）
 
     /// 基于 SM-2 紧迫度智能选题：优先选逾期和不熟练的题目
