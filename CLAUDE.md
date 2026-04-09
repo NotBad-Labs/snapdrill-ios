@@ -50,7 +50,7 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 
 ## 项目概要
 
-SnapDrill：练习题数字化存档 + 间隔重复复习 App。
+SnapDrill：练习题数字化存档效率工具。复习为独立附加值，不在核心价值链内。
 技术栈：SwiftUI · SwiftData · iOS 26.0+
 包结构和依赖方向见各 `Packages/*/Package.swift`。
 架构决策（Domain 层/UseCase 层/Repository 协议已删除、SwiftData、DI Container + @Environment）不得在未经用户批准的情况下推翻。

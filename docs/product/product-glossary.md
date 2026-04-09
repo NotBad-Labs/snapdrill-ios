@@ -9,12 +9,13 @@
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **采集** | Capture | 从外部载体（相机/相册/PDF/剪贴板文本/Share Extension）获取题目内容并进入录入流程的全过程。文档扫描部分实现 | `SnapDrillFeatureCapture` (Features) |
-| **录入** | Create / Save | 完成题目编辑（OCR 文本、答案、分类、标签）并保存到题库的动作 | `CaptureResultViewModel.save()` (Features) |
-| **题库** | Library | 已保存题目的集合，支持浏览、搜索、过滤、编辑、导出 | `SnapDrillFeatureLibrary` (Features) |
-| **导出** | Export | 将题目数据从 App 输出为外部格式（PDF/JSON/CSV/ZIP/分享卡片） | `ExportOptionsSheet` (Features) |
-| **打印** | Print | 导出 PDF 后通过系统打印服务输出到纸质 | `PDFExportService` (Core) |
-| **复习** | Review | 基于 SM-2 间隔重复算法的卡片式复习会话 | `SnapDrillFeatureReview` (Features) |
+| **采集** | Capture | 从外部载体（相机/相册/PDF/剪贴板文本/Share Extension）获取题目内容并进入录入流程的全过程 | `SnapDrillFeatureCapture` 模块 (Features) |
+| **录入** | Create / Save | 完成题目编辑（OCR 文本、答案、分类、标签）并保存到题库的动作 | `CaptureResultViewModel` 模块 (Features) |
+| **题库** | Library | 已保存题目的集合，支持浏览、搜索、过滤、编辑、导出 | `SnapDrillFeatureLibrary` 模块 (Features) |
+| **管理** | Management | 价值链中间环节：题库浏览、编辑、分类、标签、搜索、过滤等整理操作的统称 | `SnapDrillFeatureLibrary` 模块 (Features) |
+| **导出** | Export | 将题目数据从 App 输出为外部格式。题库导出：PDF/CSV/ZIP/分享卡片；隐私数据导出：JSON（设置→隐私） | `ExportOptionsSheet` (Features)；隐私导出见 `PrivacySettingsView` (Features) |
+| **打印** | Print | 导出 PDF 后通过系统打印服务输出到纸质 | `ExportPreviewView` (Features) 提供打印入口，依赖 `PDFExportService` (Core) 生成 PDF |
+| **复习** | Review | 基于 SM-2 间隔重复算法的卡片式复习会话 | `SnapDrillFeatureReview` 模块 (Features) |
 
 **价值链完整表述**：采集 → 管理（题库浏览/编辑/分类） → 导出/打印。复习是独立附加值，不在价值链内
 
