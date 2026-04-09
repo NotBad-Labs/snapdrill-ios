@@ -27,7 +27,7 @@
 | `.claude/rules/apple-native.md` | Apple 原生 UI 模式 | — | HIG/WWDC |
 | `.claude/rules/coding.md` | 编码规范、SwiftLint 规则 | engineering | Swift 版本 |
 | `.claude/rules/testing.md` | 测试策略 | engineering | XCTest 更新 |
-| `.claude/rules/collaboration.md` | Claude+Xcode 协作模式 | — | 工具更新 |
+| `.claude/rules/collaboration.md` | 智能体协作架构（Opus/Haiku/Sonnet/Codex/Xcode/Antigravity） | — | 工具更新 |
 | `.claude/rules/codex-delegation.md` | Codex 子 agent 委派规范 | — | 插件/模型更新 |
 | `docs/tech/compliance.md` | 隐私合规、App Store 审核 | vision, business | 政策变更 |
 | `docs/tech/deployment.md` | CI/CD、发布流程 | — | 工具更新 |
@@ -51,7 +51,7 @@
 |---|---|---|---|
 | feedback_*.md | 工作流纪律、协作反馈 | 模式层 | 自主执行不等于跳流程 |
 | project_*.md | 项目进展、临时状态 | 快照层 | Apple 开发者账号注册中 |
-| reference_*.md | 外部工具指针 | 快照层 | Coze Bot 配置、AI 工具链规格 |
+| reference_*.md | 外部工具指针 | 快照层 | AI 工具链规格 |
 
 ## 技术演进线
 

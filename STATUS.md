@@ -8,14 +8,13 @@
 
 ## 当前焦点
 
-四方审计完成（OpenClaw 第四方 + Claude/Codex/Antigravity 三方验证），修复已合并。CI 需回家清理 Mac mini DerivedData。下一步：#486 Word 导出 → #161 TestFlight Build 6。
+三方审计完成（Claude/Codex/Antigravity 交叉验证），修复已合并。CI 需回家清理 Mac mini DerivedData。下一步：#486 Word 导出 → #161 TestFlight Build 6。
 
 ### 今日已完成
 
 - #571 fix: #570 审计修复 — COPPA 合规（plist 预禁用 + opt-in 激活）+ Profile 切换保护（AppActivityTracker 中心状态机）+ Soft Delete 下沉（DeletionScheduler App 级）+ 隐私文案修正 + Analytics 纵深防御 + 性能基准测试 + GDPR 跨境方案
-  - 四方审计：OpenClaw 文档审计 7.2/10 → Claude 代码验证 → Codex 独立验证 → Antigravity 方案审阅
+  - 三方审计：Claude 代码验证 → Codex 独立验证 → Antigravity 方案审阅
   - Codex Review 4 blocker 修复 + Xcode Review 2 RED 修复 + 二轮验收通过
-  - OpenClaw MCP 接入测试（wss→https 协议修复，超时问题未解，已停用）
 - #569 fix: #568 三方深度审计修复 — 异步头像加载 + ZIPFoundation 依赖声明（Xcode Review 二轮验收）
 - #567 feat: #488 高级统计 — 学科趋势图 + 难度分布 + 薄弱排行（Swift Charts，三方设计 + 三方审查 + Xcode Review）
 - #566 feat: #487 智能组卷 — SM-2 选题 + 配置页 + PDF 预览（三方设计 + 三方审查 + Xcode Review 二轮验收）
@@ -24,15 +23,14 @@
 - 三方深度审计 Track 1（产品完整性 98.8%）+ Track 2（架构健康 0 Critical）+ Track 3（代码质量 1 Critical 已修复）
 - `.claude/rules/coding.md` + `api-pitfalls.md` 新增 Task 闭包 actor isolation 规则
 - ExportPreviewView 去掉嵌套 NavigationStack（Xcode Review R1，既有问题一并修复）
-- Codex 插件手动更新 v1.0.2 → v1.0.3
 - 记忆系统优化：新增 Xcode Review feedback + 知识路由表
 
 ### 已完成（知识演进体系）
 
 - `2538e120` chore: KNOWLEDGE_MAP 三层分类 + freshness 元数据 + Codex 委派升级
-  - 三方讨论（Claude+Codex/GPT-5.4+Coze）设计知识管理架构
+  - 三方讨论设计知识管理架构
   - Deep Research 报告时效性审计：15 项过时发现
-  - Codex 插件 v1.0.2→v1.0.3，研究任务改用 GPT-5.4
+  - 研究任务改用 GPT-5.4
   - 评估 MemPalace（20K stars）后决定不引入
 
 ### 待处理
@@ -48,10 +46,10 @@
 
 ### 已完成（产品文档审计修复）
 
-- #560 docs: 三方全量文档审计修复（非产品文档 49 份）— 16+5 个发现修复（Codex 发现 BackupService 签名/Schema V4→V1/Tests 路径；Coze 补审 README 定位/DocC 补全）
-- #557 docs: 三方对抗性审计修复 — Claude+Codex+Coze 35 个发现全量修复（首次三方独立审计+独立 Review 闭环；Coze 脚本升级：完整文件模式+项目基线注入+网络搜索验证）
+- #560 docs: 三方全量文档审计修复（非产品文档 49 份）— 16+5 个发现修复
+- #557 docs: 三方对抗性审计修复 — 35 个发现全量修复（三方独立审计+独立 Review 闭环）
 - Issue 清理：三方独立审查后关闭 #452（产品战略复核，已被审计覆盖）、#477（Share Extension，代码已完整实现）；更新 #540/#162/#161 描述
-- #554 docs: 文档体系架构重构 — Glossary 定位修正 + 信息去重 + 未实现标注（首次三方审查：Claude+Codex+Coze，Coze 独有发现 2 项已修正）
+- #554 docs: 文档体系架构重构 — Glossary 定位修正 + 信息去重 + 未实现标注（三方交叉审查）
 - #551 docs: 竞品分析补全 — 新增隐形竞品分析（Apple 备忘录/Notion/GoodNotes，Codex 事实性核验修正通过）
 - #552 docs: 成功指标量化 — 6 条成功信号改为可度量表格（Codex 审查 + journeys 口径同步）
 - #548 docs: Pro 层增强 — 图片处理增强纳入 Pro 规划（横向研究 7 款 App，Codex 对抗性审查通过）
@@ -87,7 +85,7 @@
   - Batch 1: workflow.md + GitHub 模板对齐（Issue 模板补全 Shape 字段、PR Checklist 4→13 项、Review 留痕、S0-S3 label）
   - Batch 2: README + 5 Package README + Scripts（修复 17 个问题，含 5 个幽灵类型）
   - Batch 3: 8 个 DocC 文档（修复 21 个问题，internal 类型改单反引号 + 散文描述）
-  - 架构决策：DocC internal 类型策略（四方一致选 A：不改 public，用单反引号）
+  - 架构决策：DocC internal 类型策略（多方一致选 A：不改 public，用单反引号）
 
 ### 已完成（文档审计第一轮，15 个 PR）
 
