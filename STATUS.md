@@ -86,7 +86,7 @@
   - Batch 1: workflow.md + GitHub 模板对齐（Issue 模板补全 Shape 字段、PR Checklist 4→13 项、Review 留痕、S0-S3 label）
   - Batch 2: README + 5 Package README + Scripts（修复 17 个问题，含 5 个幽灵类型）
   - Batch 3: 8 个 DocC 文档（修复 21 个问题，internal 类型改单反引号 + 散文描述）
-  - 架构决策：DocC internal 类型策略（四方一致选 A：不改 public，用单反引号）
+  - 架构决策：DocC internal 类型策略（多方一致选 A：不改 public，用单反引号）
 
 ### 已完成（文档审计第一轮，15 个 PR）
 
