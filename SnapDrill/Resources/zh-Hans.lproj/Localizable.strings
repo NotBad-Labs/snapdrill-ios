@@ -605,7 +605,7 @@
 "privacy.rights_title" = "您的权利";
 "privacy.rights_content" = "您对自己的数据拥有完全控制权：访问权（您可以随时查看应用中的所有数据）、导出权（通过\"导出\"功能导出您的数据）、删除权（您可以删除单个错题或清空所有数据）、备份权（通过备份功能保护您的数据）。\n\n如需完全删除所有数据，请在设置中选择\"清空所有数据\"或卸载应用。";
 "privacy.third_party_title" = "第三方服务";
-"privacy.third_party_content" = "SnapDrill 使用以下第三方服务：\n\n• Apple Vision Framework：用于 OCR 文字识别，完全在设备本地处理，数据不离开设备。\n• Firebase Analytics（Google）：匿名使用行为统计，用于了解功能使用情况并改进产品。不收集任何可识别个人身份的信息。在 iOS 上，此功能仅在您通过「应用跟踪透明度（ATT）」授权后才会启用。\n• Firebase Crashlytics（Google）：崩溃日志收集，用于识别和修复应用稳定性问题。仅收集设备类型、操作系统版本及崩溃堆栈信息。\n\n我们不使用任何第三方广告服务，不会将您的数据用于广告目的。";
+"privacy.third_party_content" = "SnapDrill 使用以下第三方服务：\n\n• Apple Vision Framework：用于 OCR 文字识别，完全在设备本地处理，数据不离开设备。\n• Firebase Analytics（Google）：匿名使用行为统计，用于了解功能使用情况并改进产品。不收集任何可识别个人身份的信息。您可以随时在「设置 → 隐私」中关闭此功能。\n• Firebase Crashlytics（Google）：崩溃日志收集，用于识别和修复应用稳定性问题。仅收集设备类型、操作系统版本及崩溃堆栈信息。您可以随时在「设置 → 隐私」中关闭此功能。\n\n我们不使用任何第三方广告服务，不会将您的数据用于广告目的。";
 "privacy.children_title" = "儿童隐私";
 "privacy.children_content" = "SnapDrill 适合所有年龄段的用户使用。我们不会有意收集 13 岁以下儿童的个人信息。如果您是家长或监护人，发现您的孩子在未经您同意的情况下向我们提供了个人信息，请联系我们，我们将采取措施删除相关信息。";
 "privacy.gdpr_title" = "GDPR 合规（欧盟用户）";

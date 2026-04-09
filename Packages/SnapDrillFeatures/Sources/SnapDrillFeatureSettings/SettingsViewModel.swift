@@ -396,7 +396,7 @@ public final class SettingsViewModel {
 
             // 切换到目标 Profile
             if targetProfile.id != profileManager.activeProfileId {
-                profileManager.switchProfile(to: targetProfile.id)
+                try profileManager.switchProfile(to: targetProfile.id)
             }
 
             // 原始活跃 Profile 用 self.repositories（与 createBackup 对称）

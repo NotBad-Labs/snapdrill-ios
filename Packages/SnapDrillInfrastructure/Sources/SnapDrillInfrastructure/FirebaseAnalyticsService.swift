@@ -38,38 +38,38 @@ import SnapDrillCore
     
     public func track(_ event: AnalyticsEvent, parameters: [String: String]) {
         let name = event.rawValue
-        
-        // 只有在配置完成后才调用真实 SDK
-        if isFirebaseConfigured {
-            Analytics.logEvent(name, parameters: parameters)
-        }
-        
+
+        // 纵深防御：应用层 + SDK 层双重检查
+        guard isFirebaseConfigured,
+              AppConfiguration.FeatureFlags.analyticsEnabled else { return }
+        Analytics.logEvent(name, parameters: parameters)
+
         SnapDrillLogger.generic.debug("[FirebaseAnalytics] event: \(name), params: \(parameters)")
     }
-    
+
     public func trackScreen(_ screenName: String, parameters: [String: String]) {
-        if isFirebaseConfigured {
-            var params = parameters
-            params[AnalyticsParameterScreenName] = screenName
-            Analytics.logEvent(AnalyticsEventScreenView, parameters: params)
-        }
-        
+        guard isFirebaseConfigured,
+              AppConfiguration.FeatureFlags.analyticsEnabled else { return }
+        var params = parameters
+        params[AnalyticsParameterScreenName] = screenName
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: params)
+
         SnapDrillLogger.generic.debug("[FirebaseAnalytics] screen: \(screenName)")
     }
-    
+
     public func startSession() {
         SnapDrillLogger.generic.debug("[FirebaseAnalytics] session started")
     }
-    
+
     public func endSession() {
         SnapDrillLogger.generic.debug("[FirebaseAnalytics] session ended")
     }
-    
+
     public func setUserProperty(_ value: String, forKey key: String) {
-        if isFirebaseConfigured {
-            Analytics.setUserProperty(value, forName: key)
-        }
-        
+        guard isFirebaseConfigured,
+              AppConfiguration.FeatureFlags.analyticsEnabled else { return }
+        Analytics.setUserProperty(value, forName: key)
+
         SnapDrillLogger.generic.debug("[FirebaseAnalytics] setUserProperty \(key): \(value)")
     }
     
