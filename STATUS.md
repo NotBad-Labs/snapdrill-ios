@@ -23,7 +23,6 @@
 - 三方深度审计 Track 1（产品完整性 98.8%）+ Track 2（架构健康 0 Critical）+ Track 3（代码质量 1 Critical 已修复）
 - `.claude/rules/coding.md` + `api-pitfalls.md` 新增 Task 闭包 actor isolation 规则
 - ExportPreviewView 去掉嵌套 NavigationStack（Xcode Review R1，既有问题一并修复）
-- Codex 插件手动更新 v1.0.2 → v1.0.3
 - 记忆系统优化：新增 Xcode Review feedback + 知识路由表
 
 ### 已完成（知识演进体系）
@@ -31,7 +30,7 @@
 - `2538e120` chore: KNOWLEDGE_MAP 三层分类 + freshness 元数据 + Codex 委派升级
   - 三方讨论设计知识管理架构
   - Deep Research 报告时效性审计：15 项过时发现
-  - Codex 插件 v1.0.2→v1.0.3，研究任务改用 GPT-5.4
+  - 研究任务改用 GPT-5.4
   - 评估 MemPalace（20K stars）后决定不引入
 
 ### 待处理
