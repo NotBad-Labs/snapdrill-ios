@@ -41,6 +41,7 @@ public struct SettingsView: View {
     @State private var isGenerating = false
     @State private var seedTask: Task<Void, Never>?
     @State private var clearTask: Task<Void, Never>?
+    @State private var settingsAvatarImage: UIImage?
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     // 录入字段可见性（产品规格：学科默认开，其余默认关）
@@ -307,6 +308,14 @@ public struct SettingsView: View {
                 seedTask?.cancel()
                 clearTask?.cancel()
             }
+            .task(id: userAvatar) {
+                if userAvatar.contains("images/") {
+                    let storage = imageStorage
+                    settingsAvatarImage = await storage.loadImageAsync(path: userAvatar)
+                } else {
+                    settingsAvatarImage = nil
+                }
+            }
         }
     }
 
@@ -349,12 +358,17 @@ public struct SettingsView: View {
         ]
         let selectedColors = colors[userAvatarColorIndex < colors.count ? userAvatarColorIndex : 0]
 
-        if userAvatar.contains("images/"), let image = imageStorage.loadImage(path: userAvatar) {
+        if userAvatar.contains("images/"), let image = settingsAvatarImage {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
                 .clipShape(Circle())
                 .overlay(Circle().stroke(Color.white.opacity(0.4), lineWidth: 1.5))
+        } else if userAvatar.contains("images/") {
+            // 自定义头像加载中占位
+            Image(systemName: "person.crop.circle.fill")
+                .font(.system(size: 36))
+                .foregroundStyle(.secondary)
         } else {
             Image(systemName: userAvatar)
                 .font(.system(size: 36))

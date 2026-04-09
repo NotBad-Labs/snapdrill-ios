@@ -32,6 +32,7 @@ struct EditProfileView: View {
     @State private var showingPhotosPicker = false
     @State private var showingSymbolPicker = false
     @State private var imageLoadTask: Task<Void, Never>?
+    @State private var avatarImage: UIImage?
     @Environment(\.profileManager) private var profileManager
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
     
@@ -59,11 +60,21 @@ struct EditProfileView: View {
                 VStack(spacing: 16) {
                     // 居中大头像
                     Group {
-                        if userAvatar.contains("images/"), let image = imageStorage.loadImage(path: userAvatar) {
+                        if userAvatar.contains("images/"), let image = avatarImage {
                             Image(uiImage: image)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 100, height: 100)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.white, lineWidth: 3))
+                                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                        } else if userAvatar.contains("images/") {
+                            // 自定义头像加载中占位
+                            Image(systemName: "person.crop.circle.fill")
+                                .font(.system(size: 60))
+                                .foregroundStyle(.secondary)
+                                .frame(width: 100, height: 100)
+                                .background(Circle().fill(.ultraThinMaterial))
                                 .clipShape(Circle())
                                 .overlay(Circle().stroke(Color.white, lineWidth: 3))
                                 .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
@@ -225,6 +236,14 @@ struct EditProfileView: View {
         }
         .onDisappear {
             imageLoadTask?.cancel()
+        }
+        .task(id: userAvatar) {
+            if userAvatar.contains("images/") {
+                let storage = imageStorage
+                avatarImage = await storage.loadImageAsync(path: userAvatar)
+            } else {
+                avatarImage = nil
+            }
         }
     }
 }
