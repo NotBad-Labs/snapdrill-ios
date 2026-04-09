@@ -27,8 +27,11 @@
 | `.claude/rules/apple-native.md` | Apple 原生 UI 模式 | — | HIG/WWDC |
 | `.claude/rules/coding.md` | 编码规范、SwiftLint 规则 | engineering | Swift 版本 |
 | `.claude/rules/testing.md` | 测试策略 | engineering | XCTest 更新 |
-| `.claude/rules/collaboration.md` | 智能体协作架构（Opus/Haiku/Sonnet/Codex/Xcode/Antigravity） | — | 工具更新 |
+| `.claude/rules/collaboration.md` | 智能体协作架构（Claude/Codex/Gemini CLI/Xcode） | — | 工具更新 |
 | `.claude/rules/codex-delegation.md` | Codex 子 agent 委派规范 | — | 插件/模型更新 |
+| `.claude/rules/gemini-delegation.md` | Gemini CLI 委派规范 | — | CLI/模型更新 |
+| `.claude/rules/shared-constraints.md` | 委派共享约束（单一源） | — | 约束变更 |
+| `.claude/rules/apple-extension.md` | App Extension 约束 | — | Extension 变更 |
 | `docs/tech/compliance.md` | 隐私合规、App Store 审核 | vision, business | 政策变更 |
 | `docs/tech/deployment.md` | CI/CD、发布流程 | — | 工具更新 |
 | `docs/tech/non-functional-requirements.md` | 性能、内存、存储 | architecture | 设备更新 |
@@ -81,7 +84,8 @@ iOS 17  SwiftData（声明式，与 SwiftUI 深度集成）
 2026-02  Xcode 26.3 agentic coding（Claude Agent + Codex，MCP 20 tools）
 2026-03  GPT-5.4 取代 GPT-5.3-Codex 成为推荐模型
 2026-03  Claude 1M context GA 标准定价
-→ 趋势：从"代码补全"到"验证闭环"。Xcode MCP 是关键拐点
+2026-04  Gemini CLI v0.37.0 集成（Google One AI Pro，三方终端内审计闭环）
+→ 趋势：从"代码补全"到"验证闭环"。三方交叉审计（Anthropic/OpenAI/Google）是质量拐点
 → 决策触发：当 Xcode agentic coding 支持自定义 rules 文件加载时，评估从 CLI 迁移核心工作流
 ```
 

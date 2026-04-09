@@ -1,6 +1,6 @@
 # SnapDrill 协作流程
 
-> 开发闭环、Git 工作流、Code Review、优先级。工程哲学见 `../.claude/rules/engineering.md`，协作模式见 `../CLAUDE.md`。
+> 开发闭环、Git 工作流、Code Review、优先级。工程哲学见 `../.claude/rules/engineering.md`，协作模式见 `../.claude/rules/collaboration.md`。
 
 ---
 
@@ -65,7 +65,9 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 ### 代码质量
 - [ ] `swiftlint --strict` 0 violations
 - [ ] `xcodebuild build-for-testing` 0 errors
+- [ ] `xcodebuild test` 通过（已有测试不得回归）
 - [ ] 改接口签名后 `grep -rn "TypeName(" Packages/*/Tests/` 检查测试同步
+- [ ] Codex 对抗性审查通过（每个 PR 必须）
 - [ ] Xcode Review 核实通过（UI 改动必须）
 
 ### 功能完整性
@@ -126,42 +128,6 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ## 交叉审计（Cross-Audit）
 
-文档审计、代码审查等质量验证任务采用**多 Agent 全量交叉审计**模式，降低单一视角的盲区。
+详细的三方审计组合、流程、工具链见 `.claude/rules/collaboration.md`。
 
-### 核心原则
-
-**每个 Agent 独立审计完整集合，不是各审一半拼起来。**
-
-三方的工作范围必须完全相同——都是全量审计同一批文档/代码，各自产出独立报告，然后交叉比对。冗余是刻意的：正是因为三方独立看同样的东西，才能通过"你发现了我没发现的"暴露盲区。
-
-### 三方审计组合
-
-| Agent | 引擎 | 调用方式 | 优势 |
-|---|---|---|---|
-| Claude | Opus 4.6（Anthropic） | 主对话 | 大上下文全局分析、代码实现 |
-| Codex | GPT-5.4（OpenAI） | 插件子 agent | 深度代码-文档一致性验证（shell 命令级别） |
-| Gemini | Gemini 3（Google） | `gemini -p` Bash 调用 | 独立第三方视角、终端内全自动化 |
-
-### 流程
-
-1. **Claude、Codex、Gemini 各自独立审计同一批全部文档/代码**（范围完全相同，终端内并行）
-2. **代码验证**：所有事实性声明（API 存在性、类型名、方法签名）必须用 grep/read 验证
-3. **交叉比对**：按文档逐项比较三份独立报告，分为"共同发现"、各 Agent 独有发现
-4. **统一修复**：合并所有发现后一次性修复，避免来回返工
-5. **修复 Review**：修复后由三方各自独立 Review 修复结果，再次交叉比对
-
-### 发现归类
-
-| 严重度 | 标准 | 处理 |
-|---|---|---|
-| 严重 | 幽灵类型/API、事实性错误、与代码直接冲突 | 必须修复 |
-| 中等 | 过时描述、文档间不一致、缺失内容 | 应修复 |
-| 轻微 | 措辞优化、格式统一 | 可修复 |
-
-### 为什么有效
-
-- Claude、Codex、Gemini 使用不同模型家族（Anthropic / OpenAI / Google），盲区不重叠
-- 全量冗余审计保证不会因分工遗漏：任何问题至少被一方发现
-- Codex 擅长深度代码-文档一致性验证（shell 命令 + worktree 隔离）
-- Gemini CLI sandbox 模式可读取项目文件，终端内全自动化无需手动中转
-- 注意：Gemini 不覆盖 iOS 26 知识，prompt 必须内联项目约束
+核心原则：**每个 Agent 独立审计完整集合，不是各审一半拼起来。** 三方（Claude / Codex / Gemini）全量冗余审计同一批文档/代码，交叉比对暴露盲区。
