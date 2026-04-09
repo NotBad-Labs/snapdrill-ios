@@ -46,11 +46,8 @@
 | #479 | StoreKit 付费墙 | 需 App Store Connect 配置产品 |
 | #485 | iCloud 同步 | 需 CloudKit Container + StoreKit |
 | #486 | Word 导出 | 需 StoreKit |
-| #487 | 组卷排版打印 | 功能代码已完成（#566），付费开关需 StoreKit |
-| #488 | 高级统计 + 趋势图 | 功能代码已完成（#567），付费开关需 StoreKit |
 | #490 | App Store 提交准备 | 需公司账号 + 真机验证 |
 | #161 | TestFlight Build 6 | 需真机验证 |
-| #162 | GitHub Pro Branch Protection | 等 GitHub Pro 生效 |
 
 ### 暂缓（Phase 4，探索性）
 
