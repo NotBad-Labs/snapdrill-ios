@@ -2,22 +2,26 @@
 
 > 最后更新：2026-04-08
 > 编译状态：✅ 0 errors · 0 lint violations · CI 绿色
-> Open PR：0 · Open Issue：9
+> Open PR：0 · Open Issue：8
 
 ---
 
 ## 当前焦点
 
-#487 智能组卷已合并。下一步：#488 高级统计 + 趋势图 或 #486 Word 导出。
+三方深度审计完成（Track 1-3），所有发现已修复。下一步：#486 Word 导出 → #161 TestFlight Build 6 → #540 Hooks 扩展。
 
 ### 今日已完成
 
+- #569 fix: #568 三方深度审计修复 — 异步头像加载 + ZIPFoundation 依赖声明（Xcode Review 二轮验收）
+- #567 feat: #488 高级统计 — 学科趋势图 + 难度分布 + 薄弱排行（Swift Charts，三方设计 + 三方审查 + Xcode Review）
 - #566 feat: #487 智能组卷 — SM-2 选题 + 配置页 + PDF 预览（三方设计 + 三方审查 + Xcode Review 二轮验收）
 - #565 fix: #564 ExportPreviewView actor isolation 警告
 - #563 fix: #532 TipKit 状态按 Profile 隔离
+- 三方深度审计 Track 1（产品完整性 98.8%）+ Track 2（架构健康 0 Critical）+ Track 3（代码质量 1 Critical 已修复）
 - `.claude/rules/coding.md` + `api-pitfalls.md` 新增 Task 闭包 actor isolation 规则
 - ExportPreviewView 去掉嵌套 NavigationStack（Xcode Review R1，既有问题一并修复）
 - Codex 插件手动更新 v1.0.2 → v1.0.3
+- 记忆系统优化：新增 Xcode Review feedback + 知识路由表
 
 ### 已完成（知识演进体系）
 
