@@ -122,9 +122,18 @@ public final class ProfileManager {
     }
 
     /// 切换到指定 Profile
-    public func switchProfile(to profileId: UUID) {
+    ///
+    /// 切换前检查 `AppActivityTracker` 是否有进行中的操作，
+    /// 有则抛出 `ProfileError.switchBlocked`。
+    public func switchProfile(to profileId: UUID) throws(ProfileError) {
         guard profileId != activeProfileId,
               profiles.contains(where: { $0.id == profileId }) else { return }
+
+        // 中心状态机检查：有进行中的操作时阻止切换
+        let tracker = AppActivityTracker.shared
+        if let reason = tracker.switchBlockReason {
+            throw .switchBlocked(reason: reason)
+        }
 
         // 1. 保存当前 Profile 的偏好
         savePreferences(for: activeProfileId)
@@ -190,12 +199,12 @@ public final class ProfileManager {
         }
         guard let index = profiles.firstIndex(where: { $0.id == id }) else { return }
 
-        // 如果删除的是当前活跃 Profile，先切换到其他 Profile
+        // 如果删除的是当前活跃 Profile，必须先成功切换到其他 Profile
         if id == activeProfileId {
-            let otherProfile = profiles.first(where: { $0.id != id })
-            if let other = otherProfile {
-                switchProfile(to: other.id)
+            guard let other = profiles.first(where: { $0.id != id }) else {
+                throw ProfileError.cannotDeleteLastProfile
             }
+            try switchProfile(to: other.id)
         }
 
         profiles.remove(at: index)
@@ -282,11 +291,15 @@ public final class ProfileManager {
 /// Profile 操作错误
 public enum ProfileError: LocalizedError {
     case cannotDeleteLastProfile
+    /// 有进行中的操作，无法切换 Profile
+    case switchBlocked(reason: String)
 
     public var errorDescription: String? {
         switch self {
         case .cannotDeleteLastProfile:
             return "无法删除最后一个学习者"
+        case .switchBlocked(let reason):
+            return "无法切换：\(reason)"
         }
     }
 }

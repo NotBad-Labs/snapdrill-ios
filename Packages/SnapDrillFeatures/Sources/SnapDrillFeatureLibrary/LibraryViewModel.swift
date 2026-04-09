@@ -99,17 +99,21 @@ public final class LibraryViewModel {
     public var errorMessage: String?
     /// 操作错误信息（非 nil 时 View 展示 alert，用于删除、打标签等操作）
     public var operationError: String?
-    /// 撤销 Toast 状态
-    public var showUndoToast = false
+    /// 撤销 Toast 状态（委托给 DeletionScheduler）
+    public var showUndoToast: Bool {
+        get { deletionScheduler.showUndoToast }
+        set { deletionScheduler.showUndoToast = newValue }
+    }
     /// 待删除的题目数量（Toast 显示用）
-    public var pendingDeletionCount = 0
-    /// 软删除暂存区
+    public var pendingDeletionCount: Int {
+        deletionScheduler.pendingDeletionCount
+    }
+    /// App 级删除调度器
     @ObservationIgnored
-    private var pendingDeletionIDs: Set<UUID> = []
+    private let deletionScheduler = DeletionScheduler.shared
+    /// 撤销恢复时暂存的 items（用于恢复列表）
     @ObservationIgnored
     private var pendingDeletionItems: [ReviewItemModel] = []
-    @ObservationIgnored
-    private var commitDeletionTask: Task<Void, Never>?
     private var currentPage: Int = 0
     private let pageSize: Int = 50
     /// 搜索防抖任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
@@ -208,40 +212,33 @@ public final class LibraryViewModel {
 
     /// 软删除题目（从列表移除，暂存 5 秒后真正删除，支持撤销）
     public func softDeleteItems(ids: Set<UUID>) {
-        // Bug fix: 先同步提交上一次的 pending（用捕获的局部变量避免竞态）
-        commitDeletionTask?.cancel()
-        if !pendingDeletionIDs.isEmpty {
-            let previousIDs = pendingDeletionIDs
-            pendingDeletionIDs.removeAll()
-            pendingDeletionItems.removeAll()
-            Task { await performDeletion(ids: previousIDs) }
-        }
-
-        // 暂存待删除的题目
+        // 暂存待删除的题目（用于撤销时恢复列表）
         pendingDeletionItems = filteredItems.filter { ids.contains($0.id) }
-        pendingDeletionIDs = ids
-        pendingDeletionCount = ids.count
 
         // 从列表中移除（视觉即时反馈）
         withAnimation {
             filteredItems.removeAll { ids.contains($0.id) }
-            showUndoToast = true
         }
 
-        // 5 秒后真正删除
-        commitDeletionTask = Task {
-            try? await Task.sleep(for: .seconds(5))
-            guard !Task.isCancelled else { return }
-            await commitDeletion()
+        // 调度删除（5 秒倒计时由 App 级 DeletionScheduler 管理）
+        let repos = repositories
+        deletionScheduler.scheduleDeletion(ids: ids) { idsToDelete in
+            for id in idsToDelete {
+                do {
+                    try await repos.review.delete(id: id)
+                } catch {
+                    SnapDrillLogger.generic.error("删除题目失败（id=\(id)）: \(error.localizedDescription)")
+                }
+            }
         }
     }
 
     /// 撤销删除（恢复暂存的题目到列表）
     public func undoDelete() {
-        commitDeletionTask?.cancel()
-        commitDeletionTask = nil
+        let result = deletionScheduler.undoDeletion()
+        guard case .undone = result else { return }
 
-        // Bug fix: 使用当前排序选项而非硬编码 createdAt
+        // 使用当前排序选项恢复列表顺序
         let descriptors = sortOption.sortDescriptors
 
         withAnimation {
@@ -256,40 +253,12 @@ public final class LibraryViewModel {
                 }
                 return false
             }
-            showUndoToast = false
         }
 
-        pendingDeletionIDs.removeAll()
         pendingDeletionItems.removeAll()
-        pendingDeletionCount = 0
     }
 
-    /// 真正执行数据库删除（软删除倒计时结束后调用）
-    private func commitDeletion() async {
-        let ids = pendingDeletionIDs
-        guard !ids.isEmpty else { return }
-
-        pendingDeletionIDs.removeAll()
-        pendingDeletionItems.removeAll()
-
-        await performDeletion(ids: ids)
-
-        withAnimation {
-            showUndoToast = false
-        }
-        pendingDeletionCount = 0
-    }
-
-    /// 执行数据库删除（抽取公共逻辑，供 commitDeletion 和连续删除提交共用）
-    private func performDeletion(ids: Set<UUID>) async {
-        for id in ids {
-            do {
-                try await repositories.review.delete(id: id)
-            } catch {
-                SnapDrillLogger.generic.error("删除题目失败（id=\(id)）: \(error.localizedDescription)")
-            }
-        }
-    }
+    // 删除逻辑已委托给 DeletionScheduler（App 级生命周期）
 
     /// 批量为选中题目添加标签
     public func addTagsToItems(ids: Set<UUID>, tagNames: Set<String>) async {
@@ -320,16 +289,12 @@ public final class LibraryViewModel {
     }
 
     /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）
+    ///
+    /// 不再在页面离开时提交 pending 删除 —— 删除倒计时由
+    /// DeletionScheduler（App 级）管理，不随 View 释放而中断。
     public func cancelTasks() {
         searchTask?.cancel()
         searchTask = nil
-        // 页面离开时，如果有 pending 删除，立即提交（不丢失删除操作）
-        if !pendingDeletionIDs.isEmpty {
-            commitDeletionTask?.cancel()
-            let ids = pendingDeletionIDs
-            pendingDeletionIDs.removeAll()
-            pendingDeletionItems.removeAll()
-            Task { await performDeletion(ids: ids) }
-        }
+        pendingDeletionItems.removeAll()
     }
 }

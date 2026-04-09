@@ -139,7 +139,7 @@ FTC 于 2025-04-22 发布 COPPA Final Rule amendments，合规落地截止日为
 | 删除权 | ✅ 用户可删除任意题目，卸载即全删 |
 | 知情同意 | ✅ Analytics 默认开启但可关闭 |
 | 数据最小化 | ✅ 零 PII 收集 |
-| 跨境传输 | ⚠️ Firebase 数据存储在 Google 服务器（包含 `app_instance_id` 等 pseudonymous data，需按跨境传输合规要求管理） |
+| 跨境传输 | ✅ 已缓解。Firebase Analytics/Crashlytics 数据传输至 Google 美国服务器。缓解措施：(1) plist 预设 `FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED=YES` + `FirebaseCrashlyticsCollectionEnabled=NO`，用户未 opt-in 时零数据外传；(2) 用户可在设置中完全关闭，关闭后等同纯本地模式；(3) 欧盟用户：Google 已签署 EU-US Data Privacy Framework；(4) 中国用户：传输数据仅为匿名设备事件计数，不含个人信息，用户可关闭实现零外传 |
 | 中国区 iCloud | 云上贵州运营，数据存储在中国境内（iCloud 同步实现时评估，当前未实现） |
 
 ---

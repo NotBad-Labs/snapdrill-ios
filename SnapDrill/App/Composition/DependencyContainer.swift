@@ -40,15 +40,23 @@ final class DependencyContainer {
 
     private init() {
         // 1. 配置 Firebase（基础设施层）
+        // plist 预设 DEACTIVATED/Disabled，configure 时不生成 persistent ID
         FirebaseBootstrap.configure()
 
-        // 1b. 读取用户隐私偏好，同步到 Firebase SDK
-        FirebaseBootstrap.setCrashlyticsEnabled(
-            AppConfiguration.FeatureFlags.crashReportingEnabled
-        )
-        FirebaseBootstrap.setAnalyticsEnabled(
-            AppConfiguration.FeatureFlags.analyticsEnabled
-        )
+        // 1b. 仅当用户已显式 opt-in 时才激活数据收集
+        // plist 预设 DEACTIVATED/Disabled，首启用户未设置时保持禁用状态
+        // 只有用户在设置中显式开启过（UserDefaults 有值）才激活
+        let defaults = UserDefaults.standard
+        if defaults.object(forKey: UDKey.crashReportingEnabled) != nil {
+            FirebaseBootstrap.setCrashlyticsEnabled(
+                defaults.bool(forKey: UDKey.crashReportingEnabled)
+            )
+        }
+        if defaults.object(forKey: UDKey.analyticsEnabled) != nil {
+            FirebaseBootstrap.setAnalyticsEnabled(
+                defaults.bool(forKey: UDKey.analyticsEnabled)
+            )
+        }
 
         // 2. 初始化 Firebase 具体服务
         let analyticsService = FirebaseAnalyticsService()

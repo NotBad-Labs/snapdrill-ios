@@ -26,6 +26,8 @@ struct ProfileListView: View {
     @State private var profileToDelete: Profile?
     /// 草稿存在时暂存目标 Profile ID，等用户确认后再切换
     @State private var pendingSwitchProfileId: UUID?
+    /// 切换被阻塞时的错误提示
+    @State private var switchError: String?
 
     var body: some View {
         List {
@@ -89,6 +91,14 @@ struct ProfileListView: View {
                 profileManager.createProfile(name: name)
             }
         }
+        .alert(L10n.Common.error, isPresented: .init(
+            get: { switchError != nil },
+            set: { if !$0 { switchError = nil } }
+        )) {
+            Button(L10n.Common.ok, role: .cancel) {}
+        } message: {
+            Text(switchError ?? "")
+        }
     }
 
     // MARK: - Private
@@ -122,24 +132,32 @@ struct ProfileListView: View {
         .accessibilityHint(profile.id == profileManager.activeProfileId ? "当前学习者" : "点击切换到此学习者")
     }
 
-    /// 切换前检查草稿状态，有草稿时弹确认，无草稿直接切换
+    /// 切换前检查草稿状态和进行中操作
     private func switchToProfile(_ profileId: UUID) {
         guard profileId != profileManager.activeProfileId else { return }
         if CaptureDraftService.shared.hasDraft {
             pendingSwitchProfileId = profileId
         } else {
-            profileManager.switchProfile(to: profileId)
-            dismiss()
+            do {
+                try profileManager.switchProfile(to: profileId)
+                dismiss()
+            } catch {
+                switchError = error.localizedDescription
+            }
         }
     }
 
-    /// 放弃草稿后执行切换
+    /// 放弃草稿后执行切换（先切换再清草稿，避免切换失败时草稿已丢）
     private func discardDraftAndSwitch() {
-        CaptureDraftService.shared.clearDraft()
         if let profileId = pendingSwitchProfileId {
-            profileManager.switchProfile(to: profileId)
-            pendingSwitchProfileId = nil
-            dismiss()
+            do {
+                try profileManager.switchProfile(to: profileId)
+                CaptureDraftService.shared.clearDraft()
+                pendingSwitchProfileId = nil
+                dismiss()
+            } catch {
+                switchError = error.localizedDescription
+            }
         }
     }
 
