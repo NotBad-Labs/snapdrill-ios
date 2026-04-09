@@ -14,12 +14,23 @@ Gemini CLI（google-gemini/gemini-cli v0.37.0）通过 Bash 非交互模式在 C
 ## 调用方式
 
 ```bash
-gemini -p "<prompt>" --sandbox 2>&1
+gemini -p "<prompt>" 2>&1
 ```
 
-- `--sandbox`：只读模式，禁止写文件（审计场景必加）
-- 去掉 `--sandbox` 可执行代码修复（需谨慎）
+- 默认不加 `--sandbox`（性能更好，审计类 prompt 不会触发写入）
+- `--sandbox`：只读模式，禁止写文件。仅在 prompt 可能触发代码修改时使用
 - `-m gemini-2.5-flash`：切换为快速模型（默认 Gemini 3 Auto）
+
+### sandbox 性能影响（2026-04-09 实测）
+
+sandbox 模式显著降低性能，复杂任务可能卡死：
+
+| 场景 | 无 sandbox | 有 sandbox | 差异 |
+|---|---|---|---|
+| 6 文件简单总结 | 81 秒 | 167 秒 | 2.1x |
+| 6 文件完整审计 | **119 秒** | **7 分+ 卡死** | >3.5x |
+
+**规则**：审计/Review/研究等只读任务不加 `--sandbox`；仅在 prompt 要求 Gemini 修改文件时加 `--sandbox` 保护。
 
 ## 认证模式
 
@@ -78,7 +89,7 @@ gemini -p "读取以下文件并审计代码质量：
 3. 错误处理（是否有 try? 吞错误）
 
 项目约束：iOS 26+ / SwiftUI / SwiftData / defaultIsolation(MainActor)
-输出：结构化报告，按严重度排序（Critical > Warning > Info）。中文回复。" --sandbox 2>&1
+输出：结构化报告，按严重度排序（Critical > Warning > Info）。中文回复。" 2>&1
 ```
 
 ### 三方交叉审计（与 Claude + Codex 并行）
@@ -112,7 +123,7 @@ Gemini 在复杂审计（多文件 + 多条审计标准）时可能超时卡死�
 
 ## 反模式
 
-- 不加 `--sandbox` 做审计 — 意外写入文件的风险
+- 只读任务加 `--sandbox` — 白白损失一半以上性能，复杂任务可能卡死
 - prompt 不含项目约束 — Gemini 会给出脱离项目上下文的泛泛建议
 - 单次 prompt 塞太多文件 — 超出 token 限制后输出质量下降
 - 复杂审计不设超时 — 进程卡死浪费时间且阻塞工作流
