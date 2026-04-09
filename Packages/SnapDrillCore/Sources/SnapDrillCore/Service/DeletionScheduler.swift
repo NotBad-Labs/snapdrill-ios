@@ -101,15 +101,18 @@ public typealias DeletionExecutor = @Sendable (Set<UUID>) async -> Void
         Task { await executor(idsToCommit) }
     }
 
+    /// 同步捕获状态后执行删除（与 commitImmediately 相同模式，
+    /// 防止 await 挂起期间 currentExecutor 被新批次覆写）
     private func commitPendingDeletion() async {
         let ids = pendingDeletionIDs
-        guard !ids.isEmpty else { return }
+        let executor = currentExecutor
+        guard !ids.isEmpty, let executor else { return }
 
         pendingDeletionIDs.removeAll()
         pendingDeletionCount = 0
+        currentExecutor = nil
         showUndoToast = false
 
-        await currentExecutor?(ids)
-        currentExecutor = nil
+        await executor(ids)
     }
 }
