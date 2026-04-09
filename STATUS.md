@@ -1,17 +1,18 @@
 # SnapDrill 项目状态看板
 
 > 最后更新：2026-04-09
-> 编译状态：✅ 0 errors · 0 lint violations · CI 待修（Mac mini DerivedData 清理）
+> 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
 > Open PR：0 · Open Issue：8
 
 ---
 
 ## 当前焦点
 
-三方审计完成（Claude/Codex/Antigravity 交叉验证），修复已合并。CI 需回家清理 Mac mini DerivedData。下一步：#486 Word 导出 → #161 TestFlight Build 6。
+智能体架构精简已合并（#573），CI 全绿。下一步：#486 Word 导出 → #161 TestFlight Build 6。
 
 ### 今日已完成
 
+- #573 chore: #572 智能体协作架构精简 — 移除 Coze/OpenClaw，重建稳定工具链 + 修复 softDeleteItems 测试 crash（DeletionScheduler 单例遗留 Task，Claude/Codex 交叉诊断一致）
 - #571 fix: #570 审计修复 — COPPA 合规（plist 预禁用 + opt-in 激活）+ Profile 切换保护（AppActivityTracker 中心状态机）+ Soft Delete 下沉（DeletionScheduler App 级）+ 隐私文案修正 + Analytics 纵深防御 + 性能基准测试 + GDPR 跨境方案
   - 三方审计：Claude 代码验证 → Codex 独立验证 → Antigravity 方案审阅
   - Codex Review 4 blocker 修复 + Xcode Review 2 RED 修复 + 二轮验收通过
