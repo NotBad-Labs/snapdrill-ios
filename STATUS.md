@@ -8,9 +8,9 @@
 
 ## 当前焦点
 
-智能体架构精简已合并（#573），CI 全绿。Layer 0 引导层三方审计已完成并提交。
-下一步：#486 Word 导出（依赖 StoreKit，被 Apple 开发者账号阻塞）。
-当前可做：引导层/流程层/产品层/技术层文档审计（不依赖外部阻塞）。
+三方基线审计进行中。Layer 0（引导层）+ Layer 1（流程层）+ Layer 2 Stage 1（vision+glossary）已完成。
+下一步：Layer 2 Stage 2（business+design）→ Stage 3（requirements）→ Stage 4（cases+journeys）→ Layer 3（技术层）。
+功能开发被 Apple 开发者账号阻塞（#486 Word 导出等）。
 
 ### 今日已完成
 
