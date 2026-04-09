@@ -1,17 +1,21 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-08
-> 编译状态：✅ 0 errors · 0 lint violations · CI 绿色
+> 最后更新：2026-04-09
+> 编译状态：✅ 0 errors · 0 lint violations · CI 待修（Mac mini DerivedData 清理）
 > Open PR：0 · Open Issue：8
 
 ---
 
 ## 当前焦点
 
-三方深度审计完成（Track 1-3），所有发现已修复。下一步：#486 Word 导出 → #161 TestFlight Build 6 → #540 Hooks 扩展。
+四方审计完成（OpenClaw 第四方 + Claude/Codex/Antigravity 三方验证），修复已合并。CI 需回家清理 Mac mini DerivedData。下一步：#486 Word 导出 → #161 TestFlight Build 6。
 
 ### 今日已完成
 
+- #571 fix: #570 审计修复 — COPPA 合规（plist 预禁用 + opt-in 激活）+ Profile 切换保护（AppActivityTracker 中心状态机）+ Soft Delete 下沉（DeletionScheduler App 级）+ 隐私文案修正 + Analytics 纵深防御 + 性能基准测试 + GDPR 跨境方案
+  - 四方审计：OpenClaw 文档审计 7.2/10 → Claude 代码验证 → Codex 独立验证 → Antigravity 方案审阅
+  - Codex Review 4 blocker 修复 + Xcode Review 2 RED 修复 + 二轮验收通过
+  - OpenClaw MCP 接入测试（wss→https 协议修复，超时问题未解，已停用）
 - #569 fix: #568 三方深度审计修复 — 异步头像加载 + ZIPFoundation 依赖声明（Xcode Review 二轮验收）
 - #567 feat: #488 高级统计 — 学科趋势图 + 难度分布 + 薄弱排行（Swift Charts，三方设计 + 三方审查 + Xcode Review）
 - #566 feat: #487 智能组卷 — SM-2 选题 + 配置页 + PDF 预览（三方设计 + 三方审查 + Xcode Review 二轮验收）
