@@ -1,7 +1,14 @@
+---
+paths:
+  - "CLAUDE.md"
+  - "STATUS.md"
+  - ".claude/rules/collaboration.md"
+---
+
 <!-- last verified: 2026-04-09 -->
 # Gemini CLI 委派规范
 
-Gemini CLI（google-gemini/gemini-cli v0.37.0）通过 Bash 非交互模式在 Claude Code 内调用，提供第三个独立模型家族（Google）的审计视角。
+Gemini CLI（google-gemini/gemini-cli v0.37.0）通过 Bash 非交互模式在 Claude Code 内调用，提供第三个独立模型家族（Google Gemini 3）的审计视角。
 与 Codex 不同，Gemini 通过 `-p` 参数直接传递 prompt，不是插件体系。
 
 ## 调用方式
@@ -12,7 +19,7 @@ gemini -p "<prompt>" --sandbox 2>&1
 
 - `--sandbox`：只读模式，禁止写文件（审计场景必加）
 - 去掉 `--sandbox` 可执行代码修复（需谨慎）
-- `-m gemini-2.5-flash`：切换为快速模型（默认 gemini-2.5-pro）
+- `-m gemini-2.5-flash`：切换为快速模型（默认 Gemini 3 Auto）
 
 ## 认证模式
 
@@ -28,8 +35,15 @@ gemini -p "<prompt>" --sandbox 2>&1
 
 | 任务类型 | 模型 | 理由 |
 |---|---|---|
-| 代码审计/Review | gemini-2.5-pro（默认） | 强推理，长上下文 |
+| 代码审计/Review | Gemini 3 Auto（默认） | 强推理，长上下文 |
 | 快速校验/格式检查 | gemini-2.5-flash（`-m gemini-2.5-flash`） | 快速响应，节省配额 |
+
+### iOS 26 知识缺口
+
+Gemini 训练数据不覆盖 iOS 26（自评"不知道"）。应对策略：
+- prompt 中**必须内联**项目约束：`iOS 26+ / SwiftUI / SwiftData / Swift 6.3 / defaultIsolation(MainActor)`
+- Gemini 能基于 prompt 约束正确推理，但不会主动发现 iOS 26 特有的 API 变更
+- 对 iOS 26 新 API 的审计结论需要 Claude 或 Xcode 交叉验证
 
 ## 委派 prompt 结构
 
@@ -41,13 +55,8 @@ Gemini CLI 在 `--sandbox` 模式下可以读取项目文件。在 prompt 中明
 
 ### 2. 关键约束摘要
 
-与 `codex-delegation.md` 相同的约束必须内联到 prompt 中：
-
-- **产品定位**：效率工具，不是教育平台。价值链：采集 > 管理 > 导出/打印
-- **工程哲学**：奥卡姆剃刀，先研究再动手
-- **编码铁律**：swiftlint --strict 0 violations + xcodebuild build-for-testing 0 errors
-- **数据安全**：零注册、纯本地、图片是真相、Profile 隔离
-- **优先级**：S0 > S1 > S2 > S3
+构造委派 prompt 前，先读取 `.claude/rules/shared-constraints.md` 并将其全文内联到 prompt 中。
+该文件是约束的唯一来源，此处不再硬编码，避免漂移。
 
 ### 3. 输出约束
 

@@ -4,6 +4,7 @@ paths:
 ---
 
 <!-- last verified: 2026-04-04 -->
+<!-- freshness: max_age_days=60, decay_trigger=[wwdc, ios_release, hig_update], layer=snapshot -->
 # Apple 原生优先
 
 **UI 改动必须先找 Apple 原生 App 或 HIG 中的对应模式。禁止自创交互。**

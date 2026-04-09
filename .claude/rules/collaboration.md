@@ -14,10 +14,10 @@ paths:
 | **终端 Claude Code** | Opus 4.6 | CLI / 桌面 App | 1M token | 主力开发、协调、规划、重构、审计 |
 | **Claude 子 agent（Haiku）** | Haiku 4.5 | 终端内委派 | 200K token | 注释撰写、翻译、格式化、轻量生成 |
 | **Claude 子 agent（Sonnet）** | Sonnet 4.6 | 终端内委派 | 1M token | 中等复杂度代码生成、重构建议 |
-| **Codex 插件** | GPT-5.4 | 终端内 | 1.1M token | 对抗性 Review、独立审计、深度研究 |
-| **Codex 桌面** | GPT-5.4 | 独立 App | 1.1M token | 大型独立任务 |
+| **Codex 插件** | GPT-5.4 系列（可选 spark，详见 codex-delegation.md） | 终端内 | 1.1M token | 对抗性 Review、独立审计、深度研究 |
+| **Codex 桌面** | GPT-5.4 系列 | 独立 App | 1.1M token | 大型独立任务 |
 | **Xcode** | Claude + Codex | IDE | 200K token | UI Review、Apple 文档查询、SwiftUI Preview |
-| **Gemini CLI** | Gemini 2.5 Pro | 终端内 Bash | 1M token | 第三方独立审计、交叉验证 |
+| **Gemini CLI** | Gemini 3 (Auto) | 终端内 Bash | 1M+ token | 第三方独立审计、交叉验证 |
 | **Antigravity** | Gemini + 其他 | IDE | — | 独立第三方视角（手动中转，Gemini CLI 的备选） |
 
 ## 日常开发（终端内闭环）
@@ -59,7 +59,9 @@ Claude Opus（主力）
 详细规范见 `gemini-delegation.md`。
 核心：每次调用无状态，prompt 必须自包含项目约束。`--sandbox` 审计必加（只读）。
 
-认证：Google AI Pro 订阅，1500 RPD 免费配额（Gemini 2.5 Pro）。
+认证：Google One AI Pro 订阅，1500 RPD 免费配额（Gemini 3）。
+
+已知限制：Gemini 训练数据不覆盖 iOS 26，但接受 prompt 约束后能正确推理。委派时**必须内联项目约束**（iOS 26+ / Swift 6.3 / defaultIsolation(MainActor)）。
 
 ### Antigravity（Gemini CLI 的 fallback）
 
@@ -75,7 +77,7 @@ Claude Opus（主力）
 ```
 Claude Opus ──独立审计（主对话内）──┐
 Codex GPT-5.4 ──独立审计（插件委派）──├── Claude 汇总比对 ── 统一修复 ── 各方独立 Review
-Gemini 2.5 Pro ──独立审计（Bash 调用）──┘
+Gemini 3 ──独立审计（Bash 调用）──┘
 ```
 
 三个模型家族（Anthropic / OpenAI / Google）全部在终端内闭环，零手动中转。
@@ -105,7 +107,7 @@ Gemini 2.5 Pro ──独立审计（Bash 调用）──┘
 - 三个不同模型家族（Anthropic / OpenAI / Google），盲区不重叠
 - 全量冗余审计保证不会因分工遗漏：任何问题至少被一方发现
 - Codex 擅长深度代码-文档一致性验证（shell 命令 + worktree 隔离）
-- Gemini 响应快（约 15 秒），适合快速获取第三方视角
+- Gemini sandbox 模式审计约 90 秒（含文件读取），简单问题约 15 秒
 - 全终端内自动化，无需用户手动中转提示词
 
 ## Review 流程

@@ -43,7 +43,7 @@ paths:
 | `#Predicate` 中写 many-to-many 过滤 | 运行崩溃 | fetch 全量后内存端过滤 |
 | macOS `swift test` 跑 #Predicate 测试 | SIGTRAP | 必须通过 Xcode iOS Simulator 运行 |
 | 新增 @Model 字段不加默认值 | 迁移失败 | 字段带默认值 + 新建 Schema 版本 |
-| `#Unique<Model>([\.field])` + CloudKit entitlement | 真机 fatalError（Simulator 不崩） | ❌ **禁止使用 `#Unique`**（PR #454 已全量删除）— 在 Repository 层用 `fetchOrCreateModel` + `DataError.duplicateName` 保证业务唯一性 |
+| `#Unique<Model>([\.field])` + CloudKit entitlement | 真机 fatalError（Simulator 不崩） | **禁止使用 `#Unique`**（PR #454 已全量删除）— 在 Repository 层用 `fetchOrCreateModel` + `DataError.duplicateName` 保证业务唯一性 |
 
 ## 删除撤销陷阱
 

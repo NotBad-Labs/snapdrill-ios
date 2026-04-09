@@ -9,7 +9,7 @@ SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载
 **回复用户第一条消息前，必须执行：**
 
 1. 读取 `STATUS.md` — 恢复当前工作上下文（在做什么、优先级、外部阻塞）
-2. **决策导航** — 基于 STATUS.md 当前状态，主动向用户建议下一步优先事项：
+2. **决策导航**（仅当用户未指定明确任务时执行；若用户已给出具体任务如审计、修复、查询，跳过此步直接执行）：
    - 按 `docs/workflow.md` 的 S0-S3 严重度排序：有 S0/S1 未解决 → 最高优先
    - 按 WIP 限制：有待 Review PR 未合并 → 先 Review 再开新任务
    - 按价值链：采集 > 管理 > 导出/打印（见 `docs/product/product-design.md`）
@@ -68,8 +68,8 @@ xcodebuild build-for-testing \
 
 **只有 0 errors + 0 violations 才能向用户回复"完成"或提交代码。**
 完整 DoD 和 Code Review 规范（含 Xcode Review、文档同步、Review 留痕）见 `docs/workflow.md`。
-`swift test` 不可用（SPM 仅声明 iOS 平台）；`xcodebuild build` 不编译测试 target。
-完整陷阱清单见 `.claude/rules/coding.md`。
+测试通过 `xcodebuild test` 运行（`swift test` 不可用，因 SPM 仅声明 iOS 平台）。`xcodebuild build` 不编译测试 target，必须用 `build-for-testing`。
+完整陷阱清单见 `.claude/rules/coding.md` 与 `.claude/rules/api-pitfalls.md`。
 
 ## 记忆固化（State Write-back）
 

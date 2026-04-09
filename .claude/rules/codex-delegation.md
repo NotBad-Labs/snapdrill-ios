@@ -1,4 +1,11 @@
-<!-- last verified: 2026-04-08 -->
+---
+paths:
+  - "CLAUDE.md"
+  - "STATUS.md"
+  - ".claude/rules/collaboration.md"
+---
+
+<!-- last verified: 2026-04-09 -->
 # Codex 子 agent 委派规范
 
 Codex 作为 Claude Code 的子 agent 运行（插件 v1.0.3，源码 `openai/codex-plugin-cc`），不自动继承 `CLAUDE.md`、`.claude/rules/`、产品文档体系。
@@ -25,19 +32,13 @@ Codex 作为 Claude Code 的子 agent 运行（插件 v1.0.3，源码 `openai/co
 |---|---|
 | 全部任务 | `STATUS.md`、`docs/workflow.md`（DoD + S0-S3 + Git 工作流） |
 | 产品/设计相关 | `docs/product/product-vision.md`、`docs/product/product-design.md`、`docs/product/product-requirements.md`、`docs/product/product-cases.md`（按需选读） |
-| 代码实现 | `CLAUDE.md`（执行铁律）、相关 `.claude/rules/*.md`（coding/testing/apple-native 等） |
+| 代码实现 | `CLAUDE.md`（执行铁律）、相关 `.claude/rules/*.md`（coding/testing/apple-native 等）、**相关产品文档**（铁律：改代码前必须先读产品文档确认需求） |
 | 审计/Review | 被审对象的全部上下文 + 上游依赖文档 |
 
 ### 2. 关键约束摘要
 
-即使指定了文件读取，也应在 prompt 中内联关键约束，防止 Codex 跳过或遗漏：
-
-- **产品定位**：效率工具，不是教育平台。价值链：采集 > 管理 > 导出/打印（复习是独立附加值）
-- **工程哲学**：奥卡姆剃刀，先研究再动手，N > 3 是警告
-- **编码铁律**：swiftlint --strict 0 violations + xcodebuild build-for-testing 0 errors
-- **数据安全**：零注册、纯本地、图片是真相、Profile 隔离
-- **开发纪律**：修改代码前必须先读产品文档；改接口签名后必须 grep 测试同步；UI 改动必须经 Xcode Review；PR 未合并前禁止推进下一任务；Review 结论必须留痕
-- **优先级**：S0（数据丢失）> S1（流程阻断）> S2（有摩擦）> S3（不紧急）
+构造委派 prompt 前，先读取 `.claude/rules/shared-constraints.md` 并将其全文内联到 prompt 中。
+该文件是约束的唯一来源，此处不再硬编码，避免漂移。
 
 ### 3. 输出约束
 

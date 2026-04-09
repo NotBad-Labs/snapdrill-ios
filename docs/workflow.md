@@ -136,15 +136,15 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ### 三方审计组合
 
-| Agent | 引擎 | 优势 |
-|---|---|---|
-| Claude | Opus 4.6（Anthropic） | 大上下文全局分析、代码实现 |
-| Codex | GPT-5.4（OpenAI） | 深度代码-文档一致性验证（shell 命令级别） |
-| Antigravity | Gemini（Google） | IDE 级项目访问、独立第三方视角 |
+| Agent | 引擎 | 调用方式 | 优势 |
+|---|---|---|---|
+| Claude | Opus 4.6（Anthropic） | 主对话 | 大上下文全局分析、代码实现 |
+| Codex | GPT-5.4（OpenAI） | 插件子 agent | 深度代码-文档一致性验证（shell 命令级别） |
+| Gemini | Gemini 3（Google） | `gemini -p` Bash 调用 | 独立第三方视角、终端内全自动化 |
 
 ### 流程
 
-1. **Claude、Codex、Antigravity 各自独立审计同一批全部文档/代码**（范围完全相同）
+1. **Claude、Codex、Gemini 各自独立审计同一批全部文档/代码**（范围完全相同，终端内并行）
 2. **代码验证**：所有事实性声明（API 存在性、类型名、方法签名）必须用 grep/read 验证
 3. **交叉比对**：按文档逐项比较三份独立报告，分为"共同发现"、各 Agent 独有发现
 4. **统一修复**：合并所有发现后一次性修复，避免来回返工
@@ -160,7 +160,8 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ### 为什么有效
 
-- Claude、Codex、Antigravity 使用不同模型家族（Anthropic / OpenAI / Google），盲区不重叠
+- Claude、Codex、Gemini 使用不同模型家族（Anthropic / OpenAI / Google），盲区不重叠
 - 全量冗余审计保证不会因分工遗漏：任何问题至少被一方发现
-- Codex 擅长深度代码-文档一致性验证（shell 命令级别）
-- Antigravity 能直接读项目文件（IDE 级别），无 API token 截断限制
+- Codex 擅长深度代码-文档一致性验证（shell 命令 + worktree 隔离）
+- Gemini CLI sandbox 模式可读取项目文件，终端内全自动化无需手动中转
+- 注意：Gemini 不覆盖 iOS 26 知识，prompt 必须内联项目约束
