@@ -26,6 +26,9 @@ final class LibraryViewModelTests {
     private let repos: RepositoryContainer
 
     init() throws {
+        // 清理上一个测试遗留的定时删除任务，防止 executor 在 ModelContainer 释放后执行导致 crash
+        _ = DeletionScheduler.shared.undoDeletion()
+
         let schema = Schema([
             ReviewItemModel.self,
             TagModel.self,
