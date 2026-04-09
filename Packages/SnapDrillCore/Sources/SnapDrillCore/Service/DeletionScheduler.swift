@@ -79,15 +79,26 @@ public typealias DeletionExecutor = @Sendable (Set<UUID>) async -> Void
         let restored = pendingDeletionIDs
         pendingDeletionIDs.removeAll()
         pendingDeletionCount = 0
+        currentExecutor = nil
         showUndoToast = false
         return .undone(restored)
     }
 
     /// 立即提交待删除（不等 5 秒）
+    ///
+    /// 同步捕获当前状态后 fire-and-forget，避免与后续
+    /// `scheduleDeletion` 覆写 `pendingDeletionIDs` 产生竞态。
     public func commitImmediately() {
         commitTask?.cancel()
         commitTask = nil
-        Task { await commitPendingDeletion() }
+        let idsToCommit = pendingDeletionIDs
+        let executor = currentExecutor
+        pendingDeletionIDs.removeAll()
+        pendingDeletionCount = 0
+        currentExecutor = nil
+        showUndoToast = false
+        guard !idsToCommit.isEmpty, let executor else { return }
+        Task { await executor(idsToCommit) }
     }
 
     private func commitPendingDeletion() async {

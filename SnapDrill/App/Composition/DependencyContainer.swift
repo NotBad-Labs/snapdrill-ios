@@ -88,15 +88,22 @@ final class DependencyContainer {
         self.router = AppRouter()
 
         // 8. 监听隐私偏好变更，运行时同步到 Firebase SDK
+        // 与 step 1b 相同的守卫：仅当用户显式设置过时才激活，
+        // 防止首启任意 UserDefaults 变更触发 Analytics 意外激活（COPPA）
         Task { [weak analyticsService] in
+            let defaults = UserDefaults.standard
             for await _ in NotificationCenter.default.notifications(named: UserDefaults.didChangeNotification) {
                 guard analyticsService != nil else { break }
-                FirebaseBootstrap.setCrashlyticsEnabled(
-                    AppConfiguration.FeatureFlags.crashReportingEnabled
-                )
-                FirebaseBootstrap.setAnalyticsEnabled(
-                    AppConfiguration.FeatureFlags.analyticsEnabled
-                )
+                if defaults.object(forKey: UDKey.crashReportingEnabled) != nil {
+                    FirebaseBootstrap.setCrashlyticsEnabled(
+                        AppConfiguration.FeatureFlags.crashReportingEnabled
+                    )
+                }
+                if defaults.object(forKey: UDKey.analyticsEnabled) != nil {
+                    FirebaseBootstrap.setAnalyticsEnabled(
+                        AppConfiguration.FeatureFlags.analyticsEnabled
+                    )
+                }
             }
         }
 

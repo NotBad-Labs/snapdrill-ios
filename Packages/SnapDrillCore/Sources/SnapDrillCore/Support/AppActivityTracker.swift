@@ -39,18 +39,19 @@ public enum AppActivity: Sendable, Hashable {
         activeActivities.isEmpty
     }
 
-    /// 阻塞切换的原因描述（用于 UI 提示）
+    // 阻塞切换的原因描述（用于 UI 提示）
+    // TODO: 接入 begin/end 调用方后，改用 L10n 本地化键
     public var switchBlockReason: String? {
         guard !canSwitchProfile else { return nil }
         let descriptions = activeActivities.map { activity -> String in
             switch activity {
-            case .capturing: return "采集"
-            case .exporting: return "导出"
-            case .printing: return "打印"
-            case .backupRestore: return "备份/恢复"
+            case .capturing: return "capturing"
+            case .exporting: return "exporting"
+            case .printing: return "printing"
+            case .backupRestore: return "backup/restore"
             }
         }
-        return descriptions.joined(separator: "、") + "进行中"
+        return descriptions.joined(separator: ", ") + " in progress"
     }
 
     public init() {}
