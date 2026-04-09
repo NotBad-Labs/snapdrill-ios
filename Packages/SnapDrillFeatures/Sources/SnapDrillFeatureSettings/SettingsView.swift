@@ -311,10 +311,7 @@ public struct SettingsView: View {
             .task(id: userAvatar) {
                 if userAvatar.contains("images/") {
                     let storage = imageStorage
-                    let path = userAvatar
-                    settingsAvatarImage = await Task.detached {
-                        storage.loadImage(path: path)
-                    }.value
+                    settingsAvatarImage = await storage.loadImageAsync(path: userAvatar)
                 } else {
                     settingsAvatarImage = nil
                 }
@@ -361,12 +358,17 @@ public struct SettingsView: View {
         ]
         let selectedColors = colors[userAvatarColorIndex < colors.count ? userAvatarColorIndex : 0]
 
-        if let image = settingsAvatarImage {
+        if userAvatar.contains("images/"), let image = settingsAvatarImage {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
                 .clipShape(Circle())
                 .overlay(Circle().stroke(Color.white.opacity(0.4), lineWidth: 1.5))
+        } else if userAvatar.contains("images/") {
+            // 自定义头像加载中占位
+            Image(systemName: "person.crop.circle.fill")
+                .font(.system(size: 36))
+                .foregroundStyle(.secondary)
         } else {
             Image(systemName: userAvatar)
                 .font(.system(size: 36))
