@@ -14,8 +14,8 @@
 | 题目内容（文字+图片） | 是 | 纯本地（App Sandbox） | 用户完全控制 |
 | 学科/标签/难度等元数据 | 是 | 纯本地 | 用户完全控制 |
 | 用户昵称/头像/座右铭 | 是 | 纯本地 UserDefaults | 用户完全控制 |
-| 匿名使用统计 | 是（可关闭） | Firebase Analytics（Google 服务器） | 设置页开关 |
-| 匿名崩溃报告 | 是（可关闭） | Firebase Crashlytics（Google 服务器） | 设置页开关 |
+| 匿名使用统计 | 首次启动默认不采集，用户 opt-in 后启用（可随时关闭） | Firebase Analytics（Google 服务器） | 设置页开关 |
+| 匿名崩溃报告 | 首次启动默认不采集，用户 opt-in 后启用（可随时关闭） | Firebase Crashlytics（Google 服务器） | 设置页开关 |
 | 手机号/邮箱/姓名 | **不收集** | — | — |
 | 学校/年级/位置 | **不收集** | — | — |
 | 广告标识符（IDFA） | **不收集** | — | App 声明 Not Tracking |
@@ -137,7 +137,7 @@ FTC 于 2025-04-22 发布 COPPA Final Rule amendments，合规落地截止日为
 |---|---|
 | 数据可携带权 | ✅ JSON/CSV 导出（隐私设置页） |
 | 删除权 | ✅ 用户可删除任意题目，卸载即全删 |
-| 知情同意 | ✅ Analytics 默认开启但可关闭 |
+| 知情同意 | ✅ Analytics/Crashlytics 首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in/opt-out |
 | 数据最小化 | ✅ 零 PII 收集 |
 | 跨境传输 | ✅ 已缓解。Firebase Analytics/Crashlytics 数据传输至 Google 美国服务器。缓解措施：(1) plist 预设 `FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED=YES` + `FirebaseCrashlyticsCollectionEnabled=NO`，用户未 opt-in 时零数据外传；(2) 用户可在设置中完全关闭，关闭后等同纯本地模式；(3) 欧盟用户：Google 已签署 EU-US Data Privacy Framework；(4) 中国用户：传输数据仅为匿名设备事件计数，不含个人信息，用户可关闭实现零外传 |
 | 中国区 iCloud | 云上贵州运营，数据存储在中国境内（iCloud 同步实现时评估，当前未实现） |

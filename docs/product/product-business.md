@@ -115,7 +115,7 @@ iCloud 同步是打通这个闭环的引擎，图片处理增强（去手写/试
 ## 隐私策略（2026-03-07 确立，Bear 模式）
 
 SnapDrill **不收集任何可识别个人信息**（no personally identifiable information）。没有注册，没有手机号，没有学校年级。
-匿名使用数据采用两个独立开关，分别控制 Firebase Analytics 和 Crashlytics，默认开启，用户可在设置中分别关闭。
+匿名使用数据采用两个独立开关，分别控制 Firebase Analytics 和 Crashlytics。首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in 开启或关闭。
 
 | 维度 | 竞品（喵喵机/橙果等） | SnapDrill |
 |---|---|---|
