@@ -47,7 +47,7 @@ SnapDrill 不收集任何可识别个人信息。没有注册、没有手机号�
 ### Tracking 姿态
 
 - App 在 Privacy Manifest 中声明 `NSPrivacyTracking = false`，当前产品口径为 **Not Tracking**
-- 代码中存在 ATT 授权链路：`SnapDrillApp` 在 Onboarding 完成后检查 `PrivacyConsentService.shouldShowPrePrompt`；若为 true，先展示 `PrivacyPrePromptView`，用户点击继续后调用 `PrivacyConsentService.requestTrackingAuthorization()` 触发系统 ATT 弹窗
+- ATT 授权链路已移除（ADR-002）：不弹 ATT 弹窗，NSPrivacyTracking = false
 - 当前源码未检出 IDFA / `ASIdentifierManager` / `advertisingIdentifier` 的直接读取代码；题目内容不用于第三方广告画像或 behavioral advertising
 - Analytics / Crashlytics 为匿名遥测，用户可在设置中关闭；数据收集开关由 `AppConfiguration.FeatureFlags.analyticsEnabled` 与 `crashReportingEnabled` 控制
 
@@ -106,10 +106,11 @@ FTC 于 2025-04-22 发布 COPPA Final Rule amendments，合规落地截止日为
 - 影响存在但有限（不做广告、不开儿童社交、不收集账号身份信息）
 - 需关注第三方 persistent identifier 与产品定位表述的一致性
 - 若未来进入 COPPA 适用区间，新规带来的额外压力主要在：third-party disclosure 说明、persistent identifier 约束、信息安全与数据保留要求
-- 合规状态：**进行中（收尾阶段）** | 最近复核：2026-04-10
-- 截止日：**2026-04-22**（距今 12 天）
-- 收尾清单：(1) 归档 COPPA 适用性 memo（含证据截图和配置证明）；(2) App Store metadata 复核避免 child-directed 表述；(3) ATT 代码移除后合规姿态完整（ADR-002）
-- 完成上述三项后标记为"已完成"
+- 合规状态：**已完成** | 最近复核：2026-04-10
+- 截止日：2026-04-22
+- COPPA 适用性 memo：`docs/tech/coppa-applicability-memo.md`
+- ATT 代码已移除（ADR-002，PR #577）
+- 证据截图待补充至 `docs/tech/evidence/coppa/`
 
 ### 现阶段防御性措施
 

@@ -172,12 +172,9 @@ public final class AnalyticsServiceMock: AnalyticsServiceProtocol {
 public final class PrivacyConsentService {
     public static let shared = PrivacyConsentService()
     public init() {}
-    public var trackingStatus: ATTrackingManager.AuthorizationStatus { get }
-    public var isTrackingAuthorized: Bool { get }
-    public func requestTrackingAuthorization() async -> ATTrackingManager.AuthorizationStatus
-    public var shouldShowPrePrompt: Bool { get }
 }
 ```
+ATT 授权逻辑已根据 ADR-002 移除。保留空壳供 DI 兼容。
 
 ### `OCRService`
 ```swift
@@ -577,9 +574,6 @@ public init(message: String, progress: Double? = nil)
 
 public struct SkeletonLoadingView: View
 public init(itemCount: Int = 5)
-
-public struct PrivacyPrePromptView: View
-public init(onContinue: @escaping () -> Void)
 
 public struct FlipView<Front: View, Back: View>: View
 public init(

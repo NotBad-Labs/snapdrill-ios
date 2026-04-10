@@ -1195,7 +1195,7 @@ nonisolated public enum L10n {
             SnapDrill 使用以下第三方服务：
 
             • Apple Vision Framework：用于 OCR 文字识别，完全在设备本地处理，数据不离开设备。
-            • Firebase Analytics（Google）：匿名使用行为统计，用于了解功能使用情况并改进产品。不收集任何可识别个人身份的信息。在 iOS 上，此功能仅在您通过「应用跟踪透明度（ATT）」授权后才会启用。
+            • Firebase Analytics（Google）：匿名使用行为统计，用于了解功能使用情况并改进产品。不收集任何可识别个人身份的信息。您可以在设置中随时关闭。
             • Firebase Crashlytics（Google）：崩溃日志收集，用于识别和修复应用稳定性问题。仅收集设备类型、操作系统版本及崩溃堆栈信息。
 
             我们不使用任何第三方广告服务，不会将您的数据用于广告目的。
@@ -1240,14 +1240,6 @@ nonisolated public enum L10n {
             comment: "联系我们内容"
         )
         public static let viewFullVersion = NSLocalizedString("privacy.view_full_version", value: "在浏览器中查看完整版（中英双语）", comment: "查看完整版链接文字")
-    }
-
-    // MARK: - Privacy（ATT 预热弹窗）
-
-    public enum PrivacyPrePrompt {
-        public static let title = NSLocalizedString("privacy.pre_prompt_title", value: "帮助小本本变得更好", comment: "ATT 预热弹窗标题")
-        public static let description = NSLocalizedString("privacy.pre_prompt_description", value: "通过允许追踪，我们可以衡量功能的使用情况，并更快速地修复潜在的崩溃，为您提供更好的学习体验。您的数据仍将保持匿名，仅用于产品改进。", comment: "ATT 预热弹窗描述")
-        public static let continueButton = NSLocalizedString("privacy.pre_prompt_continue", value: "继续", comment: "ATT 预热弹窗继续按钮")
     }
 
     // MARK: - Help（v1.0 帮助入口跳转外部网页 FAQ，App 内 FAQ 已移除）
