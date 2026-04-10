@@ -67,6 +67,7 @@ ADR 系统已建立，ADR-001（智能组卷/高级统计 Hybrid 定价）已落
 
 | 日期 | 决策 | ADR / 依据 |
 |---|---|---|
+| 2026-04-10 | 删除 ATT 授权弹窗 | [ADR-002](docs/decisions/ADR-002-remove-att-authorization.md)（三方一致） |
 | 2026-04-10 | 智能组卷 Hybrid + 高级统计 Hybrid | [ADR-001](docs/decisions/ADR-001-smart-paper-analytics-pricing.md)（三方研究） |
 | 2026-04-07 | 图片处理增强纳入 Pro 层 | 横向研究 7 款 App |
 | 2026-04-07 | 价值链定稿：采集→管理→导出/打印 | 复习是独立附加值 |
