@@ -292,6 +292,46 @@
 
 ---
 
+## Use Case 8: Smart Paper Generation (ADR-001)
+
+**Goal**: 用户通过智能组卷生成一份针对性练习卷 PDF 并打印。
+
+**Preconditions**:
+- 当前 Profile 题库中有足够题目（建议 >= 10 题）
+- 用户已进入智能组卷入口
+
+**Success path**:
+1. 用户选择学科范围和目标题目数量
+2. 系统根据选题策略（免费：随机；Pro：SM-2 weakness + difficulty + recency）自动选题
+3. 系统生成 PDF 预览（复用 PDFExportService 管线）
+4. 用户确认后分享 / 打印 / 保存
+
+**Alternatives**:
+- [Variant] 免费用户配额耗尽：展示 Pro 引导，不阻断已有的手动导出能力
+- [Variant] 题目不足：提示题库数量不够，建议先录入更多题目
+- [Exception] PDF 生成失败：提示失败原因，保留选题结果可重试
+
+---
+
+## Use Case 9: View Advanced Analytics (ADR-001)
+
+**Goal**: 用户查看题库的深度统计分析，了解薄弱环节。
+
+**Preconditions**:
+- 当前 Profile 题库中有题目数据
+
+**Success path**:
+1. 用户从 Dashboard 快捷入口或统计页进入高级统计
+2. 免费用户看到基础统计（总题数、按科目计数、近期趋势）
+3. Pro 用户看到完整图表（学科趋势图 + 难度分布 + 薄弱排行 + 交叉筛选）
+4. 用户可基于薄弱排行一键进入智能组卷（Analytics → Smart Paper 联动）
+
+**Alternatives**:
+- [Variant] 免费用户查看 Pro 图表区域：显示模糊预览 + Pro 引导
+- [Variant] 题目数据不足以生成趋势：显示"数据积累中"提示，不展示误导性图表
+
+---
+
 ## Appendix: Boundary Cases
 
 > 仅收录 S0/S1 全部 + 高频 S2。Severity 定义见 `../workflow.md`§工作优先级。
