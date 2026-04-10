@@ -172,12 +172,9 @@ public final class AnalyticsServiceMock: AnalyticsServiceProtocol {
 public final class PrivacyConsentService {
     public static let shared = PrivacyConsentService()
     public init() {}
-    public var trackingStatus: ATTrackingManager.AuthorizationStatus { get }
-    public var isTrackingAuthorized: Bool { get }
-    public func requestTrackingAuthorization() async -> ATTrackingManager.AuthorizationStatus
-    public var shouldShowPrePrompt: Bool { get }
 }
 ```
+ATT 授权逻辑已根据 ADR-002 移除。保留空壳供 DI 兼容。
 
 ### `OCRService`
 ```swift

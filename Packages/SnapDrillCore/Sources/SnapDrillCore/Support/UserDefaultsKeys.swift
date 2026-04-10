@@ -71,10 +71,6 @@ nonisolated public enum UDKey {
     public static let soundEnabled = "soundEnabled"
     public static let badgeEnabled = "badgeEnabled"
 
-    // MARK: - Privacy
-
-    public static let privacyConsentRequested = "privacyConsentRequested"
-
     // MARK: - Draft Service
 
     public static let captureDraftMetadata = "capture_draft_metadata"

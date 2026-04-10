@@ -2,7 +2,6 @@
 "CFBundleDisplayName" = "小本本-智能错题本";
 "CFBundleName" = "小本本";
 
-/* Privacy - Camera, Photo Library, and Tracking Usage Descriptions */
+/* Privacy - Camera and Photo Library Usage Descriptions */
 "NSCameraUsageDescription" = "小本本需要使用相机来扫描和采集题目。";
 "NSPhotoLibraryUsageDescription" = "小本本需要访问相册来导入学习资料。";
-"NSUserTrackingUsageDescription" = "小本本使用此权限来衡量功能使用情况，改善您的学习体验。";

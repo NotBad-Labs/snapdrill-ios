@@ -45,7 +45,7 @@ public protocol ServiceContainer: Sendable {
     /// 应用配置（具体类型，全局唯一配置源）
     var appConfig: AppConfiguration { get }
 
-    /// 隐私授权服务（具体类型，封装 ATT 框架）
+    /// 隐私授权服务（ATT 已移除，ADR-002）
     var privacyConsent: PrivacyConsentService { get }
 
     /// 通知服务（协议类型，生产环境为 UNUserNotificationCenter 实现，测试为 Mock）

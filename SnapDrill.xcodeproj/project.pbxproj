@@ -1300,7 +1300,7 @@
 				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.app</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
 				INFOPLIST_KEY_NSCameraUsageDescription = "小本本需要相机权限以扫描录入错题。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "小本本需要相册权限以导入复习资料。";
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "小本本需要此权限以衡量功能使用情况，持续改进您的学习体验。";
+
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1336,7 +1336,7 @@
 				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.app</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
 				INFOPLIST_KEY_NSCameraUsageDescription = "小本本需要相机权限以扫描录入错题。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "小本本需要相册权限以导入复习资料。";
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "小本本需要此权限以衡量功能使用情况，持续改进您的学习体验。";
+
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

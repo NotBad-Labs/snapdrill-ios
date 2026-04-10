@@ -618,11 +618,6 @@
 "privacy.contact_content" = "如果您对本隐私政策有任何疑问或顾虑，请通过以下方式联系我们：\n\n邮箱：hello@notbadhq.com\n应用内反馈：设置 → 关于 → 反馈与支持\n\n我们将在 48 小时内回复您的询问。";
 "privacy.view_full_version" = "在浏览器中查看完整版（中英双语）";
 
-// MARK: - Privacy Pre-Prompt (ATT)
-"privacy.pre_prompt_title" = "帮助小本本变得更好";
-"privacy.pre_prompt_description" = "通过允许追踪，我们可以衡量功能的使用情况，并更快速地修复潜在的崩溃，为您提供更好的学习体验。您的数据仍将保持匿名，仅用于产品改进。";
-"privacy.pre_prompt_continue" = "继续";
-
 // MARK: - Accessibility (VoiceOver)
 "accessibility.flip_to_answer" = "双击翻转查看答案";
 "accessibility.flip_to_question" = "双击翻转回到题目";

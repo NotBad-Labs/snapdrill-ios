@@ -635,11 +635,6 @@
 "privacy.contact_content" = "If you have any questions or concerns about this privacy policy, please contact us:\n\nEmail: hello@notbadhq.com\nIn-app feedback: Settings > About > Feedback & Support\n\nWe will respond to your inquiry within 48 hours.";
 "privacy.view_full_version" = "View full version in browser (bilingual)";
 
-// MARK: - Privacy Pre-Prompt (ATT)
-"privacy.pre_prompt_title" = "Help SnapDrill Improve";
-"privacy.pre_prompt_description" = "By allowing tracking, we can measure feature usage and fix issues faster, giving you a better learning experience. Your data remains anonymous and is only used for product improvement.";
-"privacy.pre_prompt_continue" = "Continue";
-
 // MARK: - Accessibility (VoiceOver)
 "accessibility.flip_to_answer" = "Double tap to flip and view answer";
 "accessibility.flip_to_question" = "Double tap to flip back to question";
