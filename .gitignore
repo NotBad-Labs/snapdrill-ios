@@ -33,3 +33,4 @@ build_output.txt
 .claude/settings.local.json
 .claude/session-log.txt
 .claude/validation-status.json.*
+.claude/worktrees/
