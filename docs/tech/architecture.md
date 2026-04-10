@@ -45,11 +45,12 @@ SnapDrillShare（Share Extension）
 DependencyContainer.shared（App 启动时初始化）
 ├── services: ServiceContainer（协议）→ LiveServiceContainer（实现）
 ├── profileManager: ProfileManager
-│   └── activeRepositories: RepositoryContainer
-│       ├── review: ReviewRepository
-│       ├── subject / source / grade / tag: 分类 Repository
-│       └── activeContainer: ModelContainer（SwiftData）
-└── router: AppRouter
+│   ├── activeContainer: ModelContainer（SwiftData，Profile 切换时重建）
+│   ├── activeRepositories: RepositoryContainer
+│   │   ├── review: ReviewRepository
+│   │   └── subject / source / grade / tag: 分类 Repository
+│   └── activeImageStorage: ImageStorage
+└── router: AppRouter（构造器注入到 AppRootView）
     └── 5 个 FeatureRouter（DashboardRouter, LibraryRouter, ...）
 ```
 
@@ -72,7 +73,7 @@ DependencyContainer → FirebaseRemoteConfigService → AppConfiguration → Fea
 
 ```
 View（渲染层 + 依赖装配）
-  │ 通过 @Environment 注入 repositories / services / router
+  │ 通过 @Environment 注入 repositories / services；router 通过构造器注入（AppRootView）
   ▼
 ViewModel（@Observable，持有状态与业务流程）
   │ 通过 Repository 执行查询、保存、通知监听
@@ -91,7 +92,7 @@ SwiftData @Model（持久化）
 - `saveContext()` 失败后必须 `rollbackContext()` 回滚内存脏状态
 
 **跨模块刷新机制**：
-`Notification.Name.reviewDataDidChange`（定义在 `SnapDrillCore/Support/ReviewDataNotification.swift`）。发布方包括 Repository（`SubjectRepository` / `SourceRepository` / `GradeRepository`）和部分 Feature 层写操作入口（`CaptureResultViewModel`、`LibraryEditViewModel`、`SettingsViewModel`、`DataSeeder`）。监听方主要是 `DashboardViewModel` 与 `ReviewViewModel`，通过 `for await` 订阅并刷新 UI。
+`Notification.Name.reviewDataDidChange`（定义在 `SnapDrillCore/Support/ReviewDataNotification.swift`）。发布方包括 Repository（`SubjectRepository` / `SourceRepository` / `GradeRepository`）和部分 Feature 层写操作入口（`CaptureResultViewModel`、`LibraryEditViewModel`、`SettingsViewModel`、`DataSeeder`）。监听方：`DashboardViewModel`、`ReviewViewModel`、`DashboardAnalyticsViewModel`，通过 `for await` 订阅并刷新 UI。
 
 **错误处理策略**：
 - DB save/rollback：原子性保证，失败必须回滚
@@ -156,6 +157,7 @@ Firebase SDK 隔离层。Core 层通过 Protocol（AnalyticsServiceProtocol, Rem
 ProfileManager 采用 Vault 模式：
 - 每个 Profile 拥有独立的 SwiftData ModelContainer + 图片存储目录
 - 切换 Profile 时重建 ModelContainer 和 RepositoryContainer
+- **切换保护**：`ProfileManager.switchProfile` 先检查 `AppActivityTracker.shared.switchBlockReason`，有进行中操作（OCR、导出、备份）时拒绝切换并返回阻塞原因。`AppActivityTracker`（SnapDrillCore/Support）是 App 级的活动状态中心，`canSwitchProfile` / `switchBlockReason` 为主要查询 API
 - **Per-Profile UserDefaults 隔离**：字段配置（开启的系统字段）、自动推断历史、复习目标等由 `ProfileManager` 内部通过 `perProfileKeys` 等机制管理（`savePreferences`/`loadPreferences` 为内部实现），切换 Profile 时自动保存/加载
 - **全局状态**：Onboarding 完成、VoiceOver 设置不随 Profile 切换
 - **Profile 级 TipKit**：ReviewSwipeTip / FieldConfigTip 通过 ProfileTipState 管理，按 Profile 隔离（#532 已修复）；设备级 Tip 基础设施保留 TipKit
