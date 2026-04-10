@@ -137,7 +137,7 @@ OCR 识别出的文字是辅助（方便搜索和编辑），图片是真相。
 
 ### 配置入口
 
-- **首次录入后引导**：用户完成第一次录入保存后，弹出引导提示「下次录题时要不要多填学科？」。首次启动 Onboarding 不要求配置（Apple HIG："Avoid asking for setup information up front"）
+- **首次录入后引导**：用户完成第一次录入保存后，弹出引导提示「要不要开启更多字段（难度、来源等）？」。首次启动 Onboarding 不要求配置（Apple HIG："Avoid asking for setup information up front"）
 - **设置阶段**：设置中提供"字段管理器"，随时开关
 - **录入阶段**：录入界面只显示用户已开启的字段
 - **补充阶段**：题库中编辑已有题目时，可随时扩展新字段
