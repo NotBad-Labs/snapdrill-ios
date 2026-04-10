@@ -1,4 +1,4 @@
-<!-- last verified: 2026-04-07 -->
+<!-- last verified: 2026-04-10 -->
 <!-- freshness: max_age_days=30, decay_trigger=[code_change], layer=snapshot -->
 # SnapDrill 内部 API 参考
 > 各 Package 的公开接口。架构全景见 architecture.md。
@@ -729,3 +729,51 @@ public enum AppError: LocalizedError {
     case unknown(Error)
 }
 ```
+
+---
+
+## 新增 API（2026-04-10 基线审计补充）
+
+### `DeletionScheduler`（SnapDrillCore/Service）
+```swift
+@Observable public final class DeletionScheduler {
+    public var showUndoToast: Bool
+    public func scheduleDeletion(ids: Set<UUID>, executor: @escaping DeletionExecutor)
+    public func undoDeletion() -> DeletionUndoResult
+    public func commitImmediately()
+}
+```
+App 级删除调度器，管理 5 秒撤销窗口。LibraryViewModel 是调用方。
+
+### `SmartPaperViewModel`（SnapDrillFeatures/Library）
+```swift
+final class SmartPaperViewModel {
+    var questionCount: Int
+    var selectedSubjects: Set<String>
+    var selectedDifficulties: Set<Int>
+    var hideAnswers: Bool
+    var showBlankAnswerArea: Bool
+    var showHeader: Bool
+    var itemsPerPage: Int
+    private(set) var selectedItems: [ReviewExportSnapshot]
+    private(set) var availableSubjects: [String]
+    private(set) var isLoading: Bool
+    func loadInitialData()
+    func refreshSelection()
+    var pdfOptions: PDFExportOptions { get }
+}
+```
+智能组卷 ViewModel。SM-2 选题 + PDF 生成。ADR-001 Hybrid 定价。
+
+### `DashboardAnalyticsViewModel`（SnapDrillFeatures/Dashboard）
+```swift
+final class DashboardAnalyticsViewModel {
+    private(set) var subjectTrend: [SubjectTrendPoint]
+    private(set) var difficultyDistribution: [DifficultyBucket]
+    private(set) var weakSubjects: [WeakSubjectItem]
+    var hasData: Bool { get }
+    func loadAnalytics()
+    func cancelTasks()
+}
+```
+高级统计 ViewModel。趋势图 + 难度分布 + 薄弱排行。ADR-001 Hybrid 定价。
