@@ -187,7 +187,7 @@ FTC 判定 COPPA "directed to children" 的核心标准与 SnapDrill 的对照�
 
 **当前合规措施**：
 - 零注册、零可识别个人信息收集
-- 匿名使用数据默认开启，Analytics 和 Crashlytics 可在设置中分别关闭
+- 匿名使用数据首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in 开启或关闭
 - Privacy Manifest 声明数据不关联、不追踪
 
 **App Store 营销注意事项**：避免使用 "children""kids""儿童教育" 等触发 FTC/Apple 审查的措辞，强调"效率工具""数字化归档""家长和学生"。
