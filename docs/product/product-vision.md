@@ -108,6 +108,7 @@ SnapDrill **不收集任何可识别个人信息**（no personally identifiable 
 详细隐私策略见 `product-business.md`。
 
 **数据安全子条款**：本地存储意味着 App 是用户数据的唯一守护者。保存必须可靠，删除可撤销，备份可用。
+**iCloud 同步隐私边界**：iCloud 同步完全基于系统级 CloudKit，数据由 Apple 加密存储在用户个人 iCloud 账户中。SnapDrill 不接触、不存储、不可访问用户的 Apple ID 或 iCloud 数据。开发者无法查看任何用户的个人内容。
 
 ### 5. 家长友好（可能比"学生友好"更重要）
 
