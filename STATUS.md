@@ -8,8 +8,9 @@
 
 ## 当前焦点
 
-三方基线审计 Layer 0-2 全部完成，Layer 3 S1（architecture+deployment）已完成。
-Layer 3 剩余：S2（compliance+non-functional-requirements）+ S3（api-reference 需代码验证）。
+三方基线审计 Layer 0-3 全部完成（2026-04-09 ~ 2026-04-10，26 commits）。
+ADR 系统已建立（ADR-001 定价 Hybrid + ADR-002 删除 ATT）。
+下一步：#575 ATT 代码移除（S1）、#576 COPPA 合规留痕（S2，截止 4/22）。
 ADR 系统已建立，ADR-001（智能组卷/高级统计 Hybrid 定价）已落地并同步到全部产品文档。
 功能开发被 Apple 开发者账号阻塞（#486 Word 导出等）。
 
