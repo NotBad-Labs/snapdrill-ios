@@ -196,6 +196,6 @@ LibraryViewModel 是调用方：
 | Repository | in-memory ModelContainer | Xcode Simulator |
 | ViewModel | Mock Repository + Mock Service | Xcode Simulator |
 | Service（纯逻辑） | 直接测试 | Xcode Simulator |
-| View | 不测 | — |
+| View | Smoke test only | — |
 
 `swift test` 不可用（SPM 包仅声明 iOS 平台），必须通过 Xcode Simulator 运行。

@@ -22,7 +22,7 @@ paths:
 ## 运行方式
 
 - **编译测试**：`xcodebuild build-for-testing -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
-- **执行测试**：`xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
+- **执行测试**：`xcodebuild test -scheme SnapDrillFeaturesTests -destination 'platform=iOS Simulator,name=iPhone 17' -parallel-testing-enabled NO`
 - **禁止**：`swift test`（SPM 仅声明 iOS 平台，macOS 环境不匹配会报错或 SIGTRAP）
 - **禁止**：`xcodebuild build`（不编译测试 target）
 
