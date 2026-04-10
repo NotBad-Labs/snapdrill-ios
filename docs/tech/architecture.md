@@ -28,6 +28,11 @@ SnapDrill.app（薄壳，Composition Root）
     │
     └── SnapDrillInfrastructure（Firebase 隔离层）
         └── 外部依赖：Firebase SDK
+
+SnapDrillShare（Share Extension）
+    ├── 通过 App Groups 与主 App 共享数据
+    ├── 接收分享图片 → 保存到共享容器 → URL Scheme 唤起主 App
+    └── 不依赖 SnapDrillData（轻量，仅文件 I/O）
 ```
 
 **依赖方向**：单向向下，禁止反向引用。Core 层零外部依赖。
@@ -101,7 +106,7 @@ SwiftData @Model（持久化）
 | 目录 | 职责 |
 |---|---|
 | `DI/` | ServiceContainer 协议 + LiveServiceContainer + MockServiceContainer + Environment Key |
-| `Service/` | Protocol 定义 + 实现（OCRServiceProtocol、PDFExportService、NotificationServiceProtocol、AnalyticsServiceProtocol、CaptureDraftService、PrivacyConsentService） |
+| `Service/` | Protocol 定义 + 实现（OCRServiceProtocol、PDFExportService、NotificationServiceProtocol、AnalyticsServiceProtocol、CaptureDraftService、PrivacyConsentService、DeletionScheduler） |
 | `Capture/` | OCRService（实现）、ImageStorage（图片存储） |
 | `Engine/` | SM-2 复习调度算法（ReviewScheduler、SM2State、ReviewRating） |
 | `Support/` | L10n、UserDefaultsKeys、AppConfiguration、ReviewDataNotification、SnapDrillTips |
@@ -152,16 +157,20 @@ ProfileManager 采用 Vault 模式：
 - 每个 Profile 拥有独立的 SwiftData ModelContainer + 图片存储目录
 - 切换 Profile 时重建 ModelContainer 和 RepositoryContainer
 - **Per-Profile UserDefaults 隔离**：字段配置（开启的系统字段）、自动推断历史、复习目标等由 `ProfileManager` 内部通过 `perProfileKeys` 等机制管理（`savePreferences`/`loadPreferences` 为内部实现），切换 Profile 时自动保存/加载
-- **全局状态**：TipKit tooltip、Onboarding 完成、VoiceOver 设置不随 Profile 切换
+- **全局状态**：Onboarding 完成、VoiceOver 设置不随 Profile 切换
+- **Profile 级 TipKit**：ReviewSwipeTip / FieldConfigTip 通过 ProfileTipState 管理，按 Profile 隔离（#532 已修复）；设备级 Tip 基础设施保留 TipKit
 
 ---
 
 ## Soft Delete + Undo 实现
 
-LibraryViewModel 管理 5 秒撤销窗口：
-- `softDeleteItems()` — 标记删除，从列表移除，启动 5 秒 Timer
-- `undoDelete()` — 恢复标记，取消 Timer
-- `commitDeletion()` — Timer 到期后永久删除（Repository 级别）
+DeletionScheduler（App 级 Service，SnapDrillCore）管理 5 秒撤销窗口：
+- `scheduleDeletion(ids:executor:)` — 注册待删除 ID 集合 + 删除执行器，启动 5 秒倒计时
+- `undoDeletion()` — 恢复标记，取消倒计时
+- `commitImmediately()` — 立即执行删除（如 App 进入后台）
+
+LibraryViewModel 是调用方：
+- `softDeleteItems()` — 调用 DeletionScheduler.scheduleDeletion，从列表临时移除
 - 批量删除复用同一套机制
 
 ---
@@ -176,7 +185,7 @@ LibraryViewModel 管理 5 秒撤销窗口：
 | Repository 封装 ModelContext | 避免 View/ViewModel 直接操作数据库 |
 | ProfileManager Vault 模式 | 每个 Profile 独立数据库，参考 Obsidian，切换时重建 ModelContainer |
 | Firebase 隔离到 Infrastructure | Core 层保持零外部依赖，可随时替换分析/崩溃报告方案 |
-| defaultIsolation(MainActor) | 基于 swift-tools-version 6.2，统一使用 `.defaultIsolation(MainActor.self)` 减少并发标注噪音 |
+| defaultIsolation(MainActor) | xcconfig `SWIFT_VERSION = 6.2` + `-default-isolation MainActor`（Swift 6.3 编译器），统一使用 `.defaultIsolation(MainActor.self)` 减少并发标注噪音 |
 
 ---
 

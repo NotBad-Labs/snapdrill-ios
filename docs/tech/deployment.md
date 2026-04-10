@@ -43,7 +43,7 @@ Runner：Mac mini 自托管（self-hosted, macOS）
      -parallel-testing-enabled NO
 ```
 
-注：SnapDrillFeaturesTests 是唯一有 test action 的 shared scheme。
+注：当前 CI 仅运行 SnapDrillFeaturesTests（唯一配置了 test action 的 shared scheme）。SnapDrillCore、SnapDrillData 的测试通过 `xcodebuild build-for-testing` 编译验证但不在 CI 中执行（需手动在 Xcode 中运行或扩展 CI scheme）。
 
 ### Mac mini Runner
 
