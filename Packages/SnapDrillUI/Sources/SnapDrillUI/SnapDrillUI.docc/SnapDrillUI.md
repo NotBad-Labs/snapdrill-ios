@@ -36,7 +36,6 @@
 - ``OnboardingView`` — 首次启动引导流程视图
 - ``OnboardingPage`` — 引导页数据模型
 - ``OnboardingManager`` — 持久化引导完成状态
-- ``PrivacyPrePromptView`` — 隐私权限预询问视图
 
 ### 无障碍
 

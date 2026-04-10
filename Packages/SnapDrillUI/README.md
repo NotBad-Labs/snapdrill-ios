@@ -30,7 +30,6 @@
 ### 引导与隐私
 - **OnboardingView** / **OnboardingPage**: 首次启动引导流程视图
 - **OnboardingManager**: 持久化引导完成状态
-- **PrivacyPrePromptView**: 隐私权限预询问视图
 
 ### 无障碍
 - `View.accessible(label:hint:value:)` / `View.accessibleButton(label:hint:)`: 统一无障碍标签设置

@@ -32,7 +32,7 @@
 - ``CaptureDraftService`` — 跨域草稿缓存（Dashboard 检测 / Capture 消费），`@MainActor` 单例
 - ``PDFExportService`` — 从 `[any PDFExportable]` 生成 PDF Data
 - ``PDFExportOptions`` — PDF 导出配置（去答案、留白答题区、页眉页码等）
-- ``PrivacyConsentService`` — ATT 隐私授权请求与状态查询
+- ``PrivacyConsentService`` — 隐私授权服务（ATT 已移除，ADR-002）
 - ``LiveNotificationService`` — 本地推送通知调度
 
 ### 协议

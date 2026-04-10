@@ -47,7 +47,7 @@ SnapDrill 不收集任何可识别个人信息。没有注册、没有手机号�
 ### Tracking 姿态
 
 - App 在 Privacy Manifest 中声明 `NSPrivacyTracking = false`，当前产品口径为 **Not Tracking**
-- 代码中存在 ATT 授权链路：`SnapDrillApp` 在 Onboarding 完成后检查 `PrivacyConsentService.shouldShowPrePrompt`；若为 true，先展示 `PrivacyPrePromptView`，用户点击继续后调用 `PrivacyConsentService.requestTrackingAuthorization()` 触发系统 ATT 弹窗
+- ATT 授权链路已移除（ADR-002）：不弹 ATT 弹窗，NSPrivacyTracking = false
 - 当前源码未检出 IDFA / `ASIdentifierManager` / `advertisingIdentifier` 的直接读取代码；题目内容不用于第三方广告画像或 behavioral advertising
 - Analytics / Crashlytics 为匿名遥测，用户可在设置中关闭；数据收集开关由 `AppConfiguration.FeatureFlags.analyticsEnabled` 与 `crashReportingEnabled` 控制
 

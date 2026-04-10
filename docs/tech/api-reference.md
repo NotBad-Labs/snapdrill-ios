@@ -575,9 +575,6 @@ public init(message: String, progress: Double? = nil)
 public struct SkeletonLoadingView: View
 public init(itemCount: Int = 5)
 
-public struct PrivacyPrePromptView: View
-public init(onContinue: @escaping () -> Void)
-
 public struct FlipView<Front: View, Back: View>: View
 public init(
     isFlipped: Bool,
