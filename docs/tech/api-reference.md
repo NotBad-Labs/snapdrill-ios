@@ -289,7 +289,8 @@ nonisolated public struct PDFExportOptions: Sendable {
         hideAnswers: Bool = true,
         showBlankAnswerArea: Bool = true,
         showHeader: Bool = true,
-        itemsPerPage: Int = 2
+        itemsPerPage: Int = 2,
+        customTitle: String? = nil
     )
     public static let `default` = PDFExportOptions()
 }
@@ -332,6 +333,11 @@ public final class ReviewRepository {
     public func fetchModel(by id: UUID) throws -> ReviewItemModel?
     public func fetchModels(by ids: Set<UUID>) throws -> [ReviewItemModel]
     public func fetchAllModels() throws -> [ReviewItemModel]
+    public func fetchSmartSelection(
+        limit: Int,
+        subjects: Set<String> = [],
+        difficulties: Set<Int> = []
+    ) throws -> [ReviewItemModel]
     public func fetchFilteredModels(
         searchText: String,
         subjects: Set<String>,
@@ -420,8 +426,6 @@ public final class RepositoryContainer {
     public init(modelContext: ModelContext = PersistenceController.shared.container.mainContext)
     public func deleteAllData() async throws
     public func deleteAllTaxonomy() throws
-    public func collectBackupPayload() throws -> BackupPayload
-    public func restoreFromPayload(_ payload: BackupPayload) async throws
 }
 
 public final class PreviewRepositoryContainer {
@@ -535,7 +539,7 @@ public final class ProfileManager {
 
     public init()
     public var activeProfile: Profile? { get }
-    public func switchProfile(to profileId: UUID)
+    public func switchProfile(to profileId: UUID) throws(ProfileError)
     @discardableResult
     public func createProfile(name: String) -> Profile
     public func deleteProfile(id: UUID) throws
@@ -748,16 +752,16 @@ App 级删除调度器，管理 5 秒撤销窗口。LibraryViewModel 是调用�
 ### `SmartPaperViewModel`（SnapDrillFeatures/Library）
 ```swift
 final class SmartPaperViewModel {
-    var questionCount: Int
-    var selectedSubjects: Set<String>
-    var selectedDifficulties: Set<Int>
-    var hideAnswers: Bool
-    var showBlankAnswerArea: Bool
-    var showHeader: Bool
-    var itemsPerPage: Int
-    private(set) var selectedItems: [ReviewExportSnapshot]
-    private(set) var availableSubjects: [String]
-    private(set) var isLoading: Bool
+    var questionCount: Int = 10
+    var selectedSubjects: Set<String> = []
+    var selectedDifficulties: Set<Int> = []
+    var hideAnswers: Bool = true
+    var showBlankAnswerArea: Bool = true
+    var showHeader: Bool = true
+    var itemsPerPage: Int = 2
+    private(set) var selectedItems: [ReviewExportSnapshot] = []
+    private(set) var availableSubjects: [String] = []
+    private(set) var isLoading: Bool = false
     func loadInitialData()
     func refreshSelection()
     var pdfOptions: PDFExportOptions { get }
@@ -768,9 +772,9 @@ final class SmartPaperViewModel {
 ### `DashboardAnalyticsViewModel`（SnapDrillFeatures/Dashboard）
 ```swift
 final class DashboardAnalyticsViewModel {
-    private(set) var subjectTrend: [SubjectTrendPoint]
-    private(set) var difficultyDistribution: [DifficultyBucket]
-    private(set) var weakSubjects: [WeakSubjectItem]
+    private(set) var subjectTrend: [SubjectTrendPoint] = []
+    private(set) var difficultyDistribution: [DifficultyBucket] = []
+    private(set) var weakSubjects: [WeakSubjectItem] = []
     var hasData: Bool { get }
     func loadAnalytics()
     func cancelTasks()
