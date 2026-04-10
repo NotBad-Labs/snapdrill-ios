@@ -15,10 +15,10 @@
 **Preconditions**:
 - 当前 Profile 已选定
 - 用户位于采集入口或可一步进入采集入口
-- Camera / Photos / PDF / Clipboard：用户已选择或可选择有效输入源（Document Scan 部分实现）
+- Camera / Photos / PDF / Clipboard：用户已选择或可选择有效输入源（含 Document Scan）
 
 **Success path**:
-1. 用户从 Camera、Photos、PDF import、Clipboard 或 Manual edit 进入录题流程（Document Scan 部分实现）
+1. 用户从 Camera、Photos、PDF import、Clipboard 或 Manual edit 进入录题流程（含 Document Scan）
 2. 系统展示可编辑的题目载体：图片来源进入裁剪；Manual edit 进入文本/图片编辑
 3. 系统对图片内容执行 OCR；识别结果展示给用户，可编辑、可复制到剪贴板，但不阻塞保存
 4. 系统保留题目图片作为主内容真相；OCR 文本作为展示、搜索索引、可复制文本
@@ -31,7 +31,7 @@
 **Variants & Exceptions**:
 - [Variant] Camera：支持实时文字区域检测、稳定性指示器、自动框选
 - [Variant] Photos：支持同一张图连续裁剪多题，保存后同图再次出现，不必重复选图
-- [Variant] Document Scan [部分实现: View 已定义，未接入主入口，当前仅取最后一页]
+- [Variant] Document Scan
 - [Variant] PDF import：支持逐页预览、页面选择、裁剪后录入
 - [Variant] Manual edit：允许无图片保存纯文本题目，也允许补充图片
 - [Exception] Camera 权限拒绝或受限：不可进入拍照；必须给出权限说明与跳转系统设置入口
@@ -321,5 +321,5 @@
 | B22 | 未裁剪直接保存整页试卷（大尺寸图片） | 给予裁剪引导提示，或保留更高清晰度 | 图片清晰度满足再次放大查看需求 | S2 |
 | B23 | 媒体缓存清理误删题目原图 | 缓存清理只清理 Caches/ 临时文件，不触碰 Documents/ 或 Application Support/ | 任何缓存清理不得导致题目原图、备份文件、SwiftData 数据丢失 | S0 |
 | B24 | 用户尝试删除最后一个 Profile | 删除按钮 disabled，提示「至少保留一个 Profile」 | 设备上始终存在至少一个 Profile，不出现零 Profile 崩溃 | S1 |
-| B25 | 切换 Profile 后 TipKit 提示状态 | 隔离策略待定（Issue #532）；当前实现为全局 | 最终行为必须与产品决策一致 | S2 |
+| B25 | 切换 Profile 后 TipKit 提示状态 | 按 Profile 隔离（#532 已修复） | 切换 Profile 后 TipKit 提示状态独立 | S2 |
 | B26 | 删除非最后 Profile | 二次确认；删除后级联移除该 Profile 的题库、图片、复习进度与配置；若删除的是当前活跃 Profile，UI 自动 fallback 到剩余 Profile 并提示 | 不得遗留孤儿数据、错误引用或活跃 Profile 悬空状态 | S1 |
