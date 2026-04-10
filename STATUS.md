@@ -8,8 +8,8 @@
 
 ## 当前焦点
 
-三方基线审计进行中。Layer 0（引导层）+ Layer 1（流程层）+ Layer 2 Stage 1（vision+glossary）已完成。
-下一步：Layer 2 Stage 2（business+design）→ Stage 3（requirements）→ Stage 4（cases+journeys）→ Layer 3（技术层）。
+三方基线审计 Layer 0-2 全部完成。Layer 3（技术层 5 个文件）待开始。
+ADR 系统已建立，ADR-001（智能组卷/高级统计 Hybrid 定价）已落地并同步到全部产品文档。
 功能开发被 Apple 开发者账号阻塞（#486 Word 导出等）。
 
 ### 今日已完成
