@@ -68,6 +68,7 @@ struct ExportPreviewView: View {
     private func generatePDF() {
         // 在 MainActor 上下文中捕获，避免 Task 闭包中跨 actor 访问
         let storage = imageStorage
+        AppActivityTracker.shared.begin(.exporting)
         // Run in background
         Task {
             do {
@@ -82,6 +83,7 @@ struct ExportPreviewView: View {
                 await MainActor.run {
                     self.pdfData = data
                     self.isLoading = false
+                    AppActivityTracker.shared.end(.exporting)
                     self.saveToTemp(pdfData: data)
                     analyticsService.track(.pdfExported, parameters: [
                         "item_count": "\(items.count)"
@@ -91,6 +93,7 @@ struct ExportPreviewView: View {
                 SnapDrillLogger.generic.error("PDF 生成失败: \(error.localizedDescription)")
                 await MainActor.run {
                     self.isLoading = false
+                    AppActivityTracker.shared.end(.exporting)
                     self.showGenerateError = true
                 }
             }

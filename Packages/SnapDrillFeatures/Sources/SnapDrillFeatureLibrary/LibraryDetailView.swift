@@ -291,6 +291,7 @@ struct LibraryDetailView: View {
     // MARK: - 单题快速打印
 
     private func printSingleItem() {
+        AppActivityTracker.shared.begin(.printing)
         Task {
             let snapshot = item.toExportSnapshot()
             let storage = imageStorage
@@ -309,6 +310,7 @@ struct LibraryDetailView: View {
             } catch {
                 SnapDrillLogger.generic.error("单题打印 PDF 生成失败: \(error.localizedDescription)")
             }
+            AppActivityTracker.shared.end(.printing)
         }
     }
 }

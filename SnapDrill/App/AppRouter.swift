@@ -90,6 +90,8 @@ final class AppRouter {
     /// 从 URL 参数中解析文件名，在 App Groups 共享容器中读取对应图片，
     /// 切换到采集 Tab 并进入 OCR 编辑流程。处理完成后自动清理临时文件。
     ///
+    /// 图片读取与解码在后台线程执行，避免大图阻塞主线程。
+    ///
     /// - Parameter url: 深链接 URL，格式为 `snapdrill://share?file=<UUID>.jpg`
     func handleShareExtensionURL(_ url: URL) {
         // 解析文件名参数
@@ -108,25 +110,47 @@ final class AppRouter {
         }
 
         let pendingURL = containerURL.appendingPathComponent(fileName)
-        // best-effort: Share Extension 临时文件可能已被系统清理
-        guard FileManager.default.fileExists(atPath: pendingURL.path),
-              let data = try? Data(contentsOf: pendingURL),
-              let image = UIImage(data: data) else {
-            SnapDrillLogger.capture.error("无法读取共享容器中的图片文件: \(fileName)")
-            return
-        }
 
-        // best-effort: 临时文件清理，失败不影响功能
-        try? FileManager.default.removeItem(at: pendingURL)
+        // 在后台线程读取文件和解码图片，避免大图阻塞主线程
+        let captureRouter = self.captureRouter
+        Task.detached {
+            guard FileManager.default.fileExists(atPath: pendingURL.path) else {
+                SnapDrillLogger.capture.error("共享容器中图片文件不存在: \(fileName)")
+                return
+            }
 
-        // 先切换 Tab 并重置导航栈，延迟一个 RunLoop 周期后再 push，
-        // 避免 Tab 切换动画与导航 push 在同一帧竞争导致 push 丢失
-        selectedTab = .capture
-        captureRouter.path = NavigationPath()
-        Task {
-            // best-effort: 等待 Tab 切换动画完成，取消不影响正确性
+            let data: Data
+            do {
+                data = try Data(contentsOf: pendingURL)
+            } catch {
+                SnapDrillLogger.capture.error("读取共享容器图片文件失败（\(fileName)）: \(error.localizedDescription)")
+                return
+            }
+
+            guard let image = UIImage(data: data) else {
+                SnapDrillLogger.capture.error("共享容器图片解码失败: \(fileName)")
+                return
+            }
+
+            // best-effort: 临时文件清理，失败不影响功能
+            do {
+                try FileManager.default.removeItem(at: pendingURL)
+            } catch {
+                SnapDrillLogger.capture.warning("清理 Share Extension 临时文件失败（\(fileName)）: \(error.localizedDescription)")
+            }
+
+            // 回到主线程做路由切换
+            await MainActor.run {
+                self.selectedTab = .capture
+                captureRouter.path = NavigationPath()
+            }
+
+            // 等待 Tab 切换动画完成后再 push，避免动画竞争导致 push 丢失
             try? await Task.sleep(for: .milliseconds(100))
-            captureRouter.push(.scannerResult(content: "", image: image))
+
+            await MainActor.run {
+                captureRouter.push(.scannerResult(content: "", image: image))
+            }
         }
     }
 }

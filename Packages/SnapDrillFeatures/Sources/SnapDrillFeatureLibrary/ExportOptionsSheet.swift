@@ -177,6 +177,7 @@ struct ExportOptionsSheet: View {
         }
 
         isExportingZIP = true
+        AppActivityTracker.shared.begin(.exporting)
         let storage = imageStorage
 
         Task.detached {
@@ -212,12 +213,14 @@ struct ExportOptionsSheet: View {
                 await MainActor.run {
                     self.zipURL = zipURL
                     self.isExportingZIP = false
+                    AppActivityTracker.shared.end(.exporting)
                     self.isShowingZIPShare = true
                 }
             } catch {
                 SnapDrillLogger.generic.error("ZIP 导出失败: \(error.localizedDescription)")
                 await MainActor.run {
                     self.isExportingZIP = false
+                    AppActivityTracker.shared.end(.exporting)
                     self.showExportError = true
                 }
             }

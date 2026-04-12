@@ -50,7 +50,6 @@ public final class SettingsViewModel {
 
     // MARK: - Helpers
 
-    /// 获取当前活跃 Profile 的目录路径
     private static func activeProfileDirectory() -> URL {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         if let profileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId) {
@@ -59,7 +58,6 @@ public final class SettingsViewModel {
         return docs
     }
 
-    /// 获取指定 Profile 的目录路径
     private static func profileDirectory(for profileId: UUID) -> URL {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         return docs.appendingPathComponent("profiles").appendingPathComponent(profileId.uuidString)
@@ -87,15 +85,10 @@ public final class SettingsViewModel {
 
     // MARK: - Backup
 
-    /// 创建全量备份文件
-    ///
-    /// 收集所有数据和图片，打包为 .snapdrill (ZIP) 文件。
-    /// 完成后将文件 URL 存入 `backupFileURL`，供 View 层触发分享。
+    /// 创建全量备份（.snapdrill ZIP），完成后将文件 URL 存入 `backupFileURL`
     public func createBackup() async {
         guard !isBackupInProgress else { return }
-        isBackupInProgress = true
-        backupProgress = 0
-        backupError = nil
+        beginBackupActivity()
         backupFileURL = nil
         backupStatusMessage = L10n.Settings.backupPreparingData
 
@@ -163,26 +156,20 @@ public final class SettingsViewModel {
             SnapDrillLogger.generic.error("备份失败: \(error)")
         }
 
-        isBackupInProgress = false
+        endBackupActivity()
     }
 
     // MARK: - Restore
-    /// 从备份文件恢复数据
-    ///
-    /// 恢复前先自动备份当前数据到临时目录（安全网），然后全量替换。
-    ///
-    /// - Parameter fileURL: 用户选择的 .snapdrill 备份文件路径
+    /// 从备份文件恢复数据（恢复前自动备份当前数据作安全网）
     public func restoreFromBackup(fileURL: URL) async {
         guard !isBackupInProgress else { return }
-        isBackupInProgress = true
-        backupProgress = 0
-        backupError = nil
+        beginBackupActivity()
         backupStatusMessage = L10n.Settings.restoreVerifying
 
         // 安全域访问（fileImporter 选择的文件在安全沙箱外）
         guard fileURL.startAccessingSecurityScopedResource() else {
             backupError = L10n.Errors.fileAccessDenied
-            isBackupInProgress = false
+            endBackupActivity()
             return
         }
         defer { fileURL.stopAccessingSecurityScopedResource() }
@@ -225,7 +212,7 @@ public final class SettingsViewModel {
             SnapDrillLogger.generic.error("恢复失败: \(error)")
         }
 
-        isBackupInProgress = false
+        endBackupActivity()
     }
 
     /// 清理备份产生的临时文件
@@ -247,9 +234,7 @@ public final class SettingsViewModel {
     /// 列名不区分大小写，缺失列使用默认值。
     public func importCSV(fileURL: URL) async {
         guard !isBackupInProgress else { return }
-        isBackupInProgress = true
-        backupProgress = 0
-        backupError = nil
+        beginBackupActivity()
         backupStatusMessage = L10n.Settings.importReading
 
         let accessing = fileURL.startAccessingSecurityScopedResource()
@@ -262,7 +247,7 @@ public final class SettingsViewModel {
             let rows = parseCSV(csvString)
             guard !rows.isEmpty else {
                 backupError = L10n.Settings.importNoValidRows
-                isBackupInProgress = false
+                endBackupActivity()
                 backupStatusMessage = ""
                 return
             }
@@ -310,7 +295,7 @@ public final class SettingsViewModel {
             SnapDrillLogger.generic.error("CSV 导入失败: \(error)")
         }
 
-        isBackupInProgress = false
+        endBackupActivity()
     }
 
     /// 解析 CSV 文本为字典数组
@@ -496,5 +481,17 @@ public final class SettingsViewModel {
         guard let url else { return }
         try? FileManager.default.removeItem(at: url)
         SnapDrillLogger.generic.info("已清理恢复前自动备份: \(url.lastPathComponent)")
+    }
+
+    private func beginBackupActivity() {
+        isBackupInProgress = true
+        backupProgress = 0
+        backupError = nil
+        AppActivityTracker.shared.begin(.backupRestore)
+    }
+
+    private func endBackupActivity() {
+        isBackupInProgress = false
+        AppActivityTracker.shared.end(.backupRestore)
     }
 }

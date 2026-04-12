@@ -128,6 +128,7 @@ public final class CaptureViewModel {
     /// 同时将原图存入 `router.originalAlbumImage`，用于连续裁剪模式。
     public func loadPhoto(_ item: PhotosPickerItem, router: CaptureRouter) {
         isProcessing = true
+        AppActivityTracker.shared.begin(.capturing)
         photoLoadTask = Task {
             do {
                 if let data = try await item.loadTransferable(type: Data.self),
@@ -139,6 +140,7 @@ public final class CaptureViewModel {
                 } else {
                     guard !Task.isCancelled else { return }
                     self.isProcessing = false
+                    AppActivityTracker.shared.end(.capturing)
                     self.errorMessage = L10n.Errors.imageDecodeFailed
                     self.showErrorAlert = true
                 }
@@ -146,6 +148,7 @@ public final class CaptureViewModel {
                 SnapDrillLogger.capture.info("相册加载任务已取消。")
             } catch {
                 self.isProcessing = false
+                AppActivityTracker.shared.end(.capturing)
                 self.errorMessage = L10n.Errors.imageLoadFailed
                 self.showErrorAlert = true
             }
@@ -159,6 +162,7 @@ public final class CaptureViewModel {
         pendingOCRImage = nil
         pendingOCRRouter = nil
         isProcessing = true
+        AppActivityTracker.shared.begin(.capturing)
         Task {
             await processImageOCR(image, router: router)
         }
@@ -187,6 +191,7 @@ public final class CaptureViewModel {
     /// 处理文档扫描仪返回的图片并触发 OCR 识别流程
     public func processScannedImage(_ image: UIImage, router: CaptureRouter) {
         isProcessing = true
+        AppActivityTracker.shared.begin(.capturing)
         // 保存句柄到 photoLoadTask，使 cancelOngoingTasks() 可取消此任务
         photoLoadTask = Task {
             await processImageOCR(image, router: router)
@@ -240,6 +245,7 @@ public final class CaptureViewModel {
     /// 实际执行 PDF 加载逻辑（内部方法，由 loadPDF 和 confirmLargeFileImport 共用）
     private func performLoadPDF(_ url: URL, router: CaptureRouter, accessing: Bool) {
         isProcessing = true
+        AppActivityTracker.shared.begin(.capturing)
 
         // 后台读取 PDF 数据，避免大文件阻塞主线程
         pdfLoadTask = Task {
@@ -253,6 +259,7 @@ public final class CaptureViewModel {
 
             guard let data else {
                 isProcessing = false
+                AppActivityTracker.shared.end(.capturing)
                 errorMessage = L10n.Errors.pdfReadFailed
                 showErrorAlert = true
                 return
@@ -261,6 +268,7 @@ public final class CaptureViewModel {
             // PDFDocument 不是 Sendable，必须在主线程创建
             guard let document = PDFDocument(data: data) else {
                 isProcessing = false
+                AppActivityTracker.shared.end(.capturing)
                 errorMessage = L10n.Errors.pdfParseFailed
                 showErrorAlert = true
                 return
@@ -268,12 +276,14 @@ public final class CaptureViewModel {
 
             guard document.pageCount > 0 else {
                 isProcessing = false
+                AppActivityTracker.shared.end(.capturing)
                 errorMessage = L10n.Errors.pdfEmpty
                 showErrorAlert = true
                 return
             }
 
             isProcessing = false
+            AppActivityTracker.shared.end(.capturing)
             router.pdfDocument = document
             router.push(.pdfPagePicker)
         }
@@ -295,6 +305,7 @@ public final class CaptureViewModel {
                 await MainActor.run { [weak self] in
                     guard let self = self else { return }
                     self.isProcessing = false
+                    AppActivityTracker.shared.end(.capturing)
                     if text.isEmpty {
                         SnapDrillLogger.capture.warning("OCR 识别结果为空文本。")
                     }
@@ -307,6 +318,7 @@ public final class CaptureViewModel {
                 await MainActor.run { [weak self] in
                     guard let self = self else { return }
                     self.isProcessing = false
+                    AppActivityTracker.shared.end(.capturing)
                     // 暂存图片和路由器，弹出重试 alert 让用户选择
                     self.pendingOCRImage = image
                     self.pendingOCRRouter = router
@@ -333,6 +345,7 @@ public final class CaptureViewModel {
         pdfLoadTask?.cancel()
         pdfLoadTask = nil
         isProcessing = false
+        AppActivityTracker.shared.end(.capturing)
     }
 }
 
