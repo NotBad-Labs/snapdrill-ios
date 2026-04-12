@@ -49,8 +49,14 @@ public actor BackupService {
             .replacingOccurrences(of: ":", with: "-")
         let backupURL = tempDir.appendingPathComponent("SnapDrill_Backup_\(timestamp).snapdrill")
 
-        // 清理可能存在的旧文件
-        try? fileManager.removeItem(at: backupURL)
+        // best-effort: 清理可能存在的旧文件，不存在时忽略
+        if fileManager.fileExists(atPath: backupURL.path) {
+            do {
+                try fileManager.removeItem(at: backupURL)
+            } catch {
+                SnapDrillLogger.data.warning("BackupService: 清理旧备份文件失败（\(backupURL.lastPathComponent)）: \(error.localizedDescription)")
+            }
+        }
 
         // 创建 ZIP 归档
         let archive: Archive

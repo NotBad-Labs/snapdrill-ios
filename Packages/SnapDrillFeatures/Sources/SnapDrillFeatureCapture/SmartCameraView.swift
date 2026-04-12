@@ -183,7 +183,7 @@ struct SmartCameraRepresentable: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: SmartCameraViewController, context: Context) {
         if shouldCapture {
             uiViewController.capturePhoto()
-            DispatchQueue.main.async {
+            Task {
                 self.shouldCapture = false
             }
         }
