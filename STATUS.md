@@ -1,40 +1,37 @@
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-09
+> 最后更新：2026-04-12
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
-> Open PR：0 · Open Issue：8
+> Open PR：1（#582）· Open Issue：8
 
 ---
 
 ## 当前焦点
 
-三方基线审计 Layer 0-3 全部完成（2026-04-09 ~ 2026-04-10，26 commits）。
-ADR 系统已建立（ADR-001 定价 Hybrid + ADR-002 删除 ATT）。
-下一步：#575 ATT 代码移除（S1）、#576 COPPA 合规留痕（S2，截止 4/22）。
-ADR 系统已建立，ADR-001（智能组卷/高级统计 Hybrid 定价）已落地并同步到全部产品文档。
-功能开发被 Apple 开发者账号阻塞（#486 Word 导出等）。
+PR #582 待 Review：Share Extension 后台读图 + AppActivityTracker 全链路接线 + DeletionScheduler 测试。
+Codex 在 develop 上并行进行代码审计和静默失败治理（#574、#581），尚未提交。
+测试覆盖：135 tests passed（原 125 + 新增 DeletionScheduler 10 cases）。
 
-### 今日已完成
+### 今日已完成（2026-04-12，worktree claude/serene-elion）
 
-- #573 chore: #572 智能体协作架构精简 — 移除 Coze/OpenClaw，重建稳定工具链 + 修复 softDeleteItems 测试 crash（DeletionScheduler 单例遗留 Task，Claude/Codex 交叉诊断一致）
-- #571 fix: #570 审计修复 — COPPA 合规（plist 预禁用 + opt-in 激活）+ Profile 切换保护（AppActivityTracker 中心状态机）+ Soft Delete 下沉（DeletionScheduler App 级）+ 隐私文案修正 + Analytics 纵深防御 + 性能基准测试 + GDPR 跨境方案
-  - 三方审计：Claude 代码验证 → Codex 独立验证 → Antigravity 方案审阅
-  - Codex Review 4 blocker 修复 + Xcode Review 2 RED 修复 + 二轮验收通过
-- #569 fix: #568 三方深度审计修复 — 异步头像加载 + ZIPFoundation 依赖声明（Xcode Review 二轮验收）
-- #567 feat: #488 高级统计 — 学科趋势图 + 难度分布 + 薄弱排行（Swift Charts，三方设计 + 三方审查 + Xcode Review）
-- #566 feat: #487 智能组卷 — SM-2 选题 + 配置页 + PDF 预览（三方设计 + 三方审查 + Xcode Review 二轮验收）
-- #565 fix: #564 ExportPreviewView actor isolation 警告
-- #563 fix: #532 TipKit 状态按 Profile 隔离
-- 三方深度审计 Track 1（产品完整性 98.8%）+ Track 2（架构健康 0 Critical）+ Track 3（代码质量 1 Critical 已修复）
-- `.claude/rules/coding.md` + `api-pitfalls.md` 新增 Task 闭包 actor isolation 规则
-- ExportPreviewView 去掉嵌套 NavigationStack（Xcode Review R1，既有问题一并修复）
-- 记忆系统优化：新增 Xcode Review feedback + 知识路由表
+- #579 perf: Share Extension 图片读取迁移到后台线程（`Task.detached`）
+- #580 refactor: AppActivityTracker begin/end 全链路接线（采集/导出/打印/备份恢复 4 类，10 begin + 18 end）
+  - `switchBlockReason` 改中文描述，移除 TODO
+  - SettingsViewModel 提取 `beginBackupActivity()/endBackupActivity()` helper
+- #574 test: DeletionScheduler 状态机专属测试 10 cases（scheduleDeletion、undo、commitImmediately、连续调度、5 秒倒计时）
+- fix: BackupService 旧备份清理改为显式日志（try? → do/catch）
+- fix: SmartCameraView DispatchQueue.main.async → Task（结构化并发）
+- 质量评估：Codex 在 develop 上的 40+ 文件未提交改动（代码审计 + 文档治理 + 静默失败治理）
 
 ### 待处理
 
 | 严重度 | 事项 | 状态 |
 |---|---|---|
-| S3 | Issue #540 Hooks 扩展（需深入研究协议） | 待排期 |
+| S2 | #574 DeletionScheduler 状态机完整性 | Codex 本地修复已落地，待测试闭环和 PR |
+| S2 | #579 Share Extension 主线程阻塞 | ✅ PR #582 |
+| S2 | #580 AppActivityTracker 接线 | ✅ PR #582 |
+| S2 | #581 Data 层静默失败治理 | Codex 进行中 |
+| S2 | #540 Hooks 扩展（需深入研究协议） | 待排期 |
 
 ### 历史已完成（详见 git log）
 
