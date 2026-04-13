@@ -7,7 +7,7 @@
 ## P0（当前执行）
 
 1. 文档体系全量梳理（Codex Baseline 主线）  
-   现状：已完成入口迁移（`CODEX.md`）与规则迁移（`docs/agent/rules/*`）；里程碑 `Codex Baseline v1（文档治理）` 与主 issue `#583` 已建立；SoT 固化（Batch 1）已落地（`docs/workflow.md` Baseline 切换策略 + `docs/DOC_MISLEADING_AUDIT_20260413.md`）；Batch 2 第一轮已回写 5 项一致性修复，剩余 3 项待产品裁决（见 `docs/DOC_MISLEADING_AUDIT_BATCH2_20260413.md` / `#586`）。
+   现状：已完成入口迁移（`CODEX.md`）与规则迁移（`docs/agent/rules/*`）；里程碑 `Codex Baseline v1（文档治理）` 与主 issue `#583` 已建立；SoT 固化（Batch 1）与 Batch 2 均已回写收口（含 3 项裁决），详见 `docs/DOC_MISLEADING_AUDIT_20260413.md`、`docs/DOC_MISLEADING_AUDIT_BATCH2_20260413.md`、`#586`。
 2. `#579/#580` 验收与关单推进  
    现状：两项代码均已落地并已回写最新评论；`#579` 已通过 DEBUG 注入路径大图回归（文件可消费删除），但 `simctl openurl` 路径结果不稳定；`#580` 已补充阻断语义测试；两项暂保持 OPEN，待手工体感回归后关单。
 3. 三段全量遍历执行（Part 1/2/3）  

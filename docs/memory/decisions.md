@@ -143,3 +143,10 @@
 - 决策：执行模式切换为“Codex 统筹裁决 + Claude 单写入执行 + Gemini 对抗复审”，并记录 2026 年 5-6 月的主执行权回切评估窗口。
 - 理由：当前阶段 Codex 配额有限，需优先把配额用于规划、裁决与验收闭环；由单写入者落地可避免多智能体并发改同批文件导致冲突与返工。
 - 影响范围：`docs/agent/rules/collaboration.md` 协作流程、Issue/PR 执行分工、2026 年 5-6 月订阅切换后的主执行策略。
+
+## D-20260413-002
+
+- 日期：2026-04-13
+- 决策：`#586` 的 3 项待裁决（能力矩阵与 MoSCoW 冲突、UC8/UC9 定位、PRD 导出边界表述）按“Claude/Gemini 并行只读评审 + Codex 最终裁决”收口，并回写 `PRD/requirements/cases`。
+- 理由：保持“Codex 最终裁决”前提下，利用外部模型并行提供对抗视角；当评审结果与仓库事实冲突时，以文档裁决顺序与可验证事实为准。
+- 影响范围：`docs/product/PRD.md`、`docs/product/product-requirements.md`、`docs/product/product-cases.md`、`docs/DOC_MISLEADING_AUDIT_BATCH2_20260413.md`、`#586` 收口状态。
