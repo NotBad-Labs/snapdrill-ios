@@ -3,6 +3,8 @@ name: qa-engineer
 description: QA 工程师角色。负责功能测试、异常路径覆盖、测试用例设计。当代码写完需要自检、设计测试策略、审查测试覆盖率时自动激活。
 allowed-tools:
   - Read
+  - Edit
+  - Write
   - Grep
   - Glob
   - Bash

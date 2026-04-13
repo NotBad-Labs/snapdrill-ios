@@ -27,6 +27,7 @@
 | `docs/principles/apple-native.md` | Apple 原生 UI 模式 | — | HIG/WWDC |
 | `docs/principles/coding.md` | 编码规范、SwiftLint 规则 | engineering | Swift 版本 |
 | `docs/principles/testing.md` | 测试策略 | engineering | XCTest 更新 |
+| `docs/principles/ux-design.md` | UX 设计原则、用户体验终审 | vision, design | HIG 更新 |
 | `docs/principles/collaboration.md` | 智能体协作架构（Claude/Codex/Gemini CLI/Xcode） | — | 工具更新 |
 | `.claude/rules/codex-delegation.md` | Codex 子 agent 委派规范（Claude 专有） | — | 插件/模型更新 |
 | `.claude/rules/gemini-delegation.md` | Gemini CLI 委派规范（Claude 专有） | — | CLI/模型更新 |
