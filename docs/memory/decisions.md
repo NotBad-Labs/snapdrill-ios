@@ -157,3 +157,10 @@
 - 决策：外部模型委派引入“记忆隔离”硬规则：Claude 委派强制 `--bare --no-session-persistence` 且禁 `resume/continue`；Gemini 委派禁 `--resume` 并默认 `--approval-mode plan`。
 - 理由：本机存在 Claude/Gemini 本地会话与记忆落盘目录，若不隔离会引入历史上下文污染，影响当前文档裁决与代码治理准确性。
 - 影响范围：`docs/agent/rules/collaboration.md`、`docs/agent/rules/codex-delegation.md`、`docs/agent/rules/gemini-delegation.md`、`docs/workflow.md` 的跨工具执行基线。
+
+## D-20260413-004
+
+- 日期：2026-04-13
+- 决策：`Codex Baseline v1（文档治理）` 按“文档基线已稳定”口径收口，`#578` 明确降级为历史参考轨道，不再作为里程碑阻断项。
+- 理由：`#583` 范围与验收标准已由 Batch 1/Batch 2 回写证据覆盖；继续将 `#578` 作为阻断会引入历史过程性上下文，不符合 Baseline 切换策略。
+- 影响范围：`#583` 关单判断、里程碑剩余事项识别、后续执行重心转向代码侧手工验收与外部依赖阻塞项。
