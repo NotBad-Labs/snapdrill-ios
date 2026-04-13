@@ -1,0 +1,139 @@
+name: Issue Label Guard
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled, reopened]
+  schedule:
+    - cron: "13 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  guard-single-issue:
+    name: Guard Single Issue
+    if: github.event_name == 'issues'
+    runs-on: [self-hosted, macOS]
+    steps:
+      - name: Validate labels on changed issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue
+            if (!issue) {
+              core.setFailed('No issue payload found.')
+              return
+            }
+
+            const labelNames = (issue.labels || []).map((l) => l.name)
+            const typeLabels = labelNames.filter((n) => n.startsWith('type:'))
+            const priorityLabels = labelNames.filter((n) => n.startsWith('priority:'))
+            const agentLabels = labelNames.filter((n) => n.startsWith('agent:'))
+            const legacyLabels = ['bug', 'enhancement', 'chore', 'S0', 'S1', 'S2', 'S3', 'claude-code', 'codex-code']
+            const legacyPresent = legacyLabels.filter((n) => labelNames.includes(n))
+
+            const errors = []
+            if (typeLabels.length !== 1) errors.push(`type 标签数量应为 1，当前为 ${typeLabels.length}（${typeLabels.join(', ') || '无'}）`)
+            if (priorityLabels.length !== 1) errors.push(`priority 标签数量应为 1，当前为 ${priorityLabels.length}（${priorityLabels.join(', ') || '无'}）`)
+            if (agentLabels.length !== 1) errors.push(`agent 标签数量应为 1，当前为 ${agentLabels.length}（${agentLabels.join(', ') || '无'}）`)
+            if (legacyPresent.length > 0) errors.push(`检测到旧标签：${legacyPresent.join(', ')}`)
+
+            if (errors.length === 0) {
+              core.info(`Issue #${issue.number} labels are valid.`)
+              return
+            }
+
+            const marker = '<!-- issue-label-guard -->'
+            const body = [
+              marker,
+              'Issue Label Guard 检测未通过，请按仓库规范修正标签：',
+              '',
+              ...errors.map((e) => `- ${e}`),
+              '',
+              '目标结构：',
+              '- 恰好 1 个 `type:*`',
+              '- 恰好 1 个 `priority:*`',
+              '- 恰好 1 个 `agent:*`',
+              '- 不再使用旧标签 `bug/enhancement/chore/S0..S3/claude-code/codex-code`',
+            ].join('\n')
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              per_page: 100,
+            })
+
+            const existing = comments.find((c) => c.user?.type === 'Bot' && c.body?.includes(marker))
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body,
+              })
+            }
+
+            core.setFailed(`Issue #${issue.number} label policy violated.`)
+
+  audit-open-issues:
+    name: Audit Open Issues
+    if: github.event_name != 'issues'
+    runs-on: [self-hosted, macOS]
+    steps:
+      - name: Audit all open issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const legacyLabels = ['bug', 'enhancement', 'chore', 'S0', 'S1', 'S2', 'S3', 'claude-code', 'codex-code']
+            const bad = []
+
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            })
+
+            for (const issue of issues) {
+              if (issue.pull_request) continue
+
+              const labelNames = (issue.labels || []).map((l) => typeof l === 'string' ? l : l.name)
+              const typeLabels = labelNames.filter((n) => n.startsWith('type:'))
+              const priorityLabels = labelNames.filter((n) => n.startsWith('priority:'))
+              const agentLabels = labelNames.filter((n) => n.startsWith('agent:'))
+              const legacyPresent = legacyLabels.filter((n) => labelNames.includes(n))
+
+              const errors = []
+              if (typeLabels.length !== 1) errors.push(`type=${typeLabels.length}`)
+              if (priorityLabels.length !== 1) errors.push(`priority=${priorityLabels.length}`)
+              if (agentLabels.length !== 1) errors.push(`agent=${agentLabels.length}`)
+              if (legacyPresent.length > 0) errors.push(`legacy=${legacyPresent.join('|')}`)
+
+              if (errors.length > 0) {
+                bad.push(`#${issue.number} ${errors.join(', ')} labels=[${labelNames.join(', ')}]`)
+              }
+            }
+
+            core.summary.addHeading('Issue Label Guard Audit')
+            core.summary.addRaw(`Open issues checked: ${issues.filter((i) => !i.pull_request).length}\n`)
+            core.summary.addRaw(`Violations: ${bad.length}\n\n`)
+            if (bad.length > 0) {
+              core.summary.addCodeBlock(bad.join('\n'), 'text')
+            }
+            await core.summary.write()
+
+            if (bad.length > 0) {
+              core.setFailed(`Found ${bad.length} open issue(s) violating label policy.`)
+            } else {
+              core.info('All open issues satisfy label policy.')
+            }

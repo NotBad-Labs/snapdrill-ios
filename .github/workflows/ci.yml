@@ -60,10 +60,17 @@ jobs:
         # TODO: 在 Xcode 中创建包含全部测试 target 的 shared scheme，提交到 git
         # -parallel-testing-enabled NO：避免跨 suite 并行执行时 ModelContainer 竞态
         run: |
+          set -o pipefail
           xcodebuild test \
             -scheme SnapDrillFeaturesTests \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             -parallel-testing-enabled NO \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+            CODE_SIGN_IDENTITY="" | tee /tmp/snapdrill-ci-test.log
+
+          # 防止“0 tests”假绿灯：至少要执行 1 个测试用例
+          if ! grep -Eq "Executed [1-9][0-9]* tests" /tmp/snapdrill-ci-test.log; then
+            echo "ERROR: xcodebuild test executed 0 tests. Failing CI intentionally."
+            exit 1
+          fi

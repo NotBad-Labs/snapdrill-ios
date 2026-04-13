@@ -2,7 +2,7 @@
 name: Bug 报告
 about: 报告一个需要修复的问题
 title: "fix: "
-labels: bug
+labels: ["type:bug"]
 assignees: ""
 ---
 

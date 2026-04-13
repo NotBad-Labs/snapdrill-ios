@@ -1,6 +1,30 @@
 # SnapDrill 协作流程
 
-> 开发闭环、Git 工作流、Code Review、优先级。工程哲学见 `../.claude/rules/engineering.md`，协作模式见 `../.claude/rules/collaboration.md`。
+> 开发闭环、Git 工作流、Code Review、优先级。工程哲学见 `agent/rules/engineering.md`，协作模式见 `agent/rules/collaboration.md`。
+> 产品文档阅读入口见 `docs/product/README.md`。
+
+---
+
+## 文档裁决顺序
+
+文档冲突时按以下顺序裁决：
+
+1. `docs/product/product-vision.md`
+2. `docs/product/PRD.md`
+3. 相关 `docs/decisions/ADR-*`
+4. `docs/product/product-design.md` / `docs/product/product-business.md` / `docs/tech/compliance.md` / `docs/tech/non-functional-requirements.md`
+5. `docs/product/product-cases.md` / `docs/product/product-journeys.md` / `docs/product/product-glossary.md` / `docs/tech/design/*.md`
+6. `docs/tech/architecture.md` / `docs/tech/api-reference.md` / `STATUS.md` / 审计报告
+
+**硬规则**：
+- `architecture.md`、`api-reference.md`、`STATUS.md`、审计报告属于映射/快照层，不得反向定义事实。
+- `product-cases.md` 定义验收，不单独扩张产品承诺。
+- `docs/tech/design/*.md` 负责把上游要求收敛成技术方案，不替代 PRD 或 ADR。
+- 文档属性按内容语义判定，不按文件名判定。若命名与内容冲突，以内容语义为准并先修正文档边界声明。
+- 文档治理默认仅覆盖第一方文档；第三方开源文档不纳入重构范围。
+- `.claude/worktrees/**` 下的镜像文档不纳入治理与审计统计（仅作为临时执行副本）。
+
+具体上下游传播关系见 `docs/DOC_DEPENDENCY_MAP.md`（改一处时按该图同步下游，避免返工）。
 
 ---
 
@@ -39,6 +63,22 @@ Shaped → Building (WIP≤2) → Reviewing → Done
    Then [预期结果]
 ```
 
+### Issue 标签规范
+
+新建或整理 Issue 时统一使用以下三段式标签：
+
+- `type:*`（任务类型）：`type:bug` / `type:enhancement` / `type:tech-debt` / `type:docs`
+- `priority:*`（优先级）：`priority:S0` / `priority:S1` / `priority:S2` / `priority:S3`
+- `agent:*`（来源归属）：`agent:codex` / `agent:claude`
+
+执行约束：
+
+- 每个 Open Issue 必须且仅保留 1 个 `type:*`。
+- 每个 Open Issue 必须且仅保留 1 个 `priority:*`。
+- 每个 Open Issue 必须且仅保留 1 个 `agent:*`（历史来源可追溯）。
+- 模板只预置 `type:*`，`priority:*` 与 `agent:*` 在 triage 时补齐。
+- 旧标签 `bug` / `enhancement` / `chore` / `S0..S3` / `claude-code` / `codex-code` 仅保留历史检索价值，不再用于新建或更新。
+
 ### Scope 控制
 
 1. **Appetite 预算**：超预算砍 scope，不加时间
@@ -76,9 +116,12 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 - [ ] VoiceOver 辅助标签已补齐（新增 UI 元素）
 
 ### 文档同步
+- [ ] `docs/product/PRD.md` 已更新（当前版本范围、边界或承诺变化）
 - [ ] `product-requirements.md` 已更新（新增功能）
+- [ ] 需要时已新增或更新 `docs/tech/design/*.md`（跨模块 / 持久化 / 状态流 / 合规变更）
 - [ ] `api-reference.md` 已更新（新增/变更 public 接口）
 - [ ] 新增第三方库 → 更新开源许可展示
+- [ ] 文档治理与重构仅作用于第一方文档；第三方开源文档保持原样
 - [ ] 术语与 `product-glossary.md` 一致（新增或修改产品概念时）
 - [ ] 合并后立即更新 `STATUS.md`
 
@@ -91,8 +134,8 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 **所有 PR 必须完成 review 后，由用户确认再合并。Review 结论必须留痕。**
 
-1. **Xcode Review**：Claude Code 写提示词，用户在 Xcode 触发
-2. **Claude Code 核实**：每条 finding 读源文件确认真实性
+1. **Xcode Review**：由 Codex 或其他审计工具生成提示词，用户在 Xcode 触发
+2. **执行者核实**：每条 finding 必须读源文件确认真实性
 3. **留痕**：Review 结论必须记录在 PR comment 或 PR 描述中
 
 **纪律**：
@@ -107,6 +150,37 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 ## 决策变更收尾
 
 产品决策变更时，同一回复中 Grep 影响范围 → 创建执行 Issue。Issue 未关闭 = 收尾未完成。
+
+---
+
+## 文档触发规则
+
+### 什么时候更新 `docs/product/PRD.md`
+
+- 当前版本范围变化
+- 免费 / Pro 边界变化
+- 核心价值链边界变化
+- 当前产品承诺发生变化
+
+### 什么时候必须新增或更新 `docs/tech/design/*.md`
+
+满足以下任一条件：
+
+- 跨 Package / Target 改动
+- 涉及持久化、备份/恢复、迁移、Profile 隔离
+- 涉及关键状态流、导航主路径或长生命周期任务
+- 涉及合规、隐私、Tracking、遥测语义
+- 涉及 S0 / S1 风险链路
+
+### 什么时候必须写 ADR
+
+- 产品或架构层出现多个可选方案，需要正式裁决
+- 决策将影响多个文档或多个实现面
+
+### 什么时候只更新映射/快照层文档
+
+- 未改变产品承诺，只是更新实现映射
+- 未改变设计语义，只是补充接口签名、状态记录、架构全景说明
 
 ---
 
@@ -128,6 +202,6 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ## 交叉审计（Cross-Audit）
 
-详细的三方审计组合、流程、工具链见 `.claude/rules/collaboration.md`。
+详细的交叉审计组合、流程、工具链见 `agent/rules/collaboration.md`。
 
-核心原则：**每个 Agent 独立审计完整集合，不是各审一半拼起来。** 三方（Claude / Codex / Gemini）全量冗余审计同一批文档/代码，交叉比对暴露盲区。
+核心原则：**每个 Agent 独立审计完整集合，不是各审一半拼起来。** 多方全量冗余审计同一批文档/代码，交叉比对暴露盲区。

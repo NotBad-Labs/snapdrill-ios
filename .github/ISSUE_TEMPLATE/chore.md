@@ -2,7 +2,7 @@
 name: 工程任务
 about: 文档更新、重构、CI/CD、依赖升级等非功能性任务
 title: "chore: "
-labels: chore
+labels: ["type:tech-debt"]
 assignees: ""
 ---
 
