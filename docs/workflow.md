@@ -62,6 +62,8 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ## Definition of Done（PR 合并前检查清单）
 
+> 基于 `docs/principles/engineering.md` 工程哲学。重点：奥卡姆剃刀（新增抽象是否必要）、编译期拦截（warnings 0）、YAGNI（不超出 Issue scope）。
+
 ### 代码质量
 - [ ] `swiftlint --strict` 0 violations
 - [ ] `xcodebuild build-for-testing` 0 errors

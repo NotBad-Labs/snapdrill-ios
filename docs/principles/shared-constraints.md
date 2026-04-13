@@ -8,7 +8,7 @@
 ## 关键约束
 
 - **产品定位**：效率工具，不是教育平台。价值链：采集 > 管理 > 导出/打印（复习是独立附加值）
-- **工程哲学**：奥卡姆剃刀，先研究再动手，N > 3 是警告
+- **工程哲学**：奥卡姆剃刀、YAGNI、编译期拦截、单一真相源、可逆性优先、关注点分离、先研究再动手（详见 `engineering.md`）
 - **编码铁律**：swiftlint --strict 0 violations + xcodebuild build-for-testing 0 errors
 - **数据安全**：零注册、核心内容数据纯本地、图片是真相、Profile 隔离；匿名 usage/crash telemetry 默认不采集，用户可 opt-in
 - **开发纪律**：**修改代码前必须先读相关产品文档确认需求**；改接口签名后必须 grep 测试同步；UI 改动必须经 Xcode Review；PR 未合并前禁止推进下一任务；Review 结论必须留痕

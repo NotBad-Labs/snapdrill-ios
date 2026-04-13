@@ -45,7 +45,7 @@ allowed-tools:
 >
 > 架构规则详见 `docs/principles/`（engineering / apple-native / apple-limits / coding）
 >
-> 奥卡姆剃刀详见 `docs/principles/engineering.md`
+> 工程原则详见 `docs/principles/engineering.md`（奥卡姆剃刀、YAGNI、编译期拦截、单一真相源等）
 
 ## 设计阶段检查清单
 
