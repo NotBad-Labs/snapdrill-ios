@@ -35,8 +35,7 @@
 
 ```text
 product-vision
-  ├─> product-design ─┬─> product-requirements ─┬─> product-cases
-  │                    │                         └─> product-journeys
+  ├─> product-design ─┬─> product-requirements（含用户旅程）──> product-cases
   │                    └─> product-business
   └─> PRD（当前版本执行入口，收口范围/边界/承诺）
 
@@ -65,7 +64,7 @@ workflow + KNOWLEDGE_MAP
 | `docs/product/product-design.md` | 体验与交互原则 | vision | requirements、cases、journeys、PRD |
 | `docs/product/product-requirements.md` | 功能规格与状态 | vision、design、PRD | cases、journeys、PRD、business、TDD |
 | `docs/product/product-cases.md` | 验收规格（GWT/Boundary） | PRD、design、requirements、journeys | QA 用例、TDD 验证段、workflow DoD 检查 |
-| `docs/product/product-journeys.md` | 真实场景验证 | vision、PRD、design、requirements | design/requirements 体验修正、cases 补边界 |
+| _(已合并到 requirements.md)_ | 用户旅程 | — | — |
 | `docs/product/product-business.md` | 商业化与分层 | vision、design、requirements、ADR-001 | PRD、requirements、compliance、StoreKit 相关实施 |
 | `docs/product/product-glossary.md` | 术语单一源 | vision、PRD、design、requirements | 全部产品/技术文档的术语一致性 |
 | `docs/decisions/ADR-*.md` | 正式决策 | 问题背景 + 三方研究 | PRD、business、compliance、TDD、实现代码 |
@@ -95,7 +94,7 @@ workflow + KNOWLEDGE_MAP
 | `compliance.md` / `NFR.md` | 相关 TDD + PRD（若承诺变化）+ deployment（若发布口径变化） |
 | `docs/tech/design/*.md` | 代码实现 + architecture + api-reference + 测试 |
 | 代码 public 接口 | `docs/tech/api-reference.md`（必要时 architecture） |
-| PR 合并 / issue 状态变化 | `STATUS.md` + `docs/memory/handoff.md` + `docs/memory/timeline.md` |
+| PR 合并 / issue 状态变化 | `STATUS.md` + `docs/memory/handoff.md` |
 
 ---
 

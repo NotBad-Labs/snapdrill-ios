@@ -42,7 +42,7 @@ allowed-tools:
 
 ### 交互模式速查
 
-> Apple 原生模式详见 `.claude/rules/apple-native.md`
+> Apple 原生模式详见 `docs/principles/apple-native.md`
 
 ### Airbnb 交互设计三原则
 

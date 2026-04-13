@@ -52,7 +52,7 @@
 - `product-vision.md`：`1. 录入体验是生命线`、`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`信息架构 [P1, P2]`、`OCR 定位 [P1, P6]`、`图片存储策略 [P1, P4]`、`字段可配置系统 [P1, P2]`、`连续录入设计 [P1]`、`草稿恢复设计 [P4]`
 - `product-requirements.md`：`录入方式优先级`、`OCR 识别能力演进路线`、`草稿恢复`、`功能全景`
-- `product-journeys.md`：`旅程 0：首次打开 App`、`旅程 2：做完试卷，拍照录入错题`、`旅程 3：从微信群导入老师发的题目`、`旅程 1：家长帮小学生录入 + 多孩管理`、`旅程 9：OCR 失败手动修正`
+- `product-requirements.md`「用户旅程」：`旅程 0：首次打开 App`、`旅程 2：做完试卷，拍照录入错题`、`旅程 3：从微信群导入老师发的题目`、`旅程 1：家长帮小学生录入 + 多孩管理`、`旅程 9：OCR 失败手动修正`
 
 ---
 
@@ -97,7 +97,7 @@
 **References**:
 - `product-design.md`：`字段可配置系统 [P1, P2]`、`批量操作设计 [P2]`
 - `product-requirements.md`：`题库排序与过滤`、`功能边界（MoSCoW 分类）`、`功能全景`
-- `product-journeys.md`：`旅程 4：整理和管理已有题目`
+- `product-requirements.md`「用户旅程」：`旅程 4：整理和管理已有题目`
 
 ---
 
@@ -133,7 +133,7 @@
 **References**:
 - `product-design.md`：`删除撤销设计 [P4]`、`批量操作设计 [P2]`、`多 Profile 设计 [P5]`
 - `product-requirements.md`：`功能边界（MoSCoW 分类）`、`功能全景`
-- `product-journeys.md`：`旅程 4：整理和管理已有题目`、`插曲：误删和撤销`
+- `product-requirements.md`「用户旅程」：`旅程 4：整理和管理已有题目`、`插曲：误删和撤销`
 
 ---
 
@@ -170,7 +170,7 @@
 **References**:
 - `product-design.md`：`图片存储策略 [P1, P4]`、`复习设计 [P3, P5]`
 - `product-requirements.md`：`功能边界（MoSCoW 分类）`、`功能全景`
-- `product-journeys.md`：`旅程 5：复习到期题目`
+- `product-requirements.md`「用户旅程」：`旅程 5：复习到期题目`
 
 ---
 
@@ -209,7 +209,7 @@
 - `product-vision.md`：`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`导出与打印设计 [P4 数据属于用户]`
 - `product-requirements.md`：`导出与打印能力`、`设置与个性化`、`功能全景`
-- `product-journeys.md`：`旅程 4：整理和管理已有题目`
+- `product-requirements.md`「用户旅程」：`旅程 4：整理和管理已有题目`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`
 
 ---
@@ -250,7 +250,7 @@
 - `product-vision.md`：`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`备份与恢复设计 [P4 数据安全]`、`多 Profile 设计 [P5 家长友好]`
 - `product-requirements.md`：`功能边界（MoSCoW 分类）`、`功能全景`
-- `product-journeys.md`：`旅程 1：家长帮小学生录入 + 多孩管理`、`旅程 10：免费用户换机恢复`
+- `product-requirements.md`「用户旅程」：`旅程 1：家长帮小学生录入 + 多孩管理`、`旅程 10：免费用户换机恢复`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`、`隐私策略（2026-03-07 确立，Bear 模式）`
 
 ---
@@ -287,7 +287,7 @@
 - `product-vision.md`：`目标用户`、`成功信号（设计校准器）`
 - `product-design.md`：`多 Profile 设计 [P5]`
 - `product-requirements.md`：`功能全景`
-- `product-journeys.md`：`旅程 0：首次打开 App`、`旅程 1：家长帮小学生录入 + 多孩管理`
+- `product-requirements.md`「用户旅程」：`旅程 0：首次打开 App`、`旅程 1：家长帮小学生录入 + 多孩管理`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`
 
 ---

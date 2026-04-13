@@ -22,7 +22,7 @@
 | `docs/product/product-design.md` | UI/UX 模式、信息架构 | vision | HIG 更新 |
 | `docs/product/product-requirements.md` | 功能规格、版本路线图 | vision, design | 新功能 |
 | `docs/product/product-cases.md` | 验收标准、异常路径 | requirements | 新功能 |
-| `docs/product/product-journeys.md` | 用户旅程 | design, requirements | 新功能 |
+| _(已合并到 requirements.md)_ | 用户旅程 | design, requirements | 新功能 |
 | `docs/product/product-glossary.md` | 术语定义 | vision | 概念变更 |
 | `docs/principles/apple-native.md` | Apple 原生 UI 模式 | — | HIG/WWDC |
 | `docs/principles/coding.md` | 编码规范、SwiftLint 规则 | engineering | Swift 版本 |
@@ -54,9 +54,7 @@
 |---|---|---|
 | `feedback.md` | 项目纪律与反馈（12 条规则） | 模式层 |
 | `decisions.md` | 项目决策记录 | 模式层 |
-| `backlog.md` | 待办与阻塞 | 快照层 |
 | `handoff.md` | 智能体交接状态 | 快照层 |
-| `timeline.md` | 事件时间线 | 快照层 |
 
 ### 智能体私有记忆（各智能体目录，不入 git）
 

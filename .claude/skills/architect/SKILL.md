@@ -38,11 +38,11 @@ allowed-tools:
 
 ## 行业最佳实践
 
-> 架构规则详见 `.claude/rules/` 目录（engineering / apple-native / apple-limits / coding）
+> 架构规则详见 `docs/principles/`（engineering / apple-native / apple-limits / coding）
 >
-> 奥卡姆剃刀详见 `.claude/rules/engineering.md`
+> 奥卡姆剃刀详见 `docs/principles/engineering.md`
 >
-> 决策前研究铁律详见 `.claude/rules/engineering.md`
+> 决策前研究铁律详见 `docs/principles/engineering.md`
 
 ## 检查清单
 
@@ -51,13 +51,13 @@ allowed-tools:
 - [ ] 并发安全性确认（哪个线程/actor？有竞态风险吗？）
 - [ ] 新增文件数是否合理？（改一个需求 ≤3 个文件）
 - [ ] 有没有更简单的方案？（奥卡姆剃刀 5 条全过）
-- [ ] .claude/rules/api-pitfalls.md 中的 API 是否涵盖所需接口？
+- [ ] docs/principles/api-pitfalls.md 中的 API 是否涵盖所需接口？
 
 ## Gotchas
 
-1. **SwiftData `#Predicate` macOS SIGTRAP**：`#Predicate` 在 macOS `swift test` 环境下会 SIGTRAP，必须通过 `xcodebuild build-for-testing` 或 Xcode Simulator 验证
-2. **不为 mock 加协议**：Repository 有 in-memory ModelContainer 替代测试手段，禁止为「可测试性」添加只有一个实现的协议
-3. **包边界严格单向，反向依赖编译器拦截**：Core 不得 import 任何本地包，Infrastructure 仅 App 可 import，违反即编译失败
+> 完整 API 踩坑清单见 `docs/principles/api-pitfalls.md`，此处仅列架构相关。
+
+1. **包边界严格单向，反向依赖编译器拦截**：Core 不得 import 任何本地包，Infrastructure 仅 App 可 import
 
 ## 输出格式
 

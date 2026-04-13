@@ -27,7 +27,7 @@ allowed-tools:
 - 编码规范执行（日志、错误处理、MARK 顺序、文件头）
 - 单元测试编写
 - 代码自查（编译通过、lint 通过）
-- .claude/rules/api-pitfalls.md 同步更新（新增 API 时）
+- docs/principles/api-pitfalls.md 同步更新（新增 API 时）
 
 **不负责**：
 - 技术方案选型（→ 架构师）
@@ -36,23 +36,20 @@ allowed-tools:
 
 ## 编码规范
 
-> 完整编码规范详见 `.claude/rules/coding.md`（并发、日志、错误处理、MARK 顺序、文件头、注释、禁止事项）
+> 完整编码规范详见 `docs/principles/coding.md`（并发、日志、错误处理、注释、禁止事项）
 
 ## 检查清单
 
 - [ ] `swiftlint --strict` 零 violations？
 - [ ] `xcodebuild build-for-testing` 编译通过（含测试 target）？
-- [ ] 新增 API 已更新 .claude/rules/api-pitfalls.md？
+- [ ] 新增 API 已更新 docs/principles/api-pitfalls.md？
 - [ ] 新增 `public` API 有 DocC 注释？
 - [ ] `try?` 使用符合规范？（关键路径无 `try?`，清理路径有日志）
 - [ ] Task 句柄已保存？有 `cancelTasks()` 方法？
 
 ## Gotchas
 
-1. **`try?` 关键路径禁用**：save/init 等关键路径必须 `do/catch`，`try?` 仅允许清理路径且必须加日志或 `// best-effort` 注释
-2. **Task 句柄必须保存，禁止 fire-and-forget**：使用 `@ObservationIgnored private var xxxTask: Task<Void, Never>?` 保存句柄，添加 `cancelTasks()` 在 `.onDisappear` 调用
-3. **NotificationCenter 用 async `for await` 替代 `addObserver`**：Swift 6 并发安全要求，使用 `for await _ in NotificationCenter.default.notifications(named:)`
-4. **`@Observable` 属性不用 `@ObservationIgnored` 标记 Task 句柄会触发无意义 UI 刷新**：Task 赋值变更会被观察系统捕获，导致 View 重绘
+> 完整踩坑清单见 `docs/principles/api-pitfalls.md` 和 `docs/principles/coding.md`。
 
 ## 输出格式
 

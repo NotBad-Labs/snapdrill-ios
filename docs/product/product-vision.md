@@ -1,7 +1,7 @@
 # SnapDrill 产品愿景
 
 > 本文件定义「为什么做」：使命、定位、用户、原则。除非 pivot，极少变更。
-> 设计见 `product-design.md`，需求见 `product-requirements.md`，用户验证见 `product-journeys.md`，商业化见 `product-business.md`。
+> 设计见 `product-design.md`，需求见 `product-requirements.md`，用户旅程见 `product-requirements.md`「用户旅程」，商业化见 `product-business.md`。
 >
 > **产品定位和原则变更需产品负责人批准**；编辑性修正（交叉引用、格式、过时标注）由开发者维护。
 

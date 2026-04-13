@@ -108,9 +108,27 @@ FTC 于 2025-04-22 发布 COPPA Final Rule amendments，合规落地截止日为
 - 若未来进入 COPPA 适用区间，新规带来的额外压力主要在：third-party disclosure 说明、persistent identifier 约束、信息安全与数据保留要求
 - 合规状态：**已完成** | 最近复核：2026-04-10
 - 截止日：2026-04-22
-- COPPA 适用性 memo：`docs/tech/coppa-applicability-memo.md`
 - ATT 代码已移除（ADR-002，PR #577）
-- 证据截图待补充至 `docs/tech/evidence/coppa/`
+
+### COPPA 合规确认
+
+基于以上评估，SnapDrill 在 FTC COPPA 2025 Final Rule（2026-04-22 生效）下：
+- 不属于 child-directed service
+- 不触发 verifiable parental consent (VPC) 要求
+- persistent identifier 通过"默认不采集 + 用户 opt-in"机制控制
+- ATT 已移除，Privacy Manifest 声明 Not Tracking
+
+### 证据清单
+
+以下证据需截图留存至 `docs/tech/evidence/coppa/`：
+- [ ] App Store Connect 年龄分级设置（4+，非 Kids Category）
+- [ ] Privacy Manifest（NSPrivacyTracking = false）
+- [ ] GoogleService-Info.plist（DEACTIVATED = true）
+- [ ] 设置页 Analytics/Crashlytics 开关截图
+- [ ] App 首页截图（体现工具属性，非儿童导向）
+- [ ] 隐私政策"儿童隐私"章节截图
+
+> 本节属于 engineering / product compliance assessment，不替代正式 legal opinion。
 
 ### 现阶段防御性措施
 

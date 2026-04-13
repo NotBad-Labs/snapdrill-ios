@@ -1,7 +1,7 @@
 # SnapDrill 部署与运维
 
 > App Store 发布流程、版本管理、CI/CD、监控。
-> DevOps 详细 checklist 见 `../../.claude/skills/devops/references/release-checklist.md`。
+> DevOps 详细 checklist 见 `release-checklist.md`（同目录）。
 
 ---
 

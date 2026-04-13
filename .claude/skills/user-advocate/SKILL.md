@@ -36,7 +36,7 @@ allowed-tools:
 
 ## 用户画像速查
 
-> 用户画像详见 `docs/product/product-vision.md`「目标用户」，用户旅程详见 `docs/product/product-journeys.md`（旅程 1-8）
+> 用户画像详见 `docs/product/product-vision.md`「目标用户」，用户旅程详见 `docs/product/product-requirements.md`「用户旅程」（旅程 0-12）
 >
 > 核心记忆：**主要用户 = 35 岁妈妈（零技术背景）**，次要用户 = 初三学生（自主使用）
 

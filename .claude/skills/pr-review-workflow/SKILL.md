@@ -22,7 +22,8 @@ user-invocable: true
 ### 1. 写 Xcode Review 提示词
 
 为 Xcode Intelligence 撰写 review 提示词，输出给用户复制。
-提示词应包含：PR 变更范围、重点检查项、项目约束（.claude/rules/coding.md 要点）。
+提示词应包含：PR 变更范围、重点检查项、项目约束（docs/principles/coding.md 要点）。
+提示词模板详见 `docs/principles/review-prompt-guide.md`（项目级，已从 skills 搬出）。
 
 ### 2. 核实每条 Finding
 

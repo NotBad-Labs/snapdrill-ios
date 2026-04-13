@@ -4,7 +4,7 @@
 >
 > 本文件定义「为什么这样设计」——设计决策、交互铁律、策略理由。
 > 具体功能规格见 `product-requirements.md`。
-> 用户旅程验证见 `product-journeys.md`。
+> 用户旅程验证见 `product-requirements.md`「用户旅程」。
 > 可执行行为规格见 `product-cases.md`。
 >
 > **设计决策变更需产品负责人批准**；编辑性修正由开发者维护。

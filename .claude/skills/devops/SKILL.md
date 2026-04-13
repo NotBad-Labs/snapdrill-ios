@@ -40,7 +40,7 @@ allowed-tools:
 >
 > Git 工作流详见 `docs/workflow.md`，发布流程详见 `docs/tech/deployment.md`
 >
-> 发版检查清单详见 `.claude/skills/devops/references/release-checklist.md`
+> 发版检查清单详见 `docs/tech/release-checklist.md`（项目级，已从 skills 搬出）
 >
 > 版本号管理：唯一来源 `Configs/Shared.xcconfig`（`MARKETING_VERSION` + `CURRENT_PROJECT_VERSION`）
 
@@ -76,4 +76,4 @@ allowed-tools:
 
 ## 参考文件
 
-- TestFlight 发版前检查清单见 [references/release-checklist.md](references/release-checklist.md)
+- TestFlight 发版前检查清单见 [docs/tech/release-checklist.md](../../../docs/tech/release-checklist.md)
