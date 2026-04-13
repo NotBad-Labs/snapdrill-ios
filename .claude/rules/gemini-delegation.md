@@ -2,7 +2,7 @@
 paths:
   - "CLAUDE.md"
   - "STATUS.md"
-  - ".claude/rules/collaboration.md"
+  - "docs/principles/collaboration.md"
 ---
 
 <!-- last verified: 2026-04-09 -->
@@ -66,7 +66,7 @@ Gemini CLI 在 `--sandbox` 模式下可以读取项目文件。在 prompt 中明
 
 ### 2. 关键约束摘要
 
-构造委派 prompt 前，先读取 `.claude/rules/shared-constraints.md` 并将其全文内联到 prompt 中。
+构造委派 prompt 前，先读取 `docs/principles/shared-constraints.md` 并将其全文内联到 prompt 中。
 该文件是约束的唯一来源，此处不再硬编码，避免漂移。
 
 ### 3. 输出约束

@@ -11,7 +11,7 @@
 |---|---|---|
 | `docs/product/product-vision.md` | 产品定位、价值链、用户画像 | — |
 | `docs/product/product-business.md` | 商业模型、定价、隐私承诺 | vision |
-| `.claude/rules/engineering.md` | 工程哲学：奥卡姆剃刀、先研究再动手 | — |
+| `docs/principles/engineering.md` | 工程哲学：奥卡姆剃刀、先研究再动手 | — |
 | `docs/workflow.md` | 开发闭环、Git 工作流、S0-S3、DoD | engineering |
 
 ## 模式层（Semi-Open — 随版本迭代调整）
@@ -24,14 +24,14 @@
 | `docs/product/product-cases.md` | 验收标准、异常路径 | requirements | 新功能 |
 | `docs/product/product-journeys.md` | 用户旅程 | design, requirements | 新功能 |
 | `docs/product/product-glossary.md` | 术语定义 | vision | 概念变更 |
-| `.claude/rules/apple-native.md` | Apple 原生 UI 模式 | — | HIG/WWDC |
-| `.claude/rules/coding.md` | 编码规范、SwiftLint 规则 | engineering | Swift 版本 |
-| `.claude/rules/testing.md` | 测试策略 | engineering | XCTest 更新 |
-| `.claude/rules/collaboration.md` | 智能体协作架构（Claude/Codex/Gemini CLI/Xcode） | — | 工具更新 |
-| `.claude/rules/codex-delegation.md` | Codex 子 agent 委派规范 | — | 插件/模型更新 |
-| `.claude/rules/gemini-delegation.md` | Gemini CLI 委派规范 | — | CLI/模型更新 |
-| `.claude/rules/shared-constraints.md` | 委派共享约束（单一源） | — | 约束变更 |
-| `.claude/rules/apple-extension.md` | App Extension 约束 | — | Extension 变更 |
+| `docs/principles/apple-native.md` | Apple 原生 UI 模式 | — | HIG/WWDC |
+| `docs/principles/coding.md` | 编码规范、SwiftLint 规则 | engineering | Swift 版本 |
+| `docs/principles/testing.md` | 测试策略 | engineering | XCTest 更新 |
+| `docs/principles/collaboration.md` | 智能体协作架构（Claude/Codex/Gemini CLI/Xcode） | — | 工具更新 |
+| `.claude/rules/codex-delegation.md` | Codex 子 agent 委派规范（Claude 专有） | — | 插件/模型更新 |
+| `.claude/rules/gemini-delegation.md` | Gemini CLI 委派规范（Claude 专有） | — | CLI/模型更新 |
+| `docs/principles/shared-constraints.md` | 委派共享约束（单一源） | — | 约束变更 |
+| `docs/principles/apple-extension.md` | App Extension 约束 | — | Extension 变更 |
 | `docs/tech/compliance.md` | 隐私合规、App Store 审核 | vision, business | 政策变更 |
 | `docs/tech/deployment.md` | CI/CD、发布流程 | — | 工具更新 |
 | `docs/tech/non-functional-requirements.md` | 性能、内存、存储 | architecture | 设备更新 |
@@ -42,19 +42,29 @@
 |---|---|---|---|
 | `STATUS.md` | 当前工作状态 | 7 | 每次 PR 合并 |
 | `docs/tech/api-reference.md` | 内部 API 签名 | 30 | 代码变更 |
-| `.claude/rules/apple-limits.md` | Apple API 能力边界 | 60 | WWDC / iOS 更新 |
-| `.claude/rules/api-pitfalls.md` | API 踩坑记录 | 60 | 开发中发现 |
+| `docs/principles/apple-limits.md` | Apple API 能力边界 | 60 | WWDC / iOS 更新 |
+| `docs/principles/api-pitfalls.md` | API 踩坑记录 | 60 | 开发中发现 |
 | `memory/reference_ai_toolchain_specs.md` | Claude/Codex/Xcode 规格 | 30 | 模型/工具发布 |
 
-## 记忆层（Auto Memory — 跨会话持久化）
+## 记忆层（双层架构）
 
-> 存储在 `~/.claude/projects/.../memory/`，不入 git。按 MEMORY.md 索引。
+### 项目级记忆（`docs/memory/`，入 git，所有智能体共享）
 
-| 类型 | 文件模式 | 分层归属 | 示例 |
-|---|---|---|---|
-| feedback_*.md | 工作流纪律、协作反馈 | 模式层 | 自主执行不等于跳流程 |
-| project_*.md | 项目进展、临时状态 | 快照层 | Apple 开发者账号注册中 |
-| reference_*.md | 外部工具指针 | 快照层 | AI 工具链规格 |
+| 文件 | 内容 | 分层归属 |
+|---|---|---|
+| `feedback.md` | 项目纪律与反馈（12 条规则） | 模式层 |
+| `decisions.md` | 项目决策记录 | 模式层 |
+| `backlog.md` | 待办与阻塞 | 快照层 |
+| `handoff.md` | 智能体交接状态 | 快照层 |
+| `timeline.md` | 事件时间线 | 快照层 |
+
+### 智能体私有记忆（各智能体目录，不入 git）
+
+| 智能体 | 存储位置 | 内容 |
+|---|---|---|
+| Claude | `~/.claude/projects/.../memory/` | 用户偏好、工具特有配置 |
+| Codex | (由 Codex 自行管理) | Codex 特有状态 |
+| Gemini | (由 Gemini 自行管理) | Gemini 特有状态 |
 
 ## 技术演进线
 
@@ -96,7 +106,7 @@ iOS 17  SwiftData（声明式，与 SwiftUI 深度集成）
 | 半衰期 | >2 年 | 6-24 个月 | <6 个月 |
 | 依赖于 | 业务逻辑、团队共识 | 框架版本、设计范式 | 外部 API 版本、定价、工具版本 |
 | 变更触发 | PO 决策 | 版本迭代 | 外部发布 |
-| freshness 元数据 | 不需要 | 可选 | `.claude/rules/` 下必须；其他快照按更新机制自治（STATUS.md 按 PR 合并更新，api-reference.md 按代码变更更新） |
+| freshness 元数据 | 不需要 | 可选 | `docs/principles/` 下必须；其他快照按更新机制自治（STATUS.md 按 PR 合并更新，api-reference.md 按代码变更更新） |
 
 ## 文档生命周期（入口 + 退出）
 
@@ -116,7 +126,7 @@ iOS 17  SwiftData（声明式，与 SwiftUI 深度集成）
 当知识不再适用时，不删除，标记退役：
 - 在文件头加 `<!-- status: archived, reason: xxx -->`
 - 从 KNOWLEDGE_MAP 对应表格中移除，归入下方"已退役"小节
-- feedback 被内化到 `.claude/rules/` 后即可退役
+- feedback 被内化到 `docs/principles/` 或 `docs/memory/feedback.md` 后即可退役
 - api-pitfalls 条目被框架修复后标记退役
 - ADR 被新 ADR 取代时标记为"已废弃"并指向替代 ADR
 

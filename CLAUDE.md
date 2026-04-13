@@ -1,81 +1,38 @@
-# CLAUDE.md
+# CLAUDE.md — Claude Code 入口
 
-SnapDrill 项目的 AI Agent 操作系统。定义启动流程、上下文加载、执行铁律和协作模式。
+> 路由文件，不是知识库。项目知识在 docs/。
 
----
+## Boot
 
-## 启动（Boot）
+1. 读 `STATUS.md` — 当前工作上下文
+2. 读 `docs/workflow.md` — 流程、DoD、Review 规范
+3. `docs/principles/*.md` 由 `.claude/rules/` 自动路由加载（碰到相关文件时触发）
+4. 读 `docs/memory/feedback.md` — 项目纪律（所有智能体共遵）
 
-**回复用户第一条消息前，必须执行：**
+## Context Map
 
-1. 读取 `STATUS.md` — 恢复当前工作上下文（在做什么、优先级、外部阻塞）
-2. **决策导航**（仅当用户未指定明确任务时执行；若用户已给出具体任务如审计、修复、查询，跳过此步直接执行）：
-   - 按 `docs/workflow.md` 的 S0-S3 严重度排序：有 S0/S1 未解决 → 最高优先
-   - 按 WIP 限制：有待 Review PR 未合并 → 先 Review 再开新任务
-   - 按价值链：采集 > 管理 > 导出/打印（见 `docs/product/product-design.md`）
-   - 按外部阻塞：被阻塞的事项跳过，标注阻塞原因
-   - 输出格式："**建议优先做 X**，原因：Y。备选：Z。"
-
-3. **知识过期检查** — 扫描 `.claude/rules/` 的 `last verified` 日期，超过 30 天的标注提醒（不阻塞工作）
-
-对话记录由 Auto Memory 自动管理（`~/.claude/projects/` 下的 MEMORY.md），无需手动加载。
-知识分层与演进追踪见 `docs/KNOWLEDGE_MAP.md`。
-
-## 全局上下文（每次对话强制加载）
-
-**开始解决问题前，必须主动读取：**
-
-- `docs/workflow.md` — 开发闭环（看板 + Git + Review + 优先级 + 交叉审计）
-
-编码规范、API 踩坑、Apple 能力边界、工程哲学、Apple 原生模式、测试策略、协作模式均已迁移到 `.claude/rules/`，碰到相关文件时自动加载，无需手动读取。
-
-## 按需上下文（涉及时读取）
-
-| 场景 | 读取 |
+| 需要 | 去读 |
 |---|---|
-| 产品方向、新功能、用户画像 | `docs/product/product-vision.md` |
-| UI/UX 设计决策、交互 | `docs/product/product-design.md` |
-| 功能规格、版本路线图 | `docs/product/product-requirements.md` |
-| 用户体验验证、UI 流程 | `docs/product/product-journeys.md` |
-| 商业化、隐私、竞品 | `docs/product/product-business.md` |
-| 验收标准、异常路径、QA | `docs/product/product-cases.md` |
-| 术语定义 | `docs/product/product-glossary.md` |
-| 架构、模块边界、DI | `docs/tech/architecture.md` |
-| API 签名查询 | `docs/tech/api-reference.md` |
-| 隐私合规、App Store 审核 | `docs/tech/compliance.md` |
-| 发布流程、CI/CD | `docs/tech/deployment.md` |
-| 性能、内存、存储 | `docs/tech/non-functional-requirements.md` |
+| 项目原则 | `docs/principles/`（`.claude/rules/` 自动路由） |
+| 项目反馈与纪律 | `docs/memory/feedback.md` |
+| 产品文档 | `docs/product/` |
+| 技术文档 | `docs/tech/` |
+| 项目记忆 | `docs/memory/` |
+| 流程与 DoD | `docs/workflow.md` |
+| 知识地图 | `docs/KNOWLEDGE_MAP.md` |
+| 架构决策 | `docs/decisions/ADR-*.md` |
 
-**铁律**：修改任何代码前，必须先读取相关的产品文档确认需求。不碰产品文档就写代码是方法论缺陷。
-
-## 项目概要
-
-SnapDrill：练习题数字化存档效率工具。复习为独立附加值，不在核心价值链内。
-技术栈：SwiftUI · SwiftData · iOS 26.0+
-包结构和依赖方向见各 `Packages/*/Package.swift`。
-架构决策（Domain 层/UseCase 层/Repository 协议已删除、SwiftData、DI Container + @Environment）不得在未经用户批准的情况下推翻。
-
-## 执行铁律
-
-每次修改代码后必须验证：
+## 执行门
 
 ```bash
-swiftlint --strict
+swiftlint --strict        # 0 violations
 xcodebuild build-for-testing \
   -scheme SnapDrill \
-  -destination 'platform=iOS Simulator,name=iPhone 17'
+  -destination 'platform=iOS Simulator,name=iPhone 17'  # 0 errors
 ```
 
-**只有 0 errors + 0 violations 才能向用户回复"完成"或提交代码。**
-完整 DoD 和 Code Review 规范（含 Xcode Review、文档同步、Review 留痕）见 `docs/workflow.md`。
-测试通过 `xcodebuild test` 运行（`swift test` 不可用，因 SPM 仅声明 iOS 平台）。`xcodebuild build` 不编译测试 target，必须用 `build-for-testing`。
-完整陷阱清单见 `.claude/rules/coding.md` 与 `.claude/rules/api-pitfalls.md`。
+完整 DoD 见 `docs/workflow.md`。
 
-## 记忆固化（State Write-back）
+## 项目一句话
 
-**以下时机必须主动更新：**
-
-- PR 合并后 → 更新 `STATUS.md`（STATUS.md 允许直推 develop，见 `docs/workflow.md` L59）
-- 产品决策变更时 → 同一回复中 Grep 影响范围 → 创建执行 Issue
-- 知识变更时 → 按 `docs/KNOWLEDGE_MAP.md` 的知识卫生规则同步受影响文档
-- 修复非预期问题后 → 评估是否需要写入 `api-pitfalls.md` 或创建 feedback 文件（踩坑即录入）
+SnapDrill：练习题数字化效率工具。SwiftUI / SwiftData / iOS 26.0+ / Swift 6.3 / defaultIsolation(MainActor)。

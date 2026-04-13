@@ -1,6 +1,6 @@
 # SnapDrill 协作流程
 
-> 开发闭环、Git 工作流、Code Review、优先级。工程哲学见 `../.claude/rules/engineering.md`，协作模式见 `../.claude/rules/collaboration.md`。
+> 开发闭环、Git 工作流、Code Review、优先级。工程哲学见 `docs/principles/engineering.md`，协作模式见 `docs/principles/collaboration.md`。
 
 ---
 
@@ -128,6 +128,6 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ## 交叉审计（Cross-Audit）
 
-详细的三方审计组合、流程、工具链见 `.claude/rules/collaboration.md`。
+详细的三方审计组合、流程、工具链见 `docs/principles/collaboration.md`。
 
 核心原则：**每个 Agent 独立审计完整集合，不是各审一半拼起来。** 三方（Claude / Codex / Gemini）全量冗余审计同一批文档/代码，交叉比对暴露盲区。
