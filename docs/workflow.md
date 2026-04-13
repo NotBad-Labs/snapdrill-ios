@@ -223,3 +223,9 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 详细的交叉审计组合、流程、工具链见 `agent/rules/collaboration.md`。
 
 核心原则：**每个 Agent 独立审计完整集合，不是各审一半拼起来。** 多方全量冗余审计同一批文档/代码，交叉比对暴露盲区。
+
+当前阶段执行口径（2026-04-13 起）：
+
+- `Codex` 负责任务分解、验收标准与最终裁决。
+- 同一批次采用单写入者模式，默认由 `Claude CLI` 落地修改。
+- `Gemini CLI` 默认只读复审，不直接改同批文件。
