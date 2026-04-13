@@ -2,13 +2,13 @@
 paths:
   - "CLAUDE.md"
   - "STATUS.md"
-  - ".claude/rules/collaboration.md"
+  - "docs/principles/collaboration.md"
 ---
 
 <!-- last verified: 2026-04-09 -->
 # Codex 子 agent 委派规范
 
-Codex 作为 Claude Code 的子 agent 运行（插件 v1.0.3，源码 `openai/codex-plugin-cc`），不自动继承 `CLAUDE.md`、`.claude/rules/`、产品文档体系。
+Codex 作为 Claude Code 的子 agent 运行（插件 v1.0.3，源码 `openai/codex-plugin-cc`），不自动继承 `CLAUDE.md`、`docs/principles/`、产品文档体系。
 委派 prompt 的质量直接决定 Codex 输出是否符合项目约束。
 
 ## 模型与参数选择
@@ -32,12 +32,12 @@ Codex 作为 Claude Code 的子 agent 运行（插件 v1.0.3，源码 `openai/co
 |---|---|
 | 全部任务 | `STATUS.md`、`docs/workflow.md`（DoD + S0-S3 + Git 工作流） |
 | 产品/设计相关 | `docs/product/product-vision.md`、`docs/product/product-design.md`、`docs/product/product-requirements.md`、`docs/product/product-cases.md`（按需选读） |
-| 代码实现 | `CLAUDE.md`（执行铁律）、相关 `.claude/rules/*.md`（coding/testing/apple-native 等）、**相关产品文档**（铁律：改代码前必须先读产品文档确认需求） |
+| 代码实现 | `CODEX.md`（执行入口）、相关 `docs/principles/*.md`（coding/testing/apple-native 等）、**相关产品文档**（铁律：改代码前必须先读产品文档确认需求） |
 | 审计/Review | 被审对象的全部上下文 + 上游依赖文档 |
 
 ### 2. 关键约束摘要
 
-构造委派 prompt 前，先读取 `.claude/rules/shared-constraints.md` 并将其全文内联到 prompt 中。
+构造委派 prompt 前，先读取 `docs/principles/shared-constraints.md` 并将其全文内联到 prompt 中。
 该文件是约束的唯一来源，此处不再硬编码，避免漂移。
 
 ### 3. 输出约束

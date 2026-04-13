@@ -1,6 +1,6 @@
 # Compact Reminder
 
-> 压缩后恢复上下文用。CLAUDE.md 和 .claude/rules/ 由系统自动重新加载，此文件只补充它们覆盖不到的会话状态。
+> 压缩后恢复上下文用。CLAUDE.md 和 .claude/rules/（指向 docs/principles/）由系统自动重新加载，此文件只补充它们覆盖不到的会话状态。
 
 ## 恢复步骤
 

@@ -4,23 +4,5 @@ paths:
   - "docs/**"
 ---
 
-<!-- last verified: 2026-04-03 -->
-# 工程哲学
-
-## 元原则
-
-1. **战术勤奋不掩盖战略懒惰** — 先问全局有没有未解决的战略问题
-2. **局部最优 ≠ 全局最优** — 从全局视角审视
-3. **设计阶段成本最低** — 先讨论透再动手
-4. **方法论持续优化** — 实证驱动修订，不固守教条
-
-## 决策前研究铁律
-
-**不确定就先研究，禁止想当然写代码。**
-
-- UI/UX：Apple 原生 App → 行业标杆 → HIG
-- 技术：Apple 文档 → WWDC → 现有代码库
-
-## 奥卡姆剃刀
-
-新增抽象前必答：解决什么具体问题？有没有更简单的方式？删掉还能工作吗？改一个需求动 N 个文件？N > 3 是警告。
+<!-- 规范源：docs/principles/engineering.md -->
+Read and follow docs/principles/engineering.md for engineering philosophy.
