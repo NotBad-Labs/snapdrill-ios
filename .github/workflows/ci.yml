@@ -69,8 +69,8 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" | tee /tmp/snapdrill-ci-test.log
 
-          # 防止“0 tests”假绿灯：至少要执行 1 个测试用例
-          if ! grep -Eq "Executed [1-9][0-9]* tests" /tmp/snapdrill-ci-test.log; then
-            echo "ERROR: xcodebuild test executed 0 tests. Failing CI intentionally."
+          # 防止“0 tests”假绿灯：兼容 XCTest 与 Swift Testing 两种统计口径
+          if ! grep -Eq "Executed [1-9][0-9]* tests|Test run with [1-9][0-9]* tests" /tmp/snapdrill-ci-test.log; then
+            echo "ERROR: no tests were executed (XCTest/Swift Testing). Failing CI intentionally."
             exit 1
           fi

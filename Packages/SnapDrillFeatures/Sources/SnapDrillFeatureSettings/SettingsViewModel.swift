@@ -98,51 +98,19 @@ public final class SettingsViewModel {
         backupError = nil
         backupFileURL = nil
         backupStatusMessage = L10n.Settings.backupPreparingData
+        AppActivityTracker.shared.begin(.backupRestore)
+        defer {
+            isBackupInProgress = false
+            AppActivityTracker.shared.end(.backupRestore)
+        }
 
         do {
-            // 1. 收集所有 Profile 数据
-            var profileDataList: [ProfileBackupData] = []
-            var totalItemCount = 0
-
-            for profile in profileManager.profiles {
-                let profileDir = Self.profileDirectory(for: profile.id)
-                let storeURL = profileDir.appendingPathComponent("default.store")
-
-                if profile.id == profileManager.activeProfileId {
-                    // 活跃 Profile 直接用当前 repositories
-                    let data = try repositories.collectProfileBackupData(
-                        profileName: profile.name, profileId: profile.id
-                    )
-                    profileDataList.append(data)
-                    totalItemCount += data.reviewItems.count
-                } else {
-                    // 非活跃 Profile 临时创建容器
-                    let tempPersistence = PersistenceController(storeURL: storeURL)
-                    let tempRepos = RepositoryContainer(
-                        modelContext: tempPersistence.container.mainContext
-                    )
-                    let data = try tempRepos.collectProfileBackupData(
-                        profileName: profile.name, profileId: profile.id
-                    )
-                    profileDataList.append(data)
-                    totalItemCount += data.reviewItems.count
-                }
-            }
-
+            let (profileDataList, totalItemCount) = try collectAllProfileBackupData()
             let payload = BackupPayload(profiles: profileDataList)
-            let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
-            let manifest = BackupManifest(
-                schemaVersion: BackupManifest.currentSchemaVersion,
-                createdAt: Date(),
-                appVersion: appVersion,
-                totalItemCount: totalItemCount,
-                profileCount: profileDataList.count,
-                profileNames: profileDataList.map(\.profileName)
-            )
+            let manifest = makeBackupManifest(profileDataList: profileDataList, totalItemCount: totalItemCount)
 
             backupStatusMessage = L10n.Settings.backupPackingItems(totalItemCount)
 
-            // 2. 在 BackupService actor 上打包 ZIP（传所有 Profile 目录）
             let url = try await backupService.createBackup(
                 payload: payload,
                 manifest: manifest,
@@ -163,7 +131,6 @@ public final class SettingsViewModel {
             SnapDrillLogger.generic.error("备份失败: \(error)")
         }
 
-        isBackupInProgress = false
     }
 
     // MARK: - Restore
@@ -178,11 +145,15 @@ public final class SettingsViewModel {
         backupProgress = 0
         backupError = nil
         backupStatusMessage = L10n.Settings.restoreVerifying
+        AppActivityTracker.shared.begin(.backupRestore)
+        defer {
+            isBackupInProgress = false
+            AppActivityTracker.shared.end(.backupRestore)
+        }
 
         // 安全域访问（fileImporter 选择的文件在安全沙箱外）
         guard fileURL.startAccessingSecurityScopedResource() else {
             backupError = L10n.Errors.fileAccessDenied
-            isBackupInProgress = false
             return
         }
         defer { fileURL.stopAccessingSecurityScopedResource() }
@@ -225,7 +196,6 @@ public final class SettingsViewModel {
             SnapDrillLogger.generic.error("恢复失败: \(error)")
         }
 
-        isBackupInProgress = false
     }
 
     /// 清理备份产生的临时文件
@@ -233,7 +203,11 @@ public final class SettingsViewModel {
     /// 在 ShareSheet 关闭后调用，删除临时目录中的 .snapdrill 文件。
     public func cleanupBackupFile() {
         guard let url = backupFileURL else { return }
-        try? FileManager.default.removeItem(at: url)
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            SnapDrillLogger.generic.warning("清理备份临时文件失败（\(url.lastPathComponent)）: \(error.localizedDescription)")
+        }
         backupFileURL = nil
         backupStatusMessage = ""
         SnapDrillLogger.generic.info("已清理备份临时文件: \(url.lastPathComponent)")
@@ -251,6 +225,11 @@ public final class SettingsViewModel {
         backupProgress = 0
         backupError = nil
         backupStatusMessage = L10n.Settings.importReading
+        AppActivityTracker.shared.begin(.backupRestore)
+        defer {
+            isBackupInProgress = false
+            AppActivityTracker.shared.end(.backupRestore)
+        }
 
         let accessing = fileURL.startAccessingSecurityScopedResource()
         defer { if accessing { fileURL.stopAccessingSecurityScopedResource() } }
@@ -259,10 +238,9 @@ public final class SettingsViewModel {
             let csvString = try String(contentsOf: fileURL, encoding: .utf8)
             backupStatusMessage = L10n.Settings.importParsing
 
-            let rows = parseCSV(csvString)
+            let rows = parseCSVRows(csvString)
             guard !rows.isEmpty else {
                 backupError = L10n.Settings.importNoValidRows
-                isBackupInProgress = false
                 backupStatusMessage = ""
                 return
             }
@@ -310,77 +288,48 @@ public final class SettingsViewModel {
             SnapDrillLogger.generic.error("CSV 导入失败: \(error)")
         }
 
-        isBackupInProgress = false
-    }
-
-    /// 解析 CSV 文本为字典数组
-    ///
-    /// - Returns: 每行一个字典，key 为列名（小写），value 为字段值
-    private func parseCSV(_ csvString: String) -> [[String: String]] {
-        let lines = csvString.components(separatedBy: .newlines).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
-        guard lines.count >= 2 else { return [] }
-
-        let headers = parseCSVLine(lines[0]).map { $0.lowercased().trimmingCharacters(in: .whitespaces) }
-        guard !headers.isEmpty else { return [] }
-
-        var results: [[String: String]] = []
-        for lineIndex in 1..<lines.count {
-            let values = parseCSVLine(lines[lineIndex])
-            var row: [String: String] = [:]
-            for (index, header) in headers.enumerated() where index < values.count {
-                let value = values[index].trimmingCharacters(in: .whitespaces)
-                if !value.isEmpty {
-                    row[header] = value
-                }
-            }
-            // 至少有 content 或 subject 才算有效行
-            if row["content"] != nil || row["subject"] != nil {
-                results.append(row)
-            }
-        }
-        return results
-    }
-
-    /// 解析单行 CSV（RFC 4180 合规：支持转义双引号 "" 和带引号字段）
-    private func parseCSVLine(_ line: String) -> [String] {
-        var fields: [String] = []
-        var current = ""
-        var inQuotes = false
-        var index = line.startIndex
-
-        while index < line.endIndex {
-            let char = line[index]
-            if inQuotes {
-                if char == "\"" {
-                    let next = line.index(after: index)
-                    if next < line.endIndex, line[next] == "\"" {
-                        // RFC 4180: "" 转义为单个 "
-                        current.append("\"")
-                        index = line.index(after: next)
-                        continue
-                    } else {
-                        inQuotes = false
-                    }
-                } else {
-                    current.append(char)
-                }
-            } else {
-                if char == "\"" {
-                    inQuotes = true
-                } else if char == "," {
-                    fields.append(current)
-                    current = ""
-                } else {
-                    current.append(char)
-                }
-            }
-            index = line.index(after: index)
-        }
-        fields.append(current)
-        return fields
     }
 
     // MARK: - Private Helpers
+
+    /// 收集所有 Profile 的备份数据
+    private func collectAllProfileBackupData() throws -> ([ProfileBackupData], Int) {
+        var profileDataList: [ProfileBackupData] = []
+        var totalItemCount = 0
+
+        for profile in profileManager.profiles {
+            let data = try collectProfileBackupData(for: profile)
+            profileDataList.append(data)
+            totalItemCount += data.reviewItems.count
+        }
+        return (profileDataList, totalItemCount)
+    }
+
+    /// 收集单个 Profile 的备份数据（活跃 Profile 直接复用当前 repositories）
+    private func collectProfileBackupData(for profile: Profile) throws -> ProfileBackupData {
+        if profile.id == profileManager.activeProfileId {
+            return try repositories.collectProfileBackupData(profileName: profile.name, profileId: profile.id)
+        }
+
+        let profileDir = Self.profileDirectory(for: profile.id)
+        let storeURL = profileDir.appendingPathComponent("default.store")
+        let tempPersistence = PersistenceController(storeURL: storeURL)
+        let tempRepos = RepositoryContainer(modelContext: tempPersistence.container.mainContext)
+        return try tempRepos.collectProfileBackupData(profileName: profile.name, profileId: profile.id)
+    }
+
+    /// 组装备份清单元数据
+    private func makeBackupManifest(profileDataList: [ProfileBackupData], totalItemCount: Int) -> BackupManifest {
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+        return BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(),
+            appVersion: appVersion,
+            totalItemCount: totalItemCount,
+            profileCount: profileDataList.count,
+            profileNames: profileDataList.map(\.profileName)
+        )
+    }
 
     /// 逐个 Profile 恢复数据库和图片
     private func restoreAllProfiles(from fileURL: URL, payload: BackupPayload, autoBackupURL: URL?) async throws {
@@ -391,7 +340,7 @@ public final class SettingsViewModel {
             if let existing = profileManager.profiles.first(where: { $0.name == profileData.profileName }) {
                 targetProfile = existing
             } else {
-                targetProfile = profileManager.createProfile(name: profileData.profileName)
+                targetProfile = try profileManager.createProfile(name: profileData.profileName)
             }
 
             // 切换到目标 Profile
@@ -494,7 +443,11 @@ public final class SettingsViewModel {
     /// 清理恢复前的自动备份临时文件
     private func cleanupAutoBackup(_ url: URL?) {
         guard let url else { return }
-        try? FileManager.default.removeItem(at: url)
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            SnapDrillLogger.generic.warning("清理恢复前自动备份失败（\(url.lastPathComponent)）: \(error.localizedDescription)")
+        }
         SnapDrillLogger.generic.info("已清理恢复前自动备份: \(url.lastPathComponent)")
     }
 }
