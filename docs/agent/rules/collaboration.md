@@ -53,6 +53,16 @@ paths:
 5. Gemini CLI 基于同一验收清单做只读复审。
 6. Codex 终审裁决并写回 Issue/PR（通过 / 返工 / 拆分新 issue）。
 
+## 记忆隔离基线（强制）
+
+为避免历史会话/私有记忆污染当前裁决，跨工具委派必须遵循以下规则：
+
+1. Claude CLI 委派必须使用 `--bare --no-session-persistence`。
+2. Claude CLI 禁止使用 `-c/--continue`、`-r/--resume`、`--from-pr`。
+3. Gemini CLI 委派禁止使用 `--resume`；默认使用 `--approval-mode plan` 做只读审查。
+4. 委派 prompt 必须显式声明“仅以下文件为事实源，不引用历史会话结论”。
+5. 外部模型输出只作为候选证据，最终以仓库可验证事实和 `docs/workflow.md` 裁决顺序为准。
+
 ## 留痕要求
 
 - 重要执行决定写入 `docs/memory/decisions.md`。

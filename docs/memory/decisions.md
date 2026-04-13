@@ -150,3 +150,10 @@
 - 决策：`#586` 的 3 项待裁决（能力矩阵与 MoSCoW 冲突、UC8/UC9 定位、PRD 导出边界表述）按“Claude/Gemini 并行只读评审 + Codex 最终裁决”收口，并回写 `PRD/requirements/cases`。
 - 理由：保持“Codex 最终裁决”前提下，利用外部模型并行提供对抗视角；当评审结果与仓库事实冲突时，以文档裁决顺序与可验证事实为准。
 - 影响范围：`docs/product/PRD.md`、`docs/product/product-requirements.md`、`docs/product/product-cases.md`、`docs/DOC_MISLEADING_AUDIT_BATCH2_20260413.md`、`#586` 收口状态。
+
+## D-20260413-003
+
+- 日期：2026-04-13
+- 决策：外部模型委派引入“记忆隔离”硬规则：Claude 委派强制 `--bare --no-session-persistence` 且禁 `resume/continue`；Gemini 委派禁 `--resume` 并默认 `--approval-mode plan`。
+- 理由：本机存在 Claude/Gemini 本地会话与记忆落盘目录，若不隔离会引入历史上下文污染，影响当前文档裁决与代码治理准确性。
+- 影响范围：`docs/agent/rules/collaboration.md`、`docs/agent/rules/codex-delegation.md`、`docs/agent/rules/gemini-delegation.md`、`docs/workflow.md` 的跨工具执行基线。

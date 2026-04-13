@@ -229,3 +229,6 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 - `Codex` 负责任务分解、验收标准与最终裁决。
 - 同一批次采用单写入者模式，默认由 `Claude CLI` 落地修改。
 - `Gemini CLI` 默认只读复审，不直接改同批文件。
+- 外部工具调用启用“记忆隔离”：
+  - Claude：`--bare --no-session-persistence`，禁用 `resume/continue`
+  - Gemini：禁用 `--resume`，默认 `--approval-mode plan`
