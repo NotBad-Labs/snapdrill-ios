@@ -1,9 +1,11 @@
 # SnapDrill 产品用例与边界规格
 
+> **上游依赖**：`PRD.md`（当前版本范围/边界/承诺）、`product-design.md`（体验铁律）、`product-requirements.md`（功能规格）、`product-journeys.md`（真实场景）
+>
 > 本文件定义「怎么验收」——可执行行为规格，供 Issue 验收标准引用、QA 回归基线。
 > 不重复设计理由（引用 design），不重复功能清单（引用 requirements），不重复用户叙事（引用 journeys）。
 > Issue 的 Given-When-Then 引用本文档的 Use Case 编号和 Boundary ID（如 B01）。
-> 冲突优先级：design > cases > requirements。
+> 冲突优先级：PRD / ADR > design / requirements > cases。
 
 ---
 
@@ -15,10 +17,10 @@
 **Preconditions**:
 - 当前 Profile 已选定
 - 用户位于采集入口或可一步进入采集入口
-- Camera / Photos / PDF / Clipboard：用户已选择或可选择有效输入源（含 Document Scan）
+- Camera / Photos / PDF / Clipboard / Share Extension：用户已选择或可选择有效输入源（含 Document Scan）
 
 **Success path**:
-1. 用户从 Camera、Photos、PDF import、Clipboard 或 Manual edit 进入录题流程（含 Document Scan）
+1. 用户从 Camera、Photos、Document Scan、PDF import、Clipboard、Share Extension 或 Manual edit 进入录题流程
 2. 系统展示可编辑的题目载体：图片来源进入裁剪；Manual edit 进入文本/图片编辑
 3. 系统对图片内容执行 OCR；识别结果展示给用户，可编辑、可复制到剪贴板，但不阻塞保存
 4. 系统保留题目图片作为主内容真相；OCR 文本作为展示、搜索索引、可复制文本
@@ -33,6 +35,7 @@
 - [Variant] Photos：支持同一张图连续裁剪多题，保存后同图再次出现，不必重复选图
 - [Variant] Document Scan
 - [Variant] PDF import：支持逐页预览、页面选择、裁剪后录入
+- [Variant] Share Extension：从系统分享面板直达录题流程，不要求先保存到相册
 - [Variant] Manual edit：允许无图片保存纯文本题目，也允许补充图片
 - [Exception] Camera 权限拒绝或受限：不可进入拍照；必须给出权限说明与跳转系统设置入口
 - [Exception] Photo Library 权限拒绝或受限：不可选图；必须给出权限说明，不得静默失败
@@ -187,11 +190,12 @@
 2. 用户发起 PDF 导出；系统生成导出前预览
 3. 用户可在 PDF 导出中选择去答案打印、留白答题区、页眉页码等选项
 4. 用户确认后，系统生成 PDF 文件并提供预览、分享、保存
-5. 用户发起快速打印；系统允许选择每页题数（1/2/4 题）并调用系统打印
+5. 用户发起快速打印：详情页单题打印固定 1 题/页；批量打印支持每页题数可选（1/2/4 题）
 6. 用户通过隐私设置页发起 JSON 导出，或通过隐私设置页/题库导出面板发起 CSV 导出；系统生成当前 Profile 的结构化数据导出文件
 
 **Variants & Exceptions**:
 - [Variant] JSON 从隐私设置页触发；CSV 可从隐私设置页或题库导出面板触发（CSV 双入口）
+- [Variant] 详情页快速打印固定 1 题/页；批量导出打印支持 1/2/4 题每页
 - [Variant] 图片处理增强（去手写/去批改痕迹/试卷还原）为 Pro 功能（免费限次体验）；免费用户超出限次时提示升级，不阻塞基础导出
 - [Variant] "去答案打印"（隐藏答案字段）是免费基础功能，与 Pro 的图片处理增强是不同层面
 - [Variant] 结构化数据导出以实际导出字段清单为准；如有未覆盖字段，需在帮助文档说明
@@ -303,7 +307,7 @@
 **Success path**:
 1. 用户选择学科范围和目标题目数量
 2. 系统根据选题策略（免费：随机；Pro：SM-2 weakness + difficulty + recency）自动选题
-3. 系统生成 PDF 预览（复用 PDFExportService 管线）
+3. 系统生成 PDF 预览（复用现有 PDF 导出能力）
 4. 用户确认后分享 / 打印 / 保存
 
 **Alternatives**:
@@ -339,7 +343,7 @@
 | ID | Scenario | Expected UX | Data guarantee | Severity |
 |---|---|---|---|---|
 | B01 | 设备存储满时保存题目 | 提示保存失败，保留编辑内容为 draft 或停留编辑页可重试 | 不产生半写入记录，不丢失当前输入 | S0 |
-| B02 | 保存写入失败（SwiftData/磁盘错误） | 不展示成功反馈，保留当前编辑状态 | rollbackContext() 回滚，旧数据不变 | S0 |
+| B02 | 保存写入失败（存储层/磁盘错误） | 不展示成功反馈，保留当前编辑状态 | 必须回滚失败写入，旧数据保持不变 | S0 |
 | B03 | App 录题中意外退出（来电/崩溃） | 下次进入提示恢复最近一份 draft | draft 保留最近一份，7 天过期清理 | S0 |
 | B04 | 备份文件损坏/不可读 | 拒绝恢复，提示文件损坏 | 现有本地数据完全不变 | S0 |
 | B05 | 恢复中途写入失败 | 提示恢复失败，尽力回滚 | 目标：不留半恢复状态。当前：图片恢复为 best-effort | S0 |
@@ -360,7 +364,7 @@
 | B20 | OCR 返回空文本 | 允许继续编辑保存图片题 | 图片和手填字段正常保存 | S2 |
 | B21 | 通知权限拒绝后再次开启提醒开关 | 提示权限已被系统拒绝，引导跳转系统设置 | 不发送本地通知 | S2 |
 | B22 | 未裁剪直接保存整页试卷（大尺寸图片） | 给予裁剪引导提示，或保留更高清晰度 | 图片清晰度满足再次放大查看需求 | S2 |
-| B23 | 媒体缓存清理误删题目原图 | 缓存清理只清理 Caches/ 临时文件，不触碰 Documents/ 或 Application Support/ | 任何缓存清理不得导致题目原图、备份文件、SwiftData 数据丢失 | S0 |
+| B23 | 媒体缓存清理误删题目原图 | 缓存清理只清理临时缓存目录，不触碰用户主数据目录 | 任何缓存清理不得导致题目原图、备份文件或题库数据丢失 | S0 |
 | B24 | 用户尝试删除最后一个 Profile | 删除按钮 disabled，提示「至少保留一个 Profile」 | 设备上始终存在至少一个 Profile，不出现零 Profile 崩溃 | S1 |
-| B25 | 切换 Profile 后 TipKit 提示状态 | 按 Profile 隔离（#532 已修复） | 切换 Profile 后 TipKit 提示状态独立 | S2 |
+| B25 | 切换 Profile 后功能提示状态 | 按 Profile 隔离 | 切换 Profile 后提示状态独立 | S2 |
 | B26 | 删除非最后 Profile | 二次确认；删除后级联移除该 Profile 的题库、图片、复习进度与配置；若删除的是当前活跃 Profile，UI 自动 fallback 到剩余 Profile 并提示 | 不得遗留孤儿数据、错误引用或活跃 Profile 悬空状态 | S1 |
