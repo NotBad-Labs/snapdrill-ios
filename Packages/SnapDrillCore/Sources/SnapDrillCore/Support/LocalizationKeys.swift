@@ -124,6 +124,8 @@ nonisolated public enum L10n {
         public static let clipboardSubtitle = NSLocalizedString("capture.clipboard_subtitle", value: "从剪贴板读取", comment: "粘贴板副标题")
         public static let pdfTitle = NSLocalizedString("capture.pdf_title", value: "PDF 导入", comment: "PDF 导入")
         public static let pdfSubtitle = NSLocalizedString("capture.pdf_subtitle", value: "从文件选择 PDF", comment: "PDF 副标题")
+        public static let docScanTitle = NSLocalizedString("capture.doc_scan_title", value: "文档扫描", comment: "文档扫描")
+        public static let docScanSubtitle = NSLocalizedString("capture.doc_scan_subtitle", value: "自动边缘检测与校正", comment: "文档扫描副标题")
 
         // 草稿恢复
         public static let draftAlertTitle = NSLocalizedString("capture.draft_alert_title", value: "恢复草稿", comment: "草稿恢复弹窗标题")
@@ -1338,6 +1340,7 @@ nonisolated public enum L10n {
         public static let manualHint = NSLocalizedString("accessibility.manual_hint", value: "手动输入题目文字", comment: "VoiceOver 手动录入提示")
         public static let clipboardHint = NSLocalizedString("accessibility.clipboard_hint", value: "读取剪贴板中的文字或图片", comment: "VoiceOver 粘贴板提示")
         public static let pdfHint = NSLocalizedString("accessibility.pdf_hint", value: "选择 PDF 文件导入题目", comment: "VoiceOver PDF 导入提示")
+        public static let docScanHint = NSLocalizedString("accessibility.doc_scan_hint", value: "使用系统文档扫描仪拍摄试卷", comment: "VoiceOver 文档扫描提示")
         public static let cropImage = NSLocalizedString("accessibility.crop_image", value: "裁剪图片", comment: "VoiceOver 裁剪按钮")
         public static let cropImageHint = NSLocalizedString("accessibility.crop_image_hint", value: "裁剪题目图片区域", comment: "VoiceOver 裁剪按钮提示")
         public static let reRecognizeHint = NSLocalizedString("accessibility.re_recognize_hint", value: "对裁剪后的图片重新进行文字识别", comment: "VoiceOver 重新识别提示")

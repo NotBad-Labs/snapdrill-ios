@@ -59,6 +59,8 @@
 "capture.clipboard_subtitle" = "从剪贴板读取";
 "capture.pdf_title" = "PDF 导入";
 "capture.pdf_subtitle" = "从文件选择 PDF";
+"capture.doc_scan_title" = "文档扫描";
+"capture.doc_scan_subtitle" = "自动边缘检测与校正";
 "capture.draft_alert_title" = "恢复草稿";
 "capture.draft_continue" = "继续编辑";
 "capture.draft_alert_message" = "检测到未保存的采集内容，是否恢复？";
