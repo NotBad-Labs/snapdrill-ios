@@ -1,3 +1,5 @@
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # SnapDrill 知识地图
 
 > 全局知识索引。三层分类：原则（极少变）、模式（偶尔变）、快照（频繁变）。
@@ -105,7 +107,8 @@ iOS 17  SwiftData（声明式，与 SwiftUI 深度集成）
 | 半衰期 | >2 年 | 6-24 个月 | <6 个月 |
 | 依赖于 | 业务逻辑、团队共识 | 框架版本、设计范式 | 外部 API 版本、定价、工具版本 |
 | 变更触发 | PO 决策 | 版本迭代 | 外部发布 |
-| freshness 元数据 | 不需要 | 可选 | `docs/principles/` 下必须；其他快照按更新机制自治（STATUS.md 按 PR 合并更新，api-reference.md 按代码变更更新） |
+| freshness 元数据 | 不需要 | 可选（建议有） | 所有快照层文档必须声明 `max_age_days` 和 `decay_trigger` |
+| 元数据头部 | `last_verified` + `layer` | `last_verified` + `layer` | `last_verified` + `layer` + `freshness` |
 
 ## 文档生命周期（入口 + 退出）
 

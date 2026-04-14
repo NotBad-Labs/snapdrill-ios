@@ -1,3 +1,5 @@
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # UX 设计原则
 
 > 从 `.claude/skills/ux-designer/` 和 `.claude/skills/user-advocate/` 合并而来。

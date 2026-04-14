@@ -1,3 +1,5 @@
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # SnapDrill 数据合规
 
 > 集中记录隐私合规策略、数据处理流程、合规认证状态。

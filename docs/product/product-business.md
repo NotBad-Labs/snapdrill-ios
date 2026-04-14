@@ -1,3 +1,5 @@
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # SnapDrill 商业化与竞品
 
 > **上游依赖**：`product-vision.md`（产品定位、用户画像、6 条原则）、`product-design.md`（设计决策、备份/同步策略）、`product-requirements.md`（功能规格、免费/Pro 分层）

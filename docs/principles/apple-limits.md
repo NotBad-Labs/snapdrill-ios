@@ -1,5 +1,6 @@
-<!-- last verified: 2026-04-13 -->
-<!-- freshness: max_age_days=60, decay_trigger=[wwdc, ios_release], layer=snapshot -->
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: snapshot -->
+<!-- freshness: max_age_days=60, decay_trigger=[ios_release] -->
 # Apple 技术能力边界（防止 AI 错误假设）
 
 ## Vision / OCR

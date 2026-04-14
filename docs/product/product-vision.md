@@ -1,3 +1,5 @@
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: principle -->
 # SnapDrill 产品愿景
 
 > 本文件定义「为什么做」：使命、定位、用户、原则。除非 pivot，极少变更。

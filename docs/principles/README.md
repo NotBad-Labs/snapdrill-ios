@@ -1,3 +1,5 @@
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # 项目原则（Agent-Agnostic）
 
 > 本目录是 SnapDrill 项目开发原则的唯一真相源。
