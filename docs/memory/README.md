@@ -22,7 +22,7 @@
 1. 每次新 agent 接手时先读 `handoff.md`，再读 `feedback.md`。
 2. 做出关键执行选择时，写入 `decisions.md`。
 3. 合并 PR 后 24 小时内，更新 `handoff.md`。
-4. 若与 `PRD` / `ADR` / `TDD` 冲突，以上游文档为准。
+4. 若与 `product-requirements.md` / `ADR-*` / 上游产品文档冲突，以上游文档为准。
 
 ## 与智能体私有记忆的关系
 

@@ -133,7 +133,7 @@
 **References**:
 - `product-design.md`：`删除撤销设计 [P4]`、`批量操作设计 [P2]`、`多 Profile 设计 [P5]`
 - `product-requirements.md`：`功能边界（MoSCoW 分类）`、`功能全景`
-- `product-requirements.md`「用户旅程」：`旅程 4：整理和管理已有题目`、`插曲：误删和撤销`
+- `product-requirements.md`「用户旅程」：`旅程 4：整理和管理已有题目`
 
 ---
 
