@@ -1,4 +1,5 @@
-<!-- last verified: 2026-04-09 -->
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # 智能体协作架构
 
 ## 工具链总览

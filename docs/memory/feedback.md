@@ -1,4 +1,6 @@
-<!-- last updated: 2026-04-13 -->
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: snapshot -->
+<!-- freshness: max_age_days=30, decay_trigger=[feedback_event] -->
 # 项目反馈与纪律规则
 
 > 从项目执行中积累的教训。所有智能体必须遵守。

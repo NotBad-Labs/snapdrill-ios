@@ -1,3 +1,5 @@
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # SnapDrill 产品用例与边界规格
 
 > 本文件定义「怎么验收」——可执行行为规格，供 Issue 验收标准引用、QA 回归基线。

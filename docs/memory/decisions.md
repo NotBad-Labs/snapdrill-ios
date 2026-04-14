@@ -1,4 +1,6 @@
-<!-- last updated: 2026-04-13 -->
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: snapshot -->
+<!-- freshness: max_age_days=30, decay_trigger=[decision_event] -->
 # 项目决策记录
 
 > 项目执行中的关键决策。与 docs/decisions/ADR-*.md（架构决策）互补，本文件记录工程和流程层面的决策。

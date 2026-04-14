@@ -1,3 +1,6 @@
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: snapshot -->
+<!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
 > 最后更新：2026-04-13

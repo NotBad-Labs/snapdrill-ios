@@ -1,5 +1,5 @@
-<!-- last verified: 2026-04-09 -->
-<!-- freshness: max_age_days=60, decay_trigger=[swift_update, swiftdata_update], layer=snapshot -->
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # 编码规范（SwiftLint 管不到的规则）
 
 ## View 层

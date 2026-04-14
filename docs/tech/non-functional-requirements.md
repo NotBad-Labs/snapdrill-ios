@@ -1,3 +1,5 @@
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # SnapDrill 非功能需求（NFR）
 
 > 性能、隐私、存储、兼容性的量化标准。功能需求见 `../product/product-requirements.md`。

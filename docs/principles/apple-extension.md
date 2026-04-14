@@ -1,5 +1,5 @@
-<!-- last verified: 2026-04-09 -->
-<!-- freshness: max_age_days=60, decay_trigger=[ios_release, wwdc], layer=snapshot -->
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # App Extension 约束（Share Extension）
 
 > 编译器能拦截部分 extension-unsafe API，但以下约束编译器管不到。

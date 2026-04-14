@@ -1,5 +1,5 @@
-<!-- last verified: 2026-04-09 -->
-<!-- freshness: max_age_days=60, decay_trigger=[swift_update, xcode_release], layer=snapshot -->
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # 测试策略与执行规则
 
 ## 分层策略

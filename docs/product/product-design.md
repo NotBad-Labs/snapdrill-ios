@@ -1,3 +1,5 @@
+<!-- last_verified: 2026-04-14 -->
+<!-- layer: pattern -->
 # SnapDrill 产品设计规范
 
 > **上游依赖**：`product-vision.md`（使命、定位、用户、6 条原则、冲突裁决规则）
