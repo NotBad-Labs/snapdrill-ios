@@ -24,8 +24,10 @@ public final class CaptureViewModel {
 
     // MARK: - State
 
-    /// 是否正在显示文档扫描器
+    /// 是否正在显示智能相机
     public var isShowingScanner = false
+    /// 是否正在显示系统文档扫描仪
+    public var isShowingDocumentScanner = false
     /// 用户从相册选择的照片项
     public var selectedPhotoItem: PhotosPickerItem?
     /// 是否正在执行 OCR 或图片加载

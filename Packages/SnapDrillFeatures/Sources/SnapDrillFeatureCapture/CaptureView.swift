@@ -121,18 +121,28 @@ public struct CaptureView: View {
                                 viewModel.pasteFromClipboard(router: router)
                             }
 
-                        }
-                        .padding(.horizontal)
+                            // 5. 文档扫描
+                            CaptureMethodCard(
+                                icon: "doc.text.viewfinder",
+                                title: L10n.Capture.docScanTitle,
+                                subtitle: L10n.Capture.docScanSubtitle,
+                                color: .green,
+                                accessibilityHint: L10n.Accessibility.docScanHint
+                            ) {
+                                viewModel.isShowingDocumentScanner = true
+                            }
 
-                        // 5. PDF 导入（独立全宽行，避免 2 列网格奇数不对称）
-                        CaptureMethodCard(
-                            icon: "doc.richtext",
-                            title: L10n.Capture.pdfTitle,
-                            subtitle: L10n.Capture.pdfSubtitle,
-                            color: .red,
-                            accessibilityHint: L10n.Accessibility.pdfHint
-                        ) {
-                            viewModel.isShowingPDFPicker = true
+                            // 6. PDF 导入
+                            CaptureMethodCard(
+                                icon: "doc.richtext",
+                                title: L10n.Capture.pdfTitle,
+                                subtitle: L10n.Capture.pdfSubtitle,
+                                color: .red,
+                                accessibilityHint: L10n.Accessibility.pdfHint
+                            ) {
+                                viewModel.isShowingPDFPicker = true
+                            }
+
                         }
                         .padding(.horizontal)
 
@@ -196,6 +206,24 @@ public struct CaptureView: View {
                 .onAppear {
                     analyticsService.track(.cameraOpened, parameters: [:])
                 }
+            }
+            // 文档扫描仪全屏覆盖
+            .fullScreenCover(isPresented: $viewModel.isShowingDocumentScanner) {
+                DocumentScannerView(
+                    onCompletion: { image in
+                        viewModel.isShowingDocumentScanner = false
+                        viewModel.processScannedImage(image, router: router)
+                    },
+                    onCancel: {
+                        viewModel.isShowingDocumentScanner = false
+                    },
+                    onError: { error in
+                        viewModel.isShowingDocumentScanner = false
+                        SnapDrillLogger.capture.error("文档扫描失败: \(error.localizedDescription)")
+                        viewModel.errorMessage = error.localizedDescription
+                        viewModel.showErrorAlert = true
+                    }
+                )
             }
             // 相册选择器处理
             .onChange(of: viewModel.selectedPhotoItem) { _, newItem in

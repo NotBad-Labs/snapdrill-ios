@@ -59,6 +59,8 @@
 "capture.clipboard_subtitle" = "Paste from clipboard";
 "capture.pdf_title" = "PDF Import";
 "capture.pdf_subtitle" = "Select a PDF file";
+"capture.doc_scan_title" = "Document Scan";
+"capture.doc_scan_subtitle" = "Auto edge detection & correction";
 "capture.draft_alert_title" = "Restore Draft";
 "capture.draft_continue" = "Continue Editing";
 "capture.draft_alert_message" = "Unsaved capture content detected. Would you like to restore it?";
