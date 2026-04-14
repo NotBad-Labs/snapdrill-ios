@@ -3,7 +3,7 @@
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-13
+> 最后更新：2026-04-14
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
 > Open PR：0 · Open Issue：7
 
@@ -11,12 +11,23 @@
 
 ## 当前状态
 
-项目主权重组完成（2026-04-13）。文档体系精简（80→68 文件），工程哲学扩展到 7 条原则，skills 精简到 6 个。
-三方基线审计 Layer 0-3 全部完成，ADR 系统已建立（ADR-001 Hybrid 定价 + ADR-002 删除 ATT）。
+**文档已冻结，转入开发阶段**（2026-04-14）。
 
-**功能开发被 Apple 开发者账号阻塞。**
+文档体系经过三方基线审计（Layer 0-3）和主权重组，质量达到 A 级，无硬伤。
+冻结规则：文档从"主动改"变为"被动改"——只有功能 PR 改变了文档描述的行为时，才同步更新文档。
 
-### 阻塞链
+### 当前开发焦点（不被 Apple 账号阻塞）
+
+| 优先级 | 工作项 | 说明 |
+|---|---|---|
+| P0 | 文档扫描接入主采集入口 | DocumentScannerView 已实现，CaptureView 缺入口 |
+| P0 | AppActivityTracker 接线 | API 完整但 begin/end 未被调用 |
+| P1 | CI 全量测试 | Core/Data 测试只编译不执行 |
+| P1 | 端到端 UI 测试 | SnapDrillUITests.swift 是空文件 |
+
+### Apple 账号阻塞链
+
+#### 阻塞链
 
 | Issue | 内容 | 阻塞原因 |
 |---|---|---|
