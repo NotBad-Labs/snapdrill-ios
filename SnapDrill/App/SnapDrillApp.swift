@@ -86,37 +86,6 @@ struct SnapDrillApp: App {
                     // 虽然 \.services 已包含 analytics，但移除此行会让它们回退到 Mock 默认值
                     .environment(\.analyticsService, container.services.analytics)
                     .preferredColorScheme(colorScheme)
-                    .blur(radius: AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive ? 10 : 0)
-                    .disabled(AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive)
-                
-                if AppConfiguration.FeatureFlags.isEmergencyKillSwitchActive {
-                    VStack(spacing: 20) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 60))
-                            .foregroundStyle(.orange)
-                        
-                        Text(L10n.AppRoot.maintenanceTitle)
-                            .font(.title.bold())
-
-                        Text(L10n.AppRoot.maintenanceDescription)
-                            .font(.body)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 40)
-
-                        Button(L10n.AppRoot.checkUpdate) {
-                            // Redirect to TestFlight or App Store
-                            if let url = URL(string: "https://beta.itunes.apple.com/v1/app/com.snapdrill.app") {
-                                UIApplication.shared.open(url)
-                            }
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .controlSize(.large)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(.ultraThinMaterial)
-                    .transition(.opacity)
-                }
             }
                 .fullScreenCover(isPresented: $onboardingManager.shouldShowOnboarding) {
                     OnboardingView(pages: OnboardingPage.defaultPages) {

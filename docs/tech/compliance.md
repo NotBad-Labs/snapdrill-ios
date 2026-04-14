@@ -22,10 +22,11 @@
 | 学校/年级/位置 | **不收集** | — | — |
 | 广告标识符（IDFA） | **不收集** | — | App 声明 Not Tracking |
 
-### 零可识别个人信息（Zero PII）
+### 默认零身份信息收集
 
-SnapDrill 不收集任何可识别个人信息。没有注册、没有手机号、没有学校年级。
-这是与竞品的核心差异化，也是合规负担较轻的根本原因。
+SnapDrill 默认不收集个人信息：无需注册、不要求姓名、手机号、学校或年级。
+匿名使用统计仅在用户明确授权后启用，启用后生成随机应用标识符（Firebase Installation ID），不关联真实身份。
+注意：COPPA §312.2 将 persistent identifier 列为 personal information，因此不宜使用"零 PII"的绝对化表述。
 
 ---
 
@@ -162,7 +163,7 @@ FTC 于 2025-04-22 发布 COPPA Final Rule amendments，合规落地截止日为
 | 数据可携带权 | ✅ JSON/CSV 导出（隐私设置页） |
 | 删除权 | ✅ 用户可删除任意题目，卸载即全删 |
 | 知情同意 | ✅ Analytics/Crashlytics 首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in/opt-out |
-| 数据最小化 | ✅ 零 PII 收集 |
+| 数据最小化 | ✅ 默认不收集，opt-in 后仅匿名标识符 |
 | 跨境传输 | ✅ 已缓解。Firebase Analytics/Crashlytics 数据传输至 Google 美国服务器。缓解措施：(1) plist 预设 `FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED=YES` + `FirebaseCrashlyticsCollectionEnabled=NO`，用户未 opt-in 时零数据外传；(2) 用户可在设置中完全关闭，关闭后等同纯本地模式；(3) 欧盟用户：Google 已签署 EU-US Data Privacy Framework；(4) 中国用户：传输数据仅为匿名设备事件计数，不含个人信息，用户可关闭实现零外传 |
 | 中国区 iCloud | 云上贵州运营，数据存储在中国境内（iCloud 同步实现时评估，当前未实现） |
 
@@ -191,8 +192,46 @@ FTC 于 2025-04-22 发布 COPPA Final Rule amendments，合规落地截止日为
 |---|---|---|---|---|
 | Firebase Analytics | 11.0+ | 匿名使用统计 | 事件计数，无 PII | 低 |
 | Firebase Crashlytics | 11.0+ | 崩溃报告 | 匿名堆栈 | 低 |
-| Firebase Remote Config | 11.0+ | 功能开关 | 无用户数据 | 低 |
+| ~~Firebase Remote Config~~ | ~~11.0+~~ | ~~功能开关~~ | **已移除**（PR #590） | — |
 | ZIPFoundation | 0.9.19+ | 备份压缩 | 纯本地，无网络 | 无 |
 | Mantis | 2.23+ | 图片裁剪 | 纯本地，无网络 | 无 |
 
 **隔离措施**：Firebase SDK 被隔离在 `SnapDrillInfrastructure` Package 中，Core 层通过 Protocol 解耦。替换 Firebase 不影响业务代码。
+
+---
+
+## 八方合规审计结论（2026-04-14）
+
+> 参与方：终端 Claude / 桌面 Claude Opus / Gemini CLI / Gemini Web / GPT-5.4 / Coze / Kimi 2.5 / Codex
+
+### 决策 1: 移除 Firebase Remote Config
+
+**问题**：`DependencyContainer` 在 App 启动时无条件调用 `fetchAndActivate()`，Remote Config 依赖 Firebase Installation ID (FID)，导致启动即与 Google 服务器通信——违反"用户未 opt-in 时零数据外传"承诺。
+
+**决策**：移除 Firebase Remote Config（7/7 一致）。当前仅用于 1 个 `isEmergencyKillSwitchActive` 布尔值，不值得破坏核心隐私承诺。
+
+**替代方案**：如未来需要远程紧急控制，可用无标识符的静态 JSON（CDN 托管）替代。App Store "remove from sale" 作为辅助手段。
+
+### 决策 2: Privacy Manifest 不声明 DeviceID
+
+**问题**：Firebase Installation ID (FID) 是否需要在 `PrivacyInfo.xcprivacy` 中声明为 `NSPrivacyCollectedDataTypeDeviceID`？
+
+**决策**：不需要（6/8 一致，2 个反对方的引用来源经验证为 AI 幻觉）。
+
+**论证**：
+- FID 是 app-installation-scoped，不是 device-scoped（同设备不同 App 的 FID 不同，卸载重装后改变）
+- Apple 文档定义 DeviceID 为 "device's advertising identifier, or other device-level ID"，举例仅 IDFA/IDFV/设备序列号
+- Firebase 官方 PrivacyInfo.xcprivacy（Remote Config / Core / Crashlytics）均不声明 DeviceID
+- Apple 从未在官方文档中将 FID 列为 Device ID 示例
+
+### 决策 3: 隐私文案修正
+
+**问题**：COPPA §312.2 将 persistent identifier 列为 personal information，"不收集任何可识别个人信息"在 opt-in 后不成立。
+
+**决策**：修正为"默认不收集个人信息"（8/8 一致）。区分默认状态和 opt-in 后状态，避免全称命题。
+
+### 待观察: age gate
+
+**当前决策**：不加 age gate。理由：SnapDrill 定位 general audience utility tool；零注册 = 无 actual knowledge；加 age gate 反而创造 actual knowledge 证据。
+
+**触发条件**：App Store 审核拒绝涉及 children / FTC inquiry / empirical audience <13 占比显著。

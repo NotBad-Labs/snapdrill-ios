@@ -67,7 +67,7 @@ DependencyContainer.shared（App 启动时初始化）
 | `.modelContainer()` | `ModelContainer` | SwiftData |
 
 **Remote Config 链路**：
-DependencyContainer → FirebaseRemoteConfigService → AppConfiguration → FeatureFlags（含 isEmergencyKillSwitchActive）
+DependencyContainer → AppConfiguration → FeatureFlags（Remote Config 已移除，FeatureFlags 仅读 UserDefaults）
 
 ---
 
@@ -150,7 +150,7 @@ SwiftData @Model（持久化）
 
 ### SnapDrillInfrastructure
 
-Firebase SDK 隔离层。Core 层通过 Protocol（AnalyticsServiceProtocol, RemoteConfigurable）与之解耦。替换 Firebase 只需修改此层 + DependencyContainer，不影响其他模块。
+Firebase SDK 隔离层（Analytics + Crashlytics，Remote Config 已移除）。Core 层通过 Protocol（AnalyticsServiceProtocol）与之解耦。替换 Firebase 只需修改此层 + DependencyContainer，不影响其他模块。
 
 ---
 

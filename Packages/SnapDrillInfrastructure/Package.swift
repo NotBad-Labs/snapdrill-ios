@@ -34,7 +34,6 @@ let package = Package(
             dependencies: [
                 .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk"),
-                .product(name: "FirebaseRemoteConfig", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
                 .product(name: "SnapDrillCore", package: "SnapDrillCore")
             ],
