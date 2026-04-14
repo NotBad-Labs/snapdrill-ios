@@ -103,8 +103,8 @@ GTM 执行细节见 `product-business.md`§发布策略。
 用户的题目、图片、笔记是私有财产。
 支持导出，详见 `product-requirements.md`§导出与打印能力。
 不做社交、不做内容平台、不做推荐算法。
-SnapDrill **不收集任何可识别个人信息**（no personally identifiable information）：没有注册、没有手机号、没有学校年级。
-匿名使用数据首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in 开启或关闭，详见 `product-requirements.md`§使用数据。
+SnapDrill **默认不收集个人信息**：无需注册、不要求姓名、手机号、学校或年级。
+匿名使用统计仅在用户明确授权后启用，启用后生成随机应用标识符用于改进产品，不关联真实身份。详见 `product-requirements.md`§使用数据。
 详细隐私策略见 `product-business.md`。
 
 **数据安全子条款**：本地存储意味着 App 是用户数据的唯一守护者。保存必须可靠，删除可撤销，备份可用。

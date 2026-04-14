@@ -62,14 +62,9 @@ final class DependencyContainer {
         let analyticsService = FirebaseAnalyticsService()
         analyticsService.markConfigured()
 
-        // 3. 注册远程配置服务
-        let remoteConfig = FirebaseRemoteConfigService()
-        AppConfiguration.FeatureFlags.registerRemoteProvider(remoteConfig)
-        Task {
-            try? await remoteConfig.fetchAndActivate()
-        }
-
-        // 4. 初始化核心服务容器（注入 Firebase 实现）
+        // 3. 初始化核心服务容器（注入 Firebase 实现）
+        // Remote Config 已移除：八方合规审计一致认定启动即 fetchAndActivate()
+        // 违反"用户未 opt-in 时零数据外传"承诺（FID 传输给 Google）
         let liveServices = LiveServiceContainer(
             analytics: analyticsService
         )

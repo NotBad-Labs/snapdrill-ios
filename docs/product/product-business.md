@@ -114,13 +114,14 @@ iCloud 同步是打通这个闭环的引擎，图片处理增强（去手写/试
 
 ## 隐私策略（2026-03-07 确立，Bear 模式）
 
-SnapDrill **不收集任何可识别个人信息**（no personally identifiable information）。没有注册，没有手机号，没有学校年级。
+SnapDrill **默认不收集个人信息**：无需注册、不要求姓名、手机号、学校或年级。
+匿名使用统计仅在用户明确授权后启用，启用后生成随机应用标识符用于改进产品，不关联真实身份。
 匿名使用数据采用两个独立开关，分别控制 Firebase Analytics 和 Crashlytics。首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in 开启或关闭。
 
 | 维度 | 竞品（喵喵机/橙果等） | SnapDrill |
 |---|---|---|
 | 注册 | 手机号必须 | 无注册 |
-| 数据收集 | 姓名、学校、年级、位置 | 零可识别个人信息（匿名 Analytics / Crashlytics 独立开关，可分别关闭） |
+| 数据收集 | 姓名、学校、年级、位置 | 默认不收集（匿名 Analytics / Crashlytics 独立开关，opt-in 后可关闭） |
 | 存储 | 自建云端 | 纯本地 + iCloud（Apple 负责） |
 | 合规负担 | 极重（ICP+等保+审计+儿童隐私） | 较轻（App 备案 + Apple 审核，不主动收集用户数据） |
 
@@ -186,7 +187,7 @@ FTC 判定 COPPA "directed to children" 的核心标准与 SnapDrill 的对照�
 虽然用户群包含 12-13 岁初中生，但效率工具定位与 "directed to children" 有本质区别。
 
 **当前合规措施**：
-- 零注册、零可识别个人信息收集
+- 零注册、默认不收集个人信息
 - 匿名使用数据首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in 开启或关闭
 - Privacy Manifest 声明数据不关联、不追踪
 
