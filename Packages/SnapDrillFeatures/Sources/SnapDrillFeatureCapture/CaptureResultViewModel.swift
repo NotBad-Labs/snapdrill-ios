@@ -280,6 +280,9 @@ public final class CaptureResultViewModel {
 
     /// 保存正式题目
     public func saveResult() async {
+        AppActivityTracker.shared.begin(.capturing)
+        defer { AppActivityTracker.shared.end(.capturing) }
+
         // 声明在 do 块外，确保 catch 中可访问以清理孤儿文件
         var savedImagePath: String?
         var savedAnswerImagePath: String?

@@ -66,6 +66,8 @@ final class PrivacySettingsViewModel {
     // MARK: - Private
 
     private func exportData(format: PrivacyDataExportFormat) async {
+        AppActivityTracker.shared.begin(.exporting)
+        defer { AppActivityTracker.shared.end(.exporting) }
         isExporting = true
         exportError = nil
 

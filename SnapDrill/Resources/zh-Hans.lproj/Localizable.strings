@@ -45,6 +45,13 @@
 "common.item_count" = "%d 道题";
 "common.item_count_short" = "%d 题";
 
+// MARK: - Activity
+
+"activity.capturing" = "正在采集";
+"activity.exporting" = "正在导出";
+"activity.printing" = "正在打印";
+"activity.backup_restore" = "正在备份/恢复";
+
 // MARK: - Capture
 
 "capture.title" = "采集";

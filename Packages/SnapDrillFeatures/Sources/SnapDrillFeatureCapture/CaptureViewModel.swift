@@ -285,6 +285,8 @@ public final class CaptureViewModel {
     
     private func processImageOCR(_ image: UIImage, router: CaptureRouter) async {
         ocrTask = Task {
+            AppActivityTracker.shared.begin(.capturing)
+            defer { AppActivityTracker.shared.end(.capturing) }
             do {
                 guard let cgImage = image.cgImage else {
                     throw OCRError.invalidImage
