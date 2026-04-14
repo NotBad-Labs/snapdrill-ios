@@ -191,6 +191,8 @@ public final class LibraryEditViewModel {
     public func save() async {
         // 双击防护
         guard !isSaving else { return }
+        AppActivityTracker.shared.begin(.capturing)
+        defer { AppActivityTracker.shared.end(.capturing) }
         isSaving = true
         defer { isSaving = false }
 

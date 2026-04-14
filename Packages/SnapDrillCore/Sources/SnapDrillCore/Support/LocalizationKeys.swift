@@ -109,6 +109,15 @@ nonisolated public enum L10n {
         public static let fieldConfigHeader = NSLocalizedString("onboarding.field_config_header", value: "选择录入字段", comment: "字段配置标题无障碍标签")
     }
 
+    // MARK: - Activity（Profile 切换阻塞提示）
+
+    public enum Activity {
+        public static let capturing = NSLocalizedString("activity.capturing", value: "正在采集", comment: "采集中阻塞切换提示")
+        public static let exporting = NSLocalizedString("activity.exporting", value: "正在导出", comment: "导出中阻塞切换提示")
+        public static let printing = NSLocalizedString("activity.printing", value: "正在打印", comment: "打印中阻塞切换提示")
+        public static let backupRestore = NSLocalizedString("activity.backup_restore", value: "正在备份/恢复", comment: "备份恢复中阻塞切换提示")
+    }
+
     // MARK: - Capture
 
     public enum Capture {

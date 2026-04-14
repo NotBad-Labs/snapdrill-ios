@@ -93,11 +93,10 @@ public final class SettingsViewModel {
     /// 完成后将文件 URL 存入 `backupFileURL`，供 View 层触发分享。
     public func createBackup() async {
         guard !isBackupInProgress else { return }
-        isBackupInProgress = true
-        backupProgress = 0
-        backupError = nil
-        backupFileURL = nil
-        backupStatusMessage = L10n.Settings.backupPreparingData
+        AppActivityTracker.shared.begin(.backupRestore)
+        defer { AppActivityTracker.shared.end(.backupRestore) }
+        isBackupInProgress = true; backupProgress = 0
+        backupError = nil; backupFileURL = nil; backupStatusMessage = L10n.Settings.backupPreparingData
 
         do {
             // 1. 收集所有 Profile 数据
@@ -174,10 +173,10 @@ public final class SettingsViewModel {
     /// - Parameter fileURL: 用户选择的 .snapdrill 备份文件路径
     public func restoreFromBackup(fileURL: URL) async {
         guard !isBackupInProgress else { return }
-        isBackupInProgress = true
-        backupProgress = 0
-        backupError = nil
-        backupStatusMessage = L10n.Settings.restoreVerifying
+        AppActivityTracker.shared.begin(.backupRestore)
+        defer { AppActivityTracker.shared.end(.backupRestore) }
+        isBackupInProgress = true; backupProgress = 0
+        backupError = nil; backupStatusMessage = L10n.Settings.restoreVerifying
 
         // 安全域访问（fileImporter 选择的文件在安全沙箱外）
         guard fileURL.startAccessingSecurityScopedResource() else {
@@ -247,11 +246,10 @@ public final class SettingsViewModel {
     /// 列名不区分大小写，缺失列使用默认值。
     public func importCSV(fileURL: URL) async {
         guard !isBackupInProgress else { return }
-        isBackupInProgress = true
-        backupProgress = 0
-        backupError = nil
-        backupStatusMessage = L10n.Settings.importReading
-
+        AppActivityTracker.shared.begin(.backupRestore)
+        defer { AppActivityTracker.shared.end(.backupRestore) }
+        isBackupInProgress = true; backupProgress = 0
+        backupError = nil; backupStatusMessage = L10n.Settings.importReading
         let accessing = fileURL.startAccessingSecurityScopedResource()
         defer { if accessing { fileURL.stopAccessingSecurityScopedResource() } }
 

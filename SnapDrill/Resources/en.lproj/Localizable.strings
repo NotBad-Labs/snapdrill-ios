@@ -45,6 +45,13 @@
 "common.item_count" = "%d items";
 "common.item_count_short" = "%d";
 
+// MARK: - Activity
+
+"activity.capturing" = "Capturing in progress";
+"activity.exporting" = "Exporting in progress";
+"activity.printing" = "Printing in progress";
+"activity.backup_restore" = "Backup/Restore in progress";
+
 // MARK: - Capture
 
 "capture.title" = "Capture";
