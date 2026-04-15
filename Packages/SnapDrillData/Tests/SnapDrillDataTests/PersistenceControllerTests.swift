@@ -10,6 +10,7 @@
 
 import Testing
 import SwiftData
+import Foundation
 @testable import SnapDrillData
 
 @Suite("PersistenceController 测试")

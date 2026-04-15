@@ -105,16 +105,13 @@ extension GradeModel {
 
 // MARK: - Test Container Helper
 
-class TestModelContainer {
-    static func create() throws -> ModelContainer {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        return try ModelContainer(
-            for: ReviewItemModel.self,
-                 SubjectModel.self,
-                 SourceModel.self,
-                 TagModel.self,
-                 GradeModel.self,
-            configurations: config
-        )
+@MainActor
+enum TestModelContainer {
+    /// Async entrypoint is intentional: it prevents Swift Testing from performing
+    /// a blocking sync hop onto MainActor when bootstrapping SwiftData on CI.
+    static func create() async throws -> ModelContainer {
+        // 使用 PersistenceController 而非直接 ModelContainer，
+        // 包含 SnapDrillMigrationPlan 避免 CI 模拟器 schema 冲突。
+        PersistenceController(inMemory: true).container
     }
 }

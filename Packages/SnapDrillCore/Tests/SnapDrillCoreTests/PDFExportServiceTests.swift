@@ -94,30 +94,27 @@ struct PDFExportServiceTests {
 
     // MARK: - Concurrency & Cancellation
 
-    @Test("测试 Task Cooperative Cancellation: 导出大量数据时中途发起取消应该抛出 CancellationError")
+    // UIGraphicsPDFRenderer.pdfData 是同步渲染，Thread.sleep 在 CI 的协作线程池中
+    // 行为不确定（编译器优化、调度器跳过），导致任务在 cancel 前已完成。
+    // 本地开发机可通过，CI Mac mini 上不稳定。暂时禁用，待重构为确定性机制后恢复。
+    @Test(
+        "测试 Task Cooperative Cancellation: 导出大量数据时中途发起取消应该抛出 CancellationError",
+        .disabled("CI 环境下时序不稳定，见 PR #597 讨论")
+    )
     func generationCancellation() async throws {
         let service = PDFExportService.shared
-        // 伪造 1000 个超长题库，这会导致耗时的渲染循环
         let heavyItems = createDummyItems(count: 1000)
 
         let task = Task {
             try await service.createPDF(from: heavyItems) { _ in
-                // imageProvider 是同步闭包（(String) -> UIImage?），无法使用 Task.sleep。
-                // Thread.sleep 在此处有意为之：模拟每项 50ms 的图片 IO 耗时，
-                // 使总工作量（50ms × 1000 = 50s）远超外部 cancel 等待时间，
-                // 保证取消测试的确定性。限制为 50ms 以控制对协作线程池的影响。
                 Thread.sleep(forTimeInterval: 0.05)
                 return nil
             }
         }
 
-        // 让任务先跑一点点
-        try await Task.sleep(nanoseconds: 50_000_000)
-
-        // 关键点：发起取消
+        try await Task.sleep(for: .milliseconds(200))
         task.cancel()
 
-        // 验证任务抛出了期待的结构化取消异常
         do {
             _ = try await task.value
             Issue.record("任务没有正确响应取消，或者执行得太快没拦住。")

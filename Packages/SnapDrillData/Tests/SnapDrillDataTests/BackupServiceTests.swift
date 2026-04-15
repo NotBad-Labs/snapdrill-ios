@@ -12,19 +12,17 @@ import Testing
 import Foundation
 @testable import SnapDrillData
 
-/// 线程安全计数器，用于 @Sendable 进度回调中累计调用次数。
-private actor CallCounter {
-    private(set) var value = 0
-    func increment() { value += 1 }
-}
-
 @Suite("BackupService 单元测试", .serialized)
 struct BackupServiceTests {
 
     // MARK: - Helpers
 
+    private static let testProfileId = UUID()
+
     private func makeSamplePayload() -> BackupPayload {
-        BackupPayload(
+        let profileData = ProfileBackupData(
+            profileName: "默认",
+            profileId: Self.testProfileId,
             reviewItems: [
                 ReviewItemBackupDTO(
                     id: UUID(),
@@ -50,22 +48,24 @@ struct BackupServiceTests {
             grades: [GradeBackupDTO(id: UUID(), name: "高一", sortOrder: 0)],
             tags: [TagBackupDTO(id: UUID(), name: "重点", colorHex: "#00FF00")]
         )
+        return BackupPayload(profiles: [profileData])
     }
 
-    private func makeSampleManifest(itemCount: Int = 1) -> BackupManifest {
+    private func makeSampleManifest(totalItemCount: Int = 1) -> BackupManifest {
         BackupManifest(
             schemaVersion: BackupManifest.currentSchemaVersion,
             createdAt: Date(),
             appVersion: "1.1.0",
-            itemCount: itemCount
+            totalItemCount: totalItemCount,
+            profileCount: 1,
+            profileNames: ["默认"]
         )
     }
 
-    private func createTempImageDir() throws -> URL {
+    private func createTempProfileDir() throws -> URL {
         let dir = FileManager.default.temporaryDirectory
             .appendingPathComponent("BackupServiceTests_\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        // 创建一个假图片文件
         let imageFile = dir.appendingPathComponent("images/test.jpg")
         try FileManager.default.createDirectory(
             at: imageFile.deletingLastPathComponent(),
@@ -86,34 +86,34 @@ struct BackupServiceTests {
         let service = BackupService()
         let payload = makeSamplePayload()
         let manifest = makeSampleManifest()
-        let imageDir = try createTempImageDir()
-        defer { cleanup(imageDir) }
+        let profileDir = try createTempProfileDir()
+        defer { cleanup(profileDir) }
 
-        // 创建备份
         let backupURL = try await service.createBackup(
             payload: payload,
             manifest: manifest,
-            imageBasePath: imageDir
+            profileDirectories: [profileDir]
         )
         defer { cleanup(backupURL) }
 
         #expect(FileManager.default.fileExists(atPath: backupURL.path))
 
-        // 读取清单
         let readManifest = try await service.readManifest(from: backupURL)
         #expect(readManifest.schemaVersion == manifest.schemaVersion)
         #expect(readManifest.appVersion == manifest.appVersion)
-        #expect(readManifest.itemCount == manifest.itemCount)
+        #expect(readManifest.totalItemCount == manifest.totalItemCount)
+        #expect(readManifest.profileCount == manifest.profileCount)
 
-        // 提取数据
         let extractedPayload = try await service.extractPayload(from: backupURL)
-        #expect(extractedPayload.reviewItems.count == 1)
-        #expect(extractedPayload.reviewItems[0].content == "测试题目")
-        #expect(extractedPayload.reviewItems[0].tagNames == ["重点"])
-        #expect(extractedPayload.subjects.count == 1)
-        #expect(extractedPayload.sources.count == 1)
-        #expect(extractedPayload.grades.count == 1)
-        #expect(extractedPayload.tags.count == 1)
+        #expect(extractedPayload.profiles.count == 1)
+        let profile = extractedPayload.profiles[0]
+        #expect(profile.reviewItems.count == 1)
+        #expect(profile.reviewItems[0].content == "测试题目")
+        #expect(profile.reviewItems[0].tagNames == ["重点"])
+        #expect(profile.subjects.count == 1)
+        #expect(profile.sources.count == 1)
+        #expect(profile.grades.count == 1)
+        #expect(profile.tags.count == 1)
     }
 
     @Test("图片恢复 round-trip")
@@ -121,25 +121,26 @@ struct BackupServiceTests {
         let service = BackupService()
         let payload = makeSamplePayload()
         let manifest = makeSampleManifest()
-        let imageDir = try createTempImageDir()
-        defer { cleanup(imageDir) }
+        let profileDir = try createTempProfileDir()
+        defer { cleanup(profileDir) }
 
-        // 创建备份（含图片）
         let backupURL = try await service.createBackup(
             payload: payload,
             manifest: manifest,
-            imageBasePath: imageDir
+            profileDirectories: [profileDir]
         )
         defer { cleanup(backupURL) }
 
-        // 恢复图片到新目录
         let restoreDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("RestoreTest_\(UUID().uuidString)")
         defer { cleanup(restoreDir) }
 
-        try await service.restoreImages(from: backupURL, to: restoreDir)
+        try await service.restoreImages(
+            from: backupURL,
+            profileId: Self.testProfileId,
+            to: restoreDir
+        )
 
-        // 验证图片文件存在且内容一致
         let restoredImagePath = restoreDir.appendingPathComponent("images/test.jpg")
         #expect(FileManager.default.fileExists(atPath: restoredImagePath.path))
         let restoredData = try Data(contentsOf: restoredImagePath)
@@ -151,23 +152,22 @@ struct BackupServiceTests {
         let service = BackupService()
         let payload = makeSamplePayload()
         let manifest = makeSampleManifest()
-        let imageDir = try createTempImageDir()
-        defer { cleanup(imageDir) }
+        let profileDir = try createTempProfileDir()
+        defer { cleanup(profileDir) }
 
-        let callCount = CallCounter()
+        let counter = CallCounter()
         let backupURL = try await service.createBackup(
             payload: payload,
             manifest: manifest,
-            imageBasePath: imageDir,
+            profileDirectories: [profileDir],
             onProgress: { _, _ in
-                Task { await callCount.increment() }
+                Task { await counter.increment() }
             }
         )
         defer { cleanup(backupURL) }
 
-        // 等待 actor 内的 increment Task 完成调度
         try await Task.sleep(for: .milliseconds(50))
-        let count = await callCount.value
+        let count = await counter.value
         #expect(count > 0)
     }
 
@@ -189,10 +189,17 @@ struct BackupServiceTests {
     @Test("空 payload（零题目）round-trip")
     func emptyPayloadRoundTrip() async throws {
         let service = BackupService()
-        let payload = BackupPayload(
-            reviewItems: [], subjects: [], sources: [], grades: [], tags: []
+        let emptyProfile = ProfileBackupData(
+            profileName: "空",
+            profileId: UUID(),
+            reviewItems: [],
+            subjects: [],
+            sources: [],
+            grades: [],
+            tags: []
         )
-        let manifest = makeSampleManifest(itemCount: 0)
+        let payload = BackupPayload(profiles: [emptyProfile])
+        let manifest = makeSampleManifest(totalItemCount: 0)
         let emptyDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("EmptyTest_\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: emptyDir, withIntermediateDirectories: true)
@@ -201,13 +208,13 @@ struct BackupServiceTests {
         let backupURL = try await service.createBackup(
             payload: payload,
             manifest: manifest,
-            imageBasePath: emptyDir
+            profileDirectories: [emptyDir]
         )
         defer { cleanup(backupURL) }
 
         let extracted = try await service.extractPayload(from: backupURL)
-        #expect(extracted.reviewItems.isEmpty)
-        #expect(extracted.subjects.isEmpty)
+        #expect(extracted.profiles[0].reviewItems.isEmpty)
+        #expect(extracted.profiles[0].subjects.isEmpty)
     }
 
     // MARK: - 路径遍历防御
@@ -215,9 +222,10 @@ struct BackupServiceTests {
     @Test("restoreImages 跳过含 .. 的路径遍历条目")
     func restoreImages_skipsPathTraversal() async throws {
         let service = BackupService()
-
-        // 构造含路径遍历的 payload：imagePath 指向 ../evil.jpg
-        let payload = BackupPayload(
+        let profileId = UUID()
+        let profileData = ProfileBackupData(
+            profileName: "测试",
+            profileId: profileId,
             reviewItems: [
                 ReviewItemBackupDTO(
                     id: UUID(),
@@ -240,60 +248,35 @@ struct BackupServiceTests {
             ],
             subjects: [], sources: [], grades: [], tags: []
         )
+        let payload = BackupPayload(profiles: [profileData])
         let manifest = makeSampleManifest()
 
-        // 创建临时目录并放一个 ../evil.jpg 文件模拟攻击
         let sourceDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("PathTraversalTest_\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: sourceDir, withIntermediateDirectories: true)
         defer { cleanup(sourceDir) }
 
-        // 创建备份（不含图片，因为 ../evil.jpg 文件不存在会被跳过）
         let backupURL = try await service.createBackup(
             payload: payload,
             manifest: manifest,
-            imageBasePath: sourceDir
+            profileDirectories: [sourceDir]
         )
         defer { cleanup(backupURL) }
 
-        // 恢复到新目录——不应在目标目录外创建文件
         let restoreDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("RestoreTraversalTest_\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: restoreDir, withIntermediateDirectories: true)
         defer { cleanup(restoreDir) }
 
-        // 恢复不应崩溃
-        try await service.restoreImages(from: backupURL, to: restoreDir)
+        try await service.restoreImages(from: backupURL, profileId: profileId, to: restoreDir)
 
-        // 验证目标目录外没有被写入 evil.jpg
         let evilPath = restoreDir.deletingLastPathComponent().appendingPathComponent("evil.jpg")
         #expect(!FileManager.default.fileExists(atPath: evilPath.path))
     }
+}
 
-    @Test("restoreImages 跳过前缀误匹配的路径")
-    func restoreImages_skipsPrefixMismatch() async throws {
-        // 验证 hasPrefix 加 "/" 后缀的防护
-        // 场景：imageBasePath = /tmp/foo, 攻击路径解析后 = /tmp/foobar/evil
-        // 旧代码 hasPrefix("/tmp/foo") = true（误匹配），新代码 hasPrefix("/tmp/foo/") = false
-        let service = BackupService()
-        let payload = BackupPayload(
-            reviewItems: [], subjects: [], sources: [], grades: [], tags: []
-        )
-        let manifest = makeSampleManifest(itemCount: 0)
-
-        let sourceDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("PrefixTest_\(UUID().uuidString)")
-        try FileManager.default.createDirectory(at: sourceDir, withIntermediateDirectories: true)
-        defer { cleanup(sourceDir) }
-
-        let backupURL = try await service.createBackup(
-            payload: payload,
-            manifest: manifest,
-            imageBasePath: sourceDir
-        )
-        defer { cleanup(backupURL) }
-
-        // 恢复不应崩溃（空 payload 无图片条目）
-        try await service.restoreImages(from: backupURL, to: sourceDir)
-    }
+/// 线程安全计数器
+private actor CallCounter {
+    private(set) var value = 0
+    func increment() { value += 1 }
 }

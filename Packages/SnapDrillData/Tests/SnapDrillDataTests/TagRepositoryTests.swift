@@ -17,16 +17,16 @@ import Foundation
 @Suite("TagRepository 单元测试", .serialized)
 struct TagRepositoryTests {
 
-    private func createRepo() throws -> TagRepository {
-        let container = try TestModelContainer.create()
+    private func createRepo() async throws -> TagRepository {
+        let container = try await TestModelContainer.create()
         return TagRepository(modelContext: container.mainContext)
     }
 
     // MARK: - fetchOrCreateModel
 
     @Test("fetchOrCreateModel 不存在时创建新标签")
-    func fetchOrCreate_newTag_createsIt() throws {
-        let repo = try createRepo()
+    func fetchOrCreate_newTag_createsIt() async throws {
+        let repo = try await createRepo()
         let tag = try repo.fetchOrCreateModel(name: "易错", colorHex: "#FF0000")
 
         #expect(tag.name == "易错")
@@ -34,8 +34,8 @@ struct TagRepositoryTests {
     }
 
     @Test("fetchOrCreateModel 已存在时返回现有标签")
-    func fetchOrCreate_existingTag_returnsExisting() throws {
-        let repo = try createRepo()
+    func fetchOrCreate_existingTag_returnsExisting() async throws {
+        let repo = try await createRepo()
         let first = try repo.fetchOrCreateModel(name: "重点", colorHex: "#00FF00")
         let second = try repo.fetchOrCreateModel(name: "重点", colorHex: "#0000FF")
 
@@ -47,8 +47,8 @@ struct TagRepositoryTests {
     // MARK: - fetchAllModels
 
     @Test("fetchAllModels 按创建时间降序")
-    func fetchAllModels_sortedByCreatedAt() throws {
-        let repo = try createRepo()
+    func fetchAllModels_sortedByCreatedAt() async throws {
+        let repo = try await createRepo()
         _ = try repo.fetchOrCreateModel(name: "标签A", colorHex: "#000000")
         _ = try repo.fetchOrCreateModel(name: "标签B", colorHex: "#111111")
 
@@ -59,8 +59,8 @@ struct TagRepositoryTests {
     // MARK: - delete
 
     @Test("delete 成功移除指定标签")
-    func delete_removesTag() throws {
-        let repo = try createRepo()
+    func delete_removesTag() async throws {
+        let repo = try await createRepo()
         let tag = try repo.fetchOrCreateModel(name: "临时", colorHex: "#FFFFFF")
 
         let allBefore = try repo.fetchAllModels()
@@ -73,16 +73,16 @@ struct TagRepositoryTests {
     }
 
     @Test("delete 不存在的 ID 不崩溃")
-    func delete_nonExistentId_noCrash() throws {
-        let repo = try createRepo()
+    func delete_nonExistentId_noCrash() async throws {
+        let repo = try await createRepo()
         try repo.delete(id: UUID())
     }
 
     // MARK: - deleteAll
 
     @Test("deleteAll 清空所有标签")
-    func deleteAll_removesAll() throws {
-        let repo = try createRepo()
+    func deleteAll_removesAll() async throws {
+        let repo = try await createRepo()
         _ = try repo.fetchOrCreateModel(name: "标签1", colorHex: "#000000")
         _ = try repo.fetchOrCreateModel(name: "标签2", colorHex: "#111111")
 

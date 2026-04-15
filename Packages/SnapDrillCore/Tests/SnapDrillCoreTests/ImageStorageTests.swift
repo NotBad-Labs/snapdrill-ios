@@ -15,15 +15,17 @@ import UIKit
 @Suite("ImageStorage 单元测试")
 struct ImageStorageTests {
 
-    private let storage = ImageStorage()
+    // 使用临时目录隔离测试，避免依赖 UserDefaults.activeProfileId
+    private let testDir = FileManager.default.temporaryDirectory
+        .appendingPathComponent("ImageStorageTests_\(UUID().uuidString)")
+    private var storage: ImageStorage { ImageStorage(baseDirectory: testDir) }
 
     // MARK: - deleteImage
 
     @Test("deleteImage 删除已存在的文件")
     func deleteImage_existingFile_removesIt() async throws {
         let fileManager = FileManager.default
-        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let imagesDir = documentsURL.appendingPathComponent("images")
+        let imagesDir = testDir.appendingPathComponent("images")
         try fileManager.createDirectory(at: imagesDir, withIntermediateDirectories: true)
 
         let filename = "test_delete_\(UUID().uuidString).jpg"
@@ -33,6 +35,9 @@ struct ImageStorageTests {
 
         try await storage.deleteImage(path: "images/\(filename)")
         #expect(!fileManager.fileExists(atPath: fileURL.path))
+
+        // 清理
+        try? fileManager.removeItem(at: testDir)
     }
 
     @Test("deleteImage 文件不存在时静默返回")
@@ -48,7 +53,7 @@ struct ImageStorageTests {
         #expect(result == nil)
     }
 
-    // MARK: - compressedJPEGData & saveImage（UIKit 平台）
+    // MARK: - compressedJPEGData & saveImage
 
     @Test("compressedJPEGData 长边未超限时直接编码不缩放")
     func compressedJPEGData_withinLimit_noResize() throws {
@@ -77,7 +82,6 @@ struct ImageStorageTests {
     @Test("compressedJPEGData 高 scale 图片按物理像素计算")
     func compressedJPEGData_highScale_usesPixelDimensions() throws {
         let image = createTestImage(width: 800, height: 800, scale: 3.0)
-        // 物理像素 2400x2400，应触发缩放
         #expect(image.scale == 3.0)
 
         let data = try #require(ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8))
@@ -89,9 +93,7 @@ struct ImageStorageTests {
 
     @Test("saveImage 保存后 loadImage 可读回")
     func saveImage_thenLoad_roundTrip() async throws {
-        let image = createTestImage(width: 50, height: 50)
-
-        let path = try await storage.saveImage(image)
+        let path = try await storage.saveImage(createTestImage(width: 50, height: 50))
         #expect(path.hasPrefix("images/"))
         #expect(path.hasSuffix(".jpg"))
 
@@ -100,6 +102,7 @@ struct ImageStorageTests {
 
         // 清理
         try await storage.deleteImage(path: path)
+        try? FileManager.default.removeItem(at: testDir)
     }
 
     // MARK: - Test Helpers

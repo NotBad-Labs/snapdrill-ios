@@ -31,7 +31,7 @@ struct MigrationTests {
     func migrationPlanSchemasComplete() {
         let schemas = SnapDrillMigrationPlan.schemas
         #expect(schemas.count == 1)
-        #expect(schemas[0] == SnapDrillSchemaV1.self)
+        #expect(schemas[0] is SnapDrillSchemaV1.Type)
     }
 
     @Test("MigrationPlan stages 数量与版本跳数一致")

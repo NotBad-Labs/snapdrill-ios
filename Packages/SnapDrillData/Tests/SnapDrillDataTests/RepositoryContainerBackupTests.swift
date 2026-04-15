@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2026/03/13.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  RepositoryContainer 的 collectBackupPayload / restoreFromPayload round-trip 测试。
+//  RepositoryContainer 的 collectProfileBackupData / restoreFromProfileData round-trip 测试。
 //
 
 import Testing
@@ -19,18 +19,19 @@ struct RepositoryContainerBackupTests {
 
     // MARK: - Helpers
 
-    private func createTestContainer() throws -> RepositoryContainer {
-        let container = try TestModelContainer.create()
+    private static let testProfileId = UUID()
+
+    private func createTestContainer() async throws -> RepositoryContainer {
+        let container = try await TestModelContainer.create()
         return RepositoryContainer(modelContext: container.mainContext)
     }
 
-    // MARK: - collectBackupPayload
+    // MARK: - collectProfileBackupData
 
-    @Test("collectBackupPayload 正确收集全量数据")
-    func collectPayloadBasic() throws {
-        let repos = try createTestContainer()
+    @Test("collectProfileBackupData 正确收集全量数据")
+    func collectPayloadBasic() async throws {
+        let repos = try await createTestContainer()
 
-        // 插入测试数据
         let subject = SubjectModel.mock(name: "数学")
         repos.subject.insert(subject)
         let source = SourceModel.mock(name: "期中卷")
@@ -49,44 +50,48 @@ struct RepositoryContainerBackupTests {
 
         try repos.review.saveContext()
 
-        // 收集 payload
-        let payload = try repos.collectBackupPayload()
+        let profileData = try repos.collectProfileBackupData(
+            profileName: "默认",
+            profileId: Self.testProfileId
+        )
 
-        #expect(payload.reviewItems.count == 1)
-        #expect(payload.reviewItems[0].content == "测试题")
-        #expect(payload.reviewItems[0].subject == "数学")
-        #expect(payload.reviewItems[0].source == "期中卷")
-        #expect(payload.reviewItems[0].grade == "初三")
-        #expect(payload.reviewItems[0].tagNames == ["易错"])
-        #expect(payload.reviewItems[0].answerText == "答案文本")
-        #expect(payload.reviewItems[0].difficulty == 4)
+        #expect(profileData.reviewItems.count == 1)
+        #expect(profileData.reviewItems[0].content == "测试题")
+        #expect(profileData.reviewItems[0].subject == "数学")
+        #expect(profileData.reviewItems[0].source == "期中卷")
+        #expect(profileData.reviewItems[0].grade == "初三")
+        #expect(profileData.reviewItems[0].tagNames == ["易错"])
+        #expect(profileData.reviewItems[0].answerText == "答案文本")
+        #expect(profileData.reviewItems[0].difficulty == 4)
 
-        #expect(payload.subjects.count >= 1)
-        #expect(payload.subjects.contains(where: { $0.name == "数学" }))
-        #expect(payload.sources.contains(where: { $0.name == "期中卷" }))
-        #expect(payload.grades.contains(where: { $0.name == "初三" }))
-        #expect(payload.tags.contains(where: { $0.name == "易错" }))
+        #expect(profileData.subjects.count >= 1)
+        #expect(profileData.subjects.contains(where: { $0.name == "数学" }))
+        #expect(profileData.sources.contains(where: { $0.name == "期中卷" }))
+        #expect(profileData.grades.contains(where: { $0.name == "初三" }))
+        #expect(profileData.tags.contains(where: { $0.name == "易错" }))
     }
 
-    @Test("空数据库 collectBackupPayload 返回空 Payload")
-    func collectPayloadEmpty() throws {
-        let repos = try createTestContainer()
-        let payload = try repos.collectBackupPayload()
+    @Test("空数据库 collectProfileBackupData 返回空数据")
+    func collectPayloadEmpty() async throws {
+        let repos = try await createTestContainer()
+        let profileData = try repos.collectProfileBackupData(
+            profileName: "空",
+            profileId: UUID()
+        )
 
-        #expect(payload.reviewItems.isEmpty)
-        #expect(payload.subjects.isEmpty)
-        #expect(payload.sources.isEmpty)
-        #expect(payload.grades.isEmpty)
-        #expect(payload.tags.isEmpty)
+        #expect(profileData.reviewItems.isEmpty)
+        #expect(profileData.subjects.isEmpty)
+        #expect(profileData.sources.isEmpty)
+        #expect(profileData.grades.isEmpty)
+        #expect(profileData.tags.isEmpty)
     }
 
-    // MARK: - restoreFromPayload
+    // MARK: - restoreFromProfileData
 
-    @Test("restoreFromPayload 全量恢复 round-trip")
+    @Test("restoreFromProfileData 全量恢复 round-trip")
     func restorePayloadRoundTrip() async throws {
-        let repos = try createTestContainer()
+        let repos = try await createTestContainer()
 
-        // 插入原始数据
         let tag = try repos.tag.fetchOrCreateModel(name: "考前必看", colorHex: "#00FF00")
         let item = ReviewItemModel.mock(content: "原始题目", subject: "英语", source: "听力")
         item.tags = [tag]
@@ -99,10 +104,11 @@ struct RepositoryContainerBackupTests {
         repos.review.insert(item)
         try repos.review.saveContext()
 
-        // 收集 payload
-        let payload = try repos.collectBackupPayload()
+        let profileData = try repos.collectProfileBackupData(
+            profileName: "默认",
+            profileId: Self.testProfileId
+        )
 
-        // 清空数据库（模拟恢复前状态）
         try repos.review.deleteAll()
         try repos.subject.deleteAll()
         try repos.source.deleteAll()
@@ -111,10 +117,8 @@ struct RepositoryContainerBackupTests {
         try repos.review.saveContext()
         #expect(try repos.review.totalCount() == 0)
 
-        // 恢复
-        try await repos.restoreFromPayload(payload)
+        try await repos.restoreFromProfileData(profileData)
 
-        // 验证恢复结果
         let restoredItems = try repos.review.fetchAllModels()
         #expect(restoredItems.count == 1)
         let restored = restoredItems[0]
@@ -129,23 +133,22 @@ struct RepositoryContainerBackupTests {
         #expect(restored.repetitions == 3)
         #expect(restored.tags?.first?.name == "考前必看")
 
-        // 验证分类数据恢复
         let subjects = try repos.subject.fetchAllModels()
         #expect(subjects.contains(where: { $0.name == "英语" }))
     }
 
-    @Test("restoreFromPayload 替换已有数据")
+    @Test("restoreFromProfileData 替换已有数据")
     func restoreReplacesExistingData() async throws {
-        let repos = try createTestContainer()
+        let repos = try await createTestContainer()
 
-        // 插入旧数据
         let oldItem = ReviewItemModel.mock(content: "旧题目", subject: "数学")
         repos.review.insert(oldItem)
         try repos.review.saveContext()
         #expect(try repos.review.totalCount() == 1)
 
-        // 准备新 payload
-        let newPayload = BackupPayload(
+        let newProfileData = ProfileBackupData(
+            profileName: "新",
+            profileId: UUID(),
             reviewItems: [
                 ReviewItemBackupDTO(
                     id: UUID(), content: "新题目 A", imagePath: nil,
@@ -168,22 +171,22 @@ struct RepositoryContainerBackupTests {
             tags: [TagBackupDTO(id: UUID(), name: "重点", colorHex: "#00FF00")]
         )
 
-        // 恢复（应替换旧数据）
-        try await repos.restoreFromPayload(newPayload)
+        try await repos.restoreFromProfileData(newProfileData)
 
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 2)
         #expect(items.contains(where: { $0.content == "新题目 A" }))
         #expect(items.contains(where: { $0.content == "新题目 B" }))
-        // 旧题目应被清除
         #expect(!items.contains(where: { $0.content == "旧题目" }))
     }
 
-    @Test("restoreFromPayload 标签关联正确恢复")
+    @Test("restoreFromProfileData 标签关联正确恢复")
     func restoreTagAssociations() async throws {
-        let repos = try createTestContainer()
+        let repos = try await createTestContainer()
 
-        let payload = BackupPayload(
+        let profileData = ProfileBackupData(
+            profileName: "测试",
+            profileId: UUID(),
             reviewItems: [
                 ReviewItemBackupDTO(
                     id: UUID(), content: "多标签题目", imagePath: nil,
@@ -203,7 +206,7 @@ struct RepositoryContainerBackupTests {
             ]
         )
 
-        try await repos.restoreFromPayload(payload)
+        try await repos.restoreFromProfileData(profileData)
 
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 1)
