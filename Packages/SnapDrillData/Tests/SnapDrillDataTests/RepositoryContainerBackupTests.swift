@@ -8,9 +8,13 @@
 //  RepositoryContainer 的 collectProfileBackupData / restoreFromProfileData round-trip 测试。
 //
 
+// TODO: #599 — CI 跳过：ModelContainer 在 Mac mini 模拟器上死锁，待现场排查
+
 import Testing
 import SwiftData
+
 import Foundation
+
 import SnapDrillCore
 @testable import SnapDrillData
 
