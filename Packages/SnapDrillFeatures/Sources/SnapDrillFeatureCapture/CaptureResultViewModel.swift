@@ -406,7 +406,10 @@ public final class CaptureResultViewModel {
             if !router.path.isEmpty {
                 router.path.removeLast()
             }
-            router.shouldReopenScanner = true
+            // UI 测试模式下不重开相机（模拟器无相机权限会阻塞测试流程）
+            if !ProcessInfo.processInfo.arguments.contains("--uitesting") {
+                router.shouldReopenScanner = true
+            }
         }
     }
 

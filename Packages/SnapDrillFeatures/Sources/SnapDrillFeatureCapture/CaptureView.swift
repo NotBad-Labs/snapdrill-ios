@@ -104,7 +104,8 @@ public struct CaptureView: View {
                                 title: L10n.Capture.manualTitle,
                                 subtitle: L10n.Capture.manualSubtitle,
                                 color: .orange,
-                                accessibilityHint: L10n.Accessibility.manualHint
+                                accessibilityHint: L10n.Accessibility.manualHint,
+                                accessibilityID: "capture.manual"
                             ) {
                                 // 以空状态导航到结果编辑页
                                 router.push(.scannerResult(content: "", image: nil))
@@ -404,6 +405,7 @@ struct CaptureMethodCard: View {
     let subtitle: String
     let color: Color
     let accessibilityHintText: String
+    let accessibilityID: String?
     let action: () -> Void
 
     init(
@@ -412,6 +414,7 @@ struct CaptureMethodCard: View {
         subtitle: String,
         color: Color,
         accessibilityHint: String = "",
+        accessibilityID: String? = nil,
         action: @escaping () -> Void
     ) {
         self.icon = icon
@@ -419,6 +422,7 @@ struct CaptureMethodCard: View {
         self.subtitle = subtitle
         self.color = color
         self.accessibilityHintText = accessibilityHint
+        self.accessibilityID = accessibilityID
         self.action = action
     }
 
@@ -427,6 +431,7 @@ struct CaptureMethodCard: View {
             CaptureMethodCardContent(icon: icon, title: title, subtitle: subtitle, color: color)
         }
         .accessibleButton(label: title, hint: accessibilityHintText.isEmpty ? subtitle : accessibilityHintText)
+        .accessibilityIdentifier(accessibilityID ?? "")
     }
 }
 

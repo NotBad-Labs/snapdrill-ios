@@ -20,6 +20,9 @@ final class DependencyContainer {
 
     // MARK: - Properties
 
+    /// UI 测试模式标志（通过 --uitesting launch argument 激活）
+    static let isUITesting = ProcessInfo.processInfo.arguments.contains("--uitesting")
+
     static let shared = DependencyContainer()
 
     /// 全局服务容器 (Firebase, OCR, Analytics 等)
@@ -39,6 +42,20 @@ final class DependencyContainer {
     // MARK: - Initialization
 
     private init() {
+        // UI 测试模式：跳过 Firebase，使用 in-memory 存储
+        if Self.isUITesting {
+            self.services = MockServiceContainer()
+            self.profileManager = ProfileManager(inMemory: true)
+            profileManager.activeRepositories.subject.seedDefaultsIfNeeded()
+            profileManager.activeRepositories.source.seedDefaultsIfNeeded()
+            profileManager.activeRepositories.grade.seedDefaultsIfNeeded()
+            self.router = AppRouter()
+            // 跳过引导页
+            UserDefaults.standard.set(true, forKey: UDKey.hasCompletedOnboarding)
+            SnapDrillLogger.generic.info("DependencyContainer: UI 测试模式初始化完成")
+            return
+        }
+
         // 1. 配置 Firebase（基础设施层）
         // plist 预设 DEACTIVATED/Disabled，configure 时不生成 persistent ID
         FirebaseBootstrap.configure()

@@ -113,6 +113,7 @@ public struct CaptureResultView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .opacity(viewModel.isRecognizing ? 0.6 : 1)
                         .disabled(viewModel.isRecognizing)
+                        .accessibilityIdentifier("capture.contentEditor")
                 }
                 .padding(.horizontal)
         
@@ -335,6 +336,7 @@ public struct CaptureResultView: View {
                 }
                 .fontWeight(.bold)
                 .disabled(viewModel.isRecognizing || viewModel.isSaving)
+                .accessibilityIdentifier("capture.saveButton")
             }
         }
         .navigationTitle(L10n.Capture.previewAndEdit)

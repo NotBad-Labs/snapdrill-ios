@@ -80,7 +80,21 @@ public final class ProfileManager {
     /// 初始化 ProfileManager
     ///
     /// 首次启动时自动执行数据迁移（将旧数据移入默认 Profile 目录）。
-    public init() {
+    /// - Parameter inMemory: 为 true 时使用内存存储（UI 测试用）
+    public init(inMemory: Bool = false) {
+        if inMemory {
+            // UI 测试模式：跳过文件迁移和磁盘操作，使用纯内存存储
+            let profileId = UUID()
+            self.profiles = [Profile(id: profileId, name: "Test")]
+            self.activeProfileId = profileId
+            let persistence = PersistenceController(inMemory: true)
+            self.activeContainer = persistence.container
+            self.activeRepositories = RepositoryContainer(modelContext: persistence.container.mainContext)
+            self.activeImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
+            SnapDrillLogger.data.info("ProfileManager: in-memory 模式初始化完成")
+            return
+        }
+
         // 1. 执行首次升级迁移（必须在 ModelContainer 创建之前）
         ProfileMigration.migrateIfNeeded()
 
