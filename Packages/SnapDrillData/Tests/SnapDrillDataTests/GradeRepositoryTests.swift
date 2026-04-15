@@ -8,8 +8,11 @@
 //  GradeRepository CRUD、唯一性约束与种子数据测试。
 //
 
+// TODO: #599 — CI 跳过：ModelContainer 在 Mac mini 模拟器上死锁，待现场排查
+
 import Testing
 import SwiftData
+
 import Foundation
 @testable import SnapDrillData
 @testable import SnapDrillCore

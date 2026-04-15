@@ -126,3 +126,33 @@ PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 **Why:** api-reference 审计中 Claude 抽查 10 个签名说"全部匹配"，但 Codex 全量验证 358 条后发现 2 个幽灵 API + 11 个签名不匹配。帅哥原话："codex 工作比你认真多了，你总会偷懒"。
 
 **How to apply:** 代码验证逐文件逐方法 grep 不跳过；文档审计逐段落检查。规模太大需分批时明确告知覆盖范围。学习 Codex 的做法：遇到大量数据时写脚本自动化验证。
+
+---
+
+## F-013: PR scope 膨胀时必须拆分
+
+当 PR 实际工作偏离原始目标（如从「配置修改」滚雪球成「修复 4 个编译错误 + 7 次 CI 重试」）时，必须停下来拆分为独立 PR。
+
+**Why:** PR #597 从「CI 全量测试」膨胀到修复编译、修复环境问题、调试死锁，最终 8 次 CI 尝试。稳定通过的部分（Core 测试集成）被死锁问题（Data 测试）拖延合并。Codex 和 Gemini 一致建议拆分。
+
+**How to apply:** 当 PR 发现的附带问题超过 2 个、或 CI 失败超过 3 次且原因不同时，拆分为独立 PR。稳定通过的部分先合并，有问题的部分保持 open 或另开 PR。
+
+---
+
+## F-014: 跳过测试的合并门禁
+
+标记测试为 `skipped` 是降级决策，合并前必须完成检查清单：(a) 创建 tracking issue，(b) 在代码中添加 `// TODO: #issue` 注释，(c) 在 PR description 中声明跳过原因，(d) PR 标题反映实际交付而非初始意图。
+
+**Why:** PR #597 跳过 Data 测试后合并，但 tracking issue 和代码注释都是事后补的。Codex 指出 `skipped="YES"` 的测试容易被遗忘，Gemini 建议增加过期提醒机制。
+
+**How to apply:** 任何将测试标记为 skipped/disabled 的 PR，合并前检查四项清单全部完成。
+
+---
+
+## F-015: CI 失败是致命信号
+
+CI 失败必须立即阻塞后续工作。不能在未确认 CI 通过的情况下推进新 PR 或新任务。
+
+**Why:** PR #597 第一次 CI 失败后，Claude 没有监控结果就开始了 PR #598 的开发。本地通过 ≠ CI 通过——CI 环境差异（UserDefaults 残留、资源限制、SwiftData XPC）暴露了本地无法覆盖的问题。
+
+**How to apply:** 每个 PR push 后必须 `gh pr checks --watch` 等待结果。CI 失败时立即修复，不开新分支。与 F-007 互补：F-007 是合并后检查，F-015 是合并前等待。
