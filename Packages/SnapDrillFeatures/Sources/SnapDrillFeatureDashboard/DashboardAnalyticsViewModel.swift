@@ -72,8 +72,8 @@ final class DashboardAnalyticsViewModel {
 
     // MARK: - Pro 门控
 
-    // TODO: 替换为 StoreKit 订阅状态检查（#479 就绪后）
-    var isProUser: Bool { true }
+    // TODO: #479 — 替换为 StoreKit 订阅状态检查
+    var isProUser: Bool { false }
 
     init(repositories: RepositoryContainer) {
         self.repositories = repositories
