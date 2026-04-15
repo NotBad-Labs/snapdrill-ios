@@ -44,6 +44,17 @@ jobs:
       - name: Lint
         run: swiftlint --strict
 
+      - name: Clean Simulator
+        # 清理模拟器残留的 SwiftData schema 和 App 数据，
+        # 避免 ModelContainer 初始化死锁（GradeRepository 稳定挂起）
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone 17" | head -1 | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')
+          if [ -n "$DEVICE_ID" ]; then
+            xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
+            xcrun simctl erase "$DEVICE_ID"
+            echo "Simulator $DEVICE_ID erased"
+          fi
+
       - name: Build
         # build-for-testing 比 build 更严格——会编译测试 target
         run: |
