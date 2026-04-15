@@ -396,8 +396,8 @@ public final class CaptureResultViewModel {
             if !router.path.isEmpty {
                 router.path.removeLast()
             }
-        } else if router.pdfDocument != nil {
-            // PDF 模式：仅退栈，不触发摄像头（PDF 有自己的页面选择流程）
+        } else if router.pdfDocument != nil || router.scannedPages != nil {
+            // PDF / 文档扫描模式：仅退栈，回到页面选择器（让用户继续选下一页）
             if !router.path.isEmpty {
                 router.path.removeLast()
             }

@@ -11,6 +11,7 @@
 import SwiftUI
 @preconcurrency import VisionKit
 import UIKit
+import SnapDrillCore
 
 /// 原生文档扫描视图
 ///
@@ -102,8 +103,15 @@ final class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
             return
         }
 
-        // 提取全部页面
-        let images = (0 ..< pageCount).map { scan.imageOfPage(at: $0) }
+        // 提取全部页面并压缩（原图单张 5-10MB，压缩后 ~200KB，避免多页 OOM）
+        let images = (0 ..< pageCount).map { index -> UIImage in
+            let original = scan.imageOfPage(at: index)
+            if let data = ImageStorage.compressedJPEGData(from: original, maxLongSide: 2000, quality: 0.8),
+               let compressed = UIImage(data: data) {
+                return compressed
+            }
+            return original
+        }
         Task { @MainActor [self] in
             controller.dismiss(animated: true) {
                 self.onCompletion(images)
