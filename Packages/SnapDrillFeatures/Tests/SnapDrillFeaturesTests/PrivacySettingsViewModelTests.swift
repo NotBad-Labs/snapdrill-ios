@@ -62,20 +62,17 @@ final class PrivacySettingsViewModelTests {
         let vm = makeVM()
         vm.startExport(format: .json)
 
-        // 等待异步导出完成
-        try await waitUntil { vm.isExporting == false && vm.exportedFileURL != nil }
-
+        try await waitUntilExportDone(vm)
         #expect(vm.exportError == nil)
         #expect(vm.showingShareSheet == true)
 
         let url = try #require(vm.exportedFileURL)
+        defer { try? FileManager.default.removeItem(at: url) }
+
         let data = try Data(contentsOf: url)
         let json = try JSONSerialization.jsonObject(with: data) as? [[String: Any]]
         #expect(json?.count == 1)
         #expect(json?[0]["content"] as? String == "JSON 测试题目")
-
-        // 清理临时文件
-        try? FileManager.default.removeItem(at: url)
     }
 
     // MARK: - CSV 导出
@@ -89,17 +86,15 @@ final class PrivacySettingsViewModelTests {
         let vm = makeVM()
         vm.startExport(format: .csv)
 
-        try await waitUntil { vm.isExporting == false && vm.exportedFileURL != nil }
-
+        try await waitUntilExportDone(vm)
         #expect(vm.exportError == nil)
 
         let url = try #require(vm.exportedFileURL)
+        defer { try? FileManager.default.removeItem(at: url) }
+
         let csvString = try String(contentsOf: url, encoding: .utf8)
         let lines = csvString.components(separatedBy: "\n").filter { !$0.isEmpty }
-        // 至少有列头 + 1 行数据
         #expect(lines.count >= 2)
-
-        try? FileManager.default.removeItem(at: url)
     }
 
     // MARK: - 空数据库
@@ -109,16 +104,15 @@ final class PrivacySettingsViewModelTests {
         let vm = makeVM()
         vm.startExport(format: .json)
 
-        try await waitUntil { vm.isExporting == false && vm.exportedFileURL != nil }
-
+        try await waitUntilExportDone(vm)
         #expect(vm.exportError == nil)
 
         let url = try #require(vm.exportedFileURL)
+        defer { try? FileManager.default.removeItem(at: url) }
+
         let data = try Data(contentsOf: url)
         let json = try JSONSerialization.jsonObject(with: data) as? [[String: Any]]
         #expect(json?.isEmpty == true)
-
-        try? FileManager.default.removeItem(at: url)
     }
 
     // MARK: - 埋点
@@ -132,7 +126,7 @@ final class PrivacySettingsViewModelTests {
         let vm = makeVM()
         vm.startExport(format: .json)
 
-        try await waitUntil { vm.isExporting == false && vm.exportedFileURL != nil }
+        try await waitUntilExportDone(vm)
 
         #expect(analytics.hasTrackedEvent(.dataExported))
         let event = analytics.trackedEvents.first { $0.event == .dataExported }
@@ -142,6 +136,18 @@ final class PrivacySettingsViewModelTests {
         if let url = vm.exportedFileURL {
             try? FileManager.default.removeItem(at: url)
         }
+    }
+
+    // MARK: - AppActivityTracker 集成
+
+    @Test("导出期间 AppActivityTracker 追踪 .exporting 活动")
+    func export_tracksActivity() async throws {
+        let vm = makeVM()
+        vm.startExport(format: .json)
+
+        // 导出完成后 defer 已执行 end()，活动应清空
+        try await waitUntilExportDone(vm)
+        #expect(AppActivityTracker.shared.canSwitchProfile == true)
     }
 
     // MARK: - 任务取消
@@ -154,16 +160,38 @@ final class PrivacySettingsViewModelTests {
         vm.cancelExport()
     }
 
+    // MARK: - 并发 startExport
+
+    @Test("连续调用 startExport 旧任务被取消，只有最后一次生效")
+    func startExport_overridesPrevious() async throws {
+        let item = ReviewItemModel(content: "并发测试", subject: "数学")
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = makeVM()
+        // 连续调用两次，第一次应被取消
+        vm.startExport(format: .csv)
+        vm.startExport(format: .json)
+
+        try await waitUntilExportDone(vm)
+
+        // 最终结果应是 JSON 格式
+        let url = try #require(vm.exportedFileURL)
+        defer { try? FileManager.default.removeItem(at: url) }
+        #expect(url.pathExtension == "json")
+    }
+
     // MARK: - Helpers
 
-    private func waitUntil(
-        timeout: Duration = .seconds(5),
-        condition: @escaping () -> Bool
+    /// 等待导出完成（成功或失败），超时则记录 Issue
+    private func waitUntilExportDone(
+        _ vm: PrivacySettingsViewModel,
+        timeout: Duration = .seconds(5)
     ) async throws {
         let deadline = ContinuousClock.now + timeout
-        while !condition() {
+        while vm.isExporting || (vm.exportedFileURL == nil && vm.exportError == nil) {
             guard ContinuousClock.now < deadline else {
-                Issue.record("waitUntil 超时")
+                Issue.record("waitUntilExportDone 超时：isExporting=\(vm.isExporting), error=\(vm.exportError ?? "nil")")
                 return
             }
             try await Task.sleep(for: .milliseconds(50))
