@@ -50,8 +50,7 @@ final class DependencyContainer {
             profileManager.activeRepositories.source.seedDefaultsIfNeeded()
             profileManager.activeRepositories.grade.seedDefaultsIfNeeded()
             self.router = AppRouter()
-            // 跳过引导页
-            UserDefaults.standard.set(true, forKey: UDKey.hasCompletedOnboarding)
+            // 引导页通过 launch argument -hasCompletedOnboarding YES 跳过（进程级，不持久化）
             SnapDrillLogger.generic.info("DependencyContainer: UI 测试模式初始化完成")
             return
         }
