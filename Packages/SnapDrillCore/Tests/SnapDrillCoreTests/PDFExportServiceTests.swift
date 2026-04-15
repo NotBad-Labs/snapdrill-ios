@@ -97,27 +97,21 @@ struct PDFExportServiceTests {
     @Test("测试 Task Cooperative Cancellation: 导出大量数据时中途发起取消应该抛出 CancellationError")
     func generationCancellation() async throws {
         let service = PDFExportService.shared
-        // 伪造 1000 个超长题库，这会导致耗时的渲染循环
-        let heavyItems = createDummyItems(count: 1000)
+        // 100 项 * 10ms = 1s 总工作量，足够验证取消但不阻塞 CI
+        let heavyItems = createDummyItems(count: 100)
 
         let task = Task {
             try await service.createPDF(from: heavyItems) { _ in
-                // imageProvider 是同步闭包（(String) -> UIImage?），无法使用 Task.sleep。
-                // Thread.sleep 在此处有意为之：模拟每项 50ms 的图片 IO 耗时，
-                // 使总工作量（50ms × 1000 = 50s）远超外部 cancel 等待时间，
-                // 保证取消测试的确定性。限制为 50ms 以控制对协作线程池的影响。
-                Thread.sleep(forTimeInterval: 0.05)
+                Thread.sleep(forTimeInterval: 0.01)
                 return nil
             }
         }
 
         // 让任务先跑一点点
-        try await Task.sleep(nanoseconds: 50_000_000)
+        try await Task.sleep(for: .milliseconds(50))
 
-        // 关键点：发起取消
         task.cancel()
 
-        // 验证任务抛出了期待的结构化取消异常
         do {
             _ = try await task.value
             Issue.record("任务没有正确响应取消，或者执行得太快没拦住。")
