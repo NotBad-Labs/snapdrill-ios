@@ -138,6 +138,69 @@ final class SmartPaperViewModelTests {
         }
     }
 
+    // MARK: - 联合筛选
+
+    @Test("refreshSelection 学科+难度联合筛选")
+    func refreshSelection_combinedFilter() throws {
+        try seedItems()
+        let vm = makeVM()
+        vm.selectedSubjects = ["数学"]
+        vm.selectedDifficulties = [3]
+        vm.refreshSelection()
+
+        // 数学+难度3 只有"数学题1"
+        #expect(vm.selectedItems.count == 1)
+        #expect(vm.selectedItems[0].content == "数学题1")
+    }
+
+    @Test("refreshSelection 联合筛选无匹配时返回空")
+    func refreshSelection_combinedFilter_noMatch() throws {
+        try seedItems()
+        let vm = makeVM()
+        vm.selectedSubjects = ["英语"]
+        vm.selectedDifficulties = [5]
+        vm.refreshSelection()
+
+        #expect(vm.selectedItems.isEmpty)
+        #expect(vm.errorMessage == nil)
+    }
+
+    // MARK: - 边界条件
+
+    @Test("refreshSelection questionCount 大于可用题目时返回全部")
+    func refreshSelection_countExceedsAvailable() throws {
+        try seedItems() // 5 道题
+        let vm = makeVM()
+        vm.questionCount = 100
+        vm.refreshSelection()
+
+        #expect(vm.selectedItems.count == 5)
+    }
+
+    @Test("refreshSelection 不存在的学科筛选返回空")
+    func refreshSelection_nonexistentSubject() throws {
+        try seedItems()
+        let vm = makeVM()
+        vm.selectedSubjects = ["化学"]
+        vm.refreshSelection()
+
+        #expect(vm.selectedItems.isEmpty)
+    }
+
+    @Test("refreshSelection 不存在的难度筛选返回空")
+    func refreshSelection_nonexistentDifficulty() throws {
+        try seedItems()
+        let vm = makeVM()
+        vm.selectedDifficulties = [99]
+        vm.refreshSelection()
+
+        #expect(vm.selectedItems.isEmpty)
+    }
+
+    // 错误处理路径测试：当前 RepositoryContainer 无 protocol 抽象，
+    // 无法注入 mock 触发 fetchSmartSelection 失败。
+    // Codex/Gemini 审查确认此为架构限制，需后续引入 DI 后补充。
+
     // MARK: - pdfOptions
 
     @Test("pdfOptions 正确映射配置")
