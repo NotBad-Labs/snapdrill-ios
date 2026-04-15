@@ -48,6 +48,15 @@
 | Toast 倒计时 Task 未在 View 消失时取消 | 内存泄漏或对已释放对象操作 | 在 `.onDisappear` 中取消 Task，或将 Task 句柄保存为实例属性 |
 | 软删除后立即查询未排除待删除项 | 已标记删除的题目仍出现在列表中 | 当前实现为 ViewModel 级 5 秒待提交删除（非模型级 isDeleted 字段），从列表临时移除后延时执行真实删除 |
 
+## CI 环境与测试陷阱
+
+| 陷阱 | 后果 | 正确做法 |
+|---|---|---|
+| Thread.sleep 在 UIGraphicsPDFRenderer.pdfData() 闭包中做时序测试 | CI 协作线程池调度不确定，延迟可能被跳过或放大 | 不依赖 Thread.sleep 做取消/超时测试；改用确定性同步机制 |
+| ModelContainer(inMemory: true) 在 CI 模拟器上初始化 | XPC 回调与 MainActor 死锁（本地不复现） | 测试用 async 初始化；CI 脚本添加 `xcrun simctl erase`；Issue #599 追踪 |
+| XCTestCase setUp/tearDown + defaultIsolation(MainActor) | 隔离域冲突：MainActor 方法覆盖 nonisolated 基类方法 | 优先用 Swift Testing @Test；XCUITest target 覆盖 OTHER_SWIFT_FLAGS 移除 `-default-isolation MainActor`（PR #598 实现） |
+| 本地测试全绿就推 CI | CI 环境差异（残留数据、资源限制、进程状态）暴露本地无法覆盖的问题 | push 后 `gh pr checks --watch` 等待 CI 通过再推进（F-015） |
+
 ## 多 Profile 陷阱
 
 | 陷阱 | 后果 | 正确做法 |

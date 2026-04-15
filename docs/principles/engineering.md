@@ -97,3 +97,52 @@
 | SnapDrillInfrastructure | Firebase 封装 | 第三方 SDK 替换 |
 
 Infrastructure 隔离 Firebase：替换 Firebase 只改这一层，Core 通过协议解耦（`architecture.md`）。View/ViewModel 分离：View 纯渲染，ViewModel 持有状态和逻辑（`coding.md`）。
+
+## 协议优先 (Protocol-Oriented)
+
+**优先用协议定义契约，实现在下游。**
+
+- `ServiceContainer` 协议 → `LiveServiceContainer` / `MockServiceContainer` 实现
+- `OCRServiceProtocol` → `OCRService`（可替换为测试 Mock）
+
+协议定义在 Core 层，实现在各具体层。依赖方向始终向上（Feature → Core），不反向。
+
+## 值语义默认 (Value Semantics First)
+
+**跨边界传递的数据用 struct，有状态的对象用 class + @MainActor。**
+
+| 场景 | 类型 | 原因 |
+|---|---|---|
+| DTO / Snapshot / 配置 | `nonisolated struct` + `Sendable` | 跨 actor 零成本传递 |
+| ViewModel | `@Observable class` | 有可变状态，需 MainActor 隔离 |
+| Service（无状态） | `struct` 或 `enum` 命名空间 | 无实例状态则无需 class |
+| Service（有状态） | `actor` | 自带隔离，如 `BackupService` |
+
+守门问题：**这个类型需要 identity 吗？不需要就用 struct。**
+
+## 并发安全优先 (Structured Concurrency First)
+
+**强 actor 隔离优于手工同步。编译器能检查的并发安全，不用运行时验证。**
+
+- `defaultIsolation(MainActor)` — 全局默认隔离，减少标注负担
+- `nonisolated` 显式声明无隔离需求（纯计算、DTO 转换）
+- `actor` 隔离有状态的后台服务（`BackupService`）
+- `Task.detached` 仅用于确需脱离当前 actor 的场景（文件 IO、图片压缩）
+
+优先使用 actor 隔离，避免 `NSLock`、`os_unfair_lock` 等手工同步原语。
+UIKit 桥接场景（AVFoundation 回调、UIKit 动画调度）允许 `DispatchQueue.main.async`。
+
+## 单向状态流 (Unidirectional Data Flow)
+
+**状态从 ViewModel 流向 View，反向通过通知或回调。**
+
+```
+View ──(用户操作)──→ ViewModel ──(修改状态)──→ @Observable 自动刷新 View
+                                    │
+                                    ├──(持久化)──→ Repository
+                                    └──(广播)──→ NotificationCenter → 其他 ViewModel
+```
+
+- View 通过 ViewModel 调用 Service（埋点等轻量操作可直接调用 `analyticsService`）
+- ViewModel 之间通过 `NotificationCenter`（`.reviewDataDidChange`）解耦，不互相引用
+- 跨模块状态同步走通知，不走共享可变状态
