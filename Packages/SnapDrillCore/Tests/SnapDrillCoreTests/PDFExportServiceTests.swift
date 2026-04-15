@@ -97,18 +97,18 @@ struct PDFExportServiceTests {
     @Test("测试 Task Cooperative Cancellation: 导出大量数据时中途发起取消应该抛出 CancellationError")
     func generationCancellation() async throws {
         let service = PDFExportService.shared
-        // 100 项 * 10ms = 1s 总工作量，足够验证取消但不阻塞 CI
-        let heavyItems = createDummyItems(count: 100)
+        // 500 项 * 20ms = 10s 总工作量。在 CI 环境需要足够长才不会跑完
+        let heavyItems = createDummyItems(count: 500)
 
         let task = Task {
             try await service.createPDF(from: heavyItems) { _ in
-                Thread.sleep(forTimeInterval: 0.01)
+                Thread.sleep(forTimeInterval: 0.02)
                 return nil
             }
         }
 
-        // 让任务先跑一点点
-        try await Task.sleep(for: .milliseconds(50))
+        // 等待 200ms 确保任务开始执行
+        try await Task.sleep(for: .milliseconds(200))
 
         task.cancel()
 
