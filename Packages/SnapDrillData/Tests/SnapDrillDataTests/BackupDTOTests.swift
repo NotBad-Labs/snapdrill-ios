@@ -20,10 +20,12 @@ struct BackupDTOTests {
     @Test("BackupManifest JSON round-trip")
     func manifestRoundTrip() throws {
         let original = BackupManifest(
-            schemaVersion: 1,
+            schemaVersion: BackupManifest.currentSchemaVersion,
             createdAt: Date(timeIntervalSince1970: 1_710_000_000),
             appVersion: "1.1.0",
-            itemCount: 42
+            totalItemCount: 42,
+            profileCount: 2,
+            profileNames: ["默认", "小明"]
         )
 
         let data = try JSONEncoder().encode(original)
@@ -31,16 +33,22 @@ struct BackupDTOTests {
 
         #expect(decoded.schemaVersion == original.schemaVersion)
         #expect(decoded.appVersion == original.appVersion)
-        #expect(decoded.itemCount == original.itemCount)
+        #expect(decoded.totalItemCount == original.totalItemCount)
+        #expect(decoded.profileCount == original.profileCount)
+        #expect(decoded.profileNames == original.profileNames)
         #expect(decoded.createdAt == original.createdAt)
     }
 
     // MARK: - BackupPayload
 
+    private static let testProfileId = UUID()
+
     /// 构造全字段 Payload 用于 round-trip 测试
     private func makeFullPayload() -> (payload: BackupPayload, itemID: UUID) {
         let itemID = UUID()
-        let payload = BackupPayload(
+        let profileData = ProfileBackupData(
+            profileName: "默认",
+            profileId: Self.testProfileId,
             reviewItems: [
                 ReviewItemBackupDTO(
                     id: itemID,
@@ -66,6 +74,7 @@ struct BackupDTOTests {
             grades: [GradeBackupDTO(id: UUID(), name: "初三", sortOrder: 3)],
             tags: [TagBackupDTO(id: UUID(), name: "易错", colorHex: "#FF0000")]
         )
+        let payload = BackupPayload(profiles: [profileData])
         return (payload, itemID)
     }
 
@@ -81,7 +90,8 @@ struct BackupDTOTests {
         let data = try encoder.encode(payload)
         let decoded = try decoder.decode(BackupPayload.self, from: data)
 
-        let item = decoded.reviewItems[0]
+        let profile = decoded.profiles[0]
+        let item = profile.reviewItems[0]
         #expect(item.id == itemID)
         #expect(item.content == "已知 △ABC 中 AB=AC")
         #expect(item.subject == "数学")
@@ -94,16 +104,15 @@ struct BackupDTOTests {
         #expect(item.interval == 3)
         #expect(item.repetitions == 2)
 
-        #expect(decoded.subjects[0].name == "数学")
-        #expect(decoded.subjects[0].icon == "function")
-        #expect(decoded.sources[0].name == "期中模拟卷")
-        #expect(decoded.grades[0].name == "初三")
-        #expect(decoded.tags[0].name == "易错")
+        #expect(profile.subjects[0].name == "数学")
+        #expect(profile.subjects[0].icon == "function")
+        #expect(profile.sources[0].name == "期中模拟卷")
+        #expect(profile.grades[0].name == "初三")
+        #expect(profile.tags[0].name == "易错")
     }
 
     @Test("ReviewItemBackupDTO 缺失字段使用默认值（前向兼容）")
     func reviewItemMissingFieldsUseDefaults() throws {
-        // 模拟只有 id 字段的极简 JSON（旧版备份）
         let json = """
         {"id": "550E8400-E29B-41D4-A716-446655440000"}
         """
@@ -139,22 +148,25 @@ struct BackupDTOTests {
 
     @Test("空 Payload round-trip")
     func emptyPayloadRoundTrip() throws {
-        let payload = BackupPayload(
+        let emptyProfile = ProfileBackupData(
+            profileName: "空",
+            profileId: UUID(),
             reviewItems: [],
             subjects: [],
             sources: [],
             grades: [],
             tags: []
         )
+        let payload = BackupPayload(profiles: [emptyProfile])
 
         let data = try JSONEncoder().encode(payload)
         let decoded = try JSONDecoder().decode(BackupPayload.self, from: data)
 
-        #expect(decoded.reviewItems.isEmpty)
-        #expect(decoded.subjects.isEmpty)
-        #expect(decoded.sources.isEmpty)
-        #expect(decoded.grades.isEmpty)
-        #expect(decoded.tags.isEmpty)
+        #expect(decoded.profiles[0].reviewItems.isEmpty)
+        #expect(decoded.profiles[0].subjects.isEmpty)
+        #expect(decoded.profiles[0].sources.isEmpty)
+        #expect(decoded.profiles[0].grades.isEmpty)
+        #expect(decoded.profiles[0].tags.isEmpty)
     }
 
     @Test("ReviewItemBackupDTO nil content 和 nil answerText 正确序列化")
