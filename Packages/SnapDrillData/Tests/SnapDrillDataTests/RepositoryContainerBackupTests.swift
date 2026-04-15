@@ -21,16 +21,16 @@ struct RepositoryContainerBackupTests {
 
     private static let testProfileId = UUID()
 
-    private func createTestContainer() throws -> RepositoryContainer {
-        let container = try TestModelContainer.create()
+    private func createTestContainer() async throws -> RepositoryContainer {
+        let container = try await TestModelContainer.create()
         return RepositoryContainer(modelContext: container.mainContext)
     }
 
     // MARK: - collectProfileBackupData
 
     @Test("collectProfileBackupData 正确收集全量数据")
-    func collectPayloadBasic() throws {
-        let repos = try createTestContainer()
+    func collectPayloadBasic() async throws {
+        let repos = try await createTestContainer()
 
         let subject = SubjectModel.mock(name: "数学")
         repos.subject.insert(subject)
@@ -72,8 +72,8 @@ struct RepositoryContainerBackupTests {
     }
 
     @Test("空数据库 collectProfileBackupData 返回空数据")
-    func collectPayloadEmpty() throws {
-        let repos = try createTestContainer()
+    func collectPayloadEmpty() async throws {
+        let repos = try await createTestContainer()
         let profileData = try repos.collectProfileBackupData(
             profileName: "空",
             profileId: UUID()
@@ -90,7 +90,7 @@ struct RepositoryContainerBackupTests {
 
     @Test("restoreFromProfileData 全量恢复 round-trip")
     func restorePayloadRoundTrip() async throws {
-        let repos = try createTestContainer()
+        let repos = try await createTestContainer()
 
         let tag = try repos.tag.fetchOrCreateModel(name: "考前必看", colorHex: "#00FF00")
         let item = ReviewItemModel.mock(content: "原始题目", subject: "英语", source: "听力")
@@ -139,7 +139,7 @@ struct RepositoryContainerBackupTests {
 
     @Test("restoreFromProfileData 替换已有数据")
     func restoreReplacesExistingData() async throws {
-        let repos = try createTestContainer()
+        let repos = try await createTestContainer()
 
         let oldItem = ReviewItemModel.mock(content: "旧题目", subject: "数学")
         repos.review.insert(oldItem)
@@ -182,7 +182,7 @@ struct RepositoryContainerBackupTests {
 
     @Test("restoreFromProfileData 标签关联正确恢复")
     func restoreTagAssociations() async throws {
-        let repos = try createTestContainer()
+        let repos = try await createTestContainer()
 
         let profileData = ProfileBackupData(
             profileName: "测试",

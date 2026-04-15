@@ -105,8 +105,11 @@ extension GradeModel {
 
 // MARK: - Test Container Helper
 
-class TestModelContainer {
-    static func create() throws -> ModelContainer {
+@MainActor
+enum TestModelContainer {
+    /// Async entrypoint is intentional: it prevents Swift Testing from performing
+    /// a blocking sync hop onto MainActor when bootstrapping SwiftData on CI.
+    static func create() async throws -> ModelContainer {
         // 使用 PersistenceController 而非直接 ModelContainer，
         // 包含 SnapDrillMigrationPlan 避免 CI 模拟器 schema 冲突。
         PersistenceController(inMemory: true).container
