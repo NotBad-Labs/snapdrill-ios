@@ -70,14 +70,20 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
             }
         } else if let path = draftImagePath() {
             // best-effort: 纯文字草稿覆盖带图草稿时，删除残留图片文件
-            try? fileManager.removeItem(at: path)
+            do {
+                try fileManager.removeItem(at: path)
+            } catch {
+                SnapDrillLogger.generic.warning("[DraftService] 残留图片删除失败: \(error.localizedDescription)")
+            }
         }
 
         // 2. 元数据写入 UserDefaults
         let metadata = DraftMetadata(content: content, timestamp: Date().timeIntervalSince1970, subject: subject)
-        // best-effort: 元数据编码失败不影响图片已写入
-        if let data = try? JSONEncoder().encode(metadata) {
+        do {
+            let data = try JSONEncoder().encode(metadata)
             defaults.set(data, forKey: draftMetadataKey)
+        } catch {
+            SnapDrillLogger.generic.error("[DraftService] 元数据编码失败: \(error.localizedDescription)")
         }
 
         SnapDrillLogger.generic.info("[DraftService] Draft saved.")
@@ -101,9 +107,13 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
 
         // 3. 尝试加载图片（纯文字草稿无图片文件，image 为 nil 是合法状态）
         var image: UIImage?
-        if let path = draftImagePath(),
-           let imageData = try? Data(contentsOf: path) {
-            image = UIImage(data: imageData)
+        if let path = draftImagePath() {
+            do {
+                let imageData = try Data(contentsOf: path)
+                image = UIImage(data: imageData)
+            } catch {
+                SnapDrillLogger.generic.warning("[DraftService] 草稿图片读取失败: \(error.localizedDescription)")
+            }
         }
 
         return Draft(

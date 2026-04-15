@@ -50,7 +50,14 @@ public actor BackupService {
         let backupURL = tempDir.appendingPathComponent("SnapDrill_Backup_\(timestamp).snapdrill")
 
         // 清理可能存在的旧文件
-        try? fileManager.removeItem(at: backupURL)
+        do {
+            try fileManager.removeItem(at: backupURL)
+        } catch {
+            // 文件不存在是正常的，只记录非 fileNotFound 错误
+            if (error as NSError).code != NSFileNoSuchFileError {
+                SnapDrillLogger.generic.warning("备份旧文件清理失败: \(error.localizedDescription)")
+            }
+        }
 
         // 创建 ZIP 归档
         let archive: Archive
