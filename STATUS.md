@@ -1,33 +1,48 @@
-<!-- last_verified: 2026-04-14 -->
+<!-- last_verified: 2026-04-16 -->
 <!-- layer: snapshot -->
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-14
+> 最后更新：2026-04-16
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
-> Open PR：0 · Open Issue：7
+> Open PR：0 · Open Issue：8
+> 测试：146 tests（Features）+ 65 tests（Core）= 211 total · ViewModel 覆盖 14/14 = 100%
 
 ---
 
 ## 当前状态
 
-**文档已冻结，转入开发阶段**（2026-04-14）。
+**文档已冻结，功能开发 + 测试补齐阶段**（2026-04-14 冻结，2026-04-15-16 开发）。
 
-文档体系经过三方基线审计（Layer 0-3）和主权重组，质量达到 A 级，无硬伤。
-冻结规则：文档从"主动改"变为"被动改"——只有功能 PR 改变了文档描述的行为时，才同步更新文档。
+### 本轮完成（2026-04-15~16，12 个 PR）
 
-### 当前开发焦点（不被 Apple 账号阻塞）
+| PR | 内容 |
+|---|---|
+| #594 | 文档冻结 + 角标定案 |
+| #595 | 文档扫描入口（3x2 网格） |
+| #596 | AppActivityTracker 接线（7 个方法 defer） |
+| #597 | CI 测试扩展（Core + Features，Data 跳过 #599） |
+| #598 | E2E UI 测试（手动录入闭环） |
+| #600 | 补救：TODO 注释 + F-013/14/15 纪律 |
+| #601 | 多页文档扫描 + F-016 纪律 |
+| #602 | Pro 门控关闭 + 连续录入修正 |
+| #603 | 工程哲学迭代（4 条原则 + CI 陷阱 + XCUITest） |
+| #604 | PrivacySettingsViewModel 测试（8 用例） |
+| #605 | SmartPaperViewModel 测试（13 用例） |
+| #606 | try? 第一批治理（4/12 处 do/catch + 日志） |
+
+### 当前开发焦点（待做）
 
 | 优先级 | 工作项 | 说明 |
 |---|---|---|
-| P0 | 文档扫描接入主采集入口 | DocumentScannerView 已实现，CaptureView 缺入口 |
-| P0 | AppActivityTracker 接线 | API 完整但 begin/end 未被调用 |
-| P1 | CI 全量测试 | Core/Data 测试只编译不执行 |
-| P1 | 端到端 UI 测试 | SnapDrillUITests.swift 是空文件 |
+| P1 | try? 治理剩余 8 处 | ProfileMigration 6 + ProfileManager 4 + RepositoryContainer 1 |
+| P1 | DashboardAnalyticsViewModel 测试 | 最后一个缺失的 ViewModel 测试（统计聚合逻辑） |
+| P1 | #599 Data Repository CI 死锁排查 | 需 Mac mini 现场操作 |
+| P2 | coding.md 补充 Swift 6.3 特性 | nonisolated(unsafe)、InferIsolatedConformances |
+| P2 | Xcode Review Issue | CaptureView 3x2 布局 + accessibilityIdentifier 视觉验证 |
+| P2 | ProfileManager inMemory 写盘守卫 | Codex 建议，防止 UI 测试扩展时意外写盘 |
 
-### Apple 账号阻塞链
-
-#### 阻塞链
+### Apple 账号阻塞链（计划 5 月开通）
 
 | Issue | 内容 | 阻塞原因 |
 |---|---|---|
@@ -43,6 +58,7 @@
 | Issue | 内容 |
 |---|---|
 | #540 | Claude Code hooks 扩展（S2，待排期） |
+| #599 | CI Data Repository 测试 ModelContainer 死锁（S1，待 Mac mini 排查） |
 
 ### 待清理
 
@@ -62,6 +78,8 @@
 - 涉及 UI/外观的改动，优先让 Xcode Review（Xcode 能观测 UI）
 - 写 Xcode Review 提示词前，确认 STATUS.md 当前焦点段是最新的
 - Xcode 提出问题 → 修复后让 Xcode 复核，不自审自批
+- Codex/Gemini 审查发现的问题，必须提交回原质疑方复核才能合并（F-016）
+- CI 失败是致命信号，不能继续推进（F-015）
 
 ## 里程碑
 
