@@ -197,8 +197,8 @@ final class SmartPaperViewModelTests {
         #expect(vm.selectedItems.isEmpty)
     }
 
-    // 错误处理路径测试：当前 RepositoryContainer 无 protocol 抽象，
-    // 无法注入 mock 触发 fetchSmartSelection 失败。
+    // 错误处理路径测试（refreshSelection + loadInitialData 的 catch 分支）：
+    // 当前 RepositoryContainer 无 protocol 抽象，无法注入 mock 触发失败。
     // Codex/Gemini 审查确认此为架构限制，需后续引入 DI 后补充。
 
     // MARK: - pdfOptions
