@@ -73,7 +73,9 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
             do {
                 try fileManager.removeItem(at: path)
             } catch {
-                SnapDrillLogger.generic.warning("[DraftService] 残留图片删除失败: \(error.localizedDescription)")
+                if (error as NSError).code != NSFileNoSuchFileError {
+                    SnapDrillLogger.generic.warning("[DraftService] 残留图片删除失败: \(error.localizedDescription)")
+                }
             }
         }
 
@@ -106,13 +108,16 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
         }
 
         // 3. 尝试加载图片（纯文字草稿无图片文件，image 为 nil 是合法状态）
+        // 纯文字草稿无图片文件，image 为 nil 是合法状态
         var image: UIImage?
         if let path = draftImagePath() {
             do {
                 let imageData = try Data(contentsOf: path)
                 image = UIImage(data: imageData)
             } catch {
-                SnapDrillLogger.generic.warning("[DraftService] 草稿图片读取失败: \(error.localizedDescription)")
+                if (error as NSError).code != NSFileReadNoSuchFileError {
+                    SnapDrillLogger.generic.warning("[DraftService] 草稿图片读取失败: \(error.localizedDescription)")
+                }
             }
         }
 
