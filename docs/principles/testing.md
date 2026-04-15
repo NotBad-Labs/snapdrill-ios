@@ -41,6 +41,26 @@
 - `#Predicate` 中的 many-to-many 过滤会运行崩溃 → 测试也要覆盖这个边界（详见 `api-pitfalls.md`）
 - 跨 ModelContext 写后立即读 → 测试中同样禁止（详见 `coding.md` 禁止段）
 
+## XCUITest（端到端 UI 测试）
+
+### 测试隔离
+
+- `app.launchArguments = ["--uitesting"]` 触发 `DependencyContainer` in-memory 模式
+- `DependencyContainer.isUITesting` 为 true 时：跳过 Firebase、使用 `ProfileManager(inMemory: true)`、注入 `MockServiceContainer`
+- NSUserDefaults launch arguments 跳过引导和 Tip：`-hasCompletedOnboarding YES`、`-tip.fieldConfig.v1.seen YES`
+
+### Swift 6.3 并发兼容
+
+- UITests target 在 `project.pbxproj` 中覆盖 `OTHER_SWIFT_FLAGS`，移除 `-default-isolation MainActor`（XCTestCase 生命周期方法与 MainActor 隔离不兼容）
+- 测试类标注 `@MainActor`（XCUIElement API 需要 MainActor）
+- `app` 属性用 `nonisolated(unsafe)`（setUp 从 nonisolated 上下文访问）
+
+### 元素定位
+
+- 优先用 `accessibilityIdentifier`（不随语言变化）
+- Tab 可用 `app.tabBars.buttons.element(boundBy: index)`
+- identifier 通过 View 修饰符或组件参数传入，确保在 XCUITest 的 accessibility 层级中可见
+
 ## 接口变更后测试同步
 
 - 修改 struct/class/protocol 的 init 或方法签名后：`grep -rn "TypeName(" Packages/*/Tests/` 检查测试同步
