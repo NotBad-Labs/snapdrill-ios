@@ -26,8 +26,8 @@ struct SmartPaperView: View {
     @State private var showingPDFPreview = false
     @State private var showProGate = false
 
-    // TODO: 替换为 StoreKit 订阅状态检查（#479 就绪后）
-    private var isProUser: Bool { true }
+    // TODO: #479 — 替换为 StoreKit 订阅状态检查
+    private var isProUser: Bool { false }
 
     var body: some View {
         NavigationStack {

@@ -215,12 +215,13 @@ public struct CaptureView: View {
                 DocumentScannerView(
                     onCompletion: { images in
                         viewModel.isShowingDocumentScanner = false
+                        // 标记来源为文档扫描（单页/多页均设置，供 performNavigation 判断）
+                        router.scannedPages = images
                         if images.count == 1 {
                             // 单页直接走 OCR 流程
                             viewModel.processScannedImage(images[0], router: router)
                         } else {
                             // 多页推入页面选择器
-                            router.scannedPages = images
                             router.push(.scanPagePicker)
                         }
                     },
