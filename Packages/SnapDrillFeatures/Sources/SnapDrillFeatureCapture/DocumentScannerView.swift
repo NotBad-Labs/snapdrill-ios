@@ -30,9 +30,9 @@ struct DocumentScannerView: UIViewControllerRepresentable {
     
     /// 扫描完成回调
     ///
-    /// 当用户点击“保存”且至少有一页文档被扫描时调用。
-    /// - Parameter image: 处理后的文档图片（已矫正、裁剪）。
-    var onCompletion: @MainActor (UIImage) -> Void
+    /// 当用户点击”保存”且至少有一页文档被扫描时调用。
+    /// - Parameter images: 所有已扫描页面的图片列表（已矫正、裁剪）。
+    var onCompletion: @MainActor ([UIImage]) -> Void
 
     /// 取消回调
     ///
@@ -76,12 +76,12 @@ struct DocumentScannerView: UIViewControllerRepresentable {
 // Coordinator 使用 defaultIsolation(MainActor) 保护闭包属性；
 // VisionKit delegate 回调方法标注 nonisolated，在方法内显式跳回主线程。
 final class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
-    let onCompletion: @MainActor (UIImage) -> Void
+    let onCompletion: @MainActor ([UIImage]) -> Void
     let onCancel: @MainActor () -> Void
     let onError: @MainActor (Error) -> Void
 
     init(
-        onCompletion: @escaping @MainActor (UIImage) -> Void,
+        onCompletion: @escaping @MainActor ([UIImage]) -> Void,
         onCancel: @escaping @MainActor () -> Void,
         onError: @escaping @MainActor (Error) -> Void
     ) {
@@ -91,9 +91,7 @@ final class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
     }
 
     #if !targetEnvironment(simulator)
-    // VisionKit delegate 回调由系统在主线程发起，nonisolated 允许跨 actor 接收调用
     nonisolated func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan) {
-        // 同步提取数据（主线程安全），再跳回 MainActor 更新 UI
         let pageCount = scan.pageCount
         guard pageCount >= 1 else {
             Task { @MainActor [self] in
@@ -104,10 +102,11 @@ final class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
             return
         }
 
-        let image = scan.imageOfPage(at: pageCount - 1)
+        // 提取全部页面
+        let images = (0 ..< pageCount).map { scan.imageOfPage(at: $0) }
         Task { @MainActor [self] in
             controller.dismiss(animated: true) {
-                self.onCompletion(image)
+                self.onCompletion(images)
             }
         }
     }

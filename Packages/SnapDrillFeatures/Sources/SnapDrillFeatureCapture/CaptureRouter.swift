@@ -23,6 +23,8 @@ public enum CaptureDestination: Hashable {
     case scannerResult(content: String, image: UIImage?)
     /// PDF 页面选择器（文档存储在 CaptureRouter.pdfDocument 中）
     case pdfPagePicker
+    /// 文档扫描页面选择器（扫描页存储在 CaptureRouter.scannedPages 中）
+    case scanPagePicker
 }
 
 /// 采集模块路由器
@@ -51,6 +53,8 @@ public final class CaptureRouter: FeatureRouter {
     public var originalAlbumImage: UIImage?
     /// PDF 导入时暂存的文档对象（PDFDocument 非 Hashable，无法通过 NavigationPath 传递）
     public var pdfDocument: PDFDocument?
+    /// 文档扫描的多页图片（VNDocumentCameraScan 非 Hashable，无法通过 NavigationPath 传递）
+    public var scannedPages: [UIImage]?
     /// 目标类型别名
     public typealias Destination = CaptureDestination
     

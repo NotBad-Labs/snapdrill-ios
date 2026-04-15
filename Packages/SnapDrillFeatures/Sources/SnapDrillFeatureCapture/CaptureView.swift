@@ -190,6 +190,9 @@ public struct CaptureView: View {
 
                 case .pdfPagePicker:
                     PDFPagePickerView(router: router, ocrService: viewModel.ocrService)
+
+                case .scanPagePicker:
+                    ScanPagePickerView(router: router, ocrService: viewModel.ocrService)
                 }
             }
             // 扫描器全屏覆盖
@@ -210,9 +213,16 @@ public struct CaptureView: View {
             // 文档扫描仪全屏覆盖
             .fullScreenCover(isPresented: $viewModel.isShowingDocumentScanner) {
                 DocumentScannerView(
-                    onCompletion: { image in
+                    onCompletion: { images in
                         viewModel.isShowingDocumentScanner = false
-                        viewModel.processScannedImage(image, router: router)
+                        if images.count == 1 {
+                            // 单页直接走 OCR 流程
+                            viewModel.processScannedImage(images[0], router: router)
+                        } else {
+                            // 多页推入页面选择器
+                            router.scannedPages = images
+                            router.push(.scanPagePicker)
+                        }
                     },
                     onCancel: {
                         viewModel.isShowingDocumentScanner = false
@@ -278,8 +288,7 @@ public struct CaptureView: View {
             .onChange(of: router.path) {
                 if router.path.isEmpty {
                     router.pdfDocument = nil
-                    // 精准区分：shouldContinuousCrop 在 saveResult 中同步设置且先于退栈，
-                    // 若此标志为 false，说明是用户手动点返回，需释放原图内存
+                    router.scannedPages = nil
                     if !router.shouldContinuousCrop {
                         router.originalAlbumImage = nil
                     }
