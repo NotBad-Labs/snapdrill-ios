@@ -55,27 +55,13 @@ jobs:
             CODE_SIGN_IDENTITY=""
 
       - name: Test
-        # 分三步运行，每个 test target 独立 xctest 进程，避免交叉污染
-        # （单进程模式下 Thread.sleep 残留会导致后续 suite MainActor 死锁）
-        # -parallel-testing-enabled NO：避免 ModelContainer 竞态
+        # AllTests scheme 包含 Core + Data + Features 全部测试 target
+        # -parallel-testing-enabled NO：避免跨 suite 并行执行时 ModelContainer 竞态
         run: |
           xcodebuild test \
             -scheme AllTests \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
-            -only-testing:SnapDrillCoreTests \
             -parallel-testing-enabled NO \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
-
-          xcodebuild test \
-            -scheme AllTests \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
-            -only-testing:SnapDrillDataTests \
-            -parallel-testing-enabled NO \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
-
-          xcodebuild test \
-            -scheme AllTests \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
-            -only-testing:SnapDrillFeaturesTests \
-            -parallel-testing-enabled NO \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
