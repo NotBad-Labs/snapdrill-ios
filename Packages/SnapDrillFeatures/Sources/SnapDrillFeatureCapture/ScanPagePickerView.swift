@@ -119,23 +119,23 @@ struct ScanPagePickerView: View {
     // MARK: - Private
 
     private func processImage(_ image: UIImage) {
+        ocrTask?.cancel()
         isProcessingOCR = true
         ocrTask = Task {
+            defer { isProcessingOCR = false }
             do {
                 guard let cgImage = image.cgImage else {
-                    isProcessingOCR = false
+                    // 图片解码失败仍推入编辑页，让用户手动输入
+                    router.push(.scannerResult(content: "", image: image))
                     return
                 }
                 let text = try await ocrService.recognizeText(from: cgImage)
-                guard !Task.isCancelled else { return }
-                isProcessingOCR = false
+                try Task.checkCancellation()
                 router.push(.scannerResult(content: text, image: image))
             } catch is CancellationError {
                 SnapDrillLogger.capture.info("扫描页 OCR 任务已取消。")
             } catch {
-                isProcessingOCR = false
                 SnapDrillLogger.capture.error("扫描页 OCR 失败: \(error.localizedDescription)")
-                // OCR 失败仍推入编辑页，让用户手动输入
                 router.push(.scannerResult(content: "", image: image))
             }
         }
