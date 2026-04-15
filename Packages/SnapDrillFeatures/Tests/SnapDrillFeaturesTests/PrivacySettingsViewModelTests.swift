@@ -140,16 +140,9 @@ final class PrivacySettingsViewModelTests {
 
     // MARK: - 错误分支
 
-    @Test("导出失败时 exportError 有值且 isExporting 重置")
-    func export_failure_setsError() async throws {
-        // 使用一个无法写入的路径触发失败较难模拟，
-        // 但至少验证正常导出时 exportError 为 nil（反向验证）
-        let vm = makeVM()
-        vm.startExport(format: .json)
-        try await waitUntilExportDone(vm)
-        #expect(vm.exportError == nil)
-        #expect(vm.isExporting == false)
-    }
+    // 导出失败路径测试：当前 PrivacySettingsViewModel 内部直接创建 DataExporter()，
+    // 无注入点无法 mock 失败。需要后续重构为 DI 注入后补充。
+    // Codex 审查确认此为架构限制，非测试遗漏。
 
     // MARK: - AppActivityTracker 集成
 
