@@ -156,3 +156,13 @@ CI 失败必须立即阻塞后续工作。不能在未确认 CI 通过的情况�
 **Why:** PR #597 第一次 CI 失败后，Claude 没有监控结果就开始了 PR #598 的开发。本地通过 ≠ CI 通过——CI 环境差异（UserDefaults 残留、资源限制、SwiftData XPC）暴露了本地无法覆盖的问题。
 
 **How to apply:** 每个 PR push 后必须 `gh pr checks --watch` 等待结果。CI 失败时立即修复，不开新分支。与 F-007 互补：F-007 是合并后检查，F-015 是合并前等待。
+
+---
+
+## F-016: 质疑方批准，禁止自审自批
+
+修复审查发现的问题后，必须提交回原质疑方（Codex/Gemini/Xcode）复核。只有提出问题的 reviewer 确认修复有效，才能声称"问题已解决"。Claude 自己不允许批准合并。
+
+**Why:** 这是不可改变的原则。Claude 修复 Gemini Critical 发现（内存风险）后直接说"准备合并"，跳过了 Gemini 复核。自审自批违反对抗性审查的根本目的——独立视角验证。
+
+**How to apply:** 修复后必须重新提交给原 reviewer：Gemini 提的问题回 Gemini 验收，Codex 提的问题回 Codex 验收，Xcode 提的问题回 Xcode 验收。只有 reviewer 说"通过"才能声明修复完成。
