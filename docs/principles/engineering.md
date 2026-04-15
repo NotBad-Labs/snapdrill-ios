@@ -104,7 +104,6 @@ Infrastructure 隔离 Firebase：替换 Firebase 只改这一层，Core 通过�
 
 - `ServiceContainer` 协议 → `LiveServiceContainer` / `MockServiceContainer` 实现
 - `OCRServiceProtocol` → `OCRService`（可替换为测试 Mock）
-- Repository 协议通过泛型约束统一 CRUD 接口
 
 协议定义在 Core 层，实现在各具体层。依赖方向始终向上（Feature → Core），不反向。
 
@@ -130,7 +129,8 @@ Infrastructure 隔离 Firebase：替换 Firebase 只改这一层，Core 通过�
 - `actor` 隔离有状态的后台服务（`BackupService`）
 - `Task.detached` 仅用于确需脱离当前 actor 的场景（文件 IO、图片压缩）
 
-禁止 `DispatchQueue.sync/async`、`NSLock`、`os_unfair_lock` 等手工同步原语。
+优先使用 actor 隔离，避免 `NSLock`、`os_unfair_lock` 等手工同步原语。
+UIKit 桥接场景（AVFoundation 回调、UIKit 动画调度）允许 `DispatchQueue.main.async`。
 
 ## 单向状态流 (Unidirectional Data Flow)
 
@@ -143,6 +143,6 @@ View ──(用户操作)──→ ViewModel ──(修改状态)──→ @Obse
                                     └──(广播)──→ NotificationCenter → 其他 ViewModel
 ```
 
-- View 不直接修改 Repository 或调用 Service
+- View 通过 ViewModel 调用 Service（埋点等轻量操作可直接调用 `analyticsService`）
 - ViewModel 之间通过 `NotificationCenter`（`.reviewDataDidChange`）解耦，不互相引用
 - 跨模块状态同步走通知，不走共享可变状态
