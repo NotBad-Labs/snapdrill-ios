@@ -760,6 +760,13 @@ nonisolated public enum L10n {
         public static let chooseAvatarSource = NSLocalizedString("edit_profile.choose_avatar_source", value: "选择头像来源", comment: "头像来源选择")
     }
 
+    // MARK: - Notification
+
+    public enum Notification {
+        public static let dailyTitle = NSLocalizedString("notification.daily.title", value: "复习时间到", comment: "每日复习通知标题")
+        public static let dailyBody = NSLocalizedString("notification.daily.body", value: "今天的错题还在等你，快来复习吧！", comment: "每日复习通知正文")
+    }
+
     // MARK: - Errors
 
     public enum Errors {
