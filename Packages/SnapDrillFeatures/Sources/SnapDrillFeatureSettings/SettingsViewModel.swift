@@ -388,8 +388,11 @@ public final class SettingsViewModel {
             let targetProfile: Profile
             if let existing = profileManager.profiles.first(where: { $0.name == profileData.profileName }) {
                 targetProfile = existing
+            } else if let created = profileManager.createProfile(name: profileData.profileName) {
+                targetProfile = created
             } else {
-                targetProfile = profileManager.createProfile(name: profileData.profileName)
+                SnapDrillLogger.data.error("SettingsViewModel: 恢复备份时 Profile 创建失败，跳过: \(profileData.profileName)")
+                continue
             }
 
             // 切换到目标 Profile
@@ -489,10 +492,8 @@ public final class SettingsViewModel {
         }
     }
 
-    /// 清理恢复前的自动备份临时文件
     private func cleanupAutoBackup(_ url: URL?) {
         guard let url else { return }
-        try? FileManager.default.removeItem(at: url)
-        SnapDrillLogger.generic.info("已清理恢复前自动备份: \(url.lastPathComponent)")
+        try? FileManager.default.removeItem(at: url) // best-effort: 临时备份清理
     }
 }

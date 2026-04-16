@@ -100,16 +100,22 @@ public final class ProfileManager {
         // 1. 执行首次升级迁移（必须在 ModelContainer 创建之前）
         ProfileMigration.migrateIfNeeded()
 
-        // 2. 加载 Profile 列表
+        // 2. 加载 Profile 列表（空时自动创建默认 Profile）
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let loadedProfiles = Self.loadProfiles(from: docs.appendingPathComponent("profiles.json"))
+        var loadedProfiles = Self.loadProfiles(from: docs.appendingPathComponent("profiles.json"))
+        if loadedProfiles.isEmpty {
+            SnapDrillLogger.data.warning("ProfileManager: profiles.json 为空或不存在，创建默认 Profile")
+            let fallback = Profile(name: "同学")
+            loadedProfiles = [fallback]
+        }
         self.profiles = loadedProfiles
 
         // 3. 确定活跃 Profile
         let savedId = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
             .flatMap(UUID.init(uuidString:))
         let profileId = loadedProfiles.first(where: { $0.id == savedId })?.id
-            ?? loadedProfiles.first?.id ?? UUID()
+            // swiftlint:disable:next force_unwrapping
+            ?? loadedProfiles.first!.id // loadedProfiles 此处必非空（上方已保证）
         self.activeProfileId = profileId
 
         // 4. 创建活跃 Profile 的基础设施
@@ -182,7 +188,7 @@ public final class ProfileManager {
 
     /// 创建新 Profile
     @discardableResult
-    public func createProfile(name: String) -> Profile {
+    public func createProfile(name: String) -> Profile? {
         let profile = Profile(name: name)
         profiles.append(profile)
 
@@ -195,7 +201,7 @@ public final class ProfileManager {
             } catch {
                 SnapDrillLogger.data.error("ProfileManager: Profile 目录创建失败，回滚: \(error.localizedDescription)")
                 profiles.removeAll(where: { $0.id == profile.id })
-                return profile
+                return nil
             }
         }
 

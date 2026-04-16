@@ -118,6 +118,7 @@ final class CameraSessionManager: NSObject {
 
     private func configureSession() {
         session.beginConfiguration()
+        defer { session.commitConfiguration() }
         session.sessionPreset = .photo
 
         // 输入源
@@ -141,8 +142,6 @@ final class CameraSessionManager: NSObject {
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
         }
-
-        session.commitConfiguration()
     }
 
     nonisolated private static func extractTargetRect(from observations: [VNTextObservation]) -> CGRect? {
