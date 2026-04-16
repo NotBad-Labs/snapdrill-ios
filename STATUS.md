@@ -3,10 +3,10 @@
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-16
+> 最后更新：2026-04-17
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
 > Open PR：0 · Open Issue：7
-> 测试：158 tests（Features）+ 98 tests（Core）+ 95 tests（Data）= 351 total · ViewModel 覆盖 15/15 = 100%
+> 测试：158 tests（Features）+ 103 tests（Core）+ 95 tests（Data）= 356 total · ViewModel 覆盖 15/15 = 100%
 
 ---
 
@@ -42,7 +42,7 @@
 | #623 | iOS 26 现代化（F-017 纪律 + DashboardAnalyticsView Liquid Glass） |
 | #624 | 剩余 .regularMaterial 治理（BentoCard + ReviewHeroCard + PDFPagePicker + LibraryList） |
 
-### 2026-04-16 晚间完成（6 个 PR + 1 研究 + 分支清理）
+### 2026-04-16~17 晚间完成（7 个 PR + 1 研究 + 分支清理 + Gap 分析）
 
 | PR | 内容 |
 |---|---|
@@ -52,14 +52,19 @@
 | #631 | ScanPagePicker/PDFPagePicker 迁移到 recognizeDocument（消费方） |
 | #632 | FoundationModels 端侧 AI 自动标注学科/难度（contentTagging） |
 | #633 | App Store 元数据预备（ASO 文案 + 隐私审查） |
+| #634 | ContentTaggingService + NotificationService 测试补齐 |
 | — | #626 FoundationModels 可行性研究完成（结论已发到 Issue） |
 | — | 历史分支全量清理（113→0，本地+远程纯净） |
+| — | Gemini 对抗性审查：草稿恢复/删除撤销误判已验证，try? 残余已识别 |
 
 ### 当前开发焦点（待做）
 
 | 优先级 | 工作项 | 说明 |
 |---|---|---|
-| P3 | #626 FoundationModels 集成 — 题目分割 | ScanPagePicker 整页扫描自动分割题目 |
+| P2 | try? 第三批治理 | 31 处残余，数据路径需改 do/catch + 日志 |
+| P2 | CSV 导入功能 | Could Have，现有 CSV 导出的逆向操作 |
+| P3 | Share Extension 集成验证 | App Group 已配置，需端到端验证 |
+| P3 | #626 FoundationModels 题目分割 | 整页扫描自动分割题目（需 PoC） |
 | P3 | #540 Claude Code hooks 扩展 | 待排期 |
 
 ### Apple 账号阻塞链（计划 5 月开通）
