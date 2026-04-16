@@ -30,8 +30,8 @@ public enum AppError: LocalizedError {
     case importFailed(String)
     /// 数据文件已损坏
     case dataCorrupted
-    /// 其他未知错误，携带原始错误
-    case unknown(Error)
+    /// 其他未知错误
+    case unknown
 
     // MARK: - Computed Properties
 
@@ -73,9 +73,7 @@ public enum AppError: LocalizedError {
             return L10n.Errors.importFailedHelp
         case .dataCorrupted:
             return L10n.Errors.dataCorruptedHelp
-        case .unknown(let error):
-            // 仅记录技术细节到日志，不暴露给用户（隐私 + 安全）
-            SnapDrillLogger.generic.error("未知错误: \(error.localizedDescription)")
+        case .unknown:
             return L10n.Errors.unknownErrorHelp
         }
     }

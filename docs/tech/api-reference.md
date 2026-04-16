@@ -539,7 +539,7 @@ public final class ProfileManager {
     public var activeProfile: Profile? { get }
     public func switchProfile(to profileId: UUID) throws(ProfileError)
     @discardableResult
-    public func createProfile(name: String) -> Profile
+    public func createProfile(name: String) -> Profile?
     public func deleteProfile(id: UUID) throws
     public func renameProfile(id: UUID, newName: String)
 }
