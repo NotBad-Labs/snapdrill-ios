@@ -103,11 +103,17 @@ public final class CaptureResultViewModel {
     private let analyticsService: AnalyticsServiceProtocol
     private let imageStorage: ImageStorage
     private let router: CaptureRouter
+    private let contentTaggingService: ContentTaggingServiceProtocol
+
+    /// AI 标注是否正在进行
+    public var isTagging = false
 
     /// 识别任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
     /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
     private var recognitionTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var taggingTask: Task<Void, Never>?
     /// 相册图片加载任务句柄（连续切换图片时取消前一个，避免竞态）
     /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
@@ -140,6 +146,7 @@ public final class CaptureResultViewModel {
         ocrService: OCRServiceProtocol,
         analyticsService: AnalyticsServiceProtocol,
         imageStorage: ImageStorage = ImageStorage(),
+        contentTaggingService: ContentTaggingServiceProtocol = ContentTaggingService(),
         router: CaptureRouter
     ) {
         self.content = content
@@ -148,6 +155,7 @@ public final class CaptureResultViewModel {
         self.ocrService = ocrService
         self.analyticsService = analyticsService
         self.imageStorage = imageStorage
+        self.contentTaggingService = contentTaggingService
         self.router = router
     }
 
@@ -166,6 +174,8 @@ public final class CaptureResultViewModel {
         saveTask = nil
         navigateTask?.cancel()
         navigateTask = nil
+        taggingTask?.cancel()
+        taggingTask = nil
     }
 
     /// 加载默认表单数据
@@ -179,6 +189,26 @@ public final class CaptureResultViewModel {
             SnapDrillLogger.generic.error("加载下拉表单失败: \(error.localizedDescription)")
             errorMessage = L10n.Errors.formDataLoadFailed
             showErrorAlert = true
+        }
+
+        // 异步 AI 标注：有 OCR 文本时自动建议学科和难度（best-effort）
+        if !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            taggingTask?.cancel()
+            taggingTask = Task {
+                isTagging = true
+                defer { isTagging = false }
+                guard let suggestion = await contentTaggingService.suggestTags(for: content),
+                      !Task.isCancelled else { return }
+                let defaultSubject = UserDefaults.standard.string(forKey: UDKey.lastSelectedSubject) ?? L10n.Capture.defaultSubject
+                if selectedSubject == defaultSubject,
+                   availableSubjects.contains(where: { $0.name == suggestion.subject }) {
+                    selectedSubject = suggestion.subject
+                }
+                if difficulty == .one {
+                    difficulty = Difficulty(rawValue: suggestion.difficulty) ?? .one
+                }
+                SnapDrillLogger.generic.info("AI 标注建议：学科=\(suggestion.subject)，难度=\(suggestion.difficulty)")
+            }
         }
     }
 
