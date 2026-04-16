@@ -8,8 +8,6 @@
 //  ReviewRepository CRUD / 边界 / 并发 单元测试。
 //
 
-// TODO: #599 — CI 跳过：ModelContainer 在 Mac mini 模拟器上死锁，待现场排查
-
 import Testing
 import SwiftData
 
@@ -19,22 +17,17 @@ import SnapDrillCore
 @testable import SnapDrillData
 
 @Suite("ReviewRepository 单元测试")
-struct ReviewRepositoryTests {
+final class ReviewRepositoryTests {
+
+    private let container: ModelContainer
+    private let repo: ReviewRepository
+
+    init() throws {
+        container = try TestModelContainer.create()
+        repo = ReviewRepository(modelContext: container.mainContext)
+    }
 
     // MARK: - Helpers
-
-    private func createTestRepository() throws -> ReviewRepository {
-        let schema = Schema([
-            ReviewItemModel.self,
-            TagModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: schema, configurations: [config])
-        return ReviewRepository(modelContext: container.mainContext)
-    }
 
     private func makeDummyModel(
         id: UUID = UUID(),
@@ -56,8 +49,6 @@ struct ReviewRepositoryTests {
 
     @Test("正常保存、Upsert 与删除流程")
     func basicCRUDFlow() async throws {
-        let repo = try createTestRepository()
-
         let id = UUID()
         let model = makeDummyModel(id: id, content: "First")
 
@@ -86,8 +77,6 @@ struct ReviewRepositoryTests {
 
     @Test("fetchDueCount 在不同时间轴边缘的统计正确性")
     func nextReviewAtBoundaryCounting() throws {
-        let repo = try createTestRepository()
-
         let now = Date()
         let past = now.addingTimeInterval(-3600)
         let future = now.addingTimeInterval(3600)
@@ -118,8 +107,6 @@ struct ReviewRepositoryTests {
 
     @Test("countByGrade 统计与 updateGradeUsage 级联更新")
     func gradeCountAndCascadeUpdate() throws {
-        let repo = try createTestRepository()
-
         let item1 = makeDummyModel()
         item1.grade = "高一"
         try repo.insertAndSave(item1)
@@ -145,8 +132,6 @@ struct ReviewRepositoryTests {
 
     @Test("countBySubject 统计与 updateSubjectUsage 级联更新")
     func subjectCountAndCascadeUpdate() throws {
-        let repo = try createTestRepository()
-
         let item1 = makeDummyModel()
         item1.subjectRawValue = "数学"
         try repo.insertAndSave(item1)
@@ -166,7 +151,6 @@ struct ReviewRepositoryTests {
 
     @Test("高并发写入下的仓库可靠性（50 个并发任务）")
     func concurrentInsertReliability() async throws {
-        let repo = try createTestRepository()
         let itemCount = 50
 
         // 所有 Task 都调度到 MainActor 串行执行，验证无竞态崩溃
@@ -175,7 +159,7 @@ struct ReviewRepositoryTests {
                 group.addTask {
                     await MainActor.run {
                         let model = self.makeDummyModel(content: "Concurrent \(i)")
-                        try? repo.insertAndSave(model)
+                        try? self.repo.insertAndSave(model)
                     }
                 }
             }
@@ -189,7 +173,6 @@ struct ReviewRepositoryTests {
 
     @Test("content 为 nil 时依然可以保存（有 imagePath 的场景）")
     func nilContentWithImagePath() throws {
-        let repo = try createTestRepository()
         let model = makeDummyModel(content: nil)
 
         try repo.insertAndSave(model)
@@ -201,8 +184,6 @@ struct ReviewRepositoryTests {
 
     @Test("difficulty rawValue 正确持久化与读取")
     func difficultyRawValueRoundTrip() throws {
-        let repo = try createTestRepository()
-
         let model = makeDummyModel()
         model.difficulty = Difficulty.five.rawValue
         try repo.insertAndSave(model)
@@ -215,8 +196,6 @@ struct ReviewRepositoryTests {
 
     @Test("超大文本（5 万字）写入后内容可完整检索")
     func largeTextContentRoundTrip() throws {
-        let repo = try createTestRepository()
-
         // 生成约 5 万字的重复文本（每段 15 字，共 2500 段）
         let largeContent = String(repeating: "这是一段用于边界测试的内容。", count: 2500)
         let model = makeDummyModel(content: largeContent)
@@ -230,8 +209,6 @@ struct ReviewRepositoryTests {
 
     @Test("四字节扩展字符（Zalgo、复杂 Emoji）写入后可正确读回")
     func specialUnicodeContentRoundTrip() throws {
-        let repo = try createTestRepository()
-
         // Zalgo 文本（组合变音符号堆叠）
         let zalgoText = "H̷̡̪̯ͨ͊̽̅̾̎ello̯͜͡W̙ͅo̮ͅr̼̕ld"
         // 多字节复杂 Emoji（家庭+肤色+ZWJ 序列）
@@ -248,8 +225,6 @@ struct ReviewRepositoryTests {
 
     @Test("answerText 包含特殊字符时写入与检索正确")
     func specialUnicodeAnswerTextRoundTrip() throws {
-        let repo = try createTestRepository()
-
         // 数学符号 + 换行 + 制表符 + 零宽字符
         let specialAnswer = "∫₀^∞ e⁻ˣ dx = 1\n换行\t制表符\u{200B}零宽空格"
         let model = makeDummyModel()

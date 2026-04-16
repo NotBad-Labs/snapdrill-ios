@@ -47,7 +47,9 @@ struct ProfileModelTests {
 
     @Test("JSON 序列化往返")
     func codableRoundTrip() throws {
-        let original = Profile(name: "测试用户", avatar: "heart.fill", avatarColorIndex: 2)
+        // iso8601 截断亚秒精度，用整秒时间戳避免 round-trip 精度丢失
+        let fixedDate = Date(timeIntervalSince1970: 1_700_000_000)
+        let original = Profile(name: "测试用户", avatar: "heart.fill", avatarColorIndex: 2, createdAt: fixedDate)
 
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601

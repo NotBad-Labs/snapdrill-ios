@@ -8,8 +8,6 @@
 //  RepositoryContainer 的 collectProfileBackupData / restoreFromProfileData round-trip 测试。
 //
 
-// TODO: #599 — CI 跳过：ModelContainer 在 Mac mini 模拟器上死锁，待现场排查
-
 import Testing
 import SwiftData
 
@@ -19,23 +17,24 @@ import SnapDrillCore
 @testable import SnapDrillData
 
 @Suite("RepositoryContainer 备份/恢复测试")
-struct RepositoryContainerBackupTests {
+final class RepositoryContainerBackupTests {
 
-    // MARK: - Helpers
+    // MARK: - Properties
 
     private static let testProfileId = UUID()
 
-    private func createTestContainer() async throws -> RepositoryContainer {
-        let container = try await TestModelContainer.create()
-        return RepositoryContainer(modelContext: container.mainContext)
+    private let container: ModelContainer
+    private let repos: RepositoryContainer
+
+    init() throws {
+        container = try TestModelContainer.create()
+        repos = RepositoryContainer(modelContext: container.mainContext)
     }
 
     // MARK: - collectProfileBackupData
 
     @Test("collectProfileBackupData 正确收集全量数据")
-    func collectPayloadBasic() async throws {
-        let repos = try await createTestContainer()
-
+    func collectPayloadBasic() throws {
         let subject = SubjectModel.mock(name: "数学")
         repos.subject.insert(subject)
         let source = SourceModel.mock(name: "期中卷")
@@ -76,8 +75,7 @@ struct RepositoryContainerBackupTests {
     }
 
     @Test("空数据库 collectProfileBackupData 返回空数据")
-    func collectPayloadEmpty() async throws {
-        let repos = try await createTestContainer()
+    func collectPayloadEmpty() throws {
         let profileData = try repos.collectProfileBackupData(
             profileName: "空",
             profileId: UUID()
@@ -94,7 +92,11 @@ struct RepositoryContainerBackupTests {
 
     @Test("restoreFromProfileData 全量恢复 round-trip")
     func restorePayloadRoundTrip() async throws {
-        let repos = try await createTestContainer()
+        // 建立完整的分类数据，确保 backup 包含 SubjectModel/SourceModel
+        let subjectModel = SubjectModel.mock(name: "英语", icon: "globe", colorHex: "#0000FF")
+        repos.subject.insert(subjectModel)
+        let sourceModel = SourceModel.mock(name: "听力", icon: "headphones", colorHex: "#00FF00")
+        repos.source.insert(sourceModel)
 
         let tag = try repos.tag.fetchOrCreateModel(name: "考前必看", colorHex: "#00FF00")
         let item = ReviewItemModel.mock(content: "原始题目", subject: "英语", source: "听力")
@@ -143,8 +145,6 @@ struct RepositoryContainerBackupTests {
 
     @Test("restoreFromProfileData 替换已有数据")
     func restoreReplacesExistingData() async throws {
-        let repos = try await createTestContainer()
-
         let oldItem = ReviewItemModel.mock(content: "旧题目", subject: "数学")
         repos.review.insert(oldItem)
         try repos.review.saveContext()
@@ -186,8 +186,6 @@ struct RepositoryContainerBackupTests {
 
     @Test("restoreFromProfileData 标签关联正确恢复")
     func restoreTagAssociations() async throws {
-        let repos = try await createTestContainer()
-
         let profileData = ProfileBackupData(
             profileName: "测试",
             profileId: UUID(),

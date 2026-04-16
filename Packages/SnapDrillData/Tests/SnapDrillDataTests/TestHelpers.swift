@@ -105,13 +105,20 @@ extension GradeModel {
 
 // MARK: - Test Container Helper
 
-@MainActor
+/// 直接创建 in-memory ModelContainer，不经过 PersistenceController。
+/// PersistenceController 在 defaultIsolation(MainActor) 下的同步 init
+/// 会与 ModelContainer 内部 XPC 回调死锁（#599）。
 enum TestModelContainer {
-    /// Async entrypoint is intentional: it prevents Swift Testing from performing
-    /// a blocking sync hop onto MainActor when bootstrapping SwiftData on CI.
-    static func create() async throws -> ModelContainer {
-        // 使用 PersistenceController 而非直接 ModelContainer，
-        // 包含 SnapDrillMigrationPlan 避免 CI 模拟器 schema 冲突。
-        PersistenceController(inMemory: true).container
+    static let schema = Schema([
+        ReviewItemModel.self,
+        TagModel.self,
+        SubjectModel.self,
+        SourceModel.self,
+        GradeModel.self
+    ])
+
+    static func create() throws -> ModelContainer {
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        return try ModelContainer(for: schema, configurations: [config])
     }
 }

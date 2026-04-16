@@ -8,8 +8,6 @@
 //  SubjectRepository CRUD、唯一性约束与种子数据测试。
 //
 
-// TODO: #599 — CI 跳过：ModelContainer 在 Mac mini 模拟器上死锁，待现场排查
-
 import Testing
 import SwiftData
 
@@ -18,18 +16,20 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("SubjectRepository 单元测试", .serialized)
-struct SubjectRepositoryTests {
+final class SubjectRepositoryTests {
 
-    private func createRepo() async throws -> SubjectRepository {
-        let container = try await TestModelContainer.create()
-        return SubjectRepository(modelContext: container.mainContext)
+    private let container: ModelContainer
+    private let repo: SubjectRepository
+
+    init() throws {
+        container = try TestModelContainer.create()
+        repo = SubjectRepository(modelContext: container.mainContext)
     }
 
     // MARK: - CRUD
 
     @Test("insertAndSave 后 totalCount 递增")
-    func insertAndSave_incrementsCount() async throws {
-        let repo = try await createRepo()
+    func insertAndSave_incrementsCount() throws {
         #expect(try repo.totalCount() == 0)
 
         let model = SubjectModel.mock(name: "数学")
@@ -39,8 +39,7 @@ struct SubjectRepositoryTests {
     }
 
     @Test("fetchAllModels 按 sortOrder 排序")
-    func fetchAllModels_sortedBySortOrder() async throws {
-        let repo = try await createRepo()
+    func fetchAllModels_sortedBySortOrder() throws {
         try repo.insertAndSave(SubjectModel.mock(name: "英语", sortOrder: 2))
         try repo.insertAndSave(SubjectModel.mock(name: "数学", sortOrder: 0))
         try repo.insertAndSave(SubjectModel.mock(name: "物理", sortOrder: 1))
@@ -50,8 +49,7 @@ struct SubjectRepositoryTests {
     }
 
     @Test("fetchModel(byName:) 精确匹配")
-    func fetchByName_returnsCorrectModel() async throws {
-        let repo = try await createRepo()
+    func fetchByName_returnsCorrectModel() throws {
         try repo.insertAndSave(SubjectModel.mock(name: "数学"))
         try repo.insertAndSave(SubjectModel.mock(name: "英语"))
 
@@ -63,8 +61,7 @@ struct SubjectRepositoryTests {
     }
 
     @Test("delete 成功移除指定项")
-    func delete_removesItem() async throws {
-        let repo = try await createRepo()
+    func delete_removesItem() throws {
         let model = SubjectModel.mock(name: "数学")
         try repo.insertAndSave(model)
         #expect(try repo.totalCount() == 1)
@@ -74,8 +71,7 @@ struct SubjectRepositoryTests {
     }
 
     @Test("delete 不存在的 ID 不崩溃")
-    func delete_nonExistentId_noCrash() async throws {
-        let repo = try await createRepo()
+    func delete_nonExistentId_noCrash() throws {
         try repo.delete(id: UUID())
         #expect(try repo.totalCount() == 0)
     }
@@ -83,8 +79,7 @@ struct SubjectRepositoryTests {
     // MARK: - 唯一性约束
 
     @Test("insertAndSave 重复名称抛出 duplicateName")
-    func insertAndSave_duplicateName_throws() async throws {
-        let repo = try await createRepo()
+    func insertAndSave_duplicateName_throws() throws {
         try repo.insertAndSave(SubjectModel.mock(name: "数学"))
 
         #expect(throws: DataError.self) {
@@ -95,8 +90,7 @@ struct SubjectRepositoryTests {
     // MARK: - seedDefaultsIfNeeded
 
     @Test("seedDefaultsIfNeeded 空库时插入预设数据")
-    func seedDefaults_emptyDB_seedsData() async throws {
-        let repo = try await createRepo()
+    func seedDefaults_emptyDB_seedsData() throws {
         #expect(try repo.totalCount() == 0)
 
         repo.seedDefaultsIfNeeded()
@@ -105,8 +99,7 @@ struct SubjectRepositoryTests {
     }
 
     @Test("seedDefaultsIfNeeded 非空库时不重复插入")
-    func seedDefaults_nonEmptyDB_noOp() async throws {
-        let repo = try await createRepo()
+    func seedDefaults_nonEmptyDB_noOp() throws {
         try repo.insertAndSave(SubjectModel.mock(name: "自定义"))
         let countBefore = try repo.totalCount()
 
@@ -118,8 +111,7 @@ struct SubjectRepositoryTests {
     // MARK: - deleteAll
 
     @Test("deleteAll 清空所有数据")
-    func deleteAll_removesAll() async throws {
-        let repo = try await createRepo()
+    func deleteAll_removesAll() throws {
         try repo.insertAndSave(SubjectModel.mock(name: "数学"))
         try repo.insertAndSave(SubjectModel.mock(name: "英语"))
 
