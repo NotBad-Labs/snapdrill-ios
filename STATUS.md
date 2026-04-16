@@ -5,7 +5,7 @@
 
 > 最后更新：2026-04-16
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
-> Open PR：0 · Open Issue：9
+> Open PR：0 · Open Issue：7
 > 测试：158 tests（Features）+ 98 tests（Core）+ 95 tests（Data）= 351 total · ViewModel 覆盖 15/15 = 100%
 
 ---
@@ -42,21 +42,22 @@
 | #623 | iOS 26 现代化（F-017 纪律 + DashboardAnalyticsView Liquid Glass） |
 | #624 | 剩余 .regularMaterial 治理（BentoCard + ReviewHeroCard + PDFPagePicker + LibraryList） |
 
-### 2026-04-16 晚间完成（3 个 PR）
+### 2026-04-16 晚间完成（5 个 PR + 1 研究）
 
 | PR | 内容 |
 |---|---|
-| #628 | Data 测试死锁修复 — 对齐 Features 测试模式，318 tests 全绿 |
+| #628 | Data 测试死锁修复 — 对齐 Features 测试模式，318→351 tests |
 | #629 | NSLocalizedString → L10n 统一（LiveNotificationService） |
-| #630 | RecognizeDocumentsRequest 结构化文档识别（基础设施，消费方迁移待后续） |
+| #630 | RecognizeDocumentsRequest 结构化文档识别（Protocol + 实现 + 测试） |
+| #631 | ScanPagePicker/PDFPagePicker 迁移到 recognizeDocument（消费方） |
+| #632 | FoundationModels 端侧 AI 自动标注学科/难度（contentTagging） |
+| — | #626 FoundationModels 可行性研究完成（结论已发到 Issue） |
 
 ### 当前开发焦点（待做）
 
 | 优先级 | 工作项 | 说明 |
 |---|---|---|
-| ~~P1~~ | ~~#599 Data Repository CI 死锁排查~~ | ~~PR #628 修复，CI 全绿~~ |
-| P2 | #625 RecognizeDocumentsRequest 消费方迁移 | ScanPagePicker / PDFPagePicker 调用新 API（基础设施已就绪 PR #630） |
-| P3 | #626 FoundationModels 端侧 AI 调研 | 数学公式识别可行性 |
+| P3 | #626 FoundationModels 集成 — 题目分割 | ScanPagePicker 整页扫描自动分割题目 |
 | P3 | #540 Claude Code hooks 扩展 | 待排期 |
 
 ### Apple 账号阻塞链（计划 5 月开通）
