@@ -61,6 +61,7 @@ final class CaptureResultViewModelTests {
             repositories: repos,
             ocrService: MockOCRServiceShared(),
             analyticsService: analytics,
+            contentTaggingService: ContentTaggingServiceMock(),
             router: router
         )
         return TestContext(vm: vm, repos: repos, analytics: analytics)
@@ -277,6 +278,7 @@ final class CaptureResultViewModelTests {
             repositories: repos,
             ocrService: mockOCR,
             analyticsService: AnalyticsServiceMock(),
+            contentTaggingService: ContentTaggingServiceMock(),
             router: router
         )
 
