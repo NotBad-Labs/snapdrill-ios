@@ -32,6 +32,14 @@ final class MockOCRService: OCRServiceProtocol {
         }
         return recognizeTextResult
     }
+
+    var recognizeDocumentResult: DocumentRecognitionResult = .empty
+    func recognizeDocument(from cgImage: CGImage) async throws -> DocumentRecognitionResult {
+        if let error = recognizeTextError {
+            throw error
+        }
+        return recognizeDocumentResult
+    }
 }
 
 @Suite("CaptureViewModel 草稿与扫描测试")

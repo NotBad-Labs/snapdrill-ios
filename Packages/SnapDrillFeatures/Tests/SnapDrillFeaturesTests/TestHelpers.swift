@@ -68,6 +68,14 @@ final class MockOCRServiceShared: OCRServiceProtocol, @unchecked Sendable {
         }
         return recognizeTextResult
     }
+
+    var recognizeDocumentResult: DocumentRecognitionResult = .empty
+    func recognizeDocument(from cgImage: CGImage) async throws -> DocumentRecognitionResult {
+        if let error = recognizeTextError {
+            throw error
+        }
+        return recognizeDocumentResult
+    }
 }
 
 // MARK: - Seed Helpers

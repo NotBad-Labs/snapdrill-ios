@@ -48,6 +48,45 @@ public actor OCRService: OCRServiceProtocol {
         }
         return recognizedStrings.joined(separator: "\n")
     }
+
+    // MARK: - 文档结构化识别
+
+    /// 使用 RecognizeDocumentsRequest 识别整页文档结构
+    ///
+    /// 适合整页扫描件或 PDF 页面。返回段落、表格等结构化数据。
+    /// 中文不支持 word 级别分割，但 transcript 和 paragraph 级别正常工作。
+    public func recognizeDocument(from cgImage: CGImage) async throws -> DocumentRecognitionResult {
+        var request = RecognizeDocumentsRequest()
+        request.textRecognitionOptions.useLanguageCorrection = true
+        request.textRecognitionOptions.recognitionLanguages = [.init(identifier: "zh-Hans"), .init(identifier: "en-US")]
+
+        let observations = try await request.perform(on: cgImage)
+
+        guard let container = observations.first?.document else {
+            return .empty
+        }
+
+        // 提取全文
+        let transcript = container.text.transcript
+
+        // 提取段落
+        let paragraphs = container.paragraphs.map(\.transcript)
+
+        // 提取表格（rows → cells → content.text.transcript）
+        let tables: [[TableRow]] = container.tables.map { table in
+            table.rows.map { row in
+                row.map { cell in
+                    cell.content.text.transcript
+                }
+            }
+        }
+
+        return DocumentRecognitionResult(
+            transcript: transcript,
+            paragraphs: paragraphs,
+            tables: tables
+        )
+    }
 }
 
 /// OCR 识别操作错误
