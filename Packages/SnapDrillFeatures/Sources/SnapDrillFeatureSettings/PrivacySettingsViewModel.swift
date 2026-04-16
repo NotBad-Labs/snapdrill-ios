@@ -73,6 +73,10 @@ final class PrivacySettingsViewModel {
 
         do {
             let items = try repositories.review.fetchAllModels()
+            guard !Task.isCancelled else {
+                isExporting = false
+                return
+            }
 
             // 跨 actor 边界前转换为 Sendable 值类型
             let exportableItems = items.map { item in
@@ -92,6 +96,11 @@ final class PrivacySettingsViewModel {
 
             let exporter = DataExporter()
             let fileURL = try await exporter.export(items: exportableItems, format: format)
+            guard !Task.isCancelled else {
+                try? FileManager.default.removeItem(at: fileURL) // best-effort: 清理已生成但不需要的文件
+                isExporting = false
+                return
+            }
 
             exportedFileURL = fileURL
             showingShareSheet = true
@@ -101,7 +110,9 @@ final class PrivacySettingsViewModel {
                 "item_count": "\(exportableItems.count)"
             ])
         } catch {
-            exportError = L10n.Errors.exportFailed
+            if !Task.isCancelled {
+                exportError = L10n.Errors.exportFailed
+            }
             isExporting = false
         }
     }
