@@ -41,6 +41,7 @@ public final class ProfileManager {
     // MARK: - Private
 
     private let fileManager = FileManager.default
+    private let isInMemory: Bool
 
     /// Documents 目录
     private var documentsURL: URL {
@@ -82,6 +83,7 @@ public final class ProfileManager {
     /// 首次启动时自动执行数据迁移（将旧数据移入默认 Profile 目录）。
     /// - Parameter inMemory: 为 true 时使用内存存储（UI 测试用）
     public init(inMemory: Bool = false) {
+        self.isInMemory = inMemory
         if inMemory {
             // UI 测试模式：跳过文件迁移和磁盘操作，使用纯内存存储
             let profileId = UUID()
@@ -140,6 +142,7 @@ public final class ProfileManager {
     /// 切换前检查 `AppActivityTracker` 是否有进行中的操作，
     /// 有则抛出 `ProfileError.switchBlocked`。
     public func switchProfile(to profileId: UUID) throws(ProfileError) {
+        guard !isInMemory else { return } // inMemory 模式不支持切换（会创建磁盘数据库）
         guard profileId != activeProfileId,
               profiles.contains(where: { $0.id == profileId }) else { return }
 
@@ -183,15 +186,17 @@ public final class ProfileManager {
         let profile = Profile(name: name)
         profiles.append(profile)
 
-        // 创建 Profile 目录
-        let profileDir = profilesDirectoryURL.appendingPathComponent(profile.id.uuidString)
-        do {
-            try fileManager.createDirectory(at: profileDir, withIntermediateDirectories: true)
-            try fileManager.createDirectory(at: profileDir.appendingPathComponent("images"), withIntermediateDirectories: true)
-        } catch {
-            SnapDrillLogger.data.error("ProfileManager: Profile 目录创建失败，回滚: \(error.localizedDescription)")
-            profiles.removeAll(where: { $0.id == profile.id })
-            return profile
+        // 创建 Profile 目录（inMemory 模式跳过磁盘操作）
+        if !isInMemory {
+            let profileDir = profilesDirectoryURL.appendingPathComponent(profile.id.uuidString)
+            do {
+                try fileManager.createDirectory(at: profileDir, withIntermediateDirectories: true)
+                try fileManager.createDirectory(at: profileDir.appendingPathComponent("images"), withIntermediateDirectories: true)
+            } catch {
+                SnapDrillLogger.data.error("ProfileManager: Profile 目录创建失败，回滚: \(error.localizedDescription)")
+                profiles.removeAll(where: { $0.id == profile.id })
+                return profile
+            }
         }
 
         // 保存默认偏好
@@ -219,21 +224,28 @@ public final class ProfileManager {
         }
         guard let index = profiles.firstIndex(where: { $0.id == id }) else { return }
 
-        // 如果删除的是当前活跃 Profile，必须先成功切换到其他 Profile
+        // 如果删除的是当前活跃 Profile，必须先切换到其他 Profile
         if id == activeProfileId {
             guard let other = profiles.first(where: { $0.id != id }) else {
                 throw ProfileError.cannotDeleteLastProfile
             }
-            try switchProfile(to: other.id)
+            if isInMemory {
+                // inMemory: 直接更新 activeProfileId，不创建磁盘资源
+                activeProfileId = other.id
+            } else {
+                try switchProfile(to: other.id)
+            }
         }
 
         profiles.remove(at: index)
         saveProfiles()
 
-        // 删除 Profile 目录（后台执行）
-        let profileDir = profilesDirectoryURL.appendingPathComponent(id.uuidString)
-        Task.detached {
-            try? FileManager.default.removeItem(at: profileDir) // best-effort: Profile 已从列表移除，目录删不掉不影响功能
+        // 删除 Profile 目录（后台执行，inMemory 模式跳过）
+        if !isInMemory {
+            let profileDir = profilesDirectoryURL.appendingPathComponent(id.uuidString)
+            Task.detached {
+                try? FileManager.default.removeItem(at: profileDir) // best-effort: Profile 已从列表移除，目录删不掉不影响功能
+            }
         }
     }
 
@@ -243,8 +255,8 @@ public final class ProfileManager {
         profiles[index].name = newName
         saveProfiles()
 
-        // 如果是当前活跃 Profile，同步更新 UserDefaults
-        if id == activeProfileId {
+        // 如果是当前活跃 Profile 且非 inMemory，同步更新 UserDefaults
+        if id == activeProfileId, !isInMemory {
             UserDefaults.standard.set(newName, forKey: UDKey.userName)
         }
     }
@@ -253,6 +265,7 @@ public final class ProfileManager {
 
     /// 将 UserDefaults 中的 per-profile 值保存到 preferences.json
     private func savePreferences(for profileId: UUID) {
+        guard !isInMemory else { return }
         let defaults = UserDefaults.standard
         var dict: [String: Any] = [:]
         for key in Self.perProfileKeys {
@@ -295,6 +308,7 @@ public final class ProfileManager {
     }
 
     private func savePreferencesDict(_ dict: [String: Any], for profileId: UUID) {
+        guard !isInMemory else { return }
         let prefsURL = profilesDirectoryURL
             .appendingPathComponent(profileId.uuidString)
             .appendingPathComponent("preferences.json")
@@ -310,6 +324,7 @@ public final class ProfileManager {
     // MARK: - Profile Persistence
 
     private func saveProfiles() {
+        guard !isInMemory else { return }
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         do {
