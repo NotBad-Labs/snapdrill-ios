@@ -5,16 +5,16 @@
 
 > 最后更新：2026-04-16
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
-> Open PR：0 · Open Issue：8
+> Open PR：0 · Open Issue：11
 > 测试：158 tests（Features）+ 65 tests（Core）= 223 total · ViewModel 覆盖 15/15 = 100%
 
 ---
 
 ## 当前状态
 
-**文档已冻结，功能开发 + 测试补齐阶段**（2026-04-14 冻结，2026-04-15-16 开发）。
+**文档已冻结，功能开发 + 测试补齐 + 工程治理阶段**（2026-04-14 冻结，2026-04-15-16 密集开发）。
 
-### 本轮完成（2026-04-15~16，20 个 PR）
+### 本轮完成（2026-04-15~16，24 个 PR）
 
 | PR | 内容 |
 |---|---|
@@ -38,12 +38,19 @@
 | #616 | CaptureView Liquid Glass 适配 |
 | #617 | exportData Task.isCancelled 修复 CI flaky |
 | #619 | 单文件多类型治理（6 文件拆分 + SwiftLint + coding.md） |
+| #621 | 事后审计修复（5 个 Codex/Gemini Warning） |
+| #623 | iOS 26 现代化（F-017 纪律 + DashboardAnalyticsView Liquid Glass） |
+| #624 | 剩余 .regularMaterial 治理（BentoCard + ReviewHeroCard + PDFPagePicker + LibraryList） |
 
 ### 当前开发焦点（待做）
 
 | 优先级 | 工作项 | 说明 |
 |---|---|---|
 | P1 | #599 Data Repository CI 死锁排查 | 需 Mac mini 现场操作（PR #612 验证 simctl erase 无效） |
+| P2 | #625 RecognizeDocumentsRequest 升级 | 试卷结构化识别（WWDC25 Session 272） |
+| P2 | #627 NSLocalizedString → L10n 统一 | LiveNotificationService 通知文案 |
+| P3 | #626 FoundationModels 端侧 AI 调研 | 数学公式识别可行性 |
+| P3 | #540 Claude Code hooks 扩展 | 待排期 |
 
 ### Apple 账号阻塞链（计划 5 月开通）
 
@@ -55,13 +62,6 @@
 | #486 | Word 导出 | 需 StoreKit ← #163 |
 | #490 | App Store 提交准备 | 需公司账号 + 真机验证 ← #163 |
 | #161 | TestFlight Build 6 | 需真机验证 ← #163 |
-
-### 其他 Open Issue
-
-| Issue | 内容 |
-|---|---|
-| #540 | Claude Code hooks 扩展（S2，待排期） |
-| #599 | CI Data Repository 测试 ModelContainer 死锁（S1，待 Mac mini 排查） |
 
 ### 待清理
 
@@ -83,6 +83,7 @@
 - Xcode 提出问题 → 修复后让 Xcode 复核，不自审自批
 - Codex/Gemini 审查发现的问题，必须提交回原质疑方复核才能合并（F-016）
 - CI 失败是致命信号，不能继续推进（F-015）
+- UI/SDK 改动必须先查阅 Apple 最新文档（F-017）
 
 ## 里程碑
 
