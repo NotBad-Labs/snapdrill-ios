@@ -71,8 +71,7 @@ struct DashboardAnalyticsView: View {
             }
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: .rect(cornerRadius: 16))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.Statistics.subjectTrend + " " + L10n.Statistics.last30Days)
     }
@@ -96,8 +95,7 @@ struct DashboardAnalyticsView: View {
             .frame(height: 160)
         }
         .padding()
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: .rect(cornerRadius: 16))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.Statistics.difficultyDistribution)
     }
@@ -127,8 +125,7 @@ struct DashboardAnalyticsView: View {
                 }
             }
             .padding()
-            .background(.regularMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .glassEffect(.regular, in: .rect(cornerRadius: 16))
         }
     }
 
@@ -149,8 +146,7 @@ struct DashboardAnalyticsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 32)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: .rect(cornerRadius: 16))
     }
 
     // MARK: - Pro 门控
@@ -160,7 +156,7 @@ struct DashboardAnalyticsView: View {
         VStack(spacing: 16) {
             // 模糊预览占位
             RoundedRectangle(cornerRadius: 16)
-                .fill(.regularMaterial)
+                .fill(Color(.tertiarySystemBackground))
                 .frame(height: 200)
                 .overlay {
                     VStack(spacing: 8) {

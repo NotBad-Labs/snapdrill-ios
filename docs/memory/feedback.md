@@ -204,3 +204,21 @@ CI 失败必须立即阻塞后续工作。不能在未确认 CI 通过的情况�
 **Why:** 这是不可改变的原则。Claude 修复 Gemini Critical 发现（内存风险）后直接说"准备合并"，跳过了 Gemini 复核。自审自批违反对抗性审查的根本目的——独立视角验证。
 
 **How to apply:** 修复后必须重新提交给原 reviewer：Gemini 提的问题回 Gemini 验收，Codex 提的问题回 Codex 验收，Xcode 提的问题回 Xcode 验收。只有 reviewer 说"通过"才能声明修复完成。
+
+---
+
+## F-017: UI/SDK 改动必须查阅 Apple 最新文档
+<!-- added: 2026-04-16 | owner: human | type: permanent -->
+<!-- trigger: CaptureView 使用旧的 .regularMaterial 而非 iOS 26 Liquid Glass，Xcode Review 发现 -->
+
+新增或修改 UI 组件、引入新 SDK API 时，必须先查阅 Apple 最新文档确认是否有更合适的原生方案。
+
+**Why:** Claude 的训练数据不覆盖 iOS 26 新 API。CaptureMethodCard 用旧方案手动模拟玻璃效果，Xcode 指出应使用 .glassEffect()。engineering.md 的"决策前研究铁律"已要求此步骤，但未被执行。
+
+**How to apply:** 每次涉及以下场景时，在编码前通过 WebSearch 或 WebFetch 查阅 developer.apple.com：
+- 新增 SwiftUI View 组件
+- 修改视觉样式（材质、动画、布局）
+- 引入新框架 API（Vision、AVFoundation、Charts 等）
+- 不确定 API 是否为最新版本
+
+检查清单：Apple 文档 → WWDC session → 项目 apple-native.md / api-pitfalls.md。
