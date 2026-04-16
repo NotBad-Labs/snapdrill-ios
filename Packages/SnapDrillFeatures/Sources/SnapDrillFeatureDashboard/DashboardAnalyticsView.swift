@@ -125,8 +125,7 @@ struct DashboardAnalyticsView: View {
                 }
             }
             .padding()
-            .background(.regularMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .glassEffect(.regular, in: .rect(cornerRadius: 16))
         }
     }
 
