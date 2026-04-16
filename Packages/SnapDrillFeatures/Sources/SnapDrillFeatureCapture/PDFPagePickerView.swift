@@ -192,7 +192,8 @@ struct PDFPagePickerView: View {
             var ocrText = ""
             if let cgImage = image.cgImage {
                 do {
-                    ocrText = try await ocrService.recognizeText(from: cgImage)
+                    let result = try await ocrService.recognizeDocument(from: cgImage)
+                    ocrText = result.transcript
                 } catch {
                     SnapDrillLogger.capture.error("PDF 页面 OCR 失败: \(error.localizedDescription)")
                 }
