@@ -224,12 +224,17 @@ public final class ProfileManager {
         }
         guard let index = profiles.firstIndex(where: { $0.id == id }) else { return }
 
-        // 如果删除的是当前活跃 Profile，必须先成功切换到其他 Profile
+        // 如果删除的是当前活跃 Profile，必须先切换到其他 Profile
         if id == activeProfileId {
             guard let other = profiles.first(where: { $0.id != id }) else {
                 throw ProfileError.cannotDeleteLastProfile
             }
-            try switchProfile(to: other.id)
+            if isInMemory {
+                // inMemory: 直接更新 activeProfileId，不创建磁盘资源
+                activeProfileId = other.id
+            } else {
+                try switchProfile(to: other.id)
+            }
         }
 
         profiles.remove(at: index)
@@ -250,8 +255,8 @@ public final class ProfileManager {
         profiles[index].name = newName
         saveProfiles()
 
-        // 如果是当前活跃 Profile，同步更新 UserDefaults
-        if id == activeProfileId {
+        // 如果是当前活跃 Profile 且非 inMemory，同步更新 UserDefaults
+        if id == activeProfileId, !isInMemory {
             UserDefaults.standard.set(newName, forKey: UDKey.userName)
         }
     }
