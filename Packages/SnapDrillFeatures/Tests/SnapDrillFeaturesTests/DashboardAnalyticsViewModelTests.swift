@@ -234,6 +234,25 @@ final class DashboardAnalyticsViewModelTests {
         vm.cancelTasks()
     }
 
+    @Test("学科趋势 — 恰好 30 天前的数据纳入 recentItems 但不在趋势点中")
+    func subjectTrend_boundaryDay30() throws {
+        // 恰好 30 天前的数据（在 since 范围内，但 -29...0 不包含 day -30）
+        repos.review.insert(makeItem(subject: "数学", createdAt: daysAgo(30)))
+        // 恰好 29 天前的数据（在趋势点范围内）
+        repos.review.insert(makeItem(subject: "数学", createdAt: daysAgo(29)))
+        try repos.review.saveContext()
+
+        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        vm.loadAnalytics()
+
+        // 30 天前的数据被 recentItems 包含（since = startOfDay(now-30)），
+        // 但补零循环只生成 -29...0 共 30 天的数据点，所以 day -30 不会出现在趋势图中。
+        // 两条数据都算入 subjectTotals 用于 Top 3 选择，但趋势点只含 day -29 的那条。
+        let totalCount = vm.subjectTrend.reduce(0) { $0 + $1.count }
+        #expect(totalCount == 1) // 只有 day -29 的题在趋势点中
+        vm.cancelTasks()
+    }
+
     // MARK: - hasData
 
     @Test("hasData — 有学科趋势数据时为 true")
@@ -250,12 +269,28 @@ final class DashboardAnalyticsViewModelTests {
 
     // MARK: - cancelTasks
 
-    @Test("cancelTasks — 调用后 Task 被取消")
-    func cancelTasks_cleansUp() {
+    @Test("cancelTasks — 调用后状态安全，二次调用不崩溃")
+    func cancelTasks_cleansUp() throws {
+        repos.review.insert(makeItem())
+        try repos.review.saveContext()
+
         let vm = DashboardAnalyticsViewModel(repositories: repos)
         vm.loadAnalytics()
+        #expect(vm.hasData)
+
         vm.cancelTasks()
-        // 验证不崩溃，二次调用安全
+        // 二次调用不崩溃
+        vm.cancelTasks()
+        // 取消后数据仍保留（cancelTasks 只取消后台任务，不清空已加载的数据）
+        #expect(vm.hasData)
+    }
+
+    // MARK: - isProUser
+
+    @Test("isProUser — 当前硬编码为 false")
+    func isProUser_defaultFalse() {
+        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        #expect(!vm.isProUser)
         vm.cancelTasks()
     }
 
