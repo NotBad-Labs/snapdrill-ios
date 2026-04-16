@@ -41,8 +41,8 @@ public final class LiveNotificationService: NotificationServiceProtocol {
         cancelAll()
 
         let content = UNMutableNotificationContent()
-        content.title = NSLocalizedString("notification.daily.title", value: "复习时间到", comment: "每日复习通知标题")
-        content.body = NSLocalizedString("notification.daily.body", value: "今天的错题还在等你，快来复习吧！", comment: "每日复习通知正文")
+        content.title = L10n.Notification.dailyTitle
+        content.body = L10n.Notification.dailyBody
         content.sound = .default
 
         var dateComponents = DateComponents()
