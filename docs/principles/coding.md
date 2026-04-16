@@ -1,4 +1,4 @@
-<!-- last_verified: 2026-04-14 -->
+<!-- last_verified: 2026-04-16 -->
 <!-- layer: pattern -->
 # 编码规范（SwiftLint 管不到的规则）
 
@@ -21,6 +21,28 @@
 - Task 句柄：`@ObservationIgnored private var xxxTask: Task<Void, Never>?` + `cancelTasks()` 在 `.onDisappear`
 - **Task 闭包中禁止直接访问 MainActor 属性**：`Task {}` / `Task.detached {}` 内不得引用 `@Environment`、`@State`、computed property 等 MainActor 隔离属性。必须在进入 Task 前用 `let localVar = mainActorProp` 捕获到局部变量（要求类型为 `Sendable`）。原因：clean build 可能不报警告，但 Xcode 增量编译会捕获 actor isolation 违规
 - NotificationCenter：用 `for await` 替代 `addObserver`
+
+### Upcoming Features（已全包启用）
+
+- **InferIsolatedConformances**：当 MainActor 隔离类型遵循协议时，编译器自动推断遵循也是 MainActor 隔离的，减少显式 @MainActor 标注
+- **NonisolatedNonsendingByDefault**：函数和闭包默认为 nonisolated + nonsending（不继承调用方的 actor 隔离），需要隔离时显式标注
+
+### nonisolated(unsafe)
+
+仅用于第三方 SDK 类型未标注 Sendable 但实际线程安全的场景（当前 4 处）。每处必须附注释说明安全理由。
+
+| 允许 | 禁止 |
+|---|---|
+| Apple SDK 类型尚未审计 Sendable（AVCaptureSession、PDFPage） | 可变共享状态 |
+| 属性在 MainActor 上设置、在 nonisolated 回调中只读 | 自定义类型（应直接遵循 Sendable 或用 actor） |
+
+### @preconcurrency
+
+用于桥接未完成 Sendable 审计的 Apple 框架，两种用法：
+- `@preconcurrency import AVFoundation` — 抑制整个模块的并发警告
+- `@preconcurrency Animatable` — 协议遵循标注，抑制特定协议的并发警告
+
+随 SDK 更新逐步移除。
 
 ## 接口变更
 
