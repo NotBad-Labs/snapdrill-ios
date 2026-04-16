@@ -93,8 +93,11 @@ enum ProfileMigration {
             }
         }
         let prefsURL = profileDir.appendingPathComponent("preferences.json")
-        if let data = try? JSONSerialization.data(withJSONObject: prefs, options: .prettyPrinted) {
-            try? data.write(to: prefsURL)
+        do {
+            let data = try JSONSerialization.data(withJSONObject: prefs, options: .prettyPrinted)
+            try data.write(to: prefsURL)
+        } catch {
+            SnapDrillLogger.data.error("ProfileMigration: 偏好保存失败: \(error.localizedDescription)")
         }
     }
 
@@ -107,20 +110,24 @@ enum ProfileMigration {
 
     private static func cleanupOldFiles() {
         let oldStoreURL = documentsURL.appendingPathComponent("default.store")
-        try? fileManager.removeItem(at: oldStoreURL)
+        try? fileManager.removeItem(at: oldStoreURL) // best-effort: 迁移已完成，旧文件删不掉不影响功能
         for suffix in ["-wal", "-shm"] {
-            try? fileManager.removeItem(at: URL(fileURLWithPath: oldStoreURL.path + suffix))
+            try? fileManager.removeItem(at: URL(fileURLWithPath: oldStoreURL.path + suffix)) // best-effort: WAL/SHM 辅助文件清理
         }
-        try? fileManager.removeItem(at: documentsURL.appendingPathComponent("images"))
+        try? fileManager.removeItem(at: documentsURL.appendingPathComponent("images")) // best-effort: 旧图片目录清理
     }
 
     private static func createFallbackProfile(profilesFileURL: URL) {
         let userName = UserDefaults.standard.string(forKey: UDKey.userName) ?? "同学"
         let profile = Profile(name: userName)
         let fallbackDir = documentsURL.appendingPathComponent("profiles").appendingPathComponent(profile.id.uuidString)
-        try? fileManager.createDirectory(at: fallbackDir, withIntermediateDirectories: true)
-        try? fileManager.createDirectory(at: fallbackDir.appendingPathComponent("images"), withIntermediateDirectories: true)
-        try? saveProfilesList([profile], to: profilesFileURL)
+        do {
+            try fileManager.createDirectory(at: fallbackDir, withIntermediateDirectories: true)
+            try fileManager.createDirectory(at: fallbackDir.appendingPathComponent("images"), withIntermediateDirectories: true)
+            try saveProfilesList([profile], to: profilesFileURL)
+        } catch {
+            SnapDrillLogger.data.error("ProfileMigration: fallback Profile 创建失败: \(error.localizedDescription)")
+        }
         UserDefaults.standard.set(profile.id.uuidString, forKey: UDKey.activeProfileId)
     }
 }
