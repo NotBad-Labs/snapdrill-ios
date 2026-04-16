@@ -189,7 +189,9 @@ public final class ProfileManager {
             try fileManager.createDirectory(at: profileDir, withIntermediateDirectories: true)
             try fileManager.createDirectory(at: profileDir.appendingPathComponent("images"), withIntermediateDirectories: true)
         } catch {
-            SnapDrillLogger.data.error("ProfileManager: Profile 目录创建失败: \(error.localizedDescription)")
+            SnapDrillLogger.data.error("ProfileManager: Profile 目录创建失败，回滚: \(error.localizedDescription)")
+            profiles.removeAll(where: { $0.id == profile.id })
+            return profile
         }
 
         // 保存默认偏好
@@ -274,8 +276,15 @@ public final class ProfileManager {
             SnapDrillLogger.data.warning("ProfileManager: 偏好文件读取失败（可能首次使用）: \(error.localizedDescription)")
             return
         }
-        guard let dict = try? JSONSerialization.jsonObject(with: rawData) as? [String: Any] else {
-            SnapDrillLogger.data.warning("ProfileManager: 偏好 JSON 解析失败")
+        let dict: [String: Any]
+        do {
+            guard let parsed = try JSONSerialization.jsonObject(with: rawData) as? [String: Any] else {
+                SnapDrillLogger.data.warning("ProfileManager: 偏好 JSON 格式不是字典")
+                return
+            }
+            dict = parsed
+        } catch {
+            SnapDrillLogger.data.warning("ProfileManager: 偏好 JSON 解析失败: \(error.localizedDescription)")
             return
         }
 
