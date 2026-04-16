@@ -9,7 +9,6 @@
 //
 
 import SwiftUI
-import SwiftData
 import SnapDrillData
 import SnapDrillCore
 import SnapDrillUI

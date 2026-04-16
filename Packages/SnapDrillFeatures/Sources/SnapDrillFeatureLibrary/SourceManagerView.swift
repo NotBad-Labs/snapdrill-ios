@@ -11,7 +11,6 @@
 import SwiftUI
 import SnapDrillCore
 import SnapDrillData
-import SnapDrillUI
 
 public struct SourceManagerView: View {
 
