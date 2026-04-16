@@ -1,0 +1,126 @@
+<!-- last_verified: 2026-04-16 -->
+<!-- layer: snapshot -->
+# App Store 元数据（ASO 文案）
+
+> 提交 App Store Connect 前的预备文案。Apple 账号就绪后直接复制粘贴。
+
+---
+
+## 基本信息
+
+| 字段 | 值 |
+|---|---|
+| App 名称 | SnapDrill |
+| 副标题 | 练习题数字化效率工具 |
+| 类别（主） | Education |
+| 类别（副） | Productivity |
+| 年龄分级 | 4+ |
+| 价格 | 免费（含 App 内购买） |
+| 版权 | 2026 NotBad Labs L.L.C. |
+
+---
+
+## 关键词（100 字符以内）
+
+### 中文（简体）
+```
+错题本,练习题,拍照录入,OCR,试卷,复习,间隔重复,学习工具,作业,题库,智能组卷,PDF导出,扫描,家长,提分
+```
+
+### 英文
+```
+wrong,answers,practice,OCR,exam,review,spaced,repetition,study,tool,homework,quiz,PDF,export,scan
+```
+
+---
+
+## 描述
+
+### 中文（简体）
+
+SnapDrill 让练习题数字化变得简单。拍照、扫描或导入 PDF，自动识别文字，一键归档到题库。
+
+核心功能：
+- 拍照/扫描/PDF 导入 — 多种采集方式，灵活高效
+- OCR 文字识别 — 自动提取题目内容，支持中英文混合
+- 结构化文档识别 — 整页试卷智能解析段落和表格
+- AI 智能标注 — 自动建议学科和难度（端侧处理，离线可用）
+- 学科/来源/标签/年级 — 多维分类，快速检索
+- 间隔重复复习 — SM-2 算法科学安排复习计划
+- 智能组卷 — 按学科、难度筛选自动生成练习卷
+- PDF 导出 — 一键生成可打印的练习卷
+
+隐私承诺：
+- 零注册，打开即用
+- 所有数据存储在本地，绝不上传
+- AI 功能全部端侧处理，离线可用
+
+SnapDrill 专注一件事：让你用最少的时间，把纸上的练习题变成可管理、可复习的数字资产。
+
+### 英文
+
+SnapDrill makes digitizing practice problems effortless. Snap a photo, scan a document, or import a PDF — text is recognized automatically and archived into your personal question bank.
+
+Key Features:
+- Photo/Scan/PDF Import — Multiple capture methods for maximum flexibility
+- OCR Text Recognition — Automatically extracts question content with Chinese-English support
+- Structured Document Recognition — Intelligent parsing of paragraphs and tables from full-page exams
+- AI Smart Tagging — Automatic subject and difficulty suggestions (on-device, works offline)
+- Multi-dimensional Organization — Subject, source, tags, and grade classification
+- Spaced Repetition Review — SM-2 algorithm for scientifically scheduled reviews
+- Smart Paper Generation — Auto-generate practice papers by subject and difficulty
+- PDF Export — One-tap printable practice sheets
+
+Privacy Promise:
+- Zero registration required
+- All data stored locally on your device
+- AI features processed entirely on-device, works offline
+
+SnapDrill does one thing well: turn paper-based practice problems into manageable, reviewable digital assets with minimal effort.
+
+---
+
+## 宣传文本（170 字符以内）
+
+### 中文
+```
+拍照录入练习题，AI 自动标注学科和难度，间隔重复科学复习。零注册，数据纯本地。
+```
+
+### 英文
+```
+Snap practice problems, AI auto-tags subject & difficulty, spaced repetition for smart review. Zero signup, fully local.
+```
+
+---
+
+## 审核备注（Review Notes）
+
+```
+SnapDrill is an educational productivity tool for digitizing practice problems from textbooks, exams, and homework.
+
+Core workflow:
+1. Capture: Photo / Document Scanner / PDF Import
+2. Organize: Subject, Source, Tags, Grade classification
+3. Review: SM-2 spaced repetition algorithm
+4. Export: PDF generation for printing
+
+No account registration is required. All data is stored locally on the device using SwiftData.
+
+AI features (subject/difficulty auto-tagging) use Apple's on-device Foundation Models framework — no network requests are made for AI processing.
+
+Firebase Analytics is used for anonymous usage metrics only, with user opt-in consent. No personal data is collected or transmitted.
+
+The app requires camera permission for photo capture and photo library permission for image import. Notification permission is optional for daily review reminders.
+```
+
+---
+
+## 隐私政策 / 服务条款
+
+| 文档 | URL | 状态 |
+|---|---|---|
+| 隐私政策 | （待上线） | App 内已有 PrivacyPolicyView |
+| 服务条款 | （待上线） | App 内已有 TermsOfServiceView |
+
+> 需要在公司网站或 GitHub Pages 上线公开 URL，Apple 审核要求可访问。
