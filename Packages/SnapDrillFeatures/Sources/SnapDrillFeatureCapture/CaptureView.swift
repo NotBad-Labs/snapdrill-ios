@@ -69,6 +69,7 @@ public struct CaptureView: View {
                             .font(.headline)
                             .padding(.horizontal)
                         
+                        GlassEffectContainer {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                             // 1. 智能扫描（先检查权限再打开相机）
                             CaptureMethodCard(
@@ -95,7 +96,8 @@ public struct CaptureView: View {
                                     color: .purple
                                 )
                             }
-                            .buttonStyle(.plain) // 保持卡片外观
+                            .buttonStyle(.plain)
+                            .glassEffect(.regular.tint(.purple).interactive(), in: .rect(cornerRadius: 16))
                             .accessibleButton(label: L10n.Capture.albumTitle, hint: L10n.Accessibility.albumHint)
                             
                             // 3. 手动录入
@@ -146,6 +148,7 @@ public struct CaptureView: View {
 
                         }
                         .padding(.horizontal)
+                        } // GlassEffectContainer
 
                         Spacer()
                     }
@@ -362,13 +365,13 @@ public struct CaptureView: View {
 
 // MARK: - Subviews
 
-// Button 和 PhotosPicker 共享的卡片内容视图
+// Button 和 PhotosPicker 共享的卡片内容视图（iOS 26 Liquid Glass）
 struct CaptureMethodCardContent: View {
     let icon: String
     let title: String
     let subtitle: String
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: icon)
@@ -378,24 +381,17 @@ struct CaptureMethodCardContent: View {
                 .background(color.opacity(0.1))
                 .clipShape(Circle())
                 .accessibilityHidden(true)
-            
+
             Text(title)
                 .font(.headline)
                 .foregroundStyle(.primary)
-            
+
             Text(subtitle)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(.white.opacity(0.2), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
 }
 
@@ -430,6 +426,7 @@ struct CaptureMethodCard: View {
         Button(action: action) {
             CaptureMethodCardContent(icon: icon, title: title, subtitle: subtitle, color: color)
         }
+        .glassEffect(.regular.tint(color).interactive(), in: .rect(cornerRadius: 16))
         .accessibleButton(label: title, hint: accessibilityHintText.isEmpty ? subtitle : accessibilityHintText)
         .accessibilityIdentifier(accessibilityID ?? "")
     }
