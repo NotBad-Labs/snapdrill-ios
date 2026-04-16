@@ -6,7 +6,7 @@
 > 最后更新：2026-04-16
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
 > Open PR：0 · Open Issue：8
-> 测试：146 tests（Features）+ 65 tests（Core）= 211 total · ViewModel 覆盖 14/14 = 100%
+> 测试：158 tests（Features）+ 65 tests（Core）= 223 total · ViewModel 覆盖 15/15 = 100%
 
 ---
 
@@ -14,7 +14,7 @@
 
 **文档已冻结，功能开发 + 测试补齐阶段**（2026-04-14 冻结，2026-04-15-16 开发）。
 
-### 本轮完成（2026-04-15~16，12 个 PR）
+### 本轮完成（2026-04-15~16，15 个 PR）
 
 | PR | 内容 |
 |---|---|
@@ -30,13 +30,14 @@
 | #604 | PrivacySettingsViewModel 测试（8 用例） |
 | #605 | SmartPaperViewModel 测试（13 用例） |
 | #606 | try? 第一批治理（4/12 处 do/catch + 日志） |
+| #607 | 工程质量治理升级（纪律元数据 + AI 反模式检查 + CI 依赖守卫） |
+| #609 | try? 第二批治理（ProfileMigration + ProfileManager 关键路径） |
+| #611 | DashboardAnalyticsViewModel 测试（12 用例） |
 
 ### 当前开发焦点（待做）
 
 | 优先级 | 工作项 | 说明 |
 |---|---|---|
-| P1 | try? 治理剩余 8 处 | ProfileMigration 6 + ProfileManager 4 + RepositoryContainer 1 |
-| P1 | DashboardAnalyticsViewModel 测试 | 最后一个缺失的 ViewModel 测试（统计聚合逻辑） |
 | P1 | #599 Data Repository CI 死锁排查 | 需 Mac mini 现场操作 |
 | P2 | coding.md 补充 Swift 6.3 特性 | nonisolated(unsafe)、InferIsolatedConformances |
 | P2 | Xcode Review Issue | CaptureView 3x2 布局 + accessibilityIdentifier 视觉验证 |
