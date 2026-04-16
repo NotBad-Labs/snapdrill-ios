@@ -63,6 +63,17 @@
 - 简体中文，`public` API 用 DocC（`///`），内联注释说"为什么"
 - 公司名：`NotBad Labs L.L.C.`
 
+## 文件组织
+
+- **单文件单主类型**：每个 .swift 文件有且只有一个主要类型（struct/class/enum/actor）
+- **允许的附属类型**：与主类型强耦合、不超过 50 行、仅被主类型使用：
+  - Service + Error 枚举（如 BackupService + BackupError）
+  - Router + Destination 枚举（如 CaptureRouter + CaptureDestination）
+  - View + 小 helper view（UIViewControllerRepresentable + Coordinator）
+  - ViewModel + 小 supporting type（如 ReviewPhase 枚举 <20 行）
+- **禁止**：独立业务组件（>50 行或被其他文件引用）塞在别人文件里
+- **SwiftLint 守护**：`file_length` error 600，超限即需拆分
+
 ## 禁止
 
 - `@unchecked Sendable`、`force unwrap !`、`print()`
