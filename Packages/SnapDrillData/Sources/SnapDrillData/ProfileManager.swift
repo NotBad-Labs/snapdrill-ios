@@ -185,8 +185,12 @@ public final class ProfileManager {
 
         // 创建 Profile 目录
         let profileDir = profilesDirectoryURL.appendingPathComponent(profile.id.uuidString)
-        try? fileManager.createDirectory(at: profileDir, withIntermediateDirectories: true)
-        try? fileManager.createDirectory(at: profileDir.appendingPathComponent("images"), withIntermediateDirectories: true)
+        do {
+            try fileManager.createDirectory(at: profileDir, withIntermediateDirectories: true)
+            try fileManager.createDirectory(at: profileDir.appendingPathComponent("images"), withIntermediateDirectories: true)
+        } catch {
+            SnapDrillLogger.data.error("ProfileManager: Profile 目录创建失败: \(error.localizedDescription)")
+        }
 
         // 保存默认偏好
         let defaults: [String: Any] = [
@@ -227,7 +231,7 @@ public final class ProfileManager {
         // 删除 Profile 目录（后台执行）
         let profileDir = profilesDirectoryURL.appendingPathComponent(id.uuidString)
         Task.detached {
-            try? FileManager.default.removeItem(at: profileDir)
+            try? FileManager.default.removeItem(at: profileDir) // best-effort: Profile 已从列表移除，目录删不掉不影响功能
         }
     }
 
@@ -263,8 +267,17 @@ public final class ProfileManager {
             .appendingPathComponent(profileId.uuidString)
             .appendingPathComponent("preferences.json")
 
-        guard let data = try? Data(contentsOf: prefsURL),
-              let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
+        let rawData: Data
+        do {
+            rawData = try Data(contentsOf: prefsURL)
+        } catch {
+            SnapDrillLogger.data.warning("ProfileManager: 偏好文件读取失败（可能首次使用）: \(error.localizedDescription)")
+            return
+        }
+        guard let dict = try? JSONSerialization.jsonObject(with: rawData) as? [String: Any] else {
+            SnapDrillLogger.data.warning("ProfileManager: 偏好 JSON 解析失败")
+            return
+        }
 
         let defaults = UserDefaults.standard
         for (key, value) in dict {
@@ -277,8 +290,11 @@ public final class ProfileManager {
             .appendingPathComponent(profileId.uuidString)
             .appendingPathComponent("preferences.json")
 
-        if let data = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted) {
-            try? data.write(to: prefsURL)
+        do {
+            let data = try JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
+            try data.write(to: prefsURL)
+        } catch {
+            SnapDrillLogger.data.error("ProfileManager: 偏好保存失败: \(error.localizedDescription)")
         }
     }
 
@@ -287,16 +303,30 @@ public final class ProfileManager {
     private func saveProfiles() {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
-        if let data = try? encoder.encode(profiles) {
-            try? data.write(to: profilesFileURL)
+        do {
+            let data = try encoder.encode(profiles)
+            try data.write(to: profilesFileURL)
+        } catch {
+            SnapDrillLogger.data.error("ProfileManager: profiles.json 保存失败: \(error.localizedDescription)")
         }
     }
 
     private static func loadProfiles(from url: URL) -> [Profile] {
-        guard let data = try? Data(contentsOf: url) else { return [] }
+        let data: Data
+        do {
+            data = try Data(contentsOf: url)
+        } catch {
+            SnapDrillLogger.data.warning("ProfileManager: profiles.json 读取失败（可能首次启动）: \(error.localizedDescription)")
+            return []
+        }
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        return (try? decoder.decode([Profile].self, from: data)) ?? []
+        do {
+            return try decoder.decode([Profile].self, from: data)
+        } catch {
+            SnapDrillLogger.data.error("ProfileManager: profiles.json 解码失败: \(error.localizedDescription)")
+            return []
+        }
     }
 }
 
