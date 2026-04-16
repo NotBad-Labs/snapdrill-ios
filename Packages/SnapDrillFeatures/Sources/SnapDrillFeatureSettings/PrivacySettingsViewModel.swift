@@ -11,7 +11,6 @@
 import SwiftUI
 import SnapDrillCore
 import SnapDrillData
-import UniformTypeIdentifiers
 
 /// 隐私设置 ViewModel
 ///

@@ -88,7 +88,9 @@ struct ProfileListView: View {
             Button(L10n.Common.ok) {
                 let name = newProfileName.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !name.isEmpty else { return }
-                profileManager.createProfile(name: name)
+                if profileManager.createProfile(name: name) == nil {
+                    SnapDrillLogger.data.error("ProfileListView: Profile 创建失败")
+                }
             }
         }
         .alert(L10n.Common.error, isPresented: .init(
