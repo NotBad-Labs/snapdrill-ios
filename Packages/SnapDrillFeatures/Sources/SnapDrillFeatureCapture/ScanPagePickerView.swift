@@ -129,7 +129,8 @@ struct ScanPagePickerView: View {
                     router.push(.scannerResult(content: "", image: image))
                     return
                 }
-                let text = try await ocrService.recognizeText(from: cgImage)
+                let result = try await ocrService.recognizeDocument(from: cgImage)
+                let text = result.transcript
                 try Task.checkCancellation()
                 router.push(.scannerResult(content: text, image: image))
             } catch is CancellationError {
