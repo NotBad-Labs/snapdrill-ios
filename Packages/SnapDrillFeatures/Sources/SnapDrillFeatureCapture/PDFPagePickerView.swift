@@ -144,8 +144,7 @@ struct PDFPagePickerView: View {
                 .foregroundStyle(.secondary)
         }
         .padding(8)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .glassEffect(.regular, in: .rect(cornerRadius: 12))
     }
 
     /// 仅对选中的单页异步渲染全尺寸图（长边 ≤ 2048px），然后打开裁剪器

@@ -153,7 +153,7 @@ struct LibraryListView: View {
                         }
                     )
                     .accessibilityHint(L10n.Accessibility.longPressToSelect)
-                    .listRowBackground(Rectangle().fill(.regularMaterial))
+                    .listRowBackground(Rectangle().fill(Color(.secondarySystemGroupedBackground)))
                     .listRowSeparator(.hidden)
                     .tag(item.id)
                 }

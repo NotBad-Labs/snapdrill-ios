@@ -78,13 +78,7 @@ struct BentoCard: View {
         }
         .padding(16)
         .frame(height: 120)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(.white.opacity(0.2), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+        .glassEffect(.regular, in: .rect(cornerRadius: 24))
     }
 }
 
