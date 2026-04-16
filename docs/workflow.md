@@ -1,4 +1,4 @@
-<!-- last_verified: 2026-04-14 -->
+<!-- last_verified: 2026-04-16 -->
 <!-- layer: principle -->
 # SnapDrill 协作流程
 
@@ -34,6 +34,12 @@ Shaped → Building (WIP≤2) → Reviewing → Done
 
 ## No-Go（不做什么）
 -
+
+## 风险与不确定性
+- [已知的坑、技术风险、需要调研的问题]
+
+## 涉及文件（预估）
+- [预计改动的文件/模块列表，帮助 AI agent 约束 scope]
 
 ## 验收标准（Given-When-Then）
 1. Given [前置条件]
@@ -73,6 +79,9 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 - [ ] 改接口签名后 `grep -rn "TypeName(" Packages/*/Tests/` 检查测试同步
 - [ ] Codex 对抗性审查通过（每个 PR 必须）
 - [ ] Xcode Review 核实通过（UI 改动必须）
+- [ ] AI 反模式检查通过（见 `collaboration.md` 检查表），附证据
+- [ ] 实现满足 Issue 的 Scope 和 No-Go 约束（intent review）
+- [ ] 此 PR 影响已文档化的约束？如是，已更新对应文件
 
 ### 功能完整性
 - [ ] 验收标准（Given-When-Then）全部通过

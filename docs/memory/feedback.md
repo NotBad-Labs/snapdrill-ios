@@ -1,4 +1,4 @@
-<!-- last_verified: 2026-04-14 -->
+<!-- last_verified: 2026-04-16 -->
 <!-- layer: snapshot -->
 <!-- freshness: max_age_days=30, decay_trigger=[feedback_event] -->
 # 项目反馈与纪律规则
@@ -7,6 +7,8 @@
 > 人类拥有最高裁决权，这些规则反映人类的明确指令。
 
 ## F-001: Git 工作流纪律
+<!-- added: 2026-03-31 | owner: human | type: permanent -->
+<!-- trigger: Claude 在 develop 直接写了 5 个改进项 -->
 
 「自主执行」偏好的范围是：不需要 yes/no 确认每个代码改动，直接做并汇报。
 
@@ -19,6 +21,8 @@
 ---
 
 ## F-002: 产品文档优先于一切
+<!-- added: 2026-04-01 | owner: human | type: permanent -->
+<!-- trigger: 工具服务于目的的核心原则确立 -->
 
 产品文档是项目的源头，优先级高于根级文档、技术文档、规则文件。
 
@@ -29,6 +33,9 @@
 ---
 
 ## F-003: 依赖图区分主链 vs 交叉引用
+<!-- added: 2026-04-03 | owner: human | type: timeboxed | review_after: 2026-07-03 -->
+<!-- trigger: 混淆主链和交叉引用导致依赖层级失真 -->
+<!-- sunset: 文档体系稳定后（无新增根文档 6 个月）可降级为参考 -->
 
 1. **主链 vs 交叉引用**：依赖图中不能把所有引用当同等权重。主链依赖（vision→design→requirements）是内容生成方向，交叉引用（cases 引用 workflow 的 S0-S3）是辅助参考。
 2. **文档→代码锚点**：文档审计不能只验证「文档间自洽」，必须验证「文档声明是否有代码兑现」。
@@ -40,6 +47,9 @@
 ---
 
 ## F-004: 内测阶段不做 Schema 迁移
+<!-- added: 2026-04-01 | owner: human | type: timeboxed | review_after: 2026-07-01 -->
+<!-- trigger: 设计了复杂的向后兼容方案，属于战术勤奋 -->
+<!-- sunset: App Store 正式上架后废止，改为标准 Schema 迁移流程 -->
 
 内测阶段（TestFlight Internal，0 外部用户）不需要 Schema 向后兼容迁移。
 
@@ -50,6 +60,8 @@
 ---
 
 ## F-005: 完成前必须对抗性审查
+<!-- added: 2026-04-02 | owner: human | type: permanent -->
+<!-- trigger: Claude 首次提交漏了 5+1 处问题，全靠 Codex 抓出 -->
 
 改完代码或文档后，不要直接跟用户说"搞定了"。必须先让 Codex 做对抗性审查，审查通过后才能声明完成。
 
@@ -60,6 +72,8 @@
 ---
 
 ## F-006: 审计必须深度读源码
+<!-- added: 2026-04-04 | owner: human | type: permanent -->
+<!-- trigger: Codex 用 450+ 条深度命令发现 5 个严重问题，Claude 零发现 -->
 
 审计和审查时必须做到深度代码验证：不只验证"类型名/方法名存在"（浅层），还要读源码确认"行为与文档描述一致"（深层）。
 
@@ -70,6 +84,8 @@
 ---
 
 ## F-007: PR 合并后必须检查 CI
+<!-- added: 2026-04-06 | owner: human | type: permanent -->
+<!-- trigger: CI 连续 4 天全红（15+ 次失败）未被发现 -->
 
 PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 
@@ -80,6 +96,8 @@ PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 ---
 
 ## F-008: 三方交叉审计必须相同完整任务
+<!-- added: 2026-04-06 | owner: human | type: permanent -->
+<!-- trigger: 用户多次提醒（至少 3 次），错误模式是分配不同子任务 -->
 
 三方交叉审计的核心是"冗余"：各方独立完成完全相同的完整任务，然后交叉比对发现盲区。
 
@@ -90,6 +108,9 @@ PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 ---
 
 ## F-009: Xcode Review 必须先读模板
+<!-- added: 2026-04-07 | owner: human | type: timeboxed | review_after: 2026-07-07 -->
+<!-- trigger: 连续两次凭记忆写错提示词 -->
+<!-- sunset: Claude 稳定遵循 3 个月无违反后可降级为参考 -->
 
 写 Xcode Review 提示词前必须先读取 skill 模板文件，严格按模板结构输出。
 
@@ -100,6 +121,9 @@ PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 ---
 
 ## F-010: 审计按依赖关系拆分阶段
+<!-- added: 2026-04-08 | owner: human | type: timeboxed | review_after: 2026-07-08 -->
+<!-- trigger: 全量审计丢失上下文焦点 -->
+<!-- sunset: 文档体系稳定后（审计频率降低）可降级为参考 -->
 
 大型审计按依赖关系拆分阶段，步步为营，不全量一把梭。
 
@@ -110,6 +134,8 @@ PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 ---
 
 ## F-011: 审计期间三方只读
+<!-- added: 2026-04-08 | owner: human | type: permanent -->
+<!-- trigger: Claude 审计期间提前修改 api-reference.md 导致 Codex 暂停 -->
 
 审计流程中三方必须同时只读审计 → 汇总比对 → 统一修复。审计期间不得提前修改被审文件。
 
@@ -120,6 +146,8 @@ PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 ---
 
 ## F-012: 不偷懒，全量做
+<!-- added: 2026-04-08 | owner: human | type: permanent -->
+<!-- trigger: Claude 抽查 10 个签名说"全部匹配"，Codex 全量验证发现 13 处不匹配 -->
 
 审计、验证、代码检查等任务必须全量执行，禁止抽查后声称"基本准确"。
 
@@ -130,6 +158,9 @@ PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 ---
 
 ## F-013: PR scope 膨胀时必须拆分
+<!-- added: 2026-04-15 | owner: human | type: timeboxed | review_after: 2026-07-15 -->
+<!-- trigger: PR #597 从 CI 全量测试膨胀到 8 次 CI 尝试 -->
+<!-- sunset: 团队形成稳定的 PR scope 习惯后可降级为参考 -->
 
 当 PR 实际工作偏离原始目标（如从「配置修改」滚雪球成「修复 4 个编译错误 + 7 次 CI 重试」）时，必须停下来拆分为独立 PR。
 
@@ -140,6 +171,9 @@ PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 ---
 
 ## F-014: 跳过测试的合并门禁
+<!-- added: 2026-04-15 | owner: human | type: timeboxed | review_after: 2026-07-15 -->
+<!-- trigger: PR #597 跳过 Data 测试，tracking issue 和注释事后补的 -->
+<!-- sunset: 所有 skipped 测试恢复后可降级为参考 -->
 
 标记测试为 `skipped` 是降级决策，合并前必须完成检查清单：(a) 创建 tracking issue，(b) 在代码中添加 `// TODO: #issue` 注释，(c) 在 PR description 中声明跳过原因，(d) PR 标题反映实际交付而非初始意图。
 
@@ -150,6 +184,8 @@ PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 ---
 
 ## F-015: CI 失败是致命信号
+<!-- added: 2026-04-15 | owner: human | type: permanent -->
+<!-- trigger: PR #597 CI 失败后 Claude 不等结果就开始 PR #598 -->
 
 CI 失败必须立即阻塞后续工作。不能在未确认 CI 通过的情况下推进新 PR 或新任务。
 
@@ -160,6 +196,8 @@ CI 失败必须立即阻塞后续工作。不能在未确认 CI 通过的情况�
 ---
 
 ## F-016: 质疑方批准，禁止自审自批
+<!-- added: 2026-04-15 | owner: human | type: permanent -->
+<!-- trigger: Claude 修复 Gemini Critical 发现后直接说"准备合并"，跳过复核 -->
 
 修复审查发现的问题后，必须提交回原质疑方（Codex/Gemini/Xcode）复核。只有提出问题的 reviewer 确认修复有效，才能声称"问题已解决"。Claude 自己不允许批准合并。
 
