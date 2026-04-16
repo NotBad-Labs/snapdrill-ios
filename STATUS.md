@@ -14,7 +14,7 @@
 
 **文档已冻结，功能开发 + 测试补齐阶段**（2026-04-14 冻结，2026-04-15-16 开发）。
 
-### 本轮完成（2026-04-15~16，15 个 PR）
+### 本轮完成（2026-04-15~16，17 个 PR）
 
 | PR | 内容 |
 |---|---|
@@ -33,15 +33,16 @@
 | #607 | 工程质量治理升级（纪律元数据 + AI 反模式检查 + CI 依赖守卫） |
 | #609 | try? 第二批治理（ProfileMigration + ProfileManager 关键路径） |
 | #611 | DashboardAnalyticsViewModel 测试（12 用例） |
+| #613 | coding.md 补充 Swift 6.3 并发特性文档 |
+| #614 | ProfileManager inMemory 写盘守卫 |
 
 ### 当前开发焦点（待做）
 
 | 优先级 | 工作项 | 说明 |
 |---|---|---|
-| P1 | #599 Data Repository CI 死锁排查 | 需 Mac mini 现场操作 |
-| P2 | coding.md 补充 Swift 6.3 特性 | nonisolated(unsafe)、InferIsolatedConformances |
+| P1 | #599 Data Repository CI 死锁排查 | 需 Mac mini 现场操作（PR #612 验证 simctl erase 无效） |
 | P2 | Xcode Review Issue | CaptureView 3x2 布局 + accessibilityIdentifier 视觉验证 |
-| P2 | ProfileManager inMemory 写盘守卫 | Codex 建议，防止 UI 测试扩展时意外写盘 |
+| P2 | PrivacySettingsViewModelTests flaky | "连续调用 startExport" 竞态条件（CI 偶发失败） |
 
 ### Apple 账号阻塞链（计划 5 月开通）
 
