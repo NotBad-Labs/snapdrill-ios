@@ -154,7 +154,7 @@ struct ReviewHeroCard: View {
                 }
                 .accessibleGroup(label: L10n.Accessibility.allDoneLabel)
                 .padding(24)
-                .background(.regularMaterial) // Use material for cards
+                .background(Color(.secondarySystemGroupedBackground))
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 24))
