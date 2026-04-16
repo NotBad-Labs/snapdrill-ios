@@ -91,4 +91,7 @@ struct NotificationServiceTests {
         #expect(mock.simulatedPermissionGranted == true)
         #expect(mock.simulatedError == nil)
     }
+
+    // LiveNotificationService 依赖 UNUserNotificationCenter，
+    // Simulator 上行为不稳定（重试），真机验证覆盖。
 }
