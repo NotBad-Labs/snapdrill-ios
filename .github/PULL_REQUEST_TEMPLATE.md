@@ -24,6 +24,9 @@ Closes #
 - [ ] Xcode Review 核实通过（UI 改动必须）
 - [ ] 变更不违反 `docs/principles/` 中的架构约束
 - [ ] 涉及数据读写时已确认 Profile 隔离（不跨 Profile 泄露数据）
+- [ ] Codex 对抗性审查通过
+- [ ] AI 反模式检查通过（over-generation / scope creep / pattern divergence）
+- [ ] 此 PR 是否影响已文档化的约束？如是，已更新对应文件
 
 ### 功能完整性
 

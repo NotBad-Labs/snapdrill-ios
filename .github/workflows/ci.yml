@@ -44,6 +44,41 @@ jobs:
       - name: Lint
         run: swiftlint --strict
 
+      - name: Check Package Dependencies
+        run: |
+          echo "Checking for reverse dependency violations..."
+          VIOLATIONS=0
+          # Core 不应该 import 任何下游包
+          if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillUI\|import SnapDrillFeatures\|import SnapDrillInfrastructure' Packages/SnapDrillCore/Sources/ 2>/dev/null; then
+            echo "ERROR: Core must not import downstream packages"
+            VIOLATIONS=$((VIOLATIONS+1))
+          fi
+          # Data 只能 import Core
+          if grep -rn --include='*.swift' 'import SnapDrillUI\|import SnapDrillFeatures\|import SnapDrillInfrastructure' Packages/SnapDrillData/Sources/ 2>/dev/null; then
+            echo "ERROR: Data must only import Core"
+            VIOLATIONS=$((VIOLATIONS+1))
+          fi
+          # UI 只能 import Core
+          if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillFeatures\|import SnapDrillInfrastructure' Packages/SnapDrillUI/Sources/ 2>/dev/null; then
+            echo "ERROR: UI must only import Core"
+            VIOLATIONS=$((VIOLATIONS+1))
+          fi
+          # Infrastructure 只能 import Core
+          if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillUI\|import SnapDrillFeatures' Packages/SnapDrillInfrastructure/Sources/ 2>/dev/null; then
+            echo "ERROR: Infrastructure must only import Core"
+            VIOLATIONS=$((VIOLATIONS+1))
+          fi
+          # Features 不应该 import Infrastructure
+          if grep -rn --include='*.swift' 'import SnapDrillInfrastructure' Packages/SnapDrillFeatures/Sources/ 2>/dev/null; then
+            echo "ERROR: Features must not import Infrastructure directly"
+            VIOLATIONS=$((VIOLATIONS+1))
+          fi
+          if [ $VIOLATIONS -gt 0 ]; then
+            echo "Found $VIOLATIONS dependency direction violation(s)"
+            exit 1
+          fi
+          echo "All package dependency directions are correct"
+
       - name: Clean Simulator
         # 清理模拟器残留的 SwiftData schema 和 App 数据，
         # 避免 ModelContainer 初始化死锁（GradeRepository 稳定挂起）
