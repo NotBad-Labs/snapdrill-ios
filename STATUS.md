@@ -42,7 +42,7 @@
 | #623 | iOS 26 现代化（F-017 纪律 + DashboardAnalyticsView Liquid Glass） |
 | #624 | 剩余 .regularMaterial 治理（BentoCard + ReviewHeroCard + PDFPagePicker + LibraryList） |
 
-### 2026-04-16 晚间完成（5 个 PR + 1 研究）
+### 2026-04-16 晚间完成（6 个 PR + 1 研究 + 分支清理）
 
 | PR | 内容 |
 |---|---|
@@ -51,7 +51,9 @@
 | #630 | RecognizeDocumentsRequest 结构化文档识别（Protocol + 实现 + 测试） |
 | #631 | ScanPagePicker/PDFPagePicker 迁移到 recognizeDocument（消费方） |
 | #632 | FoundationModels 端侧 AI 自动标注学科/难度（contentTagging） |
+| #633 | App Store 元数据预备（ASO 文案 + 隐私审查） |
 | — | #626 FoundationModels 可行性研究完成（结论已发到 Issue） |
+| — | 历史分支全量清理（113→0，本地+远程纯净） |
 
 ### 当前开发焦点（待做）
 
@@ -73,7 +75,7 @@
 
 ### 待清理
 
-- 113 个历史分支待清理（基线重置后无意义）
+- ~~113 个历史分支待清理~~ 已全部清理（本地 1 + 远程 2 = 纯净状态）
 
 ## 产品决策记录
 
