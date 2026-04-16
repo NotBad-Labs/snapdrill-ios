@@ -80,4 +80,36 @@ struct OCRServiceTests {
         let result = try await service.recognizeText(from: blankImage)
         #expect(result.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
+
+    // MARK: - 文档结构化识别
+
+    @Test("recognizeDocument 清晰文字图片返回非空 transcript")
+    func recognizeDocumentWithText() async throws {
+        let service = OCRService()
+        let cgImage = try createTextImage(text: "Hello World")
+
+        let result = try await service.recognizeDocument(from: cgImage)
+
+        #expect(!result.transcript.isEmpty || !result.paragraphs.isEmpty,
+                "文档识别应返回非空结果。transcript: \(result.transcript)")
+    }
+
+    @Test("recognizeDocument 空白图片返回空结果不崩溃")
+    func recognizeDocumentEmptyImage() async throws {
+        let service = OCRService()
+        let blankImage = try createSolidColorImage(size: CGSize(width: 500, height: 500), color: .white)
+
+        let result = try await service.recognizeDocument(from: blankImage)
+
+        // 空白图片可能返回 .empty 或空 transcript，但不应崩溃
+        #expect(result.tables.isEmpty, "空白图片不应识别出表格")
+    }
+
+    @Test("DocumentRecognitionResult.empty 所有字段为空")
+    func documentRecognitionResultEmpty() {
+        let empty = DocumentRecognitionResult.empty
+        #expect(empty.transcript.isEmpty)
+        #expect(empty.paragraphs.isEmpty)
+        #expect(empty.tables.isEmpty)
+    }
 }
