@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-14 -->
-<!-- layer: pattern -->
+---
+last_verified: 2026-04-14
+layer: pattern
+---
 # 委派共享约束（Canonical Source）
 
 > 本文件是智能体委派 prompt 中"关键约束摘要"的唯一来源。

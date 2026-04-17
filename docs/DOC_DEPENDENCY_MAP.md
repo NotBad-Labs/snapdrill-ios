@@ -1,6 +1,10 @@
-<!-- last_verified: 2026-04-14 -->
-<!-- layer: snapshot -->
-<!-- freshness: max_age_days=14, decay_trigger=[doc_change] -->
+---
+last_verified: 2026-04-14
+layer: snapshot
+freshness:
+  max_age_days: 14
+  decay_trigger: [doc_change]
+---
 # SnapDrill 文档上下游依赖图
 
 > 目的：把"谁定义事实、谁消费事实、改一处要同步哪里"写清楚，避免返工。

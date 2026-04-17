@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-14 -->
-<!-- layer: pattern -->
+---
+last_verified: 2026-04-14
+layer: pattern
+---
 # SnapDrill 部署与运维
 
 > App Store 发布流程、版本管理、CI/CD、监控。

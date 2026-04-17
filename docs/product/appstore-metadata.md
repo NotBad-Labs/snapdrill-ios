@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-16 -->
-<!-- layer: snapshot -->
+---
+last_verified: 2026-04-16
+layer: snapshot
+---
 # App Store 元数据（ASO 文案）
 
 > 提交 App Store Connect 前的预备文案。Apple 账号就绪后直接复制粘贴。

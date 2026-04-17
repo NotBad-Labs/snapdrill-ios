@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-14 -->
-<!-- layer: pattern -->
+---
+last_verified: 2026-04-14
+layer: pattern
+---
 # Apple 原生优先
 
 **UI 改动必须先找 Apple 原生 App 或 HIG 中的对应模式。禁止自创交互。**

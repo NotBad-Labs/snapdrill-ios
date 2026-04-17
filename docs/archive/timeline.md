@@ -1,5 +1,10 @@
-<!-- last updated: 2026-04-13 -->
-<!-- freshness: max_age_days=7, decay_trigger=[pr_merge,issue_change,milestone_change], layer=snapshot -->
+---
+last_verified: 2026-04-13
+layer: snapshot
+freshness:
+  max_age_days: 7
+  decay_trigger: [pr_merge, issue_change, milestone_change]
+---
 # Timeline
 
 | 日期 | 事件 | 证据 |

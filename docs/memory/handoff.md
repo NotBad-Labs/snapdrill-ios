@@ -1,6 +1,10 @@
-<!-- last_verified: 2026-04-17 -->
-<!-- layer: snapshot -->
-<!-- freshness: max_age_days=3, decay_trigger=[pr_merge,branch_change] -->
+---
+last_verified: 2026-04-17
+layer: snapshot
+freshness:
+  max_age_days: 3
+  decay_trigger: [pr_merge, branch_change]
+---
 # Handoff
 
 ## 当前接手状态

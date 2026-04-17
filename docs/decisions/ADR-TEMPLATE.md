@@ -1,3 +1,7 @@
+---
+last_verified: 2026-04-17
+layer: decision
+---
 # ADR-NNN: [标题]
 
 > 状态：**提议 / 已决策 / 已废弃** | 日期：YYYY-MM-DD | 决策者：[角色]

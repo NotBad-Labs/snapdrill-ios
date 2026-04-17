@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-17 -->
-<!-- layer: pattern -->
+---
+last_verified: 2026-04-17
+layer: pattern
+---
 # SnapDrill 知识地图
 
 > 全局知识索引。三层分类：原则（极少变）、模式（偶尔变）、快照（频繁变）。

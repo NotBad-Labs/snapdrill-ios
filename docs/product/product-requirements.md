@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-14 -->
-<!-- layer: pattern -->
+---
+last_verified: 2026-04-14
+layer: pattern
+---
 # SnapDrill 产品需求
 
 > **上游依赖**：`product-vision.md`（使命、定位、用户、6 条原则、冲突裁决）、`product-design.md`（设计决策、交互铁律、[PX] 追溯）

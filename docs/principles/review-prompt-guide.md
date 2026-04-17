@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-14 -->
-<!-- layer: pattern -->
+---
+last_verified: 2026-04-14
+layer: pattern
+---
 # 手动 Review 提示词写作规范
 
 > **上游依赖**：`docs/workflow.md`（Code Review）
