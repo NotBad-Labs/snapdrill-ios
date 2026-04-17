@@ -16,7 +16,7 @@
 ## 历史归档
 
 - `docs/archive/timeline.md` — 事件时间线（2026-04-09 ~ 2026-04-13）
-- `docs/archive/audit-report-20260409.md` — 三方审计报告
+- `docs/archive/audit-report-20260409.md` — 早期审计报告（⚠️ 已归档，用户判定不可靠；仅作历史溯源）
 
 ## 写回规则
 
