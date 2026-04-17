@@ -45,7 +45,10 @@ jobs:
         run: swiftlint --strict
 
       - name: Validate docs frontmatter
-        run: python3 Scripts/validate_frontmatter.py --check
+        run: |
+          # 确保 PyYAML 可用（stdlib 回退不支持嵌套 freshness mapping）
+          python3 -c "import yaml" 2>/dev/null || python3 -m pip install --quiet --user pyyaml
+          python3 Scripts/validate_frontmatter.py --check
 
       - name: Check Package Dependencies
         run: |
