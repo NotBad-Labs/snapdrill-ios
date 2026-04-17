@@ -5,14 +5,23 @@
 
 ## 当前接手状态
 
-- 主力智能体：Claude Code（Opus 4.6 → 即将交接给 Opus 4.7）
+- 主力智能体：Claude Code（Opus 4.7，已升级）
 - 主分支：`develop`
 - 当前工作分支：无（develop 上，纯净状态）
 - 仓库分支：本地 1（develop） + 远程 2（develop + main）
 
 ## 待合并 PR
 
-无。
+无。本会话所有 PR 已合并：#640/#642/#644/#646/#648。
+
+## 重要审计产出（新会话必读）
+
+`~/.claude/plans/doc-audit-summary.md` — 文档体系三方独立审计综合报告
+- 三方独立审计：Claude（核心治理）+ Codex `exec --full-auto`（全量）+ Gemini（产品文档）
+- 五维度发现：DRY / YAGNI / Skill 化 / 一致性 / 时效性
+- 误判归档：Gemini 关于 ASO 虚假宣传的 Critical 已实证反驳
+- Phase 4 PR 候选清单 P1-P3
+- 用户 PR-I 决策已拍板（W1 Codex 方案 / W2 三层拆分 / I1 vision 唯一 / I2 YAML frontmatter）
 
 ## 关键事实（当前快照）
 
@@ -23,7 +32,7 @@
 - SwiftLint：0 violations（195 files）
 - iOS 26.0+ / Xcode 26.4 / Swift 6.3 / defaultIsolation(MainActor)
 
-### 本会话完成的工作（2026-04-16~17，8 个 PR + 1 中期审计）
+### 本会话完成的工作（2026-04-16~17，12 个 PR + 中期审计 + 文档体系三方独立审计）
 - **#628** Data 测试死锁修复（根因：PersistenceController + async + MainActor 死锁 → 对齐 Features 测试模式）
 - **#629** NSLocalizedString → L10n 统一（LiveNotificationService）
 - **#630** RecognizeDocumentsRequest 结构化文档识别（OCRServiceProtocol + OCRService）
@@ -32,7 +41,12 @@
 - **#633** App Store 元数据预备（docs/product/appstore-metadata.md）
 - **#634** ContentTaggingService 测试补齐
 - **#636** try? 第三批治理（#635 闭合）：1 关键路径 + 7 日志 + 11 注释 + 3 对抗补救 + 2 风格统一。三方审计（Gemini + Codex + Xcode Intelligence）
-- **中期审计 2026-04-17**：按目标/约束/验收三维，识别 8 项脱轨点，STATUS + handoff + codex-delegation 校准
+- **中期审计 2026-04-17 早**：按目标/约束/验收三维，识别 8 项脱轨点，STATUS + handoff + codex-delegation 校准（PR #640 闭合）
+- **#642** Phase 4 P1 SSOT 校准：codex/gemini-delegation 迁移 .claude/rules/ → docs/principles/
+- **#644** Phase 4 P1 cross-audit skill：强制 F-008 三方审计纪律
+- **#646** Phase 4 P1 api-reference 同步：recognizeDocument + ContentTaggingService（Codex 独有发现）
+- **#648** Phase 4 Step 1：.claude/rules/ux-design.md 补 YAML frontmatter（12/12 全 YAML）
+- **文档体系三方独立审计 2026-04-17 晚**：56 文件五维度，三方独立报告 → 综合报告 `~/.claude/plans/doc-audit-summary.md`
 
 ### Gap 分析结论（2026-04-17 已闭合）
 - Gemini 提出 2 个 Critical（草稿恢复/删除撤销缺失）→ 经代码验证均为**误判**，两者完整实现
@@ -51,7 +65,8 @@
 
 | 优先级 | 工作项 | 说明 | 预估 |
 |---|---|---|---|
-| P1 | 文档体系三方审计 | 中期审计发现 docs/rules/skills 从未独立 review，疑有重复/抽象缺失/知识未固化 | 待估 |
+| P1 | **文档体系审计 P2 sprint** | 原 PR-D F-008 去重 / PR-E KNOWLEDGE_MAP 校准 / PR-F Opus 4.7+requirements AI / PR-G archive 标废弃 / PR-H ux-design 失效 skill + Step 2 (docs/principles+memory 18 文件 YAML 化) + Step 4 (Scripts/validate_frontmatter.py) | ~3-4h |
+| P1 | **文档体系审计 P3 sprint = PR-I 大 PR** | W1 Codex 方案 (requirements 持铁律) + W2 三层拆分 (vision/requirements/compliance) + I1 vision 唯一 + I2 全文档 YAML frontmatter + Step 3 产品文档 YAML 化（用户拍板决策已记忆） | ~3-5h |
 | P2 | CSV 导入功能 | Could Have，现有 CSV 导出的逆向操作（CSVImportService + UI） | ~2h |
 | P3 | Share Extension 集成验证 | App Group 已配置（group.com.snapdrill.app），需端到端验证 | ~30min |
 | P3 | #626 FoundationModels 题目分割 | 基础设施已就绪（RecognizeDocumentsRequest），需 PoC + UI | ~3h |
