@@ -6,7 +6,7 @@
 
 | 工具 | 引擎 | 入口 | 上下文 | 适合场景 |
 |---|---|---|---|---|
-| **终端 Claude Code** | Opus 4.6 | CLI / 桌面 App | 1M token | 主力开发、协调、规划、重构、审计 |
+| **终端 Claude Code** | Opus 4.7 | CLI / 桌面 App | 1M token | 主力开发、协调、规划、重构、审计 |
 | **Claude 子 agent（Haiku）** | Haiku 4.5 | 终端内委派 | 200K token | 注释撰写、翻译、格式化、轻量生成 |
 | **Claude 子 agent（Sonnet）** | Sonnet 4.6 | 终端内委派 | 1M token | 中等复杂度代码生成、重构建议 |
 | **Codex 插件** | GPT-5.4 系列 | 终端内 | 1.1M token | 对抗性 Review、独立审计、深度研究 |
