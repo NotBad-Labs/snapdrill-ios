@@ -94,8 +94,14 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     /// 读取已保存的草稿；不存在、数据损坏或超过 7 天时返回 `nil`
     public func loadDraft() -> Draft? {
         // 1. Load Metadata
-        guard let data = defaults.data(forKey: draftMetadataKey),
-              let metadata = try? JSONDecoder().decode(DraftMetadata.self, from: data) else {
+        guard let data = defaults.data(forKey: draftMetadataKey) else {
+            return nil
+        }
+        let metadata: DraftMetadata
+        do {
+            metadata = try JSONDecoder().decode(DraftMetadata.self, from: data)
+        } catch {
+            SnapDrillLogger.generic.warning("[DraftService] 草稿元数据解码失败（数据损坏）: \(error.localizedDescription)")
             return nil
         }
 
@@ -133,7 +139,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     public func clearDraft() {
         defaults.removeObject(forKey: draftMetadataKey)
         if let path = draftImagePath() {
-            try? fileManager.removeItem(at: path)
+            try? fileManager.removeItem(at: path) // best-effort: 图片文件删除失败不影响草稿元数据已清理
         }
         SnapDrillLogger.generic.info("[DraftService] Draft cleared.")
     }

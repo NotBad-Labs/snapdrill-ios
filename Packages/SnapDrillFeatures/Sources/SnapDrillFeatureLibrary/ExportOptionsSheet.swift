@@ -186,7 +186,7 @@ struct ExportOptionsSheet: View {
                 let zipURL = tempDir.appendingPathComponent(zipName)
 
                 // 如果已有同名文件则先清理
-                try? FileManager.default.removeItem(at: zipURL)
+                try? FileManager.default.removeItem(at: zipURL) // best-effort: 文件不存在时抛错正常，清理失败时 Archive(create:) 会报错
 
                 let archive = try Archive(url: zipURL, accessMode: .create)
 
@@ -271,13 +271,18 @@ struct ReviewExport: Transferable {
         // Also support file URL export for apps that prefer files
         FileRepresentation(exportedContentType: .plainText) { export in
             let content = export.generateContent()
-            let tempParams = try? FileManager.default.url(
-                for: .itemReplacementDirectory,
-                in: .userDomainMask,
-                appropriateFor: URL(fileURLWithPath: ""),
-                create: true
-            )
-            let tempDir = tempParams ?? FileManager.default.temporaryDirectory
+            let tempDir: URL
+            do {
+                tempDir = try FileManager.default.url(
+                    for: .itemReplacementDirectory,
+                    in: .userDomainMask,
+                    appropriateFor: URL(fileURLWithPath: ""),
+                    create: true
+                )
+            } catch {
+                SnapDrillLogger.generic.warning("获取 itemReplacementDirectory 失败，回退到 temporaryDirectory: \(error.localizedDescription)")
+                tempDir = FileManager.default.temporaryDirectory
+            }
             let fileName = "SnapDrill_Export_\(Date().filenameDateString).\(export.format.fileExtension)"
             let fileURL = tempDir.appendingPathComponent(fileName)
             try content.write(to: fileURL, atomically: true, encoding: .utf8)

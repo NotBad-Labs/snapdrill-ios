@@ -192,7 +192,11 @@ public final class OnboardingManager {
     public func resetAll() {
         UserDefaults.standard.set(false, forKey: UDKey.hasCompletedOnboarding)
         shouldShowOnboarding = true
-        try? Tips.resetDatastore()
+        do {
+            try Tips.resetDatastore()
+        } catch {
+            SnapDrillLogger.generic.error("TipKit 重置失败: \(error.localizedDescription)")
+        }
         ProfileTipState().resetAll()
     }
 }
