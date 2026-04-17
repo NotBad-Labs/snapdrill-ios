@@ -2,7 +2,6 @@
 <!-- layer: pattern -->
 # UX 设计原则
 
-> 从 `.claude/skills/ux-designer/` 和 `.claude/skills/user-advocate/` 合并而来。
 > 适用于所有涉及 UI/UX 的改动。
 
 ## 核心标准
