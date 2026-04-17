@@ -5,7 +5,7 @@ layer: pattern
 # SnapDrill 数据合规
 
 > 集中记录隐私合规策略、数据处理流程、合规认证状态。
-> 商业化策略和隐私差异化定位见 `../product/product-business.md`。
+> 产品承诺见 `../product/product-vision.md`，用户可见规格见 `../product/product-requirements.md`，商业化定位见 `../product/product-business.md`。
 
 ---
 

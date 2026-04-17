@@ -118,9 +118,11 @@ iCloud 同步是打通这个闭环的引擎，图片处理增强（去手写/试
 
 ## 隐私策略（2026-03-07 确立，Bear 模式）
 
-SnapDrill **默认不收集个人信息**：无需注册、不要求姓名、手机号、学校或年级。
-匿名使用统计仅在用户明确授权后启用，启用后生成随机应用标识符用于改进产品，不关联真实身份。
-匿名使用数据采用两个独立开关，分别控制 Firebase Analytics 和 Crashlytics。首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in 开启或关闭。
+> 产品承诺：`product-vision.md`§P4 数据属于用户
+> 功能规格（字段、opt-in）：`product-requirements.md`§使用数据
+> 技术实现：`../tech/compliance.md`§隐私架构
+
+**核心定位**：参照 Bear（Shiny Frog）的 Freemium + Apple CloudKit 模式——不自建用户账号，不主动收集儿童信息。这是 vs 国内竞品（喵喵机/橙果等）的关键差异。
 
 | 维度 | 竞品（喵喵机/橙果等） | SnapDrill |
 |---|---|---|
@@ -135,12 +137,7 @@ SnapDrill **默认不收集个人信息**：无需注册、不要求姓名、手
 - 家长最怕孩子的学习数据被平台收集利用
 - SnapDrill 不主动收集用户数据 = 大幅降低监管风险 + 家长信任
 
-**技术实现**：参照 Bear（意大利独立工作室 Shiny Frog 开发）的模式——
-- 同步基于 Apple CloudKit，利用设备已有的 Apple ID 凭证，无需单独注册
-- 中国区 iCloud 由云上贵州运营，数据存储在中国境内。中国大陆 iCloud 同步体验可能与其他市场有差异，iCloud 同步实现时做针对性测试
-- 开启 Apple Advanced Data Protection 后，CloudKit 数据端到端加密，只有用户能解密
-
-数据安全承诺见 `product-vision.md`§数据安全子条款 和 `product-design.md`§备份与恢复设计。
+**iCloud 区域差异**：中国区 iCloud 由云上贵州运营，数据存储在中国境内；中国大陆 iCloud 同步体验可能与其他市场有差异，iCloud 同步实现时做针对性测试。开启 Apple Advanced Data Protection 后，CloudKit 数据端到端加密，只有用户能解密。
 
 **用户须知（必须在产品中醒目提示）**：
 - 免费版纯本地存储，**卸载 App = 数据永久丢失**——需在设置中和适当时机明确提醒

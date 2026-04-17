@@ -108,8 +108,7 @@ GTM 执行细节见 `product-business.md`§发布策略。
 支持导出，详见 `product-requirements.md`§导出与打印能力。
 不做社交、不做内容平台、不做推荐算法。
 SnapDrill **默认不收集个人信息**：无需注册、不要求姓名、手机号、学校或年级。
-匿名使用统计仅在用户明确授权后启用，启用后生成随机应用标识符用于改进产品，不关联真实身份。详见 `product-requirements.md`§使用数据。
-详细隐私策略见 `product-business.md`。
+匿名使用数据与崩溃报告仅在用户明确授权后启用，且不关联真实身份；字段与开关规格见 `product-requirements.md`§设置与个性化，技术与合规边界见 `../tech/compliance.md`，商业定位见 `product-business.md`。
 
 **数据安全子条款**：本地存储意味着 App 是用户数据的唯一守护者。保存必须可靠，删除可撤销，备份可用。
 **iCloud 同步隐私边界**：iCloud 同步完全基于系统级 CloudKit，数据由 Apple 加密存储在用户个人 iCloud 账户中。SnapDrill 不接触、不存储、不可访问用户的 Apple ID 或 iCloud 数据。开发者无法查看任何用户的个人内容。
