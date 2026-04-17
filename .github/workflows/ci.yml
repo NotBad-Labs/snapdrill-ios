@@ -44,6 +44,9 @@ jobs:
       - name: Lint
         run: swiftlint --strict
 
+      - name: Validate docs frontmatter
+        run: python3 Scripts/validate_frontmatter.py --check
+
       - name: Check Package Dependencies
         run: |
           echo "Checking for reverse dependency violations..."
