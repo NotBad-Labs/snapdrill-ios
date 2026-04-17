@@ -1,11 +1,11 @@
-<!-- last_verified: 2026-04-16 -->
+<!-- last_verified: 2026-04-17 -->
 <!-- layer: snapshot -->
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-17（晚间）
-> 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
-> Open PR：0 · Open Issue：~10（Apple 阻塞 6 + #540/#626/#637/#638）— PR #648 已合并，#647 自动关闭
+> 最后更新：2026-04-17（晚间 P2 sprint 启动中）
+> 编译状态：✅ 0 lint violations（本地）· ⚠️ CI 阻塞：Mac mini runner CoreSimulator 过时（1051.49.0 vs 1051.50.0）
+> Open PR：3（#651/#652/#653 等 runner 修复重跑）· Open Issue：~10（Apple 阻塞 6 + #540/#626/#637/#638）
 > 测试：158 tests（Features）+ 103 tests（Core）+ 95 tests（Data）= 356 total · ViewModel 覆盖 15/15 = 100%
 
 ---
@@ -23,9 +23,20 @@
 **Phase 4 Step 1 完成**：
 - PR #648 .claude/rules/ux-design.md 补 YAML frontmatter（已合并，.claude/rules/ 12/12 全 YAML）
 
-**下一候选**（建议另起会话执行）：
-- **P2 sprint**：原 PR-D F-008 去重 / PR-E KNOWLEDGE_MAP 校准 / PR-F Opus 4.7+requirements AI 状态 / PR-G archive 标废弃 / PR-H ux-design 失效 skill 引用 + 新增 Step 2（docs/principles + memory 14+4 文件 YAML 化）+ Step 4（Scripts/validate_frontmatter.py）
+**Phase 4 P2 sprint 进行中（2026-04-17 晚）**：
+- ✅ **PR #650** PR-D F-008 去重（合并）— workflow.md:146 改纯指针
+- 🟡 **PR #651** PR-G archive 标废弃（CI 阻塞）— audit-report-20260409.md 元信息 + memory/README 注记
+- 🟡 **PR #652** PR-F 时效性修正（CI 阻塞）— collaboration Opus 4.6→4.7 + requirements 端上 AI 毕业
+- 🟡 **PR #653** PR-H ux-design 失效 skill 修正（CI 阻塞）— 删除 ux-design.md:5 死引用
+- 🔴 **PR-E 待启动**：KNOWLEDGE_MAP 文件数 25→39 + feedback 条数 12→17 + memory/README 同步（依赖 PR-G 先合并避免冲突）
+
+**CI 阻塞根因**：Mac mini runner CoreSimulator 1051.49.0 < Xcode build 1051.50.0。需用户到家后重启 Mac mini 或 SSH 升级 CoreSimulator。修复后重跑 #651/#652/#653 即可。
+
+**PR-F 漏洞待补**：requirements.md:250 MoSCoW Could Have 段仍列"端上 AI 集成（探索性）"，需在 PR-F 追加 commit 或 PR-E 捎带修正。
+
+**下一候选**：
 - **P3 sprint = PR-I 大 PR**：W1 备份铁律收敛 requirements + W2 隐私三层拆分 + I1 vision 唯一 + I2 全文档 YAML frontmatter + Step 3 产品文档 YAML 化（用户最终拍板决策已记忆）
+- **P2 Step 2/4**：docs/principles + memory 14+4 文件 YAML 化 + Scripts/validate_frontmatter.py
 
 ### 本轮完成（2026-04-15~16，24 个 PR）
 
@@ -55,7 +66,7 @@
 | #623 | iOS 26 现代化（F-017 纪律 + DashboardAnalyticsView Liquid Glass） |
 | #624 | 剩余 .regularMaterial 治理（BentoCard + ReviewHeroCard + PDFPagePicker + LibraryList） |
 
-### 2026-04-16~17 晚间完成（12 个 PR + 1 研究 + 分支清理 + Gap 分析 + 中期审计 + 文档体系审计）
+### 2026-04-16~17 晚间完成（13 个 PR + 1 研究 + 分支清理 + Gap 分析 + 中期审计 + 文档体系审计 + P2 sprint 启动）
 
 | PR | 内容 |
 |---|---|
@@ -72,6 +83,7 @@
 | #644 | **Phase 4 P1**：新建 cross-audit skill 强制 F-008 三方审计纪律 |
 | #646 | **Phase 4 P1**：api-reference 同步 — recognizeDocument + ContentTaggingService |
 | #648 | **Phase 4 Step 1**：.claude/rules/ux-design.md 补 YAML frontmatter（12/12 全 YAML） |
+| #650 | **Phase 4 P2 PR-D**：workflow.md F-008 改纯指针（collaboration + feedback 两处持） |
 | — | #626 FoundationModels 可行性研究完成（结论已发到 Issue） |
 | — | 历史分支全量清理（113→0，本地+远程纯净） |
 | — | Gemini 对抗性审查：草稿恢复/删除撤销误判已验证，try? 残余已识别 |
