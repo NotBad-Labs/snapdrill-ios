@@ -141,6 +141,4 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ## 交叉审计（Cross-Audit）
 
-详细的三方审计组合、流程、工具链见 `docs/principles/collaboration.md`。
-
-核心原则：**每个 Agent 独立审计完整集合，不是各审一半拼起来。** 三方（Claude / Codex / Gemini）全量冗余审计同一批文档/代码，交叉比对暴露盲区。
+三方审计的组合、流程、工具链见 `docs/principles/collaboration.md`；核心纪律见 `docs/memory/feedback.md` F-008。
