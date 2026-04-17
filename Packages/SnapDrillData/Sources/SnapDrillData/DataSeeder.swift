@@ -310,7 +310,7 @@ public final class DataSeeder {
                 let randomTags = tagPool.shuffled().prefix(tagCount)
                 for tagName in randomTags {
                     let fetch = FetchDescriptor<TagModel>(predicate: #Predicate<TagModel> { $0.name == tagName })
-                    if let existing = try? modelContext.fetch(fetch).first {
+                    if let existing = try modelContext.fetch(fetch).first {
                         assignedTags.append(existing)
                     } else {
                         let newTag = TagModel(name: tagName)

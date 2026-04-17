@@ -224,6 +224,8 @@ struct EditProfileView: View {
                 let data: Data?
                 do {
                     data = try await newValue?.loadTransferable(type: Data.self)
+                } catch is CancellationError {
+                    return // 取消属正常行为（222/243 的 cancel()），不记为错误
                 } catch {
                     SnapDrillLogger.generic.error("PhotosPicker 图片加载失败: \(error.localizedDescription)")
                     return
