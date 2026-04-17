@@ -1,4 +1,4 @@
-<!-- last_verified: 2026-04-14 -->
+<!-- last_verified: 2026-04-17 -->
 <!-- layer: snapshot -->
 <!-- freshness: max_age_days=30, decay_trigger=[code_change] -->
 # SnapDrill 内部 API 参考
@@ -37,11 +37,42 @@ public protocol AnalyticsServiceProtocol: Sendable {
 }
 ```
 
+### `ContentTaggingServiceProtocol`
+```swift
+public protocol ContentTaggingServiceProtocol: Sendable {
+    /// 从题目文本推断学科和难度（端侧 AI，FoundationModels）
+    /// 设备不支持 Apple Intelligence 时返回 nil
+    func suggestTags(for text: String) async -> ContentTagSuggestion?
+}
+
+nonisolated public struct ContentTagSuggestion: Sendable, Equatable {
+    public let subject: String
+    public let difficulty: Int   // 1-5
+    public init(subject: String, difficulty: Int)
+}
+```
+
 ### `OCRServiceProtocol`
 ```swift
 public protocol OCRServiceProtocol: Sendable {
+    /// 单题/单段文字识别（VNRecognizeTextRequest）
+    /// 适合裁剪后的单题图片
     func recognizeText(from cgImage: CGImage) async throws -> String
+
+    /// 整页文档结构化识别（RecognizeDocumentsRequest，iOS 26+）
+    /// 适合整页扫描件或 PDF 页面，不适合裁剪后的单题图片
+    func recognizeDocument(from cgImage: CGImage) async throws -> DocumentRecognitionResult
 }
+
+nonisolated public struct DocumentRecognitionResult: Sendable, Equatable {
+    public let transcript: String        // 全文（换行符分隔）
+    public let paragraphs: [String]      // 按文档结构分组的文本块
+    public let tables: [[TableRow]]      // 二维字符串数组
+    public init(transcript: String, paragraphs: [String], tables: [[TableRow]])
+    public static let empty: DocumentRecognitionResult
+}
+
+public typealias TableRow = [String]
 ```
 
 ### `PDFExportable`
@@ -177,11 +208,23 @@ public final class PrivacyConsentService {
 ```
 ATT 授权逻辑已根据 ADR-002 移除。保留空壳供 DI 兼容。
 
+### `ContentTaggingService`
+```swift
+public actor ContentTaggingService: ContentTaggingServiceProtocol {
+    public init() {}
+    /// 使用 FoundationModels 的 contentTagging adapter，端侧推断学科和难度
+    /// SystemLanguageModel.default.isAvailable 为 false 时静默返回 nil
+    public func suggestTags(for text: String) async -> ContentTagSuggestion?
+}
+```
+
 ### `OCRService`
 ```swift
 public actor OCRService: OCRServiceProtocol {
     public init() {}
     public func recognizeText(from cgImage: CGImage) async throws -> String
+    /// iOS 26+，使用 RecognizeDocumentsRequest，配置 zh-Hans + en-US
+    public func recognizeDocument(from cgImage: CGImage) async throws -> DocumentRecognitionResult
 }
 ```
 
