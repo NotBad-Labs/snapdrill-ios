@@ -238,6 +238,7 @@ layer: pattern
 
 **Variants & Exceptions**:
 - [Variant] 备份文件必须覆盖多 Profile 场景，不允许只导出当前活跃 Profile 的局部数据
+- [Boundary] 兼容性验收以恢复结果判定：当前版本必须能恢复受支持的旧 `.snapdrill` 备份；超出支持范围的版本必须明确拒绝并提示，不得改动现有数据
 - [Exception] 备份文件损坏或不可读：必须拒绝恢复，并保留现有本地数据不变
 - [Exception] 备份版本高于当前 App 支持版本：必须拒绝恢复并提示版本不兼容，建议升级 App
 - [Exception] 备份版本低于当前 App 但在兼容范围内：允许迁移恢复；失败时不得破坏现有本地数据
@@ -253,7 +254,7 @@ layer: pattern
 **References**:
 - `product-vision.md`：`4. 数据属于用户（隐私是核心差异化）`
 - `product-design.md`：`备份与恢复设计 [P4 数据安全]`、`多 Profile 设计 [P5 家长友好]`
-- `product-requirements.md`：`功能边界（MoSCoW 分类）`、`功能全景`
+- `product-requirements.md`：`备份与恢复`、`功能边界（MoSCoW 分类）`
 - `product-requirements.md`「用户旅程」：`旅程 1：家长帮小学生录入 + 多孩管理`、`旅程 10：免费用户换机恢复`
 - `product-business.md`：`付费模式（Freemium + 订阅，Bear 模式，2026-03-07 确立）`、`隐私策略（2026-03-07 确立，Bear 模式）`
 
