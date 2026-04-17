@@ -5,7 +5,7 @@ paths:
   - "docs/principles/collaboration.md"
 ---
 
-<!-- last verified: 2026-04-09 -->
+<!-- last verified: 2026-04-17 -->
 # Codex 子 agent 委派规范
 
 Codex 作为 Claude Code 的子 agent 运行（插件 v1.0.3，源码 `openai/codex-plugin-cc`），不自动继承 `CLAUDE.md`、`docs/principles/`、产品文档体系。
@@ -15,12 +15,13 @@ Codex 作为 Claude Code 的子 agent 运行（插件 v1.0.3，源码 `openai/co
 
 | 任务类型 | 模型 | effort | 理由 |
 |---|---|---|---|
-| 研究/审计（只读） | `--model gpt-5.4` | `--effort medium` | GPT-5.4 输出更稳定，medium 防止搜索循环 |
+| 研究/审计（只读） | `--model gpt-5.4` | `--effort high` | 对抗性审查要求深度，high 提供更可靠的分类判断（2026-04-17 从 medium 升级） |
+| 对抗性 Review | `--model gpt-5.4` | `--effort high` | 同上，多文件 diff 审查和独立视角验证需要 high 保证质量 |
 | 代码实现/修复 | 默认（不指定） | 默认（不指定） | 让 Codex 自选最优模型 |
 | 快速迭代/实时 | `--model spark` | 默认 | 1000+ tok/s，适合小改动 |
-| 对抗性 Review | 默认 | 默认 | Review 命令有内置 prompt |
+| 快速 lint/格式校验 | `--model gpt-5.4` | `--effort medium` | 低智能敏感度任务，medium 省 token |
 
-已知问题：GPT-5.3-Codex 在长研究任务中容易陷入搜索循环导致超时（报告生成阶段卡死）。切换到 GPT-5.4 + effort medium 可缓解。
+历史注记：GPT-5.3-Codex 时代因搜索循环曾推荐 medium。GPT-5.4 + Codex CLI v0.121.0 后该问题显著改善，2026-04-17 起默认升级 high。
 
 ## 委派 prompt 必须包含
 

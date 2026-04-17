@@ -23,7 +23,7 @@
 - SwiftLint：0 violations（195 files）
 - iOS 26.0+ / Xcode 26.4 / Swift 6.3 / defaultIsolation(MainActor)
 
-### 本会话完成的工作（2026-04-16~17，7 个 PR）
+### 本会话完成的工作（2026-04-16~17，8 个 PR + 1 中期审计）
 - **#628** Data 测试死锁修复（根因：PersistenceController + async + MainActor 死锁 → 对齐 Features 测试模式）
 - **#629** NSLocalizedString → L10n 统一（LiveNotificationService）
 - **#630** RecognizeDocumentsRequest 结构化文档识别（OCRServiceProtocol + OCRService）
@@ -31,14 +31,17 @@
 - **#632** FoundationModels 端侧 AI 自动标注学科/难度（ContentTaggingService）
 - **#633** App Store 元数据预备（docs/product/appstore-metadata.md）
 - **#634** ContentTaggingService 测试补齐
+- **#636** try? 第三批治理（#635 闭合）：1 关键路径 + 7 日志 + 11 注释 + 3 对抗补救 + 2 风格统一。三方审计（Gemini + Codex + Xcode Intelligence）
+- **中期审计 2026-04-17**：按目标/约束/验收三维，识别 8 项脱轨点，STATUS + handoff + codex-delegation 校准
 
-### Gap 分析结论（Gemini 对抗审查已校准）
+### Gap 分析结论（2026-04-17 已闭合）
 - Gemini 提出 2 个 Critical（草稿恢复/删除撤销缺失）→ 经代码验证均为**误判**，两者完整实现
-- Gemini 有效发现：try? 残余 31 处需审计
+- Gemini 有效发现 try? 残余 → PR #636 已全量盘点（50 处 / 28 文件）并按 F-006 治理完毕
 
-### Codex 状态
-- 额度已用完（2026-04-16），每日刷新
-- 本会话全部用 Gemini CLI 替代（5 次审计调用）
+### Codex + Gemini 状态（2026-04-17 升级）
+- Codex CLI v0.120.0 → v0.121.0，额度刷新
+- Gemini CLI v0.37.0 → v0.38.1
+- 规范升级：审计类任务默认 effort medium → **high**（Codex v0.121.0 + GPT-5.4 改善搜索循环）
 
 ### 纪律规则
 - F-001~F-017（含治理元数据：permanent/timeboxed 分类）
@@ -48,17 +51,21 @@
 
 | 优先级 | 工作项 | 说明 | 预估 |
 |---|---|---|---|
-| P2 | try? 第三批治理 | 31 处残余（21 个文件），数据路径改 do/catch + 日志，清理路径保留 | ~1h |
+| P1 | 文档体系三方审计 | 中期审计发现 docs/rules/skills 从未独立 review，疑有重复/抽象缺失/知识未固化 | 待估 |
 | P2 | CSV 导入功能 | Could Have，现有 CSV 导出的逆向操作（CSVImportService + UI） | ~2h |
 | P3 | Share Extension 集成验证 | App Group 已配置（group.com.snapdrill.app），需端到端验证 | ~30min |
 | P3 | #626 FoundationModels 题目分割 | 基础设施已就绪（RecognizeDocumentsRequest），需 PoC + UI | ~3h |
 | P3 | #540 Claude Code hooks 扩展 | 需深入研究 hook 协议后实现，3-5 天 | 3-5d |
+| P3 | #637 EditProfileView PhotosPicker UX | 加载失败无反馈 + 同张照片无法重试 | ~30min |
+| P3 | #638 ProfileListView 测试覆盖 | deleteProfile 错误路径 | ~1-2h |
 
-## Apple 账号阻塞链（2026-05-01 后处理）
+## Apple 账号阻塞链（用户主动延迟至 2026-05 缴费）
+
+Enrollment ID 83VZW7VJKK **已通过 Apple 审核**，\$99 年费用户主动延迟到 2026-05。不是"等 Apple 审批"，而是"等用户决定何时缴费开闸"。下游所有功能随时可启动，节奏由用户控制。
 
 | Issue | 内容 | 依赖 |
 |---|---|---|
-| #163 | 公司 Apple 开发者账号 | Enrollment 已提交（ID: 83VZW7VJKK） |
+| #163 | 公司 Apple 开发者账号 | 已通过审核，等用户缴费 |
 | #479 | StoreKit 付费墙 | ← #163 |
 | #485 | iCloud CloudKit 同步 | ← #163 + #479 |
 | #486 | Word 导出 | ← #479 |
