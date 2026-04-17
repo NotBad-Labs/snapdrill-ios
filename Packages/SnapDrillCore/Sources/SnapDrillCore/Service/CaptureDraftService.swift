@@ -101,7 +101,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
         do {
             metadata = try JSONDecoder().decode(DraftMetadata.self, from: data)
         } catch {
-            SnapDrillLogger.generic.warning("[DraftService] 草稿元数据解码失败（数据损坏）: \(error.localizedDescription)")
+            SnapDrillLogger.capture.warning("[DraftService] 草稿元数据解码失败（数据损坏）: \(error.localizedDescription)")
             return nil
         }
 
