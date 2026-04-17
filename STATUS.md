@@ -3,10 +3,10 @@
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-17（晚间 Phase 4 全部完成）
+> 最后更新：2026-04-17（深夜 Phase 4 + tech-debt 完整收官）
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · YAML frontmatter 全仓校验通过
-> Open PR：0 · Open Issue：~8（Apple 阻塞 6 + #637/#638；#540/#626 已落地）
-> 测试：~360+ tests（Features 158 + Core 103+QSplit + Data 95）· ViewModel 覆盖 15/15
+> Open PR：1（#665 #637 EditProfileView UX，等 Xcode Review）· Open Issue：~8（Apple 阻塞 6 + #626/#637）
+> 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
 
 ---
 
@@ -50,11 +50,19 @@
 **遗留待真机验证**：
 - #626 PoC `QuestionSplittingService` Go/No-Go：边界准确率 >= 80%（10 份真实试卷），需 iOS 26 真机 + Apple Intelligence
 
+**Phase 4 收官后的 tech-debt 清理（2026-04-17 深夜，3 PR）**：
+- ✅ **PR #664** #638 ProfileListView 抽 ViewModel + 8 单测（删除错误路径无覆盖问题）
+- 🟡 **PR #665** #637 EditProfileView PhotosPicker 失败 UX 反馈 + 同图重选（CI 绿，等 Xcode Review）
+- ✅ **PR #667** #666 swift-autolint hook 过滤文件级违规（修 hook bug）
+
+**本轮发现的 tech-debt（已记录）**：
+- Issue #666 swift-autolint 文件级 vs 行级 — 方案 A 修 hook 已合并；方案 B 拆 LocalizationKeys（1503 行）待独立 PR 排期
+
 **下一候选**（用户排期）：
-- #626 PoC 真机验证（Go 后接入消费方 + 更新 requirements PoC 标记）
-- #637 EditProfileView PhotosPicker UX
-- #638 ProfileListView 测试覆盖
-- Apple 账号缴费开闸 → Apple 阻塞链 6 个解锁
+- #626 PoC 真机验证（QuestionSplittingService Go 后接入消费方）
+- #665 Xcode Review 后合并
+- LocalizationKeys 拆分（Issue #666 方案 B）
+- Apple 账号缴费开闸 → #163/#479/#485/#486/#490/#161 六个解锁
 
 ### 本轮完成（2026-04-15~16，24 个 PR）
 
@@ -115,6 +123,8 @@
 | #661 | **Phase 4 P3 PR-I-I1**：冲突裁决唯一源 |
 | #662 | **Phase 4 P3 #540**：Claude Code hooks 4 个运行时门（swift-autolint / block-dangerous-bash / premerge-checklist / prepush-lint） |
 | #663 | **Phase 4 P3 #626**：QuestionSplittingService PoC（draft→ready 合并，待真机验证） |
+| #664 | **tech-debt #638**：ProfileListView 抽 ViewModel + 8 单测（deleteProfile 错误路径覆盖） |
+| #667 | **tech-debt #666**：swift-autolint hook 过滤文件级违规（修单文件 lint 假阳性） |
 | — | #626 FoundationModels 可行性研究完成（结论已发到 Issue） |
 | — | 历史分支全量清理（113→0，本地+远程纯净） |
 | — | Gemini 对抗性审查：草稿恢复/删除撤销误判已验证，try? 残余已识别 |
