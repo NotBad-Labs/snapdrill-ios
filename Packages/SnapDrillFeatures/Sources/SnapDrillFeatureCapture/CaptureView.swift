@@ -262,7 +262,7 @@ public struct CaptureView: View {
                 if shouldCrop {
                     router.shouldContinuousCrop = false
                     Task {
-                        try? await Task.sleep(for: .milliseconds(150))
+                        try? await Task.sleep(for: .milliseconds(150)) // best-effort: 等退栈动画完成，取消不影响正确性
                         isShowingContinuousCropper = true
                     }
                 }

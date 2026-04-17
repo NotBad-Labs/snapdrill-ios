@@ -274,14 +274,14 @@ struct DataAndSyncSettingsView: View {
                 let tmpDir = FileManager.default.temporaryDirectory
                 let tmpContents = try FileManager.default.contentsOfDirectory(at: tmpDir, includingPropertiesForKeys: nil)
                 for url in tmpContents {
-                    try? FileManager.default.removeItem(at: url)
+                    try? FileManager.default.removeItem(at: url) // best-effort: 单文件删除失败不中断整批清理
                 }
 
                 // 清理缓存目录
                 if let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
                     let cacheContents = try FileManager.default.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: nil)
                     for url in cacheContents {
-                        try? FileManager.default.removeItem(at: url)
+                        try? FileManager.default.removeItem(at: url) // best-effort: 单文件删除失败不中断整批清理
                     }
                 }
 

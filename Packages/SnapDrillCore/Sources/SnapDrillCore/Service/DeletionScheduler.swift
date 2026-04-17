@@ -63,7 +63,7 @@ public typealias DeletionExecutor = @Sendable (Set<UUID>) async -> Void
         currentExecutor = executor
 
         commitTask = Task {
-            try? await Task.sleep(for: .seconds(5))
+            try? await Task.sleep(for: .seconds(5)) // best-effort: 5 秒撤销窗口，取消即 Undo，延迟中断不影响正确性
             guard !Task.isCancelled else { return }
             await commitPendingDeletion()
         }

@@ -108,11 +108,19 @@ final class AppRouter {
         }
 
         let pendingURL = containerURL.appendingPathComponent(fileName)
-        // best-effort: Share Extension 临时文件可能已被系统清理
-        guard FileManager.default.fileExists(atPath: pendingURL.path),
-              let data = try? Data(contentsOf: pendingURL),
-              let image = UIImage(data: data) else {
-            SnapDrillLogger.capture.error("无法读取共享容器中的图片文件: \(fileName)")
+        guard FileManager.default.fileExists(atPath: pendingURL.path) else {
+            SnapDrillLogger.capture.error("Share Extension 文件不存在（可能被系统清理）: \(fileName)")
+            return
+        }
+        let data: Data
+        do {
+            data = try Data(contentsOf: pendingURL)
+        } catch {
+            SnapDrillLogger.capture.error("Share Extension 文件读取失败: \(fileName) - \(error.localizedDescription)")
+            return
+        }
+        guard let image = UIImage(data: data) else {
+            SnapDrillLogger.capture.error("Share Extension 图片解码失败: \(fileName)（data size: \(data.count) bytes）")
             return
         }
 

@@ -411,7 +411,7 @@ public final class CaptureResultViewModel {
 
         // 延迟 0.3s 让触觉反馈生效，用户可感知保存成功
         navigateTask = Task {
-            try? await Task.sleep(for: .milliseconds(300))
+            try? await Task.sleep(for: .milliseconds(300)) // best-effort: 取消即导航，延迟中断不影响正确性
             guard !Task.isCancelled else { return }
             performNavigation()
         }
@@ -446,10 +446,10 @@ public final class CaptureResultViewModel {
     /// 清理保存失败时已写入磁盘的孤儿图片文件（best-effort，async 避免阻塞主线程）
     private func cleanupOrphanImages(imagePath: String?, answerImagePath: String?) async {
         if let path = imagePath {
-            try? await imageStorage.deleteImage(path: path)
+            try? await imageStorage.deleteImage(path: path) // best-effort: 孤儿文件删除失败不影响业务流程
         }
         if let path = answerImagePath {
-            try? await imageStorage.deleteImage(path: path)
+            try? await imageStorage.deleteImage(path: path) // best-effort: 孤儿文件删除失败不影响业务流程
         }
     }
 

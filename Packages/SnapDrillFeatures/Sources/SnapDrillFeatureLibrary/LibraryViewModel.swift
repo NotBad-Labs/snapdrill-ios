@@ -151,7 +151,7 @@ public final class LibraryViewModel {
     public func triggerRefresh() {
         searchTask?.cancel()
         searchTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s
+            try? await Task.sleep(for: .milliseconds(300)) // best-effort: 0.3s 防抖延迟，取消不影响正确性
             guard let self = self, !Task.isCancelled else { return }
             await self.refreshData()
         }

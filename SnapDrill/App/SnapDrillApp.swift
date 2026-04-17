@@ -99,10 +99,14 @@ struct SnapDrillApp: App {
                 }
                 .task {
                     // TipKit 初始化（与引导页状态无关，始终执行）
-                    try? Tips.configure([
-                        .displayFrequency(.immediate),
-                        .datastoreLocation(.applicationDefault)
-                    ])
+                    do {
+                        try Tips.configure([
+                            .displayFrequency(.immediate),
+                            .datastoreLocation(.applicationDefault)
+                        ])
+                    } catch {
+                        SnapDrillLogger.generic.error("TipKit 初始化失败: \(error.localizedDescription)")
+                    }
 
                     // App 启动事件（每次冷启动追踪一次）
                     container.services.analytics.track(.appLaunched, parameters: [

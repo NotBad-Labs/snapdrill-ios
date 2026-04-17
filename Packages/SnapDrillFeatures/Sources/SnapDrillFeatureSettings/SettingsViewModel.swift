@@ -232,7 +232,7 @@ public final class SettingsViewModel {
     /// 在 ShareSheet 关闭后调用，删除临时目录中的 .snapdrill 文件。
     public func cleanupBackupFile() {
         guard let url = backupFileURL else { return }
-        try? FileManager.default.removeItem(at: url)
+        try? FileManager.default.removeItem(at: url) // best-effort: 临时备份文件残留不影响功能
         backupFileURL = nil
         backupStatusMessage = ""
         SnapDrillLogger.generic.info("已清理备份临时文件: \(url.lastPathComponent)")

@@ -122,9 +122,15 @@ final class CameraSessionManager: NSObject {
         session.sessionPreset = .photo
 
         // 输入源
-        guard let backCamera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-              let input = try? AVCaptureDeviceInput(device: backCamera) else {
-            SnapDrillLogger.generic.info("Error: Unable to access back camera")
+        guard let backCamera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
+            SnapDrillLogger.capture.error("无法获取后置摄像头设备")
+            return
+        }
+        let input: AVCaptureDeviceInput
+        do {
+            input = try AVCaptureDeviceInput(device: backCamera)
+        } catch {
+            SnapDrillLogger.capture.error("AVCaptureDeviceInput 初始化失败: \(error.localizedDescription)")
             return
         }
 
@@ -225,7 +231,8 @@ extension CameraSessionManager: AVCaptureVideoDataOutputSampleBufferDelegate {
             request.reportCharacterBoxes = false
 
             let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .right)
-            try? handler.perform([request])
+            try? handler.perform([request]) // best-effort: 单帧 Vision 检测失败不影响实时预览，下一帧重试
+
         }
     }
 }

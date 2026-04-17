@@ -58,7 +58,7 @@ public final class RepositoryContainer {
         // save 成功后清理图片文件（best-effort，async 避免阻塞主线程）
         let storage = ImageStorage()
         for path in imagePaths {
-            try? await storage.deleteImage(path: path)
+            try? await storage.deleteImage(path: path) // best-effort: 单张删除失败不中断整批清理
         }
     }
 

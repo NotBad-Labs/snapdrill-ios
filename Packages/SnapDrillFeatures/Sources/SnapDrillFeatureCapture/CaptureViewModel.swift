@@ -247,7 +247,12 @@ public final class CaptureViewModel {
         pdfLoadTask = Task {
             // 在安全域权限窗口内后台读取原始数据
             let data: Data? = await Task.detached(priority: .userInitiated) {
-                try? Data(contentsOf: url)
+                do {
+                    return try Data(contentsOf: url)
+                } catch {
+                    SnapDrillLogger.capture.error("PDF 读取失败: \(error.localizedDescription)")
+                    return nil
+                }
             }.value
 
             if accessing { url.stopAccessingSecurityScopedResource() }

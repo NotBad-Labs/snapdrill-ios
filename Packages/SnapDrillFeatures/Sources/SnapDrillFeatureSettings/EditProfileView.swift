@@ -221,16 +221,23 @@ struct EditProfileView: View {
         .onChange(of: selectedItem) { _, newValue in
             imageLoadTask?.cancel()
             imageLoadTask = Task {
-                if let data = try? await newValue?.loadTransferable(type: Data.self),
-                   let image = UIImage(data: data) {
-                    do {
-                        let path = try await imageStorage.saveImage(image)
-                        await MainActor.run {
-                            userAvatar = path
-                        }
-                    } catch {
-                        SnapDrillLogger.generic.error("Failed to save avatar: \(error.localizedDescription)")
+                let data: Data?
+                do {
+                    data = try await newValue?.loadTransferable(type: Data.self)
+                } catch is CancellationError {
+                    return // 取消属正常行为（222/243 的 cancel()），不记为错误
+                } catch {
+                    SnapDrillLogger.generic.error("PhotosPicker 图片加载失败: \(error.localizedDescription)")
+                    return
+                }
+                guard let data, let image = UIImage(data: data) else { return }
+                do {
+                    let path = try await imageStorage.saveImage(image)
+                    await MainActor.run {
+                        userAvatar = path
                     }
+                } catch {
+                    SnapDrillLogger.generic.error("Failed to save avatar: \(error.localizedDescription)")
                 }
             }
         }

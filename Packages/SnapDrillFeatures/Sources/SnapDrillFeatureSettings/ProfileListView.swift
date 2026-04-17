@@ -28,6 +28,8 @@ struct ProfileListView: View {
     @State private var pendingSwitchProfileId: UUID?
     /// 切换被阻塞时的错误提示
     @State private var switchError: String?
+    /// 删除失败时的错误提示（如最后一个 Profile 无法删除）
+    @State private var deleteError: String?
 
     var body: some View {
         List {
@@ -56,7 +58,12 @@ struct ProfileListView: View {
             Button(L10n.Common.cancel, role: .cancel) { profileToDelete = nil }
             Button(L10n.Common.delete, role: .destructive) {
                 if let profile = profileToDelete {
-                    try? profileManager.deleteProfile(id: profile.id)
+                    do {
+                        try profileManager.deleteProfile(id: profile.id)
+                    } catch {
+                        SnapDrillLogger.data.error("ProfileListView: 删除 Profile 失败 - \(error.localizedDescription)")
+                        deleteError = error.localizedDescription
+                    }
                     profileToDelete = nil
                 }
             }
@@ -100,6 +107,14 @@ struct ProfileListView: View {
             Button(L10n.Common.ok, role: .cancel) {}
         } message: {
             Text(switchError ?? "")
+        }
+        .alert(L10n.Common.error, isPresented: .init(
+            get: { deleteError != nil },
+            set: { if !$0 { deleteError = nil } }
+        )) {
+            Button(L10n.Common.ok, role: .cancel) {}
+        } message: {
+            Text(deleteError ?? "")
         }
     }
 
