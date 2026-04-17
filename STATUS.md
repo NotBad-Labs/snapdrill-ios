@@ -5,7 +5,7 @@
 
 > 最后更新：2026-04-17
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
-> Open PR：0 · Open Issue：8（Apple 阻塞 6 / 可推进 2：#626、#540）
+> Open PR：0 · Open Issue：10（Apple 阻塞 6 / 可推进 4：#540、#626、#637、#638）
 > 测试：158 tests（Features）+ 103 tests（Core）+ 95 tests（Data）= 356 total · ViewModel 覆盖 15/15 = 100%
 
 ---
@@ -14,7 +14,9 @@
 
 **文档已冻结，功能开发 + 测试补齐 + 工程治理阶段**（2026-04-14 冻结，2026-04-15-16 密集开发）。
 
-**本周锚点**：B1 try? 第三批治理（F-006 关键路径 + 日志补齐，Scope 精化：1 关键路径 + ~8 日志补齐 + ~10 注释补齐，非全量 50 处）。
+**本周已完成**：B1 try? 第三批治理（PR #636 合并，50→27 处 try? 全部归类，含 1 关键路径修复 + 7 日志补齐 + 11 best-effort 注释 + 3 对抗审查补救 + 2 Xcode Review 风格统一）。三方审计留痕：Gemini + Codex + Xcode Intelligence。
+
+**下一候选**：中期审计发现文档/rules/skills 从未经三方 review，疑有重复、抽象缺失、知识未固化为 skill。待排"文档体系三方审计" sprint。
 
 ### 本轮完成（2026-04-15~16，24 个 PR）
 
@@ -44,7 +46,7 @@
 | #623 | iOS 26 现代化（F-017 纪律 + DashboardAnalyticsView Liquid Glass） |
 | #624 | 剩余 .regularMaterial 治理（BentoCard + ReviewHeroCard + PDFPagePicker + LibraryList） |
 
-### 2026-04-16~17 晚间完成（7 个 PR + 1 研究 + 分支清理 + Gap 分析）
+### 2026-04-16~17 晚间完成（8 个 PR + 1 研究 + 分支清理 + Gap 分析 + 中期审计）
 
 | PR | 内容 |
 |---|---|
@@ -55,19 +57,23 @@
 | #632 | FoundationModels 端侧 AI 自动标注学科/难度（contentTagging） |
 | #633 | App Store 元数据预备（ASO 文案 + 隐私审查） |
 | #634 | ContentTaggingService + NotificationService 测试补齐 |
+| #636 | try? 第三批治理 + 三方对抗审查（Gemini+Codex+Xcode）+ 风格统一 |
 | — | #626 FoundationModels 可行性研究完成（结论已发到 Issue） |
 | — | 历史分支全量清理（113→0，本地+远程纯净） |
 | — | Gemini 对抗性审查：草稿恢复/删除撤销误判已验证，try? 残余已识别 |
+| — | **2026-04-17 中期审计**：目标/约束/验收三维，发现 8 项脱轨点 + Scope 精化 |
 
 ### 当前开发焦点（待做）
 
 | 优先级 | 工作项 | 说明 |
 |---|---|---|
-| P2 | try? 第三批治理 | 31 处残余，数据路径需改 do/catch + 日志 |
+| P1 | **文档体系三方审计** | 中期审计发现：docs/rules/skills 从未独立 review，疑有重复/抽象缺失/知识未固化。计划按"目标-约束-验收"三维 Gemini+Codex+Xcode 三方审计 |
 | P2 | CSV 导入功能 | Could Have，现有 CSV 导出的逆向操作 |
 | P3 | Share Extension 集成验证 | App Group 已配置，需端到端验证 |
 | P3 | #626 FoundationModels 题目分割 | 整页扫描自动分割题目（需 PoC） |
 | P3 | #540 Claude Code hooks 扩展 | 待排期 |
+| P3 | #637 EditProfileView PhotosPicker UX | 加载失败无反馈 + 同张照片无法重试（合并 Xcode Y-1） |
+| P3 | #638 ProfileListView 测试覆盖 | deleteProfile 错误路径缺自动化保护 |
 
 ### Apple 账号阻塞链（用户主动延迟至 5 月缴费）
 
