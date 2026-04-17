@@ -3,9 +3,9 @@
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-17（晚间 P2 sprint 启动中）
-> 编译状态：✅ 0 lint violations（本地）· ⚠️ CI 阻塞：Mac mini runner CoreSimulator 过时（1051.49.0 vs 1051.50.0）
-> Open PR：3（#651/#652/#653 等 runner 修复重跑）· Open Issue：~10（Apple 阻塞 6 + #540/#626/#637/#638）
+> 最后更新：2026-04-17（晚间 P2 sprint 全部完成）
+> 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
+> Open PR：0 · Open Issue：~10（Apple 阻塞 6 + #540/#626/#637/#638）
 > 测试：158 tests（Features）+ 103 tests（Core）+ 95 tests（Data）= 356 total · ViewModel 覆盖 15/15 = 100%
 
 ---
@@ -23,20 +23,34 @@
 **Phase 4 Step 1 完成**：
 - PR #648 .claude/rules/ux-design.md 补 YAML frontmatter（已合并，.claude/rules/ 12/12 全 YAML）
 
-**Phase 4 P2 sprint 进行中（2026-04-17 晚）**：
-- ✅ **PR #650** PR-D F-008 去重（合并）— workflow.md:146 改纯指针
-- 🟡 **PR #651** PR-G archive 标废弃（CI 阻塞）— audit-report-20260409.md 元信息 + memory/README 注记
-- 🟡 **PR #652** PR-F 时效性修正（CI 阻塞）— collaboration Opus 4.6→4.7 + requirements 端上 AI 毕业
-- 🟡 **PR #653** PR-H ux-design 失效 skill 修正（CI 阻塞）— 删除 ux-design.md:5 死引用
-- 🔴 **PR-E 待启动**：KNOWLEDGE_MAP 文件数 25→39 + feedback 条数 12→17 + memory/README 同步（依赖 PR-G 先合并避免冲突）
+**Phase 4 P2 sprint 完成（2026-04-17 晚，6 PR 全合并）**：
+- ✅ **PR #650** PR-D F-008 去重 — workflow.md:146 改纯指针
+- ✅ **PR #651** PR-G archive 标废弃 — audit-report-20260409.md 元信息 + memory/README 注记
+- ✅ **PR #652** PR-F 时效性修正 + 追补 — collaboration Opus 4.6→4.7 + requirements 端上 AI 毕业（含 MoSCoW Could Have 删除）
+- ✅ **PR #653** PR-H ux-design 失效 skill 修正 — 删除 ux-design.md:5 死引用
+- ✅ **PR #654** PR-K Issue 模板去重 — workflow.md:17-48 改 SSOT 指针 + feature_request.md 合并独有字段
+- ✅ **PR #655** PR-E KNOWLEDGE_MAP 校准 — 12→17 条 + ~25→~40 文件 + memory/README 同步
 
-**CI 阻塞根因**：Mac mini runner CoreSimulator 1051.49.0 < Xcode build 1051.50.0。需用户到家后重启 Mac mini 或 SSH 升级 CoreSimulator。修复后重跑 #651/#652/#653 即可。
+**Mac mini runner 事件**：CoreSimulator 1051.49→1051.50 过时导致 #651/#652/#653 首轮 CI FAILURE。用户系统更新 + 重启 Mac mini（macOS 26.4.1 / Xcode 26.4.1）后恢复，全部 CI 绿。
 
-**PR-F 漏洞待补**：requirements.md:250 MoSCoW Could Have 段仍列"端上 AI 集成（探索性）"，需在 PR-F 追加 commit 或 PR-E 捎带修正。
+**Phase 4 P3 sprint 对抗起草已完成（2026-04-17 晚）**：
+9 个对抗任务（Claude + Codex + Gemini 各独立产出，共 27 份方案）已汇总到 `~/.claude/plans/phase4-p1-adversarial-summary.md`，含 6 项待用户拍板决策：
+- T-05 YAML schema 5-layer 设计 + 迁移脚本（Claude 方案）+ ADR-003 草稿
+- T-06 validate_frontmatter.py（Claude 方案）+ pre-commit/CI 挂接
+- T-07 W1 备份铁律三层 diff（Codex 方案为基础）
+- T-08 W2 隐私五层 diff（vision/requirements/compliance Codex + business/design Claude 混合）
+- T-09 I1 冲突裁决 diff（Codex 方案）
+- T-14 #626 PoC 代码骨架（Claude 方案，draft PR）
+- T-15 #540 hooks 4 个 H1-H4（Claude 方案）
 
-**下一候选**：
-- **P3 sprint = PR-I 大 PR**：W1 备份铁律收敛 requirements + W2 隐私三层拆分 + I1 vision 唯一 + I2 全文档 YAML frontmatter + Step 3 产品文档 YAML 化（用户最终拍板决策已记忆）
-- **P2 Step 2/4**：docs/principles + memory 14+4 文件 YAML 化 + Scripts/validate_frontmatter.py
+**Gemini 幻觉事件**：T-07/08/09 Gemini 输出 OLD 原文全为虚构（编造章节号、Use Case 名称），已补充 `feedback_gemini_adversarial.md`：Gemini 引用仓库原文做 diff 不可信，仅作结构性建议参考。
+
+**下一步**（按 plan `~/.claude/plans/warm-sleeping-peach.md` Step 6-12）：
+- 用户审批 T-05 → ADR-003 PR → 合并
+- Step 2/3/4 YAML 迁移 PR
+- 用户审批 T-07/08/09 → PR-I-W1 / W2 / I1 串行 PR
+- 用户审批 T-14 → #626 PoC draft PR
+- 用户审批 T-15 → #540 hooks PR
 
 ### 本轮完成（2026-04-15~16，24 个 PR）
 
@@ -84,6 +98,11 @@
 | #646 | **Phase 4 P1**：api-reference 同步 — recognizeDocument + ContentTaggingService |
 | #648 | **Phase 4 Step 1**：.claude/rules/ux-design.md 补 YAML frontmatter（12/12 全 YAML） |
 | #650 | **Phase 4 P2 PR-D**：workflow.md F-008 改纯指针（collaboration + feedback 两处持） |
+| #651 | **Phase 4 P2 PR-G**：archive/audit-report-20260409.md 加元信息 + memory/README 注记不可信 |
+| #652 | **Phase 4 P2 PR-F + T-01**：collaboration Opus 4.7 + requirements 端上 AI 已实现毕业（含 MoSCoW 追补） |
+| #653 | **Phase 4 P2 PR-H**：ux-design.md 移除失效 skill 引用（ux-designer/user-advocate） |
+| #654 | **Phase 4 P2 PR-K**：Issue 模板去重 — workflow.md SSOT 指针 + feature_request.md 合并独有字段 |
+| #655 | **Phase 4 P2 PR-E**：KNOWLEDGE_MAP + memory/README 校准（12→17 条，~25→~40 文件） |
 | — | #626 FoundationModels 可行性研究完成（结论已发到 Issue） |
 | — | 历史分支全量清理（113→0，本地+远程纯净） |
 | — | Gemini 对抗性审查：草稿恢复/删除撤销误判已验证，try? 残余已识别 |
