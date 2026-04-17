@@ -31,8 +31,8 @@
 | `docs/principles/testing.md` | 测试策略 | engineering | XCTest 更新 |
 | `docs/principles/ux-design.md` | UX 设计原则、用户体验终审 | vision, design | HIG 更新 |
 | `docs/principles/collaboration.md` | 智能体协作架构（Claude/Codex/Gemini CLI/Xcode） | — | 工具更新 |
-| `.claude/rules/codex-delegation.md` | Codex 子 agent 委派规范（Claude 专有） | — | 插件/模型更新 |
-| `.claude/rules/gemini-delegation.md` | Gemini CLI 委派规范（Claude 专有） | — | CLI/模型更新 |
+| `docs/principles/codex-delegation.md` | Codex 子 agent 委派规范（agent-agnostic） | — | 插件/模型更新 |
+| `docs/principles/gemini-delegation.md` | Gemini CLI 委派规范（agent-agnostic） | — | CLI/模型更新 |
 | `docs/principles/shared-constraints.md` | 委派共享约束（单一源） | — | 约束变更 |
 | `docs/principles/apple-extension.md` | App Extension 约束 | — | Extension 变更 |
 | `docs/tech/compliance.md` | 隐私合规、App Store 审核 | vision, business | 政策变更 |

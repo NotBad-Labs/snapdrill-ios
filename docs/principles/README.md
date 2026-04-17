@@ -18,6 +18,8 @@
 | [apple-extension.md](apple-extension.md) | App Extension 约束 | Share Extension 开发 |
 | [api-pitfalls.md](api-pitfalls.md) | API 易错点速查 | 调用项目内部 API |
 | [collaboration.md](collaboration.md) | 多智能体协作架构 | 交叉审计、委派任务 |
+| [codex-delegation.md](codex-delegation.md) | Codex 子 agent 委派规范 | 委派 Codex 做审计/实现/Review |
+| [gemini-delegation.md](gemini-delegation.md) | Gemini CLI 委派规范 | 委派 Gemini 做审计/校验 |
 | [ux-design.md](ux-design.md) | UX 设计原则与用户体验终审 | UI/UX 改动、用户体验评审 |
 | [review-prompt-guide.md](review-prompt-guide.md) | Xcode Review 提示词模板 | 写 Xcode Review 提示词 |
 | [shared-constraints.md](shared-constraints.md) | 委派 prompt 共享约束 | 构造委派 prompt |
