@@ -5,7 +5,7 @@
 
 > 最后更新：2026-04-17
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
-> Open PR：0 · Open Issue：7
+> Open PR：0 · Open Issue：8（Apple 阻塞 6 / 可推进 2：#626、#540）
 > 测试：158 tests（Features）+ 103 tests（Core）+ 95 tests（Data）= 356 total · ViewModel 覆盖 15/15 = 100%
 
 ---
@@ -13,6 +13,8 @@
 ## 当前状态
 
 **文档已冻结，功能开发 + 测试补齐 + 工程治理阶段**（2026-04-14 冻结，2026-04-15-16 密集开发）。
+
+**本周锚点**：B1 try? 第三批治理（F-006 关键路径 + 日志补齐，Scope 精化：1 关键路径 + ~8 日志补齐 + ~10 注释补齐，非全量 50 处）。
 
 ### 本轮完成（2026-04-15~16，24 个 PR）
 
@@ -67,11 +69,13 @@
 | P3 | #626 FoundationModels 题目分割 | 整页扫描自动分割题目（需 PoC） |
 | P3 | #540 Claude Code hooks 扩展 | 待排期 |
 
-### Apple 账号阻塞链（计划 5 月开通）
+### Apple 账号阻塞链（用户主动延迟至 5 月缴费）
+
+Enrollment ID 83VZW7VJKK **已通过 Apple 审核**，$99 年费用户主动延迟到 2026-05。不是"等 Apple 审批"，而是"等用户决定何时缴费开闸"。所有下游功能随时可启动，节奏由用户控制。
 
 | Issue | 内容 | 阻塞原因 |
 |---|---|---|
-| #163 | 公司 Apple 开发者账号 | Enrollment 已提交（ID: 83VZW7VJKK），等 Apple 审核 |
+| #163 | 公司 Apple 开发者账号 | 已通过审核，等用户缴费 |
 | #479 | StoreKit 付费墙 | 需 App Store Connect 配置产品 ← #163 |
 | #485 | iCloud CloudKit 同步 | 需 CloudKit Container + StoreKit ← #163 |
 | #486 | Word 导出 | 需 StoreKit ← #163 |
