@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-14 -->
-<!-- layer: principle -->
+---
+last_verified: 2026-04-14
+layer: principle
+---
 # 工程哲学
 
 ## 元原则

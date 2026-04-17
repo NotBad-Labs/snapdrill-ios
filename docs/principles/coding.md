@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-16 -->
-<!-- layer: pattern -->
+---
+last_verified: 2026-04-16
+layer: pattern
+---
 # 编码规范（SwiftLint 管不到的规则）
 
 ## View 层

@@ -1,6 +1,10 @@
-<!-- last_verified: 2026-04-14 -->
-<!-- layer: snapshot -->
-<!-- freshness: max_age_days=30, decay_trigger=[ios_release] -->
+---
+last_verified: 2026-04-14
+layer: snapshot
+freshness:
+  max_age_days: 30
+  decay_trigger: [ios_release]
+---
 # TestFlight 发版前检查清单
 
 > **上游依赖**：`docs/tech/deployment.md`（发版流程）

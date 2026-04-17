@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-14 -->
-<!-- layer: pattern -->
+---
+last_verified: 2026-04-14
+layer: pattern
+---
 # 项目记忆（Agent-Agnostic）
 
 > 给所有智能体和人类提供可审计、可回放、入 git 的共享上下文层。

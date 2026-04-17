@@ -1,8 +1,9 @@
-<!-- status: archived -->
-<!-- layer: archive -->
-<!-- last_verified: 2026-04-09 -->
-<!-- reason: 用户判定早期审计不可靠（方法学偏差 + 未经三方冗余）；保留用于历史溯源，不作为项目文档事实来源 -->
-
+---
+last_verified: 2026-04-09
+layer: archive
+status: archived
+reason: "用户判定早期审计不可靠（方法学偏差 + 未经三方冗余）；保留用于历史溯源，不作为项目文档事实来源"
+---
 > ⚠️ **已归档**：本报告为 2026-04-09 单方审计产物，用户判定不可靠。不作为当前项目文档事实来源。最新的三方独立审计见 `~/.claude/plans/doc-audit-summary.md`（2026-04-17）。
 
 # SnapDrill iOS 项目文档体系审计报告

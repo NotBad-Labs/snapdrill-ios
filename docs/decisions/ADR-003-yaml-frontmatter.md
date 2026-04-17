@@ -1,3 +1,7 @@
+---
+last_verified: 2026-04-17
+layer: decision
+---
 # ADR-003: 文档 frontmatter 从 HTML 注释迁移到 YAML
 
 > 状态：**提议** | 日期：2026-04-17 | 决策者：PO（待审批）

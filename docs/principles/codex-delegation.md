@@ -1,5 +1,7 @@
-<!-- last_verified: 2026-04-17 -->
-<!-- layer: pattern -->
+---
+last_verified: 2026-04-17
+layer: pattern
+---
 # Codex 子 agent 委派规范
 
 > 本文件是 agent-agnostic 的委派规范。任何主线程（Claude Code、Xcode、其他）委派 Codex 子 agent 时遵循本规则。
