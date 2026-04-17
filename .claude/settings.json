@@ -18,6 +18,29 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/log-file-change.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/swift-autolint.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/block-dangerous-bash.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/premerge-checklist.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/prepush-lint.sh"
           }
         ]
       }
