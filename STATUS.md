@@ -3,9 +3,9 @@
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-17
+> 最后更新：2026-04-17（晚间）
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
-> Open PR：0 · Open Issue：10（Apple 阻塞 6 / 可推进 4：#540、#626、#637、#638）
+> Open PR：0 · Open Issue：~10（Apple 阻塞 6 + #540/#626/#637/#638）— PR #648 已合并，#647 自动关闭
 > 测试：158 tests（Features）+ 103 tests（Core）+ 95 tests（Data）= 356 total · ViewModel 覆盖 15/15 = 100%
 
 ---
@@ -14,9 +14,18 @@
 
 **文档已冻结，功能开发 + 测试补齐 + 工程治理阶段**（2026-04-14 冻结，2026-04-15-16 密集开发）。
 
-**本周已完成**：B1 try? 第三批治理（PR #636 合并，50→27 处 try? 全部归类，含 1 关键路径修复 + 7 日志补齐 + 11 best-effort 注释 + 3 对抗审查补救 + 2 Xcode Review 风格统一）。三方审计留痕：Gemini + Codex + Xcode Intelligence。
+**本周已完成（4 个 sprint）**：
+1. B1 try? 第三批治理（PR #636 合并）
+2. 中期审计校准（PR #640 合并）
+3. **文档体系三方独立审计**（Phase 1-3 完成，综合报告 `~/.claude/plans/doc-audit-summary.md` 含三方比对 + 误判归档 + Phase 4 PR 清单）
+4. **Phase 4 P1 完成**：PR #642 SSOT 校准 + #644 cross-audit skill + #646 api-reference 同步 — 全合并
 
-**下一候选**：中期审计发现文档/rules/skills 从未经三方 review，疑有重复、抽象缺失、知识未固化为 skill。待排"文档体系三方审计" sprint。
+**Phase 4 Step 1 完成**：
+- PR #648 .claude/rules/ux-design.md 补 YAML frontmatter（已合并，.claude/rules/ 12/12 全 YAML）
+
+**下一候选**（建议另起会话执行）：
+- **P2 sprint**：原 PR-D F-008 去重 / PR-E KNOWLEDGE_MAP 校准 / PR-F Opus 4.7+requirements AI 状态 / PR-G archive 标废弃 / PR-H ux-design 失效 skill 引用 + 新增 Step 2（docs/principles + memory 14+4 文件 YAML 化）+ Step 4（Scripts/validate_frontmatter.py）
+- **P3 sprint = PR-I 大 PR**：W1 备份铁律收敛 requirements + W2 隐私三层拆分 + I1 vision 唯一 + I2 全文档 YAML frontmatter + Step 3 产品文档 YAML 化（用户最终拍板决策已记忆）
 
 ### 本轮完成（2026-04-15~16，24 个 PR）
 
@@ -46,7 +55,7 @@
 | #623 | iOS 26 现代化（F-017 纪律 + DashboardAnalyticsView Liquid Glass） |
 | #624 | 剩余 .regularMaterial 治理（BentoCard + ReviewHeroCard + PDFPagePicker + LibraryList） |
 
-### 2026-04-16~17 晚间完成（8 个 PR + 1 研究 + 分支清理 + Gap 分析 + 中期审计）
+### 2026-04-16~17 晚间完成（12 个 PR + 1 研究 + 分支清理 + Gap 分析 + 中期审计 + 文档体系审计）
 
 | PR | 内容 |
 |---|---|
@@ -58,10 +67,16 @@
 | #633 | App Store 元数据预备（ASO 文案 + 隐私审查） |
 | #634 | ContentTaggingService + NotificationService 测试补齐 |
 | #636 | try? 第三批治理 + 三方对抗审查（Gemini+Codex+Xcode）+ 风格统一 |
+| #640 | 中期审计校准（handoff Apple 表述 + codex-delegation effort high） |
+| #642 | **Phase 4 P1**：SSOT 校准 — codex/gemini-delegation 迁移到 docs/principles/ |
+| #644 | **Phase 4 P1**：新建 cross-audit skill 强制 F-008 三方审计纪律 |
+| #646 | **Phase 4 P1**：api-reference 同步 — recognizeDocument + ContentTaggingService |
+| #648 | **Phase 4 Step 1**：.claude/rules/ux-design.md 补 YAML frontmatter（12/12 全 YAML） |
 | — | #626 FoundationModels 可行性研究完成（结论已发到 Issue） |
 | — | 历史分支全量清理（113→0，本地+远程纯净） |
 | — | Gemini 对抗性审查：草稿恢复/删除撤销误判已验证，try? 残余已识别 |
 | — | **2026-04-17 中期审计**：目标/约束/验收三维，发现 8 项脱轨点 + Scope 精化 |
+| — | **2026-04-17 文档体系三方独立审计**：56 文件五维度审计，三方独立报告（Claude + Codex exec + Gemini）→ 综合报告 `~/.claude/plans/doc-audit-summary.md` |
 
 ### 当前开发焦点（待做）
 
