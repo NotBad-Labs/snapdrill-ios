@@ -56,6 +56,22 @@ nonisolated public struct ContentTagSuggestion: Sendable, Equatable {
 }
 ```
 
+### `QuestionSplittingServiceProtocol`（PoC，Issue #626）
+```swift
+public protocol QuestionSplittingServiceProtocol: Sendable {
+    /// 从整页 OCR 文本提取独立题目列表（端侧 AI，FoundationModels）
+    /// 空文本、设备不支持或推断失败时返回空数组
+    func split(documentText text: String) async -> [ExtractedQuestionItem]
+}
+
+nonisolated public struct ExtractedQuestionItem: Sendable, Equatable {
+    public let text: String      // 题目完整文本（含题号）
+    public let ordinal: Int      // 题目序号（1-based）
+    public init(text: String, ordinal: Int)
+}
+```
+**PoC 状态**：代码骨架已实现，准确率评估待 10 份真实试卷真机验证（Go 条件 ≥ 80%）。
+
 ### `OCRServiceProtocol`
 ```swift
 public protocol OCRServiceProtocol: Sendable {
@@ -219,6 +235,16 @@ public actor ContentTaggingService: ContentTaggingServiceProtocol {
     /// 使用 FoundationModels 的 contentTagging adapter，端侧推断学科和难度
     /// SystemLanguageModel.default.isAvailable 为 false 时静默返回 nil
     public func suggestTags(for text: String) async -> ContentTagSuggestion?
+}
+```
+
+### `QuestionSplittingService`（PoC）
+```swift
+public actor QuestionSplittingService: QuestionSplittingServiceProtocol {
+    public init() {}
+    /// 使用 FoundationModels 默认 SystemLanguageModel 端侧分割题目
+    /// 通过 @Generable ExtractedQuestionsPayload 结构化输出
+    public func split(documentText text: String) async -> [ExtractedQuestionItem]
 }
 ```
 
