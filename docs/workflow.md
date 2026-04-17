@@ -16,36 +16,9 @@ Shaped → Building (WIP≤2) → Reviewing → Done
 
 ### Issue 模板（Shape 阶段）
 
-```markdown
-## 问题
-[用户遇到了什么问题？]
+SSOT：`.github/ISSUE_TEMPLATE/feature_request.md`（GitHub 创建 Issue 时自动加载）。bug 报告用 `.github/ISSUE_TEMPLATE/bug_report.md`，杂项治理用 `.github/ISSUE_TEMPLATE/chore.md`。
 
-## MoSCoW
-- [ ] Must / [ ] Should / [ ] Could
-
-## Severity
-- [ ] S0（数据不可逆丢失）/ [ ] S1（流程完全阻断）/ [ ] S2（能完成但有摩擦）/ [ ] S3（更好但不紧急）
-
-## Appetite
-- [ ] Small（1-2 天）/ [ ] Medium（3-5 天）/ [ ] Large（1-2 周）
-
-## Scope（做什么）
--
-
-## No-Go（不做什么）
--
-
-## 风险与不确定性
-- [已知的坑、技术风险、需要调研的问题]
-
-## 涉及文件（预估）
-- [预计改动的文件/模块列表，帮助 AI agent 约束 scope]
-
-## 验收标准（Given-When-Then）
-1. Given [前置条件]
-   When [用户操作]
-   Then [预期结果]
-```
+核心字段：问题/用户场景 · MoSCoW · Severity · Appetite · Scope/No-Go · 风险与不确定性 · 影响范围（涉及文件） · 验收标准（Given-When-Then）。
 
 ### Scope 控制
 

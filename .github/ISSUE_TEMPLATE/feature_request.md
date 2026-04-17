@@ -34,13 +34,18 @@ assignees: ""
 
 -
 
+## 风险与不确定性
+
+<!-- 已知的坑、技术风险、需要调研的问题 -->
+-
+
 ## 方案建议
 
 <!-- 如果有具体实现想法，请描述 -->
 
-## 影响范围
+## 影响范围（涉及文件预估）
 
-<!-- 涉及哪些模块？Core / Data / UI / Features / Infrastructure / App -->
+<!-- 涉及哪些模块？Core / Data / UI / Features / Infrastructure / App。预计改动的文件/模块列表，帮助 AI agent 约束 scope -->
 
 ## 验收标准（Given-When-Then）
 
