@@ -3,10 +3,10 @@
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-17（晚间 P2 sprint 全部完成）
-> 编译状态：✅ 0 errors · 0 lint violations · CI 全绿
-> Open PR：0 · Open Issue：~10（Apple 阻塞 6 + #540/#626/#637/#638）
-> 测试：158 tests（Features）+ 103 tests（Core）+ 95 tests（Data）= 356 total · ViewModel 覆盖 15/15 = 100%
+> 最后更新：2026-04-17（晚间 Phase 4 全部完成）
+> 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · YAML frontmatter 全仓校验通过
+> Open PR：0 · Open Issue：~8（Apple 阻塞 6 + #637/#638；#540/#626 已落地）
+> 测试：~360+ tests（Features 158 + Core 103+QSplit + Data 95）· ViewModel 覆盖 15/15
 
 ---
 
@@ -33,24 +33,28 @@
 
 **Mac mini runner 事件**：CoreSimulator 1051.49→1051.50 过时导致 #651/#652/#653 首轮 CI FAILURE。用户系统更新 + 重启 Mac mini（macOS 26.4.1 / Xcode 26.4.1）后恢复，全部 CI 绿。
 
-**Phase 4 P3 sprint 对抗起草已完成（2026-04-17 晚）**：
-9 个对抗任务（Claude + Codex + Gemini 各独立产出，共 27 份方案）已汇总到 `~/.claude/plans/phase4-p1-adversarial-summary.md`，含 6 项待用户拍板决策：
-- T-05 YAML schema 5-layer 设计 + 迁移脚本（Claude 方案）+ ADR-003 草稿
-- T-06 validate_frontmatter.py（Claude 方案）+ pre-commit/CI 挂接
-- T-07 W1 备份铁律三层 diff（Codex 方案为基础）
-- T-08 W2 隐私五层 diff（vision/requirements/compliance Codex + business/design Claude 混合）
-- T-09 I1 冲突裁决 diff（Codex 方案）
-- T-14 #626 PoC 代码骨架（Claude 方案，draft PR）
-- T-15 #540 hooks 4 个 H1-H4（Claude 方案）
+**Phase 4 P3 sprint 完成（2026-04-17 晚，8 PR 全合并）**：
+- ✅ **PR #656** ADR-003：文档 frontmatter 5-layer YAML schema 决策
+- ✅ **PR #657** Step 2+3：docs/ 全 40 文件 frontmatter HTML→YAML 迁移
+- ✅ **PR #658** Step 4：Scripts/migrate + validate 脚本 + CI 校验门（含 PyYAML 自动安装修复）
+- ✅ **PR #659** PR-I-W1：备份铁律三层拆分（Codex 方案 + cases.md `[Boundary]` 验收条）
+- ✅ **PR #660** PR-I-W2：隐私五层拆分（混合方案：vision/req/compl Codex + business/design Claude）
+- ✅ **PR #661** PR-I-I1：冲突裁决唯一源（design.md 改指针引用 vision）
+- ✅ **PR #662** #540 Claude Code hooks 4 个：swift-autolint / block-dangerous-bash / premerge-checklist / prepush-lint
+- ✅ **PR #663** #626 QuestionSplittingService PoC：Service + Protocol + Mock + @Generable schema + 单测（draft → ready 合并，待真机准确率验证）
+
+**对抗起草纪录**：9 个对抗任务（T-05/06/07/08/09/14a/14b/15a/15b）三方独立产出 27 份方案，汇总比对见 `~/.claude/plans/phase4-p1-adversarial-summary.md` + Claude 4 份独立方案 `~/.claude/plans/adversarial-*-claude.md`。
 
 **Gemini 幻觉事件**：T-07/08/09 Gemini 输出 OLD 原文全为虚构（编造章节号、Use Case 名称），已补充 `feedback_gemini_adversarial.md`：Gemini 引用仓库原文做 diff 不可信，仅作结构性建议参考。
 
-**下一步**（按 plan `~/.claude/plans/warm-sleeping-peach.md` Step 6-12）：
-- 用户审批 T-05 → ADR-003 PR → 合并
-- Step 2/3/4 YAML 迁移 PR
-- 用户审批 T-07/08/09 → PR-I-W1 / W2 / I1 串行 PR
-- 用户审批 T-14 → #626 PoC draft PR
-- 用户审批 T-15 → #540 hooks PR
+**遗留待真机验证**：
+- #626 PoC `QuestionSplittingService` Go/No-Go：边界准确率 >= 80%（10 份真实试卷），需 iOS 26 真机 + Apple Intelligence
+
+**下一候选**（用户排期）：
+- #626 PoC 真机验证（Go 后接入消费方 + 更新 requirements PoC 标记）
+- #637 EditProfileView PhotosPicker UX
+- #638 ProfileListView 测试覆盖
+- Apple 账号缴费开闸 → Apple 阻塞链 6 个解锁
 
 ### 本轮完成（2026-04-15~16，24 个 PR）
 
@@ -103,6 +107,14 @@
 | #653 | **Phase 4 P2 PR-H**：ux-design.md 移除失效 skill 引用（ux-designer/user-advocate） |
 | #654 | **Phase 4 P2 PR-K**：Issue 模板去重 — workflow.md SSOT 指针 + feature_request.md 合并独有字段 |
 | #655 | **Phase 4 P2 PR-E**：KNOWLEDGE_MAP + memory/README 校准（12→17 条，~25→~40 文件） |
+| #656 | **Phase 4 P3 ADR-003**：YAML frontmatter 5-layer schema 决策 |
+| #657 | **Phase 4 P3 Step 2+3**：docs/ 40 文件 HTML→YAML frontmatter 迁移 |
+| #658 | **Phase 4 P3 Step 4**：Scripts/migrate + validate + CI 校验门 |
+| #659 | **Phase 4 P3 PR-I-W1**：备份铁律三层拆分 |
+| #660 | **Phase 4 P3 PR-I-W2**：隐私五层拆分（混合方案） |
+| #661 | **Phase 4 P3 PR-I-I1**：冲突裁决唯一源 |
+| #662 | **Phase 4 P3 #540**：Claude Code hooks 4 个运行时门（swift-autolint / block-dangerous-bash / premerge-checklist / prepush-lint） |
+| #663 | **Phase 4 P3 #626**：QuestionSplittingService PoC（draft→ready 合并，待真机验证） |
 | — | #626 FoundationModels 可行性研究完成（结论已发到 Issue） |
 | — | 历史分支全量清理（113→0，本地+远程纯净） |
 | — | Gemini 对抗性审查：草稿恢复/删除撤销误判已验证，try? 残余已识别 |
