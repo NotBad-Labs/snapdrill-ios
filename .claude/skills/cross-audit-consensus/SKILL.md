@@ -47,6 +47,33 @@ user-invocable: true
 - 1/3 独有发现进 `docs/memory/decisions.md` 备忘（不采纳但不丢）
 - 0 共识 / 严重冲突 → 用户裁决（不缝合方案）
 
+### 2.5 量化评分（强制）
+
+每次 consensus 必须给出三方各自在以下 4 维的打分（0-10），最后汇总为综合分。**这是评估不是裁决**——共识/冲突的采纳仍按 §2 原则，但分数决定"是否该 retry 一轮"。
+
+```markdown
+| 维度 | 含义 | Claude | Codex | Gemini |
+|---|---|---|---|---|
+| **Scope Fidelity** | 与 Issue Sprint Contract（Touches / No-Touch / Interface Delta）吻合度 | | | |
+| **Code Quality** | swiftlint 违规、圈复杂度、架构一致（独立于 CI 的人工审查） | | | |
+| **Test Coverage** | 新增/修改逻辑是否有对应测试，异常路径是否覆盖 | | | |
+| **Architecture Fit** | 是否遵循 `docs/principles/engineering.md`（奥卡姆剃刀 / YAGNI / SSOT / 可逆性）与现有模式 | | | |
+| **综合** | 上 4 项平均 | | | |
+```
+
+**Retry 阈值**：
+- 任一方综合分 **< 7.0** → consensus 必须给出"建议按该方反馈 retry 一轮"的显式建议
+- 任一方综合分 **< 5.0** → **硬性要求 retry**（继续合并视为违反 F-016 质疑方批准）
+- 三方综合分均 **>= 8.5** → consensus 可直接给出"立即合并"建议
+- 三方综合分方差 **> 2.5** → 必须在 §4 冲突表列出原因（为什么一方严重低分）
+
+**评分原则**：
+- 每维度 10 分制，整数打分；不打半分
+- 打分依据必须引用具体证据（与 §2 共识表共用证据列）
+- Sprint Contract 未填写的 Issue → Scope Fidelity 默认扣 2 分（F-018 违反）
+
+**来源**：Anthropic Harness Design 2026-03-24 的 rubric 范式（Design Quality / Originality / Craft / Functionality），本项目根据 iOS 代码审查特点替换为 Scope Fidelity / Code Quality / Test Coverage / Architecture Fit 四维。详见 `docs/research/harness-engineering-study-20260418.md`。
+
 ### 3. 单家独有发现归档
 
 | 来源 | 发现 | 处置 |

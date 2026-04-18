@@ -41,6 +41,8 @@ user-invocable: true
 ```
 你审 [审计目标]，范围 [完整文件清单]，五维度（DRY/YAGNI/Skill 化/一致性/时效性）。
 不分工，独立完成全部。
+PR 审查场景必须补 4 维评分：Scope Fidelity / Code Quality / Test Coverage /
+Architecture Fit（0-10 分，整数），见 cross-audit-consensus §2.5。
 ```
 
 ### 给 Codex（Agent 委派或 codex exec）
@@ -50,6 +52,8 @@ user-invocable: true
 五维度：DRY / YAGNI / Skill 化 / 一致性 / 时效性
 内联约束：[shared-constraints.md 全文]
 输出格式：结构化报告，分级 Critical / Warning / Info，每项含证据
+PR 审查场景必须在报告末尾补 4 维评分表（0-10 整数分 + 综合平均），
+维度：Scope Fidelity / Code Quality / Test Coverage / Architecture Fit
 不参考 Claude 的中间结论
 ```
 
@@ -64,6 +68,8 @@ gemini -p "你审 [审计目标]
 五维度
 内联约束：[shared-constraints.md 全文]
 输出：结构化中文报告，分级 Critical / Warning / Info
+PR 审查场景末尾补 4 维评分表（0-10 整数分 + 综合平均），
+维度：Scope Fidelity / Code Quality / Test Coverage / Architecture Fit
 " 2>&1
 ```
 
