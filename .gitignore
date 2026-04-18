@@ -34,3 +34,4 @@ build_output.txt
 .claude/session-log.txt
 .claude/validation-status.json.*
 .claude/worktrees/
+.claude/.long-session-warned

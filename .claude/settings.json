@@ -24,6 +24,15 @@
             "command": "bash .claude/hooks/swift-autolint.sh"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-merge-checkpoint.sh"
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -41,6 +50,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/prepush-lint.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/long-session-guard.sh"
           }
         ]
       }
