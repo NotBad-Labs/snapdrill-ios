@@ -117,3 +117,48 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 ## 交叉审计（Cross-Audit）
 
 三方审计的组合、流程、工具链见 `docs/principles/collaboration.md`；核心纪律见 `docs/memory/feedback.md` F-008。
+
+---
+
+## 长任务 Phase Compaction
+
+> 借鉴 Hermes agent 研究（2026-04-18，`docs/research/hermes-agent-study-20260418.md`）。
+
+跨多 PR、多天、多 reviewer 的长任务（如本仓 Phase 4 收官 19 PR）容易产生：
+- 旧工具输出/讨论噪声稀释相关性
+- 接手成本高（必须重读全部 transcript）
+- prefix cache 失效（系统 prompt 频繁变化）
+
+**规则**：每合并 3-5 个相关 PR 后，必须产出一次 **Phase Checkpoint**：
+
+```markdown
+# Phase Checkpoint <YYYY-MM-DD> <主题>
+
+## Goal
+本 phase 想解决的问题（一句话）
+
+## Done
+- PR #N 主题（关键改动 + 影响范围）
+- ...
+
+## Open
+- 待合并 PR
+- 待解决子任务
+
+## Decisions
+- 关键技术/产品决策（指针到 ADR/discussion）
+
+## Risks
+- 已知风险 / 待真机验证 / 阻塞链
+
+## Next
+- 下一组工作清单
+```
+
+**位置**：`docs/memory/checkpoints/<YYYY-MM-DD>-<topic>.md`（layer: snapshot, max_age_days: 30）
+
+**触发**：
+- 每 3-5 PR 合并自动（hook：`post-merge-checkpoint`，待实现）
+- Phase 结束手动（`phase-closeout` skill 协助）
+
+**接手时**：新 Claude 会话只读 `STATUS.md` + `docs/memory/handoff.md` + 最近 Checkpoint，**不强吃长 transcript**（`resume-from-handoff` skill）

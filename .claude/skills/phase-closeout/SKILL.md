@@ -1,0 +1,100 @@
+---
+name: phase-closeout
+description: 长任务（多 PR / 跨多天的 phase）收官时，生成结构化 checkpoint summary 并固化到 docs/memory/checkpoints/。当用户说"收官 / 阶段总结 / 写 checkpoint"或单个 phase 合并 ≥ 3 PR 时触发。
+allowed-tools:
+  - Bash
+  - Read
+  - Grep
+  - Glob
+  - Write
+context: fork
+disable-model-invocation: false
+user-invocable: true
+---
+
+# /phase-closeout — 长任务 checkpoint 生成
+
+## 触发场景
+
+- 用户说："phase 结束 / 收官 / 写 checkpoint / 阶段总结"
+- 单个 phase / sprint 合并 ≥ 3 PR 后（参考 `docs/workflow.md` Phase Compaction 规则）
+- 接手前发现 STATUS.md 落后多个 PR
+
+## 标准输出
+
+```markdown
+---
+last_verified: <YYYY-MM-DD>
+layer: snapshot
+freshness:
+  max_age_days: 30
+  decay_trigger: [phase_change]
+---
+# Phase Checkpoint <YYYY-MM-DD> <主题>
+
+## Goal
+本 phase 想解决的问题（一句话；引用 Issue/ADR）
+
+## Done
+- PR #N <主题>（关键改动 + 受影响 layer + 测试增量）
+- ...
+
+## Open
+- 待合并 PR
+- 待解决子任务（指针到 Issue）
+
+## Decisions
+- 关键技术/产品决策（指针到 ADR / discussion / 三方研究）
+- 拒绝的方案 + 理由
+
+## Risks
+- 已知风险（如 Gemini 幻觉、Mac mini runner 事件）
+- 待真机验证项（如 #626 PoC）
+- 阻塞链（如 Apple 账号 6 个 issue）
+
+## Next
+- 下一组工作清单（可执行优先级排序）
+- 阻塞解除后的解锁顺序
+```
+
+## 位置
+
+`docs/memory/checkpoints/<YYYY-MM-DD>-<topic>.md`
+
+命名建议：
+- `2026-04-17-phase4-p2-sprint.md`
+- `2026-04-17-phase4-p3-sprint.md`
+- `2026-04-17-phase4-tech-debt.md`
+
+## 启动 checklist
+
+- [ ] grep `git log --since="<phase 开始>" --oneline` 收集本 phase 所有 commit
+- [ ] grep `gh pr list --state merged --search "merged:<日期范围>"` 收集 merged PR
+- [ ] Read 当前 STATUS.md 找未固化的 OPEN
+- [ ] Read 私有记忆（如 `~/.claude/plans/`）找本 phase 决策记录
+- [ ] 三方对抗起草 → 引用 `cross-audit-consensus` skill 产出的汇总文件
+
+## 与 STATUS.md / handoff.md 的分工
+
+| 文件 | 内容 | 频率 |
+|---|---|---|
+| `STATUS.md` | 项目当前快照（当前 PR 数 / 测试基线 / 焦点） | 每次 PR 合并 |
+| `docs/memory/handoff.md` | 智能体接手状态 / 待合并 PR / 待审批 / 阻塞 | 每次接手 |
+| `docs/memory/checkpoints/<date>-*.md` | **特定 phase 的复盘** | phase 收官 / 每 3-5 PR |
+
+Checkpoint 不替代 STATUS / handoff，而是补充"phase 内细节"，避免 STATUS 越长越糙。
+
+## 反模式
+
+- ❌ 把 checkpoint 写到 STATUS.md（污染快照层）
+- ❌ checkpoint 只罗列 PR 不写 Decisions/Risks（失去复盘价值）
+- ❌ 多个 phase 共用一个 checkpoint 文件（无法独立 revert/审计）
+- ❌ checkpoint 时间窗 > 1 月（半衰期超 freshness max_age_days=30）
+
+## 历史案例（追加到本 skill 的"已写过的 checkpoint"段）
+
+- 2026-04-17 phase4-p2-sprint.md：6 PR 合并（PR-D/E/F/G/H/K）
+- 2026-04-17 phase4-p3-sprint.md：8 PR 合并（PR-I + Step 2/3/4 + #540 + #626）
+- 2026-04-17 phase4-tech-debt.md：3 PR 合并（#637/#638/#666）
+
+（具体 checkpoint 文件在 `docs/memory/checkpoints/` 下生成）
