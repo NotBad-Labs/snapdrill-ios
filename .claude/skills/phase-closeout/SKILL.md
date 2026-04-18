@@ -55,7 +55,34 @@ freshness:
 ## Next
 - 下一组工作清单（可执行优先级排序）
 - 阻塞解除后的解锁顺序
+
+## Metrics（可选，若 `.claude/session-metrics.tsv` 存在则填充）
+- 本 phase tool call 总数：N
+- 调用最频繁的 tool（top-3）：Edit × N1 / Bash × N2 / Write × N3
+- session 起止时间（UTC）：YYYY-MM-DDTHH:MM → YYYY-MM-DDTHH:MM
 ```
+
+### Metrics 段填充方法
+
+若 `.claude/session-metrics.tsv` 存在（由 `session-metrics.sh` hook 记录 PostToolUse 的 Edit/Write/Bash），在 checkpoint Metrics 段填充：
+
+```bash
+# 总数
+wc -l .claude/session-metrics.tsv
+
+# top-3 tool
+cut -f2 .claude/session-metrics.tsv | sort | uniq -c | sort -rn | head -3
+
+# 起止时间
+head -1 .claude/session-metrics.tsv | cut -f1
+tail -1 .claude/session-metrics.tsv | cut -f1
+```
+
+**限制**：
+- 只统计 Edit / Write / Bash 三类（PostToolUse matcher 范围，见 `docs/principles/permission-model.md` §3）
+- 不含 Read / Grep / Glob 等只读 tool 的 call 次数（避免 tsv 膨胀）
+- 不含 token 成本（Claude Code hook 当前不暴露该数据）
+- 跨 session 累计：hook 追加模式写入，不主动轮转。phase-closeout 完成后用户可手动 `truncate -s 0 .claude/session-metrics.tsv` 重置
 
 ## 位置
 

@@ -22,6 +22,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/swift-autolint.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-metrics.sh"
           }
         ]
       },
@@ -31,6 +35,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/post-merge-checkpoint.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-metrics.sh"
           }
         ]
       }
