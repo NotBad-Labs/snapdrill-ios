@@ -54,8 +54,9 @@ if [ "${DELETED_TESTS:-0}" -gt 0 ] && [ "${ADDED_TESTS:-0}" -eq 0 ]; then
     WARNINGS+=("test evasion 疑似：删除 ${DELETED_TESTS} 个 Tests.swift 文件且未新增测试（F-014）")
 fi
 
-# 4. diff 含 skip 标记
-SKIP_COUNT=$(gh pr diff "$PR_NUM" 2>/dev/null | grep -cE '^\+.*(XCTSkip|\.disabled\b|@Suite\(.*\.disabled)' || true)
+# 4. diff 含 skip 标记（plan:157 明确含 skip( / .disabled / XCTSkip 三类）
+# \bskip\( 用单词边界避免误判 skipToNext() / skipRow() 等方法
+SKIP_COUNT=$(gh pr diff "$PR_NUM" 2>/dev/null | grep -cE '^\+.*(XCTSkip|\.disabled\b|@Suite\(.*\.disabled|\bskip\()' || true)
 if [ "${SKIP_COUNT:-0}" -gt 0 ]; then
     WARNINGS+=("test evasion 疑似：diff 新增 ${SKIP_COUNT} 行 skip 标记（F-014）")
 fi
