@@ -39,3 +39,11 @@ assignees: ""
 1. Given [前置条件]
    When [用户操作]
    Then [预期结果]
+
+## Sprint Contract（Appetite >= Small 时必填）
+
+<!-- 详见 docs/workflow.md 《编码前契约》；由 Claude 在开工前 Issue comment 回填 -->
+
+- **Touches**：会修改哪些文件
+- **No-Touch**：显式不动哪些文件
+- **DoD 最小集**：从 `docs/workflow.md` DoD 中选本 Issue 必须满足的条目
