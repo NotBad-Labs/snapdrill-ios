@@ -1,9 +1,9 @@
-<!-- last_verified: 2026-04-17 -->
+<!-- last_verified: 2026-04-18 -->
 <!-- layer: snapshot -->
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-17（深夜 Phase 4 + tech-debt 完整收官）
+> 最后更新：2026-04-18（Hermes 闭环补齐：Phase 4 三个历史 checkpoint 落地）
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · YAML frontmatter 全仓校验通过
 > Open PR：1（#665 #637 EditProfileView UX，等 Xcode Review）· Open Issue：~8（Apple 阻塞 6 + #626/#637）
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
