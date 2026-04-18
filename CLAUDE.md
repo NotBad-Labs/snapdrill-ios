@@ -21,6 +21,7 @@
 | 流程与 DoD | `docs/workflow.md` |
 | 知识地图 | `docs/KNOWLEDGE_MAP.md` |
 | 架构决策 | `docs/decisions/ADR-*.md` |
+| 权限模型 | `docs/principles/permission-model.md` |
 
 ## 执行门
 
