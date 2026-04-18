@@ -65,7 +65,7 @@ freshness:
 
 ### Metrics 段填充方法
 
-若 `.claude/session-metrics.tsv` 存在（由 `session-metrics.sh` hook 记录 PostToolUse 的 Edit/Write/Bash），在 checkpoint Metrics 段填充：
+若 `.claude/session-metrics.tsv` 存在（由 `session-metrics.sh` hook 记录 PostToolUse 的**所有 tool**，matcher `.*`），在 checkpoint Metrics 段填充：
 
 ```bash
 # 总数
