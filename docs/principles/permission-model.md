@@ -56,7 +56,7 @@ sudo rm             # 提权删除
 
 ## 3. Hook 生命周期门禁
 
-`.claude/settings.json` 事件绑定（7 个活跃 hook）：
+`.claude/settings.json` 事件绑定（8 个活跃 hook）：
 
 | 事件 | Matcher | Hook | 职责 | Tier 相关 |
 |---|---|---|---|---|

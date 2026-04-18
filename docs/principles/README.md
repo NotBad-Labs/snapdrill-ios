@@ -25,6 +25,7 @@ layer: pattern
 | [ux-design.md](ux-design.md) | UX 设计原则与用户体验终审 | UI/UX 改动、用户体验评审 |
 | [review-prompt-guide.md](review-prompt-guide.md) | Xcode Review 提示词模板 | 写 Xcode Review 提示词 |
 | [shared-constraints.md](shared-constraints.md) | 委派 prompt 共享约束 | 构造委派 prompt |
+| [permission-model.md](permission-model.md) | Tool / Bash 命令 / Skill 权限矩阵（SSOT） | 修改 settings.json / hooks / skill allowed-tools |
 
 ## 治理原则
 
