@@ -75,9 +75,10 @@ freshness:
 |---|---|---|---|
 | P1 | **Harness Stage C**（PR-6 SnapshotTesting + PR-7 CI 集成） | ~2-3 天，首次 baseline 易 flaky 需监督 | 用户将另开单独会话推进 |
 | P2 | #626 QuestionSplittingService 真机准确率验证 | 10 份试卷样本，Go 条件 ≥ 80% 边界准确率 | 需 iOS 26 真机 + Apple Intelligence |
-| P3 | LocalizationKeys.swift 拆分 | 1503 行 → 按 enum 拆多文件（Issue #666 方案 B） | 无（待排期） |
 | P3 | CSV 导入功能 | Could Have | 无 |
 | P3 | Share Extension 集成验证 | App Group 已配置，需端到端验证 | 真机 |
+
+**PR #688 LocalizationKeys 拆分已完成**（2026-04-19 晚，Issue #666 方案 B，治本）：1503 行原文件按 enum 拆到 `Support/L10n/L10n+<Module>.swift` 共 11 分片 + L10n.swift 根壳 + 独立 LocalizationHelper.swift。三方对抗规划（Claude+Codex+Gemini）Codex 独家发现 LocalizationHelper 原本就是独立顶层 enum。关键 Swift 语法决策：`defaultIsolation(MainActor)` 下每个分片 extension 必须显式 `nonisolated`，根类型的 nonisolated 不自动传递（首次 build 失败后验证）。Xcode Review 2 轮（0🔴+1🟡）全绿，SwiftLint 豁免彻底清除。
 
 **Stage A+B 3 项 Risks 已落地**（PR #682 / Issue #681 闭环 2026-04-19）：F-020 Auto mode 不豁免 F-005 / §2.5 评分方权重 SSOT 表 / Gemini 评分纪律（6 条运行侧 prompt 承接）。首个 F-018 Sprint Contract PR 吃自己狗粮成功：首审 Gemini 9.8 vs Codex 6.0 方差 3.8 触发 retry，复核 Codex 8.5 通过。
 
