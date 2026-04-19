@@ -23,6 +23,13 @@ if [[ -z "$PROJECT_ROOT" ]] || [[ "$FILE_PATH" != "$PROJECT_ROOT"/* ]]; then
     exit 0
 fi
 
+# 显式匹配 `.swiftlint.yml` 的 excluded 列表。单文件 lint 模式不自动应用 excluded，
+# 导致已豁免的文件（Package.swift / DataSeeder.swift 等）被假阳性阻塞（见 Issue #666 残留）。
+case "$FILE_PATH" in
+    */Package.swift) exit 0 ;;
+    */Packages/SnapDrillData/Sources/SnapDrillData/DataSeeder.swift) exit 0 ;;
+esac
+
 if ! command -v swiftlint >/dev/null 2>&1; then
     echo "warning: swiftlint not installed, skipping autolint" >&2
     exit 0

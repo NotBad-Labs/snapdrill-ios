@@ -15,18 +15,18 @@ let sharedSwiftSettings: [SwiftSetting] = [
     .swiftLanguageMode(.v6),
     .defaultIsolation(MainActor.self),
     .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("InferIsolatedConformances")
 ]
 
 let package = Package(
     name: "SnapDrillUI",
     platforms: [.iOS(.v26)],
     products: [
-        .library(name: "SnapDrillUI", targets: ["SnapDrillUI"]),
+        .library(name: "SnapDrillUI", targets: ["SnapDrillUI"])
     ],
     dependencies: [
         .package(path: "../SnapDrillCore"),
-        .package(url: "https://github.com/guoyingtao/Mantis.git", from: "2.23.0"),
+        .package(url: "https://github.com/guoyingtao/Mantis.git", from: "2.23.0")
     ],
     targets: [
         .target(
@@ -41,6 +41,6 @@ let package = Package(
             name: "SnapDrillUITests",
             dependencies: ["SnapDrillUI"],
             swiftSettings: sharedSwiftSettings
-        ),
+        )
     ]
 )

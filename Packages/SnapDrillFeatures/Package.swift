@@ -33,6 +33,7 @@ let package = Package(
         .package(path: "../SnapDrillUI"),
         .package(path: "../SnapDrillData"),
         .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.19"),
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", from: "1.17.0"),
     ],
     targets: [
         .target(
@@ -81,7 +82,9 @@ let package = Package(
                 "SnapDrillFeatureDashboard",
                 "SnapDrillFeatureSettings",
                 "SnapDrillCore",
-                "SnapDrillData"
+                "SnapDrillData",
+                "SnapDrillUI",
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
             ],
             swiftSettings: sharedSwiftSettings
         ),
