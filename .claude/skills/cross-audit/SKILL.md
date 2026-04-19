@@ -70,6 +70,9 @@ gemini -p "你审 [审计目标]
 输出：结构化中文报告，分级 Critical / Warning / Info
 PR 审查场景末尾补 4 维评分表（0-10 整数分 + 综合平均），
 维度：Scope Fidelity / Code Quality / Test Coverage / Architecture Fit
+**评分纪律**：每维度必须引用 plan 明文条目或 Issue Sprint Contract 作锚点。
+禁止仅凭定性感觉给 10.0 分；若某维度无 plan/contract 可对照，该维度降权
+或标 N/A 并说明。详见 docs/principles/gemini-delegation.md 评分段。
 " 2>&1
 ```
 

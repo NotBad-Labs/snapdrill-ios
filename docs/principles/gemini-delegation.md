@@ -126,3 +126,20 @@ Gemini 在复杂审计（多文件 + 多条审计标准）时可能超时卡死�
 - prompt 不含项目约束 — Gemini 会给出脱离项目上下文的泛泛建议
 - 单次 prompt 塞太多文件 — 超出 token 限制后输出质量下降
 - 复杂审计不设超时 — 进程卡死浪费时间且阻塞工作流
+
+## 评分任务纪律（rubric 4 维场景）
+
+Harness Stage A+B 实战发现 Gemini 在 `cross-audit-consensus` 4 维 rubric 评分上存在**整体偏高**问题（3/5 PR 打 10.0，比 Codex 高 1-4 分）。根因是 Gemini 对定性维度敏感但对 scope 漂移弱，倾向看"方向是否对"而非"与 plan 明文逐条是否吻合"。
+
+**委派评分 prompt 必须强制**：
+
+- **每维度引用 plan 锚点**：Scope Fidelity 引用 Issue Sprint Contract 的 Touches/No-Touch/Interface Delta；Architecture Fit 引用 `engineering.md` 具体原则条目；禁止"看起来不错"式打分
+- **无 plan 可对照 → 降权或 N/A**：若某维度在当次审查中确实没有明文锚点（如纯研究归档无 plan），标 N/A 并说明，不折算为 10.0
+- **10.0 分硬门槛**：仅在"plan 每一条都明文命中 + 无任何 scope 外增量 + 架构严格遵守"时给；默认从 8.0 起评，每个正向证据 +1，每个负向证据 -1
+- **方差自检**：Gemini 评分若与 Codex 差 ≥ 2 分，需在报告里显式说明"为什么我比 Codex 高 X 分"——这个反思本身可能暴露锚点不足
+
+**Consensus 裁决权重**（来自 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5）：
+- 如果 Gemini 遵守了上述评分纪律 → 与 Codex 平权
+- 如果 Gemini 没引用 plan 锚点 → **降权作参考**（Codex 为主锚点）
+
+**来源**：`docs/memory/checkpoints/2026-04-19-harness-stage-a-b.md` Risks 段 + `feedback_gemini_adversarial.md`。

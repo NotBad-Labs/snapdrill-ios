@@ -72,6 +72,21 @@ user-invocable: true
 - 打分依据必须引用具体证据（与 §2 共识表共用证据列）
 - Sprint Contract 未填写的 Issue → Scope Fidelity 默认扣 2 分（F-018 违反）
 
+**评分方权重**（防 Claude 自审 bias）：
+
+当 Claude 同时是实施方（写了被审代码）和评分方时，**Claude 自审分作参考列出，不作裁决锚点**。裁决锚点按证据严格度顺序：
+
+1. **Codex 严格评分**（对照 plan 明文逐条打分）— 主锚点
+2. **Gemini 评分**（需满足 Gemini 委派纪律：逐条对照 plan，见 `docs/principles/gemini-delegation.md` 评分段；否则降权作参考）
+3. **Claude 自审**（实施方自审时作参考；非实施方时与 Codex 平权）
+
+**Why**：Harness Stage A+B 实战暴露 Claude 自审均分 9.3 vs Codex 7.5，方差 > 2.5 触发硬 retry（见 `docs/memory/checkpoints/2026-04-19-harness-stage-a-b.md` Risks）。根因是 Claude 既是实施方又是评分方，倾向看"完成度"而非 plan"吻合度"。把 Claude 自审作参考而非锚点，把裁决权交给独立视角（Codex）是对 F-016 质疑方批准的配套强化。
+
+**何时降权 vs 何时平权**：
+- Claude 在主对话内审查自己刚实施的 PR → **降权作参考**（当前场景）
+- Claude 在主对话内审查他人或历史 PR → **与 Codex 平权**（独立视角）
+- Claude 通过独立 Agent 委派审自己的 PR → **接近平权**（Agent fork context 减弱 bias），但建议仍以 Codex 为主锚点
+
 **来源**：Anthropic Harness Design 2026-03-24 的 rubric 范式（Design Quality / Originality / Craft / Functionality），本项目根据 iOS 代码审查特点替换为 Scope Fidelity / Code Quality / Test Coverage / Architecture Fit 四维。详见 `docs/research/harness-engineering-study-20260418.md`。
 
 ### 3. 单家独有发现归档
