@@ -164,11 +164,11 @@ final class SettingsViewModelCSVTests {
         #expect(items.first?.content == "他说\"hello\"")
     }
 
-    // MARK: - 已知 bug：字段内嵌换行（当前 parseCSV 按行 split 后才 parse line，会切破引号字段）
+    // MARK: - RFC 4180 字段内嵌换行（PR2 修复后期望行为）
 
-    @Test("__currentBehavior_：字段内嵌换行被错误切成两行（PR2 需修）")
-    func importCSV_embeddedNewlineInQuotedField_currentBehaviorSplitsRows() async throws {
-        // RFC 4180 标准：带引号字段可含换行；当前实现先 split newlines 再 parse line → bug
+    @Test("RFC 4180：字段内嵌换行不切分行，content 保留原始换行")
+    func importCSV_embeddedNewlineInQuotedField_preservedAsOneRow() async throws {
+        // RFC 4180 标准：带引号字段可含换行。新的状态机 parser 正确处理。
         let csv = "Content,Subject\n\"第一行\n第二行\",数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
@@ -176,9 +176,23 @@ final class SettingsViewModelCSVTests {
         await vm.importCSV(fileURL: url)
 
         let items = try repos.review.fetchAllModels()
-        #expect(items.count >= 1)
-        let contents = items.compactMap { $0.content }
-        #expect(contents.contains(where: { $0.contains("第一行") || $0.contains("第二行") }))
+        #expect(items.count == 1)
+        #expect(items.first?.content == "第一行\n第二行")
+        #expect(items.first?.subject == "数学")
+    }
+
+    @Test("RFC 4180：CRLF 与 CR 行终止符归一化为 LF")
+    func importCSV_crlfAndCrLineEndings_normalized() async throws {
+        let csv = "Content,Subject\r\n题目1,数学\r题目2,英语"
+        let url = try writeCSV(csv)
+        let vm = SettingsViewModel(repositories: repos)
+
+        await vm.importCSV(fileURL: url)
+
+        let items = try repos.review.fetchAllModels()
+        #expect(items.count == 2)
+        #expect(items.contains { $0.content == "题目1" && $0.subject == "数学" })
+        #expect(items.contains { $0.content == "题目2" && $0.subject == "英语" })
     }
 
     // MARK: - Tags 字段处理（分号分隔）
