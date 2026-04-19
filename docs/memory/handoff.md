@@ -73,10 +73,14 @@ freshness:
 
 | 优先级 | 工作项 | 说明 | 阻塞 |
 |---|---|---|---|
-| P1 | **Harness Stage C**（PR-6 SnapshotTesting + PR-7 CI 集成） | ~2-3 天，首次 baseline 易 flaky 需监督 | 用户将另开单独会话推进 |
 | P2 | #626 QuestionSplittingService 真机准确率验证 | 10 份试卷样本，Go 条件 ≥ 80% 边界准确率 | 需 iOS 26 真机 + Apple Intelligence |
 | P3 | CSV 导入功能 | Could Have | 无 |
 | P3 | Share Extension 集成验证 | App Group 已配置，需端到端验证 | 真机 |
+
+**Harness Stage C 已完成**（2026-04-19 晚，9 PR 三阶段整体收官）：
+- **PR #690 (PR-6)**：引入 pointfreeco/swift-snapshot-testing，首批 7 个 SnapDrillUI public View 的 snapshot 测试 + 217 KB baseline 入 git。测试放 SnapDrillFeaturesTests（SPM/Xcode 命名冲突 + AllTests scheme 覆盖）。顺手修 Issue #666 残留（swift-autolint.sh 对 Package.swift 假阳性阻塞）。Swift 6.3 隔离决策：`nonisolated final class` + 方法级 `@MainActor`。Xcode Review 2 轮（0🔴+1🟡 Y-1 双向注释锚定）验收。
+- **PR #691 (PR-7)**：CI 集成 xcresult artifact upload（`if: failure()` + upload-artifact@v4，保留 7 天），新增 `docs/workflow.md` 《CI 与本地一致性》章节。Xcode Review 首轮 **0🔴+0🟡+8🟢** 直接通过。
+- **效果**：agent 获得 SwiftUI 视觉回归 evaluator —— 新增 View 必加 snapshot 测试，修改 View 本地跑 snapshot 失败时先人眼审差异再决定 record / 修代码，CI 失败时 artifact 暴露 reference/failure/diff 三张 PNG。
 
 **PR #688 LocalizationKeys 拆分已完成**（2026-04-19 晚，Issue #666 方案 B，治本）：1503 行原文件按 enum 拆到 `Support/L10n/L10n+<Module>.swift` 共 11 分片 + L10n.swift 根壳 + 独立 LocalizationHelper.swift。三方对抗规划（Claude+Codex+Gemini）Codex 独家发现 LocalizationHelper 原本就是独立顶层 enum。关键 Swift 语法决策：`defaultIsolation(MainActor)` 下每个分片 extension 必须显式 `nonisolated`，根类型的 nonisolated 不自动传递（首次 build 失败后验证）。Xcode Review 2 轮（0🔴+1🟡）全绿，SwiftLint 豁免彻底清除。
 
