@@ -100,6 +100,25 @@ Cross-audit 和 PR Review 时，除通用代码质量外，必须额外检查以
 | 架构/第三方视角 | Antigravity（fallback） | Gemini CLI 不可用时 |
 | 核实汇总 | Claude Opus | 汇总所有 finding，验证真实性 |
 
+## 量化评分门（PR 审查）
+
+三方对抗性审查的产出除定性分级（Critical/Warning/Info）外，必须给出 4 维量化评分（0-10 整数分）。详细评分规则见 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5（SSOT）。
+
+| 维度 | 一句话 |
+|---|---|
+| **Scope Fidelity** | 与 Issue Sprint Contract（`docs/memory/feedback.md` F-018）Touches / No-Touch / Interface Delta 的吻合度 |
+| **Code Quality** | swiftlint / 复杂度 / 架构一致（人工审查维度，独立于 CI 二元通过） |
+| **Test Coverage** | 新增逻辑是否有测试、异常路径是否覆盖 |
+| **Architecture Fit** | 是否遵循 `engineering.md` 奥卡姆剃刀 / YAGNI / SSOT / 可逆性 |
+
+**Retry 阈值**（由 consensus skill 自动判断）：
+- 任一方综合分 < 7.0 → 建议按该方反馈 retry
+- 任一方综合分 < 5.0 → 硬性要求 retry，直合违反 F-016
+- 三方综合分均 ≥ 8.5 → 可立即合并
+- 三方综合分方差 > 2.5 → consensus 必须列冲突原因
+
+**背景**：对标 Anthropic Harness Design 2026-03-24 的 Rubric 范式。详见 `docs/research/harness-engineering-study-20260418.md`。
+
 ## Agent 冲突裁决
 
 当三方审计结论矛盾时，使用标准化模板记录裁决过程：

@@ -28,6 +28,18 @@ SSOT：`.github/ISSUE_TEMPLATE/feature_request.md`（GitHub 创建 Issue 时自�
 2. **No-Go 清单**：Issue 明确不做什么
 3. **发现即建 Issue**：Build 中范围外的新发现不在当前 PR 处理
 
+### 编码前契约（Sprint Contract）
+
+feature / chore 类 Issue 且 Appetite >= Small 时，动第一行代码前必须在 Issue 回复一条 Sprint Contract comment，覆盖 Issue 模板 Sprint Contract 段的全部字段（Touches / No-Touch / Interface Delta / Test Additions / DoD 最小集 / 预期不确定点；chore 简化为三条）。
+
+**触发**：Issue 从 Shaped 进入 Building 状态时。bug_report 类不强制（修复 scope 天然小）。
+
+**变更纪律**：编码过程中若发现预期与实际不符，先改 Issue comment 里的 contract，再改代码。禁止"代码和 contract 自然漂移"。
+
+**Review 挂钩**：Codex 对抗性审查、Xcode Review、三方 cross-audit 在开工时与合并前都有义务对照 contract 检查 scope fidelity；有偏离必须在 review 意见中点名。
+
+详见 `docs/memory/feedback.md` F-018。
+
 ---
 
 ## Git 工作流
