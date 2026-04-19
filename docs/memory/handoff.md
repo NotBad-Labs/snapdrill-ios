@@ -142,4 +142,4 @@ Enrollment ID 83VZW7VJKK **已通过 Apple 审核**，$99 年费用户主动延�
 - Codex GPT-5.4（--effort high）：对抗审查最严格，独家发现 Claude/Gemini 都漏的硬伤（#677 3 处 + #678 3 处），plan 逐条对照能力最强
 - Gemini 3 Auto：本轮未现幻觉（diff 直接贴 prompt 而非引用仓库原文），但**评分整体偏高**（3/5 PR 打 10.0），不宜作裁决锚点
 - Claude 主线程自审：存在 confirmation bias（看"完成度"而非"吻合度"），实施方同时评分时应降权
-- 裁决锚点优先级：**Codex 严格打分 > 三方共识 > Claude 自审**（证据等级：plan 明文 > 代码推断 > 经验判断）
+- 裁决锚点优先级：详见 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 评分方权重 SSOT 表（主锚点 Codex / 次锚点 Gemini-守纪律 & Claude-Agent / 参考 Claude-主线程自审）

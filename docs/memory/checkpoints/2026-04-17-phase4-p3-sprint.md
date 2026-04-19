@@ -15,7 +15,7 @@ freshness:
 
 | PR | 主题 | 关键改动 |
 |---|---|---|
-| #656 | ADR-003 YAML 5-layer schema | `docs/decisions/ADR-003-yaml-frontmatter-schema.md`：`last_verified` + `layer` + `freshness` + `status` + `reason` 的正式决策 |
+| #656 | ADR-003 YAML 5-layer schema | `docs/decisions/ADR-003-yaml-frontmatter.md`：`last_verified` + `layer` + `freshness` + `status` + `reason` 的正式决策 |
 | #657 | Step 2+3 YAML 迁移 | `docs/` 全 40 md 文件 HTML frontmatter → YAML frontmatter 一次性迁移 |
 | #658 | Step 4 Scripts + CI 校验门 | `Scripts/migrate_to_yaml_frontmatter.py` + `Scripts/validate_frontmatter.py` + `.github/workflows/ci.yml` 校验 step（含 PyYAML 自动安装修复） |
 | #659 | PR-I-W1 备份铁律拆分 | `product-cases.md` 备份铁律按 vision / req / cases 三层拆分（Codex 方案），cases 加 `[Boundary]` 验收条 |

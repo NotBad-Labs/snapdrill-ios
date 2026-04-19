@@ -1,9 +1,6 @@
 ---
-last_verified: 2026-04-16
-layer: snapshot
-freshness:
-  max_age_days: 30
-  decay_trigger: [feedback_event]
+last_verified: 2026-04-19
+layer: pattern
 ---
 # 项目反馈与纪律规则
 

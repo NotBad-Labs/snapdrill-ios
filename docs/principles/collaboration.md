@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-16
+last_verified: 2026-04-19
 layer: pattern
 ---
 # 智能体协作架构
@@ -111,11 +111,7 @@ Cross-audit 和 PR Review 时，除通用代码质量外，必须额外检查以
 | **Test Coverage** | 新增逻辑是否有测试、异常路径是否覆盖 |
 | **Architecture Fit** | 是否遵循 `engineering.md` 奥卡姆剃刀 / YAGNI / SSOT / 可逆性 |
 
-**Retry 阈值**（由 consensus skill 自动判断）：
-- 任一方综合分 < 7.0 → 建议按该方反馈 retry
-- 任一方综合分 < 5.0 → 硬性要求 retry，直合违反 F-016
-- 三方综合分均 ≥ 8.5 → 可立即合并
-- 三方综合分方差 > 2.5 → consensus 必须列冲突原因
+**Retry 阈值与具体动作**（建议 retry / 硬性 retry / 可进入待合并 / 冲突列表触发条件）以 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 为 SSOT。即使 §2.5 判定某 PR "可进入待合并状态"，最终合并仍需用户确认（见本文 §Review 流程与 `docs/workflow.md` Code Review 段）。
 
 **背景**：对标 Anthropic Harness Design 2026-03-24 的 Rubric 范式。详见 `docs/research/harness-engineering-study-20260418.md`。
 
