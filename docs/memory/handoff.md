@@ -77,6 +77,13 @@ freshness:
 | P3 | CSV 导入功能 | Could Have | 无 |
 | P3 | Share Extension 集成验证 | App Group 已配置，需端到端验证 | 真机 |
 
+**Codex 3 PR 方案已完成**（2026-04-19 夜，Harness 落地后首次真实 sprint 验证）：
+- 三方对抗规划 Codex 独家揭露"CSV 导入已实现但 0 测试 + 文档状态矛盾 + parser RFC 4180 偏差"，Gemini 与 Claude 都以为 Could Have 未做
+- **PR #694** CSV 行为锁定 19 tests（含 `__currentBehavior_embeddedNewlineInQuotedField` 锁 bug）
+- **PR #695** parser 单字符状态机重写（字段内嵌换行 + CRLF/CR 归一化 + BOM 剥离）+ CSVParser 独立文件（526→434 行解除 file_length）+ product-requirements.md Could Have 列表去矛盾。Codex 三方审 8.0 🔴 BOM → 追加 BOM fix 后验收 9.4
+- **PR #696** Features 层 internal View snapshot 9 tests（Dashboard ReviewHeroCard×3 + BentoCard×2 / Capture CaptureMethodCard + CornerBracketShape / Settings SettingsRow×2），Stage C snapshot 覆盖 7 → 16，baseline ~1.4MB
+- **实战验证**：Codex rubric 4 维评分 + F-016 质疑方批准 + `__currentBehavior_` bug lock-in 模式成功捕获 Codex 独家 🔴（BOM），证明主锚点价值
+
 **Harness Stage C 已完成**（2026-04-19 晚，9 PR 三阶段整体收官）：
 - **PR #690 (PR-6)**：引入 pointfreeco/swift-snapshot-testing，首批 7 个 SnapDrillUI public View 的 snapshot 测试 + 217 KB baseline 入 git。测试放 SnapDrillFeaturesTests（SPM/Xcode 命名冲突 + AllTests scheme 覆盖）。顺手修 Issue #666 残留（swift-autolint.sh 对 Package.swift 假阳性阻塞）。Swift 6.3 隔离决策：`nonisolated final class` + 方法级 `@MainActor`。Xcode Review 2 轮（0🔴+1🟡 Y-1 双向注释锚定）验收。
 - **PR #691 (PR-7)**：CI 集成 xcresult artifact upload（`if: failure()` + upload-artifact@v4，保留 7 天），新增 `docs/workflow.md` 《CI 与本地一致性》章节。Xcode Review 首轮 **0🔴+0🟡+8🟢** 直接通过。

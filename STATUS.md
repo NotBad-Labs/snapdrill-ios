@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-19（Harness Stage A+B 7 PR + Stage C 2 PR + 方法论反思 PR #682 + 文档 v2 审计 PR #685 + EditProfileView UX PR #665 + LocalizationKeys 拆分 PR #688 全合并；Harness 三阶段 9 PR 收官，agent 视觉回归 evaluator 上线）
+> 最后更新：2026-04-19（Harness Stage A+B+C 9 PR + Codex 3 PR 方案（CSV 测试锁定 + parser 硬化 + Features snapshot 扩展）+ 其他 tech-debt PR 全合并；agent 视觉回归 evaluator 16 View 覆盖，CSV 导入 RFC 4180 合规 + 24 tests）
 > 编译状态：✅ 0 errors · 0 lint violations（无任何豁免）· CI 全绿 · YAML frontmatter 全仓校验通过
 > Open PR：0 · Open Issue：7（Apple 阻塞 6 + #626 真机待验）
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
@@ -95,6 +95,12 @@ freshness:
 - **PR #688** Issue #666 方案 B：LocalizationKeys.swift 1503 行按 enum 拆 12 文件（L10n/ 子目录 + LocalizationHelper 独立），消除 SwiftLint file_length 豁免，清理 PR #665 留下的 TODO。三方对抗规划（Claude+Codex+Gemini），Codex 独家发现 LocalizationHelper 独立 enum。Xcode Review 2 轮（0🔴+1🟡 Y-1 顺手修复）验收通过。
 - **PR #690** Harness Stage C/PR-6：引入 pointfreeco/swift-snapshot-testing，首批 7 个 SnapDrillUI public View 的 snapshot 测试 + 217 KB baseline 入 git。为解决 Xcode 原生 `SnapDrillUITests` (XCUITest) 与 SPM 命名冲突，测试放 SnapDrillFeaturesTests。顺手修 Issue #666 hook 残留 bug（swift-autolint.sh 对 Package.swift 假阳性阻塞）。Xcode Review 2 轮（0🔴+1🟡 Y-1 hook/swiftlint 双向注释锚定）验收通过。
 - **PR #691** Harness Stage C/PR-7（收官）：CI 集成 xcresult artifact upload（`if: failure()` + `actions/upload-artifact@v4`，保留 7 天），新增 `docs/workflow.md` 《CI 与本地一致性》章节。Xcode Review 首轮直接 **0🔴+0🟡+8🟢** 通过。Harness 三阶段 9 PR 收官。
+- **PR #694/#695/#696** Codex 3 PR 方案（Harness 后首次真实 feature-adjacent sprint）：
+  - 三方对抗规划 Codex 独家发现"CSV 导入已实现 + 0 测试 + 文档状态矛盾 + parser RFC 4180 偏差"，Gemini 与 Claude 初判错误（以为 Could Have 未做）
+  - PR #694 CSV 行为锁定 19 tests（含 `__currentBehavior_` 锁 bug）
+  - PR #695 parser 单字符状态机重写（字段内嵌换行 + CRLF/CR 归一化）+ CSVParser 独立文件解除 SettingsViewModel file_length 526 超门 + product-requirements.md 去矛盾。Codex 三方审 8.0 发现 🔴 BOM 未处理 → 追加 BOM 剥离 + 4 条边界测试（含未闭合引号宽松吞入锁定），Codex 验收 9.4 通过合并
+  - PR #696 Features 层 internal View snapshot 扩展（`@testable import` 访问 Dashboard/Capture/Settings internal View）9 tests，Stage C snapshot 覆盖 7 → 16
+- **发现的实战价值**：Codex rubric 4 维 + F-016 质疑方批准 + `__currentBehavior_` bug lock-in 模式在真实 sprint 吃狗粮成功。Codex 独家发现 3 个真实 risk（BOM / 文档矛盾 / 测试 0 覆盖）验证主锚点地位
 
 ### 本轮完成（2026-04-15~16，24 个 PR）
 
