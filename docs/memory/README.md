@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-14
+last_verified: 2026-04-18
 layer: pattern
 ---
 # 项目记忆（Agent-Agnostic）
@@ -14,6 +14,7 @@ layer: pattern
 | `feedback.md` | 项目纪律与反馈规则（17 条 F-001~F-017，所有智能体共遵） | 低频（新教训时） |
 | `decisions.md` | 工程决策记录（非 ADR） | 按需 |
 | `handoff.md` | 当前接手状态、优先级、阻塞、下一步 | 高频（每次接手） |
+| `checkpoints/<YYYY-MM-DD>-<topic>.md` | 长任务（多 PR / 跨多天 phase）收官 checkpoint，模板 Goal / Done / Open / Decisions / Risks / Next，由 `/phase-closeout` skill 产出 | phase 收官 / 每 3-5 PR |
 
 ## 历史归档
 
