@@ -164,11 +164,11 @@ final class SettingsViewModelCSVTests {
         #expect(items.first?.content == "他说\"hello\"")
     }
 
-    // MARK: - 已知 bug：字段内嵌换行（当前 parseCSV 按行 split 后才 parse line，会切破引号字段）
+    // MARK: - RFC 4180 字段内嵌换行（PR2 修复后期望行为）
 
-    @Test("__currentBehavior_：字段内嵌换行被错误切成两行（PR2 需修）")
-    func importCSV_embeddedNewlineInQuotedField_currentBehaviorSplitsRows() async throws {
-        // RFC 4180 标准：带引号字段可含换行；当前实现先 split newlines 再 parse line → bug
+    @Test("RFC 4180：字段内嵌换行不切分行，content 保留原始换行")
+    func importCSV_embeddedNewlineInQuotedField_preservedAsOneRow() async throws {
+        // RFC 4180 标准：带引号字段可含换行。新的状态机 parser 正确处理。
         let csv = "Content,Subject\n\"第一行\n第二行\",数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
@@ -176,9 +176,85 @@ final class SettingsViewModelCSVTests {
         await vm.importCSV(fileURL: url)
 
         let items = try repos.review.fetchAllModels()
-        #expect(items.count >= 1)
-        let contents = items.compactMap { $0.content }
-        #expect(contents.contains(where: { $0.contains("第一行") || $0.contains("第二行") }))
+        #expect(items.count == 1)
+        #expect(items.first?.content == "第一行\n第二行")
+        #expect(items.first?.subject == "数学")
+    }
+
+    @Test("RFC 4180：CRLF 与 CR 行终止符归一化为 LF")
+    func importCSV_crlfAndCrLineEndings_normalized() async throws {
+        let csv = "Content,Subject\r\n题目1,数学\r题目2,英语"
+        let url = try writeCSV(csv)
+        let vm = SettingsViewModel(repositories: repos)
+
+        await vm.importCSV(fileURL: url)
+
+        let items = try repos.review.fetchAllModels()
+        #expect(items.count == 2)
+        #expect(items.contains { $0.content == "题目1" && $0.subject == "数学" })
+        #expect(items.contains { $0.content == "题目2" && $0.subject == "英语" })
+    }
+
+    // MARK: - Codex Review 🔴/🟡 边界补测（追加）
+
+    @Test("RFC 4180：UTF-8 BOM 前缀剥离，首列 header 映射正确")
+    func importCSV_utf8BOM_stripped() async throws {
+        // Excel 导出 CSV 常带 BOM。不剥会让 headers[0] = "\uFEFFcontent" 导致字段映射失败。
+        let csv = "\u{FEFF}Content,Subject,Difficulty\n题目,数学,3"
+        let url = try writeCSV(csv)
+        let vm = SettingsViewModel(repositories: repos)
+
+        await vm.importCSV(fileURL: url)
+
+        let items = try repos.review.fetchAllModels()
+        #expect(items.count == 1)
+        #expect(items.first?.content == "题目")
+        #expect(items.first?.subject == "数学")
+        #expect(items.first?.difficulty == 3)
+    }
+
+    @Test("trailing newline：尾随换行不产生空行")
+    func importCSV_trailingNewline_noEmptyRow() async throws {
+        let csv = "Content,Subject\n题目1,数学\n题目2,英语\n"
+        let url = try writeCSV(csv)
+        let vm = SettingsViewModel(repositories: repos)
+
+        await vm.importCSV(fileURL: url)
+
+        let items = try repos.review.fetchAllModels()
+        #expect(items.count == 2)
+    }
+
+    @Test("奇数引号（未闭合）：宽松吞入，剩余内容成为同字段一部分")
+    func importCSV_unclosedQuote_lenientAbsorb() async throws {
+        // 当前状态机对格式错误输入采用宽松容错策略（Codex 🟡 指出可能静默误拼接）。
+        // 锁定此行为：奇数引号被视为开始一个引号字段，剩余所有字符直到 EOF 都被吞入。
+        let csv = "Content,Subject\n\"未闭合的引号,数学"
+        let url = try writeCSV(csv)
+        let vm = SettingsViewModel(repositories: repos)
+
+        await vm.importCSV(fileURL: url)
+
+        let items = try repos.review.fetchAllModels()
+        // 宽松吞入：content 含逗号+后续字段全部，subject 不设
+        #expect(items.count == 1)
+        #expect(items.first?.content == "未闭合的引号,数学")
+    }
+
+    @Test("空引号字段：trimming 后为空不写入 dict")
+    func importCSV_emptyQuotedField_treatedAsEmpty() async throws {
+        let csv = "Content,Subject\n\"\",数学"
+        let url = try writeCSV(csv)
+        let vm = SettingsViewModel(repositories: repos)
+
+        await vm.importCSV(fileURL: url)
+
+        let items = try repos.review.fetchAllModels()
+        // content 为空，但 subject 有值 → 仍算有效行（parseCSV 要求 content 或 subject 至少一个）
+        #expect(items.count == 1)
+        #expect(items.first?.subject == "数学")
+        // content 为空时 ReviewItemModel.content 应为 nil（init 参数 content: String? 对空过滤）
+        #expect(items.first?.content == nil || items.first?.content?.isEmpty == true)
     }
 
     // MARK: - Tags 字段处理（分号分隔）

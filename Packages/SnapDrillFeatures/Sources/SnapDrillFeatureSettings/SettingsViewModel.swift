@@ -257,7 +257,7 @@ public final class SettingsViewModel {
             let csvString = try String(contentsOf: fileURL, encoding: .utf8)
             backupStatusMessage = L10n.Settings.importParsing
 
-            let rows = parseCSV(csvString)
+            let rows = CSVParser.parse(csvString)
             guard !rows.isEmpty else {
                 backupError = L10n.Settings.importNoValidRows
                 isBackupInProgress = false
@@ -311,72 +311,7 @@ public final class SettingsViewModel {
         isBackupInProgress = false
     }
 
-    /// 解析 CSV 文本为字典数组
-    ///
-    /// - Returns: 每行一个字典，key 为列名（小写），value 为字段值
-    private func parseCSV(_ csvString: String) -> [[String: String]] {
-        let lines = csvString.components(separatedBy: .newlines).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
-        guard lines.count >= 2 else { return [] }
-
-        let headers = parseCSVLine(lines[0]).map { $0.lowercased().trimmingCharacters(in: .whitespaces) }
-        guard !headers.isEmpty else { return [] }
-
-        var results: [[String: String]] = []
-        for lineIndex in 1..<lines.count {
-            let values = parseCSVLine(lines[lineIndex])
-            var row: [String: String] = [:]
-            for (index, header) in headers.enumerated() where index < values.count {
-                let value = values[index].trimmingCharacters(in: .whitespaces)
-                if !value.isEmpty {
-                    row[header] = value
-                }
-            }
-            // 至少有 content 或 subject 才算有效行
-            if row["content"] != nil || row["subject"] != nil {
-                results.append(row)
-            }
-        }
-        return results
-    }
-
-    /// 解析单行 CSV（RFC 4180 合规：支持转义双引号 "" 和带引号字段）
-    private func parseCSVLine(_ line: String) -> [String] {
-        var fields: [String] = []
-        var current = ""
-        var inQuotes = false
-        var index = line.startIndex
-
-        while index < line.endIndex {
-            let char = line[index]
-            if inQuotes {
-                if char == "\"" {
-                    let next = line.index(after: index)
-                    if next < line.endIndex, line[next] == "\"" {
-                        // RFC 4180: "" 转义为单个 "
-                        current.append("\"")
-                        index = line.index(after: next)
-                        continue
-                    } else {
-                        inQuotes = false
-                    }
-                } else {
-                    current.append(char)
-                }
-            } else {
-                if char == "\"" {
-                    inQuotes = true
-                } else if char == "," {
-                    fields.append(current)
-                    current = ""
-                } else {
-                    current.append(char)
-                }
-            }
-            index = line.index(after: index)
-        }
-        fields.append(current)
-        return fields
-    }
+    // CSV 解析已迁移到 `CSVParser.swift`（enum 纯函数，与 ViewModel 状态分离）
 
     // MARK: - Private Helpers
 
