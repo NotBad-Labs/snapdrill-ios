@@ -46,7 +46,6 @@ excluded:
   - "**/.build"
   - "**/DerivedData"
   - "**/Packages/SnapDrillData/Sources/SnapDrillData/DataSeeder.swift"
-  - "**/Packages/SnapDrillCore/Sources/SnapDrillCore/Support/LocalizationKeys.swift"
 
 force_cast: warning
 force_unwrapping: error # Enterprise standard: No force unwraps allowed!
