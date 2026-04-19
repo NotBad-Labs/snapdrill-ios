@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-17
+last_verified: 2026-04-19
 layer: pattern
 ---
 # Gemini CLI 委派规范
@@ -138,9 +138,9 @@ Harness Stage A+B 实战发现 Gemini 在 `cross-audit-consensus` 4 维 rubric �
 - **10.0 分硬门槛**：仅在"plan 每一条都明文命中 + 无任何 scope 外增量 + 架构严格遵守"时给；默认从 8.0 起评，每个正向证据 +1，每个负向证据 -1
 - **方差自检**：Gemini 评分若与 Codex 差 ≥ 2 分，需在报告里显式说明"为什么我比 Codex 高 X 分"——这个反思本身可能暴露锚点不足
 
-**Consensus 裁决权重**：锚点层级的 SSOT 在 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 "评分方权重" 表；本段简述：
+**Consensus 裁决权重**：锚点层级与具体方差阈值以 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 "评分方权重" 表为 SSOT；本段简述：
 
-- Gemini 遵守评分纪律 → **次锚点**（进入裁决但弱于主锚点 Codex；与主锚点方差 > 2.5 时以 Codex 为准）
+- Gemini 遵守评分纪律 → **次锚点**（进入裁决但弱于主锚点 Codex）
 - Gemini 不守纪律 → **参考**（与 Claude 自审同级，不进入裁决计算）
 - **Codex 始终是主锚点**（对照 plan 明文逐条打分的严格度最高）
 

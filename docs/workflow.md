@@ -170,7 +170,7 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 **位置**：`docs/memory/checkpoints/<YYYY-MM-DD>-<topic>.md`（layer: snapshot, max_age_days: 30）
 
 **触发**：
-- 每 3-5 PR 合并自动（hook：`post-merge-checkpoint`，待实现）
+- 每 3-5 PR 合并自动（hook：`post-merge-checkpoint`，已实现；见 `docs/principles/permission-model.md` §3 Hook 生命周期门禁）
 - Phase 结束手动（`phase-closeout` skill 协助）
 
 **接手时**：新 Claude 会话只读 `STATUS.md` + `docs/memory/handoff.md` + 最近 Checkpoint，**不强吃长 transcript**（`resume-from-handoff` skill）

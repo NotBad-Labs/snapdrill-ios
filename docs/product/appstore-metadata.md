@@ -1,6 +1,9 @@
 ---
 last_verified: 2026-04-16
 layer: snapshot
+freshness:
+  max_age_days: 60
+  decay_trigger: [apple_enrollment, app_store_submission]
 ---
 # App Store 元数据（ASO 文案）
 

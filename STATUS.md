@@ -1,6 +1,10 @@
-<!-- last_verified: 2026-04-19 -->
-<!-- layer: snapshot -->
-<!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
+---
+last_verified: 2026-04-19
+layer: snapshot
+freshness:
+  max_age_days: 7
+  decay_trigger: [pr_merge]
+---
 # SnapDrill 项目状态看板
 
 > 最后更新：2026-04-19（Harness Stage A+B 7 PR + 方法论反思 PR #682 全合并；3 项 Risks 已落地；F-018 Sprint Contract 首次吃狗粮成功）

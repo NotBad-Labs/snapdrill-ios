@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-04-17
+last_verified: 2026-04-19
 layer: decision
 ---
 # ADR-003: 文档 frontmatter 从 HTML 注释迁移到 YAML
 
-> 状态：**提议** | 日期：2026-04-17 | 决策者：PO（待审批）
+> 状态：**已决策** | 日期：2026-04-17 | 决策者：PO | 落地：PR #656 (ADR) + PR #657 (40 文件迁移) + PR #658 (校验门)
 
 ## 背景
 
