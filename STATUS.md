@@ -7,9 +7,9 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-19（Harness Stage A+B 7 PR + 方法论反思 PR #682 + 文档 v2 审计 PR #685 全合并；3 项 Risks 已落地；Stage A+B 闭环完成，Stage C 待下次会话）
+> 最后更新：2026-04-19（Harness Stage A+B 7 PR + 方法论反思 PR #682 + 文档 v2 审计 PR #685 + EditProfileView UX PR #665 全合并；3 项 Risks 已落地；Stage A+B 闭环完成，Stage C 待下次会话）
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · YAML frontmatter 全仓校验通过
-> Open PR：1（#665 #637 EditProfileView UX，等 Xcode Review）· Open Issue：~8（Apple 阻塞 6 + #626/#637）
+> Open PR：0 · Open Issue：7（Apple 阻塞 6 + #626 真机待验）
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
 
 ## 本轮完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
@@ -79,17 +79,17 @@ freshness:
 **遗留待真机验证**：
 - #626 PoC `QuestionSplittingService` Go/No-Go：边界准确率 >= 80%（10 份真实试卷），需 iOS 26 真机 + Apple Intelligence
 
-**Phase 4 收官后的 tech-debt 清理（2026-04-17 深夜，3 PR）**：
+**Phase 4 收官后的 tech-debt 清理（2026-04-17→19，3 PR）**：
 - ✅ **PR #664** #638 ProfileListView 抽 ViewModel + 8 单测（删除错误路径无覆盖问题）
-- 🟡 **PR #665** #637 EditProfileView PhotosPicker 失败 UX 反馈 + 同图重选（CI 绿，等 Xcode Review）
+- ✅ **PR #665** #637 EditProfileView PhotosPicker 失败 UX 反馈 + 同图重选（2026-04-19 合并，Xcode Review 2 轮：R-1🔴+Y-1/2/3🟡 修复后验收通过）
 - ✅ **PR #667** #666 swift-autolint hook 过滤文件级违规（修 hook bug）
 
 **本轮发现的 tech-debt（已记录）**：
 - Issue #666 swift-autolint 文件级 vs 行级 — 方案 A 修 hook 已合并；方案 B 拆 LocalizationKeys（1503 行）待独立 PR 排期
 
 **下一候选**（用户排期）：
+- Harness Stage C（PR-6 SnapshotTesting + PR-7 CI 集成，~2-3 天，用户将另开单独会话）
 - #626 PoC 真机验证（QuestionSplittingService Go 后接入消费方）
-- #665 Xcode Review 后合并
 - LocalizationKeys 拆分（Issue #666 方案 B）
 - Apple 账号缴费开闸 → #163/#479/#485/#486/#490/#161 六个解锁
 
