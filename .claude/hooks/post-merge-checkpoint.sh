@@ -36,4 +36,11 @@ if [ "${RECENT_MERGES:-0}" -ge 3 ]; then
     echo "" >&2
 fi
 
+# 反模式启发式扫描（不阻塞，只 stderr 提示）
+LAST_PR=$(echo "$COMMAND" | grep -oE 'gh pr merge[[:space:]]+[0-9]+' | awk '{print $NF}')
+SCAN_SCRIPT="$PROJECT_ROOT/Scripts/anti-pattern-scan.sh"
+if [ -n "$LAST_PR" ] && [ -x "$SCAN_SCRIPT" ]; then
+    "$SCAN_SCRIPT" "$LAST_PR" || true
+fi
+
 exit 0
