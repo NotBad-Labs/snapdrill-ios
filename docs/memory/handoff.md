@@ -15,11 +15,8 @@ freshness:
 
 ## 待合并 PR
 
-| PR | 内容 | 状态 |
-|---|---|---|
-| #665 | fix: EditProfileView PhotosPicker 失败 UX 反馈 + 同图重选 (#637) | CI 绿，**等 Xcode Review**（UI 改动必经 F-017） |
-
 （本轮 Harness Stage A+B 7 PR #673/#674/#675/#676/#677/#678/#679 已全部合并）
+（PR #665 EditProfileView PhotosPicker UX 已于 2026-04-19 04:02 合并，Closes #637）
 
 ## 重要产出（新会话必读）
 
@@ -77,7 +74,6 @@ freshness:
 | 优先级 | 工作项 | 说明 | 阻塞 |
 |---|---|---|---|
 | P1 | **Harness Stage C**（PR-6 SnapshotTesting + PR-7 CI 集成） | ~2-3 天，首次 baseline 易 flaky 需监督 | 用户将另开单独会话推进 |
-| P2 | PR #665 EditProfileView UX 合并 | 等 Xcode Review（F-017 UI 改动必经） | 用户在 Xcode 触发 |
 | P2 | #626 QuestionSplittingService 真机准确率验证 | 10 份试卷样本，Go 条件 ≥ 80% 边界准确率 | 需 iOS 26 真机 + Apple Intelligence |
 | P3 | LocalizationKeys.swift 拆分 | 1503 行 → 按 enum 拆多文件（Issue #666 方案 B） | 无（待排期） |
 | P3 | CSV 导入功能 | Could Have | 无 |
