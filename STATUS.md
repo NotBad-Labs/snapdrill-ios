@@ -3,7 +3,7 @@
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-19（Hermes 闭环 + Harness Engineering Stage A+B 7 PR 全合并，checkpoint 见 `docs/memory/checkpoints/2026-04-19-harness-stage-a-b.md`）
+> 最后更新：2026-04-19（Harness Stage A+B 7 PR + 方法论反思 PR #682 全合并；3 项 Risks 已落地；F-018 Sprint Contract 首次吃狗粮成功）
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · YAML frontmatter 全仓校验通过
 > Open PR：1（#665 #637 EditProfileView UX，等 Xcode Review）· Open Issue：~8（Apple 阻塞 6 + #626/#637）
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
@@ -22,7 +22,14 @@
 
 **本轮机制首次实战**：cross-audit rubric 一次性挡下 2 个 PR 合并（#677 Codex 6.8 / #678 Codex 5.5），Codex 两轮复核后通过。详见 `~/.claude/plans/harness-prs-cross-audit-20260418.md`。
 
-**Stage C 暂缓**：PR-6 SnapshotTesting + PR-7 CI 集成（~2-3 天）待 Stage A+B 机制在真实 feature PR 中验证后再启动。
+**方法论反思修复（PR #682 #681）**：checkpoint Risks 段 3 项未落地全部合并：
+- **F-020**（新 feedback）：Auto mode 不豁免 F-005 对抗审查
+- **§2.5 评分方权重 SSOT**：Codex 始终主锚点 / Gemini 守纪律次锚点 / Claude 实施方自审为参考（不进入裁决）
+- **Gemini 评分纪律**：8.0 起评 + plan 锚点 + 10.0 硬门槛 + 方差自检，运行侧 prompt 完整承接
+
+**第二轮吃狗粮验证**：PR #682 首次 cross-audit 出现 Gemini 9.8 vs Codex 6.0（方差 3.8），按新 §2.5 硬阈值 retry；retry 后 Codex 8.5 通过。规则再次挡住自身的自审 bias，证明设计有效。
+
+**Stage C 暂缓**：PR-6 SnapshotTesting + PR-7 CI 集成（~2-3 天）用户将另开单独会话推进。
 
 ---
 

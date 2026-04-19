@@ -76,14 +76,14 @@ freshness:
 
 | 优先级 | 工作项 | 说明 | 阻塞 |
 |---|---|---|---|
-| P1 | **首个按 F-018 流程走的 feature PR** | 验证 Sprint Contract 字段设计是否合理，酌情调整模板 | 需下一个 Issue |
-| P1 | **Stage A+B 3 项未落地修复**（Risks 归档） | F-005 Auto mode 豁免 / Claude 自审 bias / Gemini 评分偏高；合成 1 个 PR | 无（待排期） |
+| P1 | **Harness Stage C**（PR-6 SnapshotTesting + PR-7 CI 集成） | ~2-3 天，首次 baseline 易 flaky 需监督 | 用户将另开单独会话推进 |
 | P2 | PR #665 EditProfileView UX 合并 | 等 Xcode Review（F-017 UI 改动必经） | 用户在 Xcode 触发 |
 | P2 | #626 QuestionSplittingService 真机准确率验证 | 10 份试卷样本，Go 条件 ≥ 80% 边界准确率 | 需 iOS 26 真机 + Apple Intelligence |
-| P3 | **Harness Stage C**（PR-6 SnapshotTesting + PR-7 CI 集成） | ~2-3 天，首次 baseline 易 flaky 需监督 | 无（待用户活跃时启动） |
 | P3 | LocalizationKeys.swift 拆分 | 1503 行 → 按 enum 拆多文件（Issue #666 方案 B） | 无（待排期） |
 | P3 | CSV 导入功能 | Could Have | 无 |
 | P3 | Share Extension 集成验证 | App Group 已配置，需端到端验证 | 真机 |
+
+**Stage A+B 3 项 Risks 已落地**（PR #682 / Issue #681 闭环 2026-04-19）：F-020 Auto mode 不豁免 F-005 / §2.5 评分方权重 SSOT 表 / Gemini 评分纪律（6 条运行侧 prompt 承接）。首个 F-018 Sprint Contract PR 吃自己狗粮成功：首审 Gemini 9.8 vs Codex 6.0 方差 3.8 触发 retry，复核 Codex 8.5 通过。
 
 ## Apple 账号阻塞链（用户主动延迟至 2026-05 缴费）
 
@@ -117,8 +117,8 @@ Enrollment ID 83VZW7VJKK **已通过 Apple 审核**，$99 年费用户主动延�
   - `phase-closeout` 模板加 Metrics 段 + session 时长计算命令
 - **此前已有**：cross-audit / cross-audit-consensus / phase-closeout / resume-from-handoff / update-status / pr-review-workflow / developer / qa-engineer / devops / security-engineer
 
-### Feedback 纪律（19 条 F-001~F-019）
-- **Stage A+B 新增**：F-018 编码前契约 / F-019 反模式启发式回流
+### Feedback 纪律（20 条 F-001~F-020）
+- **Stage A+B 新增**：F-018 编码前契约 / F-019 反模式启发式回流 / F-020 Auto mode 不豁免 F-005（PR #682）
 
 ### Issue 模板
 - **Stage A+B 扩展**：`feature_request.md` + `chore.md` 加 Sprint Contract 段；`bug_report.md` 不加（scope 天然小）
