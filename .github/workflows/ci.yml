@@ -107,13 +107,27 @@ jobs:
             CODE_SIGN_IDENTITY=""
 
       - name: Test
-        # AllTests scheme 包含 Core + Data + Features 全部测试 target
+        # AllTests scheme 包含 Core + Data + Features 全部测试 target（含 SnapshotRegressionTests）
         # -parallel-testing-enabled NO：避免跨 suite 并行执行时 ModelContainer 竞态
+        # -resultBundlePath：固定产物路径，便于失败时 upload-artifact 抓 xcresult 与 snapshot diff 附件
         run: |
+          rm -rf TestResults.xcresult
           xcodebuild test \
             -scheme AllTests \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             -parallel-testing-enabled NO \
+            -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
+
+      - name: Upload xcresult on failure
+        # 失败时把 xcresult 上传为 artifact，含 snapshot 测试的 diff 附件（reference / failure / diff 三张 PNG）。
+        # 下载后用 `xcrun xcresulttool get --path TestResults.xcresult --format json` 提取附件。
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcresult-${{ github.run_id }}-${{ github.run_attempt }}
+          path: TestResults.xcresult
+          retention-days: 7
+          if-no-files-found: warn
