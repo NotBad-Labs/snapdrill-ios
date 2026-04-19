@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-19（Harness Stage A+B 7 PR + 方法论反思 PR #682 + 文档 v2 审计 PR #685 + EditProfileView UX PR #665 + LocalizationKeys 拆分 PR #688 全合并；3 项 Risks 已落地；Stage A+B 闭环完成，Stage C 待下次会话）
+> 最后更新：2026-04-19（Harness Stage A+B 7 PR + Stage C 2 PR + 方法论反思 PR #682 + 文档 v2 审计 PR #685 + EditProfileView UX PR #665 + LocalizationKeys 拆分 PR #688 全合并；Harness 三阶段 9 PR 收官，agent 视觉回归 evaluator 上线）
 > 编译状态：✅ 0 errors · 0 lint violations（无任何豁免）· CI 全绿 · YAML frontmatter 全仓校验通过
 > Open PR：0 · Open Issue：7（Apple 阻塞 6 + #626 真机待验）
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
@@ -88,12 +88,13 @@ freshness:
 - Issue #666 swift-autolint 文件级 vs 行级 — 方案 A 修 hook 已合并；方案 B 拆 LocalizationKeys（1503 行）待独立 PR 排期
 
 **下一候选**（用户排期）：
-- Harness Stage C（PR-6 SnapshotTesting + PR-7 CI 集成，~2-3 天，用户将另开单独会话）
 - #626 PoC 真机验证（QuestionSplittingService Go 后接入消费方）
 - Apple 账号缴费开闸 → #163/#479/#485/#486/#490/#161 六个解锁
 
 **本轮新增完成**（2026-04-19 晚）：
 - **PR #688** Issue #666 方案 B：LocalizationKeys.swift 1503 行按 enum 拆 12 文件（L10n/ 子目录 + LocalizationHelper 独立），消除 SwiftLint file_length 豁免，清理 PR #665 留下的 TODO。三方对抗规划（Claude+Codex+Gemini），Codex 独家发现 LocalizationHelper 独立 enum。Xcode Review 2 轮（0🔴+1🟡 Y-1 顺手修复）验收通过。
+- **PR #690** Harness Stage C/PR-6：引入 pointfreeco/swift-snapshot-testing，首批 7 个 SnapDrillUI public View 的 snapshot 测试 + 217 KB baseline 入 git。为解决 Xcode 原生 `SnapDrillUITests` (XCUITest) 与 SPM 命名冲突，测试放 SnapDrillFeaturesTests。顺手修 Issue #666 hook 残留 bug（swift-autolint.sh 对 Package.swift 假阳性阻塞）。Xcode Review 2 轮（0🔴+1🟡 Y-1 hook/swiftlint 双向注释锚定）验收通过。
+- **PR #691** Harness Stage C/PR-7（收官）：CI 集成 xcresult artifact upload（`if: failure()` + `actions/upload-artifact@v4`，保留 7 天），新增 `docs/workflow.md` 《CI 与本地一致性》章节。Xcode Review 首轮直接 **0🔴+0🟡+8🟢** 通过。Harness 三阶段 9 PR 收官。
 
 ### 本轮完成（2026-04-15~16，24 个 PR）
 
