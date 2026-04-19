@@ -73,9 +73,13 @@ layer: pattern
 ### 框架与位置
 
 - 依赖：`pointfreeco/swift-snapshot-testing`（SnapDrillFeatures/Package.swift 引入）
-- 测试文件：`Packages/SnapDrillFeatures/Tests/SnapDrillFeaturesTests/SnapshotRegressionTests.swift`
-- 基线图：`Packages/SnapDrillFeatures/Tests/SnapDrillFeaturesTests/__Snapshots__/SnapshotRegressionTests/*.png`（入 git）
-- 覆盖：当前 7 个 SnapDrillUI 层 public View（SnapDrillButton / ProgressLoadingView×2 / ErrorMessageView×2 / ContextualErrorView / TipPopoverContent）
+- 测试文件：
+  - `SnapshotRegressionTests.swift` —— SnapDrillUI 层 **public** View（7 tests）
+  - `FeatureSnapshotTests.swift` —— Features 层 **internal** View（9 tests，通过 `@testable import` 访问）
+- 基线图：`Packages/SnapDrillFeatures/Tests/SnapDrillFeaturesTests/__Snapshots__/<Class>/*.png`（入 git）
+- 覆盖：16 个 View × 总计 ~1.4 MB baseline
+  - SnapDrillUI 层 7：SnapDrillButton / ProgressLoadingView×2 / ErrorMessageView×2 / ContextualErrorView / TipPopoverContent
+  - Features 层 9：ReviewHeroCard×3（空/有待复习/全完成）/ BentoCard×2 / CaptureMethodCard / CornerBracketShape / SettingsRow×2
 - 位置选择理由：Xcode 原生 `SnapDrillUITests` (XCUITest) 与 SPM `SnapDrillUITests` 命名冲突，且 AllTests scheme 只纳入 Core/Data/FeaturesTests，故放 FeaturesTests 以确保 CI 真实执行
 - nonisolated 标注：`nonisolated final class SnapshotRegressionTests: XCTestCase`，因 `defaultIsolation(MainActor)` 与 XCTestCase 基类 init nonisolated 要求冲突；单测试方法按需加 `@MainActor`
 
