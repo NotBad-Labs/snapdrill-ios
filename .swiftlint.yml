@@ -37,6 +37,9 @@ included:
   - SnapDrill
   - Packages
 
+# 新增/修改具体 .swift 文件的 excluded 条目时，
+# 必须同步 `.claude/hooks/swift-autolint.sh` 里的 case 块
+# （单文件 lint 模式不读本配置的 excluded，见 Issue #666）。
 excluded:
   - "**/DerivedData"
   - "**/Pods"

@@ -25,6 +25,8 @@ fi
 
 # 显式匹配 `.swiftlint.yml` 的 excluded 列表。单文件 lint 模式不自动应用 excluded，
 # 导致已豁免的文件（Package.swift / DataSeeder.swift 等）被假阳性阻塞（见 Issue #666 残留）。
+# SSOT：下列条目必须与 `.swiftlint.yml:40-47` 的 excluded 同步；
+# 新增 excluded 条目时，若路径是具体 .swift 文件（非目录），必须同步此 case 块。
 case "$FILE_PATH" in
     */Package.swift) exit 0 ;;
     */Packages/SnapDrillData/Sources/SnapDrillData/DataSeeder.swift) exit 0 ;;
