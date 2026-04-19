@@ -7,8 +7,8 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-19（Harness Stage A+B 7 PR + 方法论反思 PR #682 + 文档 v2 审计 PR #685 + EditProfileView UX PR #665 全合并；3 项 Risks 已落地；Stage A+B 闭环完成，Stage C 待下次会话）
-> 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · YAML frontmatter 全仓校验通过
+> 最后更新：2026-04-19（Harness Stage A+B 7 PR + 方法论反思 PR #682 + 文档 v2 审计 PR #685 + EditProfileView UX PR #665 + LocalizationKeys 拆分 PR #688 全合并；3 项 Risks 已落地；Stage A+B 闭环完成，Stage C 待下次会话）
+> 编译状态：✅ 0 errors · 0 lint violations（无任何豁免）· CI 全绿 · YAML frontmatter 全仓校验通过
 > Open PR：0 · Open Issue：7（Apple 阻塞 6 + #626 真机待验）
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
 
@@ -90,8 +90,10 @@ freshness:
 **下一候选**（用户排期）：
 - Harness Stage C（PR-6 SnapshotTesting + PR-7 CI 集成，~2-3 天，用户将另开单独会话）
 - #626 PoC 真机验证（QuestionSplittingService Go 后接入消费方）
-- LocalizationKeys 拆分（Issue #666 方案 B）
 - Apple 账号缴费开闸 → #163/#479/#485/#486/#490/#161 六个解锁
+
+**本轮新增完成**（2026-04-19 晚）：
+- **PR #688** Issue #666 方案 B：LocalizationKeys.swift 1503 行按 enum 拆 12 文件（L10n/ 子目录 + LocalizationHelper 独立），消除 SwiftLint file_length 豁免，清理 PR #665 留下的 TODO。三方对抗规划（Claude+Codex+Gemini），Codex 独家发现 LocalizationHelper 独立 enum。Xcode Review 2 轮（0🔴+1🟡 Y-1 顺手修复）验收通过。
 
 ### 本轮完成（2026-04-15~16，24 个 PR）
 
