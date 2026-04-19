@@ -223,6 +223,7 @@ struct EditProfileView: View {
         .onChange(of: selectedItem) { _, newValue in
             imageLoadTask?.cancel()
             guard let newValue else { return } // selectedItem 被复位时不重新触发加载
+            let storage = imageStorage // Task 前捕获 computed property（api-pitfalls.md）
             imageLoadTask = Task {
                 let data: Data?
                 do {
@@ -230,36 +231,35 @@ struct EditProfileView: View {
                 } catch is CancellationError {
                     return // 取消属正常行为，不记为错误
                 } catch {
+                    guard !Task.isCancelled else { return }
                     SnapDrillLogger.generic.error("PhotosPicker 图片加载失败: \(error.localizedDescription)")
-                    await MainActor.run {
-                        avatarLoadError = L10n.Errors.imageLoadFailed
-                        selectedItem = nil // 失败后复位允许同张照片重选（修复 #637）
-                    }
+                    avatarLoadError = L10n.Errors.imageLoadFailed
+                    selectedItem = nil // 失败后复位允许同张照片重选（修复 #637）
                     return
                 }
+                guard !Task.isCancelled else { return }
                 guard let data, let image = UIImage(data: data) else {
-                    await MainActor.run {
-                        avatarLoadError = L10n.Errors.imageDecodeFailed
-                        selectedItem = nil
-                    }
+                    avatarLoadError = L10n.Errors.imageDecodeFailed
+                    selectedItem = nil
                     return
                 }
                 do {
-                    let path = try await imageStorage.saveImage(image)
-                    await MainActor.run {
-                        userAvatar = path
-                        selectedItem = nil // 成功后也复位以允许同图重选
-                    }
+                    // saveImage 内部走 Task.detached，不继承父 Task 取消，
+                    // 恢复后必须显式检查避免写入过期 userAvatar
+                    let path = try await storage.saveImage(image)
+                    guard !Task.isCancelled else { return }
+                    userAvatar = path
+                    selectedItem = nil // 成功后也复位以允许同图重选
                 } catch {
+                    guard !Task.isCancelled else { return }
                     SnapDrillLogger.generic.error("Failed to save avatar: \(error.localizedDescription)")
-                    await MainActor.run {
-                        avatarLoadError = NSLocalizedString(
-                            "edit_profile.avatar_save_failed",
-                            value: "头像保存失败，请重试",
-                            comment: "头像保存失败提示"
-                        )
-                        selectedItem = nil
-                    }
+                    // TODO(#666 方案 B): LocalizationKeys 拆分后迁移到 L10n.Errors.avatarSaveFailed
+                    avatarLoadError = NSLocalizedString(
+                        "edit_profile.avatar_save_failed",
+                        value: "头像保存失败，请重试",
+                        comment: "头像保存失败提示"
+                    )
+                    selectedItem = nil
                 }
             }
         }
