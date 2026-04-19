@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-17
+last_verified: 2026-04-19
 layer: snapshot
 freshness:
   max_age_days: 3
@@ -11,23 +11,28 @@ freshness:
 
 - 主力智能体：Claude Code（Opus 4.7，1M context）
 - 主分支：`develop`
-- 当前工作分支：`chore/handoff-sync-phase4-complete`
-- 仓库分支：本地清理 / 远程 develop + main 纯净
+- 仓库分支：本地 + 远程 develop/main 纯净（所有 feature 分支本轮随 PR 合并自动删除）
 
 ## 待合并 PR
 
 | PR | 内容 | 状态 |
 |---|---|---|
 | #665 | fix: EditProfileView PhotosPicker 失败 UX 反馈 + 同图重选 (#637) | CI 绿，**等 Xcode Review**（UI 改动必经 F-017） |
-| #668 | chore: api-reference 补 QuestionSplittingService 条目（#626） | CI 中 |
-| 本 PR | chore: handoff.md 同步 Phase 4 完整收官 | 本次接手产物 |
+
+（本轮 Harness Stage A+B 7 PR #673/#674/#675/#676/#677/#678/#679 已全部合并）
 
 ## 重要产出（新会话必读）
 
+### 本轮新增（2026-04-18→19）
+- `docs/research/harness-engineering-study-20260418.md` — Harness Engineering 三方研究归档（Anthropic + Hashimoto + Böckeler + Willison 命名时间线 + 中文译法 + SnapDrill 映射）
+- `docs/memory/checkpoints/2026-04-19-harness-stage-a-b.md` — 本轮 7 PR checkpoint（Goal/Done/Decisions/Risks/Next/Metrics）
+- `~/.claude/plans/resilient-floating-quasar.md` — Harness 3 阶段 7 PR 落地计划
+- `~/.claude/plans/harness-prs-cross-audit-20260418.md` — 本轮 5 PR 三方 cross-audit 汇总（含冲突裁决 + 方法论反思）
+
+### Phase 4 遗留
 - `~/.claude/plans/doc-audit-summary.md` — 文档体系三方独立审计综合报告（2026-04-17）
 - `~/.claude/plans/warm-sleeping-peach.md` — Phase 4 P3 执行蓝图
 - `~/.claude/plans/phase4-p1-adversarial-summary.md` — 9 任务 × 3 方对抗起草汇总 + 6 项拍板决策
-- `~/.claude/plans/adversarial-{t05-06,t07-08-09,t14,t15}-claude.md` — Claude 4 份独立方案（F-008 三方对抗纪录）
 
 ## 关键事实（当前快照）
 
@@ -37,50 +42,47 @@ freshness:
 - CI：Mac mini 自托管 runner，全绿（含 YAML frontmatter 校验 step）
 - SwiftLint：0 violations（199 files）
 - iOS 26.0+ / Xcode 26.4.1 / Swift 6.3 / defaultIsolation(MainActor)
-- YAML frontmatter：全仓 40 md 统一，pre-commit + CI 双层校验
+- YAML frontmatter：全仓 47 md 统一，pre-commit + CI 双层校验
 
-### 本会话完成的工作（2026-04-17 晚 → 深夜，19 PR + 1 Issue 关闭）
+### 2026-04-18→19 Harness Engineering Stage A+B（7 PR 全合并）
 
-#### Phase 4 P1+Step1（4 PR，之前已合并）
-- #642 SSOT 校准 / #644 cross-audit skill / #646 api-reference / #648 .claude/rules YAML
+**研究 + 计划**：
+- Anthropic 2026-03-24 《Harness design for long-running apps》 触发 → 三方独立研究（Claude 27KB + Codex 24KB + Gemini 12KB）→ 综合报告归档 `docs/research/harness-engineering-study-20260418.md`
+- 用户进 plan mode 深度研究 SnapDrill 落地 → 7 PR 3 阶段计划 `~/.claude/plans/resilient-floating-quasar.md`
+- 用户 3 个决策：Issue 模板内嵌 Sprint Contract / 中成本 snapshot diff / 不引术语
 
-#### Phase 4 P2 sprint（6 PR，2026-04-17 晚间）
-- #650 PR-D F-008 去重 / #651 PR-G archive / #652 PR-F + T-01 追补 / #653 PR-H / #654 PR-K Issue 模板 / #655 PR-E KNOWLEDGE_MAP
+**Stage A 流程骨架（3 PR）+ Stage B 治理强化（2 PR）+ 闭环 2 PR**：
+- #673 Phase 4 历史 checkpoint 补齐（补 Hermes skill 里列但未生成的 3 个 checkpoint）
+- #674 Harness 研究归档
+- #675 Sprint Contract（feature/chore Issue 开工前必填 Touches/No-Touch/Interface Delta/Test Additions/DoD 最小集/不确定点）+ F-018
+- #676 post-merge 反模式启发式（Scripts/anti-pattern-scan.sh 4 项检测 + F-019 人工升级纪律）
+- #677 Permission Model SSOT（T1/T2/T3 tier + 9 hook 表 + 10 skill 矩阵 + 审计方法）
+- #678 session-metrics hook（PostToolUse matcher `.*` 全 tool 记录 + phase-closeout Metrics 段）
+- #679 cross-audit-consensus 量化 rubric 4 维（Scope Fidelity / Code Quality / Test Coverage / Architecture Fit，0-10 整数 + Retry 阈值 7.0/5.0/8.5/方差 2.5）
 
-#### Phase 4 P3 sprint（8 PR，2026-04-17 晚间对抗起草 + 合并）
-- #656 ADR-003 YAML 5-layer schema
-- #657 Step 2+3 — 40 文件 YAML 迁移
-- #658 Step 4 — Scripts/migrate + validate + CI 校验门
-- #659 PR-I-W1 备份铁律 / #660 PR-I-W2 隐私五层 / #661 PR-I-I1 冲突裁决
-- #662 #540 hooks 4 个运行时门
-- #663 #626 QuestionSplittingService PoC（draft → ready 合并）
+**F-005 漏执行事件**：Claude 推完 5 PR 没做 Codex/Gemini 对抗性审查（Auto mode 把 "提 PR" 当 "完成"），用户发现后补救：
+- 三方 cross-audit 5 PR + 吃自己狗粮用新 rubric 打分
+- Codex 独家抓到 8 处硬伤（Claude 9.3 vs Codex 7.5，方差触发硬 retry）
+- retry 后 Codex 复核 #676/#677 通过；#678 首次 retry 剩 1 处文档矛盾，二次复核后通过
+- 闭环：5 PR 全部按 F-016 质疑方批准流程合并
+- **方法论教训**：主线程 Claude 自审有 bias（看"完成度"而非"吻合度"），下轮应把 Claude 自审分作参考不作裁决锚点
 
-#### Tech-debt 清理（3 PR，2026-04-17 深夜）
-- #664 #638 ProfileListView 抽 VM + 8 单测
-- #665 #637 EditProfileView UX（**待 Xcode Review**）
-- #667 #666 swift-autolint hook 过滤文件级违规
+**合并冲突**：3 处（STATUS.md 日期 / feedback.md F-018 vs F-019 同位置 / permission-model §3 hook 表 8 vs 9）全部解决。
 
-#### Issue 动态
-- 新建 Issue #666（swift-autolint hook bug） → PR #667 修复（方案 A）
-- #626 加 comment 总结 PoC 工作 + 保持 open 等真机验证
-- #637 #638 将随 PR 合并自动关闭
-
-### Mac mini runner 事件（已解决）
-- 2026-04-17 晚 CoreSimulator 1051.49→1051.50 过时 → #651/#652/#653 首轮 CI FAILURE
-- 用户系统更新 + 重启 Mac mini（macOS 26.4.1 / Xcode 26.4.1）后恢复
-
-### Gemini 幻觉事件（已记录）
-- T-07/08/09 对抗起草中 Gemini 输出 OLD 原文全为虚构（编造章节号、Use Case 名称）
-- 已补充到 `feedback_gemini_adversarial.md`：Gemini 引用仓库原文做 diff 不可信
+### Phase 4 收官（2026-04-17，19 PR，已合并）
+见 `docs/memory/checkpoints/2026-04-17-phase4-p2-sprint.md` / `phase4-p3-sprint.md` / `phase4-tech-debt.md`。
 
 ## 后续待做（按可执行性排序）
 
 | 优先级 | 工作项 | 说明 | 阻塞 |
 |---|---|---|---|
-| P1 | PR #665 EditProfileView UX 合并 | 等 Xcode Review（F-017 UI 改动必经） | 用户在 Xcode 触发 |
+| P1 | **首个按 F-018 流程走的 feature PR** | 验证 Sprint Contract 字段设计是否合理，酌情调整模板 | 需下一个 Issue |
+| P1 | **Stage A+B 3 项未落地修复**（Risks 归档） | F-005 Auto mode 豁免 / Claude 自审 bias / Gemini 评分偏高；合成 1 个 PR | 无（待排期） |
+| P2 | PR #665 EditProfileView UX 合并 | 等 Xcode Review（F-017 UI 改动必经） | 用户在 Xcode 触发 |
 | P2 | #626 QuestionSplittingService 真机准确率验证 | 10 份试卷样本，Go 条件 ≥ 80% 边界准确率 | 需 iOS 26 真机 + Apple Intelligence |
+| P3 | **Harness Stage C**（PR-6 SnapshotTesting + PR-7 CI 集成） | ~2-3 天，首次 baseline 易 flaky 需监督 | 无（待用户活跃时启动） |
 | P3 | LocalizationKeys.swift 拆分 | 1503 行 → 按 enum 拆多文件（Issue #666 方案 B） | 无（待排期） |
-| P3 | CSV 导入功能 | Could Have，现有 CSV 导出的逆向操作 | 无 |
+| P3 | CSV 导入功能 | Could Have | 无 |
 | P3 | Share Extension 集成验证 | App Group 已配置，需端到端验证 | 真机 |
 
 ## Apple 账号阻塞链（用户主动延迟至 2026-05 缴费）
@@ -96,31 +98,48 @@ Enrollment ID 83VZW7VJKK **已通过 Apple 审核**，$99 年费用户主动延�
 | #490 | App Store 提交 | ← #163（ASO 文案已预备 #633） |
 | #161 | TestFlight Build 6 | ← #163 |
 
-## 技术提醒
+## 新增基础设施（本轮 Harness 落地）
 
-### 新增基础设施（本会话）
-1. **Scripts/migrate_to_yaml_frontmatter.py** — 一次性迁移脚本（已用完）
-2. **Scripts/validate_frontmatter.py** — 校验脚本（CI + 可选 pre-commit）
-3. **.claude/hooks/** 4 个新 hook（H1-H4）：
-   - `swift-autolint.sh` — PostToolUse Edit\|Write `*.swift`，行级违规 exit 2（文件级已过滤）
-   - `block-dangerous-bash.sh` — PreToolUse Bash，拦截 rm -rf/force push/hard reset 等
-   - `premerge-checklist.sh` — PreToolUse `gh pr merge`，近 24h 无 STATUS.md 更新 → 阻塞
-   - `prepush-lint.sh` — PreToolUse `git push`，全仓 swiftlint 违规 → 阻塞
+### Hooks（9 个活跃，见 `docs/principles/permission-model.md` §3）
+- **Stage A+B 新增**：
+  - `anti-pattern-scan.sh`（Scripts/，post-merge-checkpoint 调用）— 反模式启发式 4 项（scope / over-gen / test evasion × 2）
+  - `session-metrics.sh`（.claude/hooks/，PostToolUse `.*`）— 全 tool call 时间戳记录到 `.claude/session-metrics.tsv`（不入 git）
+- **此前已有**：swift-autolint / block-dangerous-bash / premerge-checklist / prepush-lint / post-merge-checkpoint / long-session-guard / log-file-change / SessionStart compact
 
-### 已验证的 iOS 26 新 API
+### Rules（14 条）
+- **Stage A+B 新增**：`.claude/rules/permission-model.md`（指向 `docs/principles/permission-model.md` SSOT）
+- **此前已有**：engineering / collaboration / codex-delegation / gemini-delegation / shared-constraints / ...
+
+### Skills（扩展）
+- **Stage A+B 扩展**：
+  - `cross-audit-consensus` §2.5 量化评分 + Retry 阈值
+  - `cross-audit` 委派模板加 rubric 要求
+  - `phase-closeout` 模板加 Metrics 段 + session 时长计算命令
+- **此前已有**：cross-audit / cross-audit-consensus / phase-closeout / resume-from-handoff / update-status / pr-review-workflow / developer / qa-engineer / devops / security-engineer
+
+### Feedback 纪律（19 条 F-001~F-019）
+- **Stage A+B 新增**：F-018 编码前契约 / F-019 反模式启发式回流
+
+### Issue 模板
+- **Stage A+B 扩展**：`feature_request.md` + `chore.md` 加 Sprint Contract 段；`bug_report.md` 不加（scope 天然小）
+
+## 已验证的 iOS 26 新 API（Phase 4 遗留）
 1. **RecognizeDocumentsRequest**（Vision）— OCRService.recognizeDocument
 2. **FoundationModels** — ContentTaggingService（生产）+ QuestionSplittingService（PoC，待真机）
    - `SystemLanguageModel.default.isAvailable` 在 Simulator 上检查耗时 ~150s → 测试不调用生产
    - `nonisolated struct` 在 Swift 6.3 + defaultIsolation(MainActor) 下合法
 
-### 已踩坑记录
+## 已踩坑记录（Phase 4 + Harness）
 - `defaultIsolation(MainActor)` + async + PersistenceController.init = 死锁（#599 / PR #628 修）
 - `modelContext.delete(model:)` 批量删除不影响 context 未保存对象
 - `fetchOrCreateModel` 只 insert 不 save → deleteAll 前需先 saveContext
 - SwiftLint file_length 500 行限制（LocalizationKeys.swift 1503 行存量违规，Issue #666 方案 B 待拆）
 - swift-autolint hook 单文件 lint 与全仓不一致（PR #667 已过滤文件级规则）
+- **新增**：git add -A 在 local-only 文件未入 .gitignore 时容易误提交（session-metrics.tsv 在 PR-5 合并前）
+- **新增**：PR 间改同一文件尾部追加（如 feedback.md）合并必冲突，需按语义顺序解决
 
-### 对抗起草纪律（Phase 4 实证）
-- Codex GPT-5.4（--effort high）对仓库 diff 任务可信，OLD/NEW 原文精准
-- Gemini 对文档**结构性建议**可信，但**引用仓库原文做 diff 不可信**（会幻觉编造章节号）
-- 每次三方对抗必须 Claude 亲自汇总比对（Claude 充当主 reviewer）
+## 对抗起草纪律（本轮实证更新）
+- Codex GPT-5.4（--effort high）：对抗审查最严格，独家发现 Claude/Gemini 都漏的硬伤（#677 3 处 + #678 3 处），plan 逐条对照能力最强
+- Gemini 3 Auto：本轮未现幻觉（diff 直接贴 prompt 而非引用仓库原文），但**评分整体偏高**（3/5 PR 打 10.0），不宜作裁决锚点
+- Claude 主线程自审：存在 confirmation bias（看"完成度"而非"吻合度"），实施方同时评分时应降权
+- 裁决锚点优先级：**Codex 严格打分 > 三方共识 > Claude 自审**（证据等级：plan 明文 > 代码推断 > 经验判断）

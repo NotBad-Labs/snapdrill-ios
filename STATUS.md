@@ -3,10 +3,26 @@
 <!-- freshness: max_age_days=7, decay_trigger=[pr_merge] -->
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-19（Hermes 闭环补齐 + Harness Engineering 落地系列 7 PR，Stage A+B 5 PR 全部三方对抗审通过）
+> 最后更新：2026-04-19（Hermes 闭环 + Harness Engineering Stage A+B 7 PR 全合并，checkpoint 见 `docs/memory/checkpoints/2026-04-19-harness-stage-a-b.md`）
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · YAML frontmatter 全仓校验通过
 > Open PR：1（#665 #637 EditProfileView UX，等 Xcode Review）· Open Issue：~8（Apple 阻塞 6 + #626/#637）
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
+
+## 本轮完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
+
+| PR | 内容 |
+|---|---|
+| #673 | Phase 4 历史 checkpoint 补齐（P2/P3/tech-debt 3 个 checkpoint + checkpoints/ 目录）|
+| #674 | Harness Engineering 三方研究归档（Anthropic 2026-03-24 蓝本 + Hashimoto 命名源 + 中文译法） |
+| #675 | Sprint Contract 内嵌 Issue 模板 + F-018 编码前契约纪律 |
+| #676 | post-merge 反模式启发式（anti-pattern-scan.sh）+ F-019 人工回流 |
+| #677 | Permission Model SSOT（T1/T2/T3 tier + 9 hook 表 + 10 skill 矩阵） |
+| #678 | session-metrics hook（全 tool matcher）+ phase-closeout Metrics 段 |
+| #679 | cross-audit-consensus 量化 rubric 4 维（0-10 整数分 + Retry 阈值） |
+
+**本轮机制首次实战**：cross-audit rubric 一次性挡下 2 个 PR 合并（#677 Codex 6.8 / #678 Codex 5.5），Codex 两轮复核后通过。详见 `~/.claude/plans/harness-prs-cross-audit-20260418.md`。
+
+**Stage C 暂缓**：PR-6 SnapshotTesting + PR-7 CI 集成（~2-3 天）待 Stage A+B 机制在真实 feature PR 中验证后再启动。
 
 ---
 
