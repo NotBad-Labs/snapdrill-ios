@@ -56,7 +56,7 @@ sudo rm             # 提权删除
 
 ## 3. Hook 生命周期门禁
 
-`.claude/settings.json` 事件绑定（8 个活跃 hook）：
+`.claude/settings.json` 事件绑定（9 个活跃 hook）：
 
 | 事件 | Matcher | Hook | 职责 | Tier 相关 |
 |---|---|---|---|---|
@@ -64,6 +64,7 @@ sudo rm             # 提权删除
 | `PostToolUse` | `Edit\|Write` | `log-file-change.sh` | 记录改动文件到 session-log.txt | T1 观察 |
 | `PostToolUse` | `Edit\|Write` | `swift-autolint.sh` | 改 `.swift` 后即时 swiftlint（行级） | T2 校验 |
 | `PostToolUse` | `Bash` | `post-merge-checkpoint.sh` | `gh pr merge` 后提示 checkpoint + 反模式启发式扫描（PR-3） | T2 观察 |
+| `PostToolUse` | `.*` | `session-metrics.sh` | 记录所有 tool call 时间戳到 session-metrics.tsv（PR-5） | T1 观察 |
 | `PreToolUse` | `Bash` | `block-dangerous-bash.sh` | 见 §2，硬拦截 T3 受限命令 | **T3 守门** |
 | `PreToolUse` | `Bash` | `premerge-checklist.sh` | `gh pr merge` 前检查 STATUS.md 近 24h 更新 | T2 合并门禁 |
 | `PreToolUse` | `Bash` | `prepush-lint.sh` | `git push` 前全仓 swiftlint | T2 合并门禁 |

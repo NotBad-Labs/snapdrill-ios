@@ -32,6 +32,7 @@ build_output.txt
 .claude/reviews/
 .claude/settings.local.json
 .claude/session-log.txt
+.claude/session-metrics.tsv
 .claude/validation-status.json.*
 .claude/worktrees/
 .claude/.long-session-warned

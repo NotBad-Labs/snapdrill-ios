@@ -55,7 +55,39 @@ freshness:
 ## Next
 - 下一组工作清单（可执行优先级排序）
 - 阻塞解除后的解锁顺序
+
+## Metrics（可选，若 `.claude/session-metrics.tsv` 存在则填充）
+- 本 phase tool call 总数：N
+- 调用最频繁的 tool（top-3）：Edit × N1 / Bash × N2 / Read × N3
+- session 起止时间（UTC）：YYYY-MM-DDTHH:MM → YYYY-MM-DDTHH:MM
+- session 时长：~X.X 小时
 ```
+
+### Metrics 段填充方法
+
+若 `.claude/session-metrics.tsv` 存在（由 `session-metrics.sh` hook 记录 PostToolUse 的**所有 tool**，matcher `.*`），在 checkpoint Metrics 段填充：
+
+```bash
+# 总数
+wc -l .claude/session-metrics.tsv
+
+# top-3 tool
+cut -f2 .claude/session-metrics.tsv | sort | uniq -c | sort -rn | head -3
+
+# 起止时间 + 时长（小时，保留 1 位小数）
+FIRST=$(head -1 .claude/session-metrics.tsv | cut -f1)
+LAST=$(tail -1 .claude/session-metrics.tsv | cut -f1)
+FS=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$FIRST" "+%s")
+LS=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$LAST" "+%s")
+echo "起: $FIRST  止: $LAST"
+echo "时长: $(echo "scale=1; ($LS - $FS) / 3600" | bc) 小时"
+```
+
+**限制**：
+- 覆盖**所有** tool（PR-5 retry 后 matcher 扩为 `.*`，见 `docs/principles/permission-model.md` §3）
+- 不含 token 成本（Claude Code hook 当前不暴露该数据；需自建 HTTPS 代理，ROI 不匹配暂不做）
+- 跨 session 累计：hook 追加模式写入，不主动轮转。phase-closeout 完成后用户可手动 `truncate -s 0 .claude/session-metrics.tsv` 重置
+- tsv 可能膨胀（一次活跃 session 数百-千行）；如 phase 结束后不清空，后续统计耗时会线性增长
 
 ## 位置
 
