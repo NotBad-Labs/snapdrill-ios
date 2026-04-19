@@ -253,12 +253,7 @@ struct EditProfileView: View {
                 } catch {
                     guard !Task.isCancelled else { return }
                     SnapDrillLogger.generic.error("Failed to save avatar: \(error.localizedDescription)")
-                    // TODO(#666 方案 B): LocalizationKeys 拆分后迁移到 L10n.Errors.avatarSaveFailed
-                    avatarLoadError = NSLocalizedString(
-                        "edit_profile.avatar_save_failed",
-                        value: "头像保存失败，请重试",
-                        comment: "头像保存失败提示"
-                    )
+                    avatarLoadError = L10n.Errors.avatarSaveFailed
                     selectedItem = nil
                 }
             }
