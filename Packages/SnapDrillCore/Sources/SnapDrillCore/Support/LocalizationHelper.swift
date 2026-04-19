@@ -11,7 +11,7 @@
 import Foundation
 
 /// 本地化辅助工具
-public enum LocalizationHelper {
+nonisolated public enum LocalizationHelper {
     /// 获取当前语言代码
     public static var currentLanguageCode: String {
         Locale.current.language.languageCode?.identifier ?? "zh"
