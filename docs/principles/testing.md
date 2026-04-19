@@ -67,3 +67,36 @@ layer: pattern
 
 - 修改 struct/class/protocol 的 init 或方法签名后：`grep -rn "TypeName(" Packages/*/Tests/` 检查测试同步
 - 详见 `coding.md` 接口变更段
+
+## Snapshot 视觉回归（PR #688 后 Stage C 引入）
+
+### 框架与位置
+
+- 依赖：`pointfreeco/swift-snapshot-testing`（SnapDrillFeatures/Package.swift 引入）
+- 测试文件：`Packages/SnapDrillFeatures/Tests/SnapDrillFeaturesTests/SnapshotRegressionTests.swift`
+- 基线图：`Packages/SnapDrillFeatures/Tests/SnapDrillFeaturesTests/__Snapshots__/SnapshotRegressionTests/*.png`（入 git）
+- 覆盖：当前 7 个 SnapDrillUI 层 public View（SnapDrillButton / ProgressLoadingView×2 / ErrorMessageView×2 / ContextualErrorView / TipPopoverContent）
+- 位置选择理由：Xcode 原生 `SnapDrillUITests` (XCUITest) 与 SPM `SnapDrillUITests` 命名冲突，且 AllTests scheme 只纳入 Core/Data/FeaturesTests，故放 FeaturesTests 以确保 CI 真实执行
+- nonisolated 标注：`nonisolated final class SnapshotRegressionTests: XCTestCase`，因 `defaultIsolation(MainActor)` 与 XCTestCase 基类 init nonisolated 要求冲突；单测试方法按需加 `@MainActor`
+
+### 新增/修改 View 的工作流
+
+1. **新增 public View**：DoD 一项是"同时加 snapshot 测试"（先写测试，首次跑会自动 record baseline + 失败，提交前再跑一次确认稳定）
+2. **修改现有 View**：
+   - Snapshot 失败时**先人眼审**差异图（xcresult bundle 内 `Attachments/*.png` 或 diff 工具）
+   - 若是**有意变更** → 删对应基线 `.png` 文件让它重新 record（不要全文件设 `isRecording = true`，那会盲目覆盖所有 baseline）
+   - 若是**非预期回归** → 修代码让 snapshot 与基线一致
+3. **禁止盲目 record** — 等同 test evasion（F-014 纪律），Review 见到一次性更新 >3 张 baseline 必须质询合理性
+
+### 稳定性与 flaky 防护
+
+- Snapshot 对 Xcode 版本敏感 → 项目固定 Xcode 26.4，CI 用 self-hosted Mac mini（已定）
+- 模拟器固定 `iPhone 17`（对齐 `STATUS.md` 执行门命令）
+- 用 `.image(layout: .sizeThatFits)` 或显式 `.frame(width:height:)`，避免依赖设备 config preset
+- 首次 record 后第二次跑必须 0 diff，否则该测试天然不稳定，不入基线
+
+### CI 集成（PR-7 落地）
+
+- CI 跑 `xcodebuild test -scheme AllTests` 自动执行 snapshot 测试
+- 失败时上传 `*.xcresult` artifact（包含 diff 附件）供下载审查
+- 详见 PR-7（本段随 PR-7 合并后补链接）
