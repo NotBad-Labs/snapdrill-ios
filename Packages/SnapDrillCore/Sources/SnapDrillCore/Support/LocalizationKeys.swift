@@ -10,12 +10,12 @@
 
 import Foundation
 
-/// 本地化字符串键值
-///
-/// 使用枚举组织所有本地化字符串，提供类型安全的访问方式。
-/// 所有条目使用 `NSLocalizedString(_:value:comment:)` 确保中文为默认值，
-/// 未来添加 `.strings` 文件即可支持多语言。
-nonisolated public enum L10n {
+// 本文件是 L10n 命名空间的原始容器，正在按 Issue #666 方案 B 逐步拆分到
+// `Support/L10n/L10n+<Module>.swift`。根类型见 `Support/L10n/L10n.swift`。
+// `.swiftlint.yml` excluded 条目豁免 file_length，commit 5 收口时一并删除。
+// `nonisolated` 需在 extension 级显式标注，defaultIsolation(MainActor) 下
+// 不自动从根类型的 `nonisolated public enum L10n` 传递到 extension。
+nonisolated extension L10n {
 
     // MARK: - Tab
 
@@ -1448,56 +1448,4 @@ nonisolated public enum L10n {
             return String(format: NSLocalizedString("accessibility.star_rating", value: "难度 %d 星（共 %d 星），%@", comment: "VoiceOver 难度星级"), difficulty, maxStars, desc)
         }
     }
-}
-
-// swiftlint:enable type_body_length file_length
-
-/// 本地化辅助工具
-public enum LocalizationHelper {
-    /// 获取当前语言代码
-    public static var currentLanguageCode: String {
-        Locale.current.language.languageCode?.identifier ?? "zh"
-    }
-
-    /// 是否为中文环境
-    public static var isChineseLocale: Bool {
-        currentLanguageCode.hasPrefix("zh")
-    }
-
-    /// 是否为英文环境
-    public static var isEnglishLocale: Bool {
-        currentLanguageCode.hasPrefix("en")
-    }
-
-    /// 格式化数字（带本地化）
-    public static func formatNumber(_ number: Int) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter.string(from: NSNumber(value: number)) ?? "\(number)"
-    }
-
-    /// 格式化日期（带本地化）
-    public static func formatDate(_ date: Date, style: DateFormatter.Style = .medium) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = style
-        formatter.timeStyle = .none
-        return formatter.string(from: date)
-    }
-
-    /// 格式化时间（带本地化）
-    public static func formatTime(_ date: Date, style: DateFormatter.Style = .short) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = style
-        return formatter.string(from: date)
-    }
-
-    /// 格式化日期时间（带本地化）
-    public static func formatDateTime(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
-
 }
