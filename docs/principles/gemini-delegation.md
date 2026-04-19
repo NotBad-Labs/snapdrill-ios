@@ -138,8 +138,12 @@ Harness Stage A+B 实战发现 Gemini 在 `cross-audit-consensus` 4 维 rubric �
 - **10.0 分硬门槛**：仅在"plan 每一条都明文命中 + 无任何 scope 外增量 + 架构严格遵守"时给；默认从 8.0 起评，每个正向证据 +1，每个负向证据 -1
 - **方差自检**：Gemini 评分若与 Codex 差 ≥ 2 分，需在报告里显式说明"为什么我比 Codex 高 X 分"——这个反思本身可能暴露锚点不足
 
-**Consensus 裁决权重**（来自 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5）：
-- 如果 Gemini 遵守了上述评分纪律 → 与 Codex 平权
-- 如果 Gemini 没引用 plan 锚点 → **降权作参考**（Codex 为主锚点）
+**Consensus 裁决权重**：锚点层级的 SSOT 在 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 "评分方权重" 表；本段简述：
 
-**来源**：`docs/memory/checkpoints/2026-04-19-harness-stage-a-b.md` Risks 段 + `feedback_gemini_adversarial.md`。
+- Gemini 遵守评分纪律 → **次锚点**（进入裁决但弱于主锚点 Codex；与主锚点方差 > 2.5 时以 Codex 为准）
+- Gemini 不守纪律 → **参考**（与 Claude 自审同级，不进入裁决计算）
+- **Codex 始终是主锚点**（对照 plan 明文逐条打分的严格度最高）
+
+"次锚点" 不等于 "平权"——任何情况下 Codex 都保持主锚点地位，这是为避免共识时 Claude 用 Gemini 虚高分"刷过阈值"。
+
+**来源**：`docs/memory/checkpoints/2026-04-19-harness-stage-a-b.md` Risks 段 + `feedback_gemini_adversarial.md` + PR #682 吃狗粮验证。

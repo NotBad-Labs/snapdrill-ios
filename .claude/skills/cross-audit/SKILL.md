@@ -70,9 +70,14 @@ gemini -p "你审 [审计目标]
 输出：结构化中文报告，分级 Critical / Warning / Info
 PR 审查场景末尾补 4 维评分表（0-10 整数分 + 综合平均），
 维度：Scope Fidelity / Code Quality / Test Coverage / Architecture Fit
-**评分纪律**：每维度必须引用 plan 明文条目或 Issue Sprint Contract 作锚点。
-禁止仅凭定性感觉给 10.0 分；若某维度无 plan/contract 可对照，该维度降权
-或标 N/A 并说明。详见 docs/principles/gemini-delegation.md 评分段。
+
+**评分纪律（强制，来自 docs/principles/gemini-delegation.md 评分任务纪律段）**：
+1. 每维度必须引用 plan / Issue Sprint Contract 明文条目作锚点；禁止感性打分
+2. **默认从 8.0 起评**，每个正向证据 +1，每个负向证据 -1
+3. **10.0 分硬门槛**：仅在 plan 每一条都明文命中 + 无任何 scope 外增量 + 架构严格遵守时给
+4. 若某维度无 plan/contract 可对照，降权或标 N/A（不折算为 10.0）
+5. **方差自检**：若你的分数与 Codex 可能差 ≥ 2 分，在报告末尾解释原因（自省锚点是否不足）
+6. 裁决权重：你守纪律时作次锚点（不等于主锚点 Codex），不守时降为参考
 " 2>&1
 ```
 

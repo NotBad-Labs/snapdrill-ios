@@ -72,20 +72,29 @@ user-invocable: true
 - 打分依据必须引用具体证据（与 §2 共识表共用证据列）
 - Sprint Contract 未填写的 Issue → Scope Fidelity 默认扣 2 分（F-018 违反）
 
-**评分方权重**（防 Claude 自审 bias）：
+**评分方权重**（防 Claude/Gemini 自审 bias，本表是 SSOT）：
 
-当 Claude 同时是实施方（写了被审代码）和评分方时，**Claude 自审分作参考列出，不作裁决锚点**。裁决锚点按证据严格度顺序：
+本节是评分方权重唯一源。`docs/principles/gemini-delegation.md` 的评分任务纪律段必须与本表一致。
 
-1. **Codex 严格评分**（对照 plan 明文逐条打分）— 主锚点
-2. **Gemini 评分**（需满足 Gemini 委派纪律：逐条对照 plan，见 `docs/principles/gemini-delegation.md` 评分段；否则降权作参考）
-3. **Claude 自审**（实施方自审时作参考；非实施方时与 Codex 平权）
+| 评分方 | 角色 | 裁决权重 |
+|---|---|---|
+| **Codex**（gpt-5.4 --effort high，对照 plan 明文逐条打分） | 主锚点 | **始终** |
+| **Gemini**（守 `gemini-delegation.md` 评分纪律：8.0 起评 + plan 锚点 + 方差自检） | 次锚点（不等于主锚点） | 守纪律才计入；不守纪律降为参考 |
+| **Gemini**（不守评分纪律） | 参考 | 与 Claude 自审同级 |
+| **Claude**（主对话内审自己刚实施的 PR） | 参考 | 不作锚点（实施方自审 bias） |
+| **Claude**（主对话内审他人或历史 PR） | 次锚点（不等于主锚点） | 独立视角但仍弱于 Codex 的 plan 对照深度 |
+| **Claude**（通过独立 Agent 委派审自己 PR） | 次锚点 | Agent fork context 减弱 bias，但仍弱于 Codex |
 
-**Why**：Harness Stage A+B 实战暴露 Claude 自审均分 9.3 vs Codex 7.5，方差 > 2.5 触发硬 retry（见 `docs/memory/checkpoints/2026-04-19-harness-stage-a-b.md` Risks）。根因是 Claude 既是实施方又是评分方，倾向看"完成度"而非 plan"吻合度"。把 Claude 自审作参考而非锚点，把裁决权交给独立视角（Codex）是对 F-016 质疑方批准的配套强化。
+**关键区分**：
+- "**主锚点**" = Codex 一家；共识/冲突裁决以 Codex 评分为基准
+- "**次锚点**" = 进入裁决计算但权重低于主锚点；与主锚点方差 > 2.5 时，以主锚点为准并列出冲突原因
+- "**参考**" = 分数列出供人类阅读，**不进入**裁决计算
 
-**何时降权 vs 何时平权**：
-- Claude 在主对话内审查自己刚实施的 PR → **降权作参考**（当前场景）
-- Claude 在主对话内审查他人或历史 PR → **与 Codex 平权**（独立视角）
-- Claude 通过独立 Agent 委派审自己的 PR → **接近平权**（Agent fork context 减弱 bias），但建议仍以 Codex 为主锚点
+**Why**：Harness Stage A+B 实战暴露 Claude 自审均分 9.3 vs Codex 7.5，方差 > 2.5 触发硬 retry；本 PR（#682）首次吃狗粮又出现 Gemini 9.8 vs Codex 6.0（方差 3.8）。两次都证明"只靠方差自检不够，必须明确锚点层级"。根因：Claude 看"完成度"、Gemini 看"方向正确"，都绕过 plan 明文逐条对照——只有 Codex 的严格评分是裁决的可靠基准。
+
+**Retry 阈值与锚点的关系**：
+- Retry 判定（< 7.0 建议 / < 5.0 硬性 / 方差 > 2.5 冲突）按**主锚点 Codex 分数**触发
+- 次锚点和参考分不单独触发 retry，但会计入冲突表协助诊断根因
 
 **来源**：Anthropic Harness Design 2026-03-24 的 rubric 范式（Design Quality / Originality / Craft / Functionality），本项目根据 iOS 代码审查特点替换为 Scope Fidelity / Code Quality / Test Coverage / Architecture Fit 四维。详见 `docs/research/harness-engineering-study-20260418.md`。
 
