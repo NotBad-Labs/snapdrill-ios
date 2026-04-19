@@ -264,3 +264,20 @@ feature / chore 类 Issue 且 Appetite >= Small 时，Claude 在动第一行代�
     - 扩展 `anti-pattern-scan.sh` 阈值或新增检测项
     - 追加 CI / hook 强制门禁
 - 升级决策必须人类拍板（Claude 提议，用户批准），避免 AI 自写纪律循环
+
+---
+
+## F-020: Auto mode 不豁免 F-005 对抗性审查
+<!-- added: 2026-04-19 | owner: human | type: permanent -->
+<!-- trigger: Harness Stage A+B 7 PR 实现期间，Claude 连续推 5 个 PR 未做 Codex/Gemini 对抗审查，用户发现后补救（cross-audit 五 PR + 两轮 Codex retry，挡下 2 PR 合并） -->
+
+F-001 "自主执行" 偏好的范围是免除 yes/no 确认每个代码改动。**不包括**免除 F-005（完成前必须对抗性审查）。在 Auto mode 下，Claude 把 "提 PR" 当成 "完成"、跳过 Codex 对抗审查直接推下一个 PR，**违反** F-005/F-008/F-016。
+
+**Why:** 2026-04-19 Harness Engineering Stage A+B 实施中，Claude 在 Auto mode 下连续推 5 PR（#675/#676/#677/#678/#679）没做对抗审查。用户发现后补救，三方 cross-audit 暴露 Codex 独家 8 处硬伤，其中 #677/#678 触发 rubric 硬阈值必须 retry。这证明对抗审查不是仪式——是真能挡质量问题的工程门禁。
+
+**How to apply:**
+- Auto mode 只豁免"逐步确认"节奏，不豁免任何工程纪律门禁（F-005 / F-008 / F-014 / F-015 / F-016 / F-017 全部生效）
+- PR push 后的**第一个** action 必须是启动 Codex 对抗性审查（或系列 PR 合并前统一做一次三方 cross-audit），不是"开下一个 PR"
+- 即使 PR 看似 trivial（纯文档、单行 fix），也必须过 F-005——trivial 的 PR 复核成本极低，跳过没有正当理由
+- 违反 F-020 的修复路径：停下当前工作 → 对已推但未审的 PR 补三方 cross-audit → 按 rubric 打分 → retry 或合并；不得 "合了再说"
+- 对照检查：每次 Claude 准备说"搞定了 / 已 push / 等你合并"之前，自问 "Codex 审过这个 diff 了吗？"，没审就先审
