@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-19（Harness Stage A+B 7 PR + 方法论反思 PR #682 全合并；3 项 Risks 已落地；F-018 Sprint Contract 首次吃狗粮成功）
+> 最后更新：2026-04-19（Harness Stage A+B 7 PR + 方法论反思 PR #682 + 文档 v2 审计 PR #685 全合并；3 项 Risks 已落地；Stage A+B 闭环完成，Stage C 待下次会话）
 > 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · YAML frontmatter 全仓校验通过
 > Open PR：1（#665 #637 EditProfileView UX，等 Xcode Review）· Open Issue：~8（Apple 阻塞 6 + #626/#637）
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
@@ -32,6 +32,8 @@ freshness:
 - **Gemini 评分纪律**：8.0 起评 + plan 锚点 + 10.0 硬门槛 + 方差自检，运行侧 prompt 完整承接
 
 **第二轮吃狗粮验证**：PR #682 首次 cross-audit 出现 Gemini 9.8 vs Codex 6.0（方差 3.8），按新 §2.5 硬阈值 retry；retry 后 Codex 8.5 通过。规则再次挡住自身的自审 bias，证明设计有效。
+
+**文档体系 v2 三方审计 + 收口 PR #685**（2026-04-19 晚）：Hermes + Harness 密集引入后用户担忧文档膨胀失真，三方全景审 49 md / 370KB。Codex 主锚点 8.0 / Claude Agent 次锚点 8.5 / Gemini 次锚点 8.75（方差 0.75）。归档 `~/.claude/plans/doc-audit-v2-20260419.md`。PR #685 落地 H 高 5 项 + 3 处 last_verified + M 中 6 项（共 14 文件 small diff，Closes #684）。首次三方审 Codex 6.8 发现阈值语义反转（方差 3.2 vs Gemini 10.0），retry 后 Codex 9.1 通过。**第三轮 rubric 吃狗粮成功：SSOT 闭环。**
 
 **Stage C 暂缓**：PR-6 SnapshotTesting + PR-7 CI 集成（~2-3 天）用户将另开单独会话推进。
 

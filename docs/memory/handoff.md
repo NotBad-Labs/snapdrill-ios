@@ -85,6 +85,8 @@ freshness:
 
 **Stage A+B 3 项 Risks 已落地**（PR #682 / Issue #681 闭环 2026-04-19）：F-020 Auto mode 不豁免 F-005 / §2.5 评分方权重 SSOT 表 / Gemini 评分纪律（6 条运行侧 prompt 承接）。首个 F-018 Sprint Contract PR 吃自己狗粮成功：首审 Gemini 9.8 vs Codex 6.0 方差 3.8 触发 retry，复核 Codex 8.5 通过。
 
+**文档体系 v2 审计 + 收口 PR #685 已落地**（Closes #684，2026-04-19 晚）：Hermes + Harness 密集引入后三方全景审 49 md / 370KB。Codex 主锚点 8.0 / Claude Agent 次锚点 8.5 / Gemini 次锚点 8.75（方差 0.75）。修复 H 高 5 项 + M 中 6 项 + 3 处 last_verified（共 14 文件）：ADR-003 已决策 / 规则数指针化 / rubric 阈值收到 §2.5 SSOT / STATUS.md YAML 迁移 / feedback decisions frontmatter layer → pattern / review-prompt-guide 路径+水印 / workflow Phase Compaction 已实现 / principles/README 平权 vs 权重 / collaboration 合并状态措辞 / checkpoint ADR 路径 / appstore freshness。首次三方审 Codex 6.8 发现阈值语义反转（vs Gemini 10.0 方差 3.2），retry 后 Codex 9.1 通过。归档 `~/.claude/plans/doc-audit-v2-20260419.md`。
+
 ## Apple 账号阻塞链（用户主动延迟至 2026-05 缴费）
 
 Enrollment ID 83VZW7VJKK **已通过 Apple 审核**，$99 年费用户主动延迟。下游所有功能随时可启动，节奏由用户控制。
