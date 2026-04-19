@@ -226,3 +226,41 @@ CI 失败必须立即阻塞后续工作。不能在未确认 CI 通过的情况�
 - 不确定 API 是否为最新版本
 
 检查清单：Apple 文档 → WWDC session → 项目 apple-native.md / api-pitfalls.md。
+
+---
+
+## F-018: 编码前契约（Sprint Contract）
+<!-- added: 2026-04-18 | owner: human | type: permanent -->
+<!-- trigger: 长任务研究（docs/research/harness-engineering-study-20260418.md）发现开工时 Claude 自己也不清楚要碰什么，是 PR scope 偏离与 over-generation 的主要源头 -->
+
+feature / chore 类 Issue 且 Appetite >= Small 时，Claude 在动第一行代码前必须在 Issue 回复一条 Sprint Contract comment（字段见 `.github/ISSUE_TEMPLATE/feature_request.md` Sprint Contract 段）。编码过程中 contract 变更须先改 comment 再改代码。
+
+**Why:** 历史上 PR scope 偏离（F-013）、over-generation（F-005）、test evasion（F-014）多源自开工时没有显式锚点。Issue 的 Given-When-Then 是"结果态"，Sprint Contract 是"手段态"——要动/不动哪些文件、哪些接口变、哪些测试补、哪些 DoD 条目硬要求。把手段态显式写下来，Reviewer 与 Evaluator（Codex / Gemini / Xcode Review）才能做 scope fidelity 比对，不必靠 diff 反推意图。
+
+**How to apply:**
+- Issue 进入 Building 状态时第一个 action 是贴 Sprint Contract comment
+- bug_report 类不强制（scope 天然小）
+- Small Appetite 可简化填 Touches / No-Touch / DoD 最小集三条
+- 若 contract 未贴直接 push，任一 reviewer 可要求补 contract 再继续
+- 编码中发现 contract 需要改动：先改 Issue comment 解释变更理由，再改代码。禁止"代码和 contract 漂移"（比照 F-013 scope 膨胀处理）
+
+---
+
+## F-019: 反模式启发式回流（人工确认升级）
+<!-- added: 2026-04-18 | owner: human | type: permanent -->
+<!-- trigger: Harness Engineering 研究（docs/research/harness-engineering-study-20260418.md）建议 Hashimoto 式"错误即永久修复"要闭环，但不能让启发式自动改纪律 -->
+
+`post-merge-checkpoint.sh` 通过 `Scripts/anti-pattern-scan.sh` 对刚合并 PR 做反模式启发式扫描（scope 膨胀 / over-generation / test evasion 等），命中时 stderr 警报。**启发式命中不是规则变更的自动触发器。**
+
+**Why:** Hashimoto 的 "engineer the harness" 原则是把每次错误沉淀成永久纪律，但启发式会有假阳性（大型文档 PR 天然改动多文件、genuinely 新增功能的大 PR 天然 additions 高）。若让启发式直接写 feedback.md 或变更 CI 门禁，会产生噪声污染纪律体系，反而让真正的纪律失去权威性。
+
+**How to apply:**
+- Claude 下次开工读到 stderr 警报时，在 `docs/memory/handoff.md` 或 phase-closeout 的 Risks 段记录该警报
+- 三次判断分档：
+  - **单次偶然**（单个 PR 的特殊情况，如大型文档治理）→ 忽略，在 phase-closeout 显式注明忽略理由
+  - **出现 2 次**（同类警报在 2 个 PR 中出现）→ 仍观察，不升级
+  - **出现 3 次**（同类警报重复 3 次）→ phase-closeout 时升级，选择以下之一：
+    - 新增 feedback 规则（F-0NN）
+    - 扩展 `anti-pattern-scan.sh` 阈值或新增检测项
+    - 追加 CI / hook 强制门禁
+- 升级决策必须人类拍板（Claude 提议，用户批准），避免 AI 自写纪律循环
