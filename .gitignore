@@ -10,6 +10,7 @@ DerivedData/
 *.hmap
 *.ipa
 *.xcuserstate
+TestResults.xcresult/
 
 # Swift Package Manager
 .build/

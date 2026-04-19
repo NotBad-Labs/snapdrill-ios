@@ -104,6 +104,47 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ---
 
+## CI 与本地一致性
+
+Mac mini self-hosted runner 与本地 Xcode 版本锁定一致（Xcode 26.4 / iPhone 17 Simulator）。
+`AllTests` scheme 覆盖 Core/Data/Features 三个测试 target，含 `SnapshotRegressionTests`。
+
+### Snapshot 测试失败时的产物
+
+CI `Test` step 用 `-resultBundlePath TestResults.xcresult` 固定产物路径。
+失败时 `Upload xcresult on failure` step 把整个 `TestResults.xcresult` 目录
+打包为 artifact（保留 7 天），含：
+
+- 每个失败 snapshot 的 reference / failure / difference 三张 PNG
+- 测试日志、失败断言信息
+
+### 下载与查看 artifact
+
+```bash
+# GitHub CLI（推荐）
+gh run download <run_id> --name xcresult-<run_id>-<attempt> -D ./ci-artifacts
+# 提取附件 JSON 索引
+xcrun xcresulttool get --path ci-artifacts/TestResults.xcresult --format json > result.json
+# 用 xcode 打开可视化审查
+open ci-artifacts/TestResults.xcresult
+```
+
+Agent 可直接读图判断是否是有意变更；若需更自动化可后续 PR 封装 MCP，当前人工审已够用。
+
+### 本地复现 CI Test
+
+```bash
+rm -rf TestResults.xcresult
+xcodebuild test -scheme AllTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -parallel-testing-enabled NO \
+  -resultBundlePath TestResults.xcresult
+```
+
+`TestResults.xcresult` 在 `.gitignore`，本地产物不入 git。
+
+---
+
 ## 决策变更收尾
 
 产品决策变更时，同一回复中 Grep 影响范围 → 创建执行 Issue。Issue 未关闭 = 收尾未完成。

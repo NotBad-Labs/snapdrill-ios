@@ -95,8 +95,9 @@ layer: pattern
 - 用 `.image(layout: .sizeThatFits)` 或显式 `.frame(width:height:)`，避免依赖设备 config preset
 - 首次 record 后第二次跑必须 0 diff，否则该测试天然不稳定，不入基线
 
-### CI 集成（PR-7 落地）
+### CI 集成（PR-7 已落地）
 
-- CI 跑 `xcodebuild test -scheme AllTests` 自动执行 snapshot 测试
-- 失败时上传 `*.xcresult` artifact（包含 diff 附件）供下载审查
-- 详见 PR-7（本段随 PR-7 合并后补链接）
+- CI 跑 `xcodebuild test -scheme AllTests -resultBundlePath TestResults.xcresult` 自动执行 snapshot 测试
+- Test step 失败时 `Upload xcresult on failure` 把 `TestResults.xcresult` 打成 artifact，保留 7 天
+- Artifact 命名：`xcresult-<run_id>-<attempt>`
+- 下载与解包见 `docs/workflow.md` 《CI 与本地一致性》段
