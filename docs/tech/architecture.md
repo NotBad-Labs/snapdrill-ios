@@ -191,7 +191,7 @@ LibraryViewModel 是调用方：
 | Repository 封装 ModelContext | 避免 View/ViewModel 直接操作数据库 |
 | ProfileManager Vault 模式 | 每个 Profile 独立数据库，参考 Obsidian，切换时重建 ModelContainer |
 | Firebase 隔离到 Infrastructure | Core 层保持零外部依赖，可随时替换分析/崩溃报告方案 |
-| defaultIsolation(MainActor) | xcconfig `SWIFT_VERSION = 6.2` + `-default-isolation MainActor`（Swift 6.3 编译器），统一使用 `.defaultIsolation(MainActor.self)` 减少并发标注噪音 |
+| defaultIsolation(MainActor) | xcconfig `SWIFT_VERSION = 6.3` + `-default-isolation MainActor`，统一使用 `.defaultIsolation(MainActor.self)` 减少并发标注噪音 |
 
 ---
 
