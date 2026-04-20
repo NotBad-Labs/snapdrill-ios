@@ -1,76 +1,19 @@
 //
-//  ShareHelpers.swift
+//  SharedContainerImageWriter.swift
 //  SnapDrillShare
 //
 //  Created by NotBad Labs on 2026/04/20.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  Share Extension 内部纯函数与可注入 helper，便于单元测试覆盖关键路径。
+//  Share Extension 共享容器写入：URL/Data/UIImage 三段路径，全程避免大图原始解码以防 OOM。
 //
 
 import UIKit
 import os
 
-// MARK: - 图像降采样
-
-/// 防 Share Extension OOM 的图像降采样工具。
-///
-/// Extension 内存预算约 120MB，5000x8000 原图解码后约 160MB，必然 OOM。
-/// JPEG 编码前必须把长边压到 maxDimension 以内。
-@MainActor
-enum ShareImageDownsampler {
-    /// 若图片长边 ≤ maxDimension 直接返回原图，否则按比例缩到长边 = maxDimension。
-    ///
-    /// renderer 显式用 scale=1，确保 1 point = 1 pixel：
-    /// 默认会用屏幕 scale（如 3x），结果 JPEG 像素是 maxDimension × 3，OOM 防护失效。
-    static func resizeIfNeeded(_ image: UIImage, maxDimension: CGFloat) -> UIImage {
-        let size = image.size
-        let maxSide = max(size.width, size.height)
-        guard maxSide > maxDimension else { return image }
-
-        let scale = maxDimension / maxSide
-        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1
-        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
-        return renderer.image { _ in
-            image.draw(in: CGRect(origin: .zero, size: newSize))
-        }
-    }
-}
-
-// MARK: - URL Scheme 构造
-
-/// 构造主 App 唤起 URL（snapdrill://share?file=<name>）。
-///
-/// 用 URLComponents 而非字符串拼接，自动处理 percent-encoding，
-/// 防止文件名含 `&` `?` 等特殊字符时 URL 被截断。
-enum ShareDeepLinkBuilder {
-    static let defaultScheme = "snapdrill"
-    static let defaultHost = "share"
-    static let fileQueryKey = "file"
-
-    /// 构造 deep link URL。空文件名返回 nil。
-    static func makeURL(
-        fileName: String,
-        scheme: String = defaultScheme,
-        host: String = defaultHost
-    ) -> URL? {
-        guard !fileName.isEmpty else { return nil }
-        var components = URLComponents()
-        components.scheme = scheme
-        components.host = host
-        components.queryItems = [URLQueryItem(name: fileQueryKey, value: fileName)]
-        return components.url
-    }
-}
-
-// MARK: - 共享容器写入
-
 /// 把 NSItemProvider 返回的 item 写入 App Groups 共享容器。
 ///
 /// 优先级：URL（直接拷贝，零内存解码）→ Data（直接写入字节）→ UIImage（降采样后 JPEG 编码）。
-/// 全程避免大图原始解码以防 Extension OOM。
 ///
 /// 通过注入 `containerURLProvider` 与 `fileNameProvider` 可在测试中用临时目录替代真实 App Group。
 @MainActor

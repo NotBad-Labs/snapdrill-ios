@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		19E66168C548FA0C53C87DA5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48E402229DAC43B9F3D54762 /* Foundation.framework */; };
-		656483F93782BC674DE027F3 /* ShareHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FD80B3AAC363DF7A7D740F8 /* ShareHelpers.swift */; };
+		02ABB359B2EB9933395F2DA1 /* ShareImageDownsampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D2B2F8F4C1FDA302B6B1220 /* ShareImageDownsampler.swift */; };
+		065279257698F159FE06F4DD /* ShareImageDownsampler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D2B2F8F4C1FDA302B6B1220 /* ShareImageDownsampler.swift */; };
+		2BAD8E80943B1215EDC7071E /* SharedContainerImageWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D101CC52376A9A3363FF8C88 /* SharedContainerImageWriter.swift */; };
 		A01B35A73AF8EB04AE89C531 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 878FD4D1374D5FB2E8EC65BA /* ShareViewController.swift */; };
 		A77438015119300C972888F5 /* ShareHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D803B30AB789870D1E3A3137 /* ShareHelpersTests.swift */; };
 		AG_BF_CAPTURE /* SnapDrillFeatureCapture in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_CAPTURE /* SnapDrillFeatureCapture */; };
@@ -17,8 +18,10 @@
 		AG_BF_REVIEW /* SnapDrillFeatureReview in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_REVIEW /* SnapDrillFeatureReview */; };
 		AG_BF_SETTINGS /* SnapDrillFeatureSettings in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_SETTINGS /* SnapDrillFeatureSettings */; };
 		B2INFRA_BF /* SnapDrillInfrastructure in Frameworks */ = {isa = PBXBuildFile; productRef = B2INFRA_PROD /* SnapDrillInfrastructure */; };
+		B53DA776BB8069EC26C9FE7C /* ShareDeepLinkBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D03C46CE31283F4F51C44E /* ShareDeepLinkBuilder.swift */; };
 		B8989386BBFDC051AA9CE0CC /* SnapDrillShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		BA43F9D879AF91F1AA0A987C /* ShareHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FD80B3AAC363DF7A7D740F8 /* ShareHelpers.swift */; };
+		F04BE229645046B44BDC2AE7 /* SharedContainerImageWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D101CC52376A9A3363FF8C88 /* SharedContainerImageWriter.swift */; };
+		FFC108E017A22113C773B6E7 /* ShareDeepLinkBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D03C46CE31283F4F51C44E /* ShareDeepLinkBuilder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,8 +64,7 @@
 
 /* Begin PBXFileReference section */
 		0E66BDA302EA72542A2B2DE8 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = SnapDrill/Assets.xcassets; sourceTree = "<group>"; };
-		48E402229DAC43B9F3D54762 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		7FD80B3AAC363DF7A7D740F8 /* ShareHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareHelpers.swift; sourceTree = "<group>"; };
+		4D2B2F8F4C1FDA302B6B1220 /* ShareImageDownsampler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareImageDownsampler.swift; sourceTree = "<group>"; };
 		878FD4D1374D5FB2E8EC65BA /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		B27BD95F2E560D0600E69277 /* SnapDrill.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapDrill.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27BD97A2E560D0800E69277 /* SnapDrillUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapDrillUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -71,8 +73,10 @@
 		B2BE0C9C2E727CC6001369C3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B2F0D1002F00000100AAA001 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BF7AEDC6657987201B810182 /* SnapDrillShare.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = SnapDrillShare.entitlements; sourceTree = "<group>"; };
+		C3D03C46CE31283F4F51C44E /* ShareDeepLinkBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareDeepLinkBuilder.swift; sourceTree = "<group>"; };
 		C7BDE9A20F545996518ADF81 /* SnapDrillShareTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapDrillShareTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SnapDrillShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D101CC52376A9A3363FF8C88 /* SharedContainerImageWriter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedContainerImageWriter.swift; sourceTree = "<group>"; };
 		D803B30AB789870D1E3A3137 /* ShareHelpersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareHelpersTests.swift; sourceTree = "<group>"; };
 		E0555FD25CF9F78E20E8A85B /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F17B54872F5883A90005C752 /* GDTCCTWatchOSTestApp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = GDTCCTWatchOSTestApp.xcodeproj; sourceTree = "<group>"; };
@@ -206,7 +210,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				19E66168C548FA0C53C87DA5 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,7 +222,9 @@
 				878FD4D1374D5FB2E8EC65BA /* ShareViewController.swift */,
 				E0555FD25CF9F78E20E8A85B /* Info.plist */,
 				BF7AEDC6657987201B810182 /* SnapDrillShare.entitlements */,
-				7FD80B3AAC363DF7A7D740F8 /* ShareHelpers.swift */,
+				4D2B2F8F4C1FDA302B6B1220 /* ShareImageDownsampler.swift */,
+				C3D03C46CE31283F4F51C44E /* ShareDeepLinkBuilder.swift */,
+				D101CC52376A9A3363FF8C88 /* SharedContainerImageWriter.swift */,
 			);
 			path = SnapDrillShare;
 			sourceTree = "<group>";
@@ -235,7 +240,6 @@
 		795C2B77E338BFABF19FE66A /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				48E402229DAC43B9F3D54762 /* Foundation.framework */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -1292,7 +1296,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				A77438015119300C972888F5 /* ShareHelpersTests.swift in Sources */,
-				BA43F9D879AF91F1AA0A987C /* ShareHelpers.swift in Sources */,
+				065279257698F159FE06F4DD /* ShareImageDownsampler.swift in Sources */,
+				B53DA776BB8069EC26C9FE7C /* ShareDeepLinkBuilder.swift in Sources */,
+				F04BE229645046B44BDC2AE7 /* SharedContainerImageWriter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1315,7 +1321,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				A01B35A73AF8EB04AE89C531 /* ShareViewController.swift in Sources */,
-				656483F93782BC674DE027F3 /* ShareHelpers.swift in Sources */,
+				02ABB359B2EB9933395F2DA1 /* ShareImageDownsampler.swift in Sources */,
+				FFC108E017A22113C773B6E7 /* ShareDeepLinkBuilder.swift in Sources */,
+				2BAD8E80943B1215EDC7071E /* SharedContainerImageWriter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

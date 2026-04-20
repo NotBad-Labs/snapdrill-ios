@@ -21,9 +21,12 @@ import Foundation
 @MainActor
 @Suite("ShareImageDownsampler")
 struct ShareImageDownsamplerTests {
+    /// 测试用图显式 scale=1，避免模拟器默认屏幕 scale（如 iPhone 17 = 3x）
+    /// 让 point 与 pixel 数值脱节，干扰 pixel-based 降采样断言。
     private static func makeImage(width: CGFloat, height: CGFloat) -> UIImage {
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: width, height: height))
-        return renderer.image { ctx in
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        return UIGraphicsImageRenderer(size: CGSize(width: width, height: height), format: format).image { ctx in
             UIColor.red.setFill()
             ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
         }
@@ -59,6 +62,27 @@ struct ShareImageDownsamplerTests {
         let longSide = max(result.size.width, result.size.height)
         #expect(abs(ratio - 2.0) < 0.01)
         #expect(longSide <= 2048.5)
+    }
+
+    /// 关键反例：image.size 是 point（1500），但 image.scale=3 → 物理像素 4500。
+    /// 旧实现按 point 判断会 guard pass（1500 < 2048）直接返回原图，
+    /// JPEG 编码时仍按物理 4500 像素，OOM 防护失效。
+    /// 新实现按 pixel 判断必须触发降采样，确保输出像素 ≤ maxDimension。
+    @Test("scale=3 高密度图按 pixel 而非 point 判断")
+    func highDensityImageUsesPixelThreshold() throws {
+        // 用 format.scale=3 构造 1500 point × scale 3 = 4500 pixel 的 UIImage
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 3
+        let image = UIGraphicsImageRenderer(size: CGSize(width: 1500, height: 1000), format: format).image { ctx in
+            UIColor.orange.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 1500, height: 1000))
+        }
+        // 前置断言：确认构造的 image 真的是 scale=3
+        #expect(image.scale == 3)
+        let result = ShareImageDownsampler.resizeIfNeeded(image, maxDimension: 2048)
+        // 输出像素长边应 ≤ 2048（验证：用了 pixel 判断 + scale=1 输出）
+        let outputPixelLongSide = max(result.size.width * result.scale, result.size.height * result.scale)
+        #expect(outputPixelLongSide <= 2048.5)
     }
 }
 
