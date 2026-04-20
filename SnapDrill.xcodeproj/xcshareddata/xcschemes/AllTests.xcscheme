@@ -4,18 +4,14 @@
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES"
-      runPostActionsOnFailure = "NO">
-   </BuildAction>
-   <TestAction
-      buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      codeCoverageEnabled = "NO">
-      <Testables>
-         <TestableReference
-            skipped = "NO">
+      buildImplicitDependencies = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "SnapDrillCoreTests"
@@ -23,9 +19,13 @@
                BlueprintName = "SnapDrillCoreTests"
                ReferencedContainer = "container:Packages/SnapDrillCore">
             </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "SnapDrillDataTests"
@@ -33,9 +33,13 @@
                BlueprintName = "SnapDrillDataTests"
                ReferencedContainer = "container:Packages/SnapDrillData">
             </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "SnapDrillFeaturesTests"
@@ -43,9 +47,13 @@
                BlueprintName = "SnapDrillFeaturesTests"
                ReferencedContainer = "container:Packages/SnapDrillFeatures">
             </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "32430982B0D10D41B3A4539C"
@@ -53,8 +61,20 @@
                BlueprintName = "SnapDrillShareTests"
                ReferencedContainer = "container:SnapDrill.xcodeproj">
             </BuildableReference>
-         </TestableReference>
-      </Testables>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <TestPlans>
+         <TestPlanReference
+            reference = "container:SnapDrill.xcodeproj/xcshareddata/xctestplans/AllTests.xctestplan"
+            default = "YES">
+         </TestPlanReference>
+      </TestPlans>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -67,4 +87,18 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
    </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
 </Scheme>

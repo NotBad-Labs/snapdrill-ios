@@ -1,0 +1,64 @@
+{
+  "configurations" : [
+    {
+      "id" : "884A936F-914B-4293-8A9B-194CD9B90FCB",
+      "name" : "CI",
+      "options" : {
+        "environmentVariableEntries" : [
+          {
+            "key" : "SNAPSHOT_RECORD_MODE",
+            "value" : "0"
+          }
+        ]
+      }
+    },
+    {
+      "id" : "60CCBEDC-528F-42E4-B3AB-954668ED4EB5",
+      "name" : "SnapshotRecord",
+      "options" : {
+        "environmentVariableEntries" : [
+          {
+            "key" : "SNAPSHOT_RECORD_MODE",
+            "value" : "1"
+          }
+        ]
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "testExecutionOrdering" : "lexical",
+    "testTimeoutsEnabled" : false
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Packages\/SnapDrillCore",
+        "identifier" : "SnapDrillCoreTests",
+        "name" : "SnapDrillCoreTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Packages\/SnapDrillData",
+        "identifier" : "SnapDrillDataTests",
+        "name" : "SnapDrillDataTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Packages\/SnapDrillFeatures",
+        "identifier" : "SnapDrillFeaturesTests",
+        "name" : "SnapDrillFeaturesTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:SnapDrill.xcodeproj",
+        "identifier" : "32430982B0D10D41B3A4539C",
+        "name" : "SnapDrillShareTests"
+      }
+    }
+  ],
+  "version" : 1
+}
