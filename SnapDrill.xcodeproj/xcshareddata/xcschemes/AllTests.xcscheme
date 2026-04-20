@@ -44,6 +44,16 @@
                ReferencedContainer = "container:Packages/SnapDrillFeatures">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "32430982B0D10D41B3A4539C"
+               BuildableName = "SnapDrillShareTests.xctest"
+               BlueprintName = "SnapDrillShareTests"
+               ReferencedContainer = "container:SnapDrill.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
