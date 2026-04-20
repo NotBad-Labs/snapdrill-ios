@@ -19,16 +19,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Select Xcode
-        # 自动检测已安装的 Xcode，优先最新版
+        # Swift 6.3（swift-tools-version 与 Configs/Shared.xcconfig SWIFT_VERSION）
+        # 仅由 Xcode 26.4+ 提供。Xcode 26.3 = Swift 6.2.3，无法解析 manifest。
         run: |
           if [ -d "/Applications/Xcode_26.4.app" ]; then
             sudo xcode-select -s /Applications/Xcode_26.4.app
-          elif [ -d "/Applications/Xcode_26.3.app" ]; then
-            sudo xcode-select -s /Applications/Xcode_26.3.app
-          elif [ -d "/Applications/Xcode_26.2.app" ]; then
-            sudo xcode-select -s /Applications/Xcode_26.2.app
           else
-            echo "Using default Xcode: $(xcode-select -p)"
+            echo "ERROR: Xcode 26.4+ required（Swift 6.3 toolchain）。当前 runner 缺失 /Applications/Xcode_26.4.app"
+            exit 1
           fi
           xcodebuild -version
 
