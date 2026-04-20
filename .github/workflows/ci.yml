@@ -19,13 +19,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Select Xcode
-        # Swift 6.3（swift-tools-version 与 Configs/Shared.xcconfig SWIFT_VERSION）
-        # 仅由 Xcode 26.4+ 提供。Xcode 26.3 = Swift 6.2.3，无法解析 manifest。
+        # Swift 6.3 toolchain 需要 Xcode 26.4+（Xcode 26.3 = Swift 6.2.3 无法解析 manifest）。
+        # runner 可能装在 /Applications/Xcode_26.4.app 或 /Applications/Xcode.app（symlink 默认）。
+        # 优先显式路径，否则用 default xcode-select；最后用 xcodebuild -version 强校验。
         run: |
           if [ -d "/Applications/Xcode_26.4.app" ]; then
             sudo xcode-select -s /Applications/Xcode_26.4.app
-          else
-            echo "ERROR: Xcode 26.4+ required（Swift 6.3 toolchain）。当前 runner 缺失 /Applications/Xcode_26.4.app"
+          fi
+          XCODE_VER=$(xcodebuild -version | head -1 | awk '{print $2}')
+          XCODE_MAJOR=$(echo "$XCODE_VER" | cut -d. -f1)
+          XCODE_MINOR=$(echo "$XCODE_VER" | cut -d. -f2)
+          if [ "$XCODE_MAJOR" -lt 26 ] || { [ "$XCODE_MAJOR" -eq 26 ] && [ "$XCODE_MINOR" -lt 4 ]; }; then
+            echo "ERROR: Xcode 26.4+ required（Swift 6.3 toolchain），当前 = $XCODE_VER"
             exit 1
           fi
           xcodebuild -version
