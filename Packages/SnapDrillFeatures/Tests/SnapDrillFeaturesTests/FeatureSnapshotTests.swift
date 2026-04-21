@@ -14,19 +14,26 @@
 //  - Capture：CaptureMethodCard / CornerBracketShape
 //  - Settings：SettingsRow
 //
+//  swift-testing 迁移（Issue #699 PR #5）：
+//  - `@Suite + struct` 替代 `XCTestCase 子类`
+//  - `.snapshots` trait 启用 swift-testing 原生 record mode 传递（env var `SNAPSHOT_TESTING_RECORD` 仍生效）
+//  - 函数名保留 `test` 前缀以维持 baseline 路径 `__Snapshots__/FeatureSnapshotTests/testXxx.1.png` 不变
+//
 
 import SnapshotTesting
 import SwiftUI
-import XCTest
+import Testing
 @testable import SnapDrillFeatureDashboard
 @testable import SnapDrillFeatureCapture
 @testable import SnapDrillFeatureSettings
 
-nonisolated final class FeatureSnapshotTests: XCTestCase {
+@Suite("Features 层 internal View 视觉回归", .snapshots)
+struct FeatureSnapshotTests {
 
     // MARK: - Dashboard.ReviewHeroCard
 
     @MainActor
+    @Test("ReviewHeroCard 新用户无题目")
     func testReviewHeroCard_newUser_noItems() {
         let view = ReviewHeroCard(
             totalCount: 0,
@@ -41,6 +48,7 @@ nonisolated final class FeatureSnapshotTests: XCTestCase {
     }
 
     @MainActor
+    @Test("ReviewHeroCard 有待复习题目")
     func testReviewHeroCard_withDueItems() {
         let view = ReviewHeroCard(
             totalCount: 100,
@@ -55,6 +63,7 @@ nonisolated final class FeatureSnapshotTests: XCTestCase {
     }
 
     @MainActor
+    @Test("ReviewHeroCard 全部完成")
     func testReviewHeroCard_allCompleted() {
         let view = ReviewHeroCard(
             totalCount: 100,
@@ -71,6 +80,7 @@ nonisolated final class FeatureSnapshotTests: XCTestCase {
     // MARK: - Dashboard.BentoCard
 
     @MainActor
+    @Test("BentoCard 可交互模式")
     func testBentoCard_interactive() {
         let view = BentoCard(
             title: "智能扫描",
@@ -89,8 +99,8 @@ nonisolated final class FeatureSnapshotTests: XCTestCase {
     }
 
     @MainActor
+    @Test("BentoCard 展示模式（action 为 nil）")
     func testBentoCard_display() {
-        // action 为 nil 的展示模式
         let view = BentoCard(
             title: "题库浏览",
             subtitle: "管理知识",
@@ -110,6 +120,7 @@ nonisolated final class FeatureSnapshotTests: XCTestCase {
     // MARK: - Capture.CaptureMethodCard
 
     @MainActor
+    @Test("CaptureMethodCard 默认样式")
     func testCaptureMethodCard_default() {
         let view = CaptureMethodCard(
             icon: "camera.fill",
@@ -127,6 +138,7 @@ nonisolated final class FeatureSnapshotTests: XCTestCase {
     // MARK: - Capture.CornerBracketShape
 
     @MainActor
+    @Test("CornerBracketShape 默认描边")
     func testCornerBracketShape_default() {
         let view = CornerBracketShape()
             .stroke(Color.yellow, lineWidth: 3)
@@ -139,6 +151,7 @@ nonisolated final class FeatureSnapshotTests: XCTestCase {
     // MARK: - Settings.SettingsRow
 
     @MainActor
+    @Test("SettingsRow 带值")
     func testSettingsRow_withValue() {
         let view = SettingsRow(
             icon: "person.crop.circle",
@@ -153,6 +166,7 @@ nonisolated final class FeatureSnapshotTests: XCTestCase {
     }
 
     @MainActor
+    @Test("SettingsRow 无值")
     func testSettingsRow_noValue() {
         let view = SettingsRow(
             icon: "bell.fill",

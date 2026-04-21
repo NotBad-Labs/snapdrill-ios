@@ -8,7 +8,7 @@
 //  SwiftUI 视觉回归测试（Harness Stage C PR-6）。
 //
 //  基线图入 git，改 View 时若快照失败，先人眼审是否为有意变更，
-//  再删对应基线文件或用 `isRecording = true` 重录。
+//  再删对应基线文件或切 `SnapshotRecord` test configuration 重录。
 //  禁止盲目 record 掉所有快照（反模式，等同 test evasion）。
 //
 //  位置说明：本文件放在 SnapDrillFeaturesTests 而非 SnapDrillUITests(SPM)，
@@ -16,24 +16,28 @@
 //  命名冲突，且 AllTests scheme 只纳入 Core/Data/FeaturesTests。
 //  放 FeaturesTests 可确保 CI 真实执行。
 //
-//  覆盖范围：先只覆盖 SnapDrillUI 层 public View。后续 PR 可通过
-//  `@testable import SnapDrillFeature*` 扩展到 Features 层 internal View。
+//  覆盖范围：SnapDrillUI 层 public View。Features 层 internal View 覆盖由
+//  FeatureSnapshotTests 通过 `@testable import SnapDrillFeature*` 承担。
+//
+//  swift-testing 迁移（Issue #699 PR #5）：
+//  - `@Suite + struct` 替代 `XCTestCase 子类`；struct 默认 nonisolated 不需显式标
+//  - `.snapshots` trait 启用 swift-testing 原生 record mode 传递
+//  - 函数名保留 `test` 前缀以维持 baseline 路径 `__Snapshots__/SnapshotRegressionTests/testXxx.1.png` 不变
 //
 
 import SnapshotTesting
 import SwiftUI
 import SnapDrillCore
 import SnapDrillUI
-import XCTest
+import Testing
 
-// XCTestCase 要求 init 保持 nonisolated 与基类一致；
-// 项目 defaultIsolation(MainActor) 会将类型默认转 MainActor，故在类上显式标 nonisolated。
-// 单个测试方法若需 MainActor 语义再加 @MainActor。
-nonisolated final class SnapshotRegressionTests: XCTestCase {
+@Suite("SnapDrillUI 层 public View 视觉回归", .snapshots)
+struct SnapshotRegressionTests {
 
     // MARK: - SnapDrillButton
 
     @MainActor
+    @Test("SnapDrillButton 默认样式")
     func testSnapDrillButton_default() {
         let view = SnapDrillButton(title: "主要操作") { }
             .padding()
@@ -43,6 +47,7 @@ nonisolated final class SnapshotRegressionTests: XCTestCase {
     // MARK: - ProgressLoadingView
 
     @MainActor
+    @Test("ProgressLoadingView 带进度")
     func testProgressLoadingView_withProgress() {
         let view = ProgressLoadingView(message: "正在导出 PDF...", progress: 0.65)
             .frame(width: 390, height: 400)
@@ -50,6 +55,7 @@ nonisolated final class SnapshotRegressionTests: XCTestCase {
     }
 
     @MainActor
+    @Test("ProgressLoadingView 无进度（不确定态）")
     func testProgressLoadingView_indeterminate() {
         let view = ProgressLoadingView(message: "正在同步数据...")
             .frame(width: 390, height: 400)
@@ -59,6 +65,7 @@ nonisolated final class SnapshotRegressionTests: XCTestCase {
     // MARK: - ErrorMessageView
 
     @MainActor
+    @Test("ErrorMessageView 默认无按钮")
     func testErrorMessageView_default() {
         let view = ErrorMessageView(
             title: "加载失败",
@@ -69,6 +76,7 @@ nonisolated final class SnapshotRegressionTests: XCTestCase {
     }
 
     @MainActor
+    @Test("ErrorMessageView 带重试按钮")
     func testErrorMessageView_withAction() {
         let view = ErrorMessageView(
             title: "导出失败",
@@ -84,6 +92,7 @@ nonisolated final class SnapshotRegressionTests: XCTestCase {
     // MARK: - ContextualErrorView
 
     @MainActor
+    @Test("ContextualErrorView dataCorrupted 语义")
     func testContextualErrorView_dataCorrupted() {
         let view = ContextualErrorView(error: .dataCorrupted)
             .frame(width: 390, height: 400)
@@ -93,6 +102,7 @@ nonisolated final class SnapshotRegressionTests: XCTestCase {
     // MARK: - TipPopoverContent
 
     @MainActor
+    @Test("TipPopoverContent 默认样式")
     func testTipPopoverContent_default() {
         let view = TipPopoverContent(
             icon: "lightbulb.fill",
