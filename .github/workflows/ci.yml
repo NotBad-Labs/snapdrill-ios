@@ -99,24 +99,37 @@ jobs:
             echo "Simulator $DEVICE_ID erased"
           fi
 
-      - name: Build
-        # build-for-testing 比 build 更严格——会编译测试 target
+      - name: Build for testing
+        # build-for-testing 编译 AllTests scheme 下所有 test target + 主 app，产物进 DerivedData
+        # xctestplan: 统一配置、record/verify configuration 切换、未来 swift-testing 平滑迁移
         run: |
           xcodebuild build-for-testing \
-            -scheme SnapDrill \
+            -scheme AllTests \
+            -testPlan AllTests \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -derivedDataPath "$GITHUB_WORKSPACE/DerivedData" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
 
-      - name: Test
-        # AllTests scheme 包含 Core + Data + Features 全部测试 target（含 SnapshotRegressionTests）
+      - name: Test without building
+        # test-without-building 复用 build-for-testing 产物，避免重复编译
+        # xctestrun 命名由 Xcode 生成，模式 AllTests_AllTests_<platform>.xctestrun
+        # -only-test-configuration CI 选中 xctestplan 的 CI configuration（env: SNAPSHOT_TESTING_RECORD=missing）
         # -parallel-testing-enabled NO：避免跨 suite 并行执行时 ModelContainer 竞态
         # -resultBundlePath：固定产物路径，便于失败时 upload-artifact 抓 xcresult 与 snapshot diff 附件
         run: |
           rm -rf TestResults.xcresult
-          xcodebuild test \
-            -scheme AllTests \
+          XCTESTRUN_PATH=$(find "$GITHUB_WORKSPACE/DerivedData/Build/Products" -name "AllTests_*.xctestrun" | head -1)
+          if [ -z "$XCTESTRUN_PATH" ] || [ ! -f "$XCTESTRUN_PATH" ]; then
+            echo "::error::xctestrun not found under DerivedData/Build/Products/AllTests_*.xctestrun"
+            ls -la "$GITHUB_WORKSPACE/DerivedData/Build/Products" || true
+            exit 1
+          fi
+          echo "Using xctestrun: $XCTESTRUN_PATH"
+          xcodebuild test-without-building \
+            -xctestrun "$XCTESTRUN_PATH" \
+            -only-test-configuration CI \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             -parallel-testing-enabled NO \
             -resultBundlePath TestResults.xcresult \
