@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-19
+last_verified: 2026-04-21
 layer: snapshot
 freshness:
   max_age_days: 3
@@ -17,6 +17,21 @@ freshness:
 
 （本轮 Harness Stage A+B 7 PR #673/#674/#675/#676/#677/#678/#679 已全部合并）
 （PR #665 EditProfileView PhotosPicker UX 已于 2026-04-19 04:02 合并，Closes #637）
+（Sprint W1 #1 PR #700 Swift 6.3 toolchain + W1 #3 PR #701 SnapDrillShare PBXGroup→Sync Group 已合并；W1 SnapDrillShareTests 14 用例 PR #698 合并）
+
+## 现代化 Sprint 进度（Issue #699 epic）
+
+**Phase 1 进行中**（#1 ✅ / #2 ⏳ draft PR #702 / #3 ✅）：
+
+| 选项 | 状态 | 说明 |
+|---|---|---|
+| **W1 #2**（epic PR #2） | **draft PR #702** (feat/w1-2-xctestplan-introduction) | xctestplan + AllTests.xcscheme 重构 + CI test-without-building 切换。三方对抗规划 Codex 主锚点 + Xcode Intelligence 协作生成 plan 文件 + 实施时查框架源码发现 `SNAPSHOT_TESTING_RECORD` 原生支持（修正 Codex 过度工程化方案）|
+| **#15**（epic PR #15） | 待 W1 #2 合并后启动 | CloudKit `cloudKitDatabase: .none` 显式关闭 + 文案对齐 |
+
+**2026-04-20/21 升级事件**（见 `reference_codex_plugin_v104_upgrade.md`）：
+Codex plugin 1.0.3 → 1.0.4（Skill recursion 卡死修复）、Gemini CLI 0.38.1 → 0.38.2。触发原因：Codex review 在 PR #701 上卡死 2h49m + 0 新进展。已重启生效 v1.0.4 agent 定义。
+
+**Gemini 模型实测**（2026-04-20）：CLI v0.38.2 可用 `gemini-3-pro-preview`（最新）/ `gemini-2.5-pro` / `gemini-2.5-flash`；默认 "Auto" 会掉到弱模型，评分/审计必须显式 `-m gemini-2.5-pro` 或 `gemini-3-pro-preview`。见 `reference_gemini_cli.md`。
 
 ## 重要产出（新会话必读）
 

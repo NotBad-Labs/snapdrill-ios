@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-14
+last_verified: 2026-04-21
 layer: pattern
 ---
 # 测试策略与执行规则
@@ -24,10 +24,14 @@ layer: pattern
 
 ## 运行方式
 
-- **编译测试**：`xcodebuild build-for-testing -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
-- **执行测试**：`xcodebuild test -scheme SnapDrillFeaturesTests -destination 'platform=iOS Simulator,name=iPhone 17' -parallel-testing-enabled NO`
+CI 与本地统一走 `AllTests.xctestplan`，两步切分避免重复编译：
+
+- **编译测试**：`xcodebuild build-for-testing -scheme AllTests -testPlan AllTests -derivedDataPath ./DerivedData -destination 'platform=iOS Simulator,name=iPhone 17'`
+- **执行测试**：`xcodebuild test-without-building -xctestrun $(find ./DerivedData/Build/Products -name 'AllTests_*.xctestrun' | head -1) -only-test-configuration CI -destination 'platform=iOS Simulator,name=iPhone 17' -parallel-testing-enabled NO`
+- **重录 baseline**：同上但 `-only-test-configuration SnapshotRecord`（对应 `SNAPSHOT_TESTING_RECORD=all`，swift-snapshot-testing 原生 env key）
 - **禁止**：`swift test`（SPM 仅声明 iOS 平台，macOS 环境不匹配会报错或 SIGTRAP）
 - **禁止**：`xcodebuild build`（不编译测试 target）
+- **禁止**：`xcodebuild test` 单步（替换为两步 build-for-testing + test-without-building，见 `docs/workflow.md` 《本地复现 CI Test》段）
 
 ## async / MainActor 测试约束
 
