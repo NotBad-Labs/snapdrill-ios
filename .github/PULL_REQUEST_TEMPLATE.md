@@ -44,3 +44,12 @@ Closes #
 ### Review
 
 - [ ] Review 结论已留痕（PR comment 或 PR 描述）
+
+### 审计豁免留痕（docaudit，见 `docs/workflow.md` 审计命中处置协议）
+
+<!-- 本段为 Phase B 纪律。若本 PR 无 docaudit 相关改动，打勾"无"即可 -->
+
+- [ ] 无：本 PR 未引入新的 docaudit 命中，未改 `Scripts/audit/policy.yaml`
+- [ ] 新增 `legacy_whitelist` 条目：理由 + `expires_on` 已在 commit 中说明，且与 Phase C 清理 PR 规划对齐
+- [ ] 从 `legacy_whitelist` 移除条目：对应命中已真修复（非绕过），`docaudit --all --strict` 本地已验证 exit 0
+- [ ] 新增 error/warning 命中但未豁免：PR 描述已说明合理性（临时/单次/后续跟进 Issue）

@@ -196,6 +196,39 @@ xcodebuild test-without-building \
 
 ---
 
+## 审计命中处置协议（docaudit）
+
+> 适用范围：`Scripts/audit/docaudit.py` 的 6 子命令 + `frontmatter`（via validate_frontmatter.py）发现的命中。
+> 依据：Phase B 三方共识（Codex 主锚独有「组件 E 处置协议」洞见），避免"发现但不闭环"的治理风险。
+
+### 三档处置
+
+| 命中级别 | 必须动作 | 允许豁免路径 |
+|---|---|---|
+| **error** | 必须修复或升级到 Phase C 清理 PR | 仅通过 `Scripts/audit/policy.yaml` `legacy_whitelist` + 明确 `reason` + 硬 `expires_on`；豁免 PR 本身必须包含白名单条目的添加 |
+| **warning** | 合并前评估（修 / 登记 legacy_whitelist / 加 `--strict` 前收紧 policy 级别） | 与 error 同路径，或 PR 描述留痕说明"为何 warning 可忽略" |
+| **info** | 可忽略，但建议周期性跑 `/knowledge-health` 捞出候选（如 dead rule） | 无需留痕 |
+
+### 留痕要求
+
+- **PR 描述**（`.github/PULL_REQUEST_TEMPLATE.md` 《审计豁免留痕》段）：声明本 PR 是否触发 docaudit 新命中 + 是否更新 legacy_whitelist + 豁免 `expires_on`
+- **commit message**：涉及 `policy.yaml legacy_whitelist` 改动的 commit 必须含 `docaudit:` 前缀或段落
+- **Phase C 清理 PR**：必须同步从 `legacy_whitelist.paths` 移除对应条目，不能只改代码不改策略
+
+### 禁止项
+
+- ❌ 通过 `--strict` 或 `--baseline` 的组合绕过 error 级命中（这是防回归设计，不是豁免通道）
+- ❌ 在 `policy.yaml` 里把 error 降级为 warning 而不留痕（策略修改必须同 PR 解释）
+- ❌ 把 `legacy_whitelist` 条目的 `expires_on` 无限期延后（每次延后必须伴随具体 Phase C sub-PR 的进度说明）
+
+### 与 `/knowledge-health` 的分工
+
+- **docaudit**（CI + hook）是执行门禁：强制阻断级
+- **`/knowledge-health`** 是诊断报告：产出分层修复 plan，不阻断，不改文件
+- 处置协议的**决策层**由人读完 plan 后触发（写 Phase C 清理 PR 或更新 legacy_whitelist）
+
+---
+
 ## 长任务 Phase Compaction
 
 > 借鉴 Hermes agent 研究（2026-04-18，`docs/research/hermes-agent-study-20260418.md`）。

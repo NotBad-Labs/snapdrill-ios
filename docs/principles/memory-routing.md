@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-18
+last_verified: 2026-04-21
 layer: pattern
 ---
 # 知识/记忆路由规则
@@ -28,6 +28,8 @@ layer: pattern
 | Claude 私有反馈/教训 | 6-24 个月 | **私有** | `~/.claude/.../memory/feedback_*.md` | "Gemini 幻觉风险" |
 | 一次性研究产物 | 归档 | 团队 | `docs/research/<topic>-<date>.md`（layer: archive） | Hermes 研究报告 |
 | 审计原始报告 | 归档 | 团队 | `docs/archive/<topic>-<date>.md` 或 `~/.claude/plans/` | 文档审计原始报告 |
+| docaudit 机械命中报告 | 一次性 | 团队 | `reports/<check>.tsv`（不入 git，CI artifact） | Scripts/audit/docaudit.py --report 输出 |
+| /knowledge-health 体检 plan | <1 月 | **私有** | `~/.claude/plans/knowledge-health-<YYYY-MM-DD>.md` | docaudit 全量 + 私有空间扫描分层修复建议 |
 
 ## 决策原则
 
