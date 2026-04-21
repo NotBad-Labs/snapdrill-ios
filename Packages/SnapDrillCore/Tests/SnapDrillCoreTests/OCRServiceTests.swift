@@ -56,7 +56,6 @@ struct OCRServiceTests {
 
         let result = try await service.recognizeText(from: cgImage)
 
-        // 我们不再使用毫无意义的 XCTAssertNotNil(result)。
         // OCR 至少要把部分文字抠出来，即便不是完美的，也应该包含核心词。
         #expect(result.contains("Hello") || result.contains("World"), "OCR 连非常基础的 Hello World 都未能解析。返回结果: \(result)")
     }
