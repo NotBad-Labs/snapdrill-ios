@@ -8,9 +8,11 @@ set -eo pipefail
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 
-# 仅处理 docs 区 Markdown（docs/ 下 md + STATUS.md + CLAUDE.md + README.md）
+# 仅处理 docs 区 Markdown（docs/ 下 md + STATUS.md + CLAUDE.md）
+# Issue #711 Interface Delta 指定范围；不包含 README.md（多处存在，避免
+# Scripts/audit/README.md 等非 docs 区文档误触发）
 case "$FILE_PATH" in
-    */docs/*.md|*/STATUS.md|*/CLAUDE.md|*/README.md) ;;
+    */docs/*.md|*/STATUS.md|*/CLAUDE.md) ;;
     *) exit 0 ;;
 esac
 
