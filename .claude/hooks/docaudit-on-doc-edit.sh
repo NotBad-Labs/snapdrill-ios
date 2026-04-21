@@ -1,17 +1,16 @@
 #!/bin/bash
-# PostToolUse (Edit|Write): 对刚修改的 Markdown 文件跑 docaudit links，broken link 时 exit 2。
+# PostToolUse (Edit|Write): 对刚修改的 docs 区 Markdown 文件跑 docaudit links，broken link 时 exit 2。
 # 与 swift-autolint 互补：前者管 Swift 行级，本 hook 管 docs 链接。
-# 成本：~1s（纯 Python 正则扫描）。
+# 全量 links 扫 <1s（纯 Python 正则），暂不引入增量（Phase D 可加 --paths 参数）。
 
 set -eo pipefail
 
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 
-# 仅处理 Markdown 文件路径（docs/ 下 + STATUS.md + CLAUDE.md + README.md + .md 通用）
+# 仅处理 docs 区 Markdown（docs/ 下 md + STATUS.md + CLAUDE.md + README.md）
 case "$FILE_PATH" in
     */docs/*.md|*/STATUS.md|*/CLAUDE.md|*/README.md) ;;
-    *.md) ;;
     *) exit 0 ;;
 esac
 

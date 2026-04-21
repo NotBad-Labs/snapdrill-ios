@@ -1,5 +1,5 @@
 #!/bin/bash
-# PreToolUse (Bash): git push / gh pr merge / git commit --amend 前跑 docaudit all --strict --baseline。
+# PreToolUse (Bash): 在 push / merge / amend / rebase 前跑 docaudit all --strict --baseline。
 # 防止 error 级命中推到远端再被 CI 阻断（本地兜底）。
 # 被 legacy_whitelist 豁免的历史违规不阻断；新增违规阻断。
 
@@ -8,11 +8,10 @@ set -eo pipefail
 INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
-# 仅处理会推送 / 合并 / 改写历史的命令
-case "$COMMAND" in
-    *"git push"*|*"gh pr merge"*|*"git commit --amend"*|*"git rebase"*) ;;
-    *) exit 0 ;;
-esac
+# 锚定命令匹配（对齐 prepush-lint.sh / premerge-checklist.sh 风格，避免 `echo "test git push"` 误触发）
+if ! echo "$COMMAND" | grep -qE '^[[:space:]]*(git[[:space:]]+push|gh[[:space:]]+pr[[:space:]]+merge|git[[:space:]]+commit[[:space:]]+.*--amend|git[[:space:]]+rebase)\b'; then
+    exit 0
+fi
 
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "")
 if [[ -z "$PROJECT_ROOT" ]]; then exit 0; fi

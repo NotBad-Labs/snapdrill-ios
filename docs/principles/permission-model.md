@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-18
+last_verified: 2026-04-21
 layer: pattern
 ---
 # SnapDrill 权限模型
@@ -56,19 +56,21 @@ sudo rm             # 提权删除
 
 ## 3. Hook 生命周期门禁
 
-`.claude/settings.json` 事件绑定（9 个活跃 hook）：
+`.claude/settings.json` 事件绑定（11 个活跃 hook）：
 
 | 事件 | Matcher | Hook | 职责 | Tier 相关 |
 |---|---|---|---|---|
 | `SessionStart` | `compact` | `cat .claude/compact-reminder.md` | 压缩后重载上下文提示 | T1 |
 | `PostToolUse` | `Edit\|Write` | `log-file-change.sh` | 记录改动文件到 session-log.txt | T1 观察 |
 | `PostToolUse` | `Edit\|Write` | `swift-autolint.sh` | 改 `.swift` 后即时 swiftlint（行级） | T2 校验 |
-| `PostToolUse` | `Bash` | `post-merge-checkpoint.sh` | `gh pr merge` 后提示 checkpoint + 反模式启发式扫描（PR-3） | T2 观察 |
-| `PostToolUse` | `.*` | `session-metrics.sh` | 记录所有 tool call 时间戳到 session-metrics.tsv（PR-5） | T1 观察 |
+| `PostToolUse` | `Edit\|Write` | `docaudit-on-doc-edit.sh` | 改 docs 区 `.md` 后跑 `docaudit links`（broken link 即时反馈，Phase B PR-2） | T2 校验 |
+| `PostToolUse` | `Bash` | `post-merge-checkpoint.sh` | `gh pr merge` 后提示 checkpoint + 反模式启发式扫描 | T2 观察 |
+| `PostToolUse` | `.*` | `session-metrics.sh` | 记录所有 tool call 时间戳到 session-metrics.tsv | T1 观察 |
 | `PreToolUse` | `Bash` | `block-dangerous-bash.sh` | 见 §2，硬拦截 T3 受限命令 | **T3 守门** |
 | `PreToolUse` | `Bash` | `premerge-checklist.sh` | `gh pr merge` 前检查 STATUS.md 近 24h 更新 | T2 合并门禁 |
 | `PreToolUse` | `Bash` | `prepush-lint.sh` | `git push` 前全仓 swiftlint | T2 合并门禁 |
 | `PreToolUse` | `Bash` | `long-session-guard.sh` | 会话 > 60 min 提示 compact / phase-closeout | T1 观察 |
+| `PreToolUse` | `Bash` | `docaudit-preflight.sh` | `git push` / `gh pr merge` / `git commit --amend` / `git rebase` 前跑 `docaudit all --strict --baseline`（Phase B PR-2） | T2 合并门禁 |
 
 **修改 `.claude/settings.json` 绑定时**：同步更新 §3 表格。新增 hook 须在 `.claude/hooks/` 建 `.sh` + 本表登记 + 注释风险等级。
 
@@ -76,7 +78,7 @@ sudo rm             # 提权删除
 
 ## 4. Skill `allowed-tools` 矩阵
 
-10 个活跃 skill 的 tool 白名单（与 §1 Tier 交叉）：
+11 个活跃 skill 的 tool 白名单（与 §1 Tier 交叉）：
 
 | Skill | Read | Grep | Glob | Edit | Write | Bash | WebSearch | WebFetch | Agent | Tier 覆盖 |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -90,6 +92,7 @@ sudo rm             # 提权删除
 | `resume-from-handoff` | ✅ | ✅ | ✅ | — | — | ✅ | — | — | — | T1+T2 读取 |
 | `update-status` | ✅ | — | — | ✅ | — | ✅ | — | — | — | T1+T2 |
 | `pr-review-workflow` | ✅ | ✅ | — | ✅ | — | ✅ | — | — | — | T1+T2 |
+| `knowledge-health` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2（只产 plan，不改 workspace 文件） |
 
 **原则**：
 - 只读 audit 类 skill（security-engineer）禁止 Edit/Write/Bash
