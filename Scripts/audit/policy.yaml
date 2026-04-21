@@ -25,8 +25,7 @@ scan:
   exclude:
     - .claude/worktrees/                 # 临时副本
     - docs/archive/                       # 归档文档，不再校验
-    - Scripts/audit/tests/fixtures/       # 自测 fixture
-    - Scripts/audit/policy.yaml           # 本文件自身（archived_sources 列表会自引用）
+    - Scripts/audit/                      # 审计器自身（README 示例 / policy 声明会自触发，元循环）
 
 # 6 个子命令默认级别
 checks:
