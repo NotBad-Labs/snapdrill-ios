@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-19
+last_verified: 2026-04-21
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -7,9 +7,9 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-19（Harness Stage A+B+C 9 PR + Codex 3 PR 方案（CSV 测试锁定 + parser 硬化 + Features snapshot 扩展）+ 其他 tech-debt PR 全合并；agent 视觉回归 evaluator 16 View 覆盖，CSV 导入 RFC 4180 合规 + 24 tests）
-> 编译状态：✅ 0 errors · 0 lint violations（无任何豁免）· CI 全绿 · YAML frontmatter 全仓校验通过
-> Open PR：0 · Open Issue：7（Apple 阻塞 6 + #626 真机待验）
+> 最后更新：2026-04-21（现代化 Sprint Phase 1 三件套全收官 PR #700/#701/#702：Swift 6.3 toolchain + PBXGroup→Sync Group + xctestplan 引入 & CI test-without-building 切换。收官 checkpoint: `docs/memory/checkpoints/2026-04-20-phase1-modernization-sprint.md`）
+> 编译状态：✅ 0 errors · 0 lint violations（无任何豁免）· CI 全绿 · YAML frontmatter 全仓校验通过 50 文件
+> Open PR：0 · Open Issue：7（Apple 阻塞 6 + #626 真机待验）+ #699 epic（Phase 2/3/4 backlog）
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
 
 ## 本轮完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
