@@ -6,8 +6,8 @@
       "options" : {
         "environmentVariableEntries" : [
           {
-            "key" : "SNAPSHOT_RECORD_MODE",
-            "value" : "0"
+            "key" : "SNAPSHOT_TESTING_RECORD",
+            "value" : "missing"
           }
         ]
       }
@@ -18,8 +18,8 @@
       "options" : {
         "environmentVariableEntries" : [
           {
-            "key" : "SNAPSHOT_RECORD_MODE",
-            "value" : "1"
+            "key" : "SNAPSHOT_TESTING_RECORD",
+            "value" : "all"
           }
         ]
       }
