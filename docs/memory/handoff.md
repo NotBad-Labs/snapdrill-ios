@@ -27,15 +27,15 @@ freshness:
 - ✅ PR #702 W1 #2 xctestplan + CI test-without-building 切换
 - 收官 checkpoint：`docs/memory/checkpoints/2026-04-20-phase1-modernization-sprint.md`
 
-**Phase 2 内核现代化候选（5 PR）**：
-- PR #4 swift-testing 全量迁移（SnapDrillCore + SnapDrillData 测试包）—— W1 #2 xctestplan 合并后解锁
-- PR #5 swift-testing 全量迁移（SnapDrillFeatures 测试包，含 snapshot suites）
-- PR #6 typed throws 业务 API（DataError / BackupError / ProfileError 收敛）
-- PR #7 staged migration V2 模板预建
-- PR #8 ModelExecutor + 根除 Issue #599 残留 hack
+**Phase 4 PR #15**（2026-04-21 晚）：
+- ✅ PR #704 CloudKit `cloudKitDatabase: .none` 显式关闭 + 文案对齐（"数据与云同步"→"数据与备份"）。Codex 主锚点发现 `Localizable.strings` 旧值会覆盖 Swift `value:` 参数 Critical → fixup 修。新 memory `feedback_nslocalizedstring_strings_override.md` 固化
 
-**Phase 4 小项（可插入）**：
-- #15 CloudKit `cloudKitDatabase: .none` 显式关闭 + 文案对齐
+**Phase 2 状态重估**（2026-04-21 摸底）：
+- ✅ **PR #4 历史已完成**（事后核实）：SnapDrillCore 11 测试文件 + SnapDrillData 14 测试文件 **已全部 swift-testing（`import Testing` / `@Test` / `#expect`）**，0 XCTestCase 残留。历史 sprint（Codex 3 PR / Harness / tech-debt）分批迁完但无人标账。
+- ⏳ **PR #5**：SnapDrillFeatures 19 测试文件 17 个已 swift-testing / 2 个 snapshot class 仍用 XCTestCase（`FeatureSnapshotTests` + `SnapshotRegressionTests`，pointfreeco/swift-snapshot-testing v1.19+ 原生支持 swift-testing，待实验证可迁性）
+- ⏳ **PR #6** typed throws 业务 API（DataError / BackupError / ProfileError 收敛）
+- ⏳ **PR #7** staged migration V2 模板预建
+- ⏳ **PR #8** ModelExecutor + 根除 Issue #599 残留 hack
 
 **2026-04-20/21 升级事件**（见 `reference_codex_plugin_v104_upgrade.md`）：
 Codex plugin 1.0.3 → 1.0.4（Skill recursion 卡死修复）、Gemini CLI 0.38.1 → 0.38.2。触发原因：Codex review 在 PR #701 上卡死 2h49m + 0 新进展。已重启生效 v1.0.4 agent 定义。
