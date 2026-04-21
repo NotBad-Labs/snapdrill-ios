@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-16
+last_verified: 2026-04-21
 layer: principle
 ---
 # SnapDrill 协作流程
@@ -61,8 +61,8 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ### 代码质量
 - [ ] `swiftlint --strict` 0 violations
-- [ ] `xcodebuild build-for-testing` 0 errors
-- [ ] `xcodebuild test` 通过（已有测试不得回归）
+- [ ] `xcodebuild build-for-testing -scheme AllTests -testPlan AllTests` 0 errors
+- [ ] `xcodebuild test-without-building -xctestrun ... -only-test-configuration CI` 通过（已有测试不得回归，详见《本地复现 CI Test》）
 - [ ] 改接口签名后 `grep -rn "TypeName(" Packages/*/Tests/` 检查测试同步
 - [ ] Codex 对抗性审查通过（每个 PR 必须）
 - [ ] Xcode Review 核实通过（UI 改动必须）
@@ -134,14 +134,37 @@ Agent 可直接读图判断是否是有意变更；若需更自动化可后续 P
 ### 本地复现 CI Test
 
 ```bash
-rm -rf TestResults.xcresult
-xcodebuild test -scheme AllTests \
+rm -rf TestResults.xcresult DerivedData
+# 1) build-for-testing 产出 xctestrun
+xcodebuild build-for-testing -scheme AllTests -testPlan AllTests \
+  -derivedDataPath ./DerivedData \
+  -destination 'platform=iOS Simulator,name=iPhone 17'
+# 2) test-without-building 复用产物，-only-test-configuration CI 对齐 CI 行为
+XCTESTRUN=$(find ./DerivedData/Build/Products -name 'AllTests_*.xctestrun' | head -1)
+xcodebuild test-without-building \
+  -xctestrun "$XCTESTRUN" \
+  -only-test-configuration CI \
   -destination 'platform=iOS Simulator,name=iPhone 17' \
   -parallel-testing-enabled NO \
   -resultBundlePath TestResults.xcresult
 ```
 
 `TestResults.xcresult` 在 `.gitignore`，本地产物不入 git。
+
+### 本地重录 snapshot baseline
+
+有意修改 View 后基线需更新，切 `SnapshotRecord` configuration（`SNAPSHOT_TESTING_RECORD=all`）重录：
+
+```bash
+xcodebuild test-without-building \
+  -xctestrun "$XCTESTRUN" \
+  -only-test-configuration SnapshotRecord \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -parallel-testing-enabled NO
+# 然后 git diff 确认 __Snapshots__/*.png 改动符合预期后提交
+```
+
+禁止盲目 record 掉所有 baseline（F-014 test evasion 反模式）；Review 见到一次性 >3 张 baseline 改动必须质询。
 
 ---
 

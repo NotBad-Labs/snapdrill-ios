@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-14
+last_verified: 2026-04-21
 layer: pattern
 ---
 # SnapDrill 部署与运维
@@ -40,14 +40,18 @@ Runner：Mac mini 自托管（self-hosted, macOS）
 步骤：
   1. Select Xcode（自动检测最新版本）
   2. SwiftLint --strict
-  3. xcodebuild build-for-testing
+  3. xcodebuild build-for-testing -scheme AllTests -testPlan AllTests
+     -derivedDataPath $GITHUB_WORKSPACE/DerivedData
      -destination 'platform=iOS Simulator,name=iPhone 17'
      CODE_SIGNING_ALLOWED=NO
-  4. xcodebuild test -scheme SnapDrillFeaturesTests
+  4. xcodebuild test-without-building
+     -xctestrun $(find ... AllTests_*.xctestrun)
+     -only-test-configuration CI
      -parallel-testing-enabled NO
+     -resultBundlePath TestResults.xcresult
 ```
 
-注：当前 CI 仅运行 SnapDrillFeaturesTests（唯一配置了 test action 的 shared scheme）。SnapDrillCore、SnapDrillData 的测试通过 `xcodebuild build-for-testing` 编译验证但不在 CI 中执行（需手动在 Xcode 中运行或扩展 CI scheme）。
+注：CI 运行 `AllTests.xctestplan` 的 CI configuration，包含 4 个 test target（SnapDrillCoreTests / SnapDrillDataTests / SnapDrillFeaturesTests / SnapDrillShareTests）。`test-without-building` 复用 `build-for-testing` 产出的 DerivedData，避免重复编译。`SnapshotRecord` configuration 仅本地用（`SNAPSHOT_TESTING_RECORD=all` 重录 baseline），不参与 CI。
 
 ### Mac mini Runner
 
