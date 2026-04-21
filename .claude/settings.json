@@ -22,6 +22,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/swift-autolint.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/docaudit-on-doc-edit.sh"
           }
         ]
       },
@@ -63,6 +67,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/long-session-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/docaudit-preflight.sh"
           }
         ]
       }
