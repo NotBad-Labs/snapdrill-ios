@@ -140,7 +140,7 @@ public struct SettingsView: View {
 
                 }
 
-                // 4. 数据与云同步
+                // 4. 数据与备份
                 Section {
                     NavigationLink {
                         if let viewModel {

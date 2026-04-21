@@ -288,7 +288,7 @@
 "settings.card_appearance" = "Card Appearance";
 "settings.review_reminder" = "Review Reminder";
 "settings.privacy_export" = "Privacy & Export";
-"settings.data_and_sync" = "Data & Sync";
+"settings.data_and_sync" = "Data & Backup";
 "settings.storage_management" = "Storage";
 "settings.storage_images" = "Question Images";
 "settings.storage_total" = "Total Usage";
