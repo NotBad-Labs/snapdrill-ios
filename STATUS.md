@@ -7,9 +7,11 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-21（Phase 1 三件套 #700/#701/#702 + Phase 4 #704 CloudKit .none + Phase 2 摸底：PR #4 历史已迁完 swift-testing，Phase 2 剩 PR #5/#6/#7/#8）
+> 最后更新：2026-04-21（本轮 5 PR 合并：#702/#703/#704/#705/#706；Phase 1 三件套 + Phase 4 #15 + Phase 2 #4/#5 全落地；**用户 pivot 到自主迭代系统建设**，Phase A 三方审计已完成，Phase B 下次 session 接手 — 详见 handoff.md 顶部段）
 > 编译状态：✅ 0 errors · 0 lint violations（无任何豁免）· CI 全绿 · YAML frontmatter 全仓校验通过 50 文件
-> Open PR：0 · Open Issue：6（Apple 阻塞 6 + #626 真机待验）+ #699 epic（Phase 2 剩 4 PR / Phase 3/4 backlog）
+> Open PR：0 · Open Issue：6（Apple 阻塞 6 + #626 真机待验）+ #699 epic（Phase 2 剩 #6/#7/#8 / Phase 3/4 backlog — **Phase 2/3/4 暂停**，本周先做自主迭代系统）
+>
+> **⚠️ 下次接手请先读 `docs/memory/handoff.md` 顶部「当前进行中：自主迭代基线建设」段 + `~/.claude/projects/-Users-yiming-Developer-snapdrill-ios/audit/20260421-self-iteration-phase-a/README.md`**
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
 
 ## 本轮完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
