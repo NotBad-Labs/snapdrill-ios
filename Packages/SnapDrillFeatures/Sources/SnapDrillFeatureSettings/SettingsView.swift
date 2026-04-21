@@ -149,7 +149,7 @@ public struct SettingsView: View {
                             ProgressView()
                         }
                     } label: {
-                        SettingsRow(icon: "icloud.fill", gradientStart: .blue, gradientEnd: .cyan, title: L10n.Settings.dataAndSync)
+                        SettingsRow(icon: "externaldrive.fill", gradientStart: .blue, gradientEnd: .cyan, title: L10n.Settings.dataAndSync)
                     }
 
 

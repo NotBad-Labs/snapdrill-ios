@@ -43,9 +43,12 @@ public final class PersistenceController {
             if inMemory {
                 config = ModelConfiguration(isStoredInMemoryOnly: true)
             } else if let storeURL {
-                config = ModelConfiguration(url: storeURL)
+                // cloudKitDatabase: .none 显式关闭 CloudKit 同步（Issue #15）。
+                // CloudKit 同步未实现（阻塞 #485 等 Apple 账号 + StoreKit 开闸），
+                // 显式 .none 避免 SwiftData 自动启用同步意图。
+                config = ModelConfiguration(url: storeURL, cloudKitDatabase: .none)
             } else {
-                config = ModelConfiguration()
+                config = ModelConfiguration(cloudKitDatabase: .none)
             }
             self.container = try ModelContainer(
                 for: Schema(SnapDrillSchemaV1.models),

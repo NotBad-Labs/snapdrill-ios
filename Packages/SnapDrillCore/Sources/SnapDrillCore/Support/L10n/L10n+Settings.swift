@@ -31,8 +31,8 @@ nonisolated extension L10n {
         public static let reviewReminder = NSLocalizedString("settings.review_reminder", value: "复习提醒", comment: "复习提醒")
         public static let privacyAndExport = NSLocalizedString("settings.privacy_export", value: "隐私与导出", comment: "隐私与导出")
 
-        // 数据与同步
-        public static let dataAndSync = NSLocalizedString("settings.data_and_sync", value: "数据与云同步", comment: "数据与云同步")
+        // 数据与备份（云同步未实现，阻塞 #485；文案对齐 cloudKitDatabase: .none #15）
+        public static let dataAndSync = NSLocalizedString("settings.data_and_sync", value: "数据与备份", comment: "数据与备份（当前版本仅本地 + 手动备份；iCloud 同步阻塞 #485）")
         public static let storageManagement = NSLocalizedString("settings.storage_management", value: "存储管理", comment: "存储管理")
         public static let storageImages = NSLocalizedString("settings.storage_images", value: "题目图片", comment: "图片存储占用")
         public static let storageTotal = NSLocalizedString("settings.storage_total", value: "总占用", comment: "总存储占用")
