@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """知识体系审计引擎（Phase B PR-1）。
 
-6 子命令的结构性漂移检测：
-  - links              Markdown 内部 broken link
-  - archived-refs      对 docs/research/* (status:archived) 的活跃硬引用
-  - orphans            docs/**/*.md 在全仓零引用
-  - home-path-refs     仓库内对 ~/.claude/ 私有路径的硬编码
-  - rule-pointer-sync  .claude/rules/*.md → docs/principles/*.md 映射
-  - rule-usage         F-NNN 规则外部引用计数（dead rule 候选）
+子命令：
+  all                  运行全部 checks（含 frontmatter via subprocess）
+  links                Markdown 内部 broken link
+  archived-refs        对 docs/research/* (status:archived) 的活跃硬引用
+  orphans              docs/**/*.md 在全仓零引用
+  home-path-refs       仓库内对 ~/.claude/ 私有路径的硬编码
+  rule-pointer-sync    .claude/rules/*.md → docs/principles/*.md 映射
+  rule-usage           F-NNN 规则外部引用计数（dead rule 候选）
 
 详见 Scripts/audit/README.md 与 Scripts/audit/policy.yaml。
 
 用法：
-    python3 Scripts/audit/docaudit.py <check> [--strict] [--report] [--baseline]
-    python3 Scripts/audit/docaudit.py --all [--strict] [--report] [--baseline]
+    python3 Scripts/audit/docaudit.py <subcommand> [--strict] [--report] [--baseline]
 
 退出码：0 通过 / 1 error 级命中 / 2 配置错误。
 """
@@ -21,6 +21,7 @@
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import os
 import re
 import subprocess
@@ -47,13 +48,43 @@ CHECK_NAMES = [
     "rule-usage",
 ]
 
-# Markdown 内部链接正则 — [text](path.md) 或 [text](path.md#anchor)
-# 排除 http/https/mailto 开头 + 纯锚点 (#xxx) + 图片 ![]
-LINK_RE = re.compile(
-    r"(?<!\!)\[[^\]]*\]\(([^)#]*?\.md)(?:#[^)]*)?\)"
-)
+CHECK_DESCRIPTIONS = {
+    "links": {
+        "help": "Detect broken Markdown links in docs.",
+        "description": "扫描所有 Markdown 内部引用 [text](path.md)，目标文件不存在即 broken_link。",
+        "epilog": "示例：python3 Scripts/audit/docaudit.py links --strict",
+    },
+    "archived-refs": {
+        "help": "Detect active references to archived docs (docs/research/*).",
+        "description": "扫描对 policy.yaml 中 archived_sources 声明的 md 文件的活跃硬引用。",
+        "epilog": "示例：python3 Scripts/audit/docaudit.py archived-refs --baseline",
+    },
+    "orphans": {
+        "help": "Detect docs/**/*.md with zero references in repo.",
+        "description": "扫描 docs/**/*.md，若在全仓（docs/.claude/Scripts/STATUS.md 等）无任何引用则标记孤儿。",
+        "epilog": "白名单见 policy.yaml checks.orphans.whitelist。",
+    },
+    "home-path-refs": {
+        "help": "Detect hardcoded ~/.claude/ private path refs in repo.",
+        "description": "扫描仓库内对 ~/.claude/ 私有路径的硬编码，排除 allowed_contexts（纪律说明文档）。",
+        "epilog": "示例：python3 Scripts/audit/docaudit.py home-path-refs --verbose",
+    },
+    "rule-pointer-sync": {
+        "help": "Verify .claude/rules/*.md pointers to docs/principles/*.md.",
+        "description": "校验每个 .claude/rules/*.md 声明的 'Read and follow docs/principles/*.md' 指针目标存在。",
+        "epilog": "示例：python3 Scripts/audit/docaudit.py rule-pointer-sync",
+    },
+    "rule-usage": {
+        "help": "Count F-NNN rule external references (dead rule candidates).",
+        "description": "统计 docs/memory/feedback.md 中声明的 F-NNN 规则在全仓的外部引用数，低于 min_references 即 dead candidate。",
+        "epilog": "示例：python3 Scripts/audit/docaudit.py rule-usage --verbose",
+    },
+}
 
-# 任意 md 文件路径引用 — 用于 orphan 检测（含 code 内联 `path/to/file.md`）
+# Markdown 内部链接正则 — [text](path.md) 或 [text](path.md#anchor)；排除 http/mailto/锚点/图片
+LINK_RE = re.compile(r"(?<!\!)\[[^\]]*\]\(([^)#]*?\.md)(?:#[^)]*)?\)")
+
+# 任意 md 文件路径引用（orphan 检测）
 PATH_REF_RE = re.compile(r"([A-Za-z_\-./][A-Za-z0-9_\-./]*\.md)")
 
 # ~/.claude/ 引用
@@ -73,22 +104,25 @@ F_RULE_RE = re.compile(r"\bF-(\d{3})\b")
 @dataclass
 class Finding:
     check: str
-    path: str          # 相对于 REPO_ROOT
-    line: int          # 1-based；0 表示文件级
+    path: str
+    line: int
     category: str
-    level: str         # error / warning / info
+    level: str                  # error / warning / info（原始级别，不受豁免影响）
     suggestion: str = ""
     matched_text: str = ""
+    suppressed: bool = False    # post-filter 豁免命中标记
+    suppressed_reason: str = ""
 
     def as_tsv(self) -> str:
-        # 用 tab 分隔，替换可能出现在字段里的 tab/newline
         fields = [
             self.check,
             self.path,
             str(self.line),
             self.category,
             self.level,
+            "suppressed" if self.suppressed else "active",
             self.suggestion,
+            self.suppressed_reason,
             self.matched_text.replace("\t", " ").replace("\n", " ")[:200],
         ]
         return "\t".join(fields)
@@ -97,22 +131,37 @@ class Finding:
 @dataclass
 class CheckResult:
     check: str
-    level: str         # 本次检查默认级别（policy）
+    level: str                  # policy 默认级别
     findings: list[Finding] = field(default_factory=list)
-    skipped: bool = False
-    skip_reason: str = ""
+
+    @property
+    def active_findings(self) -> list[Finding]:
+        return [f for f in self.findings if not f.suppressed]
 
     @property
     def error_count(self) -> int:
-        return sum(1 for f in self.findings if f.level == "error")
+        return sum(1 for f in self.active_findings if f.level == "error")
 
     @property
     def warning_count(self) -> int:
-        return sum(1 for f in self.findings if f.level == "warning")
+        return sum(1 for f in self.active_findings if f.level == "warning")
 
     @property
     def info_count(self) -> int:
-        return sum(1 for f in self.findings if f.level == "info")
+        return sum(1 for f in self.active_findings if f.level == "info")
+
+    @property
+    def suppressed_count(self) -> int:
+        return sum(1 for f in self.findings if f.suppressed)
+
+
+@dataclass(frozen=True)
+class WhitelistRule:
+    check: str
+    reason: str
+    expires_on: date
+    paths: tuple[str, ...]          # glob patterns，空 tuple = 匹配该 check 的所有 findings
+    categories: tuple[str, ...]     # 空 tuple = 匹配所有 category
 
 
 # ---------- policy 加载 ----------
@@ -133,28 +182,115 @@ def load_policy(path: Path = POLICY_PATH) -> dict:
     return policy
 
 
-def _baseline_active(policy: dict, check_name: str, baseline_flag: bool) -> bool:
-    """返回该 check 是否应启用 legacy_whitelist 豁免。"""
-    if not baseline_flag:
-        return False
-    lw = policy.get("legacy_whitelist", {}).get(check_name, {})
-    if not lw.get("baseline_accepted"):
-        return False
-    accepted_until = lw.get("accepted_until")
-    if accepted_until:
+def _parse_whitelist(policy: dict) -> list[WhitelistRule]:
+    """解析 legacy_whitelist。无效日期 / 缺字段 → exit 2 (fail-closed)。"""
+    raw = policy.get("legacy_whitelist", [])
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        print(
+            "ERROR: policy.yaml legacy_whitelist must be a list of rule objects",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    rules: list[WhitelistRule] = []
+    for idx, entry in enumerate(raw):
+        if not isinstance(entry, dict):
+            print(
+                f"ERROR: legacy_whitelist[{idx}] must be a mapping",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        check_name = entry.get("check")
+        if check_name not in CHECK_NAMES:
+            print(
+                f"ERROR: legacy_whitelist[{idx}].check '{check_name}' unknown; must be one of {CHECK_NAMES}",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        expires_raw = entry.get("expires_on")
+        if not isinstance(expires_raw, str):
+            print(
+                f"ERROR: legacy_whitelist[{idx}].expires_on must be a YYYY-MM-DD string (got {expires_raw!r})",
+                file=sys.stderr,
+            )
+            sys.exit(2)
         try:
-            y, m, d = map(int, accepted_until.split("-"))
-            if date.today() > date(y, m, d):
-                return False  # 过期自动转严格
-        except (ValueError, AttributeError):
-            pass
-    return True
+            parts = expires_raw.split("-")
+            if len(parts) != 3:
+                raise ValueError("expects YYYY-MM-DD")
+            y, m, d = (int(p) for p in parts)
+            expires_on = date(y, m, d)
+        except (ValueError, TypeError) as exc:
+            print(
+                f"ERROR: legacy_whitelist[{idx}].expires_on '{expires_raw}' is not a valid date: {exc}",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        reason = entry.get("reason", "").strip()
+        if not reason:
+            print(
+                f"ERROR: legacy_whitelist[{idx}].reason is required (document why this is baselined)",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        paths = tuple(entry.get("paths") or ())
+        categories = tuple(entry.get("categories") or ())
+        rules.append(WhitelistRule(
+            check=check_name,
+            reason=reason,
+            expires_on=expires_on,
+            paths=paths,
+            categories=categories,
+        ))
+    return rules
+
+
+def _apply_whitelist(
+    result: CheckResult,
+    rules: list[WhitelistRule],
+    baseline_flag: bool,
+) -> None:
+    """Finding 级 post-filter。只在 baseline_flag 且规则未过期时降级。"""
+    if not baseline_flag:
+        return
+    today = date.today()
+    for f in result.findings:
+        for rule in rules:
+            if rule.check != result.check:
+                continue
+            if rule.expires_on < today:
+                continue  # 过期规则不生效（fail-closed 到未豁免状态）
+            if rule.paths and not _path_matches(f.path, rule.paths):
+                continue
+            if rule.categories and f.category not in rule.categories:
+                continue
+            f.suppressed = True
+            f.suppressed_reason = f"{rule.reason} (expires_on: {rule.expires_on})"
+            break
+
+
+def _path_matches(path: str, patterns: Iterable[str]) -> bool:
+    p_norm = path.replace(os.sep, "/")
+    for pat in patterns:
+        pat_norm = pat.rstrip("/")
+        if pat_norm.endswith("/**"):
+            base = pat_norm[:-3].rstrip("/")
+            if p_norm == base or p_norm.startswith(base + "/"):
+                return True
+        elif fnmatch.fnmatch(p_norm, pat_norm):
+            return True
+        elif p_norm == pat_norm:
+            return True
+    return False
 
 
 # ---------- 文件扫描辅助 ----------
 
-def _iter_text_files(policy: dict, extensions: Iterable[str] = (".md", ".sh", ".py", ".yaml", ".yml")) -> Iterable[Path]:
-    """遍历 policy scan.include 中的文本文件，排除 scan.exclude。"""
+def _iter_text_files(
+    policy: dict,
+    extensions: Iterable[str] = (".md", ".sh", ".py", ".yaml", ".yml"),
+) -> Iterable[Path]:
     scan = policy.get("scan", {})
     includes = scan.get("include", [])
     excludes = scan.get("exclude", [])
@@ -162,12 +298,14 @@ def _iter_text_files(policy: dict, extensions: Iterable[str] = (".md", ".sh", ".
     for inc in includes:
         inc_path = REPO_ROOT / inc
         if inc_path.is_file():
+            rel = inc_path.relative_to(REPO_ROOT)
+            if any(_matches_exclude(rel, ex) for ex in excludes):
+                continue
             yield inc_path
             continue
         if not inc_path.is_dir():
             continue
         for root, dirs, files in os.walk(inc_path):
-            # 排除目录
             root_path = Path(root)
             rel = root_path.relative_to(REPO_ROOT)
             if any(_matches_exclude(rel, ex) for ex in excludes):
@@ -184,7 +322,6 @@ def _iter_text_files(policy: dict, extensions: Iterable[str] = (".md", ".sh", ".
 
 
 def _matches_exclude(rel_path: Path, pattern: str) -> bool:
-    """简单的 glob-like 匹配，支持末尾 /，以及 ** 前缀子树。"""
     p = pattern.rstrip("/")
     rel_str = str(rel_path).replace(os.sep, "/")
     if p.endswith("/**"):
@@ -192,12 +329,10 @@ def _matches_exclude(rel_path: Path, pattern: str) -> bool:
         return rel_str == base or rel_str.startswith(base + "/")
     if "*" not in p:
         return rel_str == p or rel_str.startswith(p + "/")
-    # 回落到 fnmatch
-    import fnmatch
     return fnmatch.fnmatch(rel_str, p)
 
 
-def _matches_whitelist(rel_path: str, patterns: Iterable[str]) -> bool:
+def _matches_whitelist_glob(rel_path: str, patterns: Iterable[str]) -> bool:
     for pat in patterns or ():
         p = pat.rstrip("/")
         rel_norm = rel_path.replace(os.sep, "/")
@@ -207,10 +342,8 @@ def _matches_whitelist(rel_path: str, patterns: Iterable[str]) -> bool:
                 return True
         elif p == rel_norm:
             return True
-        else:
-            import fnmatch
-            if fnmatch.fnmatch(rel_norm, p):
-                return True
+        elif fnmatch.fnmatch(rel_norm, p):
+            return True
     return False
 
 
@@ -223,7 +356,7 @@ def _read_lines(path: Path) -> list[str]:
 
 # ---------- check: links ----------
 
-def check_links(policy: dict, baseline: bool) -> CheckResult:
+def check_links(policy: dict) -> CheckResult:
     conf = policy["checks"]["links"]
     level = conf["level"]
     result = CheckResult(check="links", level=level)
@@ -235,7 +368,6 @@ def check_links(policy: dict, baseline: bool) -> CheckResult:
                 target = match.group(1).strip()
                 if not target or target.startswith(("http://", "https://", "mailto:")):
                     continue
-                # 解析为绝对路径
                 if target.startswith("/"):
                     abs_target = REPO_ROOT / target.lstrip("/")
                 else:
@@ -257,28 +389,20 @@ def check_links(policy: dict, baseline: bool) -> CheckResult:
 
 # ---------- check: archived-refs ----------
 
-def check_archived_refs(policy: dict, baseline: bool) -> CheckResult:
+def check_archived_refs(policy: dict) -> CheckResult:
     conf = policy["checks"]["archived-refs"]
     level = conf["level"]
     archived = conf.get("archived_sources", [])
     result = CheckResult(check="archived-refs", level=level)
 
-    if _baseline_active(policy, "archived-refs", baseline):
-        result.skipped = True
-        result.skip_reason = "baseline_whitelist_active"
-        return result
-
-    # 构造每个 archived 源的 basename 与 full-path 两种匹配模式
     patterns = []
     for src in archived:
         patterns.append((src, re.escape(src)))
-        bn = Path(src).name
-        patterns.append((src, re.escape(bn)))
+        patterns.append((src, re.escape(Path(src).name)))
 
     for path in _iter_text_files(policy, extensions=(".md", ".sh", ".py", ".yaml", ".yml")):
         rel = path.relative_to(REPO_ROOT)
         rel_str = str(rel)
-        # 跳过 archived 文件本身
         if rel_str in archived:
             continue
         lines = _read_lines(path)
@@ -294,55 +418,44 @@ def check_archived_refs(policy: dict, baseline: bool) -> CheckResult:
                         suggestion=f"migrate reference to docs/archive/ or change to historical note: {src}",
                         matched_text=line.strip(),
                     ))
-                    break  # 每行只报一次
+                    break
     return result
 
 
 # ---------- check: orphans ----------
 
-def check_orphans(policy: dict, baseline: bool) -> CheckResult:
+def check_orphans(policy: dict) -> CheckResult:
     conf = policy["checks"]["orphans"]
     level = conf["level"]
     whitelist = conf.get("whitelist", [])
     result = CheckResult(check="orphans", level=level)
 
-    if _baseline_active(policy, "orphans", baseline):
-        result.skipped = True
-        result.skip_reason = "baseline_whitelist_active"
-        return result
-
-    # 所有 docs/**.md
     docs_mds: list[Path] = []
     docs_root = REPO_ROOT / "docs"
     if docs_root.is_dir():
-        for root, dirs, files in os.walk(docs_root):
+        for root, _dirs, files in os.walk(docs_root):
             for fn in files:
                 if fn.endswith(".md"):
                     docs_mds.append(Path(root) / fn)
 
-    # 全仓引用池
     referenced: set[str] = set()
     for path in _iter_text_files(policy, extensions=(".md", ".sh", ".py", ".yaml", ".yml")):
         text = "\n".join(_read_lines(path))
         for match in PATH_REF_RE.finditer(text):
             ref = match.group(1)
-            # 归一化：去掉 ./ 前缀
             if ref.startswith("./"):
                 ref = ref[2:]
             referenced.add(ref)
-            # 也记 basename 以处理 `handoff.md` 这种短引用
             referenced.add(Path(ref).name)
 
     for md in docs_mds:
         rel = md.relative_to(REPO_ROOT)
         rel_str = str(rel)
-        if _matches_whitelist(rel_str, whitelist):
+        if _matches_whitelist_glob(rel_str, whitelist):
             continue
         name = md.name
-        full_rel = rel_str
-        if full_rel in referenced or name in referenced:
+        if rel_str in referenced or name in referenced:
             continue
-        # 也检查 docs/ 内部相对路径（去掉 docs/ 前缀）
         if rel_str.startswith("docs/") and rel_str[len("docs/"):] in referenced:
             continue
         result.findings.append(Finding(
@@ -358,21 +471,16 @@ def check_orphans(policy: dict, baseline: bool) -> CheckResult:
 
 # ---------- check: home-path-refs ----------
 
-def check_home_path_refs(policy: dict, baseline: bool) -> CheckResult:
+def check_home_path_refs(policy: dict) -> CheckResult:
     conf = policy["checks"]["home-path-refs"]
     level = conf["level"]
     allowed = conf.get("allowed_contexts", [])
     result = CheckResult(check="home-path-refs", level=level)
 
-    if _baseline_active(policy, "home-path-refs", baseline):
-        result.skipped = True
-        result.skip_reason = "baseline_whitelist_active"
-        return result
-
     for path in _iter_text_files(policy, extensions=(".md", ".sh", ".py", ".yaml", ".yml")):
         rel = path.relative_to(REPO_ROOT)
         rel_str = str(rel)
-        if _matches_whitelist(rel_str, allowed):
+        if _matches_whitelist_glob(rel_str, allowed):
             continue
         lines = _read_lines(path)
         for lineno, line in enumerate(lines, start=1):
@@ -391,7 +499,7 @@ def check_home_path_refs(policy: dict, baseline: bool) -> CheckResult:
 
 # ---------- check: rule-pointer-sync ----------
 
-def check_rule_pointer_sync(policy: dict, baseline: bool) -> CheckResult:
+def check_rule_pointer_sync(policy: dict) -> CheckResult:
     conf = policy["checks"]["rule-pointer-sync"]
     level = conf["level"]
     allowlist = conf.get("allowlist_rules", [])
@@ -404,12 +512,11 @@ def check_rule_pointer_sync(policy: dict, baseline: bool) -> CheckResult:
     for rule_path in rules_dir.glob("*.md"):
         rel = rule_path.relative_to(REPO_ROOT)
         rel_str = str(rel)
-        if _matches_whitelist(rel_str, allowlist):
+        if _matches_whitelist_glob(rel_str, allowlist):
             continue
         text = "\n".join(_read_lines(rule_path))
         matches = list(RULE_POINTER_RE.finditer(text))
         if not matches:
-            # 规则文件未声明指向 principle
             result.findings.append(Finding(
                 check="rule-pointer-sync",
                 path=rel_str,
@@ -423,7 +530,6 @@ def check_rule_pointer_sync(policy: dict, baseline: bool) -> CheckResult:
             target = match.group(1).strip()
             abs_target = REPO_ROOT / target
             if not abs_target.exists():
-                # 计算 line number
                 lineno = text[:match.start()].count("\n") + 1
                 result.findings.append(Finding(
                     check="rule-pointer-sync",
@@ -439,7 +545,7 @@ def check_rule_pointer_sync(policy: dict, baseline: bool) -> CheckResult:
 
 # ---------- check: rule-usage ----------
 
-def check_rule_usage(policy: dict, baseline: bool) -> CheckResult:
+def check_rule_usage(policy: dict) -> CheckResult:
     conf = policy["checks"]["rule-usage"]
     level = conf["level"]
     min_refs = conf.get("min_references", 1)
@@ -449,15 +555,12 @@ def check_rule_usage(policy: dict, baseline: bool) -> CheckResult:
     if not feedback.is_file():
         return result
     fb_text = feedback.read_text(encoding="utf-8")
-    # 提取声明的 F-NNN 规则 ID
     declared = set()
-    # 只认 feedback.md 中形如 `## F-NNN` 或 `### F-NNN` 的声明行
     for line in fb_text.splitlines():
         m = re.match(r"^#{1,4}\s+F-(\d{3})\b", line)
         if m:
             declared.add(m.group(1))
 
-    # 在全仓统计每个 F-NNN 的引用次数（排除 feedback.md 自身的声明行）
     counts: dict[str, int] = {d: 0 for d in declared}
     for path in _iter_text_files(policy, extensions=(".md", ".sh", ".py", ".yaml", ".yml")):
         if path.resolve() == feedback.resolve():
@@ -476,8 +579,81 @@ def check_rule_usage(policy: dict, baseline: bool) -> CheckResult:
                 line=0,
                 category="dead_rule_candidate",
                 level=level,
-                suggestion=f"F-{rid} has {counts[rid]} external references (< {min_refs}); consider retiring or documenting why it exists",
+                suggestion=(
+                    f"F-{rid} has {counts[rid]} external references (< {min_refs}); "
+                    "consider retiring or documenting why it exists"
+                ),
             ))
+    return result
+
+
+# ---------- frontmatter via subprocess ----------
+
+def check_frontmatter_via_subprocess(policy: dict) -> CheckResult:
+    """以 subprocess 调用 Scripts/validate_frontmatter.py，结果映射为 CheckResult。
+
+    不在 CHECK_NAMES 中（不作为独立子命令），仅 `all` 子命令自动调用。
+    """
+    result = CheckResult(check="frontmatter", level="error")
+    script = REPO_ROOT / "Scripts" / "validate_frontmatter.py"
+    if not script.is_file():
+        result.findings.append(Finding(
+            check="frontmatter",
+            path="Scripts/validate_frontmatter.py",
+            line=0,
+            category="missing_orchestrator_target",
+            level="error",
+            suggestion="Scripts/validate_frontmatter.py expected by docaudit all; restore it.",
+        ))
+        return result
+    try:
+        completed = subprocess.run(
+            ["python3", str(script), "--check"],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        result.findings.append(Finding(
+            check="frontmatter",
+            path="Scripts/validate_frontmatter.py",
+            line=0,
+            category="orchestrator_invocation_failed",
+            level="error",
+            suggestion=f"failed to invoke validate_frontmatter.py: {exc}",
+        ))
+        return result
+    if completed.returncode == 0:
+        return result  # clean
+    # 解析输出 — validate_frontmatter.py 打印 `path: message` 格式
+    combined = (completed.stdout or "") + "\n" + (completed.stderr or "")
+    for raw_line in combined.splitlines():
+        s = raw_line.strip()
+        if not s or s.lower().startswith(("found ", "no ", "ok", "passed")):
+            continue
+        if ":" in s:
+            pth, _, msg = s.partition(":")
+            result.findings.append(Finding(
+                check="frontmatter",
+                path=pth.strip() or "(unknown)",
+                line=0,
+                category="frontmatter_violation",
+                level="error",
+                suggestion=msg.strip(),
+                matched_text=s[:200],
+            ))
+    if not result.findings:
+        # 非零退出但无解析 finding — 报 generic 错
+        result.findings.append(Finding(
+            check="frontmatter",
+            path="Scripts/validate_frontmatter.py",
+            line=0,
+            category="orchestrator_nonzero_exit",
+            level="error",
+            suggestion=f"validate_frontmatter.py exit={completed.returncode}; stdout/stderr captured below",
+            matched_text=combined.strip()[:200],
+        ))
     return result
 
 
@@ -498,42 +674,75 @@ def _write_tsv(results: list[CheckResult], tsv_dir: Path) -> None:
     for r in results:
         path = tsv_dir / f"{r.check}.tsv"
         with path.open("w", encoding="utf-8") as fp:
-            fp.write("check\tpath\tline\tcategory\tlevel\tsuggestion\tmatched\n")
+            fp.write("check\tpath\tline\tcategory\tlevel\tstatus\tsuggestion\tsuppressed_reason\tmatched\n")
             for f in r.findings:
                 fp.write(f.as_tsv() + "\n")
 
 
-def _print_summary(results: list[CheckResult], verbose: bool) -> None:
-    total_findings = sum(len(r.findings) for r in results)
-    cats_with_findings = [r.check for r in results if r.findings]
-    print(f"docaudit: {len(results)} checks, {len(cats_with_findings)} categories with findings")
-    print()
+def _format_check_summary(r: CheckResult) -> str:
+    parts = []
+    if r.error_count:
+        parts.append(f"{r.error_count} error")
+    if r.warning_count:
+        parts.append(f"{r.warning_count} warning")
+    if r.info_count:
+        parts.append(f"{r.info_count} info")
+    if r.suppressed_count:
+        parts.append(f"{r.suppressed_count} suppressed")
+    return " / ".join(parts) if parts else "clean"
+
+
+def _print_summary(
+    results: list[CheckResult],
+    verbose: bool,
+    exit_code: int,
+    strict: bool,
+    stream_stdout,
+    stream_stderr,
+) -> None:
+    cats_with_active = [r.check for r in results if r.active_findings]
+    header = f"docaudit: {len(results)} checks, {len(cats_with_active)} categories with findings"
+    print(header, file=stream_stdout)
+    print(file=stream_stdout)
+
+    has_signal = False
     for r in results:
         label = f"[{r.check}]".ljust(22)
-        if r.skipped:
-            print(f"{label} SKIPPED ({r.skip_reason})")
-            continue
-        summary_parts = []
-        if r.error_count:
-            summary_parts.append(f"{r.error_count} error")
-        if r.warning_count:
-            summary_parts.append(f"{r.warning_count} warning")
-        if r.info_count:
-            summary_parts.append(f"{r.info_count} info")
-        summary = " / ".join(summary_parts) if summary_parts else "clean"
-        print(f"{label} {summary}")
+        summary = _format_check_summary(r)
+        line = f"{label} {summary}"
+        print(line, file=stream_stdout)
+        if r.error_count or r.warning_count:
+            has_signal = True
+            # 镜像 warning/error 摘要到 stderr（策略契约）
+            print(line, file=stream_stderr)
         if verbose and r.findings:
             for f in r.findings[:20]:
                 loc = f"{f.path}:{f.line}" if f.line else f.path
-                print(f"  · {loc}  [{f.category}]  {f.suggestion}")
+                status = "[SUPPRESSED]" if f.suppressed else ""
+                tail = f" [{f.suppressed_reason}]" if f.suppressed else ""
+                print(f"  · {loc}  [{f.category}]  {f.suggestion}{tail} {status}".rstrip(),
+                      file=stream_stdout)
             if len(r.findings) > 20:
-                print(f"  ... and {len(r.findings) - 20} more")
-    print()
+                print(f"  ... and {len(r.findings) - 20} more", file=stream_stdout)
+    print(file=stream_stdout)
+
     error_checks = [r.check for r in results if r.error_count > 0]
-    if error_checks:
-        print(f"Exit: 1 (error level in: {', '.join(error_checks)})")
+    strict_checks = [r.check for r in results if r.warning_count > 0 and r.error_count == 0]
+    if exit_code == 0:
+        print("Exit: 0", file=stream_stdout)
+    elif error_checks and (strict and strict_checks):
+        print(f"Exit: {exit_code} (error: {error_checks}; strict-upgraded warning: {strict_checks})",
+              file=stream_stdout)
+    elif error_checks:
+        print(f"Exit: {exit_code} (error level in: {error_checks})", file=stream_stdout)
+    elif strict and strict_checks:
+        print(f"Exit: {exit_code} (strict mode; warning level in: {strict_checks})", file=stream_stdout)
     else:
-        print("Exit: 0")
+        print(f"Exit: {exit_code}", file=stream_stdout)
+
+    # 非零退出也镜像 final line 到 stderr
+    if exit_code != 0:
+        print(f"docaudit exit {exit_code}", file=stream_stderr)
 
 
 def _overall_exit_code(results: list[CheckResult], strict: bool) -> int:
@@ -547,46 +756,95 @@ def _overall_exit_code(results: list[CheckResult], strict: bool) -> int:
 
 # ---------- CLI ----------
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="docaudit",
         description="SnapDrill knowledge base audit engine (Phase B).",
     )
     parser.add_argument(
-        "check",
-        nargs="?",
-        choices=CHECK_NAMES,
-        help="Run a single check. Omit and use --all for full sweep.",
+        "--policy",
+        type=Path,
+        default=POLICY_PATH,
+        help="Override policy.yaml path (default: Scripts/audit/policy.yaml)",
     )
-    parser.add_argument("--all", action="store_true", help="Run all 6 checks.")
-    parser.add_argument("--strict", action="store_true", help="Treat warning as error.")
-    parser.add_argument("--report", action="store_true", help="Write TSV reports to reports/.")
-    parser.add_argument("--baseline", action="store_true", help="Apply legacy_whitelist baseline exemptions.")
-    parser.add_argument("--verbose", "-v", action="store_true", help="Print finding details in summary.")
-    parser.add_argument("--policy", type=Path, default=POLICY_PATH, help="Override policy.yaml path.")
 
+    sub = parser.add_subparsers(dest="command", required=True, metavar="<subcommand>")
+
+    def _add_common(sp: argparse.ArgumentParser) -> None:
+        sp.add_argument("--strict", action="store_true", help="Treat warning as error (exit 1).")
+        sp.add_argument("--report", action="store_true", help="Write TSV reports to reports/.")
+        sp.add_argument("--baseline", action="store_true",
+                        help="Apply legacy_whitelist finding-level suppression (Phase C 过渡).")
+        sp.add_argument("--verbose", "-v", action="store_true", help="Print finding details.")
+
+    all_parser = sub.add_parser(
+        "all",
+        help="Run all 6 checks + frontmatter (via validate_frontmatter.py subprocess).",
+        description="运行全部 6 个 checks + frontmatter（subprocess 调用 validate_frontmatter.py）。",
+        epilog="示例：python3 Scripts/audit/docaudit.py all --report --verbose",
+    )
+    _add_common(all_parser)
+
+    for name in CHECK_NAMES:
+        desc = CHECK_DESCRIPTIONS[name]
+        sp = sub.add_parser(
+            name,
+            help=desc["help"],
+            description=desc["description"],
+            epilog=desc["epilog"],
+        )
+        _add_common(sp)
+
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
     args = parser.parse_args(argv)
-    if not args.check and not args.all:
-        parser.error("specify a check name or --all")
 
     policy = load_policy(args.policy)
+    whitelist_rules = _parse_whitelist(policy)
 
-    checks_to_run = CHECK_NAMES if args.all else [args.check]
+    if args.command == "all":
+        checks_to_run = CHECK_NAMES
+        include_frontmatter = True
+    else:
+        checks_to_run = [args.command]
+        include_frontmatter = False
+
     results: list[CheckResult] = []
+    if include_frontmatter:
+        try:
+            results.append(check_frontmatter_via_subprocess(policy))
+        except Exception as exc:  # noqa: BLE001
+            print(f"ERROR: frontmatter orchestration crashed: {exc}", file=sys.stderr)
+            return 2
+
     for name in checks_to_run:
         func = CHECK_FUNCS[name]
         try:
-            results.append(func(policy, args.baseline))
+            results.append(func(policy))
         except Exception as exc:  # noqa: BLE001
             print(f"ERROR: check {name} crashed: {exc}", file=sys.stderr)
             return 2
+
+    for r in results:
+        _apply_whitelist(r, whitelist_rules, args.baseline)
 
     if args.report:
         tsv_dir = REPO_ROOT / policy.get("output", {}).get("tsv_dir", "reports")
         _write_tsv(results, tsv_dir)
 
-    _print_summary(results, args.verbose)
-    return _overall_exit_code(results, args.strict)
+    exit_code = _overall_exit_code(results, args.strict)
+    _print_summary(
+        results,
+        args.verbose,
+        exit_code,
+        args.strict,
+        stream_stdout=sys.stdout,
+        stream_stderr=sys.stderr,
+    )
+    return exit_code
 
 
 if __name__ == "__main__":
