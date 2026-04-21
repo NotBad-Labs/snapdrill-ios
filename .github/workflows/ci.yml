@@ -8,6 +8,33 @@ on:
   workflow_dispatch:
 
 jobs:
+  docs:
+    name: Docs Audit
+    # ubuntu-latest：纯 Python，不占 Mac mini runner 槽位
+    # 与 `build` job 并行，互不依赖；失败单独显示在 PR check 列表
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyYAML
+        run: python3 -m pip install --quiet pyyaml
+
+      - name: Run docaudit self-test
+        run: python3 -m unittest discover -s Scripts/audit/tests -v
+
+      - name: Run docaudit (strict + baseline)
+        # strict + baseline：历史已登记违规（policy.yaml legacy_whitelist）豁免为 suppressed 可见；
+        # 新增违规（未登记）或 strict 升级的 warning 仍 error → exit 1 阻断
+        run: python3 Scripts/audit/docaudit.py all --strict --baseline
+
   build:
     name: Build & Test
     # 使用 Mac mini 自托管 runner（离线时任务排队等待，免费）
