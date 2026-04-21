@@ -48,8 +48,10 @@ Closes #
 ### 审计豁免留痕（docaudit，见 `docs/workflow.md` 审计命中处置协议）
 
 <!-- 本段为 Phase B 纪律。若本 PR 无 docaudit 相关改动，打勾"无"即可 -->
+<!-- error/warning 命中不允许仅靠 PR 描述绕过 — CI 会直接阻断 — 唯一合法豁免是 legacy_whitelist -->
 
 - [ ] 无：本 PR 未引入新的 docaudit 命中，未改 `Scripts/audit/policy.yaml`
 - [ ] 新增 `legacy_whitelist` 条目：理由 + `expires_on` 已在 commit 中说明，且与 Phase C 清理 PR 规划对齐
-- [ ] 从 `legacy_whitelist` 移除条目：对应命中已真修复（非绕过），`docaudit --all --strict` 本地已验证 exit 0
-- [ ] 新增 error/warning 命中但未豁免：PR 描述已说明合理性（临时/单次/后续跟进 Issue）
+- [ ] 从 `legacy_whitelist` 移除条目：对应命中已真修复（非绕过），`docaudit all --strict --baseline` 本地已验证 exit 0
+- [ ] 仅新增 **info** 级命中（无 error 无 warning）：info 级不阻断 CI，无需豁免；建议 `/knowledge-health` 后续跟进
+- [ ] 调整 `policy.yaml` 规则级别：这是**独立的 chore PR**（不伴随代码改动），且不是为了绕过本 PR 的 error 命中
