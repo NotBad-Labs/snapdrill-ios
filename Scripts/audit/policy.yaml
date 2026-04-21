@@ -1,0 +1,93 @@
+# docaudit 策略 SSOT
+#
+# 规则分级：
+#   error   — exit 1，CI 阻断合并
+#   warning — exit 0，stderr 提示
+#   info    — stdout summary，无副作用
+#
+# 修改检查级别或白名单只改本文件，不改 docaudit.py。
+
+version: 1
+
+# 审计范围
+scan:
+  include:
+    - docs/
+    - .claude/
+    - Scripts/
+    - STATUS.md
+    - CLAUDE.md
+    - README.md
+  exclude:
+    - .claude/worktrees/         # 临时副本
+    - docs/archive/               # 归档文档，不再校验
+    - Scripts/audit/tests/fixtures/  # 自测 fixture
+
+# 6 个子命令的默认级别
+checks:
+  links:
+    level: error
+    description: Markdown 内部引用链接指向不存在的文件
+
+  archived-refs:
+    level: error
+    description: 活跃文档对 docs/research/* (status:archived) 的硬引用
+    archived_sources:
+      - docs/research/harness-engineering-study-20260418.md
+      - docs/research/hermes-agent-study-20260418.md
+
+  orphans:
+    level: warning
+    description: docs/**/*.md 在全仓零引用
+    whitelist:
+      - docs/product/**            # 产品文档独立入口
+      - docs/archive/**            # 归档文档豁免
+      - docs/KNOWLEDGE_MAP.md      # 自身是索引
+      - docs/DOC_DEPENDENCY_MAP.md # 自身是依赖图
+
+  home-path-refs:
+    level: warning
+    description: 仓库内对 ~/.claude/ 私有路径的硬编码
+    allowed_contexts:
+      # 允许在以下文件中引用（纪律文档解释 home-path 用法本身）
+      - docs/principles/memory-routing.md
+      - .claude/rules/memory-routing.md
+      - docs/principles/permission-model.md
+
+  rule-pointer-sync:
+    level: error
+    description: .claude/rules/*.md 必须指向存在的 docs/principles/*.md
+    allowlist_rules:
+      # README / 索引型规则，不做指针校验
+      - .claude/rules/README.md
+
+  rule-usage:
+    level: info
+    description: F-NNN 规则外部引用计数（0 引用 = dead rule 候选）
+    min_references: 1              # < min_references 标记 dead 候选
+
+# 首轮基线缓冲（Phase C 清理前使用）
+# 每次 Phase C PR 从本列表移除对应条目，直到全空
+legacy_whitelist:
+  archived-refs:
+    # Phase A 已知的 20 处 docs/research 硬引用（Codex 实扫）
+    # Phase C PR-α2 处理，完成后移除本段
+    baseline_accepted: true
+    accepted_until: "2026-05-31"   # 硬截止，到期转 error
+
+  home-path-refs:
+    # 当前 41 处 ~/.claude/ 引用 + 32 处 ~/.claude/plans/ 引用
+    # Phase C 分批归档，部分合法（memory-routing 纪律文档）
+    baseline_accepted: true
+    accepted_until: "2026-06-30"
+
+  orphans:
+    # Phase A 候选孤儿（需人工判断：hard / soft / intentionally parked）
+    baseline_accepted: true
+    accepted_until: "2026-05-31"
+
+# 输出
+output:
+  tsv_dir: reports/                # TSV 报告目录（.gitignore 已覆盖 reports/）
+  summary_stdout: true             # 文本 summary 打 stdout
+  verbose_default: false           # --verbose 显式启用详细模式
