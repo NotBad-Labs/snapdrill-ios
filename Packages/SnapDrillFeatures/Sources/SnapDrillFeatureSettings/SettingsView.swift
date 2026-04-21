@@ -140,7 +140,7 @@ public struct SettingsView: View {
 
                 }
 
-                // 4. 数据与云同步
+                // 4. 数据与备份
                 Section {
                     NavigationLink {
                         if let viewModel {
@@ -149,7 +149,7 @@ public struct SettingsView: View {
                             ProgressView()
                         }
                     } label: {
-                        SettingsRow(icon: "icloud.fill", gradientStart: .blue, gradientEnd: .cyan, title: L10n.Settings.dataAndSync)
+                        SettingsRow(icon: "externaldrive.fill", gradientStart: .blue, gradientEnd: .cyan, title: L10n.Settings.dataAndSync)
                     }
 
 

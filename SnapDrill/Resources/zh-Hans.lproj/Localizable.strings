@@ -282,7 +282,7 @@
 "settings.card_appearance" = "卡片外观";
 "settings.review_reminder" = "复习提醒";
 "settings.privacy_export" = "隐私与导出";
-"settings.data_and_sync" = "数据与云同步";
+"settings.data_and_sync" = "数据与备份";
 "settings.storage_management" = "存储管理";
 "settings.storage_images" = "题目图片";
 "settings.storage_total" = "总占用";
