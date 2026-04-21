@@ -1,0 +1,116 @@
+# docaudit 策略 SSOT
+#
+# 规则分级：
+#   error   — exit 1，CI 阻断合并
+#   warning — exit 0，stderr 镜像摘要（--strict 升级为 error）
+#   info    — stdout summary，无副作用
+#
+# legacy_whitelist 是 **finding 级** post-filter（Codex 主锚 Review Critical 1 修复）：
+#   规则按 check + paths + categories 匹配，命中后 finding 标记 suppressed 不参与 exit code。
+#   新增违规（不匹配任何白名单）仍按原级别阻断，防回归。
+#
+# 修改检查级别或白名单只改本文件，不改 docaudit.py。
+
+version: 1
+
+# 审计范围
+scan:
+  include:
+    - docs/
+    - .claude/
+    - Scripts/
+    - STATUS.md
+    - CLAUDE.md
+    - README.md
+  exclude:
+    - .claude/worktrees/                 # 临时副本
+    - docs/archive/                       # 归档文档，不再校验
+    - Scripts/audit/                      # 审计器自身（README 示例 / policy 声明会自触发，元循环）
+
+# 6 个子命令默认级别
+checks:
+  links:
+    level: error
+    description: Markdown 内部引用链接指向不存在的文件
+
+  archived-refs:
+    level: error
+    description: 活跃文档对 docs/research/* (status:archived) 的硬引用
+    archived_sources:
+      - docs/research/harness-engineering-study-20260418.md
+      - docs/research/hermes-agent-study-20260418.md
+
+  orphans:
+    level: warning
+    description: docs/**/*.md 在全仓零引用
+    whitelist:
+      - docs/product/**            # 产品文档独立入口
+      - docs/archive/**            # 归档文档豁免
+      - docs/KNOWLEDGE_MAP.md      # 自身是索引
+      - docs/DOC_DEPENDENCY_MAP.md # 自身是依赖图
+
+  home-path-refs:
+    level: warning
+    description: 仓库内对 ~/.claude/ 私有路径的硬编码
+    allowed_contexts:
+      # 纪律文档本身解释 home-path 用法，允许引用
+      - docs/principles/memory-routing.md
+      - .claude/rules/memory-routing.md
+      - docs/principles/permission-model.md
+
+  rule-pointer-sync:
+    level: error
+    description: .claude/rules/*.md 必须指向存在的 docs/principles/*.md
+    allowlist_rules:
+      - .claude/rules/README.md
+
+  rule-usage:
+    level: info
+    description: F-NNN 规则外部引用计数（0 引用 = dead rule 候选）
+    min_references: 1
+
+# Finding 级豁免规则（Phase C 清理前过渡）
+# 每条规则：
+#   check:       6 子命令之一（必填）
+#   reason:      豁免理由（必填，非空）
+#   expires_on:  YYYY-MM-DD 硬截止（必填，无效日期 exit 2）
+#   paths:       文件 glob 列表（可选，空 = 匹配该 check 所有 finding）
+#   categories:  finding category 列表（可选，空 = 匹配所有 category）
+#
+# Phase C 每个清理 PR 应从本列表删除对应条目，直到全空。
+legacy_whitelist:
+  # Phase A 审计发现的 archived-refs 命中（18 处）
+  # Phase C PR-α2 处理后从此列表移除
+  - check: archived-refs
+    reason: "Phase A 基线：docs/research 归档前硬引用，Phase C PR-α2 分批修复"
+    expires_on: "2026-05-31"
+    paths:
+      - .claude/hooks/long-session-guard.sh
+      - .claude/hooks/post-merge-checkpoint.sh
+      - .claude/skills/cross-audit-consensus/SKILL.md
+      - .claude/skills/resume-from-handoff/SKILL.md
+      - Scripts/recall-index.sh
+      - docs/memory/checkpoints/**
+      - docs/memory/feedback.md
+      - docs/memory/handoff.md
+      - docs/principles/collaboration.md
+      - docs/principles/memory-routing.md
+      - docs/workflow.md
+
+  # Phase A 审计发现的 home-path-refs 命中
+  # Phase C 分批归档到 docs/ 或标为 Claude-private
+  - check: home-path-refs
+    reason: "Phase A 基线：现有 ~/.claude/ 硬编码，Phase C 分批归档"
+    expires_on: "2026-06-30"
+    # 无 paths = 匹配所有 home-path-refs finding（过渡期；收紧时应加 paths）
+
+  # Phase A 孤儿候选
+  - check: orphans
+    reason: "Phase A 基线：候选孤儿待人工分层（hard / soft / intentionally parked）"
+    expires_on: "2026-05-31"
+
+# 输出
+output:
+  tsv_dir: reports/
+  summary_stdout: true
+  verbose_default: false
