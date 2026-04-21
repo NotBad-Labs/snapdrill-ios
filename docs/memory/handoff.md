@@ -21,12 +21,21 @@ freshness:
 
 ## 现代化 Sprint 进度（Issue #699 epic）
 
-**Phase 1 进行中**（#1 ✅ / #2 ⏳ draft PR #702 / #3 ✅）：
+**Phase 1 三件套全收官**（2026-04-21）：
+- ✅ PR #700 W1 #1 Swift 6.3 toolchain 统一
+- ✅ PR #701 W1 #3 PBXGroup → Sync Group（3 Ruby 脚本删除 + OOM 3x scale bug 前置修复 PR #698）
+- ✅ PR #702 W1 #2 xctestplan + CI test-without-building 切换
+- 收官 checkpoint：`docs/memory/checkpoints/2026-04-20-phase1-modernization-sprint.md`
 
-| 选项 | 状态 | 说明 |
-|---|---|---|
-| **W1 #2**（epic PR #2） | **draft PR #702** (feat/w1-2-xctestplan-introduction) | xctestplan + AllTests.xcscheme 重构 + CI test-without-building 切换。三方对抗规划 Codex 主锚点 + Xcode Intelligence 协作生成 plan 文件 + 实施时查框架源码发现 `SNAPSHOT_TESTING_RECORD` 原生支持（修正 Codex 过度工程化方案）|
-| **#15**（epic PR #15） | 待 W1 #2 合并后启动 | CloudKit `cloudKitDatabase: .none` 显式关闭 + 文案对齐 |
+**Phase 2 内核现代化候选（5 PR）**：
+- PR #4 swift-testing 全量迁移（SnapDrillCore + SnapDrillData 测试包）—— W1 #2 xctestplan 合并后解锁
+- PR #5 swift-testing 全量迁移（SnapDrillFeatures 测试包，含 snapshot suites）
+- PR #6 typed throws 业务 API（DataError / BackupError / ProfileError 收敛）
+- PR #7 staged migration V2 模板预建
+- PR #8 ModelExecutor + 根除 Issue #599 残留 hack
+
+**Phase 4 小项（可插入）**：
+- #15 CloudKit `cloudKitDatabase: .none` 显式关闭 + 文案对齐
 
 **2026-04-20/21 升级事件**（见 `reference_codex_plugin_v104_upgrade.md`）：
 Codex plugin 1.0.3 → 1.0.4（Skill recursion 卡死修复）、Gemini CLI 0.38.1 → 0.38.2。触发原因：Codex review 在 PR #701 上卡死 2h49m + 0 新进展。已重启生效 v1.0.4 agent 定义。
