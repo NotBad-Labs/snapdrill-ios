@@ -99,8 +99,14 @@ jobs:
             echo "Simulator $DEVICE_ID erased"
           fi
 
+      - name: Validate test plan JSON
+        # 结构失败时在 xcodebuild 之前就 fail，而不是等到编译阶段才暴露
+        run: |
+          PLAN=SnapDrill.xcodeproj/xcshareddata/xctestplans/AllTests.xctestplan
+          python3 -c "import json, sys; json.load(open('$PLAN'))" && echo "xctestplan JSON OK"
+
       - name: Build for testing
-        # build-for-testing 编译 AllTests scheme 下所有 test target + 主 app，产物进 DerivedData
+        # build-for-testing 编译 AllTests scheme 下测试目标及其依赖（BuildActionEntries 仅测试 buildables），产物进 DerivedData
         # xctestplan: 统一配置、record/verify configuration 切换、未来 swift-testing 平滑迁移
         run: |
           xcodebuild build-for-testing \

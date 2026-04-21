@@ -61,8 +61,8 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ### 代码质量
 - [ ] `swiftlint --strict` 0 violations
-- [ ] `xcodebuild build-for-testing` 0 errors
-- [ ] `xcodebuild test` 通过（已有测试不得回归）
+- [ ] `xcodebuild build-for-testing -scheme AllTests -testPlan AllTests` 0 errors
+- [ ] `xcodebuild test-without-building -xctestrun ... -only-test-configuration CI` 通过（已有测试不得回归，详见《本地复现 CI Test》）
 - [ ] 改接口签名后 `grep -rn "TypeName(" Packages/*/Tests/` 检查测试同步
 - [ ] Codex 对抗性审查通过（每个 PR 必须）
 - [ ] Xcode Review 核实通过（UI 改动必须）
