@@ -19,6 +19,53 @@ freshness:
 （PR #665 EditProfileView PhotosPicker UX 已于 2026-04-19 04:02 合并，Closes #637）
 （Sprint W1 #1 PR #700 Swift 6.3 toolchain + W1 #3 PR #701 SnapDrillShare PBXGroup→Sync Group 已合并；W1 SnapDrillShareTests 14 用例 PR #698 合并）
 
+## 🚧 当前进行中：自主迭代基线建设（2026-04-21 启动，跨 session）
+
+### 背景
+用户提出"知识体系只加不减、熵增"担忧 → Claude 提议投入 Skills + 建自省机制（替代推翻重写）→ 用户确认后 pivot 到自主迭代系统建设。暂停 Issue #699 Phase 2 PR #6/#7/#8（typed throws / staged migration / ModelExecutor）。
+
+### Phase A 已完成（三方审计）
+**产出位置**：`~/.claude/projects/-Users-yiming-Developer-snapdrill-ios/audit/20260421-self-iteration-phase-a/`
+- `00-audit-prompt.md` — 共享提示
+- `01-claude-structural-inventory.md` — Claude 结构映射
+- `02-gemini-mechanical-scan.md` — Gemini 3 Pro Preview 机械扫描（末尾 6 节是实际产出）
+- `03-consolidated-plan.md` — Claude 整合（含被三方推翻的原 4-PR 方案）
+- `04-gemini-flash-review.md` — Gemini 3 Flash Preview 策略评审
+- README.md — 索引 + 关键数据快照
+
+**三方一致的最终执行顺序**（Claude 原方案被推翻）：
+```
+Phase B (最小 audit scripts) →
+PR-α1 (FB-01 + FR-01 规则合并，不重排 F 编号) →
+PR-α2 (RS-01/RS-02 research 迁移 + 39 处引用全扫 + KNOWLEDGE_MAP 同步) →
+PR-β (FR-02 + FB-02 + FB-06 + MAP-01 + STATUS.md YAML 标准化) →
+PR-δ (所有退役: FB-04 + 11 个私有 memory + dead rule，含 redirect 建立) →
+PR-γ (plans 清理 manifest PR + 本地清理任务)
+```
+
+### Phase B 下次接手步骤
+设计 `Scripts/audit/` 最小 script 集：
+1. `grep-cross-refs.sh` — 给 pattern，全仓扫 docs/hook/skill/script 的引用点
+2. `orphan-files.sh` — 检测未被引用的 md/sh
+3. `last-verified-report.sh` — YAML frontmatter 过期清单
+4. `rule-usage.sh` — F-xxx 规则引用计数
+5. `README.md` — 总入口 + 使用示例
+
+**关键数据快速恢复**（见 audit dir 的 README.md）：
+- 三方发现 Critical 3 + High 8 + Medium 13 + Low 9
+- 实际硬引用 **39 处**（Gemini Flash 独立 grep 验证，Codex 11 处低估）
+- Plans：27 个 → 8 删 + 15 归档 + 4 保留
+- F 规则：20 条 → 4 dead rule + 2 组合并 + 3 已 skill 化
+
+### Gemini 模型最新认知（2026-04-21 实测 32 候选）
+- `gemini-3-pro-preview` → 内部是 `gemini-3.1-pro-preview`（最强推理，今日配额 429 耗尽）
+- `gemini-3-flash-preview` → `gemini-3.1-flash-preview`（新发现，策略评审可用）
+- `gemini-2.5-pro` 配额紧
+- `gemini-2.5-flash` 稳定 fallback
+- 其他 28 候选全 404
+
+---
+
 ## 现代化 Sprint 进度（Issue #699 epic）
 
 **Phase 1 三件套全收官**（2026-04-21）：
