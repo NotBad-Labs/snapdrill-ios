@@ -206,7 +206,7 @@ xcodebuild test-without-building \
 | 命中级别 | CI 行为（`all --strict --baseline`） | 必须动作 | 允许豁免路径 |
 |---|---|---|---|
 | **error** | 阻断（exit 1） | 必须修复或升级到 Phase C 清理 PR | **唯一豁免路径**：`Scripts/audit/policy.yaml` `legacy_whitelist` + 明确 `reason` + 硬 `expires_on`；豁免 PR 必须同步含白名单条目的添加。**禁止**仅在 PR 描述里写理由就过 error |
-| **warning** | `--strict` 升级为阻断 | 合并前三选一：修 / 登记 `legacy_whitelist`（同 error 路径）/ 在 policy.yaml 将规则的 level 改成 info（需同 PR 讨论理由，且不能伴随代码改动） | 与 error 相同；不允许仅靠 PR 描述 |
+| **warning** | `--strict` 升级为阻断 | 合并前二选一：修 / 登记 `legacy_whitelist`（同 error 路径） | 与 error 相同；不允许仅靠 PR 描述；不允许降级为 info 规避 |
 | **info** | 不阻断（summary 可见） | 可忽略，建议周期性跑 `/knowledge-health` 捞 dead rule 候选 | 无需留痕 |
 
 **关键**：CI 默认跑 `--strict --baseline`，warning 会被升级为阻断。因此"warning 仅 PR 描述留痕"不是合法豁免 —— 它会在 CI 层直接被红 check 挡掉。唯一合法豁免仍是 `legacy_whitelist`。
@@ -220,7 +220,7 @@ xcodebuild test-without-building \
 ### 禁止项
 
 - ❌ 通过 `--strict` 或 `--baseline` 的组合绕过 error 级命中（这是防回归设计，不是豁免通道）
-- ❌ **严禁为使当前 PR 过审而将 `policy.yaml` 中的 error 级规则降级为 warning 或 info**。规则设定本身不合理时，必须提交单独的 `chore: adjust docaudit policy` PR 独立讨论（不能伴随代码改动）；本 PR 的特殊情况必须走 `legacy_whitelist` 豁免。留痕降级不是合法后门
+- ❌ **严禁为使当前 PR 过审而对 `policy.yaml` 中的规则做任何降级**（error→warning、error→info、warning→info 一律禁止）。规则设定本身不合理时，必须提交单独的 `chore: adjust docaudit policy` PR 独立讨论（不能伴随代码改动）；本 PR 的特殊情况必须走 `legacy_whitelist` 豁免。留痕降级不是合法后门
 - ❌ 把 `legacy_whitelist` 条目的 `expires_on` 无限期延后（每次延后必须伴随具体 Phase C sub-PR 的进度说明）
 - ❌ 在 PR 描述里"解释合理性"就试图过 error/warning 命中 —— 豁免必须通过 `legacy_whitelist` 机制，PR 描述是**留痕辅助**而非豁免通道
 
