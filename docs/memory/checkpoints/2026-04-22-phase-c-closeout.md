@@ -19,7 +19,7 @@ freshness:
 | #717 PR-α2 | 1796f758 | RS-01/RS-02: `docs/research/` → `docs/archive/research/` + 19 处硬引用修复 + docaudit basename 匹配移除（顺手修 Issue #710 High 3）+ 新测试 |
 | #719 PR-β | e3d70033 | FR-02: F-007/F-015 合并为《CI 双时点门禁》（pre-merge + post-merge）+ Gemini Point 2（抽出快照层 CI 配置指向 workflow.yml SSOT）；MAP-01: KNOWLEDGE_MAP ↔ DOC_DEPENDENCY_MAP 互链 |
 | #721 PR-δ | d062a4cf | FR-04: F-003/F-009/F-010 墓碑 + 目标文档补齐 F-003/F-010 内容（Gemini 抓 "空墓碑" hardship）+ handoff 计数修正 15+5；FB-04: 私有 audit 纪律退役（会话内） |
-| PR-γ（本 PR） | TBD | 本地 `~/.claude/plans/` 清理：删 8 失效 / 归档 15 到 `~/.claude/plans/archive/` / 保留 4 UNCERTAIN + phase-b-consensus |
+| PR-γ #722 | （本 checkpoint commit 合并时回填） | 本地 `~/.claude/plans/` 清理：删 8 失效 / 归档 15 到 `~/.claude/plans/archive/` / 保留 4 UNCERTAIN + phase-b-consensus |
 
 ## Phase A→B→C 链路
 
@@ -64,24 +64,24 @@ Phase C 基线清洁实战（5 PR，2026-04-22）← 本 phase
 - [ ] PR-γ 合并（当前 PR）
 - [ ] `/knowledge-health` skill 首次实测（/phase-closeout 建议跑一次）
 
-### 短期（Phase D 规划）
+### Phase D / E（不预设，用户在 Phase C 收官后裁决）
 
-Consensus Phase D 是 "建第一批技术 Skills（Swift 6.3 / SwiftData / iOS 26 / Architecture）"，范围要重新设计。Phase C 过程中发现的 follow-up：
+Consensus 原定：
+- Phase D "建第一批技术 Skills"
+- Phase E "建自省 skill"
 
-- Issue #710：Gemini Review 的 3 High + 3 Low（Markdown 正则鲁棒性加固）— Phase C PR-α2 已修 1 个（basename），剩 2 个 High + 3 Low
-- `validate_frontmatter.py` 扩展识别墓碑标签（Gemini PR-α1 建议）
-- `rule-usage` 语义感知：区分规范性引用 vs 实战引用（Gemini PR-α2 建议）
+Phase C 过程中暴露的 follow-up（指针，不在本 checkpoint 展开）：
+- Gemini Review 发现的若干 Markdown 正则鲁棒性加固（部分已在 PR-α2 顺带修复，剩余在 follow-up issue 跟进）
+- docaudit 的几项加固建议（墓碑标签识别 / rule-usage 语义感知）
 
-### 长期（Phase E 规划）
-
-Consensus Phase E 是 "建自省 skill（月度/按需体检 + 闭环机制）"。Phase B `/knowledge-health` 已部分覆盖，但需闭环机制。
+具体 Phase D/E scope 待用户在 Phase C 收官后重新评估决定，本 checkpoint 不越界预设。
 
 ## Metrics
 
 | 维度 | 数值 |
 |---|---|
 | Phase 持续 | 2026-04-22 一天内（Phase B 结束后立即） |
-| 合并 PR | 5（α1/α2/β/δ/γ） |
+| Phase C PR 总数 | 5（α1/α2/β/δ 已合并 · γ #722 审查中） |
 | 涉及 file | ~30 个（含 17 文件引用替换 + 4 feedback F 规则改写 + 2 MAP 互链 + docaudit + policy + tests + archive README + checkpoint） |
 | 本地 plans 清理 | 28 → 5 + 15 archive |
 | F 规则活跃/退役 | 15 活跃 + 5 退役（Phase 前 20 活跃） |
