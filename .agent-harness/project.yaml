@@ -1,0 +1,76 @@
+# agent-harness consumer project configuration
+#
+# snapdrill-ios 作为 agent-harness 的第一个 consumer + 孵化器（dual-role）。
+# 本文件声明 snapdrill-ios 的 overlay 范围和与 upstream 的契约。
+#
+# Phase D PR-D5（2026-04-22）：首次接入，**并行模式**——snapdrill-ios 继续使用
+# 本地现有的 .claude/hooks/ .claude/skills/ Scripts/audit/ docs/principles/ 等，
+# 不因为成为 consumer 而切换到 agent-harness 的 symlink 版本。
+#
+# 未来 Phase E+ 可能做的事：
+# - 选择性 symlink agent-harness/adapter-claude/hooks/ 到本地 .claude/hooks/（替换同名文件）
+# - 跑 agent-harness doctor 做验证性对照
+# - 通过 extract-candidate 把本地新模式反哺回 agent-harness
+#
+# Upstream: https://github.com/NotBad-Labs/agent-harness
+
+version: 1
+
+project:
+  name: "snapdrill-ios"
+  type: "ios"
+  repo: "NotBad-Labs/snapdrill-ios"
+  description: "练习题数字化效率工具；agent-harness 的第一个 consumer + 孵化器"
+
+upstream:
+  repo: NotBad-Labs/agent-harness
+  channel: main
+
+# 当前启用的 adapter / preset
+# PR-D5 只声明契约，实际接线（symlink / 拷贝）留待后续 PR
+presets:
+  - adapter-claude      # 使用 agent-harness 的 Claude Code adapter（但当前仅契约声明，未实际接线）
+
+# Overlay 路径声明（snapdrill-ios 本地项目特定内容位置）
+# 这些路径下的内容属于 snapdrill-ios overlay，不计入 agent-harness 核心
+overlay_paths:
+  # Claude Code skills 中 snapdrill-ios 特定的角色类 skills
+  skills:
+    - .claude/skills/developer       # iOS / SwiftUI / SwiftData 开发角色
+    - .claude/skills/devops          # Xcode / TestFlight / Mac mini runner
+    - .claude/skills/qa-engineer     # iOS 测试特定
+    - .claude/skills/security-engineer  # iOS 隐私 / Keychain
+  # Claude Code hooks 中 snapdrill-ios 特定的
+  hooks:
+    - .claude/hooks/swift-autolint.sh
+    - .claude/hooks/prepush-lint.sh
+  # 项目特定原则文档
+  principles:
+    - docs/principles/apple-native.md
+    - docs/principles/apple-extension.md
+    - docs/principles/apple-limits.md
+    - docs/principles/api-pitfalls.md
+    - docs/principles/coding.md
+    - docs/principles/testing.md
+    - docs/principles/ux-design.md
+  # 项目特定记忆
+  memory:
+    - docs/memory
+
+# docaudit policy 位置（snapdrill-ios 继续用自己的 Scripts/audit/policy.yaml）
+docaudit:
+  policy_file: Scripts/audit/policy.yaml
+
+# 反哺协议参数
+contribution:
+  enabled: true
+  scan_paths:
+    - .claude/skills/           # 新 skill 候选
+    - .claude/hooks/            # 新 hook 候选
+    - docs/principles/          # 新原则候选
+    - docs/memory/feedback.md   # 新 F 规则候选
+  safety_override_reviewer: "@chramboliao"
+
+# 通知
+notifications:
+  pr_comment_on_drift: false    # Phase D 阶段不做自动 drift 通知
