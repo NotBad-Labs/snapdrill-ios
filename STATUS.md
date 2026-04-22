@@ -29,7 +29,7 @@ freshness:
 **本轮机制首次实战**：cross-audit rubric 一次性挡下 2 个 PR 合并（#677 Codex 6.8 / #678 Codex 5.5），Codex 两轮复核后通过。详见 `~/.claude/plans/harness-prs-cross-audit-20260418.md`。
 
 **方法论反思修复（PR #682 #681）**：checkpoint Risks 段 3 项未落地全部合并：
-- **F-020**（新 feedback）：Auto mode 不豁免 F-005 对抗审查
+- **F-020**（新 feedback → 2026-04-21 Phase C PR-α1 合并入 F-005 Auto mode 强化段）：Auto mode 不豁免 F-005 对抗审查
 - **§2.5 评分方权重 SSOT**：Codex 始终主锚点 / Gemini 守纪律次锚点 / Claude 实施方自审为参考（不进入裁决）
 - **Gemini 评分纪律**：8.0 起评 + plan 锚点 + 10.0 硬门槛 + 方差自检，运行侧 prompt 完整承接
 
