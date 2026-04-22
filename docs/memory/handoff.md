@@ -198,7 +198,7 @@ Enrollment ID 83VZW7VJKK **已通过 Apple 审核**，$99 年费用户主动延�
   - `phase-closeout` 模板加 Metrics 段 + session 时长计算命令
 - **此前已有**：cross-audit / cross-audit-consensus / phase-closeout / resume-from-handoff / update-status / pr-review-workflow / developer / qa-engineer / devops / security-engineer
 
-### Feedback 纪律（16 活跃 + 4 退役 = F-001~F-020）
+### Feedback 纪律（15 活跃 + 5 退役 = F-001~F-020）
 - **Stage A+B 新增**：F-018 编码前契约 / F-019 反模式启发式回流 / F-020 Auto mode 不豁免 F-005（PR #682；Phase C PR-α1 已合并入 F-005 Auto mode 强化段，F-020 编号墓碑保留）
 - **Phase C 清理（2026-04-22）**：
   - PR-α1: F-020 → F-005《Auto mode 强化》段
