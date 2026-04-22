@@ -4,7 +4,7 @@
 子命令：
   all                  运行全部 checks（含 frontmatter via subprocess）
   links                Markdown 内部 broken link
-  archived-refs        对 docs/research/* (status:archived) 的活跃硬引用
+  archived-refs        对 policy.yaml 声明的 archived_sources 旧路径硬引用（归档后应改用新路径）
   orphans              docs/**/*.md 在全仓零引用
   home-path-refs       仓库内对 ~/.claude/ 私有路径的硬编码
   rule-pointer-sync    .claude/rules/*.md → docs/principles/*.md 映射
@@ -55,7 +55,7 @@ CHECK_DESCRIPTIONS = {
         "epilog": "示例：python3 Scripts/audit/docaudit.py links --strict",
     },
     "archived-refs": {
-        "help": "Detect active references to archived docs (docs/research/*).",
+        "help": "Detect hardcoded references to deprecated archived_sources paths (see policy.yaml).",
         "description": "扫描对 policy.yaml 中 archived_sources 声明的 md 文件的活跃硬引用。",
         "epilog": "示例：python3 Scripts/audit/docaudit.py archived-refs --baseline",
     },
