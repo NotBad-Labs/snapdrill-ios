@@ -215,7 +215,7 @@ Enrollment ID 83VZW7VJKK **已通过 Apple 审核**，$99 年费用户主动延�
 - 写 Xcode Review 提示词前，确认 STATUS.md 当前焦点段是最新的
 - Xcode 提出问题 → 修复后让 Xcode 复核，不自审自批
 - Codex/Gemini 审查发现的问题，必须提交回原质疑方复核才能合并（F-016）
-- CI 失败是致命信号，不能继续推进（F-015）
+- CI 失败是致命信号，不能继续推进（F-007 时点 1）
 - UI/SDK 改动必须先查阅 Apple 最新文档（F-017）
 
 ## 里程碑

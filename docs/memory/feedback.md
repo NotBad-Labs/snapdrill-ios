@@ -78,7 +78,7 @@ layer: pattern
 F-001「自主执行」偏好的范围是免除 yes/no 确认每个代码改动。**不包括**免除 F-005。在 Auto mode 下，Claude 把 "提 PR" 当成 "完成"、跳过 Codex 对抗审查直接推下一个 PR，**违反** F-005/F-008/F-016。
 
 **How to apply（Auto mode 下仍严格生效）：**
-- Auto mode 只豁免"逐步确认"节奏，不豁免任何工程纪律门禁（F-005 / F-008 / F-014 / F-015 / F-016 / F-017 全部生效）
+- Auto mode 只豁免"逐步确认"节奏，不豁免任何工程纪律门禁（F-005 / F-007 / F-008 / F-014 / F-016 / F-017 全部生效）
 - PR push 后的**第一个** action 必须是启动 Codex 对抗性审查（或系列 PR 合并前统一做一次三方 cross-audit），不是"开下一个 PR"
 - 即使 PR 看似 trivial（纯文档、单行 fix），也必须过 F-005——trivial 的 PR 复核成本极低，跳过没有正当理由
 - 违反的修复路径：停下当前工作 → 对已推但未审的 PR 补三方 cross-audit → 按 rubric 打分 → retry 或合并；不得 "合了再说"
@@ -98,15 +98,39 @@ F-001「自主执行」偏好的范围是免除 yes/no 确认每个代码改动�
 
 ---
 
-## F-007: PR 合并后必须检查 CI
+## F-007: CI 双时点门禁（pre-merge 阻塞 + post-merge 检查）
 <!-- added: 2026-04-06 | owner: human | type: permanent -->
 <!-- trigger: CI 连续 4 天全红（15+ 次失败）未被发现 -->
+<!-- merged-in: F-015 (2026-04-22 Phase C PR-β FR-02) -->
+
+CI 是合并的硬门禁，在两个时点强制生效：
+
+### 时点 1 — Pre-merge：CI 失败立即阻塞后续工作（原 F-015 内容，2026-04-15 合并）
+
+CI 失败必须**立即**阻塞后续工作。不能在未确认 CI 通过的情况下推进新 PR 或新任务。
+
+**Why:** PR #597 第一次 CI 失败后，Claude 没有监控结果就开始了 PR #598 的开发。本地通过 ≠ CI 通过——CI 环境差异（UserDefaults 残留、资源限制、SwiftData XPC）暴露了本地无法覆盖的问题。
+
+**How to apply（pre-merge）：**
+- 每个 PR push 后必须 `gh pr checks --watch`（或 Monitor 轮询）等待结果
+- CI 失败时**立即修复**，不开新分支、不推进新任务
+- CI 仍 QUEUED 时（如 Mac mini 排队）等 runner 到自己，除非识别出 runner 问题（如 half-broken，见 `reference_runner_halfbroken_diagnosis.md`）
+- 合并前所有 CI check 都绿（具体 check 配置与 runner 分配见 `.github/workflows/ci.yml`，属快照层 SSOT，不在本规则硬编码）
+
+### 时点 2 — Post-merge：合并后立即检查 CI 状态（原 F-007 内容，2026-04-06 首立）
 
 PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 
-**Why:** CI 从 2026-04-06 起连续 4 天全红（15+ 次失败），未被发现。本地通过不等于 CI 通过。
+**Why:** CI 从 2026-04-06 起连续 4 天全红（15+ 次失败），未被发现。本地通过不等于 CI 通过；合并前绿不代表合并后 develop 的 CI 仍绿（冲突 / rebase / runner 状态变化可能产生 post-merge failure）。
 
-**How to apply:** 每次 `gh pr merge` 后等 30 秒再检查。如果最近 3 个 run 都是 failure，立即排查。
+**How to apply（post-merge）：**
+- 每次 `gh pr merge` 后等 30 秒再检查
+- 如果最近 3 个 run 都是 failure，立即排查
+- post-merge 失败也是 F-007 违规：必须停下来修，不得开新 PR
+
+### 合并关系
+
+F-015（2026-04-15 "CI 失败是致命信号"）已于 2026-04-22 Phase C PR-β FR-02 合并入本规则。两个时点构成完整"CI 双时点门禁"语义：合并前等待 + 合并后检查。
 
 ---
 
@@ -198,15 +222,12 @@ PR 合并后必须立即运行 `gh run list --limit 3` 检查 CI 状态。
 
 ---
 
-## F-015: CI 失败是致命信号
-<!-- added: 2026-04-15 | owner: human | type: permanent -->
-<!-- trigger: PR #597 CI 失败后 Claude 不等结果就开始 PR #598 -->
+## F-015: [retired 2026-04-22] CI 失败是致命信号
+<!-- retired: 2026-04-22 | merged-into: F-007 CI 双时点门禁 | Phase C PR-β FR-02 -->
 
-CI 失败必须立即阻塞后续工作。不能在未确认 CI 通过的情况下推进新 PR 或新任务。
+**此规则已合并入 F-007。** 详细纪律见 F-007 的《时点 1 — Pre-merge》段（本文件上方第 101 行起）。
 
-**Why:** PR #597 第一次 CI 失败后，Claude 没有监控结果就开始了 PR #598 的开发。本地通过 ≠ CI 通过——CI 环境差异（UserDefaults 残留、资源限制、SwiftData XPC）暴露了本地无法覆盖的问题。
-
-**How to apply:** 每个 PR push 后必须 `gh pr checks --watch` 等待结果。CI 失败时立即修复，不开新分支。与 F-007 互补：F-007 是合并后检查，F-015 是合并前等待。
+编号保留为墓碑指针，避免破坏 `docs/principles/api-pitfalls.md:62`、`STATUS.md:218`、历史 checkpoints 等外部引用。新文档统一指向 F-007。
 
 ---
 
