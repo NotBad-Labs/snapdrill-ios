@@ -7,13 +7,14 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-22（**自主迭代系统 Phase A→B→C 全链路收官 · 8 PR 合并**：Phase B #709/#712/#713 + Phase C #715/#717/#719/#721/#722）
-> 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · docaudit 全量基线 clean（rule-usage 5→0 info）
+> 最后更新：2026-04-22（**自主迭代系统 Phase A→B→C→D 全链路收官 · 13 PR 合并**：Phase B/C 8 PR + **Phase D 5 PR**（agent-harness 独立仓抽出 + snapdrill-ios 消费试点））
+> 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · docaudit 全量基线 clean · agent-harness 独立仓 55 tests 全绿
 > Open PR：0 · Open Issue：6（Apple 阻塞）+ #626 真机待验 + #699 epic（Phase 2 剩 #6/#7/#8 暂停）+ #710 docaudit 加固 follow-up
-> F 规则：**15 活跃 + 5 退役** = F-001~F-020（退役 F-003/F-009/F-010/F-015/F-020，详见 `docs/memory/feedback.md`）
+> F 规则：**15 活跃 + 5 退役** = F-001~F-020（退役 F-003/F-009/F-010/F-015/F-020）· D-003 抽仓决策入 `docs/memory/decisions.md`
 >
-> **下次接手**：读 `docs/memory/checkpoints/2026-04-22-phase-c-closeout.md`（Phase A→B→C 全链路 Goal/Done/Decisions/Risks/Next）+ `docs/memory/handoff.md` 顶部
-> 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
+> **新增仓库**：[NotBad-Labs/agent-harness](https://github.com/NotBad-Labs/agent-harness)（private, MIT, main）— Phase D 一天建仓完成，snapdrill-ios 通过 `.agent-harness/` 契约声明 consumer 身份
+> **下次接手**：读 `docs/memory/checkpoints/2026-04-22-phase-d-closeout.md`（Phase D 独立仓 + consumer 试点 Goal/Done/Decisions/Risks/Next）+ `docs/memory/handoff.md` 顶部
+> 测试：~360+ tests（SnapDrill 本地）+ 55 tests（agent-harness CI：34 docaudit + 21 CLI）· ViewModel 覆盖 16/16
 
 ## 本轮完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
 
