@@ -224,16 +224,20 @@ public final class ProfileManager {
     }
 
     /// 删除 Profile（禁止删除最后一个）
-    public func deleteProfile(id: UUID) throws {
+    ///
+    /// Typed throws: 所有 throw 点都是 ProfileError（ADR D-001 "业务验证方法用 typed throws"）。
+    /// - `cannotDeleteLastProfile`: 剩余 Profile 数 ≤ 1 时禁止删除
+    /// - 内部 `switchProfile(to:)` 也 throws(ProfileError)，向上透传无需转换
+    public func deleteProfile(id: UUID) throws(ProfileError) {
         guard profiles.count > 1 else {
-            throw ProfileError.cannotDeleteLastProfile
+            throw .cannotDeleteLastProfile
         }
         guard let index = profiles.firstIndex(where: { $0.id == id }) else { return }
 
         // 如果删除的是当前活跃 Profile，必须先切换到其他 Profile
         if id == activeProfileId {
             guard let other = profiles.first(where: { $0.id != id }) else {
-                throw ProfileError.cannotDeleteLastProfile
+                throw .cannotDeleteLastProfile
             }
             if isInMemory {
                 // inMemory: 直接更新 activeProfileId，不创建磁盘资源
