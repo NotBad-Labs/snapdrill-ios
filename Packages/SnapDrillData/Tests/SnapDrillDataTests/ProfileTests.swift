@@ -121,4 +121,27 @@ struct ProfileErrorTests {
         let error: any LocalizedError = ProfileError.cannotDeleteLastProfile
         #expect(error.errorDescription != nil)
     }
+
+    // MARK: - Typed throws 行为（ADR D-001 / Phase 2 PR #6）
+
+    @Test("deleteProfile 删除最后一个 Profile 抛 typed ProfileError.cannotDeleteLastProfile")
+    @MainActor
+    func deleteLastProfile_throwsTypedProfileError() {
+        let manager = ProfileManager(inMemory: true)
+        guard let onlyProfile = manager.profiles.first else {
+            Issue.record("inMemory ProfileManager 应有默认 Profile")
+            return
+        }
+
+        // Typed throws 核心价值：catch block 的 error 静态类型由编译器推断为 ProfileError，
+        // enum case 可直接 pattern-match（无需 `catch let e as ProfileError`）。
+        do {
+            try manager.deleteProfile(id: onlyProfile.id)
+            Issue.record("deleteProfile 应当抛出 cannotDeleteLastProfile")
+        } catch .cannotDeleteLastProfile {
+            // 预期路径
+        } catch {
+            Issue.record("Unexpected ProfileError case: \(error)")
+        }
+    }
 }
