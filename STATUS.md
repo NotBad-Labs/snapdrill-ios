@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-21
+last_verified: 2026-04-22
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -7,11 +7,12 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-21（本轮 5 PR 合并：#702/#703/#704/#705/#706；Phase 1 三件套 + Phase 4 #15 + Phase 2 #4/#5 全落地；**用户 pivot 到自主迭代系统建设**，Phase A 三方审计已完成，Phase B 下次 session 接手 — 详见 handoff.md 顶部段）
-> 编译状态：✅ 0 errors · 0 lint violations（无任何豁免）· CI 全绿 · YAML frontmatter 全仓校验通过 50 文件
-> Open PR：0 · Open Issue：6（Apple 阻塞 6 + #626 真机待验）+ #699 epic（Phase 2 剩 #6/#7/#8 / Phase 3/4 backlog — **Phase 2/3/4 暂停**，本周先做自主迭代系统）
+> 最后更新：2026-04-22（**自主迭代系统 Phase A→B→C 全链路收官 · 8 PR 合并**：Phase B #709/#712/#713 + Phase C #715/#717/#719/#721/#722）
+> 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · docaudit 全量基线 clean（rule-usage 5→0 info）
+> Open PR：0 · Open Issue：6（Apple 阻塞）+ #626 真机待验 + #699 epic（Phase 2 剩 #6/#7/#8 暂停）+ #710 docaudit 加固 follow-up
+> F 规则：**15 活跃 + 5 退役** = F-001~F-020（退役 F-003/F-009/F-010/F-015/F-020，详见 `docs/memory/feedback.md`）
 >
-> **⚠️ 下次接手请先读 `docs/memory/handoff.md` 顶部「当前进行中：自主迭代基线建设」段 + `~/.claude/projects/-Users-yiming-Developer-snapdrill-ios/audit/20260421-self-iteration-phase-a/README.md`**
+> **下次接手**：读 `docs/memory/checkpoints/2026-04-22-phase-c-closeout.md`（Phase A→B→C 全链路 Goal/Done/Decisions/Risks/Next）+ `docs/memory/handoff.md` 顶部
 > 测试：~360+ tests（Features 158+VM + Core 103+QSplit + Data 95）· ViewModel 覆盖 16/16
 
 ## 本轮完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
