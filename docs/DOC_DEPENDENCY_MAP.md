@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-14
+last_verified: 2026-04-22
 layer: snapshot
 freshness:
   max_age_days: 14
@@ -9,6 +9,8 @@ freshness:
 
 > 目的：把"谁定义事实、谁消费事实、改一处要同步哪里"写清楚，避免返工。
 > 本文件不替代 `docs/workflow.md` 的裁决顺序；它补充的是上下游传播关系。
+>
+> **互补视图**：`docs/KNOWLEDGE_MAP.md` 是知识分层索引（原则/模式/快照）。本依赖图是变更传播图。两者互补使用。
 
 ---
 
