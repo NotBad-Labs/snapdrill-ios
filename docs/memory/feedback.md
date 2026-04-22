@@ -115,7 +115,7 @@ CI 失败必须**立即**阻塞后续工作。不能在未确认 CI 通过的情
 - 每个 PR push 后必须 `gh pr checks --watch`（或 Monitor 轮询）等待结果
 - CI 失败时**立即修复**，不开新分支、不推进新任务
 - CI 仍 QUEUED 时（如 Mac mini 排队）等 runner 到自己，除非识别出 runner 问题（如 half-broken，见 `reference_runner_halfbroken_diagnosis.md`）
-- 合并前两门都绿：docs job（ubuntu-latest）+ build job（Mac mini）
+- 合并前所有 CI check 都绿（具体 check 配置与 runner 分配见 `.github/workflows/ci.yml`，属快照层 SSOT，不在本规则硬编码）
 
 ### 时点 2 — Post-merge：合并后立即检查 CI 状态（原 F-007 内容，2026-04-06 首立）
 
