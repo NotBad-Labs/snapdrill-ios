@@ -96,7 +96,7 @@ sudo rm             # 提权删除
 
 **原则**：
 - 只读 audit 类 skill（security-engineer）禁止 Edit/Write/Bash
-- 研究类 skill（cross-audit / consensus / phase-closeout）允许 Write 但落地到 `~/.claude/plans/` 或 `docs/research/` / `docs/memory/checkpoints/`
+- 研究类 skill（cross-audit / consensus / phase-closeout）允许 Write 但落地到 `~/.claude/plans/` 或 `docs/archive/research/` / `docs/memory/checkpoints/`
 - 实现类 skill（developer / qa-engineer / devops）开放 T2 完整集
 
 **新增 skill 或修改 `allowed-tools` 时**：必须同步本表并注明 Tier 覆盖。不遵守的 skill 视为违反 §0 SSOT 纪律。

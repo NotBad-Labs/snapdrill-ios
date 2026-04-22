@@ -144,6 +144,26 @@ class DocauditTestCase(unittest.TestCase):
         code, out, _ = self._run(["--policy", str(policy), "archived-refs"])
         self.assertEqual(code, 0, out)
 
+    def test_archived_refs_NOT_matching_basename_only(self) -> None:
+        """Phase C PR-α2 修 Issue #710 High 3：basename 匹配已移除，完整路径才命中。
+        归档后新路径（docs/archive/research/<name>.md）不应因为共享 basename 而被误判。
+        """
+        (self.repo / "docs" / "research" / "study.md").write_text("archived\n", encoding="utf-8")
+        # 同 basename 的新归档路径
+        (self.repo / "docs" / "archive").mkdir(exist_ok=True)
+        (self.repo / "docs" / "archive" / "research").mkdir()
+        (self.repo / "docs" / "archive" / "research" / "study.md").write_text("# archived\n", encoding="utf-8")
+        # 叙述引用新路径
+        (self.repo / "docs" / "narrative.md").write_text(
+            "see docs/archive/research/study.md for the archived study\n",
+            encoding="utf-8",
+        )
+        policy = _write_policy(self.tmp)  # archived_sources = ["docs/research/study.md"]
+        code, out, _ = self._run(["--policy", str(policy), "archived-refs"])
+        # 关键：docs/narrative.md 引用新路径（完整路径不同）应不命中
+        # 只有 docs/research/study.md 自身路径被引用时才命中
+        self.assertEqual(code, 0, out)
+
     def test_archived_refs_hit(self) -> None:
         (self.repo / "docs" / "research" / "study.md").write_text("archived\n", encoding="utf-8")
         (self.repo / "docs" / "active.md").write_text(

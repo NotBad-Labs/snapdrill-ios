@@ -9,14 +9,14 @@ freshness:
 
 ## Goal
 
-把 SnapDrill 现有的 80% harness 基础设施（F-008 三方对抗 / skills / hooks / rules）按 Anthropic 2026-03-24 *Harness design for long-running apps* 蓝本补齐 5 个断点：编码前契约、量化 rubric、反模式启发式、权限 SSOT、session metrics。源自 `docs/research/harness-engineering-study-20260418.md` + plan `~/.claude/plans/resilient-floating-quasar.md`（7 PR 分 3 阶段，本轮 Stage A+B 共 5 PR，另 2 补漏 PR）。
+把 SnapDrill 现有的 80% harness 基础设施（F-008 三方对抗 / skills / hooks / rules）按 Anthropic 2026-03-24 *Harness design for long-running apps* 蓝本补齐 5 个断点：编码前契约、量化 rubric、反模式启发式、权限 SSOT、session metrics。源自 `docs/archive/research/harness-engineering-study-20260418.md` + plan `~/.claude/plans/resilient-floating-quasar.md`（7 PR 分 3 阶段，本轮 Stage A+B 共 5 PR，另 2 补漏 PR）。
 
 ## Done（7 PR 全合并）
 
 | PR | 主题 | 关键改动 | 受影响 layer |
 |---|---|---|---|
 | **#673** | 补齐 Phase 4 历史 checkpoint | `docs/memory/checkpoints/` 新建目录 + P2/P3/tech-debt 3 个 checkpoint + `memory/README` 条目 + `STATUS.md` 日期 | snapshot |
-| **#674** | Harness Engineering 三方研究归档 | `docs/research/harness-engineering-study-20260418.md`（3000+ 字，三方共识 + URL 表 + P1~P3 可行动条目） | archive |
+| **#674** | Harness Engineering 三方研究归档 | `docs/archive/research/harness-engineering-study-20260418.md`（3000+ 字，三方共识 + URL 表 + P1~P3 可行动条目） | archive |
 | **#675** | Sprint Contract + F-018 | `.github/ISSUE_TEMPLATE/feature_request.md` + `chore.md` 加 Sprint Contract 段；`workflow.md` 加《编码前契约》；`feedback.md` F-018 | pattern + snapshot |
 | **#676** | 反模式启发式 + F-019 | `Scripts/anti-pattern-scan.sh` + `.claude/hooks/post-merge-checkpoint.sh` 扩展；`feedback.md` F-019 | pattern + snapshot |
 | **#677** | Permission Model SSOT | `docs/principles/permission-model.md`（126 行 5 节）+ `.claude/rules/permission-model.md` + `CLAUDE.md` + `KNOWLEDGE_MAP` + `principles/README` 同步 | pattern |
@@ -35,7 +35,7 @@ freshness:
 
 ## Decisions
 
-- **中文译名**：沿用「驾驭工程」（已成既定事实），项目内文档保留英文 `Harness Engineering / Harness`（三方共识，见 `docs/research/harness-engineering-study-20260418.md` §9）
+- **中文译名**：沿用「驾驭工程」（已成既定事实），项目内文档保留英文 `Harness Engineering / Harness`（三方共识，见 `docs/archive/research/harness-engineering-study-20260418.md` §9）
 - **术语策略**：只落机制**不引术语**进 `docs/principles/`（避免术语通胀，用户决策）
 - **Sprint Contract 位置**：Issue 模板内嵌字段（最轻量，与现有 workflow 无缝衔接），不独立 `docs/sprints/` 文件
 - **评分 vs 裁决分离**：rubric 量化分数决定"是否 retry"（硬阈值），共识/冲突采纳仍走 2/3 原则；避免 "高分即合并" 的绕过风险

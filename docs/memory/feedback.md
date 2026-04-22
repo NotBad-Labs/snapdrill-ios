@@ -242,7 +242,7 @@ CI 失败必须立即阻塞后续工作。不能在未确认 CI 通过的情况�
 
 ## F-018: 编码前契约（Sprint Contract）
 <!-- added: 2026-04-18 | owner: human | type: permanent -->
-<!-- trigger: 长任务研究（docs/research/harness-engineering-study-20260418.md）发现开工时 Claude 自己也不清楚要碰什么，是 PR scope 偏离与 over-generation 的主要源头 -->
+<!-- trigger: 长任务研究（docs/archive/research/harness-engineering-study-20260418.md）发现开工时 Claude 自己也不清楚要碰什么，是 PR scope 偏离与 over-generation 的主要源头 -->
 
 feature / chore 类 Issue 且 Appetite >= Small 时，Claude 在动第一行代码前必须在 Issue 回复一条 Sprint Contract comment（字段见 `.github/ISSUE_TEMPLATE/feature_request.md` Sprint Contract 段）。编码过程中 contract 变更须先改 comment 再改代码。
 
@@ -259,7 +259,7 @@ feature / chore 类 Issue 且 Appetite >= Small 时，Claude 在动第一行代�
 
 ## F-019: 反模式启发式回流（人工确认升级）
 <!-- added: 2026-04-18 | owner: human | type: permanent -->
-<!-- trigger: Harness Engineering 研究（docs/research/harness-engineering-study-20260418.md）建议 Hashimoto 式"错误即永久修复"要闭环，但不能让启发式自动改纪律 -->
+<!-- trigger: Harness Engineering 研究（docs/archive/research/harness-engineering-study-20260418.md）建议 Hashimoto 式"错误即永久修复"要闭环，但不能让启发式自动改纪律 -->
 
 `post-merge-checkpoint.sh` 通过 `Scripts/anti-pattern-scan.sh` 对刚合并 PR 做反模式启发式扫描（scope 膨胀 / over-generation / test evasion 等），命中时 stderr 警报。**启发式命中不是规则变更的自动触发器。**
 

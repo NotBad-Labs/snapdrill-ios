@@ -21,7 +21,7 @@ user-invocable: true
 
 ## 加载顺序（严格按序，少即是多）
 
-按 Hermes "less context, more retrieval" 思想（参考 `docs/research/hermes-agent-study-20260418.md`）。
+按 Hermes "less context, more retrieval" 思想（参考 `docs/archive/research/hermes-agent-study-20260418.md`）。
 
 ### Tier 1：必读（5 文件，约 800 行）
 1. `CLAUDE.md` —— 项目入口（已自动加载）

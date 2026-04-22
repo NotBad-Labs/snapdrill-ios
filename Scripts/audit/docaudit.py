@@ -395,10 +395,10 @@ def check_archived_refs(policy: dict) -> CheckResult:
     archived = conf.get("archived_sources", [])
     result = CheckResult(check="archived-refs", level=level)
 
-    patterns = []
-    for src in archived:
-        patterns.append((src, re.escape(src)))
-        patterns.append((src, re.escape(Path(src).name)))
+    # 只匹配完整路径，不匹配 basename — Phase C PR-α2 修复（Issue #710 High 3）
+    # 原 basename 匹配会把"新归档路径 docs/archive/research/<name>.md"也误判命中，
+    # 阻碍迁移完成。完整路径匹配保持对旧路径（archived_sources 声明）的精准检测。
+    patterns = [(src, re.escape(src)) for src in archived]
 
     for path in _iter_text_files(policy, extensions=(".md", ".sh", ".py", ".yaml", ".yml")):
         rel = path.relative_to(REPO_ROOT)

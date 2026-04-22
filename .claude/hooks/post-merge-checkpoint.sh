@@ -3,7 +3,7 @@
 # 不阻塞合并（exit 0），仅 stderr 输出提醒
 #
 # 触发条件：近 7 天合并 PR 数 ≥ 3，建议运行 /phase-closeout skill
-# 来源：Hermes 借鉴 docs/research/hermes-agent-study-20260418.md
+# 来源：Hermes 借鉴 docs/archive/research/hermes-agent-study-20260418.md
 
 set -eo pipefail
 

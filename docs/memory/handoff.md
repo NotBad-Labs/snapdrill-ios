@@ -92,7 +92,7 @@ Codex plugin 1.0.3 → 1.0.4（Skill recursion 卡死修复）、Gemini CLI 0.38
 ## 重要产出（新会话必读）
 
 ### 本轮新增（2026-04-18→19）
-- `docs/research/harness-engineering-study-20260418.md` — Harness Engineering 三方研究归档（Anthropic + Hashimoto + Böckeler + Willison 命名时间线 + 中文译法 + SnapDrill 映射）
+- `docs/archive/research/harness-engineering-study-20260418.md` — Harness Engineering 三方研究归档（Anthropic + Hashimoto + Böckeler + Willison 命名时间线 + 中文译法 + SnapDrill 映射）
 - `docs/memory/checkpoints/2026-04-19-harness-stage-a-b.md` — 本轮 7 PR checkpoint（Goal/Done/Decisions/Risks/Next/Metrics）
 - `~/.claude/plans/resilient-floating-quasar.md` — Harness 3 阶段 7 PR 落地计划
 - `~/.claude/plans/harness-prs-cross-audit-20260418.md` — 本轮 5 PR 三方 cross-audit 汇总（含冲突裁决 + 方法论反思）
@@ -115,7 +115,7 @@ Codex plugin 1.0.3 → 1.0.4（Skill recursion 卡死修复）、Gemini CLI 0.38
 ### 2026-04-18→19 Harness Engineering Stage A+B（7 PR 全合并）
 
 **研究 + 计划**：
-- Anthropic 2026-03-24 《Harness design for long-running apps》 触发 → 三方独立研究（Claude 27KB + Codex 24KB + Gemini 12KB）→ 综合报告归档 `docs/research/harness-engineering-study-20260418.md`
+- Anthropic 2026-03-24 《Harness design for long-running apps》 触发 → 三方独立研究（Claude 27KB + Codex 24KB + Gemini 12KB）→ 综合报告归档 `docs/archive/research/harness-engineering-study-20260418.md`
 - 用户进 plan mode 深度研究 SnapDrill 落地 → 7 PR 3 阶段计划 `~/.claude/plans/resilient-floating-quasar.md`
 - 用户 3 个决策：Issue 模板内嵌 Sprint Contract / 中成本 snapshot diff / 不引术语
 
