@@ -22,8 +22,9 @@ layer: pattern
 ---
 
 ## F-002: 产品文档优先于一切
-<!-- added: 2026-04-01 | owner: human | type: permanent -->
+<!-- added: 2026-04-01 | owner: human | type: permanent | meta-principle: true -->
 <!-- trigger: 工具服务于目的的核心原则确立 -->
+<!-- note: 2026-04-22 Phase C PR-δ 判定 — docaudit rule-usage 标 0 external ref，但本规则是隐性最高原则（非 timeboxed），不退役。预期长期 0 显式引用 -->
 
 产品文档是项目的源头，优先级高于根级文档、技术文档、规则文件。
 
@@ -33,15 +34,12 @@ layer: pattern
 
 ---
 
-## F-003: 依赖图区分主链 vs 交叉引用
-<!-- added: 2026-04-03 | owner: human | type: timeboxed | review_after: 2026-07-03 -->
-<!-- trigger: 混淆主链和交叉引用导致依赖层级失真 -->
-<!-- sunset: 文档体系稳定后（无新增根文档 6 个月）可降级为参考 -->
+## F-003: [retired 2026-04-22] 依赖图区分主链 vs 交叉引用
+<!-- retired: 2026-04-22 | merged-into: docs/DOC_DEPENDENCY_MAP.md | Phase C PR-δ -->
 
-1. **主链 vs 交叉引用**：依赖图中不能把所有引用当同等权重。主链依赖（vision→design→requirements）是内容生成方向，交叉引用（cases 引用 workflow 的 S0-S3）是辅助参考。
-2. **文档→代码锚点**：文档审计不能只验证「文档间自洽」，必须验证「文档声明是否有代码兑现」。
+**此规则已落地到 `docs/DOC_DEPENDENCY_MAP.md`。** 依赖图本身已区分主链与交叉引用，并明确"文档→代码锚点"原则。
 
-**Why:** 混淆主链和交叉引用会导致依赖层级失真；纯文档间审计容易产生"文档自洽但脱离代码"的幻觉。
+编号保留为墓碑，避免破坏历史 checkpoints 的外部引用。新文档统一引用 `docs/DOC_DEPENDENCY_MAP.md`。
 
 **How to apply:** 画依赖图时先识别内容生成的单向主链，再标注横向交叉引用。技术文档审计时对每个事实性声明 grep 代码验证。
 
@@ -146,29 +144,21 @@ F-015（2026-04-15 "CI 失败是致命信号"）已于 2026-04-22 Phase C PR-β 
 
 ---
 
-## F-009: Xcode Review 必须先读模板
-<!-- added: 2026-04-07 | owner: human | type: timeboxed | review_after: 2026-07-07 -->
-<!-- trigger: 连续两次凭记忆写错提示词 -->
-<!-- sunset: Claude 稳定遵循 3 个月无违反后可降级为参考 -->
+## F-009: [retired 2026-04-22] Xcode Review 必须先读模板
+<!-- retired: 2026-04-22 | merged-into: docs/principles/review-prompt-guide.md | Phase C PR-δ -->
 
-写 Xcode Review 提示词前必须先读取 skill 模板文件，严格按模板结构输出。
+**此规则已落地到 `docs/principles/review-prompt-guide.md`。** 模板结构（开头一句话 + 变更概要 + 审查重点 + 固定收尾）已固化为 skill 指南。
 
-**Why:** 连续两次写错提示词 — 模板文件一直存在但未被读取，导致每次凭记忆拼凑，每次都有不同的错误。
-
-**How to apply:** PR 创建后第一步读模板，不凭记忆写。提示词必须包含：开头一句话 + 变更概要 + 审查重点 + 固定收尾（项目约束 + 输出格式 + 水印要求）。
+编号保留为墓碑。新文档统一引用 review-prompt-guide。
 
 ---
 
-## F-010: 审计按依赖关系拆分阶段
-<!-- added: 2026-04-08 | owner: human | type: timeboxed | review_after: 2026-07-08 -->
-<!-- trigger: 全量审计丢失上下文焦点 -->
-<!-- sunset: 文档体系稳定后（审计频率降低）可降级为参考 -->
+## F-010: [retired 2026-04-22] 审计按依赖关系拆分阶段
+<!-- retired: 2026-04-22 | merged-into: docs/workflow.md 长任务 Phase Compaction 段 | Phase C PR-δ -->
 
-大型审计按依赖关系拆分阶段，步步为营，不全量一把梭。
+**此规则已落地到 `docs/workflow.md` 的《长任务 Phase Compaction》段。** 拆分拓扑序、先审根后审下游、阶段闭环的纪律已作为 Phase Compaction 一部分。
 
-**Why:** 帅哥原话——"就好像写代码遵守高内聚低耦合一样，文档之间也存在类似的联系"。全量审计会丢失上下文焦点。
-
-**How to apply:** 分析文档依赖图 → 按拓扑序拆分阶段 → 先审根文档再审下游 → 每阶段修复后再进入下一阶段。
+编号保留为墓碑。新文档统一引用 workflow.md。
 
 ---
 

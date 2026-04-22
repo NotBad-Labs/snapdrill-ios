@@ -198,8 +198,13 @@ Enrollment ID 83VZW7VJKK **已通过 Apple 审核**，$99 年费用户主动延�
   - `phase-closeout` 模板加 Metrics 段 + session 时长计算命令
 - **此前已有**：cross-audit / cross-audit-consensus / phase-closeout / resume-from-handoff / update-status / pr-review-workflow / developer / qa-engineer / devops / security-engineer
 
-### Feedback 纪律（19 活跃 + 1 退役 = F-001~F-020）
+### Feedback 纪律（16 活跃 + 4 退役 = F-001~F-020）
 - **Stage A+B 新增**：F-018 编码前契约 / F-019 反模式启发式回流 / F-020 Auto mode 不豁免 F-005（PR #682；Phase C PR-α1 已合并入 F-005 Auto mode 强化段，F-020 编号墓碑保留）
+- **Phase C 清理（2026-04-22）**：
+  - PR-α1: F-020 → F-005《Auto mode 强化》段
+  - PR-β: F-015 → F-007《CI 双时点门禁》
+  - PR-δ: F-003 → `docs/DOC_DEPENDENCY_MAP.md` / F-009 → `docs/principles/review-prompt-guide.md` / F-010 → `docs/workflow.md` 《长任务 Phase Compaction》
+  - F-002 保留（隐性最高原则，非 timeboxed 不退役，docaudit rule-usage 仍会标 dead candidate — 预期）
 
 ### Issue 模板
 - **Stage A+B 扩展**：`feature_request.md` + `chore.md` 加 Sprint Contract 段；`bug_report.md` 不加（scope 天然小）
