@@ -13,31 +13,43 @@ freshness:
 - 主分支：`develop`
 - 仓库分支：本地 + 远程 develop/main 纯净（所有 feature 分支本轮随 PR 合并自动删除）
 
-## 🎉 自主迭代系统 Phase A→B→C→D 全链路已完成（2026-04-22）
+## 🎉 自主迭代系统 Phase A→B→C→D→E 全链路已完成（2026-04-22）
 
-**13 PR 全合并**（一天内 8 PR Phase B/C + 5 PR Phase D）：
+**18 PR 全合并**（一天内 8 PR Phase B/C + 5 PR Phase D + 5 PR Phase E + 2 hotfix + sync 若干）：
 
 - Phase B 基础设施：snapdrill-ios #709 / #712 / #713
 - Phase C 基线清洁：snapdrill-ios #715 / #717 / #719 / #721 / #722
-- **Phase D 独立仓抽出 + 消费试点**：
-  - agent-harness #1 骨架 + any-agent 定位 + 4 层契约
-  - agent-harness #2 docaudit 引擎参数化迁入（34 tests）
-  - agent-harness #3 CLI init/doctor/sync --check（21 tests）
-  - agent-harness #4 adapter-claude 8 hooks + 7 skills + settings + policy.starter
-  - snapdrill-ios #724 消费试点接入（`.agent-harness/` 契约 + D-003 决策）
+- **Phase D 独立仓抽出 + 消费试点**：agent-harness #1/#2/#3/#4 + snapdrill-ios #724
+- **Phase E 反哺机制 + 公开**：
+  - agent-harness #5 prepare-for-public（README 增强 + SECURITY + ISSUE 模板）+ `gh repo edit --visibility public`
+  - agent-harness #6 PR-E1 反哺详细 rubric（400 行）+ PR 模板
+  - agent-harness #7 PR-E2 extract-candidate + propose-upstream CLI（31 tests）
+  - agent-harness #8 PR-E3 harness-introspection skill
+  - agent-harness #9 hotfix（extract-candidate path-matching bug，首次吃狗粮暴露）
+  - snapdrill-ios #726 PR-E4 首次反哺实战 dry-run 记录 + sample proposal draft
 
-**新仓库**：[NotBad-Labs/agent-harness](https://github.com/NotBad-Labs/agent-harness)（private / MIT / main）
+**新公开仓库**：[NotBad-Labs/agent-harness](https://github.com/NotBad-Labs/agent-harness)（**public** / MIT / main，Phase E 期间从 private 切 public，定位 "any-agent harness"）
 
 **接手时优先读**（按序）：
-1. `docs/memory/checkpoints/2026-04-22-phase-d-closeout.md` ← 最新，Phase D 收官
-2. `docs/memory/checkpoints/2026-04-22-phase-c-closeout.md` ← Phase A/B/C 收官
-3. `docs/memory/decisions.md` D-003 ← 抽仓战略决策
-4. `.agent-harness/README.md` ← snapdrill-ios 作为 consumer 的契约
+1. `docs/memory/checkpoints/2026-04-22-phase-e-closeout.md` ← **最新，Phase E 反哺机制 + 公开**
+2. `docs/memory/checkpoints/2026-04-22-phase-d-closeout.md` ← Phase D 独立仓
+3. `docs/memory/checkpoints/2026-04-22-phase-c-closeout.md` ← Phase A/B/C 收官
+4. `docs/memory/decisions.md` D-003 ← 抽仓战略决策
+5. `.agent-harness/README.md` ← snapdrill-ios 作为 consumer 的契约
+6. `docs/archive/phase-e-pr-e4-reflow-20260422.md` ← PR-E4 首次反哺实战记录
 
-**Phase E 反哺机制**（候选，未启动）：
-- agent-harness：`extract-candidate` CLI + `harness-introspection` skill + CONTRIBUTING 展开
-- snapdrill-ios：**首次反哺实战**（选一个低风险候选走 `extract-candidate → propose-upstream → agent-harness PR`）
-- Phase E scope 具体决策由用户在 Phase D 收官稳定一段时间后重新评估
+**后续候选（user 拍板时机）**：
+
+- **Phase F（反哺成熟化 + 第二 consumer）候选**：
+  - 第二 consumer（玩具级）接入实证（消除"假通用陷阱"风险）
+  - agent-harness semver / CHANGELOG / release 流程
+  - `sync --apply` 真实现（Phase E 显式 reserved）
+  - apple-\* heuristic follow-up（PR-E4 Finding #2）修复
+- **snapdrill-ios 回归产品工作**：
+  - #626 QuestionSplittingService 真机验证
+  - Apple 账号 $99 缴费开闸（用户控制）
+  - Phase 2 剩余 PR #6/#7/#8（typed throws / staged migration / ModelExecutor）
+- **推荐稳定期**：Phase D→E 一天跑完两个 phase 共 10 PR，建议观察 agent-harness public 后外部反馈 + snapdrill-ios 回到产品节奏，等 Phase F 有明确触发再启动
 
 ## 待合并 PR
 
