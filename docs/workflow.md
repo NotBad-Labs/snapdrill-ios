@@ -234,7 +234,7 @@ xcodebuild test-without-building \
 
 ## 长任务 Phase Compaction
 
-> 借鉴 Hermes agent 研究（2026-04-18，`docs/research/hermes-agent-study-20260418.md`）。
+> 借鉴 Hermes agent 研究（2026-04-18，`docs/archive/research/hermes-agent-study-20260418.md`）。
 
 跨多 PR、多天、多 reviewer 的长任务（如本仓 Phase 4 收官 19 PR）容易产生：
 - 旧工具输出/讨论噪声稀释相关性

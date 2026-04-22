@@ -35,8 +35,11 @@ checks:
 
   archived-refs:
     level: error
-    description: 活跃文档对 docs/research/* (status:archived) 的硬引用
+    description: 对已归档研究的**旧路径** `docs/research/*` 硬引用（应改用 `docs/archive/research/` 新路径）
     archived_sources:
+      # 旧路径（deprecated）— 物理文件已迁到 docs/archive/research/ （Phase C PR-α2）。
+      # 保留旧路径作为禁用字符串检测：任何文件出现 `docs/research/<name>.md` 即 error。
+      # 新路径 `docs/archive/research/<name>.md` 是合法叙述引用，不命中（字符串不同）。
       - docs/research/harness-engineering-study-20260418.md
       - docs/research/hermes-agent-study-20260418.md
 
@@ -79,23 +82,8 @@ checks:
 #
 # Phase C 每个清理 PR 应从本列表删除对应条目，直到全空。
 legacy_whitelist:
-  # Phase A 审计发现的 archived-refs 命中（18 处）
-  # Phase C PR-α2 处理后从此列表移除
-  - check: archived-refs
-    reason: "Phase A 基线：docs/research 归档前硬引用，Phase C PR-α2 分批修复"
-    expires_on: "2026-05-31"
-    paths:
-      - .claude/hooks/long-session-guard.sh
-      - .claude/hooks/post-merge-checkpoint.sh
-      - .claude/skills/cross-audit-consensus/SKILL.md
-      - .claude/skills/resume-from-handoff/SKILL.md
-      - Scripts/recall-index.sh
-      - docs/memory/checkpoints/**
-      - docs/memory/feedback.md
-      - docs/memory/handoff.md
-      - docs/principles/collaboration.md
-      - docs/principles/memory-routing.md
-      - docs/workflow.md
+  # Phase A 审计 archived-refs 命中已由 Phase C PR-α2 全部修复（docs/research → docs/archive/research）
+  # 故此处不再需要 archived-refs 豁免
 
   # Phase A 审计发现的 home-path-refs 命中
   # Phase C 分批归档到 docs/ 或标为 Claude-private

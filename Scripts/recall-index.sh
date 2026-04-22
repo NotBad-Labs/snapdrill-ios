@@ -1,5 +1,5 @@
 #!/bin/bash
-# 知识/记忆快速召回（Hermes 借鉴，docs/research/hermes-agent-study-20260418.md）
+# 知识/记忆快速召回（Hermes 借鉴，docs/archive/research/hermes-agent-study-20260418.md）
 #
 # 用法：
 #   bash Scripts/recall-index.sh <关键词>

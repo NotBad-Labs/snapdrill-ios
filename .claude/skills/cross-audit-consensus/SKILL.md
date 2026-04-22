@@ -96,7 +96,7 @@ user-invocable: true
 - Retry 判定（< 7.0 建议 / < 5.0 硬性 / 方差 > 2.5 冲突）按**主锚点 Codex 分数**触发
 - 次锚点和参考分不单独触发 retry，但会计入冲突表协助诊断根因
 
-**来源**：Anthropic Harness Design 2026-03-24 的 rubric 范式（Design Quality / Originality / Craft / Functionality），本项目根据 iOS 代码审查特点替换为 Scope Fidelity / Code Quality / Test Coverage / Architecture Fit 四维。详见 `docs/research/harness-engineering-study-20260418.md`。
+**来源**：Anthropic Harness Design 2026-03-24 的 rubric 范式（Design Quality / Originality / Craft / Functionality），本项目根据 iOS 代码审查特点替换为 Scope Fidelity / Code Quality / Test Coverage / Architecture Fit 四维。详见 `docs/archive/research/harness-engineering-study-20260418.md`。
 
 ### 3. 单家独有发现归档
 
@@ -127,12 +127,12 @@ user-invocable: true
 1. **F-008 同源**：汇总前确认三方输入是同一任务，不是分工的子集
 2. **Gemini 验证**：Gemini 涉及具体文件 diff 的输出必须代码验证（feedback_gemini_adversarial.md）
 3. **不缝合方案**：冲突时选一方完整方案，不混合（避免逻辑断裂）
-4. **保留原始**：原始三方输出不删（落到 `~/.claude/plans/` 或 `docs/research/` 归档）
+4. **保留原始**：原始三方输出不删（落到 `~/.claude/plans/` 或 `docs/archive/research/` 归档）
 
 ## 输出位置
 
 - 临时汇总：贴回 chat
-- 决策类汇总：`~/.claude/plans/<topic>-summary.md` 或 `docs/research/<topic>-<date>.md`
+- 决策类汇总：`~/.claude/plans/<topic>-summary.md` 或 `docs/archive/research/<topic>-<date>.md`
 - 影响 ADR 的 → 同步到 `docs/decisions/ADR-NNN.md` "三方研究摘要" 段
 
 ## 反模式
@@ -146,4 +146,4 @@ user-invocable: true
 
 - Phase 4 文档审计：`~/.claude/plans/doc-audit-summary.md`
 - Phase 4 P3 对抗起草：`~/.claude/plans/phase4-p1-adversarial-summary.md`
-- Hermes agent 研究：`docs/research/hermes-agent-study-20260418.md`
+- Hermes agent 研究：`docs/archive/research/hermes-agent-study-20260418.md`

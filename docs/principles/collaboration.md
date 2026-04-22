@@ -113,7 +113,7 @@ Cross-audit 和 PR Review 时，除通用代码质量外，必须额外检查以
 
 **Retry 阈值与具体动作**（建议 retry / 硬性 retry / 可进入待合并 / 冲突列表触发条件）以 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 为 SSOT。即使 §2.5 判定某 PR "可进入待合并状态"，最终合并仍需用户确认（见本文 §Review 流程与 `docs/workflow.md` Code Review 段）。
 
-**背景**：对标 Anthropic Harness Design 2026-03-24 的 Rubric 范式。详见 `docs/research/harness-engineering-study-20260418.md`。
+**背景**：对标 Anthropic Harness Design 2026-03-24 的 Rubric 范式。详见 `docs/archive/research/harness-engineering-study-20260418.md`。
 
 ## Agent 冲突裁决
 
