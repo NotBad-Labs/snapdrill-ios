@@ -274,3 +274,14 @@ xcodebuild test-without-building \
 - Phase 结束手动（`phase-closeout` skill 协助）
 
 **接手时**：新 Claude 会话只读 `STATUS.md` + `docs/memory/handoff.md` + 最近 Checkpoint，**不强吃长 transcript**（`resume-from-handoff` skill）
+
+### 大型审计按依赖关系拆分阶段（原 F-010 规则，2026-04-22 合并至此）
+
+跨多文件的大型审计（如文档体系审计、依赖图审计、架构审计）必须按依赖拓扑拆分阶段，不全量一把梭：
+
+1. **分析依赖图**：用 `docs/DOC_DEPENDENCY_MAP.md` 识别文档上下游关系
+2. **按拓扑序拆分**：根节点（vision / engineering / principles）先于下游（requirements / api-reference / memory）
+3. **先审根后审下游**：每阶段修完根节点的问题后，再进入下游阶段；不跳步
+4. **每阶段闭环**：阶段内所有修复 commit + Review 通过后才进入下一阶段
+
+**Why:** "就好像写代码遵守高内聚低耦合，文档之间也存在类似的联系"。全量审计会丢失上下文焦点，根节点的修复会让下游的发现失效（或反过来）。
