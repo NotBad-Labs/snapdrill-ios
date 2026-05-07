@@ -199,8 +199,7 @@ public final class PreviewRepositoryContainer {
 
     /// 创建内存预览容器
     public init() {
-        // swiftlint:disable:next force_try
-        let executor = try! DataExecutor(inMemory: true)
+        let executor = DataExecutor(inMemory: true)
 
         self.review = ReviewRepository(executor: executor)
         self.subject = SubjectRepository(executor: executor)

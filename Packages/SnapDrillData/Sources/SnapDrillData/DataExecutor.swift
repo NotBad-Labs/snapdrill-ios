@@ -16,11 +16,9 @@ import SnapDrillCore
 /// 拥有 ModelContainer 的 actor。
 ///
 /// ## 并发安全模型
-/// - `container` 用 `nonisolated(unsafe)` 声明：`ModelContainer` 不是 Sendable，
-///   但 init 后只读（`let`），Apple 保证其所有方法的线程安全性。
-/// - `mainContext` 是 Apple 明确文档化的 MainActor-safe 属性，通过 nonisolated 暴露。
-/// - Repository 在 MainActor 上通过 `executor.mainContext` 获取上下文，
-///   不走跨 actor 异步路径，ViewModel 和 Repository API 无需改为 async。
+/// - `container` 用 `nonisolated` 声明：`ModelContainer` 在 Xcode 26.4 中已标注 Sendable，
+///   允许从 actor 外部同步访问。Repository 在 MainActor 上通过 `executor.container.mainContext`
+///   获取上下文，不走跨 actor 异步路径，ViewModel 和 Repository API 无需改为 async。
 ///
 /// ## 死锁消除
 /// - `createOffMainActor()` 工厂方法在 `Task.detached` 中调用 `init`，
