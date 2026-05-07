@@ -35,6 +35,12 @@ public final class ProfileManager {
     /// 当前活跃的 RepositoryContainer
     public private(set) var activeRepositories: RepositoryContainer
 
+    /// 数据层 executor（actor），拥有 ModelContainer
+    public private(set) var executor: DataExecutor
+
+    /// 是否使用内存降级存储（同步自 executor）
+    public private(set) var isUsingInMemoryFallback: Bool = false
+
     /// 当前活跃的 ImageStorage
     public private(set) var activeImageStorage: ImageStorage
 
@@ -89,10 +95,12 @@ public final class ProfileManager {
             let profileId = UUID()
             self.profiles = [Profile(id: profileId, name: "Test")]
             self.activeProfileId = profileId
-            let persistence = PersistenceController(inMemory: true)
-            self.activeContainer = persistence.container
-            self.activeRepositories = RepositoryContainer(modelContext: persistence.container.mainContext)
+            let executor = DataExecutor(inMemory: true)
+            self.executor = executor
+            self.activeContainer = executor.container
+            self.activeRepositories = RepositoryContainer(executor: executor)
             self.activeImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
+            syncFallbackStatus()
             SnapDrillLogger.data.info("ProfileManager: in-memory 模式初始化完成")
             return
         }
@@ -124,10 +132,12 @@ public final class ProfileManager {
             .appendingPathComponent(profileId.uuidString)
 
         let storeURL = profileDir.appendingPathComponent("default.store")
-        let persistence = PersistenceController(storeURL: storeURL)
-        self.activeContainer = persistence.container
-        self.activeRepositories = RepositoryContainer(modelContext: persistence.container.mainContext)
+        let executor = DataExecutor(storeURL: storeURL)
+        self.executor = executor
+        self.activeContainer = executor.container
+        self.activeRepositories = RepositoryContainer(executor: executor)
         self.activeImageStorage = ImageStorage(baseDirectory: profileDir)
+        syncFallbackStatus()
 
         // 5. 加载 per-profile 偏好到 UserDefaults
         loadPreferences(for: profileId)
@@ -164,11 +174,13 @@ public final class ProfileManager {
         // 2. 切换活跃 Profile
         let profileDir = profilesDirectoryURL.appendingPathComponent(profileId.uuidString)
         let storeURL = profileDir.appendingPathComponent("default.store")
-        let persistence = PersistenceController(storeURL: storeURL)
+        let executor = DataExecutor(storeURL: storeURL)
 
-        activeContainer = persistence.container
-        activeRepositories = RepositoryContainer(modelContext: persistence.container.mainContext)
+        self.executor = executor
+        activeContainer = executor.container
+        activeRepositories = RepositoryContainer(executor: executor)
         activeImageStorage = ImageStorage(baseDirectory: profileDir)
+        syncFallbackStatus()
 
         // 3. 加载新 Profile 的偏好
         loadPreferences(for: profileId)
@@ -314,6 +326,16 @@ public final class ProfileManager {
         let defaults = UserDefaults.standard
         for (key, value) in dict {
             defaults.set(value, forKey: key)
+        }
+    }
+
+    /// 异步同步 executor 的降级状态到本地属性（供 SwiftUI 读取）
+    private func syncFallbackStatus() {
+        Task {
+            let fallback = await executor.isUsingInMemoryFallback
+            await MainActor.run {
+                self.isUsingInMemoryFallback = fallback
+            }
         }
     }
 
