@@ -67,13 +67,15 @@ struct MigrationTests {
         #expect(try ctx.fetchCount(FetchDescriptor<ReviewItemModel>()) == 1)
     }
 
-    // MARK: - PersistenceController 降级
+    // MARK: - DataExecutor 降级
 
-    @Test("PersistenceController 在极端损坏情况下能保护 App 运行")
-    func persistenceFallbackLogic() {
-        let controller = PersistenceController(inMemory: true)
+    @Test("DataExecutor 在极端损坏情况下能保护 App 运行")
+    func dataExecutorFallbackLogic() async {
+        let executor = DataExecutor(inMemory: true)
+        let error = await executor.initializationError
+        let fallback = await executor.isUsingInMemoryFallback
         // container 是非可选类型，初始化失败会走 fallback 路径而非返回 nil
-        #expect(controller.initializationError == nil || controller.isUsingInMemoryFallback)
+        #expect(error == nil || fallback)
     }
 
     // MARK: - 默认值验证

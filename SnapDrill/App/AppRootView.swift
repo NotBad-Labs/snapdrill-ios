@@ -26,7 +26,8 @@ struct AppRootView: View {
     // MARK: - Properties
     
     @Bindable var router: AppRouter
-    
+    @Environment(\.profileManager) private var profileManager
+
     var body: some View {
         ZStack(alignment: .top) {
             // Tab struct（iOS 18+）：自动获得 Liquid Glass 效果
@@ -71,7 +72,7 @@ struct AppRootView: View {
             }
             
             // 降级模式警告横幅
-            if PersistenceController.shared.isUsingInMemoryFallback {
+            if profileManager.isUsingInMemoryFallback {
                 degradedModeWarningBanner
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
