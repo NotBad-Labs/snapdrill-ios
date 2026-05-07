@@ -7,9 +7,10 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-07（**Phase 2 收官**：#4/#5/#6/#8a/#8b 完成 + DataExecutor actor 根除 #599 死锁）
-> 编译状态：✅ 0 errors · 0 lint violations · 测试全绿 · docaudit 1 orphan + 53 home-path-refs（已知基线）
-> Open PR：0 · Open Issue：6（Apple 阻塞）+ #626 真机待验 + #699 epic（#7 推迟 / 其余完成）+ #710 docaudit 加固 follow-up
+> 最后更新：2026-05-08（**Phase 2 全链路收官**：#4/#5/#6/#7/#8a/#8b + ProfileManager 迁移 + #710 docaudit 加固 + #599 根除）
+> 编译状态：✅ 0 errors · 0 lint violations · 测试全绿 · docaudit clean
+> Open PR：0 · Open Issue：6（Apple 阻塞）+ #626 真机待验（外部阻塞：需 iOS 26 真机）
+> Phase 2 全部完成 · #599 死锁已根除 · PersistenceController → DataExecutor 生产代码已迁移
 > F 规则：**15 活跃 + 5 退役** = F-001~F-020（退役 F-003/F-009/F-010/F-015/F-020）· D-003 抽仓决策入 `docs/memory/decisions.md`
 >
 > **公开仓库**：[NotBad-Labs/agent-harness](https://github.com/NotBad-Labs/agent-harness)（**public**, MIT, main）— snapdrill-ios 通过 `.agent-harness/` 契约声明 consumer 身份
@@ -174,15 +175,15 @@ freshness:
 | — | **2026-04-17 中期审计**：目标/约束/验收三维，发现 8 项脱轨点 + Scope 精化 |
 | — | **2026-04-17 文档体系三方独立审计**：56 文件五维度审计，三方独立报告（Claude + Codex exec + Gemini）→ 综合报告 `~/.claude/plans/doc-audit-summary.md` |
 
-### 当前开发焦点（2026-05-07 晚）
+### 当前开发焦点（2026-05-08）
 
-| 优先级 | 工作项 | 说明 |
+**Phase 2 全部完成**。软件内部无阻塞问题。
+
+| 外部阻塞项 | 说明 | 状态 |
 |---|---|---|
-| ✅ | **PR #8a: Data 层并发回归网** (9 tests) | PR #730 已合并 |
-| ✅ | **PR #8b: DataExecutor actor** (根除 #599) | PR #731 已合并 |
-| S3 | PR #7: staged migration V2 | 推迟 |
-| S3 | #710 docaudit 正则鲁棒性加固 | Gemini Review follow-up |
-| S3 | Phase 2 收尾：ProfileManager 迁移到 DataExecutor | 生产代码消费 DataExecutor
+| Apple 开发者账号 (#163 链) | $99 年费待缴 | 用户控制 |
+| #626 QuestionSplittingService | 需 iOS 26 真机 + Apple Intelligence | 待真机验证 |
+| TestFlight Build 6 (#161) | 需 Apple 账号 | 用户控制 |
 
 ### Apple 账号阻塞链（用户主动延迟至 5 月缴费）
 
