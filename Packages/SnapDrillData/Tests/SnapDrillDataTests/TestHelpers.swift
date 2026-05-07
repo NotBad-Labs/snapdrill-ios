@@ -109,7 +109,7 @@ extension GradeModel {
 /// PersistenceController 在 defaultIsolation(MainActor) 下的同步 init
 /// 会与 ModelContainer 内部 XPC 回调死锁（#599）。
 enum TestModelContainer {
-    static let schema = Schema([
+    nonisolated static let schema = Schema([
         ReviewItemModel.self,
         TagModel.self,
         SubjectModel.self,
@@ -117,7 +117,7 @@ enum TestModelContainer {
         GradeModel.self
     ])
 
-    static func create() throws -> ModelContainer {
+    nonisolated static func create() throws -> ModelContainer {
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         return try ModelContainer(for: schema, configurations: [config])
     }
