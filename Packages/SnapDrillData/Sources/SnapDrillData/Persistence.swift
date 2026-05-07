@@ -12,6 +12,9 @@ import Foundation
 import SwiftData
 import SnapDrillCore
 
+/// ⚠️ 已废弃：使用 ``DataExecutor`` 替代。
+/// PersistenceController 的 MainActor 同步 init 在特定时序下会触发 #599 死锁。
+/// Phase 2 将迁移生产代码（ProfileManager, DependencyContainer）到 DataExecutor。
 public final class PersistenceController {
 
     // MARK: - Properties

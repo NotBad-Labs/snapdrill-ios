@@ -8,10 +8,10 @@
 //  Data 层并发安全性回归网 -- PR #8a。
 //  锁死 #599 的 ModelContainer init 并发、Repository 跨 Task 操作正确性、
 //  RepositoryContainer 原子操作的行为基线。
-//  为 PR #8b ModelExecutor 重构提供回归安全网。
+//  为 PR #8b DataExecutor 重构提供回归安全网。
 //
 //  并发约束: defaultIsolation(MainActor) 下 ModelContext 非 Sendable，
-//  真正的并行读写需等待 PR #8b 的 ModelExecutor actor。
+//  真正的并行读写需等待 PR #8b 的 DataExecutor actor。
 //  当前测试验证: (1) 多 ModelContainer 实例可并发创建无死锁
 //  (2) MainActor 串行化下的 interleaving 操作保持数据一致。
 //
@@ -43,6 +43,22 @@ func concurrentContainerCreationNoDeadlock() async {
         }
     }
     #expect(okCount == 10)
+}
+
+@Test("DataExecutor.createOffMainActor 并发创建 10 实例无死锁", .serialized)
+func concurrentDataExecutorCreationNoDeadlock() async {
+    var executors: [DataExecutor] = []
+    await withTaskGroup(of: DataExecutor.self) { group in
+        for _ in 0..<10 {
+            group.addTask {
+                await DataExecutor.createOffMainActor(inMemory: true)
+            }
+        }
+        for await e in group {
+            executors.append(e)
+        }
+    }
+    #expect(executors.count == 10)
 }
 
 @Test("多实例各自隔离，数据不互相泄露", .serialized)
