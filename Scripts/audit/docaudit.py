@@ -81,11 +81,15 @@ CHECK_DESCRIPTIONS = {
     },
 }
 
-# Markdown 内部链接正则 — [text](path.md) 或 [text](path.md#anchor)；排除 http/mailto/锚点/图片
-LINK_RE = re.compile(r"(?<!\!)\[[^\]]*\]\(([^)#]*?\.md)(?:#[^)]*)?\)")
+# Markdown 内部链接正则 — [text](path.md) 或 [text](path.md#anchor) 或 [text](path.md "title")
+# 排除 http/mailto/锚点/图片；支持可选 title 属性（#710 High 1）
+LINK_RE = re.compile(r"(?<!\!)\[[^\]]*\]\(([^)#\s]*?\.md)(?:\s+\"[^\"]*\")?(?:#[^)]*)?\)")
 
 # 任意 md 文件路径引用（orphan 检测）
-PATH_REF_RE = re.compile(r"([A-Za-z_\-./][A-Za-z0-9_\-./]*\.md)")
+# 要求至少包含一个 / 作为路径分隔符，避免匹配散文中的 This-is-sentence.md（#710 High 2）
+# 匹配: docs/foo.md, ./foo/bar.md, ../a/b/c.md, foo/bar_baz-v2.md
+# 不匹配: Just-a-sentence-like-this.md, README.md, file-name.md
+PATH_REF_RE = re.compile(r"((?:\.\.?/|[A-Za-z0-9_][A-Za-z0-9_\-]*/)[A-Za-z0-9_\-./]*\.md)")
 
 # ~/.claude/ 引用
 HOME_CLAUDE_RE = re.compile(r"~/\.claude/[A-Za-z0-9_\-./]*")
