@@ -33,8 +33,38 @@ public enum SnapDrillSchemaV1: VersionedSchema {
 
 /// 迁移计划
 ///
-/// v1.0 发布前无存量用户，仅保留单一 Schema 版本。
-/// 未来需要 Schema 变更时，新增 V2 并添加 MigrationStage。
+/// 当前仅 V1（v1.0 发布基线）。未来 Schema 变更时按以下步骤操作：
+///
+/// ### 添加 Schema V2 的步骤（参考 [Apple 官方文档](https://developer.apple.com/documentation/swiftdata/schemamigrationplan)）
+///
+/// 1. 创建 `SnapDrillSchemaV2`，遵循 `VersionedSchema`，设置 `versionIdentifier = .init(2, 0, 0)`
+/// 2. 在 `models` 中声明新版本的 Model 类型（若有新增/变更属性，用新的 Model 类型名）
+/// 3. 在 `schemas` 中添加 `SnapDrillSchemaV2.self`
+/// 4. 在 `stages` 中添加 MigrationStage（lightweight 或 custom）
+///
+/// ### 示例（取消注释即用）：
+/// ```swift
+/// // V2 schema
+/// public enum SnapDrillSchemaV2: VersionedSchema {
+///     public static let versionIdentifier: Schema.Version = .init(2, 0, 0)
+///     public static var models: [any PersistentModel.Type] {
+///         [ReviewItemModel.self, SubjectModel.self, TagModel.self,
+///          SourceModel.self, GradeModel.self]
+///     }
+/// }
+///
+/// // 在 SnapDrillMigrationPlan 中：
+/// public static var schemas: [any VersionedSchema.Type] {
+///     [SnapDrillSchemaV1.self, SnapDrillSchemaV2.self]
+/// }
+/// public static var stages: [MigrationStage] {
+///     [migrateV1toV2]
+/// }
+/// static let migrateV1toV2 = MigrationStage.lightweight(
+///     fromVersion: SnapDrillSchemaV1.self,
+///     toVersion: SnapDrillSchemaV2.self
+/// )
+/// ```
 public enum SnapDrillMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
         [SnapDrillSchemaV1.self]

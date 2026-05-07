@@ -42,6 +42,31 @@ struct MigrationTests {
         #expect(stages.count == schemas.count - 1)
     }
 
+    // MARK: - MigrationPlan 与 ModelContainer 集成
+
+    @Test("ModelContainer 可通过 MigrationPlan 成功创建")
+    func modelContainerWithMigrationPlan() throws {
+        let container = try ModelContainer(
+            for: Schema(SnapDrillSchemaV1.models),
+            migrationPlan: SnapDrillMigrationPlan.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let ctx = container.mainContext
+        ctx.insert(ReviewItemModel.mock(content: "migration test"))
+        try ctx.save()
+        #expect(try ctx.fetchCount(FetchDescriptor<ReviewItemModel>()) == 1)
+    }
+
+    @Test("DataExecutor 内部使用 MigrationPlan 创建容器")
+    func dataExecutorUsesMigrationPlan() throws {
+        let executor = DataExecutor(inMemory: true)
+        #expect(executor.container != nil)
+        let ctx = executor.container.mainContext
+        ctx.insert(ReviewItemModel.mock(content: "via executor"))
+        try ctx.save()
+        #expect(try ctx.fetchCount(FetchDescriptor<ReviewItemModel>()) == 1)
+    }
+
     // MARK: - PersistenceController 降级
 
     @Test("PersistenceController 在极端损坏情况下能保护 App 运行")
