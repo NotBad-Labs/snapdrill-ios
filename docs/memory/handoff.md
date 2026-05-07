@@ -1,19 +1,20 @@
 ---
-last_verified: 2026-04-22
+last_verified: 2026-05-07
 layer: snapshot
 freshness:
-  max_age_days: 3
+  max_age_days: 7
   decay_trigger: [pr_merge, branch_change]
 ---
 # Handoff
 
 ## 当前接手状态
 
-- 主力智能体：Claude Code（Opus 4.7，1M context）
+- 主力智能体：DeepSeek v4 Pro（Claude Code CLI 框架）
+- 辅审：Codex CLI 0.121.0 / Gemini CLI 0.38.2
 - 主分支：`develop`
-- 仓库分支：本地 + 远程 develop/main 纯净（所有 feature 分支本轮随 PR 合并自动删除）
+- 仓库分支：本地 + 远程 develop/main 纯净
 
-## 🎉 自主迭代系统 Phase A→B→C→D→E 全链路已完成（2026-04-22）
+## ✅ 自主迭代系统 Phase A→B→C→D→E 全链路已完成（2026-04-22）
 
 **18 PR 全合并**（一天内 8 PR Phase B/C + 5 PR Phase D + 5 PR Phase E + 2 hotfix + sync 若干）：
 
@@ -38,6 +39,18 @@ freshness:
 5. `.agent-harness/README.md` ← snapdrill-ios 作为 consumer 的契约
 6. `docs/archive/phase-e-pr-e4-reflow-20260422.md` ← PR-E4 首次反哺实战记录
 
+## 🔜 当前焦点（2026-05-07）
+
+**Phase 2 回归**：PR #6 (typed throws) 已于 4/23 合并，Phase A→E 自主迭代已收官。
+
+| 顺序 | 工作 | 说明 |
+|---|---|---|
+| 1 | **sync PR**（本文档） | handoff.md + STATUS.md 解除 Phase 2 暂停，反映 #6/#728 已合并 |
+| 2 | **PR #8a** | Data 层死锁/仓储集成测试补强，建回归安全网 |
+| 3 | **PR #8b** | ModelExecutor 重构，在安全网中小步替换，根除 #599 残留 hack |
+
+内部阻塞：无。外部：Apple 账号待缴费（#163 链）、#626 真机验证。
+
 **后续候选（user 拍板时机）**：
 
 - **Phase F（反哺成熟化 + 第二 consumer）候选**：
@@ -46,18 +59,17 @@ freshness:
   - `sync --apply` 真实现（Phase E 显式 reserved）
   - apple-\* heuristic follow-up（PR-E4 Finding #2）修复
 - **snapdrill-ios 回归产品工作**：
-  - #626 QuestionSplittingService 真机验证
+  - 🔜 **PR #8a → #8b** ModelExecutor（当前焦点）
+  - 📝 PR #7 staged migration V2（推迟，等 #8 完成）
+  - #626 QuestionSplittingService 真机验证（外部阻塞：需 iOS 26 真机）
   - Apple 账号 $99 缴费开闸（用户控制）
-  - Phase 2 剩余 PR #6/#7/#8（typed throws / staged migration / ModelExecutor）
-- **推荐稳定期**：Phase D→E 一天跑完两个 phase 共 10 PR，建议观察 agent-harness public 后外部反馈 + snapdrill-ios 回到产品节奏，等 Phase F 有明确触发再启动
+- **推荐稳定期**：agent-harness public 后观察外部反馈 + snapdrill-ios 回到产品节奏，等 Phase F 有明确触发再启动
 
 ## 待合并 PR
 
-（本轮 Harness Stage A+B 7 PR #673/#674/#675/#676/#677/#678/#679 已全部合并）
-（PR #665 EditProfileView PhotosPicker UX 已于 2026-04-19 04:02 合并，Closes #637）
-（Sprint W1 #1 PR #700 Swift 6.3 toolchain + W1 #3 PR #701 SnapDrillShare PBXGroup→Sync Group 已合并；W1 SnapDrillShareTests 14 用例 PR #698 合并）
+（无。Phase 2 PR #6 typed throws 已于 2026-04-23 作为 #728 合并。All prior PRs merged.）
 
-## 🚧 当前进行中：自主迭代基线建设（2026-04-21 启动，跨 session）
+## ✅ 自主迭代基线建设（Phase A→E，2026-04-21→22 完成）
 
 ### 背景
 用户提出"知识体系只加不减、熵增"担忧 → Claude 提议投入 Skills + 建自省机制（替代推翻重写）→ 用户确认后 pivot 到自主迭代系统建设。暂停 Issue #699 Phase 2 PR #6/#7/#8（typed throws / staged migration / ModelExecutor）。
@@ -81,15 +93,7 @@ PR-δ (所有退役: FB-04 + 11 个私有 memory + dead rule，含 redirect 建�
 PR-γ (plans 清理 manifest PR + 本地清理任务)
 ```
 
-### Phase B 下次接手步骤
-设计 `Scripts/audit/` 最小 script 集：
-1. `grep-cross-refs.sh` — 给 pattern，全仓扫 docs/hook/skill/script 的引用点
-2. `orphan-files.sh` — 检测未被引用的 md/sh
-3. `last-verified-report.sh` — YAML frontmatter 过期清单
-4. `rule-usage.sh` — F-xxx 规则引用计数
-5. `README.md` — 总入口 + 使用示例
-
-**关键数据快速恢复**（见 audit dir 的 README.md）：
+### Phase B 已落地
 - 三方发现 Critical 3 + High 8 + Medium 13 + Low 9
 - 实际硬引用 **39 处**（Gemini Flash 独立 grep 验证，Codex 11 处低估）
 - Plans：27 个 → 8 删 + 15 归档 + 4 保留
@@ -115,12 +119,14 @@ PR-γ (plans 清理 manifest PR + 本地清理任务)
 **Phase 4 PR #15**（2026-04-21 晚）：
 - ✅ PR #704 CloudKit `cloudKitDatabase: .none` 显式关闭 + 文案对齐（"数据与云同步"→"数据与备份"）。Codex 主锚点发现 `Localizable.strings` 旧值会覆盖 Swift `value:` 参数 Critical → fixup 修。新 memory `feedback_nslocalizedstring_strings_override.md` 固化
 
-**Phase 2 状态重估**（2026-04-21 摸底）：
-- ✅ **PR #4 历史已完成**（事后核实）：SnapDrillCore 11 测试文件 + SnapDrillData 14 测试文件 **已全部 swift-testing（`import Testing` / `@Test` / `#expect`）**，0 XCTestCase 残留。历史 sprint（Codex 3 PR / Harness / tech-debt）分批迁完但无人标账。
-- ⏳ **PR #5**：SnapDrillFeatures 19 测试文件 17 个已 swift-testing / 2 个 snapshot class 仍用 XCTestCase（`FeatureSnapshotTests` + `SnapshotRegressionTests`，pointfreeco/swift-snapshot-testing v1.19+ 原生支持 swift-testing，待实验证可迁性）
-- ⏳ **PR #6** typed throws 业务 API（DataError / BackupError / ProfileError 收敛）
-- ⏳ **PR #7** staged migration V2 模板预建
-- ⏳ **PR #8** ModelExecutor + 根除 Issue #599 残留 hack
+**Phase 2 当前状态**（2026-05-07 更新）：
+- ✅ **PR #4** SnapDrillCore + SnapDrillData 全部 swift-testing（事后核实，历史 sprint 分批迁完）
+- ✅ **PR #5** (#706) Snapshot 测试 swift-testing 迁移（FeatureSnapshotTests + SnapshotRegressionTests）
+- ✅ **PR #6** (#728) ProfileManager.deleteProfile typed throws（DataError / BackupError / ProfileError 收敛）
+- 📝 **PR #7** staged migration V2 模板预建：**推迟**。共识：迁移模板非热路径，等 ModelExecutor 完成后按实际需要排期
+- 🔜 **PR #8** ModelExecutor + 根除 Issue #599 残留 hack：**当前焦点，分两步**
+  - **PR #8a**（先做）：Data 层并发/死锁集成测试补强，建回归安全网
+  - **PR #8b**（后做）：ModelExecutor 重构，在安全网中小步替换
 
 **2026-04-20/21 升级事件**（见 `reference_codex_plugin_v104_upgrade.md`）：
 Codex plugin 1.0.3 → 1.0.4（Skill recursion 卡死修复）、Gemini CLI 0.38.1 → 0.38.2。触发原因：Codex review 在 PR #701 上卡死 2h49m + 0 新进展。已重启生效 v1.0.4 agent 定义。

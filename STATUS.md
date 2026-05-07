@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-22
+last_verified: 2026-05-07
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -7,14 +7,15 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-04-22（**自主迭代系统 Phase A→B→C→D→E 全链路收官 · 18 PR 合并 + agent-harness 公开**：Phase B/C 8 PR + Phase D 5 PR + **Phase E 5 PR** + 2 hotfix）
-> 编译状态：✅ 0 errors · 0 lint violations · CI 全绿 · docaudit 全量基线 clean · agent-harness 独立仓 68 tests 全绿
-> Open PR：0 · Open Issue：6（Apple 阻塞）+ #626 真机待验 + #699 epic（Phase 2 剩 #6/#7/#8 暂停）+ #710 docaudit 加固 follow-up
+> 最后更新：2026-05-07（**Phase 2 回归**：PR #6 typed throws 已合并，PR #7 推迟，PR #8 ModelExecutor 启动）
+> 编译状态：✅ 0 errors · 0 lint violations · 测试全绿 · docaudit 1 orphan + 53 home-path-refs（已知基线）
+> Open PR：0 · Open Issue：6（Apple 阻塞）+ #626 真机待验 + #699 epic（Phase 2 剩 #7 推迟 / #8 推进中）+ #710 docaudit 加固 follow-up
 > F 规则：**15 活跃 + 5 退役** = F-001~F-020（退役 F-003/F-009/F-010/F-015/F-020）· D-003 抽仓决策入 `docs/memory/decisions.md`
 >
-> **新增公开仓库**：[NotBad-Labs/agent-harness](https://github.com/NotBad-Labs/agent-harness)（**public**, MIT, main）— Phase D 建仓 + Phase E 反哺机制 + 一天跑完两个 phase，snapdrill-ios 通过 `.agent-harness/` 契约声明 consumer 身份
-> **下次接手**：读 `docs/memory/checkpoints/2026-04-22-phase-e-closeout.md`（最新，Phase E 反哺机制 + agent-harness 公开）→ `docs/memory/checkpoints/2026-04-22-phase-d-closeout.md`（Phase D 独立仓）→ `docs/memory/handoff.md` 顶部
-> 测试：~360+ tests（SnapDrill 本地）+ 68 tests（agent-harness CI：34 docaudit + 34 CLI）· ViewModel 覆盖 16/16
+> **公开仓库**：[NotBad-Labs/agent-harness](https://github.com/NotBad-Labs/agent-harness)（**public**, MIT, main）— snapdrill-ios 通过 `.agent-harness/` 契约声明 consumer 身份
+> **智能体**：DeepSeek v4 Pro (Claude Code CLI) + Codex 0.121.0 + Gemini 0.38.2
+> **下次接手**：读 `docs/memory/handoff.md` 顶部 → `docs/memory/checkpoints/2026-04-22-phase-e-closeout.md`
+> 测试：~360+ tests（SnapDrill 本地）+ 68 tests（agent-harness CI）· ViewModel 覆盖 16/16
 
 ## 本轮完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
 
@@ -173,17 +174,14 @@ freshness:
 | — | **2026-04-17 中期审计**：目标/约束/验收三维，发现 8 项脱轨点 + Scope 精化 |
 | — | **2026-04-17 文档体系三方独立审计**：56 文件五维度审计，三方独立报告（Claude + Codex exec + Gemini）→ 综合报告 `~/.claude/plans/doc-audit-summary.md` |
 
-### 当前开发焦点（待做）
+### 当前开发焦点（2026-05-07）
 
 | 优先级 | 工作项 | 说明 |
 |---|---|---|
-| P1 | **文档体系三方审计** | 中期审计发现：docs/rules/skills 从未独立 review，疑有重复/抽象缺失/知识未固化。计划按"目标-约束-验收"三维 Gemini+Codex+Xcode 三方审计 |
-| P2 | CSV 导入功能 | Could Have，现有 CSV 导出的逆向操作 |
-| P3 | Share Extension 集成验证 | App Group 已配置，需端到端验证 |
-| P3 | #626 FoundationModels 题目分割 | 整页扫描自动分割题目（需 PoC） |
-| P3 | #540 Claude Code hooks 扩展 | 待排期 |
-| P3 | #637 EditProfileView PhotosPicker UX | 加载失败无反馈 + 同张照片无法重试（合并 Xcode Y-1） |
-| P3 | #638 ProfileListView 测试覆盖 | deleteProfile 错误路径缺自动化保护 |
+| **S1** | **PR #8a: Data 层死锁/仓储集成测试补强** | 在 ModelExecutor 重构前建回归安全网 |
+| **S1** | **PR #8b: ModelExecutor 重构** | 根除 #599 残留 hack，改 Data 层并发模型 |
+| S3 | PR #7: staged migration V2 | 推迟到 #8 完成后按需排期 |
+| S3 | #710 docaudit 正则鲁棒性加固 | Gemini Review follow-up |
 
 ### Apple 账号阻塞链（用户主动延迟至 5 月缴费）
 
