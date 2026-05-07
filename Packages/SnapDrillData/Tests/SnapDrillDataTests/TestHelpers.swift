@@ -108,6 +108,7 @@ extension GradeModel {
 /// 直接创建 in-memory ModelContainer，不经过 PersistenceController。
 /// PersistenceController 在 defaultIsolation(MainActor) 下的同步 init
 /// 会与 ModelContainer 内部 XPC 回调死锁（#599）。
+/// 推荐使用 `DataExecutor(inMemory: true)` 替代（PR #8b）。
 enum TestModelContainer {
     nonisolated static let schema = Schema([
         ReviewItemModel.self,
@@ -117,8 +118,10 @@ enum TestModelContainer {
         GradeModel.self
     ])
 
+    /// 直接创建 ModelContainer（向后兼容，旧测试使用）
     nonisolated static func create() throws -> ModelContainer {
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         return try ModelContainer(for: schema, configurations: [config])
     }
+
 }

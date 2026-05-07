@@ -21,8 +21,14 @@ public final class ReviewRepository {
     
     // MARK: - Initialization
 
-    /// 创建复习数据仓库
-    /// - Parameter modelContext: 当前上下文，应与 `PersistenceController.shared.container.mainContext` 一致
+    /// 创建复习数据仓库（推荐路径）
+    /// - Parameter executor: DataExecutor，从其 mainContext 获取 SwiftData 上下文
+    public init(executor: DataExecutor) {
+        self.modelContext = executor.container.mainContext
+    }
+
+    /// 创建复习数据仓库（向后兼容，Phase 2 移除）
+    /// - Parameter modelContext: 当前上下文
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }

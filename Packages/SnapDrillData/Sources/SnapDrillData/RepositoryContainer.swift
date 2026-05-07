@@ -29,7 +29,17 @@ public final class RepositoryContainer {
 
     // MARK: - Initialization
 
-    /// 创建仓库容器
+    /// 创建仓库容器（推荐路径）
+    /// - Parameter executor: DataExecutor，向所有子仓库传递其 mainContext
+    public init(executor: DataExecutor) {
+        self.review = ReviewRepository(executor: executor)
+        self.subject = SubjectRepository(executor: executor)
+        self.source = SourceRepository(executor: executor)
+        self.tag = TagRepository(executor: executor)
+        self.grade = GradeRepository(executor: executor)
+    }
+
+    /// 创建仓库容器（向后兼容，Phase 2 移除）
     /// - Parameter modelContext: 共享的 ModelContext，默认使用 `PersistenceController.shared.container.mainContext`
     public init(modelContext: ModelContext = PersistenceController.shared.container.mainContext) {
         self.review = ReviewRepository(modelContext: modelContext)
@@ -189,22 +199,12 @@ public final class PreviewRepositoryContainer {
 
     /// 创建内存预览容器
     public init() {
-        let schema = Schema([
-            ReviewItemModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            TagModel.self,
-            GradeModel.self
-        ])
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        // swiftlint:disable:next force_try
-        let container = try! ModelContainer(for: schema, configurations: [config])
-        let context = container.mainContext
+        let executor = DataExecutor(inMemory: true)
 
-        self.review = ReviewRepository(modelContext: context)
-        self.subject = SubjectRepository(modelContext: context)
-        self.source = SourceRepository(modelContext: context)
-        self.tag = TagRepository(modelContext: context)
-        self.grade = GradeRepository(modelContext: context)
+        self.review = ReviewRepository(executor: executor)
+        self.subject = SubjectRepository(executor: executor)
+        self.source = SourceRepository(executor: executor)
+        self.tag = TagRepository(executor: executor)
+        self.grade = GradeRepository(executor: executor)
     }
 }

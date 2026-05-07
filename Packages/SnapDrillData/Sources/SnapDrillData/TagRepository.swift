@@ -17,7 +17,13 @@ public final class TagRepository {
     
     private let modelContext: ModelContext
     
-    /// 创建标签数据仓库
+    /// 创建标签数据仓库（推荐路径）
+    /// - Parameter executor: DataExecutor
+    public init(executor: DataExecutor) {
+        self.modelContext = executor.container.mainContext
+    }
+
+    /// 创建标签数据仓库（向后兼容，Phase 2 移除）
     /// - Parameter modelContext: 当前 ModelContext
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
