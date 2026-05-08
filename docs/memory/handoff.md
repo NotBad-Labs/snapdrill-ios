@@ -9,9 +9,9 @@ freshness:
 
 ## 当前接手状态
 
-- **当前主力**：待切换（用户考虑 Codex CLI 接手）
+- **当前主力**：Codex CLI（2026-05-08 接手）
 - **上一主力**：DeepSeek v4 Pro（Claude Code CLI 框架，2026-05-07→08）
-- **辅审**：Gemini CLI 0.38.2
+- **辅审**：Gemini CLI 0.41.2（优先显式 `gemini-3-pro-preview`）
 - **主分支**：`develop`（clean）
 - **仓库分支**：本地 + 远程 develop/main 纯净
 
@@ -43,6 +43,7 @@ DeepSeek v4 Pro 从 5/7 度假回归起完成 Phase 2 剩余全部工作：
 | #732 | #7: staged migration V2 模板 | 5/08 |
 | #733 | ProfileManager → DataExecutor 迁移 | 5/08 |
 | #734 | #710: docaudit 正则鲁棒性加固 | 5/08 |
+| #736 | Phase 2.N: DataExecutor 收尾审计修复（生产路径切断旧同步容器残留） | 5/08 |
 
 **#599 死锁** 完整闭环：
 workaround (TestModelContainer) → 测试安全网 (#8a) → actor 根因修复 (#8b) → 生产代码迁移 (#733)
@@ -53,6 +54,7 @@ workaround (TestModelContainer) → 测试安全网 (#8a) → actor 根因修复
 - 5 个 Repository 新增 `init(executor:)`，保留旧 `init(modelContext:)`
 - `RepositoryContainer` 新增 `init(executor:)`
 - `ProfileManager` 持有 `DataExecutor` + `isUsingInMemoryFallback` + `syncFallbackStatus()`
+- 全 Profile 备份路径使用临时 `DataExecutor`，不再从生产路径构造 `PersistenceController`
 - `AppRootView` 降级横幅改用 `profileManager.isUsingInMemoryFallback`
 - `MigrationPlan` V2 模板文档（Apple SchemaMigrationPlan 官方模式）
 - `docaudit.py` LINK_RE 支持 title 语法 + PATH_REF_RE 路径感知约束
@@ -77,7 +79,7 @@ workaround (TestModelContainer) → 测试安全网 (#8a) → actor 根因修复
 - **真机**: iPhone 17
 - **defaultIsolation**: MainActor.self
 - **SwiftLint**: --strict, 218 files, 0 violations
-- **测试**: ~360+ tests（AllTests scheme）
+- **测试**: 420 total（418 passed, 2 skipped, AllTests scheme / CI 配置）
 - **CI**: Mac mini `ssh admin@192.168.1.224`, self-hosted runner
 - **版本号**: `Configs/Shared.xcconfig` 单一来源
 - **Build**: 5（TestFlight Internal）
@@ -87,7 +89,7 @@ workaround (TestModelContainer) → 测试安全网 (#8a) → actor 根因修复
 | 工具 | 版本 | 命令 |
 |---|---|---|
 | Codex CLI | 0.121.0 | `codex` |
-| Gemini CLI | 0.38.2 | `gemini -m gemini-2.5-pro` |
+| Gemini CLI | 0.41.2 | `gemini -m gemini-3-pro-preview` |
 | Node | v25.6.0 | |
 | npm | 11.8.0 | |
 
