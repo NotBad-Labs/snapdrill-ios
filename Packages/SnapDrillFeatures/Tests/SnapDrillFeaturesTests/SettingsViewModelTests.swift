@@ -172,6 +172,27 @@ final class SettingsViewModelTests {
         }
     }
 
+    @Test("createBackup 多 Profile 时包含非活跃 Profile 数据")
+    func createBackup_multipleProfiles_includesInactiveProfile() async throws {
+        repos.review.insert(ReviewItemModel(content: "活跃 Profile 题目"))
+        try repos.review.saveContext()
+
+        let profileManager = ProfileManager(inMemory: true)
+        let inactiveProfile = try #require(profileManager.createProfile(name: "Second"))
+        let vm = SettingsViewModel(repositories: repos, profileManager: profileManager)
+
+        await vm.createBackup()
+
+        let backupURL = try #require(vm.backupFileURL)
+        defer { try? FileManager.default.removeItem(at: backupURL) }
+        let payload = try await BackupService().extractPayload(from: backupURL)
+
+        #expect(payload.profiles.count == 2)
+        #expect(payload.profiles.map(\.profileName).contains("Second"))
+        #expect(payload.profiles.first(where: { $0.profileId == inactiveProfile.id })?.reviewItems.isEmpty == true)
+        #expect(payload.profiles.reduce(0) { $0 + $1.reviewItems.count } == 1)
+    }
+
     @Test("createBackup 完成后 isBackupInProgress 恢复为 false")
     func createBackup_resetsInProgressAfterCompletion() async throws {
         let item = ReviewItemModel(content: "题目")

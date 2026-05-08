@@ -9,6 +9,7 @@ freshness:
 
 > 致 Codex CLI：这是你的接手文档。DeepSeek v4 Pro 在 2026-05-07→08 完成了 Phase 2 最后 8 个 PR，
 > 软件内部零阻塞。以下是你需要知道的一切。
+> 2026-05-08 Codex 接手后补 Phase 2.N 收尾：切断生产调用路径中的旧同步容器残留。
 
 ## 第一步：环境检查（3 分钟）
 
@@ -35,7 +36,7 @@ xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulat
 
 上次会话完成的工作：
 - #599 死锁 根除（DataExecutor actor + createOffMainActor）
-- ProfileManager 迁移到 DataExecutor（生产代码不再依赖 PersistenceController）
+- ProfileManager 与全 Profile 备份临时容器迁移到 DataExecutor（生产调用路径不再依赖 PersistenceController）
 - staged migration V2 模板（含 Apple 官方文档指导）
 - docaudit 正则加固（LINK_RE title + PATH_REF_RE 路径约束）
 - Data 层并发回归网 9 tests

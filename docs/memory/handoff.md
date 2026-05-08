@@ -113,7 +113,7 @@ python3 Scripts/audit/docaudit.py all   # exit 0
 - **DataExecutor**: actor 拥有 ModelContainer，nonisolated let container，createOffMainActor() 工厂
 - **Repo 双 init**: `init(executor:)` (推荐) + `init(modelContext:)` (向后兼容)
 - **ProfileManager**: @Observable，持有 executor + activeContainer + activeRepositories
-- **PersistenceController**: 已废弃（仅 PersistenceControllerTests 保留向后兼容验证）
+- **PersistenceController**: 已废弃兼容类型；生产调用路径走 DataExecutor，测试/Preview 可显式传 `ModelContext`
 
 ## 三方协作纪律
 
