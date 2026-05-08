@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-07
+last_verified: 2026-05-09
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -7,11 +7,12 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-08（**Phase 2 全链路收官 + Phase 2.N 收尾**：#4/#5/#6/#7/#8a/#8b + ProfileManager 迁移 + 全 Profile 备份路径迁移 + #710 docaudit 加固 + #599 根除）
+> 最后更新：2026-05-09（**Phase 2 全链路收官 + Phase 2.N 收尾 + 三方基线审计**）
 > 编译状态：✅ 0 errors · 0 lint violations · AllTests/CI 420 tests passed/skipped clean · docaudit exit 0
 > Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
 > Phase 2 全部完成 · #599 死锁已根除 · 生产调用路径已迁移到 DataExecutor（PersistenceController 仅作兼容类型保留）
 > F 规则：**15 活跃 + 5 退役** = F-001~F-020（退役 F-003/F-009/F-010/F-015/F-020）· D-003 抽仓决策入 `docs/memory/decisions.md`
+> **基线审计**：Claude DeepSeek v4 Pro 主审 + Codex GPT-5.5 + Gemini 3 Pro 三方交叉验证 → 0 Critical / 14 Warning / 8 Info · 评分 8.5/10 · 报告 `docs/memory/checkpoints/2026-05-08-baseline-audit.md`
 >
 > **公开仓库**：[NotBad-Labs/agent-harness](https://github.com/NotBad-Labs/agent-harness)（**public**, MIT, main）— snapdrill-ios 通过 `.agent-harness/` 契约声明 consumer 身份
 > **智能体**：DeepSeek v4 Pro (Claude Code CLI) + Codex 0.121.0 + Gemini CLI 0.41.2（优先显式 `gemini-3-pro-preview`，不可用时退 `gemini-2.5-pro`）
@@ -175,9 +176,13 @@ freshness:
 | — | **2026-04-17 中期审计**：目标/约束/验收三维，发现 8 项脱轨点 + Scope 精化 |
 | — | **2026-04-17 文档体系三方独立审计**：56 文件五维度审计，三方独立报告（Claude + Codex exec + Gemini）→ 综合报告 `~/.claude/plans/doc-audit-summary.md` |
 
-### 当前开发焦点（2026-05-08）
+### 当前开发焦点（2026-05-09）
 
-**Phase 2 + Phase 2.N 收尾完成**。软件内部无阻塞问题。
+**Phase 2 + Phase 2.N 收尾完成**。软件内部零阻塞问题。
+
+**基线审计（2026-05-08→09）**：DeepSeek v4 Pro 全量逐字审计 ~45,500 行，Codex GPT-5.5 + Gemini 3 Pro 三方交叉验证。结果：**0 Critical / 14 Warning / 8 Info**，评分 8.5/10。详细报告 `docs/memory/checkpoints/2026-05-08-baseline-audit.md`。
+
+14 Warning 待下个开发 sprint 统一修复：api-reference 幽灵 API · DataExecutor/AppActivityTracker 补文档 · PersistenceController deprecated 标记 · ProfileManager force_unwrap · NSError→typed throws · @unchecked Sendable mock · App Store 隐私文案 · architecture.md AppActivityTracker 状态 · ZIPFoundation 架构泄漏 · Share Extension EXIF · plist.example 禁采集 keys · 硬编码中文 L10n
 
 | 外部阻塞项 | 说明 | 状态 |
 |---|---|---|

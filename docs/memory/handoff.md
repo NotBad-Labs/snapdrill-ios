@@ -117,6 +117,14 @@ python3 Scripts/audit/docaudit.py all   # exit 0
 - **ProfileManager**: @Observable，持有 executor + activeContainer + activeRepositories
 - **PersistenceController**: 已废弃兼容类型；生产调用路径走 DataExecutor，测试/Preview 可显式传 `ModelContext`
 
+## 基线审计（2026-05-08）
+
+DeepSeek v4 Pro（Claude Code CLI）完成全量基线审计：
+- 覆盖：56 文档 + 218 Swift 源文件 + 15 配置/脚本 = ~45,500 行，逐字全读
+- 结果：0 Critical / 3 Warning / 8 Info，无阻塞缺陷
+- 3 Warning 为代码卫生：NSError→typed throws、PersistenceController 加 deprecated 标记、ProfileManager force_unwrap 消除
+- 完整报告：`docs/memory/checkpoints/2026-05-08-baseline-audit.md`
+
 ## 三方协作纪律
 
 - **F-008**: Codex/Gemini 接收完全相同任务，只读不写，独立审计
