@@ -7,16 +7,16 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-08（**Phase 2 全链路收官**：#4/#5/#6/#7/#8a/#8b + ProfileManager 迁移 + #710 docaudit 加固 + #599 根除）
-> 编译状态：✅ 0 errors · 0 lint violations · 测试全绿 · docaudit clean
-> Open PR：0 · Open Issue：6（Apple 阻塞）+ #626 真机待验（外部阻塞：需 iOS 26 真机）
-> Phase 2 全部完成 · #599 死锁已根除 · PersistenceController → DataExecutor 生产代码已迁移
+> 最后更新：2026-05-08（**Phase 2 全链路收官 + Phase 2.N 收尾**：#4/#5/#6/#7/#8a/#8b + ProfileManager 迁移 + 全 Profile 备份路径迁移 + #710 docaudit 加固 + #599 根除）
+> 编译状态：✅ 0 errors · 0 lint violations · AllTests/CI 420 tests passed/skipped clean · docaudit exit 0
+> Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
+> Phase 2 全部完成 · #599 死锁已根除 · 生产调用路径已迁移到 DataExecutor（PersistenceController 仅作兼容类型保留）
 > F 规则：**15 活跃 + 5 退役** = F-001~F-020（退役 F-003/F-009/F-010/F-015/F-020）· D-003 抽仓决策入 `docs/memory/decisions.md`
 >
 > **公开仓库**：[NotBad-Labs/agent-harness](https://github.com/NotBad-Labs/agent-harness)（**public**, MIT, main）— snapdrill-ios 通过 `.agent-harness/` 契约声明 consumer 身份
-> **智能体**：DeepSeek v4 Pro (Claude Code CLI) + Codex 0.121.0 + Gemini 0.38.2
+> **智能体**：DeepSeek v4 Pro (Claude Code CLI) + Codex 0.121.0 + Gemini CLI 0.41.2（优先显式 `gemini-3-pro-preview`，不可用时退 `gemini-2.5-pro`）
 > **下次接手**：读 `docs/memory/handoff.md` 顶部 → `docs/memory/checkpoints/2026-04-22-phase-e-closeout.md`
-> 测试：~360+ tests（SnapDrill 本地）+ 68 tests（agent-harness CI）· ViewModel 覆盖 16/16
+> 测试：420 tests（SnapDrill AllTests/CI 本地验证）+ 68 tests（agent-harness CI）· ViewModel 覆盖 16/16
 
 ## 本轮完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
 
@@ -177,7 +177,7 @@ freshness:
 
 ### 当前开发焦点（2026-05-08）
 
-**Phase 2 全部完成**。软件内部无阻塞问题。
+**Phase 2 + Phase 2.N 收尾完成**。软件内部无阻塞问题。
 
 | 外部阻塞项 | 说明 | 状态 |
 |---|---|---|

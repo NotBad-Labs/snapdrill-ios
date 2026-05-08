@@ -115,11 +115,9 @@ public final class SettingsViewModel {
                     profileDataList.append(data)
                     totalItemCount += data.reviewItems.count
                 } else {
-                    // 非活跃 Profile 临时创建容器
-                    let tempPersistence = PersistenceController(storeURL: storeURL)
-                    let tempRepos = RepositoryContainer(
-                        modelContext: tempPersistence.container.mainContext
-                    )
+                    // 非活跃 Profile 临时创建 DataExecutor，避免回落到旧同步容器路径。
+                    let tempExecutor = await DataExecutor.createOffMainActor(storeURL: storeURL)
+                    let tempRepos = RepositoryContainer(executor: tempExecutor)
                     let data = try tempRepos.collectProfileBackupData(
                         profileName: profile.name, profileId: profile.id
                     )

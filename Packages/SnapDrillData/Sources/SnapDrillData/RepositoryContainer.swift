@@ -39,9 +39,9 @@ public final class RepositoryContainer {
         self.grade = GradeRepository(executor: executor)
     }
 
-    /// 创建仓库容器（向后兼容，Phase 2 移除）
-    /// - Parameter modelContext: 共享的 ModelContext，默认使用 `PersistenceController.shared.container.mainContext`
-    public init(modelContext: ModelContext = PersistenceController.shared.container.mainContext) {
+    /// 创建仓库容器（向后兼容测试/Preview 中的显式 ModelContext）
+    /// - Parameter modelContext: 共享的 ModelContext
+    public init(modelContext: ModelContext) {
         self.review = ReviewRepository(modelContext: modelContext)
         self.subject = SubjectRepository(modelContext: modelContext)
         self.source = SourceRepository(modelContext: modelContext)
