@@ -179,7 +179,7 @@ FTC 于 2025-04-22 发布 COPPA Final Rule amendments，合规落地截止日为
   ├── 题目图片：JPEG 文件（Documents/profiles/<id>/images/）
   └── 草稿：UserDefaults + 临时文件（7 天过期自动清理）
 
-备份 → .snapdrill ZIP 文件（用户手动触发）
+备份 → .zip 文件（用户手动触发）
   └── 用户通过 ShareSheet 保存到任意位置
 
 卸载 → 全部数据永久删除（App Sandbox 随 App 移除）

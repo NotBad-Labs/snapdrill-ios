@@ -39,7 +39,7 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ### 备份与恢复
 
-- ``BackupService`` — `.snapdrill` 备份文件的创建和解压（actor）
+- ``BackupService`` — `.zip` 备份文件的创建和解压（actor）
 - ``BackupManifest`` — 备份文件元数据清单（schema 版本、条目数）
 - ``BackupPayload`` — 备份数据传输对象顶层结构
 - ``BackupError`` — 备份操作错误类型

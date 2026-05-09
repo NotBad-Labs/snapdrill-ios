@@ -48,9 +48,12 @@ freshness:
 
 ```text
 product-vision（产品根定义）
-  ├─> product-design ─┬─> product-requirements（含用户旅程）──> product-cases
-  │                    └─> product-business
-  └─> product-glossary
+  ├─> product-design ─┬─> product-requirements ──> product-cases
+  │                    ├─> product-journeys（用户旅程）
+  │                    ├─> product-business ──> product-competitive-analysis
+  │                    └─> product-onboarding
+  ├─> product-glossary
+  └─> product-analytics（成功信号 → 事件定义）
 
 engineering（工程哲学根）
   └─> workflow
@@ -76,9 +79,13 @@ workflow + KNOWLEDGE_MAP
 |---|---|---|---|
 | `docs/product/product-vision.md` | 产品根定义 | — | design、requirements、business、cases、glossary、compliance |
 | `docs/product/product-design.md` | 体验与交互原则 | vision | requirements、cases、business |
-| `docs/product/product-requirements.md` | 功能规格与状态（含用户旅程） | vision、design | cases、business |
+| `docs/product/product-requirements.md` | 功能规格与状态 | vision、design | cases、business、journeys |
+| `docs/product/product-journeys.md` | 用户旅程（具体人物、场景、动作、情绪） | vision、design、requirements | 设计验证、QA 用例 |
 | `docs/product/product-cases.md` | 验收规格（GWT/Boundary） | design、requirements | QA 用例、workflow DoD 检查 |
-| `docs/product/product-business.md` | 商业化与分层 | vision、design、requirements、ADR-001 | compliance、StoreKit 相关实施 |
+| `docs/product/product-business.md` | 商业化与分层 | vision、design、requirements、ADR-001 | compliance、StoreKit 相关实施、competitive-analysis |
+| `docs/product/product-competitive-analysis.md` | 竞品分析（行业格局、差异化、替代威胁） | vision、business | GTM 策略、差异化验证 |
+| `docs/product/product-analytics.md` | Analytics 事件字典 | vision（成功信号） | 埋点实现、成功信号校准 |
+| `docs/product/product-onboarding.md` | Onboarding 内容规格 | vision、design | UI 实现、Onboarding 文案 |
 | `docs/product/product-glossary.md` | 术语单一源 | vision | 全部产品/技术文档的术语一致性 |
 | `docs/decisions/ADR-*.md` | 正式决策 | 问题背景 + 三方研究 | business、compliance、实现代码 |
 | `docs/tech/compliance.md` | 合规口径源 | vision、business、ADR-002 | deployment、审核材料 |

@@ -220,25 +220,25 @@ layer: pattern
 
 ## Use Case 6: Backup + Restore
 
-**Goal**: 创建 `.snapdrill` 手动备份文件，并从备份文件恢复当前设备数据。
+**Goal**: 创建 `.zip` 手动备份文件，并从备份文件恢复当前设备数据。
 
 
 **Preconditions**:
 - 备份：当前设备存在至少一个 Profile 含数据
-- 恢复：用户持有 `.snapdrill` 文件
+- 恢复：用户持有 `.zip` 文件
 
 **Success path**:
 1. 用户在设置中发起手动备份
-2. 系统打包当前设备本地数据为 `.snapdrill` 文件，包含全部 Profile、题目、图片引用、元数据、复习进度
+2. 系统打包当前设备本地数据为 `.zip` 文件，包含全部 Profile、题目、图片引用、元数据、复习进度
 3. 系统生成备份文件并交由用户保存/分享
-4. 用户选择 `.snapdrill` 文件发起恢复
+4. 用户选择 `.zip` 文件发起恢复
 5. 系统先校验文件可读性、结构完整性、版本兼容性
 6. 校验通过后，系统导入备份中的全部 Profile 数据
 7. 恢复完成后，题库、Dashboard、Review、设置中的本地数据与备份内容一致
 
 **Variants & Exceptions**:
 - [Variant] 备份文件必须覆盖多 Profile 场景，不允许只导出当前活跃 Profile 的局部数据
-- [Boundary] 兼容性验收以恢复结果判定：当前版本必须能恢复受支持的旧 `.snapdrill` 备份；超出支持范围的版本必须明确拒绝并提示，不得改动现有数据
+- [Boundary] 兼容性验收以恢复结果判定：当前版本必须能恢复受支持的旧 `.zip` 备份；超出支持范围的版本必须明确拒绝并提示，不得改动现有数据
 - [Exception] 备份文件损坏或不可读：必须拒绝恢复，并保留现有本地数据不变
 - [Exception] 备份版本高于当前 App 支持版本：必须拒绝恢复并提示版本不兼容，建议升级 App
 - [Exception] 备份版本低于当前 App 但在兼容范围内：允许迁移恢复；失败时不得破坏现有本地数据
@@ -369,3 +369,14 @@ layer: pattern
 | B24 | 用户尝试删除最后一个 Profile | 删除按钮 disabled，提示「至少保留一个 Profile」 | 设备上始终存在至少一个 Profile，不出现零 Profile 崩溃 | S1 |
 | B25 | 切换 Profile 后 TipKit 提示状态 | 按 Profile 隔离（#532 已修复） | 切换 Profile 后 TipKit 提示状态独立 | S2 |
 | B26 | 删除非最后 Profile | 二次确认；删除后级联移除该 Profile 的题库、图片、复习进度与配置；若删除的是当前活跃 Profile，UI 自动 fallback 到剩余 Profile 并提示 | 不得遗留孤儿数据、错误引用或活跃 Profile 悬空状态 | S1 |
+
+---
+
+## 相关文档
+
+| 文档 | 关系 | 说明 |
+|---|---|---|
+| `product-vision.md` | 上游 | 产品定位、原则 |
+| `product-design.md` | 上游 | 设计决策 |
+| `product-requirements.md` | 上游 | 功能规格 |
+| `product-journeys.md` | 上游 | 用户旅程（验收场景来源） |

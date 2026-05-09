@@ -177,7 +177,7 @@ struct BackupServiceTests {
     func corruptArchiveThrowsError() async throws {
         let service = BackupService()
         let corruptFile = FileManager.default.temporaryDirectory
-            .appendingPathComponent("corrupt_\(UUID().uuidString).snapdrill")
+            .appendingPathComponent("corrupt_\(UUID().uuidString).zip")
         try Data("not-a-zip-file".utf8).write(to: corruptFile)
         defer { cleanup(corruptFile) }
 

@@ -5,7 +5,7 @@
 //  Created by NotBad Labs on 2026/03/09.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  备份/恢复服务，将全量数据（JSON + 图片）打包为 .snapdrill (ZIP) 文件。
+//  备份/恢复服务，将全量数据（JSON + 图片）打包为 .zip 文件。
 //
 
 import Foundation
@@ -14,7 +14,7 @@ import SnapDrillCore
 
 /// 备份/恢复服务
 ///
-/// 负责将 SnapDrill 全量数据（题目、分类、图片）打包为 `.snapdrill` (ZIP) 文件，
+/// 负责将 SnapDrill 全量数据（题目、分类、图片）打包为 `.zip` 文件，
 /// 以及从备份文件中恢复数据。使用流式 ZIP 写入，避免一次性加载所有图片到内存。
 public actor BackupService {
 
@@ -36,7 +36,7 @@ public actor BackupService {
     ///   - manifest: 备份元数据清单
     ///   - profileDirectories: 每个 Profile 的图片目录（与 payload.profiles 一一对应）
     ///   - onProgress: 进度回调（当前已处理图片数 / 总图片数）
-    /// - Returns: 生成的 .snapdrill 文件 URL（位于临时目录）
+    /// - Returns: 生成的 .zip 文件 URL（位于临时目录）
     public func createBackup(
         payload: BackupPayload,
         manifest: BackupManifest,
@@ -47,7 +47,7 @@ public actor BackupService {
         let tempDir = fileManager.temporaryDirectory
         let timestamp = ISO8601DateFormatter().string(from: Date())
             .replacingOccurrences(of: ":", with: "-")
-        let backupURL = tempDir.appendingPathComponent("SnapDrill_Backup_\(timestamp).snapdrill")
+        let backupURL = tempDir.appendingPathComponent("SnapDrill_Backup_\(timestamp).zip")
 
         // 清理可能存在的旧文件
         do {
@@ -155,7 +155,7 @@ public actor BackupService {
 
     /// 读取备份文件的 manifest（用于预检查版本兼容性）
     ///
-    /// - Parameter backupURL: .snapdrill 文件路径
+    /// - Parameter backupURL: .zip 文件路径
     /// - Returns: 备份清单信息
     public func readManifest(from backupURL: URL) throws -> BackupManifest {
         let archive: Archive
@@ -180,7 +180,7 @@ public actor BackupService {
 
     /// 从备份文件中提取全量数据
     ///
-    /// - Parameter backupURL: .snapdrill 文件路径
+    /// - Parameter backupURL: .zip 文件路径
     /// - Returns: 反序列化的数据载荷
     public func extractPayload(from backupURL: URL) throws -> BackupPayload {
         let archive: Archive
@@ -206,7 +206,7 @@ public actor BackupService {
     /// 从备份文件中恢复指定 Profile 的图片
     ///
     /// - Parameters:
-    ///   - backupURL: .snapdrill 文件路径
+    ///   - backupURL: .zip 文件路径
     ///   - profileId: 要恢复的 Profile ID（对应 ZIP 中 profiles/<id>/ 前缀）
     ///   - imageBasePath: 目标 Profile 的图片目录
     ///   - onProgress: 进度回调（当前已恢复图片数 / 总图片数）
