@@ -28,7 +28,10 @@ layer: pattern
 | `docs/product/product-design.md` | UI/UX 模式、信息架构 | vision | HIG 更新 |
 | `docs/product/product-requirements.md` | 功能规格、版本路线图 | vision, design | 新功能 |
 | `docs/product/product-cases.md` | 验收标准、异常路径 | requirements | 新功能 |
-| _(已合并到 requirements.md)_ | 用户旅程 | design, requirements | 新功能 |
+| `docs/product/product-journeys.md` | 用户旅程（具体人物、场景、验证点） | vision, design, requirements | 新功能/新用户反馈 |
+| `docs/product/product-competitive-analysis.md` | 竞品分析（行业格局、差异化定位、替代威胁） | vision, business | 竞品动态/新进入者 |
+| `docs/product/product-analytics.md` | Analytics 事件字典（事件定义、触发条件、参数） | vision（成功信号） | 新增/修改事件 |
+| `docs/product/product-onboarding.md` | Onboarding 内容规格（页面内容、文案方向、触发规则） | vision, design | 用户反馈/产品pivot |
 | `docs/product/product-glossary.md` | 术语定义 | vision | 概念变更 |
 | `docs/principles/apple-native.md` | Apple 原生 UI 模式 | — | HIG/WWDC |
 | `docs/principles/coding.md` | 编码规范、SwiftLint 规则 | engineering | Swift 版本 |

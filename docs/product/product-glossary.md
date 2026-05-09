@@ -21,7 +21,7 @@ layer: pattern
 | **打印** | Print | 导出 PDF 后通过系统打印服务输出到纸质 | `ExportPreviewView` (Features) 提供打印入口，依赖 `PDFExportService` (Core) 生成 PDF |
 | **复习** | Review | 基于 SM-2 间隔重复算法的卡片式复习会话 | `SnapDrillFeatureReview` 模块 (Features) |
 
-**价值链完整表述**：采集 → 管理（题库浏览/编辑/分类） → 导出/打印。复习是独立附加值，不在价值链内
+**价值链完整表述**：核心价值链为采集 → 管理（题库浏览/编辑/分类） → 导出/打印。复习是可选留存层，智能组卷是导出/打印的 Pro 增值延伸
 
 ---
 
@@ -30,9 +30,9 @@ layer: pattern
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
 | **Profile** | Profile | 独立的用户档案，每个 Profile 拥有独立的题库、复习进度、字段配置和统计数据 | `Profile` struct (Core), `ProfileManager` (Data) |
-| **基线用户** | Baseline User | 35 岁妈妈（零技术背景），所有设计决策以此用户能否顺利完成为最低标准 | — |
+| **基线用户** | Baseline User | 不熟悉教育科技产品的家长（假设，待首批用户画像验证）。所有设计决策以此用户能否顺利完成为最低标准 | — |
 | **图片是真相** | Image is Truth | 当 OCR 文本与原图冲突时，以原图为准。原图是题目数据的唯一真相源 | `ReviewItemModel.imagePath` (Data) |
-| **.snapdrill** | .snapdrill | App 专属备份文件格式（ZIP 内含 JSON 数据 + 图片文件） | `BackupService` (Data) |
+| **.zip 备份** | .zip Backup | App 备份文件格式（ZIP 内含 JSON 数据 + 图片文件） | `BackupService` (Data) |
 
 ---
 
@@ -78,3 +78,13 @@ layer: pattern
 | **Pro** | Pro Subscription | 付费订阅层：iCloud 同步 / 图片处理增强 / 智能组卷（无限+精准选题）/ Word 导出 / 高级统计（趋势图+薄弱排行）等增值能力。智能组卷和图片处理增强采用"免费限次体验 + Pro 无限"模式（ADR-001） | — |
 | **Grandfather** | Grandfather Pricing | 老用户保留原价的涨价策略 | — |
 | **Lifetime** | Lifetime Purchase | 一次性买断 Pro 全部功能，永久有效，不受后续涨价影响 | — |
+
+---
+
+## 相关文档
+
+| 文档 | 关系 | 说明 |
+|---|---|---|
+| `product-vision.md` | 上游 | 术语的定义来源 |
+| `product-design.md` | 相关 | 部分术语在设计决策中定义 |
+| `product-business.md` | 相关 | 商业化术语 |

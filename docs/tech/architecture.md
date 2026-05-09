@@ -124,7 +124,7 @@ SwiftData @Model（持久化）
 | `*Model.swift` | SwiftData @Model 定义（ReviewItem, Subject, Source, Grade, Tag） |
 | `*Repository.swift` | 数据访问层，封装 ModelContext |
 | `RepositoryContainer` | Repository 聚合 + Environment 注入 |
-| `BackupService` | .snapdrill (ZIP) 备份/恢复 |
+| `BackupService` | .zip 备份/恢复 |
 | `BackupDTO` | 备份数据传输对象 |
 | `ProfileManager` | 多 Profile / Vault 切换（独立数据库 + 图片目录 + per-profile UserDefaults） |
 | `ProfileMigration` | Profile 结构迁移（老版本升级） |

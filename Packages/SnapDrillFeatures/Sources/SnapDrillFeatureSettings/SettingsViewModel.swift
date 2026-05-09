@@ -89,7 +89,7 @@ public final class SettingsViewModel {
 
     /// 创建全量备份文件
     ///
-    /// 收集所有数据和图片，打包为 .snapdrill (ZIP) 文件。
+    /// 收集所有数据和图片，打包为 .zip 文件。
     /// 完成后将文件 URL 存入 `backupFileURL`，供 View 层触发分享。
     public func createBackup() async {
         guard !isBackupInProgress else { return }
@@ -168,7 +168,7 @@ public final class SettingsViewModel {
     ///
     /// 恢复前先自动备份当前数据到临时目录（安全网），然后全量替换。
     ///
-    /// - Parameter fileURL: 用户选择的 .snapdrill 备份文件路径
+    /// - Parameter fileURL: 用户选择的 .zip 备份文件路径
     public func restoreFromBackup(fileURL: URL) async {
         guard !isBackupInProgress else { return }
         AppActivityTracker.shared.begin(.backupRestore)
@@ -227,7 +227,7 @@ public final class SettingsViewModel {
 
     /// 清理备份产生的临时文件
     ///
-    /// 在 ShareSheet 关闭后调用，删除临时目录中的 .snapdrill 文件。
+    /// 在 ShareSheet 关闭后调用，删除临时目录中的 .zip 文件。
     public func cleanupBackupFile() {
         guard let url = backupFileURL else { return }
         try? FileManager.default.removeItem(at: url) // best-effort: 临时备份文件残留不影响功能

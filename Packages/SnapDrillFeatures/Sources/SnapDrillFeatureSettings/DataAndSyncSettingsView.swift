@@ -184,7 +184,7 @@ struct DataAndSyncSettingsView: View {
         }
         .fileImporter(
             isPresented: $showingRestoreFilePicker,
-            allowedContentTypes: [UTType(filenameExtension: "snapdrill") ?? .zip, .zip],
+            allowedContentTypes: [.zip],
             allowsMultipleSelection: false
         ) { result in
             switch result {
