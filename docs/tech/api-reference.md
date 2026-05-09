@@ -494,7 +494,8 @@ public final class RepositoryContainer {
     public let tag: TagRepository
     public let grade: GradeRepository
 
-    public init(modelContext: ModelContext = PersistenceController.shared.container.mainContext)
+    public init(executor: DataExecutor)
+    public init(modelContext: ModelContext)
     public func deleteAllData() async throws
     public func deleteAllTaxonomy() throws
 }
