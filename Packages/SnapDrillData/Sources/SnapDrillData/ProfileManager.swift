@@ -122,8 +122,8 @@ public final class ProfileManager {
         let savedId = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
             .flatMap(UUID.init(uuidString:))
         let profileId = loadedProfiles.first(where: { $0.id == savedId })?.id
-            // swiftlint:disable:next force_unwrapping
-            ?? loadedProfiles.first!.id // loadedProfiles 此处必非空（上方已保证）
+            ?? loadedProfiles.first?.id
+            ?? UUID() // 防御性 fallback：loadedProfiles 上方已保证非空
         self.activeProfileId = profileId
 
         // 4. 创建活跃 Profile 的基础设施

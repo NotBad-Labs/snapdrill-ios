@@ -105,16 +105,6 @@ public protocol PDFExportable: Sendable {
 }
 ```
 
-### `RemoteConfigurable`
-```swift
-public protocol RemoteConfigurable {
-    func fetchAndActivate() async throws
-    func bool(forKey key: String) -> Bool?
-    func string(forKey key: String) -> String?
-    func double(forKey key: String) -> Double?
-}
-```
-
 ### `ServiceContainer`
 ```swift
 public protocol ServiceContainer: Sendable {
@@ -285,10 +275,8 @@ public final class AppConfiguration {
     public func resetToDefaults()
 
     public struct FeatureFlags {
-        public static func registerRemoteProvider(_ provider: any RemoteConfigurable)
         public static var crashReportingEnabled: Bool { get set }
         public static var analyticsEnabled: Bool { get set }
-        public static var isEmergencyKillSwitchActive: Bool { get }
     }
 
     public enum Environment {
@@ -311,6 +299,8 @@ public struct SnapDrillLogger
 public enum SnapDrillError: LocalizedError
 public enum OCRError: Error
 public enum ImageStorageError: Error
+public final class AppActivityTracker
+public final class DeletionScheduler
 ```
 
 ### `SM2State`
@@ -377,6 +367,29 @@ public extension Collection
 public extension Color {
     init(hex: String)
     func toHex() -> String?
+}
+```
+
+## SnapDrillData — DataExecutor
+
+### `DataExecutor`
+
+拥有 ModelContainer 的 actor，根除 #599 死锁。生产代码优先使用 `init(storeURL:)`（MainActor 安全）；测试/非 MainActor 场景用 `createOffMainActor()`。
+
+```swift
+public actor DataExecutor {
+    nonisolated public let container: ModelContainer
+    public private(set) var isUsingInMemoryFallback: Bool
+    public private(set) var initializationError: PersistenceError?
+
+    public init(inMemory: Bool = false, storeURL: URL? = nil)
+    public init(container: ModelContainer)
+
+    /// 在非 MainActor 执行器上创建，避免 #599 死锁（测试专用）
+    public static func createOffMainActor(
+        inMemory: Bool = false,
+        storeURL: URL? = nil
+    ) async -> DataExecutor
 }
 ```
 
@@ -608,14 +621,21 @@ public final class ProfileManager {
     public private(set) var activeContainer: ModelContainer
     public private(set) var activeRepositories: RepositoryContainer
     public private(set) var activeImageStorage: ImageStorage
+    public private(set) var executor: DataExecutor
+    public private(set) var isUsingInMemoryFallback: Bool
 
-    public init()
+    public init(inMemory: Bool = false)
     public var activeProfile: Profile? { get }
     public func switchProfile(to profileId: UUID) throws(ProfileError)
     @discardableResult
     public func createProfile(name: String) -> Profile?
-    public func deleteProfile(id: UUID) throws
+    public func deleteProfile(id: UUID) throws(ProfileError)
     public func renameProfile(id: UUID, newName: String)
+}
+
+public enum ProfileError: LocalizedError {
+    case cannotDeleteLastProfile
+    case switchBlocked(reason: String)
 }
 ```
 
@@ -725,17 +745,6 @@ public enum AppError: LocalizedError
 }
 ```
 
-### `FirebaseRemoteConfigService`
-```swift
-public final class FirebaseRemoteConfigService: RemoteConfigurable {
-    public init()
-    public func fetchAndActivate() async throws
-    public func bool(forKey key: String) -> Bool?
-    public func string(forKey key: String) -> String?
-    public func double(forKey key: String) -> Double?
-}
-```
-
 ### `FirebaseBootstrap`
 ```swift
 public enum FirebaseBootstrap {
@@ -817,6 +826,26 @@ public enum AppError: LocalizedError {
 }
 ```
 App 级删除调度器，管理 5 秒撤销窗口。LibraryViewModel 是调用方。
+
+### `AppActivityTracker`（SnapDrillCore/Support）
+```swift
+@Observable public final class AppActivityTracker {
+    public static let shared = AppActivityTracker()
+    public private(set) var activeActivities: Set<AppActivity> = []
+    public var canSwitchProfile: Bool { get }
+    public var switchBlockReason: String? { get }
+    public func begin(_ activity: AppActivity)
+    public func end(_ activity: AppActivity)
+}
+
+public enum AppActivity: Sendable, Hashable {
+    case capturing
+    case exporting
+    case printing
+    case backupRestore
+}
+```
+全局活动追踪器。ProfileManager 切换前通过 `canSwitchProfile` 检查进行中操作，避免数据丢失。
 
 ### `SmartPaperViewModel`（SnapDrillFeatures/Library）
 ```swift

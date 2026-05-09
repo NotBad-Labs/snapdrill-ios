@@ -93,8 +93,9 @@ struct TaggingResult {
 
 // MARK: - Mock
 
-/// 内容标注服务 Mock（测试用）
-public final class ContentTaggingServiceMock: ContentTaggingServiceProtocol, @unchecked Sendable {
+/// 内容标注服务 Mock（测试用，@MainActor 隔离替代 @unchecked Sendable）
+@MainActor
+public final class ContentTaggingServiceMock: ContentTaggingServiceProtocol {
     public var suggestResult: ContentTagSuggestion?
     public var suggestCallCount = 0
 

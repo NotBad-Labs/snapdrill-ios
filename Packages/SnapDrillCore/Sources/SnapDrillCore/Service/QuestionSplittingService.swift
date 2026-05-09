@@ -114,8 +114,9 @@ struct ExtractedQuestionPayload {
 
 // MARK: - Mock
 
-/// 题目分割服务 Mock（测试用）
-public final class QuestionSplittingServiceMock: QuestionSplittingServiceProtocol, @unchecked Sendable {
+/// 题目分割服务 Mock（测试用，@MainActor 隔离替代 @unchecked Sendable）
+@MainActor
+public final class QuestionSplittingServiceMock: QuestionSplittingServiceProtocol {
     public var splitResult: [ExtractedQuestionItem] = []
     public var splitCallCount = 0
     public var lastReceivedText: String?

@@ -261,6 +261,8 @@ nonisolated extension L10n {
         // 卡片外观详情
         public static let cardFrontSection = NSLocalizedString("settings.card_front_section", value: "卡片正面 (题目)", comment: "卡片正面区标题")
         public static let cardBackSection = NSLocalizedString("settings.card_back_section", value: "卡片背面 (Header)", comment: "卡片背面区标题")
+        public static let cardFrontPreview = NSLocalizedString("settings.card_front_preview", value: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。", comment: "卡片正面预览文本")
+        public static let cardBackPreview = NSLocalizedString("settings.card_back_preview", value: "题目：已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。", comment: "卡片背面预览文本")
         public static let alignment = NSLocalizedString("settings.alignment", value: "对齐方式", comment: "对齐方式")
 
         public static func fontSizeLabel(_ size: Int) -> String {

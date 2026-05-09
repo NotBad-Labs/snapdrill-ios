@@ -57,7 +57,8 @@ SnapDrill 让练习题数字化变得简单。拍照、扫描或导入 PDF，自
 
 隐私承诺：
 - 零注册，打开即用
-- 所有数据存储在本地，绝不上传
+- 练习内容与图片仅本地存储
+- 匿名使用统计与崩溃报告默认不采集，用户可 opt-in
 - AI 功能全部端侧处理，离线可用
 
 SnapDrill 专注一件事：让你用最少的时间，把纸上的练习题变成可管理、可复习的数字资产。
@@ -78,7 +79,8 @@ Key Features:
 
 Privacy Promise:
 - Zero registration required
-- All data stored locally on your device
+- Practice content and images stored locally on your device
+- Anonymous usage & crash reports off by default; opt-in only
 - AI features processed entirely on-device, works offline
 
 SnapDrill does one thing well: turn paper-based practice problems into manageable, reviewable digital assets with minimal effort.

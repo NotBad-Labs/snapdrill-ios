@@ -14,6 +14,12 @@ import SnapDrillCore
 import SnapDrillData
 import SnapDrillUI
 
+/// 保存题目前置校验错误（typed throws 替代裸 NSError）
+enum CaptureSaveError: LocalizedError {
+    case contentAndImageEmpty
+    var errorDescription: String? { L10n.Errors.contentAndImageEmpty }
+}
+
 /// 采集结果预览与编辑的 ViewModel
 @Observable
 public final class CaptureResultViewModel {
@@ -321,11 +327,7 @@ public final class CaptureResultViewModel {
             // 业务规则：题目文字和图片至少有一个
             let contentValue = content.isEmpty ? nil : content
             guard contentValue != nil || image != nil else {
-                throw NSError(
-                    domain: "SnapDrill",
-                    code: 0,
-                    userInfo: [NSLocalizedDescriptionKey: L10n.Errors.contentAndImageEmpty]
-                )
+                throw CaptureSaveError.contentAndImageEmpty
             }
 
             // 解析并同步标签（纯内存操作，fetchOrCreateModel 不再内部 save）
