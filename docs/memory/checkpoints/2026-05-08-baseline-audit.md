@@ -119,5 +119,23 @@ freshness:
 
 ## Next
 
-- 下个开发 sprint 修复 14 Warning
+- ~~下个开发 sprint 修复 14 Warning~~ → 已完成（PR #739 + #740，14/14 闭合）
 - 下次全量审计建议：App Store 提交前
+
+## 修复闭合状态（2026-05-09 更新）
+
+| ID | 发现 | PR | 状态 |
+|---|---|---|---|
+| W1 | CaptureResultViewModel NSError → typed throws | #739 | ✅ |
+| W2 | PersistenceController @available(deprecated) | #739 | ✅ |
+| W3 | ProfileManager force_unwrap | #739 | ✅ |
+| C2 | @unchecked Sendable mocks → @MainActor | #739 | ✅ |
+| G1 | 硬编码中文预览文本 → L10n | #739 | ✅ |
+| X1 | Remote Config 幽灵 API 清理 | #739 | ✅ |
+| X2 | App Store 隐私文案修正 | #739 | ✅ |
+| X3 | architecture.md AppActivityTracker 状态 | #739 | ✅ |
+| C1/C5/C6 | api-reference DataExecutor/AppActivityTracker/Repository/ProfileManager | #739 | ✅ |
+| X6 | GoogleService-Info.plist.example 禁采集 keys | #739 | ✅ |
+| X4 | ZIPFoundation 架构泄漏 → ZIPArchiver | #740 | ✅ |
+| X5 | Share Extension EXIF 临时保留 | — | 📝 设计级考虑，非紧急，后续排期 |
+| X7 | SnapDrillUITests 未入 AllTests plan | — | ✅ **有意设计**：SPM `SnapDrillUITests` 与 Xcode 原生 XCUITest target 命名冲突（见 testing.md:87），基础 smoke tests 已被 FeaturesTests 的 16 View snapshot 回归测试覆盖和超越。记录为 Info，无需修改。 |

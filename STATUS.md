@@ -182,7 +182,7 @@ freshness:
 
 **基线审计（2026-05-08→09）**：DeepSeek v4 Pro 全量逐字审计 ~45,500 行，Codex GPT-5.5 + Gemini 3 Pro 三方交叉验证。结果：**0 Critical / 14 Warning / 8 Info**，评分 8.5/10。详细报告 `docs/memory/checkpoints/2026-05-08-baseline-audit.md`。
 
-14 Warning 待下个开发 sprint 统一修复：api-reference 幽灵 API · DataExecutor/AppActivityTracker 补文档 · PersistenceController deprecated 标记 · ProfileManager force_unwrap · NSError→typed throws · @unchecked Sendable mock · App Store 隐私文案 · architecture.md AppActivityTracker 状态 · ZIPFoundation 架构泄漏 · Share Extension EXIF · plist.example 禁采集 keys · 硬编码中文 L10n
+**14 Warning 全部闭合**（PR #739 + #740）：13 修复 + 1 记录为有意设计（SnapDrillUITests 命名冲突）。X5 Share Extension EXIF 临时保留记录为设计级考虑，后续排期。
 
 | 外部阻塞项 | 说明 | 状态 |
 |---|---|---|
