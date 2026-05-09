@@ -31,7 +31,7 @@ struct ReviewAppearanceSettingsView: View {
 
             Section(L10n.Settings.cardFrontSection) {
                 HStack {
-                    Text("已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
+                    Text(L10n.Settings.cardFrontPreview)
                         .font(.system(size: frontFontSizeRaw, weight: .bold, design: .serif))
                         .multilineTextAlignment(resolveTextAlignment(frontAlignmentRaw))
                         .frame(maxWidth: .infinity, alignment: resolveAlignment(frontAlignmentRaw))
@@ -64,7 +64,7 @@ struct ReviewAppearanceSettingsView: View {
 
             Section(L10n.Settings.cardBackSection) {
                 HStack {
-                    Text("题目：已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
+                    Text(L10n.Settings.cardBackPreview)
                         .font(.system(size: fontSizeRaw, weight: .medium, design: .serif))
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(resolveTextAlignment(alignmentRaw))
