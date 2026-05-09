@@ -9,7 +9,6 @@
 //
 
 import SwiftUI
-import ZIPFoundation
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillUI
@@ -185,29 +184,18 @@ struct ExportOptionsSheet: View {
                 let zipName = "SnapDrill_Images_\(Date().filenameDateString).zip"
                 let zipURL = tempDir.appendingPathComponent(zipName)
 
-                // 如果已有同名文件则先清理
-                try? FileManager.default.removeItem(at: zipURL) // best-effort: 文件不存在时抛错正常，清理失败时 Archive(create:) 会报错
-
-                let archive = try Archive(url: zipURL, accessMode: .create)
-
+                var entries: [ZIPEntry] = []
                 for (index, path) in imagePaths.enumerated() {
-                    try autoreleasepool {
-                        guard let image = storage.loadImage(path: path),
-                              let data = image.jpegData(compressionQuality: 0.9) else {
-                            return
-                        }
-                        let fileName = "\(index + 1)_\(URL(fileURLWithPath: path).lastPathComponent)"
-                        try archive.addEntry(
-                            with: fileName,
-                            type: .file,
-                            uncompressedSize: Int64(data.count),
-                            compressionMethod: .deflate,
-                            provider: { position, size in
-                                data[Int(position) ..< Int(position) + size]
-                            }
-                        )
+                    guard let image = storage.loadImage(path: path),
+                          let data = image.jpegData(compressionQuality: 0.9) else {
+                        continue
                     }
+                    let fileName = "\(index + 1)_\(URL(fileURLWithPath: path).lastPathComponent)"
+                    entries.append(ZIPEntry(path: fileName, data: data))
                 }
+
+                let archiver = ZIPArchiver()
+                try archiver.createArchive(entries: entries, at: zipURL)
 
                 await MainActor.run {
                     self.zipURL = zipURL
