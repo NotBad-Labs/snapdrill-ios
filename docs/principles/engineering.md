@@ -1,150 +1,139 @@
 ---
-last_verified: 2026-04-14
+last_verified: 2026-05-10
 layer: principle
 ---
 # 工程哲学
 
-## 元原则
+> 本文件定义工程决策的价值观和判断标准。不包含项目特定实现细节——那些在 `architecture.md`、`coding.md`、`testing.md` 和 ADR 中。
+>
+> 每条原则附带：适用范围、反例（何时不应遵守）、与其他原则的冲突裁决。
+> 原则之间按本节顺序裁决（编号靠前的优先）。
+>
+> **最高裁决**：数据安全、隐私合规、App Store 审核要求、不可逆用户损失——这四条优先于所有简化原则（原则 2、3）。简单性不能压过安全。
 
-1. **战术勤奋不掩盖战略懒惰** — 先问全局有没有未解决的战略问题
-2. **局部最优 ≠ 全局最优** — 从全局视角审视
-3. **设计阶段成本最低** — 先讨论透再动手
-4. **方法论持续优化** — 实证驱动修订，不固守教条
+---
 
-## 决策前研究铁律
+## 1. 先判断方向，再动手实现
 
 **不确定就先研究，禁止想当然写代码。**
+
+决策前先确认：要解决什么问题？用户是谁？有没有更简单的方案？
 
 - UI/UX：Apple 原生 App → 行业标杆 → HIG
 - 技术：Apple 文档 → WWDC → 现有代码库
 
-## 奥卡姆剃刀 (Occam's Razor)
+**适用范围**：所有非 trivial 的代码变更。trivial = 单行 typo 修复、注释修正、日志补充。
 
-新增抽象前必答：
+**反例**：紧急线上修复可以跳过完整研究流程，但修复后必须补记录：为什么选这个方案、风险、回滚方式、后续是否需要重新研究。
 
-1. 解决什么具体问题？
-2. 有没有更简单的方式？
-3. 删掉还能工作吗？（"删掉方案的一半，还能解决问题吗？"）
-4. 改一个需求动 N 个文件？N > 3 是警告
+---
 
-与元原则 #1 互补：战术上精心设计的抽象，如果战略方向错了，越精致越浪费。先确认战略正确，再审视抽象必要性。
+## 2. 删掉比添加好
 
-## YAGNI (You Aren't Gonna Need It)
+**新增代码前先问：删掉方案的一半，还能解决问题吗？不改会怎样？**
 
-**不为假设性未来需求写代码。**
+三行相似代码优于一个过早抽象。重复不一定是坏事，过早抽象才是。
 
-- 本项目禁止 Domain 层 / UseCase 层（`coding.md`）— 单人开发 + ViewModel 直调 Repository，多余的层是 YAGNI
-- 内测阶段不做 Schema 迁移（`feedback.md` F-004）— 没有外部用户，不需要向前兼容
-- 三行相似代码优于一个过早抽象 — 重复不一定是坏事，过早抽象才是
+当看到模式重复出现 3 次以上时考虑抽象——但出现 3 次不必然该抽象，还要判断：抽象后是否真的降低了认知负担？是否引入了新的耦合？被抽象的代码是否可能向不同方向演化？
 
-守门问题：**这个功能现在有真实用户需要吗？没有就不做。**
+**适用范围**：所有新增代码、新增文件、新增抽象层。
 
-## 三次法则 (Rule of Three)
+**反例**：跨模块边界的 API 约定（包与包之间的接口）、安全边界、外部 API 的适配层——这些即使只出现 1 次也需要明确定义，因为修改成本远高于创建成本。
 
-**看到模式出现 3 次再抽象，不提前。**
+**与原则 5（协议优先）的冲突裁决**：如果为"未来可能替换实现"而定义协议，但当前只有 1 个实现 → 原则 2 胜出，不定义协议。如果是为测试 mock 或跨包边界 → 原则 5 适用。
 
-- 新 rules 文件的入口条件：识别到重复性约束 3 次以上 → 从 feedback 提升为 rule（`KNOWLEDGE_MAP.md`）
-- 代码中改一个需求动 N 个文件、N > 3 是抽象不当的警告 — 同一个数字 3 的两面：出现不够 3 次别抽象，扩散超过 3 处说明抽象缺失
+---
 
-与奥卡姆剃刀的关系：奥卡姆剃刀回答"要不要抽象"，三次法则回答"什么时候抽象"。
+## 3. 不为假设性需求写代码
 
-## 编译期拦截 (Fail Fast at Compile Time)
+**这个功能现在有真实需要吗？没有就不做。**
 
-**能让编译器拦的，就不留到运行时。**
+守门标准（按优先级）：
+1. 发布后：Analytics 数据显示用户有此行为，或用户反馈直接要求
+2. 发布前：产品愿景/用户旅程中有明确场景支撑，或竞品已验证此需求
+3. 任何阶段：App Store 审核要求、平台合规要求、安全风险控制
 
-| 实践 | 配置 / 规则 |
+不符合以上任何一条 → 不做。
+
+**适用范围**：所有功能开发和架构决策。
+
+**反例**：技术债清理和基础设施升级（如 Swift 版本迁移、依赖更新、平台废弃 API 替换）不需要"用户需要"作为理由——但需要明确的工程信号：编译阻塞、安全风险、性能预算超限、维护成本显著上升、或 CI/review 中反复出现的摩擦。
+
+---
+
+## 4. 编译器能拦的，不留给运行时
+
+**零容忍警告，完整并发检查。**
+
+- 警告即错误，并发错误编译期暴露
+- 业务错误用 typed throws，禁止无差别 `catch` 吞错
+- 包边界依赖方向编译器强制
+
+如果一个 bug 能在编译期被发现却在运行时才暴露，说明约束不够强。具体 Swift flags、SPM 配置、lint 规则见 `coding.md`。
+
+**适用范围**：所有代码。无法在编译期拦截的约束用 lint、测试、CI 门禁补足。
+
+**反例**：运行时行为（性能、视觉回归、SwiftData 崩溃、Accessibility、Firebase/StoreKit 回调）无法编译期验证——这些用测试、NFR 基准、api-pitfalls 记录来覆盖，不依赖"编译器能拦"这个原则。
+
+---
+
+## 5. 跨边界先定义契约
+
+**包与包之间、模块与模块之间、Service 与调用方之间——用协议或明确的 public API 定义边界。**
+
+- 跨包边界的 Service（如 OCR、Analytics）→ 协议定义在 Core，实现在具体层
+- 需要测试 mock 的类型 → 协议先行
+- 单实现、同模块内部、无替换压力的类型 → 不需要协议
+
+**适用范围**：跨模块边界、需测试替身的依赖、可能被第三方替换的组件。
+
+**反例**：同模块内部的 ViewModel、Repository 实现类不需要协议——它们只有一个实现且没有跨边界调用需求。为它们定义协议是原则 2 和 3 意义上的过度工程。
+
+---
+
+## 6. 状态所有权明确，复杂业务集中编排
+
+**复杂业务状态由 ViewModel 持有和修改，View 通过观察自动刷新。跨模块状态同步走通知，不走共享可变状态。**
+
+具体架构模式（`@Observable`、`@Environment`、`NotificationCenter`、`@Query`）的落地细节见 `../tech/architecture.md`。
+
+**适用范围**：涉及用户数据的增删改查、复习进度、设置变更等业务状态。
+
+**反例**：轻量级操作（埋点、Haptic 反馈）允许 View 直接调用 Service。系统级只读状态（`@Environment`、`scenePhase`、`dismiss`）天然在 View 层响应。`@Query` 用于局部、只读的数据展示是合理的——但不应用它绕过 Repository 做业务规则判断或跨 View 共享可变查询结果。
+
+---
+
+## 7. 可逆决策成本低，不可逆决策门槛高
+
+**信息不完整时，优先选择可以撤回的方案。**
+
+- feature branch + PR → 代码变更可逆
+- ADR 可被新 ADR 废弃 → 架构决策可逆
+- 内测/未发布阶段数据模型可重建 → 数据结构可逆（发布后有用户数据后走 Schema 迁移）
+
+不可逆决策（App Store 发布、最低 iOS 版本选择、SwiftData 等持久化框架选择、核心数据模型设计）需要更高的审查门槛——但这些决策**不应该因为"不可逆"而被回避**。有时候早期锁定平台基线是正确的，换来一致性和更少的兼容负担。
+
+**适用范围**：信息不完整时的决策。信息充分时不适用此原则。
+
+**反例**：平台级基线、持久化技术栈、核心数据模型——这些早期决策往往应该是不可逆的，因为反复迁移的成本远超一开始就锁定。对于这些决策，关键是投入足够的研究和讨论，而不是保持可逆。
+
+---
+
+## 相关文档
+
+| 文档 | 说明 |
 |---|---|
-| 零容忍警告 | `Shared.xcconfig`: `GCC_TREAT_WARNINGS_AS_ERRORS = YES`, `SWIFT_TREAT_WARNINGS_AS_ERRORS = YES` |
-| 完整并发检查 | `Shared.xcconfig`: `SWIFT_STRICT_CONCURRENCY = complete` |
-| typed throws | 业务验证用 `throws(SpecificError)`，禁止 `case underlying(Error)` 逃生舱（`coding.md`） |
-| 包边界编译器强制 | 5 个 SPM 包单向依赖，反向 import 直接编译失败（`architecture.md`） |
-| 禁止不安全标注 | `@unchecked Sendable`、`force unwrap !` 列入禁止清单（`coding.md`） |
-
-如果一个 bug 能在编译期被发现却在运行时才暴露，说明约束不够强。
-
-## 单一真相源 (Single Source of Truth)
-
-**每个事实只有一个权威来源，其余都是指针。重复就会漂移，漂移就会矛盾。**
-
-| 事实 | 唯一来源 | 指针示例 |
-|---|---|---|
-| 版本号 | `Configs/Shared.xcconfig` | pbxproj 读取 xcconfig |
-| 委派约束 | `docs/principles/shared-constraints.md` | codex-delegation.md / gemini-delegation.md 要求"读取并内联" |
-| 术语定义 | `docs/product/product-glossary.md` | 各文档使用一致术语 |
-| 开发规则 | `docs/principles/` | `.claude/rules/` 作为指针路由 |
-
-违反信号：同一信息在两处出现且措辞不同 → 必须确定谁是源、谁是指针，消除重复。
-
-## 可逆性优先 (Prefer Reversible Decisions)
-
-**在信息不完整时，优先选择可以撤回的方案。**
-
-- 软删除 5 秒撤销窗口（`DeletionScheduler`）— 用户决策可逆
-- ADR 可被新 ADR 废弃替代 — 架构决策可逆
-- 内测阶段不锁 Schema — 数据结构可逆
-- feature branch + PR — 代码变更可逆
-
-不可逆决策（App Store 发布、Schema 迁移、数据删除永久化）需要更高的审查门槛。
-
-## 关注点分离 (Separation of Concerns)
-
-**每个模块只有一个变更理由。**
-
-| 层 | 职责 | 变更理由 |
-|---|---|---|
-| SnapDrillCore | 协议、服务、SM-2 引擎、DI | 业务逻辑变更 |
-| SnapDrillData | @Model、Repository、备份、迁移 | 数据结构变更 |
-| SnapDrillUI | Router 协议、可复用组件 | UI 组件库变更 |
-| SnapDrillFeatures | View + ViewModel 配对 | 功能需求变更 |
-| SnapDrillInfrastructure | Firebase 封装 | 第三方 SDK 替换 |
-
-Infrastructure 隔离 Firebase：替换 Firebase 只改这一层，Core 通过协议解耦（`architecture.md`）。View/ViewModel 分离：View 纯渲染，ViewModel 持有状态和逻辑（`coding.md`）。
-
-## 协议优先 (Protocol-Oriented)
-
-**优先用协议定义契约，实现在下游。**
-
-- `ServiceContainer` 协议 → `LiveServiceContainer` / `MockServiceContainer` 实现
-- `OCRServiceProtocol` → `OCRService`（可替换为测试 Mock）
-
-协议定义在 Core 层，实现在各具体层。依赖方向始终向上（Feature → Core），不反向。
-
-## 值语义默认 (Value Semantics First)
-
-**跨边界传递的数据用 struct，有状态的对象用 class + @MainActor。**
-
-| 场景 | 类型 | 原因 |
-|---|---|---|
-| DTO / Snapshot / 配置 | `nonisolated struct` + `Sendable` | 跨 actor 零成本传递 |
-| ViewModel | `@Observable class` | 有可变状态，需 MainActor 隔离 |
-| Service（无状态） | `struct` 或 `enum` 命名空间 | 无实例状态则无需 class |
-| Service（有状态） | `actor` | 自带隔离，如 `BackupService` |
-
-守门问题：**这个类型需要 identity 吗？不需要就用 struct。**
-
-## 并发安全优先 (Structured Concurrency First)
-
-**强 actor 隔离优于手工同步。编译器能检查的并发安全，不用运行时验证。**
-
-- `defaultIsolation(MainActor)` — 全局默认隔离，减少标注负担
-- `nonisolated` 显式声明无隔离需求（纯计算、DTO 转换）
-- `actor` 隔离有状态的后台服务（`BackupService`）
-- `Task.detached` 仅用于确需脱离当前 actor 的场景（文件 IO、图片压缩）
-
-优先使用 actor 隔离，避免 `NSLock`、`os_unfair_lock` 等手工同步原语。
-UIKit 桥接场景（AVFoundation 回调、UIKit 动画调度）允许 `DispatchQueue.main.async`。
-
-## 单向状态流 (Unidirectional Data Flow)
-
-**状态从 ViewModel 流向 View，反向通过通知或回调。**
-
-```
-View ──(用户操作)──→ ViewModel ──(修改状态)──→ @Observable 自动刷新 View
-                                    │
-                                    ├──(持久化)──→ Repository
-                                    └──(广播)──→ NotificationCenter → 其他 ViewModel
-```
-
-- View 通过 ViewModel 调用 Service（埋点等轻量操作可直接调用 `analyticsService`）
-- ViewModel 之间通过 `NotificationCenter`（`.reviewDataDidChange`）解耦，不互相引用
-- 跨模块状态同步走通知，不走共享可变状态
+| `coding.md` | 编码规范（本哲学在 Swift/SPM 的具体落地） |
+| `testing.md` | 测试策略（编译期拦截的补充） |
+| `apple-native.md` | Apple 原生 UI 模式（原则 1 的 HIG 落地） |
+| `apple-limits.md` | Apple 技术能力边界（原则 1 的研究参考） |
+| `api-pitfalls.md` | 踩坑记录（工程哲学的实证反馈） |
+| `../tech/architecture.md` | 当前架构实现（包结构、DI、模块边界） |
+| `../tech/non-functional-requirements.md` | 性能预算、内存约束、启动时间 |
+| `../tech/compliance.md` | 隐私合规（原则 3 的合规例外、YAGNI 的审核约束） |
+| `../workflow.md` | 协作流程（原则如何落到 Issue、Scope、DoD、Review） |
+| `../product/product-vision.md` | 产品定位（原则 3 的"用户需要"判断依据） |
+| `../product/product-journeys.md` | 用户旅程（原则 3 的场景验证） |
+| `../KNOWLEDGE_MAP.md` | 知识分层索引 |
+| `../DOC_DEPENDENCY_MAP.md` | 文档上下游传播关系 |
+| `../decisions/` | ADR（不可逆决策的正式记录） |

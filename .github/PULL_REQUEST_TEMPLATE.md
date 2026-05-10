@@ -19,11 +19,13 @@ Closes #
 ### 代码质量
 
 - [ ] `swiftlint --strict` 0 violations
-- [ ] `xcodebuild build-for-testing` 0 errors
-- [ ] 改接口签名后已 `grep -rn "TypeName(" Packages/*/Tests/` 检查测试同步
+- [ ] `xcodebuild build-for-testing -scheme AllTests -testPlan AllTests` 0 errors
+- [ ] CI test 通过（已有测试不得回归）
+- [ ] 改接口签名后已 grep 检查测试同步
+- [ ] 新增抽象有明确必要性（engineering 原则 2）
+- [ ] 功能不超出 Issue scope（engineering 原则 3）
+- [ ] 涉及新 API/新交互时留有研究证据（engineering 原则 1）
 - [ ] Xcode Review 核实通过（UI 改动必须）
-- [ ] 变更不违反 `docs/principles/` 中的架构约束
-- [ ] 涉及数据读写时已确认 Profile 隔离（不跨 Profile 泄露数据）
 - [ ] Codex 对抗性审查通过
 - [ ] AI 反模式检查通过（over-generation / scope creep / pattern divergence）
 - [ ] 此 PR 是否影响已文档化的约束？如是，已更新对应文件
@@ -45,7 +47,7 @@ Closes #
 
 - [ ] Review 结论已留痕（PR comment 或 PR 描述）
 
-### 审计豁免留痕（docaudit，见 `docs/workflow.md` 审计命中处置协议）
+### 审计豁免留痕（docaudit，见 `docs/workflow.md`§文档审计 + `Scripts/audit/README.md`）
 
 <!-- 本段为 Phase B 纪律。若本 PR 无 docaudit 相关改动，打勾"无"即可 -->
 <!-- error/warning 命中不允许仅靠 PR 描述绕过 — CI 会直接阻断 — 唯一合法豁免是 legacy_whitelist -->

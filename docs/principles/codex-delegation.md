@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-17
+last_verified: 2026-05-10
 layer: pattern
 ---
 # Codex 子 agent 委派规范
@@ -12,15 +12,17 @@ Codex 作为主线程的子 agent 运行（插件 v1.0.3，源码 `openai/codex-
 
 ## 模型与参数选择
 
-| 任务类型 | 模型 | effort | 理由 |
-|---|---|---|---|
-| 研究/审计（只读） | `--model gpt-5.4` | `--effort high` | 对抗性审查要求深度，high 提供更可靠的分类判断（2026-04-17 从 medium 升级） |
-| 对抗性 Review | `--model gpt-5.4` | `--effort high` | 同上，多文件 diff 审查和独立视角验证需要 high 保证质量 |
-| 代码实现/修复 | 默认（不指定） | 默认（不指定） | 让 Codex 自选最优模型 |
-| 快速迭代/实时 | `--model spark` | 默认 | 1000+ tok/s，适合小改动 |
-| 快速 lint/格式校验 | `--model gpt-5.4` | `--effort medium` | 低智能敏感度任务，medium 省 token |
+Codex CLI 0.130.0+ 使用 `-m` 指定模型，不支持 `--effort` 标志。
 
-历史注记：GPT-5.3-Codex 时代因搜索循环曾推荐 medium。GPT-5.4 + Codex CLI v0.121.0 后该问题显著改善，2026-04-17 起默认升级 high。
+| 任务类型 | 模型参数 | 理由 |
+|---|---|---|
+| 研究/审计（只读） | `-m gpt-5.5` | 最新模型，深度推理，适合对抗性审查 |
+| 对抗性 Review | `-m gpt-5.5` | 同上，多文件 diff 审查和独立视角验证 |
+| 代码实现/修复 | 默认 | 让 Codex 自选最优模型 |
+| 快速迭代/实时 | `-m spark` | 1000+ tok/s，适合小改动 |
+| 快速 lint/格式校验 | `-m gpt-5.5` | 低智能敏感度任务 |
+
+历史注记：GPT-5.4 时代 `--effort high` 曾是推荐参数；Codex CLI 0.130.0 移除该标志，模型选择替代 effort 控制。
 
 ## 委派 prompt 必须包含
 
