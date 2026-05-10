@@ -70,7 +70,7 @@ sudo rm             # 提权删除
 | `PreToolUse` | `Bash` | `premerge-checklist.sh` | `gh pr merge` 前检查 STATUS.md 近 24h 更新 | T2 合并门禁 |
 | `PreToolUse` | `Bash` | `prepush-lint.sh` | `git push` 前全仓 swiftlint | T2 合并门禁 |
 | `PreToolUse` | `Bash` | `long-session-guard.sh` | 会话 > 60 min 提示 compact / phase-closeout | T1 观察 |
-| `PreToolUse` | `Bash` | `docaudit-preflight.sh` | `git push` / `gh pr merge` / `git commit --amend` / `git rebase` 前跑 `docaudit all --strict --baseline`（Phase B PR-2） | T2 合并门禁 |
+| `PreToolUse` | `Bash` | `docaudit-preflight.sh` | `git push` / `gh pr merge` / `git commit --amend` 前跑 `docaudit all --strict --baseline`（Phase B PR-2） | T2 合并门禁 |
 
 **修改 `.claude/settings.json` 绑定时**：同步更新 §3 表格。新增 hook 须在 `.claude/hooks/` 建 `.sh` + 本表登记 + 注释风险等级。
 
