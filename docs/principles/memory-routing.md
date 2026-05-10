@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-21
+last_verified: 2026-05-10
 layer: pattern
 ---
 # 知识/记忆路由规则
@@ -13,11 +13,15 @@ layer: pattern
 | 内容类型 | 半衰期 | 共享范围 | 目标位置 | 例子 |
 |---|---|---|---|---|
 | 产品定位、原则、价值链 | >2 年 | 公开 | `docs/product/product-vision.md` | "数据属于用户" |
-| 商业模式、定价、竞品 | 6-24 个月 | 公开 | `docs/product/product-business.md` | Pro 订阅价格 |
-| 功能规格、用户旅程 | 6-24 个月 | 公开 | `docs/product/product-requirements.md` | "PDF 导出支持去答案" |
+| 商业模式、定价 | 6-24 个月 | 公开 | `docs/product/product-business.md` | Pro 订阅价格 |
+| 竞品分析 | 6-24 个月 | 公开 | `docs/product/product-competitive-analysis.md` | 喵喵机 vs SnapDrill |
+| 功能规格 | 6-24 个月 | 公开 | `docs/product/product-requirements.md` | "PDF 导出支持去答案" |
+| 用户旅程 | 6-24 个月 | 公开 | `docs/product/product-journeys.md` | 张敏首次录题 |
+| Analytics 事件 | 6-24 个月 | 团队 | `docs/product/product-analytics.md` | capture_saved |
+| Onboarding 内容 | 6-24 个月 | 团队 | `docs/product/product-onboarding.md` | Onboarding 第1页 |
 | 技术架构、Package 边界、DI | 6-24 个月 | 团队 | `docs/tech/architecture.md` | "Core 不依赖 Data" |
 | 内部 API 签名 | <6 个月 | 团队 | `docs/tech/api-reference.md` | `OCRServiceProtocol` |
-| 工程哲学、纪律 | >2 年 | 团队 | `docs/principles/engineering.md` 等 | 奥卡姆剃刀 |
+| 工程哲学 | >2 年 | 团队 | `docs/principles/engineering.md` | 7 条核心原则 |
 | 项目纪律 / 反馈教训 | 6-24 个月 | 团队 | `docs/memory/feedback.md` | F-008 |
 | 工程决策（非 ADR 级） | 6-24 个月 | 团队 | `docs/memory/decisions.md` | 模块拆分理由 |
 | ADR / 产品/架构决策 | >2 年 | 团队 | `docs/decisions/ADR-NNN-*.md` | ADR-001 智能组卷定价 |
