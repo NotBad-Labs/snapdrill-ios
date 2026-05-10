@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-19
+last_verified: 2026-05-10
 layer: pattern
 ---
 # Gemini CLI 委派规范
@@ -7,7 +7,7 @@ layer: pattern
 > 本文件是 agent-agnostic 的委派规范。任何主线程委派 Gemini CLI 时遵循本规则。
 > 位置迁移自 `.claude/rules/gemini-delegation.md`（2026-04-17 PR #642 迁移，遵循 engineering.md:72 SSOT）。
 
-Gemini CLI（google-gemini/gemini-cli v0.38.1+）通过 Bash 非交互模式在主线程内调用，提供第三个独立模型家族（Google Gemini 3）的审计视角。
+Gemini CLI（google-gemini/gemini-cli v0.41.2+）通过 Bash 非交互模式在主线程内调用，提供第三个独立模型家族（Google Gemini）的审计视角。
 与 Codex 不同，Gemini 通过 `-p` 参数直接传递 prompt，不是插件体系。
 
 ## 调用方式
@@ -18,7 +18,7 @@ gemini -p "<prompt>" 2>&1
 
 - 默认不加 `--sandbox`（性能更好，审计类 prompt 不会触发写入）
 - `--sandbox`：只读模式，禁止写文件。仅在 prompt 可能触发代码修改时使用
-- `-m gemini-2.5-flash`：切换为快速模型（默认 Gemini 3 Auto）
+- `-m gemini-3-pro-preview`：优先模型（强推理，长上下文）；`-m gemini-2.5-pro` 作为备选
 
 ### sandbox 性能影响（2026-04-09 实测）
 
@@ -45,8 +45,8 @@ sandbox 模式显著降低性能，复杂任务可能卡死：
 
 | 任务类型 | 模型 | 理由 |
 |---|---|---|
-| 代码审计/Review | Gemini 3 Auto（默认） | 强推理，长上下文 |
-| 快速校验/格式检查 | gemini-2.5-flash（`-m gemini-2.5-flash`） | 快速响应，节省配额 |
+| 代码审计/Review | gemini-3-pro-preview（优先）| 强推理，长上下文 |
+| 快速校验/格式检查 | gemini-2.5-pro（`-m gemini-2.5-pro`） | 备选，节省配额 |
 
 ### iOS 26 知识缺口
 

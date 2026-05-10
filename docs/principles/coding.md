@@ -18,7 +18,7 @@ layer: pattern
 - 启用 `defaultIsolation(MainActor.self)`：所有代码默认 MainActor 隔离
 - **禁止手写 `@MainActor`**（冗余），唯一例外：`Sendable` 协议 + 可变状态的类需显式标注
 - ViewModel 声明：`@Observable final class`（不需要 `@MainActor`）
-- 后台执行：`Task.detached`（当前实践）；`@concurrent` 可作为替代
+- 后台执行：`Task.detached`（文件 IO、图片压缩等确需脱离当前 actor 的场景）
 - 纯计算 struct/enum 跨 actor 使用：标记 `nonisolated`（如 ImageStorage、DTO、L10n）
 - Task 句柄：`@ObservationIgnored private var xxxTask: Task<Void, Never>?` + `cancelTasks()` 在 `.onDisappear`
 - **Task 闭包中禁止直接访问 MainActor 属性**：`Task {}` / `Task.detached {}` 内不得引用 `@Environment`、`@State`、computed property 等 MainActor 隔离属性。必须在进入 Task 前用 `let localVar = mainActorProp` 捕获到局部变量（要求类型为 `Sendable`）。原因：clean build 可能不报警告，但 Xcode 增量编译会捕获 actor isolation 违规
@@ -76,9 +76,25 @@ layer: pattern
 - **禁止**：独立业务组件（>50 行或被其他文件引用）塞在别人文件里
 - **SwiftLint 守护**：`file_length` error 600，超限即需拆分
 
+## 值类型优先
+
+- DTO、配置、快照、纯值模型 → 默认 `struct` 或 `enum`
+- 需要 identity、生命周期、`@Observable`、SwiftData 持久化 → `class`
+- 守门问题：这个类型需要 identity 吗？不需要就用 struct。
+
 ## 禁止
 
-- `@unchecked Sendable`、`force unwrap !`、`print()`
+### 并发安全
+- `@unchecked Sendable`（测试 Mock 除外，须注释说明）
+- `force unwrap !`（`swiftlint force_unwrapping: error`）
+
+### 调试
+- `print()` — 用 `SnapDrillLogger` 对应子系统
+
+### 类型系统
 - `any` existentials（三个例外：EnvironmentKey.Value 跨模块协议、无 associated type 协议集合如 `[any PDFExportable]`、Protocol 作为函数参数类型）
-- Domain 层 / UseCase 层 / Repository 协议 / struct 领域对象
-- 跨 ModelContext 写后立即读
+
+### 架构
+- Domain 层 / UseCase 层 / Repository 协议（ViewModel 直调 Repository）
+- struct 领域对象（SwiftData @Model 须为 class）
+- 跨 ModelContext 写后立即读（须先 saveContext）

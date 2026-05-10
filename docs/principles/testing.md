@@ -31,7 +31,7 @@ CI 与本地统一走 `AllTests.xctestplan`，两步切分避免重复编译：
 - **重录 baseline**：同上但 `-only-test-configuration SnapshotRecord`（对应 `SNAPSHOT_TESTING_RECORD=all`，swift-snapshot-testing 原生 env key）
 - **禁止**：`swift test`（SPM 仅声明 iOS 平台，macOS 环境不匹配会报错或 SIGTRAP）
 - **禁止**：`xcodebuild build`（不编译测试 target）
-- **禁止**：`xcodebuild test` 单步（替换为两步 build-for-testing + test-without-building，见 `docs/workflow.md` 《本地复现 CI Test》段）
+- **禁止**：`xcodebuild test` 单步（替换为两步 build-for-testing + test-without-building，见 `docs/tech/deployment.md`）
 
 ## async / MainActor 测试约束
 
@@ -108,4 +108,4 @@ CI 与本地统一走 `AllTests.xctestplan`，两步切分避免重复编译：
 - CI 跑 `xcodebuild build-for-testing -scheme AllTests -testPlan AllTests` + `xcodebuild test-without-building -xctestrun ... -only-test-configuration CI -resultBundlePath TestResults.xcresult` 两步自动执行 snapshot 测试
 - Test step 失败时 `Upload xcresult on failure` 把 `TestResults.xcresult` 打成 artifact，保留 7 天
 - Artifact 命名：`xcresult-<run_id>-<attempt>`
-- 下载与解包见 `docs/workflow.md` 《CI 与本地一致性》段
+- 下载与解包见 `docs/tech/deployment.md`

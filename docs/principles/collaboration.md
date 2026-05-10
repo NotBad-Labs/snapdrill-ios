@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-19
+last_verified: 2026-05-10
 layer: pattern
 ---
 # 智能体协作架构
@@ -109,9 +109,9 @@ Cross-audit 和 PR Review 时，除通用代码质量外，必须额外检查以
 | **Scope Fidelity** | 与 Issue Sprint Contract（`docs/memory/feedback.md` F-018）Touches / No-Touch / Interface Delta 的吻合度 |
 | **Code Quality** | swiftlint / 复杂度 / 架构一致（人工审查维度，独立于 CI 二元通过） |
 | **Test Coverage** | 新增逻辑是否有测试、异常路径是否覆盖 |
-| **Architecture Fit** | 是否遵循 `engineering.md` 奥卡姆剃刀 / YAGNI / SSOT / 可逆性 |
+| **Architecture Fit** | 是否遵循 `engineering.md` 7 条原则（删减、YAGNI、编译拦截、边界契约、状态流、可逆性） |
 
-**Retry 阈值与具体动作**（建议 retry / 硬性 retry / 可进入待合并 / 冲突列表触发条件）以 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 为 SSOT。即使 §2.5 判定某 PR "可进入待合并状态"，最终合并仍需用户确认（见本文 §Review 流程与 `docs/workflow.md` Code Review 段）。
+**Retry 阈值与具体动作**（建议 retry / 硬性 retry / 可进入待合并 / 冲突列表触发条件）以 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 为 SSOT。即使 §2.5 判定某 PR "可进入待合并状态"，最终合并由人类操作者确认或明确授权后执行（见 `docs/workflow.md`§Code Review）。
 
 **背景**：对标 Anthropic Harness Design 2026-03-24 的 Rubric 范式。详见 `docs/archive/research/harness-engineering-study-20260418.md`。
 
