@@ -1,10 +1,12 @@
 ---
-last_verified: 2026-04-19
+last_verified: 2026-05-11
 layer: decision
 ---
 # ADR-003: 文档 frontmatter 从 HTML 注释迁移到 YAML
 
-> 状态：**已决策** | 日期：2026-04-17 | 决策者：PO | 落地：PR #656 (ADR) + PR #657 (40 文件迁移) + PR #658 (校验门)
+> 状态：**已决策** | 日期：2026-04-17 | 决策者：PO | 落地：PR #656 (ADR) + PR #657 (文件迁移) + PR #658 (校验门)
+>
+> ⚠️ 注：本文档是 2026-04-17 决策时的历史记录。文中"39 个 md 文件""12 个 rules"等数字反映决策时的规模。当前实际文件数量已有变化（产品文档新增 journeys/analytics/onboarding/competitive-analysis，rules 新增 memory-routing/review-prompt-guide），不影响决策的有效性。
 
 ## 背景
 
@@ -111,8 +113,8 @@ Claude Opus 4.7 / Codex GPT-5.4 / Gemini 3 三方独立产出 schema + 迁移脚
 
 ## 相关
 
-- `Scripts/migrate_to_yaml_frontmatter.py`（待新增，方案见 `~/.claude/plans/adversarial-t05-06-claude.md` §2）
-- `Scripts/validate_frontmatter.py`（待新增，方案见同 §4）
+- `Scripts/migrate_to_yaml_frontmatter.py`（已实现，方案见 `~/.claude/plans/adversarial-t05-06-claude.md` §2）
+- `Scripts/validate_frontmatter.py`（已实现，方案见同 §4）
 - `.git/hooks/pre-commit`（增量挂接）
 - `.github/workflows/ci.yml`（CI step 新增）
 - docs/ 下 39 md 文件（全部迁移）

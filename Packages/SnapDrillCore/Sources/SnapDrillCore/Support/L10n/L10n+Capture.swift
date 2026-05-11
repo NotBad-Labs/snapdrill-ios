@@ -45,6 +45,7 @@ nonisolated extension L10n {
         public static let subject = NSLocalizedString("capture.subject", value: "学科", comment: "学科标签")
         public static let source = NSLocalizedString("capture.source", value: "来源", comment: "来源标签")
         public static let tags = NSLocalizedString("capture.tags", value: "标签", comment: "标签标签")
+        public static let tagInputPlaceholder = NSLocalizedString("capture.tag_input_placeholder", value: "输入标签，空格添加", comment: "标签输入框占位提示")
         public static let difficulty = NSLocalizedString("capture.difficulty", value: "难度", comment: "难度标签")
         public static let grade = NSLocalizedString("capture.grade", value: "年级/程度", comment: "年级标签")
         public static let answer = NSLocalizedString("capture.answer", value: "参考答案", comment: "参考答案标签")
