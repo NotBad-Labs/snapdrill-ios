@@ -118,6 +118,7 @@ private struct SkeletonItemView: View {
         .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
         .opacity(isAnimating ? 0.5 : 1.0)
         .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isAnimating)
+        .accessibilityHidden(true) // 骨架屏是纯装饰，无交互内容
         .onAppear {
             isAnimating = true
         }

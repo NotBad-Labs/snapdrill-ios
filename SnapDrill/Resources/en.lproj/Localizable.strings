@@ -80,6 +80,7 @@
 "capture.subject" = "Subject";
 "capture.source" = "Source";
 "capture.tags" = "Tags";
+"capture.tag_input_placeholder" = "Type a tag, space to add";
 "capture.difficulty" = "Difficulty";
 "capture.grade" = "Grade";
 "capture.answer" = "Answer";
