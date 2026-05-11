@@ -109,23 +109,27 @@ public final class RepositoryContainer {
 
     /// 从备份 DTO 恢复全量数据（单次 saveContext 原子操作）
     ///
-    /// delete + insert 在同一 saveContext 内完成。失败时 rollback 同时撤销两者。
-    /// 恢复前强制备份当前数据到持久 Recovery 目录，备份失败直接拒绝恢复。
+    /// 不再分两步（先 deleteAllData 再重建），而是在同一个 saveContext 内完成
+    /// 删除旧数据 + 插入新数据。saveContext 失败时 rollback 会同时撤销删除和插入，
+    /// 不会出现"旧数据已删、新数据未写入"的中间状态。
+    ///
+    /// 恢复前强制备份当前数据到持久 Recovery 目录。备份失败直接拒绝恢复。
     ///
     /// - Parameter profileData: 单个 Profile 的备份数据
     public func restoreFromProfileData(_ profileData: ProfileBackupData) async throws {
-        // 0. 强制安全网备份，失败直接拒绝恢复
+        // 0. 强制安全网备份：写入持久 Recovery 目录，失败直接拒绝恢复
         let recoveryURL = try saveRecoveryBackup()
 
-        // 1. 收集旧图片路径（恢复成功后才清理）
+        // 1. 收集旧图片路径（用于恢复成功后清理）
         let oldImagePaths = try review.collectAllImagePaths()
 
-        // 2. 内存标记删除（不 save）
+        // 2. 在内存中标记删除所有现有数据（不 save）
         try review.deleteAll()
         try deleteAllTaxonomyInMemory()
 
         do {
-            // 3. 内存插入备份数据（不 save）
+            // 3. 在内存中插入备份数据（不 save）
+            // 重建分类模型
             for dto in profileData.subjects {
                 let model = SubjectModel(id: dto.id, name: dto.name, icon: dto.icon, colorHex: dto.colorHex, sortOrder: dto.sortOrder)
                 subject.insert(model)
@@ -139,38 +143,52 @@ public final class RepositoryContainer {
                 grade.insert(model)
             }
 
+            // 重建标签
             var tagsByName: [String: TagModel] = [:]
             for dto in profileData.tags {
                 let model = try tag.fetchOrCreateModel(name: dto.name, colorHex: dto.colorHex)
                 tagsByName[dto.name] = model
             }
 
+            // 重建题目
             for dto in profileData.reviewItems {
                 let itemTags = dto.tagNames.compactMap { tagsByName[$0] }
                 let model = ReviewItemModel(
-                    id: dto.id, content: dto.content, imagePath: dto.imagePath,
-                    createdAt: dto.createdAt, lastReviewedAt: dto.lastReviewedAt,
-                    nextReviewAt: dto.nextReviewAt, subject: dto.subject, source: dto.source,
-                    tags: itemTags, answerText: dto.answerText, answerImagePath: dto.answerImagePath,
-                    difficulty: dto.difficulty, grade: dto.grade,
-                    easeFactor: dto.easeFactor, interval: dto.interval, repetitions: dto.repetitions
+                    id: dto.id,
+                    content: dto.content,
+                    imagePath: dto.imagePath,
+                    createdAt: dto.createdAt,
+                    lastReviewedAt: dto.lastReviewedAt,
+                    nextReviewAt: dto.nextReviewAt,
+                    subject: dto.subject,
+                    source: dto.source,
+                    tags: itemTags,
+                    answerText: dto.answerText,
+                    answerImagePath: dto.answerImagePath,
+                    difficulty: dto.difficulty,
+                    grade: dto.grade,
+                    easeFactor: dto.easeFactor,
+                    interval: dto.interval,
+                    repetitions: dto.repetitions
                 )
                 review.insert(model)
             }
 
-            // 4. 单次 saveContext：delete+insert 原子提交。失败 rollback 同时撤销两者
+            // 4. 单次 saveContext：删除+插入在同一个事务中原子提交。
+            //    失败时 rollbackContext() 同时撤销删除和插入，旧数据完整保留。
             try review.saveContext()
 
-            // 5. 成功后清理旧图片（best-effort）
+            // 5. save 成功后清理旧图片文件（best-effort，不影响数据一致性）
             let storage = ImageStorage()
             for path in oldImagePaths {
-                try? await storage.deleteImage(path: path)
+                try? await storage.deleteImage(path: path) // best-effort: 单张删除失败不中断整批
             }
 
-            // 6. 清理安全网备份
+            // 6. 恢复成功，清理安全网备份
             try? FileManager.default.removeItem(at: recoveryURL)
 
         } catch {
+            // rollback 撤销所有未提交变更（包括删除和插入），旧数据完整保留
             review.rollbackContext()
             SnapDrillLogger.data.error("恢复失败，数据已回滚。安全网备份保留在: \(recoveryURL.path)")
             throw error
@@ -179,17 +197,38 @@ public final class RepositoryContainer {
 
     // MARK: - Recovery Backup
 
+    /// Recovery 备份目录（Application Support/Recovery/，持久存储，不会被系统清理）
     private static var recoveryDirectory: URL {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         return appSupport.appendingPathComponent("SnapDrill/Recovery")
     }
 
+    /// 强制安全网备份：将当前数据序列化为 JSON 写入持久 Recovery 目录。
+    /// 备份失败直接 throw，拒绝继续恢复。
     private func saveRecoveryBackup() throws -> URL {
         let dir = Self.recoveryDirectory
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+
         let timestamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
-        let url = dir.appendingPathComponent("pre_restore_\(timestamp).json")
-        let backup = try collectProfileBackupData(profileName: "recovery_backup", profileId: UUID())
+        let fileName = "pre_restore_\(timestamp).json"
+        let url = dir.appendingPathComponent(fileName)
+
+        let items = try review.fetchAllModels()
+        let allSubjects = try subject.fetchAllModels()
+        let allSources = try source.fetchAllModels()
+        let allGrades = try grade.fetchAllModels()
+        let allTags = try tag.fetchAllModels()
+
+        let backup = ProfileBackupData(
+            profileName: "recovery_backup",
+            profileId: UUID(),
+            reviewItems: items.map { $0.toBackupDTO() },
+            subjects: allSubjects.map { $0.toBackupDTO() },
+            sources: allSources.map { $0.toBackupDTO() },
+            grades: allGrades.map { $0.toBackupDTO() },
+            tags: allTags.map { $0.toBackupDTO() }
+        )
+
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         try encoder.encode(backup).write(to: url, options: .atomic)
