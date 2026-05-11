@@ -180,7 +180,7 @@ public struct ImageStorage: Sendable {
         }
         var totalSize: Int64 = 0
         for case let fileURL as URL in enumerator {
-            if let size = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+            if let size = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize { // best-effort: 获取文件大小失败时跳过，继续统计其余文件
                 totalSize += Int64(size)
             }
         }

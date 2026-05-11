@@ -80,6 +80,7 @@
 "capture.subject" = "学科";
 "capture.source" = "来源";
 "capture.tags" = "标签";
+"capture.tag_input_placeholder" = "输入标签，空格添加";
 "capture.difficulty" = "难度";
 "capture.grade" = "年级/程度";
 "capture.answer" = "参考答案";

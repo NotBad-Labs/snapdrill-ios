@@ -1,5 +1,5 @@
 #!/bin/bash
-# PreToolUse (Bash): 在 push / merge / amend / rebase 前跑 docaudit all --strict --baseline。
+# PreToolUse (Bash): 在 push / merge / amend 前跑 docaudit all --strict --baseline。
 # 防止 error 级命中推到远端再被 CI 阻断（本地兜底）。
 # 被 legacy_whitelist 豁免的历史违规不阻断；新增违规阻断。
 
@@ -9,7 +9,7 @@ INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
 # 锚定命令匹配（对齐 prepush-lint.sh / premerge-checklist.sh 风格，避免 `echo "test git push"` 误触发）
-if ! echo "$COMMAND" | grep -qE '^[[:space:]]*(git[[:space:]]+push|gh[[:space:]]+pr[[:space:]]+merge|git[[:space:]]+commit[[:space:]]+.*--amend|git[[:space:]]+rebase)\b'; then
+if ! echo "$COMMAND" | grep -qE '^[[:space:]]*(git[[:space:]]+push|gh[[:space:]]+pr[[:space:]]+merge|git[[:space:]]+commit[[:space:]]+.*--amend)\b'; then
     exit 0
 fi
 

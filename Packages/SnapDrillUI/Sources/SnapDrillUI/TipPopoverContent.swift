@@ -45,5 +45,7 @@ public struct TipPopoverContent: View {
         .padding()
         .frame(maxWidth: 280)
         .presentationCompactAdaptation(.popover)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(message)")
     }
 }

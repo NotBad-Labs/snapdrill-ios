@@ -85,7 +85,7 @@ public struct TagInputView: View {
                     Image(systemName: "tag")
                         .foregroundStyle(.secondary)
                     
-                    TextField("输入标签，空格添加 (e.g. 必修一)", text: $text)
+                    TextField(L10n.Capture.tagInputPlaceholder, text: $text)
                         .onChange(of: text) { _, newValue in
                             if newValue.hasSuffix(" ") {
                                 let newTag = newValue.trimmingCharacters(in: .whitespaces)
