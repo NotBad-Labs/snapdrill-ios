@@ -126,8 +126,8 @@ layer: principle
 | `coding.md` | 编码规范（本哲学在 Swift/SPM 的具体落地） |
 | `testing.md` | 测试策略（编译期拦截的补充） |
 | `apple-native.md` | Apple 原生 UI 模式（原则 1 的 HIG 落地） |
-| `apple-limits.md` | Apple 技术能力边界（原则 1 的研究参考） |
-| `api-pitfalls.md` | 踩坑记录（工程哲学的实证反馈） |
+| `../tech/apple-limits.md` | Apple 技术能力边界（原则 1 的研究参考） |
+| `../tech/api-pitfalls.md` | 踩坑记录（工程哲学的实证反馈） |
 | `../tech/architecture.md` | 当前架构实现（包结构、DI、模块边界） |
 | `../tech/non-functional-requirements.md` | 性能预算、内存约束、启动时间 |
 | `../tech/compliance.md` | 隐私合规（原则 3 的合规例外、YAGNI 的审核约束） |

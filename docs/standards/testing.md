@@ -39,12 +39,12 @@ CI 与本地统一走 `AllTests.xctestplan`，两步切分避免重复编译：
 - 异步测试用 Swift Testing 的 `@Test` + `await`，不用 `XCTestExpectation`
 - 需要验证 MainActor 隔离行为时用 `MainActor.run {}`
 - Task 生命周期测试：验证 `cancelTasks()` 后 Task 确实停止，不泄漏
-- 详见 `coding.md` 并发段和 `api-pitfalls.md` defaultIsolation 陷阱段
+- 详见 `coding.md` 并发段和 `../tech/api-pitfalls.md` defaultIsolation 陷阱段
 
 ## SwiftData 测试约束
 
 - Repository 测试用 in-memory `ModelContainer`（`ModelConfiguration(isStoredInMemoryOnly: true)`）
-- `#Predicate` 中的 many-to-many 过滤会运行崩溃 → 测试也要覆盖这个边界（详见 `api-pitfalls.md`）
+- `#Predicate` 中的 many-to-many 过滤会运行崩溃 → 测试也要覆盖这个边界（详见 `../tech/api-pitfalls.md`）
 - 跨 ModelContext 写后立即读 → 测试中同样禁止（详见 `coding.md` 禁止段）
 
 ## XCUITest（端到端 UI 测试，PR #598 实现）

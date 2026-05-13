@@ -25,7 +25,7 @@ freshness:
 | 2 | `docs/workflow.md` | 流程规范、DoD、Review 规范 |
 | 3 | `docs/standards/coding.md` | 编码规范、并发禁止项 |
 | 4 | `docs/standards/testing.md` | 测试规则 |
-| 5 | `docs/standards/api-pitfalls.md` | 已知 API 陷阱 |
+| 5 | `docs/tech/api-pitfalls.md` | 已知 API 陷阱 |
 | 6 | `docs/standards/apple-native.md` | Apple 原生 UI 模式 |
 | 7 | `docs/memory/feedback.md` | 项目纪律（所有智能体共遵） |
 | 8 | `docs/memory/decisions.md` | 关键决策记录 |

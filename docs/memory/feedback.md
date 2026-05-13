@@ -217,7 +217,7 @@ F-015（2026-04-15 "CI 失败是致命信号"）已于 2026-04-22 Phase C PR-β 
 
 **此规则已合并入 F-007。** 详细纪律见 F-007 的《时点 1 — Pre-merge》段（本文件上方第 101 行起）。
 
-编号保留为墓碑指针，避免破坏 `docs/standards/api-pitfalls.md:62`、`STATUS.md:218`、历史 checkpoints 等外部引用。新文档统一指向 F-007。
+编号保留为墓碑指针，避免破坏 `docs/tech/api-pitfalls.md:62`、`STATUS.md:218`、历史 checkpoints 等外部引用。新文档统一指向 F-007。
 
 ---
 

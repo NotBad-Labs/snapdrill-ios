@@ -27,7 +27,7 @@ xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulat
 2. **docs/memory/handoff.md** → 完整上下文
 3. **docs/standards/coding.md** → 并发规则、禁止项
 4. **docs/standards/testing.md** → 测试规范
-5. **docs/standards/api-pitfalls.md** → 已知陷阱
+5. **docs/tech/api-pitfalls.md** → 已知陷阱
 6. **docs/memory/feedback.md** → 项目纪律
 
 ## 第三步：理解当前状态

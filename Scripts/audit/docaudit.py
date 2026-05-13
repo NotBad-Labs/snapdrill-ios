@@ -94,9 +94,9 @@ PATH_REF_RE = re.compile(r"((?:\.\.?/|[A-Za-z0-9_][A-Za-z0-9_\-]*/)[A-Za-z0-9_\-
 # ~/.claude/ 引用
 HOME_CLAUDE_RE = re.compile(r"~/\.claude/[A-Za-z0-9_\-./]*")
 
-# .claude/rules/ → docs/standards/ 映射模式
+# .claude/rules/ → docs/standards/ 或 docs/tech/ 映射模式
 RULE_POINTER_RE = re.compile(
-    r"(?:Read and follow|指向|→)\s+(docs/standards/[A-Za-z0-9_\-./]+\.md)"
+    r"(?:Read and follow|指向|→)\s+(docs/(?:standards|tech)/[A-Za-z0-9_\-./]+\.md)"
 )
 
 # F-NNN 规则 ID

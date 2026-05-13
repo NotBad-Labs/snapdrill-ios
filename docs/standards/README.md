@@ -16,9 +16,9 @@ layer: pattern
 | [testing.md](testing.md) | 测试策略与执行规则 | 写/改测试代码 |
 | [engineering.md](engineering.md) | 工程哲学与决策原则 | 架构决策、新功能设计 |
 | [apple-native.md](apple-native.md) | Apple 原生 UI 模式 | UI/UX 改动 |
-| [apple-limits.md](apple-limits.md) | Apple 技术能力边界 | 涉及 Vision/OCR/ML |
+| [apple-limits.md](../tech/apple-limits.md) | Apple 技术能力边界 | 涉及 Vision/OCR/ML |
 | [apple-extension.md](apple-extension.md) | App Extension 约束 | Share Extension 开发 |
-| [api-pitfalls.md](api-pitfalls.md) | API 易错点速查 | 调用项目内部 API |
+| [api-pitfalls.md](../tech/api-pitfalls.md) | API 易错点速查 | 调用项目内部 API |
 | [collaboration.md](collaboration.md) | 多智能体协作架构 | 交叉审计、委派任务 |
 | [codex-delegation.md](codex-delegation.md) | Codex 子 agent 委派规范 | 委派 Codex 做审计/实现/Review |
 | [gemini-delegation.md](gemini-delegation.md) | Gemini CLI 委派规范 | 委派 Gemini 做审计/校验 |

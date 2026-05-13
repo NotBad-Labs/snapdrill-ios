@@ -48,8 +48,8 @@ overlay_paths:
   standards:
     - docs/standards/apple-native.md
     - docs/standards/apple-extension.md
-    - docs/standards/apple-limits.md
-    - docs/standards/api-pitfalls.md
+    - docs/tech/apple-limits.md
+    - docs/tech/api-pitfalls.md
     - docs/standards/coding.md
     - docs/standards/testing.md
     - docs/standards/ux-design.md

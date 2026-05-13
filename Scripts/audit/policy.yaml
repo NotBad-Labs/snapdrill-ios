@@ -63,7 +63,7 @@ checks:
 
   rule-pointer-sync:
     level: error
-    description: .claude/rules/*.md 必须指向存在的 docs/standards/*.md
+    description: .claude/rules/*.md 必须指向存在的 docs/standards/*.md 或 docs/tech/*.md
     allowlist_rules:
       - .claude/rules/README.md
 

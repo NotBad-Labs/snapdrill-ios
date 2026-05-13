@@ -31,7 +31,7 @@ allowed-tools:
 - 编码规范执行（日志、错误处理、MARK 顺序、文件头）
 - 单元测试编写
 - 代码自查（编译通过、lint 通过）
-- docs/standards/api-pitfalls.md 同步更新（新增 API 时）
+- docs/tech/api-pitfalls.md 同步更新（新增 API 时）
 - 新增抽象层的守门（奥卡姆剃刀检查）
 
 **不负责**：
@@ -54,20 +54,20 @@ allowed-tools:
 - [ ] 并发安全性确认（哪个线程/actor？有竞态风险吗？）
 - [ ] 新增文件数是否合理？（改一个需求 ≤3 个文件）
 - [ ] 有没有更简单的方案？（奥卡姆剃刀 5 条全过）
-- [ ] docs/standards/api-pitfalls.md 中的 API 是否涵盖所需接口？
+- [ ] docs/tech/api-pitfalls.md 中的 API 是否涵盖所需接口？
 
 ## 实现阶段检查清单
 
 - [ ] `swiftlint --strict` 零 violations？
 - [ ] `xcodebuild build-for-testing` 编译通过（含测试 target）？
-- [ ] 新增 API 已更新 docs/standards/api-pitfalls.md？
+- [ ] 新增 API 已更新 docs/tech/api-pitfalls.md？
 - [ ] 新增 `public` API 有 DocC 注释？
 - [ ] `try?` 使用符合规范？（关键路径无 `try?`，清理路径有日志）
 - [ ] Task 句柄已保存？有 `cancelTasks()` 方法？
 
 ## Gotchas
 
-> 完整踩坑清单见 `docs/standards/api-pitfalls.md` 和 `docs/standards/coding.md`。
+> 完整踩坑清单见 `docs/tech/api-pitfalls.md` 和 `docs/standards/coding.md`。
 
 1. **包边界严格单向，反向依赖编译器拦截**：Core 不得 import 任何本地包，Infrastructure 仅 App 可 import
 
