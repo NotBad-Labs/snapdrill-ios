@@ -26,7 +26,7 @@ public typealias DeletionExecutor = @Sendable (Set<UUID>) async -> Void
 ///
 /// 将 Soft Delete 的 5 秒撤销窗口从 ViewModel 下沉到 App 级 Service，
 /// 确保 Tab 切换、页面离开不会中断倒计时。
-@MainActor @Observable public final class DeletionScheduler {
+@Observable public final class DeletionScheduler {
 
     public static let shared = DeletionScheduler()
 
