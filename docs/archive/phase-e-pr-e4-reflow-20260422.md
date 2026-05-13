@@ -53,11 +53,11 @@ $ python3 ~/Developer/agent-harness/bin/agent-harness \
 | `.claude/skills/update-status/SKILL.md` | 100% | 6 | adapter-claude/ |
 | `.claude/skills/cross-audit/SKILL.md` | 100% | 4 | adapter-claude/ |
 | `.claude/hooks/post-merge-checkpoint.sh` | 100% | 3 | adapter-claude/ |
-| `docs/principles/apple-native.md` | 100% | 9 | core/principles/（**误判 - finding #2**） |
-| `docs/principles/memory-routing.md` | 100% | 3 | core/principles/ |
+| `docs/standards/apple-native.md` | 100% | 9 | core/principles/（**误判 - finding #2**） |
+| `docs/standards/memory-routing.md` | 100% | 3 | core/principles/ |
 | `.claude/skills/cross-audit-consensus/SKILL.md` | 90% | 5 | adapter-claude/ |
-| `docs/principles/apple-extension.md` | 90% | 4 | core/principles/（**误判 - finding #2**） |
-| `docs/principles/ux-design.md` | 90% | 4 | core/principles/ |
+| `docs/standards/apple-extension.md` | 90% | 4 | core/principles/（**误判 - finding #2**） |
+| `docs/standards/ux-design.md` | 90% | 4 | core/principles/ |
 | `.claude/hooks/docaudit-on-doc-edit.sh` | 80% | 3 | adapter-claude/ |
 
 ### Step 4 — 识别 bug #2（apple-* 启发式缺口，follow-up）
@@ -81,7 +81,7 @@ $ python3 ~/Developer/agent-harness/bin/agent-harness \
 
 - `.claude/skills/*` 的通用 skills：**已在 agent-harness PR-D4 迁移完毕**（adapter-claude/skills/）
 - `.claude/hooks/*` 的通用 hooks：**已在 PR-D4 迁移完毕**（adapter-claude/hooks/）
-- `docs/principles/*` 通用原则：**已在 PR-D4 部分迁移**（adapter-claude/ 下部分，其余作为 STAY 保留）
+- `docs/standards/*` 通用原则：**已在 PR-D4 部分迁移**（adapter-claude/ 下部分，其余作为 STAY 保留）
 - 剩余未迁移的：apple-*（iOS 特定，STAY）/ coding.md / testing.md / ux-design.md（大部分 iOS 特定，STAY）
 
 **结论**：snapdrill-ios 当前**没有真正的新反哺候选**。这是**积极信号**（不是失败信号）—— 说明 Phase D PR-D4 已经把通用 skill/hook/原则完整迁到 agent-harness 了，现在等第二 consumer 出现或 snapdrill-ios 孵化新模式。

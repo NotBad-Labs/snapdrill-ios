@@ -61,7 +61,7 @@ Gemini 3 --独立审计（Bash 调用）--+
 4. **统一修复**：合并所有发现后一次性修复，避免来回返工
 5. **修复 Review**：修复后由三方各自独立 Review 修复结果
 6. **回灌到约束体系**：每次 cross-audit 发现的问题，修复后评估根因并更新对应文档：
-   - 约束缺失 → 更新 `docs/principles/*.md` 或新增 `feedback.md` 规则
+   - 约束缺失 → 更新 `docs/standards/*.md` 或新增 `feedback.md` 规则
    - 检查遗漏 → 更新 `docs/workflow.md` DoD 或 `.github/workflows/ci.yml`
    - 反复出现（同类问题 3 次以上）→ 提升为自动化门禁（lint rule / CI step）
    - 闭环验证：下一次同类任务中确认改进生效

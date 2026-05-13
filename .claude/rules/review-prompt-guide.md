@@ -1,7 +1,7 @@
 ---
 paths:
   - "docs/workflow.md"
-  - "docs/principles/collaboration.md"
+  - "docs/standards/collaboration.md"
 ---
 
-Read and follow docs/principles/review-prompt-guide.md for review prompt writing guidelines.
+Read and follow docs/standards/review-prompt-guide.md for review prompt writing guidelines.

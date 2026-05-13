@@ -4,5 +4,5 @@ paths:
   - "**/*Test*"
 ---
 
-<!-- 规范源：docs/principles/testing.md -->
-Read and follow docs/principles/testing.md for all testing rules.
+<!-- 规范源：docs/standards/testing.md -->
+Read and follow docs/standards/testing.md for all testing rules.

@@ -150,7 +150,7 @@ freshness:
 | #634 | ContentTaggingService + NotificationService 测试补齐 |
 | #636 | try? 第三批治理 + 三方对抗审查（Gemini+Codex+Xcode）+ 风格统一 |
 | #640 | 中期审计校准（handoff Apple 表述 + codex-delegation effort high） |
-| #642 | **Phase 4 P1**：SSOT 校准 — codex/gemini-delegation 迁移到 docs/principles/ |
+| #642 | **Phase 4 P1**：SSOT 校准 — codex/gemini-delegation 迁移到 docs/standards/ |
 | #644 | **Phase 4 P1**：新建 cross-audit skill 强制 F-008 三方审计纪律 |
 | #646 | **Phase 4 P1**：api-reference 同步 — recognizeDocument + ContentTaggingService |
 | #648 | **Phase 4 Step 1**：.claude/rules/ux-design.md 补 YAML frontmatter（12/12 全 YAML） |

@@ -291,22 +291,22 @@ Corrected scoped source/governance total from requested buckets: 231 Swift + 73 
 | 269 | `docs/memory/decisions.md` | 62 | READ_VERIFIED | 2026-05-12 | Step 3 记忆/历史文档审计已用 `nl -ba` 逐行读取；D-001~D-003 决策与 STATUS 引用已纳入 Claim Ledger。 |
 | 270 | `docs/memory/feedback.md` | 297 | READ_VERIFIED | 2026-05-12 | Step 3 记忆/历史文档审计已用 `nl -ba` 逐行读取；F-001~F-020 纪律和 checkpoint 遵守情况已纳入 Claim Ledger。 |
 | 271 | `docs/memory/handoff.md` | 139 | READ_VERIFIED | 2026-05-12 | Step 3 记忆/历史文档审计已用 `nl -ba` 逐行读取；接手状态、阻塞链、基线审计数字和 STATUS 引用一致性已纳入 Claim Ledger。 |
-| 272 | `docs/principles/README.md` | 35 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; rules index and agent-agnostic governance checked. |
-| 273 | `docs/principles/api-pitfalls.md` | 68 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; API pitfall scope checked against route pointer. |
-| 274 | `docs/principles/apple-extension.md` | 32 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; Share Extension constraints checked against route pointer. |
-| 275 | `docs/principles/apple-limits.md` | 44 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; Apple capability boundaries checked against route pointer. |
-| 276 | `docs/principles/apple-native.md` | 90 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; native UI rules checked against route pointer. |
-| 277 | `docs/principles/codex-delegation.md` | 56 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; shared-constraints canonical reference verified. |
-| 278 | `docs/principles/coding.md` | 100 | READ_VERIFIED | 2026-05-12 | Step 4a core engineering principles audit read full content with `nl -ba`; pattern-level implementation claims marked for Step 5 verification. |
-| 279 | `docs/principles/collaboration.md` | 140 | READ_VERIFIED | 2026-05-12 | Step 4a core engineering principles audit read full content with `nl -ba`; rating criteria checked against shared constraints. |
-| 280 | `docs/principles/engineering.md` | 139 | READ_VERIFIED | 2026-05-12 | Step 4a core engineering principles audit read full content with `nl -ba`; seven principles checked against coding/testing follow-through. |
-| 281 | `docs/principles/gemini-delegation.md` | 149 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; shared-constraints canonical reference verified. |
-| 282 | `docs/principles/memory-routing.md` | 61 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; knowledge routing table checked against route pointer. |
-| 283 | `docs/principles/permission-model.md` | 129 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; hook lifecycle table checked against `.claude/settings.json`. |
-| 284 | `docs/principles/review-prompt-guide.md` | 176 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; review prompt discipline checked against route pointer. |
-| 285 | `docs/principles/shared-constraints.md` | 19 | READ_VERIFIED | 2026-05-12 | Step 4a core engineering principles audit read full content with `nl -ba`; shared constraints checked against collaboration rating criteria. |
-| 286 | `docs/principles/testing.md` | 111 | READ_VERIFIED | 2026-05-12 | Step 4a core engineering principles audit read full content with `nl -ba`; testing follow-through checked against engineering principles. |
-| 287 | `docs/principles/ux-design.md` | 70 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; UX checklist checked against route pointer. |
+| 272 | `docs/standards/README.md` | 35 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; rules index and agent-agnostic governance checked. |
+| 273 | `docs/standards/api-pitfalls.md` | 68 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; API pitfall scope checked against route pointer. |
+| 274 | `docs/standards/apple-extension.md` | 32 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; Share Extension constraints checked against route pointer. |
+| 275 | `docs/standards/apple-limits.md` | 44 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; Apple capability boundaries checked against route pointer. |
+| 276 | `docs/standards/apple-native.md` | 90 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; native UI rules checked against route pointer. |
+| 277 | `docs/standards/codex-delegation.md` | 56 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; shared-constraints canonical reference verified. |
+| 278 | `docs/standards/coding.md` | 100 | READ_VERIFIED | 2026-05-12 | Step 4a core engineering principles audit read full content with `nl -ba`; pattern-level implementation claims marked for Step 5 verification. |
+| 279 | `docs/standards/collaboration.md` | 140 | READ_VERIFIED | 2026-05-12 | Step 4a core engineering principles audit read full content with `nl -ba`; rating criteria checked against shared constraints. |
+| 280 | `docs/standards/engineering.md` | 139 | READ_VERIFIED | 2026-05-12 | Step 4a core engineering principles audit read full content with `nl -ba`; seven principles checked against coding/testing follow-through. |
+| 281 | `docs/standards/gemini-delegation.md` | 149 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; shared-constraints canonical reference verified. |
+| 282 | `docs/standards/memory-routing.md` | 61 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; knowledge routing table checked against route pointer. |
+| 283 | `docs/standards/permission-model.md` | 129 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; hook lifecycle table checked against `.claude/settings.json`. |
+| 284 | `docs/standards/review-prompt-guide.md` | 176 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; review prompt discipline checked against route pointer. |
+| 285 | `docs/standards/shared-constraints.md` | 19 | READ_VERIFIED | 2026-05-12 | Step 4a core engineering principles audit read full content with `nl -ba`; shared constraints checked against collaboration rating criteria. |
+| 286 | `docs/standards/testing.md` | 111 | READ_VERIFIED | 2026-05-12 | Step 4a core engineering principles audit read full content with `nl -ba`; testing follow-through checked against engineering principles. |
+| 287 | `docs/standards/ux-design.md` | 70 | READ_VERIFIED | 2026-05-12 | Step 4b agent governance + Apple reference audit read full content with `nl -ba`; UX checklist checked against route pointer. |
 | 288 | `docs/product/appstore-metadata.md` | 133 | READ_VERIFIED | 2026-05-12 | Step 1 产品/决策文档审计已用 `nl -ba` 逐行读取；ASO、Review Notes 与隐私/功能风险已纳入 Claim Ledger。 |
 | 289 | `docs/product/product-analytics.md` | 93 | READ_VERIFIED | 2026-05-12 | Step 1 产品/决策文档审计已用 `nl -ba` 逐行读取；事件字典和成功信号映射已纳入 Claim Ledger。 |
 | 290 | `docs/product/product-business.md` | 261 | READ_VERIFIED | 2026-05-12 | Step 1 产品/决策文档审计已用 `nl -ba` 逐行读取；商业化、隐私和 COPPA 姿态已纳入 Claim Ledger。 |
@@ -341,24 +341,24 @@ Corrected scoped source/governance total from requested buckets: 231 Swift + 73 
 | 319 | `.claude/hooks/prepush-lint.sh` | 33 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
 | 320 | `.claude/hooks/session-metrics.sh` | 26 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
 | 321 | `.claude/hooks/swift-autolint.sh` | 53 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
-| 322 | `.claude/rules/api-pitfalls.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/principles/api-pitfalls.md` consistently. |
-| 323 | `.claude/rules/apple-extension.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/principles/apple-extension.md` consistently. |
-| 324 | `.claude/rules/apple-limits.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/principles/apple-limits.md` consistently. |
-| 325 | `.claude/rules/apple-native.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/principles/apple-native.md` consistently. |
-| 326 | `.claude/rules/codex-delegation.md` | 9 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/principles/codex-delegation.md` consistently. |
+| 322 | `.claude/rules/api-pitfalls.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/standards/api-pitfalls.md` consistently. |
+| 323 | `.claude/rules/apple-extension.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/standards/apple-extension.md` consistently. |
+| 324 | `.claude/rules/apple-limits.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/standards/apple-limits.md` consistently. |
+| 325 | `.claude/rules/apple-native.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/standards/apple-native.md` consistently. |
+| 326 | `.claude/rules/codex-delegation.md` | 9 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/standards/codex-delegation.md` consistently. |
 | 327 | `.claude/rules/coding.md` | 7 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
-| 328 | `.claude/rules/collaboration.md` | 8 | READ_VERIFIED | 2026-05-12 | Step 4a Group B pointer; route to `docs/principles/collaboration.md` verified with `nl -ba`. |
+| 328 | `.claude/rules/collaboration.md` | 8 | READ_VERIFIED | 2026-05-12 | Step 4a Group B pointer; route to `docs/standards/collaboration.md` verified with `nl -ba`. |
 | 329 | `.claude/rules/engineering.md` | 8 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
-| 330 | `.claude/rules/gemini-delegation.md` | 9 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/principles/gemini-delegation.md` consistently. |
-| 331 | `.claude/rules/memory-routing.md` | 8 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/principles/memory-routing.md` consistently. |
-| 332 | `.claude/rules/permission-model.md` | 9 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/principles/permission-model.md` consistently. |
-| 333 | `.claude/rules/review-prompt-guide.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/principles/review-prompt-guide.md` consistently. |
-| 334 | `.claude/rules/shared-constraints.md` | 8 | READ_VERIFIED | 2026-05-12 | Step 4a Group B pointer; route to `docs/principles/shared-constraints.md` verified with `nl -ba`. |
+| 330 | `.claude/rules/gemini-delegation.md` | 9 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/standards/gemini-delegation.md` consistently. |
+| 331 | `.claude/rules/memory-routing.md` | 8 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/standards/memory-routing.md` consistently. |
+| 332 | `.claude/rules/permission-model.md` | 9 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/standards/permission-model.md` consistently. |
+| 333 | `.claude/rules/review-prompt-guide.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/standards/review-prompt-guide.md` consistently. |
+| 334 | `.claude/rules/shared-constraints.md` | 8 | READ_VERIFIED | 2026-05-12 | Step 4a Group B pointer; route to `docs/standards/shared-constraints.md` verified with `nl -ba`. |
 | 335 | `.claude/rules/testing.md` | 8 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
-| 336 | `.claude/rules/ux-design.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/principles/ux-design.md` consistently. |
+| 336 | `.claude/rules/ux-design.md` | 7 | READ_VERIFIED | 2026-05-12 | Step 4b pointer read with `nl -ba`; routes to `docs/standards/ux-design.md` consistently. |
 | 337 | `.claude/session-log.txt` | 2704 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
 | 338 | `.claude/session-metrics.tsv` | 5015 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
-| 339 | `.claude/settings.json` | 79 | READ_VERIFIED | 2026-05-12 | Step 4b permission execution check read with `nl -ba`; 11 hook bindings match `docs/principles/permission-model.md` lifecycle table. |
+| 339 | `.claude/settings.json` | 79 | READ_VERIFIED | 2026-05-12 | Step 4b permission execution check read with `nl -ba`; 11 hook bindings match `docs/standards/permission-model.md` lifecycle table. |
 | 340 | `.claude/settings.local.json` | 350 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
 | 341 | `.claude/skills/cross-audit-consensus/SKILL.md` | 149 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
 | 342 | `.claude/skills/cross-audit/SKILL.md` | 121 | UNREAD | - | Hidden governance scope from corrected find command; content audit pending. |
@@ -642,16 +642,16 @@ Step 3 已完成 `docs/memory/` 根级 5 个文件和 in-scope checkpoint 文件
 
 Group A full reads were performed with `nl -ba`:
 
-- `docs/principles/engineering.md` — 139 lines.
-- `docs/principles/coding.md` — 100 lines.
-- `docs/principles/testing.md` — 111 lines.
-- `docs/principles/collaboration.md` — 140 lines.
-- `docs/principles/shared-constraints.md` — 19 lines.
+- `docs/standards/engineering.md` — 139 lines.
+- `docs/standards/coding.md` — 100 lines.
+- `docs/standards/testing.md` — 111 lines.
+- `docs/standards/collaboration.md` — 140 lines.
+- `docs/standards/shared-constraints.md` — 19 lines.
 
-Group B scan command used `.claude/rules/` source-reference search for `docs/principles/(engineering|coding|testing|collaboration|shared-constraints).md`. Direct source stubs exist for all five principle docs; for the requested seven-file scope, the two governance pointer files audited as Group B are:
+Group B scan command used `.claude/rules/` source-reference search for `docs/standards/(engineering|coding|testing|collaboration|shared-constraints).md`. Direct source stubs exist for all five principle docs; for the requested seven-file scope, the two governance pointer files audited as Group B are:
 
-- `.claude/rules/collaboration.md` — routes to `docs/principles/collaboration.md`.
-- `.claude/rules/shared-constraints.md` — routes to `docs/principles/shared-constraints.md`.
+- `.claude/rules/collaboration.md` — routes to `docs/standards/collaboration.md`.
+- `.claude/rules/shared-constraints.md` — routes to `docs/standards/shared-constraints.md`.
 
 The scan also found direct stubs for `.claude/rules/engineering.md`, `.claude/rules/coding.md`, and `.claude/rules/testing.md`; those three are noted here because they route to Group A docs, but they are outside this Step 4a seven-file ledger update.
 
@@ -659,35 +659,35 @@ The scan also found direct stubs for `.claude/rules/engineering.md`, `.claude/ru
 
 | File | Summary | Issues |
 |---|---|---|
-| `docs/principles/engineering.md` | Defines seven ordered engineering principles plus a higher-order safety/privacy/compliance/user-loss override. It explicitly points implementation specifics to coding, testing, architecture, NFR, compliance, workflow, product, and ADR docs. | No internal contradiction found. Principles 4, 5, and 6 contain implementation-structure claims or defer to implementation docs, so their actual enforcement needs Step 5 source/config validation. [NEEDS STEP 5 CODE VERIFICATION] |
-| `docs/principles/coding.md` | Converts engineering principles into Swift patterns: View/ViewModel DI, default MainActor isolation, Task/NotificationCenter patterns, typed throws guidance, file organization, value types, and forbidden constructs. | Several statements are concrete codebase facts or count claims: default isolation, current `nonisolated(unsafe)` count, build-for-testing requirement, SwiftLint force unwrap policy, and architecture bans. [NEEDS STEP 5 CODE VERIFICATION] |
-| `docs/principles/testing.md` | Defines testing layers, isolation, compiler-vs-runtime responsibility split, xcodebuild commands, SwiftData/XCUITest/snapshot workflows, and anti-flaky snapshot rules. | Commands, test-plan membership, simulator target, snapshot test counts, CI artifact behavior, and XCUITest launch behavior are implementation/config claims. [NEEDS STEP 5 CODE VERIFICATION] |
-| `docs/principles/collaboration.md` | Defines multi-agent workflow, cross-audit protocol, AI-specific review anti-patterns, scoring dimensions, and human/evidence-based conflict resolution. | No contradiction found against shared constraints. Tool/model/version names and `.claude/skills/cross-audit-consensus/SKILL.md` SSOT path are environment/governance facts that need separate verification if treated as current truth. |
-| `docs/principles/shared-constraints.md` | Provides canonical delegation-prompt constraints: product positioning, engineering philosophy, build/lint gates, data safety, development discipline, severity order, and stack baseline. | Build/lint gates, local-data guarantees, opt-in telemetry behavior, and stack baseline are implementation/config claims. [NEEDS STEP 5 CODE VERIFICATION] |
+| `docs/standards/engineering.md` | Defines seven ordered engineering principles plus a higher-order safety/privacy/compliance/user-loss override. It explicitly points implementation specifics to coding, testing, architecture, NFR, compliance, workflow, product, and ADR docs. | No internal contradiction found. Principles 4, 5, and 6 contain implementation-structure claims or defer to implementation docs, so their actual enforcement needs Step 5 source/config validation. [NEEDS STEP 5 CODE VERIFICATION] |
+| `docs/standards/coding.md` | Converts engineering principles into Swift patterns: View/ViewModel DI, default MainActor isolation, Task/NotificationCenter patterns, typed throws guidance, file organization, value types, and forbidden constructs. | Several statements are concrete codebase facts or count claims: default isolation, current `nonisolated(unsafe)` count, build-for-testing requirement, SwiftLint force unwrap policy, and architecture bans. [NEEDS STEP 5 CODE VERIFICATION] |
+| `docs/standards/testing.md` | Defines testing layers, isolation, compiler-vs-runtime responsibility split, xcodebuild commands, SwiftData/XCUITest/snapshot workflows, and anti-flaky snapshot rules. | Commands, test-plan membership, simulator target, snapshot test counts, CI artifact behavior, and XCUITest launch behavior are implementation/config claims. [NEEDS STEP 5 CODE VERIFICATION] |
+| `docs/standards/collaboration.md` | Defines multi-agent workflow, cross-audit protocol, AI-specific review anti-patterns, scoring dimensions, and human/evidence-based conflict resolution. | No contradiction found against shared constraints. Tool/model/version names and `.claude/skills/cross-audit-consensus/SKILL.md` SSOT path are environment/governance facts that need separate verification if treated as current truth. |
+| `docs/standards/shared-constraints.md` | Provides canonical delegation-prompt constraints: product positioning, engineering philosophy, build/lint gates, data safety, development discipline, severity order, and stack baseline. | Build/lint gates, local-data guarantees, opt-in telemetry behavior, and stack baseline are implementation/config claims. [NEEDS STEP 5 CODE VERIFICATION] |
 
 ### Group B Routing Verification
 
 | Pointer file | Expected source | Evidence | Routing correct? |
 |---|---|---|---|
-| `.claude/rules/collaboration.md` | `docs/principles/collaboration.md` | Pointer declares `<!-- 规范源：docs/principles/collaboration.md -->` and instructs agents to read that source `.claude/rules/collaboration.md:7-8`. | yes |
-| `.claude/rules/shared-constraints.md` | `docs/principles/shared-constraints.md` | Pointer declares `<!-- 规范源：docs/principles/shared-constraints.md -->` and instructs agents to read that source `.claude/rules/shared-constraints.md:7-8`. | yes |
+| `.claude/rules/collaboration.md` | `docs/standards/collaboration.md` | Pointer declares `<!-- 规范源：docs/standards/collaboration.md -->` and instructs agents to read that source `.claude/rules/collaboration.md:7-8`. | yes |
+| `.claude/rules/shared-constraints.md` | `docs/standards/shared-constraints.md` | Pointer declares `<!-- 规范源：docs/standards/shared-constraints.md -->` and instructs agents to read that source `.claude/rules/shared-constraints.md:7-8`. | yes |
 
 ### Checks
 
-- Routing correctness: PASS. Both audited Group B pointer files route to the expected `docs/principles/` source files `.claude/rules/collaboration.md:7-8`, `.claude/rules/shared-constraints.md:7-8`.
-- Cross-file consistency: PASS with Step 5 verification required for implementation claims. `engineering.md` defines ordered principles and highest-priority safety/privacy/compliance/user-loss guardrails `docs/principles/engineering.md:7-12,16-118`. `coding.md` follows through on compiler-enforced correctness and concurrency `docs/principles/coding.md:16-47,54-61`, cross-boundary contracts and DI `docs/principles/coding.md:7-10`, simplicity/YAGNI via no premature layers and constrained file organization `docs/principles/coding.md:68-100`, and state ownership `docs/principles/coding.md:7-10`. `testing.md` follows through by making runtime tests complement compiler guarantees `docs/principles/testing.md:18-24`, enforcing isolated state `docs/principles/testing.md:20,44-49`, and checking UI/runtime paths the compiler cannot prove `docs/principles/testing.md:50-111`. Concrete build/test/lint enforcement still needs code/config validation. [NEEDS STEP 5 CODE VERIFICATION]
-- Conflict scan: PASS. `collaboration.md` rating criteria score Scope Fidelity, Code Quality, Test Coverage, and Architecture Fit `docs/principles/collaboration.md:103-114`; `shared-constraints.md` requires product-position fit, engineering philosophy, lint/build gates, data safety, development discipline, priority severity, and stack baseline `docs/principles/shared-constraints.md:11-19`. These are compatible: Architecture Fit explicitly maps back to `engineering.md` seven principles, while shared constraints cite the same seven-principle source `docs/principles/collaboration.md:112`, `docs/principles/shared-constraints.md:14`. No contradiction found.
+- Routing correctness: PASS. Both audited Group B pointer files route to the expected `docs/standards/` source files `.claude/rules/collaboration.md:7-8`, `.claude/rules/shared-constraints.md:7-8`.
+- Cross-file consistency: PASS with Step 5 verification required for implementation claims. `engineering.md` defines ordered principles and highest-priority safety/privacy/compliance/user-loss guardrails `docs/standards/engineering.md:7-12,16-118`. `coding.md` follows through on compiler-enforced correctness and concurrency `docs/standards/coding.md:16-47,54-61`, cross-boundary contracts and DI `docs/standards/coding.md:7-10`, simplicity/YAGNI via no premature layers and constrained file organization `docs/standards/coding.md:68-100`, and state ownership `docs/standards/coding.md:7-10`. `testing.md` follows through by making runtime tests complement compiler guarantees `docs/standards/testing.md:18-24`, enforcing isolated state `docs/standards/testing.md:20,44-49`, and checking UI/runtime paths the compiler cannot prove `docs/standards/testing.md:50-111`. Concrete build/test/lint enforcement still needs code/config validation. [NEEDS STEP 5 CODE VERIFICATION]
+- Conflict scan: PASS. `collaboration.md` rating criteria score Scope Fidelity, Code Quality, Test Coverage, and Architecture Fit `docs/standards/collaboration.md:103-114`; `shared-constraints.md` requires product-position fit, engineering philosophy, lint/build gates, data safety, development discipline, priority severity, and stack baseline `docs/standards/shared-constraints.md:11-19`. These are compatible: Architecture Fit explicitly maps back to `engineering.md` seven principles, while shared constraints cite the same seven-principle source `docs/standards/collaboration.md:112`, `docs/standards/shared-constraints.md:14`. No contradiction found.
 
 ### Claim Ledger
 
 Format: `ID | Claim | Audit conclusion | Evidence`.
 
 - E001 | Step 4a Group A files were read in full with `nl -ba`. | READ_VERIFIED | Full numbered content for `engineering.md`, `coding.md`, `testing.md`, `collaboration.md`, and `shared-constraints.md` is recorded below; main File Coverage Ledger rows 278-280 and 285-286 are updated to READ_VERIFIED. |
-- E002 | Group B governance pointers route to the intended source docs. | PASS | `.claude/rules/collaboration.md:7-8` points to `docs/principles/collaboration.md`; `.claude/rules/shared-constraints.md:7-8` points to `docs/principles/shared-constraints.md`; main File Coverage Ledger rows 328 and 334 are updated to READ_VERIFIED. |
+- E002 | Group B governance pointers route to the intended source docs. | PASS | `.claude/rules/collaboration.md:7-8` points to `docs/standards/collaboration.md`; `.claude/rules/shared-constraints.md:7-8` points to `docs/standards/shared-constraints.md`; main File Coverage Ledger rows 328 and 334 are updated to READ_VERIFIED. |
 - E003 | Engineering's seven principles are consistently followed through in coding/testing at the document level. | PASS_WITH_CODE_VERIFICATION_REQUIRED | Principle ordering and guardrail in `engineering.md:7-12,16-118`; coding follow-through in `coding.md:7-10,16-47,54-61,68-100`; testing follow-through in `testing.md:18-24,44-49,50-111`. Implementation enforcement remains Step 5 work. [NEEDS STEP 5 CODE VERIFICATION] |
 - E004 | Collaboration scoring criteria do not contradict shared delegation constraints. | PASS | Collaboration scoring dimensions `collaboration.md:103-114` are compatible with shared constraints `shared-constraints.md:11-19`; both refer back to engineering principles rather than defining competing decision rules. |
 
-### Full `nl -ba` Content: `docs/principles/engineering.md`
+### Full `nl -ba` Content: `docs/standards/engineering.md`
 
 ```text
      1	---
@@ -831,7 +831,7 @@ Format: `ID | Claim | Audit conclusion | Evidence`.
    139	| `../decisions/` | ADR（不可逆决策的正式记录） |
 ```
 
-### Full `nl -ba` Content: `docs/principles/coding.md`
+### Full `nl -ba` Content: `docs/standards/coding.md`
 
 ```text
      1	---
@@ -936,7 +936,7 @@ Format: `ID | Claim | Audit conclusion | Evidence`.
    100	- 跨 ModelContext 写后立即读（须先 saveContext）
 ```
 
-### Full `nl -ba` Content: `docs/principles/testing.md`
+### Full `nl -ba` Content: `docs/standards/testing.md`
 
 ```text
      1	---
@@ -1052,7 +1052,7 @@ Format: `ID | Claim | Audit conclusion | Evidence`.
    111	- 下载与解包见 `docs/tech/deployment.md`
 ```
 
-### Full `nl -ba` Content: `docs/principles/collaboration.md`
+### Full `nl -ba` Content: `docs/standards/collaboration.md`
 
 ```text
      1	---
@@ -1118,7 +1118,7 @@ Format: `ID | Claim | Audit conclusion | Evidence`.
     61	4. **统一修复**：合并所有发现后一次性修复，避免来回返工
     62	5. **修复 Review**：修复后由三方各自独立 Review 修复结果
     63	6. **回灌到约束体系**：每次 cross-audit 发现的问题，修复后评估根因并更新对应文档：
-    64	   - 约束缺失 → 更新 `docs/principles/*.md` 或新增 `feedback.md` 规则
+    64	   - 约束缺失 → 更新 `docs/standards/*.md` 或新增 `feedback.md` 规则
     65	   - 检查遗漏 → 更新 `docs/workflow.md` DoD 或 `.github/workflows/ci.yml`
     66	   - 反复出现（同类问题 3 次以上）→ 提升为自动化门禁（lint rule / CI step）
     67	   - 闭环验证：下一次同类任务中确认改进生效
@@ -1197,7 +1197,7 @@ Format: `ID | Claim | Audit conclusion | Evidence`.
    140	- 终端 <-> Antigravity：用户手动中转（仅 fallback）
 ```
 
-### Full `nl -ba` Content: `docs/principles/shared-constraints.md`
+### Full `nl -ba` Content: `docs/standards/shared-constraints.md`
 
 ```text
      1	---
@@ -1227,36 +1227,36 @@ Date: 2026-05-12
 
 ### Scope
 
-This step read the requested 11 `docs/principles/` files in full with `nl -ba`:
+This step read the requested 11 `docs/standards/` files in full with `nl -ba`:
 
-- `docs/principles/codex-delegation.md` (56 lines)
-- `docs/principles/gemini-delegation.md` (149 lines)
-- `docs/principles/permission-model.md` (129 lines)
-- `docs/principles/memory-routing.md` (61 lines)
-- `docs/principles/review-prompt-guide.md` (176 lines)
-- `docs/principles/api-pitfalls.md` (68 lines)
-- `docs/principles/apple-native.md` (90 lines)
-- `docs/principles/apple-limits.md` (44 lines)
-- `docs/principles/apple-extension.md` (32 lines)
-- `docs/principles/ux-design.md` (70 lines)
-- `docs/principles/README.md` (35 lines)
+- `docs/standards/codex-delegation.md` (56 lines)
+- `docs/standards/gemini-delegation.md` (149 lines)
+- `docs/standards/permission-model.md` (129 lines)
+- `docs/standards/memory-routing.md` (61 lines)
+- `docs/standards/review-prompt-guide.md` (176 lines)
+- `docs/standards/api-pitfalls.md` (68 lines)
+- `docs/standards/apple-native.md` (90 lines)
+- `docs/standards/apple-limits.md` (44 lines)
+- `docs/standards/apple-extension.md` (32 lines)
+- `docs/standards/ux-design.md` (70 lines)
+- `docs/standards/README.md` (35 lines)
 
-This step also read the 10 requested `.claude/rules/` pointer files in full with `nl -ba`, plus `docs/principles/shared-constraints.md` for the delegation-constraint question and `.claude/settings.json` for the permission execution question.
+This step also read the 10 requested `.claude/rules/` pointer files in full with `nl -ba`, plus `docs/standards/shared-constraints.md` for the delegation-constraint question and `.claude/settings.json` for the permission execution question.
 
 ### Pointer Consistency
 
 | Pointer | Source routed to | Result |
 |---|---|---|
-| `.claude/rules/codex-delegation.md` | `docs/principles/codex-delegation.md` | CONSISTENT |
-| `.claude/rules/gemini-delegation.md` | `docs/principles/gemini-delegation.md` | CONSISTENT |
-| `.claude/rules/permission-model.md` | `docs/principles/permission-model.md` | CONSISTENT |
-| `.claude/rules/memory-routing.md` | `docs/principles/memory-routing.md` | CONSISTENT |
-| `.claude/rules/review-prompt-guide.md` | `docs/principles/review-prompt-guide.md` | CONSISTENT |
-| `.claude/rules/api-pitfalls.md` | `docs/principles/api-pitfalls.md` | CONSISTENT |
-| `.claude/rules/apple-native.md` | `docs/principles/apple-native.md` | CONSISTENT |
-| `.claude/rules/apple-limits.md` | `docs/principles/apple-limits.md` | CONSISTENT |
-| `.claude/rules/apple-extension.md` | `docs/principles/apple-extension.md` | CONSISTENT |
-| `.claude/rules/ux-design.md` | `docs/principles/ux-design.md` | CONSISTENT |
+| `.claude/rules/codex-delegation.md` | `docs/standards/codex-delegation.md` | CONSISTENT |
+| `.claude/rules/gemini-delegation.md` | `docs/standards/gemini-delegation.md` | CONSISTENT |
+| `.claude/rules/permission-model.md` | `docs/standards/permission-model.md` | CONSISTENT |
+| `.claude/rules/memory-routing.md` | `docs/standards/memory-routing.md` | CONSISTENT |
+| `.claude/rules/review-prompt-guide.md` | `docs/standards/review-prompt-guide.md` | CONSISTENT |
+| `.claude/rules/api-pitfalls.md` | `docs/standards/api-pitfalls.md` | CONSISTENT |
+| `.claude/rules/apple-native.md` | `docs/standards/apple-native.md` | CONSISTENT |
+| `.claude/rules/apple-limits.md` | `docs/standards/apple-limits.md` | CONSISTENT |
+| `.claude/rules/apple-extension.md` | `docs/standards/apple-extension.md` | CONSISTENT |
+| `.claude/rules/ux-design.md` | `docs/standards/ux-design.md` | CONSISTENT |
 
 Note: `memory-routing.md` and `review-prompt-guide.md` pointers do not include the same `<!-- 规范源：... -->` HTML comment style used by most other pointer files, but their executable routing text still points to the correct source file.
 
@@ -1264,15 +1264,15 @@ Note: `memory-routing.md` and `review-prompt-guide.md` pointers do not include t
 
 | ID | Claim | Status | Evidence |
 |---|---|---|---|
-| G001 | The 11 requested `docs/principles/` files were read in full with `nl -ba`. | READ_VERIFIED | Main File Coverage Ledger rows 272-277, 281-284, and 287 are updated to READ_VERIFIED for Step 4b. |
-| G002 | The 10 requested `.claude/rules/` pointer files route to the corresponding `docs/principles/` source files. | READ_VERIFIED | Pointer files were read with `nl -ba`; main File Coverage Ledger rows 322-326, 330-333, and 336 are updated to READ_VERIFIED. |
-| G003 | `codex-delegation.md` and `gemini-delegation.md` share the same `shared-constraints.md` canonical constraints. | READ_VERIFIED | `codex-delegation.md:42-43` and `gemini-delegation.md:68-69` both require reading `docs/principles/shared-constraints.md`, inlining it into delegation prompts, and avoiding hardcoded duplicate constraints. `shared-constraints.md:7-9` defines itself as the canonical source. |
+| G001 | The 11 requested `docs/standards/` files were read in full with `nl -ba`. | READ_VERIFIED | Main File Coverage Ledger rows 272-277, 281-284, and 287 are updated to READ_VERIFIED for Step 4b. |
+| G002 | The 10 requested `.claude/rules/` pointer files route to the corresponding `docs/standards/` source files. | READ_VERIFIED | Pointer files were read with `nl -ba`; main File Coverage Ledger rows 322-326, 330-333, and 336 are updated to READ_VERIFIED. |
+| G003 | `codex-delegation.md` and `gemini-delegation.md` share the same `shared-constraints.md` canonical constraints. | READ_VERIFIED | `codex-delegation.md:42-43` and `gemini-delegation.md:68-69` both require reading `docs/standards/shared-constraints.md`, inlining it into delegation prompts, and avoiding hardcoded duplicate constraints. `shared-constraints.md:7-9` defines itself as the canonical source. |
 | G004 | `permission-model.md` hook lifecycle model is represented in `.claude/settings.json`. | READ_VERIFIED_WITH_SCOPE_LIMIT | `permission-model.md:57-75` lists 11 active hook bindings. `.claude/settings.json:2-78` contains the same 11 bindings: 1 SessionStart hook, 5 PostToolUse hooks, and 5 PreToolUse Bash hooks. This verifies configuration binding, not the runtime behavior of each hook script. |
 | G005 | Apple reference docs are routed through `.claude/rules/` without source mismatch. | READ_VERIFIED | `apple-native`, `apple-limits`, `apple-extension`, and `ux-design` source docs and pointers were read with `nl -ba`; all four pointers target their matching source files. |
 
 ### Permission Execution Check
 
-`docs/principles/permission-model.md` defines three permission layers: tool tiers, dangerous Bash hard blocks, and hook lifecycle gates. The part that can be verified from `.claude/settings.json` is the hook lifecycle gate. The settings file does execute the documented hook table at the configuration level:
+`docs/standards/permission-model.md` defines three permission layers: tool tiers, dangerous Bash hard blocks, and hook lifecycle gates. The part that can be verified from `.claude/settings.json` is the hook lifecycle gate. The settings file does execute the documented hook table at the configuration level:
 
 - `SessionStart` / `compact`: `cat .claude/compact-reminder.md`
 - `PostToolUse` / `Edit|Write`: `log-file-change.sh`, `swift-autolint.sh`, `docaudit-on-doc-edit.sh`
@@ -1706,7 +1706,7 @@ Core 层前 10 个文件无严重问题。DI 设计规范，引擎纯函数。
 | docs/product/ + decisions/ | 15 | ✅ 全读 |
 | docs/tech/ | 6 | ✅ 全读 |
 | docs/memory/ + checkpoints/ | 27 | ✅ 全读 |
-| docs/principles/ | 16 | ✅ 全读 |
+| docs/standards/ | 16 | ✅ 全读 |
 | docs/workflow.md | 1 | ✅ 全读 |
 | .claude/rules/ (指针) | 15 | ✅ 全读 |
 | Packages/SnapDrillData/ (Sources + Tests) | 41 | ✅ 全读 |

@@ -41,7 +41,7 @@ def _base_policy() -> dict:
             "home-path-refs": {
                 "level": "warning",
                 "description": "",
-                "allowed_contexts": ["docs/principles/memory-routing.md"],
+                "allowed_contexts": ["docs/standards/memory-routing.md"],
             },
             "rule-pointer-sync": {
                 "level": "error",
@@ -348,7 +348,7 @@ class DocauditTestCase(unittest.TestCase):
     def test_rule_pointer_sync_clean(self) -> None:
         (self.repo / "docs" / "principles" / "coding.md").write_text("# coding\n", encoding="utf-8")
         (self.repo / ".claude" / "rules" / "coding.md").write_text(
-            "Read and follow docs/principles/coding.md for rules.\n", encoding="utf-8"
+            "Read and follow docs/standards/coding.md for rules.\n", encoding="utf-8"
         )
         policy = _write_policy(self.tmp)
         code, out, _ = self._run(["--policy", str(policy), "rule-pointer-sync"])
@@ -356,7 +356,7 @@ class DocauditTestCase(unittest.TestCase):
 
     def test_rule_pointer_sync_broken(self) -> None:
         (self.repo / ".claude" / "rules" / "coding.md").write_text(
-            "Read and follow docs/principles/missing.md for rules.\n", encoding="utf-8"
+            "Read and follow docs/standards/missing.md for rules.\n", encoding="utf-8"
         )
         policy = _write_policy(self.tmp)
         code, out, _ = self._run(["--policy", str(policy), "rule-pointer-sync"])

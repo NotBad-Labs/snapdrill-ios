@@ -15,8 +15,8 @@ freshness:
 
 | PR | 主题 | 关键改动 | 受影响 layer |
 |---|---|---|---|
-| **#690** | Stage C/PR-6 SnapshotTesting + 7 baseline | `SnapDrillFeatures/Package.swift` 加 `pointfreeco/swift-snapshot-testing 1.17+`；`SnapDrillUI/Package.swift` trailing comma cleanup；`SnapDrillFeaturesTests/SnapshotRegressionTests.swift`（105 行，7 测试）；`__Snapshots__/SnapshotRegressionTests/*.png`（7 张 PNG / 217 KB）；`docs/principles/testing.md` 《Snapshot 视觉回归》章节；顺手修 `.claude/hooks/swift-autolint.sh` 的 Issue #666 残留（Package.swift / DataSeeder.swift 假阳性阻塞）| pattern + snapshot |
-| **#691** | Stage C/PR-7 CI 集成 xcresult artifact | `.github/workflows/ci.yml` Test step 加 `-resultBundlePath TestResults.xcresult` + 新增 `Upload xcresult on failure` step（`if: failure()` + `actions/upload-artifact@v4`，保留 7 天）；`.gitignore` 加 `TestResults.xcresult/`；`docs/workflow.md` 新增《CI 与本地一致性》章节（~40 行）；`docs/principles/testing.md` Snapshot CI 子段从"PR-7 落地"更新为"已落地" | pattern + snapshot |
+| **#690** | Stage C/PR-6 SnapshotTesting + 7 baseline | `SnapDrillFeatures/Package.swift` 加 `pointfreeco/swift-snapshot-testing 1.17+`；`SnapDrillUI/Package.swift` trailing comma cleanup；`SnapDrillFeaturesTests/SnapshotRegressionTests.swift`（105 行，7 测试）；`__Snapshots__/SnapshotRegressionTests/*.png`（7 张 PNG / 217 KB）；`docs/standards/testing.md` 《Snapshot 视觉回归》章节；顺手修 `.claude/hooks/swift-autolint.sh` 的 Issue #666 残留（Package.swift / DataSeeder.swift 假阳性阻塞）| pattern + snapshot |
+| **#691** | Stage C/PR-7 CI 集成 xcresult artifact | `.github/workflows/ci.yml` Test step 加 `-resultBundlePath TestResults.xcresult` + 新增 `Upload xcresult on failure` step（`if: failure()` + `actions/upload-artifact@v4`，保留 7 天）；`.gitignore` 加 `TestResults.xcresult/`；`docs/workflow.md` 新增《CI 与本地一致性》章节（~40 行）；`docs/standards/testing.md` Snapshot CI 子段从"PR-7 落地"更新为"已落地" | pattern + snapshot |
 
 ## Open
 
@@ -64,7 +64,7 @@ Harness 三阶段 9 PR 整体收官。无紧接后续任务从本 phase 继承�
 - Xcode Review 轮次：PR-6 两轮（首轮 1🟡 Y-1 hook/swiftlint 双向锚定 → 第二轮验收通过）；PR-7 一轮（0🔴+0🟡+8🟢 直接通过）
 - 新增 baseline：7 张 PNG / 217 KB（最大 ContextualErrorView 53 KB / 最小 SnapDrillButton 1.7 KB）
 - SnapshotTesting 依赖 pin：1.19.2（Package.resolved）
-- 新增文档：`docs/principles/testing.md` +33 行《Snapshot 视觉回归》；`docs/workflow.md` +41 行《CI 与本地一致性》
+- 新增文档：`docs/standards/testing.md` +33 行《Snapshot 视觉回归》；`docs/workflow.md` +41 行《CI 与本地一致性》
 
 ## 吃自己狗粮的反馈
 

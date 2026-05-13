@@ -29,9 +29,9 @@ user-invocable: true
 
 ## 启动前 checklist
 
-- [ ] 已读取 `docs/principles/codex-delegation.md`（默认 effort high for 审计/Review）
-- [ ] 已读取 `docs/principles/gemini-delegation.md`（不加 sandbox，防 7 分钟卡死）
-- [ ] 已读取 `docs/principles/shared-constraints.md`（必须内联到 prompt）
+- [ ] 已读取 `docs/standards/codex-delegation.md`（默认 effort high for 审计/Review）
+- [ ] 已读取 `docs/standards/gemini-delegation.md`（不加 sandbox，防 7 分钟卡死）
+- [ ] 已读取 `docs/standards/shared-constraints.md`（必须内联到 prompt）
 - [ ] 已读取 `docs/memory/feedback.md` F-008 / F-011 / F-012
 - [ ] 审计目标和文件清单已明确（写下来，不要口头默认）
 - [ ] 审计报告落盘路径已明确；所有委派 prompt 已写明"不得修改被审文件"
@@ -73,7 +73,7 @@ gemini -p "你审 [审计目标]
 PR 审查场景末尾补 4 维评分表（0-10 整数分 + 综合平均），
 维度：Scope Fidelity / Code Quality / Test Coverage / Architecture Fit
 
-**评分纪律（强制，来自 docs/principles/gemini-delegation.md 评分任务纪律段）**：
+**评分纪律（强制，来自 docs/standards/gemini-delegation.md 评分任务纪律段）**：
 1. 每维度必须引用 plan / Issue Sprint Contract 明文条目作锚点；禁止感性打分
 2. **默认从 8.0 起评**，每个正向证据 +1，每个负向证据 -1
 3. **10.0 分硬门槛**：仅在 plan 每一条都明文命中 + 无任何 scope 外增量 + 架构严格遵守时给
@@ -116,8 +116,8 @@ PR 审查场景末尾补 4 维评分表（0-10 整数分 + 综合平均），
 
 ## 上游引用
 
-- `docs/principles/codex-delegation.md` — Codex 委派详细规范
-- `docs/principles/gemini-delegation.md` — Gemini 委派详细规范
-- `docs/principles/collaboration.md` — 三方协作总体架构 + 汇总表格模板
-- `docs/principles/shared-constraints.md` — 委派 prompt 共享约束
+- `docs/standards/codex-delegation.md` — Codex 委派详细规范
+- `docs/standards/gemini-delegation.md` — Gemini 委派详细规范
+- `docs/standards/collaboration.md` — 三方协作总体架构 + 汇总表格模板
+- `docs/standards/shared-constraints.md` — 委派 prompt 共享约束
 - `docs/memory/feedback.md` — F-008 / F-011 / F-012 详细规则

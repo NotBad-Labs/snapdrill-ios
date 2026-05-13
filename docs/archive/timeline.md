@@ -53,7 +53,7 @@ freshness:
 | 2026-04-13 | 历史技能文档清理：`.claude/skills/**/*.md` 删除为 0；发布检查单迁移到 `docs/agent/references/release-checklist.md` | 当前工作区改动 |
 | 2026-04-13 | 建立里程碑 `Codex Baseline v1（文档治理）`（milestone #2，due 2026-04-20） | <https://github.com/NotBad-Labs/snapdrill-ios/milestone/2> |
 | 2026-04-13 | 建立里程碑主 issue `#583` 并将 `#578` 归入该里程碑 | <https://github.com/NotBad-Labs/snapdrill-ios/issues/583> / <https://github.com/NotBad-Labs/snapdrill-ios/issues/578> |
-| 2026-04-13 | **项目主权重组定稿（PR #587）**：回滚 Codex 的 `docs/agent/` 方案，建立 `docs/principles/` 为 agent-agnostic 唯一规则源。CLAUDE.md/CODEX.md 恢复为对称指针。`.claude/rules/` 保留为薄指针。上方第 46-48 行记录的操作（删除 CLAUDE.md、迁入 docs/agent/、清理 skills）已被本次重组取代，未进入 develop | <https://github.com/NotBad-Labs/snapdrill-ios/pull/587> |
+| 2026-04-13 | **项目主权重组定稿（PR #587）**：回滚 Codex 的 `docs/agent/` 方案，建立 `docs/standards/` 为 agent-agnostic 唯一规则源。CLAUDE.md/CODEX.md 恢复为对称指针。`.claude/rules/` 保留为薄指针。上方第 46-48 行记录的操作（删除 CLAUDE.md、迁入 docs/agent/、清理 skills）已被本次重组取代，未进入 develop | <https://github.com/NotBad-Labs/snapdrill-ios/pull/587> |
 | 2026-04-13 | 关闭 PR #582/#584/#585：历史分支清零，以 #587 为新基线向前推进 | 用户决策 |
 
 ## 待补时间线（下次更新）

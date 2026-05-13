@@ -61,7 +61,7 @@ reason: "一次性概念研究归档；若后续落地为规则/skill/hook 则�
 - Rick Hightower "The model is the CPU, the harness is the OS"
 - 中文圈传播详情：宝玉（dotey）/ Wang Shuyi / ZhangHanDong GitHub / 菜鸟教程
 - 致谢名单 16 人含 Mike Krieger（Anthropic CPO）
-- `docs/principles/` 翻译建议：保留英文术语，避免中文"驾驭"歧义
+- `docs/standards/` 翻译建议：保留英文术语，避免中文"驾驭"歧义
 
 **Gemini 独有（按 `feedback_gemini_adversarial.md` 默认存疑）**：
 - ⚠️ **arXiv:2408.01234 (Scaling Test-time Compute)** — 编号未由其他两家验证，**不作依据**
@@ -132,7 +132,7 @@ Codex 的精要判断被采纳：Harness Engineering 是**旧实践的新主语*
 | Planner / Generator / Evaluator 分离 | F-008 三方对抗（Claude + Codex + Gemini）+ Xcode Review | ✅ 事实上已存在，以"交叉 Generator + 多 Reviewer"形式呈现 |
 | Context reset + structured handoff | `resume-from-handoff` skill + `docs/memory/handoff.md` + `long-session-guard` hook | ✅ 领先 Anthropic 公开实践 |
 | self-praise 对冲 | F-008 三方纪律 + `cross-audit-consensus` skill | ✅ 结构性防御到位 |
-| 知识沉淀 | `docs/principles/` + `docs/memory/feedback.md`（F-001~F-017）+ `.claude/rules/` 自动路由 | ✅ 已覆盖 |
+| 知识沉淀 | `docs/standards/` + `docs/memory/feedback.md`（F-001~F-017）+ `.claude/rules/` 自动路由 | ✅ 已覆盖 |
 | Hashimoto 式"错误即永久修复" | `feedback.md` 新增规则是手动触发 | ⚠️ 部分 —— 依赖 Claude 主动判断 |
 | 运行时门 | `swift-autolint` / `prepush-lint` / `block-dangerous-bash` / `premerge-checklist` hooks | ✅ 已部署 |
 
@@ -149,7 +149,7 @@ Codex 的精要判断被采纳：Harness Engineering 是**旧实践的新主语*
    - 代价：中（需 MCP 接入工程）
 
 3. **Hashimoto 式错误回流自动化**
-   - **落地建议**：在 `.claude/rules/` 加一条 `harness-recall` —— PR 合并后如果 cross-audit 发现的 bug 能归纳为规则，自动 propose 写进 `docs/principles/` 或 `feedback.md`
+   - **落地建议**：在 `.claude/rules/` 加一条 `harness-recall` —— PR 合并后如果 cross-audit 发现的 bug 能归纳为规则，自动 propose 写进 `docs/standards/` 或 `feedback.md`
    - 代价：中（需要 post-merge hook + 自动分类启发式）
 
 ### 三家共识：不值得引入
@@ -157,7 +157,7 @@ Codex 的精要判断被采纳：Harness Engineering 是**旧实践的新主语*
 - 针对常规 SwiftUI 页面跑 5-15 轮审美迭代
 - 为 context reset 而 context reset（已有 phase-compaction + handoff 纪律）
 - 多 agent 同时改同一块 SwiftData / SwiftUI 核心（merge thrash）
-- 把 "Harness Engineering" 做成营销包装写进 `docs/principles/`（已有同等内容换名字增加维护成本）
+- 把 "Harness Engineering" 做成营销包装写进 `docs/standards/`（已有同等内容换名字增加维护成本）
 
 ## 中文译法（三家共识）
 
@@ -169,7 +169,7 @@ Codex 的精要判断被采纳：Harness Engineering 是**旧实践的新主语*
 3. 可动词化（"驾驭 Claude Code"）
 
 **对 SnapDrill 的具体建议（Claude 独有观点，值得采纳）**：
-- `docs/principles/` 若引入该概念 → **用英文 `Harness Engineering`**，中文解释段用"驾驭"作描述词而非术语
+- `docs/standards/` 若引入该概念 → **用英文 `Harness Engineering`**，中文解释段用"驾驭"作描述词而非术语
 - `docs/memory/feedback.md` 新增规则 → **用 `Harness` 一词即可**，无需翻译
 - **避免**：支架 / 脚手架（与 inference-time scaffolding 冲突）、框架（与 framework 冲突）、壳（贬义）
 
@@ -231,12 +231,12 @@ Codex 的精要判断被采纳：Harness Engineering 是**旧实践的新主语*
 | 优先级 | 行动 | 代价 | 收益 |
 |---|---|---|---|
 | **P1** | PR 模板 / Issue 模板加 `acceptance_criteria` 字段（Sprint Contract 本土化） | 低（纯文档） | 高（对齐 Generator/Evaluator） |
-| **P2** | 新建 `.claude/rules/harness-recall.md`：PR 合并后，cross-audit 新发现自动 propose 到 `feedback.md` / `docs/principles/` | 中（hook + 分类） | 高（Hashimoto 永久修复自动化） |
+| **P2** | 新建 `.claude/rules/harness-recall.md`：PR 合并后，cross-audit 新发现自动 propose 到 `feedback.md` / `docs/standards/` | 中（hook + 分类） | 高（Hashimoto 永久修复自动化） |
 | **P3** | CI 把 XCUITest 失败截图 diff 暴露给 agent 作为 evaluator feedback | 中（MCP 接入） | 中（iOS 领域 Playwright 等价） |
 | **P3** | `long-session-guard` hook 加 "context anxiety" 监测（连续 N 步小改 → 强制 reset） | 低（hook 增强） | 中（防 premature termination） |
 | 观望 | Meta-Harness 2603.28052 若验证为真，长期可让 Claude 自读 transcript 历史自动提建议 | 高 | 待定 |
 
-**不落地**：引入完整 Planner/Generator/Evaluator 独立进程、React+FastAPI Playwright 栈、Hermes 风格 skill 自动抽取、把 Harness Engineering 作为营销名词写进 `docs/principles/`。
+**不落地**：引入完整 Planner/Generator/Evaluator 独立进程、React+FastAPI Playwright 栈、Hermes 风格 skill 自动抽取、把 Harness Engineering 作为营销名词写进 `docs/standards/`。
 
 ---
 

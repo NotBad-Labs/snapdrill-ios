@@ -5,8 +5,8 @@ layer: pattern
 # SnapDrill 协作流程
 
 > 开发闭环、Git 工作流、Code Review、优先级。
-> 工程哲学见 `docs/principles/engineering.md`，协作模式见 `docs/principles/collaboration.md`。
-> CI 操作细节见 `docs/tech/deployment.md`，测试执行见 `docs/principles/testing.md`。
+> 工程哲学见 `docs/standards/engineering.md`，协作模式见 `docs/standards/collaboration.md`。
+> CI 操作细节见 `docs/tech/deployment.md`，测试执行见 `docs/standards/testing.md`。
 
 ---
 
@@ -64,7 +64,7 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ## Definition of Done
 
-> 基于 `docs/principles/engineering.md` 7 条原则。每条 DoD 项标注对应原则编号。
+> 基于 `docs/standards/engineering.md` 7 条原则。每条 DoD 项标注对应原则编号。
 
 ### 代码质量
 - [ ] `swiftlint --strict` 0 violations（原则 4：编译拦截）
@@ -154,7 +154,7 @@ CI 使用 Mac mini self-hosted runner（Xcode 26.4 / iPhone 17 Simulator）。PR
 
 ## 交叉审计
 
-三方审计的组合、流程、工具链见 `docs/principles/collaboration.md`；核心纪律见 `docs/memory/feedback.md` F-008。
+三方审计的组合、流程、工具链见 `docs/standards/collaboration.md`；核心纪律见 `docs/memory/feedback.md` F-008。
 
 ---
 

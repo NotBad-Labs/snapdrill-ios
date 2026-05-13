@@ -13,7 +13,7 @@ freshness:
 
 ## Scope
 
-33 文件：docs/product/(7) + docs/tech/(6) + docs/principles/(16) + docs/decisions/(3) + KNOWLEDGE_MAP + DOC_DEPENDENCY_MAP + README
+33 文件：docs/product/(7) + docs/tech/(6) + docs/standards/(16) + docs/decisions/(3) + KNOWLEDGE_MAP + DOC_DEPENDENCY_MAP + README
 
 ## Findings
 

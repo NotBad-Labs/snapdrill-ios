@@ -29,7 +29,7 @@ freshness:
 
 - Public 接口声明（如 api-reference.md） → 必须能在 `Packages/*/Sources/` grep 到匹配的类型/函数
 - 功能规格声明（如 product-requirements.md） → 必须能在 `Packages/*/Tests/` 找到对应的验收测试
-- 纪律声明（如 feedback F-NNN） → 必须能在 `.claude/hooks/` 或 `docs/principles/` 找到落地机制
+- 纪律声明（如 feedback F-NNN） → 必须能在 `.claude/hooks/` 或 `docs/standards/` 找到落地机制
 
 **Why:** 纯文档间审计容易产生"文档自洽但脱离代码"的幻觉（文档说有 XYZ 功能，但代码从未实现）。文档→代码锚点是真实性基线。
 
@@ -66,7 +66,7 @@ Codebase + ADR
   └─> docs/tech/api-reference.md（接口快照）
 
 workflow + KNOWLEDGE_MAP
-  ├─> CLAUDE.md / CODEX.md / docs/principles/*.md（执行规则）
+  ├─> CLAUDE.md / CODEX.md / docs/standards/*.md（执行规则）
   ├─> STATUS.md（当前状态快照）
   └─> docs/memory/*.md（跨会话交接快照）
 ```
@@ -94,9 +94,9 @@ workflow + KNOWLEDGE_MAP
 | `docs/tech/api-reference.md` | API 快照 | 代码（public 接口） | 测试同步、集成调用方 |
 | `docs/tech/deployment.md` | 发布与 CI 流程 | workflow、compliance、NFR | 发布执行、审核提交流程 |
 | `docs/tech/release-checklist.md` | 发版前检查清单 | deployment | 发版执行 |
-| `docs/principles/engineering.md` | 工程哲学 | — | workflow、coding、testing、shared-constraints |
+| `docs/standards/engineering.md` | 工程哲学 | — | workflow、coding、testing、shared-constraints |
 | `docs/workflow.md` | 协作规则源 | engineering、collaboration | 所有开发与评审流程 |
-| `docs/principles/*.md` | 执行约束 | engineering（部分）、workflow | 智能体行为、委派上下文质量 |
+| `docs/standards/*.md` | 执行约束 | engineering（部分）、workflow | 智能体行为、委派上下文质量 |
 | `docs/KNOWLEDGE_MAP.md` | 知识分层与裁决索引 | workflow、现有文档体系 | 文档检索顺序、更新触发规则 |
 | `CLAUDE.md` / `CODEX.md` | 智能体执行入口 | workflow、STATUS、KNOWLEDGE_MAP | 智能体启动上下文 |
 | `STATUS.md` | 进度快照 | PR 合并结果、issue 状态 | 会话启动上下文、排期决策 |

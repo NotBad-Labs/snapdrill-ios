@@ -28,11 +28,11 @@ user-invocable: true
 2. `STATUS.md` —— 当前快照
 3. `docs/memory/handoff.md` —— 接手状态、待合并 PR、阻塞
 4. `docs/memory/feedback.md` —— 项目纪律（F-001~F-N）
-5. `docs/principles/collaboration.md` —— 三方协作架构（如即将做对抗审查）
+5. `docs/standards/collaboration.md` —— 三方协作架构（如即将做对抗审查）
 
 ### Tier 2：按需（用户描述任务后再读）
 6. 最近 1-2 个 `docs/memory/checkpoints/<date>-*.md` —— 最近 phase 复盘
-7. 任务相关的 `docs/principles/<rule>.md`（如改代码 → coding.md）
+7. 任务相关的 `docs/standards/<rule>.md`（如改代码 → coding.md）
 8. 任务相关的 `docs/product/<file>.md`（如改产品文档 → 对应文件）
 9. 当前 git 状态：`git status` + `git log --oneline -10` + `gh pr list --state open --author '@me'`
 
@@ -73,7 +73,7 @@ user-invocable: true
 
 ## 与 Hermes 对应
 
-Hermes 用 SQLite + FTS5 做 episodic memory recall。SnapDrill 当前用 ripgrep + 人工 routing（见 `docs/principles/memory-routing.md`）+ checkpoints 实现等价效果。无需引入 Hermes runtime。
+Hermes 用 SQLite + FTS5 做 episodic memory recall。SnapDrill 当前用 ripgrep + 人工 routing（见 `docs/standards/memory-routing.md`）+ checkpoints 实现等价效果。无需引入 Hermes runtime。
 
 ## 与 update-status skill 的分工
 

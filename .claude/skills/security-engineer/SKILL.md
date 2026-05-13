@@ -58,7 +58,7 @@ allowed-tools:
 
 ### 错误处理安全规范
 
-> 详见 `docs/principles/coding.md`「错误处理」（关键路径禁止 `try?`、清理路径 best-effort 规则）
+> 详见 `docs/standards/coding.md`「错误处理」（关键路径禁止 `try?`、清理路径 best-effort 规则）
 
 ## 检查清单
 

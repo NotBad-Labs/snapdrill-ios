@@ -21,7 +21,7 @@ layer: pattern
 | Onboarding 内容 | 6-24 个月 | 团队 | `docs/product/product-onboarding.md` | Onboarding 第1页 |
 | 技术架构、Package 边界、DI | 6-24 个月 | 团队 | `docs/tech/architecture.md` | "Core 不依赖 Data" |
 | 内部 API 签名 | <6 个月 | 团队 | `docs/tech/api-reference.md` | `OCRServiceProtocol` |
-| 工程哲学 | >2 年 | 团队 | `docs/principles/engineering.md` | 7 条核心原则 |
+| 工程哲学 | >2 年 | 团队 | `docs/standards/engineering.md` | 7 条核心原则 |
 | 项目纪律 / 反馈教训 | 6-24 个月 | 团队 | `docs/memory/feedback.md` | F-008 |
 | 工程决策（非 ADR 级） | 6-24 个月 | 团队 | `docs/memory/decisions.md` | 模块拆分理由 |
 | ADR / 产品/架构决策 | >2 年 | 团队 | `docs/decisions/ADR-NNN-*.md` | ADR-001 智能组卷定价 |
@@ -46,7 +46,7 @@ layer: pattern
 
 - ❌ 把"用户偏好称呼帅哥"写到 `docs/`（应在私有 memory）
 - ❌ 把 ADR 决策只写到 `STATUS.md`（应建 ADR-NNN 文件）
-- ❌ 把"今天遇到的 bug 修法"写到 `docs/principles/`（应在 `docs/memory/decisions.md`）
+- ❌ 把"今天遇到的 bug 修法"写到 `docs/standards/`（应在 `docs/memory/decisions.md`）
 - ❌ 把临时 checkpoint 写到 `docs/memory/feedback.md`（应在 `docs/memory/checkpoints/`）
 
 ## 创建新文件前自查

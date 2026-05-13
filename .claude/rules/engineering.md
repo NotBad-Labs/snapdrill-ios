@@ -4,5 +4,5 @@ paths:
   - "docs/**"
 ---
 
-<!-- 规范源：docs/principles/engineering.md -->
-Read and follow docs/principles/engineering.md for engineering philosophy.
+<!-- 规范源：docs/standards/engineering.md -->
+Read and follow docs/standards/engineering.md for engineering philosophy.

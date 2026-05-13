@@ -19,9 +19,9 @@ freshness:
 
 ### Warning (5)
 
-**W1: 2 个 docs/principles/ 文件无 .claude/rules/ 路由**
-- `docs/principles/memory-routing.md` — 无对应 `.claude/rules/memory-routing.md`
-- `docs/principles/review-prompt-guide.md` — 无对应 `.claude/rules/review-prompt-guide.md`
+**W1: 2 个 docs/standards/ 文件无 .claude/rules/ 路由**
+- `docs/standards/memory-routing.md` — 无对应 `.claude/rules/memory-routing.md`
+- `docs/standards/review-prompt-guide.md` — 无对应 `.claude/rules/review-prompt-guide.md`
 - 后果：这两个文件不会被 Claude Code 的规则系统自动加载到上下文
 - review-prompt-guide.md 被 pr-review-workflow skill 引用，但缺乏自动路由
 - memory-routing.md 定义了"哪类内容写哪里"的关键路由规则，但 Agent 不会自动读到
@@ -70,12 +70,12 @@ freshness:
 
 ## Positive Findings
 
-- ✅ 13 条 rules 全部正确路由到存在的 docs/principles/ 文件（零死引用）
+- ✅ 13 条 rules 全部正确路由到存在的 docs/standards/ 文件（零死引用）
 - ✅ 11 个 skills 全部有 SKILL.md + allowed-tools 声明
 - ✅ 10 个 hooks 全部存在且功能明确
 - ✅ feedback.md 退役规则全部保留墓碑指针，外部引用安全
 - ✅ workflow.md 覆盖完整（DoD、S0-S3、审计协议、Phase Compaction）
-- ✅ clause/rules/ 和 docs/principles/ 的双层架构（路由+源）设计合理
+- ✅ clause/rules/ 和 docs/standards/ 的双层架构（路由+源）设计合理
 - ✅ block-dangerous-bash.sh 覆盖了关键高危命令
 - ✅ swift-autolint + prepush-lint 形成 lint 双重保障
 

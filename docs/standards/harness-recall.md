@@ -57,7 +57,7 @@ grep -A 10 '重复\|recur\|again\|再次\|又出现' docs/memory/handoff.md
   - <checkpoint/日期>: <具体描述>
   - <checkpoint/日期>: <具体描述>
 **提案 F-0XX**: <规则名称>
-**建议位置**: docs/memory/feedback.md 或 docs/principles/<file>.md
+**建议位置**: docs/memory/feedback.md 或 docs/standards/<file>.md
 **建议内容**:
   - 触发条件
   - 必须/禁止行为

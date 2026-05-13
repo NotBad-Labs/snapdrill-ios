@@ -12,7 +12,7 @@
 | `archived-refs` | 对 `docs/research/*` (status: archived) 的活跃硬引用 |
 | `orphans` | `docs/**/*.md` 在全仓零引用 |
 | `home-path-refs` | 仓库内对 `~/.claude/` 私有路径的硬编码 |
-| `rule-pointer-sync` | `.claude/rules/*.md` 与 `docs/principles/*.md` 映射完整性 |
+| `rule-pointer-sync` | `.claude/rules/*.md` 与 `docs/standards/*.md` 映射完整性 |
 | `rule-usage` | F-001~F-NNN 引用计数（识别 dead rule 候选） |
 | `all` | 以上 6 项 + `frontmatter`（subprocess 调用 `Scripts/validate_frontmatter.py`） |
 

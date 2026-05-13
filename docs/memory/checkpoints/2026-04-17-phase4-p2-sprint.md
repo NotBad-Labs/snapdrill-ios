@@ -18,7 +18,7 @@ freshness:
 | #650 | PR-D F-008 去重 | `docs/workflow.md:142-146` 改纯指针，指向 `collaboration.md` + `feedback.md` F-008 |
 | #651 | PR-G archive 元信息 | `docs/archive/audit-report-20260409.md` 加"已归档·不可信"注记；`docs/memory/README.md` 同步 |
 | #652 | PR-F 时效性修正 + T-01 追补 | `collaboration.md` Opus 4.6→4.7；`product-requirements.md` 端上 AI 毕业（MoSCoW Could Have → Done） |
-| #653 | PR-H ux-design 失效 skill | 删除 `docs/principles/ux-design.md:5` 指向已废弃的 `ux-designer` / `user-advocate` skill 的死引用 |
+| #653 | PR-H ux-design 失效 skill | 删除 `docs/standards/ux-design.md:5` 指向已废弃的 `ux-designer` / `user-advocate` skill 的死引用 |
 | #654 | PR-K Issue 模板去重 | `docs/workflow.md:17-48` 改 SSOT 指针；`.github/ISSUE_TEMPLATE/feature_request.md` 合并 bug_report 独有字段 |
 | #655 | PR-E KNOWLEDGE_MAP 校准 | 12→17 条，覆盖文件 ~25→~40；`docs/memory/README.md` 同步 |
 

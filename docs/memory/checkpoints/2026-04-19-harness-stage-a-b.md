@@ -19,7 +19,7 @@ freshness:
 | **#674** | Harness Engineering 三方研究归档 | `docs/archive/research/harness-engineering-study-20260418.md`（3000+ 字，三方共识 + URL 表 + P1~P3 可行动条目） | archive |
 | **#675** | Sprint Contract + F-018 | `.github/ISSUE_TEMPLATE/feature_request.md` + `chore.md` 加 Sprint Contract 段；`workflow.md` 加《编码前契约》；`feedback.md` F-018 | pattern + snapshot |
 | **#676** | 反模式启发式 + F-019 | `Scripts/anti-pattern-scan.sh` + `.claude/hooks/post-merge-checkpoint.sh` 扩展；`feedback.md` F-019 | pattern + snapshot |
-| **#677** | Permission Model SSOT | `docs/principles/permission-model.md`（126 行 5 节）+ `.claude/rules/permission-model.md` + `CLAUDE.md` + `KNOWLEDGE_MAP` + `principles/README` 同步 | pattern |
+| **#677** | Permission Model SSOT | `docs/standards/permission-model.md`（126 行 5 节）+ `.claude/rules/permission-model.md` + `CLAUDE.md` + `KNOWLEDGE_MAP` + `principles/README` 同步 | pattern |
 | **#678** | session-metrics hook | `.claude/hooks/session-metrics.sh` + `settings.json` PostToolUse `.*` matcher + `phase-closeout` skill Metrics 段 + `.gitignore` | pattern |
 | **#679** | cross-audit 量化 rubric | `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 四维 rubric；`cross-audit/SKILL.md` 委派模板；`principles/collaboration.md` 量化评分门 | pattern |
 
@@ -36,7 +36,7 @@ freshness:
 ## Decisions
 
 - **中文译名**：沿用「驾驭工程」（已成既定事实），项目内文档保留英文 `Harness Engineering / Harness`（三方共识，见 `docs/archive/research/harness-engineering-study-20260418.md` §9）
-- **术语策略**：只落机制**不引术语**进 `docs/principles/`（避免术语通胀，用户决策）
+- **术语策略**：只落机制**不引术语**进 `docs/standards/`（避免术语通胀，用户决策）
 - **Sprint Contract 位置**：Issue 模板内嵌字段（最轻量，与现有 workflow 无缝衔接），不独立 `docs/sprints/` 文件
 - **评分 vs 裁决分离**：rubric 量化分数决定"是否 retry"（硬阈值），共识/冲突采纳仍走 2/3 原则；避免 "高分即合并" 的绕过风险
 - **反模式启发式不自动改规则**：启发式命中只 stderr 警报（F-019），出现 3 次后人工升级（Claude 提议 + 用户批准），避免 AI 自写纪律循环

@@ -31,7 +31,7 @@ layer: pattern
 - 聚焦本次变更引入的新风险，不重复通用检查项
 - 用提问句式引导审查方向（如"xxx 是否会导致 yyy"）
 - 如涉及用户旅程变更，明确引用 docs/product/product-requirements.md「用户旅程」中的旅程编号
-- 如涉及新 API，要求检查与 docs/principles/api-pitfalls.md 的一致性
+- 如涉及新 API，要求检查与 docs/standards/api-pitfalls.md 的一致性
 
 ### 4. 固定收尾
 
@@ -41,7 +41,7 @@ layer: pattern
 项目约束见 CLAUDE.md 和 .claude/ 目录。除上述重点外，请同时关注：
 - Swift 6 strict concurrency 合规（@MainActor、Task 句柄、Sendable）
 - 是否有更原生的 Apple API 可替代自定义实现
-- 与 docs/principles/api-pitfalls.md 常见错误防范表的一致性（新增/修改的 public API 是否遵循已知陷阱）
+- 与 docs/standards/api-pitfalls.md 常见错误防范表的一致性（新增/修改的 public API 是否遵循已知陷阱）
 - 内存与性能影响（尤其图片加载、大列表、频繁 I/O 场景）
 ```
 
@@ -136,7 +136,7 @@ layer: pattern
 项目约束见 CLAUDE.md 和 .claude/ 目录。除上述重点外，请同时关注：
 - Swift 6 strict concurrency 合规（@MainActor、Task 句柄、Sendable）
 - 是否有更原生的 Apple API 可替代自定义实现
-- 与 docs/principles/api-pitfalls.md 常见错误防范表的一致性（新增/修改的 public API 是否遵循已知陷阱）
+- 与 docs/standards/api-pitfalls.md 常见错误防范表的一致性（新增/修改的 public API 是否遵循已知陷阱）
 - 内存与性能影响（尤其图片加载、大列表、频繁 I/O 场景）
 
 输出格式：按严重程度分类——

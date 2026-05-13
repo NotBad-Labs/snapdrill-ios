@@ -5,4 +5,4 @@ paths:
   - "~/.claude/projects/**/memory/**"
 ---
 
-Read and follow docs/principles/memory-routing.md for knowledge/memory routing rules.
+Read and follow docs/standards/memory-routing.md for knowledge/memory routing rules.

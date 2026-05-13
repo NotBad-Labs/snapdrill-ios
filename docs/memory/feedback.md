@@ -145,9 +145,9 @@ F-015（2026-04-15 "CI 失败是致命信号"）已于 2026-04-22 Phase C PR-β 
 ---
 
 ## F-009: [retired 2026-04-22] Xcode Review 必须先读模板
-<!-- retired: 2026-04-22 | merged-into: docs/principles/review-prompt-guide.md | Phase C PR-δ -->
+<!-- retired: 2026-04-22 | merged-into: docs/standards/review-prompt-guide.md | Phase C PR-δ -->
 
-**此规则已落地到 `docs/principles/review-prompt-guide.md`。** 模板结构（开头一句话 + 变更概要 + 审查重点 + 固定收尾）已固化为 skill 指南。
+**此规则已落地到 `docs/standards/review-prompt-guide.md`。** 模板结构（开头一句话 + 变更概要 + 审查重点 + 固定收尾）已固化为 skill 指南。
 
 编号保留为墓碑。新文档统一引用 review-prompt-guide。
 
@@ -217,7 +217,7 @@ F-015（2026-04-15 "CI 失败是致命信号"）已于 2026-04-22 Phase C PR-β 
 
 **此规则已合并入 F-007。** 详细纪律见 F-007 的《时点 1 — Pre-merge》段（本文件上方第 101 行起）。
 
-编号保留为墓碑指针，避免破坏 `docs/principles/api-pitfalls.md:62`、`STATUS.md:218`、历史 checkpoints 等外部引用。新文档统一指向 F-007。
+编号保留为墓碑指针，避免破坏 `docs/standards/api-pitfalls.md:62`、`STATUS.md:218`、历史 checkpoints 等外部引用。新文档统一指向 F-007。
 
 ---
 

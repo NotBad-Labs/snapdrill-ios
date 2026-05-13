@@ -34,7 +34,7 @@ freshness:
 |---|---|---|---|
 | 1. 产品运行 | **201** | 45.7% | Swift 源码(177) + 资源/lproj/xcassets(12) + PrivacyInfo/entitlements/plist(12) |
 | 2. 验证 | **67** | 15.2% | 测试 Swift(49) + snapshot PNG(16) + xctestplan(1) + XCUITest(1) |
-| 3. 知识 | **53** | 12.0% | docs/product(7) + docs/tech(6) + docs/principles(16) + docs/decisions(3) + docs/archive(5) + KNOWLEDGE_MAP(1) + DOC_DEPENDENCY_MAP(1) + README(7) + docc(6) |
+| 3. 知识 | **53** | 12.0% | docs/product(7) + docs/tech(6) + docs/standards(16) + docs/decisions(3) + docs/archive(5) + KNOWLEDGE_MAP(1) + DOC_DEPENDENCY_MAP(1) + README(7) + docc(6) |
 | 4. 状态与记忆 | **16** | 3.6% | STATUS.md(1) + docs/memory/handoff(1) + decisions(1) + feedback(1) + checkpoints(10) + README(1) + codex-handoff(1) |
 | 5. 智能体治理 | **44** | 10.0% | .claude/rules(13) + .claude/skills(11) + .claude/hooks(10) + .claude/settings(1) + .agent-harness(4) + CLAUDE.md + CODEX.md + docs/workflow.md + docs/memory/feedback.md |
 | 6. 工程管道 | **47** | 10.7% | .github/workflows(1) + .github/ISSUE_TEMPLATE(4) + .github/PULL_REQUEST_TEMPLATE(1) + Scripts(24) + fastlane(1) + Configs(3) + 根级 xcconfig(2) + xcodeproj(7) + .swiftlint.yml + ExportOptions.plist + upload_testflight.sh |
@@ -51,9 +51,9 @@ freshness:
 |---|---|---|
 | `.claude/hooks/*.sh` | 体系 5 | 主用途是治理，脚本是实现手段 |
 | `docs/memory/feedback.md` | 体系 5 | 三方共识：规范性规则，受众是 Agent |
-| `docs/principles/coding.md` | 体系 3 | 受众是人类开发者 |
-| `docs/principles/collaboration.md` | 体系 5 | 受众是 Agent |
-| `docs/principles/permission-model.md` | 体系 5 | 定义了 Agent 权限 |
+| `docs/standards/coding.md` | 体系 3 | 受众是人类开发者 |
+| `docs/standards/collaboration.md` | 体系 5 | 受众是 Agent |
+| `docs/standards/permission-model.md` | 体系 5 | 定义了 Agent 权限 |
 | `CLAUDE.md` / `CODEX.md` | 体系 5 | Agent 入口路由文件 |
 | `SnapDrill/PrivacyInfo.xcprivacy` | 体系 1 | 属于产品合规配置 |
 | `docs/archive/` | 体系 3 | 历史知识归档 |

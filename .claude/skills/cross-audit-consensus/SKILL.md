@@ -57,7 +57,7 @@ user-invocable: true
 | **Scope Fidelity** | 与 Issue Sprint Contract（Touches / No-Touch / Interface Delta）吻合度 | | | |
 | **Code Quality** | swiftlint 违规、圈复杂度、架构一致（独立于 CI 的人工审查） | | | |
 | **Test Coverage** | 新增/修改逻辑是否有对应测试，异常路径是否覆盖 | | | |
-| **Architecture Fit** | 是否遵循 `docs/principles/engineering.md`（奥卡姆剃刀 / YAGNI / SSOT / 可逆性）与现有模式 | | | |
+| **Architecture Fit** | 是否遵循 `docs/standards/engineering.md`（奥卡姆剃刀 / YAGNI / SSOT / 可逆性）与现有模式 | | | |
 | **综合** | 上 4 项平均 | | | |
 ```
 
@@ -74,7 +74,7 @@ user-invocable: true
 
 **评分方权重**（防 Claude/Gemini 自审 bias，本表是 SSOT）：
 
-本节是评分方权重唯一源。`docs/principles/gemini-delegation.md` 的评分任务纪律段必须与本表一致。
+本节是评分方权重唯一源。`docs/standards/gemini-delegation.md` 的评分任务纪律段必须与本表一致。
 
 | 评分方 | 角色 | 裁决权重 |
 |---|---|---|
@@ -113,7 +113,7 @@ user-invocable: true
 |---|---|---|---|---|---|
 ```
 
-按 `docs/principles/collaboration.md` 冲突裁决证据等级：编译/测试/日志结果 > 官方文档引用 > 代码分析推断 > 经验性判断。
+按 `docs/standards/collaboration.md` 冲突裁决证据等级：编译/测试/日志结果 > 官方文档引用 > 代码分析推断 > 经验性判断。
 
 ### 5. 给用户的行动清单
 

@@ -4,5 +4,5 @@ paths:
   - "STATUS.md"
 ---
 
-<!-- 规范源：docs/principles/collaboration.md -->
-Read and follow docs/principles/collaboration.md for multi-agent collaboration.
+<!-- 规范源：docs/standards/collaboration.md -->
+Read and follow docs/standards/collaboration.md for multi-agent collaboration.

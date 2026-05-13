@@ -5,4 +5,4 @@ paths:
   - "docs/memory/feedback.md"
 ---
 
-Read and follow docs/principles/harness-recall.md for self-evolution recall workflow.
+Read and follow docs/standards/harness-recall.md for self-evolution recall workflow.

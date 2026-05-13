@@ -89,7 +89,7 @@ vision → design → requirements → architecture → 源代码（抽样关键
 
 **W2: vision 的测试优先级规则在 testing.md 中未落地**
 - vision L157: "测试优先级按模块重要性排序：录入 > 管理 > 导出 > 复习"
-- `docs/principles/testing.md` 未提及此优先级
+- `docs/standards/testing.md` 未提及此优先级
 - 影响：测试策略缺乏与产品优先级的显式对齐
 
 ### Info (2)

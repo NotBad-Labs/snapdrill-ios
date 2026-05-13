@@ -17,7 +17,7 @@ layer: pattern
 |---|---|---|
 | `docs/product/product-vision.md` | 产品定位、价值链、用户画像 | — |
 | `docs/product/product-business.md` | 商业模型、定价、隐私承诺 | vision |
-| `docs/principles/engineering.md` | 工程哲学：7 条核心原则（判断方向、删减、YAGNI、编译拦截、边界契约、状态流、可逆性） | — |
+| `docs/standards/engineering.md` | 工程哲学：7 条核心原则（判断方向、删减、YAGNI、编译拦截、边界契约、状态流、可逆性） | — |
 | `docs/workflow.md` | 开发闭环、Git 工作流、S0-S3、DoD | engineering |
 
 ## 模式层（Semi-Open — 随版本迭代调整）
@@ -33,18 +33,18 @@ layer: pattern
 | `docs/product/product-analytics.md` | Analytics 事件字典（事件定义、触发条件、参数） | vision（成功信号） | 新增/修改事件 |
 | `docs/product/product-onboarding.md` | Onboarding 内容规格（页面内容、文案方向、触发规则） | vision, design | 用户反馈/产品pivot |
 | `docs/product/product-glossary.md` | 术语定义 | vision | 概念变更 |
-| `docs/principles/apple-native.md` | Apple 原生 UI 模式 | — | HIG/WWDC |
-| `docs/principles/coding.md` | 编码规范、SwiftLint 规则 | engineering | Swift 版本 |
-| `docs/principles/testing.md` | 测试策略 | engineering | XCTest 更新 |
-| `docs/principles/ux-design.md` | UX 设计原则、用户体验终审 | vision, design | HIG 更新 |
-| `docs/principles/collaboration.md` | 智能体协作架构（Claude/Codex/Gemini CLI/Xcode） | — | 工具更新 |
-| `docs/principles/harness-recall.md` | 自进化闭环：跨 checkpoint 去重 → 3 次触发 propose 新 F-0XX 规则 | handoff, checkpoints, feedback | phase-closeout |
-| `docs/principles/codex-delegation.md` | Codex 子 agent 委派规范（agent-agnostic） | — | 插件/模型更新 |
-| `docs/principles/gemini-delegation.md` | Gemini CLI 委派规范（agent-agnostic） | — | CLI/模型更新 |
-| `docs/principles/shared-constraints.md` | 委派共享约束（单一源） | — | 约束变更 |
-| `docs/principles/memory-routing.md` | 知识/记忆路由规则（哪类内容写哪里） | KNOWLEDGE_MAP | 路由争议 |
-| `docs/principles/permission-model.md` | Tool / Bash 命令 / Skill allowed-tools 权限矩阵（SSOT） | settings.json, hooks, skills | 权限配置变更 |
-| `docs/principles/apple-extension.md` | App Extension 约束 | — | Extension 变更 |
+| `docs/standards/apple-native.md` | Apple 原生 UI 模式 | — | HIG/WWDC |
+| `docs/standards/coding.md` | 编码规范、SwiftLint 规则 | engineering | Swift 版本 |
+| `docs/standards/testing.md` | 测试策略 | engineering | XCTest 更新 |
+| `docs/standards/ux-design.md` | UX 设计原则、用户体验终审 | vision, design | HIG 更新 |
+| `docs/standards/collaboration.md` | 智能体协作架构（Claude/Codex/Gemini CLI/Xcode） | — | 工具更新 |
+| `docs/standards/harness-recall.md` | 自进化闭环：跨 checkpoint 去重 → 3 次触发 propose 新 F-0XX 规则 | handoff, checkpoints, feedback | phase-closeout |
+| `docs/standards/codex-delegation.md` | Codex 子 agent 委派规范（agent-agnostic） | — | 插件/模型更新 |
+| `docs/standards/gemini-delegation.md` | Gemini CLI 委派规范（agent-agnostic） | — | CLI/模型更新 |
+| `docs/standards/shared-constraints.md` | 委派共享约束（单一源） | — | 约束变更 |
+| `docs/standards/memory-routing.md` | 知识/记忆路由规则（哪类内容写哪里） | KNOWLEDGE_MAP | 路由争议 |
+| `docs/standards/permission-model.md` | Tool / Bash 命令 / Skill allowed-tools 权限矩阵（SSOT） | settings.json, hooks, skills | 权限配置变更 |
+| `docs/standards/apple-extension.md` | App Extension 约束 | — | Extension 变更 |
 | `docs/tech/compliance.md` | 隐私合规、App Store 审核 | vision, business | 政策变更 |
 | `docs/tech/deployment.md` | CI/CD、发布流程 | — | 工具更新 |
 | `docs/tech/non-functional-requirements.md` | 性能、内存、存储 | architecture | 设备更新 |
@@ -55,8 +55,8 @@ layer: pattern
 |---|---|---|---|
 | `STATUS.md` | 当前工作状态 | 7 | 每次 PR 合并 |
 | `docs/tech/api-reference.md` | 内部 API 签名 | 30 | 代码变更 |
-| `docs/principles/apple-limits.md` | Apple API 能力边界 | 60 | WWDC / iOS 更新 |
-| `docs/principles/api-pitfalls.md` | API 踩坑记录 | 60 | 开发中发现 |
+| `docs/standards/apple-limits.md` | Apple API 能力边界 | 60 | WWDC / iOS 更新 |
+| `docs/standards/api-pitfalls.md` | API 踩坑记录 | 60 | 开发中发现 |
 | _(Claude 私有) reference_ai_toolchain_specs.md_ | Claude/Codex/Xcode 规格（不入 git） | 30 | 模型/工具发布 |
 
 ## 记忆层（双层架构）
@@ -138,7 +138,7 @@ iOS 17  SwiftData（声明式，与 SwiftUI 深度集成）
 当知识不再适用时，不删除，标记退役：
 - 在文件头加 `<!-- status: archived, reason: xxx -->`
 - 从 KNOWLEDGE_MAP 对应表格中移除，归入下方"已退役"小节
-- feedback 被内化到 `docs/principles/` 或 `docs/memory/feedback.md` 后即可退役
+- feedback 被内化到 `docs/standards/` 或 `docs/memory/feedback.md` 后即可退役
 - api-pitfalls 条目被框架修复后标记退役
 - ADR 被新 ADR 取代时标记为"已废弃"并指向替代 ADR
 

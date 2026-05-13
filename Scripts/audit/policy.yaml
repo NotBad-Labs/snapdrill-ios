@@ -57,13 +57,13 @@ checks:
     description: 仓库内对 ~/.claude/ 私有路径的硬编码
     allowed_contexts:
       # 纪律文档本身解释 home-path 用法，允许引用
-      - docs/principles/memory-routing.md
+      - docs/standards/memory-routing.md
       - .claude/rules/memory-routing.md
-      - docs/principles/permission-model.md
+      - docs/standards/permission-model.md
 
   rule-pointer-sync:
     level: error
-    description: .claude/rules/*.md 必须指向存在的 docs/principles/*.md
+    description: .claude/rules/*.md 必须指向存在的 docs/standards/*.md
     allowlist_rules:
       - .claude/rules/README.md
 

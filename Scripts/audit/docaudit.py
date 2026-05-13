@@ -7,7 +7,7 @@
   archived-refs        对 policy.yaml 声明的 archived_sources 旧路径硬引用（归档后应改用新路径）
   orphans              docs/**/*.md 在全仓零引用
   home-path-refs       仓库内对 ~/.claude/ 私有路径的硬编码
-  rule-pointer-sync    .claude/rules/*.md → docs/principles/*.md 映射
+  rule-pointer-sync    .claude/rules/*.md → docs/standards/*.md 映射
   rule-usage           F-NNN 规则外部引用计数（dead rule 候选）
 
 详见 Scripts/audit/README.md 与 Scripts/audit/policy.yaml。
@@ -70,8 +70,8 @@ CHECK_DESCRIPTIONS = {
         "epilog": "示例：python3 Scripts/audit/docaudit.py home-path-refs --verbose",
     },
     "rule-pointer-sync": {
-        "help": "Verify .claude/rules/*.md pointers to docs/principles/*.md.",
-        "description": "校验每个 .claude/rules/*.md 声明的 'Read and follow docs/principles/*.md' 指针目标存在。",
+        "help": "Verify .claude/rules/*.md pointers to docs/standards/*.md.",
+        "description": "校验每个 .claude/rules/*.md 声明的 'Read and follow docs/standards/*.md' 指针目标存在。",
         "epilog": "示例：python3 Scripts/audit/docaudit.py rule-pointer-sync",
     },
     "rule-usage": {
@@ -94,9 +94,9 @@ PATH_REF_RE = re.compile(r"((?:\.\.?/|[A-Za-z0-9_][A-Za-z0-9_\-]*/)[A-Za-z0-9_\-
 # ~/.claude/ 引用
 HOME_CLAUDE_RE = re.compile(r"~/\.claude/[A-Za-z0-9_\-./]*")
 
-# .claude/rules/ → docs/principles/ 映射模式
+# .claude/rules/ → docs/standards/ 映射模式
 RULE_POINTER_RE = re.compile(
-    r"(?:Read and follow|指向|→)\s+(docs/principles/[A-Za-z0-9_\-./]+\.md)"
+    r"(?:Read and follow|指向|→)\s+(docs/standards/[A-Za-z0-9_\-./]+\.md)"
 )
 
 # F-NNN 规则 ID
@@ -527,7 +527,7 @@ def check_rule_pointer_sync(policy: dict) -> CheckResult:
                 line=0,
                 category="missing_pointer",
                 level=level,
-                suggestion="rule must point to a docs/principles/*.md SSOT",
+                suggestion="rule must point to a docs/standards/*.md SSOT",
             ))
             continue
         for match in matches:

@@ -84,7 +84,7 @@ echo "时长: $(echo "scale=1; ($LS - $FS) / 3600" | bc) 小时"
 ```
 
 **限制**：
-- 覆盖**所有** tool（PR-5 retry 后 matcher 扩为 `.*`，见 `docs/principles/permission-model.md` §3）
+- 覆盖**所有** tool（PR-5 retry 后 matcher 扩为 `.*`，见 `docs/standards/permission-model.md` §3）
 - 不含 token 成本（Claude Code hook 当前不暴露该数据；需自建 HTTPS 代理，ROI 不匹配暂不做）
 - 跨 session 累计：hook 追加模式写入，不主动轮转。phase-closeout 完成后用户可手动 `truncate -s 0 .claude/session-metrics.tsv` 重置
 - tsv 可能膨胀（一次活跃 session 数百-千行）；如 phase 结束后不清空，后续统计耗时会线性增长
@@ -105,7 +105,7 @@ echo "时长: $(echo "scale=1; ($LS - $FS) / 3600" | bc) 小时"
 - [ ] Read 当前 STATUS.md 找未固化的 OPEN
 - [ ] Read 私有记忆（如 `~/.claude/plans/`）找本 phase 决策记录
 - [ ] 三方对抗起草 → 引用 `cross-audit-consensus` skill 产出的汇总文件
-- [ ] **Harness Recall**（`docs/principles/harness-recall.md`）：扫描近期 checkpoints Risks 段 + handoff.md，检查重复问题模式。同类 ≥3 次 → propose 新 F-0XX 规则供用户裁决
+- [ ] **Harness Recall**（`docs/standards/harness-recall.md`）：扫描近期 checkpoints Risks 段 + handoff.md，检查重复问题模式。同类 ≥3 次 → propose 新 F-0XX 规则供用户裁决
 
 ## 与 STATUS.md / handoff.md 的分工
 
