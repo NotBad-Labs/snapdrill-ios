@@ -62,14 +62,11 @@ public enum AppError: LocalizedError {
             return L10n.Errors.cameraPermissionHelp
         case .photoLibraryPermissionDenied:
             return L10n.Errors.photoPermissionHelp
-        case .ocrFailed(let detail):
-            if !detail.isEmpty { SnapDrillLogger.generic.error("OCR 失败细节: \(detail)") }
+        case .ocrFailed:
             return L10n.Errors.ocrFailedHelp
-        case .exportFailed(let detail):
-            if !detail.isEmpty { SnapDrillLogger.generic.error("导出失败细节: \(detail)") }
+        case .exportFailed:
             return L10n.Errors.exportFailedHelp
-        case .importFailed(let detail):
-            if !detail.isEmpty { SnapDrillLogger.generic.error("导入失败细节: \(detail)") }
+        case .importFailed:
             return L10n.Errors.importFailedHelp
         case .dataCorrupted:
             return L10n.Errors.dataCorruptedHelp

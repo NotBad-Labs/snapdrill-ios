@@ -62,7 +62,7 @@ public struct ImageCropperView: UIViewControllerRepresentable {
     }
 
     /// Mantis 裁剪事件代理
-    public final class Coordinator: NSObject, CropViewControllerDelegate {
+    @MainActor public final class Coordinator: NSObject, CropViewControllerDelegate {
         var onCrop: (UIImage) -> Void
         var onCancel: () -> Void
         

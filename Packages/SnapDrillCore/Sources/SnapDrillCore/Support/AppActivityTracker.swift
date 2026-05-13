@@ -27,7 +27,7 @@ public enum AppActivity: Sendable, Hashable {
 ///
 /// 各 ViewModel 在开始/结束操作时调用 `begin/end`，
 /// `ProfileManager` 切换前通过 `canSwitchProfile` 检查。
-@Observable public final class AppActivityTracker {
+@MainActor @Observable public final class AppActivityTracker {
 
     public static let shared = AppActivityTracker()
 
