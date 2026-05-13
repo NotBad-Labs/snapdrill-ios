@@ -482,4 +482,4 @@ OCR 识别出的文字是辅助（方便搜索和编辑），图片是真相。
 | `product-cases.md` | 下游 | 验收规格 |
 | `product-onboarding.md` | 下游 | Onboarding 内容规格 |
 | `product-analytics.md` | 下游 | Analytics 事件字典 |
-| `../principles/ux-design.md` | 下游 | UX 设计原则 |
+| `../standards/ux-design.md` | 下游 | UX 设计原则 |

@@ -68,7 +68,7 @@ grep -A 10 '重复\|recur\|again\|再次\|又出现' docs/memory/handoff.md
 
 ### Step 5: 落地或记录
 
-- 用户批准 → 写入 feedback.md（F-0XX）或对应 principles 文件 → 更新 KNOWLEDGE_MAP.md
+- 用户批准 → 写入 feedback.md（F-0XX）或对应 standards 文件 → 更新 KNOWLEDGE_MAP.md
 - 用户拒绝 → 记录到 decisions.md，注明拒绝理由，避免日后重复提案
 - 用户选择继续观察 → 在当前 checkpoint Risks 段注明 "Harness Recall 已触发，用户指令继续观察"
 
@@ -83,7 +83,7 @@ post-merge-checkpoint hook → 提醒 /phase-closeout
         ↓
 Harness Recall（本文档）→ 跨 checkpoint 去重归类 → 3 次触发 propose
         ↓
-F-019 升级决策 → 人类批准 → 写入 feedback.md / principles
+F-019 升级决策 → 人类批准 → 写入 feedback.md / standards
 ```
 
 ## 限制

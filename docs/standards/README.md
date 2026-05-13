@@ -2,7 +2,7 @@
 last_verified: 2026-04-14
 layer: pattern
 ---
-# 项目原则（Agent-Agnostic）
+# 项目标准与约束（Agent-Agnostic）
 
 > 本目录是 SnapDrill 项目开发原则的唯一真相源。
 > 所有智能体（Claude、Codex、Gemini 等）共同遵守，人类拥有最高裁决权。

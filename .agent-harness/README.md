@@ -14,7 +14,7 @@ snapdrill-ios 作为 agent-harness **第一个 consumer + 孵化器（dual-role�
 - `.claude/hooks/` 继续用 snapdrill-ios 本地版本（**未** symlink 到 agent-harness/adapter-claude/hooks/）
 - `.claude/skills/` 继续用 snapdrill-ios 本地版本
 - `Scripts/audit/docaudit.py` 继续用 snapdrill-ios 本地版本
-- `docs/principles/*` / `docs/memory/*` 等都继续用本地
+- `docs/standards/*` / `docs/memory/*` 等都继续用本地
 
 这是 Codex 主锚推荐的"**非破坏性消费试点**"策略（Phase D consensus §5.4 C5）：先声明契约，后续再做实际接线。
 

@@ -4,7 +4,7 @@
 # 本文件声明 snapdrill-ios 的 overlay 范围和与 upstream 的契约。
 #
 # Phase D PR-D5（2026-04-22）：首次接入，**并行模式**——snapdrill-ios 继续使用
-# 本地现有的 .claude/hooks/ .claude/skills/ Scripts/audit/ docs/principles/ 等，
+# 本地现有的 .claude/hooks/ .claude/skills/ Scripts/audit/ docs/standards/ 等，
 # 不因为成为 consumer 而切换到 agent-harness 的 symlink 版本。
 #
 # 未来 Phase E+ 可能做的事：
@@ -44,15 +44,15 @@ overlay_paths:
   hooks:
     - .claude/hooks/swift-autolint.sh
     - .claude/hooks/prepush-lint.sh
-  # 项目特定原则文档
-  principles:
-    - docs/principles/apple-native.md
-    - docs/principles/apple-extension.md
-    - docs/principles/apple-limits.md
-    - docs/principles/api-pitfalls.md
-    - docs/principles/coding.md
-    - docs/principles/testing.md
-    - docs/principles/ux-design.md
+  # 项目特定标准与约束
+  standards:
+    - docs/standards/apple-native.md
+    - docs/standards/apple-extension.md
+    - docs/standards/apple-limits.md
+    - docs/standards/api-pitfalls.md
+    - docs/standards/coding.md
+    - docs/standards/testing.md
+    - docs/standards/ux-design.md
   # 项目特定记忆
   memory:
     - docs/memory
@@ -67,7 +67,7 @@ contribution:
   scan_paths:
     - .claude/skills/           # 新 skill 候选
     - .claude/hooks/            # 新 hook 候选
-    - docs/principles/          # 新原则候选
+    - docs/standards/          # 新标准候选
     - docs/memory/feedback.md   # 新 F 规则候选
   safety_override_reviewer: "@chramboliao"
 

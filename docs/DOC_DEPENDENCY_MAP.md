@@ -19,7 +19,7 @@ freshness:
 依赖图中不能把所有引用当同等权重：
 
 - **主链依赖**（内容生成方向）：vision → design → requirements → cases 这类链是 "A 定义 B 的输入条件"，改 A 必须自上而下传播到 B
-- **交叉引用**（辅助参考）：cases 引用 workflow 的 S0-S3、principles 引用 memory 的 F-NNN 这类是"借用对方定义的语汇/枚举"，改 A 不自动改 B，但 B 要能追溯到 A 的最新定义
+- **交叉引用**（辅助参考）：cases 引用 workflow 的 S0-S3、standards 引用 memory 的 F-NNN 这类是"借用对方定义的语汇/枚举"，改 A 不自动改 B，但 B 要能追溯到 A 的最新定义
 
 **Why:** 混淆主链和交叉引用会导致依赖层级失真 — 错把交叉引用当主链会引入假依赖，错把主链当交叉会漏掉必要传播。
 

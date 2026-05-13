@@ -6,14 +6,14 @@
 
 1. 读 `STATUS.md` — 当前工作上下文
 2. 读 `docs/workflow.md` — 流程、DoD、Review 规范
-3. 读 `docs/principles/README.md` — 项目原则索引
+3. 读 `docs/standards/README.md` — 项目标准与约束索引
 4. 读 `docs/memory/feedback.md` — 项目纪律（所有智能体共遵）
 
 ## Context Map
 
 | 需要 | 去读 |
 |---|---|
-| 项目原则 | `docs/principles/` |
+| 项目标准 | `docs/standards/` |
 | 项目反馈与纪律 | `docs/memory/feedback.md` |
 | 产品文档 | `docs/product/` |
 | 技术文档 | `docs/tech/` |
