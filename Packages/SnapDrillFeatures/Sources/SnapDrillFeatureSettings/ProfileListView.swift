@@ -52,7 +52,9 @@ struct ProfileListView: View {
         )) {
             Button(L10n.Common.cancel, role: .cancel) { viewModel.profileToDelete = nil }
             Button(L10n.Common.delete, role: .destructive) {
-                viewModel.executeDelete()
+                Task {
+                    await viewModel.executeDelete()
+                }
             }
         } message: {
             if let profile = viewModel.profileToDelete {
@@ -68,8 +70,10 @@ struct ProfileListView: View {
             titleVisibility: .visible
         ) {
             Button(L10n.Settings.discardDraft, role: .destructive) {
-                if viewModel.discardDraftAndSwitch() {
-                    dismiss()
+                Task {
+                    if await viewModel.discardDraftAndSwitch() {
+                        dismiss()
+                    }
                 }
             }
             Button(L10n.Common.cancel, role: .cancel) {
@@ -108,8 +112,10 @@ struct ProfileListView: View {
     @ViewBuilder
     private func profileRow(_ profile: Profile) -> some View {
         Button {
-            if viewModel.switchToProfile(profile.id) {
-                dismiss()
+            Task {
+                if await viewModel.switchToProfile(profile.id) {
+                    dismiss()
+                }
             }
         } label: {
             HStack {

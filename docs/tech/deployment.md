@@ -53,6 +53,23 @@ Runner：Mac mini 自托管（self-hosted, macOS）
 
 注：CI 运行 `AllTests.xctestplan` 的 CI configuration，包含 4 个 test target（SnapDrillCoreTests / SnapDrillDataTests / SnapDrillFeaturesTests / SnapDrillShareTests）。`test-without-building` 复用 `build-for-testing` 产出的 DerivedData，避免重复编译。`SnapshotRecord` configuration 仅本地用（`SNAPSHOT_TESTING_RECORD=all` 重录 baseline），不参与 CI。
 
+### GitHub Token 配置
+
+严禁把 GitHub token 写入 `.claude/settings.local.json`、脚本、文档或任何可提交文件。`.claude/settings.local.json` 只允许保存本机权限偏好，已由 `.gitignore` 排除。
+
+本地命令优先读取环境变量：
+
+```bash
+export GITHUB_TOKEN="<your-github-token>"
+```
+
+需要长期保存时使用 macOS 钥匙串：
+
+```bash
+security add-generic-password -a "$USER" -s snapdrill-github-token -w "$GITHUB_TOKEN" -U
+export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-github-token -w)"
+```
+
 ### Mac mini Runner
 
 - 自托管 runner（self-hosted, macOS）

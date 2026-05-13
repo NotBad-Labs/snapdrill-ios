@@ -24,12 +24,13 @@ struct SwipeCard<Content: View>: View {
     // MARK: - Properties
     
     let content: Content
-    let onRemove: (Int) -> Void // -1 表示左滑（下一张），1 表示右滑（上一张/忘了）
+    let onRemove: (Int) -> Bool // -1 表示左滑（下一张），1 表示右滑（上一张/忘了）
     let onSwipeProgress: ((CGFloat) -> Void)? // 拖动偏移量回调
     @Binding var externalSwipe: Int? // 设置后触发滑动
     
     @State private var translation: CGSize = .zero
     @State private var hasFired = false // 确保 onRemove 只被调用一次
+    @State private var isRemovalPending = false
     
     // 配置
     private let threshold: CGFloat = 100
@@ -39,7 +40,7 @@ struct SwipeCard<Content: View>: View {
     
     init(
         @ViewBuilder content: () -> Content,
-        onRemove: @escaping (Int) -> Void,
+        onRemove: @escaping (Int) -> Bool,
         externalSwipe: Binding<Int?> = .constant(nil),
         onSwipeProgress: ((CGFloat) -> Void)? = nil
     ) {
@@ -116,8 +117,8 @@ struct SwipeCard<Content: View>: View {
     // MARK: - Private Helpers
     
     private func snapAway(direction: Int, width: CGFloat) {
-        guard !hasFired else { return }
-        hasFired = true
+        guard !hasFired, !isRemovalPending else { return }
+        isRemovalPending = true
         
         let targetX = CGFloat(direction) * width * 2
         let targetY = translation.height + 50 // 轻微下坠
@@ -129,7 +130,15 @@ struct SwipeCard<Content: View>: View {
         
         // 在动画结束前稍早通知移除，保持流程连续且安全
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            onRemove(direction)
+            if onRemove(direction) {
+                hasFired = true
+            } else {
+                isRemovalPending = false
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                    translation = .zero
+                    onSwipeProgress?(0)
+                }
+            }
         }
     }
 }
@@ -146,7 +155,10 @@ struct SwipeCard<Content: View>: View {
                     .shadow(radius: 5)
                     .overlay(Text("Swipe Me"))
             },
-            onRemove: { _ in SnapDrillLogger.generic.info("Removed") }
+            onRemove: { _ in
+                SnapDrillLogger.generic.info("Removed")
+                return true
+            }
         )
     }
 }

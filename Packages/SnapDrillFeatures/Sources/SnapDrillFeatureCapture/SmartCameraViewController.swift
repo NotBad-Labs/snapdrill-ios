@@ -34,10 +34,20 @@ final class SmartCameraViewController: UIViewController {
         setupUI()
         setupManager()
     }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        manager.startSession()
+    }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         previewLayer?.frame = view.bounds
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        manager.stopSession()
     }
     
     // MARK: - Actions
@@ -72,8 +82,5 @@ final class SmartCameraViewController: UIViewController {
             }
         }
         
-        // 启动会话
-        manager.startSession()
     }
 }
-

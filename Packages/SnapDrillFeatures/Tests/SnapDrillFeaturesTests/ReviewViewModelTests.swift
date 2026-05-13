@@ -16,6 +16,7 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("ReviewViewModel 状态机与 SM-2 调度测试", .serialized)
+@MainActor
 final class ReviewViewModelTests {
 
     // MARK: - 存储属性（每次 @Test 执行前由 Swift Testing 调用 init() 重建）
@@ -219,7 +220,8 @@ final class ReviewViewModelTests {
     func handleSwipe_emptyQueue_noOp() throws {
         let vm = ReviewViewModel(repository: repo, analyticsService: AnalyticsServiceMock())
         // 未调用 startSession，workingItems 为空
-        vm.handleSwipeCompletion(direction: 1) // 不应崩溃
+        let didCommit = vm.handleSwipeCompletion(direction: 1) // 不应崩溃
+        #expect(didCommit == false)
         #expect(vm.finishedItems == 0)
     }
 

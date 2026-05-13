@@ -22,6 +22,7 @@ public struct LibraryEditView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repositories
+    @Environment(\.profileManager) private var profileManager
 
     /// 要编辑的题目数据模型
     let item: ReviewItemModel
@@ -132,7 +133,11 @@ public struct LibraryEditView: View {
     
     private func loadData() async {
         if viewModel == nil {
-            viewModel = LibraryEditViewModel(item: item, repositories: repositories)
+            viewModel = LibraryEditViewModel(
+                item: item,
+                repositories: repositories,
+                imageStorage: profileManager.activeImageStorage
+            )
         }
         await viewModel?.loadData()
     }

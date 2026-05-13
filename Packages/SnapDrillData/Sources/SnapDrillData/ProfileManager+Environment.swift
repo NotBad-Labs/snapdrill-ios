@@ -13,11 +13,7 @@ import SwiftUI
 // MARK: - Environment Key
 
 private struct ProfileManagerKey: EnvironmentKey {
-    nonisolated static let defaultValue: ProfileManager = {
-        MainActor.assumeIsolated {
-            ProfileManager()
-        }
-    }()
+    nonisolated static let defaultValue: ProfileManager? = nil
 }
 
 // MARK: - EnvironmentValues 扩展
@@ -25,7 +21,12 @@ private struct ProfileManagerKey: EnvironmentKey {
 public extension EnvironmentValues {
     /// Profile 管理器，用于学习者切换和管理
     var profileManager: ProfileManager {
-        get { self[ProfileManagerKey.self] }
+        get {
+            guard let manager = self[ProfileManagerKey.self] else {
+                fatalError("ProfileManager missing from SwiftUI environment. Inject one after await ProfileManager.create().")
+            }
+            return manager
+        }
         set { self[ProfileManagerKey.self] = newValue }
     }
 }

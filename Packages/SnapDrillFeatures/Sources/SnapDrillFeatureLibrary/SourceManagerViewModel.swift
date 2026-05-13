@@ -31,6 +31,8 @@ public final class SourceManagerViewModel {
     public var isDuplicateName = false
     /// 触发重名保护时的目标名称
     public var duplicateNameValue = ""
+    /// 保存失败时展示给 UI 的错误信息
+    public var operationError: String?
 
     // MARK: - Dependencies
 
@@ -60,7 +62,9 @@ public final class SourceManagerViewModel {
     /// 删除指定位置的来源；若来源仍被题目引用，置 `isDeletingInUse` 为 `true`
     public func delete(at offsets: IndexSet) {
         isDeletingInUse = false
-        let itemsToDelete = offsets.map { sources[$0] }
+        let itemsToDelete = offsets.compactMap { index in
+            sources.indices.contains(index) ? sources[index] : nil
+        }
         for item in itemsToDelete {
             do {
                 let count = try repositories.review.countBySource(name: item.name)
@@ -87,6 +91,7 @@ public final class SourceManagerViewModel {
     @discardableResult
     public func saveSource(source: SourceModel?, name: String, selectedIcon: String, finalColorHex: String) -> Bool {
         isDuplicateName = false
+        operationError = nil
         do {
             if let source {
                 let oldName = source.name
@@ -115,8 +120,10 @@ public final class SourceManagerViewModel {
             loadData()
             return true
         } catch {
+            repositories.source.rollbackContext()
             repositories.review.rollbackContext()
             SnapDrillLogger.generic.error("保存来源失败: \(error.localizedDescription)")
+            operationError = L10n.Errors.saveFailed
             return false
         }
     }

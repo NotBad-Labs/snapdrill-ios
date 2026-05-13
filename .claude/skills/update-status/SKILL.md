@@ -18,24 +18,32 @@ PR 合并后、STATUS.md 已在本地更新完成时执行。
 
 ## 执行流程
 
-### 1. 检查工作区是否干净
-
-```bash
-# 先检查是否有未提交的代码变更（STATUS.md 除外）
-if git diff --name-only HEAD | grep -v STATUS.md | grep -q .; then
-  echo "工作区有未提交的代码变更，请先处理后再推送 STATUS.md"
-  exit 1
-fi
-```
-
-### 2. 确认在 develop 分支
+### 1. 检查工作区安全边界
 
 ```bash
 current_branch=$(git branch --show-current)
 if [ "$current_branch" != "develop" ]; then
-  echo "当前不在 develop 分支（$current_branch），先切换"
-  git checkout develop && git pull
+  echo "当前不在 develop 分支（$current_branch），停止：不得自动切换分支后推送"
+  exit 1
 fi
+
+if git ls-files --others --exclude-standard | grep -q .; then
+  echo "工作区存在 untracked 文件，停止：请先处理后再推送 STATUS.md"
+  git ls-files --others --exclude-standard
+  exit 1
+fi
+
+if ! git diff --quiet HEAD -- . ':!STATUS.md'; then
+  echo "工作区存在 STATUS.md 以外的未提交变更，停止：请先处理后再推送 STATUS.md"
+  git diff --name-only HEAD -- . ':!STATUS.md'
+  exit 1
+fi
+```
+
+### 2. 拉取 develop 最新状态
+
+```bash
+git pull --ff-only origin develop
 ```
 
 ### 3. 检查是否有待推送的状态变更
@@ -53,6 +61,13 @@ git add STATUS.md
 git commit -m "status: 更新项目状态看板
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
+
+if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+  echo "commit 后工作区仍不干净，停止 push"
+  git status --short
+  exit 1
+fi
+
 git push origin develop
 ```
 
@@ -69,6 +84,7 @@ STATUS.md 是状态追踪文件，不含代码逻辑：
 
 ## 注意事项
 
-- 如果 develop 有远程更新（其他 PR 刚合并），先 `git pull` 再 push
-- 如果有其他未提交的代码变更混在工作区，**不要执行**——先处理代码变更
+- 必须已经在 develop；不允许由 skill 自动 checkout 到 develop 再 push
+- 如果 develop 有远程更新（其他 PR 刚合并），用 `git pull --ff-only origin develop`，不能产生 merge commit
+- 如果有 untracked 文件或其他未提交的代码变更混在工作区，**不要执行**——先处理代码变更
 - commit message 固定为 `status: ...`（描述本次更新内容），不需要关联 Issue

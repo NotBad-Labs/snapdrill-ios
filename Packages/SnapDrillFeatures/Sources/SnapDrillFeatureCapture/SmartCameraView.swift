@@ -143,9 +143,11 @@ struct SmartCameraView: View {
             image.draw(in: CGRect(origin: .zero, size: image.size))
         }
         
-        // 2. 将归一化矩形（左下角原点）转换为图片坐标（左上角原点）
-        let width = normalizedImage.size.width
-        let height = normalizedImage.size.height
+        guard let sourceCGImage = normalizedImage.cgImage else { return nil }
+
+        // 2. 将归一化矩形（左下角原点）转换为 CGImage 像素坐标（左上角原点）
+        let width = CGFloat(sourceCGImage.width)
+        let height = CGFloat(sourceCGImage.height)
         
         // Vision Y 轴从底部开始，Image Y 轴从顶部开始
         // rectY = (1 - visionY - visionHeight) * imageHeight
@@ -154,10 +156,14 @@ struct SmartCameraView: View {
         let rectW = normalizedRect.width * width
         let rectH = normalizedRect.height * height
         
+        let imageBounds = CGRect(x: 0, y: 0, width: width, height: height)
         let cropRect = CGRect(x: rectX, y: rectY, width: rectW, height: rectH)
+            .intersection(imageBounds)
+            .integral
+        guard cropRect.width > 0, cropRect.height > 0 else { return nil }
         
         // 3. 裁剪
-        guard let cgImage = normalizedImage.cgImage?.cropping(to: cropRect) else { return nil }
+        guard let cgImage = sourceCGImage.cropping(to: cropRect) else { return nil }
         return UIImage(cgImage: cgImage, scale: image.scale, orientation: .up)
     }
 }

@@ -21,6 +21,19 @@ public actor BackupService {
     /// 备份进度回调（已处理数 / 总数）
     public typealias ProgressHandler = @Sendable (Int, Int) -> Void
 
+    private struct StagedImageFile {
+        let stagedURL: URL
+        let destinationURL: URL
+    }
+
+    private struct ImageRestoreStageContext {
+        let imageEntries: [Entry]
+        let archive: Archive
+        let profileId: UUID
+        let imageBasePath: URL
+        let stagingDir: URL
+    }
+
     // MARK: - Initialization
 
     public init() {}
@@ -223,46 +236,35 @@ public actor BackupService {
             throw BackupError.invalidArchive
         }
 
-        // 筛选该 Profile 的图片条目：profiles/<id>/images/...
-        let prefix = "profiles/\(profileId.uuidString)/images/"
-        let imageEntries = archive.filter { $0.path.hasPrefix(prefix) && $0.type == .file }
+        let imageEntries = extractImageEntries(from: archive, profileId: profileId)
         let totalImages = imageEntries.count
 
         let fileManager = FileManager.default
-        let imagesDir = imageBasePath.appendingPathComponent("images")
-        if !fileManager.fileExists(atPath: imagesDir.path) {
-            try fileManager.createDirectory(at: imagesDir, withIntermediateDirectories: true)
-        }
-
-        let basePath = imageBasePath.standardizedFileURL.path + "/"
+        let stagingDir = fileManager.temporaryDirectory
+            .appendingPathComponent("restore-images-\(UUID().uuidString)", isDirectory: true)
         var lastReportedPercent = -1
-        for (index, entry) in imageEntries.enumerated() {
-            // 去掉 profiles/<id>/ 前缀，得到相对路径（如 images/xxx.jpg）
-            let profilePrefix = "profiles/\(profileId.uuidString)/"
-            let relativePath = String(entry.path.dropFirst(profilePrefix.count))
 
-            let pathComponents = relativePath.split(separator: "/")
-            let destinationURL = imageBasePath.appendingPathComponent(relativePath).standardizedFileURL
-            guard !pathComponents.contains(".."),
-                  destinationURL.path.hasPrefix(basePath) else {
-                SnapDrillLogger.generic.warning("跳过可疑路径: \(entry.path)")
-                reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
-                continue
-            }
-
-            let parentDir = destinationURL.deletingLastPathComponent()
-            if !fileManager.fileExists(atPath: parentDir.path) {
-                try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true)
-            }
-
-            var fileData = Data()
-            _ = try archive.extract(entry) { data in
-                fileData.append(data)
-            }
-            try fileData.write(to: destinationURL)
-
-            reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
+        do {
+            try fileManager.createDirectory(at: stagingDir, withIntermediateDirectories: true)
+            let context = ImageRestoreStageContext(
+                imageEntries: imageEntries,
+                archive: archive,
+                profileId: profileId,
+                imageBasePath: imageBasePath,
+                stagingDir: stagingDir
+            )
+            let stagedFiles = try stageImageEntries(
+                context,
+                lastReportedPercent: &lastReportedPercent,
+                onProgress: onProgress
+            )
+            try commitStagedFiles(stagedFiles, fileManager: fileManager)
+        } catch {
+            try? fileManager.removeItem(at: stagingDir)
+            throw error
         }
+
+        try? fileManager.removeItem(at: stagingDir)
     }
     // MARK: - Private Helpers
 
@@ -273,6 +275,78 @@ public actor BackupService {
         if percent != lastPercent {
             lastPercent = percent
             handler(current, total)
+        }
+    }
+
+    private func extractImageEntries(from archive: Archive, profileId: UUID) -> [Entry] {
+        let prefix = "profiles/\(profileId.uuidString)/images/"
+        return archive.filter { $0.path.hasPrefix(prefix) && $0.type == .file }
+    }
+
+    private func stageImageEntries(
+        _ context: ImageRestoreStageContext,
+        lastReportedPercent: inout Int,
+        onProgress: ProgressHandler?
+    ) throws -> [StagedImageFile] {
+        let fileManager = FileManager.default
+        let totalImages = context.imageEntries.count
+        let basePath = context.imageBasePath.standardizedFileURL.path + "/"
+        let stagingBasePath = context.stagingDir.standardizedFileURL.path + "/"
+        let profilePrefix = "profiles/\(context.profileId.uuidString)/"
+        var stagedFiles: [StagedImageFile] = []
+
+        for (index, entry) in context.imageEntries.enumerated() {
+            let relativePath = String(entry.path.dropFirst(profilePrefix.count))
+            let pathComponents = relativePath.split(separator: "/")
+            let destinationURL = context.imageBasePath.appendingPathComponent(relativePath).standardizedFileURL
+            let stagedURL = context.stagingDir.appendingPathComponent(relativePath).standardizedFileURL
+
+            guard !pathComponents.contains(".."),
+                  destinationURL.path.hasPrefix(basePath),
+                  stagedURL.path.hasPrefix(stagingBasePath) else {
+                SnapDrillLogger.generic.warning("跳过可疑路径: \(entry.path)")
+                reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
+                continue
+            }
+
+            try stageImageEntry(entry, from: context.archive, to: stagedURL, fileManager: fileManager)
+            stagedFiles.append(StagedImageFile(stagedURL: stagedURL, destinationURL: destinationURL))
+            reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
+        }
+
+        return stagedFiles
+    }
+
+    private func stageImageEntry(_ entry: Entry, from archive: Archive, to stagedURL: URL, fileManager: FileManager) throws {
+        let stagingParentDir = stagedURL.deletingLastPathComponent()
+        if !fileManager.fileExists(atPath: stagingParentDir.path) {
+            try fileManager.createDirectory(at: stagingParentDir, withIntermediateDirectories: true)
+        }
+
+        var fileData = Data()
+        _ = try archive.extract(entry) { data in
+            fileData.append(data)
+        }
+        try fileData.write(to: stagedURL)
+    }
+
+    private func commitStagedFiles(_ stagedFiles: [StagedImageFile], fileManager: FileManager) throws {
+        for file in stagedFiles {
+            let parentDir = file.destinationURL.deletingLastPathComponent()
+            if !fileManager.fileExists(atPath: parentDir.path) {
+                try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true)
+            }
+
+            if fileManager.fileExists(atPath: file.destinationURL.path) {
+                _ = try fileManager.replaceItemAt(
+                    file.destinationURL,
+                    withItemAt: file.stagedURL,
+                    backupItemName: nil,
+                    options: []
+                )
+            } else {
+                try fileManager.moveItem(at: file.stagedURL, to: file.destinationURL)
+            }
         }
     }
 }

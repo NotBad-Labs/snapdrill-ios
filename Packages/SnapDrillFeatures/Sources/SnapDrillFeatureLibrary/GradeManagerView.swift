@@ -123,6 +123,14 @@ private struct EditGradeView: View {
             } message: {
                 Text(L10n.Library.duplicateNameMessage(viewModel?.duplicateNameValue ?? ""))
             }
+            .alert(L10n.Common.error, isPresented: Binding(
+                get: { viewModel?.operationError != nil },
+                set: { if !$0 { viewModel?.operationError = nil } }
+            )) {
+                Button(L10n.Common.ok, role: .cancel) { viewModel?.operationError = nil }
+            } message: {
+                Text(viewModel?.operationError ?? L10n.Errors.saveFailed)
+            }
             .onAppear {
                 if let grade {
                     name = grade.name

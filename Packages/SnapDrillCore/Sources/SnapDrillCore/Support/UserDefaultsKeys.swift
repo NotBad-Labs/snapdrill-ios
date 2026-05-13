@@ -15,7 +15,7 @@ import Foundation
 /// 使用方式：
 /// ```swift
 /// @AppStorage(UDKey.userName) var userName = "同学"
-/// UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled)
+/// TelemetryGate.isGranted
 /// ```
 nonisolated public enum UDKey {
 
@@ -53,6 +53,7 @@ nonisolated public enum UDKey {
 
     // MARK: - Feature Flags
 
+    public static let telemetryConsent = "telemetryConsent"
     public static let analyticsEnabled = "analyticsEnabled"
     public static let analyticsConfigured = "analyticsConfigured"
     public static let crashReportingEnabled = "crashReportingEnabled"

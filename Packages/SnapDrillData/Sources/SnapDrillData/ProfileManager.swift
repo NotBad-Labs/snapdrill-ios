@@ -44,10 +44,14 @@ public final class ProfileManager {
     /// 当前活跃的 ImageStorage
     public private(set) var activeImageStorage: ImageStorage
 
+    /// 当前活跃 Profile 的隔离作用域（编译期通行证）
+    public private(set) var activeScope: ProfileScope?
+
     // MARK: - Private
 
     private let fileManager = FileManager.default
     private let isInMemory: Bool
+    private var scopesByProfileId: [UUID: ProfileScope] = [:]
 
     /// Documents 目录
     private var documentsURL: URL {
@@ -84,27 +88,78 @@ public final class ProfileManager {
 
     // MARK: - Initialization
 
-    /// 初始化 ProfileManager
+    /// 异步创建 ProfileManager。
     ///
-    /// 首次启动时自动执行数据迁移（将旧数据移入默认 Profile 目录）。
+    /// 生产路径使用 `DataExecutor.createOffMainActor(storeURL:)`，避免在 MainActor 上同步创建磁盘
+    /// `ModelContainer`。测试路径保留同步 in-memory 初始化以兼容现有单测。
     /// - Parameter inMemory: 为 true 时使用内存存储（UI 测试用）
-    public init(inMemory: Bool = false) {
-        self.isInMemory = inMemory
+    public static func create(inMemory: Bool = false) async -> ProfileManager {
         if inMemory {
-            // UI 测试模式：跳过文件迁移和磁盘操作，使用纯内存存储
-            let profileId = UUID()
-            self.profiles = [Profile(id: profileId, name: "Test")]
-            self.activeProfileId = profileId
-            let executor = DataExecutor(inMemory: true)
-            self.executor = executor
-            self.activeContainer = executor.container
-            self.activeRepositories = RepositoryContainer(executor: executor)
-            self.activeImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
-            syncFallbackStatus()
-            SnapDrillLogger.data.info("ProfileManager: in-memory 模式初始化完成")
-            return
+            return ProfileManager(inMemory: true)
         }
 
+        let state = makeDiskBootstrapState()
+        let executor = await DataExecutor.createOffMainActor(storeURL: state.storeURL)
+        return ProfileManager(diskBootstrapState: state, executor: executor)
+    }
+
+    /// 初始化 in-memory ProfileManager。
+    ///
+    /// 仅测试 / Preview 使用。生产磁盘路径必须通过 `await ProfileManager.create()` 创建。
+    /// - Parameter inMemory: 必须为 true。
+    public init(inMemory: Bool) {
+        precondition(inMemory, "Use await ProfileManager.create() for production ProfileManager initialization.")
+        self.isInMemory = inMemory
+        // UI 测试模式：跳过文件迁移和磁盘操作，使用纯内存存储
+        let profileId = UUID()
+        let profile = Profile(id: profileId, name: "Test")
+        let scope = ProfileScope(id: profile.id, name: profile.name)
+        self.profiles = [profile]
+        self.activeProfileId = profileId
+        self.scopesByProfileId = [profileId: scope]
+        self.activeScope = scope
+        let executor = DataExecutor(inMemory: true)
+        self.executor = executor
+        self.activeContainer = executor.container
+        self.activeRepositories = RepositoryContainer(executor: executor, scope: scope, profileDirectory: FileManager.default.temporaryDirectory)
+        self.activeImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory, scope: scope)
+        syncFallbackStatus()
+        SnapDrillLogger.data.info("ProfileManager: in-memory 模式初始化完成")
+    }
+
+    private init(diskBootstrapState state: DiskBootstrapState, executor: DataExecutor) {
+        self.isInMemory = false
+        self.profiles = state.profiles
+        self.activeProfileId = state.profileId
+        self.scopesByProfileId = state.scopesByProfileId
+        self.executor = executor
+        self.activeContainer = executor.container
+        self.activeRepositories = RepositoryContainer(
+            executor: executor,
+            scope: state.scope,
+            profileDirectory: state.profileDirectory
+        )
+        self.activeImageStorage = ImageStorage(baseDirectory: state.profileDirectory, scope: state.scope)
+        self.activeScope = state.scope
+        syncFallbackStatus()
+
+        // 加载 per-profile 偏好到 UserDefaults
+        loadPreferences(for: state.profileId)
+
+        let activeName = state.profiles.first(where: { $0.id == state.profileId })?.name ?? "unknown"
+        SnapDrillLogger.data.info("ProfileManager: 初始化完成，活跃 Profile: \(activeName)")
+    }
+
+    private struct DiskBootstrapState {
+        let profiles: [Profile]
+        let profileId: UUID
+        let scopesByProfileId: [UUID: ProfileScope]
+        let scope: ProfileScope
+        let profileDirectory: URL
+        let storeURL: URL
+    }
+
+    private static func makeDiskBootstrapState() -> DiskBootstrapState {
         // 1. 执行首次升级迁移（必须在 ModelContainer 创建之前）
         ProfileMigration.migrateIfNeeded()
 
@@ -116,7 +171,6 @@ public final class ProfileManager {
             let fallback = Profile(name: "同学")
             loadedProfiles = [fallback]
         }
-        self.profiles = loadedProfiles
 
         // 3. 确定活跃 Profile
         let savedId = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
@@ -124,26 +178,32 @@ public final class ProfileManager {
         let profileId = loadedProfiles.first(where: { $0.id == savedId })?.id
             ?? loadedProfiles.first?.id
             ?? UUID() // 防御性 fallback：loadedProfiles 上方已保证非空
-        self.activeProfileId = profileId
 
-        // 4. 创建活跃 Profile 的基础设施
+        // 4. 构建 ProfileScope 缓存（使用局部变量避免在 init 中过早访问 self）
+        let newScopes = Dictionary(
+            uniqueKeysWithValues: loadedProfiles.map {
+                ($0.id, ProfileScope(id: $0.id, name: $0.name))
+            }
+        )
+        guard let scope = newScopes[profileId] else {
+            SnapDrillLogger.data.error("ProfileManager: scope 缓存不一致，创建 fallback scope")
+            fatalError("ProfileManager: scope 缓存不一致——profileId 不在 scopes 中")
+        }
+
+        // 5. 创建活跃 Profile 的基础设施
         let profileDir = docs
             .appendingPathComponent("profiles")
             .appendingPathComponent(profileId.uuidString)
 
         let storeURL = profileDir.appendingPathComponent("default.store")
-        let executor = DataExecutor(storeURL: storeURL)
-        self.executor = executor
-        self.activeContainer = executor.container
-        self.activeRepositories = RepositoryContainer(executor: executor)
-        self.activeImageStorage = ImageStorage(baseDirectory: profileDir)
-        syncFallbackStatus()
-
-        // 5. 加载 per-profile 偏好到 UserDefaults
-        loadPreferences(for: profileId)
-
-        let activeName = loadedProfiles.first(where: { $0.id == profileId })?.name ?? "unknown"
-        SnapDrillLogger.data.info("ProfileManager: 初始化完成，活跃 Profile: \(activeName)")
+        return DiskBootstrapState(
+            profiles: loadedProfiles,
+            profileId: profileId,
+            scopesByProfileId: newScopes,
+            scope: scope,
+            profileDirectory: profileDir,
+            storeURL: storeURL
+        )
     }
 
     // MARK: - Public API
@@ -157,7 +217,7 @@ public final class ProfileManager {
     ///
     /// 切换前检查 `AppActivityTracker` 是否有进行中的操作，
     /// 有则抛出 `ProfileError.switchBlocked`。
-    public func switchProfile(to profileId: UUID) throws(ProfileError) {
+    public func switchProfile(to profileId: UUID) async throws(ProfileError) {
         guard !isInMemory else { return } // inMemory 模式不支持切换（会创建磁盘数据库）
         guard profileId != activeProfileId,
               profiles.contains(where: { $0.id == profileId }) else { return }
@@ -171,21 +231,27 @@ public final class ProfileManager {
         // 1. 保存当前 Profile 的偏好
         savePreferences(for: activeProfileId)
 
-        // 2. 切换活跃 Profile
+        // 2. 准备 ProfileScope
+        let scope = scopesByProfileId[profileId]
+            ?? ProfileScope(id: profileId, name: profiles.first(where: { $0.id == profileId })?.name ?? "unknown")
+        scopesByProfileId[profileId] = scope
+
+        // 3. 切换活跃 Profile 基础设施
         let profileDir = profilesDirectoryURL.appendingPathComponent(profileId.uuidString)
         let storeURL = profileDir.appendingPathComponent("default.store")
-        let executor = DataExecutor(storeURL: storeURL)
+        let executor = await DataExecutor.createOffMainActor(storeURL: storeURL)
 
         self.executor = executor
         activeContainer = executor.container
-        activeRepositories = RepositoryContainer(executor: executor)
-        activeImageStorage = ImageStorage(baseDirectory: profileDir)
+        activeRepositories = RepositoryContainer(executor: executor, scope: scope, profileDirectory: profileDir)
+        activeImageStorage = ImageStorage(baseDirectory: profileDir, scope: scope)
+        activeScope = scope
         syncFallbackStatus()
 
-        // 3. 加载新 Profile 的偏好
+        // 4. 加载新 Profile 的偏好
         loadPreferences(for: profileId)
 
-        // 4. 更新活跃 ID（触发 SwiftUI 视图树重建）
+        // 5. 更新活跃 ID（触发 SwiftUI 视图树重建）
         activeProfileId = profileId
         UserDefaults.standard.set(profileId.uuidString, forKey: UDKey.activeProfileId)
 
@@ -217,6 +283,10 @@ public final class ProfileManager {
             }
         }
 
+        // 创建 ProfileScope
+        let scope = ProfileScope(id: profile.id, name: profile.name)
+        scopesByProfileId[profile.id] = scope
+
         // 保存默认偏好
         let defaults: [String: Any] = [
             UDKey.userName: name,
@@ -240,7 +310,7 @@ public final class ProfileManager {
     /// Typed throws: 所有 throw 点都是 ProfileError（ADR D-001 "业务验证方法用 typed throws"）。
     /// - `cannotDeleteLastProfile`: 剩余 Profile 数 ≤ 1 时禁止删除
     /// - 内部 `switchProfile(to:)` 也 throws(ProfileError)，向上透传无需转换
-    public func deleteProfile(id: UUID) throws(ProfileError) {
+    public func deleteProfile(id: UUID) async throws(ProfileError) {
         guard profiles.count > 1 else {
             throw .cannotDeleteLastProfile
         }
@@ -252,14 +322,14 @@ public final class ProfileManager {
                 throw .cannotDeleteLastProfile
             }
             if isInMemory {
-                // inMemory: 直接更新 activeProfileId，不创建磁盘资源
-                activeProfileId = other.id
+                activateInMemoryProfile(other)
             } else {
-                try switchProfile(to: other.id)
+                try await switchProfile(to: other.id)
             }
         }
 
         profiles.remove(at: index)
+        scopesByProfileId.removeValue(forKey: id)
         saveProfiles()
 
         // 删除 Profile 目录（后台执行，inMemory 模式跳过）
@@ -271,10 +341,34 @@ public final class ProfileManager {
         }
     }
 
+    private func activateInMemoryProfile(_ profile: Profile) {
+        let scope = scopesByProfileId[profile.id]
+            ?? ProfileScope(id: profile.id, name: profile.name)
+        scopesByProfileId[profile.id] = scope
+
+        let executor = DataExecutor(inMemory: true)
+        self.executor = executor
+        activeContainer = executor.container
+        activeRepositories = RepositoryContainer(
+            executor: executor,
+            scope: scope,
+            profileDirectory: FileManager.default.temporaryDirectory
+        )
+        activeImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory, scope: scope)
+        activeScope = scope
+        syncFallbackStatus()
+        activeProfileId = profile.id
+    }
+
     /// 重命名 Profile
     public func renameProfile(id: UUID, newName: String) {
         guard let index = profiles.firstIndex(where: { $0.id == id }) else { return }
         profiles[index].name = newName
+        // 重建 scope 以同步 name（ProfileScope.name 是 let）
+        scopesByProfileId[id] = ProfileScope(id: id, name: newName)
+        if id == activeProfileId {
+            activeScope = scopesByProfileId[id]
+        }
         saveProfiles()
 
         // 如果是当前活跃 Profile 且非 inMemory，同步更新 UserDefaults

@@ -78,7 +78,7 @@ Claude Opus 4.7 / Codex GPT-5.4 / Gemini 3 三方独立产出 schema + 迁移脚
 
 ## 决策
 
-**采用方案 C：全仓迁移到 YAML，5-layer schema**（待 PO 批准）。
+**采用方案 C：全仓迁移到 YAML，5-layer schema**。
 
 ## 方案
 

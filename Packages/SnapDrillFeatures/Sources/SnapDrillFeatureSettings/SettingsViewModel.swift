@@ -16,11 +16,26 @@ import SnapDrillData
 /// 设置页 ViewModel
 ///
 /// 处理设置页面的数据操作（如清除全部数据、备份/恢复）。
+@MainActor
 @Observable
 public final class SettingsViewModel {
     private let repositories: RepositoryContainer
     private let profileManager: ProfileManager
     private let backupService = BackupService()
+
+    private enum RestoreProfileError: LocalizedError {
+        case profileCreationFailed(profileName: String, profileId: UUID, underlying: Error)
+        case activeProfileRestoreFailed(profileId: UUID, underlying: Error)
+
+        var errorDescription: String? {
+            switch self {
+            case .profileCreationFailed(let profileName, let profileId, let underlying):
+                return "Profile restore target creation failed: \(profileName) (\(profileId.uuidString)): \(underlying.localizedDescription)"
+            case .activeProfileRestoreFailed(let profileId, let underlying):
+                return "Failed to restore active Profile \(profileId.uuidString): \(underlying.localizedDescription)"
+            }
+        }
+    }
 
     // MARK: - Properties
 
@@ -42,8 +57,8 @@ public final class SettingsViewModel {
     /// 创建设置页 ViewModel
     /// - Parameters:
     ///   - repositories: 应用的数据仓库容器
-    ///   - profileManager: Profile 管理器（备份恢复需要遍历所有 Profile）。测试中可传入默认实例
-    public init(repositories: RepositoryContainer, profileManager: ProfileManager = ProfileManager()) {
+    ///   - profileManager: Profile 管理器（备份恢复需要遍历所有 Profile）。未传入时使用测试用 in-memory 实例
+    public init(repositories: RepositoryContainer, profileManager: ProfileManager = ProfileManager(inMemory: true)) {
         self.repositories = repositories
         self.profileManager = profileManager
     }
@@ -117,7 +132,8 @@ public final class SettingsViewModel {
                 } else {
                     // 非活跃 Profile 临时创建 DataExecutor，避免回落到旧同步容器路径。
                     let tempExecutor = await DataExecutor.createOffMainActor(storeURL: storeURL)
-                    let tempRepos = RepositoryContainer(executor: tempExecutor)
+                    let scope = ProfileScope(id: profile.id, name: profile.name)
+                    let tempRepos = RepositoryContainer(executor: tempExecutor, scope: scope, profileDirectory: profileDir)
                     let data = try tempRepos.collectProfileBackupData(
                         profileName: profile.name, profileId: profile.id
                     )
@@ -206,8 +222,16 @@ public final class SettingsViewModel {
 
             backupStatusMessage = L10n.Settings.restoreRestoringItems(manifest.totalItemCount)
 
+            let preRestoreActiveProfileId = profileManager.activeProfileId
+
             // 4. 逐个 Profile 恢复数据库和图片
-            try await restoreAllProfiles(from: fileURL, payload: payload, autoBackupURL: autoBackupURL)
+            try await restoreAllProfiles(
+                from: fileURL,
+                payload: payload,
+                autoBackupURL: autoBackupURL,
+                preRestoreActiveProfileId: preRestoreActiveProfileId
+            )
+            try await restoreActiveProfileIfNeeded(preRestoreActiveProfileId)
 
             // 5. 恢复完全成功 → 清理自动备份
             cleanupAutoBackup(autoBackupURL)
@@ -314,28 +338,18 @@ public final class SettingsViewModel {
     // MARK: - Private Helpers
 
     /// 逐个 Profile 恢复数据库和图片
-    private func restoreAllProfiles(from fileURL: URL, payload: BackupPayload, autoBackupURL: URL?) async throws {
-        let originalActiveProfileId = profileManager.activeProfileId
+    private func restoreAllProfiles(
+        from fileURL: URL,
+        payload: BackupPayload,
+        autoBackupURL: URL?,
+        preRestoreActiveProfileId: UUID
+    ) async throws {
         for profileData in payload.profiles {
-            // 查找或创建对应 Profile
-            let targetProfile: Profile
-            if let existing = profileManager.profiles.first(where: { $0.name == profileData.profileName }) {
-                targetProfile = existing
-            } else if let created = profileManager.createProfile(name: profileData.profileName) {
-                targetProfile = created
-            } else {
-                SnapDrillLogger.data.error("SettingsViewModel: 恢复备份时 Profile 创建失败，跳过: \(profileData.profileName)")
-                continue
-            }
-
-            // 切换到目标 Profile
-            if targetProfile.id != profileManager.activeProfileId {
-                try profileManager.switchProfile(to: targetProfile.id)
-            }
-
-            // 原始活跃 Profile 用 self.repositories（与 createBackup 对称）
-            let targetRepos = (targetProfile.id == originalActiveProfileId)
-                ? repositories : profileManager.activeRepositories
+            let targetProfile = try findOrCreateRestoreTargetProfile(for: profileData)
+            let targetRepos = await restoreRepositories(
+                for: targetProfile,
+                preRestoreActiveProfileId: preRestoreActiveProfileId
+            )
             try await targetRepos.restoreFromProfileData(profileData)
 
             // 恢复图片
@@ -361,6 +375,56 @@ public final class SettingsViewModel {
                 }
                 throw error
             }
+        }
+    }
+
+    private func findOrCreateRestoreTargetProfile(for profileData: ProfileBackupData) throws -> Profile {
+        if let existing = profileManager.profiles.first(where: { $0.id == profileData.profileId }) {
+            return existing
+        }
+
+        do {
+            return try RestoreProfileHelper.createRestoreTargetProfile(
+                id: profileData.profileId,
+                name: profileData.profileName,
+                fallbackProfiles: profileManager.profiles
+            )
+        } catch {
+            SnapDrillLogger.data.error(
+                "SettingsViewModel: 恢复备份时 Profile 创建失败: \(profileData.profileName), id: \(profileData.profileId.uuidString), error: \(error)"
+            )
+            throw RestoreProfileError.profileCreationFailed(
+                profileName: profileData.profileName,
+                profileId: profileData.profileId,
+                underlying: error
+            )
+        }
+    }
+
+    private func restoreRepositories(
+        for profile: Profile,
+        preRestoreActiveProfileId: UUID
+    ) async -> RepositoryContainer {
+        if profile.id == preRestoreActiveProfileId {
+            return repositories
+        }
+
+        let profileDir = Self.profileDirectory(for: profile.id)
+        let storeURL = profileDir.appendingPathComponent("default.store")
+        let executor = await DataExecutor.createOffMainActor(storeURL: storeURL)
+        let scope = ProfileScope(id: profile.id, name: profile.name)
+        return RepositoryContainer(executor: executor, scope: scope, profileDirectory: profileDir)
+    }
+
+    private func restoreActiveProfileIfNeeded(_ preRestoreActiveProfileId: UUID) async throws {
+        guard profileManager.activeProfileId != preRestoreActiveProfileId else { return }
+        do {
+            try await profileManager.switchProfile(to: preRestoreActiveProfileId)
+        } catch {
+            throw RestoreProfileError.activeProfileRestoreFailed(
+                profileId: preRestoreActiveProfileId,
+                underlying: error
+            )
         }
     }
 

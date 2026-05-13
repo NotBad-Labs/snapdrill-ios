@@ -109,6 +109,11 @@ jobs:
             echo "ERROR: Features must not import Infrastructure directly"
             VIOLATIONS=$((VIOLATIONS+1))
           fi
+          # Share Extension 保持轻量文件 I/O，不依赖 SnapDrill app packages
+          if grep -rn --include='*.swift' '^import SnapDrill' SnapDrillShare/ 2>/dev/null; then
+            echo "ERROR: Share Extension must not import SnapDrill packages"
+            VIOLATIONS=$((VIOLATIONS+1))
+          fi
           if [ $VIOLATIONS -gt 0 ]; then
             echo "Found $VIOLATIONS dependency direction violation(s)"
             exit 1

@@ -78,6 +78,22 @@ struct NotificationSettingsViewModelTests {
         #expect(service.scheduleDailyCallCount == 0)
     }
 
+    @Test("enable 调度失败时返回 false 并回滚通知状态")
+    func enable_scheduleFails_returnsFalseAndCancels() async {
+        let service = MockNotificationService()
+        service.requestPermissionResult = true
+        service.scheduleDailyError = NSError(domain: "test", code: -1, userInfo: [NSLocalizedDescriptionKey: "调度失败"])
+        let vm = NotificationSettingsViewModel(notificationService: service)
+
+        let result = await vm.enable(hour: 9, minute: 0)
+
+        #expect(result == false)
+        #expect(service.requestPermissionCallCount == 1)
+        #expect(service.scheduleDailyCallCount == 1)
+        #expect(service.cancelAllCallCount == 1)
+        #expect(vm.rescheduleError != nil)
+    }
+
     @Test("enable 并发重入保护")
     func enable_concurrentGuard() async {
         let service = MockNotificationService()
@@ -109,8 +125,9 @@ struct NotificationSettingsViewModelTests {
         let service = MockNotificationService()
         let vm = NotificationSettingsViewModel(notificationService: service)
 
-        await vm.reschedule(hour: 20, minute: 30)
+        let result = await vm.reschedule(hour: 20, minute: 30)
 
+        #expect(result == true)
         #expect(service.scheduleDailyCallCount == 1)
         #expect(service.lastScheduledHour == 20)
         #expect(service.lastScheduledMinute == 30)
@@ -123,8 +140,9 @@ struct NotificationSettingsViewModelTests {
         service.scheduleDailyError = NSError(domain: "test", code: -1, userInfo: [NSLocalizedDescriptionKey: "调度失败"])
         let vm = NotificationSettingsViewModel(notificationService: service)
 
-        await vm.reschedule(hour: 20, minute: 30)
+        let result = await vm.reschedule(hour: 20, minute: 30)
 
+        #expect(result == false)
         #expect(vm.rescheduleError != nil)
     }
 }

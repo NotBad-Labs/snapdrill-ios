@@ -19,6 +19,7 @@ import PDFKit
 /// 采集功能主 ViewModel
 ///
 /// 负责协调相机扫描、相册选图、OCR 识别等流程，并驱动导航跳转到结果编辑页。
+@MainActor
 @Observable
 public final class CaptureViewModel {
 
@@ -344,4 +345,3 @@ public final class CaptureViewModel {
         isProcessing = false
     }
 }
-

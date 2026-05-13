@@ -151,7 +151,7 @@ public final class CaptureResultViewModel {
         repositories: RepositoryContainer,
         ocrService: OCRServiceProtocol,
         analyticsService: AnalyticsServiceProtocol,
-        imageStorage: ImageStorage = ImageStorage(),
+        imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
         contentTaggingService: ContentTaggingServiceProtocol = ContentTaggingService(),
         router: CaptureRouter
     ) {

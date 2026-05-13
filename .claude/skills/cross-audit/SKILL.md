@@ -24,7 +24,7 @@ user-invocable: true
 ## 必须遵守的纪律（F-008 + F-011 + F-012）
 
 1. **F-008 相同完整任务**：三家审同**同一批文件**完整集合，**不分工**。冗余是刻意的——通过"你发现了我没发现的"暴露盲区
-2. **F-011 审计期间只读**：三方启动后不得修改被审文件，等汇总后统一修复
+2. **F-011 被审范围只读**：三方启动后不得修改被审文件；`Write` 只允许落审计报告，等汇总后统一修复
 3. **F-012 不偷懒**：禁止抽查后声称"基本准确"，必须全量
 
 ## 启动前 checklist
@@ -34,6 +34,7 @@ user-invocable: true
 - [ ] 已读取 `docs/principles/shared-constraints.md`（必须内联到 prompt）
 - [ ] 已读取 `docs/memory/feedback.md` F-008 / F-011 / F-012
 - [ ] 审计目标和文件清单已明确（写下来，不要口头默认）
+- [ ] 审计报告落盘路径已明确；所有委派 prompt 已写明"不得修改被审文件"
 
 ## 三方启动模板
 
@@ -52,13 +53,14 @@ Architecture Fit（0-10 分，整数），见 cross-audit-consensus §2.5。
 五维度：DRY / YAGNI / Skill 化 / 一致性 / 时效性
 内联约束：[shared-constraints.md 全文]
 输出格式：结构化报告，分级 Critical / Warning / Info，每项含证据
+只读边界：不得修改范围内文件；如需落盘，仅写审计报告到指定路径
 PR 审查场景必须在报告末尾补 4 维评分表（0-10 整数分 + 综合平均），
 维度：Scope Fidelity / Code Quality / Test Coverage / Architecture Fit
 不参考 Claude 的中间结论
 ```
 
 调用方式优先级：
-1. `codex exec --model gpt-5.4 --full-auto "<prompt>"`（最稳定，可写文件）
+1. `codex exec --model gpt-5.4 --full-auto "<prompt>"`（最稳定，write-capable 仅用于写审计报告；prompt 必须禁止修改被审文件）
 2. `Agent(subagent_type=codex:codex-rescue, prompt=...)`（fallback，注意 plan mode 误判风险）
 
 ### 给 Gemini（Bash）
@@ -102,7 +104,7 @@ PR 审查场景末尾补 4 维评分表（0-10 整数分 + 综合平均），
 - ❌ "Gemini 擅长 X，让它审 X；Codex 擅长 Y，让它审 Y" — 违反 F-008
 - ❌ "为节省时间，三家分工" — 失去对抗性，盲区无法暴露
 - ❌ "Gemini 报 Critical 直接修" — 未经实证验证，可能是误判（历史多次）
-- ❌ 审计期间提前修改被审文件 — 违反 F-011
+- ❌ 审计期间提前修改被审文件 — 违反 F-011；允许写审计报告不等于允许改被审范围
 - ❌ 抽查 10 处说"全部一致" — 违反 F-012
 
 ## 完成标准

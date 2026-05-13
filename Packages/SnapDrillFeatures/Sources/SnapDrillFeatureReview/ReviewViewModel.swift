@@ -36,6 +36,7 @@ struct UndoEntry {
 // MARK: - ReviewViewModel
 
 /// 复习会话 ViewModel
+@MainActor
 @Observable
 final class ReviewViewModel {
 
@@ -86,15 +87,24 @@ final class ReviewViewModel {
     private let repository: ReviewRepository
     private let scheduler = ReviewScheduler()
     private let analyticsService: AnalyticsServiceProtocol
+    private let saveContext: () throws -> Void
+    private let rollbackContext: () -> Void
 
     @ObservationIgnored
     private var dataChangeTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
-    init(repository: ReviewRepository, analyticsService: AnalyticsServiceProtocol) {
+    init(
+        repository: ReviewRepository,
+        analyticsService: AnalyticsServiceProtocol,
+        saveContext: (() throws -> Void)? = nil,
+        rollbackContext: (() -> Void)? = nil
+    ) {
         self.repository = repository
         self.analyticsService = analyticsService
+        self.saveContext = saveContext ?? { try repository.saveContext() }
+        self.rollbackContext = rollbackContext ?? { repository.rollbackContext() }
     }
 
     // MARK: - Public API
@@ -186,12 +196,20 @@ final class ReviewViewModel {
     }
 
     /// 处理卡片滑动完成：更新 SM-2 状态并持久化
-    func handleSwipeCompletion(direction: Int) {
+    @discardableResult
+    func handleSwipeCompletion(direction: Int) -> Bool {
         swipeTrigger = nil
         isProcessingSwipe = false
         currentSwipeOffset = 0
 
-        guard let item = workingItems.first else { return }
+        guard let item = workingItems.first else { return false }
+
+        let snapshot = SwipeSnapshot(
+            workingItems: workingItems, undoStack: undoStack,
+            finishedItems: finishedItems, sessionGoodCount: sessionGoodCount,
+            sessionAgainCount: sessionAgainCount, isAnswerShown: isAnswerShown,
+            phase: phase
+        )
 
         // 在修改 SM-2 字段前，保存旧状态供 undo 完整回滚
         let previousState = SM2State(
@@ -212,14 +230,8 @@ final class ReviewViewModel {
         // SM2State 的 Date? 解包：distantPast 作为"从未复习/立即到期"哨兵值
         item.nextReviewAt = newState.nextReviewAt ?? Date.distantPast
         item.lastReviewedAt = newState.lastReviewedAt ?? Date.distantPast
-        do {
-            try repository.saveContext()
-        } catch {
-            // 持久化失败：回滚 @Model 变更并提前返回，UI 状态保持不变
-            repository.rollbackContext()
-            SnapDrillLogger.generic.error("处理滑动结果失败: \(error.localizedDescription)")
-            operationError = L10n.Errors.reviewSaveFailed
-            return
+        if !persistRatingChange(item: item, previousState: previousState, snapshot: snapshot) {
+            return false
         }
 
         // 持久化成功后更新 UI 状态
@@ -247,6 +259,7 @@ final class ReviewViewModel {
                 "again": "\(sessionAgainCount)"
             ])
         }
+        return true
     }
 
     /// 撤销上一次滑动，同时回滚 SM-2 状态并持久化
@@ -260,13 +273,13 @@ final class ReviewViewModel {
         entry.item.nextReviewAt = entry.previousState.nextReviewAt ?? Date.distantPast
         entry.item.lastReviewedAt = entry.previousState.lastReviewedAt ?? Date.distantPast
         do {
-            try repository.saveContext()
+            try saveContext()
         } catch {
             // 持久化失败：先将 entry 放回栈，确保用户可再次尝试撤销；
             // 再 rollback @Model，恢复字段为滑动后状态；最后提前返回，
             // 阻止 workingItems/finishedItems 更新，防止内存与磁盘不一致。
             undoStack.append(entry)
-            repository.rollbackContext()
+            rollbackContext()
             SnapDrillLogger.generic.error("撤销保存失败: \(error.localizedDescription)")
             operationError = L10n.Errors.reviewSaveFailed
             return
@@ -288,4 +301,44 @@ final class ReviewViewModel {
     // MARK: - Computed
 
     var isUndoEnabled: Bool { !undoStack.isEmpty }
+
+    /// handleSwipeCompletion 的状态快照（用于 save 失败回滚）
+    private struct SwipeSnapshot {
+        let workingItems: [ReviewItemModel]
+        let undoStack: [UndoEntry]
+        let finishedItems: Int
+        let sessionGoodCount: Int
+        let sessionAgainCount: Int
+        let isAnswerShown: Bool
+        let phase: ReviewPhase
+    }
+
+    /// 持久化评分变更，失败时回滚全部 UI 状态。
+    private func persistRatingChange(item: ReviewItemModel, previousState: SM2State, snapshot: SwipeSnapshot) -> Bool {
+        do {
+            try saveContext()
+            return true
+        } catch {
+            rollbackContext()
+            restore(item, to: previousState)
+            workingItems = snapshot.workingItems
+            undoStack = snapshot.undoStack
+            finishedItems = snapshot.finishedItems
+            sessionGoodCount = snapshot.sessionGoodCount
+            sessionAgainCount = snapshot.sessionAgainCount
+            isAnswerShown = snapshot.isAnswerShown
+            phase = snapshot.phase
+            SnapDrillLogger.generic.error("处理滑动结果失败: \(error.localizedDescription)")
+            operationError = L10n.Errors.reviewSaveFailed
+            return false
+        }
+    }
+
+    private func restore(_ item: ReviewItemModel, to state: SM2State) {
+        item.easeFactor = state.easeFactor
+        item.interval = state.interval
+        item.repetitions = state.repetitions
+        item.nextReviewAt = state.nextReviewAt ?? Date.distantPast
+        item.lastReviewedAt = state.lastReviewedAt ?? Date.distantPast
+    }
 }

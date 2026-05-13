@@ -170,6 +170,7 @@ struct OnboardingPageView: View {
 /// 引导管理器
 ///
 /// 负责持久化引导完成状态。功能提示已迁移到 TipKit（见 SnapDrillTips.swift）。
+@MainActor
 @Observable
 public final class OnboardingManager {
     /// 共享实例

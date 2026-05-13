@@ -27,6 +27,7 @@ import SwiftUI
 ///     @Published var path = NavigationPath()
 /// }
 /// ```
+@MainActor
 public protocol FeatureRouter: AnyObject, Observable {
     
     // MARK: - Requirements

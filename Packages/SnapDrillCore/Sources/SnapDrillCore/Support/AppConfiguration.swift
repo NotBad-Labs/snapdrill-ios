@@ -53,35 +53,24 @@ public final class AppConfiguration {
     
     /// 功能开关
     ///
-    /// Remote Config 已移除（八方合规审计结论：启动即 fetchAndActivate 违反零外传承诺）。
-    /// 优先级简化为：用户本地设置 > 产品默认值。
+    /// Remote Config 已移除。Telemetry 相关兼容入口统一委托给 `TelemetryGate`，
+    /// 产品默认值为拒绝采集。
     public struct FeatureFlags {
 
         /// 是否启用崩溃报告
         ///
-        /// 优先级：用户本地设置 > 产品默认值（true）。
-        /// 隐私选择是用户的绝对权利。
+        /// Compatibility shim. The single source of truth is `TelemetryGate`.
         public static var crashReportingEnabled: Bool {
-            get {
-                if UserDefaults.standard.object(forKey: UDKey.crashReportingEnabled) != nil {
-                    return UserDefaults.standard.bool(forKey: UDKey.crashReportingEnabled)
-                }
-                return true
-            }
-            set { UserDefaults.standard.set(newValue, forKey: UDKey.crashReportingEnabled) }
+            get { TelemetryGate.isGranted }
+            set { TelemetryGate.setGranted(newValue) }
         }
 
         /// 是否启用数据分析
         ///
-        /// 优先级同 `crashReportingEnabled`：用户本地 > 默认值。
+        /// Compatibility shim. The single source of truth is `TelemetryGate`.
         public static var analyticsEnabled: Bool {
-            get {
-                if UserDefaults.standard.object(forKey: UDKey.analyticsEnabled) != nil {
-                    return UserDefaults.standard.bool(forKey: UDKey.analyticsEnabled)
-                }
-                return true
-            }
-            set { UserDefaults.standard.set(newValue, forKey: UDKey.analyticsEnabled) }
+            get { TelemetryGate.isGranted }
+            set { TelemetryGate.setGranted(newValue) }
         }
     }
     
@@ -115,9 +104,8 @@ public final class AppConfiguration {
     
     // MARK: - Reset
     
-    /// 重置所有配置到产品定义的默认值（默认开启）
+    /// 重置所有配置到产品定义的默认值（默认拒绝遥测）
     public func resetToDefaults() {
-        FeatureFlags.crashReportingEnabled = true
-        FeatureFlags.analyticsEnabled = true
+        TelemetryGate.reset()
     }
 }

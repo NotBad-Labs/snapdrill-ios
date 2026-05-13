@@ -108,7 +108,7 @@ struct DataExecutorTests {
     @Test("RepositoryContainer 通过 DataExecutor 构造可正常工作")
     func repositoryContainerViaExecutor() throws {
         let executor = DataExecutor(inMemory: true)
-        let repos = RepositoryContainer(executor: executor)
+        let repos = RepositoryContainer(executor: executor, scope: ProfileScope(id: UUID(), name: "Test"), profileDirectory: FileManager.default.temporaryDirectory)
         repos.review.insert(ReviewItemModel.mock(content: "container via executor"))
         try repos.review.saveContext()
         #expect(try repos.review.totalCount() == 1)

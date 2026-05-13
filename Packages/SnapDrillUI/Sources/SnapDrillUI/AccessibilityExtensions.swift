@@ -191,6 +191,7 @@ extension Font {
 // MARK: - Accessibility Announcements
 
 /// 无障碍公告
+@MainActor
 public struct AccessibilityAnnouncement {
     /// 发送无障碍公告
     ///

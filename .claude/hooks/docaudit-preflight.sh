@@ -5,6 +5,12 @@
 
 set -eo pipefail
 
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=.claude/hooks/_hook_common.sh
+source "$HOOK_DIR/_hook_common.sh"
+
+require_command jq
+
 INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
@@ -13,9 +19,16 @@ if ! echo "$COMMAND" | grep -qE '^[[:space:]]*(git[[:space:]]+push|gh[[:space:]]
     exit 0
 fi
 
+require_command git
+
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "")
 if [[ -z "$PROJECT_ROOT" ]]; then exit 0; fi
-if [[ ! -f "$PROJECT_ROOT/Scripts/audit/docaudit.py" ]]; then exit 0; fi
+if [[ ! -f "$PROJECT_ROOT/Scripts/audit/docaudit.py" ]]; then
+    echo "hook dependency missing: $PROJECT_ROOT/Scripts/audit/docaudit.py" >&2
+    exit 1
+fi
+
+require_command python3
 
 set +e
 OUTPUT=$(cd "$PROJECT_ROOT" && python3 Scripts/audit/docaudit.py all --strict --baseline 2>&1)

@@ -16,6 +16,7 @@ import SnapDrillData
 /// 首页仪表盘 ViewModel
 ///
 /// 负责加载复习统计数据、监听数据变更通知并触发刷新，以及处理草稿恢复流程。
+@MainActor
 @Observable
 public final class DashboardViewModel {
 

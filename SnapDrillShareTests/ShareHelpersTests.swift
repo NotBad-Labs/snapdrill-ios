@@ -148,12 +148,18 @@ struct SharedContainerImageWriterTests {
         return try #require(image.jpegData(compressionQuality: 0.85))
     }
 
-    @Test("URL 路径：拷贝源文件到容器")
-    func urlPathCopiesFile() throws {
+    private static func decodedLongSide(at url: URL) throws -> CGFloat {
+        let data = try Data(contentsOf: url)
+        let image = try #require(UIImage(data: data))
+        return max(image.size.width * image.scale, image.size.height * image.scale)
+    }
+
+    @Test("URL 路径：降采样后写入容器")
+    func urlPathDownsamplesFile() throws {
         let tempDir = try Self.makeTempDir()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let srcData = try Self.makeJPEGData(width: 100, height: 100, color: .blue)
+        let srcData = try Self.makeJPEGData(width: 400, height: 300, color: .blue)
         let srcURL = tempDir.appendingPathComponent("source.jpg")
         try srcData.write(to: srcURL)
 
@@ -164,7 +170,7 @@ struct SharedContainerImageWriterTests {
             appGroupID: "test.group",
             containerURLProvider: { _ in containerDir },
             fileNameProvider: { "dest.jpg" },
-            downsampleMaxDimension: 2048,
+            downsampleMaxDimension: 128,
             logger: nil
         )
 
@@ -172,21 +178,21 @@ struct SharedContainerImageWriterTests {
         #expect(result == "dest.jpg")
         let destURL = containerDir.appendingPathComponent("dest.jpg")
         #expect(FileManager.default.fileExists(atPath: destURL.path))
+        #expect(try Self.decodedLongSide(at: destURL) <= 128.5)
     }
 
-    @Test("Data 路径：原始字节写入容器（落盘字节与输入完全一致）")
-    func dataPathWritesBytes() throws {
+    @Test("Data 路径：降采样后写入容器")
+    func dataPathDownsamplesBytes() throws {
         let tempDir = try Self.makeTempDir()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let srcData = try Self.makeJPEGData(width: 100, height: 100, color: .green)
-        let writer = Self.makeWriter(tempDir: tempDir, fileName: "data.jpg")
+        let srcData = try Self.makeJPEGData(width: 400, height: 300, color: .green)
+        let writer = Self.makeWriter(tempDir: tempDir, fileName: "data.jpg", downsampleMax: 128)
         let result = writer.save(item: srcData as NSData)
         #expect(result == "data.jpg")
 
         let destURL = tempDir.appendingPathComponent("data.jpg")
-        let written = try Data(contentsOf: destURL)
-        #expect(written == srcData)
+        #expect(try Self.decodedLongSide(at: destURL) <= 128.5)
     }
 
     @Test("UIImage fallback：降采样后 JPEG 写入，落盘解码长边 ≤ maxDimension")

@@ -43,6 +43,7 @@ final class MockOCRService: OCRServiceProtocol {
 }
 
 @Suite("CaptureViewModel 草稿与扫描测试")
+@MainActor
 struct CaptureViewModelTests {
 
     // MARK: - Helpers

@@ -19,7 +19,7 @@ layer: pattern
 | Tier | 风险 | Tool | 特点 |
 |---|---|---|---|
 | **T1 只读** | 无副作用 | `Read` · `Glob` · `Grep` · `WebSearch` · `WebFetch` · `TaskList` · `TaskGet` · `TaskOutput` | 不改变仓库/外部系统状态 |
-| **T2 工作区写** | 本地可逆 | `Edit` · `Write` · `NotebookEdit` · `Bash`（非受限命令）· `TaskCreate` / `TaskUpdate` / `TaskStop` · `Agent` · `ScheduleWakeup` | 改本地文件 / 状态，git 可回滚 |
+| **T2 工作区写** | 本地可逆 | `Edit` · `Write` · `MultiEdit` · `NotebookEdit` · `Bash`（非受限命令）· `TaskCreate` / `TaskUpdate` / `TaskStop` · `Agent` · `ScheduleWakeup` | 改本地文件 / 状态，git 可回滚 |
 | **T3 外部副作用** | 不可逆或跨系统 | `Bash`（受限命令子集，见 §2）· MCP 外部调用（Gmail / Calendar / Drive 等）· `mcp__openclaw__*` 委派 | 修改远程 / 第三方系统 / 破坏性 git 操作 |
 
 **原则**：
@@ -61,9 +61,9 @@ sudo rm             # 提权删除
 | 事件 | Matcher | Hook | 职责 | Tier 相关 |
 |---|---|---|---|---|
 | `SessionStart` | `compact` | `cat .claude/compact-reminder.md` | 压缩后重载上下文提示 | T1 |
-| `PostToolUse` | `Edit\|Write` | `log-file-change.sh` | 记录改动文件到 session-log.txt | T1 观察 |
-| `PostToolUse` | `Edit\|Write` | `swift-autolint.sh` | 改 `.swift` 后即时 swiftlint（行级） | T2 校验 |
-| `PostToolUse` | `Edit\|Write` | `docaudit-on-doc-edit.sh` | 改 docs 区 `.md` 后跑 `docaudit links`（broken link 即时反馈，Phase B PR-2） | T2 校验 |
+| `PostToolUse` | `Edit\|Write\|MultiEdit` | `log-file-change.sh` | 记录改动文件到 session-log.txt | T1 观察 |
+| `PostToolUse` | `Edit\|Write\|MultiEdit` | `swift-autolint.sh` | 改 `.swift` 后即时 swiftlint（行级） | T2 校验 |
+| `PostToolUse` | `Edit\|Write\|MultiEdit` | `docaudit-on-doc-edit.sh` | 改 docs 区 `.md` 后跑 `docaudit links`（broken link 即时反馈，Phase B PR-2） | T2 校验 |
 | `PostToolUse` | `Bash` | `post-merge-checkpoint.sh` | `gh pr merge` 后提示 checkpoint + 反模式启发式扫描 | T2 观察 |
 | `PostToolUse` | `.*` | `session-metrics.sh` | 记录所有 tool call 时间戳到 session-metrics.tsv | T1 观察 |
 | `PreToolUse` | `Bash` | `block-dangerous-bash.sh` | 见 §2，硬拦截 T3 受限命令 | **T3 守门** |

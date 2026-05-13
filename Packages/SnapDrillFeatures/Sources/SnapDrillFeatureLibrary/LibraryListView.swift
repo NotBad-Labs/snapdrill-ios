@@ -159,13 +159,15 @@ struct LibraryListView: View {
                 }
                 .onDelete { offsets in
                     // SnapDrill 无回收站，删除不可逆，需确认
-                    swipeDeleteIDs = Set(offsets.map { viewModel.filteredItems[$0].id })
+                    swipeDeleteIDs = Set(offsets.compactMap { index in
+                        viewModel.filteredItems.indices.contains(index) ? viewModel.filteredItems[index].id : nil
+                    })
                     showSwipeDeleteConfirm = true
                 }
                 .deleteDisabled(editMode?.wrappedValue.isEditing == true)
                 
                 // 无限滚动触发器
-                if !viewModel.filteredItems.isEmpty {
+                if viewModel.hasMore {
                     Color.clear
                         .frame(height: 1)
                         .onAppear {

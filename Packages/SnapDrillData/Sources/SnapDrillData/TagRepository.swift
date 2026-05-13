@@ -44,8 +44,11 @@ public final class TagRepository {
     // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）
 
     /// 获取全部 TagModel，按创建时间降序
-    public func fetchAllModels() throws -> [TagModel] {
-        let descriptor = FetchDescriptor<TagModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+    public func fetchAllModels(limit: Int? = nil) throws -> [TagModel] {
+        var descriptor = FetchDescriptor<TagModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        if let limit {
+            descriptor.fetchLimit = limit
+        }
         return try modelContext.fetch(descriptor)
     }
 
@@ -78,6 +81,11 @@ public final class TagRepository {
     /// 持久化当前上下文的所有变更
     public func saveContext() throws {
         try modelContext.save()
+    }
+
+    /// 回滚 ModelContext 中所有未持久化的变更（saveContext 失败时调用）
+    public func rollbackContext() {
+        modelContext.rollback()
     }
 
     /// 纯内存操作：将所有标签标记为待删除。调用方负责 saveContext()。

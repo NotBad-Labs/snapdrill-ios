@@ -58,10 +58,6 @@ struct SnapDrillApp: App {
         DependencyContainer.shared
     }
 
-    private var profileManager: ProfileManager {
-        container.profileManager
-    }
-    
     private var colorScheme: ColorScheme? {
         switch appearanceMode {
         case 1: return .light
@@ -76,12 +72,11 @@ struct SnapDrillApp: App {
         WindowGroup {
             // 极简入口：仅负责注入环境和启动根视图
             ZStack {
-                AppRootView(router: container.router)
-                    .modelContainer(profileManager.activeContainer)
+                AppRootView(
+                    router: container.router,
+                    makeProfileManager: { await container.createProfileManager() }
+                )
                     .environment(\.services, container.services)
-                    .environment(\.repositories, profileManager.activeRepositories)
-                    .environment(\.profileManager, profileManager)
-                    .id(profileManager.activeProfileId)
                     // analyticsService 单独注入：5 个 View 直接使用 \.analyticsService，
                     // 虽然 \.services 已包含 analytics，但移除此行会让它们回退到 Mock 默认值
                     .environment(\.analyticsService, container.services.analytics)

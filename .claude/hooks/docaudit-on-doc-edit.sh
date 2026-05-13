@@ -5,6 +5,13 @@
 
 set -eo pipefail
 
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=.claude/hooks/_hook_common.sh
+source "$HOOK_DIR/_hook_common.sh"
+
+require_command jq
+require_command git
+
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 
@@ -21,10 +28,12 @@ if [[ -z "$PROJECT_ROOT" ]] || [[ "$FILE_PATH" != "$PROJECT_ROOT"/* ]]; then
     exit 0
 fi
 
-# docaudit 不可用静默降级
 if [[ ! -f "$PROJECT_ROOT/Scripts/audit/docaudit.py" ]]; then
-    exit 0
+    echo "hook dependency missing: $PROJECT_ROOT/Scripts/audit/docaudit.py" >&2
+    exit 1
 fi
+
+require_command python3
 
 set +e
 OUTPUT=$(cd "$PROJECT_ROOT" && python3 Scripts/audit/docaudit.py links 2>&1)

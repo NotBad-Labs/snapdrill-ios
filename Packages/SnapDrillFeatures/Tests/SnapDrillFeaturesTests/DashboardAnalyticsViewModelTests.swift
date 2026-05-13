@@ -16,6 +16,7 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("DashboardAnalyticsViewModel 统计聚合测试", .serialized)
+@MainActor
 final class DashboardAnalyticsViewModelTests {
 
     // MARK: - 存储属性

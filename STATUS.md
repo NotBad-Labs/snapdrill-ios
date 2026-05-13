@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-10（**Phase 2 全链路收官 + Phase 2.N 收尾 + 三方基线审计**）
+> 最后更新：2026-05-13（**零信任审计 + 全量修复完成**）
 > 编译状态：✅ 0 errors · 0 lint violations · AllTests/CI 420 tests passed/skipped clean · docaudit exit 0
 > Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
 > Phase 2 全部完成 · #599 死锁已根除 · 生产调用路径已迁移到 DataExecutor（PersistenceController 仅作兼容类型保留）

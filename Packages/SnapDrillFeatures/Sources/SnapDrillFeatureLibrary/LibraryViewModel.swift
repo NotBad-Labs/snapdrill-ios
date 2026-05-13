@@ -95,6 +95,8 @@ public final class LibraryViewModel {
 
     /// 是否正在加载数据
     public var isLoading: Bool = false
+    /// 当前筛选条件是否还有下一页数据
+    public var hasMore: Bool = true
     /// 数据加载错误信息（非 nil 时 View 应展示错误状态）
     public var errorMessage: String?
     /// 操作错误信息（非 nil 时 View 展示 alert，用于删除、打标签等操作）
@@ -111,11 +113,12 @@ public final class LibraryViewModel {
     /// App 级删除调度器
     @ObservationIgnored
     private let deletionScheduler = DeletionScheduler.shared
-    /// 撤销恢复时暂存的 items（用于恢复列表）
+    /// 撤销恢复时按批次暂存 items，避免连续删除时后批次覆盖前批次缓冲区
     @ObservationIgnored
-    private var pendingDeletionItems: [ReviewItemModel] = []
+    private var pendingDeletionItemBatches: [(ids: Set<UUID>, items: [ReviewItemModel])] = []
     private var currentPage: Int = 0
     private let pageSize: Int = 50
+    private let metadataFetchLimit: Int = 500
     /// 搜索防抖任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
     /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
@@ -137,8 +140,8 @@ public final class LibraryViewModel {
         defer { isLoading = false }
 
         do {
-            self.subjects = try repositories.subject.fetchAllModels()
-            self.allTags = try repositories.tag.fetchAllModels()
+            self.subjects = try repositories.subject.fetchAllModels(limit: metadataFetchLimit)
+            self.allTags = try repositories.tag.fetchAllModels(limit: metadataFetchLimit)
             self.errorMessage = nil
             await refreshData()
         } catch {
@@ -173,6 +176,7 @@ public final class LibraryViewModel {
 
             guard !Task.isCancelled else { return }
             self.filteredItems = results
+            self.hasMore = results.count == pageSize
             self.errorMessage = nil
         } catch {
             SnapDrillLogger.generic.error("刷新题库失败: \(error.localizedDescription)")
@@ -182,7 +186,7 @@ public final class LibraryViewModel {
 
     /// 加载更多（分页）
     public func loadMore() async {
-        guard !isLoading else { return }
+        guard hasMore, !isLoading else { return }
         isLoading = true
         defer { isLoading = false }
 
@@ -202,6 +206,7 @@ public final class LibraryViewModel {
 
             guard !Task.isCancelled else { return }
             currentPage = nextPage
+            hasMore = nextItems.count == pageSize
             self.filteredItems.append(contentsOf: nextItems)
         } catch {
             SnapDrillLogger.generic.error("加载更多题目失败: \(error.localizedDescription)")
@@ -213,7 +218,8 @@ public final class LibraryViewModel {
     /// 软删除题目（从列表移除，暂存 5 秒后真正删除，支持撤销）
     public func softDeleteItems(ids: Set<UUID>) {
         // 暂存待删除的题目（用于撤销时恢复列表）
-        pendingDeletionItems = filteredItems.filter { ids.contains($0.id) }
+        let itemsToDelete = filteredItems.filter { ids.contains($0.id) }
+        pendingDeletionItemBatches.append((ids: ids, items: itemsToDelete))
 
         // 从列表中移除（视觉即时反馈）
         withAnimation {
@@ -222,6 +228,8 @@ public final class LibraryViewModel {
 
         // 调度删除（5 秒倒计时由 App 级 DeletionScheduler 管理）
         let repos = repositories
+        let previouslyPendingIDs = deletionScheduler.pendingDeletionIDs
+        discardPendingDeletionBatches(matching: previouslyPendingIDs)
         deletionScheduler.scheduleDeletion(ids: ids) { idsToDelete in
             for id in idsToDelete {
                 do {
@@ -236,13 +244,17 @@ public final class LibraryViewModel {
     /// 撤销删除（恢复暂存的题目到列表）
     public func undoDelete() {
         let result = deletionScheduler.undoDeletion()
-        guard case .undone = result else { return }
+        guard case .undone(let restoredIDs) = result else { return }
+        let itemsToRestore = pendingDeletionItemBatches
+            .flatMap { $0.items }
+            .filter { restoredIDs.contains($0.id) }
+        removePendingDeletionBatches(matching: restoredIDs)
 
         // 使用当前排序选项恢复列表顺序
         let descriptors = sortOption.sortDescriptors
 
         withAnimation {
-            filteredItems.append(contentsOf: pendingDeletionItems)
+            filteredItems.append(contentsOf: itemsToRestore)
             filteredItems.sort { lhs, rhs in
                 for descriptor in descriptors {
                     switch descriptor.compare(lhs, rhs) {
@@ -254,8 +266,6 @@ public final class LibraryViewModel {
                 return false
             }
         }
-
-        pendingDeletionItems.removeAll()
     }
 
     // 删除逻辑已委托给 DeletionScheduler（App 级生命周期）
@@ -295,6 +305,20 @@ public final class LibraryViewModel {
     public func cancelTasks() {
         searchTask?.cancel()
         searchTask = nil
-        pendingDeletionItems.removeAll()
+        pendingDeletionItemBatches.removeAll()
+    }
+
+    private func discardPendingDeletionBatches(matching ids: Set<UUID>) {
+        guard !ids.isEmpty else { return }
+        removePendingDeletionBatches(matching: ids)
+    }
+
+    private func removePendingDeletionBatches(matching ids: Set<UUID>) {
+        guard !ids.isEmpty else { return }
+        pendingDeletionItemBatches = pendingDeletionItemBatches.compactMap { batch in
+            let remainingItems = batch.items.filter { !ids.contains($0.id) }
+            guard !remainingItems.isEmpty else { return nil }
+            return (ids: Set(remainingItems.map(\.id)), items: remainingItems)
+        }
     }
 }

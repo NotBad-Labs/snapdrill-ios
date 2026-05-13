@@ -4,6 +4,12 @@
 
 set -euo pipefail
 
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=.claude/hooks/_hook_common.sh
+source "$HOOK_DIR/_hook_common.sh"
+
+require_command jq
+
 INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
@@ -11,12 +17,11 @@ if ! echo "$COMMAND" | grep -qE '^[[:space:]]*git push\b'; then
     exit 0
 fi
 
+require_command git
+require_command swiftlint
+
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "")
 if [[ -z "$PROJECT_ROOT" ]]; then
-    exit 0
-fi
-
-if ! command -v swiftlint >/dev/null 2>&1; then
     exit 0
 fi
 

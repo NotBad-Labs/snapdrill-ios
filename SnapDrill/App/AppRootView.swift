@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillFeatureCapture
@@ -24,11 +25,30 @@ import SnapDrillFeatureSettings
 struct AppRootView: View {
     
     // MARK: - Properties
-    
+
     @Bindable var router: AppRouter
-    @Environment(\.profileManager) private var profileManager
+    let makeProfileManager: () async -> ProfileManager
+    @State private var profileManager: ProfileManager?
 
     var body: some View {
+        Group {
+            if let profileManager {
+                loadedContent(profileManager: profileManager)
+                    .modelContainer(profileManager.activeContainer)
+                    .environment(\.repositories, profileManager.activeRepositories)
+                    .environment(\.profileManager, profileManager)
+                    .id(profileManager.activeProfileId)
+            } else {
+                ProgressView()
+                    .task {
+                        await loadProfileManagerIfNeeded()
+                    }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func loadedContent(profileManager: ProfileManager) -> some View {
         ZStack(alignment: .top) {
             // Tab struct（iOS 18+）：自动获得 Liquid Glass 效果
             // iPad 上自动切换为侧边栏导航
@@ -112,5 +132,10 @@ struct AppRootView: View {
             )
         }
         .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
+    }
+
+    private func loadProfileManagerIfNeeded() async {
+        guard profileManager == nil else { return }
+        profileManager = await makeProfileManager()
     }
 }

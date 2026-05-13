@@ -90,7 +90,7 @@ public final class LibraryEditViewModel {
     public init(
         item: ReviewItemModel,
         repositories: RepositoryContainer,
-        imageStorage: ImageStorage = ImageStorage(),
+        imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
         ocrService: OCRServiceProtocol = OCRService()
     ) {
         self.item = item

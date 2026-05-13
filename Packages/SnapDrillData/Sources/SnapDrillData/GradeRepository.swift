@@ -123,6 +123,11 @@ public final class GradeRepository {
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
     }
 
+    /// 回滚 ModelContext 中所有未持久化的变更（saveContext 失败时调用）
+    public func rollbackContext() {
+        modelContext.rollback()
+    }
+
     // MARK: - Private Helpers
 
     private func fetchModelById(_ id: UUID) throws -> GradeModel? {

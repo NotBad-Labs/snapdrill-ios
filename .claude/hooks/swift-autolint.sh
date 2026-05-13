@@ -9,6 +9,13 @@
 
 set -eo pipefail
 
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=.claude/hooks/_hook_common.sh
+source "$HOOK_DIR/_hook_common.sh"
+
+require_command jq
+require_command git
+
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 
@@ -32,10 +39,7 @@ case "$FILE_PATH" in
     */Packages/SnapDrillData/Sources/SnapDrillData/DataSeeder.swift) exit 0 ;;
 esac
 
-if ! command -v swiftlint >/dev/null 2>&1; then
-    echo "warning: swiftlint not installed, skipping autolint" >&2
-    exit 0
-fi
+require_command swiftlint
 
 RAW=$(cd "$PROJECT_ROOT" && swiftlint lint --strict --quiet "$FILE_PATH" 2>&1 || true)
 

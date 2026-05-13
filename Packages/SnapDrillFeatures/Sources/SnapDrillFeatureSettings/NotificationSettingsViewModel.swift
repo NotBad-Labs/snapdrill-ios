@@ -54,7 +54,11 @@ final class NotificationSettingsViewModel {
             try await notificationService.scheduleDaily(at: hour, minute: minute)
         } catch {
             SnapDrillLogger.generic.error("安排每日通知失败: \(error.localizedDescription)")
+            notificationService.cancelAll()
+            rescheduleError = L10n.Settings.rescheduleFailedMessage
+            return false
         }
+        rescheduleError = nil
         return true
     }
 
@@ -64,12 +68,16 @@ final class NotificationSettingsViewModel {
     }
 
     /// 用户修改提醒时间时调用：重新安排（仅在已开启状态下生效）
-    func reschedule(hour: Int, minute: Int) async {
+    @discardableResult
+    func reschedule(hour: Int, minute: Int) async -> Bool {
         do {
             try await notificationService.scheduleDaily(at: hour, minute: minute)
+            rescheduleError = nil
+            return true
         } catch {
             SnapDrillLogger.generic.error("更新通知时间失败: \(error.localizedDescription)")
             rescheduleError = L10n.Settings.rescheduleFailedMessage
+            return false
         }
     }
 }

@@ -302,7 +302,8 @@ struct LibraryDetailView: View {
                     options: options,
                     imageProvider: { path in storage.loadImage(path: path) }
                 )
-                let url = FileManager.default.temporaryDirectory.appendingPathComponent("SnapDrill_Print.pdf")
+                let url = FileManager.default.temporaryDirectory
+                    .appendingPathComponent("SnapDrill_Print_\(UUID().uuidString).pdf")
                 try data.write(to: url)
                 printPDFURL = url
                 isShowingShareSheet = true

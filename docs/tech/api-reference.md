@@ -796,6 +796,7 @@ public enum BackupError: LocalizedError {
 
 public enum ProfileError: LocalizedError {
     case cannotDeleteLastProfile
+    case switchBlocked(reason: String)
 }
 ```
 

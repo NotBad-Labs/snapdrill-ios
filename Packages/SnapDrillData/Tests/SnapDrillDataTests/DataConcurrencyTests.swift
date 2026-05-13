@@ -22,46 +22,187 @@ import Foundation
 @testable import SnapDrillData
 @testable import SnapDrillCore
 
-// MARK: - ModelContainer 并发初始化
+// MARK: - Timeout Harness
 
-@Test("多实例并发创建无死锁 -- #599 根因回归", .serialized)
-func concurrentContainerCreationNoDeadlock() async {
-    var okCount = 0
-    await withTaskGroup(of: Bool.self) { group in
-        for _ in 0..<10 {
-            group.addTask {
-                do {
-                    _ = try TestModelContainer.create()
-                    return true
-                } catch {
-                    return false
-                }
+private struct TimeoutError: Error, CustomStringConvertible, Sendable {
+    let seconds: Int
+
+    var description: String {
+        "Concurrent test exceeded \(seconds)-second timeout"
+    }
+}
+
+private final class TimeoutState<T: Sendable>: @unchecked Sendable {
+    private let lock = NSLock()
+    nonisolated(unsafe) private var continuation: CheckedContinuation<T, any Error>?
+    nonisolated(unsafe) private var operationTask: Task<Void, Never>?
+    nonisolated(unsafe) private var timeoutTask: Task<Void, Never>?
+    nonisolated(unsafe) private var isComplete = false
+
+    nonisolated func start(
+        seconds: Int,
+        continuation: CheckedContinuation<T, any Error>,
+        operation: @escaping @Sendable () async throws -> T
+    ) {
+        lock.lock()
+        self.continuation = continuation
+        lock.unlock()
+
+        let operationTask = Task.detached { [self] in
+            do {
+                resume(returning: try await operation())
+            } catch {
+                resume(throwing: error)
             }
         }
-        for await r in group where r {
-            okCount += 1
+
+        let timeoutTask = Task.detached { [self] in
+            do {
+                try await Task.sleep(for: .seconds(seconds))
+                operationTask.cancel()
+                resume(throwing: TimeoutError(seconds: seconds))
+            } catch is CancellationError {
+                // Cancellation means the operation finished before the timeout.
+            } catch {
+                resume(throwing: error)
+            }
         }
+
+        lock.lock()
+        self.operationTask = operationTask
+        self.timeoutTask = timeoutTask
+        lock.unlock()
+    }
+
+    nonisolated func cancel() {
+        lock.lock()
+        let operationTask = operationTask
+        let timeoutTask = timeoutTask
+        lock.unlock()
+
+        operationTask?.cancel()
+        timeoutTask?.cancel()
+    }
+
+    nonisolated private func resume(returning value: T) {
+        complete { $0.resume(returning: value) }
+    }
+
+    nonisolated private func resume(throwing error: any Error) {
+        complete { $0.resume(throwing: error) }
+    }
+
+    nonisolated private func complete(_ resume: (CheckedContinuation<T, any Error>) -> Void) {
+        lock.lock()
+        guard !isComplete, let continuation else {
+            lock.unlock()
+            return
+        }
+
+        isComplete = true
+        self.continuation = nil
+        let timeoutTask = timeoutTask
+        lock.unlock()
+
+        timeoutTask?.cancel()
+        resume(continuation)
+    }
+}
+
+private func withTimeout<T: Sendable>(
+    seconds: Int = 10,
+    operation: @escaping @Sendable () async throws -> T
+) async throws -> T {
+    let state = TimeoutState<T>()
+    return try await withTaskCancellationHandler {
+        try await withCheckedThrowingContinuation { continuation in
+            state.start(seconds: seconds, continuation: continuation, operation: operation)
+        }
+    } onCancel: {
+        state.cancel()
+    }
+}
+
+private struct UncheckedSendableBox<Value>: @unchecked Sendable {
+    nonisolated(unsafe) let value: Value
+}
+
+private struct SubjectCounts: Sendable {
+    let oldCount: Int
+    let newCount: Int
+}
+
+@MainActor
+private func insertMockReviewItem(
+    into repository: ReviewRepository,
+    content: String,
+    subject: String = "数学"
+) {
+    repository.insert(ReviewItemModel.mock(content: content, subject: subject))
+}
+
+@MainActor
+private func insertAndSaveMockReviewItem(
+    into repository: ReviewRepository,
+    content: String
+) throws {
+    try repository.insertAndSave(ReviewItemModel.mock(content: content))
+}
+
+@MainActor
+private func fetchAllReviewModelCount(from repository: ReviewRepository) throws -> Int {
+    try repository.fetchAllModels().count
+}
+
+@Suite("DataConcurrencyTests", .serialized)
+struct DataConcurrencyTests {
+
+// MARK: - ModelContainer 并发初始化
+
+@Test("多实例并发创建无死锁 -- #599 根因回归")
+func concurrentContainerCreationNoDeadlock() async throws {
+    let okCount = try await withTimeout {
+        var okCount = 0
+        await withTaskGroup(of: Bool.self) { group in
+            for _ in 0..<10 {
+                group.addTask {
+                    do {
+                        _ = try TestModelContainer.create()
+                        return true
+                    } catch {
+                        return false
+                    }
+                }
+            }
+            for await r in group where r {
+                okCount += 1
+            }
+        }
+        return okCount
     }
     #expect(okCount == 10)
 }
 
-@Test("DataExecutor.createOffMainActor 并发创建 10 实例无死锁", .serialized)
-func concurrentDataExecutorCreationNoDeadlock() async {
-    var executors: [DataExecutor] = []
-    await withTaskGroup(of: DataExecutor.self) { group in
-        for _ in 0..<10 {
-            group.addTask {
-                await DataExecutor.createOffMainActor(inMemory: true)
+@Test("DataExecutor.createOffMainActor 并发创建 10 实例无死锁")
+func concurrentDataExecutorCreationNoDeadlock() async throws {
+    let executorCount = try await withTimeout {
+        var executors: [DataExecutor] = []
+        await withTaskGroup(of: DataExecutor.self) { group in
+            for _ in 0..<10 {
+                group.addTask {
+                    await DataExecutor.createOffMainActor(inMemory: true)
+                }
+            }
+            for await e in group {
+                executors.append(e)
             }
         }
-        for await e in group {
-            executors.append(e)
-        }
+        return executors.count
     }
-    #expect(executors.count == 10)
+    #expect(executorCount == 10)
 }
 
-@Test("多实例各自隔离，数据不互相泄露", .serialized)
+@Test("多实例各自隔离，数据不互相泄露")
 func multipleContainersDataIsolation() async throws {
     var containers: [ModelContainer] = []
     for _ in 0..<5 {
@@ -80,7 +221,7 @@ func multipleContainersDataIsolation() async throws {
     }
 }
 
-@Test("__currentBehavior_ #599 绕过: TestModelContainer 不经 PersistenceController.init", .serialized)
+@Test("__currentBehavior_ #599 绕过: TestModelContainer 不经 PersistenceController.init")
 func bypassPersistenceControllerInit() throws {
     let container = try TestModelContainer.create()
     let ctx = container.mainContext
@@ -92,108 +233,130 @@ func bypassPersistenceControllerInit() throws {
 
 // MARK: - Repository 并发操作正确性
 
-@Test("并发插入 50 条记录后计数正确", .serialized)
+@Test("并发插入 50 条记录后计数正确")
 func concurrentInsertsCorrectCount() async throws {
-    let container = try TestModelContainer.create()
-    let repo = ReviewRepository(modelContext: container.mainContext)
+    let count = try await withTimeout {
+        let container = try TestModelContainer.create()
+        let repo = await UncheckedSendableBox(value: ReviewRepository(modelContext: ModelContext(container)))
 
-    await withTaskGroup(of: Void.self) { group in
-        for i in 0..<50 {
-            group.addTask { @MainActor in
-                repo.insert(ReviewItemModel.mock(content: "并发-\(i)"))
-            }
-        }
-    }
-    try repo.saveContext()
-    #expect(try repo.totalCount() == 50)
-}
-
-@Test("5 批次各 20 条并发插入无数据丢失", .serialized)
-func concurrentBatchInsertsNoDataLoss() async throws {
-    let container = try TestModelContainer.create()
-    let repo = ReviewRepository(modelContext: container.mainContext)
-
-    try await withThrowingTaskGroup(of: Void.self) { group in
-        for batch in 0..<5 {
-            group.addTask { @MainActor in
-                let base = batch * 20
-                for j in 0..<20 {
-                    repo.insert(ReviewItemModel.mock(content: "批次-\(base + j)"))
+        await withTaskGroup(of: Void.self) { group in
+            for i in 0..<50 {
+                group.addTask {
+                    await insertMockReviewItem(into: repo.value, content: "并发-\(i)")
                 }
             }
         }
-        try await group.waitForAll()
+        try await repo.value.saveContext()
+        return try await repo.value.totalCount()
     }
-    try repo.saveContext()
-    #expect(try repo.totalCount() == 100)
+    #expect(count == 50)
 }
 
-@Test("并发 fetch 操作不抛出错误", .serialized)
+@Test("5 批次各 20 条并发插入无数据丢失")
+func concurrentBatchInsertsNoDataLoss() async throws {
+    let count = try await withTimeout {
+        let container = try TestModelContainer.create()
+        let repo = await UncheckedSendableBox(value: ReviewRepository(modelContext: ModelContext(container)))
+
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for batch in 0..<5 {
+                group.addTask {
+                    let base = batch * 20
+                    for j in 0..<20 {
+                        await insertMockReviewItem(into: repo.value, content: "批次-\(base + j)")
+                    }
+                }
+            }
+            try await group.waitForAll()
+        }
+        try await repo.value.saveContext()
+        return try await repo.value.totalCount()
+    }
+    #expect(count == 100)
+}
+
+@Test("并发 fetch 操作不抛出错误")
 func concurrentFetchesNoError() async throws {
-    let container = try TestModelContainer.create()
-    let repo = ReviewRepository(modelContext: container.mainContext)
-    try repo.insertAndSave(ReviewItemModel.mock(content: "基准数据"))
+    try await withTimeout {
+        let container = try TestModelContainer.create()
+        let repo = await UncheckedSendableBox(value: ReviewRepository(modelContext: ModelContext(container)))
+        try await insertAndSaveMockReviewItem(into: repo.value, content: "基准数据")
 
-    try await withThrowingTaskGroup(of: Void.self) { group in
-        for _ in 0..<20 {
-            group.addTask { @MainActor in
-                _ = try repo.fetchAllModels()
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for _ in 0..<20 {
+                group.addTask {
+                    _ = try await fetchAllReviewModelCount(from: repo.value)
+                }
             }
+            try await group.waitForAll()
         }
-        try await group.waitForAll()
     }
 }
 
-@Test("并发 updateSubjectUsage 后旧数据全部迁移 -- 断言不弱", .serialized)
+@Test("并发 updateSubjectUsage 后旧数据全部迁移 -- 断言不弱")
 func concurrentSubjectUpdateAllMigrated() async throws {
-    let container = try TestModelContainer.create()
-    let repo = ReviewRepository(modelContext: container.mainContext)
-    for i in 0..<10 {
-        repo.insert(ReviewItemModel.mock(content: "题目-\(i)", subject: "旧学科"))
-    }
-    try repo.saveContext()
-
-    try await withThrowingTaskGroup(of: Void.self) { group in
-        for _ in 0..<3 {
-            group.addTask { @MainActor in
-                try repo.updateSubjectUsage(from: "旧学科", to: "新学科")
-            }
+    let counts = try await withTimeout {
+        let container = try TestModelContainer.create()
+        let repo = await UncheckedSendableBox(value: ReviewRepository(modelContext: ModelContext(container)))
+        for i in 0..<10 {
+            await insertMockReviewItem(into: repo.value, content: "题目-\(i)", subject: "旧学科")
         }
-        try await group.waitForAll()
-    }
-    try repo.saveContext()
+        try await repo.value.saveContext()
 
-    let oldCount = try repo.countBySubject(name: "旧学科")
-    let newCount = try repo.countBySubject(name: "新学科")
-    #expect(newCount > 0, "更新未生效: 新学科数量为 0")
-    #expect(oldCount < 10, "更新未生效: 旧学科数量仍为 10")
-    #expect(oldCount + newCount == 10)
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for _ in 0..<3 {
+                group.addTask {
+                    try await repo.value.updateSubjectUsage(from: "旧学科", to: "新学科")
+                }
+            }
+            try await group.waitForAll()
+        }
+        try await repo.value.saveContext()
+
+        return await SubjectCounts(
+            oldCount: try repo.value.countBySubject(name: "旧学科"),
+            newCount: try repo.value.countBySubject(name: "新学科")
+        )
+    }
+
+    #expect(counts.newCount > 0, "更新未生效: 新学科数量为 0")
+    #expect(counts.oldCount < 10, "更新未生效: 旧学科数量仍为 10")
+    #expect(counts.oldCount + counts.newCount == 10)
 }
 
 // MARK: - RepositoryContainer 原子操作
 
-@Test("deleteAllData 在并发插入后正确清空所有仓库", .serialized)
+@Test("deleteAllData 在并发插入后正确清空所有仓库")
 func deleteAllDataAfterConcurrentInsertsClearsAll() async throws {
-    let container = try TestModelContainer.create()
-    let repos = RepositoryContainer(modelContext: container.mainContext)
+    let counts = try await withTimeout {
+        let container = try TestModelContainer.create()
+        let repos = await UncheckedSendableBox(value: RepositoryContainer(modelContext: ModelContext(container)))
 
-    await withTaskGroup(of: Void.self) { group in
-        for i in 0..<30 {
-            group.addTask { @MainActor in
-                repos.review.insert(ReviewItemModel.mock(content: "条目-\(i)"))
+        await withTaskGroup(of: Void.self) { group in
+            for i in 0..<30 {
+                group.addTask {
+                    await insertMockReviewItem(into: repos.value.review, content: "条目-\(i)")
+                }
             }
         }
-    }
-    try repos.review.saveContext()
-    #expect(try repos.review.totalCount() == 30)
+        try await repos.value.review.saveContext()
+        let beforeDeleteCount = try await repos.value.review.totalCount()
 
-    try await repos.deleteAllData()
-    #expect(try repos.review.totalCount() == 0)
-    #expect(try repos.subject.totalCount() == 0)
-    #expect(try repos.source.totalCount() == 0)
+        try await repos.value.deleteAllData()
+        return (
+            beforeDeleteCount,
+            try await repos.value.review.totalCount(),
+            try await repos.value.subject.totalCount(),
+            try await repos.value.source.totalCount()
+        )
+    }
+    #expect(counts.0 == 30)
+    #expect(counts.1 == 0)
+    #expect(counts.2 == 0)
+    #expect(counts.3 == 0)
 }
 
-@Test("deleteAllData + restoreFromProfileData 两轮不残留数据", .serialized)
+@Test("deleteAllData + restoreFromProfileData 两轮不残留数据")
 func deleteThenRestoreRoundTripNoResidue() async throws {
     let container = try TestModelContainer.create()
     let repos = RepositoryContainer(modelContext: container.mainContext)
@@ -209,4 +372,6 @@ func deleteThenRestoreRoundTripNoResidue() async throws {
 
     try await repos.restoreFromProfileData(backup)
     #expect(try repos.review.totalCount() > 0)
+}
+
 }

@@ -26,8 +26,14 @@ struct SmartPaperView: View {
     @State private var showingPDFPreview = false
     @State private var showProGate = false
 
+    private let proEntitlementProvider: any ProEntitlementProvider
+
     // TODO: #479 — 替换为 StoreKit 订阅状态检查
-    private var isProUser: Bool { false }
+    private var isProUser: Bool { proEntitlementProvider.isProUser }
+
+    init(proEntitlementProvider: any ProEntitlementProvider = DefaultProEntitlementProvider()) {
+        self.proEntitlementProvider = proEntitlementProvider
+    }
 
     var body: some View {
         NavigationStack {

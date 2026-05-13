@@ -198,9 +198,10 @@ public struct ReviewView: View {
                 SwipeCard(
                     content: { flipCardContent(item: item, isTop: isTop, vm: vm) },
                     onRemove: { direction in
-                        withAnimation(.spring(duration: 0.35)) {
+                        let didCommit = withAnimation(.spring(duration: 0.35)) {
                             vm.handleSwipeCompletion(direction: direction)
                         }
+                        return didCommit
                     },
                     externalSwipe: isTop
                         ? Binding(get: { vm.swipeTrigger }, set: { vm.swipeTrigger = $0 })

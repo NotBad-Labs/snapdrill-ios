@@ -99,6 +99,10 @@ final class AppRouter {
             SnapDrillLogger.capture.error("Share Extension URL 缺少 file 参数: \(url.absoluteString)")
             return
         }
+        guard Self.isValidShareFileName(fileName) else {
+            SnapDrillLogger.capture.error("Share Extension URL 包含非法 file 参数: \(fileName)")
+            return
+        }
 
         guard let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: Self.appGroupID
@@ -136,5 +140,16 @@ final class AppRouter {
             try? await Task.sleep(for: .milliseconds(100))
             captureRouter.push(.scannerResult(content: "", image: image))
         }
+    }
+
+    private static func isValidShareFileName(_ fileName: String) -> Bool {
+        guard !fileName.isEmpty else { return false }
+        guard !fileName.contains(".."),
+              !fileName.contains("/"),
+              !fileName.contains("\\"),
+              !fileName.contains("\0") else {
+            return false
+        }
+        return true
     }
 }

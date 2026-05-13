@@ -22,9 +22,16 @@ nonisolated public struct PDFExportOptions: Sendable {
     /// 是否显示页眉和页码
     public var showHeader: Bool
     /// 每页题目数量（1 = 大图整页，2 = 默认，4 = 小题紧凑）
-    public var itemsPerPage: Int
+    public var itemsPerPage: Int {
+        get { validatedItemsPerPage }
+        set { validatedItemsPerPage = Self.validatedItemsPerPage(newValue) }
+    }
     /// 自定义封面标题（nil 时使用默认"SnapDrill 错题本"）
     public var customTitle: String?
+    /// 每页题目数的有效范围，防止 0 导致分页除零或过大导致布局失控
+    public static let itemsPerPageRange = 1...100
+
+    private var validatedItemsPerPage: Int
 
     public init(
         hideAnswers: Bool = true,
@@ -36,10 +43,14 @@ nonisolated public struct PDFExportOptions: Sendable {
         self.hideAnswers = hideAnswers
         self.showBlankAnswerArea = showBlankAnswerArea
         self.showHeader = showHeader
-        self.itemsPerPage = itemsPerPage
         self.customTitle = customTitle
+        self.validatedItemsPerPage = Self.validatedItemsPerPage(itemsPerPage)
     }
 
     /// 默认配置：隐藏答案 + 显示答题区 + 显示页眉
     public static let `default` = PDFExportOptions()
+
+    private static func validatedItemsPerPage(_ value: Int) -> Int {
+        min(max(value, itemsPerPageRange.lowerBound), itemsPerPageRange.upperBound)
+    }
 }

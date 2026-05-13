@@ -41,7 +41,7 @@ import SnapDrillCore
 
         // 纵深防御：应用层 + SDK 层双重检查
         guard isFirebaseConfigured,
-              AppConfiguration.FeatureFlags.analyticsEnabled else { return }
+              TelemetryGate.isGranted else { return }
         Analytics.logEvent(name, parameters: parameters)
 
         SnapDrillLogger.generic.debug("[FirebaseAnalytics] event: \(name), params: \(parameters)")
@@ -49,7 +49,7 @@ import SnapDrillCore
 
     public func trackScreen(_ screenName: String, parameters: [String: String]) {
         guard isFirebaseConfigured,
-              AppConfiguration.FeatureFlags.analyticsEnabled else { return }
+              TelemetryGate.isGranted else { return }
         var params = parameters
         params[AnalyticsParameterScreenName] = screenName
         Analytics.logEvent(AnalyticsEventScreenView, parameters: params)
@@ -67,7 +67,7 @@ import SnapDrillCore
 
     public func setUserProperty(_ value: String, forKey key: String) {
         guard isFirebaseConfigured,
-              AppConfiguration.FeatureFlags.analyticsEnabled else { return }
+              TelemetryGate.isGranted else { return }
         Analytics.setUserProperty(value, forName: key)
 
         SnapDrillLogger.generic.debug("[FirebaseAnalytics] setUserProperty \(key): \(value)")

@@ -25,6 +25,7 @@ public struct CaptureView: View {
     
     @Bindable private var router: CaptureRouter
     @Environment(\.repositories) private var repositories
+    @Environment(\.profileManager) private var profileManager
     @Environment(\.analyticsService) private var analyticsService
     
     @State private var viewModel = CaptureViewModel()
@@ -188,6 +189,7 @@ public struct CaptureView: View {
                         repositories: repositories,
                         ocrService: viewModel.ocrService,
                         analyticsService: analyticsService,
+                        imageStorage: profileManager.activeImageStorage,
                         router: router
                     )
                     CaptureResultView(viewModel: resultViewModel)

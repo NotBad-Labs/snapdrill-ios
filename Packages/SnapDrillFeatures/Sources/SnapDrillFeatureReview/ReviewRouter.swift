@@ -27,8 +27,9 @@ public enum ReviewDestination: Hashable {
 /// ## 导航路径
 /// - **首页**: 模块主入口，展示复习卡片。
 /// - **ReviewDestination**: 预留的枚举，用于扩展子页面。
+@MainActor
 @Observable
-public final class ReviewRouter: FeatureRouter {
+public final class ReviewRouter: @MainActor FeatureRouter {
     
     // MARK: - Properties
     

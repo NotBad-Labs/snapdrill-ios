@@ -13,7 +13,7 @@ import os
 
 /// 把 NSItemProvider 返回的 item 写入 App Groups 共享容器。
 ///
-/// 优先级：URL（直接拷贝，零内存解码）→ Data（直接写入字节）→ UIImage（降采样后 JPEG 编码）。
+/// 优先级：URL → Data → UIImage，三条路径均先降采样再写入 JPEG。
 ///
 /// 通过注入 `containerURLProvider` 与 `fileNameProvider` 可在测试中用临时目录替代真实 App Group。
 @MainActor
@@ -75,23 +75,39 @@ struct SharedContainerImageWriter {
     }
 
     private func copyFromURL(_ url: URL, to destURL: URL, fileName: String) -> String? {
+        guard let data = ShareImageDownsampler.downsampledJPEGData(
+            from: url,
+            maxDimension: downsampleMaxDimension,
+            compressionQuality: 0.85
+        ) else {
+            logger?.error("URL 图片降采样失败: \(url.lastPathComponent)")
+            return nil
+        }
         do {
-            try FileManager.default.copyItem(at: url, to: destURL)
-            logger?.info("通过文件拷贝保存图片: \(fileName)")
+            try data.write(to: destURL, options: .atomic)
+            logger?.info("通过 URL 降采样保存图片: \(fileName)")
             return fileName
         } catch {
-            logger?.error("文件拷贝失败: \(error.localizedDescription)")
+            logger?.error("URL 降采样图片写入失败: \(error.localizedDescription)")
             return nil
         }
     }
 
     private func writeData(_ data: Data, to destURL: URL, fileName: String) -> String? {
+        guard let safeData = ShareImageDownsampler.downsampledJPEGData(
+            from: data,
+            maxDimension: downsampleMaxDimension,
+            compressionQuality: 0.85
+        ) else {
+            logger?.error("Data 图片降采样失败")
+            return nil
+        }
         do {
-            try data.write(to: destURL, options: .atomic)
-            logger?.info("通过 Data 直接写入保存图片: \(fileName)")
+            try safeData.write(to: destURL, options: .atomic)
+            logger?.info("通过 Data 降采样保存图片: \(fileName)")
             return fileName
         } catch {
-            logger?.error("Data 写入失败: \(error.localizedDescription)")
+            logger?.error("Data 降采样图片写入失败: \(error.localizedDescription)")
             return nil
         }
     }

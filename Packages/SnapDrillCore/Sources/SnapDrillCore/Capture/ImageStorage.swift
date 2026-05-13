@@ -29,26 +29,23 @@ public struct ImageStorage: Sendable {
 
     // MARK: - Properties
 
-    /// 图片存储根目录（Documents/ 或 Profile 目录）
+    /// 图片存储根目录（Profile 隔离目录）
     private let baseDirectory: URL
 
     // MARK: - Initialization
 
-    /// 创建图片存储服务
-    /// - Parameter baseDirectory: 图片存储根目录。传 nil 时自动从 UserDefaults 读取
-    ///   活跃 Profile 目录（`Documents/profiles/<activeProfileId>/`），
-    ///   若无 Profile 配置则回退到 Documents 根目录。
-    nonisolated public init(baseDirectory: URL? = nil) {
-        if let baseDirectory {
-            self.baseDirectory = baseDirectory
-        } else {
-            let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            if let profileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId) {
-                self.baseDirectory = docs.appendingPathComponent("profiles").appendingPathComponent(profileId)
-            } else {
-                self.baseDirectory = docs
-            }
-        }
+    /// 创建 Profile 隔离的图片存储服务（生产路径）
+    /// - Parameters:
+    ///   - baseDirectory: Profile 图片根目录（如 `profiles/<id>/`）
+    ///   - scope: Profile 隔离作用域（用于日志/调试）
+    nonisolated public init(baseDirectory: URL, scope: ProfileScope) {
+        self.baseDirectory = baseDirectory
+    }
+
+    /// 创建图片存储服务（测试/Preview 路径，不使用 Profile 隔离）
+    /// - Parameter baseDirectory: 临时目录
+    nonisolated public init(baseDirectory: URL) {
+        self.baseDirectory = baseDirectory
     }
 
     // MARK: - Public API

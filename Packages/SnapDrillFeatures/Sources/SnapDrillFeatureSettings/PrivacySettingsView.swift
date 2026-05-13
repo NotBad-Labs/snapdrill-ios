@@ -20,19 +20,16 @@ struct PrivacySettingsView: View {
 
     @Environment(\.repositories) private var repositories
     @Environment(\.analyticsService) private var analyticsService
-    @AppStorage(UDKey.analyticsEnabled) private var analyticsEnabled = true
-    @AppStorage(UDKey.crashReportingEnabled) private var crashReportingEnabled = true
 
     @State private var showingExportOptions = false
+    @State private var telemetryEnabled = TelemetryGate.isGranted
     @State private var viewModel: PrivacySettingsViewModel?
 
     var body: some View {
         List {
             Section {
-                Toggle(L10n.Settings.useAnalytics, isOn: $analyticsEnabled)
+                Toggle(L10n.Settings.telemetryEnabled, isOn: telemetryBinding)
                     .accessibilityHint(L10n.Accessibility.analyticsToggleHint)
-                Toggle(L10n.Settings.crashReporting, isOn: $crashReportingEnabled)
-                    .accessibilityHint(L10n.Accessibility.crashReportingHint)
             } header: {
                 Text(L10n.Settings.dataCollection)
             } footer: {
@@ -94,6 +91,7 @@ struct PrivacySettingsView: View {
             }
         }
         .onAppear {
+            telemetryEnabled = TelemetryGate.isGranted
             if viewModel == nil {
                 viewModel = PrivacySettingsViewModel(
                     repositories: repositories,
@@ -104,6 +102,21 @@ struct PrivacySettingsView: View {
         .onDisappear {
             viewModel?.cancelExport()
         }
+        .task {
+            for await _ in NotificationCenter.default.notifications(named: TelemetryGate.didChangeNotification) {
+                telemetryEnabled = TelemetryGate.isGranted
+            }
+        }
+    }
+
+    private var telemetryBinding: Binding<Bool> {
+        Binding(
+            get: { telemetryEnabled },
+            set: { newValue in
+                telemetryEnabled = newValue
+                TelemetryGate.setGranted(newValue)
+            }
+        )
     }
 }
 

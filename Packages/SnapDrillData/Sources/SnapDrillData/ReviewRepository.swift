@@ -16,21 +16,26 @@ import SnapDrillCore
 public final class ReviewRepository {
     
     // MARK: - Properties
-    
+
     private let modelContext: ModelContext
-    
+    private let imageStorageFactory: (() -> ImageStorage)?
+
     // MARK: - Initialization
 
     /// 创建复习数据仓库（推荐路径）
-    /// - Parameter executor: DataExecutor，从其 mainContext 获取 SwiftData 上下文
-    public init(executor: DataExecutor) {
+    /// - Parameters:
+    ///   - executor: DataExecutor，从其 mainContext 获取 SwiftData 上下文
+    ///   - imageStorageFactory: 可选的 ImageStorage 工厂闭包（用于 Profile 隔离的图片删除）
+    public init(executor: DataExecutor, imageStorageFactory: (() -> ImageStorage)? = nil) {
         self.modelContext = executor.container.mainContext
+        self.imageStorageFactory = imageStorageFactory
     }
 
     /// 创建复习数据仓库（向后兼容，Phase 2 移除）
     /// - Parameter modelContext: 当前上下文
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
+        self.imageStorageFactory = nil
     }
     
     // MARK: - Public API
@@ -55,7 +60,7 @@ public final class ReviewRepository {
         modelContext.delete(model)
         try modelContext.save()
         // DB 删除成功后清理图片文件（best-effort：文件删除失败不影响数据一致性）
-        let imageStorage = ImageStorage()
+        let imageStorage = imageStorageFactory?() ?? ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
         if let path = imagePath {
             do {
                 try await imageStorage.deleteImage(path: path)

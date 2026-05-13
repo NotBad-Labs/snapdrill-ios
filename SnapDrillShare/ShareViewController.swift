@@ -86,27 +86,46 @@ final class ShareViewController: UIViewController {
         }
         // Share Extension 无法直接访问 UIApplication.shared，通过 responder chain 打开 URL
         var responder: UIResponder? = self
-        var opened = false
         while let current = responder {
             if let application = current as? UIApplication {
-                application.open(url)
-                opened = true
+                application.open(url, options: [:]) { [weak self] success in
+                    DispatchQueue.main.async {
+                        guard success else {
+                            Self.logger.error("UIApplication.open 返回失败，无法唤起主 App")
+                            self?.showOpenMainAppError()
+                            return
+                        }
+                        self?.extensionContext?.completeRequest(returningItems: nil)
+                    }
+                }
                 break
             }
             responder = current.next
         }
 
-        if !opened {
+        if responder == nil {
             Self.logger.error("Responder chain 中未找到 UIApplication，无法唤起主 App")
+            showOpenMainAppError()
         }
-        extensionContext?.completeRequest(returningItems: nil)
     }
 
-    private func cancelRequest() {
+    private func showOpenMainAppError() {
+        let alert = UIAlertController(
+            title: "无法打开 SnapDrill",
+            message: "请确认已安装主 App 后重试。",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "关闭", style: .cancel) { [weak self] _ in
+            self?.cancelRequest(message: "无法打开 SnapDrill")
+        })
+        present(alert, animated: true)
+    }
+
+    private func cancelRequest(message: String = "无法处理分享内容") {
         extensionContext?.cancelRequest(withError: NSError(
             domain: "com.snapdrill.share",
             code: -1,
-            userInfo: [NSLocalizedDescriptionKey: "无法处理分享内容"]
+            userInfo: [NSLocalizedDescriptionKey: message]
         ))
     }
 }

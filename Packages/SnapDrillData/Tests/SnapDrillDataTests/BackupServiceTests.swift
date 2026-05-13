@@ -79,6 +79,26 @@ struct BackupServiceTests {
         try? FileManager.default.removeItem(at: url)
     }
 
+    private func makeArchive(entries: [ZIPEntry]) throws -> URL {
+        let archiveURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("BackupServiceTests_\(UUID().uuidString).zip")
+        try ZIPArchiver().createArchive(entries: entries, at: archiveURL)
+        return archiveURL
+    }
+
+    private func writeString(_ value: String, to url: URL) throws {
+        try FileManager.default.createDirectory(
+            at: url.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try Data(value.utf8).write(to: url)
+    }
+
+    private func stringContents(of url: URL) throws -> String {
+        let data = try Data(contentsOf: url)
+        return String(data: data, encoding: .utf8) ?? ""
+    }
+
     // MARK: - Round-trip
 
     @Test("创建备份 → 读取清单 → 提取数据 round-trip")
@@ -145,6 +165,62 @@ struct BackupServiceTests {
         #expect(FileManager.default.fileExists(atPath: restoredImagePath.path))
         let restoredData = try Data(contentsOf: restoredImagePath)
         #expect(String(data: restoredData, encoding: .utf8) == "fake-image-data")
+    }
+
+    @Test("restoreImages 暂存失败时保留旧图片，成功时替换为新图片")
+    func restoreImages_preservesOriginalsWhenStagingFails_thenSwapsOnSuccess() async throws {
+        let service = BackupService()
+        let profileId = UUID()
+        let restoreDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("RestoreAtomicityTest_\(UUID().uuidString)", isDirectory: true)
+        defer { cleanup(restoreDir) }
+
+        let originalImage = restoreDir.appendingPathComponent("images/conflict")
+        try writeString("old-image-data", to: originalImage)
+
+        let failingArchive = try makeArchive(entries: [
+            ZIPEntry(
+                path: "profiles/\(profileId.uuidString)/images/conflict",
+                data: Data("new-image-data".utf8)
+            ),
+            ZIPEntry(
+                path: "profiles/\(profileId.uuidString)/images/conflict/child.jpg",
+                data: Data("child-image-data".utf8)
+            )
+        ])
+        defer { cleanup(failingArchive) }
+
+        var didThrow = false
+        do {
+            try await service.restoreImages(from: failingArchive, profileId: profileId, to: restoreDir)
+        } catch {
+            didThrow = true
+        }
+
+        #expect(didThrow)
+        #expect(try stringContents(of: originalImage) == "old-image-data")
+        #expect(!FileManager.default.fileExists(
+            atPath: restoreDir.appendingPathComponent("images/conflict/child.jpg").path
+        ))
+
+        let successfulArchive = try makeArchive(entries: [
+            ZIPEntry(
+                path: "profiles/\(profileId.uuidString)/images/conflict",
+                data: Data("replacement-image-data".utf8)
+            ),
+            ZIPEntry(
+                path: "profiles/\(profileId.uuidString)/images/new.jpg",
+                data: Data("brand-new-image-data".utf8)
+            )
+        ])
+        defer { cleanup(successfulArchive) }
+
+        try await service.restoreImages(from: successfulArchive, profileId: profileId, to: restoreDir)
+
+        #expect(try stringContents(of: originalImage) == "replacement-image-data")
+        #expect(try stringContents(
+            of: restoreDir.appendingPathComponent("images/new.jpg")
+        ) == "brand-new-image-data")
     }
 
     @Test("进度回调正确触发")
@@ -272,6 +348,69 @@ struct BackupServiceTests {
 
         let evilPath = restoreDir.deletingLastPathComponent().appendingPathComponent("evil.jpg")
         #expect(!FileManager.default.fileExists(atPath: evilPath.path))
+    }
+
+    @Test("restoreImages 拒绝真实 ZIP 路径遍历条目并恢复合法条目")
+    func restoreImages_rejectsActualPathTraversalPayloads_thenRestoresValidArchive() async throws {
+        let service = BackupService()
+        let profileId = UUID()
+        let restoreDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("RestoreTraversalPayloadTest_\(UUID().uuidString)", isDirectory: true)
+        defer { cleanup(restoreDir) }
+
+        let originalImage = restoreDir.appendingPathComponent("images/keep.jpg")
+        try writeString("original-image-data", to: originalImage)
+
+        let outsideDir = restoreDir.deletingLastPathComponent()
+        let outsideEvil = outsideDir.appendingPathComponent("evil-outside.jpg")
+        let outsideNestedEvil = outsideDir.appendingPathComponent("evil-nested.jpg")
+        try? FileManager.default.removeItem(at: outsideEvil)
+        try? FileManager.default.removeItem(at: outsideNestedEvil)
+        defer {
+            cleanup(outsideEvil)
+            cleanup(outsideNestedEvil)
+        }
+
+        let maliciousArchive = try makeArchive(entries: [
+            ZIPEntry(
+                path: "profiles/\(profileId.uuidString)/images/../../evil-outside.jpg",
+                data: Data("evil-outside".utf8)
+            ),
+            ZIPEntry(
+                path: "profiles/\(profileId.uuidString)/images/nested/../../../evil-nested.jpg",
+                data: Data("evil-nested".utf8)
+            ),
+            ZIPEntry(
+                path: "profiles/\(profileId.uuidString)/images/../keep.jpg",
+                data: Data("corrupted-image-data".utf8)
+            )
+        ])
+        defer { cleanup(maliciousArchive) }
+
+        try await service.restoreImages(from: maliciousArchive, profileId: profileId, to: restoreDir)
+
+        #expect(!FileManager.default.fileExists(atPath: outsideEvil.path))
+        #expect(!FileManager.default.fileExists(atPath: outsideNestedEvil.path))
+        #expect(try stringContents(of: originalImage) == "original-image-data")
+
+        let validArchive = try makeArchive(entries: [
+            ZIPEntry(
+                path: "profiles/\(profileId.uuidString)/images/keep.jpg",
+                data: Data("restored-image-data".utf8)
+            ),
+            ZIPEntry(
+                path: "profiles/\(profileId.uuidString)/images/safe/new.jpg",
+                data: Data("safe-new-image-data".utf8)
+            )
+        ])
+        defer { cleanup(validArchive) }
+
+        try await service.restoreImages(from: validArchive, profileId: profileId, to: restoreDir)
+
+        #expect(try stringContents(of: originalImage) == "restored-image-data")
+        #expect(try stringContents(
+            of: restoreDir.appendingPathComponent("images/safe/new.jpg")
+        ) == "safe-new-image-data")
     }
 }
 

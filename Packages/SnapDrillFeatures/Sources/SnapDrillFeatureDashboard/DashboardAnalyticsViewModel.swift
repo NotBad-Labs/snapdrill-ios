@@ -44,6 +44,7 @@ nonisolated struct WeakSubjectItem: Identifiable {
 ///
 /// 从 ReviewRepository 获取原始数据，在内存层按天/学科/难度聚合。
 /// 聚合在 ViewModel 而非 Repository，因为 SwiftData #Predicate 不支持 GROUP BY。
+@MainActor
 @Observable
 final class DashboardAnalyticsViewModel {
 
@@ -64,6 +65,7 @@ final class DashboardAnalyticsViewModel {
     // MARK: - 依赖
 
     private let repositories: RepositoryContainer
+    private let proEntitlementProvider: any ProEntitlementProvider
 
     @ObservationIgnored
     private var dataChangeTask: Task<Void, Never>?
@@ -73,10 +75,14 @@ final class DashboardAnalyticsViewModel {
     // MARK: - Pro 门控
 
     // TODO: #479 — 替换为 StoreKit 订阅状态检查
-    var isProUser: Bool { false }
+    var isProUser: Bool { proEntitlementProvider.isProUser }
 
-    init(repositories: RepositoryContainer) {
+    init(
+        repositories: RepositoryContainer,
+        proEntitlementProvider: any ProEntitlementProvider = DefaultProEntitlementProvider()
+    ) {
         self.repositories = repositories
+        self.proEntitlementProvider = proEntitlementProvider
         setupDataChangeObserver()
     }
 

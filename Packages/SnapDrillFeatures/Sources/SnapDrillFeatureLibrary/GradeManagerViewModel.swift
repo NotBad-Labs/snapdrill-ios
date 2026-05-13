@@ -31,6 +31,8 @@ public final class GradeManagerViewModel {
     public var isDuplicateName = false
     /// 触发重名保护时的目标名称
     public var duplicateNameValue = ""
+    /// 保存失败时展示给 UI 的错误信息
+    public var operationError: String?
 
     // MARK: - Dependencies
 
@@ -58,7 +60,9 @@ public final class GradeManagerViewModel {
     /// 删除指定位置的年级；若年级仍被题目引用，置 `isDeletingInUse` 为 `true`
     public func delete(at offsets: IndexSet) {
         isDeletingInUse = false
-        let itemsToDelete = offsets.map { grades[$0] }
+        let itemsToDelete = offsets.compactMap { index in
+            grades.indices.contains(index) ? grades[index] : nil
+        }
         for item in itemsToDelete {
             do {
                 let count = try repositories.review.countByGrade(name: item.name)
@@ -83,6 +87,7 @@ public final class GradeManagerViewModel {
     @discardableResult
     public func saveGrade(grade: GradeModel?, name: String) -> Bool {
         isDuplicateName = false
+        operationError = nil
         do {
             if let grade {
                 let oldName = grade.name
@@ -109,8 +114,10 @@ public final class GradeManagerViewModel {
             loadData()
             return true
         } catch {
+            repositories.grade.rollbackContext()
             repositories.review.rollbackContext()
             SnapDrillLogger.generic.error("保存年级失败: \(error.localizedDescription)")
+            operationError = L10n.Errors.saveFailed
             return false
         }
     }

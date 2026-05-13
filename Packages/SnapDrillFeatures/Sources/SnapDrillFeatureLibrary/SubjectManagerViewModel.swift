@@ -31,6 +31,8 @@ public final class SubjectManagerViewModel {
     public var isDuplicateName = false
     /// 触发重名保护时的目标名称
     public var duplicateNameValue = ""
+    /// 保存失败时展示给 UI 的错误信息
+    public var operationError: String?
 
     // MARK: - Dependencies
 
@@ -60,7 +62,9 @@ public final class SubjectManagerViewModel {
     /// 删除指定位置的学科；若学科仍被题目引用，置 `isDeletingInUse` 为 `true`
     public func delete(at offsets: IndexSet) {
         isDeletingInUse = false
-        let itemsToDelete = offsets.map { subjects[$0] }
+        let itemsToDelete = offsets.compactMap { index in
+            subjects.indices.contains(index) ? subjects[index] : nil
+        }
         for item in itemsToDelete {
             do {
                 let count = try repositories.review.countBySubject(name: item.name)
@@ -87,6 +91,7 @@ public final class SubjectManagerViewModel {
     @discardableResult
     public func saveSubject(subject: SubjectModel?, name: String, selectedIcon: String, finalColorHex: String) -> Bool {
         isDuplicateName = false
+        operationError = nil
         do {
             if let subject {
                 let oldName = subject.name
@@ -118,8 +123,10 @@ public final class SubjectManagerViewModel {
             return true
         } catch {
             // 回滚所有未持久化变更（含级联重命名的内存修改），防止脏数据污染 mainContext
+            repositories.subject.rollbackContext()
             repositories.review.rollbackContext()
             SnapDrillLogger.generic.error("保存学科失败: \(error.localizedDescription)")
+            operationError = L10n.Errors.saveFailed
             return false
         }
     }

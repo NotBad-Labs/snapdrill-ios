@@ -11,10 +11,14 @@
 
 set -eo pipefail
 
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=.claude/hooks/_hook_common.sh
+source "$HOOK_DIR/_hook_common.sh"
+
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "")
 [ -z "$PROJECT_ROOT" ] && exit 0
 
-command -v jq >/dev/null 2>&1 || exit 0
+require_command jq
 
 INPUT=$(cat)
 TOOL=$(echo "$INPUT" | jq -r '.tool_name // "unknown"')

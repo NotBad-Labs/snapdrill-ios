@@ -73,7 +73,7 @@ final class ProfileListViewModelTests {
     // MARK: - executeDelete 错误路径（Issue #638 关键覆盖）
 
     @Test("executeDelete 删除最后一个 Profile 时设置 deleteError 并清 profileToDelete")
-    func executeDelete_lastProfile_setsDeleteError() {
+    func executeDelete_lastProfile_setsDeleteError() async {
         let vm = makeVM()
         // 故意绕过 confirmDelete 守卫，直接给 profileToDelete 赋值
         // 模拟 ProfileManager.deleteProfile 抛 cannotDeleteLastProfile 的场景
@@ -83,7 +83,7 @@ final class ProfileListViewModelTests {
         }
         vm.profileToDelete = onlyProfile
 
-        vm.executeDelete()
+        await vm.executeDelete()
 
         #expect(vm.deleteError != nil)
         #expect(vm.deleteError?.contains("最后") == true || vm.deleteError?.contains("无法") == true)
@@ -91,17 +91,17 @@ final class ProfileListViewModelTests {
     }
 
     @Test("executeDelete profileToDelete 为 nil 时无副作用")
-    func executeDelete_noTarget_noop() {
+    func executeDelete_noTarget_noop() async {
         let vm = makeVM()
 
-        vm.executeDelete()
+        await vm.executeDelete()
 
         #expect(vm.deleteError == nil)
         #expect(vm.profileToDelete == nil)
     }
 
     @Test("executeDelete 成功路径：删除非活跃 Profile 后 deleteError 不设置")
-    func executeDelete_nonActiveProfile_succeeds() {
+    func executeDelete_nonActiveProfile_succeeds() async {
         let vm = makeVM()
         _ = profileManager.createProfile(name: "可删除 Profile")
         let nonActive = vm.profiles.first { $0.id != vm.activeProfileId }
@@ -111,7 +111,7 @@ final class ProfileListViewModelTests {
         }
 
         vm.profileToDelete = target
-        vm.executeDelete()
+        await vm.executeDelete()
 
         #expect(vm.deleteError == nil)
         #expect(vm.profileToDelete == nil)
@@ -146,14 +146,14 @@ final class ProfileListViewModelTests {
     // MARK: - switchToProfile 边界
 
     @Test("switchToProfile 当前活跃 Profile 时返回 false 且不切换")
-    func switchToProfile_alreadyActive_noOp() {
+    func switchToProfile_alreadyActive_noOp() async {
         let vm = makeVM()
         guard let activeId = vm.activeProfileId else {
             Issue.record("应有活跃 Profile")
             return
         }
 
-        let result = vm.switchToProfile(activeId)
+        let result = await vm.switchToProfile(activeId)
 
         #expect(result == false)
         #expect(vm.switchError == nil)

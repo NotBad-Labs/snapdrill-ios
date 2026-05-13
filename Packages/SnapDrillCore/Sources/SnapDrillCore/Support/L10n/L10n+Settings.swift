@@ -124,6 +124,7 @@ nonisolated extension L10n {
         public static let analyticsHint = NSLocalizedString("settings.analytics_hint", value: "帮助我们改进应用体验，不收集任何个人信息。", comment: "匿名统计说明")
         public static let crashReporting = NSLocalizedString("settings.crash_reporting", value: "崩溃报告", comment: "崩溃报告")
         public static let crashReportingHint = NSLocalizedString("settings.crash_reporting_hint", value: "自动发送匿名崩溃信息，帮助修复问题。", comment: "崩溃报告说明")
+        public static let telemetryEnabled = NSLocalizedString("settings.telemetry_enabled", value: "匿名遥测", comment: "Analytics 与崩溃报告统一开关")
         public static let dataExport = NSLocalizedString("settings.data_export", value: "数据导出", comment: "数据导出区标题")
         public static let exportJSON = NSLocalizedString("settings.export_json", value: "导出为 JSON", comment: "JSON 导出")
         public static let exportCSV = NSLocalizedString("settings.export_csv", value: "导出为 CSV", comment: "CSV 导出")

@@ -117,11 +117,22 @@ struct NotificationSettingsView: View {
                 ) ?? Date()
             },
             set: { newDate in
+                let previousHour = notificationHour
+                let previousMinute = notificationMinute
                 let comps = Calendar.current.dateComponents([.hour, .minute], from: newDate)
-                notificationHour = comps.hour ?? 20
-                notificationMinute = comps.minute ?? 0
+                let newHour = comps.hour ?? 20
+                let newMinute = comps.minute ?? 0
                 rescheduleTask?.cancel()
-                rescheduleTask = Task { await viewModel?.reschedule(hour: notificationHour, minute: notificationMinute) }
+                rescheduleTask = Task {
+                    let didReschedule = await viewModel?.reschedule(hour: newHour, minute: newMinute) ?? false
+                    if didReschedule {
+                        notificationHour = newHour
+                        notificationMinute = newMinute
+                    } else {
+                        notificationHour = previousHour
+                        notificationMinute = previousMinute
+                    }
+                }
             }
         )
     }

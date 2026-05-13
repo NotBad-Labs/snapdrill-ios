@@ -27,6 +27,7 @@ import Foundation
 @testable import SnapDrillCore
 
 @Suite("SettingsViewModel CSV 导入测试", .serialized)
+@MainActor
 final class SettingsViewModelCSVTests {
 
     private let container: ModelContainer

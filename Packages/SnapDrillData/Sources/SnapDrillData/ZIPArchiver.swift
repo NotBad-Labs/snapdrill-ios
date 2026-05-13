@@ -38,25 +38,46 @@ nonisolated public struct ZIPArchiver: Sendable {
     ///
     /// - Parameters:
     ///   - entries: 要打包的文件条目
-    ///   - destination: 目标 ZIP 文件 URL（已存在则先清理）
+    ///   - destination: 目标 ZIP 文件 URL（已存在则原子替换）
     /// - Throws: Archive 创建或写入失败时抛出
     public func createArchive(entries: [ZIPEntry], at destination: URL) throws {
-        try? FileManager.default.removeItem(at: destination) // best-effort: 清理旧文件
+        let fileManager = FileManager.default
+        let temporaryDestination = destination.appendingPathExtension("tmp")
 
-        let archive = try Archive(url: destination, accessMode: .create)
+        try? fileManager.removeItem(at: temporaryDestination)
 
-        for entry in entries {
-            try autoreleasepool {
-                try archive.addEntry(
-                    with: entry.path,
-                    type: .file,
-                    uncompressedSize: Int64(entry.data.count),
-                    compressionMethod: .deflate,
-                    provider: { position, size in
-                        entry.data[Int(position) ..< Int(position) + size]
+        do {
+            do {
+                let archive = try Archive(url: temporaryDestination, accessMode: .create)
+
+                for entry in entries {
+                    try autoreleasepool {
+                        try archive.addEntry(
+                            with: entry.path,
+                            type: .file,
+                            uncompressedSize: Int64(entry.data.count),
+                            compressionMethod: .deflate,
+                            provider: { position, size in
+                                entry.data[Int(position) ..< Int(position) + size]
+                            }
+                        )
                     }
-                )
+                }
             }
+
+            if fileManager.fileExists(atPath: destination.path) {
+                _ = try fileManager.replaceItemAt(
+                    destination,
+                    withItemAt: temporaryDestination,
+                    backupItemName: nil,
+                    options: []
+                )
+            } else {
+                try fileManager.moveItem(at: temporaryDestination, to: destination)
+            }
+        } catch {
+            try? fileManager.removeItem(at: temporaryDestination)
+            throw error
         }
     }
 }

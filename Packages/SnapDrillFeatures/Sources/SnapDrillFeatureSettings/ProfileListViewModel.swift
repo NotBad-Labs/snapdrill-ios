@@ -64,10 +64,10 @@ final class ProfileListViewModel {
     }
 
     /// 用户在确认 alert 点删除
-    func executeDelete() {
+    func executeDelete() async {
         guard let profile = profileToDelete else { return }
         do {
-            try profileManager.deleteProfile(id: profile.id)
+            try await profileManager.deleteProfile(id: profile.id)
         } catch {
             SnapDrillLogger.data.error("ProfileListView: 删除 Profile 失败 - \(error.localizedDescription)")
             deleteError = error.localizedDescription
@@ -77,14 +77,14 @@ final class ProfileListViewModel {
 
     /// 切换前检查草稿状态。返回是否应当 dismiss view（true = 切换成功）
     @discardableResult
-    func switchToProfile(_ profileId: UUID) -> Bool {
+    func switchToProfile(_ profileId: UUID) async -> Bool {
         guard profileId != profileManager.activeProfileId else { return false }
         if draftService.hasDraft {
             pendingSwitchProfileId = profileId
             return false
         }
         do {
-            try profileManager.switchProfile(to: profileId)
+            try await profileManager.switchProfile(to: profileId)
             return true
         } catch {
             switchError = error.localizedDescription
@@ -94,10 +94,10 @@ final class ProfileListViewModel {
 
     /// 放弃草稿后执行切换（先切换再清草稿，避免切换失败时草稿已丢）
     @discardableResult
-    func discardDraftAndSwitch() -> Bool {
+    func discardDraftAndSwitch() async -> Bool {
         guard let profileId = pendingSwitchProfileId else { return false }
         do {
-            try profileManager.switchProfile(to: profileId)
+            try await profileManager.switchProfile(to: profileId)
             draftService.clearDraft()
             pendingSwitchProfileId = nil
             return true

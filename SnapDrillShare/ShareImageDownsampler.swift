@@ -9,6 +9,7 @@
 //
 
 import UIKit
+import ImageIO
 
 /// 防 Share Extension OOM 的图像降采样工具。
 ///
@@ -19,6 +20,19 @@ import UIKit
 /// 与 `SnapDrillCore/ImageStorage.compressedJPEGData` SSOT 一致。
 @MainActor
 enum ShareImageDownsampler {
+    private static let sourceOptions = [
+        kCGImageSourceShouldCache: false
+    ] as CFDictionary
+
+    private static func thumbnailOptions(maxDimension: CGFloat) -> CFDictionary {
+        [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: Int(maxDimension)
+        ] as CFDictionary
+    }
+
     /// 若图片**像素长边** ≤ maxDimension 直接返回原图，否则按比例缩到像素长边 = maxDimension。
     /// renderer 显式 `format.scale = 1` 确保 1 point = 1 pixel，避免屏幕 scale 二次放大。
     static func resizeIfNeeded(_ image: UIImage, maxDimension: CGFloat) -> UIImage {
@@ -35,5 +49,31 @@ enum ShareImageDownsampler {
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: newSize))
         }
+    }
+
+    static func downsampledJPEGData(from url: URL, maxDimension: CGFloat, compressionQuality: CGFloat) -> Data? {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, sourceOptions) else { return nil }
+        return downsampledJPEGData(from: source, maxDimension: maxDimension, compressionQuality: compressionQuality)
+    }
+
+    static func downsampledJPEGData(from data: Data, maxDimension: CGFloat, compressionQuality: CGFloat) -> Data? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions) else { return nil }
+        return downsampledJPEGData(from: source, maxDimension: maxDimension, compressionQuality: compressionQuality)
+    }
+
+    private static func downsampledJPEGData(
+        from source: CGImageSource,
+        maxDimension: CGFloat,
+        compressionQuality: CGFloat
+    ) -> Data? {
+        guard let thumbnail = CGImageSourceCreateThumbnailAtIndex(
+            source,
+            0,
+            thumbnailOptions(maxDimension: maxDimension)
+        ) else {
+            return nil
+        }
+
+        return UIImage(cgImage: thumbnail).jpegData(compressionQuality: compressionQuality)
     }
 }

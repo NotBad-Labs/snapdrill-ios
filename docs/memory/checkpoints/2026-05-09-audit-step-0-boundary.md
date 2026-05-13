@@ -58,6 +58,22 @@ freshness:
 | `SnapDrill/PrivacyInfo.xcprivacy` | 体系 1 | 属于产品合规配置 |
 | `docs/archive/` | 体系 3 | 历史知识归档 |
 
+## STATUS.md 事实声称回检补充
+
+STATUS.md 是状态入口，不能只按文件归入体系 4 抽样审计。后续归零审计必须先从 STATUS.md 逐行抽取事实性声称，并为每条声称记录证据入口：
+
+| 声称类型 | 主验证体系 | 必需证据 |
+|---|---|---|
+| 当前代码、架构、合规状态 | 体系 1/2/3/6 | 当前仓库 grep、测试、脚本或配置验证 |
+| 当前 STATUS/handoff/checkpoint 新鲜度 | 体系 4 | frontmatter、last_verified、引用目标存在性 |
+| Agent 版本、规则、hooks、skills、私有计划引用 | 体系 5 | 本地文件存在性；私有路径只作参考，需标注不可由仓库 CI 复验 |
+| CI/test 通过数、历史本地验证 | 体系 2/6 | 最新可复验命令、CI run、xcresult 或日志摘要；无证据时不得写成已验证 |
+| GitHub PR/Issue/open count、合并状态 | 体系 4 横切外部状态 | `gh`/GitHub 页面实时查询结果和查询日期 |
+| Apple Developer/App Store Connect 状态 | 体系 4 横切外部状态 | Apple 后台或用户提供截图/记录；无访问权时必须标为用户声明 |
+| 外部仓库 public/license/branch 状态 | 体系 5 横切外部状态 | GitHub 实时查询或 pinned commit/license 文件 |
+
+若某条 STATUS.md 声称只能由外部服务、私有目录或历史运行日志验证，审计报告必须把它列为“外部/私有证据依赖”，不能用当前仓库静态审计替代。
+
 ## 私有空间（不入审计主语，仅在体系 5 做对照参考）
 
 | 位置 | 文件数 | 内容 |
