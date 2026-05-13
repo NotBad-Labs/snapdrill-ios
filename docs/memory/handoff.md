@@ -9,11 +9,10 @@ freshness:
 
 ## 当前接手状态
 
-- **当前主力**：Codex CLI（2026-05-08 接手）
-- **上一主力**：DeepSeek v4 Pro（Claude Code CLI 框架，2026-05-07→08）
-- **辅审**：Gemini CLI 0.41.2（优先显式 `gemini-3-pro-preview`）
-- **主分支**：`develop`（clean）
-- **仓库分支**：本地 + 远程 develop/main 纯净
+- **当前主力**：Claude Opus 4.7（Claude Code CLI，2026-05-13 会话）
+- **辅审**：Codex CLI + Gemini CLI（三方审计）
+- **主分支**：`develop`（领先 origin 9 commits，未推送）
+- **新装插件**：skill-creator@claude-plugins-official（重启后可用）
 
 ## Boot 序列（新会话必读）
 
@@ -25,10 +24,48 @@ freshness:
 | 2 | `docs/workflow.md` | 流程规范、DoD、Review 规范 |
 | 3 | `docs/standards/coding.md` | 编码规范、并发禁止项 |
 | 4 | `docs/standards/testing.md` | 测试规则 |
-| 5 | `docs/tech/api-pitfalls.md` | 已知 API 陷阱 |
-| 6 | `docs/standards/apple-native.md` | Apple 原生 UI 模式 |
-| 7 | `docs/memory/feedback.md` | 项目纪律（所有智能体共遵） |
-| 8 | `docs/memory/decisions.md` | 关键决策记录 |
+| 5 | `docs/tech/api-pitfalls.md` | 已知 API 陷阱（已从 standards/ 移入 tech/） |
+| 6 | `docs/tech/apple-limits.md` | Apple 平台能力边界（已从 standards/ 移入 tech/） |
+| 7 | `docs/standards/apple-native.md` | Apple 原生 UI 模式 |
+| 8 | `docs/standards/harness-recall.md` | 自进化闭环 — 每次 phase-closeout 必须执行 |
+| 9 | `docs/memory/feedback.md` | 项目纪律（所有智能体共遵） |
+| 10 | `docs/memory/decisions.md` | 关键决策记录 |
+
+## 本次会话成果（2026-05-13，9 commits 未推送）
+
+### 文档体系架构修复
+
+| commit | 内容 |
+|---|---|
+| `b0aae367` | **api-pitfalls + apple-limits 从 standards/ → tech/**（参考手册非行为约束） |
+| `f87477c0` | 补齐 CODEX.md + agent-harness 遗漏引用 |
+| `500307b8` | **docs/principles/ → docs/standards/**（目录名与 layer 名解耦，53 文件 133 引用） |
+| `bc925702` | **文档 freshness 过期强制执行**（validate_frontmatter.py 加过期计算 + CI strict 门） |
+
+### 自进化闭环
+
+| commit | 内容 |
+|---|---|
+| `423c6769` | **Harness Recall** — 自进化闭环最后一环（phase-closeout 时扫描 checkpoints 重复模式，≥3 次 propose F-0XX） |
+| `f12ddf80` | 回滚 @MainActor 冗余标注（Gemini 误报，违反 coding.md:19 禁则） |
+| `18dcda15` | Gemini 零信任审计核实修复 — @MainActor 补齐 + getter 副作用移除 + gitignore |
+| `23ff5631` | docs: 零信任审计+修复监督记录 |
+| `49172637` | fix: 零信任审计全量修复 — 11 组架构级修复 |
+
+### 新增/关键改动文件
+
+- **新建**: `docs/standards/harness-recall.md` + `.claude/rules/harness-recall.md`
+- **重命名**: `docs/principles/` → `docs/standards/`（17 文件）
+- **移动**: `api-pitfalls.md` + `apple-limits.md` → `docs/tech/`
+- **修改**: `validate_frontmatter.py`（过期计算）、`ci.yml`（--strict）、`phase-closeout/SKILL.md`（Harness Recall 步骤）
+- **安装**: skill-creator@claude-plugins-official（需重启会话生效）
+
+### 待办
+
+- [ ] 推送 9 个 commits 到 origin
+- [ ] 用 skill-creator 把审计经验转化成 `verify-audit-report` skill
+- [ ] 继续依赖传播链人工复核（engineering.md 已完成，下一步 product-vision.md）
+- [ ] 源代码文件头日期防腐烂原则 — 用户提出但尚未决策
 
 ## Phase 2 全链路完工（2026-05-08）
 

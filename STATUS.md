@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-10
+last_verified: 2026-05-13
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -7,17 +7,14 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-13（**零信任审计 + 全量修复完成**）
-> 编译状态：✅ 0 errors · 0 lint violations · AllTests/CI 420 tests passed/skipped clean · docaudit exit 0
+> 最后更新：2026-05-13（**文档体系大修复 + 自进化闭环补全**）
+> 编译状态：✅ 0 errors · 0 lint violations · docaudit exit 0
 > Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
-> Phase 2 全部完成 · #599 死锁已根除 · 生产调用路径已迁移到 DataExecutor（PersistenceController 仅作兼容类型保留）
-> F 规则：**15 活跃 + 5 退役** = F-001~F-020（退役 F-003/F-009/F-010/F-015/F-020）· D-003 抽仓决策入 `docs/memory/decisions.md`
-> **基线审计**：Claude DeepSeek v4 Pro 主审 + Codex GPT-5.5 + Gemini 3 Pro 三方交叉验证 → 0 Critical / 14 Warning / 8 Info · 评分 8.5/10 · 报告 `docs/memory/checkpoints/2026-05-08-baseline-audit.md`
->
-> **公开仓库**：[NotBad-Labs/agent-harness](https://github.com/NotBad-Labs/agent-harness)（**public**, MIT, main）— snapdrill-ios 通过 `.agent-harness/` 契约声明 consumer 身份
-> **智能体**：DeepSeek v4 Pro (Claude Code CLI) + Codex 0.121.0 + Gemini CLI 0.41.2（优先显式 `gemini-3-pro-preview`，不可用时退 `gemini-2.5-pro`）
-> **下次接手**：读 `docs/memory/handoff.md` 顶部 → `docs/memory/checkpoints/2026-04-22-phase-e-closeout.md`
-> 测试：420 tests（SnapDrill AllTests/CI 本地验证）+ 68 tests（agent-harness CI）· ViewModel 覆盖 16/16
+> 领先 origin/develop：**9 commits**
+> **文档重命名**：`docs/principles/` → `docs/standards/`（与 layer 名解耦）
+> **自进化闭环**：Harness Recall 规则 + skill-creator 插件安装完成
+> **工具链**：Claude Opus 4.7 + Codex CLI + Gemini CLI · skill-creator@claude-plugins-official
+> **下次接手**：读 `docs/memory/handoff.md` Boot 序列
 
 ## 本轮完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
 
