@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-13
+last_verified: 2026-05-14
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -7,16 +7,29 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-13（**文档体系大修复 + 自进化闭环补全**）
+> 最后更新：2026-05-14（**工程治理收尾 — 6 skill + 依赖传播链全量复核 + 源文件头防腐**）
 > 编译状态：✅ 0 errors · 0 lint violations · docaudit exit 0
 > Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
-> 领先 origin/develop：**9 commits**
-> **文档重命名**：`docs/principles/` → `docs/standards/`（与 layer 名解耦）
-> **自进化闭环**：Harness Recall 规则 + skill-creator 插件安装完成
+> 领先 origin/develop：**0 commits**（已同步）
+> **新增 6 个 Skill**：verify-audit-report / dependency-propagation / sprint-contract / post-merge / api-research / snapshot-diff-review
+> **源文件防腐**：237 文件删除创建日期，git blame 为唯一真相源
 > **工具链**：Claude Opus 4.7 + Codex CLI + Gemini CLI · skill-creator@claude-plugins-official
 > **下次接手**：读 `docs/memory/handoff.md` Boot 序列
 
-## 本轮完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
+## 本轮完成（2026-05-14，工程治理收尾）
+
+| 类别 | 内容 |
+|---|---|
+| 6 个新 Skill | verify-audit-report / dependency-propagation / sprint-contract / post-merge / api-research / snapshot-diff-review — F 规则全部有 skill 执行器 |
+| 依赖传播链全量复核 | engineering → product-vision → ADR-001/002 → NFR → architecture — 6 个根文档 ~20 个下游一致性验证 |
+| architecture.md 补齐 | DataExecutor actor（Phase 2 核心架构变更）DI 图/数据流/模块表/设计决策 4 处更新 |
+| 源文件头防腐 | 237 文件 `Created by NotBad Labs on DATE.` → `Created by NotBad Labs.` — Codex + Claude 零分歧 |
+| 文档日期修复 | 8 个 last_verified 过期修复（04-14 → 05-14）|
+| auto-commit 记忆 | 改动完成后主动提交推送，不让用户提醒 |
+
+**零内部阻塞。全部 handoff 待办清空。**
+
+## 历史完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
 
 | PR | 内容 |
 |---|---|

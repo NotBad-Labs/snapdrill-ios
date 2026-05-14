@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-13
+last_verified: 2026-05-14
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -9,10 +9,11 @@ freshness:
 
 ## 当前接手状态
 
-- **当前主力**：Claude Opus 4.7（Claude Code CLI，2026-05-13 会话）
+- **当前主力**：Claude Opus 4.7（Claude Code CLI，2026-05-14 会话）
 - **辅审**：Codex CLI + Gemini CLI（三方审计）
-- **主分支**：`develop`（领先 origin 9 commits，未推送）
-- **新装插件**：skill-creator@claude-plugins-official（重启后可用）
+- **主分支**：`develop`（已同步 origin，0 commits 领先）
+- **插件**：skill-creator@claude-plugins-official
+- **状态**：零内部阻塞，全部待办清空
 
 ## Boot 序列（新会话必读）
 
@@ -31,7 +32,7 @@ freshness:
 | 9 | `docs/memory/feedback.md` | 项目纪律（所有智能体共遵） |
 | 10 | `docs/memory/decisions.md` | 关键决策记录 |
 
-## 本次会话成果（2026-05-13，9 commits 未推送）
+## 上次会话成果（2026-05-13，9 commits，已推送）
 
 ### 文档体系架构修复
 
@@ -46,33 +47,47 @@ freshness:
 
 | commit | 内容 |
 |---|---|
-| `423c6769` | **Harness Recall** — 自进化闭环最后一环（phase-closeout 时扫描 checkpoints 重复模式，≥3 次 propose F-0XX） |
-| `f12ddf80` | 回滚 @MainActor 冗余标注（Gemini 误报，违反 coding.md:19 禁则） |
-| `18dcda15` | Gemini 零信任审计核实修复 — @MainActor 补齐 + getter 副作用移除 + gitignore |
+| `423c6769` | **Harness Recall** — 自进化闭环最后一环 |
+| `f12ddf80` | 回滚 @MainActor 冗余标注 |
+| `18dcda15` | Gemini 零信任审计核实修复 |
 | `23ff5631` | docs: 零信任审计+修复监督记录 |
 | `49172637` | fix: 零信任审计全量修复 — 11 组架构级修复 |
 
-### 新增/关键改动文件
+### 关键改动
 
 - **新建**: `docs/standards/harness-recall.md` + `.claude/rules/harness-recall.md`
 - **重命名**: `docs/principles/` → `docs/standards/`（17 文件）
 - **移动**: `api-pitfalls.md` + `apple-limits.md` → `docs/tech/`
-- **修改**: `validate_frontmatter.py`（过期计算）、`ci.yml`（--strict）、`phase-closeout/SKILL.md`（Harness Recall 步骤）
-- **安装**: skill-creator@claude-plugins-official（需重启会话生效）
+- **安装**: skill-creator@claude-plugins-official
+
+---
+
+## 本次会话成果（2026-05-14，7 commits，已推送）
+
+### 新增 6 个 Skill
+
+| Skill | 覆盖 F 规则 | 触发时机 |
+|---|---|---|
+| `verify-audit-report` | F-006, F-012 | 收到审计报告后 |
+| `dependency-propagation` | — | 文档变更后 |
+| `sprint-contract` | F-018 | Issue 进入 Building |
+| `post-merge` | F-007, F-019 | PR 合并后 |
+| `api-research` | F-017 | UI/SDK 改动前 |
+| `snapshot-diff-review` | — | Snapshot baseline 变更时 |
+
+### 依赖传播链全量复核
+
+engineering → product-vision → ADR-001/002 → NFR → architecture — 6 个根文档 ~20 个下游一致性验证通过。
+
+### 架构补齐 + 防腐
+
+- architecture.md 补 DataExecutor（Phase 2 核心架构变更，DI 图/数据流/模块表/设计决策 4 处更新）
+- 237 文件 `Created by NotBad Labs on DATE.` → `Created by NotBad Labs.` — Codex + Claude 零分歧
+- 8 个 last_verified 过期修复
 
 ### 待办
 
-- [x] 推送 commits 到 origin
-- [x] 用 skill-creator 把审计经验转化成 `verify-audit-report` skill（+ 额外 5 个 skill）
-- [x] 继续依赖传播链人工复核（engineering → product-vision → ADR → NFR → architecture，全量覆盖）
-- [x] 源代码文件头日期防腐烂 — 237 文件删除腐烂日期，Codex + Claude 零分歧
-
-### 源文件头日期防腐烂（2026-05-14 已决策并执行）
-
-237 个 Swift 源文件的 `Created by NotBad Labs on YYYY/MM/DD.` → `Created by NotBad Labs.`。
-新建 Swift 文件不加日期（Xcode 模板默认的 `on DATE.` 需手动删除），git blame 是唯一真相源。
-
-### 新增 skill（2026-05-13，6 个新建）
+全部清空。零内部阻塞。
 
 | Skill | 覆盖的 F 规则 | 触发时机 |
 |---|---|---|
