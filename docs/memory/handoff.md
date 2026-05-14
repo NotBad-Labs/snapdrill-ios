@@ -63,9 +63,20 @@ freshness:
 ### 待办
 
 - [ ] 推送 9 个 commits 到 origin
-- [ ] 用 skill-creator 把审计经验转化成 `verify-audit-report` skill
+- [x] 用 skill-creator 把审计经验转化成 `verify-audit-report` skill（+ 额外 5 个 skill）
 - [ ] 继续依赖传播链人工复核（engineering.md 已完成，下一步 product-vision.md）
 - [ ] 源代码文件头日期防腐烂原则 — 用户提出但尚未决策
+
+### 新增 skill（2026-05-13，6 个新建）
+
+| Skill | 覆盖的 F 规则 | 触发时机 |
+|---|---|---|
+| `verify-audit-report` | F-006, F-012 | 收到审计报告后 |
+| `dependency-propagation` | — | 文档变更后 |
+| `sprint-contract` | F-018 | Issue 进入 Building |
+| `post-merge` | F-007, F-019 | PR 合并后 |
+| `api-research` | F-017 | UI/SDK 改动前 |
+| `snapshot-diff-review` | — | Snapshot baseline 变更时 |
 
 ## Phase 2 全链路完工（2026-05-08）
 
