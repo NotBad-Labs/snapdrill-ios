@@ -62,10 +62,15 @@ freshness:
 
 ### 待办
 
-- [ ] 推送 9 个 commits 到 origin
+- [x] 推送 commits 到 origin
 - [x] 用 skill-creator 把审计经验转化成 `verify-audit-report` skill（+ 额外 5 个 skill）
-- [ ] 继续依赖传播链人工复核（engineering.md 已完成，下一步 product-vision.md）
-- [ ] 源代码文件头日期防腐烂原则 — 用户提出但尚未决策
+- [x] 继续依赖传播链人工复核（engineering → product-vision → ADR → NFR → architecture，全量覆盖）
+- [x] 源代码文件头日期防腐烂 — 237 文件删除腐烂日期，Codex + Claude 零分歧
+
+### 源文件头日期防腐烂（2026-05-14 已决策并执行）
+
+237 个 Swift 源文件的 `Created by NotBad Labs on YYYY/MM/DD.` → `Created by NotBad Labs.`。
+新建 Swift 文件不加日期（Xcode 模板默认的 `on DATE.` 需手动删除），git blame 是唯一真相源。
 
 ### 新增 skill（2026-05-13，6 个新建）
 
