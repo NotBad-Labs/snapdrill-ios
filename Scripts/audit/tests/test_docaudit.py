@@ -75,7 +75,7 @@ def _write_policy(tmp: Path, overrides: dict | None = None) -> Path:
 def _make_fixture(repo: Path, fake_validator: bool = True) -> None:
     (repo / "docs").mkdir(parents=True)
     (repo / "docs" / "memory").mkdir()
-    (repo / "docs" / "principles").mkdir()
+    (repo / "docs" / "standards").mkdir()
     (repo / "docs" / "research").mkdir()
     (repo / ".claude" / "rules").mkdir(parents=True)
     (repo / "Scripts").mkdir()
@@ -337,7 +337,7 @@ class DocauditTestCase(unittest.TestCase):
         self.assertIn("warning", err)
 
     def test_home_path_refs_allowed_context(self) -> None:
-        mr = self.repo / "docs" / "principles" / "memory-routing.md"
+        mr = self.repo / "docs" / "standards" / "memory-routing.md"
         mr.write_text("discuss ~/.claude/plans/ here\n", encoding="utf-8")
         policy = _write_policy(self.tmp)
         code, out, _ = self._run(["--policy", str(policy), "home-path-refs"])
@@ -346,7 +346,7 @@ class DocauditTestCase(unittest.TestCase):
     # ---------- rule-pointer-sync ----------
 
     def test_rule_pointer_sync_clean(self) -> None:
-        (self.repo / "docs" / "principles" / "coding.md").write_text("# coding\n", encoding="utf-8")
+        (self.repo / "docs" / "standards" / "coding.md").write_text("# coding\n", encoding="utf-8")
         (self.repo / ".claude" / "rules" / "coding.md").write_text(
             "Read and follow docs/standards/coding.md for rules.\n", encoding="utf-8"
         )
