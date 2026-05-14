@@ -13,7 +13,17 @@ import SwiftUI
 // MARK: - Environment Key
 
 private struct ProfileManagerKey: EnvironmentKey {
-    nonisolated static let defaultValue: ProfileManager? = nil
+    /// 默认值：仅在测试运行时（XCTest / Swift Testing）返回 inMemory ProfileManager，
+    /// 生产代码保持 nil 强制注入触发 fatal——保留 49172637 零信任 ProfileScope 隔离意图。
+    ///
+    /// 检测方式：`XCTestConfigurationFilePath` 环境变量由 Xcode test runner 注入，
+    /// 也被 Swift Testing 框架沿用。生产 App 启动时该 env 不存在。
+    nonisolated static let defaultValue: ProfileManager? = {
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil else {
+            return nil
+        }
+        return MainActor.assumeIsolated { ProfileManager(inMemory: true) }
+    }()
 }
 
 // MARK: - EnvironmentValues 扩展

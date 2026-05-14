@@ -2,7 +2,8 @@ import Foundation
 import SwiftData
 import Testing
 import SnapDrillCore
-@testable import SnapDrillFeatures
+@testable import SnapDrillData
+@testable import SnapDrillFeatureReview
 
 @MainActor
 struct ReviewViewModelSaveFailureTests {
@@ -22,7 +23,7 @@ struct ReviewViewModelSaveFailureTests {
             content: content,
             createdAt: Date(),
             subject: "测试",
-            easeFactor: ReviewItemModel.defaultEaseFactor,
+            easeFactor: 2.5,
             interval: interval,
             repetitions: repetitions
         )
