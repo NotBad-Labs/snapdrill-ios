@@ -1,8 +1,11 @@
 name: SnapDrill CI
 
 on:
-  # 只在 PR 时自动触发（减少不必要的排队）
+  # PR 时触发
   pull_request:
+    branches: [ "develop", "main" ]
+  # 直接 push 到主分支也跑（防止绕过 PR 的盲区）
+  push:
     branches: [ "develop", "main" ]
   # 手动触发
   workflow_dispatch:
