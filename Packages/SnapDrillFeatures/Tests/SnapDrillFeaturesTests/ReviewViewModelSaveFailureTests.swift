@@ -23,7 +23,7 @@ struct ReviewViewModelSaveFailureTests {
             content: content,
             createdAt: Date(),
             subject: "测试",
-            easeFactor: ReviewItemModel.defaultEaseFactor,
+            easeFactor: 2.5,
             interval: interval,
             repetitions: repetitions
         )
