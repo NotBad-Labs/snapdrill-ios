@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-14
+last_verified: 2026-05-14
 layer: pattern
 ---
 # SnapDrill 非功能需求（NFR）
