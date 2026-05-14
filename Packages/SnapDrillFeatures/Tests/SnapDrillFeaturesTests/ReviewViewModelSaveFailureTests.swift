@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import Testing
 import SnapDrillCore
-@testable import SnapDrillFeatures
+@testable import SnapDrillFeatureReview
 
 @MainActor
 struct ReviewViewModelSaveFailureTests {
