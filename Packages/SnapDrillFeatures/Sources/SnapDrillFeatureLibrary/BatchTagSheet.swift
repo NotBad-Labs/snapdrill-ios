@@ -2,7 +2,7 @@
 //  BatchTagSheet.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/04/01.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  批量打标签 Sheet，为选中的题目批量添加标签。

@@ -2,7 +2,7 @@
 //  MigrationTests.swift
 //  SnapDrillDataTests
 //
-//  Created by NotBad Labs on 2026/02/25.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SwiftData Schema 迁移计划和版本一致性验证。

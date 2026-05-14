@@ -2,7 +2,7 @@
 //  SmartPaperViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/04/08.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  智能组卷 ViewModel — 基于 SM-2 紧迫度选题 + PDF 生成。

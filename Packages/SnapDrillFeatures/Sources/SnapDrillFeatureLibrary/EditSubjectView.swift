@@ -2,7 +2,7 @@
 //  EditSubjectView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  学科添加/编辑视图。

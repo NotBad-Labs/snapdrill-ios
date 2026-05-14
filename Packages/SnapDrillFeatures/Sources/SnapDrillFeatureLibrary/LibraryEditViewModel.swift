@@ -2,7 +2,7 @@
 //  LibraryEditViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/02/25.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  题目编辑 ViewModel，直接操作 ReviewItemModel 进行持久化。

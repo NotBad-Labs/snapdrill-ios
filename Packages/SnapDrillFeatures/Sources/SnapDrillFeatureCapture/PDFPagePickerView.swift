@@ -2,7 +2,7 @@
 //  PDFPagePickerView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/03/10.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  PDF 页面选择器，展示各页缩略图，用户点击后渲染全尺寸图进入裁剪→OCR→保存流程。

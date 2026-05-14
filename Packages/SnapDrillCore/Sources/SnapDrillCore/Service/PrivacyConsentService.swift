@@ -2,7 +2,7 @@
 //  PrivacyConsentService.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/02/24.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  隐私授权服务。ATT 已移除（ADR-002），遥测授权委托给 TelemetryGate。

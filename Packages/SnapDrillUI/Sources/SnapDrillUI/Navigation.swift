@@ -2,7 +2,7 @@
 //  Navigation.swift
 //  SnapDrillUI
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Feature 模块路由协议定义，提供统一的导航契约

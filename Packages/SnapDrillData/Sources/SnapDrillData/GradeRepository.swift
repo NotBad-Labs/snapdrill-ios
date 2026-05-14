@@ -2,7 +2,7 @@
 //  GradeRepository.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2026/02/28.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  实现 GradeRepositoryProtocol，基于 SwiftData 持久化年级数据。

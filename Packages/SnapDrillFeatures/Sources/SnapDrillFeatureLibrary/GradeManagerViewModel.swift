@@ -2,7 +2,7 @@
 //  GradeManagerViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/03/01.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  年级管理 ViewModel，与 SubjectManagerViewModel 对等。

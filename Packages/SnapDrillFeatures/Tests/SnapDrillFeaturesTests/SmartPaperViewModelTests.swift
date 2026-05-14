@@ -2,7 +2,7 @@
 //  SmartPaperViewModelTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/04/15.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SmartPaperViewModel 智能组卷选题逻辑单元测试。

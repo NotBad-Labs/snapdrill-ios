@@ -2,7 +2,7 @@
 //  DashboardView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  首页仪表盘视图，展示复习进度概览和快捷入口。

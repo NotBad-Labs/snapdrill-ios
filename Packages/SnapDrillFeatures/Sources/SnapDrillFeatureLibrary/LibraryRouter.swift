@@ -2,7 +2,7 @@
 //  LibraryRouter.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  题库模块路由，管理题库浏览导航。

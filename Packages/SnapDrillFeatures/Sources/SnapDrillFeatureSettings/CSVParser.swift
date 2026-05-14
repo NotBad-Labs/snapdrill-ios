@@ -2,7 +2,7 @@
 //  CSVParser.swift
 //  SnapDrillFeatureSettings
 //
-//  Created by NotBad Labs on 2026/04/19.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  RFC 4180 合规的 CSV 解析器（`SettingsViewModel.importCSV` 专用）。

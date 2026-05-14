@@ -2,7 +2,7 @@
 //  TagModel.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2025/12/30.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  标签数据模型 (SwiftData)，支持多对多关联。

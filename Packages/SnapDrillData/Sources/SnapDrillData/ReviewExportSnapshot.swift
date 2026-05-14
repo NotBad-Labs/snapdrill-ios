@@ -2,7 +2,7 @@
 //  ReviewExportSnapshot.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2026/03/03.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  导出专用只读快照，作为 @Model 到 Transferable 的 Sendable 桥接类型。

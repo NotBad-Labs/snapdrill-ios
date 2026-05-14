@@ -2,7 +2,7 @@
 //  LiveNotificationService.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/02/28.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  封装 UNUserNotificationCenter 的通知服务生产实现。

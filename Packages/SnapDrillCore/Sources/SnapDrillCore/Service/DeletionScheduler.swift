@@ -2,7 +2,7 @@
 //  DeletionScheduler.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/04/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  App 级删除调度器，管理 Soft Delete 的 5 秒撤销窗口。

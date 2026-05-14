@@ -2,7 +2,7 @@
 //  TestHelpers.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/03/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  ViewModel 测试共用辅助工具：Mock 对象、Seed 函数。

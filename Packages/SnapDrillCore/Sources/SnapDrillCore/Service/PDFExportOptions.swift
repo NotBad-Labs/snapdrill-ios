@@ -2,7 +2,7 @@
 //  PDFExportOptions.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/03/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  PDF 导出配置项，控制答案显示、答题区留白、页眉页码等渲染行为。

@@ -2,7 +2,7 @@
 //  AppActivityTracker.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/04/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  中心状态机，追踪全局进行中的操作。

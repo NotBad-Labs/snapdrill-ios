@@ -2,7 +2,7 @@
 //  DependencyContainer.swift
 //  SnapDrill
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  依赖注入容器（Composition Root），管理全局服务与仓库实例。

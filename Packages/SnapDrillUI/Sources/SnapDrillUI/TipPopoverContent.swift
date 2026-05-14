@@ -2,7 +2,7 @@
 //  TipPopoverContent.swift
 //  SnapDrillUI
 //
-//  Created by NotBad Labs on 2026/04/08.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Profile 级 Tip 的 popover 内容视图，模仿 TipKit 原生样式。

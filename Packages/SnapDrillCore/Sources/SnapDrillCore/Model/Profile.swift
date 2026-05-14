@@ -2,7 +2,7 @@
 //  Profile.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/03/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  学习者 Profile 数据模型（纯值类型，JSON 持久化）。

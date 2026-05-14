@@ -2,7 +2,7 @@
 //  ServiceContainer+Environment.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/02/25.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SwiftUI Environment 集成，使 View 可通过 @Environment 获取服务

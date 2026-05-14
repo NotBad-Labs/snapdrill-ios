@@ -2,7 +2,7 @@
 //  CaptureDraftService.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2025/12/30.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  采集草稿服务，负责暂时保存未确认的拍摄内容。跨域共用（Dashboard 检测、Capture 消费）。

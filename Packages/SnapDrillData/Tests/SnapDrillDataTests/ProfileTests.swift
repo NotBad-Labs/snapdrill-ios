@@ -2,7 +2,7 @@
 //  ProfileTests.swift
 //  SnapDrillDataTests
 //
-//  Created by NotBad Labs on 2026/03/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Profile 模型和 ProfileError 测试。

@@ -2,7 +2,7 @@
 //  QuestionSplittingServiceTests.swift
 //  SnapDrillCoreTests
 //
-//  Created by NotBad Labs on 2026/04/17.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  QuestionSplittingService Mock 行为与生产实现空文本场景测试。

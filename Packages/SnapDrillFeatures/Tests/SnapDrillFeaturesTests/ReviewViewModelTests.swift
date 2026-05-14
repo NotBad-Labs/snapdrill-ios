@@ -2,7 +2,7 @@
 //  ReviewViewModelTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/03/03.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  ReviewViewModel 核心路径单元测试：会话状态机、SM-2 调度写回、撤销栈。

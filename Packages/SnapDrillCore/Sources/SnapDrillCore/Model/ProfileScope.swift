@@ -2,7 +2,7 @@
 //  ProfileScope.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/05/12.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Profile 隔离作用域通行证。

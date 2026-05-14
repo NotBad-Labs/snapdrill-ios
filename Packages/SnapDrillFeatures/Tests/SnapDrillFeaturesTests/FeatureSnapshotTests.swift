@@ -2,7 +2,7 @@
 //  FeatureSnapshotTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/04/19.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Features 层 internal View 视觉回归测试（Codex 3 PR 方案 PR3）。

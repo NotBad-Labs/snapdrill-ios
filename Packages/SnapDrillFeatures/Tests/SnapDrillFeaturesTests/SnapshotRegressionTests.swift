@@ -2,7 +2,7 @@
 //  SnapshotRegressionTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/04/19.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SwiftUI 视觉回归测试（Harness Stage C PR-6）。

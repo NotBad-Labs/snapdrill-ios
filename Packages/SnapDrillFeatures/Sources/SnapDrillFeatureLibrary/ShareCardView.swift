@@ -2,7 +2,7 @@
 //  ShareCardView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/04/01.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  题目分享卡片视图，用于生成可分享的题目卡片图片。

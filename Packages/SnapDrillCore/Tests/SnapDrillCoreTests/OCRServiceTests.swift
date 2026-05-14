@@ -2,7 +2,7 @@
 //  OCRServiceTests.swift
 //  SnapDrillCoreTests
 //
-//  Created by NotBad Labs on 2026/02/25.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  OCR 服务单元测试，依赖 UIKit 渲染测试图片，仅在 iOS 环境下运行。

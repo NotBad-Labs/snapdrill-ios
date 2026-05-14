@@ -2,7 +2,7 @@
 //  ShareDeepLinkBuilder.swift
 //  SnapDrillShare
 //
-//  Created by NotBad Labs on 2026/04/20.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Share Extension 主 App 唤起 URL 构造（snapdrill://share?file=<name>）。

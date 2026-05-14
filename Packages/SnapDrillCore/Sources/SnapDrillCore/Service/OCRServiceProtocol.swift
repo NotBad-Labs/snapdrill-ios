@@ -2,7 +2,7 @@
 //  OCRServiceProtocol.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2025/12/30.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  OCR 服务协议，定义图片文字识别的公开接口。

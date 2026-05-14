@@ -2,7 +2,7 @@
 //  DataAndSyncSettingsView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/01/02.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  数据设置页面，管理备份恢复和缓存清理。

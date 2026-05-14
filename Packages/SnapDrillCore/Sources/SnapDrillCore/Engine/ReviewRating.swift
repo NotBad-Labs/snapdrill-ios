@@ -2,7 +2,7 @@
 //  ReviewRating.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/03/02.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SM-2 算法复习评分等级枚举。

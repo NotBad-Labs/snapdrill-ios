@@ -3,7 +3,7 @@
 //  Package.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  功能模块包，按功能域拆为 5 个独立 target，编译器强制约束跨域类型访问。

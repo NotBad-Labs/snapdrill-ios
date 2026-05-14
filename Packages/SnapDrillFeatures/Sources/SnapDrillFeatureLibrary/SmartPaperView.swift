@@ -2,7 +2,7 @@
 //  SmartPaperView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/04/08.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  智能组卷配置页 — 选题参数 + PDF 选项 + 预览入口。

@@ -2,7 +2,7 @@
 //  SFSymbolPickerView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/01/01.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  教育图标选择器，提供 ~70 个按学科分类的预设 SF Symbols。

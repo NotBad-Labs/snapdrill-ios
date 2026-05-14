@@ -2,7 +2,7 @@
 //  LibraryViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/02/24.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  题库列表的状态管理与过滤逻辑，支持搜索、分页与多维度筛选。

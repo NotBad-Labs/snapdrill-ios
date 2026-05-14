@@ -2,7 +2,7 @@
 //  ReviewAppearanceSettingsView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/02/24.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  复习卡片外观设置页（从 SettingsView.swift 拆分）

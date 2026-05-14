@@ -2,7 +2,7 @@
 //  FirebaseAnalyticsService.swift
 //  SnapDrillInfrastructure
 //
-//  Created by NotBad Labs on 2026/02/24.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Firebase Analytics 实现的 AnalyticsServiceProtocol 适配器。

@@ -2,7 +2,7 @@
 //  ModelTests.swift
 //  SnapDrillDataTests
 //
-//  Created by NotBad Labs on 2026/01/02.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SubjectModel, SourceModel, TagModel 单元测试（Swift Testing）。

@@ -2,7 +2,7 @@
 //  ServiceContainerTests.swift
 //  SnapDrillCoreTests
 //
-//  Created by NotBad Labs on 2026/02/25.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  DI 容器的验证测试。

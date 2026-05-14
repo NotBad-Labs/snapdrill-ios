@@ -2,7 +2,7 @@
 //  ProfileListViewModelTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/04/17.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  ProfileListViewModel 删除/切换/创建逻辑单元测试。

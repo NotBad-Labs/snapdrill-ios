@@ -2,7 +2,7 @@
 //  ReviewProgressHeader.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  复习进度条，展示当前复习的进度和剩余数量。

@@ -2,7 +2,7 @@
 //  BackupService.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2026/03/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  备份/恢复服务，将全量数据（JSON + 图片）打包为 .zip 文件。

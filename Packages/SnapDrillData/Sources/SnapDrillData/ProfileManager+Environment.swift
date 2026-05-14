@@ -2,7 +2,7 @@
 //  ProfileManager+Environment.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2026/03/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  将 ProfileManager 注册为 SwiftUI 环境变量，供 Settings UI 使用。

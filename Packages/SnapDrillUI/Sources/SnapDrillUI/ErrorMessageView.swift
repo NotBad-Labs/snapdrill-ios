@@ -2,7 +2,7 @@
 //  ErrorMessageView.swift
 //  SnapDrillUI
 //
-//  Created by NotBad Labs on 2026/01/02.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  通用错误消息视图组件

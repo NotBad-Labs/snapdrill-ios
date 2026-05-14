@@ -2,7 +2,7 @@
 //  GradeManagerView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/03/01.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  年级/学习阶段管理视图，与 SubjectManagerView 对等。

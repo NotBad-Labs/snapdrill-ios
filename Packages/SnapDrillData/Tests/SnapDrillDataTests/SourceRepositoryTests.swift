@@ -2,7 +2,7 @@
 //  SourceRepositoryTests.swift
 //  SnapDrillDataTests
 //
-//  Created by NotBad Labs on 2026/03/10.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SourceRepository CRUD、唯一性约束与种子数据测试。

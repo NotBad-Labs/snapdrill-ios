@@ -2,7 +2,7 @@
 //  RepositoryContainer.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2026/02/27.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  仓库容器，聚合所有 Repository 并提供统一数据清理入口。

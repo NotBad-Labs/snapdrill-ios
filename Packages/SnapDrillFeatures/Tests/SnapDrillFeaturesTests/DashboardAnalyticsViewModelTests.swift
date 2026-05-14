@@ -2,7 +2,7 @@
 //  DashboardAnalyticsViewModelTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/04/16.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  DashboardAnalyticsViewModel 统计聚合逻辑测试：学科趋势、难度分布、薄弱学科。

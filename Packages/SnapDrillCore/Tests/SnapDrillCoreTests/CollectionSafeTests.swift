@@ -2,7 +2,7 @@
 //  CollectionSafeTests.swift
 //  SnapDrillCoreTests
 //
-//  Created by NotBad Labs on 2026/03/10.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Collection+Safe 安全下标扩展测试。

@@ -2,7 +2,7 @@
 //  RepositoryContainer+Environment.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2026/03/02.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  将 RepositoryContainer 注册为 SwiftUI 环境变量键，供 ViewModel 直接调用 Repository。

@@ -2,7 +2,7 @@
 //  SettingsRow.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/02/24.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  设置列表行组件，Telegram 风格渐变图标。

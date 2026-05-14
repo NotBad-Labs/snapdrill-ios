@@ -2,7 +2,7 @@
 //  SettingsRouter.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  设置模块路由，管理应用配置页面导航

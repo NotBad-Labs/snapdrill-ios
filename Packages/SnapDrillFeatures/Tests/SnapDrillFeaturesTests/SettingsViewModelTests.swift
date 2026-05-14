@@ -2,7 +2,7 @@
 //  SettingsViewModelTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/03/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SettingsViewModel 核心路径单元测试：数据清除、备份/恢复状态机、guard 防护。

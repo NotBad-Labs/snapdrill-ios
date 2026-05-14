@@ -2,7 +2,7 @@
 //  ContentTaggingService.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/04/16.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  端侧 AI 内容标注服务，使用 FoundationModels 框架自动建议学科和难度。

@@ -2,7 +2,7 @@
 //  DataSeeder.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2025/12/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  测试数据生成器，用于开发环境下填充初始数据。

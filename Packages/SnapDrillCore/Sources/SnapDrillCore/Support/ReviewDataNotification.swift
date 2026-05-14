@@ -2,7 +2,7 @@
 //  ReviewDataNotification.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/02/28.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  定义题目数据变更的应用级通知名，避免业务层直接依赖 SwiftData 底层通知。

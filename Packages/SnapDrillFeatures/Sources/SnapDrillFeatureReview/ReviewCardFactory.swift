@@ -2,7 +2,7 @@
 //  ReviewCardFactory.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/01/01.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  工厂类，根据 ReviewItemModel 生成对应的复习卡片视图。

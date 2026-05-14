@@ -2,7 +2,7 @@
 //  PDFExportService.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2025/12/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  PDF 导出服务，负责将错题数据渲染为 PDF 文档。

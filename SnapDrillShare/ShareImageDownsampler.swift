@@ -2,7 +2,7 @@
 //  ShareImageDownsampler.swift
 //  SnapDrillShare
 //
-//  Created by NotBad Labs on 2026/04/20.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Share Extension OOM 防护：物理像素维度的图像降采样。

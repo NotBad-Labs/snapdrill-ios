@@ -2,7 +2,7 @@
 //  ExportPreviewView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  PDF 导出预览页，使用 PDFKit 渲染导出结果并提供分享/打印入口。

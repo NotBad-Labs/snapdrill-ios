@@ -2,7 +2,7 @@
 //  SM2State.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/03/02.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SM-2 算法所需的调度状态值类型，解耦算法与具体实体。

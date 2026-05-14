@@ -2,7 +2,7 @@
 //  SharedContainerImageWriter.swift
 //  SnapDrillShare
 //
-//  Created by NotBad Labs on 2026/04/20.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Share Extension 共享容器写入：URL/Data/UIImage 三段路径，全程避免大图原始解码以防 OOM。

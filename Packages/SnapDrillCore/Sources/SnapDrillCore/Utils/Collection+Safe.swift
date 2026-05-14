@@ -2,7 +2,7 @@
 //  Collection+Safe.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2025/12/30.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Collection 扩展，提供安全的数组下标访问。

@@ -2,7 +2,7 @@
 //  CaptureViewModelTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/02/25.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  CaptureViewModel 核心路径单元测试：草稿、OCR 扫描处理。

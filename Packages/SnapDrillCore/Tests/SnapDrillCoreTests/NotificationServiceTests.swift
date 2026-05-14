@@ -2,7 +2,7 @@
 //  NotificationServiceTests.swift
 //  SnapDrillCoreTests
 //
-//  Created by NotBad Labs on 2026/02/28.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  通知服务 Mock 的单元测试，验证调用追踪与错误模拟。

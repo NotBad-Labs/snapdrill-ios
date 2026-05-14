@@ -2,7 +2,7 @@
 //  DataConcurrencyTests.swift
 //  SnapDrillDataTests
 //
-//  Created by NotBad Labs on 2026/05/07.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Data 层并发安全性回归网 -- PR #8a。

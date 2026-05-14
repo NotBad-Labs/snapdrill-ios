@@ -2,7 +2,7 @@
 //  BackupDTO.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2026/03/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  备份文件的 Codable DTO 定义，用于 JSON 序列化/反序列化。

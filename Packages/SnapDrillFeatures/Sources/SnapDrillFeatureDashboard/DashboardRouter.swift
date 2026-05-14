@@ -2,7 +2,7 @@
 //  DashboardRouter.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  首页看板路由，负责首页导航逻辑

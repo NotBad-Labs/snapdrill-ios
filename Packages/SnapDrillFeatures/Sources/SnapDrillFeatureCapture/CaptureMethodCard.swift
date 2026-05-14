@@ -2,7 +2,7 @@
 //  CaptureMethodCard.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/04/13.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  采集方式卡片组件（iOS 26 Liquid Glass）

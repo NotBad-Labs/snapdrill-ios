@@ -2,7 +2,7 @@
 //  ReviewRepository.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  复习条目的 SwiftData 仓库实现，提供 CRUD、SM-2 调度辅助及分页查询。

@@ -2,7 +2,7 @@
 //  ProfileManager.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2026/03/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Profile 生命周期管理器，负责 Profile CRUD、数据库切换和偏好同步。

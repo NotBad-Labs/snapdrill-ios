@@ -2,7 +2,7 @@
 //  SettingsViewModelCSVTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/04/19.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  importCSV 与 parseCSV/parseCSVLine 的行为锁定测试。

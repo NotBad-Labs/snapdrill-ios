@@ -2,7 +2,7 @@
 //  BackupDTOTests.swift
 //  SnapDrillDataTests
 //
-//  Created by NotBad Labs on 2026/03/13.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  BackupPayload / BackupManifest JSON 序列化 round-trip 测试。

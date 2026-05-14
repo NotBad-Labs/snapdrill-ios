@@ -2,7 +2,7 @@
 //  CaptureResultViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/02/24.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  采集结果预览与编辑的 ViewModel，直接通过 RepositoryContainer 保存题目内容与图片。

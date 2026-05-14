@@ -2,7 +2,7 @@
 //  FlipView.swift
 //  SnapDrillUI
 //
-//  Created by NotBad Labs on 2026/01/01.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  通用的 3D 翻转卡片容器，支持点击翻转动画。

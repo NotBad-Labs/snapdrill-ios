@@ -2,7 +2,7 @@
 //  AppRouter.swift
 //  SnapDrill
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  应用层级路由管理，定义一级 Tab 和全局导航状态

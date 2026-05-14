@@ -2,7 +2,7 @@
 //  AnalyticsServiceMock.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/02/24.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  统计分析服务 Mock 实现，用于单元测试和 SwiftUI Preview。

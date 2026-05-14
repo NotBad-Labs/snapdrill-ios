@@ -2,7 +2,7 @@
 //  LicenseView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  开源许可展示页面，列出项目中使用的第三方库。

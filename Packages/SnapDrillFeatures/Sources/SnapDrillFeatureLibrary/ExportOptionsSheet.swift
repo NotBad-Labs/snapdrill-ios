@@ -2,7 +2,7 @@
 //  ExportOptionsSheet.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  导出选项配置页，允许用户选择要包含在 PDF 中的内容。

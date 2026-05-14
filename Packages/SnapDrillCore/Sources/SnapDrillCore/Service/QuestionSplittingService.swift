@@ -2,7 +2,7 @@
 //  QuestionSplittingService.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/04/17.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  端侧 AI 题目分割服务，使用 FoundationModels 框架从整页 OCR 文本提取独立题目。

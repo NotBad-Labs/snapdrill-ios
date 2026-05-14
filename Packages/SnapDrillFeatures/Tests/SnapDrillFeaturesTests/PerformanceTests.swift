@@ -2,7 +2,7 @@
 //  PerformanceTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/04/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  性能基准测试：题库列表加载、搜索、PDF 导出。

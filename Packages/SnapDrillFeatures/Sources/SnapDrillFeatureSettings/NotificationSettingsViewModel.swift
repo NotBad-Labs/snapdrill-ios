@@ -2,7 +2,7 @@
 //  NotificationSettingsViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/03/01.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  通知设置 ViewModel，封装权限请求与每日提醒调度，不直接暴露 UNUserNotificationCenter。

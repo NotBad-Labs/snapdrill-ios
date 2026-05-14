@@ -2,7 +2,7 @@
 //  LibraryEditViewModelTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/03/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  LibraryEditViewModel 核心路径单元测试：init 状态映射、save 持久化、图片操作。

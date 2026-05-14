@@ -2,7 +2,7 @@
 //  DashboardAnalyticsView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/04/08.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  高级统计卡片区 — 学科趋势图 + 难度分布 + 薄弱学科排行。

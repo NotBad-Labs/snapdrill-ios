@@ -2,7 +2,7 @@
 //  ImageStorageTests.swift
 //  SnapDrillCoreTests
 //
-//  Created by NotBad Labs on 2026/03/10.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  ImageStorage 文件 I/O 与 ImageIO 下采样逻辑测试。

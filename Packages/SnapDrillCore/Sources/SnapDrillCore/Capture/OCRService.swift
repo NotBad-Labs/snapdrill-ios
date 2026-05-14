@@ -2,7 +2,7 @@
 //  OCRService.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2025/12/30.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  OCR 服务，封装 Vision 框架提供图片文字识别能力。

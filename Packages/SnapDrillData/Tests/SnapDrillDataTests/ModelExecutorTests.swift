@@ -2,7 +2,7 @@
 //  DataExecutorTests.swift
 //  SnapDrillDataTests
 //
-//  Created by NotBad Labs on 2026/05/07.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  DataExecutor actor 测试 — 对标 PersistenceControllerTests。

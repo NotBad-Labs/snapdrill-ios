@@ -2,7 +2,7 @@
 //  DashboardViewModelTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/03/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  DashboardViewModel 核心路径单元测试：统计加载、草稿处理、通知刷新。

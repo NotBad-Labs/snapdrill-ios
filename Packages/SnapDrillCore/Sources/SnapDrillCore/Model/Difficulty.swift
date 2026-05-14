@@ -2,7 +2,7 @@
 //  Difficulty.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/02/28.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  定义题目难度等级枚举（1-5 星），替代裸 Int 表示。

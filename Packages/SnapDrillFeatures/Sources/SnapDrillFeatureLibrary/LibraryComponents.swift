@@ -2,7 +2,7 @@
 //  LibraryComponents.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/30.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  题库模块共享的小组件，如 SubjectCapsule。

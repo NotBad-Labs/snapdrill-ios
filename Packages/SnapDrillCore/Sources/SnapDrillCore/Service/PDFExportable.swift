@@ -2,7 +2,7 @@
 //  PDFExportable.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/02/28.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  PDF 导出用内容协议，隔离领域实体依赖。

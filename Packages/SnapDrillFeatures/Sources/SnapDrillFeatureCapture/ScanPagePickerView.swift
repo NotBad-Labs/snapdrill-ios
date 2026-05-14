@@ -2,7 +2,7 @@
 //  ScanPagePickerView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/04/15.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  文档扫描多页选择器：展示全部扫描页面的缩略图，点击后进入裁剪/OCR 流程。

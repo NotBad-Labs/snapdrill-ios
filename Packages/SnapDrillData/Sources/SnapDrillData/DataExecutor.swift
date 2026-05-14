@@ -2,7 +2,7 @@
 //  DataExecutor.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2026/05/07.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  拥有 ModelContainer 的 actor，将容器创建从 MainActor 移到 actor 专属执行器，

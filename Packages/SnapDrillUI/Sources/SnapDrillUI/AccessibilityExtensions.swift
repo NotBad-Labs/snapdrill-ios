@@ -2,7 +2,7 @@
 //  AccessibilityExtensions.swift
 //  SnapDrillUI
 //
-//  Created by NotBad Labs on 2026/01/03.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  无障碍支持扩展

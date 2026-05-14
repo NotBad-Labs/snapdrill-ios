@@ -2,7 +2,7 @@
 //  SubjectManagerView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  学科管理视图，允许用户添加、删除或重命名学科。

@@ -2,7 +2,7 @@
 //  ProfileListView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/03/31.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  学习者管理页面，支持 Profile 的切换、新增和删除。

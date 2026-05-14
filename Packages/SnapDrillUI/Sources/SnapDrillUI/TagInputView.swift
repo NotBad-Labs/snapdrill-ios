@@ -2,7 +2,7 @@
 //  TagInputView.swift
 //  SnapDrillUI
 //
-//  Created by NotBad Labs on 2025/12/30.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  标签输入组件，支持添加、删除标签。

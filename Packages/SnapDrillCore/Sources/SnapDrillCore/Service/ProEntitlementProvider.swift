@@ -2,7 +2,7 @@
 //  ProEntitlementProvider.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/05/13.
+//  Created by NotBad Labs.
 //  Copyright (c) 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Pro entitlement provider.

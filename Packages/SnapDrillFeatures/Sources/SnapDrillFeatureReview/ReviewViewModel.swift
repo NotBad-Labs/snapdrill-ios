@@ -2,7 +2,7 @@
 //  ReviewViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/02/24.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  复习会话的状态与业务逻辑管理，直接依赖 ReviewRepository 和 ReviewScheduler。

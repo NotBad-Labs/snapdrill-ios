@@ -2,7 +2,7 @@
 //  DashboardViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/02/25.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  首页仪表盘 ViewModel，管理统计数据加载与快捷操作状态。

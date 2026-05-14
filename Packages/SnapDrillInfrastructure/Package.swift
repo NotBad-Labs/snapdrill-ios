@@ -3,7 +3,7 @@
 //  Package.swift
 //  SnapDrillInfrastructure
 //
-//  Created by NotBad Labs on 2026/03/04.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Firebase 基础设施层：持有 Firebase SDK 依赖，保持 SnapDrillCore 零依赖。

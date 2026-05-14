@@ -2,7 +2,7 @@
 //  SourceManagerView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/01/01.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  来源管理视图，允许用户添加、删除或重命名来源。

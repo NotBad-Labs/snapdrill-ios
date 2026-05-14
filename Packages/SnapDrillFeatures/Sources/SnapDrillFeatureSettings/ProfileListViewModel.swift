@@ -2,7 +2,7 @@
 //  ProfileListViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/04/17.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  ProfileListView ViewModel：把 switch / delete / draft 检查逻辑从 View 抽出，

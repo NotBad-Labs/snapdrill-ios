@@ -2,7 +2,7 @@
 //  LibraryDetailView.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  错题详情页，展示题目的完整信息（原题、答案、解析）。

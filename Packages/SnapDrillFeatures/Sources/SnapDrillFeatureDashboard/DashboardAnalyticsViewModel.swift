@@ -2,7 +2,7 @@
 //  DashboardAnalyticsViewModel.swift
 //  SnapDrillFeatures
 //
-//  Created by NotBad Labs on 2026/04/08.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  高级统计 ViewModel — 按天聚合学科趋势、难度分布、薄弱学科排行。

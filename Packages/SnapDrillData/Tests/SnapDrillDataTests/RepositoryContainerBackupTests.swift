@@ -2,7 +2,7 @@
 //  RepositoryContainerBackupTests.swift
 //  SnapDrillDataTests
 //
-//  Created by NotBad Labs on 2026/03/13.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  RepositoryContainer 的 collectProfileBackupData / restoreFromProfileData round-trip 测试。

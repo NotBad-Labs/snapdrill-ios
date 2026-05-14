@@ -2,7 +2,7 @@
 //  L10n+Capture.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/01/03.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  L10n 采集流程分片：Capture / Subjects / Difficulty。

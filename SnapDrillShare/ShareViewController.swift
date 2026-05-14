@@ -2,7 +2,7 @@
 //  ShareViewController.swift
 //  SnapDrillShare
 //
-//  Created by NotBad Labs on 2026/03/10.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Share Extension 主入口，接收外部 App 分享的图片并唤起主 App 处理。

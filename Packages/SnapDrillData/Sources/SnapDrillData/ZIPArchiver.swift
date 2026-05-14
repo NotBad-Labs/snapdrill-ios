@@ -2,7 +2,7 @@
 //  ZIPArchiver.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2026/05/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  通用 ZIP 打包工具，封装 ZIPFoundation。供 Features 层通过 Data 层间接使用，

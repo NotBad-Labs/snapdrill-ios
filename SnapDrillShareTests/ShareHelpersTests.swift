@@ -2,7 +2,7 @@
 //  ShareHelpersTests.swift
 //  SnapDrillShareTests
 //
-//  Created by NotBad Labs on 2026/04/20.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  覆盖 SnapDrillShare 内部 helper 三类风险：OOM 防护（降采样）、

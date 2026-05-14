@@ -2,7 +2,7 @@
 //  TelemetryGate.swift
 //  SnapDrillCore
 //
-//  Created by NotBad Labs on 2026/05/12.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  Single privacy consent gate for all telemetry collection.

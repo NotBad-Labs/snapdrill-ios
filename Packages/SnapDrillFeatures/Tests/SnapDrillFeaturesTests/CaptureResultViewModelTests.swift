@@ -2,7 +2,7 @@
 //  CaptureResultViewModelTests.swift
 //  SnapDrillFeaturesTests
 //
-//  Created by NotBad Labs on 2026/03/09.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  CaptureResultViewModel 核心路径单元测试：保存、验证、分类创建、草稿。

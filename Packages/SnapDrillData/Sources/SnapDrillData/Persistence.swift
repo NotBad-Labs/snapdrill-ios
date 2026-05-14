@@ -2,7 +2,7 @@
 //  Persistence.swift
 //  SnapDrillData
 //
-//  Created by NotBad Labs on 2025/12/29.
+//  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  SwiftData 持久化控制器，管理 ModelContainer 生命周期与 Schema 迁移。
