@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-14
+last_verified: 2026-05-14
 layer: pattern
 ---
 # SnapDrill 技术架构
@@ -48,14 +48,16 @@ SnapDrillShare（Share Extension）
 ```
 DependencyContainer.shared（App 启动时初始化）
 ├── services: ServiceContainer（协议）→ LiveServiceContainer（实现）
-├── profileManager: ProfileManager
-│   ├── activeContainer: ModelContainer（SwiftData，Profile 切换时重建）
-│   ├── activeRepositories: RepositoryContainer
+├── profileManager: ProfileManager（@Observable，持有 DataExecutor）
+│   ├── executor: DataExecutor（actor 拥有 ModelContainer，消除 MainActor+XPC 死锁 #599）
+│   ├── activeContainer: ModelContainer（通过 executor 访问，Profile 切换时重建）
+│   ├── activeRepositories: RepositoryContainer（init(executor:) 构造）
 │   │   ├── review: ReviewRepository
 │   │   └── subject / source / grade / tag: 分类 Repository
 │   └── activeImageStorage: ImageStorage
-└── router: AppRouter（构造器注入到 AppRootView）
-    └── 5 个 FeatureRouter（DashboardRouter, LibraryRouter, ...）
+├── router: AppRouter（构造器注入到 AppRootView）
+│   └── 5 个 FeatureRouter（DashboardRouter, LibraryRouter, ...）
+└── ActivityTracker: AppActivityTracker（Profile 切换保护）
 ```
 
 **Environment 注入点**（SnapDrillApp.body）：
@@ -82,8 +84,11 @@ View（渲染层 + 依赖装配）
 ViewModel（@Observable，持有状态与业务流程）
   │ 通过 Repository 执行查询、保存、通知监听
   ▼
-Repository（封装 ModelContext 操作）
+Repository（封装 ModelContext 操作，通过 DataExecutor 访问）
   │ modelContext.fetch / insert / save / rollback
+  ▼
+DataExecutor（actor，拥有 ModelContainer，createOffMainActor() 消除死锁）
+  │
   ▼
 SwiftData @Model（持久化）
 ```
@@ -122,14 +127,15 @@ SwiftData @Model（持久化）
 | 模块 | 职责 |
 |---|---|
 | `*Model.swift` | SwiftData @Model 定义（ReviewItem, Subject, Source, Grade, Tag） |
-| `*Repository.swift` | 数据访问层，封装 ModelContext |
+| `*Repository.swift` | 数据访问层，封装 ModelContext（推荐 `init(executor:)`，保留 `init(modelContext:)` 向后兼容） |
+| `DataExecutor` | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599） |
 | `RepositoryContainer` | Repository 聚合 + Environment 注入 |
-| `BackupService` | .zip 备份/恢复 |
+| `BackupService` | .zip 备份/恢复（actor 隔离） |
 | `BackupDTO` | 备份数据传输对象 |
-| `ProfileManager` | 多 Profile / Vault 切换（独立数据库 + 图片目录 + per-profile UserDefaults） |
+| `ProfileManager` | 多 Profile / Vault 切换（独立数据库 + 图片目录 + per-profile UserDefaults），持有 DataExecutor |
 | `ProfileMigration` | Profile 结构迁移（老版本升级） |
 | `MigrationPlan` | SwiftData Schema 版本迁移 |
-| `Persistence` | ModelContainer 工厂 |
+| `Persistence` | ModelContainer 工厂（PersistenceController 已废弃为兼容类型，生产代码走 DataExecutor） |
 | `DataError` / `PersistenceError` | 错误类型定义 |
 | `DataSeeder` | 初始数据填充（默认学科/来源） |
 | `ReviewExportSnapshot` | 复习数据导出快照 |
@@ -188,6 +194,7 @@ LibraryViewModel 是调用方：
 | 5 个 SPM Package 而非 1 个 | 编译隔离 + 依赖方向强制 + 模块可独立测试 |
 | Protocol-based DI + @Environment | 替换实现只需改 DependencyContainer，Feature 层不感知 |
 | SwiftData 而非 Core Data | iOS 26+ 项目，原生 Swift 集成更好 |
+| DataExecutor actor | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599）；Repository 双 init（executor / modelContext）向后兼容 |
 | Repository 封装 ModelContext | 避免 View/ViewModel 直接操作数据库 |
 | ProfileManager Vault 模式 | 每个 Profile 独立数据库，参考 Obsidian，切换时重建 ModelContainer |
 | Firebase 隔离到 Infrastructure | Core 层保持零外部依赖，可随时替换分析/崩溃报告方案 |
