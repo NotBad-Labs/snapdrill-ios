@@ -91,8 +91,15 @@ Claude Opus 4.7 / Codex GPT-5.4 / Gemini 3 三方独立产出 schema + 迁移脚
 
 ## 回退方案
 
-- 迁移 PR 合并后若发现严重问题，`git revert` 单一 PR 即可回退全部 39 文件
-- pre-commit + CI 挂接独立 PR，可单独关闭 hook
+按 PR 粒度独立回退，三个 PR 解耦：
+
+1. **校验门** (#658)：`git revert <sha>` 仅关闭 pre-commit + CI step；docs 仍是 YAML，新文档不再强制
+2. **文件迁移** (#657)：`git revert <sha>` 回退 39 文件到 HTML 注释；与 #658 解耦，可单独回退
+3. **ADR 自身** (#656)：通常不需要回退；保留作历史决策记录
+
+**数据风险**：纯文档变更，无 SwiftData / 用户数据迁移。回退仅影响仓库内 frontmatter 格式与 CI 行为，无运行时影响。
+
+**判断标准**：若仅 CI 误报频繁 → 先 revert #658；若 GitHub Pages / 第三方工具与 YAML 不兼容 → revert #657 + #658。
 
 ## 验收
 

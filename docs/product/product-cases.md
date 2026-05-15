@@ -314,10 +314,22 @@ layer: pattern
 3. 系统生成 PDF 预览（复用 PDFExportService 管线）
 4. 用户确认后分享 / 打印 / 保存
 
-**Alternatives**:
+**Variants & Exceptions**:
 - [Variant] 免费用户配额耗尽：展示 Pro 引导，不阻断已有的手动导出能力
 - [Variant] 题目不足：提示题库数量不够，建议先录入更多题目
+- [Variant] 选题策略按订阅档差异化：免费 = 随机；Pro = SM-2 weakness + difficulty + recency
 - [Exception] PDF 生成失败：提示失败原因，保留选题结果可重试
+- [Exception] 用户取消预览：选题结果不持久化，下次进入需重新选题
+
+**Data guarantees**:
+- 智能组卷仅在当前 Profile 题库范围内选题，不跨 Profile
+- 选题结果与 PDF 导出复用同一份题目快照，确保「预览—打印—分享」三步内容一致
+- 免费用户的配额计数按 Profile 隔离，不跨设备同步（本地状态）
+
+**References**:
+- `../decisions/ADR-001-pro-functions.md`：智能组卷归属 Pro 功能
+- `product-design.md`：智能组卷选题策略
+- `product-business.md`：付费档差异 / 配额规则
 
 ---
 
@@ -334,9 +346,21 @@ layer: pattern
 3. Pro 用户看到完整图表（学科趋势图 + 难度分布 + 薄弱排行 + 交叉筛选）
 4. 用户可基于薄弱排行一键进入智能组卷（Analytics → Smart Paper 联动）
 
-**Alternatives**:
+**Variants & Exceptions**:
 - [Variant] 免费用户查看 Pro 图表区域：显示模糊预览 + Pro 引导
 - [Variant] 题目数据不足以生成趋势：显示"数据积累中"提示，不展示误导性图表
+- [Variant] 跨学科筛选：Pro 用户可叠加学科 + 难度 + 时间窗筛选；免费用户仅按学科切换
+- [Exception] 统计数据计算失败：保留上次缓存结果，提示「数据正在更新」，不展示空白页
+
+**Data guarantees**:
+- 统计数据仅基于当前 Profile 的题库与复习记录，不跨 Profile 聚合
+- 图表结果与题库实际数据一致；删题、改难度等操作后下次进入页面必须刷新
+- 「薄弱排行 → 智能组卷」联动传递的选题输入仅含题目 ID，不携带跨 Profile 数据
+
+**References**:
+- `../decisions/ADR-001-pro-functions.md`：高级统计归属 Pro 功能
+- `product-design.md`：统计页设计
+- `product-vision.md`：「成功信号」中的薄弱定位
 
 ---
 
