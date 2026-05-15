@@ -1,6 +1,6 @@
 ---
 last_verified: 2026-05-15
-layer: checkpoint
+layer: archive
 freshness:
   max_age_days: 365
   decay_trigger: []
