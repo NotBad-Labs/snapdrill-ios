@@ -243,13 +243,16 @@ layer: pattern
 - [Exception] 备份版本高于当前 App 支持版本：必须拒绝恢复并提示版本不兼容，建议升级 App
 - [Exception] 备份版本低于当前 App 但在兼容范围内：允许迁移恢复；失败时不得破坏现有本地数据
 - [Exception] 恢复写入中途失败：目标：完整成功或完整失败。当前实现：数据库恢复成功后图片恢复为 best-effort，可能出现数据库有记录但图片缺失的状态，恢复完成后应显示结果摘要
+- [Exception] 多 Profile 恢复中途某个 Profile 失败：当前实现按 Profile sequential 提交（`SettingsViewModel.restoreFromBackup` 逐个 Profile DB → 图片），失败时自动备份回滚仅对当前活跃 Profile 有效。已成功 commit 的 Profile 数据保留，未失败 Profile 不动。**多 Profile 全局原子恢复待实现**（追踪：未来增量 issue）
 - [Exception] 磁盘空间不足：恢复前检查可用空间，空间不足时拒绝开始恢复并提示
 
 **Data guarantees**:
 - 备份是用户数据所有权的出口；生成失败不得产生"文件已导出"假象
 - 恢复目标是可验证的完整替换或完整导入过程；当前实现如出现图片 best-effort 恢复失败，必须在结果摘要中明确提示，不得静默跳过
 - 备份与恢复必须保留 Profile 隔离关系
-- 任何恢复失败均不得损坏恢复前的现有本地数据
+- 单 Profile 内：DB 恢复事务原子（`RepositoryContainer` 单次 saveContext，失败 rollback），图片恢复为 best-effort
+- 多 Profile 之间：当前实现无全局原子事务；任一 Profile 恢复失败，已 commit 的 Profile 数据保留，活跃 Profile 自动备份回滚生效，未触达 Profile 不动
+- 任何恢复失败均不得损坏**该 Profile 恢复前的现有本地数据**（单 Profile 维度保证），多 Profile 全局回滚待实现
 
 **References**:
 - `product-vision.md`：`4. 数据属于用户（隐私是核心差异化）`
