@@ -94,7 +94,7 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 ```
 1. TestFlight 验证通过
 2. App Store Connect 填写发布信息
-   - 截图（iPhone 6.7"/6.1"，iPad 12.9"）
+   - 截图（iPhone 6.9"/6.3"，iPad 12.9"）
    - ASO 文案（标题/副标题/关键词/描述，中英双语）
    - 隐私政策 URL + 服务条款 URL
    - 审核备注

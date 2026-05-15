@@ -45,7 +45,7 @@ git branch -D       # 强制删除分支
 sudo rm             # 提权删除
 ```
 
-**绕过**：用户显式授权时可设 `CLAUDE_HOOK_ALLOW_DANGEROUS=1` 环境变量（见 `block-dangerous-bash.sh:9`）。
+**绕过**：用户显式授权时可设 `CLAUDE_HOOK_ALLOW_DANGEROUS=1` 环境变量（见 `block-dangerous-bash.sh:13-15`）。
 
 **新增 / 修改拦截规则时**：必须同步：
 1. `.claude/hooks/block-dangerous-bash.sh` 的 `DANGEROUS_RE` 变量
