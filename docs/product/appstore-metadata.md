@@ -17,8 +17,8 @@ freshness:
 |---|---|
 | App 名称 | SnapDrill |
 | 副标题 | 练习题数字化效率工具 |
-| 类别（主） | Education |
-| 类别（副） | Productivity |
+| 类别（主） | Productivity |
+| 类别（副） | Education |
 | 年龄分级 | 4+ |
 | 价格 | 免费（含 App 内购买） |
 | 版权 | 2026 NotBad Labs L.L.C. |
@@ -29,12 +29,12 @@ freshness:
 
 ### 中文（简体）
 ```
-错题本,练习题,拍照录入,OCR,试卷,复习,间隔重复,学习工具,作业,题库,PDF导出,扫描,家长,打印
+错题本,练习题,拍照录入,OCR,试卷,复习,间隔重复,效率工具,作业,归档,PDF导出,扫描,家长,打印
 ```
 
 ### 英文
 ```
-wrong,answers,practice,OCR,exam,review,spaced,repetition,study,tool,homework,quiz,PDF,export,scan
+wrong,answers,practice,OCR,exam,review,spaced,repetition,productivity,homework,archive,organize,PDF,export,scan
 ```
 
 ---
@@ -98,7 +98,7 @@ Snap practice problems, OCR extracts text, spaced repetition supports review. Ze
 ## 审核备注（Review Notes）
 
 ```
-SnapDrill is an educational productivity tool for digitizing practice problems from textbooks, exams, and homework.
+SnapDrill is a productivity utility for digitizing user-provided practice materials (notebooks, printouts, homework). Content is supplied entirely by the user; the app does not provide any question bank, course content, or third-party material.
 
 Core workflow:
 1. Capture: Photo / Document Scanner / PDF Import

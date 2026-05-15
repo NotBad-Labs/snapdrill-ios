@@ -10,7 +10,7 @@ layer: pattern
 
 ## 关键约束
 
-- **产品定位**：效率工具，不是教育平台。核心价值链：采集 → 管理 → 导出/打印（复习是可选留存层，智能组卷是 Pro 增值延伸）
+- **产品定位**：效率工具，不是教育平台 / 题库 / 学习打卡 / 社交（边界详见 `docs/product/product-vision.md`§不是什么 + `product-business.md`§免费层定义）。核心价值链：采集 → 管理 → 导出/打印（复习是可选留存层，基础 SM-2 免费，智能组卷是 Pro 增值延伸）
 - **工程哲学**：见 `engineering.md` 7 条核心原则（先判断方向、删减优先、YAGNI、编译拦截、边界契约、状态流、可逆性）
 - **编码铁律**：swiftlint --strict 0 violations + xcodebuild build-for-testing 0 errors
 - **数据安全**：零注册、核心内容数据纯本地、图片是真相、Profile 隔离；匿名 usage/crash telemetry 默认不采集，用户可 opt-in
