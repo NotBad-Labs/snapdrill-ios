@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-13
+last_verified: 2026-05-15
 layer: snapshot
 freshness:
   max_age_days: 30
@@ -12,7 +12,7 @@ freshness:
 > 每次 build 推送到 TestFlight 前，在真机上走完以下流程。
 > 标注 ❌ 的项目必须修复后才能发版。
 >
-> Last verified: 2026-04-03（第四轮审计，修正语言设置/Memory 引用/上游依赖）
+> Last verified: 2026-05-15（与 frontmatter 同步，Phase 5 时效性批量刷新）
 
 ---
 

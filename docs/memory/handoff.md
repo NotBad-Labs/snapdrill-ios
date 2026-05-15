@@ -177,15 +177,6 @@ engineering → product-vision → ADR-001/002 → NFR → architecture — 6 �
 
 全部清空。零内部阻塞。
 
-| Skill | 覆盖的 F 规则 | 触发时机 |
-|---|---|---|
-| `verify-audit-report` | F-006, F-012 | 收到审计报告后 |
-| `dependency-propagation` | — | 文档变更后 |
-| `sprint-contract` | F-018 | Issue 进入 Building |
-| `post-merge` | F-007, F-019 | PR 合并后 |
-| `api-research` | F-017 | UI/SDK 改动前 |
-| `snapshot-diff-review` | — | Snapshot baseline 变更时 |
-
 ## Phase 2 全链路完工（2026-05-08）
 
 DeepSeek v4 Pro 从 5/7 度假回归起完成 Phase 2 剩余全部工作：

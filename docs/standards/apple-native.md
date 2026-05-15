@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-14
+last_verified: 2026-05-15
 layer: pattern
 ---
 # Apple 原生优先

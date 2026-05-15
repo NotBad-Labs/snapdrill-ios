@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-19
+last_verified: 2026-05-15
 layer: pattern
 ---
 # 项目决策记录
@@ -10,9 +10,9 @@ layer: pattern
 
 **决策**：Repository CRUD 代理方法保持 untyped throws，业务验证方法用 typed throws，禁止 `underlying(Error)` 逃生舱。
 
-**论证参与者**：Codex + Gemini x2 + Coze + GLM4.7（五方独立论证）
+**论证参与者**：Codex + Gemini ×2 + Coze + GLM4.7 + MiniMax（六方独立论证，Gemini 跑了 2 次）
 
-**共识（4:2 采纳）**：SnapDrill 无 Domain/UseCase 层（ViewModel 直连 Repository），错误转换的理论收益被扁平架构削弱。ViewModel 对 `DataError.saveFailed` 和 generic `Error` 处理方式相同。
+**共识（4:2 采纳）**：SnapDrill 无 Domain/UseCase 层（ViewModel 直连 Repository），错误转换的理论收益被扁平架构削弱。ViewModel 对 `DataError.saveFailed` 和 generic `Error` 处理方式相同。多数派 = Codex + Gemini ×2 + Coze；少数派 = GLM4.7 + MiniMax。
 
 **异议**：GLM4.7 和 MiniMax 认为 Repository 层本职是错误转换，应主动包装。
 
