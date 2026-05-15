@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# pre-push hook — 拦截直接 push 到 develop / main
+# 安装：cp Scripts/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+# Override（紧急）：ALLOW_DIRECT_PUSH=1 git push origin develop
+
+set -u
+
+PROTECTED_BRANCHES=("develop" "main")
+
+# 读取 push 信息（stdin）
+while read -r local_ref local_sha remote_ref remote_sha; do
+  for branch in "${PROTECTED_BRANCHES[@]}"; do
+    if [[ "$remote_ref" == "refs/heads/$branch" ]]; then
+      if [[ "${ALLOW_DIRECT_PUSH:-0}" != "1" ]]; then
+        echo "" >&2
+        echo "❌ pre-push: 禁止直接 push 到 '$branch'" >&2
+        echo "" >&2
+        echo "根因纪律：docs/memory/feedback.md + MEMORY 「develop 禁直推」" >&2
+        echo "GitHub Free + private repo 无法用 server-side branch protection，靠本地 hook 软治。" >&2
+        echo "" >&2
+        echo "正确流程：" >&2
+        echo "  git checkout -b fix/your-fix" >&2
+        echo "  git push -u origin fix/your-fix" >&2
+        echo "  gh pr create --base $branch" >&2
+        echo "" >&2
+        echo "紧急直推 override：" >&2
+        echo "  ALLOW_DIRECT_PUSH=1 git push origin $branch" >&2
+        echo "" >&2
+        exit 1
+      else
+        echo "⚠️  ALLOW_DIRECT_PUSH=1 已设置，绕过保护推送到 '$branch'" >&2
+      fi
+    fi
+  done
+done
+
+exit 0
