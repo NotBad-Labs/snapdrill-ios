@@ -62,9 +62,33 @@ freshness:
 
 ---
 
-## 本次会话成果（2026-05-14，7 commits，已推送）
+## 本次会话成果（2026-05-14 全天，含上午 + 下午+晚间两段）
 
-### 新增 6 个 Skill
+### 下午+晚间（零信任审计 + CI 治理 emergency）
+
+| 项 | 内容 |
+|---|---|
+| **双统帅架构** | Claude Opus 4.7 + Codex GPT-5.5 high effort = 双统帅 / DeepSeek V4-Pro = 单文件贪吃蛇执行者 / Gemini = 参考不裁决 |
+| **DeepSeek wrapper 修** | `~/.local/bin/deepseek` 加 `--allowedTools Read Write Edit Bash Glob Grep --add-dir` 永久投资；同时发现 wrapper agent loop 跑长任务挂死，改 curl 直调 API |
+| **Codex 第 1 轮全量审** | 16 finding (1C/6H/8M/1L)，落盘 `~/.claude/plans/audit-findings-20260514/codex-findings.md` |
+| **DeepSeek 贪吃蛇 50 文件** | ~235 finding (9C/53H/117M/72L)，curl + code-evidence packet + 反向引用 + 上游事实摘要 |
+| **总 finding** | 251 个，aggregate `master-findings.tsv` |
+| **CI 三天没跑根因** | ci.yml 缺 push trigger（commit 51b3c035 已修） |
+| **PR #749 emergency unblock** | 5 commits 修 3 天累积 5 层洋葱：test import 错 × 3 + ProfileManager environment runtime detection + cherry-pick docaudit fixture (5eadb3a4)|
+| **PR #748 pre-push hook** | CI 跑中，软治 develop 直推（GitHub Free + private repo 无 branch protection 改用本地 hook） |
+| **安全审查** | server secrets 全干净，决定不公开 repo（保留商业策略） |
+
+### 5 次 Codex 协商决策
+
+1. 贪吃蛇 + curl + code-evidence packet 工作流方案
+2. PR 死锁破局方案 5（emergency PR cherry-pick）
+3. ProfileManager fatal 修复路径方案 A vs E vs F
+4. Runtime detection 实现 review（接受作为 F 等价物）
+5. Phase 2 核验策略 + Phase B 是否立即启动（Codex 建议等 Claude 核验后再启）
+
+### 上午（工程治理收尾）
+
+#### 新增 6 个 Skill
 
 | Skill | 覆盖 F 规则 | 触发时机 |
 |---|---|---|
@@ -156,10 +180,11 @@ workaround (TestModelContainer) → 测试安全网 (#8a) → actor 根因修复
 
 | 工具 | 版本 | 命令 |
 |---|---|---|
-| Codex CLI | 0.121.0 | `codex` |
+| Codex CLI | 0.130.0 | `codex` |
 | Gemini CLI | 0.41.2 | `gemini -m gemini-3-pro-preview` |
-| Node | v25.6.0 | |
-| npm | 11.8.0 | |
+| DeepSeek wrapper | local | `~/.local/bin/deepseek "<prompt>"`（重型 agent loop）/ 或 curl 直调 `https://api.deepseek.com/anthropic/v1/messages`（轻型单 shot） |
+| Node | v26.0.0 | |
+| npm | 11.12.1 | |
 
 ## 质量门
 
@@ -193,13 +218,16 @@ DeepSeek v4 Pro（Claude Code CLI）完成全量基线审计：
 - 3 Warning 为代码卫生：NSError→typed throws、PersistenceController 加 deprecated 标记、ProfileManager force_unwrap 消除
 - 完整报告：`docs/memory/checkpoints/2026-05-08-baseline-audit.md`
 
-## 三方协作纪律
+## 多智能体协作纪律
 
 - **F-008**: Codex/Gemini 接收完全相同任务，只读不写，独立审计
 - **F-016**: Codex/Gemini 发现的问题，必须提交回原发现方复核才能合并
+- **双统帅**（2026-05-14 新立）：Claude Opus 4.7 + Codex GPT-5.5 high effort 平等决策；DeepSeek V4-Pro 是执行者（单文件粒度贪吃蛇）；Gemini 参考不裁决
 - **评分方权重**: Codex 主锚点 / Gemini 守纪律次锚点 / Claude/DeepSeek 实施方自审为参考
 - **Retry 阈值**: 综合 < 7.0 或 方差 > 2.5
 - **sync PR**: docs-only PR CI 绿后直接合并
+- **审计任务串行**（2026-05-14 经验）：DeepSeek wrapper agent loop 跑并发挂死，零信任审计类长任务必须串行 + 单次任务量小
+- **质量优先于速度**（feedback_quality_over_speed.md）：审计/调研/对抗审查类不为速度牺牲质量盲区
 
 ## 相关仓库
 

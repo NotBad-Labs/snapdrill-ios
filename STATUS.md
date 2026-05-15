@@ -7,16 +7,46 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-14（**工程治理收尾 — 6 skill + 依赖传播链全量复核 + 源文件头防腐**）
-> 编译状态：✅ 0 errors · 0 lint violations · docaudit exit 0
-> Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
-> 领先 origin/develop：**0 commits**（已同步）
+> 最后更新：2026-05-14（**全天 — 上午 6 skill + 下午文档零信任审计 + 晚间 CI 盲区治理 emergency unblock**）
+> 编译状态：✅ 0 errors · 0 lint violations · docaudit exit 0（PR #749 修后）
+> Open PR：1（#748 pre-push hook CI 跑中）· Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
+> 领先 origin/develop：**0 commits**（PR #749 emergency unblock + 51b3c035 ci.yml push trigger 已合）
 > **新增 6 个 Skill**：verify-audit-report / dependency-propagation / sprint-contract / post-merge / api-research / snapshot-diff-review
 > **源文件防腐**：237 文件删除创建日期，git blame 为唯一真相源
-> **工具链**：Claude Opus 4.7 + Codex CLI + Gemini CLI · skill-creator@claude-plugins-official
+> **新增双统帅架构**：Claude Opus 4.7 + Codex GPT-5.5 high effort = 双统帅 / DeepSeek V4-Pro = 单文件贪吃蛇执行者
+> **零信任审计在跑**：Codex 16 finding + DeepSeek 贪吃蛇 50 文件 ~235 finding = 251 finding，Phase 2 Claude 核验待启
+> **CI 盲区治理闭环**：ci.yml push trigger + pre-push hook + PR #749 五轮 fix 解锁 develop 三天累积 build/runtime fatal
+> **工具链**：Codex CLI 0.130.0 + Gemini CLI + DeepSeek V4-Pro · skill-creator@claude-plugins-official
 > **下次接手**：读 `docs/memory/handoff.md` Boot 序列
 
-## 本轮完成（2026-05-14，工程治理收尾）
+## 本轮下午+晚间完成（2026-05-14，零信任审计 + CI 治理 emergency）
+
+### 双统帅架构 + 零信任审计 Phase A
+
+| 类别 | 内容 |
+|---|---|
+| 双统帅协作 | Claude Opus 4.7 + Codex GPT-5.5 high effort = 双统帅，DeepSeek V4-Pro = 单文件贪吃蛇执行者；7 次 Codex 协商决策 |
+| DeepSeek wrapper 修 | `~/.local/bin/deepseek` 加 `--allowedTools Read Write Edit Bash Glob Grep --add-dir` 永久投资 |
+| 发现 wrapper 致命 bug | spawn `claude -p` agent loop 跑长任务挂死（CPU 0% 20+ 分钟），改 curl 直调 API 单文件粒度 |
+| Codex 第 1 轮全量审 | 16 finding (1C/6H/8M/1L)，13 文件覆盖 |
+| DeepSeek 贪吃蛇 50 文件 | curl + code-evidence packet + 反向引用 + 上游事实摘要，~235 finding (9C/53H/117M/72L) |
+| 总 finding | 251 个，aggregate `~/.claude/plans/audit-findings-20260514/master-findings.tsv` |
+| 自动预筛 | evidence-verification.tsv：17 HIT / 7 MISS / 92 NO_CMD / 120 NOT_GREP |
+| Memory 新增 | feedback_quality_over_speed / feedback_leaked_key_policy |
+
+### CI 盲区治理（紧急发现 + 修复）
+
+| 阶段 | 内容 |
+|---|---|
+| 发现 | CI 三天没跑，根因：ci.yml 缺 push trigger（注释明确"只 PR 触发减少排队"，与最近 16 commits 直推 develop 模式冲突） |
+| 第 1 修 | ci.yml 加 push trigger（commit 51b3c035 已合 develop） |
+| 第 2 修 | pre-push hook 软治 develop 直推（**PR #748 CI 跑中**） |
+| 第 3 修 | PR #749 emergency unblock 5 commits 修 3 天累积 5 层洋葱（test import × 3 + ProfileManager environment runtime detection + cherry-pick docaudit fixture） |
+| 安全决策 | server secrets 全干净，决定不公开 repo（保留商业策略），Free GitHub 无 branch protection 改用 pre-push hook 软治 |
+
+**当前阻塞**：PR #748 CI 跑完即合并；Phase 2-5 audit 收口工作（~92 个高优先 finding 待 Claude 核验）。
+
+## 本轮上午完成（2026-05-14，工程治理收尾）
 
 | 类别 | 内容 |
 |---|---|
@@ -26,8 +56,6 @@ freshness:
 | 源文件头防腐 | 237 文件 `Created by NotBad Labs on DATE.` → `Created by NotBad Labs.` — Codex + Claude 零分歧 |
 | 文档日期修复 | 8 个 last_verified 过期修复（04-14 → 05-14）|
 | auto-commit 记忆 | 改动完成后主动提交推送，不让用户提醒 |
-
-**零内部阻塞。全部 handoff 待办清空。**
 
 ## 历史完成（2026-04-18→19，Harness Engineering Stage A+B 7 PR）
 
