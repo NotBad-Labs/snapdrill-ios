@@ -11,7 +11,7 @@ layer: pattern
 **35 岁妈妈第一次打开 App 能顺利使用。初三学生能自主操作。**
 
 > 用户画像详见 `docs/product/product-vision.md`「目标用户」
-> 用户旅程详见 `docs/product/product-requirements.md`「用户旅程」（旅程 0-12）
+> 用户旅程详见 `docs/product/product-journeys.md`「旅程」（旅程 0-12）
 
 ## 设计原则
 
