@@ -119,6 +119,45 @@ layer: principle
 
 ---
 
+## F-XXX 反馈编号规则
+
+> 项目纪律以 `F-XXX` 编号收敛，便于跨文档引用、回顾、退役管理。本节定义**编号的元规则**，规则全文 SSOT 在 [`docs/memory/feedback.md`](../memory/feedback.md)。
+
+**格式**：`F-NNN`（三位数字零 padding，如 `F-001`、`F-019`）。
+
+**生命周期**：
+
+| 状态 | 标记 | 说明 |
+|---|---|---|
+| Active | （无后缀） | 当前有效纪律 |
+| Retired | `[retired YYYY-MM-DD]` 加在标题 | 保留历史不删除，避免编号复用，提供决策溯源 |
+
+**分配规则**：
+
+- 任何项目纪律（多智能体共遵 + 跨任务 + 重复违反风险）符合编号资格
+- 单调自增，**不复用退役编号**（即使 F-003/F-009/F-010/F-015/F-020 已 retired，下一个新规则仍用 F-021 而非占空号）
+- 新规则在 feedback.md 加入 `## F-NNN: 标题` + body
+- 退役在标题加 `[retired YYYY-MM-DD]` 标记并保留原文
+
+**升级路径**：
+
+- 同类违反 ≥ 3 次 → 评估自动化（git hook / CI step / skill 触发）
+- 自动化落地后 feedback.md 该 F-XXX 引用对应 hook / skill 而非纯文字纪律（参见 F-019 反模式启发式回流）
+
+**反向引用**：
+
+`F-XXX` 编号可在以下文档中出现，**引用必须可追溯到 feedback.md SSOT**：
+
+- `decisions.md` — 决策记录引用约束来源
+- `workflow.md` — DoD / Review 流程引用
+- `handoff.md` — 接手时引用关键纪律
+- `.claude/skills/*/SKILL.md` — 自动化执行某 F-XXX
+- 各 `agent-delegation.md` — 委派 prompt 引用纪律
+
+**注**：本节由零信任审计 Phase 5 PR-A2 引入，修复 DeepSeek 发现的"engineering.md 被多文件标为 F-XXX 规则源但实际无定义"治理 gap。
+
+---
+
 ## 相关文档
 
 | 文档 | 说明 |
