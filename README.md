@@ -27,7 +27,7 @@
 - **[SnapDrillData](Packages/SnapDrillData/README.md)**: 数据层。基于 SwiftData 的 `@Model` 类（直接作领域对象）、具体 Repository 类、持久化控制器和迁移计划。
 - **[SnapDrillUI](Packages/SnapDrillUI/README.md)**: 表现层。包含设计系统、通用组件 (ImageCropper) 和基础路由协议。
 
-- **[SnapDrillInfrastructure](Packages/SnapDrillInfrastructure/)**: 基础设施层。Firebase 实现（Analytics/Crashlytics/RemoteConfig），仅 `SnapDrill/App` 可 import。
+- **[SnapDrillInfrastructure](Packages/SnapDrillInfrastructure/)**: 基础设施层。Firebase 实现（Analytics/Crashlytics；RemoteConfig 已移除），仅 `SnapDrill/App` 可 import。
 
 #### 2. 功能层 (Feature Layer)
 
@@ -61,5 +61,14 @@
 ## 测试
 
 - **Xcode**: `Cmd+U`
-- **命令行（运行测试）**: `xcodebuild test -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
-- **命令行（仅编译验证，含测试 target）**: `xcodebuild build-for-testing -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17'`
+- **命令行 AllTests 两步法**（见 `docs/standards/testing.md`，禁止单步 `xcodebuild test`）：
+
+```bash
+xcodebuild build-for-testing -scheme AllTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -testPlan AllTests
+
+xcodebuild test-without-building -scheme AllTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -testPlan AllTests
+```

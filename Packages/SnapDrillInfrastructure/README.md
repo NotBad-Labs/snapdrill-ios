@@ -2,7 +2,7 @@
 
 **Firebase 基础设施实现层 (Firebase Infrastructure Implementation)**
 
-`SnapDrillInfrastructure` 持有所有 Firebase SDK 依赖，封装 Analytics、Crashlytics 和 Remote Config。是唯一允许 `import Firebase` 的包。
+`SnapDrillInfrastructure` 持有所有 Firebase SDK 依赖，封装 Analytics、Crashlytics（Remote Config 已移除，详见 \[ADR-002\] 与 #699 epic 隐私决策）。是唯一允许 `import Firebase` 的包。
 
 依赖方向：`SnapDrill/App` ──► `SnapDrillInfrastructure` ──► `SnapDrillCore`
 
@@ -20,10 +20,10 @@
 - 通过 `FirebaseBootstrap.setCrashlyticsEnabled(_:)` 控制开关，无独立 Service 类
 
 ### 远程配置
-- **FirebaseRemoteConfigService**: 遵循 `RemoteConfigurable`（定义在 `SnapDrillCore`），拉取并激活远程参数
+- **已移除**：原 `FirebaseRemoteConfigService` 因隐私决策不再使用（用户无网络/纯本地工具定位），仅保留代码注释作为历史
 
 ## 依赖
 - `SnapDrillCore`: 引用协议定义和核心类型
-- `FirebaseCore` / `FirebaseAnalytics` / `FirebaseCrashlytics` / `FirebaseRemoteConfig`: Firebase SDK
+- `FirebaseCore` / `FirebaseAnalytics` / `FirebaseCrashlytics`: Firebase SDK（RemoteConfig 已移除）
 
 > 详细 API 参考见 DocC 文档：`SnapDrillInfrastructure.docc/SnapDrillInfrastructure.md`

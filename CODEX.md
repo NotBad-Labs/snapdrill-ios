@@ -27,11 +27,12 @@
 ```bash
 swiftlint --strict        # 0 violations
 xcodebuild build-for-testing \
-  -scheme SnapDrill \
-  -destination 'platform=iOS Simulator,name=iPhone 17'  # 0 errors
+  -scheme AllTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -testPlan AllTests        # 0 errors
 ```
 
-完整 DoD 见 `docs/workflow.md`。
+测试用 `AllTests` scheme + `AllTests` testPlan（SnapDrill scheme 不含 SPM 包测试）。完整 DoD 见 `docs/workflow.md`。
 
 ## 项目一句话
 
