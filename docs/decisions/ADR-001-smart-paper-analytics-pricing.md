@@ -70,7 +70,7 @@ Claude/Codex/Gemini 三方独立横向研究，竞品覆盖 Anki、Quizlet、Goo
 
 ## 后果
 
-- glossary.md Pro 定义需更新
+- `product-glossary.md` Pro 定义需更新
 - product-business.md 免费/Pro 分层表需同步
 - StoreKit 实现时需设计配额机制（月度重置）
 - Analytics → Smart Paper 联动作为 Pro 卖点在 UI 中体现
