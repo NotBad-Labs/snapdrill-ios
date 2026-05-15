@@ -33,6 +33,7 @@ layer: pattern
 | `docs/product/product-analytics.md` | Analytics 事件字典（事件定义、触发条件、参数） | vision（成功信号） | 新增/修改事件 |
 | `docs/product/product-onboarding.md` | Onboarding 内容规格（页面内容、文案方向、触发规则） | vision, design | 用户反馈/产品pivot |
 | `docs/product/product-glossary.md` | 术语定义 | vision | 概念变更 |
+| `docs/product/appstore-metadata.md` | App Store 元数据（ASO 文案、类别、隐私 URL、审核备注） | vision, business, compliance | Apple 提交准备/版本更新 |
 | `docs/standards/apple-native.md` | Apple 原生 UI 模式 | — | HIG/WWDC |
 | `docs/standards/coding.md` | 编码规范、SwiftLint 规则 | engineering | Swift 版本 |
 | `docs/standards/testing.md` | 测试策略 | engineering | XCTest 更新 |
@@ -136,13 +137,13 @@ iOS 17  SwiftData（声明式，与 SwiftUI 深度集成）
 ### 退出（文档如何退役）
 
 当知识不再适用时，不删除，标记退役：
-- 在文件头加 `<!-- status: archived, reason: xxx -->`
+- 在 YAML frontmatter 中设置 `status: archived` 和 `reason:`（ADR-003 后 HTML comment 不再使用）
 - 从 KNOWLEDGE_MAP 对应表格中移除，归入下方"已退役"小节
 - feedback 被内化到 `docs/standards/` 或 `docs/memory/feedback.md` 后即可退役
 - api-pitfalls 条目被框架修复后标记退役
 - ADR 被新 ADR 取代时标记为"已废弃"并指向替代 ADR
 
-**文件数量软上限**：活跃知识文件 ~40 个（当前 docs/ 下第一方 md 约 39）。超过时优先合并或退役，而非继续新增。
+**文件数量软上限**：活跃知识文件 ~50 个（当前 docs/ 下第一方 md 46，不含 archive/checkpoints/）。超过 ~50 时优先合并或退役，而非继续新增。
 
 ## 架构决策记录（ADR）
 
