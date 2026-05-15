@@ -30,7 +30,7 @@ layer: pattern
 写法原则：
 - 聚焦本次变更引入的新风险，不重复通用检查项
 - 用提问句式引导审查方向（如"xxx 是否会导致 yyy"）
-- 如涉及用户旅程变更，明确引用 docs/product/product-requirements.md「用户旅程」中的旅程编号
+- 如涉及用户旅程变更，明确引用 docs/product/product-journeys.md「旅程」中的旅程编号
 - 如涉及新 API，要求检查与 docs/tech/api-pitfalls.md 的一致性
 
 ### 4. 固定收尾
@@ -117,6 +117,8 @@ layer: pattern
 ---
 
 ## 示例（首次 review）
+
+> **虚构示例**：以下 PR #232 与 `FieldSelectionOnboardingView` 是为说明 prompt 结构而构造的，**不对应仓库内真实类型/PR**。实际写 review prompt 时请替换为真实 PR 号与代码类型。
 
 ```
 请对 PR #232（branch: feat/issue-195-onboarding-field-selection）进行全量 Code Review，
