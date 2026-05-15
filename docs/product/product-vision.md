@@ -50,7 +50,7 @@ SnapDrill 的存在意义：**用最简交互、零成本核心功能和极致�
 - **原生体验**：深度依赖 Apple 平台原生能力，不做跨平台妥协
 
 **不是什么**：
-- 不是 Anki 式记忆工具——SnapDrill 是存档工具，复习只是附带福利。SM-2 和智能组卷是可选功能，不应侵蚀核心采集/管理/导出路径的简洁性
+- 不是 Anki 式记忆工具——SnapDrill 是存档工具，复习只是附带福利。SM-2 和智能组卷是可选功能，不应侵蚀核心采集/管理/导出路径的简洁性（**Pro/Free 划分**：基础 SM-2 复习是免费层，智能组卷是 Pro 增值；详见 `product-business.md`§免费层定义）
 - 不是内容平台——不提供题库、课本、试卷，所有内容来自用户
 - 不是学习打卡工具——不做连续天数、成就弹窗、排行榜
 - 不是社交产品——不做分享社区、不做推荐算法
@@ -169,14 +169,14 @@ SnapDrill 真正的差异化在于：题目工作流设计 + 离线隐私架构 
 
 | 信号 | 度量定义 | 数据来源 | 状态 |
 |---|---|---|---|
-| 首次录入效率（含 onboarding） | 从 App 冷启动到首次保存成功的时间中位数 | Analytics 事件：`app_launch` → `item_saved` | 待发布后测定，暂不设阈值 |
-| 首次录入效率（进入采集页后） | 从进入采集页到保存成功的时间中位数 | Analytics 事件：`capture_start` → `item_saved` | 待发布后测定，暂不设阈值 |
-| 持续录入行为 | D7 仍有录入/管理/导出行为的用户占 D0 用户比例 | Analytics：D7 活跃且有 `item_saved` / `pdf_exported` / `print_triggered` 的用户 | 待发布后测定 |
-| 激活深度 | D7 留存用户的题库题目数中位数 | Analytics：D7 活跃设备的 `library_count` | 待发布后测定 |
-| 有机增长结构 | App Store 下载来源分布（Search / Browse / Referral / 外部） | App Store Connect | 待发布后观察，不做预设比例 |
+| 首次录入效率（含 onboarding） | 从 App 冷启动到首次保存成功的时间中位数 | Analytics 事件：`app_launched` → `capture_saved` | 待发布后测定，暂不设阈值 |
+| 首次录入效率（进入采集页后） | 从进入采集页到保存成功的时间中位数 | Analytics 事件：`camera_opened` → `capture_saved` | 待发布后测定，暂不设阈值 |
+| 持续录入行为 | D7 仍有录入/管理/导出行为的用户占 D0 用户比例 | Analytics：D7 活跃且有 `capture_saved` / `pdf_exported` / `data_exported` 的用户 | 待发布后测定 |
+| 激活深度 | D7 留存用户的题库题目数中位数 | 定性验证（无内置 `library_count` 事件；可由 `review_item_created` 累计推导，或后续补查询事件） | 待发布后测定 |
+| 有机增长结构 | App Store 下载来源分布（Search / Browse / Referral / 外部） | App Store Connect（非 Analytics 事件） | 待发布后观察，不做预设比例 |
 | Multi-Profile 可用性 | 跨 Profile 数据泄漏事件 = 0 | 定性验证（用户测试）+ 自动化：跨 Profile 数据泄漏作为 S0 级 Bug | 已实现，持续监控 |
-| 成果分发 | 家长能导出或分享孩子的整理成果（通过系统分享菜单，非社交功能） | Analytics 事件：`share_card_generated` 发生率 | 待发布后测定 |
-| 价值链完成率 | 完成"管理 → 导出/打印"闭环 | Analytics 事件：`pdf_exported` 或 `print_triggered` 至少 1 次的用户占 D30 活跃用户比例 | 待发布后测定 |
+| 成果分发 | 家长能导出或分享孩子的整理成果（通过系统分享菜单，非社交功能） | 系统分享 sheet 触发（非 Analytics 事件，依赖 iOS UIActivityViewController 路径） | 待发布后测定 |
+| 价值链完成率 | 完成"管理 → 导出/打印"闭环 | Analytics 事件：`pdf_exported` 至少 1 次的用户占 D30 活跃用户比例（系统打印为非事件源） | 待发布后测定 |
 
 ---
 
