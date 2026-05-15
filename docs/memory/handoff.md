@@ -62,6 +62,70 @@ freshness:
 
 ---
 
+## 2026-05-15 下午（Phase 5 零信任审计修复 PR 批量推进 + 插件升级前 handoff）
+
+> 用户在该会话节点准备升级终端内插件版本，本段是升级前的完整 handoff。
+
+### Phase 5 累计进度（8 PR 触达，6 已合 + 2 跑中 + 2 未起）
+
+| Phase 5 PR | 内容 | 状态 |
+|---|---|---|
+| **PR #751** | PR-A1 cases.md 多 Profile 恢复 (S0) | ✅ MERGED |
+| **PR #752** | PR-A2 engineering.md F-XXX 规则 (S1) | ✅ MERGED |
+| **PR #753** | PR-B1 vision SSOT 指针 + analytics 事件名 (S2) | ✅ MERGED |
+| **PR #754** | PR-B2 README/CLAUDE/CODEX/Infra RemoteConfig + scheme (S2) | ✅ MERGED |
+| **PR #755** | PR-B5 ASO 类别 + shared-constraints SSOT (S2) | ✅ MERGED |
+| **PR #757** | PR-B3 用户旅程引用批量改 + review 示例虚构注 (S2) | ✅ MERGED |
+| **PR #756** | PR-D1 STATUS.md 归档历史 sprint -145 行（修了 invalid layer bug） | ⏳ Build & Test pending |
+| **PR #758** | PR-B4 KNOWLEDGE_MAP + standards/README + ADR-001 glossary (S2) | ⏳ Build & Test pending |
+
+### Phase 5 未起 2 PR（依赖 #758 合并）
+
+- **PR-C1 时效性批量**（依赖 PR-B4 #758 合并，避免 KNOWLEDGE_MAP 冲突）：
+  - apple-native.md / KNOWLEDGE_MAP / decisions / release-checklist `last_verified` 批量刷新
+  - handoff.md "新增 6 个 Skill" 表格重复（PR #750 我自己引入的 bug）
+  - decisions.md D-001 "五方独立论证" vs 结果 "4:2" 不一致
+  - release-checklist 双 last_verified（frontmatter 2026-05-13 vs 正文 2026-04-03）
+- **PR-C2 杂项**：
+  - deployment.md:97 截图尺寸 iPhone 6.7"/6.1" → 6.9"/6.3"
+  - non-functional-requirements.md 加 "## 同步与网络" NFR section（Codex 第 2 轮新发现）
+  - product-cases.md UC 8-9 补 Variants/Data guarantees/References sections
+  - permission-model.md block-dangerous-bash.sh 行号修正 :9 → :13-14
+  - ADR-003 rollback 段说明
+
+### 当前 PR 真实问题统计
+
+- **Codex 16 finding** Phase 2 核验：**100% VERIFIED**
+- **DeepSeek 235 finding**：D3 code-fact 70% 误判（evidence packet flaw），D4 staleness 100% accurate，D2 cross-ref 80% accurate
+- **累计真问题 24 个**，已修 ~18（6 PR 合 + 2 PR 跑）；剩 ~6 在 PR-C1 + PR-C2
+
+### 后台进程清单（已全清理 ✅）
+
+- ci-watcher (PID 93598)：18:14 自动退出 GREEN
+- audit-watchdog (PID 75115)：上午手动清理
+- orchestrator (PID 81413)：贪吃蛇 50/50 完成自然退出
+- 无残留 codex exec / claude -p 后台
+
+### 接手指南
+
+1. 读 `STATUS.md` + 本 handoff 顶部段（"## 2026-05-15 下午..."）catch up
+2. 读 `~/.claude/plans/audit-findings-20260514/verification/phase2-3-4-summary.md`（251 finding 全景 + Phase 4 PR 清单）
+3. 等 PR #756 + #758 CI 完成自合，按 `feedback_autonomous_merge_sync_pr.md` 授权
+4. PR #758 合后，开 PR-C1（时效性批量）
+5. PR-C1 合后，开 PR-C2（杂项）
+6. Phase 5 完工 → STATUS.md 写"零信任审计 Phase 5 完工"
+7. 注意：PR-C2 涉及 NFR iCloud 同步段，这是个 design 决策（写"待 #485 解锁"vs"现在加架构占位"），可能需要用户参与决策
+
+### 插件升级注意
+
+如果升级 Codex CLI（0.130.0 → 新版）或 Gemini CLI，**verify**：
+- `docs/standards/codex-delegation.md` 是否需要更新（effort 默认 / 模型 ID 配置）
+- `docs/standards/gemini-delegation.md` 是否需要更新（gemini-3-pro-preview 模型 ID）
+- `~/.claude/projects/-Users-yiming-Developer-snapdrill-ios/memory/reference_ai_toolchain_specs.md` 私有快照
+- `docs/memory/handoff.md` 工具链表（当前 Codex 0.130.0 / Node v26.0.0 / npm 11.12.1 / Gemini 0.41.2）
+
+DeepSeek wrapper 在 `~/.local/bin/deepseek`（自建脚本，独立于 Codex/Gemini CLI），插件升级不影响。
+
 ## 本次会话成果（2026-05-14 全天，含上午 + 下午+晚间两段）
 
 ### 下午+晚间（零信任审计 + CI 治理 emergency）
