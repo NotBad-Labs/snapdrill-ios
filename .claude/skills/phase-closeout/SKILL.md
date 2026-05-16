@@ -106,6 +106,7 @@ echo "时长: $(echo "scale=1; ($LS - $FS) / 3600" | bc) 小时"
 - [ ] Read 私有记忆（如 `~/.claude/plans/`）找本 phase 决策记录
 - [ ] 三方对抗起草 → 引用 `cross-audit-consensus` skill 产出的汇总文件
 - [ ] **Harness Recall**（`docs/standards/harness-recall.md`）：扫描近期 checkpoints Risks 段 + handoff.md，检查重复问题模式。同类 ≥3 次 → propose 新 F-0XX 规则供用户裁决
+- [ ] **/knowledge-health 体检（必做，零例外）**：扫 `~/.claude/plans/` + `~/.claude/projects/.../memory/` 找已收官 PR 对应的 stale plan、被 F-0XX 覆盖的 dead memory、过期/重复 checkpoint。skill 只产 plan 不动文件，看完后按计划归档/删除。**跳过此步会让私有空间无限膨胀**——CI/docaudit 看不见，只能靠 closeout 触发
 
 ## 与 STATUS.md / handoff.md 的分工
 
