@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-14
+last_verified: 2026-05-15
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -7,10 +7,10 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-14（**全天 — 上午 6 skill + 下午文档零信任审计 + 晚间 CI 盲区治理 emergency unblock**）
-> 编译状态：✅ 0 errors · 0 lint violations · docaudit exit 0（PR #749 修后）
-> Open PR：1（#748 pre-push hook CI 跑中）· Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
-> 领先 origin/develop：**0 commits**（PR #749 emergency unblock + 51b3c035 ci.yml push trigger 已合）
+> 最后更新：2026-05-15（**Phase 5 零信任审计修复完工 — 11 PR 全合，24 真问题清零**）
+> 编译状态：✅ 0 errors · 0 lint violations · docaudit exit 0
+> Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
+> 领先 origin/develop：**0 commits**（Phase 5 #751–#761 11 PR 全部已合）
 > **新增 6 个 Skill**：verify-audit-report / dependency-propagation / sprint-contract / post-merge / api-research / snapshot-diff-review
 > **源文件防腐**：237 文件删除创建日期，git blame 为唯一真相源
 > **新增双统帅架构**：Claude Opus 4.7 + Codex GPT-5.5 high effort = 双统帅 / DeepSeek V4-Pro = 单文件贪吃蛇执行者
@@ -19,7 +19,29 @@ freshness:
 > **工具链**：Codex CLI 0.130.0 + Gemini CLI + DeepSeek V4-Pro · skill-creator@claude-plugins-official
 > **下次接手**：读 `docs/memory/handoff.md` Boot 序列
 
-## 本轮下午+晚间完成（2026-05-14，零信任审计 + CI 治理 emergency）
+## 本轮完成（2026-05-15，零信任审计 Phase 5 完工）
+
+### Phase 5 修复 PR 全景（11 PR 全合）
+
+| PR | 内容 | 类别 |
+|---|---|---|
+| #751 | PR-A1 cases.md 多 Profile 恢复 (S0) | A 验收口径 |
+| #752 | PR-A2 engineering.md F-XXX 规则 (S1) | A 验收口径 |
+| #753 | PR-B1 vision SSOT 指针 + analytics 事件名 | B 引用一致性 |
+| #754 | PR-B2 README/CLAUDE/CODEX/Infra RemoteConfig + scheme | B 引用一致性 |
+| #755 | PR-B5 ASO 类别 + shared-constraints SSOT | B 引用一致性 |
+| #757 | PR-B3 用户旅程引用批量改 + review 示例虚构注 | B 引用一致性 |
+| #758 | PR-B4 KNOWLEDGE_MAP + standards/README + ADR-001 | B 引用一致性 |
+| #756 | PR-D1 STATUS.md 归档历史 sprint -145 行 | D 归档 |
+| #759 | handoff sync 插件升级前 | D 归档 |
+| #760 | PR-C2 杂项 5 项（deployment/NFR/UC 8-9/permission-model/ADR-003） | C 时效性/杂项 |
+| #761 | PR-C1 时效性批量 + decisions D-001 4:2 不一致 + handoff Skill 表重复 | C 时效性/杂项 |
+
+24 真问题清零（Codex 16 finding 100% verified + DeepSeek 235 finding D2/D4 真问题）。
+
+NFR iCloud 同步段写「待 #485 解锁」占位（按方案 A，避免过早设计）。
+
+## 上一轮完成（2026-05-14，零信任审计 + CI 治理 emergency）
 
 ### 双统帅架构 + 零信任审计 Phase A
 
@@ -73,7 +95,7 @@ freshness:
 
 ## 当前状态（2026-05-15）
 
-**Phase 2 + Phase 2.N 收尾完成**。软件内部零阻塞问题。零信任审计 Phase 5 文档同步 PR 推进中（见上方"本轮下午+晚间完成"）。
+**Phase 2 + Phase 2.N + 零信任审计 Phase 5 全部收尾完成**。软件内部零阻塞问题。下一步仅余 Apple 账号阻塞链 + #626 真机待验 + #699 backlog Could Have 项。
 
 **基线审计（2026-05-08→09）**：DeepSeek v4 Pro 全量逐字审计 ~45,500 行，Codex GPT-5.5 + Gemini 3 Pro 三方交叉验证。结果：**0 Critical / 14 Warning / 8 Info**，评分 8.5/10。详细报告 `docs/memory/checkpoints/2026-05-08-baseline-audit.md`。
 
