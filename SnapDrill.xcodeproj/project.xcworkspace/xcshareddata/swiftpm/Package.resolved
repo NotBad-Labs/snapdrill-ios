@@ -1,5 +1,5 @@
 {
-  "originHash" : "a096400d883811dd74d6b12fe296ad21dc5e631f12453df1be07a2f8fbd10d3d",
+  "originHash" : "4f0be6d1d5a461508b65c09ec0baeb3910f13965441b8fa4b444b013566b0954",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -105,8 +105,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/guoyingtao/Mantis.git",
       "state" : {
-        "revision" : "520ca280903119df4e7e5b34bc12fa98aef73a1b",
-        "version" : "2.28.2"
+        "revision" : "584f03f879e0f6c266a03697e9a44815b09781f4",
+        "version" : "2.31.1"
       }
     },
     {
