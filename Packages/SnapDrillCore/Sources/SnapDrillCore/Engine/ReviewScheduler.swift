@@ -84,31 +84,4 @@ public struct ReviewScheduler {
         return result
     }
 
-    /// 获取评分对应的间隔描述（用于 UI 显示）
-    ///
-    /// - Parameters:
-    ///   - rating: 用户评分
-    ///   - state: 当前 SM-2 状态
-    /// - Returns: 人类可读的间隔描述，如"明天"、"3天"、"2周"
-    public func intervalDescription(for rating: ReviewRating, from state: SM2State) -> String {
-        if rating == .again {
-            return L10n.Review.intervalMinutes
-        }
-
-        let scheduled = scheduleNextReview(state: state, rating: rating)
-        let interval = scheduled.interval
-
-        if interval == 1 {
-            return L10n.Review.intervalTomorrow
-        } else if interval < 7 {
-            return L10n.Review.intervalDays(interval)
-        } else if interval < 30 {
-            // 四舍五入避免截断（如 13 天 = 1.86 周 → 显示"2周"而非"1周"）
-            let weeks = max(1, Int((Double(interval) / 7.0).rounded()))
-            return L10n.Review.intervalWeeks(weeks)
-        } else {
-            let months = max(1, Int((Double(interval) / 30.0).rounded()))
-            return L10n.Review.intervalMonths(months)
-        }
-    }
 }

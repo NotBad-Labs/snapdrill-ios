@@ -137,20 +137,4 @@ struct ReviewSchedulerTests {
         #expect(last >= before)
         #expect(last <= after)
     }
-
-    // MARK: - intervalDescription
-
-    @Test("again 的 intervalDescription 为 10分钟")
-    func againIntervalDescriptionIsTenMinutes() throws {
-        let state = makeState()
-        let desc = scheduler.intervalDescription(for: .again, from: state)
-        #expect(desc == "10分钟")
-    }
-
-    @Test("1 天间隔的 intervalDescription 为 明天")
-    func oneDayIntervalDescriptionIsTomorrow() throws {
-        let state = makeState(repetitions: 0)
-        let desc = scheduler.intervalDescription(for: .good, from: state)
-        #expect(desc == "明天")
-    }
 }
