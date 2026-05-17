@@ -161,8 +161,8 @@ layer: pattern
 **Variants & Exceptions**:
 - [Variant] 手势与按钮是等价输入
 - [Variant] 图片题复习时必须显示图片，OCR 仅为辅助
+- [Variant] 用户可撤销最近评估，最多保留 `undoStackCapacity=20` 条；撤销时必须完整回滚 SM-2 状态（easeFactor / interval / repetitions / nextReviewAt / lastReviewedAt）+ 重新插回 workingItems 头部 + 调整本轮统计计数；撤销持久化失败时保留撤销栈条目并 rollback @Model，不进入半状态
 - [Exception] 当前无到期题：Dashboard 与 Review 入口显示空状态，不进入空白卡片流（见 Boundary B19）
-
 - [Exception] 某题缺少答案：允许翻面进入空答案状态，但仍可完成"记得/不记得"评估
 - [Exception] 单题复习状态更新失败：必须阻止该题被标记为已完成本轮复习，并提示重试，避免假完成
 
