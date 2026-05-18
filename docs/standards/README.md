@@ -25,6 +25,7 @@ layer: pattern
 | [shared-constraints.md](shared-constraints.md) | 委派 prompt 共享约束 | 构造委派 prompt |
 | [permission-model.md](permission-model.md) | Tool / Bash 命令 / Skill 权限矩阵（SSOT） | 修改 settings.json / hooks / skill allowed-tools |
 | [skill-architecture.md](skill-architecture.md) | Agent Skills 目录架构与迁移规则 | 新增 / 迁移 / 退役 skill |
+| [skill-source-ledger.md](skill-source-ledger.md) | Agent Skills 上游来源与维护责任台账 | 安装 / 复制 / 修改社区 skill |
 | [execution-gates.md](execution-gates.md) | 执行门禁总表 | 修改 CI / hook / merge gate |
 | [audit-rubric.md](audit-rubric.md) | 文档系统审计评分标准 | 启动文档审计 / 交叉审计 |
 | [harness-recall.md](harness-recall.md) | 自进化闭环：跨 checkpoint 去重 → 3 次触发 propose 新 F-0XX 规则 | phase-closeout / harness 自进化 |

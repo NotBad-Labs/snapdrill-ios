@@ -16,7 +16,7 @@ SnapDrill uses a two-layer skill model:
 | Claude adapter skills | `.claude/skills/` | Claude Code discovery path and Claude-only governance skills | Project, Claude adapter |
 | Claude local state | `~/.claude/`, `.claude/*.local`, `.claude/session-log.txt` | Personal preferences, local runtime state, transcripts | Private, not git |
 
-`.claude/skills/` is not private when it is tracked by git, but it is vendor-specific. Portable skills should move toward `.agents/skills/`; Claude-only skills stay in `.claude/skills/`.
+`.claude/skills/` is not private when it is tracked by git, but it is vendor-specific. Portable project-owned skills may move toward `.agents/skills/`; Claude-only skills stay in `.claude/skills/`. Community-maintained skills must follow `skill-source-ledger.md` before their bodies are copied, edited, or treated as project-owned.
 
 ## Current Inventory
 
@@ -81,12 +81,13 @@ These are migration candidates only after frontmatter and references are reviewe
 1. Do not bulk-move skills.
 2. Do not use new symlinked `.claude/skills` entries as the default migration path. Existing managed symlink entries may remain if `docaudit skill-inventory` confirms they point at the matching `.agents/skills/<name>` source.
 3. Move only one harmless skill at a time.
-4. A skill may move to `.agents/skills/` only if:
+4. A project-owned skill may move to `.agents/skills/` only if:
    - Its `SKILL.md` uses portable Agent Skills frontmatter.
    - It does not rely on Claude-only hooks, `context: fork`, private Claude paths, or Claude-specific `allowed-tools` semantics.
    - It has no destructive script behavior.
    - Claude Code discovery is preserved by either a physical adapter copy or an explicit verified fallback.
-5. `skills-lock.json` tracks managed `.agents/skills/` dependencies only. It is not an inventory for `.claude/skills/`.
+5. A community-maintained skill may move to `.agents/skills/` only after `skill-source-ledger.md` records upstream source, source type, skill path, and hash or commit. Do not edit community skill bodies directly for project preferences.
+6. `skills-lock.json` tracks managed `.agents/skills/` dependencies only. It is not an inventory for `.claude/skills/`.
 
 ## Verification
 
@@ -112,6 +113,7 @@ python3 Scripts/audit/docaudit.py all --strict --baseline
 
 ## Deferred Work
 
-- Review the `accessibility-generator`, `app-description-writer`, `attributed-string`, `characterization-test-generator`, `deep-linking`, `integration-test-scaffold`, `liquid-glass`, `navigation-patterns`, `privacy-manifests`, `push-notifications`, `review-response-writer`, `screenshot-planner`, and `test-contract` adapter pattern after live use before moving another domain skill.
+- Review the already-vendored `rshankras` shared copies in `skill-source-ledger.md` before moving another community skill.
+- Decide whether existing vendored community copies should stay in `.agents/skills/`, become lockfile-managed, or move back behind `.claude/skills/`.
 - Verify whether the current Claude Code build discovers symlinked skill directories before using symlinks anywhere.
 - Decide whether a physical mirror script is needed only after a pilot proves manual duplication is painful.
