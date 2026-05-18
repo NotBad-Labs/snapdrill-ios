@@ -6,7 +6,7 @@
 
 1. 读 `STATUS.md` — 当前工作上下文
 2. 读 `docs/workflow.md` — 流程、DoD、Review 规范
-3. 相关标准由 skills 按需加载或自行读取 docs/standards/
+3. 相关标准由 skills 按需加载
 4. 读 `docs/memory/feedback.md` — F 规则索引
 
 ## Context Map

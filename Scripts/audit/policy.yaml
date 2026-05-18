@@ -60,15 +60,7 @@ checks:
     allowed_contexts:
       # 纪律文档本身解释 home-path 用法，允许引用
       - docs/standards/memory-routing.md
-      - .claude/rules/memory-routing.md
       - docs/standards/permission-model.md
-
-  rule-pointer-sync:
-    level: error
-    description: .claude/rules/*.md 必须指向存在的 docs/standards/*.md 或 docs/tech/*.md（自包含 F 规则文件豁免）
-    allowlist_rules:
-      - .claude/rules/README.md
-      - .claude/rules/f-*
 
   rule-usage:
     level: info

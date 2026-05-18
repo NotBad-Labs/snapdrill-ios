@@ -44,7 +44,6 @@ CHECK_NAMES = [
     "archived-refs",
     "orphans",
     "home-path-refs",
-    "rule-pointer-sync",
     "rule-usage",
 ]
 
@@ -68,11 +67,6 @@ CHECK_DESCRIPTIONS = {
         "help": "Detect hardcoded ~/.claude/ private path refs in repo.",
         "description": "扫描仓库内对 ~/.claude/ 私有路径的硬编码，排除 allowed_contexts（纪律说明文档）。",
         "epilog": "示例：python3 Scripts/audit/docaudit.py home-path-refs --verbose",
-    },
-    "rule-pointer-sync": {
-        "help": "Verify .claude/rules/*.md pointers to docs/standards/*.md.",
-        "description": "校验每个 .claude/rules/*.md 声明的 'Read and follow docs/standards/*.md' 指针目标存在。",
-        "epilog": "示例：python3 Scripts/audit/docaudit.py rule-pointer-sync",
     },
     "rule-usage": {
         "help": "Count F-NNN rule external references (dead rule candidates).",
@@ -501,17 +495,6 @@ def check_home_path_refs(policy: dict) -> CheckResult:
     return result
 
 
-# ---------- check: rule-pointer-sync ----------
-
-def check_rule_pointer_sync(policy: dict) -> CheckResult:
-    conf = policy["checks"]["rule-pointer-sync"]
-    level = conf["level"]
-    allowlist = conf.get("allowlist_rules", [])
-    result = CheckResult(check="rule-pointer-sync", level=level)
-
-    rules_dir = REPO_ROOT / ".claude" / "rules"
-    if not rules_dir.is_dir():
-        return result
 
     for rule_path in rules_dir.glob("*.md"):
         rel = rule_path.relative_to(REPO_ROOT)
@@ -522,7 +505,6 @@ def check_rule_pointer_sync(policy: dict) -> CheckResult:
         matches = list(RULE_POINTER_RE.finditer(text))
         if not matches:
             result.findings.append(Finding(
-                check="rule-pointer-sync",
                 path=rel_str,
                 line=0,
                 category="missing_pointer",
@@ -536,7 +518,6 @@ def check_rule_pointer_sync(policy: dict) -> CheckResult:
             if not abs_target.exists():
                 lineno = text[:match.start()].count("\n") + 1
                 result.findings.append(Finding(
-                    check="rule-pointer-sync",
                     path=rel_str,
                     line=lineno,
                     category="broken_pointer",
@@ -668,7 +649,6 @@ CHECK_FUNCS = {
     "archived-refs": check_archived_refs,
     "orphans": check_orphans,
     "home-path-refs": check_home_path_refs,
-    "rule-pointer-sync": check_rule_pointer_sync,
     "rule-usage": check_rule_usage,
 }
 
