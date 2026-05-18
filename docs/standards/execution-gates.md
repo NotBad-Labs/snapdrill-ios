@@ -55,7 +55,6 @@ layer: pattern
 
 ## 5. Skill 执行门禁
 
-> 角色类 skill（developer/qa-engineer/devops/security-engineer）不在此列——它们是行为指南，不阻断流程。
 > 本表仅列**有强制执行语义**的 skill。
 
 | Skill | 触发时机 | 强制执行什么 | 上游文档 |
@@ -65,10 +64,8 @@ layer: pattern
 | `verify-audit-report` | 收到审计报告后 | F-006 深度验证 + F-012 全量做 | `docs/standards/collaboration.md` |
 | `post-merge` | PR 合并后 | F-007 CI 双时点 + F-019 反模式回流 | `docs/workflow.md` DoD |
 | `api-research` | UI/SDK 改动前 | F-017 Apple 最新文档调研 | `docs/standards/engineering.md` 原则 1, `docs/standards/apple-native.md` |
-| `snapshot-diff-review` | Snapshot baseline 变更时 | 人工审查 visual diff 确认变更有意 | `docs/standards/testing.md:90-97`, `docs/workflow.md:127` |
 | `dependency-propagation` | 文档变更后 | DOC_DEPENDENCY_MAP.md 下游同步 | `docs/DOC_DEPENDENCY_MAP.md` |
 | `phase-closeout` | phase 收官 | handoff.md 状态更新 + Harness Recall + knowledge-health | `docs/workflow.md` §长任务, `docs/standards/harness-recall.md` |
-| `update-status` | PR 合并后 | STATUS.md 直推 develop（文档化例外） | `docs/workflow.md:61`（STATUS.md 例外） |
 | `resume-from-handoff` | 新会话接手 | 最小上下文加载顺序 | `docs/workflow.md` §Boot, `docs/memory/handoff.md` |
 
 ## 6. xcodebuild 门禁
