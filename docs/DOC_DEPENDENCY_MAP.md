@@ -40,13 +40,12 @@ freshness:
 | `docs/standards/execution-gates.md` | 门禁总表 | `docs/standards/permission-model.md`、`docs/workflow.md`、`docs/standards/engineering.md` | 门禁新增/修改/退役时同步 |
 | `docs/DOC_DEPENDENCY_MAP.md` | 文档依赖图（变更传播 SSOT） | `docs/standards/engineering.md`（原则 5）、`docs/workflow.md` | KNOWLEDGE_MAP、全文档变更传播 |
 | `docs/KNOWLEDGE_MAP.md` | 知识分层与裁决索引 | `docs/workflow.md`、`docs/DOC_DEPENDENCY_MAP.md` | 文档检索顺序、更新触发规则 |
+| `docs/standards/audit-rubric.md` | 文档审计判定标准 | `docs/standards/engineering.md`、`docs/workflow.md` | Phase 2-6 审计流程 |
 | `CLAUDE.md` / `AGENTS.md` | 智能体执行入口 | `docs/workflow.md`、`docs/KNOWLEDGE_MAP.md`、`docs/standards/engineering.md` | 智能体启动上下文 |
 | `STATUS.md` | 进度快照 | `docs/workflow.md`（DoD、PR 流程、S0-S3 优先级） | 会话启动上下文、排期决策 |
 | `docs/memory/*.md` | 交接快照 | `docs/workflow.md`、`STATUS.md` | 跨会话接手效率、审计可追溯性 |
 
 ---
-
-## 变更传播规则
 
 ## 3. 变更传播规则（防返工）
 
