@@ -12,69 +12,6 @@ freshness:
 >
 > **互补视图**：`docs/KNOWLEDGE_MAP.md` 是知识分层索引（原则/模式/快照）。本依赖图是变更传播图。两者互补使用。
 
-## 核心原则（原 F-003 规则，2026-04-22 合并至此）
-
-### 主链 vs 交叉引用
-
-依赖图中不能把所有引用当同等权重：
-
-- **主链依赖**（内容生成方向）：vision → design → requirements → cases 这类链是 "A 定义 B 的输入条件"，改 A 必须自上而下传播到 B
-- **交叉引用**（辅助参考）：cases 引用 workflow 的 S0-S3、standards 引用 memory 的 F-NNN 这类是"借用对方定义的语汇/枚举"，改 A 不自动改 B，但 B 要能追溯到 A 的最新定义
-
-**Why:** 混淆主链和交叉引用会导致依赖层级失真 — 错把交叉引用当主链会引入假依赖，错把主链当交叉会漏掉必要传播。
-
-### 文档→代码锚点
-
-文档审计不能只验证"文档间自洽"，必须验证"文档声明是否有代码兑现"：
-
-- Public 接口声明（如 api-reference.md） → 必须能在 `Packages/*/Sources/` grep 到匹配的类型/函数
-- 功能规格声明（如 product-requirements.md） → 必须能在 `Packages/*/Tests/` 找到对应的验收测试
-- 纪律声明（如 feedback F-NNN） → 必须能在 `.claude/hooks/` 或 `docs/standards/` 找到落地机制
-
-**Why:** 纯文档间审计容易产生"文档自洽但脱离代码"的幻觉（文档说有 XYZ 功能，但代码从未实现）。文档→代码锚点是真实性基线。
-
----
-
-## 治理范围与排除
-
-- 本依赖图仅治理第一方文档（仓库内由 SnapDrill 团队维护的文档）。
-- 第三方开源项目文档默认排除在治理范围外，不作为本图上下游节点。
-- `.claude/worktrees/**` 下的镜像文档默认排除（临时工作树副本，不作为治理事实源）。
-- 若第一方文档引用第三方资料，仅记录"依赖关系/约束来源"，不对第三方原文做重构或规范改写。
-
----
-
-## 1. 依赖总图（从源头到快照）
-
-```text
-product-vision（产品根定义）
-  ├─> product-design ─┬─> product-requirements ──> product-cases
-  │                    ├─> product-journeys（用户旅程）
-  │                    ├─> product-business ─┬─> product-competitive-analysis
-  │                       └─> appstore-metadata
-  │                    └─> product-onboarding
-  ├─> product-glossary
-  └─> product-analytics（成功信号 → 事件定义）
-
-engineering（工程哲学根）
-  └─> workflow
-
-ADR-* + requirements + compliance + NFR
-  └─> 代码实现
-
-Codebase + ADR
-  ├─> docs/tech/architecture.md（结构映射）
-  ├─> docs/tech/api-reference.md（接口快照）
-  ├─> docs/tech/api-pitfalls.md（API 陷阱实证反馈）
-  └─> docs/tech/apple-limits.md（平台能力边界反馈）
-
-workflow + KNOWLEDGE_MAP
-  ├─> CLAUDE.md / CODEX.md / docs/standards/*.md（执行规则）
-  ├─> STATUS.md（当前状态快照）
-  └─> docs/memory/*.md（跨会话交接快照）
-```
-
----
 
 ## 2. 文档依赖矩阵（上游 / 下游）
 
@@ -95,11 +32,9 @@ workflow + KNOWLEDGE_MAP
 | `docs/tech/compliance.md` | 合规口径源 | vision、business、ADR-002 | deployment、审核材料 |
 | `docs/tech/non-functional-requirements.md` | 非功能约束源 | requirements、architecture、compliance | 实现验收基准、性能/稳定性测试 |
 | `docs/tech/architecture.md` | 实现结构映射 | `docs/decisions/ADR-*.md`、`docs/standards/engineering.md`（原则 5：跨边界先定义契约） | NFR、新同学上手、实现评审 |
-| `docs/tech/api-reference.md` | API 快照 | `docs/tech/architecture.md`、代码（public 接口） | 测试同步、集成调用方 |
 | `docs/tech/api-pitfalls.md` | API 踩坑速查 | `docs/standards/coding.md`、`docs/standards/testing.md`、`docs/tech/apple-limits.md` | testing.md、review-prompt-guide.md、新代码实现 |
 | `docs/tech/apple-limits.md` | Apple 平台能力边界 | `docs/standards/apple-native.md`、`docs/standards/engineering.md`（原则 1：先判断方向）、`docs/tech/api-pitfalls.md` | coding.md、api-pitfalls.md、NFR.md |
 | `docs/tech/deployment.md` | 发布与 CI 流程 | workflow、compliance、NFR | 发布执行、审核提交流程 |
-| `docs/tech/release-checklist.md` | 发版前检查清单 | deployment | 发版执行 |
 | `docs/standards/engineering.md` | 工程哲学 | — | workflow、coding、testing、shared-constraints |
 | `docs/workflow.md` | 协作规则源 | engineering、collaboration | 所有开发与评审流程 |
 | `docs/standards/*.md` | 执行约束 | engineering（部分）、workflow | 智能体行为、委派上下文质量 |
@@ -112,6 +47,8 @@ workflow + KNOWLEDGE_MAP
 
 ---
 
+## 变更传播规则
+
 ## 3. 变更传播规则（防返工）
 
 | 改动源头 | 最少同步清单 |
@@ -120,7 +57,6 @@ workflow + KNOWLEDGE_MAP
 | `ADR-*` | 相关 product/tech 文档 + 相关实现代码与测试 |
 | `product-design.md` / `product-requirements.md` | cases + business（若边界变化） |
 | `compliance.md` / `NFR.md` | deployment（若发布口径变化） |
-| 代码 public 接口 | `docs/tech/api-reference.md`（必要时 architecture） |
 | 代码实现中发现 API 陷阱 | `docs/tech/api-pitfalls.md` |
 | 代码实现中发现 Apple 平台限制 | `docs/tech/apple-limits.md` |
 | 代码新增/删除/重命名模块 | `docs/tech/architecture.md`（必要时 NFR.md） |
@@ -132,5 +68,3 @@ workflow + KNOWLEDGE_MAP
 
 1. 先读 `product-vision.md`，确认产品定位和原则。
 2. 再读 `product-design.md` + `product-requirements.md`，确认"做什么/怎么做"。
-3. 再读 `ADR-*` + `compliance.md` + `non-functional-requirements.md`，确认硬约束。
-4. 实现后同步 `architecture.md` / `api-reference.md` / `STATUS.md` / `docs/memory/*.md`。

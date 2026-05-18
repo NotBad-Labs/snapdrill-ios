@@ -46,7 +46,6 @@ layer: pattern
 | `docs/standards/memory-routing.md` | 知识/记忆路由规则（哪类内容写哪里） | KNOWLEDGE_MAP | 路由争议 |
 | `docs/standards/permission-model.md` | Tool / Bash 命令 / Skill allowed-tools 权限矩阵（SSOT） | settings.json, hooks, skills | 权限配置变更 |
 | `docs/standards/execution-gates.md` | 执行门禁总表（每个门禁 → 上游文档 → 执行器 → 豁免方式） | permission-model, workflow, engineering | 门禁新增/修改/退役 |
-| `docs/standards/apple-extension.md` | App Extension 约束 | — | Extension 变更 |
 | `docs/tech/compliance.md` | 隐私合规、App Store 审核 | vision, business | 政策变更 |
 | `docs/tech/deployment.md` | CI/CD、发布流程 | — | 工具更新 |
 | `docs/tech/non-functional-requirements.md` | 性能、内存、存储 | architecture | 设备更新 |
@@ -56,7 +55,6 @@ layer: pattern
 | 文件 | 核心内容 | max_age_days | 演进触发 |
 |---|---|---|---|
 | `STATUS.md` | 当前工作状态 | 7 | 每次 PR 合并 |
-| `docs/tech/api-reference.md` | 内部 API 签名 | 30 | 代码变更 |
 | `docs/tech/apple-limits.md` | Apple API 能力边界 | 60 | WWDC / iOS 更新 |
 | `docs/tech/api-pitfalls.md` | API 踩坑记录 | 60 | 开发中发现 |
 | `docs/tech/reference/` (7 files) | AI 工具链/环境参考（`docs/tech/reference/reference_ai_toolchain_specs.md` 等 7 个文件）。入 git，所有智能体共享 | 60 | 工具/环境更新 |
@@ -78,39 +76,6 @@ layer: pattern
 | Claude | `~/.claude/projects/.../memory/` | 用户偏好、工具特有配置 |
 | Codex | (由 Codex 自行管理) | Codex 特有状态 |
 | Gemini | (由 Gemini 自行管理) | Gemini 特有状态 |
-
-## 技术演进线
-
-追踪关键技术的演进轨迹，帮助预判下一步方向。
-
-### Vision / 文本识别
-```
-iOS 11  Vision Framework（VNRecognizeTextRequest，印刷体）
-iOS 15  VisionKit LiveText（交互式，系统级）
-iOS 26  Foundation Models（@Generable，语义理解）
-→ 趋势：从"识别字符"到"理解语义"
-→ 决策触发：当 Foundation Models 支持结构化输出且延迟 < 500ms 时，评估替换 Vision OCR 做拆题
-```
-
-### 数据持久化
-```
-Core Data（成熟但重）
-iOS 17  SwiftData（声明式，与 SwiftUI 深度集成）
-→ SnapDrill 已选 SwiftData
-→ 决策触发：当 SwiftData 原生支持 CloudKit 公共数据库时，评估替代自建同步方案
-```
-
-### AI 编码工具
-```
-2025-06  Claude in Xcode（coding intelligence，Sonnet 4）
-2025-09  Claude Code CLI
-2026-02  Xcode 26.3 agentic coding（Claude Agent + Codex，MCP 20 tools）
-2026-03  GPT-5.4 取代 GPT-5.3-Codex 成为推荐模型
-2026-03  Claude 1M context GA 标准定价
-2026-04  Gemini CLI v0.37.0 集成（Google One AI Pro，三方终端内审计闭环）
-→ 趋势：从"代码补全"到"验证闭环"。三方交叉审计（Anthropic/OpenAI/Google）是质量拐点
-→ 决策触发：当 Xcode agentic coding 支持自定义 rules 文件加载时，评估从 CLI 迁移核心工作流
-```
 
 ## 分层判定标准
 
@@ -157,10 +122,8 @@ iOS 17  SwiftData（声明式，与 SwiftUI 深度集成）
 
 ## 知识卫生规则
 
-1. **修改代码后**：检查 `api-reference.md` 是否需要同步
 2. **升级 Xcode/iOS**：检查 `apple-limits.md`、`apple-native.md`
 3. **模型/工具更新**：检查 `reference_ai_toolchain_specs.md`、`codex-delegation.md`
-4. **Package.swift 变更**：检查 `api-reference.md`、`architecture.md` 版本锚点
 5. **WWDC 后**：全量审计模式层和快照层
 6. **每次对话启动**：Claude 检查快照层 `last_verified` 是否超期
 7. **更新知识文件时**：grep 其他文件中对同一主题的引用，确认无矛盾（冲突检测）

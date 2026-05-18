@@ -88,7 +88,6 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ### 文档同步
 - [ ] `product-requirements.md` 已更新（新增功能）
-- [ ] `api-reference.md` 已更新（新增/变更 public 接口）
 - [ ] 新增第三方库 → 更新开源许可展示
 - [ ] 术语与 `product-glossary.md` 一致
 - [ ] 合并后立即更新 `STATUS.md`
@@ -149,7 +148,6 @@ CI 使用 Mac mini self-hosted runner（Xcode 26.5 / iPhone 17 Simulator）。PR
 产品决策变更后必须闭环：
 
 1. **影响评估**：grep 受影响的下游文档（见 `docs/DOC_DEPENDENCY_MAP.md` 变更传播规则）
-2. **同步更新**：requirements / design / cases / glossary / business / architecture / api-reference 中受影响的文件
 3. **ADR**：重大决策（影响架构、商业模式、数据模型）创建 ADR 或更新已有 ADR
 4. **Issue 关闭**：关联 Issue 更新状态并关闭
 5. **STATUS.md**：合并后更新

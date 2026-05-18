@@ -24,6 +24,7 @@ scan:
     - README.md
   exclude:
     - .claude/worktrees/                 # 临时副本
+    - .claude/skills/                    # 社区 skill（上游交叉引用不由我们维护）
     - docs/archive/                       # 归档文档，不再校验
     - Scripts/audit/                      # 审计器自身（README 示例 / policy 声明会自触发，元循环）
 
