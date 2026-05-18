@@ -25,9 +25,9 @@ Counting rule: only first-level `*/SKILL.md` files are counted as triggerable sk
 | Category | Count | Source |
 |---|---:|---|
 | Claude discovery entries | 54 | `.claude/skills/*/SKILL.md` plus symlink skill dirs |
-| Shared first-level skill sources | 9 | `.agents/skills/*/SKILL.md` |
-| Claude adapter entries | 9 | 6 thin adapters + 3 managed symlink entries point to shared sources |
-| Distinct first-level skill names | 54 | 54 Claude discovery entries + 9 shared sources - 9 duplicate shared entries |
+| Shared first-level skill sources | 10 | `.agents/skills/*/SKILL.md` |
+| Claude adapter entries | 10 | 7 thin adapters + 3 managed symlink entries point to shared sources |
+| Distinct first-level skill names | 54 | 54 Claude discovery entries + 10 shared sources - 10 duplicate shared entries |
 | Plugin payload skills | 2 | `.agents/skills/*/skills/*/SKILL.md` |
 
 Shared skills:
@@ -39,6 +39,7 @@ Shared skills:
 | `swiftui-pro` | `.agents/skills/swiftui-pro/SKILL.md` | Tracked by `skills-lock.json`; existing Claude discovery entry is a symlink |
 | `accessibility-generator` | `.agents/skills/accessibility-generator/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/accessibility-generator/SKILL.md` |
 | `attributed-string` | `.agents/skills/attributed-string/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/attributed-string/SKILL.md` |
+| `deep-linking` | `.agents/skills/deep-linking/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/deep-linking/SKILL.md` |
 | `navigation-patterns` | `.agents/skills/navigation-patterns/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/navigation-patterns/SKILL.md` |
 | `privacy-manifests` | `.agents/skills/privacy-manifests/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/privacy-manifests/SKILL.md` |
 | `review-response-writer` | `.agents/skills/review-response-writer/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/review-response-writer/SKILL.md` |
@@ -65,7 +66,7 @@ Claude governance skills:
 
 Claude local domain skills:
 
-`animation-patterns`, `app-description-writer`, `app-icon-generator`, `app-store-assets`, `app-store-rejection`, `background-processing`, `biometric-auth`, `characterization-test-generator`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `deep-linking`, `error-monitoring`, `integration-test-scaffold`, `keyword-optimizer`, `liquid-glass`, `localization-setup`, `migration-patterns`, `network-security`, `onboarding-generator`, `push-notifications`, `secure-storage`, `settings-screen`, `snapshot-testing`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `test-contract`, `tipkit-generator`, `ui-review`.
+`animation-patterns`, `app-description-writer`, `app-icon-generator`, `app-store-assets`, `app-store-rejection`, `background-processing`, `biometric-auth`, `characterization-test-generator`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `error-monitoring`, `integration-test-scaffold`, `keyword-optimizer`, `liquid-glass`, `localization-setup`, `migration-patterns`, `network-security`, `onboarding-generator`, `push-notifications`, `secure-storage`, `settings-screen`, `snapshot-testing`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `test-contract`, `tipkit-generator`, `ui-review`.
 
 These are migration candidates only after frontmatter and references are reviewed for Claude-only features.
 
@@ -105,6 +106,6 @@ python3 Scripts/audit/docaudit.py all --strict --baseline
 
 ## Deferred Work
 
-- Review the `accessibility-generator`, `attributed-string`, `navigation-patterns`, `privacy-manifests`, `review-response-writer`, and `screenshot-planner` adapter pattern after live use before moving a seventh domain skill.
+- Review the `accessibility-generator`, `attributed-string`, `deep-linking`, `navigation-patterns`, `privacy-manifests`, `review-response-writer`, and `screenshot-planner` adapter pattern after live use before moving another domain skill.
 - Verify whether the current Claude Code build discovers symlinked skill directories before using symlinks anywhere.
 - Decide whether a physical mirror script is needed only after a pilot proves manual duplication is painful.
