@@ -49,6 +49,7 @@ checks:
     whitelist:
       - docs/product/**            # 产品文档独立入口
       - docs/archive/**            # 归档文档豁免
+      - docs/tech/reference/**     # 工具链参考独立入口
       - docs/KNOWLEDGE_MAP.md      # 自身是索引
       - docs/DOC_DEPENDENCY_MAP.md # 自身是依赖图
 
