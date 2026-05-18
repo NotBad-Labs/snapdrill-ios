@@ -91,6 +91,12 @@ Snapshot baseline 更新：
 - ❌ 不看图片 diff 就提交 baseline 变更
 - ❌ CI snapshot 失败后直接 record 覆盖，不排查原因
 
+## 上游文档
+
+本 skill 的上游权威定义在：
+- `docs/standards/testing.md:90-97` — Snapshot 视觉回归工作流（人工审查要求、禁止盲目 record）
+- `docs/workflow.md:127` — Snapshot baseline 变更必须 git diff 确认
+
 ## 关联文档
 
 - `docs/standards/testing.md` — 测试规则

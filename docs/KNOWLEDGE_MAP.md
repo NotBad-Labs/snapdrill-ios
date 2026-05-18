@@ -45,6 +45,7 @@ layer: pattern
 | `docs/standards/shared-constraints.md` | 委派共享约束（单一源） | — | 约束变更 |
 | `docs/standards/memory-routing.md` | 知识/记忆路由规则（哪类内容写哪里） | KNOWLEDGE_MAP | 路由争议 |
 | `docs/standards/permission-model.md` | Tool / Bash 命令 / Skill allowed-tools 权限矩阵（SSOT） | settings.json, hooks, skills | 权限配置变更 |
+| `docs/standards/execution-gates.md` | 执行门禁总表（每个门禁 → 上游文档 → 执行器 → 豁免方式） | permission-model, workflow, engineering | 门禁新增/修改/退役 |
 | `docs/standards/apple-extension.md` | App Extension 约束 | — | Extension 变更 |
 | `docs/tech/compliance.md` | 隐私合规、App Store 审核 | vision, business | 政策变更 |
 | `docs/tech/deployment.md` | CI/CD、发布流程 | — | 工具更新 |
@@ -137,7 +138,7 @@ iOS 17  SwiftData（声明式，与 SwiftUI 深度集成）
 ### 退出（文档如何退役）
 
 当知识不再适用时，不删除，标记退役：
-- 在 YAML frontmatter 中设置 `status: archived` 和 `reason:`（ADR-003 后 HTML comment 不再使用）
+- 在 YAML frontmatter 中设置 `status: archived` 和 `reason:`（`docs/decisions/ADR-003-yaml-frontmatter.md` 后 HTML comment 不再使用）
 - 从 KNOWLEDGE_MAP 对应表格中移除，归入下方"已退役"小节
 - feedback 被内化到 `docs/standards/` 或 `docs/memory/feedback.md` 后即可退役
 - api-pitfalls 条目被框架修复后标记退役

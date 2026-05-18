@@ -103,6 +103,7 @@ workflow + KNOWLEDGE_MAP
 | `docs/standards/engineering.md` | 工程哲学 | — | workflow、coding、testing、shared-constraints |
 | `docs/workflow.md` | 协作规则源 | engineering、collaboration | 所有开发与评审流程 |
 | `docs/standards/*.md` | 执行约束 | engineering（部分）、workflow | 智能体行为、委派上下文质量 |
+| `docs/standards/execution-gates.md` | 门禁总表（每个门禁→上游文档→执行器） | permission-model, workflow, engineering | 门禁新增/修改/退役时同步 |
 | `docs/KNOWLEDGE_MAP.md` | 知识分层与裁决索引 | workflow、现有文档体系 | 文档检索顺序、更新触发规则 |
 | `CLAUDE.md` / `CODEX.md` | 智能体执行入口 | workflow、STATUS、KNOWLEDGE_MAP | 智能体启动上下文 |
 | `STATUS.md` | 进度快照 | PR 合并结果、issue 状态 | 会话启动上下文、排期决策 |

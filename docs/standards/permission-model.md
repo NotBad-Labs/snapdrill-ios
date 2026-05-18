@@ -78,7 +78,7 @@ sudo rm             # 提权删除
 
 ## 4. Skill `allowed-tools` 矩阵
 
-11 个活跃 skill 的 tool 白名单（与 §1 Tier 交叉）：
+17 个活跃 skill 的 tool 白名单（与 §1 Tier 交叉）：
 
 | Skill | Read | Grep | Glob | Edit | Write | Bash | WebSearch | WebFetch | Agent | Tier 覆盖 |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -92,6 +92,12 @@ sudo rm             # 提权删除
 | `resume-from-handoff` | ✅ | ✅ | ✅ | — | — | ✅ | — | — | — | T1+T2 读取 |
 | `update-status` | ✅ | — | — | ✅ | — | ✅ | — | — | — | T1+T2 |
 | `pr-review-workflow` | ✅ | ✅ | — | ✅ | — | ✅ | — | — | — | T1+T2 |
+| `post-merge` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | T1+T2 |
+| `sprint-contract` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2 |
+| `api-research` | ✅ | — | — | — | — | ✅ | ✅ | ✅ | — | T1+T2（研究只读） |
+| `verify-audit-report` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | T1+T2 |
+| `snapshot-diff-review` | ✅ | — | — | — | ✅ | ✅ | — | — | — | T1+T2 |
+| `dependency-propagation` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | T1+T2 |
 | `knowledge-health` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2（只产 plan，不改 workspace 文件） |
 
 **原则**：
