@@ -130,4 +130,4 @@ layer: pattern
 6. **每次对话启动**：Claude 检查快照层 `last_verified` 是否超期
 7. **更新知识文件时**：grep 其他文件中对同一主题的引用，确认无矛盾（冲突检测）
 8. **修复非预期问题后**：评估是否需要录入 `api-pitfalls.md` 或 feedback（踩坑即录入）
-9. **docs 结构性漂移**：`Scripts/audit/docaudit.py` 提供机械化审计（6 个结构子命令：links / archived-refs / orphans / home-path-refs / rule-usage / skill-inventory；`all` 另含 frontmatter subprocess）。策略源 `Scripts/audit/policy.yaml`，用法见 `Scripts/audit/README.md`。CI `docs` job（ubuntu-latest 并行）+ PostToolUse hook（Edit docs）+ PreToolUse hook（git push / gh pr merge 前）自动触发；对话场景用 `/knowledge-health` skill 扫描 CI 不可见的 Claude 私有空间 + private memory，产出分层修复 plan，不改文件
+9. **docs 结构性漂移**：`Scripts/audit/docaudit.py` 提供机械化审计（7 个结构子命令：links / archived-refs / orphans / home-path-refs / rule-usage / skill-inventory / skill-links；`all` 另含 frontmatter subprocess）。策略源 `Scripts/audit/policy.yaml`，用法见 `Scripts/audit/README.md`。CI `docs` job（ubuntu-latest 并行）+ PostToolUse hook（Edit docs）+ PreToolUse hook（git push / gh pr merge 前）自动触发；对话场景用 `/knowledge-health` skill 扫描 CI 不可见的 Claude 私有空间 + private memory，产出分层修复 plan，不改文件

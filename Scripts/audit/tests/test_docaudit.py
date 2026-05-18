@@ -52,6 +52,10 @@ def _base_policy() -> dict:
                 "level": "error",
                 "description": "",
             },
+            "skill-links": {
+                "level": "error",
+                "description": "",
+            },
         },
         "output": {"tsv_dir": "reports/", "summary_stdout": True, "verbose_default": False},
     }
@@ -79,6 +83,7 @@ def _make_fixture(repo: Path, fake_validator: bool = True) -> None:
     (repo / ".claude" / "rules").mkdir(parents=True)
     (repo / ".claude" / "skills" / "claude-only").mkdir(parents=True)
     (repo / ".agents" / "skills" / "shared").mkdir(parents=True)
+    (repo / ".agents" / "skills" / "shared" / "references").mkdir()
     (repo / ".agents" / "skills" / "plugin" / "skills" / "payload").mkdir(parents=True)
     (repo / "Scripts").mkdir()
     (repo / "docs" / "memory" / "feedback.md").write_text(
@@ -88,7 +93,12 @@ def _make_fixture(repo: Path, fake_validator: bool = True) -> None:
         "---\nname: claude-only\n---\n# Claude-only\n", encoding="utf-8"
     )
     (repo / ".agents" / "skills" / "shared" / "SKILL.md").write_text(
-        "---\nname: shared\n---\n# Shared\n", encoding="utf-8"
+        "---\nname: shared\n---\n# Shared\n\nSee `references/ok.md`.\n",
+        encoding="utf-8",
+    )
+    (repo / ".agents" / "skills" / "shared" / "references" / "ok.md").write_text(
+        "# ok\n",
+        encoding="utf-8",
     )
     (repo / ".agents" / "skills" / "plugin" / "SKILL.md").write_text(
         "---\nname: plugin\n---\n# Plugin root\n", encoding="utf-8"
@@ -413,6 +423,25 @@ class DocauditTestCase(unittest.TestCase):
         code, out, _ = self._run(["--policy", str(policy), "skill-inventory", "--verbose"])
         self.assertEqual(code, 1, out)
         self.assertIn("duplicate_without_adapter", out)
+
+    # ---------- skill-links ----------
+
+    def test_skill_links_clean(self) -> None:
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-links"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
+
+    def test_skill_links_broken_reference(self) -> None:
+        shared = self.repo / ".agents" / "skills" / "shared" / "SKILL.md"
+        shared.write_text(
+            "---\nname: shared\n---\n# Shared\n\nSee `references/missing.md` and [missing](missing.md).\n",
+            encoding="utf-8",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-links", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("broken_skill_ref", out)
 
     # ---------- all (含 frontmatter subprocess) ----------
 

@@ -82,9 +82,9 @@ sudo rm             # 提权删除
 本表只覆盖会影响流程、审计、合并门禁的项目治理 skill（与 §1 Tier 交叉），不覆盖全部 `.claude/skills/` 社区/领域 skill。Skill 目录所有权、计数口径和迁移规则见 `skill-architecture.md`；社区/领域 skill 的权限以各自 `SKILL.md` frontmatter 为准。如果某个 skill 被提升为门禁、审计或流程权威源，必须纳入本表。
 
 **当前 skill 计数口径（2026-05-18）**：
-- Distinct 一层 skill 名称：54 个（`.claude/skills` 54 个 discovery entries，含 3 个 symlink entries；`.agents/skills/*/SKILL.md` 5 个；重复共享入口 5 个）
+- Distinct 一层 skill 名称：54 个（`.claude/skills` 54 个 discovery entries，含 3 个 symlink entries；`.agents/skills/*/SKILL.md` 6 个；重复共享入口 6 个）
 - 项目治理 skill：14 个（下表列出）
-- 社区/领域 skill：40 个（35 个仍为 Claude-only，5 个已共享）
+- 社区/领域 skill：40 个（34 个仍为 Claude-only，6 个已共享）
 - `.agents/skills/*/skills/*/SKILL.md` 是插件包 payload，不计入一层可触发 skill；`skills-lock.json` 只追踪 `.agents/skills/` 下 3 个受管跨 agent skill，不追踪 `.claude/skills/` 的 Claude adapter / symlink discovery entries。详见 `skill-architecture.md`。
 
 | Skill | Read | Grep | Glob | Edit | Write | Bash | WebSearch | WebFetch | Agent | Tier 覆盖 |

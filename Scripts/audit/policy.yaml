@@ -29,7 +29,7 @@ scan:
     - docs/archive/                       # 归档文档，不再校验
     - Scripts/audit/                      # 审计器自身（README 示例 / policy 声明会自触发，元循环）
 
-# 6 个结构子命令默认级别
+# 7 个结构子命令默认级别
 checks:
   links:
     level: error
@@ -76,9 +76,13 @@ checks:
     level: error
     description: skill 目录架构计数与 Claude adapter 指向必须匹配 `docs/standards/skill-architecture.md`
 
+  skill-links:
+    level: error
+    description: 共享 skill 源内相对 Markdown 引用必须指向存在的文件
+
 # Finding 级豁免规则（Phase C 清理前过渡）
 # 每条规则：
-#   check:       6 个结构子命令之一（必填）
+#   check:       7 个结构子命令之一（必填）
 #   reason:      豁免理由（必填，非空）
 #   expires_on:  YYYY-MM-DD 硬截止（必填，无效日期 exit 2）
 #   paths:       文件 glob 列表（可选，空 = 匹配该 check 所有 finding）

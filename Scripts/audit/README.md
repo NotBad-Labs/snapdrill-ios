@@ -14,7 +14,8 @@
 | `home-path-refs` | 仓库内对 `~/.claude/` 私有路径的硬编码 |
 | `rule-usage` | F-001~F-NNN 引用计数（识别 dead rule 候选） |
 | `skill-inventory` | `.claude/skills` / `.agents/skills` 计数与 Claude adapter 指向 |
-| `all` | 以上 6 项 + `frontmatter`（subprocess 调用 `Scripts/validate_frontmatter.py`），共 7 个检查 |
+| `skill-links` | 共享 skill 源内相对 Markdown 引用 broken |
+| `all` | 以上 7 项 + `frontmatter`（subprocess 调用 `Scripts/validate_frontmatter.py`），共 8 个检查 |
 
 ## 用法
 
@@ -89,7 +90,7 @@ Phase C 每个清理 PR 应从 `legacy_whitelist` 移除对应条目，直到全
 ### 文本 summary（stdout，人类可读）
 
 ```
-docaudit: 7 checks, 4 categories with findings
+docaudit: 8 checks, 4 categories with findings
 
 [frontmatter]          clean
 [links]                clean
@@ -98,6 +99,7 @@ docaudit: 7 checks, 4 categories with findings
 [home-path-refs]       1 warning
 [rule-usage]           3 info
 [skill-inventory]      clean
+[skill-links]          clean
 
 Exit: 1 (error level in: ['archived-refs'])
 ```

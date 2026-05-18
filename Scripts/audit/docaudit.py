@@ -9,6 +9,7 @@
   home-path-refs       仓库内对 ~/.claude/ 私有路径的硬编码
   rule-usage           F-NNN 规则外部引用计数（dead rule 候选）
   skill-inventory      skill 目录架构计数与 Claude adapter 指向
+  skill-links          共享 skill 源内相对 Markdown 引用必须存在
 
 详见 Scripts/audit/README.md 与 Scripts/audit/policy.yaml。
 
@@ -46,6 +47,7 @@ CHECK_NAMES = [
     "home-path-refs",
     "rule-usage",
     "skill-inventory",
+    "skill-links",
 ]
 
 CHECK_DESCRIPTIONS = {
@@ -79,6 +81,11 @@ CHECK_DESCRIPTIONS = {
         "description": "统计 .claude/skills 与 .agents/skills，并核对 docs/standards/skill-architecture.md 的计数声明。",
         "epilog": "示例：python3 Scripts/audit/docaudit.py skill-inventory --verbose",
     },
+    "skill-links": {
+        "help": "Validate relative Markdown references in shared skill sources.",
+        "description": "扫描 .agents/skills/*/SKILL.md 的相对 Markdown 引用，目标文件不存在即 broken_skill_ref。",
+        "epilog": "示例：python3 Scripts/audit/docaudit.py skill-links --verbose",
+    },
 }
 
 # Markdown 内部链接正则 — [text](path.md) 或 [text](path.md#anchor) 或 [text](path.md "title")
@@ -90,6 +97,9 @@ LINK_RE = re.compile(r"(?<!\!)\[[^\]]*\]\(([^)#\s]*?\.md)(?:\s+\"[^\"]*\")?(?:#[
 # 匹配: docs/foo.md, ./foo/bar.md, ../a/b/c.md, foo/bar_baz-v2.md
 # 不匹配: Just-a-sentence-like-this.md, README.md, file-name.md
 PATH_REF_RE = re.compile(r"((?:\.\.?/|[A-Za-z0-9_][A-Za-z0-9_\-]*/)[A-Za-z0-9_\-./]*\.md)")
+
+# skill 文本常见裸文件名引用：`templates.md` / `navigation-stack.md`
+BARE_MD_REF_RE = re.compile(r"(?<![A-Za-z0-9_./-])([A-Za-z0-9_][A-Za-z0-9_-]*\.md)(?![A-Za-z0-9_./-])")
 
 # ~/.claude/ 引用
 HOME_CLAUDE_RE = re.compile(r"~/\.claude/[A-Za-z0-9_\-./]*")
@@ -681,6 +691,59 @@ def check_skill_inventory(policy: dict) -> CheckResult:
     return result
 
 
+# ---------- check: skill-links ----------
+
+def _iter_shared_skill_entrypoints() -> Iterable[Path]:
+    root = REPO_ROOT / ".agents" / "skills"
+    if not root.is_dir():
+        return
+    for child in sorted(root.iterdir()):
+        skill_file = child / "SKILL.md"
+        if child.is_dir() and skill_file.is_file():
+            yield skill_file
+
+
+def _skill_ref_target(skill_file: Path, ref: str) -> Path | None:
+    if ref.startswith(("http://", "https://", "mailto:", "${")):
+        return None
+    if ref.startswith("/"):
+        return REPO_ROOT / ref.lstrip("/")
+    return (skill_file.parent / ref).resolve()
+
+
+def check_skill_links(policy: dict) -> CheckResult:
+    conf = policy["checks"]["skill-links"]
+    level = conf["level"]
+    result = CheckResult(check="skill-links", level=level)
+
+    for path in _iter_shared_skill_entrypoints():
+        rel = str(path.relative_to(REPO_ROOT))
+        seen_on_line: set[tuple[int, str]] = set()
+        for lineno, line in enumerate(_read_lines(path), start=1):
+            refs = [match.group(1).strip() for match in LINK_RE.finditer(line)]
+            refs.extend(match.group(1) for match in PATH_REF_RE.finditer(line))
+            refs.extend(match.group(1) for match in BARE_MD_REF_RE.finditer(line))
+
+            for ref in refs:
+                key = (lineno, ref)
+                if key in seen_on_line:
+                    continue
+                seen_on_line.add(key)
+                target = _skill_ref_target(path, ref)
+                if target is None or target.is_file():
+                    continue
+                result.findings.append(Finding(
+                    check="skill-links",
+                    path=rel,
+                    line=lineno,
+                    category="broken_skill_ref",
+                    level=level,
+                    suggestion=f"shared skill reference target does not exist: {ref}",
+                    matched_text=line.strip(),
+                ))
+    return result
+
+
 # ---------- frontmatter via subprocess ----------
 
 def check_frontmatter_via_subprocess(policy: dict) -> CheckResult:
@@ -760,6 +823,7 @@ CHECK_FUNCS = {
     "home-path-refs": check_home_path_refs,
     "rule-usage": check_rule_usage,
     "skill-inventory": check_skill_inventory,
+    "skill-links": check_skill_links,
 }
 
 
@@ -873,8 +937,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     all_parser = sub.add_parser(
         "all",
-        help="Run 6 structural checks + frontmatter (7 checks total).",
-        description="运行 6 个结构检查，并通过 subprocess 调用 validate_frontmatter.py（共 7 个检查）。",
+        help="Run 7 structural checks + frontmatter (8 checks total).",
+        description="运行 7 个结构检查，并通过 subprocess 调用 validate_frontmatter.py（共 8 个检查）。",
         epilog="示例：python3 Scripts/audit/docaudit.py all --report --verbose",
     )
     _add_common(all_parser)
