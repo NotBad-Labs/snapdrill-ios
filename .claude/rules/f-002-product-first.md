@@ -5,4 +5,10 @@ paths:
   - "STATUS.md"
 ---
 
-Read and follow docs/standards/f-002-product-first.md for product-first principle (F-002).
+# F-002: 产品文档优先于一切
+
+产品文档是项目的源头，优先级高于根级文档、技术文档、规则文件。
+
+**Why:** 产品文档定义「做什么、为谁做」，错了全盘皆错。工具服务于目的，不是反过来。
+
+**How to apply:** 文档审计、任务排序、优先级判断时，始终从产品价值出发。产品 > 技术 > 流程/规则 > Agent 配置。

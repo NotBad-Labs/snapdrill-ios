@@ -11,9 +11,9 @@ layer: pattern
 
 | 编号 | 规则 | 权威源 | 触发方式 |
 |---|---|---|---|
-| F-001 | Git 工作流纪律 | `.claude/rules/f-001-git-workflow.md` | git 操作时自动加载 |
-| F-002 | 产品文档优先 | `.claude/rules/f-002-product-first.md` | 文档操作时自动加载 |
-| F-004 | 内测不做 Schema 迁移 | `.claude/rules/f-004-no-schema-migration.md` | Model 文件变更时加载 |
+| F-001 | Git 工作流纪律 | `.claude/rules/f-001-git-workflow.md`（自包含） | git 操作时自动加载 |
+| F-002 | 产品文档优先 | `.claude/rules/f-002-product-first.md`（自包含） | 文档操作时自动加载 |
+| F-004 | 内测不做 Schema 迁移 | `.claude/rules/f-004-no-schema-migration.md`（自包含） | Model 文件变更时加载 |
 | F-005 | 对抗性审查 | `cross-audit` skill + `post-merge` skill | PR 提交/合并时 |
 | F-006 | 审计深度验证 | `verify-audit-report` skill | 收到审计报告时 |
 | F-007 | CI 双时点门禁 | `post-merge` skill + hooks | PR 合并时 |
