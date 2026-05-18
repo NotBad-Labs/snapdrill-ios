@@ -13,7 +13,7 @@ freshness:
 
 ## 当前状态（2026-05-18）
 
-**文档治理 + skill 体系重构收口中**。54 个 distinct 一层 skill 名称：14 项目治理、36 Claude-only 领域 skill、4 共享 skill；其中 `attributed-string` 已迁到 `.agents/skills/` 并保留 Claude adapter。另有 2 个 `.agents/skills/*/skills/*/SKILL.md` 属于 plugin payload，不计入一层 skill 数。目录架构 SSOT：`docs/standards/skill-architecture.md`。
+**文档治理 + skill 体系重构收口中**。54 个 distinct 一层 skill 名称：14 项目治理、35 Claude-only 领域 skill、5 共享 skill；其中 `attributed-string`、`navigation-patterns` 已迁到 `.agents/skills/` 并保留 Claude adapter。另有 2 个 `.agents/skills/*/skills/*/SKILL.md` 属于 plugin payload，不计入一层 skill 数。目录架构 SSOT：`docs/standards/skill-architecture.md`。
 
 | 外部阻塞项 | 说明 | 状态 |
 |---|---|---|
