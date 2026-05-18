@@ -98,7 +98,7 @@ CI 与本地统一走 `AllTests.xctestplan`，两步切分避免重复编译：
 
 ### 稳定性与 flaky 防护
 
-- Snapshot 对 Xcode 版本敏感 → 项目固定 Xcode 26.4，CI 用 self-hosted Mac mini（已定）
+- Snapshot 对 Xcode 版本敏感 → 项目固定 Xcode 26.5，CI 用 self-hosted Mac mini（已定）
 - 模拟器固定 `iPhone 17`（对齐 `STATUS.md` 执行门命令）
 - 用 `.image(layout: .sizeThatFits)` 或显式 `.frame(width:height:)`，避免依赖设备 config preset
 - 首次 record 后第二次跑必须 0 diff，否则该测试天然不稳定，不入基线

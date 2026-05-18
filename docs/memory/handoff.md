@@ -239,7 +239,7 @@ workaround (TestModelContainer) → 测试安全网 (#8a) → actor 根因修复
 
 ## 环境
 
-- **Xcode**: 26.4 / **Swift**: 6.3 / **iOS**: 26.0+
+- **Xcode**: 26.5 / **Swift**: 6.3 / **iOS**: 26.0+
 - **真机**: iPhone 17
 - **defaultIsolation**: MainActor.self
 - **SwiftLint**: --strict, 218 files, 0 violations

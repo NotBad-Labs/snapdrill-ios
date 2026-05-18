@@ -51,7 +51,7 @@ sandbox 模式显著降低性能，复杂任务可能卡死：
 ### iOS 26 知识缺口
 
 Gemini 训练数据不覆盖 iOS 26（自评"不知道"）。应对策略：
-- prompt 中**必须内联**项目约束：`iOS 26+ / SwiftUI / SwiftData / Swift 6.3 / defaultIsolation(MainActor)`
+- prompt 中**必须内联**项目约束：`iOS 26.0+ / SwiftUI / SwiftData / Swift 6.3 / defaultIsolation(MainActor)`
 - Gemini 能基于 prompt 约束正确推理，但不会主动发现 iOS 26 特有的 API 变更
 - 对 iOS 26 新 API 的审计结论需要 Claude 或 Xcode 交叉验证
 
@@ -87,7 +87,7 @@ gemini -p "读取以下文件并审计代码质量：
 2. 内存管理（循环引用、闭包捕获）
 3. 错误处理（是否有 try? 吞错误）
 
-项目约束：iOS 26+ / SwiftUI / SwiftData / defaultIsolation(MainActor)
+项目约束：iOS 26.0+ / SwiftUI / SwiftData / defaultIsolation(MainActor)
 输出：结构化报告，按严重度排序（Critical > Warning > Info）。中文回复。" 2>&1
 ```
 

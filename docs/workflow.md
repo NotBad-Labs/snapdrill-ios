@@ -120,7 +120,7 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 
 ## CI
 
-CI 使用 Mac mini self-hosted runner（Xcode 26.4 / iPhone 17 Simulator）。PR 提交后自动触发 Build & Test + Docs Audit。
+CI 使用 Mac mini self-hosted runner（Xcode 26.5 / iPhone 17 Simulator）。PR 提交后自动触发 Build & Test + Docs Audit。
 
 **流程规则**（操作细节见 `docs/tech/deployment.md`）：
 - 本地必须能复现 CI test（两步：build-for-testing → test-without-building）
