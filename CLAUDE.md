@@ -6,14 +6,14 @@
 
 1. 读 `STATUS.md` — 当前工作上下文
 2. 读 `docs/workflow.md` — 流程、DoD、Review 规范
-3. `docs/standards/*.md` 由 `.claude/rules/` 自动路由加载（碰到相关文件时触发）
-4. 读 `docs/memory/feedback.md` — 项目纪律（所有智能体共遵）
+3. 相关标准由 skills 按需加载或自行读取 docs/standards/
+4. 读 `docs/memory/feedback.md` — F 规则索引
 
 ## Context Map
 
 | 需要 | 去读 |
 |---|---|
-| 项目原则 | `docs/standards/`（`.claude/rules/` 自动路由） |
+| 项目原则 | `docs/standards/`（skills 按需加载或自行读取） |
 | 项目反馈与纪律 | `docs/memory/feedback.md` |
 | 产品文档 | `docs/product/` |
 | 技术文档 | `docs/tech/` |

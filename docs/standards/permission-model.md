@@ -78,14 +78,10 @@ sudo rm             # 提权删除
 
 ## 4. Skill `allowed-tools` 矩阵
 
-17 个活跃 skill 的 tool 白名单（与 §1 Tier 交叉）：
+16 个活跃 skill 的 tool 白名单（与 §1 Tier 交叉）：
 
 | Skill | Read | Grep | Glob | Edit | Write | Bash | WebSearch | WebFetch | Agent | Tier 覆盖 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `developer` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | T1+T2 |
-| `qa-engineer` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | T1+T2 |
-| `devops` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | T1+T2 |
-| `security-engineer` | ✅ | ✅ | ✅ | — | — | — | ✅ | — | — | T1 只读 |
 | `cross-audit` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | ✅ | T1+T2+Agent 委派 |
 | `cross-audit-consensus` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2 |
 | `phase-closeout` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2 |
@@ -99,11 +95,13 @@ sudo rm             # 提权删除
 | `snapshot-diff-review` | ✅ | — | — | — | ✅ | ✅ | — | — | — | T1+T2 |
 | `dependency-propagation` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | T1+T2 |
 | `knowledge-health` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2（只产 plan，不改 workspace 文件） |
+| `harness-recall` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2（只 propose，不自动改规则） |
+| `dod-checklist` | ✅ | ✅ | ✅ | — | — | ✅ | — | — | — | T1+T2（只读+检查，不改文件） |
+| `decision-closeout` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | T1+T2 |
 
 **原则**：
-- 只读 audit 类 skill（security-engineer）禁止 Edit/Write/Bash
 - 研究类 skill（cross-audit / consensus / phase-closeout）允许 Write 但落地到 `~/.claude/plans/` 或 `docs/archive/research/`
-- 实现类 skill（developer / qa-engineer / devops）开放 T2 完整集
+- 执行类 skill（post-merge / sprint-contract / dependency-propagation 等）开放 T2 完整集
 
 **新增 skill 或修改 `allowed-tools` 时**：必须同步本表并注明 Tier 覆盖。不遵守的 skill 视为违反 §0 SSOT 纪律。
 

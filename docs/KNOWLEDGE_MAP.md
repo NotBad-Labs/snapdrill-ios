@@ -59,7 +59,7 @@ layer: pattern
 | `docs/tech/api-reference.md` | 内部 API 签名 | 30 | 代码变更 |
 | `docs/tech/apple-limits.md` | Apple API 能力边界 | 60 | WWDC / iOS 更新 |
 | `docs/tech/api-pitfalls.md` | API 踩坑记录 | 60 | 开发中发现 |
-| _(Claude 私有) reference_ai_toolchain_specs.md_ | Claude/Codex/Xcode 规格（不入 git） | 30 | 模型/工具发布 |
+| `docs/tech/reference/*.md` (7 files) | AI 工具链/环境参考（入 git，所有智能体共享） | 60 | 工具/环境更新 |
 
 ## 记忆层（双层架构）
 

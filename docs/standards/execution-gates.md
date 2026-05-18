@@ -23,7 +23,7 @@ layer: pattern
 | `archived-refs` | error | 对已归档研究的旧路径硬引用 | 旧路径误导新维护者，归档文件只能通过新路径叙述性引用 | `docs/archive/README.md:21-24`, `docs/DOC_DEPENDENCY_MAP.md` 传播规则 | `policy.yaml` legacy_whitelist（过渡期） |
 | `orphans` | warning | docs/**/*.md 在全仓零引用 | 孤儿文档无人维护，内容可能严重过时 | `docs/standards/memory-routing.md`（反模式：信息无归属）, `docs/KNOWLEDGE_MAP.md` 索引职责 | `policy.yaml` orphans.whitelist（产品文档/归档/索引自身豁免） |
 | `home-path-refs` | warning | 仓库内对 `~/.claude/` 私有路径的硬编码 | 私有路径其他智能体（Codex/Gemini）读不到，产生单点依赖 | `docs/standards/memory-routing.md:38-44`（公开 vs 私有分离原则） | `policy.yaml` allowed_contexts + legacy_whitelist |
-| `rule-pointer-sync` | error | `.claude/rules/*.md` 必须指向存在的 docs/standards/ 或 docs/tech/ 文件 | 防止 rule 指针目标漂移（rule 文件本身是路由层，SSOT 在 docs/） | `docs/standards/engineering.md:122-156`（F-XXX 编号规则）, 本表 | `policy.yaml` allowlist_rules（自包含 F 规则 `f-*` + README） |
+| `rule-pointer-sync` | error | `.claude/rules/*.md` 必须指向存在的 docs/standards/ 或 docs/tech/ 文件（或为自包含 F 规则） | 防止 rule 指针目标漂移。`.claude/rules/` 已精简为 3 个自包含 F 规则 | `docs/standards/engineering.md:122-156`（F-XXX 编号规则）, 本表 | `policy.yaml` allowlist_rules（自包含 F 规则 `f-*`） |
 | `rule-usage` | info | F-NNN 规则在全仓的外部引用计数（0 引用 → dead rule 候选） | 防止退役规则残留、F 规则体系膨胀 | `docs/standards/engineering.md:122-156`（F-XXX 生命周期） | 无（info 级，不阻断） |
 
 ## 3. SwiftLint 规则族
