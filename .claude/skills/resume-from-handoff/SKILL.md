@@ -31,8 +31,7 @@ user-invocable: true
 5. `docs/standards/collaboration.md` —— 三方协作架构（如即将做对抗审查）
 
 ### Tier 2：按需（用户描述任务后再读）
-6. 最近 1-2 个 `docs/memory/checkpoints/<date>-*.md` —— 最近 phase 复盘
-7. 任务相关的 `docs/standards/<rule>.md`（如改代码 → coding.md）
+6. 任务相关的 `docs/standards/<rule>.md`（如改代码 → coding.md）
 8. 任务相关的 `docs/product/<file>.md`（如改产品文档 → 对应文件）
 9. 当前 git 状态：`git status` + `git log --oneline -10` + `gh pr list --state open --author '@me'`
 
@@ -60,7 +59,7 @@ user-invocable: true
 - 当前焦点：[STATUS.md 当前状态段]
 - 待合并 PR：#NNN ([标题简短])
 - 阻塞：[handoff.md 阻塞链]
-- 最近 checkpoint：[最新 docs/memory/checkpoints/]
+- 最近阶段：[handoff.md 当前接手状态]
 - 我准备 [下一步动作]，你确认或修正？
 ```
 

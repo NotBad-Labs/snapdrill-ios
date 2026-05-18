@@ -32,11 +32,6 @@ layer: pattern
 | `audit-report-20260409.md` | 2026-04-17 | - | 历史审计报告（元信息见文件内注记） |
 | `timeline.md` | 2026-04-17 | - | 历史时间线 |
 
-## 与 `docs/memory/checkpoints/` 的区别
-
-- **`docs/archive/`**：一次性研究/审计产物，归档后不再更新
-- **`docs/memory/checkpoints/`**：phase / sprint 收官快照，时间序列记录，同样不更新但按时间保留多份
-
 ## 与 `~/.claude/plans/` 的区别
 
 - **`docs/archive/`**：团队共享（入 git），三方智能体都能读

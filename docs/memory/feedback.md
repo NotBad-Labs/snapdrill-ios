@@ -294,4 +294,4 @@ feature / chore 类 Issue 且 Appetite >= Small 时，Claude 在动第一行代�
 
 **此规则已合并入 F-005。** 详细纪律见 F-005 的《Auto mode 强化》段（本文件上方第 63 行起）。
 
-编号保留为墓碑指针，避免破坏 `docs/memory/checkpoints/*`、`docs/memory/handoff.md`、`STATUS.md` 等历史文档的外部引用。新文档不应新增 F-020 引用，统一指向 F-005。
+编号保留为墓碑指针，避免破坏历史文档的外部引用。新文档不应新增 F-020 引用，统一指向 F-005。

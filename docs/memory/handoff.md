@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-15
+last_verified: 2026-05-18
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -288,7 +288,7 @@ DeepSeek v4 Pro（Claude Code CLI）完成全量基线审计：
 - 覆盖：56 文档 + 218 Swift 源文件 + 15 配置/脚本 = ~45,500 行，逐字全读
 - 结果：0 Critical / 3 Warning / 8 Info，无阻塞缺陷
 - 3 Warning 为代码卫生：NSError→typed throws、PersistenceController 加 deprecated 标记、ProfileManager force_unwrap 消除
-- 完整报告：`docs/memory/checkpoints/2026-05-08-baseline-audit.md`
+- 完整报告：已归档至 docs/archive/
 
 ## 多智能体协作纪律
 

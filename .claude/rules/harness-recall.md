@@ -1,6 +1,5 @@
 ---
 paths:
-  - "docs/memory/checkpoints/**"
   - "docs/memory/handoff.md"
   - "docs/memory/feedback.md"
 ---

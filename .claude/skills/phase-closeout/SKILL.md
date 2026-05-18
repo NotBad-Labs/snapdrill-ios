@@ -1,6 +1,6 @@
 ---
 name: phase-closeout
-description: 长任务（多 PR / 跨多天的 phase）收官时，生成结构化 checkpoint summary 并固化到 docs/memory/checkpoints/。当用户说"收官 / 阶段总结 / 写 checkpoint"或单个 phase 合并 ≥ 3 PR 时触发。
+description: 长任务（多 PR / 跨多天的 phase）收官时，将阶段状态写入 docs/memory/handoff.md。当用户说"收官 / 阶段总结 / 写 checkpoint"或单个 phase 合并 ≥ 3 PR 时触发。
 allowed-tools:
   - Bash
   - Read
@@ -91,12 +91,7 @@ echo "时长: $(echo "scale=1; ($LS - $FS) / 3600" | bc) 小时"
 
 ## 位置
 
-`docs/memory/checkpoints/<YYYY-MM-DD>-<topic>.md`
-
-命名建议：
-- `2026-04-17-phase4-p2-sprint.md`
-- `2026-04-17-phase4-p3-sprint.md`
-- `2026-04-17-phase4-tech-debt.md`
+写入 `docs/memory/handoff.md`，在 Risks 段下方追加 Phase 状态块。
 
 ## 启动 checklist
 
@@ -114,21 +109,9 @@ echo "时长: $(echo "scale=1; ($LS - $FS) / 3600" | bc) 小时"
 |---|---|---|
 | `STATUS.md` | 项目当前快照（当前 PR 数 / 测试基线 / 焦点） | 每次 PR 合并 |
 | `docs/memory/handoff.md` | 智能体接手状态 / 待合并 PR / 待审批 / 阻塞 | 每次接手 |
-| `docs/memory/checkpoints/<date>-*.md` | **特定 phase 的复盘** | phase 收官 / 每 3-5 PR |
-
-Checkpoint 不替代 STATUS / handoff，而是补充"phase 内细节"，避免 STATUS 越长越糙。
+Phase 状态块不替代 STATUS / handoff，而是在 handoff.md 内补充阶段细节。
 
 ## 反模式
 
-- ❌ 把 checkpoint 写到 STATUS.md（污染快照层）
-- ❌ checkpoint 只罗列 PR 不写 Decisions/Risks（失去复盘价值）
-- ❌ 多个 phase 共用一个 checkpoint 文件（无法独立 revert/审计）
-- ❌ checkpoint 时间窗 > 1 月（半衰期超 freshness max_age_days=30）
-
-## 历史案例（追加到本 skill 的"已写过的 checkpoint"段）
-
-- 2026-04-17 phase4-p2-sprint.md：6 PR 合并（PR-D/E/F/G/H/K）
-- 2026-04-17 phase4-p3-sprint.md：8 PR 合并（PR-I + Step 2/3/4 + #540 + #626）
-- 2026-04-17 phase4-tech-debt.md：3 PR 合并（#637/#638/#666）
-
-（具体 checkpoint 文件在 `docs/memory/checkpoints/` 下生成）
+- ❌ 把 phase 状态写到 STATUS.md（污染快照层）
+- ❌ 只罗列 PR 不写 Decisions/Risks（失去复盘价值）

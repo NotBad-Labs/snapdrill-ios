@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-10
+last_verified: 2026-05-18
 layer: pattern
 ---
 # 知识/记忆路由规则
@@ -27,7 +27,7 @@ layer: pattern
 | ADR / 产品/架构决策 | >2 年 | 团队 | `docs/decisions/ADR-NNN-*.md` | ADR-001 智能组卷定价 |
 | 当前接手状态、阻塞、下一步 | <1 周 | 团队 | `docs/memory/handoff.md` | "当前分支 / 待合并 PR" |
 | 项目状态看板 | <1 周 | 团队 | `STATUS.md` | 测试基线 / Open PR |
-| Phase checkpoint | <1 月 | 团队 | `docs/memory/checkpoints/<YYYY-MM-DD>.md` | "Phase 4 收官 19 PR" |
+| Phase 状态记录 | <1 月 | 团队 | `docs/memory/handoff.md` Risks 段 | "Phase X 收官 19 PR" |
 | 用户偏好（称呼/语言） | >2 年 | **私有** | `~/.claude/.../memory/MEMORY.md` | "称呼帅哥 / 中文回复" |
 | Claude 私有反馈/教训 | 6-24 个月 | **私有** | `~/.claude/.../memory/feedback_*.md` | "Gemini 幻觉风险" |
 | 一次性研究产物 | 归档 | 团队 | `docs/archive/research/<topic>-<date>.md`（layer: archive） | Hermes 研究报告 |
@@ -47,7 +47,7 @@ layer: pattern
 - ❌ 把"用户偏好称呼帅哥"写到 `docs/`（应在私有 memory）
 - ❌ 把 ADR 决策只写到 `STATUS.md`（应建 ADR-NNN 文件）
 - ❌ 把"今天遇到的 bug 修法"写到 `docs/standards/`（应在 `docs/memory/decisions.md`）
-- ❌ 把临时 checkpoint 写到 `docs/memory/feedback.md`（应在 `docs/memory/checkpoints/`）
+- ❌ 把临时 checkpoint 写到 `docs/memory/feedback.md`（应在 handoff.md Risks 段）
 
 ## 创建新文件前自查
 

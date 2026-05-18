@@ -85,7 +85,7 @@ reason: "一次性研究产物，结论已落地为规则/skills/hooks（PR 后�
 - `resume-from-handoff`：接手时只读 STATUS + handoff + 最近 checkpoint，不强吃长 transcript
 
 **Hooks + Scripts**
-- `post-merge-checkpoint` hook：PR 合并后自动写 `docs/memory/checkpoints/`（Goal/CI/风险）
+- `post-merge-checkpoint` hook：PR 合并后自动更新 `docs/memory/handoff.md` 状态
 - `Scripts/recall-index.sh`：ripgrep 包装做 docs/ + STATUS + memory 快速召回（Codex 建议 SQLite FTS5，Claude 评估 SnapDrill 规模 ripgrep 即够）
 - `long-session-guard` hook 或 skill：会话过长提示先 compact 再继续
 

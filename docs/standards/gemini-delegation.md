@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-10
+last_verified: 2026-05-18
 layer: pattern
 ---
 # Gemini CLI 委派规范
@@ -146,4 +146,4 @@ Harness Stage A+B 实战发现 Gemini 在 `cross-audit-consensus` 4 维 rubric �
 
 "次锚点" 不等于 "平权"——任何情况下 Codex 都保持主锚点地位，这是为避免共识时 Claude 用 Gemini 虚高分"刷过阈值"。
 
-**来源**：`docs/memory/checkpoints/2026-04-19-harness-stage-a-b.md` Risks 段 + `feedback_gemini_adversarial.md` + PR #682 吃狗粮验证。
+**来源**：Harness Engineering Stage A+B 复盘 + `feedback_gemini_adversarial.md` + PR #682 吃狗粮验证。

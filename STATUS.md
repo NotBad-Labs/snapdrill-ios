@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-15
+last_verified: 2026-05-18
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -82,7 +82,7 @@ NFR iCloud 同步段写「待 #485 解锁」占位（按方案 A，避免过早�
 
 ## 历史归档
 
-历史 sprint（2026-04-15 至 2026-05-09）已归档到 [`docs/memory/checkpoints/2026-05-15-status-archive.md`](docs/memory/checkpoints/2026-05-15-status-archive.md)，含：
+历史 sprint（2026-04-15 至 2026-05-09）含：
 
 - 2026-04-18→19 Harness Engineering Stage A+B 7 PR (#673-#679)
 - 2026-04-15~16 密集开发 24 PR (#594-#624)
@@ -97,7 +97,7 @@ NFR iCloud 同步段写「待 #485 解锁」占位（按方案 A，避免过早�
 
 **Phase 2 + Phase 2.N + 零信任审计 Phase 5 全部收尾完成**。软件内部零阻塞问题。下一步仅余 Apple 账号阻塞链 + #626 真机待验 + #699 backlog Could Have 项。
 
-**基线审计（2026-05-08→09）**：DeepSeek v4 Pro 全量逐字审计 ~45,500 行，Codex GPT-5.5 + Gemini 3 Pro 三方交叉验证。结果：**0 Critical / 14 Warning / 8 Info**，评分 8.5/10。详细报告 `docs/memory/checkpoints/2026-05-08-baseline-audit.md`。
+**基线审计（2026-05-08→09）**：DeepSeek v4 Pro 全量逐字审计 ~45,500 行，Codex GPT-5.5 + Gemini 3 Pro 三方交叉验证。结果：**0 Critical / 14 Warning / 8 Info**，评分 8.5/10。
 
 **14 Warning 全部闭合**（PR #739 + #740）：13 修复 + 1 记录为有意设计（SnapDrillUITests 命名冲突）。X5 Share Extension EXIF 临时保留记录为设计级考虑，后续排期。
 

@@ -107,7 +107,6 @@ workflow + KNOWLEDGE_MAP
 | `CLAUDE.md` / `CODEX.md` | 智能体执行入口 | workflow、STATUS、KNOWLEDGE_MAP | 智能体启动上下文 |
 | `STATUS.md` | 进度快照 | PR 合并结果、issue 状态 | 会话启动上下文、排期决策 |
 | `docs/memory/*.md` | 交接快照 | STATUS、issue/PR、审计结论 | 跨会话接手效率、审计可追溯性 |
-| `docs/memory/checkpoints/*.md` | Phase 检查点快照 | PR 合并结果、phase-closeout | resume-from-handoff、harness-recall |
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-15
+last_verified: 2026-05-18
 layer: pattern
 ---
 # SnapDrill 知识地图
@@ -39,7 +39,7 @@ layer: pattern
 | `docs/standards/testing.md` | 测试策略 | engineering | XCTest 更新 |
 | `docs/standards/ux-design.md` | UX 设计原则、用户体验终审 | vision, design | HIG 更新 |
 | `docs/standards/collaboration.md` | 智能体协作架构（Claude/Codex/Gemini CLI/Xcode） | — | 工具更新 |
-| `docs/standards/harness-recall.md` | 自进化闭环：跨 checkpoint 去重 → 3 次触发 propose 新 F-0XX 规则 | handoff, checkpoints, feedback | phase-closeout |
+| `docs/standards/harness-recall.md` | 自进化闭环：扫描 handoff.md Risks 段 → 3 次触发 propose 新 F-0XX 规则 | handoff, feedback | phase-closeout |
 | `docs/standards/codex-delegation.md` | Codex 子 agent 委派规范（agent-agnostic） | — | 插件/模型更新 |
 | `docs/standards/gemini-delegation.md` | Gemini CLI 委派规范（agent-agnostic） | — | CLI/模型更新 |
 | `docs/standards/shared-constraints.md` | 委派共享约束（单一源） | — | 约束变更 |
@@ -143,7 +143,7 @@ iOS 17  SwiftData（声明式，与 SwiftUI 深度集成）
 - api-pitfalls 条目被框架修复后标记退役
 - ADR 被新 ADR 取代时标记为"已废弃"并指向替代 ADR
 
-**文件数量软上限**：活跃知识文件 ~50 个（当前 docs/ 下第一方 md 46，不含 archive/checkpoints/）。超过 ~50 时优先合并或退役，而非继续新增。
+**文件数量软上限**：活跃知识文件 ~50 个（当前 docs/ 下第一方 md ~42，不含 archive/）。超过 ~50 时优先合并或退役，而非继续新增。
 
 ## 架构决策记录（ADR）
 

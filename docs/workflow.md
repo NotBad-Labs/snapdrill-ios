@@ -172,19 +172,13 @@ CI 使用 Mac mini self-hosted runner（Xcode 26.4 / iPhone 17 Simulator）。PR
 
 ## 长任务 Phase Compaction
 
-跨多 PR、多天的长任务，每合并 3-5 个 PR 后产出 Phase Checkpoint：
+跨多 PR、多天的长任务，每合并 3-5 个 PR 后在 `docs/memory/handoff.md` 的 Risks 段记录阶段状态：
 
 ```markdown
-# Phase Checkpoint <YYYY-MM-DD> <主题>
+## Phase <主题> — <日期>
 
-## Goal
-本 phase 想解决的问题（一句话）
-
-## Done / Open / Decisions / Risks / Next
+- Done: ...
+- Open: ...
+- Risks: ...
+- Next: ...
 ```
-
-**位置**：`docs/memory/checkpoints/<YYYY-MM-DD>-<topic>.md`（layer: snapshot, max_age_days: 30）
-**触发**：post-merge-checkpoint hook 自动提示（每 3-5 PR），phase-closeout skill 手动收尾
-**接手**：新会话只读 `STATUS.md` + `docs/memory/handoff.md` + 最近 Checkpoint（resume-from-handoff skill）
-
-大型审计按依赖拓扑拆分阶段：先审根（vision/engineering/principles），再审下游。每阶段闭环后再进入下一阶段。
