@@ -19,7 +19,7 @@ SnapDrill 文档体系当前 `docs/` 下 39 个第一方 md 文件统一采用 H
 
 而 `.claude/rules/` 下 12 个 md 文件已是 YAML frontmatter（PR #648 标准化），形成全仓双格式分裂。
 
-文档体系三方独立审计（2026-04-17，`~/.claude/plans/doc-audit-summary.md` I2 项）共识结论：
+文档体系三方独立审计（2026-04-17，Claude 私有审计归档）共识结论：
 1. HTML 注释不是机器可读标准，需要项目自定义 parser
 2. Jekyll / GitHub Pages / mkdocs 等业界工具默认支持 YAML frontmatter
 3. 双格式分裂导致 grep 查询、validate 校验都需要适配两套语法
@@ -74,7 +74,7 @@ Claude Opus 4.7 / Codex GPT-5.4 / Gemini 3 三方独立产出 schema + 迁移脚
 - Gemini 提出额外字段（如 `tags: []`），Claude/Codex 都认为 YAGNI
 - Codex 倾向脚本用 PyYAML 强依赖；Claude 提供 stdlib 回退方案（无 PyYAML 也可运行）
 
-详细对比表见 `~/.claude/plans/phase4-p1-adversarial-summary.md`。
+详细对比表见三方对抗汇总归档（Claude 私有审计产物）。
 
 ## 决策
 
@@ -120,9 +120,9 @@ Claude Opus 4.7 / Codex GPT-5.4 / Gemini 3 三方独立产出 schema + 迁移脚
 
 ## 相关
 
-- `Scripts/migrate_to_yaml_frontmatter.py`（已实现，方案见 `~/.claude/plans/adversarial-t05-06-claude.md` §2）
+- `Scripts/migrate_to_yaml_frontmatter.py`（已实现，方案见三方对抗 T05-T06 Claude 审计归档 §2）
 - `Scripts/validate_frontmatter.py`（已实现，方案见同 §4）
 - `.git/hooks/pre-commit`（增量挂接）
 - `.github/workflows/ci.yml`（CI step 新增）
 - docs/ 下 39 md 文件（全部迁移）
-- 三方对抗起草报告：`~/.claude/plans/phase4-p1-adversarial-summary.md`
+- 三方对抗起草报告：Claude 私有审计归档

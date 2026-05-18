@@ -59,7 +59,7 @@ layer: pattern
 
 **下一步**：Phase E 反哺机制（extract-candidate CLI + harness-introspection skill + 首次反哺实战）
 
-**完整 consensus 归档**：`~/.claude/plans/phase-de-consensus-20260422.md`（Claude 私有记忆）
+**完整 consensus 归档**：Claude 私有审计产物（Phase D-E consensus, 2026-04-22）
 
 ## D-004: 双统帅架构 + 零信任审计 Phase A 启动（2026-05-14）
 
@@ -75,7 +75,7 @@ layer: pattern
 **实施成果（Phase A 完工）**：
 - Codex 第 1 轮全量审：16 finding（1C/6H/8M/1L），覆盖 13 文件
 - DeepSeek 贪吃蛇 50 文件：~235 finding（9C/53H/117M/72L），全覆盖
-- 总 251 finding，aggregate `~/.claude/plans/audit-findings-20260514/master-findings.tsv`
+- 总 251 finding，aggregate 到 Claude 私有审计产物 master-findings.tsv（2026-05-14）
 - 自动 evidence 预筛：17 HIT / 7 MISS / 92 NO_CMD / 120 NOT_GREP
 
 **关键决策点**：
@@ -107,4 +107,4 @@ layer: pattern
 - `MainActor.assumeIsolated` 在非 MainActor 测试路径会 trap
 - 长期更优解：测试入口给 `-Xswiftc -D -Xswiftc SNAPDRILL_TESTING` 编译期 define
 
-**完整审计归档**：`~/.claude/plans/doc-zero-trust-audit-20260514.md`（plan）+ `~/.claude/plans/audit-findings-20260514/`（产物）
+**完整审计归档**：Claude 私有审计产物（零信任审计 plan + findings, 2026-05-14）

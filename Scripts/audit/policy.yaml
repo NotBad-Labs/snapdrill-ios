@@ -58,9 +58,12 @@ checks:
     level: warning
     description: 仓库内对 ~/.claude/ 私有路径的硬编码
     allowed_contexts:
-      # 纪律文档本身解释 home-path 用法，允许引用
+      # 纪律文档本身解释 home-path 用法，允许引用（规则定义文件）
       - docs/standards/memory-routing.md
       - docs/standards/permission-model.md
+      - docs/standards/execution-gates.md
+      # 工具脚本，功能就是扫描私有空间
+      - Scripts/recall-index.sh
 
   rule-usage:
     level: info
@@ -79,13 +82,6 @@ checks:
 legacy_whitelist:
   # Phase A 审计 archived-refs 命中已由 Phase C PR-α2 全部修复（docs/research → docs/archive/research）
   # 故此处不再需要 archived-refs 豁免
-
-  # Phase A 审计发现的 home-path-refs 命中
-  # Phase C 分批归档到 docs/ 或标为 Claude-private
-  - check: home-path-refs
-    reason: "Phase A 基线：现有 ~/.claude/ 硬编码，Phase C 分批归档"
-    expires_on: "2026-06-30"
-    # 无 paths = 匹配所有 home-path-refs finding（过渡期；收紧时应加 paths）
 
   # Phase A 孤儿候选
   - check: orphans

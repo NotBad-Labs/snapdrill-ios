@@ -278,5 +278,5 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 
 ## 文档健康检查（每次发版必做）
 
-- [ ] Auto Memory（`~/.claude/projects/` 下的 MEMORY.md）行数合理（超过 150 行则审计剪枝）
+- [ ] Claude Auto Memory 行数合理（超过 150 行则审计剪枝）
 - [ ] 检查是否有新内容同时存在于 Auto Memory 和 `.claude/rules/` 文件（若有，保留权威文档，Memory 改为指针）
