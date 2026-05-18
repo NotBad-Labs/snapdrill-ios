@@ -1,16 +1,17 @@
 ---
-last_verified: 2026-04-21
+last_verified: 2026-05-18
 layer: pattern
 ---
 # SnapDrill 权限模型
 
-> Agent tool 使用 / Bash 命令白名单 / Skill allowed-tools 的统一 SSOT。
+> Agent tool 使用 / Bash 命令白名单 / 治理类 Skill allowed-tools 的统一 SSOT。
 > 修改任一位置时必须同步本文档，否则审计视图与实际运行状态会脱节。
 
 本文档覆盖三层权限配置：
 1. **Tool 分级**：Claude Code 可调用的所有工具按风险等级分层
 2. **Bash 命令硬拦截**：`.claude/hooks/block-dangerous-bash.sh` 的受限模式
 3. **Hook 生命周期门禁**：`.claude/settings.json` 事件绑定
+4. **治理类 Skill 权限**：会影响流程、审计、合并门禁的项目 skill
 
 ---
 
@@ -63,7 +64,7 @@ sudo rm             # 提权删除
 | `SessionStart` | `compact` | `cat .claude/compact-reminder.md` | 压缩后重载上下文提示 | T1 |
 | `PostToolUse` | `Edit\|Write\|MultiEdit` | `log-file-change.sh` | 记录改动文件到 session-log.txt | T1 观察 |
 | `PostToolUse` | `Edit\|Write\|MultiEdit` | `swift-autolint.sh` | 改 `.swift` 后即时 swiftlint（行级） | T2 校验 |
-| `PostToolUse` | `Edit\|Write\|MultiEdit` | `docaudit-on-doc-edit.sh` | 改 docs 区 `.md` 后跑 `docaudit links`（broken link 即时反馈，Phase B PR-2） | T2 校验 |
+| `PostToolUse` | `Edit\|Write\|MultiEdit` | `docaudit-on-doc-edit.sh` | 改 docs 区 `.md` 或入口文档后跑 `docaudit links`（broken link 即时反馈，Phase B PR-2） | T2 校验 |
 | `PostToolUse` | `Bash` | `post-merge-checkpoint.sh` | `gh pr merge` 后提示 checkpoint + 反模式启发式扫描 | T2 观察 |
 | `PostToolUse` | `.*` | `session-metrics.sh` | 记录所有 tool call 时间戳到 session-metrics.tsv | T1 观察 |
 | `PreToolUse` | `Bash` | `block-dangerous-bash.sh` | 见 §2，硬拦截 T3 受限命令 | **T3 守门** |
@@ -76,9 +77,15 @@ sudo rm             # 提权删除
 
 ---
 
-## 4. Skill `allowed-tools` 矩阵
+## 4. 治理类 Skill `allowed-tools` 矩阵
 
-16 个活跃 skill 的 tool 白名单（与 §1 Tier 交叉）：
+本表只覆盖会影响流程、审计、合并门禁的项目治理 skill（与 §1 Tier 交叉），不覆盖全部 `.claude/skills/` 社区/领域 skill。Skill 目录所有权、计数口径和迁移规则见 `skill-architecture.md`；社区/领域 skill 的权限以各自 `SKILL.md` frontmatter 为准。如果某个 skill 被提升为门禁、审计或流程权威源，必须纳入本表。
+
+**当前 skill 计数口径（2026-05-18）**：
+- Distinct 一层 skill 名称：54 个（`.claude/skills/*/SKILL.md` 51 个 + `.agents/skills/*/SKILL.md` 4 个 - 1 个 Claude adapter 重名）
+- 项目治理 skill：14 个（下表列出）
+- 社区/领域 skill：40 个
+- `.agents/skills/*/skills/*/SKILL.md` 是插件包 payload，不计入一层可触发 skill；`skills-lock.json` 只追踪 `.agents/skills/` 下 3 个受管跨 agent skill，不追踪 `.claude/skills/` 的 Claude adapter skill。详见 `skill-architecture.md`。
 
 | Skill | Read | Grep | Glob | Edit | Write | Bash | WebSearch | WebFetch | Agent | Tier 覆盖 |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -86,24 +93,22 @@ sudo rm             # 提权删除
 | `cross-audit-consensus` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2 |
 | `phase-closeout` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2 |
 | `resume-from-handoff` | ✅ | ✅ | ✅ | — | — | ✅ | — | — | — | T1+T2 读取 |
-| `update-status` | ✅ | — | — | ✅ | — | ✅ | — | — | — | T1+T2 |
-| `pr-review-workflow` | ✅ | ✅ | — | ✅ | — | ✅ | — | — | — | T1+T2 |
 | `post-merge` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | T1+T2 |
 | `sprint-contract` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2 |
 | `api-research` | ✅ | — | — | — | — | ✅ | ✅ | ✅ | — | T1+T2（研究只读） |
 | `verify-audit-report` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | T1+T2 |
-| `snapshot-diff-review` | ✅ | — | — | — | ✅ | ✅ | — | — | — | T1+T2 |
 | `dependency-propagation` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | T1+T2 |
 | `knowledge-health` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2（只产 plan，不改 workspace 文件） |
 | `harness-recall` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2（只 propose，不自动改规则） |
 | `dod-checklist` | ✅ | ✅ | ✅ | — | — | ✅ | — | — | — | T1+T2（只读+检查，不改文件） |
 | `decision-closeout` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | T1+T2 |
+| `xcode-review` | ✅ | ✅ | ✅ | — | ✅ | ✅ | — | — | — | T1+T2 |
 
 **原则**：
 - 研究类 skill（cross-audit / consensus / phase-closeout）允许 Write 但落地到 `~/.claude/plans/` 或 `docs/archive/research/`
 - 执行类 skill（post-merge / sprint-contract / dependency-propagation 等）开放 T2 完整集
 
-**新增 skill 或修改 `allowed-tools` 时**：必须同步本表并注明 Tier 覆盖。不遵守的 skill 视为违反 §0 SSOT 纪律。
+**新增治理类 skill 或修改治理类 skill 的 `allowed-tools` 时**：必须同步本表并注明 Tier 覆盖。不遵守的治理类 skill 视为违反 §0 SSOT 纪律。
 
 ---
 
@@ -118,8 +123,10 @@ jq '.hooks' .claude/settings.json
 # 对照 block-dangerous-bash.sh 与本文档 §2
 grep '^DANGEROUS_RE=' .claude/hooks/block-dangerous-bash.sh
 
-# 对照 skill allowed-tools 与本文档 §4
-grep -l 'allowed-tools:' .claude/skills/**/SKILL.md
+# 对照治理类 skill allowed-tools 与本文档 §4
+for skill in cross-audit cross-audit-consensus phase-closeout resume-from-handoff post-merge sprint-contract api-research verify-audit-report dependency-propagation knowledge-health harness-recall dod-checklist decision-closeout xcode-review; do
+  sed -n '1,12p' ".claude/skills/$skill/SKILL.md"
+done
 ```
 
 若任一位置与本文档不符，**以本文档为裁决基准**（属工程纪律事实来源），但必须同 PR 内双向同步（或开 follow-up issue 补漂移）。

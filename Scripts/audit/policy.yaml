@@ -21,6 +21,7 @@ scan:
     - Scripts/
     - STATUS.md
     - CLAUDE.md
+    - AGENTS.md
     - README.md
   exclude:
     - .claude/worktrees/                 # 临时副本
@@ -62,6 +63,7 @@ checks:
       - docs/standards/memory-routing.md
       - docs/standards/permission-model.md
       - docs/standards/execution-gates.md
+      - docs/standards/skill-architecture.md
       # 工具脚本，功能就是扫描私有空间
       - Scripts/recall-index.sh
 
@@ -72,7 +74,7 @@ checks:
 
 # Finding 级豁免规则（Phase C 清理前过渡）
 # 每条规则：
-#   check:       6 子命令之一（必填）
+#   check:       5 个结构子命令之一（必填）
 #   reason:      豁免理由（必填，非空）
 #   expires_on:  YYYY-MM-DD 硬截止（必填，无效日期 exit 2）
 #   paths:       文件 glob 列表（可选，空 = 匹配该 check 所有 finding）

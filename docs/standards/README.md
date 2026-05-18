@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-14
+last_verified: 2026-05-18
 layer: pattern
 ---
 # 项目标准与约束（Agent-Agnostic）
@@ -24,6 +24,9 @@ layer: pattern
 | [ux-design.md](ux-design.md) | UX 设计原则与用户体验终审 | UI/UX 改动、用户体验评审 |
 | [shared-constraints.md](shared-constraints.md) | 委派 prompt 共享约束 | 构造委派 prompt |
 | [permission-model.md](permission-model.md) | Tool / Bash 命令 / Skill 权限矩阵（SSOT） | 修改 settings.json / hooks / skill allowed-tools |
+| [skill-architecture.md](skill-architecture.md) | Agent Skills 目录架构与迁移规则 | 新增 / 迁移 / 退役 skill |
+| [execution-gates.md](execution-gates.md) | 执行门禁总表 | 修改 CI / hook / merge gate |
+| [audit-rubric.md](audit-rubric.md) | 文档系统审计评分标准 | 启动文档审计 / 交叉审计 |
 | [harness-recall.md](harness-recall.md) | 自进化闭环：跨 checkpoint 去重 → 3 次触发 propose 新 F-0XX 规则 | phase-closeout / harness 自进化 |
 | [memory-routing.md](memory-routing.md) | 项目知识 / 智能体记忆路由规则（agent-agnostic） | 写新文档时判断归属 docs/ vs Claude 私有空间 |
 

@@ -5,7 +5,7 @@ layer: pattern
 # Gemini CLI 委派规范
 
 > 本文件是 agent-agnostic 的委派规范。任何主线程委派 Gemini CLI 时遵循本规则。
-> 位置迁移自 `.claude/rules/gemini-delegation.md`（2026-04-17 PR #642 迁移，遵循 engineering.md:72 SSOT）。
+> 历史来源为旧 `.claude/rules/gemini-delegation.md`（2026-04-17 PR #642 迁移）。当前权威源是本文档；`.claude/rules/` 不再作为现役指针层。
 
 Gemini CLI（google-gemini/gemini-cli v0.41.2+）通过 Bash 非交互模式在主线程内调用，提供第三个独立模型家族（Google Gemini）的审计视角。
 与 Codex 不同，Gemini 通过 `-p` 参数直接传递 prompt，不是插件体系。

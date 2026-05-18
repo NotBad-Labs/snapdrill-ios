@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-21
+last_verified: 2026-05-18
 layer: pattern
 ---
 # SnapDrill 部署与运维
@@ -35,20 +35,26 @@ Configs/Shared.xcconfig
 
 ```yaml
 # .github/workflows/ci.yml
-触发条件：PR → develop/main，或手动触发
-Runner：Mac mini 自托管（self-hosted, macOS）
+触发条件：PR → develop/main，push → develop/main，或手动触发
+Runner：Docs Audit 使用 ubuntu-latest；Build & Test 使用 Mac mini 自托管（self-hosted, macOS）
 步骤：
-  1. Select Xcode（自动检测最新版本）
-  2. SwiftLint --strict
-  3. xcodebuild build-for-testing -scheme AllTests -testPlan AllTests
+  1. Docs Audit（并行）：docaudit self-test + docaudit all --strict --baseline
+  2. Select Xcode（优先 Xcode_26.4.app；要求 Xcode 26.4+ / Swift 6.3）
+  3. SwiftLint --strict
+  4. validate_frontmatter.py --check --strict
+  5. Check Package Dependencies（包依赖方向 + Share Extension import 约束）
+  6. Clean Simulator（erase iPhone 17，避免 SwiftData 残留）
+  7. Validate AllTests.xctestplan JSON
+  8. xcodebuild build-for-testing -scheme AllTests -testPlan AllTests
      -derivedDataPath $GITHUB_WORKSPACE/DerivedData
      -destination 'platform=iOS Simulator,name=iPhone 17'
      CODE_SIGNING_ALLOWED=NO
-  4. xcodebuild test-without-building
+  9. xcodebuild test-without-building
      -xctestrun $(find ... AllTests_*.xctestrun)
      -only-test-configuration CI
      -parallel-testing-enabled NO
      -resultBundlePath TestResults.xcresult
+  10. Upload xcresult on failure
 ```
 
 注：CI 运行 `AllTests.xctestplan` 的 CI configuration，包含 4 个 test target（SnapDrillCoreTests / SnapDrillDataTests / SnapDrillFeaturesTests / SnapDrillShareTests）。`test-without-building` 复用 `build-for-testing` 产出的 DerivedData，避免重复编译。`SnapshotRecord` configuration 仅本地用（`SNAPSHOT_TESTING_RECORD=all` 重录 baseline），不参与 CI。
@@ -156,7 +162,7 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 > 每次 build 推送到 TestFlight 前，在真机上走完以下流程。
 > 标注 ❌ 的项目必须修复后才能发版。
 >
-> Last verified: 2026-05-15（与 frontmatter 同步，Phase 5 时效性批量刷新）
+> Last verified: 2026-05-18（与 frontmatter 同步，文档治理审计 P1 刷新）
 
 ---
 
@@ -279,4 +285,4 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 ## 文档健康检查（每次发版必做）
 
 - [ ] Claude Auto Memory 行数合理（超过 150 行则审计剪枝）
-- [ ] 检查是否有新内容同时存在于 Auto Memory 和 `.claude/rules/` 文件（若有，保留权威文档，Memory 改为指针）
+- [ ] 检查是否有新内容同时存在于 Auto Memory、`.claude/skills/` 和 `docs/`（若有，保留公开权威文档或对应 SKILL.md，Memory 改为指针）

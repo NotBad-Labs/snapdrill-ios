@@ -7,7 +7,6 @@
   archived-refs        对 policy.yaml 声明的 archived_sources 旧路径硬引用（归档后应改用新路径）
   orphans              docs/**/*.md 在全仓零引用
   home-path-refs       仓库内对 ~/.claude/ 私有路径的硬编码
-  rule-pointer-sync    .claude/rules/*.md → docs/standards/*.md 映射
   rule-usage           F-NNN 规则外部引用计数（dead rule 候选）
 
 详见 Scripts/audit/README.md 与 Scripts/audit/policy.yaml。
@@ -87,11 +86,6 @@ PATH_REF_RE = re.compile(r"((?:\.\.?/|[A-Za-z0-9_][A-Za-z0-9_\-]*/)[A-Za-z0-9_\-
 
 # ~/.claude/ 引用
 HOME_CLAUDE_RE = re.compile(r"~/\.claude/[A-Za-z0-9_\-./]*")
-
-# .claude/rules/ → docs/standards/ 或 docs/tech/ 映射模式
-RULE_POINTER_RE = re.compile(
-    r"(?:Read and follow|指向|→)\s+(docs/(?:standards|tech)/[A-Za-z0-9_\-./]+\.md)"
-)
 
 # F-NNN 规则 ID
 F_RULE_RE = re.compile(r"\bF-(\d{3})\b")
@@ -494,40 +488,6 @@ def check_home_path_refs(policy: dict) -> CheckResult:
                 ))
     return result
 
-
-
-    for rule_path in rules_dir.glob("*.md"):
-        rel = rule_path.relative_to(REPO_ROOT)
-        rel_str = str(rel)
-        if _matches_whitelist_glob(rel_str, allowlist):
-            continue
-        text = "\n".join(_read_lines(rule_path))
-        matches = list(RULE_POINTER_RE.finditer(text))
-        if not matches:
-            result.findings.append(Finding(
-                path=rel_str,
-                line=0,
-                category="missing_pointer",
-                level=level,
-                suggestion="rule must point to a docs/standards/*.md SSOT",
-            ))
-            continue
-        for match in matches:
-            target = match.group(1).strip()
-            abs_target = REPO_ROOT / target
-            if not abs_target.exists():
-                lineno = text[:match.start()].count("\n") + 1
-                result.findings.append(Finding(
-                    path=rel_str,
-                    line=lineno,
-                    category="broken_pointer",
-                    level=level,
-                    suggestion=f"principle target missing: {target}",
-                    matched_text=match.group(0),
-                ))
-    return result
-
-
 # ---------- check: rule-usage ----------
 
 def check_rule_usage(policy: dict) -> CheckResult:
@@ -763,8 +723,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     all_parser = sub.add_parser(
         "all",
-        help="Run all 6 checks + frontmatter (via validate_frontmatter.py subprocess).",
-        description="运行全部 6 个 checks + frontmatter（subprocess 调用 validate_frontmatter.py）。",
+        help="Run 5 structural checks + frontmatter (6 checks total).",
+        description="运行 5 个结构检查，并通过 subprocess 调用 validate_frontmatter.py（共 6 个检查）。",
         epilog="示例：python3 Scripts/audit/docaudit.py all --report --verbose",
     )
     _add_common(all_parser)

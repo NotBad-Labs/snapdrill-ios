@@ -38,6 +38,7 @@ freshness:
 | `docs/workflow.md` | 协作规则源 | engineering、collaboration | 所有开发与评审流程 |
 | `docs/standards/*.md` | 执行约束 | engineering（部分）、workflow | 智能体行为、委派上下文质量 |
 | `docs/standards/execution-gates.md` | 门禁总表 | `docs/standards/permission-model.md`、`docs/workflow.md`、`docs/standards/engineering.md` | 门禁新增/修改/退役时同步 |
+| `docs/standards/skill-architecture.md` | Skill 目录架构与迁移规则 | `AGENTS.md`、`CLAUDE.md`、`docs/standards/permission-model.md` | 新增/迁移/退役 skill 时同步 |
 | `docs/DOC_DEPENDENCY_MAP.md` | 文档依赖图（变更传播 SSOT） | `docs/standards/engineering.md`（原则 5）、`docs/workflow.md` | KNOWLEDGE_MAP、全文档变更传播 |
 | `docs/KNOWLEDGE_MAP.md` | 知识分层与裁决索引 | `docs/workflow.md`、`docs/DOC_DEPENDENCY_MAP.md` | 文档检索顺序、更新触发规则 |
 | `docs/standards/audit-rubric.md` | 文档审计判定标准 | `docs/standards/engineering.md`、`docs/workflow.md` | Phase 2-6 审计流程 |

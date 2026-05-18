@@ -1,40 +1,17 @@
-# CLAUDE.md — Claude Code 入口
+@AGENTS.md
 
-> 路由文件，不是知识库。项目知识在 docs/。
+# Claude Code
 
-## Boot
+This file is a Claude Code adapter, not a separate knowledge source. Shared project instructions live in `AGENTS.md` and `docs/`.
 
-1. 读 `STATUS.md` — 当前工作上下文
-2. 读 `docs/workflow.md` — 流程、DoD、Review 规范
-3. 相关标准由 skills 按需加载
-4. 读 `docs/memory/feedback.md` — F 规则索引
+## Claude-Specific Context
 
-## Context Map
+- Project skills are discovered from `.claude/skills/`; shared cross-agent skills live in `.agents/skills/`.
+- Claude-only runtime configuration stays under `.claude/` (`hooks/`, `settings.json`, `compact-reminder.md`).
+- Personal or local Claude state must stay out of git (`.claude/settings.local.json`, `.claude/session-log.txt`, `CLAUDE.local.md`).
 
-| 需要 | 去读 |
-|---|---|
-| 项目原则 | `docs/standards/`（skills 按需加载或自行读取） |
-| 项目反馈与纪律 | `docs/memory/feedback.md` |
-| 产品文档 | `docs/product/` |
-| 技术文档 | `docs/tech/` |
-| 项目记忆 | `docs/memory/` |
-| 流程与 DoD | `docs/workflow.md` |
-| 知识地图 | `docs/KNOWLEDGE_MAP.md` |
-| 架构决策 | `docs/decisions/ADR-*.md` |
-| 权限模型 | `docs/standards/permission-model.md` |
+## Skill Routing
 
-## 执行门
-
-```bash
-swiftlint --strict        # 0 violations
-xcodebuild build-for-testing \
-  -scheme AllTests \
-  -destination 'platform=iOS Simulator,name=iPhone 17' \
-  -testPlan AllTests        # 0 errors
-```
-
-测试用 `AllTests` scheme + `AllTests` testPlan（SnapDrill scheme 不含 SPM 包测试）。完整 DoD 见 `docs/workflow.md`。
-
-## 项目一句话
-
-SnapDrill：练习题数字化效率工具。SwiftUI / SwiftData / iOS 26.0+ / Swift 6.3 / defaultIsolation(MainActor)。
+- Use `.agents/skills/` as the SSOT for portable skills that do not depend on Claude-only frontmatter or hooks.
+- Keep Claude governance skills in `.claude/skills/` when they depend on Claude Code concepts such as hooks, `allowed-tools`, `context: fork`, or private Claude planning paths.
+- Do not use symlinked `.claude/skills` as the migration mechanism until it has been verified in the current Claude Code version.

@@ -12,33 +12,35 @@ freshness:
 - **当前主力**：Claude Opus 4.7（Claude Code CLI）
 - **辅审**：Codex CLI + Gemini CLI + DeepSeek V4-Pro
 - **主分支**：`develop`
-- **状态**：52 文档三方审计 Phase 0-2 完成，P0 已修，P1 待修
+- **状态**：52 文档三方审计 Phase 0-2 完成，P0 已修，Codex P1 文档治理修复完成并进入回归验证
 
 ## 进行中：文档系统审计
 
 Claude + Codex + Gemini 完成 52 个第一方文档的 Phase 0-2 审计。
 
 - Rubric: `docs/standards/audit-rubric.md`
-- Ledger: `~/.claude/plans/audit-ledger.tsv`
+- Ledger: Claude 私有审计 ledger，公开接手指针见 `CODEX_HANDOFF.md`
 - Codex 独立审查了修复结果，发现了更高优先级的新问题
 
-## Codex 当前任务（P1 修复）
+## Codex P1 修复结果
 
-按 Codex 排的优先级：
-1. engineering.md ↔ feedback.md SSOT 矛盾（engineering 仍写 feedback 是 SSOT）
+已完成：
+1. engineering.md ↔ feedback.md SSOT 矛盾
 2. KNOWLEDGE_MAP.md 旧 rules 入口模型
 3. deployment.md frontmatter 与正文 last_verified 不一致
 4. standards/README.md 缺 audit-rubric/execution-gates 条目
 5. api-pitfalls/apple-limits/appstore-metadata freshness 刷新
-6. CLAUDE.md + AGENTS.md 冗余合并
+6. home-path-refs 回归阻断项（私有路径硬编码）
+
+暂不处理：
+- CLAUDE.md + AGENTS.md 冗余合并（低优先级，可独立排期）
 
 详见 `CODEX_HANDOFF.md`
 
 ## 下一会话方向
 
-- A. 确认 Codex P1 修复完成 → 回归 docaudit
-- B. Apple 账号缴费 → 解锁 #163 链
-- C. #626 真机验证
+- A. Apple 账号缴费 → 解锁 #163 链
+- B. #626 真机验证
 
 ## Boot 序列（新会话必读）
 

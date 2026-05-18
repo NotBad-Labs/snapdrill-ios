@@ -23,7 +23,7 @@ def _base_policy() -> dict:
     return {
         "version": 1,
         "scan": {
-            "include": ["docs/", ".claude/", "Scripts/", "STATUS.md", "CLAUDE.md", "README.md"],
+            "include": ["docs/", ".claude/", "Scripts/", "STATUS.md", "CLAUDE.md", "AGENTS.md", "README.md"],
             "exclude": [".claude/worktrees/", "docs/archive/", "Scripts/audit/tests/fixtures/"],
         },
         "checks": {
@@ -42,11 +42,6 @@ def _base_policy() -> dict:
                 "level": "warning",
                 "description": "",
                 "allowed_contexts": ["docs/standards/memory-routing.md"],
-            },
-            "rule-pointer-sync": {
-                "level": "error",
-                "description": "",
-                "allowlist_rules": [".claude/rules/README.md"],
             },
             "rule-usage": {
                 "level": "info",
@@ -342,34 +337,6 @@ class DocauditTestCase(unittest.TestCase):
         policy = _write_policy(self.tmp)
         code, out, _ = self._run(["--policy", str(policy), "home-path-refs"])
         self.assertEqual(code, 0, out)
-
-    # ---------- rule-pointer-sync ----------
-
-    def test_rule_pointer_sync_clean(self) -> None:
-        (self.repo / "docs" / "standards" / "coding.md").write_text("# coding\n", encoding="utf-8")
-        (self.repo / ".claude" / "rules" / "coding.md").write_text(
-            "Read and follow docs/standards/coding.md for rules.\n", encoding="utf-8"
-        )
-        policy = _write_policy(self.tmp)
-        code, out, _ = self._run(["--policy", str(policy), "rule-pointer-sync"])
-        self.assertEqual(code, 0, out)
-
-    def test_rule_pointer_sync_broken(self) -> None:
-        (self.repo / ".claude" / "rules" / "coding.md").write_text(
-            "Read and follow docs/standards/missing.md for rules.\n", encoding="utf-8"
-        )
-        policy = _write_policy(self.tmp)
-        code, out, _ = self._run(["--policy", str(policy), "rule-pointer-sync"])
-        self.assertEqual(code, 1, out)
-        self.assertIn("error", out)
-
-    def test_rule_pointer_sync_missing_pointer(self) -> None:
-        (self.repo / ".claude" / "rules" / "orphan.md").write_text(
-            "This rule has no pointer.\n", encoding="utf-8"
-        )
-        policy = _write_policy(self.tmp)
-        code, _, _ = self._run(["--policy", str(policy), "rule-pointer-sync"])
-        self.assertEqual(code, 1)
 
     # ---------- rule-usage ----------
 

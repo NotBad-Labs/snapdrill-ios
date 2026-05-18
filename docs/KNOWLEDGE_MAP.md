@@ -45,6 +45,7 @@ layer: pattern
 | `docs/standards/shared-constraints.md` | 委派共享约束（单一源） | — | 约束变更 |
 | `docs/standards/memory-routing.md` | 知识/记忆路由规则（哪类内容写哪里） | KNOWLEDGE_MAP | 路由争议 |
 | `docs/standards/permission-model.md` | Tool / Bash 命令 / Skill allowed-tools 权限矩阵（SSOT） | settings.json, hooks, skills | 权限配置变更 |
+| `docs/standards/skill-architecture.md` | Agent Skills 目录架构、计数口径、迁移规则 | AGENTS, Claude adapter, permission-model | skill 新增/迁移/退役 |
 | `docs/standards/execution-gates.md` | 执行门禁总表（每个门禁 → 上游文档 → 执行器 → 豁免方式） | permission-model, workflow, engineering | 门禁新增/修改/退役 |
 | `docs/tech/compliance.md` | 隐私合规、App Store 审核 | vision, business | 政策变更 |
 | `docs/tech/deployment.md` | CI/CD、发布流程 | — | 工具更新 |
@@ -94,7 +95,8 @@ layer: pattern
 | 类型 | 入口条件 | 审批 |
 |---|---|---|
 | 产品决策 | 三方研究 + PO 批准 → 创建 ADR → 更新受影响文档 | PO |
-| 新 rules 文件 | 识别到重复性约束（3 次以上相同反馈）→ 从 feedback 提升为 rule | 开发者 |
+| 新 skill / rule 定义 | 识别到重复性约束（3 次以上相同反馈）→ 在对应 SKILL.md / rule 文件定义权威正文，并同步 feedback 索引 | 开发者 |
+| 新共享 skill | 候选 skill 满足 `skill-architecture.md` 迁移规则 → 放入 `.agents/skills/` 或先保留 Claude adapter | 开发者 |
 | 新产品文档 | 新功能模块需要独立规格 → 评估是否合并到现有文档 | PO |
 | 新技术文档 | 新技术栈/架构引入 → 评估是否合并到现有文档 | 开发者 |
 
@@ -128,4 +130,4 @@ layer: pattern
 6. **每次对话启动**：Claude 检查快照层 `last_verified` 是否超期
 7. **更新知识文件时**：grep 其他文件中对同一主题的引用，确认无矛盾（冲突检测）
 8. **修复非预期问题后**：评估是否需要录入 `api-pitfalls.md` 或 feedback（踩坑即录入）
-9. **docs 结构性漂移**：`Scripts/audit/docaudit.py` 提供机械化审计（6 子命令：links / archived-refs / orphans / home-path-refs / rule-pointer-sync / rule-usage）。策略源 `Scripts/audit/policy.yaml`，用法见 `Scripts/audit/README.md`。CI `docs` job（ubuntu-latest 并行）+ PostToolUse hook（Edit docs）+ PreToolUse hook（git push / gh pr merge 前）自动触发；对话场景用 `/knowledge-health` skill 扫描 CI 不可见的 Claude 私有空间 + private memory，产出分层修复 plan，不改文件
+9. **docs 结构性漂移**：`Scripts/audit/docaudit.py` 提供机械化审计（5 个结构子命令：links / archived-refs / orphans / home-path-refs / rule-usage；`all` 另含 frontmatter subprocess）。策略源 `Scripts/audit/policy.yaml`，用法见 `Scripts/audit/README.md`。CI `docs` job（ubuntu-latest 并行）+ PostToolUse hook（Edit docs）+ PreToolUse hook（git push / gh pr merge 前）自动触发；对话场景用 `/knowledge-health` skill 扫描 CI 不可见的 Claude 私有空间 + private memory，产出分层修复 plan，不改文件

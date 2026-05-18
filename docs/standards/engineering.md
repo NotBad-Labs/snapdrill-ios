@@ -136,7 +136,7 @@ layer: principle
 
 - 任何项目纪律（多智能体共遵 + 跨任务 + 重复违反风险）符合编号资格
 - 单调自增，**不复用退役编号**（即使 F-003/F-009/F-010/F-015/F-020 已 retired，下一个新规则仍用 F-021 而非占空号）
-- 新规则在 feedback.md 加入 `## F-NNN: 标题` + body
+- 新规则在对应 skill / rule 文件中定义权威正文，再在 feedback.md 追加索引行
 - 退役在标题加 `[retired YYYY-MM-DD]` 标记并保留原文
 
 **升级路径**：
@@ -146,7 +146,7 @@ layer: principle
 
 **反向引用**：
 
-`F-XXX` 编号可在以下文档中出现，**引用必须可追溯到 feedback.md SSOT**：
+`F-XXX` 编号可在以下文档中出现，**引用必须可追溯到 feedback.md 索引，并进一步指向对应 skill / rule 权威定义**：
 
 - `decisions.md` — 决策记录引用约束来源
 - `workflow.md` — DoD / Review 流程引用

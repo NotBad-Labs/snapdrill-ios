@@ -1,11 +1,11 @@
 ---
-last_verified: 2026-05-10
+last_verified: 2026-05-18
 layer: pattern
 ---
 # Codex 子 agent 委派规范
 
 > 本文件是 agent-agnostic 的委派规范。任何主线程（Claude Code、Xcode、其他）委派 Codex 子 agent 时遵循本规则。
-> 位置迁移自 `.claude/rules/codex-delegation.md`（2026-04-17 PR #642 迁移，遵循 engineering.md:72 SSOT：docs/standards/ 为源，.claude/rules/ 作指针）。
+> 历史来源为旧 `.claude/rules/codex-delegation.md`（2026-04-17 PR #642 迁移）。当前权威源是本文档；`.claude/rules/` 不再作为现役指针层。
 
 Codex 作为主线程的子 agent 运行（插件 v1.0.3，源码 `openai/codex-plugin-cc`），不自动继承 `CLAUDE.md` / `CODEX.md`、`docs/standards/`、产品文档体系。
 委派 prompt 的质量直接决定 Codex 输出是否符合项目约束。

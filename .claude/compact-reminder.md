@@ -1,6 +1,6 @@
 # Compact Reminder
 
-> 压缩后恢复上下文用。CLAUDE.md 和 .claude/rules/（指向 docs/standards/）由系统自动重新加载，此文件只补充它们覆盖不到的会话状态。
+> 压缩后恢复上下文用。CLAUDE.md 只作为入口指针；项目知识以 docs/ 为准，流程性能力由 skills 按需加载。本文件只补充它们覆盖不到的会话状态。
 
 ## 恢复步骤
 
@@ -16,12 +16,13 @@
 ```bash
 swiftlint --strict
 xcodebuild build-for-testing \
-  -scheme SnapDrill \
-  -destination 'platform=iOS Simulator,name=iPhone 17'
+  -scheme AllTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -testPlan AllTests
 ```
 
 - `swift test` 不可用（SPM 仅声明 iOS 平台）
-- `xcodebuild build` 不编译测试 target，必须用 `build-for-testing`
+- `SnapDrill` scheme 不含 SPM 包测试；测试门禁必须用 `AllTests` scheme + `AllTests` testPlan
 
 ## 关键约束速查
 

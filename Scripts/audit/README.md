@@ -12,9 +12,8 @@
 | `archived-refs` | 对 `docs/research/*` (status: archived) 的活跃硬引用 |
 | `orphans` | `docs/**/*.md` 在全仓零引用 |
 | `home-path-refs` | 仓库内对 `~/.claude/` 私有路径的硬编码 |
-| `rule-pointer-sync` | `.claude/rules/*.md` 与 `docs/standards/*.md` 映射完整性 |
 | `rule-usage` | F-001~F-NNN 引用计数（识别 dead rule 候选） |
-| `all` | 以上 6 项 + `frontmatter`（subprocess 调用 `Scripts/validate_frontmatter.py`） |
+| `all` | 以上 5 项 + `frontmatter`（subprocess 调用 `Scripts/validate_frontmatter.py`），共 6 个检查 |
 
 ## 用法
 
@@ -89,14 +88,13 @@ Phase C 每个清理 PR 应从 `legacy_whitelist` 移除对应条目，直到全
 ### 文本 summary（stdout，人类可读）
 
 ```
-docaudit: 7 checks, 4 categories with findings
+docaudit: 6 checks, 4 categories with findings
 
 [frontmatter]          clean
 [links]                clean
-[archived-refs]        16 error
+[archived-refs]        2 error
 [orphans]              1 warning
-[home-path-refs]       47 warning
-[rule-pointer-sync]    clean
+[home-path-refs]       1 warning
 [rule-usage]           3 info
 
 Exit: 1 (error level in: ['archived-refs'])
@@ -120,11 +118,11 @@ archived-refs    docs/memory/handoff.md    118    active_reference    error    s
 python3 -m unittest discover Scripts/audit/tests
 ```
 
-覆盖每个子命令 ≥ 2 用例（正向 + 命中）+ `legacy_whitelist` schema 边界（无效日期 / 缺 reason / 未知 check → exit 2）+ `--strict` 摘要一致性 + stderr 镜像 + frontmatter subprocess 降级路径。
+覆盖每个活跃子命令 ≥ 2 用例（正向 + 命中）+ `legacy_whitelist` schema 边界（无效日期 / 缺 reason / 未知 check → exit 2）+ `--strict` 摘要一致性 + stderr 镜像 + frontmatter subprocess 降级路径。
 
 ## 首轮基线缓冲
 
-`policy.yaml` 的 `legacy_whitelist` 预置 Phase A 已发现的违规（archived-refs 18 处、home-path-refs 47 处、orphans 1 处）。Phase C 每个清理 PR 同步从白名单移除，逐步收紧到全空。
+`policy.yaml` 的 `legacy_whitelist` 当前仅保留 Phase A 孤儿候选 1 类过渡豁免。Phase C 每个清理 PR 同步从白名单移除对应条目，逐步收紧到全空。
 
 ## 信号链
 
