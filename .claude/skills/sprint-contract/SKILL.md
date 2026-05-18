@@ -95,8 +95,34 @@ EOF
 - ❌ 发现 scope 膨胀后继续写（不改 contract） — 必须停下，先更新 contract
 - ❌ contract 只写 Touches 不写 No-Touch — No-Touch 是防 scope creep 的关键
 
-## 关联规则
+## 内嵌纪律（权威源）
 
-- `docs/memory/feedback.md` F-018（编码前契约纪律）
+本 skill 是 F-018、F-013、F-014 的权威定义源。`docs/memory/feedback.md` 仅保留索引指针。
+
+
+### F-013: PR scope 膨胀时必须拆分
+
+当 PR 实际工作偏离原始目标（如从「配置修改」滚雪球成「修复 4 个编译错误 + 7 次 CI 重试」）时，必须停下来拆分为独立 PR。
+
+**Why:** PR #597 从「CI 全量测试」膨胀到修复编译、修复环境问题、调试死锁，最终 8 次 CI 尝试。稳定通过的部分被死锁问题拖延合并。
+
+**How to apply:** 当 PR 发现的附带问题超过 2 个、或 CI 失败超过 3 次且原因不同时，拆分为独立 PR。稳定通过的部分先合并，有问题的部分保持 open 或另开 PR。
+
+> timeboxed: review_after 2026-07-15
+
+
+### F-014: 跳过测试的合并门禁
+
+标记测试为 `skipped` 是降级决策，合并前必须完成检查清单：(a) 创建 tracking issue，(b) 在代码中添加 `// TODO: #issue` 注释，(c) 在 PR description 中声明跳过原因，(d) PR 标题反映实际交付而非初始意图。
+
+**Why:** PR #597 跳过 Data 测试后合并，但 tracking issue 和代码注释都是事后补的。
+
+**How to apply:** 任何将测试标记为 skipped/disabled 的 PR，合并前检查四项清单全部完成。
+
+> timeboxed: review_after 2026-07-15
+
+
+## 关联参考
+
 - `docs/workflow.md` §编码前契约
 - `.github/ISSUE_TEMPLATE/feature_request.md` — Sprint Contract 模板源

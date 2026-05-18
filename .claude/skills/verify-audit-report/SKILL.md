@@ -136,8 +136,10 @@ done
 - ❌ 抽查 5 条说"基本准确" — 违反 F-012
 - ❌ 只看 diff 不看完整文件上下文 — 可能遗漏备选路径
 
-## 关联规则
+## 内嵌纪律（权威源）
 
-- `docs/memory/feedback.md` F-006（深度验证）、F-012（全量做）
-- `docs/memory/feedback.md` F-016（质疑方批准）
+本 skill 是 F-006 和 F-012 的权威定义源。`docs/memory/feedback.md` 仅保留索引指针。
+
+## 关联参考
+
 - 用户 memory `feedback_gemini_adversarial.md`（Gemini 已知幻觉模式）

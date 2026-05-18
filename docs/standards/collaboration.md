@@ -106,7 +106,7 @@ Cross-audit 和 PR Review 时，除通用代码质量外，必须额外检查以
 
 | 维度 | 一句话 |
 |---|---|
-| **Scope Fidelity** | 与 Issue Sprint Contract（`docs/memory/feedback.md` F-018）Touches / No-Touch / Interface Delta 的吻合度 |
+| **Scope Fidelity** | 与 Issue Sprint Contract（`sprint-contract` skill，F-018）Touches / No-Touch / Interface Delta 的吻合度 |
 | **Code Quality** | swiftlint / 复杂度 / 架构一致（人工审查维度，独立于 CI 二元通过） |
 | **Test Coverage** | 新增逻辑是否有测试、异常路径是否覆盖 |
 | **Architecture Fit** | 是否遵循 `engineering.md` 7 条原则（删减、YAGNI、编译拦截、边界契约、状态流、可逆性） |

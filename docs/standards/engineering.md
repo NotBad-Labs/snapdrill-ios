@@ -121,7 +121,7 @@ layer: principle
 
 ## F-XXX 反馈编号规则
 
-> 项目纪律以 `F-XXX` 编号收敛，便于跨文档引用、回顾、退役管理。本节定义**编号的元规则**，规则全文 SSOT 在 [`docs/memory/feedback.md`](../memory/feedback.md)。
+> 项目纪律以 `F-XXX` 编号收敛，便于跨文档引用、回顾、退役管理。本节定义**编号的元规则**，规则索引在 [`docs/memory/feedback.md`](../memory/feedback.md)，权威定义在各对应 skill / rule 文件中。
 
 **格式**：`F-NNN`（三位数字零 padding，如 `F-001`、`F-019`）。
 

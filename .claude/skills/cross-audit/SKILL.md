@@ -32,7 +32,6 @@ user-invocable: true
 - [ ] 已读取 `docs/standards/codex-delegation.md`（默认 effort high for 审计/Review）
 - [ ] 已读取 `docs/standards/gemini-delegation.md`（不加 sandbox，防 7 分钟卡死）
 - [ ] 已读取 `docs/standards/shared-constraints.md`（必须内联到 prompt）
-- [ ] 已读取 `docs/memory/feedback.md` F-008 / F-011 / F-012
 - [ ] 审计目标和文件清单已明确（写下来，不要口头默认）
 - [ ] 审计报告落盘路径已明确；所有委派 prompt 已写明"不得修改被审文件"
 
@@ -114,10 +113,33 @@ PR 审查场景末尾补 4 维评分表（0-10 整数分 + 综合平均），
 3. 每个 Critical 经实证验证（Read + Grep）
 4. 综合报告归档（建议路径 `docs/archive/{topic}-audit-{YYYYMMDD}.md`，需用户确认）
 
+## 内嵌纪律（权威源）
+
+本 skill 是以下 F 规则的权威定义源。`docs/memory/feedback.md` 仅保留索引指针。
+
+
+### F-011: 审计期间三方只读
+
+审计流程中三方必须同时只读审计 → 汇总比对 → 统一修复。审计期间不得提前修改被审文件。
+
+**Why:** api-reference.md 审计中 Claude 提前修改文件（731→779 行），导致 Codex 检测到文件变更后暂停。
+
+**How to apply:** 三方并行启动后审计结果只记录在回复中不触碰文件，等全部完成后汇总比对再统一修复。另外：抽查 ≠ 审计。
+
+
+### F-016: 质疑方批准，禁止自审自批
+
+修复审查发现的问题后，必须提交回原质疑方（Codex/Gemini/Xcode）复核。只有提出问题的 reviewer 确认修复有效，才能声称"问题已解决"。Claude 自己不允许批准合并。
+
+**Why:** Claude 修复 Gemini Critical 发现（内存风险）后直接说"准备合并"，跳过了 Gemini 复核。自审自批违反对抗性审查的根本目的——独立视角验证。
+
+**How to apply:** 修复后必须重新提交给原 reviewer：Gemini 提的问题回 Gemini 验收，Codex 提的问题回 Codex 验收，Xcode 提的问题回 Xcode 验收。只有 reviewer 说"通过"才能声明修复完成。
+
+
 ## 上游引用
 
 - `docs/standards/codex-delegation.md` — Codex 委派详细规范
 - `docs/standards/gemini-delegation.md` — Gemini 委派详细规范
 - `docs/standards/collaboration.md` — 三方协作总体架构 + 汇总表格模板
 - `docs/standards/shared-constraints.md` — 委派 prompt 共享约束
-- `docs/memory/feedback.md` — F-008 / F-011 / F-012 详细规则
+- `docs/memory/feedback.md` — F 规则索引

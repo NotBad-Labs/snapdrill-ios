@@ -46,7 +46,7 @@ SSOT：`.github/ISSUE_TEMPLATE/feature_request.md`（feature）、`.github/ISSUE
 
 在 Issue 回复 Sprint Contract comment，覆盖：Touches / No-Touch / Interface Delta / Test Additions / DoD 最小集 / 预期不确定点。编码中 contract 变更须先改 comment 再改代码。
 
-详见 `docs/memory/feedback.md` F-018。
+详见 `sprint-contract` skill（F-018 权威源）。
 
 ---
 
@@ -125,7 +125,7 @@ CI 使用 Mac mini self-hosted runner（Xcode 26.4 / iPhone 17 Simulator）。PR
 **流程规则**（操作细节见 `docs/tech/deployment.md`）：
 - 本地必须能复现 CI test（两步：build-for-testing → test-without-building）
 - Snapshot baseline 变更必须 git diff 确认后提交，禁止盲目 record
-- CI 失败立即修复（engineering 原则 7 补充——CI 是合并的不可逆门禁）。另见 `docs/memory/feedback.md` F-007（双时点门禁：pre-merge 等待 + post-merge 检查）
+- CI 失败立即修复（engineering 原则 7 补充——CI 是合并的不可逆门禁）。另见 `post-merge` skill（F-007 双时点门禁）
 
 ---
 
@@ -158,7 +158,7 @@ CI 使用 Mac mini self-hosted runner（Xcode 26.4 / iPhone 17 Simulator）。PR
 
 ## 交叉审计
 
-三方审计的组合、流程、工具链见 `docs/standards/collaboration.md`；核心纪律见 `docs/memory/feedback.md` F-008。
+三方审计的组合、流程、工具链见 `docs/standards/collaboration.md`；核心纪律见 `cross-audit` skill（F-008 权威源）。
 
 ---
 

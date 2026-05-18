@@ -99,7 +99,8 @@ grep -r "旧API" Packages/ --include="*.swift" -l
 
 ## 关联规则
 
-- `docs/memory/feedback.md` F-017（UI/SDK 改动前查 Apple 文档）
+本 skill 是 F-017 的权威执行器。`docs/memory/feedback.md` 仅保留索引指针。
+
 - `docs/tech/api-pitfalls.md` — 已知 API 陷阱
 - `docs/tech/apple-limits.md` — Apple 平台能力边界
 - `docs/standards/apple-native.md` — Apple 原生 UI 模式推荐

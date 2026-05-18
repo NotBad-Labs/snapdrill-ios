@@ -125,7 +125,7 @@ grep "last_verified" docs/memory/handoff.md
 
 ## 关联规则
 
-- `docs/memory/feedback.md` F-007 时点 2（post-merge CI）
-- `docs/memory/feedback.md` F-019（反模式回流）
-- `docs/standards/harness-recall.md`（跨 checkpoint 去重）
+本 skill 是 F-007 和 F-019 的权威执行器。`docs/memory/feedback.md` 仅保留索引指针。
+
+- `docs/standards/harness-recall.md`（自进化闭环）
 - `docs/workflow.md` §DoD（完整 DoD 检查表）
