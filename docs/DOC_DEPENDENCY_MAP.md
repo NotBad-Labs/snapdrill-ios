@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-13
+last_verified: 2026-05-18
 layer: snapshot
 freshness:
   max_age_days: 14
@@ -50,7 +50,8 @@ freshness:
 product-vision（产品根定义）
   ├─> product-design ─┬─> product-requirements ──> product-cases
   │                    ├─> product-journeys（用户旅程）
-  │                    ├─> product-business ──> product-competitive-analysis
+  │                    ├─> product-business ─┬─> product-competitive-analysis
+  │                       └─> appstore-metadata
   │                    └─> product-onboarding
   ├─> product-glossary
   └─> product-analytics（成功信号 → 事件定义）
@@ -63,7 +64,9 @@ ADR-* + requirements + compliance + NFR
 
 Codebase + ADR
   ├─> docs/tech/architecture.md（结构映射）
-  └─> docs/tech/api-reference.md（接口快照）
+  ├─> docs/tech/api-reference.md（接口快照）
+  ├─> docs/tech/api-pitfalls.md（API 陷阱实证反馈）
+  └─> docs/tech/apple-limits.md（平台能力边界反馈）
 
 workflow + KNOWLEDGE_MAP
   ├─> CLAUDE.md / CODEX.md / docs/standards/*.md（执行规则）
@@ -86,12 +89,15 @@ workflow + KNOWLEDGE_MAP
 | `docs/product/product-competitive-analysis.md` | 竞品分析（行业格局、差异化、替代威胁） | vision、business | GTM 策略、差异化验证 |
 | `docs/product/product-analytics.md` | Analytics 事件字典 | vision（成功信号） | 埋点实现、成功信号校准 |
 | `docs/product/product-onboarding.md` | Onboarding 内容规格 | vision、design | UI 实现、Onboarding 文案 |
+| `docs/product/appstore-metadata.md` | App Store 元数据 | vision、business、compliance | deployment、审核提交流程 |
 | `docs/product/product-glossary.md` | 术语单一源 | vision | 全部产品/技术文档的术语一致性 |
 | `docs/decisions/ADR-*.md` | 正式决策 | 问题背景 + 三方研究 | business、compliance、实现代码 |
 | `docs/tech/compliance.md` | 合规口径源 | vision、business、ADR-002 | deployment、审核材料 |
 | `docs/tech/non-functional-requirements.md` | 非功能约束源 | requirements、architecture、compliance | 实现验收基准、性能/稳定性测试 |
 | `docs/tech/architecture.md` | 实现结构映射 | 代码、ADR | NFR、新同学上手、实现评审 |
 | `docs/tech/api-reference.md` | API 快照 | 代码（public 接口） | 测试同步、集成调用方 |
+| `docs/tech/api-pitfalls.md` | API 踩坑速查 | 代码实现、coding.md、apple-limits.md | testing.md、review-prompt-guide.md、新代码实现 |
+| `docs/tech/apple-limits.md` | Apple 平台能力边界 | WWDC / iOS 更新、api-pitfalls.md | coding.md、api-pitfalls.md、NFR.md |
 | `docs/tech/deployment.md` | 发布与 CI 流程 | workflow、compliance、NFR | 发布执行、审核提交流程 |
 | `docs/tech/release-checklist.md` | 发版前检查清单 | deployment | 发版执行 |
 | `docs/standards/engineering.md` | 工程哲学 | — | workflow、coding、testing、shared-constraints |
@@ -101,6 +107,7 @@ workflow + KNOWLEDGE_MAP
 | `CLAUDE.md` / `CODEX.md` | 智能体执行入口 | workflow、STATUS、KNOWLEDGE_MAP | 智能体启动上下文 |
 | `STATUS.md` | 进度快照 | PR 合并结果、issue 状态 | 会话启动上下文、排期决策 |
 | `docs/memory/*.md` | 交接快照 | STATUS、issue/PR、审计结论 | 跨会话接手效率、审计可追溯性 |
+| `docs/memory/checkpoints/*.md` | Phase 检查点快照 | PR 合并结果、phase-closeout | resume-from-handoff、harness-recall |
 
 ---
 
@@ -113,6 +120,9 @@ workflow + KNOWLEDGE_MAP
 | `product-design.md` / `product-requirements.md` | cases + business（若边界变化） |
 | `compliance.md` / `NFR.md` | deployment（若发布口径变化） |
 | 代码 public 接口 | `docs/tech/api-reference.md`（必要时 architecture） |
+| 代码实现中发现 API 陷阱 | `docs/tech/api-pitfalls.md` |
+| 代码实现中发现 Apple 平台限制 | `docs/tech/apple-limits.md` |
+| 代码新增/删除/重命名模块 | `docs/tech/architecture.md`（必要时 NFR.md） |
 | PR 合并 / issue 状态变化 | `STATUS.md` + `docs/memory/handoff.md` |
 
 ---

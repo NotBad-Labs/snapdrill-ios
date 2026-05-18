@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-10
+last_verified: 2026-05-18
 layer: pattern
 ---
 # SnapDrill 协作流程
@@ -92,6 +92,10 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 - [ ] 新增第三方库 → 更新开源许可展示
 - [ ] 术语与 `product-glossary.md` 一致
 - [ ] 合并后立即更新 `STATUS.md`
+- [ ] `api-pitfalls.md` 已更新（实现中发现新 API 陷阱——原则 4 补充）
+- [ ] `apple-limits.md` 已更新（实现中发现 Apple 平台新限制——原则 1 补充）
+- [ ] `architecture.md` 已更新（新增/移除/重命名模块）
+- [ ] `non-functional-requirements.md` 已评估（触及性能/内存边界时）
 
 ### Review
 - [ ] Review 结论已留痕（PR comment 或 PR 描述）
