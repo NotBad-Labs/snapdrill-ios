@@ -91,23 +91,24 @@ workflow + KNOWLEDGE_MAP
 | `docs/product/product-onboarding.md` | Onboarding 内容规格 | vision、design | UI 实现、Onboarding 文案 |
 | `docs/product/appstore-metadata.md` | App Store 元数据 | vision、business、compliance | deployment、审核提交流程 |
 | `docs/product/product-glossary.md` | 术语单一源 | vision | 全部产品/技术文档的术语一致性 |
-| `docs/decisions/ADR-*.md` | 正式决策 | 问题背景 + 三方研究 | business、compliance、实现代码 |
+| `docs/decisions/ADR-*.md` | 正式决策 | `docs/standards/engineering.md`（原则 7：不可逆决策）、`docs/product/product-vision.md` | business、compliance、实现代码 |
 | `docs/tech/compliance.md` | 合规口径源 | vision、business、ADR-002 | deployment、审核材料 |
 | `docs/tech/non-functional-requirements.md` | 非功能约束源 | requirements、architecture、compliance | 实现验收基准、性能/稳定性测试 |
-| `docs/tech/architecture.md` | 实现结构映射 | 代码、ADR | NFR、新同学上手、实现评审 |
-| `docs/tech/api-reference.md` | API 快照 | 代码（public 接口） | 测试同步、集成调用方 |
-| `docs/tech/api-pitfalls.md` | API 踩坑速查 | 代码实现、coding.md、apple-limits.md | testing.md、review-prompt-guide.md、新代码实现 |
-| `docs/tech/apple-limits.md` | Apple 平台能力边界 | WWDC / iOS 更新、api-pitfalls.md | coding.md、api-pitfalls.md、NFR.md |
+| `docs/tech/architecture.md` | 实现结构映射 | `docs/decisions/ADR-*.md`、`docs/standards/engineering.md`（原则 5：跨边界先定义契约） | NFR、新同学上手、实现评审 |
+| `docs/tech/api-reference.md` | API 快照 | `docs/tech/architecture.md`、代码（public 接口） | 测试同步、集成调用方 |
+| `docs/tech/api-pitfalls.md` | API 踩坑速查 | `docs/standards/coding.md`、`docs/standards/testing.md`、`docs/tech/apple-limits.md` | testing.md、review-prompt-guide.md、新代码实现 |
+| `docs/tech/apple-limits.md` | Apple 平台能力边界 | `docs/standards/apple-native.md`、`docs/standards/engineering.md`（原则 1：先判断方向）、`docs/tech/api-pitfalls.md` | coding.md、api-pitfalls.md、NFR.md |
 | `docs/tech/deployment.md` | 发布与 CI 流程 | workflow、compliance、NFR | 发布执行、审核提交流程 |
 | `docs/tech/release-checklist.md` | 发版前检查清单 | deployment | 发版执行 |
 | `docs/standards/engineering.md` | 工程哲学 | — | workflow、coding、testing、shared-constraints |
 | `docs/workflow.md` | 协作规则源 | engineering、collaboration | 所有开发与评审流程 |
 | `docs/standards/*.md` | 执行约束 | engineering（部分）、workflow | 智能体行为、委派上下文质量 |
-| `docs/standards/execution-gates.md` | 门禁总表（每个门禁→上游文档→执行器） | permission-model, workflow, engineering | 门禁新增/修改/退役时同步 |
-| `docs/KNOWLEDGE_MAP.md` | 知识分层与裁决索引 | workflow、现有文档体系 | 文档检索顺序、更新触发规则 |
-| `CLAUDE.md` / `CODEX.md` | 智能体执行入口 | workflow、STATUS、KNOWLEDGE_MAP | 智能体启动上下文 |
-| `STATUS.md` | 进度快照 | PR 合并结果、issue 状态 | 会话启动上下文、排期决策 |
-| `docs/memory/*.md` | 交接快照 | STATUS、issue/PR、审计结论 | 跨会话接手效率、审计可追溯性 |
+| `docs/standards/execution-gates.md` | 门禁总表 | `docs/standards/permission-model.md`、`docs/workflow.md`、`docs/standards/engineering.md` | 门禁新增/修改/退役时同步 |
+| `docs/DOC_DEPENDENCY_MAP.md` | 文档依赖图（变更传播 SSOT） | `docs/standards/engineering.md`（原则 5）、`docs/workflow.md` | KNOWLEDGE_MAP、全文档变更传播 |
+| `docs/KNOWLEDGE_MAP.md` | 知识分层与裁决索引 | `docs/workflow.md`、`docs/DOC_DEPENDENCY_MAP.md` | 文档检索顺序、更新触发规则 |
+| `CLAUDE.md` / `CODEX.md` | 智能体执行入口 | `docs/workflow.md`、`docs/KNOWLEDGE_MAP.md`、`docs/standards/engineering.md` | 智能体启动上下文 |
+| `STATUS.md` | 进度快照 | `docs/workflow.md`（DoD、PR 流程、S0-S3 优先级） | 会话启动上下文、排期决策 |
+| `docs/memory/*.md` | 交接快照 | `docs/workflow.md`、`STATUS.md` | 跨会话接手效率、审计可追溯性 |
 
 ---
 
