@@ -22,7 +22,6 @@ layer: pattern
 | [codex-delegation.md](codex-delegation.md) | Codex 子 agent 委派规范 | 委派 Codex 做审计/实现/Review |
 | [gemini-delegation.md](gemini-delegation.md) | Gemini CLI 委派规范 | 委派 Gemini 做审计/校验 |
 | [ux-design.md](ux-design.md) | UX 设计原则与用户体验终审 | UI/UX 改动、用户体验评审 |
-| [review-prompt-guide.md](review-prompt-guide.md) | Xcode Review 提示词模板 | 写 Xcode Review 提示词 |
 | [shared-constraints.md](shared-constraints.md) | 委派 prompt 共享约束 | 构造委派 prompt |
 | [permission-model.md](permission-model.md) | Tool / Bash 命令 / Skill 权限矩阵（SSOT） | 修改 settings.json / hooks / skill allowed-tools |
 | [harness-recall.md](harness-recall.md) | 自进化闭环：跨 checkpoint 去重 → 3 次触发 propose 新 F-0XX 规则 | phase-closeout / harness 自进化 |

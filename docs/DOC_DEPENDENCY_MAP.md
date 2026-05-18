@@ -32,7 +32,6 @@ freshness:
 | `docs/tech/compliance.md` | 合规口径源 | vision、business、ADR-002 | deployment、审核材料 |
 | `docs/tech/non-functional-requirements.md` | 非功能约束源 | requirements、architecture、compliance | 实现验收基准、性能/稳定性测试 |
 | `docs/tech/architecture.md` | 实现结构映射 | `docs/decisions/ADR-*.md`、`docs/standards/engineering.md`（原则 5：跨边界先定义契约） | NFR、新同学上手、实现评审 |
-| `docs/tech/api-pitfalls.md` | API 踩坑速查 | `docs/standards/coding.md`、`docs/standards/testing.md`、`docs/tech/apple-limits.md` | testing.md、review-prompt-guide.md、新代码实现 |
 | `docs/tech/apple-limits.md` | Apple 平台能力边界 | `docs/standards/apple-native.md`、`docs/standards/engineering.md`（原则 1：先判断方向）、`docs/tech/api-pitfalls.md` | coding.md、api-pitfalls.md、NFR.md |
 | `docs/tech/deployment.md` | 发布与 CI 流程 | workflow、compliance、NFR | 发布执行、审核提交流程 |
 | `docs/standards/engineering.md` | 工程哲学 | — | workflow、coding、testing、shared-constraints |
