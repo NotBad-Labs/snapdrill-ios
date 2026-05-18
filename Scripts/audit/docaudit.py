@@ -8,6 +8,7 @@
   orphans              docs/**/*.md 在全仓零引用
   home-path-refs       仓库内对 ~/.claude/ 私有路径的硬编码
   rule-usage           F-NNN 规则外部引用计数（dead rule 候选）
+  skill-inventory      skill 目录架构计数与 Claude adapter 指向
 
 详见 Scripts/audit/README.md 与 Scripts/audit/policy.yaml。
 
@@ -44,6 +45,7 @@ CHECK_NAMES = [
     "orphans",
     "home-path-refs",
     "rule-usage",
+    "skill-inventory",
 ]
 
 CHECK_DESCRIPTIONS = {
@@ -72,6 +74,11 @@ CHECK_DESCRIPTIONS = {
         "description": "统计 docs/memory/feedback.md 中声明的 F-NNN 规则在全仓的外部引用数，低于 min_references 即 dead candidate。",
         "epilog": "示例：python3 Scripts/audit/docaudit.py rule-usage --verbose",
     },
+    "skill-inventory": {
+        "help": "Validate skill inventory counts and Claude adapter targets.",
+        "description": "统计 .claude/skills 与 .agents/skills，并核对 docs/standards/skill-architecture.md 的计数声明。",
+        "epilog": "示例：python3 Scripts/audit/docaudit.py skill-inventory --verbose",
+    },
 }
 
 # Markdown 内部链接正则 — [text](path.md) 或 [text](path.md#anchor) 或 [text](path.md "title")
@@ -89,6 +96,10 @@ HOME_CLAUDE_RE = re.compile(r"~/\.claude/[A-Za-z0-9_\-./]*")
 
 # F-NNN 规则 ID
 F_RULE_RE = re.compile(r"\bF-(\d{3})\b")
+
+# docs/standards/skill-architecture.md inventory table rows
+SKILL_ARCH_COUNT_RE = re.compile(r"^\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|", re.MULTILINE)
+SKILL_ADAPTER_TARGET_RE = re.compile(r"((?:\.\./)+\.agents/skills/([A-Za-z0-9_-]+)/SKILL\.md)")
 
 
 # ---------- 数据类型 ----------
@@ -532,6 +543,144 @@ def check_rule_usage(policy: dict) -> CheckResult:
     return result
 
 
+# ---------- check: skill-inventory ----------
+
+def _first_level_skill_names(root: Path) -> set[str]:
+    if not root.is_dir():
+        return set()
+    names: set[str] = set()
+    for child in root.iterdir():
+        if child.is_dir() and (child / "SKILL.md").is_file():
+            names.add(child.name)
+    return names
+
+
+def _plugin_payload_count() -> int:
+    root = REPO_ROOT / ".agents" / "skills"
+    if not root.is_dir():
+        return 0
+    count = 0
+    for skill_dir in root.iterdir():
+        nested_root = skill_dir / "skills"
+        if not nested_root.is_dir():
+            continue
+        for nested in nested_root.iterdir():
+            if nested.is_dir() and (nested / "SKILL.md").is_file():
+                count += 1
+    return count
+
+
+def _adapter_target(path: Path) -> tuple[str, Path] | None:
+    text = path.read_text(encoding="utf-8")
+    match = SKILL_ADAPTER_TARGET_RE.search(text)
+    if not match:
+        return None
+    raw_target, target_name = match.groups()
+    return target_name, (path.parent / raw_target).resolve()
+
+
+def check_skill_inventory(policy: dict) -> CheckResult:
+    conf = policy["checks"]["skill-inventory"]
+    level = conf["level"]
+    result = CheckResult(check="skill-inventory", level=level)
+
+    claude_root = REPO_ROOT / ".claude" / "skills"
+    agents_root = REPO_ROOT / ".agents" / "skills"
+    claude_names = _first_level_skill_names(claude_root)
+    shared_names = _first_level_skill_names(agents_root)
+
+    adapter_names: set[str] = set()
+    for name in sorted(claude_names & shared_names):
+        claude_entry = claude_root / name
+        if claude_entry.is_symlink():
+            expected = (agents_root / name).resolve()
+            actual = claude_entry.resolve()
+            if actual == expected:
+                adapter_names.add(name)
+                continue
+            result.findings.append(Finding(
+                check="skill-inventory",
+                path=str(claude_entry.relative_to(REPO_ROOT)),
+                line=0,
+                category="symlink_target_mismatch",
+                level=level,
+                suggestion=f"symlink for '{name}' points to {actual}; expected {expected}",
+            ))
+            continue
+
+        adapter_file = claude_entry / "SKILL.md"
+        target = _adapter_target(adapter_file)
+        if target is None:
+            result.findings.append(Finding(
+                check="skill-inventory",
+                path=str(adapter_file.relative_to(REPO_ROOT)),
+                line=0,
+                category="duplicate_without_adapter",
+                level=level,
+                suggestion=f"duplicate skill name '{name}' must be a Claude adapter pointing to .agents/skills/{name}/SKILL.md",
+            ))
+            continue
+        target_name, target_path = target
+        if target_name != name:
+            result.findings.append(Finding(
+                check="skill-inventory",
+                path=str(adapter_file.relative_to(REPO_ROOT)),
+                line=0,
+                category="adapter_name_mismatch",
+                level=level,
+                suggestion=f"adapter for '{name}' points to shared skill '{target_name}'",
+            ))
+            continue
+        if not target_path.is_file():
+            result.findings.append(Finding(
+                check="skill-inventory",
+                path=str(adapter_file.relative_to(REPO_ROOT)),
+                line=0,
+                category="adapter_target_missing",
+                level=level,
+                suggestion=f"adapter target does not exist: {target_path.relative_to(REPO_ROOT)}",
+            ))
+            continue
+        adapter_names.add(name)
+
+    actual = {
+        "Claude discovery entries": len(claude_names),
+        "Shared first-level skill sources": len(shared_names),
+        "Claude adapter entries": len(adapter_names),
+        "Distinct first-level skill names": len(claude_names | shared_names),
+        "Plugin payload skills": _plugin_payload_count(),
+    }
+
+    arch_path = REPO_ROOT / "docs" / "standards" / "skill-architecture.md"
+    if not arch_path.is_file():
+        result.findings.append(Finding(
+            check="skill-inventory",
+            path="docs/standards/skill-architecture.md",
+            line=0,
+            category="missing_architecture_doc",
+            level=level,
+            suggestion="create skill architecture SSOT with inventory table",
+        ))
+        return result
+
+    arch_text = arch_path.read_text(encoding="utf-8")
+    declared = {label.strip(): int(count) for label, count in SKILL_ARCH_COUNT_RE.findall(arch_text)}
+
+    for label, actual_count in actual.items():
+        declared_count = declared.get(label)
+        if declared_count != actual_count:
+            result.findings.append(Finding(
+                check="skill-inventory",
+                path=str(arch_path.relative_to(REPO_ROOT)),
+                line=0,
+                category="count_mismatch",
+                level=level,
+                suggestion=f"{label}: declared {declared_count}, actual {actual_count}",
+            ))
+
+    return result
+
+
 # ---------- frontmatter via subprocess ----------
 
 def check_frontmatter_via_subprocess(policy: dict) -> CheckResult:
@@ -610,6 +759,7 @@ CHECK_FUNCS = {
     "orphans": check_orphans,
     "home-path-refs": check_home_path_refs,
     "rule-usage": check_rule_usage,
+    "skill-inventory": check_skill_inventory,
 }
 
 
@@ -723,8 +873,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     all_parser = sub.add_parser(
         "all",
-        help="Run 5 structural checks + frontmatter (6 checks total).",
-        description="运行 5 个结构检查，并通过 subprocess 调用 validate_frontmatter.py（共 6 个检查）。",
+        help="Run 6 structural checks + frontmatter (7 checks total).",
+        description="运行 6 个结构检查，并通过 subprocess 调用 validate_frontmatter.py（共 7 个检查）。",
         epilog="示例：python3 Scripts/audit/docaudit.py all --report --verbose",
     )
     _add_common(all_parser)

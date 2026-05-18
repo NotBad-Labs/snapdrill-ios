@@ -48,6 +48,10 @@ def _base_policy() -> dict:
                 "description": "",
                 "min_references": 1,
             },
+            "skill-inventory": {
+                "level": "error",
+                "description": "",
+            },
         },
         "output": {"tsv_dir": "reports/", "summary_stdout": True, "verbose_default": False},
     }
@@ -73,9 +77,34 @@ def _make_fixture(repo: Path, fake_validator: bool = True) -> None:
     (repo / "docs" / "standards").mkdir()
     (repo / "docs" / "research").mkdir()
     (repo / ".claude" / "rules").mkdir(parents=True)
+    (repo / ".claude" / "skills" / "claude-only").mkdir(parents=True)
+    (repo / ".agents" / "skills" / "shared").mkdir(parents=True)
+    (repo / ".agents" / "skills" / "plugin" / "skills" / "payload").mkdir(parents=True)
     (repo / "Scripts").mkdir()
     (repo / "docs" / "memory" / "feedback.md").write_text(
         "## F-001\nrule 1\n\n## F-002\nrule 2\n", encoding="utf-8"
+    )
+    (repo / ".claude" / "skills" / "claude-only" / "SKILL.md").write_text(
+        "---\nname: claude-only\n---\n# Claude-only\n", encoding="utf-8"
+    )
+    (repo / ".agents" / "skills" / "shared" / "SKILL.md").write_text(
+        "---\nname: shared\n---\n# Shared\n", encoding="utf-8"
+    )
+    (repo / ".agents" / "skills" / "plugin" / "SKILL.md").write_text(
+        "---\nname: plugin\n---\n# Plugin root\n", encoding="utf-8"
+    )
+    (repo / ".agents" / "skills" / "plugin" / "skills" / "payload" / "SKILL.md").write_text(
+        "---\nname: payload\n---\n# Payload\n", encoding="utf-8"
+    )
+    (repo / "docs" / "standards" / "skill-architecture.md").write_text(
+        "| Category | Count | Source |\n"
+        "|---|---:|---|\n"
+        "| Claude discovery entries | 1 | `.claude/skills/*/SKILL.md` |\n"
+        "| Shared first-level skill sources | 2 | `.agents/skills/*/SKILL.md` |\n"
+        "| Claude adapter entries | 0 | none |\n"
+        "| Distinct first-level skill names | 3 | 1 + 2 |\n"
+        "| Plugin payload skills | 1 | `.agents/skills/*/skills/*/SKILL.md` |\n",
+        encoding="utf-8",
     )
     if fake_validator:
         vf = repo / "Scripts" / "validate_frontmatter.py"
@@ -354,6 +383,36 @@ class DocauditTestCase(unittest.TestCase):
         code, out, _ = self._run(["--policy", str(policy), "rule-usage"])
         self.assertEqual(code, 0, out)
         self.assertIn("clean", out)
+
+    # ---------- skill-inventory ----------
+
+    def test_skill_inventory_clean(self) -> None:
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-inventory", "--verbose"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
+
+    def test_skill_inventory_count_mismatch(self) -> None:
+        arch = self.repo / "docs" / "standards" / "skill-architecture.md"
+        arch.write_text(arch.read_text(encoding="utf-8").replace(
+            "| Shared first-level skill sources | 2 |",
+            "| Shared first-level skill sources | 99 |",
+        ), encoding="utf-8")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-inventory", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("count_mismatch", out)
+
+    def test_skill_inventory_duplicate_requires_adapter(self) -> None:
+        duplicate = self.repo / ".claude" / "skills" / "shared"
+        duplicate.mkdir()
+        (duplicate / "SKILL.md").write_text(
+            "---\nname: shared\n---\n# Duplicate but not adapter\n", encoding="utf-8"
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-inventory", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("duplicate_without_adapter", out)
 
     # ---------- all (含 frontmatter subprocess) ----------
 

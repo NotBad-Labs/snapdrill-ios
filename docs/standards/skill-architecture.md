@@ -24,19 +24,19 @@ Counting rule: only first-level `*/SKILL.md` files are counted as triggerable sk
 
 | Category | Count | Source |
 |---|---:|---|
-| Claude discovery entries | 51 | `.claude/skills/*/SKILL.md` |
+| Claude discovery entries | 54 | `.claude/skills/*/SKILL.md` plus symlink skill dirs |
 | Shared first-level skill sources | 5 | `.agents/skills/*/SKILL.md` |
-| Claude adapter entries | 2 | `.claude/skills/{attributed-string,navigation-patterns}/SKILL.md` point to shared sources |
-| Distinct first-level skill names | 54 | 51 + 5 - 2 adapter duplicates |
+| Claude adapter entries | 5 | 2 thin adapters + 3 managed symlink entries point to shared sources |
+| Distinct first-level skill names | 54 | 54 Claude discovery entries + 5 shared sources - 5 duplicate shared entries |
 | Plugin payload skills | 2 | `.agents/skills/*/skills/*/SKILL.md` |
 
 Shared skills:
 
 | Skill | Path | Notes |
 |---|---|---|
-| `swift-concurrency-pro` | `.agents/skills/swift-concurrency-pro/SKILL.md` | Tracked by `skills-lock.json` |
-| `swiftdata-pro` | `.agents/skills/swiftdata-pro/SKILL.md` | Tracked by `skills-lock.json` |
-| `swiftui-pro` | `.agents/skills/swiftui-pro/SKILL.md` | Tracked by `skills-lock.json` |
+| `swift-concurrency-pro` | `.agents/skills/swift-concurrency-pro/SKILL.md` | Tracked by `skills-lock.json`; existing Claude discovery entry is a symlink |
+| `swiftdata-pro` | `.agents/skills/swiftdata-pro/SKILL.md` | Tracked by `skills-lock.json`; existing Claude discovery entry is a symlink |
+| `swiftui-pro` | `.agents/skills/swiftui-pro/SKILL.md` | Tracked by `skills-lock.json`; existing Claude discovery entry is a symlink |
 | `attributed-string` | `.agents/skills/attributed-string/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/attributed-string/SKILL.md` |
 | `navigation-patterns` | `.agents/skills/navigation-patterns/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/navigation-patterns/SKILL.md` |
 
@@ -68,7 +68,7 @@ These are migration candidates only after frontmatter and references are reviewe
 ## Migration Rules
 
 1. Do not bulk-move skills.
-2. Do not use symlinked `.claude/skills` as the default migration path.
+2. Do not use new symlinked `.claude/skills` entries as the default migration path. Existing managed symlink entries may remain if `docaudit skill-inventory` confirms they point at the matching `.agents/skills/<name>` source.
 3. Move only one harmless skill at a time.
 4. A skill may move to `.agents/skills/` only if:
    - Its `SKILL.md` uses portable Agent Skills frontmatter.
@@ -82,7 +82,7 @@ These are migration candidates only after frontmatter and references are reviewe
 Inventory:
 
 ```bash
-find .claude/skills -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l
+python3 -c 'from pathlib import Path; print(sum(1 for p in Path(".claude/skills").iterdir() if p.is_dir() and (p / "SKILL.md").is_file()))'
 find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l
 find .agents/skills -mindepth 4 -maxdepth 4 -path '*/skills/*/SKILL.md' | wc -l
 ```

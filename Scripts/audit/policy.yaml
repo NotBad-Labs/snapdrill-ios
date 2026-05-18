@@ -29,7 +29,7 @@ scan:
     - docs/archive/                       # 归档文档，不再校验
     - Scripts/audit/                      # 审计器自身（README 示例 / policy 声明会自触发，元循环）
 
-# 6 个子命令默认级别
+# 6 个结构子命令默认级别
 checks:
   links:
     level: error
@@ -72,9 +72,13 @@ checks:
     description: F-NNN 规则外部引用计数（0 引用 = dead rule 候选）
     min_references: 1
 
+  skill-inventory:
+    level: error
+    description: skill 目录架构计数与 Claude adapter 指向必须匹配 `docs/standards/skill-architecture.md`
+
 # Finding 级豁免规则（Phase C 清理前过渡）
 # 每条规则：
-#   check:       5 个结构子命令之一（必填）
+#   check:       6 个结构子命令之一（必填）
 #   reason:      豁免理由（必填，非空）
 #   expires_on:  YYYY-MM-DD 硬截止（必填，无效日期 exit 2）
 #   paths:       文件 glob 列表（可选，空 = 匹配该 check 所有 finding）
