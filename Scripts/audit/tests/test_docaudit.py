@@ -462,6 +462,17 @@ class DocauditTestCase(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def _append_support_file_ledger_row(self, skill: str, local_path: str, local_blob: str) -> None:
+        ledger = self.repo / "docs" / "standards" / "skill-source-ledger.md"
+        with ledger.open("a", encoding="utf-8") as fp:
+            fp.write(
+                "\n## Current Shared Vendored Support Files\n\n"
+                "| Skill | Local path | Upstream path | Upstream blob | Local blob |\n"
+                "|---|---|---|---|---|\n"
+                f"| `{skill}` | `{local_path}` | `skills/{skill}/support.md` | "
+                f"`0123456789abcdef0123456789abcdef01234567` | `{local_blob}` |\n"
+            )
+
     def test_skill_provenance_clean_with_vendored_ledger_row(self) -> None:
         vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
         vendored.parent.mkdir()
@@ -539,6 +550,38 @@ class DocauditTestCase(unittest.TestCase):
         code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
         self.assertEqual(code, 1, out)
         self.assertIn("ledger_points_to_missing_shared_skill", out)
+
+    def test_skill_provenance_support_file_blob_mismatch_blocks_silent_edit(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        support = vendored.parent / "support.md"
+        support.write_text("# Support\n", encoding="utf-8")
+        self._write_skill_ledger_row("vendored", docaudit._git_blob_sha(vendored))
+        self._append_support_file_ledger_row(
+            "vendored",
+            ".agents/skills/vendored/support.md",
+            "fedcba9876543210fedcba9876543210fedcba98",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("support_file_blob_mismatch", out)
+
+    def test_skill_provenance_support_file_missing_is_explicit(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_skill_ledger_row("vendored", docaudit._git_blob_sha(vendored))
+        self._append_support_file_ledger_row(
+            "vendored",
+            ".agents/skills/vendored/missing.md",
+            "fedcba9876543210fedcba9876543210fedcba98",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("ledger_points_to_missing_support_file", out)
 
     # ---------- all (含 frontmatter subprocess) ----------
 

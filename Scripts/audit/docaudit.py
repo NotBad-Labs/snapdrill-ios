@@ -123,6 +123,9 @@ SKILL_PROVENANCE_SECTION_RE = re.compile(r"^## Current Shared `([^`]+)` Snapshot
 SKILL_PROVENANCE_ROW_RE = re.compile(
     r"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|\s*`([0-9a-f]{40})`\s*\|\s*`([0-9a-f]{40})`\s*\|$"
 )
+SKILL_SUPPORT_FILE_ROW_RE = re.compile(
+    r"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|\s*`([0-9a-f]{40})`\s*\|\s*`([0-9a-f]{40})`\s*\|$"
+)
 
 
 # ---------- 数据类型 ----------
@@ -830,6 +833,34 @@ def _parse_shared_vendored_snapshots(result: CheckResult) -> dict[str, dict[str,
     return rows
 
 
+def _parse_shared_support_file_snapshots(result: CheckResult) -> list[dict[str, str]]:
+    ledger = REPO_ROOT / "docs" / "standards" / "skill-source-ledger.md"
+    if not ledger.is_file():
+        return []
+
+    rows: list[dict[str, str]] = []
+    in_section = False
+    for lineno, line in enumerate(_read_lines(ledger), start=1):
+        if line.startswith("## "):
+            in_section = line.strip() == "## Current Shared Vendored Support Files"
+            continue
+        if not in_section:
+            continue
+        match = SKILL_SUPPORT_FILE_ROW_RE.match(line.strip())
+        if not match:
+            continue
+        skill, local_path, upstream_path, upstream_blob, local_blob = match.groups()
+        rows.append({
+            "line": str(lineno),
+            "skill": skill,
+            "local_path": local_path,
+            "upstream_path": upstream_path,
+            "upstream_blob": upstream_blob,
+            "local_blob": local_blob,
+        })
+    return rows
+
+
 def check_skill_provenance(policy: dict) -> CheckResult:
     conf = policy["checks"]["skill-provenance"]
     level = conf["level"]
@@ -846,8 +877,10 @@ def check_skill_provenance(policy: dict) -> CheckResult:
     ledger_path = REPO_ROOT / "docs" / "standards" / "skill-source-ledger.md"
     if unclassified_names or ledger_path.is_file():
         vendored_rows = _parse_shared_vendored_snapshots(result)
+        support_rows = _parse_shared_support_file_snapshots(result)
     else:
         vendored_rows = {}
+        support_rows = []
 
     for name in sorted(unclassified_names):
         skill_file = shared_root / name / "SKILL.md"
@@ -895,6 +928,33 @@ def check_skill_provenance(policy: dict) -> CheckResult:
             level=level,
             suggestion=f"ledger lists '{name}' but .agents/skills/{name}/SKILL.md does not exist",
         ))
+
+    for row in support_rows:
+        local_path = REPO_ROOT / row["local_path"]
+        if not local_path.is_file():
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path="docs/standards/skill-source-ledger.md",
+                line=int(row["line"]),
+                category="ledger_points_to_missing_support_file",
+                level=level,
+                suggestion=f"ledger lists support file '{row['local_path']}' but it does not exist",
+            ))
+            continue
+        actual_blob = _git_blob_sha(local_path)
+        if actual_blob != row["local_blob"]:
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path=row["local_path"],
+                line=0,
+                category="support_file_blob_mismatch",
+                level=level,
+                suggestion=(
+                    f"ledger local blob is {row['local_blob']} but current blob is {actual_blob}; "
+                    "do not edit vendored community support files without recording a patch decision"
+                ),
+                matched_text=f"ledger line {row['line']}",
+            ))
 
     return result
 

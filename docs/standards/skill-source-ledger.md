@@ -66,16 +66,30 @@ Current upstream snapshot for `rshankras/claude-code-apple-skills`:
 | `deep-linking` | `skills/generators/deep-linking/SKILL.md` | `09bdea74d50c8ebf593764ca7aa01edd302342d1` | `791df20a56b7de75cf9e17e3922ac4d383830269` |
 | `integration-test-scaffold` | `skills/testing/integration-test-scaffold/SKILL.md` | `58cf80f1f0ca60138ca84d8b75e084adfd3675f3` | `5bfeeabef2b3029ae692f4f819470ae1a0607024` |
 | `liquid-glass` | `skills/design/liquid-glass/SKILL.md` | `3b3db356c5b1f665809967416b186ed0bb77a0d9` | `107b7d2b526a71c3b3d1b746a4ab9c6fbc681942` |
-| `navigation-patterns` | `skills/ios/navigation-patterns/SKILL.md` | `8eff0583ac429c84188e5879f29a47e0da61fcfd` | `2e4776f7ce96f1b59e173381c79f460592839f8c` |
+| `navigation-patterns` | `skills/ios/navigation-patterns/SKILL.md` | `8eff0583ac429c84188e5879f29a47e0da61fcfd` | `1cff3088a936d002380d1d25c223e3600a004881` |
 | `privacy-manifests` | `skills/security/privacy-manifests/SKILL.md` | `474de679156db10f587ab3a27d94f6c98c307f7d` | `f93776451d59fa4d85926978ae029827de6a61a6` |
 | `push-notifications` | `skills/generators/push-notifications/SKILL.md` | `181d8ce2aeddbae73d048b364aa62d1392e2ec08` | `50860973049c4617d6e7cbd17acc5b09a832ff3e` |
 | `review-response-writer` | `skills/app-store/review-response-writer/SKILL.md` | `16221ad1533749186d93e4cf80474fe38efc212f` | `c0b4897fd603fa56f49cd6d3e89599cc88948674` |
 | `screenshot-planner` | `skills/app-store/screenshot-planner/SKILL.md` | `c02abbea692e6cece6aebe8f8812117340fecf9f` | `436d56008c0dabb03728e41e203a1c29aff15ef0` |
 | `test-contract` | `skills/testing/test-contract/SKILL.md` | `10e24b84ce05bb71cb34d6e9c131d73d78fc3b49` | `3c091c96125635293c121f5225e10fa085427932` |
 
-The differing blob hashes mean the shared copies are not current exact upstream files. Treat them as local vendored copies until the project either re-syncs them from upstream or records intentional patches.
+The differing blob hashes mean the shared copies are not byte-for-byte current upstream files. As of the 2026-05-18 review, all 13 shared `rshankras` skill bodies match the fixed upstream commit; the local difference is the `.agents` portable frontmatter, which omits Claude-specific `allowed-tools`.
 
 `docaudit skill-provenance` enforces the `Local shared blob` column for every shared vendored copy. If a community skill body changes, the gate fails until the change is either reverted or explicitly recorded as a vendored patch decision.
+
+## Current Shared Vendored Support Files
+
+These files are copied from upstream to keep shared skill references resolvable without rewriting community skill bodies.
+
+| Skill | Local path | Upstream path | Upstream blob | Local blob |
+|---|---|---|---|---|
+| `navigation-patterns` | `.agents/skills/navigation-patterns/navigation-stack.md` | `skills/ios/navigation-patterns/navigation-stack.md` | `7f5614695838ef2950be591a35cbae19559cebbd` | `7f5614695838ef2950be591a35cbae19559cebbd` |
+| `navigation-patterns` | `.agents/skills/navigation-patterns/navigation-split-view.md` | `skills/ios/navigation-patterns/navigation-split-view.md` | `5eddb7865eb18471ec595c37d326218a701395f8` | `5eddb7865eb18471ec595c37d326218a701395f8` |
+| `navigation-patterns` | `.agents/skills/navigation-patterns/programmatic-navigation.md` | `skills/ios/navigation-patterns/programmatic-navigation.md` | `9d0bbaf41bc4a42ff6f34a1395c666bd15fb7a6c` | `9d0bbaf41bc4a42ff6f34a1395c666bd15fb7a6c` |
+| `navigation-patterns` | `.agents/skills/navigation-patterns/tab-view.md` | `skills/ios/navigation-patterns/tab-view.md` | `86f11d493303b0f59f1c72cca8c4d7f5488a4deb` | `86f11d493303b0f59f1c72cca8c4d7f5488a4deb` |
+| `navigation-patterns` | `.agents/skills/navigation-patterns/navigation-transitions.md` | `skills/ios/navigation-patterns/navigation-transitions.md` | `ab06e9e587a23c9a28835ddd209d5d8b2460599e` | `ab06e9e587a23c9a28835ddd209d5d8b2460599e` |
+| `navigation-patterns` | `.agents/skills/navigation-patterns/design/animation-patterns/transitions.md` | `skills/design/animation-patterns/transitions.md` | `66ebbeefaab3ca403c5adc0263fa9ebf39e7e428` | `66ebbeefaab3ca403c5adc0263fa9ebf39e7e428` |
+| `navigation-patterns` | `.agents/skills/navigation-patterns/macos/ui-review-tahoe/swiftui-macos.md` | `skills/macos/ui-review-tahoe/swiftui-macos.md` | `71c1cf4d254f4cdf8d00f5d2e4ee02b0e9fe4689` | `71c1cf4d254f4cdf8d00f5d2e4ee02b0e9fe4689` |
 
 ## Current Claude-Only `rshankras` Skills
 

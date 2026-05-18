@@ -5,16 +5,17 @@ description: SwiftUI navigation architecture patterns including NavigationStack,
 
 # Navigation Patterns
 
-Comprehensive guide for SwiftUI navigation architecture on iOS, iPadOS, and macOS. Covers modern navigation APIs with self-contained patterns for common and advanced use cases.
+Comprehensive guide for SwiftUI navigation architecture on iOS, iPadOS, and macOS. Covers the modern navigation APIs (iOS 16+/macOS 13+) with patterns for common and advanced use cases.
 
 ## When This Skill Activates
 
 - User is building or reviewing navigation architecture
-- User has navigation-related bugs such as stack state loss, back button issues, or route mismatch
-- User asks about NavigationStack, NavigationSplitView, TabView, NavigationPath, or navigationDestination
-- User needs programmatic navigation such as push, pop, or pop-to-root
-- User is implementing deep links that must resolve into navigation state
-- User asks about navigation transitions or app flow architecture
+- User has navigation-related bugs (stack not updating, back button issues, state loss)
+- User asks about NavigationStack, NavigationSplitView, TabView, or NavigationPath
+- User needs programmatic navigation (push, pop, pop-to-root)
+- User is implementing deep linking that connects to navigation
+- User asks about navigation transitions or animations
+- User is choosing between navigation approaches for their app
 
 ## Decision Tree
 
@@ -22,138 +23,77 @@ Use this to pick the right navigation container:
 
 ```
 What is the app structure?
-|
-+-- Flat sections, usually 3-5 top-level areas
-|   `-- TabView
-|
-+-- Hierarchical drill-down, list to detail
-|   `-- NavigationStack
-|
-+-- Sidebar plus content, usually iPad or macOS
-|   +-- Two columns: NavigationSplitView
-|   `-- Three columns: NavigationSplitView
-|
-`-- Combined structure
-    +-- TabView with one NavigationStack per tab
-    `-- NavigationSplitView with stack-style detail content
+│
+├─ Flat sections (3-5 top-level areas)
+│  └─ TabView → see tab-view.md
+│
+├─ Hierarchical drill-down (list → detail)
+│  └─ NavigationStack → see navigation-stack.md
+│
+├─ Sidebar + content (macOS / iPad)
+│  ├─ Two columns → NavigationSplitView → see navigation-split-view.md
+│  └─ Three columns → NavigationSplitView → see navigation-split-view.md
+│
+└─ Combined (tabs with drill-down, sidebar with stacks)
+   └─ TabView + NavigationStack per tab
+      OR NavigationSplitView + NavigationStack in detail
 ```
 
 ## Quick Reference
 
-| Pattern | Container | Min OS | Notes |
-|---|---|---:|---|
-| Simple drill-down | `NavigationStack` | iOS 16 | Prefer value-based routes and a single destination registry |
-| Value-based links | `NavigationLink(value:)` | iOS 16 | Pair with `.navigationDestination(for:)` |
-| Programmatic push/pop | `NavigationPath` or typed route array | iOS 16 | Keep path in stable state owned by the feature/router |
-| Pop to root | `path = NavigationPath()` or `routes.removeAll()` | iOS 16 | Avoid reconstructing the whole view tree only to clear navigation |
-| State restoration | `NavigationPath.CodableRepresentation` or codable route enum | iOS 16 | Prefer typed routes when possible |
-| Two-column layout | `NavigationSplitView` | iOS 16 | Sidebar + detail |
-| Three-column layout | `NavigationSplitView` | iOS 16 | Sidebar + content + detail |
-| Column visibility | `NavigationSplitViewVisibility` | iOS 16 | Use for adaptive iPad/macOS controls |
-| Tab bar | `TabView` | iOS 13 | Keep each tab's navigation state independent |
-| Customizable tabs | `Tab` + `TabView` | iOS 18 | Useful for user-configurable app sections |
-| Sidebar tabs | `.tabViewStyle(.sidebarAdaptable)` | iOS 18 | iPad-friendly tab/sidebar adaptation |
-| Zoom transition | `.navigationTransition(.zoom)` | iOS 18 | Pair with matched transition source |
+| Pattern | Container | Min OS | Reference |
+|---------|-----------|--------|-----------|
+| Simple drill-down | `NavigationStack` | iOS 16 | `navigation-stack.md` |
+| Value-based links | `NavigationLink(value:)` | iOS 16 | `navigation-stack.md` |
+| Programmatic push/pop | `NavigationPath` | iOS 16 | `programmatic-navigation.md` |
+| Pop to root | `path = NavigationPath()` | iOS 16 | `programmatic-navigation.md` |
+| State restoration | `NavigationPath.CodableRepresentation` | iOS 16 | `programmatic-navigation.md` |
+| Two-column layout | `NavigationSplitView` | iOS 16 | `navigation-split-view.md` |
+| Three-column layout | `NavigationSplitView` | iOS 16 | `navigation-split-view.md` |
+| Column visibility | `NavigationSplitViewVisibility` | iOS 16 | `navigation-split-view.md` |
+| Tab bar | `TabView` | iOS 13 | `tab-view.md` |
+| Customizable tabs | `Tab` + `TabView` | iOS 18 | `tab-view.md` |
+| Sidebar tabs (iPad) | `.tabViewStyle(.sidebarAdaptable)` | iOS 18 | `tab-view.md` |
+| Zoom transition | `.navigationTransition(.zoom)` | iOS 18 | `navigation-transitions.md` |
+| Custom transitions | `NavigationTransition` | iOS 18 | `navigation-transitions.md` |
 
-## Review Process
+## Process
 
 ### 1. Identify Navigation Needs
 
 Read the user's code or requirements to determine:
+- App structure (flat, hierarchical, sidebar-based)
+- Target platforms (iOS only, iPad adaptive, macOS)
+- Whether programmatic navigation is needed
+- Deep linking requirements
 
-- App structure: flat, hierarchical, sidebar-based, or combined
-- Target platforms: iOS only, iPad adaptive, macOS, or multi-platform
-- Whether route state must be programmatic, restorable, or deep-linkable
-- Whether multiple independent navigation stacks are required
-- Whether navigation state belongs in view state, a router, or a feature model
+### 2. Load Relevant Reference Files
 
-### 2. Select the Route Model
+Based on the need, read from this directory:
+- `navigation-stack.md` — NavigationStack, NavigationLink, navigationDestination
+- `navigation-split-view.md` — Two/three column layouts, column control, adaptive behavior
+- `tab-view.md` — TabView, iOS 18 customizable tabs, sidebar mode
+- `programmatic-navigation.md` — NavigationPath, state restoration, coordinators, pop-to-root
+- `navigation-transitions.md` — Custom push/pop transitions (iOS 18+)
 
-Prefer typed routes for application flows:
+### 3. Review or Recommend
 
-```swift
-enum LibraryRoute: Hashable {
-    case source(id: UUID)
-    case reviewItem(id: UUID)
-    case editItem(id: UUID)
-}
-```
+Apply patterns from the reference files. Check for common mistakes:
 
-Use `NavigationPath` when the route set is heterogeneous or hard to model, but do not hide unrelated feature state inside the path.
+- [ ] Using deprecated `NavigationView` instead of `NavigationStack`/`NavigationSplitView`
+- [ ] Using `NavigationLink(destination:)` instead of `NavigationLink(value:)` + `.navigationDestination`
+- [ ] Placing `NavigationStack` inside `NavigationSplitView` detail (usually wrong)
+- [ ] Missing `.navigationDestination` registration for a value type
+- [ ] NavigationPath not `@State` or not in the right scope
+- [ ] Multiple NavigationStacks competing for the same navigation context
+- [ ] Hard-coding navigation instead of using `NavigationPath` for programmatic control
+- [ ] Not handling deep links through the navigation system
 
-### 3. Register Destinations Once Per Stack
+### 4. Cross-Reference
 
-Keep destination registration near the owning stack:
-
-```swift
-NavigationStack(path: $routes) {
-    LibraryView()
-        .navigationDestination(for: LibraryRoute.self) { route in
-            switch route {
-            case .source(let id):
-                SourceDetailView(sourceID: id)
-            case .reviewItem(let id):
-                ReviewItemDetailView(itemID: id)
-            case .editItem(let id):
-                EditReviewItemView(itemID: id)
-            }
-        }
-}
-```
-
-Avoid scattering destination registration across unrelated child views. It makes deep links and route restoration harder to reason about.
-
-### 4. Keep Tab Stacks Independent
-
-For tab-based apps, each tab should own its own route state:
-
-```swift
-TabView(selection: $selectedTab) {
-    NavigationStack(path: $libraryRoutes) {
-        LibraryRootView()
-    }
-    .tabItem { Label("Library", systemImage: "books.vertical") }
-    .tag(AppTab.library)
-
-    NavigationStack(path: $reviewRoutes) {
-        ReviewRootView()
-    }
-    .tabItem { Label("Review", systemImage: "rectangle.stack") }
-    .tag(AppTab.review)
-}
-```
-
-Do not share one path across all tabs unless cross-tab route replacement is the explicit product behavior.
-
-### 5. Handle Deep Links Through the Router
-
-Deep links should decode into typed routes or tab + route pairs:
-
-```swift
-struct AppRoute: Hashable {
-    var tab: AppTab
-    var route: LibraryRoute?
-}
-```
-
-The deep-link handler should update navigation state in one place rather than directly constructing destination views.
-
-## Common Mistakes
-
-- [ ] Using deprecated `NavigationView` instead of `NavigationStack` or `NavigationSplitView`
-- [ ] Using `NavigationLink(destination:)` for complex flows instead of value-based routes
-- [ ] Registering `.navigationDestination` in multiple competing places for the same route type
-- [ ] Placing independent `NavigationStack` values inside every row or card
-- [ ] Sharing one navigation path across unrelated tabs
-- [ ] Treating route state as private local state when deep links or restoration need access
-- [ ] Encoding full model objects in route values instead of stable identifiers
-- [ ] Mutating navigation state from background tasks without main-actor isolation
-
-## Cross-Skill Hints
-
-- For URL parsing and external entry points, use the `deep-linking` skill.
-- For motion and transition review, use the `animation-patterns` skill.
-- For SwiftUI performance concerns, use the `swiftui-pro` or `swiftui-performance-audit` skill when available.
+- For **deep linking URL handling**, see `generators/deep-linking/` skill
+- For **navigation animations**, see `design/animation-patterns/transitions.md`
+- For **macOS sidebar patterns**, see `macos/ui-review-tahoe/swiftui-macos.md`
 
 ## References
 
