@@ -37,19 +37,19 @@ Shared skills:
 | `swift-concurrency-pro` | `.agents/skills/swift-concurrency-pro/SKILL.md` | Tracked by `skills-lock.json`; existing Claude discovery entry is a symlink |
 | `swiftdata-pro` | `.agents/skills/swiftdata-pro/SKILL.md` | Tracked by `skills-lock.json`; existing Claude discovery entry is a symlink |
 | `swiftui-pro` | `.agents/skills/swiftui-pro/SKILL.md` | Tracked by `skills-lock.json`; existing Claude discovery entry is a symlink |
-| `accessibility-generator` | `.agents/skills/accessibility-generator/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/accessibility-generator/SKILL.md` |
-| `app-description-writer` | `.agents/skills/app-description-writer/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/app-description-writer/SKILL.md` |
-| `attributed-string` | `.agents/skills/attributed-string/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/attributed-string/SKILL.md` |
-| `characterization-test-generator` | `.agents/skills/characterization-test-generator/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/characterization-test-generator/SKILL.md` |
-| `deep-linking` | `.agents/skills/deep-linking/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/deep-linking/SKILL.md` |
-| `integration-test-scaffold` | `.agents/skills/integration-test-scaffold/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/integration-test-scaffold/SKILL.md` |
-| `liquid-glass` | `.agents/skills/liquid-glass/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/liquid-glass/SKILL.md` |
-| `navigation-patterns` | `.agents/skills/navigation-patterns/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/navigation-patterns/SKILL.md` |
-| `privacy-manifests` | `.agents/skills/privacy-manifests/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/privacy-manifests/SKILL.md` |
-| `push-notifications` | `.agents/skills/push-notifications/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/push-notifications/SKILL.md` |
-| `review-response-writer` | `.agents/skills/review-response-writer/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/review-response-writer/SKILL.md` |
-| `screenshot-planner` | `.agents/skills/screenshot-planner/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/screenshot-planner/SKILL.md` |
-| `test-contract` | `.agents/skills/test-contract/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/test-contract/SKILL.md` |
+| `accessibility-generator` | `.agents/skills/accessibility-generator/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/accessibility-generator/SKILL.md`; see `skill-source-ledger.md` |
+| `app-description-writer` | `.agents/skills/app-description-writer/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/app-description-writer/SKILL.md`; see `skill-source-ledger.md` |
+| `attributed-string` | `.agents/skills/attributed-string/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/attributed-string/SKILL.md`; see `skill-source-ledger.md` |
+| `characterization-test-generator` | `.agents/skills/characterization-test-generator/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/characterization-test-generator/SKILL.md`; see `skill-source-ledger.md` |
+| `deep-linking` | `.agents/skills/deep-linking/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/deep-linking/SKILL.md`; see `skill-source-ledger.md` |
+| `integration-test-scaffold` | `.agents/skills/integration-test-scaffold/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/integration-test-scaffold/SKILL.md`; see `skill-source-ledger.md` |
+| `liquid-glass` | `.agents/skills/liquid-glass/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/liquid-glass/SKILL.md`; see `skill-source-ledger.md` |
+| `navigation-patterns` | `.agents/skills/navigation-patterns/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/navigation-patterns/SKILL.md`; see `skill-source-ledger.md` |
+| `privacy-manifests` | `.agents/skills/privacy-manifests/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/privacy-manifests/SKILL.md`; see `skill-source-ledger.md` |
+| `push-notifications` | `.agents/skills/push-notifications/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/push-notifications/SKILL.md`; see `skill-source-ledger.md` |
+| `review-response-writer` | `.agents/skills/review-response-writer/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/review-response-writer/SKILL.md`; see `skill-source-ledger.md` |
+| `screenshot-planner` | `.agents/skills/screenshot-planner/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/screenshot-planner/SKILL.md`; see `skill-source-ledger.md` |
+| `test-contract` | `.agents/skills/test-contract/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/test-contract/SKILL.md`; see `skill-source-ledger.md` |
 
 Claude governance skills:
 
@@ -114,6 +114,6 @@ python3 Scripts/audit/docaudit.py all --strict --baseline
 ## Deferred Work
 
 - Review the already-vendored `rshankras` shared copies in `skill-source-ledger.md` before moving another community skill.
-- Decide whether existing vendored community copies should stay in `.agents/skills/`, become lockfile-managed, or move back behind `.claude/skills/`.
+- Decide whether existing vendored community copies should stay in `.agents/skills/` with recorded local patches, become lockfile-managed exact upstream dependencies, or move back behind `.claude/skills/`.
 - Verify whether the current Claude Code build discovers symlinked skill directories before using symlinks anywhere.
 - Decide whether a physical mirror script is needed only after a pilot proves manual duplication is painful.
