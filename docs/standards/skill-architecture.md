@@ -26,7 +26,7 @@ Counting rule: only first-level `*/SKILL.md` files are counted as triggerable sk
 |---|---:|---|
 | Claude discovery entries | 54 | `.claude/skills/*/SKILL.md` plus symlink skill dirs |
 | Shared first-level skill sources | 16 | `.agents/skills/*/SKILL.md` |
-| Claude adapter entries | 16 | 13 thin adapters + 3 managed symlink entries point to shared sources |
+| Claude adapter entries | 16 | 13 physical pointer adapters + 3 managed symlink entries point to shared sources |
 | Distinct first-level skill names | 54 | 54 Claude discovery entries + 16 shared sources - 16 duplicate shared entries |
 | Plugin payload skills | 2 | `.agents/skills/*/skills/*/SKILL.md` |
 
@@ -105,6 +105,13 @@ Frontmatter scan:
 rg -n '^(name|description|allowed-tools|disable-model-invocation|context|model|effort|agent|agents):' .claude/skills .agents/skills -g 'SKILL.md'
 ```
 
+Adapter shape:
+
+```bash
+find .claude/skills -maxdepth 1 -type l -print
+for f in .claude/skills/*/SKILL.md; do if rg -q 'Shared skill source:' "$f"; then printf '%s\n' "$f"; fi; done
+```
+
 Docs gate:
 
 ```bash
@@ -115,5 +122,6 @@ python3 Scripts/audit/docaudit.py all --strict --baseline
 
 - Review the already-vendored `rshankras` shared copies in `skill-source-ledger.md` before moving another community skill.
 - Decide whether existing vendored community copies should stay in `.agents/skills/` with recorded local patches, become lockfile-managed exact upstream dependencies, or move back behind `.claude/skills/`.
+- Add an enforceable provenance gate before editing any vendored community skill body.
 - Verify whether the current Claude Code build discovers symlinked skill directories before using symlinks anywhere.
 - Decide whether a physical mirror script is needed only after a pilot proves manual duplication is painful.

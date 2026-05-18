@@ -23,8 +23,8 @@ Rules:
 | Skill group | Skills | Upstream evidence | Current maintenance status |
 |---|---|---|---|
 | `twostraws` Swift skills | `swift-concurrency-pro`, `swiftdata-pro`, `swiftui-pro` | `skills-lock.json` records GitHub source, skill path, and computed hash; upstream repositories include `https://github.com/twostraws/swiftui-agent-skill` | Upstream-managed; tracked by lockfile |
-| `rshankras` App Store skills | `app-store-rejection`, `privacy-manifests`, `snapshot-testing`, `ui-review` | Commit `89901e7f` message: "安装 4 个 rshankras 社区 skill"; upstream repository appears as `https://github.com/rshankras/claude-code-apple-skills` in public skill indexes | Community source; not currently tracked by lockfile |
-| `rshankras` bulk Apple skills | `accessibility-generator`, `animation-patterns`, `app-description-writer`, `app-icon-generator`, `app-store-assets`, `attributed-string`, `background-processing`, `biometric-auth`, `characterization-test-generator`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `deep-linking`, `error-monitoring`, `integration-test-scaffold`, `keyword-optimizer`, `liquid-glass`, `localization-setup`, `migration-patterns`, `navigation-patterns`, `network-security`, `onboarding-generator`, `push-notifications`, `review-response-writer`, `screenshot-planner`, `secure-storage`, `settings-screen`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `test-contract`, `tipkit-generator` | Commit `14a263ee` message: "批量安装 28+8 个 rshankras 社区 skill"; public indexes show install examples for `https://github.com/rshankras/claude-code-apple-skills` | Community source; not currently tracked by lockfile |
+| `rshankras` App Store skills | `app-store-rejection`, `privacy-manifests`, `snapshot-testing`, `ui-review` | Commit `89901e7f` message: "安装 4 个 rshankras 社区 skill"; current identified upstream is `https://github.com/rshankras/claude-code-apple-skills` | Community source; not currently tracked by lockfile |
+| `rshankras` bulk Apple skills | `accessibility-generator`, `animation-patterns`, `app-description-writer`, `app-icon-generator`, `app-store-assets`, `attributed-string`, `background-processing`, `biometric-auth`, `characterization-test-generator`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `deep-linking`, `error-monitoring`, `integration-test-scaffold`, `keyword-optimizer`, `liquid-glass`, `localization-setup`, `migration-patterns`, `navigation-patterns`, `network-security`, `onboarding-generator`, `push-notifications`, `review-response-writer`, `screenshot-planner`, `secure-storage`, `settings-screen`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `test-contract`, `tipkit-generator` | Commit `14a263ee` message: "批量安装 28+8 个 rshankras 社区 skill"; current identified upstream is `https://github.com/rshankras/claude-code-apple-skills` | Community source; not currently tracked by lockfile |
 
 Current upstream snapshot for `rshankras/claude-code-apple-skills`:
 
@@ -75,6 +75,18 @@ Current upstream snapshot for `rshankras/claude-code-apple-skills`:
 
 The differing blob hashes mean the shared copies are not current exact upstream files. Treat them as local vendored copies until the project either re-syncs them from upstream or records intentional patches.
 
+## Current Claude-Only `rshankras` Skills
+
+These skills remain only in `.claude/skills/` and are not shared through `.agents/skills/`. They still count as community-maintained source unless a separate review classifies them as project-owned.
+
+| Skill | Current Claude path | Current local blob | Upstream status |
+|---|---|---|---|
+| `app-store-rejection` | `.claude/skills/app-store-rejection/SKILL.md` | `543b8da5ad42cb3a074b0199660689c78bdc5bd7` | Current upstream exact match at `skills/app-store/rejection-handler/SKILL.md` |
+| `snapshot-testing` | `.claude/skills/snapshot-testing/SKILL.md` | `56876db9e872638025f412e7323f2e299ecc7278` | Local name/content does not exact-match current upstream `skills/testing/snapshot-test-setup/SKILL.md`; requires review before migration |
+| `ui-review` | `.claude/skills/ui-review/SKILL.md` | `82b30a700bbf02e4a89104e420f6e00c8f367dea` | Current upstream exact match at `skills/ios/ui-review/SKILL.md` |
+
+`privacy-manifests` is not listed here because it is already a shared vendored copy at `.agents/skills/privacy-manifests/SKILL.md`.
+
 ## Evidence Commands
 
 ```bash
@@ -98,3 +110,4 @@ External reference points used for source identification:
 
 - The exact local patch delta from current `rshankras` upstream has not yet been reviewed.
 - The already-vendored `rshankras` copies in `.agents/skills/` need a decision: keep as explicitly vendored copies with recorded patches, convert to lockfile-managed dependencies, or move back behind `.claude/skills/` until source tracking is complete.
+- `skills-lock.json` currently has no schema for `kind: vendored`, `upstreamCommit`, `upstreamBlob`, `localBlob`, or patch metadata.
