@@ -25,9 +25,9 @@ Counting rule: only first-level `*/SKILL.md` files are counted as triggerable sk
 | Category | Count | Source |
 |---|---:|---|
 | Claude discovery entries | 54 | `.claude/skills/*/SKILL.md` plus symlink skill dirs |
-| Shared first-level skill sources | 13 | `.agents/skills/*/SKILL.md` |
-| Claude adapter entries | 13 | 10 thin adapters + 3 managed symlink entries point to shared sources |
-| Distinct first-level skill names | 54 | 54 Claude discovery entries + 13 shared sources - 13 duplicate shared entries |
+| Shared first-level skill sources | 14 | `.agents/skills/*/SKILL.md` |
+| Claude adapter entries | 14 | 11 thin adapters + 3 managed symlink entries point to shared sources |
+| Distinct first-level skill names | 54 | 54 Claude discovery entries + 14 shared sources - 14 duplicate shared entries |
 | Plugin payload skills | 2 | `.agents/skills/*/skills/*/SKILL.md` |
 
 Shared skills:
@@ -47,6 +47,7 @@ Shared skills:
 | `push-notifications` | `.agents/skills/push-notifications/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/push-notifications/SKILL.md` |
 | `review-response-writer` | `.agents/skills/review-response-writer/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/review-response-writer/SKILL.md` |
 | `screenshot-planner` | `.agents/skills/screenshot-planner/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/screenshot-planner/SKILL.md` |
+| `test-contract` | `.agents/skills/test-contract/SKILL.md` | Project pilot migration; Claude adapter remains at `.claude/skills/test-contract/SKILL.md` |
 
 Claude governance skills:
 
@@ -69,7 +70,7 @@ Claude governance skills:
 
 Claude local domain skills:
 
-`animation-patterns`, `app-description-writer`, `app-icon-generator`, `app-store-assets`, `app-store-rejection`, `background-processing`, `biometric-auth`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `error-monitoring`, `keyword-optimizer`, `liquid-glass`, `localization-setup`, `migration-patterns`, `network-security`, `onboarding-generator`, `secure-storage`, `settings-screen`, `snapshot-testing`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `test-contract`, `tipkit-generator`, `ui-review`.
+`animation-patterns`, `app-description-writer`, `app-icon-generator`, `app-store-assets`, `app-store-rejection`, `background-processing`, `biometric-auth`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `error-monitoring`, `keyword-optimizer`, `liquid-glass`, `localization-setup`, `migration-patterns`, `network-security`, `onboarding-generator`, `secure-storage`, `settings-screen`, `snapshot-testing`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `tipkit-generator`, `ui-review`.
 
 These are migration candidates only after frontmatter and references are reviewed for Claude-only features.
 
@@ -109,6 +110,6 @@ python3 Scripts/audit/docaudit.py all --strict --baseline
 
 ## Deferred Work
 
-- Review the `accessibility-generator`, `attributed-string`, `characterization-test-generator`, `deep-linking`, `integration-test-scaffold`, `navigation-patterns`, `privacy-manifests`, `push-notifications`, `review-response-writer`, and `screenshot-planner` adapter pattern after live use before moving another domain skill.
+- Review the `accessibility-generator`, `attributed-string`, `characterization-test-generator`, `deep-linking`, `integration-test-scaffold`, `navigation-patterns`, `privacy-manifests`, `push-notifications`, `review-response-writer`, `screenshot-planner`, and `test-contract` adapter pattern after live use before moving another domain skill.
 - Verify whether the current Claude Code build discovers symlinked skill directories before using symlinks anywhere.
 - Decide whether a physical mirror script is needed only after a pilot proves manual duplication is painful.
