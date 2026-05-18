@@ -13,7 +13,7 @@ freshness:
 
 ## 当前状态（2026-05-18）
 
-**文档治理 + skill 体系重构收口中**。54 个 distinct 一层 skill 名称：14 项目治理、29 Claude-only 领域 skill、11 共享 skill；其中 `accessibility-generator`、`attributed-string`、`deep-linking`、`navigation-patterns`、`privacy-manifests`、`push-notifications`、`review-response-writer`、`screenshot-planner` 使用 Claude thin adapter，3 个受管 Swift skill 使用既有 Claude symlink entry。另有 2 个 `.agents/skills/*/skills/*/SKILL.md` 属于 plugin payload，不计入一层 skill 数。目录架构 SSOT：`docs/standards/skill-architecture.md`。
+**文档治理 + skill 体系重构收口中**。54 个 distinct 一层 skill 名称：14 项目治理、28 Claude-only 领域 skill、12 共享 skill；其中 `accessibility-generator`、`attributed-string`、`characterization-test-generator`、`deep-linking`、`navigation-patterns`、`privacy-manifests`、`push-notifications`、`review-response-writer`、`screenshot-planner` 使用 Claude thin adapter，3 个受管 Swift skill 使用既有 Claude symlink entry。另有 2 个 `.agents/skills/*/skills/*/SKILL.md` 属于 plugin payload，不计入一层 skill 数。目录架构 SSOT：`docs/standards/skill-architecture.md`。
 
 | 外部阻塞项 | 说明 | 状态 |
 |---|---|---|
