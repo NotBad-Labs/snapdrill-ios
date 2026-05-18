@@ -75,6 +75,8 @@ Current upstream snapshot for `rshankras/claude-code-apple-skills`:
 
 The differing blob hashes mean the shared copies are not current exact upstream files. Treat them as local vendored copies until the project either re-syncs them from upstream or records intentional patches.
 
+`docaudit skill-provenance` enforces the `Local shared blob` column for every shared vendored copy. If a community skill body changes, the gate fails until the change is either reverted or explicitly recorded as a vendored patch decision.
+
 ## Current Claude-Only `rshankras` Skills
 
 These skills remain only in `.claude/skills/` and are not shared through `.agents/skills/`. They still count as community-maintained source unless a separate review classifies them as project-owned.

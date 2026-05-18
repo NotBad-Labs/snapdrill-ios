@@ -116,12 +116,12 @@ Docs gate:
 
 ```bash
 python3 Scripts/audit/docaudit.py all --strict --baseline
+python3 Scripts/audit/docaudit.py skill-provenance --strict
 ```
 
 ## Deferred Work
 
 - Review the already-vendored `rshankras` shared copies in `skill-source-ledger.md` before moving another community skill.
 - Decide whether existing vendored community copies should stay in `.agents/skills/` with recorded local patches, become lockfile-managed exact upstream dependencies, or move back behind `.claude/skills/`.
-- Add an enforceable provenance gate before editing any vendored community skill body.
 - Verify whether the current Claude Code build discovers symlinked skill directories before using symlinks anywhere.
 - Decide whether a physical mirror script is needed only after a pilot proves manual duplication is painful.

@@ -56,6 +56,11 @@ def _base_policy() -> dict:
                 "level": "error",
                 "description": "",
             },
+            "skill-provenance": {
+                "level": "error",
+                "description": "",
+                "project_owned": ["shared", "plugin"],
+            },
         },
         "output": {"tsv_dir": "reports/", "summary_stdout": True, "verbose_default": False},
     }
@@ -443,12 +448,105 @@ class DocauditTestCase(unittest.TestCase):
         self.assertEqual(code, 1, out)
         self.assertIn("broken_skill_ref", out)
 
+    # ---------- skill-provenance ----------
+
+    def _write_skill_ledger_row(self, skill: str, local_blob: str) -> None:
+        ledger = self.repo / "docs" / "standards" / "skill-source-ledger.md"
+        ledger.write_text(
+            "# Skill Source Ledger\n\n"
+            "## Current Shared `rshankras` Snapshot\n\n"
+            "| Skill | Upstream path at `abc` | Upstream blob | Local shared blob |\n"
+            "|---|---|---|---|\n"
+            f"| `{skill}` | `skills/generators/{skill}/SKILL.md` | "
+            f"`0123456789abcdef0123456789abcdef01234567` | `{local_blob}` |\n",
+            encoding="utf-8",
+        )
+
+    def test_skill_provenance_clean_with_vendored_ledger_row(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_skill_ledger_row("vendored", docaudit._git_blob_sha(vendored))
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
+
+    def test_skill_provenance_missing_row_blocks_shared_skill(self) -> None:
+        untracked = self.repo / ".agents" / "skills" / "untracked" / "SKILL.md"
+        untracked.parent.mkdir()
+        untracked.write_text("---\nname: untracked\n---\n# Untracked\n", encoding="utf-8")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("missing_provenance", out)
+
+    def test_skill_provenance_blob_mismatch_blocks_silent_edit(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_skill_ledger_row("vendored", "fedcba9876543210fedcba9876543210fedcba98")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("local_blob_mismatch", out)
+
+    def test_skill_provenance_lockfile_entry_exempts_managed_skill(self) -> None:
+        managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
+        managed.parent.mkdir()
+        managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
+        (self.repo / "skills-lock.json").write_text(
+            '{"version": 1, "skills": {"managed": {"source": "owner/repo"}}}\n',
+            encoding="utf-8",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 0, out)
+
+    def test_skill_provenance_invalid_lockfile_reports_single_schema_error(self) -> None:
+        managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
+        managed.parent.mkdir()
+        managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
+        (self.repo / "skills-lock.json").write_text("{not-json\n", encoding="utf-8")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("invalid_lockfile_json", out)
+        self.assertNotIn("missing_provenance", out)
+
+    def test_skill_provenance_missing_source_ledger_is_explicit(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("missing_source_ledger", out)
+
+    def test_skill_provenance_ledger_row_requires_existing_shared_skill(self) -> None:
+        self._write_skill_ledger_row("ghost", "fedcba9876543210fedcba9876543210fedcba98")
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("ledger_points_to_missing_shared_skill", out)
+
+    def test_skill_provenance_dangling_ledger_row_checked_without_unclassified_skills(self) -> None:
+        self._write_skill_ledger_row("ghost", "fedcba9876543210fedcba9876543210fedcba98")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("ledger_points_to_missing_shared_skill", out)
+
     # ---------- all (含 frontmatter subprocess) ----------
 
     def test_all_runs_every_check_with_fake_validator(self) -> None:
         """High 3 修复：`all` 子命令包含 frontmatter via subprocess。"""
         policy = _write_policy(self.tmp)
         code, out, _ = self._run(["--policy", str(policy), "all"])
+        self.assertEqual(code, 0, out)
         self.assertIn("[frontmatter]", out)
         for name in docaudit.CHECK_NAMES:
             self.assertIn(f"[{name}]", out)

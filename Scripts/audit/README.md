@@ -15,7 +15,8 @@
 | `rule-usage` | F-001~F-NNN 引用计数（识别 dead rule 候选） |
 | `skill-inventory` | `.claude/skills` / `.agents/skills` 计数与 Claude adapter 指向 |
 | `skill-links` | 共享 skill 源内相对 Markdown 引用 broken |
-| `all` | 以上 7 项 + `frontmatter`（subprocess 调用 `Scripts/validate_frontmatter.py`），共 8 个检查 |
+| `skill-provenance` | 共享 community skill 来源与本地 blob 是否被 lockfile / ledger 覆盖 |
+| `all` | 以上 8 项 + `frontmatter`（subprocess 调用 `Scripts/validate_frontmatter.py`），共 9 个检查 |
 
 ## 用法
 
@@ -90,7 +91,7 @@ Phase C 每个清理 PR 应从 `legacy_whitelist` 移除对应条目，直到全
 ### 文本 summary（stdout，人类可读）
 
 ```
-docaudit: 8 checks, 4 categories with findings
+docaudit: 9 checks, 4 categories with findings
 
 [frontmatter]          clean
 [links]                clean
@@ -100,6 +101,7 @@ docaudit: 8 checks, 4 categories with findings
 [rule-usage]           3 info
 [skill-inventory]      clean
 [skill-links]          clean
+[skill-provenance]     clean
 
 Exit: 1 (error level in: ['archived-refs'])
 ```

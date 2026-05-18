@@ -10,6 +10,7 @@
   rule-usage           F-NNN 规则外部引用计数（dead rule 候选）
   skill-inventory      skill 目录架构计数与 Claude adapter 指向
   skill-links          共享 skill 源内相对 Markdown 引用必须存在
+  skill-provenance     共享 community skill 来源与本地 blob 必须被 ledger/lockfile 覆盖
 
 详见 Scripts/audit/README.md 与 Scripts/audit/policy.yaml。
 
@@ -23,6 +24,8 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import hashlib
+import json
 import os
 import re
 import subprocess
@@ -48,6 +51,7 @@ CHECK_NAMES = [
     "rule-usage",
     "skill-inventory",
     "skill-links",
+    "skill-provenance",
 ]
 
 CHECK_DESCRIPTIONS = {
@@ -86,6 +90,11 @@ CHECK_DESCRIPTIONS = {
         "description": "扫描 .agents/skills/*/SKILL.md 的相对 Markdown 引用，目标文件不存在即 broken_skill_ref。",
         "epilog": "示例：python3 Scripts/audit/docaudit.py skill-links --verbose",
     },
+    "skill-provenance": {
+        "help": "Validate .agents skill provenance against lockfile and source ledger.",
+        "description": "核对 .agents/skills/*/SKILL.md 是否被 skills-lock.json、project-owned 白名单或 skill-source-ledger vendored snapshot 覆盖，并校验 local blob。",
+        "epilog": "示例：python3 Scripts/audit/docaudit.py skill-provenance --verbose",
+    },
 }
 
 # Markdown 内部链接正则 — [text](path.md) 或 [text](path.md#anchor) 或 [text](path.md "title")
@@ -110,6 +119,10 @@ F_RULE_RE = re.compile(r"\bF-(\d{3})\b")
 # docs/standards/skill-architecture.md inventory table rows
 SKILL_ARCH_COUNT_RE = re.compile(r"^\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|", re.MULTILINE)
 SKILL_ADAPTER_TARGET_RE = re.compile(r"((?:\.\./)+\.agents/skills/([A-Za-z0-9_-]+)/SKILL\.md)")
+SKILL_PROVENANCE_SECTION_RE = re.compile(r"^## Current Shared `([^`]+)` Snapshot$")
+SKILL_PROVENANCE_ROW_RE = re.compile(
+    r"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|\s*`([0-9a-f]{40})`\s*\|\s*`([0-9a-f]{40})`\s*\|$"
+)
 
 
 # ---------- 数据类型 ----------
@@ -744,6 +757,148 @@ def check_skill_links(policy: dict) -> CheckResult:
     return result
 
 
+# ---------- check: skill-provenance ----------
+
+def _git_blob_sha(path: Path) -> str:
+    data = path.read_bytes()
+    header = f"blob {len(data)}\0".encode("utf-8")
+    return hashlib.sha1(header + data).hexdigest()
+
+
+def _load_skill_lock_names(result: CheckResult) -> set[str] | None:
+    lock_path = REPO_ROOT / "skills-lock.json"
+    if not lock_path.is_file():
+        return set()
+    try:
+        payload = json.loads(lock_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        result.findings.append(Finding(
+            check="skill-provenance",
+            path="skills-lock.json",
+            line=0,
+            category="invalid_lockfile_json",
+            level=result.level,
+            suggestion=f"skills-lock.json must be valid JSON: {exc}",
+        ))
+        return None
+    skills = payload.get("skills", {})
+    if not isinstance(skills, dict):
+        result.findings.append(Finding(
+            check="skill-provenance",
+            path="skills-lock.json",
+            line=0,
+            category="invalid_lockfile_schema",
+            level=result.level,
+            suggestion="skills-lock.json must contain a mapping at key 'skills'",
+        ))
+        return None
+    return set(skills.keys())
+
+
+def _parse_shared_vendored_snapshots(result: CheckResult) -> dict[str, dict[str, str]]:
+    ledger = REPO_ROOT / "docs" / "standards" / "skill-source-ledger.md"
+    rel = "docs/standards/skill-source-ledger.md"
+    if not ledger.is_file():
+        result.findings.append(Finding(
+            check="skill-provenance",
+            path=rel,
+            line=0,
+            category="missing_source_ledger",
+            level=result.level,
+            suggestion="create skill-source-ledger.md with Current Shared `<vendor>` Snapshot",
+        ))
+        return {}
+
+    rows: dict[str, dict[str, str]] = {}
+    in_section = False
+    for lineno, line in enumerate(_read_lines(ledger), start=1):
+        if line.startswith("## "):
+            in_section = SKILL_PROVENANCE_SECTION_RE.match(line.strip()) is not None
+            continue
+        if not in_section:
+            continue
+        match = SKILL_PROVENANCE_ROW_RE.match(line.strip())
+        if not match:
+            continue
+        skill, upstream_path, upstream_blob, local_blob = match.groups()
+        rows[skill] = {
+            "line": str(lineno),
+            "upstream_path": upstream_path,
+            "upstream_blob": upstream_blob,
+            "local_blob": local_blob,
+        }
+    return rows
+
+
+def check_skill_provenance(policy: dict) -> CheckResult:
+    conf = policy["checks"]["skill-provenance"]
+    level = conf["level"]
+    project_owned = set(conf.get("project_owned", []) or [])
+    result = CheckResult(check="skill-provenance", level=level)
+
+    shared_root = REPO_ROOT / ".agents" / "skills"
+    shared_names = _first_level_skill_names(shared_root)
+    locked_names = _load_skill_lock_names(result)
+    if locked_names is None:
+        return result
+
+    unclassified_names = shared_names - locked_names - project_owned
+    ledger_path = REPO_ROOT / "docs" / "standards" / "skill-source-ledger.md"
+    if unclassified_names or ledger_path.is_file():
+        vendored_rows = _parse_shared_vendored_snapshots(result)
+    else:
+        vendored_rows = {}
+
+    for name in sorted(unclassified_names):
+        skill_file = shared_root / name / "SKILL.md"
+        rel = str(skill_file.relative_to(REPO_ROOT))
+
+        row = vendored_rows.get(name)
+        if row is None:
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path=rel,
+                line=0,
+                category="missing_provenance",
+                level=level,
+                suggestion=(
+                    f"shared skill '{name}' must be in skills-lock.json, "
+                    "checks.skill-provenance.project_owned, or skill-source-ledger.md"
+                ),
+            ))
+            continue
+
+        actual_blob = _git_blob_sha(skill_file)
+        if actual_blob != row["local_blob"]:
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path=rel,
+                line=0,
+                category="local_blob_mismatch",
+                level=level,
+                suggestion=(
+                    f"ledger local blob is {row['local_blob']} but current blob is {actual_blob}; "
+                    "do not edit community skill bodies without recording a vendored patch decision"
+                ),
+                matched_text=f"ledger line {row['line']}",
+            ))
+
+    for name, row in sorted(vendored_rows.items()):
+        skill_file = shared_root / name / "SKILL.md"
+        if skill_file.is_file():
+            continue
+        result.findings.append(Finding(
+            check="skill-provenance",
+            path="docs/standards/skill-source-ledger.md",
+            line=int(row["line"]),
+            category="ledger_points_to_missing_shared_skill",
+            level=level,
+            suggestion=f"ledger lists '{name}' but .agents/skills/{name}/SKILL.md does not exist",
+        ))
+
+    return result
+
+
 # ---------- frontmatter via subprocess ----------
 
 def check_frontmatter_via_subprocess(policy: dict) -> CheckResult:
@@ -824,6 +979,7 @@ CHECK_FUNCS = {
     "rule-usage": check_rule_usage,
     "skill-inventory": check_skill_inventory,
     "skill-links": check_skill_links,
+    "skill-provenance": check_skill_provenance,
 }
 
 
@@ -937,8 +1093,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     all_parser = sub.add_parser(
         "all",
-        help="Run 7 structural checks + frontmatter (8 checks total).",
-        description="运行 7 个结构检查，并通过 subprocess 调用 validate_frontmatter.py（共 8 个检查）。",
+        help="Run 8 structural checks + frontmatter (9 checks total).",
+        description="运行 8 个结构检查，并通过 subprocess 调用 validate_frontmatter.py（共 9 个检查）。",
         epilog="示例：python3 Scripts/audit/docaudit.py all --report --verbose",
     )
     _add_common(all_parser)

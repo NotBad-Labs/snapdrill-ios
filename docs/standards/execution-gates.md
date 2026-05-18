@@ -24,6 +24,9 @@ layer: pattern
 | `orphans` | warning | docs/**/*.md 在全仓零引用 | 孤儿文档无人维护，内容可能严重过时 | `docs/standards/memory-routing.md`（反模式：信息无归属）, `docs/KNOWLEDGE_MAP.md` 索引职责 | `policy.yaml` orphans.whitelist（产品文档/归档/索引自身豁免） |
 | `home-path-refs` | warning | 仓库内对 `~/.claude/` 私有路径的硬编码 | 私有路径其他智能体（Codex/Gemini）读不到，产生单点依赖 | `docs/standards/memory-routing.md:38-44`（公开 vs 私有分离原则） | `policy.yaml` allowed_contexts + legacy_whitelist |
 | `rule-usage` | info | F-NNN 规则在全仓的外部引用计数（0 引用 → dead rule 候选） | 防止退役规则残留、F 规则体系膨胀 | `docs/standards/engineering.md:122-156`（F-XXX 生命周期） | 无（info 级，不阻断） |
+| `skill-inventory` | error | `.claude/skills` / `.agents/skills` 计数与 Claude adapter 指向 | 防止 shared skill 与 Claude discovery 双源漂移 | `docs/standards/skill-architecture.md` | 无豁免（error 级必须修复） |
+| `skill-links` | error | 共享 skill 源内相对 Markdown 引用指向不存在的文件 | 防止迁移/精简 skill 时留下断裂引用 | `docs/standards/skill-architecture.md` | 无豁免（error 级必须修复） |
+| `skill-provenance` | error | 共享 community skill 是否被 lockfile、project-owned 白名单或 source ledger vendored snapshot 覆盖 | 防止无记录修改社区 skill 正文，把维护责任隐式转移给 SnapDrill | `docs/standards/skill-source-ledger.md` | `policy.yaml` project_owned 仅用于真正项目自有 skill |
 
 ## 3. SwiftLint 规则族
 
