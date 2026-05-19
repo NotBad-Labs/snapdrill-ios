@@ -108,3 +108,44 @@ layer: pattern
 - 长期更优解：测试入口给 `-Xswiftc -D -Xswiftc SNAPDRILL_TESTING` 编译期 define
 
 **完整审计归档**：Claude 私有审计产物（零信任审计 plan + findings, 2026-05-14）
+
+## D-005: Skill 瘦身策略四方论证（2026-05-19）
+
+**决策**：当前不做 skill 瘦身。未来若做，按 `skillOverrides` + `disable-model-invocation` + 删冗余 + 卸 plugin 四步走，**不要按"位置重排"做**。
+
+**触发背景**：用户读到"5-10 个高频 skill 装全局 / 其余按项目"的省 token 建议，质疑是否适用于 SnapDrill（单一活跃项目，68 个 skill）。
+
+**论证参与者**：Claude Opus 4.7（本会话）+ Codex GPT-5.5（codex:rescue）+ Claude Opus 4.7（用户外部咨询）+ gpt-5.5（用户外部咨询）+ antigravity（用户外部咨询）+ grok（用户外部咨询）
+
+**四方共识（铁定结论）**：
+
+1. 单项目位置重排 = 0 token 收益。用户全局位置的 skill 会注入到所有项目；项目级 `.claude/skills/` 只注入到该项目。单项目用户两种放法对当前项目 system prompt 体积完全一致。
+2. 真正的官方降本机制是 `skillOverrides` 配置（`"name-only"` / `"user-invocable-only"` / `"off"`）和 SKILL.md frontmatter 的 `disable-model-invocation: true`。
+3. Plugin skill 不受上述两个开关影响（Issue #22345），唯一处理办法是卸掉整个 plugin。
+4. 现金成本可忽略（4-7k tokens / 1M context ≈ 0.6%，prompt cache 命中后约 $88-166/年）。真痛点是 **>30 skill 后注意力稀释 + 触发判定准确率下降**（Issue #13343）。
+5. 第一步诊断手段：`/doctor`（v2.1.129+）查 budget 是否 overflow、是否有 description 被丢弃。
+
+**关键分歧（3:1 投票）**：`disable-model-invocation: true` 是否把 description 从 context 移除。
+- 移除派（Opus 4.7 + gpt-5.5 + grok，引官方表格 "Description in Context: No"）
+- 不移除派（antigravity，基于推理）
+- 取移除派结论，但 Opus 4.7 提醒：Issue #26251 / #211 报告显式 `/cmd` 调用有 bug，上手前需在当前 Claude Code 版本实测一次。
+
+**SnapDrill 当前状态实测**：
+- 68 个一层 skill（`.claude/skills/` 54 + `.agents/skills/` 16 经由 symlink/adapter 桥接进入）+ 38 个 plugin SKILL.md
+- metadata 占用约 6-7k tokens（每 skill ~100 tokens 含 name + 截断 description + XML wrapper）
+- 1M context 下 budget = 1% = 10k tokens，**未溢出**（与 antigravity "已超出预算" 推测不符；200k context 才会逼近）
+
+**未来执行顺序（不在主线，先 backlog）**：
+
+| 优先级 | 动作 | 工具 |
+|---|---|---|
+| 1 | `/doctor` 看 budget 实际状态 | Claude Code CLI |
+| 2 | 高频自动触发（10-15 个）保留 `"on"` | 默认 |
+| 3 | 中频手动触发（~20 个）设 `"name-only"` | `skillOverrides` |
+| 4 | 低频备用（30+ 个）设 `"user-invocable-only"` 或 `"off"` | `skillOverrides` |
+| 5 | 审计哪些 plugin 整体不用 | 卸 plugin |
+| 6 | 不要做 | 位置重排 |
+
+**为什么现在不做**：codex 接手指令明确"skills phase closed，下一步是 docs/product 主线"。skill 瘦身不属于 skill 治理 phase 的延续，是独立的运行时性能优化项，应在产品文档体系修订完成后再启动。
+
+**完整四方对照表归档**：本会话 transcript（2026-05-19）
