@@ -152,6 +152,7 @@ CI 使用 Mac mini self-hosted runner（Xcode 26.5 / iPhone 17 Simulator）。PR
 产品决策变更后必须闭环：
 
 1. **影响评估**：grep 受影响的下游文档（见 `docs/DOC_DEPENDENCY_MAP.md` 变更传播规则）
+2. **同步更新**：对受影响的产品主链（requirements / design / cases / glossary / business）和技术主链（architecture / compliance / NFR / deployment）逐文件更新，由 `dependency-propagation` skill 执行
 3. **ADR**：重大决策（影响架构、商业模式、数据模型）创建 ADR 或更新已有 ADR
 4. **Issue 关闭**：关联 Issue 更新状态并关闭
 5. **STATUS.md**：合并后更新

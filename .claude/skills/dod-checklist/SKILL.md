@@ -52,7 +52,6 @@ user-invocable: true
 ### 文档同步（所有 PR）
 
 - [ ] `product-requirements.md` 已更新（新增功能）
-- [ ] `api-reference.md` 已更新（新增/变更 public 接口）
 - [ ] 新增第三方库 → 更新开源许可展示
 - [ ] 术语与 `product-glossary.md` 一致
 - [ ] 合并后立即更新 `STATUS.md`

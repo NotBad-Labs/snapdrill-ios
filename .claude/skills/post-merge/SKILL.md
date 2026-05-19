@@ -57,7 +57,7 @@ git checkout develop && git pull --ff-only origin develop
 - 编译/测试状态
 - 当前阶段焦点
 
-然后推送（调用 update-status skill 或手动）：
+然后推送：
 
 ```bash
 # 只 add STATUS.md
@@ -82,17 +82,20 @@ bash Scripts/anti-pattern-scan.sh
 
 ### Step 4：文档同步检查
 
-检查是否遗漏了文档同步：
+按 `docs/DOC_DEPENDENCY_MAP.md` §3 变更传播规则，检查本次 PR 是否需要同步下游：
 
 ```bash
 # 检查 product-requirements.md last_verified 日期
 grep "last_verified" docs/product/product-requirements.md
 
-# 检查 api-reference.md 是否需要同步
-grep "last_verified" docs/tech/api-reference.md
+# 改了 public 接口 → 检查 architecture.md
+grep "last_verified" docs/tech/architecture.md
+
+# 改了合规/性能边界 → 检查 deployment.md
+grep "last_verified" docs/tech/deployment.md
 ```
 
-如果本次 PR 改动了 public 接口但没更新 api-reference.md → 补充更新。
+如有未同步项 → 调用 `dependency-propagation` skill 或手动补充。
 
 ### Step 5：检查 handoff.md
 

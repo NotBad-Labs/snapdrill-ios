@@ -40,12 +40,18 @@ grep -r "<变更关键词>" docs/ --include="*.md" -l
 
 ### Step 2: 同步更新
 
-对每个受影响的下游文档：
+对每个受影响的下游文档（按 `docs/DOC_DEPENDENCY_MAP.md` §3 主链分组）：
+
+**产品主链**：
 - `product-requirements.md` / `product-design.md` / `product-cases.md` — 功能规格同步
 - `product-glossary.md` — 术语一致性
 - `product-business.md` — 商业模式影响
+
+**技术主链**：
 - `docs/tech/architecture.md` — 架构影响
-- `docs/tech/api-reference.md` — 接口影响
+- `docs/tech/compliance.md` — 合规边界变更
+- `docs/tech/non-functional-requirements.md` — 性能/内存/可用性边界
+- `docs/tech/deployment.md` — 合规/NFR 改动触发的发布口径变化
 
 ### Step 3: ADR 更新
 
@@ -84,4 +90,4 @@ gh issue close <number> --comment "决策已落地：<简述>"
 
 - `docs/workflow.md` § 决策变更收尾 — 完整 5 步流程权威定义
 - `docs/DOC_DEPENDENCY_MAP.md` — 变更传播规则
-- `docs/standards/dependency-propagation` skill — 文档下游同步执行器
+- `dependency-propagation` skill（`.claude/skills/dependency-propagation/`）— 文档下游同步执行器

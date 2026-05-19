@@ -74,9 +74,9 @@ user-invocable: true
 
 Hermes 用 SQLite + FTS5 做 episodic memory recall。SnapDrill 当前用 ripgrep + 人工 routing（见 `docs/standards/memory-routing.md`）+ checkpoints 实现等价效果。无需引入 Hermes runtime。
 
-## 与 update-status skill 的分工
+## 与 post-merge / phase-closeout 的分工
 
-- `update-status`：合并 PR 后更新 STATUS.md（写入）
+- `post-merge` Step 2：合并 PR 后更新 STATUS.md（写入）
 - `phase-closeout`：phase 结束写 checkpoint（写入）
 - `resume-from-handoff`：接手时**只读**最小上下文，不写入
 

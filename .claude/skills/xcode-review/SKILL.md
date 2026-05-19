@@ -8,10 +8,10 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
----
-last_verified: 2026-04-14
+last_verified: 2026-05-19
 layer: pattern
 ---
+
 # 手动 Review 提示词写作规范
 
 > **上游依赖**：`docs/workflow.md`（Code Review）
