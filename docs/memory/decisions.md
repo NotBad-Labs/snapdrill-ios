@@ -130,10 +130,21 @@ layer: pattern
 - 不移除派（antigravity，基于推理）
 - 取移除派结论，但 Opus 4.7 提醒：Issue #26251 / #211 报告显式 `/cmd` 调用有 bug，上手前需在当前 Claude Code 版本实测一次。
 
-**SnapDrill 当前状态实测**：
-- 68 个一层 skill（`.claude/skills/` 54 + `.agents/skills/` 16 经由 symlink/adapter 桥接进入）+ 38 个 plugin SKILL.md
-- metadata 占用约 6-7k tokens（每 skill ~100 tokens 含 name + 截断 description + XML wrapper）
-- 1M context 下 budget = 1% = 10k tokens，**未溢出**（与 antigravity "已超出预算" 推测不符；200k context 才会逼近）
+**SnapDrill 当前状态实测**（2026-05-19，Claude Code v2.1.144，`/skills` picker 输出）：
+- **总数 58 skills**：54 project + 4 plugin（codex × 3 + skill-creator × 1）
+- 所有 54 project skill 状态 `"on"`（默认，无 `skillOverrides` 干预）
+- 4 plugin skill 状态 `locked by plugin`（**实测验证 Issue #22345**：plugin skill 不受 `skillOverrides` / `disable-model-invocation` 影响）
+- **metadata 总占用 ~3.5k tokens**（按 `/skills` 输出每行 token 数粗加，每 skill 20-120 tok 不等，多数 40-80 tok）
+- 1M context 下 1% budget = 10k tokens，**用了 ~35%，未溢出**
+
+**专家估算校准（事后纠偏）**：
+- Claude（本会话）4k tokens（描述字符 ÷ 3.5）→ 接近真实
+- grok 6-7k tokens（每 skill ~100 tok 含 wrapper）→ 高估约 2 倍
+- antigravity "已超出默认预算" → 错的，与 1M context 不符（在 200k context 下会逼近）
+- 四位专家关于 `/doctor` 报告 skill budget overflow / descriptions dropped 的说法 → 在 Claude Code v2.1.144 **未验证**（输出无此段）
+- 真正的诊断工具是 `/skills`（picker，每行显示该 skill metadata token 数）
+
+**真痛点诊断**：58 > 30 skill 的注意力稀释阈值，存在隐性触发准确率下降，但**不是紧急问题**（无预算溢出、无截断、无丢弃）。优化属性能优化项，不是 bug 修复。
 
 **未来执行顺序（不在主线，先 backlog）**：
 
