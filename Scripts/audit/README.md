@@ -146,6 +146,8 @@ python3 Scripts/audit/skill_refresh_report.py \
 
 本工具只覆盖 `skills-lock.json` 中的 `kind: vendored` shared skills。Claude-only community skills 由 `docaudit skill-provenance` 的 ledger blob 校验覆盖。
 
+`kind: managed` skills are not refreshed by this report. `docaudit skill-provenance` still validates their repository-local `localBlob` and listed support-file blobs so managed Swift skills cannot drift silently even when the installer `computedHash` algorithm is treated as opaque.
+
 ## 首轮基线缓冲
 
 `policy.yaml` 的 `legacy_whitelist` 当前仅保留 Phase A 孤儿候选 1 类过渡豁免。Phase C 每个清理 PR 同步从白名单移除对应条目，逐步收紧到全空。

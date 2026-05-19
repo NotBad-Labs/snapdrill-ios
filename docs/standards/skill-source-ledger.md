@@ -22,7 +22,7 @@ Rules:
 
 | Skill group | Skills | Upstream evidence | Current maintenance status |
 |---|---|---|---|
-| `twostraws` Swift skills | `swift-concurrency-pro`, `swiftdata-pro`, `swiftui-pro` | `skills-lock.json` records GitHub source, skill path, and computed hash; upstream repositories include `https://github.com/twostraws/swiftui-agent-skill` | Upstream-managed; tracked by lockfile |
+| `twostraws` Swift skills | `swift-concurrency-pro`, `swiftdata-pro`, `swiftui-pro` | `skills-lock.json` records GitHub source, skill path, computed hash, local entry blob, and local support-file blobs; upstream repositories include `https://github.com/twostraws/swiftui-agent-skill` | Upstream-managed; local copy tracked by lockfile |
 | `rshankras` shared Apple skills | `accessibility-generator`, `app-description-writer`, `attributed-string`, `characterization-test-generator`, `deep-linking`, `integration-test-scaffold`, `liquid-glass`, `navigation-patterns`, `privacy-manifests`, `push-notifications`, `review-response-writer`, `screenshot-planner`, `test-contract` | `skills-lock.json` records `kind: vendored`, upstream commit/path/blob, local path/blob, and patch status | Vendored community copies; lockfile-managed |
 | `rshankras` Claude-only skills | `app-store-rejection`, `animation-patterns`, `app-icon-generator`, `app-store-assets`, `background-processing`, `biometric-auth`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `error-monitoring`, `keyword-optimizer`, `localization-setup`, `migration-patterns`, `network-security`, `onboarding-generator`, `secure-storage`, `settings-screen`, `snapshot-testing`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `tipkit-generator`, `ui-review` | Commits `89901e7f` and `14a263ee`; current identified upstream is `https://github.com/rshankras/claude-code-apple-skills` | Community source; Claude-only until reviewed for portable shared use |
 
@@ -70,6 +70,10 @@ As of the 2026-05-19 review, all 13 shared `rshankras` skill bodies match the fi
 `navigation-patterns` also carries upstream support files so its relative references remain resolvable without editing the community skill body. Those support file paths and blobs are tracked under its `supportFiles` lockfile entry.
 
 `docaudit skill-provenance` enforces the lockfile local blob for every shared vendored copy. If a community skill body or support file changes, the gate fails until the change is reverted or explicitly recorded as a vendored patch decision.
+
+## Current Managed Swift Skill Snapshot
+
+`skills-lock.json` also records `kind: managed` entries for the three `twostraws` Swift skills. Their `computedHash` is preserved as installer/upstream metadata, but the current audit does not infer or reimplement that upstream hash algorithm. Instead, `docaudit skill-provenance` enforces repository-local git blob hashes for each managed `SKILL.md` and every listed support file. This prevents silent local edits while keeping upstream refresh semantics separate from local drift detection.
 
 ## Vendored Refresh Workflow
 

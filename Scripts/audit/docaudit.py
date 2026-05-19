@@ -141,6 +141,11 @@ MANAGED_LOCK_REQUIRED_FIELDS = (
     "sourceType",
     "skillPath",
     "computedHash",
+    "localBlob",
+)
+MANAGED_SUPPORT_REQUIRED_FIELDS = (
+    "localPath",
+    "localBlob",
 )
 VENDORED_LOCK_REQUIRED_FIELDS = (
     "source",
@@ -918,6 +923,55 @@ def _validate_managed_lock_entry(
         )
         return None
 
+    if not _validate_lock_blob_field(result, name, "localBlob", str(entry["localBlob"]), "skill"):
+        return None
+
+    support_files = entry.get("supportFiles", [])
+    if not isinstance(support_files, list):
+        _lockfile_schema_finding(
+            result,
+            "invalid_managed_lockfile_entry",
+            f"skills-lock.json '{name}' supportFiles must be a list when present",
+        )
+        return None
+
+    for index, support in enumerate(support_files):
+        if not isinstance(support, dict):
+            _lockfile_schema_finding(
+                result,
+                "invalid_managed_lockfile_entry",
+                f"skills-lock.json '{name}' supportFiles[{index}] must be a mapping",
+            )
+            return None
+        if not _require_lock_string_fields(
+            result,
+            support,
+            name,
+            MANAGED_SUPPORT_REQUIRED_FIELDS,
+            f"supportFiles[{index}]",
+        ):
+            return None
+        expected_support_prefix = f".agents/skills/{name}/"
+        support_local_path = str(support["localPath"])
+        if not support_local_path.startswith(expected_support_prefix) or ".." in Path(support_local_path).parts:
+            _lockfile_schema_finding(
+                result,
+                "managed_support_path_out_of_scope",
+                (
+                    f"skills-lock.json '{name}' support localPath must stay under "
+                    f"'{expected_support_prefix}'"
+                ),
+            )
+            return None
+        if not _validate_lock_blob_field(
+            result,
+            name,
+            "localBlob",
+            str(support["localBlob"]),
+            f"supportFiles[{index}]",
+        ):
+            return None
+
     return entry
 
 
@@ -1266,6 +1320,7 @@ def check_skill_provenance(policy: dict) -> CheckResult:
     if lock_entries is None:
         return result
 
+    managed_lock_entries: dict[str, dict[str, object]] = {}
     vendored_lock_entries: dict[str, dict[str, object]] = {}
     for name, entry in sorted(lock_entries.items()):
         if not isinstance(entry, dict):
@@ -1292,19 +1347,65 @@ def check_skill_provenance(policy: dict) -> CheckResult:
         elif kind == "managed":
             validated = _validate_managed_lock_entry(result, name, entry)
             if validated is not None:
-                local_path = REPO_ROOT / ".agents" / "skills" / name / "SKILL.md"
-                if not local_path.is_file():
-                    result.findings.append(Finding(
-                        check="skill-provenance",
-                        path="skills-lock.json",
-                        line=0,
-                        category="lockfile_points_to_missing_shared_skill",
-                        level=level,
-                        suggestion=(
-                            f"skills-lock.json lists managed skill '{name}' at "
-                            f"'.agents/skills/{name}/SKILL.md' but it does not exist"
-                        ),
-                    ))
+                managed_lock_entries[name] = validated
+
+    for name, entry in managed_lock_entries.items():
+        local_path = REPO_ROOT / ".agents" / "skills" / str(entry["skillPath"])
+        if not local_path.is_file():
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path="skills-lock.json",
+                line=0,
+                category="lockfile_points_to_missing_shared_skill",
+                level=level,
+                suggestion=(
+                    f"skills-lock.json lists managed skill '{name}' at "
+                    f"'.agents/skills/{entry['skillPath']}' but it does not exist"
+                ),
+            ))
+            continue
+        actual_blob = _git_blob_sha(local_path)
+        if actual_blob != entry["localBlob"]:
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path=str(local_path.relative_to(REPO_ROOT)),
+                line=0,
+                category="managed_local_blob_mismatch",
+                level=level,
+                suggestion=(
+                    f"lockfile local blob is {entry['localBlob']} but current blob is {actual_blob}; "
+                    "do not edit managed community skill bodies without updating provenance"
+                ),
+            ))
+
+        for support in entry.get("supportFiles", []):
+            support_path = REPO_ROOT / str(support["localPath"])
+            if not support_path.is_file():
+                result.findings.append(Finding(
+                    check="skill-provenance",
+                    path="skills-lock.json",
+                    line=0,
+                    category="lockfile_points_to_missing_support_file",
+                    level=level,
+                    suggestion=(
+                        f"skills-lock.json lists managed support file '{support['localPath']}' "
+                        "but it does not exist"
+                    ),
+                ))
+                continue
+            actual_support_blob = _git_blob_sha(support_path)
+            if actual_support_blob != support["localBlob"]:
+                result.findings.append(Finding(
+                    check="skill-provenance",
+                    path=str(support["localPath"]),
+                    line=0,
+                    category="managed_support_file_blob_mismatch",
+                    level=level,
+                    suggestion=(
+                        f"lockfile local blob is {support['localBlob']} but current blob is {actual_support_blob}; "
+                        "do not edit managed community support files without updating provenance"
+                    ),
+                ))
 
     for name, entry in vendored_lock_entries.items():
         local_path = REPO_ROOT / str(entry["localPath"])

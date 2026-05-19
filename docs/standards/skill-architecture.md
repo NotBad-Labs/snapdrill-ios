@@ -86,8 +86,8 @@ These are migration candidates only after frontmatter and references are reviewe
    - It does not rely on Claude-only hooks, `context: fork`, private Claude paths, or Claude-specific `allowed-tools` semantics.
    - It has no destructive script behavior.
    - Claude Code discovery is preserved by either a physical adapter copy or an explicit verified fallback.
-5. A community-maintained skill may move to `.agents/skills/` only after `skill-source-ledger.md` records ownership policy and `skills-lock.json` records upstream source, source type, upstream commit/path/blob, local path/blob, and patch status. Do not edit community skill bodies directly for project preferences.
-6. `skills-lock.json` tracks managed `.agents/skills/` dependencies only. It is not an inventory for `.claude/skills/`.
+5. A community-maintained skill may move to `.agents/skills/` only after `skill-source-ledger.md` records ownership policy and `skills-lock.json` records upstream source plus a locally verifiable integrity boundary. Vendored skills must record upstream commit/path/blob, local path/blob, and patch status. Managed skills must record local entry/support-file blobs in addition to their installer metadata. Do not edit community skill bodies directly for project preferences.
+6. `skills-lock.json` tracks managed and vendored `.agents/skills/` dependencies only. It is not an inventory for `.claude/skills/`.
 
 ## Verification
 

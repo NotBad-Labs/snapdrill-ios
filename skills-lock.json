@@ -6,21 +6,270 @@
       "source": "twostraws/Swift-Concurrency-Agent-Skill",
       "sourceType": "github",
       "skillPath": "swift-concurrency-pro/SKILL.md",
-      "computedHash": "db6c88d8da1a264188a2ad826a0ed73d227384315b27e47f3bb6b78ca1a3df40"
+      "computedHash": "db6c88d8da1a264188a2ad826a0ed73d227384315b27e47f3bb6b78ca1a3df40",
+      "localBlob": "5549099b5473626ad78da0c61546706f3ea6b30d",
+      "supportFiles": [
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/.claude-plugin/plugin.json",
+          "localBlob": "c51614d1ba239add1f38ea724c9e1d0dbc5b8bff"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/agents/openai.yaml",
+          "localBlob": "4fd130ffe4ec9dbfa155c41c84669a4824ef4502"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/assets/swift-concurrency-pro-icon.png",
+          "localBlob": "9124017f93cb8ee8e15383a91fcb396eb0409b07"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/assets/swift-concurrency-pro-icon.svg",
+          "localBlob": "b7908f27f0b7e7b4adc8855021e900f086fa996a"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/actors.md",
+          "localBlob": "aea5bfdca37c1d995a7898b54636e63863b8b833"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/async-streams.md",
+          "localBlob": "4f345553d4ca2a54cf7bb080679d873ef3230dba"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/bridging.md",
+          "localBlob": "1dbcfc44470207554ae29b49a6786805c68b835e"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/bug-patterns.md",
+          "localBlob": "1f66e60c68d3a6e0fd109cf9884c83fcdf23b39f"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/cancellation.md",
+          "localBlob": "cdbb82ec14a1bc918a9e530f3496c5538504d55c"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/diagnostics.md",
+          "localBlob": "e1bca7d8b1984ccfee00fbd0d6c23f205b289d7c"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/hotspots.md",
+          "localBlob": "50041984e0914f1dbc15d1d1d009cec38ae5549d"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/interop.md",
+          "localBlob": "ce7f24aaa5095edec60b210ea9ede89dbdf5d55e"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/new-features.md",
+          "localBlob": "52a67fd290b6dda0d76c0c91b9fb8b52bbca0d24"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/structured.md",
+          "localBlob": "ca68b24f8802e9a116d5986da4fbc20fa4fd1091"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/testing.md",
+          "localBlob": "97cbcbe4b0060fd825f219bb444d9676863bf8a3"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/references/unstructured.md",
+          "localBlob": "efe905e8265015ba520d83f2d7599bebff211215"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/SKILL.md",
+          "localBlob": "8f005e5bdb3ef4c368caba96ab62448d587b1061"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/actors.md",
+          "localBlob": "aea5bfdca37c1d995a7898b54636e63863b8b833"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/async-streams.md",
+          "localBlob": "4f345553d4ca2a54cf7bb080679d873ef3230dba"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/bridging.md",
+          "localBlob": "1dbcfc44470207554ae29b49a6786805c68b835e"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/bug-patterns.md",
+          "localBlob": "1f66e60c68d3a6e0fd109cf9884c83fcdf23b39f"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/cancellation.md",
+          "localBlob": "cdbb82ec14a1bc918a9e530f3496c5538504d55c"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/diagnostics.md",
+          "localBlob": "e1bca7d8b1984ccfee00fbd0d6c23f205b289d7c"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/hotspots.md",
+          "localBlob": "50041984e0914f1dbc15d1d1d009cec38ae5549d"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/interop.md",
+          "localBlob": "ce7f24aaa5095edec60b210ea9ede89dbdf5d55e"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/new-features.md",
+          "localBlob": "52a67fd290b6dda0d76c0c91b9fb8b52bbca0d24"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/structured.md",
+          "localBlob": "ca68b24f8802e9a116d5986da4fbc20fa4fd1091"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/testing.md",
+          "localBlob": "97cbcbe4b0060fd825f219bb444d9676863bf8a3"
+        },
+        {
+          "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/unstructured.md",
+          "localBlob": "efe905e8265015ba520d83f2d7599bebff211215"
+        }
+      ]
     },
     "swiftdata-pro": {
       "kind": "managed",
       "source": "twostraws/SwiftData-Agent-Skill",
       "sourceType": "github",
       "skillPath": "swiftdata-pro/SKILL.md",
-      "computedHash": "2f979bad98ea3a6744084c5f93e27897f02e8d0ffe15dd03042e88aaae4da14c"
+      "computedHash": "2f979bad98ea3a6744084c5f93e27897f02e8d0ffe15dd03042e88aaae4da14c",
+      "localBlob": "83735a31b8b58e3d8087e188fc858733807decde",
+      "supportFiles": [
+        {
+          "localPath": ".agents/skills/swiftdata-pro/agents/openai.yaml",
+          "localBlob": "24cb6400091b888aa5ca01f497cbe5806344f3e4"
+        },
+        {
+          "localPath": ".agents/skills/swiftdata-pro/assets/swiftdata-pro-icon.png",
+          "localBlob": "149337a17d830edcaa83cebbf5015493af59bd7c"
+        },
+        {
+          "localPath": ".agents/skills/swiftdata-pro/assets/swiftdata-pro-icon.svg",
+          "localBlob": "63da2c64fd5b312a1fe791837009afb2679d32dc"
+        },
+        {
+          "localPath": ".agents/skills/swiftdata-pro/references/class-inheritance.md",
+          "localBlob": "d64d8d4670bb6356476ef35ff2550f899227fc4d"
+        },
+        {
+          "localPath": ".agents/skills/swiftdata-pro/references/cloudkit.md",
+          "localBlob": "f08de639727aca20484538355e1b9efc24abc2a2"
+        },
+        {
+          "localPath": ".agents/skills/swiftdata-pro/references/core-rules.md",
+          "localBlob": "647894adb5dc9a2e8111ad2d33438f523df7052f"
+        },
+        {
+          "localPath": ".agents/skills/swiftdata-pro/references/indexing.md",
+          "localBlob": "8e9dadfd91e9d357af6cc301ae8ff0f59f64c7e7"
+        },
+        {
+          "localPath": ".agents/skills/swiftdata-pro/references/predicates.md",
+          "localBlob": "b4cf2a362b142fac66142d1fa5c2acb4dfb8e45d"
+        }
+      ]
     },
     "swiftui-pro": {
       "kind": "managed",
       "source": "twostraws/swiftui-agent-skill",
       "sourceType": "github",
       "skillPath": "swiftui-pro/SKILL.md",
-      "computedHash": "07033426e384295a4b49cf0b2ffdefd4098cae4af53fef16bc1f2d9281118c41"
+      "computedHash": "07033426e384295a4b49cf0b2ffdefd4098cae4af53fef16bc1f2d9281118c41",
+      "localBlob": "f6015f2bfbd7c11ed4457a32ceba05e23ef340ee",
+      "supportFiles": [
+        {
+          "localPath": ".agents/skills/swiftui-pro/.claude-plugin/plugin.json",
+          "localBlob": "ddf854bcef2c0d91357e4375cfbcbef24f113195"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/agents/openai.yaml",
+          "localBlob": "bace09e9a3d24e1a913797b8b32077f897d3f67f"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/assets/swiftui-pro-icon.png",
+          "localBlob": "11db253c2b4093ae3bc2b96d530a0767f40ac33f"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/assets/swiftui-pro-icon.svg",
+          "localBlob": "165c889fa8c05340b83bc42d75cd1439c19f161e"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/references/accessibility.md",
+          "localBlob": "2589e27375c050cccb686168aa0e6f9e934af4d8"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/references/api.md",
+          "localBlob": "bfd5199bdadce3abdc0b363eeede6a3ac5b1e723"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/references/data.md",
+          "localBlob": "952571f8d07f0b4af662a39f7161a185be87ba5b"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/references/design.md",
+          "localBlob": "4a8ba0c4f693512d5fd55783c08737751ebeea9d"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/references/hygiene.md",
+          "localBlob": "80bc9c5f5fcda3529a9b8962d470a944ac463f07"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/references/navigation.md",
+          "localBlob": "44b402565600a787def2237f9fbe15c3614df397"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/references/performance.md",
+          "localBlob": "72c5a037df7f903880d61520632682f51719ddaf"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/references/swift.md",
+          "localBlob": "92f32b1b5829e3c2dfa319def786e4234f97864f"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/references/views.md",
+          "localBlob": "880a6051f32afa0ae988be646ba0848099992368"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/SKILL.md",
+          "localBlob": "65ddf4b50cef8a4efe27acf7c3724ffc33f022f2"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/references/accessibility.md",
+          "localBlob": "2589e27375c050cccb686168aa0e6f9e934af4d8"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/references/api.md",
+          "localBlob": "bfd5199bdadce3abdc0b363eeede6a3ac5b1e723"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/references/data.md",
+          "localBlob": "952571f8d07f0b4af662a39f7161a185be87ba5b"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/references/design.md",
+          "localBlob": "4a8ba0c4f693512d5fd55783c08737751ebeea9d"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/references/hygiene.md",
+          "localBlob": "80bc9c5f5fcda3529a9b8962d470a944ac463f07"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/references/navigation.md",
+          "localBlob": "44b402565600a787def2237f9fbe15c3614df397"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/references/performance.md",
+          "localBlob": "72c5a037df7f903880d61520632682f51719ddaf"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/references/swift.md",
+          "localBlob": "92f32b1b5829e3c2dfa319def786e4234f97864f"
+        },
+        {
+          "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/references/views.md",
+          "localBlob": "880a6051f32afa0ae988be646ba0848099992368"
+        }
+      ]
     },
     "accessibility-generator": {
       "kind": "vendored",

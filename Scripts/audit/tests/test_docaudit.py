@@ -517,6 +517,30 @@ class DocauditTestCase(unittest.TestCase):
             encoding="utf-8",
         )
 
+    def _write_managed_lock_entry(
+        self,
+        skill: str,
+        local_blob: str,
+        support_files: list[dict[str, str]] | None = None,
+        omit: str | None = None,
+    ) -> None:
+        entry: dict[str, object] = {
+            "kind": "managed",
+            "source": "owner/repo",
+            "sourceType": "github",
+            "skillPath": f"{skill}/SKILL.md",
+            "computedHash": "0" * 64,
+            "localBlob": local_blob,
+        }
+        if support_files is not None:
+            entry["supportFiles"] = support_files
+        if omit is not None:
+            entry.pop(omit)
+        (self.repo / "skills-lock.json").write_text(
+            json.dumps({"version": 1, "skills": {skill: entry}}, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
     def test_skill_provenance_clean_with_vendored_ledger_row(self) -> None:
         vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
         vendored.parent.mkdir()
@@ -550,24 +574,84 @@ class DocauditTestCase(unittest.TestCase):
         managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
         managed.parent.mkdir()
         managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
-        (self.repo / "skills-lock.json").write_text(
-            json.dumps({
-                "version": 1,
-                "skills": {
-                    "managed": {
-                        "kind": "managed",
-                        "source": "owner/repo",
-                        "sourceType": "github",
-                        "skillPath": "managed/SKILL.md",
-                        "computedHash": "0" * 64,
-                    },
-                },
-            }) + "\n",
-            encoding="utf-8",
-        )
+        self._write_managed_lock_entry("managed", docaudit._git_blob_sha(managed))
         policy = _write_policy(self.tmp)
         code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
         self.assertEqual(code, 0, out)
+
+    def test_skill_provenance_managed_lockfile_missing_local_blob_is_schema_error(self) -> None:
+        managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
+        managed.parent.mkdir()
+        managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
+        self._write_managed_lock_entry("managed", docaudit._git_blob_sha(managed), omit="localBlob")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("field 'localBlob' must be a non-empty string", out)
+
+    def test_skill_provenance_managed_lockfile_blob_mismatch_blocks_silent_edit(self) -> None:
+        managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
+        managed.parent.mkdir()
+        managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
+        self._write_managed_lock_entry("managed", "fedcba9876543210fedcba9876543210fedcba98")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("managed_local_blob_mismatch", out)
+
+    def test_skill_provenance_managed_support_file_blob_mismatch(self) -> None:
+        managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
+        managed.parent.mkdir()
+        managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
+        support = managed.parent / "references" / "support.md"
+        support.parent.mkdir()
+        support.write_text("# Support\n", encoding="utf-8")
+        self._write_managed_lock_entry(
+            "managed",
+            docaudit._git_blob_sha(managed),
+            support_files=[{
+                "localPath": ".agents/skills/managed/references/support.md",
+                "localBlob": "fedcba9876543210fedcba9876543210fedcba98",
+            }],
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("managed_support_file_blob_mismatch", out)
+
+    def test_skill_provenance_managed_support_file_missing_is_explicit(self) -> None:
+        managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
+        managed.parent.mkdir()
+        managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
+        self._write_managed_lock_entry(
+            "managed",
+            docaudit._git_blob_sha(managed),
+            support_files=[{
+                "localPath": ".agents/skills/managed/references/missing.md",
+                "localBlob": "fedcba9876543210fedcba9876543210fedcba98",
+            }],
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("lockfile_points_to_missing_support_file", out)
+
+    def test_skill_provenance_managed_support_file_must_stay_in_skill_dir(self) -> None:
+        managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
+        managed.parent.mkdir()
+        managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
+        self._write_managed_lock_entry(
+            "managed",
+            docaudit._git_blob_sha(managed),
+            support_files=[{
+                "localPath": "docs/standards/skill-source-ledger.md",
+                "localBlob": "fedcba9876543210fedcba9876543210fedcba98",
+            }],
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("managed_support_path_out_of_scope", out)
 
     def test_skill_provenance_lockfile_unknown_kind_does_not_exempt_shared_skill(self) -> None:
         managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
