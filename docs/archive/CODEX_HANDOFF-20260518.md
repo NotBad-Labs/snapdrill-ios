@@ -1,3 +1,12 @@
+---
+last_verified: 2026-05-19
+layer: archive
+status: archived
+reason: "5/18 Codex 接手任务的 P1-1~P1-6 已全部闭环（commit f40fcdcf 等）；52-doc audit ledger 已从 PENDING 推进到 47/4/1/0；保留作历史溯源"
+---
+
+> ⚠️ **已归档**：本 handoff 是 5/18 Codex 接手文档审计修复任务的现场状态，所有 P1 项已闭环（Phase 5.4 finding G）。
+
 # Codex 接手 — 文档审计修复（2026-05-18）
 
 ## 背景

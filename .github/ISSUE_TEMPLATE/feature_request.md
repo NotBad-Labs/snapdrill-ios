@@ -12,7 +12,7 @@ assignees: ""
 
 ## 用户场景
 
-<!-- 这个功能解决什么问题？对应 product-requirements.md「用户旅程」中的哪个旅程？ -->
+<!-- 这个功能解决什么问题？对应 docs/product/product-journeys.md 中的哪个旅程（旅程 0-7）？ -->
 
 ## MoSCoW
 

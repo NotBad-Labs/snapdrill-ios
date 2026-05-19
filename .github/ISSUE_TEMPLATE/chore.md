@@ -40,9 +40,10 @@ assignees: ""
    When [用户操作]
    Then [预期结果]
 
-## Sprint Contract（Appetite >= Small 时必填）
+## Sprint Contract（Appetite >= Medium 时必填；Small 可简化为 Touches/No-Touch/DoD 三条）
 
 <!-- 详见 docs/workflow.md 《编码前契约》；由 Claude 在开工前 Issue comment 回填 -->
+<!-- trivial 改动（单行 typo/注释/日志，不改行为/接口/测试）豁免 -->
 
 - **Touches**：会修改哪些文件
 - **No-Touch**：显式不动哪些文件

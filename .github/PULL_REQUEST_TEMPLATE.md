@@ -39,7 +39,7 @@ Closes #
 ### 文档同步
 
 - [ ] `product-requirements.md` 已更新（如有新增功能）
-- [ ] `api-reference.md` 已更新（如有新增/变更 public 接口）
+- [ ] `architecture.md` 已更新（如新增/移除/重命名模块）
 - [ ] 新增第三方库已更新开源许可展示
 - [ ] 合并后立即更新 `STATUS.md`
 

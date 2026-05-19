@@ -2,7 +2,7 @@
 
 **Firebase 基础设施实现层 (Firebase Infrastructure Implementation)**
 
-`SnapDrillInfrastructure` 持有所有 Firebase SDK 依赖，封装 Analytics、Crashlytics（Remote Config 已移除，详见 \[ADR-002\] 与 #699 epic 隐私决策）。是唯一允许 `import Firebase` 的包。
+`SnapDrillInfrastructure` 持有所有 Firebase SDK 依赖，封装 Analytics、Crashlytics（Remote Config 已移除——决策来源：#699 epic 隐私决策；ADR-002 是相邻的 ATT 移除决策）。是唯一允许 `import Firebase` 的包。
 
 依赖方向：`SnapDrill/App` ──► `SnapDrillInfrastructure` ──► `SnapDrillCore`
 

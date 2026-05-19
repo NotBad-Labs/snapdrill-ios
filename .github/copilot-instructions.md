@@ -1,1 +1,1 @@
-../.agent/skills/snapdrill-swift-standards/SKILL.md
+../AGENTS.md

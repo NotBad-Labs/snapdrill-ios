@@ -16,7 +16,9 @@
 | `skill-inventory` | `.claude/skills` / `.agents/skills` 计数与 Claude adapter 指向 |
 | `skill-links` | 共享 skill 源内相对 Markdown 引用 broken |
 | `skill-provenance` | 共享 community skill 来源与本地 blob 是否被结构化 lockfile / legacy ledger 覆盖；ledger 中 Claude-only community skill 的本地 blob 是否未漂移 |
-| `all` | 以上 8 项 + `frontmatter`（subprocess 调用 `Scripts/validate_frontmatter.py`），共 9 个检查 |
+| `verdict-sync` | audit-ledger verdict 分布声明跨文件漂移（同一标签出现多个 distinct 数字；行级关键词 'Final 分布/终态' 锚定） |
+| `external-gap-expiry` | VALID_WITH_GAP 文件 frontmatter 必须含结构化 `gap_type` / `gap_due` / `gap_owner` 字段 |
+| `all` | 以上 10 项 + `frontmatter`（subprocess 调用 `Scripts/validate_frontmatter.py`），共 11 个检查 |
 
 ## 用法
 
@@ -91,7 +93,7 @@ Phase C 每个清理 PR 应从 `legacy_whitelist` 移除对应条目，直到全
 ### 文本 summary（stdout，人类可读）
 
 ```
-docaudit: 9 checks, 4 categories with findings
+docaudit: 11 checks, 4 categories with findings
 
 [frontmatter]          clean
 [links]                clean
