@@ -97,7 +97,9 @@ Required sequence:
 7. Set `patchStatus` deliberately:
    - `exact-upstream`: local blob equals upstream blob.
    - `frontmatter-adapter-only`: body is upstream content and only portable frontmatter differs.
-   - `documented-local-patch`: requires a separate patch rationale before merge.
+   - `documented-local-patch`: local skill or support-file content intentionally differs from upstream and must include `patchRationale`.
+
+   `patchRationale` must point to `docs/standards/skill-patches/<skill>.md`. That file must include `Reason:`, `Upstream status:`, and `Removal condition:` fields so the local patch has a named owner and an exit path. If local patches accumulate or become product-specific, stop treating the skill as community-maintained and review whether it has become a project-owned fork.
 8. Run:
 
    ```bash

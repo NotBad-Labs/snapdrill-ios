@@ -491,6 +491,8 @@ class DocauditTestCase(unittest.TestCase):
         skill: str,
         local_blob: str,
         support_files: list[dict[str, str]] | None = None,
+        patch_status: str = "frontmatter-adapter-only",
+        patch_rationale: str | None = None,
         omit: str | None = None,
     ) -> None:
         entry: dict[str, object] = {
@@ -502,8 +504,10 @@ class DocauditTestCase(unittest.TestCase):
             "upstreamBlob": "0123456789abcdef0123456789abcdef01234567",
             "localPath": f".agents/skills/{skill}/SKILL.md",
             "localBlob": local_blob,
-            "patchStatus": "frontmatter-adapter-only",
+            "patchStatus": patch_status,
         }
+        if patch_rationale is not None:
+            entry["patchRationale"] = patch_rationale
         if support_files is not None:
             entry["supportFiles"] = support_files
         if omit is not None:
@@ -624,7 +628,7 @@ class DocauditTestCase(unittest.TestCase):
             support_files=[{
                 "localPath": ".agents/skills/vendored/support.md",
                 "upstreamPath": "skills/vendored/support.md",
-                "upstreamBlob": "0123456789abcdef0123456789abcdef01234567",
+                "upstreamBlob": "fedcba9876543210fedcba9876543210fedcba98",
                 "localBlob": "fedcba9876543210fedcba9876543210fedcba98",
             }],
         )
@@ -632,6 +636,99 @@ class DocauditTestCase(unittest.TestCase):
         code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
         self.assertEqual(code, 1, out)
         self.assertIn("support_file_blob_mismatch", out)
+
+    def test_skill_provenance_vendored_support_file_drift_requires_documented_patch(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        support = vendored.parent / "support.md"
+        support.write_text("# Support\n", encoding="utf-8")
+        support_blob = docaudit._git_blob_sha(support)
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            support_files=[{
+                "localPath": ".agents/skills/vendored/support.md",
+                "upstreamPath": "skills/vendored/support.md",
+                "upstreamBlob": "0123456789abcdef0123456789abcdef01234567",
+                "localBlob": support_blob,
+            }],
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("supportFiles localBlob differs from upstreamBlob", out)
+
+    def test_skill_provenance_vendored_support_file_drift_accepts_documented_patch(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        support = vendored.parent / "support.md"
+        support.write_text("# Support\n", encoding="utf-8")
+        support_blob = docaudit._git_blob_sha(support)
+        rationale = self.repo / "docs" / "standards" / "skill-patches" / "vendored.md"
+        rationale.parent.mkdir(parents=True)
+        rationale.write_text(
+            "# Vendored patch\n\n"
+            "Reason: support file needs local compatibility while upstream catches up.\n\n"
+            "Upstream status: upstream issue pending.\n\n"
+            "Removal condition: delete after upstream release includes the support fix.\n",
+            encoding="utf-8",
+        )
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            support_files=[{
+                "localPath": ".agents/skills/vendored/support.md",
+                "upstreamPath": "skills/vendored/support.md",
+                "upstreamBlob": "0123456789abcdef0123456789abcdef01234567",
+                "localBlob": support_blob,
+            }],
+            patch_status="documented-local-patch",
+            patch_rationale="docs/standards/skill-patches/vendored.md",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
+
+    def test_skill_provenance_support_only_drift_accepts_documented_patch(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        skill_blob = docaudit._git_blob_sha(vendored)
+        support = vendored.parent / "support.md"
+        support.write_text("# Support\n", encoding="utf-8")
+        support_blob = docaudit._git_blob_sha(support)
+        rationale = self.repo / "docs" / "standards" / "skill-patches" / "vendored.md"
+        rationale.parent.mkdir(parents=True)
+        rationale.write_text(
+            "# Vendored patch\n\n"
+            "Reason: support file needs local compatibility while upstream catches up.\n\n"
+            "Upstream status: upstream issue pending.\n\n"
+            "Removal condition: delete after upstream release includes the support fix.\n",
+            encoding="utf-8",
+        )
+        self._write_vendored_lock_entry(
+            "vendored",
+            skill_blob,
+            support_files=[{
+                "localPath": ".agents/skills/vendored/support.md",
+                "upstreamPath": "skills/vendored/support.md",
+                "upstreamBlob": "0123456789abcdef0123456789abcdef01234567",
+                "localBlob": support_blob,
+            }],
+            patch_status="documented-local-patch",
+            patch_rationale="docs/standards/skill-patches/vendored.md",
+        )
+        lockfile = self.repo / "skills-lock.json"
+        payload = json.loads(lockfile.read_text(encoding="utf-8"))
+        payload["skills"]["vendored"]["upstreamBlob"] = skill_blob
+        lockfile.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
 
     def test_skill_provenance_vendored_lockfile_support_file_missing_is_explicit(self) -> None:
         vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
@@ -643,7 +740,7 @@ class DocauditTestCase(unittest.TestCase):
             support_files=[{
                 "localPath": ".agents/skills/vendored/missing.md",
                 "upstreamPath": "skills/vendored/missing.md",
-                "upstreamBlob": "0123456789abcdef0123456789abcdef01234567",
+                "upstreamBlob": "fedcba9876543210fedcba9876543210fedcba98",
                 "localBlob": "fedcba9876543210fedcba9876543210fedcba98",
             }],
         )
@@ -680,6 +777,165 @@ class DocauditTestCase(unittest.TestCase):
         code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
         self.assertEqual(code, 1, out)
         self.assertIn("invalid_vendored_lockfile_entry", out)
+
+    def test_skill_provenance_documented_patch_requires_rationale(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            patch_status="documented-local-patch",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("missing_vendored_patch_rationale", out)
+
+    def test_skill_provenance_non_patch_status_rejects_stale_rationale(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            patch_rationale="docs/standards/skill-patches/vendored.md",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("stale_vendored_patch_rationale", out)
+
+    def test_skill_provenance_documented_patch_rationale_must_stay_in_patch_dir(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            patch_status="documented-local-patch",
+            patch_rationale="docs/README.md",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("invalid_vendored_patch_rationale", out)
+
+    def test_skill_provenance_documented_patch_rationale_must_be_per_skill(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            patch_status="documented-local-patch",
+            patch_rationale="docs/standards/skill-patches/shared.md",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("invalid_vendored_patch_rationale", out)
+
+    def test_skill_provenance_documented_patch_requires_existing_rationale_file(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            patch_status="documented-local-patch",
+            patch_rationale="docs/standards/skill-patches/vendored.md",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("vendored_patch_rationale_missing", out)
+
+    def test_skill_provenance_documented_patch_rejects_incomplete_rationale_file(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        rationale = self.repo / "docs" / "standards" / "skill-patches" / "vendored.md"
+        rationale.parent.mkdir(parents=True)
+        rationale.write_text("# Vendored patch\n\nReason: local fix.\n", encoding="utf-8")
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            patch_status="documented-local-patch",
+            patch_rationale="docs/standards/skill-patches/vendored.md",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("incomplete_vendored_patch_rationale", out)
+
+    def test_skill_provenance_documented_patch_accepts_rationale_file(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        rationale = self.repo / "docs" / "standards" / "skill-patches" / "vendored.md"
+        rationale.parent.mkdir(parents=True)
+        rationale.write_text(
+            "# Vendored patch\n\n"
+            "Reason: local fix.\n\n"
+            "Upstream status: upstream issue pending.\n\n"
+            "Removal condition: delete after upstream release includes the fix.\n",
+            encoding="utf-8",
+        )
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            patch_status="documented-local-patch",
+            patch_rationale="docs/standards/skill-patches/vendored.md",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
+
+    def test_skill_provenance_documented_patch_rejects_unchanged_blob(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        local_blob = docaudit._git_blob_sha(vendored)
+        rationale = self.repo / "docs" / "standards" / "skill-patches" / "vendored.md"
+        rationale.parent.mkdir(parents=True)
+        rationale.write_text(
+            "# Vendored patch\n\n"
+            "Reason: local fix.\n\n"
+            "Upstream status: upstream issue pending.\n\n"
+            "Removal condition: delete after upstream release includes the fix.\n",
+            encoding="utf-8",
+        )
+        self._write_vendored_lock_entry(
+            "vendored",
+            local_blob,
+            patch_status="documented-local-patch",
+            patch_rationale="docs/standards/skill-patches/vendored.md",
+        )
+        lockfile = self.repo / "skills-lock.json"
+        payload = json.loads(lockfile.read_text(encoding="utf-8"))
+        payload["skills"]["vendored"]["upstreamBlob"] = local_blob
+        lockfile.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("patchStatus cannot be documented-local-patch", out)
+
+    def test_skill_provenance_frontmatter_adapter_rejects_unchanged_blob(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        local_blob = docaudit._git_blob_sha(vendored)
+        self._write_vendored_lock_entry("vendored", local_blob)
+        lockfile = self.repo / "skills-lock.json"
+        payload = json.loads(lockfile.read_text(encoding="utf-8"))
+        payload["skills"]["vendored"]["upstreamBlob"] = local_blob
+        lockfile.write_text(json.dumps(payload) + "\n", encoding="utf-8")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("patchStatus should be exact-upstream", out)
 
     def test_skill_provenance_invalid_lockfile_reports_single_schema_error(self) -> None:
         managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"

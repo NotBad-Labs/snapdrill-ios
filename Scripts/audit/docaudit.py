@@ -135,6 +135,7 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 LOCK_SOURCE_TYPES = {"github"}
 LOCK_KINDS = {"managed", "vendored"}
 LOCK_PATCH_STATUSES = {"documented-local-patch", "exact-upstream", "frontmatter-adapter-only"}
+VENDORED_PATCH_RATIONALE_PREFIX = "docs/standards/skill-patches/"
 MANAGED_LOCK_REQUIRED_FIELDS = (
     "source",
     "sourceType",
@@ -968,6 +969,68 @@ def _validate_vendored_lock_entry(
             f"skills-lock.json '{name}' patchStatus cannot be exact-upstream when localBlob differs",
         )
         return None
+    if entry["localBlob"] == entry["upstreamBlob"] and entry["patchStatus"] == "frontmatter-adapter-only":
+        _lockfile_schema_finding(
+            result,
+            "invalid_vendored_lockfile_entry",
+            f"skills-lock.json '{name}' patchStatus should be exact-upstream when localBlob equals upstreamBlob",
+        )
+        return None
+    if entry["patchStatus"] != "documented-local-patch" and "patchRationale" in entry:
+        _lockfile_schema_finding(
+            result,
+            "stale_vendored_patch_rationale",
+            f"skills-lock.json '{name}' patchRationale is only allowed for documented-local-patch",
+        )
+        return None
+    if entry["patchStatus"] == "documented-local-patch":
+        patch_rationale = entry.get("patchRationale")
+        if not isinstance(patch_rationale, str) or not patch_rationale:
+            _lockfile_schema_finding(
+                result,
+                "missing_vendored_patch_rationale",
+                f"skills-lock.json '{name}' documented-local-patch requires patchRationale",
+            )
+            return None
+        rationale_parts = Path(patch_rationale).parts
+        if (
+            Path(patch_rationale).is_absolute()
+            or ".." in rationale_parts
+            or not patch_rationale.startswith(VENDORED_PATCH_RATIONALE_PREFIX)
+            or patch_rationale != f"{VENDORED_PATCH_RATIONALE_PREFIX}{name}.md"
+            or not patch_rationale.endswith(".md")
+        ):
+            _lockfile_schema_finding(
+                result,
+                "invalid_vendored_patch_rationale",
+                (
+                    f"skills-lock.json '{name}' patchRationale must be "
+                    f"'{VENDORED_PATCH_RATIONALE_PREFIX}{name}.md'"
+                ),
+            )
+            return None
+        rationale_path = REPO_ROOT / patch_rationale
+        rationale_root = REPO_ROOT / VENDORED_PATCH_RATIONALE_PREFIX
+        if not rationale_path.is_file() or not rationale_path.resolve().is_relative_to(rationale_root.resolve()):
+            _lockfile_schema_finding(
+                result,
+                "vendored_patch_rationale_missing",
+                f"skills-lock.json '{name}' patchRationale points to missing file '{patch_rationale}'",
+            )
+            return None
+        rationale_text = rationale_path.read_text(encoding="utf-8")
+        required_markers = ("Reason:", "Upstream status:", "Removal condition:")
+        missing_markers = [marker for marker in required_markers if marker not in rationale_text]
+        if missing_markers:
+            _lockfile_schema_finding(
+                result,
+                "incomplete_vendored_patch_rationale",
+                (
+                    f"skills-lock.json '{name}' patchRationale must include: "
+                    f"{', '.join(required_markers)}"
+                ),
+            )
+            return None
 
     support_files = entry.get("supportFiles", [])
     if not isinstance(support_files, list):
@@ -978,6 +1041,7 @@ def _validate_vendored_lock_entry(
         )
         return None
 
+    has_support_file_drift = False
     for index, support in enumerate(support_files):
         if not isinstance(support, dict):
             _lockfile_schema_finding(
@@ -1015,6 +1079,30 @@ def _validate_vendored_lock_entry(
                 f"supportFiles[{index}]",
             ):
                 return None
+        if support["localBlob"] != support["upstreamBlob"]:
+            has_support_file_drift = True
+
+    if has_support_file_drift and entry["patchStatus"] != "documented-local-patch":
+        _lockfile_schema_finding(
+            result,
+            "invalid_vendored_lockfile_entry",
+            (
+                f"skills-lock.json '{name}' supportFiles localBlob differs from upstreamBlob; "
+                "patchStatus must be documented-local-patch"
+            ),
+        )
+        return None
+    if (
+        entry["localBlob"] == entry["upstreamBlob"]
+        and not has_support_file_drift
+        and entry["patchStatus"] == "documented-local-patch"
+    ):
+        _lockfile_schema_finding(
+            result,
+            "invalid_vendored_lockfile_entry",
+            f"skills-lock.json '{name}' patchStatus cannot be documented-local-patch when no local blob differs",
+        )
+        return None
 
     return entry
 
