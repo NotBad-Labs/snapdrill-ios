@@ -68,13 +68,16 @@ def read_files(file_paths: list[str], char_limit: int = 300_000) -> tuple[str, i
             parts.append(f"\n// 读取失败：{path} — {e}")
     return "".join(parts), included
 
-# 读取 Gemini 审查上下文
+# 可选：读取 Gemini 审查上下文
+# 当前未实现 .claude/gemini-context.md 文件；如未来需要 inline 项目约束，创建该文件即可被自动读取。
+# 否则 project_context 保持为空字符串（prompt 中相应段落被跳过，不污染 Gemini 输入）。
 context_path = ".claude/gemini-context.md"
+project_context = ""
 try:
     with open(context_path, "r", encoding="utf-8") as f:
         project_context = f.read()
 except FileNotFoundError:
-    project_context = "（未找到 .claude/gemini-context.md，请确保文件存在）"
+    pass  # 静默继续，不向 prompt 注入错误信息
 
 # 收集文件
 if phase == "tests":
@@ -131,12 +134,16 @@ phase_instructions = {
     ),
 }
 
-prompt = (
-    "你是一个经验丰富的 iOS Swift 代码审查专家。\n"
+context_section = (
     "以下是本项目的架构背景和约束说明，**请在审查前完整阅读**：\n\n"
     f"```\n{project_context}\n```\n\n"
     "---\n\n"
-    f"{phase_instructions.get(phase, phase_instructions['architecture'])}\n"
+) if project_context.strip() else ""
+
+prompt = (
+    "你是一个经验丰富的 iOS Swift 代码审查专家。\n"
+    + context_section
+    + f"{phase_instructions.get(phase, phase_instructions['architecture'])}\n"
     "**输出格式**：\n"
     "- 🔴 严重：必须修复\n"
     "- 🟡 警告：强烈建议修复\n"

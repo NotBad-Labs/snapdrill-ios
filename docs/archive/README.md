@@ -30,7 +30,12 @@ layer: pattern
 | `research/harness-engineering-study-20260418.md` | 2026-04-22（PR-α2） | `docs/research/` | Harness Engineering 三方研究，结论已固化到 workflow / skills |
 | `research/hermes-agent-study-20260418.md` | 2026-04-22（PR-α2） | `docs/research/` | Hermes agent 研究，结论已固化到 memory-routing / phase-closeout |
 | `audit-report-20260409.md` | 2026-04-17 | - | 历史审计报告（元信息见文件内注记） |
-| `timeline.md` | 2026-04-17 | - | 历史时间线 |
+| `timeline.md` | 2026-04-17 | - | 历史时间线（Phase 7.I 改 layer: snapshot → archive） |
+| `phase-e-pr-e4-reflow-20260422.md` | 2026-04-22 | - | Phase E PR-E4 首次反哺实战记录 |
+| `reference_codex_plugin_v104_upgrade.md` | 2026-05-19（Phase 2.5） | `docs/tech/reference/` | Codex plugin v1.0.4 升级记录，三方共识 STALE |
+| `CODEX_HANDOFF-20260518.md` | 2026-05-19（Phase 5 finding G） | 根级 `CODEX_HANDOFF.md` | 5/18 Codex 接手任务 P1-1~P1-6 全部已闭环 |
+| `ZERO_TRUST_AUDIT_20260513.md` | 2026-05-19（Phase 5 finding J） | `reports/` | 5/13 零信任代码审计完整报告，Step 1-8 已完成 |
+| `_claude__skills__phase-closeout__SKILL_md__*.md` | 2026-05-19（Phase 5 finding I） | `.agent-harness/proposals/` | Phase E PR-E2 自动生成的反哺 proposal 草稿，TODO 占位 27 天未推进 |
 
 ## 与 `~/.claude/plans/` 的区别
 

@@ -23,7 +23,7 @@ except ImportError:
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = REPO_ROOT / "docs"
-LAYER_ENUM = {"principle", "pattern", "snapshot", "archive", "decision"}
+LAYER_ENUM = {"principle", "pattern", "snapshot", "archive", "decision", "contract"}
 STATUS_ENUM = {"active", "archived", "deprecated"}
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 

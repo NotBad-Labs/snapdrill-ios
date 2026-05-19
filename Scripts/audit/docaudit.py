@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""知识体系审计引擎（Phase B PR-1）。
+"""知识体系审计引擎（Phase B PR-1 起；Phase 4 扩 verdict-sync + external-gap-expiry）。
 
 子命令：
   all                  运行全部 checks（含 frontmatter via subprocess）
@@ -11,6 +11,8 @@
   skill-inventory      skill 目录架构计数与 Claude adapter 指向
   skill-links          共享 skill 源内相对 Markdown 引用必须存在
   skill-provenance     共享 community skill 来源与本地 blob 必须被 ledger/lockfile 覆盖
+  verdict-sync         verdict 分布跨文件漂移（同标签多个 distinct 数字）
+  external-gap-expiry  VALID_WITH_GAP 文件 frontmatter 必须含 gap_type/gap_due/gap_owner
 
 详见 Scripts/audit/README.md 与 Scripts/audit/policy.yaml。
 
