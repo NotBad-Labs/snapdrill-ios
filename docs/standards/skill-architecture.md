@@ -122,6 +122,6 @@ python3 Scripts/audit/docaudit.py skill-provenance --strict
 ## Deferred Work
 
 - Review Claude-only `rshankras` skills one at a time before moving another community skill into `.agents/skills/`.
-- Define an intentional update workflow for lockfile-managed vendored skills, including upstream commit refresh, blob recomputation, and `docaudit skill-provenance`.
+- Use the `skill-source-ledger.md` vendored refresh workflow before updating any lockfile-managed community skill.
 - Verify whether the current Claude Code build discovers symlinked skill directories before using symlinks anywhere.
 - Decide whether a physical mirror script is needed only after a pilot proves manual duplication is painful.

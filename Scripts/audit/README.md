@@ -126,6 +126,26 @@ python3 -m unittest discover Scripts/audit/tests
 
 覆盖每个活跃子命令 ≥ 2 用例（正向 + 命中）+ `legacy_whitelist` schema 边界（无效日期 / 缺 reason / 未知 check → exit 2）+ `--strict` 摘要一致性 + stderr 镜像 + frontmatter subprocess 降级路径。
 
+## Vendored skill refresh report
+
+`skill_refresh_report.py` 是只读检查器，用于在更新 community skill 前比较 `skills-lock.json`、本地 `.agents/skills/`、以及一个 upstream checkout/tarball 解压目录：
+
+```bash
+python3 Scripts/audit/skill_refresh_report.py \
+  --upstream-root /private/tmp/rshankras-a4eb2f27 \
+  --strict
+```
+
+输出 TSV：`skill kind path upstream_commit expected_blob actual_blob status local_vs_upstream`。`status=changed/missing/out-of-scope/wrong-commit/schema` 表示本地、upstream 或 checkout revision 与 lockfile 不一致，需要先做 patch/update 决策；脚本不会复制或改写任何 skill 文件。
+
+`local_vs_upstream` 是额外提示，不替代 `status`：
+- `equal`：本地文件与 upstream 文件字节一致。
+- `frontmatter-only`：Markdown body 一致，仅 frontmatter 不同。
+- `body-diff`：正文不同，必须有明确 patch 决策。
+- `unavailable`：任一侧文件缺失或路径越界。
+
+本工具只覆盖 `skills-lock.json` 中的 `kind: vendored` shared skills。Claude-only community skills 由 `docaudit skill-provenance` 的 ledger blob 校验覆盖。
+
 ## 首轮基线缓冲
 
 `policy.yaml` 的 `legacy_whitelist` 当前仅保留 Phase A 孤儿候选 1 类过渡豁免。Phase C 每个清理 PR 同步从白名单移除对应条目，逐步收紧到全空。

@@ -71,6 +71,46 @@ As of the 2026-05-19 review, all 13 shared `rshankras` skill bodies match the fi
 
 `docaudit skill-provenance` enforces the lockfile local blob for every shared vendored copy. If a community skill body or support file changes, the gate fails until the change is reverted or explicitly recorded as a vendored patch decision.
 
+## Vendored Refresh Workflow
+
+Refreshing a community-maintained skill is an upstream sync, not a SnapDrill rewrite. Do not edit vendored skill bodies for local preferences during refresh.
+
+Required sequence:
+
+1. Fetch or extract the upstream repository snapshot to a temporary directory. For git checkouts, checkout the exact `upstreamCommit` recorded in `skills-lock.json`; `skill_refresh_report.py` reports `wrong-commit` when a git checkout HEAD does not match the lockfile.
+2. Run `skill_refresh_report.py` against that snapshot:
+
+   ```bash
+   python3 Scripts/audit/skill_refresh_report.py \
+     --upstream-root /private/tmp/rshankras-a4eb2f27 \
+     --strict
+   ```
+
+3. If the report is clean and `local_vs_upstream` is unchanged from the intended patch status, no refresh is needed.
+4. If upstream rows are `changed`, decide per skill whether to keep the existing pinned copy or update to the newer upstream content.
+5. If updating, copy upstream content exactly first. Apply only the portable `.agents` frontmatter adapter when needed; do not make SnapDrill-specific body edits.
+   - The adapter may remove Claude-specific frontmatter such as `allowed-tools`, `context`, `disable-model-invocation`, or `user-invocable`.
+   - The adapter may preserve portable fields such as `name` and `description`.
+   - The adapter must not change the Markdown body below the closing frontmatter marker.
+   - Keep LF line endings; unexpected CRLF conversion changes git blob hashes and must be treated as drift until explained.
+6. Recompute `skills-lock.json` `upstreamCommit`, `upstreamBlob`, `localBlob`, and `supportFiles` blobs for every changed file.
+7. Set `patchStatus` deliberately:
+   - `exact-upstream`: local blob equals upstream blob.
+   - `frontmatter-adapter-only`: body is upstream content and only portable frontmatter differs.
+   - `documented-local-patch`: requires a separate patch rationale before merge.
+8. Run:
+
+   ```bash
+   python3 Scripts/audit/skill_refresh_report.py --upstream-root <upstream-root> --strict
+   python3 Scripts/audit/docaudit.py skill-links --strict
+   python3 Scripts/audit/docaudit.py skill-provenance --strict
+   python3 Scripts/audit/docaudit.py all --strict --baseline
+   ```
+
+Do not promote a Claude-only community skill into `.agents/skills/` during a refresh unless that promotion is reviewed as its own migration.
+
+The refresh report only covers `kind: vendored` shared skills in `skills-lock.json`. Claude-only community skills are governed by the ledger rows in the next section and by `docaudit skill-provenance`.
+
 ## Current Claude-Only `rshankras` Skills
 
 These skills remain only in `.claude/skills/` and are not shared through `.agents/skills/`. They still count as community-maintained source unless a separate review classifies them as project-owned. `docaudit skill-provenance` enforces the `Current local blob` column and reports untracked Claude-only non-project skills, so tracked Claude-only community skills cannot be silently rewritten or added without provenance.
