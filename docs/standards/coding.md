@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-16
+last_verified: 2026-05-19
 layer: pattern
 ---
 # 编码规范（SwiftLint 管不到的规则）

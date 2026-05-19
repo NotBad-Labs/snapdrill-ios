@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-10
+last_verified: 2026-05-19
 layer: pattern
 ---
 # 委派共享约束（Canonical Source）

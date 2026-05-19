@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-21
+last_verified: 2026-05-19
 layer: pattern
 ---
 # 测试策略与执行规则

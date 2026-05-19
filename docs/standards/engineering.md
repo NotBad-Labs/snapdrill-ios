@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-10
+last_verified: 2026-05-19
 layer: principle
 ---
 # 工程哲学

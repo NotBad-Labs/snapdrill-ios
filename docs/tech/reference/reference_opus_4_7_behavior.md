@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: snapshot
 freshness:
   max_age_days: 60

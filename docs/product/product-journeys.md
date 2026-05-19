@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-09
+last_verified: 2026-05-19
 layer: pattern
 ---
 # SnapDrill 用户旅程

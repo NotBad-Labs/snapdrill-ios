@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: pattern
 ---
 # SnapDrill 部署与运维
