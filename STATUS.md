@@ -17,7 +17,7 @@ freshness:
 
 - **Phase 0**：接管 52-doc 审计成果，三方 verdict 提案汇总（cleanup-20260519-phase0-status.md）
 - **Phase 1**：SSOT 自洽体检 — 修 KNOWLEDGE_MAP §1 §4 跳号 + DOC_DEPENDENCY_MAP §1 缺号；补 audit-rubric / skill-source-ledger / standards/README 到 KM；软上限触线机制（commit f40fcdcf）
-- **Phase 2.1/2.2**：跑完 Gemini 5-batch verdict + 三方汇总裁决（cleanup-20260519-phase2-consensus.md）。Final 分布：31 VALID / 20 NEEDS_REVISION / 1 STALE
+- **Phase 2.1/2.2**：跑完 Gemini 5-batch verdict + 三方汇总裁决（cleanup-20260519-phase2-consensus.md）。Final 分布：47 VALID / 4 VALID_WITH_GAP / 1 STALE / 0 NEEDS_REVISION（A 组 / B 组 / C 组逐次闭环后的终态）
 - **Phase 2.3/2.5**：31 VALID 文件批量刷 last_verified；A019 reference_codex_plugin_v104 归档到 docs/archive/（commit bdb7cbc6）
 - **Phase 2.4 进行中**：20 个 NEEDS_REVISION 文档逐个修订
 

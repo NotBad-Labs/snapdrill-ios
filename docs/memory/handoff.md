@@ -21,19 +21,20 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 **已完成**：
 - Phase 0：接管 52-doc 审计成果，三方 verdict 提案汇总
 - Phase 1：SSOT 自洽体检（KM/Dep Map 编号补齐 + 漏列文件补全 + 软上限触线机制）
-- Phase 2.1/2.2：跑完 Gemini 5-batch verdict + 三方汇总裁决。Final：33 VALID / 1 VALID_WITH_GAP / 17 NEEDS_REVISION / 1 STALE
+- Phase 2.1/2.2：跑完 Gemini 5-batch verdict + 三方汇总裁决。Final 终态：47 VALID / 4 VALID_WITH_GAP / 1 STALE / 0 NEEDS_REVISION
 - Phase 2.3：31 VALID 文件批量刷 last_verified
 - Phase 2.4 部分：A 组（A014/A039/A048/A050）+ B 组（A007/A011/A015/A018/A020/A021/A030/A031/A032/A046）已修
 - Phase 2.5：A019 reference_codex_plugin_v104 归档
 
-**剩余 Phase 2.4 C 组**（5 文档需用户决策）：
-- A002 product-design — implemented/blocked 混杂如何处理
-- A003 product-requirements — implemented/blocked 混杂
-- A006 product-business — cancellation policy 处理
-- A034 ux-design — delete-confirmation tension
-- A051 CLAUDE — 与 AGENTS 冗余如何处理（合并 vs 各自精简）
+**Phase 2.4 C 组已闭环**：A002 / A003 / A006 / A034 / A051 全部修复落地（commit 5d8b904e）。
 
-**待启动**：Phase 3（跨文档结构性扫描 + DeepSeek 二意见）/ Phase 4（治理升级 + ADR-004）
+**Phase 3 已完成**（commit 18d59a7f + Codex second-opinion 反馈）：
+- 3.1 contradiction：0 真实 finding
+- 3.2 orphan 豁免：合理无收紧
+- 3.3 ghost ref：1 修复（permission-model §0）
+- 3.4 Codex 二意见：发现 verdict artifact drift（STATUS/handoff/ledger 三处数字不一致 — 本 commit 修），及 9 类未扫盲区候选 + 6 个 docaudit check 候选
+
+**待启动**：Phase 4（治理升级 + ADR-004）— 含 Codex 推荐的 6 个新 docaudit check 候选（verdict-sync / external-gap-expiry / ssot-cross-check / dep-map-reality / terminology-glossary / snapshot-freshness）
 
 ## 历史 Codex P1 修复（2026-05-18）
 
