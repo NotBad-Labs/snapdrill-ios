@@ -82,7 +82,7 @@ checks:
 
   skill-provenance:
     level: error
-    description: 共享 community skill 必须被 skills-lock.json、project-owned 白名单或 skill-source-ledger vendored snapshot 覆盖
+    description: 共享 community skill 必须被结构化 skills-lock.json、project-owned 白名单或 legacy skill-source-ledger snapshot 覆盖，vendored 条目必须校验 local blob
     # Only list skills that are genuinely SnapDrill-owned. This bypasses community
     # blob enforcement and must not be used to silence vendored-skill drift.
     project_owned: []

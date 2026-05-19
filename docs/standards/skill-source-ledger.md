@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: pattern
 ---
 # Skill Source Ledger
@@ -23,8 +23,8 @@ Rules:
 | Skill group | Skills | Upstream evidence | Current maintenance status |
 |---|---|---|---|
 | `twostraws` Swift skills | `swift-concurrency-pro`, `swiftdata-pro`, `swiftui-pro` | `skills-lock.json` records GitHub source, skill path, and computed hash; upstream repositories include `https://github.com/twostraws/swiftui-agent-skill` | Upstream-managed; tracked by lockfile |
-| `rshankras` App Store skills | `app-store-rejection`, `privacy-manifests`, `snapshot-testing`, `ui-review` | Commit `89901e7f` message: "安装 4 个 rshankras 社区 skill"; current identified upstream is `https://github.com/rshankras/claude-code-apple-skills` | Community source; not currently tracked by lockfile |
-| `rshankras` bulk Apple skills | `accessibility-generator`, `animation-patterns`, `app-description-writer`, `app-icon-generator`, `app-store-assets`, `attributed-string`, `background-processing`, `biometric-auth`, `characterization-test-generator`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `deep-linking`, `error-monitoring`, `integration-test-scaffold`, `keyword-optimizer`, `liquid-glass`, `localization-setup`, `migration-patterns`, `navigation-patterns`, `network-security`, `onboarding-generator`, `push-notifications`, `review-response-writer`, `screenshot-planner`, `secure-storage`, `settings-screen`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `test-contract`, `tipkit-generator` | Commit `14a263ee` message: "批量安装 28+8 个 rshankras 社区 skill"; current identified upstream is `https://github.com/rshankras/claude-code-apple-skills` | Community source; not currently tracked by lockfile |
+| `rshankras` shared Apple skills | `accessibility-generator`, `app-description-writer`, `attributed-string`, `characterization-test-generator`, `deep-linking`, `integration-test-scaffold`, `liquid-glass`, `navigation-patterns`, `privacy-manifests`, `push-notifications`, `review-response-writer`, `screenshot-planner`, `test-contract` | `skills-lock.json` records `kind: vendored`, upstream commit/path/blob, local path/blob, and patch status | Vendored community copies; lockfile-managed |
+| `rshankras` Claude-only skills | `app-store-rejection`, `animation-patterns`, `app-icon-generator`, `app-store-assets`, `background-processing`, `biometric-auth`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `error-monitoring`, `keyword-optimizer`, `localization-setup`, `migration-patterns`, `network-security`, `onboarding-generator`, `secure-storage`, `settings-screen`, `snapshot-testing`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `tipkit-generator`, `ui-review` | Commits `89901e7f` and `14a263ee`; current identified upstream is `https://github.com/rshankras/claude-code-apple-skills` | Community source; Claude-only until reviewed for portable shared use |
 
 Current upstream snapshot for `rshankras/claude-code-apple-skills`:
 
@@ -41,55 +41,35 @@ Current upstream snapshot for `rshankras/claude-code-apple-skills`:
 | `swift-concurrency-pro` | `.agents/skills/swift-concurrency-pro/SKILL.md` | Upstream-managed via `skills-lock.json` | Keep using lockfile |
 | `swiftdata-pro` | `.agents/skills/swiftdata-pro/SKILL.md` | Upstream-managed via `skills-lock.json` | Keep using lockfile |
 | `swiftui-pro` | `.agents/skills/swiftui-pro/SKILL.md` | Upstream-managed via `skills-lock.json` | Keep using lockfile |
-| `accessibility-generator` | `.agents/skills/accessibility-generator/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `app-description-writer` | `.agents/skills/app-description-writer/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `attributed-string` | `.agents/skills/attributed-string/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `characterization-test-generator` | `.agents/skills/characterization-test-generator/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `deep-linking` | `.agents/skills/deep-linking/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `integration-test-scaffold` | `.agents/skills/integration-test-scaffold/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `liquid-glass` | `.agents/skills/liquid-glass/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `navigation-patterns` | `.agents/skills/navigation-patterns/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `privacy-manifests` | `.agents/skills/privacy-manifests/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `push-notifications` | `.agents/skills/push-notifications/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `review-response-writer` | `.agents/skills/review-response-writer/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `screenshot-planner` | `.agents/skills/screenshot-planner/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
-| `test-contract` | `.agents/skills/test-contract/SKILL.md` | Vendored community copy from `rshankras`; local blob differs from current upstream | Convert to lockfile-managed vendored dependency or move back behind Claude-only discovery |
+| `accessibility-generator` | `.agents/skills/accessibility-generator/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `app-description-writer` | `.agents/skills/app-description-writer/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `attributed-string` | `.agents/skills/attributed-string/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `characterization-test-generator` | `.agents/skills/characterization-test-generator/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `deep-linking` | `.agents/skills/deep-linking/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `integration-test-scaffold` | `.agents/skills/integration-test-scaffold/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `liquid-glass` | `.agents/skills/liquid-glass/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `navigation-patterns` | `.agents/skills/navigation-patterns/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed, including support files | Keep using lockfile |
+| `privacy-manifests` | `.agents/skills/privacy-manifests/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `push-notifications` | `.agents/skills/push-notifications/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `review-response-writer` | `.agents/skills/review-response-writer/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `screenshot-planner` | `.agents/skills/screenshot-planner/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
+| `test-contract` | `.agents/skills/test-contract/SKILL.md` | Vendored community copy from `rshankras`; lockfile-managed | Keep using lockfile |
 
-## Current Shared `rshankras` Snapshot
+## Current Shared Vendored Snapshot
 
-| Skill | Upstream path at `a4eb2f27477783e04ea06b353d41c14136adc259` | Upstream blob | Local shared blob |
-|---|---|---|---|
-| `accessibility-generator` | `skills/generators/accessibility-generator/SKILL.md` | `42f68967c488e0ff8f58901d785ed1d9950bff61` | `4a441c92b4ac444352b1ef9ddcb15466d9a2b2b2` |
-| `app-description-writer` | `skills/app-store/app-description-writer/SKILL.md` | `9aef09490e42d85e3bc14ba5d05cccaa74be02ff` | `53152deaa8b89313ab9bf5451049b4cb1191268d` |
-| `attributed-string` | `skills/foundation/attributed-string/SKILL.md` | `6c1aad0fabc61a20b995a4d3e0fc7a50c2c064fb` | `ddaacc15c021b7697cf508a62ac6e8e4d08a17df` |
-| `characterization-test-generator` | `skills/testing/characterization-test-generator/SKILL.md` | `7768db1c762287ec70f7b5d6cd5b4d0cfe20dc8c` | `0aa6c32833036d4814a7639404b1448cfa36f140` |
-| `deep-linking` | `skills/generators/deep-linking/SKILL.md` | `09bdea74d50c8ebf593764ca7aa01edd302342d1` | `791df20a56b7de75cf9e17e3922ac4d383830269` |
-| `integration-test-scaffold` | `skills/testing/integration-test-scaffold/SKILL.md` | `58cf80f1f0ca60138ca84d8b75e084adfd3675f3` | `5bfeeabef2b3029ae692f4f819470ae1a0607024` |
-| `liquid-glass` | `skills/design/liquid-glass/SKILL.md` | `3b3db356c5b1f665809967416b186ed0bb77a0d9` | `107b7d2b526a71c3b3d1b746a4ab9c6fbc681942` |
-| `navigation-patterns` | `skills/ios/navigation-patterns/SKILL.md` | `8eff0583ac429c84188e5879f29a47e0da61fcfd` | `1cff3088a936d002380d1d25c223e3600a004881` |
-| `privacy-manifests` | `skills/security/privacy-manifests/SKILL.md` | `474de679156db10f587ab3a27d94f6c98c307f7d` | `f93776451d59fa4d85926978ae029827de6a61a6` |
-| `push-notifications` | `skills/generators/push-notifications/SKILL.md` | `181d8ce2aeddbae73d048b364aa62d1392e2ec08` | `50860973049c4617d6e7cbd17acc5b09a832ff3e` |
-| `review-response-writer` | `skills/app-store/review-response-writer/SKILL.md` | `16221ad1533749186d93e4cf80474fe38efc212f` | `c0b4897fd603fa56f49cd6d3e89599cc88948674` |
-| `screenshot-planner` | `skills/app-store/screenshot-planner/SKILL.md` | `c02abbea692e6cece6aebe8f8812117340fecf9f` | `436d56008c0dabb03728e41e203a1c29aff15ef0` |
-| `test-contract` | `skills/testing/test-contract/SKILL.md` | `10e24b84ce05bb71cb34d6e9c131d73d78fc3b49` | `3c091c96125635293c121f5225e10fa085427932` |
+`skills-lock.json` is the machine-readable source of truth for current shared vendored skills. For each `kind: vendored` entry it records:
 
-The differing blob hashes mean the shared copies are not byte-for-byte current upstream files. As of the 2026-05-18 review, all 13 shared `rshankras` skill bodies match the fixed upstream commit; the local difference is the `.agents` portable frontmatter, which omits Claude-specific `allowed-tools`.
+- upstream repository/source type
+- upstream commit, upstream path, and upstream blob
+- local shared path and local blob
+- patch status
+- support file upstream/local blobs when a skill references additional Markdown files
 
-`docaudit skill-provenance` enforces the `Local shared blob` column for every shared vendored copy. If a community skill body changes, the gate fails until the change is either reverted or explicitly recorded as a vendored patch decision.
+As of the 2026-05-19 review, all 13 shared `rshankras` skill bodies match the fixed upstream commit after applying the `.agents` portable frontmatter adapter. The adapter removes Claude-specific `allowed-tools`; it does not rewrite the skill body for SnapDrill preferences.
 
-## Current Shared Vendored Support Files
+`navigation-patterns` also carries upstream support files so its relative references remain resolvable without editing the community skill body. Those support file paths and blobs are tracked under its `supportFiles` lockfile entry.
 
-These files are copied from upstream to keep shared skill references resolvable without rewriting community skill bodies.
-
-| Skill | Local path | Upstream path | Upstream blob | Local blob |
-|---|---|---|---|---|
-| `navigation-patterns` | `.agents/skills/navigation-patterns/navigation-stack.md` | `skills/ios/navigation-patterns/navigation-stack.md` | `7f5614695838ef2950be591a35cbae19559cebbd` | `7f5614695838ef2950be591a35cbae19559cebbd` |
-| `navigation-patterns` | `.agents/skills/navigation-patterns/navigation-split-view.md` | `skills/ios/navigation-patterns/navigation-split-view.md` | `5eddb7865eb18471ec595c37d326218a701395f8` | `5eddb7865eb18471ec595c37d326218a701395f8` |
-| `navigation-patterns` | `.agents/skills/navigation-patterns/programmatic-navigation.md` | `skills/ios/navigation-patterns/programmatic-navigation.md` | `9d0bbaf41bc4a42ff6f34a1395c666bd15fb7a6c` | `9d0bbaf41bc4a42ff6f34a1395c666bd15fb7a6c` |
-| `navigation-patterns` | `.agents/skills/navigation-patterns/tab-view.md` | `skills/ios/navigation-patterns/tab-view.md` | `86f11d493303b0f59f1c72cca8c4d7f5488a4deb` | `86f11d493303b0f59f1c72cca8c4d7f5488a4deb` |
-| `navigation-patterns` | `.agents/skills/navigation-patterns/navigation-transitions.md` | `skills/ios/navigation-patterns/navigation-transitions.md` | `ab06e9e587a23c9a28835ddd209d5d8b2460599e` | `ab06e9e587a23c9a28835ddd209d5d8b2460599e` |
-| `navigation-patterns` | `.agents/skills/navigation-patterns/design/animation-patterns/transitions.md` | `skills/design/animation-patterns/transitions.md` | `66ebbeefaab3ca403c5adc0263fa9ebf39e7e428` | `66ebbeefaab3ca403c5adc0263fa9ebf39e7e428` |
-| `navigation-patterns` | `.agents/skills/navigation-patterns/macos/ui-review-tahoe/swiftui-macos.md` | `skills/macos/ui-review-tahoe/swiftui-macos.md` | `71c1cf4d254f4cdf8d00f5d2e4ee02b0e9fe4689` | `71c1cf4d254f4cdf8d00f5d2e4ee02b0e9fe4689` |
+`docaudit skill-provenance` enforces the lockfile local blob for every shared vendored copy. If a community skill body or support file changes, the gate fails until the change is reverted or explicitly recorded as a vendored patch decision.
 
 ## Current Claude-Only `rshankras` Skills
 
@@ -124,6 +104,5 @@ External reference points used for source identification:
 
 ## Open Questions
 
-- The exact local patch delta from current `rshankras` upstream has not yet been reviewed.
-- The already-vendored `rshankras` copies in `.agents/skills/` need a decision: keep as explicitly vendored copies with recorded patches, convert to lockfile-managed dependencies, or move back behind `.claude/skills/` until source tracking is complete.
-- `skills-lock.json` currently has no schema for `kind: vendored`, `upstreamCommit`, `upstreamBlob`, `localBlob`, or patch metadata.
+- Decide whether any Claude-only `rshankras` skill should be promoted to `.agents/skills/`; do this one skill at a time after upstream path/blob and references are reviewed.
+- Define a refresh workflow for checking whether `rshankras/claude-code-apple-skills` has a newer useful upstream commit before intentionally updating vendored blobs.

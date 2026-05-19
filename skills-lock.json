@@ -2,22 +2,212 @@
   "version": 1,
   "skills": {
     "swift-concurrency-pro": {
+      "kind": "managed",
       "source": "twostraws/Swift-Concurrency-Agent-Skill",
       "sourceType": "github",
       "skillPath": "swift-concurrency-pro/SKILL.md",
       "computedHash": "db6c88d8da1a264188a2ad826a0ed73d227384315b27e47f3bb6b78ca1a3df40"
     },
     "swiftdata-pro": {
+      "kind": "managed",
       "source": "twostraws/SwiftData-Agent-Skill",
       "sourceType": "github",
       "skillPath": "swiftdata-pro/SKILL.md",
       "computedHash": "2f979bad98ea3a6744084c5f93e27897f02e8d0ffe15dd03042e88aaae4da14c"
     },
     "swiftui-pro": {
+      "kind": "managed",
       "source": "twostraws/swiftui-agent-skill",
       "sourceType": "github",
       "skillPath": "swiftui-pro/SKILL.md",
       "computedHash": "07033426e384295a4b49cf0b2ffdefd4098cae4af53fef16bc1f2d9281118c41"
+    },
+    "accessibility-generator": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/generators/accessibility-generator/SKILL.md",
+      "upstreamBlob": "42f68967c488e0ff8f58901d785ed1d9950bff61",
+      "localPath": ".agents/skills/accessibility-generator/SKILL.md",
+      "localBlob": "4a441c92b4ac444352b1ef9ddcb15466d9a2b2b2",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "app-description-writer": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/app-store/app-description-writer/SKILL.md",
+      "upstreamBlob": "9aef09490e42d85e3bc14ba5d05cccaa74be02ff",
+      "localPath": ".agents/skills/app-description-writer/SKILL.md",
+      "localBlob": "53152deaa8b89313ab9bf5451049b4cb1191268d",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "attributed-string": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/foundation/attributed-string/SKILL.md",
+      "upstreamBlob": "6c1aad0fabc61a20b995a4d3e0fc7a50c2c064fb",
+      "localPath": ".agents/skills/attributed-string/SKILL.md",
+      "localBlob": "ddaacc15c021b7697cf508a62ac6e8e4d08a17df",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "characterization-test-generator": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/testing/characterization-test-generator/SKILL.md",
+      "upstreamBlob": "7768db1c762287ec70f7b5d6cd5b4d0cfe20dc8c",
+      "localPath": ".agents/skills/characterization-test-generator/SKILL.md",
+      "localBlob": "0aa6c32833036d4814a7639404b1448cfa36f140",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "deep-linking": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/generators/deep-linking/SKILL.md",
+      "upstreamBlob": "09bdea74d50c8ebf593764ca7aa01edd302342d1",
+      "localPath": ".agents/skills/deep-linking/SKILL.md",
+      "localBlob": "791df20a56b7de75cf9e17e3922ac4d383830269",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "integration-test-scaffold": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/testing/integration-test-scaffold/SKILL.md",
+      "upstreamBlob": "58cf80f1f0ca60138ca84d8b75e084adfd3675f3",
+      "localPath": ".agents/skills/integration-test-scaffold/SKILL.md",
+      "localBlob": "5bfeeabef2b3029ae692f4f819470ae1a0607024",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "liquid-glass": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/design/liquid-glass/SKILL.md",
+      "upstreamBlob": "3b3db356c5b1f665809967416b186ed0bb77a0d9",
+      "localPath": ".agents/skills/liquid-glass/SKILL.md",
+      "localBlob": "107b7d2b526a71c3b3d1b746a4ab9c6fbc681942",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "navigation-patterns": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/ios/navigation-patterns/SKILL.md",
+      "upstreamBlob": "8eff0583ac429c84188e5879f29a47e0da61fcfd",
+      "localPath": ".agents/skills/navigation-patterns/SKILL.md",
+      "localBlob": "1cff3088a936d002380d1d25c223e3600a004881",
+      "patchStatus": "frontmatter-adapter-only",
+      "supportFiles": [
+        {
+          "localPath": ".agents/skills/navigation-patterns/navigation-stack.md",
+          "upstreamPath": "skills/ios/navigation-patterns/navigation-stack.md",
+          "upstreamBlob": "7f5614695838ef2950be591a35cbae19559cebbd",
+          "localBlob": "7f5614695838ef2950be591a35cbae19559cebbd"
+        },
+        {
+          "localPath": ".agents/skills/navigation-patterns/navigation-split-view.md",
+          "upstreamPath": "skills/ios/navigation-patterns/navigation-split-view.md",
+          "upstreamBlob": "5eddb7865eb18471ec595c37d326218a701395f8",
+          "localBlob": "5eddb7865eb18471ec595c37d326218a701395f8"
+        },
+        {
+          "localPath": ".agents/skills/navigation-patterns/programmatic-navigation.md",
+          "upstreamPath": "skills/ios/navigation-patterns/programmatic-navigation.md",
+          "upstreamBlob": "9d0bbaf41bc4a42ff6f34a1395c666bd15fb7a6c",
+          "localBlob": "9d0bbaf41bc4a42ff6f34a1395c666bd15fb7a6c"
+        },
+        {
+          "localPath": ".agents/skills/navigation-patterns/tab-view.md",
+          "upstreamPath": "skills/ios/navigation-patterns/tab-view.md",
+          "upstreamBlob": "86f11d493303b0f59f1c72cca8c4d7f5488a4deb",
+          "localBlob": "86f11d493303b0f59f1c72cca8c4d7f5488a4deb"
+        },
+        {
+          "localPath": ".agents/skills/navigation-patterns/navigation-transitions.md",
+          "upstreamPath": "skills/ios/navigation-patterns/navigation-transitions.md",
+          "upstreamBlob": "ab06e9e587a23c9a28835ddd209d5d8b2460599e",
+          "localBlob": "ab06e9e587a23c9a28835ddd209d5d8b2460599e"
+        },
+        {
+          "localPath": ".agents/skills/navigation-patterns/design/animation-patterns/transitions.md",
+          "upstreamPath": "skills/design/animation-patterns/transitions.md",
+          "upstreamBlob": "66ebbeefaab3ca403c5adc0263fa9ebf39e7e428",
+          "localBlob": "66ebbeefaab3ca403c5adc0263fa9ebf39e7e428"
+        },
+        {
+          "localPath": ".agents/skills/navigation-patterns/macos/ui-review-tahoe/swiftui-macos.md",
+          "upstreamPath": "skills/macos/ui-review-tahoe/swiftui-macos.md",
+          "upstreamBlob": "71c1cf4d254f4cdf8d00f5d2e4ee02b0e9fe4689",
+          "localBlob": "71c1cf4d254f4cdf8d00f5d2e4ee02b0e9fe4689"
+        }
+      ]
+    },
+    "privacy-manifests": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/security/privacy-manifests/SKILL.md",
+      "upstreamBlob": "474de679156db10f587ab3a27d94f6c98c307f7d",
+      "localPath": ".agents/skills/privacy-manifests/SKILL.md",
+      "localBlob": "f93776451d59fa4d85926978ae029827de6a61a6",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "push-notifications": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/generators/push-notifications/SKILL.md",
+      "upstreamBlob": "181d8ce2aeddbae73d048b364aa62d1392e2ec08",
+      "localPath": ".agents/skills/push-notifications/SKILL.md",
+      "localBlob": "50860973049c4617d6e7cbd17acc5b09a832ff3e",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "review-response-writer": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/app-store/review-response-writer/SKILL.md",
+      "upstreamBlob": "16221ad1533749186d93e4cf80474fe38efc212f",
+      "localPath": ".agents/skills/review-response-writer/SKILL.md",
+      "localBlob": "c0b4897fd603fa56f49cd6d3e89599cc88948674",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "screenshot-planner": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/app-store/screenshot-planner/SKILL.md",
+      "upstreamBlob": "c02abbea692e6cece6aebe8f8812117340fecf9f",
+      "localPath": ".agents/skills/screenshot-planner/SKILL.md",
+      "localBlob": "436d56008c0dabb03728e41e203a1c29aff15ef0",
+      "patchStatus": "frontmatter-adapter-only"
+    },
+    "test-contract": {
+      "kind": "vendored",
+      "source": "rshankras/claude-code-apple-skills",
+      "sourceType": "github",
+      "upstreamCommit": "a4eb2f27477783e04ea06b353d41c14136adc259",
+      "upstreamPath": "skills/testing/test-contract/SKILL.md",
+      "upstreamBlob": "10e24b84ce05bb71cb34d6e9c131d73d78fc3b49",
+      "localPath": ".agents/skills/test-contract/SKILL.md",
+      "localBlob": "3c091c96125635293c121f5225e10fa085427932",
+      "patchStatus": "frontmatter-adapter-only"
     }
   }
 }

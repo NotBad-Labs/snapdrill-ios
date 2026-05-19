@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: pattern
 ---
 # Agent Skill Architecture
@@ -16,7 +16,7 @@ SnapDrill uses a two-layer skill model:
 | Claude adapter skills | `.claude/skills/` | Claude Code discovery path and Claude-only governance skills | Project, Claude adapter |
 | Claude local state | `~/.claude/`, `.claude/*.local`, `.claude/session-log.txt` | Personal preferences, local runtime state, transcripts | Private, not git |
 
-`.claude/skills/` is not private when it is tracked by git, but it is vendor-specific. Portable project-owned skills may move toward `.agents/skills/`; Claude-only skills stay in `.claude/skills/`. Community-maintained skills must follow `skill-source-ledger.md` before their bodies are copied, edited, or treated as project-owned.
+`.claude/skills/` is not private when it is tracked by git, but it is vendor-specific. Portable project-owned skills may move toward `.agents/skills/`; Claude-only skills stay in `.claude/skills/`. Community-maintained skills must be recorded in `skill-source-ledger.md` and machine-pinned in `skills-lock.json` before their bodies are copied, edited, or treated as shared dependencies.
 
 ## Current Inventory
 
@@ -37,19 +37,19 @@ Shared skills:
 | `swift-concurrency-pro` | `.agents/skills/swift-concurrency-pro/SKILL.md` | Tracked by `skills-lock.json`; existing Claude discovery entry is a symlink |
 | `swiftdata-pro` | `.agents/skills/swiftdata-pro/SKILL.md` | Tracked by `skills-lock.json`; existing Claude discovery entry is a symlink |
 | `swiftui-pro` | `.agents/skills/swiftui-pro/SKILL.md` | Tracked by `skills-lock.json`; existing Claude discovery entry is a symlink |
-| `accessibility-generator` | `.agents/skills/accessibility-generator/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/accessibility-generator/SKILL.md`; see `skill-source-ledger.md` |
-| `app-description-writer` | `.agents/skills/app-description-writer/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/app-description-writer/SKILL.md`; see `skill-source-ledger.md` |
-| `attributed-string` | `.agents/skills/attributed-string/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/attributed-string/SKILL.md`; see `skill-source-ledger.md` |
-| `characterization-test-generator` | `.agents/skills/characterization-test-generator/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/characterization-test-generator/SKILL.md`; see `skill-source-ledger.md` |
-| `deep-linking` | `.agents/skills/deep-linking/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/deep-linking/SKILL.md`; see `skill-source-ledger.md` |
-| `integration-test-scaffold` | `.agents/skills/integration-test-scaffold/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/integration-test-scaffold/SKILL.md`; see `skill-source-ledger.md` |
-| `liquid-glass` | `.agents/skills/liquid-glass/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/liquid-glass/SKILL.md`; see `skill-source-ledger.md` |
-| `navigation-patterns` | `.agents/skills/navigation-patterns/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/navigation-patterns/SKILL.md`; see `skill-source-ledger.md` |
-| `privacy-manifests` | `.agents/skills/privacy-manifests/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/privacy-manifests/SKILL.md`; see `skill-source-ledger.md` |
-| `push-notifications` | `.agents/skills/push-notifications/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/push-notifications/SKILL.md`; see `skill-source-ledger.md` |
-| `review-response-writer` | `.agents/skills/review-response-writer/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/review-response-writer/SKILL.md`; see `skill-source-ledger.md` |
-| `screenshot-planner` | `.agents/skills/screenshot-planner/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/screenshot-planner/SKILL.md`; see `skill-source-ledger.md` |
-| `test-contract` | `.agents/skills/test-contract/SKILL.md` | Vendored community copy; Claude adapter remains at `.claude/skills/test-contract/SKILL.md`; see `skill-source-ledger.md` |
+| `accessibility-generator` | `.agents/skills/accessibility-generator/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/accessibility-generator/SKILL.md` |
+| `app-description-writer` | `.agents/skills/app-description-writer/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/app-description-writer/SKILL.md` |
+| `attributed-string` | `.agents/skills/attributed-string/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/attributed-string/SKILL.md` |
+| `characterization-test-generator` | `.agents/skills/characterization-test-generator/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/characterization-test-generator/SKILL.md` |
+| `deep-linking` | `.agents/skills/deep-linking/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/deep-linking/SKILL.md` |
+| `integration-test-scaffold` | `.agents/skills/integration-test-scaffold/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/integration-test-scaffold/SKILL.md` |
+| `liquid-glass` | `.agents/skills/liquid-glass/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/liquid-glass/SKILL.md` |
+| `navigation-patterns` | `.agents/skills/navigation-patterns/SKILL.md` | Vendored community copy tracked by `skills-lock.json`, including support files; Claude adapter remains at `.claude/skills/navigation-patterns/SKILL.md` |
+| `privacy-manifests` | `.agents/skills/privacy-manifests/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/privacy-manifests/SKILL.md` |
+| `push-notifications` | `.agents/skills/push-notifications/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/push-notifications/SKILL.md` |
+| `review-response-writer` | `.agents/skills/review-response-writer/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/review-response-writer/SKILL.md` |
+| `screenshot-planner` | `.agents/skills/screenshot-planner/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/screenshot-planner/SKILL.md` |
+| `test-contract` | `.agents/skills/test-contract/SKILL.md` | Vendored community copy tracked by `skills-lock.json`; Claude adapter remains at `.claude/skills/test-contract/SKILL.md` |
 
 Claude governance skills:
 
@@ -86,7 +86,7 @@ These are migration candidates only after frontmatter and references are reviewe
    - It does not rely on Claude-only hooks, `context: fork`, private Claude paths, or Claude-specific `allowed-tools` semantics.
    - It has no destructive script behavior.
    - Claude Code discovery is preserved by either a physical adapter copy or an explicit verified fallback.
-5. A community-maintained skill may move to `.agents/skills/` only after `skill-source-ledger.md` records upstream source, source type, skill path, and hash or commit. Do not edit community skill bodies directly for project preferences.
+5. A community-maintained skill may move to `.agents/skills/` only after `skill-source-ledger.md` records ownership policy and `skills-lock.json` records upstream source, source type, upstream commit/path/blob, local path/blob, and patch status. Do not edit community skill bodies directly for project preferences.
 6. `skills-lock.json` tracks managed `.agents/skills/` dependencies only. It is not an inventory for `.claude/skills/`.
 
 ## Verification
@@ -121,7 +121,7 @@ python3 Scripts/audit/docaudit.py skill-provenance --strict
 
 ## Deferred Work
 
-- Review the already-vendored `rshankras` shared copies in `skill-source-ledger.md` before moving another community skill.
-- Decide whether existing vendored community copies should stay in `.agents/skills/` with recorded local patches, become lockfile-managed exact upstream dependencies, or move back behind `.claude/skills/`.
+- Review Claude-only `rshankras` skills one at a time before moving another community skill into `.agents/skills/`.
+- Define an intentional update workflow for lockfile-managed vendored skills, including upstream commit refresh, blob recomputation, and `docaudit skill-provenance`.
 - Verify whether the current Claude Code build discovers symlinked skill directories before using symlinks anywhere.
 - Decide whether a physical mirror script is needed only after a pilot proves manual duplication is painful.

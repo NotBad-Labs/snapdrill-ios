@@ -15,7 +15,7 @@
 | `rule-usage` | F-001~F-NNN 引用计数（识别 dead rule 候选） |
 | `skill-inventory` | `.claude/skills` / `.agents/skills` 计数与 Claude adapter 指向 |
 | `skill-links` | 共享 skill 源内相对 Markdown 引用 broken |
-| `skill-provenance` | 共享 community skill 来源与本地 blob 是否被 lockfile / ledger 覆盖 |
+| `skill-provenance` | 共享 community skill 来源与本地 blob 是否被结构化 lockfile / legacy ledger 覆盖 |
 | `all` | 以上 8 项 + `frontmatter`（subprocess 调用 `Scripts/validate_frontmatter.py`），共 9 个检查 |
 
 ## 用法

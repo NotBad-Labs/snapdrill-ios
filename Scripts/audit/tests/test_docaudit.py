@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import json
 import stat
 import sys
 import unittest
@@ -473,6 +474,33 @@ class DocauditTestCase(unittest.TestCase):
                 f"`0123456789abcdef0123456789abcdef01234567` | `{local_blob}` |\n"
             )
 
+    def _write_vendored_lock_entry(
+        self,
+        skill: str,
+        local_blob: str,
+        support_files: list[dict[str, str]] | None = None,
+        omit: str | None = None,
+    ) -> None:
+        entry: dict[str, object] = {
+            "kind": "vendored",
+            "source": "owner/repo",
+            "sourceType": "github",
+            "upstreamCommit": "0123456789abcdef0123456789abcdef01234567",
+            "upstreamPath": f"skills/{skill}/SKILL.md",
+            "upstreamBlob": "0123456789abcdef0123456789abcdef01234567",
+            "localPath": f".agents/skills/{skill}/SKILL.md",
+            "localBlob": local_blob,
+            "patchStatus": "frontmatter-adapter-only",
+        }
+        if support_files is not None:
+            entry["supportFiles"] = support_files
+        if omit is not None:
+            entry.pop(omit)
+        (self.repo / "skills-lock.json").write_text(
+            json.dumps({"version": 1, "skills": {skill: entry}}, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
     def test_skill_provenance_clean_with_vendored_ledger_row(self) -> None:
         vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
         vendored.parent.mkdir()
@@ -502,17 +530,144 @@ class DocauditTestCase(unittest.TestCase):
         self.assertEqual(code, 1, out)
         self.assertIn("local_blob_mismatch", out)
 
-    def test_skill_provenance_lockfile_entry_exempts_managed_skill(self) -> None:
+    def test_skill_provenance_lockfile_entry_accepts_managed_skill_schema(self) -> None:
         managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
         managed.parent.mkdir()
         managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
         (self.repo / "skills-lock.json").write_text(
-            '{"version": 1, "skills": {"managed": {"source": "owner/repo"}}}\n',
+            json.dumps({
+                "version": 1,
+                "skills": {
+                    "managed": {
+                        "kind": "managed",
+                        "source": "owner/repo",
+                        "sourceType": "github",
+                        "skillPath": "managed/SKILL.md",
+                        "computedHash": "0" * 64,
+                    },
+                },
+            }) + "\n",
             encoding="utf-8",
         )
         policy = _write_policy(self.tmp)
         code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
         self.assertEqual(code, 0, out)
+
+    def test_skill_provenance_lockfile_unknown_kind_does_not_exempt_shared_skill(self) -> None:
+        managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
+        managed.parent.mkdir()
+        managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
+        (self.repo / "skills-lock.json").write_text(
+            json.dumps({"version": 1, "skills": {"managed": {"kind": "unknown"}}}) + "\n",
+            encoding="utf-8",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("invalid_lockfile_schema", out)
+
+    def test_skill_provenance_lockfile_missing_kind_does_not_exempt_shared_skill(self) -> None:
+        managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
+        managed.parent.mkdir()
+        managed.write_text("---\nname: managed\n---\n# Managed\n", encoding="utf-8")
+        (self.repo / "skills-lock.json").write_text(
+            json.dumps({"version": 1, "skills": {"managed": {"source": "owner/repo"}}}) + "\n",
+            encoding="utf-8",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("invalid_lockfile_schema", out)
+
+    def test_skill_provenance_clean_with_vendored_lockfile_entry(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_vendored_lock_entry("vendored", docaudit._git_blob_sha(vendored))
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
+
+    def test_skill_provenance_vendored_lockfile_blob_mismatch_blocks_silent_edit(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_vendored_lock_entry("vendored", "fedcba9876543210fedcba9876543210fedcba98")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("local_blob_mismatch", out)
+        self.assertIn("lockfile local blob", out)
+
+    def test_skill_provenance_vendored_lockfile_support_file_blob_mismatch(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        support = vendored.parent / "support.md"
+        support.write_text("# Support\n", encoding="utf-8")
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            support_files=[{
+                "localPath": ".agents/skills/vendored/support.md",
+                "upstreamPath": "skills/vendored/support.md",
+                "upstreamBlob": "0123456789abcdef0123456789abcdef01234567",
+                "localBlob": "fedcba9876543210fedcba9876543210fedcba98",
+            }],
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("support_file_blob_mismatch", out)
+
+    def test_skill_provenance_vendored_lockfile_support_file_missing_is_explicit(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            support_files=[{
+                "localPath": ".agents/skills/vendored/missing.md",
+                "upstreamPath": "skills/vendored/missing.md",
+                "upstreamBlob": "0123456789abcdef0123456789abcdef01234567",
+                "localBlob": "fedcba9876543210fedcba9876543210fedcba98",
+            }],
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("lockfile_points_to_missing_support_file", out)
+
+    def test_skill_provenance_vendored_lockfile_support_file_must_stay_in_skill_dir(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_vendored_lock_entry(
+            "vendored",
+            docaudit._git_blob_sha(vendored),
+            support_files=[{
+                "localPath": "docs/standards/skill-source-ledger.md",
+                "upstreamPath": "skills/vendored/support.md",
+                "upstreamBlob": "0123456789abcdef0123456789abcdef01234567",
+                "localBlob": "fedcba9876543210fedcba9876543210fedcba98",
+            }],
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("vendored_support_path_out_of_scope", out)
+
+    def test_skill_provenance_vendored_lockfile_missing_required_field(self) -> None:
+        vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"
+        vendored.parent.mkdir()
+        vendored.write_text("---\nname: vendored\n---\n# Vendored\n", encoding="utf-8")
+        self._write_vendored_lock_entry("vendored", docaudit._git_blob_sha(vendored), omit="upstreamBlob")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("invalid_vendored_lockfile_entry", out)
 
     def test_skill_provenance_invalid_lockfile_reports_single_schema_error(self) -> None:
         managed = self.repo / ".agents" / "skills" / "managed" / "SKILL.md"
@@ -544,12 +699,12 @@ class DocauditTestCase(unittest.TestCase):
         self.assertEqual(code, 1, out)
         self.assertIn("ledger_points_to_missing_shared_skill", out)
 
-    def test_skill_provenance_dangling_ledger_row_checked_without_unclassified_skills(self) -> None:
+    def test_skill_provenance_ignores_legacy_ledger_rows_without_unclassified_skills(self) -> None:
         self._write_skill_ledger_row("ghost", "fedcba9876543210fedcba9876543210fedcba98")
         policy = _write_policy(self.tmp)
         code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
-        self.assertEqual(code, 1, out)
-        self.assertIn("ledger_points_to_missing_shared_skill", out)
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
 
     def test_skill_provenance_support_file_blob_mismatch_blocks_silent_edit(self) -> None:
         vendored = self.repo / ".agents" / "skills" / "vendored" / "SKILL.md"

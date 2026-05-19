@@ -92,7 +92,7 @@ CHECK_DESCRIPTIONS = {
     },
     "skill-provenance": {
         "help": "Validate .agents skill provenance against lockfile and source ledger.",
-        "description": "核对 .agents/skills/*/SKILL.md 是否被 skills-lock.json、project-owned 白名单或 skill-source-ledger vendored snapshot 覆盖，并校验 local blob。",
+        "description": "核对 .agents/skills/*/SKILL.md 是否被结构化 skills-lock.json、project-owned 白名单或 legacy source-ledger snapshot 覆盖，并校验 vendored local blob。",
         "epilog": "示例：python3 Scripts/audit/docaudit.py skill-provenance --verbose",
     },
 }
@@ -125,6 +125,33 @@ SKILL_PROVENANCE_ROW_RE = re.compile(
 )
 SKILL_SUPPORT_FILE_ROW_RE = re.compile(
     r"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|\s*`([0-9a-f]{40})`\s*\|\s*`([0-9a-f]{40})`\s*\|$"
+)
+GIT_BLOB_RE = re.compile(r"^[0-9a-f]{40}$")
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+LOCK_SOURCE_TYPES = {"github"}
+LOCK_KINDS = {"managed", "vendored"}
+LOCK_PATCH_STATUSES = {"documented-local-patch", "exact-upstream", "frontmatter-adapter-only"}
+MANAGED_LOCK_REQUIRED_FIELDS = (
+    "source",
+    "sourceType",
+    "skillPath",
+    "computedHash",
+)
+VENDORED_LOCK_REQUIRED_FIELDS = (
+    "source",
+    "sourceType",
+    "upstreamCommit",
+    "upstreamPath",
+    "upstreamBlob",
+    "localPath",
+    "localBlob",
+    "patchStatus",
+)
+VENDORED_SUPPORT_REQUIRED_FIELDS = (
+    "localPath",
+    "upstreamPath",
+    "upstreamBlob",
+    "localBlob",
 )
 
 
@@ -768,10 +795,10 @@ def _git_blob_sha(path: Path) -> str:
     return hashlib.sha1(header + data).hexdigest()
 
 
-def _load_skill_lock_names(result: CheckResult) -> set[str] | None:
+def _load_skill_lock_entries(result: CheckResult) -> dict[str, object] | None:
     lock_path = REPO_ROOT / "skills-lock.json"
     if not lock_path.is_file():
-        return set()
+        return {}
     try:
         payload = json.loads(lock_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
@@ -795,7 +822,197 @@ def _load_skill_lock_names(result: CheckResult) -> set[str] | None:
             suggestion="skills-lock.json must contain a mapping at key 'skills'",
         ))
         return None
-    return set(skills.keys())
+    return skills
+
+
+def _lockfile_schema_finding(result: CheckResult, category: str, suggestion: str) -> None:
+    result.findings.append(Finding(
+        check="skill-provenance",
+        path="skills-lock.json",
+        line=0,
+        category=category,
+        level=result.level,
+        suggestion=suggestion,
+    ))
+
+
+def _require_lock_string_fields(
+    result: CheckResult,
+    entry: dict[str, object],
+    name: str,
+    fields: tuple[str, ...],
+    scope: str,
+) -> bool:
+    ok = True
+    for field in fields:
+        value = entry.get(field)
+        if not isinstance(value, str) or not value:
+            _lockfile_schema_finding(
+                result,
+                "invalid_vendored_lockfile_entry",
+                f"skills-lock.json '{name}' {scope} field '{field}' must be a non-empty string",
+            )
+            ok = False
+    return ok
+
+
+def _validate_lock_blob_field(result: CheckResult, name: str, field: str, value: str, scope: str) -> bool:
+    if GIT_BLOB_RE.match(value):
+        return True
+    _lockfile_schema_finding(
+        result,
+        "invalid_vendored_lockfile_entry",
+        f"skills-lock.json '{name}' {scope} field '{field}' must be a 40-character git blob SHA",
+    )
+    return False
+
+
+def _validate_lock_source_type(result: CheckResult, name: str, value: str, scope: str) -> bool:
+    if value in LOCK_SOURCE_TYPES:
+        return True
+    _lockfile_schema_finding(
+        result,
+        "invalid_lockfile_schema",
+        f"skills-lock.json '{name}' {scope} sourceType must be one of: {', '.join(sorted(LOCK_SOURCE_TYPES))}",
+    )
+    return False
+
+
+def _validate_managed_lock_entry(
+    result: CheckResult,
+    name: str,
+    entry: object,
+) -> dict[str, object] | None:
+    if not isinstance(entry, dict):
+        _lockfile_schema_finding(
+            result,
+            "invalid_lockfile_schema",
+            f"skills-lock.json entry '{name}' must be a mapping",
+        )
+        return None
+
+    if not _require_lock_string_fields(result, entry, name, MANAGED_LOCK_REQUIRED_FIELDS, "skill"):
+        return None
+    if not _validate_lock_source_type(result, name, str(entry["sourceType"]), "skill"):
+        return None
+
+    expected_skill_path = f"{name}/SKILL.md"
+    if entry["skillPath"] != expected_skill_path:
+        _lockfile_schema_finding(
+            result,
+            "managed_lockfile_path_mismatch",
+            f"skills-lock.json '{name}' skillPath must be '{expected_skill_path}'",
+        )
+        return None
+
+    if not SHA256_RE.match(str(entry["computedHash"])):
+        _lockfile_schema_finding(
+            result,
+            "invalid_managed_lockfile_entry",
+            f"skills-lock.json '{name}' computedHash must be a 64-character SHA-256 digest",
+        )
+        return None
+
+    return entry
+
+
+def _validate_vendored_lock_entry(
+    result: CheckResult,
+    name: str,
+    entry: object,
+) -> dict[str, object] | None:
+    if not isinstance(entry, dict):
+        _lockfile_schema_finding(
+            result,
+            "invalid_lockfile_schema",
+            f"skills-lock.json entry '{name}' must be a mapping",
+        )
+        return None
+
+    if not _require_lock_string_fields(result, entry, name, VENDORED_LOCK_REQUIRED_FIELDS, "skill"):
+        return None
+    if not _validate_lock_source_type(result, name, str(entry["sourceType"]), "skill"):
+        return None
+
+    local_path = entry["localPath"]
+    expected_local_path = f".agents/skills/{name}/SKILL.md"
+    if local_path != expected_local_path:
+        _lockfile_schema_finding(
+            result,
+            "vendored_lockfile_path_mismatch",
+            f"skills-lock.json '{name}' localPath must be '{expected_local_path}'",
+        )
+        return None
+
+    for field in ("upstreamCommit", "upstreamBlob", "localBlob"):
+        if not _validate_lock_blob_field(result, name, field, str(entry[field]), "skill"):
+            return None
+    if entry["patchStatus"] not in LOCK_PATCH_STATUSES:
+        _lockfile_schema_finding(
+            result,
+            "invalid_vendored_lockfile_entry",
+            (
+                f"skills-lock.json '{name}' patchStatus must be one of: "
+                f"{', '.join(sorted(LOCK_PATCH_STATUSES))}"
+            ),
+        )
+        return None
+    if entry["localBlob"] != entry["upstreamBlob"] and entry["patchStatus"] == "exact-upstream":
+        _lockfile_schema_finding(
+            result,
+            "invalid_vendored_lockfile_entry",
+            f"skills-lock.json '{name}' patchStatus cannot be exact-upstream when localBlob differs",
+        )
+        return None
+
+    support_files = entry.get("supportFiles", [])
+    if not isinstance(support_files, list):
+        _lockfile_schema_finding(
+            result,
+            "invalid_vendored_lockfile_entry",
+            f"skills-lock.json '{name}' supportFiles must be a list when present",
+        )
+        return None
+
+    for index, support in enumerate(support_files):
+        if not isinstance(support, dict):
+            _lockfile_schema_finding(
+                result,
+                "invalid_vendored_lockfile_entry",
+                f"skills-lock.json '{name}' supportFiles[{index}] must be a mapping",
+            )
+            return None
+        if not _require_lock_string_fields(
+            result,
+            support,
+            name,
+            VENDORED_SUPPORT_REQUIRED_FIELDS,
+            f"supportFiles[{index}]",
+        ):
+            return None
+        expected_support_prefix = f".agents/skills/{name}/"
+        support_local_path = str(support["localPath"])
+        if not support_local_path.startswith(expected_support_prefix) or ".." in Path(support_local_path).parts:
+            _lockfile_schema_finding(
+                result,
+                "vendored_support_path_out_of_scope",
+                (
+                    f"skills-lock.json '{name}' support localPath must stay under "
+                    f"'{expected_support_prefix}'"
+                ),
+            )
+            return None
+        for field in ("upstreamBlob", "localBlob"):
+            if not _validate_lock_blob_field(
+                result,
+                name,
+                field,
+                str(support[field]),
+                f"supportFiles[{index}]",
+            ):
+                return None
+
+    return entry
 
 
 def _parse_shared_vendored_snapshots(result: CheckResult) -> dict[str, dict[str, str]]:
@@ -869,15 +1086,117 @@ def check_skill_provenance(policy: dict) -> CheckResult:
 
     shared_root = REPO_ROOT / ".agents" / "skills"
     shared_names = _first_level_skill_names(shared_root)
-    locked_names = _load_skill_lock_names(result)
-    if locked_names is None:
+    lock_entries = _load_skill_lock_entries(result)
+    if lock_entries is None:
         return result
 
+    vendored_lock_entries: dict[str, dict[str, object]] = {}
+    for name, entry in sorted(lock_entries.items()):
+        if not isinstance(entry, dict):
+            _lockfile_schema_finding(
+                result,
+                "invalid_lockfile_schema",
+                f"skills-lock.json entry '{name}' must be a mapping",
+            )
+            continue
+
+        kind = entry.get("kind")
+        if kind not in LOCK_KINDS:
+            _lockfile_schema_finding(
+                result,
+                "invalid_lockfile_schema",
+                f"skills-lock.json entry '{name}' kind must be one of: {', '.join(sorted(LOCK_KINDS))}",
+            )
+            continue
+
+        if kind == "vendored":
+            validated = _validate_vendored_lock_entry(result, name, entry)
+            if validated is not None:
+                vendored_lock_entries[name] = validated
+        elif kind == "managed":
+            validated = _validate_managed_lock_entry(result, name, entry)
+            if validated is not None:
+                local_path = REPO_ROOT / ".agents" / "skills" / name / "SKILL.md"
+                if not local_path.is_file():
+                    result.findings.append(Finding(
+                        check="skill-provenance",
+                        path="skills-lock.json",
+                        line=0,
+                        category="lockfile_points_to_missing_shared_skill",
+                        level=level,
+                        suggestion=(
+                            f"skills-lock.json lists managed skill '{name}' at "
+                            f"'.agents/skills/{name}/SKILL.md' but it does not exist"
+                        ),
+                    ))
+
+    for name, entry in vendored_lock_entries.items():
+        local_path = REPO_ROOT / str(entry["localPath"])
+        if not local_path.is_file():
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path="skills-lock.json",
+                line=0,
+                category="lockfile_points_to_missing_shared_skill",
+                level=level,
+                suggestion=(
+                    f"skills-lock.json lists vendored skill '{name}' at "
+                    f"'{entry['localPath']}' but it does not exist"
+                ),
+            ))
+            continue
+        actual_blob = _git_blob_sha(local_path)
+        if actual_blob != entry["localBlob"]:
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path=str(entry["localPath"]),
+                line=0,
+                category="local_blob_mismatch",
+                level=level,
+                suggestion=(
+                    f"lockfile local blob is {entry['localBlob']} but current blob is {actual_blob}; "
+                    "do not edit vendored community skill bodies without recording a patch decision"
+                ),
+            ))
+
+        for support in entry.get("supportFiles", []):
+            support_path = REPO_ROOT / str(support["localPath"])
+            if not support_path.is_file():
+                result.findings.append(Finding(
+                    check="skill-provenance",
+                    path="skills-lock.json",
+                    line=0,
+                    category="lockfile_points_to_missing_support_file",
+                    level=level,
+                    suggestion=(
+                        f"skills-lock.json lists support file '{support['localPath']}' "
+                        "but it does not exist"
+                    ),
+                ))
+                continue
+            actual_support_blob = _git_blob_sha(support_path)
+            if actual_support_blob != support["localBlob"]:
+                result.findings.append(Finding(
+                    check="skill-provenance",
+                    path=str(support["localPath"]),
+                    line=0,
+                    category="support_file_blob_mismatch",
+                    level=level,
+                    suggestion=(
+                        f"lockfile local blob is {support['localBlob']} but current blob is {actual_support_blob}; "
+                        "do not edit vendored community support files without recording a patch decision"
+                    ),
+                ))
+
+    locked_names = set(lock_entries.keys())
     unclassified_names = shared_names - locked_names - project_owned
-    ledger_path = REPO_ROOT / "docs" / "standards" / "skill-source-ledger.md"
-    if unclassified_names or ledger_path.is_file():
+    if unclassified_names:
         vendored_rows = _parse_shared_vendored_snapshots(result)
-        support_rows = _parse_shared_support_file_snapshots(result)
+        support_rows = [
+            row
+            for row in _parse_shared_support_file_snapshots(result)
+            if row["skill"] in unclassified_names
+        ]
     else:
         vendored_rows = {}
         support_rows = []
