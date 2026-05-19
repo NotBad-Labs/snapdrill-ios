@@ -108,7 +108,7 @@ sudo rm             # 提权删除
 - 研究类 skill（cross-audit / consensus / phase-closeout）允许 Write 但落地到 `~/.claude/plans/` 或 `docs/archive/research/`
 - 执行类 skill（post-merge / sprint-contract / dependency-propagation 等）开放 T2 完整集
 
-**新增治理类 skill 或修改治理类 skill 的 `allowed-tools` 时**：必须同步本表并注明 Tier 覆盖。不遵守的治理类 skill 视为违反 §0 SSOT 纪律。
+**新增治理类 skill 或修改治理类 skill 的 `allowed-tools` 时**：必须同步本表并注明 Tier 覆盖。不遵守的治理类 skill 视为违反 SSOT 纪律（本文档为权威源，见 §5 审计方法）。
 
 ---
 
