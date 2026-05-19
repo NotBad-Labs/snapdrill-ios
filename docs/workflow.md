@@ -52,6 +52,8 @@ SSOT：`.github/ISSUE_TEMPLATE/feature_request.md`（feature）、`.github/ISSUE
 
 ## Git 工作流
 
+> **F-001 权威定义**。本段是 F-001（Git 工作流纪律）的事实权威源。
+
 ```
 main ← App Store，只接受 develop 的 PR
 develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
@@ -102,6 +104,8 @@ develop ← TestFlight，只接受 feature/fix/chore 分支的 PR
 ---
 
 ## Code Review
+
+> **F-005 权威定义**。本段是 F-005（对抗性审查）的事实权威源；详细执行流程见 `cross-audit` skill（F-008/F-011/F-016 权威源）。
 
 **所有 PR 必须完成 review 后合并。Review 结论必须留痕。**
 
