@@ -101,6 +101,18 @@ checks:
       - verify-audit-report
       - xcode-review
 
+  verdict-sync:
+    level: warning
+    description: verdict 分布声明跨文件漂移（同一标签出现多个 distinct 数字）
+    scan_paths:
+      - STATUS.md
+      - docs/memory/handoff.md
+      - docs/memory/decisions.md
+
+  external-gap-expiry:
+    level: warning
+    description: VALID_WITH_GAP 文件 frontmatter 必须含结构化 gap_type / gap_due / gap_owner 字段以支持机械到期检查
+
 # Finding 级豁免规则（Phase C 清理前过渡）
 # 每条规则：
 #   check:       8 个结构子命令之一（必填）

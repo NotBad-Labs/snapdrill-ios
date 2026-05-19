@@ -1,7 +1,11 @@
 ---
 last_verified: 2026-05-19
 layer: pattern
-audit_note: VALID_WITH_GAP — 竞品数据 time-sensitive，需季度刷新；2026-Q3 应全量复审
+audit_note: VALID_WITH_GAP — 竞品数据 time-sensitive，需季度刷新
+gap_type: time_sensitive_external
+gap_due: 2026-09-30
+gap_owner: product
+gap_evidence_required: 竞品（Anki / GoodNotes / Notion / Apple Notes）当季最新功能与定价
 ---
 # SnapDrill 竞品分析
 

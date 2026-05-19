@@ -52,6 +52,8 @@ CHECK_NAMES = [
     "skill-inventory",
     "skill-links",
     "skill-provenance",
+    "verdict-sync",
+    "external-gap-expiry",
 ]
 
 CHECK_DESCRIPTIONS = {
@@ -94,6 +96,16 @@ CHECK_DESCRIPTIONS = {
         "help": "Validate .agents skill provenance against lockfile and source ledger.",
         "description": "核对 .agents/skills/*/SKILL.md 是否被结构化 skills-lock.json、project-owned 白名单或 legacy source-ledger snapshot 覆盖，并校验 vendored local blob。",
         "epilog": "示例：python3 Scripts/audit/docaudit.py skill-provenance --verbose",
+    },
+    "verdict-sync": {
+        "help": "Detect verdict distribution drift across STATUS / handoff / memory docs.",
+        "description": "扫描 verdict 分布声明（如 '47 VALID', '4 NEEDS_REVISION'），同一标签出现多个 distinct 数字 → 漂移。",
+        "epilog": "示例：python3 Scripts/audit/docaudit.py verdict-sync --verbose",
+    },
+    "external-gap-expiry": {
+        "help": "Validate VALID_WITH_GAP files have structured gap metadata (gap_type/owner/due).",
+        "description": "扫描 frontmatter audit_note 标 VALID_WITH_GAP 的文件，要求同时声明 gap_type / owner / due_trigger 等结构化字段，否则 free-text 缺机械到期触发。",
+        "epilog": "示例：python3 Scripts/audit/docaudit.py external-gap-expiry --verbose",
     },
 }
 
@@ -1669,6 +1681,136 @@ def check_frontmatter_via_subprocess(policy: dict) -> CheckResult:
 
 # ---------- 报告输出 ----------
 
+# ---------- check: verdict-sync ----------
+
+# 匹配 "<N> <LABEL>" 或 "<LABEL> <N>"，<LABEL> 是 audit-rubric 标签
+VERDICT_PATTERN = re.compile(
+    r"(?:(\d+)\s+(VALID_WITH_GAP|VALID|NEEDS_REVISION|STALE_OR_INVALID|STALE|PENDING))"
+    r"|(?:(VALID_WITH_GAP|VALID|NEEDS_REVISION|STALE_OR_INVALID|STALE|PENDING)\s+(\d+))"
+)
+
+
+_VERDICT_CONTEXT_KEYWORDS = ("Final 分布", "Final：", "Final 终态", "终态", "verdict distribution", "verdict 分布")
+
+
+def check_verdict_sync(policy: dict) -> CheckResult:
+    """检测 verdict 分布声明跨文件漂移。
+
+    扫描指定文件中 'N VALID' / 'N NEEDS_REVISION' 等声明，
+    **仅当所在行附近含 Final 分布 / 终态 关键词时**，同一标签在多个文件中
+    出现不同数字 → 漂移 finding。避免误抓历史步骤数量。
+    """
+    conf = policy["checks"]["verdict-sync"]
+    level = conf["level"]
+    targets = conf.get("scan_paths", [
+        "STATUS.md",
+        "docs/memory/handoff.md",
+        "docs/memory/decisions.md",
+    ])
+    result = CheckResult(check="verdict-sync", level=level)
+
+    # label -> { N: [(file, line, raw_match), ...] }
+    claims: dict[str, dict[str, list[tuple[str, int, str]]]] = {}
+
+    for relpath in targets:
+        fp = REPO_ROOT / relpath
+        if not fp.is_file():
+            continue
+        for lineno, line in enumerate(_read_lines(fp), start=1):
+            # 只在包含 "Final 分布 / 终态" 等关键词的行扫匹配
+            if not any(kw in line for kw in _VERDICT_CONTEXT_KEYWORDS):
+                continue
+            for m in VERDICT_PATTERN.finditer(line):
+                if m.group(1):
+                    n, label = m.group(1), m.group(2)
+                else:
+                    label, n = m.group(3), m.group(4)
+                claims.setdefault(label, {}).setdefault(n, []).append(
+                    (relpath, lineno, m.group(0))
+                )
+
+    # 对每个标签：如果出现 ≥2 个 distinct 数字 → 漂移
+    for label, by_n in sorted(claims.items()):
+        if len(by_n) < 2:
+            continue
+        details_parts = []
+        for n, locs in sorted(by_n.items(), key=lambda kv: int(kv[0])):
+            files = sorted(set(f"{f}:{ln}" for f, ln, _ in locs))
+            details_parts.append(f"{n} (in {', '.join(files)})")
+        suggestion = (
+            f"{label} 出现多个 distinct 数字: {' | '.join(details_parts)}; "
+            "verdict artifact drift — 同步至 audit-ledger.tsv Final_Decision 实际分布"
+        )
+        # 把 finding 挂到第一个出现的文件
+        first_file = sorted(by_n.values(), key=lambda v: v[0][1])[0][0]
+        result.findings.append(Finding(
+            check="verdict-sync",
+            path=first_file[0],
+            line=first_file[1],
+            category="verdict_distribution_drift",
+            level=level,
+            suggestion=suggestion,
+        ))
+    return result
+
+
+# ---------- check: external-gap-expiry ----------
+
+# audit_note 标 VALID_WITH_GAP 的文件应有结构化字段
+_GAP_REQUIRED_FIELDS = ("gap_type", "gap_due", "gap_owner")
+
+
+def check_external_gap_expiry(policy: dict) -> CheckResult:
+    """扫描 frontmatter audit_note 标 VALID_WITH_GAP 的文件，
+    要求同时含 gap_type / gap_due / gap_owner 结构化字段。
+
+    精确锚定：仅当 frontmatter（首个 `---` 块）中的 `audit_note:` 行
+    含 `VALID_WITH_GAP` 才触发；避免误抓 body 中提及该标签的文件。
+    """
+    conf = policy["checks"]["external-gap-expiry"]
+    level = conf["level"]
+    result = CheckResult(check="external-gap-expiry", level=level)
+
+    for path in _iter_text_files(policy, extensions=(".md",)):
+        rel = path.relative_to(REPO_ROOT)
+        rel_str = str(rel)
+        lines = _read_lines(path)
+        if not lines or lines[0].strip() != "---":
+            continue
+        # 提取 frontmatter 块（首个 --- 到下一个 ---）
+        fm_end = None
+        for i, ln in enumerate(lines[1:], start=1):
+            if ln.strip() == "---":
+                fm_end = i
+                break
+        if fm_end is None:
+            continue
+        fm_block = "\n".join(lines[1:fm_end])
+
+        # 必须在 audit_note 行有 VALID_WITH_GAP
+        gap_in_audit_note = any(
+            "audit_note" in ln and "VALID_WITH_GAP" in ln
+            for ln in fm_block.splitlines()
+        )
+        if not gap_in_audit_note:
+            continue
+
+        missing = [f for f in _GAP_REQUIRED_FIELDS if f not in fm_block]
+        if missing:
+            result.findings.append(Finding(
+                check="external-gap-expiry",
+                path=rel_str,
+                line=0,
+                category="unstructured_gap",
+                level=level,
+                suggestion=(
+                    f"VALID_WITH_GAP 缺结构化字段 {missing}；"
+                    "需在 frontmatter 加 gap_type / gap_due / gap_owner 以支持机械到期检查"
+                ),
+            ))
+    return result
+
+
 CHECK_FUNCS = {
     "links": check_links,
     "archived-refs": check_archived_refs,
@@ -1678,6 +1820,8 @@ CHECK_FUNCS = {
     "skill-inventory": check_skill_inventory,
     "skill-links": check_skill_links,
     "skill-provenance": check_skill_provenance,
+    "verdict-sync": check_verdict_sync,
+    "external-gap-expiry": check_external_gap_expiry,
 }
 
 
@@ -1791,8 +1935,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     all_parser = sub.add_parser(
         "all",
-        help="Run 8 structural checks + frontmatter (9 checks total).",
-        description="运行 8 个结构检查，并通过 subprocess 调用 validate_frontmatter.py（共 9 个检查）。",
+        help="Run 10 structural checks + frontmatter (11 checks total).",
+        description="运行 10 个结构检查，并通过 subprocess 调用 validate_frontmatter.py（共 11 个检查）。",
         epilog="示例：python3 Scripts/audit/docaudit.py all --report --verbose",
     )
     _add_common(all_parser)

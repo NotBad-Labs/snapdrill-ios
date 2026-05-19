@@ -5,6 +5,10 @@ freshness:
   max_age_days: 60
   decay_trigger: [apple_enrollment, app_store_submission]
 audit_note: VALID_WITH_GAP — Apple 账号未启用前为占位文案，App Store 提交前必须全量重审
+gap_type: placeholder
+gap_due: app_store_submission
+gap_owner: product
+gap_evidence_required: 真实 ASO 文案 / Apple Developer 账号 / App Store Connect 元数据
 ---
 # App Store 元数据（ASO 文案）
 

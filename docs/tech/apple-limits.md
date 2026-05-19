@@ -5,6 +5,10 @@ freshness:
   max_age_days: 60
   decay_trigger: [ios_release]
 audit_note: VALID_WITH_GAP — iOS 26 平台行为细节需 WWDC 2026 后全量复审
+gap_type: apple_platform_release
+gap_due: wwdc_2026
+gap_owner: tech
+gap_evidence_required: WWDC 2026 session 笔记 + iOS 26 真机验证（Vision / Foundation Models / SwiftData 更新）
 ---
 # Apple 技术能力边界（防止 AI 错误假设）
 

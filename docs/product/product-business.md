@@ -1,7 +1,11 @@
 ---
 last_verified: 2026-05-19
 layer: pattern
-audit_note: VALID_WITH_GAP — 订阅取消原则已定义（L73-74：取消后数据仍可查看/导出），细则（refund period / grace period / data export window）timeboxed 到 App Store 提交前补全
+audit_note: VALID_WITH_GAP — 订阅取消原则已定义（L73-74：取消后数据仍可查看/导出），细则待补
+gap_type: missing_detail
+gap_due: app_store_submission
+gap_owner: product
+gap_evidence_required: refund period / grace period / data export window 三项细则
 ---
 # SnapDrill 商业化与竞品
 
