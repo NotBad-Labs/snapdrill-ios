@@ -21,7 +21,7 @@ freshness:
 - **Phase 2.3/2.5**：31 VALID 文件批量刷 last_verified；A019 reference_codex_plugin_v104 归档到 docs/archive/（commit bdb7cbc6）
 - **Phase 2.4 进行中**：20 个 NEEDS_REVISION 文档逐个修订
 
-**Skill 体系**：54 个 distinct 一层 skill（14 项目治理、24 Claude-only 领域 skill、16 共享 skill）。SSOT：`docs/standards/skill-architecture.md`。
+**Skill 体系**：51 个 distinct 一层 skill（14 项目治理、21 Claude-only 领域 skill、16 共享 skill）。2026-05-19 退役 3 个 stub skill（biometric-auth / network-security / secure-storage，空 body + SnapDrill 零注册产品模型无对应需求）。SSOT：`docs/standards/skill-architecture.md`。
 
 | 外部阻塞项 | 说明 | 状态 |
 |---|---|---|

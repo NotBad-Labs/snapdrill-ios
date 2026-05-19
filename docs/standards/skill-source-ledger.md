@@ -128,7 +128,6 @@ These skills remain only in `.claude/skills/` and are not shared through `.agent
 | `app-store-assets` | `.claude/skills/app-store-assets/SKILL.md` | `1bbd8f8ade002f61c5aaa6d7768f9ae2e4d4ae4e` | `skills/generators/app-store-assets/SKILL.md` | `1bbd8f8ade002f61c5aaa6d7768f9ae2e4d4ae4e` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
 | `app-store-rejection` | `.claude/skills/app-store-rejection/SKILL.md` | `543b8da5ad42cb3a074b0199660689c78bdc5bd7` | `skills/app-store/rejection-handler/SKILL.md` | `543b8da5ad42cb3a074b0199660689c78bdc5bd7` | Exact upstream SKILL.md; local skill name differs from upstream directory |
 | `background-processing` | `.claude/skills/background-processing/SKILL.md` | `4e2cae2ee63664e5c44363fc03c34775d1d93800` | `skills/generators/background-processing/SKILL.md` | `4e2cae2ee63664e5c44363fc03c34775d1d93800` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
-| `biometric-auth` | `.claude/skills/biometric-auth/SKILL.md` | `86ee6c7bc85112915863130e03efef0885a9f667` | `skills/security/biometric-auth.md` | `610c24e999f20761e3dbee7344467969a14dcb21` | Local Claude trigger stub; upstream content is a Markdown reference, not SKILL.md |
 | `ci-cd-setup` | `.claude/skills/ci-cd-setup/SKILL.md` | `020afa25befe8a74fcb8e8ea3bcba213fb721bda` | `skills/generators/ci-cd-setup/SKILL.md` | `020afa25befe8a74fcb8e8ea3bcba213fb721bda` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
 | `coding-best-practices` | `.claude/skills/coding-best-practices/SKILL.md` | `1181a9c2cbbf782436554b42f823f41118b67b0b` | `skills/ios/coding-best-practices/SKILL.md` | `1181a9c2cbbf782436554b42f823f41118b67b0b` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
 | `data-export` | `.claude/skills/data-export/SKILL.md` | `7d5c633c0f80733d5353410ac4503adbfc173c91` | `skills/generators/data-export/SKILL.md` | `7d5c633c0f80733d5353410ac4503adbfc173c91` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
@@ -136,9 +135,7 @@ These skills remain only in `.claude/skills/` and are not shared through `.agent
 | `keyword-optimizer` | `.claude/skills/keyword-optimizer/SKILL.md` | `6bb44e400ae12a32fcc6c5be750233b95e27223a` | `skills/app-store/keyword-optimizer/SKILL.md` | `6bb44e400ae12a32fcc6c5be750233b95e27223a` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
 | `localization-setup` | `.claude/skills/localization-setup/SKILL.md` | `c35fc8dc0f40d459b2a22a2a5c11f1e24561b07d` | `skills/generators/localization-setup/SKILL.md` | `c35fc8dc0f40d459b2a22a2a5c11f1e24561b07d` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
 | `migration-patterns` | `.claude/skills/migration-patterns/SKILL.md` | `6bc52abba31db7fd194611cfb6ee4a6136ee5191` | `skills/ios/migration-patterns/SKILL.md` | `6bc52abba31db7fd194611cfb6ee4a6136ee5191` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
-| `network-security` | `.claude/skills/network-security/SKILL.md` | `08fa3ebc6558660484cfc99c12504f8fd8d14727` | `skills/security/network-security.md` | `d850346d92fa76d0b1654ff123b1e1feff56b6b3` | Local Claude trigger stub; upstream content is a Markdown reference, not SKILL.md |
 | `onboarding-generator` | `.claude/skills/onboarding-generator/SKILL.md` | `c80d3a18ad06b74a3db630633e20e11dcfb3bb70` | `skills/generators/onboarding-generator/SKILL.md` | `c80d3a18ad06b74a3db630633e20e11dcfb3bb70` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
-| `secure-storage` | `.claude/skills/secure-storage/SKILL.md` | `d8aef7aac9c56603cdbbe59b46928e4dc23ad0e4` | `skills/security/secure-storage.md` | `2d7a25055282f4aaf7b554e0fcf3827bd3256e13` | Local Claude trigger stub; upstream content is a Markdown reference, not SKILL.md |
 | `settings-screen` | `.claude/skills/settings-screen/SKILL.md` | `8085eb5ba3f6be04dfd1f5f38a124c3a08f533c1` | `skills/generators/settings-screen/SKILL.md` | `8085eb5ba3f6be04dfd1f5f38a124c3a08f533c1` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
 | `snapshot-testing` | `.claude/skills/snapshot-testing/SKILL.md` | `56876db9e872638025f412e7323f2e299ecc7278` | `skills/testing/snapshot-test-setup/SKILL.md` | `676876544ffe6b55e9d0665bf325714534d8ec8f` | Local body differs from current upstream; requires review before promotion |
 | `swiftui-debugging` | `.claude/skills/swiftui-debugging/SKILL.md` | `82f6f078404b9239a5803f3980dd2e6f76336c0b` | `skills/performance/swiftui-debugging/SKILL.md` | `82f6f078404b9239a5803f3980dd2e6f76336c0b` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
@@ -149,6 +146,14 @@ These skills remain only in `.claude/skills/` and are not shared through `.agent
 | `ui-review` | `.claude/skills/ui-review/SKILL.md` | `82b30a700bbf02e4a89104e420f6e00c8f367dea` | `skills/ios/ui-review/SKILL.md` | `82b30a700bbf02e4a89104e420f6e00c8f367dea` | Exact upstream SKILL.md; keep Claude-only until shared need is proven |
 
 `privacy-manifests` is not listed here because it is already a shared vendored copy at `.agents/skills/privacy-manifests/SKILL.md`.
+
+## Retired Claude-Only Skills
+
+| Skill | Retired Date | Reason | Restore Path |
+|---|---|---|---|
+| `biometric-auth` | 2026-05-19 | Empty trigger stub (description "Biometric Authentication"); SnapDrill 零注册 product model 当前无 biometric auth 场景 | Re-vendor from `rshankras/claude-code-apple-skills` `skills/security/biometric-auth.md` (upstream blob `610c24e999f20761e3dbee7344467969a14dcb21`) if iCloud sync (#485) requires biometric gate |
+| `network-security` | 2026-05-19 | Empty trigger stub; SnapDrill 仅 Firebase Analytics 网络调用且已 gated by user consent | Re-vendor from `rshankras` upstream `skills/security/network-security.md` (upstream blob `d850346d92fa76d0b1654ff123b1e1feff56b6b3`) if network attack surface 扩大 |
+| `secure-storage` | 2026-05-19 | Empty trigger stub; SnapDrill 纯本地 SwiftData + Profile 隔离，无 keychain/secrets 需求 | Re-vendor from `rshankras` upstream `skills/security/secure-storage.md` (upstream blob `2d7a25055282f4aaf7b554e0fcf3827bd3256e13`) if 引入 secrets/keychain
 
 ## Evidence Commands
 

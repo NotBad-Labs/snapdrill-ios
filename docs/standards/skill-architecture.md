@@ -24,11 +24,13 @@ Counting rule: only first-level `*/SKILL.md` files are counted as triggerable sk
 
 | Category | Count | Source |
 |---|---:|---|
-| Claude discovery entries | 54 | `.claude/skills/*/SKILL.md` plus symlink skill dirs |
+| Claude discovery entries | 51 | `.claude/skills/*/SKILL.md` plus symlink skill dirs |
 | Shared first-level skill sources | 16 | `.agents/skills/*/SKILL.md` |
 | Claude adapter entries | 16 | 13 physical pointer adapters + 3 managed symlink entries point to shared sources |
-| Distinct first-level skill names | 54 | 54 Claude discovery entries + 16 shared sources - 16 duplicate shared entries |
+| Distinct first-level skill names | 51 | 51 Claude discovery entries + 16 shared sources - 16 duplicate shared entries |
 | Plugin payload skills | 2 | `.agents/skills/*/skills/*/SKILL.md` |
+
+> 2026-05-19：3 个 stub skill 退役（`biometric-auth` / `network-security` / `secure-storage`）—— 详见 `skill-source-ledger.md` Retired Claude-Only Skills 段。54 → 51。
 
 Shared skills:
 
