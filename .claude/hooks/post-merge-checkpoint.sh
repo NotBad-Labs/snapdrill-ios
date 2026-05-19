@@ -24,15 +24,18 @@ RECENT_MERGES=$(git log --since="7 days ago" --merges --first-parent --oneline 2
 
 # 阈值 3：触发 checkpoint 提示
 if [ "${RECENT_MERGES:-0}" -ge 3 ]; then
-    CHECKPOINT_DIR="$PROJECT_ROOT/docs/memory/checkpoints"
-    LATEST_CHECKPOINT=$(ls -t "$CHECKPOINT_DIR"/*.md 2>/dev/null | head -1 | xargs -I{} basename {} 2>/dev/null || echo "无")
+    # 自 5aa78fee 起 checkpoints 已合并入 docs/memory/handoff.md Risks 段（per phase-closeout skill）
+    HANDOFF="$PROJECT_ROOT/docs/memory/handoff.md"
+    HANDOFF_AGE="未知"
+    if [ -f "$HANDOFF" ]; then
+        HANDOFF_AGE=$(date -r "$HANDOFF" '+%Y-%m-%d %H:%M' 2>/dev/null || echo "未知")
+    fi
 
     echo "" >&2
     echo "Phase Compaction 提示：" >&2
     echo "  近 7 天 develop 合并 ${RECENT_MERGES} 个 PR" >&2
-    echo "  最近 checkpoint：${LATEST_CHECKPOINT}" >&2
-    echo "  建议：调用 /phase-closeout skill 生成 checkpoint" >&2
-    echo "  位置：docs/memory/checkpoints/<YYYY-MM-DD>-<topic>.md" >&2
+    echo "  handoff.md 最后修改：${HANDOFF_AGE}" >&2
+    echo "  建议：调用 /phase-closeout skill 在 handoff.md Risks 段下方追加 Phase 状态块" >&2
     echo "" >&2
 fi
 

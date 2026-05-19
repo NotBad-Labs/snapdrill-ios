@@ -1,9 +1,8 @@
 ---
 last_verified: 2026-05-13
-layer: snapshot
-freshness:
-  max_age_days: 7
-  decay_trigger: [pr_merge, issue_change, milestone_change]
+layer: archive
+status: archived
+reason: "项目历史时间线（2026-04 到 2026-05 期间事件溯源）；归档后不再 freshness 跟踪，新事件追加至文件尾即可"
 ---
 # Timeline
 

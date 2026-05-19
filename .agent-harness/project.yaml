@@ -34,20 +34,22 @@ presets:
 # Overlay 路径声明（snapdrill-ios 本地项目特定内容位置）
 # 这些路径下的内容属于 snapdrill-ios overlay，不计入 agent-harness 核心
 overlay_paths:
-  # Claude Code skills 中 snapdrill-ios 特定的角色类 skills
+  # Claude Code skills 中 snapdrill-ios 特定的治理类 skills
+  # 注：2026-04-18 (4dfe237f) 退役 4 个角色 skill（developer/devops/qa-engineer/
+  # security-engineer）；改用按需 Claude governance skill 模式
   skills:
-    - .claude/skills/developer       # iOS / SwiftUI / SwiftData 开发角色
-    - .claude/skills/devops          # Xcode / TestFlight / Mac mini runner
-    - .claude/skills/qa-engineer     # iOS 测试特定
-    - .claude/skills/security-engineer  # iOS 隐私 / Keychain
+    - .claude/skills/api-research
+    - .claude/skills/cross-audit
+    - .claude/skills/sprint-contract
+    - .claude/skills/verify-audit-report
   # Claude Code hooks 中 snapdrill-ios 特定的
   hooks:
     - .claude/hooks/swift-autolint.sh
     - .claude/hooks/prepush-lint.sh
   # 项目特定标准与约束
+  # 注：apple-extension.md 已于 2026-05-18 (f891b1d5) 合并入 apple-native.md
   standards:
     - docs/standards/apple-native.md
-    - docs/standards/apple-extension.md
     - docs/tech/apple-limits.md
     - docs/tech/api-pitfalls.md
     - docs/standards/coding.md

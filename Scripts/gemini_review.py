@@ -9,7 +9,9 @@ from gemini_utils import call_gemini_with_fallback, MODELS_DEEP
 pr_title = os.environ.get("PR_TITLE", "")
 api_key  = os.environ.get("GEMINI_API_KEY", "")
 
-# 读取项目架构上下文（约束、例外规则等），减少 Gemini 因规则不完整导致的假阳性
+# 可选：读取项目架构上下文（约束、例外规则等），减少 Gemini 假阳性
+# 当前未实现 .claude/gemini-context.md 文件；如未来需要 inline 项目约束，
+# 创建该文件即可被自动读取。否则保持空 context（不影响功能）。
 gemini_context = ""
 context_path = os.path.join(os.path.dirname(__file__), "..", ".claude", "gemini-context.md")
 if os.path.exists(context_path):
