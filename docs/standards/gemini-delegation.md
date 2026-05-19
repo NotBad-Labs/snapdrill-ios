@@ -1,6 +1,7 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: pattern
+audit_note: 2026-05-19 验证 — gemini-cli v0.41.2 与文件声明一致；gemini-3-pro-preview 已落地
 ---
 # Gemini CLI 委派规范
 

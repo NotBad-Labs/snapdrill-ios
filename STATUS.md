@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -7,13 +7,21 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-15（**Phase 5 零信任审计修复完工 — 11 PR 全合，24 真问题清零**）
+> 最后更新：2026-05-19（**文档体系深度清洁 Phase 0/1/2 部分完成**）
 > 编译状态：✅ 0 errors · 0 lint violations · docaudit exit 0
 > Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
 
-## 当前状态（2026-05-18）
+## 当前状态（2026-05-19）
 
-**文档治理 + skill 体系重构收口中**。54 个 distinct 一层 skill 名称：14 项目治理、24 Claude-only 领域 skill、16 共享 skill；其中 `accessibility-generator`、`app-description-writer`、`attributed-string`、`characterization-test-generator`、`deep-linking`、`integration-test-scaffold`、`liquid-glass`、`navigation-patterns`、`privacy-manifests`、`push-notifications`、`review-response-writer`、`screenshot-planner`、`test-contract` 使用 Claude thin adapter，3 个受管 Swift skill 使用既有 Claude symlink entry。另有 2 个 `.agents/skills/*/skills/*/SKILL.md` 属于 plugin payload，不计入一层 skill 数。目录架构 SSOT：`docs/standards/skill-architecture.md`。
+**文档体系深度清洁进行中**。Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon）。已完成：
+
+- **Phase 0**：接管 52-doc 审计成果，三方 verdict 提案汇总（cleanup-20260519-phase0-status.md）
+- **Phase 1**：SSOT 自洽体检 — 修 KNOWLEDGE_MAP §1 §4 跳号 + DOC_DEPENDENCY_MAP §1 缺号；补 audit-rubric / skill-source-ledger / standards/README 到 KM；软上限触线机制（commit f40fcdcf）
+- **Phase 2.1/2.2**：跑完 Gemini 5-batch verdict + 三方汇总裁决（cleanup-20260519-phase2-consensus.md）。Final 分布：31 VALID / 20 NEEDS_REVISION / 1 STALE
+- **Phase 2.3/2.5**：31 VALID 文件批量刷 last_verified；A019 reference_codex_plugin_v104 归档到 docs/archive/（commit bdb7cbc6）
+- **Phase 2.4 进行中**：20 个 NEEDS_REVISION 文档逐个修订
+
+**Skill 体系**：54 个 distinct 一层 skill（14 项目治理、24 Claude-only 领域 skill、16 共享 skill）。SSOT：`docs/standards/skill-architecture.md`。
 
 | 外部阻塞项 | 说明 | 状态 |
 |---|---|---|

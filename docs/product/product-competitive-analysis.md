@@ -1,6 +1,7 @@
 ---
-last_verified: 2026-05-09
+last_verified: 2026-05-19
 layer: pattern
+audit_note: VALID_WITH_GAP — 竞品数据 time-sensitive，需季度刷新；2026-Q3 应全量复审
 ---
 # SnapDrill 竞品分析
 

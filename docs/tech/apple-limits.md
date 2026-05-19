@@ -1,9 +1,10 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: snapshot
 freshness:
   max_age_days: 60
   decay_trigger: [ios_release]
+audit_note: VALID_WITH_GAP — iOS 26 平台行为细节需 WWDC 2026 后全量复审
 ---
 # Apple 技术能力边界（防止 AI 错误假设）
 

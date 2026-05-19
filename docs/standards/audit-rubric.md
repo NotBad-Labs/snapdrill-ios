@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: pattern
 ---
 # 文档审计 Rubric（Phase 1 产物）
@@ -42,6 +42,18 @@ layer: pattern
 5. 术语漂移或与 glossary 不一致
 6. TestFlight/未上架状态不匹配
 7. 与其他同样 VALID 的文档存在职责重叠（冗余）
+
+### VALID_WITH_GAP（有效但有外部缺口）
+
+文档本身内容正确且仍被使用（满足 VALID 条件），但**含 EXTERNAL_GAP**（声明的某些事实必须靠外部账号/权限/真机/Apple/CI 才能验证，当前 audit 工具链无法 100% 闭环）。
+
+**典型场景**：
+- 描述 Apple 平台行为，需真机 / WWDC 信息验证
+- 描述 CI 行为，需访问 GitHub Actions / Mac mini runner
+- 描述 App Store 行为，需 App Store Connect 账号
+- 描述用户行为，需 TestFlight 反馈
+
+**处置**：保留为 VALID_WITH_GAP，在 audit-ledger 标注 EXTERNAL_GAP 类型，约 2 个审计周期补齐证据；超过 2 周期未补齐 → 归档而非保留为 VALID。
 
 ## 证据类型
 

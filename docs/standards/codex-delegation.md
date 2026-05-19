@@ -1,6 +1,7 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: pattern
+audit_note: 2026-05-19 验证 — gpt-5.5 已是当前推荐模型，下游 cross-audit / cross-audit-consensus skill 已同步
 ---
 # Codex 子 agent 委派规范
 

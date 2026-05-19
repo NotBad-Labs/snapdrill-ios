@@ -1,10 +1,15 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: pattern
+audit_note: 2026-05-19 验证 — 本文件已 skill 化为指针；权威执行在 privacy-manifests skill + app-store-rejection skill
 ---
 # 隐私合规
 
-> 隐私清单实现见 `privacy-manifests` skill。App Review 处理见 `app-store-rejection` skill。
+> 本文件为合规口径索引，**不是权威实现**：
+>
+> - 隐私清单（PrivacyInfo.xcprivacy）实现详见 `privacy-manifests` skill
+> - App Review 拒审处理详见 `app-store-rejection` skill
+> - ATT 移除决策详见 `docs/decisions/ADR-002-remove-att-authorization.md`
 
 ## 核心口径
 

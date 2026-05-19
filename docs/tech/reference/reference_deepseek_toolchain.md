@@ -1,9 +1,10 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: snapshot
 freshness:
   max_age_days: 60
   decay_trigger: [tool_update]
+audit_note: 2026-05-19 验证 — 工具版本与项目实际使用对齐
 ---
 # DeepSeek V4 子代理工具链
 

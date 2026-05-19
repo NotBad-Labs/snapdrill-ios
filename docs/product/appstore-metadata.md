@@ -1,9 +1,10 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 layer: snapshot
 freshness:
   max_age_days: 60
   decay_trigger: [apple_enrollment, app_store_submission]
+audit_note: VALID_WITH_GAP — Apple 账号未启用前为占位文案，App Store 提交前必须全量重审
 ---
 # App Store 元数据（ASO 文案）
 

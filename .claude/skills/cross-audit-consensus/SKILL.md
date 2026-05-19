@@ -78,7 +78,7 @@ user-invocable: true
 
 | 评分方 | 角色 | 裁决权重 |
 |---|---|---|
-| **Codex**（gpt-5.4 --effort high，对照 plan 明文逐条打分） | 主锚点 | **始终** |
+| **Codex**（gpt-5.5 --effort high，对照 plan 明文逐条打分） | 主锚点 | **始终** |
 | **Gemini**（守 `gemini-delegation.md` 评分纪律：8.0 起评 + plan 锚点 + 方差自检） | 次锚点（不等于主锚点） | 守纪律才计入；不守纪律降为参考 |
 | **Gemini**（不守评分纪律） | 参考 | 与 Claude 自审同级 |
 | **Claude**（主对话内审自己刚实施的 PR） | 参考 | 不作锚点（实施方自审 bias） |

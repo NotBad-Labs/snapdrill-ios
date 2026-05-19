@@ -1,6 +1,7 @@
 ---
-last_verified: 2026-05-15
+last_verified: 2026-05-19
 layer: pattern
+audit_note: 2026-05-19 验证 — 5 条 D-XXX（D-001 至 D-005），编号连续，最新 D-005 为 skill 瘦身四方论证
 ---
 # 项目决策记录
 

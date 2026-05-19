@@ -47,7 +47,7 @@ Architecture Fit（0-10 分，整数），见 cross-audit-consensus §2.5。
 
 ### 给 Codex（Agent 委派或 codex exec）
 ```
-模型：gpt-5.4，effort: high
+模型：gpt-5.5，effort: high
 范围：与 Claude 完全一致 [审计目标 + 完整文件清单]
 五维度：DRY / YAGNI / Skill 化 / 一致性 / 时效性
 内联约束：[shared-constraints.md 全文]
@@ -59,7 +59,7 @@ PR 审查场景必须在报告末尾补 4 维评分表（0-10 整数分 + 综合
 ```
 
 调用方式优先级：
-1. `codex exec --model gpt-5.4 --full-auto "<prompt>"`（最稳定，write-capable 仅用于写审计报告；prompt 必须禁止修改被审文件）
+1. `codex exec --model gpt-5.5 --full-auto "<prompt>"`（最稳定，write-capable 仅用于写审计报告；prompt 必须禁止修改被审文件）
 2. `Agent(subagent_type=codex:codex-rescue, prompt=...)`（fallback，注意 plan mode 误判风险）
 
 ### 给 Gemini（Bash）
