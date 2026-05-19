@@ -1,3 +1,8 @@
+---
+last_verified: 2026-05-19
+layer: pattern
+---
+
 @AGENTS.md
 
 # Claude Code

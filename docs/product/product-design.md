@@ -1,6 +1,7 @@
 ---
-last_verified: 2026-05-14
+last_verified: 2026-05-19
 layer: pattern
+audit_note: 2026-05-19 验证 — 各 feature 段使用显式 `[状态, #Issue]` 标签（已实现 / 未实现 / 需 PoC / 阻塞），状态漂移由标签自身承载；每 phase 复审一次
 ---
 # SnapDrill 产品设计规范
 

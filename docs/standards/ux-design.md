@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-14
+last_verified: 2026-05-19
 layer: pattern
 ---
 # UX 设计原则
@@ -51,7 +51,7 @@ layer: pattern
 ### 情感化检查
 - [ ] 加载状态有反馈？（不静止不动）
 - [ ] 操作成功有正向反馈？（不弹窗打扰）
-- [ ] 删除操作有确认步骤？
+- [ ] 删除操作有反悔机制？（toast undo 5 秒撤销 或 破坏性操作 `confirmationDialog`；默认首选 toast undo，详见下方第 6 条）
 
 ### 家长友好检查
 - [ ] 界面语气成熟、不幼稚？
