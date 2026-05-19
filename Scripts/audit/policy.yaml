@@ -82,10 +82,24 @@ checks:
 
   skill-provenance:
     level: error
-    description: 共享 community skill 必须被结构化 skills-lock.json、project-owned 白名单或 legacy skill-source-ledger snapshot 覆盖，vendored 条目必须校验 local blob
+    description: 共享 community skill 必须被结构化 skills-lock.json、project-owned 白名单或 legacy skill-source-ledger snapshot 覆盖，vendored 与 ledger Claude-only 条目必须校验 local blob
     # Only list skills that are genuinely SnapDrill-owned. This bypasses community
     # blob enforcement and must not be used to silence vendored-skill drift.
-    project_owned: []
+    project_owned:
+      - api-research
+      - cross-audit
+      - cross-audit-consensus
+      - decision-closeout
+      - dependency-propagation
+      - dod-checklist
+      - harness-recall
+      - knowledge-health
+      - phase-closeout
+      - post-merge
+      - resume-from-handoff
+      - sprint-contract
+      - verify-audit-report
+      - xcode-review
 
 # Finding 级豁免规则（Phase C 清理前过渡）
 # 每条规则：

@@ -60,7 +60,7 @@ def _base_policy() -> dict:
             "skill-provenance": {
                 "level": "error",
                 "description": "",
-                "project_owned": ["shared", "plugin"],
+                "project_owned": ["shared", "plugin", "claude-only"],
             },
         },
         "output": {"tsv_dir": "reports/", "summary_stdout": True, "verbose_default": False},
@@ -474,6 +474,18 @@ class DocauditTestCase(unittest.TestCase):
                 f"`0123456789abcdef0123456789abcdef01234567` | `{local_blob}` |\n"
             )
 
+    def _write_claude_only_skill_ledger_row(self, skill: str, local_blob: str) -> None:
+        ledger = self.repo / "docs" / "standards" / "skill-source-ledger.md"
+        ledger.write_text(
+            "# Skill Source Ledger\n\n"
+            "## Current Claude-Only `rshankras` Skills\n\n"
+            "| Skill | Current Claude path | Current local blob | Upstream path at `abc` | Upstream blob | Status |\n"
+            "|---|---|---|---|---|---|\n"
+            f"| `{skill}` | `.claude/skills/{skill}/SKILL.md` | `{local_blob}` | "
+            f"`skills/generators/{skill}/SKILL.md` | `0123456789abcdef0123456789abcdef01234567` | exact upstream SKILL.md |\n",
+            encoding="utf-8",
+        )
+
     def _write_vendored_lock_entry(
         self,
         skill: str,
@@ -737,6 +749,87 @@ class DocauditTestCase(unittest.TestCase):
         code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
         self.assertEqual(code, 1, out)
         self.assertIn("ledger_points_to_missing_support_file", out)
+
+    def test_skill_provenance_claude_only_ledger_row_is_checked(self) -> None:
+        claude_only = self.repo / ".claude" / "skills" / "community" / "SKILL.md"
+        claude_only.parent.mkdir()
+        claude_only.write_text("---\nname: community\n---\n# Community\n", encoding="utf-8")
+        self._write_claude_only_skill_ledger_row("community", docaudit._git_blob_sha(claude_only))
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
+
+    def test_skill_provenance_claude_only_blob_mismatch_blocks_silent_edit(self) -> None:
+        claude_only = self.repo / ".claude" / "skills" / "community" / "SKILL.md"
+        claude_only.parent.mkdir()
+        claude_only.write_text("---\nname: community\n---\n# Community\n", encoding="utf-8")
+        self._write_claude_only_skill_ledger_row("community", "fedcba9876543210fedcba9876543210fedcba98")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("claude_only_blob_mismatch", out)
+
+    def test_skill_provenance_claude_only_missing_file_is_explicit(self) -> None:
+        self._write_claude_only_skill_ledger_row("community", "fedcba9876543210fedcba9876543210fedcba98")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("ledger_points_to_missing_claude_skill", out)
+
+    def test_skill_provenance_untracked_claude_only_skill_is_explicit(self) -> None:
+        claude_only = self.repo / ".claude" / "skills" / "community" / "SKILL.md"
+        claude_only.parent.mkdir()
+        claude_only.write_text("---\nname: community\n---\n# Community\n", encoding="utf-8")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("untracked_claude_only_skill", out)
+
+    def test_skill_provenance_claude_only_malformed_row_is_explicit(self) -> None:
+        ledger = self.repo / "docs" / "standards" / "skill-source-ledger.md"
+        ledger.write_text(
+            "# Skill Source Ledger\n\n"
+            "## Current Claude-Only `rshankras` Skills\n\n"
+            "| Skill | Current Claude path | Current local blob | Upstream path at `abc` | Upstream blob | Status |\n"
+            "|---|---|---|---|---|---|\n"
+            "| `community` | `.claude/skills/community/SKILL.md` | `not-a-blob` | `skills/community/SKILL.md` | `also-bad` | bad |\n",
+            encoding="utf-8",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("malformed_claude_only_ledger_row", out)
+
+    def test_skill_provenance_claude_only_bad_section_heading_is_explicit(self) -> None:
+        ledger = self.repo / "docs" / "standards" / "skill-source-ledger.md"
+        ledger.write_text(
+            "# Skill Source Ledger\n\n"
+            "## Current Claude-Only rshankras Community Skills\n\n"
+            "| Skill | Current Claude path | Current local blob | Upstream path at `abc` | Upstream blob | Status |\n"
+            "|---|---|---|---|---|---|\n",
+            encoding="utf-8",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("malformed_claude_only_section_heading", out)
+
+    def test_skill_provenance_claude_only_path_must_match_skill_name(self) -> None:
+        ledger = self.repo / "docs" / "standards" / "skill-source-ledger.md"
+        ledger.write_text(
+            "# Skill Source Ledger\n\n"
+            "## Current Claude-Only `rshankras` Skills\n\n"
+            "| Skill | Current Claude path | Current local blob | Upstream path at `abc` | Upstream blob | Status |\n"
+            "|---|---|---|---|---|---|\n"
+            "| `community` | `docs/README.md` | `fedcba9876543210fedcba9876543210fedcba98` | "
+            "`skills/community/SKILL.md` | `0123456789abcdef0123456789abcdef01234567` | bad |\n",
+            encoding="utf-8",
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "skill-provenance", "--verbose"])
+        self.assertEqual(code, 1, out)
+        self.assertIn("claude_only_ledger_path_mismatch", out)
 
     # ---------- all (含 frontmatter subprocess) ----------
 

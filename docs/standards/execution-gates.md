@@ -26,7 +26,7 @@ layer: pattern
 | `rule-usage` | info | F-NNN 规则在全仓的外部引用计数（0 引用 → dead rule 候选） | 防止退役规则残留、F 规则体系膨胀 | `docs/standards/engineering.md:122-156`（F-XXX 生命周期） | 无（info 级，不阻断） |
 | `skill-inventory` | error | `.claude/skills` / `.agents/skills` 计数与 Claude adapter 指向 | 防止 shared skill 与 Claude discovery 双源漂移 | `docs/standards/skill-architecture.md` | 无豁免（error 级必须修复） |
 | `skill-links` | error | 共享 skill 源内相对 Markdown 引用指向不存在的文件 | 防止迁移/精简 skill 时留下断裂引用 | `docs/standards/skill-architecture.md` | 无豁免（error 级必须修复） |
-| `skill-provenance` | error | 共享 community skill 是否被结构化 `skills-lock.json`、project-owned 白名单或 legacy source ledger vendored snapshot 覆盖，并校验 vendored 本地 blob | 防止无记录修改社区 skill 正文或 support files，把维护责任隐式转移给 SnapDrill | `docs/standards/skill-source-ledger.md`, `skills-lock.json` | `policy.yaml` project_owned 仅用于真正项目自有 skill |
+| `skill-provenance` | error | 共享 community skill 是否被结构化 `skills-lock.json`、project-owned 白名单或 legacy source ledger vendored snapshot 覆盖，并校验 vendored/Claude-only 本地 blob | 防止无记录修改社区 skill 正文或 support files，把维护责任隐式转移给 SnapDrill | `docs/standards/skill-source-ledger.md`, `skills-lock.json` | `policy.yaml` project_owned 仅用于真正项目自有 skill |
 
 ## 3. SwiftLint 规则族
 

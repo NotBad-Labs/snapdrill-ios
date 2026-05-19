@@ -126,6 +126,10 @@ SKILL_PROVENANCE_ROW_RE = re.compile(
 SKILL_SUPPORT_FILE_ROW_RE = re.compile(
     r"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|\s*`([0-9a-f]{40})`\s*\|\s*`([0-9a-f]{40})`\s*\|$"
 )
+SKILL_CLAUDE_ONLY_SECTION_RE = re.compile(r"^## Current Claude-Only `?rshankras`? Skills$")
+SKILL_CLAUDE_ONLY_ROW_RE = re.compile(
+    r"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|\s*`([0-9a-f]{40})`\s*\|\s*`([^`]+)`\s*\|\s*`([0-9a-f]{40})`\s*\|\s*([^|]+)\s*\|$"
+)
 GIT_BLOB_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 LOCK_SOURCE_TYPES = {"github"}
@@ -1078,6 +1082,88 @@ def _parse_shared_support_file_snapshots(result: CheckResult) -> list[dict[str, 
     return rows
 
 
+def _parse_claude_only_skill_snapshots(result: CheckResult) -> list[dict[str, str]]:
+    ledger = REPO_ROOT / "docs" / "standards" / "skill-source-ledger.md"
+    if not ledger.is_file():
+        return []
+
+    rows: list[dict[str, str]] = []
+    in_section = False
+    saw_section = False
+    for lineno, line in enumerate(_read_lines(ledger), start=1):
+        if line.startswith("## "):
+            stripped = line.strip()
+            if "current claude-only" in stripped.lower() and "skills" in stripped.lower():
+                saw_section = True
+                if not SKILL_CLAUDE_ONLY_SECTION_RE.match(stripped):
+                    result.findings.append(Finding(
+                        check="skill-provenance",
+                        path="docs/standards/skill-source-ledger.md",
+                        line=lineno,
+                        category="malformed_claude_only_section_heading",
+                        level=result.level,
+                        suggestion="Claude-only rshankras section heading must be '## Current Claude-Only `rshankras` Skills'",
+                    ))
+                    in_section = False
+                    continue
+            in_section = SKILL_CLAUDE_ONLY_SECTION_RE.match(stripped) is not None
+            continue
+        if not in_section:
+            continue
+        match = SKILL_CLAUDE_ONLY_ROW_RE.match(line.strip())
+        if not match:
+            if line.strip().startswith("| `"):
+                result.findings.append(Finding(
+                    check="skill-provenance",
+                    path="docs/standards/skill-source-ledger.md",
+                    line=lineno,
+                    category="malformed_claude_only_ledger_row",
+                    level=result.level,
+                    suggestion="Claude-only skill ledger rows must include skill, Claude path, local blob, upstream path, upstream blob, and status",
+                ))
+            continue
+        skill, local_path, local_blob, upstream_path, upstream_blob, _status = match.groups()
+        expected_local_path = f".claude/skills/{skill}/SKILL.md"
+        if local_path != expected_local_path:
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path="docs/standards/skill-source-ledger.md",
+                line=lineno,
+                category="claude_only_ledger_path_mismatch",
+                level=result.level,
+                suggestion=f"Claude-only skill '{skill}' path must be '{expected_local_path}'",
+            ))
+            continue
+        if not GIT_BLOB_RE.match(upstream_blob):
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path="docs/standards/skill-source-ledger.md",
+                line=lineno,
+                category="malformed_claude_only_ledger_row",
+                level=result.level,
+                suggestion=f"Claude-only skill '{skill}' upstream blob must be a 40-character git blob SHA",
+            ))
+            continue
+        rows.append({
+            "line": str(lineno),
+            "skill": skill,
+            "local_path": local_path,
+            "local_blob": local_blob,
+            "upstream_path": upstream_path,
+            "upstream_blob": upstream_blob,
+        })
+    if saw_section and not rows:
+        result.findings.append(Finding(
+            check="skill-provenance",
+            path="docs/standards/skill-source-ledger.md",
+            line=0,
+            category="empty_claude_only_ledger_section",
+            level=result.level,
+            suggestion="Claude-only rshankras section must include machine-parseable skill rows",
+        ))
+    return rows
+
+
 def check_skill_provenance(policy: dict) -> CheckResult:
     conf = policy["checks"]["skill-provenance"]
     level = conf["level"]
@@ -1085,7 +1171,9 @@ def check_skill_provenance(policy: dict) -> CheckResult:
     result = CheckResult(check="skill-provenance", level=level)
 
     shared_root = REPO_ROOT / ".agents" / "skills"
+    claude_root = REPO_ROOT / ".claude" / "skills"
     shared_names = _first_level_skill_names(shared_root)
+    claude_names = _first_level_skill_names(claude_root)
     lock_entries = _load_skill_lock_entries(result)
     if lock_entries is None:
         return result
@@ -1271,6 +1359,48 @@ def check_skill_provenance(policy: dict) -> CheckResult:
                 suggestion=(
                     f"ledger local blob is {row['local_blob']} but current blob is {actual_blob}; "
                     "do not edit vendored community support files without recording a patch decision"
+                ),
+                matched_text=f"ledger line {row['line']}",
+            ))
+
+    claude_only_rows = _parse_claude_only_skill_snapshots(result)
+    claude_only_ledger_names = {row["skill"] for row in claude_only_rows}
+    for name in sorted(claude_names - shared_names - project_owned - claude_only_ledger_names):
+        result.findings.append(Finding(
+            check="skill-provenance",
+            path=f".claude/skills/{name}/SKILL.md",
+            line=0,
+            category="untracked_claude_only_skill",
+            level=level,
+            suggestion=(
+                f"Claude-only skill '{name}' must be listed in skill-source-ledger.md "
+                "or checks.skill-provenance.project_owned"
+            ),
+        ))
+
+    for row in claude_only_rows:
+        local_path = REPO_ROOT / row["local_path"]
+        if not local_path.is_file():
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path="docs/standards/skill-source-ledger.md",
+                line=int(row["line"]),
+                category="ledger_points_to_missing_claude_skill",
+                level=level,
+                suggestion=f"ledger lists Claude-only skill '{row['local_path']}' but it does not exist",
+            ))
+            continue
+        actual_blob = _git_blob_sha(local_path)
+        if actual_blob != row["local_blob"]:
+            result.findings.append(Finding(
+                check="skill-provenance",
+                path=row["local_path"],
+                line=0,
+                category="claude_only_blob_mismatch",
+                level=level,
+                suggestion=(
+                    f"ledger local blob is {row['local_blob']} but current blob is {actual_blob}; "
+                    "do not edit Claude-only community skill bodies without recording source status"
                 ),
                 matched_text=f"ledger line {row['line']}",
             ))
