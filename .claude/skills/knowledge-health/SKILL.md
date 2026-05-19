@@ -36,7 +36,24 @@ python3 Scripts/audit/docaudit.py all --baseline --verbose  # baseline 视角对
 python3 Scripts/audit/docaudit.py all --report --baseline   # 落盘 TSV
 ```
 
-### 2. 扫描 CI 看不到的私有空间
+### 2a. 软上限触线检查
+
+`docs/KNOWLEDGE_MAP.md` 声明活跃知识文件软上限 ~50（超过 ~45 优先合并/退役，超过 ~50 必须先退役才能新增）。
+
+```bash
+COUNT=$(find docs/ -name "*.md" -not -path "*/archive/*" -not -path "*/reference/*" | wc -l | tr -d ' ')
+if [ "$COUNT" -gt 50 ]; then
+  echo "🔴 $COUNT/50 已超硬触线 — 必须退役才能新增"
+elif [ "$COUNT" -gt 45 ]; then
+  echo "🟡 $COUNT/50 已过软触线 — 新增前必须先列退役/合并候选"
+else
+  echo "🟢 $COUNT/50 安全水位"
+fi
+```
+
+结果纳入 plan 文件 §3 P1 段（触线时强制 P1）。
+
+### 2b. 扫描 CI 看不到的私有空间
 
 **`~/.claude/plans/`**：
 - 列出所有 plans，按文件名 pattern 分类：

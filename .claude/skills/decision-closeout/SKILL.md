@@ -40,7 +40,7 @@ grep -r "<变更关键词>" docs/ --include="*.md" -l
 
 ### Step 2: 同步更新
 
-对每个受影响的下游文档（按 `docs/DOC_DEPENDENCY_MAP.md` §3 主链分组）：
+对每个受影响的下游文档（按 `docs/DOC_DEPENDENCY_MAP.md` §2 主链分组）：
 
 **产品主链**：
 - `product-requirements.md` / `product-design.md` / `product-cases.md` — 功能规格同步

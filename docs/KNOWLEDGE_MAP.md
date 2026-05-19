@@ -46,7 +46,10 @@ layer: pattern
 | `docs/standards/memory-routing.md` | 知识/记忆路由规则（哪类内容写哪里） | KNOWLEDGE_MAP | 路由争议 |
 | `docs/standards/permission-model.md` | Tool / Bash 命令 / Skill allowed-tools 权限矩阵（SSOT） | settings.json, hooks, skills | 权限配置变更 |
 | `docs/standards/skill-architecture.md` | Agent Skills 目录架构、计数口径、迁移规则 | AGENTS, Claude adapter, permission-model | skill 新增/迁移/退役 |
+| `docs/standards/skill-source-ledger.md` | Skill 来源/提供方/许可证清单 | skill-architecture | 新增/退役 vendored skill |
+| `docs/standards/audit-rubric.md` | 文档审计判定标准（VALID/STALE_OR_INVALID/NEEDS_REVISION） | engineering, workflow | 审计流程演化 |
 | `docs/standards/execution-gates.md` | 执行门禁总表（每个门禁 → 上游文档 → 执行器 → 豁免方式） | permission-model, workflow, engineering | 门禁新增/修改/退役 |
+| `docs/standards/README.md` | standards/ 目录索引 | 本目录所有文件 | 新增/退役 standards 文件 |
 | `docs/tech/compliance.md` | 隐私合规、App Store 审核 | vision, business | 政策变更 |
 | `docs/tech/deployment.md` | CI/CD、发布流程 | — | 工具更新 |
 | `docs/tech/non-functional-requirements.md` | 性能、内存、存储 | architecture | 设备更新 |
@@ -111,7 +114,7 @@ layer: pattern
 - api-pitfalls 条目被框架修复后标记退役
 - ADR 被新 ADR 取代时标记为"已废弃"并指向替代 ADR
 
-**文件数量软上限**：活跃知识文件 ~50 个（当前 docs/ 下第一方 md ~42，不含 archive/）。超过 ~50 时优先合并或退役，而非继续新增。
+**文件数量软上限**：活跃知识文件 ~50 个（当前 docs/ 下第一方 md 44，不含 archive/ 与 tech/reference/）。已到 88% 触线。超过 ~45 时优先合并或退役而非新增；超过 ~50 必须先退役才能新增。
 
 ## 架构决策记录（ADR）
 
@@ -124,10 +127,10 @@ layer: pattern
 
 ## 知识卫生规则
 
-2. **升级 Xcode/iOS**：检查 `apple-limits.md`、`apple-native.md`
-3. **模型/工具更新**：检查 `reference_ai_toolchain_specs.md`、`codex-delegation.md`
-5. **WWDC 后**：全量审计模式层和快照层
-6. **每次对话启动**：Claude 检查快照层 `last_verified` 是否超期
-7. **更新知识文件时**：grep 其他文件中对同一主题的引用，确认无矛盾（冲突检测）
-8. **修复非预期问题后**：评估是否需要录入 `api-pitfalls.md` 或 feedback（踩坑即录入）
-9. **docs 结构性漂移**：`Scripts/audit/docaudit.py` 提供机械化审计（7 个结构子命令：links / archived-refs / orphans / home-path-refs / rule-usage / skill-inventory / skill-links；`all` 另含 frontmatter subprocess）。策略源 `Scripts/audit/policy.yaml`，用法见 `Scripts/audit/README.md`。CI `docs` job（ubuntu-latest 并行）+ PostToolUse hook（Edit docs）+ PreToolUse hook（git push / gh pr merge 前）自动触发；对话场景用 `/knowledge-health` skill 扫描 CI 不可见的 Claude 私有空间 + private memory，产出分层修复 plan，不改文件
+1. **升级 Xcode/iOS**：检查 `apple-limits.md`、`apple-native.md`
+2. **模型/工具更新**：检查 `reference_ai_toolchain_specs.md`、`codex-delegation.md`
+3. **WWDC 后**：全量审计模式层和快照层
+4. **每次对话启动**：Claude 检查快照层 `last_verified` 是否超期
+5. **更新知识文件时**：grep 其他文件中对同一主题的引用，确认无矛盾（冲突检测）
+6. **修复非预期问题后**：评估是否需要录入 `api-pitfalls.md` 或 feedback（踩坑即录入）
+7. **docs 结构性漂移**：`Scripts/audit/docaudit.py` 提供机械化审计（7 个结构子命令：links / archived-refs / orphans / home-path-refs / rule-usage / skill-inventory / skill-links；`all` 另含 frontmatter subprocess）。策略源 `Scripts/audit/policy.yaml`，用法见 `Scripts/audit/README.md`。CI `docs` job（ubuntu-latest 并行）+ PostToolUse hook（Edit docs）+ PreToolUse hook（git push / gh pr merge 前）自动触发；对话场景用 `/knowledge-health` skill 扫描 CI 不可见的 Claude 私有空间 + private memory，产出分层修复 plan，不改文件

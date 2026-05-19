@@ -13,7 +13,7 @@ freshness:
 > **互补视图**：`docs/KNOWLEDGE_MAP.md` 是知识分层索引（原则/模式/快照）。本依赖图是变更传播图。两者互补使用。
 
 
-## 2. 文档依赖矩阵（上游 / 下游）
+## 1. 文档依赖矩阵（上游 / 下游）
 
 | 文档 | 角色 | 上游依赖（读谁） | 下游影响（改后要同步谁） |
 |---|---|---|---|
@@ -39,16 +39,17 @@ freshness:
 | `docs/standards/*.md` | 执行约束 | engineering（部分）、workflow | 智能体行为、委派上下文质量 |
 | `docs/standards/execution-gates.md` | 门禁总表 | `docs/standards/permission-model.md`、`docs/workflow.md`、`docs/standards/engineering.md` | 门禁新增/修改/退役时同步 |
 | `docs/standards/skill-architecture.md` | Skill 目录架构与迁移规则 | `AGENTS.md`、`CLAUDE.md`、`docs/standards/permission-model.md` | 新增/迁移/退役 skill 时同步 |
+| `docs/standards/skill-source-ledger.md` | Skill 来源/提供方/许可证清单 | `docs/standards/skill-architecture.md` | 新增/退役 vendored skill |
+| `docs/standards/audit-rubric.md` | 文档审计判定标准 | `docs/standards/engineering.md`、`docs/workflow.md` | Phase 2-6 审计流程 |
 | `docs/DOC_DEPENDENCY_MAP.md` | 文档依赖图（变更传播 SSOT） | `docs/standards/engineering.md`（原则 5）、`docs/workflow.md` | KNOWLEDGE_MAP、全文档变更传播 |
 | `docs/KNOWLEDGE_MAP.md` | 知识分层与裁决索引 | `docs/workflow.md`、`docs/DOC_DEPENDENCY_MAP.md` | 文档检索顺序、更新触发规则 |
-| `docs/standards/audit-rubric.md` | 文档审计判定标准 | `docs/standards/engineering.md`、`docs/workflow.md` | Phase 2-6 审计流程 |
 | `CLAUDE.md` / `AGENTS.md` | 智能体执行入口 | `docs/workflow.md`、`docs/KNOWLEDGE_MAP.md`、`docs/standards/engineering.md` | 智能体启动上下文 |
 | `STATUS.md` | 进度快照 | `docs/workflow.md`（DoD、PR 流程、S0-S3 优先级） | 会话启动上下文、排期决策 |
 | `docs/memory/*.md` | 交接快照 | `docs/workflow.md`、`STATUS.md` | 跨会话接手效率、审计可追溯性 |
 
 ---
 
-## 3. 变更传播规则（防返工）
+## 2. 变更传播规则（防返工）
 
 | 改动源头 | 最少同步清单 |
 |---|---|
@@ -63,7 +64,7 @@ freshness:
 
 ---
 
-## 4. 操作建议（接手顺序）
+## 3. 操作建议（接手顺序）
 
 1. 先读 `product-vision.md`，确认产品定位和原则。
 2. 再读 `product-design.md` + `product-requirements.md`，确认"做什么/怎么做"。

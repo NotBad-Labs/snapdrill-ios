@@ -82,7 +82,7 @@ bash Scripts/anti-pattern-scan.sh
 
 ### Step 4：文档同步检查
 
-按 `docs/DOC_DEPENDENCY_MAP.md` §3 变更传播规则，检查本次 PR 是否需要同步下游：
+按 `docs/DOC_DEPENDENCY_MAP.md` §2 变更传播规则，检查本次 PR 是否需要同步下游：
 
 ```bash
 # 检查 product-requirements.md last_verified 日期

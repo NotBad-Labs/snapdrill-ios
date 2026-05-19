@@ -38,7 +38,7 @@ user-invocable: true
 
 ### Step 2：查依赖图找下游
 
-读 `docs/DOC_DEPENDENCY_MAP.md` §3 变更传播规则表，找到该文件的下游清单：
+读 `docs/DOC_DEPENDENCY_MAP.md` §2 变更传播规则表，找到该文件的下游清单：
 
 ```
 改动源头 → 最少同步清单
@@ -50,7 +50,7 @@ compliance.md / NFR.md → deployment
 PR 合并 / issue 状态变化 → STATUS.md + handoff.md
 ```
 
-如果变更源不在表中，用 §2 依赖矩阵查找"下游影响"列。
+如果变更源不在表中，用 §1 依赖矩阵查找"下游影响"列。
 
 ### Step 3：逐一下游 grep 具体引用
 
@@ -87,7 +87,7 @@ grep -n -i "3.*试卷\|试卷.*3\|免费.*试卷" docs/product/product-requireme
 ## 变更传播报告
 
 **变更源**: <文件> — <一句话>
-**依赖图引用**: DOC_DEPENDENCY_MAP.md §3
+**依赖图引用**: DOC_DEPENDENCY_MAP.md §2
 
 | 下游文件 | 状态 | 改动 |
 |---|---|---|
