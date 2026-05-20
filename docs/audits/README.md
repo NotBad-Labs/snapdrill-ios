@@ -11,9 +11,11 @@ freshness:
 
 ## 当前归档
 
-| 文件 | 范围 | 审计周期 | 审计员（auditor） | 复核员（reviewer） | 关联 ADR |
-|---|---|---|---|---|---|
-| `audit-ledger-2026-05.tsv` | 文档体系深度清洁 Phase 0-9，192 条文件级 verdict | 2026-05-18 ~ 2026-05-20 | Claude Opus 4.7（主线裁决）+ Codex GPT-5.5（5 batch 三方对抗 + Round 1-5 独立验证）+ Gemini CLI（5 batch 三方对抗） | 用户 chramboliao（PO，终审 + 工具选型决策） | `docs/decisions/ADR-004-doc-system-deep-clean.md` |
+| 文件 | 范围 | 审计周期 | 审计员（auditor） | 复核员（reviewer） | 关联 ADR | superseded_by |
+|---|---|---|---|---|---|---|
+| `audit-ledger-2026-05.tsv` | 文档体系深度清洁 Phase 0-9，192 条文件级 verdict | 2026-05-18 ~ 2026-05-20 | Claude Opus 4.7（主线裁决）+ Codex GPT-5.5（5 batch 三方对抗 + Round 1-6 独立验证）+ Gemini CLI（5 batch 三方对抗） | 用户 chramboliao（PO，终审 + 工具选型决策） | `docs/decisions/ADR-004-doc-system-deep-clean.md` | — |
+
+> `superseded_by` 列说明：当本 ledger 被新一轮深度清洁产物覆盖时，在此填入新 ledger 文件名（例如 `audit-ledger-2026-12.tsv`）；旧 ledger 文件物理上保留不删除。当前为 `—` 表示仍是 Active 状态。
 
 ## TSV 字段语义
 
