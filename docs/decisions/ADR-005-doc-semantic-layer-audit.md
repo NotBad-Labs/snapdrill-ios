@@ -69,7 +69,7 @@ layer: decision
 | 3 | 内部冲突扫描 | ✅ 已完成（2026-05-20 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim3-consensus.md](../audits/semantic-audit-dim3-consensus.md) + Antigravity 单家 [semantic-audit-dim3-findings.md](../audits/semantic-audit-dim3-findings.md) + ledger 追加 11 行；10 OPEN finding（HIGH×1 MEDIUM×3 LOW×4 INFO×2）+ 1 WAIVED；**Codex 与 Antigravity 6/6 完全一致**，对抗一致度三轮最高） | 实际 ≈ 60 min（三方对抗） |
 | 4 | 技术↔产品对齐 | ✅ 已完成（2026-05-21 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim4-consensus.md](../audits/semantic-audit-dim4-consensus.md) + Antigravity 单家 [semantic-audit-dim4-findings.md](../audits/semantic-audit-dim4-findings.md) + ledger 追加 11 行；11 OPEN finding（HIGH×3 MEDIUM×4 LOW×4）；**Codex 大爆发**，7 项里 5 项是 Claude/Antigravity 都漏的真问题；3 个 HIGH 含 2 个真生产 bug） | 实际 ≈ 60 min（三方对抗）|
 | 5 | standards 约束力 | ✅ 已完成（2026-05-21 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim5-consensus.md](../audits/semantic-audit-dim5-consensus.md) + Antigravity 单家 [semantic-audit-dim5-findings.md](../audits/semantic-audit-dim5-findings.md) + ledger 追加 15 行；15 OPEN finding（HIGH×3 MEDIUM×8 LOW×3 INFO×1）；**Codex 大爆发**第二轮，12 项里 5 项独家；3 个 HIGH 含 audit_note 虚假合规和元层级 self-non-compliance）| 实际 ≈ 90 min（三方对抗）|
-| 6 | skill description ↔ body 一致性 | 14 governance + 21 Claude-only + 16 shared 全量逐个核对 description 与 body 是否同义 | 60-90 min |
+| 6 | skill description ↔ body 一致性 | ✅ 已完成（2026-05-21 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim6-consensus.md](../audits/semantic-audit-dim6-consensus.md) + Antigravity 单家 [semantic-audit-dim6-findings.md](../audits/semantic-audit-dim6-findings.md) + ledger 追加 7 行；7 OPEN finding（MEDIUM×3 LOW×4，无 HIGH）；**Codex 三轮连续最强**，独家 D6-001 抓 13+ domain skill 缺 support files；Claude 首次 0 独家暴露大范围机械实证局限）| 实际 ≈ 75 min（三方对抗）|
 | 7 | F-rule 实际遵守度 | F-001 ~ F-019 在 git log 是否真有触发证据；空载 F-rule 标候选废止 | 45-60 min |
 
 **总预估**：6-9 小时单方工作量 × 3 家 = 三方并行下用户视角约 8-12 小时跨 2-3 session（Codex / Antigravity 后台跑，Claude 主线推进）。
@@ -244,6 +244,23 @@ S-D4-001 DI 系统性退化是 3/3 同域共识（Claude 系统视角 + Antigrav
 **累计结论**：Gemini 3.5 五轮实测未复现 over-endorse；维度 4-5 连续守规矩证明提示词「严禁操作」段封堵有效。
 
 **累计 OPEN finding**：维度 1 (22) + 维度 2 (11) + 维度 3 (10) + 维度 4 (11) + 维度 5 (15) = **69 项**。
+
+### 维度 6 收官观察（2026-05-21）
+
+三方对抗输出分布：Claude 2 / Codex 6 / Antigravity 5，三家折叠后 7 项 OPEN finding（MEDIUM×3 LOW×4，**无 HIGH**）。
+
+**关键发现**：
+- **S-D6-001 [MEDIUM, Codex 独家]**: 13+ Claude-only domain skill description 承诺 Generates/Reviews，body 引用的 support files (apple-hig-icons.md / templates.md / swift-patterns.md 等) **物理不存在**。结构层 skill-provenance check 漏抓的元层级盲区
+- **S-D6-002 [MEDIUM, 2/3]**: 3 个 vendored shared skill 缺 H1。Claude 自驳此前判断；但修复路径受 skill-source-ledger:16「Do not edit community skill bodies」约束，**Antigravity 处方违规**——需走 WAIVED 或上游 PR
+- **S-D6-003 [MEDIUM, Codex]**: tdd-refactor-guard description「Verifies」vs body「generates characterization tests」动词偏移
+
+**Codex 三轮连续最强**（维度 4+5+6）：擅长跨文件机械实证 + 系统性扫描。
+
+**Claude CLI 首次 0 独家**：暴露大范围机械实证局限——并非偷懒，完整扫了 52 个 skill，但发现都被 Codex/Antigravity 覆盖。**这是控制变量法的真实价值**——暴露模型差异化能力边界。
+
+**Gemini 3.5 监控**：六轮累计未复现 over-endorse；但维度 6 出现 **「抓真问题 + 开错处方」**（H1 修复违反 skill-source-ledger）新现象，需要监控是否成为模式。
+
+**累计 OPEN finding**：22 + 11 + 10 + 11 + 15 + 7 = **76 项**。剩 1 维度（维度 7 F-rule 遵守度）。
 
 ### 元数据
 
