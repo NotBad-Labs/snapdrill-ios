@@ -22,7 +22,7 @@ freshness:
 - **Phase 8**：73 文件真全文 Read 补审 4 latent finding
 - **Phase 9**：snapshot-testing 拆出嵌入第二 frontmatter 为独立 `snapshot-diff-review` skill
 
-audit-ledger 现状（`docs/audits/audit-ledger-2026-05.tsv`，元信息见 `docs/audits/README.md`）：**217 行**（Round 9 全集覆盖补审后，含 14 governance skill + 11 构建/CI/meta-audit/GitHub 条目，6 个 stale 已标 STALE_OR_INVALID）；Confidence 全部 RESOLVED；Codex / Gemini 列 165 行空（Phase 5+ 与 Round 9 增量以 Claude 单家裁决落地，待独立验证）。
+audit-ledger 现状（`docs/audits/audit-ledger-2026-05.tsv`，元信息见 `docs/audits/README.md`）：**224 行**（Round 9 全集覆盖补审 + Codex 反馈矫正后，含 14 governance + 11 构建/CI/meta + 7 Codex 盲区补审 + 2 真 bug 修复 + 2 dead duplicate 标 stale）；Final_Decision: VALID 184 / VALID_WITH_GAP 29 / STALE_OR_INVALID 11；Confidence 全部 RESOLVED；Codex 已 Round 1-9 独立验证（Round 9 矫正 4 verdict + 补 7 盲区）；Gemini 全周期最终复核待用户触发。
 
 **Skill 体系**：52 个 distinct 一层 skill（15 项目治理、21 Claude-only 领域 skill、16 共享 skill）。SSOT：`docs/standards/skill-architecture.md`。
 

@@ -62,6 +62,15 @@ def _base_policy() -> dict:
                 "description": "",
                 "project_owned": ["shared", "plugin", "claude-only"],
             },
+            "verdict-sync": {
+                "level": "warning",
+                "description": "",
+                "scan_paths": [],
+            },
+            "external-gap-expiry": {
+                "level": "warning",
+                "description": "",
+            },
         },
         "output": {"tsv_dir": "reports/", "summary_stdout": True, "verbose_default": False},
     }

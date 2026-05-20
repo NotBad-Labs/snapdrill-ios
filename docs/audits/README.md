@@ -13,7 +13,7 @@ freshness:
 
 | 文件 | 范围 | 审计周期 | 审计员（auditor） | 复核员（reviewer） | 关联 ADR | superseded_by |
 |---|---|---|---|---|---|---|
-| `audit-ledger-2026-05.tsv` | 文档体系深度清洁 Phase 0-9 + Round 9 全集覆盖补审，**217** 条文件级 verdict（含 Round 9 新增 14 governance skill + 11 构建/CI/meta-audit/GitHub 配置，并将 6 个已退役/已归档路径标 STALE_OR_INVALID） | 2026-05-18 ~ 2026-05-20 | Claude Opus 4.7（主线裁决）+ Codex GPT-5.5（5 batch 三方对抗 + Round 1-6 独立验证）+ Gemini CLI（5 batch 三方对抗）；Round 9 25 条增量为 Claude 单家裁决（待 Round 9 独立验证 Codex + Gemini） | 用户 chramboliao（PO，终审 + 工具选型决策） | `docs/decisions/ADR-004-doc-system-deep-clean.md` | — |
+| `audit-ledger-2026-05.tsv` | 文档体系深度清洁 Phase 0-9 + Round 9 全集覆盖补审 + Codex Round 9 反馈修订，**224** 条文件级 verdict | 2026-05-18 ~ 2026-05-20 | Claude Opus 4.7（主线裁决）+ Codex GPT-5.5（5 batch 三方对抗 + Round 1-9 独立验证，Round 9 矫正 4 verdict）+ Gemini CLI（5 batch 三方对抗，全周期最终复核待用户触发） | 用户 chramboliao（PO，终审 + 工具选型决策） | `docs/decisions/ADR-004-doc-system-deep-clean.md` | — |
 
 > `superseded_by` 列说明：当本 ledger 被新一轮深度清洁产物覆盖时，在此填入新 ledger 文件名（例如 `audit-ledger-2026-12.tsv`）；旧 ledger 文件物理上保留不删除。当前为 `—` 表示仍是 Active 状态。
 
@@ -41,8 +41,33 @@ freshness:
 ## 阅读口径
 
 - **Final_Decision 是 SSOT**，三方独立裁决列是过程记录
-- **Codex/Gemini 列空 = 该条目以 Claude 单家裁决落地**（Phase 5+ 增量条目为节省 API 费用未跑完整三方对抗；详见 `docs/decisions/ADR-004-doc-system-deep-clean.md` 元数据段）
+- **Codex/Gemini 列空 = 该条目以 Claude 单家裁决落地**（Phase 5+ 与 Round 9 增量为节省 API 费用未跑完整三方对抗；详见 `docs/decisions/ADR-004-doc-system-deep-clean.md` 元数据段）
 - **Confidence=RESOLVED** 表示 Final_Decision 已落地；旧版数据可能有 PENDING（Phase 2 残留，已在 2026-05-20 全部 RESOLVED）
+
+### Final_Decision = STALE_OR_INVALID 双语义
+
+本 ledger 中 `STALE_OR_INVALID` 同时表示两种情况，凭 `Reason` 区分：
+
+1. **物理 stale**：路径在 repo 中已不存在（已删除/已归档/已合并）。例：`.claude/skills/biometric-auth/SKILL.md`（Phase 5 退役）
+2. **逻辑 stale**：路径仍存在但不应作为 active 事实源（如 dead duplicate / 历史残留）。例：`Configs/Debug.xcconfig`（Round 9 Codex 发现未被 xcodeproj 引用，留着只会引起 SSOT 误用）
+
+后续清理时两种语义都允许，但物理删除前必须确认 build/CI/IDE 任何环节都不消费该路径。
+
+### 覆盖率口径（Round 9 Codex 矫正后）
+
+本 ledger 当前 **224 条**覆盖 SnapDrill iOS **第一方非源代码文件 + 关键 governance/build/CI/meta 配置**。
+
+**不等于** `git ls-files` 全集——刻意排除以下子集：
+
+| 排除范围 | 例 | 原因 |
+|---|---|---|
+| Swift / Obj-C 源代码 | `Packages/*/Sources/**/*.swift`、`SnapDrill/**/*.swift` | 源代码由 swiftlint + AllTests 测试体系覆盖，不纳入文档审计 |
+| Xcode 自动生成 | `*.xcuserstate`、`*.xcuserdata` | 用户本地编辑器状态，gitignore 内或非人工维护 |
+| `reports/` | docaudit TSV 输出 | gitignore，可重生成 CI artifact |
+| `DerivedData/` `TestResults.xcresult/` | 构建产物 | gitignore |
+| 上游社区 skill body | `.agents/skills/<community>/*` 非顶层 SKILL.md 的支援文件 | 由 `skills-lock.json` 完整性校验覆盖，不重复 verdict |
+
+口径之外发现新的第一方文件应通过新一轮深度清洁的 Phase 0 接管入 ledger，而不是悄悄加行。
 
 ## 命名规则
 

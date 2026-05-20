@@ -10,10 +10,14 @@ platform :ios do
     # 2. 增加 Build Number (需要先在 Xcode 设置 Versioning System 为 Apple Generic)
     increment_build_number(xcodeproj: "SnapDrill.xcodeproj")
 
-    # 3. 运行测试
-    run_tests(scheme: "SnapDrill")
+    # 3. 运行测试（AGENTS.md 门禁：必须 AllTests scheme + AllTests testPlan，
+    #    SnapDrill scheme 不含 SPM 包测试）
+    run_tests(
+      scheme: "AllTests",
+      testplan: "AllTests"
+    )
 
-    # 4. 编译 App
+    # 4. 编译 App（编译用 SnapDrill scheme — 它是 app target）
     build_app(
       scheme: "SnapDrill",
       export_method: "app-store"
