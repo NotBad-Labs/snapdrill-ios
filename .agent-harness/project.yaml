@@ -34,14 +34,26 @@ presets:
 # Overlay 路径声明（snapdrill-ios 本地项目特定内容位置）
 # 这些路径下的内容属于 snapdrill-ios overlay，不计入 agent-harness 核心
 overlay_paths:
-  # Claude Code skills 中 snapdrill-ios 特定的治理类 skills
+  # Claude Code skills 中 snapdrill-ios 特定的治理类 skills（SSOT: docs/standards/skill-architecture.md "Claude governance skills" 表）
   # 注：2026-04-18 (4dfe237f) 退役 4 个角色 skill（developer/devops/qa-engineer/
   # security-engineer）；改用按需 Claude governance skill 模式
+  # 注：2026-05-20 ADR-004 Phase 9 收官后对齐 governance 表 15 项
   skills:
     - .claude/skills/api-research
     - .claude/skills/cross-audit
+    - .claude/skills/cross-audit-consensus
+    - .claude/skills/decision-closeout
+    - .claude/skills/dependency-propagation
+    - .claude/skills/dod-checklist
+    - .claude/skills/harness-recall
+    - .claude/skills/knowledge-health
+    - .claude/skills/phase-closeout
+    - .claude/skills/post-merge
+    - .claude/skills/resume-from-handoff
+    - .claude/skills/snapshot-diff-review
     - .claude/skills/sprint-contract
     - .claude/skills/verify-audit-report
+    - .claude/skills/xcode-review
   # Claude Code hooks 中 snapdrill-ios 特定的
   hooks:
     - .claude/hooks/swift-autolint.sh

@@ -145,7 +145,8 @@ Codex GUI 多轮验证修复（Phase 0-9 收官后由 Codex 独立审计触发�
 - `dbe4547c` Codex Round 1 — 3 Major + 3 Minor
 - `c96bb644` Codex Round 2 — 1 Major + 3 Minor
 - `2fe2b8b0` Codex Round 3 — 2 FAIL + 2 NEW_FINDING
-- 本 commit 之后：Codex Round 4 — 1 FAIL + 4 NEW_FINDING（含元数据 stale 数字 + Phase 5-9 归属补全）
+- `735cc3a7` Codex Round 4 — 1 FAIL + 4 NEW_FINDING（含元数据 stale 数字 + Phase 5-9 归属补全）
+- 本 commit：Codex Round 5 — 仅余 3 Minor（含本条 SHA 显式补录 + `.agent-harness` overlay 对齐 15 governance skill）；Codex 总判断"已可停止验证循环"
 
 ### 持续生效（防漂移）
 
