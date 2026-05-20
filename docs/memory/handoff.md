@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-20
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -12,7 +12,7 @@ freshness:
 - **当前主力**：Claude Opus 4.7（Claude Code CLI）
 - **辅审**：Codex CLI + Gemini CLI + DeepSeek V4-Pro
 - **主分支**：`develop`
-- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`，Gemini FULL PASS）；**语义层**审计作为 Phase 10 独立立项待启动。详见 `docs/decisions/ADR-004-doc-system-deep-clean.md`「覆盖层级声明」+「待后续 phase 实施」段
+- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`，Gemini 3 Pro Preview FULL PASS）；**Phase 10 语义层立项完成**（2026-05-20 产出 [ADR-005](../decisions/ADR-005-doc-semantic-layer-audit.md)，状态「提议」，工具配置已由「Gemini 不参与」更新为 Claude + Codex 桌面端 + Antigravity(Gemini 3.5) 三方对抗）。下一会话执行 Phase 10 实施。
 
 ## 进行中：文档体系深度清洁
 
@@ -44,10 +44,11 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 
 ## 下一会话方向
 
-- A. Apple 账号缴费 → 解锁 #163 链
-- B. #626 真机验证
-- C.（可选）补齐 audit-ledger 140 行 Codex/Gemini 三方对齐（成本 1-2 小时 + API 费）
-- D.（可选）实施 ADR-004 backlog 中 4 个 docaudit check 设计稿（`ssot-cross-check` / `dep-map-reality` / `terminology-glossary` / `snapshot-freshness`）
+- **A.（主推）实施 Phase 10 — 文档体系语义层审计**。入口：[ADR-005](../decisions/ADR-005-doc-semantic-layer-audit.md)。按 7 维度清单逐个清单化；三方对抗（Claude CLI 主导 + Codex 桌面端 + Antigravity(Gemini 3.5)）；每个维度收尾时同步触动 STATUS / handoff / ADR-004 backlog / ADR-005 本身四处字段（详见 ADR-005「文档新陈代谢约束」段）。
+- B. Apple 账号缴费 → 解锁 #163 链（用户控制，与 Phase 10 不冲突可并行）
+- C. #626 真机验证（用户触发，与 Phase 10 不冲突可并行）
+- D.（可选）补齐 audit-ledger 140 行 Codex/Gemini 三方对齐（成本 1-2 小时 + API 费）
+- E.（可选）实施 ADR-004 backlog 中 6 个 docaudit check 设计稿（原 4 个 + Phase 10 新增 2 个：`superseded-by-reverse-link` / `backlog-item-staleness`）
 
 ## Boot 序列（新会话必读）
 

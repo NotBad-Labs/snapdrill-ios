@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-20（**文档体系深度清洁 Phase 0-9 收官**）
+> 最后更新：2026-05-20（**Phase 0-9 结构层收官 + Phase 10 语义层立项（ADR-005）**）
 > 编译状态：✅ 0 errors · 0 lint violations · docaudit exit 0
 > Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
 
@@ -15,7 +15,9 @@ freshness:
 
 **文档体系深度清洁 Phase 0-9 结构层收官**（2026-05-20，共识基线 commit `4883d6b6`，Gemini 全周期 FULL PASS）。方法论沉淀在 `docs/decisions/ADR-004-doc-system-deep-clean.md`。
 
-⚠️ **本轮仅覆盖结构层**（frontmatter/链接/计数/算术/docaudit 全绿）。**语义层审计**（跨文档语义链条、反向溯源、standards 约束力、skill description↔body、F-rule 实际遵守度）作为 **Phase 10** 独立立项，详见 ADR-004 backlog 段，预计新建 ADR-005。
+**Phase 10 语义层立项完成**（2026-05-20 同日产出 [ADR-005](docs/decisions/ADR-005-doc-semantic-layer-audit.md)，状态「提议」）。工具配置由 ADR-004 line 186「Gemini 不参与」更新为三方对抗：Claude + Codex 桌面端 + Antigravity(Gemini 3.5)；待下一会话启动实施。
+
+⚠️ **本轮（Phase 0-9）仅覆盖结构层**（frontmatter/链接/计数/算术/docaudit 全绿）。**语义层审计**（跨文档语义链条、反向溯源、standards 约束力、skill description↔body、F-rule 实际遵守度）见 [ADR-005](docs/decisions/ADR-005-doc-semantic-layer-audit.md) 7 维度清单。
 
 - **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
 - **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见
@@ -48,3 +50,6 @@ audit-ledger 现状（`docs/audits/audit-ledger-2026-05.tsv`，元信息见 `doc
 |---|---|---|
 | 2026-04-10 | 删除 ATT 授权弹窗 | ADR-002 |
 | 2026-04-10 | 智能组卷 Hybrid + 高级统计 Hybrid | ADR-001 |
+| 2026-04-17 | 文档 frontmatter 从 HTML 注释迁移到 YAML | ADR-003 |
+| 2026-05-19 | 文档体系深度清洁方法论 + 防漂移机制 | ADR-004 |
+| 2026-05-20 | 文档体系语义层审计方法论（Phase 10 立项，状态：提议） | ADR-005 |

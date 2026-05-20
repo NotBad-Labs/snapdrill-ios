@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-20
 layer: decision
 ---
 # ADR-004: 文档体系深度清洁方法论 + 防漂移机制
@@ -175,7 +175,7 @@ Codex GUI 多轮验证修复（Phase 0-9 收官后由 Codex 独立审计触发�
 
 ### 待后续 phase 实施（backlog）
 
-- **Phase 10 — 文档体系语义层审计**（独立立项，预计新建 ADR-005）。范围：
+- ✅ **Phase 10 — 文档体系语义层审计**（**2026-05-20 立项兑现**，见 [ADR-005](ADR-005-doc-semantic-layer-audit.md)）。本 bullet 状态：立项完成，等待实施。范围：
   - 跨文档语义链条：vision → design → requirements → tech 每对邻层强校验
   - 反向溯源：requirements 中的每个功能是否能反推回 vision 价值主张
   - 内部冲突扫描：例如 vision 的"不是 Anki 式记忆工具"是否被 SM-2/复习类描述间接违反
@@ -183,9 +183,10 @@ Codex GUI 多轮验证修复（Phase 0-9 收官后由 Codex 独立审计触发�
   - standards 约束力：每条 docs/standards/*.md 规则是否真被代码/skill/CI 执行
   - skill description ↔ body 一致性：14 governance + 21 Claude-only + 16 shared 全量逐个核对
   - F-rule 实际遵守度：F-001 ~ F-019 在 git log 中是否真有触发证据
-  - 工具配置：以 Claude/Codex 为主，Gemini 不参与判断（已知 over-endorse 偏误）
+  - ~~工具配置：以 Claude/Codex 为主，Gemini 不参与判断（已知 over-endorse 偏误）~~ — **superseded_by: [ADR-005 §决策](ADR-005-doc-semantic-layer-audit.md#决策)**（2026-05-20 Gemini 3.5 发布 + Antigravity 桌面端 GA，Phase 10 改为三方对抗：Claude + Codex 桌面端 + Antigravity(Gemini 3.5)；over-endorse 是否消除以本轮实测为准）
   - 预估工作量：4-8 小时单 session，可能跨 2-3 session
 - ssot-cross-check / dep-map-reality / terminology-glossary / snapshot-freshness 4 个 check 实现（每个 1-2 小时）
+- **superseded-by-reverse-link / backlog-item-staleness 2 个新 check**（设计稿见 [ADR-005 §配套的 2 个新 docaudit check 设计稿](ADR-005-doc-semantic-layer-audit.md#配套的-2-个新-docaudit-check-设计稿不本会话实现沉到-adr-004-backlog)，每个 1-2 小时）— 防「连续性 vs 更新」漂移
 - VALID_WITH_GAP 文件 gap_due 到期时复审流程（apple-limits gap_due = wwdc_2026 / product-business gap_due = app_store_submission 等）
 - skill 体系最终定位：本 ADR 已声明"降位为 docs/standards 子集"是工作假设；实施中无摩擦 → 转为正式定位；后续 phase 若发现摩擦可回滚到"保持并列"
 - A207/A208 dead duplicate xcconfig 物理删除（确认 build/CI/IDE 不消费后）
