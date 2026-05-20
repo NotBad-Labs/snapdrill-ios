@@ -68,7 +68,7 @@ layer: decision
 | 2 | 反向溯源 | ✅ 已完成（2026-05-20 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim2-consensus.md](../audits/semantic-audit-dim2-consensus.md) + Antigravity 单家 [semantic-audit-dim2-findings.md](../audits/semantic-audit-dim2-findings.md) + ledger 追加；11 OPEN finding（HIGH×1 MEDIUM×2 LOW×6 INFO×2）+ 3 REJECTED；Claude 自驳 3 项含分享卡片 REJECTED 升为 MEDIUM 共识） | 实际 ≈ 60 min（三方对抗）|
 | 3 | 内部冲突扫描 | ✅ 已完成（2026-05-20 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim3-consensus.md](../audits/semantic-audit-dim3-consensus.md) + Antigravity 单家 [semantic-audit-dim3-findings.md](../audits/semantic-audit-dim3-findings.md) + ledger 追加 11 行；10 OPEN finding（HIGH×1 MEDIUM×3 LOW×4 INFO×2）+ 1 WAIVED；**Codex 与 Antigravity 6/6 完全一致**，对抗一致度三轮最高） | 实际 ≈ 60 min（三方对抗） |
 | 4 | 技术↔产品对齐 | ✅ 已完成（2026-05-21 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim4-consensus.md](../audits/semantic-audit-dim4-consensus.md) + Antigravity 单家 [semantic-audit-dim4-findings.md](../audits/semantic-audit-dim4-findings.md) + ledger 追加 11 行；11 OPEN finding（HIGH×3 MEDIUM×4 LOW×4）；**Codex 大爆发**，7 项里 5 项是 Claude/Antigravity 都漏的真问题；3 个 HIGH 含 2 个真生产 bug） | 实际 ≈ 60 min（三方对抗）|
-| 5 | standards 约束力 | 每条 `docs/standards/*.md` 规则是否真被 code/skill/CI 执行（grep 触发证据，不仅是引用） | 60-90 min |
+| 5 | standards 约束力 | ✅ 已完成（2026-05-21 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim5-consensus.md](../audits/semantic-audit-dim5-consensus.md) + Antigravity 单家 [semantic-audit-dim5-findings.md](../audits/semantic-audit-dim5-findings.md) + ledger 追加 15 行；15 OPEN finding（HIGH×3 MEDIUM×8 LOW×3 INFO×1）；**Codex 大爆发**第二轮，12 项里 5 项独家；3 个 HIGH 含 audit_note 虚假合规和元层级 self-non-compliance）| 实际 ≈ 90 min（三方对抗）|
 | 6 | skill description ↔ body 一致性 | 14 governance + 21 Claude-only + 16 shared 全量逐个核对 description 与 body 是否同义 | 60-90 min |
 | 7 | F-rule 实际遵守度 | F-001 ~ F-019 在 git log 是否真有触发证据；空载 F-rule 标候选废止 | 45-60 min |
 
@@ -219,6 +219,31 @@ S-D4-001 DI 系统性退化是 3/3 同域共识（Claude 系统视角 + Antigrav
 - Codex/Antigravity 后跑可以参考 Claude CLI 输出做差异化扩展（虽然 F-008 要求独立产出，但实际工作流难做到完全盲）
 
 已沉淀到 [`docs/audits/single-vendor-audit-prompt-template.md`](../audits/single-vendor-audit-prompt-template.md) §工作流纪律段。
+
+### 维度 5 收官观察（2026-05-21）
+
+三方对抗输出分布：Claude 6 / Codex 12 / Antigravity 6，三家折叠后 15 项 OPEN finding（HIGH×3 MEDIUM×8 LOW×3 INFO×1）。
+
+**关键发现**：3 个 HIGH 含 2 个元层级问题：
+- S-D5-001 permission-model ERE vs Python classifier (3/3 一致)
+- S-D5-007 collaboration audit_note 自我虚假声明（GPT-5.4 vs gpt-5.5）
+- S-D5-008 collaboration Antigravity fallback 定位 vs Phase 10 实际工作流
+
+**控制变量法纪律事件**：Claude CLI 第一次跑维度 5 偷懒只扫 5/17 文件，被用户纠正后重跑完整 17 文件。这是控制变量法精髓的实战教训——**「先给提示词，再自己跑」是错的，正确顺序是「自己完整跑，再用一模一样的任务定义给外审」**。已沉淀到 single-vendor-audit-prompt-template.md。
+
+**Codex 第二轮大爆发**：维度 4+5 连续两轮最强单家——12 项里 5 项独家（skill 计数 / any existentials / F-004 dead / accessibility / harness-recall ## Risks）。Claude 元层级强（S-D5-010 制定者不遵守自己规则），但机械实证广度不足。
+
+**Gemini 3.5 持续监控**：
+
+| 指标 | 维度 1 | 维度 2 | 维度 3 | 维度 4 | 维度 5 |
+|---|---|---|---|---|---|
+| HIGH 占比 | 33% | 17% | 17% | 40% | 17% |
+| 100% VALID 倾向 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 工作流违规 | — | — | ⚠️ 抢跑 | ✅ 守规矩 | ✅ 守规矩 |
+
+**累计结论**：Gemini 3.5 五轮实测未复现 over-endorse；维度 4-5 连续守规矩证明提示词「严禁操作」段封堵有效。
+
+**累计 OPEN finding**：维度 1 (22) + 维度 2 (11) + 维度 3 (10) + 维度 4 (11) + 维度 5 (15) = **69 项**。
 
 ### 元数据
 

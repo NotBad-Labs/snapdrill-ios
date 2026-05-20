@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-21（**Phase 0-9 结构层收官 + Phase 10 维度 1-4 语义审计完成**）
+> 最后更新：2026-05-21（**Phase 0-9 结构层收官 + Phase 10 维度 1-5 语义审计完成**）
 > 编译状态：✅ 0 errors · 0 lint violations · docaudit exit 0
 > Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
 
@@ -15,9 +15,9 @@ freshness:
 
 **文档体系深度清洁 Phase 0-9 结构层收官**（2026-05-20，共识基线 commit `4883d6b6`，Gemini 全周期 FULL PASS）。方法论沉淀在 `docs/decisions/ADR-004-doc-system-deep-clean.md`。
 
-**Phase 10 语义层审计进行中**（2026-05-21 三方对抗收官维度 1-4；共识报告 [dim1](docs/audits/semantic-audit-dim1-consensus.md) + [dim2](docs/audits/semantic-audit-dim2-consensus.md) + [dim3](docs/audits/semantic-audit-dim3-consensus.md) + [dim4](docs/audits/semantic-audit-dim4-consensus.md) + 语义 ledger [audit-ledger-semantic-2026-05.tsv](docs/audits/audit-ledger-semantic-2026-05.tsv) 含 54 OPEN finding；剩 3 个维度待办）。
+**Phase 10 语义层审计进行中**（2026-05-21 三方对抗收官维度 1-5；共识报告 [dim1](docs/audits/semantic-audit-dim1-consensus.md) + [dim2](docs/audits/semantic-audit-dim2-consensus.md) + [dim3](docs/audits/semantic-audit-dim3-consensus.md) + [dim4](docs/audits/semantic-audit-dim4-consensus.md) + [dim5](docs/audits/semantic-audit-dim5-consensus.md) + 语义 ledger [audit-ledger-semantic-2026-05.tsv](docs/audits/audit-ledger-semantic-2026-05.tsv) 含 69 OPEN finding；剩 2 个维度待办）。
 
-⚠️ **语义层审计进度**：维度 1 (22) + 维度 2 (11) + 维度 3 (10) + 维度 4 (11 OPEN: HIGH×3 MEDIUM×4 LOW×4，含 2 真生产 bug) 已收。**累计 54 OPEN finding**，按决策跑完 7 维度后集中入 PR。维度 4 Codex 大爆发——抓 badge 三层背离 + DataExecutor 降级路径。Gemini 3.5 四轮实测未复现 over-endorse；维度 3 抢跑漏洞已通过改进提示词模板封堵；维度 4 沉淀新工作流纪律「Claude CLI 先跑 → 给提示词 → Codex/Antigravity」。
+⚠️ **语义层审计进度**：维度 1 (22) + 维度 2 (11) + 维度 3 (10) + 维度 4 (11) + 维度 5 (15 OPEN: HIGH×3 MEDIUM×8 LOW×3 INFO×1) 已收。**累计 69 OPEN finding**，按决策跑完 7 维度后集中入 PR。维度 5 Codex 连续两轮大爆发，3 HIGH 含 2 元层级 audit_note 虚假合规问题。Gemini 3.5 五轮实测未复现 over-endorse；维度 4-5 连续守规矩证明提示词「严禁操作」段封堵有效。
 
 - **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
 - **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见
