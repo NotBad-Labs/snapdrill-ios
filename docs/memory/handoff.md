@@ -12,7 +12,7 @@ freshness:
 - **当前主力**：Claude Opus 4.7（Claude Code CLI）
 - **辅审**：Codex CLI + Gemini CLI + DeepSeek V4-Pro
 - **主分支**：`develop`
-- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`，Gemini 3 Pro Preview FULL PASS）；**Phase 10 语义层审计进行中**（2026-05-20 已由 Antigravity 独立收官【维度 1：跨文档语义链条】并产出 [报告](../audits/semantic-audit-dim1-findings.md)，目前剩余 6 个维度待办）。下一会话执行【维度 2：反向溯源】。
+- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`，Gemini 3 Pro Preview FULL PASS）；**Phase 10 语义层审计进行中**（2026-05-20 三方对抗收官维度 1+2，累计 33 OPEN finding；共识报告 [dim1](../audits/semantic-audit-dim1-consensus.md) + [dim2](../audits/semantic-audit-dim2-consensus.md)，语义 ledger [audit-ledger-semantic-2026-05.tsv](../audits/audit-ledger-semantic-2026-05.tsv)；Gemini 3.5 两轮实测未复现 over-endorse）。下一会话执行【维度 3：内部冲突扫描】。
 
 ## 进行中：文档体系深度清洁
 
@@ -44,7 +44,7 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 
 ## 下一会话方向
 
-- **A.（主推）执行 Phase 10 维度 2 — 文档体系语义层【维度 2：反向溯源】**。入口：[ADR-005](../decisions/ADR-005-doc-semantic-layer-audit.md)。按照 ADR-005 的“反向溯源”判取进行审计：检查 `product-requirements.md` 的每个功能是否能反推回 `product-vision.md` 价值主张，找出找不到回溯路径的 orphan feature。工具配置：三方对抗（Claude CLI 主导 + Codex 桌面端 + Antigravity(Gemini 3.5)）；维度收尾时同步触动 STATUS / handoff 等字段。
+- **A.（主推）执行 Phase 10 维度 3 — 文档体系语义层【维度 3：内部冲突扫描】**。入口：[ADR-005](../decisions/ADR-005-doc-semantic-layer-audit.md)。按照 ADR-005 的“内部冲突扫描”判例进行审计：检查 `product-vision.md`、`product-design.md`、`product-requirements.md` 及底层 standards，搜寻文档体系中语义的隐性自相矛盾（如：愿景的“不是 Anki 式工具”是否被底层“复习高频 Tab/SM-2”间接违反等）。工具配置：三方对抗（Claude CLI 主导 + Codex 桌面端 + Antigravity(Gemini 3.5)）；维度收尾时同步触动 STATUS / handoff 等字段。
 - B. Apple 账号缴费 → 解锁 #163 链（用户控制，与 Phase 10 不冲突可并行）
 - C. #626 真机验证（用户触发，与 Phase 10 不冲突可并行）
 - D.（可选）补齐 audit-ledger 140 行 Codex/Gemini 三方对齐（成本 1-2 小时 + API 费）

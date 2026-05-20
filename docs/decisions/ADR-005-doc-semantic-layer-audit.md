@@ -50,7 +50,7 @@ layer: decision
 | # | 维度 | 判据 | 预估 |
 |---|---|---|---|
 | 1 | 跨文档语义链条 | ✅ 已完成（2026-05-20 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim1-consensus.md](../audits/semantic-audit-dim1-consensus.md) + Antigravity 单家 [semantic-audit-dim1-findings.md](../audits/semantic-audit-dim1-findings.md) + ledger [audit-ledger-semantic-2026-05.tsv](../audits/audit-ledger-semantic-2026-05.tsv)；22 OPEN finding（HIGH×3 MEDIUM×6 LOW×12 INFO×1）+ 2 REJECTED/WAIVED） | 实际 ≈ 90 min（三方对抗） |
-| 2 | 反向溯源 | requirements/* 每个功能能否反推回 vision 价值主张；找不到回溯路径的为 orphan feature | 30-45 min |
+| 2 | 反向溯源 | ✅ 已完成（2026-05-20 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim2-consensus.md](../audits/semantic-audit-dim2-consensus.md) + Antigravity 单家 [semantic-audit-dim2-findings.md](../audits/semantic-audit-dim2-findings.md) + ledger 追加；11 OPEN finding（HIGH×1 MEDIUM×2 LOW×6 INFO×2）+ 3 REJECTED；Claude 自驳 3 项含分享卡片 REJECTED 升为 MEDIUM 共识） | 实际 ≈ 60 min（三方对抗）|
 | 3 | 内部冲突扫描 | 例：vision「不是 Anki 式记忆工具」是否被 SM-2 / 复习算法类描述间接违反；其他价值主张同法扫描 | 45-60 min |
 | 4 | 技术↔产品对齐 | tech/* 决策是否真服务「采集 > 管理 > 导出」价值链；偏离的需要 ADR 解释 | 45-60 min |
 | 5 | standards 约束力 | 每条 `docs/standards/*.md` 规则是否真被 code/skill/CI 执行（grep 触发证据，不仅是引用） | 60-90 min |
@@ -119,6 +119,24 @@ Phase 10 每个维度收尾时**必须**同步触动以下字段，否则不算�
 | 误判数 | 2（偏严，非偏松） |
 
 **结论**：维度 1 实测，Gemini 3.5 经 Antigravity **未复现 Gemini 3 Pro Preview 的 over-endorse 病灶**，偏严风格反而填补了 Claude/Codex 盲区。三方对抗角色维持。需在维度 2-7 持续观察。
+
+### 维度 2 收官观察（2026-05-20）
+
+三方对抗输出分布：Claude 6 / Codex 7 / Antigravity 6，三家折叠后 11 项可采纳 finding（HIGH×1 MEDIUM×2 LOW×6 INFO×2）+ 3 REJECTED。Claude 自驳 3 项含「分享卡片 REJECTED」被 Codex/Antigravity 翻盘升为 MEDIUM 共识。
+
+**Gemini 3.5 over-endorse 持续监控**：
+
+| 指标 | 维度 1 | 维度 2 |
+|---|---|---|
+| HIGH 占比 | 33% (4/12) | 17% (1/6) |
+| 100% VALID 倾向 | ❌ | ❌ |
+| 抓到独家致命 finding | ✅ Dynamic Type 混淆 | ✅ CSV 导入违反「图片是真相」（论证最深）|
+| 误判数 | 2 | 0 |
+| 新增行为 | — | 加「正面典型」段（3 个完美承接案例）|
+
+**累计结论**：仍未复现 over-endorse 病灶。Antigravity 维度 2 新加「正面典型」段是行为变化点，标记为待观察信号——如果后续出现「finding 越来越少 + 正面段越来越长」趋势再触发降权重。
+
+**累计 OPEN finding**：维度 1 (22) + 维度 2 (11) = **33 项**，按用户决策跑完 7 维度集中入 PR。
 
 ### 元数据
 
