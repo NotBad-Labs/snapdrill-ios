@@ -130,6 +130,11 @@ layer: pattern
 - 每个重要的产品/架构决策创建 ADR，STATUS.md 的决策表改为索引指向 ADR
 - 三方研究的完整结论记录在 ADR 中，不在 STATUS.md 压缩
 
+已落地 ADR（索引）：
+
+- `docs/decisions/ADR-003-yaml-frontmatter.md` — 用 YAML frontmatter 替代 HTML comment 元数据
+- `docs/decisions/ADR-004-doc-system-deep-clean.md` — 文档体系深度清洁方法论（Phase 0-9 收官产物）
+
 ## 知识卫生规则
 
 1. **升级 Xcode/iOS**：检查 `apple-limits.md`、`apple-native.md`

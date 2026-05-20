@@ -62,7 +62,7 @@ layer: decision
 
 ### 方法论（可复用）
 
-**4 Phase 流程**：
+**5 Phase 主线流程**（Phase 0 + 1-4；本会话另含 Phase 5-9 全量补审与 skill 拆分作为延伸落地，未列入复用模板）：
 
 1. **Phase 0 — 接管**：检查是否有前序审计产物（rubric / ledger / batches），不重做已有工作
 2. **Phase 1 — SSOT 自洽**：先修 SSOT 自身 bug（编号 / 互相对账 / 文件清单 vs 实际 ls）。地基错了上面全错
@@ -84,7 +84,7 @@ layer: decision
 
 ### 防漂移机制（已实施）
 
-**docaudit 11 → 12 check**（本 commit 落 2 个，4 个设计稿）：
+**docaudit 9 → 11 check**（本 commit 落 2 个 `verdict-sync` + `external-gap-expiry`；另 4 个设计稿留作 backlog，未实施）：
 
 | Check | 状态 | ROI | 说明 |
 |---|---|---|---|
@@ -125,7 +125,7 @@ layer: decision
 
 ### 持续生效（防漂移）
 
-- docaudit 11 → **13 check** 持续监控（PostToolUse hook + pre-push hook 已绑定）
+- docaudit 9 → **11 check** 持续监控（PostToolUse hook + pre-push hook 已绑定）；另 4 个设计稿 check 留作 backlog
 - KNOWLEDGE_MAP 新增门槛拦截无引用新文档
 - `verdict-sync` 自动提示 STATUS/handoff/ledger 数字漂移
 - `external-gap-expiry` 自动提示 VALID_WITH_GAP 文件到期

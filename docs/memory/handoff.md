@@ -34,7 +34,9 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 - 3.3 ghost ref：1 修复（permission-model §0）
 - 3.4 Codex 二意见：发现 verdict artifact drift（STATUS/handoff/ledger 三处数字不一致 — 本 commit 修），及 9 类未扫盲区候选 + 6 个 docaudit check 候选
 
-**待启动**：Phase 4（治理升级 + ADR-004）— 含 Codex 推荐的 6 个新 docaudit check 候选（verdict-sync / external-gap-expiry / ssot-cross-check / dep-map-reality / terminology-glossary / snapshot-freshness）
+**Phase 4-9 已完成**（截至 2026-05-20）：治理升级（docaudit 9→11 check：verdict-sync + external-gap-expiry）+ ADR-004 + Phase 5/7 全量补审 132 文件 + Phase 8 真全文 73 文件 + Phase 9 snapshot-diff-review skill 拆分。方法论 SSOT 在 `docs/decisions/ADR-004-doc-system-deep-clean.md`。
+
+**残留**：audit-ledger 192 行，Confidence 列 52 PENDING，Codex/Gemini 列 140 空（Phase 5+ 增量条目以 Claude 单家裁决落地）；如需补齐三方对齐，须重跑 Codex/Gemini batch（成本预估 1-2 小时 + API 费）。
 
 ## 历史 Codex P1 修复（2026-05-18）
 

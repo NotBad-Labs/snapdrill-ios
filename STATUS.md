@@ -13,15 +13,18 @@ freshness:
 
 ## 当前状态（2026-05-19）
 
-**文档体系深度清洁进行中**。Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon）。已完成：
+**文档体系深度清洁 Phase 0-9 收官**（2026-05-20）。方法论沉淀在 `docs/decisions/ADR-004-doc-system-deep-clean.md`。
 
-- **Phase 0**：接管 52-doc 审计成果，三方 verdict 提案汇总（cleanup-20260519-phase0-status.md）
-- **Phase 1**：SSOT 自洽体检 — 修 KNOWLEDGE_MAP §1 §4 跳号 + DOC_DEPENDENCY_MAP §1 缺号；补 audit-rubric / skill-source-ledger / standards/README 到 KM；软上限触线机制（commit f40fcdcf）
-- **Phase 2.1/2.2**：跑完 Gemini 5-batch verdict + 三方汇总裁决（cleanup-20260519-phase2-consensus.md）。Final 分布：47 VALID / 4 VALID_WITH_GAP / 1 STALE / 0 NEEDS_REVISION（A 组 / B 组 / C 组逐次闭环后的终态）
-- **Phase 2.3/2.5**：31 VALID 文件批量刷 last_verified；A019 reference_codex_plugin_v104 归档到 docs/archive/（commit bdb7cbc6）
-- **Phase 2.4 进行中**：20 个 NEEDS_REVISION 文档逐个修订
+- **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
+- **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见
+- **Phase 4**：治理升级 — docaudit 扩展到 11 check + ADR-004
+- **Phase 5/7**：剩余 132+ 文件全量补审 + 10 处修复
+- **Phase 8**：73 文件真全文 Read 补审 4 latent finding
+- **Phase 9**：snapshot-testing 拆出嵌入第二 frontmatter 为独立 `snapshot-diff-review` skill
 
-**Skill 体系**：51 个 distinct 一层 skill（14 项目治理、21 Claude-only 领域 skill、16 共享 skill）。2026-05-19 退役 3 个 stub skill（biometric-auth / network-security / secure-storage，空 body + SnapDrill 零注册产品模型无对应需求）。SSOT：`docs/standards/skill-architecture.md`。
+audit-ledger 现状（Claude-private TSV，路径见 `docs/standards/memory-routing.md`）：192 行；Confidence 全部 RESOLVED；Codex / Gemini 列 140 行空（Phase 5+ 增量条目以 Claude 单家裁决落地，非完整三方对齐）。
+
+**Skill 体系**：52 个 distinct 一层 skill（15 项目治理、21 Claude-only 领域 skill、16 共享 skill）。SSOT：`docs/standards/skill-architecture.md`。
 
 | 外部阻塞项 | 说明 | 状态 |
 |---|---|---|

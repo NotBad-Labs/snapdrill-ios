@@ -69,13 +69,14 @@ Claude governance skills:
 | `phase-closeout` | Updates handoff and phase state |
 | `post-merge` | Merge closeout workflow |
 | `resume-from-handoff` | Claude session bootstrap |
+| `snapshot-diff-review` | Snapshot baseline 二进制 diff 人工审查工作流 |
 | `sprint-contract` | Issue contract workflow |
 | `verify-audit-report` | Adversarial source verification workflow |
 | `xcode-review` | Xcode review prompt workflow |
 
 Claude local domain skills:
 
-`animation-patterns`, `app-icon-generator`, `app-store-assets`, `app-store-rejection`, `background-processing`, `biometric-auth`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `error-monitoring`, `keyword-optimizer`, `localization-setup`, `migration-patterns`, `network-security`, `onboarding-generator`, `secure-storage`, `settings-screen`, `snapshot-testing`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `tipkit-generator`, `ui-review`.
+`animation-patterns`, `app-icon-generator`, `app-store-assets`, `app-store-rejection`, `background-processing`, `ci-cd-setup`, `coding-best-practices`, `data-export`, `error-monitoring`, `keyword-optimizer`, `localization-setup`, `migration-patterns`, `onboarding-generator`, `settings-screen`, `snapshot-testing`, `swiftui-debugging`, `tdd-bug-fix`, `tdd-feature`, `tdd-refactor-guard`, `tipkit-generator`, `ui-review`.
 
 These are migration candidates only after frontmatter and references are reviewed for Claude-only features.
 
