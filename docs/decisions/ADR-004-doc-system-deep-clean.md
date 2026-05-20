@@ -18,8 +18,12 @@ layer: decision
 - 根 + .github/ ~10 .md
 - **合计 ~119 markdown 文件**
 
-> 当前快照（口径定义）：docs/ 文件数 = `find docs -name '*.md' | wc -l`；行数 = `find docs -name '*.md' -print0 | xargs -0 wc -l | tail -1`；skill 数以 `docs/standards/skill-architecture.md` 为准。
-> 2026-05-20 Phase 0-9 收官后实测：docs/ 61 .md / 7566 行；skill 52。规模随收官增长，KM/STATUS 是 SSOT，本处历史数字仅记录触发时刻基线，当前快照仅供对照、勿作 SSOT 引用。
+> 当前快照查询命令（不再硬编码数字以避免日常漂移；如需对照值请现场跑命令）：
+> - docs/ 文件数：`find docs -name '*.md' | wc -l`
+> - docs/ 总行数：`find docs -name '*.md' -print0 | xargs -0 wc -l | tail -1`
+> - skill 数 SSOT：`docs/standards/skill-architecture.md`（Current Inventory 表）
+>
+> 本处历史数字仅记录 2026-05-19 触发本 ADR 时的基线；规模随后续收官持续增长，KM/STATUS 是 SSOT。
 
 需要一个可复用的方法论 + 防漂移机制，避免 6 个月后又一样脏。
 
@@ -118,13 +122,30 @@ layer: decision
 
 ### 已落地（本会话 commits）
 
+主线 Phase 0-4：
+
 - `f40fcdcf` Phase 1 SSOT 自洽
 - `bdb7cbc6` Phase 2.1-2.5 partial（verdict + 批量刷 + 归档 A019）
 - `fcb288a0` Phase 2.4 A+B 13 文档闭环
 - `5d8b904e` Phase 2.4 C 5 文档闭环
 - `18d59a7f` Phase 3.3 ghost ref 修
 - `fdcbf92b` Phase 3.4 Codex 二意见 + verdict drift 修
-- 本 commit：Phase 4 全部（docaudit 2 新 check + 4 文件 gap 字段 + KM 治理 + ADR-004）
+- `36353525` Phase 4 治理升级 — docaudit 11 check + ADR-004 收官
+
+延伸 Phase 5-9（用户在主线收官后追加的「全量补审 + 真全文阅读 + 嵌入 frontmatter 拆分」三段，未列入复用模板因为属于本会话覆盖率追平动作，不是方法论的固定阶段）：
+
+- `6a98bbf7` Phase 5 全量审计 — 剩余 132 文件无死角覆盖 + 10 处修复
+- `7a3d2854` Phase 5 副线 — 退役 3 个 stub skill（biometric-auth / network-security / secure-storage）
+- `1c71fb01` Phase 7 全量补审 132 文件 — 治理执行层 + Scripts + 配置 + DocC + 散落
+- `cafaf4e8` Phase 8 真全文 Read 73 文件 — 修 4 个 latent finding
+- `1992453f` Phase 9 — snapshot-testing 拆出嵌入第二 frontmatter 为独立 `snapshot-diff-review` skill
+
+Codex GUI 多轮验证修复（Phase 0-9 收官后由 Codex 独立审计触发）：
+
+- `dbe4547c` Codex Round 1 — 3 Major + 3 Minor
+- `c96bb644` Codex Round 2 — 1 Major + 3 Minor
+- `2fe2b8b0` Codex Round 3 — 2 FAIL + 2 NEW_FINDING
+- 本 commit 之后：Codex Round 4 — 1 FAIL + 4 NEW_FINDING（含元数据 stale 数字 + Phase 5-9 归属补全）
 
 ### 持续生效（防漂移）
 
@@ -149,7 +170,7 @@ layer: decision
 ### 元数据
 
 - 本 ADR 决策者：用户（PO）批准本方法论；Claude 起草 + 实施；Codex second-opinion 提供 9 类盲区候选 + 6 个 check 推荐
-- 本次大扫除累计 commit 数：7（97e266b4 + ed8cbd1e + f40fcdcf + bdb7cbc6 + fcb288a0 + 5d8b904e + 18d59a7f + fdcbf92b + 本 commit）
-- 本次大扫除累计文件触动：~30 个（22 个 docs/ + 8 个 .claude/skills/ + Scripts/audit/）
-- 累计审计 LLM 调用：~7 次（Gemini 5 batch + Codex 5 batch + Codex second-opinion + DeepSeek 卡死 1 次）
-- 实际耗时：本会话 ~5 小时（plan 预估 6-11 小时，超出 unders shoot 因为 Codex 已有 5/18 产物可接管）
+- 累计 commit 数与文件触动数：以本 ADR 上方「已落地」段 git SHA 列表 + `git log --oneline 97e266b4..HEAD` + `git diff --stat 97e266b4..HEAD` 为准；本 ADR 内不再硬编码数字（避免后续修复继续推高数字时漂移）
+- 审计 LLM 调用：主线 Phase 2 三方对抗（Gemini 5 batch + Codex 5 batch + Phase 3 Codex second-opinion + DeepSeek 卡死 1 次），加 Phase 0-9 收官后 Codex GUI 多轮独立验证（截至 Round 4）
+- 实际耗时：plan 预估 6-11 小时；实际跨多个 session（本 ADR 不再硬编码总时长，原因同 commit 计数）
+- Phase 5-9 在 STATUS / handoff / git log 也都有持久化记录；本 ADR 仅作方法论 SSOT，不重复 phase 内事实细节
