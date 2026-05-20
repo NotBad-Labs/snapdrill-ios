@@ -12,7 +12,7 @@ freshness:
 - **当前主力**：Claude Opus 4.7（Claude Code CLI）
 - **辅审**：Codex CLI + Gemini CLI + DeepSeek V4-Pro
 - **主分支**：`develop`
-- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`，Gemini 3 Pro Preview FULL PASS）；**Phase 10 语义层审计进行中**（2026-05-20 三方对抗收官维度 1+2+3，累计 43 OPEN finding；共识报告 [dim1](../audits/semantic-audit-dim1-consensus.md) + [dim2](../audits/semantic-audit-dim2-consensus.md) + [dim3](../audits/semantic-audit-dim3-consensus.md)，语义 ledger [audit-ledger-semantic-2026-05.tsv](../audits/audit-ledger-semantic-2026-05.tsv)；Gemini 3.5 三轮实测未复现 over-endorse；维度 3 暴露 Antigravity 抢跑落档已封堵）。下一会话执行【维度 4：技术↔产品对齐】，使用改进提示词模板。
+- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`，Gemini 3 Pro Preview FULL PASS）；**Phase 10 语义层审计进行中**（2026-05-21 三方对抗收官维度 1-4，累计 54 OPEN finding；共识报告 [dim1](../audits/semantic-audit-dim1-consensus.md) + [dim2](../audits/semantic-audit-dim2-consensus.md) + [dim3](../audits/semantic-audit-dim3-consensus.md) + [dim4](../audits/semantic-audit-dim4-consensus.md)，语义 ledger [audit-ledger-semantic-2026-05.tsv](../audits/audit-ledger-semantic-2026-05.tsv)；Gemini 3.5 四轮实测未复现 over-endorse；维度 4 沉淀新工作流纪律「Claude CLI 先跑 → 给提示词 → Codex/Antigravity」）。下一会话执行【维度 5：standards 约束力】，按新工作流纪律。
 
 ## 进行中：文档体系深度清洁
 
@@ -44,7 +44,7 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 
 ## 下一会话方向
 
-- **A.（主推）执行 Phase 10 维度 4 — 文档体系语义层【维度 4：技术↔产品对齐】**。入口：[ADR-005](../decisions/ADR-005-doc-semantic-layer-audit.md)。按照 ADR-005 的“技术↔产品对齐”判例进行审计：检查下游技术架构 `architecture.md`、`non-functional-requirements.md` 以及代码中实现的实体数据结构，是否与产品设计/需求文档（`product-design.md`, `product-requirements.md`）相冲突、是否存在架构上的错位或技术妥协未被产品感知（如底层多 Profile 并发读写模型与上游 SSOT 架构的间接偏离等）。工具配置：三方对抗（Claude CLI 主导 + Codex 桌面端 + Antigravity(Gemini 3.5)）；维度收尾时同步触动 STATUS / handoff 等字段。
+- **A.（主推）执行 Phase 10 维度 5 — 文档体系语义层【维度 5：standards 约束力】**。入口：[ADR-005](../decisions/ADR-005-doc-semantic-layer-audit.md) §7 个语义维度实施清单第 5 行。判据：每条 `docs/standards/*.md` 规则是否真被 code/skill/CI 执行（grep 触发证据，不仅引用）。**工作流纪律**（维度 4 新沉淀）：Claude CLI 先跑独立 finding → 起草给 Codex/Antigravity 的提示词（带「严禁操作」段，模板见 `docs/audits/single-vendor-audit-prompt-template.md`）→ 用户触发外审 → 三方共识收尾。
 - B. Apple 账号缴费 → 解锁 #163 链（用户控制，与 Phase 10 不冲突可并行）
 - C. #626 真机验证（用户触发，与 Phase 10 不冲突可并行）
 - D.（可选）补齐 audit-ledger 140 行 Codex/Gemini 三方对齐（成本 1-2 小时 + API 费）

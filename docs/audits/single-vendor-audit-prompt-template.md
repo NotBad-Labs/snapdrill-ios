@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-20
+last_verified: 2026-05-21
 layer: pattern
 ---
 # 单家语义审计提示词模板（Phase 10 维度 4-7 适用）
@@ -7,6 +7,22 @@ layer: pattern
 > 用于 Codex 桌面端 / Antigravity 等 GUI 单家工具的标准提示词。
 > 触发于 ADR-005 §7 个语义维度实施清单的维度 4-7。
 > 设计原因：维度 3 Antigravity 出现「抢跑落档」工作流违规——未等三方齐就独立写 ledger / STATUS / handoff / ADR-005；改进提示词加「严禁操作」段封堵。
+
+## 工作流纪律（维度 4 沉淀，维度 5-7 适用）
+
+**「Claude CLI 先跑 → 起草提示词 → Codex/Antigravity 跑」**
+
+执行顺序：
+1. **Claude CLI 先跑**该维度的独立 finding（盲审，不参考他家）
+2. **Claude CLI 起草**给 Codex/Antigravity 的提示词（基于本模板），针对该维度盲区做差异化引导
+3. **用户触发**外审（Codex 桌面端 + Antigravity）
+4. **Claude CLI 主笔**三方 cross-audit-consensus 折叠 + 落档（ledger + 共识报告 + STATUS/handoff/ADR-005）
+
+理由：
+- Claude CLI 先跑保证盲审独立性，避免被 Antigravity/Codex 输出污染
+- 提示词由 Claude CLI 起草，可针对性圈定该维度的视角盲区（Claude CLI 已审完知道自己漏了什么角度）
+- F-008「相同完整任务、不分工」纪律继续适用——外审三家各审完整任务，但 Claude CLI 的「先跑」是流程顺序，非分工切片
+- Codex/Antigravity 后跑可参考 Claude CLI 输出做差异化扩展（实际工作流难做到完全盲审）
 
 ## 标准模板（复制贴 Codex / Antigravity）
 
@@ -53,6 +69,7 @@ layer: pattern
 - docs/audits/semantic-audit-dim1-consensus.md
 - docs/audits/semantic-audit-dim2-consensus.md
 - docs/audits/semantic-audit-dim3-consensus.md (维度 4 启动时)
+- docs/audits/semantic-audit-dim4-consensus.md (维度 5 启动时)
 - docs/decisions/ADR-005-doc-semantic-layer-audit.md
 ```
 
@@ -69,7 +86,8 @@ layer: pattern
 
 - 维度 1-2 提示词没有「严禁操作」段，但因为 Codex 桌面端工作模式偏文本输出、Antigravity 维度 1-2 也只是写单家报告未抢跑，未触发问题
 - 维度 3 Antigravity 抢跑写 ledger + ADR-005 + STATUS + handoff，触发本模板创建
-- 改进提示词模板首次正式使用：维度 4
+- 维度 4 「严禁操作」段首次正式使用，Antigravity + Codex 都守规矩，**封堵成功**
+- 维度 4 「Claude CLI 先跑」工作流纪律首次沉淀（本会话提议 + 落档），维度 5-7 适用
 
 ## 关联
 
