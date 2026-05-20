@@ -97,6 +97,7 @@ checks:
       - phase-closeout
       - post-merge
       - resume-from-handoff
+      - snapshot-diff-review
       - sprint-contract
       - verify-audit-report
       - xcode-review

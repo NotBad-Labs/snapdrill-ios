@@ -24,13 +24,14 @@ Counting rule: only first-level `*/SKILL.md` files are counted as triggerable sk
 
 | Category | Count | Source |
 |---|---:|---|
-| Claude discovery entries | 51 | `.claude/skills/*/SKILL.md` plus symlink skill dirs |
+| Claude discovery entries | 52 | `.claude/skills/*/SKILL.md` plus symlink skill dirs |
 | Shared first-level skill sources | 16 | `.agents/skills/*/SKILL.md` |
 | Claude adapter entries | 16 | 13 physical pointer adapters + 3 managed symlink entries point to shared sources |
-| Distinct first-level skill names | 51 | 51 Claude discovery entries + 16 shared sources - 16 duplicate shared entries |
+| Distinct first-level skill names | 52 | 52 Claude discovery entries + 16 shared sources - 16 duplicate shared entries |
 | Plugin payload skills | 2 | `.agents/skills/*/skills/*/SKILL.md` |
 
 > 2026-05-19：3 个 stub skill 退役（`biometric-auth` / `network-security` / `secure-storage`）—— 详见 `skill-source-ledger.md` Retired Claude-Only Skills 段。54 → 51。
+> 2026-05-20：从 `snapshot-testing/SKILL.md` 拆出嵌入的第二个 frontmatter `snapshot-diff-review` 为独立 skill（Phase 9 finding Y）。51 → 52。
 
 Shared skills:
 
