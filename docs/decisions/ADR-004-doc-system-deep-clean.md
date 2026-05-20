@@ -18,7 +18,8 @@ layer: decision
 - 根 + .github/ ~10 .md
 - **合计 ~119 markdown 文件**
 
-> 当前快照（2026-05-20，Phase 0-9 收官后）：docs/ 61 .md / 7565 行；skill 52；规模随收官增长，KM/STATUS 是 SSOT，本处数字仅记录触发时刻基线。
+> 当前快照（口径定义）：docs/ 文件数 = `find docs -name '*.md' | wc -l`；行数 = `find docs -name '*.md' -print0 | xargs -0 wc -l | tail -1`；skill 数以 `docs/standards/skill-architecture.md` 为准。
+> 2026-05-20 Phase 0-9 收官后实测：docs/ 61 .md / 7566 行；skill 52。规模随收官增长，KM/STATUS 是 SSOT，本处历史数字仅记录触发时刻基线，当前快照仅供对照、勿作 SSOT 引用。
 
 需要一个可复用的方法论 + 防漂移机制，避免 6 个月后又一样脏。
 

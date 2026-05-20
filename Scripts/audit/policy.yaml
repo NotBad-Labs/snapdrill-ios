@@ -29,7 +29,7 @@ scan:
     - docs/archive/                       # 归档文档，不再校验
     - Scripts/audit/                      # 审计器自身（README 示例 / policy 声明会自触发，元循环）
 
-# 8 个结构子命令默认级别
+# 10 个结构子命令默认级别（外加 `frontmatter` subprocess，`docaudit all` 共 11 check）
 checks:
   links:
     level: error

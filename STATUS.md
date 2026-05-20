@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-20
 layer: snapshot
 freshness:
   max_age_days: 7
@@ -7,11 +7,11 @@ freshness:
 ---
 # SnapDrill 项目状态看板
 
-> 最后更新：2026-05-19（**文档体系深度清洁 Phase 0/1/2 部分完成**）
+> 最后更新：2026-05-20（**文档体系深度清洁 Phase 0-9 收官**）
 > 编译状态：✅ 0 errors · 0 lint violations · docaudit exit 0
 > Open PR：0 · Open Issue：8（#699 backlog + Apple 阻塞链 + #626 真机待验）
 
-## 当前状态（2026-05-19）
+## 当前状态（2026-05-20）
 
 **文档体系深度清洁 Phase 0-9 收官**（2026-05-20）。方法论沉淀在 `docs/decisions/ADR-004-doc-system-deep-clean.md`。
 
