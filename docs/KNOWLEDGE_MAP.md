@@ -135,6 +135,10 @@ layer: pattern
 - `docs/decisions/ADR-003-yaml-frontmatter.md` — 用 YAML frontmatter 替代 HTML comment 元数据
 - `docs/decisions/ADR-004-doc-system-deep-clean.md` — 文档体系深度清洁方法论（Phase 0-9 收官产物）
 
+## 审计归档（docs/audits/）
+
+事实裁决 ledger 和审计报告。与 ADR 同级，承载「过程产物 + 三方裁决」类文档。元信息见 `docs/audits/README.md`。
+
 ## 知识卫生规则
 
 1. **升级 Xcode/iOS**：检查 `apple-limits.md`、`apple-native.md`

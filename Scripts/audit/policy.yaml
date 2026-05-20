@@ -64,6 +64,7 @@ checks:
       - docs/standards/permission-model.md
       - docs/standards/execution-gates.md
       - docs/standards/skill-architecture.md
+      - docs/audits/README.md
       # 工具脚本，功能就是扫描私有空间
       - Scripts/recall-index.sh
 

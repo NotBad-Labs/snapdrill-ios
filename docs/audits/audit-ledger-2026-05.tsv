@@ -1,0 +1,193 @@
+ID	Path	Category	Declared_Purpose	Actual_Current_Purpose	Incoming_Refs	Outgoing_Refs	Code_Config_Evidence	Process_Evidence	Product_Evidence	Verdict	Confidence	Reason	Recommended_Action	Revision_Scope	Owner	Risk_If_Unchanged	Risk_If_Deleted	Evidence_Gaps	Claude_Verdict	Codex_Verdict	Gemini_Verdict	Final_Decision
+A001	docs/product/product-vision.md	产品	产品定位、价值链、用户画像							VALID	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID
+A002	docs/product/product-design.md	产品	UI/UX 模式、信息架构							VALID	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID
+A003	docs/product/product-requirements.md	产品	功能规格、版本路线图							VALID	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID
+A004	docs/product/product-cases.md	产品	验收标准、异常路径							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A005	docs/product/product-journeys.md	产品	用户旅程							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A006	docs/product/product-business.md	产品	商业模型、定价、隐私承诺							VALID_WITH_GAP	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID_WITH_GAP
+A007	docs/product/product-competitive-analysis.md	产品	竞品分析							VALID_WITH_GAP	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID_WITH_GAP
+A008	docs/product/product-analytics.md	产品	Analytics 事件字典							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A009	docs/product/product-onboarding.md	产品	Onboarding 内容规格							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A010	docs/product/product-glossary.md	产品	术语定义							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A011	docs/product/appstore-metadata.md	产品	App Store 元数据							VALID_WITH_GAP	RESOLVED								NEEDS_REVISION	STALE_OR_INVALID	VALID	VALID_WITH_GAP
+A012	docs/tech/architecture.md	技术	包结构、DI、模块边界							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A013	docs/tech/api-pitfalls.md	技术	API 踩坑速查							VALID	RESOLVED								NEEDS_REVISION	VALID	VALID	VALID
+A014	docs/tech/apple-limits.md	技术	Apple 平台能力边界							VALID_WITH_GAP	RESOLVED								NEEDS_REVISION	STALE_OR_INVALID	VALID	VALID_WITH_GAP
+A015	docs/tech/compliance.md	技术	隐私合规							VALID	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID
+A016	docs/tech/deployment.md	技术	CI/CD、发布流程							VALID	RESOLVED								NEEDS_REVISION	VALID	VALID	VALID
+A017	docs/tech/non-functional-requirements.md	技术	性能、内存、存储							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A018	docs/tech/reference/reference_ai_toolchain_specs.md	技术	AI 工具链规格							VALID	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID
+A019	docs/tech/reference/reference_codex_plugin_v104_upgrade.md	技术	Codex 插件升级记录							STALE_OR_INVALID	RESOLVED								STALE_OR_INVALID	STALE_OR_INVALID	VALID	STALE_OR_INVALID
+A020	docs/tech/reference/reference_deepseek_toolchain.md	技术	DeepSeek 工具链							VALID	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID
+A021	docs/tech/reference/reference_gemini_cli.md	技术	Gemini CLI 集成							VALID	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID
+A022	docs/tech/reference/reference_opus_4_7_behavior.md	技术	Opus 4.7 行为变化							VALID	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID
+A023	docs/tech/reference/reference_runner_halfbroken_diagnosis.md	技术	Mac mini Runner 诊断							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A024	docs/tech/reference/reference_snapshot_testing_record_env.md	技术	Snapshot 测试环境变量							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A025	docs/workflow.md	标准	开发闭环、Git 工作流、S0-S3、DoD							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A026	docs/standards/engineering.md	标准	工程哲学与决策原则							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A027	docs/standards/coding.md	标准	编码规范、SwiftLint 规则							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A028	docs/standards/testing.md	标准	测试策略							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A029	docs/standards/apple-native.md	标准	Apple 原生 UI 模式							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A030	docs/standards/collaboration.md	标准	智能体协作架构							VALID	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID
+A031	docs/standards/codex-delegation.md	标准	Codex 委派规范							VALID	RESOLVED								NEEDS_REVISION	NEEDS_REVISION	VALID	VALID
+A032	docs/standards/gemini-delegation.md	标准	Gemini CLI 委派规范							VALID	RESOLVED								NEEDS_REVISION	VALID_WITH_GAP	VALID	VALID
+A033	docs/standards/shared-constraints.md	标准	委派共享约束							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A034	docs/standards/ux-design.md	标准	UX 设计原则							VALID	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID
+A035	docs/standards/permission-model.md	标准	权限矩阵 SSOT							VALID	RESOLVED								VALID	VALID_WITH_GAP	VALID	VALID
+A036	docs/standards/memory-routing.md	标准	知识/记忆路由规则							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A037	docs/standards/harness-recall.md	标准	自进化闭环							VALID	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID
+A038	docs/standards/execution-gates.md	标准	执行门禁总表							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A039	docs/standards/audit-rubric.md	标准	文档审计 Rubric							VALID	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID
+A040	docs/standards/README.md	标准	标准索引							VALID	RESOLVED								NEEDS_REVISION	VALID	VALID	VALID
+A041	docs/decisions/ADR-001-smart-paper-analytics-pricing.md	决策	ADR-001 智能组卷定价							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A042	docs/decisions/ADR-002-remove-att-authorization.md	决策	ADR-002 移除 ATT							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A043	docs/decisions/ADR-003-yaml-frontmatter.md	决策	ADR-003 YAML frontmatter 迁移							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A044	docs/decisions/ADR-TEMPLATE.md	决策	ADR 模板							VALID	RESOLVED								VALID	VALID	VALID	VALID
+A045	docs/memory/feedback.md	记忆	F 规则索引							VALID	RESOLVED								NEEDS_REVISION	VALID	VALID	VALID
+A046	docs/memory/decisions.md	记忆	项目决策记录							VALID	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID
+A047	docs/memory/handoff.md	记忆	智能体交接状态							VALID	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID
+A048	docs/KNOWLEDGE_MAP.md	索引	知识分层索引							VALID	RESOLVED								NEEDS_REVISION	NEEDS_REVISION	VALID	VALID
+A049	docs/DOC_DEPENDENCY_MAP.md	索引	文档上下游依赖图							VALID	RESOLVED								VALID	NEEDS_REVISION	VALID	VALID
+A050	STATUS.md	根级	项目状态看板							VALID	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID
+A051	CLAUDE.md	根级	Claude Code 入口							VALID	RESOLVED								NEEDS_REVISION	NEEDS_REVISION	VALID	VALID
+A052	AGENTS.md	根级	跨厂商入口（AAIF）							VALID	RESOLVED								NEEDS_REVISION	VALID	VALID	VALID
+A053	.claude/skills/accessibility-generator/SKILL.md	Claude-adapter	thin adapter -> .agents/skills/accessibility-generator							VALID	RESOLVED								VALID			VALID
+A054	.claude/skills/app-description-writer/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A055	.claude/skills/attributed-string/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A056	.claude/skills/characterization-test-generator/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A057	.claude/skills/deep-linking/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A058	.claude/skills/integration-test-scaffold/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A059	.claude/skills/liquid-glass/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A060	.claude/skills/navigation-patterns/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A061	.claude/skills/privacy-manifests/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A062	.claude/skills/push-notifications/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A063	.claude/skills/review-response-writer/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A064	.claude/skills/screenshot-planner/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A065	.claude/skills/test-contract/SKILL.md	Claude-adapter	thin adapter							VALID	RESOLVED								VALID			VALID
+A066	.claude/skills/swift-concurrency-pro	Claude-symlink	symlink to .agents/skills/swift-concurrency-pro							VALID	RESOLVED								VALID			VALID
+A067	.claude/skills/swiftdata-pro	Claude-symlink	symlink to .agents/skills/swiftdata-pro							VALID	RESOLVED								VALID			VALID
+A068	.claude/skills/swiftui-pro	Claude-symlink	symlink to .agents/skills/swiftui-pro							VALID	RESOLVED								VALID			VALID
+A069	.claude/skills/animation-patterns/SKILL.md	Claude-LOCAL	exact upstream rshankras animation-patterns							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A070	.claude/skills/app-icon-generator/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A071	.claude/skills/app-store-assets/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A072	.claude/skills/app-store-rejection/SKILL.md	Claude-LOCAL	exact upstream + name mismatch (rejection-handler)							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A073	.claude/skills/background-processing/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A074	.claude/skills/ci-cd-setup/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A075	.claude/skills/coding-best-practices/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A076	.claude/skills/data-export/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A077	.claude/skills/error-monitoring/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A078	.claude/skills/keyword-optimizer/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A079	.claude/skills/localization-setup/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A080	.claude/skills/migration-patterns/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A081	.claude/skills/onboarding-generator/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A082	.claude/skills/settings-screen/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A083	.claude/skills/snapshot-testing/SKILL.md	Claude-LOCAL	local body differs upstream + name mismatch							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A084	.claude/skills/swiftui-debugging/SKILL.md	Claude-LOCAL	exact upstream + ghost reference files							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A085	.claude/skills/tdd-bug-fix/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A086	.claude/skills/tdd-feature/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A087	.claude/skills/tdd-refactor-guard/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A088	.claude/skills/tipkit-generator/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A089	.claude/skills/ui-review/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
+A090	.claude/skills/biometric-auth/SKILL.md	Claude-stub	empty body — trigger stub only							STALE_OR_INVALID	RESOLVED		retired 2026-05-19 (Phase 6); see skill-source-ledger.md Retired section for restore path						NEEDS_REVISION			STALE_OR_INVALID
+A091	.claude/skills/network-security/SKILL.md	Claude-stub	empty body — trigger stub only							STALE_OR_INVALID	RESOLVED		retired 2026-05-19 (Phase 6); see skill-source-ledger.md Retired section for restore path						NEEDS_REVISION			STALE_OR_INVALID
+A092	.claude/skills/secure-storage/SKILL.md	Claude-stub	empty body — trigger stub only							STALE_OR_INVALID	RESOLVED		retired 2026-05-19 (Phase 6); see skill-source-ledger.md Retired section for restore path						NEEDS_REVISION			STALE_OR_INVALID
+A093	.github/PULL_REQUEST_TEMPLATE.md	GitHub	PR template							VALID	RESOLVED		Phase 5 finding A 闭环: ghost api-reference 改为 architecture.md						NEEDS_REVISION			VALID
+A094	.github/ISSUE_TEMPLATE/feature_request.md	GitHub	feature issue template							VALID	RESOLVED		Phase 5 finding B 闭环: 用户旅程引用改为 product-journeys.md						NEEDS_REVISION			VALID
+A095	.github/ISSUE_TEMPLATE/bug_report.md	GitHub	bug issue template							VALID	RESOLVED								VALID			VALID
+A096	.github/ISSUE_TEMPLATE/chore.md	GitHub	chore issue template							VALID	RESOLVED		Phase 5 finding C 闭环: Sprint Contract 阈值与 workflow.md SSOT 对齐						NEEDS_REVISION			VALID
+A097	.github/copilot-instructions.md	GitHub	Copilot project-level instructions (broken symlink)							VALID	RESOLVED		Phase 5 finding D 闭环: symlink 修指向 ../AGENTS.md						STALE_OR_INVALID			VALID
+A098	Packages/SnapDrillCore/README.md	Packages	Core package README							VALID	RESOLVED								VALID			VALID
+A099	Packages/SnapDrillData/README.md	Packages	Data package README							VALID	RESOLVED								VALID			VALID
+A100	Packages/SnapDrillFeatures/README.md	Packages	Features package README							VALID	RESOLVED								VALID			VALID
+A101	Packages/SnapDrillInfrastructure/README.md	Packages	Infrastructure package README (ADR-002 misref)							VALID	RESOLVED		Phase 5 finding E 闭环: ADR-002 misref 改正						NEEDS_REVISION			VALID
+A102	Packages/SnapDrillUI/README.md	Packages	UI package README							VALID	RESOLVED								VALID			VALID
+A103	README.md	Root	项目根 README (ghost api-reference)							VALID	RESOLVED		Phase 5 finding F 闭环: ghost api-reference 改为 API 陷阱+Apple 边界						NEEDS_REVISION			VALID
+A104	CODEX_HANDOFF.md	Root	5/18 Codex handoff (全部已闭环)							STALE_OR_INVALID	RESOLVED								STALE_OR_INVALID			STALE_OR_INVALID
+A105	Scripts/README.md	Scripts	Scripts overview							VALID	RESOLVED								VALID			VALID
+A106	Scripts/audit/README.md	Scripts	docaudit usage doc (9 check 描述过期)							VALID	RESOLVED		Phase 5 finding H 闭环: 9→11 checks 同步						NEEDS_REVISION			VALID
+A107	.claude/compact-reminder.md	Claude	compact session recovery							VALID	RESOLVED								VALID			VALID
+A108	.agent-harness/README.md	AgentHarness	agent-harness consumer contract							VALID	RESOLVED								VALID			VALID
+A109	docs/archive/_claude__skills__phase-closeout__SKILL_md__2026-04-22T12-47-28+00-00.md	AgentHarness	Phase E PR-E2 反哺草稿 (TODO 占位)							STALE_OR_INVALID	RESOLVED		Phase 5 finding I 闭环: 4/22 TODO 占位反哺草稿归档						NEEDS_REVISION			STALE_OR_INVALID
+A110	reports/ZERO_TRUST_AUDIT_20260513.md	Reports	5/13 零信任审计完整报告 (已完成)							STALE_OR_INVALID	RESOLVED								STALE_OR_INVALID			STALE_OR_INVALID
+A111	.agents/skills/accessibility-generator/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A112	.agents/skills/app-description-writer/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A113	.agents/skills/attributed-string/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A114	.agents/skills/characterization-test-generator/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A115	.agents/skills/deep-linking/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A116	.agents/skills/integration-test-scaffold/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A117	.agents/skills/liquid-glass/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A118	.agents/skills/navigation-patterns/SKILL.md	Shared-vendored	vendored + 7 reference files all resolve							VALID	RESOLVED								VALID			VALID
+A119	.agents/skills/privacy-manifests/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A120	.agents/skills/push-notifications/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A121	.agents/skills/review-response-writer/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A122	.agents/skills/screenshot-planner/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A123	.agents/skills/swift-concurrency-pro/SKILL.md	Shared-managed	twostraws managed + 12 references + plugin payload							VALID	RESOLVED								VALID			VALID
+A124	.agents/skills/swiftdata-pro/SKILL.md	Shared-managed	twostraws managed + 5 references							VALID	RESOLVED								VALID			VALID
+A125	.agents/skills/swiftui-pro/SKILL.md	Shared-managed	twostraws managed + 9 references + plugin payload							VALID	RESOLVED								VALID			VALID
+A126	.agents/skills/test-contract/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
+A127	docs/standards/skill-architecture.md	Standards-SSOT	skill 目录架构 + 计数 SSOT (Phase 1 已校 inventory)							VALID	RESOLVED								VALID			VALID
+A128	docs/standards/skill-source-ledger.md	Standards-SSOT	skill provenance ledger (Phase 1 校对)							VALID	RESOLVED								VALID			VALID
+A129	docs/decisions/ADR-004-doc-system-deep-clean.md	ADR	本会话新建 ADR-004 文档体系深度清洁方法论							VALID	RESOLVED								VALID			VALID
+A130	.claude/hooks/_hook_common.sh	Hook	shared helper for hooks							VALID	RESOLVED								VALID			VALID
+A131	.claude/hooks/block-dangerous-bash.sh	Hook	PreToolUse 危险命令拦截							VALID	RESOLVED								VALID			VALID
+A132	.claude/hooks/docaudit-on-doc-edit.sh	Hook	PostToolUse docs 编辑后跑 docaudit links							VALID	RESOLVED								VALID			VALID
+A133	.claude/hooks/docaudit-preflight.sh	Hook	PreToolUse push/merge/amend 前跑 docaudit all							VALID	RESOLVED								VALID			VALID
+A134	.claude/hooks/log-file-change.sh	Hook	记录文件改动到 session-log							VALID	RESOLVED								VALID			VALID
+A135	.claude/hooks/long-session-guard.sh	Hook	会话时长 >1h 提示 compact							VALID	RESOLVED								VALID			VALID
+A136	.claude/hooks/post-merge-checkpoint.sh	Hook	PR 合并后 phase compaction 提示							VALID	RESOLVED		Phase 7.I 闭环 finding K: 移除 ghost docs/memory/checkpoints/ 引用，改为 handoff.md						VALID			VALID
+A137	.claude/hooks/premerge-checklist.sh	Hook	gh pr merge 前 STATUS.md 24h 检查							VALID	RESOLVED								VALID			VALID
+A138	.claude/hooks/prepush-lint.sh	Hook	git push 前跑 swiftlint							VALID	RESOLVED								VALID			VALID
+A139	.claude/hooks/session-metrics.sh	Hook	记录 tool call 时间戳							VALID	RESOLVED								VALID			VALID
+A140	.claude/hooks/swift-autolint.sh	Hook	PostToolUse Swift 文件 swiftlint							VALID	RESOLVED		Phase 7.I 闭环 finding L: 修正 .swiftlint.yml line ref						VALID			VALID
+A141	.claude/settings.json	Config	Claude Code hooks + skill 配置 SSOT							VALID	RESOLVED								VALID			VALID
+A142	.github/workflows/ci.yml	Config	CI workflow SSOT (190 行, Xcode 26.4+ / Swift 6.3)							VALID	RESOLVED								VALID			VALID
+A143	skills-lock.json	Config	skill provenance authoritative lockfile (462 行)							VALID	RESOLVED								VALID			VALID
+A144	Scripts/setup.sh	Scripts	新人入职环境配置							VALID	RESOLVED								VALID			VALID
+A145	Scripts/lint.sh	Scripts	trivial swiftlint wrapper							VALID	RESOLVED								VALID			VALID
+A146	Scripts/ci-local.sh	Scripts	本地模拟 CI（lint + build + test）							VALID	RESOLVED								VALID			VALID
+A147	Scripts/anti-pattern-scan.sh	Scripts	PR 合并后启发式反模式扫描							VALID	RESOLVED								VALID			VALID
+A148	Scripts/recall-index.sh	Scripts	知识/记忆快速召回							VALID	RESOLVED								VALID			VALID
+A149	Scripts/post_review.sh	Scripts	Review 结果发布到 PR							VALID	RESOLVED								VALID			VALID
+A150	Scripts/validate_frontmatter.py	Scripts	YAML frontmatter schema 校验 (167 行)							VALID	RESOLVED								VALID			VALID
+A151	Scripts/audit/docaudit.py	Scripts	文档审计引擎 (2007 行, Phase 4 已扩展 2 check)							VALID	RESOLVED								VALID			VALID
+A152	Scripts/audit/skill_refresh_report.py	Scripts	Vendored skill 上游对比 (238 行)							VALID	RESOLVED								VALID			VALID
+A153	Scripts/check_headers.py	Scripts	Swift header 检查 (81 行, manual tool 无 CI 调用)							VALID_WITH_GAP	RESOLVED		Phase 7.I 备注: 仅手动调用，无 CI 集成 - gap_type=manual_only						VALID_WITH_GAP			VALID_WITH_GAP
+A154	Scripts/gemini_review.py	Scripts	Gemini API 代码 review (122 行)							VALID	RESOLVED		Phase 7.I 闭环 finding M: gemini-context.md optional 注释明确						VALID			VALID
+A155	Scripts/gemini_project_review.py	Scripts	Gemini API 项目级审计 (173 行)							VALID	RESOLVED								VALID			VALID
+A156	Scripts/gemini_utils.py	Scripts	Gemini API utility (85 行)							VALID	RESOLVED								VALID			VALID
+A157	Scripts/add_assets.rb	Scripts	一次性 Asset 添加工具							VALID	RESOLVED								VALID			VALID
+A158	Scripts/add_swiftlint_phase.rb	Scripts	一次性 SwiftLint phase 添加							VALID	RESOLVED								VALID			VALID
+A159	Scripts/fix_duplicate_assets.rb	Scripts	一次性 Asset 重复清理							VALID	RESOLVED								VALID			VALID
+A160	Scripts/inspect_project.rb	Scripts	Xcode 项目诊断							VALID	RESOLVED								VALID			VALID
+A161	Scripts/migrations-completed/migrate_to_yaml_frontmatter.py	Scripts	已完成一次性 migration (ADR-003)							STALE_OR_INVALID	RESOLVED		Phase 7.I 闭环 finding O1: 归档至 migrations-completed/						STALE_OR_INVALID			STALE_OR_INVALID
+A162	Scripts/migrations-completed/migrate_share_to_sync_group.rb	Scripts	已完成一次性 migration (PBXFileSystemSynchronizedRootGroup)							STALE_OR_INVALID	RESOLVED		Phase 7.I 闭环 finding O2: 归档至 migrations-completed/						STALE_OR_INVALID			STALE_OR_INVALID
+A163	Configs/Shared.xcconfig	Config	版本号 + Swift 6.3 + iOS 26 SSOT							VALID	RESOLVED								VALID			VALID
+A164	SnapDrill.xcodeproj/xcshareddata/xctestplans/AllTests.xctestplan	Config	AllTests testplan (CI + SnapshotRecord 2 configs)							VALID	RESOLVED								VALID			VALID
+A165	.swiftlint.yml	Config	SwiftLint 规则配置							VALID	RESOLVED								VALID			VALID
+A166	Packages/SnapDrillCore/Package.swift	Config	Core SPM 包配置							VALID	RESOLVED								VALID			VALID
+A167	Packages/SnapDrillData/Package.swift	Config	Data SPM 包配置							VALID	RESOLVED								VALID			VALID
+A168	Packages/SnapDrillUI/Package.swift	Config	UI SPM 包配置							VALID	RESOLVED								VALID			VALID
+A169	Packages/SnapDrillInfrastructure/Package.swift	Config	Infrastructure SPM 包配置							VALID	RESOLVED								VALID			VALID
+A170	Packages/SnapDrillFeatures/Package.swift	Config	Features SPM 包（5 targets）							VALID	RESOLVED								VALID			VALID
+A171	Packages/SnapDrillCore/Sources/SnapDrillCore/SnapDrillCore.docc/SnapDrillCore.md	DocC	Core API doc							VALID	RESOLVED								VALID			VALID
+A172	Packages/SnapDrillData/Sources/SnapDrillData/SnapDrillData.docc/SnapDrillData.md	DocC	Data API doc							VALID	RESOLVED								VALID			VALID
+A173	Packages/SnapDrillInfrastructure/Sources/SnapDrillInfrastructure/SnapDrillInfrastructure.docc/SnapDrillInfrastructure.md	DocC	Infrastructure API doc							VALID	RESOLVED		Phase 7.I 闭环 finding R: 删 FirebaseRemoteConfigService 引用						VALID			VALID
+A174	Packages/SnapDrillUI/Sources/SnapDrillUI/SnapDrillUI.docc/SnapDrillUI.md	DocC	UI API doc							VALID	RESOLVED								VALID			VALID
+A175	Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/SnapDrillFeatureCapture.docc/SnapDrillFeatureCapture.md	DocC	Capture API doc							VALID	RESOLVED								VALID			VALID
+A176	Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/SnapDrillFeatureDashboard.docc/SnapDrillFeatureDashboard.md	DocC	Dashboard API doc							VALID	RESOLVED								VALID			VALID
+A177	Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/SnapDrillFeatureLibrary.docc/SnapDrillFeatureLibrary.md	DocC	Library API doc							VALID	RESOLVED								VALID			VALID
+A178	Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SnapDrillFeatureSettings.docc/SnapDrillFeatureSettings.md	DocC	Settings API doc							VALID	RESOLVED								VALID			VALID
+A179	Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/SnapDrillFeatureReview.docc/SnapDrillFeatureReview.md	DocC	Review API doc							VALID	RESOLVED								VALID			VALID
+A180	.agents/skills/<all>/references/	Shared-ref	54 reference 文件（navigation 7 + swiftdata 5 + concurrency 24 + swiftui 18），ghost ref 扫描空							VALID	RESOLVED		Phase 7.E batch verdict						VALID			VALID
+A181	docs/archive/audit-report-20260409.md	Archive	4/9 早期单方审计（用户判定不可靠）							VALID	RESOLVED		archive 状态合理						VALID			VALID
+A182	docs/archive/phase-e-pr-e4-reflow-20260422.md	Archive	Phase E PR-E4 反哺实战记录							VALID	RESOLVED								VALID			VALID
+A183	docs/archive/README.md	Archive	docs/archive/ 目录说明							VALID	RESOLVED								VALID			VALID
+A184	docs/archive/timeline.md	Archive	项目历史时间线							VALID	RESOLVED		Phase 7.I 闭环 finding S: layer snapshot→archive + 移除 freshness						VALID			VALID
+A185	docs/archive/research/harness-engineering-study-20260418.md	Archive	Harness Engineering 三方研究归档							VALID	RESOLVED								VALID			VALID
+A186	docs/archive/research/hermes-agent-study-20260418.md	Archive	Hermes agent 三方研究归档							VALID	RESOLVED								VALID			VALID
+A187	.agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/SKILL.md	Plugin-payload	swift-concurrency-pro 嵌套副本（plugin form）							VALID	RESOLVED								VALID			VALID
+A188	.agents/skills/swiftui-pro/skills/swiftui-pro/SKILL.md	Plugin-payload	swiftui-pro 嵌套副本（plugin form）							VALID	RESOLVED								VALID			VALID
+A189	.agent-harness/project.yaml	AgentHarness	agent-harness consumer 配置							VALID	RESOLVED		Phase 7.I 闭环 finding T+T2: 4 dead skill 替换 + apple-extension ghost 移除						VALID			VALID
+A190	.agent-harness/lock.json	AgentHarness	upstream commit pinning							VALID	RESOLVED								VALID			VALID
+A191	.vscode/settings.json	Editor	VS Code 配置（单行 git ignoreLimitWarning）							VALID	RESOLVED								VALID			VALID
+A192	.claude/skills/snapshot-diff-review/SKILL.md	Claude-LOCAL	Snapshot baseline 审查 skill（项目自有）							VALID	RESOLVED		Phase 9 finding Y 闭环：从 snapshot-testing 拆出嵌入的第二 frontmatter 为独立 skill						VALID			VALID

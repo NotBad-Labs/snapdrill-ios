@@ -167,6 +167,7 @@ Codex GUI 多轮验证修复（Phase 0-9 收官后由 Codex 独立审计触发�
 - `Scripts/audit/docaudit.py` + `Scripts/audit/policy.yaml`（2 新 check）
 - 4 个 VALID_WITH_GAP 文件（结构化 gap 字段）
 - `STATUS.md` + `docs/memory/handoff.md`（Phase 4 完工状态）
+- `docs/audits/audit-ledger-2026-05.tsv` + `docs/audits/README.md`（事实裁决 ledger 从 Claude 私有空间迁入 repo，作为外审可独立复核的 SSOT）
 
 ### 元数据
 
