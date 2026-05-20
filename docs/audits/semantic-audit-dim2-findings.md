@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 文档体系语义层审计报告【维度 2：反向溯源】
 
-> **版本**：2026-05-20 | **审计员**：Antigravity (Gemini 3.5 High) 独立审计
+> **版本**：2026-05-20 | **审计员**：Antigravity (Gemini 3.5 Flash (High)) 独立审计
 > **审计范围**：`docs/product/product-requirements.md` 全部功能（v2.0 功能全景、MoSCoW 分类及各章节规格段）
 > **审计目的**：核对 Requirements 的每个 feature，反推回 `docs/product/product-vision.md`，校验其是否拥有坚实的价值主张承接锚点，筛查孤儿功能（Orphan）、半孤儿功能（Semi-Orphan）或与 Vision 核心原则反向冲突（Contradiction）的功能。
 >

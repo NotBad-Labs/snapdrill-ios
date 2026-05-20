@@ -7,7 +7,7 @@ freshness:
 ---
 # 语义层维度 1 — 三方对抗共识报告
 
-> **日期**：2026-05-20 | **维度**：1 跨文档语义链条 (V→D→R→T) | **三方**：Claude CLI / Codex 桌面端 / Antigravity (Gemini 3.5 High)
+> **日期**：2026-05-20 | **维度**：1 跨文档语义链条 (V→D→R→T) | **三方**：Claude CLI / Codex 桌面端 / Antigravity (Gemini 3.5 Flash (High))
 >
 > **方法**：F-008「相同完整任务、不分工」纪律，三家独立审完整范围，[[cross-audit-consensus]] 折结果。
 >

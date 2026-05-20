@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 文档体系语义层审计报告【维度 1：跨文档语义链条】
 
-> **版本**：2026-05-20 | **审计员**：Antigravity (Gemini 3.5 High) 独立审计
+> **版本**：2026-05-20 | **审计员**：Antigravity (Gemini 3.5 Flash (High)) 独立审计
 > **审计范围**：
 > - L1 Vision: `docs/product/product-vision.md`
 > - L2 Design: `docs/product/product-design.md`

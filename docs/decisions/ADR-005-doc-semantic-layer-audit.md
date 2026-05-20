@@ -15,7 +15,7 @@ layer: decision
 
 本 ADR 即兑现该承诺。
 
-**新变量（2026-05-20）**：Google 发布 Gemini 3.5（Antigravity 桌面端可调用），ChatGPT 桌面端 Codex 模式同期可用作 GUI 二审通道。这改变了 ADR-004 第 186 行原定的「Gemini 不参与判断」工作假设——见下方「研究摘要」。
+**新变量（2026-05-20）**：Google 发布 Gemini 3.5 Flash（Antigravity 桌面端可调用），ChatGPT 桌面端 Codex 模式同期可用作 GUI 二审通道。这改变了 ADR-004 第 186 行原定的「Gemini 不参与判断」工作假设——见下方「研究摘要」。
 
 ## 选项
 
@@ -38,6 +38,21 @@ layer: decision
 - **三家独立审完整 7 维度**，不切片分工
 - folding 用 [[cross-audit-consensus]] skill 输出共识 / 单家独有 / 冲突三类
 - Claude（CLI）主笔最终 verdict + ADR-005 收官段；Codex 桌面端 + Antigravity 各产一份独立报告附录到 audit-ledger
+
+### 模型版本注（2026-05-20 基线，易变事实，复审触发：见下方 gap_due）
+
+> ⚠️ 本节描述的具体模型版本会随上游迭代变化，**不锚定为永久事实**。沿用 ADR-004 §防漂移机制的 `gap_due` 模式标外部条件到期触发复审。
+
+| 项 | 当前基线 (2026-05-20) | 备注 |
+|---|---|---|
+| **Antigravity 版本** | Antigravity 2.0 (Google I/O 2026 发布) | standalone desktop app |
+| **当前选用模型** | **Gemini 3.5 Flash (High reasoning)** | Antigravity 模型下拉菜单实际选项 |
+| **Antigravity 可选模型清单** | Gemini 3.5 Flash (High/Medium) / Gemini 3.1 Pro (High/Low) / Claude Sonnet 4.6 (Thinking) / Claude Opus 4.6 (Thinking) / GPT-OSS 120B (Medium) | 截至本文撰写日截图实测 |
+| **Codex 桌面端** | ChatGPT 桌面端 Codex 模式（GPT-5.5） | — |
+| **Claude CLI** | Claude Opus 4.7 (1M context) | — |
+| **gap_due (复审触发)** | `gemini_3_5_pro_release` (预计 2026-06) | Gemini 3.5 Pro 发布后维度 4-7 启动时复审本表 + over-endorse 监控基线 |
+
+**记号约定**：本文档及下游审计报告 `Antigravity (Gemini 3.5 Flash (High))` 简称该完整组合；正文叙事性提及「Gemini 3.5」时指模型家族而非特定版本。
 
 ## 决策
 
@@ -153,6 +168,22 @@ Phase 10 每个维度收尾时**必须**同步触动以下字段，否则不算�
 | 工作流违规 | — | — | ⚠️ **抢跑落档**（未等三方齐就独立写 ledger/STATUS/handoff/ADR-005）|
 
 **累计结论**：Gemini 3.5 三轮实测**未复现 over-endorse 病灶**，对抗能力反向越来越锋利（维度 3 与 Codex 6/6 一致是强信号）。但维度 3 暴露了 Antigravity 工作流违规——未等三方齐就独立写共识落档；已通过改进提示词模板（明文「严禁操作」段）封堵，沉淀到 [`docs/audits/single-vendor-audit-prompt-template.md`](../audits/single-vendor-audit-prompt-template.md)，维度 4-7 适用。三方对抗角色继续维持。
+
+### 维度 3 元教训（Meta-Finding）
+
+本会话还暴露了一个**元层级**的内部冲突：**Phase 10 自产文档把易变模型版本号 (Gemini 3.5 / Antigravity 桌面端) 写死了**，违反了结构层审计 Phase 4 已建立的 `last_verified / gap_due / external-gap-expiry` 反漂移机制（[[ADR-004]] §防漂移机制）。
+
+具体表现：
+- ADR-005 / consensus 报告里把「Antigravity (Gemini 3.5 High)」当固定事实
+- 没标 `gap_due` 字段触发未来复审
+- 知识截止 2026-01 的助手凭直觉否认 Gemini 3.5 存在（实际 2026-05-19 I/O 发布）—— 双重失误：没搜 + 没标易变
+
+**修复机制（已生效）**：
+1. 新增本 ADR §模型版本注 段（上方），声明易变性 + `gap_due` 触发器
+2. 「Antigravity (Gemini 3.5 High)」全量改为「Antigravity (Gemini 3.5 Flash (High))」准确称谓
+3. 元教训记入维度 3 收官（本段），作为内部冲突扫描的反面教材：制定规则的人不遵守自己规则
+
+**关联**：此发现没有进入维度 3 共识 ledger（因为是元层级、自指向），单独沉淀在本段。
 
 ### 元数据
 

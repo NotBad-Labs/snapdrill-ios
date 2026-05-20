@@ -7,7 +7,7 @@ freshness:
 ---
 # 语义层维度 2 — 三方对抗共识报告（反向溯源）
 
-> **日期**：2026-05-20 | **维度**：2 反向溯源（requirements → vision） | **三方**：Claude CLI / Codex 桌面端 / Antigravity (Gemini 3.5 High)
+> **日期**：2026-05-20 | **维度**：2 反向溯源（requirements → vision） | **三方**：Claude CLI / Codex 桌面端 / Antigravity (Gemini 3.5 Flash (High))
 >
 > **方法**：F-008「相同完整任务、不分工」，三家独立审 `product-requirements.md` 全部功能反推回 `product-vision.md` 价值主张。[[cross-audit-consensus]] 折结果。
 >

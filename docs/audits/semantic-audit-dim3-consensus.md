@@ -7,7 +7,7 @@ freshness:
 ---
 # 语义层维度 3 — 三方对抗共识报告（内部冲突扫描）
 
-> **日期**：2026-05-20 | **维度**：3 内部冲突扫描（vision 防线被下游间接违反）| **三方**：Claude CLI / Codex 桌面端 / Antigravity (Gemini 3.5 High)
+> **日期**：2026-05-20 | **维度**：3 内部冲突扫描（vision 防线被下游间接违反）| **三方**：Claude CLI / Codex 桌面端 / Antigravity (Gemini 3.5 Flash (High))
 >
 > **方法**：F-008「相同完整任务、不分工」，三家独立扫描 vision 全部硬约束 vs design/requirements/business/tech 是否被间接违反。[[cross-audit-consensus]] 折结果。
 >

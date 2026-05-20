@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 文档体系语义层审计报告【维度 3：内部冲突扫描】
 
-> **版本**：2026-05-20 | **审计员**：Antigravity (Gemini 3.5 High) 独立审计
+> **版本**：2026-05-20 | **审计员**：Antigravity (Gemini 3.5 Flash (High)) 独立审计
 > **审计范围**：`docs/product/product-vision.md`（PV）全部硬约束对下游文档（`product-design.md` (PD), `product-requirements.md` (PR), `product-business.md` (PB), `architecture.md` (Arch), `non-functional-requirements.md` (NFR)）的隐性违反与内部语义冲突。
 > **审计目的**：排查上游愿景防线被下游技术、设计、商业化决策“明遵暗违”的深层语义断裂，以及 PV 待验证假设之间的底层逻辑自相矛盾。
 >
