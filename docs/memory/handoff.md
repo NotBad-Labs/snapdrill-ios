@@ -12,7 +12,7 @@ freshness:
 - **当前主力**：Claude Opus 4.7（Claude Code CLI）
 - **辅审**：Codex CLI + Gemini CLI + DeepSeek V4-Pro
 - **主分支**：`develop`
-- **状态**：文档体系深度清洁 Phase 0-9 收官（2026-05-20）；详见 `docs/decisions/ADR-004-doc-system-deep-clean.md`
+- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`，Gemini FULL PASS）；**语义层**审计作为 Phase 10 独立立项待启动。详见 `docs/decisions/ADR-004-doc-system-deep-clean.md`「覆盖层级声明」+「待后续 phase 实施」段
 
 ## 进行中：文档体系深度清洁
 

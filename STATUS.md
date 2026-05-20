@@ -13,7 +13,9 @@ freshness:
 
 ## 当前状态（2026-05-20）
 
-**文档体系深度清洁 Phase 0-9 收官**（2026-05-20）。方法论沉淀在 `docs/decisions/ADR-004-doc-system-deep-clean.md`。
+**文档体系深度清洁 Phase 0-9 结构层收官**（2026-05-20，共识基线 commit `4883d6b6`，Gemini 全周期 FULL PASS）。方法论沉淀在 `docs/decisions/ADR-004-doc-system-deep-clean.md`。
+
+⚠️ **本轮仅覆盖结构层**（frontmatter/链接/计数/算术/docaudit 全绿）。**语义层审计**（跨文档语义链条、反向溯源、standards 约束力、skill description↔body、F-rule 实际遵守度）作为 **Phase 10** 独立立项，详见 ADR-004 backlog 段，预计新建 ADR-005。
 
 - **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
 - **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见
