@@ -137,7 +137,10 @@ layer: pattern
 
 ## 审计归档（docs/audits/）
 
-事实裁决 ledger 和审计报告。与 ADR 同级，承载「过程产物 + 三方裁决」类文档。元信息见 `docs/audits/README.md`。
+事实裁决 ledger 和审计报告。与 ADR 同级，承载「过程产物 + 三方裁决」类文档。
+
+- `docs/audits/README.md` — 目录元信息、TSV 字段语义、阅读口径、命名/retention 规则
+- `docs/audits/audit-ledger-2026-05.tsv` — 文档体系深度清洁 Phase 0-9 的 192 条文件级 verdict（关联 `docs/decisions/ADR-004-doc-system-deep-clean.md`）
 
 ## 知识卫生规则
 
