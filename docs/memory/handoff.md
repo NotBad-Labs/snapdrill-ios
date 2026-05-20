@@ -12,7 +12,7 @@ freshness:
 - **当前主力**：Claude Opus 4.7（Claude Code CLI）
 - **辅审**：Codex CLI + Gemini CLI + DeepSeek V4-Pro
 - **主分支**：`develop`
-- **状态**：文档体系深度清洁 Phase 0/1/2 大部分完成；剩 C 组 5 文档需用户决策
+- **状态**：文档体系深度清洁 Phase 0-9 全部收官（2026-05-20）；详见 `docs/decisions/ADR-004-doc-system-deep-clean.md`
 
 ## 进行中：文档体系深度清洁
 
@@ -36,7 +36,7 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 
 **Phase 4-9 已完成**（截至 2026-05-20）：治理升级（docaudit 9→11 check：verdict-sync + external-gap-expiry）+ ADR-004 + Phase 5/7 全量补审 132 文件 + Phase 8 真全文 73 文件 + Phase 9 snapshot-diff-review skill 拆分。方法论 SSOT 在 `docs/decisions/ADR-004-doc-system-deep-clean.md`。
 
-**残留**：audit-ledger 192 行，Confidence 列 52 PENDING，Codex/Gemini 列 140 空（Phase 5+ 增量条目以 Claude 单家裁决落地）；如需补齐三方对齐，须重跑 Codex/Gemini batch（成本预估 1-2 小时 + API 费）。
+**残留**：audit-ledger 192 行，Confidence 列已全部 RESOLVED；Codex/Gemini 列 140 行空（Phase 5+ 增量条目以 Claude 单家裁决落地，非完整三方对齐）。如需补齐三方对齐，须重跑 Codex/Gemini batch（成本预估 1-2 小时 + API 费）。
 
 ## 历史 Codex P1 修复（2026-05-18）
 
@@ -44,11 +44,10 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 
 ## 下一会话方向
 
-- A. Phase 2.4 C 组 5 文档用户决策后修订
-- B. Phase 3 跨文档结构性扫描（含 DeepSeek 二意见）
-- C. Phase 4 ADR-004 + docaudit 扩展
-- D. Apple 账号缴费 → 解锁 #163 链
-- E. #626 真机验证
+- A. Apple 账号缴费 → 解锁 #163 链
+- B. #626 真机验证
+- C.（可选）补齐 audit-ledger 140 行 Codex/Gemini 三方对齐（成本 1-2 小时 + API 费）
+- D.（可选）实施 ADR-004 backlog 中 4 个 docaudit check 设计稿（`ssot-cross-check` / `dep-map-reality` / `terminology-glossary` / `snapshot-freshness`）
 
 ## Boot 序列（新会话必读）
 

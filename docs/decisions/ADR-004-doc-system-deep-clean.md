@@ -12,11 +12,13 @@ layer: decision
 
 本会话从修 5 个 governance skill 起步，一路滚到 F 规则索引/定义脱节、14 skill 治理审计、52 文档审计接管、SSOT 自洽体检、三方 verdict 决议、跨文档结构性扫描、二意见对抗。
 
-总规模：
+总规模（2026-05-19 触发本 ADR 时的历史快照，非当前事实）：
 - docs/ 57 .md / ~7,014 行
 - .claude/ 52 .md（54 skill + adapter）
 - 根 + .github/ ~10 .md
 - **合计 ~119 markdown 文件**
+
+> 当前快照（2026-05-20，Phase 0-9 收官后）：docs/ 61 .md / 7565 行；skill 52；规模随收官增长，KM/STATUS 是 SSOT，本处数字仅记录触发时刻基线。
 
 需要一个可复用的方法论 + 防漂移机制，避免 6 个月后又一样脏。
 

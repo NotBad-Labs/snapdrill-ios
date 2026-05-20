@@ -119,7 +119,7 @@ layer: pattern
 - api-pitfalls 条目被框架修复后标记退役
 - ADR 被新 ADR 取代时标记为"已废弃"并指向替代 ADR
 
-**文件数量软上限**：活跃知识文件 ~50 个（当前 docs/ 下第一方 md 44，不含 archive/ 与 tech/reference/）。已到 88% 触线。超过 ~45 时优先合并或退役而非新增；超过 ~50 必须先退役才能新增。
+**文件数量软上限**：活跃知识文件 ~50 个（当前 docs/ 下第一方 md 45，不含 archive/ 与 tech/reference/；2026-05-20 实测）。已到 90% 触线。超过 ~45 时优先合并或退役而非新增；超过 ~50 必须先退役才能新增。
 
 ## 架构决策记录（ADR）
 
@@ -143,4 +143,4 @@ layer: pattern
 4. **每次对话启动**：Claude 检查快照层 `last_verified` 是否超期
 5. **更新知识文件时**：grep 其他文件中对同一主题的引用，确认无矛盾（冲突检测）
 6. **修复非预期问题后**：评估是否需要录入 `api-pitfalls.md` 或 feedback（踩坑即录入）
-7. **docs 结构性漂移**：`Scripts/audit/docaudit.py` 提供机械化审计（7 个结构子命令：links / archived-refs / orphans / home-path-refs / rule-usage / skill-inventory / skill-links；`all` 另含 frontmatter subprocess）。策略源 `Scripts/audit/policy.yaml`，用法见 `Scripts/audit/README.md`。CI `docs` job（ubuntu-latest 并行）+ PostToolUse hook（Edit docs）+ PreToolUse hook（git push / gh pr merge 前）自动触发；对话场景用 `/knowledge-health` skill 扫描 CI 不可见的 Claude 私有空间 + private memory，产出分层修复 plan，不改文件
+7. **docs 结构性漂移**：`Scripts/audit/docaudit.py` 提供机械化审计（11 个结构子命令：frontmatter / links / archived-refs / orphans / home-path-refs / rule-usage / skill-inventory / skill-links / skill-provenance / verdict-sync / external-gap-expiry）。策略源 `Scripts/audit/policy.yaml`，用法见 `Scripts/audit/README.md`。CI `docs` job（ubuntu-latest 并行）+ PostToolUse hook（Edit docs）+ PreToolUse hook（git push / gh pr merge 前）自动触发；对话场景用 `/knowledge-health` skill 扫描 CI 不可见的 Claude 私有空间 + private memory，产出分层修复 plan，不改文件
