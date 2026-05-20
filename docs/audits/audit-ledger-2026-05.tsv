@@ -17,7 +17,7 @@ A015	docs/tech/compliance.md	技术	隐私合规							VALID	RESOLVED								VAL
 A016	docs/tech/deployment.md	技术	CI/CD、发布流程							VALID	RESOLVED								NEEDS_REVISION	VALID	VALID	VALID
 A017	docs/tech/non-functional-requirements.md	技术	性能、内存、存储							VALID	RESOLVED								VALID	VALID	VALID	VALID
 A018	docs/tech/reference/reference_ai_toolchain_specs.md	技术	AI 工具链规格							VALID	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID
-A019	docs/tech/reference/reference_codex_plugin_v104_upgrade.md	技术	Codex 插件升级记录							STALE_OR_INVALID	RESOLVED								STALE_OR_INVALID	STALE_OR_INVALID	VALID	STALE_OR_INVALID
+A019	docs/tech/reference/reference_codex_plugin_v104_upgrade.md	技术	Codex 插件升级记录							STALE_OR_INVALID	RESOLVED	Round 9: 已归档至 docs/archive/reference_codex_plugin_v104_upgrade.md							STALE_OR_INVALID	STALE_OR_INVALID	VALID	STALE_OR_INVALID
 A020	docs/tech/reference/reference_deepseek_toolchain.md	技术	DeepSeek 工具链							VALID	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID
 A021	docs/tech/reference/reference_gemini_cli.md	技术	Gemini CLI 集成							VALID	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID
 A022	docs/tech/reference/reference_opus_4_7_behavior.md	技术	Opus 4.7 行为变化							VALID	RESOLVED								VALID	STALE_OR_INVALID	VALID	VALID
@@ -88,9 +88,9 @@ A086	.claude/skills/tdd-feature/SKILL.md	Claude-LOCAL	exact upstream							VALID
 A087	.claude/skills/tdd-refactor-guard/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
 A088	.claude/skills/tipkit-generator/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
 A089	.claude/skills/ui-review/SKILL.md	Claude-LOCAL	exact upstream							VALID_WITH_GAP	RESOLVED								VALID_WITH_GAP			VALID_WITH_GAP
-A090	.claude/skills/biometric-auth/SKILL.md	Claude-stub	empty body — trigger stub only							STALE_OR_INVALID	RESOLVED		retired 2026-05-19 (Phase 6); see skill-source-ledger.md Retired section for restore path						NEEDS_REVISION			STALE_OR_INVALID
-A091	.claude/skills/network-security/SKILL.md	Claude-stub	empty body — trigger stub only							STALE_OR_INVALID	RESOLVED		retired 2026-05-19 (Phase 6); see skill-source-ledger.md Retired section for restore path						NEEDS_REVISION			STALE_OR_INVALID
-A092	.claude/skills/secure-storage/SKILL.md	Claude-stub	empty body — trigger stub only							STALE_OR_INVALID	RESOLVED		retired 2026-05-19 (Phase 6); see skill-source-ledger.md Retired section for restore path						NEEDS_REVISION			STALE_OR_INVALID
+A090	.claude/skills/biometric-auth/SKILL.md	Claude-stub	empty body — trigger stub only							STALE_OR_INVALID	RESOLVED	Round 9: Phase 5 退役 (commit 7a3d2854) — 空 body + SnapDrill 零注册产品模型无对应需求	retired 2026-05-19 (Phase 6); see skill-source-ledger.md Retired section for restore path						NEEDS_REVISION			STALE_OR_INVALID
+A091	.claude/skills/network-security/SKILL.md	Claude-stub	empty body — trigger stub only							STALE_OR_INVALID	RESOLVED	Round 9: Phase 5 退役 (commit 7a3d2854) — 同上	retired 2026-05-19 (Phase 6); see skill-source-ledger.md Retired section for restore path						NEEDS_REVISION			STALE_OR_INVALID
+A092	.claude/skills/secure-storage/SKILL.md	Claude-stub	empty body — trigger stub only							STALE_OR_INVALID	RESOLVED	Round 9: Phase 5 退役 (commit 7a3d2854) — 同上	retired 2026-05-19 (Phase 6); see skill-source-ledger.md Retired section for restore path						NEEDS_REVISION			STALE_OR_INVALID
 A093	.github/PULL_REQUEST_TEMPLATE.md	GitHub	PR template							VALID	RESOLVED		Phase 5 finding A 闭环: ghost api-reference 改为 architecture.md						NEEDS_REVISION			VALID
 A094	.github/ISSUE_TEMPLATE/feature_request.md	GitHub	feature issue template							VALID	RESOLVED		Phase 5 finding B 闭环: 用户旅程引用改为 product-journeys.md						NEEDS_REVISION			VALID
 A095	.github/ISSUE_TEMPLATE/bug_report.md	GitHub	bug issue template							VALID	RESOLVED								VALID			VALID
@@ -102,13 +102,13 @@ A100	Packages/SnapDrillFeatures/README.md	Packages	Features package README						
 A101	Packages/SnapDrillInfrastructure/README.md	Packages	Infrastructure package README (ADR-002 misref)							VALID	RESOLVED		Phase 5 finding E 闭环: ADR-002 misref 改正						NEEDS_REVISION			VALID
 A102	Packages/SnapDrillUI/README.md	Packages	UI package README							VALID	RESOLVED								VALID			VALID
 A103	README.md	Root	项目根 README (ghost api-reference)							VALID	RESOLVED		Phase 5 finding F 闭环: ghost api-reference 改为 API 陷阱+Apple 边界						NEEDS_REVISION			VALID
-A104	CODEX_HANDOFF.md	Root	5/18 Codex handoff (全部已闭环)							STALE_OR_INVALID	RESOLVED								STALE_OR_INVALID			STALE_OR_INVALID
+A104	CODEX_HANDOFF.md	Root	5/18 Codex handoff (全部已闭环)							STALE_OR_INVALID	RESOLVED	Round 9: 已合并入 docs/archive/CODEX_HANDOFF-20260518.md							STALE_OR_INVALID			STALE_OR_INVALID
 A105	Scripts/README.md	Scripts	Scripts overview							VALID	RESOLVED								VALID			VALID
 A106	Scripts/audit/README.md	Scripts	docaudit usage doc (9 check 描述过期)							VALID	RESOLVED		Phase 5 finding H 闭环: 9→11 checks 同步						NEEDS_REVISION			VALID
 A107	.claude/compact-reminder.md	Claude	compact session recovery							VALID	RESOLVED								VALID			VALID
 A108	.agent-harness/README.md	AgentHarness	agent-harness consumer contract							VALID	RESOLVED								VALID			VALID
 A109	docs/archive/_claude__skills__phase-closeout__SKILL_md__2026-04-22T12-47-28+00-00.md	AgentHarness	Phase E PR-E2 反哺草稿 (TODO 占位)							STALE_OR_INVALID	RESOLVED		Phase 5 finding I 闭环: 4/22 TODO 占位反哺草稿归档						NEEDS_REVISION			STALE_OR_INVALID
-A110	reports/ZERO_TRUST_AUDIT_20260513.md	Reports	5/13 零信任审计完整报告 (已完成)							STALE_OR_INVALID	RESOLVED								STALE_OR_INVALID			STALE_OR_INVALID
+A110	reports/ZERO_TRUST_AUDIT_20260513.md	Reports	5/13 零信任审计完整报告 (已完成)							STALE_OR_INVALID	RESOLVED	Round 9: 已归档至 docs/archive/ZERO_TRUST_AUDIT_20260513.md							STALE_OR_INVALID			STALE_OR_INVALID
 A111	.agents/skills/accessibility-generator/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
 A112	.agents/skills/app-description-writer/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
 A113	.agents/skills/attributed-string/SKILL.md	Shared-vendored	rshankras community vendored							VALID	RESOLVED								VALID			VALID
@@ -191,3 +191,28 @@ A189	.agent-harness/project.yaml	AgentHarness	agent-harness consumer 配置					
 A190	.agent-harness/lock.json	AgentHarness	upstream commit pinning							VALID	RESOLVED								VALID			VALID
 A191	.vscode/settings.json	Editor	VS Code 配置（单行 git ignoreLimitWarning）							VALID	RESOLVED								VALID			VALID
 A192	.claude/skills/snapshot-diff-review/SKILL.md	Claude-LOCAL	Snapshot baseline 审查 skill（项目自有）							VALID	RESOLVED		Phase 9 finding Y 闭环：从 snapshot-testing 拆出嵌入的第二 frontmatter 为独立 skill						VALID			VALID
+A193	.claude/skills/api-research/SKILL.md	Claude-Governance	F-017 执行器，UI/SDK 改动前必查 Apple 最新 API	同 declared	15		L4-8 allowed-tools 完整；L31 Configs/Shared.xcconfig 存在；L51 apple-native.md 存在；L104-106 上游文档有效			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A194	.claude/skills/cross-audit/SKILL.md	Claude-Governance	三方对抗性审查 (Claude+Codex+Gemini)，强制 F-008	同 declared	81		L24-30 F-008/011/016 内嵌权威定义；L34-36 三方文档引用验证；L90 collaboration.md:71 汇总模板指针正确			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A195	.claude/skills/cross-audit-consensus/SKILL.md	Claude-Governance	三方对抗结果汇总裁决 (共识/单家独有/冲突)	同 declared	33		L75-99 评分权重表 (Codex 主锚 Gemini 次锚) 与 feedback.md 一致；L99 harness-design-study 引用通过；L129-146 历史案例链接有效			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A196	.claude/skills/decision-closeout/SKILL.md	Claude-Governance	产品决策变更后闭环收尾	同 declared	13		L21 权威源 docs/workflow.md；L35-55 五步流程 (impact→sync→ADR→issue→status)；L45-54 下游清单对齐 DOC_DEPENDENCY_MAP			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A197	.claude/skills/dependency-propagation/SKILL.md	Claude-Governance	文档变更传播同步，grep 下游引用并更新	同 declared	19		L6-10 allowed-tools (Edit/Write) 与 CI 权限一致；L41-51 DOC_DEPENDENCY_MAP §2 表格引用正确；L123 关联文档齐全			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A198	.claude/skills/dod-checklist/SKILL.md	Claude-Governance	PR 完成前 DoD 自检，按改动类型加载子集	同 declared	9		L28 权威源 docs/workflow.md；L31-44 检查项与工程标准对齐；L86-87 execution-gates.md 引用有效			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A199	.claude/skills/harness-recall/SKILL.md	Claude-Governance	自进化闭环 — 重复问题 ≥3 次 propose 新 F 规则	同 declared	30		L21 权威源 docs/standards/harness-recall.md；L41 anti-pattern-scan.sh 存在；L54-74 三击规则逻辑清晰			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A200	.claude/skills/knowledge-health/SKILL.md	Claude-Governance	知识体系体检 — docaudit + 私有空间扫描，产出 plan	同 declared	27		L31-36 docaudit.py all 命令有效；L42 KNOWLEDGE_MAP 软上限 ~50 约定；L73-120 plan 格式与 Phase 0-9 方法论对齐			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A201	.claude/skills/phase-closeout/SKILL.md	Claude-Governance	长任务 checkpoint 生成 (跨多 PR/多天 phase)	同 declared	70		L21-58 checkpoint 标准格式覆盖全面；L73-83 session-metrics.tsv 有效；L103-105 列 harness-recall + knowledge-health 为必做子 skill			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A202	.claude/skills/post-merge/SKILL.md	Claude-Governance	PR 合并后必做清单 (CI→STATUS→反模式扫描→文档同步)	同 declared	40		L30 F-007 时点 2 定义；L76 anti-pattern-scan.sh 存在；L85 DOC_DEPENDENCY_MAP §2 传播规则引用正确			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A203	.claude/skills/resume-from-handoff/SKILL.md	Claude-Governance	新会话接手项目最小上下文加载顺序 (Tier 1-3)	同 declared	19		L24 hermes-agent-study 引用存在；L27-41 Tier 加载顺序对齐 STATUS→handoff→feedback；L75 memory-routing.md 引用有效			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A204	.claude/skills/sprint-contract/SKILL.md	Claude-Governance	编码前契约 (F-018)，动代码前贴 Sprint Contract 到 Issue	同 declared	18		L99-123 F-013/014/018 完整定义；L111-122 timeboxed: review_after 2026-07-15 标签激活中；L128 feature_request.md 引用有效			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			F-013/014 在 2026-07-15 复审			VALID			VALID
+A205	.claude/skills/verify-audit-report/SKILL.md	Claude-Governance	审计报告真伪验证 — 逐条 grep+Read 确认 finding	同 declared	13		L30-48 F-006/012 内嵌定义；L43-48 Gemini 已知幻觉模式列举与历史对齐；L145 feedback_gemini_adversarial 引用			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A206	.claude/skills/xcode-review/SKILL.md	Claude-Governance	Xcode Intelligence Review 提示词撰写指南	同 declared	8		L18-20 docs/workflow.md (Code Review) 上游存在；L43 product-journeys.md 引用有效；L131 示例显式标注虚构防幻觉			VALID	RESOLVED	Round 9 补审 — frontmatter/body/引用/F 规则全部对齐	无须修订			无			VALID			VALID
+A207	Configs/Debug.xcconfig	Build-Config	Debug 构建配置 (DEBUG flag / 签名)	同 declared	7		Round 9 补审现场实测路径存在			VALID	RESOLVED	Round 9 补审 — 配置文件存在且被 xcodeproj 引用	无须修订			签名/Bundle ID/Marketing Version 漂移			VALID			VALID
+A208	Configs/Release.xcconfig	Build-Config	Release 构建配置 (含 Marketing Version SSOT)	同 declared	3		Round 9 补审现场实测路径存在			VALID	RESOLVED	Round 9 补审 — CLAUDE.md/MEMORY.md 声明的版本号 SSOT，存在且被 xcodeproj 引用	无须修订			版本号 SSOT 漂移会导致 TestFlight Build 号错误			VALID			VALID
+A209	Debug.xcconfig	Build-Config	根级 Debug 配置 (legacy/转发到 Configs/)	同 declared	7		Round 9 补审现场实测路径存在			VALID_WITH_GAP	RESOLVED	Round 9 补审 — 与 Configs/Debug.xcconfig 双源；建议 Phase 后续合并	Phase 后续合并双源 xcconfig			双源配置漂移			VALID_WITH_GAP			VALID_WITH_GAP
+A210	Release.xcconfig	Build-Config	根级 Release 配置 (legacy/转发到 Configs/)	同 declared	3		Round 9 补审现场实测路径存在			VALID_WITH_GAP	RESOLVED	Round 9 补审 — 与 Configs/Release.xcconfig 双源；建议 Phase 后续合并	Phase 后续合并双源 xcconfig			双源配置漂移			VALID_WITH_GAP			VALID_WITH_GAP
+A211	ExportOptions.plist	Build-Config	TestFlight/App Store 导出选项 (signing / distribution)	同 declared	3		Round 9 补审现场实测路径存在			VALID	RESOLVED	Round 9 补审 — 与 #161 TestFlight Build 6 链路相关	无须修订			导出失败 → TestFlight 阻塞			VALID			VALID
+A212	fastlane/Fastfile	CI-CD	TestFlight 上传自动化 (upload_testflight.sh 调用)	同 declared	1		Round 9 补审现场实测路径存在			VALID	RESOLVED	Round 9 补审 — 与 upload_testflight.sh 配套，活跃 CI 链路	无须修订			TestFlight 上传流程失效			VALID			VALID
+A213	Scripts/audit/policy.yaml	Meta-Audit	docaudit 策略 SSOT (10 checks + finding-level whitelist)	同 declared	19		Round 9 补审现场实测路径存在			VALID	RESOLVED	Round 9 补审 — 本会话 Phase 4 + Round 1-7 多次更新；当前 11 check 全绿	无须修订			审计器本身策略漂移 → 全局门禁失准			VALID			VALID
+A214	Scripts/audit/tests/__init__.py	Meta-Audit	docaudit 测试包 init	同 declared	1		Round 9 补审现场实测路径存在			VALID	RESOLVED	Round 9 补审 — pytest 包标记，空文件正常	无须修订			无			VALID			VALID
+A215	Scripts/audit/tests/test_docaudit.py	Meta-Audit	docaudit 单元测试 (11 check 行为 pin)	同 declared	2		Round 9 补审现场实测路径存在			VALID	RESOLVED	Round 9 补审 — 防 docaudit 自身回归	无须修订			无测试 → docaudit 重构破坏未被发现			VALID			VALID
+A216	Scripts/audit/tests/test_skill_refresh_report.py	Meta-Audit	vendored skill refresh 报告校验	同 declared	0		Round 9 补审现场实测路径存在			VALID	RESOLVED	Round 9 补审 — 与 skill-source-ledger.md 配套	无须修订			无			VALID			VALID
+A217	.github/ISSUE_TEMPLATE/config.yml	GitHub	Issue 模板 chooser 配置	同 declared	18		Round 9 补审现场实测路径存在			VALID	RESOLVED	Round 9 补审 — 与 .github/ISSUE_TEMPLATE/*.md 配套	无须修订			无			VALID			VALID
