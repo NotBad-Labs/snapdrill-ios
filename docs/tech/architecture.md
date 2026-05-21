@@ -156,6 +156,12 @@ SwiftData @Model（持久化）
 - `*ViewModel.swift` — 状态管理 + 业务逻辑
 - `*Router.swift` — 导航状态（NavigationPath + Destination enum）
 
+**数据导入/导出归属**：
+- `SnapDrillFeatureSettings/CSVParser.swift` — RFC 4180 CSV 解析（enum 纯函数，与 ViewModel 状态分离）
+- `SnapDrillFeatureSettings/DataExporter.swift` — JSON / CSV 导出（含 `=+-@` 前缀防注入）
+- `SettingsViewModel.swift` — CSV 导入流程编排（解析 + 字段映射 + 写入 repository）
+- 导入流程触发归属：`SnapDrillFeatureSettings`（用户从设置页发起）；解析 / 转换无状态层归属：`CSVParser`
+
 ### SnapDrillInfrastructure
 
 Firebase SDK 隔离层（Analytics + Crashlytics，Remote Config 已移除）。Core 层通过 Protocol（AnalyticsServiceProtocol）与之解耦。替换 Firebase 只需修改此层 + DependencyContainer，不影响其他模块。

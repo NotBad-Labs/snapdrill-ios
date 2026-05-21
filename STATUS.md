@@ -25,7 +25,9 @@ freshness:
 
 **🛠️ Phase 11 worktree 第二战 S-D4-002 收尾**（2026-05-21 真生产 bug 三方对抗）：通知 ID Multi-Profile 隔离修复。融合 Codex 4 层 namespace `com.snapdrill.notification.daily-review.profile.<uuid>` + `UserNotificationScheduling` facade（FakeCenter 测试真实 Live 服务行为）+ `ProfileScope` 类型注入 + 级联升级清理 legacy ID + `cancelAllSnapDrillNotifications` 用 managed prefix（不触碰第三方 app pending request）。测试 13 Core + 8 Features OK。详见 [S-D4-002-fix-consensus.md](docs/audits/S-D4-002-fix-consensus.md)。
 
-**OPEN finding 累计净减**：86 → 83 → 82 → 81（S-D7-001 / S-D7-010 / S-D5-013 / S-D4-003 / S-D4-002 全部翻面）。
+**🛠️ S-D1-001/002/003 维度 1 三大 HIGH RESOLVED**（2026-05-21 单家批量文档对齐）：Requirements 新增 §字段配置规格段（4 层 + 过滤排序闭环 + 5 入口分层）+ Architecture 补 CSV 模块归属 + NFR 修正 Dynamic Type vs 自定义字号概念混淆 + 补 CSV 导入吞吐/内存/解析合规。
+
+**OPEN finding 累计净减**：86 → ... → **78**（共 8 条翻面：S-D7-001 / S-D7-010 / S-D5-013 / S-D4-003 / S-D4-002 / S-D1-001 / S-D1-002 / S-D1-003）。
 
 - **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
 - **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见

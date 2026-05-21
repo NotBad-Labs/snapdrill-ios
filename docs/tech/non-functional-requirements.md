@@ -19,6 +19,7 @@ layer: pattern
 | **PDF 导出** | < 5 秒（50 题） | 点击导出到预览页显示 |
 | **快速打印** | < 3 秒（4 题） | 选中题目到系统打印面板弹出 |
 | **备份打包** | < 30 秒（500 题 + 图片） | 点击备份到 ShareSheet 弹出 |
+| **CSV 导入** | < 5 秒（1000 行）| 选择文件到题目入库完成 |
 | **滚动帧率** | 60fps（无掉帧） | 题库列表快速滚动 |
 
 ## 内存
@@ -29,6 +30,7 @@ layer: pattern
 | PDF 批量导出 | < 200MB | autoreleasepool 逐页释放 |
 | 备份/恢复 | < 200MB | 流式 ZIP 写入，不全量加载 |
 | 图片裁剪 | < 300MB | Mantis 内部管理 |
+| CSV 导入（1000 行）| < 80MB | 解析流逐行处理，不全文加载到内存 |
 
 ## 存储
 
@@ -51,7 +53,8 @@ layer: pattern
 | **EXIF 剥离** | 保存图片前清除 GPS 等位置信息 |
 | **Analytics 默认不采集** | 首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in；两个独立开关分别控制 Analytics 和 Crashlytics |
 | **Not Tracking** | Privacy Manifest 声明 NSPrivacyTracking = false，不使用 IDFA |
-| **CSV 注入防护** | 导出 CSV 时以 `=+\-@` 开头的值前加 tab |
+| **CSV 注入防护（导出）** | 导出 CSV 时以 `=+\-@` 开头的值前加 tab |
+| **CSV 解析（导入）** | 严格 RFC 4180 合规：引号转义、CRLF/LF 兼容、字段数不匹配则整行拒绝并提示用户；解析层在 `SnapDrillFeatureSettings/CSVParser.swift` |
 
 ## 兼容性
 
@@ -70,9 +73,18 @@ layer: pattern
 | 需求 | 标准 |
 |---|---|
 | **VoiceOver** | 全模块所有常见任务可完成 |
-| **Dynamic Type** | 复习卡片字号 12-24pt 可调 |
+| **Dynamic Type** | 装饰性数字（Dashboard 统计、滑动印章、Session Summary 等）随系统 Dynamic Type 缩放 |
 | **手势替代** | 滑动操作必须有对应按钮 fallback |
 | **色彩对比度** | 文字与背景对比度 ≥ 4.5:1（WCAG AA） |
+
+### 复习卡片自定义字号（App 独立设置，非 Dynamic Type）
+
+| 需求 | 标准 |
+|---|---|
+| **正面字号** | 用户在设置中通过滑杆调整（默认 32pt，范围按代码实现） |
+| **反面字号** | 独立设置（默认 16pt，与正面互不影响） |
+| **存储** | `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)`，Per-Profile 隔离 |
+| **关系** | **与 Dynamic Type 互不依赖**——复习卡片正反面是阅读体验核心，需用户精细控制；Dynamic Type 仅影响装饰性数字（统计、印章） |
 
 ## 可靠性
 
