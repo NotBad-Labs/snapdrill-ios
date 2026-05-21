@@ -68,7 +68,9 @@ layer: pattern
 
 ## Accessibility 基线
 
-- 所有交互元素必须有 `.accessibilityLabel()`
+- 所有**用户面交互元素**（按钮、Toggle、滑杆、自定义可点击区域）必须有 `.accessibilityLabel()` 或 `accessibilityValue()` 等价表达
+  - 例外：纯文本 SwiftUI `Text`、`Label`、`TextField` 等系统组件已自带语义，**不需要额外标注**
+  - 与 `ux-design.md` §UX 验收 标准对齐：用户能用 VoiceOver 完成核心任务即达标
 - 复习卡片翻转、操作结果必须 VoiceOver 公告
 - 支持 Bold Text 偏好
 - 支持 Reduce Motion（关闭装饰性动画）

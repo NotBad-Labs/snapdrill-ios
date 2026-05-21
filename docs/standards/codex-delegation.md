@@ -1,7 +1,7 @@
 ---
 last_verified: 2026-05-19
 layer: pattern
-audit_note: 2026-05-19 验证 — gpt-5.5 已是当前推荐模型，下游 cross-audit / cross-audit-consensus skill 已同步
+audit_note: 2026-05-21 验证 — gpt-5.5 当前推荐模型；含 CLI / 桌面端 / 插件三形态；--effort 标志已移除（0.130+）；下游 cross-audit / cross-audit-consensus skill 已同步。**注**：audit_note 字段仅是当前验证状态摘要，不代表「永久合规」；任何后续模型版本 / CLI 版本 / 形态变更必须同步更新此字段
 ---
 # Codex 子 agent 委派规范
 
@@ -11,7 +11,17 @@ audit_note: 2026-05-19 验证 — gpt-5.5 已是当前推荐模型，下游 cros
 Codex 作为主线程的子 agent 运行（插件 v1.0.3，源码 `openai/codex-plugin-cc`），不自动继承 `CLAUDE.md` / `CODEX.md`、`docs/standards/`、产品文档体系。
 委派 prompt 的质量直接决定 Codex 输出是否符合项目约束。
 
-## 模型与参数选择
+## 委派通道
+
+Codex 有三种使用形态，本规范覆盖**全部三种**：
+
+| 形态 | 形态特征 | 主要使用阶段 |
+|---|---|---|
+| **Codex CLI**（命令行）| 通过 `codex -m <model>` 命令直接调用，可在 Bash 中委派 | 日常对抗 review / 文档审计 |
+| **Codex 桌面端**（GUI App）| 独立 macOS App，可在独立窗口跑大任务 | Phase 10/11 三方 worktree 主审之一 |
+| **Codex 插件**（终端 Claude Code 内）| 在主线程 Claude 内通过插件调用 | 终端内闭环 |
+
+## 模型与参数选择（CLI 形态）
 
 Codex CLI 0.130.0+ 使用 `-m` 指定模型，不支持 `--effort` 标志。
 
@@ -23,7 +33,9 @@ Codex CLI 0.130.0+ 使用 `-m` 指定模型，不支持 `--effort` 标志。
 | 快速迭代/实时 | `-m spark` | 1000+ tok/s，适合小改动 |
 | 快速 lint/格式校验 | `-m gpt-5.5` | 低智能敏感度任务 |
 
-历史注记：GPT-5.4 时代 `--effort high` 曾是推荐参数；Codex CLI 0.130.0 移除该标志，模型选择替代 effort 控制。
+桌面端 / 插件形态由 GUI 选择模型，遵循同样的「研究审计用 gpt-5.5」原则。
+
+历史注记：GPT-5.4 时代 `--effort high` 曾是推荐参数；Codex CLI 0.130.0 移除该标志，模型选择替代 effort 控制。**本文不再保留 `--effort high` 示例**——出现该标志一律按过时纠正。
 
 ## 委派 prompt 必须包含
 

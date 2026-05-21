@@ -129,3 +129,19 @@ python3 Scripts/audit/docaudit.py skill-provenance --strict
 - Use the `skill-source-ledger.md` vendored refresh workflow before updating any lockfile-managed community skill.
 - Verify whether the current Claude Code build discovers symlinked skill directories before using symlinks anywhere.
 - Decide whether a physical mirror script is needed only after a pilot proves manual duplication is painful.
+
+## Skill `description` 字段语义边界（澄清）
+
+`description` 是 **routing / trigger 索引**，不是 SLA 承诺：
+
+- Claude（或其他 agent）通过 description 决定**是否触发 skill** + 进入 body 后再读详细行为契约
+- description 经常使用「Generates / Reviews / Checks / Verifies / Provides」等动作动词作为触发关键字（与 body 实际行为可能有「承诺动词」与「实际工作流」的字面差异）
+- 不应将 description 字面与 body 完全对齐作为漂移判据——只要 body 实际行为与 description 表达的**意图**一致即可
+- 但凡 description 描述的**意图**与 body 实现的**功能**不匹配（如 description 承诺 X 类输入但 body 完全不处理 X），仍属真漂移，需修正
+
+实际漂移判定的优先级：
+1. 触发关键字偏差但意图一致 → 容忍（不算漂移）
+2. body 引用的支持文件不存在 → 真漂移（修 body 或补文件）
+3. description 承诺的输出格式与 body 输出不匹配 → 真漂移（对齐 description 或 body）
+4. description 涵盖范围远小于 body 实际能力 → 真漂移（扩 description）
+5. description 涵盖范围远大于 body 实际能力 → 真漂移（收 description）

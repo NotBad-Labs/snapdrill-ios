@@ -31,7 +31,7 @@ layer: principle
 
 | 缺陷 | 具体表现 |
 |---|---|
-| **贵** | 订阅制高收费，甚至每天只能免费录入 10 道题 |
+| **贵** | 订阅制**高收费 + 限制核心录入**（如每天只能免费录入 10 道题）。SnapDrill 本身也是订阅制（iCloud / 高级统计 / 智能组卷 Pro），但**核心录入永久免费且不限量**——批评的不是订阅制本身，而是把核心闭环锁在付费墙后的做法 |
 | **杂** | 功能冗余，偏离"记录"这个核心需求 |
 | **糙** | 交互体验不够好，流程不够简洁 |
 
@@ -53,7 +53,7 @@ SnapDrill 的存在意义：**用最简交互、零成本核心功能和极致�
 - 不是 Anki 式记忆工具——SnapDrill 是存档工具，复习只是附带福利。SM-2 和智能组卷是可选功能，不应侵蚀核心采集/管理/导出路径的简洁性（**Pro/Free 划分**：基础 SM-2 复习是免费层，智能组卷是 Pro 增值；详见 `product-business.md`§免费层定义）
 - 不是内容平台——不提供题库、课本、试卷，所有内容来自用户
 - 不是学习打卡工具——不做连续天数、成就弹窗、排行榜
-- 不是社交产品——不做分享社区、不做推荐算法
+- 不是社交产品——不做分享社区、不做云端 / 社交意义上的「推荐算法」（**澄清边界**：禁的是「跨用户协同过滤 / 个性化内容推送 / 行为信号采集驱动的算法 feed」，**不禁**用户本机端上的 SM-2 选题、Smart Paper 选题策略、weakness/recency 排序——这些是**功能算法**，不是「推荐算法」）
 
 ---
 
@@ -103,6 +103,12 @@ SnapDrill 面向全球发布，中国大陆和美国为核心市场。**iOS / iP
 
 GTM 执行细节见 `product-business.md`§发布策略。
 
+**iPad + Apple Pencil 价值定位**：
+- iPad 大屏适合「整理 + 复习」场景（家长在客厅或孩子在书桌上完整翻阅题库）
+- Apple Pencil 暂不深度集成（PoC 阶段），优先级低于 iPhone 录入主路径
+- 未来 PoC 可能方向：在 ReviewCard 反面用 Pencil 批注 / 在 Capture 完成后用 Pencil 圈选 OCR 区域
+- 当前阶段 iPad 体验通过自适应布局（compact/regular）自动兼容，不做 iPad 专属功能
+
 ---
 
 ## 产品原则（排序即优先级）
@@ -149,9 +155,24 @@ SnapDrill **默认不收集个人信息**：无需注册、不要求姓名、手
 - 不假设用户理解"间隔重复""SM-2"等概念
 - 保持客观冷静，做纯粹的工具，不向家长贩卖教育焦虑
 
+**不贩卖焦虑的具体边界**（design 层硬约束）：
+- 不做连续天数打卡、不做今日额度倒计时、不做成就 / 徽章渲染
+- 「每日复习目标」是被动参考数值，不主动提醒「还差 X 题」「连续 X 天未达成」等焦虑文案
+- Dashboard「今日新增 N」等数字只显示事实，不附带「比昨天少了 / 完成度 X%」类比较
+- Pro 模糊预览不暗示「再不订阅就看不到」类焦虑诱导，详见 `product-business.md` §防焦虑条款
+
+**无障碍主张（accessibility 价值）**：
+- 全模块 VoiceOver 是基线，不是可选优化——小学阶段家长可能照顾视障家庭成员，或祖父母代替家长操作
+- 具体规格见 `tech/non-functional-requirements.md` §无障碍 + `product-requirements.md` §无障碍
+
 ### 6. 原生优先
 
-深度依赖 Apple 平台原生能力，不做跨平台妥协。
+深度依赖 Apple 平台原生能力，**优先 Apple first-party**——OCR / 文档扫描 / 同步 / 通知等核心能力必须用 Apple 原生 API（Vision / VisionKit / CloudKit / UserNotifications），不引入跨平台框架（React Native / Flutter）也不引入第三方 OCR / 第三方同步层。
+**边界**：Analytics / Crashlytics 等**非核心、可降级**的可观察性能力允许使用 Firebase 等成熟第三方 SDK——这不违反「原生优先」，因为：
+- Analytics/Crashlytics 不是用户面核心体验
+- 已 Protocol 隔离（`AnalyticsServiceProtocol`），未来替换 Firebase 只需改 Infrastructure 层
+- 默认 opt-out（vision §4 隐私优先）
+
 Apple 原生能力（Vision OCR、CloudKit、TipKit、文档扫描）是体验基线而非独占壁垒——任何 iOS 竞品也能使用这些 API。
 SnapDrill 真正的差异化在于：题目工作流设计 + 离线隐私架构 + 免费完整闭环 + 原生体验组合。
 

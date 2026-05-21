@@ -93,11 +93,16 @@ sudo rm           # 提权删除（剥离 sudo 后仍走 rm 分类）
 
 本表只覆盖会影响流程、审计、合并门禁的项目治理 skill（与 §1 Tier 交叉），不覆盖全部 `.claude/skills/` 社区/领域 skill。Skill 目录所有权、计数口径和迁移规则见 `skill-architecture.md`；社区/领域 skill 的权限以各自 `SKILL.md` frontmatter 为准。如果某个 skill 被提升为门禁、审计或流程权威源，必须纳入本表。
 
-**当前 skill 计数口径（2026-05-19）**：
-- Distinct 一层 skill 名称：54 个（`.claude/skills` 54 个 discovery entries，含 3 个 symlink entries；`.agents/skills/*/SKILL.md` 16 个；重复共享入口 16 个）
-- 项目治理 skill：14 个（下表列出）
-- 社区/领域 skill：40 个（24 个仍为 Claude-only，16 个已共享）
-- `.agents/skills/*/skills/*/SKILL.md` 是插件包 payload，不计入一层可触发 skill；`skills-lock.json` 追踪 `.agents/skills/` 下的受管跨 agent skill 和 vendored community skill，不追踪 `.claude/skills/` 的 Claude adapter / symlink discovery entries。详见 `skill-architecture.md`。
+**矩阵与实际 frontmatter 漂移检测**：本表是设计意图与 Tier 关系的可读 SSOT；实际 SKILL.md frontmatter `allowed-tools` 字段是运行时权威。两者偏差时按以下顺序处理：
+1. 若 frontmatter 更严格（少了 tool）→ 修 frontmatter 补齐到表设计意图
+2. 若 frontmatter 更宽松（多了 tool）→ 评估是否合理；合理则更新本表，不合理则修 frontmatter 收紧
+3. 不允许「本表声明 ✅ 但 frontmatter 缺失」长期存在 — `docaudit skill-inventory` check 应覆盖该偏差检测
+
+**当前 skill 计数口径（2026-05-21 实测）**：
+- `.claude/skills/` 一层目录数：49 个（discovery entries，含 symlink entries）
+- `.agents/skills/` 一层目录数：16 个（受管跨 agent skill 和 vendored community skill）
+- 实际计数以 `skill-architecture.md` 为 SSOT；本文档计数随仓库变化，**不作为权威**——若与 skill-architecture 不一致以后者为准
+- `.agents/skills/*/skills/*/SKILL.md` 是插件包 payload，不计入一层可触发 skill；`skills-lock.json` 追踪 `.agents/skills/` 下的受管跨 agent skill 和 vendored community skill，不追踪 `.claude/skills/` 的 Claude adapter / symlink discovery entries
 
 | Skill | Read | Grep | Glob | Edit | Write | Bash | WebSearch | WebFetch | Agent | Tier 覆盖 |
 |---|---|---|---|---|---|---|---|---|---|---|

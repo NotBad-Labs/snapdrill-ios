@@ -85,7 +85,8 @@ CI 与本地统一走 `AllTests.xctestplan`，两步切分避免重复编译：
   - SnapDrillUI 层 7：SnapDrillButton / ProgressLoadingView×2 / ErrorMessageView×2 / ContextualErrorView / TipPopoverContent
   - Features 层 9：ReviewHeroCard×3（空/有待复习/全完成）/ BentoCard×2 / CaptureMethodCard / CornerBracketShape / SettingsRow×2
 - 位置选择理由：Xcode 原生 `SnapDrillUITests` (XCUITest) 与 SPM `SnapDrillUITests` 命名冲突，且 AllTests scheme 只纳入 Core/Data/FeaturesTests，故放 FeaturesTests 以确保 CI 真实执行
-- nonisolated 标注：`nonisolated final class SnapshotRegressionTests: XCTestCase`，因 `defaultIsolation(MainActor)` 与 XCTestCase 基类 init nonisolated 要求冲突；单测试方法按需加 `@MainActor`
+- swift-testing 形态（Issue #699 PR #5 迁移）：`@Suite + struct SnapshotRegressionTests`，struct 默认 nonisolated 不需手写；`.snapshots` trait 启用原生 record mode 传递；测试函数名保留 `test` 前缀以维持 baseline 路径不变
+- 注：旧版规格（XCTestCase 子类 + 显式 `nonisolated final class` 标注）已被 swift-testing 形态替代；上述描述对齐当前代码
 
 ### 新增/修改 View 的工作流
 

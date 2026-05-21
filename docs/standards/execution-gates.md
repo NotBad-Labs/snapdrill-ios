@@ -14,6 +14,10 @@ layer: pattern
 | Docs Audit | PR → develop/main, push → develop/main | `.github/workflows/ci.yml` → `docaudit all --strict --baseline` | 阻断合并（error 级） | `docs/workflow.md` §文档审计, `Scripts/audit/README.md` | docaudit policy |
 | Build & Test | PR → develop/main, push → develop/main | `.github/workflows/ci.yml` → `xcodebuild build-for-testing + test-without-building` | 阻断合并 | `docs/workflow.md` DoD, `docs/tech/deployment.md` | CI runner |
 | SwiftLint | CI build job step | `swiftlint --strict` | 阻断合并 | `docs/workflow.md:70`（原则 4）, `docs/standards/coding.md` | `.swiftlint.yml` |
+| pre-push hook | 本地 git push 时 | `.git/hooks/pre-push`（template `Scripts/hooks/pre-push`） | 阻断直推 develop/main，除非 `ALLOW_DIRECT_PUSH=1` 或走 PR 路径 | `docs/memory/feedback.md` F-001 | 本地用户安装 |
+| swift-autolint hook（PostToolUse）| Claude Edit/Write Swift 文件后 | `.claude/hooks/swift-autolint.sh` → `swiftlint --strict` | 行级违规阻断工具调用回流 | `docs/standards/coding.md`, `.swiftlint.yml` | hook 配置 |
+| dangerous-bash hook（PreToolUse）| Claude Bash 调用前 | `.claude/hooks/block-dangerous-bash.sh` Python classifier | `exit 2` 阻断已知不可逆命令 | `docs/standards/permission-model.md` §2 | hook 配置 |
+| 上述列表完整性约束 | — | 实际门禁可能不限于本表；新增 CI step / hook 必须同步本表 | — | 本表是 SSOT | — |
 
 ## 2. docaudit 子检查
 

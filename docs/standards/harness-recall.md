@@ -22,11 +22,12 @@ layer: pattern
 ### Step 1: 收集信号
 
 ```bash
-# handoff.md 的 Risks 段
-grep -A 50 '^## Risks' docs/memory/handoff.md
+# handoff.md 风险/阻塞/重复模式信号扫描（handoff.md 当前不固定有显式 `## Risks` 标题，
+# 用更鲁棒的关键字扫描；仅在 handoff.md 显式包含该标题时下方命令才返回内容）
+grep -nE '风险|Risks|阻塞|anti-pattern|⚠️|重复|recur|again|再次|又出现' docs/memory/handoff.md
 
-# 检查重复关键词
-grep -n '重复\|recur\|again\|再次\|又出现' docs/memory/handoff.md
+# 旧命令（保留作向后兼容，无 `## Risks` 标题时无输出，不视为错误）
+grep -A 50 '^## Risks' docs/memory/handoff.md || true
 
 # anti-pattern-scan 历史（若有留存）
 # 当前为实时 stderr 输出，无持久化日志；Claude 靠 session 记忆回溯

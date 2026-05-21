@@ -12,7 +12,7 @@ freshness:
 - **当前主力**：Claude Opus 4.7（Claude Code CLI）
 - **辅审**：Codex CLI + Gemini CLI + DeepSeek V4-Pro
 - **主分支**：`develop`
-- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20）；**🎉 Phase 10 语义层七维度全部收官**（2026-05-21）；**🛠️ Phase 11 worktree 首战 S-D7-001**（2026-05-21 工具 bug 三方对抗）；**🛠️ S-D4-003 badge RESOLVED**（2026-05-21 单家机械删除）；**🛠️ Phase 11 第二战 S-D4-002**（2026-05-21 真生产 bug 三方对抗，通知 ID Multi-Profile 隔离）。共识报告 [dim1-dim7](../audits/) + [S-D7-001-fix-consensus.md](../audits/S-D7-001-fix-consensus.md) + [S-D4-002-fix-consensus.md](../audits/S-D4-002-fix-consensus.md) + 语义 ledger 含 **54 OPEN finding**（86 → 54 净减 32，~37%；**维度 1 已 100% 关闭**）。**进入「P2-P5 finding 修复」阶段继续**。Phase 11+ worktree 物理隔离已为正式标准（[worktree-audit-workflow](../standards/worktree-audit-workflow.md)）。
+- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20）；**🎉 Phase 10 语义层七维度全部收官**（2026-05-21）；**🛠️ Phase 11 worktree 首战 S-D7-001**（2026-05-21 工具 bug 三方对抗）；**🛠️ S-D4-003 badge RESOLVED**（2026-05-21 单家机械删除）；**🛠️ Phase 11 第二战 S-D4-002**（2026-05-21 真生产 bug 三方对抗，通知 ID Multi-Profile 隔离）。共识报告 [dim1-dim7](../audits/) + [S-D7-001-fix-consensus.md](../audits/S-D7-001-fix-consensus.md) + [S-D4-002-fix-consensus.md](../audits/S-D4-002-fix-consensus.md) + 语义 ledger 仅剩 **3 OPEN finding**（86 → 3 净减 83，**96.5% 关闭率**；全部为待 worktree 三方对抗的复杂任务）。**进入「P2-P5 finding 修复」阶段继续**。Phase 11+ worktree 物理隔离已为正式标准（[worktree-audit-workflow](../standards/worktree-audit-workflow.md)）。
 
 ## 进行中：文档体系深度清洁
 
@@ -44,15 +44,11 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 
 ## 下一会话方向
 
-- **A.（主推）54 OPEN finding 修复继续**：
-  1. ~~维度 1 全部 22 条~~ ✅ 100% 关闭（HIGH×3 + MEDIUM/LOW×18 + WAIVED×1）
-  2. ~~维度 7 S-D7-001 docaudit.py 工具 bug~~ ✅ Phase 11 首战
-  3. ~~维度 4 S-D4-003 badge / S-D4-002 通知 ID Multi-Profile~~ ✅
-  4. ~~维度 2/3/5 第二批 HIGH 5 条 (S-D2-001/S-D3-001/S-D5-001/007/008)~~ ✅
-  5. **维度 4 S-D4-001** ServiceContainer DI 系统性退化（worktree 三方，大动作）
-  6. **维度 7 S-D7-002** F-005 PR review 留痕 hook 强化
-  7. **维度 7 S-D7-003** F-018 sprint contract 机械拦截
-  8. **维度 2/3/4/5/6/7 剩余 MEDIUM/LOW** 按维度批量做（文档对齐 → 单家；架构改 → worktree）
+- **A.（主推）仅剩 3 OPEN finding，全部走 worktree 三方对抗**：
+  1. **S-D4-001** ServiceContainer DI 系统性退化（架构大改）
+  2. **S-D7-002** F-005 PR review 留痕 hook 强化（流程治理设计）
+  3. **S-D7-003** F-018 Sprint Contract 机械拦截（流程治理设计）
+- 文档对齐阶段（83 条）已完成。Phase 11 worktree 工作流可连续启动三轮（推荐顺序：S-D4-001 → S-D7-002 → S-D7-003，或并行启动）
 - **B. Phase 11+ worktree 工作流已正式启用** — [worktree-audit-workflow](../standards/worktree-audit-workflow.md) SSOT 落地
 - C. Apple 账号缴费 → 解锁 #163 链（与 finding 修复可并行）
 - D. #626 真机验证（与 finding 修复可并行）

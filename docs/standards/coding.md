@@ -17,7 +17,8 @@ layer: pattern
 
 - 启用 `defaultIsolation(MainActor.self)`：所有代码默认 MainActor 隔离
 - **禁止手写 `@MainActor`**（冗余），唯一例外：`Sendable` 协议 + 可变状态的类需显式标注
-- ViewModel 声明：`@Observable final class`（不需要 `@MainActor`）
+- ViewModel 声明：`@Observable final class`（因 `defaultIsolation` 已隐式 MainActor 隔离，**不应手写 `@MainActor`**）
+- **现状偏差**：仓库中部分 ViewModel / Router 仍写有 `@MainActor`（如 `DashboardViewModel` / `DashboardRouter` / `DashboardAnalyticsViewModel` / `LibraryRouter` / `SettingsRouter`），属于 `defaultIsolation` 启用前的历史代码遗留。新代码不得手写；旧代码逐步在改动其所在文件时一并清理（不开独立工单批量清理，避免 churn）
 - 后台执行：`Task.detached`（文件 IO、图片压缩等确需脱离当前 actor 的场景）
 - 纯计算 struct/enum 跨 actor 使用：标记 `nonisolated`（如 ImageStorage、DTO、L10n）
 - Task 句柄：`@ObservationIgnored private var xxxTask: Task<Void, Never>?` + `cancelTasks()` 在 `.onDisappear`
@@ -92,7 +93,7 @@ layer: pattern
 - `print()` — 用 `SnapDrillLogger` 对应子系统
 
 ### 类型系统
-- `any` existentials（三个例外：EnvironmentKey.Value 跨模块协议、无 associated type 协议集合如 `[any PDFExportable]`、Protocol 作为函数参数类型）
+- `any` existentials（**例外清单**：`EnvironmentKey.Value` 跨模块协议、无 associated type 协议集合如 `[any PDFExportable]`、Protocol 作为函数参数 / 存储属性类型用于 DI 注入。后者实际场景包括 `any ProEntitlementProvider` 在 ViewModel/View 持有用于运行时切换、`any UserNotificationScheduling` 在 LiveNotificationService 注入用于测试。判断标准：**编译期类型未知但需要协议契约**就允许 `any`，**编译期已知具体类型**用泛型或具体类型）
 
 ### 架构
 - Domain 层 / UseCase 层 / Repository 协议（ViewModel 直调 Repository）

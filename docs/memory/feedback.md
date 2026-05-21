@@ -40,6 +40,15 @@ layer: pattern
 
 **Timebox**：`review_after: 2026-07-01`，`sunset: App Store 上架后强制废止`。届时本段移入退役表，启用正式 migration 流程。
 
+## 触发方式声明语义
+
+「触发方式」列是**典型场景关键词**，不是穷举的精确触发条件：
+- `所有 git 操作`：≠ 每一条 git 命令都强制触发；指**关键 git 操作（push / merge / branch 切换 / commit msg 体例）需遵守 F-001**。日常 `git status / log / diff` 不触发
+- `编码时`：泛指代码改动场景；具体触发由各 skill 的 frontmatter / 启动逻辑决定
+- `所有 PR review`：含人审 + 各 agent 自审 + Codex/Gemini 委派 review 留痕，不限于 GitHub PR comment
+
+不同 F-rule 的实际触发覆盖率因 skill 实现而异；用 `docaudit rule-usage` 和 commit log grep 复核实际应用率，而非依赖触发方式列的字面表达。
+
 ## 编号规则
 
 - 格式 `F-NNN`（三位数字零 padding）

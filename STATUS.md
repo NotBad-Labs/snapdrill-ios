@@ -29,11 +29,16 @@ freshness:
 
 **🛠️ 第二批纯文档 HIGH 5 条 RESOLVED**（2026-05-21）：S-D2-001（vision §1 加图片主路径边界声明 + CSV 定位为可携带权场景）+ S-D3-001（vision H2-SM2 假设补 SM-2 协作流程）+ S-D5-001（permission-model §2/§5 改为 Python classifier 实现表 + 审计命令更新）+ S-D5-007（collaboration.md GPT-5.4 → GPT-5.5）+ S-D5-008（Antigravity 定位升级为三方对抗 worktree 主审之一）。
 
-**🛠️ 维度 1 剩余 MEDIUM/LOW 18 条批量 RESOLVED**（2026-05-21 单家批量文档对齐）：architecture / requirements / design 三文件分段补全 Multi-Profile 生命周期 + 错误分级 L1/L2/L3 + Dashboard 字段规格 + 采集方式技术归属 + Smart Paper 架构 + ShareCard / PrintService / 高级统计 + iCloud 占位 + EXIF 归属 + ContentTaggingService/QuestionSplittingService AI 服务 + OCR 不阻断保存 + 备份元数据原子/图片 best-effort 差异化 + 软删除强退收敛 + 版权合规边界 + 恢复前安全网自动备份 + 双语 OCR + 成功信号校准。
+**🛠️ 维度 1 100% 关闭**（22 条文档对齐）。
 
-**维度 1 已 100% 关闭**（22 条原始 OPEN 全部 RESOLVED 或 WAIVED）。
+**🛠️ 第三批纯文档批量 51 条 RESOLVED**（2026-05-21）：vision / design / business 承接 + standards 实现层对齐 + skill description 语义边界 + F-rule 触发方式声明边界 + 防焦虑硬约束 + 订阅取消硬性承诺 + 推荐算法语义澄清 + 原生优先 Firebase 边界 + Apple Pencil 价值定位 + a11y 价值主张 + 角色/模板边界 + Dashboard 文案防焦虑 + execution-gates 补 hook + permission-model 计数动态化 + frontmatter 漂移检测 + a11y 标签例外 + Word 导出定位 + Codex 三形态。
 
-**OPEN finding 累计净减**：86 → **54**（共 32 条翻面，~37%）。
+**⚠️ 仅剩 3 条 OPEN finding**：全部为待 worktree 三方对抗的高复杂度任务。
+- `S-D4-001` ServiceContainer DI 系统性退化（架构大改）
+- `S-D7-002` F-005 PR review 留痕 hook 强化（流程治理设计）
+- `S-D7-003` F-018 Sprint Contract 机械拦截（流程治理设计）
+
+**OPEN finding 累计净减**：86 → **3**（96.5% 关闭率）。
 
 - **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
 - **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见
