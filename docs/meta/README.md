@@ -29,6 +29,16 @@ freshness:
 | Final 主笔 | [M-000-final-prompt.md](./M-000-final-prompt.md) | 已收敛决策 + 异源主笔起草任务包 |
 | Round 3 入口 | [M-000-round3-review-prompt.md](./M-000-round3-review-prompt.md) | v1.0 定稿后三方独立 review |
 
+## Round 3 Review 产物（v1.0 已发布后的独立 review）
+
+| 文件 | Reviewer |
+|---|---|
+| [M-000-round3-review-codex.md](./M-000-round3-review-codex.md) | Codex (GPT-5.5 Thinking) |
+| [M-000-round3-review-antigravity.md](./M-000-round3-review-antigravity.md) | Antigravity (Gemini) |
+| [M-000-round3-review-claude-desktop-code.md](./M-000-round3-review-claude-desktop-code.md) | Claude Desktop Code (Opus 4.7 同源) |
+| [M-000-round3-review-deepseek.md](./M-000-round3-review-deepseek.md) | DeepSeek V4-Pro (zero-context API) |
+| [M-000-round3-analysis.md](./M-000-round3-analysis.md) | Round 3 收敛分析（中立主笔 Claude CLI） |
+
 ## 历史草案
 
 完整起草过程材料（4 份 round 1 草案 + 4 份 round 2 草案 + 2 份 cross-analysis）归档在：
