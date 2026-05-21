@@ -4,7 +4,7 @@ layer: decision
 ---
 # ADR-005: 文档体系语义层审计方法论（Phase 10 立项）
 
-> 状态：**提议** | 日期：2026-05-20 | 决策者：用户（PO）+ Claude Opus 4.7 主导 + Codex GPT-5.5 + Antigravity(Gemini 3.5) 三方对抗
+> 状态：**已决策** | 日期：2026-05-20（立项）/ 2026-05-21（七维度收官） | 决策者：用户（PO）+ Claude Opus 4.7 主导 + Codex GPT-5.5 + Antigravity(Gemini 3.5 Flash (High)) 三方对抗
 
 ## 背景
 
@@ -70,7 +70,7 @@ layer: decision
 | 4 | 技术↔产品对齐 | ✅ 已完成（2026-05-21 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim4-consensus.md](../audits/semantic-audit-dim4-consensus.md) + Antigravity 单家 [semantic-audit-dim4-findings.md](../audits/semantic-audit-dim4-findings.md) + ledger 追加 11 行；11 OPEN finding（HIGH×3 MEDIUM×4 LOW×4）；**Codex 大爆发**，7 项里 5 项是 Claude/Antigravity 都漏的真问题；3 个 HIGH 含 2 个真生产 bug） | 实际 ≈ 60 min（三方对抗）|
 | 5 | standards 约束力 | ✅ 已完成（2026-05-21 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim5-consensus.md](../audits/semantic-audit-dim5-consensus.md) + Antigravity 单家 [semantic-audit-dim5-findings.md](../audits/semantic-audit-dim5-findings.md) + ledger 追加 15 行；15 OPEN finding（HIGH×3 MEDIUM×8 LOW×3 INFO×1）；**Codex 大爆发**第二轮，12 项里 5 项独家；3 个 HIGH 含 audit_note 虚假合规和元层级 self-non-compliance）| 实际 ≈ 90 min（三方对抗）|
 | 6 | skill description ↔ body 一致性 | ✅ 已完成（2026-05-21 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim6-consensus.md](../audits/semantic-audit-dim6-consensus.md) + Antigravity 单家 [semantic-audit-dim6-findings.md](../audits/semantic-audit-dim6-findings.md) + ledger 追加 7 行；7 OPEN finding（MEDIUM×3 LOW×4，无 HIGH）；**Codex 三轮连续最强**，独家 D6-001 抓 13+ domain skill 缺 support files；Claude 首次 0 独家暴露大范围机械实证局限）| 实际 ≈ 75 min（三方对抗）|
-| 7 | F-rule 实际遵守度 | F-001 ~ F-019 在 git log 是否真有触发证据；空载 F-rule 标候选废止 | 45-60 min |
+| 7 | F-rule 实际遵守度 | ✅ 已完成（2026-05-21 三方对抗：Claude CLI / Codex 桌面端 / Antigravity；共识报告 [semantic-audit-dim7-consensus.md](../audits/semantic-audit-dim7-consensus.md) + Antigravity 单家 [semantic-audit-dim7-findings.md](../audits/semantic-audit-dim7-findings.md) + ledger 追加 11 行（10 OPEN + 1 WAIVED 污染样本）；10 OPEN finding（HIGH×3 MEDIUM×2 LOW×3 INFO×2）；**Antigravity C7.5 撕破 docaudit.py 工具 bug**——Phase 10 致命独家，推翻维度 5 S-D5-013 结论基础；**控制变量法污染最严重一维**——Codex 明确避开 Claude finding + Antigravity 直接抄 Claude 编号体系）| 实际 ≈ 60 min（三方对抗）|
 
 **总预估**：6-9 小时单方工作量 × 3 家 = 三方并行下用户视角约 8-12 小时跨 2-3 session（Codex / Antigravity 后台跑，Claude 主线推进）。
 
@@ -261,6 +261,104 @@ S-D4-001 DI 系统性退化是 3/3 同域共识（Claude 系统视角 + Antigrav
 **Gemini 3.5 监控**：六轮累计未复现 over-endorse；但维度 6 出现 **「抓真问题 + 开错处方」**（H1 修复违反 skill-source-ledger）新现象，需要监控是否成为模式。
 
 **累计 OPEN finding**：22 + 11 + 10 + 11 + 15 + 7 = **76 项**。剩 1 维度（维度 7 F-rule 遵守度）。
+
+### 维度 7 收官观察 + Phase 10 全局收官（2026-05-21）
+
+三方对抗输出分布：Claude 4 / Codex 5 / Antigravity 5，三家折叠后 10 项 OPEN finding（HIGH×3 MEDIUM×2 LOW×3 INFO×2）+ 1 WAIVED 污染样本。
+
+**3 个 HIGH 含 Phase 10 致命独家**：
+- **S-D7-001 [Antigravity 独家]**: docaudit.py:593 rule-usage check 正则只匹配 Markdown 标题，feedback.md 13 个 active F-rule 在表格行声明全部漏审——**整个 rule-usage check 从 Phase 4 升级以来未真正工作过**，推翻维度 5 S-D5-013 结论基础
+- **S-D7-002 [Codex 独家]**: F-005 PR #742 已 merge 但 reviews=0 + comments=0 + body 无 review 留痕——真生产级 F-rule 违规
+- **S-D7-003 [Claude 独家]**: F-018 Sprint Contract 实际应用率极低（enhancement 0/5 + chore 0/4，仅 epic #766 有）
+
+### Phase 10 全局收官
+
+**七维度全部完成**。**累计 OPEN finding：22 + 11 + 10 + 11 + 15 + 7 + 10 = 86 项**（按用户决策跑完 7 维度集中入 PR）。
+
+#### 三家整体表现（七维度累计）
+
+| 单家 | 强项 | 弱项 |
+|---|---|---|
+| **Claude CLI** | 元层级自指（维度 3 元教训 / 维度 5 S-D5-010 / 维度 7 F-018 应用率） | 大范围机械实证（维度 6 首次 0 独家）|
+| **Codex** | 跨文件机械实证 + 系统性扫描（**维度 4+5+6+7 连续最强**） | 受提示词污染指令直接服从（维度 7 明确避开 Claude）|
+| **Antigravity** | 代码 grep + 工具底层 bug 挖掘（Dynamic Type / H2-SM-2 死锁 / 通知物理覆盖 / **docaudit.py bug**）| 守规矩程度起伏（维度 3 抢跑 → 维度 4-6 守 → 维度 7 抄袭 Claude 编号）|
+
+#### Gemini 3.5 over-endorse 七轮累计监控
+
+| 指标 | 维度 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|
+| HIGH 占比 | 33% | 17% | 17% | 40% | 17% | 0% | 20% |
+| 100% VALID 倾向 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 工作流违规 | — | — | ⚠️ 抢跑 | ✅ | ✅ | ✅ | ⚠️ 抄袭 Claude 编号 |
+
+**七轮累计未复现 over-endorse 病灶**。但维度 7 出现新违规模式（抄袭 Claude 编号），与维度 3 抢跑不同——是「执行了任务但产物借用他家编号体系」。
+
+#### Phase 10 五大方法论实战教训
+
+##### 1. 控制变量法污染（维度 5-7 同源）
+
+**问题**：每次提示词加「Claude CLI 已抓（避免重复）」段，导致 Codex/Antigravity 定向避开或抄袭 Claude finding——**违反 F-008 控制变量法精髓**。
+
+**后果**：
+- 维度 5-7「2/3 共识少 + Codex/Antigravity 独家多」可能是污染产物而非真实模型差异
+- 真实 3/3 共识 finding 可能比 ledger 显示的多
+
+**沉淀**：Phase 11+ 启用 git worktree 物理隔离 + 净化提示词（见下方 Worktree 工作流方案）。
+
+##### 2. 抢跑落档（维度 3 暴露 → 维度 4-7 封堵）
+
+**问题**：维度 3 Antigravity 未等三家齐就独立写 ledger / STATUS / handoff / ADR-005。
+**修复**：提示词加「严禁操作」段；维度 4-7 封堵成功。
+
+##### 3. 文档新陈代谢（连续性 vs 更新）
+
+**问题**：Phase 10 自产文档把易变模型版本写死（如「Antigravity (Gemini 3.5 High)」），违反 ADR-004 反漂移机制。
+**修复**：ADR-005 加 §模型版本注 + `gap_due: gemini_3_5_pro_release`。
+
+##### 4. 元层级 self-non-compliance（维度 3/5/7 反复出现）
+
+样本：
+- 维度 3 元教训：Phase 10 自产文档自我违反结构层 ADR-004 反漂移机制
+- 维度 5 S-D5-010：single-vendor-audit-prompt-template 未内联 shared-constraints（违反 codex-delegation §2 强制要求）
+- 维度 7 S-D7-001：制定 docaudit.py 工具的人未审查正则真值是否覆盖全部 F-rule 声明位置
+
+**沉淀**：「制定规则的人不遵守自己规则」成 Phase 10 高频反模式，候选 F-021 规则（Phase 11+ 评估）。
+
+##### 5. 易变事实 + gap_due 机制（维度 6 验证）
+
+`docaudit external-gap-expiry` check 在 Phase 4 建立，维度 6 ADR-005 §模型版本注首次正式使用——基于外部条件（`gemini_3_5_pro_release`）触发复审。
+
+#### Worktree 工作流（Phase 11+ 标准）
+
+详见 [`docs/audits/semantic-audit-dim7-consensus.md` §Worktree 工作流](../audits/semantic-audit-dim7-consensus.md)。核心：
+
+```bash
+# 主工作区（Claude CLI 主笔 + 共识收尾）
+/Users/yiming/Developer/snapdrill-ios          (develop)
+
+# Codex / Antigravity 各自 worktree（同 commit 独立目录）
+git worktree add ../snapdrill-ios-codex audit/codex-phase11-dimN
+git worktree add ../snapdrill-ios-ag audit/antigravity-phase11-dimN
+```
+
+净化提示词移除「Claude CLI 已抓」「不要重复 S-D*-*」「差异化视角」等分工性表述。
+
+#### Phase 10 累计统计
+
+- 七维度三方对抗实际耗时：≈ 90+60+60+60+90+75+60 = **约 8 小时跨多 session**
+- 累计 OPEN finding：**86 项**（HIGH×13 MEDIUM×26 LOW×35 INFO×12，按维度 1-7 严重度合计）
+- REJECTED / WAIVED：5 + 1 = 6 项
+- 共识报告 7 份（dim1 ~ dim7）+ Antigravity 单家报告 4 份 + ledger 1 份
+
+#### 后续优先
+
+1. **修维度 7 S-D7-001**（`docaudit.py:593` 正则）→ 重跑 rule-usage 看真实状态 → 推翻 / 确认 S-D5-013
+2. **修维度 7 S-D7-002**（F-005 PR review 留痕 hook 强化）
+3. **修维度 7 S-D7-003**（F-018 sprint contract 机械拦截）
+4. **修维度 1 S-D1-001/S-D1-002/S-D1-003**（字段配置链 + CSV 架构 + Dynamic Type 混淆）
+5. **修维度 4 S-D4-001/S-D4-002/S-D4-003**（DI 退化 + 通知物理覆盖 + badge 三层背离）
+
+剩余 LOW/INFO 作为语义卫生 backlog 渐进处理。
 
 ### 元数据
 

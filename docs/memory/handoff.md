@@ -12,7 +12,7 @@ freshness:
 - **当前主力**：Claude Opus 4.7（Claude Code CLI）
 - **辅审**：Codex CLI + Gemini CLI + DeepSeek V4-Pro
 - **主分支**：`develop`
-- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`，Gemini 3 Pro Preview FULL PASS）；**Phase 10 语义层审计进行中**（2026-05-21 三方对抗收官维度 1-6，累计 76 OPEN finding；共识报告 [dim1](../audits/semantic-audit-dim1-consensus.md) + [dim2](../audits/semantic-audit-dim2-consensus.md) + [dim3](../audits/semantic-audit-dim3-consensus.md) + [dim4](../audits/semantic-audit-dim4-consensus.md) + [dim5](../audits/semantic-audit-dim5-consensus.md) + [dim6](../audits/semantic-audit-dim6-consensus.md)，语义 ledger [audit-ledger-semantic-2026-05.tsv](../audits/audit-ledger-semantic-2026-05.tsv)；Gemini 3.5 六轮实测未复现 over-endorse；Codex 维度 4+5+6 三轮连续最强）。**剩 1 维度（维度 7 F-rule 遵守度）即可 Phase 10 收官**。
+- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`，Gemini 3 Pro Preview FULL PASS）；**🎉 Phase 10 语义层七维度全部收官**（2026-05-21，ADR-005 状态「提议」→「已决策」，ADR-004 backlog 第一条勾 ✅✅）。共识报告 [dim1-dim7](../audits/) + 语义 ledger 含 **86 OPEN finding**。**进入「集中入 PR 修复」阶段**。Phase 11+ 启用 git worktree 物理隔离 + 净化提示词为标准（详见 ADR-005 §Phase 10 全局收官 + dim7-consensus.md §Worktree 工作流）。
 
 ## 进行中：文档体系深度清洁
 
@@ -44,7 +44,16 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 
 ## 下一会话方向
 
-- **A.（主推）执行 Phase 10 维度 7 — 文档体系语义层【维度 7：F-rule 实际遵守度】**。入口：[ADR-005](../decisions/ADR-005-doc-semantic-layer-audit.md) §7 个语义维度实施清单第 7 行。判据：F-001 ~ F-019 在 git log 是否真有触发证据；空载 F-rule 标候选废止。**Phase 10 最后一维度**——完成后回填 ADR-005 状态「提议」→「已决策」+ ADR-004 backlog 第一条勾 ✅。工作流：Claude CLI 完整跑 F-001~F-019 git log 扫描 → 起草提示词 → Codex/Antigravity → 三方共识。
+- **A.（主推）Phase 10 收官后启动「86 OPEN finding 集中入 PR 修复」阶段**。优先级（按 ADR-005 §Phase 10 全局收官段）：
+  1. **维度 7 S-D7-001** docaudit.py:593 rule-usage check 工具 bug 修复 → 重跑 → 推翻/确认 S-D5-013
+  2. **维度 7 S-D7-002** F-005 PR review 留痕 hook 强化
+  3. **维度 7 S-D7-003** F-018 sprint contract 机械拦截
+  4. **维度 1 S-D1-001/002/003** 字段配置链 + CSV 架构 + Dynamic Type 混淆
+  5. **维度 4 S-D4-001/002/003** DI 退化 + 通知物理覆盖 + badge 三层背离
+  6. 剩余 LOW/INFO 作为语义卫生 backlog 渐进处理
+- **B. Phase 11+ 启用 git worktree 物理隔离 + 净化提示词**（控制变量法实战教训沉淀）
+- C. Apple 账号缴费 → 解锁 #163 链（与 finding 修复可并行）
+- D. #626 真机验证（与 finding 修复可并行）
 - B. Apple 账号缴费 → 解锁 #163 链（用户控制，与 Phase 10 不冲突可并行）
 - C. #626 真机验证（用户触发，与 Phase 10 不冲突可并行）
 - D.（可选）补齐 audit-ledger 140 行 Codex/Gemini 三方对齐（成本 1-2 小时 + API 费）

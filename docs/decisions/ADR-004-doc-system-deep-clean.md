@@ -175,7 +175,7 @@ Codex GUI 多轮验证修复（Phase 0-9 收官后由 Codex 独立审计触发�
 
 ### 待后续 phase 实施（backlog）
 
-- ✅ **Phase 10 — 文档体系语义层审计**（**2026-05-20 立项兑现**，见 [ADR-005](ADR-005-doc-semantic-layer-audit.md)）。本 bullet 状态：立项完成，等待实施。范围：
+- ✅✅ **Phase 10 — 文档体系语义层审计**（**2026-05-21 七维度全部实施完成**，见 [ADR-005](ADR-005-doc-semantic-layer-audit.md) §维度 7 收官观察 + Phase 10 全局收官；累计 86 OPEN finding 待集中入 PR）。本 bullet 状态：**实施完成**。范围（实际跑过）：
   - 跨文档语义链条：vision → design → requirements → tech 每对邻层强校验
   - 反向溯源：requirements 中的每个功能是否能反推回 vision 价值主张
   - 内部冲突扫描：例如 vision 的"不是 Anki 式记忆工具"是否被 SM-2/复习类描述间接违反
