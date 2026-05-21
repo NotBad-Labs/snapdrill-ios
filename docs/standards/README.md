@@ -28,6 +28,7 @@ layer: pattern
 | [skill-source-ledger.md](skill-source-ledger.md) | Agent Skills 上游来源与维护责任台账 | 安装 / 复制 / 修改社区 skill |
 | [execution-gates.md](execution-gates.md) | 执行门禁总表 | 修改 CI / hook / merge gate |
 | [audit-rubric.md](audit-rubric.md) | 文档系统审计评分标准 | 启动文档审计 / 交叉审计 |
+| [worktree-audit-workflow.md](worktree-audit-workflow.md) | 三方对抗任务的物理隔离工作流（Phase 11+ 标准）| 启动新审计 / 三方修 bug / 设计选型 |
 | [harness-recall.md](harness-recall.md) | 自进化闭环：跨 checkpoint 去重 → 3 次触发 propose 新 F-0XX 规则 | phase-closeout / harness 自进化 |
 | [memory-routing.md](memory-routing.md) | 项目知识 / 智能体记忆路由规则（agent-agnostic） | 写新文档时判断归属 docs/ vs Claude 私有空间 |
 

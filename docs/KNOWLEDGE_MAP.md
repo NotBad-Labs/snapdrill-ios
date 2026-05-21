@@ -49,6 +49,7 @@ layer: pattern
 | `docs/standards/skill-source-ledger.md` | Skill 来源/提供方/许可证清单 | skill-architecture | 新增/退役 vendored skill |
 | `docs/standards/audit-rubric.md` | 文档审计判定标准（VALID/STALE_OR_INVALID/NEEDS_REVISION） | engineering, workflow | 审计流程演化 |
 | `docs/standards/execution-gates.md` | 执行门禁总表（每个门禁 → 上游文档 → 执行器 → 豁免方式） | permission-model, workflow, engineering | 门禁新增/修改/退役 |
+| `docs/standards/worktree-audit-workflow.md` | 三方对抗任务的物理隔离工作流（Phase 11+ 标准）| F-008, audit-rubric, single-vendor-audit-prompt-template | 控制变量法方法论演进 |
 | `docs/standards/README.md` | standards/ 目录索引 | 本目录所有文件 | 新增/退役 standards 文件 |
 | `docs/tech/compliance.md` | 隐私合规、App Store 审核 | vision, business | 政策变更 |
 | `docs/tech/deployment.md` | CI/CD、发布流程 | — | 工具更新 |
