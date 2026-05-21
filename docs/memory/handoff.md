@@ -12,7 +12,7 @@ freshness:
 - **当前主力**：Claude Opus 4.7（Claude Code CLI）
 - **辅审**：Codex CLI + Gemini CLI + DeepSeek V4-Pro
 - **主分支**：`develop`
-- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20）；**🎉 Phase 10 语义层七维度全部收官**（2026-05-21）；**🛠️ Phase 11 worktree 首战 S-D7-001**（2026-05-21 工具 bug 三方对抗）；**🛠️ S-D4-003 badge RESOLVED**（2026-05-21 单家机械删除）；**🛠️ Phase 11 第二战 S-D4-002**（2026-05-21 真生产 bug 三方对抗，通知 ID Multi-Profile 隔离）。共识报告 [dim1-dim7](../audits/) + [S-D7-001-fix-consensus.md](../audits/S-D7-001-fix-consensus.md) + [S-D4-002-fix-consensus.md](../audits/S-D4-002-fix-consensus.md) + 语义 ledger 含 **78 OPEN finding**（86 → 78 净减 8；S-D1-001/002/003 批量单家修复也已收尾）。**进入「P2-P5 finding 修复」阶段继续**。Phase 11+ worktree 物理隔离已为正式标准（[worktree-audit-workflow](../standards/worktree-audit-workflow.md)）。
+- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20）；**🎉 Phase 10 语义层七维度全部收官**（2026-05-21）；**🛠️ Phase 11 worktree 首战 S-D7-001**（2026-05-21 工具 bug 三方对抗）；**🛠️ S-D4-003 badge RESOLVED**（2026-05-21 单家机械删除）；**🛠️ Phase 11 第二战 S-D4-002**（2026-05-21 真生产 bug 三方对抗，通知 ID Multi-Profile 隔离）。共识报告 [dim1-dim7](../audits/) + [S-D7-001-fix-consensus.md](../audits/S-D7-001-fix-consensus.md) + [S-D4-002-fix-consensus.md](../audits/S-D4-002-fix-consensus.md) + 语义 ledger 含 **73 OPEN finding**（86 → 73 净减 13；S-D2-001/S-D3-001/S-D5-001/007/008 第二批文档对齐已收尾）。**进入「P2-P5 finding 修复」阶段继续**。Phase 11+ worktree 物理隔离已为正式标准（[worktree-audit-workflow](../standards/worktree-audit-workflow.md)）。
 
 ## 进行中：文档体系深度清洁
 
@@ -44,7 +44,7 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 
 ## 下一会话方向
 
-- **A.（主推）78 OPEN finding 修复继续**：
+- **A.（主推）73 OPEN finding 修复继续**：
   1. ~~维度 7 S-D7-001 docaudit.py 工具 bug~~ ✅ 2026-05-21 Phase 11 首战修复 + S-D5-013/S-D7-010 闭环
   2. ~~维度 4 S-D4-003 badge 三层背离~~ ✅ 2026-05-21 单家机械删除
   3. ~~维度 4 S-D4-002 通知 ID Multi-Profile 隔离~~ ✅ 2026-05-21 Phase 11 第二战修复

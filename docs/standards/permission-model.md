@@ -32,25 +32,37 @@ layer: pattern
 
 ## 2. Bash 受限命令（T3 硬拦截）
 
-`.claude/hooks/block-dangerous-bash.sh` 通过单条 ERE 正则拦截已知不可逆操作，`exit 2` 阻塞：
+`.claude/hooks/block-dangerous-bash.sh` 内嵌 **Python classifier**（不是单条 ERE 正则）拦截已知不可逆操作，`exit 2` 阻塞。
+
+**实现路径**（与代码对齐）：
+
+| 实现层 | 文件:行 | 职责 |
+|---|---|---|
+| Bash 入口 | `.claude/hooks/block-dangerous-bash.sh:1-30` | 读 stdin JSON、解析 `tool_input.command`、调用嵌入式 Python |
+| Python tokenize | `block-dangerous-bash.sh:46-50`（`tokenize()`）| `shlex.shlex` posix tokenizer，比 ERE 更精确处理引号 / 反斜杠 / 复合命令 |
+| Python split_commands | `block-dangerous-bash.sh:53-65`（`split_commands()`）| 按 `;` `&&` `||` `|` 切分复合命令，逐条独立分类 |
+| strip_assignment_wrappers | `block-dangerous-bash.sh:68-87` | 剥离 `sudo` / `env VAR=val` / `command` / `builtin` / `noglob` 前缀，**正则无法做到** |
+| classify per command | `block-dangerous-bash.sh:89+` | 对每个 argv 数组做参数级分类（rm flags、git subcommand、`--force` 等）|
+
+**拦截语义类别**（实际由 classifier 判断，不是字符串匹配）：
 
 ```
-rm -rf /[^/]        # 根目录递归删除（放过 rm -rf ./... 这类相对路径）
-rm -rf ~            # 用户主目录递归删除
-rm -rf $HOME        # $HOME 变量展开递归删除
-git push --force    # 强推（可能覆盖远端他人工作）
-git push -f<space>  # 强推简写
-git reset --hard    # 硬重置（覆盖未提交修改）
-git clean -[fdx]+   # 清理未跟踪 / 忽略文件
-git branch -D       # 强制删除分支
-sudo rm             # 提权删除
+rm -rf /          # 根目录或绝对路径递归删除（放过 rm -rf ./...）
+rm -rf ~/...      # 用户主目录递归删除（含 $HOME 展开）
+git push --force  # 强推 / -f 简写（覆盖远端他人工作）
+git push --force-with-lease   # 默认拦截（lease 仍可绕过本人工作）
+git reset --hard  # 硬重置（覆盖未提交修改）
+git clean -fd     # 清理未跟踪 / 忽略文件
+git branch -D     # 强制删除本地分支
+git push 到 protected branch  # main/master/develop/release/production（环境变量 CLAUDE_HOOK_PROTECTED_BRANCHES 可覆盖）
+sudo rm           # 提权删除（剥离 sudo 后仍走 rm 分类）
 ```
 
 **绕过**：用户显式授权时可设 `CLAUDE_HOOK_ALLOW_DANGEROUS=1` 环境变量（见 `block-dangerous-bash.sh:13-15`）。
 
 **新增 / 修改拦截规则时**：必须同步：
-1. `.claude/hooks/block-dangerous-bash.sh` 的 `DANGEROUS_RE` 变量
-2. 本文档 §2 表格
+1. `.claude/hooks/block-dangerous-bash.sh` 内 Python classifier 对应函数（不是单条 RE 变量）
+2. 本文档 §2 实现表格 + 语义类别列表
 3. `docs/memory/feedback.md` 如有因事故新增规则，补对应 F-NNN
 
 ---
@@ -120,8 +132,13 @@ sudo rm             # 提权删除
 # 对照 .claude/settings.json 与本文档 §3
 jq '.hooks' .claude/settings.json
 
-# 对照 block-dangerous-bash.sh 与本文档 §2
-grep '^DANGEROUS_RE=' .claude/hooks/block-dangerous-bash.sh
+# 对照 block-dangerous-bash.sh 与本文档 §2（classifier 实现）
+# 验证关键函数存在 + 测试覆盖（不是单条 RE 匹配）
+grep -n "^def tokenize\|^def split_commands\|^def strip_assignment_wrappers" .claude/hooks/block-dangerous-bash.sh
+# 测试用例（hook 行为）
+bash .claude/hooks/block-dangerous-bash.sh < /dev/null  # 应 exit 0（无 command）
+# 用 sample command 跑：
+echo '{"tool_input":{"command":"rm -rf /"}}' | bash .claude/hooks/block-dangerous-bash.sh  # 应 exit 2
 
 # 对照治理类 skill allowed-tools 与本文档 §4
 for skill in cross-audit cross-audit-consensus phase-closeout resume-from-handoff post-merge sprint-contract api-research verify-audit-report dependency-propagation knowledge-health harness-recall dod-checklist decision-closeout xcode-review; do

@@ -27,7 +27,9 @@ freshness:
 
 **🛠️ S-D1-001/002/003 维度 1 三大 HIGH RESOLVED**（2026-05-21 单家批量文档对齐）：Requirements 新增 §字段配置规格段（4 层 + 过滤排序闭环 + 5 入口分层）+ Architecture 补 CSV 模块归属 + NFR 修正 Dynamic Type vs 自定义字号概念混淆 + 补 CSV 导入吞吐/内存/解析合规。
 
-**OPEN finding 累计净减**：86 → ... → **78**（共 8 条翻面：S-D7-001 / S-D7-010 / S-D5-013 / S-D4-003 / S-D4-002 / S-D1-001 / S-D1-002 / S-D1-003）。
+**🛠️ 第二批纯文档 HIGH 5 条 RESOLVED**（2026-05-21）：S-D2-001（vision §1 加图片主路径边界声明 + CSV 定位为可携带权场景）+ S-D3-001（vision H2-SM2 假设补 SM-2 协作流程）+ S-D5-001（permission-model §2/§5 改为 Python classifier 实现表 + 审计命令更新）+ S-D5-007（collaboration.md GPT-5.4 → GPT-5.5）+ S-D5-008（Antigravity 定位升级为三方对抗 worktree 主审之一）。
+
+**OPEN finding 累计净减**：86 → ... → **73**（共 13 条翻面）。
 
 - **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
 - **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见

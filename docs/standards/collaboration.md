@@ -12,11 +12,11 @@ audit_note: 2026-05-19 验证 — tool specs 与 codex-delegation / gemini-deleg
 | **终端 Claude Code** | Opus 4.7 | CLI / 桌面 App | 1M token | 主力开发、协调、规划、重构、审计 |
 | **Claude 子 agent（Haiku）** | Haiku 4.5 | 终端内委派 | 200K token | 注释撰写、翻译、格式化、轻量生成 |
 | **Claude 子 agent（Sonnet）** | Sonnet 4.6 | 终端内委派 | 1M token | 中等复杂度代码生成、重构建议 |
-| **Codex 插件** | GPT-5.4 系列 | 终端内 | 1.1M token | 对抗性 Review、独立审计、深度研究 |
-| **Codex 桌面** | GPT-5.4 系列 | 独立 App | 1.1M token | 大型独立任务 |
+| **Codex 插件** | GPT-5.5 | 终端内 | 1.1M token | 对抗性 Review、独立审计、深度研究 |
+| **Codex 桌面** | GPT-5.5 | 独立 App | 1.1M token | 大型独立任务 |
 | **Xcode** | Claude + Codex | IDE | 200K token | UI Review、Apple 文档查询、SwiftUI Preview |
 | **Gemini CLI** | Gemini 3 (Auto) | 终端内 Bash | 1M+ token | 第三方独立审计、交叉验证 |
-| **Antigravity** | Gemini + 其他 | IDE | -- | 独立第三方视角（手动中转，Gemini CLI 的备选） |
+| **Antigravity** | Gemini 3.5 Flash (High) | IDE | -- | 独立第三方视角（语义审计阶段 GUI 通道，可作为三方对抗审计正式主审之一）|
 
 ## 日常开发（终端内闭环）
 
@@ -34,7 +34,8 @@ Claude Opus（主力）
 - **对抗性独立验证** → Codex（OpenAI 家族，盲区不重叠）
 - **第三方独立视角** → Gemini CLI（Google 家族，终端内自动化）
 - **轻量批量任务** → Haiku 子 agent（注释、翻译，节省成本和速度）
-- **Gemini CLI 不可用时** → Antigravity IDE（手动中转，作为 fallback）
+- **语义审计 / 三方对抗 worktree 任务** → Antigravity IDE（Phase 10/11 实战标准主审之一，与 Codex / Claude 并列）
+- **Gemini CLI 不可用时** → Antigravity IDE 也可作为常规 fallback 路径
 
 ## 交叉审计
 
@@ -44,7 +45,7 @@ Claude Opus（主力）
 
 ```
 Claude Opus --独立审计（主对话内）--+
-Codex GPT-5.4 --独立审计（插件委派）--+-- Claude 汇总比对 -- 统一修复 -- 各方独立 Review
+Codex GPT-5.5 --独立审计（插件委派）--+-- Claude 汇总比对 -- 统一修复 -- 各方独立 Review
 Gemini 3 --独立审计（Bash 调用）--+
 ```
 
@@ -98,7 +99,8 @@ Cross-audit 和 PR Review 时，除通用代码质量外，必须额外检查以
 | 代码 Review | Codex 对抗性审查 | 每个 PR |
 | UI Review | Xcode | UI 改动 |
 | 第三方审计 | Gemini CLI（终端内） | 每次交叉审计 |
-| 架构/第三方视角 | Antigravity（fallback） | Gemini CLI 不可用时 |
+| 语义审计 / 三方对抗 worktree | Antigravity（Gemini 3.5 Flash High）| Phase 10/11 工作流标准；与 Codex / Claude 并列主审 |
+| 架构/第三方视角 fallback | Antigravity | Gemini CLI 不可用时也可使用 |
 | 核实汇总 | Claude Opus | 汇总所有 finding，验证真实性 |
 
 ## 量化评分门（PR 审查）
@@ -138,4 +140,4 @@ Cross-audit 和 PR Review 时，除通用代码质量外，必须额外检查以
 - 终端 <-> Xcode：GitHub Issue comment（两个入口都能读写）
 - 终端 <-> Codex：插件直接调用
 - 终端 <-> Gemini CLI：Bash 直接调用（`gemini -p`）
-- 终端 <-> Antigravity：用户手动中转（仅 fallback）
+- 终端 <-> Antigravity：用户手动中转贴提示词 + 用户中转贴回复结果；Phase 11+ 走 worktree 物理隔离时 Antigravity 在独立 worktree 工作目录直接 push audit 分支
