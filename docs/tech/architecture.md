@@ -116,8 +116,12 @@ SwiftData @Model（持久化）
 | 目录 | 职责 |
 |---|---|
 | `DI/` | ServiceContainer 协议 + LiveServiceContainer + MockServiceContainer + Environment Key |
-| `Service/` | Protocol 定义 + 实现（OCRServiceProtocol、PDFExportService、NotificationServiceProtocol、AnalyticsServiceProtocol、CaptureDraftService、PrivacyConsentService、DeletionScheduler） |
-| `Capture/` | OCRService（实现）、ImageStorage（图片存储） |
+| `Service/` | Protocol 定义 + 实现（OCRServiceProtocol、PDFExportService、NotificationServiceProtocol、AnalyticsServiceProtocol、CaptureDraftService、PrivacyConsentService、DeletionScheduler、ContentTaggingService、QuestionSplittingService、ProEntitlementProvider、TelemetryGate）|
+| `Capture/` | OCRService（实现）、ImageStorage（图片存储 + EXIF 剥离 GPS/位置信息）|
+
+**端上 AI 服务**（属于 `Service/`，列出便于检索）：
+- `ContentTaggingService` — Apple Foundation Models 框架自动标注（iOS 26+）
+- `QuestionSplittingService` — 一图多题智能拆题（阻塞 #626 真机验证）
 | `Engine/` | SM-2 复习调度算法（ReviewScheduler、SM2State、ReviewRating） |
 | `Support/` | L10n、UserDefaultsKeys、AppConfiguration、ReviewDataNotification、SnapDrillTips |
 | 根目录 | SnapDrillLogger（基于 os.Logger 的结构化日志） |
@@ -161,6 +165,45 @@ SwiftData @Model（持久化）
 - `SnapDrillFeatureSettings/DataExporter.swift` — JSON / CSV 导出（含 `=+-@` 前缀防注入）
 - `SettingsViewModel.swift` — CSV 导入流程编排（解析 + 字段映射 + 写入 repository）
 - 导入流程触发归属：`SnapDrillFeatureSettings`（用户从设置页发起）；解析 / 转换无状态层归属：`CSVParser`
+
+**采集方式归属**（`SnapDrillFeatureCapture`）：
+
+| 方式 | 文件 | 备注 |
+|---|---|---|
+| 摄像头 | `SmartCameraView` / `SmartCameraViewController` / `CameraSessionManager` | AVFoundation |
+| 文档扫描 | `DocumentScannerView` | `VisionKit.VNDocumentCameraViewController` |
+| Photos 导入 | `CaptureView` PhotosPicker | PhotosUI |
+| PDF 导入 | `PDFPagePickerView` | PDFKit 选页 → 渲染为 UIImage |
+| 剪贴板（手动）| `CaptureMethodCard` 手动入口 → ManualEdit | 纯文本/粘贴图片，OCR 文字直接输入 |
+| 手动 | `CaptureResultView` 纯文本路径 | 不依赖 OCR，允许无图保存（Image is Truth 例外）|
+| Share Extension | `SnapDrillShare` Extension target | 系统 ShareSheet 入口（待启用）|
+
+**Smart Paper（智能组卷，ADR-001 Hybrid Pro 增值）**：
+- 触发：`SnapDrillFeatureLibrary/SmartPaperView` + `SmartPaperViewModel`
+- 选题策略：复用 `ReviewScheduler` + `SM2State`（基于 SM-2 数据驱动选题）
+- 排版/导出：复用 `SnapDrillCore/Service/PDFExportService` 管线（不重新实现 PDF 引擎）
+- Pro gating：通过 `ProEntitlementProvider` 接入 StoreKit（阻塞 #479/#486）
+
+**ShareCard（题目分享卡片）**：
+- 归属：`SnapDrillFeatureLibrary/ShareCardView`
+- 渲染：SwiftUI `ImageRenderer`（iOS 16+ 标准 API），不依赖 PDFExport 管线
+- 边界：仅渲染单题；不与 PDF 批量导出共享流水线（design §简洁，单一职责）
+
+**1/2/4 题快速打印（PrintService）**：
+- 入口：`SnapDrillFeatureLibrary/LibraryDetailView`（详情页固定 1 题/页）+ 多选模式 N 题
+- 实现：System `UIPrintInteractionController` + 自定义 `UIPrintPageRenderer`（layoutN: 1/2/4 题/页）
+- 归属：建议放 `SnapDrillCore/Service/PrintService.swift`（如代码层抽出独立类）；当前实现内联在 LibraryView 流程，将来抽取时按本归属落档
+
+**高级统计（Pro 增值，Dashboard Hybrid 路径）**：
+- 数据源：`SnapDrillData/RepositoryContainer` 各 Repository 聚合查询
+- 聚合层：`SnapDrillFeatureDashboard/DashboardAnalyticsViewModel`
+- 图表渲染：SwiftUI Charts 框架（iOS 16+）
+- Pro gating：通过 `ProEntitlementProvider` 控制可见性（ADR-001 Hybrid，免费层只看基础指标）
+
+**iCloud 同步（占位段，阻塞 #485）**：
+- 当前实现：所有 `@Model` 默认 `cloudKitDatabase: .none`（关闭）
+- 启用路径：StoreKit 落地（#479）→ 创建 CloudKit Container（#485）→ ProEntitlementProvider 判断 → Per-Profile 同步（与 BackupService 同语义边界）
+- 触发文档：`docs/product/product-business.md` §iCloud 同步 / `docs/product/product-design.md` §iCloud 同步设计
 
 ### SnapDrillInfrastructure
 
