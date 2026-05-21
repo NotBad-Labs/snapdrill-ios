@@ -14,9 +14,8 @@ freshness:
 
 | 文件 | 角色 | 备注 |
 |---|---|---|
-| [M-000-meta-vision.md](./M-000-meta-vision.md) | **Layer 0 顶层宪法**（v1.0 定稿） | 元规则的元规则，≤ 1500 字硬上限 |
-
-> `user-decision-log.md`（append-only 用户裁决日志）由 M-000 §5 规定，首次用户裁决时创建，未创建前不引用避免 broken link。
+| [M-000-meta-vision.md](./M-000-meta-vision.md) | **Layer 0 顶层宪法**（v1.0 定稿，v1.1 修订中） | 元规则的元规则，≤ 2000 字硬上限（2026-05-22 Overrule 1500） |
+| [user-decision-log.md](./user-decision-log.md) | 用户裁决日志（append-only） | M-000 §5 规定的机制，含 Overrule 关系记录 |
 
 ## 起草模板（pattern layer）
 
