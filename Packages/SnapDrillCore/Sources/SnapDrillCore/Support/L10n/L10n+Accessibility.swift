@@ -170,7 +170,6 @@ nonisolated extension L10n {
         }
         public static let enableReminderHint = NSLocalizedString("accessibility.enable_reminder_hint", value: "每天定时提醒你复习到期的题目", comment: "VoiceOver 开启提醒提示")
         public static let soundToggleHint = NSLocalizedString("accessibility.sound_toggle_hint", value: "提醒时播放提示音", comment: "VoiceOver 声音开关提示")
-        public static let badgeToggleHint = NSLocalizedString("accessibility.badge_toggle_hint", value: "在应用图标上显示待复习数量", comment: "VoiceOver 角标开关提示")
         public static func fontSizeValue(_ size: Int) -> String {
             String(format: NSLocalizedString("accessibility.font_size_value", value: "%d 磅", comment: "VoiceOver 字号值"), size)
         }

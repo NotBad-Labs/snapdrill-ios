@@ -70,7 +70,6 @@ nonisolated public enum UDKey {
     public static let notificationHour = "notificationHour"
     public static let notificationMinute = "notificationMinute"
     public static let soundEnabled = "soundEnabled"
-    public static let badgeEnabled = "badgeEnabled"
 
     // MARK: - Draft Service
 

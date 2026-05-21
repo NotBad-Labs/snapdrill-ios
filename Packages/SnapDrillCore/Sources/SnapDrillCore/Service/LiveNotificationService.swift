@@ -23,11 +23,11 @@ public final class LiveNotificationService: NotificationServiceProtocol {
 
     // MARK: - NotificationServiceProtocol
 
-    /// 请求通知权限（.alert + .sound + .badge）
+    /// 请求通知权限（.alert + .sound，不请求 .badge — product-requirements:178 不使用角标）
     public func requestPermission() async -> Bool {
         do {
             return try await UNUserNotificationCenter.current()
-                .requestAuthorization(options: [.alert, .sound, .badge])
+                .requestAuthorization(options: [.alert, .sound])
         } catch {
             SnapDrillLogger.generic.error("通知权限请求失败: \(error.localizedDescription)")
             return false

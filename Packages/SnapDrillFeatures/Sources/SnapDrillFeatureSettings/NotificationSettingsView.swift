@@ -22,7 +22,6 @@ struct NotificationSettingsView: View {
     @AppStorage(UDKey.notificationHour) private var notificationHour: Int = 20
     @AppStorage(UDKey.notificationMinute) private var notificationMinute: Int = 0
     @AppStorage(UDKey.soundEnabled) private var soundEnabled = true
-    @AppStorage(UDKey.badgeEnabled) private var badgeEnabled = true
 
     @State private var viewModel: NotificationSettingsViewModel?
     @State private var enableTask: Task<Void, Never>?
@@ -62,9 +61,6 @@ struct NotificationSettingsView: View {
                 Toggle(L10n.Settings.sound, isOn: $soundEnabled)
                     .disabled(!notificationsEnabled)
                     .accessibilityHint(L10n.Accessibility.soundToggleHint)
-                Toggle(L10n.Settings.badge, isOn: $badgeEnabled)
-                    .disabled(!notificationsEnabled)
-                    .accessibilityHint(L10n.Accessibility.badgeToggleHint)
             } header: {
                 Text(L10n.Settings.notificationStyle)
             } footer: {

@@ -81,7 +81,7 @@ public final class ProfileManager {
         UDKey.cardContextAlignment, UDKey.cardContextFontSize,
         UDKey.reviewReminderEnabled, UDKey.reviewReminderTime,
         UDKey.notificationsEnabled, UDKey.notificationHour, UDKey.notificationMinute,
-        UDKey.soundEnabled, UDKey.badgeEnabled,
+        UDKey.soundEnabled,
         UDKey.captureDraftMetadata,
         UDKey.tipReviewSwipeSeen, UDKey.tipFieldConfigSeen
     ]

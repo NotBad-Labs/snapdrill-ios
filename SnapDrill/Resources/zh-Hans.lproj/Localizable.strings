@@ -313,7 +313,6 @@
 "settings.daily_reminder" = "每日复习提醒";
 "settings.reminder_time" = "提醒时间";
 "settings.reminder_sound" = "提醒声音";
-"settings.reminder_badge" = "图标标记";
 "settings.notification_denied" = "通知权限未开启";
 "settings.notification_denied_message" = "请在 iPhone 设置中开启 SnapDrill 的通知权限。";
 "settings.go_to_settings" = "前往设置";
@@ -395,8 +394,7 @@
 "settings.daily_reminder_section" = "每日提醒";
 "settings.notification_style" = "通知样式";
 "settings.sound" = "声音";
-"settings.badge" = "角标";
-"settings.notification_style_footer" = "声音和角标设置在下次触发通知时生效";
+"settings.notification_style_footer" = "声音设置在下次触发通知时生效";
 "settings.notification_and_reminder" = "通知与提醒";
 "settings.permission_denied_title" = "通知权限被拒绝";
 "settings.permission_denied_message" = "请在「设置 → 通知 → SnapDrill」中开启通知权限，才能接收每日复习提醒。";
@@ -779,7 +777,6 @@
 "accessibility.avatar_color_name" = "主题色 %@";
 "accessibility.enable_reminder_hint" = "每天定时提醒你复习到期的题目";
 "accessibility.sound_toggle_hint" = "提醒时播放提示音";
-"accessibility.badge_toggle_hint" = "在应用图标上显示待复习数量";
 "accessibility.font_size_value" = "%d 磅";
 "accessibility.backup_data_hint" = "导出完整数据备份文件";
 "accessibility.restore_data_hint" = "从备份文件恢复所有数据，会覆盖当前数据";

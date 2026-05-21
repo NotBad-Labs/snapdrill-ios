@@ -319,7 +319,6 @@
 "settings.daily_reminder" = "Daily Review Reminder";
 "settings.reminder_time" = "Reminder Time";
 "settings.reminder_sound" = "Sound";
-"settings.reminder_badge" = "Badge";
 "settings.notification_denied" = "Notifications Disabled";
 "settings.notification_denied_message" = "Please enable notifications for SnapDrill in iPhone Settings.";
 "settings.go_to_settings" = "Open Settings";
@@ -411,8 +410,7 @@
 "settings.daily_reminder_section" = "Daily Reminder";
 "settings.notification_style" = "Notification Style";
 "settings.sound" = "Sound";
-"settings.badge" = "Badge";
-"settings.notification_style_footer" = "Sound and badge settings will take effect on the next notification";
+"settings.notification_style_footer" = "Sound settings will take effect on the next notification";
 "settings.notification_and_reminder" = "Notifications & Reminders";
 "settings.permission_denied_title" = "Notifications Denied";
 "settings.permission_denied_message" = "Please enable notifications for SnapDrill in Settings > Notifications to receive daily review reminders.";
@@ -796,7 +794,6 @@
 "accessibility.avatar_color_name" = "Theme color %@";
 "accessibility.enable_reminder_hint" = "Remind you to review due questions at a fixed time every day";
 "accessibility.sound_toggle_hint" = "Play a sound with reminders";
-"accessibility.badge_toggle_hint" = "Show due review count on the app icon";
 "accessibility.font_size_value" = "%d pt";
 "accessibility.backup_data_hint" = "Export a full data backup file";
 "accessibility.restore_data_hint" = "Restore all data from a backup file. This will replace current data.";
