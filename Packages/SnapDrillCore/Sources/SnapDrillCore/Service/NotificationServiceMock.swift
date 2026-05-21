@@ -26,11 +26,14 @@ public final class NotificationServiceMock: NotificationServiceProtocol {
     /// `requestPermission()` 被调用的次数
     public private(set) var requestPermissionCallCount = 0
 
-    /// `scheduleDaily(at:minute:)` 被调用时记录的参数
-    public private(set) var scheduledHours: [(hour: Int, minute: Int)] = []
+    /// 按 Profile 追踪 schedule 调用参数（每个 profile 仅保留最近一次，符合 Live 服务覆盖语义）
+    public private(set) var schedulesByProfile: [UUID: (hour: Int, minute: Int)] = [:]
 
-    /// `cancelAll()` 被调用的次数
-    public private(set) var cancelAllCallCount = 0
+    /// 按时序记录 cancelDaily 被调用的 profile（追加，便于断言顺序）
+    public private(set) var cancelledProfileIds: [UUID] = []
+
+    /// `cancelAllSnapDrillNotifications()` 被调用的次数
+    public private(set) var cancelAllSnapDrillCallCount = 0
 
     // MARK: - Initialization
 
@@ -44,15 +47,21 @@ public final class NotificationServiceMock: NotificationServiceProtocol {
         return simulatedPermissionGranted
     }
 
-    public func scheduleDaily(at hour: Int, minute: Int) async throws {
+    public func scheduleDaily(at hour: Int, minute: Int, for scope: ProfileScope) async throws {
         if let error = simulatedError {
             throw error
         }
-        scheduledHours.append((hour, minute))
+        schedulesByProfile[scope.id] = (hour, minute)
     }
 
-    public func cancelAll() {
-        cancelAllCallCount += 1
+    public func cancelDaily(for scope: ProfileScope) {
+        cancelledProfileIds.append(scope.id)
+        schedulesByProfile[scope.id] = nil
+    }
+
+    public func cancelAllSnapDrillNotifications() async {
+        cancelAllSnapDrillCallCount += 1
+        schedulesByProfile.removeAll()
     }
 
     // MARK: - 测试辅助
@@ -60,8 +69,9 @@ public final class NotificationServiceMock: NotificationServiceProtocol {
     /// 重置所有追踪状态
     public func reset() {
         requestPermissionCallCount = 0
-        scheduledHours.removeAll()
-        cancelAllCallCount = 0
+        schedulesByProfile.removeAll()
+        cancelledProfileIds.removeAll()
+        cancelAllSnapDrillCallCount = 0
         simulatedError = nil
         simulatedPermissionGranted = true
     }

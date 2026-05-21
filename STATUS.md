@@ -19,7 +19,13 @@ freshness:
 
 ⚠️ **语义层审计终态**：维度 1 (22) + 维度 2 (11) + 维度 3 (10) + 维度 4 (11) + 维度 5 (15) + 维度 6 (7) + 维度 7 (10) = **86 OPEN finding**（HIGH×13 MEDIUM×26 LOW×35 INFO×12）。**进入「集中入 PR 修复」阶段**。维度 7 Antigravity 抓到 Phase 10 致命独家 S-D7-001（docaudit.py:593 rule-usage check 工具底层 bug，13 active F-rule 漏审）。Phase 10 五大方法论实战教训沉淀到 ADR-005 §Phase 10 全局收官段；Phase 11+ 启用 git worktree 物理隔离 + 净化提示词为标准。
 
-**🛠️ Phase 11 worktree 首战 S-D7-001 收尾**（2026-05-21）：三家物理隔离独立产出 + Claude CLI 主笔 cross-fix-consensus 融合 + apply。`Scripts/audit/docaudit.py` 修复后 declared 集合 n=1 → n=14（14 个 active F-rule 全部识别），test_docaudit 76 tests OK（新增 3 个 rule-usage 边界测试），实测 F-004 = 31 refs（**S-D5-013 翻 REJECTED**，S-D7-010 元悖论闭环 RESOLVED）。OPEN finding 净减 **86 → 83**（S-D7-001 RESOLVED、S-D7-010 RESOLVED、S-D5-013 REJECTED）。三方共识报告：[S-D7-001-fix-consensus.md](docs/audits/S-D7-001-fix-consensus.md)。
+**🛠️ Phase 11 worktree 首战 S-D7-001 收尾**（2026-05-21）：三家物理隔离独立产出 + Claude CLI 主笔 cross-fix-consensus 融合 + apply。`Scripts/audit/docaudit.py` 修复后 declared 集合 n=1 → n=14（14 个 active F-rule 全部识别），test_docaudit 76 tests OK，实测 F-004 = 31 refs（**S-D5-013 翻 REJECTED**，S-D7-010 元悖论闭环 RESOLVED）。
+
+**🛠️ S-D4-003 badge 三层背离 RESOLVED**（2026-05-21 单家机械修复）：删除 .badge 权限 + 10 文件清理对齐 product-requirements:178「不使用角标」。
+
+**🛠️ Phase 11 worktree 第二战 S-D4-002 收尾**（2026-05-21 真生产 bug 三方对抗）：通知 ID Multi-Profile 隔离修复。融合 Codex 4 层 namespace `com.snapdrill.notification.daily-review.profile.<uuid>` + `UserNotificationScheduling` facade（FakeCenter 测试真实 Live 服务行为）+ `ProfileScope` 类型注入 + 级联升级清理 legacy ID + `cancelAllSnapDrillNotifications` 用 managed prefix（不触碰第三方 app pending request）。测试 13 Core + 8 Features OK。详见 [S-D4-002-fix-consensus.md](docs/audits/S-D4-002-fix-consensus.md)。
+
+**OPEN finding 累计净减**：86 → 83 → 82 → 81（S-D7-001 / S-D7-010 / S-D5-013 / S-D4-003 / S-D4-002 全部翻面）。
 
 - **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
 - **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见
