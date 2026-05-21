@@ -42,6 +42,10 @@ jobs:
         # S-D7-002：F-005 PR review trace 校验器单元测试
         run: python3 -m unittest Scripts.audit.tests.test_pr_review_trace -v
 
+      - name: Run sprint_contract_gate self-test
+        # S-D7-003：F-018 Sprint Contract gate 校验器单元测试
+        run: python3 -m unittest Scripts.audit.tests.test_sprint_contract_gate -v
+
   review-trace:
     name: F-005 Review Trace
     # S-D7-002：PR 合并前校验 PR body 含 `## F-005 Review Trace` 字段化段
@@ -70,6 +74,34 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 Scripts/audit/pr_review_trace.py --pr "${{ github.event.pull_request.number }}"
+
+  sprint-contract-trace:
+    name: F-018 Sprint Contract Trace
+    # S-D7-003：PR 合并前校验关联 Issue 是否有 `## Sprint Contract Closeout`
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 -m pip install --quiet pyyaml
+      - name: Check F-018 sprint contract closeout
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LINKED=$(gh pr view "${{ github.event.pull_request.number }}" --json closingIssuesReferences --jq '.closingIssuesReferences[0].number' 2>/dev/null || true)
+          if [ -z "$LINKED" ]; then
+            echo "PR not linked to an Issue; skipping F-018 closeout check."
+            exit 0
+          fi
+          python3 Scripts/audit/sprint_contract_gate.py --check-closeout --issue "$LINKED"
 
   direct-push-review-trace:
     name: F-005 Direct Push Trace

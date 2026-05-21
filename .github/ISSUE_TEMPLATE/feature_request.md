@@ -53,18 +53,37 @@ assignees: ""
    When [用户操作]
    Then [预期结果]
 
-## Sprint Contract（Claude 开工前回填，commit 前回读）
+## Sprint Contract（Claude 开工前以 Issue comment 回填，机器校验字段化体例）
 
 <!--
-由 Claude 在动第一行代码前以 Issue comment 写入；编码过程中若发现预期与现实不符，
-必须先改 contract 再继续。Reviewer 与三方审计方（Codex / Gemini / Xcode Review）
-以此为 scope 比对基准。详见 docs/workflow.md 《编码前契约》与 feedback.md F-018。
-Appetite = Small 可简化填写；Medium/Large 必须逐条填写。
+F-018：Claude 在动第一行代码前以 Issue comment 写入字段化 contract（Scripts/audit/sprint_contract_gate.py 校验）。
+编码过程中若发现预期与现实不符，必须先改 contract 再继续。Scope Creep 实时防御：编辑文件超出 Touches 或落在
+No-Touch 即被 .claude/hooks/pre-edit-sprint-contract.sh 阻断。详见 docs/workflow.md / S-D7-003 共识。
 -->
 
-- **Touches**：会新增/修改哪些文件（路径列表）
-- **No-Touch**：显式不动哪些文件/模块（防 scope creep）
-- **Interface Delta**：新增或修改的 public 接口签名预期（函数名 + 参数 + 返回类型）
-- **Test Additions**：预期新增的测试用例（粒度到用例名）
-- **DoD 最小集**：本 Issue 必须满足的 DoD 子集（从 `docs/workflow.md` DoD 中选）
-- **预期不确定点**：哪些决策留给实现阶段自主判断
+字段化体例（直接 `gh issue comment` 贴下方块）：
+
+```markdown
+## Sprint Contract
+
+Contract Required: yes
+Issue: #<num>
+Issue Type: enhancement
+Appetite: Small | Medium | Large
+Status: Building
+Touches:
+- <相对路径>
+No-Touch:
+- <相对路径 / glob>
+Interface Delta:
+- <public 签名 或 "none">
+Test Additions:
+- <测试用例名 或 "none">
+DoD Minimum:
+- <命令 / check>
+Uncertainties:
+- <已知未知 或 "none">
+Contract Author: claude
+```
+
+Appetite = Small (chore) 可简化为 Touches / No-Touch / DoD Minimum 三字段。详见 `.claude/skills/sprint-contract/SKILL.md`。

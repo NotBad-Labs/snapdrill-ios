@@ -42,7 +42,13 @@ freshness:
 
 **🛠️ Phase 11 第二战 S-D7-002 收尾**（2026-05-21）：F-005 PR review 留痕机械化。三家对抗 Codex 51 分胜出（字段化 schema 严格 key:value 解析）+ Antigravity 占位符防御融合 + Claude 7 触发器盲区。新增 review-trace policy YAML + Python 校验器 + 14 unittest + CI 两 job（PR 阻断 + push trailer 兜底）+ PR template 字段化 + cross-audit/sprint-contract skill F-005 输出。详见 [S-D7-002-fix-consensus.md](docs/audits/S-D7-002-fix-consensus.md)。
 
-**OPEN finding 累计净减**：86 → **1**（98.8% 关闭率，仅剩 S-D7-003 F-018 Sprint Contract 机械拦截待 worktree 第三战）。
+**🎉 Phase 11 收官战 S-D7-003 完成**（2026-05-21）：F-018 Sprint Contract 机械拦截。三家对抗 Codex 48 分（完整 12 字段 schema + 多行 bullet 解析）+ Antigravity 45 分（**Scope Creep 实时防御** check_file_scope 比对 Edit 文件 vs Touches/No-Touch globs）+ Claude 7 触发器盲区。新增 sprint-contract policy YAML + Python gate（含 Scope Creep）+ 24 unittest + PreToolUse Edit hook 硬阻断 + premerge 串接 F-005+F-007+F-018 + CI sprint-contract-trace job + issue template 字段化 + skill Step 0/7 引导。详见 [S-D7-003-fix-consensus.md](docs/audits/S-D7-003-fix-consensus.md)。
+
+**🏆 Phase 11 整体收官**（OPEN finding 累计净减 **86 → 0，100% 关闭率**）：
+- Phase 10 86 finding 全部 RESOLVED 或 WAIVED
+- Phase 11 五战全部完成：S-D7-001 工具 bug / S-D4-002 Multi-Profile / S-D4-001 DI / S-D7-002 F-005 review / S-D7-003 F-018 contract
+- worktree 三方对抗工作流 5 次实战验证（物理隔离 + 净化提示词 + Codex/Antigravity/Claude 三家差异化能力清晰）
+- 流程治理基础设施落地：`Scripts/audit/{pr_review_trace,sprint_contract_gate}.py` + `.github/{review-trace,sprint-contract}-policy.yml` + `.claude/hooks/{premerge-checklist,pre-edit-sprint-contract}.sh` + CI {review-trace,direct-push-review-trace,sprint-contract-trace} 三 job
 
 - **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
 - **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见

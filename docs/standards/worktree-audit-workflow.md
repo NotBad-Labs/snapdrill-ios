@@ -140,6 +140,8 @@ git branch -D audit/codex-<task-slug> audit/antigravity-<task-slug>  # 可选保
 - 三家原始产出（S-D4-001）：[claude](../audits/S-D4-001-claude.md) · [codex](../audits/S-D4-001-codex.md) · [antigravity](../audits/S-D4-001-antigravity.md)
 - [S-D7-002 三方修复 consensus](../audits/S-D7-002-fix-consensus.md) Phase 11 B 方案串行第二战收尾（F-005 PR review 留痕机械化，Codex 字段化 schema 胜出 51 分）
 - 三家原始产出（S-D7-002）：[claude](../audits/S-D7-002-claude.md) · [codex](../audits/S-D7-002-codex.md) · [antigravity](../audits/S-D7-002-antigravity.md)
+- [S-D7-003 三方修复 consensus](../audits/S-D7-003-fix-consensus.md) **Phase 11 收官战**（F-018 Sprint Contract 机械拦截，Codex 48 分字段 schema + Antigravity 45 分 Scope Creep 实时防御）
+- 三家原始产出（S-D7-003）：[claude](../audits/S-D7-003-claude.md) · [codex](../audits/S-D7-003-codex.md) · [antigravity](../audits/S-D7-003-antigravity.md)
 - [S-D7-001 三方修复 consensus](../audits/S-D7-001-fix-consensus.md) 首战收尾报告（含三家产出对比 + 评分矩阵 + 工作流自评）
 - 三家原始产出：[claude](../audits/S-D7-001-claude.md) · [codex](../audits/S-D7-001-codex.md) · [antigravity](../audits/S-D7-001-antigravity.md)
 - [[semantic-audit-dim7-consensus]] §Worktree 工作流 + §控制变量法污染反思

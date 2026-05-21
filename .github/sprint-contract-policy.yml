@@ -1,0 +1,138 @@
+# F-018 Sprint Contract 校验策略（S-D7-003 共识落地，Phase 11 收官）
+#
+# Issue comment 必须含 `## Sprint Contract` 字段化段（Codex 设计）。
+# Scope Creep 实时防御：Edit 文件必须在 Touches 范围 + 不在 No-Touch 范围（Antigravity 设计融合）。
+# placeholder 防御正则与 review-trace-policy.yml 共用集合。
+
+version: 1
+required_section: "## Sprint Contract"
+
+# 全契约必填字段（与 contract_required 无关，三种路径都必须有这几条）
+required_fields:
+  - Contract Required
+  - Issue
+  - Contract Author
+
+# normal contract（contract_required: yes）
+normal_contract:
+  contract_required: "yes"
+  # 任何 Appetite 都必填
+  required_fields:
+    - Issue Type
+    - Appetite
+    - Status
+    - Touches
+    - No-Touch
+    - DoD Minimum
+  # Medium / Large 额外必填
+  full_required_fields:
+    - Interface Delta
+    - Test Additions
+    - Uncertainties
+  accepted_issue_types: [enhancement, chore]
+  accepted_status_values: [Building, "status:building", building]
+  accepted_appetites: [Small, Medium, Large]
+
+# Small chore 简化版
+small_chore:
+  issue_type: chore
+  appetite: Small
+  # 三字段简化集（与 docs/workflow.md F-018 历史阈值对齐）
+  required_fields:
+    - Touches
+    - No-Touch
+    - DoD Minimum
+
+# Closeout 段（PR merge 前校验）
+closeout:
+  required_section: "## Sprint Contract Closeout"
+  required_fields:
+    - Touches
+    - DoD
+
+# Issue 检测顺序与匹配规则
+issue_detection:
+  explicit_env: SPRINT_CONTRACT_ISSUE  # 优先级最高
+  branch_patterns:
+    - "#(?P<number>[0-9]+)"
+    - "issue[-/](?P<number>[0-9]+)"
+    - "^(?P<number>[0-9]+)[-/]"
+    - "(?:fix|feat|chore)/(?P<number>[0-9]+)"  # 项目实际分支命名
+  # gh pr view --json closingIssuesReferences fallback
+  pr_closing_issues_fallback: true
+  # Issue building 状态识别（label-based，不靠 GitHub Projects field）
+  building_labels: ["status:building", "building"]
+  eligible_issue_types: [enhancement, chore]
+  # 完全豁免的 label（不需要 contract）
+  exempt_labels: [bug, trivial, no-contract, epic]
+
+# protected paths：触发 hook 时必须有 contract
+# docs/* / *.md 等不触发；源码 / 配置 / hook / skill / CI 必须触发
+protected_edit_globs:
+  - "Packages/**/*.swift"
+  - "SnapDrill/**/*.swift"
+  - "SnapDrillShare/**/*.swift"
+  - "Tests/**/*.swift"
+  - ".github/**"
+  - ".claude/hooks/**"
+  - ".claude/skills/**"
+  - "Scripts/**"
+  - "*.xcodeproj/**"
+  - "*.xcconfig"
+  - ".swiftlint.yml"
+  - "Package.swift"
+  - "fastlane/**"
+
+# 路径自动豁免（hook 不触发；与 protected_edit_globs 互斥）
+ignore_path_globs:
+  - "docs/**"
+  - "*.md"
+  - "*.tsv"
+  - "Scripts/audit/tests/**"
+  - "**/__Snapshots__/**"
+  - "STATUS.md"
+  - ".claude/state/**"
+
+# 机器可读豁免（contract_required: exempt 路径）
+exemptions:
+  trivial:
+    max_files: 1
+    allowed_globs:
+      - "docs/**/*.md"
+      - "*.md"
+    denied_globs:
+      - "docs/workflow.md"
+      - "docs/standards/**"
+      - "docs/audits/**"
+      - "docs/decisions/ADR-*.md"
+      - "Packages/**"
+      - "SnapDrill/**"
+      - ".github/**"
+      - ".claude/**"
+      - "Scripts/**"
+      - "*.xcodeproj/**"
+      - "*.xcconfig"
+      - "Package.swift"
+      - "fastlane/**"
+    required_fields:
+      - Changed Paths Checked
+      - Disallowed Paths Present
+      - Exemption Rationale
+
+# 占位符防御正则（与 review-trace-policy.yml placeholder_patterns 同源）
+placeholder_patterns:
+  - "^\\[填[写入]"
+  - "^\\[fill[ \\-]?in"
+  - "^tbd$"
+  - "^TBD$"
+  - "^TODO$"
+  - "^placeholder$"
+  - "^\\.\\.\\.+$"
+  - "^x$"
+  - "^xxx+$"
+  - "^N/A$"
+
+# Override 配置
+override:
+  env: F018_SPRINT_CONTRACT_OVERRIDE
+  # 当 env=1 时跳过本次校验，但 hook 写 stderr 留痕

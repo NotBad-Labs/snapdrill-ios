@@ -55,22 +55,71 @@ grep -n "public func\|public struct\|public protocol" <相关文件>
 grep -r "func test" Packages/*/Tests/ --include="*.swift" -l | grep -i "关键词"
 ```
 
-### Step 3：起草 Sprint Contract
+### Step 3：起草 Sprint Contract（**字段化体例**，S-D7-003 共识）
 
-按 Issue 模板 Sprint Contract 段填写：
+按字段化体例填写（S-D7-003 落地的 `Scripts/audit/sprint_contract_gate.py` 字段解析器只认下列 key:value 格式）。**自然语言中文 bullet 格式已过时**——会被机器校验拒绝。
+
+完整版（Medium / Large appetite）：
 
 ```markdown
 ## Sprint Contract
 
-- **Touches**：会新增/修改哪些文件（路径列表，不是模块名）
-- **No-Touch**：显式不动哪些文件/模块（防 scope creep）
-- **Interface Delta**：新增或修改的 public 接口签名预期
-- **Test Additions**：预期新增的测试用例（粒度到用例名）
-- **DoD 最小集**：本 Issue 必须满足的 DoD 子集
-- **预期不确定点**：哪些决策留给实现阶段自主判断
+Contract Required: yes
+Issue: #<num>
+Issue Type: enhancement | chore
+Appetite: Small | Medium | Large
+Status: Building
+Touches:
+- <相对路径>
+- <相对路径>
+No-Touch:
+- <相对路径 / glob>
+- <相对路径 / glob>
+Interface Delta:
+- <public 签名 或 "none">
+Test Additions:
+- <测试用例名 或 "none">
+DoD Minimum:
+- <命令 / check>
+Uncertainties:
+- <已知未知 或 "none">
+Contract Author: claude
 ```
 
-**Appetite = Small** 可只填 Touches / No-Touch / DoD 最小集。
+**Appetite = Small (chore)** 简化版三字段：
+
+```markdown
+## Sprint Contract
+
+Contract Required: yes
+Issue: #<num>
+Issue Type: chore
+Appetite: Small
+Status: Building
+Touches:
+- <相对路径>
+No-Touch:
+- <相对路径 / glob>
+DoD Minimum:
+- <命令 / check>
+Contract Author: claude
+```
+
+**机器可读 trivial 豁免**（仅限单文件 markdown typo 类）：
+
+```markdown
+## Sprint Contract
+
+Contract Required: exempt
+Contract Exemption: trivial
+Issue: #<num>
+Changed Paths Checked: yes
+Disallowed Paths Present: no
+Exemption Rationale: <一句话原因>
+Contract Author: claude
+```
+
+字段说明与豁免边界见 `.github/sprint-contract-policy.yml`。
 
 ### Step 4：贴到 Issue
 
@@ -93,6 +142,45 @@ EOF
 创建 PR 时**必须保留** `## F-005 Review Trace` 段（来自 `.github/PULL_REQUEST_TEMPLATE.md` 默认模板）。开工时 Codex/Gemini Evidence 字段可暂留空白，但 merge 前必须由 cross-audit 跑完后填充。
 
 docs-only / trivial 类 PR 走机器可读豁免（`Review Required: exempt` + `Review Exemption: docs-only|trivial`）。Swift / source / config / CI / hook / policy 改动**不得**使用豁免。
+
+### Step 7：Closeout（编码结束 / PR merge 前必填，S-D7-003 共识）
+
+完成 Issue 编码后、提 PR merge 前，在 Issue 贴 Closeout comment：
+
+```markdown
+## Sprint Contract Closeout
+
+Touches 实际触动: <列出真实改动文件>
+偏离 Sprint Contract: <无 / 列出哪些 Touches/No-Touch 已变更并解释>
+Test Additions 实际增加: <实际测试用例>
+DoD 自检: <勾选 / 命令输出>
+```
+
+`.claude/hooks/premerge-checklist.sh` 在 `gh pr merge` 时会校验 closeout 段存在且关键字（Touches / DoD）非占位符。CI `sprint-contract-trace` job 同步校验。
+
+### Step 0：检查现有契约（推荐先跑）
+
+```bash
+# 推导当前 Issue
+python3 Scripts/audit/sprint_contract_gate.py --derive-issue
+
+# 校验现有 contract（如已贴）
+python3 Scripts/audit/sprint_contract_gate.py --file-path Packages/Foo.swift
+```
+
+如果当前 Issue 已有合规 contract，直接进入 Step 5；如果没有 → 走 Step 1-4。
+
+## PreToolUse 编辑期硬阻断（S-D7-003 共识）
+
+`.claude/hooks/pre-edit-sprint-contract.sh` 在 Edit/Write/MultiEdit 前阻断：
+
+- 关联 Issue 必须有 `## Sprint Contract` comment
+- Edit 文件必须在 contract Touches 范围内
+- Edit 文件不能在 contract No-Touch 范围内（**Scope Creep 实时防御**）
+- 占位符（`[填写]` / TBD / `...`）拒绝
+
+紧急 override：`F018_SPRINT_CONTRACT_OVERRIDE=1 <command>`（stderr 留痕）。
+路径豁免：`docs/**` / `*.md` / `STATUS.md` 不触发；详见 `.github/sprint-contract-policy.yml`。
 
 ## 反模式
 

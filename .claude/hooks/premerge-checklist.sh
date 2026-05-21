@@ -52,4 +52,19 @@ else
     fi
 fi
 
+# F-018: Sprint Contract Closeout 校验（S-D7-003 共识）
+# Override（紧急）：F018_SPRINT_CONTRACT_OVERRIDE=1 跳过
+if [[ "${F018_SPRINT_CONTRACT_OVERRIDE:-0}" = "1" ]]; then
+    echo "⚠️  F018_SPRINT_CONTRACT_OVERRIDE=1 — bypassing F-018 closeout check." >&2
+else
+    if [[ -n "${PR_NUMBER:-}" ]]; then
+        LINKED_ISSUE=$(gh pr view "$PR_NUMBER" --json closingIssuesReferences --jq '.closingIssuesReferences[0].number' 2>/dev/null || true)
+        if [[ -n "$LINKED_ISSUE" ]]; then
+            if ! python3 Scripts/audit/sprint_contract_gate.py --check-closeout --issue "$LINKED_ISSUE" 2>&1; then
+                exit 2
+            fi
+        fi
+    fi
+fi
+
 exit 0
