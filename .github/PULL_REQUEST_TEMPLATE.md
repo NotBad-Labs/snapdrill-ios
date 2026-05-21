@@ -45,7 +45,51 @@ Closes #
 
 ### Review
 
-- [ ] Review 结论已留痕（PR comment 或 PR 描述）
+- [ ] Review 结论已留痕（必须在下方 `## F-005 Review Trace` 段填写）
+
+<!-- F-005: Review 无留痕的 PR 不得合并（workflow.md:108-120 + S-D7-002）。
+     CI 会校验本段的字段；保留段头与字段名不要改名。
+     豁免：docs-only / trivial PR 走机器可读 `Review Required: exempt` 路径。 -->
+
+## F-005 Review Trace
+
+Review Required: yes
+Review Scope: full-pr
+Codex Review:
+Codex Evidence:
+Gemini Review: N/A
+Gemini Evidence: N/A
+Antigravity Review: N/A
+Antigravity Evidence: N/A
+Xcode Review: N/A
+Xcode Evidence: N/A
+Findings Resolved:
+Human Merge Approval:
+
+<!--
+字段说明：
+- Review Required: `yes` | `exempt`
+- Review Scope: `full-pr` | `docs-only` | `trivial`
+- Codex Review / Gemini Review / Antigravity Review / Xcode Review: `PASS` | `PASS_WITH_FINDINGS` | `N/A`
+- Codex Evidence 等：PR comment URL / 报告路径 / commit SHA。**不能为占位符 [填写...] / TBD / N/A**
+- Findings Resolved: `yes` | `no` | `n/a`
+- Human Merge Approval: `yes` | `no`
+- UI 改动（Packages/SnapDrillFeatures/Sources/**/*.swift 等）必须 `Xcode Review: PASS|PASS_WITH_FINDINGS`
+
+机器可读豁免（docs-only / trivial）：
+保留 `## F-005 Review Trace` 段头，替换上方字段为：
+
+Review Required: exempt
+Review Exemption: docs-only
+Review Scope: docs-only
+Changed Paths Checked: yes
+Disallowed Paths Present: no
+Exemption Rationale: <一句话说明>
+Human Merge Approval: yes
+
+豁免边界见 .github/review-trace-policy.yml；Swift/source/config/CI/hook/policy 变更不得使用豁免。
+-->
+
 
 ### 审计豁免留痕（docaudit，见 `docs/workflow.md`§文档审计 + `Scripts/audit/README.md`）
 

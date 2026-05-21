@@ -88,6 +88,12 @@ EOF
 2. **再改代码**
 3. 禁止"代码和 contract 漂移"
 
+### Step 6：PR body Review Trace 占位（S-D7-002 联动）
+
+创建 PR 时**必须保留** `## F-005 Review Trace` 段（来自 `.github/PULL_REQUEST_TEMPLATE.md` 默认模板）。开工时 Codex/Gemini Evidence 字段可暂留空白，但 merge 前必须由 cross-audit 跑完后填充。
+
+docs-only / trivial 类 PR 走机器可读豁免（`Review Required: exempt` + `Review Exemption: docs-only|trivial`）。Swift / source / config / CI / hook / policy 改动**不得**使用豁免。
+
 ## 反模式
 
 - ❌ 跳过 contract 直接写代码 — 违反 F-018

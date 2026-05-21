@@ -38,6 +38,73 @@ jobs:
         # 新增违规（未登记）或 strict 升级的 warning 仍 error → exit 1 阻断
         run: python3 Scripts/audit/docaudit.py all --strict --baseline
 
+      - name: Run pr_review_trace self-test
+        # S-D7-002：F-005 PR review trace 校验器单元测试
+        run: python3 -m unittest Scripts.audit.tests.test_pr_review_trace -v
+
+  review-trace:
+    name: F-005 Review Trace
+    # S-D7-002：PR 合并前校验 PR body 含 `## F-005 Review Trace` 字段化段
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyYAML
+        run: python3 -m pip install --quiet pyyaml
+
+      - name: Check F-005 review trace
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 Scripts/audit/pr_review_trace.py --pr "${{ github.event.pull_request.number }}"
+
+  direct-push-review-trace:
+    name: F-005 Direct Push Trace
+    # S-D7-002：直推 develop/main 时校验 commit msg 含 F-005-Review-Trace: trailer
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 20
+
+      - name: Reject direct push without review trailer (when commit changes non-docs files)
+        run: |
+          # 仅检查最近一个 commit；多 commit 推送会被 GitHub 拆分多次 push event
+          MSG=$(git log -1 --pretty=%B)
+          FILES=$(git diff-tree --no-commit-id --name-only -r HEAD)
+          # 全部 docs/*.md / 顶层 *.md → 自动豁免
+          NON_DOCS=$(echo "$FILES" | grep -vE '^(docs/.+\.md$|[^/]+\.md$|docs/.+\.tsv$)' || true)
+          if [ -z "$NON_DOCS" ]; then
+            echo "Direct push contains only docs/*.md changes; auto-exempted."
+            exit 0
+          fi
+          if echo "$MSG" | grep -q '^F-005-Review-Trace:'; then
+            echo "F-005-Review-Trace trailer present; passing."
+            exit 0
+          fi
+          echo "::error::Direct push to protected branch requires commit trailer:"
+          echo "::error::  F-005-Review-Trace: <review summary / SHA / URL>"
+          echo "::error::or restrict push to docs/*.md only paths."
+          echo "Non-docs files changed:"
+          echo "$NON_DOCS"
+          exit 1
+
   build:
     name: Build & Test
     # 使用 Mac mini 自托管 runner（离线时任务排队等待，免费）

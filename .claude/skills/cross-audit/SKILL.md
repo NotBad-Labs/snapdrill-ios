@@ -113,6 +113,30 @@ PR 审查场景末尾补 4 维评分表（0-10 整数分 + 综合平均），
 3. 每个 Critical 经实证验证（Read + Grep）
 4. 综合报告归档（建议路径 `docs/archive/{topic}-audit-{YYYYMMDD}.md`，需用户确认）
 
+## F-005 PR 留痕输出（S-D7-002 联动）
+
+当 cross-audit 用于 **PR review 场景**时（不是文档审计），最终回复末尾必须输出可粘贴的 `## F-005 Review Trace` 段，便于直接补到 PR body。模板：
+
+```markdown
+## F-005 Review Trace
+
+Review Required: yes
+Review Scope: full-pr
+Codex Review: PASS_WITH_FINDINGS
+Codex Evidence: <PR comment URL or report path or commit SHA>
+Gemini Review: N/A
+Gemini Evidence: N/A
+Antigravity Review: N/A
+Antigravity Evidence: N/A
+Xcode Review: N/A
+Xcode Evidence: N/A
+Findings Resolved: yes
+Human Merge Approval: yes
+```
+
+Evidence 字段**不能**为 `[填写...]` / `TBD` / `N/A`（除 verdict 字段本身可以 `N/A`）。
+机器校验规则见 `.github/review-trace-policy.yml` + `Scripts/audit/pr_review_trace.py`。
+
 ## 内嵌纪律（权威源）
 
 本 skill 是 F-008、F-011、F-016 的权威定义源。`docs/memory/feedback.md` 仅保留索引指针。

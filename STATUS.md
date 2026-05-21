@@ -40,7 +40,9 @@ freshness:
 
 **🛠️ Phase 11 第三战 S-D4-001 收尾**（2026-05-21）：ServiceContainer DI 系统性退化重构。三家对抗 Antigravity 46 分胜出（临时 apply 实证暴露 2 个真生产 bug：`LiveNotificationService.current()` 静态初始化崩溃 + `PrivacySettingsViewModel` 测试 `AppActivityTracker.shared` 串扰）。融合 Codex ReviewScheduler + 「Core service 规则」段。协议从 5 属性扩展到 13；4 个 View/ViewModel 已迁移；旧 `.shared` 加 `@deprecated` 标注引导渐进迁移。详见 [S-D4-001-fix-consensus.md](docs/audits/S-D4-001-fix-consensus.md)。
 
-**OPEN finding 累计净减**：86 → **2**（97.7% 关闭率，仅剩 S-D7-002 / S-D7-003 待 worktree 串行处理）。
+**🛠️ Phase 11 第二战 S-D7-002 收尾**（2026-05-21）：F-005 PR review 留痕机械化。三家对抗 Codex 51 分胜出（字段化 schema 严格 key:value 解析）+ Antigravity 占位符防御融合 + Claude 7 触发器盲区。新增 review-trace policy YAML + Python 校验器 + 14 unittest + CI 两 job（PR 阻断 + push trailer 兜底）+ PR template 字段化 + cross-audit/sprint-contract skill F-005 输出。详见 [S-D7-002-fix-consensus.md](docs/audits/S-D7-002-fix-consensus.md)。
+
+**OPEN finding 累计净减**：86 → **1**（98.8% 关闭率，仅剩 S-D7-003 F-018 Sprint Contract 机械拦截待 worktree 第三战）。
 
 - **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
 - **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见
