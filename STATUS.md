@@ -38,7 +38,9 @@ freshness:
 - `S-D7-002` F-005 PR review 留痕 hook 强化（流程治理设计）
 - `S-D7-003` F-018 Sprint Contract 机械拦截（流程治理设计）
 
-**OPEN finding 累计净减**：86 → **3**（96.5% 关闭率）。
+**🛠️ Phase 11 第三战 S-D4-001 收尾**（2026-05-21）：ServiceContainer DI 系统性退化重构。三家对抗 Antigravity 46 分胜出（临时 apply 实证暴露 2 个真生产 bug：`LiveNotificationService.current()` 静态初始化崩溃 + `PrivacySettingsViewModel` 测试 `AppActivityTracker.shared` 串扰）。融合 Codex ReviewScheduler + 「Core service 规则」段。协议从 5 属性扩展到 13；4 个 View/ViewModel 已迁移；旧 `.shared` 加 `@deprecated` 标注引导渐进迁移。详见 [S-D4-001-fix-consensus.md](docs/audits/S-D4-001-fix-consensus.md)。
+
+**OPEN finding 累计净减**：86 → **2**（97.7% 关闭率，仅剩 S-D7-002 / S-D7-003 待 worktree 串行处理）。
 
 - **Phase 0-2**：52-doc 审计接管 + SSOT 自洽 + 三方 verdict 裁决 + NEEDS_REVISION 修订
 - **Phase 3**：跨文档 contradiction / ghost ref / orphan 横向扫描 + Codex 二意见

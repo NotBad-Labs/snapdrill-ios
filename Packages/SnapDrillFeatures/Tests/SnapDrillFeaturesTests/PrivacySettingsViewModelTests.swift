@@ -21,6 +21,7 @@ final class PrivacySettingsViewModelTests {
     private let container: ModelContainer
     private let repos: RepositoryContainer
     private let analytics: AnalyticsServiceMock
+    private let activityTracker: AppActivityTracker
 
     init() throws {
         let schema = Schema([
@@ -34,10 +35,16 @@ final class PrivacySettingsViewModelTests {
         container = try ModelContainer(for: schema, configurations: [config])
         repos = RepositoryContainer(modelContext: container.mainContext)
         analytics = AnalyticsServiceMock()
+        // S-D4-001：注入独立 AppActivityTracker 避免与全局 .shared 串扰
+        activityTracker = AppActivityTracker()
     }
 
     private func makeVM() -> PrivacySettingsViewModel {
-        PrivacySettingsViewModel(repositories: repos, analyticsService: analytics)
+        PrivacySettingsViewModel(
+            repositories: repos,
+            analyticsService: analytics,
+            activityTracker: activityTracker
+        )
     }
 
     // MARK: - 初始状态
@@ -153,7 +160,8 @@ final class PrivacySettingsViewModelTests {
 
         // 导出完成后 defer 已执行 end()，活动应清空
         try await waitUntilExportDone(vm)
-        #expect(AppActivityTracker.shared.canSwitchProfile == true)
+        // S-D4-001：用注入的 activityTracker（独立实例），避免与全局 .shared 串扰
+        #expect(activityTracker.canSwitchProfile == true)
     }
 
     // MARK: - 任务取消

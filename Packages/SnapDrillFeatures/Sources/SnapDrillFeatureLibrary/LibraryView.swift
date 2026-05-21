@@ -21,6 +21,7 @@ public struct LibraryView: View {
     
     @Bindable private var router: LibraryRouter
     @Environment(\.repositories) private var repositories
+    @Environment(\.services) private var services
 
     @State private var viewModel: LibraryViewModel?
     
@@ -250,7 +251,10 @@ public struct LibraryView: View {
                 }
                 .task {
                     if isFirstAppear {
-                        let vm = LibraryViewModel(repositories: repositories)
+                        let vm = LibraryViewModel(
+                            repositories: repositories,
+                            deletionScheduler: services.deletionScheduler
+                        )
                         self.viewModel = vm
                         await vm.loadDataAsync()
                         isFirstAppear = false

@@ -21,19 +21,16 @@ struct SmartPaperView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repositories
+    @Environment(\.services) private var services
 
     @State private var viewModel: SmartPaperViewModel?
     @State private var showingPDFPreview = false
     @State private var showProGate = false
 
-    private let proEntitlementProvider: any ProEntitlementProvider
-
     // TODO: #479 — 替换为 StoreKit 订阅状态检查
-    private var isProUser: Bool { proEntitlementProvider.isProUser }
+    private var isProUser: Bool { services.proEntitlement.isProUser }
 
-    init(proEntitlementProvider: any ProEntitlementProvider = DefaultProEntitlementProvider()) {
-        self.proEntitlementProvider = proEntitlementProvider
-    }
+    init() {}
 
     var body: some View {
         NavigationStack {

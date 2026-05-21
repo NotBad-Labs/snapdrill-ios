@@ -79,7 +79,7 @@ final class DashboardAnalyticsViewModel {
 
     init(
         repositories: RepositoryContainer,
-        proEntitlementProvider: any ProEntitlementProvider = DefaultProEntitlementProvider()
+        proEntitlementProvider: any ProEntitlementProvider
     ) {
         self.repositories = repositories
         self.proEntitlementProvider = proEntitlementProvider

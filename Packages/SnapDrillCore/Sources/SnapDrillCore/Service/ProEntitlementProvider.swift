@@ -16,10 +16,21 @@ public protocol ProEntitlementProvider {
 }
 
 /// Default Pro entitlement provider.
+@available(*, deprecated, message: "通过 @Environment(\\.services).proEntitlement 注入，避免散落默认实现（S-D4-001）")
 public struct DefaultProEntitlementProvider: ProEntitlementProvider {
 
     public init() {}
 
     // TODO: #479 - Replace with StoreKit subscription status once Apple account access is unblocked.
     public var isProUser: Bool { false }
+}
+
+/// Mock Pro entitlement provider (测试 / Preview)。`isProUser` 可注入。
+public struct MockProEntitlementProvider: ProEntitlementProvider {
+
+    public let isProUser: Bool
+
+    public init(isProUser: Bool = false) {
+        self.isProUser = isProUser
+    }
 }

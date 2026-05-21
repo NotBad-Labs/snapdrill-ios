@@ -20,6 +20,7 @@ import SnapDrillFeatureLibrary
 public struct DashboardView: View {
     @Bindable private var router: DashboardRouter
     @Environment(\.repositories) private var repositories
+    @Environment(\.services) private var services
 
     @State private var viewModel: DashboardViewModel?
     @State private var analyticsViewModel: DashboardAnalyticsViewModel?
@@ -141,7 +142,10 @@ public struct DashboardView: View {
                     viewModel = DashboardViewModel(repositories: repositories)
                 }
                 if analyticsViewModel == nil {
-                    let vm = DashboardAnalyticsViewModel(repositories: repositories)
+                    let vm = DashboardAnalyticsViewModel(
+                        repositories: repositories,
+                        proEntitlementProvider: services.proEntitlement
+                    )
                     analyticsViewModel = vm
                     vm.loadAnalytics()
                 }

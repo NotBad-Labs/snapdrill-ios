@@ -28,6 +28,7 @@ public typealias DeletionExecutor = @Sendable (Set<UUID>) async -> Void
 /// 确保 Tab 切换、页面离开不会中断倒计时。
 @Observable public final class DeletionScheduler {
 
+    @available(*, deprecated, message: "通过 @Environment(\\.services).deletionScheduler 注入，避免静态单例耦合（S-D4-001）")
     public static let shared = DeletionScheduler()
 
     /// 当前待删除的 ID 集合（用于 UI 过滤显示）

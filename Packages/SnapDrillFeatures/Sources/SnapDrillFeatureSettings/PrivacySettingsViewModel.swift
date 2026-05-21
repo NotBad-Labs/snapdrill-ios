@@ -30,6 +30,7 @@ final class PrivacySettingsViewModel {
 
     private let repositories: RepositoryContainer
     private let analyticsService: AnalyticsServiceProtocol
+    private let activityTracker: AppActivityTracker
 
     // MARK: - Task Management
 
@@ -41,12 +42,15 @@ final class PrivacySettingsViewModel {
     /// - Parameters:
     ///   - repositories: 数据仓库容器
     ///   - analyticsService: 埋点服务
+    ///   - activityTracker: 活动追踪器（S-D4-001 起从 ServiceContainer 注入，避免静态单例污染测试）
     init(
         repositories: RepositoryContainer,
-        analyticsService: AnalyticsServiceProtocol
+        analyticsService: AnalyticsServiceProtocol,
+        activityTracker: AppActivityTracker? = nil
     ) {
         self.repositories = repositories
         self.analyticsService = analyticsService
+        self.activityTracker = activityTracker ?? AppActivityTracker.shared
     }
 
     // MARK: - Actions
@@ -65,8 +69,8 @@ final class PrivacySettingsViewModel {
     // MARK: - Private
 
     private func exportData(format: PrivacyDataExportFormat) async {
-        AppActivityTracker.shared.begin(.exporting)
-        defer { AppActivityTracker.shared.end(.exporting) }
+        activityTracker.begin(.exporting)
+        defer { activityTracker.end(.exporting) }
         isExporting = true
         exportError = nil
 

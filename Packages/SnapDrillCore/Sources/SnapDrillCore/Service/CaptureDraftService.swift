@@ -15,6 +15,7 @@ import UIKit
 /// 当用户意外退出编辑界面时，用于恢复之前的图片和识别文字。
 public final class CaptureDraftService: CaptureDraftServiceProtocol {
 
+    @available(*, deprecated, message: "通过 @Environment(\\.services).captureDraft 注入，避免静态单例耦合（S-D4-001）")
     public static let shared = CaptureDraftService()
 
     private let fileManager = FileManager.default
@@ -23,7 +24,8 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     private let draftImageName = "draft_capture.jpg"
     private let draftMetadataKey = UDKey.captureDraftMetadata
 
-    private init() {}
+    /// 容器装配入口（S-D4-001：ServiceContainer 必需）
+    public init() {}
 
     // MARK: - Models
 

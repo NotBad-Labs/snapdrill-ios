@@ -43,6 +43,14 @@ SnapDrillShare（Share Extension）
 
 ---
 
+## 新增 Core service 规则（S-D4-001 共识）
+
+1. 若服务跨 Feature 使用、持有状态、依赖系统 API/AI/外部 SDK、或测试需要替换 → 必须进入 `ServiceContainer`
+2. Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`，不得放入全局 `ServiceContainer`（典型例外：`ImageStorage`）
+3. 静态 facade（如 `TelemetryGate`）必须有架构豁免决策；Feature 层不得直接调用
+4. `ServiceContainer` 当前 13 个属性：5 既有（analytics/pdfExport/appConfig/privacyConsent/notification）+ 8 新挂（ocr/captureDraft/contentTagging/questionSplitting/deletionScheduler/proEntitlement/activityTracker/reviewScheduler）
+5. 显式豁免清单（不挂容器）：`TelemetryGate`（nonisolated enum，全局静态状态）/ `ZIPArchiver`（Data 层，跨包循环依赖）/ `ImageStorage`（Profile-scoped）/ `OnboardingManager` / `DependencyContainer.shared`
+
 ## DI 注入链路
 
 ```
@@ -241,7 +249,7 @@ LibraryViewModel 是调用方：
 | 决策 | 理由 |
 |---|---|
 | 5 个 SPM Package 而非 1 个 | 编译隔离 + 依赖方向强制 + 模块可独立测试 |
-| Protocol-based DI + @Environment | 替换实现只需改 DependencyContainer，Feature 层不感知 |
+| Protocol-based DI + @Environment | 全部 Core service 经 `ServiceContainer` 注入（13 个属性，S-D4-001 起对齐）。Feature 层禁止直接 `.shared` 或默认 concrete init 获取服务 |
 | SwiftData 而非 Core Data | iOS 26+ 项目，原生 Swift 集成更好 |
 | DataExecutor actor | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599）；Repository 双 init（executor / modelContext）向后兼容 |
 | Repository 封装 ModelContext | 避免 View/ViewModel 直接操作数据库 |

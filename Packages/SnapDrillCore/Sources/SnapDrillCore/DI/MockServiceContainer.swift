@@ -25,15 +25,42 @@ public final class MockServiceContainer: ServiceContainer {
     public let appConfig: AppConfiguration
     public let privacyConsent: PrivacyConsentService
     public let notification: NotificationServiceProtocol
+    public let ocr: any OCRServiceProtocol
+    public let captureDraft: any CaptureDraftServiceProtocol
+    public let contentTagging: any ContentTaggingServiceProtocol
+    public let questionSplitting: any QuestionSplittingServiceProtocol
+    public let deletionScheduler: DeletionScheduler
+    public let proEntitlement: any ProEntitlementProvider
+    public let activityTracker: AppActivityTracker
+    public let reviewScheduler: ReviewScheduler
 
     // MARK: - Initialization
 
     /// 创建全 Mock 实现的服务容器，适用于单元测试和 SwiftUI Preview
-    public init() {
-        self.analytics = AnalyticsServiceMock()
+    public init(
+        analytics: AnalyticsServiceProtocol = AnalyticsServiceMock(),
+        notification: NotificationServiceProtocol = NotificationServiceMock(),
+        ocr: (any OCRServiceProtocol)? = nil,
+        captureDraft: (any CaptureDraftServiceProtocol)? = nil,
+        contentTagging: (any ContentTaggingServiceProtocol)? = nil,
+        questionSplitting: (any QuestionSplittingServiceProtocol)? = nil,
+        deletionScheduler: DeletionScheduler? = nil,
+        proEntitlement: (any ProEntitlementProvider)? = nil,
+        activityTracker: AppActivityTracker? = nil,
+        reviewScheduler: ReviewScheduler = ReviewScheduler()
+    ) {
+        self.analytics = analytics
         self.pdfExport = PDFExportService()
         self.appConfig = AppConfiguration()
         self.privacyConsent = PrivacyConsentService()
-        self.notification = NotificationServiceMock()
+        self.notification = notification
+        self.ocr = ocr ?? OCRServiceMock()
+        self.captureDraft = captureDraft ?? CaptureDraftServiceMock()
+        self.contentTagging = contentTagging ?? ContentTaggingServiceMock()
+        self.questionSplitting = questionSplitting ?? QuestionSplittingServiceMock()
+        self.deletionScheduler = deletionScheduler ?? DeletionScheduler()
+        self.proEntitlement = proEntitlement ?? MockProEntitlementProvider(isProUser: false)
+        self.activityTracker = activityTracker ?? AppActivityTracker()
+        self.reviewScheduler = reviewScheduler
     }
 }

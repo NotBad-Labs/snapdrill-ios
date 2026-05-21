@@ -25,22 +25,42 @@ public final class LiveServiceContainer: ServiceContainer {
     public let appConfig: AppConfiguration
     public let privacyConsent: PrivacyConsentService
     public let notification: NotificationServiceProtocol
+    public let ocr: any OCRServiceProtocol
+    public let captureDraft: any CaptureDraftServiceProtocol
+    public let contentTagging: any ContentTaggingServiceProtocol
+    public let questionSplitting: any QuestionSplittingServiceProtocol
+    public let deletionScheduler: DeletionScheduler
+    public let proEntitlement: any ProEntitlementProvider
+    public let activityTracker: AppActivityTracker
+    public let reviewScheduler: ReviewScheduler
 
     // MARK: - Initialization
 
     /// 创建生产服务容器
-    ///
-    /// - Parameters:
-    ///   - analytics: 分析服务实例（生产环境由 DependencyContainer 注入 FirebaseAnalyticsService）
-    ///   - notification: 通知服务实例（默认使用 Live 实现）
     public init(
         analytics: AnalyticsServiceProtocol? = nil,
-        notification: NotificationServiceProtocol? = nil
+        notification: NotificationServiceProtocol? = nil,
+        ocr: (any OCRServiceProtocol)? = nil,
+        captureDraft: (any CaptureDraftServiceProtocol)? = nil,
+        contentTagging: (any ContentTaggingServiceProtocol)? = nil,
+        questionSplitting: (any QuestionSplittingServiceProtocol)? = nil,
+        deletionScheduler: DeletionScheduler? = nil,
+        proEntitlement: (any ProEntitlementProvider)? = nil,
+        activityTracker: AppActivityTracker? = nil,
+        reviewScheduler: ReviewScheduler? = nil
     ) {
         self.appConfig = AppConfiguration()
         self.pdfExport = PDFExportService()
         self.privacyConsent = PrivacyConsentService()
         self.analytics = analytics ?? AnalyticsServiceMock()
         self.notification = notification ?? LiveNotificationService()
+        self.ocr = ocr ?? OCRService()
+        self.captureDraft = captureDraft ?? CaptureDraftService()
+        self.contentTagging = contentTagging ?? ContentTaggingService()
+        self.questionSplitting = questionSplitting ?? QuestionSplittingService()
+        self.deletionScheduler = deletionScheduler ?? DeletionScheduler()
+        self.proEntitlement = proEntitlement ?? DefaultProEntitlementProvider()
+        self.activityTracker = activityTracker ?? AppActivityTracker()
+        self.reviewScheduler = reviewScheduler ?? ReviewScheduler()
     }
 }

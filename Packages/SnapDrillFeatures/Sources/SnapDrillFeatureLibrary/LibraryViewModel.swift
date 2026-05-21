@@ -110,9 +110,9 @@ public final class LibraryViewModel {
     public var pendingDeletionCount: Int {
         deletionScheduler.pendingDeletionCount
     }
-    /// App 级删除调度器
+    /// App 级删除调度器（S-D4-001 起改为构造器注入，保留默认 .shared 仅作向后兼容）
     @ObservationIgnored
-    private let deletionScheduler = DeletionScheduler.shared
+    private let deletionScheduler: DeletionScheduler
     /// 撤销恢复时按批次暂存 items，避免连续删除时后批次覆盖前批次缓冲区
     @ObservationIgnored
     private var pendingDeletionItemBatches: [(ids: Set<UUID>, items: [ReviewItemModel])] = []
@@ -127,9 +127,15 @@ public final class LibraryViewModel {
     // MARK: - Initialization
 
     /// 创建题库列表 ViewModel
-    /// - Parameter repositories: 应用的数据仓库容器
-    public init(repositories: RepositoryContainer) {
+    /// - Parameters:
+    ///   - repositories: 应用的数据仓库容器
+    ///   - deletionScheduler: 删除调度器（S-D4-001 起从 ServiceContainer 注入；默认使用 .shared 兼容历史调用方）
+    public init(
+        repositories: RepositoryContainer,
+        deletionScheduler: DeletionScheduler? = nil
+    ) {
         self.repositories = repositories
+        self.deletionScheduler = deletionScheduler ?? DeletionScheduler.shared
     }
 
     // MARK: - Public API

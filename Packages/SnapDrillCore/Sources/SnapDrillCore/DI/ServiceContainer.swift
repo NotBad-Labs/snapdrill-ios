@@ -19,23 +19,23 @@ import Foundation
 ///
 /// ## 使用方式
 /// ```swift
-/// // 在 View 中通过 Environment 获取
 /// @Environment(\.services) private var services
-/// let analytics = services.analytics
+/// let ocr = services.ocr
 /// ```
 ///
 /// ## 行为保证
 /// - 每个属性在容器生命周期内返回同一实例（缓存语义，非每次新建）
 /// - 线程安全：`@MainActor` 隔离，所有属性访问均在主线程
-/// - `DependencyContainer`（组合根）是唯一的生产实现；`MockServiceContainer` 用于测试和 Preview
+/// - `LiveServiceContainer` 是生产实现；`MockServiceContainer` 用于测试和 Preview
 ///
-/// ## 生命周期
-/// - 容器随 App 启动创建，随 App 终止销毁
-/// - 容器持有的服务实例与容器同生命周期
-///
-/// ## 不保证
-/// - 属性的具体实现类型（调用方只应依赖协议或此处声明的具体类型）
+/// ## 新增 Core service 规则（S-D4-001 共识）
+/// 1. 若服务跨 Feature 使用、持有状态、依赖系统 API/AI/外部 SDK、或测试需要替换，必须进入 `ServiceContainer`
+/// 2. Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`，不得放入全局 `ServiceContainer`
+/// 3. 静态 facade（如 `TelemetryGate`）必须有架构豁免决策；不得直接从 Feature 层调用
 public protocol ServiceContainer: Sendable {
+
+    // MARK: - Analytics / 配置（既有 5）
+
     /// 分析服务（协议类型，生产环境为 Firebase 实现，测试为 Mock）
     var analytics: AnalyticsServiceProtocol { get }
 
@@ -50,4 +50,32 @@ public protocol ServiceContainer: Sendable {
 
     /// 通知服务（协议类型，生产环境为 UNUserNotificationCenter 实现，测试为 Mock）
     var notification: NotificationServiceProtocol { get }
+
+    // MARK: - Capture / AI（S-D4-001 新挂）
+
+    /// OCR 识别服务（actor，端上 Vision 实现，测试可替换为 Mock）
+    var ocr: any OCRServiceProtocol { get }
+
+    /// 草稿持久化服务（采集页意外退出恢复，跨 Dashboard/Capture 共享状态）
+    var captureDraft: any CaptureDraftServiceProtocol { get }
+
+    /// 端上 AI 自动标注服务（Apple Foundation Models）
+    var contentTagging: any ContentTaggingServiceProtocol { get }
+
+    /// 一图多题智能拆题服务（Apple Foundation Models，阻塞 #626 真机验证）
+    var questionSplitting: any QuestionSplittingServiceProtocol { get }
+
+    // MARK: - 业务调度 / 权益（S-D4-001 新挂）
+
+    /// 软删除 5 秒撤销窗口调度器（App 生命周期状态）
+    var deletionScheduler: DeletionScheduler { get }
+
+    /// Pro 订阅 entitlement 判定（阻塞 #479 StoreKit）
+    var proEntitlement: any ProEntitlementProvider { get }
+
+    /// Profile 切换保护 + 全局操作活动追踪（导出/备份/恢复期间禁止切 Profile）
+    var activityTracker: AppActivityTracker { get }
+
+    /// SM-2 复习调度策略（可替换以支持复习策略实验）
+    var reviewScheduler: ReviewScheduler { get }
 }

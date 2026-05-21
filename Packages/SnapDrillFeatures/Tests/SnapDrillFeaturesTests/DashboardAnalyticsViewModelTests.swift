@@ -64,7 +64,7 @@ final class DashboardAnalyticsViewModelTests {
 
     @Test("loadAnalytics 空数据库 — 所有统计为空")
     func loadAnalytics_empty() {
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
 
         #expect(vm.subjectTrend.isEmpty)
@@ -93,7 +93,7 @@ final class DashboardAnalyticsViewModelTests {
         for item in items { repos.review.insert(item) }
         try repos.review.saveContext()
 
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
 
         // swiftlint:disable empty_count
@@ -132,7 +132,7 @@ final class DashboardAnalyticsViewModelTests {
 
         try repos.review.saveContext()
 
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
 
         #expect(vm.weakSubjects.count == 3) // 化学被过滤（dueCount=0）
@@ -158,7 +158,7 @@ final class DashboardAnalyticsViewModelTests {
         }
         try repos.review.saveContext()
 
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
 
         #expect(vm.weakSubjects.count == 5)
@@ -180,7 +180,7 @@ final class DashboardAnalyticsViewModelTests {
         }
         try repos.review.saveContext()
 
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
 
         let uniqueSubjects = Set(vm.subjectTrend.map(\.subject))
@@ -198,7 +198,7 @@ final class DashboardAnalyticsViewModelTests {
         repos.review.insert(makeItem(subject: "数学"))
         try repos.review.saveContext()
 
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
 
         // 1 个学科 x 30 天 = 30 个数据点
@@ -226,7 +226,7 @@ final class DashboardAnalyticsViewModelTests {
         repos.review.insert(makeItem(subject: "数学"))
         try repos.review.saveContext()
 
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
 
         // 只有今天的那道题算入趋势
@@ -243,7 +243,7 @@ final class DashboardAnalyticsViewModelTests {
         repos.review.insert(makeItem(subject: "数学", createdAt: daysAgo(29)))
         try repos.review.saveContext()
 
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
 
         // 30 天前的数据被 recentItems 包含（since = startOfDay(now-30)），
@@ -261,7 +261,7 @@ final class DashboardAnalyticsViewModelTests {
         repos.review.insert(makeItem())
         try repos.review.saveContext()
 
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
 
         #expect(vm.hasData)
@@ -275,7 +275,7 @@ final class DashboardAnalyticsViewModelTests {
         repos.review.insert(makeItem())
         try repos.review.saveContext()
 
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
         #expect(vm.hasData)
 
@@ -290,7 +290,7 @@ final class DashboardAnalyticsViewModelTests {
 
     @Test("isProUser — 当前硬编码为 false")
     func isProUser_defaultFalse() {
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         #expect(!vm.isProUser)
         vm.cancelTasks()
     }
@@ -309,7 +309,7 @@ final class DashboardAnalyticsViewModelTests {
         repos.review.insert(makeItem(content: "英语1", subject: "英语", difficulty: 3, nextReviewAt: pastDue))
         try repos.review.saveContext()
 
-        let vm = DashboardAnalyticsViewModel(repositories: repos)
+        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
 
         // 难度分布

@@ -29,6 +29,7 @@ public enum AppActivity: Sendable, Hashable {
 /// `ProfileManager` 切换前通过 `canSwitchProfile` 检查。
 @Observable public final class AppActivityTracker {
 
+    @available(*, deprecated, message: "通过 @Environment(\\.services).activityTracker 注入，避免静态单例污染测试（S-D4-001）")
     public static let shared = AppActivityTracker()
 
     /// 当前进行中的活动集合
