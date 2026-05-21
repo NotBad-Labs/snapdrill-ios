@@ -102,7 +102,16 @@ def _make_fixture(repo: Path, fake_validator: bool = True) -> None:
     (repo / ".agents" / "skills" / "plugin" / "skills" / "payload").mkdir(parents=True)
     (repo / "Scripts").mkdir()
     (repo / "docs" / "memory" / "feedback.md").write_text(
-        "## F-001\nrule 1\n\n## F-002\nrule 2\n", encoding="utf-8"
+        "## 规则路由\n\n"
+        "| 编号 | 规则 | 权威源 | 触发方式 |\n"
+        "|---|---|---|---|\n"
+        "| F-001 | rule 1 | workflow | git |\n"
+        "| F-002 | rule 2 | workflow | audit |\n"
+        "\n## 退役记录\n\n"
+        "| 编号 | 退役日期 | 去向 |\n"
+        "|---|---|---|\n"
+        "| F-003 | 2026-01-01 | merged |\n",
+        encoding="utf-8",
     )
     (repo / ".claude" / "skills" / "claude-only" / "SKILL.md").write_text(
         "---\nname: claude-only\n---\n# Claude-only\n", encoding="utf-8"
@@ -408,6 +417,63 @@ class DocauditTestCase(unittest.TestCase):
         code, out, _ = self._run(["--policy", str(policy), "rule-usage"])
         self.assertEqual(code, 0, out)
         self.assertIn("clean", out)
+
+    def test_rule_usage_declares_active_table_rows_only(self) -> None:
+        # S-D7-001 fix：active 表格行被 declared / retired 表格行被排除
+        (self.repo / "docs" / "workflow.md").write_text(
+            "remember F-001 and F-002\n", encoding="utf-8"
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "rule-usage", "--verbose"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
+        # F-003 是 retired，不应进入 declared → 输出不应该提及它（无 dead_rule_candidate）
+        self.assertNotIn("F-003", out)
+
+    def test_rule_usage_supports_declaration_shapes(self) -> None:
+        # S-D7-001 fix：覆盖加粗标题 / 列表 / 行内反引号 / 边界 F-NNN
+        (self.repo / "docs" / "memory" / "feedback.md").write_text(
+            "## 规则路由\n\n"
+            "| **F-001** | bold table |\n"
+            "### **F-099** — heading bold\n"
+            "- F-999: list declaration\n"
+            "See `F-010` inline only.\n"
+            "| F-1234 | too long |\n"
+            "| F-1 | too short |\n"
+            "| F-FOO | not numeric |\n"
+            "\n## 退役记录\n\n"
+            "| F-020 | retired |\n",
+            encoding="utf-8",
+        )
+        (self.repo / "docs" / "workflow.md").write_text(
+            "F-001 F-099 F-999\n", encoding="utf-8"
+        )
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "rule-usage", "--verbose"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
+        # 反引号 reference site 不应被识别为 declared
+        self.assertNotIn("F-010", out)
+        # retired 段 F-020 不应进入 declared
+        self.assertNotIn("F-020", out)
+        # 非 F-rule（F-1 / F-1234 / F-FOO）不应进入 declared
+        self.assertNotIn("F-1234", out)
+
+    def test_rule_usage_retired_section_bilingual(self) -> None:
+        # S-D7-001 fix：中英文 Retired 标题双语支持
+        (self.repo / "docs" / "memory" / "feedback.md").write_text(
+            "## Active\n\n"
+            "| F-001 | active |\n"
+            "\n## Retired\n\n"
+            "| F-099 | retired |\n",
+            encoding="utf-8",
+        )
+        (self.repo / "docs" / "workflow.md").write_text("F-001\n", encoding="utf-8")
+        policy = _write_policy(self.tmp)
+        code, out, _ = self._run(["--policy", str(policy), "rule-usage", "--verbose"])
+        self.assertEqual(code, 0, out)
+        self.assertIn("clean", out)
+        self.assertNotIn("F-099", out)
 
     # ---------- skill-inventory ----------
 

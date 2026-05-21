@@ -12,7 +12,7 @@ freshness:
 - **当前主力**：Claude Opus 4.7（Claude Code CLI）
 - **辅审**：Codex CLI + Gemini CLI + DeepSeek V4-Pro
 - **主分支**：`develop`
-- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`，Gemini 3 Pro Preview FULL PASS）；**🎉 Phase 10 语义层七维度全部收官**（2026-05-21，ADR-005 状态「提议」→「已决策」，ADR-004 backlog 第一条勾 ✅✅）。共识报告 [dim1-dim7](../audits/) + 语义 ledger 含 **86 OPEN finding**。**进入「集中入 PR 修复」阶段**。Phase 11+ 启用 git worktree 物理隔离 + 净化提示词为标准（详见 ADR-005 §Phase 10 全局收官 + dim7-consensus.md §Worktree 工作流）。
+- **状态**：文档体系深度清洁 Phase 0-9 **结构层**收官（2026-05-20，共识基线 `4883d6b6`）；**🎉 Phase 10 语义层七维度全部收官**（2026-05-21）；**🛠️ Phase 11 worktree 首战 S-D7-001 收尾**（2026-05-21，三家物理隔离对抗 + 融合 fix apply，OPEN 86 → 83，S-D5-013/S-D7-010 闭环）。共识报告 [dim1-dim7](../audits/) + [S-D7-001-fix-consensus.md](../audits/S-D7-001-fix-consensus.md) + 语义 ledger 含 **83 OPEN finding**。**进入「P2-P5 finding 修复」阶段**。Phase 11+ worktree 物理隔离已为正式标准（[worktree-audit-workflow](../standards/worktree-audit-workflow.md)）。
 
 ## 进行中：文档体系深度清洁
 
@@ -44,14 +44,14 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 
 ## 下一会话方向
 
-- **A.（主推）Phase 10 收官后启动「86 OPEN finding 集中入 PR 修复」阶段**。优先级（按 ADR-005 §Phase 10 全局收官段）：
-  1. **维度 7 S-D7-001** docaudit.py:593 rule-usage check 工具 bug 修复 → 重跑 → 推翻/确认 S-D5-013
-  2. **维度 7 S-D7-002** F-005 PR review 留痕 hook 强化
-  3. **维度 7 S-D7-003** F-018 sprint contract 机械拦截
+- **A.（主推）83 OPEN finding 修复继续**：
+  1. ~~维度 7 S-D7-001 docaudit.py 工具 bug~~ ✅ 2026-05-21 Phase 11 worktree 三方对抗修复 + S-D5-013/S-D7-010 闭环
+  2. **维度 7 S-D7-002** F-005 PR review 留痕 hook 强化（建议走 worktree 三方设计）
+  3. **维度 7 S-D7-003** F-018 sprint contract 机械拦截（建议走 worktree 三方设计）
   4. **维度 1 S-D1-001/002/003** 字段配置链 + CSV 架构 + Dynamic Type 混淆
-  5. **维度 4 S-D4-001/002/003** DI 退化 + 通知物理覆盖 + badge 三层背离
+  5. **维度 4 S-D4-001/002/003** DI 退化 + 通知物理覆盖 + badge 三层背离（**真生产 bug，建议走 worktree 三方**）
   6. 剩余 LOW/INFO 作为语义卫生 backlog 渐进处理
-- **B. Phase 11+ 启用 git worktree 物理隔离 + 净化提示词**（控制变量法实战教训沉淀）
+- **B. Phase 11+ worktree 工作流已正式启用** — [worktree-audit-workflow](../standards/worktree-audit-workflow.md) SSOT 落地
 - C. Apple 账号缴费 → 解锁 #163 链（与 finding 修复可并行）
 - D. #626 真机验证（与 finding 修复可并行）
 - B. Apple 账号缴费 → 解锁 #163 链（用户控制，与 Phase 10 不冲突可并行）

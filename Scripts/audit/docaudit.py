@@ -130,6 +130,26 @@ HOME_CLAUDE_RE = re.compile(r"~/\.claude/[A-Za-z0-9_\-./]*")
 # F-NNN 规则 ID
 F_RULE_RE = re.compile(r"\bF-(\d{3})\b")
 
+# rule-usage check 用：docs/memory/feedback.md 中的 F-rule declaration site
+# 同时支持: ### F-NNN 标题 / | F-NNN | 表格行 / - F-NNN: 列表项
+# 兼容前缀加粗 **F-NNN** 与反引号 `F-NNN`
+# 行首 ^ 锚 + (?!\d) 防御确保不误吃 F-1234 或行内 reference site
+# 已知盲区（feedback.md SSOT 结构变更时重审本正则）:
+#   1. 退役记录标题改名（非「退役」/「Retired」前缀）
+#   2. retired 段中间夹 active 段（状态机单向不退出）
+#   3. F-NNNN 四位编号（编号规则升级时）
+#   4. blockquote / HTML 注释包裹声明
+#   5. 跨多行折断声明 / 表格编号列移位 / list 改用 * 或数字列表
+F_RULE_DECL_RE = re.compile(r"""
+    ^\s*(?:
+        \|\s*`?(?:\*\*)?F-(\d{3})(?!\d)(?:\*\*)?`?\s*\|        # 表格首列声明
+      | \#{1,6}\s+`?(?:\*\*)?F-(\d{3})(?!\d)(?:\*\*)?`?\b      # 标题声明
+      | [-*+]\s+`?(?:\*\*)?F-(\d{3})(?!\d)(?:\*\*)?`?\s*[:：-] # 列表声明（含冒号变体）
+    )
+""", re.VERBOSE)
+# 退役段标题识别（中英文双语，IGNORECASE）
+F_RULE_RETIRED_HEADING_RE = re.compile(r"^#{1,4}\s+(?:退役|Retired)", re.IGNORECASE)
+
 # docs/standards/skill-architecture.md inventory table rows
 SKILL_ARCH_COUNT_RE = re.compile(r"^\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|", re.MULTILINE)
 SKILL_ADAPTER_TARGET_RE = re.compile(r"((?:\.\./)+\.agents/skills/([A-Za-z0-9_-]+)/SKILL\.md)")
@@ -589,10 +609,16 @@ def check_rule_usage(policy: dict) -> CheckResult:
         return result
     fb_text = feedback.read_text(encoding="utf-8")
     declared = set()
+    in_retired_section = False
     for line in fb_text.splitlines():
-        m = re.match(r"^#{1,4}\s+F-(\d{3})\b", line)
+        if F_RULE_RETIRED_HEADING_RE.match(line):
+            in_retired_section = True
+            continue
+        if in_retired_section:
+            continue
+        m = F_RULE_DECL_RE.match(line)
         if m:
-            declared.add(m.group(1))
+            declared.add(next(g for g in m.groups() if g))
 
     counts: dict[str, int] = {d: 0 for d in declared}
     for path in _iter_text_files(policy, extensions=(".md", ".sh", ".py", ".yaml", ".yml")):

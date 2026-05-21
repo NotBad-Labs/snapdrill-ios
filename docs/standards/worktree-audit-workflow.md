@@ -130,6 +130,8 @@ git branch -D audit/codex-<task-slug> audit/antigravity-<task-slug>  # 可选保
 
 - [ADR-005](../decisions/ADR-005-doc-semantic-layer-audit.md) §Phase 10 全局收官 / 控制变量法实战教训
 - [S-D7-001 任务定义书](../audits/S-D7-001-fix-task-definition.md) Phase 11 首个 worktree 实战任务
+- [S-D7-001 三方修复 consensus](../audits/S-D7-001-fix-consensus.md) 首战收尾报告（含三家产出对比 + 评分矩阵 + 工作流自评）
+- 三家原始产出：[claude](../audits/S-D7-001-claude.md) · [codex](../audits/S-D7-001-codex.md) · [antigravity](../audits/S-D7-001-antigravity.md)
 - [[semantic-audit-dim7-consensus]] §Worktree 工作流 + §控制变量法污染反思
 - [[single-vendor-audit-prompt-template]] 净化版提示词模板（Phase 11+ 适用）
 - [[F-008]] 「相同完整任务、不分工」纪律
