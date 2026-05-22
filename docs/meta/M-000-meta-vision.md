@@ -2,7 +2,7 @@
 last_verified: 2026-05-22
 layer: principle
 scope: meta-of-meta
-version: 1.1
+version: 1.2
 status: active
 ratification: ratified
 freshness:
@@ -14,7 +14,7 @@ freshness:
 
 > 智能体协作的最高宪法，与产品 vision 平级。
 > 本文档规定协作的最高原则 + 少量不可下沉的硬约束；具体动作下沉 M-001~M-006。
-> 正文≤2000字（不含 frontmatter、§8 表格、changelog）。
+> 正文≤2500 non-whitespace chars（不含 frontmatter、§8 表格；代码块独立≤400）。
 
 ## §1 核心命题与定位
 
@@ -44,7 +44,11 @@ M-000 是元规则的元规则：规定规则系统如何保持可靠、可演�
 
 ## §5 元规则的元规则
 
-智能体有提案权，用户有批准权。M-000 正文（不含 frontmatter、§8 指针表格、changelog 等元数据）字数硬上限 2000 字。新增条款必须证明无法下沉到 M-001~M-006 或 skill。不强制一进一出，允许新情况进入，但总量由硬上限自然约束。M-001~M-006 采用触发场景、4 周试用期和周期精简；长尾经验进入按需加载技能。M-001~M-006 实质性修订（非笔误、格式、引用更新）须经用户批准，与 M-000 修订流程一致。即使无外部冲击，M-000 每 12 个月强制 review 一次，与 `max_age_days` 联动。用户裁决写入 `docs/meta/user-decision-log.md`，append-only，字段为时间、冲突、裁决、理由、是否触发元规则修订。新裁决与历史裁决冲突时，必须显式声明对历史决策的 Overrule 关系，否则无效。
+智能体有提案权，用户有批准权。M-000 主文档正文（不含 frontmatter、§8 指针表格）字数硬上限：主体 ≤2500 non-whitespace chars，不计空白和换行；代码块单独预算 ≤400 non-whitespace chars，且元规则文档原则上不应包含具体代码；未来英文译本使用独立乘数，约 4000 non-whitespace chars，以应对中英文信息密度差。
+
+新增条款必须证明无法下沉到 M-001~M-006 或 skill。不强制一进一出，允许新情况进入，但总量由硬上限自然约束。M-001~M-006 采用触发场景、4 周试用期和周期精简；长尾经验进入按需加载技能。
+
+M-001~M-006 实质性修订（非笔误、格式、引用更新）须经用户批准，与 M-000 修订流程一致。即使无外部冲击，M-000 每 12 个月强制 review 一次，与 `max_age_days` 联动。用户裁决写入 `docs/meta/user-decision-log.md`，append-only，字段为时间、冲突、裁决、理由、是否触发元规则修订。新裁决与历史裁决冲突时，必须显式声明对历史决策的 Overrule 关系，否则无效。
 
 ## §6 与产品 vision 关系
 
