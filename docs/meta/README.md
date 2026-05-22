@@ -38,6 +38,7 @@ freshness:
 | [M-000-round3-review-claude-desktop-code.md](./M-000-round3-review-claude-desktop-code.md) | Claude Desktop Code (Opus 4.7 同源) |
 | [M-000-round3-review-deepseek.md](./M-000-round3-review-deepseek.md) | DeepSeek V4-Pro (zero-context API) |
 | [M-000-round3-analysis.md](./M-000-round3-analysis.md) | Round 3 收敛分析（中立主笔 Claude CLI） |
+| [M-000-字数定义-multi-agent-裁决.md](./M-000-字数定义-multi-agent-裁决.md) | v1.1 后字数计量单位多家裁决（DeepSeek C / Codex B / Gemini 3.5 Flash GA B / 3:1 B） |
 
 ## 历史草案
 
