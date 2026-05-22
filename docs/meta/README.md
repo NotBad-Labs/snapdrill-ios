@@ -28,6 +28,7 @@ freshness:
 | Final 主笔 | [M-000-final-prompt.md](./M-000-final-prompt.md) | 已收敛决策 + 异源主笔起草任务包 |
 | Round 3 入口 | [M-000-round3-review-prompt.md](./M-000-round3-review-prompt.md) | v1.0 定稿后三方独立 review |
 | v1.1 修订 | [M-000-v1.1-prompt.md](./M-000-v1.1-prompt.md) | round 3 用户 24 项裁决落实任务包 |
+| v1.2 微调 | [M-000-v1.2-prompt.md](./M-000-v1.2-prompt.md) | 字数定义 B+ 精化（user-decision-log #003） |
 
 ## Round 3 Review 产物（v1.0 已发布后的独立 review）
 
