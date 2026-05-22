@@ -1,6 +1,8 @@
 ---
 last_verified: 2026-05-22
-layer: pattern
+layer: archive
+archived_date: 2026-05-22
+superseded_by: docs/meta/M-000-meta-vision.md
 scope: meta
 round: 4-signoff
 author: Codex (GPT-5 Thinking, model_reasoning_effort=high)

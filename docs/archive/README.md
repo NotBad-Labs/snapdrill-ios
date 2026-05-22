@@ -36,7 +36,7 @@ layer: pattern
 | `CODEX_HANDOFF-20260518.md` | 2026-05-19（Phase 5 finding G） | 根级 `CODEX_HANDOFF.md` | 5/18 Codex 接手任务 P1-1~P1-6 全部已闭环 |
 | `ZERO_TRUST_AUDIT_20260513.md` | 2026-05-19（Phase 5 finding J） | `reports/` | 5/13 零信任代码审计完整报告，Step 1-8 已完成 |
 | `_claude__skills__phase-closeout__SKILL_md__*.md` | 2026-05-19（Phase 5 finding I） | `.agent-harness/proposals/` | Phase E PR-E2 自动生成的反哺 proposal 草稿，TODO 占位 27 天未推进 |
-| `research/M-000-meta-vision-roundtrip-20260521/` | 2026-05-21 | `docs/meta/` | M-000 Meta-Vision v1.0 起草过程材料（4 份 round 1 草案 + 4 份 round 2 草案 + 2 份 cross-analysis），结论已固化到 `docs/meta/M-000-meta-vision.md` |
+| `research/M-000-meta-vision/` | 2026-05-21 ~ 2026-05-22（用户裁决 #005 重命名去日期） | `docs/meta/` | M-000 Meta-Vision v1.0~v1.2 完整起草过程材料：round 1 四家草案 + round 2 四家收敛 + round 3 四家 review + sign-off 三家 + 字数定义裁决 + v1.1/v1.2 一次性任务包；结论已固化到 `docs/meta/M-000-meta-vision.md` |
 
 ## 与 `~/.claude/plans/` 的区别
 
