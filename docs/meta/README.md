@@ -40,6 +40,10 @@ freshness:
 | [M-000-round3-review-deepseek.md](./M-000-round3-review-deepseek.md) | DeepSeek V4-Pro (zero-context API) |
 | [M-000-round3-analysis.md](./M-000-round3-analysis.md) | Round 3 收敛分析（中立主笔 Claude CLI） |
 | [M-000-字数定义-multi-agent-裁决.md](./M-000-字数定义-multi-agent-裁决.md) | v1.1 后字数计量单位多家裁决（DeepSeek C / Codex B / Gemini 3.5 Flash GA B / 3:1 B） |
+| [M-000-signoff-codex.md](./M-000-signoff-codex.md) | 4-way sign-off Codex GPT-5 (high reasoning) ✅ Ratify |
+| [M-000-signoff-deepseek.md](./M-000-signoff-deepseek.md) | 4-way sign-off DeepSeek reasoner ✅ Ratify (含身份误识别样本) |
+| [M-000-signoff-gemini.md](./M-000-signoff-gemini.md) | 4-way sign-off Gemini 3.5 Flash GA (thinking) ✅ Ratify (含身份误识别样本) |
+| [M-001-to-M-006-followup-backlog.md](./M-001-to-M-006-followup-backlog.md) | 10 条 Minor Concerns 归并到下游派生起草 backlog |
 
 ## 历史草案
 
