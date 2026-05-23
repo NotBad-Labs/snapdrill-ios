@@ -145,4 +145,4 @@ fi
 
 ## 与 workflow 处置协议的关系
 
-`docs/workflow.md` § 文档审计已定义处置协议（合并前必须通过 `docaudit all --strict --baseline`，error 必须修复或走 `Scripts/audit/policy.yaml` legacy_whitelist 豁免，完整细节见 `Scripts/audit/README.md`）。本 skill 的产出 plan 是处置协议的**输入**（人读后决定如何闭环），不是自动化执行器。
+`docs/protocol.md` § 文档审计已定义处置协议（合并前必须通过 `docaudit all --strict --baseline`，error 必须修复或走 `Scripts/audit/policy.yaml` legacy_whitelist 豁免，完整细节见 `Scripts/audit/README.md`）。本 skill 的产出 plan 是处置协议的**输入**（人读后决定如何闭环），不是自动化执行器。

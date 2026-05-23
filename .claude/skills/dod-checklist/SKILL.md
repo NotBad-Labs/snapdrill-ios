@@ -25,7 +25,7 @@ user-invocable: true
 
 ## 检查项
 
-> 权威源：`docs/workflow.md` § Definition of Done。本 skill 为执行器。
+> 权威源：`docs/protocol.md` § Definition of Done。本 skill 为执行器。
 
 ### 代码质量（所有 PR）
 
@@ -82,6 +82,6 @@ user-invocable: true
 
 ## 上游文档
 
-- `docs/workflow.md` § Definition of Done — 完整 DoD 权威定义
+- `docs/protocol.md` § Definition of Done — 完整 DoD 权威定义
 - `docs/standards/engineering.md` — 7 条工程原则
 - `docs/standards/execution-gates.md` — 执行门禁总表

@@ -11,9 +11,9 @@ layer: pattern
 
 | 编号 | 规则 | 权威源 | 触发方式 |
 |---|---|---|---|
-| F-001 | Git 工作流纪律 | `docs/workflow.md` § Git 工作流 | 所有 git 操作 |
+| F-001 | Git 工作流纪律 | `docs/protocol.md` § Git 工作流 | 所有 git 操作 |
 | F-004 | 内测不做 Schema 迁移 | 本文件（policy 标签，timeboxed，见下方"政策标签"段） | Model 文件变更时 |
-| F-005 | 对抗性审查 | `docs/workflow.md` § Code Review | PR 提交/合并时 |
+| F-005 | 对抗性审查 | `docs/protocol.md` § Code Review | PR 提交/合并时 |
 | F-006 | 审计深度验证 | `verify-audit-report` skill | 收到审计报告时 |
 | F-007 | CI 双时点门禁 | `post-merge` skill + hooks | PR 合并时 |
 | F-008 | 三方相同完整任务 | `cross-audit` skill | 审计启动时 |
@@ -64,6 +64,6 @@ layer: pattern
 | F-002 | 2026-05-19 | 字面悬空、无 skill/PR 引用；事实上由 `docs/standards/engineering.md` 原则 2 + `docs/KNOWLEDGE_MAP.md` 路由覆盖，编号无独立价值 |
 | F-003 | 2026-04-22 | 合并入 DOC_DEPENDENCY_MAP.md |
 | F-009 | 2026-04-22 | 合并入 review-prompt-guide.md |
-| F-010 | 2026-04-22 | 合并入 workflow.md |
+| F-010 | 2026-04-22 | 合并入 protocol.md |
 | F-015 | 2026-04-22 | 合并入 F-007 |
 | F-020 | 2026-04-21 | 合并入 F-005 |

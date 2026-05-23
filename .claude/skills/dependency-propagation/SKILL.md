@@ -120,4 +120,4 @@ grep -r "旧API名" Packages/ --include="*.swift" -l
 
 - `docs/DOC_DEPENDENCY_MAP.md` — 完整依赖图
 - `docs/KNOWLEDGE_MAP.md` — 知识分层索引
-- `docs/workflow.md` §决策变更收尾 — 传播闭环流程
+- `docs/protocol.md` §决策变更收尾 — 传播闭环流程

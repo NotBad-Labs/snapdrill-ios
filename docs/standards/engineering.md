@@ -149,7 +149,7 @@ layer: principle
 `F-XXX` 编号可在以下文档中出现，**引用必须可追溯到 feedback.md 索引，并进一步指向对应 skill / rule 权威定义**：
 
 - `decisions.md` — 决策记录引用约束来源
-- `workflow.md` — DoD / Review 流程引用
+- `protocol.md` — DoD / Review 流程引用
 - `handoff.md` — 接手时引用关键纪律
 - `.claude/skills/*/SKILL.md` — 自动化执行某 F-XXX
 - 各 `agent-delegation.md` — 委派 prompt 引用纪律
@@ -170,7 +170,7 @@ layer: principle
 | `../tech/architecture.md` | 当前架构实现（包结构、DI、模块边界） |
 | `../tech/non-functional-requirements.md` | 性能预算、内存约束、启动时间 |
 | `../tech/compliance.md` | 隐私合规（原则 3 的合规例外、YAGNI 的审核约束） |
-| `../workflow.md` | 协作流程（原则如何落到 Issue、Scope、DoD、Review） |
+| `../protocol.md` | 协作流程（原则如何落到 Issue、Scope、DoD、Review） |
 | `../product/product-vision.md` | 产品定位（原则 3 的"用户需要"判断依据） |
 | `../product/product-journeys.md` | 用户旅程（原则 3 的场景验证） |
 | `../KNOWLEDGE_MAP.md` | 知识分层索引 |

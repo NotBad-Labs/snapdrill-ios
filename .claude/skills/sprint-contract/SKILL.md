@@ -218,5 +218,5 @@ python3 Scripts/audit/sprint_contract_gate.py --file-path Packages/Foo.swift
 
 ## 关联参考
 
-- `docs/workflow.md` §编码前契约
+- `docs/protocol.md` §编码前契约
 - `.github/ISSUE_TEMPLATE/feature_request.md` — Sprint Contract 模板源

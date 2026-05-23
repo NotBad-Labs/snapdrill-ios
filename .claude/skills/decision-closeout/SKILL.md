@@ -19,7 +19,7 @@ user-invocable: true
 
 产品决策变更不是改完文档就完了。必须沿依赖链传播，确保所有下游文档与决策一致。
 
-> 权威源：`docs/workflow.md` § 决策变更收尾。本 skill 为执行器。
+> 权威源：`docs/protocol.md` § 决策变更收尾。本 skill 为执行器。
 
 ## 触发场景
 
@@ -88,6 +88,6 @@ gh issue close <number> --comment "决策已落地：<简述>"
 
 ## 上游文档
 
-- `docs/workflow.md` § 决策变更收尾 — 完整 5 步流程权威定义
+- `docs/protocol.md` § 决策变更收尾 — 完整 5 步流程权威定义
 - `docs/DOC_DEPENDENCY_MAP.md` — 变更传播规则
 - `dependency-propagation` skill（`.claude/skills/dependency-propagation/`）— 文档下游同步执行器

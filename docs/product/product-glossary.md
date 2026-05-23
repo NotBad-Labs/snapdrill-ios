@@ -5,7 +5,7 @@ layer: pattern
 # SnapDrill 术语表
 
 > 产品术语参考表。新增或修改术语时在本文件更新后同步下游文档。
-> PR Review 时通过 DoD checklist 检查术语一致性（见 `../workflow.md`§DoD）。
+> PR Review 时通过 DoD checklist 检查术语一致性（见 `../protocol.md`§DoD）。
 
 ---
 
@@ -66,7 +66,7 @@ layer: pattern
 |---|---|---|---|
 | **PoC** | Proof of Concept | 功能正式纳入前的验证阶段，需满足预定义的 Go/No-Go 条件 | — |
 | **S0-S3** | Severity Level | 缺陷严重度分级：S0 数据不可逆丢失 > S1 流程阻断 > S2 有摩擦 > S3 不紧急 | — |
-| **DoD** | Definition of Done | PR 合并前检查清单（lint/build/review/文档同步），定义在 `../workflow.md` | — |
+| **DoD** | Definition of Done | PR 合并前检查清单（lint/build/review/文档同步），定义在 `../protocol.md` | — |
 
 ---
 

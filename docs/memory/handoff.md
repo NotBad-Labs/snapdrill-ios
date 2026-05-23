@@ -67,7 +67,7 @@ Plan 在 Claude 私有空间（slug: virtual-jingling-raccoon，5 Phase 6-11 小
 | 序号 | 文件 | 为什么读 |
 |---|---|---|
 | 1 | `STATUS.md` | 项目状态快照 |
-| 2 | `docs/workflow.md` | 流程规范、DoD |
+| 2 | `docs/protocol.md` | 流程规范、DoD |
 | 3 | `docs/standards/coding.md` | 编码规范 |
 | 4 | `docs/standards/testing.md` | 测试规则 |
 | 5 | `docs/tech/api-pitfalls.md` | 已知 API 陷阱 |

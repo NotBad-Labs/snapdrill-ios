@@ -11,9 +11,9 @@ layer: pattern
 
 | 门禁 | 触发点 | 执行器 | 失败语义 | 上游文档 | Owner |
 |---|---|---|---|---|---|
-| Docs Audit | PR → develop/main, push → develop/main | `.github/workflows/ci.yml` → `docaudit all --strict --baseline` | 阻断合并（error 级） | `docs/workflow.md` §文档审计, `Scripts/audit/README.md` | docaudit policy |
-| Build & Test | PR → develop/main, push → develop/main | `.github/workflows/ci.yml` → `xcodebuild build-for-testing + test-without-building` | 阻断合并 | `docs/workflow.md` DoD, `docs/tech/deployment.md` | CI runner |
-| SwiftLint | CI build job step | `swiftlint --strict` | 阻断合并 | `docs/workflow.md:70`（原则 4）, `docs/standards/coding.md` | `.swiftlint.yml` |
+| Docs Audit | PR → develop/main, push → develop/main | `.github/workflows/ci.yml` → `docaudit all --strict --baseline` | 阻断合并（error 级） | `docs/protocol.md` §文档审计, `Scripts/audit/README.md` | docaudit policy |
+| Build & Test | PR → develop/main, push → develop/main | `.github/workflows/ci.yml` → `xcodebuild build-for-testing + test-without-building` | 阻断合并 | `docs/protocol.md` DoD, `docs/tech/deployment.md` | CI runner |
+| SwiftLint | CI build job step | `swiftlint --strict` | 阻断合并 | `docs/protocol.md:70`（原则 4）, `docs/standards/coding.md` | `.swiftlint.yml` |
 | pre-push hook | 本地 git push 时 | `.git/hooks/pre-push`（template `Scripts/hooks/pre-push`） | 阻断直推 develop/main，除非 `ALLOW_DIRECT_PUSH=1` 或走 PR 路径 | `docs/memory/feedback.md` F-001 | 本地用户安装 |
 | swift-autolint hook（PostToolUse）| Claude Edit/Write Swift 文件后 | `.claude/hooks/swift-autolint.sh` → `swiftlint --strict` | 行级违规阻断工具调用回流 | `docs/standards/coding.md`, `.swiftlint.yml` | hook 配置 |
 | dangerous-bash hook（PreToolUse）| Claude Bash 调用前 | `.claude/hooks/block-dangerous-bash.sh` Python classifier | `exit 2` 阻断已知不可逆命令 | `docs/standards/permission-model.md` §2 | hook 配置 |
@@ -23,7 +23,7 @@ layer: pattern
 
 | 子命令 | 级别 | 检查什么 | 为什么存在 | 上游文档 | 豁免方式 |
 |---|---|---|---|---|---|
-| `links` | error | Markdown 内部引用指向不存在的文件 | 文档间引用断链导致信息不可达 | `docs/DOC_DEPENDENCY_MAP.md:28`（文档→代码锚点）, `docs/workflow.md:167` | 无豁免（error 级必须修复） |
+| `links` | error | Markdown 内部引用指向不存在的文件 | 文档间引用断链导致信息不可达 | `docs/DOC_DEPENDENCY_MAP.md:28`（文档→代码锚点）, `docs/protocol.md:167` | 无豁免（error 级必须修复） |
 | `archived-refs` | error | 对已归档研究的旧路径硬引用 | 旧路径误导新维护者，归档文件只能通过新路径叙述性引用 | `docs/archive/README.md:21-24`, `docs/DOC_DEPENDENCY_MAP.md` 传播规则 | `policy.yaml` legacy_whitelist（过渡期） |
 | `orphans` | warning | docs/**/*.md 在全仓零引用 | 孤儿文档无人维护，内容可能严重过时 | `docs/standards/memory-routing.md`（反模式：信息无归属）, `docs/KNOWLEDGE_MAP.md` 索引职责 | `policy.yaml` orphans.whitelist（产品文档/归档/索引自身豁免） |
 | `home-path-refs` | warning | 仓库内对 `~/.claude/` 私有路径的硬编码 | 私有路径其他智能体（Codex/Gemini）读不到，产生单点依赖 | `docs/standards/memory-routing.md:38-44`（公开 vs 私有分离原则） | `policy.yaml` allowed_contexts + legacy_whitelist |
@@ -38,7 +38,7 @@ layer: pattern
 
 | 规则族 | 代表规则 | 为什么存在 | 上游文档 |
 |---|---|---|---|
-| Safety | `force_unwrapping: error`, `force_cast: warning` | 编译期不能拦的运行时崩溃 | `docs/workflow.md:70`（原则 4：编译器能拦的不留到运行时） |
+| Safety | `force_unwrapping: error`, `force_cast: warning` | 编译期不能拦的运行时崩溃 | `docs/protocol.md:70`（原则 4：编译器能拦的不留到运行时） |
 | Complexity | `file_length`, `function_body_length`, `cyclomatic_complexity`, `nesting` | 单文件/函数过大导致认知负担和合并冲突 | `docs/standards/coding.md:77-78`（file_length 600 硬限）, `docs/standards/engineering.md` 原则 2（删掉比添加好） |
 | Structure | `type_body_length` | 类型职责过重 | `docs/standards/coding.md:70-77`（单文件单主类型） |
 | Style | `empty_count`, `first_where`, `redundant_nil_coalescing`, `operator_usage_whitespace`, `switch_case_alignment` | 代码风格一致性 | `docs/standards/coding.md`, `docs/standards/collaboration.md:66`（反复出现→提升为自动化门禁） |
@@ -49,15 +49,15 @@ layer: pattern
 | Hook | 事件 | 职责 | 级别 | 上游文档 |
 |---|---|---|---|---|
 | `block-dangerous-bash.sh` | PreToolUse Bash | 拦截 `rm -rf /`, `git push --force`, `git reset --hard` 等危险命令 | **T3 守门** | `docs/standards/permission-model.md` §2 |
-| `swift-autolint.sh` | PostToolUse Edit/Write | 改 `.swift` 后即时 lint | T2 校验 | `docs/workflow.md:70`, `docs/standards/coding.md` |
-| `docaudit-on-doc-edit.sh` | PostToolUse Edit/Write | 改 docs `.md` 后即时 `docaudit links` | T2 校验 | `docs/workflow.md:167`, `docs/DOC_DEPENDENCY_MAP.md` |
-| `prepush-lint.sh` | PreToolUse Bash (`git push`) | push 前全仓 swiftlint | T2 合并门禁 | `docs/workflow.md:70` |
-| `premerge-checklist.sh` | PreToolUse Bash (`gh pr merge`) | merge 前检查 STATUS.md 近 24h 更新 | T2 合并门禁 | `docs/workflow.md` DoD |
-| `docaudit-preflight.sh` | PreToolUse Bash (`git push`/`gh pr merge`/`commit --amend`) | 关键 git 操作前跑 `docaudit all --strict --baseline` | T2 合并门禁 | `docs/workflow.md:167` |
+| `swift-autolint.sh` | PostToolUse Edit/Write | 改 `.swift` 后即时 lint | T2 校验 | `docs/protocol.md:70`, `docs/standards/coding.md` |
+| `docaudit-on-doc-edit.sh` | PostToolUse Edit/Write | 改 docs `.md` 后即时 `docaudit links` | T2 校验 | `docs/protocol.md:167`, `docs/DOC_DEPENDENCY_MAP.md` |
+| `prepush-lint.sh` | PreToolUse Bash (`git push`) | push 前全仓 swiftlint | T2 合并门禁 | `docs/protocol.md:70` |
+| `premerge-checklist.sh` | PreToolUse Bash (`gh pr merge`) | merge 前检查 STATUS.md 近 24h 更新 | T2 合并门禁 | `docs/protocol.md` DoD |
+| `docaudit-preflight.sh` | PreToolUse Bash (`git push`/`gh pr merge`/`commit --amend`) | 关键 git 操作前跑 `docaudit all --strict --baseline` | T2 合并门禁 | `docs/protocol.md:167` |
 | `post-merge-checkpoint.sh` | PostToolUse Bash (`gh pr merge`) | merge 后提示反模式扫描 | T2 观察 | `docs/memory/feedback.md` F-019, `docs/standards/harness-recall.md` |
 | `log-file-change.sh` | PostToolUse Edit/Write | 记录改动文件到 session-log | T1 观察 | `docs/standards/permission-model.md` §3 |
 | `session-metrics.sh` | PostToolUse `.*` | 记录所有 tool call 时间戳 | T1 观察 | `docs/standards/permission-model.md` §3 |
-| `long-session-guard.sh` | PreToolUse Bash | 会话 > 60 min 提示 compact | T1 观察 | `docs/workflow.md`（WIP 约束） |
+| `long-session-guard.sh` | PreToolUse Bash | 会话 > 60 min 提示 compact | T1 观察 | `docs/protocol.md`（WIP 约束） |
 | `compact-reminder.md` | SessionStart (`compact`) | 压缩后重载上下文提示 | T1 | `docs/standards/permission-model.md` §3 |
 
 ## 5. Skill 执行门禁
@@ -66,20 +66,20 @@ layer: pattern
 
 | Skill | 触发时机 | 强制执行什么 | 上游文档 |
 |---|---|---|---|
-| `sprint-contract` | Issue 进入 Building | F-018 编码前契约（Touches/No-Touch/Interface Delta/Test Additions/DoD） | `docs/workflow.md` §编码前契约, F-013, F-014 |
+| `sprint-contract` | Issue 进入 Building | F-018 编码前契约（Touches/No-Touch/Interface Delta/Test Additions/DoD） | `docs/protocol.md` §编码前契约, F-013, F-014 |
 | `cross-audit` | 审计启动/PR 合并前 | F-008 三方相同任务 + F-011 审计只读 + F-016 质疑方批准 | `docs/standards/collaboration.md`, F-005 |
 | `verify-audit-report` | 收到审计报告后 | F-006 深度验证 + F-012 全量做 | `docs/standards/collaboration.md` |
-| `post-merge` | PR 合并后 | F-007 CI 双时点 + F-019 反模式回流 | `docs/workflow.md` DoD |
+| `post-merge` | PR 合并后 | F-007 CI 双时点 + F-019 反模式回流 | `docs/protocol.md` DoD |
 | `api-research` | UI/SDK 改动前 | F-017 Apple 最新文档调研 | `docs/standards/engineering.md` 原则 1, `docs/standards/apple-native.md` |
 | `dependency-propagation` | 文档变更后 | DOC_DEPENDENCY_MAP.md 下游同步 | `docs/DOC_DEPENDENCY_MAP.md` |
-| `phase-closeout` | phase 收官 | handoff.md 状态更新 + Harness Recall + knowledge-health | `docs/workflow.md` §长任务, `docs/standards/harness-recall.md` |
-| `resume-from-handoff` | 新会话接手 | 最小上下文加载顺序 | `docs/workflow.md` §Boot, `docs/memory/handoff.md` |
+| `phase-closeout` | phase 收官 | handoff.md 状态更新 + Harness Recall + knowledge-health | `docs/protocol.md` §长任务, `docs/standards/harness-recall.md` |
+| `resume-from-handoff` | 新会话接手 | 最小上下文加载顺序 | `docs/protocol.md` §Boot, `docs/memory/handoff.md` |
 
 ## 6. xcodebuild 门禁
 
 | 门禁 | 命令 | 失败语义 | 上游文档 |
 |---|---|---|---|
-| Build for Testing | `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests` | 阻断合并 | `docs/workflow.md` DoD（原则 4）, CLAUDE.md 执行门 |
+| Build for Testing | `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests` | 阻断合并 | `docs/protocol.md` DoD（原则 4）, CLAUDE.md 执行门 |
 
 ## 7. 维护规则
 

@@ -43,7 +43,7 @@ POLICY = {
     "exemptions": {
         "docs-only": {
             "allowed_globs": ["docs/**/*.md", "*.md"],
-            "denied_globs": ["docs/workflow.md", "docs/standards/**"],
+            "denied_globs": ["docs/protocol.md", "docs/standards/**"],
             "required_fields": ["Exemption Rationale", "Disallowed Paths Present"],
         },
         "trivial": {
@@ -182,7 +182,7 @@ class ReviewTraceValidateTests(unittest.TestCase):
         """)
         errors = pr_review_trace.validate(
             body,
-            ["docs/workflow.md"],
+            ["docs/protocol.md"],
             POLICY,
         )
         self.assertTrue(any("denied for paths" in e for e in errors))

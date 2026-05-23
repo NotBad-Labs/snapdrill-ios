@@ -47,7 +47,7 @@ Closes #
 
 - [ ] Review 结论已留痕（必须在下方 `## F-005 Review Trace` 段填写）
 
-<!-- F-005: Review 无留痕的 PR 不得合并（workflow.md:108-120 + S-D7-002）。
+<!-- F-005: Review 无留痕的 PR 不得合并（docs/protocol.md §Review + S-D7-002）。
      CI 会校验本段的字段；保留段头与字段名不要改名。
      豁免：docs-only / trivial PR 走机器可读 `Review Required: exempt` 路径。 -->
 
@@ -91,7 +91,7 @@ Human Merge Approval: yes
 -->
 
 
-### 审计豁免留痕（docaudit，见 `docs/workflow.md`§文档审计 + `Scripts/audit/README.md`）
+### 审计豁免留痕（docaudit，见 `docs/protocol.md`§文档审计 + `Scripts/audit/README.md`）
 
 <!-- 本段为 Phase B 纪律。若本 PR 无 docaudit 相关改动，打勾"无"即可 -->
 <!-- error/warning 命中不允许仅靠 PR 描述绕过 — CI 会直接阻断 — 唯一合法豁免是 legacy_whitelist -->

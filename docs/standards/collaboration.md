@@ -64,7 +64,7 @@ Gemini 3 --独立审计（Bash 调用）--+
 5. **修复 Review**：修复后由三方各自独立 Review 修复结果
 6. **回灌到约束体系**：每次 cross-audit 发现的问题，修复后评估根因并更新对应文档：
    - 约束缺失 → 更新 `docs/standards/*.md` 或新增 `feedback.md` 规则
-   - 检查遗漏 → 更新 `docs/workflow.md` DoD 或 `.github/workflows/ci.yml`
+   - 检查遗漏 → 更新 `docs/protocol.md` DoD 或 `.github/workflows/ci.yml`
    - 反复出现（同类问题 3 次以上）→ 提升为自动化门禁（lint rule / CI step）
    - 闭环验证：下一次同类任务中确认改进生效
 
@@ -114,7 +114,7 @@ Cross-audit 和 PR Review 时，除通用代码质量外，必须额外检查以
 | **Test Coverage** | 新增逻辑是否有测试、异常路径是否覆盖 |
 | **Architecture Fit** | 是否遵循 `engineering.md` 7 条原则（删减、YAGNI、编译拦截、边界契约、状态流、可逆性） |
 
-**Retry 阈值与具体动作**（建议 retry / 硬性 retry / 可进入待合并 / 冲突列表触发条件）以 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 为 SSOT。即使 §2.5 判定某 PR "可进入待合并状态"，最终合并由人类操作者确认或明确授权后执行（见 `docs/workflow.md`§Code Review）。
+**Retry 阈值与具体动作**（建议 retry / 硬性 retry / 可进入待合并 / 冲突列表触发条件）以 `.claude/skills/cross-audit-consensus/SKILL.md` §2.5 为 SSOT。即使 §2.5 判定某 PR "可进入待合并状态"，最终合并由人类操作者确认或明确授权后执行（见 `docs/protocol.md`§Code Review）。
 
 **背景**：对标 Anthropic Harness Design 2026-03-24 的 Rubric 范式。详见 `docs/archive/research/harness-engineering-study-20260418.md`。
 

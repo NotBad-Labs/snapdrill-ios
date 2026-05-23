@@ -109,7 +109,7 @@ layer: decision
 
 **skill 体系定位**（per plan + 用户决策）：
 - **skill 不是顶层概念，是执行器分类**。`docs/standards/` 定义"应该做什么"，`.claude/skills/` 是"怎么做"的执行包装
-- 文档体系入口顺序：`AGENTS.md` → `docs/workflow.md` → `docs/KNOWLEDGE_MAP.md` → 按需进入 standards / product / tech / memory，skill 只在需要时被引用
+- 文档体系入口顺序：`AGENTS.md` → `docs/protocol.md` → `docs/KNOWLEDGE_MAP.md` → 按需进入 standards / product / tech / memory，skill 只在需要时被引用
 - `skill-architecture` / `skill-source-ledger` 作为 docs/standards/ 子集存在（Phase 1.2 已落地，KM 模式层已列）
 
 ### 工具选型决策

@@ -1,13 +1,8 @@
----
-last_verified: 2026-05-19
-layer: pattern
----
-
 @AGENTS.md
 
 # Claude Code
 
-This file is a Claude Code adapter, not a separate knowledge source. Shared project instructions live in `AGENTS.md` and `docs/`.
+This file is a Claude Code adapter, not a separate knowledge source. Shared Boot, Action Gate, Context Map, and project instructions live in `AGENTS.md` and `docs/`.
 
 ## Claude-Specific Context
 

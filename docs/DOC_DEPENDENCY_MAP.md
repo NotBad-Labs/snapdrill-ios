@@ -8,7 +8,7 @@ freshness:
 # SnapDrill 文档上下游依赖图
 
 > 目的：把"谁定义事实、谁消费事实、改一处要同步哪里"写清楚，避免返工。
-> 本文件不替代 `docs/workflow.md` 的裁决顺序；它补充的是上下游传播关系。
+> 本文件不替代 `docs/protocol.md` 的裁决顺序；它补充的是上下游传播关系。
 >
 > **互补视图**：`docs/KNOWLEDGE_MAP.md` 是知识分层索引（原则/模式/快照）。本依赖图是变更传播图。两者互补使用。
 
@@ -35,17 +35,17 @@ freshness:
 | `docs/tech/apple-limits.md` | Apple 平台能力边界 | `docs/standards/apple-native.md`、`docs/standards/engineering.md`（原则 1：先判断方向）、`docs/tech/api-pitfalls.md` | coding.md、api-pitfalls.md、NFR.md |
 | `docs/tech/deployment.md` | 发布与 CI 流程 | workflow、compliance、NFR | 发布执行、审核提交流程 |
 | `docs/standards/engineering.md` | 工程哲学 | — | workflow、coding、testing、shared-constraints |
-| `docs/workflow.md` | 协作规则源 | engineering、collaboration | 所有开发与评审流程 |
+| `docs/protocol.md` | 协作规则源 | engineering、collaboration | 所有开发与评审流程 |
 | `docs/standards/*.md` | 执行约束 | engineering（部分）、workflow | 智能体行为、委派上下文质量 |
-| `docs/standards/execution-gates.md` | 门禁总表 | `docs/standards/permission-model.md`、`docs/workflow.md`、`docs/standards/engineering.md` | 门禁新增/修改/退役时同步 |
+| `docs/standards/execution-gates.md` | 门禁总表 | `docs/standards/permission-model.md`、`docs/protocol.md`、`docs/standards/engineering.md` | 门禁新增/修改/退役时同步 |
 | `docs/standards/skill-architecture.md` | Skill 目录架构与迁移规则 | `AGENTS.md`、`CLAUDE.md`、`docs/standards/permission-model.md` | 新增/迁移/退役 skill 时同步 |
 | `docs/standards/skill-source-ledger.md` | Skill 来源/提供方/许可证清单 | `docs/standards/skill-architecture.md` | 新增/退役 vendored skill |
-| `docs/standards/audit-rubric.md` | 文档审计判定标准 | `docs/standards/engineering.md`、`docs/workflow.md` | Phase 2-6 审计流程 |
-| `docs/DOC_DEPENDENCY_MAP.md` | 文档依赖图（变更传播 SSOT） | `docs/standards/engineering.md`（原则 5）、`docs/workflow.md` | KNOWLEDGE_MAP、全文档变更传播 |
-| `docs/KNOWLEDGE_MAP.md` | 知识分层与裁决索引 | `docs/workflow.md`、`docs/DOC_DEPENDENCY_MAP.md` | 文档检索顺序、更新触发规则 |
-| `CLAUDE.md` / `AGENTS.md` | 智能体执行入口 | `docs/workflow.md`、`docs/KNOWLEDGE_MAP.md`、`docs/standards/engineering.md` | 智能体启动上下文 |
-| `STATUS.md` | 进度快照 | `docs/workflow.md`（DoD、PR 流程、S0-S3 优先级） | 会话启动上下文、排期决策 |
-| `docs/memory/*.md` | 交接快照 | `docs/workflow.md`、`STATUS.md` | 跨会话接手效率、审计可追溯性 |
+| `docs/standards/audit-rubric.md` | 文档审计判定标准 | `docs/standards/engineering.md`、`docs/protocol.md` | Phase 2-6 审计流程 |
+| `docs/DOC_DEPENDENCY_MAP.md` | 文档依赖图（变更传播 SSOT） | `docs/standards/engineering.md`（原则 5）、`docs/protocol.md` | KNOWLEDGE_MAP、全文档变更传播 |
+| `docs/KNOWLEDGE_MAP.md` | 知识分层与裁决索引 | `docs/protocol.md`、`docs/DOC_DEPENDENCY_MAP.md` | 文档检索顺序、更新触发规则 |
+| `CLAUDE.md` / `AGENTS.md` | 智能体执行入口 | `docs/protocol.md`、`docs/KNOWLEDGE_MAP.md`、`docs/standards/engineering.md` | 智能体启动上下文 |
+| `STATUS.md` | 进度快照 | `docs/protocol.md`（DoD、PR 流程、S0-S3 优先级） | 会话启动上下文、排期决策 |
+| `docs/memory/*.md` | 交接快照 | `docs/protocol.md`、`STATUS.md` | 跨会话接手效率、审计可追溯性 |
 
 ---
 

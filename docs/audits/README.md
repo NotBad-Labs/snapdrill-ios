@@ -1,10 +1,13 @@
 ---
-last_verified: 2026-05-20
+last_verified: 2026-05-23
 layer: snapshot
 freshness:
   max_age_days: 180
   decay_trigger: [audit_round]
 ---
+
+> ⚠️ 历史路径迁移（2026-05-23）：本目录历史审计文件中对 `docs/workflow.md` 的引用已失效。该路径已迁移至 `docs/protocol.md`（user-decision-log #006）。本目录文件保留历史原貌不改动，引用追溯请使用新路径。
+
 # Audits
 
 > 项目治理审计产物存放地点。与 `docs/decisions/` (ADR) 同级，承载「事实裁决记录」类文档。

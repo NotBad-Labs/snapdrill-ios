@@ -1,29 +1,30 @@
 # AGENTS.md — SnapDrill 项目入口
 
+SnapDrill：练习题数字化效率工具；SwiftUI / SwiftData / iOS 26.0+ / Swift 6.3。
+
 > 路由文件，不是知识库。项目知识在 docs/。
-> 本文件遵循 AGENTS.md 标准（AAIF），Claude Code / Codex / Cursor / Gemini CLI / Copilot 均可读取。
 
 ## Boot
 
-1. 读 `STATUS.md` — 当前工作上下文
-2. 读 `docs/workflow.md` — 流程、DoD、Review 规范
-3. 相关标准由 skills 按需加载或自行读取 docs/standards/
-4. 读 `docs/memory/feedback.md` — F 规则索引
+1. 读 `docs/meta/M-000-meta-vision.md` — 最高协作宪法。
+2. 读 `docs/meta/user-decision-log.md` — 已生效用户裁决与 Overrule。
+
+## Action Gate
+
+触发改代码、改文档、提 PR、merge、push、跑 lint/test 前，读 `docs/protocol.md`，按阶段进入对应 skill 或文档。
 
 ## Context Map
 
 | 需要 | 去读 |
 |---|---|
-| 项目原则 | `docs/standards/`（skills 按需加载或自行读取） |
-| 项目反馈与纪律 | `docs/memory/feedback.md` |
-| 产品文档 | `docs/product/` |
-| 技术文档 | `docs/tech/` |
-| 项目记忆 | `docs/memory/` |
-| 流程与 DoD | `docs/workflow.md` |
+| standards | `docs/standards/` |
+| feedback / F 规则索引 | `docs/memory/feedback.md` |
 | 知识地图 | `docs/KNOWLEDGE_MAP.md` |
-| 架构决策 | `docs/decisions/ADR-*.md` |
-| 权限模型 | `docs/standards/permission-model.md` |
-| 门禁总表 | `docs/standards/execution-gates.md` |
+| 变更传播 | `docs/DOC_DEPENDENCY_MAP.md` |
+| 元规则入口 | `docs/meta/README.md` |
+| M-001~M-006 backlog | `docs/meta/M-001-to-M-006-followup-backlog.md` |
+| 状态 stub | `STATUS.md` |
+| 起草模板 | `docs/meta/M-000-input-prompt.md`、`docs/meta/M-000-round2-input.md`、`docs/meta/M-000-final-prompt.md`、`docs/meta/M-000-round3-review-prompt.md` |
 
 ## 执行门
 
@@ -35,8 +36,6 @@ xcodebuild build-for-testing \
   -testPlan AllTests        # 0 errors
 ```
 
-测试用 `AllTests` scheme + `AllTests` testPlan（SnapDrill scheme 不含 SPM 包测试）。完整 DoD 见 `docs/workflow.md`。
+测试用 `AllTests` scheme + `AllTests` testPlan；`SnapDrill` scheme 不含 SPM 包测试。完整 DoD 入口见 `docs/protocol.md`。
 
-## 项目一句话
-
-SnapDrill：练习题数字化效率工具。SwiftUI / SwiftData / iOS 26.0+ / Swift 6.3 / defaultIsolation(MainActor)。
+<!-- nwc: 993 -->

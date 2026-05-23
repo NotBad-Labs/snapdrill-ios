@@ -17,7 +17,7 @@ user-invocable: true
 ## 触发场景
 
 - 用户说："phase 结束 / 收官 / 写 checkpoint / 阶段总结"
-- 单个 phase / sprint 合并 ≥ 3 PR 后（参考 `docs/workflow.md` Phase Compaction 规则）
+- 单个 phase / sprint 合并 ≥ 3 PR 后（参考 `docs/protocol.md` Phase Compaction 规则）
 - 接手前发现 STATUS.md 落后多个 PR
 
 ## 标准输出

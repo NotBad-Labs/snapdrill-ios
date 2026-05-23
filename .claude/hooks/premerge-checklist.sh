@@ -23,9 +23,9 @@ cd "$PROJECT_ROOT"
 # F-007: STATUS.md 24h 更新检查
 LAST_STATUS_COMMIT=$(git log -1 --since="24 hours ago" --format=%H -- STATUS.md 2>/dev/null || echo "")
 if [[ -z "$LAST_STATUS_COMMIT" ]]; then
-    echo "PR 合并前提示（F-007 / workflow.md DoD）：" >&2
+    echo "PR 合并前提示（F-007 / protocol.md DoD）：" >&2
     echo "  近 24 小时未更新 STATUS.md。" >&2
-    echo "  workflow.md DoD 要求合并后立即更新 STATUS.md + 确认 Review 结论已留痕。" >&2
+    echo "  protocol.md DoD 要求合并后立即更新 STATUS.md + 确认 Review 结论已留痕。" >&2
     echo "  若已在 PR 描述里完成留痕，可让用户显式授权后重试。" >&2
     exit 2
 fi

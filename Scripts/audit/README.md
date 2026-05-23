@@ -67,7 +67,7 @@ legacy_whitelist:
     reason: "Phase A 基线..."    # 必填（非空）
     expires_on: "2026-05-31"     # 必填（YYYY-MM-DD，无效日期 exit 2）
     paths:                       # 可选：glob 列表；空 = 匹配该 check 所有 findings
-      - docs/workflow.md
+      - docs/protocol.md
       - docs/memory/**
     categories:                  # 可选：finding category 列表
       - active_reference
@@ -114,7 +114,7 @@ Exit: 1 (error level in: ['archived-refs'])
 
 ```
 check    path    line    category    level    status    suggestion    suppressed_reason    matched
-archived-refs    docs/workflow.md    201    active_reference    error    active    migrate reference to docs/archive/ or change to historical note: docs/research/harness-engineering-study-20260418.md        ...
+archived-refs    docs/protocol.md    201    active_reference    error    active    migrate reference to docs/archive/ or change to historical note: docs/research/harness-engineering-study-20260418.md        ...
 archived-refs    docs/memory/handoff.md    118    active_reference    error    suppressed        Phase A 基线... (expires_on: 2026-05-31)    ...
 ```
 

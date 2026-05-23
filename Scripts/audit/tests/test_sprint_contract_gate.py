@@ -55,7 +55,7 @@ POLICY = {
         "trivial": {
             "max_files": 1,
             "allowed_globs": ["docs/**/*.md"],
-            "denied_globs": ["docs/workflow.md", "Packages/**"],
+            "denied_globs": ["docs/protocol.md", "Packages/**"],
             "required_fields": [
                 "Changed Paths Checked", "Disallowed Paths Present", "Exemption Rationale",
             ],

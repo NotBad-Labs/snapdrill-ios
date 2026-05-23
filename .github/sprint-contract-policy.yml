@@ -37,7 +37,7 @@ normal_contract:
 small_chore:
   issue_type: chore
   appetite: Small
-  # 三字段简化集（与 docs/workflow.md F-018 历史阈值对齐）
+  # 三字段简化集（与 docs/protocol.md F-018 历史阈值对齐）
   required_fields:
     - Touches
     - No-Touch
@@ -101,7 +101,7 @@ exemptions:
       - "docs/**/*.md"
       - "*.md"
     denied_globs:
-      - "docs/workflow.md"
+      - "docs/protocol.md"
       - "docs/standards/**"
       - "docs/audits/**"
       - "docs/decisions/ADR-*.md"

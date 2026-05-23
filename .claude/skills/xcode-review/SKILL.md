@@ -14,7 +14,7 @@ layer: pattern
 
 # 手动 Review 提示词写作规范
 
-> **上游依赖**：`docs/workflow.md`（Code Review）
+> **上游依赖**：`docs/protocol.md`（Code Review）
 >
 > 每次为 PR 撰写手动 review 提示词时，参照此规范。
 > 适用于：**外部 Reviewer**（如 Antigravity 等全量代码上下文工具，可选）和 **Xcode Intelligence Review**（项目内上下文）。
@@ -83,7 +83,7 @@ layer: pattern
 
 ### 何时需要后续 review
 
-参照 `docs/workflow.md` Code Review 纪律：
+参照 `docs/protocol.md` Code Review 纪律：
 - **需要**：fix 引入新业务逻辑、新跨模块依赖、新文件
 - **不需要**：纯结构性修复（重命名、访问控制、import 调整）
 

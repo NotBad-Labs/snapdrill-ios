@@ -104,13 +104,25 @@ freshness:
   - 指出明确风险路径
   仅"我感觉不对"不构成强烈反对。同时设连续触发率阈值(如 24 小时内辅助方触发 ≥ 5 次升级,需用户介入审视辅助方是否退化或滥用否决权)
 
+## MC-11: sync-status skill 双向维护 STATUS.md
+
+- **来源**: user-decision-log #006
+- **问题**: Round 1 Boot 重构后，`STATUS.md` 保留为 minimal stub；长期权威状态不能依赖手动复制，也不能在 Boot 阶段加载旧的大型状态快照
+- **归宿**: **M-002 分歧裁决与裁决日志**
+- **理由**: `sync-status` 的核心职责是把裁决日志、Overrule、进行中工作与状态快照做双向同步，属于「裁决事实如何被记录、读取、更新」的问题；它依赖质量判据，但主归宿不是 M-005
+- **具体落实**:
+  - 设计 `sync-status` skill：session start 读取 `user-decision-log.md`、backlog、git/GitHub 状态，生成当前状态视图
+  - session end 写回 `STATUS.md` 极简手动条目，避免软状态漂移
+  - 明确冲突优先级：user-decision-log > backlog > git/GitHub live state > STATUS stub
+  - 记录无法自动判定的缺口，不擅自把推论写成事实
+
 ---
 
 ## 起草顺序建议
 
 依赖关系分析(MC 归属):
 - **M-005**(质量判据): MC-1 静默退化 + MC-2 WebSearch 验证 ← 多家依赖,**优先起草**
-- **M-002**(分歧裁决): MC-1 + MC-5 + MC-10
+- **M-002**(分歧裁决): MC-1 + MC-5 + MC-10 + MC-11
 - **M-006**(数据治理): MC-4
 - **M-001**(协作工作流): MC-2 部分
 - **M-004**(降级手册): MC-7 + MC-9
@@ -123,6 +135,6 @@ freshness:
 ## 关联文档
 
 - [docs/meta/M-000-meta-vision.md](M-000-meta-vision.md) v1.2 ratified
-- [docs/meta/user-decision-log.md](user-decision-log.md) #001/#002/#003/#004
+- [docs/meta/user-decision-log.md](user-decision-log.md) #001/#002/#003/#004/#005/#006
 - [docs/meta/M-000-signoff-{codex,deepseek,gemini}.md](.) 三家 sign-off 原文
 - [docs/tech/reference/agent-cli-models.md](../tech/reference/agent-cli-models.md) 工具/模型快照(30 天刷新)

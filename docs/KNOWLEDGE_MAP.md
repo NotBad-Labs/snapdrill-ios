@@ -18,7 +18,7 @@ layer: pattern
 | `docs/product/product-vision.md` | 产品定位、价值链、用户画像 | — |
 | `docs/product/product-business.md` | 商业模型、定价、隐私承诺 | vision |
 | `docs/standards/engineering.md` | 工程哲学：7 条核心原则（判断方向、删减、YAGNI、编译拦截、边界契约、状态流、可逆性） | — |
-| `docs/workflow.md` | 开发闭环、Git 工作流、S0-S3、DoD | engineering |
+| `docs/protocol.md` | 开发闭环、Git 工作流、S0-S3、DoD | engineering |
 
 ## 模式层（Semi-Open — 随版本迭代调整）
 

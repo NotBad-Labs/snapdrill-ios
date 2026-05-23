@@ -95,9 +95,9 @@ Snapshot baseline 更新：
 
 本 skill 的上游权威定义在：
 - `docs/standards/testing.md:90-97` — Snapshot 视觉回归工作流（人工审查要求、禁止盲目 record）
-- `docs/workflow.md:127` — Snapshot baseline 变更必须 git diff 确认
+- `docs/protocol.md:127` — Snapshot baseline 变更必须 git diff 确认
 
 ## 关联文档
 
 - `docs/standards/testing.md` — 测试规则
-- `docs/workflow.md` §CI — CI 与本地一致性
+- `docs/protocol.md` §CI — CI 与本地一致性

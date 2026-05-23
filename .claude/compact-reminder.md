@@ -5,8 +5,8 @@
 ## 恢复步骤
 
 1. 读 `STATUS.md` 确认当前任务和优先级
-2. 按 `docs/workflow.md` 的 S0-S3 / WIP / 价值链给出决策导航建议（建议优先做 X，原因：Y，备选：Z）
-3. 读 `docs/workflow.md` 对齐最新 DoD、Review 留痕和协作纪律
+2. 按 `docs/protocol.md` 的 S0-S3 / WIP / 价值链给出决策导航建议（建议优先做 X，原因：Y，备选：Z）
+3. 读 `docs/protocol.md` 对齐最新 DoD、Review 留痕和协作纪律
 4. 若存在 `.claude/session-log.txt`，读取它确认本次会话改动文件
 5. 运行 `git status` 和 `git log --oneline -5` 确认当前分支和最近提交
 6. 继续工作

@@ -366,7 +366,7 @@ layer: pattern
 
 ## Appendix: Boundary Cases
 
-> 仅收录 S0/S1 全部 + 高频 S2。Severity 定义见 `../workflow.md`§工作优先级。
+> 仅收录 S0/S1 全部 + 高频 S2。Severity 定义见 `../protocol.md`§工作优先级。
 
 | ID | Scenario | Expected UX | Data guarantee | Severity |
 |---|---|---|---|---|

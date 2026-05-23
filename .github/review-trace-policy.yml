@@ -59,7 +59,7 @@ exemptions:
       - "docs/**/*.tsv"
     # 即使是 docs-only 也不豁免的高风险路径
     denied_globs:
-      - "docs/workflow.md"
+      - "docs/protocol.md"
       - "docs/standards/**"
       - "docs/audits/**consensus*.md"
       - "docs/decisions/ADR-*.md"

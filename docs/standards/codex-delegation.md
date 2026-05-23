@@ -45,7 +45,7 @@ Codex CLI 0.130.0+ 使用 `-m` 指定模型，不支持 `--effort` 标志。
 
 | 任务类型 | 必读文件 |
 |---|---|
-| 全部任务 | `STATUS.md`、`docs/workflow.md`（DoD + S0-S3 + Git 工作流） |
+| 全部任务 | `STATUS.md`、`docs/protocol.md`（DoD + S0-S3 + Git 工作流） |
 | 产品/设计相关 | `docs/product/product-vision.md`、`docs/product/product-design.md`、`docs/product/product-requirements.md`、`docs/product/product-cases.md`（按需选读） |
 | 代码实现 | `CODEX.md`（执行入口）、相关 `docs/standards/*.md`（coding/testing/apple-native 等）、**相关产品文档**（铁律：改代码前必须先读产品文档确认需求） |
 | 审计/Review | 被审对象的全部上下文 + 上游依赖文档 |

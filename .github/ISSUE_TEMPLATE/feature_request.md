@@ -58,7 +58,7 @@ assignees: ""
 <!--
 F-018：Claude 在动第一行代码前以 Issue comment 写入字段化 contract（Scripts/audit/sprint_contract_gate.py 校验）。
 编码过程中若发现预期与现实不符，必须先改 contract 再继续。Scope Creep 实时防御：编辑文件超出 Touches 或落在
-No-Touch 即被 .claude/hooks/pre-edit-sprint-contract.sh 阻断。详见 docs/workflow.md / S-D7-003 共识。
+No-Touch 即被 .claude/hooks/pre-edit-sprint-contract.sh 阻断。详见 docs/protocol.md / S-D7-003 共识。
 -->
 
 字段化体例（直接 `gh issue comment` 贴下方块）：
