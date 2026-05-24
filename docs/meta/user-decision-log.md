@@ -158,6 +158,20 @@ freshness:
 
 ---
 
+### #011 M-000 v2.0 ratified — v1.2 归档
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-24 |
+| **冲突描述** | M-000 v2.0 final 候选(Codex 主笔,4587 nwc)完成 4-way sign-off:Claude / DeepSeek / Gemini 三家异源独立审,**3/3 全部 PASS**,Codex 作主笔不下场。帅哥裁决 ratify。 |
+| **裁决** | M-000 v2.0 正式 ratify,生效替代 v1.2:<br>A. `docs/meta/M-000-meta-vision.md` 由 v2.0 内容覆盖,frontmatter `status: active`。<br>B. v1.2 归档至 `docs/archive/meta/M-000-v1.2.md`,frontmatter `layer: archive` + `status: archived` + `superseded_by: docs/meta/M-000-meta-vision.md`。<br>C. 4 家草案(Claude/Codex/DeepSeek/Gemini v2 草案)归档至 `docs/archive/meta/v2-drafts/`,保留作起草过程实证。<br>D. v2.0 落实 #009 R1-R7 + P1-P8 + #010 Q-A/Q-B,所有硬约束 3 家 sign-off 核查通过。<br>E. 级联引用更新延后到下一次 docaudit 运行批量处理(M-001~M-006 起草前完成)。 |
+| **理由** | M-000 v2.0 是第一性原理审计 #009 的总落地。3/3 PASS 表示异源 sanity check 未发现硬约束未落实问题;Claude/DS/GM 三家 sign-off 一致「准予 ratify」无分歧。v2.0 vs v1.2 净改动:删宪法叙事 + 字数软上限 + layer 3 类 + docaudit 6 类附事故来源 + 3 phases 浮动 + 目的优先命名 + KM 软信号 + PRIMARY 内核显式列表化 + 认识论根基段 + 异源例外口诀 + 4 层独立性 + v1.2 归档路径明示。 |
+| **是否触发元规则修订** | ✅ **是**。本条 ratify 完成元规则修订本身。M-000 v1.2 全文被 v2.0 取代。下游引用(AGENTS.md / Boot 序列 / 各 ADR / KM / DEPENDENCY_MAP)可能含「v1.2」「宪法」等失效表述,由后续 docaudit + 单独 PR 批量级联更新。 |
+| **Overrule 关系** | ⚠️ **整体 Overrule M-000 v1.2 全文**(8 章节)。具体覆盖:<br>① v1.2 §1「最高宪法」叙事 → v2.0 §1「优先级 0 入口」<br>② v1.2 §5「2500 nwc 硬上限」→ v2.0 §6「软上限 + override_rationale」(本身仍为 #010 预声明的下一轮 Overrule 候选,M-005 起草时进一步处理)<br>③ v1.2 §6 Overrule 机制保留语义,reword 入 v2.0 §5<br>④ v1.2 §7.1/§7.2 风险接受 + 同源警告 reword 入 v2.0 §3<br>⑤ v1.2 §8 M-001~M-006 派生表 reword 入 v2.0 §11<br>⑥ v1.2 整篇 layer 6 枚举假设 → v2.0 §7 简化 3 类 + layer_deprecated 过渡<br>历史裁决 #001~#010 全部保留生效(本条不 Overrule 任何历史裁决,只 Overrule v1.2 文本)。 |
+| **元层级注记** | **元规则自我演进的首次完整闭环**:M-000 v1.2 → 第一性原理审计(#009)→ 7 红旗 + 3 PRIMARY + 3 分歧裁决 → 4 家独立起草 v2.0 → 折叠 + Codex 主笔 + 3/3 sign-off → ratify。整个过程 **M-000 用自身机制(默认多方异源 + worktree 物理隔离 + 净化提示词 + sanity check 自反性 + Overrule)审计并升级了自身**,验证体系的自洽性与可演进性。下一轮元层级审计预定 ≥ 6 个月后或 user-decision-log 累计 ≥ 10 条新条目后触发(当前已累计 #001~#011 共 11 条,理论上已达触发线,但本次 ratify 即是元审计的直接产物,实质满足触发要求;下一轮启动节点由帅哥裁决)。 |
+
+---
+
 ## 日志维护规则
 
 1. **append-only**：不删除历史条目，只追加新条目
