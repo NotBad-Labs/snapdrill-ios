@@ -172,6 +172,20 @@ freshness:
 
 ---
 
+### #012 M-005 起草启动 + 主笔轮换 DeepSeek + #010 字数升级同 PR 落地
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-24 |
+| **冲突描述** | M-000 v2.0 ratified（[#011](#011-m-000-v20-ratified--v12-归档)）后，M-001~M-006 派生待启动，按 [`M-001-to-M-006-followup-backlog.md`](M-001-to-M-006-followup-backlog.md) 既定顺序 M-005 优先。同时 [#010](#010-m-000-v20-final-候选追认--字数上限第一性原理升级待-m-005-处理-status_enum-加-draft) 预声明的「字数不预设上限，密度决定」原则需在 M-005 §E + §J 落地，并显式 Overrule [#009](#009-m-000-第一性原理审计--7-红旗接受改造--3-primary--3-分歧全保留--启动-v20-起草) R2「default_word_budget 字段保留」处理方式——是否同 PR 完成需帅哥裁决。另：M-000 v1.0/v1.1/v1.2/v2.0 final 主笔连续 4 版 Codex GPT-5，同源主笔风险累积，主笔是否轮换需裁决。Claude 主分支先产 Sprint Contract 草案 + 三问 AskUserQuestion 收集裁决。 |
+| **裁决** | **Q1 = 批准 Sprint Contract → 进 P2**：Touches/No-Touch/Interface Delta/Test Additions/DoD 最小集（详见 `~/.claude/plans/clever-hatching-unicorn.md`）原样接受，进入 P2 4 家独立起草。<br>**Q2 = M-005 主笔轮换为 DeepSeek reasoner**：Codex 转辅助 reviewer 参与 sign-off 不下场主笔；Claude/Gemini 与 Codex 一同 sign-off。主笔轮换本身作为 M-005「质量判据 / 主笔不是独享特权」的实证检验。<br>**Q3 = #010 字数原则升级同 PR 落地**：M-005 ratify 同 PR 完成 M-000 v2.0 §6 + frontmatter 修订，删除 `default_word_budget: 2500` 默认值，措辞改「不预设字数上限，密度决定 + override_rationale 单独承载」。本条同时显式声明：M-005 ratify 时本条裁决生效后，将 Overrule [#009](#009-m-000-第一性原理审计--7-红旗接受改造--3-primary--3-分歧全保留--启动-v20-起草) R2「default_word_budget 字段保留」处理方式（实际 Overrule 落于 M-005 ratify 条目）。 |
+| **理由** | Q1：第一性原理判断 M-005 是 M-001~M-006 中其他规则的依赖底座（backlog §起草顺序建议已明确），先于其他派生项；级联引用更新 [#011](#011-m-000-v20-ratified--v12-归档) 已显式延后，不阻塞 M-005。Q2：连续 4 版同源主笔风险（v2.0 主笔 sign-off 已观察到 thinking 模式下身份误识别加剧，[#004](#004-m-000-v12-四家最终-sign-off-ratified) 实证），主笔轮换是对 M-000 P1「相同完整任务不分工」+ P3「默认多方异源」的二阶应用；DeepSeek reasoner 中文物理与逻辑链强，与质量判据题材匹配。Q3：[#010](#010-m-000-v20-final-候选追认--字数上限第一性原理升级待-m-005-处理-status_enum-加-draft) 已预声明 M-005 起草时拟 Overrule R2，拆分 PR 会让 M-005 §E/§J 的「不预设字数上限」论证与 M-000 §6 的 `default_word_budget` 字段长期不同步，造成新成员 Boot 时认知割裂；同 PR 落地一次性闭环。 |
+| **是否触发元规则修订** | ⚠️ **预声明 + 触发条件**。本条本身不修订 M-000 v2.0 文本，仅启动 M-005 起草流程。M-005 ratify 时同 PR 完成 M-000 §6 + frontmatter 修订，届时元规则修订生效。 |
+| **Overrule 关系** | **本条不直接 Overrule 任何条款**。**预声明**：M-005 ratify 条目（预编号 #013 或之后）将显式 Overrule [#009](#009-m-000-第一性原理审计--7-红旗接受改造--3-primary--3-分歧全保留--启动-v20-起草) R2「default_word_budget 字段保留」处理方式，与本条 Q3 裁决配套生效。M-005 主笔产出后若 sign-off 中任一家对字数原则升级写法提反对，由帅哥裁决，可能调整或撤回预声明（按 [#008](#008-round-2-sanity-check-撤回-r1-status_enum-修改-工程兼容性优先) sanity check 自身可撤回机制）。 |
+| **元层级注记** | 三层洞见同时落档：(1) **派生顺序的第一性依据**——M-005 是质量判据，是其他规则的「裁判工具」，没有它其他规则无法自证可执行；选 M-005 优先不是「按 backlog 顺序」而是「按依赖拓扑」。(2) **主笔轮换是元规则的二阶应用**——M-005 题材本身就是「质量判据 + 退化检测」，让连续主笔的 Codex 来写「如何检测主笔退化」存在身份冲突；轮换到 DeepSeek 既符合 M-000 P3 异源原则又给 M-005 §E 古德哈特防御提供活体实证（如果 DeepSeek 主笔产出确实揭示了 Codex 主笔的某种盲点）。(3) **字数升级同 PR 的「认知一致性」论证**——拆分 PR 让 M-005 §E/§J 的「不预设上限」论证悬挂在 M-000 §6 仍写 `default_word_budget: 2500` 的语境里 ≥ 1 周，是 [#011](#011-m-000-v20-ratified--v12-归档) E「级联引用滞后」的局部预演；M-005 这种核心元规则承受不起这种不同步。 |
+
+---
+
 ## 日志维护规则
 
 1. **append-only**：不删除历史条目，只追加新条目
