@@ -128,7 +128,7 @@ git branch -D audit/codex-<task-slug> audit/antigravity-<task-slug>  # 可选保
 
 ## 关联
 
-- [ADR-005](../decisions/ADR-005-doc-semantic-layer-audit.md) §Phase 10 全局收官 / 控制变量法实战教训
+- [ADR-005](../decisions/ADR-005-doc-semantic-layer-audit.md) §Phase 10 五大方法论实战教训 + [Phase 10 全局收官历史快照](../archive/audits/phase10-semantic-audit-snapshot.md#phase-10-全局收官)
 - [S-D7-001 任务定义书](../audits/S-D7-001-fix-task-definition.md) Phase 11 首个 worktree 实战任务（工具 bug）
 - [S-D4-002 任务定义书](../audits/S-D4-002-fix-task-definition.md) Phase 11 第二个 worktree 任务（首个真生产 bug 三方修复）
 - [S-D4-002 三方修复 consensus](../audits/S-D4-002-fix-consensus.md) 第二战收尾报告（Codex 4 层 namespace + facade 测试架构胜出）

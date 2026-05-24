@@ -134,7 +134,7 @@ layer: pattern
 已落地 ADR（索引）：
 
 - `docs/decisions/ADR-003-yaml-frontmatter.md` — 用 YAML frontmatter 替代 HTML comment 元数据
-- `docs/decisions/ADR-004-doc-system-deep-clean.md` — 文档体系深度清洁方法论（Phase 0-9 收官产物）
+- `docs/decisions/ADR-004-doc-system-deep-clean.md` — 文档体系深度清洁方法论（结构层活性 SSOT；Phase 0-9 实施历史见 `docs/archive/audits/structural-cleanup-historical-record.md`）
 
 ## 审计归档（docs/audits/）
 

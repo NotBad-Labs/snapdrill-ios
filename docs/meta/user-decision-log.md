@@ -100,6 +100,36 @@ freshness:
 
 ---
 
+## 2026-05-24
+
+### #007 ADR-004/005 异源评估 + 激进拆分 + 盲点识别批量入库
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-24 |
+| **冲突描述** | M-000 v1.2 ratified 后，ADR-004 + ADR-005 仍作为方法论 SSOT 在仓库内生效，与新建立的 M-000 §3 默认多方 + §7.2 异源警戒 + #002/#005/#006 等裁决产生方法论层级重叠。同时四家异源评估暴露多个真实盲点，需要建立机制规避。 |
+| **裁决** | A. ADR-004 + ADR-005 激进拆分（归档路径 Q1=A1 + 切出粒度 Q2=B1 + 起草 Q3=C1）。<br>B. 新建 `docs/archive/audits/phase10-semantic-audit-snapshot.md` + `docs/archive/audits/structural-cleanup-historical-record.md`，切出历史 findings + 实施记录。<br>C. ADR-004/005 主文档极简化，加 frontmatter `supersession_status: partially_superseded` + `superseded_by_partial` + 头部 banner（侧通道方案，保留 `status: active`，详见 #008）。<br>D. 异源 4 家提出的盲点（Codex 4 docaudit check + DeepSeek 3 盲点 + Gemini 3 盲点）合并为 MC-12~MC-17，进入 M-001/M-002/M-005 起草 backlog。<br>E. audits/、KM、handoff、worktree-audit-workflow 引用面级联更新，指向主 ADR 活段或 archive 详情；audit-ledger-*.tsv 不动。<br>F. **ADR-004 §决策段「对抗性 LLM 介入点」整段删除**（Q2=B2 裁决），让 M-000 §3/§7.2 完全接管异源原则。 |
+| **理由** | ADR 异源评估 4/4 共识部分过期。DeepSeek+Gemini 异源倾向激进拆分（物理切出 findings），Claude+Codex 同源倾向保守（只加 banner）——用户裁定接受异源激进版本，实证 M-000 §7.2 异源 sanity check 价值（本次为第三次实战实证）。Q2=B2 进一步精简，避免与 M-000 §7.2 重复抽象。 |
+| **是否触发元规则修订** | ❌ 否。M-000 v1.2 不修订；6 条新 backlog 进入 M-001~M-006 起草输入。 |
+| **Overrule 关系** | 本次裁决对以下条款实施不同等级处置：<br>① **Overrule（完全废止 SSOT 地位）**：ADR-005 §维度 1-7 收官观察 → 降级为历史快照（`docs/archive/audits/phase10-semantic-audit-snapshot.md`）。<br>② **Overrule（被新机制接管）**：ADR-004 §工具选型决策 → 由 M-000 §3/§7.2 + user-decision-log #002/#006 + `agent-cli-models.md` 接管。<br>③ **Overrule（被新机制接管）**：ADR-005 §模型版本注 → 由 user-decision-log #002 + `agent-cli-models.md` 30 天刷新机制接管。<br>④ **Overrule（完全废止）**：ADR-004 §对抗性 LLM 介入点段 → 由 M-000 §3/§7.2 完全接管，不再保留具体角色名（Q2=B2）。<br>⑤ **保留为执行层 SSOT**：ADR-004 §防漂移机制 / §覆盖层级声明 / 5 Phase 方法论骨架，ADR-005 §三方角色分工 / §配套 docaudit check 设计稿 / §Phase 10 五大方法论实战教训摘要。 |
+| **元层级注记** | M-000 §7.2「结构性同源」预测第三次实战验证 — Claude+Codex 同源倾向保守拆分，DeepSeek+Gemini 异源倾向激进拆分，用户裁定异源激进版本。本次同时识别 10 项真实盲点（Codex 4 + DeepSeek 3 + Gemini 3），归类为可机械规避（类型 A，4 项 docaudit check）/ 需文化规避（类型 B，5 项 M-XXX 元规则）/ 需外部机制（类型 C，1 项 sandbox 隔离）。盲点规避机制本身将成为 M-005 质量判据 + M-001 工作流的起草核心输入。后续 Round 2 sanity check 又撤回了本裁决 R1 部分（STATUS_ENUM 修改方向），详见 [#008](#008-round-2-sanity-check-撤回-r1-status_enum-修改-工程兼容性优先)。 |
+
+---
+
+### #008 Round 2 sanity check 撤回 R1 STATUS_ENUM 修改（工程兼容性优先）
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-24 |
+| **冲突描述** | #007 落地过程中，Round 1 sanity check 共识 R1（修改 `Scripts/validate_frontmatter.py` STATUS_ENUM 加 `partially_superseded`，替代 Codex 自创的 `supersession_status` 侧通道）在 Round 2 sanity check 被 Gemini 撤回。Gemini 第一性原理论证：`status` 字段在 ADR 生命周期中是 active vs superseded 的**二元状态**；`partially_superseded` 本质上**依然是 active**（主 ADR 骨架仍是 SSOT）；把 `status: partially_superseded` 写入主 frontmatter 会让消费 `active` 的下游脚本（如 ADR Index 生成 / CI build script / show_active_adrs）误过滤，造成审计漏检。DeepSeek 未撤回 R1，但同样指出新字段下游消费端兼容性问题（同一根问题不同视角）。 |
+| **裁决** | Q1=A1（接受 Gemini 撤回）：<br>1. **不修改** `Scripts/validate_frontmatter.py` STATUS_ENUM（保持原 3 值 `{active, archived, deprecated}`）。<br>2. ADR-004/005 frontmatter 改用 Codex 原始侧通道方案：`status: active` + `supersession_status: partially_superseded` + `superseded_by_partial: ...`。<br>3. 在主 ADR 头部 banner 显式说明侧通道存在理由（兼容下游消费 `status` 字段的脚本）。<br>4. 不强制扫描所有下游 `status` 消费脚本——这是 M-005 起草时的 backlog 议题。 |
+| **理由** | 工程兼容性优先于元数据美学。Gemini 撤回 R1 是 sanity check 防应声虫机制成功实证——异源 reviewer 在 Round 2 复盘自己 Round 1 反馈时，基于第一性原理（status 二元生命周期 + 下游消费兼容）撤回了原判断。Claude+Codex 同源原本倾向保守的「侧通道方案」反而工程更稳健。 |
+| **是否触发元规则修订** | ❌ 否。M-000 v1.2 不修订。但本次 sanity check 撤回机制将作为 M-005 质量判据「sanity check 自身可撤回」原则的核心实证。 |
+| **Overrule 关系** | 显式 Overrule [#007](#007-adr-004005-异源评估--激进拆分--盲点识别批量入库) 裁决 C 中的「frontmatter `status: partially_superseded`」部分。#007 其他裁决（A/B/D/E/F）保留生效。**仅 `status` 字段写法**被 Overrule。 |
+| **元层级注记** | **sanity check 自身可撤回**——这是本次议题最重要的元层级洞见。Round 1 sanity check (DS+GM 共识 R1) → Round 2 sanity check 中 GM 复盘并撤回 R1 → 用户拍板接受 GM 撤回。证明：① 异源 sanity check 不是「一锤定音」的最终裁决，而是带有自反性的演进机制；② 防应声虫 prompt 设计（「复盘 Round N-1 反馈本身是否仍然正确」）能够触发 reviewer 撤回自己先前判断；③ 工程兼容性（下游脚本消费）有时优先于元数据语义纯粹性。本案将作为 M-005「质量判据自反性」+ M-002「裁决链条复盘机制」的核心实证案例。 |
+
+---
+
 ## 日志维护规则
 
 1. **append-only**：不删除历史条目，只追加新条目

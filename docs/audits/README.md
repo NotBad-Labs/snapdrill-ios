@@ -1,12 +1,37 @@
 ---
-last_verified: 2026-05-23
+last_verified: 2026-05-24
 layer: snapshot
+scope: audit-archive
 freshness:
   max_age_days: 180
   decay_trigger: [audit_round]
 ---
 
 > ⚠️ 历史路径迁移（2026-05-23）：本目录历史审计文件中对 `docs/workflow.md` 的引用已失效。该路径已迁移至 `docs/protocol.md`（user-decision-log #006）。本目录文件保留历史原貌不改动，引用追溯请使用新路径。
+
+## 历史锚点重定向字典 (Anchor Redirection Map)
+
+ADR-004/005 激进拆分后（user-decision-log #007），以下旧锚点重定向至归档：
+
+| 旧位置 | 新位置 |
+|---|---|
+| `docs/decisions/ADR-004-doc-system-deep-clean.md#三方对抗参与` | `docs/archive/audits/structural-cleanup-historical-record.md#三方对抗参与历史记录` |
+| `docs/decisions/ADR-004-doc-system-deep-clean.md#工具稳定性观察` | `docs/archive/audits/structural-cleanup-historical-record.md#工具稳定性观察` |
+| `docs/decisions/ADR-004-doc-system-deep-clean.md#工具选型决策` | `docs/archive/audits/structural-cleanup-historical-record.md#工具选型决策2026-05-19-旧立场` |
+| `docs/decisions/ADR-004-doc-system-deep-clean.md#phase-0-3-实施总结` | `docs/archive/audits/structural-cleanup-historical-record.md#phase-0-3-实施总结` |
+| `docs/decisions/ADR-004-doc-system-deep-clean.md#已落地本会话-commits` | `docs/archive/audits/structural-cleanup-historical-record.md#已落地本会话-commits` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#维度-1-收官观察2026-05-20` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#维度-1-收官观察2026-05-20` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#维度-2-收官观察2026-05-20` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#维度-2-收官观察2026-05-20` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#维度-3-收官观察2026-05-20` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#维度-3-收官观察2026-05-20` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#维度-3-元教训meta-finding` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#维度-3-元教训meta-finding` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#维度-4-收官观察2026-05-21` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#维度-4-收官观察2026-05-21` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#维度-4-工作流改进` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#维度-4-工作流改进` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#维度-5-收官观察2026-05-21` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#维度-5-收官观察2026-05-21` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#维度-6-收官观察2026-05-21` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#维度-6-收官观察2026-05-21` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#维度-7-收官观察--phase-10-全局收官2026-05-21` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#维度-7-收官观察--phase-10-全局收官2026-05-21` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#模型版本注2026-05-20-基线易变事实复审触发见下方-gap_due` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#模型版本注2026-05-20-历史快照` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#phase-10-全局收官` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#phase-10-全局收官` |
+| `docs/decisions/ADR-005-doc-semantic-layer-audit.md#文档新陈代谢约束连续性-vs-更新的协调机制` | `docs/archive/audits/phase10-semantic-audit-snapshot.md#phase-10-维度收尾纪律历史快照` |
 
 # Audits
 
