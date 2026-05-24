@@ -186,6 +186,22 @@ freshness:
 
 ---
 
+## 2026-05-25
+
+### #013 Gemini 主笔候选 model 误用事故 + 直接 API 修复 + Scripts/gemini_utils.py SSOT 同步
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-25 |
+| **冲突描述** | M-005 P2 阶段 4 家独立起草中，Gemini 草案启动方式连环错三层：(1) Claude 主分支调度 general-purpose subagent 让其"自己探索 CLI 用法"——`docs/tech/reference/agent-cli-models.md` 早已明示「Gemini 3.5 Flash GA ⚠️ CLI 不可达，走 Antigravity 桌面端或 curl `generativelanguage.googleapis.com`」（行 102-103），但调度时未把 SSOT 强制塞入 prompt；(2) Gemini subagent 实际跑了 `gemini-cli 0.42.0 -m gemini-2.5-flash`（**完全错的模型**，不是任务定义书要求的 3.5 Flash GA），CLI 接受这个 ID 但底层走 OAuth Code Assist endpoint，模型实质是上一代 2.5 Flash；(3) subagent 报告"实际可用 ID 是 `gemini-2.5-flash`"时，Claude 主分支没 grep SSOT 验证，直接信了并在对话里向帅哥复述。帅哥本人指出错误后才追溯。此事故同时验证了 [#002](#002-ai-模型工具版本信息一律-websearch-验证) WebSearch 验证纪律的必要性、Claude 私有 feedback `feedback_websearch_model_versions`（位于 `~/.claude/projects/.../memory/`，git-untracked）的有效性、以及当前 `Scripts/gemini_utils.py` MODELS 列表过期（2026-03-07 写的，没列 `gemini-3.5-flash`）。 |
+| **裁决** | **Q1 = 旧 gemini-2.5-flash 草案作废 + 归档作 §C 静默退化实证**：原文件 `docs/meta/M-005-quality-criteria-gemini.md` 移到 `docs/archive/audits/m005-static-degradation-evidence/M-005-quality-criteria-gemini-WRONG-MODEL-2.5-flash.md`，命名带 `WRONG-MODEL` 警示，保留作 M-005 §C 静默退化识别 + §H 主笔轮换 + §D 外部事实验证纪律的 3-in-1 活体实证。<br>**Q2 = Gemini 3.5 Flash GA 重跑**：用 `Scripts/gemini_utils.py` 走直接 API endpoint `generativelanguage.googleapis.com/v1beta`，model ID 显式 `gemini-3.5-flash`（GA 字面值），帅哥贴出临时 API key 注入到当前 Claude shell（不持久化，用完 unset），跑出 22920 bytes / 8800 nwc 新草案落 `docs/meta/M-005-quality-criteria-gemini.md`。<br>**Q3 = `Scripts/gemini_utils.py` MODELS 列表 SSOT 同步**：MODELS_DEEP / MODELS_FAST 首选改 `gemini-3.5-flash`，旧默认 `gemini-3.1-flash-lite-preview` 降级为兜底，注释附 2026-05-25 SSOT 锚点（指向 `docs/tech/reference/agent-cli-models.md`）。<br>**Q4 = API key 处置**：帅哥贴出的临时 key 计划每月 rotate；本会话用完即从 shell unset，不写入任何持久化文件（无 .env / 无 commit）；按 Claude 私有 feedback `feedback_leaked_key_policy`（git-untracked）提一次即止，不反复唠叨。 |
+| **理由** | 第一性：M-005 §D 外部事实验证纪律就是为防止本类事故而存在；M-005 在被自己起草的过程中被自己的规则约束——这是元规则自洽性的活体测试。如果纵容 gemini-2.5-flash 草案作为 4 家主笔候选之一进入 P3 折叠，等于让 M-005 §D 在自己起草过程中被 Overrule，元规则自我演进闭环就漏一道。<br>SSOT 同步：`Scripts/gemini_utils.py` 是项目内唯一调用直接 API 的代码，2026-03-07 写的 MODELS 列表过期是已知的"时效性签名漂移"（M-005 §D.1），但之前 [#002](#002-ai-模型工具版本信息一律-websearch-验证) 只更新了 SSOT 文档没同步代码，本次事故暴露了"文档刷新但代码不刷新"的二次漂移。Q3 修复 + future M-005 §D 应明确"SSOT 与消费 SSOT 的代码必须同步刷新"。 |
+| **是否触发元规则修订** | ❌ 否。M-000 v2.0 不修订。但本条作为 M-005 §C/§D/§H 起草时的核心实证案例（[#012](#012-m-005-起草启动--主笔轮换-deepseek--010-字数升级同-pr-落地) 已启动 M-005 起草），主笔（DeepSeek reasoner）在 P3 折叠后产 final 时**必须**显式引用本条作为 §C 静默退化 + §D WebSearch 纪律 + §H 主笔轮换的活体实证。 |
+| **Overrule 关系** | **不 Overrule 任何条款**。本条精化（非 Overrule）[#002](#002-ai-模型工具版本信息一律-websearch-验证) 适用范围：从"AI 模型版本一律 WebSearch 验证"扩展到"AI 模型版本一律基于 SSOT (`docs/tech/reference/agent-cli-models.md`) 验证 + SSOT 与消费 SSOT 的代码（如 `Scripts/gemini_utils.py`）必须同步刷新"。 |
+| **元层级注记** | **三层连环错的元层级洞见**：(1) **调度方未把 SSOT 强制注入 prompt**——让 subagent"自己探索 CLI"等于把 SSOT 退化为"建议参考"。M-005 §B 伪共识识别 + §I 自作主张越权防线起草时必须含"调度方对 subagent 的 SSOT 强制注入要求"。(2) **subagent 报告 model ID 时主分支未 grep SSOT 验证**——这是 [#002](#002-ai-模型工具版本信息一律-websearch-验证) WebSearch 纪律的二阶应用漏失：不只验证训练记忆，subagent 报告本身也算"外部事实陈述"必须验证。M-005 §D 必须明确"subagent 返回的 model ID / 工具版本 / API endpoint 必须 grep SSOT 验证后才能向上回报"。(3) **代码 SSOT 与文档 SSOT 不同步**——`agent-cli-models.md` 2026-05-22 更新了 GA model ID，但 `Scripts/gemini_utils.py` MODELS 列表停在 2026-03-07，导致即使代码消费 SSOT 也消费的是过期 SSOT。M-005 §G docaudit check 设计原则起草时必须含"文档 SSOT 与消费它的代码版本字段联动"的 check。本次三层连环错被帅哥本人一句指出，证明用户裁决权（M-000 v2.0 P2 PRIMARY）在结构性漂移识别上仍然是最后防线——这是 [#005](#005-docsmeta-归档治理--归档路径用户显式批准) 「批准权」机制的扩展实证（不只批准结构性决定，还兜底事实校验）。 |
+
+---
+
 ## 日志维护规则
 
 1. **append-only**：不删除历史条目，只追加新条目

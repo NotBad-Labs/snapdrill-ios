@@ -9,28 +9,33 @@ import urllib.error
 
 GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta"
 
-# 模型降级链（2026-03-07，基于 https://ai.google.dev/gemini-api/docs/models）
+# 模型降级链（2026-05-25 刷新，对齐 docs/tech/reference/agent-cli-models.md）
 #
-# 成本优化策略：首选 gemini-3.1-flash-lite-preview（$0.25/$1.50 per M tokens），
-# 比 3.1-pro-preview 便宜约 10 倍，PR review 质量满足需求。
+# Gemini 3.5 Flash GA（2026-05-19 Google IO 发布）已通过直接 API 端点
+# generativelanguage.googleapis.com 可达，model ID = "gemini-3.5-flash"。
+# gemini-cli 0.42.0 OAuth Code Assist endpoint 滞后于 GA，CLI 直接传该 ID 报 404；
+# 本脚本走直接 API，model ID 接受 GA 字面值。
 #
 # 深度审查链（全模块架构 review，~300K 字符）：
-#   flash-lite-preview（成本最优）→ 2.5-pro（质量保障）→ 2.5-flash（可用性兜底）
+#   3.5-flash（GA 首选，user-decision-log #012 主笔候选裁决依据）→
+#   3.1-flash-lite-preview（成本兜底）→ 2.5-pro（旧 GA 兜底）→ 2.5-flash（最低兜底）
 #
-# 快速审查链（PR diff review，~40K 字符，成本优先 + GA 可用性兜底）：
-#   flash-lite-preview（成本最优）→ 2.5-flash（GA 稳定兜底）
+# 快速审查链（PR diff review，~40K 字符）：
+#   3.5-flash（GA 首选）→ 3.1-flash-lite-preview（成本兜底）→ 2.5-flash（最低兜底）
 #
 # 已排除：gemini-3-pro-preview（3月9日下线）、gemini-2.0-flash（弃用中）
 
 MODELS_DEEP = [
-    "gemini-3.1-flash-lite-preview",  # 成本最优，$0.25/$1.50 per M tokens
-    "gemini-2.5-pro",                 # GA 稳定，中间层保障深度审查质量
-    "gemini-2.5-flash",               # GA 稳定快，兜底保证审查能完成
+    "gemini-3.5-flash",               # 2026-05-19 GA，首选；user-decision-log #012 裁决
+    "gemini-3.1-flash-lite-preview",  # 成本兜底
+    "gemini-2.5-pro",                 # 旧 GA 兜底
+    "gemini-2.5-flash",               # 最低兜底
 ]
 
 MODELS_FAST = [
-    "gemini-3.1-flash-lite-preview",  # 成本最优，首选
-    "gemini-2.5-flash",               # GA 稳定，兜底
+    "gemini-3.5-flash",               # GA 首选
+    "gemini-3.1-flash-lite-preview",  # 成本兜底
+    "gemini-2.5-flash",               # 最低兜底
 ]
 
 
