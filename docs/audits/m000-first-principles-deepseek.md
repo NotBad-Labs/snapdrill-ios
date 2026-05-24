@@ -1,3 +1,12 @@
+---
+last_verified: 2026-05-24
+layer: snapshot
+scope: audit-product
+freshness:
+  max_age_days: 90
+  decay_trigger: [m000_revision]
+---
+
 # M-000 第一性原理审计 — 独立扫 (家名: 异源独立扫)
 
 ## 总评 (≤ 200 字)
