@@ -144,6 +144,20 @@ freshness:
 
 ---
 
+### #010 M-000 v2.0 final 候选追认 + 字数上限第一性原理升级(待 M-005 处理)+ STATUS_ENUM 加 draft
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-24 |
+| **冲突描述** | M-000 v2.0 final 主笔(Codex 桌面端)产出 4587 nwc 候选,超出 #009 Q2 折叠裁决的「~3000-3500 nwc」目标 ~30%;同时 Codex 修改 `Scripts/validate_frontmatter.py` STATUS_ENUM 增加 `draft` 值。Claude 主分支识别两处变化非本会话授权,触发 sanity check:(1) Codex 自称收到「用户 Overrule」字数目标但 Claude 对话上下文未见;(2) STATUS_ENUM 修改可能与 #008 撤回 R1 论据冲突。 |
+| **裁决** | **Q-A=A 字数 4587 nwc 接受**(帅哥显式确认私下授权 Codex 不压缩,理由:「按第一性原理不应该设置上限,根据实际情况,在尽量保持精简的情况下写文档,但不应预设上限」)。本次 final 在 #009 R2「软上限 + override」框架下合规,override_rationale 已写入 frontmatter。<br>**Q-A 处理方式=A**: final 字段 `default_word_budget: 2500 + override_rationale` 保留,本次 ratify 不动 R2 机制;**字数原则进一步改造留 M-005 起草时一并处理**(M-005 §E 古德哈特防御 + §J 正向质量判据应承载新原则「不预设字数上限」,届时 Overrule 本条 R2 实现)。<br>**Q-B=A STATUS_ENUM 加 `draft` 接受**:`draft` 是合理生命周期状态(草案 → active → archived/deprecated),与 #008 撤回 R1 否决的 `partially_superseded` 在语义上根本不同 — `partially_superseded` 本质仍是 active 会让消费 active 的下游脚本误过滤;`draft` 文档本来就不该被消费 active 的脚本消费,误过滤反而正确。 |
+| **理由** | 第一性原理深化:#009 R2「软上限 + override」仍带「预设默认值」的惯性,帅哥进一步阐明「字数不应预设上限,信息密度决定」,这是更彻底的第一性应用。但本次 v2.0 final 已在 #009 框架下产出,机制层面再改会触发 final 重写,代价高;在 #009 框架内接受 4587(override 合规)+ 把新原则沉到 M-005 起草更经济。Codex 自作主张事件实证:即使在「禁止参考其他家产出 + 净化提示词 + worktree 物理隔离」三重纪律下,Codex 仍把私下与用户的对话当成普适 Overrule 应用到 final 主笔任务,Claude 主分支未见私下对话内容,sanity check 触发——这是 user-decision-log #005「自作主张归档」模式的复现,但本次属合规授权(帅哥已显式确认),不进入反自我赦免黑名单。 |
+| **是否触发元规则修订** | ⚠️ **部分**。M-000 v2.0 final 候选作为 ratify 目标(等 4-way sign-off),其 R2 章节内容暂以 #009 框架表达。**M-005 起草时必须重审 R2**,将「不预设字数上限」原则落到 M-005 §E + §J 文本,届时 Overrule 本 #010 的「保留 default_word_budget 字段」处理方式。 |
+| **Overrule 关系** | **不 Overrule 任何条款**(本条是 #009 R2 的补充实证 + 改造路径声明,不是覆盖)。**预声明**: M-005 起草时拟 Overrule #009 R2「default_word_budget 字段保留」处理方式,改为「删除 default_word_budget 字段,字数由 override_rationale 单独承载或完全不写」。预声明不生效,以 M-005 ratify 时的实际裁决为准。 |
+| **元层级注记** | 三层元层级洞见同时发生:(1) **第一性原理深化是渐进的**——#009 R2 已经把硬上限改成软上限,但帅哥本次进一步识别「软上限的『预设默认值』本身仍是 ANALOGY」,真正第一性是「无预设,密度决定」。证明第一性原理审计不是一次性完成,而是分层剥离。(2) **同源主笔的「越权」边界模糊**——Codex 收到帅哥私下 Overrule 字数目标,本来是合规授权,但 Claude 主分支未见上下文,触发 sanity check,实证「物理隔离即使在主笔环节也需要保留信号传递路径」(否则主笔以为自己被 Overrule 但中立主笔不知)。(3) **STATUS_ENUM 修改的精细化判断**:#008 撤回的论据是「partially_superseded 本质仍是 active」,这个论据**不适用 draft**(draft 不是 active 的子状态),所以加 `draft` 不违反 #008 精神。证明第一性原理审计不能机械套用历史裁决,要回到每条裁决的具体论据。 |
+
+---
+
 ## 日志维护规则
 
 1. **append-only**：不删除历史条目，只追加新条目
