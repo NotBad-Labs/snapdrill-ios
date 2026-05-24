@@ -130,6 +130,20 @@ freshness:
 
 ---
 
+### #009 M-000 第一性原理审计 — 7 红旗接受改造 + 3 分歧全保留 + 启动 v2.0 起草
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-24 |
+| **冲突描述** | 帅哥发起 M-000 元规则体系第一性原理审计，质疑当前体系是否真正符合第一性原理。4 家异源独立审计（Claude 24 项 / DeepSeek 7 项 / Gemini 14 项 / Codex 12 项，物理隔离 + 净化提示词 + 5 问审计 + Verdict 4 类）后折叠出 7 条强共识红旗 + 3 条关键分歧 + ~3 条强共识 PRIMARY。元结论：M-000 真正 PRIMARY 内核约 5-8 条，其余 ~70% 是法律隐喻 / 软件工程模板的借用。 |
+| **裁决** | **Q1=A 接受全部 7 条强共识红旗改造**：<br>R1. 删除「协作宪法」叙事，改朴素表述（4/4 ANALOGY）。<br>R2. 字数 B+ 硬数字（2500/400/4000）改软上限 + override_rationale 机制（4/4 非 PRIMARY，M-005 plan 已实证）。<br>R3. frontmatter layer 6 枚举（principle/pattern/snapshot/archive/decision/contract）简化为 3 类或转多标签（4/4 非 PRIMARY）。<br>R4. docaudit 11 check 拆开逐个 5 问审计，砍到 5-6 项高频触发，其余转可选（3/3 非 PRIMARY）。<br>R5. 5 phases 起草流程缩到 3 phases（准备/独立产出/合并裁决），phase 数随复杂度浮动（3/3 非 PRIMARY）。<br>R6. 古德哈特防御机制保留（实质 PRIMARY），命名改「目的优先原则」删经济学借词（3/3 命名 ANALOGY）。<br>R7. KNOWLEDGE_MAP 45/50 文件硬上限改软信号 + 多指标（Boot 字符预算 + 引用度 + 访问频率）（2/2 INHERITED）。<br>**Q2/Q3/Q4=A 三条关键分歧全部阵营 A 保留**：<br>D1. 默认多方异源（M-000 §3）保持 PRIMARY，不改风险触发（Claude+DS 力挺，GM+Codex 改造提议拒绝）。<br>D2. worktree 物理隔离保持 PRIMARY，不废除（Claude+Codex 力挺，GM 唯一反对论据靶子错位）。<br>D3. Overrule + append-only user-decision-log 保持 PRIMARY，不简化为 supersedes（Codex PRIMARY，Claude+GM 借 ADR 模板异议被拒）。<br>**Q5=A 改造范围 = 直接起草 M-000 v2.0** 一次性大改：4 家异源独立起草 + 折叠 + 主笔 + 4-way sign-off + ratify。 |
+| **理由** | 4 家异源审计是 M-000 体系自身的应用实证（用 §3 默认多方 + §7.2 同源警告 + worktree 物理隔离 + 净化提示词审 M-000 自己），结果同时验证了 M-000 PRIMARY 内核（异源能识别同源盲点）和暴露了 M-000 ANALOGY 外壳（70% 法律隐喻/工程模板借用）。Q5=A 直接 v2.0 大改而非单点修订，理由：7 条红旗 + 3 条 PRIMARY 保留已经形成结构性认知，单点修订会让 M-000 文本与 user-decision-log 长期不同步，新成员 Boot 时认知割裂；一次性 v2.0 + 4-way sign-off 反而周期可控（M-000 v1.0 起草用了 ~1 周）。 |
+| **是否触发元规则修订** | ✅ **是**。M-000 v1.2 将被 v2.0 替代。当前 v1.2 保留为历史 ratified 版本（git 历史 + 可能归档 `docs/archive/meta/M-000-v1.2.md`）。v2.0 起草任务定义书：`docs/audits/m000-v2-drafting-task-definition.md`（待创建）。 |
+| **Overrule 关系** | ⚠️ **本裁决不直接 Overrule M-000 v1.2 任何条款**——条款覆盖发生在 M-000 v2.0 ratify 时。本裁决仅授权启动 v2.0 起草。同时 Overrule [#007](#007-adr-004005-异源评估--激进拆分--盲点识别批量入库) §F 中「M-000 §3/§7.2 完全接管异源原则」的隐含「M-000 §3/§7.2 永久稳定」假设——M-000 §3/§7.2 条款本身在 v2.0 中可能 reword（虽然 D1/D2 裁决保留其 PRIMARY 内核）。 |
+| **元层级注记** | **第一性原理审计是 M-000 体系自我验证的最强实证**：体系用自身的核心机制（默认多方异源 + worktree 物理隔离 + 净化提示词 + 5 问审计）审计自身，4 家给出高度收敛的红旗清单（7 条 ≥3 家共识），同时各家在 D1/D2/D3 上的真实分歧也验证了「异源不会假同意」。最讽刺的发现：M-000 §5 字数 B+ 方案 2500 nwc 硬数字（M-005 plan 起草时已被 #009 突破——等等这就是本条 #009 自身）形成元循环：M-000 自己的字数约束在 M-000 自己的审计中被识别为 ANALOGY 红旗。本审计将作为 M-005 §F sanity check 自反性的最大规模实证（不是某个 finding 被推翻，而是顶层规则文档自己的 70% 被识别为非第一性）。 |
+
+---
+
 ## 日志维护规则
 
 1. **append-only**：不删除历史条目，只追加新条目
