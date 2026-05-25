@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-24
+last_verified: 2026-05-25
 layer: snapshot
 scope: audit-archive
 freshness:
@@ -7,7 +7,36 @@ freshness:
   decay_trigger: [audit_round]
 ---
 
-> ⚠️ 历史路径迁移（2026-05-23）：本目录历史审计文件中对 `docs/workflow.md` 的引用已失效。该路径已迁移至 `docs/protocol.md`（user-decision-log #006）。本目录文件保留历史原貌不改动，引用追溯请使用新路径。
+# docs/audits/ — 入口索引
+
+> ⚠️ **2026-05-25 系统性归档**（#022）：本目录从 75 个文件减至 3 个 active。所有已 ratified 流程的起草过程产物归档至 `docs/archive/audits/<sub-dir>/`。详见下方归档索引。
+
+## Active 文件清单（3 个）
+
+| 文件 | 用途 |
+|---|---|
+| `README.md` | 本入口 |
+| `skill-audit-final.md` | 路径 C [#018](../meta/user-decision-log.md#018) skill audit 最终主笔产物（仍被 user-decision-log + standards/skill-architecture.md 引用，保留 active）|
+| `single-vendor-audit-prompt-template.md` | 单家审计 prompt 模板（被 standards 引用）|
+
+## 归档索引（2026-05-25 #022 重组）
+
+| 归档子目录 | 内容 | 文件数 | 关联裁决 |
+|---|---|---|---|
+| [path-c-stage-7/](../archive/audits/path-c-stage-7/) | 路径 C Stage 7 M-003 v1 ratify | 30+ | [#021](../meta/user-decision-log.md#021) |
+| [path-c-stage-6/](../archive/audits/path-c-stage-6/) | 路径 C Stage 6 反思 + patch + sign-off | 5 | [#020](../meta/user-decision-log.md#020) |
+| [path-c-skill-audit/](../archive/audits/path-c-skill-audit/) | 路径 C skill audit 起草过程 | 9 | [#018](../meta/user-decision-log.md#018) |
+| [m000-first-principles/](../archive/audits/m000-first-principles/) | #009 第一性原理审计 | 6 | [#009](../meta/user-decision-log.md#009) |
+| [m000-v2/](../archive/audits/m000-v2/) | M-000 v2.0 起草 + sign-off | 5 | [#011](../meta/user-decision-log.md#011) |
+| [m005-v2/](../archive/audits/m005-v2/) | M-005 v2 起草 + sign-off | 8 | [#015](../meta/user-decision-log.md#015) |
+| [semantic-audit/](../archive/audits/semantic-audit/) | 7 维度语义层审计（Phase 10）| 14 | pre-#009 |
+| [S-D-series/](../archive/audits/S-D-series/) | 早期 D4/D7 worktree 审计 | 25 | pre-#009 |
+
+---
+
+## 历史锚点重定向字典 (Anchor Redirection Map, 2026-05-23)
+
+> ⚠️ 历史路径迁移：本目录历史审计文件中对 `docs/workflow.md` 的引用已失效。该路径已迁移至 `docs/protocol.md`（user-decision-log #006）。本目录文件保留历史原貌不改动，引用追溯请使用新路径。
 
 ## 历史锚点重定向字典 (Anchor Redirection Map)
 

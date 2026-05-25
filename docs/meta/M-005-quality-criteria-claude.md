@@ -496,4 +496,4 @@ M-005 视为 M-000 v2.0 §11 派生表中"M-005 质量判据与退化检测"行�
 - [user-decision-log](user-decision-log.md) #001~#012（M-005 §A~§J 实证全集）
 - [M-001~M-006 followup backlog](M-001-to-M-006-followup-backlog.md)（MC-1 静默退化 / MC-2 WebSearch / MC-10 否决权阈值已落本文）
 - [agent-cli-models.md](../tech/reference/agent-cli-models.md)（§D 验证纪律外部刷新基线）
-- [docs/audits/m005-drafting-task-definition.md](../audits/m005-drafting-task-definition.md)（本草案的输入任务定义书）
+- [docs/archive/audits/m005-v2/m005-drafting-task-definition.md](../archive/audits/m005-v2/m005-drafting-task-definition.md)（本草案的输入任务定义书）
