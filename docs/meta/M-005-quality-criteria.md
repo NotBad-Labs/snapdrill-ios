@@ -383,30 +383,38 @@ skill 升降级采用与 docaudit check 升降级（§G.1~§G.4）**同源**的�
 
 skill 审计的主笔提名规则与 M-005 §H 主笔轮换原则同源——避免连续同源主笔审 skill 累积同源偏向。M-001 ratify 后会承接 skill 审计主笔的具体提名流程。
 
-### §G.6 derived_from frontmatter check（[#024](user-decision-log.md#024) 新增，可选 → 核心待 30 天观测）
+### §G.6 derived_from frontmatter check（[#024](user-decision-log.md#024) 设计 ratify，未实施 — proposed 阶段）
+
+**状态明示**（Codex GUI sign-off [#024-block](#024) 修正后）：本节是 **proposed check 设计文档**，**未实施于 docaudit / execution-gates**。提案文档参 `docs/audits/proposed-check-derived-from-required.md`（按 §G.4 提案路径）。docaudit `--check derived-from-required` 子命令 + `execution-gates.md` 登记 + ≥3 次审计运行 + 30 天观测 + 误报率 <20% 后方进入可选 check 列表，再按 §G.4 升级路径升核心。
 
 **事故来源**：[#022](user-decision-log.md#022) 后路径 C 深度审计发现 102/103 文件 frontmatter 缺 `derived_from` 字段（D1 维度缺失率 95%+），M-000 §11 SSOT 注册表完整但「派生锚未传导到文档自身」——构成 §11.10 schema 设计 vs 实施落差。
 
-**检测方法**（按 §G.4「可选 → 核心」升级路径）：
+**检测方法设计**：
 
-1. 扫描所有 `docs/**/*.md`（排除 `docs/product/` + `docs/archive/`）
+1. 扫描范围：所有 `docs/**/*.md`，排除：
+   - `docs/product/**`（产品文档）
+   - `docs/archive/**`（历史归档）
+   - **`docs/tech/**`（§11.7 产品支撑路径硬豁免，不依赖 scope 字段）**
 2. 若 frontmatter 缺 `derived_from:` 字段：
-   - 含 `scope: product-support` → 豁免（§11.7 产品支撑类）
-   - 否则报 warning（30 天宽限期内）或 error（过期后）
+   - 含 `scope: product-support` → 豁免（§11.7 产品支撑类显式标注）
+   - 否则报 warning（30 天宽限期 ≤2026-06-25 内）或 error（过期后）
 3. 若 `derived_from:` 字段格式不合 schema（参 M-000 §11.10）→ 一律 error
+   - 必须 array of strings（不接受标量）
+   - 元素格式必须匹配 `M-NNN` / `M-NNN §N` / `M-NNN §N.N` / `user-decision-log #NNN`
 4. 若 `derived_from:` 引用的 M-NNN §N 在 M-000 / M-001~M-006 中不存在 → error
 
-**误报率估算**：< 10%（schema 明确，机械可校验，主要误报来自 §11.7 边界判断）。
+**误报率估算（修正）**：扫描范围硬豁免 `docs/tech/**` 路径后，预期误报率 <5%（原 <10% 估算未考虑 docs/tech/ 多数缺 scope: product-support 字段，会被全部误报）。
 
-**预期消费端**：
-- `Scripts/audit/docaudit.py`（新增 `--check derived-from-required`）
-- `docs/standards/execution-gates.md`（同步登记）
-- M-000 §11.10 schema 规则
+**预期消费端（待实施）**：
+- `Scripts/audit/docaudit.py`（新增 `--check derived-from-required` 子命令，**未实现**）
+- `docs/standards/execution-gates.md`（同步登记到 optional_checks 表，**未登记**）
+- M-000 §11.10 schema 规则（**已 ratify**）
 
-**升级路径**：
-- 起始：可选 check，30 天观测期（≤2026-06-25），warning 级
-- 满足 §G.2 条件（≥3 次审计运行 + 30 天 + 误报率 <20%）后升核心 + error 级
-- 升核心时同步更新 `execution-gates.md` core_checks 表（[#014 D5](user-decision-log.md#014-m-005-p3b-八处分歧裁决)）
+**升级路径（严格遵循 §G.4）**：
+- 第一阶段（**当前**）：proposed-check 文档 + M-005 §G.6 设计入档
+- 第二阶段：实现 `Scripts/audit/docaudit.py --check derived-from-required` + `execution-gates.md` 登记可选 check + 异源评估
+- 第三阶段：≥3 次审计运行 + 30 天观测（≤2026-06-25 之外另算）+ 误报率 <20% → 可选 check 升核心
+- 第四阶段：升核心时同步更新 `execution-gates.md` core_checks 表（[#014 D5](user-decision-log.md#014-m-005-p3b-八处分歧裁决)）
 
 ---
 

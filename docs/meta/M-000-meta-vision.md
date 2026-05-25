@@ -243,9 +243,9 @@ derived_from: [<anchor>, <anchor>, ...]
   - `derived_from: [M-005 §J, M-000 §11.6]` — 多源（一般 1-2 个，>3 应再审「派生关系是否成立」）
   - `derived_from: [M-001]`（不写 §N）— 整个元规则派生（如 delegation 类）
 
-**适用范围**：所有 §11.1-§11.6 注册条目（必填）。§11.7 产品支撑（frontmatter `scope: product-support`）豁免；§11.8 私有 memory 不适用（git 外）。
+**适用范围**：所有 §11.1-§11.6 注册条目（必填）。§11.7 产品支撑双重豁免（路径硬豁免 `docs/tech/**` + 字段豁免 `scope: product-support`，两者任一成立即豁免）；§11.8 私有 memory 不适用（git 外）。
 
-**docaudit check**：`derived_from_required` — 详 M-005 §G.6（初始可选，30 天观测后升核心）。
+**docaudit check**：`derived_from_required` — 详 M-005 §G.6（**当前为设计 ratify，未实施于 docaudit**；走 §G.4 proposed-check 路径，提案文档参 `docs/audits/proposed-check-derived-from-required.md`）。
 
 #### 注册维护规则
 
