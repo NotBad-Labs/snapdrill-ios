@@ -2,33 +2,45 @@
 last_verified: 2026-05-25
 layer: pattern
 ---
-# 项目纪律索引（F-NNN 规则）
 
-> F 规则已 skill 化 / rule 化。本文件为索引，不做权威定义源（F-004 例外，见"政策标签"段）。
-> 各规则的权威定义在其对应的 skill 或 rule 文件中。
+# F-NNN 规则 — 全部退役（[#022](../meta/user-decision-log.md#022)）
 
-## 规则路由
+> **2026-05-25 系统性消解**（#022 第六次元规则修订）：所有 F-NNN 规则**全部退役**。原因：F-rule 是 pre-M-000 时代的临时编号体系，与 M-000 §8「概念单一权威」+ M-003 §6「派生映射」冲突——每条 F-rule 都有正式的 skill/standards/protocol 权威源，F-NNN 编号是冗余索引层。
+>
+> 本文件保留为**历史 redirect 索引**：500+ 个仓库内 F-NNN 引用通过本表追溯到当前权威源，便于后续 PR 批量替换为直接引用。新规则不再使用 F-NNN 编号，按 M-003 §2 决策树（standards / templates / hooks / scripts / M-001~M-006 / skill 末位）选择归宿。
 
-| 编号 | 规则 | 权威源 | 触发方式 |
-|---|---|---|---|
-| F-001 | Git 工作流纪律 | `docs/protocol.md` § Git 工作流 | 所有 git 操作 |
-| F-004 | 内测不做 Schema 迁移 | 本文件（policy 标签，timeboxed，见下方"政策标签"段） | Model 文件变更时 |
-| F-005 | 对抗性审查 | `docs/protocol.md` § Code Review | PR 提交/合并时 |
-| F-006 | 审计深度验证 | `verify-audit-report` skill | 收到审计报告时 |
-| F-007 | CI 双时点门禁 | `post-merge` skill + hooks | PR 合并时 |
-| F-008 | 三方相同完整任务 | `cross-audit` skill | 审计启动时 |
-| F-012 | 全量做不偷懒 | `verify-audit-report` skill | 审计验证时 |
-| F-013 | Scope 膨胀拆分 | `sprint-contract` skill | 编码时 |
-| F-014 | 跳过测试门禁 | `sprint-contract` skill | 编码时 |
-| F-017 | UI/SDK 调研 | `api-research` skill | UI/SDK 改动时 |
-| F-018 | 编码前契约 | `sprint-contract` skill | Issue 进入 Building |
-| F-019 | 反模式回流 | `post-merge` skill | PR 合并后 |
+## 全量退役 redirect 表
 
-## 政策标签（本文件就地权威）
+| 退役编号 | 原规则名 | 权威源（替换为直接引用）|
+|---|---|---|
+| F-001 | Git 工作流纪律 | `docs/protocol.md` § Git 工作流 |
+| F-002 | （早期合并）| `docs/standards/engineering.md` 原则 2 + `docs/KNOWLEDGE_MAP.md` 路由 |
+| F-003 | （早期合并）| `docs/DOC_DEPENDENCY_MAP.md` |
+| F-004 | 内测不做 Schema 迁移 | `docs/standards/migration-policy.md`（待建）或 `docs/protocol.md` 临时段 — 见下方「F-004 timeboxed policy 处理」|
+| F-005 | 对抗性审查 | `docs/protocol.md` § Code Review |
+| F-006 | 审计深度验证 | `.claude/skills/verify-audit-report/SKILL.md` |
+| F-007 | CI 双时点门禁 | `docs/standards/ci-gates.md`（如有）+ `.claude/hooks/` |
+| F-008 | 三方相同完整任务 | `docs/templates/cross-audit-workflow.md`（cross-audit skill 已 DOWNGRADE）|
+| F-009 | （早期合并）| `docs/standards/review-prompt-guide.md`（如有）|
+| F-010 | （早期合并）| `docs/protocol.md` |
+| F-011 | 审计期间三方只读 | `docs/templates/cross-audit-workflow.md` |
+| F-012 | 全量做不偷懒 | `.claude/skills/verify-audit-report/SKILL.md` |
+| F-013 | Scope 膨胀拆分 | `docs/templates/sprint-contract.md` |
+| F-014 | 跳过测试门禁 | `docs/templates/sprint-contract.md` |
+| F-015 | （早期合并 → F-007）| 同 F-007 |
+| F-016 | 质疑方批准 | `docs/templates/cross-audit-workflow.md` |
+| F-017 | UI/SDK 调研 | `.claude/skills/api-research/SKILL.md`（如有）或 `docs/standards/api-research.md` |
+| F-018 | 编码前契约 | `docs/templates/sprint-contract.md` |
+| F-019 | 反模式回流 | `.claude/skills/post-merge/SKILL.md`（如有）|
+| F-020 | （早期合并 → F-005）| 同 F-005 |
 
-不值得单独建 skill 的短期/timeboxed policy 直接在本段定义。
+## F-004 timeboxed policy 处理
 
-### F-004 — 内测不做 Schema 迁移
+F-004 是唯一在 feedback.md 本地权威定义的 policy（内测不做 Schema 迁移，App Store 上架后废止）。退役后内容迁移至 `docs/standards/migration-policy.md`（待 #022 后续 PR 创建）或临时保留在 `docs/protocol.md`。Timebox 不变：`review_after: 2026-07-01` / `sunset: App Store 上架后`。
+
+**临时归宿**（本次 commit）：保留在本文件下方「F-004 临时定义段」，待 standards/migration-policy.md 建立后迁移。
+
+## F-004 临时定义段（待迁移）
 
 **规则**：内测期（App Store 上架前）SwiftData 模型变更不走 schema migration，直接 reset 本地数据库。任何破坏性 Model 改动只需保证编译通过 + 测试通过，不需要写 `SchemaMigrationPlan`。
 
@@ -36,34 +48,21 @@ layer: pattern
 
 **触发**：改 `Packages/*/Models/*.swift` 或任何 `@Model` 类型的字段时。
 
-**Timebox**：`review_after: 2026-07-01`，`sunset: App Store 上架后强制废止`。届时本段移入退役表，启用正式 migration 流程。
+**Timebox**：`review_after: 2026-07-01`，`sunset: App Store 上架后强制废止`。届时本段删除，启用正式 migration 流程。
 
-## 触发方式声明语义
+## 后续 PR 批量替换计划
 
-「触发方式」列是**典型场景关键词**，不是穷举的精确触发条件：
-- `所有 git 操作`：≠ 每一条 git 命令都强制触发；指**关键 git 操作（push / merge / branch 切换 / commit msg 体例）需遵守 F-001**。日常 `git status / log / diff` 不触发
-- `编码时`：泛指代码改动场景；具体触发由各 skill 的 frontmatter / 启动逻辑决定
-- `所有 PR review`：含人审 + 各 agent 自审 + Codex/Gemini 委派 review 留痕，不限于 GitHub PR comment
+500+ 处 `F-NNN` 引用按以下顺序分批替换为直接引用（每批独立 commit）：
 
-不同 F-rule 的实际触发覆盖率因 skill 实现而异；用 `docaudit rule-usage` 和 commit log grep 复核实际应用率，而非依赖触发方式列的字面表达。
+1. **批 1**：高频 F-005（124 refs）+ F-018（90 refs）→ 替换为 `docs/protocol.md § Code Review` 与 `docs/templates/sprint-contract.md`
+2. **批 2**：F-008（74 refs）+ F-001（58 refs）→ 替换为 templates/cross-audit-workflow.md 与 docs/protocol.md § Git 工作流
+3. **批 3**：F-012/F-013/F-014/F-017/F-019（中频）→ 替换为对应权威源
+4. **批 4**：F-006/F-011/F-016（剩余）+ F-007（残留）→ 替换 + 检查零残留
 
-## 编号规则
+替换完成后本文件可整体归档至 `docs/archive/audits/F-rules-redirect/`。
 
-- 格式 `F-NNN`（三位数字零 padding）
-- 编号单调自增，退役不复用
-- 新规则先在对应 skill/rule 文件中定义，再在本表追加一行
+## 编号规则（已废止）
 
-## 退役记录
+~~格式 `F-NNN`（三位数字零 padding）。编号单调自增，退役不复用。~~
 
-以下编号已退役，保留供历史 git log 溯源：
-
-| 编号 | 退役日期 | 去向 |
-|---|---|---|
-| F-002 | 2026-05-19 | 字面悬空、无 skill/PR 引用；事实上由 `docs/standards/engineering.md` 原则 2 + `docs/KNOWLEDGE_MAP.md` 路由覆盖，编号无独立价值 |
-| F-003 | 2026-04-22 | 合并入 DOC_DEPENDENCY_MAP.md |
-| F-009 | 2026-04-22 | 合并入 review-prompt-guide.md |
-| F-010 | 2026-04-22 | 合并入 protocol.md |
-| F-011 | 2026-05-25 | 依附的 `cross-audit` skill 在 [#017](../meta/user-decision-log.md#017) / [#019](../meta/user-decision-log.md#019) 裁决 DOWNGRADE 为模板，规则的 skill 权威源失效。F-rule 概念已并入 `docs/templates/cross-audit-workflow.md` 内联。20 refs 但全部指向已 DOWNGRADE 的 skill。[#022](../meta/user-decision-log.md#022) |
-| F-015 | 2026-04-22 | 合并入 F-007 |
-| F-016 | 2026-05-25 | 同 F-011：依附的 `cross-audit` skill 已 DOWNGRADE 为模板，规则的 skill 权威源失效。F-rule 概念已并入 `docs/templates/cross-audit-workflow.md` 内联。10 refs 全部指向已 DOWNGRADE 的 skill。[#022](../meta/user-decision-log.md#022) |
-| F-020 | 2026-04-21 | 合并入 F-005 |
+**新规则不再使用 F-NNN 编号**。按 M-003 §2 决策树选择归宿：standards / templates / hooks / scripts / M-001~M-006 派生 / skill（末位优选）。
