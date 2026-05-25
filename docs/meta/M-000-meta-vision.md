@@ -156,7 +156,7 @@ docaudit 只证明“可机械检查的结构信号通过”，不证明事实�
 | `M-005-quality-criteria-{claude,codex,deepseek,gemini}.md` | ❌ 已归档至 `docs/archive/audits/m005-v2/`（[#022](user-decision-log.md#022)）| 4 家草案过程残留 |
 | `M-000-{input,round2,round3,final}-prompt.md` | ❌ 已归档至 `docs/archive/audits/m000-v2/`（[#022](user-decision-log.md#022)）| 起草过程模板，路径 C 后改 task definition 体例 |
 
-### §11.3 标准规范派生（`docs/standards/` 24 个）
+### §11.3 标准规范派生（`docs/standards/` 30 个）
 
 | 文档 | 派生归宿 |
 |---|---|
@@ -167,6 +167,8 @@ docaudit 只证明“可机械检查的结构信号通过”，不证明事实�
 | `permission-model.md` / `memory-routing.md` | M-001 协作派生（主笔权限 / 知识路由）|
 | `dependency-propagation.md` | M-005 §J 文档密度治理派生 |
 | `ci-cd.md` | M-004 降级操作手册派生（待 ratify）|
+| `ai-toolchain-specs.md` / `deepseek-delegation.md` / `gemini-cli-reference.md` / `claude-cooperation-behavior.md` | M-001 协作工作流派生（P2.C4 由 `tech/reference/reference_*` 迁入，职能错配修正）|
+| `ci-infrastructure.md` / `snapshot-testing-environment.md` | M-005 §A 工程质量判据（P2.C4 由 `tech/reference/reference_*` 迁入，职能错配修正）|
 | `README.md` | M-000 派生（入口）|
 
 ### §11.4 工作流模板派生（`docs/templates/` 9 个）
@@ -198,12 +200,12 @@ docaudit 只证明“可机械检查的结构信号通过”，不证明事实�
 
 **[#023](user-decision-log.md#023) supersede**：`KNOWLEDGE_MAP.md` 因与本 §11 v2 SSOT 注册表职能重复（同为「文件分类索引」），按 [#022](user-decision-log.md#022) 「能融入则融入，否则删除」原则删除，不归档。「三层 layer 分类」概念融入各文档 frontmatter `layer:` 字段。
 
-### §11.7 产品支撑（`docs/tech/` 13 个，[#022 A 路径裁决](user-decision-log.md#022)：视为产品支撑，不强制 M-000 派生锚）
+### §11.7 产品支撑（`docs/tech/` 7 个，[#022 A 路径裁决](user-decision-log.md#022)：视为产品支撑，不强制 M-000 派生锚）
 
 | 子目录 | 用途 |
 |---|---|
 | `docs/tech/{architecture,api-pitfalls,compliance,deployment,non-functional-requirements,apple-limits}.md` | 项目技术架构 / 合规 / 部署 / NFR 现状记录 |
-| `docs/tech/reference/{agent-cli-models,reference_*}` × 7 | 外部工具 / 模型 / API 快照（强时效性，max_age_days 严约束）|
+| `docs/tech/reference/agent-cli-models.md` × 1 | 外部工具 / 模型 / API 快照（强时效性，max_age_days 严约束）。P2.C4 由 7 缩为 1：其余 6 个职能错配（snapshot 名义实质 standards）已迁移至 `docs/standards/`（见 §11.3 表内 P2.C4 标注行）|
 
 ### §11.8 智能体私有 memory（用户级，非 git-tracked）
 

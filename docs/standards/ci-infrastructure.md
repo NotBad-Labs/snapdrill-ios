@@ -1,5 +1,6 @@
 ---
 last_verified: 2026-05-25
+derived_from: [M-005 §A]
 layer: snapshot
 freshness:
   max_age_days: 60
