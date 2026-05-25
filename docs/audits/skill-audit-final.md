@@ -21,7 +21,7 @@ override_rationale: |
 
 4 家异源审计（Claude / Codex / DeepSeek / Gemini）产 87% 分歧率（52 项中仅 7 项 3+/4 共识）。Stage 3.5 用户裁决 #017 逐条裁决 45 项分歧，最终方向：**82% skill 改变形态**。
 
-**52 → ~17 个净化版**（净减 67%）。按 Verdict 分类：
+**52 → 10 个 active skill**（净减 81%，§4.7 精确统计）+ 5-6 个 standards + 9 个 templates + 31 个归档。按 Verdict 分类：
 
 | Verdict | 数量 | 占比 | 说明 |
 |---|---|---|---|
@@ -61,21 +61,22 @@ override_rationale: |
 | 6 | ui-review | **MERGE** | 3/4 | 合并到 SwiftUI 容器（§3 解） |
 | 7 | verify-audit-report | **KEEP** | 3/4 | 保留，Stage 5 无动作 |
 
-### §2.2 13 个已明确合并目标的 MERGE（#017 已有）
+### §2.2 10 个已明确合并目标的 MERGE（#017 已有；含链式 1 个）
 
 | # | skill | Verdict | 合并目标 | 说明 |
 |---|---|---|---|---|
 | 8 | tdd-bug-fix | MERGE | tdd-feature | 同 TDD 工作流不同入口 |
 | 9 | tdd-refactor-guard | MERGE | tdd-feature | 重构前置 safety check |
 | 10 | swiftui-debugging | MERGE | swiftui-pro | 性能调试纳入 SwiftUI 容器 |
-| 11 | snapshot-diff-review | MERGE | snapshot-testing | 同一视觉回归体系 |
+| 11 | snapshot-diff-review | MERGE | snapshot-testing → tdd-feature（链式 §3.2 解析） | 同一视觉回归体系 |
 | 12 | app-store-rejection | MERGE | app-description-writer | App Store 提交容器 |
 | 13 | keyword-optimizer | MERGE | app-description-writer | ASO 并入 App Store 容器 |
 | 14 | tipkit-generator | MERGE | onboarding-generator | 功能引导同类 |
 | 15 | data-export | MERGE | privacy-manifests | 数据导出→隐私/数据容器 |
 | 16 | knowledge-health | MERGE | docs/templates/knowledge-health-workflow.md | 降格为工作流模板 |
 | 17 | decision-closeout | MERGE | M-002（暂保留） | 等 M-002 ratify 后转 |
-| 18 | xcode-review | KEEP |（独立保留，#017 帅哥裁决） | 不合并 |
+
+注：xcode-review = KEEP（#017 帅哥裁决独立保留），归类到 §2.8 KEEP 列表，**不在本 MERGE 表中**。本表共 10 项 MERGE（不是 13；外链式 13 见 §2.3，共识 1 个 ui-review MERGE 见 §2.1，总 MERGE = 10+13+1 = 24，与 §1 一致）。
 
 ### §2.3 13 个外链式 MERGE（本报告解）
 
@@ -83,17 +84,17 @@ override_rationale: |
 |---|---|---|---|---|
 | 19 | accessibility-generator | **swiftui-pro**（ui-review → swiftui-pro） | SwiftUI 主容器 | #017 ui-review → ? 链解：ui-review 内容（HIG / a11y / 字体）内含 accessiblity 审查，与 accessibility-generator 高度重叠，二者均不应自成 skill→合并入 swiftui-pro 的设计/accessibility 章节 |
 | 20 | animation-patterns | **swiftui-patterns**（新容器，吸纳 migration-patterns + navigation-patterns） | 模式容器 | #017 *-patterns 批量方向（3/4 家倾向 PROMOTE/MERGE），解为：合并 animation/migration/navigation 三个 patterns 为独立 swiftui-patterns standards 文件，不入 swiftui-pro（避免过重） |
-| 21 | api-research | **dependency-propagation**（已 PROMOTE_TO_STANDARDS） | 传播链容器 | #017 api-research → ? 解：api-research 的 F-017 执行器职责（API 变更后研究）与 dependency-propagation 的文档传播职责（变更后同步下游）同属「变更传播」链。且 dependency-propagation 已被裁决 PROMOTE→standards，api-research 的执行步骤可并入其作为 external-fact research 章节 |
+| 21 | api-research | **`docs/standards/dependency-propagation.md`**（dependency-propagation 已 PROMOTE→standards，作为 external-fact research 章节） | 传播链 standards | #017 api-research → ? 解：api-research 的 F-017 执行器职责（API 变更后研究）与 dependency-propagation 的文档传播职责（变更后同步下游）同属「变更传播」链。注意 dependency-propagation 已 PROMOTE→standards，api-research 实际合并到 standards 文件而非 skill |
 | 22 | app-description-writer | **app-description-writer**（App Store 主容器，吸纳 app-store-rejection + keyword-optimizer + app-store-assets） | App Store 主容器 | #017 明确"App Store 主容器"方向。吸纳 app-store-rejection（审核应对）、keyword-optimizer（ASO）、app-store-assets（资产规范） |
 | 23 | app-store-assets | **app-description-writer**（App Store 主容器） | 同上 | 资产规范内容可纳入 App Store 主容器的「素材章节」 |
 | 24 | characterization-test-generator | **tdd-feature**（与 tdd-refactor-guard 同目标） | TDD 主容器 | #017 characterization-test-generator → ? 解：其 refactoring 前置 safety net 职责与 tdd-refactor-guard 完全重叠（Codex 和 Gemini 均识别），后者已裁决→tdd-feature，二者合并到同一目标 |
-| 25 | error-monitoring | **ci-cd-setup**（已 PROMOTE_TO_STANDARDS） | CI/CD / 监控容器 | #017 error-monitoring → ? 解：error-monitoring 的核心（provider 模板 + 初始化）与 ci-cd-setup 的 CI 配置同属「工程基础设施」范畴。ci-cd-setup 已 PROMOTE→standards，error-monitoring 作为其监控章节 |
+| 25 | error-monitoring | **`docs/standards/ci-cd.md`**（ci-cd-setup 已 PROMOTE→standards，作为监控章节） | CI/CD / 监控 standards | #017 error-monitoring → ? 解：error-monitoring 的核心（provider 模板 + 初始化）与 ci-cd-setup 的 CI 配置同属「工程基础设施」范畴。注意 ci-cd-setup 已 PROMOTE→standards，error-monitoring 实际合并到 standards 文件而非 skill |
 | 26 | integration-test-scaffold | **tdd-feature**（已确认方向） | TDD 主容器 | #017 已确认 integration-test-scaffold → tdd-feature |
 | 27 | localization-setup | **docs/templates/localization-workflow.md**（独立模板） | 独立模板 | #017 localization-setup → ? 解：localization 模板量（xcstrings / RTL / 项目结构检测）足够独立，不宜并入任一容器；保留为独立 template 供按需引用 |
 | 28 | migration-patterns | **swiftui-patterns**（合并 *-patterns 容器） | 模式容器 | #017 已确认方向：合并 *-patterns 为 swiftui-patterns |
 | 29 | navigation-patterns | **swiftui-patterns**（合并 *-patterns 容器） | 模式容器 | #017 已确认方向：合并 *-patterns 为 swiftui-patterns |
 | 30 | snapshot-testing | **tdd-feature**（视觉回归测试并入 TDD 主容器） | TDD 主容器 | #017 snapshot-testing → ? 解：snapshot-testing 的设置 + 审查（snapshot-diff-review 已先合并到其本身）→ 整个 snapshot 体系最终归入 tdd-feature 的「视觉回归测试」章节 |
-| 31 | test-contract | **coding-best-practices**（已 PROMOTE_TO_STANDARDS） | 工程规范容器 | #017 test-contract → ? 解：test-contract 的协议设计 + mock 规范属于「编码最佳实践」范畴，与 coding-best-practices 的 swift-patterns / architecture-patterns 同类。coding-best-practices 已 PROMOTE→standards，test-contract 作为其测试契约章节 |
+| 31 | test-contract | **`docs/standards/swift-coding.md`**（coding-best-practices 已 PROMOTE→standards，作为测试契约章节） | 工程规范 standards | #017 test-contract → ? 解：test-contract 的协议设计 + mock 规范属于「编码最佳实践」范畴，与 coding-best-practices 的 swift-patterns / architecture-patterns 同类。注意 coding-best-practices 已 PROMOTE→standards，test-contract 实际合并到 standards 文件而非 skill |
 
 ### §2.4 7 个 DELETE
 
@@ -281,10 +282,18 @@ mv .claude/skills/review-response-writer docs/archive/skills/2026-05-25/
 
 ### 4.7 全量清理后统计
 
-- 原 52 个 skill → 约 17 个 active（7 KEEP + 2 REWRITE + 8 容器/standards 合并后的实体）
-- docs/standards/ 新增 5 个文件
-- docs/templates/ 新增 7 个文件 + 2 个独立模板
-- 归档 7 个 DELETE + 24 个 MERGE 原 skill 目录
+**最终产物分布**（精确）：
+
+| 类别 | 数量 | 明细 |
+|---|---|---|
+| **active skill**（保留 skill 形态）| **10** | 7 KEEP（dod-checklist / phase-closeout / swiftui-pro / verify-audit-report / xcode-review / tdd-feature / screenshot-planner，其中 swiftui-pro 和 tdd-feature 作为容器吸纳合并内容）+ 2 REWRITE（swift-concurrency-pro / swiftdata-pro）+ 1 MERGE 容器（app-description-writer） |
+| **docs/standards/** 新增 | **5** | swift-coding.md（吸纳 coding-best-practices + test-contract）/ ci-cd.md（吸纳 ci-cd-setup + error-monitoring）/ dependency-propagation.md（吸纳 dep-propagation + api-research）/ privacy-manifests.md（吸纳 privacy-manifests + data-export）/ app-icon-design.md / swiftui-patterns.md（吸纳 animation + migration + navigation patterns）—— **实际 6 个**（修正：含 swiftui-patterns） |
+| **docs/templates/** 新增 | **9** | 7 个 #017 DOWNGRADE_TO_TEMPLATE（cross-audit-workflow / cross-audit-consensus / post-merge-checklist / session-resume / sprint-contract / deep-linking/ + onboarding/ 共识）+ 2 个 MERGE 派生模板（knowledge-health-workflow.md / localization-workflow.md） |
+| **归档 skill** | **31** | 7 DELETE + 24 MERGE 原目录 |
+
+**说明（修正 sign-off 反馈）**：`docs/templates/` 9 个文件中 7 个是 #017 直接 DOWNGRADE_TO_TEMPLATE 输出，2 个（knowledge-health / localization-setup）是 MERGE 派生模板目标——避免误读为新增 Verdict。
+
+**净化率**：52 → 10 active skill = 净减 81%（高于 §1 "67%" 估算，因 5 个 PROMOTE + 7 个 DOWNGRADE 都从 active skill 计数中扣除）。
 
 ---
 
