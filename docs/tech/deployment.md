@@ -1,6 +1,9 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
+freshness:
+  max_age_days: 60
+  decay_trigger: [ci_change, distribution_change]
 ---
 # SnapDrill 部署与运维
 

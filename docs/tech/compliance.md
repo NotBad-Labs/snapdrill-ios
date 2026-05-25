@@ -1,6 +1,9 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
+freshness:
+  max_age_days: 180
+  decay_trigger: [privacy_policy_change, app_review_change]
 audit_note: 2026-05-19 验证 — 本文件已 skill 化为指针；权威执行在 privacy-manifests skill + app-store-rejection skill
 ---
 # 隐私合规

@@ -1,6 +1,9 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
+freshness:
+  max_age_days: 180
+  decay_trigger: [arch_change]
 ---
 # SnapDrill 技术架构
 

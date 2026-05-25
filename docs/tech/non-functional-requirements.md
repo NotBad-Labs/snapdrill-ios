@@ -1,6 +1,9 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
+freshness:
+  max_age_days: 180
+  decay_trigger: [perf_budget_change]
 ---
 # SnapDrill 非功能需求（NFR）
 
