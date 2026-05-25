@@ -130,18 +130,105 @@ docaudit 只证明“可机械检查的结构信号通过”，不证明事实�
 
 服务发生重大或持续变化时，自动触发相关规则复审：模型能力漂移、CLI 行为变化、价格或可用性剧变、工具链阻塞、数据共享边界变化、外部事实来源失效。复审只改变未来适用性，不删除历史裁决。v1.2 生效版本在 v2.0 完成确认后归档至 `docs/archive/meta/M-000-v1.2.md`；元层级第一性审计每 6 个月或重大外部冲击后触发。
 
-## §11 下游派生
+## §11 下游派生（v2 SSOT 注册表，[#022](user-decision-log.md#022) 升级）
 
-M-001~M-006 是 M-000 的下沉层。它们可调整名称、合并或拆分，但在 v2.0 生效前先保留既有归宿，待各文档完成后再做归并审计。
+**SSOT 原则**（帅哥 2026-05-25 [#022](user-decision-log.md#022) 裁决）：M-000 §11 派生表是项目所有 docs/ 非产品文档的**唯一注册源**。任何非产品文档若不在本注册表中，**不应存在**——必须融入已注册条目或删除（连归档都不需要）。产品文档（`docs/product/`）+ 产品支撑技术参考（`docs/tech/`，[#022 A 路径裁决](user-decision-log.md#022)）不受本约束。
 
-| 文档 | 职能 |
+### §11.1 元规则派生（M-001~M-006）
+
+| 文档 | 状态 | 职能 |
+|---|---|---|
+| `M-000-meta-vision.md`（本文件）| SELF | 元规则的元规则（宪法层）|
+| `M-001-to-M-006-followup-backlog.md` | active backlog | 10 条 MC 待 M-001~M-006 起草吸收 |
+| `M-001 协作工作流规约` | 待 ratify | 规定多方启动、独立工作、物理隔离、上下文加载、主笔轮换提议、单方执行窗口 |
+| `M-002 分歧裁决与裁决日志` | 待 ratify | 规定裁决流程、证据等级、双核同意适用域、Overrule 写法、撤回与复审机制 |
+| **`M-003-skill-library-governance.md`** | ✅ ratified [#021](user-decision-log.md#021) | 规定 skill 入库门槛、命名空间、公私分治、生命周期、升降级、与元规则派生映射 |
+| `M-004 降级操作手册` | 待 ratify | 规定服务受限、用户不可达、工具失败时的降级路径与停止等待判据 |
+| **`M-005-quality-criteria.md`** | ✅ ratified [#015](user-decision-log.md#015) / [#020](user-decision-log.md#020) / [#021](user-decision-log.md#021) §J.2 + §J.7 精化 | 规定产出质量度量、伪共识识别、docaudit 核心/可选 check、自反性 sanity check、分层密度证明、机械字数验证 |
+| `M-006 数据治理` | 待 ratify | 规定跨厂商数据共享、最小化、脱敏、prompt injection 防御与敏感信息边界 |
+
+### §11.2 元规则配套（`docs/meta/` 4 个）
+
+| 文档 | 派生归宿 | 说明 |
+|---|---|---|
+| `user-decision-log.md` | M-002 派生（裁决日志格式）| 用户主权裁决日志，22+ 条历史 |
+| `README.md` | M-000 派生（入口）| docs/meta/ 入口索引 |
+| `M-005-quality-criteria-{claude,codex,deepseek,gemini}.md` | ❌ 已归档至 `docs/archive/audits/m005-v2/`（[#022](user-decision-log.md#022)）| 4 家草案过程残留 |
+| `M-000-{input,round2,round3,final}-prompt.md` | ❌ 已归档至 `docs/archive/audits/m000-v2/`（[#022](user-decision-log.md#022)）| 起草过程模板，路径 C 后改 task definition 体例 |
+
+### §11.3 标准规范派生（`docs/standards/` 24 个）
+
+| 文档 | 派生归宿 |
 |---|---|
-| M-001 协作工作流规约 | 规定多方启动、独立工作、物理隔离、上下文加载、主笔轮换提议、单方执行窗口 |
-| M-002 分歧裁决与裁决日志 | 规定裁决流程、证据等级、双核同意适用域、Overrule 写法、撤回与复审机制 |
-| **M-003 技能库治理** ✅ ratified [#021](user-decision-log.md#021) | 规定 skill 入库门槛、命名空间、公私分治、生命周期、升降级、与元规则派生映射 |
-| M-004 降级操作手册 | 规定服务受限、用户不可达、工具失败时的降级路径与停止等待判据 |
-| **M-005 质量判据与退化检测** ✅ ratified [#015](user-decision-log.md#015) / [#020](user-decision-log.md#020) / [#021](user-decision-log.md#021) §J.2 精化 | 规定产出质量度量、伪共识识别、docaudit 核心/可选 check、自反性 sanity check、分层密度证明、机械字数验证 |
-| M-006 数据治理 | 规定跨厂商数据共享、最小化、脱敏、prompt injection 防御与敏感信息边界 |
+| `coding.md` / `swift-coding.md` / `swiftui-patterns.md` / `engineering.md` / `testing.md` / `ux-design.md` / `app-icon-design.md` / `apple-native.md` / `privacy-manifests.md` | M-005 §A 工程质量判据 |
+| `collaboration.md` / `cross-audit`（已下沉为 templates）/ `codex-delegation.md` / `gemini-delegation.md` / `worktree-audit-workflow.md` | M-001 协作工作流派生（待 ratify）|
+| `skill-architecture.md` / `skill-source-ledger.md` | M-003 §3 §5 派生 |
+| `audit-rubric.md` / `execution-gates.md` / `harness-recall.md` / `shared-constraints.md` | M-005 §G docaudit check 设计派生 |
+| `permission-model.md` / `memory-routing.md` | M-001 协作派生（主笔权限 / 知识路由）|
+| `dependency-propagation.md` | M-005 §J 文档密度治理派生 |
+| `ci-cd.md` | M-004 降级操作手册派生（待 ratify）|
+| `README.md` | M-000 派生（入口）|
+
+### §11.4 工作流模板派生（`docs/templates/` 9 个）
+
+| 文档 | 派生归宿 |
+|---|---|
+| `cross-audit-workflow.md` / `cross-audit-consensus.md` | M-001 协作 + M-003 §5 升降级（F-008/F-011/F-016 退役后承接）|
+| `sprint-contract.md` | M-001 协作（F-013/F-014/F-018 退役后承接）|
+| `post-merge-checklist.md` | M-004 降级派生（F-007/F-019 退役后承接）|
+| `knowledge-health-workflow.md` | M-005 §G docaudit 派生 |
+| `session-resume.md` | M-001 协作派生 |
+| `deep-linking.md` / `localization-workflow.md` / `onboarding-generator.md` | 产品支撑工作流模板 |
+
+### §11.5 架构决策派生（`docs/decisions/` 6 个 + `docs/audits/` 3 个）
+
+| 文档 | 派生归宿 |
+|---|---|
+| `ADR-001 ~ ADR-005` × 5 + `ADR-TEMPLATE.md` | M-002 派生（架构决策日志格式）|
+| `docs/audits/README.md` | M-000 派生（入口）|
+| `docs/audits/skill-audit-final.md` | M-003 路径 C [#018](user-decision-log.md#018) 实证锚（M-002 派生）|
+| `docs/audits/single-vendor-audit-prompt-template.md` | M-001 协作模板派生 |
+
+### §11.6 根入口文件（`docs/` 根 3 个）
+
+| 文档 | 派生归宿 |
+|---|---|
+| `KNOWLEDGE_MAP.md` | M-000 §11 派生（项目知识索引，与 §11 互为入口）|
+| `DOC_DEPENDENCY_MAP.md` | M-005 §J 文档依赖图（变更传播路径）|
+| `protocol.md` | M-001 协作工作流派生（待 M-001 ratify 后正式归位）|
+
+### §11.7 产品支撑（`docs/tech/` 13 个，[#022 A 路径裁决](user-decision-log.md#022)：视为产品支撑，不强制 M-000 派生锚）
+
+| 子目录 | 用途 |
+|---|---|
+| `docs/tech/{architecture,api-pitfalls,compliance,deployment,non-functional-requirements,apple-limits}.md` | 项目技术架构 / 合规 / 部署 / NFR 现状记录 |
+| `docs/tech/reference/{agent-cli-models,reference_*}` × 7 | 外部工具 / 模型 / API 快照（强时效性，max_age_days 严约束）|
+
+### §11.8 智能体私有 memory（用户级，非 git-tracked）
+
+`~/.claude/projects/<project>/memory/` — Claude 私有偏好持久化（跨 session）。**项目级治理规则不应私有 memory 化**（路径 C [#021](user-decision-log.md#021) + [#022](user-decision-log.md#022) 反思实证）。
+
+### §11.9 历史归档（`docs/archive/` 索引）
+
+| 归档子目录 | 内容 | 关联裁决 |
+|---|---|---|
+| `audits/path-c-stage-7/` | 路径 C Stage 7 M-003 v1 ratify | [#021](user-decision-log.md#021) |
+| `audits/path-c-stage-6/` | 路径 C Stage 6 反思 + patch | [#020](user-decision-log.md#020) |
+| `audits/path-c-skill-audit/` | 路径 C skill audit 起草 | [#018](user-decision-log.md#018) |
+| `audits/m000-first-principles/` | M-000 第一性原理审计 | [#009](user-decision-log.md#009) |
+| `audits/m000-v2/` | M-000 v2.0 起草 + sign-off | [#011](user-decision-log.md#011) |
+| `audits/m005-v2/` | M-005 v2 起草 + sign-off + 4 家草案 | [#015](user-decision-log.md#015) |
+| `audits/semantic-audit/` | 7 维度语义层审计（Phase 10）| pre-#009 |
+| `audits/S-D-series/` | 早期 D4/D7 worktree 审计 | pre-#009 |
+| `memory/` | docs/memory/ 整目录归档（feedback / decisions / handoff）| [#022](user-decision-log.md#022) |
+| `research/` / 其他历史 snapshot | 早期审计 / 工具研究归档 | pre-#009 |
+
+### §11.10 注册维护规则
+
+- **新增非产品文档**：必须在本 §11 表内显式注册 + frontmatter 含 `derived_from:` 字段（后续 PR 实施 schema）
+- **删除/归档**：必须在 user-decision-log 留痕 + 同 PR 更新 §11
+- **派生归宿变更**（如 standards → templates DOWNGRADE）：必须更新 §11 对应行
+- **审计**：每季度核验 §11 完整性（M-005 §G.5.2 季度审计扩展）
 
 ## §12 自我修订
 
