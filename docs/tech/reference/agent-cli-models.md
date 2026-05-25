@@ -91,7 +91,8 @@ freshness:
 | 包管理 | 独立安装(.local) |
 | API Key | `$DEEPSEEK_API_KEY`(已配置) |
 | **CLI 实质** | ⚠️ **不是干净 API**,而是 `claude -p` agent loop + DeepSeek 端点 |
-| 实际跑的 model | `deepseek-v4-pro`(默认)/ `deepseek-v4-flash`(--flash 选项) |
+| 实际跑的 model | **`deepseek-v4-pro` 固定**(项目策略：永不使用 `--flash` / `deepseek-v4-flash`) |
+| **模型策略** | 帅哥 2026-05-25 裁决：本机所有 DeepSeek 调用统一 V4 Pro，**禁止 Flash**。理由：路径 C 期间用量审计发现主笔级元规则起草跑在 Flash 上，存在质量不一致污染产出风险。详见 `~/.claude/projects/-Users-yiming-Developer-snapdrill-ios/memory/feedback_deepseek_pro_only.md` |
 | 上下文污染 | **CLI 路径自动读 CLAUDE.md/AGENTS.md**(因为底层是 claude -p)|
 | **Zero-context 路径** | 直接 curl OpenAI 兼容端点 `https://api.deepseek.com/v1/chat/completions` |
 | API 兼容模型名 | `deepseek-chat` / `deepseek-reasoner` / `deepseek-v4-pro`(实测全部可用) |
@@ -115,7 +116,7 @@ freshness:
 | Gemini(preview,2026-06-18 前可用) | `cd /tmp && GEMINI_CLI_TRUST_WORKSPACE=true gemini -m gemini-3-flash-preview --skip-trust -p <prompt> --approval-mode plan` |
 | **Gemini 3.5 Flash GA(推荐)** | **Python 调 `Scripts/gemini_utils.py`** 或 curl `generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent`(需 `GEMINI_API_KEY`,本仓库 [M-005 P2/P3.d 实战路径](../../meta/M-005-quality-criteria.md)) |
 | **Gemini Antigravity CLI**(2026-06-18 起替代 gemini CLI) | `brew install antigravity-cli && agy <subcommand>`(本机当前未安装,推荐先继续直接 API 路径,agy 上线稳定后再切) |
-| DeepSeek | `curl https://api.deepseek.com/v1/chat/completions`(避免走 deepseek CLI,它带 claude agent loop 污染);Python 调 `https://api.deepseek.com/v1/chat/completions`(本仓库 M-005 主笔实战路径) |
+| DeepSeek | `curl https://api.deepseek.com/v1/chat/completions` 且 `"model": "deepseek-v4-pro"`(避免走 deepseek CLI,它带 claude agent loop 污染;**禁止用 `deepseek-chat` / `deepseek-v4-flash`**);Python 同;走 CLI 时 `deepseek "<prompt>"` 不带 `--flash`(本仓库 M-005 主笔实战路径) |
 
 ---
 
@@ -126,7 +127,7 @@ freshness:
 | Anthropic | Opus 4.7 / Sonnet 4.6 / Haiku 4.5 | Claude 知识 cutoff 2026-01 | 2026-05-25 |
 | OpenAI | GPT-5.5 Thinking | 未公开 | 2026-05-25 |
 | Google | **Gemini 3.5 Flash / 3.5 Pro**(2026-05-19 GA);Gemini CLI 2026-06-18 sunset(替代:Antigravity CLI `agy`) | 未公开 | 2026-05-25 |
-| DeepSeek | V4-Pro / V4-Flash | 未公开 | 2026-05-25 |
+| DeepSeek | **V4-Pro 唯一允许**(V4-Flash 项目内禁用) | 未公开 | 2026-05-25 |
 
 ⚠️ **如果距 last_verified 超过 30 天,必须 WebSearch 重新验证**。
 ⚠️ **Gemini CLI 2026-06-18 sunset 倒计时**:Pro/Ultra/免费个人用户。本仓库已使用直接 API 路径(`Scripts/gemini_utils.py`),不受 sunset 影响;但 `gemini` 命令本身停摆,后续如需 CLI 形态需切换到 `agy`。企业 Standard/Enterprise license 不受影响。

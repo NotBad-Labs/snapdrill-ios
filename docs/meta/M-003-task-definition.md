@@ -137,9 +137,11 @@ M-003 不重新发明 §G.5 已有机制——而是把 §G.5 作为底层判据
 
 按 [#012](user-decision-log.md#012-m-005-起草启动--主笔轮换-deepseek--010-字数升级同-pr-落地) 主笔轮换 + [#020 元层级注记「DeepSeek 主笔三次成功」](user-decision-log.md#020) + M-005 §H 轮换阈值（同 vendor 连续 ≥3 版触发轮换）：
 
+**模型约束（帅哥 2026-05-25 裁决）**：DeepSeek 候选若入选，**必须使用 `deepseek-v4-pro` 模型，禁止 V4 Flash**。详见 `docs/tech/reference/agent-cli-models.md` §4 + `~/.claude/projects/.../memory/feedback_deepseek_pro_only.md`。Flash 路径已在路径 C 期间用量审计发现，主笔级元规则起草不接受 Flash 质量。
+
 | 候选 | 优势 | 风险 |
 |---|---|---|
-| **DeepSeek** | 路径 C 中 3 次主笔均一次通过（M-005 v2 / skill-audit-final / Stage 6.2 patch）；密度高、引用规范 | 已连续 3 次，触及 M-005 §H 轮换阈值边缘 |
+| **DeepSeek**（V4-Pro） | 路径 C 中 3 次主笔均一次通过（M-005 v2 / skill-audit-final / Stage 6.2 patch）；密度高、引用规范 | 已连续 3 次，触及 M-005 §H 轮换阈值边缘；**必须确认前 3 次主笔实际跑在 Pro 而非 Flash**——若历史是 Flash，则三次成功的"主笔证据"可能高估 Pro 能力，需重新校准 |
 | **Codex** | 命名空间设计经验（v1.0~v1.2 M-000 4 版主笔）；Verdict 三分制最早提出方 | 路径 C #020 sign-off CONDITIONAL，立场修正后才 PASS |
 | **Gemini** | 路径 C 实证档案路径 / 双向流程经验；同源偏向最弱 | 长文本压缩倾向强，可能丢失实证锚 |
 | **Claude（主分支）** | 上下文最全；可整合 task definition 与 draft | §G.5.4 同源偏向警示——Claude 主笔曾在 #017 给治理 skill KEEP 后被全员裁决 DOWNGRADE，自审失真风险 |
