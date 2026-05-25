@@ -1,14 +1,13 @@
 ---
-last_verified: 2026-05-24
+last_verified: 2026-05-25
 layer: principle
 scope: root-rule
 version: 2.0
 status: active
 freshness:
   max_age_days: 180
-  decay_trigger: [meta_audit, override_rationale_change, external_shock, user_explicit_review]
-default_word_budget: 2500
-override_rationale: "final 主笔过程中用户显式 Overrule 3000-3500 nwc 目标，要求按第一性原理和实际信息密度起草，不预设字数上限。本候选需同时保留 P1-P8、落实 R1-R7、吸收 4 家草案独家亮点，并给出 layer/docaudit/KM 迁移规则；这些内容属于 M-000 不可下沉的顶层约束。"
+  decay_trigger: [meta_audit, override_rationale_change, external_shock, user_explicit_review, density_proof_invalidated]
+override_rationale: "M-000 v2.0 不预设字数上限——正文长度由信息密度、冷启动成本和不可下沉证明共同决定。本文承载 P1-P8 PRIMARY 内核 + R1-R7 改造落地 + 4 家草案独家亮点融合 + layer/docaudit/KM 迁移规则；这些内容属于 M-000 不可下沉的顶层约束，无法压缩到下游 standards/skills/工具。每段密度证明：删除任一段会破坏可追溯、可验伪、独立性或用户裁决权之一。字数原则升级路径 #001 1500 → #003 2500 → #009 R2 软上限 → #010 预声明 → #015 不预设上限（M-005 §J 同 PR 落地）。"
 ---
 
 # M-000 Meta-Vision v2.0
@@ -72,7 +71,7 @@ M-000 与产品愿景平级：前者定义协作可靠性，后者定义产品�
 
 ## §6 预算、下沉与知识增长
 
-M-000 默认正文预算为 2500 non-whitespace chars；这是可读性和冷启动成本的设计目标，不是自动否决线。超过默认预算时，frontmatter 必须写 `override_rationale`，说明为什么不能下沉、为什么表达密度仍必要、何时复审。代码块独立预算默认 400 nwc；英文译本使用独立乘数，约 4000 nwc，可单独 override。
+M-000 不预设字数上限。正文长度由信息密度、冷启动成本和不可下沉证明共同决定。frontmatter `override_rationale` 字段是密度证明而非破例申请——作者必须论证：当前长度的每一段内容为什么不能下沉、为什么不能压缩、为什么不能省略。代码块、译本等不单独设立预算，由同一密度证明覆盖。具体冗余检测信号、密度证明判据与同 PR 修订路径下沉 M-005 §J（M-005 §J.4 已明确删除代码块独立预算和英文译本固定乘数作为默认规则）。
 
 新增条款必须先证明无法下沉到 M-001~M-006、standards、skills、ADR、STATUS stub 或工具。若条款只是执行步骤、模板、例子、命令、检查脚本或当前状态，应下沉。
 

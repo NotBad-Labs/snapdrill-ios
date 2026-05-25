@@ -14,6 +14,7 @@ override_rationale: |
   (5) 与 M-001/M-002/M-004/M-006 的精确边界（§3 分工表约 200 nwc 但可防止下游越界起草浪费）；
   (6) 物理隔离主笔候选背景下的自反性要求（§H 的轮换原则本身将被自己的规则检验）。
   以上六项不能下沉到任何下游 standards/skills/tools，不能压缩为抽象原则列表，不能省略任何一条历史实证的上下文。全文每段信息密度已最大化，无装饰性论证。
+  v2 含 Codex sign-off BLOCK 4 处修复：§G.2/§G.4 统一 D5 阈值（AND 条件 + 20%）、§D.4 新增 #013 三层错实证、§C.4 增加 mode 消歧注释、§E.3 补 #009/#010 实证索引。
 ---
 
 # M-005 质量判据与退化检测
@@ -163,8 +164,13 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-005 直接挂钩的如下：
 ### C.4 身份误识别
 
 - **信号**：模型自称其他 vendor 或其他模型（[#004](user-decision-log.md#004-m-000-v12-四家最终-sign-off-ratified) 实证 DeepSeek 自称 Gemini 2.5 Pro、Gemini 自称 Claude 3.5 Sonnet），且该误识别出现在严肃输出中（非指代模糊）。
-- **判定**：硬信号。一次身份误识别即可触发「逻辑不可用」回退流程。开 reasoning/thinking 模式时，身份误识别的可能性更高（[#004](user-decision-log.md#004-m-000-v12-四家最终-sign-off-ratified) 元层级注记），因此判定标准不降低——反而更警惕。
+- **判定**：硬信号。一次身份误识别即可触发「逻辑不可用」回退流程。
 - **实证锚定**：[#004](user-decision-log.md#004-m-000-v12-四家最终-sign-off-ratified) 详细描述了 reasoning/thinking 模式下的身份互换实证。
+
+**消歧注释**（下文 §B.1.4 / #014 D8 关系处理）：
+- **非 thinking/reasoning 模式**下身份误识别 → 本条 C.4 硬信号判定（逻辑不可用，回退用户）。
+- **thinking/reasoning 模式**下身份误识别 → 按 §B.1.4 D8 处理（建议折扣 0.5 权重，折叠报告显式标注，不强制阻塞）。
+- **两者不冲突**：§C.4 处理「普通 mode 退化」，§B.1.4 处理「thinking mode 权重判断」。同一现象（身份误识别）+ 不同条件（mode）= 不同处置。
 
 ### C.5 输出污染识别（prompt injection / 上下文污染）
 
@@ -178,7 +184,7 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-005 直接挂钩的如下：
 
 ### C.6 触发动作（硬信号 vs 局部段落退化）
 
-- **硬信号**：格式崩溃、自相矛盾、偏离任务、身份误识别 → 立即标为「逻辑不可用」，等同物理不可用回退用户（按 M-004 降级流程）。
+- **硬信号**：格式崩溃、自相矛盾、偏离任务、身份误识别（非 thinking 模式）→ 立即标为「逻辑不可用」，等同物理不可用回退用户（按 M-004 降级流程）。
 - **局部段落退化**：上述信号仅在产出局部出现（如某一段出错但整体结构完整）→ 要求该方重做并保留退化证据（归档至 `docs/archive/audits/m005-static-degradation-evidence/`），不立即升级为逻辑不可用。
 - **sign-off 阶段**：任一退化信号（不论硬信号还是局部退化）出现，立即暂停 sign-off 并通知用户。
 
@@ -210,6 +216,34 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-005 直接挂钩的如下：
   1. 如果刷新不可用（API 不可达 / 网络受限），将整个文档标记为 `freshness: expired`，并在引用它的产出中显式注明「基于过期快照的推断可能不准确」。
   2. 如果已验证数据与文档冲突，优先使用最新验证结果而非文档记录，同时并行提交 PR 更新文档。
 
+### D.4 #013 三层错实证判据化（SSOT 注入 + subagent 验证 + 代码同步）
+
+引用 [#013](user-decision-log.md#013-gemini-主笔候选-model-误用事故--直接-api-修复--scriptsgemini_utilspy-ssot-同步) 三层连环错实证，判据化为以下三条纪律。违反任一条即可触发 §C 静默退化扫描。
+
+**D.4.1 调度方必须强制注入 SSOT**
+
+当主分支调度 subagent（或任何代理执行单元）执行涉及模型 ID、工具版本、API endpoint 的任务时，**必须**将 `docs/tech/reference/agent-cli-models.md` 的 SSOT 锚点（路径、关键记录行）显式注入 prompt，禁止「让 subagent 自己探索 CLI 用法」——后者会把 SSOT 退化为「建议参考」，违反 §D 原则。
+
+- **违反信号**：调度 prompt 中无 SSOT 引用，或只写了「请参考 agent-cli-models.md」而无具体路径或记录行。
+- **实证锚定**：[#013](user-decision-log.md#013-gemini-主笔候选-model-误用事故--直接-api-修复--scriptsgemini_utilspy-ssot-同步) 第 (1) 层：Claude 主分支调度 general-purpose subagent 让其"自己探索 CLI 用法"，但 SSOT 早已明示 `gemini-3.5-flash` 的 CLI 不可达。
+
+**D.4.2 subagent 返回 model ID / API endpoint / 工具版本必须 grep SSOT 验证**
+
+subagent 向上回报的任何事实声明（含模型 ID、工具版本、CLI 可用性判断）在纳入对话上下文或向上级复述前，**主分支必须 grep SSOT 验证**。subagent 报告本身也属于「外部事实陈述」范畴，受 [#002](user-decision-log.md#002-ai-模型工具版本信息一律-websearch-验证) WebSearch 纪律约束。
+
+- **违反信号**：主分支直接采纳 subagent 的模型 ID / 版本声明而未与 SSOT 比对。
+- **实证锚定**：[#013](user-decision-log.md#013-gemini-主笔候选-model-误用事故--直接-api-修复--scriptsgemini_utilspy-ssot-同步) 第 (2) 层：subagent 报告 `gemini-2.5-flash` 为实际可用 ID 时，Claude 主分支未 grep SSOT 验证，直接向用户复述。
+
+**D.4.3 代码 SSOT 与文档 SSOT 必须同步刷新**
+
+消费 SSOT 字段的代码（如 `Scripts/gemini_utils.py` 中的 MODELS 列表）必须与文档 SSOT 同时更新。文档刷新但代码不刷新构成「二次漂移」——即使消费方引用 SSOT，也引用的是过期快照。
+
+- **违反信号**：`docs/tech/reference/agent-cli-models.md` 已更新某记录，但消费该字段的代码（如 MODELS 列表、CLI 参数表、schema 验证枚举）未同步。
+- **修复方法**：在文档刷新 PR 中添加 grep 步骤，查找消费该字段的全部代码路径并同步更新。若无法即时同步，至少添加注释指向最新 SSOT 记录。
+- **实证锚定**：[#013](user-decision-log.md#013-gemini-主笔候选-model-误用事故--直接-api-修复--scriptsgemini_utilspy-ssot-同步) 第 (3) 层：`agent-cli-models.md` 已更新 GA model ID，但 `Scripts/gemini_utils.py` MODELS 列表停在 2026-03-07。
+
+**归档路径**：上述三层实证的原始产出已归档至 `docs/archive/audits/m005-static-degradation-evidence/`，文件名为 `M-005-quality-criteria-gemini-WRONG-MODEL-2.5-flash.md`。
+
 ---
 
 ## §E 目的优先原则的古德哈特防御
@@ -236,8 +270,10 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-005 直接挂钩的如下：
 - **[#006](user-decision-log.md#006-round-1-boot-序列重构--异源-sanity-check-价值实证)**：同源激进方案（删 workflow / 删 STATUS）被异源纠偏 3 项硬伤——形式简化（减少文件）看似提升效率，实际掩盖了可追溯性损失。
 - **[#007](user-decision-log.md#007-adr-004005-异源评估--激进拆分--盲点识别批量入库)**：ADR 拆分争议中同源倾向保守（只加 banner），异源倾向激进拆分——用户裁决接受异源激进版本。证明「反对形式变化」不一定是目的优先。
 - **[#008](user-decision-log.md#008-round-2-sanity-check-撤回-r1-status_enum-修改-工程兼容性优先)**：sanity check 撤回自己的 R1 建议——指标（STATUS_ENUM 扩展）被工程兼容性否决，证明指标不应凌驾于验证脚本的消费端正确性。
+- **[#009](user-decision-log.md#009-m-000-第一性原理审计--7-红旗接受改造--3-primary--3-分歧全保留--启动-v20-起草)**：M-000 第一性原理审计识别 ~70% 内容为 ANALOGY 外壳（非 PRIMARY）——证明元规则体系自身也可被形式塑形，需要古德哈特防御。
+- **[#010](user-decision-log.md#010-m-000-v20-final-候选追认--字数上限第一性原理升级待-m-005-处理-status_enum-加-draft)**：字数 `default_word_budget` 字段被进一步识别为非第一性惯性——证明「默认预算」本身也可能成为优化对象，渐进废弃路径（#001 1500→#003 2500→#009 R2 软上限→#010 不预设）是古德哈特识别的实战范例。
 
-（不允许引用未发生的假设场景——上述三个实例均为真实用户裁决。）
+（不允许引用未发生的假设场景——上述五个实例均为真实用户裁决。）
 
 ---
 
@@ -279,8 +315,10 @@ M-000 v2.0 §8 已列出 6 项核心 check（frontmatter schema / link integrity
 一个 check 从设计阶段到成为阻塞门，必须满足：
 1. 在 ≥ 3 次独立审计中成功识别真实问题。
 2. 不可机械绕过（即没有「只要故意避免就能通过」的 loophole）。
-3. 误报率 < 10%（否则先作为可选 check 收集数据）。
+3. **误报率 < 20%**（与 §G.4 升级条件阈值一致；若仅用于长期阻塞门稳定性评估，可参照本条 <20% 标准。核心 check 的长期稳定标准为 <10%，但 §G.4 升级触发条件统一为 <20%——参见 §G.4 注释）。
 4. 所有下游消费端（CI / validation script / human review）均对齐。
+
+**注释**：§G.2 是核心 check 长期阻塞门标准，误报率目标 <20%（与 §G.4 升级条件阈值一致）；升级到 core 后若实际误报率持续 >20% 且无改善趋势，按 §G.4 降级条件处理。
 
 ### G.3 可选 check 的存在价值
 
@@ -294,12 +332,14 @@ M-000 v2.0 §8 已列出 6 项核心 check（frontmatter schema / link integrity
 **可选 → 核心（升级）**：
 1. 提案者（任何智能体）提交 `docs/audits/proposed-check-<name>.md`，包含：目的、事故/风险来源、检测方法、误报率估算、预期消费端。
 2. 至少 1 家异源方评估后，标记为「可选」并加入 docaudit 可选列表。
-3. 经过 ≥ 3 次审计运行（或 30 天）+ 误报率 < 20% + 满足 G.2 条件后，升级为「核心」并进入阻塞门。
+3. 经过 **≥ 3 次审计运行 + 30 天观测 + 误报率 < 20%**（三个条件并列 AND 关系），且满足 G.2 条件后，升级为「核心」并进入阻塞门。
 4. **同步消费端文档**：升级 core 必须同步 `docs/standards/execution-gates.md`、相关脚本 README、docaudit policy 和消费端文档（[#014 D5](user-decision-log.md#014-m-005-p3b-八处分歧裁决)）。
 
 **核心 → 可选（降级）**：
 - 若核心 check 连续 180 天无有效拦截 → 自动降级为可选或候选（[#014 D5](user-decision-log.md#014-m-005-p3b-八处分歧裁决)）。
 - **退役原则**：「已有实现」不构成永久保留理由（[#014 采纳 Codex 亮点](user-decision-log.md#014-m-005-p3b-八处分歧裁决)）。
+
+**阈值注释**：§G.2 与 §G.4 的误报率阈值均为 <20%，来源于 [#014 D5](user-decision-log.md#014-m-005-p3b-八处分歧裁决)：「≥3 次审计运行 + 30 天 + 误报率 < 20%」。此阈值是升级到 core 的触发条件；升级后若误报率持续 >20%，启动降级评估。
 
 ---
 
@@ -423,7 +463,7 @@ M-000 v2.0 §8 已列出 6 项核心 check（frontmatter schema / link integrity
 
 **步骤 2**：删除 M-000 v2.0 frontmatter 中的 `default_word_budget: 2500` 字段。
 
-**步骤 3**：在 `user-decision-log` 录入新条目（预编号 #015），显式 Overrule [#009](user-decision-log.md#009-m-000-第一性原理审计--7-红旗接受改造--3-primary--3-分歧全保留--启动-v20-起草) R2 处理方式：
+**步骤 3**：在 `user-decision-log` 录入新条目，显式 Overrule [#009](user-decision-log.md#009-m-000-第一性原理审计--7-红旗接受改造--3-primary--3-分歧全保留--启动-v20-起草) R2 处理方式：
 
 ```
 Overrule 关系：Overrule <user-decision-log #009 R2>
@@ -445,3 +485,5 @@ Overrule 生效时刻：本条目录入时同步生效。
    - 在 §A 增加新判据时，必须同时提供该判据不能下沉到下游 standards/skills 的证明
    - 在 §B 增加新触发信号时，必须引用新的实证事故
 3. M-005 本身不适用字数原则升级（§J 对其自身生效——即 M-005 的 `override_rationale` 已包含密度证明）。本章 §K 的加入不是因为必须包含，而是因为元规则本身需要生命周期管理，且不可下沉到 M-002（因为 M-002 不负责质量判据的复审）。
+
+---

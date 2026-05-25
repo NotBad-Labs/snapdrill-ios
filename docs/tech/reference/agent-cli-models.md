@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-05-22
+last_verified: 2026-05-25
 layer: snapshot
 scope: tech
 freshness:
   max_age_days: 30
-  decay_trigger: [model_announcement, cli_upgrade, api_change]
+  decay_trigger: [model_announcement, cli_upgrade, api_change, vendor_sunset]
 ---
 # 智能体 CLI 工具与可用模型快照
 
@@ -55,20 +55,33 @@ freshness:
 
 ### 3. Gemini(Google)
 
+⚠️ **2026-06-18 重大变更**:Gemini CLI 和 Gemini Code Assist IDE 扩展将**停止为 Google AI Pro/Ultra 个人用户提供服务**(I/O 2026 5月19日官宣)。替代品为 **Antigravity CLI (`agy`)**,从 I/O 当天开始对所有人开放;Antigravity CLI 与 Antigravity 2.0 桌面端共用同一 agent runtime。本仓库使用直接 API endpoint(`generativelanguage.googleapis.com`)的代码路径(`Scripts/gemini_utils.py`)不受 sunset 影响,只有 `gemini` CLI 命令本身停摆。
+
 | 项 | 值 |
 |---|---|
+| **当前 CLI(将于 2026-06-18 停服)** | |
 | 安装路径 | `/opt/homebrew/bin/gemini` |
 | 包管理 | Homebrew(formula: `gemini-cli`) |
-| 订阅 | 20 美金 |
+| 订阅 | 20 美金(Pro / Ultra)|
 | **CLI 版本(2026-05-22 实测)** | **0.42.0** |
-| **CLI 接受的模型 ID**(实测) | `gemini-3-flash-preview` / `gemini-3-pro-preview` |
-| **GA 模型 ID**(WebSearch 验证) | `gemini-3.5-flash` / `gemini-3.5-pro` |
-| **CLI 不接受 GA model ID** | ⚠️ `gemini-3.5-flash` 在 CLI 报 404 |
-| 桌面端 | **Antigravity** |
-| Antigravity 默认模型 | Gemini 3.5 Flash(2026-05-19 Google IO 发布后 GA) |
+| **CLI 接受的模型 ID**(实测) | `gemini-3-flash-preview` / `gemini-3-pro-preview` / `gemini-2.5-flash`(后者底层不是 3.5 GA,见 [user-decision-log #013](../../meta/user-decision-log.md#013-gemini-主笔候选-model-误用事故--直接-api-修复--scriptsgemini_utilspy-ssot-同步) 实证) |
+| **CLI 不接受 GA model ID** | ⚠️ `gemini-3.5-flash` 在 CLI 报 404 / ModelNotFoundError |
 | CLI 用的 endpoint | OAuth Code Assist `cloudcode-pa.googleapis.com`(**滞后于直接 API GA**) |
-| 直接 API endpoint | `generativelanguage.googleapis.com`(支持 GA model ID,需 GOOGLE_API_KEY) |
 | 上下文污染 | 默认读项目目录;`--approval-mode plan` 只读;`GEMINI_CLI_TRUST_WORKSPACE=true` + `--skip-trust` 非交互 |
+| **2026-06-18 后状态** | ⚠️ **停服**(Pro/Ultra/免费个人);企业 Standard/Enterprise license 不受影响 |
+| **替代品:Antigravity CLI (`agy`)** | |
+| 包管理 | Homebrew(`brew install antigravity-cli`,2026-05-25 已上架)/ 桌面端 Antigravity 2.0 内置 |
+| 调用方式 | `agy` 命令(本机当前未安装) |
+| 实现语言 | Go(比 TypeScript 实现的 gemini-cli 快) |
+| 默认模型 | **Gemini 3.5 Flash GA**(2026-05-19 GA) |
+| 保留特性 | Agent Skills / Hooks / Subagents / Extensions(改名 Antigravity plugins) |
+| 配额变化 | ⚠️ **从 daily 改为 weekly**(降级,~2000 行代码可能耗尽) |
+| Antigravity 2.0 桌面端 | `~/.gemini/antigravity/` 已存在(默认模型 Gemini 3.5 Flash) |
+| **本仓库推荐路径(不依赖 CLI)** | |
+| 直接 API endpoint | `generativelanguage.googleapis.com/v1beta`(支持 GA model ID `gemini-3.5-flash`) |
+| Python 包装 | `Scripts/gemini_utils.py`(MODELS_DEEP/MODELS_FAST 首选 `gemini-3.5-flash`,2026-05-25 同步) |
+| 认证 | `GEMINI_API_KEY` 环境变量(直接 API)/ OAuth(CLI) |
+| Zero-context 路径 | 直接 API 调用(无项目挂载、无 Claude.md 污染) |
 
 ### 4. DeepSeek
 
@@ -99,22 +112,24 @@ freshness:
 |---|---|
 | Claude | Claude Desktop **Code** 界面新会话(无项目挂载) / `claude --bare` |
 | Codex | `cd /tmp && codex exec -s read-only <prompt>` |
-| Gemini(preview) | `cd /tmp && GEMINI_CLI_TRUST_WORKSPACE=true gemini -m gemini-3-flash-preview --skip-trust -p <prompt> --approval-mode plan` |
-| **Gemini 3.5 Flash GA** | ⚠️ CLI 不可达,走 **Antigravity 桌面端** 或 curl `generativelanguage.googleapis.com` |
-| DeepSeek | `curl https://api.deepseek.com/v1/chat/completions`(避免走 deepseek CLI,它带 claude agent loop 污染) |
+| Gemini(preview,2026-06-18 前可用) | `cd /tmp && GEMINI_CLI_TRUST_WORKSPACE=true gemini -m gemini-3-flash-preview --skip-trust -p <prompt> --approval-mode plan` |
+| **Gemini 3.5 Flash GA(推荐)** | **Python 调 `Scripts/gemini_utils.py`** 或 curl `generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent`(需 `GEMINI_API_KEY`,本仓库 [M-005 P2/P3.d 实战路径](../../meta/M-005-quality-criteria.md)) |
+| **Gemini Antigravity CLI**(2026-06-18 起替代 gemini CLI) | `brew install antigravity-cli && agy <subcommand>`(本机当前未安装,推荐先继续直接 API 路径,agy 上线稳定后再切) |
+| DeepSeek | `curl https://api.deepseek.com/v1/chat/completions`(避免走 deepseek CLI,它带 claude agent loop 污染);Python 调 `https://api.deepseek.com/v1/chat/completions`(本仓库 M-005 主笔实战路径) |
 
 ---
 
 ## 模型生态时效性签名
 
-| 厂商 | 主力模型(2026-05-22) | 训练 cutoff(若可知) | 文档 last_verified |
+| 厂商 | 主力模型(2026-05-25) | 训练 cutoff(若可知) | 文档 last_verified |
 |---|---|---|---|
-| Anthropic | Opus 4.7 / Sonnet 4.6 / Haiku 4.5 | Claude 知识 cutoff 2026-01 | 2026-05-22 |
-| OpenAI | GPT-5.5 Thinking | 未公开 | 2026-05-22 |
-| Google | **Gemini 3.5 Flash / 3.5 Pro**(2026-05-19 GA) | 未公开 | 2026-05-22 |
-| DeepSeek | V4-Pro / V4-Flash | 未公开 | 2026-05-22 |
+| Anthropic | Opus 4.7 / Sonnet 4.6 / Haiku 4.5 | Claude 知识 cutoff 2026-01 | 2026-05-25 |
+| OpenAI | GPT-5.5 Thinking | 未公开 | 2026-05-25 |
+| Google | **Gemini 3.5 Flash / 3.5 Pro**(2026-05-19 GA);Gemini CLI 2026-06-18 sunset(替代:Antigravity CLI `agy`) | 未公开 | 2026-05-25 |
+| DeepSeek | V4-Pro / V4-Flash | 未公开 | 2026-05-25 |
 
 ⚠️ **如果距 last_verified 超过 30 天,必须 WebSearch 重新验证**。
+⚠️ **Gemini CLI 2026-06-18 sunset 倒计时**:Pro/Ultra/免费个人用户。本仓库已使用直接 API 路径(`Scripts/gemini_utils.py`),不受 sunset 影响;但 `gemini` 命令本身停摆,后续如需 CLI 形态需切换到 `agy`。企业 Standard/Enterprise license 不受影响。
 
 ---
 
@@ -129,6 +144,18 @@ freshness:
 **根因**:Claude 训练 cutoff 2026-01,对 2026-05-19 发布完全无知;同时 CLI ping 失败不能证伪模型存在(只能证伪 CLI 接入)。
 
 **纠正措施**:本文档建立 + 加入「AI 模型版本一律 WebSearch 验证」纪律 + 落档为 [user-decision-log #002](../../meta/user-decision-log.md)。
+
+### 案例 #002:Gemini 主笔 model 误用三层错 + Gemini CLI sunset 同步刷新(2026-05-25)
+
+**事件**:M-005 P2 阶段 Gemini 草案启动时,调度方未把本 SSOT 强制注入 prompt,Gemini subagent 报告自己用了 `gemini-2.5-flash`(完全错的模型,不是任务定义书要求的 3.5 Flash GA),Claude 主分支没 grep SSOT 验证就向上回报。帅哥本人指出错误后才追溯。详见 [user-decision-log #013](../../meta/user-decision-log.md#013-gemini-主笔候选-model-误用事故--直接-api-修复--scriptsgemini_utilspy-ssot-同步)。
+
+**纠正措施**:
+1. 旧 gemini-2.5-flash 草案归档作 §C 静默退化实证(`docs/archive/audits/m005-static-degradation-evidence/`)
+2. 重做用 `Scripts/gemini_utils.py` 直接 API + `gemini-3.5-flash` GA
+3. `Scripts/gemini_utils.py` MODELS 列表 SSOT 同步:首选 `gemini-3.5-flash` GA
+4. M-005 §D 明文:"subagent 返回的 model ID/工具版本/API endpoint 必须 grep SSOT 验证后才能向上回报"
+
+**触发本文档刷新**:同日帅哥通报 I/O 2026 (5月19日)官宣的 Gemini CLI 2026-06-18 sunset + Antigravity CLI (`agy`) 替代,WebSearch 验证属实。本次 last_verified 从 2026-05-22 刷到 2026-05-25,Gemini 章节大改加 sunset 倒计时 + agy 调用路径 + 现有直接 API 路径不受影响声明。这是 M-005 §D.3「`agent-cli-models.md` 刷新机制 - 感知到发版事件 / 厂商 blog 发布新模型」的活体应用——M-005 还未 ratify 已经触发自己定义的刷新条件。
 
 ---
 
