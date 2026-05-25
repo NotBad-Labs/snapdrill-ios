@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 layer: pattern
 ---
 # 项目纪律索引（F-NNN 规则）
@@ -17,11 +17,9 @@ layer: pattern
 | F-006 | 审计深度验证 | `verify-audit-report` skill | 收到审计报告时 |
 | F-007 | CI 双时点门禁 | `post-merge` skill + hooks | PR 合并时 |
 | F-008 | 三方相同完整任务 | `cross-audit` skill | 审计启动时 |
-| F-011 | 审计期间三方只读 | `cross-audit` skill | 审计启动时 |
 | F-012 | 全量做不偷懒 | `verify-audit-report` skill | 审计验证时 |
 | F-013 | Scope 膨胀拆分 | `sprint-contract` skill | 编码时 |
 | F-014 | 跳过测试门禁 | `sprint-contract` skill | 编码时 |
-| F-016 | 质疑方批准 | `cross-audit` skill | 修复后复核时 |
 | F-017 | UI/SDK 调研 | `api-research` skill | UI/SDK 改动时 |
 | F-018 | 编码前契约 | `sprint-contract` skill | Issue 进入 Building |
 | F-019 | 反模式回流 | `post-merge` skill | PR 合并后 |
@@ -65,5 +63,7 @@ layer: pattern
 | F-003 | 2026-04-22 | 合并入 DOC_DEPENDENCY_MAP.md |
 | F-009 | 2026-04-22 | 合并入 review-prompt-guide.md |
 | F-010 | 2026-04-22 | 合并入 protocol.md |
+| F-011 | 2026-05-25 | 依附的 `cross-audit` skill 在 [#017](../meta/user-decision-log.md#017) / [#019](../meta/user-decision-log.md#019) 裁决 DOWNGRADE 为模板，规则的 skill 权威源失效。F-rule 概念已并入 `docs/templates/cross-audit-workflow.md` 内联。20 refs 但全部指向已 DOWNGRADE 的 skill。[#022](../meta/user-decision-log.md#022) |
 | F-015 | 2026-04-22 | 合并入 F-007 |
+| F-016 | 2026-05-25 | 同 F-011：依附的 `cross-audit` skill 已 DOWNGRADE 为模板，规则的 skill 权威源失效。F-rule 概念已并入 `docs/templates/cross-audit-workflow.md` 内联。10 refs 全部指向已 DOWNGRADE 的 skill。[#022](../meta/user-decision-log.md#022) |
 | F-020 | 2026-04-21 | 合并入 F-005 |
