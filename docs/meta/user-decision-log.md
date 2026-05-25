@@ -286,6 +286,20 @@ freshness:
 
 ---
 
+### #020 路径 C Stage 6 patches RATIFIED — M-000 §6 + M-005 §B/§G 三处精化
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-25 |
+| **冲突描述** | 路径 C Stage 6 元规则反思（基于 [#016](#016-路径-c-启动--skill-生态第一性原理审计彻底解决自举循环) ~ [#019](#019-路径-c-stage-5-批量执行完成--skill-生态-52--11) 全过程实证）识别 M-000 v2.0 §6 / M-005 v2 §B.1 / M-005 v2 §G 三处盲点。Stage 6.1 反思报告 → Stage 6.2 DeepSeek 主笔产 patch final → 3 家 sign-off（Claude **PASS** + Gemini **PASS** + Codex **CONDITIONAL→PASS**，2 条件在 ratify 同 PR 满足）→ ratify。本条同 PR 落实 M-000/M-005 三处修订。 |
+| **裁决** | Stage 6.2 patch final 正式 ratify，Stage 6.3 同 PR 执行三处修订：<br><br>**A. M-000 v2.0 §6 line 76 替换**：第二段「新增条款必须先证明无法下沉到 M-001~M-006、standards、skills、ADR、STATUS stub 或工具...」替换为下沉优先级 6 级列表（standards → templates → hook/CI → 工具 → M-001~M-006/ADR → skills 末位）+ 11 个 active skill 6 个月豁免条款。<br><br>**B. M-005 v2 §B.1 line 108 lead sentence 精化 + 追加第 5 条信号**：<br>- lead sentence 分两类信号（升级类 1~4 → 自动用户裁决 / 折扣类 5 → 标注不升级）—— 解决 Codex CONDITIONAL 条件 2 识别的语义冲突<br>- 追加信号 5「主笔消费偏向」：主笔自审给自己消费过的治理 skill KEEP/REWRITE → 折扣 0.5 权重<br>- 与信号 4（thinking 模式）可乘性叠加：0.5 × 0.5 = 0.25 原权重<br><br>**C. M-005 v2 §G 末尾追加 §G.5** skill 升降级双轨机制：<br>- §G.5.1 6 种 Verdict 体系（KEEP/REWRITE/MERGE/PROMOTE_TO_STANDARDS/DOWNGRADE_TO_TEMPLATE/DELETE）<br>- §G.5.2 季度审计（90 天周期 + 连续 2 季度无触发自动降格候选）<br>- §G.5.3 baseline + expires_on 机制（路径 C #019 实证）<br>- §G.5.4 主笔消费偏向警示（与 §B 联动）<br>- §G.5.5 与 M-001 主笔轮换衔接<br><br>**D. 执行清单（Stage 6.3 已完成）**：<br>- M-000 §6 line 76 替换 ✓<br>- M-005 §B.1 line 108 lead 精化 ✓ + line 113 之后追加信号 5 ✓<br>- M-005 §G line 342 之后追加 §G.5 ✓<br>- user-decision-log 本条 #020 落档 ✓ |
+| **理由** | 路径 C 全实证锚定：<br>- [#019](#019-路径-c-stage-5-批量执行完成--skill-生态-52--11) 52 → 11 skill 净减 79%，82% 改变形态 → P1 下沉优先级降 skills 末位<br>- [#017](#017-skill-审计-stage-35--45-项分歧裁决--大规模重构方向) 45 项分歧裁决 + Stage 5 批量执行 + 2 项 legacy_whitelist 豁免 → P2 §G.5 双轨机制 + baseline 模式<br>- [#017](#017-skill-审计-stage-35--45-项分歧裁决--大规模重构方向) Claude 给 4 个自己用过的治理 skill KEEP 被全部裁决 DOWNGRADE/MERGE/DELETE → P3 §B.1 第 5 信号<br>三处 patch 均为精化（非 Overrule），不扩大元规则体系规模。同 PR 修订一次性落地，避免后续认知割裂（参 [#012](#012-m-005-起草启动--主笔轮换-deepseek--010-字数升级同-pr-落地) Q3 同 PR 落地精神）。Codex CONDITIONAL 2 条件（执行清单 line 范围 + §B.1 lead sentence 冲突）在 patch final 修订 + Stage 6.3 同 PR 落地中精确满足。 |
+| **是否触发元规则修订** | ✅ **是**。M-000 v2.0 §6 + M-005 v2 §B.1 + M-005 v2 §G 三处文本修订生效。 |
+| **Overrule 关系** | 精化（非 Overrule）以下条款：<br>① M-000 v2.0 §6 第二段（下沉去向平级列表 → 优先级列表 + 11 active skill 短期豁免）<br>② M-005 v2 §B.1 lead sentence（信号统一自动用户裁决 → 升级类/折扣类二分）<br>③ M-005 v2 §B.1（原 4 条信号 + 新增第 5 条主笔消费偏向）<br>④ M-005 v2 §G（原 §G.1~§G.4 + 新增 §G.5 skill 升降级双轨）<br>不覆盖任何历史裁决的认证效力。路径 C [#016](#016-路径-c-启动--skill-生态第一性原理审计彻底解决自举循环) ~ [#019](#019-路径-c-stage-5-批量执行完成--skill-生态-52--11) 全部裁决保留生效。 |
+| **元层级注记** | **路径 C 7-stage 完整闭环临近完成**：Stage 1-5 + Stage 6（含 6.1 反思 / 6.2 patch final / 6.3 同 PR 修订 / 本条 ratify）完成；Stage 7 M-003 起草待启动。本条是路径 C 自演进的**第三次元规则修订**（前两次：[#011](#011-m-000-v20-ratified--v12-归档) M-000 v2.0 ratify / [#015](#015-m-005-v2-ratified--同-pr-修订-m-000-v20-6--frontmatter--显式-overrule-009-r2) M-005 v2 ratify / 本条 #020 三处精化）。<br>**Sign-off 反馈即时修正模式二次实证**：Codex CONDITIONAL 2 条件（line range + lead sentence 冲突）在 ratify 同 PR 满足，未触发主笔回炉 v2。这扩展 M-005 §F.2 + #018 体例——CONDITIONAL 可在 ratify 同 PR 满足条件直接升 PASS。<br>**DeepSeek 主笔三次成功**：路径 C 中 DeepSeek 第 3 次主笔（M-005 v2 / skill audit final / Stage 6.2 patch final），均一次通过 sign-off（或 CONDITIONAL 同 PR 修正）。主笔轮换裁决（[#012](#012-m-005-起草启动--主笔轮换-deepseek--010-字数升级同-pr-落地) Q2）持续有效。<br>**自反性 sanity check 多家共识应用**：Claude/Gemini 主动在 Stage 4 sign-off 撤回 Stage 2 立场（路径 C 实证 §F.1 在 skill 审计场景的有效性）。本次 Stage 6 sign-off Claude 复盘 6.1 反思未发现需修正项，Codex 复盘 Stage 2 激进 MERGE 路径并显式承认本 patch 是有效修正。<br>**P3 信号 5 与 §G.5.4 双向引用机制**：M-005 §B（同源信号识别）与 §G（升降级机制）在 skill 审计场景显式双向引用——同一现象在不同元规则章节有不同执行接口。这是元规则模块化设计的标杆实证，可作为 M-003 起草时的"模块化元规则"参考。 |
+
+---
+
 ## 日志维护规则
 
 1. **append-only**：不删除历史条目，只追加新条目

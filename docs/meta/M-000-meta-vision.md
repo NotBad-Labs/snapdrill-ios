@@ -73,7 +73,17 @@ M-000 与产品愿景平级：前者定义协作可靠性，后者定义产品�
 
 M-000 不预设字数上限。正文长度由信息密度、冷启动成本和不可下沉证明共同决定。frontmatter `override_rationale` 字段是密度证明而非破例申请——作者必须论证：当前长度的每一段内容为什么不能下沉、为什么不能压缩、为什么不能省略。代码块、译本等不单独设立预算，由同一密度证明覆盖。具体冗余检测信号、密度证明判据与同 PR 修订路径下沉 M-005 §J（M-005 §J.4 已明确删除代码块独立预算和英文译本固定乘数作为默认规则）。
 
-新增条款必须先证明无法下沉到 M-001~M-006、standards、skills、ADR、STATUS stub 或工具。若条款只是执行步骤、模板、例子、命令、检查脚本或当前状态，应下沉。
+新增条款必须先证明无法下沉。下沉优先级（从高到低）：
+1. **standards**（静态规范，docs/standards/）：规则、约束、规范——不需 LLM 动态判断
+2. **templates**（静态模板，docs/templates/）：代码片段、配置模板、checklist——纯模板可 cp 修改
+3. **hook / CI 自动化**：可机械检查的规则下沉到 .claude/hooks / .github/workflows / Scripts
+4. **工具脚本**：复杂校验或转换逻辑下沉到 Scripts/
+5. **M-001~M-006 / ADR**：跨多个执行单元的协作规则
+6. **skills**（仅用于需要 LLM 动态判断且不可静态化的场景）：trigger 条件依赖上下文推理，无法机械化
+
+若条款只是执行步骤、模板、例子、命令、检查脚本或当前状态，应下沉至 standards / templates / hook，**不应保留为 skill**。skill 是元规则下沉的**末位优选**，仅在前 5 项均不适用时使用。
+
+路径 C [#019](user-decision-log.md#019-路径-c-stage-5-批量执行完成--skill-生态-52--11) / [#020](user-decision-log.md#020) 实证：52 个 skill 中 82% 被识别为非 optimal 形态（46% MERGE + 13% DELETE + 13% DOWNGRADE + 10% PROMOTE），证明 skill 不应作为下沉的优选去向。短期豁免：路径 C 已审计的 11 个 KEEP/REWRITE skill 在 6 个月内（≤2026-11-25）不自动触发下沉重审，待 M-003 ratify 时统一处理。
 
 知识库治理不使用固定文件数量作为单一门槛。新增文档必须说明预期消费者；4 周无 incoming refs 的活跃文档进入 archive 候选但不自动归档。判断信号包括 Boot/Action Gate 字符预算、incoming refs、访问或修改频率、重复权威定义、维护成本和是否可由工具生成。
 

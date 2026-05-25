@@ -105,12 +105,20 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-005 直接挂钩的如下：
 
 ### B.1 触发信号清单
 
-当以下任一信号出现时，**同源警告升级为自动用户裁决**，不等待异源方显式反对：
+§B.1 触发信号分两类：
+
+- **升级类信号**（信号 1~4）：当任一信号出现时，**同源警告升级为自动用户裁决**，不等待异源方显式反对。
+- **折扣类信号**（信号 5）：在折叠报告中显式标注权重折扣，**不自动升级用户裁决**；若异源方同时提反对意见，按 §B.3 否决权阈值处理。
 
 1. **连续同源主笔**：同一 vendor 连续担任主笔 ≥ 3 版（实证：M-000 v1.0/v1.1/v1.2/v2.0 连续 4 版 Codex 主笔，[#012 Q2](user-decision-log.md#012-m-005-起草启动--主笔轮换-deepseek--010-字数升级同-pr-落地) 裁决轮换 DeepSeek）。
 2. **多实例同训练 cutoff**：来自同一 cutoff 日期的多个模型实例给出方案同向，而异源方给出具体反对。
 3. **同 vendor 的多端点聚合**：同一厂商的多个 API endpoint（如 GPT 系列 / Claude 系列）被当作「多家异源」使用——这是 [#004](user-decision-log.md#004-m-000-v12-四家最终-sign-off-ratified) 实证的「互换身份反向证据」：若两模型自称对方，则证明训练谱系重叠或 prompt 敏感度差，不能算异源。
 4. **thinking/reasoning 模式加剧的自我身份漏泄**：开 reasoning/thinking 模式后模型更频繁自称为其他 vendor（[#004](user-decision-log.md#004-m-000-v12-四家最终-sign-off-ratified) 实证 DeepSeek/Gemini 互换身份），此时该模型的独立判断**建议折扣 0.5 权重**；折扣应在折叠报告显式标注，**不强制阻塞**。合规授权下 thinking 模式仍是有效推理。
+5. **主笔消费偏向**（路径 C [#019](user-decision-log.md#019-路径-c-stage-5-批量执行完成--skill-生态-52--11) / [#020](user-decision-log.md#020) 实证）：当主笔在自审中给某个治理 skill / 工具 / 流程 KEEP/REWRITE 判定，且该主笔在历史会话中消费过该 skill / 工具 / 流程时，**KEEP/REWRITE 判定建议折扣 0.5 权重**；折扣应在折叠报告显式标注，**不强制阻塞**。
+   - 实证：Claude 路径 C Stage 2 给 cross-audit / sprint-contract / decision-closeout / knowledge-health KEEP（4 个 Claude 主分支会话用过的治理 skill），[#017](user-decision-log.md#017-skill-审计-stage-35--45-项分歧裁决--大规模重构方向) 帅哥裁决全部 DOWNGRADE/MERGE/DELETE。Claude 同源偏向被异源 + 用户裁决纠偏。
+   - 触发动作：折叠主笔在 consensus 报告中显式列出"主笔自审 + 自己消费过的组件"配对，提示帅哥关注同源偏向。
+   - 与 §G.5.4 衔接：[§G.5.4](#g5-skill-升降级机制路径-c-019-实证扩展) 主笔消费偏向警示与本第 5 条信号双向引用——§B 给同源信号，§G 给 skill 审计场景的具体折扣应用。
+   - 与信号 4 可叠加：thinking 模式身份漏泄 + 消费偏向时，权重 = 0.5 × 0.5 = 0.25 原权重（等效折扣 0.75），折叠报告分开注明各折扣来源。
 
 ### B.2 物理隔离失效检测
 
@@ -340,6 +348,40 @@ M-000 v2.0 §8 已列出 6 项核心 check（frontmatter schema / link integrity
 - **退役原则**：「已有实现」不构成永久保留理由（[#014 采纳 Codex 亮点](user-decision-log.md#014-m-005-p3b-八处分歧裁决)）。
 
 **阈值注释**：§G.2 与 §G.4 的误报率阈值均为 <20%，来源于 [#014 D5](user-decision-log.md#014-m-005-p3b-八处分歧裁决)：「≥3 次审计运行 + 30 天 + 误报率 < 20%」。此阈值是升级到 core 的触发条件；升级后若误报率持续 >20%，启动降级评估。
+
+### G.5 skill 升降级机制（路径 C [#019](user-decision-log.md#019-路径-c-stage-5-批量执行完成--skill-生态-52--11) / [#020](user-decision-log.md#020) 实证扩展）
+
+skill 升降级采用与 docaudit check 升降级（§G.1~§G.4）**同源**的双轨机制。skill 特有判据：
+
+**§G.5.1 6 种 Verdict 体系**（路径 C [#017](user-decision-log.md#017-skill-审计-stage-35--45-项分歧裁决--大规模重构方向) 实证）：
+
+- **KEEP**：保留 skill 形态。要求：需要 LLM 动态判断 + 不可下沉到 standards/template/hook + 触发频率高 + 元规则对齐分 ≥4
+- **REWRITE**：保留 skill 形态但内容重写。要求：方向正确但措辞过期/不一致
+- **MERGE**：合并到容器 skill 或 standards/template 文件。要求：与另一组件功能重叠 + 合并后认知负担更低
+- **PROMOTE_TO_STANDARDS**：内容升 standards/，删除 skill。要求：内容是规则/约束/规范 + 不需 LLM 介入
+- **DOWNGRADE_TO_TEMPLATE**：内容降 templates/，删除 skill。要求：内容是纯模板/代码片段 + trigger 条件不需推理
+- **DELETE**：归档至 docs/archive/skills/`<date>`/。要求：装饰性 / 过时 / 形式合规但实质空洞 / 已被其他组件覆盖
+
+**§G.5.2 skill 触发周期审计**：
+
+- 每 90 天审计一次 .claude/skills/ active 清单
+- 连续 ≥2 个季度无实际触发的 skill → 自动降格为候选（标 skill_audit_verdict: candidate）
+- 候选 ≥1 季度仍无触发 → 升降级提案
+
+**§G.5.3 大规模 skill 重构的 baseline + expires_on 机制**：
+
+- skill 大规模重构（如路径 C，影响 ≥10 个 skill）期间，docaudit 必然抓出 frontmatter/links/skill-* 类批量 error
+- 修复策略：legacy_whitelist 加豁免 + expires_on（≤30 天）+ reason 引用 user-decision-log #编号
+- expires_on 强制周期性复审，避免技术债隐藏（路径 C [#019](user-decision-log.md#019-路径-c-stage-5-批量执行完成--skill-生态-52--11) 实证 2 项豁免）
+
+**§G.5.4 主笔消费偏向警示**（与 §B 联动）：
+
+- 主笔（含 Claude 主分支会话）对自己消费过的治理 skill 自审时，KEEP/REWRITE 判定**默认折扣 0.5 权重**（参 [§B.1 信号 5](#b1-触发信号清单)）
+- 路径 C 实证（[#017](user-decision-log.md#017-skill-审计-stage-35--45-项分歧裁决--大规模重构方向)）：Claude Stage 2 给 cross-audit / sprint-contract / decision-closeout / knowledge-health KEEP，帅哥裁决全部 DOWNGRADE/MERGE/DELETE——Claude 同源偏向被异源 + 用户裁决纠偏。
+
+**§G.5.5 与 M-001 主笔轮换的衔接**：
+
+skill 审计的主笔提名规则与 M-005 §H 主笔轮换原则同源——避免连续同源主笔审 skill 累积同源偏向。M-001 ratify 后会承接 skill 审计主笔的具体提名流程。
 
 ---
 
