@@ -1,5 +1,6 @@
 ---
 last_verified: 2026-05-23
+derived_from: [M-000 §3, M-001]
 layer: pattern
 scope: workflow
 paths:
