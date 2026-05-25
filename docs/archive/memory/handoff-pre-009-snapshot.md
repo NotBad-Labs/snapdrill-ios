@@ -1,6 +1,6 @@
 ---
-last_verified: 2026-05-20
-layer: snapshot
+last_verified: 2026-05-25
+layer: archive
 freshness:
   max_age_days: 7
   decay_trigger: [pr_merge, branch_change]

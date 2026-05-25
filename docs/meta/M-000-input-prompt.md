@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-21
+last_verified: 2026-05-25
 layer: pattern
 freshness:
   max_age_days: 365

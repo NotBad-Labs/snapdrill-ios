@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 layer: pattern
 ---
 # 执行门禁总表（Execution Gates SSOT）

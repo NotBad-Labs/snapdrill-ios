@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 layer: pattern
 ---
 # 项目标准与约束（Agent-Agnostic）

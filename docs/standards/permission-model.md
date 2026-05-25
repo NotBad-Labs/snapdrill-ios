@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 layer: pattern
 ---
 # SnapDrill 权限模型

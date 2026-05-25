@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-04-17
+last_verified: 2026-05-25
 layer: decision
 ---
 # ADR-NNN: [标题]

@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-22
+last_verified: 2026-05-25
 layer: snapshot
 scope: meta
 freshness:

@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 layer: pattern
 audit_note: "2026-05-19 验证 — 各 feature 用 ✅ / [需 PoC: 标准] / [阻塞: #N] 显式标记状态，feature 状态变化通过标签维护；与 product-design.md 状态标签机制对齐"
 ---

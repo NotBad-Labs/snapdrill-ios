@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 layer: pattern
 audit_note: VALID_WITH_GAP — 竞品数据 time-sensitive，需季度刷新
 gap_type: time_sensitive_external

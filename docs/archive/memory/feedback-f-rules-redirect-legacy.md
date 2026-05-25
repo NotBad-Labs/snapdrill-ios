@@ -1,6 +1,6 @@
 ---
 last_verified: 2026-05-25
-layer: pattern
+layer: archive
 ---
 
 # F-NNN 规则 — 全部退役（[#022](../meta/user-decision-log.md#022)）

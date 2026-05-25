@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 layer: pattern
 ---
 # Harness Recall — 自进化闭环（错误→永久修复）

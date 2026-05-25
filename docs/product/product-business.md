@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-19
+last_verified: 2026-05-25
 layer: pattern
 audit_note: VALID_WITH_GAP — 订阅取消原则已定义（L73-74：取消后数据仍可查看/导出），细则待补
 gap_type: missing_detail
