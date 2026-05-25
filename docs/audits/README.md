@@ -152,5 +152,5 @@ ledger 文件物理上**永不删除**——审计 ledger 的可追溯性是合�
 ## 关联
 
 - 方法论 SSOT：`docs/decisions/ADR-004-doc-system-deep-clean.md`
-- 跨 agent 入口：`AGENTS.md` → `docs/KNOWLEDGE_MAP.md`
+- 跨 agent 入口：`AGENTS.md` → `docs/meta/M-000-meta-vision.md` §11 SSOT 注册表
 - 触发条件与复审节奏：ADR-004 「何时再触发本方法论」段

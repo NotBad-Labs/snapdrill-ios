@@ -134,6 +134,6 @@ layer: principle
 | `../protocol.md` | 协作流程（原则如何落到 Issue、Scope、DoD、Review） |
 | `../product/product-vision.md` | 产品定位（原则 3 的"用户需要"判断依据） |
 | `../product/product-journeys.md` | 用户旅程（原则 3 的场景验证） |
-| `../KNOWLEDGE_MAP.md` | 知识分层索引 |
+| `../meta/M-000-meta-vision.md` §11 | SSOT 注册表（项目所有非产品文档分类索引） |
 | `../DOC_DEPENDENCY_MAP.md` | 文档上下游传播关系 |
 | `../decisions/` | ADR（不可逆决策的正式记录） |

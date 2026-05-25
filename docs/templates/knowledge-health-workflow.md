@@ -41,7 +41,7 @@ python3 Scripts/audit/docaudit.py all --report --baseline   # 落盘 TSV
 
 ### 2a. 软上限触线检查
 
-`docs/KNOWLEDGE_MAP.md` 声明活跃知识文件软上限 ~50（超过 ~45 优先合并/退役，超过 ~50 必须先退役才能新增）。
+M-000 §11 SSOT 注册表的非产品 active 文档软上限 ~50（超过 ~45 优先合并/退役，超过 ~50 必须先退役才能新增）。原 `docs/KNOWLEDGE_MAP.md` 已于 [#023](../meta/user-decision-log.md#023) 删除，本规则承接其软上限职能。
 
 ```bash
 COUNT=$(find docs/ -name "*.md" -not -path "*/archive/*" -not -path "*/reference/*" | wc -l | tr -d ' ')

@@ -122,7 +122,7 @@ grep -r "旧API名" Packages/ --include="*.swift" -l
 ## 关联文档
 
 - `docs/DOC_DEPENDENCY_MAP.md` — 完整依赖图
-- `docs/KNOWLEDGE_MAP.md` — 知识分层索引
+- `docs/meta/M-000-meta-vision.md` §11 — SSOT 注册表（替代 KNOWLEDGE_MAP，[#023](../meta/user-decision-log.md#023)）
 - `docs/protocol.md` §决策变更收尾 — 传播闭环流程
 
 ---

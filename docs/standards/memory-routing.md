@@ -54,8 +54,8 @@ layer: pattern
 - [ ] 现有 docs/ 下有没有类似归属？
 - [ ] 是否真的需要新文件？还是扩展现有段落即可？
 - [ ] frontmatter 三件套是否齐：`last_verified` + `layer` + 必要时 `freshness`
-- [ ] 新文件是否更新到 `docs/KNOWLEDGE_MAP.md`？
+- [ ] 新文件是否在 M-000 §11 SSOT 注册表登记（`docs/meta/M-000-meta-vision.md` §11.1-§11.6）？
 
-## 与 KNOWLEDGE_MAP.md 的关系
+## 与 M-000 §11 SSOT 注册表的关系
 
-`KNOWLEDGE_MAP.md` 是**索引**（已有什么文件、各属哪层）。本文档是**路由规则**（新内容该去哪个文件）。两者互补。
+M-000 §11 是**注册表**（已有什么文件、各属哪层、派生归宿）。本文档是**路由规则**（新内容该去哪个文件）。两者互补。原 `KNOWLEDGE_MAP.md` 已于 [#023](../meta/user-decision-log.md#023) 删除，其索引职能并入 §11。

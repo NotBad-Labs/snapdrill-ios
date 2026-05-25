@@ -189,13 +189,14 @@ docaudit 只证明“可机械检查的结构信号通过”，不证明事实�
 | `docs/audits/skill-audit-final.md` | M-003 路径 C [#018](user-decision-log.md#018) 实证锚（M-002 派生）|
 | `docs/audits/single-vendor-audit-prompt-template.md` | M-001 协作模板派生 |
 
-### §11.6 根入口文件（`docs/` 根 3 个）
+### §11.6 根入口文件（`docs/` 根 2 个，[#023](user-decision-log.md#023) KNOWLEDGE_MAP 删除）
 
 | 文档 | 派生归宿 |
 |---|---|
-| `KNOWLEDGE_MAP.md` | M-000 §11 派生（项目知识索引，与 §11 互为入口）|
 | `DOC_DEPENDENCY_MAP.md` | M-005 §J 文档依赖图（变更传播路径）|
-| `protocol.md` | M-001 协作工作流派生（待 M-001 ratify 后正式归位）|
+| `protocol.md` | M-001 协作工作流派生（M-000 §3 Action Gate）|
+
+**[#023](user-decision-log.md#023) supersede**：`KNOWLEDGE_MAP.md` 因与本 §11 v2 SSOT 注册表职能重复（同为「文件分类索引」），按 [#022](user-decision-log.md#022) 「能融入则融入，否则删除」原则删除，不归档。「三层 layer 分类」概念融入各文档 frontmatter `layer:` 字段。
 
 ### §11.7 产品支撑（`docs/tech/` 13 个，[#022 A 路径裁决](user-decision-log.md#022)：视为产品支撑，不强制 M-000 派生锚）
 

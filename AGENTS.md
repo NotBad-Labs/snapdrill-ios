@@ -19,7 +19,7 @@ SnapDrill：练习题数字化效率工具；SwiftUI / SwiftData / iOS 26.0+ / S
 |---|---|
 | standards | `docs/standards/` |
 | feedback / F 规则索引 | `docs/memory/feedback.md` |
-| 知识地图 | `docs/KNOWLEDGE_MAP.md` |
+| SSOT 注册表 | `docs/meta/M-000-meta-vision.md` §11 |
 | 变更传播 | `docs/DOC_DEPENDENCY_MAP.md` |
 | 元规则入口 | `docs/meta/README.md` |
 | M-001~M-006 backlog | `docs/meta/M-001-to-M-006-followup-backlog.md` |

@@ -60,7 +60,7 @@ grep -A 50 '^## Risks' docs/memory/handoff.md || true
 
 ### Step 5: 落地或记录
 
-- 用户批准 → 写入 feedback.md（F-0XX）→ 更新 KNOWLEDGE_MAP.md
+- 用户批准 → 写入对应权威源（参 docs/memory/feedback.md 退役注：F-rules 已并入各 standards/templates）→ 在 M-000 §11 SSOT 注册表登记
 - 用户拒绝 → 记录到 decisions.md，注明理由
 - 继续观察 → handoff.md Risks 段注明 "已触发 Recall，用户指令继续观察"
 
