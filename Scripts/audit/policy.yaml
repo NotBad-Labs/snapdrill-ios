@@ -133,6 +133,20 @@ legacy_whitelist:
     reason: "Phase A 基线：候选孤儿待人工分层（hard / soft / intentionally parked）"
     expires_on: "2026-05-31"
 
+  # 路径 C #018 后：.agents/skills/swiftui-pro/SKILL.md 引用 references/body-reevaluation.md / lazy-loading.md / view-identity.md / common-pitfalls.md，
+  # 但 .agents/skills/swiftui-pro/references/ 实际含 accessibility/api/data/design/hygiene/navigation/performance/swift/views.md
+  # （上游 SKILL.md 引用与实际 references/ 文件名不一致——这是 .agents/ SSOT 上游问题，路径 C #018 ratify 后续 PR 处理）
+  - check: skill-links
+    reason: "路径 C #018 ratify 暴露的 .agents/skills/swiftui-pro 上游 references 引用不一致；待上游同步或后续 PR 修复 SKILL.md 链接"
+    expires_on: "2026-06-30"
+
+  # 路径 C #018 期间 DOWNGRADE/MERGE 到 docs/templates/ 的 skill 内容继承了 ~/.claude/... 私有路径引用（来自原 skill 文本），
+  # 以及 docs/audits/skill-audit-task-definition.md 中 inline 的 SKILL.md 摘要含 ~/.claude/... 引用
+  # 后续 PR 批量替换为描述性表述（Claude 私有目录，git-untracked）
+  - check: home-path-refs
+    reason: "路径 C #018 期间 DOWNGRADE/MERGE 的 skill 内容继承 ~/.claude 私有路径；待后续 PR 批量脱敏"
+    expires_on: "2026-06-30"
+
 # 输出
 output:
   tsv_dir: reports/

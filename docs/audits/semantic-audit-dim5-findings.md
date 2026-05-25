@@ -42,11 +42,11 @@ freshness:
 - **发现描述**：
   在 `permission-model.md` §4 中定义的治理类 Skill 工具矩阵，与物理 `.claude/skills/` 下的 `SKILL.md` 存在两处偏差：
   1. `xcode-review`：在 SSOT 矩阵中写着被赋予了 `Read, Grep, Glob, Write, Bash` 权限，但物理 [.claude/skills/xcode-review/SKILL.md](../../.claude/skills/xcode-review/SKILL.md#L4-L7) 中仅注册了 `Bash, Read, Grep`。
-  2. `api-research`：在 SSOT 矩阵中未勾选 `Grep` 权限，但物理 [.claude/skills/api-research/SKILL.md](../../.claude/skills/api-research/SKILL.md#L4-L9) 中实际声明并注册了 `Grep` 权限。
+  2. `api-research`：在 SSOT 矩阵中未勾选 `Grep` 权限，但物理 [api-research SKILL.md（已归档至路径 C #018）](../archive/skills/2026-05-25/api-research/SKILL.md) 中实际声明并注册了 `Grep` 权限。
 - **推荐处理**：以 `permission-model.md` 为 SSOT 权威源，修订物理 `SKILL.md` 里的 `allowed-tools` 列表，实现双向自洽。
 
 ### 🟡 Finding 3：跨 Agent 共识 Skill 中遗留过时参数导致虚假合规 (MEDIUM)
-- **规则锚点**：[.claude/skills/cross-audit-consensus/SKILL.md](../../.claude/skills/cross-audit-consensus/SKILL.md#L81) (§2.5 / 行 81) 与 [codex-delegation.md](../standards/codex-delegation.md#L14-L26) (§模型与参数选择)
+- **规则锚点**：[cross-audit-consensus SKILL.md（已归档至路径 C #018）](../archive/skills/2026-05-25/cross-audit-consensus/SKILL.md) §2.5 / 行 81 与 [codex-delegation.md](../standards/codex-delegation.md#L14-L26) (§模型与参数选择)
 - **实证状态**：未命中。
 - **漂移类型**：SSOT 漂移 / audit_note 虚假合规
 - **发现描述**：

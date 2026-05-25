@@ -122,3 +122,14 @@ End of example.
 - `references/bug-patterns.md` - Common concurrency failure modes and their fixes.
 - `references/diagnostics.md` - Strict-concurrency compiler errors, protocol conformance fixes, and likely remedies.
 - `references/testing.md` - Async test strategy with Swift Testing, race detection, avoiding timing-based tests.
+
+---
+
+## REWRITE 计划（路径 C #018 ratify）
+
+本 skill 已计划重写对齐 **Swift 6.3 + iOS 26 SDK**（user-decision-log [#017](../../../docs/meta/user-decision-log.md#017-skill-审计-stage-35--45-项分歧裁决--大规模重构方向) Verdict = REWRITE）。
+
+- last_verified: 2026-05-25
+- needs_rewrite: true
+- references/ 目录待 Stage 5.1 (后续 PR) 逐个对齐最新 SDK
+

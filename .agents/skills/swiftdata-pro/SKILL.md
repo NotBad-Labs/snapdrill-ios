@@ -100,3 +100,14 @@ End of example.
 - `references/cloudkit.md` - CloudKit-specific constraints including uniqueness, optionality, and eventual consistency.
 - `references/indexing.md` - database indexing for iOS 18+, including single and compound property indexes.
 - `references/class-inheritance.md` - model subclassing for iOS 26+, including @available requirements, schema setup, and predicate filtering.
+
+---
+
+## REWRITE 计划（路径 C #018 ratify）
+
+本 skill 已计划重写对齐 **Swift 6.3 + iOS 26 SDK**（user-decision-log [#017](../../../docs/meta/user-decision-log.md#017-skill-审计-stage-35--45-项分歧裁决--大规模重构方向) Verdict = REWRITE）。
+
+- last_verified: 2026-05-25
+- needs_rewrite: true
+- references/ 目录待 Stage 5.1 (后续 PR) 逐个对齐最新 SDK
+

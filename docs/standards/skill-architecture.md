@@ -24,14 +24,15 @@ Counting rule: only first-level `*/SKILL.md` files are counted as triggerable sk
 
 | Category | Count | Source |
 |---|---:|---|
-| Claude discovery entries | 52 | `.claude/skills/*/SKILL.md` plus symlink skill dirs |
+| Claude discovery entries | 11 | `.claude/skills/*/SKILL.md` plus symlink skill dirs |
 | Shared first-level skill sources | 16 | `.agents/skills/*/SKILL.md` |
-| Claude adapter entries | 16 | 13 physical pointer adapters + 3 managed symlink entries point to shared sources |
-| Distinct first-level skill names | 52 | 52 Claude discovery entries + 16 shared sources - 16 duplicate shared entries |
+| Claude adapter entries | 5 | adapters pointing to shared sources（路径 C #018 大规模清理后） |
+| Distinct first-level skill names | 22 | 11 Claude discovery + 16 shared - 5 duplicate adapters |
 | Plugin payload skills | 2 | `.agents/skills/*/skills/*/SKILL.md` |
 
 > 2026-05-19：3 个 stub skill 退役（`biometric-auth` / `network-security` / `secure-storage`）—— 详见 `skill-source-ledger.md` Retired Claude-Only Skills 段。54 → 51。
 > 2026-05-20：从 `snapshot-testing/SKILL.md` 拆出嵌入的第二个 frontmatter `snapshot-diff-review` 为独立 skill（Phase 9 finding Y）。51 → 52。
+> 2026-05-25：路径 C 第一性原理审计（[user-decision-log #016~#018](../meta/user-decision-log.md#016-路径-c-启动--skill-生态第一性原理审计彻底解决自举循环)）完成，52 → 11 active skill（净减 79%）。归档 41 个：7 DELETE + 24 MERGE 到目标容器 / standards / templates + 5 PROMOTE_TO_STANDARDS + 7 DOWNGRADE_TO_TEMPLATE。详见 [skill-audit-final.md](../audits/skill-audit-final.md)。
 
 Shared skills:
 

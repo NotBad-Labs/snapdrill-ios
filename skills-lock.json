@@ -7,7 +7,7 @@
       "sourceType": "github",
       "skillPath": "swift-concurrency-pro/SKILL.md",
       "computedHash": "db6c88d8da1a264188a2ad826a0ed73d227384315b27e47f3bb6b78ca1a3df40",
-      "localBlob": "5549099b5473626ad78da0c61546706f3ea6b30d",
+      "localBlob": "4c7ad0694b0bea8e6a47e254f807c2336602dfcc",
       "supportFiles": [
         {
           "localPath": ".agents/skills/swift-concurrency-pro/.claude-plugin/plugin.json",
@@ -125,7 +125,8 @@
           "localPath": ".agents/skills/swift-concurrency-pro/skills/swift-concurrency-pro/references/unstructured.md",
           "localBlob": "efe905e8265015ba520d83f2d7599bebff211215"
         }
-      ]
+      ],
+      "pathC_update_2026_05_25": "REWRITE 标记追加，旧 blob: 5549099b5473626ad78da0c61546706f3ea6b30d"
     },
     "swiftdata-pro": {
       "kind": "managed",
@@ -133,7 +134,7 @@
       "sourceType": "github",
       "skillPath": "swiftdata-pro/SKILL.md",
       "computedHash": "2f979bad98ea3a6744084c5f93e27897f02e8d0ffe15dd03042e88aaae4da14c",
-      "localBlob": "83735a31b8b58e3d8087e188fc858733807decde",
+      "localBlob": "61263b2d5ae63d387ff913ca6156310d31d2b66c",
       "supportFiles": [
         {
           "localPath": ".agents/skills/swiftdata-pro/agents/openai.yaml",
@@ -167,7 +168,8 @@
           "localPath": ".agents/skills/swiftdata-pro/references/predicates.md",
           "localBlob": "b4cf2a362b142fac66142d1fa5c2acb4dfb8e45d"
         }
-      ]
+      ],
+      "pathC_update_2026_05_25": "REWRITE 标记追加，旧 blob: 83735a31b8b58e3d8087e188fc858733807decde"
     },
     "swiftui-pro": {
       "kind": "managed",
@@ -175,7 +177,7 @@
       "sourceType": "github",
       "skillPath": "swiftui-pro/SKILL.md",
       "computedHash": "07033426e384295a4b49cf0b2ffdefd4098cae4af53fef16bc1f2d9281118c41",
-      "localBlob": "f6015f2bfbd7c11ed4457a32ceba05e23ef340ee",
+      "localBlob": "470cc50579b81626b64b62667b22bfe44a2a5010",
       "supportFiles": [
         {
           "localPath": ".agents/skills/swiftui-pro/.claude-plugin/plugin.json",
@@ -269,7 +271,8 @@
           "localPath": ".agents/skills/swiftui-pro/skills/swiftui-pro/references/views.md",
           "localBlob": "880a6051f32afa0ae988be646ba0848099992368"
         }
-      ]
+      ],
+      "pathC_update_2026_05_25": "REWRITE 标记追加，旧 blob: f6015f2bfbd7c11ed4457a32ceba05e23ef340ee"
     },
     "accessibility-generator": {
       "kind": "vendored",
