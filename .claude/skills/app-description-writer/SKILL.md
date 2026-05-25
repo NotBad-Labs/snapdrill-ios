@@ -2,6 +2,8 @@
 name: app-description-writer
 description: Claude Code adapter for the shared App Store description writer skill. Use when writing initial descriptions, improving existing copy, or drafting promotional text and What's New for a major update.
 allowed-tools: [Read, Glob, Grep]
+source: .agents/skills/app-description-writer/SKILL.md
+derived_from: M-003 §11.1
 ---
 
 # App Description Writer Adapter
