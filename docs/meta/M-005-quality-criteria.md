@@ -385,7 +385,9 @@ skill 审计的主笔提名规则与 M-005 §H 主笔轮换原则同源——避
 
 ### §G.6 derived_from frontmatter check（[#024](user-decision-log.md#024) 设计 ratify，未实施 — proposed 阶段）
 
-**状态明示**（Codex GUI sign-off [#024-block](#024) 修正后）：本节是 **proposed check 设计文档**，**未实施于 docaudit / execution-gates**。提案文档参 `docs/audits/proposed-check-derived-from-required.md`（按 §G.4 提案路径）。docaudit `--check derived-from-required` 子命令 + `execution-gates.md` 登记 + ≥3 次审计运行 + 30 天观测 + 误报率 <20% 后方进入可选 check 列表，再按 §G.4 升级路径升核心。
+**状态明示**（Codex GUI sign-off [#024-block](#024) 修正后）：本节是 **proposed check 设计文档**，**未实施于 docaudit / execution-gates**。提案文档参 `docs/audits/proposed-check-derived-from-required.md`（按 §G.4 提案路径）。两阶段升级门槛（不混淆）：
+- **proposed → optional**：实现 docaudit `--check derived-from-required` 子命令 + `execution-gates.md` 登记到 optional_checks 表 + ≥1 家异源评估通过。
+- **optional → core**：满足 §G.4 升级条件「≥3 次审计运行 + 30 天观测 + 误报率 <20%」（三个条件 AND）+ §G.2 满足后入核心 + 同步 `execution-gates.md` core_checks 表。
 
 **事故来源**：[#022](user-decision-log.md#022) 后路径 C 深度审计发现 102/103 文件 frontmatter 缺 `derived_from` 字段（D1 维度缺失率 95%+），M-000 §11 SSOT 注册表完整但「派生锚未传导到文档自身」——构成 §11.10 schema 设计 vs 实施落差。
 
