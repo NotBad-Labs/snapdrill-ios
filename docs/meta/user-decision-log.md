@@ -353,6 +353,20 @@ derived_from: [M-002]
 
 ---
 
+### #023 + #024 Sign-off 共识追认 — 2026-05-25
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-25 |
+| **追认对象** | [#023](#023) 派生锚结构性整改（第七次元规则修订）+ [#024](#024) 派生锚 schema 系统级实施（第八次元规则修订） |
+| **Sign-off 矩阵** | <br>**Claude 主线（主笔）**：不下场（路径 C [#017](#017) 实证规避同源偏向）<br>**DeepSeek V4-Pro CLI**：⛔ 跳过（wrapper 死锁 55 分钟 0 输出 hang，技术问题非内容否决；详见 commit `e041dc63` 之后的 background task 失败记录）<br>**Antigravity GUI**：✅ **PASS**（5 维全 PASS，2 项独家发现 backlog 化）<br>　- 独家发现 1：私有 plan 级派生链脱钩 → M-001 ratify 时增强<br>　- 独家发现 2：删除机制缺「双核 / 异源双重锁」→ M-005 增「融入并删除」语义继承复核机制<br>**Codex GUI**：⛔ 首轮 BLOCK → P4.Fix 5 项修复（commit `3e4a4d11`）→ ⛔ RERUN BLOCK（B4 残留：§G.6 第一段把 §G.4 升 core 条件错放在 proposed → optional 位置）→ P4.Fix² 单点修复（commit `248f7822`）→ ✅ **RERUN² PASS** |
+| **共识判定** | **2 家异源共识 PASS**（Antigravity + Codex GUI RERUN²）；DeepSeek 因 CLI wrapper 死锁不参与（非内容否决，技术问题），按 [#017](#017) 实证「主笔不下场 + ≥2 家异源 PASS = 元规则修订共识有效」原则 → [#023](#023) + [#024](#024) **正式 ratify 生效**。 |
+| **修复记录** | 本批 sign-off 触发 2 次精化修复：<br>**P4.Fix**（commit `3e4a4d11`，8 files / +155 / -19）：B1 (2 adapter array) + B2 (proposed-check 文档) + B3 (§G.6 扫描范围 docs/tech/** 路径硬豁免) + B4 (#024 「设计 ratify，未实施」措辞) + C1 (skill-audit-final 双源)<br>**P4.Fix²**（commit `248f7822`，1 file / +3 / -1）：M-005 §G.6 状态明示段拆分两阶段门槛（proposed→optional vs optional→core），消除内部矛盾。 |
+| **未参与方追溯** | DeepSeek V4-Pro CLI wrapper（~/.local/bin/deepseek + `claude -p` env override）死锁问题归入路径 D 工具链调研 backlog。如未来需 4 家异源 sign-off，应优先排查 wrapper SSE 断流原因或改走远程 ssh Mac mini 路径。 |
+| **元层级注记** | **首次 2 家异源 sign-off 闭环**：前几次元规则修订（#011 / #015 / #020 / #021 / #022）均走 4 家 sign-off。本次因 DeepSeek 工具链故障降为 2 家共识，验证「2 家异源 + 用户裁决 = 共识有效」的最低门槛（[#017](#017) 实证扩展）。<br>**Codex GUI 严格度实证再次锚定**：路径 C [#017](#017)/[#018](#018)/[#021](#021) 多次实证 Codex GUI 严格度 > Codex CLI / 其他 GUI；本次 2 轮 BLOCK + 1 轮 PASS 持续验证（共发现 5 个真实缺陷：B1 schema/标量矛盾、B2 §G.4 流程跳过、B3 扫描范围误伤、B4 措辞过强、B4² 条件位置错放）。<br>**B4² 条件位置错放**是同节内部矛盾，主线 Claude 自查 + Antigravity GUI 均未发现，仅 Codex GUI 检出 — 是 Codex GUI 高权重证据源的实证锚。<br>**「proposed → optional → core」三阶段门槛首次正规化**：B4² 修复后 §G.6 是 M-005 §G.4 升级路径的首个完整实例化文档。后续新 check 提案应严格遵循该三阶段门槛叙事，避免「跳过 proposed」「混淆门槛」陷阱。 |
+
+---
+
 ## 日志维护规则
 
 1. **append-only**：不删除历史条目，只追加新条目
