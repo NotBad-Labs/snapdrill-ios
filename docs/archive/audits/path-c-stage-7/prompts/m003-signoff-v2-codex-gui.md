@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 你被请求对 SnapDrill iOS 项目元规则 M-003「技能库治理」**v2 draft** 做异源 sign-off。
 
 # 任务背景

@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 ## Antigravity GUI Sign-off — M-005 §J.2 v2 Patch
 
 ### Overall Verdict

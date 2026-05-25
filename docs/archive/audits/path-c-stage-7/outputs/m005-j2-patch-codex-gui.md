@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 # M-005 §J.2 v2 Patch
 
 ## §A 修订前后对比（diff 视图）

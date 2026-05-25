@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 ## Antigravity Sign-off — M-003 v2
 
 ### Overall Verdict

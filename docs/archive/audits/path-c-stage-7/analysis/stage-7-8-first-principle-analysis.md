@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 # Stage 7.8 选项的第一性原理分析
 
 ## Context

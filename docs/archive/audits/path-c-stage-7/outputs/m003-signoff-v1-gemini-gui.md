@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 ## Gemini 3.5 Flash GA Sign-off — M-003 v1
 
 ### Overall Verdict

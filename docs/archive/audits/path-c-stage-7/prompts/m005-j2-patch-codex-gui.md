@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 你是 Codex（GPT-5.5 Thinking），承接 SnapDrill iOS 项目元规则 **M-005 §J.2「每一段」措辞精化**的主笔。
 
 # 你的身份与上下文

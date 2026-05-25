@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 ## Gemini 3.5 Pro Review — 专家观点评价
 
 ### Overall Judgment

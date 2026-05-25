@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 你被请求对一份"专家观点"做异源评价。
 
 # 任务背景

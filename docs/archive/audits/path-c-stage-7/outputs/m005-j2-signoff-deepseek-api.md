@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 ```
 ## DeepSeek sign-off — M-005 §J.2 v2 Patch
 

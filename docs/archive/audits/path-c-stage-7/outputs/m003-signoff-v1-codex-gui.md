@@ -1,3 +1,9 @@
+---
+last_verified: 2026-05-25
+layer: archive
+scope: meta-audit
+---
+
 ## Codex (GPT-5.5 Thinking) Sign-off — M-003 v1
 
 ### Overall Verdict
