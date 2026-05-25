@@ -226,12 +226,37 @@ docaudit 只证明“可机械检查的结构信号通过”，不证明事实�
 | `memory/` | docs/memory/ 整目录归档（feedback / decisions / handoff）| [#022](user-decision-log.md#022) |
 | `research/` / 其他历史 snapshot | 早期审计 / 工具研究归档 | pre-#009 |
 
-### §11.10 注册维护规则
+### §11.10 注册维护规则（v2.1 schema，[#024](user-decision-log.md#024) 升级）
 
-- **新增非产品文档**：必须在本 §11 表内显式注册 + frontmatter 含 `derived_from:` 字段（后续 PR 实施 schema）
+#### derived_from frontmatter schema
+
+**字段定义**：
+
+```yaml
+derived_from: [<anchor>, <anchor>, ...]
+```
+
+- 类型：`array of strings`（即使单元素也用数组形式）
+- 元素格式：`M-NNN` / `M-NNN §N` / `M-NNN §N.N` / `user-decision-log #NNN`
+- 示例：
+  - `derived_from: [M-005 §J]` — 单源
+  - `derived_from: [M-005 §J, M-000 §11.6]` — 多源（一般 1-2 个，>3 应再审「派生关系是否成立」）
+  - `derived_from: [M-001]`（不写 §N）— 整个元规则派生（如 delegation 类）
+
+**适用范围**：所有 §11.1-§11.6 注册条目（必填）。§11.7 产品支撑（frontmatter `scope: product-support`）豁免；§11.8 私有 memory 不适用（git 外）。
+
+**docaudit check**：`derived_from_required` — 详 M-005 §G.6（初始可选，30 天观测后升核心）。
+
+#### 注册维护规则
+
+- **新增非产品文档**：必须在本 §11 表内显式注册 + frontmatter 含 `derived_from:` 字段（schema 见上）
 - **删除/归档**：必须在 user-decision-log 留痕 + 同 PR 更新 §11
-- **派生归宿变更**（如 standards → templates DOWNGRADE）：必须更新 §11 对应行
+- **派生归宿变更**（如 standards → templates DOWNGRADE）：必须更新 §11 对应行 + frontmatter `derived_from:` 同步
 - **审计**：每季度核验 §11 完整性（M-005 §G.5.2 季度审计扩展）
+
+#### 迁移豁免
+
+[#024](user-decision-log.md#024) ratify 前的存量文件（路径 C #017-#022 时代）给予 **30 天迁移宽限期**（≤2026-06-25），期间 `derived_from_required` 为可选 check，仅 warning 级；过期后升 error。豁免不适用于新建文档。
 
 ## §12 自我修订
 
