@@ -107,16 +107,36 @@ freshness:
 
 ## 调用矩阵(zero-context 任务)
 
+**任务复杂度分类**（帅哥 2026-05-25 裁决，实证锚 Stage 7.4 Codex CLI vs GUI / agy hang 事故）：
+
+| 任务类型 | 优选路径 |
+|---|---|
+| **复杂任务**（元规则起草 / 主笔 v1 / sign-off / 大型审计 / 跨多文件 ADR） | **GUI 桌面客户端 + worktree 物理隔离**（帅哥手动操作 Antigravity 桌面 + Codex/ChatGPT 桌面），Claude 写完整 zero-context prompt + 三处可达（剪贴板 / Desktop / /tmp） |
+| **轻量任务**（短 prompt <3KB / 单文件验证 / second-opinion） | CLI 路径仍可（codex-rescue / deepseek-rescue / 直接 curl API） |
+| **DeepSeek 主笔类**（即使复杂） | 仍走 curl `api.deepseek.com/v1/chat/completions` zero-context（V4-Pro 实战路径稳定） |
+
 需要 zero-context 独立调用某家时的优选路径:
 
-| 智能体 | Zero-context 最佳路径 |
-|---|---|
-| Claude | Claude Desktop **Code** 界面新会话(无项目挂载) / `claude --bare` |
-| Codex | `cd /tmp && codex exec -s read-only <prompt>` |
-| Gemini(preview,2026-06-18 前可用) | `cd /tmp && GEMINI_CLI_TRUST_WORKSPACE=true gemini -m gemini-3-flash-preview --skip-trust -p <prompt> --approval-mode plan` |
-| **Gemini 3.5 Flash GA(推荐)** | **Python 调 `Scripts/gemini_utils.py`** 或 curl `generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent`(需 `GEMINI_API_KEY`,本仓库 [M-005 P2/P3.d 实战路径](../../meta/M-005-quality-criteria.md)) |
-| **Gemini Antigravity CLI**(2026-06-18 起替代 gemini CLI) | `brew install antigravity-cli && agy <subcommand>`(本机当前未安装,推荐先继续直接 API 路径,agy 上线稳定后再切) |
-| DeepSeek | `curl https://api.deepseek.com/v1/chat/completions` 且 `"model": "deepseek-v4-pro"`(避免走 deepseek CLI,它带 claude agent loop 污染;**禁止用 `deepseek-chat` / `deepseek-v4-flash`**);Python 同;走 CLI 时 `deepseek "<prompt>"` 不带 `--flash`(本仓库 M-005 主笔实战路径) |
+| 智能体 | 复杂任务路径 | 轻量任务 CLI 路径 |
+|---|---|---|
+| Claude | Claude Desktop **Code** 界面新会话(无项目挂载) | `claude --bare` |
+| Codex (GPT-5.5 Thinking) | **ChatGPT 桌面 app + worktree** | `cd /tmp && codex exec -s read-only <prompt>`(短 prompt) |
+| Gemini 3.5 Flash/Pro | **Antigravity 桌面 app + worktree** | agy CLI（**仅 <3KB prompt**，长 prompt SSE streaming 断流卡死，Stage 7.4 实证）|
+| DeepSeek V4-Pro | `curl https://api.deepseek.com/v1/chat/completions` 且 `"model": "deepseek-v4-pro"`（zero-context、稳定，禁用 deepseek CLI agent loop + 禁用 Flash）| 同左 |
+
+### 复杂任务 GUI 路径执行规则
+
+1. Claude 写**完整自包含 prompt**（task definition + 待审文档 + 验收清单 + 输出格式约束 inline，禁用「读项目其他文件」要求）
+2. 同一任务可同时跑 **Codex GUI + Antigravity GUI** 冗余对比（帅哥裁决：额度充足，允许冗余验证）
+3. 三处可达：`pbcopy` + `cp ~/Desktop/<task>.md` + `/tmp/<task>.md`
+4. 建议 **worktree 隔离**（`git worktree add ../snapdrill-ios-<task-tag>`）防止 GUI 任务中间产物污染主分支
+5. CLI vs GUI 同跑时，**GUI 判断优先**（实证 Stage 7.4：CLI 给 CONDITIONAL，GUI 给 BLOCK 且独有发现 D2 预裁决，CLI 受 prompt flag 措辞先验框架污染）
+
+### CLI 路径已知限制（Stage 7.4 实证）
+
+- **agy CLI**：长 prompt SSE streaming 断流卡死。实测分布（Stage 7.4）：3KB OK；8KB OK（4 分钟）；29KB 卡死。卡死特征：进程 STATE=S CPU 0%，network log 显示 2 次 `streamGenerateContent?alt=sse` 调用后回归普通心跳，**`--print-timeout 25m` 不识别 SSE keep-alive 后的断流，timeout 失效**。建议长 prompt 一律走 Antigravity 桌面 GUI
+- **codex CLI（agent loop wrapper）**：受 prompt 中已知偏差措辞先验框架污染，归类倾向温和；可能读项目 CLAUDE.md/AGENTS.md 污染上下文
+- **deepseek CLI**：底层 `claude -p` agent loop，自动读 CLAUDE.md/AGENTS.md，**仅 curl API 直调** 可达 zero-context
 
 ---
 
@@ -126,8 +146,13 @@ freshness:
 |---|---|---|---|
 | Anthropic | Opus 4.7 / Sonnet 4.6 / Haiku 4.5 | Claude 知识 cutoff 2026-01 | 2026-05-25 |
 | OpenAI | GPT-5.5 Thinking | 未公开 | 2026-05-25 |
+<<<<<<< Updated upstream
 | Google | **Gemini 3.5 Flash / 3.5 Pro**(2026-05-19 GA);Gemini CLI 2026-06-18 sunset(替代:Antigravity CLI `agy`) | 未公开 | 2026-05-25 |
 | DeepSeek | **V4-Pro 唯一允许**(V4-Flash 项目内禁用) | 未公开 | 2026-05-25 |
+=======
+| Google | **Gemini 3.5 Flash / 3.5 Pro**(2026-05-19 GA);Gemini CLI 2026-06-18 sunset → **Antigravity 桌面 app + agy CLI 1.0.2 已装**（agy CLI 仅短 prompt，长 prompt 走桌面 GUI） | 未公开 | 2026-05-25 |
+| DeepSeek | V4-Pro / V4-Flash | 未公开 | 2026-05-25 |
+>>>>>>> Stashed changes
 
 ⚠️ **如果距 last_verified 超过 30 天,必须 WebSearch 重新验证**。
 ⚠️ **Gemini CLI 2026-06-18 sunset 倒计时**:Pro/Ultra/免费个人用户。本仓库已使用直接 API 路径(`Scripts/gemini_utils.py`),不受 sunset 影响;但 `gemini` 命令本身停摆,后续如需 CLI 形态需切换到 `agy`。企业 Standard/Enterprise license 不受影响。

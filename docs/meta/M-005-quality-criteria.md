@@ -458,19 +458,29 @@ skill 审计的主笔提名规则与 M-005 §H 主笔轮换原则同源——避
 - 文档作者根据信息密度自然决定字数。
 - 唯一约束：每一段的不可压缩性需在 `override_rationale` 证明。
 
-### J.2 override_rationale 的正向作用
+### J.2 override_rationale 的正向作用（[#021](user-decision-log.md#021) v2 精化：分层 + 触发）
 
-`override_rationale` 不再是「破例」，而是**密度证明**——作者必须论证：
+`override_rationale` 不再是「破例」，而是**分层密度证明**。v2 采用两个可机械区分的粒度（消除 v1「每一段」歧义，路径 C Stage 7.4-7.8 实证）：
 
-1. **每一段不能下沉**：段落内容不可沉到下游 standards/skills/tools。
-2. **每一段不能压缩**：段落中无冗余、重复、装饰性论证。
-3. **每一段不能省略**：省略后会导致信息缺失（依赖链断裂、证据链模糊）。
+1. **章节级 logical unit**（mandatory）：由 `##` / `###` 标题、`§N` 编号章节、附录标题界定。每个 logical unit 必须说明：
+   - **不能下沉**：为何不能沉到 standards / skills / tools / templates。
+   - **不能省略**：删去后会断裂哪条依赖链、证据链或裁决链。
 
-违反信号：
-- frontmatter 中 `override_rationale` 内容为空或只有「按长度需要」而无具体下沉/压缩/省略论证。
-- 正文中存在明显重复定义（同一概念在不同段落被定义两次）。
-- 存在可被工具脚本或模板自动生成的段落（如列举命令、模板示例）。
-- 存在「形式合规但实质空洞」的段落——如「本规则很重要」「我们应当遵守」等无信息量的陈述。
+2. **段级 grammatical paragraph / structured block**（mandatory on trigger）：由空行分隔的散文段；表格、列表、代码块按一个 structured block 计算。**触发条件三选一**：
+   - 正文超**参考篇幅** 2500 nwc（非硬上限，仅触发参考值；§J.1 「不预设上限」仍优先，参考篇幅纯为审计触发器）
+   - sign-off 指出具体冗余点
+   - 作者主动主张段级 override
+
+   触发后必须说明：**不能压缩**——为何不能表格化、合并、删重、下沉模板化，且无重复定义、装饰性论证、空洞合规句。**超参考篇幅时，override_rationale 应至少示例 1-2 段最长或最可能冗余的段落，说明已考虑压缩可能**（[#021](user-decision-log.md#021) D-J2=C 裁决 + DeepSeek 原作者 CONDITIONAL）。
+
+3. **§J.1 优先**：字数不是硬上限；参考篇幅只触发密度证明，不自动否决。仅证明「结构重要」但不回应段级压缩信号，或仅逐段删重但不证明章节级必要性，均不足以成立 override。
+
+违反信号（v2 扩充）：
+- `override_rationale` 为空，或只有「因为超字数」「按长度需要」。
+- 只按章节证明不可省略，却回避已指出的段级可压缩点。
+- 正文存在重复定义、可模板化段落、可脚本生成清单、或无信息量宣示句。
+- 字数声明与机械实测不一致（参 §J.7 机械验证标准），导致密度证明对象不确定。
+- 「形式合规但实质空洞」：通过所有 check 但产出后无实质影响。
 
 ### J.3 冗余检测信号（表格化）
 
@@ -514,6 +524,31 @@ Overrule 范围：仅 #009 R2 中的字段保留处理；#009 其他裁决（删
 理由：#010 已宣告字数原则不应预设上限，#010 的进一步改造在 M-005 §J 落地。M-005 同 PR 修订 M-000 v2.0 §6 + frontmatter 已完成，旧字段不再有意义。
 Overrule 生效时刻：本条目录入时同步生效。
 ```
+
+### J.7 机械字数验证标准（[#021](user-decision-log.md#021) D-J4=A 新增）
+
+主笔自报字数失真已成系统性偏差（路径 C 实证：DeepSeek M-003 v1 自报 2480 实测 4958 / v2 自报 2412 实测 5132，两次约 2× 错估）。M-005 v2 起 frontmatter `word_count_actual` 字段必须**可机械验证**：
+
+**标准计算口径**：
+- **目标**：正文非空白 **Unicode 字符数**（nwc），**不计 frontmatter**
+- **标准工具组合**：`awk` 抠 body + `tr` 去空白 + `wc -m`（UTF-8 字符 aware，不是字节）
+- **参考实现**（M-001~M-006 文档适用，macOS / Linux 兼容）：
+  ```bash
+  awk 'BEGIN{c=0} /^---$/{c++;next} c>=2 {print}' <文件> | tr -d ' \t\n' | wc -m
+  ```
+  - `awk` 第 1 个 `---` 开 frontmatter，第 2 个 `---` 关；body 部分原样输出
+  - `tr -d ' \t\n'` 去掉空格 / tab / 换行
+  - `wc -m` 按 Unicode 字符计数（**关键**：`awk length()` 在 macOS 默认按字节，中文按 3 字节，会高估约 2× — Stage 7.9 实测）
+- **structured block 计数**（与 §J.2 段级触发对应）：表格 / 列表 / 代码块按一个 block 计算（不细分行）
+
+**违规判定**（强结构约束）：
+- frontmatter `word_count_actual` 与上述 awk 实测**差 > 5%** → 违反 §J.2 第 4 条违反信号 → 自动降级为 CONDITIONAL（sign-off 要求修正）
+- 主笔产 draft 后未跑机械校验直接 commit → 视为 sign-off 入口失败（按 task definition 强约束）
+
+**主笔工作流要求**：
+- DeepSeek API zero-context 主笔无 wc 工具 → 后置由 Claude 主分支或 sign-off 入口代查（v1/v2 已实证）
+- Codex CLI / GUI 主笔可自跑 wc，但仍须独立校验
+- 任何主笔产 draft 后 frontmatter 字段必须包含实测值（不接受估算）
 
 ---
 
