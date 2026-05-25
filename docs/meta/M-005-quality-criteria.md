@@ -383,6 +383,31 @@ skill 升降级采用与 docaudit check 升降级（§G.1~§G.4）**同源**的�
 
 skill 审计的主笔提名规则与 M-005 §H 主笔轮换原则同源——避免连续同源主笔审 skill 累积同源偏向。M-001 ratify 后会承接 skill 审计主笔的具体提名流程。
 
+### §G.6 derived_from frontmatter check（[#024](user-decision-log.md#024) 新增，可选 → 核心待 30 天观测）
+
+**事故来源**：[#022](user-decision-log.md#022) 后路径 C 深度审计发现 102/103 文件 frontmatter 缺 `derived_from` 字段（D1 维度缺失率 95%+），M-000 §11 SSOT 注册表完整但「派生锚未传导到文档自身」——构成 §11.10 schema 设计 vs 实施落差。
+
+**检测方法**（按 §G.4「可选 → 核心」升级路径）：
+
+1. 扫描所有 `docs/**/*.md`（排除 `docs/product/` + `docs/archive/`）
+2. 若 frontmatter 缺 `derived_from:` 字段：
+   - 含 `scope: product-support` → 豁免（§11.7 产品支撑类）
+   - 否则报 warning（30 天宽限期内）或 error（过期后）
+3. 若 `derived_from:` 字段格式不合 schema（参 M-000 §11.10）→ 一律 error
+4. 若 `derived_from:` 引用的 M-NNN §N 在 M-000 / M-001~M-006 中不存在 → error
+
+**误报率估算**：< 10%（schema 明确，机械可校验，主要误报来自 §11.7 边界判断）。
+
+**预期消费端**：
+- `Scripts/audit/docaudit.py`（新增 `--check derived-from-required`）
+- `docs/standards/execution-gates.md`（同步登记）
+- M-000 §11.10 schema 规则
+
+**升级路径**：
+- 起始：可选 check，30 天观测期（≤2026-06-25），warning 级
+- 满足 §G.2 条件（≥3 次审计运行 + 30 天 + 误报率 <20%）后升核心 + error 级
+- 升核心时同步更新 `execution-gates.md` core_checks 表（[#014 D5](user-decision-log.md#014-m-005-p3b-八处分歧裁决)）
+
 ---
 
 ## §H 主笔轮换机制（承接本任务自身）
