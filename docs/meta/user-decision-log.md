@@ -230,6 +230,20 @@ freshness:
 
 ---
 
+### #016 路径 C 启动 — Skill 生态第一性原理审计（彻底解决自举循环）
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-25 |
+| **冲突描述** | M-005 v2 ratified（[#015](#015-m-005-v2-ratified--同-pr-修订-m-000-v20-6--frontmatter--显式-overrule-009-r2)）后，识别 skill 自举循环风险：skill 在元规则体系中具有三重角色（元规则的下沉去向 + 元规则的执行器 + 元规则起草过程本身的工具）。实证：M-005 起草过程使用了 `sprint-contract` / `cross-audit` / `verify-audit-report` 等治理 skill，但这些 skill 早于 M-000 v2.0 存在，**未经任何元规则 sign-off**。当前 skill 生态盘点：`.claude/skills/` 52 个 + `.agents/skills/` 16 个（其中 16 个双份存在疑似同步漂移）；治理 skill（~12 个）与工具 skill（~40 个）混在同一目录、共享同一 trigger 机制；自启动 skill 通过 keyword / hook 触发，绕过 M-000 P7 净化提示词约束。帅哥裁决：路径 C 激进路径——第一性原理审计 skill 生态，不在乎时间，彻底解决不能妥协。 |
+| **裁决** | **路径 C 启动**，按 7 stage 推进：<br>**Stage 1（本条同时启动）**：`docs/audits/skill-audit-task-definition.md` 净化任务定义书起草。<br>**Stage 2**：4 家异源独立审 52 个 skill（Claude 主分支 / Codex worktree / DeepSeek 直接 API / Gemini 3.5 Flash GA 直接 API）。每个 skill 给 Verdict：**KEEP**（治理价值清晰、与元规则对齐、不可下沉）/ **MERGE**（与另一 skill 功能重叠，应合并）/ **DELETE**（装饰性 / 过时 / 形式合规但实质空洞 / 未触发过）/ **PROMOTE_TO_STANDARDS**（应升到 docs/standards/）/ **DOWNGRADE_TO_TEMPLATE**（应剥离 trigger 改静态模板）/ **REWRITE**（措辞与 M-000/M-005 不一致需重写）。每个 Verdict 必须含可追溯实证 + 可验伪信号（M-005 §A 判据）。<br>**Stage 3**：Claude 中立主笔产 Verdict 矩阵折叠表；帅哥裁决分歧；DeepSeek 主笔产 audit report final。<br>**Stage 4**：3 家 sign-off（DeepSeek 主笔不下场，Claude/Codex/Gemini 异源审）+ 帅哥 ratify（预编号 #017）。<br>**Stage 5**：按 Verdict 类别批量执行（DELETE → `docs/archive/skills/`；MERGE → 新 skill + 旧归档；PROMOTE_TO_STANDARDS → 内容移 `docs/standards/`、skill 删；DOWNGRADE_TO_TEMPLATE → 移 `docs/templates/`；REWRITE → 按新元规则措辞重写；KEEP → 不动）。<br>**Stage 6**：元规则反思——回头检查 M-000 v2.0 / M-005 v2 是否有 skill 揭示的盲点需 patch。<br>**Stage 7**：M-003 技能库治理起草（基于路径 C 实证，不再"想象"应该怎样，而是基于 52 个 skill 实战审计结论）。<br>**排他性条款（路径 C 期间，本条生效起至 Stage 7 ratify）**：<br>- ❌ 暂停 M-002 / M-006 / M-001 / M-004 派生起草<br>- ❌ 暂停级联引用更新（#011 E 延后项）<br>- ✅ Gemini CLI sunset 准备（2026-06-18 倒计时）继续，因不依赖 skill<br>- ✅ 紧急产品 bug fix 继续 |
+| **理由** | 第一性诊断：skill 自举循环不是 bug，是元层级体系的结构性事实。M-005 §H 主笔轮换 + §B 伪共识识别条款的措辞，本质上是把 `cross-audit` skill 的设计假设升级为元规则。M-005 sign-off 时**没有任何一家审过 `cross-audit` skill 文本本身是否与 M-005 §B 一致**——元规则起草过程在违反自己的规则。继续起草 M-002 而不审 skill，会让 M-002 重蹈覆辙，且风险随每次派生起草放大。<br>路径 A（保守，每个 skill 走 ADR）成本高节奏慢。路径 B（折中，M-003 前移 + 临时纪律）会留长期 backlog。路径 C（激进，4 家异源审计 52 个 skill）一次性解决，与 #009 审 M-000 是同一思维模式的二阶应用（#009 审 M-000 文本，本次审 M-000 体系的执行层）。<br>帅哥原话："路径 C，我不在乎时间，我需要最激进的方式彻底解决这个问题不能妥协。" |
+| **是否触发元规则修订** | ⚠️ **可能**。Stage 6 元规则反思阶段，若 skill 审计揭示 M-000 v2.0 / M-005 v2 有盲点，则触发对应修订（走显式 Overrule + 同 PR 流程）。Stage 7 M-003 ratify 本身是元规则修订。 |
+| **Overrule 关系** | **本条不直接 Overrule 任何条款**。**排他性条款**临时压制（非 Overrule）以下安排：<br>- [#011](#011-m-000-v20-ratified--v12-归档) E 级联引用更新延后项 → 路径 C 期间继续暂停<br>- [#015](#015-m-005-v2-ratified--同-pr-修订-m-000-v20-6--frontmatter--显式-overrule-009-r2) F M-001~M-006 起草顺序「M-002 → M-006 → M-001 → M-004 → M-003」→ 路径 C 期间暂停 M-002/M-006/M-001/M-004，M-003 移至 Stage 7 优先<br>路径 C 完成后（Stage 7 ratify）以上压制解除，恢复或更新原顺序。 |
+| **元层级注记** | **路径 C 是 #009 第一性原理审计的二阶应用 + 第三次元规则自我演进闭环候选**：<br>(1) **第一性原理审计的二阶**：#009 第一次审计 M-000 v1.2 文本，识别 70% 内容为 ANALOGY 外壳；本次审计 M-000/M-005 体系的执行层（52 个 skill），可预测识别比例可能类似（治理 skill ~12 个真正必要，工具 skill ~40 个多数为 ANALOGY 装饰或应升 standards）。<br>(2) **元规则自我演进第三次实例候选**：前两次为 [#011](#011-m-000-v20-ratified--v12-归档) M-000 v2.0 ratify + [#015](#015-m-005-v2-ratified--同-pr-修订-m-000-v20-6--frontmatter--显式-overrule-009-r2) M-005 v2 ratify；本次路径 C 完成 + Stage 6 元规则反思 + Stage 7 M-003 ratify 将构成第三次完整闭环。<br>(3) **自举循环的破解逻辑**：路径 C 用 4 家异源审计 skill 时，**审计过程本身不允许使用治理 skill**（如不允许调用 `cross-audit` skill 审 `cross-audit` skill 自己）。物理隔离 + 净化任务定义书强制每家独立审，不引用任何"skill 应该如何"的预设。<br>(4) **预测 Stage 6 元规则反思将识别 M-005 §G docaudit check 设计原则需扩展为「skill 升降级机制」**——M-005 §G 仅约束 docaudit check 的升降级，未覆盖 skill 升降级；这是 M-005 起草时的隐性盲点。Stage 6 实证后 patch M-005 §G。 |
+
+---
+
 ## 日志维护规则
 
 1. **append-only**：不删除历史条目，只追加新条目
