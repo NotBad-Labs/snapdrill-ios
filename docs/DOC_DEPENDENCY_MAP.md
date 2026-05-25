@@ -1,5 +1,6 @@
 ---
 last_verified: 2026-05-25
+derived_from: [M-005 §J]
 layer: snapshot
 freshness:
   max_age_days: 14
@@ -7,6 +8,8 @@ freshness:
 ---
 # SnapDrill 文档上下游依赖图
 
+> **派生锚**：本文件派生自 M-005 §J 文档密度治理 — 变更传播路径是密度治理的运行时表达（详见 `docs/meta/M-005-quality-criteria.md` §J + `docs/meta/M-000-meta-vision.md` §11.6）。
+>
 > 目的：把"谁定义事实、谁消费事实、改一处要同步哪里"写清楚，避免返工。
 > 本文件不替代 `docs/protocol.md` 的裁决顺序；它补充的是上下游传播关系。
 >
