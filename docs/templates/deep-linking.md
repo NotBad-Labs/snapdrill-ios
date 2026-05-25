@@ -1,7 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
-scope: template
+scope: product-support
 name: deep-linking
 description: Claude Code adapter for the shared deep linking skill. Use when handling custom URL schemes, Universal Links/Associated Domains, or routing to specific content from external sources.
 allowed-tools: [Read, Glob, Grep]

@@ -1,7 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
-scope: template
+scope: product-support
 name: onboarding-generator
 description: Generates multi-step onboarding flows with persistence for iOS/macOS apps. Use when user wants to add onboarding, welcome screens, or first-launch experience.
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion]
