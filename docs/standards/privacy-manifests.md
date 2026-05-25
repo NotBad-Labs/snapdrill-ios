@@ -5,8 +5,8 @@ scope: standards
 name: privacy-manifests
 description: Claude Code adapter for the shared privacy manifest skill. Use when preparing apps for App Store privacy requirements.
 allowed-tools: [Read, Glob, Grep]
+derived_from: [M-005 §A]
 ---
-
 # Privacy Manifests Skill Adapter
 
 Shared skill source:

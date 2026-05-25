@@ -1,6 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
+derived_from: [M-005 §G]
 ---
 # Harness Recall — 自进化闭环（错误→永久修复）
 

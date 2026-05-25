@@ -10,8 +10,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-003 §11.1]
 ---
-
 # /phase-closeout — 长任务 checkpoint 生成
 
 ## 触发场景

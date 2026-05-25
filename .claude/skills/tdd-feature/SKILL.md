@@ -2,8 +2,8 @@
 name: tdd-feature
 description: Red-green-refactor scaffold for building new features with TDD. Write failing tests first, then implement to pass. Use when building new features test-first.
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion]
+derived_from: [M-003 §11.1]
 ---
-
 # TDD Feature
 
 Build new features using the red-green-refactor cycle. Tests define the spec, AI generates the implementation, tests verify correctness.

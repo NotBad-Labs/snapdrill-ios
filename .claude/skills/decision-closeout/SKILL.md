@@ -11,8 +11,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-003 §11.1]
 ---
-
 # /decision-closeout — 决策变更收尾闭环
 
 ## 一句话

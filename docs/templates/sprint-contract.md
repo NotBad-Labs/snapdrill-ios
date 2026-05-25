@@ -13,8 +13,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-001]
 ---
-
 # /sprint-contract — 编码前契约
 
 ## 一句话

@@ -4,6 +4,7 @@ layer: pattern
 freshness:
   max_age_days: 90
   decay_trigger: [adr_change, methodology_change]
+derived_from: [M-001]
 ---
 # Worktree 物理隔离工作流（Phase 11+ 标准）
 

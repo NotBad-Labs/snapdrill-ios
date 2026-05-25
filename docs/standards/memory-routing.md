@@ -1,6 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
+derived_from: [M-001]
 ---
 # 知识/记忆路由规则
 

@@ -5,8 +5,8 @@ scope: standards
 freshness:
   max_age_days: 90
   decay_trigger: [ios_sdk_update, skill_audit_ratified]
+derived_from: [M-005 §A]
 ---
-
 # SwiftUI 模式集合 (Patterns Standards)
 
 > 路径 C #018 ratify 后新建的 standards 文件，吸纳 3 个 *-patterns skill 内容。

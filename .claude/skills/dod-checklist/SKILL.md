@@ -9,8 +9,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-003 §11.1]
 ---
-
 # /dod-checklist — PR 完成前 DoD 自检
 
 ## 一句话

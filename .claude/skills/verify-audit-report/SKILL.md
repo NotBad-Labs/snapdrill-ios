@@ -11,8 +11,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-003 §11.1]
 ---
-
 # /verify-audit-report — 审计报告真伪验证
 
 ## 一句话

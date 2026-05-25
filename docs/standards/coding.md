@@ -1,6 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
+derived_from: [M-005 §A]
 ---
 # 编码规范（SwiftLint 管不到的规则）
 

@@ -1,6 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: decision
+derived_from: [M-002]
 ---
 # ADR-003: 文档 frontmatter 从 HTML 注释迁移到 YAML
 

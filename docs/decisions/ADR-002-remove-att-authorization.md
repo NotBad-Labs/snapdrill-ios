@@ -1,6 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: decision
+derived_from: [M-002]
 ---
 # ADR-002: 删除 ATT 授权弹窗
 

@@ -14,8 +14,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-004]
 ---
-
 # /post-merge — PR 合并后收尾
 
 ## 一句话

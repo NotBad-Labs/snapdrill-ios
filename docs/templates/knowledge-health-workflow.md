@@ -13,8 +13,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-005 §G]
 ---
-
 # /knowledge-health — 知识体系体检
 
 ## 设计原则

@@ -13,8 +13,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-001, M-003]
 ---
-
 # /cross-audit-consensus — 三方对抗结果汇总
 
 ## 触发场景

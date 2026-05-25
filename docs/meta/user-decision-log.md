@@ -5,6 +5,7 @@ scope: meta
 freshness:
   max_age_days: 365
   decay_trigger: [user_decision_recorded]
+derived_from: [M-002]
 ---
 # 用户裁决日志 (user-decision-log)
 

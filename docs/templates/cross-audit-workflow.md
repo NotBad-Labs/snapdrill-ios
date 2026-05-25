@@ -14,8 +14,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-001, M-003]
 ---
-
 # /cross-audit — 三方对抗性审查工作流
 
 ## 触发场景

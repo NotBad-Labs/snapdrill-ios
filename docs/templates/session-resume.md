@@ -12,8 +12,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-001]
 ---
-
 # /resume-from-handoff — 接手时最小上下文加载
 
 ## 触发场景

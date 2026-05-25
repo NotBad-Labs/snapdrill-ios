@@ -1,6 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
+derived_from: [M-003]
 ---
 # Agent Skill Architecture
 

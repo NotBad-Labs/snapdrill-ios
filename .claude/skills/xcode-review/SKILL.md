@@ -10,8 +10,8 @@ disable-model-invocation: false
 user-invocable: true
 last_verified: 2026-05-19
 layer: pattern
+derived_from: [M-003 §11.1]
 ---
-
 # 手动 Review 提示词写作规范
 
 > **上游依赖**：`docs/protocol.md`（Code Review）

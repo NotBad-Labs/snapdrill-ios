@@ -5,6 +5,7 @@ scope: meta
 freshness:
   max_age_days: 365
   decay_trigger: [meta_vision_change]
+derived_from: [M-000]
 ---
 # docs/meta/ — 元规则区
 

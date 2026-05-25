@@ -5,8 +5,8 @@ scope: audit-archive
 freshness:
   max_age_days: 180
   decay_trigger: [audit_round]
+derived_from: [M-000]
 ---
-
 # docs/audits/ — 入口索引
 
 > ⚠️ **2026-05-25 系统性归档**（#022）：本目录从 75 个文件减至 3 个 active。所有已 ratified 流程的起草过程产物归档至 `docs/archive/audits/<sub-dir>/`。详见下方归档索引。

@@ -1,6 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
+derived_from: [M-000]
 ---
 # 项目标准与约束（Agent-Agnostic）
 

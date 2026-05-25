@@ -2,6 +2,7 @@
 last_verified: 2026-05-25
 layer: pattern
 audit_note: 2026-05-19 验证 — tool specs 与 codex-delegation / gemini-delegation 一致（gpt-5.5 / gemini-3-pro-preview）
+derived_from: [M-001]
 ---
 # 智能体协作架构
 

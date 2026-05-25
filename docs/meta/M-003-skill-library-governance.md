@@ -32,8 +32,8 @@ override_rationale: |
   - 章节合并（→ 八章结构对应 task def v2 §4 强约束）
 
   **采用候选 D 的两层 + 触发条件变体**（按 [#021](user-decision-log.md#021) D-J1 裁决 + 反思报告 §2.4 候选 D 简化）：章节级 mandatory + 段级 trigger-driven，未实现 D 三层中的「句级 recommended」。
+derived_from: [M-000 §11.1]
 ---
-
 # M-003 技能库治理 v1（路径 C Stage 7 ratified）
 
 > **状态**：v1 ratified ([#021](user-decision-log.md#021))，路径 C Stage 7.9 落地

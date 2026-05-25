@@ -14,8 +14,8 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
+derived_from: [M-005 §J]
 ---
-
 # /dependency-propagation — 文档变更传播
 
 ## 一句话

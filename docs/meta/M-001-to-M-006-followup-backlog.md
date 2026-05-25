@@ -5,6 +5,7 @@ scope: meta
 freshness:
   max_age_days: 90
   decay_trigger: [m_001_to_m_006_drafted]
+derived_from: [M-000 §11.1]
 ---
 # M-001~M-006 起草 Follow-up Backlog
 

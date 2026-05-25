@@ -1,6 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: pattern
+derived_from: [M-001]
 ---
 # 单家审计/修复提示词模板（Phase 11+ Worktree 版）
 

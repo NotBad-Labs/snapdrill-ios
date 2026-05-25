@@ -1,6 +1,7 @@
 ---
 last_verified: 2026-05-25
 layer: decision
+derived_from: [M-002]
 ---
 # ADR-001: 智能组卷与高级统计定价模型
 

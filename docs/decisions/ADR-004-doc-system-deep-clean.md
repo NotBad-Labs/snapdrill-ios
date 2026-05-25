@@ -5,8 +5,8 @@ status: active
 supersession_status: partially_superseded
 superseded_by_partial: docs/meta/M-000-meta-vision.md
 archived_implementation: docs/archive/audits/structural-cleanup-historical-record.md
+derived_from: [M-002]
 ---
-
 > ⚠️ **M-000 v1.2 ratified 后部分内容已被新体系接管（user-decision-log #007 激进拆分；#008 撤回 R1 STATUS_ENUM 修改方向）**
 >
 > - 多方协作原则与工具选型由 M-000 §3/§7.2 + user-decision-log #002/#006 接管
