@@ -5,6 +5,9 @@ scope: product-support
 name: deep-linking
 description: Claude Code adapter for the shared deep linking skill. Use when handling custom URL schemes, Universal Links/Associated Domains, or routing to specific content from external sources.
 allowed-tools: [Read, Glob, Grep]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 
 # Deep Linking Skill Adapter

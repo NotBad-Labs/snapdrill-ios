@@ -15,6 +15,9 @@ context: fork
 disable-model-invocation: false
 user-invocable: true
 derived_from: [M-005 §J]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # /dependency-propagation — 文档变更传播
 

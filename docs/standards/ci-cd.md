@@ -6,6 +6,9 @@ name: ci-cd-setup
 description: Generate CI/CD configuration for automated builds, tests, and distribution of iOS/macOS apps. Use when setting up GitHub Actions, Xcode Cloud, or fastlane for continuous integration, TestFlight, or App Store deployment.
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion]
 derived_from: [M-004]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # CI/CD Setup Generator
 

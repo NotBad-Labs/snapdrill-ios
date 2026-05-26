@@ -14,6 +14,9 @@ context: fork
 disable-model-invocation: false
 user-invocable: true
 derived_from: [M-001, M-003]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # /cross-audit-consensus — 三方对抗结果汇总
 

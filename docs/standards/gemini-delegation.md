@@ -3,6 +3,9 @@ last_verified: 2026-05-25
 layer: pattern
 audit_note: 2026-05-19 验证 — gemini-cli v0.41.2 与文件声明一致；gemini-3-pro-preview 已落地
 derived_from: [M-001]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # Gemini CLI 委派规范
 

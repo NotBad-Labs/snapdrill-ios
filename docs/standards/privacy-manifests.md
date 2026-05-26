@@ -6,6 +6,9 @@ name: privacy-manifests
 description: Claude Code adapter for the shared privacy manifest skill. Use when preparing apps for App Store privacy requirements.
 allowed-tools: [Read, Glob, Grep]
 derived_from: [M-005 §A]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # Privacy Manifests Skill Adapter
 

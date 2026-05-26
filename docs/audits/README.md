@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-05-26
 layer: snapshot
 scope: audit-archive
 freshness:
@@ -9,15 +9,84 @@ derived_from: [M-000]
 ---
 # docs/audits/ — 入口索引
 
-> ⚠️ **2026-05-25 系统性归档**（#022）：本目录从 75 个文件减至 3 个 active。所有已 ratified 流程的起草过程产物归档至 `docs/archive/audits/<sub-dir>/`。详见下方归档索引。
+> ⚠️ **2026-05-25 系统性归档**（[#022](../meta/user-decision-log.md#022)）：本目录从 75 个文件减至核心 active 集合。所有已 ratified 流程的起草过程产物归档至 `docs/archive/audits/<sub-dir>/`。详见下方归档索引。
+>
+> **2026-05-26 更新**（Goal H3）：M-001~M-006 全 ratify 后，sign-off 报告 + Path-D + H7 series 一并纳入 inventory（消除 docaudit orphans）。
 
-## Active 文件清单（3 个）
+## Active 入口与工具
 
 | 文件 | 用途 |
 |---|---|
-| `README.md` | 本入口 |
-| `skill-audit-final.md` | 路径 C [#018](../meta/user-decision-log.md#018) skill audit 最终主笔产物（仍被 user-decision-log + standards/skill-architecture.md 引用，保留 active）|
-| `single-vendor-audit-prompt-template.md` | 单家审计 prompt 模板（被 standards 引用）|
+| README.md | 本入口索引 |
+| [single-vendor-audit-prompt-template.md](./single-vendor-audit-prompt-template.md) | 单家审计 prompt 模板（被 standards/cross-audit-workflow 引用）|
+| `./audit-ledger-2026-05.tsv` | 224 条文件级 verdict（路径 C Phase 0-9，详见下方 TSV 字段语义）|
+| `./audit-ledger-semantic-2026-05.tsv` | 语义层 verdict（Phase 10 7 维度）|
+
+## Audit Reports（路径/Phase/Goal 级审计）
+
+| 文件 | 范围 | 关联裁决 |
+|---|---|---|
+| [skill-audit-final.md](./skill-audit-final.md) | 路径 C skill 体系最终主笔产物 | [#018](../meta/user-decision-log.md#018) |
+| [path-d-skill-derivation-audit-20260526.md](./path-d-skill-derivation-audit-20260526.md) | 路径 D skill 派生锚结构性整改 | [#028](../meta/user-decision-log.md#028) |
+| [h7-standards-content-audit-20260526.md](./h7-standards-content-audit-20260526.md) | Goal H7 docs/standards/ 内容级 traceability（揭出 40% 标注问题） | Goal H |
+| [h7-batch2-content-audit-20260526.md](./h7-batch2-content-audit-20260526.md) | Goal H7 第二批 templates+ADR+tech+sign-off（揭出 agent 自身污染 55%） | Goal H |
+| [three-goals-cross-source-review-20260526.md](./three-goals-cross-source-review-20260526.md) | 三件套 push 前异源 review（Codex+DeepSeek+agy+Claude） | Goal A/B/D |
+| [proposed-check-derived-from-required.md](./proposed-check-derived-from-required.md) | M-005 §G.6 docaudit check 提案（derived_from_required） | [#024](../meta/user-decision-log.md#024) |
+
+## Sign-off Reports（异源 review 落地实证）
+
+### M-000 v2 GUI 起草（[#023 #024](../meta/user-decision-log.md#023) ratify）
+
+| 文件 | 内容 |
+|---|---|
+| [signoff-antigravity-gui-023-024.md](./signoff-antigravity-gui-023-024.md) | Antigravity GUI sign-off |
+| [signoff-codex-gui-023-024.md](./signoff-codex-gui-023-024.md) | Codex GUI Round 1 |
+| [signoff-codex-gui-023-024-rerun.md](./signoff-codex-gui-023-024-rerun.md) | Codex GUI Round 2 |
+| [signoff-codex-gui-023-024-rerun2.md](./signoff-codex-gui-023-024-rerun2.md) | Codex GUI Round 3 |
+
+### M-001 协作工作流（[#027](../meta/user-decision-log.md#027) ratify）
+
+| 文件 | 内容 |
+|---|---|
+| [signoff-task-definition-m001.md](./signoff-task-definition-m001.md) | 任务定义书（净化版） |
+| [signoff-codex-cli-m001.md](./signoff-codex-cli-m001.md) | Codex CLI Round 1 BLOCK |
+| [signoff-codex-cli-m001-rerun.md](./signoff-codex-cli-m001-rerun.md) | Codex CLI Round 2 |
+| [signoff-codex-cli-m001-rerun2.md](./signoff-codex-cli-m001-rerun2.md) | Codex CLI Round 3 PASS |
+| [signoff-agy-cli-m001.md](./signoff-agy-cli-m001.md) | AGY CLI Round 1 |
+| [signoff-agy-cli-m001-rerun.md](./signoff-agy-cli-m001-rerun.md) | AGY CLI Round 2 PASS |
+
+### M-002 分歧裁决（[#025](../meta/user-decision-log.md#025) ratify）
+
+| 文件 | 内容 |
+|---|---|
+| [signoff-task-definition-m002.md](./signoff-task-definition-m002.md) | 任务定义书 |
+| [signoff-codex-cli-m002.md](./signoff-codex-cli-m002.md) | Codex Round 1 |
+| [signoff-codex-cli-m002-rerun.md](./signoff-codex-cli-m002-rerun.md) | Codex Round 2 |
+| [signoff-codex-cli-m002-rerun2.md](./signoff-codex-cli-m002-rerun2.md) | Codex Round 3 PASS |
+| [signoff-agy-cli-m002.md](./signoff-agy-cli-m002.md) | AGY Round 1 |
+| [signoff-agy-cli-m002-rerun.md](./signoff-agy-cli-m002-rerun.md) | AGY Round 2 PASS |
+
+### M-004 降级手册（[#028](../meta/user-decision-log.md#028) ratify）
+
+| 文件 | 内容 |
+|---|---|
+| [signoff-task-definition-m004.md](./signoff-task-definition-m004.md) | 任务定义书 |
+| [signoff-codex-cli-m004.md](./signoff-codex-cli-m004.md) | Codex Round 1 |
+| [signoff-codex-cli-m004-rerun.md](./signoff-codex-cli-m004-rerun.md) | Codex Round 2 PASS |
+| [signoff-agy-cli-m004.md](./signoff-agy-cli-m004.md) | AGY Round 1 PASS |
+
+### M-006 数据治理（[#026](../meta/user-decision-log.md#026) ratify）
+
+| 文件 | 内容 |
+|---|---|
+| [signoff-task-definition-m006.md](./signoff-task-definition-m006.md) | 任务定义书 |
+| [signoff-codex-cli-m006.md](./signoff-codex-cli-m006.md) | Codex Round 1 |
+| [signoff-codex-cli-m006-rerun.md](./signoff-codex-cli-m006-rerun.md) | Codex Round 2 |
+| [signoff-codex-cli-m006-rerun2.md](./signoff-codex-cli-m006-rerun2.md) | Codex Round 3 PASS |
+| [signoff-agy-cli-m006.md](./signoff-agy-cli-m006.md) | AGY Round 1 |
+| [signoff-agy-cli-m006-rerun.md](./signoff-agy-cli-m006-rerun.md) | AGY Round 2 PASS |
+
+> **中间轮次 rerun 报告保留理由**：sign-off 中间轮次（rerun / rerun2）记录主笔→ reviewer→ rerun 的修复 trace，是治理实证（哪些 BLOCK 被修复 / 哪些 reviewer 模式重复发现）。保留作为元规则修订证据，不归档。
 
 ## 归档索引（2026-05-25 #022 重组）
 

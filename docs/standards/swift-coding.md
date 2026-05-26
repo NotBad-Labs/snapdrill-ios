@@ -6,6 +6,9 @@ name: coding-best-practices
 description: Reviews Swift/iOS code for adherence to modern Swift idioms, Apple platform best practices, architecture patterns, and code quality standards. Use when user mentions best practices, code review, clean code, refactoring, or wants to improve code quality.
 allowed-tools: [Read, Glob, Grep]
 derived_from: [M-005 §A]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # Coding Best Practices Skill
 

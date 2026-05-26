@@ -6,6 +6,9 @@ name: app-icon-generator
 description: Generates app icons programmatically using CoreGraphics following Apple HIG. Use when user wants to create, generate, or design an app icon for macOS or iOS.
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion]
 derived_from: [M-005 §A]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # App Icon Generator
 

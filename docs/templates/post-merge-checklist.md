@@ -15,6 +15,9 @@ context: fork
 disable-model-invocation: false
 user-invocable: true
 derived_from: [M-004]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # /post-merge — PR 合并后收尾
 

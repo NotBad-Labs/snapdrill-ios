@@ -2,6 +2,9 @@
 last_verified: 2026-05-25
 layer: pattern
 derived_from: [M-005 §G]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # 执行门禁总表（Execution Gates SSOT）
 

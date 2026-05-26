@@ -5,6 +5,9 @@ scope: product-support
 name: localization-setup
 description: Generate internationalization (i18n) infrastructure for multi-language support in iOS/macOS apps. Use when localizing for multiple languages, adopting String Catalogs (xcstrings), or supporting RTL languages.
 allowed-tools: [Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 
 # Localization Setup Generator

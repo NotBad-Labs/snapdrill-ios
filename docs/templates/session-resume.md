@@ -13,6 +13,9 @@ context: fork
 disable-model-invocation: false
 user-invocable: true
 derived_from: [M-001]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # /resume-from-handoff — 接手时最小上下文加载
 

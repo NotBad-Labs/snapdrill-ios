@@ -2,6 +2,9 @@
 last_verified: 2026-05-25
 layer: pattern
 derived_from: [M-005 §G]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # Harness Recall — 自进化闭环（错误→永久修复）
 

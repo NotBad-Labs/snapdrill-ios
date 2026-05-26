@@ -3,6 +3,9 @@ last_verified: 2026-05-25
 layer: pattern
 audit_note: 2026-05-21 验证 — gpt-5.5 当前推荐模型；含 CLI / 桌面端 / 插件三形态；--effort 标志已移除（0.130+）；下游 cross-audit / cross-audit-consensus skill 已同步。**注**：audit_note 字段仅是当前验证状态摘要，不代表「永久合规」；任何后续模型版本 / CLI 版本 / 形态变更必须同步更新此字段
 derived_from: [M-001]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, downstream_change]
 ---
 # Codex 子 agent 委派规范
 

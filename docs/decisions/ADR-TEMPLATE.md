@@ -2,6 +2,9 @@
 last_verified: 2026-05-25
 layer: decision
 derived_from: [M-002]
+freshness:
+  max_age_days: 365
+  decay_trigger: [decision_reverted, downstream_change]
 ---
 # ADR-NNN: [标题]
 
