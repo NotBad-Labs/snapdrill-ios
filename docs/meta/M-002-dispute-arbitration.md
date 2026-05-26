@@ -6,9 +6,9 @@ status: draft
 freshness:
   max_age_days: 180
   decay_trigger: [meta_audit, decision_schema_change, external_shock, false_arbitration_incident]
-word_count_actual: 8997  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-25
+word_count_actual: 9687  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26（P4.Fix Codex BLOCK 修复后）
 override_rationale: |
-  正文 8997 nwc（M-005 §J.7 标准实测），参考篇幅 2500 nwc，本文超 ~260%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
+  正文 9687 nwc（M-005 §J.7 标准实测，P4.Fix 后），参考篇幅 2500 nwc，本文超 ~287%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
 
   **章节级证明（mandatory）**：以下 13 章不可下沉、不可省略：
   (1) §1 定位 — M-002 在 M-000 §5 + §11.1 派生位置的合法性声明，不可下沉
@@ -85,7 +85,7 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-002 直接挂钩如下：
 | 规则 | M-002 给出的 | 由对方给出 |
 |---|---|---|
 | M-001（协作工作流） | 裁决触发条件（§4）、双核适用域（§6）、sync-status 双向维护原则（§11） | 物理隔离操作规程、主笔轮换具体流程、单方执行窗口清单、sync-status skill 实现细节 |
-| M-003（skill 治理） | skill 提案的审议入口（§4.2）、skill 升降级裁决（§5.5） | skill 入库门槛、命名空间、生命周期状态机 |
+| M-003（skill 治理） | skill 提案若产生异源分歧按 §4.2 进入裁决、skill 升降级裁决记入 user-decision-log（§10）| skill 入库门槛、命名空间、生命周期状态机、Verdict 体系 |
 | M-005（质量判据） | 证据等级裁决（§5）引 §B.3 否决权阈值、§B 伪共识信号、§C 静默退化、§F 自反性 | 质量度量、退化检测、docaudit check 设计原则 |
 | M-004（降级操作） | 裁决方不可用时的等待 / 升级路径（§5.6） | 不可逆动作具体清单、降级幅度定义、用户不可达的等待判据 |
 | M-006（数据治理） | 跨厂商数据共享的批准流程（§4.3） | prompt injection 防御技术、脱敏策略默认值、数据共享边界 |
@@ -115,6 +115,7 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-002 直接挂钩如下：
 - **强烈反对三要素**（缺一不可，引 M-005 §B.3）：引用具体事实错误 + 提出可证伪反假设 + 指出明确风险路径
 - **触发动作**：折叠主笔在 consensus 报告中显式列出该反对意见 + 待裁决标记 + 上交用户
 - **不阻断执行**：M-000 §5 规定智能体提示冲突不阻断执行——非阻断事项可并行推进，阻断事项（不可逆 / 元规则）必须等待裁决
+- **否决权滥用联动**：同一异源方 24 小时内高频触发否决（≥3 次）但 ≥2 次不满足三要素时，按 M-005 §B.3 滥用判据自动触发 §C 静默退化扫描；扫描确认退化则按「逻辑不可用」处理（§5.6）
 
 ### §4.3 跨厂商数据共享触发裁决
 
@@ -128,9 +129,14 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-002 直接挂钩如下：
 
 以下事项可由智能体单方执行（M-001 单方执行窗口清单的元规则层定义）：
 
-- **可逆、局部、低外部副作用**的机械操作（如 lint 修复、import 排序、本地文件改名）
+- **可逆、局部、低外部副作用**的机械操作（如 lint 修复、import 排序、**非结构性、可逆的本地文件改名**）
 - 已有显式用户授权的批量动作（授权范围内）
 - 已 ratify 的规则要求的强制动作（如 docaudit check 强制阻塞）
+
+**排除清单**：以下动作即使表面是「本地操作」也**不**属于单方执行窗口——必须按 §4.1 / M-005 §I.1 上交用户：
+- 归档路径决定 / 目录重命名 / 跨目录文件移动 / 删除文件
+- 批量 frontmatter 修改 / 修改验证脚本枚举
+- 任何会触发 git pre-commit hook 失败或下游消费端语义变化的本地动作
 
 **判据**：「这件事如果做错，是否需要用户介入恢复？」若答案是「否」（可一键回滚 / 无外部副作用 / 不破坏裁决链）→ 单方执行；否则上交用户。
 
@@ -317,8 +323,8 @@ Overrule 只说明失效范围 + 保留范围 + 理由，**不删除旧裁决条
 
 ### §9.3 实证锚定
 
-- **本会话发现**（2026-05-25）：AGY CLI（Antigravity / Gemini 3.5 Flash GA）确认可用，与 Antigravity GUI 同 vendor 同模型，仅端点变化 → §9.1「版本升级」级别，不进入 user-decision-log，仅 `agent-cli-models.md` 同步更新
-- **#013 实证**：Gemini model ID 误用事故 → SSOT 注入 + subagent 验证 + 代码同步纪律下沉 M-005 §D.4，不归 M-002
+- **预备实证（待 user-decision-log 锚定）**：本会话（2026-05-25）发现 AGY CLI（Antigravity / Gemini 3.5 Flash GA via `/opt/homebrew/bin/agy`）确认可用，与 Antigravity GUI 同 vendor 同模型，仅端点变化 → 按 §9.1 / §9.2 判据属「版本升级」级别（同训练谱系 + 不改变异源数量）。本实证将在 M-002 ratify 同 PR 中以 user-decision-log 新条目 + `docs/tech/reference/agent-cli-models.md` 同步落档；落档前为 §9 判据的活体测试，不构成已 ratify 裁决锚。
+- **#013 实证**：Gemini model ID 误用事故 → SSOT 注入 + subagent 验证 + 代码同步纪律下沉 M-005 §D.4，不归 M-002。
 
 ---
 
@@ -336,13 +342,15 @@ Overrule 只说明失效范围 + 保留范围 + 理由，**不删除旧裁决条
 理由: <用户裁决的依据（用户原话引用 / 第一性原理 / 实证）>
 是否触发元规则修订: ✅ 是 / ❌ 否（+ 修订对象）
 Overrule 关系: 无 / Overrule #NNN（按 §7.1 schema）
+元层级注记: <本裁决对治理体系的元层级意义（如「第一次实战检验」「同源风险实证」「PRIMARY 内核新证据」）>
 ```
 
-七个字段缺一不可。
+**八个字段缺一不可**（承接 M-000 §5 「至少包含」清单的全部 7 项 + 编号）。
+
+**兼容历史条目**：存量 #001-#024 已包含「元层级注记」字段；未来新条目缺失该字段视为 schema 违反，触发裁决日志一致性 docaudit check（M-005 §G.5 可扩展）。
 
 ### §10.2 可选字段
 
-- **元层级注记**：本裁决对治理体系的元层级意义（如「第一次实战检验」「同源风险实证」）
 - **归档关联**：本裁决关联的归档目录 / sign-off 报告路径
 - **后续 backlog 关联**：本裁决衍生的 backlog 编号（如 MC-1 ~ MC-N）
 
@@ -423,7 +431,7 @@ M-002 自身适用 M-005 §J 字数原则（不预设上限 + override_rationale
 
 **起草工具**：Claude Opus 4.7 主笔（直接 API，本会话主分支），未使用 .claude/skills/ 下任何 governance skill（M-003 §7 主笔体系隔离）。
 
-**WebSearch 验证**：本文未引用需 WebSearch 验证的外部事实（模型 ID / API endpoint / 工具版本）；引用的 #编号均为 user-decision-log 内部追溯。
+**WebSearch 验证**：本文未引用需 WebSearch 验证的**结论性**外部事实（模型 ID / API endpoint / 工具版本均通过本地实测或 SSOT 文档锚定）；§9.3 提到的 AGY CLI 可用性是本会话的活体测试，落档路径明示为 user-decision-log 同步条目 + `agent-cli-models.md` 更新（ratify 同 PR 落地）；引用的 #编号均为 user-decision-log 内部追溯。
 
 **异源 sign-off 待补**：本 draft 待 AGY CLI（Gemini 3.5 Flash GA）+ Codex CLI（GPT-5）+ DeepSeek CLI（V4 Pro）三家异源 sign-off 后入 ratify 流程。
 
