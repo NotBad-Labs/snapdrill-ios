@@ -143,7 +143,7 @@ docaudit 只证明“可机械检查的结构信号通过”，不证明事实�
 | **`M-001-collaboration-workflow.md`** | ✅ ratified [#027](user-decision-log.md#027) | 规定多方启动、独立工作、物理隔离（M-000 §3 独立性四层 L-ii+L-iii 操作落地）、上下文加载（#006 三段架构）、主笔轮换提议、单方执行窗口、私下授权同步、sync-status 实现、CLI PreToolUse 脱敏 hook |
 | **`M-002-dispute-arbitration.md`** | ✅ ratified [#025](user-decision-log.md#025) | 规定裁决流程、证据等级、双核同意适用域、Overrule 写法、撤回与复审机制、裁决清单变更、user-decision-log schema、sync-status 双向维护 |
 | **`M-003-skill-library-governance.md`** | ✅ ratified [#021](user-decision-log.md#021) | 规定 skill 入库门槛、命名空间、公私分治、生命周期、升降级、与元规则派生映射 |
-| `M-004 降级操作手册` | 待 ratify | 规定服务受限、用户不可达、工具失败时的降级路径与停止等待判据 |
+| **`M-004-degradation-manual.md`** | ✅ ratified [#028](user-decision-log.md#028) | 规定服务受限、用户不可达、工具失败时的降级路径与停止等待判据（5 类服务受限 + 4 档不可达 + 6 类工具失败 + iOS 不可逆 6+3 项清单 + 静默退化 3 节回退）|
 | **`M-005-quality-criteria.md`** | ✅ ratified [#015](user-decision-log.md#015) / [#020](user-decision-log.md#020) / [#021](user-decision-log.md#021) §J.2 + §J.7 精化 | 规定产出质量度量、伪共识识别、docaudit 核心/可选 check、自反性 sanity check、分层密度证明、机械字数验证 |
 | **`M-006-data-governance.md`** | ✅ ratified [#026](user-decision-log.md#026) | 规定跨厂商数据共享、最小化、脱敏、prompt injection 防御、敏感信息边界、私有 memory 治理（含 M-000 §3 独立性四层数据流转落地） |
 
