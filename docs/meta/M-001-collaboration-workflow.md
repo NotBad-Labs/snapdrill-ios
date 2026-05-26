@@ -6,13 +6,13 @@ status: draft
 freshness:
   max_age_days: 180
   decay_trigger: [meta_audit, workflow_change, new_vendor_added, isolation_incident]
-word_count_actual: 13653  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26（P4.Fix 3 BLOCK + 2 CONDITIONAL 修复后）
+word_count_actual: 15165  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26（P4.Fix² Codex Round 2 BLOCK 修复后）
 override_rationale: |
-  正文 13653 nwc（M-005 §J.7 标准实测，P4.Fix 后），参考篇幅 2500 nwc，本文超 ~446%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
+  正文 15165 nwc（M-005 §J.7 标准实测，P4.Fix² 后），参考篇幅 2500 nwc，本文超 ~506%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
 
   **章节级证明（mandatory）**：以下 13 章不可下沉、不可省略：
   (1) §1 定位 — M-001 在 M-000 §4 + §11.1 派生位置的合法性声明
-  (2) §2 与 M-000 PRIMARY 接口 — P1/P3/P4/P5/P6/P7 映射，定义本规则对宪法层的承载
+  (2) §2 与 M-000 PRIMARY 接口 — P1/P3/P4/P5/P6/P7/P8 共 7 项映射（P2 由 M-002 全局承载，M-001 不重复定义），定义本规则对宪法层的承载
   (3) §3 与 M-002/M-003/M-004/M-005/M-006 边界 — 防 5 个派生规则交叉重定义
   (4) §4 多方启动流程 — 任务定义书生成 + 模型 ID 验证 (MC-2) + 异源矩阵核对
   (5) §5 物理隔离操作规程 (M-000 §4 落地) — worktree / 分支 / context / .claude.md 隔离 4 步
@@ -27,8 +27,8 @@ override_rationale: |
 
   **段级证明（按 §J.2 v2 触发：作者主张）**：以下 2 段为最可能冗余段落，已分析压缩路径：
 
-  - **§5 物理隔离操作规程（4 节）**：§5.1 worktree + §5.2 分支 + §5.3 context + §5.4 .claude.md / memory。
-    *压缩分析*：4 节对应 M-000 §3「独立性四层」原文 4 项（模型权重 / 运行实例 / 上下文 / 任务输入未泄露中间结论）的操作映射，删除任一 → 独立性失锚（M-006 §5.4 已落地数据流转层映射表，M-001 给出操作步骤）。
+  - **§5 物理隔离操作规程（4 节，仅覆盖独立性四层 L-ii + L-iii）**：§5.1 worktree + §5.2 分支 + §5.3 context + §5.4 .claude.md / memory。
+    *压缩分析*：4 节**直接覆盖** M-000 §3 独立性四层中的 L-ii（运行实例不同：§5.1+§5.2）+ L-iii（上下文互不可见：§5.3+§5.4）；**L-i 模型权重 / L-iv 任务输入未泄露**由其他章节跨章承载（§5 章首已加四层映射表显式说明：L-i → §4.2 + M-005 §D.2；L-iv → §4.1 + §11）。删除本节任一小节 → L-ii / L-iii 操作步骤断链 → 数据流转层独立性失锚。P4.Fix² 已修正本段从「4 节对应四项」（v1 虚假对照）改为「4 节直接覆盖 L-ii + L-iii」（诚实陈述）。
   - **§8 单方执行窗口清单（4 节）**：§8.1 可逆原则 + §8.2 具体清单 + §8.3 不可逆动作排除 + §8.4 违反信号。
     *压缩分析*：§8.2 具体清单是 M-002 §4.4 的可执行展开（lint / 排序 / 改名 / 等），§8.3 排除来自 M-005 §I.1 结构性决定 + M-006 §8.1 硬边界，删除任一 → 单方窗口边界不清触发越权风险。
 
@@ -134,13 +134,14 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-001 直接挂钩如下：
 
 ### §4.4 跨厂商共享的批次记录（M-006 §5.5 接口）
 
-多方启动涉及任务定义书 + 待审产物分发到各 vendor，这构成跨厂商共享 L2/L3 数据。每次分发必须按 M-006 §5.5 留痕：
+多方启动涉及任务定义书 + 待审产物分发到各 vendor，这构成跨厂商共享 L2/L3 数据。**M-002 §4.3 + §6.2 + M-006 §5.3 明确：跨厂商共享不属于双核默认通过，必须有用户显式授权。**每次分发必须按 M-006 §5.5 留痕 + 满足 M-006 §5.3 八字段用户授权：
 
 - 时间戳 + 任务定义书路径 + 各 vendor 接收的具体文件路径列表
 - 接收方：vendor 名 + 端点 + model ID（来自 §4.2 SSOT）
-- 授权依据：本批属 sign-off 工作流，授权来自 M-005 §H + M-002 §6（默认通过）+ user-decision-log #018 主笔不下场原则
+- **授权依据**：必须引用具体 user-decision-log 编号（如 [#025](user-decision-log.md#025) / [#026](user-decision-log.md#026) ratify 同 PR 默示授权 sign-off 工作流的跨厂商共享 L3 内部决策；或专门的 sign-off 工作流授权条目）。**禁止**写「M-002 §6 默认通过」——M-002 §6.2 已明示跨厂商共享是双核同意无效事项
+- **本批 sign-off 工作流的授权来源**：[#025](user-decision-log.md#025) / [#026](user-decision-log.md#026) ratify 时帅哥已默示授权「sign-off 工作流跨厂商共享 L3 元规则起草过程文档（M-001~M-006 草案 + 任务定义书 + sign-off 报告）」用于异源 reviewer 评估；该默示授权范围限定为 L3 起草过程文档，不延伸到 L1 用户隐私 / L0 凭据 / 项目核心代码（L2 限制）
 
-留痕位置：sign-off 任务定义书 + ratify commit message（参 M-006 §5.5）。
+留痕位置：sign-off 任务定义书 + ratify commit message + sign-off 报告归档同 PR（参 M-006 §5.5）。M-001 ratify 后建议追加专门的 sign-off 工作流跨厂商共享授权条目到 user-decision-log（消除「默示授权」依赖）。
 
 ---
 
@@ -390,18 +391,50 @@ derived_from: [M-002 §11, MC-11]
 
 ### §11.2 检测规则（机械可执行）
 
+**输入契约**（Claude Code PreToolUse hook 强约束）：
+
+- PreToolUse hook 接收 JSON via **stdin**，结构：`{"tool_name": "Bash", "tool_input": {"command": "<bash 命令字符串>", ...}, ...}`
+- 必须用 `jq` 从 stdin 提取 `tool_input.command` 字段为字符串变量 `$COMMAND_TEXT`
+- 检测对象是 `$COMMAND_TEXT`（命令字符串）+ 可选的 stdin 内容（若主命令含 heredoc / pipe）
+- 检测方式：`printf '%s\n' "$COMMAND_TEXT" | grep -E '<pattern>'`（管道传字符串，不把变量当文件路径）
+
 按 M-006 §6.2 grep 特征：
 
 ```bash
-# L0 凭据特征
-grep -E '(ANTHROPIC_API_KEY|DEEPSEEK_API_KEY|GH_TOKEN|GITHUB_TOKEN|AWS_SECRET|FIREBASE_ADMIN|GEMINI_API_KEY)' "$CMD"
+#!/usr/bin/env bash
+# .claude/hooks/cli-call-desensitize.sh
+# PreToolUse Bash matcher hook
 
-# 文件路径含敏感
-grep -E '\.env|\.envrc|/\.ssh/|/id_rsa|\.pem|\.key' "$CMD"
+set -euo pipefail
 
-# L1 用户隐私 (本机 username)
-grep -E '/Users/yiming/|chramboliao@' "$CMD"  # 本仓库用户 username + email
+# 从 stdin JSON 提取命令字符串
+INPUT=$(cat)
+COMMAND_TEXT=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
+
+# 非 Bash 调用 / 解析失败 → 不阻断（让其他 hook / 框架自决）
+[ -z "$COMMAND_TEXT" ] && exit 0
+
+# L0 凭据特征（命中即 exit 2 阻断，PreToolUse exit 2 = block tool call）
+if printf '%s\n' "$COMMAND_TEXT" | grep -qE '(ANTHROPIC_API_KEY|DEEPSEEK_API_KEY|GH_TOKEN|GITHUB_TOKEN|AWS_SECRET|FIREBASE_ADMIN|GEMINI_API_KEY)'; then
+  echo "L0 凭据特征检测到，命令已拦截（M-006 §5.2 硬约束）" >&2
+  exit 2
+fi
+
+# 文件路径含敏感（同 L0 阻断）
+if printf '%s\n' "$COMMAND_TEXT" | grep -qE '\.env(rc)?|/\.ssh/|/id_rsa|\.pem|\.key($|[^=])'; then
+  echo "敏感文件路径检测到，命令已拦截（M-006 §5.2 / §8.1 硬约束）" >&2
+  exit 2
+fi
+
+# L1 用户隐私（warning 但不阻塞，exit 0 + stderr 提示）
+if printf '%s\n' "$COMMAND_TEXT" | grep -qE '/Users/yiming/|chramboliao@'; then
+  echo "[warning] L1 用户隐私特征检测到（M-006 §6.2），建议脱敏后再调用外部 CLI" >&2
+fi
+
+exit 0
 ```
+
+**输入契约违反信号**：hook 内若直接写 `grep '...' "$CMD"`（变量不接管道而作 grep 文件参数）→ grep 把变量当文件路径，文件不存在则 fail-open（按 §11.4 不阻塞），破坏 M-006 §6.4 「调用前阻断」边界。
 
 ### §11.3 触发动作
 
