@@ -381,6 +381,20 @@ derived_from: [M-002]
 
 ---
 
+### #026 M-006 v1 ratify — 第十次元规则修订 + 数字凑数巧合第二次实证（自反性盲点）
+
+| 字段 | 内容 |
+|---|---|
+| **时间** | 2026-05-26 |
+| **冲突描述** | M-000 §3 认识论根基 + §11.1 派生职能（跨厂商数据共享、最小化、脱敏、prompt injection 防御、敏感信息边界、私有 memory 治理）需要落地为可执行元规则。[#025](#025) M-002 ratify 后按 backlog 序 [#012](#012) Q1 推进 M-006（M-002 → **M-006** → M-001 → M-004）。本会话沿用 [#025](#025) 确立的 AGY CLI + Codex CLI 双家异源 sign-off + DeepSeek 通道故障跳过模式。 |
+| **裁决** | **M-006 v1 正式 ratified**（第十次元规则修订）。文档：`docs/meta/M-006-data-governance.md`，12619 nwc，12 章 + 5 档数据分类（L0-L4）+ 跨厂商共享 6 节 + 脱敏 5 节 + prompt injection 防御 5 节 + 私有 memory 治理 5 节。<br><br>**异源 sign-off 矩阵**：<br>**Claude 主线（主笔）**：不下场（M-005 §H.2 + M-003 §7 主笔体系隔离）<br>**AGY CLI / Gemini 3.5 Flash GA**：Round 1 ⛔ **BLOCK 3 项**（B1 §12 虚假对照声明 / B2 §5.4/§10 「独立性四层」遗漏 / B3 §6.1 P7 漏「分工锚点」）+ 3 CONDITIONAL → P4.Fix → Round 2 ✅ PASS（10 项修复全确认 + 自反性反思 Round 1 漏审 B4/B5）<br>**Codex CLI / OpenAI GPT-5**：Round 1 ⛔ **BLOCK 2 项**（B4 §5.3/§9.2 user-decision-log schema 缺编号+时间 / B5 §10.1 引用已归档 `docs/memory/feedback.md`）+ 5 改进建议 → P4.Fix → Round 2 ⚠️ CONDITIONAL（文末「记忆基线重置实证」错锚 #025 应 #022）→ P4.Fix² → Round 3 (rerun²) ✅ PASS<br>**DeepSeek V4 Pro CLI**：⛔ 通道仍故障（同 #025）<br><br>**总计**：5 BLOCK（AGY 独家 3 + Codex 独家 2，零重叠）+ 4 CONDITIONAL。无重叠证明 AGY + Codex 互补性强。 |
+| **理由** | **2 家异源 + 用户裁决追认 = 共识有效**（#017/#021/#025 实证扩展）。AGY (Gemini) + Codex (GPT-5) 跨 vendor 异源 PASS。<br><br>**M-006 设计的第一性论证**：（1）M-006 是 M-000 §3 认识论根基的数据流转层执行 schema（5 档数据分类 + 跨厂商默认行为 + 脱敏策略 + 边界）；（2）M-006 不重复定义已 ratify 的 M-005 §C.5 / §D / §I 信号与防线，仅作为引用 + 处置流程定义；（3）MC-4（用户未定义时三件套）完整吸收 §5.1；（4）#022 私有 memory 实证（H 项「记忆基线重置」+ docs/memory/ 整目录归档）扩展为 §10 私有 memory 治理 5 节；（5）M-000 §3 「独立性四层」原文（模型权重 / 运行实例 / 上下文 / 任务输入）首次在下游元规则被完整引入 + 数据流转层 4 行映射表落地（§5.4）。<br><br>**M-006 ratify 同 PR 落地的额外动作**：M-000 §11.1 表 M-006 行更新「待 ratify」→「✅ ratified [#026]」；docs/audits/signoff-codex-cli-m006-rerun2.md 修复 broken link（缺 `../meta/` 路径前缀，docaudit hook 抓出）；feedback_numeric_alignment_blindspot.md 升级为 7 条 How to apply + 两次实证 + 机制化 grep 强制建议。 |
+| **是否触发元规则修订** | ✅ **是**（第十次元规则修订）。M-006 v1 全文新增 + M-000 §11.1 注册表 M-006 行从「待 ratify」升「✅ ratified」。 |
+| **Overrule 关系** | 无（M-006 是全新派生规则，不覆盖任何历史裁决）。 |
+| **元层级注记** | **「数字凑数巧合盲信」第二次实证**（最重要的元发现，承接 [#025](#025) 第一次）：M-006 v1 §12 自反性标注主笔（Claude）声称「§4 5 档 / §8.1 4 项已与 M-000 §3 原文逐项 grep 对照」——但 M-000 §3 实际**无相应清单**。是「幻觉式合规」（AGY Round 1 BLOCK 1 抓出）。**讽刺的是**：主笔（同一个 Claude）刚在 M-002 ratify 时记录了 `feedback_numeric_alignment_blindspot.md` 警示自己，然后在 M-006 §12 立即犯同类错——「mental 自评说我对照了」≠「真 grep 验证」。这是第二次实证 + 升级触发：feedback 应升级为「自反性陈述本身也是列项，必须 grep 验证」+ 机制化 grep 强制（建议 PreEdit hook 自动 grep 引用的宪法层原文）。Memory feedback 已升级。<br>**「AGY + Codex 异源互补性」首次实证**：本批 5 BLOCK 在两家之间**零重叠**（AGY 抓 B1/B2/B3 = §12 虚假对照 + §3 独立性四层 + P7 漏分工锚点；Codex 抓 B4/B5 = schema 字段缺失 + 归档文件引用）。证明跨 vendor 异源不只是冗余备份，是**互补盲点覆盖**——AGY 强在「宪法原文对照」（gemini-style 文本对齐能力），Codex 强在「下游引用一致性 + 路径存在性」（gpt-style 程序员视角）。这一互补性是 M-005 §B.3 异源价值的实证扩展。<br>**「主笔不下场 + AGY/Codex 互补 + 主笔自我盲信修复」工作流首次完整跑通**：本批 sign-off 流程：主笔起草 → AGY Round 1 (BLOCK) + Codex Round 1 (BLOCK 独家不重叠) → 主笔合并修复（P4.Fix）→ AGY Round 2 (PASS) + Codex Round 2 (CONDITIONAL) → 主笔单点修复（P4.Fix²）→ Codex Round 3 (PASS) → ratify。3 轮迭代发现 5 BLOCK + 4 CONDITIONAL，无遗漏 ratify 后追认。可作为后续 M-001 / M-004 sign-off 模板。<br>**docaudit hook 首次拦截元规则 commit**：本批 ratify 编辑触发 PostToolUse docaudit hook，抓出 Codex CLI subagent 写的 sign-off 报告含 broken link（缺 `../meta/` 前缀）。证明 docaudit hook 对元规则文档边修边检的实战价值。<br>**M-001 ~ M-006 起草进度更新**：M-002 ([#025](#025)) + M-003 ([#021](#021)) + M-005 ([#015](#015)/[#020](#020)/[#021](#021)) + M-006（本条）已 ratify；待 ratify M-001 / M-004。MEMORY 元规则搭建期纪律仍生效。本会话 5 个本地 commit 链（draft / P4.Fix / P4.Fix² / ratify + sign-off 报告归档）+ 之前 M-002 chain 4 commit + 路径 D 1 commit + pre-session 26 commit = **35 个本地 commit ahead origin/develop**。 |
+
+---
+
 ## 日志维护规则
 
 1. **append-only**：不删除历史条目，只追加新条目
