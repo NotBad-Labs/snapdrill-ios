@@ -6,9 +6,9 @@ status: draft
 freshness:
   max_age_days: 180
   decay_trigger: [meta_audit, data_classification_change, external_shock, privacy_incident, prompt_injection_incident]
-word_count_actual: 12599  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26（P4.Fix 5 BLOCK + 4 CONDITIONAL 修复后）
+word_count_actual: 12619  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26（P4.Fix² Codex rerun CONDITIONAL 修复后）
 override_rationale: |
-  正文 12599 nwc（M-005 §J.7 标准实测，P4.Fix 后），参考篇幅 2500 nwc，本文超 ~404%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
+  正文 12619 nwc（M-005 §J.7 标准实测，P4.Fix² 后），参考篇幅 2500 nwc，本文超 ~405%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
 
   **章节级证明（mandatory）**：以下 12 章不可下沉、不可省略：
   (1) §1 定位 — M-006 在 M-000 §3 + §11.1 派生位置的合法性声明
@@ -465,4 +465,4 @@ M-006 自身适用：
 
 **异源 sign-off 待补**：本 draft 待 AGY CLI（Gemini 3.5 Flash GA）+ Codex CLI（GPT-5）异源 sign-off。DeepSeek 通道当前故障（详见 #025），跳过；按 [#017](user-decision-log.md#017)/[#021](user-decision-log.md#021)/[#025](user-decision-log.md#025) 实证 2 家异源 + 用户裁决追认即共识有效。
 
-*本草案由 Claude Opus 4.7 (1M context) 基于 M-000 §3/§11.1 派生职能 + MC-4 backlog + M-002 §4.3/§10 接口 + M-005 §C.5/§D/§I 引用 + [#022](user-decision-log.md#022) 私有 memory 实证 + 帅哥 [#025](user-decision-log.md#025) 记忆基线重置实证起草。*
+*本草案由 Claude Opus 4.7 (1M context) 基于 M-000 §3/§11.1 派生职能 + MC-4 backlog + M-002 §4.3/§10 接口 + M-005 §C.5/§D/§I 引用 + 帅哥 [#022](user-decision-log.md#022) 私有 memory 实证（含 H 项「记忆基线重置」实证）+ [#025](user-decision-log.md#025) M-002 ratify 锚定起草。*
