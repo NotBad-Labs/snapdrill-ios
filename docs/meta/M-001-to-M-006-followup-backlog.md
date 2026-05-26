@@ -117,6 +117,34 @@ derived_from: [M-000 §11.1]
   - 明确冲突优先级：user-decision-log > backlog > git/GitHub live state > STATUS stub
   - 记录无法自动判定的缺口，不擅自把推论写成事实
 
+## MC-12: M-005 §G.7 加 audit 流程 counter-verify 纪律
+
+- **来源**: Goal H7 P0 verify 实证（[docs/audits/h7-p0-verify-20260526.md](../audits/h7-p0-verify-20260526.md)）
+- **问题**: 主笔自审 derived_from 修复建议**准确率 0%**（6 个建议全部被异源 REJECT/REFINE），其中 2 处事实错误（引用不存在的章节/概念）+ 1 处术语混淆 + 3 处方向偏差。当前 M-005 §G 只规定 docaudit check 设计，没有规定「audit 报告产出后必须 counter-verify」流程。
+- **归宿**: **M-005 §G.7 新增**「audit 流程 counter-verify 纪律」
+- **理由**: feedback_numeric_alignment_blindspot 第 6 条「跨 vendor 异源不能完全消除盲信但能补主笔单点盲区」已升级为强制流程必需。本会话双家异源（agy + DeepSeek）+ 主笔 grep counter-verify 防止了所有 6 处错误。这是治理流程级问题，应固化到 M-005 元规则。
+- **具体落实**:
+  - M-005 §G.7（新增）：audit 报告 P0 修复建议必须经 ≥2/3 异源 agreement + 主笔 grep counter-verify 才能落地
+  - audit 报告若 finding 误报率 >20% 需驳回重做
+  - 主笔自审单独不足以作为 derived_from 修改依据
+  - 触发：所有 audit 报告含「修复建议」「修改建议」「重新标注建议」类内容
+- **配套机制**（已部分实施）:
+  - `.claude/hooks/pre-edit-derived-from.sh`（已 deb6f0a8 commit）：detect derived_from 字段修改时 stderr 提示 counter-verify
+  - `.claude/hooks/pre-edit-numeric-alignment.sh`（已 0fc3ac88 commit）：detect §N 对照声明
+- **关联**: H7 audit 系列 + audit agent 自身污染 55% 实证
+
+## MC-13: M-000 §11.10 v2.2 schema 扩展（同级派生 + ADR 引用）
+
+- **来源**: Goal H7 P0 verify 暴露的 schema 表达力 gap
+- **问题**: M-000 §11.10 v2.1 schema 仅允许 `M-NNN` / `M-NNN §N` / `user-decision-log #NNN`，**不允许 ADR-NNN 引用**，且不允许同级 standards-to-standards 派生（如 shared-constraints 实际是多 standards + product docs 汇总）
+- **归宿**: **M-000 §11.10 v2.2 升级**
+- **理由**: H7 P0 修复揭出 knowledge-health-workflow 派生 `[ADR-004, M-005 §G]` 但 ADR-004 不在 schema 允许范围；同样 cross-audit-workflow 派生关系复杂涉及 M-001 + M-003 + 自身 F-008 定义
+- **具体落实**:
+  - schema 扩展允许 `ADR-NNN` / `ADR-NNN §N` 元素
+  - 考虑允许 `standards/<file>.md` / `templates/<file>.md` 文件路径形式表达同级派生
+  - 或新增 `related_to: [...]` 字段表达「非派生但相关」关系
+- **当前 workaround**: ADR-NNN 在 derived_from 字段中实际有用（docaudit `derived_from_required` proposed 未实施），但需 v2.2 正式允许
+
 ---
 
 ## 起草顺序建议
