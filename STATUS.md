@@ -13,9 +13,9 @@ freshness:
 ## 当前焦点（手动维护）
 
 - 元规则搭建期**完结**：M-000 v1.2 + M-001~M-006 全 ratify（[#028](docs/meta/user-decision-log.md#028)）
-- 三件套（Goal D skill-provenance / Goal A DeepSeek 通道 / Goal B PreEdit hook）push 完成（commits 6547e8ac..95527f51，2026-05-26）
-- 三家异源 cross-source review 通过（详 [docs/audits/three-goals-cross-source-review-20260526.md](docs/audits/three-goals-cross-source-review-20260526.md)）
-- 进行中：Goal H 文档体系健康度全量收敛 sprint（H1-H8）+ Goal G 产品 milestone 方向待定
+- 三件套（Goal D/A/B）push 完成（commits 6547e8ac..95527f51，2026-05-26，详 [three-goals-cross-source-review](docs/audits/three-goals-cross-source-review-20260526.md)）
+- **Goal H 文档体系健康度收敛 sprint 完结**：H1-H8 全完成（详 [h7-standards-content-audit](docs/audits/h7-standards-content-audit-20260526.md) / [h7-batch2-content-audit](docs/audits/h7-batch2-content-audit-20260526.md) / [h7-p0-verify](docs/audits/h7-p0-verify-20260526.md) / [h6-skill-links-upstream-issue](docs/audits/h6-skill-links-upstream-issue-20260526.md)）
+- 后续：Goal G 产品 milestone 方向待定 + MC-12 (M-005 §G.7) + MC-13 (M-000 §11.10 v2.2) backlog 待启动
 
 ## 权威状态源
 
