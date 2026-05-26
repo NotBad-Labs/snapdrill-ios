@@ -39,6 +39,9 @@ build_output.txt
 .claude/worktrees/
 .claude/.long-session-warned
 
+# AGY CLI (Antigravity) runtime cache
+.antigravitycli/
+
 # VS Code — local workspace config
 .vscode/
 
