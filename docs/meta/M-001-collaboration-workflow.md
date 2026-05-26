@@ -6,9 +6,9 @@ status: draft
 freshness:
   max_age_days: 180
   decay_trigger: [meta_audit, workflow_change, new_vendor_added, isolation_incident]
-word_count_actual: 11641  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26
+word_count_actual: 13653  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26（P4.Fix 3 BLOCK + 2 CONDITIONAL 修复后）
 override_rationale: |
-  正文 11641 nwc（M-005 §J.7 标准实测），参考篇幅 2500 nwc，本文超 ~365%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
+  正文 13653 nwc（M-005 §J.7 标准实测，P4.Fix 后），参考篇幅 2500 nwc，本文超 ~446%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
 
   **章节级证明（mandatory）**：以下 13 章不可下沉、不可省略：
   (1) §1 定位 — M-001 在 M-000 §4 + §11.1 派生位置的合法性声明
@@ -144,9 +144,18 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-001 直接挂钩如下：
 
 ---
 
-## §5 物理隔离操作规程（M-000 §3 独立性四层落地）
+## §5 物理隔离操作规程（M-000 §3 独立性四层的运行实例 + 上下文层落地）
 
-承接 M-006 §5.4「独立性四层数据流转层」+ M-000 P5。本节给出**操作步骤**：
+承接 M-006 §5.4「独立性四层数据流转层」+ M-000 P5。本节给出**操作步骤**，但**仅覆盖 M-000 §3 独立性四层中的 L-ii（运行实例不同）+ L-iii（上下文互不可见）两层**——其余两层的操作步骤承接到本元规则其他章节：
+
+| 独立性层 | 落地章节 | 承接说明 |
+|---|---|---|
+| **L-i 模型权重或训练谱系不同** | §4.2 模型 ID 验证 + M-005 §D.2 异源训练谱系判断 | M-001 §4.2 强制启动前对照 SSOT + WebSearch 验证训练谱系（不依赖智能体自我宣称）|
+| **L-ii 运行实例不同** | **§5.1 worktree + §5.2 分支** | 本节直接覆盖 |
+| **L-iii 上下文互不可见** | **§5.3 context + §5.4 .claude.md / memory** | 本节直接覆盖 |
+| **L-iv 任务输入未泄露其他方中间结论** | §4.1 任务定义书净化（P7 + 禁止材料清单）+ §11 CLI 调用前脱敏 hook | M-001 §4.1 任务定义书生成强制「禁止材料」字段排除其他方 sign-off 报告 / 主笔推理 / 引导性语言；§11 PreToolUse hook 拦截含 L1/L2 数据的外部 CLI 调用 |
+
+本节以下 4 小节是 L-ii + L-iii 的操作步骤：
 
 ### §5.1 worktree 隔离（对应 L-ii 运行实例不同）
 
@@ -372,11 +381,12 @@ derived_from: [M-002 §11, MC-11]
 
 承接 M-006 §6.4 + M-006 §6.2 自动脱敏检测。本节给出 PreToolUse hook 实现规约。
 
-### §11.1 hook 路径与触发器
+### §11.1 hook 路径与触发器（**强制 PreToolUse**）
 
 - 路径：`.claude/hooks/cli-call-desensitize.sh`
-- 触发器：`PostToolUse` 中 matcher `Bash` 的 hook 链（在已有 `post-merge-checkpoint.sh` 之前）
-- 也可以是 `PreToolUse` 的 matcher `Bash`（更早拦截，但需 wrap 命令）
+- **主路径触发器：`PreToolUse` matcher `Bash`**——必须在命令执行**前**拦截，这是 M-006 §6.4 「调用前的脱敏 hook」边界的硬要求
+- 兜底 / 复核：`PostToolUse` matcher `Bash` 可同时配置一份事后日志 hook（仅记录，不阻断；用于审计 + 误报率分析）
+- **不允许把主路径设为 PostToolUse**——事后 hook 无法阻断已发出的 CLI 调用，会让 L0 凭据 / L1 用户隐私在 `agy` / `codex` / `deepseek` / `gemini` 等外部 CLI 接收后才告警，违反 M-006 §5.2 L0 硬约束与 §6.4 事前边界
 
 ### §11.2 检测规则（机械可执行）
 
@@ -445,15 +455,26 @@ M-001 自身适用 M-005 §J 字数原则 + §F 自反性 sanity check + M-006 �
 
 **WebSearch 验证**：本文未引用需 WebSearch 验证的**结论性**外部事实（多方启动 / 物理隔离 / 主笔轮换均基于内部 #006/#010/#013/#017/#020/#021/#025/#026 实证 + M-000~M-006 已 ratify 文本派生）。
 
-**列项原文真 grep 验证**（[[feedback-numeric-alignment-blindspot]] 应用，区分「原文镜像」vs「派生扩展」）：
+**列项原文真 grep 验证**（[[feedback-numeric-alignment-blindspot]] 应用，区分「原文镜像」vs「派生扩展」，v1 → P4.Fix 诚实修正）：
 
 | M-001 列项 | 来源性质 | 宪法层原文对照 |
 |---|---|---|
-| §2 PRIMARY 接口表 P1/P3/P4/P5/P6/P7 | **原文镜像** | M-000 §2 P1-P8 原文 7 项已选 6 项 grep 对照（P2 用户裁决权由 M-002 全局承载、P8 Overrule 由 §9 局部承载）|
-| §5 物理隔离 4 节（worktree / 分支 / context / .claude.md）| **原文镜像 + 派生展开** | M-000 §3 「独立性四层」原文 4 项 grep 对照 + M-006 §5.4 数据流转层映射的操作步骤展开 |
-| §6 Boot 三段架构（必读 / Action Gate / Context Map）| **原文镜像** | user-decision-log [#006](user-decision-log.md#006) 裁决 A-F 原文 grep 对照（仅 A/B/C/D/E/F 中的 A-E 直接相关，F protocol.md 措辞细节归 M-001 后续精化）|
+| §2 PRIMARY 接口表 P1/P3/P4/P5/P6/P7/P8（共 7 项）| **原文镜像** | M-000 §2 P1-P8 原文共 **8 项**，本表覆盖 **7 项**（P1/P3/P4/P5/P6/P7/P8）；**P2 用户裁决权由 M-002 全局承载，M-001 不重复定义**。v1 自反性表错写「P1/P3/P4/P5/P6/P7」+「7 项已选 6 项」（漏 P8 + 算术错），P4.Fix B1+C2 已修正本表。|
+| §5 物理隔离 4 节（worktree / 分支 / context / .claude.md / memory）| **派生扩展（仅覆盖 L-ii + L-iii 两层）** | M-000 §3 「独立性至少包含四层」原文 4 项（L-i 模型权重 / L-ii 运行实例 / L-iii 上下文 / L-iv 任务输入未泄露）。本节 4 小节**仅直接覆盖 L-ii + L-iii**；L-i 由 §4.2 模型 ID 验证 + M-005 §D.2 承载，L-iv 由 §4.1 任务定义书净化 + §11 PreToolUse CLI hook 承载。§5 章首已加四层映射表显式说明。v1 自反性表错称「四层 grep 对照」（实际仅 2 层），P4.Fix B2 已修正本表 + §5 章首映射表。|
+| §6 Boot 三段架构（必读 / Action Gate / Context Map）| **跨章承载（非单章镜像）** | user-decision-log [#006](user-decision-log.md#006) 裁决 A-F 原文 6 项分布承载：A Boot 必读 → §6.1；B STATUS minimal stub → §10.5 sync-status session end；C workflow→protocol.md 迁移 → §6.2 Action Gate（具体路径由 protocol.md 自身承载）；D feedback 移出 Boot → §6.3 Context Map 索引位；E AGENTS 三段架构 → §6 整章；F protocol.md ≤200 nwc → 由 protocol.md 自身承载，M-001 后续精化。v1 自反性表错称「§6 原文镜像」+ 错称「A-F 中 A-E 直接相关」（漏 B 的 §10 + F 的 protocol.md 边界），P4.Fix C3 已修正为跨章承载说明。|
 | §8 单方执行窗口清单 | **派生扩展** | M-002 §4.4 给原则（可逆 + 局部 + 低副作用）+ M-005 §I.1 给排除项 + M-006 §8.1 给硬边界，M-001 §8.2 是把三者交集落地为具体动作清单（非原文镜像）|
-| §11 CLI 脱敏 hook 实现 | **派生扩展** | M-006 §6.2 给 grep 特征 + §6.4 给 hook 时机，M-001 §11 是把两者落地为 bash 实现（非原文镜像）|
+| §11 CLI 脱敏 hook 实现（PreToolUse 强制） | **派生扩展** | M-006 §6.2 给 grep 特征 + §6.4 给「调用前」hook 时机，M-001 §11 是把两者落地为 bash + PreToolUse hook 实现（非原文镜像）。v1 §11.1 错把主路径写成 PostToolUse（事后无法阻断），P4.Fix B3 已改为 PreToolUse 强制 + PostToolUse 仅做兜底日志。|
+
+**下沉边界注记（C1 修复，按 M-005 §A.3「标准写法」）**：
+
+- §4 多方启动流程**不下沉**到 standards/——模型 ID 验证 + 任务定义书生成的强制性是元规则层约束，standards/ 可被绕过
+- §5 物理隔离操作**不下沉**到 templates/——L-ii / L-iii 操作步骤涉及 git worktree / context 切换的强制性约束，模板可被绕过
+- §6 Boot 三段架构**已是元规则层入口约束**——AGENTS.md 已落地，但「读哪些 / 不读哪些」的边界判断属 M-001
+- §7 主笔轮换**不下沉**到 templates/——轮换提议的 8 字段 schema 是 M-002 §10 派生 + M-005 §H 元规则约束
+- §8 单方执行窗口**不下沉**到 standards/——清单 / 排除清单的边界判断需 LLM 推理 + 与 §4.1/§I.1/§8.1 三处宪法层联动
+- §9 私下授权同步**不下沉**到 skill/——私下授权检测是元规则层约束，不是 LLM 动态判断的任务模式
+- §10 sync-status skill 实现**是 skill 入库提案**（按 §10.1 三条门槛满足）——本节是 skill 设计规约，由 M-001 元规则层承载；具体 SKILL.md 实现下沉 `.agents/skills/sync-status/`
+- §11 CLI hook 实现**是 hook 入库提案**——PreToolUse 强制性属 M-006 §6.4 派生 + M-001 §11 实现规约；具体 bash 脚本下沉 `.claude/hooks/cli-call-desensitize.sh`
 
 **异源 sign-off 待补**：本 draft 待 AGY CLI（Gemini 3.5 Flash GA）+ Codex CLI（GPT-5）异源 sign-off。DeepSeek 通道仍故障（[#025](user-decision-log.md#025)/[#026](user-decision-log.md#026)），跳过；按 [#017](user-decision-log.md#017)/[#021](user-decision-log.md#021)/[#025](user-decision-log.md#025)/[#026](user-decision-log.md#026) 实证 2 家异源 + 用户裁决追认即共识有效。
 
