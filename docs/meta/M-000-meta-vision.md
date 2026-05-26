@@ -140,7 +140,7 @@ docaudit 只证明“可机械检查的结构信号通过”，不证明事实�
 |---|---|---|
 | `M-000-meta-vision.md`（本文件）| SELF | 元规则的元规则（宪法层）|
 | `M-001-to-M-006-followup-backlog.md` | active backlog | 10 条 MC 待 M-001~M-006 起草吸收 |
-| `M-001 协作工作流规约` | 待 ratify | 规定多方启动、独立工作、物理隔离、上下文加载、主笔轮换提议、单方执行窗口 |
+| **`M-001-collaboration-workflow.md`** | ✅ ratified [#027](user-decision-log.md#027) | 规定多方启动、独立工作、物理隔离（M-000 §3 独立性四层 L-ii+L-iii 操作落地）、上下文加载（#006 三段架构）、主笔轮换提议、单方执行窗口、私下授权同步、sync-status 实现、CLI PreToolUse 脱敏 hook |
 | **`M-002-dispute-arbitration.md`** | ✅ ratified [#025](user-decision-log.md#025) | 规定裁决流程、证据等级、双核同意适用域、Overrule 写法、撤回与复审机制、裁决清单变更、user-decision-log schema、sync-status 双向维护 |
 | **`M-003-skill-library-governance.md`** | ✅ ratified [#021](user-decision-log.md#021) | 规定 skill 入库门槛、命名空间、公私分治、生命周期、升降级、与元规则派生映射 |
 | `M-004 降级操作手册` | 待 ratify | 规定服务受限、用户不可达、工具失败时的降级路径与停止等待判据 |

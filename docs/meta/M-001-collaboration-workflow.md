@@ -2,7 +2,10 @@
 last_verified: 2026-05-26
 layer: principle
 scope: meta
-status: draft
+status: active
+ratification: ratified
+ratified_at: 2026-05-26
+ratified_by: [user-decision-log #027]
 freshness:
   max_age_days: 180
   decay_trigger: [meta_audit, workflow_change, new_vendor_added, isolation_incident]
