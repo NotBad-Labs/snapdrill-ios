@@ -1,12 +1,15 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-05-26
 layer: principle
 scope: meta
-status: draft
+status: active
+ratification: ratified
+ratified_at: 2026-05-26
+ratified_by: [user-decision-log #025]
 freshness:
   max_age_days: 180
   decay_trigger: [meta_audit, decision_schema_change, external_shock, false_arbitration_incident]
-word_count_actual: 9687  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26（P4.Fix Codex BLOCK 修复后）
+word_count_actual: 9687  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26（P4.Fix² Codex CONDITIONAL 修复后）
 override_rationale: |
   正文 9687 nwc（M-005 §J.7 标准实测，P4.Fix 后），参考篇幅 2500 nwc，本文超 ~287%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
 

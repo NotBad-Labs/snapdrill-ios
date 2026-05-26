@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-05-26
 layer: snapshot
 scope: tech
 freshness:
@@ -70,8 +70,12 @@ freshness:
 | 上下文污染 | 默认读项目目录;`--approval-mode plan` 只读;`GEMINI_CLI_TRUST_WORKSPACE=true` + `--skip-trust` 非交互 |
 | **2026-06-18 后状态** | ⚠️ **停服**(Pro/Ultra/免费个人);企业 Standard/Enterprise license 不受影响 |
 | **替代品:Antigravity CLI (`agy`)** | |
+| 安装路径 | `/opt/homebrew/bin/agy`(2026-05-26 本会话实测确认已安装) |
 | 包管理 | Homebrew(`brew install antigravity-cli`,2026-05-25 已上架)/ 桌面端 Antigravity 2.0 内置 |
-| 调用方式 | `agy` 命令(本机当前未安装) |
+| 调用方式 | `agy` 交互 / `agy -p "<prompt>"` 非交互 / `agy --add-dir <path>` 加挂目录 / `agy --dangerously-skip-permissions` 自动批准工具权限 |
+| --print-timeout 默认 | 5m0s（长任务需显式 `--print-timeout 30m` 等）|
+| 实测自报身份（2026-05-26） | "Google DeepMind 团队开发的 AI 编码助手 Antigravity，基于 Gemini 3.5 Flash 模型" |
+| 已实证用途 | M-002 元规则 sign-off 异源 reviewer（PASS round 2，启动 M-005 §F.1 自反性撤回 round 1）|
 | 实现语言 | Go(比 TypeScript 实现的 gemini-cli 快) |
 | 默认模型 | **Gemini 3.5 Flash GA**(2026-05-19 GA) |
 | 保留特性 | Agent Skills / Hooks / Subagents / Extensions(改名 Antigravity plugins) |
@@ -96,6 +100,7 @@ freshness:
 | 上下文污染 | **CLI 路径自动读 CLAUDE.md/AGENTS.md**(因为底层是 claude -p)|
 | **Zero-context 路径** | 直接 curl OpenAI 兼容端点 `https://api.deepseek.com/v1/chat/completions` |
 | API 兼容模型名 | `deepseek-chat` / `deepseek-reasoner` / `deepseek-v4-pro`(实测全部可用) |
+| **⚠️ 2026-05-26 通道故障** | wrapper 调 `claude -p "$PROMPT"` 报错 "Input must be provided either through stdin or as a prompt argument when using --print"。直接 argv 和 stdin 两种调用方式均失败。疑似 claude CLI 版本升级（当前 2.1.146）改变 `-p` 参数语义。**故障影响**：DeepSeek 通道在 M-002 sign-off 不可用，按 user-decision-log #017/#021 实证 + M-000 §3 + M-005 §B.3，「2 家异源 PASS（AGY + Codex）+ 用户裁决追认」=共识有效。**修复建议**：（1）修 wrapper 用 `claude -p` 改 `claude --print` 或检查传参；（2）改走直接 curl `api.deepseek.com/v1/chat/completions`；（3）M-004 起草时纳入「单 vendor 通道故障」降级路径。|
 
 ### 5. 未来加入
 
