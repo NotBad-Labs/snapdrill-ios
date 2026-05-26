@@ -6,9 +6,9 @@ status: draft
 freshness:
   max_age_days: 180
   decay_trigger: [meta_audit, new_vendor_added, vendor_outage_incident, tool_chain_change, ios_release]
-word_count_actual: 11388  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26
+word_count_actual: 12006  # 正文 Unicode nwc（不含 frontmatter）；M-005 §J.7 标准 `awk + tr + wc -m` 实测 2026-05-26（P4.Fix Codex Round 1 CONDITIONAL 修复后）
 override_rationale: |
-  正文 11388 nwc（M-005 §J.7 标准实测），参考篇幅 2500 nwc，本文超 ~356%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
+  正文 12006 nwc（M-005 §J.7 标准实测，P4.Fix 后），参考篇幅 2500 nwc，本文超 ~380%。按 M-005 §J.2 v2「分层 + 触发」证明（[#021](user-decision-log.md#021) D-J2=C 裁决：超参考篇幅时 override_rationale 应至少示例 1-2 段最长或最可能冗余的段落）。
 
   **章节级证明（mandatory）**：以下 12 章不可下沉、不可省略：
   (1) §1 定位 — M-004 在 M-000 §10 + §11.1 派生位置的合法性声明（承接 M-000 §10「用户长期不可达 + 服务变化」）
@@ -27,7 +27,7 @@ override_rationale: |
   **段级证明（按 §J.2 v2 触发：作者主张）**：以下 2 段为最可能冗余段落，已分析压缩路径：
 
   - **§5 服务受限的降级路径（5 类）**：5 子类（API 限流 / 网络 / 凭据 / sunset / 配额）各 4-6 行处置步骤。
-    *压缩分析*：5 类对应实际遇到的不同失败模式（实证：#013 Gemini model ID 误用是 sunset / #025 #026 DeepSeek wrapper 是凭据 + 调用方式故障），删除任一类 → 该失败模式无元规则层降级路径，触发用户介入风险。
+    *压缩分析*：5 类对应实际遇到的不同失败模式（实证：[#013](user-decision-log.md#013) Gemini model ID 误用是 sunset 处理失败 / [#015](user-decision-log.md#015) Gemini CLI sunset → AGY 替代 / [#024](user-decision-log.md#024) DeepSeek wrapper SSE 断流 = 网络中断子类 / [#025](user-decision-log.md#025)/[#026](user-decision-log.md#026) DeepSeek wrapper 调用方式故障 = 通道/网络中断子类；凭据失效 = 第一性工程风险，无项目内具体实证锚但需元规则层承载），删除任一类 → 该失败模式无元规则层降级路径，触发用户介入风险。
   - **§8 iOS 不可逆动作清单（MC-9 承接，5 项硬清单 + 1 项灰色区）**：git push / fastlane match / TestFlight / Apple ID / 数据库迁移 / pbxproj。
     *压缩分析*：5 项硬清单是 MC-9 backlog 明列的 iOS 特有不可逆动作，删除任一 → 该动作失去元规则层「上交用户」强约束，回归 M-002 §4.1 通用清单导致 iOS 特有风险（如证书泄露 / TestFlight 误发布）失保。pbxproj 灰色区是 MC-9 唯一明示需要「按双核同意处理」的中间档动作，不可省略。
 
@@ -163,9 +163,9 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-004 直接挂钩如下（共 
 2. **影响评估**：grep `docs/tech/reference/agent-cli-models.md` + 项目代码确认所有消费点
 3. **过渡期**：vendor 通常给 30-90 天 sunset 缓冲，期间：
    - 继续可用但标 `agent-cli-models.md` `freshness: expired`
-   - 加快寻找替代品（如 #024 Gemini CLI sunset → AGY CLI 替代 #025 实证）
+   - 加快寻找替代品（如 Gemini CLI sunset → AGY CLI 替代实证：sunset 主锚 [#015](user-decision-log.md#015) + `agent-cli-models.md`「2026-06-18 重大变更」段；AGY CLI 通道实证 [#025](user-decision-log.md#025)）
 4. **过渡期结束**：按 M-002 §9 「跨 vendor 替换」流程走完整裁决，update agent-cli-models.md SSOT + 同 PR 改 `Scripts/gemini_utils.py` 等代码消费点
-5. **实证锚定**：#013 Gemini model ID 误用是 sunset 处理失败的反面教材；#025 AGY CLI 替代是正面案例
+5. **实证锚定**：[#013](user-decision-log.md#013) Gemini model ID 误用是 sunset 处理失败的反面教材（model ID 与 wrapper 不匹配）；[#025](user-decision-log.md#025) AGY CLI 替代 Gemini CLI 是正面案例（vendor 同源 + 端点变化的平滑过渡）
 
 ### §5.5 配额耗尽（月度 / 周度 token 用尽）
 
@@ -277,7 +277,7 @@ M-000 v2.0 §2 的 8 条 PRIMARY 内核中，与 M-004 直接挂钩如下（共 
 
 | 动作 | 不可逆原因 | 处置 |
 |---|---|---|
-| `git push` | 跨越本地工作区边界，对外承诺历史 | M-002 §4.1 + 帅哥 MEMORY 纪律：push 必须显式授权 |
+| `git push` | 跨越本地工作区边界，对外承诺历史 | M-002 §4.1 + MC-9 第 1 项：push 必须显式用户授权（按 [#018](user-decision-log.md#018) 主笔不下场原则的延伸 + M-006 §10 私有 memory 治理：不引用未注册的私有 memory 作为权威源）|
 | `fastlane match` 证书同步 | 跨设备同步 + 涉及 Apple Developer Portal | 用户裁决 + match 操作前确认 git remote 正确 |
 | TestFlight 发布 | 对外用户可见 + 涉及版本号永久占用 | 用户裁决 + 发布前 DoD 校验完整 |
 | Apple ID 改动（签名 / 团队 / 角色） | 涉及账号资产，可能影响所有 app | 用户裁决 + 改动前备份当前 provisioning profiles |
@@ -415,7 +415,7 @@ M-004 自身适用 M-005 §J 字数原则 + §F 自反性 sanity check + M-006 �
 | §2 PRIMARY 接口表 P2/P5/P8（共 3 项）| **派生扩展（PRIMARY 子集）** | M-000 §2 P1-P8 共 8 项，本表覆盖 3 项（P2/P5/P8）；**P1/P3/P4/P6/P7 不直接关联，由 M-001/M-002/M-005/M-006 承载**，M-004 不重复定义。已诚实声明（不是「原文镜像」也不是漏项错误）。 |
 | §6 等待时长 4 档（< 4h / 4-24h / > 24h / > 7d）| **派生扩展** | M-000 §10 原文仅说「用户长期不可达时只可执行可逆、局部、低外部副作用动作」，未给具体时长。M-004 §6 把「长期不可达」展开为 4 档时长是派生扩展（基于第一性原理 + 实战经验）。|
 | §8 iOS 不可逆动作硬清单 6 项 + 灰色区 3 项 | **派生扩展（MC-9 落地）** | MC-9 backlog 原文列了 6 项示例（git push / fastlane match / TestFlight / Apple ID / 数据库迁移 / 证书操作），全部纳入 §8.1；pbxproj 灰色区也来自 MC-9 原文。本表 §8.1 是 MC-9 backlog 的直接落地（接近原文镜像但有微调）；§8.2 灰色区 3 项是派生扩展（pbxproj 来自 MC-9，Package.swift + SwiftLint 配置是 M-004 自创）。|
-| §5 服务受限 5 类（API 限流 / 网络 / 凭据 / sunset / 配额）| **派生扩展（实证锚定）** | 来自 #013（Gemini sunset）+ #024（SSE 断流）+ #025/#026（DeepSeek 凭据 / 调用方式故障）+ 通用工程实践，非宪法层原文清单。|
+| §5 服务受限 5 类（API 限流 / 网络 / 凭据 / sunset / 配额）| **派生扩展（实证锚定）** | 来自 [#013](user-decision-log.md#013)（Gemini model ID 误用 → sunset 处理反面教材）+ [#015](user-decision-log.md#015)（Gemini CLI sunset 主锚 → AGY 替代）+ [#024](user-decision-log.md#024)（DeepSeek wrapper SSE 断流 → 网络中断子类）+ [#025](user-decision-log.md#025)/[#026](user-decision-log.md#026)（DeepSeek wrapper 调用方式故障 → 通道故障/网络子类）+ 通用工程实践（凭据失效 = 第一性风险无具体项目实证）；非宪法层原文清单。**P4.Fix Codex C1 修正**：v1 错把「凭据失效」归到 #025/#026，实际 #025/#026 是 wrapper 调用方式故障非凭据失效。|
 | §9 静默退化回退 3 节（硬信号 / 局部段落 / sign-off 阶段）| **原文镜像（M-005 §C.6）** | M-005 §C.6 原文「硬信号 / 局部段落退化 / sign-off 阶段」3 节 grep 对照（具体处置步骤是 M-004 派生展开）。|
 
 **禁止的 mental 自评**（吸取 M-001 三次实证）：本节自反性表的「PRIMARY 共 8 项 / 本表覆盖 3 项」「§6 4 档时长」「§8 硬清单 6 项 + 灰色区 3 项」等数字均通过实际 grep 宪法层原文 + 实际数本表行数得出，**不接受「我以为对了」式 mental 自评**。
