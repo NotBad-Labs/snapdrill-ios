@@ -124,7 +124,7 @@ These skills remain only in `.claude/skills/` and are not shared through `.agent
 
 | Skill | Current Claude path | Current local blob | Upstream path at `a4eb2f27477783e04ea06b353d41c14136adc259` | Upstream blob | Status |
 |---|---|---|---|---|---|
-| `tdd-feature` | `.claude/skills/tdd-feature/SKILL.md` | `07118d1ce2b492efb3a6a416434007085d08ad32` | `skills/testing/tdd-feature/SKILL.md` | `241c424b082aaecae0b6b9018d73f22faf5c9b6b` | 路径 C [#018](../meta/user-decision-log.md#018-skill-审计-final-ratified--路径-c-stage-44-完成) 吸纳 tdd-bug-fix / tdd-refactor-guard / integration-test-scaffold / snapshot-testing / snapshot-diff-review / characterization-test-generator 内容（旧 blob 241c424b...） |
+| `tdd-feature` | `.claude/skills/tdd-feature/SKILL.md` | `de0165ccde5dd49ef00fe4a033aef3f987e782d5` | `skills/testing/tdd-feature/SKILL.md` | `241c424b082aaecae0b6b9018d73f22faf5c9b6b` | 路径 C [#018](../meta/user-decision-log.md#018-skill-审计-final-ratified--路径-c-stage-44-完成) 吸纳 tdd-bug-fix / tdd-refactor-guard / integration-test-scaffold / snapshot-testing / snapshot-diff-review / characterization-test-generator 内容（旧 blob 241c424b...）；commit `dad61834` P3.C9 批量补 derived_from frontmatter 后 blob 由 07118d1c → de0165cc |
 
 注：路径 C [#018](../meta/user-decision-log.md#018-skill-审计-final-ratified--路径-c-stage-44-完成) ratify 后，其他 20 个 Claude-only `rshankras` skill 已处理（参见下方 Retired 段）。
 

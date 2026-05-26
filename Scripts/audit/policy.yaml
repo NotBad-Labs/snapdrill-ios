@@ -147,14 +147,6 @@ legacy_whitelist:
     reason: "路径 C #018 期间 DOWNGRADE/MERGE 的 skill 内容继承 ~/.claude 私有路径；待后续 PR 批量脱敏"
     expires_on: "2026-06-30"
 
-  # 路径 D #028 F1 修复：3 个 swift* skill 通过直接编辑 SKILL.md 补 derived_from frontmatter（未走 skills-lock.json 更新流程），
-  # 触发 skill-provenance managed_local_blob_mismatch。tdd-feature 是 pre-session 已有 blob mismatch（未追踪原因）。
-  # 待后续 PR 走 lockfile 同步流程（更新 skills-lock.json 记录新 blob）。
-  # 由 user-decision-log [#028](docs/meta/user-decision-log.md#028) 元规则搭建期完结同 PR 一并 push，故需豁免。
-  - check: skill-provenance
-    reason: "路径 D [#028](docs/meta/user-decision-log.md#028) F1 修复直接编辑 SKILL.md + tdd-feature pre-session 遗留；待后续 PR 走 lockfile 同步流程"
-    expires_on: "2026-06-30"
-
 # 输出
 output:
   tsv_dir: reports/
