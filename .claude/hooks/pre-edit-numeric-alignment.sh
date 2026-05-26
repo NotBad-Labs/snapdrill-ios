@@ -32,7 +32,9 @@ FILE=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 [[ -z "$FILE" ]] && exit 0
 
 # 触发范围：元规则 + 裁决日志（feedback 在 ~/.claude/ 不在 git，不覆盖）
-if ! echo "$FILE" | grep -qE '/docs/meta/(M-[0-9]{3}|user-decision-log)[^/]*\.md$'; then
+# (^|/) 兼容相对路径与绝对路径，避免相对路径静默 no-op
+# （DeepSeek V4-Pro 异源 review 2026-05-26 独有发现 1）
+if ! echo "$FILE" | grep -qE '(^|/)docs/meta/(M-[0-9]{3}|user-decision-log)[^/]*\.md$'; then
     exit 0
 fi
 
@@ -40,6 +42,9 @@ NEW_CONTENT=$(echo "$INPUT" | jq -r '.tool_input.new_string // .tool_input.conte
 [[ -z "$NEW_CONTENT" ]] && exit 0
 
 # 检测「§N 对照 / 自反性宣称」类声明特征（任一命中即提示）
+# 已知限制：`§[0-9]` 仅匹配单数字段号；当前 M-000 §1-§9 不受影响，
+# 未来 §10+ 引入时需改为 `§[0-9]+`
+# （DeepSeek V4-Pro 异源 review 2026-05-26 独有发现 2，建议级）
 PATTERNS=(
     '与[^。\n]{0,30}M-00[0-9][^。\n]{0,30}§[0-9]'
     '对照[^。\n]{0,30}M-00[0-9][^。\n]{0,30}§'
