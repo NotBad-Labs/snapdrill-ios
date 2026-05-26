@@ -31,6 +31,7 @@ derived_from: [M-000]
 | [h7-standards-content-audit-20260526.md](./h7-standards-content-audit-20260526.md) | Goal H7 docs/standards/ 内容级 traceability（揭出 40% 标注问题） | Goal H |
 | [h7-batch2-content-audit-20260526.md](./h7-batch2-content-audit-20260526.md) | Goal H7 第二批 templates+ADR+tech+sign-off（揭出 agent 自身污染 55%） | Goal H |
 | [three-goals-cross-source-review-20260526.md](./three-goals-cross-source-review-20260526.md) | 三件套 push 前异源 review（Codex+DeepSeek+agy+Claude） | Goal A/B/D |
+| [h6-skill-links-upstream-issue-20260526.md](./h6-skill-links-upstream-issue-20260526.md) | Goal H6 — swiftui-pro 上游 SKILL.md 引用 bug 决策（长期豁免） | Goal H |
 | [proposed-check-derived-from-required.md](./proposed-check-derived-from-required.md) | M-005 §G.6 docaudit check 提案（derived_from_required） | [#024](../meta/user-decision-log.md#024) |
 
 ## Sign-off Reports（异源 review 落地实证）

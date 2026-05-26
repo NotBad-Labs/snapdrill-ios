@@ -67,6 +67,12 @@ checks:
       - docs/audits/README.md
       # 工具脚本，功能就是扫描私有空间
       - Scripts/recall-index.sh
+      # templates 内 ~/.claude 是 skill 工作流的实际输出路径，功能性引用
+      # （Goal H5 2026-05-26：脱敏会破坏 skill 可执行性，加入 allowed_contexts）
+      - docs/templates/knowledge-health-workflow.md
+      - docs/templates/session-resume.md
+      - docs/templates/cross-audit-consensus.md
+      - docs/templates/cross-audit-workflow.md
 
   rule-usage:
     level: info
@@ -133,12 +139,17 @@ legacy_whitelist:
     reason: "Phase A 基线：候选孤儿待人工分层（hard / soft / intentionally parked）"
     expires_on: "2026-05-31"
 
-  # 路径 C #018 后：.agents/skills/swiftui-pro/SKILL.md 引用 references/body-reevaluation.md / lazy-loading.md / view-identity.md / common-pitfalls.md，
-  # 但 .agents/skills/swiftui-pro/references/ 实际含 accessibility/api/data/design/hygiene/navigation/performance/swift/views.md
-  # （上游 SKILL.md 引用与实际 references/ 文件名不一致——这是 .agents/ SSOT 上游问题，路径 C #018 ratify 后续 PR 处理）
+  # Goal H6 2026-05-26 升级：twostraws/swiftui-agent-skill 上游 SKILL.md
+  # 第 139-185 行裸文件名引用 body-reevaluation/lazy-loading/view-identity/
+  # common-pitfalls 4 个文件，实际 references/ 只有 accessibility/api/data/
+  # design/hygiene/navigation/performance/swift/views。本地无 SSOT 控制权：
+  #   - 修上游 PR 接受时间不可控
+  #   - 修本地 SKILL.md 破坏 skills-lock.json blob 校验（路径 D 实证）
+  # 决策：长期豁免到 2026-12-31，半年复审一次。
+  # 详 docs/audits/h6-skill-links-upstream-issue-20260526.md
   - check: skill-links
-    reason: "路径 C #018 ratify 暴露的 .agents/skills/swiftui-pro 上游 references 引用不一致；待上游同步或后续 PR 修复 SKILL.md 链接"
-    expires_on: "2026-06-30"
+    reason: "上游 twostraws/swiftui-agent-skill SKILL.md 引用 4 个未提供的 references 文件，本地无 SSOT 控制权（修上游不可控 + 修本地破坏 blob 校验）。详 docs/audits/h6-skill-links-upstream-issue-20260526.md"
+    expires_on: "2026-12-31"
 
   # 路径 C #018 期间 DOWNGRADE/MERGE 到 docs/templates/ 的 skill 内容继承了 ~/.claude/... 私有路径引用（来自原 skill 文本），
   # 以及 docs/audits/skill-audit-task-definition.md 中 inline 的 SKILL.md 摘要含 ~/.claude/... 引用
