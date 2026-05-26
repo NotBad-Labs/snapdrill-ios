@@ -1,3 +1,12 @@
+---
+last_verified: 2026-05-26
+layer: entry
+scope: project
+derived_from: [M-000]
+freshness:
+  max_age_days: 180
+  decay_trigger: [boot_sequence_change, m_000_revision, project_focus_shift]
+---
 # AGENTS.md — SnapDrill 项目入口
 
 SnapDrill：练习题数字化效率工具；SwiftUI / SwiftData / iOS 26.0+ / Swift 6.3。

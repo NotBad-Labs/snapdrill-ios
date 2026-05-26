@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-23
+last_verified: 2026-05-26
 layer: snapshot
 scope: status
 freshness:
@@ -8,13 +8,14 @@ freshness:
 ---
 # 状态看板
 
-> 本文件待由 `sync-status` skill 双向自动维护（user-decision-log #006 backlog）。skill 落地前，权威状态请见下列来源；本文件**只保留极简手动条目**。
+> 本文件待由 `sync-status` skill 双向自动维护（[user-decision-log #006](docs/meta/user-decision-log.md#006) backlog → [MC-11](docs/meta/M-001-to-M-006-followup-backlog.md)）。skill 落地前，权威状态请见下列来源；本文件**只保留极简手动条目**。
 
 ## 当前焦点（手动维护）
 
-- M-000 Meta-Vision v1.2 已 ratified（user-decision-log #004）
-- Round 1 Boot 序列重构落地中（user-decision-log #006）
-- 下游 M-001 ~ M-006 起草待启动（顺序：M-005 → M-002 → M-006 → M-001 → M-004 → M-003）
+- 元规则搭建期**完结**：M-000 v1.2 + M-001~M-006 全 ratify（[#028](docs/meta/user-decision-log.md#028)）
+- 三件套（Goal D skill-provenance / Goal A DeepSeek 通道 / Goal B PreEdit hook）push 完成（commits 6547e8ac..95527f51，2026-05-26）
+- 三家异源 cross-source review 通过（详 [docs/audits/three-goals-cross-source-review-20260526.md](docs/audits/three-goals-cross-source-review-20260526.md)）
+- 进行中：Goal H 文档体系健康度全量收敛 sprint（H1-H8）+ Goal G 产品 milestone 方向待定
 
 ## 权威状态源
 

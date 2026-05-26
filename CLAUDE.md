@@ -1,3 +1,12 @@
+---
+last_verified: 2026-05-26
+layer: entry
+scope: claude-adapter
+derived_from: [M-000]
+freshness:
+  max_age_days: 180
+  decay_trigger: [boot_sequence_change, m_000_revision, claude_code_version_change]
+---
 @AGENTS.md
 
 # Claude Code
