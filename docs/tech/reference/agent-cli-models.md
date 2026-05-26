@@ -100,7 +100,7 @@ freshness:
 | 上下文污染 | **CLI 路径自动读 CLAUDE.md/AGENTS.md**(因为底层是 claude -p)|
 | **Zero-context 路径** | 直接 curl OpenAI 兼容端点 `https://api.deepseek.com/v1/chat/completions` |
 | API 兼容模型名 | `deepseek-chat` / `deepseek-reasoner` / `deepseek-v4-pro`(实测全部可用) |
-| **⚠️ 2026-05-26 通道故障** | wrapper 调 `claude -p "$PROMPT"` 报错 "Input must be provided either through stdin or as a prompt argument when using --print"。直接 argv 和 stdin 两种调用方式均失败。疑似 claude CLI 版本升级（当前 2.1.146）改变 `-p` 参数语义。**故障影响**：DeepSeek 通道在 M-002 sign-off 不可用，按 user-decision-log #017/#021 实证 + M-000 §3 + M-005 §B.3，「2 家异源 PASS（AGY + Codex）+ 用户裁决追认」=共识有效。**修复建议**：（1）修 wrapper 用 `claude -p` 改 `claude --print` 或检查传参；（2）改走直接 curl `api.deepseek.com/v1/chat/completions`；（3）M-004 起草时纳入「单 vendor 通道故障」降级路径。|
+| **2026-05-26 通道故障 → 已修复** | **故障期**（本会话 4 次 sign-off #025/#026/#027/#028）：wrapper 调 `claude -p "$PROMPT"` 报错 "Input must be provided either through stdin or as a prompt argument when using --print"。**根因**：claude CLI 2.1.150 在 env 重定向（ANTHROPIC_BASE_URL/TOKEN）+ 位置参数 prompt 组合下，`-p` 参数验证逻辑回归。故障期影响：DeepSeek 通道不可用，「2 家异源 PASS + 用户裁决追认」=共识有效（按 user-decision-log #017/#021 + M-000 §3 + M-005 §B.3）。**修复**（2026-05-26）：wrapper 改用 stdin pipe `printf '%s' "$PROMPT" \| env ... claude -p`（取代原位置参数模式）。位置参数 + stdin 两种 `deepseek` 调用形式均验证工作；原 wrapper 备份 `~/.local/bin/deepseek.bak.20260526`。后续 claude CLI 升级若再次回归，可参考备份回滚或转 curl 路径。|
 
 ### 5. 未来加入
 
