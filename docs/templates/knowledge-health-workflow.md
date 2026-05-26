@@ -13,7 +13,7 @@ allowed-tools:
 context: fork
 disable-model-invocation: false
 user-invocable: true
-derived_from: [M-005 §G]
+derived_from: [ADR-004, M-005 §G]
 freshness:
   max_age_days: 180
   decay_trigger: [meta_audit, downstream_change]
