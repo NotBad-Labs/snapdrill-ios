@@ -1,3 +1,13 @@
+---
+last_verified: 2026-05-26
+layer: snapshot
+scope: audit
+derived_from: [M-005 §A, M-002 §5.2]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, rerun_requested]
+---
+
 本报告由 Google DeepMind 旗下的 Antigravity（Gemini 3.5 Flash）作为元规则起草的异源 sign-off reviewer 独立产出，严格遵守 M-000 §3 P7 净化提示词原则，未参考其他审查报告或主笔内部推理。
 
 # M-002 Sign-off 报告（Google DeepMind / Antigravity (Gemini 3.5 Flash)）

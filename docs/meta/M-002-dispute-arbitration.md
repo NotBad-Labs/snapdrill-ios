@@ -5,7 +5,7 @@ scope: meta
 status: active
 ratification: ratified
 ratified_at: 2026-05-26
-ratified_by: [user-decision-log #025]
+ratified_by: ["user-decision-log #025"]
 freshness:
   max_age_days: 180
   decay_trigger: [meta_audit, decision_schema_change, external_shock, false_arbitration_incident]

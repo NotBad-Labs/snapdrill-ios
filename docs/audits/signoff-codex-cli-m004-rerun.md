@@ -1,3 +1,13 @@
+---
+last_verified: 2026-05-26
+layer: snapshot
+scope: audit
+derived_from: [M-005 §A, M-002 §5.2]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, rerun_requested]
+---
+
 OpenAI GPT-5 via Codex CLI 作为 M-004 sign-off rerun reviewer，仅复核 Round 1 两个 CONDITIONAL 修复项。
 
 # Verdict

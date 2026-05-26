@@ -1,3 +1,13 @@
+---
+last_verified: 2026-05-26
+layer: snapshot
+scope: audit
+derived_from: [M-005 §A, M-002 §5.2]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, rerun_requested]
+---
+
 vendor: OpenAI; model: GPT-5 via Codex CLI.
 
 # M-002 Sign-off 报告（OpenAI GPT-5 via Codex CLI）

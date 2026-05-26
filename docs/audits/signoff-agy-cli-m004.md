@@ -1,3 +1,13 @@
+---
+last_verified: 2026-05-26
+layer: snapshot
+scope: audit
+derived_from: [M-005 §A, M-002 §5.2]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, rerun_requested]
+---
+
 # M-004 元规则起草异源 Sign-off 评估报告 (AGY CLI)
 
 我是 M-004 元规则起草的异源 sign-off reviewer，由 Google DeepMind 团队开发的高级智能体编码助手 Antigravity (Gemini 3.5 Flash GA via CLI)。

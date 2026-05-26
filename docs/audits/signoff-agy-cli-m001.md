@@ -1,3 +1,13 @@
+---
+last_verified: 2026-05-26
+layer: snapshot
+scope: audit
+derived_from: [M-005 §A, M-002 §5.2]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, rerun_requested]
+---
+
 # M-001 异源 Sign-off 审计报告 (Antigravity CLI)
 
 > 本报告由 Google DeepMind / Antigravity / Gemini 3.5 Flash (Medium) 独立产出。

@@ -1,3 +1,13 @@
+---
+last_verified: 2026-05-26
+layer: snapshot
+scope: audit
+derived_from: [M-005 §A, M-002 §5.2]
+freshness:
+  max_age_days: 180
+  decay_trigger: [meta_audit, rerun_requested]
+---
+
 OpenAI GPT-5 via Codex CLI 作为异源 reviewer 对 `docs/meta/M-006-data-governance.md` v1 draft 做本轮 sign-off。
 
 ## Verdict
