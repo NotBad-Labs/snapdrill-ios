@@ -8,7 +8,7 @@ audit_note: "2026-05-19 验证 — 各 feature 用 ✅ / [需 PoC: 标准] / [�
 > **上游依赖**：`product-vision.md`（使命、定位、用户、6 条原则、冲突裁决）、`product-design.md`（设计决策、交互铁律、[PX] 追溯）
 >
 > 本文件定义「做什么」——功能规格与状态。功能状态持续更新。
-> 本文件只描述产品能力和当前承诺，不记录研发流转（PR 编号、Review 状态），统一维护在 `STATUS.md`。阻塞标注（如 `[阻塞: #NNN]`）属于产品状态，允许保留。
+> 本文件只描述产品能力和当前承诺，不记录研发流转（PR 编号、Review 状态 → 见 git log + GitHub issues/PRs）。阻塞标注（如 `[阻塞: #NNN]`）属于产品状态，允许保留。
 > 设计决策和铁律（为什么这样设计）见 `product-design.md`。
 > 用户旅程见 `product-journeys.md`。
 > 可执行行为规格见 `product-cases.md`。
@@ -391,7 +391,7 @@ PDF 是日常导出入口（题库页过滤后导出），支持分享和打印�
 ## v2.0 功能全景
 
 > 所有功能统一为 v2.0。已实现功能无特殊标注；未实现功能标注阻塞原因或 PoC 条件。
-> requirements 只描述产品能力与实现状态，不记录 PR 编号和 Review 状态。研发流转状态统一维护在 STATUS.md。
+> requirements 只描述产品能力与实现状态，不记录 PR 编号和 Review 状态。研发流转见 git log + GitHub issues/PRs。
 
 **录入**
 - 智能相机拍照（实时文字区域检测 + 稳定性指示器 + 自动框选）

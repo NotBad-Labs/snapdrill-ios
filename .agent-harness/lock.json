@@ -1,6 +1,0 @@
-{
-  "upstream_commit": "5affca7b020a7bdca147fb9589403d94f886b767",
-  "channel": "main",
-  "schema_version": 1,
-  "_comment_pinned_at": "2026-04-22: agent-harness HEAD after PR-D4 (adapter-claude migration) merge. snapdrill-ios PR-D5 first consumer pilot."
-}
