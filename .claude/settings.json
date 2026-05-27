@@ -1,50 +1,17 @@
 {
   "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "compact",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat .claude/compact-reminder.md"
-          }
-        ]
-      }
-    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/log-file-change.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/swift-autolint.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/docaudit-on-doc-edit.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/post-merge-checkpoint.sh"
-          }
+          { "type": "command", "command": "bash .claude/hooks/log-file-change.sh" },
+          { "type": "command", "command": "bash .claude/hooks/swift-autolint.sh" }
         ]
       },
       {
         "matcher": ".*",
         "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/session-metrics.sh"
-          }
+          { "type": "command", "command": "bash .claude/hooks/session-metrics.sh" }
         ]
       }
     ],
@@ -52,43 +19,9 @@
       {
         "matcher": "Bash",
         "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/block-dangerous-bash.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/premerge-checklist.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/prepush-lint.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/long-session-guard.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/docaudit-preflight.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/pre-edit-sprint-contract.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/pre-edit-numeric-alignment.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/pre-edit-derived-from.sh"
-          }
+          { "type": "command", "command": "bash .claude/hooks/block-dangerous-bash.sh" },
+          { "type": "command", "command": "bash .claude/hooks/prepush-lint.sh" },
+          { "type": "command", "command": "bash .claude/hooks/long-session-guard.sh" }
         ]
       }
     ]

@@ -10,7 +10,7 @@
 |---|---|
 | [产品文档](docs/product/) | 愿景、设计、需求、用户旅程、商业化、用例 |
 | [技术文档](docs/tech/) | 架构、API 陷阱、Apple 平台边界、合规、部署、非功能性需求 |
-| [开发流程](docs/protocol.md) | 看板、Git、Code Review、优先级 |
+| [AGENTS.md](AGENTS.md) | 智能体协作行为约束 + 架构 + 编码（CLAUDE.md 软链至此）|
 | [DocC API 文档](Packages/) | Xcode: Product > Build Documentation |
 
 ## 架构设计
@@ -61,7 +61,7 @@
 ## 测试
 
 - **Xcode**: `Cmd+U`
-- **命令行 AllTests 两步法**（见 `docs/standards/testing.md`，禁止单步 `xcodebuild test`）：
+- **命令行 AllTests 两步法**（禁止单步 `xcodebuild test`）：
 
 ```bash
 xcodebuild build-for-testing -scheme AllTests \

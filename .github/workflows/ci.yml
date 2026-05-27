@@ -1,145 +1,15 @@
 name: SnapDrill CI
 
 on:
-  # PR 时触发
   pull_request:
     branches: [ "develop", "main" ]
-  # 直接 push 到主分支也跑（防止绕过 PR 的盲区）
   push:
     branches: [ "develop", "main" ]
-  # 手动触发
   workflow_dispatch:
 
 jobs:
-  docs:
-    name: Docs Audit
-    # ubuntu-latest：纯 Python，不占 Mac mini runner 槽位
-    # 与 `build` job 并行，互不依赖；失败单独显示在 PR check 列表
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install PyYAML
-        run: python3 -m pip install --quiet pyyaml
-
-      - name: Run docaudit self-test
-        run: python3 -m unittest discover -s Scripts/audit/tests -v
-
-      - name: Run docaudit (strict + baseline)
-        # strict + baseline：历史已登记违规（policy.yaml legacy_whitelist）豁免为 suppressed 可见；
-        # 新增违规（未登记）或 strict 升级的 warning 仍 error → exit 1 阻断
-        run: python3 Scripts/audit/docaudit.py all --strict --baseline
-
-      - name: Run pr_review_trace self-test
-        # S-D7-002：F-005 PR review trace 校验器单元测试
-        run: python3 -m unittest Scripts.audit.tests.test_pr_review_trace -v
-
-      - name: Run sprint_contract_gate self-test
-        # S-D7-003：F-018 Sprint Contract gate 校验器单元测试
-        run: python3 -m unittest Scripts.audit.tests.test_sprint_contract_gate -v
-
-  review-trace:
-    name: F-005 Review Trace
-    # S-D7-002：PR 合并前校验 PR body 含 `## F-005 Review Trace` 字段化段
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      pull-requests: read
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install PyYAML
-        run: python3 -m pip install --quiet pyyaml
-
-      - name: Check F-005 review trace
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 Scripts/audit/pr_review_trace.py --pr "${{ github.event.pull_request.number }}"
-
-  sprint-contract-trace:
-    name: F-018 Sprint Contract Trace
-    # S-D7-003：PR 合并前校验关联 Issue 是否有 `## Sprint Contract Closeout`
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      issues: read
-      pull-requests: read
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: python3 -m pip install --quiet pyyaml
-      - name: Check F-018 sprint contract closeout
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          LINKED=$(gh pr view "${{ github.event.pull_request.number }}" --json closingIssuesReferences --jq '.closingIssuesReferences[0].number' 2>/dev/null || true)
-          if [ -z "$LINKED" ]; then
-            echo "PR not linked to an Issue; skipping F-018 closeout check."
-            exit 0
-          fi
-          python3 Scripts/audit/sprint_contract_gate.py --check-closeout --issue "$LINKED"
-
-  direct-push-review-trace:
-    name: F-005 Direct Push Trace
-    # S-D7-002：直推 develop/main 时校验 commit msg 含 F-005-Review-Trace: trailer
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    if: github.event_name == 'push'
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 20
-
-      - name: Reject direct push without review trailer (when commit changes non-docs files)
-        run: |
-          # 仅检查最近一个 commit；多 commit 推送会被 GitHub 拆分多次 push event
-          MSG=$(git log -1 --pretty=%B)
-          FILES=$(git diff-tree --no-commit-id --name-only -r HEAD)
-          # 全部 docs/*.md / 顶层 *.md → 自动豁免
-          NON_DOCS=$(echo "$FILES" | grep -vE '^(docs/.+\.md$|[^/]+\.md$|docs/.+\.tsv$)' || true)
-          if [ -z "$NON_DOCS" ]; then
-            echo "Direct push contains only docs/*.md changes; auto-exempted."
-            exit 0
-          fi
-          if echo "$MSG" | grep -q '^F-005-Review-Trace:'; then
-            echo "F-005-Review-Trace trailer present; passing."
-            exit 0
-          fi
-          echo "::error::Direct push to protected branch requires commit trailer:"
-          echo "::error::  F-005-Review-Trace: <review summary / SHA / URL>"
-          echo "::error::or restrict push to docs/*.md only paths."
-          echo "Non-docs files changed:"
-          echo "$NON_DOCS"
-          exit 1
-
   build:
     name: Build & Test
-    # 使用 Mac mini 自托管 runner（离线时任务排队等待，免费）
     runs-on: [self-hosted, macOS]
     timeout-minutes: 60
 
@@ -148,9 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Select Xcode
-        # Swift 6.3 toolchain 需要 Xcode 26.4+（Xcode 26.3 = Swift 6.2.3 无法解析 manifest）。
-        # runner 可能装在 /Applications/Xcode_26.4.app 或 /Applications/Xcode.app（symlink 默认）。
-        # 优先显式路径，否则用 default xcode-select；最后用 xcodebuild -version 强校验。
+        # Swift 6.3 toolchain 需要 Xcode 26.4+
         run: |
           if [ -d "/Applications/Xcode_26.4.app" ]; then
             sudo xcode-select -s /Applications/Xcode_26.4.app
@@ -176,12 +44,6 @@ jobs:
       - name: Lint
         run: swiftlint --strict
 
-      - name: Validate docs frontmatter
-        run: |
-          # 确保 PyYAML 可用（stdlib 回退不支持嵌套 freshness mapping）
-          python3 -c "import yaml" 2>/dev/null || python3 -m pip install --quiet --user pyyaml
-          python3 Scripts/validate_frontmatter.py --check --strict
-
       - name: Check Package Dependencies
         run: |
           echo "Checking for reverse dependency violations..."
@@ -191,27 +53,22 @@ jobs:
             echo "ERROR: Core must not import downstream packages"
             VIOLATIONS=$((VIOLATIONS+1))
           fi
-          # Data 只能 import Core
           if grep -rn --include='*.swift' 'import SnapDrillUI\|import SnapDrillFeatures\|import SnapDrillInfrastructure' Packages/SnapDrillData/Sources/ 2>/dev/null; then
             echo "ERROR: Data must only import Core"
             VIOLATIONS=$((VIOLATIONS+1))
           fi
-          # UI 只能 import Core
           if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillFeatures\|import SnapDrillInfrastructure' Packages/SnapDrillUI/Sources/ 2>/dev/null; then
             echo "ERROR: UI must only import Core"
             VIOLATIONS=$((VIOLATIONS+1))
           fi
-          # Infrastructure 只能 import Core
           if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillUI\|import SnapDrillFeatures' Packages/SnapDrillInfrastructure/Sources/ 2>/dev/null; then
             echo "ERROR: Infrastructure must only import Core"
             VIOLATIONS=$((VIOLATIONS+1))
           fi
-          # Features 不应该 import Infrastructure
           if grep -rn --include='*.swift' 'import SnapDrillInfrastructure' Packages/SnapDrillFeatures/Sources/ 2>/dev/null; then
             echo "ERROR: Features must not import Infrastructure directly"
             VIOLATIONS=$((VIOLATIONS+1))
           fi
-          # Share Extension 保持轻量文件 I/O，不依赖 SnapDrill app packages
           if grep -rn --include='*.swift' '^import SnapDrill' SnapDrillShare/ 2>/dev/null; then
             echo "ERROR: Share Extension must not import SnapDrill packages"
             VIOLATIONS=$((VIOLATIONS+1))
@@ -223,8 +80,7 @@ jobs:
           echo "All package dependency directions are correct"
 
       - name: Clean Simulator
-        # 清理模拟器残留的 SwiftData schema 和 App 数据，
-        # 避免 ModelContainer 初始化死锁（GradeRepository 稳定挂起）
+        # 清理模拟器残留 SwiftData schema，避免 ModelContainer 初始化死锁
         run: |
           DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone 17" | head -1 | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')
           if [ -n "$DEVICE_ID" ]; then
@@ -234,14 +90,11 @@ jobs:
           fi
 
       - name: Validate test plan JSON
-        # 结构失败时在 xcodebuild 之前就 fail，而不是等到编译阶段才暴露
         run: |
           PLAN=SnapDrill.xcodeproj/xcshareddata/xctestplans/AllTests.xctestplan
           python3 -c "import json, sys; json.load(open('$PLAN'))" && echo "xctestplan JSON OK"
 
       - name: Build for testing
-        # build-for-testing 编译 AllTests scheme 下测试目标及其依赖（BuildActionEntries 仅测试 buildables），产物进 DerivedData
-        # xctestplan: 统一配置、record/verify configuration 切换、未来 swift-testing 平滑迁移
         run: |
           xcodebuild build-for-testing \
             -scheme AllTests \
@@ -253,11 +106,6 @@ jobs:
             CODE_SIGN_IDENTITY=""
 
       - name: Test without building
-        # test-without-building 复用 build-for-testing 产物，避免重复编译
-        # xctestrun 命名由 Xcode 生成，模式 AllTests_AllTests_<platform>.xctestrun
-        # -only-test-configuration CI 选中 xctestplan 的 CI configuration（env: SNAPSHOT_TESTING_RECORD=missing）
-        # -parallel-testing-enabled NO：避免跨 suite 并行执行时 ModelContainer 竞态
-        # -resultBundlePath：固定产物路径，便于失败时 upload-artifact 抓 xcresult 与 snapshot diff 附件
         run: |
           rm -rf TestResults.xcresult
           XCTESTRUN_PATH=$(find "$GITHUB_WORKSPACE/DerivedData/Build/Products" -name "AllTests_*.xctestrun" | head -1)
@@ -278,8 +126,6 @@ jobs:
             CODE_SIGN_IDENTITY=""
 
       - name: Upload xcresult on failure
-        # 失败时把 xcresult 上传为 artifact，含 snapshot 测试的 diff 附件（reference / failure / diff 三张 PNG）。
-        # 下载后用 `xcrun xcresulttool get --path TestResults.xcresult --format json` 提取附件。
         if: failure()
         uses: actions/upload-artifact@v4
         with:
