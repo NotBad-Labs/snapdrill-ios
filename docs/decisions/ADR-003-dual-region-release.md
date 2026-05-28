@@ -1,0 +1,75 @@
+---
+last_verified: 2026-05-28
+layer: decision
+freshness:
+  max_age_days: 365
+  decay_trigger: [decision_reverted, dual_region_launch]
+---
+# ADR-003: 双账号双地区发布架构
+
+> 状态：**已决策** | 日期：2026-05-28 | 决策者：PO
+
+## 背景
+
+SnapDrill 是**一个产品**，计划两区域发布：
+- 中国大陆 — 中文名"小本本-智能错题本"
+- 海外 — 英文名"SnapDrill"
+
+**辨析**：这不是 TikTok/抖音的"两个独立产品"关系，而是"一个产品 + 两区域发行版"（类似 WeChat/Weixin，但更轻 —— 单人 + AI 团队无法负担两套独立基础设施）。
+
+账号现状：
+- 中国大陆：个人 Apple Developer 账号（YIMING LIAO，Team `W5A8THDKW8`），已 active
+- 美国：NotBad Labs L.L.C.（有 D-U-N-S，Apple Developer 待注册）
+- 公司官网：`notbadhq.com`（SnapDrill 子页面未做）
+
+## 决策
+
+### C 路径：同代码双发行版
+
+| 维度 | 国内版 | 海外版（未来）|
+|---|---|---|
+| Bundle ID | `com.snapdrill.app` | `com.snapdrill.global`（待定；`com.notbadhq.snapdrill` 已被国内 Team 占用）|
+| Team | 个人 `W5A8THDKW8` | 美国 NotBad Labs 公司 |
+| App 名 | 小本本-智能错题本 | SnapDrill |
+| Analytics | 无 Firebase（Apple Crash + 端上）| Firebase |
+| iCloud Container | `iCloud.com.snapdrill.app` | `iCloud.com.snapdrill.global` |
+
+### 官网：子目录而非子域名
+
+`notbadhq.com/snapdrill`（子目录），不用 `snapdrill.notbadhq.com`（子域名），不用 ccTLD。
+- 依据：Nike 用子目录；行业共识"子域名对小团队是 overkill"；单人维护子目录最省
+- 反例辨析：Apple `.com.cn` / WeChat-Weixin 两套基础设施都是巨头资源奢侈，非正确性标杆
+
+### 隐私政策：统一框架 + 区域附录
+
+参考 Apple 模式：一份主体 + 中国大陆（PIPL）附录 + 海外（CCPA/GDPR）附录。维护一份文档，按区域合规。
+
+## 后果
+
+### 不可逆资源（已 Dev Portal 锁定，PMF 验证前勿改）
+
+- Bundle ID `com.snapdrill.app`（5 年锁定国内 Team，跨 Team 不可转移）
+- iCloud Container `iCloud.com.snapdrill.app`
+- App Group `group.com.snapdrill.app`
+
+### 大公司对照
+
+| 借鉴对象 | 学 | 不学 |
+|---|---|---|
+| WeChat/Weixin | 同产品双名双区域框架 | 两套独立基础设施（我们一套代码）|
+| Apple | 隐私统一框架 + 区域合规节 | `.com.cn` ccTLD + GCBD 数据中心 |
+| Nike | 子目录而非子域名 | — |
+
+### C 路径工程量（PMF 验证成功后启动）
+
+约 1 周：拆 `CN.xcconfig` / `Global.xcconfig` + Build Configuration（Release-CN / Release-Global）+ `AnalyticsServiceProtocol` 分流（`NoOpAnalyticsService` vs Firebase）+ ASC 双 App + Privacy Manifest 双版本。
+
+### 3 个盲点
+
+1. **中国大陆访问可达性**：`notbadhq.com` 海外服务器 → Apple 中国审核员可达性需实测
+2. **ICP 备案**：`notbadhq.com` 美国域名不能 ICP 备案 → 只能走海外服务器路线
+3. **隐私政策合规分歧**：PIPL 数据本地化 ≠ CCPA/GDPR，需分区域合规（不是一份翻译）
+
+### 当前阶段
+
+TestFlight 内部测试用国内账号 `com.snapdrill.app`，**0 官网阻塞**。海外版 + 官网待 PMF 验证后启动。

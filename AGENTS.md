@@ -159,6 +159,15 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 - 图片 EXIF GPS/位置信息必须经 `ImageStorage` 剥离
 - CSV 导出含 `=+-@` 前缀防注入；JSON 含 schema 版本
 
+## 区域发布约束（双账号双地区，勿误改）
+
+SnapDrill = 一个产品 + 两区域发行版（非两独立产品）。完整决策见 `docs/decisions/ADR-003-dual-region-release.md`。
+
+- **不可逆资源**（已 Dev Portal 锁定，PMF 验证前勿改）：Bundle `com.snapdrill.app` / iCloud `iCloud.com.snapdrill.app` / App Group `group.com.snapdrill.app`
+- **Team 分流**：现 Automatic Signing 单 Team（个人 `W5A8THDKW8`）；C 路径工程时拆 `CN.xcconfig` / `Global.xcconfig`，**勿写死 Team 到 `Shared.xcconfig`**
+- **海外版未来**：Bundle `com.snapdrill.global` + 美国公司 Team + Firebase（国内版无 Firebase）
+- **官网**：`notbadhq.com/snapdrill`（子目录非子域名）
+
 ## 改代码后的 DoD
 
 每次 commit / PR 前跑这两个命令；0 errors 才算完。失败立刻修，不留 TODO。
