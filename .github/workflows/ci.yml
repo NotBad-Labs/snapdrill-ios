@@ -125,11 +125,5 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
 
-      - name: Upload xcresult on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: xcresult-${{ github.run_id }}-${{ github.run_attempt }}
-          path: TestResults.xcresult
-          retention-days: 7
-          if-no-files-found: warn
+      # 失败诊断：self-hosted runner 本地 DerivedData/TestResults.xcresult 已留存
+      # 直接 ssh 到 runner 查看即可，无需上传回 GitHub（曾耗尽 0.5GB Actions 存储配额）
