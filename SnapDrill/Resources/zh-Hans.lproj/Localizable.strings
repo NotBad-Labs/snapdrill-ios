@@ -821,7 +821,7 @@
 "smart_paper.no_items_title" = "暂无可选题目";
 "smart_paper.no_items_message" = "当前筛选条件下没有题目，请调整筛选或先采集一些题目";
 "smart_paper.pdf_title" = "智能复习卷";
-"smart_paper.pro_required" = "此功能需要 Pro 订阅";
+"smart_paper.pro_required" = "智能组卷为 Pro 功能，敬请期待";
 "smart_paper.selected_count" = "已选 %d 题";
 "statistics.title" = "学习分析";
 "statistics.subject_trend" = "学科错题趋势";
@@ -831,6 +831,6 @@
 "statistics.weak_subjects_hint" = "待复习题目最多的学科";
 "statistics.no_data" = "暂无数据";
 "statistics.no_data_hint" = "采集一些题目后即可查看学习分析";
-"statistics.pro_required" = "升级 Pro 解锁学习分析";
+"statistics.pro_required" = "学习分析为 Pro 功能，敬请期待";
 "statistics.questions_count" = "题";
 "statistics.due_count" = "待复习 %d 题";

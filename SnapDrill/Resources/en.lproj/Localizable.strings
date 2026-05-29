@@ -822,7 +822,7 @@
 "smart_paper.no_items_title" = "No Questions Available";
 "smart_paper.no_items_message" = "No questions match the current filters. Adjust filters or capture some questions first.";
 "smart_paper.pdf_title" = "Smart Review Paper";
-"smart_paper.pro_required" = "This feature requires a Pro subscription";
+"smart_paper.pro_required" = "Smart Paper is a Pro feature, coming soon";
 "smart_paper.selected_count" = "%d selected";
 "statistics.title" = "Learning Analytics";
 "statistics.subject_trend" = "Subject Mistake Trend";
@@ -832,6 +832,6 @@
 "statistics.weak_subjects_hint" = "Subjects with the most due questions";
 "statistics.no_data" = "No Data";
 "statistics.no_data_hint" = "Capture some questions to view learning analytics";
-"statistics.pro_required" = "Upgrade to Pro to unlock learning analytics";
+"statistics.pro_required" = "Learning Analytics is a Pro feature, coming soon";
 "statistics.questions_count" = "questions";
 "statistics.due_count" = "%d due";
