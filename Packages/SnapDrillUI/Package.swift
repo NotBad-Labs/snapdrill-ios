@@ -26,7 +26,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../SnapDrillCore"),
-        .package(url: "https://github.com/guoyingtao/Mantis.git", from: "2.23.0")
+        .package(url: "https://github.com/guoyingtao/Mantis.git", from: "2.31.1")
     ],
     targets: [
         .target(
