@@ -11,6 +11,25 @@
 | [AGENTS.md](AGENTS.md) | 智能体协作行为约束 + 架构 + 编码（CLAUDE.md 软链至此）|
 | [DocC API 文档](Packages/) | Xcode: Product > Build Documentation |
 
+## 当前状态（2026-05-29）
+
+> 上架/运营状态锚点（供跨会话 / 跨 agent 追溯）。决策细节见 [ADR-003 双地区发布](docs/decisions/ADR-003-dual-region-release.md) / [ADR-004 国内 Firebase-Free](docs/decisions/ADR-004-china-build-firebase-free.md)。事实源以本地 code/docs/git 为准（GitHub issue/PR 可能滞后）。
+
+- **阶段**：国内内测 TestFlight 准备（路径 A：个人账号 Team `W5A8THDKW8` 已 active，**内测无账号阻塞**）。核心免费闭环约 90% build-complete；Pro / 同步为外部阻塞，非闭环本身。
+- **决策 · Pro**：免费优先，本期**不接 StoreKit**；Pro 入口保留（待改"敬请期待"占位）。
+- **决策 · Firebase（PIPL）**：国内 build 先**运行时止血**（不调 `FirebaseBootstrap.configure()` + 注入 NoOp + 移除 `GoogleService-Info.plist`）→ **抓包复验零出境** → 公开上架前随 C 路径做**编译层剔除**。
+
+**阻塞真相**（旧文档 issue 编号有漂移，以下以本地为准）：
+
+| 项 | 真相 |
+|---|---|
+| 公司 Apple 账号 | **#163**（Organization，DUNS 处理中）—— 仅**外部 TestFlight / 公开上架**需要，不卡内测 |
+| StoreKit / Pro | #479 —— 延后（免费优先）|
+| CloudKit 同步 | #485 —— 已 `cloudKitDatabase: .none` 禁用，延后 |
+| Word 导出 | **#486**（旧文档误标为"Apple 账号"）—— Pro，延后 |
+
+**内测关键路径**：① Firebase 运行时止血 + 抓包复验 → ② 共享 `SnapDrill` scheme → ③ bump `CURRENT_PROJECT_VERSION` 5→6 → ④ 加 `ITSAppUsesNonExemptEncryption=NO` → ⑤ DoD 门禁（swiftlint + build-for-testing）→ ⑥ Xcode Organizer 手动 Archive 上传（fastlane / `upload_testflight.sh` 待修）→ ⑦ 内测仅邀国内家长 Apple ID。
+
 ## 架构设计
 
 项目采用基于 Swift Package Manager (SPM) 的 **严格模块化架构 (Strict Modular Architecture)**。主 App Target 仅仅是一个薄层，负责将各功能模块组合在一起。
