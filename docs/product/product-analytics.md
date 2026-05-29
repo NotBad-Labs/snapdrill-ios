@@ -8,11 +8,13 @@ layer: pattern
 > 本文件是 Analytics 事件的 SSOT。新增/修改事件必须同步本文档。
 > 代码定义见 `AnalyticsEvent` 枚举（`Packages/SnapDrillCore/Sources/SnapDrillCore/Service/AnalyticsServiceProtocol.swift`）。
 
-## 采集说明
+> **当前实现状态（2026-05-29，国内版）**：国内版 = Firebase-Free（`NoOpAnalyticsService`，不调用 `FirebaseApp.configure()`）——**本字典描述的 Firebase 上报管线在国内版不运行、不采集、零网络出境**（OSLog 实证，见 ADR-004）。本文件为**事件设计契约 / 海外版（C 路径）规格**，非国内版当前 shipping 行为；国内版如需统计走境内合规方案另行设计。
+
+## 采集说明（海外版设计 / 路线；国内版见上方现状锚点）
 
 - 所有事件默认不采集（Analytics opt-in）
 - 用户可在设置中独立开启/关闭 Analytics 和 Crashlytics
-- opt-in 后数据发送到 Firebase Analytics（Google 服务器）
+- opt-in 后数据发送到 Firebase Analytics（Google 服务器）—— 仅海外版；国内版 Firebase-Free 不含此管线
 - 样本偏差：数据仅覆盖主动 opt-in 的用户，不代表全体用户
 
 ## 事件列表
