@@ -61,7 +61,7 @@ SnapDrill 让练习题数字化变得简单。拍照、扫描或导入 PDF，自
 - 零注册，打开即用
 - 不收集姓名、手机号、学校等直接身份信息
 - 练习内容与图片仅本地存储
-- 匿名使用统计与崩溃报告默认不采集，用户可 opt-in
+- 无第三方分析与崩溃统计，全部数据保留在设备本地
 
 SnapDrill 专注一件事：让你用最少的时间，把纸上的练习题变成可管理、可复习的数字资产。
 
@@ -80,7 +80,7 @@ Privacy Promise:
 - Zero registration required
 - We do not collect direct identifiers such as your name, phone number, or school
 - Practice content and images stored locally on your device
-- Anonymous usage & crash reports off by default; opt-in only
+- No third-party analytics or crash reporting; all data stays on-device
 
 SnapDrill does one thing well: turn paper-based practice problems into manageable, reviewable digital assets with minimal effort.
 
@@ -113,7 +113,7 @@ Core workflow:
 
 No account registration is required. All data is stored locally on the device using SwiftData.
 
-SnapDrill does not collect direct identifiers such as name, phone number, email, or school. Firebase Analytics is used for opt-in aggregate usage metrics only and may process an app-scoped identifier that is not linked to a real-world identity.
+SnapDrill does not collect direct identifiers such as name, phone number, email, or school. The China build uses no Firebase or third-party analytics/crash-reporting; all data stays on-device with zero network transmission. (The future overseas build will use Firebase with opt-in disclosure — region-specific notes to be added at C-path.)
 
 The app requires camera permission for photo capture and photo library permission for image import. Notification permission is optional for daily review reminders.
 ```
