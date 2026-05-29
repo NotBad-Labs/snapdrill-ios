@@ -31,13 +31,13 @@ layer: principle
 
 | 缺陷 | 具体表现 |
 |---|---|
-| **贵** | 订阅制**高收费 + 限制核心录入**（如每天只能免费录入 10 道题）。SnapDrill 本身也是订阅制（iCloud / 高级统计 / 智能组卷 Pro），但**核心录入永久免费且不限量**——批评的不是订阅制本身，而是把核心闭环锁在付费墙后的做法 |
+| **贵** | 订阅制**高收费 + 限制核心录入**（如每天只能免费录入 10 道题）。SnapDrill 本身采用 Freemium（核心录入永久免费且不限量，Pro 层为 iCloud / 高级统计 / 智能组卷等增值；状态见 `product-requirements.md`§功能状态总表）——批评的不是付费本身，而是把核心闭环锁在付费墙后的做法 |
 | **杂** | 功能冗余，偏离"记录"这个核心需求 |
 | **糙** | 交互体验不够好，流程不够简洁 |
 
 SnapDrill 的存在意义：**用最简交互、零成本核心功能和极致体验，解决"纸质练习题数字化存档"这一个问题。**
 
-**核心价值链**：采集 → 管理 → 导出/打印。复习是可选留存层，智能组卷是导出/打印的 Pro 增值延伸（利用 SM-2 复习数据提升选题质量）。iCloud 多设备同步是付费核心引擎（免费用户通过 .zip 手动备份实现数据迁移，详见 `product-business.md`§免费层定义）。
+**核心价值链**：采集 → 管理 → 导出/打印。复习是可选留存层，智能组卷是导出/打印的 Pro 增值延伸（利用 SM-2 复习数据提升选题质量）。iCloud 多设备同步定位为付费核心引擎（实现状态见 `product-requirements.md`§功能状态总表；免费用户通过 .zip 手动备份实现数据迁移，详见 `product-business.md`§免费层定义）。
 
 ---
 
@@ -140,9 +140,9 @@ SM-2 复习和智能组卷是可选功能，不应侵蚀核心路径的简洁性
 支持导出，详见 `product-requirements.md`§导出与打印能力。
 不做社交、不做内容平台、不做推荐算法。
 SnapDrill **默认不收集个人信息**：无需注册、不要求姓名、手机号、学校或年级。
-匿名使用数据与崩溃报告仅在用户明确授权后启用，且不关联真实身份；字段与开关规格见 `product-requirements.md`§设置与个性化，技术与合规边界见 `../tech/compliance.md`，商业定位见 `product-business.md`。
+匿名使用数据与崩溃报告——**国内版不适用**（Firebase-Free，ADR-004）；**海外版**（C 路径）仅在用户明确授权后启用，且不关联真实身份。字段与开关规格见 `product-requirements.md`§使用数据，商业定位见 `product-business.md`。
 
-> ⚠️ **隐私表述的准确边界**：上述"不收集可识别个人信息"指不收集姓名、手机号、邮箱等直接身份信息。启用 opt-in Analytics 后，Firebase SDK 会生成 app-scoped identifier（`app_instance_id`），在 COPPA/GDPR 语境下属 persistent identifier / pseudonymous personal data。因此不宜使用"零 PII"的绝对化表述。详见 `../tech/compliance.md`§Firebase identifier 分析。
+> ⚠️ **隐私表述的准确边界**：上述"不收集可识别个人信息"指不收集姓名、手机号、邮箱等直接身份信息。**国内版** Firebase-Free，无任何分析标识符（ADR-004）。**海外版**（C 路径）启用 opt-in Analytics 后，Firebase SDK 会生成 app-scoped identifier（`app_instance_id`），在 COPPA/GDPR 语境下属 persistent identifier / pseudonymous personal data，故海外版不宜使用"零 PII"的绝对化表述。详见 `../decisions/ADR-004-china-build-firebase-free.md`。
 
 **数据安全子条款**：本地存储意味着 App 是用户数据的唯一守护者。保存必须可靠，删除可撤销，备份可用。
 **iCloud 同步隐私边界**：iCloud 同步完全基于系统级 CloudKit，数据由 Apple 加密存储在用户个人 iCloud 账户中。SnapDrill 不接触、不存储、不可访问用户的 Apple ID 或 iCloud 数据。开发者无法查看任何用户的个人内容。
@@ -168,10 +168,10 @@ SnapDrill **默认不收集个人信息**：无需注册、不要求姓名、手
 ### 6. 原生优先
 
 深度依赖 Apple 平台原生能力，**优先 Apple first-party**——OCR / 文档扫描 / 同步 / 通知等核心能力必须用 Apple 原生 API（Vision / VisionKit / CloudKit / UserNotifications），不引入跨平台框架（React Native / Flutter）也不引入第三方 OCR / 第三方同步层。
-**边界**：Analytics / Crashlytics 等**非核心、可降级**的可观察性能力允许使用 Firebase 等成熟第三方 SDK——这不违反「原生优先」，因为：
+**边界**：Analytics / Crashlytics 等**非核心、可降级**的可观察性能力允许使用成熟第三方 SDK（如 Firebase）——这不违反「原生优先」，因为：
 - Analytics/Crashlytics 不是用户面核心体验
-- 已 Protocol 隔离（`AnalyticsServiceProtocol`），未来替换 Firebase 只需改 Infrastructure 层
-- 默认 opt-out（vision §4 隐私优先）
+- 已 Protocol 隔离（`AnalyticsServiceProtocol`），替换实现只需改 Infrastructure 层——**国内版正是据此注入 `NoOpAnalyticsService`、零 Firebase（ADR-004）**；海外版（C 路径）才启用 Firebase
+- 启用时默认 opt-out（vision §4 隐私优先）
 
 Apple 原生能力（Vision OCR、CloudKit、TipKit、文档扫描）是体验基线而非独占壁垒——任何 iOS 竞品也能使用这些 API。
 SnapDrill 真正的差异化在于：题目工作流设计 + 离线隐私架构 + 免费完整闭环 + 原生体验组合。
@@ -187,7 +187,7 @@ SnapDrill 真正的差异化在于：题目工作流设计 + 离线隐私架构 
 
 判断「我们做对了吗」的可度量标准。
 
-> ⚠️ 以下指标在发布前仅作为设计校准方向。Analytics 默认 opt-in，样本天然偏向愿意授权的用户。
+> ⚠️ 以下指标在发布前仅作为设计校准方向。**Analytics 数据源仅海外版可用**（国内版 Firebase-Free、零采集，ADR-004），国内版以 App Store Connect / 访谈 / TestFlight 替代。
 > 数据不足时，用 App Store Connect 数据、用户访谈、TestFlight 反馈补足。
 
 | 信号 | 度量定义 | 数据来源 | 状态 |
@@ -235,7 +235,7 @@ SnapDrill 真正的差异化在于：题目工作流设计 + 离线隐私架构 
 
 ### 隐私 vs 数据驱动
 
-Analytics 默认 opt-in，意味着行为数据只覆盖愿意授权的用户子集。如果 opt-in 率过低（< 10%），成功信号将严重偏向早期 adopters，可能误判产品方向。
+**（海外版）** Analytics 默认 opt-in，意味着行为数据只覆盖愿意授权的用户子集；如果 opt-in 率过低（< 10%），成功信号将严重偏向早期 adopters，可能误判产品方向。**国内版** Firebase-Free、零采集，无此偏差，但也因此完全依赖 App Store Connect / 访谈 / TestFlight 信号（ADR-004）。
 
 ### iCloud 变现的承载能力
 
@@ -277,4 +277,4 @@ SnapDrill 不提供题库、教材、试卷或任何第三方内容。所有题�
 1. **所有功能需求**必须能追溯到本文档中的某个产品原则或用户场景
 2. **架构决策**如果与产品定位冲突，以产品定位为准
 3. **测试优先级**按模块重要性排序：录入 > 管理 > 导出 > 复习（见 `product-design.md`）
-4. **双框架分工**：功能迭代遵循用户价值金字塔（见 `product-design.md`）；缺陷修复与技术债清理遵循 `../protocol.md` 的 S0-S3 严重度框架
+4. **双框架分工**：功能迭代遵循用户价值金字塔（见 `product-design.md`）；缺陷修复与技术债清理按 S0-S3 严重度框架排序（定义见 `product-glossary.md`§术语表）

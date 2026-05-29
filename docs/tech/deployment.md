@@ -8,7 +8,7 @@ freshness:
 # SnapDrill 部署与运维
 
 > App Store 发布流程、版本管理、CI/CD、监控。
-> DevOps 详细 checklist 见 `release-checklist.md`（同目录）。
+> DevOps 详细 checklist 见下文 §发版检查清单（已合并入本文件）。
 
 ---
 
@@ -234,14 +234,14 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 - [ ] 字段可配置：设置中可开关学科/难度/来源/年级字段，录入界面仅显示已开启字段
 - [ ] 系统字段选项管理：学科/来源/年级可新增、编辑（含颜色/图标）、删除（使用中的阻止删除）
 - [ ] 用户资料编辑：昵称、座右铭、头像、每日复习目标可修改并保存
-- [ ] 通知设置：提醒时间、声音开关均有效（**不使用角标**，见 product-requirements:178）
+- [ ] 通知设置：提醒时间、声音开关均有效（**不使用角标**，见 product-requirements:295）
 - [ ] 外观模式切换：跟随系统 / 浅色 / 深色 三种模式均可
 - [ ] 语言设置：App 内直选语言（中文/英文），切换后提示重启生效
-- [ ] 使用数据开关：Analytics + 崩溃报告开关状态持久化，重启后生效
+- [ ] 使用数据开关：Analytics + 崩溃报告开关状态持久化，重启后生效（国内版开关为架构预留，NoOp 无实际采集）
 - [ ] 媒体缓存清理：点击后空间释放，不影响题目数据
 - [ ] 隐私政策页面可以打开
 - [ ] 服务条款页面可以打开
-- [ ] 开源许可页面可以打开，且列出 Firebase iOS SDK、Mantis、ZIPFoundation
+- [ ] 开源许可页面可以打开，且列出 Mantis、ZIPFoundation 等；Firebase SDK 国内版编译层尚未剔除（待 C 路径，ADR-004），运行时不初始化
 - [ ] 帮助中心：跳转到外部网页 FAQ，链接可打开
 - [ ] 生成测试数据后：题库和复习界面均刷新
 - [ ] 清空数据后：题库和复习界面均清空

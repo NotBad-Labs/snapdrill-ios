@@ -196,7 +196,7 @@ layer: pattern
 
 **Variants & Exceptions**:
 - [Variant] JSON 从隐私设置页触发；CSV 可从隐私设置页或题库导出面板触发（CSV 双入口）
-- [Variant] 图片处理增强（去手写/去批改痕迹/试卷还原）为 Pro 功能（免费限次体验）；免费用户超出限次时提示升级，不阻塞基础导出
+- [Variant] 图片处理增强（去手写/去批改痕迹/试卷还原）为 Pro 功能（免费限次体验）[需 PoC·阻塞: #479，当前未实现，状态见 `product-requirements.md`§功能状态总表]；免费用户超出限次时提示升级，不阻塞基础导出
 - [Variant] "去答案打印"（隐藏答案字段）是免费基础功能，与 Pro 的图片处理增强是不同层面
 - [Variant] 结构化数据导出以实际导出字段清单为准；如有未覆盖字段，需在帮助文档说明
 - [Exception] 导出结果集为空：不得生成空文件；必须提示无可导出题目
@@ -304,9 +304,12 @@ layer: pattern
 
 **Goal**: 用户通过智能组卷生成一份针对性练习卷 PDF 并打印。
 
+**Status**: `[阻塞: #479 — StoreKit 未接，Pro 智能选题策略当前不可达]`（状态以 `product-requirements.md`§功能状态总表为准）
+
 **Preconditions**:
 - 当前 Profile 题库中有足够题目（建议 >= 10 题）
 - 用户已进入智能组卷入口
+- 用户已订阅 Pro 是 Pro 选题策略的前置，#479 未实现 → 当前无 Pro 用户可达 Pro 路径；**本 UC 的 Pro 分支不作为代码/测试回归基线**。免费随机组卷分支已实现、可达。
 
 **Success path**:
 1. 用户选择学科范围和目标题目数量
@@ -327,9 +330,10 @@ layer: pattern
 - 免费用户的配额计数按 Profile 隔离，不跨设备同步（本地状态）
 
 **References**:
-- `../decisions/ADR-001-pro-functions.md`：智能组卷归属 Pro 功能
+- `../decisions/ADR-001-smart-paper-analytics-pricing.md`：智能组卷归属 Pro 功能
 - `product-design.md`：智能组卷选题策略
 - `product-business.md`：付费档差异 / 配额规则
+- `product-requirements.md`：功能状态总表（SSOT，状态 [阻塞: #479]）
 
 ---
 
@@ -337,8 +341,11 @@ layer: pattern
 
 **Goal**: 用户查看题库的深度统计分析，了解薄弱环节。
 
+**Status**: `[阻塞: #479]`（状态以 `product-requirements.md`§功能状态总表为准）
+
 **Preconditions**:
 - 当前 Profile 题库中有题目数据
+- Success path 第 3 步「Pro 用户看到完整图表」当前不可达（`isProUser=false`）；免费基础统计可达。Pro 分支不作回归基线。
 
 **Success path**:
 1. 用户从 Dashboard 快捷入口或统计页进入高级统计
@@ -358,15 +365,16 @@ layer: pattern
 - 「薄弱排行 → 智能组卷」联动传递的选题输入仅含题目 ID，不携带跨 Profile 数据
 
 **References**:
-- `../decisions/ADR-001-pro-functions.md`：高级统计归属 Pro 功能
+- `../decisions/ADR-001-smart-paper-analytics-pricing.md`：高级统计归属 Pro 功能
 - `product-design.md`：统计页设计
 - `product-vision.md`：「成功信号」中的薄弱定位
+- `product-requirements.md`：功能状态总表（SSOT，状态 [阻塞: #479]）
 
 ---
 
 ## Appendix: Boundary Cases
 
-> 仅收录 S0/S1 全部 + 高频 S2。Severity 定义见 `../protocol.md`§工作优先级。
+> 仅收录 S0/S1 全部 + 高频 S2。Severity（S0-S3）定义见 `product-glossary.md`§术语表。
 
 | ID | Scenario | Expected UX | Data guarantee | Severity |
 |---|---|---|---|---|

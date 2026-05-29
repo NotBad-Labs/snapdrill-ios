@@ -12,8 +12,8 @@ layer: pattern
 
 ## 采集说明（海外版设计 / 路线；国内版见上方现状锚点）
 
-- 所有事件默认不采集（Analytics opt-in）
-- 用户可在设置中独立开启/关闭 Analytics 和 Crashlytics
+- 所有事件默认不采集（Analytics opt-in，**仅海外版**；国内版零采集）
+- 设置中的 Analytics / Crashlytics 开关：**国内版**为架构预留，切换对采集行为无实际效果（始终 NoOp、零出境）；**海外版**（C 路径）开关才真正控制 Firebase 数据采集
 - opt-in 后数据发送到 Firebase Analytics（Google 服务器）—— 仅海外版；国内版 Firebase-Free 不含此管线
 - 样本偏差：数据仅覆盖主动 opt-in 的用户，不代表全体用户
 

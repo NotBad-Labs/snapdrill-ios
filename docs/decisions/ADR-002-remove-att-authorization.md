@@ -39,6 +39,6 @@ Claude / Codex / Gemini 三方一致建议删除：
 
 - 需创建 Issue 移除 PrivacyPrePromptView + PrivacyConsentService 中的 ATT 调用
 - 保持 NSPrivacyTracking = false
-- Analytics/Crashlytics 的 opt-in 仍由设置页开关独立管理
+- Analytics/Crashlytics 的 opt-in 仍由设置页开关独立管理（设置与现状见 `../product/product-requirements.md`§功能状态总表 与 ADR-004（国内版 Firebase-Free））
 - 提交前做隐私一致性检查：Privacy Manifest / App Privacy Details / 应用内文案三方一致
 - 若未来引入 ad attribution，再恢复 ATT

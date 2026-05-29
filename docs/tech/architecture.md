@@ -193,7 +193,7 @@ SwiftData @Model（持久化）
 - 触发：`SnapDrillFeatureLibrary/SmartPaperView` + `SmartPaperViewModel`
 - 选题策略：复用 `ReviewScheduler` + `SM2State`（基于 SM-2 数据驱动选题）
 - 排版/导出：复用 `SnapDrillCore/Service/PDFExportService` 管线（不重新实现 PDF 引擎）
-- Pro gating：通过 `ProEntitlementProvider` 接入 StoreKit（阻塞 #479/#486）
+- Pro gating：通过 `ProEntitlementProvider` 接入 StoreKit（阻塞 #479）
 
 **ShareCard（题目分享卡片）**：
 - 归属：`SnapDrillFeatureLibrary/ShareCardView`
@@ -211,7 +211,7 @@ SwiftData @Model（持久化）
 - 图表渲染：SwiftUI Charts 框架（iOS 16+）
 - Pro gating：通过 `ProEntitlementProvider` 控制可见性（ADR-001 Hybrid，免费层只看基础指标）
 
-**iCloud 同步（占位段，阻塞 #485）**：
+**iCloud 同步（占位段，阻塞 #485（前置 #479））**：
 - 当前实现：所有 `@Model` 默认 `cloudKitDatabase: .none`（关闭）
 - 启用路径：StoreKit 落地（#479）→ 创建 CloudKit Container（#485）→ ProEntitlementProvider 判断 → Per-Profile 同步（与 BackupService 同语义边界）
 - 触发文档：`docs/product/product-business.md` §iCloud 同步 / `docs/product/product-design.md` §iCloud 同步设计

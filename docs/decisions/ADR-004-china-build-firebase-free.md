@@ -17,13 +17,15 @@ freshness:
 
 app 当前**捆绑** Firebase（Analytics + Crashlytics，隔离在 `SnapDrillInfrastructure`），但**默认不收集、不上报**，三层防御均已验证：
 
+> ⚠️ 下表为 2026-05-28 interim 快照（plist 内禁用标志）。**当前（2026-05-29）已演进为完全移除**：`FirebaseBootstrap.configure()` 删除、`GoogleService-Info.plist` 移出 Copy Resources、注入 `NoOpAnalyticsService`，运行时零初始化/零出境（OSLog 实证）。编译层彻底剔除待 C 路径。
+
 | 层 | 设置 | 出处 |
 |---|---|---|
 | Analytics 采集 | `FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED = true` | `SnapDrill/App/GoogleService-Info.plist` |
 | Crashlytics 采集 | `FirebaseCrashlyticsCollectionEnabled = false` | 同上 |
 | 统一同意门 | `TelemetryGate` 默认 `.denied`（opt-in，显式授权才开）| `Packages/SnapDrillCore/.../TelemetryGate.swift` |
 
-**残余风险（2026-05-28 评估）**：`FirebaseApp.configure()` + Firebase Installations 在 opt-in 前可能发 FID。**→ 已于 2026-05-29 消除并验证**：interim 止血落地（commit `80be303b` — 删 `FirebaseBootstrap.configure()` 调用 + 注入 `NoOpAnalyticsService` + 移除 `GoogleService-Info.plist`），OSLog 抓包实证 opt-in 前**零网络出境**（仅 SDK 本地残留 `gmp.measurement.monitor.plist`，无 PII）。编译层彻底剔除待 C 路径。（上表为移除前 05-28 快照。）
+**残余风险（2026-05-28 评估，已于 2026-05-29 消除并验证）**：原风险为 opt-in 前 `FirebaseApp.configure()` + Installations 可能发 FID。当前 interim 止血已落地（见上），OSLog 实证首启未 opt-in 时零网络出境，无残余风险。编译层隔离（Release-CN 不链接 Firebase）待 C 路径。
 
 ## 决策
 
@@ -45,7 +47,7 @@ app 当前**捆绑** Firebase（Analytics + Crashlytics，隔离在 `SnapDrillIn
 
 - `AnalyticsServiceProtocol`（Core）+ `AnalyticsServiceMock`（Core，测试用）已存在
 - Firebase 仅在 `SnapDrillInfrastructure`：`FirebaseBootstrap.swift` + `FirebaseAnalyticsService.swift`
-- App 层装配点集中在 `DependencyContainer.swift`：第 48 行 `FirebaseBootstrap.configure()`、第 51 行 `FirebaseAnalyticsService()`、第 66-69 行 `syncTelemetryGate` Task
+- App 层装配点集中在 `DependencyContainer.swift`（私有 init）：现注入 `NoOpAnalyticsService()`、不调 `FirebaseApp.configure()`；`FirebaseBootstrap.configure()` / `FirebaseAnalyticsService()` / `syncTelemetryGate` 已归档至 `SnapDrillInfrastructure`（`FirebaseBootstrap.swift` / `FirebaseAnalyticsService.swift`），App 层不再引用
 
 ### 两级实现（执行 prompt 见 `~/Desktop/snapdrill-firebase-removal-prompt.md`）
 

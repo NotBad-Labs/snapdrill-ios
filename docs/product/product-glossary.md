@@ -5,7 +5,7 @@ layer: pattern
 # SnapDrill 术语表
 
 > 产品术语参考表。新增或修改术语时在本文件更新后同步下游文档。
-> PR Review 时通过 DoD checklist 检查术语一致性（见 `../protocol.md`§DoD）。
+> PR Review 时通过 DoD checklist 检查术语一致性（见下方 DoD 定义）。
 
 ---
 
@@ -66,7 +66,7 @@ layer: pattern
 |---|---|---|---|
 | **PoC** | Proof of Concept | 功能正式纳入前的验证阶段，需满足预定义的 Go/No-Go 条件 | — |
 | **S0-S3** | Severity Level | 缺陷严重度分级：S0 数据不可逆丢失 > S1 流程阻断 > S2 有摩擦 > S3 不紧急 | — |
-| **DoD** | Definition of Done | PR 合并前检查清单（lint/build/review/文档同步），定义在 `../protocol.md` | — |
+| **DoD** | Definition of Done | PR 合并前检查清单（lint/build/review/文档同步，见 AGENTS.md §DoD） | — |
 
 ---
 
@@ -75,7 +75,7 @@ layer: pattern
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
 | **免费层** | Free Tier | 全部基础功能，单设备完整体验（采集 → 管理 → 导出/打印） | — |
-| **Pro** | Pro Subscription | 付费订阅层：iCloud 同步 / 图片处理增强 / 智能组卷（无限+精准选题）/ Word 导出 / 高级统计（趋势图+薄弱排行）等增值能力。智能组卷和图片处理增强采用"免费限次体验 + Pro 无限"模式（ADR-001）。**当前实现状态（现状锚点）：StoreKit 未构建（#479），全部 Pro 闸门为占位"敬请期待"；iCloud 同步 #485 禁用（`cloudKitDatabase: .none`）；Word 导出 #486 未实现。Pro 体系为愿景/路线，非当前 shipping。** | — |
+| **Pro** | Pro Subscription | 付费订阅层：iCloud 同步 / 图片处理增强 / 智能组卷（无限+精准选题）/ Word 导出 / 高级统计（趋势图+薄弱排行）等增值能力。智能组卷和图片处理增强采用"免费限次体验 + Pro 无限"模式（ADR-001）。**Pro 功能现状**：智能组卷无限 / 高级统计深度 / iCloud 同步 / Word 导出 / 图片处理增强等的实现状态以 `product-requirements.md`§功能状态总表（SSOT）为准。当前 StoreKit（#479）未接、Pro 全为"敬请期待"占位、首版纯免费；**Pro 体系为愿景/路线，非当前 shipping**。 | — |
 | **Grandfather** | Grandfather Pricing | 老用户保留原价的涨价策略 | — |
 | **Lifetime** | Lifetime Purchase | 一次性买断 Pro 全部功能，永久有效，不受后续涨价影响 | — |
 

@@ -38,10 +38,12 @@ Bear / Day One / Ulysses 等 iOS 独立 App 已验证此模式多年，Apple 审
 | 间隔重复复习 + Multi-Profile | 图片处理增强：去手写/去批改痕迹/试卷还原（免费限次体验 + Pro 无限） |
 | 智能组卷：基础模板限次体验 | 智能组卷：无限生成 + 精准选题（weakness/difficulty/recency）+ 多版式（ADR-001） |
 | 基础统计（总题数、按科目计数、近期趋势） | 高级统计：趋势图 + 难度分布 + 薄弱排行 + 交叉筛选（ADR-001） |
-| 手动备份/恢复 | Word 导出（高级排版，家长二次调整后打印；阻塞 #486 StoreKit）|
+| 手动备份/恢复（`.zip`） | Word 导出（Pro 付费；高级排版，家长二次调整后打印；[阻塞: #486（前置 #479）]）|
 
 免费层包含 MoSCoW Must + Should 全部功能，Pro 层包含 Could 中的增值项。完整功能清单见 `product-requirements.md`§功能全景。
 探索性商业化方向见 `product-requirements.md`§待评估。
+
+> ⚠️ Pro 功能为目标设计，**当前实现状态见 `product-requirements.md`§功能状态总表**：StoreKit #479 未接（源码 `ProEntitlementProvider.isProUser` 硬编码 false），Pro 全部为"敬请期待"占位，首版国内 TestFlight 纯免费、无法购买或测试 Pro。
 
 **Word 导出定位说明**（承接 vision §1 录入体验是生命线 + §4 数据属于用户）：
 - PDF 是基础导出（免费），覆盖「打印一份错题卷」核心场景
@@ -137,15 +139,15 @@ iCloud 同步是打通这个闭环的引擎，图片处理增强（去手写/试
 
 > 产品承诺：`product-vision.md`§P4 数据属于用户
 > 功能规格（字段、opt-in）：`product-requirements.md`§使用数据
-> 技术实现：`../tech/compliance.md`§隐私架构
+> 技术实现：`../tech/compliance.md`§核心口径
 
 **核心定位**：参照 Bear（Shiny Frog）的 Freemium + Apple CloudKit 模式——不自建用户账号，不主动收集儿童信息。这是 vs 国内竞品（喵喵机/橙果等）的关键差异。
 
 | 维度 | 竞品（喵喵机/橙果等） | SnapDrill |
 |---|---|---|
 | 注册 | 手机号必须 | 无注册 |
-| 数据收集 | 姓名、学校、年级、位置 | 默认不收集（匿名 Analytics / Crashlytics 独立开关，opt-in 后可关闭） |
-| 存储 | 自建云端 | 纯本地 + iCloud（Apple 负责） |
+| 数据收集 | 姓名、学校、年级、位置 | 默认不收集。**国内版**（当前 shipping）：纯本地、零 Firebase（注入 `NoOpAnalyticsService`，ADR-004）；**海外版**（C 路径，未来）：匿名 Analytics / Crashlytics 独立开关，opt-in 后可关闭 |
+| 存储 | 自建云端 | 纯本地（iCloud 多设备同步规划中，[阻塞: #485（前置 #479）]；Apple 负责） |
 | 合规负担 | 极重（ICP+等保+审计+儿童隐私） | 较轻（App 备案 + Apple 审核，不主动收集用户数据） |
 
 **为什么这是核心差异化**：
@@ -182,7 +184,7 @@ iCloud 同步是打通这个闭环的引擎，图片处理增强（去手写/试
 
 **Kids Category 决策**：**不申请**。理由：
 - Kids Category 限制较多（禁止外部链接、禁止第三方 SDK 向儿童发送数据等）
-- SnapDrill 使用第三方分析和崩溃报告 SDK，虽然不收集个人信息，但技术上属于第三方 SDK
+- SnapDrill 二进制含第三方分析/崩溃 SDK（海外版启用 Firebase；国内版 Firebase-Free、运行时不初始化，编译层尚未剔除待 C 路径 —— ADR-004），技术上仍属含第三方 SDK
 - SnapDrill 的主操作者是家长（非儿童直接使用），定位为「家庭场景的效率工具」而非「儿童 App」
 - 4+ 年龄分级已足以覆盖目标用户群
 
@@ -206,7 +208,7 @@ FTC 判定 COPPA "directed to children" 的核心标准与 SnapDrill 的对照�
 
 **当前合规措施**：
 - 零注册、默认不收集个人信息
-- 匿名使用数据首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in 开启或关闭
+- 匿名使用数据：**国内版**（当前 shipping）完全禁用（注入 `NoOpAnalyticsService`，OSLog 实测零网络出境，ADR-004）；**海外版**（C 路径，未来）首次启动默认不采集、用户可在设置中 opt-in
 - Privacy Manifest 声明数据不关联、不追踪
 
 **App Store 营销注意事项**：避免使用 "children""kids""儿童教育" 等触发 FTC/Apple 审查的措辞，强调"效率工具""数字化归档""家长和学生"。
