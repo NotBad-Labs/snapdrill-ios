@@ -9,7 +9,10 @@
 PRODUCT_NAME = SnapDrill
 PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app
 MARKETING_VERSION = 1.1.0
-CURRENT_PROJECT_VERSION = 5
+CURRENT_PROJECT_VERSION = 6
+
+// Export Compliance：仅用标准/豁免加密（HTTPS），声明后免每次 TestFlight 上传的出口合规问询
+INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO
 
 // Swift
 SWIFT_VERSION = 6.3
