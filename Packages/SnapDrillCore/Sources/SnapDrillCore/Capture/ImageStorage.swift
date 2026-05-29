@@ -204,7 +204,7 @@ public struct ImageStorage: Sendable {
     ///   - maxLongSide: 长边物理像素上限
     ///   - quality: JPEG 压缩质量（0.0-1.0）
     /// - Returns: 压缩后的 JPEG Data（不含 GPS 元数据），失败返回 nil
-    nonisolated static func compressedJPEGData(from image: UIImage, maxLongSide: CGFloat, quality: CGFloat) -> Data? {
+    public nonisolated static func compressedJPEGData(from image: UIImage, maxLongSide: CGFloat, quality: CGFloat) -> Data? {
         // 计算物理像素尺寸（image.size 是逻辑点，需乘以 scale）
         let pixelWidth = image.size.width * image.scale
         let pixelHeight = image.size.height * image.scale
