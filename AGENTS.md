@@ -22,7 +22,7 @@ SnapDrill：一款 SwiftUI 单平台 iOS app。家庭教育场景 — 家长拍�
 
 - **平台**：iOS 26.0+，iPad / iPhone 通用，原生 SwiftUI，Swift 6.3 strict concurrency
 - **价值链**：采集 > 管理 > 导出/打印（复习是独立附加值）
-- **状态**：核心闭环 90% 完成；零上架零用户；阻塞 #479（StoreKit）/ #485（CloudKit）/ #486（Apple Developer 账号）
+- **状态**：核心闭环 90% 完成；零上架零用户；Pro/同步阻塞 #479（StoreKit）/ #485（CloudKit 同步）/ #486（Word 导出），均 Pro 可延后；公司开发者账号 = #163（仅外部 TestFlight / 公开上架需要；个人账号 `W5A8THDKW8` 已 active，可做国内内测）
 - **架构铁律**：单向依赖向下，Core 层零外部依赖
 
 ## 构建命令
@@ -147,8 +147,8 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 
 - **Vision OCR**：擅长印刷体；**无独立中文手写识别模型**；`RecognizeDocumentsRequest` 适合整页文档，不适合裁剪后单题
 - **Foundation Models**（iOS 26+）：擅长分类 / 摘要；**不擅长数学推理**；`contentTagging` 自动标签可用，**解题不可**
-- **CloudKit**：需 Apple Developer 账号（#485）；SwiftData **不原生支持公共数据库**，仅私有同步；冲突 last-write-wins
-- **StoreKit**：需 Apple Developer + ASC 配置产品（#479 / #486）；Simulator 沙箱有限支持
+- **CloudKit**：需 Apple Developer 账号（公司账号 #163）+ CloudKit Container；同步功能 = #485（当前 `cloudKitDatabase: .none` 禁用）；SwiftData **不原生支持公共数据库**，仅私有同步；冲突 last-write-wins
+- **StoreKit**：需 Apple Developer + ASC 配置产品（#479；#486 Word 导出为其下游 Pro 功能）；Simulator 沙箱有限支持
 - **不存在的 API**：Math Notes（Calculator 私有）/ Smart Script（屏幕手写非照片 OCR）/ 原生公式识别 LaTeX/MathML（需第三方）
 
 ## 隐私与合规
