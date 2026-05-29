@@ -9,10 +9,10 @@
 
 每次写代码前先过一遍这四条。这是最高优先级，覆盖下面所有具体准则。
 
-1. **Think before coding** — 假设要显式说出口；多种解释要并列；不清楚就停下问，别静默选一个
-2. **Simplicity first** — 最小代码解决问题；不要 speculative 抽象；不要未要求的 flexibility 或 configurability；200 行能写成 50 行就重写
+1. **Think before coding** — 假设要显式说出口；多种解释要并列；不清楚就停下问，别静默选一个；改既有体系/约定前先搜现有怎么做 + 参考社区高 star 实践 + 验证一致再动手，别盲目发明
+2. **Simplicity first** — 最小代码解决问题；不要 speculative 抽象；不要未要求的 flexibility 或 configurability；200 行能写成 50 行就重写（"最简"指解决问题的最简，非"省力 / 够用就行"；地基级工作目标是最优且可持续，该重构就重构）
 3. **Surgical changes** — 只动该动的；不要顺手"改进"无关代码 / 注释 / 格式；每行改动追溯到 user 请求
-4. **Goal-driven execution** — 把模糊任务转成可验证 success criteria，跑测试自验证后再宣告完成
+4. **Goal-driven execution** — 把模糊任务转成可验证 success criteria，跑测试自验证后再宣告完成；零信任对齐时验"是否满足上游真相（需求/用例）"而非"自洽"——测试 oracle 来自用例非代码，双向可追溯无孤儿
 
 **本文件运转良好的信号**：diff 中无关改动减少；过度抽象引发的重写减少；澄清问题在实现前提出而非犯错后。
 
