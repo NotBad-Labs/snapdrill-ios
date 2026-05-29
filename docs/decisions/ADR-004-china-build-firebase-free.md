@@ -23,7 +23,7 @@ app 当前**捆绑** Firebase（Analytics + Crashlytics，隔离在 `SnapDrillIn
 | Crashlytics 采集 | `FirebaseCrashlyticsCollectionEnabled = false` | 同上 |
 | 统一同意门 | `TelemetryGate` 默认 `.denied`（opt-in，显式授权才开）| `Packages/SnapDrillCore/.../TelemetryGate.swift` |
 
-**残余风险（唯一）**：`FirebaseApp.configure()`（`DependencyContainer.swift:48` 调 `FirebaseBootstrap.configure()`）+ Firebase Installations 在 opt-in 前是否仍发 FID —— **未抓包验证**。
+**残余风险（2026-05-28 评估）**：`FirebaseApp.configure()` + Firebase Installations 在 opt-in 前可能发 FID。**→ 已于 2026-05-29 消除并验证**：interim 止血落地（commit `80be303b` — 删 `FirebaseBootstrap.configure()` 调用 + 注入 `NoOpAnalyticsService` + 移除 `GoogleService-Info.plist`），OSLog 抓包实证 opt-in 前**零网络出境**（仅 SDK 本地残留 `gmp.measurement.monitor.plist`，无 PII）。编译层彻底剔除待 C 路径。（上表为移除前 05-28 快照。）
 
 ## 决策
 

@@ -123,23 +123,20 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 
 ## 监控
 
-### Firebase Crashlytics
+### 国内版：无第三方监控（ADR-004）
 
-- SDK 已集成但**首次启动默认不采集**（plist 预禁用）
-- 仅在用户设置中显式开启后启用崩溃上报
-- 按版本号分组，优先修复 S0/S1 级崩溃
+- 国内 build（当前单一 build）运行时注入 `NoOpAnalyticsService`，**Firebase 不初始化**（不调 `FirebaseApp.configure()`）；OSLog 抓包实证 opt-in 前零网络出境
+- 崩溃监控：Apple 原生 **Xcode Organizer / MetricKit**，无第三方 SDK 上报
+- Firebase SDK 仍链接（编译层彻底剔除待 C 路径 Release-CN 拆分）
 
-### Firebase Analytics
+### 海外版（未来，C 路径）
 
-- SDK 已集成但**首次启动默认不采集**（plist 预禁用）
-- 仅在用户设置中显式开启后启用匿名事件追踪
-- 匿名事件：录入/复习/导出等核心操作
-- 用户可随时在设置中关闭
+- 保留 Firebase Crashlytics + Analytics，受 GDPR/CCPA 管辖，opt-in 披露
 
 ### 紧急修复流程
 
 ```
-1. Crashlytics 发现高频崩溃
+1. Xcode Organizer / MetricKit 发现高频崩溃
 2. 创建 hotfix 分支 → 修复 → PR → 快速 Review
 3. TestFlight 验证 → App Store 加急审核（Expedited Review）
 4. Apple 通常 24 小时内处理加急请求
@@ -149,12 +146,12 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 
 ## 环境配置
 
-| 环境 | 用途 | Firebase 配置 |
+| 环境 | 用途 | 分析配置 |
 |---|---|---|
-| Debug | 本地开发 + Simulator | GoogleService-Info.plist |
-| Release | TestFlight + App Store | GoogleService-Info.plist |
+| Debug | 本地开发 + Simulator | `NoOpAnalyticsService`（国内版）|
+| Release | TestFlight + App Store（国内）| `NoOpAnalyticsService`（国内版）|
 
-**注意**：当前使用单一 `GoogleService-Info.plist`（已提交到 Git）。如需 dev/prod 分离，可通过 Build Phase Script 按 Configuration 切换。
+**注意**：国内版不使用 `GoogleService-Info.plist`（2026-05-28 已移除，见 ADR-004）。海外版（未来 C 路径）再引入 Firebase 配置并按 Release-CN / Release-Global 分离。
 
 ## 发版检查清单
 ---
