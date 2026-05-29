@@ -11,7 +11,6 @@
 import Foundation
 import SnapDrillCore
 import SnapDrillData
-import SnapDrillInfrastructure
 
 /// 应用的依赖注入容器 (Composition Root)
 ///
@@ -25,7 +24,7 @@ final class DependencyContainer {
 
     static let shared = DependencyContainer()
 
-    /// 全局服务容器 (Firebase, OCR, Analytics 等)
+    /// 全局服务容器 (OCR, Analytics 等)
     let services: any ServiceContainer
 
     /// 顶级导航路由器
@@ -43,15 +42,12 @@ final class DependencyContainer {
             return
         }
 
-        // 1. 配置 Firebase（基础设施层）
-        // plist 预设 DEACTIVATED/Disabled，configure 时不生成 persistent ID
-        FirebaseBootstrap.configure()
+        // 1. 分析服务：国内版 Firebase-Free（ADR-004）
+        //    不调用 FirebaseApp.configure()，根除 opt-in 前 Crashlytics settings 拉取造成的跨境出境；
+        //    注入生产级空实现 NoOpAnalyticsService。Firebase 编译层彻底剔除待 C 路径（Release-CN 配置）。
+        let analyticsService = NoOpAnalyticsService()
 
-        // 2. 初始化 Firebase 具体服务
-        let analyticsService = FirebaseAnalyticsService()
-        analyticsService.markConfigured()
-
-        // 3. 初始化核心服务容器（注入 Firebase 实现）
+        // 2. 初始化核心服务容器（注入分析实现）
         // Remote Config 已移除：八方合规审计一致认定启动即 fetchAndActivate()
         // 违反"用户未 opt-in 时零数据外传"承诺（FID 传输给 Google）
         let liveServices = LiveServiceContainer(
@@ -59,16 +55,8 @@ final class DependencyContainer {
         )
         self.services = liveServices
 
-        // 5. 初始化顶级路由器
+        // 3. 初始化顶级路由器
         self.router = AppRouter()
-
-        // 6. 监听遥测授权变更，运行时同步到 Firebase SDK
-        Task { [weak analyticsService] in
-            for await _ in NotificationCenter.default.notifications(named: TelemetryGate.didChangeNotification) {
-                guard analyticsService != nil else { break }
-                FirebaseBootstrap.syncTelemetryGate()
-            }
-        }
 
         SnapDrillLogger.generic.info("DependencyContainer: Composition Root initialized successfully.")
     }
