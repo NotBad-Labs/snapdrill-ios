@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 非功能需求（NFR）
 
-> 性能、隐私、存储、兼容性的量化标准。功能需求见 `../product/product-requirements.md`。
+> 性能、隐私、存储、兼容性的量化标准。功能需求见 `scope-and-roadmap.md`。
 
 ---
 

@@ -107,6 +107,18 @@ Dashboard 是用户打开 App 后的第一屏，定位是**状态总览 + 快捷
 
 ---
 
+## iPad + Apple Pencil 价值定位 [P1 录入体验, P6 原生优先]
+
+> 本节于 2026-05-29 自 `product-vision.md` 迁移（vision 瘦身重构：vision 只留 why，本类规格归本文档）
+
+**iPad + Apple Pencil 价值定位**：
+- iPad 大屏适合「整理 + 复习」场景（家长在客厅或孩子在书桌上完整翻阅题库）
+- Apple Pencil 暂不深度集成（PoC 阶段），优先级低于 iPhone 录入主路径
+- 未来 PoC 可能方向：在 ReviewCard 反面用 Pencil 批注 / 在 Capture 完成后用 Pencil 圈选 OCR 区域
+- 当前阶段 iPad 体验通过自适应布局（compact/regular）自动兼容，不做 iPad 专属功能
+
+---
+
 ## OCR 定位 [P1 录入体验, P6 原生优先]
 
 **核心定位**：OCR 是辅助展示 + 搜索索引 + 可复制文本，原图是真相。

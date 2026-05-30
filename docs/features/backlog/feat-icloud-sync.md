@@ -34,7 +34,7 @@ last_updated: 2026-05-30
   - StoreKit 闸门（#479）——Pro 解锁判断（`ProEntitlementProvider`）；
   - CloudKit Container（#485，需 Apple 开发者账号）；
   - `feat-profile`（同步范围 = 全部 Profile，与 `feat-backup` 的 `.zip` 备份同语义边界）。
-- **商业分层**：iCloud 自动同步 = Pro；免费层不含自动同步，但必须可迁移（`.zip` 手动备份/恢复，见 `feat-backup.md`）。订阅取消后数据完整保留可编辑，仅停止新数据跨设备 push（本机数据仍在），不锁定/不隐藏/不阻断手动备份。定价见 `../../explanations/business-model.md`。
+- **商业分层**：iCloud 自动同步 = Pro；免费层不含自动同步，但必须可迁移（`.zip` 手动备份/恢复，见 `../active/feat-backup.md`）。订阅取消后数据完整保留可编辑，仅停止新数据跨设备 push（本机数据仍在），不锁定/不隐藏/不阻断手动备份。定价见 `../../explanations/business-model.md`。
 
 ## 3. 技术设计 (How)
 > backlog / blocked：以下浓缩源文档已落档的设计意图；同步引擎细节（SLO、离线降级）解锁 #485 后补，**不在此编造假实现**。
@@ -50,7 +50,7 @@ last_updated: 2026-05-30
 - **Success path (GWT，目标态)**：Given 用户已订阅 Pro 且多设备登录同一 Apple ID，When 在 iPhone 切换到某 Profile 录入新题，Then 新题通过 CloudKit 自动推送到该 Apple ID 下的其他设备（如 iPad），无需手动操作，对应 Profile 下数据一致到位（承接旅程 8）。
 - **边界 / 异常**：活跃 Profile 被远端删除 → 自动 fallback 默认 Profile 并提示；网络/CloudKit 暂时异常属 L2 可恢复错误，给重试或替代路径，不静默吞错；iCloud 空间不足 → 设置页风险提示 + 手动备份降级出口。
 - **数据保证**：冲突 last-write-wins + 保留冲突记录（CloudKit 默认）；Profile 隔离在多设备间保持一致。
-- **NFR**：待实现补——同步延迟 SLO / 冲突策略细化 / 离线降级 依赖 #485 解锁后在 `../../tech/non-functional-requirements.md`§同步与网络 补齐（当前为占位）。
+- **NFR**：待实现补——同步延迟 SLO / 冲突策略细化 / 离线降级 依赖 #485 解锁后在 `../../reference/non-functional-requirements.md`§同步与网络 补齐（当前为占位）。
 
 ## Provenance（迁移期审计用，全量封板后可删）
 | 本 spec 内容 | 来源（旧文档章节 / UC / ADR） |
@@ -67,5 +67,5 @@ last_updated: 2026-05-30
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 8：iCloud 多端协作）
 - 商业分层 / 定价：`../../explanations/business-model.md`
 - 决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（Pro 分层 Hybrid）、`../../decisions/ADR-003-dual-region-release.md`（双地区，中国区 iCloud 差异）
-- 免费迁移出口（互补）：`feat-backup.md`（`.zip` 手动备份/恢复）
-- 同步范围依赖：`feat-profile.md`（全部 Profile）
+- 免费迁移出口（互补）：`../active/feat-backup.md`（`.zip` 手动备份/恢复）
+- 同步范围依赖：`../active/feat-profile.md`（全部 Profile）

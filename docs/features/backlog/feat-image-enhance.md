@@ -69,4 +69,4 @@ last_updated: 2026-05-30
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`
 - 决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（Pro Hybrid 配额分层，与本功能策略统一）
-- 相关 feature：`feat-smartpaper.md`（配额模式统一）、`feat-export.md`（"去答案打印"为不同层面的免费导出能力）
+- 相关 feature：`feat-smartpaper.md`（配额模式统一）、`../active/feat-export.md`（"去答案打印"为不同层面的免费导出能力）

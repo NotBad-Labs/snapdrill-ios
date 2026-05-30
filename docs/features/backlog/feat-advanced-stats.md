@@ -22,7 +22,7 @@ last_updated: 2026-05-30
 
 ## 2. 需求规则 (What)
 - **核心能力（Hybrid 分层，ADR-001）**：
-  - **免费层（基础统计，已实现，主 Dashboard 可见）**：总题数、按科目计数、近 7/30 天简单趋势 + 各学科分布。口径与字段由 `feat-review.md` 的 Dashboard 定义、本功能仅在 Pro 层之上扩展。
+  - **免费层（基础统计，已实现，主 Dashboard 可见）**：总题数、按科目计数、近 7/30 天简单趋势 + 各学科分布。口径与字段由 `../active/feat-review.md` 的 Dashboard 定义、本功能仅在 Pro 层之上扩展。
   - **Pro 层（趋势图 / 薄弱排行 / 交叉筛选，阻塞 #479）**：学科趋势图 + 难度分布 + 薄弱排行 + 交叉筛选（学科 × 难度 × 时间窗叠加）。
 - **入口**：Dashboard 快捷入口 + 设置/统计页完整视图。
 - **Analytics → Smart Paper 联动**：用户可基于薄弱排行一键进入智能组卷生成针对性练习卷（联动仅传题目 ID）。
@@ -30,7 +30,7 @@ last_updated: 2026-05-30
   - Pro 图表区域对免费用户显示**模糊预览 + Pro 引导**（展示价值再转化），不暗示"再不订阅就看不到"（防焦虑，vision §不贩卖焦虑 / business §防焦虑条款）。
   - 数据不足以生成趋势时显示"数据积累中"提示，不展示误导性图表。
   - 统计基于**当前 Profile**，不跨 Profile 聚合。
-- **前置依赖**：依赖 `feat-review.md` 产出的 SM-2 复习记录（正确率 / 薄弱判定的数据来源）+ 题库（学科 / 难度元数据）。
+- **前置依赖**：依赖 `../active/feat-review.md` 产出的 SM-2 复习记录（正确率 / 薄弱判定的数据来源）+ 题库（学科 / 难度元数据）。
 - **商业分层**：基础统计 = 免费；趋势图 / 难度分布 / 薄弱排行 / 交叉筛选 = Pro（Hybrid，ADR-001）。订阅取消后高级统计图表回到免费层基础统计、数据完整保留。定价见 `../../explanations/business-model.md`。
 
 ## 3. 技术设计 (How)
@@ -38,7 +38,7 @@ last_updated: 2026-05-30
 
 - **模块归属**：数据源 `SnapDrillData/RepositoryContainer` 各 Repository 聚合查询；聚合层 `SnapDrillFeatureDashboard/DashboardAnalyticsViewModel`；图表渲染用 SwiftUI Charts 框架（iOS 16+，原生可视化）。
 - **Pro gating**：通过 `ProEntitlementProvider` 控制可见性（ADR-001 Hybrid，免费层只看基础指标）；当前 `isProUser` 硬编码 false（#479 未接），Pro 分支不可达。
-- **State & Concurrency**（Swift 6 strict）：待实现补 / 随 #567 落档（统计聚合查询应走 Repository → `DataExecutor` actor，不阻塞主线程；与 `feat-review.md` Dashboard 字段同一聚合路径——具体 @Observable 归属与 actor 边界以实现为准，避免编造）。
+- **State & Concurrency**（Swift 6 strict）：待实现补 / 随 #567 落档（统计聚合查询应走 Repository → `DataExecutor` actor，不阻塞主线程；与 `../active/feat-review.md` Dashboard 字段同一聚合路径——具体 @Observable 归属与 actor 边界以实现为准，避免编造）。
 
 ## 4. 验证标准 (Verify)
 > backlog · lightweight：Success path 承接 cases UC9；Pro 分支当前不可达（`isProUser=false`），Pro 分支不作回归基线，待 #479 落地后补全 GWT。
@@ -50,7 +50,7 @@ last_updated: 2026-05-30
   - 跨学科筛选 → Pro 用户可叠加学科 + 难度 + 时间窗；免费用户仅按学科切换。
   - 统计数据计算失败 → 保留上次缓存结果，提示"数据正在更新"，不展示空白页。
 - **数据保证**：统计仅基于当前 Profile 的题库与复习记录，不跨 Profile 聚合；图表结果与题库实际数据一致，删题 / 改难度后下次进入页面必须刷新；"薄弱排行 → 智能组卷"联动仅传题目 ID，不携带跨 Profile 数据。
-- **NFR**：装饰性统计数字随系统 Dynamic Type 缩放（`tech/non-functional-requirements.md` §Dynamic Type）。其余性能 / 埋点 NFR 待 #567 实现补。
+- **NFR**：装饰性统计数字随系统 Dynamic Type 缩放（`../../reference/non-functional-requirements.md` §Dynamic Type）。其余性能 / 埋点 NFR 待 #567 实现补。
 
 ## Provenance（迁移期审计用，全量封板后可删）
 | 本 spec 内容 | 来源（旧文档章节 / UC / ADR） |
@@ -70,4 +70,4 @@ last_updated: 2026-05-30
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 12：考前精准组卷 Analytics → Smart Paper → Print）
 - 决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（高级统计 Hybrid 定价）
-- 依赖 / 相关 feature：`feat-review.md`（SM-2 复习数据，被依赖方）、`feat-smartpaper.md`（薄弱排行 → 智能组卷联动）
+- 依赖 / 相关 feature：`../active/feat-review.md`（SM-2 复习数据，被依赖方）、`feat-smartpaper.md`（薄弱排行 → 智能组卷联动）

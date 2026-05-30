@@ -9,7 +9,7 @@ gap_evidence_required: refund period / grace period / data export window 三项�
 ---
 # SnapDrill 商业化与竞品
 
-> **上游依赖**：`product-vision.md`（产品定位、用户画像、6 条原则）、`product-design.md`（设计决策、备份/同步策略）、`product-requirements.md`（功能规格、免费/Pro 分层）
+> **上游依赖**：`vision.md`（产品定位、用户画像、6 条原则）、`design-principles.md`（设计决策、备份/同步策略）、`../reference/scope-and-roadmap.md`（功能规格、免费/Pro 分层）
 >
 > 本文件定义「怎么卖」——商业模式、定价、隐私策略、发布策略、竞品分析。
 >
@@ -40,10 +40,10 @@ Bear / Day One / Ulysses 等 iOS 独立 App 已验证此模式多年，Apple 审
 | 基础统计（总题数、按科目计数、近期趋势） | 高级统计：趋势图 + 难度分布 + 薄弱排行 + 交叉筛选（ADR-001） |
 | 手动备份/恢复（`.zip`） | Word 导出（Pro 付费；高级排版，家长二次调整后打印；[阻塞: #486（前置 #479）]）|
 
-免费层包含 MoSCoW Must + Should 全部功能，Pro 层包含 Could 中的增值项。完整功能清单见 `product-requirements.md`§功能全景。
-探索性商业化方向见 `product-requirements.md`§待评估。
+免费层包含 MoSCoW Must + Should 全部功能，Pro 层包含 Could 中的增值项。完整功能清单见 `../reference/scope-and-roadmap.md`§功能全景。
+探索性商业化方向见 `../reference/scope-and-roadmap.md`§待评估。
 
-> ⚠️ Pro 功能为目标设计，**当前实现状态见 `product-requirements.md`§功能状态总表**：StoreKit #479 未接（源码 `ProEntitlementProvider.isProUser` 硬编码 false），Pro 全部为"敬请期待"占位，首版国内 TestFlight 纯免费、无法购买或测试 Pro。
+> ⚠️ Pro 功能为目标设计，**当前实现状态见 `../reference/feature-status.md`§功能状态总表**：StoreKit #479 未接（源码 `ProEntitlementProvider.isProUser` 硬编码 false），Pro 全部为"敬请期待"占位，首版国内 TestFlight 纯免费、无法购买或测试 Pro。
 
 **Word 导出定位说明**（承接 vision §1 录入体验是生命线 + §4 数据属于用户）：
 - PDF 是基础导出（免费），覆盖「打印一份错题卷」核心场景
@@ -70,7 +70,7 @@ Bear / Day One / Ulysses 等 iOS 独立 App 已验证此模式多年，Apple 审
 
 **免费版体验完整性保障**：
 - 单设备无限录题 + 无广告 + 纯本地 = 完整可用的产品
-- `.zip` 手动备份/恢复 = 免费用户换手机不丢数据，确保用户数据可携带、不被平台锁定。此承诺建立在备份格式持续向后兼容之上（见 `product-design.md`§备份与恢复设计 + `product-requirements.md`§备份与恢复）
+- `.zip` 手动备份/恢复 = 免费用户换手机不丢数据，确保用户数据可携带、不被平台锁定。此承诺建立在备份格式持续向后兼容之上（见 `../features/active/feat-backup.md`§备份与恢复设计 + `../features/active/feat-backup.md`§备份与恢复）
 - 付费解锁的是「增值体验」（多设备流转、图片处理增强、高级导出），不是「基础能力」
 
 **数据迁移方案**：
@@ -137,9 +137,9 @@ iCloud 同步是打通这个闭环的引擎，图片处理增强（去手写/试
 
 ## 隐私策略（2026-03-07 确立，Bear 模式）
 
-> 产品承诺：`product-vision.md`§P4 数据属于用户
-> 功能规格（字段、opt-in）：`product-requirements.md`§使用数据
-> 技术实现：`../tech/compliance.md`§核心口径
+> 产品承诺：`vision.md`§P4 数据属于用户
+> 功能规格（字段、opt-in）：`../features/active/feat-settings.md`§使用数据
+> 技术实现：`privacy-compliance.md`§核心口径
 
 **核心定位**：参照 Bear（Shiny Frog）的 Freemium + Apple CloudKit 模式——不自建用户账号，不主动收集儿童信息。这是 vs 国内竞品（喵喵机/橙果等）的关键差异。
 
@@ -232,7 +232,7 @@ FTC 判定 COPPA "directed to children" 的核心标准与 SnapDrill 的对照�
 
 ## 竞品分析
 
-> 完整竞品分析见 `product-competitive-analysis.md`。
+> 完整竞品分析见 `competitive-analysis.md`。
 
 ---
 
@@ -269,12 +269,50 @@ FTC 判定 COPPA "directed to children" 的核心标准与 SnapDrill 的对照�
 
 ---
 
+## 待验证假设（商业侧）
+
+> 本节于 2026-05-29 自 `product-vision.md` 迁移（vision 瘦身重构：vision 只留 why，本类规格归本文档）。
+
+以下假设在发布前不作为事实，发布后 90 天内逐条复核。复核标准：有 Analytics/App Store Connect/用户访谈数据支持则升级为事实；数据推翻则修正或撤销。
+
+| # | 假设 | 复核方式 | 推翻信号 |
+|---|---|---|---|
+| H4 | 免费不限量录入能显著降低试用门槛并形成口碑 | App Store 转化率 + 用户来源 | 下载量不达预期，或用户反馈"不需要无限" |
+| H5 | 用户愿意接受 iOS-only，目标市场足以支撑早期增长 | App Store Connect 地区下载分布 | iOS 市占率限制导致下载量不足 |
+| H6 | 零注册、纯本地、隐私承诺能成为真实留存理由 | 用户访谈 + 竞品对比反馈 | 用户因"缺少同步/多端"而流失，且不关心隐私 |
+| H7 | iCloud 同步足以成为 Pro 核心付费理由 | Trial 转化率 + 付费用户调研 | 付费率远低于预期，用户反馈"手动备份够用" |
+| H8 | 智能组卷和图片处理增强能补强 Pro 转化，不破坏简洁主路径 | Pro 功能使用率 + 用户反馈 | Pro 功能使用率极低，或用户反馈"变复杂了" |
+
+---
+
+## 已知风险与张力
+
+> 本节于 2026-05-29 自 `product-vision.md` 迁移（vision 瘦身重构：vision 只留 why，本类规格归本文档）。
+
+### 免费完整 vs Pro 转化
+
+免费层越完整，付费转化越依赖 iCloud/组卷/图片增强的真实价值。如果免费用户发现手动备份 + 单设备足够满足需求，Pro 转化率会极低。发布后前 3 个月验证此张力。
+
+### 纯本地 vs 增长
+
+不做社交、不做内容、不做打卡、不做推荐，意味着没有网络效应驱动的增长引擎。增长完全依赖 App Store ASO + 口碑。需验证"零摩擦工具"本身是否能驱动足够的自然传播。
+
+### 隐私 vs 数据驱动
+
+**（海外版）** Analytics 默认 opt-in，意味着行为数据只覆盖愿意授权的用户子集；如果 opt-in 率过低（< 10%），成功信号将严重偏向早期 adopters，可能误判产品方向。**国内版** Firebase-Free、零采集，无此偏差，但也因此完全依赖 App Store Connect / 访谈 / TestFlight 信号（ADR-004）。
+
+### iCloud 变现的承载能力
+
+iCloud 同步作为 Pro 核心引擎，受限于：用户已有 iCloud 空间（5GB 免费易击穿）、中国区 CloudKit 性能、用户可能只用单设备不需要同步。如果 iCloud 不足以支撑付费转化，需要准备替代或补充的变现路径（如高级导出格式、批量打印排版、专业 OCR 增强等）。
+
+---
+
 ## 相关文档
 
 | 文档 | 关系 | 说明 |
 |---|---|---|
-| `product-vision.md` | 上游 | 产品定位、原则（P3 免费即门槛） |
-| `product-design.md` | 上游 | 设计决策（iCloud 同步、备份策略） |
-| `product-requirements.md` | 上游 | 免费/Pro 功能分层 |
-| `product-competitive-analysis.md` | 下游 | 竞品分析（独立文档） |
+| `vision.md` | 上游 | 产品定位、原则（P3 免费即门槛） |
+| `design-principles.md` | 上游 | 设计决策（iCloud 同步、备份策略） |
+| `../reference/scope-and-roadmap.md` | 上游 | 免费/Pro 功能分层 |
+| `competitive-analysis.md` | 下游 | 竞品分析（独立文档） |
 | `../decisions/ADR-001-smart-paper-analytics-pricing.md` | 相关 | 智能组卷和高级统计定价决策 |

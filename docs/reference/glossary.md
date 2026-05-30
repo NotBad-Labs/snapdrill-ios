@@ -75,7 +75,7 @@ layer: pattern
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
 | **免费层** | Free Tier | 全部基础功能，单设备完整体验（采集 → 管理 → 导出/打印） | — |
-| **Pro** | Pro Subscription | 付费订阅层：iCloud 同步 / 图片处理增强 / 智能组卷（无限+精准选题）/ Word 导出 / 高级统计（趋势图+薄弱排行）等增值能力。智能组卷和图片处理增强采用"免费限次体验 + Pro 无限"模式（ADR-001）。**Pro 功能现状**：智能组卷无限 / 高级统计深度 / iCloud 同步 / Word 导出 / 图片处理增强等的实现状态以 `product-requirements.md`§功能状态总表（SSOT）为准。当前 StoreKit（#479）未接、Pro 全为"敬请期待"占位、首版纯免费；**Pro 体系为愿景/路线，非当前 shipping**。 | — |
+| **Pro** | Pro Subscription | 付费订阅层：iCloud 同步 / 图片处理增强 / 智能组卷（无限+精准选题）/ Word 导出 / 高级统计（趋势图+薄弱排行）等增值能力。智能组卷和图片处理增强采用"免费限次体验 + Pro 无限"模式（ADR-001）。**Pro 功能现状**：智能组卷无限 / 高级统计深度 / iCloud 同步 / Word 导出 / 图片处理增强等的实现状态以 `feature-status.md`§功能状态总表（SSOT）为准。当前 StoreKit（#479）未接、Pro 全为"敬请期待"占位、首版纯免费；**Pro 体系为愿景/路线，非当前 shipping**。 | — |
 | **Grandfather** | Grandfather Pricing | 老用户保留原价的涨价策略 | — |
 | **Lifetime** | Lifetime Purchase | 一次性买断 Pro 全部功能，永久有效，不受后续涨价影响 | — |
 
@@ -85,6 +85,6 @@ layer: pattern
 
 | 文档 | 关系 | 说明 |
 |---|---|---|
-| `product-vision.md` | 上游 | 术语的定义来源 |
-| `product-design.md` | 相关 | 部分术语在设计决策中定义 |
-| `product-business.md` | 相关 | 商业化术语 |
+| `../explanations/vision.md` | 上游 | 术语的定义来源 |
+| `../explanations/design-principles.md` | 相关 | 部分术语在设计决策中定义 |
+| `../explanations/business-model.md` | 相关 | 商业化术语 |
