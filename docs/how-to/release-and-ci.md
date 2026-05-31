@@ -157,7 +157,7 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 ---
 # TestFlight 发版前检查清单
 
-> **上游依赖**：`docs/tech/deployment.md`（发版流程）
+> **上游依赖**：本文件 §发布流程（已合并发版流程）
 >
 > 每次 build 推送到 TestFlight 前，在真机上走完以下流程。
 > 标注 ❌ 的项目必须修复后才能发版。
@@ -234,7 +234,7 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 - [ ] 字段可配置：设置中可开关学科/难度/来源/年级字段，录入界面仅显示已开启字段
 - [ ] 系统字段选项管理：学科/来源/年级可新增、编辑（含颜色/图标）、删除（使用中的阻止删除）
 - [ ] 用户资料编辑：昵称、座右铭、头像、每日复习目标可修改并保存
-- [ ] 通知设置：提醒时间、声音开关均有效（**不使用角标**，见 product-requirements:295）
+- [ ] 通知设置：提醒时间、声音开关均有效（**不使用角标**，见 ../features/active/feat-settings.md）
 - [ ] 外观模式切换：跟随系统 / 浅色 / 深色 三种模式均可
 - [ ] 语言设置：App 内直选语言（中文/英文），切换后提示重启生效
 - [ ] 使用数据开关：Analytics + 崩溃报告开关状态持久化，重启后生效（国内版开关为架构预留，NoOp 无实际采集）

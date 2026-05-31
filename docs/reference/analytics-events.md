@@ -4,7 +4,7 @@ layer: pattern
 ---
 # SnapDrill Analytics 事件字典
 
-> 上游依赖：`product-vision.md`§成功信号。
+> 上游依赖：`../explanations/vision.md`§成功信号。
 > 本文件是 Analytics 事件的 SSOT。新增/修改事件必须同步本文档。
 > 代码定义见 `AnalyticsEvent` 枚举（`Packages/SnapDrillCore/Sources/SnapDrillCore/Service/AnalyticsServiceProtocol.swift`）。
 
@@ -16,6 +16,26 @@ layer: pattern
 - 设置中的 Analytics / Crashlytics 开关：**国内版**为架构预留，切换对采集行为无实际效果（始终 NoOp、零出境）；**海外版**（C 路径）开关才真正控制 Firebase 数据采集
 - opt-in 后数据发送到 Firebase Analytics（Google 服务器）—— 仅海外版；国内版 Firebase-Free 不含此管线
 - 样本偏差：数据仅覆盖主动 opt-in 的用户，不代表全体用户
+
+## 成功信号（设计校准器）
+
+> 本节于 2026-05-29 自 `../explanations/vision.md` 迁移（vision 瘦身重构：vision 只留 why，本类规格归本文档）。
+
+判断「我们做对了吗」的可度量标准。
+
+> ⚠️ 以下指标在发布前仅作为设计校准方向。**Analytics 数据源仅海外版可用**（国内版 Firebase-Free、零采集，ADR-004），国内版以 App Store Connect / 访谈 / TestFlight 替代。
+> 数据不足时，用 App Store Connect 数据、用户访谈、TestFlight 反馈补足。
+
+| 信号 | 度量定义 | 数据来源 | 状态 |
+|---|---|---|---|
+| 首次录入效率（含 onboarding） | 从 App 冷启动到首次保存成功的时间中位数 | Analytics 事件：`app_launched` → `capture_saved` | 待发布后测定，暂不设阈值 |
+| 首次录入效率（进入采集页后） | 从进入采集页到保存成功的时间中位数 | Analytics 事件：`camera_opened` → `capture_saved` | 待发布后测定，暂不设阈值 |
+| 持续录入行为 | D7 仍有录入/管理/导出行为的用户占 D0 用户比例 | Analytics：D7 活跃且有 `capture_saved` / `pdf_exported` / `data_exported` 的用户 | 待发布后测定 |
+| 激活深度 | D7 留存用户的题库题目数中位数 | 定性验证（无内置 `library_count` 事件；可由 `review_item_created` 累计推导，或后续补查询事件） | 待发布后测定 |
+| 有机增长结构 | App Store 下载来源分布（Search / Browse / Referral / 外部） | App Store Connect（非 Analytics 事件） | 待发布后观察，不做预设比例 |
+| Multi-Profile 可用性 | 跨 Profile 数据泄漏事件 = 0 | 定性验证（用户测试）+ 自动化：跨 Profile 数据泄漏作为 S0 级 Bug | 已实现，持续监控 |
+| 成果分发 | 家长能导出或分享孩子的整理成果（通过系统分享菜单，非社交功能） | 系统分享 sheet 触发（非 Analytics 事件，依赖 iOS UIActivityViewController 路径） | 待发布后测定 |
+| 价值链完成率 | 完成"管理 → 导出/打印"闭环 | Analytics 事件：`pdf_exported` 至少 1 次的用户占 D30 活跃用户比例（系统打印为非事件源） | 待发布后测定 |
 
 ## 事件列表
 
@@ -85,8 +105,8 @@ vision 中定义的 8 个成功信号中，**6 个由本字典事件支撑，2 �
 
 | 文档 | 关系 | 说明 |
 |---|---|---|
-| `product-vision.md` | 上游 | 成功信号定义 |
-| `product-requirements.md` | 相关 | 功能使用事件对应 |
+| `../explanations/vision.md` | 上游 | 成功信号定义 |
+| `feature-status.md` | 相关 | 功能使用事件对应 |
 
 ## 维护规则
 

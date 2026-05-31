@@ -12,7 +12,7 @@ freshness:
 
 ## 背景
 
-智能组卷（Smart Paper, #566）与高级统计（Advanced Analytics, #567）的需求已定价、Pro 分层已决策（本 ADR）。两者的代码/可达性实现状态见 `../product/product-requirements.md`§功能状态总表（当前 StoreKit #479 未接，Pro 不可达）。需要决定它们在免费/Pro 分层中的定位。
+智能组卷（Smart Paper, #566）与高级统计（Advanced Analytics, #567）的需求已定价、Pro 分层已决策（本 ADR）。两者的代码/可达性实现状态见 `../reference/feature-status.md`§功能状态总表（当前 StoreKit #479 未接，Pro 不可达）。需要决定它们在免费/Pro 分层中的定位。
 
 产品约束：
 - 免费层 = 完整单设备产品体验（采集 → 管理 → 导出/打印）
@@ -74,7 +74,7 @@ Claude/Codex/Gemini 三方独立横向研究，竞品覆盖 Anki、Quizlet、Goo
 
 ## 后果
 
-- `product-glossary.md` Pro 定义需更新
+- `../reference/glossary.md` Pro 定义需更新
 - product-business.md 免费/Pro 分层表需同步
 - StoreKit 实现时需设计配额机制（月度重置）
 - Analytics → Smart Paper 联动作为 Pro 卖点在 UI 中体现

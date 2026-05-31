@@ -4,7 +4,7 @@ layer: pattern
 ---
 # SnapDrill 用户旅程
 
-> **上游依赖**：`product-vision.md`（用户画像、产品原则）
+> **上游依赖**：`vision.md`（用户画像、产品原则）
 >
 > 具体的人、具体的场景、具体的动作、具体的情绪。
 > 每条旅程用于验证产品设计是否真的支撑了用户需求。
@@ -421,7 +421,7 @@ layer: pattern
 
 | 文档 | 关系 | 说明 |
 |---|---|---|
-| `product-vision.md` | 上游 | 用户画像、产品原则 |
-| `product-design.md` | 上游 | 设计决策 |
-| `product-requirements.md` | 相关 | 功能规格 |
-| `product-cases.md` | 下游 | 验收规格（旅程验证用例） |
+| `vision.md` | 上游 | 用户画像、产品原则 |
+| `design-principles.md` | 上游 | 设计决策 |
+| `../reference/scope-and-roadmap.md` | 相关 | 功能规格 |
+| `design-principles.md`§缺陷严重度框架 | 下游 | 验收规格（旅程验证用例，UC 详见各 feature spec 的 Verify 节） |

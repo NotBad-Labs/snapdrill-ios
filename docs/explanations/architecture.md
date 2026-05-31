@@ -187,7 +187,7 @@ SwiftData @Model（持久化）
 | PDF 导入 | `PDFPagePickerView` | PDFKit 选页 → 渲染为 UIImage |
 | 剪贴板（手动）| `CaptureMethodCard` 手动入口 → ManualEdit | 纯文本/粘贴图片，OCR 文字直接输入 |
 | 手动 | `CaptureResultView` 纯文本路径 | 不依赖 OCR，允许无图保存（Image is Truth 例外）|
-| Share Extension | `SnapDrillShare` Extension target | 系统 ShareSheet 入口（待启用）|
+| Share Extension | `SnapDrillShare` Extension target | 系统 ShareSheet 入口（已实现并启用，SnapDrillShare.appex 已 embed 进主 app）|
 
 **Smart Paper（智能组卷，ADR-001 Hybrid Pro 增值）**：
 - 触发：`SnapDrillFeatureLibrary/SmartPaperView` + `SmartPaperViewModel`
@@ -214,7 +214,7 @@ SwiftData @Model（持久化）
 **iCloud 同步（占位段，阻塞 #485（前置 #479））**：
 - 当前实现：所有 `@Model` 默认 `cloudKitDatabase: .none`（关闭）
 - 启用路径：StoreKit 落地（#479）→ 创建 CloudKit Container（#485）→ ProEntitlementProvider 判断 → Per-Profile 同步（与 BackupService 同语义边界）
-- 触发文档：`docs/product/product-business.md` §iCloud 同步 / `docs/product/product-design.md` §iCloud 同步设计
+- 触发文档：`business-model.md` §iCloud 同步 / `../features/backlog/feat-icloud-sync.md` §设计
 
 ### SnapDrillInfrastructure
 

@@ -184,23 +184,20 @@ xcodebuild build-for-testing -scheme AllTests \
 - `block-dangerous-bash.sh` — PreToolUse 拦 `rm -rf /` / `git push --force` / `git reset --hard`
 - `pre-push` — push develop/main 前阻断直推，除非 `ALLOW_DIRECT_PUSH=1`
 
-## 产品文档入口
+## 文档体系（重组 B · feature-spec 一元化 + Diátaxis）
 
-完整产品语义见 `docs/product/`：
+完整文档见 `docs/`（导航 `docs/README.md`）。功能规格已**一元化**——单功能的 Why/What/How/Verify 在一个 feature spec：
 
-| 文档 | 内容 |
+| 目录 | 内容 |
 |---|---|
-| `product-vision.md` | 产品定位 + 原则 |
-| `product-requirements.md` | 功能规格 |
-| `product-design.md` | 交互设计 |
-| `product-cases.md` | 验收规格（GWT / 边界）|
-| `product-business.md` | 商业化 + Pro 增值 |
-| `product-journeys.md` | 用户旅程 |
-| `product-competitive-analysis.md` | 竞品分析 |
-| `product-analytics.md` | 埋点字典 |
-| `product-onboarding.md` | Onboarding 内容 |
-| `appstore-metadata.md` | ASO 文案 + 审核备注 |
-| `product-glossary.md` | 术语单一源 |
+| `docs/features/active\|backlog/feat-*.md` | 功能规格（一元化，每功能一文件）；backlog 为 `mode: lightweight` |
+| `docs/features/template.md` | 新建 feature spec 模板 |
+| `docs/explanations/` | 为什么：vision 愿景 / design-principles 设计原则 / business-model 商业化 / architecture 架构 / assumptions 待验证假设 / competitive-analysis 竞品 / user-journeys 旅程 / privacy-compliance 隐私合规 |
+| `docs/reference/` | 查阅：feature-status 功能状态(SSOT·自动生成) / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO |
+| `docs/how-to/` | 操作：release-and-ci 发布与 CI |
+| `docs/decisions/` | 架构决策 ADR-001~004 |
+
+**功能状态单一真理源（B 方案）**：状态写在各 feature spec frontmatter（`status`/`tier`/`blocked_by`/`mode`），`docs/reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成（**勿手改**，pre-commit 校验）。
 
 ## References（按需查阅，需显式调用才会读，不要假设 AI 已读）
 
