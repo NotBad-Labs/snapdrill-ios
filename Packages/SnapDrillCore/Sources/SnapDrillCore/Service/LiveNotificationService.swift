@@ -50,14 +50,24 @@ public enum SnapDrillNotificationID {
 /// 封装 `UNUserNotificationCenter`，提供权限请求和每日复习提醒调度。
 public final class LiveNotificationService: NotificationServiceProtocol {
 
-    private let notificationCenter: any UserNotificationScheduling
+    /// 注入的通知中心；`nil` 表示运行时惰性解析系统默认 `UNUserNotificationCenter.current()`。
+    ///
+    /// 关键：**不在 init 默认参数处 eager 求值** `.current()`。无 host app 的 SPM xctest
+    /// 进程里 `UNUserNotificationCenter.current()` 会因 `bundleProxyForCurrentProcess is nil`
+    /// 抛 NSException 直接崩进程（CI 全红根因）。改为惰性解析，仅真机 / App 进程调用方法时触发。
+    private let injectedCenter: (any UserNotificationScheduling)?
+
+    /// 实际使用的通知中心：注入优先，否则惰性解析系统单例。
+    private var notificationCenter: any UserNotificationScheduling {
+        injectedCenter ?? UNUserNotificationCenter.current()
+    }
 
     // MARK: - Initialization
 
     /// 创建通知服务生产实例
-    /// - Parameter notificationCenter: 默认使用 `UNUserNotificationCenter.current()`；测试可注入 FakeCenter
-    public init(notificationCenter: any UserNotificationScheduling = UNUserNotificationCenter.current()) {
-        self.notificationCenter = notificationCenter
+    /// - Parameter notificationCenter: 默认 `nil` = 系统默认 `UNUserNotificationCenter.current()`（惰性解析）；测试可注入 FakeCenter
+    public init(notificationCenter: (any UserNotificationScheduling)? = nil) {
+        self.injectedCenter = notificationCenter
     }
 
     // MARK: - NotificationServiceProtocol
