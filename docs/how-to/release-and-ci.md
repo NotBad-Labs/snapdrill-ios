@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-06-01
 layer: pattern
 freshness:
   max_age_days: 60
@@ -38,15 +38,15 @@ Configs/Shared.xcconfig
 
 ```yaml
 # .github/workflows/ci.yml
-触发条件：PR → develop/main，push → develop/main，或手动触发
-Runner：Docs Audit 使用 ubuntu-latest；Build & Test 使用 Mac mini 自托管（self-hosted, macOS）
+触发条件：PR → develop/main，push → develop/main，或手动触发（workflow_dispatch）
+Runner：单一 Build & Test job，Mac mini 自托管（self-hosted, macOS），timeout 60 分钟
 步骤：
-  1. Docs Audit（并行）：docaudit self-test + docaudit all --strict --baseline
+  1. Checkout（actions/checkout@v5）
   2. Select Xcode（优先 Xcode_26.4.app；要求 Xcode 26.4+ / Swift 6.3）
-  3. SwiftLint --strict
-  4. validate_frontmatter.py --check --strict
+  3. Check SwiftLint（缺失则 brew install）
+  4. Lint：swiftlint --strict
   5. Check Package Dependencies（包依赖方向 + Share Extension import 约束）
-  6. Clean Simulator（erase iPhone 17，避免 SwiftData 残留）
+  6. Clean Simulator（erase iPhone 17，避免 SwiftData schema 残留死锁）
   7. Validate AllTests.xctestplan JSON
   8. xcodebuild build-for-testing -scheme AllTests -testPlan AllTests
      -derivedDataPath $GITHUB_WORKSPACE/DerivedData
@@ -57,10 +57,9 @@ Runner：Docs Audit 使用 ubuntu-latest；Build & Test 使用 Mac mini 自托�
      -only-test-configuration CI
      -parallel-testing-enabled NO
      -resultBundlePath TestResults.xcresult
-  10. Upload xcresult on failure
 ```
 
-注：CI 运行 `AllTests.xctestplan` 的 CI configuration，包含 4 个 test target（SnapDrillCoreTests / SnapDrillDataTests / SnapDrillFeaturesTests / SnapDrillShareTests）。`test-without-building` 复用 `build-for-testing` 产出的 DerivedData，避免重复编译。`SnapshotRecord` configuration 仅本地用（`SNAPSHOT_TESTING_RECORD=all` 重录 baseline），不参与 CI。
+注：CI 运行 `AllTests.xctestplan` 的 CI configuration，包含 4 个 test target（SnapDrillCoreTests / SnapDrillDataTests / SnapDrillFeaturesTests / SnapDrillShareTests）。`test-without-building` 复用 `build-for-testing` 产出的 DerivedData，避免重复编译。**失败诊断**：self-hosted runner 本地已留存 DerivedData / TestResults.xcresult，直接 ssh 到 runner 查看，不上传回 GitHub（曾耗尽 0.5GB Actions 存储配额）。`SnapshotRecord` configuration 仅本地用（`SNAPSHOT_TESTING_RECORD=all` 重录 baseline），不参与 CI。
 
 ### GitHub Token 配置
 

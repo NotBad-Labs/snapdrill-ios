@@ -74,7 +74,7 @@ struct AppRootView: View {
                 }
             }
             .tabViewStyle(.sidebarAdaptable)
-            // conventions.md: Combine .onReceive → async notification stream
+            // AGENTS.md 异步准则：用 async notification stream 替代 Combine .onReceive
             .task {
                 for await _ in NotificationCenter.default.notifications(named: .switchToCaptureTab) {
                     withAnimation(.spring(duration: 0.4)) { router.selectedTab = .capture }

@@ -6,8 +6,12 @@
 
 | 文档 | 用途 |
 |---|---|
-| [产品文档](docs/product/) | 愿景、设计、需求、用户旅程、商业化、用例 |
-| [技术文档](docs/tech/) | 架构、API 陷阱、Apple 平台边界、合规、部署、非功能性需求 |
+| [文档总导航](docs/README.md) | 完整文档索引（Diátaxis 分层）|
+| [功能规格](docs/features/) | 各功能 Why/What/How/Verify（一元化，每功能一文件）|
+| [设计解释](docs/explanations/) | 愿景、设计原则、架构、商业化、待验证假设、竞品、用户旅程、隐私合规 |
+| [查阅参考](docs/reference/) | 功能状态(SSOT)、术语、埋点、平台边界、NFR、范围路线、ASO |
+| [操作指南](docs/how-to/) | 发布与 CI |
+| [架构决策](docs/decisions/) | ADR-001~004 |
 | [AGENTS.md](AGENTS.md) | 智能体协作行为约束 + 架构 + 编码（CLAUDE.md 软链至此）|
 | [DocC API 文档](Packages/) | Xcode: Product > Build Documentation |
 
