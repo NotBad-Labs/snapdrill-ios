@@ -15,27 +15,16 @@ import SnapDrillData
 
 /// 设置页 ViewModel
 ///
-/// 处理设置页面的数据操作（如清除全部数据、备份/恢复）。
+/// 处理设置页面的数据操作（如清除全部数据、CSV 导入）。
+/// 备份 / 恢复的事务编排逻辑已抽到 `SettingsBackupCoordinator`，本 VM 仅做薄包装
+/// （管理 activityTracker、安全域访问、isBackupInProgress 与 @Observable 状态回写）。
 @MainActor
 @Observable
 public final class SettingsViewModel {
     private let repositories: RepositoryContainer
     private let profileManager: ProfileManager
     private let backupService = BackupService()
-
-    private enum RestoreProfileError: LocalizedError {
-        case profileCreationFailed(profileName: String, profileId: UUID, underlying: Error)
-        case activeProfileRestoreFailed(profileId: UUID, underlying: Error)
-
-        var errorDescription: String? {
-            switch self {
-            case .profileCreationFailed(let profileName, let profileId, let underlying):
-                return "Profile restore target creation failed: \(profileName) (\(profileId.uuidString)): \(underlying.localizedDescription)"
-            case .activeProfileRestoreFailed(let profileId, let underlying):
-                return "Failed to restore active Profile \(profileId.uuidString): \(underlying.localizedDescription)"
-            }
-        }
-    }
+    private let activityTracker: AppActivityTracker
 
     // MARK: - Properties
 
@@ -58,26 +47,15 @@ public final class SettingsViewModel {
     /// - Parameters:
     ///   - repositories: 应用的数据仓库容器
     ///   - profileManager: Profile 管理器（备份恢复需要遍历所有 Profile）。未传入时使用测试用 in-memory 实例
-    public init(repositories: RepositoryContainer, profileManager: ProfileManager = ProfileManager(inMemory: true)) {
+    ///   - activityTracker: 活动追踪器（默认参数缝注入，避免静态单例污染测试）
+    public init(
+        repositories: RepositoryContainer,
+        profileManager: ProfileManager = ProfileManager(inMemory: true),
+        activityTracker: AppActivityTracker? = nil
+    ) {
         self.repositories = repositories
         self.profileManager = profileManager
-    }
-
-    // MARK: - Helpers
-
-    /// 获取当前活跃 Profile 的目录路径
-    private static func activeProfileDirectory() -> URL {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        if let profileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId) {
-            return docs.appendingPathComponent("profiles").appendingPathComponent(profileId)
-        }
-        return docs
-    }
-
-    /// 获取指定 Profile 的目录路径
-    private static func profileDirectory(for profileId: UUID) -> URL {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return docs.appendingPathComponent("profiles").appendingPathComponent(profileId.uuidString)
+        self.activityTracker = activityTracker ?? AppActivityTracker.shared
     }
 
     // MARK: - Public API
@@ -104,149 +82,68 @@ public final class SettingsViewModel {
 
     /// 创建全量备份文件
     ///
-    /// 收集所有数据和图片，打包为 .zip 文件。
+    /// 收集所有数据和图片，打包为 .zip 文件（编排逻辑在 `SettingsBackupCoordinator`）。
     /// 完成后将文件 URL 存入 `backupFileURL`，供 View 层触发分享。
     public func createBackup() async {
         guard !isBackupInProgress else { return }
-        AppActivityTracker.shared.begin(.backupRestore)
-        defer { AppActivityTracker.shared.end(.backupRestore) }
-        isBackupInProgress = true; backupProgress = 0
-        backupError = nil; backupFileURL = nil; backupStatusMessage = L10n.Settings.backupPreparingData
+        activityTracker.begin(.backupRestore)
+        defer { activityTracker.end(.backupRestore) }
+        isBackupInProgress = true
+        defer { isBackupInProgress = false }
+        backupProgress = 0
+        backupError = nil
+        backupFileURL = nil
+
+        var coordinator = makeBackupCoordinator()
+        coordinator.onProgress = { [weak self] in self?.backupProgress = $0 }
+        coordinator.onStatus = { [weak self] in self?.backupStatusMessage = $0 }
 
         do {
-            // 1. 收集所有 Profile 数据
-            var profileDataList: [ProfileBackupData] = []
-            var totalItemCount = 0
-
-            for profile in profileManager.profiles {
-                let profileDir = Self.profileDirectory(for: profile.id)
-                let storeURL = profileDir.appendingPathComponent("default.store")
-
-                if profile.id == profileManager.activeProfileId {
-                    // 活跃 Profile 直接用当前 repositories
-                    let data = try repositories.collectProfileBackupData(
-                        profileName: profile.name, profileId: profile.id
-                    )
-                    profileDataList.append(data)
-                    totalItemCount += data.reviewItems.count
-                } else {
-                    // 非活跃 Profile 临时创建 DataExecutor，避免回落到旧同步容器路径。
-                    let tempExecutor = await DataExecutor.createOffMainActor(storeURL: storeURL)
-                    let scope = ProfileScope(id: profile.id, name: profile.name)
-                    let tempRepos = RepositoryContainer(executor: tempExecutor, scope: scope, profileDirectory: profileDir)
-                    let data = try tempRepos.collectProfileBackupData(
-                        profileName: profile.name, profileId: profile.id
-                    )
-                    profileDataList.append(data)
-                    totalItemCount += data.reviewItems.count
-                }
-            }
-
-            let payload = BackupPayload(profiles: profileDataList)
-            let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
-            let manifest = BackupManifest(
-                schemaVersion: BackupManifest.currentSchemaVersion,
-                createdAt: Date(),
-                appVersion: appVersion,
-                totalItemCount: totalItemCount,
-                profileCount: profileDataList.count,
-                profileNames: profileDataList.map(\.profileName)
-            )
-
-            backupStatusMessage = L10n.Settings.backupPackingItems(totalItemCount)
-
-            // 2. 在 BackupService actor 上打包 ZIP（传所有 Profile 目录）
-            let url = try await backupService.createBackup(
-                payload: payload,
-                manifest: manifest,
-                profileDirectories: profileDataList.map { Self.profileDirectory(for: $0.profileId) }
-            ) { [weak self] current, total in
-                Task { @MainActor in
-                    guard let self else { return }
-                    self.backupProgress = total > 0 ? Double(current) / Double(total) : 1.0
-                }
-            }
-
-            backupFileURL = url
-            backupStatusMessage = L10n.Settings.backupComplete
-            SnapDrillLogger.generic.info("备份完成: \(totalItemCount) 道题目，\(profileDataList.count) 个 Profile")
+            backupFileURL = try await coordinator.createBackup()
         } catch {
             backupError = L10n.Errors.backupFailed
             backupStatusMessage = ""
             SnapDrillLogger.generic.error("备份失败: \(error)")
         }
-
-        isBackupInProgress = false
     }
 
     // MARK: - Restore
+
     /// 从备份文件恢复数据
     ///
-    /// 恢复前先自动备份当前数据到临时目录（安全网），然后全量替换。
+    /// 恢复前先自动备份当前数据（安全网），然后全量替换（编排逻辑在 `SettingsBackupCoordinator`）。
+    /// 安全域访问（fileImporter 选择的文件在沙箱外）在本方法处理。
     ///
     /// - Parameter fileURL: 用户选择的 .zip 备份文件路径
     public func restoreFromBackup(fileURL: URL) async {
         guard !isBackupInProgress else { return }
-        AppActivityTracker.shared.begin(.backupRestore)
-        defer { AppActivityTracker.shared.end(.backupRestore) }
-        isBackupInProgress = true; backupProgress = 0
-        backupError = nil; backupStatusMessage = L10n.Settings.restoreVerifying
+        activityTracker.begin(.backupRestore)
+        defer { activityTracker.end(.backupRestore) }
+        isBackupInProgress = true
+        defer { isBackupInProgress = false }
+        backupProgress = 0
+        backupError = nil
+        backupStatusMessage = L10n.Settings.restoreVerifying
 
-        // 安全域访问（fileImporter 选择的文件在安全沙箱外）
         guard fileURL.startAccessingSecurityScopedResource() else {
             backupError = L10n.Errors.fileAccessDenied
-            isBackupInProgress = false
             return
         }
         defer { fileURL.stopAccessingSecurityScopedResource() }
 
+        var coordinator = makeBackupCoordinator()
+        coordinator.onProgress = { [weak self] in self?.backupProgress = $0 }
+        coordinator.onStatus = { [weak self] in self?.backupStatusMessage = $0 }
+
         do {
-            // 1. 读取并验证 manifest
-            let manifest = try await backupService.readManifest(from: fileURL)
-            if manifest.schemaVersion > BackupManifest.currentSchemaVersion {
-                throw BackupError.schemaVersionTooNew(
-                    fileVersion: manifest.schemaVersion,
-                    appVersion: BackupManifest.currentSchemaVersion
-                )
-            }
-
-            backupStatusMessage = L10n.Settings.restoreAutoBackup
-
-            // 2. 恢复前自动备份当前数据（安全网）
-            let autoBackupURL = await createAutoBackupBeforeRestore()
-
-            backupStatusMessage = L10n.Settings.restoreReadingData
-
-            // 3. 提取 payload
-            let payload = try await backupService.extractPayload(from: fileURL)
-
-            backupStatusMessage = L10n.Settings.restoreRestoringItems(manifest.totalItemCount)
-
-            let preRestoreActiveProfileId = profileManager.activeProfileId
-
-            // 4. 逐个 Profile 恢复数据库和图片
-            try await restoreAllProfiles(
-                from: fileURL,
-                payload: payload,
-                autoBackupURL: autoBackupURL,
-                preRestoreActiveProfileId: preRestoreActiveProfileId
-            )
-            try await restoreActiveProfileIfNeeded(preRestoreActiveProfileId)
-
-            // 5. 恢复完全成功 → 清理自动备份
-            cleanupAutoBackup(autoBackupURL)
-
-            // 6. 通知 UI 刷新
+            try await coordinator.restoreFromBackup(fileURL: fileURL)
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             backupStatusMessage = L10n.Settings.restoreComplete
-            SnapDrillLogger.generic.info("恢复完成: \(manifest.totalItemCount) 道题目，\(manifest.profileCount) 个 Profile")
         } catch {
             backupError = L10n.Errors.restoreFailed
             backupStatusMessage = ""
             SnapDrillLogger.generic.error("恢复失败: \(error)")
         }
-
-        isBackupInProgress = false
     }
 
     /// 清理备份产生的临时文件
@@ -268,8 +165,8 @@ public final class SettingsViewModel {
     /// 列名不区分大小写，缺失列使用默认值。
     public func importCSV(fileURL: URL) async {
         guard !isBackupInProgress else { return }
-        AppActivityTracker.shared.begin(.backupRestore)
-        defer { AppActivityTracker.shared.end(.backupRestore) }
+        activityTracker.begin(.backupRestore)
+        defer { activityTracker.end(.backupRestore) }
         isBackupInProgress = true; backupProgress = 0
         backupError = nil; backupStatusMessage = L10n.Settings.importReading
         let accessing = fileURL.startAccessingSecurityScopedResource()
@@ -335,162 +232,14 @@ public final class SettingsViewModel {
 
     // CSV 解析已迁移到 `CSVParser.swift`（enum 纯函数，与 ViewModel 状态分离）
 
-    // MARK: - Private Helpers
+    // MARK: - Coordinator Factory
 
-    /// 逐个 Profile 恢复数据库和图片
-    private func restoreAllProfiles(
-        from fileURL: URL,
-        payload: BackupPayload,
-        autoBackupURL: URL?,
-        preRestoreActiveProfileId: UUID
-    ) async throws {
-        for profileData in payload.profiles {
-            let targetProfile = try findOrCreateRestoreTargetProfile(for: profileData)
-            let targetRepos = await restoreRepositories(
-                for: targetProfile,
-                preRestoreActiveProfileId: preRestoreActiveProfileId
-            )
-            try await targetRepos.restoreFromProfileData(profileData)
-
-            // 恢复图片
-            let profileDir = Self.profileDirectory(for: targetProfile.id)
-            do {
-                try await backupService.restoreImages(
-                    from: fileURL,
-                    profileId: profileData.profileId,
-                    to: profileDir
-                ) { [weak self] current, total in
-                    Task { @MainActor in
-                        guard let self else { return }
-                        self.backupProgress = total > 0 ? Double(current) / Double(total) : 1.0
-                    }
-                }
-            } catch {
-                SnapDrillLogger.generic.error("图片恢复失败（Profile: \(profileData.profileName)），开始回滚: \(error)")
-                if let autoBackupURL {
-                    await rollbackFromAutoBackup(autoBackupURL)
-                } else {
-                    backupError = L10n.Errors.restoreFailed
-                    backupStatusMessage = ""
-                }
-                throw error
-            }
-        }
-    }
-
-    private func findOrCreateRestoreTargetProfile(for profileData: ProfileBackupData) throws -> Profile {
-        if let existing = profileManager.profiles.first(where: { $0.id == profileData.profileId }) {
-            return existing
-        }
-
-        do {
-            return try RestoreProfileHelper.createRestoreTargetProfile(
-                id: profileData.profileId,
-                name: profileData.profileName,
-                fallbackProfiles: profileManager.profiles
-            )
-        } catch {
-            SnapDrillLogger.data.error(
-                "SettingsViewModel: 恢复备份时 Profile 创建失败: \(profileData.profileName), id: \(profileData.profileId.uuidString), error: \(error)"
-            )
-            throw RestoreProfileError.profileCreationFailed(
-                profileName: profileData.profileName,
-                profileId: profileData.profileId,
-                underlying: error
-            )
-        }
-    }
-
-    private func restoreRepositories(
-        for profile: Profile,
-        preRestoreActiveProfileId: UUID
-    ) async -> RepositoryContainer {
-        if profile.id == preRestoreActiveProfileId {
-            return repositories
-        }
-
-        let profileDir = Self.profileDirectory(for: profile.id)
-        let storeURL = profileDir.appendingPathComponent("default.store")
-        let executor = await DataExecutor.createOffMainActor(storeURL: storeURL)
-        let scope = ProfileScope(id: profile.id, name: profile.name)
-        return RepositoryContainer(executor: executor, scope: scope, profileDirectory: profileDir)
-    }
-
-    private func restoreActiveProfileIfNeeded(_ preRestoreActiveProfileId: UUID) async throws {
-        guard profileManager.activeProfileId != preRestoreActiveProfileId else { return }
-        do {
-            try await profileManager.switchProfile(to: preRestoreActiveProfileId)
-        } catch {
-            throw RestoreProfileError.activeProfileRestoreFailed(
-                profileId: preRestoreActiveProfileId,
-                underlying: error
-            )
-        }
-    }
-
-    /// 从自动备份回滚到恢复前状态（图片恢复失败时调用）
-    /// 自动备份仅包含活跃 Profile 数据
-    private func rollbackFromAutoBackup(_ fileURL: URL) async {
-        backupStatusMessage = L10n.Settings.restoreAutoBackup
-        do {
-            let payload = try await backupService.extractPayload(from: fileURL)
-            guard let profileData = payload.profiles.first else { return }
-            try await repositories.restoreFromProfileData(profileData)
-            try await backupService.restoreImages(
-                from: fileURL,
-                profileId: profileData.profileId,
-                to: Self.activeProfileDirectory()
-            ) { _, _ in }
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
-            backupStatusMessage = L10n.Settings.restorePartialImageFailure
-            SnapDrillLogger.generic.info("已回滚到恢复前状态")
-            cleanupAutoBackup(fileURL)
-        } catch {
-            // 回滚也失败 → 保留自动备份供用户手动恢复
-            SnapDrillLogger.generic.error("回滚失败，自动备份保留在: \(fileURL.path)")
-            backupError = L10n.Errors.restoreFailed
-            backupStatusMessage = ""
-        }
-    }
-
-    /// 恢复前自动备份当前数据到临时目录（best-effort，不中断恢复流程）
-    ///
-    /// - Returns: 自动备份文件 URL（恢复成功后应清理），备份失败或无数据时返回 nil
-    private func createAutoBackupBeforeRestore() async -> URL? {
-        do {
-            // 仅备份活跃 Profile（自动备份是安全网，不需要全 Profile）
-            let activeProfile = profileManager.activeProfile
-            let profileData = try repositories.collectProfileBackupData(
-                profileName: activeProfile?.name ?? "default",
-                profileId: profileManager.activeProfileId
-            )
-            guard !profileData.reviewItems.isEmpty else { return nil }
-
-            let payload = BackupPayload(profiles: [profileData])
-            let manifest = BackupManifest(
-                schemaVersion: BackupManifest.currentSchemaVersion,
-                createdAt: Date(),
-                appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
-                totalItemCount: profileData.reviewItems.count,
-                profileCount: 1,
-                profileNames: [profileData.profileName]
-            )
-            let url = try await backupService.createBackup(
-                payload: payload,
-                manifest: manifest,
-                profileDirectories: [Self.activeProfileDirectory()]
-            )
-            SnapDrillLogger.generic.info("恢复前自动备份已保存: \(url.lastPathComponent)")
-            return url
-        } catch {
-            // 自动备份失败不中断恢复流程，仅记录日志
-            SnapDrillLogger.generic.warning("恢复前自动备份失败（不影响恢复操作）: \(error)")
-            return nil
-        }
-    }
-
-    private func cleanupAutoBackup(_ url: URL?) {
-        guard let url else { return }
-        try? FileManager.default.removeItem(at: url) // best-effort: 临时备份清理
+    /// 构造备份 / 恢复编排器（注入 VM 持有的依赖）
+    private func makeBackupCoordinator() -> SettingsBackupCoordinator {
+        SettingsBackupCoordinator(
+            repositories: repositories,
+            profileManager: profileManager,
+            backupService: backupService
+        )
     }
 }
