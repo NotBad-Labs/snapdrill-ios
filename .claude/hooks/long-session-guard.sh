@@ -3,7 +3,7 @@
 # 不阻塞（exit 0），仅 stderr 输出提醒，每会话只提示一次
 #
 # 时长基于 .claude/session-log.txt 第一行时间戳（log-file-change.sh 写入）
-# 来源：Hermes 借鉴 docs/archive/research/hermes-agent-study-20260418.md
+# 来源：Hermes agent 研究借鉴（原始研究文档已随 B1 元规则清理移除）
 
 set -eo pipefail
 

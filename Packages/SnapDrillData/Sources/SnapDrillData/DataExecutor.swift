@@ -30,7 +30,7 @@ import SnapDrillCore
 /// ## nonisolated(unsafe) 使用正当化
 /// - `ModelContainer` 是 Apple SDK 类型，尚未审计 Sendable
 /// - init 后 `let` 只读，Apple 保证 `container.mainContext` 线程安全
-/// - 符合 coding.md nonisolated(unsafe) 允许条件：Apple SDK 类型 + 只读访问
+/// - nonisolated(unsafe) 仅限 Apple SDK 类型 + 只读访问（无可变共享状态，线程安全）
 public actor DataExecutor {
 
     // MARK: - Properties
