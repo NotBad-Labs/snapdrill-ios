@@ -65,7 +65,18 @@ struct ContentTaggingServiceTests {
         #expect(mock.suggestCallCount == 3)
     }
 
-    // 生产实现依赖 FoundationModels（SystemLanguageModel.default.isAvailable 在
-    // Simulator 上检查耗时 ~150s），因此不在 CI 测试中调用 ContentTaggingService。
-    // 真机验证通过手动测试覆盖。
+    // MARK: - 生产实现确定性守卫（审计 #9：原测试只覆盖 Mock，不触发生产 suggestTags）
+
+    @Test("生产 suggestTags：空白文本走输入守卫直接返回 nil，不触发 FoundationModels 可用性检查")
+    func production_blankText_returnsNilWithoutModelCheck() async {
+        let service = ContentTaggingService()
+        // 空文本守卫位于 SystemLanguageModel.isAvailable 检查之前，
+        // 故此路径快速且确定，不触发 Simulator 上 ~150s 的可用性检查。
+        #expect(await service.suggestTags(for: "") == nil)
+        #expect(await service.suggestTags(for: "   \n\t  ") == nil)
+    }
+
+    // 生产实现的 AI 推断路径（非空文本）依赖 FoundationModels：
+    // SystemLanguageModel.default.isAvailable 在 Simulator 上检查耗时 ~150s，
+    // 故 CI 不调用该路径，仅由真机手动测试覆盖。空文本守卫路径已由上方测试守护。
 }
