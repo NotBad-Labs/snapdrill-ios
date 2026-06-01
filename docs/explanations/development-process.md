@@ -68,7 +68,9 @@ SnapDrill：家庭教育拍照存档 iOS app（SwiftUI / iOS 26+ / Swift 6.3）�
 
 > 来源：Claude 58-agent 审计（单源 v0，待 Batch 2 异源复核）。**完整 45 条带 file:line 在 `[[project_audit_fix_progress]]` + workflow 输出**；此处登记可追溯锚点。
 
-- **KI-01【已 5 源印证 🔴】activityTracker 实例隔离**：`ProfileManager.swift:226` 查 `AppActivityTracker.shared`，但 `LiveServiceContainer.swift:63` 注入 `AppActivityTracker()` 新实例、`DependencyContainer.swift:53` 未传入 → 导出/采集 begin/end 在新实例，Profile 切换保护读 .shared 看不到 → **切换保护形同虚设**。修：DependencyContainer 注入 `.shared`（1 行）+ 集成测试。
+- **KI-01【已 9 源印证 🔴】activityTracker 实例隔离**：`ProfileManager.swift:226` 查 `AppActivityTracker.shared`，但 `DependencyContainer.swift:53` 未给 `LiveServiceContainer` 传 activityTracker → `services.activityTracker` 是 `LiveServiceContainer.swift:63` 新建的 `AppActivityTracker()`、与 `.shared` 不同实例。
+  - **范围（4 方咨询纠正，deepseek 实证）**：**仅 `ExportPreviewView` 导出流受影响**（它用 `services.activityTracker`）；采集/设置/编辑 VM 在调用点未传参、走默认 `?? .shared`，与 ProfileManager 同实例、保护未失效。v0/早期"导出+采集都失效"**过度估计**。
+  - **修法（recon 纠正）：非 1 行**——App target `SWIFT_TREAT_WARNINGS_AS_ERRORS=YES`（零容忍），在 App 层新引用 deprecated `.shared` 会编译报错；正解=多文件注入单一实例到 ProfileManager（弃用 .shared，根治 grok 指出的 S-D4-001 迁移未完成）。**作为紧邻独立 PR（KI-01b），不阻塞 Batch 1 只读审计**。
 - **KI-02【doc≠code，deepseek 抓、已核】SmartPaper**：`SmartPaperView/ViewModel/Tests` 代码已存在，但 `feat-smartpaper.md` = `status: blocked / tier: pro / blocked_by:[479]`。须裁决：spec 改 implemented，还是代码本不该在 free 闭环。
 - **KI-03【gap≠contradiction，v0 归错类已改】Dashboard**：`SnapDrillFeatureDashboard`(8 文件) 无 `feat-dashboard.md`——是**孤儿代码(无 spec)**，非"矛盾"。修：建 active feat-dashboard.md 或在 feat-review 声明归属。
 - **KI-04【待 Batch 2 列具体条目】**：58-agent 报的 4 处 SSOT 矛盾（CSV 字段数/CSV 引号/空集导出/复习目标范围）+ 隐私铁律零 oracle（EXIF/CSV 注入/去答案 PDF）+ 数据丢失级 audit#1（迁移非原子/Profile 还原失同步等）。
