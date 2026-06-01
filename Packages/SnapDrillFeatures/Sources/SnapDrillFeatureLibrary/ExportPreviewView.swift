@@ -28,6 +28,7 @@ struct ExportPreviewView: View {
     @State private var showGenerateError = false
 
     @Environment(\.profileManager) private var profileManager
+    @Environment(\.services) private var services
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
     
     var body: some View {
@@ -68,17 +69,23 @@ struct ExportPreviewView: View {
     private func generatePDF() {
         // 在 MainActor 上下文中捕获，避免 Task 闭包中跨 actor 访问
         let storage = imageStorage
+        // 经 ServiceContainer 注入，而非直调 PDFExportService.shared（DI 铁律）
+        let pdfExport = services.pdfExport
+        // 导出期间标记 .exporting，阻塞 Profile 切换避免读到错 Vault
+        let activityTracker = services.activityTracker
         // Run in background
         Task {
+            activityTracker.begin(.exporting)
+            defer { activityTracker.end(.exporting) }
             do {
-                let data = try await PDFExportService.shared.createPDF(from: items, options: options) { path in
+                let data = try await pdfExport.createPDF(from: items, options: options) { path in
                     // autoreleasepool 确保每张图片渲染后立即释放，避免 50+ 题时 OOM
                     // 降采样到 1200px（A4 150dpi 足够），避免 12MB/张全分辨率位图堆积
                     return autoreleasepool {
                         storage.loadDownsampledImage(path: path, maxLongSide: 1200)
                     }
                 }
-                
+
                 await MainActor.run {
                     self.pdfData = data
                     self.isLoading = false

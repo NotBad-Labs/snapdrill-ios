@@ -291,7 +291,10 @@ public final class LibraryViewModel {
             }
             try repositories.review.saveContext()
         } catch {
+            // 回滚未提交的更改，避免脏 TagModel 与标签关系污染共享 ModelContext
             SnapDrillLogger.generic.error("批量打标签失败: \(error.localizedDescription)")
+            repositories.tag.rollbackContext()
+            repositories.review.rollbackContext()
             self.operationError = L10n.Errors.batchTagFailed
         }
     }
