@@ -110,6 +110,10 @@ public final class CaptureResultViewModel {
     private let imageStorage: ImageStorage
     private let router: CaptureRouter
     private let contentTaggingService: ContentTaggingServiceProtocol
+    /// 草稿服务（S-D4-001 起从 ServiceContainer 注入，默认 .shared 兼容历史调用方）
+    private let draftService: CaptureDraftServiceProtocol
+    /// 活动追踪器（S-D4-001 起注入，避免静态单例污染测试）
+    private let activityTracker: AppActivityTracker
 
     /// AI 标注是否正在进行
     public var isTagging = false
@@ -153,7 +157,9 @@ public final class CaptureResultViewModel {
         analyticsService: AnalyticsServiceProtocol,
         imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
         contentTaggingService: ContentTaggingServiceProtocol = ContentTaggingService(),
-        router: CaptureRouter
+        router: CaptureRouter,
+        draftService: CaptureDraftServiceProtocol? = nil,
+        activityTracker: AppActivityTracker? = nil
     ) {
         self.content = content
         self.image = image
@@ -163,6 +169,8 @@ public final class CaptureResultViewModel {
         self.imageStorage = imageStorage
         self.contentTaggingService = contentTaggingService
         self.router = router
+        self.draftService = draftService ?? CaptureDraftService.shared
+        self.activityTracker = activityTracker ?? AppActivityTracker.shared
     }
 
     // MARK: - Public API
@@ -218,54 +226,52 @@ public final class CaptureResultViewModel {
         }
     }
 
-    /// 创建新学科并选中
-    public func confirmNewSubject() {
-        let trimmed = newSubjectName.trimmingCharacters(in: .whitespaces)
-        newSubjectName = ""
+    /// 新建分类项的公共流程:trim 输入 → 清空 → 校验非空 → 执行创建 → 统一错误处理。
+    /// `create` 闭包封装各分类(学科/来源/年级)的差异:建 Model、insertAndSave、刷新列表、选中。
+    private func createTaxonomy(
+        name: inout String,
+        label: String,
+        create: (_ trimmed: String) throws -> Void
+    ) {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        name = ""
         guard !trimmed.isEmpty else { return }
         do {
+            try create(trimmed)
+        } catch {
+            SnapDrillLogger.generic.error("新建\(label)失败: \(error.localizedDescription)")
+            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
+            self.showErrorAlert = true
+        }
+    }
+
+    /// 创建新学科并选中
+    public func confirmNewSubject() {
+        createTaxonomy(name: &newSubjectName, label: "学科") { trimmed in
             let model = SubjectModel(name: trimmed, icon: "book", colorHex: "#808080", sortOrder: availableSubjects.count)
             try repositories.subject.insertAndSave(model)
             availableSubjects = try repositories.subject.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
             selectedSubject = trimmed
-        } catch {
-            SnapDrillLogger.generic.error("新建学科失败: \(error.localizedDescription)")
-            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
-            self.showErrorAlert = true
         }
     }
 
     /// 创建新来源并选中
     public func confirmNewSource() {
-        let trimmed = newSourceName.trimmingCharacters(in: .whitespaces)
-        newSourceName = ""
-        guard !trimmed.isEmpty else { return }
-        do {
+        createTaxonomy(name: &newSourceName, label: "来源") { trimmed in
             let model = SourceModel(name: trimmed)
             try repositories.source.insertAndSave(model)
             availableSources = try repositories.source.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
             selectedSource = trimmed
-        } catch {
-            SnapDrillLogger.generic.error("新建来源失败: \(error.localizedDescription)")
-            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
-            self.showErrorAlert = true
         }
     }
 
     /// 创建新年级并选中
     public func confirmNewGrade() {
-        let trimmed = newGradeName.trimmingCharacters(in: .whitespaces)
-        newGradeName = ""
-        guard !trimmed.isEmpty else { return }
-        do {
+        createTaxonomy(name: &newGradeName, label: "年级") { trimmed in
             let model = GradeModel(name: trimmed)
             try repositories.grade.insertAndSave(model)
             availableGrades = try repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
             grade = trimmed
-        } catch {
-            SnapDrillLogger.generic.error("新建年级失败: \(error.localizedDescription)")
-            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
-            self.showErrorAlert = true
         }
     }
 
@@ -290,7 +296,7 @@ public final class CaptureResultViewModel {
         // 有图片或有文字内容时都保存草稿，防止意外退出时内容丢失
         let hasContent = !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         if !isSaved, image != nil || hasContent {
-            await CaptureDraftService.shared.saveDraft(image: image, content: content, subject: selectedSubject)
+            await draftService.saveDraft(image: image, content: content, subject: selectedSubject)
         }
     }
 
@@ -315,61 +321,29 @@ public final class CaptureResultViewModel {
     }
 
     /// 保存正式题目
+    ///
+    /// 保存事务（校验/标签/存图/插入/saveContext/失败回滚+清理）委托给无状态的
+    /// `CaptureSaveCoordinator`；本方法只负责活动追踪 + 成功/失败的 UI 编排。
     public func saveResult() async {
-        AppActivityTracker.shared.begin(.capturing)
-        defer { AppActivityTracker.shared.end(.capturing) }
+        activityTracker.begin(.capturing)
+        defer { activityTracker.end(.capturing) }
 
-        // 声明在 do 块外，确保 catch 中可访问以清理孤儿文件
-        var savedImagePath: String?
-        var savedAnswerImagePath: String?
-
+        let coordinator = CaptureSaveCoordinator(repositories: repositories, imageStorage: imageStorage)
+        let form = CaptureFormSnapshot(
+            content: content,
+            image: image,
+            subject: selectedSubject,
+            source: selectedSource,
+            tagList: tagList,
+            answerText: answerText,
+            answerImage: answerImage,
+            difficulty: difficulty,
+            grade: grade
+        )
         do {
-            // 业务规则：题目文字和图片至少有一个
-            let contentValue = content.isEmpty ? nil : content
-            guard contentValue != nil || image != nil else {
-                throw CaptureSaveError.contentAndImageEmpty
-            }
-
-            // 解析并同步标签（纯内存操作，fetchOrCreateModel 不再内部 save）
-            var finalTagModels: [TagModel] = []
-            for name in tagList {
-                let tagModel = try repositories.tag.fetchOrCreateModel(name: name, colorHex: "#CCCCCC")
-                finalTagModels.append(tagModel)
-            }
-
-            // 持久化题目截图，获取本地相对路径
-            if let img = image {
-                savedImagePath = try await imageStorage.saveImage(img)
-            }
-
-            // 持久化答案图片
-            if let answerImg = answerImage {
-                savedAnswerImagePath = try await imageStorage.saveImage(answerImg)
-            }
-
-            // 构造 @Model 对象并插入（纯内存），再统一 saveContext
-            let model = ReviewItemModel(
-                content: contentValue,
-                imagePath: savedImagePath,
-                subject: selectedSubject,
-                source: selectedSource,
-                tags: finalTagModels,
-                answerText: answerText.isEmpty ? nil : answerText,
-                answerImagePath: savedAnswerImagePath,
-                difficulty: difficulty.rawValue,
-                grade: grade
-            )
-            repositories.review.insert(model)
-            try repositories.review.saveContext()
-
+            try await coordinator.save(form)
             handleSaveSuccess()
-
         } catch {
-            // 回滚 mainContext：清除本次操作插入的脏 Tag 和脏 ReviewItemModel。
-            // 单用户本地优先架构下，saveResult 执行期间 mainContext 不存在其他并发未保存变更，
-            // rollback 影响范围仅限本次调用，不会丢失其他模块的数据。
-            repositories.review.rollbackContext()
-            await cleanupOrphanImages(imagePath: savedImagePath, answerImagePath: savedAnswerImagePath)
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
             self.errorMessage = L10n.Errors.saveFailed
             self.showErrorAlert = true
@@ -409,49 +383,13 @@ public final class CaptureResultViewModel {
 
     /// 保存成功后的导航：短暂延迟让触觉反馈生效，再执行退栈
     private func navigateAfterSave() {
-        CaptureDraftService.shared.clearDraft()
+        draftService.clearDraft()
 
         // 延迟 0.3s 让触觉反馈生效，用户可感知保存成功
         navigateTask = Task {
             try? await Task.sleep(for: .milliseconds(300)) // best-effort: 取消即导航，延迟中断不影响正确性
             guard !Task.isCancelled else { return }
-            performNavigation()
-        }
-    }
-
-    /// 执行实际的退栈导航
-    private func performNavigation() {
-        // 连续裁剪模式：同步设置标志（供 CaptureView 的 path onChange 判断是否保留原图），
-        // 退栈后延迟触发裁剪器弹出，避免退栈动画与 fullScreenCover 在同帧竞争
-        if router.originalAlbumImage != nil {
-            router.shouldContinuousCrop = true
-            if !router.path.isEmpty {
-                router.path.removeLast()
-            }
-        } else if router.pdfDocument != nil || router.scannedPages != nil {
-            // PDF / 文档扫描模式：仅退栈，回到页面选择器（让用户继续选下一页）
-            if !router.path.isEmpty {
-                router.path.removeLast()
-            }
-        } else {
-            // 拍照/手动/粘贴板模式：退栈并重新打开摄像头
-            if !router.path.isEmpty {
-                router.path.removeLast()
-            }
-            // UI 测试模式下不重开相机（模拟器无相机权限会阻塞测试流程）
-            if !ProcessInfo.processInfo.arguments.contains("--uitesting") {
-                router.shouldReopenScanner = true
-            }
-        }
-    }
-
-    /// 清理保存失败时已写入磁盘的孤儿图片文件（best-effort，async 避免阻塞主线程）
-    private func cleanupOrphanImages(imagePath: String?, answerImagePath: String?) async {
-        if let path = imagePath {
-            try? await imageStorage.deleteImage(path: path) // best-effort: 孤儿文件删除失败不影响业务流程
-        }
-        if let path = answerImagePath {
-            try? await imageStorage.deleteImage(path: path) // best-effort: 孤儿文件删除失败不影响业务流程
+            router.popAfterSave(isUITesting: ProcessInfo.processInfo.arguments.contains("--uitesting"))
         }
     }
 

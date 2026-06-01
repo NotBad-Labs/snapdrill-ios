@@ -74,13 +74,26 @@ public final class CaptureViewModel {
     // MARK: - Dependencies
     
     public let ocrService: OCRServiceProtocol
-    
+    /// 草稿服务（S-D4-001 起从 ServiceContainer 注入，默认 .shared 兼容历史调用方）
+    private let draftService: CaptureDraftServiceProtocol
+    /// 活动追踪器（S-D4-001 起注入，避免静态单例污染测试）
+    private let activityTracker: AppActivityTracker
+
     // MARK: - Initialization
-    
+
     /// 创建采集功能 ViewModel
-    /// - Parameter ocrService: OCR 识别服务，默认使用 `OCRService()`
-    public init(ocrService: OCRServiceProtocol = OCRService()) {
+    /// - Parameters:
+    ///   - ocrService: OCR 识别服务，默认使用 `OCRService()`
+    ///   - draftService: 草稿服务，默认 `CaptureDraftService.shared`
+    ///   - activityTracker: 活动追踪器，默认 `AppActivityTracker.shared`
+    public init(
+        ocrService: OCRServiceProtocol = OCRService(),
+        draftService: CaptureDraftServiceProtocol? = nil,
+        activityTracker: AppActivityTracker? = nil
+    ) {
         self.ocrService = ocrService
+        self.draftService = draftService ?? CaptureDraftService.shared
+        self.activityTracker = activityTracker ?? AppActivityTracker.shared
     }
     
     // MARK: - Public API
@@ -106,7 +119,7 @@ public final class CaptureViewModel {
 
     /// 页面出现时检查是否有未完成草稿，若有则弹出恢复提示
     public func checkDraftOnAppear() {
-        if let draft = CaptureDraftService.shared.loadDraft() {
+        if let draft = draftService.loadDraft() {
             pendingDraft = draft
             showDraftAlert = true
         }
@@ -122,7 +135,7 @@ public final class CaptureViewModel {
     
     /// 丢弃当前草稿并清除持久化记录
     public func clearDraft() {
-        CaptureDraftService.shared.clearDraft()
+        draftService.clearDraft()
         pendingDraft = nil
     }
     
@@ -291,8 +304,8 @@ public final class CaptureViewModel {
     
     private func processImageOCR(_ image: UIImage, router: CaptureRouter) async {
         ocrTask = Task {
-            AppActivityTracker.shared.begin(.capturing)
-            defer { AppActivityTracker.shared.end(.capturing) }
+            activityTracker.begin(.capturing)
+            defer { activityTracker.end(.capturing) }
             do {
                 guard let cgImage = image.cgImage else {
                     throw OCRError.invalidImage

@@ -5,19 +5,19 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  采集结果预览视图，提供裁剪、重拍和确认功能。
+//  采集结果预览视图。布局拆分为 4 个 Section 子 View（图片/正文/分类/详情）；
+//  本文件负责组装、生命周期、toolbar、以及 alert/cover/popover 等 modifier 协调。
 //
 
 import SwiftUI
 import SnapDrillCore
 import SnapDrillUI
-import PhotosUI
 
 /// 采集结果预览与编辑视图
 public struct CaptureResultView: View {
-    
+
     // MARK: - Properties
-    
+
     // @Bindable 用于外部传入的 @Observable 对象，不持有所有权（区别于 @State）
     @Bindable var viewModel: CaptureResultViewModel
 
@@ -33,295 +33,30 @@ public struct CaptureResultView: View {
     public init(viewModel: CaptureResultViewModel) {
         self.viewModel = viewModel
     }
-    
+
     // MARK: - Body
-    
-    /// 采集结果预览与编辑的视图层次
+
+    /// 采集结果预览与编辑的视图层次（组装 4 个 Section + 生命周期/toolbar/弹窗协调）
     public var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // 图片预览
-                if let image = viewModel.image {
-                    ZStack(alignment: .bottomTrailing) {
-                        Image(uiImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxHeight: 200)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .accessibleImage(label: L10n.Accessibility.questionImage)
-                            .overlay {
-                                if viewModel.isRecognizing {
-                                    ZStack {
-                                        Color.black.opacity(0.3)
-                                        ProgressView()
-                                            .tint(.white)
-                                    }
-                                }
-                            }
-                
-                        Button(action: {
-                            viewModel.isCropping = true
-                        }, label: {
-                            Image(systemName: "crop")
-                                .font(.system(size: 20))
-                                .foregroundStyle(.white)
-                                .padding(10)
-                                .background(Color.black.opacity(0.6))
-                                .clipShape(Circle())
-                        })
-                        .accessibleButton(label: L10n.Accessibility.cropImage, hint: L10n.Accessibility.cropImageHint)
-                        .padding(8)
-                        .disabled(viewModel.isRecognizing)
-                    }
-                    .padding(.horizontal)
-                }
-        
-                // 编辑区
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text(L10n.Capture.questionContent)
-                            .font(.headline)
-                        if viewModel.isRecognizing {
-                            Text(L10n.Capture.reRecognizing)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        // 复制 OCR 文本到剪贴板
-                        if !viewModel.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            Button {
-                                UIPasteboard.general.string = viewModel.content
-                                viewModel.copyConfirmationCount += 1
-                            } label: {
-                                Image(systemName: "doc.on.doc")
-                                    .font(.body)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .accessibleButton(
-                                label: L10n.Capture.copyContent,
-                                hint: L10n.Accessibility.copyContentHint
-                            )
-                            .sensoryFeedback(.success, trigger: viewModel.copyConfirmationCount)
-                        }
-                    }
-            
-                    TextEditor(text: $viewModel.content)
-                        .font(.body)
-                        .padding(12)
-                        .frame(minHeight: 120)
-                        .background(Color(UIColor.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .opacity(viewModel.isRecognizing ? 0.6 : 1)
-                        .disabled(viewModel.isRecognizing)
-                        .accessibilityIdentifier("capture.contentEditor")
-                }
-                .padding(.horizontal)
-        
-                // Metadata Form（字段按 Settings 中的开关条件渲染）
-                VStack(alignment: .leading, spacing: 20) {
-                    Text(L10n.Capture.categoryInfo)
-                        .font(.headline)
-                        .padding(.horizontal)
+                CaptureImageSection(viewModel: viewModel)
 
-                    VStack(spacing: 0) {
-                        // Subject — Menu label 仅覆盖右侧（当前值 + chevron），弹出框锚定右侧，左侧标签始终可见
-                        // 支持内联新建：Things 3 / Notion / Apple Notes 均采用此模式
-                        if showSubjectField {
-                            HStack {
-                                Text(L10n.Capture.subject)
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                Menu {
-                                    ForEach(viewModel.availableSubjects) { subject in
-                                        Button {
-                                            viewModel.selectedSubject = subject.name
-                                        } label: {
-                                            Label(subject.name, systemImage: subject.icon)
-                                        }
-                                    }
-                                    Divider()
-                                    Button {
-                                        viewModel.showNewSubjectAlert = true
-                                    } label: {
-                                        Label(L10n.Capture.newSubject, systemImage: "plus")
-                                    }
-                                } label: {
-                                    HStack(spacing: 4) {
-                                        Text(viewModel.selectedSubject)
-                                            .foregroundStyle(.secondary)
-                                        Image(systemName: "chevron.up.chevron.down")
-                                            .font(.caption2)
-                                            .foregroundStyle(.tertiary)
-                                    }
-                                }
-                            }
-                            .padding()
-                        }
+                CaptureContentSection(viewModel: viewModel)
 
-                        // Source — 同上：Menu label 仅右侧，保留内联新建
-                        if showSourceField {
-                            if showSubjectField { Divider().padding(.leading) }
-                            HStack {
-                                Text(L10n.Capture.source)
-                                    .foregroundStyle(.primary)
-                                Spacer()
-                                Menu {
-                                    ForEach(viewModel.availableSources) { source in
-                                        Button {
-                                            viewModel.selectedSource = source.name
-                                        } label: {
-                                            Label(source.name, systemImage: source.icon)
-                                        }
-                                    }
-                                    Divider()
-                                    Button {
-                                        viewModel.showNewSourceAlert = true
-                                    } label: {
-                                        Label(L10n.Capture.newSource, systemImage: "plus")
-                                    }
-                                } label: {
-                                    HStack(spacing: 4) {
-                                        Text(viewModel.selectedSource)
-                                            .foregroundStyle(.secondary)
-                                        Image(systemName: "chevron.up.chevron.down")
-                                            .font(.caption2)
-                                            .foregroundStyle(.tertiary)
-                                    }
-                                }
-                            }
-                            .padding()
-                        }
+                CaptureMetadataSection(
+                    viewModel: viewModel,
+                    showSubject: showSubjectField,
+                    showSource: showSourceField
+                )
 
-                        // Tags（始终可用，不可关闭）
-                        if showSubjectField || showSourceField { Divider().padding(.leading) }
-                        VStack(alignment: .leading) {
-                            Text(L10n.Capture.tags)
-                            TagInputView(
-                                tags: $viewModel.tagList,
-                                text: $viewModel.tagInputText,
-                                suggestions: viewModel.availableTags.map { $0.name }
-                            )
-                        }
-                        .padding()
-                    }
-                    .background(Color(UIColor.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .padding(.horizontal)
-                }
-        
-                // Details Form（难度、年级、答案 — 全部关闭时整个 section 隐藏）
-                if showDifficultyField || showGradeField || showAnswerField {
-                    VStack(alignment: .leading, spacing: 20) {
-                        Text(L10n.Capture.questionDetails)
-                            .font(.headline)
-                            .padding(.horizontal)
+                CaptureDetailsSection(
+                    viewModel: viewModel,
+                    showDifficulty: showDifficultyField,
+                    showGrade: showGradeField,
+                    showAnswer: showAnswerField
+                )
 
-                        VStack(spacing: 0) {
-                            // 难度
-                            if showDifficultyField {
-                                HStack {
-                                    Text(L10n.Capture.difficulty)
-                                    Spacer()
-                                    HStack(spacing: 4) {
-                                        ForEach(1...5, id: \.self) { level in
-                                            Button {
-                                                viewModel.difficulty = Difficulty(rawValue: level) ?? .one
-                                            } label: {
-                                                Image(systemName: level <= viewModel.difficulty.rawValue ? "star.fill" : "star")
-                                                    .foregroundStyle(level <= viewModel.difficulty.rawValue ? .orange : .gray.opacity(0.3))
-                                            }
-                                            .buttonStyle(.plain)
-                                            .accessibilityLabel(L10n.Accessibility.starRating(difficulty: level))
-                                        }
-                                    }
-                                }
-                                .padding()
-                            }
-
-                            // Grade/Mastery — 同上：Menu label 仅右侧，保留内联新建
-                            if showGradeField {
-                                if showDifficultyField { Divider().padding(.leading) }
-                                HStack {
-                                    Text(L10n.Capture.grade)
-                                        .foregroundStyle(.primary)
-                                    Spacer()
-                                    Menu {
-                                        ForEach(viewModel.availableGrades) { grade in
-                                            Button {
-                                                viewModel.grade = grade.name
-                                            } label: {
-                                                Text(grade.name)
-                                            }
-                                        }
-                                        Divider()
-                                        Button {
-                                            viewModel.showNewGradeAlert = true
-                                        } label: {
-                                            Label(L10n.Capture.newGrade, systemImage: "plus")
-                                        }
-                                    } label: {
-                                        HStack(spacing: 4) {
-                                            Text(viewModel.grade.isEmpty ? L10n.Common.notSelected : viewModel.grade)
-                                                .foregroundStyle(viewModel.grade.isEmpty ? .tertiary : .secondary)
-                                            Image(systemName: "chevron.up.chevron.down")
-                                                .font(.caption2)
-                                                .foregroundStyle(.tertiary)
-                                        }
-                                    }
-                                }
-                                .padding()
-                            }
-
-                            // 答案
-                            if showAnswerField {
-                                if showDifficultyField || showGradeField { Divider().padding(.leading) }
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text(L10n.Capture.answer)
-                                    TextEditor(text: $viewModel.answerText)
-                                        .frame(minHeight: 80)
-                                        .scrollContentBackground(.hidden)
-                                        .background(Color(UIColor.tertiarySystemFill))
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                                    // 答案图片选择
-                                    HStack {
-                                        if let answerImage = viewModel.answerImage {
-                                            Image(uiImage: answerImage)
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fit)
-                                                .frame(maxHeight: 100)
-                                                .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                                            Button(role: .destructive) {
-                                                viewModel.answerImage = nil
-                                            } label: {
-                                                Image(systemName: "xmark.circle.fill")
-                                                    .foregroundStyle(.red)
-                                            }
-                                        }
-
-                                        Spacer()
-
-                                        PhotosPicker(selection: $viewModel.answerPhotoItem, matching: .images) {
-                                            Label(L10n.Capture.addAnswerImage, systemImage: "photo.badge.plus")
-                                                .font(.subheadline)
-                                        }
-                                    }
-                                    // HIG：破坏性操作用 warning 反馈；挂在 HStack（稳定父视图）上，
-                                    // 避免挂在 if let 条件分支内导致 modifier 随 View 移除而失效
-                                    .sensoryFeedback(.warning, trigger: viewModel.answerImage) { old, new in
-                                        old != nil && new == nil
-                                    }
-                                }
-                                .padding()
-                            }
-                        }
-                        .background(Color(UIColor.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .padding(.horizontal)
-                    }
-                }
-        
                 Spacer(minLength: 20)
             }
             .padding(.vertical)
@@ -403,4 +138,3 @@ public struct CaptureResultView: View {
 }
 
 // 移除 Preview 以避免繁琐的 Mock 数据注入依赖
-
