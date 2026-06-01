@@ -226,54 +226,52 @@ public final class CaptureResultViewModel {
         }
     }
 
-    /// 创建新学科并选中
-    public func confirmNewSubject() {
-        let trimmed = newSubjectName.trimmingCharacters(in: .whitespaces)
-        newSubjectName = ""
+    /// 新建分类项的公共流程:trim 输入 → 清空 → 校验非空 → 执行创建 → 统一错误处理。
+    /// `create` 闭包封装各分类(学科/来源/年级)的差异:建 Model、insertAndSave、刷新列表、选中。
+    private func createTaxonomy(
+        name: inout String,
+        label: String,
+        create: (_ trimmed: String) throws -> Void
+    ) {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        name = ""
         guard !trimmed.isEmpty else { return }
         do {
+            try create(trimmed)
+        } catch {
+            SnapDrillLogger.generic.error("新建\(label)失败: \(error.localizedDescription)")
+            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
+            self.showErrorAlert = true
+        }
+    }
+
+    /// 创建新学科并选中
+    public func confirmNewSubject() {
+        createTaxonomy(name: &newSubjectName, label: "学科") { trimmed in
             let model = SubjectModel(name: trimmed, icon: "book", colorHex: "#808080", sortOrder: availableSubjects.count)
             try repositories.subject.insertAndSave(model)
             availableSubjects = try repositories.subject.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
             selectedSubject = trimmed
-        } catch {
-            SnapDrillLogger.generic.error("新建学科失败: \(error.localizedDescription)")
-            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
-            self.showErrorAlert = true
         }
     }
 
     /// 创建新来源并选中
     public func confirmNewSource() {
-        let trimmed = newSourceName.trimmingCharacters(in: .whitespaces)
-        newSourceName = ""
-        guard !trimmed.isEmpty else { return }
-        do {
+        createTaxonomy(name: &newSourceName, label: "来源") { trimmed in
             let model = SourceModel(name: trimmed)
             try repositories.source.insertAndSave(model)
             availableSources = try repositories.source.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
             selectedSource = trimmed
-        } catch {
-            SnapDrillLogger.generic.error("新建来源失败: \(error.localizedDescription)")
-            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
-            self.showErrorAlert = true
         }
     }
 
     /// 创建新年级并选中
     public func confirmNewGrade() {
-        let trimmed = newGradeName.trimmingCharacters(in: .whitespaces)
-        newGradeName = ""
-        guard !trimmed.isEmpty else { return }
-        do {
+        createTaxonomy(name: &newGradeName, label: "年级") { trimmed in
             let model = GradeModel(name: trimmed)
             try repositories.grade.insertAndSave(model)
             availableGrades = try repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
             grade = trimmed
-        } catch {
-            SnapDrillLogger.generic.error("新建年级失败: \(error.localizedDescription)")
-            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
-            self.showErrorAlert = true
         }
     }
 
