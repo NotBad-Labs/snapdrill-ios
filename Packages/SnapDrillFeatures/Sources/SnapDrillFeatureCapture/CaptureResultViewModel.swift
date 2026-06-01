@@ -110,6 +110,10 @@ public final class CaptureResultViewModel {
     private let imageStorage: ImageStorage
     private let router: CaptureRouter
     private let contentTaggingService: ContentTaggingServiceProtocol
+    /// 草稿服务（S-D4-001 起从 ServiceContainer 注入，默认 .shared 兼容历史调用方）
+    private let draftService: CaptureDraftServiceProtocol
+    /// 活动追踪器（S-D4-001 起注入，避免静态单例污染测试）
+    private let activityTracker: AppActivityTracker
 
     /// AI 标注是否正在进行
     public var isTagging = false
@@ -153,7 +157,9 @@ public final class CaptureResultViewModel {
         analyticsService: AnalyticsServiceProtocol,
         imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
         contentTaggingService: ContentTaggingServiceProtocol = ContentTaggingService(),
-        router: CaptureRouter
+        router: CaptureRouter,
+        draftService: CaptureDraftServiceProtocol? = nil,
+        activityTracker: AppActivityTracker? = nil
     ) {
         self.content = content
         self.image = image
@@ -163,6 +169,8 @@ public final class CaptureResultViewModel {
         self.imageStorage = imageStorage
         self.contentTaggingService = contentTaggingService
         self.router = router
+        self.draftService = draftService ?? CaptureDraftService.shared
+        self.activityTracker = activityTracker ?? AppActivityTracker.shared
     }
 
     // MARK: - Public API
@@ -290,7 +298,7 @@ public final class CaptureResultViewModel {
         // 有图片或有文字内容时都保存草稿，防止意外退出时内容丢失
         let hasContent = !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         if !isSaved, image != nil || hasContent {
-            await CaptureDraftService.shared.saveDraft(image: image, content: content, subject: selectedSubject)
+            await draftService.saveDraft(image: image, content: content, subject: selectedSubject)
         }
     }
 
@@ -316,8 +324,8 @@ public final class CaptureResultViewModel {
 
     /// 保存正式题目
     public func saveResult() async {
-        AppActivityTracker.shared.begin(.capturing)
-        defer { AppActivityTracker.shared.end(.capturing) }
+        activityTracker.begin(.capturing)
+        defer { activityTracker.end(.capturing) }
 
         // 声明在 do 块外，确保 catch 中可访问以清理孤儿文件
         var savedImagePath: String?
@@ -409,39 +417,13 @@ public final class CaptureResultViewModel {
 
     /// 保存成功后的导航：短暂延迟让触觉反馈生效，再执行退栈
     private func navigateAfterSave() {
-        CaptureDraftService.shared.clearDraft()
+        draftService.clearDraft()
 
         // 延迟 0.3s 让触觉反馈生效，用户可感知保存成功
         navigateTask = Task {
             try? await Task.sleep(for: .milliseconds(300)) // best-effort: 取消即导航，延迟中断不影响正确性
             guard !Task.isCancelled else { return }
-            performNavigation()
-        }
-    }
-
-    /// 执行实际的退栈导航
-    private func performNavigation() {
-        // 连续裁剪模式：同步设置标志（供 CaptureView 的 path onChange 判断是否保留原图），
-        // 退栈后延迟触发裁剪器弹出，避免退栈动画与 fullScreenCover 在同帧竞争
-        if router.originalAlbumImage != nil {
-            router.shouldContinuousCrop = true
-            if !router.path.isEmpty {
-                router.path.removeLast()
-            }
-        } else if router.pdfDocument != nil || router.scannedPages != nil {
-            // PDF / 文档扫描模式：仅退栈，回到页面选择器（让用户继续选下一页）
-            if !router.path.isEmpty {
-                router.path.removeLast()
-            }
-        } else {
-            // 拍照/手动/粘贴板模式：退栈并重新打开摄像头
-            if !router.path.isEmpty {
-                router.path.removeLast()
-            }
-            // UI 测试模式下不重开相机（模拟器无相机权限会阻塞测试流程）
-            if !ProcessInfo.processInfo.arguments.contains("--uitesting") {
-                router.shouldReopenScanner = true
-            }
+            router.popAfterSave(isUITesting: ProcessInfo.processInfo.arguments.contains("--uitesting"))
         }
     }
 

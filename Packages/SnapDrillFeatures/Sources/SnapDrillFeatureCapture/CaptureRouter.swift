@@ -78,4 +78,24 @@ public final class CaptureRouter: @MainActor FeatureRouter {
         path = NavigationPath()
         path.append(CaptureDestination.scannerResult(content: draft.content, image: draft.image))
     }
+
+    /// 保存成功后的退栈导航（导航策略从 CaptureResultViewModel 迁入，归 router 自身）
+    ///
+    /// 连续裁剪模式必须先设 `shouldContinuousCrop = true` 再 `path.removeLast()`，
+    /// 否则 CaptureView 监听 path.isEmpty 时会清掉 originalAlbumImage。
+    /// - Parameter isUITesting: UI 测试模式下不重开相机（模拟器无相机权限会阻塞测试流程）
+    public func popAfterSave(isUITesting: Bool) {
+        if originalAlbumImage != nil {
+            // 连续裁剪：同步设置标志（供 CaptureView 的 path onChange 判断是否保留原图）
+            shouldContinuousCrop = true
+            if !path.isEmpty { path.removeLast() }
+        } else if pdfDocument != nil || scannedPages != nil {
+            // PDF / 文档扫描：仅退栈，回页面选择器（让用户继续选下一页）
+            if !path.isEmpty { path.removeLast() }
+        } else {
+            // 拍照/手动/粘贴板：退栈并重开摄像头
+            if !path.isEmpty { path.removeLast() }
+            if !isUITesting { shouldReopenScanner = true }
+        }
+    }
 }
