@@ -75,6 +75,7 @@ public final class LibraryEditViewModel {
     private let repositories: RepositoryContainer
     private let imageStorage: ImageStorage
     private let ocrService: OCRServiceProtocol
+    private let activityTracker: AppActivityTracker
 
     /// OCR 任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
     /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
@@ -87,16 +88,19 @@ public final class LibraryEditViewModel {
     ///   - repositories: 应用的数据仓库容器
     ///   - imageStorage: 图片存储服务，默认使用 `ImageStorage()`
     ///   - ocrService: OCR 识别服务，默认使用 `OCRService()`
+    ///   - activityTracker: 活动追踪器（默认参数缝注入，避免静态单例污染测试）
     public init(
         item: ReviewItemModel,
         repositories: RepositoryContainer,
         imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
-        ocrService: OCRServiceProtocol = OCRService()
+        ocrService: OCRServiceProtocol = OCRService(),
+        activityTracker: AppActivityTracker? = nil
     ) {
         self.item = item
         self.repositories = repositories
         self.imageStorage = imageStorage
         self.ocrService = ocrService
+        self.activityTracker = activityTracker ?? AppActivityTracker.shared
 
         self.content = item.content ?? ""
         self.answer = item.answerText ?? ""
@@ -191,8 +195,8 @@ public final class LibraryEditViewModel {
     public func save() async {
         // 双击防护
         guard !isSaving else { return }
-        AppActivityTracker.shared.begin(.capturing)
-        defer { AppActivityTracker.shared.end(.capturing) }
+        activityTracker.begin(.capturing)
+        defer { activityTracker.end(.capturing) }
         isSaving = true
         defer { isSaving = false }
 
