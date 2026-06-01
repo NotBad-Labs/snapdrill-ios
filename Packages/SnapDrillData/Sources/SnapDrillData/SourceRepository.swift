@@ -37,7 +37,12 @@ public final class SourceRepository {
     public func delete(id: UUID) throws {
         if let model = try fetchModelById(id) {
             modelContext.delete(model)
-            try modelContext.save()
+            do {
+                try modelContext.save()
+            } catch {
+                rollbackContext()
+                throw error
+            }
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
         }
     }
