@@ -58,7 +58,14 @@ public final class ReviewRepository {
         let imagePath = model.imagePath
         let answerImagePath = model.answerImagePath
         modelContext.delete(model)
-        try modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            // save 失败必须回滚，否则脏 delete 标记留在共享 mainContext，
+            // 下次任意无关 save 会误提交这次删除（审计 #5）
+            rollbackContext()
+            throw error
+        }
         // DB 删除成功后清理图片文件（best-effort：文件删除失败不影响数据一致性）
         let imageStorage = imageStorageFactory?() ?? ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
         if let path = imagePath {
