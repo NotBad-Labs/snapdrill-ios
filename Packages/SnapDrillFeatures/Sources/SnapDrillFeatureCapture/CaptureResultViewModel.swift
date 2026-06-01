@@ -321,61 +321,29 @@ public final class CaptureResultViewModel {
     }
 
     /// 保存正式题目
+    ///
+    /// 保存事务（校验/标签/存图/插入/saveContext/失败回滚+清理）委托给无状态的
+    /// `CaptureSaveCoordinator`；本方法只负责活动追踪 + 成功/失败的 UI 编排。
     public func saveResult() async {
         activityTracker.begin(.capturing)
         defer { activityTracker.end(.capturing) }
 
-        // 声明在 do 块外，确保 catch 中可访问以清理孤儿文件
-        var savedImagePath: String?
-        var savedAnswerImagePath: String?
-
+        let coordinator = CaptureSaveCoordinator(repositories: repositories, imageStorage: imageStorage)
+        let form = CaptureFormSnapshot(
+            content: content,
+            image: image,
+            subject: selectedSubject,
+            source: selectedSource,
+            tagList: tagList,
+            answerText: answerText,
+            answerImage: answerImage,
+            difficulty: difficulty,
+            grade: grade
+        )
         do {
-            // 业务规则：题目文字和图片至少有一个
-            let contentValue = content.isEmpty ? nil : content
-            guard contentValue != nil || image != nil else {
-                throw CaptureSaveError.contentAndImageEmpty
-            }
-
-            // 解析并同步标签（纯内存操作，fetchOrCreateModel 不再内部 save）
-            var finalTagModels: [TagModel] = []
-            for name in tagList {
-                let tagModel = try repositories.tag.fetchOrCreateModel(name: name, colorHex: "#CCCCCC")
-                finalTagModels.append(tagModel)
-            }
-
-            // 持久化题目截图，获取本地相对路径
-            if let img = image {
-                savedImagePath = try await imageStorage.saveImage(img)
-            }
-
-            // 持久化答案图片
-            if let answerImg = answerImage {
-                savedAnswerImagePath = try await imageStorage.saveImage(answerImg)
-            }
-
-            // 构造 @Model 对象并插入（纯内存），再统一 saveContext
-            let model = ReviewItemModel(
-                content: contentValue,
-                imagePath: savedImagePath,
-                subject: selectedSubject,
-                source: selectedSource,
-                tags: finalTagModels,
-                answerText: answerText.isEmpty ? nil : answerText,
-                answerImagePath: savedAnswerImagePath,
-                difficulty: difficulty.rawValue,
-                grade: grade
-            )
-            repositories.review.insert(model)
-            try repositories.review.saveContext()
-
+            try await coordinator.save(form)
             handleSaveSuccess()
-
         } catch {
-            // 回滚 mainContext：清除本次操作插入的脏 Tag 和脏 ReviewItemModel。
-            // 单用户本地优先架构下，saveResult 执行期间 mainContext 不存在其他并发未保存变更，
-            // rollback 影响范围仅限本次调用，不会丢失其他模块的数据。
-            repositories.review.rollbackContext()
-            await cleanupOrphanImages(imagePath: savedImagePath, answerImagePath: savedAnswerImagePath)
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
             self.errorMessage = L10n.Errors.saveFailed
             self.showErrorAlert = true
@@ -422,16 +390,6 @@ public final class CaptureResultViewModel {
             try? await Task.sleep(for: .milliseconds(300)) // best-effort: 取消即导航，延迟中断不影响正确性
             guard !Task.isCancelled else { return }
             router.popAfterSave(isUITesting: ProcessInfo.processInfo.arguments.contains("--uitesting"))
-        }
-    }
-
-    /// 清理保存失败时已写入磁盘的孤儿图片文件（best-effort，async 避免阻塞主线程）
-    private func cleanupOrphanImages(imagePath: String?, answerImagePath: String?) async {
-        if let path = imagePath {
-            try? await imageStorage.deleteImage(path: path) // best-effort: 孤儿文件删除失败不影响业务流程
-        }
-        if let path = answerImagePath {
-            try? await imageStorage.deleteImage(path: path) // best-effort: 孤儿文件删除失败不影响业务流程
         }
     }
 
