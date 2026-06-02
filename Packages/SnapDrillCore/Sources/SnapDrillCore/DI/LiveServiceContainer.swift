@@ -60,7 +60,12 @@ public final class LiveServiceContainer: ServiceContainer {
         self.questionSplitting = questionSplitting ?? QuestionSplittingService()
         self.deletionScheduler = deletionScheduler ?? DeletionScheduler()
         self.proEntitlement = proEntitlement ?? DefaultProEntitlementProvider()
-        self.activityTracker = activityTracker ?? AppActivityTracker()
+        // KI-01：默认用 .shared 作为全局唯一实例。ProfileManager.switchProfile 查
+        // AppActivityTracker.shared，故生产容器默认必须与之同实例，否则导出流
+        // （services.activityTracker）的 begin/end 写在不同实例上、ProfileManager
+        // 看不到 → Profile 切换保护失效。完整去 .shared（S-D4-001）是独立 refactor，
+        // 此处 composition 层引用 .shared 可接受（包内无 treat-warnings-as-errors）。
+        self.activityTracker = activityTracker ?? AppActivityTracker.shared
         self.reviewScheduler = reviewScheduler ?? ReviewScheduler()
     }
 }
