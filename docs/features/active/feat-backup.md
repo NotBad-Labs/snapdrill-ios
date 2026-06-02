@@ -43,6 +43,7 @@ last_updated: 2026-05-30
   - **多 Profile 提交策略**：`SettingsViewModel.restoreFromBackup` 按 Profile sequential 提交（逐个 Profile DB → 图片）；自动备份回滚仅对当前活跃 Profile 有效。**多 Profile 全局原子恢复待实现**（追踪：未来增量 issue）。
   - **CSV 注入防护（导出）**：导出 CSV 时以 `=+-@` 开头的值前加 tab。
   - **CSV 解析（导入）**：严格 RFC 4180——引号转义、CRLF/LF 兼容、字段数不匹配则整行拒绝并提示用户。
+    - **⚠ 实现现状（GAP-R6，代码债）**：当前 `CSVParser` 按表头列尽力映射（缺列填空、多列丢弃），**未对字段数不匹配做严格校验与整行拒绝/提示**。需求不变（数据完整性优先，严格拒绝 + 提示哪些行被拒），待 code 债修复。
 - **State & Concurrency**（Swift 6 strict）：备份/恢复流程由 `SettingsViewModel`（`@Observable`，`@MainActor`）编排；`.zip` 打包/解包重活在 `BackupService`（actor 隔离）执行，不阻塞主线程；单 Profile 内 DB 恢复经 `RepositoryContainer` 单次 saveContext（失败 rollback）。`CSVParser` 为无状态纯函数层，与 ViewModel 状态分离。
 - **设计裁决（仅本模块）**：恢复目标是「完整成功或完整失败」，当前实现达成**单 Profile 维度原子**（DB 事务原子 + 图片 best-effort），**多 Profile 全局原子事务尚未实现**——这是已知与目标的差距，单 Profile 安全网兜底，不外推为已达成全局原子。
 

@@ -50,6 +50,7 @@ last_updated: 2026-05-30
   - 剪贴板 / 手动 → `CaptureMethodCard` 手动入口 → ManualEdit；纯文本路径走 `CaptureResultView`（不依赖 OCR，允许无图保存，Image is Truth 例外）
   - Share Extension → `SnapDrillShare` Extension target（系统 ShareSheet，通过 App Groups 共享容器；进入后直接进裁剪/编辑 → 保存）
 - **关键机制 / 数据流**：图片来源进入裁剪（`ImageCropperView`，依赖 Mantis）→ 对图片执行 OCR（端上 Vision，`recognitionLanguages` 按 Profile 优先语言传入，系统默认含 `zh-Hans` / `zh-Hant` / `en-US`）→ 识别结果展示可编辑/可复制但不阻塞保存 → 保存时 Repository 原子性写入题目、图片引用、OCR 文本、元数据。图片**只存裁剪压缩后的副本**（长边限制 2000px、JPEG quality 0.8，~200KB/张），不修改用户原始照片。
+  - **⚠ 实现现状（GAP-R3，代码债）**：当前 `OCRService` 的 `recognitionLanguages` 硬编码 `zh-Hans` / `en-US`，**未含 `zh-Hant` 繁体**、**未按 Profile 优先语言动态传入**。需求不变（含繁体 + Profile 语言感知），待 code 债修复。
 - **EXIF 隐私铁律**：图片入库前必须经 `ImageStorage` 剥离 GPS / 位置信息（保存前清除）。
 - **State & Concurrency**（Swift 6 strict）：采集 View 由 `@Observable` ViewModel（`@MainActor`：`CaptureViewModel` / `CaptureResultViewModel`）驱动；OCR、图片压缩与落库等重活经 Core service / Repository → `DataExecutor`（actor 拥有 `ModelContainer`，`createOffMainActor()` 消除 MainActor+XPC 死锁 #599），不阻塞主线程；保存后通过 `Notification.Name.reviewDataDidChange` 跨模块刷新 Dashboard / Review。采集流程必须 `AppActivityTracker.begin(...)` → ... → `end(...)`，否则 Profile 切换不被阻塞（已接入 `CaptureViewModel` / `CaptureResultViewModel`）。
 - **设计裁决（仅本模块）**：采集入口作为底部 Tab 栏标准 Tab（首页/题库/采集/复习/设置），而非自定义突出按钮——为保持导航架构极致简洁（P2）、降低认知负荷；Share Extension 不污染主导航（不改变 Tab 结构），作为系统级扩展独立于主界面。
@@ -68,6 +69,7 @@ last_updated: 2026-05-30
   - 录题中意外退出（来电/崩溃/强退）→ 下次进入采集提示恢复最近一份 draft（B03 / B11）。
   - 未裁剪直接保存整页大图 → 给裁剪引导提示或保留更高清晰度，满足再次放大查看（B22）。
 - **数据保证**：未点击保存前不产生正式题目记录；保存成功后题目记录必须同时含当前 Profile 归属、主内容载体、元数据与可检索 OCR 文本；图片题必须保留裁剪后的副本，OCR 不是唯一数据来源；任何写入失败不得产生「列表已出现但内容不完整」的半写入记录；Draft 仅保留最近一份、按 Profile 隔离、成功保存后自动清除、7 天过期清理；图片入库前必须剥离 EXIF GPS/位置信息。
+  - **⚠ 实现现状（GAP-R2，代码债·真 bug）**：当前 `CaptureDraftService` 草稿**图片**用全局路径 `Caches/draft_capture.jpg` + `UserDefaults.standard`，**未按 Profile 隔离**——多 Profile 下草稿图片互相覆盖，或 B Profile 纯文本草稿误载 A Profile 残留图片（跨 Profile 污染）。需求不变（按 Profile 隔离），待 code 债修复（独立 PR 后排）。
 - **NFR**：OCR 识别响应 < 2 秒（印刷体中英文，拍照到文字出现在编辑区）；图片裁剪内存 < 300MB（Mantis 内部管理）；单题存储均值 ~205KB（OCR ~5KB + 压缩图 ~200KB）；草稿恢复为 S0 级数据丢失防护（意外退出后可恢复）；OCR 端上执行、图片不上传云端。
 
 ## Provenance（迁移期审计用，全量封板后可删）

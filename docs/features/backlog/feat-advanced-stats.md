@@ -1,10 +1,10 @@
 ---
 id: feat-advanced-stats
 title: 高级统计（Pro）
-status: blocked         # implemented | in-progress | blocked | poc-needed | backlog
-tier: pro              # free | pro
-blocked_by: [479]      # StoreKit 未接，Pro 不可达
-mode: lightweight      # backlog：仅 Why + What 必填
+status: blocked
+tier: pro
+blocked_by: [479]
+mode: lightweight
 last_updated: 2026-05-30
 ---
 

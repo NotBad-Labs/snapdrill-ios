@@ -1,10 +1,10 @@
 ---
 id: feat-image-enhance
 title: 图片处理增强（去手写 / 去批改痕迹 / 试卷还原）
-status: backlog          # implemented | in-progress | blocked | poc-needed | backlog
+status: backlog
 tier: pro
-blocked_by: []           # 源文档标注 PoC + 阻塞 #479（StoreKit）；见 notes / What·前置依赖
-mode: lightweight        # backlog：仅 Why + What 必填，How/Verify 待实现补
+blocked_by: []
+mode: lightweight
 last_updated: 2026-05-30
 ---
 
