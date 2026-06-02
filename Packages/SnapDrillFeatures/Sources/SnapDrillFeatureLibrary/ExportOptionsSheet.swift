@@ -281,39 +281,9 @@ struct ReviewExport: Transferable {
     private func generateContent() -> String {
         switch format {
         case .csv:
-            return generateCSV()
+            // CSV 列 schema / 转义 / 公式注入防护统一由 ReviewCSVCodec 提供（单一契约源）。
+            return ReviewCSVCodec.makeCSV(items)
         }
-    }
-
-    private func generateCSV() -> String {
-        var csv = "ID,Content,Subject,Source,Difficulty,Answer,CreatedAt,LastReviewed,NextReview,Tags\n"
-
-        for item in items {
-            let row = [
-                item.id.uuidString,
-                escapeCSVField(item.content ?? ""),
-                escapeCSVField(item.subject),
-                escapeCSVField(item.source),
-                "\(item.difficulty)",
-                escapeCSVField(item.answerText ?? ""),
-                item.createdAt.ISO8601Format(),
-                item.lastReviewedAt?.ISO8601Format() ?? "",
-                item.nextReviewAt?.ISO8601Format() ?? "",
-                escapeCSVField(item.tags.joined(separator: "; "))
-            ].joined(separator: ",")
-            csv += row + "\n"
-        }
-        return csv
-    }
-
-    /// CSV 转义 + Excel 公式注入防护
-    private func escapeCSVField(_ string: String) -> String {
-        var value = string
-        if let first = value.first, "=+\\-@".contains(first) {
-            value = "\t" + value
-        }
-        let escaped = value.replacingOccurrences(of: "\"", with: "\"\"")
-        return "\"\(escaped)\""
     }
 }
 

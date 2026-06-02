@@ -41,3 +41,6 @@ extension ReviewExportSnapshot: PDFExportable {
     /// 桥接 `subject: String` → 协议的 `exportSubject: String?`
     public var exportSubject: String? { subject }
 }
+
+// 字段与 `ReviewCSVRow` 一一对应，CSV 编码统一走 `ReviewCSVCodec`（单一契约源）。
+extension ReviewExportSnapshot: ReviewCSVRow {}

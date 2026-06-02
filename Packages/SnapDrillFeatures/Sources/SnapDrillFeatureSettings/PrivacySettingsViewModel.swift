@@ -137,6 +137,9 @@ nonisolated struct ExportableItem: Sendable {
     let tags: [String]
 }
 
+// 字段与 `ReviewCSVRow` 一一对应，CSV 编码统一走 `ReviewCSVCodec`（单一契约源）。
+extension ExportableItem: ReviewCSVRow {}
+
 /// 隐私数据导出格式（区别于题库导出的 ReviewExport.ExportFormat）
 nonisolated enum PrivacyDataExportFormat {
     case json
