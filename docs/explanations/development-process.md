@@ -92,6 +92,32 @@ SnapDrill：家庭教育拍照存档 iOS app（SwiftUI / iOS 26+ / Swift 6.3）�
 - **KI-02【SmartPaper】已处置（含 verify 反转）**：初判改 `status: blocked→implemented`，但 Batch 2 verify（codex+grok 深挖可达性 + Claude 自验）实证 `SmartPaperView` 生成按钮**整体** Pro 门控（`isProUser` 默认 false）→ **免费用户不可达组卷**，implemented 误导（SSOT 显"✅已实现"但用不了）→ **PO 重裁回 `status: blocked`**（代码超前存在但不可达；`blocked_by:[479]`）。免费/Pro 模型 doc≠code 见 GAP-R7。deepseek+agy 只验存在性漏可达性——异构互补再证。
 - **KI-03【Dashboard 孤儿代码】已处置**：补建 `../features/active/feat-dashboard.md`（免费基础首页：题库总数/今日新增/今日待复习/今日已复习/复习Hero/空状态/草稿恢复）；高级统计(Pro)仍归 `feat-advanced-stats.md`。
 
+### Batch 3 发布就绪 Checklist（2026-06-02 · Claude 深审 + 4 方异源 verify @ 87d5acaf）
+
+> **范围**：⑥构建/⑦发布层横切 gate。**TestFlight 内测（个人账号 W5A8THDKW8）不被以下阻塞**——运行时止血已成立（见 ADR-004 + 下 C4），ADR-004 明确区分 TF vs 公开上架。下列为**中国大陆公开上架**前阻塞，多数需 code/legal/PO，非 doc。证据已 4 方 grep 实证。
+
+**已实证就绪（绿）**：
+- **CI 实跑绿**：`.github/workflows/ci.yml`（lint + 反向依赖方向 gate + build-for-testing + test，self-hosted）；develop HEAD + 近 10 run success（codex `gh run list` 证）。
+- **C4 Firebase 运行时止血**：`FirebaseBootstrap.configure()` 生产零调用点（孤立）、`GoogleService-Info.plist` pbxproj 0 引用（仅 `.example`）、`DependencyContainer` 注入 `NoOpAnalyticsService` → 运行时零 Firebase init（"零出境"我方代码路径已证；SDK 被动面 ADR-004 称 OSLog 抓包验证）。
+
+**P0（公开上架硬阻塞）**：
+- **RC-1 C4 编译层 Firebase 剔除**（4/4）：Firebase SDK 仍链接编译（`SnapDrillInfrastructure/Package.swift:28` firebase-ios-sdk，resolved 锁 **11.15.0**；`FirebaseBootstrap.swift:11-13` 仍 import；主 App 链接 Infra）。待 C 路径 Release-CN 拆分彻底剔除（ADR-004 已认）。同时解 PIPL airtight + RC-2 + RC-12。
+- **RC-2 Firebase PrivacyInfo 聚合污染 App Store 隐私标签**（4/4）：app 自身 manifest 零 collection，但 LINKED Firebase 子模块各带 PrivacyInfo（声明 Analytics/Crashlytics 数据类目），Xcode 打包聚合进 App Store 隐私答卷 → 与"零收集"口径矛盾、拒审风险。C4 剔除前无解。
+- **RC-3 隐私政策文案自相矛盾**（codex）：`SnapDrill/Resources/zh-Hans.lproj/Localizable.strings:607` 称收集 crash/设备/OS vs `:617` 称不用第三方分析；与 NoOp 现状均不符。需 legal 校订。
+- **RC-4 MetricKit 缺失**（deepseek）：ADR-004 承诺崩溃用 MetricKit，全仓 `grep MetricKit\|MXMetricManager` 零代码 → 国内版当前零崩溃监控。公开前补。
+- **RC-5 儿童个人信息 PIPL 专章缺失**（grok+agy）：核心场景拍孩子作业（可能含姓名/学校/班级）；`privacy-compliance.md`/`appstore-metadata.md` 仅泛化"零注册/本地"，无儿童专节（单独同意/家长控制/删除权）。高法律后果，需 legal。
+
+**P1**：
+- **RC-6 C1 required-reason API 过度声明**（4/4）：`PrivacyInfo.xcprivacy` 4 项中 FileTimestamp/DiskSpace/**SystemBootTime** 在自研代码零直接调用证据（疑 Firebase 链接带入）；C4 剔除后重审、移除冗余。
+- **RC-7 CloudKit/iCloud entitlement 声明但未用**（codex+grok）：`SnapDrill.entitlements` 声明 iCloud/CloudKit，但 `cloudKitDatabase:.none`+零 CK API；审核可读作跨境能力，CN build 应最小化声明（ADR-003 锁定资源，权衡）。
+- **RC-8 PIPL 用户权利**（agy）：声称全本地，应提供"一键清空所有本地 Profile/图片缓存"入口满足撤回同意/删除权。
+- **RC-9 官网可达性**（agy）：notbadhq.com 海外服务器无 ICP 备案，国内审核隐私政策链接可能打不开 → 拒审。
+
+**P2**：
+- **RC-10 C4 doc≠code stale**（4/4）：Infra `README.md:14`/`.docc:17` 称"应用启动时调用 FirebaseApp.configure()"、`SnapDrillApp.swift:22` 注释"Firebase 初始化"——与 NoOp/孤立现状不符。（本 PR 修复）
+- **RC-11 CI 加 GoogleService-Info.plist 回归 gate**（deepseek）：防误提交回归（区分 `.example`）。
+- **RC-12 二进制 Firebase 符号静态扫描风险**（grok+agy）：即使禁用，二进制含 Firebase 符号可能被 CN 审核标记"境外分析 SDK"；C4 剔除后消除。
+
 ## 6. v0→v1 修正清单（4 方证伪的错误）
 
 1. 「5/29 SEALED 标记」→ 删除（不存在；4/4 证伪）。
@@ -113,7 +139,7 @@ SnapDrill：家庭教育拍照存档 iOS app（SwiftUI / iOS 26+ / Swift 6.3）�
 | **1b ✅** | 上游内容正确性（逐 spec） | 4 方异源审 8 active spec，6 条 ≥2/4 互证 doc≠code（见 §5 GAP-R1~R6） |
 | **1c ✅** | spec↔spec 一致性 + 交叉引用 | 死链 0=交叉链完整 + 4 方确认术语/口径一致；缺口 KI-02/03 已处置 |
 | **2 🔄** | ②↔④↔⑤ doc↔code↔test 对账 | doc 改完成（GAP-R1~R6 就地标注 + KI-02/03 处置，PO 8 项裁决）；code 债待独立 PR；4 方异源 verify 进行中 |
-| **3** | ⑥⑦ 构建/发布就绪 + 横切 gate | CI 实跑绿、供应链(C6)、双区域 Firebase 剥离(C4)、隐私 manifest 对账(C1)；朝 TestFlight |
+| **3 🔄** | ⑥⑦ 构建/发布就绪 + 横切 gate | **审计完成**（4 方 verify）：CI 绿✅ + C4 运行时止血✅；发布阻塞 RC-1~RC-12 登记见 §5（公开上架硬阻塞=C4 编译剔除/隐私聚合/MetricKit/儿童 PIPL，TF 内测不阻塞）。修复待实现阶段 |
 
 ## 8. Provenance
 
