@@ -1,7 +1,7 @@
 ---
 id: feat-smartpaper
 title: 智能组卷（SmartPaper · Pro）
-status: implemented
+status: blocked
 tier: pro
 blocked_by: [479]
 mode: lightweight
@@ -10,7 +10,9 @@ last_updated: 2026-05-30
 
 # Feature: 智能组卷（SmartPaper · Pro）
 
-> 人读摘要：✅ 免费基础组卷代码（`SmartPaperView` / `SmartPaperViewModel` + 测试）已实现并随免费版发布（#566）；⛔ Pro 精准选题（SM-2 加权 + 多版式）阻塞于 StoreKit #479。`status: implemented` 指**免费基线 + Pro 门控脚手架已落地**，**Pro 精准选题算法权重/多版式仍未实现**（待 #479 解阻后补，见 §3 注、§4 Pro 档）；`blocked_by:[479]` 标记 Pro 路径不可达。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：⛔ **阻塞于 StoreKit #479**。代码（`SmartPaperView` / `SmartPaperViewModel` + SM-2 选题 + 测试）已**超前实现**，但生成按钮整体经 `isProUser`（`ProEntitlementProvider` 默认 `false`）门控——**当前免费用户点"生成"仅弹 Pro 门控、组卷不可达**。故 `status: blocked`（**非 backlog**：代码已存在；**非 implemented**：用户不可达）。⚠ 免费/Pro 模型与代码的差距见 §2 GAP-R7（免费档路径未接通、选题实为 SM-2 非"随机"、配额未实现）。
+> （Batch 2 修订记：曾据初判改 implemented，4 方异源 verify + 自验实证生成全 Pro 门控免费不可达后回退 blocked。）
+> 派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / architecture 聚合（docs 重组 B）。
 > `mode: lightweight`：Pro 总闸（StoreKit #479）未接、Pro 路径不可达，故以 Why + What 为准；How / Verify 仅浓缩源文档**已实现的免费档 + 已落档的算法/排版机制**，未实现的 Pro 分支不编造设计。
@@ -26,6 +28,7 @@ last_updated: 2026-05-30
 - **选题策略（按订阅档差异化，Hybrid）**：
   - **基础选题（免费）**：按学科过滤 + 随机抽取；免费限次体验（有限次/月）。
   - **精准选题（Pro）**：SM-2 weakness 权重 + 难度分布均衡 + 近期错误优先（recency）+ 学科交叉筛选；无限生成 + 多版式。
+  - **⚠ 实现现状（GAP-R7，代码债·Batch 2 verify 补）**：当前 `SmartPaperView` 生成按钮**整体**经 `isProUser`（`ProEntitlementProvider` 默认 `false`）门控——**免费档"基础选题"路径未接通**，免费用户点"生成"仅弹 Pro 门控、不可达组卷；已实现的选题为 `fetchSmartSelection`（SM-2 排序，**非**上文"随机抽取"）；**"免费限次/月配额"未实现**（全仓无 quota 逻辑）。需求（免费基础组卷 = 随机限次可达）不变，待 code 债接通免费路径 + 实现配额（独立 PR）。
 - **输出格式**：PDF（去答案模式 / 留白答题区 / 页眉页码），复用现有导出管线。
 - **与高级统计联动**：可从薄弱排行一键进入智能组卷（Analytics → Smart Paper），联动仅传题目 ID。
 - **配额机制（防焦虑铁律）**：免费配额按自然月重置；耗尽后展示 Pro 引导但**不阻断**已有手动导出能力；文案中性（「本月免费额度已用完，下月 X 日重置」），不用红色/警告色/倒计时、不显示「剩余 N 次」、Pro 预览须明确标「Pro 功能预览」、引导 Toast ≤3 秒自动消失不 Modal 阻断。

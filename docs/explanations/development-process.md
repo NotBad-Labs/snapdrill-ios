@@ -85,10 +85,11 @@ SnapDrill：家庭教育拍照存档 iOS app（SwiftUI / iOS 26+ / Swift 6.3）�
 - **GAP-R4【ActivityTracker 非全程】**（feat-export）：快速打印无 tracker、`.printing` 生产零调用、编辑误用 `.capturing`。修：快速打印/编辑路径补 tracker。
 - **GAP-R5【快速打印过渡实现】**（feat-export）：实为 PDF→系统分享表（grep 实证全仓零 `UIPrint*`），非 `UIPrintInteractionController`。PO 保留真 AirPrint 为目标 → 修：补真 AirPrint + 每页题数直排。
 - **GAP-R6【CSV 字段数】**（feat-backup）：`CSVParser` 按表头列尽力映射，未严格校验字段数。PO 要数据完整性优先 → 修：字段数不匹配整行拒绝 + 提示。
+- **GAP-R7【SmartPaper 免费档未接通】**（feat-smartpaper，Batch 2 verify 补）：`SmartPaperView` 生成按钮**整体** `isProUser`（默认 false）门控 → 免费"基础选题"路径未接通、不可达；选题实为 `fetchSmartSelection`(SM-2) 非 spec"随机抽取"；"免费限次/月配额"未实现。修：接通免费路径 + 实现配额。
 
 ### Batch 2 已处置（doc 改，本轮完成）
 
-- **KI-02【SmartPaper】已处置**：实证发现 spec 已区分 免费基础组卷(已实现#566)/Pro精准选题(阻塞#479)。PO 裁 `status: blocked→implemented`（指免费基线+门控脚手架已落地，**Pro 精准算法权重/多版式仍未实现**，待 #479；`blocked_by:[479]` 保留 Pro 不可达性质）。
+- **KI-02【SmartPaper】已处置（含 verify 反转）**：初判改 `status: blocked→implemented`，但 Batch 2 verify（codex+grok 深挖可达性 + Claude 自验）实证 `SmartPaperView` 生成按钮**整体** Pro 门控（`isProUser` 默认 false）→ **免费用户不可达组卷**，implemented 误导（SSOT 显"✅已实现"但用不了）→ **PO 重裁回 `status: blocked`**（代码超前存在但不可达；`blocked_by:[479]`）。免费/Pro 模型 doc≠code 见 GAP-R7。deepseek+agy 只验存在性漏可达性——异构互补再证。
 - **KI-03【Dashboard 孤儿代码】已处置**：补建 `../features/active/feat-dashboard.md`（免费基础首页：题库总数/今日新增/今日待复习/今日已复习/复习Hero/空状态/草稿恢复）；高级统计(Pro)仍归 `feat-advanced-stats.md`。
 
 ## 6. v0→v1 修正清单（4 方证伪的错误）
