@@ -25,20 +25,20 @@ enum ProfileMigration {
 
     /// 执行迁移（如果需要）。幂等操作：`profiles.json` 已存在则跳过。
     static func migrateIfNeeded() {
-        let profilesFileURL = documentsURL.appendingPathComponent("profiles.json")
-        guard !fileManager.fileExists(atPath: profilesFileURL.path) else { return }
+        let vault = ProfileVault()
+        guard !fileManager.fileExists(atPath: vault.profilesJSONURL.path) else { return }
 
         SnapDrillLogger.data.info("ProfileMigration: 首次升级，开始迁移到 Multi-Profile 目录结构")
 
         let profile = createDefaultProfile()
-        let profileDir = documentsURL.appendingPathComponent("profiles").appendingPathComponent(profile.id.uuidString)
+        let profileDir = vault.profileDirectory(for: profile.id)
 
         do {
             try fileManager.createDirectory(at: profileDir, withIntermediateDirectories: true)
             try migrateDatabase(to: profileDir)
             try migrateImages(to: profileDir)
             savePerProfilePreferences(to: profileDir)
-            try saveProfilesList([profile], to: profilesFileURL)
+            try vault.saveProfiles([profile])
 
             UserDefaults.standard.set(profile.id.uuidString, forKey: UDKey.activeProfileId)
             cleanupOldFiles()
@@ -46,7 +46,7 @@ enum ProfileMigration {
             SnapDrillLogger.data.info("ProfileMigration: 迁移完成，默认 Profile: \(profile.name)")
         } catch {
             SnapDrillLogger.data.error("ProfileMigration: 迁移失败: \(error.localizedDescription)")
-            createFallbackProfile(profilesFileURL: profilesFileURL)
+            createFallbackProfile()
         }
     }
 
@@ -101,13 +101,6 @@ enum ProfileMigration {
         }
     }
 
-    private static func saveProfilesList(_ profiles: [Profile], to url: URL) throws {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        let data = try encoder.encode(profiles)
-        try data.write(to: url)
-    }
-
     private static func cleanupOldFiles() {
         let oldStoreURL = documentsURL.appendingPathComponent("default.store")
         try? fileManager.removeItem(at: oldStoreURL) // best-effort: 迁移已完成，旧文件删不掉不影响功能
@@ -117,14 +110,13 @@ enum ProfileMigration {
         try? fileManager.removeItem(at: documentsURL.appendingPathComponent("images")) // best-effort: 旧图片目录清理
     }
 
-    private static func createFallbackProfile(profilesFileURL: URL) {
+    private static func createFallbackProfile() {
+        let vault = ProfileVault()
         let userName = UserDefaults.standard.string(forKey: UDKey.userName) ?? "同学"
         let profile = Profile(name: userName)
-        let fallbackDir = documentsURL.appendingPathComponent("profiles").appendingPathComponent(profile.id.uuidString)
         do {
-            try fileManager.createDirectory(at: fallbackDir, withIntermediateDirectories: true)
-            try fileManager.createDirectory(at: fallbackDir.appendingPathComponent("images"), withIntermediateDirectories: true)
-            try saveProfilesList([profile], to: profilesFileURL)
+            try vault.createProfileDirectories(for: profile.id)
+            try vault.saveProfiles([profile])
         } catch {
             SnapDrillLogger.data.error("ProfileMigration: fallback Profile 创建失败: \(error.localizedDescription)")
         }
