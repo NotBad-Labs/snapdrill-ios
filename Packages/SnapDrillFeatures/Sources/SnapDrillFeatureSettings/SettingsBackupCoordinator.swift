@@ -25,6 +25,7 @@ struct SettingsBackupCoordinator {
     let repositories: RepositoryContainer
     let profileManager: ProfileManager
     let backupService: BackupService
+    private let vault = ProfileVault()
 
     /// 进度回写（0.0 ~ 1.0），@MainActor 闭包隐式 Sendable，可安全传入跨 actor 进度回调
     var onProgress: @MainActor (Double) -> Void = { _ in }
@@ -53,43 +54,8 @@ struct SettingsBackupCoordinator {
         onStatus(L10n.Settings.backupPreparingData)
 
         // 1. 收集所有 Profile 数据
-        var profileDataList: [ProfileBackupData] = []
-        var totalItemCount = 0
-
-        for profile in profileManager.profiles {
-            let profileDir = Self.profileDirectory(for: profile.id)
-            let storeURL = profileDir.appendingPathComponent("default.store")
-
-            if profile.id == profileManager.activeProfileId {
-                // 活跃 Profile 直接用当前 repositories
-                let data = try repositories.collectProfileBackupData(
-                    profileName: profile.name, profileId: profile.id
-                )
-                profileDataList.append(data)
-                totalItemCount += data.reviewItems.count
-            } else {
-                // 非活跃 Profile 临时创建 DataExecutor，避免回落到旧同步容器路径。
-                let tempExecutor = await DataExecutor.createOffMainActor(storeURL: storeURL)
-                let scope = ProfileScope(id: profile.id, name: profile.name)
-                let tempRepos = RepositoryContainer(executor: tempExecutor, scope: scope, profileDirectory: profileDir)
-                let data = try tempRepos.collectProfileBackupData(
-                    profileName: profile.name, profileId: profile.id
-                )
-                profileDataList.append(data)
-                totalItemCount += data.reviewItems.count
-            }
-        }
-
-        let payload = BackupPayload(profiles: profileDataList)
-        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
-        let manifest = BackupManifest(
-            schemaVersion: BackupManifest.currentSchemaVersion,
-            createdAt: Date(),
-            appVersion: appVersion,
-            totalItemCount: totalItemCount,
-            profileCount: profileDataList.count,
-            profileNames: profileDataList.map(\.profileName)
-        )
+        let (payload, totalItemCount) = try await collectAllProfileBackupData()
+        let manifest = makeManifest(payload: payload, totalItemCount: totalItemCount)
 
         onStatus(L10n.Settings.backupPackingItems(totalItemCount))
 
@@ -99,7 +65,7 @@ struct SettingsBackupCoordinator {
         let url = try await backupService.createBackup(
             payload: payload,
             manifest: manifest,
-            profileDirectories: profileDataList.map { Self.profileDirectory(for: $0.profileId) }
+            profileDirectories: payload.profiles.map { vault.profileDirectory(for: $0.profileId) }
         ) { current, total in
             Task { @MainActor in
                 reportProgress(total > 0 ? Double(current) / Double(total) : 1.0)
@@ -107,8 +73,41 @@ struct SettingsBackupCoordinator {
         }
 
         onStatus(L10n.Settings.backupComplete)
-        SnapDrillLogger.generic.info("备份完成: \(totalItemCount) 道题目，\(profileDataList.count) 个 Profile")
+        SnapDrillLogger.generic.info("备份完成: \(totalItemCount) 道题目，\(payload.profiles.count) 个 Profile")
         return url
+    }
+
+    /// 收集所有 Profile 的备份数据（活跃用当前 repositories，非活跃临时建 executor）。
+    /// 供全量备份与「恢复前全 Profile 安全网」复用。
+    private func collectAllProfileBackupData() async throws -> (payload: BackupPayload, totalItemCount: Int) {
+        var profileDataList: [ProfileBackupData] = []
+        var totalItemCount = 0
+        for profile in profileManager.profiles {
+            let data: ProfileBackupData
+            if profile.id == profileManager.activeProfileId {
+                data = try repositories.collectProfileBackupData(profileName: profile.name, profileId: profile.id)
+            } else {
+                // 非活跃 Profile 临时创建 DataExecutor，避免回落到旧同步容器路径。
+                let tempExecutor = await DataExecutor.createOffMainActor(storeURL: vault.storeURL(for: profile.id))
+                let scope = ProfileScope(id: profile.id, name: profile.name)
+                let tempRepos = RepositoryContainer(executor: tempExecutor, scope: scope, profileDirectory: vault.profileDirectory(for: profile.id))
+                data = try tempRepos.collectProfileBackupData(profileName: profile.name, profileId: profile.id)
+            }
+            profileDataList.append(data)
+            totalItemCount += data.reviewItems.count
+        }
+        return (BackupPayload(profiles: profileDataList), totalItemCount)
+    }
+
+    private func makeManifest(payload: BackupPayload, totalItemCount: Int) -> BackupManifest {
+        BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(),
+            appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
+            totalItemCount: totalItemCount,
+            profileCount: payload.profiles.count,
+            profileNames: payload.profiles.map(\.profileName)
+        )
     }
 
     // MARK: - Restore
@@ -163,17 +162,21 @@ struct SettingsBackupCoordinator {
         preRestoreActiveProfileId: UUID
     ) async throws {
         let reportProgress = onProgress
-        for profileData in payload.profiles {
-            let targetProfile = try findOrCreateRestoreTargetProfile(for: profileData)
-            let targetRepos = await restoreRepositories(
-                for: targetProfile,
-                preRestoreActiveProfileId: preRestoreActiveProfileId
-            )
-            try await targetRepos.restoreFromProfileData(profileData)
+        // #4 事务化：整个多 Profile 还原视为一个事务。任一步（DB 或图片）失败 → 回滚
+        // （丢弃本次新 ingest 的 Profile 消除孤儿壳 + 从自动备份还原活跃 Profile），再 rethrow。
+        var ingestedProfileIds: [UUID] = []
+        do {
+            for profileData in payload.profiles {
+                let (targetProfile, ingested) = try findOrCreateRestoreTargetProfile(for: profileData)
+                if ingested { ingestedProfileIds.append(targetProfile.id) }
+                let targetRepos = await restoreRepositories(
+                    for: targetProfile,
+                    preRestoreActiveProfileId: preRestoreActiveProfileId
+                )
+                try await targetRepos.restoreFromProfileData(profileData)
 
-            // 恢复图片
-            let profileDir = Self.profileDirectory(for: targetProfile.id)
-            do {
+                // 恢复图片
+                let profileDir = vault.profileDirectory(for: targetProfile.id)
                 try await backupService.restoreImages(
                     from: fileURL,
                     profileId: profileData.profileId,
@@ -183,28 +186,31 @@ struct SettingsBackupCoordinator {
                         reportProgress(total > 0 ? Double(current) / Double(total) : 1.0)
                     }
                 }
-            } catch {
-                SnapDrillLogger.generic.error("图片恢复失败（Profile: \(profileData.profileName)），开始回滚: \(error)")
-                // 回滚后必 rethrow，backupError 由调用方 ViewModel 在 catch 中统一设置
-                if let autoBackupURL {
-                    await rollbackFromAutoBackup(autoBackupURL)
-                }
-                throw error
             }
+        } catch {
+            SnapDrillLogger.generic.error("还原失败，开始事务回滚（含 \(ingestedProfileIds.count) 个已 ingest 的 Profile）: \(error)")
+            await rollbackRestore(autoBackupURL: autoBackupURL, ingestedProfileIds: ingestedProfileIds)
+            // 回滚后必 rethrow，backupError 由调用方 ViewModel 在 catch 中统一设置
+            throw error
         }
     }
 
-    private func findOrCreateRestoreTargetProfile(for profileData: ProfileBackupData) throws -> Profile {
+    /// 找到或创建还原目标 Profile。`ingested` 标记本次是否新建（用于事务回滚）。
+    /// 经 `ProfileManager.ingestProfile` 原子更新内存 + 磁盘，杜绝旧 RestoreProfileHelper
+    /// 直写 profiles.json 造成的内存↔磁盘 desync（数据丢失修复）。
+    private func findOrCreateRestoreTargetProfile(
+        for profileData: ProfileBackupData
+    ) throws -> (profile: Profile, ingested: Bool) {
         if let existing = profileManager.profiles.first(where: { $0.id == profileData.profileId }) {
-            return existing
+            return (existing, false)
         }
 
         do {
-            return try RestoreProfileHelper.createRestoreTargetProfile(
+            let profile = try profileManager.ingestProfile(
                 id: profileData.profileId,
-                name: profileData.profileName,
-                fallbackProfiles: profileManager.profiles
+                name: profileData.profileName
             )
+            return (profile, true)
         } catch {
             SnapDrillLogger.data.error(
                 "SettingsBackupCoordinator: 恢复备份时 Profile 创建失败: \(profileData.profileName), id: \(profileData.profileId.uuidString), error: \(error)"
@@ -225,8 +231,8 @@ struct SettingsBackupCoordinator {
             return repositories
         }
 
-        let profileDir = Self.profileDirectory(for: profile.id)
-        let storeURL = profileDir.appendingPathComponent("default.store")
+        let profileDir = vault.profileDirectory(for: profile.id)
+        let storeURL = vault.storeURL(for: profile.id)
         let executor = await DataExecutor.createOffMainActor(storeURL: storeURL)
         let scope = ProfileScope(id: profile.id, name: profile.name)
         return RepositoryContainer(executor: executor, scope: scope, profileDirectory: profileDir)
@@ -244,28 +250,65 @@ struct SettingsBackupCoordinator {
         }
     }
 
-    /// 从自动备份回滚到恢复前状态（图片恢复失败时调用）
-    /// 自动备份仅包含活跃 Profile 数据。回滚后调用方会 rethrow 原错误，
-    /// 故此处仅更新中间状态消息 / 记日志，backupError 由 ViewModel catch 统一设置。
-    private func rollbackFromAutoBackup(_ fileURL: URL) async {
-        onStatus(L10n.Settings.restoreAutoBackup)
-        do {
-            let payload = try await backupService.extractPayload(from: fileURL)
-            guard let profileData = payload.profiles.first else { return }
-            try await repositories.restoreFromProfileData(profileData)
-            try await backupService.restoreImages(
-                from: fileURL,
-                profileId: profileData.profileId,
-                to: Self.activeProfileDirectory()
-            ) { _, _ in }
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
-            onStatus(L10n.Settings.restorePartialImageFailure)
-            SnapDrillLogger.generic.info("已回滚到恢复前状态")
-            cleanupAutoBackup(fileURL)
-        } catch {
-            // 回滚也失败 → 保留自动备份供用户手动恢复
-            SnapDrillLogger.generic.error("回滚失败，自动备份保留在: \(fileURL.path)")
+    /// 还原失败时的事务回滚（#4 全 Profile 安全网）：
+    /// 1. 从恢复前「全 Profile 自动备份」还原**所有**被覆盖的 Profile（活跃 + 非活跃）；
+    /// 2. 丢弃本次还原新 ingest 的 Profile（消除孤儿壳）。
+    /// 回滚后调用方会 rethrow 原错误，backupError 由 ViewModel catch 统一设置。
+    private func rollbackRestore(autoBackupURL: URL?, ingestedProfileIds: [UUID]) async {
+        if let autoBackupURL {
+            await restoreAllProfilesFromAutoBackup(autoBackupURL)
         }
+        for id in ingestedProfileIds {
+            profileManager.discardProfile(id: id)
+        }
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+    }
+
+    /// 从全 Profile 自动备份逐个还原所有 Profile（best-effort：单个失败记日志继续、不 throw）。
+    /// 仅当全部成功才清理自动备份；任一失败则保留供用户手动恢复。
+    private func restoreAllProfilesFromAutoBackup(_ fileURL: URL) async {
+        onStatus(L10n.Settings.restoreAutoBackup)
+        let payload: BackupPayload
+        do {
+            payload = try await backupService.extractPayload(from: fileURL)
+        } catch {
+            SnapDrillLogger.generic.error("回滚失败（无法读取自动备份），保留在: \(fileURL.path)")
+            return
+        }
+
+        var allSucceeded = true
+        for profileData in payload.profiles {
+            do {
+                let repos = await rollbackRepositories(for: profileData)
+                try await repos.restoreFromProfileData(profileData)
+                try await backupService.restoreImages(
+                    from: fileURL,
+                    profileId: profileData.profileId,
+                    to: vault.profileDirectory(for: profileData.profileId)
+                ) { _, _ in }
+            } catch {
+                allSucceeded = false
+                SnapDrillLogger.generic.error("回滚单 Profile 失败（\(profileData.profileName)）: \(error)")
+            }
+        }
+
+        onStatus(L10n.Settings.restorePartialImageFailure)
+        if allSucceeded {
+            SnapDrillLogger.generic.info("已回滚所有 Profile 到恢复前状态")
+            cleanupAutoBackup(fileURL)
+        } else {
+            SnapDrillLogger.generic.error("部分 Profile 回滚失败，自动备份保留在: \(fileURL.path)")
+        }
+    }
+
+    /// 回滚时为某 Profile 取 repositories：活跃用当前，非活跃临时建 executor。
+    private func rollbackRepositories(for profileData: ProfileBackupData) async -> RepositoryContainer {
+        if profileData.profileId == profileManager.activeProfileId {
+            return repositories
+        }
+        let executor = await DataExecutor.createOffMainActor(storeURL: vault.storeURL(for: profileData.profileId))
+        let scope = ProfileScope(id: profileData.profileId, name: profileData.profileName)
+        return RepositoryContainer(executor: executor, scope: scope, profileDirectory: vault.profileDirectory(for: profileData.profileId))
     }
 
     /// 恢复前自动备份当前数据到临时目录（best-effort，不中断恢复流程）
@@ -273,29 +316,18 @@ struct SettingsBackupCoordinator {
     /// - Returns: 自动备份文件 URL（恢复成功后应清理），备份失败或无数据时返回 nil
     private func createAutoBackupBeforeRestore() async -> URL? {
         do {
-            // 仅备份活跃 Profile（自动备份是安全网，不需要全 Profile）
-            let activeProfile = profileManager.activeProfile
-            let profileData = try repositories.collectProfileBackupData(
-                profileName: activeProfile?.name ?? "default",
-                profileId: profileManager.activeProfileId
-            )
-            guard !profileData.reviewItems.isEmpty else { return nil }
+            // 全 Profile 安全网：备份所有 Profile（非仅活跃），使多 Profile 还原中途失败时
+            // 可回滚被覆盖的非活跃 Profile，彻底闭环 #4。
+            let (payload, totalItemCount) = try await collectAllProfileBackupData()
+            guard totalItemCount > 0 else { return nil }
 
-            let payload = BackupPayload(profiles: [profileData])
-            let manifest = BackupManifest(
-                schemaVersion: BackupManifest.currentSchemaVersion,
-                createdAt: Date(),
-                appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown",
-                totalItemCount: profileData.reviewItems.count,
-                profileCount: 1,
-                profileNames: [profileData.profileName]
-            )
+            let manifest = makeManifest(payload: payload, totalItemCount: totalItemCount)
             let url = try await backupService.createBackup(
                 payload: payload,
                 manifest: manifest,
-                profileDirectories: [Self.activeProfileDirectory()]
+                profileDirectories: payload.profiles.map { vault.profileDirectory(for: $0.profileId) }
             )
-            SnapDrillLogger.generic.info("恢复前自动备份已保存: \(url.lastPathComponent)")
+            SnapDrillLogger.generic.info("恢复前自动备份已保存（\(payload.profiles.count) 个 Profile）: \(url.lastPathComponent)")
             return url
         } catch {
             // 自动备份失败不中断恢复流程，仅记录日志
@@ -307,22 +339,5 @@ struct SettingsBackupCoordinator {
     private func cleanupAutoBackup(_ url: URL?) {
         guard let url else { return }
         try? FileManager.default.removeItem(at: url) // best-effort: 临时备份清理
-    }
-
-    // MARK: - Profile Directory Helpers
-
-    /// 获取当前活跃 Profile 的目录路径
-    static func activeProfileDirectory() -> URL {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        if let profileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId) {
-            return docs.appendingPathComponent("profiles").appendingPathComponent(profileId)
-        }
-        return docs
-    }
-
-    /// 获取指定 Profile 的目录路径
-    static func profileDirectory(for profileId: UUID) -> URL {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        return docs.appendingPathComponent("profiles").appendingPathComponent(profileId.uuidString)
     }
 }

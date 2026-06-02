@@ -53,20 +53,8 @@ public final class ProfileManager {
     private let isInMemory: Bool
     private var scopesByProfileId: [UUID: ProfileScope] = [:]
 
-    /// Documents 目录
-    private var documentsURL: URL {
-        fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    }
-
-    /// profiles.json 路径
-    private var profilesFileURL: URL {
-        documentsURL.appendingPathComponent("profiles.json")
-    }
-
-    /// profiles/ 根目录
-    private var profilesDirectoryURL: URL {
-        documentsURL.appendingPathComponent("profiles")
-    }
+    /// Vault 磁盘布局 + profiles.json codec 的单一 owner（路径 / 编解码均经此，杜绝手拼漂移）
+    private let vault = ProfileVault()
 
     // MARK: - Per-profile UserDefaults 键
 
@@ -164,8 +152,8 @@ public final class ProfileManager {
         ProfileMigration.migrateIfNeeded()
 
         // 2. 加载 Profile 列表（空时自动创建默认 Profile）
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        var loadedProfiles = Self.loadProfiles(from: docs.appendingPathComponent("profiles.json"))
+        let vault = ProfileVault()
+        var loadedProfiles = vault.loadProfiles()
         if loadedProfiles.isEmpty {
             SnapDrillLogger.data.warning("ProfileManager: profiles.json 为空或不存在，创建默认 Profile")
             let fallback = Profile(name: "同学")
@@ -191,11 +179,8 @@ public final class ProfileManager {
         }
 
         // 5. 创建活跃 Profile 的基础设施
-        let profileDir = docs
-            .appendingPathComponent("profiles")
-            .appendingPathComponent(profileId.uuidString)
-
-        let storeURL = profileDir.appendingPathComponent("default.store")
+        let profileDir = vault.profileDirectory(for: profileId)
+        let storeURL = vault.storeURL(for: profileId)
         return DiskBootstrapState(
             profiles: loadedProfiles,
             profileId: profileId,
@@ -237,8 +222,8 @@ public final class ProfileManager {
         scopesByProfileId[profileId] = scope
 
         // 3. 切换活跃 Profile 基础设施
-        let profileDir = profilesDirectoryURL.appendingPathComponent(profileId.uuidString)
-        let storeURL = profileDir.appendingPathComponent("default.store")
+        let profileDir = vault.profileDirectory(for: profileId)
+        let storeURL = vault.storeURL(for: profileId)
         let executor = await DataExecutor.createOffMainActor(storeURL: storeURL)
 
         self.executor = executor
@@ -272,10 +257,8 @@ public final class ProfileManager {
 
         // 创建 Profile 目录（inMemory 模式跳过磁盘操作）
         if !isInMemory {
-            let profileDir = profilesDirectoryURL.appendingPathComponent(profile.id.uuidString)
             do {
-                try fileManager.createDirectory(at: profileDir, withIntermediateDirectories: true)
-                try fileManager.createDirectory(at: profileDir.appendingPathComponent("images"), withIntermediateDirectories: true)
+                try vault.createProfileDirectories(for: profile.id)
             } catch {
                 SnapDrillLogger.data.error("ProfileManager: Profile 目录创建失败，回滚: \(error.localizedDescription)")
                 profiles.removeAll(where: { $0.id == profile.id })
@@ -288,7 +271,15 @@ public final class ProfileManager {
         scopesByProfileId[profile.id] = scope
 
         // 保存默认偏好
-        let defaults: [String: Any] = [
+        savePreferencesDict(Self.makeDefaultPreferences(name: name), for: profile.id)
+
+        saveProfiles()
+        return profile
+    }
+
+    /// 新建 / ingest Profile 的默认 per-profile 偏好（单一 owner，createProfile 与 ingestProfile 共用）。
+    static func makeDefaultPreferences(name: String) -> [String: Any] {
+        [
             UDKey.userName: name,
             UDKey.userAvatar: "person.crop.circle.fill",
             UDKey.userAvatarColorIndex: 0,
@@ -299,10 +290,38 @@ public final class ProfileManager {
             UDKey.captureFieldAnswer: false,
             UDKey.dailyReviewGoal: 10
         ]
-        savePreferencesDict(defaults, for: profile.id)
+    }
 
+    /// 从备份恢复等外部场景 ingest 一个 Profile：**内存数组 + 磁盘 profiles.json 在同一操作内原子更新**，
+    /// 杜绝 Features 层绕过 ProfileManager 直写 profiles.json 造成的 desync（修复数据丢失 bug）。
+    /// 幂等：ID 已存在直接返回现有 Profile。
+    /// - Throws: 磁盘目录创建失败（inMemory 模式不会 throw）。
+    @discardableResult
+    public func ingestProfile(id: UUID, name: String) throws -> Profile {
+        if let existing = profiles.first(where: { $0.id == id }) {
+            return existing
+        }
+        let profile = Profile(id: id, name: name)
+        // 先建目录 + 写默认偏好；失败则 throw（此时尚未改内存数组，无脏状态）
+        if !isInMemory {
+            try vault.createProfileDirectories(for: id)
+            savePreferencesDict(Self.makeDefaultPreferences(name: name), for: id)
+        }
+        profiles.append(profile)
+        scopesByProfileId[id] = ProfileScope(id: id, name: name)
         saveProfiles()
         return profile
+    }
+
+    /// 丢弃一个 Profile（仅用于还原失败时回滚刚 ingest 的 Profile——绝非活跃 Profile）。
+    /// 内存数组 + 磁盘 profiles.json + 磁盘目录一并清理，保持一致。
+    public func discardProfile(id: UUID) {
+        profiles.removeAll(where: { $0.id == id })
+        scopesByProfileId.removeValue(forKey: id)
+        saveProfiles()
+        guard !isInMemory else { return }
+        let dir = vault.profileDirectory(for: id)
+        try? fileManager.removeItem(at: dir) // best-effort: 列表已移除，目录残留不影响功能
     }
 
     /// 删除 Profile（禁止删除最后一个）
@@ -334,7 +353,7 @@ public final class ProfileManager {
 
         // 删除 Profile 目录（后台执行，inMemory 模式跳过）
         if !isInMemory {
-            let profileDir = profilesDirectoryURL.appendingPathComponent(id.uuidString)
+            let profileDir = vault.profileDirectory(for: id)
             Task.detached {
                 try? FileManager.default.removeItem(at: profileDir) // best-effort: Profile 已从列表移除，目录删不掉不影响功能
             }
@@ -394,9 +413,7 @@ public final class ProfileManager {
 
     /// 从 preferences.json 加载 per-profile 值到 UserDefaults
     private func loadPreferences(for profileId: UUID) {
-        let prefsURL = profilesDirectoryURL
-            .appendingPathComponent(profileId.uuidString)
-            .appendingPathComponent("preferences.json")
+        let prefsURL = vault.preferencesURL(for: profileId)
 
         let rawData: Data
         do {
@@ -435,9 +452,7 @@ public final class ProfileManager {
 
     private func savePreferencesDict(_ dict: [String: Any], for profileId: UUID) {
         guard !isInMemory else { return }
-        let prefsURL = profilesDirectoryURL
-            .appendingPathComponent(profileId.uuidString)
-            .appendingPathComponent("preferences.json")
+        let prefsURL = vault.preferencesURL(for: profileId)
 
         do {
             let data = try JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
@@ -451,31 +466,10 @@ public final class ProfileManager {
 
     private func saveProfiles() {
         guard !isInMemory else { return }
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
         do {
-            let data = try encoder.encode(profiles)
-            try data.write(to: profilesFileURL)
+            try vault.saveProfiles(profiles)
         } catch {
             SnapDrillLogger.data.error("ProfileManager: profiles.json 保存失败: \(error.localizedDescription)")
-        }
-    }
-
-    private static func loadProfiles(from url: URL) -> [Profile] {
-        let data: Data
-        do {
-            data = try Data(contentsOf: url)
-        } catch {
-            SnapDrillLogger.data.warning("ProfileManager: profiles.json 读取失败（可能首次启动）: \(error.localizedDescription)")
-            return []
-        }
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        do {
-            return try decoder.decode([Profile].self, from: data)
-        } catch {
-            SnapDrillLogger.data.error("ProfileManager: profiles.json 解码失败: \(error.localizedDescription)")
-            return []
         }
     }
 }
