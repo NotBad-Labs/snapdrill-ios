@@ -19,14 +19,15 @@ import SnapDrillFeatureDashboard
 import SnapDrillFeatureSettings
 import TipKit
 
-// MARK: - AppDelegate（Firebase 初始化）
+// MARK: - AppDelegate（应用启动引导）
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        // 访问单例即可触发 DependencyContainer 内的 Firebase 等初始化
+        // 访问单例即可触发 DependencyContainer 组合根初始化
+        // （国内版注入 NoOpAnalyticsService、不调用 FirebaseApp.configure，ADR-004）
         _ = DependencyContainer.shared
         return true
     }
@@ -40,7 +41,7 @@ struct SnapDrillApp: App {
     
     // MARK: - Properties
     
-    /// Firebase / 系统级别生命周期桥接
+    /// 系统级别生命周期桥接（AppDelegate）
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     
     /// 引导页状态管理

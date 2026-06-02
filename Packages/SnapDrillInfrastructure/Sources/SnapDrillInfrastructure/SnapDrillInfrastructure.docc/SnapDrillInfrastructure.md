@@ -10,6 +10,8 @@ Firebase 基础设施实现层，封装 Analytics、Crashlytics（Remote Config 
 
 依赖方向：`SnapDrill/App` ──► `SnapDrillInfrastructure` ──► `SnapDrillCore`
 
+> Warning: **当前状态（ADR-004 · 国内版 Firebase-Free）**：国内版生产**不调用** `FirebaseBootstrap.configure()`（组合根注入 `NoOpAnalyticsService`、`GoogleService-Info.plist` 已移出打包），运行时零 Firebase 初始化。下文「核心类型」描述的是 Firebase 激活态（未来海外版 / C 路径）设计，非国内版当前运行时行为。
+
 ## 核心类型
 
 ### 启动配置
