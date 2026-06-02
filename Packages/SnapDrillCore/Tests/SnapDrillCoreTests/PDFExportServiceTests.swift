@@ -10,6 +10,7 @@
 
 import Testing
 import Foundation
+import PDFKit
 @testable import SnapDrillCore
 
 // MARK: - Test Double
@@ -150,6 +151,29 @@ struct PDFExportServiceTests {
 
         // 显示答案的 PDF 应该比隐藏答案的更大（包含更多渲染内容）
         #expect(shownData.count > hiddenData.count)
+    }
+
+    @Test("hideAnswers=true 时答案文本不出现在 PDF 内容中（去答案打印硬需求）")
+    func hideAnswers_omitsAnswerTextFromPDFContent() async throws {
+        let service = PDFExportService.shared
+        let items = createItemsWithAnswers(count: 3)  // answerText = "测试答案 N"
+
+        let hideOptions = PDFExportOptions(hideAnswers: true, showBlankAnswerArea: false, showHeader: false)
+        let showOptions = PDFExportOptions(hideAnswers: false, showBlankAnswerArea: false, showHeader: false)
+
+        let hiddenData = try await service.createPDF(from: items, options: hideOptions, imageProvider: { _ in nil })
+        let shownData = try await service.createPDF(from: items, options: showOptions, imageProvider: { _ in nil })
+
+        // ground truth：直接解析 PDF 文本内容，而非 byte-size 代理
+        let hiddenText = try #require(PDFDocument(data: hiddenData)?.string, "应能解析隐藏答案 PDF 的文本")
+        let shownText = try #require(PDFDocument(data: shownData)?.string, "应能解析显示答案 PDF 的文本")
+
+        for index in 1...3 {
+            let answer = "测试答案 \(index)"
+            // shownText 含答案：既验功能、也证明中文文本确实可被提取（否则下方负向断言会假阳性通过）
+            #expect(shownText.contains(answer), "显示答案模式应包含答案文本「\(answer)」")
+            #expect(!hiddenText.contains(answer), "去答案模式不得泄露答案文本「\(answer)」")
+        }
     }
 
     @Test("answerText 为 nil 时显示答案不崩溃")
