@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-01
+last_verified: 2026-06-02
 layer: process
 freshness:
   max_age_days: 90
@@ -75,6 +75,22 @@ SnapDrill：家庭教育拍照存档 iOS app（SwiftUI / iOS 26+ / Swift 6.3）�
 - **KI-03【gap≠contradiction，v0 归错类已改】Dashboard**：`SnapDrillFeatureDashboard`(8 文件) 无 `feat-dashboard.md`——是**孤儿代码(无 spec)**，非"矛盾"。修：建 active feat-dashboard.md 或在 feat-review 声明归属。
 - **KI-04【待 Batch 2 列具体条目】**：58-agent 报的 4 处 SSOT 矛盾（CSV 字段数/CSV 引号/空集导出/复习目标范围）+ 隐私铁律零 oracle（EXIF/CSV 注入/去答案 PDF）+ 数据丢失级 audit#1（迁移非原子/Profile 还原失同步等）。
 
+### Batch 2 代码债登记（GAP-R1~R6，2026-06-02 · 4 方 Batch 1b 审计 ≥2/4 互证 + PO 裁决）
+
+> 裁决原则（PO 定，AGENTS 第4条 oracle=用例非代码）：**spec 守需求为上游真相 + 标 `⚠ 实现现状`，代码是债（独立 PR 后排）**。各 active spec 已就地标注对应 GAP。这些是 Batch 2 doc↔code 对账产出，待独立 code PR 修复（非本轮 doc 改范围）。
+
+- **GAP-R1【复习软删除】**（feat-review）：`ReviewViewModel` 在 `.reviewing` 期忽略 `reviewDataDidChange` + `ReviewRepository.fetchDue` 未过滤 `DeletionScheduler.pendingDeletionIDs` → 5s 窗口内软删除到期题仍在复习流。修：复习队列过滤 pendingDeletion。
+- **GAP-R2【Draft 跨 Profile 污染·真 bug】**（feat-capture/profile）：`CaptureDraftService` 草稿图片全局路径 `Caches/draft_capture.jpg`，未按 Profile 隔离。修：draft 图片路径含 Profile ID。
+- **GAP-R3【OCR 语言】**（feat-capture）：`OCRService.recognitionLanguages` 硬编码 `zh-Hans`/`en-US`，无 `zh-Hant`、非 Profile 感知。修（PO 要繁体）：加 zh-Hant + 按 Profile 优先语言。
+- **GAP-R4【ActivityTracker 非全程】**（feat-export）：快速打印无 tracker、`.printing` 生产零调用、编辑误用 `.capturing`。修：快速打印/编辑路径补 tracker。
+- **GAP-R5【快速打印过渡实现】**（feat-export）：实为 PDF→系统分享表（grep 实证全仓零 `UIPrint*`），非 `UIPrintInteractionController`。PO 保留真 AirPrint 为目标 → 修：补真 AirPrint + 每页题数直排。
+- **GAP-R6【CSV 字段数】**（feat-backup）：`CSVParser` 按表头列尽力映射，未严格校验字段数。PO 要数据完整性优先 → 修：字段数不匹配整行拒绝 + 提示。
+
+### Batch 2 已处置（doc 改，本轮完成）
+
+- **KI-02【SmartPaper】已处置**：实证发现 spec 已区分 免费基础组卷(已实现#566)/Pro精准选题(阻塞#479)。PO 裁 `status: blocked→implemented`（指免费基线+门控脚手架已落地，**Pro 精准算法权重/多版式仍未实现**，待 #479；`blocked_by:[479]` 保留 Pro 不可达性质）。
+- **KI-03【Dashboard 孤儿代码】已处置**：补建 `../features/active/feat-dashboard.md`（免费基础首页：题库总数/今日新增/今日待复习/今日已复习/复习Hero/空状态/草稿恢复）；高级统计(Pro)仍归 `feat-advanced-stats.md`。
+
 ## 6. v0→v1 修正清单（4 方证伪的错误）
 
 1. 「5/29 SEALED 标记」→ 删除（不存在；4/4 证伪）。
@@ -91,15 +107,16 @@ SnapDrill：家庭教育拍照存档 iOS app（SwiftUI / iOS 26+ / Swift 6.3）�
 | Batch | 任务 | 完成标准 / 方法 / 交付物 |
 |---|---|---|
 | **0 ✅** | 异源验证全景图 → v1 | 4 方 worktree 独立评审完成（本文 §6 即产出）；交付=本 v1 文档 |
-| **0.5** | 基线冻结 + P2 热修复准入 | 冻结 SSOT 清单/统计口径/快照 commit；先修 KI-01（P2 1 行 + 测试）再深审（codex/agy） |
-| **1a** | 封板实证 + 文档结构完整性 | 确认①②③ 无孤儿/死链/frontmatter 合规；grep 可证 |
-| **1b** | 上游内容正确性（逐 spec） | 8 active spec 内容 vs 现实逐条核（4 方异源）；交付=每 spec 通过/缺陷 |
-| **1c** | spec↔spec 一致性 + 交叉引用 | 术语/字段口径/交叉链一致 |
-| **2** | ②↔④↔⑤ doc↔code↔test 对账 | 以 §5 KI 登记册为输入做**增量复核**（非重复发现）；裁 4 处 SSOT；4 方异源 |
+| **0.5 ✅** | 基线冻结 + P2 热修复准入 | 冻结锚点 `develop@27514750`·源 186·测试 483·spec 8 active/5 backlog（2026-06-02）；KI-01 改判**多文件 S-D4-001**（非 1 行，App target 零容忍 + `.shared` deprecated）→ 独立 PR（PO 定后排） |
+| **1a ✅** | 封板实证 + 文档结构完整性 | 死链 0（35 链全检）·孤儿 0·frontmatter 合规（剥 2 backlog 残留注释）·SSOT `[ok]` |
+| **1b ✅** | 上游内容正确性（逐 spec） | 4 方异源审 8 active spec，6 条 ≥2/4 互证 doc≠code（见 §5 GAP-R1~R6） |
+| **1c ✅** | spec↔spec 一致性 + 交叉引用 | 死链 0=交叉链完整 + 4 方确认术语/口径一致；缺口 KI-02/03 已处置 |
+| **2 🔄** | ②↔④↔⑤ doc↔code↔test 对账 | doc 改完成（GAP-R1~R6 就地标注 + KI-02/03 处置，PO 8 项裁决）；code 债待独立 PR；4 方异源 verify 进行中 |
 | **3** | ⑥⑦ 构建/发布就绪 + 横切 gate | CI 实跑绿、供应链(C6)、双区域 Firebase 剥离(C4)、隐私 manifest 对账(C1)；朝 TestFlight |
 
 ## 8. Provenance
 
 - 2026-06-01：v0（Claude 单方）→ 4 方异源评审（codex/deepseek/agy/grok）→ 本 v1。原始 4 份评审见 `/tmp/sd-panorama/out/`（会话外可重跑）。
 - 关联：[[project_audit_fix_progress]]（58-agent 审计 45 条）、AGENTS.md（活契约）、docs/decisions/ADR-003·004（双区域/Firebase-Free）。
-- **下一步**：Batch 0.5——冻结基线 + 修 KI-01（P2）。本 v1 入库后即受 docs/ SSOT 与 pre-commit 约束。
+- 2026-06-02：Batch 1a/1b/1c/0.5 完成 + Batch 2 doc 改（PO 8 项裁决，GAP-R1~R6 标注 + KI-02/03 处置）。
+- **下一步**：Batch 2 收尾——4 方异源 verify 本轮 doc 改 → 起 GAP-R1~R6 + KI-01 的独立 code PR → Batch 3 发布就绪（CI 实跑/Firebase 剥离/供应链/隐私 manifest）+ C5 PMF 建模（PO 侧）。

@@ -34,6 +34,7 @@ last_updated: 2026-05-30
 ## 3. 技术设计 (How)
 - **模块归属**：`ProfileManager`（`@Observable`，多 Profile / Vault 切换，持有 `DataExecutor`）；`ProfileMigration`（老版本结构迁移）；二者在 `SnapDrillData`。`AppActivityTracker`（`SnapDrillCore/Support`）提供切换保护。Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`，不入全局 `ServiceContainer`（`ImageStorage` 为典型 Profile-scoped 例外）。
 - **关键机制 / 数据流**：采用 Vault 模式——每个 Profile 拥有独立的 SwiftData `ModelContainer` + 独立图片存储目录 + per-profile UserDefaults。切换 Profile 时重建 `ModelContainer` 与 `RepositoryContainer`。`ProfileManager.switchProfile` 先查 `AppActivityTracker.shared.switchBlockReason`，有进行中操作时拒绝切换并返回阻塞原因；`AppActivityTracker` 定义 `begin/end` 活动跟踪 API 与 `canSwitchProfile` / `switchBlockReason` 查询 API，已接入采集（`CaptureViewModel` / `CaptureResultViewModel`）、导出 / 打印、备份 / 恢复（`SettingsViewModel`）。Per-Profile UserDefaults（字段配置、自动推断历史、复习目标等）由 `ProfileManager` 内部 `perProfileKeys` / `savePreferences` / `loadPreferences` 机制在切换时自动存取。Profile 级 TipKit 状态由 `ProfileTipState`（`ReviewSwipeTip` / `FieldConfigTip`）按 Profile 隔离。
+  - **⚠ 实现现状（KI-01 + GAP-R4，代码债）**：`ProfileManager.switchProfile` 查的是 `AppActivityTracker.shared`，但生产 `LiveServiceContainer` 默认新建独立实例（`DependencyContainer` 未注入）——导出预览（`services.activityTracker`）的 begin/end 与切换检查**非同一实例**，导出期切换保护可能失效（KI-01，修法见 `../../explanations/development-process.md` §5，多文件 S-D4-001）；**快速打印路径未接入 tracker**（GAP-R4）。上文"已接入导出 / 打印"为目标态，现状以此为准。
 - **State & Concurrency**（Swift 6 strict）：`ProfileManager` 是 `@Observable`、持有 `DataExecutor`（actor，拥有 `ModelContainer`，`createOffMainActor()` 消除 MainActor + XPC 死锁，#599 已修复）；切换 / 落库等重活经 Repository → `DataExecutor` 在 actor 内执行，不阻塞主线程；切换期间禁止数据写入（saveContext 排队 / UI 显示 loading），完成后放行。
 - **设计裁决（仅本模块）**：「禁止删除最后一个 Profile」而非自动创建空 Profile——自动创建导致"删不掉"的困惑体验且新 Profile 缺个性化信息，直接阻止更简单（奥卡姆剃刀，仅本模块裁决）。
 
@@ -47,6 +48,7 @@ last_updated: 2026-05-30
   - 删除非最后 Profile → 二次确认；级联移除该 Profile 的题库 / 图片 / 复习进度 / 配置；若删的是当前活跃 Profile，UI 自动 fallback 到剩余 Profile 并提示；不得遗留孤儿数据或活跃 Profile 悬空（Boundary B26，S1）。
   - 切换 Profile 后 TipKit 提示状态独立（Boundary B25，#532 已修复，S2）。
 - **数据保证**：Profile 是数据隔离边界，题库 / 统计 / 复习进度 / 导出结果 / draft 必须按 Profile 隔离；切换不得跨 Profile 复用搜索结果或过滤条件对应的数据集；一个 Profile 的删除 / 导出 / 恢复 / 复习更新不得污染其他 Profile；备份 / 恢复必须保留 Profile 隔离关系。备份覆盖全部 Profile，不允许只导出当前活跃 Profile 的局部数据。
+  - **⚠ 实现现状（GAP-R2，代码债·真 bug）**：上文"draft 必须按 Profile 隔离"的草稿**图片**当前未隔离（`CaptureDraftService` 用全局 `Caches/draft_capture.jpg`），存在跨 Profile 覆盖/污染——详见 `feat-capture.md` GAP-R2 + `../../explanations/development-process.md` §5。需求不变，待 code 债修复。
 - **NFR**：冷启动 < 2 秒到首屏可交互；题库列表加载 < 500ms（200 题）。卡片字号 `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)` 为 Per-Profile 隔离存储。多 Profile 恢复当前为按 Profile sequential 提交，单 Profile 内 DB 恢复事务原子（`RepositoryContainer` 单次 saveContext，失败 rollback），图片 best-effort；**多 Profile 全局原子恢复待实现**（追踪：未来增量 issue）。
 
 ## Provenance（迁移期审计用，全量封板后可删）

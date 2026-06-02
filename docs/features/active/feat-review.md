@@ -43,6 +43,7 @@ last_updated: 2026-05-30
   - 无到期题 → Dashboard 与 Review 空状态，不进空白卡片流（Boundary B19）。
   - 某题缺答案 → 允许翻面进空答案状态，仍可评估。
   - **软删除 × 复习队列**：题目软删除（5s undo 窗口）→ 立即从到期队列移除；undo 恢复 → 复习状态一并恢复；过窗口永久删除 → 其 `ReviewItem` 随题目级联清理。
+    - **⚠ 实现现状（GAP-R1，代码债）**：当前 `ReviewViewModel` 在 `.reviewing` 期忽略 `reviewDataDidChange` 通知，且 `ReviewRepository.fetchDue` 未过滤 `DeletionScheduler.pendingDeletionIDs`——5s 窗口内已软删除的到期题仍可能出现在进行中的复习流。需求不变（立即移除），待 code 债修复（追踪见 `../../explanations/development-process.md` §5）。
   - 单题状态更新失败 → 阻止标记"已完成本轮"，提示重试，避免**假完成**。
 - **数据保证**：只更新当前 Profile 下被评估题目的复习状态、不改题目主内容；每次评估只落库一次（重复手势/点击不得双重更新）；结果摘要必须与本轮成功提交的评估一致。
 - **NFR**：卡片大图用降采样加载（`loadDownsampledImage`）控制延迟与内存；因每次评估即时落库，**中途退出不丢已评估进度**（仅未评估题保留到期）。

@@ -1,7 +1,7 @@
 ---
 id: feat-smartpaper
 title: 智能组卷（SmartPaper · Pro）
-status: blocked
+status: implemented
 tier: pro
 blocked_by: [479]
 mode: lightweight
@@ -10,7 +10,7 @@ last_updated: 2026-05-30
 
 # Feature: 智能组卷（SmartPaper · Pro）
 
-> 人读摘要：⛔ Pro 精准选题阻塞于 StoreKit #479（免费基础组卷已实现 #566）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：✅ 免费基础组卷代码（`SmartPaperView` / `SmartPaperViewModel` + 测试）已实现并随免费版发布（#566）；⛔ Pro 精准选题（SM-2 加权 + 多版式）阻塞于 StoreKit #479。`status: implemented` 指**免费基线 + Pro 门控脚手架已落地**，**Pro 精准选题算法权重/多版式仍未实现**（待 #479 解阻后补，见 §3 注、§4 Pro 档）；`blocked_by:[479]` 标记 Pro 路径不可达。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / architecture 聚合（docs 重组 B）。
 > `mode: lightweight`：Pro 总闸（StoreKit #479）未接、Pro 路径不可达，故以 Why + What 为准；How / Verify 仅浓缩源文档**已实现的免费档 + 已落档的算法/排版机制**，未实现的 Pro 分支不编造设计。
