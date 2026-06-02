@@ -57,6 +57,40 @@ struct MigrationTests {
         #expect(try ctx.fetchCount(FetchDescriptor<ReviewItemModel>()) == 1)
     }
 
+    @Test("持久化 store 经 MigrationPlan 重开后数据完整（迁移基础设施 round-trip 守护）")
+    func persistentStoreRoundTripViaMigrationPlan() throws {
+        // 用磁盘 store（非 in-memory）真正验证「经 MigrationPlan 持久化往返不丢数据」。
+        // 当前仅 V1，不构造投机的假 V2；守护的是迁移基础设施本身（migrationPlan + 持久化）
+        // 被改坏导致数据丢失的回归。未来落地真实 V2 时在此扩展跨版本 round-trip。
+        let storeURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("MigrationRoundTrip_\(UUID().uuidString).store")
+        defer { try? FileManager.default.removeItem(at: storeURL) }
+
+        let schema = Schema(SnapDrillSchemaV1.models)
+        let config = ModelConfiguration(url: storeURL)
+
+        // 写入：经 MigrationPlan 创建持久化容器，存入样本后释放
+        do {
+            let container = try ModelContainer(
+                for: schema,
+                migrationPlan: SnapDrillMigrationPlan.self,
+                configurations: config
+            )
+            let ctx = container.mainContext
+            ctx.insert(ReviewItemModel.mock(content: "持久化迁移样本"))
+            try ctx.save()
+        }
+
+        // 重开：同一磁盘 store 经 MigrationPlan 重新打开，数据应完整保留
+        let reopened = try ModelContainer(
+            for: schema,
+            migrationPlan: SnapDrillMigrationPlan.self,
+            configurations: config
+        )
+        let count = try reopened.mainContext.fetchCount(FetchDescriptor<ReviewItemModel>())
+        #expect(count == 1, "经 MigrationPlan 持久化往返后数据应完整")
+    }
+
     @Test("DataExecutor 内部使用 MigrationPlan 创建容器")
     func dataExecutorUsesMigrationPlan() throws {
         let executor = DataExecutor(inMemory: true)

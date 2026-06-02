@@ -43,12 +43,9 @@ struct SnapDrillUITests {
 
     @Test("组件渲染后视图尺寸大于零")
     func componentViewHasPositiveSize() throws {
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
-
         let button = SnapDrillButton(title: "测试按钮", action: {})
         let btnHC = UIHostingController(rootView: button)
-        window.rootViewController = btnHC
-        window.makeKeyAndVisible()
+        btnHC.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
         btnHC.view.layoutIfNeeded()
 
         #expect(btnHC.view.bounds.width > 0, "按钮宽度应大于零")
@@ -57,12 +54,9 @@ struct SnapDrillUITests {
 
     @Test("ProgressLoadingView 渲染后视图尺寸大于零")
     func progressLoadingViewHasPositiveSize() throws {
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
-
         let progress = ProgressLoadingView(message: "加载中...")
         let hc = UIHostingController(rootView: progress)
-        window.rootViewController = hc
-        window.makeKeyAndVisible()
+        hc.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
         hc.view.layoutIfNeeded()
 
         #expect(hc.view.bounds.width > 0)
