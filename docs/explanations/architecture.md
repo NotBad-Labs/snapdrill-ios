@@ -54,6 +54,21 @@ SnapDrillShare（Share Extension）
 4. `ServiceContainer` 当前 13 个属性：5 既有（analytics/pdfExport/appConfig/privacyConsent/notification）+ 8 新挂（ocr/captureDraft/contentTagging/questionSplitting/deletionScheduler/proEntitlement/activityTracker/reviewScheduler）
 5. 显式豁免清单（不挂容器）：`TelemetryGate`（nonisolated enum，全局静态状态）/ `ZIPArchiver`（Data 层，跨包循环依赖）/ `ImageStorage`（Profile-scoped）/ `OnboardingManager` / `DependencyContainer.shared`
 
+## 解耦准则（最优解耦 · AI 协作）
+
+目标是**最优解耦、非极致**——"高内聚低耦合"是一对张力的最优点（极致解耦碎片化、杀内聚 → ravioli）。判据：让"未来最可能的那类变更"成本最低（Parnas 信息隐藏：按易变设计决策分解；Ousterhout 深模块：窄接口、丰富实现）。
+
+**该解耦（DO）**：不同变化率/原因的接缝、外部依赖边界（网络/存储/第三方 SDK）、已有 2+ 实现处、SPM package 边界（= feature 隔离 + 编译边界 + agent 工作隔离）。
+**不该解耦（DON'T）**：单实现 protocol、pass-through 层、为"将来可能"的投机抽象（YAGNI / Rule of Three）、同生共死的 View + 其唯一 ViewModel。
+
+**AI/多 agent 协作的位移**（实证：MAST, NeurIPS 2025——多 agent 失败 41.8% 是规格/设计问题，显式契约是恢复成功率第一杠杆）：最优点向**显式契约**移动（类型/文档/spec/物理 package 边界），**不向更多抽象层**移动；AI 廉价量产抽象 → 须比纯人类**更严**执行 YAGNI。机制：AI 归零了抽象的"生产成本"，但没归零"契约/理解/误改成本"（Hyrum's Law：公开缝=永久契约）。
+
+**操作法则**：
+- **agent 度量痛点、不提议抽象**：让 agent 在当前结构下试实现变更，看它要的 diff/上下文多大；有痛点→开缝，无痛点→YAGNI。
+- **触发器驱动重构**：同类变更连续 2 次碰 5+ 文件 = 边界画错才重构；共享抽象开始加第 2 个 bool 参数 = inline 回重复（Metz：错误抽象比重复贵）。
+- **缝要么做完**：半截解耦最危险（如 KI-01——S-D4-001 半截迁移在缝里留洞、导出期 Profile 切换保护失效）；一次做透 + 配跨边界集成测试守缝，或别开。
+- **编排者（人 + 主力 agent）= 架构守门**；外部评审 agent 查"YAGNI 违规 + 单实现 protocol + 隐式契约"，而非盲目鼓励解耦。
+
 ## DI 注入链路
 
 ```

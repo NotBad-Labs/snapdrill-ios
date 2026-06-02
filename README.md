@@ -15,13 +15,14 @@
 | [AGENTS.md](AGENTS.md) | 智能体协作行为约束 + 架构 + 编码（CLAUDE.md 软链至此）|
 | [DocC API 文档](Packages/) | Xcode: Product > Build Documentation |
 
-## 当前状态（2026-05-29）
+## 当前状态（2026-06-02）
 
 > 上架/运营状态锚点（供跨会话 / 跨 agent 追溯）。决策细节见 [ADR-003 双地区发布](docs/decisions/ADR-003-dual-region-release.md) / [ADR-004 国内 Firebase-Free](docs/decisions/ADR-004-china-build-firebase-free.md)。事实源以本地 code/docs/git 为准（GitHub issue/PR 可能滞后）。
 
 - **阶段**：国内内测 TestFlight 准备（路径 A：个人账号 Team `W5A8THDKW8` 已 active，**内测无账号阻塞**）。核心免费闭环约 90% build-complete；Pro / 同步为外部阻塞，非闭环本身。
+- **文档/审计**：开发流程全景图 + 分批审计 Batch 0-3 已完成（结构完整性 / 逐 spec 内容 / doc↔code 对账 / 发布就绪），**发布阻塞清单 RC-1~RC-12 见 [development-process.md](docs/explanations/development-process.md) §5**——公开上架 P0 = Firebase 编译剔除 / 隐私 manifest 聚合 / MetricKit / 儿童 PIPL 专章；**TestFlight 内测不被这些阻塞**。
 - **决策 · Pro**：免费优先，本期**不接 StoreKit**；Pro 入口保留（待改"敬请期待"占位）。
-- **决策 · Firebase（PIPL）**：国内 build 先**运行时止血**（不调 `FirebaseBootstrap.configure()` + 注入 NoOp + 移除 `GoogleService-Info.plist`）→ **抓包复验零出境** → 公开上架前随 C 路径做**编译层剔除**。
+- **决策 · Firebase（PIPL）**：国内 build 先**运行时止血**（不调 `FirebaseBootstrap.configure()` + 注入 NoOp + 移除 `GoogleService-Info.plist`）→ **抓包复验零出境（已复验 ✓）** → 公开上架前随 C 路径做**编译层剔除**（= RC-1，公开上架 P0；SDK 当前仍链接）。
 
 **阻塞真相**（旧文档 issue 编号有漂移，以下以本地为准）：
 
@@ -32,7 +33,7 @@
 | CloudKit 同步 | #485 —— 已 `cloudKitDatabase: .none` 禁用，延后 |
 | Word 导出 | **#486**（旧文档误标为"Apple 账号"）—— Pro，延后 |
 
-**内测关键路径**：① Firebase 运行时止血 + 抓包复验 → ② 共享 `SnapDrill` scheme → ③ bump `CURRENT_PROJECT_VERSION` 5→6 → ④ 加 `ITSAppUsesNonExemptEncryption=NO` → ⑤ DoD 门禁（swiftlint + build-for-testing）→ ⑥ Xcode Organizer 手动 Archive 上传（fastlane / `upload_testflight.sh` 待修）→ ⑦ 内测仅邀国内家长 Apple ID。
+**内测关键路径**：① Firebase 运行时止血 + 抓包复验（✓ 已完成）→ ② 共享 `SnapDrill` scheme → ③ bump `CURRENT_PROJECT_VERSION` 5→6 → ④ 加 `ITSAppUsesNonExemptEncryption=NO` → ⑤ DoD 门禁（swiftlint + build-for-testing）→ ⑥ Xcode Organizer 手动 Archive 上传（fastlane / `upload_testflight.sh` 待修）→ ⑦ 内测仅邀国内家长 Apple ID。
 
 ## 架构设计
 
@@ -48,7 +49,7 @@
 - **[SnapDrillData](Packages/SnapDrillData/README.md)**: 数据层。基于 SwiftData 的 `@Model` 类（直接作领域对象）、具体 Repository 类、持久化控制器和迁移计划。
 - **[SnapDrillUI](Packages/SnapDrillUI/README.md)**: 表现层。包含设计系统、通用组件 (ImageCropper) 和基础路由协议。
 
-- **[SnapDrillInfrastructure](Packages/SnapDrillInfrastructure/)**: 基础设施层。Firebase 实现（Analytics/Crashlytics；RemoteConfig 已移除），仅 `SnapDrill/App` 可 import。
+- **[SnapDrillInfrastructure](Packages/SnapDrillInfrastructure/)**: 基础设施层。Firebase 实现（Analytics/Crashlytics；RemoteConfig 已移除）。**国内版运行时不调 `configure`、注入 `NoOpAnalyticsService`（ADR-004 Firebase-Free）；SDK 仍链接，编译层剔除待 C 路径**。仅 `SnapDrill/App` 可 import。
 
 #### 2. 功能层 (Feature Layer)
 
