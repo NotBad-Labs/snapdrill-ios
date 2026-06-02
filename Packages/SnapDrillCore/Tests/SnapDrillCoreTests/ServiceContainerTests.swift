@@ -54,6 +54,19 @@ struct ServiceContainerTests {
         #expect(container.activityTracker === container.activityTracker)
     }
 
+    // MARK: - KI-01 回归守卫
+
+    @Test("KI-01：LiveServiceContainer 默认 activityTracker === AppActivityTracker.shared（导出流与 ProfileManager 切换检查同实例）")
+    func testLiveServiceContainerActivityTrackerIsShared() {
+        // ProfileManager.switchProfile 查 AppActivityTracker.shared 判断能否切换。
+        // 生产容器默认未注入 activityTracker 时，必须落到 .shared，否则导出流
+        // services.activityTracker.begin(.exporting) 写在另一实例上、ProfileManager
+        // 看不到 → 导出期 Profile 切换保护失效（KI-01）。此断言守卫该一致性：
+        // 若 LiveServiceContainer 默认改回 AppActivityTracker()（新实例），此测试 FAIL。
+        let container = LiveServiceContainer()
+        #expect(container.activityTracker === AppActivityTracker.shared)
+    }
+
     // MARK: - MockServiceContainer
 
     @Test("MockServiceContainer 提供所有 Mock 服务")
