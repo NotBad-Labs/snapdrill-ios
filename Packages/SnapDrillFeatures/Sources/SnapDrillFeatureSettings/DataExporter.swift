@@ -50,40 +50,11 @@ actor DataExporter {
     }
 
     private func exportCSV(items: [ExportableItem]) throws -> Data {
-        var csv = "ID,Content,Subject,Source,Difficulty,Answer,CreatedAt,LastReviewed,NextReview,Tags\n"
-
-        for item in items {
-            let row = [
-                item.id.uuidString,
-                escapeCSV(item.content ?? ""),
-                escapeCSV(item.subject),
-                escapeCSV(item.source),
-                "\(item.difficulty)",
-                escapeCSV(item.answerText ?? ""),
-                item.createdAt.ISO8601Format(),
-                item.lastReviewedAt?.ISO8601Format() ?? "",
-                item.nextReviewAt?.ISO8601Format() ?? "",
-                escapeCSV(item.tags.joined(separator: "; "))
-            ].joined(separator: ",")
-
-            csv += row + "\n"
-        }
-
-        guard let data = csv.data(using: .utf8) else {
+        // CSV 列 schema / 转义 / 公式注入防护统一由 ReviewCSVCodec 提供（单一契约源）。
+        guard let data = ReviewCSVCodec.makeCSV(items).data(using: .utf8) else {
             throw ExportError.encodingFailed
         }
-
         return data
-    }
-
-    /// CSV 转义 + Excel 公式注入防护
-    private func escapeCSV(_ string: String) -> String {
-        var value = string
-        if let first = value.first, "=+\\-@".contains(first) {
-            value = "\t" + value
-        }
-        let escaped = value.replacingOccurrences(of: "\"", with: "\"\"")
-        return "\"\(escaped)\""
     }
 }
 
