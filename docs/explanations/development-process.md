@@ -46,10 +46,10 @@ SnapDrill：家庭教育拍照存档 iOS app（SwiftUI / iOS 26+ / Swift 6.3）�
 
 | 层 | 状态断言 | 证据 | 等级 |
 |---|---|---|---|
-| ①愿景/需求 | docs/explanations 结构重组完成（**非"封板冻结"**，见 §4） | 8 个 explanation 文件存在，frontmatter last_verified 多为 2026-05-25 | 🟢 结构 / 🟡 "完成"程度 |
-| ②功能规格 | 8 个 active feat-*.md；2 处 doc≠code（见下）；Dashboard 无 spec(=gap) | `find docs/features/active -name 'feat-*.md'`=8；feature-status.md SSOT 自动生成 | 🟢 |
+| ①愿景/需求 | docs/explanations 结构重组完成（**非"封板冻结"**，见 §4） | 9 个 explanation 文件存在（含本 development-process.md），frontmatter last_verified 多为 2026-05-25 | 🟢 结构 / 🟡 "完成"程度 |
+| ②功能规格 | 9 个 active feat-*.md（Batch 2 补建 feat-dashboard，KI-03）；6 处 doc≠code 已标 GAP-R1~R6（见 §5）；Dashboard gap 已补 spec | `find docs/features/active -name 'feat-*.md'`=9；feature-status.md SSOT 自动生成 | 🟢 |
 | ③架构/设计 | 分层铁律 **0 反向依赖**；SRP 最大文件 ProfileManager 499<600 | 4 方各自 grep `^import SnapDrill(UI\|Data\|Features\|Infra)` 于 Core/Data/UI 均 0 命中 | 🟢（4 方复核一致） |
-| ④代码 | 核心闭环 ~90% implemented；**P2 真 bug：activityTracker 实例隔离**（见 §5 KI-01） | 8/8 active spec frontmatter status=implemented；P2 见 ProfileManager.swift:226 等 | 📄(90%) / 🟢(P2，5 源印证) |
+| ④代码 | 核心闭环 ~90% implemented；**P2 真 bug：activityTracker 实例隔离**（见 §5 KI-01） | 9/9 active spec frontmatter status=implemented；P2 见 ProfileManager.swift:226 等 | 📄(90%) / 🟢(P2，5 源印证) |
 | ⑤测试 | 测试函数 ≈ **483**；隐私/安全铁律零 oracle | Packages/\*/Tests：`@Test`=443 + `func test`=40 = 483，50 文件（含 app 层 SnapDrillTests/UITests/ShareTests 约 499/52，口径以命令为准）；ImageStorageTests 无 EXIF/GPS 断言 | 🟢 |
 | ⑥构建/CI | CI workflow **配置存在**；当前运行是否全绿**未在 worktree 内核验** | .github/workflows/ci.yml 含 lint/build-for-testing/test | ⚪（外部状态） |
 | ⑦发布 | 未启动（fastlane/upload_testflight.sh 存在但未执行；占位脚本已知坏） | 无 TestFlight 构建/元数据提交证据 | 🟢 |

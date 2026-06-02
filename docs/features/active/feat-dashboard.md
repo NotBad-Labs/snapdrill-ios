@@ -27,7 +27,7 @@ last_updated: 2026-06-02
   - **草稿恢复入口**：检测到未保存草稿时，首页发起采集前弹窗提示恢复 / 新建（承接 `feat-capture` 的 `CaptureDraftService`）。
   - **字段管理入口**：提供学科管理器等配置入口跳转（归属 `feat-library`）。
 - **边界 / 不做**：
-  - **不做高级统计**：学科趋势 / 难度分布 / 薄弱学科排行 = Pro 高级统计，归 `../backlog/feat-advanced-stats.md`（阻塞 #479），不在免费首页展开。
+  - **不做高级统计**：学科趋势 / 难度分布 / 薄弱学科排行 = Pro 高级统计，归 `../backlog/feat-advanced-stats.md`（阻塞 #479）；首页仅以 **Pro 门控 teaser**（模糊 + 付费提示 overlay）呈现入口，完整图表为 Pro，免费首页不展开完整统计。
   - 首页不承载题目的增删改（写操作在采集/题库/复习），仅概览 + 跳转。
   - 统计口径不在本 spec 重新定义——以被消费 feature 的 spec 为准，避免口径分裂。
 - **前置依赖**：`feat-review`（SM-2 待复习 / 已复习口径）、`feat-library`（题库总数与字段管理）、`feat-capture`（草稿恢复 + 采集入口）。
@@ -35,12 +35,12 @@ last_updated: 2026-06-02
 
 ## 3. 技术设计 (How) — 只放实现机制，不放商业/上位 why
 - **模块归属**：`Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard`（`DashboardView` / `DashboardViewModel` / `ReviewHeroCard` / `BentoCard` / `HeaderView` / `DashboardRouter`）。高级统计的 `DashboardAnalyticsView` / `DashboardAnalyticsViewModel` 同目录但归 Pro spec。新增 `@Model`：无（统计经 Repository 聚合既有题目 / `ReviewItem`）。
-- **关键机制 / 数据流**：`DashboardViewModel.loadData()` 经 `RepositoryContainer.review` 取 `fetchTodayCount()` / `totalItemCount()` / 到期数 → 写入 `@Observable` 计数属性 → SwiftUI 渲染 BentoCard 网格 + Hero。跨模块刷新经 `Notification.Name.reviewDataDidChange` 触发增量刷新（采集/复习/删除后首页自动更新）。
+- **关键机制 / 数据流**：`DashboardViewModel.loadData()` 经 `RepositoryContainer.review` 取 `fetchTodayCount()` / `totalItemCount()` / 到期数 → 写入 `@Observable` 计数属性 → SwiftUI 渲染 BentoCard 网格 + Hero。进入首页（appear）时 `loadData()` 刷新统计；前台运行期间经 `Notification.Name.reviewDataDidChange` 去抖增量刷新（observer 在 `init` 建立、`onDisappear` 经 `cancelTasks()` 释放，再次 appear 重新 `loadData()`）。
 - **State & Concurrency**（Swift 6 strict）：首页状态归 `DashboardViewModel`（`@Observable`，`@MainActor`）；统计读取经 Repository → `DataExecutor`（actor）取数，不阻塞主线程；`reviewDataDidChange` 观察用 `Task` 去抖（`dataChangeTask` / `pendingRefreshTask`），退出时 `cancelTasks()` 释放。
 - **设计裁决**：无（首页为只读聚合，复用既有 Repository 与通知机制，无对全局原则的局部例外）。
 
 ## 4. 验证标准 (Verify) — GWT 风格，不复述 How 的交互细节
-- **Success path (GWT)**：Given 当前 Profile 有题目，When 用户进入首页，Then 展示题库总数 / 今日新增 / 今日待复习 / 今日已复习四项概览 + 复习 Hero，点击 Hero 可进入复习流；采集/复习/删除后回到首页，统计经 `reviewDataDidChange` 自动刷新。
+- **Success path (GWT)**：Given 当前 Profile 有题目，When 用户进入首页，Then 展示题库总数 / 今日新增 / 今日待复习 / 今日已复习四项概览 + 复习 Hero，点击 Hero 可进入复习流；采集/复习/删除后回到首页（appear）经 `loadData()` 刷新统计；前台运行期间 `reviewDataDidChange` 去抖刷新。
 - **边界 / 异常**：
   - 题库为空 → 不进空白卡片流，展示「采集第一道题」空状态引导（与 `feat-review` 空状态一致，Boundary B19）。
   - 存在未保存草稿且用户发起采集 → 弹窗提示恢复 / 新建（承接 `feat-capture`）。

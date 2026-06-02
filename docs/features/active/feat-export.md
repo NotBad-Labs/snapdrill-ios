@@ -35,10 +35,10 @@ last_updated: 2026-05-30
 
 ## 3. 技术设计 (How)
 - **模块归属**：PDF 渲染/排版管线 `SnapDrillCore/Service/PDFExportService`（统一 PDF 引擎，注入于 `ServiceContainer.pdfExport`）；快速打印**目标**为 `UIPrintInteractionController` + 自定义 `UIPrintPageRenderer`（layoutN：1/2/4 题/页），将来抽出落 `SnapDrillCore/Service/PrintService.swift`。
-  - **⚠ 实现现状（GAP-R5，代码债）**：当前快速打印为**过渡实现**——`LibraryDetailView`（单题 / 多选 N 题）生成 PDF 后经系统分享表（`UIActivityViewController` / ShareSheet，含 AirPrint 打印项）打印，**尚未接入** `UIPrintInteractionController` / `UIPrintPageRenderer`；每页题数直排打印（1/2/4 题/页）待真 AirPrint 补全。
+  - **⚠ 实现现状（GAP-R5，代码债）**：当前快速打印为**过渡实现**——`LibraryDetailView` 单题打印生成 PDF 后经系统分享表（`UIActivityViewController` / ShareSheet，含 AirPrint 打印项）打印（多题/每页题数走导出预览 `ExportPreviewView`），**尚未接入** `UIPrintInteractionController` / `UIPrintPageRenderer`；每页题数直排打印（1/2/4 题/页）待真 AirPrint 补全。
 - **关键机制 / 数据流**：题库过滤/选中结果集 → 题目快照 → PDFExportService 排版（去答案 / 留白 / 页眉页码为布局选项）→ 生成 PDF → 预览 → 分享/保存/打印。智能组卷、Word 导出均**复用同一 PDF 管线，不重新实现 PDF 引擎**（单一职责）。ShareCard 例外：用 SwiftUI `ImageRenderer`，不走 PDFExport 管线。
 - **State & Concurrency**（Swift 6 strict）：导出/打印为只读编排。批量 PDF 渲染**逐页包 `autoreleasepool` 释放**控制峰值内存（防 OOM）；重活不阻塞主线程。PDF 导出预览经 `AppActivityTracker.begin(.exporting) → end(...)` 标记活动——期间禁止切换 Profile（互斥），UI 显示"正在导出中，请稍候"。
-  - **⚠ 实现现状（GAP-R4，代码债）**：快速打印（`LibraryDetailView` 单题/多题）当前**未接入** tracker，`.printing` 活动类型生产代码零调用、部分编辑路径误用 `.capturing`——快速打印期间 Profile 切换保护暂缺，待 code 债补全。（导出预览 `.exporting` 标记的实例一致性另受 KI-01 影响，见 `../../explanations/development-process.md` §5。）
+  - **⚠ 实现现状（GAP-R4，代码债）**：快速打印（`LibraryDetailView` 单题）当前**未接入** tracker，`.printing` 活动类型生产代码零调用、部分编辑路径误用 `.capturing`——快速打印期间 Profile 切换保护暂缺，待 code 债补全。（导出预览 `.exporting` 标记的实例一致性另受 KI-01 影响，见 `../../explanations/development-process.md` §5。）
 - **设计裁决（仅本模块）**：
   - **去答案是布局层操作**（隐藏答案文字字段后排版），不触碰原题答案数据，与图片层的 Pro 图片处理增强技术路径完全分离。
   - ShareCard 单题渲染**不共享** PDF 批量管线（避免为单题强行复用批量流水线，design §简洁单一职责）。
