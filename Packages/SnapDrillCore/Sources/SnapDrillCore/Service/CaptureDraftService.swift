@@ -149,9 +149,13 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     // MARK: - Private Helpers
 
     private func draftImagePath() -> URL? {
-        guard let cacheDir = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+        // 数据安全：草稿图片存入 Application Support（持久），而非 Caches（系统可在低存储时清除）。
+        // 采集主路径要求原图在崩溃/终止后仍可恢复，半持久的 Caches 不满足该约束。
+        guard let supportDir = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
             return nil
         }
-        return cacheDir.appendingPathComponent(draftImageName)
+        // Application Support 目录在 iOS 上可能尚未创建，确保存在
+        try? fileManager.createDirectory(at: supportDir, withIntermediateDirectories: true)
+        return supportDir.appendingPathComponent(draftImageName)
     }
 }

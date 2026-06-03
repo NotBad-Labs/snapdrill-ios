@@ -155,4 +155,46 @@ struct CaptureViewModelTests {
         #expect(mockOCR.recognizeTextCallCount == 1)
         #expect(viewModel.isProcessing == false)
     }
+
+    // MARK: - 数据安全：原图在 OCR 之前落盘（防采集丢失，GUI 第一性原理「主路径崩溃原子性」）
+
+    @Test("OCR 失败时原图已在 OCR 之前落盘为草稿（防数据丢失）")
+    func testProcessScannedImage_persistsImageBeforeOCR() async throws {
+        let mockOCR = MockOCRService()
+        mockOCR.recognizeTextError = NSError(domain: "test", code: -1, userInfo: nil)
+
+        let draftMock = CaptureDraftServiceMock()
+        let viewModel = CaptureViewModel(ocrService: mockOCR, draftService: draftMock)
+        let router = CaptureRouter()
+
+        viewModel.processScannedImage(createTestImage(), router: router)
+
+        // 即使 OCR 失败，原图也必须已在 OCR 之前落盘为草稿——否则进程终止会丢失采集。
+        // 守护「OCR 是可重跑富化步骤，不是持久化前置闸门」这条不变量。
+        try await waitUntil(timeout: .seconds(5)) { viewModel.showOCRRetryAlert }
+        #expect(
+            draftMock.saveCalls.contains { $0.image != nil && $0.content.isEmpty },
+            "OCR 之前必须先把原图落盘为草稿，否则崩溃/上滑/OOM 会丢失这次采集"
+        )
+    }
+
+    @Test("OCR 成功后识别文本富化回草稿（OCR 结果也具备崩溃恢复能力）")
+    func testProcessScannedImage_enrichesDraftWithOCRText() async throws {
+        let mockOCR = MockOCRService()
+        mockOCR.recognizeTextResult = "识别文本"
+
+        let draftMock = CaptureDraftServiceMock()
+        let viewModel = CaptureViewModel(ocrService: mockOCR, draftService: draftMock)
+        let router = CaptureRouter()
+
+        var pushed = false
+        router.onPush = { _ in pushed = true }
+
+        viewModel.processScannedImage(createTestImage(), router: router)
+        try await waitUntil(timeout: .seconds(5)) { pushed }
+
+        // OCR 前先落盘（content 为空）+ OCR 后把识别文本富化回草稿（content=识别文本）
+        #expect(draftMock.saveCalls.contains { $0.image != nil && $0.content.isEmpty })
+        #expect(draftMock.saveCalls.contains { $0.content == "识别文本" })
+    }
 }
