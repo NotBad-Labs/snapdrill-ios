@@ -46,6 +46,14 @@ public struct CategoryManagerView: View {
                 })
             }
         }
+        .alert(L10n.Library.cannotDeleteInUse, isPresented: Binding(
+            get: { viewModel?.isDeletingInUse ?? false },
+            set: { newValue in viewModel?.isDeletingInUse = newValue }
+        )) {
+            Button(L10n.Common.ok, role: .cancel) { }
+        } message: {
+            Text(L10n.Library.valueHasItems(viewModel?.pendingDeletionName ?? ""))
+        }
         .sheet(isPresented: $showingAddDimension) {
             EditDimensionView(viewModel: viewModel)
         }
@@ -76,12 +84,6 @@ public struct CategoryManagerView: View {
                     .background(Color.secondary.opacity(0.15), in: Capsule())
             }
             Spacer()
-            // 已隐藏维度的视觉提示（读共享可见性契约）
-            if UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool == false {
-                Image(systemName: "eye.slash")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
         }
     }
 }

@@ -323,7 +323,8 @@ public final class CaptureResultViewModel {
             let values = valuesByDimension[dimId] ?? []
             result.append(contentsOf: values.filter { valueIds.contains($0.id) })
         }
-        return result
+        // 丢弃已被管理页删除的值——本页缓存可能持有它处已删的 @Model，写回会复活值或造成悬挂引用
+        return result.filter { !$0.isDeleted }
     }
 
     /// 取某内置维度（按 systemKey）当前选中的首个值名（埋点/草稿用，无则空串）

@@ -108,7 +108,8 @@ public struct DashboardView: View {
 
                                     // 设置/更多
                                     BentoCard(
-                                        title: L10n.Dashboard.subjectManage,
+                                        // L3：入口已统一为全维度管理，标签与落地页标题（管理分类）保持一致
+                                        title: L10n.Library.categoryManager,
                                         subtitle: L10n.Dashboard.customize,
                                         icon: "square.grid.2x2",
                                         gradient: LinearGradient(

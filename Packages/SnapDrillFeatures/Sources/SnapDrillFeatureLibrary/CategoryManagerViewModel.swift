@@ -25,6 +25,10 @@ public final class CategoryManagerViewModel {
 
     /// 当前所有维度（按 sortOrder）
     public private(set) var dimensions: [CategoryDimensionModel] = []
+    /// 删除受阻：维度下仍有值被题目引用（与值级删除守卫对称，防静默剥离题目分类）
+    public var isDeletingInUse = false
+    /// 触发删除保护时的维度名称
+    public var pendingDeletionName = ""
     /// 重名保护：目标名称已存在
     public var isDuplicateName = false
     /// 触发重名保护时的名称
@@ -87,11 +91,20 @@ public final class CategoryManagerViewModel {
     }
 
     /// 删除指定位置的维度。内置维度跳过（UI 不提供删除入口，此处为双保险）。
-    /// Repository 内部 `delete(id:)` 显式遍历删值 + 解题目引用（不靠 cascade）。
+    /// 与值级删除守卫对称：维度下任一值仍被题目引用时拦截（删整维度=批量删值+批量解引用，
+    /// 破坏性更大，更需守护），置 `isDeletingInUse` 并跳过，不静默剥离题目分类。
+    /// 确认可删后，Repository `delete(id:)` 显式遍历删值 + 解题目引用（不靠 cascade）。
     public func delete(at offsets: IndexSet) {
+        isDeletingInUse = false
         let toDelete = offsets.compactMap { dimensions.indices.contains($0) ? dimensions[$0] : nil }
         for dimension in toDelete {
             guard !dimension.isBuiltIn else { continue }
+            let inUse = (dimension.values ?? []).contains { ($0.items?.count ?? 0) > 0 }
+            if inUse {
+                isDeletingInUse = true
+                pendingDeletionName = dimension.name
+                continue
+            }
             do {
                 try repositories.dimension.delete(id: dimension.id)
             } catch {

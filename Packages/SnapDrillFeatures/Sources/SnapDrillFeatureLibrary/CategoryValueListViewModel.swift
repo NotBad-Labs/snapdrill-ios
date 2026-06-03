@@ -32,6 +32,10 @@ public final class CategoryValueListViewModel {
         didSet { persistMultiValue() }
     }
 
+    /// 防止 rollback 后同步属性时 didSet 递归再保存
+    @ObservationIgnored
+    private var isReverting = false
+
     /// 删除受阻：值仍被题目引用
     public var isDeletingInUse = false
     /// 触发删除保护时的值名称
@@ -133,6 +137,7 @@ public final class CategoryValueListViewModel {
 
     /// 持久化单值/多值变更（内置维度禁改）
     private func persistMultiValue() {
+        guard !isReverting else { return }
         guard !dimension.isBuiltIn else { return }
         dimension.isMultiValue = isMultiValue
         do {
@@ -141,6 +146,10 @@ public final class CategoryValueListViewModel {
             repositories.dimension.rollbackContext()
             SnapDrillLogger.generic.error("保存维度单值/多值开关失败: \(error.localizedDescription)")
             operationError = L10n.Errors.saveFailed
+            // rollback 后模型已还原，把 @Observable 属性同步回去，避免开关显示与录入页行为 desync
+            isReverting = true
+            isMultiValue = dimension.isMultiValue
+            isReverting = false
         }
     }
 }

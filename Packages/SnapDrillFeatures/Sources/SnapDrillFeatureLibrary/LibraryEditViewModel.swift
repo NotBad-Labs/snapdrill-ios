@@ -288,7 +288,8 @@ public final class LibraryEditViewModel {
             let values = valuesByDimension[dimId] ?? []
             result.append(contentsOf: values.filter { valueIds.contains($0.id) })
         }
-        return result
+        // 丢弃已被管理页删除的值——本页缓存可能持有它处已删的 @Model，写回会复活值或造成悬挂引用
+        return result.filter { !$0.isDeleted }
     }
 
     /// 将编辑状态同步到 @Model 属性（纯内存操作，无 await）

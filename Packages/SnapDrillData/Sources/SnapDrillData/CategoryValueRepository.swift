@@ -69,7 +69,13 @@ public final class CategoryValueRepository {
         if let existing = fetchModel(byName: name, in: dimension) {
             return existing
         }
-        let value = CategoryValueModel(name: name, colorHex: colorHex, dimension: dimension)
+        // sortOrder 追加到末尾（与管理页 saveValue 的 values.count 语义一致，避免现场新建值全挤在 0 段）
+        let value = CategoryValueModel(
+            name: name,
+            colorHex: colorHex,
+            sortOrder: dimension.values?.count ?? 0,
+            dimension: dimension
+        )
         modelContext.insert(value)
         return value
     }

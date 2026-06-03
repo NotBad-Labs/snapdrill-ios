@@ -158,7 +158,7 @@ public struct DimensionInputRow: View {
     }
 
     private var selectedName: String? {
-        guard let id = selectedIds.first else { return nil }
-        return model.options.first { $0.id == id }?.name
+        // 按 options 顺序取首个选中项（不用 Set.first——无序会导致同题多值残留时显示跳变）
+        model.options.first { selectedIds.contains($0.id) }?.name
     }
 }
