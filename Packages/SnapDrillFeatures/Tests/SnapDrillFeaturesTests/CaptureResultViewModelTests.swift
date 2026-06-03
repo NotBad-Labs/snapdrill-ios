@@ -30,13 +30,8 @@ final class CaptureResultViewModelTests {
     private let repos: RepositoryContainer
 
     init() throws {
-        let schema = Schema([
-            ReviewItemModel.self,
-            TagModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ])
+        // L3：用 SnapDrillSchemaV1.models（含 CategoryDimension/Value），否则 categoryValues 关系无法解析
+        let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         repos = RepositoryContainer(modelContext: container.mainContext)
@@ -80,74 +75,6 @@ final class CaptureResultViewModelTests {
         #expect(ctx.vm.isSaved == false)
     }
 
-    // MARK: - loadFormData
-
-    @Test("loadFormData 加载分类选项")
-    func loadFormData_loadsTaxonomy() throws {
-        let ctx = createVM()
-        try seedDefaultTaxonomy(repos: ctx.repos)
-
-        ctx.vm.loadFormData()
-
-        #expect(ctx.vm.availableSubjects.count == 1)
-        #expect(ctx.vm.availableSources.count == 1)
-        #expect(ctx.vm.availableGrades.count == 1)
-    }
-
-    // MARK: - confirmNewSubject / Source / Grade
-
-    @Test("confirmNewSubject 创建学科并选中")
-    func confirmNewSubject_createsAndSelects() throws {
-        let ctx = createVM()
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-
-        ctx.vm.newSubjectName = "物理"
-        ctx.vm.confirmNewSubject()
-
-        #expect(ctx.vm.selectedSubject == "物理")
-        #expect(ctx.vm.availableSubjects.contains(where: { $0.name == "物理" }))
-    }
-
-    @Test("confirmNewSubject 空名称不创建")
-    func confirmNewSubject_emptyName_noOp() throws {
-        let ctx = createVM()
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-        let originalCount = ctx.vm.availableSubjects.count
-
-        ctx.vm.newSubjectName = "   "
-        ctx.vm.confirmNewSubject()
-
-        #expect(ctx.vm.availableSubjects.count == originalCount)
-    }
-
-    @Test("confirmNewSource 创建来源并选中")
-    func confirmNewSource_createsAndSelects() throws {
-        let ctx = createVM()
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-
-        ctx.vm.newSourceName = "课本"
-        ctx.vm.confirmNewSource()
-
-        #expect(ctx.vm.selectedSource == "课本")
-        #expect(ctx.vm.availableSources.contains(where: { $0.name == "课本" }))
-    }
-
-    @Test("confirmNewGrade 创建年级并选中")
-    func confirmNewGrade_createsAndSelects() throws {
-        let ctx = createVM()
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-
-        ctx.vm.newGradeName = "四年级"
-        ctx.vm.confirmNewGrade()
-
-        #expect(ctx.vm.grade == "四年级")
-        #expect(ctx.vm.availableGrades.contains(where: { $0.name == "四年级" }))
-    }
-
     // MARK: - saveResult 验证
 
     @Test("saveResult 文字和图片都为空时报错")
@@ -185,48 +112,6 @@ final class CaptureResultViewModelTests {
         #expect(items.count == 1)
         #expect(items.first?.content == nil)
         #expect(items.first?.imagePath != nil)
-    }
-
-    @Test("saveResult 保存分类信息")
-    func saveResult_savesMetadata() async throws {
-        let ctx = createVM(content: "有元数据的题目")
-        ctx.vm.selectedSubject = "英语"
-        ctx.vm.selectedSource = "课本"
-        ctx.vm.difficulty = .three
-        ctx.vm.grade = "三年级"
-
-        await ctx.vm.saveResult()
-
-        let item = try ctx.repos.review.fetchAllModels().first
-        #expect(item?.subject == "英语")
-        #expect(item?.source == "课本")
-        #expect(item?.difficulty == 3)
-        #expect(item?.grade == "三年级")
-    }
-
-    @Test("saveResult 保存标签")
-    func saveResult_savesTags() async throws {
-        let ctx = createVM(content: "有标签的题目")
-        ctx.vm.tagList = ["易错", "重点"]
-
-        await ctx.vm.saveResult()
-
-        let item = try ctx.repos.review.fetchAllModels().first
-        let tagNames = (item?.tags ?? []).map(\.name).sorted()
-        #expect(tagNames == ["易错", "重点"])
-    }
-
-    @Test("saveResult 触发埋点和 UserDefaults 偏好持久化")
-    func saveResult_tracksAnalyticsAndPreferences() async throws {
-        let ctx = createVM(content: "埋点测试")
-        ctx.vm.selectedSubject = "物理"
-        ctx.vm.selectedSource = "作业"
-
-        await ctx.vm.saveResult()
-
-        #expect(ctx.analytics.hasTrackedEvent(.captureSaved))
-        #expect(UserDefaults.standard.string(forKey: UDKey.lastSelectedSubject) == "物理")
-        #expect(UserDefaults.standard.string(forKey: UDKey.lastSelectedSource) == "作业")
     }
 
     // MARK: - generateDraftIfNeeded

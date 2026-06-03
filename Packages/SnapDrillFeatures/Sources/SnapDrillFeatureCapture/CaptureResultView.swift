@@ -21,11 +21,8 @@ public struct CaptureResultView: View {
     // @Bindable 用于外部传入的 @Observable 对象，不持有所有权（区别于 @State）
     @Bindable var viewModel: CaptureResultViewModel
 
-    // 录入字段可见性（与 SettingsView 共享同一组 @AppStorage key）
-    @AppStorage(UDKey.captureFieldSubject) private var showSubjectField: Bool = true
-    @AppStorage(UDKey.captureFieldSource) private var showSourceField: Bool = false
+    // 固定字段可见性（难度/答案）。L3：学科/来源/年级已并入动态维度，可见性按维度（VM）。
     @AppStorage(UDKey.captureFieldDifficulty) private var showDifficultyField: Bool = false
-    @AppStorage(UDKey.captureFieldGrade) private var showGradeField: Bool = false
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
 
     /// 创建采集结果视图
@@ -44,16 +41,11 @@ public struct CaptureResultView: View {
 
                 CaptureContentSection(viewModel: viewModel)
 
-                CaptureMetadataSection(
-                    viewModel: viewModel,
-                    showSubject: showSubjectField,
-                    showSource: showSourceField
-                )
+                CaptureMetadataSection(viewModel: viewModel)
 
                 CaptureDetailsSection(
                     viewModel: viewModel,
                     showDifficulty: showDifficultyField,
-                    showGrade: showGradeField,
                     showAnswer: showAnswerField
                 )
 
@@ -93,27 +85,6 @@ public struct CaptureResultView: View {
         .onDisappear {
             viewModel.saveDraftOnDisappear()
             viewModel.cancelTasks()
-        }
-        .alert(L10n.Capture.newSubject, isPresented: $viewModel.showNewSubjectAlert) {
-            TextField(L10n.Capture.subjectNamePlaceholder, text: $viewModel.newSubjectName)
-            Button(L10n.Common.create) { viewModel.confirmNewSubject() }
-            Button(L10n.Common.cancel, role: .cancel) { viewModel.newSubjectName = "" }
-        } message: {
-            Text(L10n.Capture.newSubjectMessage)
-        }
-        .alert(L10n.Capture.newSource, isPresented: $viewModel.showNewSourceAlert) {
-            TextField(L10n.Capture.sourceNamePlaceholder, text: $viewModel.newSourceName)
-            Button(L10n.Common.create) { viewModel.confirmNewSource() }
-            Button(L10n.Common.cancel, role: .cancel) { viewModel.newSourceName = "" }
-        } message: {
-            Text(L10n.Capture.newSourceMessage)
-        }
-        .alert(L10n.Capture.newGrade, isPresented: $viewModel.showNewGradeAlert) {
-            TextField(L10n.Capture.gradeNamePlaceholder, text: $viewModel.newGradeName)
-            Button(L10n.Common.create) { viewModel.confirmNewGrade() }
-            Button(L10n.Common.cancel, role: .cancel) { viewModel.newGradeName = "" }
-        } message: {
-            Text(L10n.Capture.newGradeMessage)
         }
         .sensoryFeedback(.success, trigger: viewModel.isSaved) { _, newValue in
             newValue

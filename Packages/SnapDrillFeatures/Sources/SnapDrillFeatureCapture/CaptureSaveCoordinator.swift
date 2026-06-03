@@ -23,13 +23,11 @@ import SnapDrillData
 struct CaptureFormSnapshot {
     let content: String
     let image: UIImage?
-    let subject: String
-    let source: String
-    let tagList: [String]
+    /// L3：所有维度的选中值实例（扁平），写入 ReviewItemModel.categoryValues
+    let selectedValues: [CategoryValueModel]
     let answerText: String
     let answerImage: UIImage?
     let difficulty: Difficulty
-    let grade: String
 }
 
 /// 采集结果保存事务编排器（无状态）
@@ -56,13 +54,6 @@ struct CaptureSaveCoordinator {
                 throw CaptureSaveError.contentAndImageEmpty
             }
 
-            // 解析并同步标签（纯内存操作，fetchOrCreateModel 不再内部 save）
-            var finalTagModels: [TagModel] = []
-            for name in form.tagList {
-                let tagModel = try repositories.tag.fetchOrCreateModel(name: name, colorHex: "#CCCCCC")
-                finalTagModels.append(tagModel)
-            }
-
             // 持久化题目截图，获取本地相对路径
             if let img = form.image {
                 savedImagePath = try await imageStorage.saveImage(img)
@@ -73,18 +64,16 @@ struct CaptureSaveCoordinator {
                 savedAnswerImagePath = try await imageStorage.saveImage(answerImg)
             }
 
-            // 构造 @Model 对象并插入（纯内存），再统一 saveContext
+            // 构造 @Model 对象并插入（纯内存），再统一 saveContext。
+            // L3：分类经动态维度值（categoryValues）；旧 subject/source/tags/grade 字段暂留用 init 默认值（S6 删）。
             let model = ReviewItemModel(
                 content: contentValue,
                 imagePath: savedImagePath,
-                subject: form.subject,
-                source: form.source,
-                tags: finalTagModels,
                 answerText: form.answerText.isEmpty ? nil : form.answerText,
                 answerImagePath: savedAnswerImagePath,
-                difficulty: form.difficulty.rawValue,
-                grade: form.grade
+                difficulty: form.difficulty.rawValue
             )
+            model.categoryValues = form.selectedValues
             repositories.review.insert(model)
             try repositories.review.saveContext()
         } catch {
