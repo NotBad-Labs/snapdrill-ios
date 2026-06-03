@@ -224,6 +224,70 @@ final class CaptureResultViewModelTests {
         ctx.vm.cancelTasks()
     }
 
+    // MARK: - 维度值选择（单值替换 / 多值切换）
+
+    /// 一个维度 + 两个值的脚手架（避免 large_tuple）
+    private struct SeededDimension {
+        let dim: CategoryDimensionModel
+        let a: CategoryValueModel
+        let b: CategoryValueModel
+    }
+
+    /// 在 repos 种一个维度 + 两个值
+    private func seedDimension(
+        name: String,
+        systemKey: String,
+        isMultiValue: Bool,
+        valueA: String,
+        valueB: String
+    ) throws -> SeededDimension {
+        let dim = CategoryDimensionModel(
+            name: name, isMultiValue: isMultiValue, isBuiltIn: true, systemKey: systemKey, sortOrder: 0
+        )
+        try repos.dimension.insertAndSave(dim)
+        let a = CategoryValueModel(name: valueA, sortOrder: 0, dimension: dim)
+        let b = CategoryValueModel(name: valueB, sortOrder: 1, dimension: dim)
+        try repos.categoryValue.insertAndSave(a)
+        try repos.categoryValue.insertAndSave(b)
+        return SeededDimension(dim: dim, a: a, b: b)
+    }
+
+    @Test("单值维度 toggleValue：选第二个替换第一个，再点取消")
+    func toggleValue_singleValue_replaces() throws {
+        let seeded = try seedDimension(
+            name: "学科", systemKey: CategorySystemKey.subject,
+            isMultiValue: false, valueA: "数学", valueB: "英语"
+        )
+        let ctx = createVM(content: "")   // 空内容跳过 AI 标注，避免预选干扰
+        ctx.vm.loadFormData()
+
+        ctx.vm.toggleValue(seeded.a.id, inDimension: seeded.dim.id)
+        #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id) == [seeded.a.id])
+
+        ctx.vm.toggleValue(seeded.b.id, inDimension: seeded.dim.id)
+        #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id) == [seeded.b.id])  // 替换
+
+        ctx.vm.toggleValue(seeded.b.id, inDimension: seeded.dim.id)
+        #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id).isEmpty)           // 再点取消
+    }
+
+    @Test("多值维度 toggleValue：可叠加，再点移除")
+    func toggleValue_multiValue_toggles() throws {
+        let seeded = try seedDimension(
+            name: "标签", systemKey: CategorySystemKey.tag,
+            isMultiValue: true, valueA: "易错", valueB: "重点"
+        )
+        let ctx = createVM(content: "")
+        ctx.vm.loadFormData()
+
+        ctx.vm.toggleValue(seeded.a.id, inDimension: seeded.dim.id)
+        ctx.vm.toggleValue(seeded.b.id, inDimension: seeded.dim.id)
+        #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id) == [seeded.a.id, seeded.b.id])  // 叠加
+
+        ctx.vm.toggleValue(seeded.a.id, inDimension: seeded.dim.id)
+        #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id) == [seeded.b.id])               // 移除 a
+    }
+
     // MARK: - 字段配置引导
 
     // 字段配置引导由 ProfileTipState 管理（per-profile UserDefaults 隔离），
