@@ -19,8 +19,10 @@ GUI 看不见本地仓库 → 从客观问题域用第一性原理**独立推导
 | `2026-06-03-architecture-r4-terminal-verification.md` | R4 产出 | 终端实证回答 GUI 问题 + **双向纠错**（grep 抓到 GUI 两处事实幻觉：0 个 @Query / 组卷 to-many 风险错挂） |
 | `2026-06-03-architecture-r5-prompt.md` | R5 输入 | 终端把 R4 实证喂回 GUI 求最终收敛 |
 | `2026-06-03-architecture-r5-gui-convergence.md` | R5 产出 | GUI 最终收敛：3 分歧终态 + **自审系统性偏差**（缺事实时用先验众数冒充观测值）+ 双向纠错全接受 |
+| `2026-06-03-architecture-r6-prompt.md` | R6 输入 | 终端把分歧 4 实证 + 数据丢失修复喂回 GUI 求合格线 review |
+| `2026-06-03-architecture-r6-gui-capture-adjudication.md` | R6 产出 | GUI 对数据丢失修复的合格线裁决 + **三段式纪律**（"DoD 绿冒充合格线"="先验众数冒充观测值"）+ 揪出串档/连拍两真问题 |
 
-> R2 为终端实证轮次（结论在私有记忆）。研究弧基本收敛（4 分歧全有终态）。
+> R2/R4 为终端实证轮次（结论在私有记忆）。**轮次编号说明**：奇数轮（R1/R3/R5/R6）才需 PO 复制给 GUI（共 4 次），偶数轮（R2/R4）是终端内部实证。
 
 ### 其他 SnapDrill 相关 GUI 研究
 | 文件 | 主题 |
@@ -36,6 +38,6 @@ GUI 看不见本地仓库 → 从客观问题域用第一性原理**独立推导
   - **分歧1 模块化**：4 真编译边界（含"第三方依赖封装"这类 GUI 曾漏算的收益）= 认定非审美；第 5 包 Infrastructure = speculative 死占位（去污染：摘 link 降 git/纸面+ADR）。
   - **分歧2 Repository**：数据 actor 认定不变；@Query 支腿剔除（GUI 事实幻觉）；Repository 7→2（ReviewRepository 保留 + TaxonomyRepository 合并 4 份）。
   - **分歧3 组卷**：撤回复杂度指控（SmartPaper 已极简）；to-many 风险归因修正到 Library；价值链文档矛盾保留为产品判断。
-  - **分歧4 采集**：数据丢失真 gap（OCR 优先 + 内存暂存 + Caches 半持久），GUI 称风险量级最高，待修。
+  - **分歧4 采集**：数据丢失真 gap → **已修 PR #789**（OCR 前落盘 + 草稿持久层 + 串档/备份）；GUI R6 review 确认主干过"数据不丢"硬约束线 + 揪出串档（已修）+ 连拍多槽/状态机持久化（backlog）+ 真机冒烟（PO 后期）。
 - **方法论元产出**：对称双向纠错（R3 GUI 用 Apple DTS 纠终端污染 / R4 终端用 grep 纠 GUI 幻觉）+ GUI 自审系统性偏差（缺事实时用先验众数冒充观测值）。基线 = 「无污染推导」∩「代码实证」。
 - **待 PO 定（商业/产品判断）**：TaxonomyRepository 同构粒度 / 海外版确定性等级 / GRDB 撤回 / 复习是否产品核心。
