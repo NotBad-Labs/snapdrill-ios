@@ -21,24 +21,22 @@ struct ReviewItemModelTests {
     /// 提供统一的隔离测试上下文
     private func createTestContext() throws -> ModelContext {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: ReviewItemModel.self, TagModel.self, configurations: config)
+        let container = try ModelContainer(for: Schema(SnapDrillSchemaV1.models), configurations: config)
         return ModelContext(container)
     }
-    
+
     // MARK: - Core Field Mapping & Default Values
-    
+
     @Test("验证模型默认构造满足所有业务隐式要求")
     func initializationDefaults() {
         let model = ReviewItemModel(content: "Empty Test")
-        
+
         #expect(model.id.uuidString != "00000000-0000-0000-0000-000000000000")
         #expect(model.content == "Empty Test")
-        #expect(model.subjectRawValue == "其他")
-        #expect(model.sourceRawValue == "其他")
         #expect(model.easeFactor == 2.5, "SM-2 初始 ease factor 必须是 2.5")
         #expect(model.interval == 0)
         #expect(model.difficulty == 1, "新题默认难度为 1 星（Difficulty.one.rawValue）")
-        #expect(model.tags?.isEmpty == true)
+        #expect(model.categoryValues?.isEmpty == true)
     }
     
     @Test("验证 toExportSnapshot 正确映射导出字段（分类经动态维度值）")

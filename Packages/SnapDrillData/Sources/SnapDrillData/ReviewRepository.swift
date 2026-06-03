@@ -85,68 +85,8 @@ public final class ReviewRepository {
         }
     }
     
-    /// 返回指定学科的题目数量
-    /// - Parameter name: 学科名称
-    /// - Throws: SwiftData fetch 错误
-    public func countBySubject(name: String) throws -> Int {
-        let targetName = name
-        let predicate = #Predicate<ReviewItemModel> { $0.subjectRawValue == targetName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor)
-    }
-    
-    /// 将所有题目的 subjectRawValue 从旧名改为新名（纯内存操作，调用方负责 saveContext）
-    public func updateSubjectUsage(from oldName: String, to newName: String) throws {
-        let targetOldName = oldName
-        let predicate = #Predicate<ReviewItemModel> { $0.subjectRawValue == targetOldName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        let itemsToUpdate = try modelContext.fetch(descriptor)
-        for item in itemsToUpdate {
-            item.subjectRawValue = newName
-        }
-    }
-    
-    /// 返回指定来源的题目数量
-    /// - Parameter name: 来源名称
-    /// - Throws: SwiftData fetch 错误
-    public func countBySource(name: String) throws -> Int {
-        let targetName = name
-        let predicate = #Predicate<ReviewItemModel> { $0.sourceRawValue == targetName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor)
-    }
-    
-    /// 将所有题目的 sourceRawValue 从旧名改为新名（纯内存操作，调用方负责 saveContext）
-    public func updateSourceUsage(from oldName: String, to newName: String) throws {
-        let targetOldName = oldName
-        let predicate = #Predicate<ReviewItemModel> { $0.sourceRawValue == targetOldName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        let itemsToUpdate = try modelContext.fetch(descriptor)
-        for item in itemsToUpdate {
-            item.sourceRawValue = newName
-        }
-    }
-    
-    /// 返回指定年级的题目数量
-    /// - Parameter name: 年级名称
-    /// - Throws: SwiftData fetch 错误
-    public func countByGrade(name: String) throws -> Int {
-        let targetName = name
-        let predicate = #Predicate<ReviewItemModel> { $0.grade == targetName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor)
-    }
-
-    /// 将所有题目的 grade 从旧名改为新名（纯内存操作，调用方负责 saveContext）
-    public func updateGradeUsage(from oldName: String, to newName: String) throws {
-        let targetOldName = oldName
-        let predicate = #Predicate<ReviewItemModel> { $0.grade == targetOldName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        let itemsToUpdate = try modelContext.fetch(descriptor)
-        for item in itemsToUpdate {
-            item.grade = newName
-        }
-    }
+    // L3：countBySubject/Source/Grade + updateXxxUsage 已删（旧裸字符串字段去除）。
+    // 维度值的引用计数走 CategoryValueModel.items?.count；重命名直接改 value.name（关系自动跟随）。
 
     /// 收集所有题目的图片路径，供调用方在 saveContext 成功后清理磁盘文件
     public func collectAllImagePaths() throws -> [String] {

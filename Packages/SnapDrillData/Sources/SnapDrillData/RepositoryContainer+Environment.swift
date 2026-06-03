@@ -17,13 +17,7 @@ private struct RepositoryContainerKey: EnvironmentKey {
     nonisolated static let defaultValue: RepositoryContainer = {
         MainActor.assumeIsolated {
             // 预览/测试用：内存 ModelContainer
-            let schema = Schema([
-                ReviewItemModel.self,
-                SubjectModel.self,
-                SourceModel.self,
-                TagModel.self,
-                GradeModel.self
-            ])
+            let schema = Schema(SnapDrillSchemaV1.models)
             let config = ModelConfiguration(isStoredInMemoryOnly: true)
             do {
                 let container = try ModelContainer(for: schema, configurations: [config])

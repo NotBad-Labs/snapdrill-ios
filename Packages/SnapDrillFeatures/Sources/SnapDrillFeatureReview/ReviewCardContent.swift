@@ -194,11 +194,11 @@ struct ReviewCardFront: View {
 // MARK: - Previews
 
 #Preview("卡片正面") {
-    let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, TagModel.self, GradeModel.self])
+    let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
     let item: ReviewItemModel = {
-        let i = ReviewItemModel(content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。", subject: "数学")
+        let i = ReviewItemModel(content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
         container.mainContext.insert(i)
         return i
     }()
@@ -209,13 +209,12 @@ struct ReviewCardFront: View {
 }
 
 #Preview("卡片背面") {
-    let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, TagModel.self, GradeModel.self])
+    let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
     let item: ReviewItemModel = {
         let i = ReviewItemModel(
             content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。",
-            subject: "数学",
             answerText: "∠B = ∠C = (180° - 36°) / 2 = 72°"
         )
         container.mainContext.insert(i)

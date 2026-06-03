@@ -27,13 +27,7 @@ final class ReviewViewModelTests {
     private let repo: ReviewRepository
 
     init() throws {
-        let schema = Schema([
-            ReviewItemModel.self,
-            TagModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ])
+        let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         repo = ReviewRepository(modelContext: container.mainContext)
@@ -50,7 +44,7 @@ final class ReviewViewModelTests {
         repetitions: Int = 0,
         interval: Int = 0
     ) -> ReviewItemModel {
-        let model = ReviewItemModel(content: content, subject: "数学", source: "试卷")
+        let model = ReviewItemModel(content: content)
         model.nextReviewAt = Date().addingTimeInterval(-3600)
         model.repetitions = repetitions
         model.interval = interval
@@ -61,7 +55,7 @@ final class ReviewViewModelTests {
     /// 批量插入多个待复习条目（仅 insert，不 save）
     private func insertDueItems(count: Int) {
         for i in 0..<count {
-            let model = ReviewItemModel(content: "题目\(i)", subject: "数学", source: "试卷")
+            let model = ReviewItemModel(content: "题目\(i)")
             model.nextReviewAt = Date().addingTimeInterval(-3600)
             repo.insert(model)
         }
@@ -97,7 +91,7 @@ final class ReviewViewModelTests {
         insertDueItem(content: "过期题B")
 
         // 未来条目不计入 reviewQueue
-        let futureItem = ReviewItemModel(content: "未来题", subject: "物理", source: "课本")
+        let futureItem = ReviewItemModel(content: "未来题")
         futureItem.nextReviewAt = Date().addingTimeInterval(86400)
         repo.insert(futureItem)
 
@@ -275,7 +269,7 @@ final class ReviewViewModelTests {
 
     @Test("undoLastSwipe 完整回滚 SM-2 状态到滑动前，避免数据损坏")
     func undoLastSwipe_rollsBackSM2State() async throws {
-        let model = ReviewItemModel(content: "回滚测试题", subject: "数学", source: "试卷")
+        let model = ReviewItemModel(content: "回滚测试题")
         model.nextReviewAt = Date().addingTimeInterval(-3600)
         model.easeFactor = 2.8; model.interval = 5; model.repetitions = 3
         repo.insert(model)

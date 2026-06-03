@@ -39,14 +39,13 @@ struct DataExecutorTests {
     func insertAndFetchCorrectContent() throws {
         let executor = DataExecutor(inMemory: true)
         let context = executor.container.mainContext
-        let model = ReviewItemModel.mock(content: "DataExecutor 测试题", subject: "物理")
+        let model = ReviewItemModel.mock(content: "DataExecutor 测试题")
         context.insert(model)
         try context.save()
 
         let items = try context.fetch(FetchDescriptor<ReviewItemModel>())
         #expect(items.count == 1)
         #expect(items.first?.content == "DataExecutor 测试题")
-        #expect(items.first?.subject == "物理")
     }
 
     @Test("init(container:) 直接接受已创建的 ModelContainer")

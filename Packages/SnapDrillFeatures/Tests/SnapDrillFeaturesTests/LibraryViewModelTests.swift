@@ -184,7 +184,7 @@ final class LibraryViewModelTests {
 
     @Test("softDeleteItems 单条软删除并从列表移除")
     func softDeleteItem_removesFromList() async throws {
-        let model = ReviewItemModel(content: "待删除", subject: "数学")
+        let model = ReviewItemModel(content: "待删除")
         repos.review.insert(model)
 
         let vm = createVM()
@@ -204,7 +204,7 @@ final class LibraryViewModelTests {
     func softDeleteItems_batchRemoves() async throws {
         var ids: Set<UUID> = []
         for i in 0..<3 {
-            let model = ReviewItemModel(content: "题目\(i)", subject: "数学")
+            let model = ReviewItemModel(content: "题目\(i)")
             repos.review.insert(model)
             ids.insert(model.id)
         }

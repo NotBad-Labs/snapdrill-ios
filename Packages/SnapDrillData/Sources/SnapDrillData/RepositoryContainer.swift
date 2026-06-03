@@ -20,15 +20,7 @@ public final class RepositoryContainer {
     public let scope: ProfileScope
     /// 复习题目仓库
     public let review: ReviewRepository
-    /// 学科分类仓库
-    public let subject: SubjectRepository
-    /// 来源分类仓库
-    public let source: SourceRepository
-    /// 标签仓库
-    public let tag: TagRepository
-    /// 年级分类仓库
-    public let grade: GradeRepository
-    /// 分类维度仓库（L3：S2 加新、旧 subject/source/tag/grade 暂留，S6 删旧）
+    /// 分类维度仓库（L3）
     public let dimension: CategoryDimensionRepository
     /// 维度值仓库（L3）
     public let categoryValue: CategoryValueRepository
@@ -46,10 +38,6 @@ public final class RepositoryContainer {
     public init(executor: DataExecutor, scope: ProfileScope, profileDirectory: URL) {
         self.scope = scope
         self.profileDirectory = profileDirectory
-        self.subject = SubjectRepository(executor: executor)
-        self.source = SourceRepository(executor: executor)
-        self.tag = TagRepository(executor: executor)
-        self.grade = GradeRepository(executor: executor)
         self.dimension = CategoryDimensionRepository(executor: executor)
         self.categoryValue = CategoryValueRepository(executor: executor)
         self.review = ReviewRepository(
@@ -66,10 +54,6 @@ public final class RepositoryContainer {
         self.scope = ProfileScope(id: UUID(), name: "Test")
         self.profileDirectory = nil
         self.review = ReviewRepository(modelContext: modelContext)
-        self.subject = SubjectRepository(modelContext: modelContext)
-        self.source = SourceRepository(modelContext: modelContext)
-        self.tag = TagRepository(modelContext: modelContext)
-        self.grade = GradeRepository(modelContext: modelContext)
         self.dimension = CategoryDimensionRepository(modelContext: modelContext)
         self.categoryValue = CategoryValueRepository(modelContext: modelContext)
     }
@@ -261,11 +245,7 @@ public final class RepositoryContainer {
 
     /// 纯内存操作：标记所有分类数据待删除，不 save。
     private func deleteAllTaxonomyInMemory() throws {
-        try subject.deleteAll()
-        try source.deleteAll()
-        try tag.deleteAll()
-        try grade.deleteAll()
-        // L3：新动态维度系统（先删值再删维度；S6 删旧后仅剩这两行）
+        // L3 动态维度系统：先删值再删维度
         try categoryValue.deleteAll()
         try dimension.deleteAll()
     }
@@ -277,14 +257,6 @@ public final class RepositoryContainer {
 public final class PreviewRepositoryContainer {
     /// 复习题目仓库
     public let review: ReviewRepository
-    /// 学科分类仓库
-    public let subject: SubjectRepository
-    /// 来源分类仓库
-    public let source: SourceRepository
-    /// 标签仓库
-    public let tag: TagRepository
-    /// 年级分类仓库
-    public let grade: GradeRepository
     /// 分类维度仓库（L3）
     public let dimension: CategoryDimensionRepository
     /// 维度值仓库（L3）
@@ -295,10 +267,6 @@ public final class PreviewRepositoryContainer {
         let executor = DataExecutor(inMemory: true)
 
         self.review = ReviewRepository(executor: executor)
-        self.subject = SubjectRepository(executor: executor)
-        self.source = SourceRepository(executor: executor)
-        self.tag = TagRepository(executor: executor)
-        self.grade = GradeRepository(executor: executor)
         self.dimension = CategoryDimensionRepository(executor: executor)
         self.categoryValue = CategoryValueRepository(executor: executor)
     }
