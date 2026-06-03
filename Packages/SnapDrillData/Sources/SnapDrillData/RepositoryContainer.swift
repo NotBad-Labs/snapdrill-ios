@@ -28,6 +28,10 @@ public final class RepositoryContainer {
     public let tag: TagRepository
     /// 年级分类仓库
     public let grade: GradeRepository
+    /// 分类维度仓库（L3：S2 加新、旧 subject/source/tag/grade 暂留，S6 删旧）
+    public let dimension: CategoryDimensionRepository
+    /// 维度值仓库（L3）
+    public let categoryValue: CategoryValueRepository
 
     // MARK: - Initialization
 
@@ -46,6 +50,8 @@ public final class RepositoryContainer {
         self.source = SourceRepository(executor: executor)
         self.tag = TagRepository(executor: executor)
         self.grade = GradeRepository(executor: executor)
+        self.dimension = CategoryDimensionRepository(executor: executor)
+        self.categoryValue = CategoryValueRepository(executor: executor)
         self.review = ReviewRepository(
             executor: executor,
             imageStorageFactory: {
@@ -64,6 +70,8 @@ public final class RepositoryContainer {
         self.source = SourceRepository(modelContext: modelContext)
         self.tag = TagRepository(modelContext: modelContext)
         self.grade = GradeRepository(modelContext: modelContext)
+        self.dimension = CategoryDimensionRepository(modelContext: modelContext)
+        self.categoryValue = CategoryValueRepository(modelContext: modelContext)
     }
 
     // MARK: - Private
@@ -289,6 +297,10 @@ public final class PreviewRepositoryContainer {
     public let tag: TagRepository
     /// 年级分类仓库
     public let grade: GradeRepository
+    /// 分类维度仓库（L3）
+    public let dimension: CategoryDimensionRepository
+    /// 维度值仓库（L3）
+    public let categoryValue: CategoryValueRepository
 
     /// 创建内存预览容器
     public init() {
@@ -299,5 +311,7 @@ public final class PreviewRepositoryContainer {
         self.source = SourceRepository(executor: executor)
         self.tag = TagRepository(executor: executor)
         self.grade = GradeRepository(executor: executor)
+        self.dimension = CategoryDimensionRepository(executor: executor)
+        self.categoryValue = CategoryValueRepository(executor: executor)
     }
 }
