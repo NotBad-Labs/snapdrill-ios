@@ -110,6 +110,13 @@ public final class RepositoryContainer {
 
     /// 原子删除所有分类数据（学科、来源、标签、年级）。
     public func deleteAllTaxonomy() throws {
+        // 先解所有题目对维度值的反向引用——批量 deleteAll 不跑 per-item detach，
+        // 否则幸存题目 categoryValues 残留悬挂引用（desync）。
+        // deleteAllData/restoreFromProfileData 已先删题目，不经此路径，不受影响。
+        let items = try review.fetchAllModels()
+        for item in items {
+            item.categoryValues = []
+        }
         try deleteAllTaxonomyInMemory()
         do {
             try review.saveContext()
@@ -280,6 +287,9 @@ public final class RepositoryContainer {
         try source.deleteAll()
         try tag.deleteAll()
         try grade.deleteAll()
+        // L3：新动态维度系统（先删值再删维度；S6 删旧后仅剩这两行）
+        try categoryValue.deleteAll()
+        try dimension.deleteAll()
     }
 }
 

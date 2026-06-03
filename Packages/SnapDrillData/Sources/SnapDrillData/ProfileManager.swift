@@ -241,9 +241,8 @@ public final class ProfileManager {
         UserDefaults.standard.set(profileId.uuidString, forKey: UDKey.activeProfileId)
 
         // 5. 初始化默认分类数据（新 Profile 首次使用时）
-        activeRepositories.subject.seedDefaultsIfNeeded()
-        activeRepositories.source.seedDefaultsIfNeeded()
-        activeRepositories.grade.seedDefaultsIfNeeded()
+        // L3：种入内置维度，替代旧 3 个分类 seed（S6 删旧）
+        activeRepositories.dimension.seedDefaultsIfNeeded()
 
         let switchedName = self.profiles.first(where: { $0.id == profileId })?.name ?? "unknown"
         SnapDrillLogger.data.info("ProfileManager: 已切换到 Profile: \(switchedName)")

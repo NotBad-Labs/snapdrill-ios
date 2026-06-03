@@ -47,7 +47,9 @@ public final class CategoryDimensionModel {
     public var icon: String = "tag"
 
     /// 该维度下的所有值（一对多）。inverse 声明在本侧，指向 `CategoryValueModel.dimension`（对端裸关系）。
-    @Relationship(deleteRule: .cascade, inverse: \CategoryValueModel.dimension)
+    /// 用 .nullify 全显式删除（删维度时 Repository 显式遍历删值 + 解题目引用），不靠 cascade——
+    /// 本库走显式 save 路径，cascade 不可靠（FB13640004），"cascade + 手动遍历"是最差组合。
+    @Relationship(deleteRule: .nullify, inverse: \CategoryValueModel.dimension)
     public var values: [CategoryValueModel]? = []
 
     // MARK: - Initialization

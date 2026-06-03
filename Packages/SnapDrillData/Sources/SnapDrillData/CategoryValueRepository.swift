@@ -34,7 +34,9 @@ public final class CategoryValueRepository {
     public func fetchAllModels(in dimension: CategoryDimensionModel) -> [CategoryValueModel] {
         let values = dimension.values ?? []
         return values.sorted {
-            $0.sortOrder != $1.sortOrder ? $0.sortOrder < $1.sortOrder : $0.createdAt < $1.createdAt
+            if $0.sortOrder != $1.sortOrder { return $0.sortOrder < $1.sortOrder }
+            if $0.createdAt != $1.createdAt { return $0.createdAt < $1.createdAt }
+            return $0.id.uuidString < $1.id.uuidString  // seed 同毫秒 createdAt 时的确定性兜底
         }
     }
 
