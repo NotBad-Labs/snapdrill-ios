@@ -188,24 +188,12 @@ public struct SettingsView: View {
 
                 }
 
-                // 6. 分类管理
+                // 6. 分类管理（L3：学科/来源/年级 + 用户自定义维度统一入口）
                 Section(L10n.Settings.categoryManagement) {
                     NavigationLink {
-                        SubjectManagerView()
+                        CategoryManagerView()
                     } label: {
-                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.manageSubjects)
-                    }
-
-                    NavigationLink {
-                        SourceManagerView()
-                    } label: {
-                        SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.manageSources)
-                    }
-
-                    NavigationLink {
-                        GradeManagerView()
-                    } label: {
-                        SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.manageGrades)
+                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.manageCategories)
                     }
                 }
 

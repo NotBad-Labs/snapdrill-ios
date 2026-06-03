@@ -173,9 +173,10 @@ public struct DashboardView: View {
             get: { viewModel?.isShowingSubjectManager ?? false },
             set: { viewModel?.isShowingSubjectManager = $0 }
         )) {
-            // Sheet 场景需要 NavigationStack 宿主（SubjectManagerView 自身不再包含）
+            // Sheet 场景需要 NavigationStack 宿主（CategoryManagerView 自身不再包含）
+            // L3：学科管理已并入统一的分类维度管理（VM 属性名 isShowingSubjectManager 暂留，S6 可改名）
             NavigationStack {
-                SubjectManagerView()
+                CategoryManagerView()
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button(L10n.Common.close) {
