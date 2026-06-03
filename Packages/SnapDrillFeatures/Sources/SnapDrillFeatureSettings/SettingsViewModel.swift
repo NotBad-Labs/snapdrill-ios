@@ -186,26 +186,22 @@ public final class SettingsViewModel {
 
             backupStatusMessage = L10n.Settings.importSaving(rows.count)
 
+            // 预载现有维度（按小写名匹配 CSVParser 小写化的列头）；A2 动态列：非固定列即维度
+            var dimensionsByName: [String: CategoryDimensionModel] = [:]
+            for dimension in try repositories.dimension.fetchAllModels() {
+                dimensionsByName[dimension.name.lowercased()] = dimension
+            }
+            let fixedKeys: Set<String> = ["id", "content", "difficulty", "answer", "createdat", "lastreviewed", "nextreview"]
+
             // 批量创建 ReviewItemModel（每 50 条 yield 一次，避免长时间阻塞主线程）
             for (index, row) in rows.enumerated() {
                 let model = ReviewItemModel(
                     content: row["content"],
-                    subject: row["subject"] ?? "",
-                    source: row["source"] ?? "",
                     answerText: row["answer"],
-                    difficulty: min(5, max(1, Int(row["difficulty"] ?? "1") ?? 1)),
-                    grade: row["grade"] ?? ""
+                    difficulty: min(5, max(1, Int(row["difficulty"] ?? "1") ?? 1))
                 )
                 repositories.review.insert(model)
-
-                // 处理标签
-                if let tagsString = row["tags"], !tagsString.isEmpty {
-                    let tagNames = tagsString.components(separatedBy: ";").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-                    for tagName in tagNames {
-                        let tag = try repositories.tag.fetchOrCreateModel(name: tagName, colorHex: "")
-                        model.tags = (model.tags ?? []) + [tag]
-                    }
-                }
+                model.categoryValues = importCategoryValues(from: row, fixedKeys: fixedKeys, dimensionsByName: &dimensionsByName)
 
                 backupProgress = Double(index + 1) / Double(rows.count)
 
@@ -228,6 +224,37 @@ public final class SettingsViewModel {
         }
 
         isBackupInProgress = false
+    }
+
+    /// CSV 动态维度列导入：非固定列即维度（按列名 fetchOrCreate），cell 以 ";" 分隔为多值。
+    /// 维度按列名匹配现有/缓存，无则建用户维度；纯内存（不 save，由调用方统一 saveContext 原子提交）。
+    private func importCategoryValues(
+        from row: [String: String],
+        fixedKeys: Set<String>,
+        dimensionsByName: inout [String: CategoryDimensionModel]
+    ) -> [CategoryValueModel] {
+        var result: [CategoryValueModel] = []
+        for (key, cell) in row where !fixedKeys.contains(key) && !cell.isEmpty {
+            let dimension: CategoryDimensionModel
+            if let existing = dimensionsByName[key] {
+                dimension = existing
+            } else {
+                let created = CategoryDimensionModel(
+                    name: key, isMultiValue: false, isBuiltIn: false,
+                    systemKey: nil, sortOrder: dimensionsByName.count, icon: "tag"
+                )
+                repositories.dimension.insert(created)
+                dimensionsByName[key] = created
+                dimension = created
+            }
+            let valueNames = cell.components(separatedBy: ";")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { !$0.isEmpty }
+            for name in valueNames {
+                result.append(repositories.categoryValue.fetchOrCreate(name: name, in: dimension))
+            }
+        }
+        return result
     }
 
     // CSV 解析已迁移到 `CSVParser.swift`（enum 纯函数，与 ViewModel 状态分离）

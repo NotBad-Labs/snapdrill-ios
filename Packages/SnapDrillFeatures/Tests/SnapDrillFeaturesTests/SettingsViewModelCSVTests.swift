@@ -35,19 +35,19 @@ final class SettingsViewModelCSVTests {
     private let tmpDir: URL
 
     init() throws {
-        let schema = Schema([
-            ReviewItemModel.self,
-            TagModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ])
+        // L3：用 SnapDrillSchemaV1.models（含 CategoryDimension/Value）；CSV 导入动态列→维度值
+        let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         repos = RepositoryContainer(modelContext: container.mainContext)
         tmpDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("csv-tests-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: tmpDir, withIntermediateDirectories: true)
+    }
+
+    /// 导入后题目挂载的维度值名（L3：CSV 列名→维度，cell→值名）
+    private func categoryValueNames(_ item: ReviewItemModel?) -> [String] {
+        (item?.categoryValues ?? []).map { $0.name }
     }
 
     deinit {
@@ -77,9 +77,11 @@ final class SettingsViewModelCSVTests {
         #expect(vm.isBackupInProgress == false)
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 3)
-        #expect(items.contains { $0.content == "a+b=?" && $0.subject == "数学" && $0.difficulty == 1 })
+        #expect(items.contains { $0.content == "a+b=?" && $0.difficulty == 1 })
         #expect(items.contains { $0.content == "c+d=?" && $0.difficulty == 2 })
         #expect(items.contains { $0.content == "e+f=?" && $0.difficulty == 3 })
+        // Subject 列（动态维度）→ 题目挂「数学」值
+        #expect(items.contains { categoryValueNames($0).contains("数学") })
     }
 
     // MARK: - 空文件与无效输入
@@ -133,7 +135,7 @@ final class SettingsViewModelCSVTests {
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == "题目")
-        #expect(items.first?.subject == "数学")
+        #expect(categoryValueNames(items.first).contains("数学"))
         #expect(items.first?.difficulty == 3)
     }
 
@@ -179,7 +181,7 @@ final class SettingsViewModelCSVTests {
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == "第一行\n第二行")
-        #expect(items.first?.subject == "数学")
+        #expect(categoryValueNames(items.first).contains("数学"))
     }
 
     @Test("RFC 4180：CRLF 与 CR 行终止符归一化为 LF")
@@ -192,8 +194,8 @@ final class SettingsViewModelCSVTests {
 
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 2)
-        #expect(items.contains { $0.content == "题目1" && $0.subject == "数学" })
-        #expect(items.contains { $0.content == "题目2" && $0.subject == "英语" })
+        #expect(items.contains { $0.content == "题目1" })
+        #expect(items.contains { $0.content == "题目2" })
     }
 
     // MARK: - Codex Review 🔴/🟡 边界补测（追加）
@@ -210,7 +212,7 @@ final class SettingsViewModelCSVTests {
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == "题目")
-        #expect(items.first?.subject == "数学")
+        #expect(categoryValueNames(items.first).contains("数学"))
         #expect(items.first?.difficulty == 3)
     }
 
@@ -253,15 +255,15 @@ final class SettingsViewModelCSVTests {
         let items = try repos.review.fetchAllModels()
         // content 为空，但 subject 有值 → 仍算有效行（parseCSV 要求 content 或 subject 至少一个）
         #expect(items.count == 1)
-        #expect(items.first?.subject == "数学")
+        #expect(categoryValueNames(items.first).contains("数学"))
         // content 为空时 ReviewItemModel.content 应为 nil（init 参数 content: String? 对空过滤）
         #expect(items.first?.content == nil || items.first?.content?.isEmpty == true)
     }
 
     // MARK: - Tags 字段处理（分号分隔）
 
-    @Test("Tags 字段按分号分隔并创建多个 tag")
-    func importCSV_tagsFieldSemicolonSplit_createsMultipleTags() async throws {
+    @Test("Tags 字段按分号分隔并创建多个值（标签维度）")
+    func importCSV_tagsFieldSemicolonSplit_createsMultipleValues() async throws {
         let csv = "Content,Subject,Tags\n题目,数学,代数;方程;初中"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
@@ -270,12 +272,13 @@ final class SettingsViewModelCSVTests {
 
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 1)
-        let tagNames = (items.first?.tags ?? []).map { $0.name }.sorted()
-        #expect(tagNames == ["代数", "初中", "方程"])
+        // Subject「数学」+ Tags「代数/方程/初中」均挂为维度值
+        let names = Set(categoryValueNames(items.first))
+        #expect(names == ["数学", "代数", "方程", "初中"])
     }
 
-    @Test("Tags 字段为空不创建 tag")
-    func importCSV_emptyTagsField_noTagsCreated() async throws {
+    @Test("Tags 字段为空不创建标签值")
+    func importCSV_emptyTagsField_noTagValues() async throws {
         let csv = "Content,Subject,Tags\n题目,数学,"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
@@ -284,7 +287,8 @@ final class SettingsViewModelCSVTests {
 
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 1)
-        #expect((items.first?.tags ?? []).isEmpty)
+        // 仅 Subject「数学」一个值，Tags 空不产生标签值
+        #expect(categoryValueNames(items.first) == ["数学"])
     }
 
     // MARK: - Difficulty clamp
@@ -339,8 +343,8 @@ final class SettingsViewModelCSVTests {
 
     // MARK: - 可选列默认值
 
-    @Test("缺失 Subject 列时 subject 为空串")
-    func importCSV_missingSubjectColumn_subjectEmpty() async throws {
+    @Test("无分类列时题目无维度值")
+    func importCSV_noCategoryColumns_noCategoryValues() async throws {
         let csv = "Content,Difficulty\n题目,3"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
@@ -348,7 +352,7 @@ final class SettingsViewModelCSVTests {
         await vm.importCSV(fileURL: url)
 
         let items = try repos.review.fetchAllModels()
-        #expect(items.first?.subject == "")
+        #expect(categoryValueNames(items.first).isEmpty)
     }
 
     @Test("Answer 列非空时写入 answerText")
