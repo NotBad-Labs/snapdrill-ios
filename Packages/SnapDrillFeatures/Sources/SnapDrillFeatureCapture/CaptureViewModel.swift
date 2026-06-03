@@ -306,14 +306,20 @@ public final class CaptureViewModel {
         ocrTask = Task {
             activityTracker.begin(.capturing)
             defer { activityTracker.end(.capturing) }
+            // 数据安全：OCR 之前先把原图落盘为草稿，确保 OCR 失败或进程终止（崩溃/上滑/OOM）
+            // 都不会丢失这次采集。OCR 是可重跑的富化步骤，不是持久化的前置闸门。
+            await draftService.saveDraft(image: image, content: "", subject: nil)
             do {
                 guard let cgImage = image.cgImage else {
                     throw OCRError.invalidImage
                 }
                 let text = try await ocrService.recognizeText(from: cgImage)
-                
+
                 // 检查任务是否已取消
                 try Task.checkCancellation()
+
+                // OCR 成功：将识别文本富化回草稿，使 OCR 结果也具备崩溃恢复能力
+                await draftService.saveDraft(image: image, content: text, subject: nil)
 
                 await MainActor.run { [weak self] in
                     guard let self = self else { return }

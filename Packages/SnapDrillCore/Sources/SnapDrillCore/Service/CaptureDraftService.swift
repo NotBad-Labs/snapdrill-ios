@@ -149,9 +149,29 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     // MARK: - Private Helpers
 
     private func draftImagePath() -> URL? {
-        guard let cacheDir = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+        // 数据安全：草稿图片存入 Application Support（持久），而非 Caches（系统可在低存储时清除）。
+        // 采集主路径要求原图在崩溃/终止后仍可恢复，半持久的 Caches 不满足该约束。
+        guard let supportDir = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
             return nil
         }
-        return cacheDir.appendingPathComponent(draftImageName)
+        // 数据隔离：草稿图按 Profile 隔离（与 ProfileManager.perProfileKeys 已隔离的元数据对齐），
+        // 防切换孩子档案时 A 的草稿图配上 B 的元数据——这是撞儿童隐私隔离根基的敏感数据串档。
+        let profileId = defaults.string(forKey: UDKey.activeProfileId) ?? "default"
+        let draftDir = supportDir
+            .appendingPathComponent("CaptureDrafts", isDirectory: true)
+            .appendingPathComponent(profileId, isDirectory: true)
+        do {
+            try fileManager.createDirectory(at: draftDir, withIntermediateDirectories: true)
+        } catch {
+            SnapDrillLogger.generic.warning("[DraftService] 草稿目录创建失败: \(error.localizedDescription)")
+            return nil
+        }
+        // 数据安全：草稿是瞬态可丢弃中间产物，排除 iCloud/iTunes 备份（避免无谓占用备份额度）。
+        // 仅作用于草稿目录——用户正式保存的错题图不受影响、仍正常备份。
+        var draftDirForBackup = draftDir
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+        try? draftDirForBackup.setResourceValues(resourceValues)
+        return draftDir.appendingPathComponent(draftImageName)
     }
 }
