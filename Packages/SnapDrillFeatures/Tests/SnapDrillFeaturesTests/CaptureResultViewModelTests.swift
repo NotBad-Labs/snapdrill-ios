@@ -288,6 +288,37 @@ final class CaptureResultViewModelTests {
         #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id) == [seeded.b.id])               // 移除 a
     }
 
+    // MARK: - AI 标注回填（动态学科维度，S6-cut 后从写裸字段改为命中维度值选中）
+
+    @Test("AI 标注：建议 subject 命中学科维度值则选中，难度初始时回填")
+    func aiTagging_backfillsSubjectAndDifficulty() async throws {
+        let subjectDim = CategoryDimensionModel(
+            name: "学科", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.subject, sortOrder: 0
+        )
+        try repos.dimension.insertAndSave(subjectDim)
+        let math = CategoryValueModel(name: "数学", sortOrder: 0, dimension: subjectDim)
+        try repos.categoryValue.insertAndSave(math)
+
+        let tagging = ContentTaggingServiceMock()
+        tagging.suggestResult = ContentTagSuggestion(subject: "数学", difficulty: 3)
+        let vm = CaptureResultViewModel(
+            content: "一道关于函数的数学题",   // 非空，触发 AI 标注
+            image: nil,
+            repositories: repos,
+            ocrService: MockOCRServiceShared(),
+            analyticsService: AnalyticsServiceMock(),
+            contentTaggingService: tagging,
+            router: CaptureRouter()
+        )
+
+        vm.loadFormData()   // 触发异步 AI 标注 Task
+        try await waitUntil { vm.selectedIds(forDimension: subjectDim.id).contains(math.id) }
+
+        #expect(vm.selectedIds(forDimension: subjectDim.id) == [math.id])
+        #expect(vm.difficulty.rawValue == 3)   // 难度初始 .one → 回填建议值
+    }
+
     // MARK: - 字段配置引导
 
     // 字段配置引导由 ProfileTipState 管理（per-profile UserDefaults 隔离），

@@ -207,4 +207,46 @@ final class RepositoryContainerBackupTests {
         let names = (items[0].categoryValues ?? []).map(\.name).sorted()
         #expect(names == ["易错", "高频", "考前"].sorted())
     }
+
+    @Test("restoreFromProfileData 逐字段 round-trip：维度 flag + 值样式存活（非默认值重建）")
+    func restorePreservesAllFields() async throws {
+        // 多值维度 + 全非默认字段——区分「正确恢复」与「init 默认值重建」
+        let tagDim = CategoryDimensionModel(
+            name: "标签", isMultiValue: true, isBuiltIn: true,
+            systemKey: CategorySystemKey.tag, sortOrder: 3, icon: "tag.fill"
+        )
+        try repos.dimension.insertAndSave(tagDim)
+        let value = CategoryValueModel(
+            name: "易错", icon: "star.fill", colorHex: "#123456", sortOrder: 7,
+            createdAt: Date(timeIntervalSinceReferenceDate: 700_000_000), dimension: tagDim
+        )
+        try repos.categoryValue.insertAndSave(value)
+        let item = ReviewItemModel(content: "题")
+        item.categoryValues = [value]
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let profileData = try repos.collectProfileBackupData(profileName: "默认", profileId: Self.testProfileId)
+        try repos.review.deleteAll()
+        try repos.categoryValue.deleteAll()
+        try repos.dimension.deleteAll()
+        try repos.review.saveContext()
+
+        try await repos.restoreFromProfileData(profileData)
+
+        let dims = try repos.dimension.fetchAllModels()
+        let restoredDim = try #require(dims.first { $0.systemKey == CategorySystemKey.tag })
+        #expect(restoredDim.name == "标签")
+        #expect(restoredDim.isMultiValue == true)
+        #expect(restoredDim.isBuiltIn == true)
+        #expect(restoredDim.sortOrder == 3)
+        #expect(restoredDim.icon == "tag.fill")
+
+        let values = repos.categoryValue.fetchAllModels(in: restoredDim)
+        let restoredValue = try #require(values.first { $0.name == "易错" })
+        #expect(restoredValue.icon == "star.fill")
+        #expect(restoredValue.colorHex == "#123456")
+        #expect(restoredValue.sortOrder == 7)
+        #expect(restoredValue.createdAt == Date(timeIntervalSinceReferenceDate: 700_000_000))
+    }
 }
