@@ -19,10 +19,8 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     public let content: String?
     /// 图片相对路径
     public let imagePath: String?
-    /// 所属学科
+    /// 学科维度首值（仅供 PDF 页眉 exportSubject；CSV 走 dimensionValues）
     public let subject: String
-    /// 题目来源
-    public let source: String
     /// 难度等级 (1-5)
     public let difficulty: Int
     /// 答案文本
@@ -33,14 +31,14 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     public let lastReviewedAt: Date?
     /// 下次计划复习时间
     public let nextReviewAt: Date?
-    /// 标签列表
-    public let tags: [String]
+    /// 动态维度值：维度名 → 值名（A2 动态列导出用）
+    public let dimensionValues: [String: [String]]
 }
 
 extension ReviewExportSnapshot: PDFExportable {
-    /// 桥接 `subject: String` → 协议的 `exportSubject: String?`
+    /// 桥接 `subject: String` → 协议的 `exportSubject: String?`（PDF 页眉用学科维度首值）
     public var exportSubject: String? { subject }
 }
 
-// 字段与 `ReviewCSVRow` 一一对应，CSV 编码统一走 `ReviewCSVCodec`（单一契约源）。
+// CSV 编码统一走 `ReviewCSVCodec`（单一契约源）；A2 动态列经 dimensionValues。
 extension ReviewExportSnapshot: ReviewCSVRow {}

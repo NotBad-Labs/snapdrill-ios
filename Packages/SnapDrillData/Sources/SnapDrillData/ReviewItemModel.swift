@@ -172,20 +172,23 @@ public final class ReviewItemModel {
         nextReviewAt != .distantPast
     }
 
-    /// 转为导出快照（仅含导出所需字段）
+    /// 转为导出快照（仅含导出所需字段）。分类经动态维度值聚合（A2 动态列）。
     public func toExportSnapshot() -> ReviewExportSnapshot {
-        ReviewExportSnapshot(
+        var dimensionValues: [String: [String]] = [:]
+        for entry in categoryValuesByDimension {
+            dimensionValues[entry.dimension.name] = entry.values.map { $0.name }
+        }
+        return ReviewExportSnapshot(
             id: id,
             content: content,
             imagePath: imagePath,
-            subject: subject,
-            source: source,
+            subject: subjectCategoryName ?? "",
             difficulty: difficulty,
             answerText: answerText,
             createdAt: createdAt,
             lastReviewedAt: lastReviewedAt == .distantPast ? nil : lastReviewedAt,
             nextReviewAt: nextReviewAt == .distantPast ? nil : nextReviewAt,
-            tags: tags?.map(\.name) ?? []
+            dimensionValues: dimensionValues
         )
     }
 }

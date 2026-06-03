@@ -19,19 +19,17 @@ struct ReviewCSVCodecTests {
     private nonisolated struct Row: ReviewCSVRow {
         let id: UUID
         let content: String?
-        let subject: String
-        let source: String
         let difficulty: Int
         let answerText: String?
         let createdAt: Date
         let lastReviewedAt: Date?
         let nextReviewAt: Date?
-        let tags: [String]
+        let dimensionValues: [String: [String]]
     }
 
-    @Test("header 是固定列 schema（单一真理源）")
-    func testHeaderSchema() {
-        #expect(ReviewCSVCodec.header == "ID,Content,Subject,Source,Difficulty,Answer,CreatedAt,LastReviewed,NextReview,Tags")
+    @Test("fixedHeader 是固定列 schema（动态维度列在其后追加）")
+    func testFixedHeaderSchema() {
+        #expect(ReviewCSVCodec.fixedHeader == "ID,Content,Difficulty,Answer,CreatedAt,LastReviewed,NextReview")
     }
 
     @Test("普通字段与空串均加引号包裹")
@@ -58,40 +56,40 @@ struct ReviewCSVCodecTests {
         #expect(ReviewCSVCodec.escapeField("a=b") == "\"a=b\"")
     }
 
-    @Test("makeCSV：header 居首、列序固定、注入防护与空字段编码正确")
+    @Test("makeCSV：固定列居首、动态维度列追加、注入防护与多值 join 正确")
     func testMakeCSVStructure() {
         let id = UUID()
         let row = Row(
             id: id,
             content: "=danger",
-            subject: "数学",
-            source: "期中",
             difficulty: 3,
             answerText: nil,
             createdAt: Date(timeIntervalSince1970: 0),
             lastReviewedAt: nil,
             nextReviewAt: nil,
-            tags: ["a", "b"]
+            dimensionValues: ["标签": ["a", "b"], "学科": ["数学"]]
         )
         let csv = ReviewCSVCodec.makeCSV([row])
 
-        // header 居首、行尾 \n
-        #expect(csv.hasPrefix(ReviewCSVCodec.header + "\n"))
+        // header 居首 = 固定列 + 按列名排序的维度列（学科 < 标签），行尾 \n
+        #expect(csv.hasPrefix(ReviewCSVCodec.header(dimensionColumns: ["学科", "标签"]) + "\n"))
         #expect(csv.hasSuffix("\n"))
         // 注入内容被前置 tab 防护
         #expect(csv.contains("\"\t=danger\""))
         // id 与 difficulty 不加引号（裸值）
         #expect(csv.contains(id.uuidString))
         #expect(csv.contains(",3,"))
-        // 空 answerText / 空日期 → 编码为空（"" 或空串）
+        // 空 answerText / 空日期 → 编码为空串
         #expect(csv.contains("\"\""))
-        // 标签以 "; " 连接后整体转义
+        // 多值维度以 "; " 连接后整体转义；维度列名进 header
         #expect(csv.contains("\"a; b\""))
+        #expect(csv.contains("\"标签\""))
+        #expect(csv.contains("\"学科\""))
     }
 
-    @Test("makeCSV：空数组只产出 header 行")
+    @Test("makeCSV：空数组只产出固定列 header 行")
     func testMakeCSVEmpty() {
         let csv = ReviewCSVCodec.makeCSV([Row]())
-        #expect(csv == ReviewCSVCodec.header + "\n")
+        #expect(csv == ReviewCSVCodec.fixedHeader + "\n")
     }
 }

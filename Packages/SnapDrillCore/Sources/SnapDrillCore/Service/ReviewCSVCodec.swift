@@ -24,10 +24,6 @@ public protocol ReviewCSVRow: Sendable {
     nonisolated var id: UUID { get }
     /// 题目内容文本；纯图片题为 `nil`
     nonisolated var content: String? { get }
-    /// 所属学科
-    nonisolated var subject: String { get }
-    /// 题目来源
-    nonisolated var source: String { get }
     /// 难度等级（1-5）
     nonisolated var difficulty: Int { get }
     /// 答案文本；无答案为 `nil`
@@ -38,8 +34,8 @@ public protocol ReviewCSVRow: Sendable {
     nonisolated var lastReviewedAt: Date? { get }
     /// 下次计划复习时间
     nonisolated var nextReviewAt: Date? { get }
-    /// 标签列表
-    nonisolated var tags: [String] { get }
+    /// 动态维度值：维度名 → 该题在该维度下的值名（A2 动态列；学科/来源/年级/标签/自定义各一列）
+    nonisolated var dimensionValues: [String: [String]] { get }
 }
 
 /// 题库 CSV 导出的单一真理源（列 schema + 行序 + 转义 + 注入防护）。
@@ -48,27 +44,36 @@ public protocol ReviewCSVRow: Sendable {
 /// nonisolated `Transferable`（`ReviewExport`）两处同步复用。
 public enum ReviewCSVCodec {
 
-    /// CSV 表头（列 schema 的唯一定义）。
-    public nonisolated static var header: String {
-        "ID,Content,Subject,Source,Difficulty,Answer,CreatedAt,LastReviewed,NextReview,Tags"
+    /// 固定列表头（A2 动态维度列在其后按列名追加；维度列名因用户可改/可删，故 header 非定值）。
+    public nonisolated static var fixedHeader: String {
+        "ID,Content,Difficulty,Answer,CreatedAt,LastReviewed,NextReview"
+    }
+
+    /// 给定动态维度列名时的完整表头（固定列 + 各维度列；维度列名也走 escape 防注入）。
+    public nonisolated static func header(dimensionColumns: [String]) -> String {
+        var head = fixedHeader
+        for column in dimensionColumns { head += "," + escapeField(column) }
+        return head
     }
 
     /// 将若干行编码为完整 CSV 文本（含表头，每行以 `\n` 结尾）。
+    /// 动态维度列 = 所有行 `dimensionValues` 键的并集，按列名排序（确定性、自包含，无需外部传维度表）。
     public nonisolated static func makeCSV(_ rows: [some ReviewCSVRow]) -> String {
-        var csv = header + "\n"
+        let dimensionColumns = Set(rows.flatMap { $0.dimensionValues.keys }).sorted()
+        var csv = header(dimensionColumns: dimensionColumns) + "\n"
         for row in rows {
-            let cells = [
+            var cells = [
                 row.id.uuidString,
                 escapeField(row.content ?? ""),
-                escapeField(row.subject),
-                escapeField(row.source),
                 "\(row.difficulty)",
                 escapeField(row.answerText ?? ""),
                 row.createdAt.ISO8601Format(),
                 row.lastReviewedAt?.ISO8601Format() ?? "",
-                row.nextReviewAt?.ISO8601Format() ?? "",
-                escapeField(row.tags.joined(separator: "; "))
+                row.nextReviewAt?.ISO8601Format() ?? ""
             ]
+            for column in dimensionColumns {
+                cells.append(escapeField((row.dimensionValues[column] ?? []).joined(separator: "; ")))
+            }
             csv += cells.joined(separator: ",") + "\n"
         }
         return csv

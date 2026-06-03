@@ -83,17 +83,19 @@ final class PrivacySettingsViewModel {
 
             // 跨 actor 边界前转换为 Sendable 值类型
             let exportableItems = items.map { item in
-                ExportableItem(
+                var dimensionValues: [String: [String]] = [:]
+                for entry in item.categoryValuesByDimension {
+                    dimensionValues[entry.dimension.name] = entry.values.map { $0.name }
+                }
+                return ExportableItem(
                     id: item.id,
                     content: item.content,
-                    subject: item.subject,
-                    source: item.source,
                     difficulty: item.difficulty,
                     answerText: item.answerText,
                     createdAt: item.createdAt,
                     lastReviewedAt: item.lastReviewedAt,
                     nextReviewAt: item.nextReviewAt,
-                    tags: (item.tags ?? []).map { $0.name }
+                    dimensionValues: dimensionValues
                 )
             }
 
@@ -127,17 +129,16 @@ final class PrivacySettingsViewModel {
 nonisolated struct ExportableItem: Sendable {
     let id: UUID
     let content: String?
-    let subject: String
-    let source: String
     let difficulty: Int
     let answerText: String?
     let createdAt: Date
     let lastReviewedAt: Date?
     let nextReviewAt: Date?
-    let tags: [String]
+    /// 动态维度值：维度名 → 值名（A2 动态列导出）
+    let dimensionValues: [String: [String]]
 }
 
-// 字段与 `ReviewCSVRow` 一一对应，CSV 编码统一走 `ReviewCSVCodec`（单一契约源）。
+// CSV 编码统一走 `ReviewCSVCodec`（单一契约源）；A2 动态列经 dimensionValues。
 extension ExportableItem: ReviewCSVRow {}
 
 /// 隐私数据导出格式（区别于题库导出的 ReviewExport.ExportFormat）

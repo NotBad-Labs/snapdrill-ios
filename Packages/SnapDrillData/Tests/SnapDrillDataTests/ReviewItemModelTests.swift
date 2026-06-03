@@ -41,27 +41,39 @@ struct ReviewItemModelTests {
         #expect(model.tags?.isEmpty == true)
     }
     
-    @Test("验证 toExportSnapshot 正确映射导出所需的六个字段")
-    func exportSnapshotMappingCompleteness() {
+    @Test("验证 toExportSnapshot 正确映射导出字段（分类经动态维度值）")
+    func exportSnapshotMappingCompleteness() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Schema(SnapDrillSchemaV1.models), configurations: config)
+        let context = ModelContext(container)
+
+        let dimension = CategoryDimensionModel(
+            name: "学科", isBuiltIn: true, systemKey: CategorySystemKey.subject, icon: "book"
+        )
+        context.insert(dimension)
+        let value = CategoryValueModel(name: "数学", dimension: dimension)
+        context.insert(value)
+
         let expectedID = UUID()
         let now = Date()
-
         let model = ReviewItemModel(
             id: expectedID,
             content: "Math Formula",
             imagePath: "test/image.jpg",
-            createdAt: now,
-            subject: "数学",
-            source: "试卷"
+            createdAt: now
         )
+        context.insert(model)
+        model.categoryValues = [value]
+        try context.save()
 
         let snapshot = model.toExportSnapshot()
 
         #expect(snapshot.id == expectedID)
         #expect(snapshot.content == "Math Formula")
         #expect(snapshot.imagePath == "test/image.jpg")
+        // subject = 学科维度首值（PDF 页眉用）；CSV 动态列经 dimensionValues
         #expect(snapshot.subject == "数学")
-        #expect(snapshot.source == "试卷")
+        #expect(snapshot.dimensionValues["学科"] == ["数学"])
         #expect(snapshot.createdAt == now)
     }
     
