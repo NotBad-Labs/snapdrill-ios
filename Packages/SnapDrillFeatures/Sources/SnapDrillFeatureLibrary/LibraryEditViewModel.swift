@@ -140,8 +140,7 @@ public final class LibraryEditViewModel {
 
     /// 某维度是否在编辑页可见（与录入页共用 per-维度可见性，默认全可见）
     public func isDimensionVisible(_ dimension: CategoryDimensionModel) -> Bool {
-        let key = "capture_dim_visible_\(dimension.systemKey ?? dimension.id.uuidString)"
-        return UserDefaults.standard.object(forKey: key) as? Bool ?? true
+        UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool ?? true
     }
 
     /// 映射成 UI 纯值模型（仅可见维度），供 DimensionInputRow 渲染

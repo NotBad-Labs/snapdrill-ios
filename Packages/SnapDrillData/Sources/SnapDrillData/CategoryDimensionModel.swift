@@ -73,3 +73,14 @@ public final class CategoryDimensionModel {
         self.icon = icon
     }
 }
+
+// MARK: - 录入/编辑页可见性
+
+extension CategoryDimensionModel {
+
+    /// per-维度可见性的 UserDefaults key（录入页 / 编辑页 / 分类管理页共用的唯一契约）。
+    /// 内置维度用稳定 `systemKey`、用户维度回退 `id`——集中一处避免多处重拼魔法串导致 desync。
+    public var captureVisibilityKey: String {
+        "capture_dim_visible_\(systemKey ?? id.uuidString)"
+    }
+}
