@@ -154,8 +154,24 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
         guard let supportDir = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
             return nil
         }
-        // Application Support 目录在 iOS 上可能尚未创建，确保存在
-        try? fileManager.createDirectory(at: supportDir, withIntermediateDirectories: true)
-        return supportDir.appendingPathComponent(draftImageName)
+        // 数据隔离：草稿图按 Profile 隔离（与 ProfileManager.perProfileKeys 已隔离的元数据对齐），
+        // 防切换孩子档案时 A 的草稿图配上 B 的元数据——这是撞儿童隐私隔离根基的敏感数据串档。
+        let profileId = defaults.string(forKey: UDKey.activeProfileId) ?? "default"
+        let draftDir = supportDir
+            .appendingPathComponent("CaptureDrafts", isDirectory: true)
+            .appendingPathComponent(profileId, isDirectory: true)
+        do {
+            try fileManager.createDirectory(at: draftDir, withIntermediateDirectories: true)
+        } catch {
+            SnapDrillLogger.generic.warning("[DraftService] 草稿目录创建失败: \(error.localizedDescription)")
+            return nil
+        }
+        // 数据安全：草稿是瞬态可丢弃中间产物，排除 iCloud/iTunes 备份（避免无谓占用备份额度）。
+        // 仅作用于草稿目录——用户正式保存的错题图不受影响、仍正常备份。
+        var draftDirForBackup = draftDir
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+        try? draftDirForBackup.setResourceValues(resourceValues)
+        return draftDir.appendingPathComponent(draftImageName)
     }
 }

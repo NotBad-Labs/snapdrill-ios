@@ -142,6 +142,34 @@ struct CaptureDraftServiceTests {
         cleanup()
     }
 
+    // MARK: - 数据隔离：草稿图按 Profile 隔离（防敏感数据串档，撞儿童隐私隔离根基）
+
+    @Test("草稿图按 Profile 隔离：切换档案后读不到另一档案的草稿图（防串档）")
+    func draftImage_isolatedByProfile() async {
+        let originalProfile = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
+        defer {
+            // 清理两个测试档案的草稿图 + 恢复原 activeProfileId
+            UserDefaults.standard.set("profile-iso-A", forKey: UDKey.activeProfileId)
+            service.clearDraft()
+            UserDefaults.standard.set("profile-iso-B", forKey: UDKey.activeProfileId)
+            service.clearDraft()
+            if let originalProfile {
+                UserDefaults.standard.set(originalProfile, forKey: UDKey.activeProfileId)
+            } else {
+                UserDefaults.standard.removeObject(forKey: UDKey.activeProfileId)
+            }
+        }
+
+        // 档案 A 存带图草稿
+        UserDefaults.standard.set("profile-iso-A", forKey: UDKey.activeProfileId)
+        await service.saveDraft(image: createTestImage(), content: "A 的题")
+        #expect(service.loadDraft()?.image != nil, "档案 A 应能读回自己的草稿图")
+
+        // 切到档案 B：草稿图路径按 profileId 隔离，B 读不到 A 的图
+        UserDefaults.standard.set("profile-iso-B", forKey: UDKey.activeProfileId)
+        #expect(service.loadDraft()?.image == nil, "切换档案后不应读到另一档案的草稿图（防敏感数据串档）")
+    }
+
     // MARK: - Private Helpers
 
     private func createTestImage() -> UIImage {
