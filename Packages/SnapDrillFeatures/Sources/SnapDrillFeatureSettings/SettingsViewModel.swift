@@ -163,6 +163,9 @@ public final class SettingsViewModel {
     ///
     /// CSV 首行为列名，支持的列：Content, Subject, Source, Difficulty, Answer, Grade, Tags。
     /// 列名不区分大小写，缺失列使用默认值。
+    /// 内置维度列（Subject/Source/Grade/Tags）经 systemKey 兜底匹配——跨 locale 命中内置维度、
+    /// 不建孤儿重复维度；其余非固定列按显示名匹配现有维度或新建用户维度。
+    /// cell 以 ";" 分隔多值；单值维度只取首值。
     public func importCSV(fileURL: URL) async {
         guard !isBackupInProgress else { return }
         activityTracker.begin(.backupRestore)
@@ -186,12 +189,22 @@ public final class SettingsViewModel {
 
             backupStatusMessage = L10n.Settings.importSaving(rows.count)
 
-            // 预载现有维度（按小写名匹配 CSVParser 小写化的列头）；A2 动态列：非固定列即维度
+            // 预载现有维度：按小写名 + systemKey 两路索引。
+            // systemKey 索引供「文档承诺的英文列名跨 locale 兜底命中内置维度」（不依赖本地化 name）。
             var dimensionsByName: [String: CategoryDimensionModel] = [:]
+            var dimensionsBySystemKey: [String: CategoryDimensionModel] = [:]
             for dimension in try repositories.dimension.fetchAllModels() {
                 dimensionsByName[dimension.name.lowercased()] = dimension
+                if let systemKey = dimension.systemKey {
+                    dimensionsBySystemKey[systemKey] = dimension
+                }
             }
             let fixedKeys: Set<String> = ["id", "content", "difficulty", "answer", "createdat", "lastreviewed", "nextreview"]
+            let context = CSVImportContext(
+                fixedKeys: fixedKeys,
+                dimensionsBySystemKey: dimensionsBySystemKey,
+                multiValueColumns: Self.inferMultiValueColumns(rows: rows, fixedKeys: fixedKeys)
+            )
 
             // 批量创建 ReviewItemModel（每 50 条 yield 一次，避免长时间阻塞主线程）
             for (index, row) in rows.enumerated() {
@@ -201,7 +214,7 @@ public final class SettingsViewModel {
                     difficulty: min(5, max(1, Int(row["difficulty"] ?? "1") ?? 1))
                 )
                 repositories.review.insert(model)
-                model.categoryValues = importCategoryValues(from: row, fixedKeys: fixedKeys, dimensionsByName: &dimensionsByName)
+                model.categoryValues = importCategoryValues(from: row, context: context, dimensionsByName: &dimensionsByName)
 
                 backupProgress = Double(index + 1) / Double(rows.count)
 
@@ -226,35 +239,82 @@ public final class SettingsViewModel {
         isBackupInProgress = false
     }
 
-    /// CSV 动态维度列导入：非固定列即维度（按列名 fetchOrCreate），cell 以 ";" 分隔为多值。
-    /// 维度按列名匹配现有/缓存，无则建用户维度；纯内存（不 save，由调用方统一 saveContext 原子提交）。
+    /// CSV 动态维度列导入的只读上下文（避免参数膨胀）。
+    private struct CSVImportContext {
+        let fixedKeys: Set<String>
+        /// systemKey → 内置维度，供英文列名跨 locale 兜底匹配
+        let dimensionsBySystemKey: [String: CategoryDimensionModel]
+        /// 列内任一 cell 含 ";" 的列（新建维度据此推断 isMultiValue，避免按首行猜错丢数据）
+        let multiValueColumns: Set<String>
+    }
+
+    /// 文档承诺的内置列名（小写）→ systemKey。CSVParser 已把列头小写化；「Tags」复数也映射到 tag。
+    /// 用于显示名匹配失败时兜底命中内置维度，不建孤儿重复维度（修 zh 设备导英文列的 desync）。
+    private static let builtInColumnAliases: [String: String] = [
+        "subject": CategorySystemKey.subject,
+        "source": CategorySystemKey.source,
+        "grade": CategorySystemKey.grade,
+        "tag": CategorySystemKey.tag,
+        "tags": CategorySystemKey.tag
+    ]
+
+    /// 预扫描所有行：返回任一 cell 含 ";" 的非固定列集合。新建维度据此设 isMultiValue，
+    /// 避免按首行单值就把整列定成单值、后续多值 cell 被截断丢数据。
+    private static func inferMultiValueColumns(rows: [[String: String]], fixedKeys: Set<String>) -> Set<String> {
+        var result: Set<String> = []
+        for row in rows {
+            for (key, cell) in row where !fixedKeys.contains(key) && cell.contains(";") {
+                result.insert(key)
+            }
+        }
+        return result
+    }
+
+    /// CSV 动态维度列导入：列名→维度（显示名精确匹配 → systemKey 别名兜底命中内置 → 新建用户维度），
+    /// cell 以 ";" 分隔为多值；单值维度强制只收首值。纯内存（由调用方统一 saveContext 原子提交）。
     private func importCategoryValues(
         from row: [String: String],
-        fixedKeys: Set<String>,
+        context: CSVImportContext,
         dimensionsByName: inout [String: CategoryDimensionModel]
     ) -> [CategoryValueModel] {
         var result: [CategoryValueModel] = []
-        for (key, cell) in row where !fixedKeys.contains(key) && !cell.isEmpty {
-            let dimension: CategoryDimensionModel
-            if let existing = dimensionsByName[key] {
-                dimension = existing
-            } else {
-                let created = CategoryDimensionModel(
-                    name: key, isMultiValue: false, isBuiltIn: false,
-                    systemKey: nil, sortOrder: dimensionsByName.count, icon: "tag"
-                )
-                repositories.dimension.insert(created)
-                dimensionsByName[key] = created
-                dimension = created
-            }
-            let valueNames = cell.components(separatedBy: ";")
+        for (key, cell) in row where !context.fixedKeys.contains(key) && !cell.isEmpty {
+            let dimension = resolveDimension(forColumn: key, context: context, dimensionsByName: &dimensionsByName)
+            var valueNames = cell.components(separatedBy: ";")
                 .map { $0.trimmingCharacters(in: .whitespaces) }
                 .filter { !$0.isEmpty }
+            // 单值维度强制单值：分号多值场景只取首值（对齐录入表单 toggleValue replace 语义 + §11.4 应用层不变量）
+            if !dimension.isMultiValue {
+                valueNames = Array(valueNames.prefix(1))
+            }
             for name in valueNames {
                 result.append(repositories.categoryValue.fetchOrCreate(name: name, in: dimension))
             }
         }
         return result
+    }
+
+    /// 解析列名对应的维度：① 显示名精确匹配（最具体）② systemKey 别名命中内置维度 ③ 新建用户维度。
+    private func resolveDimension(
+        forColumn key: String,
+        context: CSVImportContext,
+        dimensionsByName: inout [String: CategoryDimensionModel]
+    ) -> CategoryDimensionModel {
+        if let existing = dimensionsByName[key] {
+            return existing
+        }
+        if let systemKey = Self.builtInColumnAliases[key],
+           let builtIn = context.dimensionsBySystemKey[systemKey] {
+            dimensionsByName[key] = builtIn   // 缓存别名→维度，同次导入后续行直接命中
+            return builtIn
+        }
+        let created = CategoryDimensionModel(
+            name: key, isMultiValue: context.multiValueColumns.contains(key), isBuiltIn: false,
+            systemKey: nil, sortOrder: dimensionsByName.count, icon: "tag"
+        )
+        repositories.dimension.insert(created)
+        dimensionsByName[key] = created
+        return created
     }
 
     // CSV 解析已迁移到 `CSVParser.swift`（enum 纯函数，与 ViewModel 状态分离）

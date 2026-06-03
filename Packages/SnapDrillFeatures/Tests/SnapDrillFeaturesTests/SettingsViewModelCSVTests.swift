@@ -415,4 +415,85 @@ final class SettingsViewModelCSVTests {
 
         #expect(notificationReceived == true)
     }
+
+    // MARK: - 内置维度别名兜底 + 单值强制（S7 后对抗审计硬化 #1/#6）
+
+    @Test("英文列经 systemKey 别名命中内置维度，不建孤儿重复维度")
+    func importCSV_englishColumnAliasesToBuiltIn_noOrphanDimension() async throws {
+        // 模拟 zh 设备：内置维度名是「学科/来源」而非英文，强制走别名兜底（不依赖 CI locale）
+        let subjectDim = CategoryDimensionModel(
+            name: "学科", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.subject, sortOrder: 0
+        )
+        let sourceDim = CategoryDimensionModel(
+            name: "来源", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.source, sortOrder: 1
+        )
+        try repos.dimension.insertAndSave(subjectDim)
+        try repos.dimension.insertAndSave(sourceDim)
+        let dimCountBefore = try repos.dimension.totalCount()
+
+        let url = try writeCSV("Content,Subject,Source\n题目,数学,试卷")
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.importCSV(fileURL: url)
+
+        #expect(vm.backupError == nil)
+        // 未建孤儿 subject/source 维度
+        #expect(try repos.dimension.totalCount() == dimCountBefore)
+        let dims = try repos.dimension.fetchAllModels()
+        #expect(!dims.contains { $0.name.lowercased() == "subject" })
+        #expect(!dims.contains { $0.name.lowercased() == "source" })
+        // 值挂到 systemKey 内置维度
+        let item = try #require(try repos.review.fetchAllModels().first)
+        #expect(item.subjectCategoryName == "数学")
+        #expect(item.categoryValueNames(forSystemKey: CategorySystemKey.source) == ["试卷"])
+    }
+
+    @Test("单值维度即使分号也只取首值")
+    func importCSV_singleValueDimensionWithSemicolon_keepsFirstOnly() async throws {
+        let subjectDim = CategoryDimensionModel(
+            name: "学科", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.subject, sortOrder: 0
+        )
+        try repos.dimension.insertAndSave(subjectDim)
+
+        let url = try writeCSV("Content,Subject\n题目,数学;语文")
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.importCSV(fileURL: url)
+
+        let item = try #require(try repos.review.fetchAllModels().first)
+        #expect(item.categoryValueNames(forSystemKey: CategorySystemKey.subject) == ["数学"])
+    }
+
+    @Test("多值内置维度（标签）经别名保留所有分号值，不建孤儿")
+    func importCSV_multiValueBuiltInTags_keepsAll() async throws {
+        let tagDim = CategoryDimensionModel(
+            name: "标签", isMultiValue: true, isBuiltIn: true,
+            systemKey: CategorySystemKey.tag, sortOrder: 0
+        )
+        try repos.dimension.insertAndSave(tagDim)
+        let dimCountBefore = try repos.dimension.totalCount()
+
+        let url = try writeCSV("Content,Tags\n题目,易错;重点;难")
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.importCSV(fileURL: url)
+
+        #expect(try repos.dimension.totalCount() == dimCountBefore)  // Tags 别名命中内置，无孤儿
+        let item = try #require(try repos.review.fetchAllModels().first)
+        #expect(Set(item.tagCategoryNames) == ["易错", "重点", "难"])
+    }
+
+    @Test("新建自定义维度按预扫描推断多值，分号值不丢失")
+    func importCSV_newCustomColumnInfersMultiValue_keepsAll() async throws {
+        // 无 seed、无别名命中 → 新建用户维度；列内含分号 → 预扫描推断 isMultiValue=true（不截断丢数据）
+        let url = try writeCSV("Content,错因\n题目,粗心;审题")
+        let vm = SettingsViewModel(repositories: repos)
+        await vm.importCSV(fileURL: url)
+
+        let dims = try repos.dimension.fetchAllModels()
+        let custom = try #require(dims.first { $0.name == "错因" })
+        #expect(custom.isMultiValue == true)
+        let item = try #require(try repos.review.fetchAllModels().first)
+        #expect(Set(categoryValueNames(item)) == ["粗心", "审题"])
+    }
 }
