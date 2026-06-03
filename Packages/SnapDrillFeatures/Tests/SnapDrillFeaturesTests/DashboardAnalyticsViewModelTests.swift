@@ -25,21 +25,17 @@ final class DashboardAnalyticsViewModelTests {
     private let repos: RepositoryContainer
 
     init() throws {
-        let schema = Schema([
-            ReviewItemModel.self,
-            TagModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ])
+        // L3：用 SnapDrillSchemaV1.models 并 seed 维度，makeItem 才能挂学科维度值
+        let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         repos = RepositoryContainer(modelContext: container.mainContext)
+        repos.dimension.seedDefaultsIfNeeded()
     }
 
     // MARK: - Helpers
 
-    /// 创建测试题目并设置属性
+    /// 创建测试题目并设置属性（学科经动态维度值，统计 helper subjectValueName 据此聚合）
     private func makeItem(
         content: String = "题目",
         subject: String = "数学",
@@ -48,7 +44,9 @@ final class DashboardAnalyticsViewModelTests {
         nextReviewAt: Date = Date.distantFuture
     ) -> ReviewItemModel {
         let item = ReviewItemModel(content: content)
-        item.subjectRawValue = subject
+        if let subjectDim = try? repos.dimension.fetchDimension(bySystemKey: CategorySystemKey.subject) {
+            item.categoryValues = [repos.categoryValue.fetchOrCreate(name: subject, in: subjectDim)]
+        }
         item.difficulty = difficulty
         item.createdAt = createdAt
         item.nextReviewAt = nextReviewAt
