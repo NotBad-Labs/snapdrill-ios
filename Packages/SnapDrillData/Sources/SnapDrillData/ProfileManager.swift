@@ -213,8 +213,12 @@ public final class ProfileManager {
             throw .switchBlocked(reason: reason)
         }
 
-        // 1. 保存当前 Profile 的偏好
+        // 1. 保存当前 Profile 的偏好；清旧 Profile 动态可见性 key（已落盘）防泄漏（只在切换清、不在 init 清，否则单 Profile 重启丢未落盘可见性）
         savePreferences(for: activeProfileId)
+        let standardForClear = UserDefaults.standard
+        for key in standardForClear.dictionaryRepresentation().keys where key.hasPrefix(CategoryDimensionModel.visibilityKeyPrefix) {
+            standardForClear.removeObject(forKey: key)
+        }
 
         // 2. 准备 ProfileScope
         let scope = scopesByProfileId[profileId]
@@ -406,6 +410,10 @@ public final class ProfileManager {
             if let value = defaults.object(forKey: key) {
                 dict[key] = value
             }
+        }
+        // 动态可见性 key（capture_dim_visible_*）数量不定，按前缀通配一并搬运
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(CategoryDimensionModel.visibilityKeyPrefix) {
+            dict[key] = defaults.object(forKey: key)
         }
         savePreferencesDict(dict, for: profileId)
     }
