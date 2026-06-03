@@ -30,7 +30,6 @@ public struct LibraryEditView: View {
     @State private var viewModel: LibraryEditViewModel?
     @FocusState private var isInputFocused: Bool
 
-    @State private var tagInputText: String = ""
     @State private var isPickerPresented = false
     @State private var pickerSelection: PhotosPickerItem?
     @State private var answerPickerSelection: PhotosPickerItem?
@@ -231,53 +230,16 @@ public struct LibraryEditView: View {
     
     private func metadataSection(vm: LibraryEditViewModel) -> some View {
         Section(L10n.Library.metadata) {
-            subjectPicker(vm: vm)
-            sourcePicker(vm: vm)
-            gradePicker(vm: vm)
-            difficultyPicker(vm: vm)
-            
-            VStack(alignment: .leading) {
-                Text(L10n.Library.filterTags)
-                TagInputView(
-                    tags: Binding(get: { vm.tagList }, set: { vm.tagList = $0 }),
-                    text: $tagInputText,
-                    suggestions: vm.allTags.map { $0.name }
+            ForEach(vm.visibleDimensionInputModels()) { model in
+                DimensionInputRow(
+                    model: model,
+                    selectedIds: vm.selectedIds(forDimension: model.id),
+                    onToggle: { vm.toggleValue($0, inDimension: model.id) },
+                    onCreateValue: { vm.createValue(name: $0, inDimension: model.id) }
                 )
             }
+            difficultyPicker(vm: vm)
         }
-    }
-    
-    private func subjectPicker(vm: LibraryEditViewModel) -> some View {
-        // HIG: Form 上下文 Picker(.menu)，整行自动可点，弹出框锚定右侧，左侧标签始终可见
-        Picker(L10n.Library.filterSubjects, selection: Binding(get: { vm.selectedSubject }, set: { vm.selectedSubject = $0 })) {
-            Text(L10n.Library.filterSubjects).tag("")
-            ForEach(vm.subjects) { subject in
-                Label(subject.name, systemImage: subject.icon).tag(subject.name)
-            }
-        }
-        .pickerStyle(.menu)
-    }
-
-    private func sourcePicker(vm: LibraryEditViewModel) -> some View {
-        // HIG: Form 上下文 Picker(.menu)，整行自动可点，弹出框锚定右侧，左侧标签始终可见
-        Picker(L10n.Capture.source, selection: Binding(get: { vm.selectedSource }, set: { vm.selectedSource = $0 })) {
-            Text(L10n.Capture.source).tag("")
-            ForEach(vm.sources) { source in
-                Label(source.name, systemImage: source.icon).tag(source.name)
-            }
-        }
-        .pickerStyle(.menu)
-    }
-
-    private func gradePicker(vm: LibraryEditViewModel) -> some View {
-        // HIG: Form 上下文 Picker(.menu)，整行自动可点，弹出框锚定右侧，左侧标签始终可见
-        Picker(L10n.Capture.grade, selection: Binding(get: { vm.grade }, set: { vm.grade = $0 })) {
-            Text(L10n.Capture.grade).tag("")
-            ForEach(vm.grades) { grade in
-                Text(grade.name).tag(grade.name)
-            }
-        }
-        .pickerStyle(.menu)
     }
 
     private func difficultyPicker(vm: LibraryEditViewModel) -> some View {
@@ -332,11 +294,11 @@ public struct LibraryEditView: View {
 }
 
 #Preview {
-    let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, TagModel.self, GradeModel.self])
+    let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
     let item: ReviewItemModel = {
-        let i = ReviewItemModel(content: "Sample Question", subject: "Math")
+        let i = ReviewItemModel(content: "Sample Question")
         container.mainContext.insert(i)
         return i
     }()
