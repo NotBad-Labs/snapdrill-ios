@@ -76,6 +76,22 @@ struct ReviewItemModelTests {
         #expect(snapshot.dimensionValues["学科"] == ["数学"])
         #expect(snapshot.createdAt == now)
     }
+
+    @Test("toExportSnapshot：无学科值题目 exportSubject 归一 nil（PDF 页眉 compactMap 兜底契约）")
+    func exportSnapshotEmptySubjectNormalizesToNil() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Schema(SnapDrillSchemaV1.models), configurations: config)
+        let context = ModelContext(container)
+        let model = ReviewItemModel(content: "无学科题")
+        context.insert(model)
+        try context.save()
+
+        let snapshot = model.toExportSnapshot()
+        #expect(snapshot.subject == "")
+        // 空串须归一 nil，否则污染 PDFExportService.resolveSubject 的 subjects 集合
+        #expect(snapshot.exportSubject == nil)
+        #expect(snapshot.dimensionValues.isEmpty)
+    }
     
     // MARK: - Persistence Lifecycle & Constraint Checks
     

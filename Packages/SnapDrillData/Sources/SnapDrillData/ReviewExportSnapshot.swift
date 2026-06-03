@@ -36,8 +36,10 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
 }
 
 extension ReviewExportSnapshot: PDFExportable {
-    /// 桥接 `subject: String` → 协议的 `exportSubject: String?`（PDF 页眉用学科维度首值）
-    public var exportSubject: String? { subject }
+    /// 桥接 `subject: String` → 协议的 `exportSubject: String?`（PDF 页眉用学科维度首值）。
+    /// 空串归一为 nil：无学科值的题目须被 PDFExportService.resolveSubject 的 compactMap 丢弃，
+    /// 否则空串污染 subjects 集合 → 误判「综合练习」或页眉学科留白（恢复 S5 前契约）。
+    public var exportSubject: String? { subject.isEmpty ? nil : subject }
 }
 
 // CSV 编码统一走 `ReviewCSVCodec`（单一契约源）；A2 动态列经 dimensionValues。

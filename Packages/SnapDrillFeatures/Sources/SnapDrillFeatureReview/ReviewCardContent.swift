@@ -79,15 +79,18 @@ struct ReviewCardFront: View {
 
             // 元数据底栏
             HStack(spacing: 8) {
-                // 学科徽标
-                Text(item.subject)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.accentColor.opacity(0.8))
-                    .clipShape(Capsule())
-                    .accessibilityLabel("\(L10n.Settings.fieldSubject)：\(item.subject)")
+                // 学科徽标（动态维度：学科维度首值，无则取首个有值维度首值，再无则不显示）
+                if let subjectLabel = item.subjectCategoryName
+                    ?? item.categoryValuesByDimension.first?.values.first?.name {
+                    Text(subjectLabel)
+                        .font(.caption.bold())
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.accentColor.opacity(0.8))
+                        .clipShape(Capsule())
+                        .accessibilityLabel("\(L10n.Settings.fieldSubject)：\(subjectLabel)")
+                }
 
                 // 难度指示器
                 let starCount = item.difficultyValue.starCount
@@ -107,8 +110,8 @@ struct ReviewCardFront: View {
                     .accessibilityLabel(L10n.Accessibility.starRating(difficulty: starCount))
                 }
 
-                // 标签
-                let tagNames = (item.tags ?? []).map { $0.name }
+                // 标签（动态维度：标签维度值）
+                let tagNames = item.tagCategoryNames
                 if !tagNames.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 4) {
