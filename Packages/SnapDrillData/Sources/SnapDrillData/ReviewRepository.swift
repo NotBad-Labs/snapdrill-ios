@@ -221,15 +221,14 @@ public final class ReviewRepository {
     /// - Returns: 按紧迫度排序的题目列表
     public func fetchSmartSelection(
         limit: Int,
-        subjects: Set<String> = [],
+        subjectValueIds: Set<UUID> = [],
         difficulties: Set<Int> = []
     ) throws -> [ReviewItemModel] {
-        let subjectsArray = Array(subjects)
         let difficultiesArray = Array(difficulties)
 
+        // difficulty 走 DB #Predicate；学科是维度值（many-to-many）只能内存过滤，保持 SM-2 紧迫度排序后再截断
         let predicate = #Predicate<ReviewItemModel> { item in
-            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue)) &&
-            (difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty))
+            difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty)
         }
 
         var descriptor = FetchDescriptor<ReviewItemModel>(
@@ -239,8 +238,17 @@ public final class ReviewRepository {
                 SortDescriptor(\.repetitions, order: .forward)
             ]
         )
-        descriptor.fetchLimit = limit
-        return try modelContext.fetch(descriptor)
+
+        if subjectValueIds.isEmpty {
+            descriptor.fetchLimit = limit
+            return try modelContext.fetch(descriptor)
+        }
+
+        let all = try modelContext.fetch(descriptor)
+        let filtered = all.filter { item in
+            !Set((item.categoryValues ?? []).map { $0.id }).isDisjoint(with: subjectValueIds)
+        }
+        return Array(filtered.prefix(limit))
     }
 
     // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）

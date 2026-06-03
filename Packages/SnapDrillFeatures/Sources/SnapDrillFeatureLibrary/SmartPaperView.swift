@@ -77,7 +77,7 @@ struct SmartPaperView: View {
             generateButtonSection(vm: vm)
         }
         .onChange(of: vm.questionCount) { _, _ in vm.refreshSelection() }
-        .onChange(of: vm.selectedSubjects) { _, _ in vm.refreshSelection() }
+        .onChange(of: vm.selectedSubjectValueIds) { _, _ in vm.refreshSelection() }
         .onChange(of: vm.selectedDifficulties) { _, _ in vm.refreshSelection() }
         .navigationDestination(isPresented: $showingPDFPreview) {
             ExportPreviewView(
@@ -105,9 +105,9 @@ struct SmartPaperView: View {
                 HStack {
                     Text(L10n.SmartPaper.subjectFilter)
                     Spacer()
-                    Text(vm.selectedSubjects.isEmpty
+                    Text(vm.selectedSubjectValueIds.isEmpty
                          ? L10n.SmartPaper.allSubjects
-                         : vm.selectedSubjects.joined(separator: ", "))
+                         : vm.selectedSubjectNames)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -199,30 +199,30 @@ struct SmartPaperView: View {
     private func subjectSelectionList(vm: SmartPaperViewModel) -> some View {
         List {
             Button {
-                vm.selectedSubjects.removeAll()
+                vm.selectedSubjectValueIds.removeAll()
             } label: {
                 HStack {
                     Text(L10n.SmartPaper.allSubjects)
                     Spacer()
-                    if vm.selectedSubjects.isEmpty {
+                    if vm.selectedSubjectValueIds.isEmpty {
                         Image(systemName: "checkmark")
                             .foregroundStyle(.tint)
                     }
                 }
             }
 
-            ForEach(vm.availableSubjects, id: \.self) { subject in
+            ForEach(vm.availableSubjects) { value in
                 Button {
-                    if vm.selectedSubjects.contains(subject) {
-                        vm.selectedSubjects.remove(subject)
+                    if vm.selectedSubjectValueIds.contains(value.id) {
+                        vm.selectedSubjectValueIds.remove(value.id)
                     } else {
-                        vm.selectedSubjects.insert(subject)
+                        vm.selectedSubjectValueIds.insert(value.id)
                     }
                 } label: {
                     HStack {
-                        Text(subject)
+                        Text(value.name)
                         Spacer()
-                        if vm.selectedSubjects.contains(subject) {
+                        if vm.selectedSubjectValueIds.contains(value.id) {
                             Image(systemName: "checkmark")
                                 .foregroundStyle(.tint)
                         }
