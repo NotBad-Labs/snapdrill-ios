@@ -110,13 +110,8 @@ extension GradeModel {
 /// 会与 ModelContainer 内部 XPC 回调死锁（#599）。
 /// 推荐使用 `DataExecutor(inMemory: true)` 替代（PR #8b）。
 enum TestModelContainer {
-    nonisolated static let schema = Schema([
-        ReviewItemModel.self,
-        TagModel.self,
-        SubjectModel.self,
-        SourceModel.self,
-        GradeModel.self
-    ])
+    // 用 SnapDrillSchemaV1.models（含 CategoryDimension/Value）；S6 删旧模型后自动跟随
+    nonisolated static let schema = Schema(SnapDrillSchemaV1.models)
 
     /// 直接创建 ModelContainer（向后兼容，旧测试使用）
     nonisolated static func create() throws -> ModelContainer {

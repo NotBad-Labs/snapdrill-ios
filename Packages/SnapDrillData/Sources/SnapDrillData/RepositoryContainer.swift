@@ -134,19 +134,15 @@ public final class RepositoryContainer {
     /// 供 BackupService（actor）在后台线程打包 ZIP。
     public func collectProfileBackupData(profileName: String, profileId: UUID) throws -> ProfileBackupData {
         let items = try review.fetchAllModels()
-        let allSubjects = try subject.fetchAllModels()
-        let allSources = try source.fetchAllModels()
-        let allGrades = try grade.fetchAllModels()
-        let allTags = try tag.fetchAllModels()
+        let allDimensions = try dimension.fetchAllModels()
+        let allValues = allDimensions.flatMap { categoryValue.fetchAllModels(in: $0) }
 
         return ProfileBackupData(
             profileName: profileName,
             profileId: profileId,
             reviewItems: items.map { $0.toBackupDTO() },
-            subjects: allSubjects.map { $0.toBackupDTO() },
-            sources: allSources.map { $0.toBackupDTO() },
-            grades: allGrades.map { $0.toBackupDTO() },
-            tags: allTags.map { $0.toBackupDTO() }
+            dimensions: allDimensions.map { $0.toBackupDTO() },
+            categoryValues: allValues.map { $0.toBackupDTO() }
         )
     }
 
@@ -171,31 +167,30 @@ public final class RepositoryContainer {
         try deleteAllTaxonomyInMemory()
 
         do {
-            // 3. 在内存中插入备份数据（不 save）
-            // 重建分类模型
-            for dto in profileData.subjects {
-                let model = SubjectModel(id: dto.id, name: dto.name, icon: dto.icon, colorHex: dto.colorHex, sortOrder: dto.sortOrder)
-                subject.insert(model)
-            }
-            for dto in profileData.sources {
-                let model = SourceModel(id: dto.id, name: dto.name, icon: dto.icon, colorHex: dto.colorHex, sortOrder: dto.sortOrder)
-                source.insert(model)
-            }
-            for dto in profileData.grades {
-                let model = GradeModel(id: dto.id, name: dto.name, sortOrder: dto.sortOrder)
-                grade.insert(model)
+            // 3. 在内存中插入备份数据（不 save）。顺序：维度 → 值（关联维度）→ 题目（按 id 挂值）
+            var dimensionsById: [UUID: CategoryDimensionModel] = [:]
+            for dto in profileData.dimensions {
+                let model = CategoryDimensionModel(
+                    id: dto.id, name: dto.name, isMultiValue: dto.isMultiValue,
+                    isBuiltIn: dto.isBuiltIn, systemKey: dto.systemKey, sortOrder: dto.sortOrder, icon: dto.icon
+                )
+                dimension.insert(model)
+                dimensionsById[dto.id] = model
             }
 
-            // 重建标签
-            var tagsByName: [String: TagModel] = [:]
-            for dto in profileData.tags {
-                let model = try tag.fetchOrCreateModel(name: dto.name, colorHex: dto.colorHex)
-                tagsByName[dto.name] = model
+            var valuesById: [UUID: CategoryValueModel] = [:]
+            for dto in profileData.categoryValues {
+                let model = CategoryValueModel(
+                    id: dto.id, name: dto.name, icon: dto.icon, colorHex: dto.colorHex,
+                    sortOrder: dto.sortOrder, createdAt: dto.createdAt,
+                    dimension: dto.dimensionId.flatMap { dimensionsById[$0] }
+                )
+                categoryValue.insert(model)
+                valuesById[dto.id] = model
             }
 
-            // 重建题目
+            // 重建题目（旧 subject/source/grade/tags init 参数用默认；分类经 categoryValues）
             for dto in profileData.reviewItems {
-                let itemTags = dto.tagNames.compactMap { tagsByName[$0] }
                 let model = ReviewItemModel(
                     id: dto.id,
                     content: dto.content,
@@ -203,17 +198,14 @@ public final class RepositoryContainer {
                     createdAt: dto.createdAt,
                     lastReviewedAt: dto.lastReviewedAt,
                     nextReviewAt: dto.nextReviewAt,
-                    subject: dto.subject,
-                    source: dto.source,
-                    tags: itemTags,
                     answerText: dto.answerText,
                     answerImagePath: dto.answerImagePath,
                     difficulty: dto.difficulty,
-                    grade: dto.grade,
                     easeFactor: dto.easeFactor,
                     interval: dto.interval,
                     repetitions: dto.repetitions
                 )
+                model.categoryValues = dto.categoryValueIds.compactMap { valuesById[$0] }
                 review.insert(model)
             }
 
@@ -256,21 +248,7 @@ public final class RepositoryContainer {
         let fileName = "pre_restore_\(timestamp).json"
         let url = dir.appendingPathComponent(fileName)
 
-        let items = try review.fetchAllModels()
-        let allSubjects = try subject.fetchAllModels()
-        let allSources = try source.fetchAllModels()
-        let allGrades = try grade.fetchAllModels()
-        let allTags = try tag.fetchAllModels()
-
-        let backup = ProfileBackupData(
-            profileName: "recovery_backup",
-            profileId: UUID(),
-            reviewItems: items.map { $0.toBackupDTO() },
-            subjects: allSubjects.map { $0.toBackupDTO() },
-            sources: allSources.map { $0.toBackupDTO() },
-            grades: allGrades.map { $0.toBackupDTO() },
-            tags: allTags.map { $0.toBackupDTO() }
-        )
+        let backup = try collectProfileBackupData(profileName: "recovery_backup", profileId: UUID())
 
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601

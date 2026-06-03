@@ -6,6 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  备份文件的 Codable DTO 定义，用于 JSON 序列化/反序列化。
+//  L3 动态维度重构基线：分类经动态维度（dimensions + categoryValues），题目持 categoryValueIds。
 //
 
 import Foundation
@@ -27,16 +28,13 @@ nonisolated public struct BackupManifest: Codable, Sendable {
     /// 所有 Profile 名称
     public let profileNames: [String]
 
-    /// 当前备份 Schema 版本——每次 BackupDTO 字段变更时递增
-    ///
-    /// 备份 Schema 与 SwiftData Schema 独立管理：版本变更不一定同步。
+    /// 当前备份 Schema 版本。
     ///
     /// **版本历史**：
-    /// - 1 → 初始备份格式
-    /// - 2 → Tag/Subject/Source/Grade 字段扩展
-    /// - 3 → Multi-Profile：新增 profileName 字段（单 Profile）
-    /// - 4 → 全 Profile 备份：profiles 数组结构（#531）
-    public static let currentSchemaVersion = 4
+    /// - 1 → 动态维度系统重构基线（零用户阶段重置；旧 v1–v4 备份不再兼容，删除向后兼容容错）。
+    ///
+    /// 注：备份 Schema 与 SwiftData Schema 独立管理；版本机制保留，待有真实用户后再递增。
+    public static let currentSchemaVersion = 1
 
     public init(schemaVersion: Int, createdAt: Date, appVersion: String, totalItemCount: Int, profileCount: Int, profileNames: [String]) {
         self.schemaVersion = schemaVersion
@@ -50,10 +48,7 @@ nonisolated public struct BackupManifest: Codable, Sendable {
 
 // MARK: - Review Item DTO
 
-/// ReviewItemModel 的序列化表示
-///
-/// 使用自定义 `init(from:)` + `decodeIfPresent` 确保新增字段时，
-/// 旧版本备份文件（缺少新字段）仍可正常解析。
+/// ReviewItemModel 的序列化表示。分类经 `categoryValueIds`（指向 CategoryValueBackupDTO）。
 nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
     public let id: UUID
     public let content: String?
@@ -61,18 +56,14 @@ nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
     public let createdAt: Date
     public let lastReviewedAt: Date
     public let nextReviewAt: Date
-    public let subject: String
-    public let source: String
-    public let tagNames: [String]
     public let answerText: String?
     public let answerImagePath: String?
     public let difficulty: Int
-    public let grade: String
     public let easeFactor: Double
     public let interval: Int
     public let repetitions: Int
-
-    // 新增字段在此追加，init(from:) 中用 decodeIfPresent + 默认值即可兼容旧备份
+    /// 该题挂载的维度值 id（A2 动态维度）
+    public let categoryValueIds: [UUID]
 
     public init(
         id: UUID,
@@ -81,16 +72,13 @@ nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
         createdAt: Date,
         lastReviewedAt: Date,
         nextReviewAt: Date,
-        subject: String,
-        source: String,
-        tagNames: [String],
         answerText: String?,
         answerImagePath: String?,
         difficulty: Int,
-        grade: String,
         easeFactor: Double,
         interval: Int,
-        repetitions: Int
+        repetitions: Int,
+        categoryValueIds: [UUID]
     ) {
         self.id = id
         self.content = content
@@ -98,124 +86,59 @@ nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
         self.createdAt = createdAt
         self.lastReviewedAt = lastReviewedAt
         self.nextReviewAt = nextReviewAt
-        self.subject = subject
-        self.source = source
-        self.tagNames = tagNames
         self.answerText = answerText
         self.answerImagePath = answerImagePath
         self.difficulty = difficulty
-        self.grade = grade
         self.easeFactor = easeFactor
         self.interval = interval
         self.repetitions = repetitions
-    }
-
-    public init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        id = try c.decode(UUID.self, forKey: .id)
-        content = try c.decodeIfPresent(String.self, forKey: .content)
-        imagePath = try c.decodeIfPresent(String.self, forKey: .imagePath)
-        createdAt = try c.decodeIfPresent(Date.self, forKey: .createdAt) ?? .distantPast
-        lastReviewedAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewedAt) ?? .distantPast
-        nextReviewAt = try c.decodeIfPresent(Date.self, forKey: .nextReviewAt) ?? .distantPast
-        subject = try c.decodeIfPresent(String.self, forKey: .subject) ?? "其他"
-        source = try c.decodeIfPresent(String.self, forKey: .source) ?? "其他"
-        tagNames = try c.decodeIfPresent([String].self, forKey: .tagNames) ?? []
-        answerText = try c.decodeIfPresent(String.self, forKey: .answerText)
-        answerImagePath = try c.decodeIfPresent(String.self, forKey: .answerImagePath)
-        difficulty = try c.decodeIfPresent(Int.self, forKey: .difficulty) ?? 1
-        grade = try c.decodeIfPresent(String.self, forKey: .grade) ?? ""
-        easeFactor = try c.decodeIfPresent(Double.self, forKey: .easeFactor) ?? 2.5
-        interval = try c.decodeIfPresent(Int.self, forKey: .interval) ?? 0
-        repetitions = try c.decodeIfPresent(Int.self, forKey: .repetitions) ?? 0
+        self.categoryValueIds = categoryValueIds
     }
 }
 
-// MARK: - Subject DTO
+// MARK: - Category Dimension DTO
 
-/// SubjectModel 的序列化表示
-nonisolated public struct SubjectBackupDTO: Codable, Sendable {
+/// CategoryDimensionModel 的序列化表示
+nonisolated public struct CategoryDimensionBackupDTO: Codable, Sendable {
+    public let id: UUID
+    public let name: String
+    public let isMultiValue: Bool
+    public let isBuiltIn: Bool
+    public let systemKey: String?
+    public let sortOrder: Int
+    public let icon: String
+
+    public init(id: UUID, name: String, isMultiValue: Bool, isBuiltIn: Bool, systemKey: String?, sortOrder: Int, icon: String) {
+        self.id = id
+        self.name = name
+        self.isMultiValue = isMultiValue
+        self.isBuiltIn = isBuiltIn
+        self.systemKey = systemKey
+        self.sortOrder = sortOrder
+        self.icon = icon
+    }
+}
+
+// MARK: - Category Value DTO
+
+/// CategoryValueModel 的序列化表示（dimensionId 指向所属维度）
+nonisolated public struct CategoryValueBackupDTO: Codable, Sendable {
     public let id: UUID
     public let name: String
     public let icon: String
     public let colorHex: String
     public let sortOrder: Int
+    public let createdAt: Date
+    public let dimensionId: UUID?
 
-    public init(id: UUID, name: String, icon: String, colorHex: String, sortOrder: Int) {
-        self.id = id; self.name = name; self.icon = icon; self.colorHex = colorHex; self.sortOrder = sortOrder
-    }
-
-    public init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        id = try c.decode(UUID.self, forKey: .id)
-        name = try c.decode(String.self, forKey: .name)
-        icon = try c.decodeIfPresent(String.self, forKey: .icon) ?? "book.fill"
-        colorHex = try c.decodeIfPresent(String.self, forKey: .colorHex) ?? "#007AFF"
-        sortOrder = try c.decodeIfPresent(Int.self, forKey: .sortOrder) ?? 0
-    }
-}
-
-// MARK: - Source DTO
-
-/// SourceModel 的序列化表示
-nonisolated public struct SourceBackupDTO: Codable, Sendable {
-    public let id: UUID
-    public let name: String
-    public let icon: String
-    public let colorHex: String
-    public let sortOrder: Int
-
-    public init(id: UUID, name: String, icon: String, colorHex: String, sortOrder: Int) {
-        self.id = id; self.name = name; self.icon = icon; self.colorHex = colorHex; self.sortOrder = sortOrder
-    }
-
-    public init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        id = try c.decode(UUID.self, forKey: .id)
-        name = try c.decode(String.self, forKey: .name)
-        icon = try c.decodeIfPresent(String.self, forKey: .icon) ?? "doc.text.fill"
-        colorHex = try c.decodeIfPresent(String.self, forKey: .colorHex) ?? "#007AFF"
-        sortOrder = try c.decodeIfPresent(Int.self, forKey: .sortOrder) ?? 0
-    }
-}
-
-// MARK: - Grade DTO
-
-/// GradeModel 的序列化表示
-nonisolated public struct GradeBackupDTO: Codable, Sendable {
-    public let id: UUID
-    public let name: String
-    public let sortOrder: Int
-
-    public init(id: UUID, name: String, sortOrder: Int) {
-        self.id = id; self.name = name; self.sortOrder = sortOrder
-    }
-
-    public init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        id = try c.decode(UUID.self, forKey: .id)
-        name = try c.decode(String.self, forKey: .name)
-        sortOrder = try c.decodeIfPresent(Int.self, forKey: .sortOrder) ?? 0
-    }
-}
-
-// MARK: - Tag DTO
-
-/// TagModel 的序列化表示
-nonisolated public struct TagBackupDTO: Codable, Sendable {
-    public let id: UUID
-    public let name: String
-    public let colorHex: String
-
-    public init(id: UUID, name: String, colorHex: String) {
-        self.id = id; self.name = name; self.colorHex = colorHex
-    }
-
-    public init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        id = try c.decode(UUID.self, forKey: .id)
-        name = try c.decode(String.self, forKey: .name)
-        colorHex = try c.decodeIfPresent(String.self, forKey: .colorHex) ?? "#007AFF"
+    public init(id: UUID, name: String, icon: String, colorHex: String, sortOrder: Int, createdAt: Date, dimensionId: UUID?) {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.colorHex = colorHex
+        self.sortOrder = sortOrder
+        self.createdAt = createdAt
+        self.dimensionId = dimensionId
     }
 }
 
@@ -226,27 +149,21 @@ nonisolated public struct ProfileBackupData: Codable, Sendable {
     public let profileName: String
     public let profileId: UUID
     public let reviewItems: [ReviewItemBackupDTO]
-    public let subjects: [SubjectBackupDTO]
-    public let sources: [SourceBackupDTO]
-    public let grades: [GradeBackupDTO]
-    public let tags: [TagBackupDTO]
+    public let dimensions: [CategoryDimensionBackupDTO]
+    public let categoryValues: [CategoryValueBackupDTO]
 
     public init(
         profileName: String,
         profileId: UUID,
         reviewItems: [ReviewItemBackupDTO],
-        subjects: [SubjectBackupDTO],
-        sources: [SourceBackupDTO],
-        grades: [GradeBackupDTO],
-        tags: [TagBackupDTO]
+        dimensions: [CategoryDimensionBackupDTO],
+        categoryValues: [CategoryValueBackupDTO]
     ) {
         self.profileName = profileName
         self.profileId = profileId
         self.reviewItems = reviewItems
-        self.subjects = subjects
-        self.sources = sources
-        self.grades = grades
-        self.tags = tags
+        self.dimensions = dimensions
+        self.categoryValues = categoryValues
     }
 }
 
@@ -273,44 +190,33 @@ extension ReviewItemModel {
             createdAt: createdAt,
             lastReviewedAt: lastReviewedAt,
             nextReviewAt: nextReviewAt,
-            subject: subject,
-            source: source,
-            tagNames: tags?.map(\.name) ?? [],
             answerText: answerText,
             answerImagePath: answerImagePath,
             difficulty: difficulty,
-            grade: grade,
             easeFactor: easeFactor,
             interval: interval,
-            repetitions: repetitions
+            repetitions: repetitions,
+            categoryValueIds: (categoryValues ?? []).map { $0.id }
         )
     }
 }
 
-extension SubjectModel {
+extension CategoryDimensionModel {
     /// 转换为备份 DTO
-    func toBackupDTO() -> SubjectBackupDTO {
-        SubjectBackupDTO(id: id, name: name, icon: icon, colorHex: colorHex, sortOrder: sortOrder)
+    func toBackupDTO() -> CategoryDimensionBackupDTO {
+        CategoryDimensionBackupDTO(
+            id: id, name: name, isMultiValue: isMultiValue, isBuiltIn: isBuiltIn,
+            systemKey: systemKey, sortOrder: sortOrder, icon: icon
+        )
     }
 }
 
-extension SourceModel {
+extension CategoryValueModel {
     /// 转换为备份 DTO
-    func toBackupDTO() -> SourceBackupDTO {
-        SourceBackupDTO(id: id, name: name, icon: icon, colorHex: colorHex, sortOrder: sortOrder)
-    }
-}
-
-extension GradeModel {
-    /// 转换为备份 DTO
-    func toBackupDTO() -> GradeBackupDTO {
-        GradeBackupDTO(id: id, name: name, sortOrder: sortOrder)
-    }
-}
-
-extension TagModel {
-    /// 转换为备份 DTO
-    func toBackupDTO() -> TagBackupDTO {
-        TagBackupDTO(id: id, name: name, colorHex: colorHex)
+    func toBackupDTO() -> CategoryValueBackupDTO {
+        CategoryValueBackupDTO(
+            id: id, name: name, icon: icon, colorHex: colorHex,
+            sortOrder: sortOrder, createdAt: createdAt, dimensionId: dimension?.id
+        )
     }
 }
