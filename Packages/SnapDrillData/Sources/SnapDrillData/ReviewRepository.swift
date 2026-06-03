@@ -287,48 +287,57 @@ public final class ReviewRepository {
     ///   使用数据库 fetchLimit + 内存 tag 过滤会导致分页数量不可控，用户"找不到"已有题目。
     public func fetchFilteredModels(
         searchText: String,
-        subjects: Set<String>,
-        tags: Set<String>,
+        valueIdsByDimension: [UUID: Set<UUID>],
         difficulties: Set<Int> = [],
         sortDescriptors: [SortDescriptor<ReviewItemModel>] = [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
+        sortBySubjectName: Bool = false,
         limit: Int,
         offset: Int
     ) throws -> [ReviewItemModel] {
         let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
-        let subjectsArray = Array(subjects)
         let difficultiesArray = Array(difficulties)
 
-        // #Predicate 内禁止 force unwrap（! 在 SQLite 转译语义未定义）；
-        // 用可选链 ?.localizedStandardContains == true 替代，行为等价且安全。
+        // search + difficulty 走 DB 级 #Predicate；维度值（many-to-many）只能内存过滤（#Predicate 不支持关系）。
+        // #Predicate 内禁止 force unwrap，用 ?.localizedStandardContains == true 替代。
         let predicate = #Predicate<ReviewItemModel> { item in
             (normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true) &&
-            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue)) &&
             (difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty))
         }
 
-        if tags.isEmpty {
-            // 无 tag 过滤：直接使用数据库分页
-            var descriptor = FetchDescriptor<ReviewItemModel>(
-                predicate: predicate,
-                sortBy: sortDescriptors
-            )
+        // 维度值过滤或 subject 维度值名排序都需要内存处理；否则用 DB 级分页（高效路径）。
+        let needsMemoryProcessing = !valueIdsByDimension.isEmpty || sortBySubjectName
+        if !needsMemoryProcessing {
+            var descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
             descriptor.fetchLimit = limit
             descriptor.fetchOffset = offset
             return try modelContext.fetch(descriptor)
-        } else {
-            // 有 tag 过滤：全量拉取 search+subject 匹配项，内存过滤 tag，再切片分页
-            let descriptor = FetchDescriptor<ReviewItemModel>(
-                predicate: predicate,
-                sortBy: sortDescriptors
-            )
-            let allMatching = try modelContext.fetch(descriptor)
-            let tagFiltered = allMatching.filter { model in
-                let itemTagNames = Set((model.tags ?? []).map { $0.name })
-                return !itemTagNames.isDisjoint(with: tags)
-            }
-            guard offset < tagFiltered.count else { return [] }
-            return Array(tagFiltered[offset..<min(offset + limit, tagFiltered.count)])
         }
+
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
+        var matching = try modelContext.fetch(descriptor)
+
+        // 维度间 AND、维度内 OR：每个被选中的维度，题目至少命中其一个选中值
+        if !valueIdsByDimension.isEmpty {
+            matching = matching.filter { item in
+                let itemValueIds = Set((item.categoryValues ?? []).map { $0.id })
+                return valueIdsByDimension.values.allSatisfy { wanted in
+                    !itemValueIds.isDisjoint(with: wanted)
+                }
+            }
+        }
+
+        // subject 维度值名排序（关系无法走 SortDescriptor），稳定 tiebreaker = createdAt 倒序
+        if sortBySubjectName {
+            matching.sort { lhs, rhs in
+                let lName = lhs.subjectCategoryName ?? ""
+                let rName = rhs.subjectCategoryName ?? ""
+                if lName != rName { return lName < rName }
+                return lhs.createdAt > rhs.createdAt
+            }
+        }
+
+        guard offset < matching.count else { return [] }
+        return Array(matching[offset..<min(offset + limit, matching.count)])
     }
 
     /// 纯内存操作：将 ReviewItemModel 插入 context 但不 save。

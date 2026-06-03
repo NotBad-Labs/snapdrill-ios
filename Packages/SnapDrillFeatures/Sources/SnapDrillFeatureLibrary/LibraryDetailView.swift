@@ -67,41 +67,24 @@ struct LibraryDetailView: View {
 
                 // 元信息
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        // 学科徽标
-                        Text(item.subject)
-                            .font(.subheadline.bold())
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(Color.blue.opacity(0.1))
-                            .foregroundStyle(.blue)
-                            .clipShape(Capsule())
-
-                        // 来源徽标
-                        Text(item.source)
-                            .font(.subheadline)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(Color.secondary.opacity(0.1))
-                            .foregroundStyle(.secondary)
-                            .clipShape(Capsule())
-
-                        Spacer()
-                    }
-                    .accessibleGroup(label: L10n.Accessibility.metadataGroup(subject: item.subject, source: item.source, difficulty: item.difficulty))
-
-                    let tagNames = (item.tags ?? []).map { $0.name }
-                    if !tagNames.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack {
-                                ForEach(tagNames, id: \.self) { tag in
-                                    Text("#\(tag)")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(Color.gray.opacity(0.1))
-                                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                    // 动态分类：每个有值的维度一行（维度名 + 值徽标），取代固定 学科/来源/标签/年级
+                    ForEach(item.categoryValuesByDimension, id: \.dimension.id) { entry in
+                        HStack(alignment: .top, spacing: 8) {
+                            Text(entry.dimension.name)
+                                .font(.caption.bold())
+                                .foregroundStyle(.secondary)
+                                .frame(minWidth: 36, alignment: .leading)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 6) {
+                                    ForEach(entry.values) { value in
+                                        Text(value.name)
+                                            .font(.caption)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 3)
+                                            .background(Color(hex: value.colorHex).opacity(0.15))
+                                            .foregroundStyle(Color(hex: value.colorHex))
+                                            .clipShape(Capsule())
+                                    }
                                 }
                             }
                         }
@@ -137,7 +120,7 @@ struct LibraryDetailView: View {
                         .padding(.horizontal)
                 }
 
-                // 难度与年级
+                // 难度（年级等已并入上方动态维度展示）
                 HStack(spacing: 12) {
                     HStack(spacing: 3) {
                         ForEach(1...5, id: \.self) { level in
@@ -147,16 +130,6 @@ struct LibraryDetailView: View {
                         }
                     }
                     .accessibleGroup(label: L10n.Accessibility.starRating(difficulty: item.difficulty))
-
-                    if !item.grade.isEmpty {
-                        Text(item.grade)
-                            .font(.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(Color.green.opacity(0.1))
-                            .foregroundStyle(.green)
-                            .clipShape(Capsule())
-                    }
                 }
                 .padding(.horizontal)
 
@@ -273,9 +246,9 @@ struct LibraryDetailView: View {
         let cardView = ShareCardView(
             content: item.content,
             image: loadedImage,
-            subject: item.subject,
+            subject: item.subjectCategoryName ?? "",
             difficulty: item.difficulty,
-            tags: (item.tags ?? []).map(\.name)
+            tags: item.tagCategoryNames
         )
 
         let renderer = ImageRenderer(content: cardView)
@@ -326,11 +299,11 @@ private struct ShareSheet: UIViewControllerRepresentable {
 }
 
 #Preview {
-    let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, TagModel.self, GradeModel.self])
+    let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
     let item: ReviewItemModel = {
-        let i = ReviewItemModel(content: "Sample Domain Question", subject: "Math")
+        let i = ReviewItemModel(content: "Sample Domain Question")
         container.mainContext.insert(i)
         return i
     }()

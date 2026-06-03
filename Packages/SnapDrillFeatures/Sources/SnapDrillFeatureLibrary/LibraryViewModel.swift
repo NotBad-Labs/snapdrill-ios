@@ -40,8 +40,9 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
         case .createdAt:
             [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
         case .subject:
-            [SortDescriptor(\ReviewItemModel.subjectRawValue, order: .forward),
-             SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
+            // 学科是动态维度值（关系），无法走 SortDescriptor → 实际排序由 sortsBySubjectName 内存完成；
+            // 此处仅给内存路径前的稳定预排序（createdAt 倒序作 tiebreaker）。
+            [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
         case .difficulty:
             [SortDescriptor(\ReviewItemModel.difficulty, order: .reverse),
              SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
@@ -50,6 +51,9 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
              SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
         }
     }
+
+    /// 是否按学科维度值名内存排序（关系不能走 SortDescriptor）
+    var sortsBySubjectName: Bool { self == .subject }
 }
 
 /// 题库列表 ViewModel
@@ -67,21 +71,17 @@ public final class LibraryViewModel {
 
     /// 当前过滤条件下的题目列表（支持分页追加）
     public var filteredItems: [ReviewItemModel] = []
-    /// 所有学科列表，用于过滤选项
-    public var subjects: [SubjectModel] = []
-    /// 所有标签列表，用于过滤选项
-    public var allTags: [TagModel] = []
+    /// 所有命名维度（按 sortOrder），用于过滤选项
+    public var dimensions: [CategoryDimensionModel] = []
+    /// 每维度可选值（dimensionId → values），用于过滤选项
+    public var valuesByDimension: [UUID: [CategoryValueModel]] = [:]
 
     /// 搜索文本（变更时触发防抖刷新）
     public var searchText: String = "" {
         didSet { triggerRefresh() }
     }
-    /// 已选中的学科过滤集合（变更时触发防抖刷新）
-    public var selectedSubjects: Set<String> = [] {
-        didSet { triggerRefresh() }
-    }
-    /// 已选中的标签过滤集合（变更时触发防抖刷新）
-    public var selectedTags: Set<String> = [] {
+    /// 已选中的维度值过滤（dimensionId → 选中 valueIds；语义：维度间 AND、维度内 OR；变更时刷新）
+    public var selectedValueIdsByDimension: [UUID: Set<UUID>] = [:] {
         didSet { triggerRefresh() }
     }
     /// 已选中的难度过滤集合（变更时触发防抖刷新）
@@ -146,14 +146,54 @@ public final class LibraryViewModel {
         defer { isLoading = false }
 
         do {
-            self.subjects = try repositories.subject.fetchAllModels(limit: metadataFetchLimit)
-            self.allTags = try repositories.tag.fetchAllModels(limit: metadataFetchLimit)
+            let dims = try repositories.dimension.fetchAllModels()
+            self.dimensions = dims
+            self.valuesByDimension = Dictionary(
+                uniqueKeysWithValues: dims.map { ($0.id, repositories.categoryValue.fetchAllModels(in: $0)) }
+            )
             self.errorMessage = nil
             await refreshData()
         } catch {
             SnapDrillLogger.generic.error("加载题库元数据失败: \(error.localizedDescription)")
             self.errorMessage = L10n.Errors.loadFailed
         }
+    }
+
+    // MARK: - 过滤选择（供 FilterSheet / 快速筛选 capsule 驱动）
+
+    /// 某维度值当前是否被选为过滤
+    public func isFilterSelected(_ valueId: UUID, inDimension dimensionId: UUID) -> Bool {
+        selectedValueIdsByDimension[dimensionId]?.contains(valueId) ?? false
+    }
+
+    /// 切换某维度值的过滤选中（空集合移除该维度键，保证 selectedValueIdsByDimension.isEmpty 正确反映「无过滤」）
+    public func toggleFilter(_ valueId: UUID, inDimension dimensionId: UUID) {
+        var set = selectedValueIdsByDimension[dimensionId] ?? []
+        if set.contains(valueId) { set.remove(valueId) } else { set.insert(valueId) }
+        selectedValueIdsByDimension[dimensionId] = set.isEmpty ? nil : set
+    }
+
+    /// 某维度（按 systemKey）；快速筛选 capsule 用
+    public func dimension(forSystemKey systemKey: String) -> CategoryDimensionModel? {
+        dimensions.first { $0.systemKey == systemKey }
+    }
+
+    /// 当前选中的过滤值实例（活跃过滤 chip 展示用）
+    public var selectedFilterValues: [CategoryValueModel] {
+        selectedValueIdsByDimension.flatMap { dimensionId, ids in
+            (valuesByDimension[dimensionId] ?? []).filter { ids.contains($0.id) }
+        }
+    }
+
+    /// 清除全部维度值过滤（保留搜索/难度）
+    public func clearValueFilters() {
+        selectedValueIdsByDimension.removeAll()
+    }
+
+    /// 标签维度的所有值（批量打标签面板用）
+    public var tagValues: [CategoryValueModel] {
+        guard let tagDimension = dimension(forSystemKey: CategorySystemKey.tag) else { return [] }
+        return valuesByDimension[tagDimension.id] ?? []
     }
 
     /// 触发防抖搜索/刷新
@@ -172,10 +212,10 @@ public final class LibraryViewModel {
             currentPage = 0
             let results = try repositories.review.fetchFilteredModels(
                 searchText: searchText,
-                subjects: selectedSubjects,
-                tags: selectedTags,
+                valueIdsByDimension: selectedValueIdsByDimension,
                 difficulties: selectedDifficulties,
                 sortDescriptors: sortOption.sortDescriptors,
+                sortBySubjectName: sortOption.sortsBySubjectName,
                 limit: pageSize,
                 offset: 0
             )
@@ -202,10 +242,10 @@ public final class LibraryViewModel {
             let nextPage = currentPage + 1
             let nextItems = try repositories.review.fetchFilteredModels(
                 searchText: searchText,
-                subjects: selectedSubjects,
-                tags: selectedTags,
+                valueIdsByDimension: selectedValueIdsByDimension,
                 difficulties: selectedDifficulties,
                 sortDescriptors: sortOption.sortDescriptors,
+                sortBySubjectName: sortOption.sortsBySubjectName,
                 limit: pageSize,
                 offset: nextPage * pageSize
             )
@@ -257,43 +297,57 @@ public final class LibraryViewModel {
         removePendingDeletionBatches(matching: restoredIDs)
 
         // 使用当前排序选项恢复列表顺序
-        let descriptors = sortOption.sortDescriptors
-
         withAnimation {
             filteredItems.append(contentsOf: itemsToRestore)
-            filteredItems.sort { lhs, rhs in
-                for descriptor in descriptors {
-                    switch descriptor.compare(lhs, rhs) {
-                    case .orderedAscending: return true
-                    case .orderedDescending: return false
-                    case .orderedSame: continue
-                    }
+            if sortOption.sortsBySubjectName {
+                // 学科排序是关系内存排序，SortDescriptor 无法表达，单独按维度值名排
+                filteredItems.sort { lhs, rhs in
+                    let lName = lhs.subjectCategoryName ?? ""
+                    let rName = rhs.subjectCategoryName ?? ""
+                    if lName != rName { return lName < rName }
+                    return lhs.createdAt > rhs.createdAt
                 }
-                return false
+            } else {
+                let descriptors = sortOption.sortDescriptors
+                filteredItems.sort { lhs, rhs in
+                    for descriptor in descriptors {
+                        switch descriptor.compare(lhs, rhs) {
+                        case .orderedAscending: return true
+                        case .orderedDescending: return false
+                        case .orderedSame: continue
+                        }
+                    }
+                    return false
+                }
             }
         }
     }
 
     // 删除逻辑已委托给 DeletionScheduler（App 级生命周期）
 
-    /// 批量为选中题目添加标签
+    /// 批量为选中题目添加标签（写入标签维度的 categoryValues）
     public func addTagsToItems(ids: Set<UUID>, tagNames: Set<String>) async {
         do {
+            guard let tagDimension = try repositories.dimension.fetchDimension(bySystemKey: CategorySystemKey.tag) else {
+                SnapDrillLogger.generic.error("批量打标签失败：标签维度缺失")
+                self.operationError = L10n.Errors.batchTagFailed
+                return
+            }
             let items = try repositories.review.fetchModels(by: ids)
             for item in items {
-                var currentTags = item.tags ?? []
-                let currentNames = Set(currentTags.map(\.name))
-                for name in tagNames where !currentNames.contains(name) {
-                    let tag = try repositories.tag.fetchOrCreateModel(name: name, colorHex: "007AFF")
-                    currentTags.append(tag)
+                var current = item.categoryValues ?? []
+                let currentIds = Set(current.map { $0.id })
+                for name in tagNames {
+                    let value = repositories.categoryValue.fetchOrCreate(name: name, in: tagDimension)
+                    if !currentIds.contains(value.id) { current.append(value) }
                 }
-                item.tags = currentTags
+                item.categoryValues = current
             }
             try repositories.review.saveContext()
         } catch {
-            // 回滚未提交的更改，避免脏 TagModel 与标签关系污染共享 ModelContext
+            // 回滚未提交的更改，避免脏值与关系污染共享 ModelContext
             SnapDrillLogger.generic.error("批量打标签失败: \(error.localizedDescription)")
-            repositories.tag.rollbackContext()
+            repositories.categoryValue.rollbackContext()
             repositories.review.rollbackContext()
             self.operationError = L10n.Errors.batchTagFailed
         }
@@ -302,8 +356,7 @@ public final class LibraryViewModel {
     /// 重置所有过滤器
     public func resetFilters() {
         searchText = ""
-        selectedSubjects.removeAll()
-        selectedTags.removeAll()
+        selectedValueIdsByDimension.removeAll()
         selectedDifficulties.removeAll()
     }
 

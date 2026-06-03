@@ -42,49 +42,58 @@ struct LibraryListView: View {
     
     var body: some View {
         List(selection: $selectedItemIDs) {
-            // 学科过滤器
-            Section {
-                 ScrollView(.horizontal, showsIndicators: false) {
-                     HStack(spacing: 12) {
-                         ForEach(viewModel.subjects) { subject in
-                             Button {
-                                 if viewModel.selectedSubjects.contains(subject.name) {
-                                     viewModel.selectedSubjects.remove(subject.name)
-                                 } else {
-                                     viewModel.selectedSubjects.insert(subject.name)
+            // 学科快速过滤器（学科维度的值；全量维度过滤在 FilterSheet）
+            if let subjectDim = viewModel.dimension(forSystemKey: CategorySystemKey.subject) {
+                Section {
+                     ScrollView(.horizontal, showsIndicators: false) {
+                         HStack(spacing: 12) {
+                             ForEach(viewModel.valuesByDimension[subjectDim.id] ?? []) { value in
+                                 let selected = viewModel.isFilterSelected(value.id, inDimension: subjectDim.id)
+                                 Button {
+                                     viewModel.toggleFilter(value.id, inDimension: subjectDim.id)
+                                 } label: {
+                                     Text(value.name)
+                                         .font(.subheadline)
+                                         .padding(.horizontal, 14)
+                                         .padding(.vertical, 7)
+                                         .background(selected ? Color.blue : Color(.secondarySystemGroupedBackground))
+                                         .foregroundStyle(selected ? Color.white : Color.primary)
+                                         .clipShape(Capsule())
                                  }
-                             } label: {
-                                 SubjectCapsule(subject: subject, isSelected: viewModel.selectedSubjects.contains(subject.name))
+                                 .buttonStyle(.plain)
+                                 .accessibleButton(label: L10n.Accessibility.filterSubject(value.name))
+                                 .accessibilityAddTraits(selected ? .isSelected : [])
                              }
-                             .buttonStyle(.plain)
-                             .accessibleButton(label: L10n.Accessibility.filterSubject(subject.name))
-                             .accessibilityAddTraits(viewModel.selectedSubjects.contains(subject.name) ? .isSelected : [])
                          }
+                         .padding(.horizontal, 4)
+                         .padding(.vertical, 8)
                      }
-                     .padding(.horizontal, 4)
-                     .padding(.vertical, 8)
-                 }
-                 .listRowInsets(EdgeInsets())
-                 .listRowBackground(Color.clear)
+                     .listRowInsets(EdgeInsets())
+                     .listRowBackground(Color.clear)
+                }
             }
             
-            // 活跃过滤指示器：标签过滤时显示，方便用户感知和快速清除
-            if !viewModel.selectedTags.isEmpty {
+            // 活跃过滤指示器：非学科维度的选中值（学科已在上方 capsule 展示），方便感知和快速清除
+            let activeFilterChips = viewModel.selectedFilterValues
+                .filter { $0.dimension?.systemKey != CategorySystemKey.subject }
+            if !activeFilterChips.isEmpty {
                 Section {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(Array(viewModel.selectedTags), id: \.self) { tag in
+                            ForEach(activeFilterChips) { value in
                                 HStack(spacing: 4) {
-                                    Text(tag)
+                                    Text(value.name)
                                         .font(.caption)
                                     Button {
-                                        viewModel.selectedTags.remove(tag)
+                                        if let dimId = value.dimension?.id {
+                                            viewModel.toggleFilter(value.id, inDimension: dimId)
+                                        }
                                     } label: {
                                         Image(systemName: "xmark.circle.fill")
                                             .font(.caption2)
                                     }
                                     .buttonStyle(.plain)
-                                    .accessibleButton(label: L10n.Accessibility.removeTagFilter(tag))
+                                    .accessibleButton(label: L10n.Accessibility.removeTagFilter(value.name))
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
@@ -93,7 +102,7 @@ struct LibraryListView: View {
                                 .clipShape(Capsule())
                             }
                             Button(L10n.Library.clearFilters) {
-                                viewModel.selectedTags.removeAll()
+                                viewModel.clearValueFilters()
                             }
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -106,7 +115,7 @@ struct LibraryListView: View {
             }
 
             if viewModel.filteredItems.isEmpty {
-                if viewModel.searchText.isEmpty && viewModel.selectedSubjects.isEmpty && viewModel.selectedTags.isEmpty {
+                if viewModel.searchText.isEmpty && viewModel.selectedValueIdsByDimension.isEmpty && viewModel.selectedDifficulties.isEmpty {
                     ContentUnavailableView {
                         Label(L10n.Library.noItems, systemImage: "books.vertical")
                     } description: {
@@ -132,13 +141,17 @@ struct LibraryListView: View {
                                 .multilineTextAlignment(.leading)
 
                             HStack(spacing: 8) {
-                                Text(item.subject)
-                                    .font(.caption2.bold())
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color.blue.opacity(0.1))
-                                    .foregroundStyle(.blue)
-                                    .clipShape(Capsule())
+                                // 主分类标签：学科维度值，无则取首个有值维度的首值
+                                if let primaryCategory = item.subjectCategoryName
+                                    ?? item.categoryValuesByDimension.first?.values.first?.name {
+                                    Text(primaryCategory)
+                                        .font(.caption2.bold())
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.blue.opacity(0.1))
+                                        .foregroundStyle(.blue)
+                                        .clipShape(Capsule())
+                                }
 
                                 Text(item.createdAt.formatted(date: .abbreviated, time: .shortened))
                                     .font(.caption)
@@ -196,7 +209,7 @@ struct LibraryListView: View {
 }
 
 #Preview {
-    let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, TagModel.self, GradeModel.self])
+    let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
     let repos = RepositoryContainer(modelContext: container.mainContext)

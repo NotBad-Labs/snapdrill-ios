@@ -45,14 +45,14 @@ final class PerformanceTests {
 
         // 预热
         _ = try repo.fetchFilteredModels(
-            searchText: "", subjects: [], tags: [],
+            searchText: "", valueIdsByDimension: [:],
             sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
 
         let start = CFAbsoluteTimeGetCurrent()
         _ = try repo.fetchFilteredModels(
-            searchText: "", subjects: [], tags: [],
+            searchText: "", valueIdsByDimension: [:],
             sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
@@ -78,14 +78,14 @@ final class PerformanceTests {
 
         // 预热
         _ = try repo.fetchFilteredModels(
-            searchText: "抛物线", subjects: [], tags: [],
+            searchText: "抛物线", valueIdsByDimension: [:],
             sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
 
         let start = CFAbsoluteTimeGetCurrent()
         _ = try repo.fetchFilteredModels(
-            searchText: "抛物线", subjects: [], tags: [],
+            searchText: "抛物线", valueIdsByDimension: [:],
             sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
