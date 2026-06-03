@@ -26,7 +26,10 @@ public enum SnapDrillSchemaV1: VersionedSchema {
             SubjectModel.self,
             TagModel.self,
             SourceModel.self,
-            GradeModel.self
+            GradeModel.self,
+            // L3 动态维度系统（S1 加新、旧暂留；S6 删旧 4 Model）
+            CategoryDimensionModel.self,
+            CategoryValueModel.self
         ]
     }
 }

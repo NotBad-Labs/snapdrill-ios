@@ -21,8 +21,8 @@ public final class ReviewItemModel {
     // 索引：提升高频查询性能
     #Index<ReviewItemModel>(
         [\.createdAt],         // 题库列表默认排序
-        [\.nextReviewAt],      // 待复习查询
-        [\.subjectRawValue]    // 按学科过滤
+        [\.nextReviewAt]       // 待复习查询
+        // L3：subjectRawValue 索引删除——学科改走 categoryValues 关系，关系不能进 #Index
     )
 
     // MARK: - Properties
@@ -56,6 +56,12 @@ public final class ReviewItemModel {
     /// 标签集合 (Many-to-Many Relationship)
     @Relationship(deleteRule: .nullify, inverse: \TagModel.items)
     public var tags: [TagModel]? = []
+
+    /// 动态维度值集合（L3：跨所有维度的扁平多对多，按 value.dimension 反查归属）。
+    /// 单值维度同维度下应只关联 0..1 个值（约束由 Repository/编辑逻辑保证，非 schema）。
+    /// inverse 声明在本侧，指向 `CategoryValueModel.items`（对端裸关系，照搬 tags↔items 分工）。
+    @Relationship(deleteRule: .nullify, inverse: \CategoryValueModel.items)
+    public var categoryValues: [CategoryValueModel]? = []
     
     // MARK: - 答案与难度
     /// 答案文本（可选）
