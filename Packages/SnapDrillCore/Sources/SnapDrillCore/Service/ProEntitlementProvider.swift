@@ -15,8 +15,13 @@ public protocol ProEntitlementProvider {
     var isProUser: Bool { get }
 }
 
-/// Default Pro entitlement provider.
-@available(*, deprecated, message: "通过 @Environment(\\.services).proEntitlement 注入，避免散落默认实现（S-D4-001）")
+/// 默认 Pro 权益提供者：Composition Root（`LiveServiceContainer`）的合法默认装配，
+/// #479 StoreKit 落地前恒返回 false。
+///
+/// 约束（S-D4-001）：Feature 层**不得**直接实例化此类型，应经
+/// `@Environment(\.services).proEntitlement` 注入；该约束由架构评审保证。
+/// 不用 `@available(*, deprecated)` 标注——本类型并非「废弃待移除」，而是 #479 前的现役占位，
+/// 对其唯一合法调用点（`LiveServiceContainer` 默认装配）报弃用警告会自相矛盾。
 public struct DefaultProEntitlementProvider: ProEntitlementProvider {
 
     public init() {}
