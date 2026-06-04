@@ -13,16 +13,19 @@ import SwiftUI
 // MARK: - Environment Key
 
 private struct ProfileManagerKey: EnvironmentKey {
-    /// 默认值：仅在测试运行时（XCTest / Swift Testing）返回 inMemory ProfileManager，
-    /// 生产代码保持 nil 强制注入触发 fatal——保留 49172637 零信任 ProfileScope 隔离意图。
+    /// 默认值：一个 inMemory 占位 ProfileManager（永不写真实数据）。
     ///
-    /// 检测方式：`XCTestConfigurationFilePath` 环境变量由 Xcode test runner 注入，
-    /// 也被 Swift Testing 框架沿用。生产 App 启动时该 env 不存在。
-    nonisolated static let defaultValue: ProfileManager? = {
-        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil else {
-            return nil
-        }
-        return MainActor.assumeIsolated { ProfileManager(inMemory: true) }
+    /// 为何不再用 `nil` + getter `fatalError` 守卫缺失注入：
+    /// `profileManager` 是 computed property，`.environment(\.profileManager, x)` 经
+    /// `swift_setAtWritableKeyPath` 做 get-modify-set 注入——SET 前必先调 getter 读旧值，
+    /// 此刻继承环境仍是默认值。若默认 `nil` 且 getter `fatalError`，冷启动注入瞬间即崩
+    /// （与 AttributeGraph 求值顺序相关 → 间歇 EXC_BREAKPOINT）。
+    /// 故默认值改为 benign 占位、getter 不再 fatal；「忘记注入」由 AppRootView 的
+    /// `if let profileManager { ... }` loading gate 在更上层守卫——真实例注入后才渲染消费方，
+    /// 占位实例在生产中永不被真正读到（保留 49172637 零信任 ProfileScope 隔离意图，
+    /// 只是把守卫层从 getter 上移到 root gate）。
+    nonisolated static let defaultValue: ProfileManager = {
+        MainActor.assumeIsolated { ProfileManager(inMemory: true) }
     }()
 }
 
@@ -31,12 +34,7 @@ private struct ProfileManagerKey: EnvironmentKey {
 public extension EnvironmentValues {
     /// Profile 管理器，用于学习者切换和管理
     var profileManager: ProfileManager {
-        get {
-            guard let manager = self[ProfileManagerKey.self] else {
-                fatalError("ProfileManager missing from SwiftUI environment. Inject one after await ProfileManager.create().")
-            }
-            return manager
-        }
+        get { self[ProfileManagerKey.self] }
         set { self[ProfileManagerKey.self] = newValue }
     }
 }
