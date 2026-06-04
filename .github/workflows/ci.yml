@@ -127,3 +127,70 @@ jobs:
 
       # 失败诊断：self-hosted runner 本地 DerivedData/TestResults.xcresult 已留存
       # 直接 ssh 到 runner 查看即可，无需上传回 GitHub（曾耗尽 0.5GB Actions 存储配额）
+
+  ui-tests:
+    name: UI Tests (develop only)
+    runs-on: [self-hosted, macOS]
+    timeout-minutes: 45
+    # app 级 XCUITest（驱动真 app UI）慢且对模拟器生命周期敏感，不进每-PR 门禁；
+    # 仅在 develop 合并（push）或手动触发时跑，且 needs:build → 单测/lint 过了才跑。
+    needs: build
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Select Xcode
+        run: |
+          if [ -d "/Applications/Xcode_26.4.app" ]; then
+            sudo xcode-select -s /Applications/Xcode_26.4.app
+          fi
+          xcodebuild -version
+
+      - name: Clean Simulator
+        # 清理模拟器残留 SwiftData schema，避免 ModelContainer 初始化死锁
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone 17" | head -1 | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')
+          if [ -n "$DEVICE_ID" ]; then
+            xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
+            xcrun simctl erase "$DEVICE_ID"
+            echo "Simulator $DEVICE_ID erased"
+          fi
+
+      - name: Validate UI test plan JSON
+        run: |
+          PLAN=SnapDrill.xcodeproj/xcshareddata/xctestplans/UITests.xctestplan
+          python3 -c "import json, sys; json.load(open('$PLAN'))" && echo "UITests xctestplan JSON OK"
+
+      - name: Build for testing (UI)
+        run: |
+          xcodebuild build-for-testing \
+            -scheme SnapDrill \
+            -testPlan UITests \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -derivedDataPath "$GITHUB_WORKSPACE/DerivedDataUI" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Test without building (UI)
+        run: |
+          rm -rf UITestResults.xcresult
+          # 产物命名 = <scheme>_<testPlan>_*.xctestrun（实证：SnapDrill_UITests_*）
+          XCTESTRUN_PATH=$(find "$GITHUB_WORKSPACE/DerivedDataUI/Build/Products" -name "SnapDrill_UITests_*.xctestrun" | head -1)
+          if [ -z "$XCTESTRUN_PATH" ] || [ ! -f "$XCTESTRUN_PATH" ]; then
+            echo "::error::UI xctestrun not found under DerivedDataUI/Build/Products/SnapDrill_UITests_*.xctestrun"
+            ls -la "$GITHUB_WORKSPACE/DerivedDataUI/Build/Products" || true
+            exit 1
+          fi
+          echo "Using xctestrun: $XCTESTRUN_PATH"
+          xcodebuild test-without-building \
+            -xctestrun "$XCTESTRUN_PATH" \
+            -only-test-configuration CI \
+            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -parallel-testing-enabled NO \
+            -resultBundlePath UITestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""

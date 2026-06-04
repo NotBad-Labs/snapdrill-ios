@@ -39,8 +39,11 @@ Configs/Shared.xcconfig
 ```yaml
 # .github/workflows/ci.yml
 触发条件：PR → develop/main，push → develop/main，或手动触发（workflow_dispatch）
-Runner：单一 Build & Test job，Mac mini 自托管（self-hosted, macOS），timeout 60 分钟
-步骤：
+Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
+  - `build`（Build & Test，timeout 60min）：每次 PR/push 都跑——门禁。
+  - `ui-tests`（UI Tests，timeout 45min）：仅 develop push（合并）或手动触发，且 `needs: build`。
+
+【build job 步骤】
   1. Checkout（actions/checkout@v5）
   2. Select Xcode（优先 Xcode_26.4.app；要求 Xcode 26.4+ / Swift 6.3）
   3. Check SwiftLint（缺失则 brew install）
@@ -57,9 +60,23 @@ Runner：单一 Build & Test job，Mac mini 自托管（self-hosted, macOS），
      -only-test-configuration CI
      -parallel-testing-enabled NO
      -resultBundlePath TestResults.xcresult
+
+【ui-tests job 步骤】（app 级 XCUITest，慢且对模拟器生命周期敏感，故隔离出门禁）
+  1-2. Checkout / Select Xcode
+  3. Clean Simulator（同上）
+  4. Validate UITests.xctestplan JSON
+  5. xcodebuild build-for-testing -scheme SnapDrill -testPlan UITests
+     -derivedDataPath $GITHUB_WORKSPACE/DerivedDataUI
+  6. xcodebuild test-without-building
+     -xctestrun $(find ... SnapDrill_UITests_*.xctestrun)   # 产物名=<scheme>_<plan>_*
+     -only-test-configuration CI -parallel-testing-enabled NO
+     -resultBundlePath UITestResults.xcresult
 ```
 
-注：CI 运行 `AllTests.xctestplan` 的 CI configuration，包含 4 个 test target（SnapDrillCoreTests / SnapDrillDataTests / SnapDrillFeaturesTests / SnapDrillShareTests）。`test-without-building` 复用 `build-for-testing` 产出的 DerivedData，避免重复编译。**失败诊断**：self-hosted runner 本地已留存 DerivedData / TestResults.xcresult，直接 ssh 到 runner 查看，不上传回 GitHub（曾耗尽 0.5GB Actions 存储配额）。`SnapshotRecord` configuration 仅本地用（`SNAPSHOT_TESTING_RECORD=all` 重录 baseline），不参与 CI。
+注：
+- **门禁 build job** 跑 `AllTests.xctestplan` 的 CI configuration，含 5 个 test target（SnapDrillCoreTests / SnapDrillDataTests / SnapDrillFeaturesTests / SnapDrillShareTests + 包级 SnapDrillUITests 单元烟雾测试）。
+- **ui-tests job** 跑独立 `UITests.xctestplan`，含 app 级 `SnapDrillUITests`（驱动真 app UI 的 7 个端到端 XCUITest）。**刻意不进每-PR 门禁**——UI 测试慢（约 +5min）且对模拟器 boot/erase 生命周期敏感，单 self-hosted runner 上更易抖动；仅 develop 合并或手动 `workflow_dispatch` 时跑，`needs: build` 保证 lint/单测先过。两个 app 级 target 同名 `SnapDrillUITests`（包级 vs app 级），xctestplan 按 container+identifier 唯一区分、互不冲突。
+- `test-without-building` 复用 `build-for-testing` 产出的 DerivedData，避免重复编译。**失败诊断**：self-hosted runner 本地已留存 DerivedData / TestResults.xcresult，直接 ssh 到 runner 查看，不上传回 GitHub（曾耗尽 0.5GB Actions 存储配额）。`SnapshotRecord` configuration 仅本地用（`SNAPSHOT_TESTING_RECORD=all` 重录 baseline），不参与 CI。
 
 ### GitHub Token 配置
 
