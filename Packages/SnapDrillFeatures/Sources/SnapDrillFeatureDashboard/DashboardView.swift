@@ -108,7 +108,8 @@ public struct DashboardView: View {
 
                                     // 设置/更多
                                     BentoCard(
-                                        title: L10n.Dashboard.subjectManage,
+                                        // L3：入口已统一为全维度管理，标签与落地页标题（管理分类）保持一致
+                                        title: L10n.Library.categoryManager,
                                         subtitle: L10n.Dashboard.customize,
                                         icon: "square.grid.2x2",
                                         gradient: LinearGradient(
@@ -173,9 +174,10 @@ public struct DashboardView: View {
             get: { viewModel?.isShowingSubjectManager ?? false },
             set: { viewModel?.isShowingSubjectManager = $0 }
         )) {
-            // Sheet 场景需要 NavigationStack 宿主（SubjectManagerView 自身不再包含）
+            // Sheet 场景需要 NavigationStack 宿主（CategoryManagerView 自身不再包含）
+            // L3：学科管理已并入统一的分类维度管理（VM 属性名 isShowingSubjectManager 暂留，S6 可改名）
             NavigationStack {
-                SubjectManagerView()
+                CategoryManagerView()
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button(L10n.Common.close) {

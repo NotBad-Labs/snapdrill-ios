@@ -159,6 +159,27 @@ nonisolated extension L10n {
         public static func duplicateNameMessage(_ name: String) -> String {
             String(format: NSLocalizedString("library.duplicate_name_message", value: "「%@」已被使用，请输入其他名称。", comment: "重名提示"), name)
         }
+
+        // MARK: - 分类维度管理（L3 动态维度）
+
+        public static let categoryManager = NSLocalizedString("library.category_manager", value: "管理分类", comment: "分类维度管理页标题")
+        public static let dimensionsSection = NSLocalizedString("library.dimensions_section", value: "维度", comment: "维度列表分区标题")
+        public static let addDimension = NSLocalizedString("library.add_dimension", value: "新建维度", comment: "新建维度")
+        public static let editDimension = NSLocalizedString("library.edit_dimension", value: "编辑维度", comment: "编辑维度")
+        public static let dimensionNamePlaceholder = NSLocalizedString("library.dimension_name_placeholder", value: "例如：章节、错因", comment: "维度名输入占位")
+        public static let builtInBadge = NSLocalizedString("library.built_in_badge", value: "内置", comment: "内置维度标记")
+        public static let dimensionSettings = NSLocalizedString("library.dimension_settings", value: "维度设置", comment: "维度设置分区标题")
+        public static let multiValue = NSLocalizedString("library.multi_value", value: "允许多选", comment: "维度单值/多值开关")
+        public static let multiValueDescription = NSLocalizedString("library.multi_value_description", value: "开启后，一道题在该维度下可同时贴多个值（如标签）；关闭则只能选一个（如学科）。内置维度不可更改。", comment: "单值多值开关说明")
+        public static let showInCapture = NSLocalizedString("library.show_in_capture", value: "在录入页显示", comment: "维度可见性开关")
+        public static let showInCaptureDescription = NSLocalizedString("library.show_in_capture_description", value: "关闭后，录入和编辑题目时不显示该维度（减少干扰，随时可重新打开）。", comment: "维度可见性说明")
+        public static let valuesSection = NSLocalizedString("library.values_section", value: "值", comment: "维度值列表分区标题")
+        public static let addValue = NSLocalizedString("library.add_value", value: "添加值", comment: "添加维度值")
+        public static let editValue = NSLocalizedString("library.edit_value", value: "编辑值", comment: "编辑维度值")
+        public static let noValues = NSLocalizedString("library.no_values", value: "暂无值，点右上角 + 添加", comment: "维度值空状态")
+        public static func valueHasItems(_ name: String) -> String {
+            String(format: NSLocalizedString("library.value_has_items", value: "「%@」下仍有题目，请先移动或删除对应题目。", comment: "维度值删除受阻"), name)
+        }
     }
 
     // MARK: - Export

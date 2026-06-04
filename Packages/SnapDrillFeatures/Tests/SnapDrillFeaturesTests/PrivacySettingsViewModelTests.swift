@@ -24,13 +24,7 @@ final class PrivacySettingsViewModelTests {
     private let activityTracker: AppActivityTracker
 
     init() throws {
-        let schema = Schema([
-            ReviewItemModel.self,
-            TagModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ])
+        let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         repos = RepositoryContainer(modelContext: container.mainContext)
@@ -62,7 +56,7 @@ final class PrivacySettingsViewModelTests {
 
     @Test("JSON 导出：插入数据后导出成功，文件存在且为有效 JSON")
     func jsonExport_withData_succeeds() async throws {
-        let item = ReviewItemModel(content: "JSON 测试题目", subject: "数学", source: "作业")
+        let item = ReviewItemModel(content: "JSON 测试题目")
         repos.review.insert(item)
         try repos.review.saveContext()
 
@@ -86,7 +80,7 @@ final class PrivacySettingsViewModelTests {
 
     @Test("CSV 导出：插入数据后导出成功，文件存在且包含列头和数据行")
     func csvExport_withData_succeeds() async throws {
-        let item = ReviewItemModel(content: "CSV 测试题目", subject: "英语", source: "试卷")
+        let item = ReviewItemModel(content: "CSV 测试题目")
         repos.review.insert(item)
         try repos.review.saveContext()
 
@@ -126,7 +120,7 @@ final class PrivacySettingsViewModelTests {
 
     @Test("导出成功后触发 dataExported 埋点")
     func export_tracksAnalytics() async throws {
-        let item = ReviewItemModel(content: "埋点测试", subject: "数学")
+        let item = ReviewItemModel(content: "埋点测试")
         repos.review.insert(item)
         try repos.review.saveContext()
 
@@ -178,7 +172,7 @@ final class PrivacySettingsViewModelTests {
 
     @Test("连续调用 startExport 旧任务被取消，只有最后一次生效")
     func startExport_overridesPrevious() async throws {
-        let item = ReviewItemModel(content: "并发测试", subject: "数学")
+        let item = ReviewItemModel(content: "并发测试")
         repos.review.insert(item)
         try repos.review.saveContext()
 

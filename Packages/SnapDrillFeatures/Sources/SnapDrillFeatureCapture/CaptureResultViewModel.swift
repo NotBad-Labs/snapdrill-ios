@@ -6,6 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  采集结果预览与编辑的 ViewModel，直接通过 RepositoryContainer 保存题目内容与图片。
+//  L3：分类改为动态维度（dimensions + selectedByDimension），难度保留为有序刻度。
 //
 
 import SwiftUI
@@ -31,23 +32,19 @@ public final class CaptureResultViewModel {
     /// 题目截图（可为 `nil` 表示纯文字题）
     public var image: UIImage?
 
-    // 分类信息（自动推断：沿用上次录入的学科/来源，减少重复操作）
-    /// 当前选中的学科名称
-    public var selectedSubject: String = UserDefaults.standard.string(forKey: UDKey.lastSelectedSubject) ?? L10n.Capture.defaultSubject
-    /// 当前选中的来源名称
-    public var selectedSource: String = UserDefaults.standard.string(forKey: UDKey.lastSelectedSource) ?? L10n.Capture.defaultSource
-    /// 标签列表（字符串形式）
-    public var tagList: [String] = []
-    /// 标签输入框当前文本
-    public var tagInputText: String = ""
+    // 动态维度（L3：取代固定 selectedSubject/Source/grade/tagList + available*）
+    /// 当前所有命名维度（按 sortOrder）
+    public private(set) var dimensions: [CategoryDimensionModel] = []
+    /// 每维度的可选值（dimensionId → values）
+    public private(set) var valuesByDimension: [UUID: [CategoryValueModel]] = [:]
+    /// 每维度的选中值（dimensionId → selected valueIds；单值维度 size<=1）
+    public private(set) var selectedByDimension: [UUID: Set<UUID>] = [:]
 
     // 详情表单
     /// 答案文本
     public var answerText: String = ""
-    /// 题目难度
+    /// 题目难度（有序刻度，不在动态维度系统内）
     public var difficulty: Difficulty = .one
-    /// 年级
-    public var grade: String = ""
     /// 答案图片（可为 `nil`）
     public var answerImage: UIImage?
 
@@ -77,30 +74,8 @@ public final class CaptureResultViewModel {
     /// 字段配置引导提示（per-profile 隔离，由 ProfileTipState 管理）
     public var showFieldConfigTip = false
     private let profileTipState = ProfileTipState()
-
-    // 新建分类 Alert 状态
-    /// 是否显示新建学科 Alert
-    public var showNewSubjectAlert = false
-    /// 新建学科输入文本
-    public var newSubjectName = ""
-    /// 是否显示新建来源 Alert
-    public var showNewSourceAlert = false
-    /// 新建来源输入文本
-    public var newSourceName = ""
-    /// 是否显示新建年级 Alert
-    public var showNewGradeAlert = false
-    /// 新建年级输入文本
-    public var newGradeName = ""
-
-    // 下拉表单数据（@Model 类型）
-    /// 可选学科列表
-    public private(set) var availableSubjects: [SubjectModel] = []
-    /// 可选来源列表
-    public private(set) var availableSources: [SourceModel] = []
-    /// 可选年级列表
-    public private(set) var availableGrades: [GradeModel] = []
-    /// 可选标签列表
-    public private(set) var availableTags: [TagModel] = []
+    /// AI 标注是否正在进行
+    public var isTagging = false
 
     // MARK: - Dependencies
 
@@ -115,17 +90,12 @@ public final class CaptureResultViewModel {
     /// 活动追踪器（S-D4-001 起注入，避免静态单例污染测试）
     private let activityTracker: AppActivityTracker
 
-    /// AI 标注是否正在进行
-    public var isTagging = false
-
     /// 识别任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
-    /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
     private var recognitionTask: Task<Void, Never>?
     @ObservationIgnored
     private var taggingTask: Task<Void, Never>?
     /// 相册图片加载任务句柄（连续切换图片时取消前一个，避免竞态）
-    /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
     private var photoLoadTask: Task<Void, Never>?
     /// 保存任务句柄（页面退出时可取消，避免状态不一致）
@@ -141,14 +111,6 @@ public final class CaptureResultViewModel {
     // MARK: - Initialization
 
     /// 创建采集结果 ViewModel
-    /// - Parameters:
-    ///   - content: OCR 识别的初始文本
-    ///   - image: 拍摄图片（纯文字题为 `nil`）
-    ///   - repositories: 仓库容器（用于读取分类选项并保存题目）
-    ///   - ocrService: OCR 识别服务
-    ///   - analyticsService: 分析服务
-    ///   - imageStorage: 图片存储服务，默认使用 `ImageStorage()`
-    ///   - router: 采集流程路由器
     public init(
         content: String,
         image: UIImage?,
@@ -176,9 +138,6 @@ public final class CaptureResultViewModel {
     // MARK: - Public API
 
     /// 取消进行中的异步任务（由 View 的 onDisappear 调用）
-    ///
-    /// 不取消 `draftSaveTask`：草稿保存是 best-effort 操作，
-    /// 即使页面消失也应允许其完成，否则用户的编辑内容会丢失。
     public func cancelTasks() {
         recognitionTask?.cancel()
         recognitionTask = nil
@@ -192,86 +151,94 @@ public final class CaptureResultViewModel {
         taggingTask = nil
     }
 
-    /// 加载默认表单数据
+    /// 加载默认表单数据：拉取所有维度及其值，并触发 AI 标注
     public func loadFormData() {
         do {
-            availableSubjects = try repositories.subject.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
-            availableSources = try repositories.source.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
-            availableGrades = try repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
-            availableTags = try repositories.tag.fetchAllModels().sorted(by: { $0.name < $1.name })
+            dimensions = try repositories.dimension.fetchAllModels()
+            var values: [UUID: [CategoryValueModel]] = [:]
+            for dim in dimensions {
+                values[dim.id] = repositories.categoryValue.fetchAllModels(in: dim)
+            }
+            valuesByDimension = values
         } catch {
-            SnapDrillLogger.generic.error("加载下拉表单失败: \(error.localizedDescription)")
+            SnapDrillLogger.generic.error("加载维度表单失败: \(error.localizedDescription)")
             errorMessage = L10n.Errors.formDataLoadFailed
             showErrorAlert = true
         }
+        startAITagging()
+    }
 
-        // 异步 AI 标注：有 OCR 文本时自动建议学科和难度（best-effort）
-        if !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            taggingTask?.cancel()
-            taggingTask = Task {
-                isTagging = true
-                defer { isTagging = false }
-                guard let suggestion = await contentTaggingService.suggestTags(for: content),
-                      !Task.isCancelled else { return }
-                let defaultSubject = UserDefaults.standard.string(forKey: UDKey.lastSelectedSubject) ?? L10n.Capture.defaultSubject
-                if selectedSubject == defaultSubject,
-                   availableSubjects.contains(where: { $0.name == suggestion.subject }) {
-                    selectedSubject = suggestion.subject
-                }
-                if difficulty == .one {
-                    difficulty = Difficulty(rawValue: suggestion.difficulty) ?? .one
-                }
-                SnapDrillLogger.generic.info("AI 标注建议：学科=\(suggestion.subject)，难度=\(suggestion.difficulty)")
-            }
+    /// AI 标注：有 OCR 文本时自动建议学科维度的值 + 难度（best-effort）
+    private func startAITagging() {
+        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        taggingTask?.cancel()
+        taggingTask = Task {
+            isTagging = true
+            defer { isTagging = false }
+            guard let suggestion = await contentTaggingService.suggestTags(for: content),
+                  !Task.isCancelled else { return }
+            applySuggestion(subject: suggestion.subject, difficulty: suggestion.difficulty)
         }
     }
 
-    /// 新建分类项的公共流程:trim 输入 → 清空 → 校验非空 → 执行创建 → 统一错误处理。
-    /// `create` 闭包封装各分类(学科/来源/年级)的差异:建 Model、insertAndSave、刷新列表、选中。
-    private func createTaxonomy(
-        name: inout String,
-        label: String,
-        create: (_ trimmed: String) throws -> Void
-    ) {
-        let trimmed = name.trimmingCharacters(in: .whitespaces)
-        name = ""
-        guard !trimmed.isEmpty else { return }
+    /// 应用 AI 建议：subject 命中学科维度的同名值则选中（仅当该维度未选）；难度仅当为初始值时填
+    private func applySuggestion(subject: String, difficulty suggestedDifficulty: Int) {
+        if let subjectDim = dimensions.first(where: { $0.systemKey == CategorySystemKey.subject }),
+           (selectedByDimension[subjectDim.id] ?? []).isEmpty,
+           let value = (valuesByDimension[subjectDim.id] ?? []).first(where: { $0.name == subject }) {
+            selectedByDimension[subjectDim.id] = [value.id]
+        }
+        if difficulty == .one {
+            difficulty = Difficulty(rawValue: suggestedDifficulty) ?? .one
+        }
+    }
+
+    // MARK: - 维度选择 / 新建（供 View 经 DimensionInputRow 驱动）
+
+    /// 某维度是否在录入页可见（per-维度可见性，默认全可见；S4d 管理界面写入开关）
+    public func isDimensionVisible(_ dimension: CategoryDimensionModel) -> Bool {
+        UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool ?? true
+    }
+
+    /// 映射成 UI 纯值模型（仅可见维度），供 DimensionInputRow 渲染
+    public func visibleDimensionInputModels() -> [DimensionInputModel] {
+        dimensions.filter { isDimensionVisible($0) }.map { dim in
+            let options = (valuesByDimension[dim.id] ?? []).map { DimensionValueOption(id: $0.id, name: $0.name) }
+            return DimensionInputModel(
+                id: dim.id, title: dim.name, icon: dim.icon, isMultiValue: dim.isMultiValue, options: options
+            )
+        }
+    }
+
+    /// 某维度当前选中的值 id
+    public func selectedIds(forDimension dimensionId: UUID) -> Set<UUID> {
+        selectedByDimension[dimensionId] ?? []
+    }
+
+    /// 切换某维度的值选中：单值维度替换（再点取消），多值维度切换
+    public func toggleValue(_ valueId: UUID, inDimension dimensionId: UUID) {
+        guard let dim = dimensions.first(where: { $0.id == dimensionId }) else { return }
+        var selected = selectedByDimension[dimensionId] ?? []
+        if dim.isMultiValue {
+            if selected.contains(valueId) { selected.remove(valueId) } else { selected.insert(valueId) }
+        } else {
+            selected = selected.contains(valueId) ? [] : [valueId]
+        }
+        selectedByDimension[dimensionId] = selected
+    }
+
+    /// 在某维度现场新建值并自动选中（纯内存 fetchOrCreate + save + 刷新该维度值）
+    public func createValue(name: String, inDimension dimensionId: UUID) {
+        guard let dim = dimensions.first(where: { $0.id == dimensionId }) else { return }
         do {
-            try create(trimmed)
+            let value = repositories.categoryValue.fetchOrCreate(name: name, in: dim)
+            try repositories.categoryValue.saveContext()
+            valuesByDimension[dimensionId] = repositories.categoryValue.fetchAllModels(in: dim)
+            toggleValue(value.id, inDimension: dimensionId)
         } catch {
-            SnapDrillLogger.generic.error("新建\(label)失败: \(error.localizedDescription)")
-            self.errorMessage = L10n.Errors.createTaxonomyFailed(trimmed)
-            self.showErrorAlert = true
-        }
-    }
-
-    /// 创建新学科并选中
-    public func confirmNewSubject() {
-        createTaxonomy(name: &newSubjectName, label: "学科") { trimmed in
-            let model = SubjectModel(name: trimmed, icon: "book", colorHex: "#808080", sortOrder: availableSubjects.count)
-            try repositories.subject.insertAndSave(model)
-            availableSubjects = try repositories.subject.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
-            selectedSubject = trimmed
-        }
-    }
-
-    /// 创建新来源并选中
-    public func confirmNewSource() {
-        createTaxonomy(name: &newSourceName, label: "来源") { trimmed in
-            let model = SourceModel(name: trimmed)
-            try repositories.source.insertAndSave(model)
-            availableSources = try repositories.source.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
-            selectedSource = trimmed
-        }
-    }
-
-    /// 创建新年级并选中
-    public func confirmNewGrade() {
-        createTaxonomy(name: &newGradeName, label: "年级") { trimmed in
-            let model = GradeModel(name: trimmed)
-            try repositories.grade.insertAndSave(model)
-            availableGrades = try repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
-            grade = trimmed
+            SnapDrillLogger.generic.error("新建维度值失败: \(error.localizedDescription)")
+            errorMessage = L10n.Errors.createTaxonomyFailed(name)
+            showErrorAlert = true
         }
     }
 
@@ -279,7 +246,6 @@ public final class CaptureResultViewModel {
     public func handleImageCrop(_ croppedImage: UIImage) {
         self.image = croppedImage
         self.isCropping = false
-
         recognitionTask?.cancel()
         recognitionTask = Task {
             await reRecognizeText(from: croppedImage)
@@ -293,10 +259,10 @@ public final class CaptureResultViewModel {
 
     /// 保存预览草稿（async，文件 I/O 在后台执行；测试可直接 await）
     public func generateDraftIfNeeded() async {
-        // 有图片或有文字内容时都保存草稿，防止意外退出时内容丢失
         let hasContent = !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         if !isSaved, image != nil || hasContent {
-            await draftService.saveDraft(image: image, content: content, subject: selectedSubject)
+            let subjectName = selectedName(forSystemKey: CategorySystemKey.subject)
+            await draftService.saveDraft(image: image, content: content, subject: subjectName.isEmpty ? nil : subjectName)
         }
     }
 
@@ -308,9 +274,6 @@ public final class CaptureResultViewModel {
     }
 
     /// 触发保存并存储 Task 句柄（由 View 调用，替代裸 Task 包裹）
-    ///
-    /// 使用 `isSaving` 布尔锁而非 `Task.cancel()` 防双击：
-    /// `saveResult()` 内部无 `checkCancellation()` 检查点，cancel 无法实际阻止旧任务执行。
     public func save() {
         guard !isSaving else { return }
         isSaving = true
@@ -320,10 +283,7 @@ public final class CaptureResultViewModel {
         }
     }
 
-    /// 保存正式题目
-    ///
-    /// 保存事务（校验/标签/存图/插入/saveContext/失败回滚+清理）委托给无状态的
-    /// `CaptureSaveCoordinator`；本方法只负责活动追踪 + 成功/失败的 UI 编排。
+    /// 保存正式题目（事务委托给无状态 CaptureSaveCoordinator）
     public func saveResult() async {
         activityTracker.begin(.capturing)
         defer { activityTracker.end(.capturing) }
@@ -332,13 +292,10 @@ public final class CaptureResultViewModel {
         let form = CaptureFormSnapshot(
             content: content,
             image: image,
-            subject: selectedSubject,
-            source: selectedSource,
-            tagList: tagList,
+            selectedValues: selectedValues,
             answerText: answerText,
             answerImage: answerImage,
-            difficulty: difficulty,
-            grade: grade
+            difficulty: difficulty
         )
         do {
             try await coordinator.save(form)
@@ -350,21 +307,43 @@ public final class CaptureResultViewModel {
         }
     }
 
+    /// 关闭字段配置引导提示，然后触发导航
+    public func dismissFieldConfigTip() {
+        showFieldConfigTip = false
+        profileTipState.markFieldConfigSeen()
+        navigateAfterSave()
+    }
+
     // MARK: - Private Helpers
 
-    /// 保存成功后的善后：通知、推断持久化、埋点、引导检查
+    /// 当前所有维度的选中值实例（扁平），供保存写入 ReviewItemModel.categoryValues
+    private var selectedValues: [CategoryValueModel] {
+        var result: [CategoryValueModel] = []
+        for (dimId, valueIds) in selectedByDimension {
+            let values = valuesByDimension[dimId] ?? []
+            result.append(contentsOf: values.filter { valueIds.contains($0.id) })
+        }
+        // 丢弃已被管理页删除的值——本页缓存可能持有它处已删的 @Model，写回会复活值或造成悬挂引用
+        return result.filter { !$0.isDeleted }
+    }
+
+    /// 取某内置维度（按 systemKey）当前选中的首个值名（埋点/草稿用，无则空串）
+    private func selectedName(forSystemKey key: String) -> String {
+        guard let dim = dimensions.first(where: { $0.systemKey == key }),
+              let valueId = selectedByDimension[dim.id]?.first,
+              let value = (valuesByDimension[dim.id] ?? []).first(where: { $0.id == valueId })
+        else { return "" }
+        return value.name
+    }
+
+    /// 保存成功后的善后：通知、埋点、引导检查
     private func handleSaveSuccess() {
         isSaved = true
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
 
-        // 自动推断：持久化本次选择，下次录入时自动填充
-        UserDefaults.standard.set(selectedSubject, forKey: UDKey.lastSelectedSubject)
-        UserDefaults.standard.set(selectedSource, forKey: UDKey.lastSelectedSource)
-
-        // 埋点
         analyticsService.track(.captureSaved, parameters: [
-            "subject": selectedSubject,
-            "source": selectedSource,
+            "subject": selectedName(forSystemKey: CategorySystemKey.subject),
+            "source": selectedName(forSystemKey: CategorySystemKey.source),
             "difficulty": String(difficulty.rawValue)
         ])
         analyticsService.track(.reviewItemCreated, parameters: [
@@ -372,10 +351,8 @@ public final class CaptureResultViewModel {
             "has_content": !content.isEmpty ? "true" : "false"
         ])
 
-        // Profile 级字段配置引导：首次保存后提示，展示期间暂缓导航
         if profileTipState.showFieldConfigTip {
             showFieldConfigTip = true
-            // 导航在 dismissFieldConfigTip() 中触发
         } else {
             navigateAfterSave()
         }
@@ -384,8 +361,6 @@ public final class CaptureResultViewModel {
     /// 保存成功后的导航：短暂延迟让触觉反馈生效，再执行退栈
     private func navigateAfterSave() {
         draftService.clearDraft()
-
-        // 延迟 0.3s 让触觉反馈生效，用户可感知保存成功
         navigateTask = Task {
             try? await Task.sleep(for: .milliseconds(300)) // best-effort: 取消即导航，延迟中断不影响正确性
             guard !Task.isCancelled else { return }
@@ -408,17 +383,9 @@ public final class CaptureResultViewModel {
         }
     }
 
-    /// 关闭字段配置引导提示，然后触发导航
-    public func dismissFieldConfigTip() {
-        showFieldConfigTip = false
-        profileTipState.markFieldConfigSeen()
-        navigateAfterSave()
-    }
-
     private func reRecognizeText(from img: UIImage) async {
         isRecognizing = true
         defer { isRecognizing = false }
-
         do {
             guard let cgImage = img.cgImage else { return }
             try Task.checkCancellation()

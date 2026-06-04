@@ -1,11 +1,12 @@
 //
-//  EditSubjectView.swift
+//  EditCategoryValueView.swift
 //  SnapDrillFeatures
 //
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  学科添加/编辑视图。
+//  维度值的添加/编辑视图（L3）。取代 EditSubjectView/EditSourceView 同构表单，
+//  结构与 EditSubjectView 对等：名称 + 图标 + 颜色。
 //
 
 import SwiftUI
@@ -13,24 +14,24 @@ import SnapDrillCore
 import SnapDrillData
 import SnapDrillUI
 
-/// 统一的添加/编辑学科视图
-struct EditSubjectView: View {
+/// 统一的添加/编辑维度值视图
+struct EditCategoryValueView: View {
     @Environment(\.dismiss) private var dismiss
 
-    /// 如果为 nil，则为添加模式；否则为编辑模式
-    let subject: SubjectModel?
-    let viewModel: SubjectManagerViewModel?
+    /// nil = 添加模式；否则编辑模式
+    let value: CategoryValueModel?
+    let viewModel: CategoryValueListViewModel?
 
     @State private var name: String = ""
-    @State private var selectedIcon: String = "book"
+    @State private var selectedIcon: String = "circle"
     @State private var selectedColorHex: String = "#4FC3F7"
     @State private var customColor: Color = .blue
     @State private var useCustomColor: Bool = false
     @State private var showSymbolPicker: Bool = false
 
-    let colors = ["#E57373", "#4FC3F7", "#AED581", "#7986CB", "#F06292", "#FFB74D", "#9575CD", "#90A4AE"]
+    private let colors = ["#E57373", "#4FC3F7", "#AED581", "#7986CB", "#F06292", "#FFB74D", "#9575CD", "#90A4AE"]
 
-    private var isEditing: Bool { subject != nil }
+    private var isEditing: Bool { value != nil }
     private var canSave: Bool { !name.trimmingCharacters(in: .whitespaces).isEmpty }
 
     var body: some View {
@@ -38,6 +39,7 @@ struct EditSubjectView: View {
             Form {
                 Section(L10n.Library.name) {
                     TextField(L10n.Library.namePlaceholder, text: $name)
+                        .accessibilityIdentifier("dimValueEdit.nameField")
                 }
 
                 Section(L10n.Library.icon) {
@@ -49,12 +51,9 @@ struct EditSubjectView: View {
                                 .font(.title2)
                                 .frame(width: 32, height: 32)
                                 .foregroundStyle(useCustomColor ? customColor : Color(hex: selectedColorHex))
-
                             Text(selectedIcon)
                                 .foregroundStyle(.primary)
-
                             Spacer()
-
                             Text(L10n.Library.iconPicker)
                                 .foregroundStyle(.secondary)
                         }
@@ -90,7 +89,6 @@ struct EditSubjectView: View {
                             .onChange(of: customColor) { _, _ in
                                 useCustomColor = true
                             }
-
                         if useCustomColor {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(.green)
@@ -98,14 +96,14 @@ struct EditSubjectView: View {
                     }
                 }
             }
-            .navigationTitle(isEditing ? L10n.Library.editSubject : L10n.Library.addSubject)
+            .navigationTitle(isEditing ? L10n.Library.editValue : L10n.Library.addValue)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.Common.cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L10n.Common.save) {
-                        if saveSubject() {
+                        if saveValue() {
                             dismiss()
                         }
                     }
@@ -132,13 +130,12 @@ struct EditSubjectView: View {
                 SFSymbolPickerView(selectedSymbol: $selectedIcon)
             }
             .onAppear {
-                if let subject {
-                    name = subject.name
-                    selectedIcon = subject.icon
-                    selectedColorHex = subject.colorHex
-
-                    if !colors.contains(subject.colorHex) {
-                        customColor = Color(hex: subject.colorHex)
+                if let value {
+                    name = value.name
+                    selectedIcon = value.icon
+                    selectedColorHex = value.colorHex
+                    if !colors.contains(value.colorHex) {
+                        customColor = Color(hex: value.colorHex)
                         useCustomColor = true
                     }
                 }
@@ -147,20 +144,16 @@ struct EditSubjectView: View {
     }
 
     private var finalColorHex: String {
-        if useCustomColor {
-            return customColor.toHex() ?? "#4FC3F7"
-        } else {
-            return selectedColorHex
-        }
+        useCustomColor ? (customColor.toHex() ?? "#4FC3F7") : selectedColorHex
     }
 
     @discardableResult
-    func saveSubject() -> Bool {
-        viewModel?.saveSubject(
-            subject: subject,
+    private func saveValue() -> Bool {
+        viewModel?.saveValue(
+            value: value,
             name: name.trimmingCharacters(in: .whitespaces),
-            selectedIcon: selectedIcon,
-            finalColorHex: finalColorHex
+            icon: selectedIcon,
+            colorHex: finalColorHex
         ) ?? false
     }
 }

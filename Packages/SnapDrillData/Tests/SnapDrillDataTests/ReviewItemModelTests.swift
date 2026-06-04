@@ -21,48 +21,74 @@ struct ReviewItemModelTests {
     /// 提供统一的隔离测试上下文
     private func createTestContext() throws -> ModelContext {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: ReviewItemModel.self, TagModel.self, configurations: config)
+        let container = try ModelContainer(for: Schema(SnapDrillSchemaV1.models), configurations: config)
         return ModelContext(container)
     }
-    
+
     // MARK: - Core Field Mapping & Default Values
-    
+
     @Test("验证模型默认构造满足所有业务隐式要求")
     func initializationDefaults() {
         let model = ReviewItemModel(content: "Empty Test")
-        
+
         #expect(model.id.uuidString != "00000000-0000-0000-0000-000000000000")
         #expect(model.content == "Empty Test")
-        #expect(model.subjectRawValue == "其他")
-        #expect(model.sourceRawValue == "其他")
         #expect(model.easeFactor == 2.5, "SM-2 初始 ease factor 必须是 2.5")
         #expect(model.interval == 0)
         #expect(model.difficulty == 1, "新题默认难度为 1 星（Difficulty.one.rawValue）")
-        #expect(model.tags?.isEmpty == true)
+        #expect(model.categoryValues?.isEmpty == true)
     }
     
-    @Test("验证 toExportSnapshot 正确映射导出所需的六个字段")
-    func exportSnapshotMappingCompleteness() {
+    @Test("验证 toExportSnapshot 正确映射导出字段（分类经动态维度值）")
+    func exportSnapshotMappingCompleteness() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Schema(SnapDrillSchemaV1.models), configurations: config)
+        let context = ModelContext(container)
+
+        let dimension = CategoryDimensionModel(
+            name: "学科", isBuiltIn: true, systemKey: CategorySystemKey.subject, icon: "book"
+        )
+        context.insert(dimension)
+        let value = CategoryValueModel(name: "数学", dimension: dimension)
+        context.insert(value)
+
         let expectedID = UUID()
         let now = Date()
-
         let model = ReviewItemModel(
             id: expectedID,
             content: "Math Formula",
             imagePath: "test/image.jpg",
-            createdAt: now,
-            subject: "数学",
-            source: "试卷"
+            createdAt: now
         )
+        context.insert(model)
+        model.categoryValues = [value]
+        try context.save()
 
         let snapshot = model.toExportSnapshot()
 
         #expect(snapshot.id == expectedID)
         #expect(snapshot.content == "Math Formula")
         #expect(snapshot.imagePath == "test/image.jpg")
+        // subject = 学科维度首值（PDF 页眉用）；CSV 动态列经 dimensionValues
         #expect(snapshot.subject == "数学")
-        #expect(snapshot.source == "试卷")
+        #expect(snapshot.dimensionValues["学科"] == ["数学"])
         #expect(snapshot.createdAt == now)
+    }
+
+    @Test("toExportSnapshot：无学科值题目 exportSubject 归一 nil（PDF 页眉 compactMap 兜底契约）")
+    func exportSnapshotEmptySubjectNormalizesToNil() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Schema(SnapDrillSchemaV1.models), configurations: config)
+        let context = ModelContext(container)
+        let model = ReviewItemModel(content: "无学科题")
+        context.insert(model)
+        try context.save()
+
+        let snapshot = model.toExportSnapshot()
+        #expect(snapshot.subject == "")
+        // 空串须归一 nil，否则污染 PDFExportService.resolveSubject 的 subjects 集合
+        #expect(snapshot.exportSubject == nil)
+        #expect(snapshot.dimensionValues.isEmpty)
     }
     
     // MARK: - Persistence Lifecycle & Constraint Checks

@@ -5,7 +5,8 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  LibraryEditViewModel 核心路径单元测试：init 状态映射、save 持久化、图片操作。
+//  LibraryEditViewModel 核心路径单元测试：init 状态映射、save 持久化、图片操作、动态维度。
+//  L3：分类断言改为动态维度（dimensions/selectedByDimension），难度保留有序刻度。
 //
 
 import Testing
@@ -27,13 +28,8 @@ final class LibraryEditViewModelTests {
     private let repos: RepositoryContainer
 
     init() throws {
-        let schema = Schema([
-            ReviewItemModel.self,
-            TagModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ])
+        // L3：用 SnapDrillSchemaV1.models（含 CategoryDimension/Value），否则 categoryValues 关系无法解析
+        let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         repos = RepositoryContainer(modelContext: container.mainContext)
@@ -51,21 +47,13 @@ final class LibraryEditViewModelTests {
         content: String? = "原始题目",
         imagePath: String? = nil,
         answerText: String? = "原始答案",
-        subject: String = "数学",
-        source: String = "试卷",
-        difficulty: Int = 1,
-        grade: String = "三年级"
+        difficulty: Int = 1
     ) throws -> TestContext {
-        try seedDefaultTaxonomy(repos: repos)
-
         let item = ReviewItemModel(
             content: content,
             imagePath: imagePath,
-            subject: subject,
-            source: source,
             answerText: answerText,
-            difficulty: difficulty,
-            grade: grade
+            difficulty: difficulty
         )
         repos.review.insert(item)
 
@@ -79,23 +67,17 @@ final class LibraryEditViewModelTests {
 
     // MARK: - init 状态映射
 
-    @Test("init 从 ReviewItemModel 正确映射所有字段")
+    @Test("init 从 ReviewItemModel 正确映射文本与难度字段")
     func init_mapsAllFields() throws {
         let ctx = try createVM(
             content: "测试内容",
             answerText: "测试答案",
-            subject: "英语",
-            source: "课本",
-            difficulty: 3,
-            grade: "五年级"
+            difficulty: 3
         )
 
         #expect(ctx.vm.content == "测试内容")
         #expect(ctx.vm.answer == "测试答案")
-        #expect(ctx.vm.selectedSubject == "英语")
-        #expect(ctx.vm.selectedSource == "课本")
         #expect(ctx.vm.difficulty == .three)
-        #expect(ctx.vm.grade == "五年级")
     }
 
     @Test("init content 为 nil 时映射为空字符串")
@@ -106,17 +88,36 @@ final class LibraryEditViewModelTests {
         #expect(ctx.vm.answer == "")
     }
 
-    // MARK: - loadData
+    // MARK: - loadData（动态维度）
 
-    @Test("loadData 加载分类元数据")
-    func loadData_loadsTaxonomy() async throws {
+    @Test("loadData 加载内置维度")
+    func loadData_loadsDimensions() async throws {
+        repos.dimension.seedDefaultsIfNeeded()
         let ctx = try createVM()
 
         await ctx.vm.loadData()
 
-        #expect(ctx.vm.subjects.count >= 1)
-        #expect(ctx.vm.sources.count >= 1)
-        #expect(ctx.vm.grades.count >= 1)
+        // seed 出 4 个内置维度（subject/source/grade/tag）
+        #expect(ctx.vm.dimensions.count >= 4)
+    }
+
+    @Test("loadData 从 item.categoryValues 初始化维度选中态")
+    func loadData_initializesSelectedFromCategoryValues() async throws {
+        repos.dimension.seedDefaultsIfNeeded()
+        let dims = try repos.dimension.fetchAllModels()
+        let subjectDim = try #require(dims.first { $0.systemKey == "subject" })
+        let value = repos.categoryValue.fetchOrCreate(name: "数学", in: subjectDim)
+        try repos.categoryValue.saveContext()
+
+        let item = ReviewItemModel(content: "题目")
+        item.categoryValues = [value]
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let vm = LibraryEditViewModel(item: item, repositories: repos, ocrService: MockOCRServiceShared())
+        await vm.loadData()
+
+        #expect(vm.selectedIds(forDimension: subjectDim.id).contains(value.id))
     }
 
     // MARK: - 图片操作
@@ -148,8 +149,7 @@ final class LibraryEditViewModelTests {
     func handleNewImage_triggersOCR() async throws {
         let mockOCR = MockOCRServiceShared()
         mockOCR.recognizeTextResult = "OCR 新文本"
-        try seedDefaultTaxonomy(repos: repos)
-        let item = ReviewItemModel(content: "旧文本", subject: "数学")
+        let item = ReviewItemModel(content: "旧文本")
         repos.review.insert(item)
 
         let vm = LibraryEditViewModel(item: item, repositories: repos, ocrService: mockOCR)
@@ -165,13 +165,12 @@ final class LibraryEditViewModelTests {
 
     // MARK: - save
 
-    @Test("save 更新 @Model 属性")
+    @Test("save 更新 @Model 文本与难度属性")
     func save_updatesModelProperties() async throws {
         let ctx = try createVM()
 
         ctx.vm.content = "修改后的内容"
         ctx.vm.answer = "修改后的答案"
-        ctx.vm.selectedSubject = "英语"
         ctx.vm.difficulty = .four
 
         await ctx.vm.save()
@@ -179,19 +178,23 @@ final class LibraryEditViewModelTests {
         #expect(ctx.vm.isSavedNormally == true)
         #expect(ctx.item.content == "修改后的内容")
         #expect(ctx.item.answerText == "修改后的答案")
-        #expect(ctx.item.subject == "英语")
         #expect(ctx.item.difficulty == 4)
     }
 
-    @Test("save 同步标签到 @Model")
-    func save_syncsTags() async throws {
+    @Test("save 同步选中的维度值到 @Model")
+    func save_syncsDimensionValues() async throws {
+        repos.dimension.seedDefaultsIfNeeded()
         let ctx = try createVM()
-        ctx.vm.tagList = ["易错", "考前必看"]
+        await ctx.vm.loadData()
+        // tag 维度为多值，现场新建两个值（createValue 自动选中）
+        let tagDim = try #require(ctx.vm.dimensions.first { $0.systemKey == "tag" })
+        ctx.vm.createValue(name: "易错", inDimension: tagDim.id)
+        ctx.vm.createValue(name: "考前必看", inDimension: tagDim.id)
 
         await ctx.vm.save()
 
-        let tagNames = (ctx.item.tags ?? []).map(\.name).sorted()
-        #expect(tagNames == ["易错", "考前必看"])
+        let names = (ctx.item.categoryValues ?? []).map(\.name).sorted()
+        #expect(names == ["易错", "考前必看"])
     }
 
     @Test("save 空内容且无图片时不保存")

@@ -5,14 +5,12 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  RepositoryContainer 的 collectProfileBackupData / restoreFromProfileData round-trip 测试。
+//  RepositoryContainer 的 collectProfileBackupData / restoreFromProfileData round-trip 测试（L3 动态维度）。
 //
 
 import Testing
 import SwiftData
-
 import Foundation
-
 import SnapDrillCore
 @testable import SnapDrillData
 
@@ -31,26 +29,27 @@ final class RepositoryContainerBackupTests {
         repos = RepositoryContainer(modelContext: container.mainContext)
     }
 
+    /// 建一个学科维度 + 一个值（已 save），返回值供挂题
+    private func seedSubjectValue(dimensionName: String, valueName: String) throws -> CategoryValueModel {
+        let dimension = CategoryDimensionModel(
+            name: dimensionName, isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+        )
+        try repos.dimension.insertAndSave(dimension)
+        let value = CategoryValueModel(name: valueName, sortOrder: 0, dimension: dimension)
+        try repos.categoryValue.insertAndSave(value)
+        return value
+    }
+
     // MARK: - collectProfileBackupData
 
-    @Test("collectProfileBackupData 正确收集全量数据")
+    @Test("collectProfileBackupData 正确收集全量数据（动态维度）")
     func collectPayloadBasic() throws {
-        let subject = SubjectModel.mock(name: "数学")
-        repos.subject.insert(subject)
-        let source = SourceModel.mock(name: "期中卷")
-        repos.source.insert(source)
-        let grade = GradeModel.mock(name: "初三")
-        repos.grade.insert(grade)
+        let value = try seedSubjectValue(dimensionName: "学科", valueName: "数学")
 
-        let tag = try repos.tag.fetchOrCreateModel(name: "易错", colorHex: "#FF0000")
-
-        let item = ReviewItemModel.mock(content: "测试题", subject: "数学", source: "期中卷")
-        item.grade = "初三"
-        item.tags = [tag]
-        item.answerText = "答案文本"
-        item.difficulty = 4
+        let item = ReviewItemModel(content: "测试题", answerText: "答案文本", difficulty: 4)
+        item.categoryValues = [value]
         repos.review.insert(item)
-
         try repos.review.saveContext()
 
         let profileData = try repos.collectProfileBackupData(
@@ -60,18 +59,12 @@ final class RepositoryContainerBackupTests {
 
         #expect(profileData.reviewItems.count == 1)
         #expect(profileData.reviewItems[0].content == "测试题")
-        #expect(profileData.reviewItems[0].subject == "数学")
-        #expect(profileData.reviewItems[0].source == "期中卷")
-        #expect(profileData.reviewItems[0].grade == "初三")
-        #expect(profileData.reviewItems[0].tagNames == ["易错"])
+        #expect(profileData.reviewItems[0].categoryValueIds == [value.id])
         #expect(profileData.reviewItems[0].answerText == "答案文本")
         #expect(profileData.reviewItems[0].difficulty == 4)
 
-        #expect(profileData.subjects.count >= 1)
-        #expect(profileData.subjects.contains(where: { $0.name == "数学" }))
-        #expect(profileData.sources.contains(where: { $0.name == "期中卷" }))
-        #expect(profileData.grades.contains(where: { $0.name == "初三" }))
-        #expect(profileData.tags.contains(where: { $0.name == "易错" }))
+        #expect(profileData.dimensions.contains(where: { $0.name == "学科" }))
+        #expect(profileData.categoryValues.contains(where: { $0.name == "数学" }))
     }
 
     @Test("空数据库 collectProfileBackupData 返回空数据")
@@ -82,31 +75,20 @@ final class RepositoryContainerBackupTests {
         )
 
         #expect(profileData.reviewItems.isEmpty)
-        #expect(profileData.subjects.isEmpty)
-        #expect(profileData.sources.isEmpty)
-        #expect(profileData.grades.isEmpty)
-        #expect(profileData.tags.isEmpty)
+        #expect(profileData.dimensions.isEmpty)
+        #expect(profileData.categoryValues.isEmpty)
     }
 
     // MARK: - restoreFromProfileData
 
-    @Test("restoreFromProfileData 全量恢复 round-trip")
+    @Test("restoreFromProfileData 全量恢复 round-trip（动态维度）")
     func restorePayloadRoundTrip() async throws {
-        // 建立完整的分类数据，确保 backup 包含 SubjectModel/SourceModel
-        let subjectModel = SubjectModel.mock(name: "英语", icon: "globe", colorHex: "#0000FF")
-        repos.subject.insert(subjectModel)
-        let sourceModel = SourceModel.mock(name: "听力", icon: "headphones", colorHex: "#00FF00")
-        repos.source.insert(sourceModel)
+        let value = try seedSubjectValue(dimensionName: "英语", valueName: "听力")
 
-        let tag = try repos.tag.fetchOrCreateModel(name: "考前必看", colorHex: "#00FF00")
-        let item = ReviewItemModel.mock(content: "原始题目", subject: "英语", source: "听力")
-        item.tags = [tag]
-        item.answerText = "A"
-        item.grade = "高二"
-        item.difficulty = 2
-        item.easeFactor = 2.8
-        item.interval = 5
-        item.repetitions = 3
+        let item = ReviewItemModel(
+            content: "原始题目", answerText: "A", difficulty: 2, easeFactor: 2.8, interval: 5, repetitions: 3
+        )
+        item.categoryValues = [value]
         repos.review.insert(item)
         try repos.review.saveContext()
 
@@ -116,10 +98,8 @@ final class RepositoryContainerBackupTests {
         )
 
         try repos.review.deleteAll()
-        try repos.subject.deleteAll()
-        try repos.source.deleteAll()
-        try repos.grade.deleteAll()
-        try repos.tag.deleteAll()
+        try repos.categoryValue.deleteAll()
+        try repos.dimension.deleteAll()
         try repos.review.saveContext()
         #expect(try repos.review.totalCount() == 0)
 
@@ -129,27 +109,27 @@ final class RepositoryContainerBackupTests {
         #expect(restoredItems.count == 1)
         let restored = restoredItems[0]
         #expect(restored.content == "原始题目")
-        #expect(restored.subject == "英语")
-        #expect(restored.source == "听力")
-        #expect(restored.grade == "高二")
         #expect(restored.answerText == "A")
         #expect(restored.difficulty == 2)
         #expect(restored.easeFactor == 2.8)
         #expect(restored.interval == 5)
         #expect(restored.repetitions == 3)
-        #expect(restored.tags?.first?.name == "考前必看")
+        #expect(restored.categoryValues?.first?.name == "听力")
+        #expect(restored.categoryValues?.first?.dimension?.name == "英语")
 
-        let subjects = try repos.subject.fetchAllModels()
-        #expect(subjects.contains(where: { $0.name == "英语" }))
+        let dims = try repos.dimension.fetchAllModels()
+        #expect(dims.contains(where: { $0.name == "英语" }))
     }
 
     @Test("restoreFromProfileData 替换已有数据")
     func restoreReplacesExistingData() async throws {
-        let oldItem = ReviewItemModel.mock(content: "旧题目", subject: "数学")
+        let oldItem = ReviewItemModel(content: "旧题目")
         repos.review.insert(oldItem)
         try repos.review.saveContext()
         #expect(try repos.review.totalCount() == 1)
 
+        let dimID = UUID()
+        let valueID = UUID()
         let newProfileData = ProfileBackupData(
             profileName: "新",
             profileId: UUID(),
@@ -157,22 +137,28 @@ final class RepositoryContainerBackupTests {
                 ReviewItemBackupDTO(
                     id: UUID(), content: "新题目 A", imagePath: nil,
                     createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
-                    subject: "物理", source: "其他", tagNames: [], answerText: nil,
-                    answerImagePath: nil, difficulty: 1, grade: "", easeFactor: 2.5,
-                    interval: 0, repetitions: 0
+                    answerText: nil, answerImagePath: nil, difficulty: 1,
+                    easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: []
                 ),
                 ReviewItemBackupDTO(
                     id: UUID(), content: "新题目 B", imagePath: nil,
                     createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
-                    subject: "化学", source: "其他", tagNames: ["重点"], answerText: nil,
-                    answerImagePath: nil, difficulty: 3, grade: "高一", easeFactor: 2.5,
-                    interval: 0, repetitions: 0
+                    answerText: nil, answerImagePath: nil, difficulty: 3,
+                    easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: [valueID]
                 )
             ],
-            subjects: [SubjectBackupDTO(id: UUID(), name: "物理", icon: "bolt", colorHex: "#FF0000", sortOrder: 0)],
-            sources: [],
-            grades: [GradeBackupDTO(id: UUID(), name: "高一", sortOrder: 0)],
-            tags: [TagBackupDTO(id: UUID(), name: "重点", colorHex: "#00FF00")]
+            dimensions: [
+                CategoryDimensionBackupDTO(
+                    id: dimID, name: "物理", isMultiValue: false, isBuiltIn: false,
+                    systemKey: nil, sortOrder: 0, icon: "bolt"
+                )
+            ],
+            categoryValues: [
+                CategoryValueBackupDTO(
+                    id: valueID, name: "力学", icon: "circle", colorHex: "#FF0000",
+                    sortOrder: 0, createdAt: Date(), dimensionId: dimID
+                )
+            ]
         )
 
         try await repos.restoreFromProfileData(newProfileData)
@@ -184,27 +170,33 @@ final class RepositoryContainerBackupTests {
         #expect(!items.contains(where: { $0.content == "旧题目" }))
     }
 
-    @Test("restoreFromProfileData 标签关联正确恢复")
-    func restoreTagAssociations() async throws {
+    @Test("restoreFromProfileData 维度值关联正确恢复")
+    func restoreCategoryValueAssociations() async throws {
+        let dimID = UUID()
+        let v1 = UUID()
+        let v2 = UUID()
+        let v3 = UUID()
         let profileData = ProfileBackupData(
             profileName: "测试",
             profileId: UUID(),
             reviewItems: [
                 ReviewItemBackupDTO(
-                    id: UUID(), content: "多标签题目", imagePath: nil,
+                    id: UUID(), content: "多值题目", imagePath: nil,
                     createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
-                    subject: "数学", source: "其他", tagNames: ["易错", "高频", "考前"],
-                    answerText: nil, answerImagePath: nil, difficulty: 1, grade: "",
-                    easeFactor: 2.5, interval: 0, repetitions: 0
+                    answerText: nil, answerImagePath: nil, difficulty: 1,
+                    easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: [v1, v2, v3]
                 )
             ],
-            subjects: [],
-            sources: [],
-            grades: [],
-            tags: [
-                TagBackupDTO(id: UUID(), name: "易错", colorHex: "#FF0000"),
-                TagBackupDTO(id: UUID(), name: "高频", colorHex: "#00FF00"),
-                TagBackupDTO(id: UUID(), name: "考前", colorHex: "#0000FF")
+            dimensions: [
+                CategoryDimensionBackupDTO(
+                    id: dimID, name: "标签", isMultiValue: true, isBuiltIn: true,
+                    systemKey: CategorySystemKey.tag, sortOrder: 0, icon: "tag"
+                )
+            ],
+            categoryValues: [
+                CategoryValueBackupDTO(id: v1, name: "易错", icon: "circle", colorHex: "#FF0000", sortOrder: 0, createdAt: Date(), dimensionId: dimID),
+                CategoryValueBackupDTO(id: v2, name: "高频", icon: "circle", colorHex: "#00FF00", sortOrder: 1, createdAt: Date(), dimensionId: dimID),
+                CategoryValueBackupDTO(id: v3, name: "考前", icon: "circle", colorHex: "#0000FF", sortOrder: 2, createdAt: Date(), dimensionId: dimID)
             ]
         )
 
@@ -212,7 +204,49 @@ final class RepositoryContainerBackupTests {
 
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 1)
-        let tagNames = items[0].tags?.map(\.name).sorted() ?? []
-        #expect(tagNames == ["考前", "易错", "高频"].sorted())
+        let names = (items[0].categoryValues ?? []).map(\.name).sorted()
+        #expect(names == ["易错", "高频", "考前"].sorted())
+    }
+
+    @Test("restoreFromProfileData 逐字段 round-trip：维度 flag + 值样式存活（非默认值重建）")
+    func restorePreservesAllFields() async throws {
+        // 多值维度 + 全非默认字段——区分「正确恢复」与「init 默认值重建」
+        let tagDim = CategoryDimensionModel(
+            name: "标签", isMultiValue: true, isBuiltIn: true,
+            systemKey: CategorySystemKey.tag, sortOrder: 3, icon: "tag.fill"
+        )
+        try repos.dimension.insertAndSave(tagDim)
+        let value = CategoryValueModel(
+            name: "易错", icon: "star.fill", colorHex: "#123456", sortOrder: 7,
+            createdAt: Date(timeIntervalSinceReferenceDate: 700_000_000), dimension: tagDim
+        )
+        try repos.categoryValue.insertAndSave(value)
+        let item = ReviewItemModel(content: "题")
+        item.categoryValues = [value]
+        repos.review.insert(item)
+        try repos.review.saveContext()
+
+        let profileData = try repos.collectProfileBackupData(profileName: "默认", profileId: Self.testProfileId)
+        try repos.review.deleteAll()
+        try repos.categoryValue.deleteAll()
+        try repos.dimension.deleteAll()
+        try repos.review.saveContext()
+
+        try await repos.restoreFromProfileData(profileData)
+
+        let dims = try repos.dimension.fetchAllModels()
+        let restoredDim = try #require(dims.first { $0.systemKey == CategorySystemKey.tag })
+        #expect(restoredDim.name == "标签")
+        #expect(restoredDim.isMultiValue == true)
+        #expect(restoredDim.isBuiltIn == true)
+        #expect(restoredDim.sortOrder == 3)
+        #expect(restoredDim.icon == "tag.fill")
+
+        let values = repos.categoryValue.fetchAllModels(in: restoredDim)
+        let restoredValue = try #require(values.first { $0.name == "易错" })
+        #expect(restoredValue.icon == "star.fill")
+        #expect(restoredValue.colorHex == "#123456")
+        #expect(restoredValue.sortOrder == 7)
+        #expect(restoredValue.createdAt == Date(timeIntervalSinceReferenceDate: 700_000_000))
     }
 }

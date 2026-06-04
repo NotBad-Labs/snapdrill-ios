@@ -24,39 +24,41 @@ struct LibraryFilterSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                // Section: Subjects (动态从 SwiftData 获取)
-                Section(L10n.Library.filterSubjects) {
-                    if viewModel.subjects.isEmpty {
-                        Text(L10n.Library.noItems).foregroundStyle(.secondary)
-                    } else {
-                        ForEach(viewModel.subjects) { subject in
-                            Button {
-                                if viewModel.selectedSubjects.contains(subject.name) {
-                                    viewModel.selectedSubjects.remove(subject.name)
-                                } else {
-                                    viewModel.selectedSubjects.insert(subject.name)
-                                }
-                            } label: {
-                                HStack {
-                                    Image(systemName: subject.icon)
-                                        .foregroundStyle(Color(hex: subject.colorHex))
-                                        .frame(width: 20)
-                                    Text(subject.name)
-                                        .foregroundStyle(.primary)
-                                    Spacer()
-                                    if viewModel.selectedSubjects.contains(subject.name) {
-                                        Image(systemName: "checkmark")
-                                            .foregroundStyle(.blue)
+                // 动态维度（学科/来源/年级/标签 + 用户自定义），每维度一段；维度间 AND、维度内 OR
+                ForEach(viewModel.dimensions) { dimension in
+                    Section(dimension.name) {
+                        let values = viewModel.valuesByDimension[dimension.id] ?? []
+                        if values.isEmpty {
+                            Text(L10n.Library.noItems).foregroundStyle(.secondary)
+                        } else {
+                            ForEach(values) { value in
+                                Button {
+                                    viewModel.toggleFilter(value.id, inDimension: dimension.id)
+                                } label: {
+                                    HStack {
+                                        Image(systemName: value.icon)
+                                            .foregroundStyle(Color(hex: value.colorHex))
+                                            .frame(width: 20)
+                                        Text(value.name)
+                                            .foregroundStyle(.primary)
+                                        Spacer()
+                                        if viewModel.isFilterSelected(value.id, inDimension: dimension.id) {
+                                            Image(systemName: "checkmark")
+                                                .foregroundStyle(.blue)
+                                        }
                                     }
+                                    .contentShape(Rectangle())
                                 }
-                                .contentShape(Rectangle())
+                                .buttonStyle(.plain)
+                                .accessibilityIdentifier("filter.value.\(value.name)")
+                                .accessibilityAddTraits(
+                                    viewModel.isFilterSelected(value.id, inDimension: dimension.id) ? .isSelected : []
+                                )
                             }
-                            .buttonStyle(.plain)
-                            .accessibilityAddTraits(viewModel.selectedSubjects.contains(subject.name) ? .isSelected : [])
                         }
                     }
                 }
-                
+
                 // Section: Difficulty
                 Section(L10n.Library.filterDifficulty) {
                     ForEach(Difficulty.allCases) { difficulty in
@@ -87,36 +89,6 @@ struct LibraryFilterSheet: View {
                             maxStars: Difficulty.allCases.count
                         ))
                         .accessibilityAddTraits(viewModel.selectedDifficulties.contains(difficulty.rawValue) ? .isSelected : [])
-                    }
-                }
-
-                // Section: Tags
-                Section(L10n.Library.filterTags) {
-                    if viewModel.allTags.isEmpty {
-                        Text(L10n.Library.noItems).foregroundStyle(.secondary)
-                    } else {
-                        ForEach(viewModel.allTags) { tag in
-                            Button {
-                                if viewModel.selectedTags.contains(tag.name) {
-                                    viewModel.selectedTags.remove(tag.name)
-                                } else {
-                                    viewModel.selectedTags.insert(tag.name)
-                                }
-                            } label: {
-                                HStack {
-                                    Text(tag.name)
-                                        .foregroundStyle(.primary)
-                                    Spacer()
-                                    if viewModel.selectedTags.contains(tag.name) {
-                                        Image(systemName: "checkmark")
-                                            .foregroundStyle(.blue)
-                                    }
-                                }
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityAddTraits(viewModel.selectedTags.contains(tag.name) ? .isSelected : [])
-                        }
                     }
                 }
             }

@@ -37,11 +37,8 @@ final class ReviewRepositoryTests {
             id: id,
             content: content,
             imagePath: nil,
-            subject: "数学",
-            source: "试卷",
             answerText: "测试答案",
-            difficulty: 3,
-            grade: "高一"
+            difficulty: 3
         )
     }
 
@@ -103,49 +100,9 @@ final class ReviewRepositoryTests {
         #expect(dueCount == 3)
     }
 
-    // MARK: - 年级统计与级联更新
-
-    @Test("countByGrade 统计与 updateGradeUsage 级联更新")
-    func gradeCountAndCascadeUpdate() throws {
-        let item1 = makeDummyModel()
-        item1.grade = "高一"
-        try repo.insertAndSave(item1)
-
-        let item2 = makeDummyModel()
-        item2.grade = "高一"
-        try repo.insertAndSave(item2)
-
-        let item3 = makeDummyModel()
-        item3.grade = "高二"
-        try repo.insertAndSave(item3)
-
-        #expect(try repo.countByGrade(name: "高一") == 2)
-        #expect(try repo.countByGrade(name: "高二") == 1)
-
-        // 级联重命名
-        try repo.updateGradeUsage(from: "高一", to: "高三")
-        #expect(try repo.countByGrade(name: "高一") == 0)
-        #expect(try repo.countByGrade(name: "高三") == 2)
-    }
-
-    // MARK: - 学科统计与级联更新
-
-    @Test("countBySubject 统计与 updateSubjectUsage 级联更新")
-    func subjectCountAndCascadeUpdate() throws {
-        let item1 = makeDummyModel()
-        item1.subjectRawValue = "数学"
-        try repo.insertAndSave(item1)
-
-        let item2 = makeDummyModel()
-        item2.subjectRawValue = "物理"
-        try repo.insertAndSave(item2)
-
-        #expect(try repo.countBySubject(name: "数学") == 1)
-
-        try repo.updateSubjectUsage(from: "数学", to: "高数")
-        #expect(try repo.countBySubject(name: "数学") == 0)
-        #expect(try repo.countBySubject(name: "高数") == 1)
-    }
+    // L3：原 countByGrade/countBySubject + updateXxxUsage 级联更新测试已删——
+    // 这些方法随裸字符串字段移除；动态维度下分类统计走 CategoryValueModel.items?.count、
+    // 重命名走单次 value.name 赋值（关系自动跟随），相关守护在 S7 维度值测试覆盖。
 
     // MARK: - 并发防线测试
 

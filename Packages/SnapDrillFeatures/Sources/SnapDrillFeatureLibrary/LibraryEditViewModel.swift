@@ -6,15 +6,15 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  题目编辑 ViewModel，直接操作 ReviewItemModel 进行持久化。
+//  L3：分类改为动态维度（dimensions + selectedByDimension），难度保留为有序刻度。
 //
 
 import SwiftUI
 import SnapDrillData
 import SnapDrillCore
+import SnapDrillUI
 
 /// 题目编辑 ViewModel
-///
-/// 管理现有题目的编辑状态，包括图片替换（含 OCR 重新识别）、分类信息更新和持久化保存。
 @Observable
 public final class LibraryEditViewModel {
 
@@ -24,16 +24,16 @@ public final class LibraryEditViewModel {
     public var content: String
     /// 答案文本
     public var answer: String
-    /// 当前选中的学科名称
-    public var selectedSubject: String
-    /// 当前选中的来源名称
-    public var selectedSource: String
-    /// 当前选中的年级名称
-    public var grade: String
-    /// 标签列表（字符串形式）
-    public var tagList: [String]
-    /// 题目难度
+    /// 题目难度（有序刻度，不在动态维度系统内）
     public var difficulty: Difficulty
+
+    // 动态维度（L3：取代 selectedSubject/Source/grade/tagList + subjects/sources/grades/allTags）
+    /// 当前所有命名维度（按 sortOrder）
+    public private(set) var dimensions: [CategoryDimensionModel] = []
+    /// 每维度的可选值（dimensionId → values）
+    public private(set) var valuesByDimension: [UUID: [CategoryValueModel]] = [:]
+    /// 每维度的选中值（dimensionId → selected valueIds；编辑时从 item.categoryValues 初始化）
+    public private(set) var selectedByDimension: [UUID: Set<UUID>] = [:]
 
     /// 当前显示的题目图片（新选择或原始图片）
     public var displayedImage: UIImage?
@@ -60,15 +60,6 @@ public final class LibraryEditViewModel {
     /// 待裁剪的图片（显示裁剪界面时有值）
     public var imageToCrop: UIImage?
 
-    /// 可选学科列表
-    public var subjects: [SubjectModel] = []
-    /// 可选来源列表
-    public var sources: [SourceModel] = []
-    /// 可选年级列表
-    public var grades: [GradeModel] = []
-    /// 可选标签列表
-    public var allTags: [TagModel] = []
-
     // MARK: - Dependencies
 
     private let item: ReviewItemModel
@@ -78,17 +69,10 @@ public final class LibraryEditViewModel {
     private let activityTracker: AppActivityTracker
 
     /// OCR 任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
-    /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
     private var ocrTask: Task<Void, Never>?
 
     /// 创建题目编辑 ViewModel
-    /// - Parameters:
-    ///   - item: 要编辑的题目模型
-    ///   - repositories: 应用的数据仓库容器
-    ///   - imageStorage: 图片存储服务，默认使用 `ImageStorage()`
-    ///   - ocrService: OCR 识别服务，默认使用 `OCRService()`
-    ///   - activityTracker: 活动追踪器（默认参数缝注入，避免静态单例污染测试）
     public init(
         item: ReviewItemModel,
         repositories: RepositoryContainer,
@@ -104,42 +88,100 @@ public final class LibraryEditViewModel {
 
         self.content = item.content ?? ""
         self.answer = item.answerText ?? ""
-        self.selectedSubject = item.subject
-        self.selectedSource = item.source
-        self.grade = item.grade
-        self.tagList = (item.tags ?? []).map { $0.name }
         self.difficulty = item.difficultyValue
+        // 维度选中态在 loadData() 加载 dimensions 后从 item.categoryValues 初始化
     }
 
     // MARK: - Public API
 
-    /// 加载图片和分类元数据（学科/来源/年级/标签）
+    /// 加载图片和维度元数据
     public func loadData() async {
-        // 异步加载图片，避免同步 I/O 阻塞主线程（编辑页打开卡顿）
+        await loadImagesIfNeeded()
+        loadDimensions()
+    }
+
+    /// 异步加载题目/答案图片（避免同步 I/O 阻塞主线程）
+    private func loadImagesIfNeeded() async {
         if displayedImage == nil, let path = item.imagePath {
-            let loaded = await imageStorage.loadImageAsync(path: path)
-            if let loaded {
+            if let loaded = await imageStorage.loadImageAsync(path: path) {
                 displayedImage = loaded
             } else {
                 imageLoadFailed = true
             }
         }
         if answerDisplayedImage == nil, let path = item.answerImagePath {
-            let loaded = await imageStorage.loadImageAsync(path: path)
-            if let loaded {
+            if let loaded = await imageStorage.loadImageAsync(path: path) {
                 answerDisplayedImage = loaded
             } else {
                 answerImageLoadFailed = true
             }
         }
+    }
 
+    /// 加载维度 + 值，并从 item.categoryValues 初始化选中态（按维度分组）
+    private func loadDimensions() {
         do {
-            self.subjects = try repositories.subject.fetchAllModels()
-            self.sources = try repositories.source.fetchAllModels()
-            self.grades = try repositories.grade.fetchAllModels().sorted(by: { $0.sortOrder < $1.sortOrder })
-            self.allTags = try repositories.tag.fetchAllModels()
+            dimensions = try repositories.dimension.fetchAllModels()
+            let itemValues = item.categoryValues ?? []
+            var values: [UUID: [CategoryValueModel]] = [:]
+            var selected: [UUID: Set<UUID>] = [:]
+            for dim in dimensions {
+                values[dim.id] = repositories.categoryValue.fetchAllModels(in: dim)
+                selected[dim.id] = Set(itemValues.filter { $0.dimension?.id == dim.id }.map { $0.id })
+            }
+            valuesByDimension = values
+            selectedByDimension = selected
         } catch {
-            SnapDrillLogger.generic.error("加载元数据失败: \(error.localizedDescription)")
+            SnapDrillLogger.generic.error("加载维度失败: \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - 维度选择 / 新建（供 View 经 DimensionInputRow 驱动）
+
+    /// 某维度是否在编辑页可见（与录入页共用 per-维度可见性，默认全可见）
+    public func isDimensionVisible(_ dimension: CategoryDimensionModel) -> Bool {
+        UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool ?? true
+    }
+
+    /// 映射成 UI 纯值模型（仅可见维度），供 DimensionInputRow 渲染
+    public func visibleDimensionInputModels() -> [DimensionInputModel] {
+        dimensions.filter { isDimensionVisible($0) }.map { dim in
+            let options = (valuesByDimension[dim.id] ?? []).map { DimensionValueOption(id: $0.id, name: $0.name) }
+            return DimensionInputModel(
+                id: dim.id, title: dim.name, icon: dim.icon, isMultiValue: dim.isMultiValue, options: options
+            )
+        }
+    }
+
+    /// 某维度当前选中的值 id
+    public func selectedIds(forDimension dimensionId: UUID) -> Set<UUID> {
+        selectedByDimension[dimensionId] ?? []
+    }
+
+    /// 切换某维度的值选中：单值替换（再点取消），多值切换
+    public func toggleValue(_ valueId: UUID, inDimension dimensionId: UUID) {
+        guard let dim = dimensions.first(where: { $0.id == dimensionId }) else { return }
+        var selected = selectedByDimension[dimensionId] ?? []
+        if dim.isMultiValue {
+            if selected.contains(valueId) { selected.remove(valueId) } else { selected.insert(valueId) }
+        } else {
+            selected = selected.contains(valueId) ? [] : [valueId]
+        }
+        selectedByDimension[dimensionId] = selected
+    }
+
+    /// 在某维度现场新建值并自动选中
+    public func createValue(name: String, inDimension dimensionId: UUID) {
+        guard let dim = dimensions.first(where: { $0.id == dimensionId }) else { return }
+        do {
+            let value = repositories.categoryValue.fetchOrCreate(name: name, in: dim)
+            try repositories.categoryValue.saveContext()
+            valuesByDimension[dimensionId] = repositories.categoryValue.fetchAllModels(in: dim)
+            toggleValue(value.id, inDimension: dimensionId)
+        } catch {
+            SnapDrillLogger.generic.error("新建维度值失败: \(error.localizedDescription)")
+            errorMessage = L10n.Errors.createTaxonomyFailed(name)
+            showErrorAlert = true
         }
     }
 
@@ -189,18 +231,13 @@ public final class LibraryEditViewModel {
     }
 
     /// 将当前编辑内容持久化到数据库
-    ///
-    /// 先异步写入图片文件，IO 完成后统一修改 `@Model` 属性再调用 `saveContext()`。
-    /// 失败时自动 `rollbackContext()` 并清理孤儿图片文件。
     public func save() async {
-        // 双击防护
         guard !isSaving else { return }
         activityTracker.begin(.capturing)
         defer { activityTracker.end(.capturing) }
         isSaving = true
         defer { isSaving = false }
 
-        // 业务规则验证先行
         let willHaveContent = !content.isEmpty
         let willHaveImage = displayedImage != nil
         guard willHaveContent || willHaveImage else {
@@ -208,27 +245,22 @@ public final class LibraryEditViewModel {
             return
         }
 
-        // 记录旧图片路径，save 成功后删除（替换图片时清理旧文件）
         let oldImagePath = item.imagePath
         let oldAnswerImagePath = item.answerImagePath
 
-        // 1. 先执行耗时异步 IO（@Model 属性尚未修改，不存在跨挂起点脏状态）
         let newImagePath: String?
         let newAnswerImagePath: String?
         do {
             (newImagePath, newAnswerImagePath) = try await persistImages()
         } catch {
-            // IO 失败时 @Model 未被修改，无需 rollback，但须通知用户
             SnapDrillLogger.generic.error("保存图片失败，中断保存: \(error.localizedDescription)")
             errorMessage = L10n.Errors.saveFailed
             showErrorAlert = true
             return
         }
 
-        // 2. IO 完成后集中修改 @Model 属性（纯内存同步操作，无 await）
         applyChangesToModel(newImagePath: newImagePath, newAnswerImagePath: newAnswerImagePath)
 
-        // 3. 立即保存
         do {
             try repositories.review.saveContext()
             isSavedNormally = true
@@ -238,8 +270,6 @@ public final class LibraryEditViewModel {
                 oldAnswerPath: oldAnswerImagePath, newAnswerPath: newAnswerImagePath
             )
         } catch {
-            // 回滚 mainContext：撤销本次所有内存变更（@Model 属性修改、Tag 插入）
-            // 单用户本地架构下 rollback 影响范围仅限本次 save() 调用
             repositories.review.rollbackContext()
             if let path = newImagePath { bestEffortDeleteImage(path: path) }
             if let path = newAnswerImagePath { bestEffortDeleteImage(path: path) }
@@ -251,28 +281,25 @@ public final class LibraryEditViewModel {
 
     // MARK: - Private Helpers
 
+    /// 当前所有维度的选中值实例（扁平），写入 ReviewItemModel.categoryValues
+    private var selectedValues: [CategoryValueModel] {
+        var result: [CategoryValueModel] = []
+        for (dimId, valueIds) in selectedByDimension {
+            let values = valuesByDimension[dimId] ?? []
+            result.append(contentsOf: values.filter { valueIds.contains($0.id) })
+        }
+        // 丢弃已被管理页删除的值——本页缓存可能持有它处已删的 @Model，写回会复活值或造成悬挂引用
+        return result.filter { !$0.isDeleted }
+    }
+
     /// 将编辑状态同步到 @Model 属性（纯内存操作，无 await）
     private func applyChangesToModel(newImagePath: String?, newAnswerImagePath: String?) {
         item.content = content.isEmpty ? nil : content
         item.answerText = answer.isEmpty ? nil : answer
-        item.subject = selectedSubject
-        item.source = selectedSource
-        item.grade = grade
         item.difficultyValue = difficulty
+        // L3：分类经动态维度值；旧 subject/source/grade/tags 字段暂留不写（S6 删）
+        item.categoryValues = selectedValues
 
-        // 同步标签（fetchOrCreateModel 是纯内存操作）
-        var finalTagModels: [TagModel] = []
-        for name in tagList {
-            do {
-                let tagModel = try repositories.tag.fetchOrCreateModel(name: name, colorHex: "#9E9E9E")
-                finalTagModels.append(tagModel)
-            } catch {
-                SnapDrillLogger.generic.error("同步标签失败: \(error.localizedDescription)")
-            }
-        }
-        item.tags = finalTagModels
-
-        // 设置图片路径
         if let path = newImagePath { item.imagePath = path }
         if let path = newAnswerImagePath {
             item.answerImagePath = path
@@ -282,11 +309,8 @@ public final class LibraryEditViewModel {
     }
 
     /// 持久化题目图片和答案图片，返回新写入的路径。
-    /// 不修改 @Model 属性（由 save() 在 IO 完成后统一赋值）。
-    /// 答案图片保存失败时自动清理已写入的题目图片，防止孤儿文件。
     private func persistImages() async throws -> (imagePath: String?, answerPath: String?) {
         var imagePath: String?
-
         if let newImage = displayedImage {
             do {
                 imagePath = try await imageStorage.saveImage(newImage)
@@ -301,7 +325,6 @@ public final class LibraryEditViewModel {
             do {
                 answerPath = try await imageStorage.saveImage(answerImg)
             } catch {
-                // 清理已写入的题目图片（孤儿文件）
                 if let path = imagePath { bestEffortDeleteImage(path: path) }
                 SnapDrillLogger.generic.error("保存答案图片失败: \(error.localizedDescription)")
                 throw error
@@ -312,7 +335,6 @@ public final class LibraryEditViewModel {
     }
 
     /// save 成功后删除被替换的旧图片文件（best-effort）
-    /// 注：主图片不允许清空（UI 只提供替换功能），无需处理主图片被清空的情况
     private func deleteReplacedImages(
         oldImagePath: String?,
         newImagePath: String?,
@@ -320,13 +342,12 @@ public final class LibraryEditViewModel {
         newAnswerPath: String?
     ) {
         if newImagePath != nil, let old = oldImagePath { bestEffortDeleteImage(path: old) }
-        // 答案图片：被替换或被主动移除时均删除旧文件
         if newAnswerPath != nil || isAnswerImageCleared, let old = oldAnswerPath {
             bestEffortDeleteImage(path: old)
         }
     }
 
-    /// 删除图片文件，失败时记录日志（best-effort，不向上抛出；async 避免阻塞主线程）
+    /// 删除图片文件，失败时记录日志（best-effort，async 避免阻塞主线程）
     private func bestEffortDeleteImage(path: String) {
         Task {
             do {

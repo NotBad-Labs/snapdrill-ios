@@ -52,6 +52,7 @@ nonisolated extension L10n {
         public static let manageSubjects = NSLocalizedString("settings.manage_subjects", value: "管理学科", comment: "管理学科")
         public static let manageSources = NSLocalizedString("settings.manage_sources", value: "管理来源", comment: "管理来源")
         public static let manageGrades = NSLocalizedString("settings.manage_grades", value: "管理年级", comment: "管理年级")
+        public static let manageCategories = NSLocalizedString("settings.manage_categories", value: "管理分类维度", comment: "管理分类维度（L3 动态维度统一入口）")
         public static let clearAllData = NSLocalizedString("settings.clear_all_data", value: "清空所有数据", comment: "清空所有数据")
         public static let clearConfirmTitle = NSLocalizedString("settings.clear_confirm_title", value: "确认清空所有数据？", comment: "清空确认标题")
         public static let clearConfirmMessage = NSLocalizedString("settings.clear_confirm_message", value: "此操作将删除所有题目、分类和标签，且不可恢复。", comment: "清空确认信息")

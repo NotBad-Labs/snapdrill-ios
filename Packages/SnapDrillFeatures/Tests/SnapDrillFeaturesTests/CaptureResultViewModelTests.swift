@@ -30,13 +30,8 @@ final class CaptureResultViewModelTests {
     private let repos: RepositoryContainer
 
     init() throws {
-        let schema = Schema([
-            ReviewItemModel.self,
-            TagModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ])
+        // L3：用 SnapDrillSchemaV1.models（含 CategoryDimension/Value），否则 categoryValues 关系无法解析
+        let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         repos = RepositoryContainer(modelContext: container.mainContext)
@@ -80,74 +75,6 @@ final class CaptureResultViewModelTests {
         #expect(ctx.vm.isSaved == false)
     }
 
-    // MARK: - loadFormData
-
-    @Test("loadFormData 加载分类选项")
-    func loadFormData_loadsTaxonomy() throws {
-        let ctx = createVM()
-        try seedDefaultTaxonomy(repos: ctx.repos)
-
-        ctx.vm.loadFormData()
-
-        #expect(ctx.vm.availableSubjects.count == 1)
-        #expect(ctx.vm.availableSources.count == 1)
-        #expect(ctx.vm.availableGrades.count == 1)
-    }
-
-    // MARK: - confirmNewSubject / Source / Grade
-
-    @Test("confirmNewSubject 创建学科并选中")
-    func confirmNewSubject_createsAndSelects() throws {
-        let ctx = createVM()
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-
-        ctx.vm.newSubjectName = "物理"
-        ctx.vm.confirmNewSubject()
-
-        #expect(ctx.vm.selectedSubject == "物理")
-        #expect(ctx.vm.availableSubjects.contains(where: { $0.name == "物理" }))
-    }
-
-    @Test("confirmNewSubject 空名称不创建")
-    func confirmNewSubject_emptyName_noOp() throws {
-        let ctx = createVM()
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-        let originalCount = ctx.vm.availableSubjects.count
-
-        ctx.vm.newSubjectName = "   "
-        ctx.vm.confirmNewSubject()
-
-        #expect(ctx.vm.availableSubjects.count == originalCount)
-    }
-
-    @Test("confirmNewSource 创建来源并选中")
-    func confirmNewSource_createsAndSelects() throws {
-        let ctx = createVM()
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-
-        ctx.vm.newSourceName = "课本"
-        ctx.vm.confirmNewSource()
-
-        #expect(ctx.vm.selectedSource == "课本")
-        #expect(ctx.vm.availableSources.contains(where: { $0.name == "课本" }))
-    }
-
-    @Test("confirmNewGrade 创建年级并选中")
-    func confirmNewGrade_createsAndSelects() throws {
-        let ctx = createVM()
-        try seedDefaultTaxonomy(repos: ctx.repos)
-        ctx.vm.loadFormData()
-
-        ctx.vm.newGradeName = "四年级"
-        ctx.vm.confirmNewGrade()
-
-        #expect(ctx.vm.grade == "四年级")
-        #expect(ctx.vm.availableGrades.contains(where: { $0.name == "四年级" }))
-    }
-
     // MARK: - saveResult 验证
 
     @Test("saveResult 文字和图片都为空时报错")
@@ -185,48 +112,6 @@ final class CaptureResultViewModelTests {
         #expect(items.count == 1)
         #expect(items.first?.content == nil)
         #expect(items.first?.imagePath != nil)
-    }
-
-    @Test("saveResult 保存分类信息")
-    func saveResult_savesMetadata() async throws {
-        let ctx = createVM(content: "有元数据的题目")
-        ctx.vm.selectedSubject = "英语"
-        ctx.vm.selectedSource = "课本"
-        ctx.vm.difficulty = .three
-        ctx.vm.grade = "三年级"
-
-        await ctx.vm.saveResult()
-
-        let item = try ctx.repos.review.fetchAllModels().first
-        #expect(item?.subject == "英语")
-        #expect(item?.source == "课本")
-        #expect(item?.difficulty == 3)
-        #expect(item?.grade == "三年级")
-    }
-
-    @Test("saveResult 保存标签")
-    func saveResult_savesTags() async throws {
-        let ctx = createVM(content: "有标签的题目")
-        ctx.vm.tagList = ["易错", "重点"]
-
-        await ctx.vm.saveResult()
-
-        let item = try ctx.repos.review.fetchAllModels().first
-        let tagNames = (item?.tags ?? []).map(\.name).sorted()
-        #expect(tagNames == ["易错", "重点"])
-    }
-
-    @Test("saveResult 触发埋点和 UserDefaults 偏好持久化")
-    func saveResult_tracksAnalyticsAndPreferences() async throws {
-        let ctx = createVM(content: "埋点测试")
-        ctx.vm.selectedSubject = "物理"
-        ctx.vm.selectedSource = "作业"
-
-        await ctx.vm.saveResult()
-
-        #expect(ctx.analytics.hasTrackedEvent(.captureSaved))
-        #expect(UserDefaults.standard.string(forKey: UDKey.lastSelectedSubject) == "物理")
-        #expect(UserDefaults.standard.string(forKey: UDKey.lastSelectedSource) == "作业")
     }
 
     // MARK: - generateDraftIfNeeded
@@ -337,6 +222,101 @@ final class CaptureResultViewModelTests {
     func cancelTasks_noCrash() throws {
         let ctx = createVM()
         ctx.vm.cancelTasks()
+    }
+
+    // MARK: - 维度值选择（单值替换 / 多值切换）
+
+    /// 一个维度 + 两个值的脚手架（避免 large_tuple）
+    private struct SeededDimension {
+        let dim: CategoryDimensionModel
+        let a: CategoryValueModel
+        let b: CategoryValueModel
+    }
+
+    /// 在 repos 种一个维度 + 两个值
+    private func seedDimension(
+        name: String,
+        systemKey: String,
+        isMultiValue: Bool,
+        valueA: String,
+        valueB: String
+    ) throws -> SeededDimension {
+        let dim = CategoryDimensionModel(
+            name: name, isMultiValue: isMultiValue, isBuiltIn: true, systemKey: systemKey, sortOrder: 0
+        )
+        try repos.dimension.insertAndSave(dim)
+        let a = CategoryValueModel(name: valueA, sortOrder: 0, dimension: dim)
+        let b = CategoryValueModel(name: valueB, sortOrder: 1, dimension: dim)
+        try repos.categoryValue.insertAndSave(a)
+        try repos.categoryValue.insertAndSave(b)
+        return SeededDimension(dim: dim, a: a, b: b)
+    }
+
+    @Test("单值维度 toggleValue：选第二个替换第一个，再点取消")
+    func toggleValue_singleValue_replaces() throws {
+        let seeded = try seedDimension(
+            name: "学科", systemKey: CategorySystemKey.subject,
+            isMultiValue: false, valueA: "数学", valueB: "英语"
+        )
+        let ctx = createVM(content: "")   // 空内容跳过 AI 标注，避免预选干扰
+        ctx.vm.loadFormData()
+
+        ctx.vm.toggleValue(seeded.a.id, inDimension: seeded.dim.id)
+        #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id) == [seeded.a.id])
+
+        ctx.vm.toggleValue(seeded.b.id, inDimension: seeded.dim.id)
+        #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id) == [seeded.b.id])  // 替换
+
+        ctx.vm.toggleValue(seeded.b.id, inDimension: seeded.dim.id)
+        #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id).isEmpty)           // 再点取消
+    }
+
+    @Test("多值维度 toggleValue：可叠加，再点移除")
+    func toggleValue_multiValue_toggles() throws {
+        let seeded = try seedDimension(
+            name: "标签", systemKey: CategorySystemKey.tag,
+            isMultiValue: true, valueA: "易错", valueB: "重点"
+        )
+        let ctx = createVM(content: "")
+        ctx.vm.loadFormData()
+
+        ctx.vm.toggleValue(seeded.a.id, inDimension: seeded.dim.id)
+        ctx.vm.toggleValue(seeded.b.id, inDimension: seeded.dim.id)
+        #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id) == [seeded.a.id, seeded.b.id])  // 叠加
+
+        ctx.vm.toggleValue(seeded.a.id, inDimension: seeded.dim.id)
+        #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id) == [seeded.b.id])               // 移除 a
+    }
+
+    // MARK: - AI 标注回填（动态学科维度，S6-cut 后从写裸字段改为命中维度值选中）
+
+    @Test("AI 标注：建议 subject 命中学科维度值则选中，难度初始时回填")
+    func aiTagging_backfillsSubjectAndDifficulty() async throws {
+        let subjectDim = CategoryDimensionModel(
+            name: "学科", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.subject, sortOrder: 0
+        )
+        try repos.dimension.insertAndSave(subjectDim)
+        let math = CategoryValueModel(name: "数学", sortOrder: 0, dimension: subjectDim)
+        try repos.categoryValue.insertAndSave(math)
+
+        let tagging = ContentTaggingServiceMock()
+        tagging.suggestResult = ContentTagSuggestion(subject: "数学", difficulty: 3)
+        let vm = CaptureResultViewModel(
+            content: "一道关于函数的数学题",   // 非空，触发 AI 标注
+            image: nil,
+            repositories: repos,
+            ocrService: MockOCRServiceShared(),
+            analyticsService: AnalyticsServiceMock(),
+            contentTaggingService: tagging,
+            router: CaptureRouter()
+        )
+
+        vm.loadFormData()   // 触发异步 AI 标注 Task
+        try await waitUntil { vm.selectedIds(forDimension: subjectDim.id).contains(math.id) }
+
+        #expect(vm.selectedIds(forDimension: subjectDim.id) == [math.id])
+        #expect(vm.difficulty.rawValue == 3)   // 难度初始 .one → 回填建议值
     }
 
     // MARK: - 字段配置引导

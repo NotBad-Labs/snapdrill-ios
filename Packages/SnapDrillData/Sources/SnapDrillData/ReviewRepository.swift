@@ -85,68 +85,8 @@ public final class ReviewRepository {
         }
     }
     
-    /// 返回指定学科的题目数量
-    /// - Parameter name: 学科名称
-    /// - Throws: SwiftData fetch 错误
-    public func countBySubject(name: String) throws -> Int {
-        let targetName = name
-        let predicate = #Predicate<ReviewItemModel> { $0.subjectRawValue == targetName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor)
-    }
-    
-    /// 将所有题目的 subjectRawValue 从旧名改为新名（纯内存操作，调用方负责 saveContext）
-    public func updateSubjectUsage(from oldName: String, to newName: String) throws {
-        let targetOldName = oldName
-        let predicate = #Predicate<ReviewItemModel> { $0.subjectRawValue == targetOldName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        let itemsToUpdate = try modelContext.fetch(descriptor)
-        for item in itemsToUpdate {
-            item.subjectRawValue = newName
-        }
-    }
-    
-    /// 返回指定来源的题目数量
-    /// - Parameter name: 来源名称
-    /// - Throws: SwiftData fetch 错误
-    public func countBySource(name: String) throws -> Int {
-        let targetName = name
-        let predicate = #Predicate<ReviewItemModel> { $0.sourceRawValue == targetName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor)
-    }
-    
-    /// 将所有题目的 sourceRawValue 从旧名改为新名（纯内存操作，调用方负责 saveContext）
-    public func updateSourceUsage(from oldName: String, to newName: String) throws {
-        let targetOldName = oldName
-        let predicate = #Predicate<ReviewItemModel> { $0.sourceRawValue == targetOldName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        let itemsToUpdate = try modelContext.fetch(descriptor)
-        for item in itemsToUpdate {
-            item.sourceRawValue = newName
-        }
-    }
-    
-    /// 返回指定年级的题目数量
-    /// - Parameter name: 年级名称
-    /// - Throws: SwiftData fetch 错误
-    public func countByGrade(name: String) throws -> Int {
-        let targetName = name
-        let predicate = #Predicate<ReviewItemModel> { $0.grade == targetName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor)
-    }
-
-    /// 将所有题目的 grade 从旧名改为新名（纯内存操作，调用方负责 saveContext）
-    public func updateGradeUsage(from oldName: String, to newName: String) throws {
-        let targetOldName = oldName
-        let predicate = #Predicate<ReviewItemModel> { $0.grade == targetOldName }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        let itemsToUpdate = try modelContext.fetch(descriptor)
-        for item in itemsToUpdate {
-            item.grade = newName
-        }
-    }
+    // L3：countBySubject/Source/Grade + updateXxxUsage 已删（旧裸字符串字段去除）。
+    // 维度值的引用计数走 CategoryValueModel.items?.count；重命名直接改 value.name（关系自动跟随）。
 
     /// 收集所有题目的图片路径，供调用方在 saveContext 成功后清理磁盘文件
     public func collectAllImagePaths() throws -> [String] {
@@ -221,15 +161,14 @@ public final class ReviewRepository {
     /// - Returns: 按紧迫度排序的题目列表
     public func fetchSmartSelection(
         limit: Int,
-        subjects: Set<String> = [],
+        subjectValueIds: Set<UUID> = [],
         difficulties: Set<Int> = []
     ) throws -> [ReviewItemModel] {
-        let subjectsArray = Array(subjects)
         let difficultiesArray = Array(difficulties)
 
+        // difficulty 走 DB #Predicate；学科是维度值（many-to-many）只能内存过滤，保持 SM-2 紧迫度排序后再截断
         let predicate = #Predicate<ReviewItemModel> { item in
-            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue)) &&
-            (difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty))
+            difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty)
         }
 
         var descriptor = FetchDescriptor<ReviewItemModel>(
@@ -239,8 +178,17 @@ public final class ReviewRepository {
                 SortDescriptor(\.repetitions, order: .forward)
             ]
         )
-        descriptor.fetchLimit = limit
-        return try modelContext.fetch(descriptor)
+
+        if subjectValueIds.isEmpty {
+            descriptor.fetchLimit = limit
+            return try modelContext.fetch(descriptor)
+        }
+
+        let all = try modelContext.fetch(descriptor)
+        let filtered = all.filter { item in
+            !Set((item.categoryValues ?? []).map { $0.id }).isDisjoint(with: subjectValueIds)
+        }
+        return Array(filtered.prefix(limit))
     }
 
     // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）
@@ -287,48 +235,57 @@ public final class ReviewRepository {
     ///   使用数据库 fetchLimit + 内存 tag 过滤会导致分页数量不可控，用户"找不到"已有题目。
     public func fetchFilteredModels(
         searchText: String,
-        subjects: Set<String>,
-        tags: Set<String>,
+        valueIdsByDimension: [UUID: Set<UUID>],
         difficulties: Set<Int> = [],
         sortDescriptors: [SortDescriptor<ReviewItemModel>] = [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
+        sortBySubjectName: Bool = false,
         limit: Int,
         offset: Int
     ) throws -> [ReviewItemModel] {
         let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
-        let subjectsArray = Array(subjects)
         let difficultiesArray = Array(difficulties)
 
-        // #Predicate 内禁止 force unwrap（! 在 SQLite 转译语义未定义）；
-        // 用可选链 ?.localizedStandardContains == true 替代，行为等价且安全。
+        // search + difficulty 走 DB 级 #Predicate；维度值（many-to-many）只能内存过滤（#Predicate 不支持关系）。
+        // #Predicate 内禁止 force unwrap，用 ?.localizedStandardContains == true 替代。
         let predicate = #Predicate<ReviewItemModel> { item in
             (normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true) &&
-            (subjectsArray.isEmpty || subjectsArray.contains(item.subjectRawValue)) &&
             (difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty))
         }
 
-        if tags.isEmpty {
-            // 无 tag 过滤：直接使用数据库分页
-            var descriptor = FetchDescriptor<ReviewItemModel>(
-                predicate: predicate,
-                sortBy: sortDescriptors
-            )
+        // 维度值过滤或 subject 维度值名排序都需要内存处理；否则用 DB 级分页（高效路径）。
+        let needsMemoryProcessing = !valueIdsByDimension.isEmpty || sortBySubjectName
+        if !needsMemoryProcessing {
+            var descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
             descriptor.fetchLimit = limit
             descriptor.fetchOffset = offset
             return try modelContext.fetch(descriptor)
-        } else {
-            // 有 tag 过滤：全量拉取 search+subject 匹配项，内存过滤 tag，再切片分页
-            let descriptor = FetchDescriptor<ReviewItemModel>(
-                predicate: predicate,
-                sortBy: sortDescriptors
-            )
-            let allMatching = try modelContext.fetch(descriptor)
-            let tagFiltered = allMatching.filter { model in
-                let itemTagNames = Set((model.tags ?? []).map { $0.name })
-                return !itemTagNames.isDisjoint(with: tags)
-            }
-            guard offset < tagFiltered.count else { return [] }
-            return Array(tagFiltered[offset..<min(offset + limit, tagFiltered.count)])
         }
+
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
+        var matching = try modelContext.fetch(descriptor)
+
+        // 维度间 AND、维度内 OR：每个被选中的维度，题目至少命中其一个选中值
+        if !valueIdsByDimension.isEmpty {
+            matching = matching.filter { item in
+                let itemValueIds = Set((item.categoryValues ?? []).map { $0.id })
+                return valueIdsByDimension.values.allSatisfy { wanted in
+                    !itemValueIds.isDisjoint(with: wanted)
+                }
+            }
+        }
+
+        // subject 维度值名排序（关系无法走 SortDescriptor），稳定 tiebreaker = createdAt 倒序
+        if sortBySubjectName {
+            matching.sort { lhs, rhs in
+                let lName = lhs.subjectCategoryName ?? ""
+                let rName = rhs.subjectCategoryName ?? ""
+                if lName != rName { return lName < rName }
+                return lhs.createdAt > rhs.createdAt
+            }
+        }
+
+        guard offset < matching.count else { return [] }
+        return Array(matching[offset..<min(offset + limit, matching.count)])
     }
 
     /// 纯内存操作：将 ReviewItemModel 插入 context 但不 save。

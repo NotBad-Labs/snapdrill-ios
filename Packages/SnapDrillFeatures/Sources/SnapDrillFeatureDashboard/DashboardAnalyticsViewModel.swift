@@ -121,14 +121,20 @@ final class DashboardAnalyticsViewModel {
 
     // MARK: - Private Aggregation
 
+    /// 题目的学科分组名：学科维度（systemKey=subject）的首个值名，无则「未分类」
+    private func subjectValueName(of item: ReviewItemModel) -> String {
+        item.subjectCategoryName ?? L10n.Dashboard.uncategorized
+    }
+
     /// 按天 × 学科聚合，只取 Top 3 学科，无数据天补零
     private func aggregateSubjectTrend(_ items: [ReviewItemModel]) -> [SubjectTrendPoint] {
         var grouped: [Date: [String: Int]] = [:]
         var subjectTotals: [String: Int] = [:]
         for item in items {
             let day = Calendar.current.startOfDay(for: item.createdAt)
-            grouped[day, default: [:]][item.subjectRawValue, default: 0] += 1
-            subjectTotals[item.subjectRawValue, default: 0] += 1
+            let subject = subjectValueName(of: item)
+            grouped[day, default: [:]][subject, default: 0] += 1
+            subjectTotals[subject, default: 0] += 1
         }
 
         let topSubjects = Array(
@@ -164,12 +170,13 @@ final class DashboardAnalyticsViewModel {
     private func aggregateWeakSubjects(_ items: [ReviewItemModel], now: Date) -> [WeakSubjectItem] {
         var subjectStats: [String: (total: Int, due: Int)] = [:]
         for item in items {
-            var stat = subjectStats[item.subjectRawValue] ?? (total: 0, due: 0)
+            let subject = subjectValueName(of: item)
+            var stat = subjectStats[subject] ?? (total: 0, due: 0)
             stat.total += 1
             if item.nextReviewAt <= now {
                 stat.due += 1
             }
-            subjectStats[item.subjectRawValue] = stat
+            subjectStats[subject] = stat
         }
 
         return subjectStats

@@ -25,14 +25,14 @@ struct BatchTagSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                if viewModel.allTags.isEmpty {
+                if viewModel.tagValues.isEmpty {
                     Section {
                         Text(L10n.Library.noItems)
                             .foregroundStyle(.secondary)
                     }
                 } else {
                     Section {
-                        ForEach(viewModel.allTags) { tag in
+                        ForEach(viewModel.tagValues) { tag in
                             Button {
                                 if selectedTagNames.contains(tag.name) {
                                     selectedTagNames.remove(tag.name)

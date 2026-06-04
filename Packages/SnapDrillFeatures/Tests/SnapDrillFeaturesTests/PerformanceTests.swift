@@ -21,7 +21,7 @@ final class PerformanceTests {
     private let context: ModelContext
 
     init() throws {
-        let schema = Schema([ReviewItemModel.self, SubjectModel.self, SourceModel.self, GradeModel.self, TagModel.self])
+        let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         context = ModelContext(container)
@@ -34,7 +34,6 @@ final class PerformanceTests {
         for i in 0..<200 {
             let item = ReviewItemModel(
                 content: "测试题目内容 \(i)，包含一些用于搜索的文字",
-                subject: ["数学", "英语", "语文"][i % 3],
                 difficulty: (i % 5) + 1
             )
             context.insert(item)
@@ -45,14 +44,14 @@ final class PerformanceTests {
 
         // 预热
         _ = try repo.fetchFilteredModels(
-            searchText: "", subjects: [], tags: [],
+            searchText: "", valueIdsByDimension: [:],
             sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
 
         let start = CFAbsoluteTimeGetCurrent()
         _ = try repo.fetchFilteredModels(
-            searchText: "", subjects: [], tags: [],
+            searchText: "", valueIdsByDimension: [:],
             sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
@@ -67,8 +66,7 @@ final class PerformanceTests {
     func searchResponse200Items() throws {
         for i in 0..<200 {
             let item = ReviewItemModel(
-                content: "这是第 \(i) 道关于抛物线和二次函数的数学题目",
-                subject: "数学"
+                content: "这是第 \(i) 道关于抛物线和二次函数的数学题目"
             )
             context.insert(item)
         }
@@ -78,14 +76,14 @@ final class PerformanceTests {
 
         // 预热
         _ = try repo.fetchFilteredModels(
-            searchText: "抛物线", subjects: [], tags: [],
+            searchText: "抛物线", valueIdsByDimension: [:],
             sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
 
         let start = CFAbsoluteTimeGetCurrent()
         _ = try repo.fetchFilteredModels(
-            searchText: "抛物线", subjects: [], tags: [],
+            searchText: "抛物线", valueIdsByDimension: [:],
             sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
@@ -102,7 +100,6 @@ final class PerformanceTests {
         for i in 0..<50 {
             let item = ReviewItemModel(
                 content: "PDF 导出测试题目 \(i)，包含较长的文字内容用于测试渲染性能。",
-                subject: "数学",
                 difficulty: (i % 5) + 1
             )
             snapshots.append(item.toExportSnapshot())

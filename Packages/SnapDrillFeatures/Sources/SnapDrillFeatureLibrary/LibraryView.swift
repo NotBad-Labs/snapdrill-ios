@@ -154,6 +154,7 @@ public struct LibraryView: View {
                                 } label: {
                                     Image(systemName: "arrow.up.arrow.down")
                                 }
+                                .accessibilityIdentifier("library.sortMenu")
                             }
 
                             // 筛选
@@ -162,6 +163,7 @@ public struct LibraryView: View {
                             } label: {
                                 Image(systemName: "line.3.horizontal.decrease.circle")
                             }
+                            .accessibilityIdentifier("library.filterButton")
                         }
                     }
                 }
@@ -242,11 +244,13 @@ public struct LibraryView: View {
                 }
                 .toolbar(editMode.isEditing ? .hidden : .visible, for: .tabBar)
                 .onReceive(NotificationCenter.default.publisher(for: .switchToLibraryTab)) { notification in
-                    if let userInfo = notification.userInfo,
-                       let subject = userInfo["subject"] as? String,
-                       let vm = viewModel {
+                    // 携带 subject 名时映射到学科维度对应值并选中（动态维度）
+                    if let subject = notification.userInfo?["subject"] as? String,
+                       let vm = viewModel,
+                       let subjectDim = vm.dimension(forSystemKey: CategorySystemKey.subject),
+                       let value = (vm.valuesByDimension[subjectDim.id] ?? []).first(where: { $0.name == subject }) {
                         vm.resetFilters()
-                        vm.selectedSubjects.insert(subject)
+                        vm.toggleFilter(value.id, inDimension: subjectDim.id)
                     }
                 }
                 .task {

@@ -34,6 +34,7 @@ nonisolated extension L10n {
         public static let todayAdded = NSLocalizedString("dashboard.today_added", value: "今日新增", comment: "今日新增")
         public static let todayReviewed = NSLocalizedString("dashboard.today_reviewed", value: "今日复习", comment: "今日复习")
         public static let dueReview = NSLocalizedString("dashboard.due_review", value: "待复习", comment: "待复习")
+        public static let uncategorized = NSLocalizedString("dashboard.uncategorized", value: "未分类", comment: "统计中无学科维度值的题目分组")
 
         // 草稿恢复
         public static let draftAlertTitle = NSLocalizedString("dashboard.draft_alert_title", value: "恢复未完成的题目？", comment: "Dashboard 草稿恢复弹窗")

@@ -296,37 +296,28 @@ public final class DataSeeder {
         while targetData.count < count {
             targetData.append(contentsOf: mockData)
         }
-        // 预定义源池（与 SourceRepository 默认来源一致，App 启动时已由 seedDefaultsIfNeeded 播种）
+        // L3：分类经动态维度值。App 启动 seedDefaultsIfNeeded 已建内置维度，按 systemKey 取
+        let allDimensions = try modelContext.fetch(FetchDescriptor<CategoryDimensionModel>())
+        let subjectDim = allDimensions.first { $0.systemKey == CategorySystemKey.subject }
+        let sourceDim = allDimensions.first { $0.systemKey == CategorySystemKey.source }
+        let tagDim = allDimensions.first { $0.systemKey == CategorySystemKey.tag }
         let sourcePool = ["试卷", "作业", "教材", "错题本", "其他"]
-
-        // 预定义标签池
         let tagPool = ["必考", "易错", "真题", "重点", "压轴", "2024", "基础", "难点"]
 
         for (index, data) in targetData.enumerated() {
-            // 随机生成 0-3 个标签
-            let tagCount = Int.random(in: 0...3)
-            var assignedTags: [TagModel] = []
-            if tagCount > 0 {
-                let randomTags = tagPool.shuffled().prefix(tagCount)
-                for tagName in randomTags {
-                    let fetch = FetchDescriptor<TagModel>(predicate: #Predicate<TagModel> { $0.name == tagName })
-                    if let existing = try modelContext.fetch(fetch).first {
-                        assignedTags.append(existing)
-                    } else {
-                        let newTag = TagModel(name: tagName)
-                        modelContext.insert(newTag)
-                        assignedTags.append(newTag)
-                    }
+            var values: [CategoryValueModel] = []
+            if let subjectDim { values.append(seedValue(data.sub, in: subjectDim)) }
+            if let sourceDim, let source = sourcePool.randomElement() {
+                values.append(seedValue(source, in: sourceDim))
+            }
+            if let tagDim {
+                for tagName in tagPool.shuffled().prefix(Int.random(in: 0...3)) {
+                    values.append(seedValue(tagName, in: tagDim))
                 }
             }
 
-            let item = ReviewItemModel(
-                content: data.q,
-                imagePath: nil,
-                subject: data.sub,
-                source: sourcePool.randomElement() ?? "其他",
-                tags: assignedTags
-            )
+            let item = ReviewItemModel(content: data.q, imagePath: nil)
+            item.categoryValues = values
             item.answerText = data.a
             item.difficulty = Int.random(in: 1...5)
             item.createdAt = Date.now.addingTimeInterval(-Double.random(in: 0...(86400 * 5)))
@@ -344,6 +335,16 @@ public final class DataSeeder {
         // 通知所有订阅者（ReviewViewModel）数据已变更，触发复习界面刷新
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
         return Date().timeIntervalSince(startTime)
+    }
+
+    /// 在维度内 fetch-or-create 值（DEBUG demo 用；纯内存，由调用方统一 save）
+    private func seedValue(_ name: String, in dimension: CategoryDimensionModel) -> CategoryValueModel {
+        if let existing = (dimension.values ?? []).first(where: { $0.name == name }) {
+            return existing
+        }
+        let created = CategoryValueModel(name: name, sortOrder: dimension.values?.count ?? 0, dimension: dimension)
+        modelContext.insert(created)
+        return created
     }
 
     /// 清空所有 ReviewItem

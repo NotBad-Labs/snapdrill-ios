@@ -23,13 +23,7 @@ final class SettingsViewModelTests {
     private let repos: RepositoryContainer
 
     init() throws {
-        let schema = Schema([
-            ReviewItemModel.self,
-            TagModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ])
+        let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         repos = RepositoryContainer(modelContext: container.mainContext)
@@ -120,18 +114,19 @@ final class SettingsViewModelTests {
 
     // MARK: - clearAllData 同时清理分类数据
 
-    @Test("clearAllData 同时清空学科和来源")
+    @Test("clearAllData 同时清空动态维度与值")
     func clearAllData_alsoRemovesTaxonomy() async throws {
-        try repos.subject.insertAndSave(SubjectModel(name: "数学", icon: "function", colorHex: "#FF0000", sortOrder: 0))
-        try repos.source.insertAndSave(SourceModel(name: "试卷"))
-        try repos.grade.insertAndSave(GradeModel(name: "高一"))
+        let dimension = CategoryDimensionModel(
+            name: "学科", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+        )
+        try repos.dimension.insertAndSave(dimension)
+        try repos.categoryValue.insertAndSave(CategoryValueModel(name: "数学", dimension: dimension))
 
         let vm = SettingsViewModel(repositories: repos)
         await vm.clearAllData()
 
-        #expect(try repos.subject.totalCount() == 0)
-        #expect(try repos.source.totalCount() == 0)
-        #expect(try repos.grade.totalCount() == 0)
+        #expect(try repos.dimension.totalCount() == 0)
     }
 
     // MARK: - createBackup 完整路径
@@ -139,7 +134,7 @@ final class SettingsViewModelTests {
     @Test("createBackup 有数据时生成 backupFileURL")
     func createBackup_withData_producesFileURL() async throws {
         // 插入测试数据
-        let item = ReviewItemModel(content: "备份测试题目", subject: "数学")
+        let item = ReviewItemModel(content: "备份测试题目")
         repos.review.insert(item)
         try repos.review.saveContext()
 
@@ -216,14 +211,21 @@ final class SettingsViewModelTests {
     @Test("restoreFromBackup 正常路径：round-trip 恢复")
     func restoreFromBackup_roundTrip() async throws {
         // 1. 准备原始数据——使用非默认 SM-2 值，区分"正确恢复"和"默认值重建"
-        let item = ReviewItemModel(content: "恢复测试题目", subject: "英语")
+        let subjectDim = CategoryDimensionModel(
+            name: "学科", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+        )
+        try repos.dimension.insertAndSave(subjectDim)
+        let english = CategoryValueModel(name: "英语", dimension: subjectDim)
+        try repos.categoryValue.insertAndSave(english)
+        let item = ReviewItemModel(content: "恢复测试题目")
+        item.categoryValues = [english]
         item.easeFactor = 1.8
         item.interval = 7
         item.repetitions = 3
         item.nextReviewAt = Date(timeIntervalSinceReferenceDate: 800_000_000)
         repos.review.insert(item)
         try repos.review.saveContext()
-        try repos.subject.insertAndSave(SubjectModel(name: "英语", icon: "textformat.abc", colorHex: "#0000FF", sortOrder: 0))
 
         // 2. 创建备份
         let vm = SettingsViewModel(repositories: repos)
@@ -249,7 +251,7 @@ final class SettingsViewModelTests {
         #expect(restoredItems.count == 1)
         let restored = restoredItems.first
         #expect(restored?.content == "恢复测试题目")
-        #expect(restored?.subject == "英语")
+        #expect(restored?.categoryValues?.first?.name == "英语")
         #expect(restored?.easeFactor == 1.8)
         #expect(restored?.interval == 7)
         #expect(restored?.repetitions == 3)

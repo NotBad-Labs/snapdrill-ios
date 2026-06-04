@@ -127,18 +127,12 @@ private struct UncheckedSendableBox<Value>: @unchecked Sendable {
     nonisolated(unsafe) let value: Value
 }
 
-private struct SubjectCounts: Sendable {
-    let oldCount: Int
-    let newCount: Int
-}
-
 @MainActor
 private func insertMockReviewItem(
     into repository: ReviewRepository,
-    content: String,
-    subject: String = "数学"
+    content: String
 ) {
-    repository.insert(ReviewItemModel.mock(content: content, subject: subject))
+    repository.insert(ReviewItemModel.mock(content: content))
 }
 
 @MainActor
@@ -293,36 +287,8 @@ func concurrentFetchesNoError() async throws {
     }
 }
 
-@Test("并发 updateSubjectUsage 后旧数据全部迁移 -- 断言不弱")
-func concurrentSubjectUpdateAllMigrated() async throws {
-    let counts = try await withTimeout {
-        let container = try TestModelContainer.create()
-        let repo = await UncheckedSendableBox(value: ReviewRepository(modelContext: ModelContext(container)))
-        for i in 0..<10 {
-            await insertMockReviewItem(into: repo.value, content: "题目-\(i)", subject: "旧学科")
-        }
-        try await repo.value.saveContext()
-
-        try await withThrowingTaskGroup(of: Void.self) { group in
-            for _ in 0..<3 {
-                group.addTask {
-                    try await repo.value.updateSubjectUsage(from: "旧学科", to: "新学科")
-                }
-            }
-            try await group.waitForAll()
-        }
-        try await repo.value.saveContext()
-
-        return await SubjectCounts(
-            oldCount: try repo.value.countBySubject(name: "旧学科"),
-            newCount: try repo.value.countBySubject(name: "新学科")
-        )
-    }
-
-    #expect(counts.newCount > 0, "更新未生效: 新学科数量为 0")
-    #expect(counts.oldCount < 10, "更新未生效: 旧学科数量仍为 10")
-    #expect(counts.oldCount + counts.newCount == 10)
-}
+// L3：原 concurrentSubjectUpdateAllMigrated 已删——旧 updateSubjectUsage/countBySubject 随裸字符串
+// 字段移除；动态维度下「重命名学科」=单次 value.name 赋值（关系自动跟随），无逐题并发迁移问题。
 
 // MARK: - RepositoryContainer 原子操作
 
@@ -346,14 +312,12 @@ func deleteAllDataAfterConcurrentInsertsClearsAll() async throws {
         return (
             beforeDeleteCount,
             try await repos.value.review.totalCount(),
-            try await repos.value.subject.totalCount(),
-            try await repos.value.source.totalCount()
+            try await repos.value.dimension.totalCount()
         )
     }
     #expect(counts.0 == 30)
     #expect(counts.1 == 0)
     #expect(counts.2 == 0)
-    #expect(counts.3 == 0)
 }
 
 @Test("deleteAllData + restoreFromProfileData 两轮不残留数据")
@@ -361,9 +325,13 @@ func deleteThenRestoreRoundTripNoResidue() async throws {
     let container = try TestModelContainer.create()
     let repos = RepositoryContainer(modelContext: container.mainContext)
 
-    let mathSubject = SubjectModel.mock(name: "数学")
-    try repos.subject.insertAndSave(mathSubject)
-    repos.review.insert(ReviewItemModel.mock(content: "原始题", subject: "数学"))
+    let subjectDim = CategoryDimensionModel.mock(name: "学科")
+    try repos.dimension.insertAndSave(subjectDim)
+    let mathValue = CategoryValueModel.mock(name: "数学", dimension: subjectDim)
+    try repos.categoryValue.insertAndSave(mathValue)
+    let item = ReviewItemModel.mock(content: "原始题")
+    item.categoryValues = [mathValue]
+    repos.review.insert(item)
     try repos.review.saveContext()
 
     let backup = try repos.collectProfileBackupData(profileName: "p1", profileId: UUID())

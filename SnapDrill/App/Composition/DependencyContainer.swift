@@ -64,9 +64,8 @@ final class DependencyContainer {
     @MainActor
     func createProfileManager() async -> ProfileManager {
         let manager = await ProfileManager.create(inMemory: Self.isUITesting)
-        manager.activeRepositories.subject.seedDefaultsIfNeeded()
-        manager.activeRepositories.source.seedDefaultsIfNeeded()
-        manager.activeRepositories.grade.seedDefaultsIfNeeded()
+        // L3：种入内置维度（学科/来源/年级/标签），替代旧 3 个分类 seed（S6 删旧）
+        manager.activeRepositories.dimension.seedDefaultsIfNeeded()
         return manager
     }
 }

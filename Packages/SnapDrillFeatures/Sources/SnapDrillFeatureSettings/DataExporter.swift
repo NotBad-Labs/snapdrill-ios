@@ -35,14 +35,13 @@ actor DataExporter {
             [
                 "id": item.id.uuidString,
                 "content": item.content ?? "",
-                "subject": item.subject,
-                "source": item.source,
                 "difficulty": item.difficulty,
                 "answerText": item.answerText ?? "",
                 "createdAt": item.createdAt.ISO8601Format(),
                 "lastReviewedAt": item.lastReviewedAt?.ISO8601Format() ?? "",
                 "nextReviewAt": item.nextReviewAt?.ISO8601Format() ?? "",
-                "tags": item.tags.joined(separator: ", ")
+                // A2 动态维度：维度名 → 值名数组
+                "dimensions": item.dimensionValues
             ] as [String: Any]
         }
 

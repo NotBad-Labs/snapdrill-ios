@@ -40,9 +40,7 @@ struct PersistenceControllerTests {
 
         let model = ReviewItemModel(
             id: UUID(),
-            content: "测试题目",
-            subject: "数学",
-            source: "试卷"
+            content: "测试题目"
         )
         context.insert(model)
         try context.save()

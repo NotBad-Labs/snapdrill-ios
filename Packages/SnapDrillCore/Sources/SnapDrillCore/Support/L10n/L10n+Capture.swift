@@ -63,6 +63,13 @@ nonisolated extension L10n {
         public static let gradeNamePlaceholder = NSLocalizedString("capture.grade_name_placeholder", value: "年级名称", comment: "年级名称输入占位")
         public static let newGradeMessage = NSLocalizedString("capture.new_grade_message", value: "输入新年级名称，创建后自动选中", comment: "新建年级提示")
 
+        // 动态维度通用（L3：取代上面 newSubject/newSource/newGrade 专用串，S6 删旧）
+        public static let addValuePlaceholder = NSLocalizedString("capture.add_value_placeholder", value: "名称", comment: "新建维度值名称占位")
+        public static let selectValue = NSLocalizedString("capture.select_value", value: "选择", comment: "单值维度未选时占位")
+        public static func addValueTitle(_ dimensionName: String) -> String {
+            String(format: NSLocalizedString("capture.add_value_title", value: "新建%@", comment: "新建维度值标题（含维度名）"), dimensionName)
+        }
+
         // PDF 页面选择
         public static let selectPage = NSLocalizedString("capture.select_page", value: "选择页面", comment: "PDF 页面选择标题")
         public static let loadingPage = NSLocalizedString("capture.loading_page", value: "正在加载...", comment: "正在加载页面")

@@ -22,13 +22,8 @@ final class SmartPaperViewModelTests {
     private let repos: RepositoryContainer
 
     init() throws {
-        let schema = Schema([
-            ReviewItemModel.self,
-            TagModel.self,
-            SubjectModel.self,
-            SourceModel.self,
-            GradeModel.self
-        ])
+        // L3：用 SnapDrillSchemaV1.models（含 CategoryDimension/Value）
+        let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
         repos = RepositoryContainer(modelContext: container.mainContext)
@@ -38,21 +33,38 @@ final class SmartPaperViewModelTests {
         SmartPaperViewModel(repositories: repos)
     }
 
-    private func seedSubjects() throws {
-        repos.subject.insert(SubjectModel(name: "数学", icon: "function", colorHex: "#FF0000", sortOrder: 0))
-        repos.subject.insert(SubjectModel(name: "英语", icon: "book", colorHex: "#0000FF", sortOrder: 1))
-        repos.subject.insert(SubjectModel(name: "物理", icon: "bolt", colorHex: "#00FF00", sortOrder: 2))
-        try repos.review.saveContext()
+    /// 手建学科维度（仅 3 个值，不走 seedDefaults 以免引入 locale 相关默认值），返回 name→value
+    @discardableResult
+    private func seedSubjects() throws -> [String: CategoryValueModel] {
+        let dimension = CategoryDimensionModel(
+            name: "学科", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+        )
+        try repos.dimension.insertAndSave(dimension)
+        var values: [String: CategoryValueModel] = [:]
+        for (index, name) in ["数学", "英语", "物理"].enumerated() {
+            let value = CategoryValueModel(name: name, sortOrder: index, dimension: dimension)
+            try repos.categoryValue.insertAndSave(value)
+            values[name] = value
+        }
+        return values
     }
 
-    private func seedItems() throws {
-        try seedSubjects()
-        repos.review.insert(ReviewItemModel(content: "数学题1", subject: "数学", difficulty: 3))
-        repos.review.insert(ReviewItemModel(content: "数学题2", subject: "数学", difficulty: 1))
-        repos.review.insert(ReviewItemModel(content: "英语题1", subject: "英语", difficulty: 2))
-        repos.review.insert(ReviewItemModel(content: "物理题1", subject: "物理", difficulty: 4))
-        repos.review.insert(ReviewItemModel(content: "物理题2", subject: "物理", difficulty: 5))
+    @discardableResult
+    private func seedItems() throws -> [String: CategoryValueModel] {
+        let values = try seedSubjects()
+        func add(_ content: String, _ subject: String, _ difficulty: Int) {
+            let item = ReviewItemModel(content: content, difficulty: difficulty)
+            if let value = values[subject] { item.categoryValues = [value] }
+            repos.review.insert(item)
+        }
+        add("数学题1", "数学", 3)
+        add("数学题2", "数学", 1)
+        add("英语题1", "英语", 2)
+        add("物理题1", "物理", 4)
+        add("物理题2", "物理", 5)
         try repos.review.saveContext()
+        return values
     }
 
     // MARK: - 初始状态
@@ -79,7 +91,7 @@ final class SmartPaperViewModelTests {
         let vm = makeVM()
         vm.loadInitialData()
 
-        #expect(vm.availableSubjects == ["数学", "英语", "物理"])
+        #expect(vm.availableSubjects.map(\.name) == ["数学", "英语", "物理"])
     }
 
     @Test("loadInitialData 同时触发选题")
@@ -115,13 +127,14 @@ final class SmartPaperViewModelTests {
 
     @Test("refreshSelection 学科筛选")
     func refreshSelection_filtersBySubject() throws {
-        try seedItems()
+        let values = try seedItems()
         let vm = makeVM()
-        vm.selectedSubjects = ["英语"]
+        vm.selectedSubjectValueIds = [try #require(values["英语"]).id]
         vm.refreshSelection()
 
+        // 注：selectedItems 是 ReviewExportSnapshot，其 .subject 仍来自旧字段（S5d 重写）→ 此处断 content
         #expect(vm.selectedItems.count == 1)
-        #expect(vm.selectedItems[0].subject == "英语")
+        #expect(vm.selectedItems[0].content == "英语题1")
     }
 
     @Test("refreshSelection 难度筛选")
@@ -133,18 +146,16 @@ final class SmartPaperViewModelTests {
 
         // 难度 4 和 5 的题目只有物理的两道
         #expect(vm.selectedItems.count == 2)
-        for item in vm.selectedItems {
-            #expect(item.subject == "物理")
-        }
+        #expect(Set(vm.selectedItems.map(\.content)) == ["物理题1", "物理题2"])
     }
 
     // MARK: - 联合筛选
 
     @Test("refreshSelection 学科+难度联合筛选")
     func refreshSelection_combinedFilter() throws {
-        try seedItems()
+        let values = try seedItems()
         let vm = makeVM()
-        vm.selectedSubjects = ["数学"]
+        vm.selectedSubjectValueIds = [try #require(values["数学"]).id]
         vm.selectedDifficulties = [3]
         vm.refreshSelection()
 
@@ -155,9 +166,9 @@ final class SmartPaperViewModelTests {
 
     @Test("refreshSelection 联合筛选无匹配时返回空")
     func refreshSelection_combinedFilter_noMatch() throws {
-        try seedItems()
+        let values = try seedItems()
         let vm = makeVM()
-        vm.selectedSubjects = ["英语"]
+        vm.selectedSubjectValueIds = [try #require(values["英语"]).id]
         vm.selectedDifficulties = [5]
         vm.refreshSelection()
 
@@ -181,7 +192,7 @@ final class SmartPaperViewModelTests {
     func refreshSelection_nonexistentSubject() throws {
         try seedItems()
         let vm = makeVM()
-        vm.selectedSubjects = ["化学"]
+        vm.selectedSubjectValueIds = [UUID()] // 不存在的学科值 id
         vm.refreshSelection()
 
         #expect(vm.selectedItems.isEmpty)

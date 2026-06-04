@@ -21,8 +21,8 @@ public final class ReviewItemModel {
     // 索引：提升高频查询性能
     #Index<ReviewItemModel>(
         [\.createdAt],         // 题库列表默认排序
-        [\.nextReviewAt],      // 待复习查询
-        [\.subjectRawValue]    // 按学科过滤
+        [\.nextReviewAt]       // 待复习查询
+        // L3：subjectRawValue 索引删除——学科改走 categoryValues 关系，关系不能进 #Index
     )
 
     // MARK: - Properties
@@ -46,16 +46,12 @@ public final class ReviewItemModel {
 
     /// 下次计划复习时间（distantPast 表示尚未安排，立即到期）
     public var nextReviewAt: Date = Date.distantPast
-    
-    // 存储枚举的原始值
-    /// 学科 (String)
-    public var subjectRawValue: String = "其他"
-    /// 来源 (String)
-    public var sourceRawValue: String = "其他"
-    
-    /// 标签集合 (Many-to-Many Relationship)
-    @Relationship(deleteRule: .nullify, inverse: \TagModel.items)
-    public var tags: [TagModel]? = []
+
+    /// 动态维度值集合（L3：跨所有维度的扁平多对多，按 value.dimension 反查归属）。
+    /// 单值维度同维度下应只关联 0..1 个值（约束由 Repository/编辑逻辑保证，非 schema）。
+    /// inverse 声明在本侧，指向 `CategoryValueModel.items`（对端裸关系，照搬 tags↔items 分工）。
+    @Relationship(deleteRule: .nullify, inverse: \CategoryValueModel.items)
+    public var categoryValues: [CategoryValueModel]? = []
     
     // MARK: - 答案与难度
     /// 答案文本（可选）
@@ -72,10 +68,7 @@ public final class ReviewItemModel {
         get { Difficulty(rawValue: difficulty) ?? .one }
         set { difficulty = newValue.rawValue }
     }
-    
-    /// 适用年级
-    public var grade: String = ""
-    
+
     // MARK: - SM-2 Algorithm Fields
     /// 难度因子，初始 2.5，最小 1.3
     public var easeFactor: Double = 2.5
@@ -94,16 +87,13 @@ public final class ReviewItemModel {
     ///   - createdAt: 创建时间
     ///   - lastReviewedAt: 上次复习时间
     ///   - nextReviewAt: 下次计划复习时间
-    ///   - subject: 所属学科名称
-    ///   - source: 题目来源
-    ///   - tags: 关联标签
     ///   - answerText: 答案文本
     ///   - answerImagePath: 答案图片路径
     ///   - difficulty: 难度原始值（1-5）
-    ///   - grade: 适用年级
     ///   - easeFactor: SM-2 难度因子
     ///   - interval: SM-2 当前间隔天数
     ///   - repetitions: SM-2 连续正确次数
+    /// - Note: 分类（学科/来源/年级/标签 + 自定义）经 `categoryValues` 动态维度，构造后赋值。
     public init(
         id: UUID = UUID(),
         content: String? = nil,
@@ -111,13 +101,9 @@ public final class ReviewItemModel {
         createdAt: Date = Date(),
         lastReviewedAt: Date = .distantPast,
         nextReviewAt: Date = .distantPast,
-        subject: String = "其他",
-        source: String = "其他",
-        tags: [TagModel]? = [],
         answerText: String? = nil,
         answerImagePath: String? = nil,
         difficulty: Int = 1,
-        grade: String = "",
         easeFactor: Double = 2.5,
         interval: Int = 0,
         repetitions: Int = 0
@@ -128,36 +114,19 @@ public final class ReviewItemModel {
         self.createdAt = createdAt
         self.lastReviewedAt = lastReviewedAt
         self.nextReviewAt = nextReviewAt
-        self.subjectRawValue = subject
-        self.sourceRawValue = source
-        self.tags = tags
-        
+
         self.answerText = answerText
         self.answerImagePath = answerImagePath
         self.difficulty = difficulty
-        self.grade = grade
-        
+
         // SM-2
         self.easeFactor = easeFactor
         self.interval = interval
         self.repetitions = repetitions
     }
-    
-    // MARK: - Public API
-    
-    // 兼容旧代码的计算属性 (现在直接返回 String)
-    /// 学科名称（等价于 `subjectRawValue`，保留用于向后兼容）
-    public var subject: String {
-        get { subjectRawValue }
-        set { subjectRawValue = newValue }
-    }
 
-    /// 题目来源（等价于 `sourceRawValue`，保留用于向后兼容）
-    public var source: String {
-        get { sourceRawValue }
-        set { sourceRawValue = newValue }
-    }
-    
+    // MARK: - Public API
+
     /// 是否已安排下次复习（false 表示从未复习或重置后的初始状态）
     ///
     /// 封装哨兵值语义，避免调用方直接比较 `Date.distantPast`。
@@ -166,20 +135,23 @@ public final class ReviewItemModel {
         nextReviewAt != .distantPast
     }
 
-    /// 转为导出快照（仅含导出所需字段）
+    /// 转为导出快照（仅含导出所需字段）。分类经动态维度值聚合（A2 动态列）。
     public func toExportSnapshot() -> ReviewExportSnapshot {
-        ReviewExportSnapshot(
+        var dimensionValues: [String: [String]] = [:]
+        for entry in categoryValuesByDimension {
+            dimensionValues[entry.dimension.name] = entry.values.map { $0.name }
+        }
+        return ReviewExportSnapshot(
             id: id,
             content: content,
             imagePath: imagePath,
-            subject: subject,
-            source: source,
+            subject: subjectCategoryName ?? "",
             difficulty: difficulty,
             answerText: answerText,
             createdAt: createdAt,
             lastReviewedAt: lastReviewedAt == .distantPast ? nil : lastReviewedAt,
             nextReviewAt: nextReviewAt == .distantPast ? nil : nextReviewAt,
-            tags: tags?.map(\.name) ?? []
+            dimensionValues: dimensionValues
         )
     }
 }

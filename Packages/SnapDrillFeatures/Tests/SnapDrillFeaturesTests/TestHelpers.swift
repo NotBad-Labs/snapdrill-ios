@@ -78,16 +78,5 @@ final class MockOCRServiceShared: OCRServiceProtocol, @unchecked Sendable {
     }
 }
 
-// MARK: - Seed Helpers
-
-/// 在 Repository 中插入默认学科、来源和年级（多数 ViewModel 测试需要）
-func seedDefaultTaxonomy(repos: RepositoryContainer) throws {
-    let subject = SubjectModel(name: "数学", icon: "function", colorHex: "#FF0000", sortOrder: 0)
-    try repos.subject.insertAndSave(subject)
-
-    let source = SourceModel(name: "试卷")
-    try repos.source.insertAndSave(source)
-
-    let grade = GradeModel(name: "三年级")
-    try repos.grade.insertAndSave(grade)
-}
+// L3：seedDefaultTaxonomy 已删（用旧 Subject/Source/Grade Model，且无调用方）。
+// 需要维度数据的测试用 repos.dimension.seedDefaultsIfNeeded() 或手建 CategoryDimension/Value。

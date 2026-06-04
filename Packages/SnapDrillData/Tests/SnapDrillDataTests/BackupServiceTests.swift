@@ -19,6 +19,9 @@ struct BackupServiceTests {
 
     private static let testProfileId = UUID()
 
+    private static let sampleDimensionId = UUID()
+    private static let sampleValueId = UUID()
+
     private func makeSamplePayload() -> BackupPayload {
         let profileData = ProfileBackupData(
             profileName: "默认",
@@ -31,22 +34,27 @@ struct BackupServiceTests {
                     createdAt: Date(),
                     lastReviewedAt: .distantPast,
                     nextReviewAt: .distantPast,
-                    subject: "数学",
-                    source: "作业",
-                    tagNames: ["重点"],
                     answerText: "答案",
                     answerImagePath: nil,
                     difficulty: 3,
-                    grade: "高一",
                     easeFactor: 2.5,
                     interval: 0,
-                    repetitions: 0
+                    repetitions: 0,
+                    categoryValueIds: [Self.sampleValueId]
                 )
             ],
-            subjects: [SubjectBackupDTO(id: UUID(), name: "数学", icon: "function", colorHex: "#FF0000", sortOrder: 0)],
-            sources: [SourceBackupDTO(id: UUID(), name: "作业", icon: "doc.text", colorHex: "#0000FF", sortOrder: 0)],
-            grades: [GradeBackupDTO(id: UUID(), name: "高一", sortOrder: 0)],
-            tags: [TagBackupDTO(id: UUID(), name: "重点", colorHex: "#00FF00")]
+            dimensions: [
+                CategoryDimensionBackupDTO(
+                    id: Self.sampleDimensionId, name: "学科", isMultiValue: false, isBuiltIn: true,
+                    systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+                )
+            ],
+            categoryValues: [
+                CategoryValueBackupDTO(
+                    id: Self.sampleValueId, name: "数学", icon: "function", colorHex: "#FF0000",
+                    sortOrder: 0, createdAt: Date(), dimensionId: Self.sampleDimensionId
+                )
+            ]
         )
         return BackupPayload(profiles: [profileData])
     }
@@ -129,11 +137,9 @@ struct BackupServiceTests {
         let profile = extractedPayload.profiles[0]
         #expect(profile.reviewItems.count == 1)
         #expect(profile.reviewItems[0].content == "测试题目")
-        #expect(profile.reviewItems[0].tagNames == ["重点"])
-        #expect(profile.subjects.count == 1)
-        #expect(profile.sources.count == 1)
-        #expect(profile.grades.count == 1)
-        #expect(profile.tags.count == 1)
+        #expect(profile.reviewItems[0].categoryValueIds == [Self.sampleValueId])
+        #expect(profile.dimensions.count == 1)
+        #expect(profile.categoryValues.count == 1)
     }
 
     @Test("图片恢复 round-trip")
@@ -269,10 +275,8 @@ struct BackupServiceTests {
             profileName: "空",
             profileId: UUID(),
             reviewItems: [],
-            subjects: [],
-            sources: [],
-            grades: [],
-            tags: []
+            dimensions: [],
+            categoryValues: []
         )
         let payload = BackupPayload(profiles: [emptyProfile])
         let manifest = makeSampleManifest(totalItemCount: 0)
@@ -290,7 +294,7 @@ struct BackupServiceTests {
 
         let extracted = try await service.extractPayload(from: backupURL)
         #expect(extracted.profiles[0].reviewItems.isEmpty)
-        #expect(extracted.profiles[0].subjects.isEmpty)
+        #expect(extracted.profiles[0].dimensions.isEmpty)
     }
 
     // MARK: - 路径遍历防御
@@ -310,19 +314,16 @@ struct BackupServiceTests {
                     createdAt: Date(),
                     lastReviewedAt: .distantPast,
                     nextReviewAt: .distantPast,
-                    subject: "数学",
-                    source: "作业",
-                    tagNames: [],
                     answerText: nil,
                     answerImagePath: nil,
                     difficulty: 1,
-                    grade: "",
                     easeFactor: 2.5,
                     interval: 0,
-                    repetitions: 0
+                    repetitions: 0,
+                    categoryValueIds: []
                 )
             ],
-            subjects: [], sources: [], grades: [], tags: []
+            dimensions: [], categoryValues: []
         )
         let payload = BackupPayload(profiles: [profileData])
         let manifest = makeSampleManifest()

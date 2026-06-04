@@ -25,8 +25,8 @@ final class SmartPaperViewModel {
     /// 选题数量（默认 10）
     var questionCount: Int = 10
 
-    /// 学科筛选（空 = 全部）
-    var selectedSubjects: Set<String> = []
+    /// 学科筛选：选中的学科维度值 id（空 = 全部）
+    var selectedSubjectValueIds: Set<UUID> = []
 
     /// 难度筛选（空 = 全部）
     var selectedDifficulties: Set<Int> = []
@@ -43,8 +43,16 @@ final class SmartPaperViewModel {
     /// 选题结果预览
     private(set) var selectedItems: [ReviewExportSnapshot] = []
 
-    /// 可用学科列表（供 UI 展示）
-    private(set) var availableSubjects: [String] = []
+    /// 可用学科维度值列表（供 UI 展示）
+    private(set) var availableSubjects: [CategoryValueModel] = []
+
+    /// 当前选中学科值名（摘要标签用）
+    var selectedSubjectNames: String {
+        availableSubjects
+            .filter { selectedSubjectValueIds.contains($0.id) }
+            .map(\.name)
+            .joined(separator: ", ")
+    }
 
     /// 是否正在加载
     private(set) var isLoading = false
@@ -67,8 +75,9 @@ final class SmartPaperViewModel {
     /// 加载可用学科列表 + 执行初始选题
     func loadInitialData() {
         do {
-            let subjects = try repositories.subject.fetchAllModels()
-            availableSubjects = subjects.sorted(by: { $0.sortOrder < $1.sortOrder }).map(\.name)
+            if let subjectDimension = try repositories.dimension.fetchDimension(bySystemKey: CategorySystemKey.subject) {
+                availableSubjects = repositories.categoryValue.fetchAllModels(in: subjectDimension)
+            }
         } catch {
             SnapDrillLogger.generic.error("加载学科列表失败: \(error.localizedDescription)")
         }
@@ -80,7 +89,7 @@ final class SmartPaperViewModel {
         do {
             let models = try repositories.review.fetchSmartSelection(
                 limit: questionCount,
-                subjects: selectedSubjects,
+                subjectValueIds: selectedSubjectValueIds,
                 difficulties: selectedDifficulties
             )
             selectedItems = models.map { $0.toExportSnapshot() }

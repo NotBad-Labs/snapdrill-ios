@@ -1,0 +1,26 @@
+{
+  "configurations" : [
+    {
+      "id" : "7E1C9A40-4D2B-4F3A-9C61-0A2B3C4D5E6F",
+      "name" : "CI",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "testExecutionOrdering" : "lexical",
+    "testTimeoutsEnabled" : false
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:SnapDrill.xcodeproj",
+        "identifier" : "B27BD9792E560D0800E69277",
+        "name" : "SnapDrillUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
