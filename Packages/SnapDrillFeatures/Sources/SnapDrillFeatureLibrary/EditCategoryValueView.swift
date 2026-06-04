@@ -39,6 +39,7 @@ struct EditCategoryValueView: View {
             Form {
                 Section(L10n.Library.name) {
                     TextField(L10n.Library.namePlaceholder, text: $name)
+                        .accessibilityIdentifier("dimValueEdit.nameField")
                 }
 
                 Section(L10n.Library.icon) {

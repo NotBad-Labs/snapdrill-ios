@@ -41,6 +41,7 @@ struct CategoryValueListView: View {
                 Button(action: { showingAddSheet = true }, label: {
                     Image(systemName: "plus")
                 })
+                .accessibilityIdentifier("dimValue.add")
             }
         }
         .alert(L10n.Library.cannotDeleteInUse, isPresented: Binding(
@@ -79,6 +80,7 @@ struct CategoryValueListView: View {
                 set: { vm.isMultiValue = $0 }
             ))
             .disabled(dimension.isBuiltIn)
+            .accessibilityIdentifier("dim.multiToggle")
         } header: {
             Text(L10n.Library.dimensionSettings)
         } footer: {
@@ -105,6 +107,7 @@ struct CategoryValueListView: View {
                             Spacer()
                         }
                     }
+                    .accessibilityIdentifier("dimValue.\(value.name)")
                 }
                 .onDelete(perform: { offsets in vm.delete(at: offsets) })
             }

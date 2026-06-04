@@ -32,6 +32,7 @@ struct EditDimensionView: View {
             Form {
                 Section(L10n.Library.name) {
                     TextField(L10n.Library.dimensionNamePlaceholder, text: $name)
+                        .accessibilityIdentifier("dimEdit.nameField")
                 }
 
                 Section(L10n.Library.icon) {

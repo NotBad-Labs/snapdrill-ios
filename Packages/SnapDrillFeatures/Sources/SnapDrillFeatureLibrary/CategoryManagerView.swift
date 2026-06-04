@@ -32,6 +32,7 @@ public struct CategoryManagerView: View {
                         } label: {
                             dimensionRow(dimension)
                         }
+                        .accessibilityIdentifier("dim.row.\(dimension.systemKey ?? dimension.name)")
                         .deleteDisabled(dimension.isBuiltIn)
                     }
                     .onDelete(perform: { offsets in vm.delete(at: offsets) })
@@ -44,6 +45,7 @@ public struct CategoryManagerView: View {
                 Button(action: { showingAddDimension = true }, label: {
                     Image(systemName: "plus")
                 })
+                .accessibilityIdentifier("dim.add")
             }
         }
         .alert(L10n.Library.cannotDeleteInUse, isPresented: Binding(

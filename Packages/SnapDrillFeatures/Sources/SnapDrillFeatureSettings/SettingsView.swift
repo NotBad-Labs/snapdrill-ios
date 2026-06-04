@@ -195,6 +195,7 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.manageCategories)
                     }
+                    .accessibilityIdentifier("settings.manageCategories")
                 }
 
                 // 7. 危险操作（独立分区，与日常操作物理隔离）

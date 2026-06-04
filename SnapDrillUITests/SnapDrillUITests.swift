@@ -85,4 +85,129 @@ final class SnapDrillUITests: XCTestCase {
             "保存的题目应出现在题库列表中"
         )
     }
+
+    // MARK: - L3 动态维度系统 E2E
+
+    /// 启动参数：强制中文 locale，使内置维度 seed 出中文名（学科/来源/年级/标签）
+    private func l3LaunchArguments() -> [String] {
+        [
+            "--uitesting",
+            "-hasCompletedOnboarding", "YES",
+            "-tip.fieldConfig.v1.seen", "YES",
+            "-tip.reviewSwipe.v1.seen", "YES",
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN"
+        ]
+    }
+
+    /// 步骤①：启动竞态修复验证 —— 连续冷启动多次，每次都应稳定进入主界面
+    /// （防 ProfileManager 环境注入冷启动崩溃复发）
+    func testLaunchStabilityAcrossRelaunches() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        for i in 1...5 {
+            app.launch()
+            XCTAssertTrue(
+                app.tabBars.firstMatch.waitForExistence(timeout: 10),
+                "第 \(i) 次冷启动应在 10 秒内进入主界面（tab bar 出现）；未出现=启动崩溃/卡死复发"
+            )
+            app.terminate()
+        }
+    }
+
+    /// 步骤②：L3 seed —— 全新库应自动种出 4 个内置维度，且单/多值语义正确
+    func testSeedBuiltInDimensions() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        // 进设置 Tab（顺序 Dashboard0/题库1/采集2/复习3/设置4）
+        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "设置 Tab 应出现")
+        settingsTab.tap()
+
+        // 「管理分类维度」在设置列表下方（List 懒加载），需滚动到位再点
+        let manageRow = app.buttons["settings.manageCategories"]
+        scrollUntilHittable(manageRow, in: app)
+        XCTAssertTrue(manageRow.waitForExistence(timeout: 5), "设置应有‘管理分类维度’入口")
+        manageRow.tap()
+
+        // 4 个内置维度都应出现（按 systemKey 的 identifier，locale 无关）
+        for key in ["subject", "source", "grade", "tag"] {
+            XCTAssertTrue(
+                app.buttons["dim.row.\(key)"].waitForExistence(timeout: 5),
+                "应种出内置维度 dim.row.\(key)"
+            )
+        }
+
+        // 学科 = 单值（允许多选关）+ 含「数学」值
+        app.buttons["dim.row.subject"].tap()
+        let subjectMulti = app.switches["dim.multiToggle"]
+        XCTAssertTrue(subjectMulti.waitForExistence(timeout: 5), "学科详情应有‘允许多选’开关")
+        XCTAssertEqual(subjectMulti.value as? String, "0", "学科应为单值（允许多选=关）")
+        XCTAssertTrue(app.buttons["dimValue.数学"].waitForExistence(timeout: 3), "学科下应种有‘数学’值")
+
+        // 返回 → 标签 = 多值（允许多选开）
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.buttons["dim.row.tag"].tap()
+        let tagMulti = app.switches["dim.multiToggle"]
+        XCTAssertTrue(tagMulti.waitForExistence(timeout: 5), "标签详情应有‘允许多选’开关")
+        XCTAssertEqual(tagMulti.value as? String, "1", "标签应为多值（允许多选=开）")
+    }
+
+    /// 步骤④：用户可新建自定义维度「章节」（单值）并加值（L3 核心卖点）
+    func testCreateCustomDimensionWithValues() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        // 进维度管理
+        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "设置 Tab 应出现")
+        settingsTab.tap()
+        let manageRow = app.buttons["settings.manageCategories"]
+        scrollUntilHittable(manageRow, in: app)
+        XCTAssertTrue(manageRow.waitForExistence(timeout: 5), "应有‘管理分类维度’入口")
+        manageRow.tap()
+
+        // 新建维度「章节」（单值：不开多选）
+        let addDim = app.buttons["dim.add"]
+        XCTAssertTrue(addDim.waitForExistence(timeout: 5), "应有新建维度按钮")
+        addDim.tap()
+        let dimName = app.textFields["dimEdit.nameField"]
+        XCTAssertTrue(dimName.waitForExistence(timeout: 5), "新建维度应有名称输入框")
+        dimName.tap()
+        dimName.typeText("章节")
+        app.buttons["保存"].tap()
+
+        // 「章节」应出现在维度列表（自定义维度，identifier 走 name）
+        let chapterRow = app.buttons["dim.row.章节"]
+        XCTAssertTrue(chapterRow.waitForExistence(timeout: 5), "自定义维度‘章节’应出现在列表")
+        chapterRow.tap()
+
+        // 加两个值「第一章」「第二章」
+        for valueName in ["第一章", "第二章"] {
+            let addValue = app.buttons["dimValue.add"]
+            XCTAssertTrue(addValue.waitForExistence(timeout: 5), "应有添加值按钮")
+            addValue.tap()
+            let valField = app.textFields["dimValueEdit.nameField"]
+            XCTAssertTrue(valField.waitForExistence(timeout: 5), "添加值应有名称输入框")
+            valField.tap()
+            valField.typeText(valueName)
+            app.buttons["保存"].tap()
+            XCTAssertTrue(
+                app.buttons["dimValue.\(valueName)"].waitForExistence(timeout: 5),
+                "值‘\(valueName)’应加入列表"
+            )
+        }
+    }
+
+    /// 在可滚动容器里向上滑动直到目标元素可点击（应对 List 懒加载/折叠在下方的行）
+    private func scrollUntilHittable(_ element: XCUIElement, in app: XCUIApplication, maxSwipes: Int = 8) {
+        var swipes = 0
+        while !element.isHittable && swipes < maxSwipes {
+            app.swipeUp()
+            swipes += 1
+        }
+    }
 }
