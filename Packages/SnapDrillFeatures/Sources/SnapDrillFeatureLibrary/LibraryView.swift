@@ -154,6 +154,7 @@ public struct LibraryView: View {
                                 } label: {
                                     Image(systemName: "arrow.up.arrow.down")
                                 }
+                                .accessibilityIdentifier("library.sortMenu")
                             }
 
                             // 筛选
@@ -162,6 +163,7 @@ public struct LibraryView: View {
                             } label: {
                                 Image(systemName: "line.3.horizontal.decrease.circle")
                             }
+                            .accessibilityIdentifier("library.filterButton")
                         }
                     }
                 }

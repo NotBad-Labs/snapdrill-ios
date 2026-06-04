@@ -91,6 +91,7 @@ public struct DimensionInputRow: View {
             Spacer()
             singleValueMenu
         }
+        .accessibilityIdentifier("capture.dimRow.\(model.title)")
     }
 
     private var singleValueMenu: some View {
@@ -103,6 +104,7 @@ public struct DimensionInputRow: View {
                         Text(option.name)
                     }
                 }
+                .accessibilityIdentifier("capture.opt.\(option.name)")
             }
             Divider()
             Button { showNewValueAlert = true } label: {
@@ -112,6 +114,8 @@ public struct DimensionInputRow: View {
             Text(selectedName ?? L10n.Capture.selectValue)
                 .foregroundStyle(selectedName == nil ? Color.secondary : Color.primary)
         }
+        // 注：单值菜单的稳定 id 落在外层 row（capture.dimRow.<title>）——
+        // SwiftUI 把带 id 的 HStack 折叠成单一无障碍元素、内层 Menu 自身 id 不 surface（实证）。
     }
 
     // MARK: - 多值
@@ -128,6 +132,7 @@ public struct DimensionInputRow: View {
                 }
             }
         }
+        .accessibilityIdentifier("capture.dimRow.\(model.title)")
     }
 
     private func chip(_ option: DimensionValueOption) -> some View {
@@ -142,6 +147,7 @@ public struct DimensionInputRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(selected ? .isSelected : [])
+        .accessibilityIdentifier("capture.chip.\(option.name)")
     }
 
     private var newValueChip: some View {

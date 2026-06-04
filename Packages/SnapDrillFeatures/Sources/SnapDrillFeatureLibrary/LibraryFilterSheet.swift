@@ -50,6 +50,7 @@ struct LibraryFilterSheet: View {
                                     .contentShape(Rectangle())
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityIdentifier("filter.value.\(value.name)")
                                 .accessibilityAddTraits(
                                     viewModel.isFilterSelected(value.id, inDimension: dimension.id) ? .isSelected : []
                                 )
