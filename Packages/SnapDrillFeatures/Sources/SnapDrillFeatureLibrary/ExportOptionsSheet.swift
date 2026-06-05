@@ -194,6 +194,16 @@ struct ExportOptionsSheet: View {
                     entries.append(ZIPEntry(path: fileName, data: data))
                 }
 
+                // 全部图片加载失败 → entries 为空，不打包空 ZIP 假装成功
+                guard !entries.isEmpty else {
+                    SnapDrillLogger.generic.error("ZIP 导出失败: 所有图片加载失败，无可导出内容")
+                    await MainActor.run {
+                        self.isExportingZIP = false
+                        self.showExportError = true
+                    }
+                    return
+                }
+
                 let archiver = ZIPArchiver()
                 try archiver.createArchive(entries: entries, at: zipURL)
 

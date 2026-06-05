@@ -375,10 +375,20 @@ public final class CaptureResultViewModel {
             do {
                 if let data = try await item.loadTransferable(type: Data.self),
                    let loadedImage = UIImage(data: data) {
+                    guard !Task.isCancelled else { return }
                     self.answerImage = loadedImage
+                } else {
+                    // 加载或解码失败但未抛错（loadTransferable 返回 nil / UIImage 解码失败）
+                    guard !Task.isCancelled else { return }
+                    self.errorMessage = L10n.Errors.imageDecodeFailed
+                    self.showErrorAlert = true
                 }
+            } catch is CancellationError {
+                SnapDrillLogger.generic.info("答案图加载任务已取消。")
             } catch {
                 SnapDrillLogger.generic.error("加载图片失败: \(error.localizedDescription)")
+                self.errorMessage = L10n.Errors.imageLoadFailed
+                self.showErrorAlert = true
             }
         }
     }

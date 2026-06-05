@@ -52,9 +52,23 @@
 ## Hill chart（AI 每 2-3 天更新）
 
 ```
-S1 dogfood     ●uphill  （等你跑一遍核心路径，记 jank）
-S2 稳定性      ●uphill
-S3 像模像样    ●uphill
-S4 学习探针    ●uphill
-S5 TF 分发     ●uphill  （建议先打通，最早下山）
+S1 dogfood     ●uphill   （等你跑一遍核心路径，记 jank — 你的活）
+S2 稳定性      ◐downhill  （AI 提前审计：核心闭环零崩溃/零数据丢失；3 个静默失败已修）
+S3 像模像样    ◐downhill  （仅剩 1 个需你二选一的提示词取舍，见下）
+S4 学习探针    ●uphill   （等你定义要测什么信号）
+S5 TF 分发     ●uphill   （需你 Xcode/ASC，已挂起）
 ```
+
+## 审计进展（2026-06-05，workflow `w7wioy1f8`，24 agents 对抗验证）
+
+**核心闭环很干净**：零崩溃、零 broken-state、零数据丢失。去重后 4 个真问题（3 静默失败 + 1 提示词混淆），且都是"项目别处已有正确写法、唯独这里漏了"。
+
+**✅ AI 已修（clear-cut-safe，对齐既有模式，commit 见下）**：
+1. 采集选答案图加载失败静默无反馈 → 对齐 `loadPhoto` 补错误提示 + 取消处理（`CaptureResultViewModel.swift`）
+2. 全部图片加载失败仍打包空 ZIP 假成功 → 打包前 `guard !entries.isEmpty`（`ExportOptionsSheet.swift`）
+3. 导出选题读取失败渲染成 0 项空白表 → 加 `loadError` 态 + `ContentUnavailableView` + 重试（`ResolvedExportSheet.swift`）
+
+**🤔 需你二选一（S3 唯一剩项）**：PDF 预览能正常看、却同时弹笼统"导出失败"（实际只是保存临时文件失败、分享/打印不可用）。`ExportPreviewView.swift:107-117`
+- **(a) 轻**：把提示词分开——生成失败="PDF 生成失败"、保存失败="分享准备失败"（仅改文案）。
+- **(b) 重但更干净**：临时文件没存好就不让进预览（改交互）。
+- 你回一句选 a/b，我就修。
