@@ -290,8 +290,8 @@ final class CaptureResultViewModelTests {
 
     // MARK: - AI 标注回填（动态学科维度，S6-cut 后从写裸字段改为命中维度值选中）
 
-    @Test("AI 标注：建议 subject 命中学科维度值则选中，难度初始时回填")
-    func aiTagging_backfillsSubjectAndDifficulty() async throws {
+    @Test("AI 标注：建议 subject 命中学科维度值则选中；难度不被 AI 填，由用户自定")
+    func aiTagging_backfillsSubjectOnly_notDifficulty() async throws {
         let subjectDim = CategoryDimensionModel(
             name: "学科", isMultiValue: false, isBuiltIn: true,
             systemKey: CategorySystemKey.subject, sortOrder: 0
@@ -316,7 +316,7 @@ final class CaptureResultViewModelTests {
         try await waitUntil { vm.selectedIds(forDimension: subjectDim.id).contains(math.id) }
 
         #expect(vm.selectedIds(forDimension: subjectDim.id) == [math.id])
-        #expect(vm.difficulty.rawValue == 3)   // 难度初始 .one → 回填建议值
+        #expect(vm.difficulty == .one)   // 难度不被 AI 标注修改，保持初始默认值，由用户自定
     }
 
     // MARK: - 字段配置引导

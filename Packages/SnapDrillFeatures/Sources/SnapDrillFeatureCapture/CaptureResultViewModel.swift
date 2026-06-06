@@ -168,7 +168,7 @@ public final class CaptureResultViewModel {
         startAITagging()
     }
 
-    /// AI 标注：有 OCR 文本时自动建议学科维度的值 + 难度（best-effort）
+    /// AI 标注：有 OCR 文本时自动建议学科维度的值（best-effort；难度交用户判断，AI 不填）
     private func startAITagging() {
         guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         taggingTask?.cancel()
@@ -177,19 +177,17 @@ public final class CaptureResultViewModel {
             defer { isTagging = false }
             guard let suggestion = await contentTaggingService.suggestTags(for: content),
                   !Task.isCancelled else { return }
-            applySuggestion(subject: suggestion.subject, difficulty: suggestion.difficulty)
+            applySuggestion(subject: suggestion.subject)
         }
     }
 
-    /// 应用 AI 建议：subject 命中学科维度的同名值则选中（仅当该维度未选）；难度仅当为初始值时填
-    private func applySuggestion(subject: String, difficulty suggestedDifficulty: Int) {
+    /// 应用 AI 建议：subject 命中学科维度的同名值则选中（仅当该维度未选）。
+    /// 难度是主观字段、由用户自行确定，AI 不自动填充（信任 even over 省事）。
+    private func applySuggestion(subject: String) {
         if let subjectDim = dimensions.first(where: { $0.systemKey == CategorySystemKey.subject }),
            (selectedByDimension[subjectDim.id] ?? []).isEmpty,
            let value = (valuesByDimension[subjectDim.id] ?? []).first(where: { $0.name == subject }) {
             selectedByDimension[subjectDim.id] = [value.id]
-        }
-        if difficulty == .one {
-            difficulty = Difficulty(rawValue: suggestedDifficulty) ?? .one
         }
     }
 
