@@ -192,4 +192,32 @@ final class ReviewRepositoryTests {
         let fetched = try repo.fetchAllModels().first(where: { $0.id == savedId })
         #expect(fetched?.answerText == specialAnswer, "含特殊字符的 answerText 应完整保留")
     }
+
+    // MARK: - 软删 pending 排除（Fix 4 / GAP-R1）
+
+    @Test("fetchDueModels/Count/SmartSelection 的 excluding 排除软删 pending 题")
+    func fetchDue_excludesPendingDeletion() async throws {
+        let keepID = UUID()
+        let pendingID = UUID()
+        let keep = makeDummyModel(id: keepID, content: "保留题")
+        keep.nextReviewAt = Date(timeIntervalSinceNow: -3600)
+        let pending = makeDummyModel(id: pendingID, content: "待删题")
+        pending.nextReviewAt = Date(timeIntervalSinceNow: -3600)
+        try repo.insertAndSave(keep)
+        try repo.insertAndSave(pending)
+
+        // 无排除：两题都到期
+        #expect(try repo.fetchDueModels().count == 2)
+        #expect(try repo.fetchDueCount() == 2)
+        #expect(try repo.fetchSmartSelection(limit: 10).count == 2)
+
+        // 排除 pendingID（模拟 5 秒撤销窗口内的软删题）
+        let due = try repo.fetchDueModels(excluding: [pendingID])
+        #expect(due.count == 1)
+        #expect(due.first?.id == keepID)
+        #expect(try repo.fetchDueCount(excluding: [pendingID]) == 1)
+        let smart = try repo.fetchSmartSelection(limit: 10, excluding: [pendingID])
+        #expect(smart.count == 1)
+        #expect(smart.first?.id == keepID)
+    }
 }

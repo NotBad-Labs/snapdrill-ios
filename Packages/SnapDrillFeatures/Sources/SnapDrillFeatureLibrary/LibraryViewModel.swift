@@ -277,14 +277,24 @@ public final class LibraryViewModel {
         let previouslyPendingIDs = deletionScheduler.pendingDeletionIDs
         discardPendingDeletionBatches(matching: previouslyPendingIDs)
         deletionScheduler.scheduleDeletion(ids: ids) { idsToDelete in
+            var anyDeleted = false
             for id in idsToDelete {
                 do {
                     try await repos.review.delete(id: id)
+                    anyDeleted = true
                 } catch {
                     SnapDrillLogger.generic.error("删除题目失败（id=\(id)）: \(error.localizedDescription)")
                 }
             }
+            // 硬删提交后广播：让复习/仪表盘等观察者据最终 DB 状态刷新
+            if anyDeleted {
+                await MainActor.run {
+                    NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+                }
+            }
         }
+        // 软删即时广播：让复习队列/仪表盘据 pendingDeletionIDs 立即把待删题排除（不必等 5 秒硬删）
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
     }
 
     /// 撤销删除（恢复暂存的题目到列表）
@@ -321,6 +331,8 @@ public final class LibraryViewModel {
                 }
             }
         }
+        // 撤销后广播：让复习队列/仪表盘把恢复的题重新纳入（它不再处于 pendingDeletionIDs）
+        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
     }
 
     // 删除逻辑已委托给 DeletionScheduler（App 级生命周期）

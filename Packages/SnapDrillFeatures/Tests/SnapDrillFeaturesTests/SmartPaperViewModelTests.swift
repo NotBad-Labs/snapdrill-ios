@@ -228,4 +228,23 @@ final class SmartPaperViewModelTests {
         #expect(options.showHeader == false)
         #expect(options.itemsPerPage == 4)
     }
+
+    // MARK: - 软删 pending 排除（Fix 4 / GAP-R1）
+
+    @Test("refreshSelection 排除软删 pending 的题")
+    func refreshSelection_excludesPendingDeletion() throws {
+        let keep = ReviewItemModel(content: "保留题")
+        keep.nextReviewAt = Date(timeIntervalSinceNow: -3600)
+        let pending = ReviewItemModel(content: "待删题")
+        pending.nextReviewAt = Date(timeIntervalSinceNow: -3600)
+        repos.review.insert(keep)
+        repos.review.insert(pending)
+
+        let scheduler = DeletionScheduler()
+        scheduler.scheduleDeletion(ids: [pending.id]) { _ in }  // 模拟 5 秒撤销窗口
+        let vm = SmartPaperViewModel(repositories: repos, deletionScheduler: scheduler)
+        vm.refreshSelection()
+
+        #expect(vm.selectedItems.count == 1)  // 排除 pending 后只剩 1
+    }
 }

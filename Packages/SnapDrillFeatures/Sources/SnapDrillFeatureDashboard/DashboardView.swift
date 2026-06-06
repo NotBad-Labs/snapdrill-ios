@@ -140,7 +140,10 @@ public struct DashboardView: View {
             }
             .onAppear {
                 if viewModel == nil {
-                    viewModel = DashboardViewModel(repositories: repositories)
+                    viewModel = DashboardViewModel(
+                        repositories: repositories,
+                        deletionScheduler: services.deletionScheduler
+                    )
                 }
                 if analyticsViewModel == nil {
                     let vm = DashboardAnalyticsViewModel(

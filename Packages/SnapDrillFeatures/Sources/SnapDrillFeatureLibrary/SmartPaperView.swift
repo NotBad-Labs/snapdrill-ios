@@ -52,7 +52,7 @@ struct SmartPaperView: View {
                 if viewModel == nil {
                     // 在 MainActor 上下文中捕获，避免 Task 闭包中跨 actor 访问
                     let repos = repositories
-                    let vm = SmartPaperViewModel(repositories: repos)
+                    let vm = SmartPaperViewModel(repositories: repos, deletionScheduler: services.deletionScheduler)
                     self.viewModel = vm
                     vm.loadInitialData()
                 }
