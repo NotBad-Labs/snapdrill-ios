@@ -63,11 +63,14 @@ final class SmartPaperViewModel {
     // MARK: - 依赖
 
     private let repositories: RepositoryContainer
+    /// 软删调度器（注入 App 级共享实例）：用 pendingDeletionIDs 把 5 秒撤销窗口内的软删题排除出选题
+    private let deletionScheduler: DeletionScheduler
 
     // MARK: - 初始化
 
-    init(repositories: RepositoryContainer) {
+    init(repositories: RepositoryContainer, deletionScheduler: DeletionScheduler = DeletionScheduler()) {
         self.repositories = repositories
+        self.deletionScheduler = deletionScheduler
     }
 
     // MARK: - Public API
@@ -90,7 +93,8 @@ final class SmartPaperViewModel {
             let models = try repositories.review.fetchSmartSelection(
                 limit: questionCount,
                 subjectValueIds: selectedSubjectValueIds,
-                difficulties: selectedDifficulties
+                difficulties: selectedDifficulties,
+                excluding: deletionScheduler.pendingDeletionIDs
             )
             selectedItems = models.map { $0.toExportSnapshot() }
         } catch {

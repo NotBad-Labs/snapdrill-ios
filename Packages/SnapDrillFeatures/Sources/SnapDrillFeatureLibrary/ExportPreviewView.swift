@@ -24,7 +24,6 @@ struct ExportPreviewView: View {
     @State private var pdfData: Data?
     @State private var isLoading = true
     @State private var tempPDFURL: URL?
-    @State private var showSaveError = false
     @State private var showGenerateError = false
 
     @Environment(\.profileManager) private var profileManager
@@ -53,9 +52,6 @@ struct ExportPreviewView: View {
                     }
                 }
             }
-        }
-        .alert(L10n.Errors.exportFailed, isPresented: $showSaveError) {
-            Button(L10n.Common.ok, role: .cancel) {}
         }
         .alert(L10n.Errors.pdfGenerateFailed, isPresented: $showGenerateError) {
             Button(L10n.Common.retry) { generatePDF() }
@@ -87,9 +83,16 @@ struct ExportPreviewView: View {
                 }
 
                 await MainActor.run {
+                    // 临时文件没存好就不进预览——避免「看得到预览却被告知导出失败」的不连贯；
+                    // 失败统一走与生成失败一致的错误路径（含重试）。
+                    guard let tempURL = saveToTemp(pdfData: data) else {
+                        self.isLoading = false
+                        self.showGenerateError = true
+                        return
+                    }
+                    self.tempPDFURL = tempURL
                     self.pdfData = data
                     self.isLoading = false
-                    self.saveToTemp(pdfData: data)
                     analyticsService.track(.pdfExported, parameters: [
                         "item_count": "\(items.count)"
                     ])
@@ -104,15 +107,16 @@ struct ExportPreviewView: View {
         }
     }
     
-    private func saveToTemp(pdfData: Data) {
+    /// 写入临时文件供 ShareLink/打印用；成功返回 URL，失败返回 nil（作为「不进预览」的判据）。
+    private func saveToTemp(pdfData: Data) -> URL? {
         let fileName = "SnapDrill_Mistakes_\(Date().filenameDateString).pdf"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         do {
             try pdfData.write(to: tempURL)
-            self.tempPDFURL = tempURL
+            return tempURL
         } catch {
             SnapDrillLogger.generic.error("PDF 写入临时文件失败: \(error.localizedDescription)")
-            self.showSaveError = true
+            return nil
         }
     }
 }

@@ -47,17 +47,22 @@ public final class DashboardViewModel {
     private var pendingRefreshTask: Task<Void, Never>?
     private let draftService: CaptureDraftServiceProtocol
     private let repositories: RepositoryContainer
+    /// 软删调度器（注入 App 级共享实例）：用 pendingDeletionIDs 把 5 秒撤销窗口内的软删题从待复习数中排除
+    private let deletionScheduler: DeletionScheduler
 
     /// 创建仪表盘 ViewModel
     /// - Parameters:
     ///   - repositories: 应用的数据仓库容器
     ///   - draftService: 草稿服务，默认使用 `CaptureDraftService.shared`
+    ///   - deletionScheduler: 软删调度器，默认空实例（测试无 pending 时不过滤）
     public init(
         repositories: RepositoryContainer,
-        draftService: CaptureDraftServiceProtocol = CaptureDraftService.shared
+        draftService: CaptureDraftServiceProtocol = CaptureDraftService.shared,
+        deletionScheduler: DeletionScheduler = DeletionScheduler()
     ) {
         self.repositories = repositories
         self.draftService = draftService
+        self.deletionScheduler = deletionScheduler
 
         setupDataChangeObserver()
     }
@@ -72,7 +77,7 @@ public final class DashboardViewModel {
         do {
             let today = try repositories.review.fetchTodayCount()
             let total = try repositories.review.totalItemCount()
-            let due = try repositories.review.fetchDueCount()
+            let due = try repositories.review.fetchDueCount(excluding: deletionScheduler.pendingDeletionIDs)
             let reviewed = try repositories.review.fetchTodayReviewedCount()
             todayItemsCount = today
             totalCount = total

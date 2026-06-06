@@ -477,4 +477,24 @@ final class ReviewViewModelTests {
 
         #expect(vm.phase == .idle)
     }
+
+    // MARK: - 软删 pending 排除（Fix 4 / GAP-R1）
+
+    @Test("loadDataAsync 排除 DeletionScheduler 待删除（软删）的到期题")
+    func loadDataAsync_excludesPendingDeletion() async throws {
+        let keep = insertDueItem(content: "保留题")
+        let pending = insertDueItem(content: "待删题")
+        let scheduler = DeletionScheduler()
+        scheduler.scheduleDeletion(ids: [pending.id]) { _ in }  // 模拟 5 秒撤销窗口
+
+        let vm = ReviewViewModel(
+            repository: repo,
+            analyticsService: AnalyticsServiceMock(),
+            deletionScheduler: scheduler
+        )
+        await vm.loadDataAsync()
+
+        #expect(vm.reviewQueue.count == 1)
+        #expect(vm.reviewQueue.first?.id == keep.id)
+    }
 }

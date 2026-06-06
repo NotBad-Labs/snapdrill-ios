@@ -17,19 +17,35 @@ struct ResolvedExportSheet: View {
     let ids: Set<UUID>
     @Environment(\.repositories) private var repositories
     @State private var resolvedItems: [ReviewExportSnapshot] = []
+    @State private var loadError: String?
 
     var body: some View {
-        ExportOptionsSheet(items: resolvedItems)
-            .task {
-                resolveItems()
+        Group {
+            if let loadError {
+                // 读取失败时显式反馈，避免渲染成 0 项空白导出表（家长以为选的题没了）
+                ContentUnavailableView {
+                    Label(L10n.Errors.loadFailed, systemImage: "exclamationmark.triangle")
+                } description: {
+                    Text(loadError)
+                } actions: {
+                    Button(L10n.Common.retry) { resolveItems() }
+                }
+            } else {
+                ExportOptionsSheet(items: resolvedItems)
             }
+        }
+        .task {
+            resolveItems()
+        }
     }
 
     private func resolveItems() {
         do {
             self.resolvedItems = try repositories.review.fetchModels(by: ids).map { $0.toExportSnapshot() }
+            self.loadError = nil
         } catch {
             SnapDrillLogger.generic.error("解析导出题目失败: \(error.localizedDescription)")
+            self.loadError = error.localizedDescription
         }
     }
 }

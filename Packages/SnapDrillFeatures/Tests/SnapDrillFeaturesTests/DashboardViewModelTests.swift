@@ -224,4 +224,30 @@ final class DashboardViewModelTests {
         try await waitUntil { vm.totalCount == 1 }
         vm.cancelTasks()
     }
+
+    // MARK: - 软删 pending 排除（Fix 4 / GAP-R1）
+
+    @Test("loadData 的 dueCount 排除软删 pending 的到期题，totalCount 不受影响")
+    func loadData_dueCountExcludesPendingDeletion() throws {
+        let keep = ReviewItemModel(content: "保留题")
+        keep.nextReviewAt = Date(timeIntervalSinceNow: -3600)
+        let pending = ReviewItemModel(content: "待删题")
+        pending.nextReviewAt = Date(timeIntervalSinceNow: -3600)
+        repos.review.insert(keep)
+        repos.review.insert(pending)
+
+        let scheduler = DeletionScheduler()
+        scheduler.scheduleDeletion(ids: [pending.id]) { _ in }  // 模拟 5 秒撤销窗口
+        let vm = DashboardViewModel(
+            repositories: repos,
+            draftService: MockDraftService(),
+            deletionScheduler: scheduler
+        )
+        vm.loadData()
+
+        #expect(vm.dueCount == 1)    // 排除 pending 后只剩 1
+        #expect(vm.totalCount == 2)  // 总数不受影响（软删窗口内 DB 仍在）
+
+        vm.cancelTasks()  // 取消 reviewDataDidChange 观察者，避免跨测试 leak（与既有测试一致）
+    }
 }

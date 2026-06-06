@@ -87,6 +87,8 @@ final class ReviewViewModel {
     private let repository: ReviewRepository
     private let scheduler = ReviewScheduler()
     private let analyticsService: AnalyticsServiceProtocol
+    /// 软删调度器（注入 App 级共享实例）：用其 pendingDeletionIDs 把 5 秒撤销窗口内的软删题排除出复习队列
+    private let deletionScheduler: DeletionScheduler
     private let saveContext: () throws -> Void
     private let rollbackContext: () -> Void
 
@@ -98,11 +100,13 @@ final class ReviewViewModel {
     init(
         repository: ReviewRepository,
         analyticsService: AnalyticsServiceProtocol,
+        deletionScheduler: DeletionScheduler = DeletionScheduler(),
         saveContext: (() throws -> Void)? = nil,
         rollbackContext: (() -> Void)? = nil
     ) {
         self.repository = repository
         self.analyticsService = analyticsService
+        self.deletionScheduler = deletionScheduler
         self.saveContext = saveContext ?? { try repository.saveContext() }
         self.rollbackContext = rollbackContext ?? { repository.rollbackContext() }
     }
@@ -133,7 +137,8 @@ final class ReviewViewModel {
     /// 异步加载复习数据
     func loadDataAsync() async {
         do {
-            let due = try repository.fetchDueModels()
+            // 排除 5 秒撤销窗口内的软删题（GAP-R1）：用注入的 App 级 DeletionScheduler 的 pending 集合
+            let due = try repository.fetchDueModels(excluding: deletionScheduler.pendingDeletionIDs)
             reviewQueue = due
             reviewedTodayCount = try repository.fetchTodayReviewedCount()
             totalItemsCount = try repository.totalItemCount()

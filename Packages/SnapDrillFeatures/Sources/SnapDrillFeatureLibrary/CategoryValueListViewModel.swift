@@ -59,7 +59,8 @@ public final class CategoryValueListViewModel {
         self.dimension = dimension
         self.repositories = repositories
         // 注意：didSet 不在 init 阶段触发，故此处仅初始化、不写穿
-        self.isVisibleInCapture = UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool ?? true
+        // 缺省与采集页一致（defaultCaptureVisibility），否则管理页开关初态会与采集实际默认 desync
+        self.isVisibleInCapture = UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool ?? dimension.defaultCaptureVisibility
         self.isMultiValue = dimension.isMultiValue
     }
 

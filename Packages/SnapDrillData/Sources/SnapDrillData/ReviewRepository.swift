@@ -109,13 +109,18 @@ public final class ReviewRepository {
 
     /// 返回当前到期待复习的题目数量
     /// - Throws: SwiftData fetch 错误
-    public func fetchDueCount() throws -> Int {
+    public func fetchDueCount(excluding ids: Set<UUID> = []) throws -> Int {
         let now = Date.now
         // nextReviewAt 为非可选 Date（默认 distantPast = 立即到期），
         // 可直接使用 #Predicate 让 SQLite 完成过滤，避免全表扫描内存炸弹。
         let predicate = #Predicate<ReviewItemModel> { $0.nextReviewAt <= now }
         let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        return try modelContext.fetchCount(descriptor)
+        // 无待删除时走 SQLite COUNT 快路径；有待删除（5 秒撤销窗口的软删题）时
+        // fetchCount 无法按 id 集合过滤，回退到取模型后内存排除（pending 数极小）。
+        if ids.isEmpty {
+            return try modelContext.fetchCount(descriptor)
+        }
+        return try modelContext.fetch(descriptor).filter { !ids.contains($0.id) }.count
     }
 
     /// 返回今日新增的题目数量
@@ -162,7 +167,8 @@ public final class ReviewRepository {
     public func fetchSmartSelection(
         limit: Int,
         subjectValueIds: Set<UUID> = [],
-        difficulties: Set<Int> = []
+        difficulties: Set<Int> = [],
+        excluding ids: Set<UUID> = []
     ) throws -> [ReviewItemModel] {
         let difficultiesArray = Array(difficulties)
 
@@ -179,14 +185,19 @@ public final class ReviewRepository {
             ]
         )
 
-        if subjectValueIds.isEmpty {
+        // 无学科过滤且无待删除排除时走 DB fetchLimit 快路径；
+        // 一旦需要内存排除（pending 软删题），必须先取全量再排除/截断——
+        // 否则 fetchLimit 会在排除前截断导致少选。
+        if subjectValueIds.isEmpty && ids.isEmpty {
             descriptor.fetchLimit = limit
             return try modelContext.fetch(descriptor)
         }
 
         let all = try modelContext.fetch(descriptor)
         let filtered = all.filter { item in
-            !Set((item.categoryValues ?? []).map { $0.id }).isDisjoint(with: subjectValueIds)
+            !ids.contains(item.id) &&
+            (subjectValueIds.isEmpty ||
+             !Set((item.categoryValues ?? []).map { $0.id }).isDisjoint(with: subjectValueIds))
         }
         return Array(filtered.prefix(limit))
     }
@@ -194,7 +205,7 @@ public final class ReviewRepository {
     // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）
 
     /// 获取所有待复习条目的 SwiftData 模型
-    public func fetchDueModels() throws -> [ReviewItemModel] {
+    public func fetchDueModels(excluding ids: Set<UUID> = []) throws -> [ReviewItemModel] {
         let now = Date.now
         // nextReviewAt 为非可选 Date（distantPast 表示立即到期），
         // 可直接使用 #Predicate 让 SQLite 完成过滤，避免全表扫描内存炸弹。
@@ -203,7 +214,10 @@ public final class ReviewRepository {
             predicate: predicate,
             sortBy: [SortDescriptor(\.createdAt, order: .forward)]
         )
-        return try modelContext.fetch(descriptor)
+        let due = try modelContext.fetch(descriptor)
+        // 排除处于 5 秒撤销窗口的软删题（DeletionScheduler.pendingDeletionIDs）——
+        // 软删纯内存集合、DB 里仍在，必须由调用方传入 pending IDs 在此过滤。
+        return ids.isEmpty ? due : due.filter { !ids.contains($0.id) }
     }
 
     /// 按 ID 获取单个 ReviewItemModel
