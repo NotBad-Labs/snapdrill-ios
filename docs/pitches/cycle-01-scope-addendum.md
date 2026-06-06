@@ -1,6 +1,6 @@
 # Cycle 1 Scope Addendum — 意图对齐落地边界
 
-> 状态：**草案 · 待 PO 批准** · 2026-06-06 · 修订对象：`cycle-01-quality-floor.md`（pitch 的 no-go / scope）
+> 状态：**已采纳**（PO 2026-06-06 批准；①筐修复 1-4 已实现并 commit，3a/3b/修4-完整一致 决策见正文与 git log）· 修订对象：`cycle-01-quality-floor.md`（pitch 的 no-go / scope）
 > 缘由：意图对齐（`cycle-01-intent-tradeoffs.md` 22 答案）与 pitch no-go「不碰复习 / 不加新功能」冲突。**4 方异源一致**：问卷答案 ≠ backlog，需一个「进本 cycle / 只观察 / Parked」闸门。本文件 = 那个闸门。
 > **不变的 bet**：守住 采集→管理→导出/打印→TF 的质量地板；最高价值 = PO 自己 dogfood + 通 TF，不是更多文档。
 > 顺序（仍按 pitch Ch.11）：**S5 先通 TF 管线 → S1 dogfood → 小修在 S2/S3 内做**。
