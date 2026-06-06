@@ -86,4 +86,11 @@ extension CategoryDimensionModel {
     public var captureVisibilityKey: String {
         "\(Self.visibilityKeyPrefix)\(systemKey ?? id.uuidString)"
     }
+
+    /// 采集页 / 管理页可见性的缺省值（仅当 UserDefaults 无显式设置时生效）：
+    /// 学科维度 + 用户自建维度默认可见；内置非学科维度（来源/年级/标签）默认隐藏，保持采集极简。
+    /// 注：编辑页不读此缺省、始终显示全部维度（避免隐藏题目已贴的标签）。
+    public var defaultCaptureVisibility: Bool {
+        systemKey == CategorySystemKey.subject || !isBuiltIn
+    }
 }

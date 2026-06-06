@@ -193,9 +193,10 @@ public final class CaptureResultViewModel {
 
     // MARK: - 维度选择 / 新建（供 View 经 DimensionInputRow 驱动）
 
-    /// 某维度是否在录入页可见（per-维度可见性，默认全可见；S4d 管理界面写入开关）
+    /// 某维度是否在录入页可见（per-维度可见性；缺省走 defaultCaptureVisibility：
+    /// 学科 + 用户自建默认可见，内置非学科默认隐藏；S4d 管理界面写入显式开关覆盖缺省）
     public func isDimensionVisible(_ dimension: CategoryDimensionModel) -> Bool {
-        UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool ?? true
+        UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool ?? dimension.defaultCaptureVisibility
     }
 
     /// 映射成 UI 纯值模型（仅可见维度），供 DimensionInputRow 渲染

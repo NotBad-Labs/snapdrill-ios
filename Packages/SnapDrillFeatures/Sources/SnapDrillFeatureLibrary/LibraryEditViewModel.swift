@@ -138,9 +138,10 @@ public final class LibraryEditViewModel {
 
     // MARK: - 维度选择 / 新建（供 View 经 DimensionInputRow 驱动）
 
-    /// 某维度是否在编辑页可见（与录入页共用 per-维度可见性，默认全可见）
-    public func isDimensionVisible(_ dimension: CategoryDimensionModel) -> Bool {
-        UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool ?? true
+    /// 编辑页始终显示全部维度——保证用户能看到并修改题目已贴的任何标签，
+    /// 不套采集页的极简缺省（PO 决策 3b：编辑页保留全部显示，避免隐藏已有标签）。
+    public func isDimensionVisible(_: CategoryDimensionModel) -> Bool {
+        true
     }
 
     /// 映射成 UI 纯值模型（仅可见维度），供 DimensionInputRow 渲染
