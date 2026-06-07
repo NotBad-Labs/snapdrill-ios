@@ -29,6 +29,8 @@ struct LibraryDetailView: View {
     @State private var fullScreenImage: UIImage?
     @State private var loadedImage: UIImage?
     @State private var loadedAnswerImage: UIImage?
+    @State private var imageLoadFailed = false
+    @State private var answerImageLoadFailed = false
     @State private var printPDFURL: URL?
     @State private var isShowingShareSheet = false
     @State private var shareImage: UIImage?
@@ -56,6 +58,11 @@ struct LibraryDetailView: View {
                             }
                             .accessibleImage(label: L10n.Accessibility.questionImage)
                             .accessibilityHint(L10n.Accessibility.tapToEnlarge)
+                    } else if imageLoadFailed {
+                        // 图片加载失败占位：避免「图丢了却一直转圈」的误导（抄 LibraryEditView 现成范式）
+                        ContentUnavailableView(L10n.Errors.imageLoadFailed, systemImage: "photo.badge.exclamationmark")
+                            .frame(height: 200)
+                            .padding(.horizontal)
                     } else {
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.secondary.opacity(0.1))
@@ -142,6 +149,7 @@ struct LibraryDetailView: View {
                             .font(.headline)
                             .foregroundStyle(.orange)
                             .padding(.horizontal)
+                            .accessibilityAddTraits(.isHeader)
 
                         if let answerText = item.answerText, !answerText.isEmpty {
                             Text(answerText)
@@ -164,6 +172,11 @@ struct LibraryDetailView: View {
                                     }
                                     .accessibleImage(label: L10n.Accessibility.answerImage)
                                     .accessibilityHint(L10n.Accessibility.tapToEnlarge)
+                            } else if answerImageLoadFailed {
+                                // 答案图加载失败占位：与题目图一致，避免永久转圈误导
+                                ContentUnavailableView(L10n.Errors.imageLoadFailed, systemImage: "photo.badge.exclamationmark")
+                                    .frame(height: 150)
+                                    .padding(.horizontal)
                             } else {
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.secondary.opacity(0.1))
@@ -182,14 +195,25 @@ struct LibraryDetailView: View {
             .frame(maxWidth: .infinity)
         }
         .task(id: item.imagePath) {
-            guard let path = item.imagePath else { loadedImage = nil; return }
+            guard let path = item.imagePath else { loadedImage = nil; imageLoadFailed = false; return }
+            // 换图时先清旧图，避免短暂闪上一张题图（codex review）
+            loadedImage = nil
+            imageLoadFailed = false
             let image = await imageStorage.loadImageAsync(path: path)
-            if !Task.isCancelled { loadedImage = image }
+            if !Task.isCancelled {
+                loadedImage = image
+                imageLoadFailed = (image == nil)
+            }
         }
         .task(id: item.answerImagePath) {
-            guard let path = item.answerImagePath else { loadedAnswerImage = nil; return }
+            guard let path = item.answerImagePath else { loadedAnswerImage = nil; answerImageLoadFailed = false; return }
+            loadedAnswerImage = nil
+            answerImageLoadFailed = false
             let image = await imageStorage.loadImageAsync(path: path)
-            if !Task.isCancelled { loadedAnswerImage = image }
+            if !Task.isCancelled {
+                loadedAnswerImage = image
+                answerImageLoadFailed = (image == nil)
+            }
         }
         .navigationTitle(L10n.Library.detail)
         .navigationBarTitleDisplayMode(.inline)

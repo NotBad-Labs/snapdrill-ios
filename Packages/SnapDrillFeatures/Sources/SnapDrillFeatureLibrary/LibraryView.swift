@@ -34,7 +34,8 @@ public struct LibraryView: View {
     @State private var isFirstAppear = true
     @State private var isBatchTagPresented = false
     @State private var isSmartPaperPresented = false
-    
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     // MARK: - Initialization
     
     /// 创建题库列表视图
@@ -121,7 +122,7 @@ public struct LibraryView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     if editMode.isEditing {
                         Button(L10n.Common.done) {
-                            withAnimation {
+                            withAnimation(reduceMotion ? nil : .default) {
                                 editMode = .inactive
                                 selectedItemIDs.removeAll()
                             }
@@ -299,7 +300,7 @@ public struct LibraryView: View {
         guard let vm = viewModel else { return }
         let ids = selectedItemIDs
         vm.softDeleteItems(ids: ids)
-        withAnimation {
+        withAnimation(reduceMotion ? nil : .default) {
             selectedItemIDs.removeAll()
         }
     }

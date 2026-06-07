@@ -22,6 +22,7 @@ struct FullScreenImageView: View {
     @State private var scale: CGFloat = 1.0
     @State private var offset: CGSize = .zero
     @GestureState private var dragOffset: CGSize = .zero
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     var body: some View {
         ZStack {
@@ -40,7 +41,7 @@ struct FullScreenImageView: View {
                             scale = max(1.0, min(value, 4.0))
                         }
                         .onEnded { _ in
-                            withAnimation(.spring()) {
+                            withAnimation(reduceMotion ? nil : .spring()) {
                                 if scale < 1.0 { scale = 1.0 }
                             }
                         }
@@ -57,14 +58,14 @@ struct FullScreenImageView: View {
                             if abs(value.translation.height) > 100 && scale == 1.0 {
                                 onDismiss()
                             } else {
-                                withAnimation(.spring()) {
+                                withAnimation(reduceMotion ? nil : .spring()) {
                                     offset = .zero
                                 }
                             }
                         }
                 )
                 .onTapGesture(count: 2) {
-                    withAnimation(.spring()) {
+                    withAnimation(reduceMotion ? nil : .spring()) {
                         scale = scale > 1.0 ? 1.0 : 2.0
                     }
                 }

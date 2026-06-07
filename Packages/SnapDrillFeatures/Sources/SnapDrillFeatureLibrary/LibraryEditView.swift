@@ -216,6 +216,10 @@ public struct LibraryEditView: View {
                 } label: {
                     Label(L10n.Library.removeAnswerImage, systemImage: "trash")
                 }
+            } else if vm.answerImageLoadFailed {
+                // 答案图加载失败占位：与题目图一致（异源 review 补齐）
+                ContentUnavailableView(L10n.Errors.imageLoadFailed, systemImage: "photo.badge.exclamationmark")
+                    .frame(height: 100)
             } else if item.answerImagePath != nil && !vm.isAnswerImageCleared {
                 // 有答案图路径但尚未加载完成（排除已删除待保存的情况）
                 ProgressView()

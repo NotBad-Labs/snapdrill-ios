@@ -25,6 +25,7 @@ struct LibraryListView: View {
     @Bindable var viewModel: LibraryViewModel
     
     @Environment(\.editMode) private var editMode
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var swipeDeleteIDs: Set<UUID> = []
     @State private var showSwipeDeleteConfirm = false
 
@@ -162,7 +163,7 @@ struct LibraryListView: View {
                     // 长按进入多选模式（iOS 标准交互）
                     .simultaneousGesture(
                         LongPressGesture(minimumDuration: 0.4).onEnded { _ in
-                            withAnimation { editMode?.wrappedValue = .active }
+                            withAnimation(reduceMotion ? nil : .default) { editMode?.wrappedValue = .active }
                         }
                     )
                     .accessibilityHint(L10n.Accessibility.longPressToSelect)

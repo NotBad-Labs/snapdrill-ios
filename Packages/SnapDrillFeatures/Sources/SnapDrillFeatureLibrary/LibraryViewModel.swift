@@ -9,6 +9,7 @@
 //
 
 import SwiftUI
+import UIKit
 import Observation
 import SnapDrillCore
 import SnapDrillData
@@ -268,7 +269,7 @@ public final class LibraryViewModel {
         pendingDeletionItemBatches.append((ids: ids, items: itemsToDelete))
 
         // 从列表中移除（视觉即时反馈）
-        withAnimation {
+        withAnimation(UIAccessibility.isReduceMotionEnabled ? nil : .default) {
             filteredItems.removeAll { ids.contains($0.id) }
         }
 
@@ -307,7 +308,7 @@ public final class LibraryViewModel {
         removePendingDeletionBatches(matching: restoredIDs)
 
         // 使用当前排序选项恢复列表顺序
-        withAnimation {
+        withAnimation(UIAccessibility.isReduceMotionEnabled ? nil : .default) {
             filteredItems.append(contentsOf: itemsToRestore)
             if sortOption.sortsBySubjectName {
                 // 学科排序是关系内存排序，SortDescriptor 无法表达，单独按维度值名排
