@@ -15,8 +15,9 @@ INPUT=$(cat)
 [[ "$INPUT" == *push* ]] || exit 0
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
-# 非锚定匹配：兼容 env 前缀 / && 链式 / 多空格（'FOO=1 git push' / 'cd x && git push'）
-if ! echo "$COMMAND" | grep -qE '\bgit[[:space:]]+push\b'; then
+# 命令边界匹配：兼容 env 前缀 / 链式（'FOO=1 git push' / 'cd x && git push'），
+# 但排除字符串/消息里的 'git push'（如 git commit -m "fix git push"、echo "git push"）
+if ! echo "$COMMAND" | grep -qE '(^|[;&|])[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+[[:space:]]+)*git[[:space:]]+push([[:space:]]|$)'; then
     exit 0
 fi
 

@@ -2,6 +2,9 @@
 # PreToolUse (Bash): 阻塞危险命令类别。
 # 匹配到 → exit 2 + stderr 提示。
 #
+# 定位：defense-in-depth 启发式，非 sandbox。静态分析挡「误操作 + 简单注入」，
+# 挡不住运行时展开类（$VAR / 命令替换 $(...) / 反引号——只有执行才知道真值）——已知上限。
+#
 # 用户显式授权后绕过：设置环境变量 CLAUDE_HOOK_ALLOW_DANGEROUS=1
 
 set -eo pipefail
@@ -47,14 +50,18 @@ protected = {
 
 def decode_ansi_c(source):
     # 解码 ANSI-C 引用 $'...'（含 \xNN/\NNN/\t 等转义）为普通 '...'，
-    # 防 `bash -c $'rm -rf /'` 与 `bash -c $'rm\x20-rf\x20/'` 绕过静态分析
-    def repl(match):
+    # 防 `bash -c $'rm -rf /'` / `bash -c $'rm\x20-rf\x20/'` 绕过静态分析。
+    # 逐转义尽力解码：单个非法转义（如 \u123）不致整段退化（agy/deepseek review）。
+    def decode_escape(esc_match):
         try:
-            decoded = codecs.decode(match.group(1), "unicode_escape")
+            return codecs.decode(esc_match.group(0), "unicode_escape")
         except Exception:
-            decoded = match.group(1)
+            return esc_match.group(0)
+
+    def repl(match):
+        decoded = re.sub(r"\\(x[0-9A-Fa-f]{1,2}|[0-7]{1,3}|.)", decode_escape, match.group(1))
         return "'" + decoded.replace("'", "") + "'"
-    return re.sub(r"\$'((?:[^'\\]|\\.)*)'", repl, source)
+    return re.sub(r"\$'((?:[^'\\]|\\.)*)'", repl, source, flags=re.DOTALL)
 
 
 def tokenize(source):
@@ -193,7 +200,7 @@ def branch_name_from_refspec(refspec):
     else:
         candidate = refspec
     if candidate.startswith("refs/heads/"):
-        candidate = candidate.rsplit("/", 1)[-1]
+        candidate = candidate[len("refs/heads/"):]  # 保留多段分支名（release/v1），不截成叶子
     return candidate
 
 
@@ -276,14 +283,16 @@ def classify(argv):
 
 
 def analyze(source):
-    try:
-        tokens = tokenize(source)
-    except ValueError:
-        return None
-    for argv in split_commands(tokens):
-        classification = classify(argv)
-        if classification:
-            return classification
+    # 先按换行切（shlex 把换行当普通空白吞掉，否则 'true\nrm -rf /' 会并成一条命令绕过，codex review）
+    for segment in source.split("\n"):
+        try:
+            tokens = tokenize(segment)
+        except ValueError:
+            continue
+        for argv in split_commands(tokens):
+            classification = classify(argv)
+            if classification:
+                return classification
     return None
 
 

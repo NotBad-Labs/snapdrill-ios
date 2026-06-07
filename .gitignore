@@ -37,7 +37,7 @@ build_output.txt
 .claude/session-metrics.tsv
 .claude/validation-status.json.*
 .claude/worktrees/
-.claude/.long-session-warned
+.claude/.long-session-warned*
 
 # AGY CLI (Antigravity) runtime cache
 .antigravitycli/
