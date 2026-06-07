@@ -223,6 +223,14 @@
 "library.icon" = "Icon";
 "library.color" = "Color";
 "library.custom_color" = "Custom Color";
+"library.color_red" = "Red";
+"library.color_blue" = "Blue";
+"library.color_green" = "Green";
+"library.color_indigo" = "Indigo";
+"library.color_pink" = "Pink";
+"library.color_orange" = "Orange";
+"library.color_purple" = "Purple";
+"library.color_blue_gray" = "Blue Gray";
 "library.name_placeholder" = "Enter name";
 "library.cannot_delete_in_use" = "Cannot Delete";
 "library.cannot_delete_message" = "This item is used by %d questions. Please modify or delete those questions first.";

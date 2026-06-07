@@ -217,6 +217,14 @@
 "library.icon" = "图标";
 "library.color" = "颜色";
 "library.custom_color" = "自定义颜色";
+"library.color_red" = "红色";
+"library.color_blue" = "蓝色";
+"library.color_green" = "绿色";
+"library.color_indigo" = "靛蓝";
+"library.color_pink" = "粉色";
+"library.color_orange" = "橙色";
+"library.color_purple" = "紫色";
+"library.color_blue_gray" = "蓝灰";
 "library.name_placeholder" = "请输入名称";
 "library.cannot_delete_in_use" = "无法删除";
 "library.cannot_delete_message" = "该项正在被 %d 道题使用，请先修改相关题目。";

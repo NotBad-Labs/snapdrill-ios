@@ -31,6 +31,21 @@ struct EditCategoryValueView: View {
 
     private let colors = ["#E57373", "#4FC3F7", "#AED581", "#7986CB", "#F06292", "#FFB74D", "#9575CD", "#90A4AE"]
 
+    /// 取色盘色块的无障碍颜色名（VoiceOver 念出"红色/蓝色…"而非 8 个都念"颜色"）
+    private func colorName(for hex: String) -> String {
+        switch hex {
+        case "#E57373": return L10n.Library.colorRed
+        case "#4FC3F7": return L10n.Library.colorBlue
+        case "#AED581": return L10n.Library.colorGreen
+        case "#7986CB": return L10n.Library.colorIndigo
+        case "#F06292": return L10n.Library.colorPink
+        case "#FFB74D": return L10n.Library.colorOrange
+        case "#9575CD": return L10n.Library.colorPurple
+        case "#90A4AE": return L10n.Library.colorBlueGray
+        default: return L10n.Library.color
+        }
+    }
+
     private var isEditing: Bool { value != nil }
     private var canSave: Bool { !name.trimmingCharacters(in: .whitespaces).isEmpty }
 
@@ -76,7 +91,8 @@ struct EditCategoryValueView: View {
                                     )
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel(L10n.Library.color)
+                            .accessibilityLabel(colorName(for: hex))
+                            .accessibilityAddTraits((!useCustomColor && selectedColorHex == hex) ? .isSelected : [])
                         }
                     }
                     .padding(.vertical, 8)

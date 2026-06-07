@@ -123,6 +123,15 @@ nonisolated extension L10n {
         public static let icon = NSLocalizedString("library.icon", value: "图标", comment: "图标标签")
         public static let color = NSLocalizedString("library.color", value: "颜色", comment: "颜色标签")
         public static let customColor = NSLocalizedString("library.custom_color", value: "自定义颜色", comment: "自定义颜色")
+        // 维度值取色盘的颜色名（无障碍：让 VoiceOver 念出每个色块是什么颜色，而非 8 个都念"颜色"）
+        public static let colorRed = NSLocalizedString("library.color_red", value: "红色", comment: "颜色名：红")
+        public static let colorBlue = NSLocalizedString("library.color_blue", value: "蓝色", comment: "颜色名：蓝")
+        public static let colorGreen = NSLocalizedString("library.color_green", value: "绿色", comment: "颜色名：绿")
+        public static let colorIndigo = NSLocalizedString("library.color_indigo", value: "靛蓝", comment: "颜色名：靛蓝")
+        public static let colorPink = NSLocalizedString("library.color_pink", value: "粉色", comment: "颜色名：粉")
+        public static let colorOrange = NSLocalizedString("library.color_orange", value: "橙色", comment: "颜色名：橙")
+        public static let colorPurple = NSLocalizedString("library.color_purple", value: "紫色", comment: "颜色名：紫")
+        public static let colorBlueGray = NSLocalizedString("library.color_blue_gray", value: "蓝灰", comment: "颜色名：蓝灰")
         public static let namePlaceholder = NSLocalizedString("library.name_placeholder", value: "请输入名称", comment: "名称输入占位")
         public static let cannotDeleteInUse = NSLocalizedString("library.cannot_delete_in_use", value: "无法删除", comment: "无法删除弹窗标题")
 
