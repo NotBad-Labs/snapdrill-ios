@@ -11,9 +11,12 @@ source "$HOOK_DIR/_hook_common.sh"
 require_command jq
 
 INPUT=$(cat)
+# 快速路径：输入完全没有 'push' 子串 → 绝不是 git push，免跑 jq（每条 Bash 都触发，省开销）
+[[ "$INPUT" == *push* ]] || exit 0
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
-if ! echo "$COMMAND" | grep -qE '^[[:space:]]*git push\b'; then
+# 非锚定匹配：兼容 env 前缀 / && 链式 / 多空格（'FOO=1 git push' / 'cd x && git push'）
+if ! echo "$COMMAND" | grep -qE '\bgit[[:space:]]+push\b'; then
     exit 0
 fi
 

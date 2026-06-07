@@ -27,7 +27,9 @@ fi
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 
 CLASSIFICATION=$(python3 - "$COMMAND" "$CURRENT_BRANCH" <<'PY'
+import codecs
 import os
+import re
 import shlex
 import sys
 
@@ -43,7 +45,20 @@ protected = {
 }
 
 
+def decode_ansi_c(source):
+    # 解码 ANSI-C 引用 $'...'（含 \xNN/\NNN/\t 等转义）为普通 '...'，
+    # 防 `bash -c $'rm -rf /'` 与 `bash -c $'rm\x20-rf\x20/'` 绕过静态分析
+    def repl(match):
+        try:
+            decoded = codecs.decode(match.group(1), "unicode_escape")
+        except Exception:
+            decoded = match.group(1)
+        return "'" + decoded.replace("'", "") + "'"
+    return re.sub(r"\$'((?:[^'\\]|\\.)*)'", repl, source)
+
+
 def tokenize(source):
+    source = decode_ansi_c(source)
     lexer = shlex.shlex(source, posix=True, punctuation_chars=True)
     lexer.whitespace_split = True
     lexer.commenters = ""
@@ -210,6 +225,12 @@ def is_force_push_to_protected_branch(args):
                 skip_next = True
             continue
         positionals.append(token)
+
+    # + 前缀强推 refspec（位置无关；remote 名不以 + 开头）：直接判其目标分支，
+    # 覆盖 'git push origin +main' / 'git push --repo origin +main'（remote 被 flag 吃掉）等
+    plus_targets = {branch_name_from_refspec(p) for p in positionals if p.startswith("+")}
+    if plus_targets & protected:
+        return True
 
     if not force:
         return False
