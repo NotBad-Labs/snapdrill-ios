@@ -1353,10 +1353,10 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W5A8THDKW8;
+				DEVELOPMENT_TEAM = J58U72W335;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.sharetests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global.sharetests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
@@ -1375,7 +1375,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = SnapDrillShare/SnapDrillShare.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W5A8THDKW8;
+				DEVELOPMENT_TEAM = J58U72W335;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = SnapDrillShare/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -1383,7 +1383,7 @@
 					"$(inherited)",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.share;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global.share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1403,12 +1403,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SnapDrill/SnapDrill.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W5A8THDKW8;
+				DEVELOPMENT_TEAM = J58U72W335;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.app</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
+				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.global</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
 				INFOPLIST_KEY_NSCameraUsageDescription = "小本本需要相机权限以扫描录入错题。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "小本本需要相册权限以导入复习资料。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1421,7 +1421,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1438,12 +1438,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SnapDrill/SnapDrill.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W5A8THDKW8;
+				DEVELOPMENT_TEAM = J58U72W335;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.app</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
+				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.global</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
 				INFOPLIST_KEY_NSCameraUsageDescription = "小本本需要相机权限以扫描录入错题。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "小本本需要相册权限以导入复习资料。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1456,7 +1456,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1503,7 +1503,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = W5A8THDKW8;
+				DEVELOPMENT_TEAM = J58U72W335;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1570,7 +1570,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = W5A8THDKW8;
+				DEVELOPMENT_TEAM = J58U72W335;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -1597,10 +1597,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W5A8THDKW8;
+				DEVELOPMENT_TEAM = J58U72W335;
 				GENERATE_INFOPLIST_FILE = YES;
 				OTHER_SWIFT_FLAGS = "-enable-upcoming-feature NonisolatedNonsendingByDefault -enable-upcoming-feature InferIsolatedConformances";
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.uitests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -1615,10 +1615,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W5A8THDKW8;
+				DEVELOPMENT_TEAM = J58U72W335;
 				GENERATE_INFOPLIST_FILE = YES;
 				OTHER_SWIFT_FLAGS = "-enable-upcoming-feature NonisolatedNonsendingByDefault -enable-upcoming-feature InferIsolatedConformances";
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.uitests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -1635,7 +1635,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = SnapDrillShare/SnapDrillShare.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W5A8THDKW8;
+				DEVELOPMENT_TEAM = J58U72W335;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = SnapDrillShare/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -1643,7 +1643,7 @@
 					"$(inherited)",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.share;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global.share;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1661,10 +1661,10 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W5A8THDKW8;
+				DEVELOPMENT_TEAM = J58U72W335;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.app.sharetests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global.sharetests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
