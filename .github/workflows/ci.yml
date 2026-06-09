@@ -168,15 +168,24 @@ jobs:
           fi
           xcodebuild -version
 
-      - name: Clean Simulator
-        # 清理模拟器残留 SwiftData schema，避免 ModelContainer 初始化死锁
+      - name: Clean & boot simulator
+        # 清理残留 SwiftData schema + 预启动并等 SpringBoard 就绪：
+        # 单 runner 上 build job 刚跑完模拟器会话，紧接 UI 测试常撞 CoreSimulator "Busy"
+        # （FBSOpenApplicationErrorDomain Code=6 preflight 失败）→ 显式 boot + bootstatus -b
+        # 阻塞到设备完全就绪，消除 XCUITest runner 冷启动竞态；DEVICE_ID 传后续步骤复用
         run: |
           DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone 17" | head -1 | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')
-          if [ -n "$DEVICE_ID" ]; then
-            xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
-            xcrun simctl erase "$DEVICE_ID"
-            echo "Simulator $DEVICE_ID erased"
+          if [ -z "$DEVICE_ID" ]; then
+            echo "::error::No available iPhone 17 simulator found"
+            exit 1
           fi
+          xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
+          xcrun simctl erase "$DEVICE_ID"
+          echo "Simulator $DEVICE_ID erased; booting and waiting for ready..."
+          xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+          echo "Simulator $DEVICE_ID booted and ready"
 
       - name: Validate UI test plan JSON
         run: |
@@ -213,7 +222,6 @@ jobs:
 
       - name: Test without building (UI)
         run: |
-          rm -rf UITestResults.xcresult
           # 产物命名 = <scheme>_<testPlan>_*.xctestrun（实证：SnapDrill_UITests_*）
           XCTESTRUN_PATH=$(find "$GITHUB_WORKSPACE/DerivedDataUI/Build/Products" -name "SnapDrill_UITests_*.xctestrun" | head -1)
           if [ -z "$XCTESTRUN_PATH" ] || [ ! -f "$XCTESTRUN_PATH" ]; then
@@ -221,13 +229,30 @@ jobs:
             ls -la "$GITHUB_WORKSPACE/DerivedDataUI/Build/Products" || true
             exit 1
           fi
-          echo "Using xctestrun: $XCTESTRUN_PATH"
-          xcodebuild test-without-building \
-            -xctestrun "$XCTESTRUN_PATH" \
-            -only-test-configuration CI \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
-            -parallel-testing-enabled NO \
-            -resultBundlePath UITestResults.xcresult \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+          echo "Using xctestrun: $XCTESTRUN_PATH on device $DEVICE_ID"
+          # XCUITest runner 启动偶发撞模拟器 "Busy"（preflight 失败）= 基建 flake 非测试失败；
+          # 重试最多 3 次，每次失败后重启模拟器并等就绪，吸收瞬态启动竞态
+          attempt=1
+          max=3
+          while :; do
+            rm -rf UITestResults.xcresult
+            xcodebuild test-without-building \
+              -xctestrun "$XCTESTRUN_PATH" \
+              -only-test-configuration CI \
+              -destination "platform=iOS Simulator,id=$DEVICE_ID" \
+              -parallel-testing-enabled NO \
+              -resultBundlePath UITestResults.xcresult \
+              CODE_SIGNING_ALLOWED=NO \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGN_IDENTITY="" && break
+            if [ "$attempt" -ge "$max" ]; then
+              echo "::error::UI tests failed after $max attempts"
+              exit 65
+            fi
+            echo "::warning::UI test attempt $attempt failed (likely simulator launch flake), rebooting simulator and retrying..."
+            xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
+            xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
+            xcrun simctl bootstatus "$DEVICE_ID" -b || true
+            sleep 10
+            attempt=$((attempt+1))
+          done
