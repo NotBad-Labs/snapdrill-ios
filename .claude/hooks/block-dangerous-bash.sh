@@ -2,6 +2,9 @@
 # PreToolUse (Bash): 阻塞危险命令类别。
 # 匹配到 → exit 2 + stderr 提示。
 #
+# 定位：defense-in-depth 启发式，非 sandbox。静态分析挡「误操作 + 简单注入」，
+# 挡不住运行时展开类（$VAR / 命令替换 $(...) / 反引号——只有执行才知道真值）——已知上限。
+#
 # 用户显式授权后绕过：设置环境变量 CLAUDE_HOOK_ALLOW_DANGEROUS=1
 
 set -eo pipefail
@@ -27,7 +30,9 @@ fi
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 
 CLASSIFICATION=$(python3 - "$COMMAND" "$CURRENT_BRANCH" <<'PY'
+import codecs
 import os
+import re
 import shlex
 import sys
 
@@ -43,7 +48,24 @@ protected = {
 }
 
 
+def decode_ansi_c(source):
+    # 解码 ANSI-C 引用 $'...'（含 \xNN/\NNN/\t 等转义）为普通 '...'，
+    # 防 `bash -c $'rm -rf /'` / `bash -c $'rm\x20-rf\x20/'` 绕过静态分析。
+    # 逐转义尽力解码：单个非法转义（如 \u123）不致整段退化（agy/deepseek review）。
+    def decode_escape(esc_match):
+        try:
+            return codecs.decode(esc_match.group(0), "unicode_escape")
+        except Exception:
+            return esc_match.group(0)
+
+    def repl(match):
+        decoded = re.sub(r"\\(x[0-9A-Fa-f]{1,2}|[0-7]{1,3}|.)", decode_escape, match.group(1))
+        return "'" + decoded.replace("'", "") + "'"
+    return re.sub(r"\$'((?:[^'\\]|\\.)*)'", repl, source, flags=re.DOTALL)
+
+
 def tokenize(source):
+    source = decode_ansi_c(source)
     lexer = shlex.shlex(source, posix=True, punctuation_chars=True)
     lexer.whitespace_split = True
     lexer.commenters = ""
@@ -178,7 +200,7 @@ def branch_name_from_refspec(refspec):
     else:
         candidate = refspec
     if candidate.startswith("refs/heads/"):
-        candidate = candidate.rsplit("/", 1)[-1]
+        candidate = candidate[len("refs/heads/"):]  # 保留多段分支名（release/v1），不截成叶子
     return candidate
 
 
@@ -210,6 +232,12 @@ def is_force_push_to_protected_branch(args):
                 skip_next = True
             continue
         positionals.append(token)
+
+    # + 前缀强推 refspec（位置无关；remote 名不以 + 开头）：直接判其目标分支，
+    # 覆盖 'git push origin +main' / 'git push --repo origin +main'（remote 被 flag 吃掉）等
+    plus_targets = {branch_name_from_refspec(p) for p in positionals if p.startswith("+")}
+    if plus_targets & protected:
+        return True
 
     if not force:
         return False
@@ -255,14 +283,16 @@ def classify(argv):
 
 
 def analyze(source):
-    try:
-        tokens = tokenize(source)
-    except ValueError:
-        return None
-    for argv in split_commands(tokens):
-        classification = classify(argv)
-        if classification:
-            return classification
+    # 先按换行切（shlex 把换行当普通空白吞掉，否则 'true\nrm -rf /' 会并成一条命令绕过，codex review）
+    for segment in source.split("\n"):
+        try:
+            tokens = tokenize(segment)
+        except ValueError:
+            continue
+        for argv in split_commands(tokens):
+            classification = classify(argv)
+            if classification:
+                return classification
     return None
 
 
