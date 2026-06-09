@@ -5,7 +5,7 @@
     <key>method</key>
     <string>app-store</string>
     <key>teamID</key>
-    <string>W5A8THDKW8</string>
+    <string>J58U72W335</string>
     <key>uploadBitcode</key>
     <false/>
     <key>uploadSymbols</key>
@@ -18,8 +18,8 @@
     <string>export</string>
     <key>provisioningProfiles</key>
     <dict>
-        <key>com.snapdrill.app</key>
-        <string>iOS Team Provisioning Profile: com.snapdrill.app</string>
+        <key>com.snapdrill.global</key>
+        <string>iOS Team Provisioning Profile: com.snapdrill.global</string>
     </dict>
 </dict>
 </plist>

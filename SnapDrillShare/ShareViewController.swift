@@ -22,7 +22,7 @@ import os
 final class ShareViewController: UIViewController {
 
     /// App Groups 共享容器标识符
-    private static let appGroupID = "group.com.snapdrill.app"
+    private static let appGroupID = "group.com.snapdrill.global"
 
     /// Extension 专用日志
     private static let logger = Logger(subsystem: "com.snapdrill.share", category: "ShareExtension")

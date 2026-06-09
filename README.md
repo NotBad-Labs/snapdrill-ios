@@ -19,7 +19,7 @@
 
 > 上架/运营状态锚点（供跨会话 / 跨 agent 追溯）。决策细节见 [ADR-003 双地区发布](docs/decisions/ADR-003-dual-region-release.md) / [ADR-004 国内 Firebase-Free](docs/decisions/ADR-004-china-build-firebase-free.md)。事实源以本地 code/docs/git 为准（GitHub issue/PR 可能滞后）。
 
-- **阶段**：国内内测 TestFlight 准备（路径 A：个人账号 Team `W5A8THDKW8` 已 active，**内测无账号阻塞**）。核心免费闭环约 90% build-complete；Pro / 同步为外部阻塞，非闭环本身。
+- **阶段**（🔁 2026-06-09 pivot）：**改用美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`）做全球版生产**，工程已切 `com.snapdrill.global`（真机签名验证通过）；**国内大陆路线暂时挂起**（资源保留可复活）。核心免费闭环约 90% build-complete；Pro / 同步为外部阻塞，非闭环本身。
 - **文档/审计**：开发流程全景图 + 分批审计 Batch 0-3 已完成（结构完整性 / 逐 spec 内容 / doc↔code 对账 / 发布就绪），**发布阻塞清单 RC-1~RC-12 见 [development-process.md](docs/explanations/development-process.md) §5**——公开上架 P0 = Firebase 编译剔除 / 隐私 manifest 聚合 / MetricKit / 儿童 PIPL 专章；**TestFlight 内测不被这些阻塞**。
 - **决策 · Pro**：免费优先，本期**不接 StoreKit**；Pro 入口保留（待改"敬请期待"占位）。
 - **决策 · Firebase（PIPL）**：国内 build 先**运行时止血**（不调 `FirebaseBootstrap.configure()` + 注入 NoOp + 移除 `GoogleService-Info.plist`）→ **抓包复验零出境（已复验 ✓）** → 公开上架前随 C 路径做**编译层剔除**（= RC-1，公开上架 P0；SDK 当前仍链接）。

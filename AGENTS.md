@@ -163,9 +163,10 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 
 SnapDrill = 一个产品 + 两区域发行版（非两独立产品）。完整决策见 `docs/decisions/ADR-003-dual-region-release.md`。
 
-- **不可逆资源**（已 Dev Portal 锁定，PMF 验证前勿改）：Bundle `com.snapdrill.app` / iCloud `iCloud.com.snapdrill.app` / App Group `group.com.snapdrill.app`
-- **Team 分流**：现 Automatic Signing 单 Team（个人 `W5A8THDKW8`）；C 路径工程时拆 `CN.xcconfig` / `Global.xcconfig`，**勿写死 Team 到 `Shared.xcconfig`**
-- **海外版未来**：Bundle `com.snapdrill.global` + 美国公司 Team + Firebase（国内版无 Firebase）
+> **🔁 PIVOT 2026-06-09（PO 决策）**：**暂时挂起（非删除）国内大陆路线**，改用**美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`，Organization）做全球版生产**。工程已切到 `com.snapdrill.global`（真机签名实证通过）。下方"国内 first"脉络保留，但**当前生产基线 = 美国全球版**。国内个人账号/标识符保留可复活（续费 deadline 2027-01，见运营待决）。
+
+- **当前生产签名**：Team `J58U72W335`（美国 NotBad Labs L.L.C.）+ Bundle `com.snapdrill.global` + App Group `group.com.snapdrill.global`；Automatic Signing；已删未用的 iCloud/CloudKit entitlement。
+- **挂起的国内资源**（保留勿删、可复活）：Bundle `com.snapdrill.app` / iCloud `iCloud.com.snapdrill.app` / App Group `group.com.snapdrill.app` / 个人 Team `W5A8THDKW8`。
 - **官网**：`notbadhq.com/snapdrill`（子目录非子域名）
 
 ## 改代码后的 DoD
