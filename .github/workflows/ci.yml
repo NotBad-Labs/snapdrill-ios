@@ -94,6 +94,25 @@ jobs:
           PLAN=SnapDrill.xcodeproj/xcshareddata/xctestplans/AllTests.xctestplan
           python3 -c "import json, sys; json.load(open('$PLAN'))" && echo "xctestplan JSON OK"
 
+      - name: Prime SPM cache (resilient)
+        # 大型 C++ 子模块（abseil / protobuf，经 Firebase 间接拉）clone 易断流/挂起：
+        # 短低速超时让 stall 快速 abort，重试解析灌入 workspace 外持久缓存（成功一次后跨 run 复用）
+        run: |
+          git config --global http.postBuffer 524288000
+          git config --global http.lowSpeedLimit 1000
+          git config --global http.lowSpeedTime 60
+          for i in 1 2 3 4 5 6; do
+            xcodebuild -resolvePackageDependencies \
+              -scheme AllTests \
+              -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill" && break
+            echo "::warning::SPM resolve attempt $i failed, retrying in 15s..."
+            sleep 15
+          done
+          # 最终校验：仍失败则整步失败，避免带半缓存进 build
+          xcodebuild -resolvePackageDependencies \
+            -scheme AllTests \
+            -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill"
+
       - name: Build for testing
         run: |
           xcodebuild build-for-testing \
@@ -101,6 +120,7 @@ jobs:
             -testPlan AllTests \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             -derivedDataPath "$GITHUB_WORKSPACE/DerivedData" \
+            -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
@@ -163,6 +183,22 @@ jobs:
           PLAN=SnapDrill.xcodeproj/xcshareddata/xctestplans/UITests.xctestplan
           python3 -c "import json, sys; json.load(open('$PLAN'))" && echo "UITests xctestplan JSON OK"
 
+      - name: Prime SPM cache (resilient)
+        run: |
+          git config --global http.postBuffer 524288000
+          git config --global http.lowSpeedLimit 1000
+          git config --global http.lowSpeedTime 60
+          for i in 1 2 3 4 5 6; do
+            xcodebuild -resolvePackageDependencies \
+              -scheme SnapDrill \
+              -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill" && break
+            echo "::warning::SPM resolve attempt $i failed, retrying in 15s..."
+            sleep 15
+          done
+          xcodebuild -resolvePackageDependencies \
+            -scheme SnapDrill \
+            -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill"
+
       - name: Build for testing (UI)
         run: |
           xcodebuild build-for-testing \
@@ -170,6 +206,7 @@ jobs:
             -testPlan UITests \
             -destination 'platform=iOS Simulator,name=iPhone 17' \
             -derivedDataPath "$GITHUB_WORKSPACE/DerivedDataUI" \
+            -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""

@@ -28,7 +28,7 @@ struct SharedContainerImageWriter {
     private let logger: Logger?
 
     init(
-        appGroupID: String = "group.com.snapdrill.app",
+        appGroupID: String = "group.com.snapdrill.global",
         containerURLProvider: @escaping ContainerURLProvider = { id in
             FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: id)
         },

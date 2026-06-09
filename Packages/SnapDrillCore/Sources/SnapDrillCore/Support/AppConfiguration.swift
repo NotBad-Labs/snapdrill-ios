@@ -41,7 +41,7 @@ public final class AppConfiguration {
     
     /// 应用标识符
     public var bundleIdentifier: String {
-        Bundle.main.bundleIdentifier ?? "com.snapdrill.app"
+        Bundle.main.bundleIdentifier ?? "com.snapdrill.global"
     }
     
     /// 完整版本字符串

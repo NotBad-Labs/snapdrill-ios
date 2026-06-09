@@ -83,7 +83,7 @@ final class AppRouter {
     // MARK: - Public API
 
     /// App Groups 共享容器标识符
-    private static let appGroupID = "group.com.snapdrill.app"
+    private static let appGroupID = "group.com.snapdrill.global"
 
     /// 处理 Share Extension 传入的深链接
     ///
