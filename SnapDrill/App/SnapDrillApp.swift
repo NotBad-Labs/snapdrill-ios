@@ -109,6 +109,9 @@ struct SnapDrillApp: App {
                         "version": container.services.appConfig.fullVersion
                     ])
 
+                    // MetricKit 订阅注册（设备级崩溃/性能诊断，本地消费，ADR-005 D6=A；关 RC-4）
+                    container.services.metricService.startMonitoring()
+
                     guard !onboardingManager.shouldShowOnboarding else { return }
                 }
                 .onChange(of: scenePhase) { _, newPhase in

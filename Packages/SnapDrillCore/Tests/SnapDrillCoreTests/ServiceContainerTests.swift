@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  DI 容器的验证测试（S-D4-001 扩展到 13 个服务属性）。
+//  DI 容器的验证测试（S-D4-001 扩展到 14 个服务属性）。
 //
 
 import Testing
@@ -25,7 +25,7 @@ struct ServiceContainerTests {
         #expect(analytics1 as AnyObject === analytics2 as AnyObject)
     }
 
-    @Test("LiveServiceContainer 13 个服务属性全部可访问")
+    @Test("LiveServiceContainer 14 个服务属性全部可访问")
     func testLiveServiceContainerAllPropertiesAccessible() {
         let container = LiveServiceContainer()
 
@@ -44,6 +44,7 @@ struct ServiceContainerTests {
         _ = container.proEntitlement
         _ = container.activityTracker
         _ = container.reviewScheduler
+        _ = container.metricService
     }
 
     @Test("LiveServiceContainer @Observable 服务单例语义（容器生命周期内同实例）")
@@ -79,9 +80,10 @@ struct ServiceContainerTests {
         #expect(container.contentTagging is ContentTaggingServiceMock)
         #expect(container.questionSplitting is QuestionSplittingServiceMock)
         #expect(container.proEntitlement is MockProEntitlementProvider)
+        #expect(container.metricService is MetricServiceMock)
     }
 
-    @Test("MockServiceContainer 13 个服务属性全部可访问")
+    @Test("MockServiceContainer 14 个服务属性全部可访问")
     func testMockServiceContainerAllPropertiesAccessible() {
         let container = MockServiceContainer()
 
@@ -98,6 +100,7 @@ struct ServiceContainerTests {
         _ = container.proEntitlement
         _ = container.activityTracker
         _ = container.reviewScheduler
+        _ = container.metricService
     }
 
     // MARK: - ServiceContainer 协议
