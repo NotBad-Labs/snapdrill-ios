@@ -12,7 +12,6 @@
 		AG_BF_LIBRARY /* SnapDrillFeatureLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */; };
 		AG_BF_REVIEW /* SnapDrillFeatureReview in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_REVIEW /* SnapDrillFeatureReview */; };
 		AG_BF_SETTINGS /* SnapDrillFeatureSettings in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_SETTINGS /* SnapDrillFeatureSettings */; };
-		B2INFRA_BF /* SnapDrillInfrastructure in Frameworks */ = {isa = PBXBuildFile; productRef = B2INFRA_PROD /* SnapDrillInfrastructure */; };
 		B8989386BBFDC051AA9CE0CC /* SnapDrillShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -144,16 +143,15 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				SnapDrillShare.entitlements,
 			);
 			target = 1461CA3057053272D0AE578A /* SnapDrillShare */;
 		};
 		CD7E7D3E0406B8629C60470A /* Exceptions for "SnapDrillShare" folder in "SnapDrillShareTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				ShareImageDownsampler.swift,
-				ShareDeepLinkBuilder.swift,
 				SharedContainerImageWriter.swift,
+				ShareDeepLinkBuilder.swift,
+				ShareImageDownsampler.swift,
 			);
 			target = 32430982B0D10D41B3A4539C /* SnapDrillShareTests */;
 		};
@@ -162,29 +160,21 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4266B465D4AD0263778BB531 /* SnapDrillShareTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = SnapDrillShareTests;
 			sourceTree = "<group>";
 		};
 		B27BD9612E560D0700E69277 /* SnapDrill */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = SnapDrill;
 			sourceTree = "<group>";
 		};
 		B27BD97D2E560D0800E69277 /* SnapDrillUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = SnapDrillUITests;
 			sourceTree = "<group>";
 		};
 		B2PACKAGES001 /* Packages */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = Packages;
 			sourceTree = "<group>";
 		};
@@ -216,7 +206,6 @@
 				AG_BF_REVIEW /* SnapDrillFeatureReview in Frameworks */,
 				AG_BF_DASHBOARD /* SnapDrillFeatureDashboard in Frameworks */,
 				AG_BF_SETTINGS /* SnapDrillFeatureSettings in Frameworks */,
-				B2INFRA_BF /* SnapDrillInfrastructure in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -869,7 +858,6 @@
 				AG_PROD_REVIEW /* SnapDrillFeatureReview */,
 				AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */,
 				AG_PROD_SETTINGS /* SnapDrillFeatureSettings */,
-				B2INFRA_PROD /* SnapDrillInfrastructure */,
 			);
 			productName = SnapDrill;
 			productReference = B27BD95F2E560D0600E69277 /* SnapDrill.app */;
@@ -929,309 +917,14 @@
 			mainGroup = B27BD9562E560D0600E69277;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */,
-				B2PKG_CORE /* XCLocalSwiftPackageReference "SnapDrillCore" */,
-				B2PKG_DATA /* XCLocalSwiftPackageReference "SnapDrillData" */,
-				B2PKG_UI /* XCLocalSwiftPackageReference "SnapDrillUI" */,
-				B2PKG_INFRA /* XCLocalSwiftPackageReference "SnapDrillInfrastructure" */,
+				AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */,
+				B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/SnapDrillCore" */,
+				B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/SnapDrillData" */,
+				B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B27BD9602E560D0600E69277 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = F18863292F52CCB3008C2060 /* Products */;
-					ProjectRef = F18863012F52CCB3008C2060 /* ABTQA.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88BA2F5885210005C752 /* Products */;
-					ProjectRef = F17B70642F5885210005C752 /* ABTQA.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88C42F5885210005C752 /* Products */;
-					ProjectRef = F17B773D2F5885210005C752 /* AdvancedSample.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886EED2F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886A0E2F52CCB4008C2060 /* AdvancedSample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B889E2F5885210005C752 /* Products */;
-					ProjectRef = F17B713D2F5885210005C752 /* AppCheckCustomProvideApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886EF92F52CCB4008C2060 /* Products */;
-					ProjectRef = F188640E2F52CCB4008C2060 /* AppCheckCustomProvideApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88D22F5885210005C752 /* Products */;
-					ProjectRef = F17B7A312F5885210005C752 /* AppQualityDevApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886EF32F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886D022F52CCB4008C2060 /* AppQualityDevApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F052F52CCB4008C2060 /* Products */;
-					ProjectRef = F18865A92F52CCB4008C2060 /* AuthenticationExample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88B22F5885210005C752 /* Products */;
-					ProjectRef = F17B72D82F5885210005C752 /* AuthenticationExample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88A42F5885210005C752 /* Products */;
-					ProjectRef = F17B7FC12F5885210005C752 /* ClientApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88CC2F5885210005C752 /* Products */;
-					ProjectRef = F17B7FD72F5885210005C752 /* CocoapodsIntegrationTest.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88AA2F5885210005C752 /* Products */;
-					ProjectRef = F17B6FFB2F5885210005C752 /* CombineSample.xcodeproj */;
-				},
-				{
-					ProductGroup = F188632F2F52CCB3008C2060 /* Products */;
-					ProjectRef = F18862982F52CCB3008C2060 /* CombineSample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88CE2F5885210005C752 /* Products */;
-					ProjectRef = F17B75782F5885210005C752 /* FDLBuilderTestAppObjC.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F0F2F52CCB4008C2060 /* Products */;
-					ProjectRef = F18868492F52CCB4008C2060 /* FDLBuilderTestAppObjC.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F072F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886C772F52CCB4008C2060 /* FeatureRolloutsTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88BC2F5885210005C752 /* Products */;
-					ProjectRef = F17B79A62F5885210005C752 /* FeatureRolloutsTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88C22F5885210005C752 /* Products */;
-					ProjectRef = F17B76632F5885210005C752 /* FIAMSwiftUI.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886EFD2F52CCB4008C2060 /* Products */;
-					ProjectRef = F18869342F52CCB4008C2060 /* FIAMSwiftUI.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886EEF2F52CCB4008C2060 /* Products */;
-					ProjectRef = F188641A2F52CCB4008C2060 /* FIRAppCheckTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88AE2F5885210005C752 /* Products */;
-					ProjectRef = F17B71492F5885210005C752 /* FIRAppCheckTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88C82F5885210005C752 /* Products */;
-					ProjectRef = F17B70D32F5885210005C752 /* FirebaseAITestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886EF52F52CCB4008C2060 /* Products */;
-					ProjectRef = F18863A42F52CCB4008C2060 /* FirebaseAITestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F18863332F52CCB3008C2060 /* Products */;
-					ProjectRef = F18861142F52CCB3008C2060 /* FirebasePodTest.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88CA2F5885210005C752 /* Products */;
-					ProjectRef = F17B6E692F5885210005C752 /* FirebasePodTest.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F0B2F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886E622F52CCB4008C2060 /* Firestore.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88C62F5885210005C752 /* Products */;
-					ProjectRef = F17B7E5F2F5885210005C752 /* Firestore.xcodeproj */;
-				},
-				{
-					ProductGroup = F188632B2F52CCB3008C2060 /* Products */;
-					ProjectRef = F18862BE2F52CCB3008C2060 /* FirestoreSample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88DE2F5885210005C752 /* Products */;
-					ProjectRef = F17B70212F5885210005C752 /* FirestoreSample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88A62F5885210005C752 /* Products */;
-					ProjectRef = F17B78C72F5885210005C752 /* FIRPerfE2E.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F152F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886B982F52CCB4008C2060 /* FIRPerfE2E.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88B02F5885210005C752 /* Products */;
-					ProjectRef = F17B7EFA2F5885210005C752 /* FrameworkMaker.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F132F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886EE42F52CCB4008C2060 /* FrameworkMaker.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88DA2F5885210005C752 /* Products */;
-					ProjectRef = F17B81C82F5885210005C752 /* GDTCCTWatchOSTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B55552F5883A90005C752 /* Products */;
-					ProjectRef = F17B54872F5883A90005C752 /* GDTCCTWatchOSTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F18847BE2F52CC69008C2060 /* Products */;
-					ProjectRef = F18847B22F52CC69008C2060 /* GDTCCTWatchOSTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F18848932F52CC69008C2060 /* Products */;
-					ProjectRef = F188487D2F52CC69008C2060 /* GDTWatchOSTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88B82F5885210005C752 /* Products */;
-					ProjectRef = F17B82682F5885210005C752 /* GDTWatchOSTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B55532F5883A90005C752 /* Products */;
-					ProjectRef = F17B55272F5883A90005C752 /* GDTWatchOSTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88D82F5885210005C752 /* Products */;
-					ProjectRef = F17B769B2F5885210005C752 /* InAppMessaging-Example-iOS.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F0D2F52CCB4008C2060 /* Products */;
-					ProjectRef = F188696C2F52CCB4008C2060 /* InAppMessaging-Example-iOS.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88B62F5885210005C752 /* Products */;
-					ProjectRef = F17B76812F5885210005C752 /* InAppMessagingDisplay-Sample.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F092F52CCB4008C2060 /* Products */;
-					ProjectRef = F18869522F52CCB4008C2060 /* InAppMessagingDisplay-Sample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88BE2F5885210005C752 /* Products */;
-					ProjectRef = F17B77F92F5885210005C752 /* MLDownloaderTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F012F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886ACA2F52CCB4008C2060 /* MLDownloaderTestApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88D02F5885210005C752 /* Products */;
-					ProjectRef = F17B79102F5885210005C752 /* PerfTestRigApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F112F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886BE12F52CCB4008C2060 /* PerfTestRigApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F18844192F52CC66008C2060 /* Products */;
-					ProjectRef = F18844132F52CC66008C2060 /* Promises.xcodeproj */;
-				},
-				{
-					ProductGroup = F17BA1AE2F5885C60005C752 /* Products */;
-					ProjectRef = F17BA1A72F5885C60005C752 /* Promises.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B9C992F5885C00005C752 /* Products */;
-					ProjectRef = F17B95FF2F5885C00005C752 /* ProtocolBuffers_iOS.xcodeproj */;
-				},
-				{
-					ProductGroup = F1885FF42F52CCB3008C2060 /* Products */;
-					ProjectRef = F18856572F52CCB3008C2060 /* ProtocolBuffers_iOS.xcodeproj */;
-				},
-				{
-					ProductGroup = F1885FF62F52CCB3008C2060 /* Products */;
-					ProjectRef = F18856582F52CCB3008C2060 /* ProtocolBuffers_OSX.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B9C972F5885C00005C752 /* Products */;
-					ProjectRef = F17B96002F5885C00005C752 /* ProtocolBuffers_OSX.xcodeproj */;
-				},
-				{
-					ProductGroup = F1885FF22F52CCB3008C2060 /* Products */;
-					ProjectRef = F18856592F52CCB3008C2060 /* ProtocolBuffers_tvOS.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B9C9B2F5885C00005C752 /* Products */;
-					ProjectRef = F17B96012F5885C00005C752 /* ProtocolBuffers_tvOS.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88D62F5885210005C752 /* Products */;
-					ProjectRef = F17B79BC2F5885210005C752 /* RemoteConfigSampleApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886EF72F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886C8D2F52CCB4008C2060 /* RemoteConfigSampleApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886EFB2F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886A192F52CCB4008C2060 /* Sample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88A02F5885210005C752 /* Products */;
-					ProjectRef = F17B77482F5885210005C752 /* Sample.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886EFF2F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886A242F52CCB4008C2060 /* SampleStandaloneWatchApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88AC2F5885210005C752 /* Products */;
-					ProjectRef = F17B77532F5885210005C752 /* SampleStandaloneWatchApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88D42F5885210005C752 /* Products */;
-					ProjectRef = F17B70452F5885210005C752 /* SampleWatchApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F188632D2F52CCB3008C2060 /* Products */;
-					ProjectRef = F18862E22F52CCB3008C2060 /* SampleWatchApp.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886F032F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886CCB2F52CCB4008C2060 /* SwiftUISample.xcodeproj */;
-				},
-				{
-					ProductGroup = F1886EF12F52CCB4008C2060 /* Products */;
-					ProjectRef = F1886A3A2F52CCB4008C2060 /* SwiftUISample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88C02F5885210005C752 /* Products */;
-					ProjectRef = F17B77692F5885210005C752 /* SwiftUISample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88DC2F5885210005C752 /* Products */;
-					ProjectRef = F17B79FA2F5885210005C752 /* SwiftUISample.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88A22F5885210005C752 /* Products */;
-					ProjectRef = F17B80E42F5885210005C752 /* SymbolCollisionTest.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88A82F5885210005C752 /* Products */;
-					ProjectRef = F17B839D2F5885210005C752 /* TestApps.xcodeproj */;
-				},
-				{
-					ProductGroup = F18845522F52CC68008C2060 /* Products */;
-					ProjectRef = F188452A2F52CC68008C2060 /* TestApps.xcodeproj */;
-				},
-				{
-					ProductGroup = F17B88B42F5885210005C752 /* Products */;
-					ProjectRef = F17B70312F5885210005C752 /* tvOSSample.xcodeproj */;
-				},
-				{
-					ProductGroup = F18863312F52CCB3008C2060 /* Products */;
-					ProjectRef = F18862CE2F52CCB3008C2060 /* tvOSSample.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				B27BD95E2E560D0600E69277 /* SnapDrill */,
@@ -1727,23 +1420,19 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */ = {
+		AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillFeatures;
 		};
-		B2PKG_CORE /* XCLocalSwiftPackageReference "SnapDrillCore" */ = {
+		B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/SnapDrillCore" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillCore;
 		};
-		B2PKG_DATA /* XCLocalSwiftPackageReference "SnapDrillData" */ = {
+		B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/SnapDrillData" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillData;
 		};
-		B2PKG_INFRA /* XCLocalSwiftPackageReference "SnapDrillInfrastructure" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/SnapDrillInfrastructure;
-		};
-		B2PKG_UI /* XCLocalSwiftPackageReference "SnapDrillUI" */ = {
+		B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillUI;
 		};
@@ -1752,33 +1441,28 @@
 /* Begin XCSwiftPackageProductDependency section */
 		AG_PROD_CAPTURE /* SnapDrillFeatureCapture */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
 			productName = SnapDrillFeatureCapture;
 		};
 		AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
 			productName = SnapDrillFeatureDashboard;
 		};
 		AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
 			productName = SnapDrillFeatureLibrary;
 		};
 		AG_PROD_REVIEW /* SnapDrillFeatureReview */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
 			productName = SnapDrillFeatureReview;
 		};
 		AG_PROD_SETTINGS /* SnapDrillFeatureSettings */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
 			productName = SnapDrillFeatureSettings;
-		};
-		B2INFRA_PROD /* SnapDrillInfrastructure */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B2PKG_INFRA /* XCLocalSwiftPackageReference "SnapDrillInfrastructure" */;
-			productName = SnapDrillInfrastructure;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -49,26 +49,19 @@ jobs:
           echo "Checking for reverse dependency violations..."
           VIOLATIONS=0
           # Core 不应该 import 任何下游包
-          if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillUI\|import SnapDrillFeatures\|import SnapDrillInfrastructure' Packages/SnapDrillCore/Sources/ 2>/dev/null; then
+          if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillUI\|import SnapDrillFeatures' Packages/SnapDrillCore/Sources/ 2>/dev/null; then
             echo "ERROR: Core must not import downstream packages"
             VIOLATIONS=$((VIOLATIONS+1))
           fi
-          if grep -rn --include='*.swift' 'import SnapDrillUI\|import SnapDrillFeatures\|import SnapDrillInfrastructure' Packages/SnapDrillData/Sources/ 2>/dev/null; then
+          if grep -rn --include='*.swift' 'import SnapDrillUI\|import SnapDrillFeatures' Packages/SnapDrillData/Sources/ 2>/dev/null; then
             echo "ERROR: Data must only import Core"
             VIOLATIONS=$((VIOLATIONS+1))
           fi
-          if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillFeatures\|import SnapDrillInfrastructure' Packages/SnapDrillUI/Sources/ 2>/dev/null; then
+          if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillFeatures' Packages/SnapDrillUI/Sources/ 2>/dev/null; then
             echo "ERROR: UI must only import Core"
             VIOLATIONS=$((VIOLATIONS+1))
           fi
-          if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillUI\|import SnapDrillFeatures' Packages/SnapDrillInfrastructure/Sources/ 2>/dev/null; then
-            echo "ERROR: Infrastructure must only import Core"
-            VIOLATIONS=$((VIOLATIONS+1))
-          fi
-          if grep -rn --include='*.swift' 'import SnapDrillInfrastructure' Packages/SnapDrillFeatures/Sources/ 2>/dev/null; then
-            echo "ERROR: Features must not import Infrastructure directly"
-            VIOLATIONS=$((VIOLATIONS+1))
-          fi
+          # SnapDrillInfrastructure 包已退役（Firebase 剔除 RC-1/2/6）→ 相关反向依赖门禁移除
           if grep -rn --include='*.swift' '^import SnapDrill' SnapDrillShare/ 2>/dev/null; then
             echo "ERROR: Share Extension must not import SnapDrill packages"
             VIOLATIONS=$((VIOLATIONS+1))
