@@ -78,4 +78,9 @@ public protocol ServiceContainer: Sendable {
 
     /// SM-2 复习调度策略（可替换以支持复习策略实验）
     var reviewScheduler: ReviewScheduler { get }
+
+    // MARK: - 遥测诊断（S-D4-001，ADR-005 D6=A）
+
+    /// 设备级遥测诊断服务（MetricKit，本地消费关 RC-4 崩溃监控；数据不出境、无需用户同意、不过 TelemetryGate）
+    var metricService: any MetricServiceProtocol { get }
 }

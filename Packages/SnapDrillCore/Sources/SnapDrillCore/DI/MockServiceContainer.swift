@@ -33,6 +33,7 @@ public final class MockServiceContainer: ServiceContainer {
     public let proEntitlement: any ProEntitlementProvider
     public let activityTracker: AppActivityTracker
     public let reviewScheduler: ReviewScheduler
+    public let metricService: any MetricServiceProtocol
 
     // MARK: - Initialization
 
@@ -47,7 +48,8 @@ public final class MockServiceContainer: ServiceContainer {
         deletionScheduler: DeletionScheduler? = nil,
         proEntitlement: (any ProEntitlementProvider)? = nil,
         activityTracker: AppActivityTracker? = nil,
-        reviewScheduler: ReviewScheduler = ReviewScheduler()
+        reviewScheduler: ReviewScheduler = ReviewScheduler(),
+        metricService: (any MetricServiceProtocol)? = nil
     ) {
         self.analytics = analytics
         self.pdfExport = PDFExportService()
@@ -62,5 +64,6 @@ public final class MockServiceContainer: ServiceContainer {
         self.proEntitlement = proEntitlement ?? MockProEntitlementProvider(isProUser: false)
         self.activityTracker = activityTracker ?? AppActivityTracker()
         self.reviewScheduler = reviewScheduler
+        self.metricService = metricService ?? MetricServiceMock()
     }
 }

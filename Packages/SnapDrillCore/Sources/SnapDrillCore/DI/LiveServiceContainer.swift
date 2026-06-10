@@ -33,6 +33,7 @@ public final class LiveServiceContainer: ServiceContainer {
     public let proEntitlement: any ProEntitlementProvider
     public let activityTracker: AppActivityTracker
     public let reviewScheduler: ReviewScheduler
+    public let metricService: any MetricServiceProtocol
 
     // MARK: - Initialization
 
@@ -47,7 +48,8 @@ public final class LiveServiceContainer: ServiceContainer {
         deletionScheduler: DeletionScheduler? = nil,
         proEntitlement: (any ProEntitlementProvider)? = nil,
         activityTracker: AppActivityTracker? = nil,
-        reviewScheduler: ReviewScheduler? = nil
+        reviewScheduler: ReviewScheduler? = nil,
+        metricService: (any MetricServiceProtocol)? = nil
     ) {
         self.appConfig = AppConfiguration()
         self.pdfExport = PDFExportService()
@@ -67,5 +69,6 @@ public final class LiveServiceContainer: ServiceContainer {
         // 此处 composition 层引用 .shared 可接受（包内无 treat-warnings-as-errors）。
         self.activityTracker = activityTracker ?? AppActivityTracker.shared
         self.reviewScheduler = reviewScheduler ?? ReviewScheduler()
+        self.metricService = metricService ?? LiveMetricService()
     }
 }
