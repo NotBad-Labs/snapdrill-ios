@@ -12,7 +12,7 @@
 |---|---|---|---|---|
 | I1 搜索防抖 vs 离散筛选/排序拆分 | ✅ 成立 | P2 | Claude(ViewModel 刷新时机) + Codex(行布局原子性) | 无 |
 | I2 维度过滤内存筛选性能 | ⚠️ refined（Codex 描述需修正） | P3 | Claude(Data) | 2 项 |
-| I3 PrintService 契约 | ✅ 成立 | P2 | Claude(Core/Service) + Codex(UI 对接) | 3 项 |
+| I3 打印 adapter 契约 | ✅ 成立（设计已定=改良版 B） | P2 | Claude(SnapDrillUI adapter) + Codex(Feature 入口) | ✅ 0（已拍板） |
 | I4 导出 completion 契约 | ⚠️ refined | P3 | Claude(enum seam) + Codex(闭包行为/视觉) | 3 项 |
 
 **跨 issue 耦合**：I1 去掉 300ms 缓冲后，I2 的内存过滤延迟会变用户可见 → **先修 I1（原子性 + 拆防抖），再 benchmark I2**。
@@ -70,38 +70,37 @@
 
 **现状**：grep 全仓零 `PrintService`/`UIPrintInteractionController`/`UIPrintPageRenderer`（排除 .build）。打印 100% 寄生在 PDF 导出 + 系统分享表：`LibraryDetailView.printSingleItem()`(`:266-287`) = `pdfExport.createPDF(itemsPerPage:1)` → 临时文件 → `UIActivityViewController`，从不调 `UIPrintInteractionController`、也从不 `activityTracker.begin(.printing)`（坐实 GAP-R4）；批量路径 `ExportPreviewView` 同靠 `ShareLink`。`feat-export.md:37-41` 已点名目标契约（`UIPrintInteractionController` + 自定义 `UIPrintPageRenderer`、将来落 `SnapDrillCore/Service/PrintService.swift`）、当前标 GAP-R5 过渡。
 
-**契约（Claude，Core/Service）**：放 `Packages/SnapDrillCore/Sources/SnapDrillCore/Service/PrintService.swift`。Core 已 `import UIKit`（`PDFExportService.swift:12` 实证），`UIPrintInteractionController` 属 UIKit、不破「零第三方 SPM 包」铁律。
-```
-public protocol PrintServiceProtocol: Sendable {
-    @MainActor func presentPrintPanel(
-        from items: [any PDFExportable],
-        options: PDFExportOptions,
-        imageProvider: @Sendable @escaping (String) -> UIImage?,
-        anchor: PrintPresentationAnchor       // UI 传入 view/rect/barButton（iPad 必需，否则崩）
-    ) async throws -> PrintOutcome
-}
-public enum PrintOutcome: Sendable { case completed; case cancelled }   // failed 走 throws
-public enum PrintError: Error { case pdfGenerationFailed(Error); case noPrinterAvailable; case presentationFailed }
-```
-- **语义**：内部复用 `pdfExport.createPDF(...)` 拿 PDF Data（**不重写 PDF 引擎**），用 `UIPrintInteractionController` + `UIPrintInfo` 直呈打印面板；`withCheckedThrowingContinuation` 把 `completionHandler(_, completed, error)` 桥成 async（completed→`.completed`、!completed&&无 error→`.cancelled`、有 error→throw）。**1/2/4 题/页第一版用 `PDFExportOptions.itemsPerPage`（已支持 `:66` chunked、`:204` itemHeight）走 PDF Data 直印即达成**，无需第一版就上 `UIPrintPageRenderer`。
-- **DI**：`ServiceContainer` 加 `var printService: any PrintServiceProtocol { get }`（**第 15 服务**；现 14 已含 metricService）；Live/Mock 各注册（Mock 可配 outcome/error 测「无打印机/取消」分支）。走协议注入（区别于 pdfExport 的具体类型例外），因 UC5 取消/无打印机分支天然需 Mock。
-- **`.printing` 活动追踪**：契约内**不**硬编排 begin/end（Core 不应编排 Profile 保护时机）；由调用方在 present 前后 `activityTracker.begin/end(.printing)` —— 一并补 GAP-R4（`.printing` 枚举已存在 `AppActivityTracker:21`）。
+**✅ 设计已定（PO + Codex 2026-06-11，D-I3a = 改良版 B）**：**Core 仅生成 PDF Data；`UIPrintInteractionController` 的 presentation adapter 集中放 `SnapDrillUI`**，由 Feature View 调用，避免重复实现、同时保持可注入测试。**不把 UIView / present 固化进 Core**（撤销原 A 推荐——见下方「为何改良版 B 成立」）。
 
-**⚠️ 验证抓出的架构决策点 `[PO/Codex 知晓]`**：PrintService 会是**首个签名吃 UIView 的 Core 服务**（现 14 服务无一接受 UIView）。不破铁律（Core 可用 UIKit），但与「Core 对 UI 一无所知」的直觉相反。两个设计：
-- **A（我推荐）`present` 进 Core**：service 持 present + continuation + UC5 outcome 逻辑，UI 只提供 anchor + 消费 outcome。**优**：UC5「无打印机→不误记为已打印」是数据正确性铁律，落在可单测的服务边界、集中。**劣**：Core 首次吃 UIView + 做 present。
-- **B `present` 留 UI**：Core 只给 PDF Data（`PDFExportService` 已能），UI 持 `UIPrintInteractionController.present` + 桥接 + outcome。**优**：Core 纯。**劣**：UC5 correctness 落 UI、难单测、可能 `LibraryDetailView`/`ExportPreviewView` 重复。
+**契约**：
+- **Core：无新增**。`PDFExportService.createPDF(...)`（`PDFExportService.swift:37-41`）已产 `Data`，打印复用它、**不重写 PDF 引擎、不引入吃 UIView 的 Core 服务**。Core 保持「对 UI 一无所知」。
+- **SnapDrillUI（新增 adapter）**：`Packages/SnapDrillUI/Sources/SnapDrillUI/PrintPresenting.swift`
+  ```
+  public protocol PrintPresenting: Sendable {
+      @MainActor func present(pdfData: Data, jobName: String, anchor: PrintPresentationAnchor) async throws -> PrintOutcome
+  }
+  public enum PrintOutcome: Sendable { case completed; case cancelled }   // failed 走 throws
+  public enum PrintPresentationAnchor { case view(UIView); case rect(CGRect, UIView); case barButton(UIBarButtonItem) } // iPad 必需 anchor
+  public enum PrintError: Error { case noContent; case presentationFailed }
+  ```
+  - `LivePrintPresenter`：`UIPrintInteractionController` + `UIPrintInfo(.general)` 包装传入的 PDF `Data`；`withCheckedThrowingContinuation` 把 `completionHandler(_, completed, error)` 桥成 async（completed→`.completed` / !completed&&无 error→`.cancelled` / 有 error→throw）。
+  - `MockPrintPresenter`：可配 outcome/error，供 Feature View 逻辑（含 UC5「无打印机/取消→不记打印」）单测。
+  - **注入**：SwiftUI `@Environment(\.printPresenter)`（SnapDrillUI 定义 environment key，默认 `LivePrintPresenter`，测试注 Mock）——adapter 在 UI 层、吃 UIView，不走 Core 的 ServiceContainer。
+- **Feature View（Codex）**：`let data = try await pdfExport.createPDF(...)` → `let outcome = try await printPresenter.present(pdfData: data, jobName:, anchor:)`；提供 anchor；`PDFExportOptions` 配置 UI；消费 outcome 做错误反馈 + **仅 `.completed` 时记 `.printing`**（UC5）；present 前后 `activityTracker.begin/end(.printing)` 补 GAP-R4（`.printing` 枚举已在 `AppActivityTracker:21`）。
+- **1/2/4 题/页第一版用 `PDFExportOptions.itemsPerPage`（已支持 `:66` chunked、`:204` itemHeight）走 PDF Data 直印即达成**（D-I3b 已定降级，`UIPrintPageRenderer` 留后续优化）。
+- **打印与分享拆两个一等入口**（D-I3c 已定）：不再把打印藏在分享活动里；UI 提供独立「打印」与「分享」入口。
 
-我推荐 **A**（UC5 正确性值得可测的服务边界），但这是 first precedent，请 PO/Codex 知情后定。
+**为何改良版 B 成立（化解我原 A 的顾虑）**：我原推 A 的理由是「present 留 UI 会让 UC5 correctness 难单测」。改良版 B 用**可注入的 adapter（protocol + MockPrintPresenter）**化解了它——UC5「取消/无打印机→不记打印」的判定逻辑在 Feature View、但靠注 Mock outcome 即可单测，无需真打印机。于是 B 同时拿到「Core 纯净（不吃 UIView）+ adapter 集中不重复 + UC5 可测」三者。Codex 这个设计判断成立，我采纳。
 
-其它实施注意（验证补）：① `withCheckedThrowingContinuation` 是 Core 首例，防双 resume/泄漏；② `LivePrintService` 应由 `LiveServiceContainer.init` 注入容器的**同一** `pdfExport` 实例（勿自建、保持 DI 语义）；③ `ExportPreviewView` 已 `begin(.exporting)`，批量打印路径该用 `.exporting` 还是 `.printing`、并存时 ProfileManager 文案如何呈现，接线时定。
+其它实施注意（验证补）：① `withCheckedThrowingContinuation` 防双 resume/泄漏（`UIPrintInteractionController` completionHandler 理论只回一次，仍应防御）；② `ExportPreviewView` 已 `begin(.exporting)`，批量打印路径该用 `.exporting` 还是 `.printing`、并存时 ProfileManager 文案如何呈现，接线时定。
 
-**lane 边界**：Claude 拥 `PrintService.swift` 全部（协议/Live/Mock/DI/单测三分支 completed·cancelled·throw）；Codex 改 `LibraryDetailView`/`ExportPreviewView` 调用 + 提供 anchor + `PDFExportOptions` UI + loading/错误反馈 + present 前后 `.printing` tracker。
+**lane 边界**：Claude 拥 `SnapDrillUI/PrintPresenting.swift` 全部（协议 / `LivePrintPresenter`（UIPrintInteractionController + continuation 桥接）/ `MockPrintPresenter` / `@Environment` key / 单测 completed·cancelled·throw 三分支）；Codex 改 `LibraryDetailView`/`ExportPreviewView`：两个一等入口（打印/分享）、提供 anchor、`PDFExportOptions` 配置 UI、消费 outcome、`.printing` tracker。**adapter 是 SnapDrillUI 层的 testable 工程件（非视觉设计）= 我；入口 IA/视觉 = Codex。**
 
-`[PO]`：① `UIPrintPageRenderer` 是否降级为后续优化（第一版 PDF Data 直印先脱离分享表）；② 打印 vs 分享是否在 UI 上拆成两个一等入口；③ 上面的 A/B 设计取舍。
+`[PO]`：✅ 全部已定（D-I3a 改良版 B / D-I3b 降级 / D-I3c 拆两入口）。
 
 **⚠️ 合并 DoD 硬前置**：`UIPrintInteractionController` 在 Simulator 打印支持有限（同 StoreKit 沙箱边界），**真机 iPhone 17 dogfood 验 completed/cancelled/failed 三分支**——UC5 误记会污染未来打印统计，这是数据正确性，非「建议验一次」。
 
-**sequencing**：① Claude 先合 PrintService 协议 + DI + Mock（Core lane，零 UI 依赖，独立可合，遵 Core→UI→Features）→ ② Codex rebase 后在 UI 对接 → ③ `.printing` tracker 随 ② 补。**不要先占位空壳再延后——契约本身就是 UI lane 的解锁前提。**
+**sequencing**：① Claude 先合 `SnapDrillUI/PrintPresenting.swift`（协议 + LivePrintPresenter + MockPrintPresenter + `@Environment` key + 单测；SnapDrillUI 层、对 Feature 零依赖、additive 可独立合，遵 Core→**UI**→Features，Core 无需改）→ ② Codex rebase 后在 Feature View 对接（两入口 + anchor + outcome）→ ③ `.printing` tracker 随 ② 补。**不要先占位空壳再延后——adapter 就是 UI lane 的解锁前提。**
 
 ---
 
@@ -131,9 +130,9 @@ public enum PrintError: Error { case pdfGenerationFailed(Error); case noPrinterA
 
 | # | 决策 | 我的建议 | 阻塞谁 |
 |---|---|---|---|
-| D-I3a | PrintService 设计 A（present 进 Core）vs B（present 留 UI） | **A**（UC5 正确性可测） | I3 落地 |
-| D-I3b | 第一版打印用 PDF Data 直印、`UIPrintPageRenderer` 降级后续 | 同意降级 | I3 落地节奏 |
-| D-I3c | 打印 vs 分享是否拆两个一等 UI 入口 | 倾向拆（打印=一等 tenet） | Codex UI |
+| ~~D-I3a~~ | PrintService 设计 | ✅ **已定 = 改良版 B**（Core 仅产 PDF Data；adapter 放 SnapDrillUI、可注入测试） | — |
+| ~~D-I3b~~ | 第一版 PDF Data 直印、`UIPrintPageRenderer` 降级 | ✅ **已定 = 降级** | — |
+| ~~D-I3c~~ | 打印 vs 分享拆两个一等入口 | ✅ **已定 = 拆** | — |
 | D-I4a | 导出后选择态 A/B/C | **A**（自动化 Done） | Codex 闭包行为 |
 | D-I4b | cancelled 是否清选择 | 否 | Codex 闭包行为 |
 | D-I4c | 「发起即完成」作清选择触发是否可接受 | ZIP 精确接线、PDF/CSV 保守 | Codex 闭包行为 |
