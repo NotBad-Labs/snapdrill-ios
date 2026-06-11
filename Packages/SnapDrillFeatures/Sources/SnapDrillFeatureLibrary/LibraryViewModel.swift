@@ -76,21 +76,21 @@ public final class LibraryViewModel {
     /// 每维度可选值（dimensionId → values），用于过滤选项
     public var valuesByDimension: [UUID: [CategoryValueModel]] = [:]
 
-    /// 搜索文本（变更时触发防抖刷新）
+    /// 搜索文本（逐字符输入 → 300ms 防抖刷新）
     public var searchText: String = "" {
-        didSet { triggerRefresh() }
+        didSet { scheduleRefresh(debounced: true) }
     }
-    /// 已选中的维度值过滤（dimensionId → 选中 valueIds；语义：维度间 AND、维度内 OR；变更时刷新）
+    /// 已选中的维度值过滤（dimensionId → 选中 valueIds；语义：维度间 AND、维度内 OR；离散事件 → 即时刷新）
     public var selectedValueIdsByDimension: [UUID: Set<UUID>] = [:] {
-        didSet { triggerRefresh() }
+        didSet { scheduleRefresh(debounced: false) }
     }
-    /// 已选中的难度过滤集合（变更时触发防抖刷新）
+    /// 已选中的难度过滤集合（离散事件 → 即时刷新）
     public var selectedDifficulties: Set<Int> = [] {
-        didSet { triggerRefresh() }
+        didSet { scheduleRefresh(debounced: false) }
     }
-    /// 当前排序方式（变更时触发刷新）
+    /// 当前排序方式（离散事件 → 即时刷新）
     public var sortOption: LibrarySortOption = .createdAt {
-        didSet { triggerRefresh() }
+        didSet { scheduleRefresh(debounced: false) }
     }
 
     /// 是否正在加载数据
@@ -119,10 +119,10 @@ public final class LibraryViewModel {
     private var currentPage: Int = 0
     private let pageSize: Int = 50
     private let metadataFetchLimit: Int = 500
-    /// 搜索防抖任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
+    /// 刷新任务句柄（搜索防抖路径与离散筛选即时路径共用；@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
     /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
-    private var searchTask: Task<Void, Never>?
+    private var refreshTask: Task<Void, Never>?
 
     // MARK: - Initialization
 
@@ -196,11 +196,20 @@ public final class LibraryViewModel {
         return valuesByDimension[tagDimension.id] ?? []
     }
 
-    /// 触发防抖搜索/刷新
-    public func triggerRefresh() {
-        searchTask?.cancel()
-        searchTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(300)) // best-effort: 0.3s 防抖延迟，取消不影响正确性
+    /// 刷新调度：搜索文本走 300ms 防抖（逐字符输入需节流），离散筛选/排序即时刷新（单次点击无需节流、避免纯延迟造成的可感知等待）。
+    /// 两路共用 refreshTask 句柄；新调度先 cancel 旧任务。
+    /// coalescing 机制：Task{} 体在 MainActor 上异步入队、待当前同步执行让出后才跑，故 resetFilters() 的连发 setter
+    /// 会先跑完所有 cancel，被取消任务进 body 后即被下方 `guard !Task.isCancelled` 短路 → 最终只一次 fetch。
+    /// ⚠️ 该 coalescing 依赖 fetchFilteredModels 同步 + MainActor 串行（末次写回胜）；若其改 async 则 coalescing 弱化
+    /// （见 docs/ui-redesign/flagship-cross-layer-contracts.md I4 的 off-main 讨论）。
+    private func scheduleRefresh(debounced: Bool) {
+        refreshTask?.cancel()
+        refreshTask = Task { [weak self] in
+            if debounced {
+                try? await Task.sleep(for: .milliseconds(300)) // best-effort: 取消不影响正确性
+            } else {
+                await Task.yield() // 即时路径异步入队；仅多让出一次调度点（coalescing 靠上述 cancel+guard，非靠此 yield）
+            }
             guard let self = self, !Task.isCancelled else { return }
             await self.refreshData()
         }
@@ -208,6 +217,9 @@ public final class LibraryViewModel {
 
     /// 执行数据加载与过滤 (异步)
     public func refreshData() async {
+        // fetch 前丢弃已取消任务：Task.cancel() 只置标志、不抢占已入队任务。
+        // 主要拦截「已过 scheduleRefresh 的 guard、fetch 前才被取消」的窄窗任务，避免它跑完整内存全量 fetch（仅写回前丢结果=浪费）。
+        guard !Task.isCancelled else { return }
         do {
             currentPage = 0
             let results = try repositories.review.fetchFilteredModels(
@@ -377,8 +389,8 @@ public final class LibraryViewModel {
     /// 不再在页面离开时提交 pending 删除 —— 删除倒计时由
     /// DeletionScheduler（App 级）管理，不随 View 释放而中断。
     public func cancelTasks() {
-        searchTask?.cancel()
-        searchTask = nil
+        refreshTask?.cancel()
+        refreshTask = nil
         pendingDeletionItemBatches.removeAll()
     }
 
