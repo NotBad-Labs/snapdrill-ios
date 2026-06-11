@@ -1,6 +1,6 @@
 # 三路协作边界与交接协议
 
-> 当前版本：2026-06-11。适用于 Codex Desktop、Claude Code 与 Antigravity 并行协作。
+> 当前版本：2026-06-12。适用于 Codex Desktop、Claude Code 与 Antigravity 并行协作。
 > 目标是减少文件冲突与认知摩擦，不建立额外管理层。PO 对产品意图和争议拥有最终裁决权。
 
 ## 1. 共同真相源
@@ -48,7 +48,7 @@ Codex 可以从实际交互中审计跨层问题，但只记录契约、复现�
 - `.github/`、`Scripts/`、签名/构建配置、`project.pbxproj`、`Package.resolved`
 - Core/Data/ViewModel 测试与最终集成闸
 
-Claude 不修改 Codex 已确定的 UI 视觉方案。跨层修复需要新增 UI 接口时，先定义最小契约并在共享文档记录，再由 Codex接入 View。
+Claude 是工程集成与发布就绪协调 DRI：负责跨层技术归属、构建可行性、依赖顺序和发布工程闭环。该职责不构成对 Codex 的设计管理权；Claude 不修改 Codex 与 PO 已确定的 UI 视觉方案。跨层修复需要新增 UI 接口时，先定义最小契约并在共享文档记录，再由 Codex 接入 View。
 
 ### Antigravity：官网、运营与合规文案
 
@@ -58,9 +58,25 @@ Claude 不修改 Codex 已确定的 UI 视觉方案。跨层修复需要新增 U
 - App Store 元数据、ASO、运营材料、合规文案草案
 - 本仓库中明确分配的文档与追溯日志
 
-Antigravity 不修改 Swift 业务逻辑。法律结论必须标注来源与是否需律师确认；产品定位文案必须服从 PO 已决策的 general-audience 效率工具定位。
+Antigravity 不修改 Swift 业务逻辑。法律结论必须标注来源与是否需律师确认；产品定位文案必须服从 PO 已决策的 general-audience 效率工具定位。发布后由 Antigravity 汇总支持渠道、TestFlight 和 App Store 的用户反馈，先做事实分类，不代替 PO 判断产品优先级。
 
-## 3. 共享接缝
+## 3. 结果责任（唯一 DRI）
+
+文件所有权用于避免冲突，DRI 用于确保结果有人收口。多人可以参与，每项结果只有一个最终 DRI：
+
+| 结果领域 | 最终 DRI | 参与与边界 |
+|---|---|---|
+| 产品意图、优先级、商业与法律风险 | PO | Agent 提供证据与方案，不替 PO 决策 |
+| UI、交互、设计系统、无障碍、本地化最终呈现 | Codex | Antigravity 提供措辞，Claude 集成资源；截断、布局和交互体验由 Codex 收口 |
+| 工程集成、架构可行性、依赖、CI、发布就绪 | Claude | Claude 可裁决技术归属与集成顺序，但不能覆盖 Codex 的视觉决定 |
+| 公开文案、ASO、官网与反馈初筛 | Antigravity | 产品优先级仍由 PO 决定 |
+| 真机产品验收与正式发布授权 | PO | Claude 汇总发布就绪状态，PO 作最终 go/no-go |
+| 技术监控、性能与线上技术事故分诊 | Claude | 使用 MetricKit、Xcode Organizer 与 App Store Connect，不恢复第三方遥测 |
+| 安全/隐私事件的对外处置与风险取舍 | PO | Claude 提供技术事实，Antigravity 提供公开措辞，必要时律师给法律意见 |
+
+跨层 Feature 默认由 Claude 承担工程集成 DRI，确保各层能共同构建和通过测试；Codex 仍对其最终 UI 体验负责。涉及产品语义的分歧必须交 PO。
+
+## 4. 共享接缝
 
 以下改动不是某个 lane 可静默完成的局部改动：
 
@@ -68,9 +84,11 @@ Antigravity 不修改 Swift 业务逻辑。法律结论必须标注来源与是�
 |---|---|---|
 | Core service / DTO / Notification name | Claude | 改前记录消费者；改后提供签名、迁移说明与验证结果 |
 | Feature public View init / Environment key | Codex | 改前 grep 所有调用点并通知 Claude；由拥有调用文件的 lane 接入 |
-| View 与 ViewModel 状态契约 | 双方 | View 只表达所需状态/动作；ViewModel 负责业务时序和副作用 |
+| View 与 ViewModel 状态契约 | Claude（工程收口） | Codex 表达 UI 所需状态/动作并验交互；Claude 负责并发、时序和副作用；产品语义分歧交 PO |
 | 打印/分享系统呈现 | Core 产物由 Claude，UIKit/SwiftUI presentation adapter 由 Codex | 当前契约见 `docs/ui-redesign/flagship-cross-layer-contracts.md` |
-| 本地化文案 | 提议方起草 | 产品含义由 PO，合规措辞由 Antigravity，UI 容器适配由 Codex，资源集成由 Claude |
+| 本地化文案 | Codex（最终呈现） | 产品含义由 PO，公开/合规措辞由 Antigravity，资源集成由 Claude；截断、Dynamic Type 和布局由 Codex 验收 |
+| 隐私声明与代码行为一致性 | Claude（技术事实） | Claude 核对依赖、数据流与 Privacy Manifest；Antigravity据此维护公开政策；法律充分性与风险取舍归 PO/律师 |
+| 用户反馈闭环 | Antigravity（收集初筛） | Antigravity 汇总事实，PO 定优先级，Claude/Codex 分别完成工程与体验分析和实现 |
 | `project.pbxproj` / lockfile / target membership | Claude | 其他 lane 只提交需求，不并行编辑这些高冲突文件 |
 
 冻结集的成员与数量必须从 live code grep，不凭记忆。2026-06-11 实证锚点：
@@ -80,7 +98,7 @@ Antigravity 不修改 Swift 业务逻辑。法律结论必须标注来源与是�
 - Library public View：`CategoryManagerView` / `LibraryEditView` / `LibraryView` / `SFSymbolPickerView`
 - SPM package：Core / Data / Features / UI，共 4 个；Features 内含 5 个 feature target
 
-## 4. 交接方式
+## 5. 交接方式
 
 Agents 不会自动读取彼此的私有会话，也不应互相调用对方模型。当前规则：
 
@@ -89,8 +107,9 @@ Agents 不会自动读取彼此的私有会话，也不应互相调用对方模�
 - PO 不需要人工复制完整上下文；只需在需要启动另一 lane 或作产品裁决时通知
 - 跨层发现写入拥有明确路径的文档，例如 `docs/ui-redesign/REDESIGN-LOG.md` 或专项 contract
 - handoff 至少包含：问题、复现、责任层、所需契约、不可触碰边界、验证方式
+- 发现者不负责替所属层修复，但 Claude 作为工程集成 DRI 负责追踪跨层技术问题直到关闭或明确升级给 PO
 
-## 5. Worktree 与提交
+## 6. Worktree 与提交
 
 - 每个活跃 lane 使用独立 worktree 和独立分支
 - 开工前记录 base commit；集成前 rebase 到最新 `origin/develop`
@@ -98,6 +117,14 @@ Agents 不会自动读取彼此的私有会话，也不应互相调用对方模�
 - 依赖顺序：Core/Data 契约先落地，UI/Feature 消费方后 rebase 接入
 - PO 要求本地交付时，完成信号是：clean diff + 本地 commit + commit hash + 验证结果
 - push、PR、merge、部署只有在 PO 明确授权时执行
+
+### PO 暂时不在线
+
+- 各 Agent 可以继续在自己的 worktree 中实现已明确的任务、补测试、核实事实并创建本地 commit
+- 可以记录新发现和准备 handoff，但不能自行改变产品语义、法律立场或免费/付费边界
+- 不得自行 push、merge、上传 TestFlight、提交审核或发布 App Store 版本
+- S0/S1 问题可由 Claude 立即完成技术分诊和 hotfix 准备；涉及发布、下架、账号或对外通知时仍等待 PO 授权
+- PO 恢复在线后只需审阅决策点与可验证产物，不要求 Agent 停止所有低风险工作
 
 建议每个 worktree 使用独立 DerivedData，避免并行构建互相清缓存：
 
@@ -109,7 +136,7 @@ xcodebuild build-for-testing \
   -derivedDataPath /tmp/snapdrill-derived-<lane>
 ```
 
-## 6. 验证与完成信号
+## 7. 验证与完成信号
 
 Swift 改动必须通过：
 
@@ -128,7 +155,7 @@ xcodebuild build-for-testing -scheme AllTests \
 
 完成报告必须区分：已验证、未运行、外部阻塞。不能用“代码看起来正确”替代 DoD。
 
-## 7. 产品决策闸
+## 8. 产品决策闸
 
 只有以下情况必须停下问 PO：
 
