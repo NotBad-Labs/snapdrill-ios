@@ -76,11 +76,6 @@ app 当前**捆绑** Firebase（Analytics + Crashlytics，隔离在 `SnapDrillIn
 ## Pivot 至美国全球版后的上下文追加 (2026-06-10)
 
 > [!NOTE]
-> **编译剔除适用性待 PO D6**
+> **Firebase 编译层剔除已由 Claude 工程线完成**
 >
-> 鉴于项目于 2026-06-10 整体 Pivot 至美国全球版（`com.snapdrill.global`，Team J58U72W335），国内版发布已挂起。根据最新的 [ADR-005](file:///Users/yiming/Developer/snapdrill-compliance/docs/decisions/ADR-005-analytics-privacy-strategy.md)，全球版已确立“零采集 / 本地优先”的隐私安全策略，不仅国内版，全球版生产基线也维持零采集，不恢复 Firebase 行为采集。
-> 
-> 在此背景下，针对 Firebase SDK 的**“编译层 airtight 剔除”**的适用性如下：
-> 1. 原本仅针对“中国大陆 build”的 Firebase 条件化编译与编译层剔除，因国内 build 挂起而暂停以国内 build 为唯一目标的重构。
-> 2. 为避免打包污染（聚合隐私声明）以及多余二进制符号残留，全球版仍保留彻底剔除 Firebase 二进制链接的规划，但此重构将移交至 Claude 负责的工程层（Core/Infrastructure），不再针对 CN/Global 两套 build 路径进行分立管理。
-> 3. 详细的 Firebase 运行时零采集状态核实已与全球版对齐。
+> 鉴于项目整体已 Pivot 至美国全球版（`com.snapdrill.global`，Team J58U72W335）并维持“零采集 / 本地优先”隐私安全策略（ADR-005 D6=A 已决决策），Firebase 编译层彻底剔除已由 Claude 工程线完成，落 PR #803（彻底删除 `SnapDrillInfrastructure` 包、切断 pbxproj 引用并清理 GoogleService 示例，待 PO 授权合并）。全球版生产基线不再链接或引入任何 Firebase SDK。

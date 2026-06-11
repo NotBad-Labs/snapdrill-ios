@@ -14,8 +14,8 @@
 - **官网原文**：
   `Anonymous Usage Data: Via Firebase Analytics, we collect anonymous events (screen views, feature usage) to improve the product. No personally identifiable information is included. On iOS, this is only enabled after you grant App Tracking Transparency (ATT) permission.`
 - **App 生产实证**：
-  - **FirebaseApp 全仓零调用**：全仓搜索 `FirebaseApp.configure` 没有发现任何有效的启动初始化调用。
-  - **NoOpAnalyticsService 注入**：[DependencyContainer.swift:48](file:///Users/yiming/Developer/snapdrill-compliance/SnapDrill/App/DependencyContainer.swift#L48) 中注入的是空服务 `NoOpAnalyticsService`，其内部所有行为统计方法均为空实现，未执行任何采集逻辑。
+  - **生产端零调用**：全仓唯一实际调用点位于 [FirebaseBootstrap.swift:33](file:///Users/yiming/Developer/snapdrill-compliance/Packages/SnapDrillInfrastructure/Sources/SnapDrillInfrastructure/FirebaseBootstrap.swift#L33) 的 `FirebaseApp.configure()`，该包在生产中并未装配（Composition root 均不引入），且已随 PR #803 连同整个 `SnapDrillInfrastructure` 包彻底删除。
+  - **NoOpAnalyticsService 注入**：[DependencyContainer.swift:48](file:///Users/yiming/Developer/snapdrill-compliance/SnapDrill/App/Composition/DependencyContainer.swift#L48) 中注入的是空服务 `NoOpAnalyticsService`，其内部所有行为统计方法均为空实现，未执行任何采集逻辑。
   - **ATT 框架已移除**：根据 [ADR-002](file:///Users/yiming/Developer/snapdrill-compliance/docs/decisions/ADR-002-remove-att-authorization.md)，ATT 授权弹窗已从 App 内部完全移除，不存在任何跟踪逻辑。
 - **修改建议**：
   建议整段删除。替换为说明“SnapDrill 秉持本地优先设计，不收集任何用户使用行为数据，亦不启用任何应用跟踪或遥测统计”。
@@ -33,7 +33,7 @@
 - **官网原文**：
   `Third-party services we use (Firebase, provided by Google) are subject to their own privacy policies.`
 - **App 生产实证**：
-  - **依赖空转**：虽然二进制包在链接层面还带有 Firebase SDK（当前规划由 Claude 进行彻底编译剔除），但由于没有初始化调用和 plist 凭证，并没有作为有效的“第三方服务商”被运行使用。
+  - **依赖完全剔除**：Firebase 编译层彻底剔除已由 Claude 工程线完成，落 PR #803 待合并，二进制中不再链接任何 Firebase SDK。
 - **修改建议**：
   建议修改为“我们不会与任何第三方服务商共享您的个人数据或使用内容。应用本身完全独立运行，不引入活跃的行为分析或遥测数据收集平台”。
 
