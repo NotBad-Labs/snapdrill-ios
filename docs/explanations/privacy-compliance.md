@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-06-11
 layer: pattern
 freshness:
   max_age_days: 180
@@ -7,6 +7,17 @@ freshness:
 audit_note: 2026-05-19 验证 — 本文件已 skill 化为指针；权威执行在 privacy-manifests skill + app-store-rejection skill
 ---
 # 隐私合规
+
+> [!NOTE]
+> **美国全球版 Pivot 说明 (2026-06-10)**
+>
+> 鉴于项目整体已 Pivot 至美国全球版（`com.snapdrill.global`，Team J58U72W335），中国大陆版构建与发布已挂起。本隐私合规说明已做对应收窄，将原“双区域/国内版 Firebase-Free”口径统一迁移并收窄至**“全球版零采集、本地优先”**的合规框架，详细分析决策见 [ADR-005](file:///Users/yiming/Developer/snapdrill-compliance/docs/decisions/ADR-005-analytics-privacy-strategy.md)。
+
+> [!IMPORTANT]
+> **通用效率工具定位与通用受众论证 (2026-06-11)**
+>
+> 配合 2026-06-11 PO 决策，本产品定位由“儿童教育”正式调整为**通用效率工具**。其核心用途为协助所有学习者、专业人士或考试人员扫描、归档和数字化整理其所需的各类题目与文档（包含但不限于职业证书、竞赛卷、培训讲义、发票票据等）。此定位在法律上确立了本应用的 **General-Audience (通用受众)** 属性，从而稀释了 COPPA 等儿童隐私法规的强监管风险。本产品的合规口径统一基于此通用受众与端侧零采集逻辑展开。
+
 
 > 本文件为合规口径索引，**不是权威实现**：
 >

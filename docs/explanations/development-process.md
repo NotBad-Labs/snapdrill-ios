@@ -118,6 +118,26 @@ SnapDrill：家庭教育拍照存档 iOS app（SwiftUI / iOS 26+ / Swift 6.3）�
 - **RC-11 CI 加 GoogleService-Info.plist 回归 gate**（deepseek）：防误提交回归（区分 `.example`）。
 - **RC-12 二进制 Firebase 符号静态扫描风险**（grok+agy）：即使禁用，二进制含 Firebase 符号可能被 CN 审核标记"境外分析 SDK"；C4 剔除后消除。
 
+### 美国全球版 Pivot 重映射表 (2026-06-10)
+
+> [!NOTE]
+> 鉴于项目整体已 Pivot 至美国全球版（`com.snapdrill.global`，Team J58U72W335），中国大陆（CN）版构建与上架已挂起。以下是 Batch 3 发布就绪 Checklist 中 RC-1~12 条目在全球版下的状态映射与实证：
+
+| 标识 | 问题描述 | 全球版状态 | 实证 / 备注 |
+|---|---|---|---|
+| **RC-1** | C4 编译层 Firebase 剔除 | **待 PO D6 不预判** | 原定彻底剔除 Firebase 二进制链接的工程重构，其适用性将转由全球版零采集规则统筹，由 Claude 负责。 |
+| **RC-2** | Firebase PrivacyInfo 聚合污染 | **待 PO D6 不预判** | 依赖于 RC-1 的编译剔除方案。 |
+| **RC-3** | 隐私政策文案自相矛盾 | **待 PO D6 不预判** | 正文实质修改及中英文案对齐由律师定稿决定。 |
+| **RC-4** | MetricKit 缺失 | **PENDING-PO-DECISION** | 遥测架构 Layer A 实现待 PO 进一步细化决策。 |
+| **RC-5** | 儿童个人信息 PIPL 专章缺失 | **待 PO D6 不预判** | 属于法律定性，待律师定稿。[⚠️ 定位更新 2026-06-11：已定位为通用效率工具，稀释 directed-to-children 属性，但具体专章或免除条款仍待律师定稿] |
+| **RC-6** | C1 required-reason API 过度声明 | **待 PO D6 不预判** | 已于 COMPLIANCE-LOG 中完成使用实证核实，未删任何声明。 |
+| **RC-7** | CloudKit/iCloud entitlement 声明但未用 | **RESOLVED** | 全球版无国内“跨境能力审查”限制，CloudKit entitlements 处于正常可用状态，不构成上架阻碍。 |
+| **RC-8** | PIPL 用户权利（本地数据一键清空） | **RESOLVED** | 全球版为本地优先、不注册、无服务器交互，用户可通过本地删除 Profile 销毁数据，已满足 GDPR/CCPA 对数据删除权的要求。 |
+| **RC-9** | 官网可达性（ICP 备案问题） | **VOIDED** | 全球版无需中国大陆 ICP 备案。 |
+| **RC-10** | C4 doc≠code stale | **RESOLVED** | stale 注释已在本 batch 中于 `FirebaseBootstrap.swift` 内清理完成。 |
+| **RC-11** | CI 加 GoogleService-Info.plist 回归 gate | **PENDING** | 待后续 Firebase 剔除合并后视全球版 CI 策略而定。 |
+| **RC-12** | 二进制 Firebase 符号静态扫描风险 | **LOW-PRIORITY-POST-PIVOT** | 挂起国内版后，Firebase 符号静态扫描不再构成全球版的主要合规拒审风险，优先级降为低。 |
+
 ## 6. v0→v1 修正清单（4 方证伪的错误）
 
 1. 「5/29 SEALED 标记」→ 删除（不存在；4/4 证伪）。

@@ -21,9 +21,9 @@ gap_evidence_required: 真实 ASO 文案 / Apple Developer 账号 / App Store Co
 | 字段 | 值 |
 |---|---|
 | App 名称 | SnapDrill |
-| 副标题 | 练习题数字化效率工具 |
+| 副标题 | 练习题数字化效率工具 [⚠️ 定位更新 2026-06-11：建议改为“任何题目与文档数字化整理工具”以实现通用效率工具定位] |
 | 类别（主） | Productivity |
-| 类别（副） | Education |
+| 类别（副） | Utilities |
 | 年龄分级 | 4+ |
 | 价格 | 免费（含 App 内购买） |
 | 版权 | 2026 NotBad Labs L.L.C. |
@@ -48,14 +48,14 @@ wrong,answers,practice,OCR,exam,review,spaced,repetition,productivity,homework,a
 
 ### 中文（简体）
 
-SnapDrill 让练习题数字化变得简单。拍照、扫描或导入 PDF，自动识别文字，一键归档到题库。
+SnapDrill 让练习题数字化变得简单。[⚠️ 定位更新 2026-06-11：此处需淡化“练习题”，改为“扫描、归档、整理任何题目与文档（试卷、竞赛题、职业证书、培训资料、票据等）”] 拍照、扫描或导入 PDF，自动识别文字，一键归档到题库。
 
 核心功能：
 - 拍照/扫描/PDF 导入 — 多种采集方式，灵活高效
 - OCR 文字识别 — 自动提取题目内容，支持中英文混合
-- 学科/来源/标签/年级 — 多维分类，快速检索
+- 学科/来源/标签/年级 — 多维分类，快速检索 [⚠️ 定位更新 2026-06-11：弱化或移除“年级”分类，代之以“类型/科目”等通用分类]
 - 间隔重复复习 — SM-2 算法科学安排复习计划
-- PDF 导出 — 一键生成可打印的练习卷
+- PDF 导出 — 一键生成可打印的练习卷 [⚠️ 定位更新 2026-06-11：改为“一键生成可打印的练习纸或归档文档”]
 
 隐私承诺：
 - 零注册，打开即用
@@ -67,14 +67,14 @@ SnapDrill 专注一件事：让你用最少的时间，把纸上的练习题变�
 
 ### 英文
 
-SnapDrill makes digitizing practice problems effortless. Snap a photo, scan a document, or import a PDF — text is recognized automatically and archived into your personal question bank.
+SnapDrill makes digitizing practice problems effortless. [⚠️ 定位更新 2026-06-11: Suggest changing to: "makes digitizing, scanning, and organizing any study materials and documents effortless (exams, certificates, training materials, receipts, etc.)"] Snap a photo, scan a document, or import a PDF — text is recognized automatically and archived into your personal question bank.
 
 Key Features:
 - Photo/Scan/PDF Import — Multiple capture methods for maximum flexibility
 - OCR Text Recognition — Automatically extracts question content with Chinese-English support
-- Multi-dimensional Organization — Subject, source, tags, and grade classification
+- Multi-dimensional Organization — Subject, source, tags, and grade classification [⚠️ 定位更新 2026-06-11: Suggest changing grade to category to dilute directed-to-children attributes]
 - Spaced Repetition Review — SM-2 algorithm for scientifically scheduled reviews
-- PDF Export — One-tap printable practice sheets
+- PDF Export — One-tap printable practice sheets [⚠️ 定位更新 2026-06-11: Suggest changing practice sheets to printable pages/documents]
 
 Privacy Promise:
 - Zero registration required
@@ -90,12 +90,12 @@ SnapDrill does one thing well: turn paper-based practice problems into manageabl
 
 ### 中文
 ```
-拍照录入练习题，OCR 自动识别文字，间隔重复科学复习。零注册，数据纯本地。
+拍照录入练习题，OCR 自动识别文字，间隔重复科学复习。零注册，数据纯本地。 [⚠️ 定位更新 2026-06-11：建议弱化“练习题”，改为“拍照扫描任何题目与文档并进行数字化整理归档”]
 ```
 
 ### 英文
 ```
-Snap practice problems, OCR extracts text, spaced repetition supports review. Zero signup, local-first.
+Snap practice problems, OCR extracts text, spaced repetition supports review. Zero signup, local-first. [⚠️ 定位更新 2026-06-11: Suggest changing to general-audience expression: "Snap document/question, OCR extracts text..."]
 ```
 
 ---
@@ -103,17 +103,17 @@ Snap practice problems, OCR extracts text, spaced repetition supports review. Ze
 ## 审核备注（Review Notes）
 
 ```
-SnapDrill is a productivity utility for digitizing user-provided practice materials (notebooks, printouts, homework). Content is supplied entirely by the user; the app does not provide any question bank, course content, or third-party material.
+SnapDrill is a productivity utility for digitizing user-provided practice materials (notebooks, printouts, homework). [⚠️ 定位更新 2026-06-11: Suggest changing practice materials/homework to: user-provided exams, certificates, training materials, receipts, printouts, and documents.] Content is supplied entirely by the user; the app does not provide any question bank, course content, or third-party material.
 
 Core workflow:
 1. Capture: Photo / Document Scanner / PDF Import
-2. Organize: Subject, Source, Tags, Grade classification
+2. Organize: Subject, Source, Tags, Grade classification [⚠️ 定位更新 2026-06-11: Suggest changing grade to category to dilute K-12 profile]
 3. Review: SM-2 spaced repetition algorithm
 4. Export: PDF generation for printing
 
 No account registration is required. All data is stored locally on the device using SwiftData.
 
-SnapDrill does not collect direct identifiers such as name, phone number, email, or school. The China build uses no Firebase or third-party analytics/crash-reporting; all data stays on-device with zero network transmission. (The future overseas build will use Firebase with opt-in disclosure — region-specific notes to be added at C-path.)
+SnapDrill does not collect direct identifiers such as name, phone number, email, or school. The China build uses no Firebase or third-party analytics/crash-reporting; all data stays on-device with zero network transmission. (The future overseas build will use Firebase with opt-in disclosure — region-specific notes to be added at C-path.) [⚠️ 待 PO D6 裁决：此双区域描述需要根据 Pivot 全球版决策调整]
 
 The app requires camera permission for photo capture and photo library permission for image import. Notification permission is optional for daily review reminders.
 ```
@@ -124,7 +124,7 @@ The app requires camera permission for photo capture and photo library permissio
 
 | 文档 | URL | 状态 |
 |---|---|---|
-| 隐私政策 | （待上线） | App 内已有 PrivacyPolicyView |
-| 服务条款 | （待上线） | App 内已有 TermsOfServiceView |
+| 隐私政策 | https://notbadhq.com/privacy | App 内已有 PrivacyPolicyView |
+| 服务条款 | https://notbadhq.com/terms | App 内已有 TermsOfServiceView |
 
 > 需要在公司网站或 GitHub Pages 上线公开 URL，Apple 审核要求可访问。
