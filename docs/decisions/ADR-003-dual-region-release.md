@@ -9,7 +9,7 @@ freshness:
 
 > 状态：**已决策** | 日期：2026-05-28 | 决策者：PO
 >
-> **🔁 状态更新 2026-06-09（PO 决策）**：**暂时挂起（非删除）国内大陆路线**，改用**美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`，Organization）做全球版生产**。工程已迁移到 `com.snapdrill.global` + 美国 Team（真机签名实证通过）。本 ADR 的"国内 first / 先用个人账号验 PMF"前提**已被此 pivot 取代**；双区域框架本身仍有效（保留作未来国内复活蓝图）。国内个人账号/标识符**保留可复活**（续费 deadline 2027-01）。正式 ADR-005 可在 PO 需要时补记此 pivot 完整 rationale。
+> **🔁 状态更新 2026-06-09（PO 决策）**：**暂时挂起（非删除）国内大陆路线**，改用**美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`，Organization）做全球版生产**。工程已迁移到 `com.snapdrill.global` + 美国 Team（真机签名实证通过）。本 ADR 的“国内 first / 先用个人账号验 PMF”前提已被取代；下文保留为未来国内路线复活蓝图，不是当前生产配置。当前事实见根 `README.md`。
 
 ## 背景
 
@@ -82,4 +82,4 @@ SnapDrill 是**一个产品**，计划两区域发布：
 
 ### 当前阶段
 
-TestFlight 内部测试用国内账号 `com.snapdrill.app`，**0 官网阻塞**。海外版 + 官网待 PMF 验证后启动。
+美国公司全球版 `com.snapdrill.global` 是当前生产与 TestFlight 基线；国内账号与标识符仅保留，不参与当前构建。

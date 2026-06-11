@@ -18,12 +18,17 @@
 
 ## 项目概览
 
-SnapDrill：一款 SwiftUI 单平台 iOS app。家庭教育场景 — 家长拍照存档孩子练习题，OCR 文字识别 → 多维分类 → SM-2 间隔重复复习 → PDF 导出打印。
+SnapDrill：一款 SwiftUI 单平台 iOS 通用效率工具。扫描、归档、整理题目与文档，完成 OCR → 分类 → 回顾 → 导出/打印；产品内核可继续为试卷/错题场景优化，但不对外呈现为儿童教育 App。
 
 - **平台**：iOS 26.0+，iPad / iPhone 通用，原生 SwiftUI，Swift 6.3 strict concurrency
 - **价值链**：采集 > 管理 > 导出/打印（复习是独立附加值）
-- **状态**：核心闭环 90% 完成；零上架零用户；Pro/同步阻塞 #479（StoreKit）/ #485（CloudKit 同步）/ #486（Word 导出），均 Pro 可延后；公司开发者账号 = #163（仅外部 TestFlight / 公开上架需要；个人账号 `W5A8THDKW8` 已 active，可做国内内测）
+- **生产基线**：美国 NotBad Labs L.L.C. Team `J58U72W335` + Bundle `com.snapdrill.global`；真机签名已验证。国内路线暂时挂起，相关资源保留可复活
+- **状态**：核心闭环约 90% 完成；零上架零用户；Pro/同步阻塞 #479（StoreKit）/ #485（CloudKit 同步）/ #486（Word 导出），均可延后
 - **架构铁律**：单向依赖向下，Core 层零外部依赖
+
+### 当前真相优先级
+
+发生冲突时按此顺序裁决：**PO 最新明确决策 > 当前代码/构建实证 > 本文件与根 `README.md` > feature spec/ADR > agent 私有记忆与历史研究**。私有记忆只是可丢弃缓存，不能覆盖仓库事实。当前定位见 `docs/explanations/positioning-and-audience.md`，协作边界见 `docs/how-to/parallel-lanes.md`。
 
 ## 构建命令
 
@@ -60,13 +65,12 @@ SnapDrill.app（薄壳，Composition Root）
     │
     ├── SnapDrillUI              公共 UI + 路由协议（依赖 Mantis 图片裁剪）
     ├── SnapDrillData            SwiftData @Model + Repository + Backup（依赖 ZIPFoundation）
-    ├── SnapDrillCore            Service Protocol + DI + SM-2 引擎（零外部依赖）
-    └── SnapDrillInfrastructure  Firebase 隔离层（Analytics + Crashlytics）
+    └── SnapDrillCore            Service Protocol + DI + SM-2 引擎 + MetricKit（零第三方依赖）
 
 SnapDrillShare（Share Extension）  通过 App Groups 与主 App 共享容器
 ```
 
-**依赖方向**：Features → UI → Data → Core；Infrastructure 仅由 App 层装配。**严禁反向引用**。
+**依赖方向**：Features → UI → Data → Core。**严禁反向引用**。`SnapDrillInfrastructure` 与 Firebase SDK 已在 #803 删除。
 
 ### DI 与数据流
 
@@ -75,7 +79,7 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 ```
 
 - `DependencyContainer.shared` App 启动时初始化
-- Core service 全部经 `ServiceContainer` 注入（13 属性：analytics / pdfExport / appConfig / privacyConsent / notification / ocr / captureDraft / contentTagging / questionSplitting / deletionScheduler / proEntitlement / activityTracker / reviewScheduler）
+- Core service 全部经 `ServiceContainer` 注入（14 属性：analytics / pdfExport / appConfig / privacyConsent / notification / ocr / captureDraft / contentTagging / questionSplitting / deletionScheduler / proEntitlement / activityTracker / reviewScheduler / metricService）
 - Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`（典型例外：`ImageStorage`）
 - `DataExecutor` 是 actor 拥有 `ModelContainer`，`createOffMainActor()` 消除 MainActor + XPC 死锁（#599）
 - 静态 facade 显式豁免清单：`TelemetryGate` / `ZIPArchiver` / `ImageStorage` / `OnboardingManager` / `DependencyContainer.shared`
@@ -84,12 +88,12 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 
 | 决策 | 理由 |
 |---|---|
-| 5 个 SPM Package | 编译隔离 + 依赖方向强制 + 模块独立测试 |
+| 4 个 SPM Package（Features 含 5 个 feature target） | 编译隔离 + 依赖方向强制 + 模块独立测试 |
 | SwiftData 而非 Core Data | iOS 26+ 原生 Swift 集成 |
 | `defaultIsolation(MainActor)` | xcconfig 全局 + `-default-isolation MainActor`，减少并发标注噪音 |
 | Multi-Profile Vault 模式 | 每个 Profile 独立 ModelContainer + 图片目录 + per-profile UserDefaults |
 | Soft Delete + Undo | `DeletionScheduler` 管理 5 秒撤销窗口 |
-| Firebase 隔离到 Infrastructure | Core 零外部依赖，可随时替换分析方案 |
+| 零后端行为采集 | Firebase 已删除；生产注入 NoOp analytics，设备诊断使用端侧 MetricKit |
 
 ## SwiftUI 实战准则
 
@@ -147,7 +151,7 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 
 - **Vision OCR**：擅长印刷体；**无独立中文手写识别模型**；`RecognizeDocumentsRequest` 适合整页文档，不适合裁剪后单题
 - **Foundation Models**（iOS 26+）：擅长分类 / 摘要；**不擅长数学推理**；`contentTagging` 自动标签可用，**解题不可**
-- **CloudKit**：需 Apple Developer 账号（公司账号 #163）+ CloudKit Container；同步功能 = #485（当前 `cloudKitDatabase: .none` 禁用）；SwiftData **不原生支持公共数据库**，仅私有同步；冲突 last-write-wins
+- **CloudKit**：公司账号已 active；同步仍需配置 CloudKit Container，功能 = #485（当前 `cloudKitDatabase: .none` 禁用）；SwiftData **不原生支持公共数据库**，仅私有同步；冲突 last-write-wins
 - **StoreKit**：需 Apple Developer + ASC 配置产品（#479；#486 Word 导出为其下游 Pro 功能）；Simulator 沙箱有限支持
 - **不存在的 API**：Math Notes（Calculator 私有）/ Smart Script（屏幕手写非照片 OCR）/ 原生公式识别 LaTeX/MathML（需第三方）
 
@@ -196,7 +200,7 @@ xcodebuild build-for-testing -scheme AllTests \
 | `docs/explanations/` | 为什么：vision 愿景 / design-principles 设计原则 / business-model 商业化 / architecture 架构 / assumptions 待验证假设 / competitive-analysis 竞品 / user-journeys 旅程 / privacy-compliance 隐私合规 |
 | `docs/reference/` | 查阅：feature-status 功能状态(SSOT·自动生成) / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO |
 | `docs/how-to/` | 操作：release-and-ci 发布与 CI |
-| `docs/decisions/` | 架构决策 ADR-001~004 |
+| `docs/decisions/` | 架构决策 ADR-001~005 |
 
 **功能状态单一真理源（B 方案）**：状态写在各 feature spec frontmatter（`status`/`tier`/`blocked_by`/`mode`），`docs/reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成（**勿手改**，pre-commit 校验）。
 
@@ -211,4 +215,3 @@ xcodebuild build-for-testing -scheme AllTests \
 - Privacy Manifest 自动扫描器：https://github.com/stelabouras/privacy-manifest
 - Apple Privacy Manifest 官方：https://developer.apple.com/documentation/bundleresources/privacy-manifest-files
 - Apple Human Interface Guidelines：https://developer.apple.com/design/human-interface-guidelines/
-

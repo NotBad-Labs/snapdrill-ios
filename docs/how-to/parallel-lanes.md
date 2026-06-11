@@ -1,79 +1,140 @@
-# 三路并行 lane 协调（共享 SSOT）
+# 三路协作边界与交接协议
 
-> 三个 agent 可独立并行开发 SnapDrill：**Codex**（UI 叶子）/ **Antigravity**（合规+官网）/ **Claude**（Core·Data·CI·集成闸）。
-> 本文是三 lane 的**单一真相源**——边界/接口/合并顺序/完成信号。各 lane 开工前读一遍。
-> **唯一可靠的强制门禁是 CI（`.github/workflows/ci.yml`）**；本地 hook / 日志 / 口头转达只是早期提醒，不是唯一防线。
-> 背景：三路协调协议异源研究（2026-06-10）。**刻意轻量**——单人 + 3 个 GUI/终端 agent，不套大团队重流程。
+> 当前版本：2026-06-11。适用于 Codex Desktop、Claude Code 与 Antigravity 并行协作。
+> 目标是减少文件冲突与认知摩擦，不建立额外管理层。PO 对产品意图和争议拥有最终裁决权。
 
-## 0. lane 拓扑 + 路径白名单（谁可碰哪些文件）
+## 1. 共同真相源
 
-| lane | agent | 可触碰路径（白名单） | 拥有的"写区"（改它须该 lane） |
-|---|---|---|---|
-| **Core·Data·CI·集成闸** | Claude（终端） | `Packages/SnapDrillCore/` `Packages/SnapDrillData/` `SnapDrill/App/`（composition root）`.github/` `docs/decisions/` `docs/how-to/` | @Model / ServiceContainer 协议 / MigrationPlan / 对外 DTO / Notification name |
-| **UI 叶子** | Codex（GUI worktree `feat/ui-redesign`） | `Packages/SnapDrillFeatures/` `Packages/SnapDrillUI/` `docs/ui-redesign/` | View body/布局/视觉、Router 内部 case |
-| **合规·官网** | Antigravity（GUI，2 worktree：snapdrill-ios + notbad-website） | `docs/*.md`、Swift **注释行**、官网仓草案文件 | 仅文档 + 注释，**零业务 Swift** |
+冲突时按以下顺序裁决：
 
-越界（碰白名单外文件）= 停手回报 PO，不自行决断。
+1. PO 最新明确决策
+2. 当前代码、构建结果与运行实证
+3. 根 `README.md`、`AGENTS.md` 与本文
+4. feature spec、ADR、各 lane 的追溯日志
+5. agent 私有记忆、旧计划和 `docs/research/` 历史材料
 
-**集成文件（无叶子 lane 可独占，高冲突，改动一律走 Claude 串行）**：`SnapDrill.xcodeproj/project.pbxproj`（target / 文件引用）、5 个 `Package.resolved` lockfile（`Packages/SnapDrill{Data,UI,Infrastructure,Features}/` + workspace `SnapDrill.xcodeproj/project.xcworkspace/.../swiftpm/Package.resolved`）。任一 lane 要加/改 SPM 依赖或 target 成员 = **知会 Claude 串行改**，别在各自 worktree 各改各的 lockfile / pbxproj（必撞 merge 地狱）。这两类未列入上面任何 lane 白名单 = 默认归 Claude（集成闸）。
+私有记忆只是可丢弃缓存。任何会影响其他 lane 的结论必须进入 git-tracked 文档、代码或 commit，不能只留在某个 agent 会话中。
 
-## 1. 冻结集（共享上游契约，改前须 Claude 串行 + 广播）
+## 2. Lane 所有权
 
-**🔒 铁律：成员与数字一律 `grep` 当前 develop，不凭记忆。**（曾因凭记忆把属性数 13 误写 14、并编造了 3 个不存在的 View 类型——这是真事故。）
+### Codex Desktop：UI 设计与 UI 实现
 
-- **Core ServiceContainer 协议属性**：以 `grep -cE '^\s+var \w+:' Packages/SnapDrillCore/Sources/SnapDrillCore/DI/ServiceContainer.swift` 为准 —— **当前 develop = 13（异源对抗审 2026-06-10 grep 实证）**。⚠️ #799（MetricKit）**尚未合 develop**，合并后将增第 14 个 `metricService`；**它合并前冻结集就是 13，别照"14/metricService"写**（曾把拟态当现态写进本文档，已纠）。增属性 = 破坏 `LiveServiceContainer`/`MockServiceContainer` 两 conformer，编译期强制同步。
-- **Data @Model（3 个）**：`ReviewItemModel` / `CategoryDimensionModel` / `CategoryValueModel`。改字段 = 零用户期原地改 V1、不写迁移（no-legacy-baggage）。
-- **Library 跨 feature 导出 View（public，被 Settings/Dashboard 消费）**：`CategoryManagerView` / `LibraryEditView` / `LibraryView` / **`SFSymbolPickerView`**（异源审补：`SFSymbolPickerView.swift:19` public，被 `FeatureSettings/EditProfileView.swift:221` 跨 lane 消费——Codex 动它 init 会断 Settings）。grep `public struct .*View` 于 `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/` 复核。**`SubjectManager/SourceManager/GradeManagerView` 类型已不存在**（被 `CategoryManagerView` 取代），但**源 `.docc`/README/`Package.swift` 注释仍误称它们 public**（`SnapDrillFeatureLibrary.docc:19-21` 等 stale）——同源漂移陷阱，**信 grep 不信 docc**。改 public init 签名 = 跨接缝契约，Codex 改前知会 Claude。
-- **对外 DTO（比 @Model 更需冻结，消费方更多）**：`ReviewExportSnapshot`（CSV+PDF 消费，**已在 develop**）。⚠️ `MetricPayloadSnapshot` **当前源树 0 命中**——随 #799 才落地，**未合前不是真 DTO，别冻结/别消费**。
+拥有：
 
-仅 **Claude** 增删冻结集成员。
+- `Packages/SnapDrillUI/`
+- `Packages/SnapDrillFeatures/**/**View.swift`
+- UI snapshot / XCUITest 中与视觉和交互表现直接相关的文件
+- `SnapDrill/App/AppRootView.swift`、`SnapDrill/App/AppRouter.swift` 的导航外观与视觉壳
+- `docs/ui-redesign/`
 
-## 2. 接口变更协议
+不拥有：
 
-1. 动 Core/Data 公共契约 / DTO / Notification name = **Claude 单边串行**，改完在 PR + memory 广播（含 `file:line`）。
-2. UI 改 public init 签名 / `@Environment` 消费键 = 跨接缝，**改前知会 Claude**。
-3. 合规改 `.swift` = **只允许注释行**；任何非注释 diff 走 Claude review 闸。
+- 任何 `*ViewModel.swift`
+- Core/Data、Repository、DataExecutor、`@Model`
+- CI、签名、pbxproj、Package lockfile
+- 保存编排、错误恢复、通知监听、筛选/分页算法等非视觉业务逻辑
 
-## 3. 合并顺序 + rebase-then-verify（核心规则）
+Codex 可以从实际交互中审计跨层问题，但只记录契约、复现与建议；实现交给对应 lane。UI 设计决策由 Codex 与 PO 决定，Claude 不代理设计。
 
-**按依赖层从下往上合：Core → UI → Features；docs 随时。** 让上层 lane 最后合、rebase 到含新下层的 develop 做最终 `build-for-testing`，拿真正的 post-merge 集成信号。
+### Claude Code：工程与集成
 
-- 每 lane PR merge 前：`git fetch && git merge-base --is-ancestor origin/develop HEAD` 不成立则 **rebase 到 `origin/develop` HEAD（非分支点）重跑 AllTests**。
-- 每合一个 lane → 下游未合 lane 强制 rebase + 重验才能续合。
-- ⚠️ **已知坑**：本地 `develop` 易落后 `origin/develop`（曾落后 11 个 commit）。**永远以 `origin/develop` 为合并基线**，别在 stale 本地 develop 上验"集成绿"——那是假绿。
-- 回滚：develop CI 红 = 立即 `revert` 最近一次 merge（LIFO）拉回已知绿，再在 lane 分支查根因；优先 **squash merge**（每 lane = 一个可独立 revert 的 commit）。
-- ⚠️ **revert 后连锁**：`revert` 改写了 `origin/develop` HEAD → **所有未合 lane 必须先 rebase 到 revert 后的 HEAD 再续**（与合并后 rebase 同源风险，别在已被撤掉的基线上继续累积）。
+拥有：
 
-## 4. 完成信号（废口头转达）
+- `Packages/SnapDrillCore/`
+- `Packages/SnapDrillData/`
+- `Packages/SnapDrillFeatures/**/*ViewModel.swift`
+- Feature 内非视觉服务、解析、导出编排与状态机
+- `SnapDrill/App/` 的 composition root、依赖装配与生命周期逻辑
+- `.github/`、`Scripts/`、签名/构建配置、`project.pbxproj`、`Package.resolved`
+- Core/Data/ViewModel 测试与最终集成闸
 
-GUI agent（Codex/Antigravity）是黑盒，完成靠 PO 口头转达零留痕 → 改为**文件系统产物**：
-- 完成 = **推分支 + 开 draft PR + CI 绿 + PR 描述三段式**（## 完成信号 / ## 覆盖目标哪部分 / ## 未覆盖现状 / ## 跨层发现 / ## 触碰边界自查）。
-- Claude 工程闸 review 触发 = PO 给 PR 打 `needs-eng-gate` label，Claude `gh pr list --label needs-eng-gate` 轮询。
-- **GUI lane 信任 = 读真 diff，非读自述**（实证 ground-truth 封顶）。
+Claude 不修改 Codex 已确定的 UI 视觉方案。跨层修复需要新增 UI 接口时，先定义最小契约并在共享文档记录，再由 Codex接入 View。
 
-## 5. 验收门（CI 共享强制）
+### Antigravity：官网、运营与合规文案
 
-**现有（保持）**：`swiftlint --strict` + AllTests `build-for-testing` + `test` + develop-only XCUITest E2E + 反向依赖门禁（`ci.yml` Check Package Dependencies）。每路 PR 过此 = 验收。
+拥有：
 
-**裁决后（异源对抗审 2026-06-10 grep 实证；判据 = 只加"确定性 + 低成本 + 拦得住现有 CI 拦不住的真并行故障"的门）**：
+- 官网仓库内容与页面
+- App Store 元数据、ASO、运营材料、合规文案草案
+- 本仓库中明确分配的文档与追溯日志
 
-| 拟加门禁 | 裁决 | 理由（实证） |
+Antigravity 不修改 Swift 业务逻辑。法律结论必须标注来源与是否需律师确认；产品定位文案必须服从 PO 已决策的 general-audience 效率工具定位。
+
+## 3. 共享接缝
+
+以下改动不是某个 lane 可静默完成的局部改动：
+
+| 接缝 | 主责 | 协作要求 |
 |---|---|---|
-| **lane fencing**（`git diff --name-only` 比白名单、越界 exit 1） | ✅ **加（最高杠杆）** | 现有 CI 查编译/lint/测试/import 方向，**唯独不查"错 lane 碰错文件"**（`ci.yml` 0 命中）；GUI agent 彼此盲（§7），这门直接焊死核心协调风险。 |
-| **feature-status SSOT 校验** | ✅ **加（小检查）** | `Scripts/generate_feature_status.py` 已带 `--check`、pre-commit 已跑，但 **CI 未接**——确定性防漂移、非 ceremony。 |
-| 完成声明 grep（校验 PR 三段式文本） | ❌ **不加（纯 ceremony）** | 本文档自己就说"信 diff 不信自报"（§4）；grep 只能证明 agent 写了小标题、证不了真完成。 |
-| CODEOWNERS | ❌ **暂不加** | 单 PO 场景且未开强制 review 时基本只是 GitHub UI 元数据；同批 PO-owned 路径由 lane fencing 保护更强。分支保护现靠本地 `pre-push`。 |
+| Core service / DTO / Notification name | Claude | 改前记录消费者；改后提供签名、迁移说明与验证结果 |
+| Feature public View init / Environment key | Codex | 改前 grep 所有调用点并通知 Claude；由拥有调用文件的 lane 接入 |
+| View 与 ViewModel 状态契约 | 双方 | View 只表达所需状态/动作；ViewModel 负责业务时序和副作用 |
+| 打印/分享系统呈现 | Core 产物由 Claude，UIKit/SwiftUI presentation adapter 由 Codex | 当前契约见 `docs/ui-redesign/flagship-cross-layer-contracts.md` |
+| 本地化文案 | 提议方起草 | 产品含义由 PO，合规措辞由 Antigravity，UI 容器适配由 Codex，资源集成由 Claude |
+| `project.pbxproj` / lockfile / target membership | Claude | 其他 lane 只提交需求，不并行编辑这些高冲突文件 |
 
-> 加这两门 = Claude（CI 域）的工程活，待 PO 点火后做；属 CI 共享强制层，落地即对三路生效。
+冻结集的成员与数量必须从 live code grep，不凭记忆。2026-06-11 实证锚点：
 
-## 6. 无主 straddling 工件（归属待 PO 定）
+- `ServiceContainer`：14 个属性，含 `metricService`
+- SwiftData `@Model`：`ReviewItemModel` / `CategoryDimensionModel` / `CategoryValueModel`
+- Library public View：`CategoryManagerView` / `LibraryEditView` / `LibraryView` / `SFSymbolPickerView`
+- SPM package：Core / Data / Features / UI，共 4 个；Features 内含 5 个 feature target
 
-- **faq URL**（`SettingsView.swift:220` 硬链接 `notbadhq.com/snapdrill/faq`，线上已 404）：slug SSOT = **Antigravity（官网信息架构）**，app 侧 = 消费方；任一方改 slug 必广播对侧。
-- **本地账本**（PMF pitch A，未实现）：数据契约 = **Claude 先冻结**，再交 Codex 渲染只读 snapshot。
-- **analytics seam**：隐私文案以 `DependencyContainer.swift` 实际注入（`NoOpAnalyticsService` 零采集）为 ground-truth、引行号，不凭假设。
+## 4. 交接方式
 
-## 7. GUI agent 协作现实（orchestrator blindness）
+Agents 不会自动读取彼此的私有会话，也不应互相调用对方模型。当前规则：
 
-Claude（终端）**看不到、碰不到** Codex/Antigravity 的 UI；只能读它们留在文件系统的产物（commit/分支/worktree/日志/draft PR），且**仅终端开着、Claude 在运行时**。**PO 是 Claude 与 GUI agent 之间唯一的人肉桥**。这就是 §4 完成信号必须是文件系统产物的根本原因。
+- Claude 不调用 Codex CLI、ChatGPT 或 Codex 插件
+- Codex Desktop 与 Claude 通过共享仓库中的文档、commit hash、测试结果交接
+- PO 不需要人工复制完整上下文；只需在需要启动另一 lane 或作产品裁决时通知
+- 跨层发现写入拥有明确路径的文档，例如 `docs/ui-redesign/REDESIGN-LOG.md` 或专项 contract
+- handoff 至少包含：问题、复现、责任层、所需契约、不可触碰边界、验证方式
 
-**本地构建缓存互踩（异源审补）**：3 个 agent 在不同 worktree 跑本地 `xcodebuild`（`AGENTS.md` 的命令未钉 `-derivedDataPath`/`-clonedSourcePackagesDirPath`）会共享全局 DerivedData/SPM 缓存 → 可能互相污染增量编译。各 worktree 本地构建建议各钉独立 `-derivedDataPath`；但**唯一权威验收始终是 CI**（CI 已 per-workspace 隔离 DerivedData），本地绿不算数。
+## 5. Worktree 与提交
+
+- 每个活跃 lane 使用独立 worktree 和独立分支
+- 开工前记录 base commit；集成前 rebase 到最新 `origin/develop`
+- 不改、不清理其他 lane 的 worktree、stash 或未提交文件
+- 依赖顺序：Core/Data 契约先落地，UI/Feature 消费方后 rebase 接入
+- PO 要求本地交付时，完成信号是：clean diff + 本地 commit + commit hash + 验证结果
+- push、PR、merge、部署只有在 PO 明确授权时执行
+
+建议每个 worktree 使用独立 DerivedData，避免并行构建互相清缓存：
+
+```bash
+xcodebuild build-for-testing \
+  -scheme AllTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -testPlan AllTests \
+  -derivedDataPath /tmp/snapdrill-derived-<lane>
+```
+
+## 6. 验证与完成信号
+
+Swift 改动必须通过：
+
+```bash
+swiftlint --strict
+xcodebuild build-for-testing -scheme AllTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -testPlan AllTests
+```
+
+文档/流程改动至少通过：
+
+- `python3 Scripts/generate_feature_status.py --check`
+- 链接、路径与数字对 live code 的 grep 复核
+- `git diff --check`
+
+完成报告必须区分：已验证、未运行、外部阻塞。不能用“代码看起来正确”替代 DoD。
+
+## 7. 产品决策闸
+
+只有以下情况必须停下问 PO：
+
+- 改变产品定位、默认行为、免费/付费边界或用户可见语义
+- 多个合理交互方案会形成不同产品体验
+- 法律/合规 guardrail 与现有功能冲突
+- 需要删除或不可逆迁移用户数据、账号、签名或发布资源
+
+纯工程实现、事实校准、测试补齐、已决策方案的落地由对应 lane 自主完成。

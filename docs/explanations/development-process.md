@@ -7,13 +7,15 @@ freshness:
 ---
 # SnapDrill 开发流程全景图 v1（分批审计基线）
 
+> **历史审计基线，不是当前状态入口。** 本文主体冻结在 2026-06-02，用于保留当时的审计 provenance；2026-06-09~11 已切换为美国公司全球版、general-audience 效率工具定位，并已合入 MetricKit 与 Firebase 编译剔除。当前事实以根 `README.md`、`AGENTS.md` 和 live code 为准，本文中的“国内 TestFlight”“Firebase 待剔除”“四方 CLI”均按历史语境阅读。
+
 > **用途**：定义"开发流水线各层 + 横切关注点 + 当前状态 + 分批审计路线"的 success-criteria 地图，作为后续分阶段全量审计的基线（AGENTS.md 第 4 条：可验证 success criteria + 双向可追溯无孤儿）。
 > **可证伪性**：本文每条状态断言带**证据等级**列，区分「实测grep可证 / 文档自述 / 作者声称 / 外部未核验」——不混为一谈。
 > **v1 来历**：v0 由 Claude 单方起草；经 4 方异源评审（codex / deepseek / agy / grok 各自 git worktree 独立批判）后修订。4 方证伪的 v0 错误已在 §6 列明并改正。**v1 本身仍是待用基线、非定论**。
 
 ## 1. 产品与目标
 
-SnapDrill：家庭教育拍照存档 iOS app（SwiftUI / iOS 26+ / Swift 6.3）。价值链 `采集 > 管理 > 导出/打印`，复习为附加值。**近期唯一战略目标：国内 TestFlight 内测 → 验证 PMF**（注意：PMF/反馈闭环此前不在流程模型内，见 §3 横切层）。核心免费闭环 ~90% build-complete。
+当时基线：家庭教育拍照存档 iOS app（SwiftUI / iOS 26+ / Swift 6.3），目标为国内 TestFlight。该定位与发布路径已被 2026-06-09~11 的 PO 决策取代；价值链 `采集 > 管理 > 导出/打印` 与核心免费闭环约 90% build-complete 仍有效。
 
 ## 2. 流水线七层 + 横切关注点
 

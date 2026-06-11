@@ -63,7 +63,7 @@ Vision 列出 8 项可度量信号；本段把它们映射到具体设计承诺�
 | 成果分发 | 导出与打印（系统分享菜单非社交分享），见 `../features/active/feat-export.md` |
 | 价值链完成率 | 导出与打印（PDF 主路径，见 `../features/active/feat-export.md`）/ 智能组卷（Pro 增值，见 `../features/backlog/feat-smartpaper.md`） |
 
-> Analytics 事件埋点对应 `architecture.md` §SnapDrillInfrastructure AnalyticsService，事件字典见 `../reference/analytics-events.md`。
+> 当前生产不做后端行为采集；App Store Connect 聚合与端侧 MetricKit 见 ADR-005。历史事件字典见 `../reference/analytics-events.md`，不得据此恢复 Firebase。
 
 ---
 
