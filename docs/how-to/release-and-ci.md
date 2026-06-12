@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-01
+last_verified: 2026-06-12
 layer: pattern
 freshness:
   max_age_days: 60
@@ -9,6 +9,7 @@ freshness:
 
 > App Store 发布流程、版本管理、CI/CD、监控。
 > DevOps 详细 checklist 见下文 §发版检查清单（已合并入本文件）。
+> Claude 是发布就绪协调 DRI；PO 保留 TestFlight/App Store 上传、审核提交和正式发布授权。
 
 ---
 
@@ -104,6 +105,17 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 
 ## 发布流程
 
+### 发布就绪责任
+
+Claude 维护本文件中的发版检查清单并汇总各方结果：
+
+- Engineering / 数据完整性 / 隐私技术事实：Claude
+- UI / 无障碍 / 本地化最终呈现 / 截图真实性：Codex
+- 元数据 / 官网 / ASO / 公开政策：Antigravity
+- 真机产品验收与最终 go/no-go：PO
+
+任何一方发现未满足项都应记录证据；Claude负责分诊与追踪，但无权代替 PO 发布，也无权改变 Codex 已确定的视觉方案。
+
 ### TestFlight（内部测试）
 
 ```
@@ -137,26 +149,40 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 
 ---
 
-## 监控
+## 监控与反馈
 
-### 国内版：无第三方监控（ADR-004）
+### 当前全球版技术监控
 
-- 国内 build（当前单一 build）运行时注入 `NoOpAnalyticsService`，**Firebase 不初始化**（不调 `FirebaseApp.configure()`）；OSLog 抓包实证 opt-in 前零网络出境
-- 崩溃监控：Apple 原生 **Xcode Organizer / MetricKit**，无第三方 SDK 上报
-- Firebase SDK 仍链接（编译层彻底剔除待 C 路径 Release-CN 拆分）
+- 生产基线为 `com.snapdrill.global`，注入 `NoOpAnalyticsService`；Firebase 与 `SnapDrillInfrastructure` 已在 #803 删除
+- 崩溃与设备性能使用 Apple 原生 **Xcode Organizer / MetricKit**；产品趋势使用 App Store Connect 聚合数据
+- Claude 是技术监控 DRI：每次外部 TestFlight 后、每次正式发布后检查崩溃、watchdog、启动、内存和能耗异常；出现 S0/S1 信号立即分诊
+- 零正式用户阶段不设置“每日监控”仪式；有真实用户后按实际风险调整检查频率
 
-### 海外版（未来，C 路径）
+### 用户反馈闭环
 
-- 保留 Firebase Crashlytics + Analytics，受 GDPR/CCPA 管辖，opt-in 披露
+1. Antigravity 汇总支持渠道、TestFlight 和 App Store 反馈，去重并标注事实、复现条件和用户影响
+2. PO 判断产品含义和优先级
+3. Claude负责工程/数据/性能分析，Codex负责 UI/交互分析
+4. 对应 lane 实现后，由原体验责任方复验，Claude确认跨层工程闭环
 
-### 紧急修复流程
+原始反馈不是需求；未经 PO 判断，不得直接改变产品默认行为或路线。
+
+### 隐私一致性检查
+
+每次发布前由 Claude 核对：实际数据流、第三方依赖、Privacy Manifest 和 App Store Privacy 标签所依据的技术事实。Antigravity 使用该事实维护官网与政策文案；PO 在必要时结合律师意见作最终风险签署。发现不一致时先阻止发布，再决定修代码或修声明。
+
+### 技术事故与紧急修复
 
 ```
-1. Xcode Organizer / MetricKit 发现高频崩溃
-2. 创建 hotfix 分支 → 修复 → PR → 快速 Review
-3. TestFlight 验证 → App Store 加急审核（Expedited Review）
-4. Apple 通常 24 小时内处理加急请求
+1. Claude 依据证据分级：S0 数据不可逆丢失/隐私安全事件；S1 启动崩溃或核心流程完全阻断
+2. Claude 立即停止普通工程集成，创建 hotfix worktree，完成复现、影响范围和技术止损方案
+3. 数据迁移问题必须使用上一已发布版本的数据存档验证升级路径，不以全新数据库测试代替
+4. Codex 复验受影响的 UI/交互；Antigravity 准备必要的用户或审核沟通草案
+5. PO 决定上传、暂停分阶段发布、下架、对外通知或申请加急审核
+6. iOS 已安装版本不能真正回滚：技术处理是回到已知良好代码、递增 build/version 并前滚发布修复版
 ```
+
+PO 离线时，Claude 可以完成分诊、修复、验证和本地 commit，但不得自行上传或发布。安全/隐私事件的对外处置由 PO 决定，必要时咨询律师。
 
 ---
 
@@ -164,10 +190,10 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 
 | 环境 | 用途 | 分析配置 |
 |---|---|---|
-| Debug | 本地开发 + Simulator | `NoOpAnalyticsService`（国内版）|
-| Release | TestFlight + App Store（国内）| `NoOpAnalyticsService`（国内版）|
+| Debug | 本地开发 + Simulator | `NoOpAnalyticsService` |
+| Release | 全球版 TestFlight + App Store | `NoOpAnalyticsService` + 端侧 MetricKit |
 
-**注意**：国内版不使用 `GoogleService-Info.plist`（2026-05-28 已移除，见 ADR-004）。海外版（未来 C 路径）再引入 Firebase 配置并按 Release-CN / Release-Global 分离。
+**注意**：当前全球版不包含 `GoogleService-Info.plist` 或 Firebase SDK。恢复任何后端遥测都属于新的产品与隐私决策，必须经 PO 批准并同步 Privacy Manifest、App Store Privacy 标签与公开政策。
 
 ## 发版检查清单
 ---
@@ -178,7 +204,7 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 > 每次 build 推送到 TestFlight 前，在真机上走完以下流程。
 > 标注 ❌ 的项目必须修复后才能发版。
 >
-> Last verified: 2026-05-18（与 frontmatter 同步，文档治理审计 P1 刷新）
+> Checklist structure aligned: 2026-06-12。具体项目仍须在每次待发布 build 上逐项实测。
 
 ---
 
@@ -253,11 +279,11 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 - [ ] 通知设置：提醒时间、声音开关均有效（**不使用角标**，见 ../features/active/feat-settings.md）
 - [ ] 外观模式切换：跟随系统 / 浅色 / 深色 三种模式均可
 - [ ] 语言设置：App 内直选语言（中文/英文），切换后提示重启生效
-- [ ] 使用数据开关：Analytics + 崩溃报告开关状态持久化，重启后生效（国内版开关为架构预留，NoOp 无实际采集）
+- [ ] 使用数据设置与当前零后端采集事实一致，不暗示 Firebase 或第三方崩溃上报已启用
 - [ ] 媒体缓存清理：点击后空间释放，不影响题目数据
 - [ ] 隐私政策页面可以打开
 - [ ] 服务条款页面可以打开
-- [ ] 开源许可页面可以打开，且列出 Mantis、ZIPFoundation 等；Firebase SDK 国内版编译层尚未剔除（待 C 路径，ADR-004），运行时不初始化
+- [ ] 开源许可页面可以打开，且列出当前实际依赖（Mantis、ZIPFoundation 等），不再列出 Firebase
 - [ ] 帮助中心：跳转到外部网页 FAQ，链接可打开
 - [ ] 生成测试数据后：题库和复习界面均刷新
 - [ ] 清空数据后：题库和复习界面均清空
@@ -297,6 +323,10 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 - [ ] Build Number 已更新（每次发版 +1，只改 `Configs/Shared.xcconfig`）
 - [ ] 没有 Debug 专用 UI 暴露在外
 - [ ] 没有硬编码的测试账号或假数据
+- [ ] Claude 已核对依赖、实际数据流、Privacy Manifest 与 App Store Privacy 标签的技术事实一致
+- [ ] Codex 已确认 UI、无障碍、本地化布局和商店截图与当前 build 一致
+- [ ] Antigravity 已确认元数据、官网链接与公开政策基于当前产品事实
+- [ ] PO 已完成真机产品验收并明确授权本次上传/发布
 
 ## 文档健康检查（每次发版必做）
 

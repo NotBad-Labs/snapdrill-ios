@@ -43,7 +43,7 @@ Bear / Day One / Ulysses 等 iOS 独立 App 已验证此模式多年，Apple 审
 免费层包含 MoSCoW Must + Should 全部功能，Pro 层包含 Could 中的增值项。完整功能清单见 `../reference/scope-and-roadmap.md`§功能全景。
 探索性商业化方向见 `../reference/scope-and-roadmap.md`§待评估。
 
-> ⚠️ Pro 功能为目标设计，**当前实现状态见 `../reference/feature-status.md`§功能状态总表**：StoreKit #479 未接（源码 `ProEntitlementProvider.isProUser` 硬编码 false），Pro 全部为"敬请期待"占位，首版国内 TestFlight 纯免费、无法购买或测试 Pro。
+> ⚠️ Pro 功能为目标设计，**当前实现状态见 `../reference/feature-status.md`§功能状态总表**：StoreKit #479 未接（源码 `ProEntitlementProvider.isProUser` 硬编码 false），Pro 全部为“敬请期待”占位；当前美国全球版 TestFlight 基线纯免费，无法购买或测试 Pro。
 
 **Word 导出定位说明**（承接 vision §1 录入体验是生命线 + §4 数据属于用户）：
 - PDF 是基础导出（免费），覆盖「打印一份错题卷」核心场景
@@ -146,7 +146,7 @@ iCloud 同步是打通这个闭环的引擎，图片处理增强（去手写/试
 | 维度 | 竞品（喵喵机/橙果等） | SnapDrill |
 |---|---|---|
 | 注册 | 手机号必须 | 无注册 |
-| 数据收集 | 姓名、学校、年级、位置 | 默认不收集。**国内版**（当前 shipping）：纯本地、零 Firebase（注入 `NoOpAnalyticsService`，ADR-004）；**海外版**（C 路径，未来）：匿名 Analytics / Crashlytics 独立开关，opt-in 后可关闭 |
+| 数据收集 | 姓名、学校、年级、位置 | 当前全球生产基线零后端行为采集：纯本地、无 Firebase；仅 App Store Connect 聚合与端侧 MetricKit（ADR-005） |
 | 存储 | 自建云端 | 纯本地（iCloud 多设备同步规划中，[阻塞: #485（前置 #479）]；Apple 负责） |
 | 合规负担 | 极重（ICP+等保+审计+儿童隐私） | 较轻（App 备案 + Apple 审核，不主动收集用户数据） |
 
@@ -184,8 +184,8 @@ iCloud 同步是打通这个闭环的引擎，图片处理增强（去手写/试
 
 **Kids Category 决策**：**不申请**。理由：
 - Kids Category 限制较多（禁止外部链接、禁止第三方 SDK 向儿童发送数据等）
-- SnapDrill 二进制含第三方分析/崩溃 SDK（海外版启用 Firebase；国内版 Firebase-Free、运行时不初始化，编译层尚未剔除待 C 路径 —— ADR-004），技术上仍属含第三方 SDK
-- SnapDrill 的主操作者是家长（非儿童直接使用），定位为「家庭场景的效率工具」而非「儿童 App」
+- SnapDrill 二进制不含 Firebase 或其他第三方分析/崩溃 SDK（#803）
+- SnapDrill 对外定位为 general-audience 通用效率工具，而非“儿童 App”；家庭学习只是重点场景之一
 - 4+ 年龄分级已足以覆盖目标用户群
 
 **Declared Age Range API**（iOS 26+）：后续评估是否集成。该 API 允许 App 请求用户分享其年龄范围（由系统从 Apple Account 获取，需家长同意）。SnapDrill 的目标用户横跨多个年龄段（家长 + 6-18 岁学生），需评估是否及如何使用。美国多州已立法要求年龄核实，持续关注。**硬边界（与 vision §4 隐私优先一致）**：仅在 App Store 审核要求 / 法规强制要求场景下集成，**绝不**作为日常 Analytics 维度采集；集成时年龄范围信息只用于审核 / 合规判定，不存储、不上传、不进入 Analytics 事件属性。
@@ -208,7 +208,7 @@ FTC 判定 COPPA "directed to children" 的核心标准与 SnapDrill 的对照�
 
 **当前合规措施**：
 - 零注册、默认不收集个人信息
-- 匿名使用数据：**国内版**（当前 shipping）完全禁用（注入 `NoOpAnalyticsService`，OSLog 实测零网络出境，ADR-004）；**海外版**（C 路径，未来）首次启动默认不采集、用户可在设置中 opt-in
+- 使用数据：当前全球生产基线不做后端行为采集；生产注入 `NoOpAnalyticsService`，设备诊断仅在端侧由 MetricKit 处理（ADR-005）
 - Privacy Manifest 声明数据不关联、不追踪
 
 **App Store 营销注意事项**：避免使用 "children""kids""儿童教育" 等触发 FTC/Apple 审查的措辞，强调"效率工具""数字化归档""家长和学生"。
@@ -299,7 +299,7 @@ FTC 判定 COPPA "directed to children" 的核心标准与 SnapDrill 的对照�
 
 ### 隐私 vs 数据驱动
 
-**（海外版）** Analytics 默认 opt-in，意味着行为数据只覆盖愿意授权的用户子集；如果 opt-in 率过低（< 10%），成功信号将严重偏向早期 adopters，可能误判产品方向。**国内版** Firebase-Free、零采集，无此偏差，但也因此完全依赖 App Store Connect / 访谈 / TestFlight 信号（ADR-004）。
+**历史方案（已被 ADR-005 取代）**：曾考虑让全球版 Analytics 默认 opt-in，但这会产生明显选择偏差。当前生产不上后端行为采集，以 App Store Connect 的全量聚合信号为主，端侧细节只在未来经用户自愿快照提供；不要根据本段恢复 Firebase。
 
 ### iCloud 变现的承载能力
 

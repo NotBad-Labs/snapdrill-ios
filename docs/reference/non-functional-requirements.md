@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-06-12
 layer: pattern
 freshness:
   max_age_days: 180
@@ -51,10 +51,10 @@ freshness:
 | 需求 | 标准 |
 |---|---|
 | **零注册** | 不要求手机号、邮箱、学校年级 |
-| **默认零收集** | 默认不收集个人信息，opt-in 后仅匿名应用标识符 |
+| **零后端行为采集** | 生产注入 `NoOpAnalyticsService`，不上传用户内容、持久设备标识或逐事件行为 |
 | **端上处理** | OCR 在设备上执行，图片不上传云端 |
 | **EXIF 剥离** | 保存图片前清除 GPS 等位置信息 |
-| **Analytics 默认不采集** | 首次启动默认不采集（plist 预禁用），用户可在设置中 opt-in；两个独立开关分别控制 Analytics 和 Crashlytics |
+| **Apple 原生诊断** | 仅使用 App Store Connect 聚合与端侧 MetricKit；不包含 Firebase 或第三方分析/崩溃 SDK |
 | **Not Tracking** | Privacy Manifest 声明 NSPrivacyTracking = false，不使用 IDFA |
 | **CSV 注入防护（导出）** | 导出 CSV 时以 `=+\-@` 开头的值前加 tab |
 | **CSV 解析（导入）** | 严格 RFC 4180 合规：引号转义、CRLF/LF 兼容、字段数不匹配则整行拒绝并提示用户；解析层在 `SnapDrillFeatureSettings/CSVParser.swift` |
@@ -97,7 +97,7 @@ freshness:
 | **草稿恢复** | 意外退出后可恢复（S0 级防护） |
 | **删除安全** | 5 秒撤销窗口 |
 | **备份完整性** | 恢复前自动备份当前数据（安全网） |
-| **崩溃率** | < 0.1%（Crashlytics 监控） |
+| **崩溃率** | < 0.1%（Xcode Organizer / MetricKit / App Store Connect） |
 
 ## 同步与网络
 

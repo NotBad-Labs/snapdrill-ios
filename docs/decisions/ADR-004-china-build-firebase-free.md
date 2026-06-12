@@ -8,6 +8,8 @@ freshness:
 # ADR-004: 国内版 Firebase-Free（中国大陆 build 不含 Firebase）
 
 > 状态：**已决策** | 日期：2026-05-28 | 决策者：PO | 关联：[[ADR-003]]
+>
+> **2026-06-11 状态说明**：本 ADR 的“中国 build 分流”是挂起路线的历史决策。#803 已从整个项目删除 `SnapDrillInfrastructure` 与 Firebase SDK，全球生产基线同样 Firebase-free；下文关于“海外版保留 Firebase”“编译层待剔除”已失效，仅保留决策演进记录。当前策略见 ADR-005 与根 `README.md`。
 
 ## 背景
 

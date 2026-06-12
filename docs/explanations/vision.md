@@ -138,9 +138,7 @@ SM-2 复习和智能组卷是可选功能，不应侵蚀核心路径的简洁性
 支持导出，详见 `../features/active/feat-export.md`§导出与打印能力。
 不做社交、不做内容平台、不做推荐算法。
 SnapDrill **默认不收集个人信息**：无需注册、不要求姓名、手机号、学校或年级。
-匿名使用数据与崩溃报告——**国内版不适用**（Firebase-Free，ADR-004）；**海外版**（C 路径）仅在用户明确授权后启用，且不关联真实身份。字段与开关规格见 `../features/active/feat-settings.md`§使用数据，商业定位见 `business-model.md`。
-
-> ⚠️ **隐私表述的准确边界**：上述"不收集可识别个人信息"指不收集姓名、手机号、邮箱等直接身份信息。**国内版** Firebase-Free，无任何分析标识符（ADR-004）。**海外版**（C 路径）启用 opt-in Analytics 后，Firebase SDK 会生成 app-scoped identifier（`app_instance_id`），在 COPPA/GDPR 语境下属 persistent identifier / pseudonymous personal data，故海外版不宜使用"零 PII"的绝对化表述。详见 `../decisions/ADR-004-china-build-firebase-free.md`。
+当前全球生产基线不做后端行为采集：生产注入 `NoOpAnalyticsService`，Firebase SDK 已删除；仅使用 App Store Connect 聚合与端侧 MetricKit。不得把用户内容、持久设备标识或逐事件行为上传。详见 ADR-005。
 
 **数据安全子条款**：本地存储意味着 App 是用户数据的唯一守护者。保存必须可靠，删除可撤销，备份可用。
 **iCloud 同步隐私边界**：iCloud 同步完全基于系统级 CloudKit，数据由 Apple 加密存储在用户个人 iCloud 账户中。SnapDrill 不接触、不存储、不可访问用户的 Apple ID 或 iCloud 数据。开发者无法查看任何用户的个人内容。
@@ -166,10 +164,7 @@ SnapDrill **默认不收集个人信息**：无需注册、不要求姓名、手
 ### 6. 原生优先
 
 深度依赖 Apple 平台原生能力，**优先 Apple first-party**——OCR / 文档扫描 / 同步 / 通知等核心能力必须用 Apple 原生 API（Vision / VisionKit / CloudKit / UserNotifications），不引入跨平台框架（React Native / Flutter）也不引入第三方 OCR / 第三方同步层。
-**边界**：Analytics / Crashlytics 等**非核心、可降级**的可观察性能力允许使用成熟第三方 SDK（如 Firebase）——这不违反「原生优先」，因为：
-- Analytics/Crashlytics 不是用户面核心体验
-- 已 Protocol 隔离（`AnalyticsServiceProtocol`），替换实现只需改 Infrastructure 层——**国内版正是据此注入 `NoOpAnalyticsService`、零 Firebase（ADR-004）**；海外版（C 路径）才启用 Firebase
-- 启用时默认 opt-out（vision §4 隐私优先）
+**边界**：可观察性不是用户面核心体验。当前策略是 Apple first-party：App Store Connect 聚合 + 端侧 MetricKit；不上后端行为采集，不恢复 Firebase。若未来要改变，必须形成新的 PO 决策并同步隐私问卷与文档。
 
 Apple 原生能力（Vision OCR、CloudKit、TipKit、文档扫描）是体验基线而非独占壁垒——任何 iOS 竞品也能使用这些 API。
 SnapDrill 真正的差异化在于：题目工作流设计 + 离线隐私架构 + 免费完整闭环 + 原生体验组合。

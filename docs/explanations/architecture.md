@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-06-11
 layer: pattern
 freshness:
   max_age_days: 180
@@ -25,16 +25,13 @@ SnapDrill.app（薄壳，Composition Root）
     │
     ├── SnapDrillUI（公共 UI 组件 + 路由协议）
     │   ├── 内部依赖：SnapDrillCore
-│   └── 外部依赖：Mantis（图片裁剪）
+    │   └── 外部依赖：Mantis（图片裁剪）
     │
     ├── SnapDrillData（SwiftData Model + Repository + 备份）
     │   └── 外部依赖：ZIPFoundation
     │
-    ├── SnapDrillCore（核心服务 + Protocol + DI）
-    │   └── 零外部依赖
-    │
-    └── SnapDrillInfrastructure（Firebase 隔离层）
-        └── 外部依赖：Firebase SDK
+    └── SnapDrillCore（核心服务 + Protocol + DI + MetricKit）
+        └── 零第三方依赖
 
 SnapDrillShare（Share Extension）
     ├── 通过 App Groups 与主 App 共享数据
@@ -51,7 +48,7 @@ SnapDrillShare（Share Extension）
 1. 若服务跨 Feature 使用、持有状态、依赖系统 API/AI/外部 SDK、或测试需要替换 → 必须进入 `ServiceContainer`
 2. Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`，不得放入全局 `ServiceContainer`（典型例外：`ImageStorage`）
 3. 静态 facade（如 `TelemetryGate`）必须有架构豁免决策；Feature 层不得直接调用
-4. `ServiceContainer` 当前 13 个属性：5 既有（analytics/pdfExport/appConfig/privacyConsent/notification）+ 8 新挂（ocr/captureDraft/contentTagging/questionSplitting/deletionScheduler/proEntitlement/activityTracker/reviewScheduler）
+4. `ServiceContainer` 当前 14 个属性：analytics/pdfExport/appConfig/privacyConsent/notification/ocr/captureDraft/contentTagging/questionSplitting/deletionScheduler/proEntitlement/activityTracker/reviewScheduler/metricService
 5. 显式豁免清单（不挂容器）：`TelemetryGate`（nonisolated enum，全局静态状态）/ `ZIPArchiver`（Data 层，跨包循环依赖）/ `ImageStorage`（Profile-scoped）/ `OnboardingManager` / `DependencyContainer.shared`
 
 ## 解耦准则（最优解耦 · AI 协作）
@@ -156,7 +153,7 @@ SwiftData @Model（持久化）
 
 | 模块 | 职责 |
 |---|---|
-| `*Model.swift` | SwiftData @Model 定义（ReviewItem, Subject, Source, Grade, Tag） |
+| `*Model.swift` | SwiftData @Model 定义（ReviewItemModel、CategoryDimensionModel、CategoryValueModel） |
 | `*Repository.swift` | 数据访问层，封装 ModelContext（推荐 `init(executor:)`，保留 `init(modelContext:)` 向后兼容） |
 | `DataExecutor` | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599） |
 | `RepositoryContainer` | Repository 聚合 + Environment 注入 |
@@ -217,8 +214,8 @@ SwiftData @Model（持久化）
 
 **1/2/4 题快速打印（PrintService）**：
 - 入口：`SnapDrillFeatureLibrary/LibraryDetailView`（详情页固定 1 题/页）+ 多选模式 N 题
-- 实现：System `UIPrintInteractionController` + 自定义 `UIPrintPageRenderer`（layoutN: 1/2/4 题/页）
-- 归属：建议放 `SnapDrillCore/Service/PrintService.swift`（如代码层抽出独立类）；当前实现内联在 LibraryView 流程，将来抽取时按本归属落档
+- 契约：Core 的 `PDFExportService` 只生成 PDF `Data`；UIKit presentation adapter 放在 `SnapDrillUI`，由 Feature View 调用
+- 打印与分享是两个一等入口，不把 `UIView` / `UIPrintInteractionController` 固化进 Core。完整裁决见 `docs/ui-redesign/flagship-cross-layer-contracts.md`
 
 **高级统计（Pro 增值，Dashboard Hybrid 路径）**：
 - 数据源：`SnapDrillData/RepositoryContainer` 各 Repository 聚合查询
@@ -230,12 +227,6 @@ SwiftData @Model（持久化）
 - 当前实现：所有 `@Model` 默认 `cloudKitDatabase: .none`（关闭）
 - 启用路径：StoreKit 落地（#479）→ 创建 CloudKit Container（#485）→ ProEntitlementProvider 判断 → Per-Profile 同步（与 BackupService 同语义边界）
 - 触发文档：`business-model.md` §iCloud 同步 / `../features/backlog/feat-icloud-sync.md` §设计
-
-### SnapDrillInfrastructure
-
-Firebase SDK 隔离层（Analytics + Crashlytics，Remote Config 已移除）。Core 层通过 Protocol（AnalyticsServiceProtocol）与之解耦。替换 Firebase 只需修改此层 + DependencyContainer，不影响其他模块。
-
----
 
 ## Multi-Profile 实现
 
@@ -266,13 +257,13 @@ LibraryViewModel 是调用方：
 
 | 决策 | 理由 |
 |---|---|
-| 5 个 SPM Package 而非 1 个 | 编译隔离 + 依赖方向强制 + 模块可独立测试 |
-| Protocol-based DI + @Environment | 全部 Core service 经 `ServiceContainer` 注入（13 个属性，S-D4-001 起对齐）。Feature 层禁止直接 `.shared` 或默认 concrete init 获取服务 |
+| 4 个 SPM Package 而非 1 个 | 编译隔离 + 依赖方向强制 + 模块可独立测试；Features package 内含 5 个 feature target |
+| Protocol-based DI + @Environment | 全部 Core service 经 `ServiceContainer` 注入（14 个属性）。Feature 层禁止直接 `.shared` 或默认 concrete init 获取服务 |
 | SwiftData 而非 Core Data | iOS 26+ 项目，原生 Swift 集成更好 |
 | DataExecutor actor | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599）；Repository 双 init（executor / modelContext）向后兼容 |
 | Repository 封装 ModelContext | 避免 View/ViewModel 直接操作数据库 |
 | ProfileManager Vault 模式 | 每个 Profile 独立数据库，参考 Obsidian，切换时重建 ModelContainer |
-| Firebase 隔离到 Infrastructure | Core 层保持零外部依赖，可随时替换分析/崩溃报告方案 |
+| 零后端行为采集 | Firebase 与 Infrastructure 已删除；生产使用 NoOp analytics，端侧诊断使用 MetricKit（ADR-005） |
 | defaultIsolation(MainActor) | xcconfig `SWIFT_VERSION = 6.3` + `-default-isolation MainActor`，统一使用 `.defaultIsolation(MainActor.self)` 减少并发标注噪音 |
 
 ---
