@@ -1,6 +1,9 @@
 ---
 last_verified: 2026-05-28
 layer: decision
+current_status: superseded
+historical_record: true
+current_authority: docs/decisions/ADR-005-analytics-privacy-strategy.md
 freshness:
   max_age_days: 365
   decay_trigger: [decision_reverted, firebase_readded_to_cn, cpath_launch]
@@ -9,7 +12,7 @@ freshness:
 
 > 状态：**已被 [[ADR-005]] 取代（保留为决策史，勿据此恢复 Firebase）** | 原决策日期：2026-05-28 | 决策者：PO | 关联：[[ADR-003]]（挂起的区域路线）
 >
-> **2026-06-11 状态说明（取代记录）**：本 ADR 的“中国 build 分流”是挂起路线的历史决策，**已被 [[ADR-005]] 取代**——后者把“Firebase-free / 端侧或不做分析”从国内 build 推广到全球生产基线。#803 已从整个项目删除 `SnapDrillInfrastructure` 与 Firebase SDK，全球生产基线同样 Firebase-free。**下文关于“海外版保留 Firebase”“编译层待剔除”均为已失效的历史表述，不是当前架构**，仅保留决策演进记录。当前现行策略见 [[ADR-005]] 与根 `README.md`。
+> **2026-06-11 状态说明（取代记录）**：本 ADR 的“中国 build 分流”是挂起路线的历史决策，**已被 [[ADR-005]] 取代**，不代表当前生产架构——后者把“Firebase-free / 端侧或不做分析”从国内 build 推广到全球生产基线。#803 已从整个项目删除 `SnapDrillInfrastructure` 与 Firebase SDK，全球生产基线同样 Firebase-free。**下文关于“海外版保留 Firebase”“编译层待剔除”均为已失效的历史表述，不是当前架构**，仅保留决策演进记录。当前现行策略见 [[ADR-005]] 与根 `README.md`。
 
 ## 背景
 

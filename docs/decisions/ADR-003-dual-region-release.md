@@ -1,6 +1,9 @@
 ---
 last_verified: 2026-05-28
 layer: decision
+current_status: suspended
+historical_record: true
+current_authority: docs/explanations/positioning-and-audience.md
 freshness:
   max_age_days: 365
   decay_trigger: [decision_reverted, dual_region_launch]

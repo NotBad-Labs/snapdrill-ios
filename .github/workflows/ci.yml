@@ -44,6 +44,11 @@ jobs:
       - name: Lint
         run: swiftlint --strict
 
+      - name: Validate docs
+        run: |
+          python3 Scripts/generate_feature_status.py --check
+          python3 Scripts/validate_docs.py --check
+
       - name: Check Package Dependencies
         run: |
           echo "Checking for reverse dependency violations..."

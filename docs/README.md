@@ -31,6 +31,16 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 - 代码与测试证明“现在是什么”；Vision、ADR 与 spec 约束“应该是什么”。不一致时必须显式记录偏差。
 - 私有记忆、历史研究、旧 pitch 和关闭任务不参与当前裁决；需要历史证据（含已删除的 research/ 与历史 pitch）时使用 Git 历史或 GitHub 记录。
 
+## 私有记忆与文档边界
+
+私有记忆不是产品的来源，也不能描绘产品。它只服务研发效率：缓存稳定偏好、常用命令、已知坑点和当前协作路由。产品意图必须由 PO 明确表达，并沉淀到本仓库的 Vision、产品政策、ADR、feature spec 或验收标准中。
+
+当私有记忆与仓库文档冲突时，先按「当前真相优先级」核对 live 代码、构建、GitHub 和 SSOT 文档；确认私有记忆过时后，删除或改成指向当前权威文档的短指针。不要把私有记忆当成文档归档系统。
+
+历史 ADR 可以保留为证据，但必须在 frontmatter 标明 `current_status`、`historical_record: true` 和 `current_authority`。已挂起或已取代的历史路线不得在当前产品、架构或合规判断中继续充当依据。
+
+文档健康检查由 `Scripts/validate_docs.py --check` 执行，随 pre-commit 和 CI 运行。它只拦截高风险漂移：历史 ADR 未降级、过时 Firebase 路线陈述重新进入当前文档、feature spec 缺少意图追溯。
+
 ## 关键入口
 
 | 我想… | 去 |

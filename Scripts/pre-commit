@@ -14,4 +14,10 @@ if command -v python3 >/dev/null; then
     echo "error: feature-status.md 过期，请运行 python3 Scripts/generate_feature_status.py 后重新提交"
     exit 1
   }
+
+  echo "Checking documentation health..."
+  python3 Scripts/validate_docs.py --check || {
+    echo "error: docs 健康检查失败，请修正文档层级 / 历史 ADR / 意图追溯后重新提交"
+    exit 1
+  }
 fi
