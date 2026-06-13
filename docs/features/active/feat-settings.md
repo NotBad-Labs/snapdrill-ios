@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-05-30
+last_updated: 2026-06-13
 ---
 
 # Feature: 设置与个性化
@@ -27,11 +27,11 @@ last_updated: 2026-05-30
 - **外观模式**：跟随系统（默认）/ 浅色 / 深色三选项。
 - **语言设置**：App 内直接切换中文/英文，不依赖系统设置。
 - **存储维护**：媒体缓存清理——只清 App 运行产生的临时文件（OCR 临时图片、PDF 渲染缓存），不触碰用户题目数据。
-- **使用数据开关（Analytics + 崩溃报告）**：国内版（当前 shipping）Firebase-Free 不采集任何数据，设置内开关为架构预留、对国内版无实际效果；海外版（C 路径，未来）两个独立开关默认不采集、用户可 opt-in（ADR-004）。
+- **匿名遥测开关**：单一开关保存本地 `TelemetryGate` 同意状态，默认关闭。全球生产环境注入 `NoOpAnalyticsService`，因此打开开关也不会记录或发送逐事件行为；Firebase SDK 已删除，当前没有海外版恢复计划。端侧 MetricKit 是独立设备诊断能力，不受此开关控制（ADR-005）。
 - **设置页承载的其他入口（深度/合规）**：字段管理器（系统字段开关 + 选项 CRUD，详见 `feat-library.md`）、Profile 管理入口（`feat-profile.md`）、隐私设置页的 JSON/CSV 导出（`feat-export.md`）、手动备份/恢复入口（`feat-backup.md`）、帮助中心外链（外部网页 FAQ）、卸载数据丢失提醒、关于（隐私政策 / 服务条款 / 开源许可展示）。
 - **边界 / 不做**：不在 App 内构建帮助搜索系统（仅外链 FAQ）；角色预设套件仅作设置页可选模板入口、**不进入 Onboarding**（不增加首次配置摩擦）；用户资料不外传、不做账号体系。
 - **前置依赖**：无。设置是承载入口的容器层，所托管的导出/备份/Profile/字段管理各自有独立 feature spec。
-- **商业分层**：设置与个性化整体属**免费层**（家长友好基础体验），无付费墙。设置内"使用数据开关"是架构预留（国内版无效）/ 海外版 opt-in，与 Pro 无关；定价见 `../../explanations/business-model.md`。
+- **商业分层**：设置与个性化整体属**免费层**，无付费墙。匿名遥测开关与 Pro 无关；当前生产环境没有后端遥测实现。定价见 `../../explanations/business-model.md`。
 
 ## 3. 技术设计 (How)
 - **模块归属**：`Packages/SnapDrillFeatures/SnapDrillFeatureSettings`（依赖 Library）。通知能力经 `SnapDrillCore` 的 `NotificationServiceProtocol`（ServiceContainer 注入）；复习卡片字号经 `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)`，Per-Profile 隔离。
@@ -52,7 +52,7 @@ last_updated: 2026-05-30
   - 通知权限被系统拒绝后再次开启提醒开关（B21）→ 提示权限已被拒绝并引导跳转系统设置；不发送本地通知。
   - 媒体缓存清理（B23）→ 只清 `Caches/` 临时文件，绝不删除题目原图、备份文件或 SwiftData 数据（S0）。
 - **数据保证**：用户资料/偏好纯本地存储、不外传（与 PV-4 / P4 一致）；缓存清理对题目数据零影响（任何缓存清理不得导致题目原图、备份、SwiftData 数据丢失）；per-Profile 偏好仅作用于当前 Profile，切换时正确 save/load 互不污染。
-- **NFR**：VoiceOver 全模块覆盖（含 Settings）所有常见任务可完成；复习卡片自定义字号为 App 独立设置（非 Dynamic Type），范围按代码实现；国内版 Analytics/Crashlytics 不适用（Firebase-Free，OSLog 实测零网络出境，ADR-004）。
+- **NFR**：VoiceOver 全模块覆盖（含 Settings）所有常见任务可完成；复习卡片自定义字号为 App 独立设置（非 Dynamic Type），范围按代码实现；全球生产环境不含 Firebase 或其他第三方分析/崩溃 SDK，逐事件调用由 NoOp 服务丢弃（ADR-005）。
 
 ## Provenance（迁移期审计用，全量封板后可删）
 | 本 spec 内容 | 来源（旧文档章节 / UC / ADR） |
@@ -71,5 +71,5 @@ last_updated: 2026-05-30
 - 原则：`../../explanations/vision.md`（P2 简洁 / P4 零注册 / P5 家长友好）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 7：海外华人双语整理 / 旅程 10：免费用户换机恢复）
-- 决策：`../../decisions/ADR-004-china-build-firebase-free.md`（国内版 Firebase-Free，使用数据开关无效）
+- 决策：`../../decisions/ADR-005-analytics-privacy-strategy.md`（全球生产零后端行为采集）
 - 相关 / 承载入口 feature：`feat-export.md`（JSON/CSV 导出）、`feat-backup.md`（备份/恢复）、`feat-profile.md`（Profile 管理）、`feat-library.md`（字段管理器）、`feat-review.md`（复习卡片外观字段口径）

@@ -135,7 +135,7 @@ layer: pattern
 - 复习卡片外观（字号正反面独立设置，对齐三选项默认左对齐）
 - 通知设置（提醒时间/声音；不使用角标，仅本地通知提醒）
 - 外观模式（跟随系统/浅色/深色）
-- 使用数据开关（国内版 Firebase-Free 不采集，开关为架构预留；海外版 opt-in Analytics/Crashlytics —— 见 [feature-status.md](feature-status.md)）
+- 匿名遥测开关（仅保存本地 `TelemetryGate` 同意状态；全球生产服务为 NoOp，当前不启用网络采集）
 - App 内语言切换（中文/英文直选）
 - 媒体缓存清理 + 存储管理
 
@@ -149,7 +149,7 @@ layer: pattern
 - 零注册，纯本地存储
 - 隐私政策 / 服务条款
 - 卸载数据丢失提醒
-- 开源许可展示（第三方库 Mantis / ZIPFoundation 等；Firebase SDK 国内版编译层尚未剔除，待 C 路径 —— ADR-004）
+- 开源许可展示（第三方库 Mantis / ZIPFoundation 等；Firebase SDK 已由 #803 从工程删除，历史 Firebase 许可项仍待 UI 清理）
 
 **无障碍**
 - 全模块 VoiceOver 辅助标签、提示和公告（Dashboard / Capture / Library / Settings / Review）

@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-06-13
 layer: decision
 derived_from: [M-002]
 freshness:
@@ -39,6 +39,6 @@ Claude / Codex / Gemini 三方一致建议删除：
 
 - 需创建 Issue 移除 PrivacyPrePromptView + PrivacyConsentService 中的 ATT 调用
 - 保持 NSPrivacyTracking = false
-- Analytics/Crashlytics 的 opt-in 仍由设置页开关独立管理（设置与现状见 `../reference/feature-status.md`§功能状态总表 与 ADR-004（国内版 Firebase-Free））
+- 设置页保留单一匿名遥测同意开关，但全球生产环境注入 `NoOpAnalyticsService`，不进行后端行为采集；端侧 MetricKit 不依赖该开关（见 ADR-005）
 - 提交前做隐私一致性检查：Privacy Manifest / App Privacy Details / 应用内文案三方一致
 - 若未来引入 ad attribution，再恢复 ATT

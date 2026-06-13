@@ -1,18 +1,18 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-06-13
 layer: snapshot
 freshness:
   max_age_days: 60
-  decay_trigger: [apple_enrollment, app_store_submission]
-audit_note: VALID_WITH_GAP — Apple 账号未启用前为占位文案，App Store 提交前必须全量重审
+  decay_trigger: [app_store_submission]
+audit_note: VALID_WITH_GAP — Apple 账号与公开 URL 已就绪；真实 ASO 文案 / App Store Connect 元数据仍待提交前重审
 gap_type: placeholder
 gap_due: app_store_submission
 gap_owner: product
-gap_evidence_required: 真实 ASO 文案 / Apple Developer 账号 / App Store Connect 元数据
+gap_evidence_required: 真实 ASO 文案 / App Store Connect 元数据
 ---
 # App Store 元数据（ASO 文案）
 
-> 提交 App Store Connect 前的预备文案。Apple 账号就绪后直接复制粘贴。
+> 提交 App Store Connect 前的预备文案，提交前需重审。
 
 ---
 
@@ -23,7 +23,7 @@ gap_evidence_required: 真实 ASO 文案 / Apple Developer 账号 / App Store Co
 | App 名称 | SnapDrill |
 | 副标题 | 练习题数字化效率工具 |
 | 类别（主） | Productivity |
-| 类别（副） | Education |
+| 类别（副） | Utilities |
 | 年龄分级 | 4+ |
 | 价格 | 免费（含 App 内购买） |
 | 版权 | 2026 NotBad Labs L.L.C. |
@@ -113,7 +113,7 @@ Core workflow:
 
 No account registration is required. All data is stored locally on the device using SwiftData.
 
-SnapDrill does not collect direct identifiers such as name, phone number, email, or school. The China build uses no Firebase or third-party analytics/crash-reporting; all data stays on-device with zero network transmission. (The future overseas build will use Firebase with opt-in disclosure — region-specific notes to be added at C-path.)
+SnapDrill does not collect direct identifiers such as name, phone number, email, or school. The production app does not use Firebase or third-party analytics/crash reporting. User content remains on-device; device diagnostics use on-device MetricKit and Apple-provided aggregated diagnostics.
 
 The app requires camera permission for photo capture and photo library permission for image import. Notification permission is optional for daily review reminders.
 ```
@@ -124,7 +124,7 @@ The app requires camera permission for photo capture and photo library permissio
 
 | 文档 | URL | 状态 |
 |---|---|---|
-| 隐私政策 | （待上线） | App 内已有 PrivacyPolicyView |
-| 服务条款 | （待上线） | App 内已有 TermsOfServiceView |
+| 隐私政策 | https://notbadhq.com/privacy | App 内已有 PrivacyPolicyView |
+| 服务条款 | https://notbadhq.com/terms | App 内已有 TermsOfServiceView |
 
-> 需要在公司网站或 GitHub Pages 上线公开 URL，Apple 审核要求可访问。
+> 公司网站已上线公开 URL，提交前需复核可访问性。
