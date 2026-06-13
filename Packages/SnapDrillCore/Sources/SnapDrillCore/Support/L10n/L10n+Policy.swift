@@ -212,11 +212,9 @@ nonisolated extension L10n {
         public static let collectionContent = NSLocalizedString(
             "privacy.collection_content",
             value: """
-            SnapDrill 是一款完全离线优先的应用，我们不会主动收集您的个人信息。您在应用中创建的所有数据（包括错题内容、图片、笔记等）都存储在您的设备上。
+            SnapDrill 是一款离线优先应用。您在应用中创建的题目、图片、笔记、分类、标签、复盘记录和导出文件默认存储在您的设备本地。
 
-            您创建的内容：错题文本、上传或拍摄的图片、学科分类和标签、复习记录和进度。
-
-            自动收集的信息：应用崩溃日志（仅用于改进应用稳定性）、设备类型和操作系统版本（用于兼容性测试）。
+            当前版本不要求账户，不向 NotBad Labs 服务器发送题目内容，也不使用第三方分析或崩溃统计 SDK。
             """,
             comment: "信息收集内容"
         )
@@ -224,9 +222,9 @@ nonisolated extension L10n {
         public static let icloudContent = NSLocalizedString(
             "privacy.icloud_content",
             value: """
-            iCloud 同步是计划中的 Pro 付费功能，当前版本尚未提供。未来启用后：
+            iCloud 同步是计划中的 Pro 付费功能，当前版本尚未提供。
 
-            您的数据将通过 Apple 的 iCloud 服务在您的设备之间同步。所有数据都存储在您的个人 iCloud 账户中，我们无法访问您的 iCloud 数据。数据传输由 Apple 加密保护。您可以随时在设置中关闭 iCloud 同步。
+            若未来启用，将使用 Apple CloudKit/iCloud，并在您的 Apple ID 下同步。NotBad Labs 不会为这些数据运行自有同步服务器，也无法读取您的个人 iCloud 内容。该功能上线前会同步更新隐私说明。
             """,
             comment: "iCloud 同步内容"
         )
@@ -234,9 +232,11 @@ nonisolated extension L10n {
         public static let usageContent = NSLocalizedString(
             "privacy.usage_content",
             value: """
-            我们使用收集的信息仅用于：提供核心功能（存储和管理您的错题数据）、改进应用（分析崩溃日志以修复 bug）、用户支持（回应您的反馈和技术支持请求）。
+            SnapDrill 在设备本地处理您的数据，用于提供采集、整理、复盘、导出和打印等核心功能。
 
-            我们不会：出售您的个人信息、将您的数据用于广告目的、与第三方共享您的学习内容。
+            如果您主动通过邮件或 TestFlight 反馈联系我们，我们只使用您主动提供的信息回复该支持请求。
+
+            我们不会出售您的个人信息，不会将您的内容用于广告，也不会与第三方共享您的题目内容。
             """,
             comment: "数据使用内容"
         )

@@ -120,11 +120,11 @@ nonisolated extension L10n {
 
         // 隐私设置
         public static let privacyTitle = NSLocalizedString("settings.privacy_title", value: "隐私与数据导出", comment: "隐私设置标题")
-        public static let analyticsEnabled = NSLocalizedString("settings.analytics_enabled", value: "匿名使用统计", comment: "匿名使用统计")
-        public static let analyticsHint = NSLocalizedString("settings.analytics_hint", value: "帮助我们改进应用体验，不收集任何个人信息。", comment: "匿名统计说明")
+        public static let analyticsEnabled = NSLocalizedString("settings.analytics_enabled", value: "本地诊断偏好", comment: "本地诊断偏好")
+        public static let analyticsHint = NSLocalizedString("settings.analytics_hint", value: "当前版本不发送使用分析或崩溃报告；此设置仅保存本地偏好。", comment: "本地诊断偏好说明")
         public static let crashReporting = NSLocalizedString("settings.crash_reporting", value: "崩溃报告", comment: "崩溃报告")
-        public static let crashReportingHint = NSLocalizedString("settings.crash_reporting_hint", value: "自动发送匿名崩溃信息，帮助修复问题。", comment: "崩溃报告说明")
-        public static let telemetryEnabled = NSLocalizedString("settings.telemetry_enabled", value: "匿名遥测", comment: "Analytics 与崩溃报告统一开关")
+        public static let crashReportingHint = NSLocalizedString("settings.crash_reporting_hint", value: "当前版本不自动发送崩溃报告。诊断信息仅保留在设备本地，或来自 Apple 聚合报告。", comment: "崩溃报告说明")
+        public static let telemetryEnabled = NSLocalizedString("settings.telemetry_enabled", value: "本地诊断偏好", comment: "Analytics 与崩溃报告统一开关")
         public static let dataExport = NSLocalizedString("settings.data_export", value: "数据导出", comment: "数据导出区标题")
         public static let exportJSON = NSLocalizedString("settings.export_json", value: "导出为 JSON", comment: "JSON 导出")
         public static let exportCSV = NSLocalizedString("settings.export_csv", value: "导出为 CSV", comment: "CSV 导出")
@@ -238,9 +238,9 @@ nonisolated extension L10n {
         public static let reminderDisabledFooter = NSLocalizedString("settings.reminder_disabled_footer", value: "开启后系统将在固定时间推送复习提醒", comment: "提醒未开启说明")
 
         // 隐私设置详情
-        public static let dataCollection = NSLocalizedString("settings.data_collection", value: "数据收集", comment: "数据收集区标题")
-        public static let useAnalytics = NSLocalizedString("settings.use_analytics", value: "使用数据分析", comment: "使用数据分析")
-        public static let dataCollectionFooter = NSLocalizedString("settings.data_collection_footer", value: "帮助我们改进应用体验，您的数据将被匿名处理", comment: "数据收集说明")
+        public static let dataCollection = NSLocalizedString("settings.data_collection", value: "诊断与数据", comment: "数据收集区标题")
+        public static let useAnalytics = NSLocalizedString("settings.use_analytics", value: "本地诊断偏好", comment: "使用数据分析")
+        public static let dataCollectionFooter = NSLocalizedString("settings.data_collection_footer", value: "当前版本不发送使用分析、崩溃报告或题目内容。诊断信息仅保留在设备本地，或来自 Apple 聚合报告。", comment: "数据收集说明")
         public static let exportMyData = NSLocalizedString("settings.export_my_data", value: "导出我的数据", comment: "导出我的数据")
         public static let exporting = NSLocalizedString("settings.exporting", value: "导出中...", comment: "导出中")
         public static let chooseExportFormat = NSLocalizedString("settings.choose_export_format", value: "选择导出格式", comment: "选择导出格式")
