@@ -95,5 +95,5 @@ last_updated: 2026-05-30
 - 原则：`../../explanations/vision.md`（P1 录入体验 / P2 简洁 / P4 隐私 / P6 原生优先）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 0 首次录入 / 旅程 2 拍照录错题 / 旅程 3 微信导入 / 旅程 9 OCR 失败修正）
-- 决策：`../../decisions/ADR-004-china-build-firebase-free.md`（端上 OCR / 国内版零分析出境）
+- 决策：`../../decisions/ADR-005-analytics-privacy-strategy.md`（全球生产零后端行为采集；OCR 端上处理）
 - 被依赖 / 相关：`feat-review.md`（消费采集产出的题目）、`../backlog/feat-smartpaper.md`、`../backlog/feat-advanced-stats.md`

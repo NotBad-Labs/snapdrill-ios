@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-06-13
 layer: pattern
 ---
 # SnapDrill Analytics 事件字典
@@ -8,14 +8,14 @@ layer: pattern
 > 本文件是 Analytics 事件的 SSOT。新增/修改事件必须同步本文档。
 > 代码定义见 `AnalyticsEvent` 枚举（`Packages/SnapDrillCore/Sources/SnapDrillCore/Service/AnalyticsServiceProtocol.swift`）。
 
-> **当前实现状态（2026-05-29，国内版）**：国内版 = Firebase-Free（`NoOpAnalyticsService`，不调用 `FirebaseApp.configure()`）——**本字典描述的 Firebase 上报管线在国内版不运行、不采集、零网络出境**（OSLog 实证，见 ADR-004）。本文件为**事件设计契约 / 海外版（C 路径）规格**，非国内版当前 shipping 行为；国内版如需统计走境内合规方案另行设计。
+> **当前实现状态（2026-06-13，全球生产基线）**：Firebase SDK 与 `SnapDrillInfrastructure` 已由 #803 从项目删除；生产注入 `NoOpAnalyticsService`。下列事件仅作为 Core 协议、调用点和测试使用的事件词汇，不会在生产环境被记录或发送。端侧 MetricKit 是独立的设备诊断能力，不使用本事件字典，也不上传用户内容。当前策略见 ADR-005。
 
-## 采集说明（海外版设计 / 路线；国内版见上方现状锚点）
+## 当前采集边界
 
-- 所有事件默认不采集（Analytics opt-in，**仅海外版**；国内版零采集）
-- 设置中的 Analytics / Crashlytics 开关：**国内版**为架构预留，切换对采集行为无实际效果（始终 NoOp、零出境）；**海外版**（C 路径）开关才真正控制 Firebase 数据采集
-- opt-in 后数据发送到 Firebase Analytics（Google 服务器）—— 仅海外版；国内版 Firebase-Free 不含此管线
-- 样本偏差：数据仅覆盖主动 opt-in 的用户，不代表全体用户
+- 全球生产版本不采集、不持久化、不发送本字典中的逐事件行为。
+- 设置中的“匿名遥测”开关只保存本地 `TelemetryGate` 同意状态；当前生产服务仍为 NoOp，打开开关不会激活网络采集。
+- Firebase 没有“海外版恢复”计划。任何后端分析方案都必须由 PO 新决策、独立 ADR、隐私披露和代码实证重新启用。
+- App Store Connect 聚合指标与端侧 MetricKit 是当前可用信号；未来本地账本或用户自愿快照尚未实现。
 
 ## 成功信号（设计校准器）
 
@@ -23,19 +23,18 @@ layer: pattern
 
 判断「我们做对了吗」的可度量标准。
 
-> ⚠️ 以下指标在发布前仅作为设计校准方向。**Analytics 数据源仅海外版可用**（国内版 Firebase-Free、零采集，ADR-004），国内版以 App Store Connect / 访谈 / TestFlight 替代。
-> 数据不足时，用 App Store Connect 数据、用户访谈、TestFlight 反馈补足。
+> ⚠️ 以下指标仅作为设计校准方向。生产版本没有逐事件数据源；涉及本字典事件的指标在实现隐私合规的本地账本或自愿快照前不可计算。当前使用 App Store Connect、用户访谈和 TestFlight 反馈。
 
 | 信号 | 度量定义 | 数据来源 | 状态 |
 |---|---|---|---|
-| 首次录入效率（含 onboarding） | 从 App 冷启动到首次保存成功的时间中位数 | Analytics 事件：`app_launched` → `capture_saved` | 待发布后测定，暂不设阈值 |
-| 首次录入效率（进入采集页后） | 从进入采集页到保存成功的时间中位数 | Analytics 事件：`camera_opened` → `capture_saved` | 待发布后测定，暂不设阈值 |
-| 持续录入行为 | D7 仍有录入/管理/导出行为的用户占 D0 用户比例 | Analytics：D7 活跃且有 `capture_saved` / `pdf_exported` / `data_exported` 的用户 | 待发布后测定 |
+| 首次录入效率（含 onboarding） | 从 App 冷启动到首次保存成功的时间中位数 | 可用性测试；事件口径：`app_launched` → `capture_saved` | 当前无生产事件数据源 |
+| 首次录入效率（进入采集页后） | 从进入采集页到保存成功的时间中位数 | 可用性测试；事件口径：`camera_opened` → `capture_saved` | 当前无生产事件数据源 |
+| 持续录入行为 | D7 仍有录入/管理/导出行为的用户占 D0 用户比例 | App Store Connect 聚合留存；事件口径仅供未来本地统计设计 | 待发布后观察 |
 | 激活深度 | D7 留存用户的题库题目数中位数 | 定性验证（无内置 `library_count` 事件；可由 `review_item_created` 累计推导，或后续补查询事件） | 待发布后测定 |
 | 有机增长结构 | App Store 下载来源分布（Search / Browse / Referral / 外部） | App Store Connect（非 Analytics 事件） | 待发布后观察，不做预设比例 |
 | Multi-Profile 可用性 | 跨 Profile 数据泄漏事件 = 0 | 定性验证（用户测试）+ 自动化：跨 Profile 数据泄漏作为 S0 级 Bug | 已实现，持续监控 |
-| 成果分发 | 家长能导出或分享孩子的整理成果（通过系统分享菜单，非社交功能） | 系统分享 sheet 触发（非 Analytics 事件，依赖 iOS UIActivityViewController 路径） | 待发布后测定 |
-| 价值链完成率 | 完成"管理 → 导出/打印"闭环 | Analytics 事件：`pdf_exported` 至少 1 次的用户占 D30 活跃用户比例（系统打印为非事件源） | 待发布后测定 |
+| 成果分发 | 用户能导出或分享整理成果（通过系统分享菜单，非社交功能） | 可用性测试；系统分享 sheet 不产生 Analytics 事件 | 待发布后验证 |
+| 价值链完成率 | 完成“管理 → 导出/打印”闭环 | 用户测试；`pdf_exported` 仅保留为未来本地统计事件口径 | 当前无生产事件数据源 |
 
 ## 事件列表
 
@@ -90,7 +89,7 @@ layer: pattern
 
 ## 成功信号映射
 
-vision 中定义的 8 个成功信号中，**6 个由本字典事件支撑，2 个为非事件来源**（有机增长来自 App Store Connect、Multi-Profile 可用性来自定性验证 + 自动化测试）。事件对应关系：
+vision 中定义的成功信号仍可使用本字典统一事件命名，但当前生产环境不会记录这些事件。下表是未来本地账本或自愿快照的计算口径，不是已上线的数据管线：
 
 | 信号 | 依赖事件 | 计算方式 |
 |---|---|---|
