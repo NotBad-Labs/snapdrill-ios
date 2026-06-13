@@ -175,8 +175,8 @@ nonisolated extension L10n {
         }
         public static let backupDataHint = NSLocalizedString("accessibility.backup_data_hint", value: "导出完整数据备份文件", comment: "VoiceOver 备份数据提示")
         public static let restoreDataHint = NSLocalizedString("accessibility.restore_data_hint", value: "从备份文件恢复所有数据，会覆盖当前数据", comment: "VoiceOver 恢复数据提示")
-        public static let analyticsToggleHint = NSLocalizedString("accessibility.analytics_toggle_hint", value: "匿名使用数据帮助我们改进产品", comment: "VoiceOver 分析开关提示")
-        public static let crashReportingHint = NSLocalizedString("accessibility.crash_reporting_hint", value: "自动发送崩溃报告帮助修复问题", comment: "VoiceOver 崩溃报告提示")
+        public static let analyticsToggleHint = NSLocalizedString("accessibility.analytics_toggle_hint", value: "设置本地诊断偏好；当前版本不会发送使用数据", comment: "VoiceOver 分析开关提示")
+        public static let crashReportingHint = NSLocalizedString("accessibility.crash_reporting_hint", value: "当前版本不会自动发送崩溃报告", comment: "VoiceOver 崩溃报告提示")
         public static let exportDataHint = NSLocalizedString("accessibility.export_data_hint", value: "导出个人数据副本", comment: "VoiceOver 导出数据提示")
 
         // 难度
