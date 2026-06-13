@@ -36,7 +36,7 @@ public protocol ServiceContainer: Sendable {
 
     // MARK: - Analytics / 配置（既有 5）
 
-    /// 分析服务（协议类型，生产环境为 Firebase 实现，测试为 Mock）
+    /// 分析服务（协议类型，生产环境为 NoOp 实现，测试为 Mock）
     var analytics: AnalyticsServiceProtocol { get }
 
     /// PDF 导出服务（具体类型，无替代测试手段时的例外）

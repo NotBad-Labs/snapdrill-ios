@@ -19,8 +19,12 @@ fi
 
 # 3. Install Git Hooks
 echo "🪝 Installing Git Hooks..."
-mkdir -p .git/hooks
-cp Scripts/pre-commit .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
+hooks_dir=$(git rev-parse --git-path hooks 2>/dev/null) || {
+    echo "❌ Not inside a Git repository."
+    exit 1
+}
+mkdir -p "$hooks_dir"
+cp Scripts/pre-commit "$hooks_dir/pre-commit"
+chmod +x "$hooks_dir/pre-commit"
 
 echo "🎉 Setup Complete! Happy Coding!"

@@ -149,7 +149,7 @@ layer: pattern
 - 零注册，纯本地存储
 - 隐私政策 / 服务条款
 - 卸载数据丢失提醒
-- 开源许可展示（第三方库 Mantis / ZIPFoundation 等；Firebase SDK 已由 #803 从工程删除，历史 Firebase 许可项仍待 UI 清理）
+- 开源许可展示（第三方库 Mantis / ZIPFoundation 等；Firebase SDK 已由 #803 从工程删除，许可页不再列出 Firebase）
 
 **无障碍**
 - 全模块 VoiceOver 辅助标签、提示和公告（Dashboard / Capture / Library / Settings / Review）

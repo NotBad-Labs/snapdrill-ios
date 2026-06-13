@@ -35,7 +35,7 @@ app 当前**捆绑** Firebase（Analytics + Crashlytics，隔离在 `SnapDrillIn
 
 ### 理由
 
-- **PIPL 合规叙事 airtight**：Firebase 根本不在国内 build = FID 跨境问题不存在 = 无需单独同意/PIPIA/境外接收方告知（详见律师简报 `~/Desktop/snapdrill-data-compliance-briefing-v2.md`）
+- **PIPL 合规叙事 airtight**：Firebase 根本不在国内 build = FID 跨境问题不存在 = 无需单独同意/PIPIA/境外接收方告知（该结论为 2026-05-28 历史决策输入，当前不作为现行全球版法律结论）
 - 个人主体做跨境数据传输位置弱；国内主体未定前，最干净是无跨境
 - 四方独立复核 + PO 直觉一致指向方案 A
 
@@ -53,7 +53,7 @@ app 当前**捆绑** Firebase（Analytics + Crashlytics，隔离在 `SnapDrillIn
 - Firebase 仅在 `SnapDrillInfrastructure`：`FirebaseBootstrap.swift` + `FirebaseAnalyticsService.swift`
 - App 层装配点集中在 `DependencyContainer.swift`（私有 init）：现注入 `NoOpAnalyticsService()`、不调 `FirebaseApp.configure()`；`FirebaseBootstrap.configure()` / `FirebaseAnalyticsService()` / `syncTelemetryGate` 已归档至 `SnapDrillInfrastructure`（`FirebaseBootstrap.swift` / `FirebaseAnalyticsService.swift`），App 层不再引用
 
-### 两级实现（执行 prompt 见 `~/Desktop/snapdrill-firebase-removal-prompt.md`）
+### 两级实现（历史执行方案）
 
 1. **运行时止血（interim，半天）**：新增 `NoOpAnalyticsService`（Core，生产级空实现）；`DependencyContainer` 改用 NoOp + 不调 `FirebaseBootstrap.configure()`；移除 `GoogleService-Info.plist`。SDK 仍链接但永不初始化。
 2. **编译层 airtight（baseline，随 C 路径）**：国内 build target 不链接 Firebase SDK（条件化 SPM 依赖 / Release-CN 配置），`FirebaseBootstrap`/`FirebaseAnalyticsService` 归档到仅海外 build 编译。
