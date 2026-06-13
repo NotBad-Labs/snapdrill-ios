@@ -26,9 +26,16 @@ SnapDrill：一款 SwiftUI 单平台 iOS 通用效率工具。扫描、归档、
 - **状态**：核心闭环约 90% 完成；零上架零用户；Pro/同步阻塞 #479（StoreKit）/ #485（CloudKit 同步）/ #486（Word 导出），均可延后
 - **架构铁律**：单向依赖向下，Core 层零外部依赖
 
-### 当前真相优先级
+### 意图与事实的裁决规则
 
-发生冲突时按此顺序裁决：**PO 最新明确决策 > 当前代码/构建实证 > 本文件与根 `README.md` > feature spec/ADR > agent 私有记忆与历史研究**。私有记忆只是可丢弃缓存，不能覆盖仓库事实。当前定位见 `docs/explanations/positioning-and-audience.md`，协作边界见 `docs/how-to/parallel-lanes.md`。
+SnapDrill 不使用一条混合优先级同时裁决“应该做什么”和“现在实现了什么”。两类问题分别沿不同链路判断：
+
+- **规范链（产品应该是什么）**：PO 最新明确意图 > `docs/explanations/vision.md` > 定位 / 设计原则 / 商业模型 / ADR > feature spec > 代码与测试。
+- **实证链（产品现在是什么）**：当前代码、测试、构建、真机与发布实证 > 自动生成状态 > 当前说明文档 > agent 私有记忆与历史材料。
+
+代码可以证明当前实现，但不能覆盖 PO 意图。两条链不一致时，应记录为待修复偏差或待裁决问题，不能用现状反向改写产品目标。PO 的最新明确意图凌驾于所有仓库文档；影响其他 lane 的意图必须尽快固化到 git-tracked SSOT。
+
+私有记忆只是可丢弃缓存，不能覆盖仓库事实或产品意图。当前定位见 `docs/explanations/positioning-and-audience.md`，协作边界见 `docs/how-to/parallel-lanes.md`。
 
 ## 构建命令
 

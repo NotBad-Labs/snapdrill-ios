@@ -6,6 +6,8 @@ tier: free               # free | pro
 blocked_by: []           # issue 编号列表，如 [479]；status=blocked 时必填
 mode: full               # full（四段全填）| lightweight（backlog，仅 Why+What 必填）
 last_updated: YYYY-MM-DD
+intent_refs:              # 至少一项 Vision / 产品政策 / ADR 引用
+  - vision:P1
 ---
 
 # Feature: [功能名称]
@@ -32,18 +34,21 @@ last_updated: YYYY-MM-DD
 - **设计裁决**（如无可省略）：本功能内对全局原则的局部例外 + 理由 + 限定范围。
 
 ## 4. 验证标准 (Verify) — GWT 风格，不复述 How 的交互细节
-- **Success path**：主流程的 Given-When-Then（承接原 cases UC）。
+- **Success path**：主流程的 Given-When-Then；验收条件必须能追溯到当前上游意图或已确认用例。
 - **边界 / 异常**：边界 case + 异常处理。
 - **数据保证**：必须守住的数据不变量。
 - **NFR**：性能容忍（如大图加载）、关键埋点、中断恢复等非功能要求；无则写"无"。
 
-## Provenance（迁移期审计用，全量封板后可删）
-| 本 spec 内容 | 来源（旧文档章节 / UC / ADR） |
-|---|---|
-| Why | vision §… |
-| What | requirements §… |
-| How | design §… |
-| Verify | cases UC… |
+## 意图追溯（永久保留）
+
+| 层 | 上游依据 | 本功能承接 |
+|---|---|---|
+| Vision | `../../explanations/vision.md#pX-...` | 本功能如何服务该原则 |
+| 产品政策 / ADR | 如无写“无” | 本功能必须遵守的边界或已决取舍 |
+| 待验证假设 | 如无写“无” | 本功能会改变哪条 H# 的置信度 |
+| 验收证据 | 测试 / 构建 / 真机 / 发布证据 | 如何证明实现满足上游意图 |
+
+找不到上游依据的需求是孤儿需求，不应直接实现。历史迁移来源由 Git 记录，不在当前 spec 中保留旧体系编号。
 
 ## 关联
 - 原则：`../../explanations/vision.md`

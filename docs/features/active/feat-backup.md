@@ -6,6 +6,8 @@ tier: free
 blocked_by: []
 mode: full
 last_updated: 2026-05-30
+intent_refs:
+  - vision:P4
 ---
 
 # Feature: 备份与 CSV 导入导出
@@ -48,7 +50,7 @@ last_updated: 2026-05-30
 - **设计裁决（仅本模块）**：恢复目标是「完整成功或完整失败」，当前实现达成**单 Profile 维度原子**（DB 事务原子 + 图片 best-effort），**多 Profile 全局原子事务尚未实现**——这是已知与目标的差距，单 Profile 安全网兜底，不外推为已达成全局原子。
 
 ## 4. 验证标准 (Verify)
-- **Success path (GWT)**（承接 cases UC6）：Given 设备存在至少一个含数据的 Profile，When 用户在设置发起手动备份，Then 系统打包全部 Profile（题目、图片引用、元数据、复习进度）为 `.zip` 并交用户保存/分享；Given 用户持有 `.zip`，When 选择文件发起恢复且校验（可读性/结构完整性/版本兼容性）通过，Then 导入全部 Profile 数据，题库 / Dashboard / Review / 设置与备份内容一致。
+- **Success path (GWT)**：Given 设备存在至少一个含数据的 Profile，When 用户在设置发起手动备份，Then 系统打包全部 Profile（题目、图片引用、元数据、复习进度）为 `.zip` 并交用户保存/分享；Given 用户持有 `.zip`，When 选择文件发起恢复且校验（可读性/结构完整性/版本兼容性）通过，Then 导入全部 Profile 数据，题库 / Dashboard / Review / 设置与备份内容一致。
 - **边界 / 异常**：
   - 备份文件损坏/不可读 → 拒绝恢复，现有本地数据完全不变（Boundary B04, S0）。
   - 备份版本高于当前 App → 拒绝恢复并提示版本不兼容、建议升级 App（Boundary B09）。
@@ -70,22 +72,21 @@ last_updated: 2026-05-30
   - 内存：备份/恢复 < 200MB（流式 ZIP 写入，不全量加载）；CSV 导入（1000 行）< 80MB（解析流逐行处理，不全文加载到内存）。
   - 中断恢复：恢复前自动备份当前数据作为安全网（备份完整性）。
 
-## Provenance（迁移期审计用，全量封板后可删）
-| 本 spec 内容 | 来源（旧文档章节 / UC / ADR） |
-|---|---|
-| Why（生命线 / 数据迁移出口 / CSV 可携带权定位 / P4） | vision §4 数据属于用户 + 数据安全子条款 + §1 主路径必须是图片（CSV 定位）；design §备份与恢复设计·核心理念 |
-| What（备份范围 / 全 Profile / 恢复安全 / 向后兼容 / 元数据原子 vs 图片 best-effort） | requirements §备份与恢复 + §数据可携带权矩阵；design §备份与恢复设计·设计决策与不做 |
-| What（CSV 导出/导入 / 双入口 / RFC 4180） | requirements §导出与打印能力 + §功能全景·导出与备份；design §导出与打印设计 |
-| What（商业分层：备份/CSV 全免费） | business §免费层完整定义 + §免费版体验完整性保障 |
-| How（BackupService / BackupDTO / MigrationPlan / CSVParser / DataExporter 归属） | tech/architecture §SnapDrillData + §数据导入/导出归属 |
-| How（Schema 版本 / 校验 / 恢复前安全网 / 多 Profile sequential / 注入防护） | design §备份与恢复设计·兼容机制+安全网；cases UC6 Exceptions；tech/non-functional §CSV 注入防护/解析 |
-| Verify（success / 边界 / 数据保证） | cases UC6 + UC5（导出）+ Boundary B04/B05/B07/B08/B09/B23 |
-| Verify（NFR 性能/内存） | tech/non-functional §性能 + §内存 + §兼容性·备份完整性 |
-| 旅程印证 | journeys 旅程 10：免费用户换机恢复 |
+
+## 意图追溯（永久保留）
+
+| 层 | 上游依据 | 本功能承接 |
+|---|---|---|
+| Vision | `../../explanations/vision.md`（P4 用户拥有数据·数据安全子条款） | `.zip` 是免费换机迁移出口；恢复前校验、失败不破坏现有数据、结果透明 |
+| 产品政策 / ADR | 无（iCloud 自动同步为 Pro 的不同职责，见 `../backlog/feat-icloud-sync.md`） | 备份 / CSV 全免费、不作订阅门槛 |
+| 待验证假设 | `../../explanations/assumptions.md` H10（用户仅保存有权处理的个人资料） | 备份 / 导出边界与版权提示 |
+| 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
+
+找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
 - 原则：`../../explanations/vision.md`（P4 数据属于用户 / 数据安全子条款）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
-- 用户旅程：`../../explanations/user-journeys.md`（旅程 10：免费用户换机恢复）
+- 用户旅程：`../../explanations/user-journeys.md`（旅程 7：备份 / 恢复）
 - 商业分层：`../../explanations/business-model.md`
 - 相关 / 上位 feature：`feat-review.md`（复习进度随备份一并迁移）

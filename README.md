@@ -15,14 +15,14 @@
 | [AGENTS.md](AGENTS.md) | 智能体协作行为约束 + 架构 + 编码（CLAUDE.md 软链至此）|
 | [DocC API 文档](Packages/) | Xcode: Product > Build Documentation |
 
-## 当前状态（2026-06-11）
+## 当前状态（2026-06-13）
 
-> 上架/运营状态锚点（供跨会话 / 跨 agent 追溯）。决策细节见 [ADR-003 双地区发布](docs/decisions/ADR-003-dual-region-release.md) / [ADR-004 国内 Firebase-Free](docs/decisions/ADR-004-china-build-firebase-free.md) / [ADR-005 分析与隐私遥测策略](docs/decisions/ADR-005-analytics-privacy-strategy.md)。事实源以本地 code/docs/git 为准（GitHub issue/PR 可能滞后）。
+> 当前生产与发布事实的入口。历史区域路线见 [ADR-003](docs/decisions/ADR-003-dual-region-release.md) / [ADR-004](docs/decisions/ADR-004-china-build-firebase-free.md)；现行分析与隐私策略见 [ADR-005](docs/decisions/ADR-005-analytics-privacy-strategy.md)。实现状态以当前代码、构建、签名和发布实证为准。
 
 - **阶段**（🔁 2026-06-09 pivot）：**改用美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`）做全球版生产**，工程已切 `com.snapdrill.global`（真机签名验证通过，#795 已合）；**国内大陆路线暂时挂起**（资源保留可复活）。核心免费闭环约 90% build-complete；Pro / 同步为外部阻塞，非闭环本身。
-- **产品定位**（PO 2026-06-11 决策）：**通用效率工具——扫描、归档、整理任何题目与文档**（试卷 / 竞赛 / 证书 / 培训 / 票据），非儿童教育工具；COPPA general-audience 目标。铁律「定位≠产品」。SSOT 见 [positioning-and-audience.md](docs/explanations/positioning-and-audience.md)。
+- **产品定位**（PO 2026-06-11 决策）：**通用效率工具——扫描、归档、整理任何题目与文档**（试卷 / 竞赛 / 证书 / 培训 / 票据），非儿童教育工具；`general-audience` 是产品定位与设计目标，不是对具体司法结论的替代。SSOT 见 [positioning-and-audience.md](docs/explanations/positioning-and-audience.md)。
 - **分析 / 隐私**（ADR-005 D6=A）：**零采集 / 本地优先**——Apple ASC 聚合 + 端侧 MetricKit（#799 已合，`ServiceContainer` 14 服务），无后端、无 Firebase。
-- **发布阻塞清单 RC-1~RC-12**（见 [development-process.md](docs/explanations/development-process.md) §5）：**Firebase 编译剔除（#803 已合，整个 `SnapDrillInfrastructure` 包删除）+ MetricKit（#799 已合）已完成**；剩余公开上架待办 = 未成年人法律定性（律师 gated，已被 general-audience 重定位稀释）+ 官网政策文案对齐零采集。**TestFlight 内测不被这些阻塞**。
+- **发布就绪**：流程与检查项见 [release-and-ci.md](docs/how-to/release-and-ci.md)；是否可发布必须以当次代码、依赖、签名、隐私清单、构建和 App Store Connect 实证重新判定，不使用固定 RC 快照替代实时检查。
 - **决策 · Pro**：免费优先，本期**不接 StoreKit**；Pro 入口保留（待改"敬请期待"占位）。
 - **决策 · Firebase**：**已编译层彻底剔除（#803）**——删除整个 `SnapDrillInfrastructure` 包 + 切断 pbxproj 引用 + 清理 GoogleService 示例，二进制不再链接任何 Firebase SDK；生产端零采集（注入 `NoOpAnalyticsService`、ATT 已移除）。同步根治了 SwiftPM protobuf 子模块 clone 卡顿。
 
@@ -35,7 +35,7 @@
 | CloudKit 同步 | #485 —— 已 `cloudKitDatabase: .none` 禁用，延后 |
 | Word 导出 | **#486**（旧文档误标为"Apple 账号"）—— Pro，延后 |
 
-**发布路径**：美国全球版生产基线（`com.snapdrill.global`，自动签名）；DoD 门禁 = `swiftlint --strict` + `build-for-testing`(AllTests)；上架 / CI / Archive 上传操作见 [release-and-ci](docs/how-to/release-and-ci.md)。（旧"国内家长内测 + Firebase 运行时止血"路径随大陆路线挂起。）
+**发布路径**：美国全球版生产基线（`com.snapdrill.global`，自动签名）；DoD 门禁 = `swiftlint --strict` + `build-for-testing`(AllTests)；上架 / CI / Archive 上传操作见 [release-and-ci](docs/how-to/release-and-ci.md)。挂起的大陆发行路线仅在 PO 明确复活时重新评估。
 
 ## 架构设计
 

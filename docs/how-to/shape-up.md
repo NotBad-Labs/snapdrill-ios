@@ -13,7 +13,7 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 
 原书附录明说：极小团队**砍掉仪式**（正式 betting table、固定 6 周、多人会议、cool-down 可省），**只保留四阶段 + appetite + pitch + scopes + hill chart + circuit breaker**，关键是**自觉切「现在戴哪顶帽子」**。
 
-| 阶段 | **你**（判断/品味，AI 替不了） | **AI（Claude）**（起草/维护/执行/纪律） |
+| 阶段 | **你**（判断/品味，AI 替不了） | **AI agents（按 [`parallel-lanes.md`](parallel-lanes.md) lane 分工）**（起草/维护/执行/纪律） |
 |---|---|---|
 | **Shaping** | 定 appetite、收窄问题、拍板取舍、画 breadboard | 起草 pitch、当 shaping 的「技术专家」对照代码挑 rabbit holes、补洞 |
 | **Betting** | 自问原书 Ch.9 五问、承诺只赌这个不插队 | 维护「当前赌注」、拦范围蔓延 |
@@ -25,35 +25,42 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 - **周期长度**：起步 **2–4 周**（不是 6 周）。赌注可大小不一（原书附录允许）。WIP=1（一次只赌一个主项目）。
 - **三个模式**（原书 Ch.9 New products）：**R&D**（核心流程还不确定→赌 spike，不指望出货）/ **Production**（流程已能点通→周期末出 TestFlight 增量）/ **Cleanup**（上架前打磨）。本项目核心闭环 ~90% → 多在 **Production**。
 - **🔑 不可省的纪律（PMF 前）**：**每个 bet 必须绑一个学习目标**。这是 Shape Up 不覆盖的「做错产品」风险的补丁——betting 时除了问「做得完吗」，还要问「这若成功，改变哪条赌注（assumptions.md 的 H#）的置信度？用什么可观察信号？」答不出就别赌。
-- **质量地板（ship 的判据，原书 Ch.14 Compare to baseline）**：当它**比用户当前替代方案更好**就 ship，不是完美时。对要拿 PMF 信号的目标家长，地板 = **不崩 + 核心路径可靠 + 像模像样 + EXIF/隐私扎实**；不是每个 edge case/动画完美。先你自己 dogfood 过地板，**再**邀真实家长（内测用户也是用户、且稀缺不可再生）。
+- **质量地板（ship 的判据，原书 Ch.14 Compare to baseline）**：当它**比用户当前替代方案更好**就 ship，不是完美时。对要拿 PMF 信号的目标用户，地板 = **不崩 + 核心路径可靠 + 像模像样 + EXIF/隐私扎实**；不是每个 edge case/动画完美。先你自己 dogfood 过地板，**再**邀真实用户（内测用户也是用户、且稀缺不可再生）。
 - **circuit breaker**：到期不延期。没做完=shaping/scope 错了，打回重塑，不加时间。
 - **appetite ≠ 估算**：先定时间，再设计塞得进的方案（原书 Ch.3）。
 - **no-gos 必写**：否则 AI 会「顺手完善」。
 
 ## 制品（就这几样，AI 维护）
 
-- **Pitch** → `docs/pitches/<cycle>-<slug>.md`，固定 5 段：Problem / Appetite / Solution / Rabbit holes / No-gos（原书 Ch.6）。
-- **Scopes** → 在 pitch 或 building 中，按产品结构竖切（非前后端分工，原书 Ch.12）。
+- **Bet / Pitch** → PO 明确接受的 live GitHub issue / PR，或 PO 指定的具名范围文档；固定包含 Problem / Appetite / Solution / Rabbit holes / No-gos（原书 Ch.6）。
+- **Scopes** → 在 bet 或 building 中，按产品结构竖切（非前后端分工，原书 Ch.12）。
 - **Hill chart** → 一段文本即可：每个 scope 标 `uphill(还在解未知)` / `downhill(只剩执行)`，AI 每 2-3 天更新（原书 Ch.13）。
 - 不需要 Basecamp 的专属工具；Markdown + git 即可。
 
 ## ⚠️ 不删能跑的代码
 
-「轻装上阵」=**冻结未验证功能的规划重量**（停止往里投入），**不是删字节**。代码价值评估（对抗验证）实证：本库 17/17 区域全 KEEP、0 可安全删（详见 memory `project_code_value_assessment`）。**复习/SmartPaper/Pro 等是「焊死的未验证赌注」→ 进下面的 Parked、停止投入、但一行别删。**
+「轻装上阵」=**冻结未验证功能的规划重量**（停止往里投入），**不是删字节**。代码价值的判据来自 live code、测试与构建实证，不来自任何 agent 私有记忆。**复习/SmartPaper/Pro 等是「焊死的未验证赌注」→ 进下面的 Parked、停止投入、但一行别删。**
 
 ---
 
-## 当前状态（每周复盘更新）
+## 怎么确定「现在赌什么」
 
-### 进行中的赌注（WIP=1）
-- **Cycle 1** → [`docs/pitches/cycle-01-quality-floor.md`](../pitches/cycle-01-quality-floor.md)：把核心闭环 dogfood 到质量地板 + TestFlight 就绪（Production/Cleanup 模式，appetite 2–3 周）。学习目标：通过密集自用，找出**哪里真坏** + **哪些功能你真会点**。
+本文件**不固化某个具体周期的进行中赌注**——那会随时间过期且依赖「最新文件名胜出」的脆弱约定。当前赌注的唯一可信来源是**实证**：
+
+- **优先**：当前活跃且已被 PO 接受的 GitHub issue / PR；需要更长说明时，由 PO 明确指定一份具名范围文档。
+- 没有被接受的 live issue/PR 或具名范围文档时，先回到 shaping——别凭过期计划、文件名顺序或 agent 私有记忆开工。
+- 逐功能权威状态以 [`../reference/feature-status.md`](../reference/feature-status.md)（SSOT，自动生成）为准，不在本文件重复罗列。
 
 ### Parked（明确不赌、停止投入，但代码留着 · 取舍的牙齿）
-- 复习/SM-2 增强、SmartPaper 组卷、高级统计 —— 未验证赌注（assumptions.md H9），冻结。
-- 题目分割 #626、Pro/StoreKit #479、CloudKit #485、Word 导出 #486 —— PMF 后再说。
-- 公开上架 RC-1~RC-12 合规队列 —— **不阻塞 TestFlight 内测**（ADR-004），延到 PMF 验证、决定公开上架时。
+
+哪些功能被冻结、哪些是阻塞依赖，以 `feature-status.md` 的 frontmatter 与 live GitHub issues 为准，例如：
+
+- 复习/SM-2 增强、SmartPaper 组卷、高级统计 —— 未验证赌注（[`../explanations/assumptions.md`](../explanations/assumptions.md) H9），冻结。
+- Pro/StoreKit #479、CloudKit #485、Word 导出 #486 等 —— 延后的外部/产品依赖，描述其状态前先核实 live Issues。
+- 公开上架合规队列 —— **不阻塞 TestFlight 内测**（隐私/分析策略见 [`../decisions/ADR-005-analytics-privacy-strategy.md`](../decisions/ADR-005-analytics-privacy-strategy.md)），延到决定公开上架时。
 
 ### 链接
 - 方法原典：<https://basecamp.com/shapeup>
 - 为什么/愿景：[`../explanations/vision.md`](../explanations/vision.md)
 - 待验证假设（赌注内容 + 推翻信号）：[`../explanations/assumptions.md`](../explanations/assumptions.md)
+- 逐功能状态（SSOT）：[`../reference/feature-status.md`](../reference/feature-status.md)

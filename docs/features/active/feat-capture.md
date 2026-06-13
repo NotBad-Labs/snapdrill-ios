@@ -6,6 +6,12 @@ tier: free
 blocked_by: []
 mode: full
 last_updated: 2026-05-30
+intent_refs:
+  - vision:P1
+  - vision:P2
+  - vision:P4
+  - vision:P6
+  - ADR-005
 ---
 
 # Feature: 采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）
@@ -15,7 +21,7 @@ last_updated: 2026-05-30
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / tech 聚合（docs 重组 B）。
 
 ## 1. 为什么做 (Why)
-- **痛点 / 价值**：用户从打开 App 到存好一道题，步骤越少、耗时越短越好——任何增加录入摩擦的设计都是反模式。家长的真实拍摄场景远比实验室恶劣（夜晚昏暗光线、揉皱的试卷、红蓝黑笔交错、阴影和折痕），对复杂物理环境的鲁棒性是核心技术考量。
+- **痛点 / 价值**：用户从打开 App 到存好一道题，步骤越少、耗时越短越好——任何增加录入摩擦的设计都是反模式。用户的真实拍摄场景远比实验室恶劣（夜晚昏暗光线、揉皱的纸张、红蓝黑笔交错、阴影和折痕），对复杂物理环境的鲁棒性是核心技术考量。
 - **定位**：采集是产品价值链（采集 → 管理 → 导出/打印）的**第一环、最高频场景**。主路径必须是图片（拍照 / 选图 / 扫描），因为 OCR 文字是辅助、图片是真相（含公式、图形、批注）；CSV 等数据导入定位为数据可携带权场景，不与拍照同级展示。
 - **原则归属**：P1 录入体验是生命线（最高优先级）+ P2 简洁（录入路径最短）+ P4 数据属于用户（端上 OCR、不上传、隐私）+ P6 原生优先（Vision / VisionKit）。详见 `../../explanations/vision.md`。
 
@@ -72,28 +78,21 @@ last_updated: 2026-05-30
   - **⚠ 实现现状（GAP-R2，代码债·真 bug）**：当前 `CaptureDraftService` 草稿**图片**用全局路径 `Caches/draft_capture.jpg` + `UserDefaults.standard`，**未按 Profile 隔离**——多 Profile 下草稿图片互相覆盖，或 B Profile 纯文本草稿误载 A Profile 残留图片（跨 Profile 污染）。需求不变（按 Profile 隔离），待 code 债修复（独立 PR 后排）。
 - **NFR**：OCR 识别响应 < 2 秒（印刷体中英文，拍照到文字出现在编辑区）；图片裁剪内存 < 300MB（Mantis 内部管理）；单题存储均值 ~205KB（OCR ~5KB + 压缩图 ~200KB）；草稿恢复为 S0 级数据丢失防护（意外退出后可恢复）；OCR 端上执行、图片不上传云端。
 
-## Provenance（迁移期审计用，全量封板后可删）
-| 本 spec 内容 | 来源（旧文档章节 / UC / ADR） |
-|---|---|
-| Why（生命线 / 物理鲁棒 / 主路径图片 / P1·P2·P4·P6） | vision §产品原则 1 录入体验是生命线 + §产品价值链 + design §OCR 定位 / §图片存储策略 |
-| What（采集入口优先级 / 相册 / 扫描 / PDF / 手动 / 剪贴板 / Share Extension） | requirements §采集方式优先级 + §功能全景·录入 |
-| What（OCR 不阻断保存 / 重试 / 复制） | requirements §OCR 识别能力演进路线 + design §OCR 定位 |
-| What（一图多题 / 连续录入 / 字段沿用） | requirements §一图多题演进路线 + design §连续录入设计 / §一图多题设计原则 |
-| What（草稿恢复规则） | requirements §草稿恢复 + design §草稿恢复设计 |
-| What（探索性不做 / 平台边界） | requirements §OCR / §一图多题（PoC 条目）+ apple-limits §Vision / §Foundation Models / §不存在的 API |
-| What（商业分层 / 不限录入） | business §免费层完整定义（采集行）+ §绝不限制录入数量 + vision P3 |
-| How（模块归属 / 采集入口文件→API） | architecture §采集方式归属 + §模块拓扑 + §SnapDrillCore Capture |
-| How（OCR 数据流 / 压缩副本 / EXIF / 多脚本语言） | design §OCR 定位 / §图片存储策略 + architecture §ImageStorage + NFR §存储 / §隐私与安全 |
-| How（State & Concurrency / DataExecutor / ActivityTracker / 通知刷新） | architecture §DataExecutor #599 / §AppActivityTracker / §reviewDataDidChange |
-| How（Tab 入口裁决 / Share Extension 不污染主导航） | design §信息架构 + §Share Extension 设计 |
-| Verify（success / variants / exceptions / data guarantees） | cases UC1 Create Problem |
-| Verify（边界 B01/B02/B03/B08/B11/B13/B14/B15/B16/B20/B22） | cases Appendix Boundary Cases |
-| Verify（NFR：OCR<2s / 裁剪内存 / 单题存储 / 草稿 S0） | non-functional-requirements §性能 / §内存 / §存储 / §数据完整性 |
-| Verify（旅程实证 30s 录入 / 微信导入 / OCR 失败兜底） | journeys 旅程 0 / 旅程 2 / 旅程 3 / 旅程 9 |
+
+## 意图追溯（永久保留）
+
+| 层 | 上游依据 | 本功能承接 |
+|---|---|---|
+| Vision | `../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P6 Apple 原生优先） | 采集是价值链第一环；主路径图片、OCR 辅助不阻塞保存；端上 OCR 不上传；Apple Vision / VisionKit 原生 |
+| 产品政策 / ADR | `../../decisions/ADR-005-analytics-privacy-strategy.md`（全球零后端行为采集） | 采集不产生任何后端行为上报；图片入库前剥离 EXIF GPS / 位置信息 |
+| 待验证假设 | `../../explanations/assumptions.md` H1（首次能完成采集与保存）/ H2（管理需求成立） | 采集首次达成的成败直接验证 H1 |
+| 验收证据 | §4 验证标准 GWT + AllTests + 真机录入 | 见本 spec Verify 节 |
+
+找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P1 录入体验 / P2 简洁 / P4 隐私 / P6 原生优先）
+- 原则：`../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P6 原生优先）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
-- 用户旅程：`../../explanations/user-journeys.md`（旅程 0 首次录入 / 旅程 2 拍照录错题 / 旅程 3 微信导入 / 旅程 9 OCR 失败修正）
+- 用户旅程：`../../explanations/user-journeys.md`（旅程 1 首次采集 / 旅程 2 长期归档（含导入与一图多题）/ 旅程 3 证书培训资料）
 - 决策：`../../decisions/ADR-005-analytics-privacy-strategy.md`（全球生产零后端行为采集；OCR 端上处理）
 - 被依赖 / 相关：`feat-review.md`（消费采集产出的题目）、`../backlog/feat-smartpaper.md`、`../backlog/feat-advanced-stats.md`

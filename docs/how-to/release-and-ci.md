@@ -290,7 +290,7 @@ PO 离线时，Claude 可以完成分诊、修复、验证和本地 commit，但
 
 ## 多 Profile
 
-- [ ] Profile 创建：可创建新 Profile（如「孩子A」「孩子B」）
+- [ ] Profile 创建：可创建新 Profile（如「资料库 A」「资料库 B」）
 - [ ] Profile 切换：设置页或 Dashboard 头像区域可切换，切换后题库/统计/复习进度完全独立
 - [ ] Profile 数据隔离：不同 Profile 的题目互不可见
 - [ ] Profile 持久化：切换后再切回，原 Profile 数据完整保留

@@ -30,7 +30,7 @@ layer: pattern
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
 | **Profile** | Profile | 独立的用户档案，每个 Profile 拥有独立的题库、复习进度、字段配置和统计数据 | `Profile` struct (Core), `ProfileManager` (Data) |
-| **基线用户** | Baseline User | 不熟悉教育科技产品的家长（假设，待首批用户画像验证）。所有设计决策以此用户能否顺利完成为最低标准 | — |
+| **基线用户** | Baseline User | 不熟悉专业扫描 / 归档工具的成年用户（假设，待首批用户画像验证，见 `../explanations/assumptions.md` H1）。所有设计决策以此用户能否顺利完成为最低标准 | — |
 | **图片是真相** | Image is Truth | 当 OCR 文本与原图冲突时，以原图为准。原图是题目数据的唯一真相源 | `ReviewItemModel.imagePath` (Data) |
 | **.zip 备份** | .zip Backup | App 备份文件格式（ZIP 内含 JSON 数据 + 图片文件） | `BackupService` (Data) |
 

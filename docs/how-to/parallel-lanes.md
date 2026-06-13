@@ -5,15 +5,14 @@
 
 ## 1. 共同真相源
 
-冲突时按以下顺序裁决：
+不同问题使用不同裁决链：
 
-1. PO 最新明确决策
-2. 当前代码、构建结果与运行实证
-3. 根 `README.md`、`AGENTS.md` 与本文
-4. feature spec、ADR、各 lane 的追溯日志
-5. agent 私有记忆、旧计划和 `docs/research/` 历史材料
+- **产品意图**：PO 最新明确意图 > `vision.md` > 产品政策 / ADR > feature spec > 实现。
+- **实现事实**：代码、测试、构建与运行实证 > 自动生成状态 > 当前说明文档 > 私有记忆和历史材料。
 
-私有记忆只是可丢弃缓存。任何会影响其他 lane 的结论必须进入 git-tracked 文档、代码或 commit，不能只留在某个 agent 会话中。
+代码不能覆盖产品意图；它只能证明当前实现。两条链冲突时，由对应 lane 记录偏差，产品语义交 PO，技术实现由 Claude 收口，UI 表现由 Codex 收口。
+
+私有记忆只是可丢弃缓存。任何会影响其他 lane 的结论必须进入 git-tracked SSOT、代码、测试或 commit，不能只留在某个 agent 会话中。
 
 ## 2. Lane 所有权
 
@@ -165,3 +164,13 @@ xcodebuild build-for-testing -scheme AllTests \
 - 需要删除或不可逆迁移用户数据、账号、签名或发布资源
 
 纯工程实现、事实校准、测试补齐、已决策方案的落地由对应 lane 自主完成。
+
+## 9. 分支生命周期
+
+最小分支策略，保证仓库分支与活跃工作一一对应。本节只描述策略，不授权 agent 改 GitHub 设置或删分支。
+
+- **一 lane/任务一活跃分支**：每个 lane 或任务同时只保留一个活跃分支，避免并行分支堆积与漂移。
+- **合并即删**：分支合并进 `develop`/`main` 后删除该分支（其历史已在目标分支与 Git 历史中保全）。
+- **关闭未合并需校验 + 授权**：关闭但未合并的分支，删除前必须确认它已被取代（supersession）或确认其上没有未在别处保全的独有 commit（unique-commit 校验），并取得 PO 明确授权。
+- **不靠过期固定 hash 复活**：永不用私有记忆 / 旧任务清单里的固定旧 commit hash 去 recover 或 rebase；恢复工作前先 `git fetch`、检查 live checkout、查 GitHub 实证。
+- **agent 不直推 develop/main**：agent 一律在独立分支工作，不在 `develop`/`main` 上直接提交；push、PR、merge、删分支均需 PO 明确授权（与 §6 一致）。

@@ -24,7 +24,7 @@ layer: pattern
 - 搜索和过滤
 - 导出（PDF / JSON / CSV）
 - 本地数据存储（隐私优先）
-- 多 Profile（多孩家庭核心场景）
+- 多 Profile（多套独立资料库 / 工作区隔离场景）
 - 草稿恢复（S0 数据丢失防护）
 - 删除撤销（数据安全信任）
 
@@ -52,7 +52,7 @@ layer: pattern
 - iPad 大屏优化
 - 批量导入增强（AI 辅助拆题，探索性）
 - 手写体识别增强（探索性）
-- 角色预设套件（为不同用户类型提供预配置的字段/标签方案，如"小学家长"/"初中生"/"竞赛"）—— **边界**：仅作为设置页的可选模板入口（按一下就改字段开关），**不进入 Onboarding**，不增加首次配置摩擦（vision §1 录入体验 + §2 简洁）
+- 角色预设套件（为不同使用场景提供预配置的字段/标签方案，如"考试备考"/"证书培训"/"竞赛题"）—— **边界**：仅作为设置页的可选模板入口（按一下就改字段开关），**不进入 Onboarding**，不增加首次配置摩擦（vision §1 录入体验 + §2 简洁）
 
 ### Won't Have（明确不做）
 
@@ -128,7 +128,7 @@ layer: pattern
 - iCloud CloudKit 同步（Pro 付费，**付费核心引擎**）：同步范围为全部 Profile（与备份策略对齐），基于 Apple CloudKit，利用设备已有 Apple ID。设计决策见 [../features/backlog/feat-icloud-sync.md](../features/backlog/feat-icloud-sync.md) [阻塞: #485（前置 #479）— 需 CloudKit Container]
 
 **多 Profile**
-- 多 Profile / 多题库隔离（本地切换，参考 Obsidian Vault 切换，覆盖多孩家庭场景）
+- 多 Profile / 多题库隔离（本地切换，参考 Obsidian Vault 切换，覆盖多套独立资料库 / 工作区场景）
 
 **设置与个性化**
 - 用户资料（昵称/座右铭/头像/每日目标，纯本地）

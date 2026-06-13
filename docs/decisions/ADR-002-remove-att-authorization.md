@@ -1,7 +1,9 @@
 ---
 last_verified: 2026-06-13
 layer: decision
-derived_from: [M-002]
+derived_from:
+  - vision.md#p4-用户拥有数据
+  - positioning-and-audience.md
 freshness:
   max_age_days: 365
   decay_trigger: [decision_reverted, downstream_change]

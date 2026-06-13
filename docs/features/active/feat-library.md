@@ -6,6 +6,11 @@ tier: free
 blocked_by: []
 mode: full
 last_updated: 2026-05-30
+intent_refs:
+  - vision:P1
+  - vision:P2
+  - vision:P4
+  - vision:P5
 ---
 
 # Feature: 题库管理 + 分享卡片
@@ -16,8 +21,8 @@ last_updated: 2026-05-30
 
 ## 1. 为什么做 (Why)
 - **痛点 / 价值**：抄题、剪贴、分类、归档枯燥、重复、低效。题目录进来后若不能定位、整理、按需挑出，采集就失去意义——管理是价值链承上启下的一环（采集 → **管理** → 导出/打印）。题库管理让积累的题目可搜、可分类、可编辑、可安全删除，是产品的核心可用性。
-- **定位**：管理与录入并列为主路径，是价值链核心环节而非附加值；任何损害"录入/管理"简洁性的功能都不该做（设计铁律）。分享卡片定位为**家长间一对一交流的样张图片**，不是社交分享——SnapDrill 不是社交产品（不做分享社区 / 跨用户推荐算法 / 行为信号采集 feed）。
-- **原则归属**：P1 录入体验（管理服务于"录入后立即可用"）+ P2 简洁（过滤维度克制、不做回收站 / 多级撤销）+ P4 数据属于用户与数据安全（删除可撤销）+ P5 家长友好（零学习曲线）。详见 `../../explanations/vision.md`。
+- **定位**：管理与录入并列为主路径，是价值链核心环节而非附加值；任何损害"录入/管理"简洁性的功能都不该做（设计铁律）。分享卡片定位为**用户间一对一交流的样张图片**，不是社交分享——SnapDrill 不是社交产品（不做分享社区 / 跨用户推荐算法 / 行为信号采集 feed）。
+- **原则归属**：P1 采集摩擦最低（管理服务于"录入后立即可用"）+ P2 简洁（过滤维度克制、不做回收站 / 多级撤销）+ P4 数据属于用户与数据安全（删除可撤销）+ P5 成人生产力工具（零学习曲线、中性成熟）。详见 `../../explanations/vision.md`。
 
 ## 2. 需求规则 (What)
 - **题库列表与排序**：默认按录入时间倒序（最新录入最可能需编辑补充）；可按录入时间 / 学科 / 难度 / 复习状态切换排序。
@@ -27,10 +32,10 @@ last_updated: 2026-05-30
 - **字段配置系统**：固定字段（题目内容）永不可关；学科默认开启可关；难度 / 来源 / 年级 / 答案默认关闭按需开启；自定义标签始终可用不可关。系统字段（学科 / 来源 / 年级）选项列表可增删改——录入页输入新值无感创建（颜色 / 图标默认随机）、设置页深度管理；重命名级联更新所有引用该选项的题目；**已被题目使用的选项禁止删除**（数据完整性）。
 - **批量操作**：编辑按钮进入选择模式 → 勾选多题 → 批量打标签（追加目标标签、不移除既有标签）/ 批量删除。**只做批量打标签与批量删除**（最高频需求）；批量编辑系统字段场景少、交互复杂，暂不做。
 - **删除 + 撤销**：单题 / 多题删除走软删除 + 底部 Toast 5 秒撤销窗口；超时永久删除；仅支持最近一次删除的单级撤销（新删除覆盖旧撤销上下文）；不做回收站、不做摇一摇撤销、不做确认弹窗。
-- **分享卡片（ShareCard）**：单题生成一张图片，用于家长间一对一样张交流；走系统 ShareSheet 保留路径自由，但 App 内 UI 文案不引导公开传播。
+- **分享卡片（ShareCard）**：单题生成一张图片，用于用户间一对一样张交流；走系统 ShareSheet 保留路径自由，但 App 内 UI 文案不引导公开传播。
 - **边界 / 不做**：不做来源 / 年级过滤；不做回收站 / 多级撤销栈；不做批量编辑系统字段；分享卡片不做社交分享 / 社区 / 推荐算法；不提供题库内容（工具非内容平台）。**PDF / JSON / CSV / `.zip` 导出与打印是同级 / 独立 feature**，本 spec 不展开（见 `feat-export.md`）。
 - **前置依赖**：无。被依赖：复习（`feat-review.md`）、智能组卷（`../backlog/feat-smartpaper.md`）、高级统计（`../backlog/feat-advanced-stats.md`）消费本 feature 的题目 / 分类 / 过滤数据；导出（`feat-export.md`）以题库过滤 / 选中结果集为输入。
-- **商业分层**：搜索 / 学科·标签·难度过滤 / 排序 / 编辑 / 批量打标签 / 批量删除 / 字段配置 / 单题分享卡片 / Multi-Profile = **免费基础能力，不作订阅门槛**（单设备题库完整可管理，多孩家庭可直接使用）。本 feature 无 Pro 项；SM-2 数据驱动的智能组卷 / 高级统计是 Pro（在各自 feature 展开，定价见 `../../explanations/business-model.md`）。
+- **商业分层**：搜索 / 学科·标签·难度过滤 / 排序 / 编辑 / 批量打标签 / 批量删除 / 字段配置 / 单题分享卡片 / Multi-Profile = **免费基础能力，不作订阅门槛**（单设备题库完整可管理，多套独立资料库可直接使用）。本 feature 无 Pro 项；SM-2 数据驱动的智能组卷 / 高级统计是 Pro（在各自 feature 展开，定价见 `../../explanations/business-model.md`）。
 
 ## 3. 技术设计 (How)
 - **模块归属**：`SnapDrillFeatureLibrary`（题库列表 / 搜索 / 过滤 / 详情 `LibraryDetailView` / 编辑 `LibraryEditViewModel` / `LibraryViewModel`）。`@Model` 类型 `ReviewItem` / `Subject` / `Source` / `Grade` / `Tag` 定义在 `SnapDrillData`，经各 Repository（`ReviewRepository` / 分类 `Subject·Source·Grade·TagRepository`）+ `RepositoryContainer` 访问。删除窗口由 `DeletionScheduler`（App 级 Service，`SnapDrillCore`）管理。ShareCard 归 `SnapDrillFeatureLibrary/ShareCardView`。
@@ -63,25 +68,21 @@ last_updated: 2026-05-30
   - 题目始终归属当前 Profile，搜索 / 过滤 / 编辑 / 删除 / 撤销不得跨 Profile 泄露或污染数据。
 - **NFR**：题库列表加载 < 500ms（200 题，Tab 切换到渲染完成）；搜索响应 < 300ms（输入到结果更新）；滚动 60fps（快速滚动无掉帧）；题库浏览内存 < 150MB（200 题，图片按需 + 降采样）。分享走系统分享 sheet（非 Analytics 事件）；无内置 `library_count` 事件（激活深度由 `review_item_created` 累计推导）。
 
-## Provenance（迁移期审计用，全量封板后可删）
-| 本 spec 内容 | 来源（旧文档章节 / UC / ADR） |
-|---|---|
-| Why（管理是价值链核心 / 设计铁律 / 不是社交产品） | vision §使命·价值链 + §不是社交产品 + design §产品价值链铁律 + business §免费层定义 |
-| Why（分享卡片 = 一对一样张非社交） | design §版权合规边界 + vision §不是社交产品 |
-| What（列表 / 排序 / 过滤维度 / 搜索） | requirements §题库排序与过滤 + design §题库信息架构 [P1, P2] |
-| What（编辑 / 字段配置 / 系统字段选项增删改） | requirements §字段配置规格 + design §字段可配置系统 [P1, P2] |
-| What（批量操作 / 删除撤销 / 不做回收站·多级撤销） | requirements §软删除强退收敛 + design §批量操作设计 [P2] + §删除撤销设计 [P4] |
-| What（分享卡片定位 / 系统 ShareSheet 不引导公开传播） | requirements §数据可携带权矩阵·分享卡片 + design §版权合规边界 |
-| What（功能分层 MoSCoW / 免费边界） | requirements §功能边界 MoSCoW + business §免费层完整定义·管理 |
-| How（FeatureLibrary / @Model / Repository / DataExecutor / 通知） | architecture §模块拓扑 + §数据流 + §ShareCard |
-| How（DeletionScheduler 软删除机制） | architecture §Soft Delete + Undo 实现 |
-| How（ImageRenderer / 单一职责 / 降采样 / Per-Profile） | architecture §ShareCard + §Multi-Profile 实现 + NFR §内存 |
-| Verify（success / 边界 / 数据保证） | cases UC2 + UC3 + Boundary B10/B11/B12/B17/B18 |
-| Verify（NFR 性能 / 内存 / 埋点） | NFR §性能 + §内存 + analytics §激活深度·成果分发 |
+
+## 意图追溯（永久保留）
+
+| 层 | 上游依据 | 本功能承接 |
+|---|---|---|
+| Vision | `../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P5 成人生产力工具） | 管理是价值链承上启下环节；过滤维度克制、软删除可撤销、零学习曲线中性成熟 |
+| 产品政策 / ADR | `../../decisions/ADR-001-smart-paper-analytics-pricing.md`（下游 Pro 分层） | 本 feature 无 Pro 项；分享卡片走系统 ShareSheet、不引导公开传播 |
+| 待验证假设 | `../../explanations/assumptions.md` H2（管理能力被真实使用，而非仅当一次性扫描器） | 搜索 / 过滤 / 编辑的使用率验证 H2 |
+| 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
+
+找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P1 录入体验 / P2 简洁 / P4 数据属于用户 / P5 家长友好）
+- 原则：`../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 数据属于用户 / P5 成人生产力工具）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
-- 用户旅程：`../../explanations/user-journeys.md`（旅程 4：整理和管理已有题目，含过滤 / 编辑 / 搜索 / 误删撤销 / 过滤→导出打印）
+- 用户旅程：`../../explanations/user-journeys.md`（旅程 5：搜索 / 过滤 / 编辑，含批量打标签 / 误删撤销 / 过滤→导出打印）
 - 决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（下游 Pro 分层）
 - 相关 / 下游 feature：`feat-export.md`（PDF / 打印 / 数据导出）、`feat-review.md`（消费分类数据）、`../backlog/feat-smartpaper.md`、`../backlog/feat-advanced-stats.md`

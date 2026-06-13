@@ -6,6 +6,9 @@ tier: free
 blocked_by: []
 mode: full
 last_updated: 2026-06-02
+intent_refs:
+  - vision:P2
+  - vision:P5
 ---
 
 # Feature: 首页概览（Dashboard）
@@ -16,7 +19,7 @@ last_updated: 2026-06-02
 > 本文件于 2026-06-02 由 Batch 2 审计补建——Dashboard 代码先行存在而无 owning spec（孤儿代码，KI-03），多个 active spec（review / library / capture）消费其统计口径却无归属定义；本 spec 据 `DashboardView` / `DashboardViewModel` 实证补齐。**仅覆盖免费基础首页**；高级统计（学科趋势/难度分布/薄弱排行，Pro）归 `../backlog/feat-advanced-stats.md`。
 
 ## 1. 为什么做 (Why) — 纯 why，不混实现/UI 细节
-- **痛点 / 价值**：家长打开 App 需要一眼看到「孩子练习题攒了多少、今天有没有要复习的、今天新录了几道」，把分散的题库/复习状态收敛成一个概览入口，降低导航成本。首页是「看数据 → 出卷子/复习 → 看进步」闭环的起点与回归点。
+- **痛点 / 价值**：用户打开 App 需要一眼看到「题目 / 文档攒了多少、今天有没有要复习的、今天新录了几条」，把分散的题库/复习状态收敛成一个概览入口，降低导航成本。首页是「看数据 → 出卷子/复习 → 看进步」闭环的起点与回归点。
 - **定位与原则归属**：首页是核心价值链（采集 > 管理 > 导出/打印）的**导航与状态聚合层**，本身不承载业务写操作；对应 `../../explanations/vision.md` 导航极简原则（P2）——首页只做概览 + 跳转，不堆砌功能。复习是独立附加值，首页给其显著入口但不喧宾夺主。
 
 ## 2. 需求规则 (What) — 用户可感知的规则与边界
@@ -48,11 +51,17 @@ last_updated: 2026-06-02
 - **数据保证**：首页为**只读聚合**，不产生 / 修改任何题目或复习记录；统计口径与被消费 feature（review / library）一致，不在首页层制造口径分裂；仅展示当前 Profile 数据，Profile 切换后重新加载。
 - **NFR**：首页加载与刷新不阻塞主线程；`reviewDataDidChange` 刷新去抖避免高频抖动；无额外埋点要求（高级统计埋点归 Pro spec）。
 
-## Provenance（迁移期审计用，全量封板后可删）
-| 本 spec 内容 | 来源 |
-|---|---|
-| 全文 | Batch 2 审计（KI-03）据 `DashboardView` / `DashboardViewModel` 代码实证补建（孤儿代码补 owning spec）；口径引用 `feat-review` / `feat-library` / `feat-capture` |
-| 高级统计边界 | `../backlog/feat-advanced-stats.md`（Pro，阻塞 #479） |
+
+## 意图追溯（永久保留）
+
+| 层 | 上游依据 | 本功能承接 |
+|---|---|---|
+| Vision | `../../explanations/vision.md`（P2 简洁 / P5 成人生产力工具） | 首页只做状态概览 + 跳转、不堆功能；数字只显示中性事实、不贩卖焦虑 |
+| 产品政策 / ADR | 无（高级统计 Pro 见 `../backlog/feat-advanced-stats.md` / `../../decisions/ADR-001-smart-paper-analytics-pricing.md`） | 首页仅以 Pro 门控 teaser 呈现高级统计入口 |
+| 待验证假设 | 无（只读聚合，不独立验证假设） | — |
+| 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
+
+找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
 - 原则：`../../explanations/vision.md`（导航极简 / 核心价值链）
