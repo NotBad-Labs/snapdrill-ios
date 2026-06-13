@@ -243,10 +243,9 @@ public final class ReviewRepository {
 
     /// 按筛选条件分页获取 ReviewItemModel
     ///
-    /// - 无 tag 过滤：使用数据库级分页（高效路径）
-    /// - 有 tag 过滤：全量加载 search+subject 匹配项后内存过滤 tag，再按 offset/limit 切片。
-    ///   SwiftData #Predicate 不支持 many-to-many 关联查询，必须内存端处理；
-    ///   使用数据库 fetchLimit + 内存 tag 过滤会导致分页数量不可控，用户"找不到"已有题目。
+    /// - 无维度值过滤：使用数据库级分页（高效路径）
+    /// - 有维度值过滤：先从选中维度值的 inverse `items` 缩小候选题集合，再内存校验维度语义并分页。
+    ///   SwiftData #Predicate 不支持 many-to-many 关联查询；直接用 fetchLimit + 内存过滤会导致分页数量不可控。
     public func fetchFilteredModels(
         searchText: String,
         valueIdsByDimension: [UUID: Set<UUID>],
@@ -275,11 +274,25 @@ public final class ReviewRepository {
             return try modelContext.fetch(descriptor)
         }
 
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
-        var matching = try modelContext.fetch(descriptor)
+        var matching: [ReviewItemModel]
+        if valueIdsByDimension.isEmpty {
+            let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
+            matching = try modelContext.fetch(descriptor)
+        } else {
+            // 维度过滤走候选集路径：先从选中维度值的 inverse `items` 取候选题 ID，
+            // 再只对候选题做搜索 / 难度 / 关系排序。避免常见“点学科 chip”
+            // 触发全量 ReviewItemModel fetch 后再内存过滤。
+            let candidates = try fetchCandidateModels(
+                valueIdsByDimension: valueIdsByDimension,
+                sortDescriptors: sortDescriptors
+            )
+            matching = candidates.filter {
+                matchesSearchAndDifficulty($0, normalizedSearch: normalizedSearch, difficulties: difficulties)
+            }
+        }
 
         // 维度间 AND、维度内 OR：每个被选中的维度，题目至少命中其一个选中值
-        if !valueIdsByDimension.isEmpty {
+        if !valueIdsByDimension.isEmpty && matching.isEmpty == false {
             matching = matching.filter { item in
                 let itemValueIds = Set((item.categoryValues ?? []).map { $0.id })
                 return valueIdsByDimension.values.allSatisfy { wanted in
@@ -335,6 +348,53 @@ public final class ReviewRepository {
         var descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
         descriptor.fetchLimit = 1 // P0 优化：确保只取一条，防止全表扫描
         return try modelContext.fetch(descriptor).first
+    }
+
+    private func fetchCandidateModels(
+        valueIdsByDimension: [UUID: Set<UUID>],
+        sortDescriptors: [SortDescriptor<ReviewItemModel>]
+    ) throws -> [ReviewItemModel] {
+        var candidateIDs: Set<UUID>?
+        for wantedValueIDs in valueIdsByDimension.values {
+            guard !wantedValueIDs.isEmpty else { return [] }
+            let values = try fetchCategoryValues(by: wantedValueIDs)
+            let itemIDs = Set(values.flatMap { ($0.items ?? []).map(\.id) })
+            candidateIDs = candidateIDs.map { $0.intersection(itemIDs) } ?? itemIDs
+            if candidateIDs?.isEmpty == true { return [] }
+        }
+
+        guard let ids = candidateIDs, !ids.isEmpty else { return [] }
+        return try fetchModelsByIDs(ids, sortDescriptors: sortDescriptors)
+    }
+
+    private func fetchCategoryValues(by ids: Set<UUID>) throws -> [CategoryValueModel] {
+        let targetIds = Array(ids)
+        let predicate = #Predicate<CategoryValueModel> { value in
+            targetIds.contains(value.id)
+        }
+        let descriptor = FetchDescriptor<CategoryValueModel>(predicate: predicate)
+        return try modelContext.fetch(descriptor)
+    }
+
+    private func fetchModelsByIDs(
+        _ ids: Set<UUID>,
+        sortDescriptors: [SortDescriptor<ReviewItemModel>]
+    ) throws -> [ReviewItemModel] {
+        let targetIds = Array(ids)
+        let predicate = #Predicate<ReviewItemModel> { item in
+            targetIds.contains(item.id)
+        }
+        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
+        return try modelContext.fetch(descriptor)
+    }
+
+    private func matchesSearchAndDifficulty(
+        _ item: ReviewItemModel,
+        normalizedSearch: String,
+        difficulties: Set<Int>
+    ) -> Bool {
+        (normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true) &&
+        (difficulties.isEmpty || difficulties.contains(item.difficulty))
     }
 
 }
