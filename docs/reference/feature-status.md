@@ -12,7 +12,7 @@
 | [PDF 导出与打印](../features/active/feat-export.md) | ✅ 已实现 | 免费 | — | full | 2026-05-30 |
 | [题库管理 + 分享卡片](../features/active/feat-library.md) | ✅ 已实现 | 免费 | — | full | 2026-05-30 |
 | [Onboarding 新手引导](../features/active/feat-onboarding.md) | ✅ 已实现 | 免费 | — | full | 2026-05-30 |
-| [Multi-Profile Vault（多孩子档案）](../features/active/feat-profile.md) | ✅ 已实现 | 免费 | — | full | 2026-05-30 |
+| [Multi-Profile Vault（独立资料库）](../features/active/feat-profile.md) | ✅ 已实现 | 免费 | — | full | 2026-05-30 |
 | [复习（SM-2 间隔重复）](../features/active/feat-review.md) | ✅ 已实现 | 免费 | — | full | 2026-05-30 |
 | [设置与个性化](../features/active/feat-settings.md) | ✅ 已实现 | 免费 | — | full | 2026-06-13 |
 | [高级统计（Pro）](../features/backlog/feat-advanced-stats.md) | ⛔ 阻塞 | Pro | #479 | lightweight | 2026-05-30 |

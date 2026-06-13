@@ -1,7 +1,9 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-06-13
 layer: decision
-derived_from: [M-002]
+derived_from:
+  - vision.md#p3-免费层完成核心闭环
+  - business-model.md
 freshness:
   max_age_days: 365
   decay_trigger: [decision_reverted, downstream_change]
@@ -59,7 +61,7 @@ Claude/Codex/Gemini 三方独立横向研究，竞品覆盖 Anki、Quizlet、Goo
 
 ### Codex 独有洞察
 
-提出联动策略：Analytics → Smart Paper → Print → Review。高级统计让家长看到薄弱点，一键生成针对性练习卷，两个 Pro 功能转化力叠加。
+提出联动策略：Analytics → Smart Paper → Print → Review。高级统计让用户看到薄弱点，一键生成针对性练习卷，两个 Pro 功能转化力叠加。
 
 ## 决策
 

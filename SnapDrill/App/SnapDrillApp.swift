@@ -26,8 +26,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        // 访问单例即可触发 DependencyContainer 组合根初始化
-        // （国内版注入 NoOpAnalyticsService、不调用 FirebaseApp.configure，ADR-004）
+        // 访问单例即可触发 DependencyContainer 组合根初始化。
+        // 当前全球生产基线注入 NoOpAnalyticsService，不包含 Firebase SDK。
         _ = DependencyContainer.shared
         return true
     }

@@ -4,15 +4,17 @@ layer: pattern
 freshness:
   max_age_days: 180
   decay_trigger: [privacy_policy_change, app_review_change]
-audit_note: 2026-05-19 验证 — 本文件已 skill 化为指针；权威执行在 privacy-manifests skill + app-store-rejection skill
+audit_note: 2026-06-13 校准 — 本文件为仓库内合规口径索引；不再引用私有 agent skill 名称作为权威来源
 ---
 # 隐私合规
 
-> 本文件为合规口径索引，**不是权威实现**：
+> 本文件为合规口径索引，**不是权威实现**。
 >
-> - 隐私清单（PrivacyInfo.xcprivacy）实现详见 `privacy-manifests` skill
-> - App Review 拒审处理详见 `app-store-rejection` skill
-> - ATT 移除决策详见 `../decisions/ADR-002-remove-att-authorization.md`
+> - 隐私清单实现以 `../../SnapDrill/PrivacyInfo.xcprivacy` 与
+>   `../how-to/release-and-ci.md` 的发布检查清单为准。
+> - App Review 拒审处理需要基于当前拒审原文、live code、App Store Connect
+>   配置与 PO 决策重新校准，不依赖私有 agent skill 名称。
+> - ATT 移除决策详见 `../decisions/ADR-002-remove-att-authorization.md`。
 
 ## 核心口径
 

@@ -6,6 +6,11 @@ tier: free
 blocked_by: []
 mode: full
 last_updated: 2026-06-13
+intent_refs:
+  - vision:P2
+  - vision:P4
+  - vision:P5
+  - ADR-005
 ---
 
 # Feature: 设置与个性化
@@ -15,10 +20,10 @@ last_updated: 2026-06-13
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / 技术文档聚合（docs 重组 B）。
 
 ## 1. 为什么做 (Why)
-- **痛点 / 价值**：家长不需要理解 App 内部概念。设置服务于个性化，不服务于复杂度——昵称/头像/座右铭/每日目标让用户感受到"这是我的工具"，增强归属感。
+- **痛点 / 价值**：用户不需要理解 App 内部概念。设置服务于个性化，不服务于复杂度——昵称/头像/座右铭/每日目标让用户感受到"这是我的工具"，增强归属感。
 - **选择权交给用户**：默认不推送通知，但提供完整的提醒设置——有人需要提醒，有人不需要，产品不替用户做决定。
-- **海外华人场景**：App 内语言直选（不依赖系统设置）是海外华人家长的核心需求——系统语言英文、练习内容中文时仍能用中文界面。
-- **原则归属**：P5 家长友好（零学习曲线、不贩卖焦虑）+ P2 简洁（设置克制，不堆复杂度）+ P4 零注册（个性化资料纯本地、不外传）。详见 `../../explanations/vision.md`。
+- **海外华人场景**：App 内语言直选（不依赖系统设置）是海外华人用户的核心需求——系统语言英文、内容主要为中文时仍能用中文界面。
+- **原则归属**：P5 成人生产力工具（零学习曲线、不贩卖焦虑、中性成熟）+ P2 简洁（设置克制，不堆复杂度）+ P4 用户拥有数据·零注册（个性化资料纯本地、不外传）。详见 `../../explanations/vision.md`。
 
 ## 2. 需求规则 (What)
 - **用户资料（纯本地，不上传）**：昵称（Dashboard 问候语）、座右铭、头像（预设组或相册自定义）、每日复习目标（用户自定，无硬性范围）。与 PV-4「不收集可识别个人信息」一致，是本地个性化定制而非注册信息。
@@ -46,30 +51,30 @@ last_updated: 2026-06-13
 ## 4. 验证标准 (Verify)
 - **Success path (GWT)**：
   - **个性化**：Given 用户在设置页，When 修改昵称/头像/每日目标，Then 资料纯本地保存、Dashboard 问候语随之更新，不发生任何外传。
-  - **语言切换（旅程 7）**：Given 系统语言为英文，When 用户在设置中切换到中文界面，Then App 界面立即变中文且不依赖系统语言设置。
+  - **语言切换（贯穿各成人旅程）**：Given 系统语言为英文，When 用户在设置中切换到中文界面，Then App 界面立即变中文且不依赖系统语言设置。
   - **通知开启**：Given 用户首次开启每日复习提醒开关，When 系统弹出通知授权且用户允许，Then 按所选时间/声音调度本地通知（无角标）。
 - **边界 / 异常**：
   - 通知权限被系统拒绝后再次开启提醒开关（B21）→ 提示权限已被拒绝并引导跳转系统设置；不发送本地通知。
   - 媒体缓存清理（B23）→ 只清 `Caches/` 临时文件，绝不删除题目原图、备份文件或 SwiftData 数据（S0）。
 - **数据保证**：用户资料/偏好纯本地存储、不外传（与 PV-4 / P4 一致）；缓存清理对题目数据零影响（任何缓存清理不得导致题目原图、备份、SwiftData 数据丢失）；per-Profile 偏好仅作用于当前 Profile，切换时正确 save/load 互不污染。
 - **NFR**：VoiceOver 全模块覆盖（含 Settings）所有常见任务可完成；复习卡片自定义字号为 App 独立设置（非 Dynamic Type），范围按代码实现；全球生产环境不含 Firebase 或其他第三方分析/崩溃 SDK，逐事件调用由 NoOp 服务丢弃（ADR-005）。
+  - **⚠ 当前文案偏差（发布前必须处理）**：中英文 `Localizable.strings` 的数据收集、崩溃报告与隐私政策仍声称会自动收集或发送崩溃日志、设备类型和系统版本，与生产 `NoOpAnalyticsService` + 端侧 MetricKit 事实不一致。不得沿用旧文案发布；最终措辞须与发布构建、Privacy Manifest、App Store Privacy 标签及律师审查一致。
 
-## Provenance（迁移期审计用，全量封板后可删）
-| 本 spec 内容 | 来源（旧文档章节 / UC / ADR） |
-|---|---|
-| Why（个性化理念 / 选择权 / 海外华人 / P5·P2·P4） | design §设置与个性化设计概要 + requirements §通知细节 + vision 原则 P2/P4/P5 + journeys 旅程 7 |
-| What · 用户资料 | requirements §设置与个性化·用户资料 + design §设置个性化设计 |
-| What · 复习卡片外观 | requirements §复习卡片外观 + non-functional-requirements §复习卡片自定义字号 |
-| What · 通知设置 | requirements §通知细节 + design §设置个性化（通知权限延迟请求） |
-| What · 外观/语言/缓存/使用数据开关 | requirements §外观 / §语言设置 / §存储维护 / §使用数据 + non-functional-requirements §兼容性·无障碍 |
-| What · 其他入口（隐私设置/帮助/关于/合规） | requirements §引导与帮助·帮助中心 + §功能全景·隐私与合规 + §设置与个性化 |
-| 商业分层 | business §免费层完整定义 |
-| How（模块/机制/State&Concurrency/裁决） | architecture §SnapDrillFeatureSettings + §Multi-Profile 实现 + §Environment 注入点 + design §外观三选项 |
-| Verify（success / 边界 / 数据保证 / NFR） | cases UC 权限相关 + Boundary B21 / B23 + non-functional-requirements §无障碍 + journeys 旅程 7 + ADR-004 |
+
+## 意图追溯（永久保留）
+
+| 层 | 上游依据 | 本功能承接 |
+|---|---|---|
+| Vision | `../../explanations/vision.md`（P2 简洁 / P4 用户拥有数据·零注册 / P5 成人生产力工具） | 设置服务个性化不服务复杂度；资料纯本地不外传；中性成熟 |
+| 产品政策 / ADR | `../../decisions/ADR-005-analytics-privacy-strategy.md`（全球零后端行为采集，遥测开关本地化、生产 NoOp） | 匿名遥测开关不发送逐事件行为；端侧 MetricKit 独立于该开关 |
+| 待验证假设 | 无（承载容器层，所托管功能各自验证假设） | — |
+| 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
+
+找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P2 简洁 / P4 零注册 / P5 家长友好）
+- 原则：`../../explanations/vision.md`（P2 简洁 / P4 用户拥有数据·零注册 / P5 成人生产力工具）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
-- 用户旅程：`../../explanations/user-journeys.md`（旅程 7：海外华人双语整理 / 旅程 10：免费用户换机恢复）
+- 用户旅程：`../../explanations/user-journeys.md`（旅程 7：备份 / 恢复；App 内语言切换贯穿各成人旅程）
 - 决策：`../../decisions/ADR-005-analytics-privacy-strategy.md`（全球生产零后端行为采集）
 - 相关 / 承载入口 feature：`feat-export.md`（JSON/CSV 导出）、`feat-backup.md`（备份/恢复）、`feat-profile.md`（Profile 管理）、`feat-library.md`（字段管理器）、`feat-review.md`（复习卡片外观字段口径）

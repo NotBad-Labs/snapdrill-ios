@@ -33,7 +33,7 @@ final class DependencyContainer {
     // MARK: - Initialization
 
     private init() {
-        // UI 测试模式：跳过 Firebase，使用 in-memory 存储
+        // UI 测试模式：使用 mock services 与 in-memory 存储。
         if Self.isUITesting {
             self.services = MockServiceContainer()
             self.router = AppRouter()
@@ -42,14 +42,12 @@ final class DependencyContainer {
             return
         }
 
-        // 1. 分析服务：国内版 Firebase-Free（ADR-004）
-        //    不调用 FirebaseApp.configure()，根除 opt-in 前 Crashlytics settings 拉取造成的跨境出境；
-        //    注入生产级空实现 NoOpAnalyticsService。Firebase 编译层彻底剔除待 C 路径（Release-CN 配置）。
+        // 1. 分析服务：全球生产基线为零后端行为采集。
+        //    Firebase SDK 已删除；生产注入无网络副作用的 NoOpAnalyticsService。
         let analyticsService = NoOpAnalyticsService()
 
         // 2. 初始化核心服务容器（注入分析实现）
-        // Remote Config 已移除：八方合规审计一致认定启动即 fetchAndActivate()
-        // 违反"用户未 opt-in 时零数据外传"承诺（FID 传输给 Google）
+        // Remote Config 已随 Firebase 基础设施删除。
         let liveServices = LiveServiceContainer(
             analytics: analyticsService
         )

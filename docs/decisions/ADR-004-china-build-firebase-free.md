@@ -7,9 +7,9 @@ freshness:
 ---
 # ADR-004: 国内版 Firebase-Free（中国大陆 build 不含 Firebase）
 
-> 状态：**已决策** | 日期：2026-05-28 | 决策者：PO | 关联：[[ADR-003]]
+> 状态：**已被 [[ADR-005]] 取代（保留为决策史，勿据此恢复 Firebase）** | 原决策日期：2026-05-28 | 决策者：PO | 关联：[[ADR-003]]（挂起的区域路线）
 >
-> **2026-06-11 状态说明**：本 ADR 的“中国 build 分流”是挂起路线的历史决策。#803 已从整个项目删除 `SnapDrillInfrastructure` 与 Firebase SDK，全球生产基线同样 Firebase-free；下文关于“海外版保留 Firebase”“编译层待剔除”已失效，仅保留决策演进记录。当前策略见 ADR-005 与根 `README.md`。
+> **2026-06-11 状态说明（取代记录）**：本 ADR 的“中国 build 分流”是挂起路线的历史决策，**已被 [[ADR-005]] 取代**——后者把“Firebase-free / 端侧或不做分析”从国内 build 推广到全球生产基线。#803 已从整个项目删除 `SnapDrillInfrastructure` 与 Firebase SDK，全球生产基线同样 Firebase-free。**下文关于“海外版保留 Firebase”“编译层待剔除”均为已失效的历史表述，不是当前架构**，仅保留决策演进记录。当前现行策略见 [[ADR-005]] 与根 `README.md`。
 
 ## 背景
 
@@ -35,13 +35,15 @@ app 当前**捆绑** Firebase（Analytics + Crashlytics，隔离在 `SnapDrillIn
 
 ### 理由
 
-- **PIPL 合规叙事 airtight**：Firebase 根本不在国内 build = FID 跨境问题不存在 = 无需单独同意/PIPIA/境外接收方告知（详见律师简报 `~/Desktop/snapdrill-data-compliance-briefing-v2.md`）
+- **PIPL 合规叙事 airtight**：Firebase 根本不在国内 build = FID 跨境问题不存在 = 无需单独同意/PIPIA/境外接收方告知（该结论为 2026-05-28 历史决策输入，当前不作为现行全球版法律结论）
 - 个人主体做跨境数据传输位置弱；国内主体未定前，最干净是无跨境
 - 四方独立复核 + PO 直觉一致指向方案 A
 
 ### 海外版（未来，美国 LLC）
 
-**保留 Firebase**，受 GDPR/CCPA 管辖，opt-in 披露。即 [[ADR-003]] 的区域差异。
+> ⚠️ **已失效的历史表述（被 [[ADR-005]] 取代）**：本节当时设想海外版**保留 Firebase**。该设想已不成立——全球生产基线（美国 NotBad Labs / `com.snapdrill.global`）同样 Firebase-free，注入 `NoOpAnalyticsService`（见 [[ADR-005]]）。保留本段仅为记录决策演进，**不得据此恢复 Firebase**。
+
+~~**保留 Firebase**，受 GDPR/CCPA 管辖，opt-in 披露。即 [[ADR-003]] 的区域差异。~~
 
 ## 实现
 
@@ -51,7 +53,7 @@ app 当前**捆绑** Firebase（Analytics + Crashlytics，隔离在 `SnapDrillIn
 - Firebase 仅在 `SnapDrillInfrastructure`：`FirebaseBootstrap.swift` + `FirebaseAnalyticsService.swift`
 - App 层装配点集中在 `DependencyContainer.swift`（私有 init）：现注入 `NoOpAnalyticsService()`、不调 `FirebaseApp.configure()`；`FirebaseBootstrap.configure()` / `FirebaseAnalyticsService()` / `syncTelemetryGate` 已归档至 `SnapDrillInfrastructure`（`FirebaseBootstrap.swift` / `FirebaseAnalyticsService.swift`），App 层不再引用
 
-### 两级实现（执行 prompt 见 `~/Desktop/snapdrill-firebase-removal-prompt.md`）
+### 两级实现（历史执行方案）
 
 1. **运行时止血（interim，半天）**：新增 `NoOpAnalyticsService`（Core，生产级空实现）；`DependencyContainer` 改用 NoOp + 不调 `FirebaseBootstrap.configure()`；移除 `GoogleService-Info.plist`。SDK 仍链接但永不初始化。
 2. **编译层 airtight（baseline，随 C 路径）**：国内 build target 不链接 Firebase SDK（条件化 SPM 依赖 / Release-CN 配置），`FirebaseBootstrap`/`FirebaseAnalyticsService` 归档到仅海外 build 编译。

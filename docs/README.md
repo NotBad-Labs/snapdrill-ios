@@ -3,7 +3,7 @@
 > 采用 **feature-spec 一元化 + Diátaxis 分层**（docs 重组 B，2026-05-30）。
 > 单个功能的 Why / What / How / Verify 高内聚在一个 feature spec；跨功能的解释/参考/操作按 Diátaxis 分层。
 >
-> **当前事实入口**：先读根 `README.md` 的“当前状态”与根 `AGENTS.md`。冲突时遵循 `PO 最新决策 > 当前代码/构建实证 > 当前入口文档 > feature spec/ADR > 私有记忆/历史研究`。`research/` 与旧审计保留 provenance，不是当前状态源。
+> **认知入口**：产品意图从 `explanations/vision.md` 向下派生；实现状态由代码、测试、构建与发布实证确认。PO 最新明确意图高于所有文档。代码与意图冲突时，视为待修复偏差，不能让代码反向改写产品目标。
 
 ## 结构
 
@@ -13,18 +13,32 @@
   - `features/template.md` — 新建 feature spec 模板
 - **`explanations/`** — 为什么（vision 愿景 / design-principles 设计原则 / business-model 商业模式 / architecture 架构 / assumptions 待验证假设 / competitive-analysis 竞品 / user-journeys 用户旅程 / privacy-compliance 隐私合规）
 - **`reference/`** — 查阅（feature-status 功能状态 SSOT / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO）
-- **`how-to/`** — 操作指南（**shape-up 我们怎么工作·Shape Up 单人版** / release-and-ci 发布与 CI）
-- **`pitches/`** — Shape Up pitch（每个周期的赌注，5 段：Problem/Appetite/Solution/Rabbit holes/No-gos）
-- **`decisions/`** — 架构决策记录（ADR-001~005）
+- **`how-to/`** — 操作指南（**shape-up 我们怎么工作·Shape Up 单人版** / parallel-lanes 协作边界与分支生命周期 / release-and-ci 发布与 CI）
+- **`decisions/`** — 架构决策记录（ADR-001~005；ADR-003 为已挂起的历史区域路线，ADR-004 已被 ADR-005 取代）
+
+## 意图可追溯
+
+SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一谈：
+
+```text
+规范链：PO 最新明确意图 → Vision → 产品政策 / ADR → Feature Spec → 验收标准
+实证链：代码 → 测试 / 构建 / 真机 / 发布证据 → 实现状态文档
+```
+
+- `vision.md` 是仓库内产品意图的最高层，但不是 PO 的上级；它是 PO 当前意图的持久化表达。
+- 下游文档必须指出其上游依据。找不到上游依据的需求是孤儿需求，不应直接实现。
+- 每个 feature spec 在 frontmatter 用 `intent_refs` 字段 + 「意图追溯」节显式声明承接的上游 Vision 原则 / 产品政策 / ADR，便于检索与人工核对；当前尚无自动语义校验，不得把字段存在误认为追溯已经成立。
+- 代码与测试证明“现在是什么”；Vision、ADR 与 spec 约束“应该是什么”。不一致时必须显式记录偏差。
+- 私有记忆、历史研究、旧 pitch 和关闭任务不参与当前裁决；需要历史证据（含已删除的 research/ 与历史 pitch）时使用 Git 历史或 GitHub 记录。
 
 ## 关键入口
 
 | 我想… | 去 |
 |---|---|
-| **看当前生产基线 / 产品定位 / 已落地架构事实** | 根 `README.md` + 根 `AGENTS.md` |
+| **看产品为什么存在、长期坚持什么** | `explanations/vision.md` |
+| **看当前生产基线 / 已落地架构事实** | 根 `README.md` + 根 `AGENTS.md` + 当前代码/构建实证 |
 | **看三路 agent 的文件边界与交接方式** | `how-to/parallel-lanes.md` |
-| **怎么工作 / 决定下一步做什么** | **`how-to/shape-up.md`**（Shape Up 单人版：shaping→betting→building→cool-down + 当前赌注 + Parked）|
-| 看当前周期在赌什么 | `pitches/`（最新 pitch = 当前 cycle 的 bet）|
+| **怎么工作 / 决定下一步做什么** | **`how-to/shape-up.md`**（Shape Up 单人版：shaping→betting→building→cool-down；当前赌注由 PO 明确接受的 live GitHub issue/PR 或具名范围文档决定，不靠"最新文件名胜出"）|
 | 看某功能完整规格 | `features/active\|backlog/feat-*.md` |
 | 查所有功能当前状态 | `reference/feature-status.md`（自动生成，**勿手改**）|
 | 理解产品为什么这么做 | `explanations/vision.md` + `explanations/design-principles.md` |
