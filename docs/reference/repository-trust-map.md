@@ -42,6 +42,21 @@ Before trusting a script or tool as a gate:
 4. Confirm failure is fail-closed for the relevant workflow.
 5. Confirm CI or local hooks really call the same path/configuration.
 
+Current checked gates:
+
+- `swiftlint --strict` is a real CI gate when invoked by
+  `.github/workflows/ci.yml`; the installed binary and rule behavior still need
+  a current version check and a negative probe before using it as broad proof.
+- `Scripts/pre-commit` is a local convenience gate, not a server-side guarantee.
+  It must fail closed when SwiftLint, Python, generated feature status, or docs
+  health checks fail.
+- `Scripts/ci-local.sh` is expected to mirror the CI shape: SwiftLint, generated
+  feature status check, docs health check, `AllTests` build-for-testing, then
+  `test-without-building` with the `CI` test-plan configuration.
+- A green gate proves only its covered scope. It does not prove product intent,
+  untested workflows, App Store metadata, private memories, or stale historical
+  documents.
+
 ## Current High-Risk Drift Patterns
 
 The following phrases or concepts are recurring red flags and require fresh

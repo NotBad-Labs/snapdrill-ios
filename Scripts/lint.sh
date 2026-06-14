@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Check if SwiftLint is installed
-if which swiftlint >/dev/null; then
-  swiftlint --strict
-else
-  echo "warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint"
+set -euo pipefail
+
+if ! command -v swiftlint >/dev/null; then
+  echo "error: SwiftLint not installed. Install it with: brew install swiftlint" >&2
+  exit 1
 fi
+
+swiftlint --strict

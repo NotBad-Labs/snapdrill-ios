@@ -7,9 +7,9 @@
 | 脚本 | 用途 |
 |---|---|
 | `lint.sh` | 调用 SwiftLint 进行代码风格检查 |
-| `ci-local.sh` | 本地模拟 CI 流程（lint + build + test） |
-| `setup.sh` | 新开发者入职的一键环境配置（待完善） |
-| `pre-commit` | Git pre-commit hook（提交前自动检查） |
+| `ci-local.sh` | 本地模拟 CI 流程（SwiftLint + 文档门禁 + `AllTests` build-for-testing + CI 配置测试） |
+| `setup.sh` | 新开发者入职的一键环境配置（安装工具并同步本地 Git hook） |
+| `pre-commit` | Git pre-commit hook（提交前 fail-closed 检查） |
 | `generate_feature_status.py` | 由各 feature spec frontmatter 生成 `docs/reference/feature-status.md`（功能状态 SSOT；产物勿手改，pre-commit 校验） |
 | `validate_docs.py` | 检查高风险文档漂移：历史 ADR 状态、过时 Firebase 路线陈述、feature spec 意图追溯 |
 | `check_headers.py` | 检查 Swift 文件头部版权声明是否规范（手动工具，无 CI 调用） |
