@@ -11,6 +11,7 @@ B 方案（状态自动单写）：各 feature spec 的 frontmatter 是功能状
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -31,6 +32,8 @@ TIER_LABEL = {"free": "免费", "pro": "Pro"}
 STATUS_ORDER = {"implemented": 0, "in-progress": 1, "blocked": 2, "poc-needed": 3, "backlog": 4}
 
 REQUIRED = ("id", "title", "status", "tier", "mode", "last_updated")
+MODE_LABEL = {"full": "full", "lightweight": "lightweight"}
+DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 def parse_frontmatter(path: Path) -> dict | None:
@@ -57,6 +60,21 @@ def collect() -> list[dict]:
         missing = [k for k in REQUIRED if k not in fm]
         if missing:
             print(f"[error] {path.relative_to(REPO_ROOT)} frontmatter 缺字段：{missing}", file=sys.stderr)
+            sys.exit(1)
+        if fm["status"] not in STATUS_LABEL:
+            print(f"[error] {path.relative_to(REPO_ROOT)} status 无效：{fm['status']}", file=sys.stderr)
+            sys.exit(1)
+        if fm["tier"] not in TIER_LABEL:
+            print(f"[error] {path.relative_to(REPO_ROOT)} tier 无效：{fm['tier']}", file=sys.stderr)
+            sys.exit(1)
+        if fm["mode"] not in MODE_LABEL:
+            print(f"[error] {path.relative_to(REPO_ROOT)} mode 无效：{fm['mode']}", file=sys.stderr)
+            sys.exit(1)
+        if not DATE_PATTERN.match(str(fm["last_updated"])):
+            print(f"[error] {path.relative_to(REPO_ROOT)} last_updated 必须为 YYYY-MM-DD", file=sys.stderr)
+            sys.exit(1)
+        if not isinstance(fm.get("blocked_by", []), list):
+            print(f"[error] {path.relative_to(REPO_ROOT)} blocked_by 必须为列表", file=sys.stderr)
             sys.exit(1)
         if fm["status"] == "blocked" and not fm.get("blocked_by"):
             print(f"[error] {path.relative_to(REPO_ROOT)} status=blocked 但 blocked_by 为空", file=sys.stderr)
