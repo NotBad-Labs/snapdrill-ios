@@ -183,6 +183,8 @@ def validate_feature_intent(errors: list[str]) -> None:
                     errors.append(f"{rel(path)}: intent_refs anchor not found in {rel(target)}: {ref}")
         if "## 意图追溯" not in text:
             errors.append(f"{rel(path)}: missing section '## 意图追溯'")
+        if "| 验收证据 |" not in text:
+            errors.append(f"{rel(path)}: missing intent traceability row '验收证据'")
 
 
 def run_checks() -> list[str]:

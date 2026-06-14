@@ -67,6 +67,30 @@ class ValidateDocsTests(unittest.TestCase):
         self.assertEqual(anchor, "not-real-anchor")
         self.assertFalse(validate_docs.ref_target_exists(target, anchor))
 
+    def test_feature_specs_require_acceptance_evidence_row(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        original_docs_root = validate_docs.DOCS_ROOT
+
+        def fake_read(path: Path) -> str:
+            if path == original_docs_root / "features" / "active" / "feat-library.md":
+                return original_read(path).replace(
+                    "| 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |\n",
+                    "",
+                )
+            return original_read(path)
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_feature_intent(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/features/active/feat-library.md: missing intent traceability row '验收证据'",
+            errors,
+        )
+
     def test_current_repo_docs_pass(self) -> None:
         self.assertEqual(validate_docs.run_checks(), [])
 
