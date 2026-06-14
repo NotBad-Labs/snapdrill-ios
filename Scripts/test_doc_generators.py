@@ -49,6 +49,16 @@ class IntentTraceabilityTests(unittest.TestCase):
             "# ADR-001: Local-first storage\n",
             encoding="utf-8",
         )
+        (self.docs / "decisions" / "ADR-002-legacy-cloud.md").write_text(
+            """---
+current_status: superseded
+historical_record: true
+current_authority: docs/decisions/ADR-001-local-first.md
+---
+# ADR-002: Legacy cloud analytics
+""",
+            encoding="utf-8",
+        )
 
         self.module = load_script("generate_intent_traceability")
         self.module.REPO_ROOT = self.root
@@ -86,6 +96,15 @@ intent_refs:
         self.assertIn("vision:P1", content)
         self.assertIn("ADR-001", content)
         self.assertIn("Capture", content)
+
+    def test_historical_adr_labels_show_current_authority(self) -> None:
+        refs = self.module.collect_known_refs()
+
+        self.assertIn("ADR-002", refs)
+        self.assertEqual(
+            refs["ADR-002"]["label"],
+            "历史记录（已取代，当前权威：ADR-001）：Legacy cloud analytics",
+        )
 
     def test_rejects_missing_intent_refs(self) -> None:
         self.write_feature(

@@ -10,8 +10,8 @@
 |---|---|---|
 | `ADR-001` | 智能组卷与高级统计定价模型 | [../decisions/ADR-001-smart-paper-analytics-pricing.md](../decisions/ADR-001-smart-paper-analytics-pricing.md) |
 | `ADR-002` | 删除 ATT 授权弹窗 | [../decisions/ADR-002-remove-att-authorization.md](../decisions/ADR-002-remove-att-authorization.md) |
-| `ADR-003` | 双账号双地区发布架构 | [../decisions/ADR-003-dual-region-release.md](../decisions/ADR-003-dual-region-release.md) |
-| `ADR-004` | 国内版 Firebase-Free（中国大陆 build 不含 Firebase） | [../decisions/ADR-004-china-build-firebase-free.md](../decisions/ADR-004-china-build-firebase-free.md) |
+| `ADR-003` | 历史记录（已挂起，当前权威：positioning-and-audience）：双账号双地区发布架构 | [../decisions/ADR-003-dual-region-release.md](../decisions/ADR-003-dual-region-release.md) |
+| `ADR-004` | 历史记录（已取代，当前权威：ADR-005）：国内版 Firebase-Free（中国大陆 build 不含 Firebase） | [../decisions/ADR-004-china-build-firebase-free.md](../decisions/ADR-004-china-build-firebase-free.md) |
 | `ADR-005` | 全球版分析与隐私遥测策略（端侧聚合 + Apple 免费层，不上后端行为采集） | [../decisions/ADR-005-analytics-privacy-strategy.md](../decisions/ADR-005-analytics-privacy-strategy.md) |
 | `positioning-and-audience` | 定位与受众 guardrail | [../explanations/positioning-and-audience.md](../explanations/positioning-and-audience.md) |
 | `vision:P1` | 采集摩擦最低 | [../explanations/vision.md](../explanations/vision.md) |
