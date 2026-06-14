@@ -15,6 +15,7 @@
 - **`reference/`** — 查阅（feature-status 功能状态 SSOT / intent-traceability 意图追溯索引 / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO）
 - **`how-to/`** — 操作指南（**shape-up 我们怎么工作·Shape Up 单人版** / parallel-lanes 协作边界与分支生命周期 / release-and-ci 发布与 CI）
 - **`decisions/`** — 架构决策记录（ADR-001~005；ADR-003 为已挂起的历史区域路线，ADR-004 已被 ADR-005 取代）
+- **`ui-redesign/`** — UI 重设计日志与跨层契约（Codex + PO 决策、真机/模拟器验证、跨层发现）
 
 ## 意图可追溯
 
@@ -48,6 +49,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 | **看产品为什么存在、长期坚持什么** | `explanations/vision.md` |
 | **看当前生产基线 / 已落地架构事实** | 根 `README.md` + 根 `AGENTS.md` + 当前代码/构建实证 |
 | **看三路 agent 的文件边界与交接方式** | `how-to/parallel-lanes.md` |
+| **看 UI 重设计决策和跨层发现** | `ui-redesign/REDESIGN-LOG.md` + `ui-redesign/flagship-cross-layer-contracts.md` |
 | **怎么工作 / 决定下一步做什么** | **`how-to/shape-up.md`**（Shape Up 单人版：shaping→betting→building→cool-down；当前赌注由 PO 明确接受的 live GitHub issue/PR 或具名范围文档决定，不靠"最新文件名胜出"）|
 | 看某功能完整规格 | `features/active\|backlog/feat-*.md` |
 | 查所有功能当前状态 | `reference/feature-status.md`（自动生成，**勿手改**）|

@@ -108,6 +108,16 @@ Agents 不会自动读取彼此的私有会话，也不应互相调用对方模�
 - handoff 至少包含：问题、复现、责任层、所需契约、不可触碰边界、验证方式
 - 发现者不负责替所属层修复，但 Claude 作为工程集成 DRI 负责追踪跨层技术问题直到关闭或明确升级给 PO
 
+### UI 设计辅助工具
+
+Claude Design、Figma、截图批注、HTML/CSS/React 原型和其它设计工具可以作为 Codex UI lane 的对照参考，但不构成 SnapDrill 的设计真相源。设计工具的产物必须回落到以下证据之一才算进入项目：
+
+- `docs/ui-redesign/REDESIGN-LOG.md` 中的设计决策、取舍和 PO 结论
+- SwiftUI 代码、Snapshot / XCUITest 或可复现的真机/模拟器观察
+- 与 Apple HIG、无障碍、Dynamic Type、本地化和当前产品定位一致的验证记录
+
+Claude Design 的推荐用法是先产出 wireframe / high fidelity 候选稿，用于比较布局、信息密度、视觉 token 和组件结构；Codex 与 PO 决定是否吸收。不得把网页原型、Claude Design 输出或第三方博主工作流直接当成 SwiftUI 架构结论，也不得让 Claude Design 覆盖 Codex+PO 已定的 UI 视觉方向。
+
 ## 6. Worktree 与提交
 
 - 每个活跃 lane 使用独立 worktree 和独立分支
