@@ -51,6 +51,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 | **怎么工作 / 决定下一步做什么** | **`how-to/shape-up.md`**（Shape Up 单人版：shaping→betting→building→cool-down；当前赌注由 PO 明确接受的 live GitHub issue/PR 或具名范围文档决定，不靠"最新文件名胜出"）|
 | 看某功能完整规格 | `features/active\|backlog/feat-*.md` |
 | 查所有功能当前状态 | `reference/feature-status.md`（自动生成，**勿手改**）|
+| 判断仓库内材料是否可信 | `reference/repository-trust-map.md` |
 | 理解产品为什么这么做 | `explanations/vision.md` + `explanations/design-principles.md` |
 | 新建一个功能规格 | 复制 `features/template.md` |
 | 看商业化 / 定价 | `explanations/business-model.md` |
