@@ -9,6 +9,7 @@ specs without explicit intent traceability.
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 from typing import Iterable
@@ -29,6 +30,9 @@ STALE_CURRENT_CLAIMS = {
 }
 
 STALE_ALLOWED = set(HISTORICAL_ADRS)
+VISION_REF_PATTERN = re.compile(r"^vision:P([1-9][0-9]*)$")
+ADR_REF_PATTERN = re.compile(r"^ADR-[0-9]{3}$")
+HEADING_PATTERN = re.compile(r"^#+\s+(.+?)\s*$", re.MULTILINE)
 
 
 def rel(path: Path) -> str:
@@ -79,6 +83,56 @@ def line_number(text: str, needle: str) -> int:
     return text[:index].count("\n") + 1
 
 
+def heading_slug(heading: str) -> str:
+    slug = heading.strip().lower()
+    slug = re.sub(r"[^\w\u4e00-\u9fff\s-]", "", slug)
+    slug = re.sub(r"\s+", "-", slug)
+    return slug
+
+
+def has_heading_anchor(path: Path, anchor: str) -> bool:
+    text = read(path)
+    wanted = anchor.lstrip("#").lower()
+    return any(heading_slug(match.group(1)) == wanted for match in HEADING_PATTERN.finditer(text))
+
+
+def resolve_doc_ref(ref: str) -> tuple[Path | None, str | None]:
+    base, _, anchor = ref.partition("#")
+
+    if VISION_REF_PATTERN.match(base):
+        return DOCS_ROOT / "explanations" / "vision.md", base
+
+    if ADR_REF_PATTERN.match(base):
+        matches = sorted((DOCS_ROOT / "decisions").glob(f"{base}-*.md"))
+        if len(matches) == 1:
+            return matches[0], anchor or None
+        return None, None
+
+    direct = DOCS_ROOT / base
+    if direct.suffix != ".md":
+        direct = direct.with_suffix(".md")
+    if direct.exists():
+        return direct, anchor or None
+
+    matches = sorted(path for path in DOCS_ROOT.rglob("*.md") if path.stem == base)
+    if len(matches) == 1:
+        return matches[0], anchor or None
+    return None, None
+
+
+def ref_target_exists(target: Path, anchor: str | None) -> bool:
+    if anchor is None:
+        return True
+
+    vision_match = VISION_REF_PATTERN.match(anchor)
+    if vision_match:
+        principle_number = vision_match.group(1)
+        pattern = rf"^###\s+P{principle_number}\."
+        return re.search(pattern, read(target), re.MULTILINE) is not None
+
+    return has_heading_anchor(target, anchor)
+
+
 def validate_historical_adrs(errors: list[str]) -> None:
     for path, expected_status in HISTORICAL_ADRS.items():
         text = read(path)
@@ -119,6 +173,14 @@ def validate_feature_intent(errors: list[str]) -> None:
         intent_refs = fm.get("intent_refs")
         if not isinstance(intent_refs, list) or not intent_refs:
             errors.append(f"{rel(path)}: frontmatter intent_refs must be a non-empty list")
+        elif isinstance(intent_refs, list):
+            for ref in intent_refs:
+                target, anchor = resolve_doc_ref(ref)
+                if target is None:
+                    errors.append(f"{rel(path)}: intent_refs entry does not resolve: {ref}")
+                    continue
+                if not ref_target_exists(target, anchor):
+                    errors.append(f"{rel(path)}: intent_refs anchor not found in {rel(target)}: {ref}")
         if "## 意图追溯" not in text:
             errors.append(f"{rel(path)}: missing section '## 意图追溯'")
 

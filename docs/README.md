@@ -28,7 +28,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 
 - `vision.md` 是仓库内产品意图的最高层，但不是 PO 的上级；它是 PO 当前意图的持久化表达。
 - 下游文档必须指出其上游依据。找不到上游依据的需求是孤儿需求，不应直接实现。
-- 每个 feature spec 在 frontmatter 用 `intent_refs` 字段 + 「意图追溯」节显式声明承接的上游 Vision 原则 / 产品政策 / ADR，便于检索与人工核对；当前尚无自动语义校验，不得把字段存在误认为追溯已经成立。
+- 每个 feature spec 在 frontmatter 用 `intent_refs` 字段 + 「意图追溯」节显式声明承接的上游 Vision 原则 / 产品政策 / ADR，便于检索与人工核对；文档健康检查会验证引用目标存在，但当前尚无自动语义校验，不得把字段存在误认为追溯已经成立。
 - 代码与测试证明“现在是什么”；Vision、ADR 与 spec 约束“应该是什么”。不一致时必须显式记录偏差。
 - 私有记忆、历史研究、旧 pitch 和关闭任务不参与当前裁决；需要历史证据（含已删除的 research/ 与历史 pitch）时使用 Git 历史或 GitHub 记录。
 
@@ -40,7 +40,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 
 历史 ADR 可以保留为证据，但必须在 frontmatter 标明 `current_status`、`historical_record: true` 和 `current_authority`。已挂起或已取代的历史路线不得在当前产品、架构或合规判断中继续充当依据。
 
-文档健康检查由 `Scripts/validate_docs.py --check` 执行，随 pre-commit 和 CI 运行。它只拦截高风险漂移：历史 ADR 未降级、过时 Firebase 路线陈述重新进入当前文档、feature spec 缺少意图追溯。
+文档健康检查由 `Scripts/validate_docs.py --check` 执行，随 pre-commit 和 CI 运行。它只拦截高风险漂移：历史 ADR 未降级、过时 Firebase 路线陈述重新进入当前文档、feature spec 缺少意图追溯或 `intent_refs` 指向不存在的上游文档。
 
 ## 关键入口
 
