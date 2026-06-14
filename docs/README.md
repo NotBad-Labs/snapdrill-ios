@@ -12,7 +12,7 @@
   - `backlog/` — 未实现/阻塞功能（`mode: lightweight`，How/Verify 待实现补）
   - `features/template.md` — 新建 feature spec 模板
 - **`explanations/`** — 为什么（vision 愿景 / design-principles 设计原则 / business-model 商业模式 / architecture 架构 / assumptions 待验证假设 / competitive-analysis 竞品 / user-journeys 用户旅程 / privacy-compliance 隐私合规）
-- **`reference/`** — 查阅（feature-status 功能状态 SSOT / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO）
+- **`reference/`** — 查阅（feature-status 功能状态 SSOT / intent-traceability 意图追溯索引 / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO）
 - **`how-to/`** — 操作指南（**shape-up 我们怎么工作·Shape Up 单人版** / parallel-lanes 协作边界与分支生命周期 / release-and-ci 发布与 CI）
 - **`decisions/`** — 架构决策记录（ADR-001~005；ADR-003 为已挂起的历史区域路线，ADR-004 已被 ADR-005 取代）
 
@@ -51,6 +51,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 | **怎么工作 / 决定下一步做什么** | **`how-to/shape-up.md`**（Shape Up 单人版：shaping→betting→building→cool-down；当前赌注由 PO 明确接受的 live GitHub issue/PR 或具名范围文档决定，不靠"最新文件名胜出"）|
 | 看某功能完整规格 | `features/active\|backlog/feat-*.md` |
 | 查所有功能当前状态 | `reference/feature-status.md`（自动生成，**勿手改**）|
+| 查 Vision / ADR 如何落到功能 | `reference/intent-traceability.md`（自动生成，**勿手改**）|
 | 理解产品为什么这么做 | `explanations/vision.md` + `explanations/design-principles.md` |
 | 新建一个功能规格 | 复制 `features/template.md` |
 | 看商业化 / 定价 | `explanations/business-model.md` |
@@ -61,4 +62,8 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 
 功能状态写在各 feature spec 的 frontmatter（`status` / `tier` / `blocked_by` / `mode`）；`reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 扫描 frontmatter **自动生成**。
 
+意图追溯写在各 feature spec 的 frontmatter `intent_refs`；`reference/intent-traceability.md` 由 `Scripts/generate_intent_traceability.py` 扫描 frontmatter **自动生成**。它证明“已声明上游依据”，不替代人工语义 review。
+
 改状态 = 改对应 spec 的 frontmatter → 重跑 `python3 Scripts/generate_feature_status.py`（pre-commit 自动校验是否最新）。
+
+改意图引用 = 改对应 spec 的 `intent_refs` → 重跑 `python3 Scripts/generate_intent_traceability.py`（pre-commit 自动校验是否最新）。
