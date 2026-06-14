@@ -238,7 +238,6 @@ public final class LibraryViewModel {
         guard !Task.isCancelled else { return }
         let requestState = currentQueryState
         do {
-            currentPage = 0
             let results = try repositories.review.fetchFilteredModels(
                 searchText: searchText,
                 valueIdsByDimension: selectedValueIdsByDimension,
@@ -250,6 +249,7 @@ public final class LibraryViewModel {
             )
 
             guard !Task.isCancelled, currentQueryState == requestState else { return }
+            currentPage = 0
             self.filteredItems = results
             self.hasMore = results.count == pageSize
             self.errorMessage = nil
