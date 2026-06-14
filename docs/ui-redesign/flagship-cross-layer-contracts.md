@@ -12,11 +12,11 @@
 |---|---|---|---|---|
 | I1 搜索防抖 vs 离散筛选/排序拆分 | ✅ 成立 | P2 | Claude(ViewModel 刷新时机) + Codex(行布局原子性) | 无 |
 | I2 维度过滤内存筛选性能 | ⚠️ refined（Codex 描述需修正） | P3 | Claude(Data) | 2 项 |
-| I3 打印 adapter 契约 | ✅ 成立（设计已定=改良版 B） | P2 | Claude(SnapDrillUI adapter) + Codex(Feature 入口) | ✅ 0（已拍板） |
-| I4 导出 completion 契约 | ⚠️ refined | P3 | Claude(enum seam) + Codex(闭包行为/视觉) | 3 项 |
+| I3 打印 adapter 契约 | ✅ 接线中（adapter 已在 develop，Feature 入口见 2026-06-15 注） | P2 | SnapDrillUI adapter + Codex(Feature 入口) | ✅ 0（已拍板） |
+| I4 导出 completion 契约 | ⚠️ refined（Phase 已接，completion seam 未接） | P3 | Codex(phase 视觉) + 后续 completion seam | 3 项 |
 
 **跨 issue 耦合**：I1 去掉 300ms 缓冲后，I2 的内存过滤延迟会变用户可见 → **先修 I1（原子性 + 拆防抖），再 benchmark I2**。
-**合并顺序**：I3 的 Core PrintService 协议先合（Core 层，独立可合）→ 各 issue 的 Feature/UI 改动随 Codex rebase 后接（Features 层），符合 merge-order `Core→UI→Features`。所有触及 `ExportPreviewView`/`LibraryDetailView`/`ResolvedExportSheet` 的改动应在 seam 立好后一次性做，避免对同文件多次 rebase 冲突。
+**合并顺序**：I3 已采用「Core 仅产 PDF Data，SnapDrillUI 提供 `PrintPresenting` adapter」路线；Feature/UI 接线随 Codex 分支推进。所有触及 `ExportPreviewView`/`LibraryDetailView`/`ResolvedExportSheet` 的改动应集中 review，避免对同文件多次 rebase 冲突。
 
 ---
 
@@ -66,9 +66,11 @@
 
 ## I3 · 一等打印 PrintService / UIPrintInteractionController 契约
 
-**判定：成立 —— develop 上确无任何一等打印能力。** 严重度 P2。
+**判定：成立 —— 原 develop 缺少一等打印能力；`PrintPresenting` adapter 已合入，Feature 入口接线见下方 2026-06-15 注。** 严重度 P2。
 
-**现状**：grep 全仓零 `PrintService`/`UIPrintInteractionController`/`UIPrintPageRenderer`（排除 .build）。打印 100% 寄生在 PDF 导出 + 系统分享表：`LibraryDetailView.printSingleItem()`(`:266-287`) = `pdfExport.createPDF(itemsPerPage:1)` → 临时文件 → `UIActivityViewController`，从不调 `UIPrintInteractionController`、也从不 `activityTracker.begin(.printing)`（坐实 GAP-R4）；批量路径 `ExportPreviewView` 同靠 `ShareLink`。`feat-export.md:37-41` 已点名目标契约（`UIPrintInteractionController` + 自定义 `UIPrintPageRenderer`、将来落 `SnapDrillCore/Service/PrintService.swift`）、当前标 GAP-R5 过渡。
+**历史现状（记录缺口来源）**：在该审计基线中，打印 100% 寄生在 PDF 导出 + 系统分享表：`LibraryDetailView.printSingleItem()` = `pdfExport.createPDF(itemsPerPage:1)` → 临时文件 → `UIActivityViewController`，从不调 `UIPrintInteractionController`、也从不 `activityTracker.begin(.printing)`（坐实 GAP-R4）；批量路径 `ExportPreviewView` 同靠 `ShareLink`。
+
+**2026-06-15 Codex 接线注**：`SnapDrillUI/PrintPresenting.swift` 已在 develop 提供 adapter；`codex/library-interaction-audit` 将 `LibraryDetailView` 单题打印和 `ExportPreviewView` 批量 PDF 预览打印接到 `@Environment(\.printPresenter)`，分享与打印拆为两个入口，并在系统打印交互期间用 `.printing` activity 阻塞 Profile 切换。当前实现仍需真机 iPhone 17 dogfood 验 `completed/cancelled/failed`，因为 Simulator 对 `UIPrintInteractionController` 支持有限。
 
 **✅ 设计已定（PO + Codex 2026-06-11，D-I3a = 改良版 B）**：**Core 仅生成 PDF Data；`UIPrintInteractionController` 的 presentation adapter 集中放 `SnapDrillUI`**，由 Feature View 调用，避免重复实现、同时保持可注入测试。**不把 UIView / present 固化进 Core**（撤销原 A 推荐——见下方「为何改良版 B 成立」）。
 
@@ -86,7 +88,7 @@
   - `LivePrintPresenter`：`UIPrintInteractionController` + `UIPrintInfo(.general)` 包装传入的 PDF `Data`；`withCheckedThrowingContinuation` 把 `completionHandler(_, completed, error)` 桥成 async（completed→`.completed` / !completed&&无 error→`.cancelled` / 有 error→throw）。
   - `MockPrintPresenter`：可配 outcome/error，供 Feature View 逻辑（含 UC5「无打印机/取消→不记打印」）单测。
   - **注入**：SwiftUI `@Environment(\.printPresenter)`（SnapDrillUI 定义 environment key，默认 `LivePrintPresenter`，测试注 Mock）——adapter 在 UI 层、吃 UIView，不走 Core 的 ServiceContainer。
-- **Feature View（Codex）**：`let data = try await pdfExport.createPDF(...)` → `let outcome = try await printPresenter.present(pdfData: data, jobName:, anchor:)`；提供 anchor；`PDFExportOptions` 配置 UI；消费 outcome 做错误反馈 + **仅 `.completed` 时记 `.printing`**（UC5）；present 前后 `activityTracker.begin/end(.printing)` 补 GAP-R4（`.printing` 枚举已在 `AppActivityTracker:21`）。
+- **Feature View（Codex）**：`let data = try await pdfExport.createPDF(...)` → `let outcome = try await printPresenter.present(pdfData: data, jobName:, anchor:)`；提供 anchor；`PDFExportOptions` 配置 UI；消费 outcome 做错误反馈；present 前后 `activityTracker.begin/end(.printing)` 补 GAP-R4（`.printing` 枚举已在 `AppActivityTracker:21`）。注意：`AppActivityTracker` 是「正在打印」阻塞态，不是已完成打印次数统计；是否记录 completed-only 指标需另有统计契约。
 - **1/2/4 题/页第一版用 `PDFExportOptions.itemsPerPage`（已支持 `:66` chunked、`:204` itemHeight）走 PDF Data 直印即达成**（D-I3b 已定降级，`UIPrintPageRenderer` 留后续优化）。
 - **打印与分享拆两个一等入口**（D-I3c 已定）：不再把打印藏在分享活动里；UI 提供独立「打印」与「分享」入口。
 
@@ -100,7 +102,7 @@
 
 **⚠️ 合并 DoD 硬前置**：`UIPrintInteractionController` 在 Simulator 打印支持有限（同 StoreKit 沙箱边界），**真机 iPhone 17 dogfood 验 completed/cancelled/failed 三分支**——UC5 误记会污染未来打印统计，这是数据正确性，非「建议验一次」。
 
-**sequencing**：① Claude 先合 `SnapDrillUI/PrintPresenting.swift`（协议 + LivePrintPresenter + MockPrintPresenter + `@Environment` key + 单测；SnapDrillUI 层、对 Feature 零依赖、additive 可独立合，遵 Core→**UI**→Features，Core 无需改）→ ② Codex rebase 后在 Feature View 对接（两入口 + anchor + outcome）→ ③ `.printing` tracker 随 ② 补。**不要先占位空壳再延后——adapter 就是 UI lane 的解锁前提。**
+**sequencing**：① `SnapDrillUI/PrintPresenting.swift` 已合入 develop（协议 + LivePrintPresenter + MockPrintPresenter + `@Environment` key + 单测；SnapDrillUI 层、对 Feature 零依赖）→ ② `codex/library-interaction-audit` 正在 Feature View 对接（两入口 + anchor + outcome）→ ③ `.printing` tracker 随 ② 补。**不要先占位空壳再延后——adapter 就是 UI lane 的解锁前提。**
 
 ---
 
@@ -114,6 +116,7 @@
 - **(A) Completion seam**：`ResolvedExportSheet`/`ExportOptionsSheet` 顶层加 `onComplete` 回调，回传 `nonisolated enum ExportOutcome { case exported(ExportArtifact); case shared; case cancelled; case failed(Error) }`（定义在 FeatureLibrary）。父层 `LibraryView` 持 `selectedItemIDs`/editMode、是唯一该执行清/留的层；契约只回传「发生了什么」、由父层裁决。
   - **诚实边界**：SwiftUI `ShareLink` 拿不到「用户是否真完成分享」的回执，PDF/CSV 路径只能保证「发起」。**⚠️ 验证补：ZIP 路径走 `UIActivityViewController`（`ExportOptionsSheet:226-235`）有 `completionWithItemsHandler`、可拿真回执**——ZIP 不必和 ShareLink 一样悲观，可接线为「可确认完成」。`cancelled`（点 Close）可靠。
 - **(B) Phase 契约**：`ResolvedExportSheet` 引入 `enum ResolvePhase { case loading; case loaded([ReviewExportSnapshot]); case error(String) }`，初值 `.loading`，消除「首帧 0 项」与「真 0 项」混淆。
+  - **2026-06-15 Codex 接线注**：`codex/library-interaction-audit` 已把 `ResolvedExportSheet` 改为 `.loading/.loaded/.failed` phase，首帧显示 `ProgressView`，不再把尚未 resolve 的选择集渲染成 0 项导出表。
   - **⚠️ 验证修正——勿过度工程化**：调查里「改 off-main async resolve」**不成立**——develop 无任何 models 的 async/off-main fetch 路径，`DataExecutor`(`:19-21`) **刻意**用 sync mainContext，`ReviewItemModel` 非 Sendable 不能跨 actor。而 `fetchModels` 是标量主键查询、导出选择集通常不大。**一个 `.loading` phase flag（首帧 `ProgressView`、`.task` 内同步 resolve 完成后转 `.loaded`）即足够，无需新建背景上下文。**
   - **⚠️ 范围比想象小**：`ExportPreviewView` 下游已有完整三态（`:33-43` isLoading/pdfData/error）；`ResolvedExportSheet` 的 `loadError`(`:24-32`) 已是显式态。所以 (B) 只需补 `ResolvedExportSheet` 一处、error case 是把现状收编进 enum——改动面比读起来小、外科手术化。
 
