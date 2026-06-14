@@ -1,23 +1,40 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
 
 echo "Running static analysis..."
-if which swiftlint >/dev/null; then
-  swiftlint lint --strict
-else
-  echo "warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint"
+if ! command -v swiftlint >/dev/null; then
+  echo "error: SwiftLint not installed. Install it with: brew install swiftlint" >&2
+  exit 1
 fi
+swiftlint lint --strict
 
 # 功能状态总表 SSOT（B 方案）：校验 reference/feature-status.md 与各 feature spec frontmatter 一致
-if command -v python3 >/dev/null; then
-  echo "Checking docs/reference/feature-status.md is up to date..."
-  python3 Scripts/generate_feature_status.py --check || {
-    echo "error: feature-status.md 过期，请运行 python3 Scripts/generate_feature_status.py 后重新提交"
-    exit 1
-  }
-
-  echo "Checking documentation health..."
-  python3 Scripts/validate_docs.py --check || {
-    echo "error: docs 健康检查失败，请修正文档层级 / 历史 ADR / 意图追溯后重新提交"
-    exit 1
-  }
+if ! command -v python3 >/dev/null; then
+  echo "error: python3 not installed. Documentation gates cannot run." >&2
+  exit 1
 fi
+
+echo "Checking docs/reference/feature-status.md is up to date..."
+python3 Scripts/generate_feature_status.py --check || {
+  echo "error: feature-status.md 过期，请运行 python3 Scripts/generate_feature_status.py 后重新提交"
+  exit 1
+}
+
+echo "Checking docs/reference/intent-traceability.md is up to date..."
+python3 Scripts/generate_intent_traceability.py --check || {
+  echo "error: intent-traceability.md 过期，请运行 python3 Scripts/generate_intent_traceability.py 后重新提交"
+  exit 1
+}
+
+echo "Testing documentation generators..."
+python3 Scripts/test_doc_generators.py
+
+echo "Checking documentation health..."
+python3 Scripts/validate_docs.py --check || {
+  echo "error: docs 健康检查失败，请修正文档层级 / 历史 ADR / 意图追溯后重新提交"
+  exit 1
+}

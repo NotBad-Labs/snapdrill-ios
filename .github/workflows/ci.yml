@@ -47,6 +47,8 @@ jobs:
       - name: Validate docs
         run: |
           python3 Scripts/generate_feature_status.py --check
+          python3 Scripts/generate_intent_traceability.py --check
+          python3 Scripts/test_doc_generators.py
           python3 Scripts/validate_docs.py --check
 
       - name: Check Package Dependencies

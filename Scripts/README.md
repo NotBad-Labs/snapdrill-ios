@@ -11,6 +11,8 @@
 | `setup.sh` | 新开发者入职的一键环境配置（待完善） |
 | `pre-commit` | Git pre-commit hook（提交前自动检查） |
 | `generate_feature_status.py` | 由各 feature spec frontmatter 生成 `docs/reference/feature-status.md`（功能状态 SSOT；产物勿手改，pre-commit 校验） |
+| `generate_intent_traceability.py` | 由各 feature spec `intent_refs` 生成 `docs/reference/intent-traceability.md`（意图追溯索引；产物勿手改，pre-commit/CI 校验） |
+| `test_doc_generators.py` | 文档生成器单元测试（覆盖意图追溯索引的成功与失败路径，pre-commit/CI 校验） |
 | `validate_docs.py` | 检查高风险文档漂移：历史 ADR 状态、过时 Firebase 路线陈述、feature spec 意图追溯 |
 | `check_headers.py` | 检查 Swift 文件头部版权声明是否规范（手动工具，无 CI 调用） |
 | `add_assets.rb` | 向 Asset Catalog 批量添加资源（一次性 Xcode 工具） |
