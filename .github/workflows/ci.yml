@@ -93,7 +93,7 @@ jobs:
           python3 -c "import json, sys; json.load(open('$PLAN'))" && echo "xctestplan JSON OK"
 
       - name: Prime SPM cache (resilient)
-        # 大型 C++ 子模块（abseil / protobuf，经 Firebase 间接拉）clone 易断流/挂起：
+        # 大型 SPM 子模块 clone 易断流/挂起：
         # 短低速超时让 stall 快速 abort，重试解析灌入 workspace 外持久缓存（成功一次后跨 run 复用）
         run: |
           git config --global http.postBuffer 524288000
