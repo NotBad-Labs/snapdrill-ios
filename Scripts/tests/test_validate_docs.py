@@ -91,6 +91,14 @@ class ValidateDocsTests(unittest.TestCase):
             errors,
         )
 
+    def test_competitive_analysis_does_not_reset_product_category(self) -> None:
+        text = validate_docs.read(
+            validate_docs.DOCS_ROOT / "explanations" / "competitive-analysis.md"
+        )
+
+        self.assertNotIn("错题本 App 市场已形成三个梯队", text)
+        self.assertIn("通用效率工具定位", text)
+
     def test_current_repo_docs_pass(self) -> None:
         self.assertEqual(validate_docs.run_checks(), [])
 
