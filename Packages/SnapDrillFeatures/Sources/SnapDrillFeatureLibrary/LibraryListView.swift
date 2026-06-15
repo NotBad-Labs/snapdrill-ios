@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  题库列表视图，展示特定筛选条件下的错题列表。
+//  资料列表视图，展示特定筛选条件下的归档条目。
 //
 
 import SwiftUI
@@ -127,7 +127,16 @@ struct LibraryListView: View {
                         .buttonStyle(.borderedProminent)
                     }
                 } else {
-                    ContentUnavailableView.search(text: viewModel.searchText)
+                    ContentUnavailableView {
+                        Label(L10n.Library.noSearchResults, systemImage: "line.3.horizontal.decrease.circle")
+                    } description: {
+                        Text(L10n.Library.noSearchResultsHint)
+                    } actions: {
+                        Button(L10n.Library.clearFilters) {
+                            viewModel.resetFilters()
+                        }
+                        .buttonStyle(.bordered)
+                    }
                 }
             } else {
                 ForEach(viewModel.filteredItems) { item in
@@ -135,23 +144,20 @@ struct LibraryListView: View {
                     // List(selection:) 在 editMode 下自动禁用导航，无需手动 guard
                     NavigationLink(value: LibraryDestination.detail(item)) {
                         VStack(alignment: .leading, spacing: 6) {
-                            Text(item.content ?? "")
+                            Text(item.content?.isEmpty == false ? item.content ?? "" : L10n.Library.noContent)
                                 .font(.headline)
                                 .lineLimit(2)
                                 .multilineTextAlignment(.leading)
 
                             HStack(spacing: 8) {
                                 // 主分类标签：学科维度值，无则取首个有值维度的首值
-                                if let primaryCategory = item.subjectCategoryName
-                                    ?? item.categoryValuesByDimension.first?.values.first?.name {
-                                    Text(primaryCategory)
-                                        .font(.caption2.bold())
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.blue.opacity(0.1))
-                                        .foregroundStyle(.blue)
-                                        .clipShape(Capsule())
-                                }
+                                LibraryCategoryChip(
+                                    title: item.subjectCategoryName
+                                        ?? item.categoryValuesByDimension.first?.values.first?.name
+                                        ?? L10n.Library.noCategory,
+                                    isPlaceholder: item.subjectCategoryName == nil
+                                        && item.categoryValuesByDimension.first?.values.first == nil
+                                )
 
                                 Text(item.createdAt.formatted(date: .abbreviated, time: .shortened))
                                     .font(.caption)
@@ -181,8 +187,19 @@ struct LibraryListView: View {
                 
                 // 无限滚动触发器
                 if viewModel.hasMore {
-                    Color.clear
-                        .frame(height: 1)
+                    HStack(spacing: 8) {
+                        Spacer()
+                        ProgressView()
+                            .controlSize(.small)
+                        Text(L10n.Library.loadingMore)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                    }
+                    .padding(.vertical, 10)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .accessibilityElement(children: .combine)
                         .onAppear {
                             Task {
                                 await viewModel.loadMore()
@@ -205,6 +222,23 @@ struct LibraryListView: View {
         } message: {
             Text(L10n.Library.deleteConfirmMessage)
         }
+    }
+}
+
+private struct LibraryCategoryChip: View {
+    let title: String
+    let isPlaceholder: Bool
+
+    var body: some View {
+        Text(title)
+            .font(.caption2.bold())
+            .lineLimit(1)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
+            .frame(minWidth: 42)
+            .background(isPlaceholder ? Color.secondary.opacity(0.12) : Color.blue.opacity(0.1))
+            .foregroundStyle(isPlaceholder ? Color.secondary : Color.blue)
+            .clipShape(Capsule())
     }
 }
 

@@ -37,13 +37,41 @@ struct ExportPreviewView: View {
     var body: some View {
         VStack {
             if isLoading {
-                ProgressView(L10n.Library.generating)
-                    .accessible(label: L10n.Accessibility.generatingPDF)
+                VStack(spacing: 12) {
+                    ProgressView()
+                    Text(L10n.Library.generating)
+                        .font(.headline)
+                    Text(L10n.Library.generatingHint)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                .accessible(label: L10n.Accessibility.generatingPDF)
             } else if let pdfData = pdfData, let document = PDFDocument(data: pdfData) {
                 PDFKitRepresentedView(document: document)
                     .accessible(label: L10n.Accessibility.pdfPreviewLabel)
             } else {
-                ContentUnavailableView(L10n.Library.generateFailed, systemImage: "exclamationmark.triangle")
+                ContentUnavailableView {
+                    Label(L10n.Library.generateFailed, systemImage: "exclamationmark.triangle")
+                } description: {
+                    Text(L10n.Errors.pdfGenerateFailed)
+                } actions: {
+                    Button(L10n.Common.retry) {
+                        generatePDF()
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            }
+        }
+        .overlay {
+            if isPrinting {
+                VStack(spacing: 10) {
+                    ProgressView()
+                    Text(L10n.Library.preparingPrint)
+                        .font(.subheadline.weight(.semibold))
+                }
+                .padding(16)
+                .background(.regularMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
         }
         .navigationTitle(L10n.Library.exportPreview)
@@ -68,7 +96,11 @@ struct ExportPreviewView: View {
                     Button {
                         printPDF()
                     } label: {
-                        Label(L10n.Library.printSingle, systemImage: "printer")
+                        if isPrinting {
+                            Label(L10n.Library.preparingPrint, systemImage: "printer")
+                        } else {
+                            Label(L10n.Library.printSingle, systemImage: "printer")
+                        }
                     }
                     .disabled(isPrinting)
                 }
@@ -78,7 +110,7 @@ struct ExportPreviewView: View {
             Button(L10n.Common.retry) { generatePDF() }
             Button(L10n.Common.cancel, role: .cancel) { dismiss() }
         }
-        .alert(L10n.Errors.pdfGenerateFailed, isPresented: $showPrintError) {
+        .alert(L10n.Library.printFailed, isPresented: $showPrintError) {
             Button(L10n.Common.ok, role: .cancel) {}
         }
         .task {
@@ -87,6 +119,11 @@ struct ExportPreviewView: View {
     }
     
     private func generatePDF() {
+        isLoading = true
+        showGenerateError = false
+        pdfData = nil
+        tempPDFURL = nil
+
         // 在 MainActor 上下文中捕获，避免 Task 闭包中跨 actor 访问
         let storage = imageStorage
         // 经 ServiceContainer 注入，而非直调 PDFExportService.shared（DI 铁律）
@@ -133,7 +170,7 @@ struct ExportPreviewView: View {
     
     /// 写入临时文件供 ShareLink/打印用；成功返回 URL，失败返回 nil（作为「不进预览」的判据）。
     private func saveToTemp(pdfData: Data) -> URL? {
-        let fileName = "SnapDrill_Mistakes_\(Date().filenameDateString).pdf"
+        let fileName = "SnapDrill_Reference_Set_\(Date().filenameDateString).pdf"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         do {
             try pdfData.write(to: tempURL)

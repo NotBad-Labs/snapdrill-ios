@@ -37,12 +37,17 @@ nonisolated extension L10n {
         // 列表
         public static let allSubjects = NSLocalizedString("library.all_subjects", value: "全部", comment: "全部学科")
         public static let noContent = NSLocalizedString("library.no_content", value: "无文字内容", comment: "无文字内容占位")
+        public static let noCategory = NSLocalizedString("library.no_category", value: "未分类", comment: "未分类占位")
+        public static let loadingMore = NSLocalizedString("library.loading_more", value: "正在加载更多…", comment: "列表分页加载")
+        public static let loadingLibrary = NSLocalizedString("library.loading_library", value: "正在整理资料", comment: "题库加载中")
+        public static let loadingLibraryHint = NSLocalizedString("library.loading_library_hint", value: "稍候即可浏览已归档内容", comment: "题库加载中提示")
 
         // 详情
         public static let detail = NSLocalizedString("library.detail", value: "题目详情", comment: "详情页标题")
         public static let questionImage = NSLocalizedString("library.question_image", value: "题目图片", comment: "题目图片标签")
         public static let questionText = NSLocalizedString("library.question_text", value: "题目内容", comment: "题目内容")
-        public static let answerSection = NSLocalizedString("library.answer_section", value: "参考答案", comment: "参考答案区")
+        public static let answerSection = NSLocalizedString("library.answer_section", value: "答案与备注", comment: "答案与备注区")
+        public static let answerPrivacyHint = NSLocalizedString("library.answer_privacy_hint", value: "默认隐藏，轻点展开或收起", comment: "答案默认隐藏提示")
         public static let answerText = NSLocalizedString("library.answer_text", value: "答案文本", comment: "答案文本")
         public static let answerImage = NSLocalizedString("library.answer_image", value: "答案图片", comment: "答案图片")
         public static let noAnswer = NSLocalizedString("library.no_answer", value: "暂无答案", comment: "暂无答案")
@@ -83,10 +88,16 @@ nonisolated extension L10n {
         public static let exportImagesHint = NSLocalizedString("library.export_images_hint", value: "导出所有题目原图", comment: "原图导出提示")
         public static let exportingImages = NSLocalizedString("library.exporting_images", value: "正在打包原图…", comment: "导出原图进度提示")
         public static let noImages = NSLocalizedString("library.no_images", value: "选中的题目没有图片", comment: "无图片提示")
+        public static let noExportItems = NSLocalizedString("library.no_export_items", value: "没有可导出的条目", comment: "导出空状态")
+        public static let noExportItemsHint = NSLocalizedString("library.no_export_items_hint", value: "返回列表后重新选择需要导出的内容", comment: "导出空状态提示")
         public static let exportPreview = NSLocalizedString("library.export_preview", value: "导出预览", comment: "导出预览页标题")
         public static let shareOrPrint = NSLocalizedString("library.share_or_print", value: "分享 / 打印", comment: "分享或打印")
         public static let generating = NSLocalizedString("library.generating", value: "正在生成...", comment: "正在生成")
+        public static let generatingHint = NSLocalizedString("library.generating_hint", value: "正在准备预览文件", comment: "PDF 生成中提示")
         public static let generateFailed = NSLocalizedString("library.generate_failed", value: "生成失败", comment: "生成失败")
+        public static let preparingPrint = NSLocalizedString("library.preparing_print", value: "正在准备打印", comment: "打印准备中")
+        public static let printFailed = NSLocalizedString("library.print_failed", value: "无法开始打印", comment: "打印失败")
+        public static let shareFailed = NSLocalizedString("library.share_failed", value: "无法生成分享卡", comment: "分享卡失败")
 
         // 过滤
         public static let clearFilters = NSLocalizedString("library.clear_filters", value: "清除", comment: "清除过滤条件按钮")
@@ -99,7 +110,7 @@ nonisolated extension L10n {
         public static let exportSelected = NSLocalizedString("library.export_selected", value: "导出", comment: "导出已选")
         public static let printSingle = NSLocalizedString("library.print_single", value: "打印", comment: "单题打印按钮")
         public static let share = NSLocalizedString("library.share", value: "分享", comment: "分享按钮")
-        public static let shareCardTitle = NSLocalizedString("library.share_card_title", value: "SnapDrill 错题卡", comment: "分享卡片标题")
+        public static let shareCardTitle = NSLocalizedString("library.share_card_title", value: "SnapDrill 摘录卡", comment: "分享卡片标题")
 
         // 删除确认
         public static let deleteConfirmTitle = NSLocalizedString("library.delete_confirm_title", value: "确认删除", comment: "删除确认标题")
@@ -192,7 +203,7 @@ nonisolated extension L10n {
         public static let exporting = NSLocalizedString("export.exporting", value: "导出中", comment: "导出中")
         public static let success = NSLocalizedString("export.success", value: "导出成功", comment: "导出成功")
         public static let failed = NSLocalizedString("export.failed", value: "导出失败", comment: "导出失败")
-        public static let pdfTitle = NSLocalizedString("export.pdf_title", value: "SnapDrill 错题本", comment: "PDF 导出封面标题")
+        public static let pdfTitle = NSLocalizedString("export.pdf_title", value: "SnapDrill 资料集", comment: "PDF 导出封面标题")
         public static func pdfGenerationDate(_ date: String) -> String {
             String(format: NSLocalizedString("export.pdf_generation_date", value: "生成日期: %@", comment: "PDF 导出封面副标题"), date)
         }
@@ -201,7 +212,7 @@ nonisolated extension L10n {
         public static let showBlankArea = NSLocalizedString("export.show_blank_area", value: "显示答题区", comment: "导出选项：显示答题留白区开关")
         public static let showHeader = NSLocalizedString("export.show_header", value: "显示页眉页码", comment: "导出选项：显示页眉页码开关")
         public static let mixedSubject = NSLocalizedString("export.mixed_subject", value: "综合练习", comment: "PDF 页眉：多学科混合时显示")
-        public static let defaultSubject = NSLocalizedString("export.default_subject", value: "错题本", comment: "PDF 页眉：无学科信息时的默认标题")
+        public static let defaultSubject = NSLocalizedString("export.default_subject", value: "资料集", comment: "PDF 页眉：无学科信息时的默认标题")
         public static let itemsPerPage = NSLocalizedString("export.items_per_page", value: "每页题数", comment: "导出选项：每页题目数量")
         public static let pdfOptions = NSLocalizedString("export.pdf_options", value: "打印选项", comment: "导出选项区域标题")
         public static func pageNumber(_ current: Int, _ total: Int) -> String {

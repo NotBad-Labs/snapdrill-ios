@@ -161,10 +161,15 @@
 "library.sort_review_status" = "复习状态";
 "library.all_subjects" = "全部";
 "library.no_content" = "无文字内容";
+"library.no_category" = "未分类";
+"library.loading_more" = "正在加载更多…";
+"library.loading_library" = "正在整理资料";
+"library.loading_library_hint" = "稍候即可浏览已归档内容";
 "library.detail" = "题目详情";
 "library.question_image" = "题目图片";
 "library.question_text" = "题目内容";
-"library.answer_section" = "参考答案";
+"library.answer_section" = "答案与备注";
+"library.answer_privacy_hint" = "默认隐藏，轻点展开或收起";
 "library.answer_text" = "答案文本";
 "library.answer_image" = "答案图片";
 "library.no_answer" = "暂无答案";
@@ -194,7 +199,11 @@
 "library.export_preview" = "导出预览";
 "library.share_or_print" = "分享 / 打印";
 "library.generating" = "正在生成...";
+"library.generating_hint" = "正在准备预览文件";
 "library.generate_failed" = "生成失败";
+"library.preparing_print" = "正在准备打印";
+"library.print_failed" = "无法开始打印";
+"library.share_failed" = "无法生成分享卡";
 "library.clear_filters" = "清除";
 "library.select_items" = "选择";
 "library.delete_selected" = "删除";
@@ -669,14 +678,14 @@
 "tab.settings" = "设置";
 
 // MARK: - Export (PDF title)
-"export.pdf_title" = "SnapDrill 错题本";
+"export.pdf_title" = "SnapDrill 资料集";
 "export.pdf_generation_date" = "生成日期: %@";
 "export.hide_answers" = "隐藏答案";
 "export.answer_label" = "答案：";
 "export.show_blank_area" = "显示答题区";
 "export.show_header" = "显示页眉页码";
 "export.mixed_subject" = "综合练习";
-"export.default_subject" = "错题本";
+"export.default_subject" = "资料集";
 "export.items_per_page" = "每页题数";
 "export.pdf_options" = "打印选项";
 "export.page_number" = "第 %d/%d 页";
@@ -788,10 +797,12 @@
 "library.export_images_hint" = "导出所有题目原图";
 "library.exporting_images" = "正在打包原图…";
 "library.no_images" = "选中的题目没有图片";
+"library.no_export_items" = "没有可导出的条目";
+"library.no_export_items_hint" = "返回列表后重新选择需要导出的内容";
 "library.select_all" = "全选";
 "library.deselect_all" = "取消全选";
 "library.share" = "分享";
-"library.share_card_title" = "SnapDrill 错题卡";
+"library.share_card_title" = "SnapDrill 摘录卡";
 "settings.help_center" = "帮助中心";
 "settings.switch_learner" = "切换学习者";
 "settings.add_learner" = "添加学习者";
