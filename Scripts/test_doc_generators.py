@@ -49,6 +49,16 @@ class IntentTraceabilityTests(unittest.TestCase):
             "# ADR-001: Local-first storage\n",
             encoding="utf-8",
         )
+        (self.docs / "decisions" / "ADR-002-legacy-cloud.md").write_text(
+            """---
+current_status: superseded
+historical_record: true
+current_authority: docs/decisions/ADR-001-local-first.md
+---
+# ADR-002: Legacy cloud analytics
+""",
+            encoding="utf-8",
+        )
 
         self.module = load_script("generate_intent_traceability")
         self.module.REPO_ROOT = self.root
@@ -86,6 +96,15 @@ intent_refs:
         self.assertIn("vision:P1", content)
         self.assertIn("ADR-001", content)
         self.assertIn("Capture", content)
+
+    def test_historical_adr_labels_show_current_authority(self) -> None:
+        refs = self.module.collect_known_refs()
+
+        self.assertIn("ADR-002", refs)
+        self.assertEqual(
+            refs["ADR-002"]["label"],
+            "历史记录（已取代，当前权威：ADR-001）：Legacy cloud analytics",
+        )
 
     def test_rejects_missing_intent_refs(self) -> None:
         self.write_feature(
@@ -146,6 +165,82 @@ intent_refs:
             with patch.object(sys, "argv", ["generate_intent_traceability.py", "--check"]):
                 with self.assertRaises(SystemExit) as raised:
                     self.module.main()
+
+        self.assertEqual(raised.exception.code, 1)
+
+
+class FeatureStatusTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.features = self.root / "docs" / "features" / "active"
+        self.reference = self.root / "docs" / "reference"
+        self.features.mkdir(parents=True)
+        self.reference.mkdir(parents=True)
+
+        self.module = load_script("generate_feature_status")
+        self.module.REPO_ROOT = self.root
+        self.module.FEATURES_DIR = self.root / "docs" / "features"
+        self.module.OUTPUT = self.reference / "feature-status.md"
+
+    def tearDown(self) -> None:
+        self.tmp.cleanup()
+
+    def write_feature(self, frontmatter: str) -> Path:
+        path = self.features / "feat-capture.md"
+        path.write_text(f"---\n{frontmatter}---\n# Feature: Capture\n", encoding="utf-8")
+        return path
+
+    def test_collects_valid_feature_status_frontmatter(self) -> None:
+        self.write_feature(
+            """id: feat-capture
+title: Capture
+status: implemented
+tier: free
+blocked_by: []
+mode: full
+last_updated: 2026-06-14
+"""
+        )
+
+        specs = self.module.collect()
+
+        self.assertEqual(len(specs), 1)
+        self.assertEqual(specs[0]["id"], "feat-capture")
+
+    def test_rejects_unknown_feature_status(self) -> None:
+        self.write_feature(
+            """id: feat-capture
+title: Capture
+status: maybe
+tier: free
+blocked_by: []
+mode: full
+last_updated: 2026-06-14
+"""
+        )
+
+        with redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect()
+
+        self.assertEqual(raised.exception.code, 1)
+
+    def test_rejects_invalid_blocked_by_type(self) -> None:
+        self.write_feature(
+            """id: feat-capture
+title: Capture
+status: blocked
+tier: free
+blocked_by: 479
+mode: full
+last_updated: 2026-06-14
+"""
+        )
+
+        with redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect()
 
         self.assertEqual(raised.exception.code, 1)
 

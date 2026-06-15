@@ -60,6 +60,30 @@ def markdown_title(path: Path) -> str:
     return path.stem
 
 
+def historical_adr_label(path: Path, label: str) -> str:
+    fm = parse_frontmatter(path) or {}
+    if fm.get("historical_record") is not True:
+        return label
+
+    status = fm.get("current_status")
+    authority = fm.get("current_authority")
+    status_label = {
+        "suspended": "已挂起",
+        "superseded": "已取代",
+    }.get(status, "历史记录")
+
+    if isinstance(authority, str) and authority:
+        authority_path = Path(authority)
+        authority_name = authority_path.stem
+        if authority_name.startswith("ADR-"):
+            authority_ref = "-".join(authority_name.split("-")[:2])
+        else:
+            authority_ref = authority_name
+        return f"历史记录（{status_label}，当前权威：{authority_ref}）：{label}"
+
+    return f"历史记录（{status_label}）：{label}"
+
+
 def collect_vision_refs() -> dict[str, dict[str, str]]:
     vision_path = DOCS_ROOT / "explanations" / "vision.md"
     text = vision_path.read_text(encoding="utf-8")
@@ -79,8 +103,9 @@ def collect_adr_refs() -> dict[str, dict[str, str]]:
         if len(key) < 2:
             continue
         ref = f"ADR-{key[1]}"
+        label = markdown_title(path).removeprefix(f"{ref}: ").strip()
         refs[ref] = {
-            "label": markdown_title(path).removeprefix(f"{ref}: ").strip(),
+            "label": historical_adr_label(path, label),
             "path": "../decisions/" + path.name,
         }
     return refs

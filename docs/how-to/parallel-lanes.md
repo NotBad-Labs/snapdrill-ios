@@ -99,14 +99,36 @@ Antigravity 不修改 Swift 业务逻辑。法律结论必须标注来源与是�
 
 ## 5. 交接方式
 
-Agents 不会自动读取彼此的私有会话，也不应互相调用对方模型。当前规则：
+Agents 不会自动读取彼此的私有会话。默认交接通过共享仓库中的文档、commit hash、测试结果和 GitHub 事实完成；只有 PO 明确授权时，Codex 才可以编排 Claude / Gemini / Grok / Antigravity 等外部 agent 做候选实现或交叉审查。
 
-- Claude 不调用 Codex CLI、ChatGPT 或 Codex 插件
-- Codex Desktop 与 Claude 通过共享仓库中的文档、commit hash、测试结果交接
-- PO 不需要人工复制完整上下文；只需在需要启动另一 lane 或作产品裁决时通知
-- 跨层发现写入拥有明确路径的文档，例如 `docs/ui-redesign/REDESIGN-LOG.md` 或专项 contract
-- handoff 至少包含：问题、复现、责任层、所需契约、不可触碰边界、验证方式
-- 发现者不负责替所属层修复，但 Claude 作为工程集成 DRI 负责追踪跨层技术问题直到关闭或明确升级给 PO
+当前规则：
+
+- Claude 不主动调用 Codex CLI、ChatGPT 或 Codex 插件；Claude 负责自己 lane 的工程实现与验证。
+- Codex 可以在 PO 授权下向外部 agent 发出明确 prompt，但外部 agent 的结论只是候选证据，不是项目真相。
+- 外部 agent 产物必须回落到 git-tracked 文档、代码、测试、PR 评论或可复现命令输出，不能只留在某个 agent 会话中。
+- PO 不需要人工复制完整上下文；只需在需要启动另一 lane、授权 GitHub 写操作或作产品裁决时通知。
+- 跨层发现写入拥有明确路径的文档，例如 `docs/ui-redesign/REDESIGN-LOG.md` 或专项 contract。
+- handoff 至少包含：问题、复现、责任层、所需契约、不可触碰边界、验证方式。
+- 发现者不负责替所属层修复，但 Claude 作为工程集成 DRI 负责追踪跨层技术问题直到关闭或明确升级给 PO。
+
+外部 agent 调用前必须先判断是否值得：
+
+- **Claude Code**：用于长时间工程实现、测试补齐、跨层集成和发布就绪工作；必须在独立 worktree / 分支内执行。
+- **Gemini / Antigravity**：用于快速交叉审查、文案/运营/合规素材初筛、文档一致性校验；不得直接修改 Swift 业务逻辑，除非 PO 单独授权。
+- **Grok**：仅作为非阻塞参考；若 headless 输出不稳定、响应过慢或需要人工复制大量上下文，则不进入关键路径。
+- **Claude Design / Figma / 原型工具**：只用于 UI 候选稿和对照参考，不能覆盖 Codex + PO 的 UI 决策权。
+
+外部 agent 审查报告必须标注：只读/写入范围、base commit、使用的命令或工具、发现项、未验证项、是否需要 PO 裁决。没有这些字段的报告只能作为聊天意见，不能作为合并或产品决策依据。
+
+### UI 设计辅助工具
+
+Claude Design、Figma、截图批注、HTML/CSS/React 原型和其它设计工具可以作为 Codex UI lane 的对照参考，但不构成 SnapDrill 的设计真相源。设计工具的产物必须回落到以下证据之一才算进入项目：
+
+- `docs/ui-redesign/REDESIGN-LOG.md` 中的设计决策、取舍和 PO 结论
+- SwiftUI 代码、Snapshot / XCUITest 或可复现的真机/模拟器观察
+- 与 Apple HIG、无障碍、Dynamic Type、本地化和当前产品定位一致的验证记录
+
+Claude Design 的推荐用法是先产出 wireframe / high fidelity 候选稿，用于比较布局、信息密度、视觉 token 和组件结构；Codex 与 PO 决定是否吸收。不得把网页原型、Claude Design 输出或第三方博主工作流直接当成 SwiftUI 架构结论，也不得让 Claude Design 覆盖 Codex+PO 已定的 UI 视觉方向。
 
 ## 6. Worktree 与提交
 
