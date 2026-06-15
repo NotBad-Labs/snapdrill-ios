@@ -29,13 +29,15 @@ struct LibraryDetailView: View {
     @State private var fullScreenImage: UIImage?
     @State private var loadedImage: UIImage?
     @State private var loadedAnswerImage: UIImage?
-    @State private var printPDFURL: URL?
-    @State private var isShowingShareSheet = false
     @State private var shareImage: UIImage?
     @State private var isShowingShareCardSheet = false
+    @State private var printAnchorView: UIView?
+    @State private var isPrinting = false
+    @State private var showPrintError = false
 
     @Environment(\.profileManager) private var profileManager
     @Environment(\.services) private var services
+    @Environment(\.printPresenter) private var printPresenter
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     var body: some View {
@@ -193,6 +195,14 @@ struct LibraryDetailView: View {
         }
         .navigationTitle(L10n.Library.detail)
         .navigationBarTitleDisplayMode(.inline)
+        .background {
+            LibraryPrintAnchorView { view in
+                if printAnchorView !== view {
+                    printAnchorView = view
+                }
+            }
+            .frame(width: 0, height: 0)
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 HStack(spacing: 16) {
@@ -211,6 +221,7 @@ struct LibraryDetailView: View {
                         Image(systemName: "printer")
                     }
                     .accessibleButton(label: L10n.Library.printSingle)
+                    .disabled(isPrinting)
 
                     Button(L10n.Common.edit) {
                         isEditing = true
@@ -228,15 +239,13 @@ struct LibraryDetailView: View {
                 }
             }
         }
-        .sheet(isPresented: $isShowingShareSheet) {
-            if let url = printPDFURL {
-                ShareSheet(activityItems: [url])
-            }
-        }
         .sheet(isPresented: $isShowingShareCardSheet) {
             if let image = shareImage {
                 ShareSheet(activityItems: [image])
             }
+        }
+        .alert(L10n.Errors.pdfGenerateFailed, isPresented: $showPrintError) {
+            Button(L10n.Common.ok, role: .cancel) {}
         }
     }
 
@@ -264,25 +273,59 @@ struct LibraryDetailView: View {
     // MARK: - 单题快速打印
 
     private func printSingleItem() {
+        guard !isPrinting else { return }
         Task {
             let snapshot = item.toExportSnapshot()
             let storage = imageStorage
             let service = services.pdfExport
+            let activityTracker = services.activityTracker
+            let presenter = printPresenter
             let options = PDFExportOptions(itemsPerPage: 1)
+            isPrinting = true
+            activityTracker.begin(.printing)
+            defer {
+                activityTracker.end(.printing)
+                isPrinting = false
+            }
             do {
                 let data = try await service.createPDF(
                     from: [snapshot],
                     options: options,
                     imageProvider: { path in storage.loadImage(path: path) }
                 )
-                let url = FileManager.default.temporaryDirectory
-                    .appendingPathComponent("SnapDrill_Print_\(UUID().uuidString).pdf")
-                try data.write(to: url)
-                printPDFURL = url
-                isShowingShareSheet = true
+                guard let printAnchorView else {
+                    throw PrintError.presentationFailed
+                }
+                _ = try await presenter.present(
+                    pdfData: data,
+                    jobName: L10n.Library.detail,
+                    anchor: .view(printAnchorView)
+                )
             } catch {
-                SnapDrillLogger.generic.error("单题打印 PDF 生成失败: \(error.localizedDescription)")
+                SnapDrillLogger.generic.error("单题打印失败: \(error.localizedDescription)")
+                showPrintError = true
             }
+        }
+    }
+}
+
+private struct LibraryPrintAnchorView: UIViewRepresentable {
+    let onResolve: (UIView) -> Void
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView(frame: .zero)
+        view.isUserInteractionEnabled = false
+        resolve(view)
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+        resolve(uiView)
+    }
+
+    private func resolve(_ view: UIView) {
+        DispatchQueue.main.async {
+            onResolve(view)
         }
     }
 }

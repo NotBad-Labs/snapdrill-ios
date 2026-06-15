@@ -10,8 +10,9 @@
 //  分层意图：Core 只负责生成 PDF `Data`（`PDFExportService`），对 UIKit 一无所知；
 //  本文件把吃 UIView 的 `UIPrintInteractionController` 呈现逻辑集中在 UI 层，做成
 //  可注入的 adapter，既不重复实现也保持可测。Feature View 调用
-//  `try await printPresenter.present(pdfData:jobName:anchor:)` 并消费 `PrintOutcome`，
-//  仅在 `.completed` 时记录打印活动（UC5）。
+//  `try await printPresenter.present(pdfData:jobName:anchor:)`，并可按需消费
+//  `PrintOutcome`。当前 Feature 只在系统打印界面活跃期间用 `AppActivityTracker`
+//  阻塞 Profile 切换；尚未记录“已成功打印”的业务事件。
 //
 //  契约来源：docs/ui-redesign/flagship-cross-layer-contracts.md · I3。
 //  adapter 只消费已有 PDF Data，绝不生成 PDF。

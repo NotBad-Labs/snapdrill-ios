@@ -25,9 +25,13 @@ struct ExportPreviewView: View {
     @State private var isLoading = true
     @State private var tempPDFURL: URL?
     @State private var showGenerateError = false
+    @State private var showPrintError = false
+    @State private var isPrinting = false
+    @State private var printAnchorView: UIView?
 
     @Environment(\.profileManager) private var profileManager
     @Environment(\.services) private var services
+    @Environment(\.printPresenter) private var printPresenter
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
     
     var body: some View {
@@ -44,18 +48,38 @@ struct ExportPreviewView: View {
         }
         .navigationTitle(L10n.Library.exportPreview)
         .navigationBarTitleDisplayMode(.inline)
+        .background {
+            ExportPrintAnchorView { view in
+                if printAnchorView !== view {
+                    printAnchorView = view
+                }
+            }
+            .frame(width: 0, height: 0)
+        }
         .toolbar {
-            if let tempPDFURL {
-                ToolbarItem(placement: .confirmationAction) {
+            ToolbarItemGroup(placement: .confirmationAction) {
+                if let tempPDFURL {
                     ShareLink(item: tempPDFURL) {
-                        Label(L10n.Library.shareOrPrint, systemImage: "square.and.arrow.up")
+                        Label(L10n.Library.share, systemImage: "square.and.arrow.up")
                     }
+                }
+
+                if pdfData != nil {
+                    Button {
+                        printPDF()
+                    } label: {
+                        Label(L10n.Library.printSingle, systemImage: "printer")
+                    }
+                    .disabled(isPrinting)
                 }
             }
         }
         .alert(L10n.Errors.pdfGenerateFailed, isPresented: $showGenerateError) {
             Button(L10n.Common.retry) { generatePDF() }
             Button(L10n.Common.cancel, role: .cancel) { dismiss() }
+        }
+        .alert(L10n.Errors.pdfGenerateFailed, isPresented: $showPrintError) {
+            Button(L10n.Common.ok, role: .cancel) {}
         }
         .task {
             generatePDF()
@@ -117,6 +141,54 @@ struct ExportPreviewView: View {
         } catch {
             SnapDrillLogger.generic.error("PDF 写入临时文件失败: \(error.localizedDescription)")
             return nil
+        }
+    }
+
+    private func printPDF() {
+        guard !isPrinting, let pdfData else { return }
+        let activityTracker = services.activityTracker
+        let presenter = printPresenter
+        Task {
+            isPrinting = true
+            activityTracker.begin(.printing)
+            defer {
+                activityTracker.end(.printing)
+                isPrinting = false
+            }
+            do {
+                guard let printAnchorView else {
+                    throw PrintError.presentationFailed
+                }
+                _ = try await presenter.present(
+                    pdfData: pdfData,
+                    jobName: L10n.Library.exportPreview,
+                    anchor: .view(printAnchorView)
+                )
+            } catch {
+                SnapDrillLogger.generic.error("PDF 打印失败: \(error.localizedDescription)")
+                showPrintError = true
+            }
+        }
+    }
+}
+
+private struct ExportPrintAnchorView: UIViewRepresentable {
+    let onResolve: (UIView) -> Void
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView(frame: .zero)
+        view.isUserInteractionEnabled = false
+        resolve(view)
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+        resolve(uiView)
+    }
+
+    private func resolve(_ view: UIView) {
+        DispatchQueue.main.async {
+            onResolve(view)
         }
     }
 }
