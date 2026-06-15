@@ -99,6 +99,28 @@ class ValidateDocsTests(unittest.TestCase):
         self.assertNotIn("错题本 App 市场已形成三个梯队", text)
         self.assertIn("通用效率工具定位", text)
 
+    def test_positioning_reset_claims_fail_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        original_docs_root = validate_docs.DOCS_ROOT
+
+        def fake_read(path: Path) -> str:
+            if path == original_docs_root / "explanations" / "competitive-analysis.md":
+                return "错题本 App 市场已形成三个梯队：\n"
+            return original_read(path)
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_positioning_resets(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/explanations/competitive-analysis.md:1 positioning reset: "
+            "错题本 App 市场已形成三个梯队",
+            errors,
+        )
+
     def test_current_repo_docs_pass(self) -> None:
         self.assertEqual(validate_docs.run_checks(), [])
 

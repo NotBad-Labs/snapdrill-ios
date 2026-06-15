@@ -3,8 +3,8 @@
 
 This is intentionally narrow. It does not judge product strategy; it catches
 document states that have repeatedly misled agents: historical ADRs presented as
-current truth, stale Firebase-era claims outside historical records, and feature
-specs without explicit intent traceability.
+current truth, stale Firebase-era claims outside historical records, product
+positioning resets, and feature specs without explicit intent traceability.
 """
 from __future__ import annotations
 
@@ -27,6 +27,10 @@ STALE_CURRENT_CLAIMS = {
     "海外版 Firebase",
     "待 C 路径",
     "编译层彻底剔除待",
+}
+
+POSITIONING_RESET_CLAIMS = {
+    "错题本 App 市场已形成三个梯队",
 }
 
 STALE_ALLOWED = set(HISTORICAL_ADRS)
@@ -164,6 +168,18 @@ def validate_stale_claims(errors: list[str]) -> None:
                 errors.append(f"{rel(path)}:{line_number(text, phrase)} stale claim: {phrase}")
 
 
+def validate_positioning_resets(errors: list[str]) -> None:
+    for path in sorted(DOCS_ROOT.rglob("*.md")):
+        if path in STALE_ALLOWED:
+            continue
+        text = read(path)
+        for phrase in POSITIONING_RESET_CLAIMS:
+            if phrase in text:
+                errors.append(
+                    f"{rel(path)}:{line_number(text, phrase)} positioning reset: {phrase}"
+                )
+
+
 def validate_feature_intent(errors: list[str]) -> None:
     for path in sorted((DOCS_ROOT / "features").rglob("feat-*.md")):
         if path.name == "template.md":
@@ -191,6 +207,7 @@ def run_checks() -> list[str]:
     errors: list[str] = []
     validate_historical_adrs(errors)
     validate_stale_claims(errors)
+    validate_positioning_resets(errors)
     validate_feature_intent(errors)
     return errors
 
