@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  错题详情页，展示题目的完整信息（原题、答案、解析）。
+//  资料详情页，展示条目的完整信息。
 //
 
 import SwiftUI
@@ -14,14 +14,14 @@ import SnapDrillData
 import SnapDrillUI
 import SnapDrillCore
 
-/// 题目详情视图
+/// 资料详情视图
 struct LibraryDetailView: View {
 
     // MARK: - Properties
 
     @Bindable var router: LibraryRouter
 
-    /// 要展示的题目数据模型
+    /// 要展示的资料数据模型
     let item: ReviewItemModel
 
     @State private var isEditing = false
@@ -32,7 +32,10 @@ struct LibraryDetailView: View {
     @State private var shareImage: UIImage?
     @State private var isShowingShareCardSheet = false
     @State private var printAnchorView: UIView?
+    @State private var isAnswerExpanded = false
+    @State private var isSharing = false
     @State private var isPrinting = false
+    @State private var showShareError = false
     @State private var showPrintError = false
 
     @Environment(\.profileManager) private var profileManager
@@ -114,12 +117,23 @@ struct LibraryDetailView: View {
 
                 Divider()
 
-                // Content（纯图片题时 content 为 nil，跳过渲染）
+                // Content（纯图片条目时 content 为 nil，跳过渲染）
                 if let content = item.content, !content.isEmpty {
-                    Text(content)
-                        .font(.body)
-                        .lineSpacing(6)
-                        .padding(.horizontal)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label(L10n.Library.questionText, systemImage: "doc.text")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.secondary)
+
+                        Text(content)
+                            .font(.body.weight(.medium))
+                            .lineSpacing(7)
+                            .textSelection(.enabled)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(16)
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .padding(.horizontal)
                 }
 
                 // 难度（年级等已并入上方动态维度展示）
@@ -135,46 +149,61 @@ struct LibraryDetailView: View {
                 }
                 .padding(.horizontal)
 
-                // 答案区
-                if item.answerText.map({ !$0.isEmpty }) ?? false || item.answerImagePath != nil {
+                // 答案与备注区：默认隐藏，避免从列表进入详情时直接泄露答案。
+                if hasAnswerContent {
                     Divider()
 
                     VStack(alignment: .leading, spacing: 12) {
-                        Label(L10n.Library.answerSection, systemImage: "lightbulb.fill")
-                            .font(.headline)
-                            .foregroundStyle(.orange)
-                            .padding(.horizontal)
-
-                        if let answerText = item.answerText, !answerText.isEmpty {
-                            Text(answerText)
-                                .font(.body)
-                                .lineSpacing(6)
-                                .padding(.horizontal)
-                        }
-
-                        if item.answerImagePath != nil {
-                            if let answerImage = loadedAnswerImage {
-                                Image(uiImage: answerImage)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(maxHeight: 200)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    .padding(.horizontal)
-                                    .onTapGesture {
-                                        fullScreenImage = answerImage
-                                        showingFullScreenImage = true
-                                    }
-                                    .accessibleImage(label: L10n.Accessibility.answerImage)
-                                    .accessibilityHint(L10n.Accessibility.tapToEnlarge)
-                            } else {
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.secondary.opacity(0.1))
-                                    .frame(height: 150)
-                                    .overlay(ProgressView())
-                                    .padding(.horizontal)
+                        Button {
+                            withAnimation(.snappy(duration: 0.22)) {
+                                isAnswerExpanded.toggle()
                             }
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "lightbulb")
+                                    .font(.headline)
+                                    .foregroundStyle(.orange)
+                                    .frame(width: 34, height: 34)
+                                    .background(.orange.opacity(0.14))
+                                    .clipShape(Circle())
+
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(L10n.Library.answerSection)
+                                        .font(.headline)
+                                        .foregroundStyle(.primary)
+                                    Text(L10n.Library.answerPrivacyHint)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+
+                                Spacer()
+
+                                Image(systemName: "chevron.down")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.secondary)
+                                    .rotationEffect(.degrees(isAnswerExpanded ? 180 : 0))
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibleButton(
+                            label: isAnswerExpanded ? L10n.Accessibility.hideAnswer : L10n.Accessibility.showAnswer,
+                            hint: L10n.Library.answerPrivacyHint
+                        )
+
+                        if isAnswerExpanded {
+                            AnswerContentView(
+                                item: item,
+                                loadedAnswerImage: loadedAnswerImage,
+                                onTapImage: { answerImage in
+                                    fullScreenImage = answerImage
+                                    showingFullScreenImage = true
+                                }
+                            )
+                            .transition(.opacity.combined(with: .move(edge: .top)))
                         }
                     }
+                    .padding(.horizontal)
                 }
 
                 Spacer()
@@ -188,8 +217,11 @@ struct LibraryDetailView: View {
             let image = await imageStorage.loadImageAsync(path: path)
             if !Task.isCancelled { loadedImage = image }
         }
-        .task(id: item.answerImagePath) {
-            guard let path = item.answerImagePath else { loadedAnswerImage = nil; return }
+        .task(id: answerImageTaskID) {
+            guard isAnswerExpanded, let path = item.answerImagePath else {
+                loadedAnswerImage = nil
+                return
+            }
             let image = await imageStorage.loadImageAsync(path: path)
             if !Task.isCancelled { loadedAnswerImage = image }
         }
@@ -210,15 +242,26 @@ struct LibraryDetailView: View {
                     Button {
                         shareQuestionCard()
                     } label: {
-                        Image(systemName: "square.and.arrow.up")
+                        if isSharing {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "square.and.arrow.up")
+                        }
                     }
                     .accessibleButton(label: L10n.Library.share)
+                    .disabled(isSharing)
 
                     // 单题快速打印
                     Button {
                         printSingleItem()
                     } label: {
-                        Image(systemName: "printer")
+                        if isPrinting {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "printer")
+                        }
                     }
                     .accessibleButton(label: L10n.Library.printSingle)
                     .disabled(isPrinting)
@@ -244,14 +287,30 @@ struct LibraryDetailView: View {
                 ShareSheet(activityItems: [image])
             }
         }
-        .alert(L10n.Errors.pdfGenerateFailed, isPresented: $showPrintError) {
+        .alert(L10n.Library.shareFailed, isPresented: $showShareError) {
             Button(L10n.Common.ok, role: .cancel) {}
         }
+        .alert(L10n.Library.printFailed, isPresented: $showPrintError) {
+            Button(L10n.Common.ok, role: .cancel) {}
+        }
+    }
+
+    private var hasAnswerContent: Bool {
+        (item.answerText?.isEmpty == false) || item.answerImagePath != nil
+    }
+
+    private var answerImageTaskID: String {
+        guard isAnswerExpanded else { return "collapsed" }
+        return item.answerImagePath ?? "expanded-no-image"
     }
 
     // MARK: - 分享题目卡片
 
     private func shareQuestionCard() {
+        guard !isSharing else { return }
+        isSharing = true
+        defer { isSharing = false }
+
         let cardView = ShareCardView(
             content: item.content,
             image: loadedImage,
@@ -264,6 +323,7 @@ struct LibraryDetailView: View {
         renderer.scale = UITraitCollection.current.displayScale
         guard let uiImage = renderer.uiImage else {
             SnapDrillLogger.generic.error("分享卡片图片渲染失败")
+            showShareError = true
             return
         }
         shareImage = uiImage
@@ -306,6 +366,46 @@ struct LibraryDetailView: View {
                 showPrintError = true
             }
         }
+    }
+}
+
+private struct AnswerContentView: View {
+    let item: ReviewItemModel
+    let loadedAnswerImage: UIImage?
+    let onTapImage: (UIImage) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let answerText = item.answerText, !answerText.isEmpty {
+                Text(answerText)
+                    .font(.body)
+                    .lineSpacing(6)
+                    .textSelection(.enabled)
+            }
+
+            if item.answerImagePath != nil {
+                if let answerImage = loadedAnswerImage {
+                    Image(uiImage: answerImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxHeight: 200)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .onTapGesture {
+                            onTapImage(answerImage)
+                        }
+                        .accessibleImage(label: L10n.Accessibility.answerImage)
+                        .accessibilityHint(L10n.Accessibility.tapToEnlarge)
+                } else {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.secondary.opacity(0.1))
+                        .frame(height: 150)
+                        .overlay(ProgressView())
+                }
+            }
+        }
+        .padding(16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 }
 

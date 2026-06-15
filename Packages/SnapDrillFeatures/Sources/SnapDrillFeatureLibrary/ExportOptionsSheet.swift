@@ -40,99 +40,82 @@ struct ExportOptionsSheet: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section(L10n.Library.exportTitle) {
-                    // 1. PDF / Print
-                    Button {
-                        showingPDFPreview = true
-                    } label: {
-                        Label {
-                            VStack(alignment: .leading) {
-                                Text(L10n.Library.exportPDF)
-                                    .font(.headline)
-                                Text(L10n.Library.exportPDFHint)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "printer.fill")
-                                .foregroundStyle(.blue)
-                                .font(.title2)
-                        }
-                        .padding(.vertical, 8)
+            Group {
+                if items.isEmpty {
+                    ContentUnavailableView {
+                        Label(L10n.Library.noExportItems, systemImage: "square.and.arrow.up")
+                    } description: {
+                        Text(L10n.Library.noExportItemsHint)
                     }
-                    .accessibleButton(label: L10n.Library.exportPDF, hint: L10n.Accessibility.exportPDFHint)
-                    
-                    // 2. CSV (.csv)
-                    ShareLink(
-                        item: ReviewExport(items: items, format: .csv),
-                        preview: SharePreview(L10n.Library.exportCSV, image: Image(systemName: "tablecells"))
-                    ) {
-                        Label {
-                            VStack(alignment: .leading) {
-                                Text(L10n.Library.exportCSV)
-                                    .font(.headline)
-                                Text(L10n.Library.exportCSVHint)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                } else {
+                    List {
+                        Section(L10n.Library.exportTitle) {
+                            // 1. PDF / Print
+                            Button {
+                                showingPDFPreview = true
+                            } label: {
+                                ExportOptionLabel(
+                                    title: L10n.Library.exportPDF,
+                                    subtitle: L10n.Library.exportPDFHint,
+                                    systemImage: "printer.fill",
+                                    tint: .blue
+                                )
                             }
-                        } icon: {
-                            Image(systemName: "tablecells")
-                                .foregroundStyle(.green)
-                                .font(.title2)
-                        }
-                        .padding(.vertical, 8)
-                    }
-                    .accessibleButton(label: L10n.Library.exportCSV, hint: L10n.Accessibility.exportCSVHint)
+                            .accessibleButton(label: L10n.Library.exportPDF, hint: L10n.Accessibility.exportPDFHint)
 
-                    // 3. 原图 ZIP
-                    Button {
-                        exportImagesZIP()
-                    } label: {
-                        Label {
-                            VStack(alignment: .leading) {
-                                Text(L10n.Library.exportImages)
-                                    .font(.headline)
-                                Text(L10n.Library.exportImagesHint)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                            // 2. CSV (.csv)
+                            ShareLink(
+                                item: ReviewExport(items: items, format: .csv),
+                                preview: SharePreview(L10n.Library.exportCSV, image: Image(systemName: "tablecells"))
+                            ) {
+                                ExportOptionLabel(
+                                    title: L10n.Library.exportCSV,
+                                    subtitle: L10n.Library.exportCSVHint,
+                                    systemImage: "tablecells",
+                                    tint: .green
+                                )
                             }
-                        } icon: {
-                            if isExportingZIP {
-                                ProgressView()
-                            } else {
-                                Image(systemName: "photo.on.rectangle.angled")
-                                    .foregroundStyle(.purple)
-                                    .font(.title2)
+                            .accessibleButton(label: L10n.Library.exportCSV, hint: L10n.Accessibility.exportCSVHint)
+
+                            // 3. 原图 ZIP
+                            Button {
+                                exportImagesZIP()
+                            } label: {
+                                ExportOptionLabel(
+                                    title: L10n.Library.exportImages,
+                                    subtitle: isExportingZIP ? L10n.Library.exportingImages : L10n.Library.exportImagesHint,
+                                    systemImage: "photo.on.rectangle.angled",
+                                    tint: .purple,
+                                    isLoading: isExportingZIP
+                                )
+                            }
+                            .disabled(isExportingZIP)
+                        }
+
+                        Section(L10n.Export.pdfOptions) {
+                            Toggle(L10n.Export.hideAnswers, isOn: $hideAnswers)
+                            if hideAnswers {
+                                Toggle(L10n.Export.showBlankArea, isOn: $showBlankAnswerArea)
+                            }
+                            Toggle(L10n.Export.showHeader, isOn: $showHeader)
+                            Picker(L10n.Export.itemsPerPage, selection: $itemsPerPage) {
+                                Text("1").tag(1)
+                                Text("2").tag(2)
+                                Text("4").tag(4)
                             }
                         }
-                        .padding(.vertical, 8)
-                    }
-                    .disabled(isExportingZIP)
-                }
-                
-                Section(L10n.Export.pdfOptions) {
-                    Toggle(L10n.Export.hideAnswers, isOn: $hideAnswers)
-                    if hideAnswers {
-                        Toggle(L10n.Export.showBlankArea, isOn: $showBlankAnswerArea)
-                    }
-                    Toggle(L10n.Export.showHeader, isOn: $showHeader)
-                    Picker(L10n.Export.itemsPerPage, selection: $itemsPerPage) {
-                        Text("1").tag(1)
-                        Text("2").tag(2)
-                        Text("4").tag(4)
-                    }
-                }
 
-                Section {
-                    HStack {
-                        Spacer()
-                        Text(L10n.Common.itemCount(items.count))
-                            .foregroundStyle(.secondary)
-                        Spacer()
+                        Section {
+                            HStack {
+                                Spacer()
+                                Text(L10n.Common.itemCount(items.count))
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                            }
+                        }
+                        .listRowBackground(Color.clear)
                     }
                 }
-                .listRowBackground(Color.clear)
             }
             .navigationTitle(L10n.Library.export)
             .navigationBarTitleDisplayMode(.inline)
@@ -220,6 +203,35 @@ struct ExportOptionsSheet: View {
                 }
             }
         }
+    }
+}
+
+private struct ExportOptionLabel: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    let tint: Color
+    var isLoading = false
+
+    var body: some View {
+        Label {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.headline)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        } icon: {
+            if isLoading {
+                ProgressView()
+            } else {
+                Image(systemName: systemImage)
+                    .foregroundStyle(tint)
+                    .font(.title2)
+            }
+        }
+        .padding(.vertical, 8)
     }
 }
 

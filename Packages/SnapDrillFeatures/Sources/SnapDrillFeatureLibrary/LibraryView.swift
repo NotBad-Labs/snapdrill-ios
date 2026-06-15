@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  题库列表界面，支持题目浏览和筛选
+//  资料列表界面，支持条目浏览和筛选
 //
 
 import SwiftUI
@@ -14,7 +14,7 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillData
 
-/// 题库列表界面
+/// 资料列表界面
 public struct LibraryView: View {
     
     // MARK: - Properties
@@ -33,7 +33,6 @@ public struct LibraryView: View {
     @State private var isFilterPresented = false
     @State private var isFirstAppear = true
     @State private var isBatchTagPresented = false
-    @State private var isSmartPaperPresented = false
     
     // MARK: - Initialization
     
@@ -70,7 +69,7 @@ public struct LibraryView: View {
                         )
                     }
                 } else {
-                    ProgressView()
+                    LibraryLoadingView()
                 }
 
                 // 撤销删除 Toast
@@ -129,14 +128,6 @@ public struct LibraryView: View {
                         .fontWeight(.bold)
                     } else {
                         HStack(spacing: 12) {
-                            // 智能组卷
-                            Button {
-                                isSmartPaperPresented = true
-                            } label: {
-                                Image(systemName: "doc.richtext")
-                            }
-                            .accessibleButton(label: L10n.SmartPaper.title, hint: L10n.SmartPaper.subtitle)
-
                             // 排序（Apple Reminders 风格 Menu）
                             if let vm = viewModel {
                                 Menu {
@@ -220,9 +211,6 @@ public struct LibraryView: View {
             .sheet(isPresented: $isExportSheetPresented) {
                 ResolvedExportSheet(ids: selectedItemIDs)
             }
-            .sheet(isPresented: $isSmartPaperPresented) {
-                SmartPaperView()
-            }
             .sheet(isPresented: $isBatchTagPresented) {
                 if let vm = viewModel {
                     BatchTagSheet(viewModel: vm, selectedItemIDs: selectedItemIDs)
@@ -302,6 +290,21 @@ public struct LibraryView: View {
         withAnimation {
             selectedItemIDs.removeAll()
         }
+    }
+}
+
+private struct LibraryLoadingView: View {
+    var body: some View {
+        VStack(spacing: 12) {
+            ProgressView()
+            Text(L10n.Library.loadingLibrary)
+                .font(.headline)
+            Text(L10n.Library.loadingLibraryHint)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
     }
 }
 
