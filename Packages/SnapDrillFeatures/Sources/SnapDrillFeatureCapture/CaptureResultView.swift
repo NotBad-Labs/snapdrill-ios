@@ -58,12 +58,26 @@ public struct CaptureResultView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(L10n.Common.save) {
+                Button {
                     viewModel.save()
+                } label: {
+                    if viewModel.isSaving {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        Text(L10n.Common.save)
+                            .fontWeight(.bold)
+                    }
                 }
-                .fontWeight(.bold)
                 .disabled(viewModel.isRecognizing || viewModel.isSaving)
                 .accessibilityIdentifier("capture.saveButton")
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if viewModel.isSaving || viewModel.isSaved {
+                CaptureSaveStatusBanner(isSaved: viewModel.isSaved)
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
             }
         }
         .navigationTitle(L10n.Capture.previewAndEdit)
@@ -105,6 +119,34 @@ public struct CaptureResultView: View {
                 Text(errorMessage)
             }
         }
+    }
+}
+
+private struct CaptureSaveStatusBanner: View {
+    let isSaved: Bool
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: isSaved ? "checkmark.circle.fill" : "arrow.down.doc")
+                .foregroundStyle(isSaved ? .green : .blue)
+                .accessibilityHidden(true)
+
+            Text(isSaved ? L10n.Capture.saveSucceeded : L10n.Capture.saving)
+                .font(.subheadline.weight(.semibold))
+
+            Spacer(minLength: 0)
+
+            if !isSaved {
+                ProgressView()
+                    .controlSize(.small)
+                    .accessibilityHidden(true)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .shadow(color: .black.opacity(0.08), radius: 12, y: 4)
     }
 }
 

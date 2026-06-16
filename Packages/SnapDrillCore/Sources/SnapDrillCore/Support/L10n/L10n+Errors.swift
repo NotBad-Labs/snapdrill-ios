@@ -63,7 +63,7 @@ nonisolated extension L10n {
         public static let fileAccessDenied = NSLocalizedString("errors.file_access_denied", value: "无法访问选择的文件，请重新选取", comment: "文件访问被拒绝")
 
         // 业务验证
-        public static let contentAndImageEmpty = NSLocalizedString("errors.content_and_image_empty", value: "题目文字和图片不能同时为空", comment: "保存时内容和图片均为空")
+        public static let contentAndImageEmpty = NSLocalizedString("errors.content_and_image_empty", value: "内容和图片不能同时为空", comment: "保存时内容和图片均为空")
 
         // SnapDrillError 描述
         public static let dataNotFound = NSLocalizedString("errors.data_not_found", value: "未找到请求的数据。", comment: "SnapDrillError.dataNotFound 描述")

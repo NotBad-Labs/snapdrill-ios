@@ -34,6 +34,7 @@ struct PDFPagePickerView: View {
     @State private var renderTask: Task<Void, Never>?
     @State private var ocrTask: Task<Void, Never>?
     @State private var thumbnailCache: PDFThumbnailCache?
+    @State private var ocrNotice = OCRNotice()
 
     var ocrService: OCRServiceProtocol = OCRService()
 
@@ -126,6 +127,19 @@ struct PDFPagePickerView: View {
             ocrTask = nil
             thumbnailCache?.cancelAll()
         }
+        .alert(ocrNotice.title, isPresented: $ocrNotice.isPresented) {
+            Button(L10n.Capture.ocrContinueEdit) {
+                if let image = ocrNotice.image {
+                    router.push(.scannerResult(content: "", image: image))
+                }
+                ocrNotice.clear()
+            }
+            Button(L10n.Common.cancel, role: .cancel) {
+                ocrNotice.clear()
+            }
+        } message: {
+            Text(ocrNotice.message)
+        }
     }
 
     // MARK: - Private Helpers
@@ -196,13 +210,59 @@ struct PDFPagePickerView: View {
                     ocrText = result.transcript
                 } catch {
                     SnapDrillLogger.capture.error("PDF 页面 OCR 失败: \(error.localizedDescription)")
+                    await presentOCRNotice(
+                        title: L10n.Capture.ocrFailedTitle,
+                        message: L10n.Capture.ocrFailedHint,
+                        image: image
+                    )
+                    return
                 }
+            } else {
+                await presentOCRNotice(
+                    title: L10n.Capture.ocrFailedTitle,
+                    message: L10n.Capture.ocrFailedHint,
+                    image: image
+                )
+                return
             }
 
             guard !Task.isCancelled else { return }
             isProcessingOCR = false
+            guard !ocrText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                ocrNotice.present(
+                    title: L10n.Capture.ocrEmptyTitle,
+                    message: L10n.Capture.ocrEmptyHint,
+                    image: image
+                )
+                return
+            }
             router.push(.scannerResult(content: ocrText, image: image))
         }
+    }
+
+    private func presentOCRNotice(title: String, message: String, image: UIImage) async {
+        guard !Task.isCancelled else { return }
+        isProcessingOCR = false
+        ocrNotice.present(title: title, message: message, image: image)
+    }
+}
+
+private struct OCRNotice {
+    var isPresented = false
+    var title = ""
+    var message = ""
+    var image: UIImage?
+
+    mutating func present(title: String, message: String, image: UIImage) {
+        self.title = title
+        self.message = message
+        self.image = image
+        self.isPresented = true
+    }
+
+    mutating func clear() {
+        isPresented = false
+        image = nil
     }
 }
 

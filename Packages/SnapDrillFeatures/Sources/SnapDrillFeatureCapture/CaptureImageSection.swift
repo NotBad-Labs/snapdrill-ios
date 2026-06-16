@@ -39,10 +39,10 @@ struct CaptureImageSection: View {
                     viewModel.isCropping = true
                 }, label: {
                     Image(systemName: "crop")
-                        .font(.system(size: 20))
-                        .foregroundStyle(.white)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(.primary)
                         .padding(10)
-                        .background(Color.black.opacity(0.6))
+                        .background(.regularMaterial)
                         .clipShape(Circle())
                 })
                 .accessibleButton(label: L10n.Accessibility.cropImage, hint: L10n.Accessibility.cropImageHint)

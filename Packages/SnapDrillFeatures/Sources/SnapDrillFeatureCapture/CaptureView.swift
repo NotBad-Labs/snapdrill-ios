@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  采集功能主界面，提供拍照识题入口
+//  采集功能主界面，提供多种资料录入入口
 //
 
 import SwiftUI
@@ -16,9 +16,7 @@ import SnapDrillData
 import PhotosUI
 import UniformTypeIdentifiers
 
-/// 采集功能界面
-///
-/// 提供拍照识题和题目录入功能的入口。
+/// 采集功能界面，提供拍摄、导入与手动录入入口。
 public struct CaptureView: View {
     
     // MARK: - Properties
@@ -31,6 +29,7 @@ public struct CaptureView: View {
     @State private var viewModel = CaptureViewModel()
     /// 连续裁剪模式：是否正在显示裁剪器
     @State private var isShowingContinuousCropper = false
+    @State private var activeMethod: CaptureMethod?
     
     /// 初始化采集视图
     /// - Parameter router: 注入的路由器
@@ -46,23 +45,7 @@ public struct CaptureView: View {
             ZStack {
                 Color(.systemGroupedBackground)
                     .ignoresSafeArea()
-                
-                // 抽象网格渐变模拟（iOS 18+）
-                GeometryReader { proxy in
-                    Circle()
-                        .fill(Color.blue.opacity(0.15))
-                        .frame(width: 300, height: 300)
-                        .blur(radius: 60)
-                        .offset(x: -50, y: -50)
-                    
-                    Circle()
-                        .fill(Color.purple.opacity(0.15))
-                        .frame(width: 300, height: 300)
-                        .blur(radius: 60)
-                        .offset(x: proxy.size.width - 250, y: 100)
-                }
-                .ignoresSafeArea()
-                
+
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         
@@ -78,13 +61,18 @@ public struct CaptureView: View {
                                 title: L10n.Capture.cameraTitle,
                                 subtitle: L10n.Capture.cameraSubtitle,
                                 color: .blue,
-                                accessibilityHint: L10n.Accessibility.cameraHint
+                                accessibilityHint: L10n.Accessibility.cameraHint,
+                                accessibilityID: "capture.camera",
+                                isBusy: activeMethod == .camera,
+                                isDisabled: isInteractionDisabled
                             ) {
+                                activeMethod = .camera
                                 Task {
                                     let granted = await viewModel.checkCameraPermission()
                                     if granted {
                                         viewModel.isShowingScanner = true
                                     }
+                                    activeMethod = nil
                                 }
                             }
                             
@@ -94,12 +82,16 @@ public struct CaptureView: View {
                                     icon: "photo.on.rectangle",
                                     title: L10n.Capture.albumTitle,
                                     subtitle: L10n.Capture.albumSubtitle,
-                                    color: .purple
+                                    color: .purple,
+                                    isBusy: viewModel.isProcessing
                                 )
                             }
                             .buttonStyle(.plain)
                             .glassEffect(.regular.tint(.purple).interactive(), in: .rect(cornerRadius: 16))
+                            .opacity(isInteractionDisabled ? 0.55 : 1)
+                            .disabled(isInteractionDisabled)
                             .accessibleButton(label: L10n.Capture.albumTitle, hint: L10n.Accessibility.albumHint)
+                            .accessibilityIdentifier("capture.album")
                             
                             // 3. 手动录入
                             CaptureMethodCard(
@@ -108,7 +100,8 @@ public struct CaptureView: View {
                                 subtitle: L10n.Capture.manualSubtitle,
                                 color: .orange,
                                 accessibilityHint: L10n.Accessibility.manualHint,
-                                accessibilityID: "capture.manual"
+                                accessibilityID: "capture.manual",
+                                isDisabled: isInteractionDisabled
                             ) {
                                 // 以空状态导航到结果编辑页
                                 router.push(.scannerResult(content: "", image: nil))
@@ -120,9 +113,14 @@ public struct CaptureView: View {
                                 title: L10n.Capture.clipboardTitle,
                                 subtitle: L10n.Capture.clipboardSubtitle,
                                 color: .gray,
-                                accessibilityHint: L10n.Accessibility.clipboardHint
+                                accessibilityHint: L10n.Accessibility.clipboardHint,
+                                accessibilityID: "capture.clipboard",
+                                isBusy: activeMethod == .clipboard,
+                                isDisabled: isInteractionDisabled
                             ) {
+                                activeMethod = .clipboard
                                 viewModel.pasteFromClipboard(router: router)
+                                activeMethod = nil
                             }
 
                             // 5. 文档扫描
@@ -131,9 +129,14 @@ public struct CaptureView: View {
                                 title: L10n.Capture.docScanTitle,
                                 subtitle: L10n.Capture.docScanSubtitle,
                                 color: .green,
-                                accessibilityHint: L10n.Accessibility.docScanHint
+                                accessibilityHint: L10n.Accessibility.docScanHint,
+                                accessibilityID: "capture.documentScan",
+                                isBusy: activeMethod == .documentScan,
+                                isDisabled: isInteractionDisabled
                             ) {
+                                activeMethod = .documentScan
                                 viewModel.isShowingDocumentScanner = true
+                                activeMethod = nil
                             }
 
                             // 6. PDF 导入
@@ -142,9 +145,14 @@ public struct CaptureView: View {
                                 title: L10n.Capture.pdfTitle,
                                 subtitle: L10n.Capture.pdfSubtitle,
                                 color: .red,
-                                accessibilityHint: L10n.Accessibility.pdfHint
+                                accessibilityHint: L10n.Accessibility.pdfHint,
+                                accessibilityID: "capture.pdf",
+                                isBusy: activeMethod == .pdf,
+                                isDisabled: isInteractionDisabled
                             ) {
+                                activeMethod = .pdf
                                 viewModel.isShowingPDFPicker = true
+                                activeMethod = nil
                             }
 
                         }
@@ -245,7 +253,10 @@ public struct CaptureView: View {
             // 相册选择器处理
             .onChange(of: viewModel.selectedPhotoItem) { _, newItem in
                 if let newItem {
+                    activeMethod = nil
                     viewModel.loadPhoto(newItem, router: router)
+                } else {
+                    activeMethod = nil
                 }
             }
             .onAppear {
@@ -316,6 +327,7 @@ public struct CaptureView: View {
                 allowedContentTypes: [.pdf],
                 allowsMultipleSelection: false
             ) { result in
+                activeMethod = nil
                 switch result {
                 case .success(let urls):
                     guard let url = urls.first else { return }
@@ -363,6 +375,17 @@ public struct CaptureView: View {
             }
         }
     }
+
+    private var isInteractionDisabled: Bool {
+        viewModel.isProcessing || activeMethod != nil
+    }
+}
+
+private enum CaptureMethod {
+    case camera
+    case clipboard
+    case documentScan
+    case pdf
 }
 
 #Preview {

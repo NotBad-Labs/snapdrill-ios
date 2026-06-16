@@ -2,6 +2,139 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-16 - Capture flagship polish planning
+
+### Scope
+
+- `docs/ui-redesign/capture-flagship-polish-plan.md`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+Planning reviewed these files without editing them:
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureResultView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureViewModel.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureResultViewModel.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureMethodCard.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureImageSection.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureContentSection.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureMetadataSection.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureDetailsSection.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/PDFPagePickerView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/ScanPagePickerView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/SmartCameraView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/SmartCameraViewController.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/DocumentScannerView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CameraSessionManager.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Capture.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/zh-Hans.lproj/InfoPlist.strings`
+
+### Design Decisions
+
+- Capture is the second UI flagship surface after Library.
+- PO confirmation is required before implementation.
+- The plan keeps the #820 Library visual direction: calm adult productivity, Telegram/Apple lightness, stable spacing, and no child/game signals.
+- The plan explicitly forbids editing `*ViewModel.swift`, Core/Data/OCR logic, or binary release settings unless a later PO decision changes the scope.
+- UI implementation should consume existing state such as `isProcessing`, `isRecognizing`, `isSaving`, `isSaved`, `showErrorAlert`, and route-level presentation flags.
+- Capture copy changes are PO-gated. Permission usage strings are listed as release-hardening candidates because they affect binary metadata and Capture permission prompts.
+
+### Files Changed
+
+- `docs/ui-redesign/capture-flagship-polish-plan.md`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Cross-Layer Findings
+
+- `SnapDrillCore` `L10n+Capture.swift` is a Core-layer holder for UI strings. This milestone records the boundary and does not move the type.
+- `CameraSessionManager` logs no-camera/session-configuration failures without exposing a user-visible state to SwiftUI.
+- OCR empty result, low-quality image, timeout, and confidence are not fully represented as UI state. UI can handle empty text and surfaced errors, but deeper reason codes require a cross-layer contract.
+- PDF and scan page OCR failure paths can reach an empty result editor with limited user context; the plan proposes UI fallback first and records deeper contracts separately.
+
+### DoD Status
+
+- Planning-only milestone. Swift build was not run because no Swift code changed.
+- Passed on 2026-06-16:
+  - `git diff --check`
+
+### Open Questions
+
+- Superseded by the implementation milestone below: PO approved the default Capture polish plan and permission usage strings on 2026-06-16.
+- Implementation details and final DoD are recorded in "2026-06-16 - Capture flagship polish implementation".
+
+## 2026-06-16 - Capture flagship polish implementation
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureMethodCard.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureContentSection.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureImageSection.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureResultView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/SmartCameraView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/DocumentScannerView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/ScanPagePickerView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/PDFPagePickerView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Capture.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Accessibility.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Errors.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Onboarding.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `SnapDrill/Resources/zh-Hans.lproj/InfoPlist.strings`
+- `SnapDrill/Resources/en.lproj/InfoPlist.strings`
+- `docs/ui-redesign/capture-flagship-polish-plan.md`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Design Decisions
+
+- PO approved the default Capture polish plan and explicitly approved changing the camera/photo permission usage strings in this milestone.
+- Capture remains an adult productivity capture surface: “资料/内容/参考内容/阶段” replaces exposed “题目/答案/年级/试卷” wording within this screen and its direct permission/a11y strings.
+- Entry cards now provide local busy/disabled feedback so the first tap has visible response before a sheet, picker, scanner, or OCR flow appears.
+- Manual empty state and OCR empty state are separate: manual input invites typing/pasting, while OCR empty explains that no text was recognized.
+- PDF and scan page OCR failures now surface user-visible alerts with a “continue editing” fallback instead of silently opening an empty editor.
+- Save now has a visible saving/saved status strip in addition to the existing failure alert.
+- No `*ViewModel.swift`, Core/Data persistence logic, or OCR/Vision algorithm was changed.
+
+### Files Changed
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureMethodCard.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureContentSection.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureImageSection.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureResultView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/SmartCameraView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/DocumentScannerView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/ScanPagePickerView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/PDFPagePickerView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Capture.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Accessibility.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Errors.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Onboarding.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `SnapDrill/Resources/zh-Hans.lproj/InfoPlist.strings`
+- `SnapDrill/Resources/en.lproj/InfoPlist.strings`
+- `docs/ui-redesign/capture-flagship-polish-plan.md`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Cross-Layer Findings
+
+- UI text constants for Capture, Accessibility, Errors, and Onboarding still live under `SnapDrillCore`. This milestone updates only approved string defaults and localized resources; it does not move the L10n layer or change dependency direction.
+- SmartCamera can still only log some camera-session failures such as no rear camera or session configuration failure. A precise user-facing camera unavailable state needs a future Feature/Core contract.
+- OCR quality causes such as low confidence, timeout, and low-quality image are not exposed as structured UI state. This milestone handles surfaced errors and empty text only.
+
+### DoD Status
+
+- Passed on 2026-06-16:
+  - `swiftlint --strict`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
+### Open Questions
+
+- iPhone 17 dogfood is still needed for real camera, document scanner, photo picker cancellation, and PDF OCR fallback feel.
+- If PO wants exact “camera unavailable” UI beyond simulator/document-scan fallback, define a small error-state contract outside the UI-only lane.
+
 ## 2026-06-15 - Library flagship polish
 
 ### Scope

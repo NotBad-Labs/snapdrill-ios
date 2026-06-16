@@ -3,5 +3,5 @@
 "CFBundleName" = "SnapDrill";
 
 /* Privacy - Camera and Photo Library Usage Descriptions */
-"NSCameraUsageDescription" = "SnapDrill needs camera access to scan and capture questions.";
-"NSPhotoLibraryUsageDescription" = "SnapDrill needs photo library access to import study materials.";
+"NSCameraUsageDescription" = "SnapDrill needs camera access to capture and recognize the materials you choose.";
+"NSPhotoLibraryUsageDescription" = "SnapDrill needs photo library access to import the images you choose.";
