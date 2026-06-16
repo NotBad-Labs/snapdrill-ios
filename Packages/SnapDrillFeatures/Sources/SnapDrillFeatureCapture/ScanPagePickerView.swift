@@ -25,6 +25,7 @@ struct ScanPagePickerView: View {
     @State private var selectedImage: UIImage?
     @State private var isProcessingOCR = false
     @State private var ocrTask: Task<Void, Never>?
+    @State private var ocrNotice = OCRNotice()
 
     var ocrService: OCRServiceProtocol = OCRService()
 
@@ -110,6 +111,19 @@ struct ScanPagePickerView: View {
                     }
             }
         }
+        .alert(ocrNotice.title, isPresented: $ocrNotice.isPresented) {
+            Button(L10n.Capture.ocrContinueEdit) {
+                if let image = ocrNotice.image {
+                    router.push(.scannerResult(content: "", image: image))
+                }
+                ocrNotice.clear()
+            }
+            Button(L10n.Common.cancel, role: .cancel) {
+                ocrNotice.clear()
+            }
+        } message: {
+            Text(ocrNotice.message)
+        }
         .onDisappear {
             ocrTask?.cancel()
             ocrTask = nil
@@ -125,20 +139,54 @@ struct ScanPagePickerView: View {
             defer { isProcessingOCR = false }
             do {
                 guard let cgImage = image.cgImage else {
-                    // 图片解码失败仍推入编辑页，让用户手动输入
-                    router.push(.scannerResult(content: "", image: image))
+                    ocrNotice.present(
+                        title: L10n.Capture.ocrFailedTitle,
+                        message: L10n.Capture.ocrFailedHint,
+                        image: image
+                    )
                     return
                 }
                 let result = try await ocrService.recognizeDocument(from: cgImage)
                 let text = result.transcript
                 try Task.checkCancellation()
+                guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    ocrNotice.present(
+                        title: L10n.Capture.ocrEmptyTitle,
+                        message: L10n.Capture.ocrEmptyHint,
+                        image: image
+                    )
+                    return
+                }
                 router.push(.scannerResult(content: text, image: image))
             } catch is CancellationError {
                 SnapDrillLogger.capture.info("扫描页 OCR 任务已取消。")
             } catch {
                 SnapDrillLogger.capture.error("扫描页 OCR 失败: \(error.localizedDescription)")
-                router.push(.scannerResult(content: "", image: image))
+                ocrNotice.present(
+                    title: L10n.Capture.ocrFailedTitle,
+                    message: L10n.Capture.ocrFailedHint,
+                    image: image
+                )
             }
         }
+    }
+}
+
+private struct OCRNotice {
+    var isPresented = false
+    var title = ""
+    var message = ""
+    var image: UIImage?
+
+    mutating func present(title: String, message: String, image: UIImage) {
+        self.title = title
+        self.message = message
+        self.image = image
+        self.isPresented = true
+    }
+
+    mutating func clear() {
+        isPresented = false
+        image = nil
     }
 }

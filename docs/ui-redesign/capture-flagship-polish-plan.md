@@ -1,22 +1,22 @@
-# Capture 采集屏发布级打磨清单（待 PO 确认）
+# Capture 采集屏发布级打磨清单
 
-> 状态：待 PO 确认。本文收敛 Capture 第二屏打磨范围，并作为后续实现合同；未确认前不进入实现。
+> 状态：PO 已批准，已实现。本文收敛 Capture 第二屏打磨范围，并记录本轮实现结果。
 
 ## 0. PO 决策区
 
-以下是 Codex 默认建议。PO 可回复“批准默认建议”，或逐项改写 `PO 结论`；未确认前不改代码、不改对外文案。
+PO 在 2026-06-16 批准 Capture 默认建议，并明确授权“权限用途串本轮一起改，进入实现”。随后 PO 补充：若 ViewModel 与 UI 交互反馈高度相关，可在必要且合理时做外科手术式修理；本轮实际没有修改 `*ViewModel.swift`。
 
 | 决策项 | Codex 默认建议 | PO 结论 |
 | --- | --- | --- |
-| C1 采集入口布局 | 沿用 #820 Library 的冷静生产力风格；保留 6 个入口，但改为更稳定、可扫读的入口组，不做儿童化/游戏化视觉。 | 待确认 |
-| C2 入口反馈 | 每个入口点击后有局部 busy/disabled 反馈；全局处理 overlay 保留但不作为唯一反馈。 | 待确认 |
-| C3 权限与无相机 | 权限拒绝/受限给明确引导；无相机/模拟器路径有用户可见降级说明。若 camera session 无法把错误暴露给 UI，则记录跨层契约。 | 待确认 |
-| C4 OCR 成功/失败/空结果 | 成功进入结果页；失败给重试/返回路径；空结果进入可编辑空态但明确说明“未识别到文字”，不让用户误以为空白是正常结果。 | 待确认 |
-| C5 导入反馈 | 相册/PDF/剪贴板/文档扫描均有加载、失败、空输入或不可读反馈；已有逻辑只做 UI 补齐，不重写导入/OCR 引擎。 | 待确认 |
-| C6 存入题库反馈 | 保存时有明确进行中状态；成功有短确认；失败保留 alert 并优化文案。只使用现有 `isSaving`/`isSaved`/`showErrorAlert` 等 View 状态。 | 待确认 |
-| C7 对外文案策略 | Capture 本屏可见文案先列候选；PO 签字后才落代码。InfoPlist 权限用途串列为发布硬化候选，可由 PO 决定是否本轮一起改。 | 待确认 |
-| C8 a11y / XCUITest | 保留现有 VoiceOver 与 identifier；为 6 个入口补稳定 identifier，但不删除现有 `capture.manual` / `capture.saveButton` / `capture.contentEditor`。 | 待确认 |
-| C9 跨层边界 | 不改 `*ViewModel.swift`、Core/Data/OCR 算法。若 UI 需要新状态或错误类型，写入 blocker/risk 交 PO 决策。 | 待确认 |
+| C1 采集入口布局 | 沿用 #820 Library 的冷静生产力风格；保留 6 个入口，但改为更稳定、可扫读的入口组，不做儿童化/游戏化视觉。 | 批准并执行 |
+| C2 入口反馈 | 每个入口点击后有局部 busy/disabled 反馈；全局处理 overlay 保留但不作为唯一反馈。 | 批准并执行 |
+| C3 权限与无相机 | 权限拒绝/受限给明确引导；无相机/模拟器路径有用户可见降级说明。若 camera session 无法把错误暴露给 UI，则记录跨层契约。 | 批准并执行；SmartCamera 无相机精确错误仍列为跨层契约 |
+| C4 OCR 成功/失败/空结果 | 成功进入结果页；失败给重试/返回路径；空结果进入可编辑空态但明确说明“未识别到文字”，不让用户误以为空白是正常结果。 | 批准并执行 |
+| C5 导入反馈 | 相册/PDF/剪贴板/文档扫描均有加载、失败、空输入或不可读反馈；已有逻辑只做 UI 补齐，不重写导入/OCR 引擎。 | 批准并执行；相册系统取消不做 sticky busy |
+| C6 存入题库反馈 | 保存时有明确进行中状态；成功有短确认；失败保留 alert 并优化文案。只使用现有 `isSaving`/`isSaved`/`showErrorAlert` 等 View 状态。 | 批准并执行 |
+| C7 对外文案策略 | Capture 本屏可见文案先列候选；PO 签字后才落代码。InfoPlist 权限用途串列为发布硬化候选，可由 PO 决定是否本轮一起改。 | 批准；本轮同步修改 Capture 可见文案、VoiceOver 文案和权限用途串 |
+| C8 a11y / XCUITest | 保留现有 VoiceOver 与 identifier；为 6 个入口补稳定 identifier，但不删除现有 `capture.manual` / `capture.saveButton` / `capture.contentEditor`。 | 批准并执行 |
+| C9 跨层边界 | 不改 `*ViewModel.swift`、Core/Data/OCR 算法。若 UI 需要新状态或错误类型，写入 blocker/risk 交 PO 决策。 | 本轮未改 ViewModel/Core/Data/OCR 算法；仅更新既有 Core L10n 默认文案 |
 
 ## 1. 范围与红线
 
@@ -140,19 +140,30 @@
 ## 5. 跨层发现与待裁决
 
 - `SnapDrillCore` 中的 `L10n+Capture.swift` 仍承载 UI 文案常量。这是已知跨层 UI 概念，本轮只在 PO 批准后改必要字符串，不移动层级。
+- `L10n+Accessibility.swift`、`L10n+Errors.swift`、`L10n+Onboarding.swift` 也承载本屏会读到的 UI 文案默认值。本轮只改已批准的 Capture 直接暴露文案，不改变 Core 层职责。
 - `CameraSessionManager` 在无后置相机、配置失败等路径主要记录日志。若需要 UI 精确展示“相机不可用”，需要 Feature/Core 暴露状态或错误契约。
 - OCR 空结果、低质量图片、超时、置信度目前不是完整 UI 状态机。UI 可以处理空字符串和错误回调，但不能判断 OCR 质量原因。
-- PDF/扫描页 OCR 失败后进入空结果页的路径若要区分失败和空结果，可能需要页面选择器或 ViewModel 暴露失败原因；本轮先以结果页空态兜底，深层契约另列。
-- 权限用途串属于二进制发布硬化范围。它直接影响 Capture 入口体验，但是否本轮修改需 PO 明确授权。
+- PDF/扫描页 OCR 失败和 OCR 空结果本轮已在页面选择器层补用户可见 alert，并提供“继续编辑”兜底；更细的 OCR 质量原因仍需未来契约。
+- 权限用途串属于二进制发布硬化范围。PO 已授权本轮一起修改。
 
-## 6. 实现完成线
+## 6. 实现结果
 
-实现阶段只有在 PO 确认本清单后启动。完成必须满足：
+- Capture 首页入口改为稳定卡片：图标、文字、busy/disabled 状态统一，6 个入口都有稳定 identifier。
+- 相册、PDF、剪贴板、文档扫描、相机入口有局部反馈；相册系统取消不设置 sticky busy，避免用户取消后卡住。
+- 相机快门在捕获中显示 progress 并禁用，避免重复触发。
+- 文档扫描模拟器路径改为用户可读降级说明。
+- 手动编辑空态和 OCR 空结果空态分离：手动为空时提示输入/粘贴，OCR 为空时提示未识别到文字。
+- PDF/扫描页 OCR 失败或空结果不再静默进入空编辑页，而是 alert 告知原因，并允许继续编辑。
+- 保存中/保存成功新增底部状态条；保存失败仍保留 alert。
+- Capture 直接暴露文案、VoiceOver 文案、空内容错误、字段配置说明和相机/相册权限用途串改为通用受众语境。
 
-- C1-C5 逐项完成，C6 只执行 PO 明确批准的文案范围。
-- 不触碰 #816，不改受保护分支，不静默改外部文案。
-- 不改 `*ViewModel.swift`；如确需新状态，先停下记录 blocker/risk。
-- 更新 `docs/ui-redesign/REDESIGN-LOG.md`，记录范围、设计决策、改动文件、跨层发现、DoD 状态。
+## 7. 实现完成线
+
+本轮完成情况：
+
+- C1-C6 已按 PO 授权执行。
+- 未触碰 #816，未改受保护分支，未改 `*ViewModel.swift`、Core/Data/OCR 算法。
+- 已更新 `docs/ui-redesign/REDESIGN-LOG.md`。
 - `swiftlint --strict` 通过。
 - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests` 通过。
-- 创建指向 `develop` 的 Ready PR，不 merge。
+- PR 待创建：指向 `develop`，Ready，不 merge。

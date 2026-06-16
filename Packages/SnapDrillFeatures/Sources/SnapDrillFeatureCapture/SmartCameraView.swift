@@ -23,6 +23,7 @@ struct SmartCameraView: View {
     @State private var detectedRect: CGRect? // Normalised 0-1
     @State private var isStable: Bool = false
     @State private var shouldCapture: Bool = false
+    @State private var isCapturing: Bool = false
     
     var body: some View {
         ZStack {
@@ -70,9 +71,17 @@ struct SmartCameraView: View {
                             Circle()
                                 .fill(isStable ? Color.green : Color.white)
                                 .frame(width: 60, height: 60)
+
+                            if isCapturing {
+                                ProgressView()
+                                    .controlSize(.small)
+                                    .tint(isStable ? .white : .black)
+                                    .accessibilityHidden(true)
+                            }
                         }
                     }
                     .accessibleButton(label: L10n.Accessibility.takePhoto)
+                    .disabled(isCapturing)
                     .padding(.bottom, 40)
                     // HIG：快门按下用 medium impact 模拟物理反馈
                     .sensoryFeedback(.impact(weight: .medium), trigger: shouldCapture) { _, newValue in
@@ -104,7 +113,7 @@ struct SmartCameraView: View {
             .accessibilityHidden(true)
             
             // 状态提示文字
-            Text(isStable ? L10n.Capture.cameraReadyHint : L10n.Capture.cameraScanningHint)
+            Text(cameraStatusText)
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.8))
                 .padding(8)
@@ -114,9 +123,21 @@ struct SmartCameraView: View {
                 .animation(.easeInOut(duration: 0.3), value: isStable)
         }
     }
+
+    private var cameraStatusText: String {
+        if isCapturing { return L10n.Capture.cameraCapturingHint }
+        return isStable ? L10n.Capture.cameraReadyHint : L10n.Capture.cameraScanningHint
+    }
     
     func takePhoto() {
+        guard !isCapturing else { return }
+        isCapturing = true
         shouldCapture = true
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            guard isCapturing else { return }
+            isCapturing = false
+        }
     }
     
     func cropAndFinish(image: UIImage, rect: CGRect) {
@@ -124,6 +145,7 @@ struct SmartCameraView: View {
         // 如果裁剪失败，则返回原始图片
         
         let crop = cropImage(image, to: rect)
+        isCapturing = false
         onCapture(crop ?? image)
     }
     

@@ -45,16 +45,37 @@ struct CaptureContentSection: View {
                 }
             }
 
-            TextEditor(text: $viewModel.content)
-                .font(.body)
-                .padding(12)
-                .frame(minHeight: 120)
-                .background(Color(UIColor.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .opacity(viewModel.isRecognizing ? 0.6 : 1)
-                .disabled(viewModel.isRecognizing)
-                .accessibilityIdentifier("capture.contentEditor")
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $viewModel.content)
+                    .font(.body)
+                    .padding(12)
+                    .frame(minHeight: 120)
+                    .scrollContentBackground(.hidden)
+                    .opacity(viewModel.isRecognizing ? 0.6 : 1)
+                    .disabled(viewModel.isRecognizing)
+                    .accessibilityIdentifier("capture.contentEditor")
+
+                if shouldShowEmptyHint {
+                    Text(emptyHint)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 17)
+                        .padding(.vertical, 20)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+            }
+            .background(Color(UIColor.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .padding(.horizontal)
+    }
+
+    private var shouldShowEmptyHint: Bool {
+        viewModel.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !viewModel.isRecognizing
+    }
+
+    private var emptyHint: String {
+        viewModel.image == nil ? L10n.Capture.manualEmptyHint : L10n.Capture.ocrEmptyHint
     }
 }

@@ -29,7 +29,7 @@ nonisolated extension L10n {
         public static let pageExportTitle = NSLocalizedString("onboarding.page_export_title", value: "数据导出", comment: "引导页导出标题")
         public static let pageExportDescription = NSLocalizedString("onboarding.page_export_description", value: "支持导出为 PDF、CSV 等格式，方便分享和打印", comment: "引导页导出描述")
         public static let fieldConfigTitle = NSLocalizedString("onboarding.field_config_title", value: "选择录入字段", comment: "引导页字段配置标题")
-        public static let fieldConfigDescription = NSLocalizedString("onboarding.field_config_description", value: "选择录入题目时需要填写的字段，之后可在设置中随时调整", comment: "引导页字段配置描述")
+        public static let fieldConfigDescription = NSLocalizedString("onboarding.field_config_description", value: "选择添加内容时需要填写的字段，之后可在设置中随时调整", comment: "引导页字段配置描述")
         public static let fieldSubject = NSLocalizedString("onboarding.field_subject", value: "学科", comment: "引导页字段：学科")
         public static let fieldSource = NSLocalizedString("onboarding.field_source", value: "来源", comment: "引导页字段：来源")
         public static let fieldDifficulty = NSLocalizedString("onboarding.field_difficulty", value: "难度", comment: "引导页字段：难度")

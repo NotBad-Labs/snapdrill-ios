@@ -49,9 +49,9 @@ struct DocumentScannerView: UIViewControllerRepresentable {
         #if targetEnvironment(simulator)
         return UIHostingController(
             rootView: ContentUnavailableView(
-                "不支持模拟器",
+                L10n.Capture.scanUnavailableTitle,
                 systemImage: "camera.fill",
-                description: Text("请在真机上使用文档扫描仪")
+                description: Text(L10n.Capture.scanUnavailableMessage)
             )
         )
         #else

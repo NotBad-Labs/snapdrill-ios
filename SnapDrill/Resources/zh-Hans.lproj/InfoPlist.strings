@@ -3,5 +3,5 @@
 "CFBundleName" = "小本本";
 
 /* Privacy - Camera and Photo Library Usage Descriptions */
-"NSCameraUsageDescription" = "小本本需要使用相机来扫描和采集题目。";
-"NSPhotoLibraryUsageDescription" = "小本本需要访问相册来导入学习资料。";
+"NSCameraUsageDescription" = "SnapDrill 需要使用相机拍摄并识别你选择的资料内容。";
+"NSPhotoLibraryUsageDescription" = "SnapDrill 需要访问相册以导入你选择的图片资料。";

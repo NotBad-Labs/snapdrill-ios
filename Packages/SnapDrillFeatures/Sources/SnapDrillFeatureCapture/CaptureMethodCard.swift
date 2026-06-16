@@ -17,27 +17,45 @@ struct CaptureMethodCardContent: View {
     let title: String
     let subtitle: String
     let color: Color
+    var isBusy = false
 
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.system(size: 32))
-                .foregroundStyle(color)
-                .frame(width: 60, height: 60)
-                .background(color.opacity(0.1))
-                .clipShape(Circle())
-                .accessibilityHidden(true)
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(color)
+                    .frame(width: 44, height: 44)
+                    .background(color.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .accessibilityHidden(true)
 
-            Text(title)
-                .font(.headline)
-                .foregroundStyle(.primary)
+                Spacer(minLength: 8)
 
-            Text(subtitle)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                if isBusy {
+                    ProgressView()
+                        .controlSize(.small)
+                        .accessibilityHidden(true)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 5) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+            }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
+        .frame(minHeight: 118, alignment: .topLeading)
+        .padding(16)
     }
 }
 
@@ -48,6 +66,8 @@ struct CaptureMethodCard: View {
     let color: Color
     let accessibilityHintText: String
     let accessibilityID: String?
+    let isBusy: Bool
+    let isDisabled: Bool
     let action: () -> Void
 
     init(
@@ -57,6 +77,8 @@ struct CaptureMethodCard: View {
         color: Color,
         accessibilityHint: String = "",
         accessibilityID: String? = nil,
+        isBusy: Bool = false,
+        isDisabled: Bool = false,
         action: @escaping () -> Void
     ) {
         self.icon = icon
@@ -65,15 +87,19 @@ struct CaptureMethodCard: View {
         self.color = color
         self.accessibilityHintText = accessibilityHint
         self.accessibilityID = accessibilityID
+        self.isBusy = isBusy
+        self.isDisabled = isDisabled
         self.action = action
     }
 
     var body: some View {
         Button(action: action) {
-            CaptureMethodCardContent(icon: icon, title: title, subtitle: subtitle, color: color)
+            CaptureMethodCardContent(icon: icon, title: title, subtitle: subtitle, color: color, isBusy: isBusy)
         }
         .glassEffect(.regular.tint(color).interactive(), in: .rect(cornerRadius: 16))
+        .opacity(isDisabled ? 0.55 : 1)
+        .disabled(isDisabled)
         .accessibleButton(label: title, hint: accessibilityHintText.isEmpty ? subtitle : accessibilityHintText)
-        .accessibilityIdentifier(accessibilityID ?? "")
+        .accessibilityIdentifier(accessibilityID ?? "capture.method")
     }
 }
