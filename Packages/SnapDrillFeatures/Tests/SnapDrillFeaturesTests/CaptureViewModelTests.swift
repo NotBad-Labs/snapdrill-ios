@@ -156,6 +156,62 @@ struct CaptureViewModelTests {
         #expect(viewModel.isProcessing == false)
     }
 
+    @Test("processScannedImage 空 OCR 结果仍推送可编辑结果")
+    func testProcessScannedImage_EmptyOCR_PushesEditableResult() async throws {
+        let mockOCR = MockOCRService()
+        mockOCR.recognizeTextResult = ""
+
+        let draftMock = CaptureDraftServiceMock()
+        let viewModel = CaptureViewModel(ocrService: mockOCR, draftService: draftMock)
+        let router = CaptureRouter()
+
+        var pushedContent: String?
+        var pushedImage: UIImage?
+        router.onPush = { destination in
+            if case let .scannerResult(content, image) = destination {
+                pushedContent = content
+                pushedImage = image
+            }
+        }
+
+        viewModel.processScannedImage(createTestImage(), router: router)
+
+        try await waitUntil(timeout: .seconds(5)) { pushedImage != nil }
+        #expect(pushedContent == "")
+        #expect(viewModel.showOCRRetryAlert == false)
+        #expect(viewModel.isProcessing == false)
+        #expect(draftMock.saveCalls.contains { $0.image != nil && $0.content.isEmpty })
+    }
+
+    @Test("skipOCRAndEdit OCR 失败后保留图片并进入空文本编辑")
+    func testSkipOCRAndEdit_AfterOCRFailure_PushesEmptyEditableResult() async throws {
+        let mockOCR = MockOCRService()
+        mockOCR.recognizeTextError = NSError(domain: "test", code: -1, userInfo: nil)
+
+        let draftMock = CaptureDraftServiceMock()
+        let viewModel = CaptureViewModel(ocrService: mockOCR, draftService: draftMock)
+        let router = CaptureRouter()
+
+        var pushedContent: String?
+        var pushedImage: UIImage?
+        router.onPush = { destination in
+            if case let .scannerResult(content, image) = destination {
+                pushedContent = content
+                pushedImage = image
+            }
+        }
+
+        viewModel.processScannedImage(createTestImage(), router: router)
+        try await waitUntil(timeout: .seconds(5)) { viewModel.showOCRRetryAlert }
+
+        viewModel.skipOCRAndEdit()
+
+        #expect(pushedContent == "")
+        #expect(pushedImage != nil)
+        #expect(viewModel.pendingOCRImage == nil)
+        #expect(viewModel.pendingOCRRouter == nil)
+    }
+
     // MARK: - 数据安全：原图在 OCR 之前落盘（防采集丢失，GUI 第一性原理「主路径崩溃原子性」）
 
     @Test("OCR 失败时原图已在 OCR 之前落盘为草稿（防数据丢失）")

@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-05-30
+last_updated: 2026-06-16
 intent_refs:
   - vision:P1
   - vision:P2
@@ -77,6 +77,58 @@ intent_refs:
 - **数据保证**：未点击保存前不产生正式题目记录；保存成功后题目记录必须同时含当前 Profile 归属、主内容载体、元数据与可检索 OCR 文本；图片题必须保留裁剪后的副本，OCR 不是唯一数据来源；任何写入失败不得产生「列表已出现但内容不完整」的半写入记录；Draft 仅保留最近一份、按 Profile 隔离、成功保存后自动清除、7 天过期清理；图片入库前必须剥离 EXIF GPS/位置信息。
   - **⚠ 实现现状（GAP-R2，代码债·真 bug）**：当前 `CaptureDraftService` 草稿**图片**用全局路径 `Caches/draft_capture.jpg` + `UserDefaults.standard`，**未按 Profile 隔离**——多 Profile 下草稿图片互相覆盖，或 B Profile 纯文本草稿误载 A Profile 残留图片（跨 Profile 污染）。需求不变（按 Profile 隔离），待 code 债修复（独立 PR 后排）。
 - **NFR**：OCR 识别响应 < 2 秒（印刷体中英文，拍照到文字出现在编辑区）；图片裁剪内存 < 300MB（Mantis 内部管理）；单题存储均值 ~205KB（OCR ~5KB + 压缩图 ~200KB）；草稿恢复为 S0 级数据丢失防护（意外退出后可恢复）；OCR 端上执行、图片不上传云端。
+
+## 5. Contracts（状态 / 错误 / 文案 / L10n 归属）
+
+本节写“应该如此”的意图行为，不用当前实现反向覆盖产品目标。若代码、测试或真机行为与本节冲突，应登记为 bug 或跨层 blocker，而不是把现状固化为契约。
+
+### A. 状态机契约
+
+| 状态 | UI 必须给出的可见反馈 |
+|---|---|
+| `idle` | 显示可用入口（相机 / 相册 / 文档扫描 / PDF / 手动 / 剪贴板），无后台忙碌遮罩，入口可点击。 |
+| `importing` | 展示导入或处理中反馈；触发导入的入口禁用或被系统 picker 接管，不能出现“点了没反应”。 |
+| `ocrProcessing` | 展示识别中反馈；重复识别 / 保存等会造成竞态的操作禁用。 |
+| `ocrSuccessWithContent` | 进入编辑页，识别文本可见且可编辑，图片存在时继续保留。 |
+| `ocrEmptyResult` | 进入编辑页或展示空结果提示；空结果不是失败，图片仍可保存，用户可手动补文字或重新采集。 |
+| `ocrFailed` | 展示用户可见错误，并提供重新识别与继续编辑；图片不得丢失。 |
+| `readyToEdit` | 编辑页显示内容 / 图片 / 元数据；只要有文本或图片即可保存，OCR 质量不是保存前置条件。 |
+| `saving` | 保存按钮禁用或显示保存中状态；重复点击不得产生重复记录。 |
+| `saved` | 给出保存成功反馈，清除已保存草稿，并回到可继续采集的路径。 |
+| `saveFailed` | 展示用户可见错误；不得显示成功状态；保留当前编辑内容，允许修正或重试。 |
+
+### B. 错误语义契约
+
+- 用户取消不是系统失败：取消 picker、扫描或系统流程时，不应展示失败错误，也不应写入空记录。
+- OCR 空结果不是失败：空文本保留为可编辑结果，图片题仍可保存。
+- 导入不可读或格式不支持是显式错误态：用户必须看到错误与可重试路径，不只写 log。
+- 所有失败必须用户可见：保存、导入、OCR 与权限失败都不能静默吞掉。
+
+### C. 文案 / 政策契约
+
+- 相机与相册权限用途串是 PO-gated 对外文案。当前基线为：
+  - `NSCameraUsageDescription`：`SnapDrill 需要使用相机拍摄并识别你选择的资料内容。`
+  - `NSPhotoLibraryUsageDescription`：`SnapDrill 需要访问相册以导入你选择的图片资料。`
+  - `NSCameraUsageDescription`：`SnapDrill needs camera access to capture and recognize the materials you choose.`
+  - `NSPhotoLibraryUsageDescription`：`SnapDrill needs photo library access to import the images you choose.`
+- Capture 直接暴露的用户可见文案不得出现「错题 / 作业 / 儿童 / 年级」等会把产品拉回儿童教育或旧错题本定位的词。
+- 上述规则只约束 Capture 暴露面与权限用途串；历史 ADR、其它屏幕或发布硬化文案另走各自 owner 与门禁。
+
+### D. L10n 归属契约
+
+- 被多屏共用的 L10n key 不应挂在单屏命名空间下；应迁入 `Common` / `Shared` 命名空间，或在 spec 中显式登记为共享例外。
+- 已知实例：`L10n.Onboarding.fieldConfigTitle` / `fieldConfigDescription` 被 `CaptureResultView` 复用，但仍归在 Onboarding 命名空间。建议后续迁入共享命名空间；迁移动作 PO-gated，本 seed 只登记，不强行迁移。
+
+### Enforcement / 待验缺口
+
+| 契约 | Enforcement | 当前状态 |
+|---|---|---|
+| 状态与错误语义 A/B | ViewModel / 服务层现有公开 API 的最小单测；无可测 seam 时登记 blocker，不为测试改架构。 | 已用 `CaptureViewModelTests` 钉住 OCR 空结果可编辑、OCR 失败可继续编辑、OCR 前图片先入草稿、保存重复点击防护等路径。 |
+| 文案 / 政策 C | `Scripts/validate_capture_contract.py --check` 窄扫 Capture 暴露的 L10n key、InfoPlist 权限用途串与 Capture View 用户可见字符串。 | 已接入 pre-commit 与 CI docs gate。 |
+| L10n 归属 D | 当前只登记与建议；若要 enforce，后续可加脚本检查多屏复用 key 是否位于共享命名空间。 | `fieldConfigTitle` / `fieldConfigDescription` 待 PO 决策迁移。 |
+| OCR 真机识别质量 / 超时 | dogfood 待验。 | Owner：Codex + PO；触发：首次真机 Capture dogfood 或发布就绪检查。 |
+| 文档扫描真机路径 | dogfood 待验。 | Owner：Codex + PO；触发：iPhone 17 真机扫描。 |
+| 打印真机三态 | dogfood 待验。 | Owner：Codex + PO；触发：导出/打印链路发布前 dogfood。 |
 
 
 ## 意图追溯（永久保留）

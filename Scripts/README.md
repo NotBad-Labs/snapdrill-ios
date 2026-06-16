@@ -14,6 +14,7 @@
 | `generate_intent_traceability.py` | 由各 feature spec `intent_refs` 生成 `docs/reference/intent-traceability.md`（意图追溯索引；产物勿手改，pre-commit/CI 校验） |
 | `test_doc_generators.py` | 文档生成器单元测试（覆盖意图追溯索引与功能状态看板的成功与失败路径，pre-commit/CI 校验） |
 | `validate_docs.py` | 检查高风险文档漂移：历史 ADR 状态、过时 Firebase 路线陈述、产品定位回退、feature spec 意图追溯、`intent_refs` 目标存在性与验收证据行 |
+| `validate_capture_contract.py` | 检查 Capture 契约文案边界：窄扫 Capture 暴露 L10n、权限用途串和 Capture View 用户可见字符串，避免回退到旧错题本 / 儿童教育定位 |
 | `tests/` | 脚本回归测试；当前覆盖文档健康检查的引用解析、验收证据行和 fail-closed 行为 |
 | `check_headers.py` | 检查 Swift 文件头部版权声明是否规范（手动工具，无 CI 调用） |
 | `add_assets.rb` | 向 Asset Catalog 批量添加资源（一次性 Xcode 工具） |

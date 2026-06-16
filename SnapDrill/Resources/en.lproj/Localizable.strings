@@ -762,7 +762,7 @@
 
 "accessibility.profile" = "Profile";
 "accessibility.profile_hint" = "Open Settings";
-"accessibility.capture_first_item_hint" = "Capture your first missed question";
+"accessibility.capture_first_item_hint" = "Capture your first material";
 "accessibility.start_review_now_hint" = "Start reviewing due questions";
 "accessibility.all_done_label" = "Great, today's review is complete. Take a break.";
 "accessibility.due_count_label" = "%d questions due today";
