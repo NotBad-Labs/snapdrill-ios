@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习卡片的内容视图，展示题目和答案（翻转后）。
+//  回顾卡片的内容视图，展示原内容和参考信息（翻转后）。
 //
 
 import SwiftUI
@@ -15,7 +15,7 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillFeatureLibrary
 
-/// 复习卡片正面：展示题目
+/// 回顾卡片正面：展示原内容
 struct ReviewCardFront: View {
 
     // MARK: - Properties
@@ -53,7 +53,7 @@ struct ReviewCardFront: View {
         VStack {
             Spacer()
 
-            // 题目图片（纯图片题或图文混合）
+            // 原内容图片（纯图片或图文混合）
             if let image = loadedImage {
                 Image(uiImage: image)
                     .resizable()
@@ -64,12 +64,12 @@ struct ReviewCardFront: View {
                     .accessibleImage(label: L10n.Accessibility.questionImage)
             }
 
-            // 题目文字
+            // 原内容文字
             if let content = item.content, !content.isEmpty {
                 Text(content)
-                    .font(.system(size: fontSizeRaw, weight: .bold, design: .serif))
+                    .font(.system(size: fontSizeRaw, weight: .semibold))
                     .multilineTextAlignment(alignment)
-                    .lineSpacing(8)
+                    .lineSpacing(7)
                     .padding(.horizontal, 24)
                     .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity, alignment: frameAlignment)
@@ -83,11 +83,11 @@ struct ReviewCardFront: View {
                 if let subjectLabel = item.subjectCategoryName
                     ?? item.categoryValuesByDimension.first?.values.first?.name {
                     Text(subjectLabel)
-                        .font(.caption.bold())
-                        .foregroundStyle(.white)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.blue)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.accentColor.opacity(0.8))
+                        .background(Color.blue.opacity(0.10))
                         .clipShape(Capsule())
                         .accessibilityLabel("\(L10n.Settings.fieldSubject)：\(subjectLabel)")
                 }
@@ -99,12 +99,12 @@ struct ReviewCardFront: View {
                         ForEach(0..<starCount, id: \.self) { _ in
                             Image(systemName: "star.fill")
                                 .font(.caption2)
-                                .foregroundStyle(.yellow)
+                                .foregroundStyle(.orange)
                         }
                     }
                     .padding(.horizontal, 6)
                     .padding(.vertical, 4)
-                    .background(.ultraThinMaterial)
+                    .background(Color.orange.opacity(0.10))
                     .clipShape(Capsule())
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(L10n.Accessibility.starRating(difficulty: starCount))
@@ -137,23 +137,14 @@ struct ReviewCardFront: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             ZStack {
-                RoundedRectangle(cornerRadius: 32, style: .continuous)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .fill(Color(UIColor.secondarySystemGroupedBackground))
 
-                RoundedRectangle(cornerRadius: 32, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [.white.opacity(0.4), .clear],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-
-                RoundedRectangle(cornerRadius: 32, style: .continuous)
-                    .strokeBorder(.white.opacity(0.5), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .strokeBorder(Color(UIColor.separator).opacity(0.12), lineWidth: 1)
             }
         )
-        .shadow(color: Color.black.opacity(0.08), radius: 15, x: 0, y: 10)
+        .shadow(color: Color.black.opacity(0.04), radius: 12, x: 0, y: 6)
         .overlay(alignment: .topTrailing) {
             Menu {
                 Button {

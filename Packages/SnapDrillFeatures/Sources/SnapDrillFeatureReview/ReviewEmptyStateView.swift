@@ -5,12 +5,12 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  无复习任务时的空状态视图。
+//  无回顾任务时的空状态视图。
 //
 
 import SwiftUI
 
-/// 当没有复习任务或任务完成时的空状态视图
+/// 当没有回顾任务或任务完成时的空状态视图
 struct ReviewEmptyStateView: View {
     
     // MARK: - Properties
@@ -31,9 +31,8 @@ struct ReviewEmptyStateView: View {
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: icon)
-                .font(.system(size: 60))
-                .foregroundStyle(.tertiary)
-                .symbolEffect(.bounce, value: true)
+                .font(.system(size: 52, weight: .regular))
+                .foregroundStyle(.secondary)
             
             Text(title)
                 .font(.title2.bold())
@@ -50,9 +49,9 @@ struct ReviewEmptyStateView: View {
                         .font(.headline)
                         .padding(.horizontal, 24)
                         .padding(.vertical, 12)
-                        .background(Color.blue)
+                        .background(Color.accentColor)
                         .foregroundStyle(.white)
-                        .clipShape(Capsule())
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
                 .padding(.top, 8)
             }
@@ -65,9 +64,9 @@ struct ReviewEmptyStateView: View {
 #Preview {
     ReviewEmptyStateView(
         icon: "checkmark.seal.fill",
-        title: "今日复习完成",
-        subtitle: "太棒了！休息一下，明天继续。",
-        actionTitle: "好的",
+        title: "今日回顾完成",
+        subtitle: "本轮没有需要处理的内容。",
+        actionTitle: "完成",
         action: {}
     )
 }

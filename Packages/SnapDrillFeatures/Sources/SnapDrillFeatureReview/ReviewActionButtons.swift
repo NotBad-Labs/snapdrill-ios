@@ -5,9 +5,8 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习界面的底部操作按钮组。
-//  采用 iOS 电话界面的大圆形设计 (Big Circle Style)。
-//  支持与卡片滑动的联动动画 (Interactive Linkage)。
+//  回顾界面的底部操作按钮组。
+//  保留滑动联动，但使用文字 + 图标降低误操作和颜色依赖。
 //
 
 import SwiftUI
@@ -27,9 +26,9 @@ struct ReviewActionButtons: View {
     let isAnswerShown: Bool
     
     // 配置
-    private let baseSize: CGFloat = 80
-    private let maxScale: CGFloat = 1.4
-    private let threshold: CGFloat = 100 // 触发最大缩放的阈值
+    private let baseHeight: CGFloat = 58
+    private let maxScale: CGFloat = 1.12
+    private let threshold: CGFloat = 120 // 触发最大缩放的阈值
 
     // 触觉反馈触发器（递增计数器确保每次都能触发变化）
     @State private var primaryFeedbackTrigger = 0   // 评分按钮：medium impact
@@ -38,23 +37,19 @@ struct ReviewActionButtons: View {
     // MARK: - Body
     
     var body: some View {
-        HStack {
-            // [忘了] - 红色叉号
-            // 左滑（负偏移）时放大
+        HStack(spacing: 14) {
             actionButton(
-                icon: "xmark",
-                color: .red,
+                title: L10n.Review.stampForgot,
+                icon: "arrow.uturn.left.circle.fill",
+                tint: .orange,
                 rating: .again,
                 scale: calculateScale(for: .again)
             )
-            .accessibilityLabel(L10n.Review.stampForgot)
             .accessibilityHint(L10n.Accessibility.forgotHint)
-            
+
             Spacer()
-            
-            // 中间控件（集成式）
-            HStack(spacing: 24) {
-                // 撤销
+
+            HStack(spacing: 10) {
                 Button(
                     action: {
                         secondaryFeedbackTrigger += 1
@@ -63,76 +58,87 @@ struct ReviewActionButtons: View {
                     label: {
                         Image(systemName: "arrow.counterclockwise")
                             .font(.system(size: 20, weight: .semibold))
-                            .foregroundStyle(isUndoEnabled ? Color.primary : Color.secondary.opacity(0.3))
-                            .frame(width: 44, height: 44)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
+                            .foregroundStyle(isUndoEnabled ? Color.primary : Color.secondary.opacity(0.35))
+                            .frame(width: 46, height: 46)
+                            .background(controlFill, in: Circle())
                     }
                 )
+                .buttonStyle(.plain)
                 .disabled(!isUndoEnabled)
                 .accessibilityLabel(L10n.Accessibility.undo)
                 .accessibilityHint(L10n.Accessibility.undoHint)
 
-                // 切换答案显示
                 Button(
                     action: {
-                        // 触觉反馈由 ReviewView.sensoryFeedback(trigger: vm.isAnswerShown) 统一处理
                         onToggleAnswer()
                     },
                     label: {
                         Image(systemName: isAnswerShown ? "eye.slash" : "eye")
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundStyle(isAnswerShown ? Color.secondary : Color.blue)
-                            .frame(width: 44, height: 44)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
+                            .frame(width: 46, height: 46)
+                            .background(controlFill, in: Circle())
                     }
                 )
+                .buttonStyle(.plain)
                 .accessibilityLabel(isAnswerShown ? L10n.Accessibility.hideAnswer : L10n.Accessibility.showAnswer)
             }
-            
+
             Spacer()
-            
-            // [记得] - 绿色对勾
-            // 右滑（正偏移）时放大
+
             actionButton(
-                icon: "checkmark",
-                color: .green,
+                title: L10n.Review.stampRemember,
+                icon: "checkmark.circle.fill",
+                tint: .blue,
                 rating: .good,
                 scale: calculateScale(for: .good)
             )
-            .accessibilityLabel(L10n.Review.stampRemember)
             .accessibilityHint(L10n.Accessibility.rememberHint)
         }
-        .padding(.horizontal, 48) // 加大外边距防止按钮贴边
+        .padding(.horizontal, 20)
         .padding(.bottom, 10)
-        // HIG：评分按钮用 medium（决定性操作），撤销用 light
         .sensoryFeedback(.impact(weight: .medium), trigger: primaryFeedbackTrigger)
         .sensoryFeedback(.impact(weight: .light), trigger: secondaryFeedbackTrigger)
     }
     
     // MARK: - Private Helpers
     
-    private func actionButton(icon: String, color: Color, rating: ReviewRating, scale: CGFloat) -> some View {
+    private var controlFill: some ShapeStyle {
+        Color(UIColor.secondarySystemGroupedBackground)
+    }
+
+    private func actionButton(
+        title: String,
+        icon: String,
+        tint: Color,
+        rating: ReviewRating,
+        scale: CGFloat
+    ) -> some View {
         Button(action: {
             primaryFeedbackTrigger += 1
             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                 onRate(rating)
             }
         }, label: {
-            ZStack {
-                Circle()
-                    .fill(color)
-                
+            HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .font(.system(size: 32, weight: .bold)) // 粗体图标
-                    .foregroundStyle(.white)
+                    .font(.system(size: 21, weight: .semibold))
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
             }
-            .frame(width: baseSize, height: baseSize)
-            .shadow(color: color.opacity(0.4), radius: 15, x: 0, y: 8) // 光晕效果
-            .scaleEffect(scale) // 与滑动联动
+            .foregroundStyle(tint)
+            .frame(minWidth: 104)
+            .frame(height: baseHeight)
+            .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(tint.opacity(0.18), lineWidth: 1)
+            )
+            .scaleEffect(scale)
             .animation(.interactiveSpring(response: 0.35, dampingFraction: 0.7), value: scale)
         })
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
     }
     
     // 根据滑动偏移量计算动态缩放比例

@@ -15,51 +15,51 @@ nonisolated extension L10n {
     // MARK: - Accessibility
 
     public enum Accessibility {
-        // 复习卡片
-        public static let flipToAnswer = NSLocalizedString("accessibility.flip_to_answer", value: "双击翻转查看答案", comment: "VoiceOver 翻卡提示")
-        public static let flipToQuestion = NSLocalizedString("accessibility.flip_to_question", value: "双击翻转回到题目", comment: "VoiceOver 翻卡提示")
-        public static let flippedToAnswer = NSLocalizedString("accessibility.flipped_to_answer", value: "已翻到答案面", comment: "VoiceOver 翻卡公告")
-        public static let flippedToQuestion = NSLocalizedString("accessibility.flipped_to_question", value: "已翻到题目面", comment: "VoiceOver 翻卡公告")
-        public static let showAnswer = NSLocalizedString("accessibility.show_answer", value: "显示答案", comment: "VoiceOver 翻面按钮")
-        public static let hideAnswer = NSLocalizedString("accessibility.hide_answer", value: "隐藏答案", comment: "VoiceOver 翻面按钮")
+        // 回顾卡片
+        public static let flipToAnswer = NSLocalizedString("accessibility.flip_to_answer", value: "双击翻转查看参考内容", comment: "VoiceOver 翻卡提示")
+        public static let flipToQuestion = NSLocalizedString("accessibility.flip_to_question", value: "双击翻转回到内容", comment: "VoiceOver 翻卡提示")
+        public static let flippedToAnswer = NSLocalizedString("accessibility.flipped_to_answer", value: "已翻到参考内容面", comment: "VoiceOver 翻卡公告")
+        public static let flippedToQuestion = NSLocalizedString("accessibility.flipped_to_question", value: "已翻到内容面", comment: "VoiceOver 翻卡公告")
+        public static let showAnswer = NSLocalizedString("accessibility.show_answer", value: "显示参考内容", comment: "VoiceOver 翻面按钮")
+        public static let hideAnswer = NSLocalizedString("accessibility.hide_answer", value: "隐藏参考内容", comment: "VoiceOver 翻面按钮")
         public static let undo = NSLocalizedString("accessibility.undo", value: "撤销", comment: "VoiceOver 撤销按钮")
-        public static let undoHint = NSLocalizedString("accessibility.undo_hint", value: "撤销上一次滑动评估", comment: "VoiceOver 撤销按钮提示")
-        public static let pauseReview = NSLocalizedString("accessibility.pause_review", value: "暂停复习", comment: "VoiceOver 暂停按钮")
+        public static let undoHint = NSLocalizedString("accessibility.undo_hint", value: "撤销上一次回顾操作", comment: "VoiceOver 撤销按钮提示")
+        public static let pauseReview = NSLocalizedString("accessibility.pause_review", value: "暂停回顾", comment: "VoiceOver 暂停按钮")
         public static let moreActions = NSLocalizedString("accessibility.more_actions", value: "更多操作", comment: "VoiceOver 省略号菜单")
         public static let questionImage = NSLocalizedString("accessibility.question_image", value: "资料图片", comment: "VoiceOver 资料图片")
         public static let answerImage = NSLocalizedString("accessibility.answer_image", value: "参考图片", comment: "VoiceOver 参考图片")
-        public static let forgotHint = NSLocalizedString("accessibility.forgot_hint", value: "标记为忘记，稍后会再次出现", comment: "VoiceOver 忘记按钮提示")
-        public static let rememberHint = NSLocalizedString("accessibility.remember_hint", value: "标记为记得，延长复习间隔", comment: "VoiceOver 记得按钮提示")
+        public static let forgotHint = NSLocalizedString("accessibility.forgot_hint", value: "标记为没印象，稍后会再次出现", comment: "VoiceOver 没印象按钮提示")
+        public static let rememberHint = NSLocalizedString("accessibility.remember_hint", value: "标记为有印象，延长回顾间隔", comment: "VoiceOver 有印象按钮提示")
 
-        // 复习摘要
+        // 回顾摘要
         public static func summaryAnnouncement(good: Int, again: Int) -> String {
-            String(format: NSLocalizedString("accessibility.summary_announcement", value: "复习完成，掌握 %d 题，待加强 %d 题", comment: "VoiceOver 复习摘要公告"), good, again)
+            String(format: NSLocalizedString("accessibility.summary_announcement", value: "回顾完成，有印象 %d 条，需回看 %d 条", comment: "VoiceOver 回顾摘要公告"), good, again)
         }
         public static func statCard(title: String, count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.stat_card", value: "%@ %d 题", comment: "VoiceOver 统计卡片"), title, count)
+            String(format: NSLocalizedString("accessibility.stat_card", value: "%@ %d 条", comment: "VoiceOver 统计卡片"), title, count)
         }
 
-        // 复习 Dashboard
+        // 回顾 Dashboard
         public static func pendingReview(count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.pending_review", value: "待复习 %d 道题", comment: "VoiceOver 待复习数"), count)
+            String(format: NSLocalizedString("accessibility.pending_review", value: "待回顾 %d 条内容", comment: "VoiceOver 待回顾数"), count)
         }
         public static func reviewedToday(count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.reviewed_today", value: "今日已复习 %d 道题", comment: "VoiceOver 已复习数"), count)
+            String(format: NSLocalizedString("accessibility.reviewed_today", value: "今日已回顾 %d 条内容", comment: "VoiceOver 今日回顾数"), count)
         }
-        public static let startReviewHint = NSLocalizedString("accessibility.start_review_hint", value: "开始今日复习会话", comment: "VoiceOver 开始复习提示")
+        public static let startReviewHint = NSLocalizedString("accessibility.start_review_hint", value: "开始今日回顾", comment: "VoiceOver 开始回顾提示")
 
         // AccessibilityHelper 使用的键
         public static func reviewItemLabel(subject: String, difficulty: String, content: String) -> String {
-            String(format: NSLocalizedString("accessibility.review_item_label", value: "%@题目，难度%@，内容：%@", comment: "VoiceOver 复习项目完整标签"), subject, difficulty, content)
+            String(format: NSLocalizedString("accessibility.review_item_label", value: "%@资料，难度%@，内容：%@", comment: "VoiceOver 回顾项目完整标签"), subject, difficulty, content)
         }
         public static func reviewButtonHint(count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.review_button_hint", value: "轻点开始复习 %d 道题目", comment: "VoiceOver 复习按钮提示"), count)
+            String(format: NSLocalizedString("accessibility.review_button_hint", value: "轻点开始回顾 %d 条内容", comment: "VoiceOver 回顾按钮提示"), count)
         }
         public static func exportButtonHint(format: String) -> String {
             String(format: NSLocalizedString("accessibility.export_button_hint", value: "轻点导出为 %@ 格式", comment: "VoiceOver 导出按钮提示"), format)
         }
         public static func progressDescription(current: Int, total: Int, percentage: Int) -> String {
-            String(format: NSLocalizedString("accessibility.progress_description", value: "已完成 %d 道，共 %d 道，进度 %d%%", comment: "VoiceOver 进度描述"), current, total, percentage)
+            String(format: NSLocalizedString("accessibility.progress_description", value: "已处理 %d 条，共 %d 条，进度 %d%%", comment: "VoiceOver 进度描述"), current, total, percentage)
         }
         public static func difficultyLevel(_ difficulty: Int) -> String {
             NSLocalizedString("accessibility.difficulty_\(difficulty)", value: {
@@ -85,17 +85,17 @@ nonisolated extension L10n {
         // 首页仪表盘
         public static let profile = NSLocalizedString("accessibility.profile", value: "个人资料", comment: "VoiceOver 头像按钮")
         public static let profileHint = NSLocalizedString("accessibility.profile_hint", value: "打开设置页面", comment: "VoiceOver 头像按钮提示")
-        public static let captureFirstItemHint = NSLocalizedString("accessibility.capture_first_item_hint", value: "拍摄第一份资料", comment: "VoiceOver 首次录入按钮提示")
-        public static let startReviewNowHint = NSLocalizedString("accessibility.start_review_now_hint", value: "开始复习待复习的题目", comment: "VoiceOver 立即开始按钮提示")
-        public static let allDoneLabel = NSLocalizedString("accessibility.all_done_label", value: "太棒了，今日复习已完成，好好休息吧", comment: "VoiceOver 全部完成卡片")
+        public static let captureFirstItemHint = NSLocalizedString("accessibility.capture_first_item_hint", value: "拍照录入第一条资料", comment: "VoiceOver 首次录入按钮提示")
+        public static let startReviewNowHint = NSLocalizedString("accessibility.start_review_now_hint", value: "开始回顾待处理内容", comment: "VoiceOver 立即开始按钮提示")
+        public static let allDoneLabel = NSLocalizedString("accessibility.all_done_label", value: "今日回顾已完成", comment: "VoiceOver 全部完成卡片")
         public static func dueCountLabel(count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.due_count_label", value: "今日待复习 %d 道题", comment: "VoiceOver 待复习数"), count)
+            String(format: NSLocalizedString("accessibility.due_count_label", value: "今日待回顾 %d 条内容", comment: "VoiceOver 待回顾数"), count)
         }
         public static func reviewProgressLabel(reviewed: Int, total: Int) -> String {
-            String(format: NSLocalizedString("accessibility.review_progress_label", value: "今日复习进度，已完成 %d 道，共 %d 道", comment: "VoiceOver 复习进度环"), reviewed, total)
+            String(format: NSLocalizedString("accessibility.review_progress_label", value: "今日回顾进度，已处理 %d 条，共 %d 条", comment: "VoiceOver 回顾进度环"), reviewed, total)
         }
         public static func dailyStatsLabel(added: Int, reviewed: Int, due: Int) -> String {
-            String(format: NSLocalizedString("accessibility.daily_stats_label", value: "今日统计：新增 %d 题，已复习 %d 题，待复习 %d 题", comment: "VoiceOver 每日统计"), added, reviewed, due)
+            String(format: NSLocalizedString("accessibility.daily_stats_label", value: "今日统计：新增 %d 条，已回顾 %d 条，待回顾 %d 条", comment: "VoiceOver 每日统计"), added, reviewed, due)
         }
 
         // 采集模块
