@@ -14,14 +14,14 @@ import SnapDrillUI
 
 /// 回顾会话完成后的摘要统计视图
 ///
-/// 展示本次会话的确认/稍后分类统计。
+/// 展示本次会话的有印象/没印象分类统计。
 struct ReviewSessionSummaryView: View {
 
     // MARK: - Properties
 
-    /// "确认"（右滑）的资料数
+    /// "有印象"（右滑）的资料数
     let goodCount: Int
-    /// "稍后"（左滑）的资料数
+    /// "没印象"（左滑）的资料数
     let againCount: Int
     /// 点击完成后的回调
     let onDismiss: () -> Void
@@ -136,14 +136,14 @@ struct ReviewSessionSummaryView: View {
 
 // MARK: - Preview
 
-#Preview("全部确认") {
+#Preview("全部有印象") {
     ReviewSessionSummaryView(goodCount: 5, againCount: 0, onDismiss: {})
 }
 
-#Preview("部分稍后") {
+#Preview("部分没印象") {
     ReviewSessionSummaryView(goodCount: 3, againCount: 2, onDismiss: {})
 }
 
-#Preview("全部稍后") {
+#Preview("全部没印象") {
     ReviewSessionSummaryView(goodCount: 0, againCount: 5, onDismiss: {})
 }
