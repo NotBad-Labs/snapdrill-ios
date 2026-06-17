@@ -261,15 +261,15 @@
 // MARK: - Review
 
 "review.title" = "Review";
-"review.completed" = "Confirmed";
+"review.completed" = "Reviewed";
 "review.pause_alert_title" = "Pause Review?";
 "review.pause_continue" = "Continue";
 "review.pause_confirm" = "Pause";
 "review.pause_message" = "Your progress will be saved. You can continue later.";
 "review.tooltip_title" = "Card Controls";
-"review.tooltip_message" = "Tap the card to view the reference content. Swipe left to revisit later, right to confirm.";
-"review.stamp_forgot" = "Later";
-"review.stamp_remember" = "Confirm";
+"review.tooltip_message" = "Tap the card to view the reference content. Swipe left if you forgot, right if you recalled.";
+"review.stamp_forgot" = "Forgot";
+"review.stamp_remember" = "Recalled";
 "review.pending" = "Due";
 "review.today_review" = "Today's Review";
 "review.cards_pending" = "items to process";
@@ -278,15 +278,15 @@
 "review.excellent" = "No items due.";
 "review.start_review" = "Start Review";
 "review.go_rest" = "No items due";
-"review.reviewed_today" = "Confirmed %d today";
+"review.reviewed_today" = "Reviewed %d today";
 "review.summary_title" = "Session Complete";
-"review.summary_good" = "Confirmed";
-"review.summary_again" = "Follow-up";
+"review.summary_good" = "Recalled";
+"review.summary_again" = "Needs Review";
 "review.summary_dismiss" = "Done";
 "review.encourage_rest" = "No items need attention right now.";
-"review.encourage_all_good" = "This session is confirmed.";
+"review.encourage_all_good" = "All items were marked recalled.";
 "review.encourage_keep_going" = "These items will return on schedule.";
-"review.encourage_partial" = "%d items will return later.";
+"review.encourage_partial" = "%d items need review.";
 "review.interval_minutes" = "10 min";
 "review.interval_tomorrow" = "Tomorrow";
 "review.interval_days" = "%d days";
@@ -677,11 +677,11 @@
 "accessibility.more_actions" = "More actions";
 "accessibility.question_image" = "Material image";
 "accessibility.answer_image" = "Reference image";
-"accessibility.forgot_hint" = "Mark for later follow-up";
-"accessibility.remember_hint" = "Confirm as handled and extend the review interval";
-"accessibility.summary_announcement" = "Review complete, confirmed %d, follow-up %d";
+"accessibility.forgot_hint" = "Mark as forgot; it will return later";
+"accessibility.remember_hint" = "Mark as recalled and extend the review interval";
+"accessibility.summary_announcement" = "Review complete, recalled %d, needs review %d";
 "accessibility.pending_review" = "%d items due";
-"accessibility.reviewed_today" = "Confirmed %d items today";
+"accessibility.reviewed_today" = "Reviewed %d items today";
 "accessibility.start_review_hint" = "Start today's review";
 "accessibility.delete_tag" = "Delete tag %@";
 "accessibility.add_tag" = "Add tag %@";

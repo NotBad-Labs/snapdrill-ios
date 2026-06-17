@@ -253,15 +253,15 @@
 // MARK: - Review
 
 "review.title" = "回顾";
-"review.completed" = "已确认";
+"review.completed" = "已回顾";
 "review.pause_alert_title" = "确认暂停回顾？";
 "review.pause_continue" = "继续";
 "review.pause_confirm" = "暂停";
 "review.pause_message" = "当前进度将保存，你可以稍后继续。";
 "review.tooltip_title" = "卡片操作";
-"review.tooltip_message" = "轻点卡片查看参考内容。左滑稍后再看，右滑确认已处理。";
-"review.stamp_forgot" = "稍后";
-"review.stamp_remember" = "确认";
+"review.tooltip_message" = "轻点卡片查看参考内容。左滑表示没印象，右滑表示有印象。";
+"review.stamp_forgot" = "没印象";
+"review.stamp_remember" = "有印象";
 "review.pending" = "待回顾";
 "review.today_review" = "今日回顾";
 "review.cards_pending" = "条内容待处理";
@@ -270,15 +270,15 @@
 "review.excellent" = "当前没有待处理内容。";
 "review.start_review" = "开始回顾";
 "review.go_rest" = "暂无待回顾内容";
-"review.reviewed_today" = "今日已确认 %d 条";
+"review.reviewed_today" = "今日已回顾 %d 条";
 "review.summary_title" = "本轮完成";
-"review.summary_good" = "已确认";
+"review.summary_good" = "有印象";
 "review.summary_again" = "需回看";
 "review.summary_dismiss" = "完成";
 "review.encourage_rest" = "本轮没有需要处理的内容。";
-"review.encourage_all_good" = "本轮内容已确认。";
+"review.encourage_all_good" = "本轮内容均标记为有印象。";
 "review.encourage_keep_going" = "这些内容会按计划再次出现。";
-"review.encourage_partial" = "%d 条内容稍后会再次出现。";
+"review.encourage_partial" = "%d 条内容需回看。";
 "review.interval_minutes" = "10分钟";
 "review.interval_tomorrow" = "明天";
 "review.interval_days" = "%d天";
@@ -658,11 +658,11 @@
 "accessibility.more_actions" = "更多操作";
 "accessibility.question_image" = "资料图片";
 "accessibility.answer_image" = "参考图片";
-"accessibility.forgot_hint" = "标记为稍后回看";
-"accessibility.remember_hint" = "确认已处理，延长回顾间隔";
-"accessibility.summary_announcement" = "回顾完成，已确认 %d 条，需回看 %d 条";
+"accessibility.forgot_hint" = "标记为没印象，稍后会再次出现";
+"accessibility.remember_hint" = "标记为有印象，延长回顾间隔";
+"accessibility.summary_announcement" = "回顾完成，有印象 %d 条，需回看 %d 条";
 "accessibility.pending_review" = "待回顾 %d 条内容";
-"accessibility.reviewed_today" = "今日已确认 %d 条内容";
+"accessibility.reviewed_today" = "今日已回顾 %d 条内容";
 "accessibility.start_review_hint" = "开始今日回顾";
 "accessibility.delete_tag" = "删除标签%@";
 "accessibility.add_tag" = "添加标签%@";

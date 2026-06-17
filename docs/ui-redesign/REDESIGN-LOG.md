@@ -17,9 +17,9 @@
 ### Design Decisions
 
 - Review remains a free retention layer, but the UI now presents it as adult productivity "回顾" rather than childlike or gamified "复习".
-- Primary actions are neutralized to `稍后 / 确认` and `Later / Confirm`; the red/green oversized action language is replaced with calmer blue/orange controls that still support gestures and equivalent buttons.
+- Primary actions use clear recall self-assessment labels: `没印象 / 有印象` and `Forgot / Recalled`; the red/green oversized action language is replaced with calmer blue/orange controls that still support gestures and equivalent buttons.
 - Entry, session, card, progress, and summary surfaces align with the Library/Capture baseline: system grouped backgrounds, restrained stroke, low shadow, and no decorative purple/blue gradients.
-- Completion language is informational rather than motivational: `本轮完成 / 已确认 / 需回看`.
+- Completion language is informational rather than motivational: `本轮完成 / 有印象 / 需回看`.
 - `feat-review.md` now records the Review polish completion line and corrects the stale GAP-R1 statement: loading already excludes pending-deletion IDs, but active sessions still ignore `reviewDataDidChange`.
 
 ### Files Changed
@@ -56,7 +56,7 @@
 ### Open Questions
 
 - Dogfood should verify the tactile swipe threshold and button hit targets on iPhone 17 with real review data.
-- A later contract seed should decide whether Review's `确认 / 稍后` state names need explicit ViewModel tests beyond current UI copy and accessibility coverage.
+- A later contract seed should decide whether Review's `有印象 / 没印象` state names need explicit ViewModel tests beyond current UI copy and accessibility coverage.
 
 ## 2026-06-16 - Capture flagship polish planning
 

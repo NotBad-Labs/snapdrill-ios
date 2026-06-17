@@ -28,12 +28,12 @@ nonisolated extension L10n {
         public static let moreActions = NSLocalizedString("accessibility.more_actions", value: "更多操作", comment: "VoiceOver 省略号菜单")
         public static let questionImage = NSLocalizedString("accessibility.question_image", value: "资料图片", comment: "VoiceOver 资料图片")
         public static let answerImage = NSLocalizedString("accessibility.answer_image", value: "参考图片", comment: "VoiceOver 参考图片")
-        public static let forgotHint = NSLocalizedString("accessibility.forgot_hint", value: "标记为稍后回看", comment: "VoiceOver 稍后按钮提示")
-        public static let rememberHint = NSLocalizedString("accessibility.remember_hint", value: "确认已处理，延长回顾间隔", comment: "VoiceOver 确认按钮提示")
+        public static let forgotHint = NSLocalizedString("accessibility.forgot_hint", value: "标记为没印象，稍后会再次出现", comment: "VoiceOver 没印象按钮提示")
+        public static let rememberHint = NSLocalizedString("accessibility.remember_hint", value: "标记为有印象，延长回顾间隔", comment: "VoiceOver 有印象按钮提示")
 
         // 回顾摘要
         public static func summaryAnnouncement(good: Int, again: Int) -> String {
-            String(format: NSLocalizedString("accessibility.summary_announcement", value: "回顾完成，已确认 %d 条，需回看 %d 条", comment: "VoiceOver 回顾摘要公告"), good, again)
+            String(format: NSLocalizedString("accessibility.summary_announcement", value: "回顾完成，有印象 %d 条，需回看 %d 条", comment: "VoiceOver 回顾摘要公告"), good, again)
         }
         public static func statCard(title: String, count: Int) -> String {
             String(format: NSLocalizedString("accessibility.stat_card", value: "%@ %d 条", comment: "VoiceOver 统计卡片"), title, count)
@@ -44,7 +44,7 @@ nonisolated extension L10n {
             String(format: NSLocalizedString("accessibility.pending_review", value: "待回顾 %d 条内容", comment: "VoiceOver 待回顾数"), count)
         }
         public static func reviewedToday(count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.reviewed_today", value: "今日已确认 %d 条内容", comment: "VoiceOver 已确认数"), count)
+            String(format: NSLocalizedString("accessibility.reviewed_today", value: "今日已回顾 %d 条内容", comment: "VoiceOver 今日回顾数"), count)
         }
         public static let startReviewHint = NSLocalizedString("accessibility.start_review_hint", value: "开始今日回顾", comment: "VoiceOver 开始回顾提示")
 

@@ -25,7 +25,7 @@ intent_refs:
 - **原则归属**：P3 免费层完成核心闭环（核心永久免费、回顾为免费附加值）+ P5 成人生产力工具（零学习曲线、不贩卖焦虑）。详见 `../../explanations/vision.md`。
 
 ## 2. 需求规则 (What)
-- **SM-2 间隔回顾**：翻卡 + 滑动评估（确认 / 稍后）。
+- **SM-2 间隔回顾**：翻卡 + 滑动评估（有印象 / 没印象）。
 - **Dashboard 回顾字段**（基础统计免费；口径由 Review 定义、Dashboard 仅消费）：
   - 资料总数；**待回顾数 = `ReviewItem.dueDate ≤ now` 且资料未软删**；**已回顾数 = 至少 1 次 SM-2 评估**；今日新增；各分类分布。
   - 时间序列 / 高级统计为 Pro，见 `../backlog/feat-advanced-stats.md`。
@@ -37,13 +37,13 @@ intent_refs:
 
 ## 3. 技术设计 (How)
 - **模块归属**：SM-2 引擎 `SnapDrillCore`（`ReviewScheduler` / `SM2State`）；Dashboard 聚合 `SnapDrillFeatureDashboard`。
-- **关键机制 / 数据流**：评估依结果更新该资料的 `easeFactor / interval / nextReviewAt` 并推进下一条；正面 = 原内容（图文，**必须显示图片**，尤其图形资料），背面 = 参考答案/备注；左滑/稍后、右滑/确认，**手势必有等价按钮**（HIG）；答案缺失仍可翻面评估。
+- **关键机制 / 数据流**：评估依结果更新该资料的 `easeFactor / interval / nextReviewAt` 并推进下一条；正面 = 原内容（图文，**必须显示图片**，尤其图形资料），背面 = 参考答案/备注；左滑/没印象、右滑/有印象，**手势必有等价按钮**（HIG）；答案缺失仍可翻面评估。
 - **State & Concurrency**（Swift 6 strict）：复习 View 由 `@Observable` ViewModel（`@MainActor`）驱动；SM-2 状态更新经 Repository → `DataExecutor`（actor）落库，不阻塞主线程；每次评估**即时持久化**（不缓存到本轮结束）。
-- **回顾 UI 可达性约束**：翻卡"确认/稍后"为主观处理状态，UI 必须低门槛、可达——大字号、清晰可点按钮、手势必有等价按钮（HIG 无障碍基线，承接 vision P5「无障碍是基础质量」）。重构回顾 UI 不得退化此可达性（缩小按钮 / 去掉按钮等价 = 退化）。
+- **回顾 UI 可达性约束**：翻卡"有印象/没印象"为主观回忆自评，UI 必须低门槛、可达——大字号、清晰可点按钮、手势必有等价按钮（HIG 无障碍基线，承接 vision P5「无障碍是基础质量」）。重构回顾 UI 不得退化此可达性（缩小按钮 / 去掉按钮等价 = 退化）。
 - **设计裁决（仅本模块）**：滑动手势 vs 系统返回 edge-swipe 冲突——复习场景卡片简洁性权重高于 P6 原生优先，**仅本模块裁决、不外推**；其他模块手势冲突仍走全局 P1>…>P6。
 
 ## 4. 验证标准 (Verify)
-- **Success path (GWT)**：Given 有到期资料，When 进入 Review 并对每张卡翻面后评估（确认/稍后，手势或按钮），Then SM-2 状态更新并推进下一张；全部完成后展示摘要（"N 条已确认，M 条需回看"）并返回。
+- **Success path (GWT)**：Given 有到期资料，When 进入 Review 并对每张卡翻面后评估（有印象/没印象，手势或按钮），Then SM-2 状态更新并推进下一张；全部完成后展示摘要（"N 条有印象，M 条需回看"）并返回。
 - **边界 / 异常**：
   - 无到期资料 → Dashboard 与 Review 空状态，不进空白卡片流（Boundary B19）。
   - 某题缺答案 → 允许翻面进空答案状态，仍可评估。
@@ -60,7 +60,7 @@ intent_refs:
 **Completion line**：
 - 入口概览、加载/错误/空/完成态都应有明确用户反馈，不留空白或“点了没反应”的状态。
 - 卡片会话保留“手势 + 等价按钮 + VoiceOver”三条路径；底部动作不得依赖仅红/绿或仅图标理解。
-- Review 对外可见文案改为通用受众生产力语义：`回顾 / 稍后 / 确认 / 已确认 / 需回看`；避免儿童化、游戏化、打气式语言。
+- Review 对外可见文案改为通用受众生产力语义：`回顾 / 没印象 / 有印象 / 已回顾 / 需回看`；避免儿童化、游戏化、打气式语言。
 - 视觉与 Library / Capture 的基线一致：系统 grouped 背景、低阴影、清晰分割、适中圆角、克制蓝色强调；移除大面积紫蓝渐变和游戏化成功动效。
 - 保留已存在的 VoiceOver 标签、a11y hints、selected traits、`accessibilityIdentifier` 相关路径。
 - 若发现需要 ViewModel/Core/Data 新状态才能正确表达，应登记为跨层 blocker，不在本 UI PR 中重写逻辑。
