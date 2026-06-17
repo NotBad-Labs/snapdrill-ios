@@ -5,25 +5,25 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习会话完成后的摘要统计视图。
+//  回顾会话完成后的摘要统计视图。
 //
 
 import SwiftUI
 import SnapDrillCore
 import SnapDrillUI
 
-/// 复习会话完成后的摘要统计视图
+/// 回顾会话完成后的摘要统计视图
 ///
-/// 展示本次会话的掌握/待加强分类统计和鼓励语。
+/// 展示本次会话的确认/稍后分类统计。
 struct ReviewSessionSummaryView: View {
 
     // MARK: - Properties
 
-    /// "记得"（右滑）的卡片数
+    /// "确认"（右滑）的资料数
     let goodCount: Int
-    /// "忘记"（左滑）的卡片数
+    /// "稍后"（左滑）的资料数
     let againCount: Int
-    /// 点击"好的"后的回调
+    /// 点击完成后的回调
     let onDismiss: () -> Void
 
     // Dynamic Type 支持：统计数字随系统字号缩放
@@ -32,60 +32,72 @@ struct ReviewSessionSummaryView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                HStack(spacing: 14) {
+                    Image(systemName: "checkmark.circle")
+                        .font(.system(size: 28, weight: .semibold))
+                        .foregroundStyle(.blue)
+                        .frame(width: 52, height: 52)
+                        .background(Color.blue.opacity(0.12), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .accessibilityHidden(true)
 
-            // 图标
-            Image(systemName: "checkmark.seal.fill")
-                .font(.system(size: 60))
-                .foregroundStyle(.green.opacity(0.8))
-                .symbolEffect(.bounce, value: true)
-                .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(L10n.Review.summaryTitle)
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.primary)
 
-            // 标题
-            Text(L10n.Review.summaryTitle)
-                .font(.title2.bold())
+                        Text(encouragementText)
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
 
-            // 统计卡片
-            HStack(spacing: 16) {
-                statCard(
-                    title: L10n.Review.summaryGood,
-                    count: goodCount,
-                    color: .green,
-                    icon: "checkmark.circle.fill"
+                HStack(spacing: 0) {
+                    statCard(
+                        title: L10n.Review.summaryGood,
+                        count: goodCount,
+                        color: .blue,
+                        icon: "checkmark.circle.fill"
+                    )
+
+                    Divider()
+                        .padding(.vertical, 14)
+                        .accessibilityHidden(true)
+
+                    statCard(
+                        title: L10n.Review.summaryAgain,
+                        count: againCount,
+                        color: .orange,
+                        icon: "arrow.uturn.left.circle.fill"
+                    )
+                }
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(Color(UIColor.secondarySystemGroupedBackground))
                 )
-                statCard(
-                    title: L10n.Review.summaryAgain,
-                    count: againCount,
-                    color: .orange,
-                    icon: "arrow.counterclockwise.circle.fill"
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .strokeBorder(Color(UIColor.separator).opacity(0.14), lineWidth: 1)
                 )
+
+                Button(action: onDismiss) {
+                    Text(L10n.Review.summaryDismiss)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
             }
-            .padding(.horizontal, 32)
-
-            // 鼓励语
-            Text(encouragementText)
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
-            // 按钮
-            Button(action: onDismiss) {
-                Text(L10n.Review.summaryDismiss)
-                    .font(.headline)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
-                    .background(Color.blue)
-                    .foregroundStyle(.white)
-                    .clipShape(Capsule())
-            }
-            .padding(.top, 8)
-
-            Spacer()
+            .frame(maxWidth: 560)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 28)
         }
-        .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(UIColor.systemGroupedBackground))
     }
 
     // MARK: - Private Helpers
@@ -104,8 +116,8 @@ struct ReviewSessionSummaryView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
         .accessibleGroup(label: L10n.Accessibility.statCard(title: title, count: count))
     }
 
@@ -124,14 +136,14 @@ struct ReviewSessionSummaryView: View {
 
 // MARK: - Preview
 
-#Preview("全部掌握") {
+#Preview("全部确认") {
     ReviewSessionSummaryView(goodCount: 5, againCount: 0, onDismiss: {})
 }
 
-#Preview("部分待加强") {
+#Preview("部分稍后") {
     ReviewSessionSummaryView(goodCount: 3, againCount: 2, onDismiss: {})
 }
 
-#Preview("全部忘记") {
+#Preview("全部稍后") {
     ReviewSessionSummaryView(goodCount: 0, againCount: 5, onDismiss: {})
 }

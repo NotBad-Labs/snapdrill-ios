@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习会话界面（纯渲染层）— 业务逻辑已迁移至 ReviewViewModel
+//  回顾会话界面（纯渲染层）— 业务逻辑已迁移至 ReviewViewModel
 //
 
 import SwiftUI
@@ -14,7 +14,7 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillData
 
-/// 复习会话界面
+/// 回顾会话界面
 ///
 /// 纯渲染层，通过 `ReviewViewModel` 驱动所有状态变化。
 public struct ReviewView: View {
@@ -28,8 +28,8 @@ public struct ReviewView: View {
     @State private var viewModel: ReviewViewModel?
     @State private var profileTipState = ProfileTipState()
 
-    // Dynamic Type 支持：滑动印章文字随系统字号缩放
-    @ScaledMetric(relativeTo: .largeTitle) private var stampFontSize: CGFloat = 40
+    // Dynamic Type 支持：滑动标记文字随系统字号缩放
+    @ScaledMetric(relativeTo: .title2) private var stampFontSize: CGFloat = 28
 
     // MARK: - Initialization
 
@@ -41,11 +41,11 @@ public struct ReviewView: View {
 
     // MARK: - Body
 
-    /// 复习会话界面的视图层次
+    /// 回顾会话界面的视图层次
     public var body: some View {
         NavigationStack(path: $router.path) {
             ZStack {
-                Color(UIColor.secondarySystemBackground)
+                Color(UIColor.systemGroupedBackground)
                     .ignoresSafeArea()
 
                 if let vm = viewModel {
@@ -122,7 +122,7 @@ public struct ReviewView: View {
         .toolbar(vm.phase == .reviewing ? .hidden : .visible, for: .navigationBar)
         .toolbar(vm.phase == .reviewing ? .hidden : .visible, for: .tabBar)
         .animation(.spring(response: 0.5, dampingFraction: 0.8), value: vm.phase)
-        // HIG：完成整组复习是正向结果，用 success 反馈强化成就感
+        // HIG：完成整组回顾是正向结果，用轻量 success 反馈确认结果。
         .sensoryFeedback(.success, trigger: vm.phase) { _, newPhase in
             newPhase == .finished
         }
@@ -131,7 +131,7 @@ public struct ReviewView: View {
 
     // MARK: - Alerts
 
-    /// 复习页面的 alert 集合，提取为 ViewModifier 以控制 reviewContent 方法体长度
+    /// 回顾页面的 alert 集合，提取为 ViewModifier 以控制 reviewContent 方法体长度
     private struct ReviewAlertsModifier: ViewModifier {
         let vm: ReviewViewModel
 
@@ -175,7 +175,7 @@ public struct ReviewView: View {
 
     @ViewBuilder
     private func reviewSessionView(vm: ReviewViewModel) -> some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             ReviewProgressHeader(
                 current: vm.sessionStartReviewedCount + vm.finishedItems + 1,
                 total: vm.sessionStartReviewedCount + vm.finishedItems + vm.workingItems.count,
@@ -187,7 +187,7 @@ public struct ReviewView: View {
             cardStack(vm: vm)
 
             bottomControl(vm: vm)
-                .padding(.bottom, 40)
+                .padding(.bottom, 28)
         }
     }
 
@@ -256,7 +256,7 @@ public struct ReviewView: View {
                 .rotation3DEffect(.degrees(vm.isAnswerShown && isTop ? 0 : -180), axis: (x: 0, y: 1, z: 0))
         }
         .padding(.horizontal)
-        .padding(.vertical, 32)
+        .padding(.vertical, 24)
         .onTapGesture {
             if isTop {
                 withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
@@ -306,11 +306,11 @@ public struct ReviewView: View {
 
             if isTop {
                 if dragOffset < -50 {
-                    stampLabel(L10n.Review.stampForgot, color: .red, rotation: 15, xOffset: 80)
-                        .opacity(Double(abs(dragOffset) / 200))
+                    stampLabel(L10n.Review.stampForgot, color: .orange, rotation: 10, xOffset: 72)
+                        .opacity(min(Double(abs(dragOffset) / 160), 1))
                 } else if dragOffset > 50 {
-                    stampLabel(L10n.Review.stampRemember, color: .green, rotation: -15, xOffset: -80)
-                        .opacity(Double(abs(dragOffset) / 200))
+                    stampLabel(L10n.Review.stampRemember, color: .blue, rotation: -10, xOffset: -72)
+                        .opacity(min(Double(abs(dragOffset) / 160), 1))
                 }
             }
         }
@@ -318,10 +318,15 @@ public struct ReviewView: View {
 
     private func stampLabel(_ text: String, color: Color, rotation: Double, xOffset: CGFloat) -> some View {
         Text(text)
-            .font(.system(size: stampFontSize, weight: .heavy, design: .rounded))
-            .foregroundColor(color)
-            .padding()
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(color, lineWidth: 4))
+            .font(.system(size: stampFontSize, weight: .semibold, design: .rounded))
+            .foregroundStyle(color)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(color.opacity(0.10), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(color.opacity(0.28), lineWidth: 1.5)
+            )
             .rotationEffect(.degrees(rotation))
             .offset(x: xOffset, y: -100)
             .accessibilityHidden(true)

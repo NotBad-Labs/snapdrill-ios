@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习卡片背面：展示答案、编辑入口。
+//  回顾卡片背面：展示参考信息和编辑入口。
 //
 
 import SwiftUI
@@ -14,7 +14,7 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillFeatureLibrary
 
-/// 复习卡片背面：展示答案
+/// 回顾卡片背面：展示参考信息
 struct ReviewCardBack: View {
 
     // MARK: - Properties
@@ -26,7 +26,7 @@ struct ReviewCardBack: View {
     @State private var showingEditSheet = false
     @State private var loadedAnswerImage: UIImage?
     @State private var answerImageLoadFailed = false
-    // 纯图片题（content == nil）时，背面 header 同步展示题目图，让用户记得题目是什么
+    // 纯图片资料（content == nil）时，背面 header 同步展示图片，让用户看到上下文
     @State private var loadedQuestionImage: UIImage?
 
     // 用户偏好：背面卡片排版
@@ -54,13 +54,12 @@ struct ReviewCardBack: View {
             HStack(alignment: .top) {
                 if let content = item.content, !content.isEmpty {
                     Text(content)
-                        .font(.system(size: fontSizeRaw, weight: .medium, design: .serif))
+                        .font(.system(size: fontSizeRaw, weight: .regular))
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(alignment)
                         .lineLimit(3)
                         .frame(maxWidth: .infinity, alignment: frameAlignment)
                 } else if let image = loadedQuestionImage {
-                    // 纯图片题：在背面 header 展示题目图，让用户看到题目上下文
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -81,7 +80,7 @@ struct ReviewCardBack: View {
                 } label: {
                     Image(systemName: "ellipsis.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(.blue.opacity(0.8))
+                        .foregroundStyle(.tertiary)
                         .padding(12)
                         .contentShape(Circle())
                 }
@@ -100,6 +99,7 @@ struct ReviewCardBack: View {
                     if let answerText = item.answerText, !answerText.isEmpty {
                         Text(answerText)
                             .font(.title3)
+                            .fontWeight(.regular)
                             .foregroundStyle(.primary)
                             .multilineTextAlignment(.leading)
                             .lineSpacing(6)
@@ -145,23 +145,14 @@ struct ReviewCardBack: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             ZStack {
-                RoundedRectangle(cornerRadius: 32, style: .continuous)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .fill(Color(UIColor.secondarySystemGroupedBackground))
 
-                RoundedRectangle(cornerRadius: 32, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [.white.opacity(0.2), .clear],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-
-                RoundedRectangle(cornerRadius: 32, style: .continuous)
-                    .strokeBorder(.secondary.opacity(0.1), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .strokeBorder(Color(UIColor.separator).opacity(0.12), lineWidth: 1)
             }
         )
-        .shadow(color: Color.black.opacity(0.08), radius: 15, x: 0, y: 10)
+        .shadow(color: Color.black.opacity(0.04), radius: 12, x: 0, y: 6)
         .task {
             await loadQuestionImage()
         }

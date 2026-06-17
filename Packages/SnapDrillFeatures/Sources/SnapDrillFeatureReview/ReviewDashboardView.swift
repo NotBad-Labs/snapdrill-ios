@@ -5,8 +5,8 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习模块的“准备”面板 (Idle State)
-//  展示今日待复习概览，赋予用户开始学习的主动权。
+//  回顾模块的准备面板 (Idle State)。
+//  展示当前待处理概览，并保持成人生产力工具语气。
 //
 
 import SwiftUI
@@ -23,180 +23,145 @@ struct ReviewDashboardView: View {
     let onStart: () -> Void
     let onEnter: () -> Void
 
-    // Dynamic Type 支持：装饰性统计数字随系统字号缩放
-    @ScaledMetric(relativeTo: .largeTitle) private var statFontSize: CGFloat = 44
-    @ScaledMetric(relativeTo: .largeTitle) private var heroFontSize: CGFloat = 64
+    @ScaledMetric(relativeTo: .largeTitle) private var statFontSize: CGFloat = 42
     
     var body: some View {
-        VStack(spacing: 40) {
-            Spacer()
-            
-            // 主视觉区域
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [.blue.opacity(0.1), .purple.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 200, height: 200)
-                    .blur(radius: 20)
-
-                Image(systemName: iconName)
-                    .font(.system(size: 80))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.blue, .purple],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .shadow(color: .blue.opacity(0.3), radius: 10, x: 0, y: 5)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                header
+                statusPanel
+                primaryAction
             }
-            .padding(.top, 40)
-            .accessibilityHidden(true)
-            
-            // 文字摘要
-            VStack(spacing: 16) {
-                if pendingCount > 0 {
-                    if reviewedCount > 0 {
-                        // 场景 2：中断 / 进行中（分列统计）
-                        HStack(spacing: 40) {
-                            // 待复习（左侧）
-                            VStack(spacing: 4) {
-                                Text("\(pendingCount)")
-                                    .font(.system(size: statFontSize, weight: .bold, design: .rounded))
-                                    .foregroundStyle(.primary)
-                                Text(L10n.Review.pending)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .accessibleGroup(label: L10n.Accessibility.pendingReview(count: pendingCount))
-
-                            Divider()
-                                .frame(height: 40)
-                                .accessibilityHidden(true)
-
-                            // 已完成（右侧）
-                            VStack(spacing: 4) {
-                                Text("\(reviewedCount)")
-                                    .font(.system(size: statFontSize, weight: .bold, design: .rounded))
-                                    .foregroundStyle(.green)
-                                Text(L10n.Review.completed)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .accessibleGroup(label: L10n.Accessibility.reviewedToday(count: reviewedCount))
-                        }
-                    } else {
-                        // 场景 1：全新开始
-                        VStack(spacing: 16) {
-                            Text(L10n.Review.todayReview)
-                                .font(.title2)
-                                .foregroundStyle(.secondary)
-
-                            Text("\(pendingCount)")
-                                .font(.system(size: heroFontSize, weight: .bold, design: .rounded))
-                                .foregroundStyle(.primary)
-
-                            Text(L10n.Review.cardsPending)
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
-                        }
-                        .accessibleGroup(label: L10n.Accessibility.pendingReview(count: pendingCount))
-                    }
-                } else if totalItemsCount == 0 {
-                    // 空状态
-                    Text(L10n.Review.welcomeBack)
-                        .font(.title2.bold())
-                        .foregroundStyle(.primary)
-                    
-                    Text(L10n.Review.emptyHint)
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                } else {
-                    // 场景 3：已完成
-                    Text(L10n.Review.excellent)
-                        .font(.title2.bold())
-                        .foregroundStyle(.primary)
-                    
-                    Text(L10n.Review.reviewedToday(reviewedCount))
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            
-            Spacer()
-            
-            // 操作按钮
-            if pendingCount > 0 {
-                Button(action: onStart) {
-                    HStack {
-                        Image(systemName: "play.fill")
-                        Text(L10n.Review.startReview)
-                    }
-                    .font(.title3.bold())
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(
-                        LinearGradient(
-                            colors: [.blue, .purple],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .clipShape(Capsule())
-                    .shadow(color: .blue.opacity(0.3), radius: 15, x: 0, y: 8)
-                }
-                .accessibilityHint(L10n.Accessibility.startReviewHint)
-                .padding(.horizontal, 40)
-                .padding(.bottom, 60)
-            } else if totalItemsCount == 0 {
-                // 空状态操作：跳转去采集
-                Button(action: onEnter) {
-                    Text(L10n.Dashboard.goCapture)
-                        .font(.headline)
-                        .foregroundStyle(.blue)
-                        .padding()
-                        .background(Color.blue.opacity(0.1))
-                        .clipShape(Capsule())
-                }
-                .padding(.bottom, 60)
-            } else {
-                // 完成操作：休息
-                Button(action: {}, label: {
-                    HStack {
-                        Image(systemName: "moon.stars.fill")
-                        Text(L10n.Review.goRest)
-                    }
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
-                })
-                .disabled(true)
-                .padding(.bottom, 60)
-            }
+            .frame(maxWidth: 560)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 28)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // 添加毛玻璃背景，与后面的动态渐变网格分离
-        .background(.ultraThinMaterial)
+        .background(Color(UIColor.systemGroupedBackground))
     }
     
     // MARK: - Private Helpers
     
     private var iconName: String {
         if pendingCount > 0 {
-            return "rectangle.stack.fill"
+            return "rectangle.stack"
         } else if totalItemsCount == 0 {
             return "plus.square.dashed"
         } else {
-            return "checkmark.seal.fill"
+            return "checkmark.circle"
         }
+    }
+
+    private var header: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: iconName)
+                .font(.system(size: 28, weight: .semibold))
+                .foregroundStyle(.blue)
+                .frame(width: 52, height: 52)
+                .background(Color.blue.opacity(0.12), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(L10n.Review.todayReview)
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(.primary)
+
+                Text(statusMessage)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private var statusPanel: some View {
+        HStack(spacing: 0) {
+            statBlock(
+                value: pendingCount,
+                title: L10n.Review.pending,
+                label: L10n.Accessibility.pendingReview(count: pendingCount)
+            )
+
+            Divider()
+                .padding(.vertical, 14)
+                .accessibilityHidden(true)
+
+            statBlock(
+                value: reviewedCount,
+                title: L10n.Review.completed,
+                label: L10n.Accessibility.reviewedToday(count: reviewedCount)
+            )
+        }
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color(UIColor.secondarySystemGroupedBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color(UIColor.separator).opacity(0.14), lineWidth: 1)
+        )
+    }
+
+    private func statBlock(value: Int, title: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("\(value)")
+                .font(.system(size: statFontSize, weight: .bold, design: .rounded))
+                .foregroundStyle(.primary)
+                .contentTransition(.numericText())
+
+            Text(title)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
+        .accessibleGroup(label: label)
+    }
+
+    @ViewBuilder
+    private var primaryAction: some View {
+        if pendingCount > 0 {
+            Button(action: onStart) {
+                Label(L10n.Review.startReview, systemImage: "play.fill")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .accessibilityHint(L10n.Accessibility.startReviewHint)
+        } else if totalItemsCount == 0 {
+            Button(action: onEnter) {
+                Label(L10n.Dashboard.goCapture, systemImage: "plus")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+        } else {
+            Label(L10n.Review.goRest, systemImage: "checkmark.circle")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16)
+                .background(Color(UIColor.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
+        }
+    }
+
+    private var statusMessage: String {
+        if pendingCount > 0 {
+            if reviewedCount > 0 {
+                return L10n.Review.reviewedToday(reviewedCount)
+            }
+            return L10n.Review.cardsPending
+        }
+        if totalItemsCount == 0 {
+            return L10n.Review.emptyHint
+        }
+        return L10n.Review.excellent
     }
 }
 

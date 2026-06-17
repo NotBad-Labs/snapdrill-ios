@@ -2,6 +2,62 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-17 - Review flagship polish
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Review.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Accessibility.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `docs/features/active/feat-review.md`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Design Decisions
+
+- Review remains a free retention layer, but the UI now presents it as adult productivity "回顾" rather than childlike or gamified "复习".
+- Primary actions are neutralized to `稍后 / 确认` and `Later / Confirm`; the red/green oversized action language is replaced with calmer blue/orange controls that still support gestures and equivalent buttons.
+- Entry, session, card, progress, and summary surfaces align with the Library/Capture baseline: system grouped backgrounds, restrained stroke, low shadow, and no decorative purple/blue gradients.
+- Completion language is informational rather than motivational: `本轮完成 / 已确认 / 需回看`.
+- `feat-review.md` now records the Review polish completion line and corrects the stale GAP-R1 statement: loading already excludes pending-deletion IDs, but active sessions still ignore `reviewDataDidChange`.
+
+### Files Changed
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewDashboardView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewActionButtons.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewProgressHeader.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewSessionSummaryView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewEmptyStateView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewCardContent.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewCardBack.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Review.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Accessibility.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `docs/features/active/feat-review.md`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Cross-Layer Findings
+
+- Review and accessibility copy still live in `SnapDrillCore` L10n helpers. This milestone updates required user-facing strings only and does not move the L10n layer.
+- Active Review sessions still need a future ViewModel contract for `reviewDataDidChange` during `.reviewing`; this UI milestone does not rewrite Review queue logic.
+
+### DoD Status
+
+- Passed on 2026-06-17:
+  - `python3 Scripts/generate_feature_status.py --check`
+  - `python3 Scripts/generate_intent_traceability.py --check`
+  - `python3 Scripts/validate_docs.py --check`
+  - `swiftlint --strict`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
+### Open Questions
+
+- Dogfood should verify the tactile swipe threshold and button hit targets on iPhone 17 with real review data.
+- A later contract seed should decide whether Review's `确认 / 稍后` state names need explicit ViewModel tests beyond current UI copy and accessibility coverage.
+
 ## 2026-06-16 - Capture flagship polish planning
 
 ### Scope
