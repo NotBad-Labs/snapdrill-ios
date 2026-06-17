@@ -159,22 +159,41 @@ xcodebuild build-for-testing \
 
 ## 7. 验证与完成信号
 
-Swift 改动必须通过：
+验证重量按改动风险分级，而不是每个补丁都默认跑最高规格。分级只能降低低风险改动的仪式成本，不能降低真实代码、产品语义、跨层契约和发布相关改动的验证强度。
 
-```bash
-swiftlint --strict
-xcodebuild build-for-testing -scheme AllTests \
-  -destination 'platform=iOS Simulator,name=iPhone 17' \
-  -testPlan AllTests
-```
+### 验证分级表
 
-文档/流程改动至少通过：
+| 等级 | 适用改动 | 本地验证 | PR / CI 策略 |
+|---|---|---|---|
+| T0 | 纯文档、注释、Markdown 索引指针、不会进入编译产物的说明性文本 | `git diff --check`；涉及 docs 结构时跑 `python3 Scripts/validate_docs.py --check`；涉及自动生成索引时跑对应 generator `--check` | 可创建 Ready PR；不必等待全量 iOS build；CI 可异步观察 |
+| T1 | 开发者可见但不影响编译结果的 Swift 注释、`#Preview` 名称等 | `swiftlint --strict` 或 scoped SwiftLint；必要时 `git diff --check` | 可不等待全量 CI；报告说明未跑 build 的理由 |
+| T2 | 任意进入编译产物的代码改动，包括常量值、L10n 取值、View 结构、资源引用、测试文件 | `swiftlint --strict` + `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests` | PR 可先开，但合并前必须有本地 build 或 CI build 绿 |
+| T3 | 用户可见交互、状态分支、手势、导航、导出/打印、权限、错误态、ViewModel 接口消费 | T2 + 针对性测试或手动实测；必要时截图/录屏/真机 dogfood | 等 CI 绿；报告已验证路径与未验证路径 |
+| T4 | Core/Data/ViewModel/SM-2/存储/隐私声明/发布签名/跨层契约/迁移/批量导出等高风险改动 | T3 + 相关契约测试、回归测试或发布前专项检查；必要时外部复审 | 等 CI 绿；必要时 PO/legal/外部 reviewer 复核；不得靠自述跳过 |
 
-- `python3 Scripts/generate_feature_status.py --check`
-- 链接、路径与数字对 live code 的 grep 复核
-- `git diff --check`
+`swiftlint` 是 linter，不是编译器：它不做类型检查，也不保证代码能编译。因此 T0/T1 严格限定为“不可能改变编译结果”的内容。任何进入编译产物的代码，即使只是常量、字符串值或资源 key，也从 T2 起步，必须通过 build。
 
-完成报告必须区分：已验证、未运行、外部阻塞。不能用“代码看起来正确”替代 DoD。
+### 升级触发
+
+遇到以下任一情况，至少升到 T2；不确定时升一级：
+
+- 用户可见文案或 L10n **值**变化
+- View 结构、布局、导航、手势或无障碍行为变化
+- 逻辑分支、状态机、错误处理、异步时序或 ViewModel 交互变化
+- Core/Data/Repository/SM-2/存储、导出、打印、OCR、权限或隐私路径变化
+- 测试文件、Package 配置、pbxproj、资源 membership 或 build setting 变化
+- 对外文案、法律/合规、发布、签名、TestFlight 或 App Store Connect 相关改动
+
+### 不可简化的护栏
+
+- PO 对产品意图、默认行为、免费/付费边界、对外文案和发布授权拥有最终裁决权。
+- Agent 不自行 merge；push、PR、merge、删分支均按 §6 授权执行。
+- 对外文案 PO-gated；未授权不得静默改写定位、合规或营销语义。
+- 跨层问题不得用 UI 层静默绕过；需记录契约、owner、验证方式和 blocker。
+- ViewModel/Core/Data/SM-2/存储/导出打印/隐私声明等高风险路径必须真验证，不能用“看起来正确”替代。
+- 屏级打磨的完成线不取消；契约 seed 不取消，只是不被每个微补丁自动触发。
+
+完成报告必须区分：验证等级、已验证、未运行、外部阻塞与降级理由。若降级验证，报告必须说明为什么该改动不可能影响编译或运行行为。
 
 ## 8. 产品决策闸
 

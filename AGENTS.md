@@ -190,6 +190,8 @@ xcodebuild build-for-testing -scheme AllTests \
   -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests
 ```
 
+低风险文档/流程与开发者可见小修的验证重量按 `docs/how-to/parallel-lanes.md` §7 的 T0–T4 分级执行；涉及代码行为、用户可见文案或跨层契约时不得降级。
+
 **本地 hooks**（自动触发）：
 
 - `swift-autolint.sh` — PostToolUse Edit/Write `.swift` 文件后即时 lint
