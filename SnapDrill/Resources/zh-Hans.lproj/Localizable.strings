@@ -743,7 +743,7 @@
 
 "accessibility.profile" = "个人资料";
 "accessibility.profile_hint" = "打开设置页面";
-"accessibility.capture_first_item_hint" = "拍照录入第一道错题";
+"accessibility.capture_first_item_hint" = "拍摄第一份资料";
 "accessibility.start_review_now_hint" = "开始复习待复习的题目";
 "accessibility.all_done_label" = "太棒了，今日复习已完成，好好休息吧";
 "accessibility.due_count_label" = "今日待复习 %d 道题";

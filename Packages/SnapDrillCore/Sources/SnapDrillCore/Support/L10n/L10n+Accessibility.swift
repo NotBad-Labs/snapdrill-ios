@@ -85,7 +85,7 @@ nonisolated extension L10n {
         // 首页仪表盘
         public static let profile = NSLocalizedString("accessibility.profile", value: "个人资料", comment: "VoiceOver 头像按钮")
         public static let profileHint = NSLocalizedString("accessibility.profile_hint", value: "打开设置页面", comment: "VoiceOver 头像按钮提示")
-        public static let captureFirstItemHint = NSLocalizedString("accessibility.capture_first_item_hint", value: "拍照录入第一道错题", comment: "VoiceOver 首次录入按钮提示")
+        public static let captureFirstItemHint = NSLocalizedString("accessibility.capture_first_item_hint", value: "拍摄第一份资料", comment: "VoiceOver 首次录入按钮提示")
         public static let startReviewNowHint = NSLocalizedString("accessibility.start_review_now_hint", value: "开始复习待复习的题目", comment: "VoiceOver 立即开始按钮提示")
         public static let allDoneLabel = NSLocalizedString("accessibility.all_done_label", value: "太棒了，今日复习已完成，好好休息吧", comment: "VoiceOver 全部完成卡片")
         public static func dueCountLabel(count: Int) -> String {
