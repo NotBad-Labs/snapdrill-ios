@@ -2,6 +2,52 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-18 - Onboarding flagship polish implementation
+
+### Scope
+
+- `Packages/SnapDrillUI/Sources/SnapDrillUI/OnboardingView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Onboarding.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Design Decisions
+
+- PO approved the Onboarding default plan and three implementation decisions on 2026-06-18: land the candidate Onboarding copy, update the shared field-configuration wording, and align the visual surface with the calm system baseline.
+- Onboarding is now framed as a first-run productivity guide rather than a learning or child-oriented tutorial.
+- The visual layout uses a grouped system background, one calm page surface, restrained accent icons, custom page dots, and stable bottom controls.
+- First-run copy now uses general-audience language: scan/archive/organize questions and documents, searchable records, review queue, export and print.
+- Shared `fieldConfigTitle` / `fieldConfigDescription` / `fieldConfigHeader` wording is updated from input-field language to generic record-field language so it works for Capture and TipKit reuse.
+
+### Files Changed
+
+- `Packages/SnapDrillUI/Sources/SnapDrillUI/OnboardingView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Onboarding.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Cross-Layer Findings
+
+- Onboarding and shared field-configuration strings still live in `SnapDrillCore` L10n helpers. This milestone updates approved strings only and does not move the L10n layer.
+- `L10n.Onboarding.fieldConfigTitle` and `fieldConfigDescription` are shared by `CaptureResultView` and `SnapDrillTips`. The wording is now generic, but a later contract seed should still decide whether shared L10n keys need a Common namespace.
+- `onboarding.field_grade` remains a legacy field label. It is not changed in this PR because PO approved the direct Onboarding flow copy and shared field-configuration wording, not field taxonomy.
+
+### DoD Status
+
+- Passed:
+  - `swiftlint --strict`
+  - `python3 Scripts/validate_docs.py --check`
+  - `python3 Scripts/generate_feature_status.py --check`
+  - `python3 Scripts/generate_intent_traceability.py --check`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
+### Open Questions
+
+- Onboarding contract seed is deferred to the later batch seed catch-up with Library, Review, and Dashboard.
+- Simulator or device review should verify first-run layout, Dynamic Type, and the custom page dots on iPhone 17.
+
 ## 2026-06-18 - Dashboard flagship polish implementation
 
 ### Scope

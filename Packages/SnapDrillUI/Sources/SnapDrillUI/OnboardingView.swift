@@ -63,57 +63,95 @@ public struct OnboardingView: View {
     // MARK: - Body
 
     public var body: some View {
-        VStack(spacing: 0) {
-            // 跳过按钮
-            HStack {
-                Spacer()
-                Button(L10n.Onboarding.skip) {
-                    completeOnboarding()
-                }
-                .foregroundStyle(.secondary)
-                .padding()
+        ZStack {
+            Color(uiColor: .systemGroupedBackground)
+                .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                topBar
+                pager
+                bottomControls
             }
-
-            // 页面内容
-            TabView(selection: $currentPage) {
-                ForEach(Array(pages.enumerated()), id: \.element.id) { index, page in
-                    OnboardingPageView(page: page)
-                        .tag(index)
-                }
-            }
-            .tabViewStyle(.page(indexDisplayMode: .always))
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
-
-            // 底部按钮
-            HStack(spacing: 16) {
-                if currentPage > 0 {
-                    Button(L10n.Onboarding.previous) {
-                        withAnimation {
-                            currentPage -= 1
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                }
-
-                Spacer()
-
-                Button(currentPage == pages.count - 1 ? L10n.Onboarding.getStarted : L10n.Onboarding.next) {
-                    if currentPage == pages.count - 1 {
-                        completeOnboarding()
-                    } else {
-                        withAnimation {
-                            currentPage += 1
-                        }
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-            }
-            .padding()
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 24)
         }
         .accessibleGroup(label: L10n.Onboarding.accessibilityGroup)
         // HIG：翻页用 light（翻书感），完成引导用 success（正向仪式感）
         .sensoryFeedback(.impact(weight: .light), trigger: currentPage)
         .sensoryFeedback(.success, trigger: completionFeedbackTrigger)
+    }
+
+    private var topBar: some View {
+        HStack {
+            Spacer()
+            Button(L10n.Onboarding.skip) {
+                completeOnboarding()
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            .controlSize(.small)
+            .tint(.secondary)
+        }
+        .padding(.bottom, 8)
+    }
+
+    private var pager: some View {
+        TabView(selection: $currentPage) {
+            ForEach(Array(pages.enumerated()), id: \.element.id) { index, page in
+                OnboardingPageView(page: page)
+                    .tag(index)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+    }
+
+    private var bottomControls: some View {
+        VStack(spacing: 16) {
+            progressDots
+
+            HStack(spacing: 12) {
+                if currentPage > 0 {
+                    Button(L10n.Onboarding.previous) {
+                        withAnimation(.snappy) {
+                            currentPage -= 1
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.roundedRectangle(radius: 14))
+                }
+
+                Button(isLastPage ? L10n.Onboarding.getStarted : L10n.Onboarding.next) {
+                    if isLastPage {
+                        completeOnboarding()
+                    } else {
+                        withAnimation(.snappy) {
+                            currentPage += 1
+                        }
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.roundedRectangle(radius: 14))
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.top, 10)
+    }
+
+    private var progressDots: some View {
+        HStack(spacing: 8) {
+            ForEach(pages.indices, id: \.self) { index in
+                Capsule(style: .continuous)
+                    .fill(index == currentPage ? Color.accentColor : Color.secondary.opacity(0.25))
+                    .frame(width: index == currentPage ? 22 : 7, height: 7)
+            }
+        }
+        .animation(.snappy, value: currentPage)
+        .accessibilityHidden(true)
+    }
+
+    private var isLastPage: Bool {
+        pages.isEmpty || currentPage == pages.count - 1
     }
     
     private func completeOnboarding() {
@@ -129,41 +167,59 @@ struct OnboardingPageView: View {
     let page: OnboardingPage
     
     var body: some View {
-        VStack(spacing: 32) {
-            Spacer()
-            
-            // 图片或图标
+        VStack {
+            Spacer(minLength: 24)
+
+            VStack(spacing: 28) {
+                icon
+
+                VStack(spacing: 12) {
+                    Text(page.title)
+                        .font(.title.bold())
+                        .multilineTextAlignment(.center)
+                        .accessibleHeader(page.title)
+
+                    Text(page.description)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessible(label: page.description)
+                }
+            }
+            .frame(maxWidth: 430)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 42)
+            .background(Color(uiColor: .secondarySystemGroupedBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                    .stroke(Color(uiColor: .separator).opacity(0.18), lineWidth: 1)
+            }
+
+            Spacer(minLength: 24)
+        }
+        .padding(.horizontal, 4)
+    }
+
+    private var icon: some View {
+        Group {
             if let systemImage = page.systemImage {
                 Image(systemName: systemImage)
-                    .font(.system(size: 100))
-                    .foregroundStyle(.blue)
+                    .font(.system(size: 34, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
                     .accessibleImage(label: page.title)
             } else if !page.imageName.isEmpty {
                 Image(page.imageName)
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 200)
+                    .frame(width: 44, height: 44)
                     .accessibleImage(label: page.title)
             }
-            
-            // 标题
-            Text(page.title)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.center)
-                .accessibleHeader(page.title)
-            
-            // 描述
-            Text(page.description)
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
-                .accessible(label: page.description)
-            
-            Spacer()
         }
-        .padding()
+        .frame(width: 82, height: 82)
+        .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 
@@ -208,7 +264,7 @@ public extension OnboardingPage {
         OnboardingPage(
             title: L10n.Onboarding.pageWelcomeTitle,
             description: L10n.Onboarding.pageWelcomeDescription,
-            systemImage: "book.fill"
+            systemImage: "folder.fill"
         ),
         OnboardingPage(
             title: L10n.Onboarding.pageCaptureTitle,
