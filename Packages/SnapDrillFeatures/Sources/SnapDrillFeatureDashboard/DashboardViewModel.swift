@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  首页仪表盘 ViewModel，管理统计数据加载与快捷操作状态。
+//  首页仪表盘 ViewModel，管理资料概览加载与快捷操作状态。
 //
 
 import Foundation
@@ -15,25 +15,25 @@ import SnapDrillData
 
 /// 首页仪表盘 ViewModel
 ///
-/// 负责加载复习统计数据、监听数据变更通知并触发刷新，以及处理草稿恢复流程。
+/// 负责加载首页概览数据、监听数据变更通知并触发刷新，以及处理草稿恢复流程。
 @MainActor
 @Observable
 public final class DashboardViewModel {
 
     // MARK: - State
 
-    /// 是否正在显示学科管理器 Sheet
+    /// 是否正在显示分类管理器 Sheet
     public var isShowingSubjectManager = false
     /// 是否正在显示草稿恢复提示 Alert
     public var isShowingDraftAlert = false
 
-    /// 今日新增卡片数
+    /// 今日新增资料数
     public var todayItemsCount: Int = 0
-    /// 题库总卡片数量
+    /// 资料库总数
     public var totalCount: Int = 0
-    /// 今日待复习卡片数
+    /// 今日待回顾资料数
     public var dueCount: Int = 0
-    /// 今日已复习卡片数（用于进度环）
+    /// 今日已回顾资料数（用于进度环）
     public var reviewedTodayCount: Int = 0
 
     // MARK: - Dependencies
@@ -47,7 +47,7 @@ public final class DashboardViewModel {
     private var pendingRefreshTask: Task<Void, Never>?
     private let draftService: CaptureDraftServiceProtocol
     private let repositories: RepositoryContainer
-    /// 软删调度器（注入 App 级共享实例）：用 pendingDeletionIDs 把 5 秒撤销窗口内的软删题从待复习数中排除
+    /// 软删调度器（注入 App 级共享实例）：用 pendingDeletionIDs 把 5 秒撤销窗口内的软删资料从待回顾数中排除
     private let deletionScheduler: DeletionScheduler
 
     /// 创建仪表盘 ViewModel
@@ -98,16 +98,16 @@ public final class DashboardViewModel {
         pendingRefreshTask = nil
     }
 
-    /// 草稿提示详情文案（含学科和编辑时间）
+    /// 草稿提示详情文案（含分类和编辑时间）
     public var draftAlertMessage: String {
         guard let draft = draftService.loadDraft() else {
             return L10n.Dashboard.draftAlertMessage
         }
         let timeAgo = draft.date.relativeDescription()
         if let subject = draft.subject, !subject.isEmpty {
-            return "有一道\(subject)题未保存，上次编辑于\(timeAgo)。"
+            return L10n.Dashboard.draftAlertMessage(subject: subject, timeAgo: timeAgo)
         }
-        return "有一道题未保存，上次编辑于\(timeAgo)。"
+        return L10n.Dashboard.draftAlertMessage(timeAgo: timeAgo)
     }
 
     /// 检查是否有未完成草稿；若有则弹出提示，否则直接导航到采集页

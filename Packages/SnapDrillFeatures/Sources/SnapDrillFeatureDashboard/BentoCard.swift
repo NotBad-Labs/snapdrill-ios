@@ -85,17 +85,25 @@ struct BentoCard: View {
 #Preview {
     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
         BentoCard(
-            title: "智能扫描",
-            subtitle: "录入新题",
+            title: "快速采集",
+            subtitle: "添加资料",
             icon: "camera.viewfinder",
-            gradient: LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing),
+            gradient: LinearGradient(
+                colors: [Color.blue.opacity(0.82), Color.cyan.opacity(0.58)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
             action: {}
         )
         BentoCard(
-            title: "题库浏览",
-            subtitle: "管理知识",
+            title: "资料库",
+            subtitle: "浏览与整理",
             icon: "books.vertical.fill",
-            gradient: LinearGradient(colors: [.orange, .pink], startPoint: .topLeading, endPoint: .bottomTrailing),
+            gradient: LinearGradient(
+                colors: [Color.indigo.opacity(0.72), Color.blue.opacity(0.58)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
             action: {}
         )
     }

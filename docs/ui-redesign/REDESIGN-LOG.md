@@ -2,6 +2,66 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-18 - Dashboard flagship polish implementation
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/DashboardView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/DashboardViewModel.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/ReviewHeroCard.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/BentoCard.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/DashboardAnalyticsView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Insights.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `docs/features/active/feat-dashboard.md`
+- `docs/ui-redesign/dashboard-flagship-polish-plan.md`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Design Decisions
+
+- PO approved the default Dashboard plan on 2026-06-18 after the plan PR landed.
+- Dashboard follows the Library/Capture/Review visual baseline: grouped system background, restrained blue/cyan/indigo accents, low-shadow cards, and no game-like celebration.
+- The startup loading state now uses a stable redacted skeleton instead of a bare spinner so the first screen has a clear shape while data loads.
+- Empty and quick-action copy now uses general-audience productivity language: `资料 / 采集 / 资料库 / 分类 / 回顾`.
+- High-saturation Bento and Review hero gradients are reduced to calmer system-aligned tones.
+- Draft recovery text is localized in zh/en through L10n while preserving the existing draft restore logic.
+- Dashboard analytics and Pro teaser copy now use `资料洞察 / 分类趋势 / 待回顾较多的分类 / 稍后推出` language rather than school-like or paywall-heavy phrasing.
+
+### Files Changed
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/DashboardView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/DashboardViewModel.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/ReviewHeroCard.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/BentoCard.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/DashboardAnalyticsView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Insights.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `docs/features/active/feat-dashboard.md`
+- `docs/ui-redesign/dashboard-flagship-polish-plan.md`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Cross-Layer Findings
+
+- `DashboardViewModel.loadData()` and `DashboardAnalyticsViewModel.loadAnalytics()` still log load failures without exposing an error state. PO explicitly chose to record this as a cross-layer blocker for a later contract pass and not change the ViewModel state machine in this UI milestone.
+- Dashboard user-visible strings still live in `SnapDrillCore` L10n helpers. This milestone updates approved strings only and does not move the L10n layer.
+- `L10n.Library.categoryManager` remains a cross-feature shared string consumed by Dashboard. A later contract seed should decide whether shared L10n keys need a Common namespace.
+
+### DoD Status
+
+- Passed on 2026-06-18:
+  - `python3 Scripts/validate_docs.py --check`
+  - `python3 Scripts/generate_feature_status.py --check`
+  - `python3 Scripts/generate_intent_traceability.py --check`
+  - `swiftlint --strict`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
+### Open Questions
+
+- Dashboard contract seed remains a follow-up after this UI PR: error-state blocker, shared L10n ownership, and any minimal state-contract tests should be handled separately.
+- Simulator or device review should verify Dynamic Type, loading skeleton density, and the calmer Bento grid against real profile data.
+
 ## 2026-06-17 - Review flagship polish
 
 ### Scope

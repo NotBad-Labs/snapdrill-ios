@@ -38,7 +38,7 @@ public final class DashboardRouter: @MainActor FeatureRouter {
     /// 目标类型别名
     public typealias Destination = DashboardDestination
     
-    /// 跳转到复习模块的回调
+    /// 跳转到回顾模块的回调
     ///
     /// 由父级协调器（AppRouter）注入具体实现。
     public var onNavigateToReview: (() -> Void)?
@@ -51,7 +51,7 @@ public final class DashboardRouter: @MainActor FeatureRouter {
     
     // MARK: - Public API
     
-    /// 请求导航到复习页面
+    /// 请求导航到回顾页面
     public func navigateToReview() {
         onNavigateToReview?()
     }
