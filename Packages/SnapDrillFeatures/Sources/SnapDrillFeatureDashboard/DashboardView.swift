@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  首页仪表盘视图，展示复习进度概览和快捷入口。
+//  首页仪表盘视图，展示资料概览和快捷入口。
 //
 
 import SwiftUI
@@ -14,9 +14,9 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillFeatureLibrary
 
-/// 首页仪表盘视图
+/// 首页仪表盘视图。
 ///
-/// 展示今日复习进度概览（待复习数、已复习数、题库总数）和快捷入口（开始复习、新建采集）。
+/// 展示今日回顾概览、资料库总量和快捷入口。
 public struct DashboardView: View {
     @Bindable private var router: DashboardRouter
     @Environment(\.repositories) private var repositories
@@ -45,20 +45,17 @@ public struct DashboardView: View {
     public var body: some View {
         NavigationStack(path: $router.path) {
             ZStack {
-                // 背景
                 Color(UIColor.systemGroupedBackground)
                     .ignoresSafeArea()
                 
                 if let viewModel = viewModel {
                     ScrollView {
                         VStack(spacing: 20) {
-                            // 1. Header Area
                             HeaderView()
 
                             if viewModel.totalCount == 0 {
-                                // 空状态：引导用户采集第一道题
                                 ContentUnavailableView {
-                                    Label(L10n.Dashboard.emptyTitle, systemImage: "books.vertical")
+                                    Label(L10n.Dashboard.emptyTitle, systemImage: "tray")
                                 } description: {
                                     Text(L10n.Dashboard.emptyDescription)
                                 } actions: {
@@ -69,7 +66,6 @@ public struct DashboardView: View {
                                 }
                                 .padding(.top, 40)
                             } else {
-                                // 2. Hero Section (Review Status, Reactive)
                                 ReviewHeroCard(
                                     totalCount: viewModel.totalCount,
                                     dueCount: viewModel.dueCount,
@@ -78,52 +74,43 @@ public struct DashboardView: View {
                                     onStartCapture: { viewModel.checkDraftAndCapture(router: router) }
                                 )
 
-                                // 3. Bento Grid Actions
                                 LazyVGrid(columns: columns, spacing: 12) {
                                     BentoCard(
                                         title: L10n.Dashboard.smartScan,
                                         subtitle: L10n.Dashboard.addNew,
                                         icon: "camera.viewfinder",
-                                        gradient: LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                        gradient: DashboardTone.capture
                                     ) {
                                         viewModel.checkDraftAndCapture(router: router)
                                     }
 
-                                    // 题库卡片
                                     BentoCard(
                                         title: L10n.Dashboard.browseLibrary,
                                         subtitle: L10n.Dashboard.manageKnowledge,
                                         icon: "books.vertical.fill",
-                                        gradient: LinearGradient(colors: [.orange, .pink], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                        gradient: DashboardTone.library
                                     ) {
                                         NotificationCenter.default.post(name: .switchToLibraryTab, object: nil)
                                     }
 
-                                    // Daily Insight (纯展示，暂无详情页)
                                     DailyStatsView(
                                         todayItemsCount: viewModel.todayItemsCount,
                                         reviewedTodayCount: viewModel.reviewedTodayCount,
                                         dueCount: viewModel.dueCount
                                     )
 
-                                    // 设置/更多
                                     BentoCard(
                                         // L3：入口已统一为全维度管理，标签与落地页标题（管理分类）保持一致
                                         title: L10n.Library.categoryManager,
                                         subtitle: L10n.Dashboard.customize,
                                         icon: "square.grid.2x2",
-                                        gradient: LinearGradient(
-                                            colors: [.gray.opacity(0.8), .gray],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
+                                        gradient: DashboardTone.categories
                                     ) {
                                         viewModel.isShowingSubjectManager = true
                                     }
                                 }
                                 .padding(.horizontal)
 
-                                // 4. 高级统计区
                                 if let analyticsVM = analyticsViewModel {
                                     DashboardAnalyticsView(viewModel: analyticsVM)
                                 }
@@ -135,7 +122,7 @@ public struct DashboardView: View {
                         viewModel.loadData()
                     }
                 } else {
-                    ProgressView()
+                    DashboardLoadingView()
                 }
             }
             .onAppear {
@@ -177,8 +164,8 @@ public struct DashboardView: View {
             get: { viewModel?.isShowingSubjectManager ?? false },
             set: { viewModel?.isShowingSubjectManager = $0 }
         )) {
-            // Sheet 场景需要 NavigationStack 宿主（CategoryManagerView 自身不再包含）
-            // L3：学科管理已并入统一的分类维度管理（VM 属性名 isShowingSubjectManager 暂留，S6 可改名）
+            // Sheet 场景需要 NavigationStack 宿主（CategoryManagerView 自身不再包含）。
+            // L3：分类管理已并入统一维度管理（VM 属性名 isShowingSubjectManager 暂留，S6 可改名）。
             NavigationStack {
                 CategoryManagerView()
                     .toolbar {
@@ -197,7 +184,64 @@ public struct DashboardView: View {
     DashboardView(router: DashboardRouter())
 }
 
-/// 多维今日统计卡片：今日新增 / 今日复习 / 待复习（纯展示，无跳转）
+private enum DashboardTone {
+    static let capture = LinearGradient(
+        colors: [Color.blue.opacity(0.82), Color.cyan.opacity(0.58)],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    static let library = LinearGradient(
+        colors: [Color.indigo.opacity(0.72), Color.blue.opacity(0.58)],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    static let categories = LinearGradient(
+        colors: [Color.gray.opacity(0.68), Color.blue.opacity(0.36)],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+}
+
+/// Dashboard 数据加载中的稳定占位，避免首页启动时只出现孤立 spinner。
+private struct DashboardLoadingView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    private var columns: [GridItem] {
+        let count = horizontalSizeClass == .regular ? 3 : 2
+        return Array(repeating: GridItem(.flexible(), spacing: 12), count: count)
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                HeaderView()
+                    .redacted(reason: .placeholder)
+
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+                    .frame(height: 172)
+                    .overlay {
+                        ProgressView(L10n.Common.loading)
+                            .font(.subheadline)
+                    }
+                    .padding(.horizontal)
+
+                LazyVGrid(columns: columns, spacing: 12) {
+                    ForEach(0..<4, id: \.self) { _ in
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(Color(UIColor.secondarySystemGroupedBackground))
+                            .frame(height: 120)
+                    }
+                }
+                .padding(.horizontal)
+                .redacted(reason: .placeholder)
+            }
+            .padding(.bottom, 40)
+        }
+    }
+}
+
+/// 多维今日统计卡片：今日新增 / 今日回顾 / 待回顾（纯展示，无跳转）。
 struct DailyStatsView: View {
     let todayItemsCount: Int
     let reviewedTodayCount: Int
@@ -208,7 +252,7 @@ struct DailyStatsView: View {
             HStack {
                 Image(systemName: "chart.bar.xaxis")
                     .font(.title2)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color.accentColor)
                     .accessibilityHidden(true)
                 Spacer()
             }
@@ -216,36 +260,32 @@ struct DailyStatsView: View {
             Spacer(minLength: 0)
 
             VStack(alignment: .leading, spacing: 6) {
-                StatRow(label: L10n.Dashboard.todayAdded, value: todayItemsCount, color: .white)
-                StatRow(label: L10n.Dashboard.todayReviewed, value: reviewedTodayCount, color: .white.opacity(0.85))
-                StatRow(label: L10n.Dashboard.dueReview, value: dueCount, color: .white.opacity(0.85))
+                StatRow(label: L10n.Dashboard.todayAdded, value: todayItemsCount)
+                StatRow(label: L10n.Dashboard.todayReviewed, value: reviewedTodayCount)
+                StatRow(label: L10n.Dashboard.dueReview, value: dueCount)
             }
         }
         .padding()
         .frame(maxWidth: .infinity, minHeight: 120)
-        .background(
-            LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .glassEffect(.regular, in: .rect(cornerRadius: 24))
         .accessibleGroup(label: L10n.Accessibility.dailyStatsLabel(added: todayItemsCount, reviewed: reviewedTodayCount, due: dueCount))
     }
 }
 
-/// 统计行：标签 + 数值
+/// 统计行：标签 + 数值。
 private struct StatRow: View {
     let label: String
     let value: Int
-    let color: Color
 
     var body: some View {
         HStack {
             Text(label)
                 .font(.caption2)
-                .foregroundStyle(color.opacity(0.8))
+                .foregroundStyle(.secondary)
             Spacer()
             Text(L10n.Common.itemCountShort(value))
                 .font(.caption.bold())
-                .foregroundStyle(color)
+                .foregroundStyle(.primary)
         }
     }
 }

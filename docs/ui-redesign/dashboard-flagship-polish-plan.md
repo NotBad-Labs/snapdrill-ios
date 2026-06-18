@@ -1,20 +1,28 @@
-# Dashboard 首页屏发布级打磨清单（待 PO 确认）
+# Dashboard 首页屏发布级打磨清单（已确认）
 
-> 状态：待 PO 确认。本文只收敛 Dashboard 首页屏打磨范围、完成线、文案候选和验证方式；确认前不执行实现。
+> 状态：PO 已确认并进入实现。本文收敛 Dashboard 首页屏打磨范围、完成线、文案候选和验证方式，并记录本轮实现取舍。
 
 ## 0. PO 决策区
 
 | 决策项 | Codex 默认建议 | PO 结论 |
 | --- | --- | --- |
-| D1 启动首屏定位 | Dashboard 是启动首屏，应呈现为成人生产力概览：资料库、回顾、近期活动和快捷入口；不呈现为儿童学习 App 或游戏化任务页。 | 待确认 |
-| D2 视觉统一 | 沿用 Library / Capture / Review 的冷静系统风格：grouped 背景、克制蓝色、清晰分割、低饱和状态色；降低当前入口卡片的强渐变和营销感。 | 待确认 |
-| D3 状态机 | Loading / Empty / Data / Error 都要有可见状态，不留裸 `ProgressView` 或只写 log 的失败。若 ViewModel 没暴露错误状态，记录跨层 blocker，不静默改逻辑。 | 待确认 |
-| D4 首页回顾语义 | 保留“回顾”作为成人生产力语境；避免“复习 / 学习 / 错题 / 同学 / 太棒了”等儿童或校园化信号。 | 待确认 |
-| D5 快捷入口 | 保留采集、资料库、今日概览、分类管理等高频入口，但命名和层级改为资料管理语境。 | 待确认 |
-| D6 高级统计 / Pro | Pro 能力保留为 v1.x 方向；首版纯免费。首页若展示锁态，应克制呈现为“稍后推出 / 更多洞察”，不做诱导付费弹窗。 | 待确认 |
-| D7 草稿恢复 | 当前草稿恢复文案在 ViewModel 内硬编码中文且使用“题”。默认建议改为 L10n 驱动的“资料 / 采集”语境；若需要触碰 ViewModel，仅做文案外科手术式修理。 | 待确认 |
-| D8 L10n 归属 | Dashboard 当前复用 `L10n.Library.categoryManager`。若继续多屏复用，应登记为共享 key 或后续迁入 Common/Shared；本屏打磨不顺手搬层。 | 待确认 |
-| D9 契约 seed | Dashboard 打磨 PR 完成后，另开小 PR 沉淀状态 / 文案 / L10n 归属契约；不把契约 seed 塞进实现 PR。 | 待确认 |
+| D1 启动首屏定位 | Dashboard 是启动首屏，应呈现为成人生产力概览：资料库、回顾、近期活动和快捷入口；不呈现为儿童学习 App 或游戏化任务页。 | 批准 |
+| D2 视觉统一 | 沿用 Library / Capture / Review 的冷静系统风格：grouped 背景、克制蓝色、清晰分割、低饱和状态色；降低当前入口卡片的强渐变和营销感。 | 批准 |
+| D3 状态机 | Loading / Empty / Data / Error 都要有可见状态，不留裸 `ProgressView` 或只写 log 的失败。若 ViewModel 没暴露错误状态，记录跨层 blocker，不静默改逻辑。 | 批准；错误态登记 blocker，本轮不改 ViewModel 状态机 |
+| D4 首页回顾语义 | 保留“回顾”作为成人生产力语境；避免“复习 / 学习 / 错题 / 同学 / 太棒了”等儿童或校园化信号。 | 批准 |
+| D5 快捷入口 | 保留采集、资料库、今日概览、分类管理等高频入口，但命名和层级改为资料管理语境。 | 批准 |
+| D6 高级统计 / Pro | Pro 能力保留为 v1.x 方向；首版纯免费。首页若展示锁态，应克制呈现为“稍后推出 / 更多洞察”，不做诱导付费弹窗。 | 批准 |
+| D7 草稿恢复 | 当前草稿恢复文案在 ViewModel 内硬编码中文且使用“题”。默认建议改为 L10n 驱动的“资料 / 采集”语境；若需要触碰 ViewModel，仅做文案外科手术式修理。 | 批准；只迁入 L10n 并补 zh/en，不改恢复逻辑 |
+| D8 L10n 归属 | Dashboard 当前复用 `L10n.Library.categoryManager`。若继续多屏复用，应登记为共享 key 或后续迁入 Common/Shared；本屏打磨不顺手搬层。 | 批准；归属留 contract seed |
+| D9 契约 seed | Dashboard 打磨 PR 完成后，另开小 PR 沉淀状态 / 文案 / L10n 归属契约；不把契约 seed 塞进实现 PR。 | 批准 |
+
+PO 结论（2026-06-18）：
+
+- 批准默认建议。
+- D2 / D3：同意将高饱和渐变降到冷静系统基线。
+- D3：Dashboard / Analytics 错误态只登记跨层 blocker，本轮不改 ViewModel 状态机。
+- D7：允许文案级最小修，只把草稿恢复提示迁入 L10n 并补 zh/en，不改恢复逻辑。
+- D9：Dashboard contract seed 作为后续小 PR，不塞进本实现 PR。
 
 ## 1. 范围与红线
 
@@ -141,6 +149,18 @@
 | 高级统计空数据 | Empty hint | 资料洞察语境 | Simulator |
 | Dashboard load 失败 | log-only | 可见 error 或跨层 blocker | Code review + PO 决策 |
 | Analytics load 失败 | log-only | 可见 error 或跨层 blocker | Code review + PO 决策 |
+
+## 5.1 本轮实现结果
+
+| 项 | 结果 |
+| --- | --- |
+| Loading | 裸 `ProgressView` 改为稳定 Dashboard skeleton，保留上下文和布局骨架。 |
+| Empty | 空资料库文案改为“资料 / 采集 / 资料库”语境。 |
+| Data | Hero、快捷入口、今日统计和高级统计锁态统一为低饱和系统色；移除奖励式完成态动效。 |
+| Draft | 草稿恢复提示迁入 Dashboard L10n，补 zh/en；只改文案路径，不改恢复逻辑。 |
+| Copy | Dashboard / Statistics 直接露出的旧“题目 / 错题 / 复习 / 学习 / 学科 / 薄弱 / Student”文案改为通用资料管理语境。 |
+| Error | `DashboardViewModel.loadData()` 与 `DashboardAnalyticsViewModel.loadAnalytics()` 仍无错误状态暴露。本轮按 PO 决策登记为跨层 blocker，不伪造 UI error。 |
+| L10n 归属 | `L10n.Library.categoryManager` 继续复用；共享 key 归属留 Dashboard contract seed。 |
 
 ## 6. 跨层发现与待裁决
 

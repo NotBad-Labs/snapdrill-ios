@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  高级统计卡片区 — 学科趋势图 + 难度分布 + 薄弱学科排行。
+//  高级统计卡片区 — 分类趋势、难度分布与待回顾分类排行。
 //
 
 import SwiftUI
@@ -14,8 +14,8 @@ import SnapDrillCore
 
 /// 高级统计卡片区
 ///
-/// 嵌入 Dashboard 的 ScrollView 内，展示学科趋势、难度分布、薄弱排行。
-/// Pro 用户看真实图表，非 Pro 用户看 blur + 付费提示。
+/// 嵌入 Dashboard 的 ScrollView 内，展示分类趋势、难度分布和待回顾较多的分类。
+/// Pro 用户看真实图表，非 Pro 用户看克制的稍后推出占位。
 struct DashboardAnalyticsView: View {
 
     let viewModel: DashboardAnalyticsViewModel
@@ -28,7 +28,7 @@ struct DashboardAnalyticsView: View {
         }
     }
 
-    // MARK: - Pro 用户内容
+    // MARK: - Pro 内容
 
     @ViewBuilder
     private var analyticsContent: some View {
@@ -44,7 +44,7 @@ struct DashboardAnalyticsView: View {
         .padding(.horizontal)
     }
 
-    // MARK: - 学科趋势图
+    // MARK: - 分类趋势图
 
     @ViewBuilder
     private var subjectTrendCard: some View {
@@ -60,8 +60,8 @@ struct DashboardAnalyticsView: View {
                     x: .value("Date", point.date, unit: .day),
                     y: .value("Count", point.count)
                 )
-                .foregroundStyle(by: .value("Subject", point.subject))
-                .symbol(by: .value("Subject", point.subject))
+                .foregroundStyle(by: .value("Category", point.subject))
+                .symbol(by: .value("Category", point.subject))
             }
             .frame(height: 200)
             .chartXAxis {
@@ -100,7 +100,7 @@ struct DashboardAnalyticsView: View {
         .accessibilityLabel(L10n.Statistics.difficultyDistribution)
     }
 
-    // MARK: - 薄弱学科排行
+    // MARK: - 待回顾分类排行
 
     @ViewBuilder
     private var weakSubjectsCard: some View {
@@ -119,7 +119,7 @@ struct DashboardAnalyticsView: View {
                         Spacer()
                         Text(L10n.Statistics.dueCount(item.dueCount))
                             .font(.caption)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 4)
                 }
@@ -154,7 +154,6 @@ struct DashboardAnalyticsView: View {
     @ViewBuilder
     private var proGateOverlay: some View {
         VStack(spacing: 16) {
-            // 模糊预览占位
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color(.tertiarySystemBackground))
                 .frame(height: 200)

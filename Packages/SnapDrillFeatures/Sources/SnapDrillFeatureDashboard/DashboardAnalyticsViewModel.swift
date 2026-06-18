@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  高级统计 ViewModel — 按天聚合学科趋势、难度分布、薄弱学科排行。
+//  高级统计 ViewModel — 按天聚合分类趋势、难度分布、待回顾较多分类。
 //
 
 import Foundation
@@ -15,7 +15,7 @@ import SnapDrillData
 
 // MARK: - 数据模型
 
-/// 学科趋势数据点（按天 × 学科）
+/// 分类趋势数据点（按天 × 分类）
 nonisolated struct SubjectTrendPoint: Identifiable {
     let id = UUID()
     let date: Date
@@ -30,7 +30,7 @@ nonisolated struct DifficultyBucket: Identifiable {
     let count: Int
 }
 
-/// 薄弱学科排行项
+/// 待回顾较多分类排行项
 nonisolated struct WeakSubjectItem: Identifiable {
     let id = UUID()
     let subject: String
@@ -42,7 +42,7 @@ nonisolated struct WeakSubjectItem: Identifiable {
 
 /// 高级统计 ViewModel
 ///
-/// 从 ReviewRepository 获取原始数据，在内存层按天/学科/难度聚合。
+/// 从 ReviewRepository 获取原始数据，在内存层按天/分类/难度聚合。
 /// 聚合在 ViewModel 而非 Repository，因为 SwiftData #Predicate 不支持 GROUP BY。
 @MainActor
 @Observable
@@ -50,13 +50,13 @@ final class DashboardAnalyticsViewModel {
 
     // MARK: - 输出状态
 
-    /// 学科趋势（最近 30 天，按天 × 学科）
+    /// 分类趋势（最近 30 天，按天 × 分类）
     private(set) var subjectTrend: [SubjectTrendPoint] = []
 
     /// 难度分布（全量）
     private(set) var difficultyDistribution: [DifficultyBucket] = []
 
-    /// 薄弱学科排行（Top 5）
+    /// 待回顾较多分类排行（Top 5）
     private(set) var weakSubjects: [WeakSubjectItem] = []
 
     /// 是否有数据
@@ -105,14 +105,14 @@ final class DashboardAnalyticsViewModel {
             let rawSince = Calendar.current.date(byAdding: .day, value: -30, to: now) ?? now
             let since = Calendar.current.startOfDay(for: rawSince)
 
-            // 学科趋势：最近 30 天按天 × 学科
+            // 分类趋势：最近 30 天按天 × 分类
             let recentItems = allItems.filter { $0.createdAt >= since }
             subjectTrend = aggregateSubjectTrend(recentItems)
 
             // 难度分布：全量
             difficultyDistribution = aggregateDifficultyDistribution(allItems)
 
-            // 薄弱学科：按待复习数排序
+            // 待回顾较多分类：按待回顾数排序
             weakSubjects = aggregateWeakSubjects(allItems, now: now)
         } catch {
             SnapDrillLogger.generic.error("统计数据加载失败: \(error.localizedDescription)")
@@ -121,12 +121,12 @@ final class DashboardAnalyticsViewModel {
 
     // MARK: - Private Aggregation
 
-    /// 题目的学科分组名：学科维度（systemKey=subject）的首个值名，无则「未分类」
+    /// 资料的分类名：subject 维度的首个值名，无则「未分类」。
     private func subjectValueName(of item: ReviewItemModel) -> String {
         item.subjectCategoryName ?? L10n.Dashboard.uncategorized
     }
 
-    /// 按天 × 学科聚合，只取 Top 3 学科，无数据天补零
+    /// 按天 × 分类聚合，只取 Top 3 分类，无数据天补零
     private func aggregateSubjectTrend(_ items: [ReviewItemModel]) -> [SubjectTrendPoint] {
         var grouped: [Date: [String: Int]] = [:]
         var subjectTotals: [String: Int] = [:]
@@ -143,7 +143,7 @@ final class DashboardAnalyticsViewModel {
                 .map(\.key)
         )
 
-        // 补零：确保 30 天内每天每个 Top 学科都有数据点，避免 LineMark 跳过无数据日期
+        // 补零：确保 30 天内每天每个 Top 分类都有数据点，避免 LineMark 跳过无数据日期
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
         var points: [SubjectTrendPoint] = []
@@ -166,7 +166,7 @@ final class DashboardAnalyticsViewModel {
         return (1...5).map { DifficultyBucket(difficulty: $0, count: buckets[$0] ?? 0) }
     }
 
-    /// 按学科统计待复习数，取 Top 5
+    /// 按分类统计待回顾数，取 Top 5
     private func aggregateWeakSubjects(_ items: [ReviewItemModel], now: Date) -> [WeakSubjectItem] {
         var subjectStats: [String: (total: Int, due: Int)] = [:]
         for item in items {
