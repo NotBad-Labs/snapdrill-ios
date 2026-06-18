@@ -571,17 +571,17 @@
 "onboarding.previous" = "Previous";
 "onboarding.next" = "Next";
 "onboarding.get_started" = "Get Started";
-"onboarding.accessibility_group" = "Welcome Guide";
+"onboarding.accessibility_group" = "SnapDrill guide";
 "onboarding.page_welcome_title" = "Welcome to SnapDrill";
-"onboarding.page_welcome_description" = "Smart question management for better learning";
-"onboarding.page_capture_title" = "Smart Capture";
-"onboarding.page_capture_description" = "Use your camera to quickly capture questions with automatic text recognition";
-"onboarding.page_review_title" = "Scientific Review";
-"onboarding.page_review_description" = "Smart review scheduling based on the Ebbinghaus forgetting curve";
-"onboarding.page_export_title" = "Data Export";
-"onboarding.page_export_description" = "Export to PDF, CSV and more for easy sharing and printing";
-"onboarding.field_config_title" = "Choose Input Fields";
-"onboarding.field_config_description" = "Select the fields to fill when adding content. You can change this anytime in Settings.";
+"onboarding.page_welcome_description" = "Scan, archive, and organize questions and documents for later review.";
+"onboarding.page_capture_title" = "Capture Quickly";
+"onboarding.page_capture_description" = "Take a photo, import an image, or enter text to save searchable records.";
+"onboarding.page_review_title" = "Review When Needed";
+"onboarding.page_review_description" = "Keep important records in a review queue so they are easier to revisit.";
+"onboarding.page_export_title" = "Export and Print";
+"onboarding.page_export_description" = "Export records as PDF or CSV for printing, sharing, or backup.";
+"onboarding.field_config_title" = "Choose Record Fields";
+"onboarding.field_config_description" = "Choose which fields appear when adding a record. You can change this anytime in Settings.";
 "onboarding.field_subject" = "Subject";
 "onboarding.field_source" = "Source";
 "onboarding.field_difficulty" = "Difficulty";
@@ -589,7 +589,7 @@
 "onboarding.field_answer" = "Answer";
 "onboarding.dismiss_tooltip" = "Dismiss tooltip";
 "onboarding.field_config_icon" = "Field configuration";
-"onboarding.field_config_header" = "Choose Input Fields";
+"onboarding.field_config_header" = "Choose Record Fields";
 
 // MARK: - Notification
 

@@ -553,17 +553,17 @@
 "onboarding.previous" = "上一页";
 "onboarding.next" = "下一页";
 "onboarding.get_started" = "开始使用";
-"onboarding.accessibility_group" = "欢迎引导";
+"onboarding.accessibility_group" = "SnapDrill 入门引导";
 "onboarding.page_welcome_title" = "欢迎使用 SnapDrill";
-"onboarding.page_welcome_description" = "智能错题管理，让学习更高效";
-"onboarding.page_capture_title" = "智能拍摄";
-"onboarding.page_capture_description" = "使用相机快速捕捉错题，自动识别文字内容";
-"onboarding.page_review_title" = "科学复习";
-"onboarding.page_review_description" = "基于艾宾浩斯遗忘曲线，智能安排复习计划";
-"onboarding.page_export_title" = "数据导出";
-"onboarding.page_export_description" = "支持导出为 PDF、CSV 等格式，方便分享和打印";
-"onboarding.field_config_title" = "选择录入字段";
-"onboarding.field_config_description" = "选择添加内容时需要填写的字段，之后可在设置中随时调整";
+"onboarding.page_welcome_description" = "扫描、归档并整理题目与文档，稍后随时查找与回顾。";
+"onboarding.page_capture_title" = "快速采集";
+"onboarding.page_capture_description" = "拍照、导入图片或录入文字，把内容保存为可检索资料。";
+"onboarding.page_review_title" = "按需回顾";
+"onboarding.page_review_description" = "把重要资料安排进回顾队列，减少遗漏。";
+"onboarding.page_export_title" = "导出与打印";
+"onboarding.page_export_description" = "将资料导出为 PDF 或 CSV，便于打印、分享或备份。";
+"onboarding.field_config_title" = "选择资料字段";
+"onboarding.field_config_description" = "选择录入资料时显示的字段，之后可在设置中调整。";
 "onboarding.field_subject" = "学科";
 "onboarding.field_source" = "来源";
 "onboarding.field_difficulty" = "难度";
@@ -571,7 +571,7 @@
 "onboarding.field_answer" = "答案";
 "onboarding.dismiss_tooltip" = "关闭提示";
 "onboarding.field_config_icon" = "字段配置";
-"onboarding.field_config_header" = "选择录入字段";
+"onboarding.field_config_header" = "选择资料字段";
 
 // MARK: - Notification
 
