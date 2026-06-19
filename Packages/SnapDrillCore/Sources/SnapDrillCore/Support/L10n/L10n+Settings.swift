@@ -36,7 +36,7 @@ nonisolated extension L10n {
         public static let storageManagement = NSLocalizedString("settings.storage_management", value: "存储管理", comment: "存储管理")
         public static let storageImages = NSLocalizedString("settings.storage_images", value: "资料图片", comment: "图片存储占用")
         public static let storageTotal = NSLocalizedString("settings.storage_total", value: "总占用", comment: "总存储占用")
-        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示当前 Profile 的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
+        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示当前资料空间的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
 
         // 通用
         public static let general = NSLocalizedString("settings.general", value: "通用", comment: "通用区标题")
@@ -92,7 +92,8 @@ nonisolated extension L10n {
         public static let restoreConfirmTitle = NSLocalizedString("settings.restore_confirm_title", value: "确认恢复？", comment: "恢复确认标题")
         public static let restoreConfirmMessage = NSLocalizedString("settings.restore_confirm_message", value: "恢复将覆盖当前所有数据，恢复前会自动创建备份。", comment: "恢复确认信息")
         public static let restoreConfirmButton = NSLocalizedString("settings.restore_confirm_button", value: "恢复", comment: "确认恢复按钮")
-        public static let localDataWarning = NSLocalizedString("settings.local_data_warning", value: "数据仅存储在本设备，卸载应用将丢失所有数据。建议定期创建备份。", comment: "本地数据警告")
+        public static let localDataTitle = NSLocalizedString("settings.local_data_title", value: "本地保存", comment: "本地数据提示标题")
+        public static let localDataWarning = NSLocalizedString("settings.local_data_warning", value: "资料仅存储在本设备。换机、卸载或清空设备前，请先创建备份。", comment: "本地数据警告")
 
         // 备份状态消息
         public static let backupPreparingData = NSLocalizedString("settings.backup_preparing_data", value: "正在准备数据...", comment: "备份状态：准备数据")
@@ -178,13 +179,16 @@ nonisolated extension L10n {
         public static let feedbackMessage = NSLocalizedString("settings.feedback_message", value: "感谢您使用 SnapDrill！您可以发送邮件至 hello@notbadhq.com，或直接在 TestFlight 中反馈。", comment: "反馈提示信息")
         public static let editProfileSubtitle = NSLocalizedString("settings.edit_profile_subtitle", value: "编辑个人资料", comment: "编辑个人资料副标题")
 
-        public static let backupData = NSLocalizedString("settings.backup_data", value: "备份数据", comment: "备份数据按钮")
-        public static let restoreData = NSLocalizedString("settings.restore_data", value: "恢复数据", comment: "恢复数据按钮")
+        public static let backupData = NSLocalizedString("settings.backup_data", value: "创建备份", comment: "创建备份按钮")
+        public static let backupDataSubtitle = NSLocalizedString("settings.backup_data_subtitle", value: "导出包含资料、分类设置和图片的 ZIP 文件", comment: "创建备份说明")
+        public static let restoreData = NSLocalizedString("settings.restore_data", value: "恢复备份", comment: "恢复备份按钮")
+        public static let restoreDataSubtitle = NSLocalizedString("settings.restore_data_subtitle", value: "从 ZIP 备份恢复，会替换当前资料空间", comment: "恢复备份说明")
         public static let backupFooter = NSLocalizedString("settings.backup_footer", value: "备份文件包含所有资料、分类设置和图片。恢复操作将替换当前全部数据。", comment: "备份说明")
 
         // 数据导入
         public static let importData = NSLocalizedString("settings.import_data", value: "数据导入", comment: "数据导入区标题")
         public static let importCSV = NSLocalizedString("settings.import_csv", value: "导入 CSV", comment: "导入 CSV")
+        public static let importCSVSubtitle = NSLocalizedString("settings.import_csv_subtitle", value: "从表格文件批量导入资料", comment: "CSV 导入按钮说明")
         public static let importCSVHint = NSLocalizedString("settings.import_csv_hint", value: "从 CSV 文件导入资料数据（需包含 Content 或 Subject 列）", comment: "CSV 导入说明")
         public static let importReading = NSLocalizedString("settings.import_reading", value: "正在读取文件…", comment: "导入状态：读取")
         public static let importParsing = NSLocalizedString("settings.import_parsing", value: "正在解析数据…", comment: "导入状态：解析")
@@ -206,7 +210,8 @@ nonisolated extension L10n {
 
         // 存储空间
         public static let storageSpace = NSLocalizedString("settings.storage_space", value: "存储空间", comment: "存储空间区标题")
-        public static let mediaCacheUsage = NSLocalizedString("settings.media_cache_usage", value: "媒体缓存占用", comment: "媒体缓存占用")
+        public static let mediaCacheUsage = NSLocalizedString("settings.media_cache_usage", value: "临时缓存", comment: "临时缓存占用")
+        public static let mediaCacheSubtitle = NSLocalizedString("settings.media_cache_subtitle", value: "临时图片和下载资源，可安全清理", comment: "临时缓存说明")
         public static let calculating = NSLocalizedString("settings.calculating", value: "计算中...", comment: "计算中")
         public static let clearCache = NSLocalizedString("settings.clear_cache", value: "清理缓存", comment: "清理缓存按钮")
         public static let clearCacheTitle = NSLocalizedString("settings.clear_cache_title", value: "清理缓存", comment: "清理缓存弹窗标题")

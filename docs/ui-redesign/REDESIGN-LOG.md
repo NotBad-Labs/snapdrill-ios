@@ -497,3 +497,43 @@ Planning reviewed these files without editing them:
 ### Open Questions
 
 - Profile contract seed should be included in the planned bulk seed catch-up PR with Library, Review, Dashboard, and Settings.
+
+## 2026-06-19 - Backup and data sync polish
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/DataAndSyncSettingsView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Settings.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+
+### Design Decisions
+
+- PO approved continuing the Settings-adjacent Backup/Data screen after Profile. The screen stays inside the adult productivity baseline: system list structure, calm icon accents, explicit local-data warning, and no education/child-facing framing.
+- Backup, restore, and CSV import now present as explicit action rows with subtitles and operation-owned progress feedback. The import spinner no longer depends on localized status text matching.
+- Local storage copy now says items are stored on this device and asks the user to create a backup before switching devices, uninstalling, or erasing the device.
+- Cache copy is clarified as temporary cache and the destructive clear action uses a familiar trash icon.
+
+### Files Changed
+
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Settings.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/DataAndSyncSettingsView.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Cross-Layer Findings
+
+- `SettingsViewModel` reuses `isBackupInProgress`, `backupProgress`, and `backupStatusMessage` for backup, restore, and import. This milestone keeps the contract unchanged and adds local view state to identify the active UI operation.
+- If future work needs richer operation reporting across Settings subviews, expose an explicit operation enum from the ViewModel as a cross-layer contract change rather than inferring from localized status strings.
+
+### DoD Status
+
+- Passed:
+  - `git diff --check`
+  - `swiftlint --strict`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
+### Open Questions
+
+- Backup/Data contract details should be included in the planned bulk seed catch-up PR with Library, Review, Dashboard, Settings, and Profile.

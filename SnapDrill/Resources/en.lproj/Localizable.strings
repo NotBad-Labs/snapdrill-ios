@@ -315,7 +315,7 @@
 "settings.storage_management" = "Storage";
 "settings.storage_images" = "Item Images";
 "settings.storage_total" = "Total Usage";
-"settings.storage_footer" = "Shows storage usage for the current profile. Images are automatically compressed to save space.";
+"settings.storage_footer" = "Shows storage usage for the current workspace. Images are automatically compressed to save space.";
 "settings.appearance" = "Appearance";
 "settings.follow_system" = "System";
 "settings.light_mode" = "Light";
@@ -355,7 +355,8 @@
 "settings.restore_confirm_title" = "Confirm Restore?";
 "settings.restore_confirm_message" = "Restoring will replace all current data. A backup will be created automatically before restoring.";
 "settings.restore_confirm_button" = "Restore";
-"settings.local_data_warning" = "Data is stored on this device only. Uninstalling the app will permanently delete all data. We recommend creating regular backups.";
+"settings.local_data_title" = "Stored Locally";
+"settings.local_data_warning" = "Items are stored on this device. Create a backup before switching devices, uninstalling, or erasing the device.";
 "settings.privacy_title" = "Privacy & Data Export";
 "settings.analytics_enabled" = "Local Diagnostics Preference";
 "settings.analytics_hint" = "This version does not send usage analytics or crash reports; this setting only stores your local preference.";
@@ -395,11 +396,14 @@
 "settings.maybe_later" = "Maybe Later";
 "settings.feedback_message" = "Thank you for using SnapDrill! You can send feedback to hello@notbadhq.com, or submit directly through TestFlight.";
 "settings.edit_profile_subtitle" = "Edit Profile";
-"settings.backup_data" = "Backup Data";
-"settings.restore_data" = "Restore Data";
+"settings.backup_data" = "Create Backup";
+"settings.backup_data_subtitle" = "Export a ZIP file with items, categories, and images";
+"settings.restore_data" = "Restore Backup";
+"settings.restore_data_subtitle" = "Restore from a ZIP backup and replace the current workspace";
 "settings.backup_footer" = "Backup files include all items, categories, and images. Restoring will replace all current data.";
 "settings.import_data" = "Data Import";
 "settings.import_csv" = "Import CSV";
+"settings.import_csv_subtitle" = "Import items in bulk from a spreadsheet file";
 "settings.import_csv_hint" = "Import item data from a CSV file (must contain Content or Subject column)";
 "settings.import_reading" = "Reading file…";
 "settings.import_parsing" = "Parsing data…";
@@ -415,7 +419,8 @@
 "settings.unknown_error" = "Unknown Error";
 "settings.restore_success" = "Restore Successful";
 "settings.storage_space" = "Storage";
-"settings.media_cache_usage" = "Media Cache";
+"settings.media_cache_usage" = "Temporary Cache";
+"settings.media_cache_subtitle" = "Temporary images and downloaded resources; safe to clear";
 "settings.calculating" = "Calculating...";
 "settings.clear_cache" = "Clear Cache";
 "settings.clear_cache_title" = "Clear Cache";
