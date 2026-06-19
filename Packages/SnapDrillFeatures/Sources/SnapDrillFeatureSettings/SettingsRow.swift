@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  设置列表行组件，Telegram 风格渐变图标。
+//  设置列表行组件，克制的系统色图标背景。
 //
 
 import SwiftUI
@@ -13,7 +13,7 @@ import SnapDrillCore
 
 /// 设置页通用行组件
 ///
-/// 图标背景使用双色线性渐变（topLeading → bottomTrailing），对齐 Telegram 设计风格。
+/// 图标背景使用低饱和系统色，保持 Settings 与其它旗舰屏一致。
 struct SettingsRow: View {
 
     // MARK: - Properties
@@ -28,20 +28,24 @@ struct SettingsRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // 渐变图标容器（Telegram 核心视觉特征）
-            ZStack {
-                LinearGradient(
-                    colors: [gradientStart, gradientEnd],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                Image(systemName: icon)
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
-            .frame(width: 30, height: 30)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .accessibilityHidden(true)
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(gradientEnd)
+                .frame(width: 30, height: 30)
+                .background {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    gradientStart.opacity(0.10),
+                                    gradientEnd.opacity(0.14)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+                .accessibilityHidden(true)
 
             Text(title)
                 .font(.body)
@@ -60,4 +64,3 @@ struct SettingsRow: View {
         .listRowSeparator(.hidden)
     }
 }
-

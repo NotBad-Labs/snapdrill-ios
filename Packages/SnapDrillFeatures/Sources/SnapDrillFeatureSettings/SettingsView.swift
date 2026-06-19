@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  设置功能主界面，Telegram 风格渐变图标 + iOS 26 glass profile 区。
+//  设置功能主界面，系统样式图标 + iOS 26 glass profile 区。
 //
 
 import SwiftUI
@@ -21,7 +21,7 @@ import MessageUI
 
 /// 设置功能主界面
 ///
-/// 采用 Telegram 风格渐变图标 + iOS 26 glass profile 区，提供外观、数据管理和关于等各类设置入口。
+/// 采用系统样式图标 + iOS 26 glass profile 区，提供外观、数据管理和关于等各类设置入口。
 public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
     @Environment(\.repositories) private var repositories
@@ -31,7 +31,7 @@ public struct SettingsView: View {
 
     @State private var viewModel: SettingsViewModel?
     @AppStorage(UDKey.appTintColor) private var appTintColorHex: String = "#007AFF"
-    @AppStorage(UDKey.userName) private var userName: String = "同学"
+    @AppStorage(UDKey.userName) private var userName: String = "用户"
     @AppStorage(UDKey.userAvatar) private var userAvatar: String = "person.crop.circle.fill"
     @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
 
@@ -74,7 +74,7 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationStack(path: $router.path) {
             List {
-                // 1. Profile（glass 背景，Telegram 大头像风格）
+                // 1. Profile（glass 背景，系统头像区）
                 Section {
                     NavigationLink {
                         EditProfileView()
@@ -107,7 +107,7 @@ public struct SettingsView: View {
                     .accessibilityHint(L10n.Accessibility.fieldDifficultyHint)
 
                     Toggle(isOn: $showGradeField) {
-                        SettingsRow(icon: "graduationcap.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.fieldGrade)
+                        SettingsRow(icon: "tag.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.fieldGrade)
                     }
                     .accessibilityHint(L10n.Accessibility.fieldGradeHint)
 
@@ -118,7 +118,7 @@ public struct SettingsView: View {
 
                 }
 
-                // 3. 复习设置
+                // 3. 回顾设置
                 Section(L10n.Settings.reviewSettings) {
                     NavigationLink {
                         ReviewAppearanceSettingsView(
@@ -188,7 +188,7 @@ public struct SettingsView: View {
 
                 }
 
-                // 6. 分类管理（L3：学科/来源/年级 + 用户自定义维度统一入口）
+                // 6. 分类管理（L3：学科/来源/级别 + 用户自定义维度统一入口）
                 Section(L10n.Settings.categoryManagement) {
                     NavigationLink {
                         CategoryManagerView()

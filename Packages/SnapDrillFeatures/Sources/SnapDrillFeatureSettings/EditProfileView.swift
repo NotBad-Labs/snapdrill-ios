@@ -14,13 +14,13 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillFeatureLibrary
 
-/// 用户资料编辑页面 - 专注学习场景
+/// 用户资料编辑页面
 struct EditProfileView: View {
     
     // MARK: - Properties
     
     @Environment(\.dismiss) private var dismiss
-    @AppStorage(UDKey.userName) private var userName: String = "同学"
+    @AppStorage(UDKey.userName) private var userName: String = "用户"
     @AppStorage(UDKey.userMotto) private var userMotto: String = "" // Formerly bio
     @AppStorage(UDKey.dailyReviewGoal) private var dailyReviewGoal: Int = 20
     @AppStorage(UDKey.userAvatar) private var userAvatar: String = "person.crop.circle.fill"

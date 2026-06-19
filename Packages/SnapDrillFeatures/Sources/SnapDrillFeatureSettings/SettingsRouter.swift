@@ -22,7 +22,7 @@ public enum SettingsDestination: Hashable {
     case privacyPolicy
     /// 用户协议页面
     case termsOfService
-    /// 学习者管理页面
+    /// 资料空间管理页面
     case profileList
 }
 

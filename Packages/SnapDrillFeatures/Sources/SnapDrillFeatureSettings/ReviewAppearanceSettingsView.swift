@@ -5,15 +5,15 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习卡片外观设置页（从 SettingsView.swift 拆分）
+//  回顾卡片外观设置页（从 SettingsView.swift 拆分）
 //
 
 import SwiftUI
 import SnapDrillCore
 
-/// 复习卡片外观设置页
+/// 回顾卡片外观设置页
 ///
-/// 允许用户自定义卡片正面（题目）和背面（答案）的对齐方式与字体大小。
+/// 允许用户自定义卡片正面（资料）和背面（参考内容）的对齐方式与字体大小。
 struct ReviewAppearanceSettingsView: View {
     
     // MARK: - Properties
