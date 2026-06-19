@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-05-30
+last_updated: 2026-06-19
 intent_refs:
   - vision:P1
   - vision:P2
@@ -68,6 +68,39 @@ intent_refs:
   - 题目始终归属当前 Profile，搜索 / 过滤 / 编辑 / 删除 / 撤销不得跨 Profile 泄露或污染数据。
 - **NFR**：题库列表加载 < 500ms（200 题，Tab 切换到渲染完成）；搜索响应 < 300ms（输入到结果更新）；滚动 60fps（快速滚动无掉帧）；题库浏览内存 < 150MB（200 题，图片按需 + 降采样）。分享走系统分享 sheet（非 Analytics 事件）；无内置 `library_count` 事件（激活深度由 `review_item_created` 累计推导）。
 
+
+## 5. Contracts（列表 / 详情 / 导出入口）
+
+### A. 列表与筛选刷新
+
+- 列表必须区分 loading / empty / no-result / content 四类状态；筛选、搜索、排序切换时不得先展示半更新行（例如标签消失、星级左移）再移除整行。
+- 搜索防抖与筛选刷新应以稳定快照为边界；若 UI 无法避免中间态，应登记为 ViewModel/数据快照契约缺口，而不是用动画遮盖。
+- 多选状态下，全选、取消、导出入口必须与当前筛选结果一致；导出后选择状态清理或保留属于产品决策，不得由 UI 静默改变。
+
+### B. 详情与参考内容
+
+- 从 Library 进入详情时，题目正文优先展示；参考内容默认收起，用户显式展开后才显示。
+- 展开/收起参考内容不得刷新整页或重置滚动位置；图标、标题与内容区域的变化应是局部状态变化。
+
+### C. 导出 / 分享 / 打印入口
+
+- Library 只负责把当前筛选/选择集合交给导出流；PDF、分享、打印的行为契约见 `docs/features/active/feat-export.md`。
+- 空集合不得生成空文件；用户取消分享/打印不等于失败；生成失败必须用户可见，不只写日志。
+
+### D. 文案与 L10n 归属
+
+- Library 对外文案必须保持通用受众定位，避免把资料库描述成儿童、作业或校园专用场景。
+- 已知共享 key：`L10n.Library.categoryManager` 被 Dashboard 复用。后续 L10n 归属整理应迁入 Common/Shared 或显式登记共享，不应长期挂在单屏命名空间。
+
+### Enforcement
+
+| 契约项 | Enforcement |
+|---|---|
+| 筛选刷新稳定性 | #816 / 后续 ViewModel 快照修复；合入前需针对性模拟器实测 |
+| 详情参考内容默认收起 | UI 状态测试或针对性人工实测 |
+| 导出入口集合语义 | Export 契约与相关测试覆盖 |
+| Library 文案定位 | Capture/Library 范围 grep gate 或 PR review |
+| 共享 L10n key 归属 | 批量 L10n 归属整理 PR |
 
 ## 意图追溯（永久保留）
 

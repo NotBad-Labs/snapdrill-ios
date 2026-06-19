@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-05-30
+last_updated: 2026-06-19
 intent_refs:
   - vision:P2
   - vision:P4
@@ -53,6 +53,34 @@ intent_refs:
 - **数据保证**：Onboarding 完成状态只写一次且全局，不随 Profile 切换被清除；首个默认 Profile 创建后不复制任何其他数据；Onboarding 流程不写入任何题目 / 图片记录。
 - **NFR**：无（纯展示流，无大图加载 / 无落库 / 无中断恢复要求）。
 
+
+## 5. Contracts（首启 / 权限预期 / 文案定位）
+
+### A. 首启流程
+
+- Onboarding 只解释产品价值和本地隐私边界，不在首屏直接请求相机、相册或通知权限。
+- 用户完成或跳过 Onboarding 后，状态必须持久化；后续再次进入不得重复打断，除非用户显式重置。
+- 完成、跳过、返回每个动作都应有清晰可达路径，不把用户困在单页引导中。
+
+### B. 权限预期
+
+- 相机、相册、文件导入等权限请求应在 Capture 等 point-of-use 场景触发；Onboarding 只能做预期说明。
+- 权限预说明必须与系统权限用途串一致，不能承诺未实现的云同步、账号、自动备份或 AI 解题能力。
+
+### C. 文案定位与 L10n 归属
+
+- Onboarding 对外文案必须面向通用效率工具，避免“错题/作业/儿童/年级/同学”等儿童教育信号。
+- 已知共享 key：`L10n.Onboarding.fieldConfigTitle` / `fieldConfigDescription` 被 Capture 结果页和提示视图复用。后续应迁入 Common/Shared 或显式登记共享，不应长期挂在 Onboarding 命名空间。
+
+### D. Enforcement
+
+| 契约项 | Enforcement |
+|---|---|
+| 首启不提前请求权限 | 模拟器实测 / UI test |
+| 完成/跳过持久化 | 现有 Onboarding 状态测试或手动复验 |
+| 文案通用受众 | Onboarding L10n grep gate + PO review |
+| 权限预说明一致 | PR review + InfoPlist/L10n 对照 |
+| 共享 L10n 归属 | 批量 L10n 归属整理 PR |
 
 ## 意图追溯（永久保留）
 
