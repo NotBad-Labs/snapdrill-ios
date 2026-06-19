@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  用户信息编辑页面。
+//  个人资料编辑页面。
 //
 
 import SwiftUI
@@ -14,7 +14,7 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillFeatureLibrary
 
-/// 用户资料编辑页面
+/// 个人资料编辑页面
 struct EditProfileView: View {
     
     // MARK: - Properties
@@ -38,14 +38,14 @@ struct EditProfileView: View {
     @Environment(\.profileManager) private var profileManager
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
     
-    // 渐变色预设
+    // 头像主题色预设
     private let gradients: [[Color]] = [
-        [.blue, .purple],       // 0: Default
-        [.orange, .red],        // 1: Warm
-        [.green, .teal],        // 2: Nature
-        [.pink, .indigo],       // 3: Vivid
-        [.gray, .black],        // 4: Dark
-        [.yellow, .orange]      // 5: Sunny
+        [Color(.systemBlue), Color(.systemCyan)],
+        [Color(.systemIndigo), Color(.systemBlue)],
+        [Color(.systemGreen), Color(.systemTeal)],
+        [Color(.systemPurple), Color(.systemIndigo)],
+        [Color(.systemGray), Color(.systemGray2)],
+        [Color(.systemOrange), Color(.systemYellow)]
     ]
     
     private var currentGradient: LinearGradient {
@@ -66,30 +66,30 @@ struct EditProfileView: View {
                             Image(uiImage: image)
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 100, height: 100)
+                                .frame(width: 88, height: 88)
                                 .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.white, lineWidth: 3))
-                                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                                .overlay(Circle().stroke(Color(.separator).opacity(0.25), lineWidth: 1))
+                                .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 3)
                         } else if userAvatar.contains("images/") {
                             // 自定义头像加载中占位
                             Image(systemName: "person.crop.circle.fill")
-                                .font(.system(size: 60))
+                                .font(.system(size: 52))
                                 .foregroundStyle(.secondary)
-                                .frame(width: 100, height: 100)
+                                .frame(width: 88, height: 88)
                                 .background(Circle().fill(.ultraThinMaterial))
                                 .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.white, lineWidth: 3))
-                                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                                .overlay(Circle().stroke(Color(.separator).opacity(0.25), lineWidth: 1))
+                                .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 3)
                         } else {
                             Image(systemName: userAvatar)
-                                .font(.system(size: 60))
+                                .font(.system(size: 52))
                                 .symbolRenderingMode(.hierarchical)
                                 .foregroundStyle(currentGradient)
-                                .frame(width: 100, height: 100)
+                                .frame(width: 88, height: 88)
                                 .background(Circle().fill(.ultraThinMaterial))
                                 .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.white, lineWidth: 3))
-                                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                                .overlay(Circle().stroke(Color(.separator).opacity(0.25), lineWidth: 1))
+                                .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 3)
                         }
                     }
                     
@@ -98,8 +98,8 @@ struct EditProfileView: View {
                         showingPhotoOptions = true
                     } label: {
                         HStack(spacing: 8) {
-                            Image(systemName: "camera.fill")
-                                .font(.system(size: 16))
+                            Image(systemName: "photo.badge.plus")
+                                .font(.system(size: 16, weight: .semibold))
                                 .accessibilityHidden(true)
                             Text(L10n.EditProfile.setAvatar)
                                 .font(.body)
@@ -153,7 +153,7 @@ struct EditProfileView: View {
                 }
                 .padding(.vertical, 4)
             } footer: {
-                    Text(L10n.EditProfile.mottoFooter)
+                Text(L10n.EditProfile.mottoFooter)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

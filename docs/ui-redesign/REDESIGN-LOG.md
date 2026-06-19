@@ -452,3 +452,48 @@ Planning reviewed these files without editing them:
 
 - Settings contract seed should be included in the planned bulk seed catch-up PR with Library, Review, and Dashboard.
 - Release hardening still owns app bundle/display name, first global TestFlight, App Store metadata, and legal sign-off.
+
+## 2026-06-19 - Profile flagship polish
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ProfileListView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/EditProfileView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Settings.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Onboarding.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+
+### Design Decisions
+
+- PO approved the default Profile polish direction on 2026-06-19.
+- Profile is framed as productivity workspaces rather than learner/education identity. The list now has a clear workspace section, explanatory footer, selected-state treatment, and localized accessibility hints.
+- Edit profile visuals are cooled down to the Settings baseline: smaller avatar, lower shadow, thinner neutral stroke, restrained system gradients, and photo-style edit affordance.
+- `每日目标` is clarified as `每日回顾目标` / `Daily Review Goal` because the existing control configures review cadence, not a generic activity goal.
+- No Profile switching, deletion, draft recovery, or persistence logic is changed.
+
+### Files Changed
+
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Onboarding.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Settings.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/EditProfileView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ProfileListView.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Cross-Layer Findings
+
+- Profile management behavior remains owned by `ProfileListViewModel` / `ProfileManager`; this milestone only changes the UI presentation and user-visible copy.
+- Settings-visible edit-profile strings still live partly under `L10n+Onboarding`. The shared placement is preserved to avoid a L10n migration inside this screen polish PR.
+
+### DoD Status
+
+- Passed on 2026-06-19:
+  - `git diff --check`
+  - `swiftlint --strict`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
+### Open Questions
+
+- Profile contract seed should be included in the planned bulk seed catch-up PR with Library, Review, Dashboard, and Settings.

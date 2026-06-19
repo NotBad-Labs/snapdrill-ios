@@ -33,6 +33,10 @@ struct ProfileListView: View {
                     profileRow(profile)
                 }
                 .onDelete(perform: viewModel.confirmDelete)
+            } header: {
+                Text(L10n.Settings.profileSpacesSection)
+            } footer: {
+                Text(L10n.Settings.profileSpacesFooter)
             }
 
             Section {
@@ -111,6 +115,7 @@ struct ProfileListView: View {
 
     @ViewBuilder
     private func profileRow(_ profile: Profile) -> some View {
+        let isActive = profile.id == viewModel.activeProfileId
         Button {
             Task {
                 if await viewModel.switchToProfile(profile.id) {
@@ -118,27 +123,48 @@ struct ProfileListView: View {
                 }
             }
         } label: {
-            HStack {
-                Image(systemName: profile.avatar)
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 36, height: 36)
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(isActive ? Color.accentColor.opacity(0.12) : Color(.tertiarySystemFill))
 
-                Text(profile.name)
-                    .foregroundStyle(.primary)
+                    Image(systemName: profile.avatar)
+                        .font(.system(size: 18, weight: .semibold))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(isActive ? Color.accentColor : Color(.secondaryLabel))
+                }
+                .frame(width: 38, height: 38)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(profile.name)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(.primary)
+
+                    if isActive {
+                        Text(L10n.Settings.currentLearner)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
 
                 Spacer()
 
-                if profile.id == viewModel.activeProfileId {
-                    Text(L10n.Settings.currentLearner)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Image(systemName: "checkmark")
-                        .foregroundStyle(.blue)
+                if isActive {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.accentColor)
+                        .accessibilityHidden(true)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                        .accessibilityHidden(true)
                 }
             }
+            .padding(.vertical, 4)
+            .contentShape(Rectangle())
         }
         .accessibilityLabel(profile.name)
-        .accessibilityHint(profile.id == viewModel.activeProfileId ? "当前资料空间" : "点击切换到此资料空间")
+        .accessibilityHint(isActive ? L10n.Settings.profileCurrentHint : L10n.Settings.profileSwitchHint)
+        .accessibilityAddTraits(isActive ? .isSelected : [])
     }
 }

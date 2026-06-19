@@ -483,7 +483,7 @@
 "edit_profile.set_avatar" = "Set Avatar";
 "edit_profile.nickname" = "Nickname";
 "edit_profile.nickname_placeholder" = "Enter nickname";
-"edit_profile.daily_goal" = "Daily Goal";
+"edit_profile.daily_goal" = "Daily Review Goal";
 "edit_profile.cards_count" = "items";
 "edit_profile.motto" = "Personal Note";
 "edit_profile.motto_placeholder" = "Write a personal note...";
@@ -828,10 +828,14 @@
 "library.deselect_all" = "Deselect All";
 "settings.help_center" = "Help Center";
 "settings.switch_learner" = "Switch Workspace";
+"settings.profile_spaces_section" = "Workspaces";
+"settings.profile_spaces_footer" = "Each workspace keeps its own items, images, and review progress so you can separate projects or contexts.";
 "settings.add_learner" = "Add Workspace";
 "settings.delete_learner_confirm" = "Deleting this workspace permanently removes all items, review progress, and images. This cannot be undone.";
 "settings.learner_name" = "Workspace Name";
 "settings.current_learner" = "Current";
+"settings.profile_current_hint" = "This is the current workspace.";
+"settings.profile_switch_hint" = "Switch to this workspace.";
 "settings.card_front_preview" = "Given triangle ABC, AB = AC, angle A = 36 degrees. Find angle B.";
 "settings.card_back_preview" = "Reference: angle B = 72 degrees.";
 "smart_paper.title" = "Smart Paper";

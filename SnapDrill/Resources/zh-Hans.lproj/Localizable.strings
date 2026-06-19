@@ -465,7 +465,7 @@
 "edit_profile.set_avatar" = "设置头像";
 "edit_profile.nickname" = "昵称";
 "edit_profile.nickname_placeholder" = "请输入昵称";
-"edit_profile.daily_goal" = "每日目标";
+"edit_profile.daily_goal" = "每日回顾目标";
 "edit_profile.cards_count" = "条资料";
 "edit_profile.motto" = "个人备注";
 "edit_profile.motto_placeholder" = "写一条个人备注...";
@@ -817,10 +817,14 @@
 "library.share_card_title" = "SnapDrill 摘录卡";
 "settings.help_center" = "帮助中心";
 "settings.switch_learner" = "切换资料空间";
+"settings.profile_spaces_section" = "资料空间";
+"settings.profile_spaces_footer" = "每个资料空间独立保存资料、图片和回顾进度，适合按项目或场景分开管理。";
 "settings.add_learner" = "添加资料空间";
 "settings.delete_learner_confirm" = "删除后该资料空间的所有资料、回顾进度和图片将永久丢失，无法恢复。";
 "settings.learner_name" = "资料空间名称";
 "settings.current_learner" = "当前";
+"settings.profile_current_hint" = "当前正在使用的资料空间";
+"settings.profile_switch_hint" = "切换到此资料空间";
 "settings.import_data" = "数据导入";
 "settings.import_csv" = "导入 CSV";
 "settings.import_csv_hint" = "从 CSV 文件导入资料数据（需包含 Content 或 Subject 列）";
