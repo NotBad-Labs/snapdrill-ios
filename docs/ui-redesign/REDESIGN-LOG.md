@@ -537,3 +537,57 @@ Planning reviewed these files without editing them:
 ### Open Questions
 
 - Backup/Data contract details should be included in the planned bulk seed catch-up PR with Library, Review, Dashboard, Settings, and Profile.
+
+## 2026-06-19 - UI contract seed catch-up
+
+### Scope
+
+- `docs/features/active/feat-library.md`
+- `docs/features/active/feat-review.md`
+- `docs/features/active/feat-dashboard.md`
+- `docs/features/active/feat-onboarding.md`
+- `docs/features/active/feat-settings.md`
+- `docs/features/active/feat-profile.md`
+- `docs/features/active/feat-backup.md`
+- `docs/features/active/feat-export.md`
+
+### Design Decisions
+
+- PO approved closing the accumulated contract seed debt after the eight flagship UI screens reached develop.
+- Contracts were added to existing feature specs instead of creating a duplicate summary document. This keeps the feature spec as the SSOT for each screen.
+- Contract language records intended behavior, not merely current implementation. Where the implementation lacks an exposed seam, the spec records a blocker instead of blessing the current gap.
+- Enforcement is right-sized: behavior contracts point to tests or dogfood, policy/copy contracts point to grep/review gates, and unavailable runtime evidence is recorded as dogfood or cross-layer follow-up.
+
+### Files Changed
+
+- `docs/features/active/feat-library.md`
+- `docs/features/active/feat-review.md`
+- `docs/features/active/feat-dashboard.md`
+- `docs/features/active/feat-onboarding.md`
+- `docs/features/active/feat-settings.md`
+- `docs/features/active/feat-profile.md`
+- `docs/features/active/feat-backup.md`
+- `docs/features/active/feat-export.md`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Cross-Layer Findings
+
+- Library filtering still needs stable snapshot behavior (#816) so rows do not partially reflow before disappearing.
+- Dashboard error state remains a ViewModel seam blocker; the UI must not fabricate error states without source state.
+- Shared L10n keys are now explicitly tracked: `L10n.Library.categoryManager` and `L10n.Onboarding.fieldConfigTitle` / `fieldConfigDescription` should move to Common/Shared or be registered as shared.
+- Profile switching/deletion reliability still depends on GAP-R4 `AppActivityTracker` and GAP-R2 draft image isolation follow-ups.
+- Backup import still carries GAP-R6 CSV field strictness debt.
+- Export/print still needs GAP-R5 and real-device dogfood for direct/indirect print behavior.
+
+### DoD Status
+
+- This is a docs-only T0/T1 governance PR. Required verification:
+  - `git diff --check`
+  - feature status generation check
+  - intent traceability generation check
+  - capture contract check
+- No Swift files are changed, so `xcodebuild build-for-testing` is intentionally not part of this PR's validation under the verification tier table.
+
+### Open Questions
+
+- Follow-up enforcement can be added selectively where cheap and useful: shared L10n namespace gate, focused Review rating tests, Dashboard error-state seam, and Export print dogfood tracking.

@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-05-30
+last_updated: 2026-06-19
 intent_refs:
   - vision:P2
   - vision:P4
@@ -64,6 +64,35 @@ intent_refs:
   - PDF 批量导出内存 < 200MB（`autoreleasepool` 逐页释放）。
   - 导出 CSV 时以 `=+-@` 开头的值前加 tab（CSV 注入防护；属同级数据导出，列此供完整 NFR 参照）。
 
+
+## 5. Contracts（PDF / 分享 / 打印）
+
+### A. 输入与输出
+
+- 导出入口必须传入明确的资料集合和选项；空集合不得生成空 PDF/CSV/ZIP。
+- PDF、分享、打印结果必须区分 completed / cancelled / failed；用户取消不等于失败。
+- 导出成功只能在文件生成或系统交互完成后提示，不得在后台任务启动时提前宣称成功。
+
+### B. 分享与打印
+
+- 分享走系统 share sheet；打印走 `PrintPresenting` adapter 或系统打印面板。iPad 必须提供有效 anchor。
+- 已知缺口：GAP-R5 指出分享表间接打印与直接打印入口的契约差异；真实打印仍需真机 dogfood。
+- 打印/分享失败必须用户可见，并保留 retry 路径。
+
+### C. 活动追踪与隐私
+
+- 导出、分享、打印、备份等长任务必须通过 `AppActivityTracker` 阻止 Profile 切换等破坏性操作。
+- PDF 渲染应使用 autoreleasepool 防 OOM；导出内容不得重新引入图片 EXIF GPS/位置信息。
+
+### D. Enforcement
+
+| 契约项 | Enforcement |
+|---|---|
+| completed/cancelled/failed 三态 | `PrintPresenting` tests + dogfood |
+| iPad anchor | UI test / simulator iPad route test |
+| 空集合不导出 | Export service tests |
+| 活动追踪 | GAP-R4 / AppActivityTracker 契约测试 |
+| 真机打印 | dogfood 待验 |
 
 ## 意图追溯（永久保留）
 

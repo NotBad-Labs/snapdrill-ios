@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-02
+last_updated: 2026-06-19
 intent_refs:
   - vision:P2
   - vision:P5
@@ -51,6 +51,34 @@ intent_refs:
 - **数据保证**：首页为**只读聚合**，不产生 / 修改任何资料或回顾记录；统计口径与被消费 feature（review / library）一致，不在首页层制造口径分裂；仅展示当前 Profile 数据，Profile 切换后重新加载。
 - **NFR**：首页加载与刷新不阻塞主线程；`reviewDataDidChange` 刷新去抖避免高频抖动；无额外埋点要求（高级统计埋点归 Pro spec）。
 
+
+## 5. Contracts（首页概览 / 统计 / 锁态）
+
+### A. 首页状态
+
+- Dashboard 必须区分 loading / empty / content / error 四类状态；统计无法加载时不得展示伪造数据。
+- 当前实现中 Dashboard 统计 ViewModel 只记录失败日志，未向 View 暴露错误态。本轮 UI 打磨按 PO 决策记录为 cross-layer blocker，不在 UI 层伪造错误状态。
+- 空状态应引导用户去采集或导入资料，不使用教育化、儿童化或游戏化激励。
+
+### B. 统计与 Pro 锁态
+
+- 首页统计只展示已可解释、已存在的数据；高级统计锁态必须克制呈现为“稍后推出/高级统计”，不得弹窗诱导付费。
+- 锁态卡片不能阻断免费核心闭环，也不能暗示当前用户数据已经上传或云端分析。
+
+### C. 导航与共享 L10n
+
+- Dashboard 的快捷入口只做导航，不启动采集、导出或删除等有副作用操作。
+- 已知共享 key：`L10n.Library.categoryManager` 被 Dashboard 使用。后续应迁入 Common/Shared 或显式登记共享。
+
+### D. Enforcement
+
+| 契约项 | Enforcement |
+|---|---|
+| Dashboard 四态 | UI review + 后续 ViewModel 错误态 blocker |
+| 统计不伪造 | 针对性模拟器实测 / ViewModel 数据源 review |
+| Pro 锁态克制 | PR review + 文案 grep |
+| 快捷入口无副作用 | UI 测试或手动实测 |
+| 共享 L10n 归属 | 批量 L10n 归属整理 PR |
 
 ## 意图追溯（永久保留）
 

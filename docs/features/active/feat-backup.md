@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-05-30
+last_updated: 2026-06-19
 intent_refs:
   - vision:P4
 ---
@@ -72,6 +72,34 @@ intent_refs:
   - 内存：备份/恢复 < 200MB（流式 ZIP 写入，不全量加载）；CSV 导入（1000 行）< 80MB（解析流逐行处理，不全文加载到内存）。
   - 中断恢复：恢复前自动备份当前数据作为安全网（备份完整性）。
 
+
+## 5. Contracts（备份 / 恢复 / 数据导入导出）
+
+### A. 操作状态
+
+- 备份、恢复、CSV 导入、CSV 导出必须区分 idle / running / success / failure；运行中要有可见进度或明确等待反馈。
+- 用户取消不等于失败；系统失败必须展示可理解错误，不只写日志。
+- 同一时间只能有一个破坏性或长耗时数据操作；并发请求应禁用或排队。
+
+### B. 数据边界
+
+- 完整备份必须包含所有 Profile 相关数据和图片引用；恢复前必须先校验 schema/version，不得部分写入后才报错。
+- CSV/JSON 导入导出属于本地文件操作，不暗示云同步或远程备份。
+- 已知缺口：GAP-R6 指出 `CSVParser` 对字段不匹配不够严格；在修复前，UI 不应宣称 CSV 导入已覆盖所有格式错误。
+
+### C. 隐私与安全
+
+- 导出文件可能包含用户资料内容；分享前必须由系统 share sheet 或文件选择器显式交给用户确认。
+- CSV 导出必须继续保留 formula injection 防护；图片备份不得重新引入 EXIF GPS/位置信息。
+
+### D. Enforcement
+
+| 契约项 | Enforcement |
+|---|---|
+| 备份/恢复四态 | Settings UI test / 手动实测 |
+| schema/version 预校验 | Data 层契约测试 |
+| CSV 字段严格性 | GAP-R6 后续修复测试 |
+| 导出隐私防护 | Export/Backup 流程 review + dogfood |
 
 ## 意图追溯（永久保留）
 

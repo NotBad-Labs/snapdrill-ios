@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-17
+last_updated: 2026-06-19
 intent_refs:
   - vision:P2
   - vision:P3
@@ -66,6 +66,34 @@ intent_refs:
 - 若发现需要 ViewModel/Core/Data 新状态才能正确表达，应登记为跨层 blocker，不在本 UI PR 中重写逻辑。
 - `swiftlint --strict` 与 `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests` 必须通过。
 
+
+## 6. Contracts（回顾 / 评级 / 会话一致性）
+
+### A. 回顾卡片状态
+
+- 回顾卡片默认只展示题面/资料内容；参考内容默认隐藏，用户显式点击或手势触发后才显示。
+- 显示参考内容不得重置当前队列、评级状态或会话进度。
+- 空队列、加载中、完成、错误四类状态应有明确 UI；不能让用户停在无反馈的空白页。
+
+### B. 评级语义
+
+- `有印象` / `Recalled` 表示用户认为自己已回忆起内容，应延长回顾间隔；`没印象` / `Forgot` 表示稍后需要再次出现。
+- 按钮、左右滑、stamp、VoiceOver hint、会话摘要必须使用同一组语义；取消手势或退出会话不应被记录成评级。
+- 保留“回顾”命名，不回退到校园化或儿童化的“复习/练习/闯关”语言。
+
+### C. 会话一致性
+
+- 每次评级只能作用于当前可见资料；队列进度、summary 和回顾计划必须来源于同一会话快照。
+- 已知缺口：外部删除当前回顾资料的处理仍是 GAP-R1；在 ViewModel 暴露明确状态前，UI 不应伪造已处理结果。
+
+### D. Enforcement
+
+| 契约项 | Enforcement |
+|---|---|
+| 参考内容默认隐藏 | View/UI 测试或针对性模拟器实测 |
+| 评级词与 SM-2 语义一致 | L10n/a11y grep + Review ViewModel/服务层已有测试 |
+| 取消不等于评级 | 针对性测试或 dogfood 实测 |
+| 外部删除当前资料 | GAP-R1 跨层 blocker，后续契约修复 |
 
 ## 意图追溯（永久保留）
 

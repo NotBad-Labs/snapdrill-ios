@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-05-30
+last_updated: 2026-06-19
 intent_refs:
   - vision:P2
   - vision:P4
@@ -57,6 +57,33 @@ intent_refs:
   - **⚠ 实现现状（GAP-R2，代码债·真 bug）**：上文"draft 必须按 Profile 隔离"的草稿**图片**当前未隔离（`CaptureDraftService` 用全局 `Caches/draft_capture.jpg`），存在跨 Profile 覆盖/污染——详见 `feat-capture.md` GAP-R2。需求不变，待 code 债修复。
 - **NFR**：冷启动 < 2 秒到首屏可交互；题库列表加载 < 500ms（200 题）。卡片字号 `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)` 为 Per-Profile 隔离存储。多 Profile 恢复当前为按 Profile sequential 提交，单 Profile 内 DB 恢复事务原子（`RepositoryContainer` 单次 saveContext，失败 rollback），图片 best-effort；**多 Profile 全局原子恢复待实现**（追踪：未来增量 issue）。
 
+
+## 5. Contracts（资料库隔离 / 切换 / 删除）
+
+### A. 资料库语义
+
+- Profile 在 UI 中表达为本地资料库/工作区，不表达为儿童、学生或独立账号。
+- 每个 Profile 拥有独立 SwiftData container、图片目录和 per-profile preferences；UI 不得暗示跨资料库自动同步。
+
+### B. 切换与删除
+
+- Profile 切换、删除、重命名必须有明确确认和反馈；当前长任务进行中时不得静默切换。
+- 删除 Profile 前必须明确展示影响范围；撤销窗口和软删除行为以 Data/Settings 现有契约为准。
+- 已知缺口：GAP-R4 指出 `AppActivityTracker` shared instance mismatch 风险；GAP-R2 指出 draft image profile isolation 风险。UI 不应掩盖这些跨层待办。
+
+### C. 文案与 a11y
+
+- Profile 文案使用“资料库/工作区/Review Goal”等成人生产力语言。
+- 选中状态、VoiceOver hint、`accessibilityIdentifier` 必须保留，确保 XCUITest 和无障碍可追踪。
+
+### D. Enforcement
+
+| 契约项 | Enforcement |
+|---|---|
+| Profile 资料隔离 | Repository/ProfileManager 测试 + dogfood |
+| 长任务阻止切换 | AppActivityTracker 契约测试 / GAP-R4 修复 |
+| 删除确认和反馈 | UI test / 手动实测 |
+| 文案定位 | L10n grep + PR review |
 
 ## 意图追溯（永久保留）
 

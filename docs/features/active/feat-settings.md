@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-13
+last_updated: 2026-06-19
 intent_refs:
   - vision:P2
   - vision:P4
@@ -60,6 +60,34 @@ intent_refs:
 - **NFR**：VoiceOver 全模块覆盖（含 Settings）所有常见任务可完成；复习卡片自定义字号为 App 独立设置（非 Dynamic Type），范围按代码实现；全球生产环境不含 Firebase 或其他第三方分析/崩溃 SDK，逐事件调用由 NoOp 服务丢弃（ADR-005）。
   - **文案约束**：Settings 与隐私政策文案必须继续与发布构建、Privacy Manifest、App Store Privacy 标签及律师审查一致；不得声称当前版本会自动发送使用分析、崩溃报告、题目内容或设备明细。
 
+
+## 5. Contracts（设置 / 诊断 / 法律入口）
+
+### A. 设置项行为
+
+- Settings 中每个 toggle、sheet、导航项必须表达真实行为；无实现或无副作用的控件不得伪装成已启用功能。
+- 设置项保存失败必须用户可见；不能只写日志或静默恢复旧值。
+- 资料库/Profile 切换入口只负责呈现和路由，实际隔离契约见 `docs/features/active/feat-profile.md`。
+
+### B. 诊断与隐私
+
+- 生产 analytics 注入为 `NoOpAnalyticsService`；端侧 MetricKit 诊断不受 Settings 中的旧“诊断”开关控制。
+- 若保留诊断 UI，文案必须明确“不发送任何数据”；若移除控件，不得改变底层 telemetry/DI 行为。
+- 任何隐私状态声明必须与 App Store Privacy Manifest、代码注入和公开隐私政策一致。
+
+### C. 法律入口
+
+- 服务条款、隐私政策、儿童隐私等法律正文属于 legal-gated 内容；Settings 只能链接、标记和路由到律师线，不自行改写正文。
+- 外部链接失败、取消或无网络时应有用户可见反馈。
+
+### D. Enforcement
+
+| 契约项 | Enforcement |
+|---|---|
+| 设置项真实表达行为 | PR review + 针对性模拟器实测 |
+| 诊断开关不误导 | L10n grep + Privacy/Telemetry code review |
+| 法律正文不自改 | PR review + legal handoff |
+| 外部链接反馈 | 手动实测 / UI test |
 
 ## 意图追溯（永久保留）
 
