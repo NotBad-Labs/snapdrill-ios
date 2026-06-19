@@ -1,6 +1,6 @@
 /* Localized Bundle Display Name */
-"CFBundleDisplayName" = "小本本-智能错题本";
-"CFBundleName" = "小本本";
+"CFBundleDisplayName" = "SnapDrill";
+"CFBundleName" = "SnapDrill";
 
 /* Privacy - Camera and Photo Library Usage Descriptions */
 "NSCameraUsageDescription" = "SnapDrill 需要使用相机拍摄并识别你选择的资料内容。";

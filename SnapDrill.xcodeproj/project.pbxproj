@@ -904,7 +904,7 @@
 				};
 			};
 			buildConfigurationList = B27BD95A2E560D0600E69277 /* Build configuration list for PBXProject "SnapDrill" */;
-			developmentRegion = "zh-Hans";
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -1102,8 +1102,8 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.global</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
-				INFOPLIST_KEY_NSCameraUsageDescription = "小本本需要相机权限以扫描录入错题。";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "小本本需要相册权限以导入复习资料。";
+				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to capture and recognize the materials you choose.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import the images you choose.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1137,8 +1137,8 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.global</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
-				INFOPLIST_KEY_NSCameraUsageDescription = "小本本需要相机权限以扫描录入错题。";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "小本本需要相册权限以导入复习资料。";
+				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to capture and recognize the materials you choose.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import the images you choose.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
