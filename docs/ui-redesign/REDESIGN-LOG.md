@@ -387,3 +387,68 @@ Planning reviewed these files without editing them:
 ### Open Questions
 
 - None for this milestone.
+
+## 2026-06-19 - Settings flagship polish
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/PrivacySettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsRow.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/*Settings*.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Settings.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Accessibility.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Onboarding.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+
+### Design Decisions
+
+- PO approved the default Settings polish plan on 2026-06-19.
+- The misleading diagnostics toggle is removed from Settings UI because it did not gate production analytics or MetricKit. It is replaced with a static local-only diagnostic explanation.
+- No telemetry dependency injection, production `NoOpAnalyticsService`, or MetricKit behavior is changed in this milestone.
+- Settings row icons are cooled down from saturated gradient fills to low-saturation system-style icon containers.
+- Settings-visible user copy is moved toward general-audience productivity language: `学习者` becomes `资料空间`, `年级` becomes `级别`, `复习` becomes `回顾`, and Settings-owned `题目` copy becomes `资料` or `参考内容` where appropriate.
+- Legal policy body copy remains legal-gated and is not rewritten in this UI milestone.
+
+### Files Changed
+
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Service/PrivacyConsentService.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Accessibility.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Onboarding.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Settings.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/TelemetryGate.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/EditProfileView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/NotificationSettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/PrivacySettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ProfileListView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ProfileListViewModel.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ReviewAppearanceSettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsBackupCoordinator.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsRouter.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsRow.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsViewModel.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SnapDrillFeatureSettings.docc/SnapDrillFeatureSettings.md`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Cross-Layer Findings
+
+- `TelemetryGate` and `PrivacyConsentService` still preserve local diagnostics preference compatibility. This milestone only updates comments and UI-facing copy; it does not change privacy or telemetry behavior.
+- `PrivacySettingsViewModel` still records data-export analytics through `AnalyticsServiceProtocol`; production remains governed by the app-level `NoOpAnalyticsService` baseline.
+- Settings-visible edit-profile copy lives partly under `L10n+Onboarding`; this milestone updates only the Settings-exposed edit-profile keys and does not reopen Onboarding copy.
+- Legal policy body text is a legal-lane responsibility and was not modified.
+
+### DoD Status
+
+- Passed on 2026-06-19:
+  - `git diff --check`
+  - `swiftlint --strict`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
+### Open Questions
+
+- Settings contract seed should be included in the planned bulk seed catch-up PR with Library, Review, and Dashboard.
+- Release hardening still owns app bundle/display name, first global TestFlight, App Store metadata, and legal sign-off.

@@ -60,7 +60,7 @@ public final class SettingsViewModel {
 
     // MARK: - Public API
 
-    /// 清空所有题目数据并通知 UI 刷新
+    /// 清空所有资料数据并通知 UI 刷新
     ///
     /// 操作不可撤销，失败时自动回滚 `mainContext` 以防止脏数据。
     public func clearAllData() async {
@@ -159,7 +159,7 @@ public final class SettingsViewModel {
 
     // MARK: - CSV 导入
 
-    /// 从 CSV 文件导入题目数据
+    /// 从 CSV 文件导入资料数据
     ///
     /// CSV 首行为列名，支持的列：Content, Subject, Source, Difficulty, Answer, Grade, Tags。
     /// 列名不区分大小写，缺失列使用默认值。

@@ -14,7 +14,7 @@ import SwiftUI
 import SnapDrillCore
 import SnapDrillData
 
-/// 学习者管理 ViewModel
+/// 资料空间管理 ViewModel
 ///
 /// 把切换/删除/草稿检查逻辑从 ProfileListView 抽出，
 /// View 层只做渲染，逻辑分支在此处可单测。

@@ -73,7 +73,7 @@ struct SettingsBackupCoordinator {
         }
 
         onStatus(L10n.Settings.backupComplete)
-        SnapDrillLogger.generic.info("备份完成: \(totalItemCount) 道题目，\(payload.profiles.count) 个 Profile")
+        SnapDrillLogger.generic.info("备份完成: \(totalItemCount) 条资料，\(payload.profiles.count) 个 Profile")
         return url
     }
 
@@ -149,7 +149,7 @@ struct SettingsBackupCoordinator {
         // 5. 恢复完全成功 → 清理自动备份
         cleanupAutoBackup(autoBackupURL)
 
-        SnapDrillLogger.generic.info("恢复完成: \(manifest.totalItemCount) 道题目，\(manifest.profileCount) 个 Profile")
+        SnapDrillLogger.generic.info("恢复完成: \(manifest.totalItemCount) 条资料，\(manifest.profileCount) 个 Profile")
     }
 
     // MARK: - Private Helpers

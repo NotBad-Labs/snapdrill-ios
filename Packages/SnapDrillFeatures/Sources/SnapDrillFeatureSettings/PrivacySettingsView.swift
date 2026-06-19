@@ -22,18 +22,35 @@ struct PrivacySettingsView: View {
     @Environment(\.analyticsService) private var analyticsService
 
     @State private var showingExportOptions = false
-    @State private var telemetryEnabled = TelemetryGate.isGranted
     @State private var viewModel: PrivacySettingsViewModel?
 
     var body: some View {
         List {
             Section {
-                Toggle(L10n.Settings.telemetryEnabled, isOn: telemetryBinding)
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: "checkmark.shield.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(.tint)
+                        .frame(width: 28, height: 28)
+                        .background {
+                            Circle()
+                                .fill(Color.accentColor.opacity(0.12))
+                        }
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(L10n.Settings.diagnosticsLocalOnly)
+                            .font(.body.weight(.medium))
+                        Text(L10n.Settings.dataCollectionFooter)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.vertical, 4)
+                .accessibilityElement(children: .combine)
                     .accessibilityHint(L10n.Accessibility.analyticsToggleHint)
             } header: {
                 Text(L10n.Settings.dataCollection)
-            } footer: {
-                Text(L10n.Settings.dataCollectionFooter)
             }
 
             Section {
@@ -91,7 +108,6 @@ struct PrivacySettingsView: View {
             }
         }
         .onAppear {
-            telemetryEnabled = TelemetryGate.isGranted
             if viewModel == nil {
                 viewModel = PrivacySettingsViewModel(
                     repositories: repositories,
@@ -102,21 +118,6 @@ struct PrivacySettingsView: View {
         .onDisappear {
             viewModel?.cancelExport()
         }
-        .task {
-            for await _ in NotificationCenter.default.notifications(named: TelemetryGate.didChangeNotification) {
-                telemetryEnabled = TelemetryGate.isGranted
-            }
-        }
-    }
-
-    private var telemetryBinding: Binding<Bool> {
-        Binding(
-            get: { telemetryEnabled },
-            set: { newValue in
-                telemetryEnabled = newValue
-                TelemetryGate.setGranted(newValue)
-            }
-        )
     }
 }
 

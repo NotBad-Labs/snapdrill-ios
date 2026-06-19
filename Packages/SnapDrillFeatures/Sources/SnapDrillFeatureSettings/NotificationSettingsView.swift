@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  通知设置页面，配置每日复习提醒的开关与时间。
+//  通知设置页面，配置每日回顾提醒的开关与时间。
 //
 
 import SwiftUI

@@ -5,17 +5,16 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  Single privacy consent gate for all telemetry collection.
+//  Local diagnostics preference compatibility shim.
 //
 
 import Foundation
 
-/// Single source of truth for Analytics and Crashlytics consent.
+/// Single source of truth for the local diagnostics preference.
 ///
-/// Default state is `.denied`; enabling telemetry always requires an explicit
-/// persisted opt-in. Legacy per-service keys are migrated conservatively:
-/// only users who had explicitly enabled both Analytics and Crashlytics keep
-/// telemetry enabled after the migration.
+/// Default state is `.denied`. Legacy per-service keys are migrated conservatively:
+/// only users who had explicitly enabled both legacy diagnostics toggles keep
+/// the local diagnostics preference enabled after the migration.
 nonisolated public enum TelemetryGate {
 
     public enum State: String, CaseIterable, Sendable {
