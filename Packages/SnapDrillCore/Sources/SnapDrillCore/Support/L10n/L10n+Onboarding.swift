@@ -47,7 +47,7 @@ nonisolated extension L10n {
         public static let setAvatar = NSLocalizedString("edit_profile.set_avatar", value: "设置头像", comment: "设置头像按钮")
         public static let nickname = NSLocalizedString("edit_profile.nickname", value: "昵称", comment: "昵称标签")
         public static let nicknamePlaceholder = NSLocalizedString("edit_profile.nickname_placeholder", value: "请输入昵称", comment: "昵称占位符")
-        public static let dailyGoal = NSLocalizedString("edit_profile.daily_goal", value: "每日目标", comment: "每日目标标签")
+        public static let dailyGoal = NSLocalizedString("edit_profile.daily_goal", value: "每日回顾目标", comment: "每日回顾目标标签")
         public static let cardsCount = NSLocalizedString("edit_profile.cards_count", value: "条资料", comment: "资料数量单位")
         public static let motto = NSLocalizedString("edit_profile.motto", value: "个人备注", comment: "个人备注标签")
         public static let mottoPlaceholder = NSLocalizedString("edit_profile.motto_placeholder", value: "写一条个人备注...", comment: "个人备注占位符")
