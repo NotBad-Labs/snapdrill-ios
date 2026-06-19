@@ -307,7 +307,7 @@
 "settings.storage_management" = "存储管理";
 "settings.storage_images" = "资料图片";
 "settings.storage_total" = "总占用";
-"settings.storage_footer" = "显示当前 Profile 的存储占用。图片会自动压缩以节省空间。";
+"settings.storage_footer" = "显示当前资料空间的存储占用。图片会自动压缩以节省空间。";
 "settings.appearance" = "外观";
 "settings.follow_system" = "跟随系统";
 "settings.light_mode" = "浅色";
@@ -347,7 +347,8 @@
 "settings.restore_confirm_title" = "确认恢复？";
 "settings.restore_confirm_message" = "恢复将覆盖当前所有数据，恢复前会自动创建备份。";
 "settings.restore_confirm_button" = "恢复";
-"settings.local_data_warning" = "数据仅存储在本设备，卸载应用将丢失所有数据。建议定期创建备份。";
+"settings.local_data_title" = "本地保存";
+"settings.local_data_warning" = "资料仅存储在本设备。换机、卸载或清空设备前，请先创建备份。";
 "settings.privacy_title" = "隐私与数据导出";
 "settings.analytics_enabled" = "本地诊断偏好";
 "settings.analytics_hint" = "当前版本不发送使用分析或崩溃报告；此设置仅保存本地偏好。";
@@ -387,8 +388,10 @@
 "settings.maybe_later" = "以后再说";
 "settings.feedback_message" = "感谢你使用 SnapDrill！你可以发送邮件至 hello@notbadhq.com，或直接在 TestFlight 中反馈。";
 "settings.edit_profile_subtitle" = "编辑个人资料";
-"settings.backup_data" = "备份数据";
-"settings.restore_data" = "恢复数据";
+"settings.backup_data" = "创建备份";
+"settings.backup_data_subtitle" = "导出包含资料、分类设置和图片的 ZIP 文件";
+"settings.restore_data" = "恢复备份";
+"settings.restore_data_subtitle" = "从 ZIP 备份恢复，会替换当前资料空间";
 "settings.backup_footer" = "备份文件包含所有资料、分类设置和图片。恢复操作将替换当前全部数据。";
 "settings.restore_dialog_title" = "恢复数据";
 "settings.select_backup_file" = "选择备份文件";
@@ -397,7 +400,8 @@
 "settings.unknown_error" = "未知错误";
 "settings.restore_success" = "恢复成功";
 "settings.storage_space" = "存储空间";
-"settings.media_cache_usage" = "媒体缓存占用";
+"settings.media_cache_usage" = "临时缓存";
+"settings.media_cache_subtitle" = "临时图片和下载资源，可安全清理";
 "settings.calculating" = "计算中...";
 "settings.clear_cache" = "清理缓存";
 "settings.clear_cache_title" = "清理缓存";
@@ -827,6 +831,7 @@
 "settings.profile_switch_hint" = "切换到此资料空间";
 "settings.import_data" = "数据导入";
 "settings.import_csv" = "导入 CSV";
+"settings.import_csv_subtitle" = "从表格文件批量导入资料";
 "settings.import_csv_hint" = "从 CSV 文件导入资料数据（需包含 Content 或 Subject 列）";
 "settings.import_reading" = "正在读取文件…";
 "settings.import_parsing" = "正在解析数据…";

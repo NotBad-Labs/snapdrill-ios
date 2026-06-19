@@ -20,6 +20,7 @@ struct DataAndSyncSettingsView: View {
     // MARK: - Properties
 
     @Bindable var viewModel: SettingsViewModel
+    @State private var activeOperation: DataOperation?
 
     // 存储缓存
     @State private var showingClearCacheAlert = false
@@ -45,14 +46,10 @@ struct DataAndSyncSettingsView: View {
         List {
             // 本地数据警告
             Section {
-                Label {
-                    Text(L10n.Settings.localDataWarning)
-                        .font(.subheadline)
-                } icon: {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange)
-                        .accessibilityHidden(true)
-                }
+                DataNoticeRow(
+                    title: L10n.Settings.localDataTitle,
+                    message: L10n.Settings.localDataWarning
+                )
             }
 
             // 备份 / 恢复
@@ -61,6 +58,8 @@ struct DataAndSyncSettingsView: View {
                 Button {
                     backupTask?.cancel()
                     backupTask = Task {
+                        activeOperation = .backup
+                        defer { activeOperation = nil }
                         await viewModel.createBackup()
                         if viewModel.backupFileURL != nil {
                             showingShareSheet = true
@@ -69,14 +68,13 @@ struct DataAndSyncSettingsView: View {
                         }
                     }
                 } label: {
-                    HStack {
-                        Label(L10n.Settings.backupData, systemImage: "arrow.up.doc")
-                        Spacer()
-                        if viewModel.isBackupInProgress && viewModel.backupFileURL == nil {
-                            ProgressView()
-                                .controlSize(.small)
-                        }
-                    }
+                    DataActionRow(
+                        title: L10n.Settings.backupData,
+                        subtitle: L10n.Settings.backupDataSubtitle,
+                        systemImage: "arrow.up.doc.fill",
+                        tint: .blue,
+                        isLoading: isOperationActive(.backup)
+                    )
                 }
                 .disabled(viewModel.isBackupInProgress)
                 .accessibilityHint(L10n.Accessibility.backupDataHint)
@@ -85,13 +83,19 @@ struct DataAndSyncSettingsView: View {
                 Button {
                     showingRestoreConfirmation = true
                 } label: {
-                    Label(L10n.Settings.restoreData, systemImage: "arrow.down.doc")
+                    DataActionRow(
+                        title: L10n.Settings.restoreData,
+                        subtitle: L10n.Settings.restoreDataSubtitle,
+                        systemImage: "arrow.down.doc.fill",
+                        tint: .teal,
+                        isLoading: isOperationActive(.restore)
+                    )
                 }
                 .disabled(viewModel.isBackupInProgress)
                 .accessibilityHint(L10n.Accessibility.restoreDataHint)
 
                 // 进度条（备份/恢复过程中显示）
-                if viewModel.isBackupInProgress {
+                if shouldShowBackupProgress {
                     VStack(alignment: .leading, spacing: 6) {
                         if !viewModel.backupStatusMessage.isEmpty {
                             Text(viewModel.backupStatusMessage)
@@ -114,17 +118,28 @@ struct DataAndSyncSettingsView: View {
                 Button {
                     showingImportFilePicker = true
                 } label: {
-                    HStack {
-                        Label(L10n.Settings.importCSV, systemImage: "square.and.arrow.down")
-                        Spacer()
-                        if viewModel.isBackupInProgress && !viewModel.backupStatusMessage.isEmpty
-                            && viewModel.backupStatusMessage.contains("导入") {
-                            ProgressView()
-                                .controlSize(.small)
-                        }
-                    }
+                    DataActionRow(
+                        title: L10n.Settings.importCSV,
+                        subtitle: L10n.Settings.importCSVSubtitle,
+                        systemImage: "square.and.arrow.down.fill",
+                        tint: .indigo,
+                        isLoading: isOperationActive(.importCSV)
+                    )
                 }
                 .disabled(viewModel.isBackupInProgress)
+
+                if isOperationActive(.importCSV) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        if !viewModel.backupStatusMessage.isEmpty {
+                            Text(viewModel.backupStatusMessage)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        ProgressView(value: viewModel.backupProgress, total: 1.0)
+                    }
+                    .padding(.vertical, 4)
+                    .accessibleGroup(label: viewModel.backupStatusMessage)
+                }
             } header: {
                 Text(L10n.Settings.importData)
             } footer: {
@@ -134,7 +149,12 @@ struct DataAndSyncSettingsView: View {
             // 缓存存储
             Section {
                 HStack {
-                    Text(L10n.Settings.mediaCacheUsage)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(L10n.Settings.mediaCacheUsage)
+                        Text(L10n.Settings.mediaCacheSubtitle)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     Spacer()
                     Text(cacheSize)
                         .foregroundStyle(.secondary)
@@ -143,7 +163,7 @@ struct DataAndSyncSettingsView: View {
                 Button(role: .destructive) {
                     showingClearCacheAlert = true
                 } label: {
-                    Text(L10n.Settings.clearCache)
+                    Label(L10n.Settings.clearCache, systemImage: "trash")
                 }
             } header: {
                 Text(L10n.Settings.storageSpace)
@@ -169,6 +189,7 @@ struct DataAndSyncSettingsView: View {
             backupTask?.cancel()
             restoreTask?.cancel()
             importTask?.cancel()
+            activeOperation = nil
         }
         .confirmationDialog(
             L10n.Settings.restoreDialogTitle,
@@ -192,6 +213,8 @@ struct DataAndSyncSettingsView: View {
                 guard let url = urls.first else { return }
                 restoreTask?.cancel()
                 restoreTask = Task {
+                    activeOperation = .restore
+                    defer { activeOperation = nil }
                     await viewModel.restoreFromBackup(fileURL: url)
                     if viewModel.backupError != nil {
                         showingBackupError = true
@@ -235,6 +258,8 @@ struct DataAndSyncSettingsView: View {
                 guard let url = urls.first else { return }
                 importTask?.cancel()
                 importTask = Task {
+                    activeOperation = .importCSV
+                    defer { activeOperation = nil }
                     await viewModel.importCSV(fileURL: url)
                     if viewModel.backupError != nil {
                         showingBackupError = true
@@ -255,6 +280,14 @@ struct DataAndSyncSettingsView: View {
     }
 
     // MARK: - Private Helpers
+
+    private var shouldShowBackupProgress: Bool {
+        viewModel.isBackupInProgress && activeOperation != .importCSV
+    }
+
+    private func isOperationActive(_ operation: DataOperation) -> Bool {
+        viewModel.isBackupInProgress && activeOperation == operation
+    }
 
     private func calculateCacheSize() {
         cacheCalculateTask?.cancel()
@@ -331,6 +364,72 @@ struct DataAndSyncSettingsView: View {
         formatter.allowedUnits = [.useKB, .useMB, .useGB]
         formatter.countStyle = .file
         return formatter.string(fromByteCount: bytes)
+    }
+}
+
+private enum DataOperation {
+    case backup
+    case restore
+    case importCSV
+}
+
+private struct DataNoticeRow: View {
+    let title: String
+    let message: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "externaldrive.badge.checkmark")
+                .font(.title3)
+                .foregroundStyle(.orange)
+                .frame(width: 28)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary)
+                Text(message)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+private struct DataActionRow: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    let tint: Color
+    let isLoading: Bool
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: systemImage)
+                .font(.headline)
+                .foregroundStyle(tint)
+                .frame(width: 30, height: 30)
+                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .foregroundStyle(.primary)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            if isLoading {
+                ProgressView()
+                    .controlSize(.small)
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 
