@@ -113,6 +113,17 @@ public struct ImageStorage: Sendable {
         return UIImage(contentsOfFile: fileURL.path)
     }
 
+    /// 返回已保存图片的文件 URL（不解码图片）。
+    ///
+    /// 供批量 ZIP 导出等文件级操作使用，避免把已脱敏的存盘 JPEG 解码成 `UIImage`
+    /// 再重新编码，降低大批量导出的内存峰值。
+    nonisolated public func imageFileURL(path: String) -> URL? {
+        guard Self.isSafeRelativeImagePath(path) else { return nil }
+        let fileURL = baseDirectory.appendingPathComponent(path)
+        guard FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
+        return fileURL
+    }
+
     /// 从本地加载图片（异步，后台线程）
     ///
     /// 在 `Task.detached` 中执行磁盘 I/O，避免阻塞主线程。
@@ -182,6 +193,19 @@ public struct ImageStorage: Sendable {
             }
         }
         return totalSize
+    }
+
+    nonisolated private static func isSafeRelativeImagePath(_ path: String) -> Bool {
+        guard !path.isEmpty,
+              !path.hasPrefix("/"),
+              !path.contains("\\") else {
+            return false
+        }
+        let components = path.split(separator: "/", omittingEmptySubsequences: false)
+        guard !components.isEmpty else { return false }
+        return components.allSatisfy { component in
+            !component.isEmpty && component != "." && component != ".."
+        }
     }
 
     // MARK: - Private Helpers

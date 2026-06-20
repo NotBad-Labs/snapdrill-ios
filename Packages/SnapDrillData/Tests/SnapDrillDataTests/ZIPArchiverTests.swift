@@ -79,4 +79,45 @@ struct ZIPArchiverTests {
         #expect(restoredManifest.profileCount == 0)
         #expect(restoredPayload.profiles.isEmpty)
     }
+
+    @Test("fileEntries 从磁盘文件按需创建可读 ZIP")
+    func createArchive_fileEntries_roundTrip() async throws {
+        let fileManager = FileManager.default
+        let workingDir = fileManager.temporaryDirectory
+            .appendingPathComponent("ZIPArchiverFileEntries_\(UUID().uuidString)", isDirectory: true)
+        try fileManager.createDirectory(at: workingDir, withIntermediateDirectories: true)
+        defer { try? fileManager.removeItem(at: workingDir) }
+
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSince1970: 0),
+            appVersion: "1.1.0",
+            totalItemCount: 0,
+            profileCount: 0,
+            profileNames: []
+        )
+        let payload = BackupPayload(profiles: [])
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+
+        let manifestURL = workingDir.appendingPathComponent("manifest-source.json")
+        let payloadURL = workingDir.appendingPathComponent("payload-source.json")
+        try encoder.encode(manifest).write(to: manifestURL)
+        try encoder.encode(payload).write(to: payloadURL)
+
+        let destination = workingDir.appendingPathComponent("file-entries.zip")
+        try ZIPArchiver().createArchive(
+            fileEntries: [
+                ZIPFileEntry(path: "manifest.json", fileURL: manifestURL),
+                ZIPFileEntry(path: "data.json", fileURL: payloadURL)
+            ],
+            at: destination
+        )
+
+        let service = BackupService()
+        let restoredManifest = try await service.readManifest(from: destination)
+        let restoredPayload = try await service.extractPayload(from: destination)
+        #expect(restoredManifest.schemaVersion == manifest.schemaVersion)
+        #expect(restoredPayload.profiles.isEmpty)
+    }
 }

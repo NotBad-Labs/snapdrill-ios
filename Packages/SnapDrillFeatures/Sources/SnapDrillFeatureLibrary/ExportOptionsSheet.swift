@@ -23,6 +23,7 @@ struct ExportOptionsSheet: View {
     let items: [ReviewExportSnapshot]
     @Environment(\.dismiss) private var dismiss
     @Environment(\.profileManager) private var profileManager
+    @Environment(\.services) private var services
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     @State private var showingPDFPreview = false
@@ -160,50 +161,51 @@ struct ExportOptionsSheet: View {
 
         isExportingZIP = true
         let storage = imageStorage
+        let activityTracker = services.activityTracker
+        let zipName = "SnapDrill_Images_\(Date().filenameDateString).zip"
 
-        Task.detached {
+        Task {
+            activityTracker.begin(.exporting)
+            defer {
+                activityTracker.end(.exporting)
+                isExportingZIP = false
+            }
             do {
-                let tempDir = FileManager.default.temporaryDirectory
-                let zipName = "SnapDrill_Images_\(Date().filenameDateString).zip"
-                let zipURL = tempDir.appendingPathComponent(zipName)
+                let zipURL = try await Task.detached(priority: .userInitiated) {
+                    let tempDir = FileManager.default.temporaryDirectory
+                    let zipURL = tempDir.appendingPathComponent(zipName)
 
-                var entries: [ZIPEntry] = []
-                for (index, path) in imagePaths.enumerated() {
-                    guard let image = storage.loadImage(path: path),
-                          let data = image.jpegData(compressionQuality: 0.9) else {
-                        continue
+                    var entries: [ZIPFileEntry] = []
+                    for (index, path) in imagePaths.enumerated() {
+                        guard let fileURL = storage.imageFileURL(path: path) else {
+                            continue
+                        }
+                        let fileName = "\(index + 1)_\(URL(fileURLWithPath: path).lastPathComponent)"
+                        entries.append(ZIPFileEntry(path: fileName, fileURL: fileURL))
                     }
-                    let fileName = "\(index + 1)_\(URL(fileURLWithPath: path).lastPathComponent)"
-                    entries.append(ZIPEntry(path: fileName, data: data))
-                }
 
-                // 全部图片加载失败 → entries 为空，不打包空 ZIP 假装成功
-                guard !entries.isEmpty else {
-                    SnapDrillLogger.generic.error("ZIP 导出失败: 所有图片加载失败，无可导出内容")
-                    await MainActor.run {
-                        self.isExportingZIP = false
-                        self.showExportError = true
+                    // 全部图片加载失败 → entries 为空，不打包空 ZIP 假装成功
+                    guard !entries.isEmpty else {
+                        throw ZIPExportError.noReadableImages
                     }
-                    return
-                }
 
-                let archiver = ZIPArchiver()
-                try archiver.createArchive(entries: entries, at: zipURL)
+                    let archiver = ZIPArchiver()
+                    try archiver.createArchive(fileEntries: entries, at: zipURL)
+                    return zipURL
+                }.value
 
-                await MainActor.run {
-                    self.zipURL = zipURL
-                    self.isExportingZIP = false
-                    self.isShowingZIPShare = true
-                }
+                self.zipURL = zipURL
+                self.isShowingZIPShare = true
             } catch {
                 SnapDrillLogger.generic.error("ZIP 导出失败: \(error.localizedDescription)")
-                await MainActor.run {
-                    self.isExportingZIP = false
-                    self.showExportError = true
-                }
+                self.showExportError = true
             }
         }
     }
+}
+
+private enum ZIPExportError: Error {
+    case noReadableImages
 }
 
 private struct ExportOptionLabel: View {
