@@ -20,7 +20,7 @@ freshness:
 ```
 Configs/Shared.xcconfig
 ├── MARKETING_VERSION = 1.1.0    ← App Store 显示版本
-└── CURRENT_PROJECT_VERSION = 5  ← Build 号（每次提交递增）
+└── CURRENT_PROJECT_VERSION = 6  ← Build 号（每次提交递增）
 ```
 
 **铁律**：只改 `Shared.xcconfig`，不在 Xcode Target 设置中改版本号。
@@ -115,6 +115,20 @@ Claude 维护本文件中的发版检查清单并汇总各方结果：
 - 真机产品验收与最终 go/no-go：PO
 
 任何一方发现未满足项都应记录证据；Claude负责分诊与追踪，但无权代替 PO 发布，也无权改变 Codex 已确定的视觉方案。
+
+### 当前发布实证快照（2026-06-20）
+
+已验证：
+
+- `xcodebuild archive -scheme SnapDrill -configuration Release -destination 'generic/platform=iOS'` 成功产出 `/tmp/SnapDrill-20260621001406.xcarchive`。
+- Archive 属性：`CFBundleIdentifier = com.snapdrill.global`，`CFBundleShortVersionString = 1.1.0`，`CFBundleVersion = 6`，`Team = J58U72W335`，`SigningIdentity = Apple Development: Yiming Liao (PBRAUAP3KL)`。
+- 主 App 与 Share Extension entitlements 均为 `J58U72W335.*`，并包含 `group.com.snapdrill.global`。
+
+未验证 / 不得视为已完成：
+
+- 本机 keychain 仅发现 Apple Development identity，未发现 Apple Distribution identity；TestFlight / App Store distribution signing、export、upload 尚未验证。
+- `xcrun devicectl list devices` 能看到两台 iPhone 17，但状态均为 `unavailable`；真机安装、启动、Capture / Export / Print dogfood 尚未验证。
+- 当前主 App 与 Share Extension archive 的 `UIDeviceFamily = [1]`，即 iPhone-only；iPad / 通用发行需 PO 决策、target family 配置变更和 UI dogfood 后再进入发版口径。
 
 ### TestFlight（内部测试）
 
