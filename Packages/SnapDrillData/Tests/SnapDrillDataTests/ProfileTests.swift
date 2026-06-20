@@ -159,3 +159,26 @@ struct ProfileErrorTests {
         #expect(manager.activeRepositories.scope.id == nextProfile.id)
     }
 }
+
+@Suite("ProfileManager per-profile preferences")
+struct ProfileManagerPreferenceTests {
+
+    @Test("切换 Profile 前清理 per-profile keys，避免草稿 metadata 串档")
+    func clearPerProfileValues_removesDraftMetadataAndDynamicVisibilityOnly() throws {
+        let suiteName = "ProfileManagerPreferenceTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        defaults.set(Data("draft".utf8), forKey: UDKey.captureDraftMetadata)
+        defaults.set(true, forKey: UDKey.captureFieldSubject)
+        defaults.set(true, forKey: "\(CategoryDimensionModel.visibilityKeyPrefix)test")
+        defaults.set("keep", forKey: "unrelated.global.key")
+
+        ProfileManager.clearPerProfileValues(in: defaults)
+
+        #expect(defaults.object(forKey: UDKey.captureDraftMetadata) == nil)
+        #expect(defaults.object(forKey: UDKey.captureFieldSubject) == nil)
+        #expect(defaults.object(forKey: "\(CategoryDimensionModel.visibilityKeyPrefix)test") == nil)
+        #expect(defaults.string(forKey: "unrelated.global.key") == "keep")
+    }
+}
