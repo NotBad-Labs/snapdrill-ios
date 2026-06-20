@@ -213,12 +213,10 @@ public final class ProfileManager {
             throw .switchBlocked(reason: reason)
         }
 
-        // 1. 保存当前 Profile 的偏好；清旧 Profile 动态可见性 key（已落盘）防泄漏（只在切换清、不在 init 清，否则单 Profile 重启丢未落盘可见性）
+        // 1. 保存当前 Profile 的偏好；清旧 Profile 的 per-profile keys（已落盘）防泄漏。
+        //    只在切换清，不在 init 清；否则单 Profile 重启会丢仍只存在于 UserDefaults 的现行偏好。
         savePreferences(for: activeProfileId)
-        let standardForClear = UserDefaults.standard
-        for key in standardForClear.dictionaryRepresentation().keys where key.hasPrefix(CategoryDimensionModel.visibilityKeyPrefix) {
-            standardForClear.removeObject(forKey: key)
-        }
+        Self.clearPerProfileValues(in: .standard)
 
         // 2. 准备 ProfileScope
         let scope = scopesByProfileId[profileId]
