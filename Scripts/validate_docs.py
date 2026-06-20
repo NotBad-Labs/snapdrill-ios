@@ -34,9 +34,74 @@ POSITIONING_RESET_CLAIMS = {
 }
 
 STALE_ALLOWED = set(HISTORICAL_ADRS)
+GENERATED_DOCS = {
+    DOCS_ROOT / "reference" / "feature-status.md",
+    DOCS_ROOT / "reference" / "intent-traceability.md",
+}
+POSITIONING_POLICY_DOCS = {
+    DOCS_ROOT / "explanations" / "positioning-and-audience.md",
+}
+LEGAL_OR_FACT_GATED_DOCS = {
+    DOCS_ROOT / "reference" / "appstore-metadata.md",
+    DOCS_ROOT / "explanations" / "privacy-compliance.md",
+    DOCS_ROOT / "explanations" / "competitive-analysis.md",
+    DOCS_ROOT / "decisions" / "ADR-005-analytics-privacy-strategy.md",
+}
+POST_PIVOT_BASELINE = "2026-06-13"
 VISION_REF_PATTERN = re.compile(r"^vision:P([1-9][0-9]*)$")
 ADR_REF_PATTERN = re.compile(r"^ADR-[0-9]{3}$")
 HEADING_PATTERN = re.compile(r"^#+\s+(.+?)\s*$", re.MULTILINE)
+FRONTMATTER_DATE_PATTERN = re.compile(
+    r"^(last_verified|last_updated):\s*([0-9]{4}-[0-9]{2}-[0-9]{2})$",
+    re.MULTILINE,
+)
+
+POSITIONING_TERMS = {
+    "儿童",
+    "学生",
+    "同学",
+    "作业",
+    "children",
+    "kids",
+    "student",
+    "students",
+    "homework",
+}
+TAXONOMY_TERMS = {"学科", "年级"}
+NEGATION_MARKERS = {
+    "避免",
+    "不得",
+    "不面向",
+    "不建立",
+    "不表达",
+    "不预期",
+    "不对外呈现",
+    "不要求",
+    "不进入",
+    "不申请",
+    "不是",
+    "非",
+    "avoid",
+    "do not",
+    "does not",
+    "not ",
+    "not-",
+    "non-",
+}
+POSITIVE_POSITIONING_PATTERNS = [
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"面向.*(儿童|学生|同学)",
+        r"(儿童|学生)作业(工具|App|应用)",
+        r"作业(工具|App|应用)",
+        r"(儿童|学生)(用户|市场)",
+        r"错题本\s*App",
+        r"错题工具",
+        r"homework-first",
+        r"for\s+(students|kids|children)",
+        r"children'?s\s+homework",
+    )
+]
 
 
 def rel(path: Path) -> str:
@@ -85,6 +150,59 @@ def line_number(text: str, needle: str) -> int:
     if index == -1:
         return 1
     return text[:index].count("\n") + 1
+
+
+def is_under(path: Path, directory: Path) -> bool:
+    try:
+        path.relative_to(directory)
+    except ValueError:
+        return False
+    return True
+
+
+def should_skip_positioning_term_scan(path: Path) -> bool:
+    return (
+        path in HISTORICAL_ADRS
+        or path in GENERATED_DOCS
+        or path in POSITIONING_POLICY_DOCS
+        or is_under(path, DOCS_ROOT / "ui-redesign")
+    )
+
+
+def is_current_or_active_doc(path: Path) -> bool:
+    if should_skip_positioning_term_scan(path):
+        return False
+    return path.suffix == ".md" and is_under(path, DOCS_ROOT)
+
+
+def has_any(haystack: str, needles: set[str]) -> bool:
+    lower = haystack.lower()
+    return any(needle.lower() in lower for needle in needles)
+
+
+def classify_positioning_line(path: Path, line: str) -> tuple[str | None, str | None]:
+    """Classify one line for post-pivot positioning drift.
+
+    Only explicit positive positioning regressions are hard errors. Ambiguous
+    term hits stay warnings so this heuristic gate cannot block PRs on uncertain
+    natural-language interpretation.
+    """
+    if not has_any(line, POSITIONING_TERMS | TAXONOMY_TERMS):
+        return None, None
+
+    if has_any(line, NEGATION_MARKERS):
+        return None, None
+
+    if path in LEGAL_OR_FACT_GATED_DOCS:
+        return "warning", "legal/fact-gated positioning term requires owner review"
+
+    if any(pattern.search(line) for pattern in POSITIVE_POSITIONING_PATTERNS):
+        return "error", "positive pre-pivot positioning term"
+
+    if has_any(line, TAXONOMY_TERMS):
+        return "warning", "taxonomy term requires PO context, not a hard fail"
+
+    return "warning", "ambiguous positioning term requires human review"
 
 
 def heading_slug(heading: str) -> str:
@@ -180,6 +298,42 @@ def validate_positioning_resets(errors: list[str]) -> None:
                 )
 
 
+def validate_contextual_positioning_terms(
+    errors: list[str], warnings: list[str]
+) -> None:
+    for path in sorted(DOCS_ROOT.rglob("*.md")):
+        if not is_current_or_active_doc(path):
+            continue
+        for number, line in enumerate(read(path).splitlines(), start=1):
+            severity, message = classify_positioning_line(path, line)
+            if severity is None or message is None:
+                continue
+            rendered = f"{rel(path)}:{number} {message}: {line.strip()}"
+            if severity == "error":
+                errors.append(rendered)
+            else:
+                warnings.append(rendered)
+
+
+def validate_frontmatter_freshness(warnings: list[str]) -> None:
+    for path in sorted(DOCS_ROOT.rglob("*.md")):
+        if not is_current_or_active_doc(path):
+            continue
+        text = read(path)
+        match = FRONTMATTER_DATE_PATTERN.search(text)
+        if match is None:
+            continue
+        verified_date = match.group(2)
+        if verified_date >= POST_PIVOT_BASELINE:
+            continue
+        if "review_gate:" in text or "audit_note:" in text:
+            continue
+        warnings.append(
+            f"{rel(path)}:{line_number(text, verified_date)} frontmatter date "
+            f"{verified_date} predates post-pivot baseline {POST_PIVOT_BASELINE}"
+        )
+
+
 def validate_feature_intent(errors: list[str]) -> None:
     for path in sorted((DOCS_ROOT / "features").rglob("feat-*.md")):
         if path.name == "template.md":
@@ -205,11 +359,21 @@ def validate_feature_intent(errors: list[str]) -> None:
 
 def run_checks() -> list[str]:
     errors: list[str] = []
+    warnings: list[str] = []
     validate_historical_adrs(errors)
     validate_stale_claims(errors)
     validate_positioning_resets(errors)
+    validate_contextual_positioning_terms(errors, warnings)
     validate_feature_intent(errors)
     return errors
+
+
+def run_warnings() -> list[str]:
+    warnings: list[str] = []
+    errors: list[str] = []
+    validate_contextual_positioning_terms(errors, warnings)
+    validate_frontmatter_freshness(warnings)
+    return warnings
 
 
 def main(argv: Iterable[str] | None = None) -> int:
@@ -218,6 +382,9 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.parse_args(argv)
 
     errors = run_checks()
+    warnings = run_warnings()
+    for warning in warnings:
+        print(f"[warning] {warning}", file=sys.stderr)
     if errors:
         for error in errors:
             print(f"[error] {error}", file=sys.stderr)

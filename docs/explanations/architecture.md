@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-11
+last_verified: 2026-06-20
 layer: pattern
 freshness:
   max_age_days: 180
@@ -233,7 +233,7 @@ SwiftData @Model（持久化）
 ProfileManager 采用 Vault 模式：
 - 每个 Profile 拥有独立的 SwiftData ModelContainer + 图片存储目录
 - 切换 Profile 时重建 ModelContainer 和 RepositoryContainer
-- **切换保护**：`ProfileManager.switchProfile` 先检查 `AppActivityTracker.shared.switchBlockReason`，有进行中操作时拒绝切换并返回阻塞原因。`AppActivityTracker`（SnapDrillCore/Support）定义了 `begin/end` 活动跟踪 API 和 `canSwitchProfile` / `switchBlockReason` 查询 API。已接入：采集流程（CaptureViewModel / CaptureResultViewModel）、导出/打印、备份/恢复（SettingsViewModel）
+- **切换保护**：`ProfileManager.switchProfile` 先检查 `AppActivityTracker.shared.switchBlockReason`，有进行中操作时拒绝切换并返回阻塞原因。`AppActivityTracker`（SnapDrillCore/Support）定义了 `begin/end` 活动跟踪 API 和 `canSwitchProfile` / `switchBlockReason` 查询 API。目标态为采集、导出/打印、备份/恢复全部接入；当前实现以 feature spec 的缺口记录为准：采集已接入，导出预览/备份恢复仍需核对实例一致性（`feat-profile.md` KI-01 / GAP-R4），快速打印尚未接入 `.printing` tracker（`feat-export.md` GAP-R4）。
 - **Per-Profile UserDefaults 隔离**：字段配置（开启的系统字段）、自动推断历史、复习目标等由 `ProfileManager` 内部通过 `perProfileKeys` 等机制管理（`savePreferences`/`loadPreferences` 为内部实现），切换 Profile 时自动保存/加载
 - **全局状态**：Onboarding 完成、VoiceOver 设置不随 Profile 切换
 - **Profile 级 TipKit**：ReviewSwipeTip / FieldConfigTip 通过 ProfileTipState 管理，按 Profile 隔离（#532 已修复）；设备级 Tip 基础设施保留 TipKit

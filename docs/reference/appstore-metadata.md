@@ -9,6 +9,7 @@ gap_type: placeholder
 gap_due: app_store_submission
 gap_owner: product
 gap_evidence_required: 真实 ASO 文案 / App Store Connect 元数据
+review_gate: PO / legal / ASO final review required; do not treat last_verified as submission approval
 ---
 # App Store 元数据（ASO 文案）
 

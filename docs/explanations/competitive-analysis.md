@@ -6,6 +6,7 @@ gap_type: time_sensitive_external
 gap_due: 2026-09-30
 gap_owner: product
 gap_evidence_required: 竞品（Anki / GoodNotes / Notion / Apple Notes）当季最新功能与定价
+review_gate: product fact refresh required before updating competitor claims; last_verified intentionally not refreshed by docs cleanup
 ---
 # SnapDrill 竞品分析
 
