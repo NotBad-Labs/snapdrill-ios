@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-06-20
 layer: principle
 ---
 # 设计原则与全局规范
@@ -20,7 +20,7 @@ layer: principle
 
 ```
 ┌─────────────────────────────┐
-│   智能复习（锦上添花）          │  ← Kano: Excitement / Could
+│   智能回顾（锦上添花）          │  ← Kano: Excitement / Could
 ├─────────────────────────────┤
 │   增强导出打印（价值链增值）     │  ← Kano: Performance / Should
 ├─────────────────────────────┤
@@ -32,7 +32,7 @@ layer: principle
 
 **导出分层**：基础导出（PDF/JSON/CSV）是 P4 数据所有权的 Must，缺失 = 数据被锁在 App 中。增强导出打印（去答案、留白、组卷）是 Performance/Should。
 
-**设计铁律**：任何功能如果损害了"录入"和"管理"的简洁性，就不该做。导出/打印是核心价值链终点（纸质练习卷）。复习是可选留存层，智能组卷是导出/打印的 Pro 增值延伸。
+**设计铁律**：任何功能如果损害了"录入"和"管理"的简洁性，就不该做。导出/打印是核心价值链终点（纸质资料 / 打印资料）。回顾是可选留存层，智能组卷是导出/打印的 Pro 增值延伸。
 
 ### 情绪基调
 
@@ -58,7 +58,7 @@ Vision 列出 8 项可度量信号；本段把它们映射到具体设计承诺�
 | 首次录入效率（含 onboarding） | §信息架构 / 字段配置规格（默认开启字段最少，见 `../features/active/feat-capture.md`） / Onboarding 不强制配置（见 `../features/active/feat-onboarding.md`） |
 | 首次录入效率（进入采集页后） | OCR 定位（不强迫校对）/ 连续录入设计 / 一图多题（拆题不阻塞保存），均见 `../features/active/feat-capture.md` |
 | 持续录入行为 | 连续录入设计 / 字段配置（按需开启）/ 草稿恢复，均见 `../features/active/feat-capture.md` |
-| 激活深度 | 字段配置（见 `../features/active/feat-capture.md`）/ 批量操作（见 `../features/active/feat-library.md`）/ 复习（见 `../features/active/feat-review.md`） |
+| 激活深度 | 字段配置（见 `../features/active/feat-capture.md`）/ 批量操作（见 `../features/active/feat-library.md`）/ 回顾（见 `../features/active/feat-review.md`） |
 | Multi-Profile 可用性 | 多 Profile 设计 / 数据隔离边界（S0 监控），见 `../features/active/feat-profile.md` |
 | 成果分发 | 导出与打印（系统分享菜单非社交分享），见 `../features/active/feat-export.md` |
 | 价值链完成率 | 导出与打印（PDF 主路径，见 `../features/active/feat-export.md`）/ 智能组卷（Pro 增值，见 `../features/backlog/feat-smartpaper.md`） |
@@ -75,18 +75,18 @@ Vision 列出 8 项可度量信号；本段把它们映射到具体设计承诺�
 为保持导航架构的极致简洁（P2 简洁）和降低认知负荷，采集入口作为标准 Tab 而非自定义突出按钮。
 如未来用户反馈可发现性不足，可评估 FAB 方案——参考 Apple Reminders / Journal 的做法。
 
-复习是可选留存层（非核心价值链），但因其使用频率足以支撑独立 Tab，故既有独立 Tab（主入口），也在 Dashboard 提供"今日待复习 N 题"快捷入口，两者并存。本版用户旅程未单列复习流程，其价值假设由 `assumptions.md` H9 承接。
+回顾是可选留存层（非核心价值链），但因其使用频率足以支撑独立 Tab，故既有独立 Tab（主入口），也在 Dashboard 提供待回顾快捷入口，两者并存。本版用户旅程未单列回顾流程，其价值假设由 `assumptions.md` H9 承接。
 
 ### Dashboard 设计角色
 
 Dashboard 是用户打开 App 后的第一屏，定位是**状态总览 + 快捷入口**，不是功能操作界面：
-- 展示当前 Profile 的核心统计（题目总数、待复习数、已复习数、今日新增）
-- 展示待复习数量和快捷入口
+- 展示当前 Profile 的核心统计（资料总数、待回顾数、已回顾数、今日新增）
+- 展示待回顾数量和快捷入口
 - 问候语 + 用户昵称（个性化但不过度）
 - 不在 Dashboard 做录入或管理操作——录入走采集 Tab，管理走题库 Tab
 
 **Dashboard 文案防焦虑约束**（承接 vision §不贩卖焦虑）：
-- 数字只显示**中性事实**（题目总数 / 今日新增 N / 待复习 N）
+- 数字只显示**中性事实**（资料总数 / 今日新增 N / 待回顾 N）
 - **不**附带「比昨天少了 / 完成度 X% / 距目标还差 N 题」类比较或进度推送
 - **不**用红色 / 警告色 / 感叹号渲染数字
 - 「今日新增」语义仅是事实计数，不是「打卡」「冲量」隐喻

@@ -5,6 +5,7 @@ freshness:
   max_age_days: 180
   decay_trigger: [privacy_policy_change, app_review_change]
 audit_note: 2026-06-13 校准 — 本文件为仓库内合规口径索引；不再引用私有 agent skill 名称作为权威来源
+review_gate: legal review required before changing legal conclusions; last_verified intentionally not refreshed by docs cleanup
 ---
 # 隐私合规
 

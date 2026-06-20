@@ -121,6 +121,66 @@ class ValidateDocsTests(unittest.TestCase):
             errors,
         )
 
+    def test_positive_positioning_terms_fail_closed(self) -> None:
+        path = validate_docs.DOCS_ROOT / "features" / "active" / "feat-library.md"
+
+        severity, message = validate_docs.classify_positioning_line(
+            path,
+            "SnapDrill 是面向学生的儿童作业工具。",
+        )
+
+        self.assertEqual(severity, "error")
+        self.assertEqual(message, "positive pre-pivot positioning term")
+
+    def test_negation_and_guardrail_contexts_do_not_fail(self) -> None:
+        path = validate_docs.DOCS_ROOT / "features" / "active" / "feat-library.md"
+
+        examples = [
+            "避免把资料库描述成儿童、作业或校园专用场景。",
+            "SnapDrill 不面向儿童。",
+            "Profile 不表达为儿童、学生或独立账号。",
+            "不建立儿童账户或儿童模式。",
+        ]
+
+        for line in examples:
+            with self.subTest(line=line):
+                severity, message = validate_docs.classify_positioning_line(path, line)
+                self.assertIsNone(severity)
+                self.assertIsNone(message)
+
+    def test_taxonomy_terms_are_warning_only(self) -> None:
+        path = validate_docs.DOCS_ROOT / "features" / "active" / "feat-library.md"
+
+        severity, message = validate_docs.classify_positioning_line(
+            path,
+            "字段配置支持学科 / 年级 / 来源。",
+        )
+
+        self.assertEqual(severity, "warning")
+        self.assertEqual(message, "taxonomy term requires PO context, not a hard fail")
+
+    def test_historical_adr_and_ui_redesign_are_excluded_from_term_scan(self) -> None:
+        adr_path = validate_docs.DOCS_ROOT / "decisions" / "ADR-003-dual-region-release.md"
+        redesign_path = (
+            validate_docs.DOCS_ROOT / "ui-redesign" / "library-flagship-polish-plan.md"
+        )
+        generated_path = validate_docs.DOCS_ROOT / "reference" / "feature-status.md"
+
+        self.assertTrue(validate_docs.should_skip_positioning_term_scan(adr_path))
+        self.assertTrue(validate_docs.should_skip_positioning_term_scan(redesign_path))
+        self.assertTrue(validate_docs.should_skip_positioning_term_scan(generated_path))
+
+    def test_legal_gated_docs_warn_instead_of_fail(self) -> None:
+        path = validate_docs.DOCS_ROOT / "reference" / "appstore-metadata.md"
+
+        severity, message = validate_docs.classify_positioning_line(
+            path,
+            "SnapDrill is a productivity utility for homework.",
+        )
+
+        self.assertEqual(severity, "warning")
+        self.assertEqual(message, "legal/fact-gated positioning term requires owner review")
+
     def test_current_repo_docs_pass(self) -> None:
         self.assertEqual(validate_docs.run_checks(), [])
 
