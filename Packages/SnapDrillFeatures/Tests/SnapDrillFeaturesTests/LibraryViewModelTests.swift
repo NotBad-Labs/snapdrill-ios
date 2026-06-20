@@ -180,6 +180,29 @@ final class LibraryViewModelTests {
         #expect(vm.filteredItems.count == 1)
     }
 
+    @Test("loadMore 在筛选后只追加当前筛选结果")
+    func loadMore_afterFilterChangeAppendsOnlyMatchingItems() async throws {
+        seedDimensions()
+        for i in 0..<55 {
+            insertItem(content: "数学题\(i)", subjectValue: "数学")
+            insertItem(content: "英语题\(i)", subjectValue: "英语")
+        }
+        try repos.review.saveContext()
+
+        let vm = createVM()
+        await vm.loadDataAsync()
+        let subjectDim = try #require(vm.dimension(forSystemKey: CategorySystemKey.subject))
+        let mathValue = try #require((vm.valuesByDimension[subjectDim.id] ?? []).first { $0.name == "数学" })
+
+        vm.toggleFilter(mathValue.id, inDimension: subjectDim.id)
+        await vm.refreshData()
+        #expect(vm.filteredItems.count == 50)
+
+        await vm.loadMore()
+        #expect(vm.filteredItems.count == 55)
+        #expect(vm.filteredItems.allSatisfy { $0.subjectCategoryName == "数学" })
+    }
+
     // MARK: - 删除
 
     @Test("softDeleteItems 单条软删除并从列表移除")
