@@ -54,6 +54,17 @@ struct ImageStorageTests {
         #expect(result == nil)
     }
 
+    @Test("imageFileURL 返回已保存图片 URL 且拒绝路径穿越")
+    func imageFileURL_existingFileAndTraversal() async throws {
+        let path = try await storage.saveImage(createTestImage(width: 50, height: 50))
+        defer { try? FileManager.default.removeItem(at: testDir) }
+
+        let url = try #require(storage.imageFileURL(path: path))
+        #expect(FileManager.default.fileExists(atPath: url.path))
+        #expect(storage.imageFileURL(path: "../outside.jpg") == nil)
+        #expect(storage.imageFileURL(path: "/tmp/outside.jpg") == nil)
+    }
+
     // MARK: - compressedJPEGData & saveImage
 
     @Test("compressedJPEGData 长边未超限时直接编码不缩放")

@@ -26,6 +26,19 @@ nonisolated public struct ZIPEntry: Sendable {
     }
 }
 
+/// ZIP 打包文件条目（从现有文件按需读取，避免把大文件常驻内存）。
+nonisolated public struct ZIPFileEntry: Sendable {
+    /// 归档内相对路径（如 "images/001.jpg"）
+    public let path: String
+    /// 源文件 URL
+    public let fileURL: URL
+
+    public init(path: String, fileURL: URL) {
+        self.path = path
+        self.fileURL = fileURL
+    }
+}
+
 /// 通用 ZIP 打包工具
 ///
 /// 封装 ZIPFoundation，提供面向业务语义的简单 API。
@@ -41,6 +54,53 @@ nonisolated public struct ZIPArchiver: Sendable {
     ///   - destination: 目标 ZIP 文件 URL（已存在则原子替换）
     /// - Throws: Archive 创建或写入失败时抛出
     public func createArchive(entries: [ZIPEntry], at destination: URL) throws {
+        try createArchive(at: destination) { archive in
+            for entry in entries {
+                try autoreleasepool {
+                    try archive.addEntry(
+                        with: entry.path,
+                        type: .file,
+                        uncompressedSize: Int64(entry.data.count),
+                        compressionMethod: .deflate,
+                        provider: { position, size in
+                            entry.data[Int(position) ..< Int(position) + size]
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    /// 创建 ZIP 文件，条目内容从现有文件按需读取。
+    ///
+    /// 图片批量导出使用此入口，避免把所有 JPEG 解码成 `UIImage` 或一次性保存在
+    /// `[Data]` 中。调用方仍负责提供稳定、已验证可读的文件 URL。
+    public func createArchive(fileEntries: [ZIPFileEntry], at destination: URL) throws {
+        try createArchive(at: destination) { archive in
+            for entry in fileEntries {
+                try autoreleasepool {
+                    let values = try entry.fileURL.resourceValues(forKeys: [.fileSizeKey])
+                    guard let fileSize = values.fileSize else {
+                        throw CocoaError(.fileReadUnknown)
+                    }
+                    let handle = try FileHandle(forReadingFrom: entry.fileURL)
+                    defer { try? handle.close() }
+                    try archive.addEntry(
+                        with: entry.path,
+                        type: .file,
+                        uncompressedSize: Int64(fileSize),
+                        compressionMethod: .deflate,
+                        provider: { position, size in
+                            try handle.seek(toOffset: UInt64(position))
+                            return handle.readData(ofLength: size)
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    private func createArchive(at destination: URL, writeEntries: (Archive) throws -> Void) throws {
         let fileManager = FileManager.default
         let temporaryDestination = destination.appendingPathExtension("tmp")
 
@@ -49,20 +109,7 @@ nonisolated public struct ZIPArchiver: Sendable {
         do {
             do {
                 let archive = try Archive(url: temporaryDestination, accessMode: .create)
-
-                for entry in entries {
-                    try autoreleasepool {
-                        try archive.addEntry(
-                            with: entry.path,
-                            type: .file,
-                            uncompressedSize: Int64(entry.data.count),
-                            compressionMethod: .deflate,
-                            provider: { position, size in
-                                entry.data[Int(position) ..< Int(position) + size]
-                            }
-                        )
-                    }
-                }
+                try writeEntries(archive)
             }
 
             if fileManager.fileExists(atPath: destination.path) {
