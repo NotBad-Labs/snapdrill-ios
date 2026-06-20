@@ -20,9 +20,9 @@
 
 SnapDrill：一款 SwiftUI 单平台 iOS 通用效率工具。扫描、归档、整理题目与文档，完成 OCR → 分类 → 回顾 → 导出/打印；产品内核可继续为试卷/错题场景优化，但不对外呈现为儿童教育 App。
 
-- **平台**：iOS 26.0+，iPad / iPhone 通用，原生 SwiftUI，Swift 6.3 strict concurrency
+- **平台**：iOS 26.0+，当前 shipping target 为 iPhone-only（`TARGETED_DEVICE_FAMILY = 1`）；iPad / 通用发行需 PO 决策与 UI dogfood 后再开启；原生 SwiftUI，Swift 6.3 strict concurrency
 - **价值链**：采集 > 管理 > 导出/打印（复习是独立附加值）
-- **生产基线**：美国 NotBad Labs L.L.C. Team `J58U72W335` + Bundle `com.snapdrill.global`；真机签名已验证。国内路线暂时挂起，相关资源保留可复活
+- **生产基线**：美国 NotBad Labs L.L.C. Team `J58U72W335` + Bundle `com.snapdrill.global`；Release Archive + Development signing 已验证，真机安装运行与 TestFlight / App Store distribution signing 待验。国内路线暂时挂起，相关资源保留可复活
 - **状态**：核心闭环约 90% 完成；零上架零用户；Pro/同步阻塞 #479（StoreKit）/ #485（CloudKit 同步）/ #486（Word 导出），均可延后
 - **架构铁律**：单向依赖向下，Core 层零外部依赖
 
@@ -174,9 +174,9 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 
 SnapDrill = 一个产品 + 两区域发行版（非两独立产品）。完整决策见 `docs/decisions/ADR-003-dual-region-release.md`。
 
-> **🔁 PIVOT 2026-06-09（PO 决策）**：**暂时挂起（非删除）国内大陆路线**，改用**美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`，Organization）做全球版生产**。工程已切到 `com.snapdrill.global`（真机签名实证通过）。下方"国内 first"脉络保留，但**当前生产基线 = 美国全球版**。国内个人账号/标识符保留可复活（续费 deadline 2027-01，见运营待决）。
+> **🔁 PIVOT 2026-06-09（PO 决策）**：**暂时挂起（非删除）国内大陆路线**，改用**美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`，Organization）做全球版生产**。工程已切到 `com.snapdrill.global`；2026-06-20 已验证命令行 Release Archive + Development signing，真机安装运行与 TestFlight / App Store distribution signing 待验。下方"国内 first"脉络保留，但**当前生产基线 = 美国全球版**。国内个人账号/标识符保留可复活（续费 deadline 2027-01，见运营待决）。
 
-- **当前生产签名**：Team `J58U72W335`（美国 NotBad Labs L.L.C.）+ Bundle `com.snapdrill.global` + App Group `group.com.snapdrill.global`；Automatic Signing；已删未用的 iCloud/CloudKit entitlement。
+- **当前生产签名**：Team `J58U72W335`（美国 NotBad Labs L.L.C.）+ Bundle `com.snapdrill.global` + App Group `group.com.snapdrill.global`；Automatic Signing；已删未用的 iCloud/CloudKit entitlement。Release archive 使用 Apple Development identity 与 `iOS Team Provisioning Profile: com.snapdrill.global` 成功；本机 keychain 尚无 Apple Distribution identity。
 - **挂起的国内资源**（保留勿删、可复活）：Bundle `com.snapdrill.app` / iCloud `iCloud.com.snapdrill.app` / App Group `group.com.snapdrill.app` / 个人 Team `W5A8THDKW8`。
 - **官网**：`notbadhq.com/snapdrill`（子目录非子域名）
 
