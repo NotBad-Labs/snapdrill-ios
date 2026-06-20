@@ -13,6 +13,13 @@ import Observation
 import SnapDrillCore
 import SnapDrillData
 
+private struct LibraryQueryState: Equatable {
+    let searchText: String
+    let valueIdsByDimension: [UUID: Set<UUID>]
+    let difficulties: Set<Int>
+    let sortOption: LibrarySortOption
+}
+
 /// 题库列表排序选项
 public enum LibrarySortOption: String, CaseIterable, Identifiable {
     /// 按创建时间倒序（最新在前）
@@ -59,7 +66,7 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
 /// 题库列表 ViewModel
 ///
 /// 管理多维度过滤（搜索文本、学科、标签）、分页加载和数据刷新逻辑。
-/// 由于 SwiftData many-to-many Predicate 限制，过滤在内存端完成。
+/// 维度值过滤由 Data 层先缩小候选集，再按 many-to-many 语义校验；分页写回前会确认查询条件未变化。
 @Observable
 public final class LibraryViewModel {
 
@@ -123,6 +130,15 @@ public final class LibraryViewModel {
     /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
     private var refreshTask: Task<Void, Never>?
+
+    private var currentQueryState: LibraryQueryState {
+        LibraryQueryState(
+            searchText: searchText,
+            valueIdsByDimension: selectedValueIdsByDimension,
+            difficulties: selectedDifficulties,
+            sortOption: sortOption
+        )
+    }
 
     // MARK: - Initialization
 
@@ -220,8 +236,8 @@ public final class LibraryViewModel {
         // fetch 前丢弃已取消任务：Task.cancel() 只置标志、不抢占已入队任务。
         // 主要拦截「已过 scheduleRefresh 的 guard、fetch 前才被取消」的窄窗任务，避免它跑完整内存全量 fetch（仅写回前丢结果=浪费）。
         guard !Task.isCancelled else { return }
+        let requestState = currentQueryState
         do {
-            currentPage = 0
             let results = try repositories.review.fetchFilteredModels(
                 searchText: searchText,
                 valueIdsByDimension: selectedValueIdsByDimension,
@@ -232,7 +248,8 @@ public final class LibraryViewModel {
                 offset: 0
             )
 
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled, currentQueryState == requestState else { return }
+            currentPage = 0
             self.filteredItems = results
             self.hasMore = results.count == pageSize
             self.errorMessage = nil
@@ -252,6 +269,7 @@ public final class LibraryViewModel {
             // 先计算下一页索引，fetch 成功后再写回 currentPage，
             // 避免 fetch 抛出异常时 currentPage 已递增导致后续跳页。
             let nextPage = currentPage + 1
+            let requestState = currentQueryState
             let nextItems = try repositories.review.fetchFilteredModels(
                 searchText: searchText,
                 valueIdsByDimension: selectedValueIdsByDimension,
@@ -262,7 +280,9 @@ public final class LibraryViewModel {
                 offset: nextPage * pageSize
             )
 
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled,
+                  currentQueryState == requestState,
+                  currentPage == nextPage - 1 else { return }
             currentPage = nextPage
             hasMore = nextItems.count == pageSize
             self.filteredItems.append(contentsOf: nextItems)
