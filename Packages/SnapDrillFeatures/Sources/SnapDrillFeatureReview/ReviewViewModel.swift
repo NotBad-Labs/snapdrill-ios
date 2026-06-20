@@ -207,7 +207,8 @@ final class ReviewViewModel {
         isProcessingSwipe = false
         currentSwipeOffset = 0
 
-        guard let item = workingItems.first else { return false }
+        guard let queuedItem = workingItems.first else { return false }
+        guard let item = currentReviewItem(for: queuedItem) else { return false }
 
         let snapshot = SwipeSnapshot(
             workingItems: workingItems, undoStack: undoStack,
@@ -337,6 +338,30 @@ final class ReviewViewModel {
             operationError = L10n.Errors.reviewSaveFailed
             return false
         }
+    }
+
+    private func currentReviewItem(for queuedItem: ReviewItemModel) -> ReviewItemModel? {
+        do {
+            guard let item = try repository.fetchModel(by: queuedItem.id) else {
+                skipMissingCurrentItem(id: queuedItem.id)
+                return nil
+            }
+            return item
+        } catch {
+            SnapDrillLogger.generic.error("复习条目重查失败: \(error.localizedDescription)")
+            operationError = L10n.Errors.reviewSaveFailed
+            return nil
+        }
+    }
+
+    private func skipMissingCurrentItem(id: UUID) {
+        guard !workingItems.isEmpty else { return }
+        workingItems.removeFirst()
+        isAnswerShown = false
+        if workingItems.isEmpty {
+            phase = .finished
+        }
+        SnapDrillLogger.generic.warning("复习条目已不存在，跳过: \(id.uuidString)")
     }
 
     private func restore(_ item: ReviewItemModel, to state: SM2State) {
