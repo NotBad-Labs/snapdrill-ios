@@ -78,7 +78,6 @@ public struct SettingsView: View {
                 Section {
                     NavigationLink {
                         EditProfileView()
-                            .settingsDetailChrome()
                     } label: {
                         profileRow
                     }
@@ -128,7 +127,6 @@ public struct SettingsView: View {
                             frontAlignmentRaw: $frontAlignmentRaw,
                             frontFontSizeRaw: $frontFontSizeRaw
                         )
-                        .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "eye.fill", gradientStart: .indigo, gradientEnd: .blue, title: L10n.Settings.cardAppearance)
                     }
@@ -136,7 +134,6 @@ public struct SettingsView: View {
 
                     NavigationLink {
                         NotificationSettingsView()
-                            .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "bell.fill", gradientStart: .red, gradientEnd: .orange, title: L10n.Settings.reviewReminder)
                     }
@@ -148,10 +145,8 @@ public struct SettingsView: View {
                     NavigationLink {
                         if let viewModel {
                             DataAndSyncSettingsView(viewModel: viewModel)
-                                .settingsDetailChrome()
                         } else {
                             ProgressView()
-                                .settingsDetailChrome()
                         }
                     } label: {
                         SettingsRow(icon: "externaldrive.fill", gradientStart: .blue, gradientEnd: .cyan, title: L10n.Settings.dataAndSync)
@@ -160,14 +155,12 @@ public struct SettingsView: View {
 
                     NavigationLink {
                         StorageManagementView()
-                            .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "internaldrive.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.storageManagement)
                     }
 
                     NavigationLink {
                         PrivacySettingsView()
-                            .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: L10n.Settings.privacyAndExport)
                     }
@@ -189,7 +182,6 @@ public struct SettingsView: View {
 
                     NavigationLink {
                         LanguageSettingsView()
-                            .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "globe", gradientStart: .green, gradientEnd: .teal, title: L10n.Settings.language, value: AppLanguage.current.displayName)
                     }
@@ -200,7 +192,6 @@ public struct SettingsView: View {
                 Section(L10n.Settings.categoryManagement) {
                     NavigationLink {
                         CategoryManagerView()
-                            .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.manageCategories)
                     }
@@ -268,19 +259,14 @@ public struct SettingsView: View {
                 switch destination {
                 case .placeholder:
                     Text(L10n.Common.comingSoon)
-                        .settingsDetailChrome()
                 case .licenses:
                     LicenseView()
-                        .settingsDetailChrome()
                 case .privacyPolicy:
                     PrivacyPolicyView()
-                        .settingsDetailChrome()
                 case .termsOfService:
                     TermsOfServiceView()
-                        .settingsDetailChrome()
                 case .profileList:
                     ProfileListView(profileManager: profileManager)
-                        .settingsDetailChrome()
                 }
             }
             .alert(L10n.Settings.clearConfirmTitle, isPresented: $showingClearAlert) {
@@ -405,10 +391,4 @@ public struct SettingsView: View {
         }
     }
 
-}
-
-private extension View {
-    func settingsDetailChrome() -> some View {
-        toolbar(.hidden, for: .tabBar)
-    }
 }

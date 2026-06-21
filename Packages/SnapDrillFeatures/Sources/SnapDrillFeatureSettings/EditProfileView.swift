@@ -195,6 +195,7 @@ struct EditProfileView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(L10n.EditProfile.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .confirmationDialog(L10n.EditProfile.chooseAvatarSource, isPresented: $showingPhotoOptions) {
             // PhotosPicker 不能嵌入 confirmationDialog action builder（不可靠），
             // 改为 plain Button 触发 .photosPicker(isPresented:) modifier

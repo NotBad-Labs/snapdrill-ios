@@ -7,6 +7,7 @@
 ### Scope
 
 - `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/EditProfileView.swift`
 - `docs/ui-redesign/REDESIGN-LOG.md`
 
 ### Design Decisions
@@ -14,7 +15,7 @@
 - PO reported a second Settings visual issue: the "User / Edit profile" row looked shorter than the following row, and the pushed profile editor appeared to have content covered underneath.
 - Root cause: the Settings profile entry still rendered a custom glass card inside a system `List` row, so its visual width, corner treatment, and layer stack did not match the native inset-grouped rows.
 - The profile entry now uses the native inset-grouped row container and keeps only row content customizations: 52 pt avatar, headline/subheadline text, and standard row hit area.
-- Settings detail pages hide the tab bar after push. This prevents form controls and preview rows from sitting behind the floating iOS tab bar, matching the focused settings-detail navigation model.
+- The Edit Profile form hides the app tab bar while editing, so the theme-color row is not visually covered by the floating iOS tab bar. Other Settings detail pages keep the tab bar available.
 
 ### DoD Status
 
@@ -24,6 +25,11 @@
   - `swiftlint --strict`
   - `git diff --check`
   - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+  - `xcodebuild test -scheme SnapDrill -testPlan UITests -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SnapDrillUITests/SnapDrillUITests/testCustomDimensionAppearsInCaptureForm`
+
+### Follow-up Validation
+
+- GitHub CI UI Tests exposed an over-broad first implementation that hid the tab bar on all Settings detail pages and broke `SnapDrillUITests.testCustomDimensionAppearsInCaptureForm()`, which intentionally switches tabs after configuring a custom dimension. The fix was narrowed to hiding the tab bar only on Edit Profile.
 
 ## 2026-06-21 - Capture HIG contrast and Dynamic Type correction
 
