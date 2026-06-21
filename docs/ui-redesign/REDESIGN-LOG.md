@@ -2,6 +2,32 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Library control-state matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/BatchTagSheet.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/ExportOptionsSheet.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryFilterSheet.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryListView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-library-controls-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeLibraryControlStateScreenshots` to cover Library states that were not fully exercised by the populated-list pass: selected filter before reset, post-reset list, selected batch tag, export options, ZIP no-images alert, search result, and search no-result states.
+- Added stable leaf accessibility identifiers for quick filters, active-filter clear/remove controls, filter difficulty rows, filter reset/done buttons, batch tag values, batch tag done, CSV export, PDF option toggles, PDF items-per-page stepper, and export close. The identifiers stay on controls and do not replace the accessibility tree for whole containers.
+- The batch tag selected-state screenshot creates a real tag value through the existing Category Manager route before returning to Library selection mode. This proves the selected-tag row visually renders with real persisted taxonomy data.
+- The export pass captures CSV row visibility, PDF option controls, and the ZIP no-images alert for a text-only item. It does not claim the system share sheet or image-heavy ZIP path are complete; those remain Needs data/system-surface in the matrix.
+- Search result and search no-result screenshots intentionally include the keyboard. They verify active search input, clear-search affordance, filtered result, and empty-result layout without treating keyboard dismissal as part of this visual contract.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeLibraryControlStateScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-library-controls-*.png`
+
 ## 2026-06-21 - Settings remaining control-state matrix
 
 ### Scope

@@ -70,6 +70,7 @@ struct LibraryListView: View {
                                  }
                                  .buttonStyle(.plain)
                                  .accessibleButton(label: L10n.Accessibility.filterSubject(value.name))
+                                 .accessibilityIdentifier("library.quickFilter.\(value.name)")
                                  .accessibilityAddTraits(selected ? .isSelected : [])
                              }
                          }
@@ -102,6 +103,7 @@ struct LibraryListView: View {
                                     }
                                     .buttonStyle(.plain)
                                     .accessibleButton(label: L10n.Accessibility.removeTagFilter(value.name))
+                                    .accessibilityIdentifier("library.activeFilter.remove.\(value.name)")
                                 }
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 6)
@@ -114,6 +116,7 @@ struct LibraryListView: View {
                             }
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("library.activeFilter.clear")
                         }
                         .padding(.horizontal, 4)
                     }

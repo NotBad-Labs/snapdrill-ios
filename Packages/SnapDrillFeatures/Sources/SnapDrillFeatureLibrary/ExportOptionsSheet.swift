@@ -78,6 +78,7 @@ struct ExportOptionsSheet: View {
                                 )
                             }
                             .accessibleButton(label: L10n.Library.exportCSV, hint: L10n.Accessibility.exportCSVHint)
+                            .accessibilityIdentifier("library.export.csv")
 
                             // 3. 原图 ZIP
                             Button {
@@ -97,15 +98,19 @@ struct ExportOptionsSheet: View {
 
                         Section(L10n.Export.pdfOptions) {
                             Toggle(L10n.Export.hideAnswers, isOn: $hideAnswers)
+                                .accessibilityIdentifier("library.export.hideAnswers")
                             if hideAnswers {
                                 Toggle(L10n.Export.showBlankArea, isOn: $showBlankAnswerArea)
+                                    .accessibilityIdentifier("library.export.showBlankAnswerArea")
                             }
                             Toggle(L10n.Export.showHeader, isOn: $showHeader)
+                                .accessibilityIdentifier("library.export.showHeader")
                             Picker(L10n.Export.itemsPerPage, selection: $itemsPerPage) {
                                 Text("1").tag(1)
                                 Text("2").tag(2)
                                 Text("4").tag(4)
                             }
+                            .accessibilityIdentifier("library.export.itemsPerPage")
                         }
 
                         Section {
@@ -126,6 +131,7 @@ struct ExportOptionsSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.Common.close) { dismiss() }
+                        .accessibilityIdentifier("library.export.close")
                 }
             }
             .sheet(isPresented: $isShowingZIPShare) {

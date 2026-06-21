@@ -811,6 +811,87 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-library-10-export-preview")
     }
 
+    /// UI-freeze evidence: capture Library filter reset, batch tag, export option, and search states.
+    func testUIFreezeLibraryControlStateScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        createManualItem(content: "Library Control Alpha", subject: "数学", in: app)
+        createManualItem(content: "Library Control Beta", subject: "语文", in: app)
+        createTagValue("重点", in: app)
+
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+        XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 10), "题库应显示第一条 QA 数据")
+        XCTAssertTrue(app.staticTexts["Library Control Beta"].waitForExistence(timeout: 5), "题库应显示第二条 QA 数据")
+
+        app.buttons["library.filterButton"].tap()
+        waitForAnyElement("library.filter.root", in: app)
+        let mathFilter = app.buttons["filter.value.数学"]
+        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选页应显示数学值")
+        mathFilter.tap()
+        addScreenshot(named: "ui-freeze-library-controls-01-filter-selected-before-reset")
+        app.buttons["library.filter.reset"].tap()
+        waitForAnyElement("library.root", in: app)
+        XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 5), "重置后数学条目应恢复")
+        XCTAssertTrue(app.staticTexts["Library Control Beta"].waitForExistence(timeout: 5), "重置后语文条目应恢复")
+        addScreenshot(named: "ui-freeze-library-controls-02-filter-reset-list")
+
+        let alphaCell = app.cells.containing(.staticText, identifier: "Library Control Alpha").firstMatch
+        XCTAssertTrue(alphaCell.waitForExistence(timeout: 5), "QA 条目应可选择")
+        alphaCell.press(forDuration: 0.6)
+        let batchTag = app.buttons["library.selection.batchTag"]
+        XCTAssertTrue(batchTag.waitForExistence(timeout: 5), "长按后应显示批量标签按钮")
+        if !batchTag.isEnabled {
+            alphaCell.tap()
+        }
+        XCTAssertTrue(batchTag.isEnabled, "选择资料后批量标签按钮应可用")
+        batchTag.tap()
+        waitForAnyElement("library.batchTag.root", in: app)
+        let tag = app.buttons["library.batchTag.value.重点"]
+        XCTAssertTrue(tag.waitForExistence(timeout: 5), "批量标签页应显示预置标签")
+        tag.tap()
+        XCTAssertTrue(app.buttons["library.batchTag.done"].isEnabled, "选择标签后完成按钮应可用")
+        addScreenshot(named: "ui-freeze-library-controls-03-batch-tag-selected")
+        app.buttons["取消"].tap()
+
+        let exportButton = app.buttons["library.selection.export"]
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 5), "关闭批量标签后应回到选择工具栏")
+        exportButton.tap()
+        waitForAnyElement("library.export.root", in: app)
+        XCTAssertTrue(app.buttons["library.export.csv"].waitForExistence(timeout: 5), "导出页应显示 CSV 入口")
+        XCTAssertTrue(app.buttons["library.export.zip"].waitForExistence(timeout: 5), "导出页应显示 ZIP 入口")
+        XCTAssertTrue(app.switches["library.export.hideAnswers"].waitForExistence(timeout: 5), "导出页应显示隐藏答案开关")
+        addScreenshot(named: "ui-freeze-library-controls-04-export-options")
+
+        app.buttons["library.export.zip"].tap()
+        XCTAssertTrue(app.alerts["选中的题目没有图片"].waitForExistence(timeout: 5), "纯文本资料 ZIP 导出应显示无图片提示")
+        addScreenshot(named: "ui-freeze-library-controls-05-zip-no-images-alert")
+        app.alerts["选中的题目没有图片"].buttons["关闭"].tap()
+        app.buttons["library.export.close"].tap()
+
+        let doneButton = app.buttons["完成"]
+        XCTAssertTrue(doneButton.waitForExistence(timeout: 5), "关闭导出页后应仍在选择模式")
+        doneButton.tap()
+        XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 5), "退出选择模式后列表应仍可见")
+
+        let searchField = app.searchFields.firstMatch
+        if !searchField.exists {
+            app.swipeDown()
+        }
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5), "题库应提供搜索框")
+        searchField.tap()
+        searchField.typeText("Alpha")
+        XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 5), "搜索 Alpha 应保留匹配条目")
+        XCTAssertTrue(app.staticTexts["Library Control Beta"].waitForNonExistence(timeout: 5), "搜索 Alpha 应隐藏不匹配条目")
+        addScreenshot(named: "ui-freeze-library-controls-06-search-result")
+
+        searchField.typeText(" zzz")
+        XCTAssertTrue(app.staticTexts["无结果"].waitForExistence(timeout: 5), "无匹配搜索应显示无结果状态")
+        addScreenshot(named: "ui-freeze-library-controls-07-search-no-results")
+    }
+
     /// 步骤②：L3 seed —— 全新库应自动种出 4 个内置维度，且单/多值语义正确
     func testSeedBuiltInDimensions() {
         let app = XCUIApplication()
@@ -1090,6 +1171,35 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout: 5), "保存按钮应出现")
         save.tap()
         XCTAssertTrue(manual.waitForExistence(timeout: 10), "保存后应返回采集首页")
+    }
+
+    /// 新建一个标签值，供批量标签 UI 状态使用。
+    private func createTagValue(_ name: String, in app: XCUIApplication) {
+        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "设置 Tab 应出现")
+        settingsTab.tap()
+
+        let manageRow = app.buttons["settings.manageCategories"]
+        scrollUntilHittable(manageRow, in: app, maxSwipes: 10)
+        XCTAssertTrue(manageRow.waitForExistence(timeout: 5), "设置应有分类管理入口")
+        manageRow.tap()
+        waitForAnyElement("settings.categoryManager.root", in: app)
+
+        let tagRow = app.buttons["dim.row.tag"]
+        scrollUntilHittable(tagRow, in: app, maxSwipes: 6)
+        XCTAssertTrue(tagRow.waitForExistence(timeout: 5), "分类管理应有标签维度")
+        tagRow.tap()
+        waitForAnyElement("dimValueList.root.tag", in: app)
+
+        let addValue = app.buttons["dimValue.add"]
+        XCTAssertTrue(addValue.waitForExistence(timeout: 5), "标签值列表应有添加按钮")
+        addValue.tap()
+        let nameField = app.textFields["dimValueEdit.nameField"]
+        XCTAssertTrue(nameField.waitForExistence(timeout: 5), "添加标签值应有名称输入框")
+        nameField.tap()
+        nameField.typeText(name)
+        app.buttons["保存"].tap()
+        XCTAssertTrue(app.buttons["dimValue.\(name)"].waitForExistence(timeout: 5), "新标签值应出现在列表")
     }
 
     /// 收起软键盘（防表单下方控件被键盘遮挡）——点导航栏中性区域 resign first responder

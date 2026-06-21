@@ -52,6 +52,7 @@ struct BatchTagSheet: View {
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .accessibilityIdentifier("library.batchTag.value.\(tag.name)")
                             .accessibilityAddTraits(selectedTagNames.contains(tag.name) ? .isSelected : [])
                         }
                     } header: {
@@ -75,6 +76,7 @@ struct BatchTagSheet: View {
                             dismiss()
                         }
                     }
+                    .accessibilityIdentifier("library.batchTag.done")
                     .disabled(selectedTagNames.isEmpty)
                 }
             }

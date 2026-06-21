@@ -88,6 +88,7 @@ struct LibraryFilterSheet: View {
                             difficulty: difficulty.starCount,
                             maxStars: Difficulty.allCases.count
                         ))
+                        .accessibilityIdentifier("filter.difficulty.\(difficulty.rawValue)")
                         .accessibilityAddTraits(viewModel.selectedDifficulties.contains(difficulty.rawValue) ? .isSelected : [])
                     }
                 }
@@ -101,11 +102,13 @@ struct LibraryFilterSheet: View {
                         viewModel.resetFilters()
                         dismiss()
                     }
+                    .accessibilityIdentifier("library.filter.reset")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L10n.Common.done) {
                         dismiss()
                     }
+                    .accessibilityIdentifier("library.filter.done")
                 }
             }
         }
