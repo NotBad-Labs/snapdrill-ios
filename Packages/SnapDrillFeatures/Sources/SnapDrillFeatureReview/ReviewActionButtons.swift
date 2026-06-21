@@ -65,6 +65,7 @@ struct ReviewActionButtons: View {
                 )
                 .buttonStyle(.plain)
                 .disabled(!isUndoEnabled)
+                .accessibilityIdentifier("review.undo")
                 .accessibilityLabel(L10n.Accessibility.undo)
                 .accessibilityHint(L10n.Accessibility.undoHint)
 
@@ -81,6 +82,7 @@ struct ReviewActionButtons: View {
                     }
                 )
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("review.toggleAnswer")
                 .accessibilityLabel(isAnswerShown ? L10n.Accessibility.hideAnswer : L10n.Accessibility.showAnswer)
             }
 
@@ -138,7 +140,19 @@ struct ReviewActionButtons: View {
             .animation(.interactiveSpring(response: 0.35, dampingFraction: 0.7), value: scale)
         })
         .buttonStyle(.plain)
+        .accessibilityIdentifier(accessibilityID(for: rating))
         .accessibilityLabel(title)
+    }
+
+    private func accessibilityID(for rating: ReviewRating) -> String {
+        switch rating {
+        case .again:
+            "review.rate.again"
+        case .good:
+            "review.rate.good"
+        default:
+            "review.rate.\(rating.rawValue)"
+        }
     }
     
     // 根据滑动偏移量计算动态缩放比例

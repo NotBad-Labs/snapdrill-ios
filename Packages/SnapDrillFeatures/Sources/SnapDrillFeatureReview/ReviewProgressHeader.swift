@@ -36,6 +36,7 @@ struct ReviewProgressHeader: View {
                     .background(Color(UIColor.systemGroupedBackground), in: Circle())
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("review.pause")
             .accessibilityLabel(L10n.Accessibility.pauseReview)
 
             HStack(spacing: 12) {

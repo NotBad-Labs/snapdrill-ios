@@ -151,6 +151,7 @@ struct ReviewDashboardView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
+            .accessibilityIdentifier("review.startButton")
             .accessibilityHint(L10n.Accessibility.startReviewHint)
         } else if totalItemsCount == 0 {
             Button(action: onEnter) {
@@ -161,6 +162,7 @@ struct ReviewDashboardView: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
+            .accessibilityIdentifier("review.captureButton")
         } else {
             Label(L10n.Review.goRest, systemImage: "checkmark.circle")
                 .font(.subheadline.weight(.medium))

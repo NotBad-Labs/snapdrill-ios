@@ -73,6 +73,7 @@ struct CaptureDetailsSection: View {
                 .scrollContentBackground(.hidden)
                 .background(Color(UIColor.tertiarySystemFill))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityIdentifier("capture.answerEditor")
 
             HStack {
                 if let answerImage = viewModel.answerImage {

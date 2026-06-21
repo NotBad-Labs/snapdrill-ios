@@ -17,6 +17,9 @@
 - Native screenshot tests run through the `SnapDrill` scheme with the `UITests`
   test plan. `AllTests` remains the package/unit build gate and does not execute
   the native `SnapDrillUITests` target.
+- UI-freeze accessibility identifiers must not change the interactive
+  accessibility tree. Prefer leaf controls or noninteractive background markers;
+  do not attach broad identifiers to containers when that hides child controls.
 
 ## Current Findings
 
@@ -32,6 +35,7 @@
 | UI-FZ-008 | P2 | Library selection mode > bottom toolbar | The selected-count label rendered in the bottom toolbar as a circular Liquid Glass-looking control, making status text look like a tappable action. | Fixed in `LibraryView`: selection count moved to the navigation title while the bottom toolbar contains only explicit actions. Evidence: `docs/ui-redesign/evidence/2026-06-21-library-07-selection-toolbar.png`. |
 | UI-FZ-009 | P3 | Library batch tag sheet > empty state | Batch tag sheet reused the Library empty-item copy (`还没有题目`) inside a tag-management context. | Fixed in `BatchTagSheet`: empty tag state now says `还没有标签`. Evidence: `docs/ui-redesign/evidence/2026-06-21-library-08-batch-tag-sheet.png`. |
 | UI-FZ-010 | P2 | Capture > result editor | Manual-result editor screenshots showed a self-contained editing flow still carrying the app tab bar. It did not fully obscure content, but it was inconsistent with the Settings edit/detail rule and made subject menus compete with bottom app navigation. | Fixed in `CaptureResultView`: tab bar is hidden while preview/edit is active and restored after save/back navigation. Covered by `testUIFreezeCaptureManualResultEditorScreenshots`; evidence: `docs/ui-redesign/evidence/2026-06-21-capture-01-manual-empty-editor.png`, `docs/ui-redesign/evidence/2026-06-21-capture-05-saved-back-to-capture.png`. |
+| UI-FZ-011 | P3 | Review populated/session screenshot QA | Review screenshot instrumentation initially put identifiers on broad containers, which caused child buttons to inherit the container identifier and made the matrix test unreliable. | Fixed by moving the stable Review root marker to the noninteractive background, removing broad session/dashboard/summary container identifiers, and using leaf/action identifiers for Review controls. Covered by `testUIFreezeReviewPopulatedSessionScreenshots`; evidence: `docs/ui-redesign/evidence/2026-06-21-review-01-dashboard-due.png` through `docs/ui-redesign/evidence/2026-06-21-review-05-dashboard-done.png`. |
 
 ## Static Risk Queries
 
@@ -81,8 +85,8 @@ Legend:
 | Capture | Scan page picker | `ScanPagePickerView` | multi-page scan, cropper | Needs data |
 | Capture | Result editor | `CaptureResultView` + sections | manual text, image text, field config tip, cropper | Manual text editor, keyboard, subject menu, selected subject, and saved-return states Pass after UI-FZ-010: `docs/ui-redesign/evidence/2026-06-21-capture-01-manual-empty-editor.png` through `docs/ui-redesign/evidence/2026-06-21-capture-05-saved-back-to-capture.png`; image text, field config tip, and cropper still Needs data |
 | Review | Review tab empty state | `ReviewView`, `ReviewDashboardView` | no items | Pass: simulator-reviewed on iPhone 17 after UI-FZ-003; evidence `docs/ui-redesign/evidence/2026-06-21-review-empty-after.jpg` and `docs/ui-redesign/evidence/2026-06-21-primary-review-empty.png` |
-| Review | Review tab idle populated | `ReviewDashboardView` | due items, all done | Needs data |
-| Review | Active card session | `ReviewView`, `ReviewActionButtons`, card front/back | flip, swipe, undo, pause, summary | Needs data |
+| Review | Review tab idle populated | `ReviewDashboardView` | due items, all done | Due and all-done states Pass: `docs/ui-redesign/evidence/2026-06-21-review-01-dashboard-due.png`, `docs/ui-redesign/evidence/2026-06-21-review-05-dashboard-done.png` |
+| Review | Active card session | `ReviewView`, `ReviewActionButtons`, card front/back | flip, swipe, undo, pause, summary | One-card front, back, rating, and summary Pass: `docs/ui-redesign/evidence/2026-06-21-review-02-session-front.png`, `docs/ui-redesign/evidence/2026-06-21-review-03-session-back.png`, `docs/ui-redesign/evidence/2026-06-21-review-04-summary.png`; multi-card swipe, undo, pause alert, and edit sheets still Need data |
 | Review | Card edit sheets | `ReviewCardContent`, `ReviewCardBack` | edit from front/back | Needs data |
 | Settings | Settings main page | `SettingsView` | normal rows, toggles, tab bar, Dynamic Type | Normal rows/toggles/tab bar Pass after UI-FZ-005: `docs/ui-redesign/evidence/2026-06-21-primary-settings-main.png`; Dynamic Type still In progress |
 | Settings | Edit profile | `EditProfileView` | default symbol avatar, theme swatches, photo avatar, symbol picker | Default symbol-avatar swatch fixed and screenshot-covered: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-01-edit-profile.png`; shared symbol picker component covered by UI-FZ-004; photo-avatar state still Needs data |

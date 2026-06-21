@@ -91,6 +91,7 @@ struct ReviewSessionSummaryView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                .accessibilityIdentifier("review.summary.dismiss")
             }
             .frame(maxWidth: 560)
             .padding(.horizontal, 20)

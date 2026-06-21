@@ -159,6 +159,7 @@ struct ReviewCardBack: View {
         .sheet(isPresented: $showingEditSheet) {
             LibraryEditView(item: item)
         }
+        .accessibilityIdentifier("review.card.back")
     }
 
     // MARK: - Private Helpers

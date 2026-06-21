@@ -38,6 +38,10 @@ final class SnapDrillUITests: XCTestCase {
         add(attachment)
     }
 
+    private func waitForUIAnimation(seconds: TimeInterval = 0.8) {
+        RunLoop.current.run(until: Date().addingTimeInterval(seconds))
+    }
+
     private func launchApp() -> XCUIApplication {
         let app = XCUIApplication()
         // --uitesting: 触发 DependencyContainer in-memory 模式
@@ -200,6 +204,40 @@ final class SnapDrillUITests: XCTestCase {
         save.tap()
         waitForAnyElement("capture.root", in: app, timeout: 10)
         addScreenshot(named: "ui-freeze-capture-05-saved-back-to-capture")
+    }
+
+    /// UI-freeze evidence: capture populated Review dashboard, active session, card back, summary, and done state.
+    func testUIFreezeReviewPopulatedSessionScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["-captureFieldAnswer", "YES"]
+        app.launch()
+
+        createManualItem(
+            content: "Review QA Alpha",
+            subject: "数学",
+            answer: "Reference answer for Review QA Alpha",
+            in: app
+        )
+
+        app.tabBars.buttons.element(boundBy: 3).tap()
+        XCTAssertTrue(app.buttons["review.startButton"].waitForExistence(timeout: 10), "有待回顾项目时应显示开始回顾按钮")
+        addScreenshot(named: "ui-freeze-review-01-dashboard-due")
+
+        app.buttons["review.startButton"].tap()
+        waitForAnyElement("review.rate.good", in: app)
+        addScreenshot(named: "ui-freeze-review-02-session-front")
+
+        app.buttons["review.toggleAnswer"].tap()
+        waitForUIAnimation()
+        addScreenshot(named: "ui-freeze-review-03-session-back")
+
+        app.buttons["review.rate.good"].tap()
+        waitForAnyElement("review.summary.dismiss", in: app, timeout: 10)
+        addScreenshot(named: "ui-freeze-review-04-summary")
+
+        app.buttons["review.summary.dismiss"].tap()
+        XCTAssertTrue(app.staticTexts["暂无待回顾内容"].waitForExistence(timeout: 10), "完成后应回到无待回顾状态")
+        addScreenshot(named: "ui-freeze-review-05-dashboard-done")
     }
 
     /// UI-freeze evidence: capture stable Settings secondary pages without mutating user data.
@@ -557,7 +595,7 @@ final class SnapDrillUITests: XCTestCase {
     }
 
     /// 手动录入一题（可选指定单值学科），保存后停在采集首页。复用于 ③⑥ 造数据。
-    private func createManualItem(content: String, subject: String?, in app: XCUIApplication) {
+    private func createManualItem(content: String, subject: String?, answer: String? = nil, in app: XCUIApplication) {
         let captureTab = app.tabBars.buttons.element(boundBy: 2)
         XCTAssertTrue(captureTab.waitForExistence(timeout: 5), "采集 Tab 应出现")
         captureTab.tap()
@@ -578,6 +616,14 @@ final class SnapDrillUITests: XCTestCase {
             let option = app.buttons["capture.opt.\(subject)"]
             XCTAssertTrue(option.waitForExistence(timeout: 5), "学科菜单应有‘\(subject)’选项")
             option.tap()
+        }
+        if let answer {
+            let answerEditor = app.textViews["capture.answerEditor"]
+            scrollUntilHittable(answerEditor, in: app)
+            XCTAssertTrue(answerEditor.waitForExistence(timeout: 5), "答案编辑器应出现")
+            answerEditor.tap()
+            answerEditor.typeText(answer)
+            dismissKeyboardIfPresent(in: app)
         }
         let save = app.buttons["capture.saveButton"]
         scrollUntilHittable(save, in: app)

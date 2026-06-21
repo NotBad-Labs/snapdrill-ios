@@ -2,6 +2,36 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Review populated session visual matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureDetailsSection.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewDashboardView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewActionButtons.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewCardContent.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewCardBack.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewProgressHeader.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewSessionSummaryView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-review-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeReviewPopulatedSessionScreenshots` to capture the populated Review dashboard, one-card session front, card back with answer, summary, and completed dashboard state.
+- Stable Review QA identifiers are placed on leaf/action controls or on noninteractive background markers. A first attempt to put identifiers on broad Review containers hid child controls from XCUITest and was removed.
+- The manual-capture helper can now fill the answer field so the Review card-back screenshot proves the answer-side layout, not only the same front-card surface.
+- A short run-loop wait is used after the flip action so the screenshot records the stable card-back state instead of a mid-animation transition frame.
+- This pass covers one-card Review flow only. Multi-card swipe, undo, pause alert, and card edit sheets remain tracked in `UI-FREEZE-QA-MATRIX.md`.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeReviewPopulatedSessionScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-review-*.png`
+
 ## 2026-06-21 - Capture manual-result editor visual matrix
 
 ### Scope
