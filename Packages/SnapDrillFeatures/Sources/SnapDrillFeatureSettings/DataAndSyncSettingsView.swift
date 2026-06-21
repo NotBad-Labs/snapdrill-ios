@@ -77,6 +77,7 @@ struct DataAndSyncSettingsView: View {
                     )
                 }
                 .disabled(viewModel.isBackupInProgress)
+                .accessibilityIdentifier("settings.dataAndSync.backup")
                 .accessibilityHint(L10n.Accessibility.backupDataHint)
 
                 // 恢复按钮
@@ -92,6 +93,7 @@ struct DataAndSyncSettingsView: View {
                     )
                 }
                 .disabled(viewModel.isBackupInProgress)
+                .accessibilityIdentifier("settings.dataAndSync.restore")
                 .accessibilityHint(L10n.Accessibility.restoreDataHint)
 
                 // 进度条（备份/恢复过程中显示）
@@ -127,6 +129,7 @@ struct DataAndSyncSettingsView: View {
                     )
                 }
                 .disabled(viewModel.isBackupInProgress)
+                .accessibilityIdentifier("settings.dataAndSync.importCSV")
 
                 if isOperationActive(.importCSV) {
                     VStack(alignment: .leading, spacing: 6) {
@@ -165,6 +168,7 @@ struct DataAndSyncSettingsView: View {
                 } label: {
                     Label(L10n.Settings.clearCache, systemImage: "trash")
                 }
+                .accessibilityIdentifier("settings.dataAndSync.clearCache")
             } header: {
                 Text(L10n.Settings.storageSpace)
             }

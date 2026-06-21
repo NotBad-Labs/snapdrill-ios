@@ -41,6 +41,7 @@ struct NotificationSettingsView: View {
                     }
                 ))
                 .disabled(viewModel?.isRequesting ?? false)
+                .accessibilityIdentifier("settings.notifications.enableToggle")
                 .accessibilityHint(L10n.Accessibility.enableReminderHint)
 
                 if notificationsEnabled {
@@ -49,6 +50,7 @@ struct NotificationSettingsView: View {
                         selection: reminderTimeBinding,
                         displayedComponents: .hourAndMinute
                     )
+                    .accessibilityIdentifier("settings.notifications.timePicker")
                 }
             } header: {
                 Text(L10n.Settings.dailyReminderSection)
@@ -59,14 +61,16 @@ struct NotificationSettingsView: View {
                 )
             }
 
-            Section {
-                Toggle(L10n.Settings.sound, isOn: $soundEnabled)
-                    .disabled(!notificationsEnabled)
-                    .accessibilityHint(L10n.Accessibility.soundToggleHint)
-            } header: {
-                Text(L10n.Settings.notificationStyle)
-            } footer: {
-                Text(L10n.Settings.notificationStyleFooter)
+            if notificationsEnabled {
+                Section {
+                    Toggle(L10n.Settings.sound, isOn: $soundEnabled)
+                        .accessibilityIdentifier("settings.notifications.soundToggle")
+                        .accessibilityHint(L10n.Accessibility.soundToggleHint)
+                } header: {
+                    Text(L10n.Settings.notificationStyle)
+                } footer: {
+                    Text(L10n.Settings.notificationStyleFooter)
+                }
             }
         }
         .listStyle(.insetGrouped)

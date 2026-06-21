@@ -27,6 +27,7 @@ struct LicenseView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .accessibilityIdentifier("settings.licenses.mantis")
 
                 NavigationLink(destination: LicenseDetailView(title: "ZIPFoundation", licenseContent: zipFoundationLicense)) {
                     VStack(alignment: .leading, spacing: 4) {
@@ -37,6 +38,7 @@ struct LicenseView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .accessibilityIdentifier("settings.licenses.zipFoundation")
             }
 
             Section {
@@ -46,8 +48,10 @@ struct LicenseView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .accessibilityIdentifier("settings.licenses.root")
         .navigationTitle(L10n.Settings.openSourceTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -66,8 +70,10 @@ struct LicenseDetailView: View {
                 .font(.system(.caption, design: .monospaced))
                 .padding()
         }
+        .accessibilityIdentifier("settings.licenses.detail.\(title)")
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 

@@ -2,6 +2,34 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Settings remaining control-state matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/DataAndSyncSettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/LicenseView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/NotificationSettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ReviewAppearanceSettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-settings-controls-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeSettingsControlStateScreenshots` to cover Settings states not reached by primary/secondary sweeps: Profile delete confirmation, Review Appearance alignment menu, enabled Notification controls, Data & Sync restore/cache dialogs, global clear-all confirmation, feedback alert, and open-source license root/detail pages.
+- Wired the existing `SettingsDestination.licenses` / `LicenseView` route into the About section. This does not introduce a new settings concept; it makes the already-authored open-source license screen reachable and testable.
+- License root/detail pages now hide the app tab bar, matching the self-contained Settings detail-page rule used for privacy/terms/data/review detail surfaces.
+- Follow-up screenshot QA found Review Appearance max-font preview text could be clipped by the form row when the alignment menu was open. Preview text now uses unlimited lines with vertical fixed sizing so the row expands instead of cutting off content.
+- Notification settings no longer show the dependent Sound section while daily reminders are off. The disabled state had made a green Sound switch look active even though reminders were disabled; the enabled state remains available once reminders are on.
+- Restore confirmation uses iOS 26 `confirmationDialog` behavior without a stable exposed Cancel control. The test captures the dialog state and avoids treating tap-out dismissal as a product contract.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeSettingsControlStateScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-settings-controls-*.png`
+
 ## 2026-06-21 - Settings interaction-state matrix
 
 ### Scope

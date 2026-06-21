@@ -218,6 +218,7 @@ public struct SettingsView: View {
                     Button { showingClearAlert = true } label: {
                         SettingsRow(icon: "trash.fill", gradientStart: .red, gradientEnd: .pink, title: L10n.Settings.clearAllData)
                     }
+                    .accessibilityIdentifier("settings.clearAllData")
                     .accessibilityHint(L10n.Accessibility.clearAllDataHint)
                 } header: {
                     Text(L10n.Settings.dangerZone)
@@ -231,6 +232,7 @@ public struct SettingsView: View {
                     Button { showingMail = true } label: {
                         SettingsRow(icon: "heart.text.square.fill", gradientStart: .pink, gradientEnd: .red, title: L10n.Settings.feedbackAndSupport)
                     }
+                    .accessibilityIdentifier("settings.feedback")
 
                     if let helpURL = URL(string: "https://notbadhq.com/snapdrill/faq") {
                         Link(destination: helpURL) {
@@ -238,6 +240,11 @@ public struct SettingsView: View {
                         }
                         .accessibilityHint("打开外部网页查看常见问题")
                     }
+
+                    NavigationLink(value: SettingsDestination.licenses) {
+                        SettingsRow(icon: "curlybraces.square.fill", gradientStart: .purple, gradientEnd: .indigo, title: L10n.Settings.openSourceTitle)
+                    }
+                    .accessibilityIdentifier("settings.licenses")
 
                     NavigationLink(value: SettingsDestination.privacyPolicy) {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: L10n.Settings.privacyPolicy)

@@ -34,6 +34,8 @@ struct ReviewAppearanceSettingsView: View {
                     Text(L10n.Settings.cardFrontPreview)
                         .font(.system(size: frontFontSizeRaw, weight: .bold, design: .serif))
                         .multilineTextAlignment(resolveTextAlignment(frontAlignmentRaw))
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: resolveAlignment(frontAlignmentRaw))
                         .padding()
                         .background(Color(UIColor.secondarySystemGroupedBackground))
@@ -47,6 +49,7 @@ struct ReviewAppearanceSettingsView: View {
                     Text(L10n.Settings.alignCenter).tag("center")
                     Text(L10n.Settings.alignRight).tag("trailing")
                 }
+                .accessibilityIdentifier("settings.reviewAppearance.frontAlignment")
 
                 VStack(alignment: .leading) {
                     Text(L10n.Settings.fontSizeLabel(Int(frontFontSizeRaw)))
@@ -70,6 +73,8 @@ struct ReviewAppearanceSettingsView: View {
                         .font(.system(size: fontSizeRaw, weight: .medium, design: .serif))
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(resolveTextAlignment(alignmentRaw))
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: resolveAlignment(alignmentRaw))
                         .padding()
                         .background(Color(UIColor.secondarySystemGroupedBackground))
@@ -83,6 +88,7 @@ struct ReviewAppearanceSettingsView: View {
                     Text(L10n.Settings.alignCenter).tag("center")
                     Text(L10n.Settings.alignRight).tag("trailing")
                 }
+                .accessibilityIdentifier("settings.reviewAppearance.backAlignment")
 
                 VStack(alignment: .leading) {
                     Text(L10n.Settings.fontSizeLabel(Int(fontSizeRaw)))

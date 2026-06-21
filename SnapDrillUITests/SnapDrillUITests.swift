@@ -616,6 +616,129 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-settings-interactions-06-review-back-large")
     }
 
+    /// UI-freeze evidence: capture Settings destructive, dialog, reminder, and license states.
+    func testUIFreezeSettingsControlStateScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let profileList = app.buttons["settings.profileList"]
+        scrollUntilHittable(profileList, in: app, maxSwipes: 4)
+        XCTAssertTrue(profileList.waitForExistence(timeout: 5), "设置应有资料空间入口")
+        profileList.tap()
+        waitForAnyElement("settings.profileList.root", in: app)
+
+        app.buttons["settings.profileList.add"].tap()
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5), "新增资料空间应显示输入弹窗")
+        let profileNameField = app.alerts.firstMatch.textFields.firstMatch
+        XCTAssertTrue(profileNameField.waitForExistence(timeout: 5), "新增资料空间弹窗应有名称输入框")
+        profileNameField.tap()
+        profileNameField.typeText("删除 QA")
+        app.alerts.firstMatch.buttons["确定"].tap()
+        let deleteProfile = app.buttons["settings.profileList.profile.删除 QA"]
+        XCTAssertTrue(deleteProfile.waitForExistence(timeout: 5), "新增资料空间应出现在列表")
+        deleteProfile.swipeLeft()
+        XCTAssertTrue(app.buttons["删除"].waitForExistence(timeout: 5), "多资料空间应显示删除滑动操作")
+        app.buttons["删除"].tap()
+        XCTAssertTrue(app.alerts["删除"].waitForExistence(timeout: 5), "删除资料空间应显示确认弹窗")
+        addScreenshot(named: "ui-freeze-settings-controls-01-profile-delete-alert")
+        app.alerts["删除"].buttons["取消"].tap()
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let reviewAppearance = app.buttons["settings.reviewAppearance"]
+        scrollUntilHittable(reviewAppearance, in: app, maxSwipes: 4)
+        XCTAssertTrue(reviewAppearance.waitForExistence(timeout: 5), "设置应有回顾外观入口")
+        reviewAppearance.tap()
+        waitForAnyElement("settings.reviewAppearance.root", in: app)
+        let frontAlignment = app.buttons["settings.reviewAppearance.frontAlignment"]
+        XCTAssertTrue(frontAlignment.waitForExistence(timeout: 5), "回顾外观应有正面对齐选择")
+        frontAlignment.tap()
+        XCTAssertTrue(app.buttons["居中"].waitForExistence(timeout: 5), "正面对齐选择应显示居中选项")
+        addScreenshot(named: "ui-freeze-settings-controls-02-review-alignment-options")
+        app.buttons["居中"].tap()
+        waitForAnyElement("settings.reviewAppearance.root", in: app)
+        addScreenshot(named: "ui-freeze-settings-controls-03-review-centered-preview")
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        app.terminate()
+        app.launchArguments = l3LaunchArguments() + [
+            "-notificationsEnabled", "YES",
+            "-soundEnabled", "YES"
+        ]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let notifications = app.buttons["settings.notifications"]
+        scrollUntilHittable(notifications, in: app, maxSwipes: 4)
+        XCTAssertTrue(notifications.waitForExistence(timeout: 5), "设置应有通知入口")
+        notifications.tap()
+        waitForAnyElement("settings.notifications.root", in: app)
+        waitForAnyElement("settings.notifications.timePicker", in: app)
+        XCTAssertTrue(app.switches["settings.notifications.soundToggle"].isEnabled, "开启通知后声音开关应可用")
+        addScreenshot(named: "ui-freeze-settings-controls-04-notifications-enabled")
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let dataAndSync = app.buttons["settings.dataAndSync"]
+        scrollUntilHittable(dataAndSync, in: app, maxSwipes: 8)
+        XCTAssertTrue(dataAndSync.waitForExistence(timeout: 5), "设置应有数据与备份入口")
+        dataAndSync.tap()
+        waitForAnyElement("settings.dataAndSync.root", in: app)
+        app.buttons["settings.dataAndSync.restore"].tap()
+        XCTAssertTrue(app.buttons["选择备份文件"].waitForExistence(timeout: 5), "恢复数据应显示备份文件选择确认")
+        addScreenshot(named: "ui-freeze-settings-controls-05-restore-dialog")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
+
+        let clearCache = app.buttons["settings.dataAndSync.clearCache"]
+        scrollUntilHittable(clearCache, in: app, maxSwipes: 4)
+        XCTAssertTrue(clearCache.waitForExistence(timeout: 5), "数据与备份页应有清理缓存按钮")
+        clearCache.tap()
+        XCTAssertTrue(app.alerts["清理缓存"].waitForExistence(timeout: 5), "清理缓存应显示确认弹窗")
+        addScreenshot(named: "ui-freeze-settings-controls-06-clear-cache-alert")
+        app.alerts["清理缓存"].buttons["取消"].tap()
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let clearAllData = app.buttons["settings.clearAllData"]
+        scrollUntilHittable(clearAllData, in: app, maxSwipes: 10)
+        XCTAssertTrue(clearAllData.waitForExistence(timeout: 5), "设置应有清空所有数据入口")
+        clearAllData.tap()
+        XCTAssertTrue(app.alerts["确认清空所有数据？"].waitForExistence(timeout: 5), "清空所有数据应显示确认弹窗")
+        addScreenshot(named: "ui-freeze-settings-controls-07-clear-all-alert")
+        app.alerts["确认清空所有数据？"].buttons["取消"].tap()
+
+        let feedback = app.buttons["settings.feedback"]
+        scrollUntilHittable(feedback, in: app, maxSwipes: 4)
+        XCTAssertTrue(feedback.waitForExistence(timeout: 5), "设置应有反馈入口")
+        feedback.tap()
+        XCTAssertTrue(app.alerts["意见反馈"].waitForExistence(timeout: 5), "意见反馈应显示联系弹窗")
+        addScreenshot(named: "ui-freeze-settings-controls-08-feedback-alert")
+        app.alerts["意见反馈"].buttons["以后再说"].tap()
+
+        let licenses = app.buttons["settings.licenses"]
+        scrollUntilHittable(licenses, in: app, maxSwipes: 4)
+        XCTAssertTrue(licenses.waitForExistence(timeout: 5), "设置应有开源许可入口")
+        licenses.tap()
+        waitForAnyElement("settings.licenses.root", in: app)
+        addScreenshot(named: "ui-freeze-settings-controls-09-licenses-root")
+        app.buttons["settings.licenses.mantis"].tap()
+        waitForAnyElement("settings.licenses.detail.Mantis", in: app)
+        addScreenshot(named: "ui-freeze-settings-controls-10-license-detail")
+    }
+
     /// UI-freeze evidence: capture Library populated, filter, detail, edit, selection, and export surfaces.
     func testUIFreezeLibraryPopulatedSurfaceScreenshots() {
         let app = XCUIApplication()
