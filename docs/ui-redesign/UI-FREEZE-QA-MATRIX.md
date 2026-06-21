@@ -23,6 +23,7 @@
 | UI-FZ-002 | P2 | Library taxonomy manager > Edit value > Color | Same `Color.primary` swatch-selection pattern existed in category value color picker. | Fixed in `EditCategoryValueView`: selected swatch now uses reserved frame, accent ring, white checkmark, and `.isSelected`. |
 | UI-FZ-003 | P2 | Review tab empty state | Review used Dashboard/Library empty-state copy (`还没有任何资料` / `开始采集`), making the Review tab look like the wrong surface. Before: `docs/ui-redesign/evidence/2026-06-21-review-empty-before.jpg`. | Fixed in `ReviewDashboardView`: Review now uses Review-specific title, description, icon, and CTA. After: `docs/ui-redesign/evidence/2026-06-21-review-empty-after.jpg`. |
 | UI-FZ-004 | P2 | Shared symbol picker from Profile and taxonomy editors | `SFSymbolPickerView` still exposed hard-coded Chinese, education-oriented category titles such as `学术`, `数学/逻辑`, `理化/实验`, and `体育/运动`, and the selected icon state needed the same visible accent/check treatment as the color swatches. | Fixed in `SFSymbolPickerView`: categories are localized general-audience groups, item selection uses accent ring + checkmark + `.isSelected`, and `testIconPickerUsesGeneralAudienceCategories` covers visible categories plus selection round-trip. Evidence: `docs/ui-redesign/evidence/2026-06-21-icon-picker-general-audience.png`. |
+| UI-FZ-005 | P2 | Settings main page > floating tab bar underlap | The initial Settings viewport allowed the next `回顾设置` section to remain readable through the iOS floating tab bar, making it look like a row was covered. Before: `docs/ui-redesign/evidence/2026-06-21-settings-main-tabbar-before.png`. | Fixed in `SettingsView`: the capture-field section now reserves named breathing room before the next section, so the field group remains complete and the tab bar sits over empty background. After: `docs/ui-redesign/evidence/2026-06-21-settings-main-tabbar-after.png`; covered by `testUIFreezePrimaryTabSurfaceScreenshots`. |
 
 ## Static Risk Queries
 
@@ -50,12 +51,12 @@ Legend:
 
 | Area | Surface | Entry / route | Required states | Status |
 | --- | --- | --- | --- | --- |
-| App shell | Tab bar + root loading + degraded-mode banner | `AppRootView` | normal profile, in-memory fallback | In progress |
+| App shell | Tab bar + root loading + degraded-mode banner | `AppRootView` | normal profile, in-memory fallback | Normal primary-tab navigation screenshot-covered; degraded-mode banner still In progress |
 | Onboarding | First-run onboarding | `OnboardingView` full-screen cover | first launch, skip/finish, Dynamic Type | In progress |
-| Dashboard | Home tab empty state | `DashboardView` | no items | In progress |
+| Dashboard | Home tab empty state | `DashboardView` | no items | Pass: XCUITest screenshot `docs/ui-redesign/evidence/2026-06-21-primary-dashboard-empty.png` |
 | Dashboard | Home tab populated | `DashboardView`, `ReviewHeroCard`, bento grid, analytics | due items, all done, analytics locked/unlocked | Needs data |
 | Dashboard | Category manager sheet | `DashboardView` -> `CategoryManagerView` | list, add dimension, edit value | In progress |
-| Library | Library tab empty/list/search/filter chrome | `LibraryView`, `LibraryListView` | empty, populated, search, selection mode | Needs data |
+| Library | Library tab empty/list/search/filter chrome | `LibraryView`, `LibraryListView` | empty, populated, search, selection mode | Empty root chrome Pass: `docs/ui-redesign/evidence/2026-06-21-primary-library-empty.png`; populated/search/selection still Needs data |
 | Library | Filter sheet | `LibraryFilterSheet` | no filters, selected filters, reset/apply | Needs data |
 | Library | Batch tag sheet | `BatchTagSheet` | no tags, selected tags | Needs data |
 | Library | Export sheet + PDF preview + share | `ExportOptionsSheet`, `ExportPreviewView` | PDF, CSV, ZIP, no image / image items | Needs data |
@@ -65,17 +66,17 @@ Legend:
 | Library | Taxonomy manager | `CategoryManagerView`, `CategoryValueListView` | list, add/edit/delete dimension values | In progress |
 | Library | Edit taxonomy value | `EditCategoryValueView` | preset color selected, custom color selected, symbol picker | Code fixed; needs simulator screenshot |
 | Library | Symbol picker | `SFSymbolPickerView` | search, selected symbol, empty search | Pass for default selected state and visible default categories via XCUITest screenshot attachment; search and empty-search states still need visual pass |
-| Capture | Capture tab method grid | `CaptureView`, `CaptureMethodCard` | regular text size, accessibility text size | In progress |
+| Capture | Capture tab method grid | `CaptureView`, `CaptureMethodCard` | regular text size, accessibility text size | Regular text size Pass: `docs/ui-redesign/evidence/2026-06-21-primary-capture-methods.png`; accessibility text size still In progress |
 | Capture | Camera scanner | `SmartCameraView` | simulator unavailable camera, controls, close | Needs device/simulator capability |
 | Capture | Document scanner | `DocumentScannerView` | scanner unavailable/available | Needs device capability |
 | Capture | PDF page picker | `PDFPagePickerView` | multi-page PDF, cropper | Needs data |
 | Capture | Scan page picker | `ScanPagePickerView` | multi-page scan, cropper | Needs data |
 | Capture | Result editor | `CaptureResultView` + sections | manual text, image text, field config tip, cropper | Needs data |
-| Review | Review tab empty state | `ReviewView`, `ReviewDashboardView` | no items | Pass: simulator-reviewed on iPhone 17 after UI-FZ-003; evidence `docs/ui-redesign/evidence/2026-06-21-review-empty-after.jpg` |
+| Review | Review tab empty state | `ReviewView`, `ReviewDashboardView` | no items | Pass: simulator-reviewed on iPhone 17 after UI-FZ-003; evidence `docs/ui-redesign/evidence/2026-06-21-review-empty-after.jpg` and `docs/ui-redesign/evidence/2026-06-21-primary-review-empty.png` |
 | Review | Review tab idle populated | `ReviewDashboardView` | due items, all done | Needs data |
 | Review | Active card session | `ReviewView`, `ReviewActionButtons`, card front/back | flip, swipe, undo, pause, summary | Needs data |
 | Review | Card edit sheets | `ReviewCardContent`, `ReviewCardBack` | edit from front/back | Needs data |
-| Settings | Settings main page | `SettingsView` | normal rows, toggles, tab bar, Dynamic Type | In progress |
+| Settings | Settings main page | `SettingsView` | normal rows, toggles, tab bar, Dynamic Type | Normal rows/toggles/tab bar Pass after UI-FZ-005: `docs/ui-redesign/evidence/2026-06-21-primary-settings-main.png`; Dynamic Type still In progress |
 | Settings | Edit profile | `EditProfileView` | default symbol avatar, theme swatches, photo avatar, symbol picker | Default symbol-avatar swatch fixed and simulator-reviewed; shared symbol picker component covered by UI-FZ-004; profile route photo-avatar and picker entry still need screenshot |
 | Settings | Profile list | `ProfileListView` | one profile, multiple profiles, delete disabled/enabled | In progress |
 | Settings | Data and sync | `DataAndSyncSettingsView` | export, import, backup progress, restore dialog | Needs data |

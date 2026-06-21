@@ -42,6 +42,7 @@ public struct SettingsView: View {
     @State private var seedTask: Task<Void, Never>?
     @State private var clearTask: Task<Void, Never>?
     @State private var settingsAvatarImage: UIImage?
+    private let tabBarBreathingRoom: CGFloat = 72
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     // 录入字段可见性（产品规格：学科默认开，其余默认关）
@@ -90,7 +91,7 @@ public struct SettingsView: View {
                 }
 
                 // 2. 录入字段配置
-                Section(L10n.Settings.captureFields) {
+                Section {
                     Toggle(isOn: $showSubjectField) {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.fieldSubject)
                     }
@@ -116,6 +117,12 @@ public struct SettingsView: View {
                     }
                     .accessibilityHint(L10n.Accessibility.fieldAnswerHint)
 
+                } header: {
+                    Text(L10n.Settings.captureFields)
+                } footer: {
+                    Color.clear
+                        .frame(height: tabBarBreathingRoom)
+                        .accessibilityHidden(true)
                 }
 
                 // 3. 回顾设置
@@ -253,6 +260,7 @@ public struct SettingsView: View {
 #endif
             }
             .listStyle(.insetGrouped)
+            .accessibilityIdentifier("settings.root")
             .navigationTitle(L10n.Settings.title)
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: SettingsDestination.self) { destination in

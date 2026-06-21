@@ -2,6 +2,36 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Primary tab screenshot matrix and Settings tab-bar underlap fix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/DashboardView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryListView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-primary-*.png`
+- `docs/ui-redesign/evidence/2026-06-21-settings-main-tabbar-before.png`
+- `docs/ui-redesign/evidence/2026-06-21-settings-main-tabbar-after.png`
+
+### Design Decisions
+
+- Added stable root accessibility identifiers for the five primary tabs so UI-freeze evidence can be regenerated through XCUITest instead of manual screenshots.
+- Added `testUIFreezePrimaryTabSurfaceScreenshots`, which launches a clean empty-library state, visits Dashboard, Library, Capture, Review, and Settings, and stores keep-alive screenshot attachments.
+- Visual review of those screenshots found that the Settings main page allowed the next `回顾设置` section to remain readable behind the floating iOS tab bar. This matched the PO-reported class of “component looks covered underneath.”
+- The Settings capture-field section now reserves named breathing room before the next section. The field group keeps its complete rounded container and the tab bar sits over empty grouped-list background instead of readable row content.
+- This entry covers the regular-size primary empty states only. It is not a full UI-freeze completion claim; populated states, secondary pages, device-only capture flows, and Dynamic Type remain tracked in `UI-FREEZE-QA-MATRIX.md`.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezePrimaryTabSurfaceScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-primary-*.png`
+  - Settings before/after screenshots exported to `docs/ui-redesign/evidence/2026-06-21-settings-main-tabbar-before.png` and `docs/ui-redesign/evidence/2026-06-21-settings-main-tabbar-after.png`
+
 ## 2026-06-21 - Shared symbol picker general-audience correction
 
 ### Scope

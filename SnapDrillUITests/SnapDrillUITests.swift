@@ -18,6 +18,26 @@ final class SnapDrillUITests: XCTestCase {
 
     // MARK: - Helpers
 
+    @discardableResult
+    private func waitForAnyElement(
+        _ identifier: String,
+        in app: XCUIApplication,
+        timeout: TimeInterval = 8,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> XCUIElement {
+        let element = app.descendants(matching: .any)[identifier]
+        XCTAssertTrue(element.waitForExistence(timeout: timeout), "应出现 UI 元素：\(identifier)", file: file, line: line)
+        return element
+    }
+
+    private func addScreenshot(named name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     private func launchApp() -> XCUIApplication {
         let app = XCUIApplication()
         // --uitesting: 触发 DependencyContainer in-memory 模式
@@ -113,6 +133,35 @@ final class SnapDrillUITests: XCTestCase {
             )
             app.terminate()
         }
+    }
+
+    /// UI-freeze evidence: capture the five primary tabs in a clean, empty-library state.
+    func testUIFreezePrimaryTabSurfaceScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+
+        waitForAnyElement("dashboard.root", in: app)
+        addScreenshot(named: "ui-freeze-01-dashboard-empty")
+
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+        addScreenshot(named: "ui-freeze-02-library-empty")
+
+        app.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.root", in: app)
+        XCTAssertTrue(app.buttons["capture.manual"].waitForExistence(timeout: 5), "采集页应显示手动录入入口")
+        addScreenshot(named: "ui-freeze-03-capture-methods")
+
+        app.tabBars.buttons.element(boundBy: 3).tap()
+        waitForAnyElement("review.root", in: app)
+        addScreenshot(named: "ui-freeze-04-review-empty")
+
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+        addScreenshot(named: "ui-freeze-05-settings-main")
     }
 
     /// 步骤②：L3 seed —— 全新库应自动种出 4 个内置维度，且单/多值语义正确

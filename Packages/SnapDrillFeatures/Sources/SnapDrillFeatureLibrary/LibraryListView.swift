@@ -210,6 +210,7 @@ struct LibraryListView: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.clear)
+        .accessibilityIdentifier("library.root")
         .listRowSpacing(12)
         .confirmationDialog(L10n.Library.deleteConfirmTitle, isPresented: $showSwipeDeleteConfirm, titleVisibility: .visible) {
             Button(L10n.Common.delete, role: .destructive) {

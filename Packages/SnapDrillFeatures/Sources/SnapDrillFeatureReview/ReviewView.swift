@@ -54,6 +54,7 @@ public struct ReviewView: View {
                     ProgressView()
                 }
             }
+            .accessibilityIdentifier("review.root")
             .task {
                 // 先确保 ViewModel 存在（注册通知订阅），再加载数据
                 if viewModel == nil {

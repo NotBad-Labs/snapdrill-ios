@@ -196,6 +196,7 @@ public struct CaptureView: View {
                     }
                 }
             }
+            .accessibilityIdentifier("capture.root")
             .navigationTitle(L10n.Capture.title)
             .navigationDestination(for: CaptureDestination.self) { destination in
                 switch destination {

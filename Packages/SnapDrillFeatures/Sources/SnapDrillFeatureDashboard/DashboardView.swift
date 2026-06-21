@@ -125,6 +125,7 @@ public struct DashboardView: View {
                     DashboardLoadingView()
                 }
             }
+            .accessibilityIdentifier("dashboard.root")
             .onAppear {
                 if viewModel == nil {
                     viewModel = DashboardViewModel(
