@@ -192,6 +192,7 @@ struct EditProfileView: View {
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityLabel(L10n.Accessibility.avatarColorName(index))
+                                .accessibilityIdentifier("settings.editProfile.color.\(index)")
                                 .accessibilityAddTraits(userAvatarColorIndex == index ? .isSelected : [])
                             }
                         }

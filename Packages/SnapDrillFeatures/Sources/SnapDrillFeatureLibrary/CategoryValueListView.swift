@@ -36,6 +36,7 @@ struct CategoryValueListView: View {
         }
         .navigationTitle(dimension.name)
         .navigationBarTitleDisplayMode(.inline)
+        .accessibilityIdentifier("dimValueList.root.\(dimension.systemKey ?? dimension.name)")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showingAddSheet = true }, label: {

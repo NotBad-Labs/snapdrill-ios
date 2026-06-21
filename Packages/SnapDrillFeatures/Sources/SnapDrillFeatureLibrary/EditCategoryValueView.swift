@@ -90,6 +90,7 @@ struct EditCategoryValueView: View {
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel(L10n.Library.color)
+                            .accessibilityIdentifier("dimValueEdit.color.\(hex.replacingOccurrences(of: "#", with: ""))")
                             .accessibilityAddTraits((!useCustomColor && selectedColorHex == hex) ? .isSelected : [])
                         }
                     }
@@ -100,6 +101,7 @@ struct EditCategoryValueView: View {
                         Spacer()
                         ColorPicker("", selection: $customColor, supportsOpacity: false)
                             .labelsHidden()
+                            .accessibilityIdentifier("dimValueEdit.customColor")
                             .onChange(of: customColor) { _, _ in
                                 useCustomColor = true
                             }
@@ -110,6 +112,7 @@ struct EditCategoryValueView: View {
                     }
                 }
             }
+            .accessibilityIdentifier("dimValueEdit.root")
             .navigationTitle(isEditing ? L10n.Library.editValue : L10n.Library.addValue)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

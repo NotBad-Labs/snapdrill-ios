@@ -170,6 +170,7 @@ public struct SFSymbolPickerView: View {
                     TextField(L10n.Library.iconSearch, text: $searchText)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .accessibilityIdentifier("symbolPicker.searchField")
                 }
                 .padding(12)
                 .background(Color(.systemGray6))
@@ -208,6 +209,7 @@ public struct SFSymbolPickerView: View {
                             description: Text(L10n.Library.noSearchResultsHint)
                         )
                         .padding()
+                        .accessibilityIdentifier("symbolPicker.empty")
                     }
                 }
             }

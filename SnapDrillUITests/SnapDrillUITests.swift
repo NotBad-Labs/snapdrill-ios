@@ -483,6 +483,64 @@ final class SnapDrillUITests: XCTestCase {
         }
     }
 
+    /// UI-freeze evidence: capture Profile/taxonomy selection controls and symbol-picker search states.
+    func testUIFreezeTaxonomyControlStateScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let editProfile = app.descendants(matching: .any)["settings.editProfile"]
+        XCTAssertTrue(editProfile.waitForExistence(timeout: 5), "设置应显示编辑个人资料入口")
+        editProfile.tap()
+        waitForAnyElement("settings.editProfile.root", in: app)
+
+        let secondProfileColor = app.buttons["settings.editProfile.color.1"]
+        scrollUntilHittable(secondProfileColor, in: app, maxSwipes: 6)
+        XCTAssertTrue(secondProfileColor.waitForExistence(timeout: 5), "Profile 主题色应可定位")
+        secondProfileColor.tap()
+        waitForUIAnimation(seconds: 0.4)
+        addScreenshot(named: "ui-freeze-taxonomy-01-profile-color-selected")
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let manageCategories = app.buttons["settings.manageCategories"]
+        scrollUntilHittable(manageCategories, in: app, maxSwipes: 10)
+        XCTAssertTrue(manageCategories.waitForExistence(timeout: 5), "设置应有分类管理入口")
+        manageCategories.tap()
+        waitForAnyElement("settings.categoryManager.root", in: app)
+
+        app.buttons["dim.row.subject"].tap()
+        waitForAnyElement("dimValueList.root.subject", in: app)
+        addScreenshot(named: "ui-freeze-taxonomy-02-subject-values")
+
+        app.buttons["dimValue.数学"].tap()
+        waitForAnyElement("dimValueEdit.root", in: app)
+        addScreenshot(named: "ui-freeze-taxonomy-03-edit-value-default-color")
+
+        let redSwatch = app.buttons["dimValueEdit.color.E57373"]
+        XCTAssertTrue(redSwatch.waitForExistence(timeout: 5), "分类值颜色 swatch 应可定位")
+        redSwatch.tap()
+        waitForUIAnimation(seconds: 0.4)
+        addScreenshot(named: "ui-freeze-taxonomy-04-edit-value-selected-color")
+
+        app.buttons["dimValueEdit.iconPicker"].tap()
+        waitForAnyElement("symbolPicker.category.common", in: app)
+        addScreenshot(named: "ui-freeze-taxonomy-05-symbol-picker-default")
+
+        let searchField = app.textFields["symbolPicker.searchField"]
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5), "图标选择器应提供搜索框")
+        searchField.tap()
+        searchField.typeText("zzzzzz")
+        dismissKeyboardIfPresent(in: app)
+        waitForAnyElement("symbolPicker.empty", in: app)
+        addScreenshot(named: "ui-freeze-taxonomy-06-symbol-picker-empty-search")
+    }
+
     /// UI-freeze evidence: capture Library populated, filter, detail, edit, selection, and export surfaces.
     func testUIFreezeLibraryPopulatedSurfaceScreenshots() {
         let app = XCUIApplication()

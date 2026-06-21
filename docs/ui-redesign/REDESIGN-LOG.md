@@ -2,6 +2,32 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Taxonomy and swatch control-state matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/CategoryValueListView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/EditCategoryValueView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/SFSymbolPickerView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/EditProfileView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-taxonomy-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeTaxonomyControlStateScreenshots` to cover Profile theme swatches, taxonomy value lists, taxonomy value color swatches, and symbol-picker default/search-empty states.
+- Added leaf accessibility identifiers for Profile color swatches, taxonomy color swatches, taxonomy value roots, and symbol-picker search/empty states. This keeps the identifiers on controls or narrow state markers and avoids broad container identifiers that hide child controls.
+- Verified the Profile and taxonomy selected-color states use accent rings plus white checkmarks, with reserved draw/hit frames; the reported black/clipped selection-ring pattern does not remain in these controls.
+- During test hardening, `-userAvatarColorIndex 0` was rejected because UserDefaults launch arguments override `@AppStorage` writes and can make a real tap appear ineffective. The final test exercises the real AppStorage write path.
+- Symbol-picker empty search is intentionally captured with the keyboard visible. That screenshot covers the active search-input state; non-keyboard empty-state layout can be added later if needed.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeTaxonomyControlStateScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-taxonomy-*.png`
+
 ## 2026-06-21 - Primary tabs AX Dynamic Type matrix
 
 ### Scope
