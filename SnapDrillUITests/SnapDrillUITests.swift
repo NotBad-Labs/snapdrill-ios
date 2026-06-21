@@ -164,6 +164,45 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-05-settings-main")
     }
 
+    /// UI-freeze evidence: capture stable Settings secondary pages without mutating user data.
+    func testUIFreezeSettingsSecondarySurfaceScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let routes: [(entry: String, root: String, screenshot: String)] = [
+            ("settings.editProfile", "settings.editProfile.root", "ui-freeze-settings-01-edit-profile"),
+            ("settings.profileList", "settings.profileList.root", "ui-freeze-settings-02-profile-list"),
+            ("settings.reviewAppearance", "settings.reviewAppearance.root", "ui-freeze-settings-03-review-appearance"),
+            ("settings.notifications", "settings.notifications.root", "ui-freeze-settings-04-notifications"),
+            ("settings.dataAndSync", "settings.dataAndSync.root", "ui-freeze-settings-05-data-sync"),
+            ("settings.storage", "settings.storage.root", "ui-freeze-settings-06-storage"),
+            ("settings.privacyExport", "settings.privacyExport.root", "ui-freeze-settings-07-privacy-export"),
+            ("settings.language", "settings.language.root", "ui-freeze-settings-08-language"),
+            ("settings.manageCategories", "settings.categoryManager.root", "ui-freeze-settings-09-category-manager"),
+            ("settings.privacyPolicy", "settings.privacyPolicy.root", "ui-freeze-settings-10-privacy-policy"),
+            ("settings.terms", "settings.terms.root", "ui-freeze-settings-11-terms")
+        ]
+
+        for route in routes {
+            let entry = app.descendants(matching: .any)[route.entry]
+            scrollUntilHittable(entry, in: app, maxSwipes: 10)
+            XCTAssertTrue(entry.waitForExistence(timeout: 5), "设置入口应出现：\(route.entry)")
+            XCTAssertTrue(entry.isHittable, "设置入口应可点击：\(route.entry)")
+            entry.tap()
+
+            waitForAnyElement(route.root, in: app)
+            addScreenshot(named: route.screenshot)
+
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+            waitForAnyElement("settings.root", in: app)
+        }
+    }
+
     /// 步骤②：L3 seed —— 全新库应自动种出 4 个内置维度，且单/多值语义正确
     func testSeedBuiltInDimensions() {
         let app = XCUIApplication()

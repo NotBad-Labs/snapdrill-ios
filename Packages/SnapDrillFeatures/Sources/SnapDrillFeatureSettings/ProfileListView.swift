@@ -48,6 +48,7 @@ struct ProfileListView: View {
                 }
             }
         }
+        .accessibilityIdentifier("settings.profileList.root")
         .navigationTitle(L10n.Settings.switchLearner)
         .navigationBarTitleDisplayMode(.inline)
         .alert(L10n.Common.delete, isPresented: .init(

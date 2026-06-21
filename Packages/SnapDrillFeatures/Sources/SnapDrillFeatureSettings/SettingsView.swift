@@ -82,12 +82,14 @@ public struct SettingsView: View {
                     } label: {
                         profileRow
                     }
+                    .accessibilityIdentifier("settings.editProfile")
                 }
 
                 Section {
                     NavigationLink(value: SettingsDestination.profileList) {
                         SettingsRow(icon: "person.2.fill", gradientStart: .cyan, gradientEnd: .blue, title: L10n.Settings.switchLearner)
                     }
+                    .accessibilityIdentifier("settings.profileList")
                 }
 
                 // 2. 录入字段配置
@@ -137,6 +139,7 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "eye.fill", gradientStart: .indigo, gradientEnd: .blue, title: L10n.Settings.cardAppearance)
                     }
+                    .accessibilityIdentifier("settings.reviewAppearance")
 
 
                     NavigationLink {
@@ -144,6 +147,7 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "bell.fill", gradientStart: .red, gradientEnd: .orange, title: L10n.Settings.reviewReminder)
                     }
+                    .accessibilityIdentifier("settings.notifications")
 
                 }
 
@@ -158,6 +162,7 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "externaldrive.fill", gradientStart: .blue, gradientEnd: .cyan, title: L10n.Settings.dataAndSync)
                     }
+                    .accessibilityIdentifier("settings.dataAndSync")
 
 
                     NavigationLink {
@@ -165,12 +170,14 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "internaldrive.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.storageManagement)
                     }
+                    .accessibilityIdentifier("settings.storage")
 
                     NavigationLink {
                         PrivacySettingsView()
                     } label: {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: L10n.Settings.privacyAndExport)
                     }
+                    .accessibilityIdentifier("settings.privacyExport")
 
                 } header: {
                     Text(L10n.Settings.dataAndSync)
@@ -192,6 +199,7 @@ public struct SettingsView: View {
                     } label: {
                         SettingsRow(icon: "globe", gradientStart: .green, gradientEnd: .teal, title: L10n.Settings.language, value: AppLanguage.current.displayName)
                     }
+                    .accessibilityIdentifier("settings.language")
 
                 }
 
@@ -234,11 +242,13 @@ public struct SettingsView: View {
                     NavigationLink(value: SettingsDestination.privacyPolicy) {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: L10n.Settings.privacyPolicy)
                     }
+                    .accessibilityIdentifier("settings.privacyPolicy")
 
 
                     NavigationLink(value: SettingsDestination.termsOfService) {
                         SettingsRow(icon: "doc.text.fill", gradientStart: .blue, gradientEnd: .teal, title: L10n.Settings.termsOfService)
                     }
+                    .accessibilityIdentifier("settings.terms")
 
                 }
 

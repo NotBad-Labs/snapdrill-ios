@@ -107,8 +107,10 @@ public struct PrivacyPolicyView: View {
             }
             .padding()
         }
+        .accessibilityIdentifier("settings.privacyPolicy.root")
         .navigationTitle(L10n.PrivacyPolicy.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 
     @ViewBuilder

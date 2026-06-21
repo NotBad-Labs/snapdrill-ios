@@ -202,6 +202,7 @@ struct EditProfileView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .accessibilityIdentifier("settings.editProfile.root")
         .navigationTitle(L10n.EditProfile.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)

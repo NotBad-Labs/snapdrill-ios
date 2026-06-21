@@ -94,6 +94,7 @@ struct LanguageSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .accessibilityIdentifier("settings.language.root")
         .navigationTitle(L10n.Settings.language)
         .navigationBarTitleDisplayMode(.inline)
         .alert(L10n.Settings.languageChangeTitle, isPresented: $showRestartAlert) {

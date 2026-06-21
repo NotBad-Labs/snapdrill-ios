@@ -170,8 +170,10 @@ struct DataAndSyncSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .accessibilityIdentifier("settings.dataAndSync.root")
         .navigationTitle(L10n.Settings.dataAndSync)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .alert(L10n.Settings.clearCacheTitle, isPresented: $showingClearCacheAlert) {
             Button(L10n.Settings.clearCacheAction, role: .destructive) {
                 clearCache()

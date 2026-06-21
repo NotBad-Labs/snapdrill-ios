@@ -2,6 +2,41 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Settings secondary-page visual matrix and tab-bar underlap fixes
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/EditProfileView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ProfileListView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ReviewAppearanceSettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/NotificationSettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/DataAndSyncSettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/StorageManagementView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/PrivacySettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/LanguageSettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/PrivacyPolicyView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/TermsOfServiceView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/CategoryManagerView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-settings-secondary-*.png`
+
+### Design Decisions
+
+- Added stable Settings route/root accessibility identifiers and `testUIFreezeSettingsSecondarySurfaceScreenshots` so secondary-page visual QA is reproducible.
+- Screenshot review found true bottom underlap on long Settings details: `DataAndSyncSettingsView`, `PrivacyPolicyView`, and `TermsOfServiceView` had readable rows or legal body text behind the floating tab bar.
+- Long, self-contained Settings details now hide the tab bar, matching the existing Edit Profile pattern and preventing controls or legal text from sitting under floating chrome.
+- `CategoryManagerView` intentionally keeps the tab bar visible because existing category-management E2E flows configure taxonomy and then switch to Capture without popping the Settings stack.
+- Legal text and legal dates were not edited in this visual pass. The screenshots only verify chrome; Privacy Policy and Terms content remains legal-gated.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeSettingsSecondarySurfaceScreenshots`
+  - Before screenshots for the validated underlap: `2026-06-21-settings-data-sync-tabbar-before.png`, `2026-06-21-settings-privacy-policy-tabbar-before.png`, `2026-06-21-settings-terms-tabbar-before.png`
+  - After screenshots for 11 Settings secondary surfaces: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-*.png`
+
 ## 2026-06-21 - Primary tab screenshot matrix and Settings tab-bar underlap fix
 
 ### Scope

@@ -97,6 +97,7 @@ struct PrivacySettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .accessibilityIdentifier("settings.privacyExport.root")
         .navigationTitle(L10n.Settings.privacyAndSecurity)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: Binding(

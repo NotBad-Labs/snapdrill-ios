@@ -94,8 +94,10 @@ struct ReviewAppearanceSettingsView: View {
                 }
             }
         }
+        .accessibilityIdentifier("settings.reviewAppearance.root")
         .navigationTitle(L10n.Settings.cardAppearanceTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 
     // MARK: - Private Helpers

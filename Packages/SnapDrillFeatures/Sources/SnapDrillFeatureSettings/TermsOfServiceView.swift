@@ -113,8 +113,10 @@ public struct TermsOfServiceView: View {
             }
             .padding()
         }
+        .accessibilityIdentifier("settings.terms.root")
         .navigationTitle(L10n.TermsOfService.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 
     @ViewBuilder

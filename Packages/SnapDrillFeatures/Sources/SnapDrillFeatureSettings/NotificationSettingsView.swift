@@ -70,6 +70,7 @@ struct NotificationSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .accessibilityIdentifier("settings.notifications.root")
         .navigationTitle(L10n.Settings.notificationAndReminder)
         .navigationBarTitleDisplayMode(.inline)
         .alert(L10n.Settings.permissionDeniedTitle, isPresented: Binding(

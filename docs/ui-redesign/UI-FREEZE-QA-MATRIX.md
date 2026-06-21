@@ -24,6 +24,7 @@
 | UI-FZ-003 | P2 | Review tab empty state | Review used Dashboard/Library empty-state copy (`还没有任何资料` / `开始采集`), making the Review tab look like the wrong surface. Before: `docs/ui-redesign/evidence/2026-06-21-review-empty-before.jpg`. | Fixed in `ReviewDashboardView`: Review now uses Review-specific title, description, icon, and CTA. After: `docs/ui-redesign/evidence/2026-06-21-review-empty-after.jpg`. |
 | UI-FZ-004 | P2 | Shared symbol picker from Profile and taxonomy editors | `SFSymbolPickerView` still exposed hard-coded Chinese, education-oriented category titles such as `学术`, `数学/逻辑`, `理化/实验`, and `体育/运动`, and the selected icon state needed the same visible accent/check treatment as the color swatches. | Fixed in `SFSymbolPickerView`: categories are localized general-audience groups, item selection uses accent ring + checkmark + `.isSelected`, and `testIconPickerUsesGeneralAudienceCategories` covers visible categories plus selection round-trip. Evidence: `docs/ui-redesign/evidence/2026-06-21-icon-picker-general-audience.png`. |
 | UI-FZ-005 | P2 | Settings main page > floating tab bar underlap | The initial Settings viewport allowed the next `回顾设置` section to remain readable through the iOS floating tab bar, making it look like a row was covered. Before: `docs/ui-redesign/evidence/2026-06-21-settings-main-tabbar-before.png`. | Fixed in `SettingsView`: the capture-field section now reserves named breathing room before the next section, so the field group remains complete and the tab bar sits over empty background. After: `docs/ui-redesign/evidence/2026-06-21-settings-main-tabbar-after.png`; covered by `testUIFreezePrimaryTabSurfaceScreenshots`. |
+| UI-FZ-006 | P1 | Settings secondary long-scroll pages > floating tab bar underlap | Settings secondary screenshot pass found readable content under the tab bar in Data & Sync, Privacy Policy, and Terms. Before: `2026-06-21-settings-data-sync-tabbar-before.png`, `2026-06-21-settings-privacy-policy-tabbar-before.png`, `2026-06-21-settings-terms-tabbar-before.png`. | Fixed by hiding the tab bar on self-contained long Settings detail pages (`EditProfileView`, `ReviewAppearanceSettingsView`, `DataAndSyncSettingsView`, `PrivacyPolicyView`, `TermsOfServiceView`) while keeping Category Manager tab access for the existing category-to-capture E2E flow. Covered by `testUIFreezeSettingsSecondarySurfaceScreenshots`; after evidence: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-*.png`. Legal text itself remains legal-gated and unchanged. |
 
 ## Static Risk Queries
 
@@ -63,7 +64,7 @@ Legend:
 | Library | Detail page | `LibraryDetailView` | text-only, image item, answer shown, share card | Needs data |
 | Library | Edit item | `LibraryEditView` | text/image item, cropper, field rows | Needs data |
 | Library | Full-screen image | `FullScreenImageView` | portrait/landscape image, zoom/pan | Needs data |
-| Library | Taxonomy manager | `CategoryManagerView`, `CategoryValueListView` | list, add/edit/delete dimension values | In progress |
+| Library | Taxonomy manager | `CategoryManagerView`, `CategoryValueListView` | list, add/edit/delete dimension values | Category manager list Pass: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-09-category-manager.png`; value-list and edit sheets still In progress |
 | Library | Edit taxonomy value | `EditCategoryValueView` | preset color selected, custom color selected, symbol picker | Code fixed; needs simulator screenshot |
 | Library | Symbol picker | `SFSymbolPickerView` | search, selected symbol, empty search | Pass for default selected state and visible default categories via XCUITest screenshot attachment; search and empty-search states still need visual pass |
 | Capture | Capture tab method grid | `CaptureView`, `CaptureMethodCard` | regular text size, accessibility text size | Regular text size Pass: `docs/ui-redesign/evidence/2026-06-21-primary-capture-methods.png`; accessibility text size still In progress |
@@ -77,15 +78,15 @@ Legend:
 | Review | Active card session | `ReviewView`, `ReviewActionButtons`, card front/back | flip, swipe, undo, pause, summary | Needs data |
 | Review | Card edit sheets | `ReviewCardContent`, `ReviewCardBack` | edit from front/back | Needs data |
 | Settings | Settings main page | `SettingsView` | normal rows, toggles, tab bar, Dynamic Type | Normal rows/toggles/tab bar Pass after UI-FZ-005: `docs/ui-redesign/evidence/2026-06-21-primary-settings-main.png`; Dynamic Type still In progress |
-| Settings | Edit profile | `EditProfileView` | default symbol avatar, theme swatches, photo avatar, symbol picker | Default symbol-avatar swatch fixed and simulator-reviewed; shared symbol picker component covered by UI-FZ-004; profile route photo-avatar and picker entry still need screenshot |
-| Settings | Profile list | `ProfileListView` | one profile, multiple profiles, delete disabled/enabled | In progress |
-| Settings | Data and sync | `DataAndSyncSettingsView` | export, import, backup progress, restore dialog | Needs data |
-| Settings | Privacy/export | `PrivacySettingsView` | export options, clear data confirmation | In progress |
-| Settings | Review appearance | `ReviewAppearanceSettingsView` | front/back previews | In progress |
-| Settings | Notifications | `NotificationSettingsView` | enabled/disabled, permission denied/granted | Needs device/system permission state |
-| Settings | Language | `LanguageSettingsView` | current language, switch confirmation | In progress |
-| Settings | Storage | `StorageManagementView` | image cache populated/empty | Needs data |
-| Settings | Legal/info pages | `PrivacyPolicyView`, `TermsOfServiceView`, `LicenseView` | scroll, link rows, license detail | In progress |
+| Settings | Edit profile | `EditProfileView` | default symbol avatar, theme swatches, photo avatar, symbol picker | Default symbol-avatar swatch fixed and screenshot-covered: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-01-edit-profile.png`; shared symbol picker component covered by UI-FZ-004; photo-avatar state still Needs data |
+| Settings | Profile list | `ProfileListView` | one profile, multiple profiles, delete disabled/enabled | One-profile state Pass: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-02-profile-list.png`; multi-profile/delete states still Needs data |
+| Settings | Data and sync | `DataAndSyncSettingsView` | export, import, backup progress, restore dialog | Default local-data state Pass after UI-FZ-006: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-05-data-sync.png`; progress/dialog states still Needs data |
+| Settings | Privacy/export | `PrivacySettingsView` | export options, clear data confirmation | Default state Pass: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-07-privacy-export.png`; export dialog/share states still In progress |
+| Settings | Review appearance | `ReviewAppearanceSettingsView` | front/back previews | Default preview state Pass after UI-FZ-006: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-03-review-appearance.png`; interaction states still In progress |
+| Settings | Notifications | `NotificationSettingsView` | enabled/disabled, permission denied/granted | Disabled state Pass: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-04-notifications.png`; permission states still Needs device/system state |
+| Settings | Language | `LanguageSettingsView` | current language, switch confirmation | Current-language state Pass: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-08-language.png`; restart alert state still In progress |
+| Settings | Storage | `StorageManagementView` | image cache populated/empty | Empty-cache state Pass: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-06-storage.png`; populated cache still Needs data |
+| Settings | Legal/info pages | `PrivacyPolicyView`, `TermsOfServiceView`, `LicenseView` | scroll, link rows, license detail | Privacy Policy and Terms first viewport Pass after UI-FZ-006: `docs/ui-redesign/evidence/2026-06-21-settings-secondary-10-privacy-policy.png`, `docs/ui-redesign/evidence/2026-06-21-settings-secondary-11-terms.png`; legal content remains legal-gated; License still In progress |
 
 ## Exit Criteria
 

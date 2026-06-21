@@ -39,6 +39,7 @@ public struct CategoryManagerView: View {
                 }
             }
         }
+        .accessibilityIdentifier("settings.categoryManager.root")
         .navigationTitle(L10n.Library.categoryManager)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

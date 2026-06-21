@@ -41,6 +41,7 @@ struct StorageManagementView: View {
             }
         }
         .listStyle(.insetGrouped)
+        .accessibilityIdentifier("settings.storage.root")
         .navigationTitle(L10n.Settings.storageManagement)
         .navigationBarTitleDisplayMode(.inline)
         .task {
