@@ -2,6 +2,29 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Settings profile row and detail chrome correction
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsView.swift`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Design Decisions
+
+- PO reported a second Settings visual issue: the "User / Edit profile" row looked shorter than the following row, and the pushed profile editor appeared to have content covered underneath.
+- Root cause: the Settings profile entry still rendered a custom glass card inside a system `List` row, so its visual width, corner treatment, and layer stack did not match the native inset-grouped rows.
+- The profile entry now uses the native inset-grouped row container and keeps only row content customizations: 52 pt avatar, headline/subheadline text, and standard row hit area.
+- Settings detail pages hide the tab bar after push. This prevents form controls and preview rows from sitting behind the floating iOS tab bar, matching the focused settings-detail navigation model.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `build_run_sim` for `SnapDrill` on iPhone 17 simulator
+  - XcodeBuildMCP screenshots for Settings main page and Edit Profile detail page
+  - `swiftlint --strict`
+  - `git diff --check`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
 ## 2026-06-21 - Capture HIG contrast and Dynamic Type correction
 
 ### Scope

@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  设置功能主界面，系统样式图标 + iOS 26 glass profile 区。
+//  设置功能主界面，系统样式图标 + 分组列表入口。
 //
 
 import SwiftUI
@@ -21,7 +21,7 @@ import MessageUI
 
 /// 设置功能主界面
 ///
-/// 采用系统样式图标 + iOS 26 glass profile 区，提供外观、数据管理和关于等各类设置入口。
+/// 采用系统样式图标 + 原生分组列表，提供外观、数据管理和关于等各类设置入口。
 public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
     @Environment(\.repositories) private var repositories
@@ -74,16 +74,14 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationStack(path: $router.path) {
             List {
-                // 1. Profile（glass 背景，系统头像区）
+                // 1. Profile（系统头像区）
                 Section {
                     NavigationLink {
                         EditProfileView()
+                            .settingsDetailChrome()
                     } label: {
                         profileRow
                     }
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
                 }
 
                 Section {
@@ -130,6 +128,7 @@ public struct SettingsView: View {
                             frontAlignmentRaw: $frontAlignmentRaw,
                             frontFontSizeRaw: $frontFontSizeRaw
                         )
+                        .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "eye.fill", gradientStart: .indigo, gradientEnd: .blue, title: L10n.Settings.cardAppearance)
                     }
@@ -137,6 +136,7 @@ public struct SettingsView: View {
 
                     NavigationLink {
                         NotificationSettingsView()
+                            .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "bell.fill", gradientStart: .red, gradientEnd: .orange, title: L10n.Settings.reviewReminder)
                     }
@@ -148,8 +148,10 @@ public struct SettingsView: View {
                     NavigationLink {
                         if let viewModel {
                             DataAndSyncSettingsView(viewModel: viewModel)
+                                .settingsDetailChrome()
                         } else {
                             ProgressView()
+                                .settingsDetailChrome()
                         }
                     } label: {
                         SettingsRow(icon: "externaldrive.fill", gradientStart: .blue, gradientEnd: .cyan, title: L10n.Settings.dataAndSync)
@@ -158,12 +160,14 @@ public struct SettingsView: View {
 
                     NavigationLink {
                         StorageManagementView()
+                            .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "internaldrive.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.storageManagement)
                     }
 
                     NavigationLink {
                         PrivacySettingsView()
+                            .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: L10n.Settings.privacyAndExport)
                     }
@@ -185,6 +189,7 @@ public struct SettingsView: View {
 
                     NavigationLink {
                         LanguageSettingsView()
+                            .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "globe", gradientStart: .green, gradientEnd: .teal, title: L10n.Settings.language, value: AppLanguage.current.displayName)
                     }
@@ -195,6 +200,7 @@ public struct SettingsView: View {
                 Section(L10n.Settings.categoryManagement) {
                     NavigationLink {
                         CategoryManagerView()
+                            .settingsDetailChrome()
                     } label: {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.manageCategories)
                     }
@@ -262,14 +268,19 @@ public struct SettingsView: View {
                 switch destination {
                 case .placeholder:
                     Text(L10n.Common.comingSoon)
+                        .settingsDetailChrome()
                 case .licenses:
                     LicenseView()
+                        .settingsDetailChrome()
                 case .privacyPolicy:
                     PrivacyPolicyView()
+                        .settingsDetailChrome()
                 case .termsOfService:
                     TermsOfServiceView()
+                        .settingsDetailChrome()
                 case .profileList:
                     ProfileListView(profileManager: profileManager)
+                        .settingsDetailChrome()
                 }
             }
             .alert(L10n.Settings.clearConfirmTitle, isPresented: $showingClearAlert) {
@@ -313,33 +324,27 @@ public struct SettingsView: View {
 
     // MARK: - Private Helpers
 
-    /// Profile 行：大头像 + 姓名 + 副标题，iOS 26 glass 背景
+    /// Profile 行：系统 insetGrouped 行内的头像 + 姓名 + 副标题。
     @ViewBuilder
     private var profileRow: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 14) {
             avatarView
-                .frame(width: 64, height: 64)
+                .frame(width: 52, height: 52)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(userName)
-                    .font(.title3.bold())
+                    .font(.headline)
+                    .lineLimit(1)
                 Text(L10n.Settings.editProfileSubtitle)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
 
-            Spacer()
+            Spacer(minLength: 8)
         }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 16)
-        .background {
-            // iOS 26 Liquid Glass — Profile 卡片专用
-            RoundedRectangle(cornerRadius: 16)
-                .fill(.clear)
-                .glassEffect()
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder
@@ -363,12 +368,12 @@ public struct SettingsView: View {
                 .foregroundStyle(.secondary)
         } else {
             Image(systemName: userAvatar)
-                .font(.system(size: 36))
+                .font(.system(size: 30))
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(
                     LinearGradient(colors: selectedColors, startPoint: .topLeading, endPoint: .bottomTrailing)
                 )
-                .frame(width: 64, height: 64)
+                .frame(width: 52, height: 52)
                 .background(Circle().fill(.ultraThinMaterial))
                 .clipShape(Circle())
         }
@@ -400,4 +405,10 @@ public struct SettingsView: View {
         }
     }
 
+}
+
+private extension View {
+    func settingsDetailChrome() -> some View {
+        toolbar(.hidden, for: .tabBar)
+    }
 }
