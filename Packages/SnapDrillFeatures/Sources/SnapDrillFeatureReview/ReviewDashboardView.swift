@@ -49,11 +49,11 @@ struct ReviewDashboardView: View {
 
     private var emptyLibraryState: some View {
         ContentUnavailableView {
-            Label(L10n.Dashboard.emptyTitle, systemImage: "tray")
+            Label(L10n.Review.emptyTitle, systemImage: "clock.arrow.circlepath")
         } description: {
-            Text(L10n.Dashboard.emptyDescription)
+            Text(L10n.Review.emptyHint)
         } actions: {
-            Button(L10n.Dashboard.goCapture, action: onEnter)
+            Button(L10n.Review.emptyAction, action: onEnter)
                 .buttonStyle(.borderedProminent)
         }
         .padding(.horizontal, 24)
@@ -154,7 +154,7 @@ struct ReviewDashboardView: View {
             .accessibilityHint(L10n.Accessibility.startReviewHint)
         } else if totalItemsCount == 0 {
             Button(action: onEnter) {
-                Label(L10n.Dashboard.goCapture, systemImage: "plus")
+                Label(L10n.Review.emptyAction, systemImage: "plus")
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .frame(height: 52)

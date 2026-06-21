@@ -276,7 +276,9 @@
 "review.today_review" = "Today's Review";
 "review.cards_pending" = "items to process";
 "review.welcome_back" = "Start Review";
-"review.empty_hint" = "No content yet. Capture an item first.";
+"review.empty_title" = "No Review Items Yet";
+"review.empty_hint" = "Capture or import content first. Scheduled items will appear here when due.";
+"review.empty_action" = "Capture Content";
 "review.excellent" = "No items due.";
 "review.start_review" = "Start Review";
 "review.go_rest" = "No items due";

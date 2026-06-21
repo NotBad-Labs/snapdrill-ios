@@ -21,6 +21,7 @@
 | --- | --- | --- | --- | --- |
 | UI-FZ-001 | P1 | Settings > Edit Profile > Theme color | Selected swatch used `Color.primary` stroke on the swatch boundary, producing a black ring in light mode and clipped stroke at the row edge. | Fixed in `EditProfileView`: selected swatch now uses reserved 56 pt hit/draw area, accent ring, and white checkmark. |
 | UI-FZ-002 | P2 | Library taxonomy manager > Edit value > Color | Same `Color.primary` swatch-selection pattern existed in category value color picker. | Fixed in `EditCategoryValueView`: selected swatch now uses reserved frame, accent ring, white checkmark, and `.isSelected`. |
+| UI-FZ-003 | P2 | Review tab empty state | Review used Dashboard/Library empty-state copy (`还没有任何资料` / `开始采集`), making the Review tab look like the wrong surface. Before: `docs/ui-redesign/evidence/2026-06-21-review-empty-before.jpg`. | Fixed in `ReviewDashboardView`: Review now uses Review-specific title, description, icon, and CTA. After: `docs/ui-redesign/evidence/2026-06-21-review-empty-after.jpg`. |
 
 ## Static Risk Queries
 
@@ -69,7 +70,7 @@ Legend:
 | Capture | PDF page picker | `PDFPagePickerView` | multi-page PDF, cropper | Needs data |
 | Capture | Scan page picker | `ScanPagePickerView` | multi-page scan, cropper | Needs data |
 | Capture | Result editor | `CaptureResultView` + sections | manual text, image text, field config tip, cropper | Needs data |
-| Review | Review tab empty state | `ReviewView`, `ReviewDashboardView` | no items | Pass in recent run; keep in matrix for re-screenshot if UI changes |
+| Review | Review tab empty state | `ReviewView`, `ReviewDashboardView` | no items | Pass: simulator-reviewed on iPhone 17 after UI-FZ-003; evidence `docs/ui-redesign/evidence/2026-06-21-review-empty-after.jpg` |
 | Review | Review tab idle populated | `ReviewDashboardView` | due items, all done | Needs data |
 | Review | Active card session | `ReviewView`, `ReviewActionButtons`, card front/back | flip, swipe, undo, pause, summary | Needs data |
 | Review | Card edit sheets | `ReviewCardContent`, `ReviewCardBack` | edit from front/back | Needs data |

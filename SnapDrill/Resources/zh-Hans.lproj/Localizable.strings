@@ -268,7 +268,9 @@
 "review.today_review" = "今日回顾";
 "review.cards_pending" = "条内容待处理";
 "review.welcome_back" = "开始回顾";
-"review.empty_hint" = "还没有资料，先去采集一条。";
+"review.empty_title" = "暂无回顾内容";
+"review.empty_hint" = "采集或导入资料后，可在这里按计划回顾。";
+"review.empty_action" = "去采集";
 "review.excellent" = "当前没有待处理内容。";
 "review.start_review" = "开始回顾";
 "review.go_rest" = "暂无待回顾内容";

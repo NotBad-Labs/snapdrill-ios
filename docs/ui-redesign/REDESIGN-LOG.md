@@ -31,24 +31,27 @@
 
 ### Scope
 
-- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewView.swift`
 - `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewDashboardView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Review.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-review-empty-before.jpg`
+- `docs/ui-redesign/evidence/2026-06-21-review-empty-after.jpg`
 
 ### Design Decisions
 
 - PO reported that the Review tab looked visually awkward on a fresh/empty library.
-- Root cause: the Review idle dashboard showed two zero-count stat blocks plus a gray bordered capsule action, which made the primary capture action look disabled and gave empty data too much visual weight.
-- The empty-library Review state now uses native `ContentUnavailableView`, matching the system empty-state pattern already used on the Home tab.
-- Review now exposes a real navigation title outside the immersive card session. The navigation and tab bars remain hidden only during active reviewing.
+- Root cause: the Review empty state already used native `ContentUnavailableView`, but its title, description, icon, and CTA were borrowed from the Dashboard/Library empty state. In the Review tab this read like the wrong surface: `还没有任何资料` / `开始采集`.
+- The empty-library Review state now uses Review-specific copy and iconography: `暂无回顾内容`, a clock/review symbol, explanatory body copy, and a `去采集` CTA.
+- English localization now mirrors the same Review-specific state: `No Review Items Yet`, `Capture or import content first. Scheduled items will appear here when due.`, and `Capture Content`.
 - Non-empty Review idle states keep the existing status dashboard and review-session entry point.
 
 ### DoD Status
 
 - Passed in this local change:
-  - XcodeBuildMCP screenshot of empty Review tab
-  - `swiftlint --strict`
-  - `git diff --check`
-  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+  - XcodeBuildMCP before screenshot: `docs/ui-redesign/evidence/2026-06-21-review-empty-before.jpg`
+  - XcodeBuildMCP after screenshot: `docs/ui-redesign/evidence/2026-06-21-review-empty-after.jpg`
 
 ## 2026-06-21 - Profile workspace default naming and selection chrome
 
