@@ -25,6 +25,7 @@ public struct CaptureView: View {
     @Environment(\.repositories) private var repositories
     @Environment(\.profileManager) private var profileManager
     @Environment(\.analyticsService) private var analyticsService
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     
     @State private var viewModel = CaptureViewModel()
     /// 连续裁剪模式：是否正在显示裁剪器
@@ -35,6 +36,14 @@ public struct CaptureView: View {
     /// - Parameter router: 注入的路由器
     public init(router: CaptureRouter) {
         self.router = router
+    }
+
+    private var methodColumns: [GridItem] {
+        if dynamicTypeSize.isAccessibilitySize {
+            [GridItem(.flexible())]
+        } else {
+            [GridItem(.flexible()), GridItem(.flexible())]
+        }
     }
     
     // MARK: - Body
@@ -54,7 +63,7 @@ public struct CaptureView: View {
                             .padding(.horizontal)
                         
                         GlassEffectContainer {
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                        LazyVGrid(columns: methodColumns, spacing: 16) {
                             // 1. 智能扫描（先检查权限再打开相机）
                             CaptureMethodCard(
                                 icon: "camera.viewfinder",
@@ -77,17 +86,18 @@ public struct CaptureView: View {
                             }
                             
                             // 2. 相册导入
+                            let isAlbumProcessing = viewModel.isProcessing
                             PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
                                 CaptureMethodCardContent(
                                     icon: "photo.on.rectangle",
                                     title: L10n.Capture.albumTitle,
                                     subtitle: L10n.Capture.albumSubtitle,
                                     color: .purple,
-                                    isBusy: viewModel.isProcessing
+                                    isBusy: isAlbumProcessing
                                 )
                             }
                             .buttonStyle(.plain)
-                            .glassEffect(.regular.tint(.purple).interactive(), in: .rect(cornerRadius: 16))
+                            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
                             .opacity(isInteractionDisabled ? 0.55 : 1)
                             .disabled(isInteractionDisabled)
                             .accessibleButton(label: L10n.Capture.albumTitle, hint: L10n.Accessibility.albumHint)
@@ -162,6 +172,7 @@ public struct CaptureView: View {
                         Spacer()
                     }
                     .padding(.top)
+                    .padding(.bottom, 96)
                 }
                 .scrollIndicators(.hidden)
                 

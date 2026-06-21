@@ -18,6 +18,7 @@ struct CaptureMethodCardContent: View {
     let subtitle: String
     let color: Color
     var isBusy = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -43,18 +44,18 @@ struct CaptureMethodCardContent: View {
                 Text(title)
                     .font(.headline)
                     .foregroundStyle(.primary)
-                    .lineLimit(2)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)
                     .multilineTextAlignment(.leading)
 
                 Text(subtitle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                    .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)
                     .multilineTextAlignment(.leading)
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(minHeight: 118, alignment: .topLeading)
+        .frame(minHeight: dynamicTypeSize.isAccessibilitySize ? 142 : 118, alignment: .topLeading)
         .padding(16)
     }
 }
@@ -96,7 +97,8 @@ struct CaptureMethodCard: View {
         Button(action: action) {
             CaptureMethodCardContent(icon: icon, title: title, subtitle: subtitle, color: color, isBusy: isBusy)
         }
-        .glassEffect(.regular.tint(color).interactive(), in: .rect(cornerRadius: 16))
+        .buttonStyle(.plain)
+        .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
         .opacity(isDisabled ? 0.55 : 1)
         .disabled(isDisabled)
         .accessibleButton(label: title, hint: accessibilityHintText.isEmpty ? subtitle : accessibilityHintText)

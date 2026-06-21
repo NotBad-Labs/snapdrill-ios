@@ -2,6 +2,28 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Capture HIG contrast and Dynamic Type correction
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureMethodCard.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureView.swift`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Design Decisions
+
+- Simulator HIG audit found that Capture method cards used strongly tinted Liquid Glass surfaces while their labels still used system primary/secondary text colors, producing poor contrast on blue, red, and green cards in both Light and Dark appearances.
+- Capture method cards now use neutral interactive Liquid Glass surfaces; feature color is retained in the icon tile only, keeping labels on system text colors for readability.
+- Accessibility Dynamic Type sizes switch the method grid from two columns to one column and allow labels more lines, preventing compressed cards and tab bar overlap.
+- The Capture scroll content now reserves bottom space so the last method card can scroll above the iOS tab bar.
+
+### DoD Status
+
+- Passed in this local change:
+  - `swiftlint --strict`
+  - XcodeBuildMCP simulator screenshots: Light, Dark, Accessibility Large
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
 ## 2026-06-21 - Settings profile section shape correction
 
 ### Scope
