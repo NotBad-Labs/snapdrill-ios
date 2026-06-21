@@ -20,6 +20,7 @@ struct ReviewCardBack: View {
     // MARK: - Properties
 
     let item: ReviewItemModel
+    let showsActions: Bool
 
     @Environment(\.profileManager) private var profileManager
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
@@ -71,20 +72,23 @@ struct ReviewCardBack: View {
                     Spacer()
                 }
 
-                Menu {
-                    Button {
-                        showingEditSheet = true
+                if showsActions {
+                    Menu {
+                        Button {
+                            showingEditSheet = true
+                        } label: {
+                            Label(L10n.Library.editContent, systemImage: "pencil")
+                        }
                     } label: {
-                        Label(L10n.Library.editContent, systemImage: "pencil")
+                        Image(systemName: "ellipsis.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.tertiary)
+                            .padding(12)
+                            .contentShape(Circle())
                     }
-                } label: {
-                    Image(systemName: "ellipsis.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(.tertiary)
-                        .padding(12)
-                        .contentShape(Circle())
+                    .accessibilityIdentifier("review.card.back.more")
+                    .accessibilityLabel(L10n.Accessibility.moreActions)
                 }
-                .accessibilityLabel(L10n.Accessibility.moreActions)
             }
             .padding(.horizontal, 24)
             .padding(.top, 24)
@@ -159,7 +163,6 @@ struct ReviewCardBack: View {
         .sheet(isPresented: $showingEditSheet) {
             LibraryEditView(item: item)
         }
-        .accessibilityIdentifier("review.card.back")
     }
 
     // MARK: - Private Helpers

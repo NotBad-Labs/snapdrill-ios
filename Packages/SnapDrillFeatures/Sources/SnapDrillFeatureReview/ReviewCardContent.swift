@@ -21,6 +21,7 @@ struct ReviewCardFront: View {
     // MARK: - Properties
 
     let item: ReviewItemModel
+    let showsActions: Bool
 
     @State private var showingEditSheet = false
     @Environment(\.profileManager) private var profileManager
@@ -146,20 +147,23 @@ struct ReviewCardFront: View {
         )
         .shadow(color: Color.black.opacity(0.04), radius: 12, x: 0, y: 6)
         .overlay(alignment: .topTrailing) {
-            Menu {
-                Button {
-                    showingEditSheet = true
+            if showsActions {
+                Menu {
+                    Button {
+                        showingEditSheet = true
+                    } label: {
+                        Label(L10n.Library.editQuestion, systemImage: "pencil")
+                    }
                 } label: {
-                    Label(L10n.Library.editQuestion, systemImage: "pencil")
+                    Image(systemName: "ellipsis.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.tertiary)
+                        .padding(24)
+                        .contentShape(Circle())
                 }
-            } label: {
-                Image(systemName: "ellipsis.circle.fill")
-                    .font(.title2)
-                    .foregroundStyle(.tertiary)
-                    .padding(24)
-                    .contentShape(Circle())
+                .accessibilityIdentifier("review.card.front.more")
+                .accessibilityLabel(L10n.Accessibility.moreActions)
             }
-            .accessibilityLabel(L10n.Accessibility.moreActions)
         }
         .task {
             await loadFrontImage()
@@ -167,7 +171,6 @@ struct ReviewCardFront: View {
         .sheet(isPresented: $showingEditSheet) {
             LibraryEditView(item: item)
         }
-        .accessibilityIdentifier("review.card.front")
     }
 
     // MARK: - Private Helpers
@@ -194,7 +197,7 @@ struct ReviewCardFront: View {
         container.mainContext.insert(i)
         return i
     }()
-    ReviewCardFront(item: item)
+    ReviewCardFront(item: item, showsActions: true)
         .frame(height: 400)
         .padding()
         .modelContainer(container)
@@ -212,7 +215,7 @@ struct ReviewCardFront: View {
         container.mainContext.insert(i)
         return i
     }()
-    ReviewCardBack(item: item)
+    ReviewCardBack(item: item, showsActions: true)
         .frame(height: 400)
         .padding()
         .modelContainer(container)

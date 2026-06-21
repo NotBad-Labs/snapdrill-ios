@@ -2,6 +2,33 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Review interaction visual matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewCardContent.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewCardBack.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewCardFactory.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-review-06-*.png` through `docs/ui-redesign/evidence/2026-06-21-review-11-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeReviewInteractionSurfaceScreenshots` to capture multi-card Review progress, pause confirmation, front/back edit-sheet entry, enabled undo, and after-undo recovery.
+- Screenshot QA found that non-top Review cards and opacity-hidden card backs were still visible to XCUITest/accessibility. This made hidden `Menu` controls selectable and could expose actions for the wrong card face.
+- Review card stacking now treats non-top cards as decorative, and Review card edit menus render only on the visible top card face. This keeps the visual stack while removing hidden controls from interaction and accessibility paths.
+- The card front/back menu identifiers are leaf identifiers only. The broad `review.card.front` / `review.card.back` identifiers were removed because they caused child controls to inherit container identifiers.
+- The shared edit sheet still uses the `编辑题目` title from both front and back entry points. That is tracked as a naming consistency follow-up; this pass only claims there is no clipping, underlap, or hidden-control leak in the entry sheets.
+- Physical drag/swipe screenshot coverage remains open. This pass covers the button-rating path, undo, pause alert, and edit-sheet interaction states.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeReviewInteractionSurfaceScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-review-06-*.png` through `docs/ui-redesign/evidence/2026-06-21-review-11-*.png`
+
 ## 2026-06-21 - Dashboard populated visual matrix
 
 ### Scope

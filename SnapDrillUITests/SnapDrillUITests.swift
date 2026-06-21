@@ -240,6 +240,70 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-review-05-dashboard-done")
     }
 
+    /// UI-freeze evidence: capture Review multi-card, pause, edit-sheet, and undo states.
+    func testUIFreezeReviewInteractionSurfaceScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["-captureFieldAnswer", "YES"]
+        app.launch()
+
+        createManualItem(
+            content: "Review QA First",
+            subject: "数学",
+            answer: "Reference answer for Review QA First",
+            in: app
+        )
+        createManualItem(
+            content: "Review QA Second",
+            subject: "语文",
+            answer: "Reference answer for Review QA Second",
+            in: app
+        )
+
+        app.tabBars.buttons.element(boundBy: 3).tap()
+        XCTAssertTrue(app.buttons["review.startButton"].waitForExistence(timeout: 10), "多卡回顾数据应显示开始按钮")
+        app.buttons["review.startButton"].tap()
+        waitForAnyElement("review.rate.good", in: app)
+        XCTAssertTrue(app.staticTexts["1/2"].waitForExistence(timeout: 5), "多卡会话应显示 1/2 进度")
+        addScreenshot(named: "ui-freeze-review-06-multi-card-front")
+
+        app.buttons["review.pause"].tap()
+        let pauseAlert = app.alerts["确认暂停回顾？"]
+        XCTAssertTrue(pauseAlert.waitForExistence(timeout: 5), "暂停应显示确认弹窗")
+        addScreenshot(named: "ui-freeze-review-07-pause-alert")
+        pauseAlert.buttons["继续"].tap()
+        waitForAnyElement("review.rate.good", in: app)
+
+        let frontCardMore = app.buttons.matching(identifier: "review.card.front.more").firstMatch
+        XCTAssertTrue(frontCardMore.waitForExistence(timeout: 5), "正面卡片应提供更多操作菜单")
+        frontCardMore.tap()
+        app.buttons["编辑题目"].tap()
+        waitForAnyElement("library.edit.root", in: app)
+        addScreenshot(named: "ui-freeze-review-08-front-edit-sheet")
+        app.buttons["取消"].tap()
+        waitForAnyElement("review.rate.good", in: app)
+
+        app.buttons["review.toggleAnswer"].tap()
+        waitForUIAnimation()
+        let backCardMore = app.buttons.matching(identifier: "review.card.back.more").firstMatch
+        XCTAssertTrue(backCardMore.waitForExistence(timeout: 5), "背面卡片应提供更多操作菜单")
+        backCardMore.tap()
+        app.buttons["编辑内容"].tap()
+        waitForAnyElement("library.edit.root", in: app)
+        addScreenshot(named: "ui-freeze-review-09-back-edit-sheet")
+        app.buttons["取消"].tap()
+        waitForAnyElement("review.rate.good", in: app)
+
+        app.buttons["review.rate.good"].tap()
+        waitForUIAnimation()
+        XCTAssertTrue(app.buttons["review.undo"].isEnabled, "评分一次后撤销按钮应可用")
+        addScreenshot(named: "ui-freeze-review-10-undo-enabled")
+
+        app.buttons["review.undo"].tap()
+        waitForUIAnimation()
+        XCTAssertTrue(app.staticTexts["1/2"].waitForExistence(timeout: 5), "撤销后应回到 1/2 进度")
+        addScreenshot(named: "ui-freeze-review-11-after-undo")
+    }
+
     /// UI-freeze evidence: capture populated Dashboard hero, shortcuts, analytics gate, category sheet, and all-done state.
     func testUIFreezeDashboardPopulatedSurfaceScreenshots() {
         let app = XCUIApplication()

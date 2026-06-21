@@ -203,27 +203,14 @@ public struct ReviewView: View {
                 let index = vm.workingItems.firstIndex(where: { $0.id == item.id }) ?? 0
                 let isTop = index == 0
 
-                SwipeCard(
-                    content: { flipCardContent(item: item, isTop: isTop, vm: vm) },
-                    onRemove: { direction in
-                        let didCommit = withAnimation(.spring(duration: 0.35)) {
-                            vm.handleSwipeCompletion(direction: direction)
-                        }
-                        return didCommit
-                    },
-                    externalSwipe: isTop
-                        ? Binding(get: { vm.swipeTrigger }, set: { vm.swipeTrigger = $0 })
-                        : .constant(nil),
-                    onSwipeProgress: isTop ? { offset in
-                        vm.currentSwipeOffset = offset
-                    } : nil
-                )
+                stackedReviewCard(item: item, isTop: isTop, vm: vm)
                 .allowsHitTesting(isTop)
                 .scaleEffect(cardScale(for: index))
                 .offset(y: cardOffset(for: index))
                 .rotationEffect(.degrees(cardRotation(for: item, index: index, vm: vm)))
                 .zIndex(Double(vm.workingItems.count - index))
                 .overlay(actionStampOverlay(isTop: isTop, vm: vm))
+                .accessibilityHidden(!isTop)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -248,15 +235,40 @@ public struct ReviewView: View {
     // MARK: - Flip Card Content
 
     @ViewBuilder
+    private func stackedReviewCard(item: ReviewItemModel, isTop: Bool, vm: ReviewViewModel) -> some View {
+        if isTop {
+            SwipeCard(
+                content: { flipCardContent(item: item, isTop: true, vm: vm) },
+                onRemove: { direction in
+                    let didCommit = withAnimation(.spring(duration: 0.35)) {
+                        vm.handleSwipeCompletion(direction: direction)
+                    }
+                    return didCommit
+                },
+                externalSwipe: Binding(get: { vm.swipeTrigger }, set: { vm.swipeTrigger = $0 }),
+                onSwipeProgress: { offset in
+                    vm.currentSwipeOffset = offset
+                }
+            )
+        } else {
+            flipCardContent(item: item, isTop: false, vm: vm)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
+    }
+
+    @ViewBuilder
     private func flipCardContent(item: ReviewItemModel, isTop: Bool, vm: ReviewViewModel) -> some View {
         ZStack {
-            ReviewCardFactory.makeFront(for: item)
+            ReviewCardFactory.makeFront(for: item, showsActions: isTop && !vm.isAnswerShown)
                 .opacity(vm.isAnswerShown && isTop ? 0 : 1)
                 .rotation3DEffect(.degrees(vm.isAnswerShown && isTop ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+                .accessibilityHidden(!isTop || vm.isAnswerShown)
 
-            ReviewCardFactory.makeBack(for: item)
+            ReviewCardFactory.makeBack(for: item, showsActions: isTop && vm.isAnswerShown)
                 .opacity(vm.isAnswerShown && isTop ? 1 : 0)
                 .rotation3DEffect(.degrees(vm.isAnswerShown && isTop ? 0 : -180), axis: (x: 0, y: 1, z: 0))
+                .accessibilityHidden(!isTop || !vm.isAnswerShown)
         }
         .padding(.horizontal)
         .padding(.vertical, 24)
