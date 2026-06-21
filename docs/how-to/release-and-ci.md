@@ -116,18 +116,21 @@ Claude 维护本文件中的发版检查清单并汇总各方结果：
 
 任何一方发现未满足项都应记录证据；Claude负责分诊与追踪，但无权代替 PO 发布，也无权改变 Codex 已确定的视觉方案。
 
-### 当前发布实证快照（2026-06-20）
+### 当前发布实证快照（2026-06-21）
 
 已验证：
 
-- `xcodebuild archive -scheme SnapDrill -configuration Release -destination 'generic/platform=iOS'` 成功产出 `/tmp/SnapDrill-20260621001406.xcarchive`。
+- `xcodebuild archive -scheme SnapDrill -configuration Release -destination 'generic/platform=iOS'` 成功产出当前 HEAD 的 `.xcarchive`。
 - Archive 属性：`CFBundleIdentifier = com.snapdrill.global`，`CFBundleShortVersionString = 1.1.0`，`CFBundleVersion = 6`，`Team = J58U72W335`，`SigningIdentity = Apple Development: Yiming Liao (PBRAUAP3KL)`。
 - 主 App 与 Share Extension entitlements 均为 `J58U72W335.*`，并包含 `group.com.snapdrill.global`。
+- `xcodebuild build -scheme SnapDrill -configuration Release -destination 'platform=iOS,id=<paired iPhone 17>'` 成功产出开发签名 Release 真机包，`xcrun devicectl device install app` 成功安装 `com.snapdrill.global`。
+- `xcrun devicectl device process launch ... com.snapdrill.global` 成功启动开发签名真机安装包。
 
 未验证 / 不得视为已完成：
 
-- 本机 keychain 仅发现 Apple Development identity，未发现 Apple Distribution identity；TestFlight / App Store distribution signing、export、upload 尚未验证。
-- `xcrun devicectl list devices` 能看到两台 iPhone 17，但状态均为 `unavailable`；真机安装、启动、Capture / Export / Print dogfood 尚未验证。
+- 本机 keychain 仅发现 Apple Development identity，未发现 Apple Distribution identity。
+- `xcodebuild -exportArchive -exportOptionsPlist <app-store-connect export>` 当前失败：缺 `com.snapdrill.global` 与 `com.snapdrill.global.share` 的 distribution/export profiles；TestFlight / App Store distribution signing、export、upload 尚未验证。
+- Capture / Export / Print dogfood 尚未验证。
 - 当前主 App 与 Share Extension archive 的 `UIDeviceFamily = [1]`，即 iPhone-only；iPad / 通用发行需 PO 决策、target family 配置变更和 UI dogfood 后再进入发版口径。
 
 ### TestFlight（内部测试）
