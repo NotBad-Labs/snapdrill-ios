@@ -83,7 +83,10 @@ public struct SettingsView: View {
                     }
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 20))
+                }
 
+                Section {
                     NavigationLink(value: SettingsDestination.profileList) {
                         SettingsRow(icon: "person.2.fill", gradientStart: .cyan, gradientEnd: .blue, title: L10n.Settings.switchLearner)
                     }

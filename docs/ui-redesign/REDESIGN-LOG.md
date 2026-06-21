@@ -2,6 +2,28 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Settings profile section shape correction
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsRow.swift`
+- `docs/ui-redesign/REDESIGN-LOG.md`
+
+### Design Decisions
+
+- PO reported that the Settings "Switch Workspace" row looked visually misshapen after the UI polish pass.
+- Root cause: the custom profile glass card and the standard "Switch Workspace" settings row lived in the same `List` `Section`, mixing a clear custom row background with the default inset-grouped row container.
+- The profile card is now isolated in its own clear-background row; the workspace switch entry is a separate standard Settings row so iOS owns its grouped-list shape consistently.
+- `SettingsRow` no longer hides list separators internally. Settings section separator behavior should come from the enclosing `List`/`Section` instead of a reusable row label imposing row chrome on every caller.
+
+### DoD Status
+
+- Passed in this local change:
+  - `swiftlint --strict`
+  - XcodeBuildMCP `build_sim` for `SnapDrill` on iPhone 17 simulator
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
 ## 2026-06-18 - Onboarding flagship polish implementation
 
 ### Scope

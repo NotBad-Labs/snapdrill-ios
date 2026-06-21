@@ -60,7 +60,5 @@ struct SettingsRow: View {
             }
         }
         .padding(.vertical, 2)
-        // preference 向上传播，消除每个调用点重复 .listRowSeparator(.hidden)
-        .listRowSeparator(.hidden)
     }
 }
