@@ -117,6 +117,7 @@ struct EditCategoryValueView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.Common.cancel) { dismiss() }
+                        .accessibilityIdentifier("dimValueEdit.cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L10n.Common.save) {
@@ -124,6 +125,7 @@ struct EditCategoryValueView: View {
                             dismiss()
                         }
                     }
+                    .accessibilityIdentifier("dimValueEdit.save")
                     .disabled(!canSave)
                 }
             }

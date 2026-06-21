@@ -583,6 +583,72 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-taxonomy-06-symbol-picker-empty-search")
     }
 
+    /// UI-freeze evidence: capture taxonomy add/delete edge states for dimensions and values.
+    func testUIFreezeTaxonomyEdgeStateScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let manageCategories = app.buttons["settings.manageCategories"]
+        scrollUntilHittable(manageCategories, in: app, maxSwipes: 10)
+        XCTAssertTrue(manageCategories.waitForExistence(timeout: 5), "设置应有分类管理入口")
+        manageCategories.tap()
+        waitForAnyElement("settings.categoryManager.root", in: app)
+
+        app.buttons["dim.add"].tap()
+        waitForAnyElement("dimEdit.root", in: app)
+        addScreenshot(named: "ui-freeze-taxonomy-edge-01-add-dimension-empty")
+        let dimensionName = app.textFields["dimEdit.nameField"]
+        XCTAssertTrue(dimensionName.waitForExistence(timeout: 5), "新增维度应有名称输入框")
+        dimensionName.tap()
+        dimensionName.typeText("场景 QA")
+        app.switches["dimEdit.multiToggle"].tap()
+        addScreenshot(named: "ui-freeze-taxonomy-edge-02-add-dimension-filled")
+        app.buttons["dimEdit.save"].tap()
+
+        let customDimension = app.buttons["dim.row.场景 QA"]
+        XCTAssertTrue(customDimension.waitForExistence(timeout: 5), "新增维度应出现在分类管理列表")
+        addScreenshot(named: "ui-freeze-taxonomy-edge-03-custom-dimension-list")
+        customDimension.tap()
+        waitForAnyElement("dimValueList.root.场景 QA", in: app)
+        addScreenshot(named: "ui-freeze-taxonomy-edge-04-empty-custom-dimension")
+
+        app.buttons["dimValue.add"].tap()
+        waitForAnyElement("dimValueEdit.root", in: app)
+        let valueName = app.textFields["dimValueEdit.nameField"]
+        XCTAssertTrue(valueName.waitForExistence(timeout: 5), "新增分类值应有名称输入框")
+        valueName.tap()
+        valueName.typeText("收据")
+        let amberSwatch = app.buttons["dimValueEdit.color.FFB74D"]
+        XCTAssertTrue(amberSwatch.waitForExistence(timeout: 5), "新增分类值应显示颜色 swatch")
+        amberSwatch.tap()
+        addScreenshot(named: "ui-freeze-taxonomy-edge-05-add-value-filled")
+        app.buttons["dimValueEdit.save"].tap()
+
+        let customValue = app.buttons["dimValue.收据"]
+        XCTAssertTrue(customValue.waitForExistence(timeout: 5), "新增分类值应出现在维度详情")
+        addScreenshot(named: "ui-freeze-taxonomy-edge-06-custom-value-list")
+        customValue.swipeLeft()
+        XCTAssertTrue(app.buttons["删除"].waitForExistence(timeout: 5), "自定义分类值应显示删除滑动操作")
+        addScreenshot(named: "ui-freeze-taxonomy-edge-07-value-delete-swipe")
+        app.buttons["删除"].tap()
+        XCTAssertTrue(customValue.waitForNonExistence(timeout: 5), "删除后自定义分类值应消失")
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("settings.categoryManager.root", in: app)
+        let dimensionForDeletion = app.buttons["dim.row.场景 QA"]
+        XCTAssertTrue(dimensionForDeletion.waitForExistence(timeout: 5), "返回后自定义维度应仍在列表")
+        dimensionForDeletion.swipeLeft()
+        XCTAssertTrue(app.buttons["删除"].waitForExistence(timeout: 5), "自定义维度应显示删除滑动操作")
+        addScreenshot(named: "ui-freeze-taxonomy-edge-08-dimension-delete-swipe")
+        app.buttons["删除"].tap()
+        XCTAssertTrue(dimensionForDeletion.waitForNonExistence(timeout: 5), "删除后自定义维度应消失")
+    }
+
     /// UI-freeze evidence: capture Settings interaction states that are not visible on first viewport.
     func testUIFreezeSettingsInteractionStateScreenshots() {
         let app = XCUIApplication()

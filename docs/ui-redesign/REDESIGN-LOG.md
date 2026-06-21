@@ -2,6 +2,29 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Taxonomy add/delete edge-state matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/EditCategoryValueView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/EditDimensionView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-taxonomy-edge-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeTaxonomyEdgeStateScreenshots` to cover custom taxonomy states not reached by the earlier built-in-value pass: add dimension, custom dimension list, empty custom dimension, add value, custom value list, value delete swipe, and dimension delete swipe.
+- Added leaf accessibility identifiers for `EditDimensionView` root/save/cancel/multi-toggle and `EditCategoryValueView` save/cancel. This keeps screenshot tests off broad containers and avoids changing taxonomy behavior.
+- Delete states intentionally use native List swipe actions. The screenshots document the system red destructive action instead of replacing it with custom controls.
+- The custom ColorPicker remains a system color-picker surface in the matrix; this batch only covers preset swatches and add-value form layout.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeTaxonomyEdgeStateScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-taxonomy-edge-*.png`
+
 ## 2026-06-21 - Review physical swipe gesture matrix
 
 ### Scope

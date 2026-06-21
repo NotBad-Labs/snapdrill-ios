@@ -55,14 +55,17 @@ struct EditDimensionView: View {
 
                 Section {
                     Toggle(L10n.Library.multiValue, isOn: $isMultiValue)
+                        .accessibilityIdentifier("dimEdit.multiToggle")
                 } footer: {
                     Text(L10n.Library.multiValueDescription)
                 }
             }
+            .accessibilityIdentifier("dimEdit.root")
             .navigationTitle(L10n.Library.addDimension)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(L10n.Common.cancel) { dismiss() }
+                        .accessibilityIdentifier("dimEdit.cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L10n.Common.save) {
@@ -70,6 +73,7 @@ struct EditDimensionView: View {
                             dismiss()
                         }
                     }
+                    .accessibilityIdentifier("dimEdit.save")
                     .disabled(!canSave)
                 }
             }
