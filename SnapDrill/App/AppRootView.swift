@@ -92,14 +92,27 @@ struct AppRootView: View {
             }
             
             // 降级模式警告横幅
-            if profileManager.isUsingInMemoryFallback {
+            if shouldShowDegradedModeWarning(for: profileManager) {
                 degradedModeWarningBanner
+                    .accessibilityIdentifier("app.degradedBanner")
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
     }
     
     // MARK: - Private Helpers
+
+    private func shouldShowDegradedModeWarning(for profileManager: ProfileManager) -> Bool {
+        if profileManager.isUsingInMemoryFallback {
+            return true
+        }
+
+#if DEBUG
+        return ProcessInfo.processInfo.arguments.contains("--ui-test-force-degraded-banner")
+#else
+        return false
+#endif
+    }
     
     /// 降级模式警告横幅
     @ViewBuilder

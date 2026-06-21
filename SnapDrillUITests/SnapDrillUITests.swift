@@ -145,6 +145,17 @@ final class SnapDrillUITests: XCTestCase {
         }
     }
 
+    /// UI-freeze evidence: capture the app-shell degraded-mode banner.
+    func testUIFreezeAppShellDegradedBannerScreenshot() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-force-degraded-banner"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        waitForAnyElement("app.degradedBanner", in: app)
+        addScreenshot(named: "ui-freeze-app-shell-01-degraded-banner")
+    }
+
     /// UI-freeze evidence: capture the five primary tabs in a clean, empty-library state.
     func testUIFreezePrimaryTabSurfaceScreenshots() {
         let app = XCUIApplication()

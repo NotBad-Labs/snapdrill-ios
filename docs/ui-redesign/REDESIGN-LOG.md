@@ -2,6 +2,28 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - App-shell degraded banner evidence
+
+### Scope
+
+- `SnapDrill/App/AppRootView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-app-shell-01-degraded-banner.png`
+
+### Design Decisions
+
+- Added `testUIFreezeAppShellDegradedBannerScreenshot` to cover the app-shell degraded-mode banner. This was the last `In progress` row in the UI-freeze matrix.
+- Normal `--uitesting` uses in-memory storage intentionally and does not set `ProfileManager.isUsingInMemoryFallback`; the banner only appears after a real fallback from disk-backed initialization failure.
+- Added a DEBUG-only `--ui-test-force-degraded-banner` path in `AppRootView` so visual QA can force the banner without corrupting disk storage or changing production fallback behavior. Production display remains controlled by `ProfileManager.isUsingInMemoryFallback`.
+- The screenshot confirms the full-width warning remains readable, respects the status bar, and leaves the primary tab content and floating tab bar visually coherent.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeAppShellDegradedBannerScreenshot`
+  - XCUITest screenshot attachment exported to `docs/ui-redesign/evidence/2026-06-21-app-shell-01-degraded-banner.png`
+
 ## 2026-06-21 - Capture method-grid bottom reachability
 
 ### Scope
