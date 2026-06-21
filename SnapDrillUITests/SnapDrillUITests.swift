@@ -124,6 +124,12 @@ final class SnapDrillUITests: XCTestCase {
         ]
     }
 
+    private func l3AccessibilityLaunchArguments() -> [String] {
+        l3LaunchArguments() + [
+            "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"
+        ]
+    }
+
     /// 步骤①：启动竞态修复验证 —— 连续冷启动多次，每次都应稳定进入主界面
     /// （防 ProfileManager 环境注入冷启动崩溃复发）
     func testLaunchStabilityAcrossRelaunches() {
@@ -166,6 +172,35 @@ final class SnapDrillUITests: XCTestCase {
         app.tabBars.buttons.element(boundBy: 4).tap()
         waitForAnyElement("settings.root", in: app)
         addScreenshot(named: "ui-freeze-05-settings-main")
+    }
+
+    /// UI-freeze evidence: capture the five primary tabs at AX XXXL Dynamic Type size.
+    func testUIFreezePrimaryTabAccessibilityTextScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3AccessibilityLaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+
+        waitForAnyElement("dashboard.root", in: app)
+        addScreenshot(named: "ui-freeze-primary-ax-01-dashboard-empty")
+
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+        addScreenshot(named: "ui-freeze-primary-ax-02-library-empty")
+
+        app.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.root", in: app)
+        XCTAssertTrue(app.buttons["capture.manual"].waitForExistence(timeout: 5), "AX 字号下采集页应显示手动录入入口")
+        addScreenshot(named: "ui-freeze-primary-ax-03-capture-methods")
+
+        app.tabBars.buttons.element(boundBy: 3).tap()
+        waitForAnyElement("review.root", in: app)
+        addScreenshot(named: "ui-freeze-primary-ax-04-review-empty")
+
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+        addScreenshot(named: "ui-freeze-primary-ax-05-settings-main")
     }
 
     /// UI-freeze evidence: capture first-run onboarding pages and completion path.

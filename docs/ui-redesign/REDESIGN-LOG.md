@@ -2,6 +2,29 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Primary tabs AX Dynamic Type matrix
+
+### Scope
+
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-primary-ax-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezePrimaryTabAccessibilityTextScreenshots` to capture Dashboard, Library, Capture, Review, and Settings first viewports at `UICTContentSizeCategoryAccessibilityXXXL`.
+- The AX pass confirmed the current primary tabs remain reachable by XCUITest and that the highest-priority leaf controls exist at maximum accessibility text size.
+- iOS 26 Liquid Glass tab bars intentionally float above and visually sample the content layer. An attempted opaque bottom overlay was rejected because it clipped scroll content in Library, Capture, and Settings instead of solving the layout. Future fixes should improve the affected page layout or scroll reachability directly, not mask content behind the tab bar.
+- Settings' existing normal-size `tabBarBreathingRoom` remains in place; removing it regressed the normal primary Settings screenshot by making the next section readable through the tab bar.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezePrimaryTabAccessibilityTextScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-primary-ax-*.png`
+- Re-checked and preserved:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezePrimaryTabSurfaceScreenshots`
+
 ## 2026-06-21 - Onboarding visual and Dynamic Type matrix
 
 ### Scope
