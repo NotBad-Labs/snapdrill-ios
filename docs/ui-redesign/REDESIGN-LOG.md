@@ -2,6 +2,29 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Capture manual-result editor visual matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureResultView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-capture-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeCaptureManualResultEditorScreenshots` to capture the manual-result editor, keyboard state, subject menu, selected subject, and saved return to Capture root.
+- A first screenshot pass showed the editor still carried the app tab bar. This was not an immediate content-underlap failure, but it conflicted with the Settings edit/detail rule and made the subject menu compete with app-level navigation.
+- `CaptureResultView` now hides the tab bar while preview/edit is active. The tab bar is visible again after save/back navigation returns to the Capture root.
+- The first attempt to add section-level accessibility identifiers to grouped editor sections swallowed the existing `capture.contentEditor` child identifier. Those section identifiers were removed; UI-freeze markers must not alter the accessibility tree of interactive controls.
+- This pass covers manual text entry. Camera, document scan, PDF import, image OCR, cropper, field-config tip, and answer/difficulty optional fields remain tracked in `UI-FREEZE-QA-MATRIX.md`.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeCaptureManualResultEditorScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-capture-*.png`
+
 ## 2026-06-21 - Library populated-state visual matrix
 
 ### Scope

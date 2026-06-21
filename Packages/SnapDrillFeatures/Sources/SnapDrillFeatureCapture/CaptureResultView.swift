@@ -53,6 +53,7 @@ public struct CaptureResultView: View {
             }
             .padding(.vertical)
         }
+        .accessibilityIdentifier("capture.result.root")
         .onAppear {
             viewModel.loadFormData()
         }
@@ -82,6 +83,7 @@ public struct CaptureResultView: View {
         }
         .navigationTitle(L10n.Capture.previewAndEdit)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .fullScreenCover(isPresented: $viewModel.isCropping) {
             if let currentImage = viewModel.image {
                 ImageCropperView(

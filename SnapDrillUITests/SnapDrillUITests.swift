@@ -164,6 +164,44 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-05-settings-main")
     }
 
+    /// UI-freeze evidence: capture the manual Capture result editor and metadata controls.
+    func testUIFreezeCaptureManualResultEditorScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        app.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.root", in: app)
+        app.buttons["capture.manual"].tap()
+
+        waitForAnyElement("capture.result.root", in: app)
+        waitForAnyElement("capture.contentEditor", in: app)
+        addScreenshot(named: "ui-freeze-capture-01-manual-empty-editor")
+
+        let editor = app.textViews["capture.contentEditor"]
+        XCTAssertTrue(editor.waitForExistence(timeout: 5), "手动录入编辑器应出现")
+        editor.tap()
+        editor.typeText("Capture QA manual content")
+        dismissKeyboardIfPresent(in: app)
+        addScreenshot(named: "ui-freeze-capture-02-manual-filled-editor")
+
+        let subjectRow = app.buttons["capture.dimRow.学科"]
+        scrollUntilHittable(subjectRow, in: app)
+        XCTAssertTrue(subjectRow.waitForExistence(timeout: 5), "手动录入表单应显示学科字段")
+        subjectRow.tap()
+        let mathOption = app.buttons["capture.opt.数学"]
+        XCTAssertTrue(mathOption.waitForExistence(timeout: 5), "学科菜单应显示数学选项")
+        addScreenshot(named: "ui-freeze-capture-03-subject-menu")
+        mathOption.tap()
+        addScreenshot(named: "ui-freeze-capture-04-subject-selected")
+
+        let save = app.buttons["capture.saveButton"]
+        XCTAssertTrue(save.waitForExistence(timeout: 5), "保存按钮应仍然可用")
+        save.tap()
+        waitForAnyElement("capture.root", in: app, timeout: 10)
+        addScreenshot(named: "ui-freeze-capture-05-saved-back-to-capture")
+    }
+
     /// UI-freeze evidence: capture stable Settings secondary pages without mutating user data.
     func testUIFreezeSettingsSecondarySurfaceScreenshots() {
         let app = XCUIApplication()
