@@ -70,6 +70,7 @@ struct LanguageSettingsView: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier("settings.language.\(language.rawValue)")
                     .accessibilityAddTraits(language == selectedLanguage ? .isSelected : [])
                 }
             } footer: {
@@ -91,6 +92,7 @@ struct LanguageSettingsView: View {
                             .accessibilityHidden(true)
                     }
                 }
+                .accessibilityIdentifier("settings.language.systemSettings")
             }
         }
         .listStyle(.insetGrouped)

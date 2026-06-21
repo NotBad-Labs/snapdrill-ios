@@ -2,6 +2,32 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Settings interaction-state matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/LanguageSettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/PrivacySettingsView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ProfileListView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ReviewAppearanceSettingsView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-settings-interactions-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeSettingsInteractionStateScreenshots` to cover Settings states that are not visible on a first-viewport sweep: Profile add alert, multi-profile list, Language restart alert, Privacy export format dialog, and Review Appearance max font-size previews.
+- Added narrow accessibility identifiers for Profile add/row controls, language rows, the Privacy export button, and Review Appearance previews/sliders. These identifiers stay on leaf controls or narrow visual markers and do not replace interactive child controls.
+- iOS 26 exposes the Privacy export `confirmationDialog` as JSON/CSV actions without a visible Cancel button in this context. The UI test dismisses it by tapping blank space instead of asserting a non-existent cancel control.
+- Screenshot QA found Review Appearance large previews could scroll underneath the transparent navigation chrome after maxing the font-size sliders. `ReviewAppearanceSettingsView` now uses a visible grouped navigation-bar background while preserving the self-contained detail-page rule that hides the app tab bar.
+- The Review Appearance screenshots intentionally include scrolled interaction states. They prove the navigation title/back area remains readable at max font size; they do not claim every deeper alignment picker state is complete.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeSettingsInteractionStateScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-settings-interactions-*.png`
+
 ## 2026-06-21 - Taxonomy and swatch control-state matrix
 
 ### Scope

@@ -72,6 +72,7 @@ struct PrivacySettingsView: View {
                     }
                 }
                 .disabled(viewModel?.isExporting == true)
+                .accessibilityIdentifier("settings.privacyExport.exportButton")
                 .accessibilityHint(L10n.Accessibility.exportDataHint)
                 .confirmationDialog(L10n.Settings.chooseExportFormat, isPresented: $showingExportOptions, titleVisibility: .visible) {
                     Button(L10n.Settings.jsonFormat) {

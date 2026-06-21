@@ -38,6 +38,7 @@ struct ReviewAppearanceSettingsView: View {
                         .padding()
                         .background(Color(UIColor.secondarySystemGroupedBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .accessibilityIdentifier("settings.reviewAppearance.frontPreview")
                 }
                 .listRowBackground(Color.clear)
 
@@ -56,6 +57,7 @@ struct ReviewAppearanceSettingsView: View {
                     } maximumValueLabel: {
                         Text("A").font(.system(size: 24))
                     }
+                    .accessibilityIdentifier("settings.reviewAppearance.frontFontSize")
                     .accessibilityValue(L10n.Accessibility.fontSizeValue(Int(frontFontSizeRaw)))
                 }
             }
@@ -72,6 +74,7 @@ struct ReviewAppearanceSettingsView: View {
                         .padding()
                         .background(Color(UIColor.secondarySystemGroupedBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .accessibilityIdentifier("settings.reviewAppearance.backPreview")
                 }
                 .listRowBackground(Color.clear)
 
@@ -90,6 +93,7 @@ struct ReviewAppearanceSettingsView: View {
                     } maximumValueLabel: {
                         Text("A").font(.system(size: 24))
                     }
+                    .accessibilityIdentifier("settings.reviewAppearance.backFontSize")
                     .accessibilityValue(L10n.Accessibility.fontSizeValue(Int(fontSizeRaw)))
                 }
             }
@@ -97,6 +101,8 @@ struct ReviewAppearanceSettingsView: View {
         .accessibilityIdentifier("settings.reviewAppearance.root")
         .navigationTitle(L10n.Settings.cardAppearanceTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Color(UIColor.systemGroupedBackground), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .toolbar(.hidden, for: .tabBar)
     }
 

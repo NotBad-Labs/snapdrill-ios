@@ -46,6 +46,7 @@ struct ProfileListView: View {
                 } label: {
                     Label(L10n.Settings.addLearner, systemImage: "plus.circle.fill")
                 }
+                .accessibilityIdentifier("settings.profileList.add")
             }
         }
         .accessibilityIdentifier("settings.profileList.root")
@@ -160,6 +161,7 @@ struct ProfileListView: View {
             .contentShape(Rectangle())
         }
         .accessibilityLabel(profile.name)
+        .accessibilityIdentifier("settings.profileList.profile.\(profile.name)")
         .accessibilityHint(isActive ? L10n.Settings.profileCurrentHint : L10n.Settings.profileSwitchHint)
         .accessibilityAddTraits(isActive ? .isSelected : [])
     }

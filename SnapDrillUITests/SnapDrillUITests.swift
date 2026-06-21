@@ -541,6 +541,81 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-taxonomy-06-symbol-picker-empty-search")
     }
 
+    /// UI-freeze evidence: capture Settings interaction states that are not visible on first viewport.
+    func testUIFreezeSettingsInteractionStateScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let profileList = app.descendants(matching: .any)["settings.profileList"]
+        scrollUntilHittable(profileList, in: app, maxSwipes: 4)
+        XCTAssertTrue(profileList.waitForExistence(timeout: 5), "设置应有资料空间列表入口")
+        profileList.tap()
+        waitForAnyElement("settings.profileList.root", in: app)
+
+        app.buttons["settings.profileList.add"].tap()
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5), "新增资料空间应显示输入弹窗")
+        addScreenshot(named: "ui-freeze-settings-interactions-01-profile-add-alert")
+        let profileNameField = app.alerts.firstMatch.textFields.firstMatch
+        XCTAssertTrue(profileNameField.waitForExistence(timeout: 5), "新增资料空间弹窗应有名称输入框")
+        profileNameField.tap()
+        profileNameField.typeText("视觉 QA")
+        app.alerts.firstMatch.buttons["确定"].tap()
+        XCTAssertTrue(app.buttons["settings.profileList.profile.视觉 QA"].waitForExistence(timeout: 5), "新增资料空间应出现在列表")
+        addScreenshot(named: "ui-freeze-settings-interactions-02-profile-multiple")
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let language = app.buttons["settings.language"]
+        scrollUntilHittable(language, in: app, maxSwipes: 8)
+        XCTAssertTrue(language.waitForExistence(timeout: 5), "设置应有语言入口")
+        language.tap()
+        waitForAnyElement("settings.language.root", in: app)
+        app.buttons["settings.language.en"].tap()
+        XCTAssertTrue(app.alerts["语言已切换"].waitForExistence(timeout: 5), "切换语言应显示重启提示")
+        addScreenshot(named: "ui-freeze-settings-interactions-03-language-restart-alert")
+        app.alerts["语言已切换"].buttons["确定"].tap()
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let privacyExport = app.buttons["settings.privacyExport"]
+        scrollUntilHittable(privacyExport, in: app, maxSwipes: 8)
+        XCTAssertTrue(privacyExport.waitForExistence(timeout: 5), "设置应有隐私导出入口")
+        privacyExport.tap()
+        waitForAnyElement("settings.privacyExport.root", in: app)
+        app.buttons["settings.privacyExport.exportButton"].tap()
+        XCTAssertTrue(app.buttons["JSON 格式"].waitForExistence(timeout: 5), "隐私导出应显示格式选择")
+        addScreenshot(named: "ui-freeze-settings-interactions-04-privacy-export-dialog")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
+        XCTAssertTrue(app.buttons["JSON 格式"].waitForNonExistence(timeout: 5), "点空白处应关闭导出格式选择")
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let reviewAppearance = app.buttons["settings.reviewAppearance"]
+        scrollUntilHittable(reviewAppearance, in: app, maxSwipes: 8)
+        XCTAssertTrue(reviewAppearance.waitForExistence(timeout: 5), "设置应有回顾外观入口")
+        reviewAppearance.tap()
+        waitForAnyElement("settings.reviewAppearance.root", in: app)
+
+        let frontSlider = app.sliders["settings.reviewAppearance.frontFontSize"]
+        XCTAssertTrue(frontSlider.waitForExistence(timeout: 5), "回顾外观应有正面字号滑块")
+        frontSlider.adjust(toNormalizedSliderPosition: 1.0)
+        addScreenshot(named: "ui-freeze-settings-interactions-05-review-front-large")
+
+        let backSlider = app.sliders["settings.reviewAppearance.backFontSize"]
+        scrollUntilHittable(backSlider, in: app, maxSwipes: 4)
+        XCTAssertTrue(backSlider.waitForExistence(timeout: 5), "回顾外观应有背面字号滑块")
+        backSlider.adjust(toNormalizedSliderPosition: 1.0)
+        addScreenshot(named: "ui-freeze-settings-interactions-06-review-back-large")
+    }
+
     /// UI-freeze evidence: capture Library populated, filter, detail, edit, selection, and export surfaces.
     func testUIFreezeLibraryPopulatedSurfaceScreenshots() {
         let app = XCUIApplication()
