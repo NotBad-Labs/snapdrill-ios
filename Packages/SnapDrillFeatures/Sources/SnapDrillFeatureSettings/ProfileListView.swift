@@ -153,11 +153,6 @@ struct ProfileListView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(Color.accentColor)
                         .accessibilityHidden(true)
-                } else {
-                    Image(systemName: "chevron.right")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.tertiary)
-                        .accessibilityHidden(true)
                 }
             }
             .padding(.vertical, 4)

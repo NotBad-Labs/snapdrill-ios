@@ -116,26 +116,23 @@ struct EditProfileView: View {
             // 基本信息
             Section {
                 // 昵称
-                HStack {
-                    Text(L10n.EditProfile.nickname)
-                        .foregroundStyle(.primary)
-                        .frame(width: 80, alignment: .leading)
+                LabeledContent {
                     TextField(L10n.EditProfile.nicknamePlaceholder, text: $userName)
                         .multilineTextAlignment(.trailing)
+                } label: {
+                    Text(L10n.EditProfile.nickname)
                 }
                 
                 // 每日目标
-                HStack {
+                LabeledContent {
+                    HStack(spacing: 8) {
+                        Stepper("\(dailyReviewGoal) \(L10n.EditProfile.cardsCount)", value: $dailyReviewGoal, in: 5...100, step: 5)
+                            .labelsHidden()
+                        Text("\(dailyReviewGoal) \(L10n.EditProfile.cardsCount)")
+                            .foregroundStyle(.secondary)
+                    }
+                } label: {
                     Text(L10n.EditProfile.dailyGoal)
-                        .foregroundStyle(.primary)
-                        .frame(width: 80, alignment: .leading)
-                    
-                    Spacer()
-                    
-                    Stepper("\(dailyReviewGoal) \(L10n.EditProfile.cardsCount)", value: $dailyReviewGoal, in: 5...100, step: 5)
-                        .labelsHidden()
-                    Text("\(dailyReviewGoal) \(L10n.EditProfile.cardsCount)")
-                        .foregroundStyle(.secondary)
                 }
             } header: {
                 Text(L10n.EditProfile.title)

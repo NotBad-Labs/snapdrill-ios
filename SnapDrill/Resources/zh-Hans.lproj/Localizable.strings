@@ -823,6 +823,7 @@
 "settings.switch_learner" = "切换资料空间";
 "settings.profile_spaces_section" = "资料空间";
 "settings.profile_spaces_footer" = "每个资料空间独立保存资料、图片和回顾进度，适合按项目或场景分开管理。";
+"settings.default_profile_name" = "默认资料空间";
 "settings.add_learner" = "添加资料空间";
 "settings.delete_learner_confirm" = "删除后该资料空间的所有资料、回顾进度和图片将永久丢失，无法恢复。";
 "settings.learner_name" = "资料空间名称";

@@ -53,7 +53,7 @@ enum ProfileMigration {
     // MARK: - Steps
 
     private static func createDefaultProfile() -> Profile {
-        let userName = UserDefaults.standard.string(forKey: UDKey.userName) ?? "同学"
+        let userName = UserDefaults.standard.string(forKey: UDKey.userName) ?? L10n.Settings.defaultProfileName
         let userAvatar = UserDefaults.standard.string(forKey: UDKey.userAvatar) ?? "person.crop.circle.fill"
         let avatarColorIndex = UserDefaults.standard.integer(forKey: UDKey.userAvatarColorIndex)
         return Profile(name: userName, avatar: userAvatar, avatarColorIndex: avatarColorIndex)
@@ -112,7 +112,7 @@ enum ProfileMigration {
 
     private static func createFallbackProfile() {
         let vault = ProfileVault()
-        let userName = UserDefaults.standard.string(forKey: UDKey.userName) ?? "同学"
+        let userName = UserDefaults.standard.string(forKey: UDKey.userName) ?? L10n.Settings.defaultProfileName
         let profile = Profile(name: userName)
         do {
             try vault.createProfileDirectories(for: profile.id)

@@ -156,7 +156,7 @@ public final class ProfileManager {
         var loadedProfiles = vault.loadProfiles()
         if loadedProfiles.isEmpty {
             SnapDrillLogger.data.warning("ProfileManager: profiles.json 为空或不存在，创建默认 Profile")
-            let fallback = Profile(name: "同学")
+            let fallback = Profile(name: L10n.Settings.defaultProfileName)
             loadedProfiles = [fallback]
         }
 

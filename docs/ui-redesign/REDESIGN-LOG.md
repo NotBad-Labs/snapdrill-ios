@@ -2,6 +2,37 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Profile workspace default naming and selection chrome
+
+### Scope
+
+- `Packages/SnapDrillData/Sources/SnapDrillData/ProfileManager.swift`
+- `Packages/SnapDrillData/Sources/SnapDrillData/ProfileMigration.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Settings.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/EditProfileView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/ProfileListView.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+
+### Design Decisions
+
+- Fresh-install Settings still exposed the old default Profile name `同学`, which reintroduced a student-oriented signal in a release-facing UI surface.
+- Default Profile fallback naming is now localized as `默认资料空间` / `Default Workspace` instead of hard-coded Chinese text in the Data layer.
+- Profile switching rows now use selection-list semantics: the active workspace shows a checkmark, while inactive rows no longer show a disclosure chevron that incorrectly implies navigation to a detail page.
+- Edit Profile basic-info rows now use system `LabeledContent` instead of fixed 80 pt labels, avoiding Dynamic Type and non-Chinese locale truncation.
+- Source/category taxonomy terms such as `学科` / `来源` remain out of scope for this UI chrome cleanup and require a separate PO taxonomy decision.
+
+### DoD Status
+
+- Passed in this local change:
+  - `swiftlint --strict`
+  - `plutil -lint SnapDrill/Resources/zh-Hans.lproj/Localizable.strings SnapDrill/Resources/en.lproj/Localizable.strings`
+  - `git diff --check`
+  - XcodeBuildMCP fresh simulator install via uninstall + `build_run_sim`
+  - XcodeBuildMCP screenshot of Settings > Switch Workspace confirming `默认资料空间`
+  - XcodeBuildMCP screenshot of Edit Profile confirming `LabeledContent` rows and unobscured theme-color section
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
 ## 2026-06-21 - Settings profile row and detail chrome correction
 
 ### Scope

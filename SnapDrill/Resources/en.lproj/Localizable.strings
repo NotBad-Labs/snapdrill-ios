@@ -835,6 +835,7 @@
 "settings.switch_learner" = "Switch Workspace";
 "settings.profile_spaces_section" = "Workspaces";
 "settings.profile_spaces_footer" = "Each workspace keeps its own items, images, and review progress so you can separate projects or contexts.";
+"settings.default_profile_name" = "Default Workspace";
 "settings.add_learner" = "Add Workspace";
 "settings.delete_learner_confirm" = "Deleting this workspace permanently removes all items, review progress, and images. This cannot be undone.";
 "settings.learner_name" = "Workspace Name";

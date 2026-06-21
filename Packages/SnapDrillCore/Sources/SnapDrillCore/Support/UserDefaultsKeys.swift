@@ -14,7 +14,7 @@ import Foundation
 ///
 /// 使用方式：
 /// ```swift
-/// @AppStorage(UDKey.userName) var userName = "同学"
+/// @AppStorage(UDKey.userName) var userName = L10n.Dashboard.defaultName
 /// TelemetryGate.isGranted
 /// ```
 nonisolated public enum UDKey {
