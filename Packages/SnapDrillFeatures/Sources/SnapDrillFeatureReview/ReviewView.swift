@@ -121,6 +121,8 @@ public struct ReviewView: View {
         }
         .toolbar(vm.phase == .reviewing ? .hidden : .visible, for: .navigationBar)
         .toolbar(vm.phase == .reviewing ? .hidden : .visible, for: .tabBar)
+        .navigationTitle(L10n.Review.title)
+        .navigationBarTitleDisplayMode(.large)
         .animation(.spring(response: 0.5, dampingFraction: 0.8), value: vm.phase)
         // HIG：完成整组回顾是正向结果，用轻量 success 反馈确认结果。
         .sensoryFeedback(.success, trigger: vm.phase) { _, newPhase in

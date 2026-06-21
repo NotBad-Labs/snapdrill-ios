@@ -2,6 +2,29 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Review empty-state chrome correction
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureReview/ReviewDashboardView.swift`
+
+### Design Decisions
+
+- PO reported that the Review tab looked visually awkward on a fresh/empty library.
+- Root cause: the Review idle dashboard showed two zero-count stat blocks plus a gray bordered capsule action, which made the primary capture action look disabled and gave empty data too much visual weight.
+- The empty-library Review state now uses native `ContentUnavailableView`, matching the system empty-state pattern already used on the Home tab.
+- Review now exposes a real navigation title outside the immersive card session. The navigation and tab bars remain hidden only during active reviewing.
+- Non-empty Review idle states keep the existing status dashboard and review-session entry point.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP screenshot of empty Review tab
+  - `swiftlint --strict`
+  - `git diff --check`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+
 ## 2026-06-21 - Profile workspace default naming and selection chrome
 
 ### Scope

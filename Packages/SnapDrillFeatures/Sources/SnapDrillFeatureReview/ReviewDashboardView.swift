@@ -26,15 +26,12 @@ struct ReviewDashboardView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var statFontSize: CGFloat = 42
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                header
-                statusPanel
-                primaryAction
+        Group {
+            if totalItemsCount == 0 {
+                emptyLibraryState
+            } else {
+                dashboardContent
             }
-            .frame(maxWidth: 560)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 28)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(UIColor.systemGroupedBackground))
@@ -45,10 +42,33 @@ struct ReviewDashboardView: View {
     private var iconName: String {
         if pendingCount > 0 {
             return "rectangle.stack"
-        } else if totalItemsCount == 0 {
-            return "plus.square.dashed"
         } else {
             return "checkmark.circle"
+        }
+    }
+
+    private var emptyLibraryState: some View {
+        ContentUnavailableView {
+            Label(L10n.Dashboard.emptyTitle, systemImage: "tray")
+        } description: {
+            Text(L10n.Dashboard.emptyDescription)
+        } actions: {
+            Button(L10n.Dashboard.goCapture, action: onEnter)
+                .buttonStyle(.borderedProminent)
+        }
+        .padding(.horizontal, 24)
+    }
+
+    private var dashboardContent: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                header
+                statusPanel
+                primaryAction
+            }
+            .frame(maxWidth: 560)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 28)
         }
     }
 
