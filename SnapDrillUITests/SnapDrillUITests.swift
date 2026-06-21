@@ -203,6 +203,78 @@ final class SnapDrillUITests: XCTestCase {
         }
     }
 
+    /// UI-freeze evidence: capture Library populated, filter, detail, edit, selection, and export surfaces.
+    func testUIFreezeLibraryPopulatedSurfaceScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        createManualItem(content: "Library QA Alpha", subject: "数学", in: app)
+        createManualItem(content: "Library QA Beta", subject: "语文", in: app)
+
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+        XCTAssertTrue(app.staticTexts["Library QA Alpha"].waitForExistence(timeout: 10), "题库应显示第一条 QA 数据")
+        XCTAssertTrue(app.staticTexts["Library QA Beta"].waitForExistence(timeout: 5), "题库应显示第二条 QA 数据")
+        addScreenshot(named: "ui-freeze-library-01-populated-list")
+
+        app.buttons["library.filterButton"].tap()
+        waitForAnyElement("library.filter.root", in: app)
+        addScreenshot(named: "ui-freeze-library-02-filter-sheet")
+
+        let mathFilter = app.buttons["filter.value.数学"]
+        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选页应显示数学值")
+        mathFilter.tap()
+        addScreenshot(named: "ui-freeze-library-03-filter-selected")
+        app.buttons["完成"].tap()
+
+        XCTAssertTrue(app.staticTexts["Library QA Alpha"].waitForExistence(timeout: 5), "筛选后数学条目应保留")
+        XCTAssertTrue(app.staticTexts["Library QA Beta"].waitForNonExistence(timeout: 5), "筛选后语文条目应隐藏")
+        addScreenshot(named: "ui-freeze-library-04-filtered-list")
+
+        let alphaCell = app.cells.containing(.staticText, identifier: "Library QA Alpha").firstMatch
+        XCTAssertTrue(alphaCell.waitForExistence(timeout: 5), "筛选列表应有可进入详情的 QA 条目")
+        alphaCell.tap()
+        waitForAnyElement("library.detail.root", in: app)
+        addScreenshot(named: "ui-freeze-library-05-detail-text")
+
+        app.buttons["library.detail.editButton"].tap()
+        waitForAnyElement("library.edit.root", in: app)
+        addScreenshot(named: "ui-freeze-library-06-edit-sheet")
+        app.buttons["取消"].tap()
+        waitForAnyElement("library.detail.root", in: app)
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("library.root", in: app)
+
+        let filteredAlphaCell = app.cells.containing(.staticText, identifier: "Library QA Alpha").firstMatch
+        XCTAssertTrue(filteredAlphaCell.waitForExistence(timeout: 5), "返回列表后 QA 条目应仍可见")
+        filteredAlphaCell.press(forDuration: 0.6)
+
+        let exportButton = app.buttons["library.selection.export"]
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 5), "长按后应进入选择工具栏")
+        if !exportButton.isEnabled {
+            filteredAlphaCell.tap()
+        }
+        XCTAssertTrue(exportButton.isEnabled, "选择一条资料后导出按钮应可用")
+        addScreenshot(named: "ui-freeze-library-07-selection-toolbar")
+
+        app.buttons["library.selection.batchTag"].tap()
+        waitForAnyElement("library.batchTag.root", in: app)
+        addScreenshot(named: "ui-freeze-library-08-batch-tag-sheet")
+        app.buttons["取消"].tap()
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 5), "关闭批量标签后应回到选择工具栏")
+
+        exportButton.tap()
+        waitForAnyElement("library.export.root", in: app)
+        addScreenshot(named: "ui-freeze-library-09-export-sheet")
+
+        app.buttons["library.export.pdf"].tap()
+        waitForAnyElement("library.exportPreview.root", in: app, timeout: 12)
+        XCTAssertTrue(app.staticTexts["正在生成..."].waitForNonExistence(timeout: 12), "PDF 预览应完成生成态")
+        addScreenshot(named: "ui-freeze-library-10-export-preview")
+    }
+
     /// 步骤②：L3 seed —— 全新库应自动种出 4 个内置维度，且单/多值语义正确
     func testSeedBuiltInDimensions() {
         let app = XCUIApplication()

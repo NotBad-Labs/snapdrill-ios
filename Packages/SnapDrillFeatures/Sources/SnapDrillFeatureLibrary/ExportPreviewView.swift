@@ -62,6 +62,7 @@ struct ExportPreviewView: View {
                 }
             }
         }
+        .accessibilityIdentifier("library.exportPreview.root")
         .overlay {
             if isPrinting {
                 VStack(spacing: 10) {

@@ -92,6 +92,7 @@ struct LibraryFilterSheet: View {
                     }
                 }
             }
+            .accessibilityIdentifier("library.filter.root")
             .navigationTitle(L10n.Library.filter)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

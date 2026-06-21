@@ -212,6 +212,7 @@ struct LibraryDetailView: View {
             .frame(maxWidth: 700)
             .frame(maxWidth: .infinity)
         }
+        .accessibilityIdentifier("library.detail.root")
         .task(id: item.imagePath) {
             guard let path = item.imagePath else { loadedImage = nil; return }
             let image = await imageStorage.loadImageAsync(path: path)
@@ -250,6 +251,7 @@ struct LibraryDetailView: View {
                         }
                     }
                     .accessibleButton(label: L10n.Library.share)
+                    .accessibilityIdentifier("library.detail.shareButton")
                     .disabled(isSharing)
 
                     // 单题快速打印
@@ -264,11 +266,13 @@ struct LibraryDetailView: View {
                         }
                     }
                     .accessibleButton(label: L10n.Library.printSingle)
+                    .accessibilityIdentifier("library.detail.printButton")
                     .disabled(isPrinting)
 
                     Button(L10n.Common.edit) {
                         isEditing = true
                     }
+                    .accessibilityIdentifier("library.detail.editButton")
                 }
             }
         }

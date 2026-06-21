@@ -200,6 +200,7 @@
 "library.filter_difficulty" = "Difficulty";
 "library.filter_tags" = "Tags";
 "library.batch_tag" = "Tag";
+"library.no_tags" = "No Tags Yet";
 "library.batch_tag_hint" = "Add tags to %d items";
 "library.export" = "Export";
 "library.export_title" = "Export Options";

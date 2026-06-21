@@ -63,6 +63,7 @@ struct ExportOptionsSheet: View {
                                 )
                             }
                             .accessibleButton(label: L10n.Library.exportPDF, hint: L10n.Accessibility.exportPDFHint)
+                            .accessibilityIdentifier("library.export.pdf")
 
                             // 2. CSV (.csv)
                             ShareLink(
@@ -90,6 +91,7 @@ struct ExportOptionsSheet: View {
                                     isLoading: isExportingZIP
                                 )
                             }
+                            .accessibilityIdentifier("library.export.zip")
                             .disabled(isExportingZIP)
                         }
 
@@ -118,6 +120,7 @@ struct ExportOptionsSheet: View {
                     }
                 }
             }
+            .accessibilityIdentifier("library.export.root")
             .navigationTitle(L10n.Library.export)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

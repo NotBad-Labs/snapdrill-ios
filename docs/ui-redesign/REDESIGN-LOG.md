@@ -2,6 +2,38 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Library populated-state visual matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryListView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryDetailView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryEditView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryFilterSheet.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/BatchTagSheet.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/ExportOptionsSheet.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/ExportPreviewView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Library.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-library-*.png`
+
+### Design Decisions
+
+- Added stable Library accessibility identifiers and `testUIFreezeLibraryPopulatedSurfaceScreenshots` so populated Library states can be regenerated instead of relying on ad hoc manual navigation.
+- Native screenshot QA for this target runs through the `SnapDrill` scheme with the `UITests` test plan. `AllTests` remains the package/unit build gate and does not execute the native `SnapDrillUITests` target.
+- Populated-state screenshots found that Library quick-filter chips rendered unselected states as naked text and exposed a clipped edge glyph. Unselected chips now keep visible rounded capsule backgrounds and strokes, while selected chips remain accent-filled.
+- Selection mode no longer puts selected-count status text in the bottom toolbar, where it rendered like a floating Liquid Glass action. The selected count now lives in the navigation title and the bottom toolbar contains actions only.
+- Batch tag sheet empty state now uses tag-specific copy (`还没有标签`) rather than the Library item empty-state copy (`还没有题目`).
+- This pass covers text-only populated Library, filter sheet, selection toolbar, batch-tag empty state, export options, and PDF preview. Image-heavy item states, share activity, CSV/ZIP export visuals, search, and full-screen image remain tracked in `UI-FREEZE-QA-MATRIX.md`.
+
+### DoD Status
+
+- Passed in this local change:
+  - `xcodebuild test -project SnapDrill.xcodeproj -scheme SnapDrill -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeLibraryPopulatedSurfaceScreenshots -resultBundlePath /tmp/snapdrill-library-ui-freeze.xcresult`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-library-*.png`
+
 ## 2026-06-21 - Settings secondary-page visual matrix and tab-bar underlap fixes
 
 ### Scope

@@ -27,7 +27,7 @@ struct BatchTagSheet: View {
             Form {
                 if viewModel.tagValues.isEmpty {
                     Section {
-                        Text(L10n.Library.noItems)
+                        Text(L10n.Library.noTags)
                             .foregroundStyle(.secondary)
                     }
                 } else {
@@ -59,6 +59,7 @@ struct BatchTagSheet: View {
                     }
                 }
             }
+            .accessibilityIdentifier("library.batchTag.root")
             .navigationTitle(L10n.Library.batchTag)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -52,6 +52,7 @@ public struct LibraryEditView: View {
                     ProgressView()
                 }
             }
+            .accessibilityIdentifier("library.edit.root")
             .navigationTitle(L10n.Library.editTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -200,6 +200,7 @@
 "library.filter_difficulty" = "难度";
 "library.filter_tags" = "标签";
 "library.batch_tag" = "标签";
+"library.no_tags" = "还没有标签";
 "library.batch_tag_hint" = "为 %d 道题添加标签";
 "library.export" = "导出";
 "library.export_title" = "导出选项";

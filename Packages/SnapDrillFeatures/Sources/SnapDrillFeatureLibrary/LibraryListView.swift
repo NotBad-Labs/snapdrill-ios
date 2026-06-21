@@ -54,11 +54,19 @@ struct LibraryListView: View {
                                  } label: {
                                      Text(value.name)
                                          .font(.subheadline)
+                                         .lineLimit(1)
+                                         .fixedSize(horizontal: true, vertical: false)
                                          .padding(.horizontal, 14)
-                                         .padding(.vertical, 7)
-                                         .background(selected ? Color.blue : Color(.secondarySystemGroupedBackground))
+                                         .padding(.vertical, 8)
+                                         .background(selected ? Color.blue : Color(.tertiarySystemFill))
                                          .foregroundStyle(selected ? Color.white : Color.primary)
                                          .clipShape(Capsule())
+                                         .overlay {
+                                             if !selected {
+                                                 Capsule()
+                                                     .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
+                                             }
+                                         }
                                  }
                                  .buttonStyle(.plain)
                                  .accessibleButton(label: L10n.Accessibility.filterSubject(value.name))

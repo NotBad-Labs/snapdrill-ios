@@ -73,6 +73,7 @@ nonisolated extension L10n {
 
         // 批量标签
         public static let batchTag = NSLocalizedString("library.batch_tag", value: "标签", comment: "批量打标签按钮")
+        public static let noTags = NSLocalizedString("library.no_tags", value: "还没有标签", comment: "批量标签空状态")
         public static func batchTagHint(_ count: Int) -> String {
             String(format: NSLocalizedString("library.batch_tag_hint", value: "为 %d 道题添加标签", comment: "批量打标签提示"), count)
         }

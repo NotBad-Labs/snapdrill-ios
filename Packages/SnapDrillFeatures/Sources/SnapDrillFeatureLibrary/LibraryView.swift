@@ -99,7 +99,7 @@ public struct LibraryView: View {
                 get: { viewModel?.searchText ?? "" },
                 set: { viewModel?.searchText = $0 }
             ), prompt: L10n.Library.searchPlaceholder)
-            .navigationTitle(L10n.Library.title)
+            .navigationTitle(editMode.isEditing ? L10n.Library.selectedCount(selectedItemIDs.count) : L10n.Library.title)
             .toolbar {
                 // 编辑模式左上角：全选 / 取消全选（Apple 文件 App 模式）
                 if editMode.isEditing {
@@ -166,6 +166,7 @@ public struct LibraryView: View {
                         } label: {
                             Label(L10n.Common.delete, systemImage: "trash")
                         }
+                        .accessibilityIdentifier("library.selection.delete")
                         .disabled(selectedItemIDs.isEmpty)
                         .confirmationDialog(L10n.Library.deleteConfirmTitle, isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
                             Button(L10n.Library.selectedCount(selectedItemIDs.count), role: .destructive) {
@@ -184,13 +185,8 @@ public struct LibraryView: View {
                         } label: {
                             Label(L10n.Library.batchTag, systemImage: "tag")
                         }
+                        .accessibilityIdentifier("library.selection.batchTag")
                         .disabled(selectedItemIDs.isEmpty)
-
-                        Spacer()
-
-                        Text(L10n.Library.selectedCount(selectedItemIDs.count))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
 
                         Spacer()
 
@@ -199,6 +195,7 @@ public struct LibraryView: View {
                         } label: {
                             Label(L10n.Library.export, systemImage: "square.and.arrow.up")
                         }
+                        .accessibilityIdentifier("library.selection.export")
                         .disabled(selectedItemIDs.isEmpty)
                     }
                 }
