@@ -12,7 +12,7 @@ freshness:
 
 > 状态：**已挂起（历史区域发布路线，非当前生产架构）** | 原决策日期：2026-05-28 | 挂起决策：2026-06-09 | 决策者：PO
 >
-> **🔁 状态更新 2026-06-09（PO 决策）**：**暂时挂起（非删除）国内大陆路线**，改用**美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`，Organization）做全球版生产**。工程已迁移到 `com.snapdrill.global` + 美国 Team（真机签名实证通过）。本 ADR 的“国内 first / 先用个人账号验 PMF”前提已被取代；下文整体保留为**历史区域发布路线 + 未来国内路线复活蓝图**，**不代表当前生产架构**。当前生产事实见根 `README.md` / `AGENTS.md`，分析与隐私现行决策见 [[ADR-005]]。下文出现的“国内版无 Firebase / 海外版 Firebase”“儿童隐私横切主线”等表述均为该挂起路线的历史决策内容，不是当前定位（当前为通用受众效率工具，见 `../explanations/positioning-and-audience.md`）。
+> **🔁 状态更新 2026-06-09（PO 决策）**：**暂时挂起（非删除）国内大陆路线**，改用**美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`，Organization）做全球版生产**。工程已迁移到 `com.snapdrill.global` + 美国 Team，签名、真机安装运行与 TestFlight / App Store distribution signing 实证状态以根 `README.md` / `AGENTS.md` 为准。本 ADR 的“国内 first / 先用个人账号验 PMF”前提已被取代；下文整体保留为**历史区域发布路线 + 未来国内路线复活蓝图**，**不代表当前生产架构**。当前生产事实见根 `README.md` / `AGENTS.md`，分析与隐私现行决策见 [[ADR-005]]。下文出现的“国内版无 Firebase / 海外版 Firebase”“儿童隐私横切主线”等表述均为该挂起路线的历史决策内容，不是当前定位（当前为通用受众效率工具，见 `../explanations/positioning-and-audience.md`）。
 
 ## 背景
 
