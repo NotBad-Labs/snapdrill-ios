@@ -202,6 +202,46 @@ final class SnapDrillUITests: XCTestCase {
         }
     }
 
+    /// Icon picker should expose general-audience, localized categories instead of school-only taxonomy.
+    func testIconPickerUsesGeneralAudienceCategories() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "设置 Tab 应出现")
+        settingsTab.tap()
+        let manageRow = app.buttons["settings.manageCategories"]
+        scrollUntilHittable(manageRow, in: app)
+        XCTAssertTrue(manageRow.waitForExistence(timeout: 5), "应有‘管理分类维度’入口")
+        manageRow.tap()
+
+        let addDim = app.buttons["dim.add"]
+        XCTAssertTrue(addDim.waitForExistence(timeout: 5), "应有新建维度按钮")
+        addDim.tap()
+        let iconPicker = app.buttons["dimEdit.iconPicker"]
+        XCTAssertTrue(iconPicker.waitForExistence(timeout: 5), "新建维度应有图标选择入口")
+        iconPicker.tap()
+
+        XCTAssertTrue(app.staticTexts["symbolPicker.category.common"].waitForExistence(timeout: 5), "图标选择器应显示通用分类")
+        XCTAssertTrue(app.staticTexts["symbolPicker.category.documents"].exists, "图标选择器应显示文档分类")
+        XCTAssertTrue(app.staticTexts["symbolPicker.category.work"].exists, "图标选择器应显示工作分类")
+        let pickerScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        pickerScreenshot.name = "icon-picker-general-audience-categories"
+        pickerScreenshot.lifetime = .keepAlways
+        add(pickerScreenshot)
+
+        for oldCategory in ["学术", "数学/逻辑", "理化/实验", "体育/运动"] {
+            XCTAssertFalse(app.staticTexts[oldCategory].exists, "图标选择器不应暴露旧教育分类：\(oldCategory)")
+        }
+
+        let documentIcon = app.buttons["symbolPicker.symbol.doc.text.fill"]
+        XCTAssertTrue(documentIcon.waitForExistence(timeout: 5), "文档图标应在通用图标选择器中")
+        documentIcon.tap()
+        XCTAssertTrue(iconPicker.waitForExistence(timeout: 5), "选择图标后应回到维度编辑页")
+        XCTAssertTrue(app.staticTexts["doc.text.fill"].waitForExistence(timeout: 3), "维度编辑页应回填已选图标名")
+    }
+
     /// 步骤③：手动录入时选单值维度（学科=数学）+ 保存 + 题库显示徽标
     func testManualEntryWithDimensionSelection() {
         let app = XCUIApplication()

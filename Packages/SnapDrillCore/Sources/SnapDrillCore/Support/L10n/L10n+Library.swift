@@ -150,6 +150,16 @@ nonisolated extension L10n {
         public static let iconSearch = NSLocalizedString("library.icon_search", value: "搜索图标", comment: "搜索图标")
         public static let iconManualInput = NSLocalizedString("library.icon_manual_input", value: "手动输入", comment: "手动输入图标名")
         public static let iconManualPlaceholder = NSLocalizedString("library.icon_manual_placeholder", value: "输入 SF Symbol 名称", comment: "手动输入图标占位")
+        public static let iconCategoryCommon = NSLocalizedString("library.icon_category_common", value: "常用", comment: "图标分类-常用")
+        public static let iconCategoryDocuments = NSLocalizedString("library.icon_category_documents", value: "文档", comment: "图标分类-文档")
+        public static let iconCategoryWork = NSLocalizedString("library.icon_category_work", value: "工作", comment: "图标分类-工作")
+        public static let iconCategoryIdeas = NSLocalizedString("library.icon_category_ideas", value: "想法", comment: "图标分类-想法")
+        public static let iconCategoryWriting = NSLocalizedString("library.icon_category_writing", value: "书写", comment: "图标分类-书写")
+        public static let iconCategoryPlaces = NSLocalizedString("library.icon_category_places", value: "地点", comment: "图标分类-地点")
+        public static let iconCategoryPeople = NSLocalizedString("library.icon_category_people", value: "人物", comment: "图标分类-人物")
+        public static let iconCategoryNature = NSLocalizedString("library.icon_category_nature", value: "自然", comment: "图标分类-自然")
+        public static let iconCategoryTools = NSLocalizedString("library.icon_category_tools", value: "工具", comment: "图标分类-工具")
+        public static let iconCategoryMeasurement = NSLocalizedString("library.icon_category_measurement", value: "度量", comment: "图标分类-度量")
 
         // 全屏图片
         public static let fullScreenImage = NSLocalizedString("library.full_screen_image", value: "查看图片", comment: "全屏查看图片")

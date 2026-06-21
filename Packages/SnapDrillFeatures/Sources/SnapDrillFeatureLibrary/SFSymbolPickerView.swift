@@ -5,17 +5,17 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  教育图标选择器，提供 ~70 个按学科分类的预设 SF Symbols。
+//  图标选择器，提供一组适合资料空间和分类的预设 SF Symbols。
 //
 
 import SwiftUI
 import SnapDrillCore
 import SnapDrillUI
 
-/// 教育图标选择器
+/// 图标选择器
 ///
-/// 提供约 70 个教育/学科相关的 SF Symbol 预设，按类别分组展示。
-/// 支持搜索过滤。不开放全量 SF Symbol 访问——预设已覆盖所有学科场景。
+/// 提供一组通用 SF Symbol 预设，按类别分组展示。
+/// 支持搜索过滤。不开放全量 SF Symbol 访问，避免图标选择器失焦。
 public struct SFSymbolPickerView: View {
     @Environment(\.dismiss) var dismiss
 
@@ -27,131 +27,120 @@ public struct SFSymbolPickerView: View {
         self._selectedSymbol = selectedSymbol
     }
 
-    // MARK: - 教育图标预设（按类别分组）
+    // MARK: - Icon Presets
 
     private struct IconCategory: Identifiable {
-        let id = UUID()
+        let id: String
         let name: String
         let symbols: [String]
     }
 
-    private let categories: [IconCategory] = [
-        IconCategory(name: "学术", symbols: [
-            "graduationcap.fill",
-            "backpack.fill",
-            "studentdesk",
-            "brain",
-            "lightbulb.fill",
-            "sparkles"
-        ]),
-        IconCategory(name: "书籍/阅读", symbols: [
-            "book.fill",
-            "books.vertical.fill",
-            "book.closed.fill",
-            "text.book.closed.fill",
-            "magazine.fill",
-            "newspaper.fill",
-            "bookmark.fill"
-        ]),
-        IconCategory(name: "书写/文具", symbols: [
-            "pencil",
-            "pencil.tip",
-            "pencil.and.ruler",
-            "highlighter",
-            "eraser.fill",
-            "scribble.variable",
-            "square.and.pencil"
-        ]),
-        IconCategory(name: "数学/逻辑", symbols: [
-            "function",
-            "x.squareroot",
-            "number",
-            "percent",
-            "chart.bar.fill",
-            "chart.pie.fill",
-            "chart.line.uptrend.xyaxis"
-        ]),
-        IconCategory(name: "理化/实验", symbols: [
-            "atom",
-            "flask.fill",
-            "molecule",
-            "bolt.fill",
-            "flame.fill",
-            "thermometer.medium",
-            "waveform",
-            "gyroscope"
-        ]),
-        IconCategory(name: "生物/自然", symbols: [
-            "leaf.fill",
-            "tree.fill",
-            "dna",
-            "pawprint.fill",
-            "bird.fill",
-            "fish.fill",
-            "ant.fill",
-            "hare.fill"
-        ]),
-        IconCategory(name: "地理/地图", symbols: [
-            "globe.asia.australia",
-            "globe.americas",
-            "globe.europe.africa",
-            "map.fill",
-            "mappin.circle.fill",
-            "mountain.2.fill"
-        ]),
-        IconCategory(name: "历史/社会", symbols: [
-            "clock.fill",
-            "building.columns.fill",
-            "person.2.fill",
-            "flag.fill",
-            "scroll.fill"
-        ]),
-        IconCategory(name: "语言/文字", symbols: [
-            "character.textbox",
-            "character.book.closed.fill",
-            "textformat.abc",
-            "text.bubble.fill",
-            "mic.fill"
-        ]),
-        IconCategory(name: "音乐/艺术", symbols: [
-            "music.note",
-            "music.note.list",
-            "paintpalette.fill",
-            "paintbrush.fill",
-            "theatermasks.fill",
-            "camera.fill"
-        ]),
-        IconCategory(name: "体育/运动", symbols: [
-            "figure.run",
-            "dumbbell.fill",
-            "sportscourt.fill",
-            "basketball.fill",
-            "soccerball",
-            "tennis.racket"
-        ]),
-        IconCategory(name: "技术/信息", symbols: [
-            "cpu",
-            "desktopcomputer",
-            "keyboard.fill",
-            "gearshape.fill",
-            "wrench.and.screwdriver.fill",
-            "network"
-        ]),
-        IconCategory(name: "文档/分类", symbols: [
-            "doc.text.fill",
-            "folder.fill",
-            "tray.full.fill",
-            "archivebox.fill",
-            "tag.fill"
-        ]),
-        IconCategory(name: "度量/奖励", symbols: [
-            "ruler.fill",
-            "level.fill",
-            "star.fill",
-            "medal.fill",
-            "trophy.fill"
-        ])
-    ]
+    private var categories: [IconCategory] {
+        [
+            IconCategory(id: "common", name: L10n.Library.iconCategoryCommon, symbols: [
+                "circle",
+                "circle.fill",
+                "star.fill",
+                "heart.fill",
+                "bookmark.fill",
+                "tag",
+                "tag.fill",
+                "flag.fill",
+                "pin.fill",
+                "checkmark.circle.fill"
+            ]),
+            IconCategory(id: "documents", name: L10n.Library.iconCategoryDocuments, symbols: [
+                "doc.text.fill",
+                "folder.fill",
+                "tray.full.fill",
+                "archivebox.fill",
+                "note.text",
+                "clipboard.fill",
+                "paperclip",
+                "book.closed.fill"
+            ]),
+            IconCategory(id: "work", name: L10n.Library.iconCategoryWork, symbols: [
+                "briefcase.fill",
+                "calendar",
+                "clock.fill",
+                "list.bullet.rectangle",
+                "checklist",
+                "chart.bar.fill",
+                "chart.pie.fill",
+                "chart.line.uptrend.xyaxis"
+            ]),
+            IconCategory(id: "ideas", name: L10n.Library.iconCategoryIdeas, symbols: [
+                "brain",
+                "lightbulb.fill",
+                "sparkles",
+                "wand.and.stars",
+                "paintpalette.fill",
+                "camera.fill",
+                "music.note",
+                "theatermasks.fill"
+            ]),
+            IconCategory(id: "writing", name: L10n.Library.iconCategoryWriting, symbols: [
+                "pencil",
+                "pencil.tip",
+                "pencil.and.ruler",
+                "highlighter",
+                "scribble.variable",
+                "square.and.pencil",
+                "textformat.abc",
+                "text.bubble.fill"
+            ]),
+            IconCategory(id: "places", name: L10n.Library.iconCategoryPlaces, symbols: [
+                "globe",
+                "map.fill",
+                "mappin.circle.fill",
+                "house.fill",
+                "building.2.fill",
+                "car.fill",
+                "airplane",
+                "location.fill"
+            ]),
+            IconCategory(id: "people", name: L10n.Library.iconCategoryPeople, symbols: [
+                "person.fill",
+                "person.2.fill",
+                "person.crop.circle.fill",
+                "figure.walk",
+                "figure.run",
+                "hand.raised.fill",
+                "message.fill",
+                "phone.fill"
+            ]),
+            IconCategory(id: "nature", name: L10n.Library.iconCategoryNature, symbols: [
+                "leaf.fill",
+                "tree.fill",
+                "sun.max.fill",
+                "moon.fill",
+                "cloud.fill",
+                "drop.fill",
+                "flame.fill",
+                "snowflake"
+            ]),
+            IconCategory(id: "tools", name: L10n.Library.iconCategoryTools, symbols: [
+                "gearshape.fill",
+                "wrench.and.screwdriver.fill",
+                "hammer.fill",
+                "slider.horizontal.3",
+                "cpu",
+                "desktopcomputer",
+                "keyboard.fill",
+                "network"
+            ]),
+            IconCategory(id: "measurement", name: L10n.Library.iconCategoryMeasurement, symbols: [
+                "ruler.fill",
+                "level.fill",
+                "number",
+                "percent",
+                "function",
+                "waveform",
+                "timer",
+                "speedometer"
+            ])
+        ]
+    }
 
     /// 搜索过滤后的类别（空搜索时返回全部）
     private var filteredCategories: [IconCategory] {
@@ -164,7 +153,7 @@ public struct SFSymbolPickerView: View {
                 $0.lowercased().contains(query) || cat.name.lowercased().contains(query)
             }
             guard !matched.isEmpty else { return nil }
-            return IconCategory(name: cat.name, symbols: matched)
+            return IconCategory(id: cat.id, name: cat.name, symbols: matched)
         }
     }
 
@@ -197,6 +186,7 @@ public struct SFSymbolPickerView: View {
                                     .fontWeight(.semibold)
                                     .foregroundStyle(.secondary)
                                     .padding(.horizontal, 4)
+                                    .accessibilityIdentifier("symbolPicker.category.\(category.id)")
 
                                 LazyVGrid(
                                     columns: [GridItem(.adaptive(minimum: 50))],
@@ -246,7 +236,7 @@ public struct SFSymbolPickerView: View {
 
                 if selectedSymbol == symbol {
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.blue, lineWidth: 2)
+                        .strokeBorder(Color.accentColor, lineWidth: 2)
                 }
 
                 Image(systemName: symbol)
@@ -254,12 +244,22 @@ public struct SFSymbolPickerView: View {
                     .foregroundStyle(.primary)
                     .symbolRenderingMode(.hierarchical)
                     .frame(width: 30, height: 30)
+
+                if selectedSymbol == symbol {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Color.accentColor, Color(UIColor.systemBackground))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                        .padding(3)
+                        .accessibilityHidden(true)
+                }
             }
             .frame(width: 50, height: 50)
             .contentShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(L10n.Accessibility.selectIcon(symbol))
+        .accessibilityIdentifier("symbolPicker.symbol.\(symbol)")
         .accessibilityAddTraits(selectedSymbol == symbol ? .isSelected : [])
     }
 }

@@ -245,6 +245,16 @@
 "library.icon_search" = "搜索图标";
 "library.icon_manual_input" = "手动输入";
 "library.icon_manual_placeholder" = "输入 SF Symbol 名称";
+"library.icon_category_common" = "常用";
+"library.icon_category_documents" = "文档";
+"library.icon_category_work" = "工作";
+"library.icon_category_ideas" = "想法";
+"library.icon_category_writing" = "书写";
+"library.icon_category_places" = "地点";
+"library.icon_category_people" = "人物";
+"library.icon_category_nature" = "自然";
+"library.icon_category_tools" = "工具";
+"library.icon_category_measurement" = "度量";
 "library.full_screen_image" = "查看图片";
 "library.subject_has_items" = "学科「%@」下仍有题目，请先将题目移动到其他学科或删除对应题目。";
 "library.source_has_items" = "来源「%@」下仍有题目，请先将题目移动到其他来源或删除对应题目。";

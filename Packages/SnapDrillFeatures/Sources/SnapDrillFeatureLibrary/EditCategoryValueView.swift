@@ -58,6 +58,7 @@ struct EditCategoryValueView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
+                    .accessibilityIdentifier("dimValueEdit.iconPicker")
                 }
 
                 Section(L10n.Library.color) {

@@ -50,6 +50,7 @@ struct EditDimensionView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
+                    .accessibilityIdentifier("dimEdit.iconPicker")
                 }
 
                 Section {

@@ -13,7 +13,7 @@
   accessibility settings; selection indicators must remain visible without
   relying on `Color.primary` on top of arbitrary swatches.
 - Repo rule: UI verification must combine static risk scan with simulator
-  screenshots. Static grep is not sufficient.
+  screenshots or XCUITest screenshot attachments. Static grep is not sufficient.
 
 ## Current Findings
 
@@ -22,6 +22,7 @@
 | UI-FZ-001 | P1 | Settings > Edit Profile > Theme color | Selected swatch used `Color.primary` stroke on the swatch boundary, producing a black ring in light mode and clipped stroke at the row edge. | Fixed in `EditProfileView`: selected swatch now uses reserved 56 pt hit/draw area, accent ring, and white checkmark. |
 | UI-FZ-002 | P2 | Library taxonomy manager > Edit value > Color | Same `Color.primary` swatch-selection pattern existed in category value color picker. | Fixed in `EditCategoryValueView`: selected swatch now uses reserved frame, accent ring, white checkmark, and `.isSelected`. |
 | UI-FZ-003 | P2 | Review tab empty state | Review used Dashboard/Library empty-state copy (`还没有任何资料` / `开始采集`), making the Review tab look like the wrong surface. Before: `docs/ui-redesign/evidence/2026-06-21-review-empty-before.jpg`. | Fixed in `ReviewDashboardView`: Review now uses Review-specific title, description, icon, and CTA. After: `docs/ui-redesign/evidence/2026-06-21-review-empty-after.jpg`. |
+| UI-FZ-004 | P2 | Shared symbol picker from Profile and taxonomy editors | `SFSymbolPickerView` still exposed hard-coded Chinese, education-oriented category titles such as `学术`, `数学/逻辑`, `理化/实验`, and `体育/运动`, and the selected icon state needed the same visible accent/check treatment as the color swatches. | Fixed in `SFSymbolPickerView`: categories are localized general-audience groups, item selection uses accent ring + checkmark + `.isSelected`, and `testIconPickerUsesGeneralAudienceCategories` covers visible categories plus selection round-trip. Evidence: `docs/ui-redesign/evidence/2026-06-21-icon-picker-general-audience.png`. |
 
 ## Static Risk Queries
 
@@ -63,7 +64,7 @@ Legend:
 | Library | Full-screen image | `FullScreenImageView` | portrait/landscape image, zoom/pan | Needs data |
 | Library | Taxonomy manager | `CategoryManagerView`, `CategoryValueListView` | list, add/edit/delete dimension values | In progress |
 | Library | Edit taxonomy value | `EditCategoryValueView` | preset color selected, custom color selected, symbol picker | Code fixed; needs simulator screenshot |
-| Library | Symbol picker | `SFSymbolPickerView` | search, selected symbol, empty search | In progress |
+| Library | Symbol picker | `SFSymbolPickerView` | search, selected symbol, empty search | Pass for default selected state and visible default categories via XCUITest screenshot attachment; search and empty-search states still need visual pass |
 | Capture | Capture tab method grid | `CaptureView`, `CaptureMethodCard` | regular text size, accessibility text size | In progress |
 | Capture | Camera scanner | `SmartCameraView` | simulator unavailable camera, controls, close | Needs device/simulator capability |
 | Capture | Document scanner | `DocumentScannerView` | scanner unavailable/available | Needs device capability |
@@ -75,7 +76,7 @@ Legend:
 | Review | Active card session | `ReviewView`, `ReviewActionButtons`, card front/back | flip, swipe, undo, pause, summary | Needs data |
 | Review | Card edit sheets | `ReviewCardContent`, `ReviewCardBack` | edit from front/back | Needs data |
 | Settings | Settings main page | `SettingsView` | normal rows, toggles, tab bar, Dynamic Type | In progress |
-| Settings | Edit profile | `EditProfileView` | default symbol avatar, theme swatches, photo avatar, symbol picker | Default symbol-avatar swatch fixed and simulator-reviewed; photo-avatar and symbol-picker states still in progress |
+| Settings | Edit profile | `EditProfileView` | default symbol avatar, theme swatches, photo avatar, symbol picker | Default symbol-avatar swatch fixed and simulator-reviewed; shared symbol picker component covered by UI-FZ-004; profile route photo-avatar and picker entry still need screenshot |
 | Settings | Profile list | `ProfileListView` | one profile, multiple profiles, delete disabled/enabled | In progress |
 | Settings | Data and sync | `DataAndSyncSettingsView` | export, import, backup progress, restore dialog | Needs data |
 | Settings | Privacy/export | `PrivacySettingsView` | export options, clear data confirmation | In progress |

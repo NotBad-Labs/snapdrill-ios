@@ -253,6 +253,16 @@
 "library.icon_search" = "Search icons";
 "library.icon_manual_input" = "Manual Input";
 "library.icon_manual_placeholder" = "Enter SF Symbol name";
+"library.icon_category_common" = "Common";
+"library.icon_category_documents" = "Documents";
+"library.icon_category_work" = "Work";
+"library.icon_category_ideas" = "Ideas";
+"library.icon_category_writing" = "Writing";
+"library.icon_category_places" = "Places";
+"library.icon_category_people" = "People";
+"library.icon_category_nature" = "Nature";
+"library.icon_category_tools" = "Tools";
+"library.icon_category_measurement" = "Measurement";
 "library.full_screen_image" = "View Image";
 "library.subject_has_items" = "Subject \"%@\" still has questions. Please move them to another subject or delete them first.";
 "library.source_has_items" = "Source \"%@\" still has questions. Please move them to another source or delete them first.";

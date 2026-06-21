@@ -2,6 +2,37 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Shared symbol picker general-audience correction
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/SFSymbolPickerView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/EditDimensionView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/EditCategoryValueView.swift`
+- `Packages/SnapDrillCore/Sources/SnapDrillCore/Support/L10n/L10n+Library.swift`
+- `SnapDrill/Resources/zh-Hans.lproj/Localizable.strings`
+- `SnapDrill/Resources/en.lproj/Localizable.strings`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-icon-picker-general-audience.png`
+
+### Design Decisions
+
+- The shared SF Symbol picker is reachable from Profile avatar-symbol editing and taxonomy/category editing, so it is a cross-surface control, not a single Library detail.
+- Static matrix review found hard-coded Chinese education categories in the picker (`学术`, `数学/逻辑`, `理化/实验`, `体育/运动`). This created both a localization defect in English UI and a post-pivot positioning regression in a general-audience tool.
+- Picker presets now use localized general-audience groups: common, documents, work, ideas, writing, places, people, nature, tools, and measurement.
+- Selected symbol tiles now use the same accent-ring + checkmark language as corrected color swatches, plus `.isSelected` for accessibility.
+- The picker now exposes stable category and symbol accessibility identifiers so control-level UI tests can verify visible categories and selection round-trips.
+
+### DoD Status
+
+- Passed in this local change:
+  - `plutil -lint SnapDrill/Resources/zh-Hans.lproj/Localizable.strings SnapDrill/Resources/en.lproj/Localizable.strings`
+  - `swiftlint --strict`
+  - `git diff --check`
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testIconPickerUsesGeneralAudienceCategories`
+  - XCUITest screenshot attachment exported to `docs/ui-redesign/evidence/2026-06-21-icon-picker-general-audience.png`
+
 ## 2026-06-21 - Swatch selection indicators and UI QA matrix
 
 ### Scope
