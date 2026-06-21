@@ -66,6 +66,7 @@ public struct OnboardingView: View {
         ZStack {
             Color(uiColor: .systemGroupedBackground)
                 .ignoresSafeArea()
+                .accessibilityIdentifier("onboarding.root")
 
             VStack(spacing: 0) {
                 topBar
@@ -76,7 +77,7 @@ public struct OnboardingView: View {
             .padding(.top, 12)
             .padding(.bottom, 24)
         }
-        .accessibleGroup(label: L10n.Onboarding.accessibilityGroup)
+        .accessibleGroup(label: L10n.Onboarding.accessibilityGroup, combineChildren: false)
         // HIG：翻页用 light（翻书感），完成引导用 success（正向仪式感）
         .sensoryFeedback(.impact(weight: .light), trigger: currentPage)
         .sensoryFeedback(.success, trigger: completionFeedbackTrigger)
@@ -92,6 +93,7 @@ public struct OnboardingView: View {
             .buttonBorderShape(.capsule)
             .controlSize(.small)
             .tint(.secondary)
+            .accessibilityIdentifier("onboarding.skip")
         }
         .padding(.bottom, 8)
     }
@@ -99,7 +101,7 @@ public struct OnboardingView: View {
     private var pager: some View {
         TabView(selection: $currentPage) {
             ForEach(Array(pages.enumerated()), id: \.element.id) { index, page in
-                OnboardingPageView(page: page)
+                OnboardingPageView(page: page, index: index)
                     .tag(index)
             }
         }
@@ -119,6 +121,7 @@ public struct OnboardingView: View {
                     }
                     .buttonStyle(.bordered)
                     .buttonBorderShape(.roundedRectangle(radius: 14))
+                    .accessibilityIdentifier("onboarding.previous")
                 }
 
                 Button(isLastPage ? L10n.Onboarding.getStarted : L10n.Onboarding.next) {
@@ -133,6 +136,7 @@ public struct OnboardingView: View {
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle(radius: 14))
                 .frame(maxWidth: .infinity)
+                .accessibilityIdentifier(isLastPage ? "onboarding.getStarted" : "onboarding.next")
             }
         }
         .padding(.top, 10)
@@ -165,42 +169,56 @@ public struct OnboardingView: View {
 /// 单个引导页面视图
 struct OnboardingPageView: View {
     let page: OnboardingPage
+    let index: Int
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     
     var body: some View {
-        VStack {
-            Spacer(minLength: 24)
+        GeometryReader { proxy in
+            ScrollView {
+                VStack {
+                    Spacer(minLength: 24)
 
-            VStack(spacing: 28) {
-                icon
+                    VStack(spacing: 28) {
+                        if !dynamicTypeSize.isAccessibilitySize {
+                            icon
+                        }
 
-                VStack(spacing: 12) {
-                    Text(page.title)
-                        .font(.title.bold())
-                        .multilineTextAlignment(.center)
-                        .accessibleHeader(page.title)
+                        VStack(spacing: 12) {
+                            Text(page.title)
+                                .font(.title.bold())
+                                .multilineTextAlignment(.center)
+                                .lineLimit(3)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .accessibleHeader(page.title)
 
-                    Text(page.description)
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(3)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .accessible(label: page.description)
+                            Text(page.description)
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(3)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .accessible(label: page.description)
+                        }
+                    }
+                    .frame(maxWidth: 430)
+                    .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 16 : 24)
+                    .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 24 : 42)
+                    .background(Color(uiColor: .secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 28, style: .continuous)
+                            .stroke(Color(uiColor: .separator).opacity(0.18), lineWidth: 1)
+                    }
+                    .accessibilityIdentifier("onboarding.page.\(index)")
+
+                    Spacer(minLength: 24)
                 }
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: proxy.size.height)
+                .padding(.horizontal, 4)
             }
-            .frame(maxWidth: 430)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 42)
-            .background(Color(uiColor: .secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(Color(uiColor: .separator).opacity(0.18), lineWidth: 1)
-            }
-
-            Spacer(minLength: 24)
+            .scrollIndicators(.hidden)
         }
-        .padding(.horizontal, 4)
     }
 
     private var icon: some View {

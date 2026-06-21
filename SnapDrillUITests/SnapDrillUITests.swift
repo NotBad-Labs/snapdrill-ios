@@ -168,6 +168,66 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-05-settings-main")
     }
 
+    /// UI-freeze evidence: capture first-run onboarding pages and completion path.
+    func testUIFreezeOnboardingPagedScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "--uitesting",
+            "-hasCompletedOnboarding", "NO",
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN"
+        ]
+        app.launch()
+
+        waitForAnyElement("onboarding.root", in: app, timeout: 10)
+        XCTAssertTrue(app.buttons["onboarding.skip"].waitForExistence(timeout: 5), "引导页应提供跳过按钮")
+        XCTAssertTrue(app.buttons["onboarding.next"].waitForExistence(timeout: 5), "引导页第一页应提供下一页按钮")
+        addScreenshot(named: "ui-freeze-onboarding-01-welcome")
+
+        app.buttons["onboarding.next"].tap()
+        waitForUIAnimation()
+        XCTAssertTrue(app.descendants(matching: .any)["onboarding.page.1"].waitForExistence(timeout: 5), "应进入第二页")
+        XCTAssertTrue(app.buttons["onboarding.previous"].waitForExistence(timeout: 5), "第二页起应提供上一页按钮")
+        addScreenshot(named: "ui-freeze-onboarding-02-capture")
+
+        app.buttons["onboarding.next"].tap()
+        waitForUIAnimation()
+        XCTAssertTrue(app.descendants(matching: .any)["onboarding.page.2"].waitForExistence(timeout: 5), "应进入第三页")
+        addScreenshot(named: "ui-freeze-onboarding-03-review")
+
+        app.buttons["onboarding.next"].tap()
+        waitForUIAnimation()
+        XCTAssertTrue(app.descendants(matching: .any)["onboarding.page.3"].waitForExistence(timeout: 5), "应进入最后一页")
+        XCTAssertTrue(app.buttons["onboarding.getStarted"].waitForExistence(timeout: 5), "最后一页应提供开始使用按钮")
+        addScreenshot(named: "ui-freeze-onboarding-04-export")
+
+        app.buttons["onboarding.getStarted"].tap()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "完成引导后应进入主界面")
+        addScreenshot(named: "ui-freeze-onboarding-05-completed")
+    }
+
+    /// UI-freeze evidence: capture onboarding at accessibility Dynamic Type size and verify skip path.
+    func testUIFreezeOnboardingAccessibilityTextScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "--uitesting",
+            "-hasCompletedOnboarding", "NO",
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN",
+            "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"
+        ]
+        app.launch()
+
+        waitForAnyElement("onboarding.root", in: app, timeout: 10)
+        XCTAssertTrue(app.buttons["onboarding.skip"].waitForExistence(timeout: 5), "AX 字号下仍应提供跳过按钮")
+        XCTAssertTrue(app.buttons["onboarding.next"].waitForExistence(timeout: 5), "AX 字号下仍应提供下一页按钮")
+        addScreenshot(named: "ui-freeze-onboarding-06-accessibility-text")
+
+        app.buttons["onboarding.skip"].tap()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "跳过引导后应进入主界面")
+        addScreenshot(named: "ui-freeze-onboarding-07-skip-completed")
+    }
+
     /// UI-freeze evidence: capture the manual Capture result editor and metadata controls.
     func testUIFreezeCaptureManualResultEditorScreenshots() {
         let app = XCUIApplication()

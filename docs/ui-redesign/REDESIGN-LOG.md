@@ -2,6 +2,30 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Onboarding visual and Dynamic Type matrix
+
+### Scope
+
+- `Packages/SnapDrillUI/Sources/SnapDrillUI/OnboardingView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-onboarding-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeOnboardingPagedScreenshots` to capture all first-run onboarding pages and the finish path, plus `testUIFreezeOnboardingAccessibilityTextScreenshots` to capture AX XXXL text size and the skip path.
+- The onboarding root now uses contained accessibility children instead of combining the entire first-run flow into one accessibility element. This keeps Skip / Previous / Next / Get Started reachable to assistive technologies and XCUITest.
+- Onboarding page controls use leaf identifiers (`onboarding.skip`, `onboarding.previous`, `onboarding.next`, `onboarding.getStarted`) plus non-action page markers. Broad identifiers are avoided on interactive groups.
+- AX XXXL screenshot review found title truncation and card clipping. Titles now wrap, and accessibility sizes hide the decorative icon, tighten card padding, and place the page card in a vertical `ScrollView` so the first viewport keeps a complete rounded card.
+- Normal-size onboarding remains visually centered and keeps the icon treatment.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeOnboardingPagedScreenshots`
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeOnboardingAccessibilityTextScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-onboarding-*.png`
+
 ## 2026-06-21 - Review interaction visual matrix
 
 ### Scope
