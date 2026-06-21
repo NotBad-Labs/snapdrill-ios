@@ -2,6 +2,28 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Settings deep-scroll bottom reachability
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/SettingsView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-settings-deep-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeSettingsDeepScrollScreenshots` to cover Settings deep-scroll zones that were not exercised by the first-viewport Settings pass: danger zone, clear-all confirmation, about/legal bottom rows, and the true List bottom.
+- Visual review rejected an earlier passing XCTest run because the DEBUG-only `生成测试数据 (100 条)` row was still readable under the iOS 26 floating tab bar. The final fix uses a larger named `tabBarBreathingRoom`, a DEBUG-only spacer between the about section and debug tools, and a bottom `safeAreaInset` for the List.
+- The DEBUG row is not a shipping surface. It remains useful screenshot evidence because it proves the Settings List bottom can scroll above the floating tab bar instead of relying on partial hidden content.
+- `PrivacySettingsView` does not own the global clear-all confirmation. The matrix now records that confirmation under Settings main / danger-zone evidence, while Privacy/export keeps only export options and the system share-sheet follow-up.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeSettingsDeepScrollScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-settings-deep-*.png`
+
 ## 2026-06-21 - Taxonomy add/delete edge-state matrix
 
 ### Scope

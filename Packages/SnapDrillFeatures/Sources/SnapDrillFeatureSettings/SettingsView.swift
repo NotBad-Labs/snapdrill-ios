@@ -42,7 +42,7 @@ public struct SettingsView: View {
     @State private var seedTask: Task<Void, Never>?
     @State private var clearTask: Task<Void, Never>?
     @State private var settingsAvatarImage: UIImage?
-    private let tabBarBreathingRoom: CGFloat = 72
+    private let tabBarBreathingRoom: CGFloat = 160
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     // 录入字段可见性（产品规格：学科默认开，其余默认关）
@@ -122,9 +122,7 @@ public struct SettingsView: View {
                 } header: {
                     Text(L10n.Settings.captureFields)
                 } footer: {
-                    Color.clear
-                        .frame(height: tabBarBreathingRoom)
-                        .accessibilityHidden(true)
+                    bottomBreathingRoom
                 }
 
                 // 3. 回顾设置
@@ -228,7 +226,7 @@ public struct SettingsView: View {
                 }
 
                 // 7. 关于
-                Section(L10n.Settings.about) {
+                Section {
                     Button { showingMail = true } label: {
                         SettingsRow(icon: "heart.text.square.fill", gradientStart: .pink, gradientEnd: .red, title: L10n.Settings.feedbackAndSupport)
                     }
@@ -257,6 +255,10 @@ public struct SettingsView: View {
                     }
                     .accessibilityIdentifier("settings.terms")
 
+                } header: {
+                    Text(L10n.Settings.about)
+                } footer: {
+                    debugSectionBreathingRoom
                 }
 
 #if DEBUG
@@ -271,12 +273,16 @@ public struct SettingsView: View {
                         }
                     }
                     .disabled(isGenerating)
+                    .accessibilityIdentifier("settings.generateTestData")
                     .accessibilityHint(L10n.Accessibility.generateTestDataHint)
 
                 }
 #endif
             }
             .listStyle(.insetGrouped)
+            .safeAreaInset(edge: .bottom) {
+                bottomBreathingRoom
+            }
             .accessibilityIdentifier("settings.root")
             .navigationTitle(L10n.Settings.title)
             .navigationBarTitleDisplayMode(.inline)
@@ -334,6 +340,22 @@ public struct SettingsView: View {
     }
 
     // MARK: - Private Helpers
+
+    @ViewBuilder
+    private var bottomBreathingRoom: some View {
+        Color.clear
+            .frame(height: tabBarBreathingRoom)
+            .accessibilityHidden(true)
+    }
+
+    @ViewBuilder
+    private var debugSectionBreathingRoom: some View {
+#if DEBUG
+        bottomBreathingRoom
+#else
+        EmptyView()
+#endif
+    }
 
     /// Profile 行：系统 insetGrouped 行内的头像 + 姓名 + 副标题。
     @ViewBuilder

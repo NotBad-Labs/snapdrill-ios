@@ -847,6 +847,37 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-settings-controls-10-license-detail")
     }
 
+    /// UI-freeze evidence: capture deep Settings scroll zones and global clear-data confirmation.
+    func testUIFreezeSettingsDeepScrollScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let clearAll = app.buttons["settings.clearAllData"]
+        scrollUntilHittable(clearAll, in: app, maxSwipes: 10)
+        XCTAssertTrue(clearAll.waitForExistence(timeout: 5), "设置深滚后应显示清空全部数据入口")
+        addScreenshot(named: "ui-freeze-settings-deep-01-danger-zone")
+        clearAll.tap()
+        let clearAlert = app.alerts.firstMatch
+        XCTAssertTrue(clearAlert.waitForExistence(timeout: 5), "清空全部数据应显示确认弹窗")
+        addScreenshot(named: "ui-freeze-settings-deep-02-clear-all-alert")
+        clearAlert.buttons["取消"].tap()
+
+        let terms = app.buttons["settings.terms"]
+        scrollUntilHittable(terms, in: app, maxSwipes: 8)
+        XCTAssertTrue(terms.waitForExistence(timeout: 5), "设置底部应显示服务条款入口")
+        addScreenshot(named: "ui-freeze-settings-deep-03-about-legal-bottom")
+
+        let generateTestData = app.buttons["settings.generateTestData"]
+        scrollUntilHittable(generateTestData, in: app, maxSwipes: 4)
+        XCTAssertTrue(generateTestData.waitForExistence(timeout: 5), "DEBUG 设置末尾行应能完整滚出浮动 tab bar")
+        addScreenshot(named: "ui-freeze-settings-deep-04-debug-bottom")
+    }
+
     /// UI-freeze evidence: capture Library populated, filter, detail, edit, selection, and export surfaces.
     func testUIFreezeLibraryPopulatedSurfaceScreenshots() {
         let app = XCUIApplication()
