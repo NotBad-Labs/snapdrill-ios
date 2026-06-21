@@ -2,6 +2,28 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Review physical swipe gesture matrix
+
+### Scope
+
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-review-12-after-left-drag.png`
+- `docs/ui-redesign/evidence/2026-06-21-review-13-after-drag-undo.png`
+- `docs/ui-redesign/evidence/2026-06-21-review-14-after-right-drag.png`
+
+### Design Decisions
+
+- Added `testUIFreezeReviewSwipeGestureScreenshots` to cover Review's physical horizontal drag path, not only the button-triggered rating path.
+- The test uses XCUITest normalized screen coordinates across the visible Review card. It intentionally does not add a broad accessibility identifier to the card container, preserving the previous fix that keeps hidden/non-top card controls out of the accessibility tree.
+- The visual contract is progress and control-state based: left drag advances to `2/2` and enables undo, undo returns to `1/2` and disables undo, and right drag advances through the same physical gesture path. Screenshot evidence still captures the card content for human review.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeReviewSwipeGestureScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-review-12-after-left-drag.png` through `docs/ui-redesign/evidence/2026-06-21-review-14-after-right-drag.png`
+
 ## 2026-06-21 - Library control-state matrix
 
 ### Scope

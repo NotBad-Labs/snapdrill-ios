@@ -399,6 +399,48 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-review-11-after-undo")
     }
 
+    /// UI-freeze evidence: capture physical horizontal drag gestures on Review cards.
+    func testUIFreezeReviewSwipeGestureScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["-captureFieldAnswer", "YES"]
+        app.launch()
+
+        createManualItem(
+            content: "Review Swipe First",
+            subject: "数学",
+            answer: "Reference answer for Review Swipe First",
+            in: app
+        )
+        createManualItem(
+            content: "Review Swipe Second",
+            subject: "语文",
+            answer: "Reference answer for Review Swipe Second",
+            in: app
+        )
+
+        app.tabBars.buttons.element(boundBy: 3).tap()
+        XCTAssertTrue(app.buttons["review.startButton"].waitForExistence(timeout: 10), "拖拽测试应显示开始回顾按钮")
+        app.buttons["review.startButton"].tap()
+        waitForAnyElement("review.rate.good", in: app)
+        XCTAssertTrue(app.staticTexts["1/2"].waitForExistence(timeout: 5), "拖拽前应处在第一张卡")
+
+        dragReviewCard(in: app, direction: .left)
+        XCTAssertTrue(app.staticTexts["2/2"].waitForExistence(timeout: 5), "左拖后应进入第二张卡")
+        XCTAssertTrue(app.buttons["review.undo"].isEnabled, "左拖评分后撤销按钮应可用")
+        addScreenshot(named: "ui-freeze-review-12-after-left-drag")
+
+        app.buttons["review.undo"].tap()
+        waitForUIAnimation()
+        XCTAssertTrue(app.staticTexts["1/2"].waitForExistence(timeout: 5), "撤销后应回到第一张卡")
+        XCTAssertFalse(app.buttons["review.undo"].isEnabled, "撤销回第一张后撤销按钮应回到禁用态")
+        addScreenshot(named: "ui-freeze-review-13-after-drag-undo")
+
+        dragReviewCard(in: app, direction: .right)
+        XCTAssertTrue(app.staticTexts["2/2"].waitForExistence(timeout: 5), "右拖后应进入第二张卡")
+        XCTAssertTrue(app.buttons["review.undo"].isEnabled, "右拖评分后撤销按钮应可用")
+        addScreenshot(named: "ui-freeze-review-14-after-right-drag")
+    }
+
     /// UI-freeze evidence: capture populated Dashboard hero, shortcuts, analytics gate, category sheet, and all-done state.
     func testUIFreezeDashboardPopulatedSurfaceScreenshots() {
         let app = XCUIApplication()
@@ -1171,6 +1213,20 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout: 5), "保存按钮应出现")
         save.tap()
         XCTAssertTrue(manual.waitForExistence(timeout: 10), "保存后应返回采集首页")
+    }
+
+    private enum HorizontalDragDirection {
+        case left
+        case right
+    }
+
+    /// Drag across the visible Review card without adding broad accessibility IDs to the card container.
+    private func dragReviewCard(in app: XCUIApplication, direction: HorizontalDragDirection) {
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.48))
+        let endX = direction == .left ? 0.14 : 0.86
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: endX, dy: 0.48))
+        start.press(forDuration: 0.15, thenDragTo: end)
+        waitForUIAnimation(seconds: 1.0)
     }
 
     /// 新建一个标签值，供批量标签 UI 状态使用。
