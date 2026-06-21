@@ -63,6 +63,7 @@ public struct DashboardView: View {
                                         viewModel.checkDraftAndCapture(router: router)
                                     }
                                     .buttonStyle(.borderedProminent)
+                                    .accessibilityIdentifier("dashboard.empty.capture")
                                 }
                                 .padding(.top, 40)
                             } else {
@@ -83,6 +84,7 @@ public struct DashboardView: View {
                                     ) {
                                         viewModel.checkDraftAndCapture(router: router)
                                     }
+                                    .accessibilityIdentifier("dashboard.bento.capture")
 
                                     BentoCard(
                                         title: L10n.Dashboard.browseLibrary,
@@ -92,12 +94,14 @@ public struct DashboardView: View {
                                     ) {
                                         NotificationCenter.default.post(name: .switchToLibraryTab, object: nil)
                                     }
+                                    .accessibilityIdentifier("dashboard.bento.library")
 
                                     DailyStatsView(
                                         todayItemsCount: viewModel.todayItemsCount,
                                         reviewedTodayCount: viewModel.reviewedTodayCount,
                                         dueCount: viewModel.dueCount
                                     )
+                                    .accessibilityIdentifier("dashboard.dailyStats")
 
                                     BentoCard(
                                         // L3：入口已统一为全维度管理，标签与落地页标题（管理分类）保持一致
@@ -108,6 +112,7 @@ public struct DashboardView: View {
                                     ) {
                                         viewModel.isShowingSubjectManager = true
                                     }
+                                    .accessibilityIdentifier("dashboard.bento.categories")
                                 }
                                 .padding(.horizontal)
 
@@ -145,6 +150,13 @@ public struct DashboardView: View {
             .onDisappear {
                 viewModel?.cancelTasks()
                 analyticsViewModel?.cancelTasks()
+            }
+            .overlay(alignment: .top) {
+                Color(UIColor.systemGroupedBackground)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 0)
+                    .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea(edges: .top))
+                    .allowsHitTesting(false)
             }
         }
         .alert(L10n.Dashboard.draftAlertTitle, isPresented: Binding(

@@ -2,6 +2,30 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Dashboard populated visual matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/DashboardView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/ReviewHeroCard.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard/DashboardAnalyticsView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-dashboard-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeDashboardPopulatedSurfaceScreenshots` to capture the Dashboard due hero, shortcut grid, category-manager sheet opened from Dashboard, locked analytics gate, and all-done hero after completing one Review item.
+- Added stable Dashboard identifiers only to leaf buttons/cards and the noninteractive analytics-gate marker. Broad container identifiers are avoided so XCUITest does not hide child controls.
+- Screenshot QA found that scrolled Dashboard content could render underneath the transparent status bar. A noninteractive top safe-area background mask now prevents the greeting/date header from overlapping system status text while preserving the existing layout.
+- This pass covers the free/locked analytics gate. Pro-unlocked analytics remains gated by StoreKit / #479 and is not claimed as visually complete.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeDashboardPopulatedSurfaceScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-dashboard-*.png`
+
 ## 2026-06-21 - Review populated session visual matrix
 
 ### Scope

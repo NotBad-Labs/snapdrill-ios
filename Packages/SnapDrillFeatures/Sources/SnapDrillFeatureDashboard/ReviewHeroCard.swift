@@ -74,6 +74,7 @@ struct ReviewHeroCard: View {
                                 .clipShape(Capsule())
                         }
                         .accessibleButton(label: L10n.Dashboard.captureItem, hint: L10n.Accessibility.captureFirstItemHint)
+                        .accessibilityIdentifier("dashboard.hero.capture")
                     }
                     Spacer()
                     Image(systemName: "doc.text.viewfinder")
@@ -113,6 +114,7 @@ struct ReviewHeroCard: View {
                                 .clipShape(Capsule())
                         }
                         .accessibleButton(label: L10n.Dashboard.startNow, hint: L10n.Accessibility.startReviewNowHint)
+                        .accessibilityIdentifier("dashboard.hero.startReview")
                     }
                     Spacer()
                     // 今日回顾进度环（已回顾 / 今日总数）。

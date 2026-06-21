@@ -157,6 +157,7 @@ struct DashboardAnalyticsView: View {
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color(.tertiarySystemBackground))
                 .frame(height: 200)
+                .accessibilityIdentifier("dashboard.analytics.proGate")
                 .overlay {
                     VStack(spacing: 8) {
                         Image(systemName: "lock.fill")

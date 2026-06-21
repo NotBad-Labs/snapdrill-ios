@@ -240,6 +240,51 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-review-05-dashboard-done")
     }
 
+    /// UI-freeze evidence: capture populated Dashboard hero, shortcuts, analytics gate, category sheet, and all-done state.
+    func testUIFreezeDashboardPopulatedSurfaceScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        createManualItem(content: "Dashboard QA Due", subject: "数学", in: app)
+
+        app.tabBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("dashboard.root", in: app)
+        XCTAssertTrue(app.buttons["dashboard.hero.startReview"].waitForExistence(timeout: 10), "首页有待回顾项目时应显示立即开始")
+        addScreenshot(named: "ui-freeze-dashboard-01-populated-due")
+
+        let categoryEntry = app.buttons["dashboard.bento.categories"]
+        scrollUntilHittable(categoryEntry, in: app)
+        XCTAssertTrue(categoryEntry.waitForExistence(timeout: 5), "首页应显示管理分类入口")
+        XCTAssertTrue(categoryEntry.isHittable, "首页管理分类入口应可点击")
+        categoryEntry.tap()
+        waitForAnyElement("settings.categoryManager.root", in: app)
+        addScreenshot(named: "ui-freeze-dashboard-02-category-sheet")
+        app.navigationBars.buttons["关闭"].tap()
+        waitForAnyElement("dashboard.root", in: app)
+
+        app.swipeUp()
+        XCTAssertTrue(
+            app.descendants(matching: .any)["dashboard.analytics.proGate"].waitForExistence(timeout: 5),
+            "首页下半区应显示统计门控占位"
+        )
+        addScreenshot(named: "ui-freeze-dashboard-03-analytics-gate")
+
+        app.tabBars.buttons.element(boundBy: 3).tap()
+        XCTAssertTrue(app.buttons["review.startButton"].waitForExistence(timeout: 10), "回顾页应显示待回顾开始按钮")
+        app.buttons["review.startButton"].tap()
+        waitForAnyElement("review.rate.good", in: app)
+        app.buttons["review.rate.good"].tap()
+        waitForAnyElement("review.summary.dismiss", in: app, timeout: 10)
+        app.buttons["review.summary.dismiss"].tap()
+
+        app.tabBars.buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.staticTexts["今日已完成"].waitForExistence(timeout: 10), "完成回顾后首页应显示 all-done Hero")
+        app.swipeDown()
+        app.swipeDown()
+        addScreenshot(named: "ui-freeze-dashboard-04-all-done")
+    }
+
     /// UI-freeze evidence: capture stable Settings secondary pages without mutating user data.
     func testUIFreezeSettingsSecondarySurfaceScreenshots() {
         let app = XCUIApplication()
