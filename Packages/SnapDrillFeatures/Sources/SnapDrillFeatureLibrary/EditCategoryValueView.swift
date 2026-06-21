@@ -67,16 +67,29 @@ struct EditCategoryValueView: View {
                                 selectedColorHex = hex
                                 useCustomColor = false
                             } label: {
-                                Circle()
-                                    .fill(Color(hex: hex))
-                                    .frame(width: 30, height: 30)
-                                    .overlay(
+                                ZStack {
+                                    Circle()
+                                        .fill(Color(hex: hex))
+                                        .frame(width: 30, height: 30)
+
+                                    if !useCustomColor && selectedColorHex == hex {
                                         Circle()
-                                            .stroke(Color.primary, lineWidth: (!useCustomColor && selectedColorHex == hex) ? 2 : 0)
-                                    )
+                                            .strokeBorder(Color.accentColor, lineWidth: 2.5)
+                                            .frame(width: 38, height: 38)
+
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 12, weight: .bold))
+                                            .foregroundStyle(.white)
+                                            .shadow(color: .black.opacity(0.32), radius: 1, x: 0, y: 1)
+                                            .accessibilityHidden(true)
+                                    }
+                                }
+                                .frame(width: 44, height: 44)
+                                .contentShape(Circle())
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel(L10n.Library.color)
+                            .accessibilityAddTraits((!useCustomColor && selectedColorHex == hex) ? .isSelected : [])
                         }
                     }
                     .padding(.vertical, 8)

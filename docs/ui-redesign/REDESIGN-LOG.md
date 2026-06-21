@@ -2,6 +2,31 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Swatch selection indicators and UI QA matrix
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/EditProfileView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/EditCategoryValueView.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+
+### Design Decisions
+
+- PO reported that the Edit Profile theme-color picker used a black selected circle for the default blue swatch, and that the selected circle was clipped.
+- Root cause: the selected-state ring used `Color.primary`, which becomes black in light mode, and it was drawn on the swatch boundary without reserving extra frame space.
+- Profile theme swatches now use a reserved hit/draw frame, an accent-color selection ring, and a white checkmark. The selected indicator is no longer clipped by its own swatch frame.
+- Category value color swatches used the same `Color.primary` selection-ring pattern and were fixed in the same pass.
+- A route-derived `UI-FREEZE-QA-MATRIX.md` was added so future UI freeze claims require explicit surface-by-surface status instead of informal "full scan" wording.
+
+### DoD Status
+
+- Passed in this local change:
+  - `rg "stroke\\(Color\\.primary|strokeBorder\\(Color\\.primary|\\.stroke\\(\\.primary|\\.strokeBorder\\(\\.primary" ...` returns no hits
+  - `swiftlint --strict`
+  - `git diff --check`
+  - XcodeBuildMCP `build_run_sim` for `SnapDrill` on iPhone 17 simulator
+  - XcodeBuildMCP screenshot of Edit Profile theme-color row confirming no black/clipped selected ring
+
 ## 2026-06-21 - Review empty-state chrome correction
 
 ### Scope

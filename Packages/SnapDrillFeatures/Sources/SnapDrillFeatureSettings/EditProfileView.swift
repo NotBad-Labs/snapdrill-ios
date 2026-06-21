@@ -166,24 +166,36 @@ struct EditProfileView: View {
                                         userAvatarColorIndex = index
                                     }
                                 } label: {
-                                    Circle()
-                                        .fill(LinearGradient(
-                                            colors: gradients[index],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ))
-                                        .frame(width: 44, height: 44)
-                                        .overlay(
+                                    ZStack {
+                                        Circle()
+                                            .fill(LinearGradient(
+                                                colors: gradients[index],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ))
+                                            .frame(width: 44, height: 44)
+
+                                        if userAvatarColorIndex == index {
                                             Circle()
-                                                .stroke(Color.primary, lineWidth: userAvatarColorIndex == index ? 3 : 0)
-                                        )
+                                                .strokeBorder(Color.accentColor, lineWidth: 3)
+                                                .frame(width: 52, height: 52)
+
+                                            Image(systemName: "checkmark")
+                                                .font(.system(size: 15, weight: .bold))
+                                                .foregroundStyle(.white)
+                                                .shadow(color: .black.opacity(0.32), radius: 1, x: 0, y: 1)
+                                                .accessibilityHidden(true)
+                                        }
+                                    }
+                                    .frame(width: 56, height: 56)
+                                    .contentShape(Circle())
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityLabel(L10n.Accessibility.avatarColorName(index))
                                 .accessibilityAddTraits(userAvatarColorIndex == index ? .isSelected : [])
                             }
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                     }
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
