@@ -2,6 +2,27 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-21 - Capture method-grid bottom reachability
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-21-capture-methods-deep-*.png`
+
+### Design Decisions
+
+- Added `testUIFreezeCaptureMethodGridDeepScrollScreenshots` to cover Capture method-grid bottom reachability at normal and AX XXXL text sizes.
+- The first AX screenshot showed the final `PDF 导入` card still readable under the floating tab bar. The button was hittable, but the visual state still failed the UI-freeze rule that controls must not appear hidden by system chrome.
+- Replaced the previous anonymous `96` bottom padding with a named `tabBarBreathingRoom` sized for the iOS 26 floating tab bar. The test now scrolls to the true bottom before capturing evidence, so it proves the final card can sit fully above tab-bar chrome.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeCaptureMethodGridDeepScrollScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-21-capture-methods-deep-*.png`
+
 ## 2026-06-21 - Settings deep-scroll bottom reachability
 
 ### Scope

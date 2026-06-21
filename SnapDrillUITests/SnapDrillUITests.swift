@@ -203,6 +203,40 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-primary-ax-05-settings-main")
     }
 
+    /// UI-freeze evidence: capture Capture method-grid bottom reachability at normal and AX sizes.
+    func testUIFreezeCaptureMethodGridDeepScrollScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.root", in: app)
+
+        let pdfButton = app.buttons["capture.pdf"]
+        scrollUntilHittable(pdfButton, in: app, maxSwipes: 4)
+        XCTAssertTrue(pdfButton.waitForExistence(timeout: 5), "普通字号下 PDF 导入入口应可滚动到安全区域")
+        app.swipeUp()
+        waitForUIAnimation(seconds: 0.4)
+        addScreenshot(named: "ui-freeze-capture-methods-deep-01-regular-bottom")
+        app.terminate()
+
+        let accessibilityApp = XCUIApplication()
+        accessibilityApp.launchArguments = l3AccessibilityLaunchArguments()
+        accessibilityApp.launch()
+
+        XCTAssertTrue(accessibilityApp.tabBars.firstMatch.waitForExistence(timeout: 10), "AX 字号下主 tab bar 应出现")
+        accessibilityApp.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.root", in: accessibilityApp)
+
+        let accessibilityPDFButton = accessibilityApp.buttons["capture.pdf"]
+        scrollUntilHittable(accessibilityPDFButton, in: accessibilityApp, maxSwipes: 8)
+        XCTAssertTrue(accessibilityPDFButton.waitForExistence(timeout: 5), "AX 字号下 PDF 导入入口应可滚动到安全区域")
+        accessibilityApp.swipeUp()
+        waitForUIAnimation(seconds: 0.4)
+        addScreenshot(named: "ui-freeze-capture-methods-deep-02-ax-bottom")
+    }
+
     /// UI-freeze evidence: capture first-run onboarding pages and completion path.
     func testUIFreezeOnboardingPagedScreenshots() {
         let app = XCUIApplication()

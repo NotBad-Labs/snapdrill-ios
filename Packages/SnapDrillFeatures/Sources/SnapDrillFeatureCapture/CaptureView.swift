@@ -31,6 +31,7 @@ public struct CaptureView: View {
     /// 连续裁剪模式：是否正在显示裁剪器
     @State private var isShowingContinuousCropper = false
     @State private var activeMethod: CaptureMethod?
+    private let tabBarBreathingRoom: CGFloat = 180
     
     /// 初始化采集视图
     /// - Parameter router: 注入的路由器
@@ -172,7 +173,7 @@ public struct CaptureView: View {
                         Spacer()
                     }
                     .padding(.top)
-                    .padding(.bottom, 96)
+                    .padding(.bottom, tabBarBreathingRoom)
                 }
                 .scrollIndicators(.hidden)
                 
