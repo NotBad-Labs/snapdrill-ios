@@ -47,6 +47,13 @@ final class NotificationSettingsViewModel {
         isRequesting = true
         defer { isRequesting = false }
 
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--ui-test-notification-permission-denied") {
+            isPermissionDenied = true
+            return false
+        }
+        #endif
+
         let granted = await notificationService.requestPermission()
         guard granted else {
             isPermissionDenied = true

@@ -2,6 +2,27 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-22 - Notification permission-denied alert UI freeze coverage
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/NotificationSettingsViewModel.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-22-settings-notification-permission-denied.png`
+
+### Design Decisions
+
+- Split notification permission coverage into the app-owned denied alert versus the real system notification authorization prompt/state.
+- Added a DEBUG-only `--ui-test-notification-permission-denied` path that drives the same denied-result alert branch as the production notification service returning `false`.
+- Real OS notification authorization prompts and Settings.app state remain system surfaces.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeNotificationPermissionDeniedAlertScreenshot`
+  - XCUITest screenshot attachment exported to `docs/ui-redesign/evidence/2026-06-22-settings-notification-permission-denied.png`
+
 ## 2026-06-22 - Camera permission-denied alert UI freeze coverage
 
 ### Scope

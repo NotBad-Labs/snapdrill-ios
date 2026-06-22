@@ -1072,6 +1072,32 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-settings-controls-10-license-detail")
     }
 
+    /// UI-freeze evidence: capture the app-owned notification permission-denied alert.
+    func testUIFreezeNotificationPermissionDeniedAlertScreenshot() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-notification-permission-denied"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let notifications = app.buttons["settings.notifications"]
+        scrollUntilHittable(notifications, in: app, maxSwipes: 4)
+        XCTAssertTrue(notifications.waitForExistence(timeout: 5), "设置应有通知入口")
+        notifications.tap()
+        waitForAnyElement("settings.notifications.root", in: app)
+
+        let enableToggle = app.switches["settings.notifications.enableToggle"]
+        XCTAssertTrue(enableToggle.waitForExistence(timeout: 5), "通知设置应显示每日提醒开关")
+        enableToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+
+        let alert = app.alerts.firstMatch
+        XCTAssertTrue(alert.waitForExistence(timeout: 5), "通知权限拒绝时应显示 app-owned alert")
+        waitForUIAnimation(seconds: 0.5)
+        addScreenshot(named: "ui-freeze-settings-notifications-01-permission-denied")
+    }
+
     /// UI-freeze evidence: capture Data & Sync app-owned progress rows without opening system sheets.
     func testUIFreezeDataSyncProgressScreenshots() {
         let backupApp = XCUIApplication()
