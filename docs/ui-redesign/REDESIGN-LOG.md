@@ -2,6 +2,27 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-22 - Document scanner simulator fallback UI freeze coverage
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/DocumentScannerView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-22-capture-document-scanner-unavailable.png`
+
+### Design Decisions
+
+- Tightened the Capture matrix by separating `DocumentScannerView`'s simulator fallback from its real VisionKit device scanner flow.
+- Added a leaf accessibility identifier to the simulator-only `ContentUnavailableView`, then captured the full-screen unavailable state from the real Capture route.
+- This evidence covers only the app-owned simulator fallback layout. It does not claim the real `VNDocumentCameraViewController` capture/save flow, which remains a device/manual verification item.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeDocumentScannerUnavailableScreenshot`
+  - XCUITest screenshot attachment exported to `docs/ui-redesign/evidence/2026-06-22-capture-document-scanner-unavailable.png`
+
 ## 2026-06-22 - Capture difficulty-star UI freeze coverage
 
 ### Scope

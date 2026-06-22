@@ -53,6 +53,7 @@ struct DocumentScannerView: UIViewControllerRepresentable {
                 systemImage: "camera.fill",
                 description: Text(L10n.Capture.scanUnavailableMessage)
             )
+            .accessibilityIdentifier("capture.documentScanner.unavailable")
         )
         #else
         let scannerViewController = VNDocumentCameraViewController()

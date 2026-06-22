@@ -465,6 +465,26 @@ final class SnapDrillUITests: XCTestCase {
         waitForAnyElement("capture.scanPagePicker.root", in: scanApp)
     }
 
+    /// UI-freeze evidence: capture the simulator-only Document Scanner unavailable placeholder.
+    func testUIFreezeDocumentScannerUnavailableScreenshot() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.root", in: app)
+
+        let documentScan = app.buttons["capture.documentScan"]
+        scrollUntilHittable(documentScan, in: app, maxSwipes: 6)
+        XCTAssertTrue(documentScan.waitForExistence(timeout: 5), "采集页应显示文档扫描入口")
+        documentScan.tap()
+
+        waitForAnyElement("capture.documentScanner.unavailable", in: app, timeout: 10)
+        waitForUIAnimation(seconds: 0.5)
+        addScreenshot(named: "ui-freeze-capture-document-scanner-01-unavailable")
+    }
+
     /// UI-freeze evidence: capture populated Review dashboard, active session, card back, summary, and done state.
     func testUIFreezeReviewPopulatedSessionScreenshots() {
         let app = XCUIApplication()
