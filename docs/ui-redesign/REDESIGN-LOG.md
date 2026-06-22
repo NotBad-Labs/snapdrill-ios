@@ -2,6 +2,27 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-22 - Camera permission-denied alert UI freeze coverage
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureViewModel.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-22-capture-camera-permission-denied.png`
+
+### Design Decisions
+
+- Split `SmartCameraView` coverage into app-owned permission/error chrome versus the real camera preview/capture surface.
+- Added a DEBUG-only `--ui-test-camera-permission-denied` path that drives the same denied/restricted alert branch as the production permission check. This covers the app-owned alert without pretending the simulator has a real camera stream.
+- Real camera preview, shutter, stable-detection overlay, close behavior, and capture result still require device/camera verification.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeCameraPermissionDeniedAlertScreenshot`
+  - XCUITest screenshot attachment exported to `docs/ui-redesign/evidence/2026-06-22-capture-camera-permission-denied.png`
+
 ## 2026-06-22 - Document scanner simulator fallback UI freeze coverage
 
 ### Scope

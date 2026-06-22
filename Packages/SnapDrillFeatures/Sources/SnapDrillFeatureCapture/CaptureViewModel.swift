@@ -102,6 +102,13 @@ public final class CaptureViewModel {
     ///
     /// - Returns: `true` 表示权限已授权，可以打开相机；`false` 表示权限被拒绝或受限
     public func checkCameraPermission() async -> Bool {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--ui-test-camera-permission-denied") {
+            showCameraPermissionDenied = true
+            return false
+        }
+        #endif
+
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         switch status {
         case .authorized:

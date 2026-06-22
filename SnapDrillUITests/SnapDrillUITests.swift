@@ -485,6 +485,26 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-capture-document-scanner-01-unavailable")
     }
 
+    /// UI-freeze evidence: capture the app-owned camera permission-denied alert.
+    func testUIFreezeCameraPermissionDeniedAlertScreenshot() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-camera-permission-denied"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.root", in: app)
+
+        let camera = app.buttons["capture.camera"]
+        XCTAssertTrue(camera.waitForExistence(timeout: 5), "采集页应显示相机入口")
+        camera.tap()
+
+        let alert = app.alerts.firstMatch
+        XCTAssertTrue(alert.waitForExistence(timeout: 5), "相机权限拒绝时应显示 app-owned alert")
+        waitForUIAnimation(seconds: 0.5)
+        addScreenshot(named: "ui-freeze-capture-camera-01-permission-denied")
+    }
+
     /// UI-freeze evidence: capture populated Review dashboard, active session, card back, summary, and done state.
     func testUIFreezeReviewPopulatedSessionScreenshots() {
         let app = XCUIApplication()
