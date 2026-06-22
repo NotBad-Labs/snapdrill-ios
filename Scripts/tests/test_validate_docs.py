@@ -227,6 +227,17 @@ class ValidateDocsTests(unittest.TestCase):
         self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(redesign_path))
         self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(generated_path))
 
+    def test_repo_owned_package_docs_are_scanned_for_taxonomy_contracts(self) -> None:
+        owned = validate_docs.PACKAGES_ROOT / "SnapDrillData" / "README.md"
+        third_party = (
+            validate_docs.PACKAGES_ROOT / "SnapDrillFeatures" / ".build"
+            / "checkouts" / "SomeDependency" / "README.md"
+        )
+
+        self.assertTrue(validate_docs.is_repo_owned_package_doc(owned))
+        self.assertFalse(validate_docs.is_repo_owned_package_doc(third_party))
+        self.assertIn(owned, list(validate_docs.iter_taxonomy_contract_docs()))
+
     def test_legal_gated_docs_warn_instead_of_fail(self) -> None:
         path = validate_docs.DOCS_ROOT / "reference" / "appstore-metadata.md"
 

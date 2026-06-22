@@ -8,15 +8,13 @@
 
 ### 数据模型（@Model）
 - `ReviewItemModel`: 复习条目（核心实体）
-- `SubjectModel`: 学科
-- `SourceModel`: 来源
-- `GradeModel`: 年级
-- `TagModel`: 标签（多对多关联）
+- `CategoryDimensionModel`: 动态分类维度（内置 systemKey: category/source/level/tag）
+- `CategoryValueModel`: 分类维度值（与 ReviewItemModel 多对多关联）
 
 ### 具体 Repository 类（无协议）
 - `ReviewRepository`: 复习条目的 CRUD、计数、过滤
-- `SubjectRepository` / `SourceRepository` / `GradeRepository`: 分类管理
-- `TagRepository`: 标签管理（含 fetchOrCreate）
+- `CategoryDimensionRepository`: 分类维度管理
+- `CategoryValueRepository`: 分类值管理（含 fetchOrCreate）
 
 ### 数据管理
 - `RepositoryContainer`: 聚合容器，统一数据清理入口

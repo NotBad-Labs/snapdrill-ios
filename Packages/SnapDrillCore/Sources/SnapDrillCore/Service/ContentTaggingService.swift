@@ -45,7 +45,7 @@ public protocol ContentTaggingServiceProtocol: Sendable {
 /// 端侧 AI 内容标注服务
 ///
 /// 使用 `FoundationModels` 框架的 `contentTagging` adapter，
-    /// 在设备端推断资料分类和难度等级。全部数据本地处理，离线可用。
+/// 在设备端推断资料分类和难度等级。全部数据本地处理，离线可用。
 public actor ContentTaggingService: ContentTaggingServiceProtocol {
 
     public init() {}

@@ -16,6 +16,7 @@ from typing import Iterable
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = REPO_ROOT / "docs"
+PACKAGES_ROOT = REPO_ROOT / "Packages"
 
 HISTORICAL_ADRS = {
     DOCS_ROOT / "decisions" / "ADR-003-dual-region-release.md": "suspended",
@@ -199,6 +200,19 @@ def is_current_or_active_doc(path: Path) -> bool:
     return path.suffix == ".md" and is_under(path, DOCS_ROOT)
 
 
+def is_repo_owned_package_doc(path: Path) -> bool:
+    if path.suffix != ".md" or not is_under(path, PACKAGES_ROOT):
+        return False
+    parts = path.relative_to(PACKAGES_ROOT).parts
+    return ".build" not in parts
+
+
+def iter_taxonomy_contract_docs() -> Iterable[Path]:
+    yield from sorted(DOCS_ROOT.rglob("*.md"))
+    if PACKAGES_ROOT.exists():
+        yield from sorted(path for path in PACKAGES_ROOT.rglob("*.md") if is_repo_owned_package_doc(path))
+
+
 def has_any(haystack: str, needles: set[str]) -> bool:
     lower = haystack.lower()
     return any(needle.lower() in lower for needle in needles)
@@ -370,7 +384,7 @@ def validate_contextual_positioning_terms(
 def validate_taxonomy_canonical_terms(
     errors: list[str], warnings: list[str]
 ) -> None:
-    for path in sorted(DOCS_ROOT.rglob("*.md")):
+    for path in iter_taxonomy_contract_docs():
         if path.suffix != ".md" or should_skip_taxonomy_canonical_scan(path):
             continue
         for number, line in enumerate(read(path).splitlines(), start=1):

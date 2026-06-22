@@ -9,7 +9,7 @@
 检测并恢复意外退出时的采集草稿，快速跳转至回顾或采集流程。
 
 > 分类管理视图（分类/来源/阶段）已迁入 `SnapDrillFeatureLibrary`，
-> Dashboard 仅通过依赖 Library 弹出 `SubjectManagerView`。
+> Dashboard 仅通过依赖 Library 弹出 `CategoryManagerView`。
 
 依赖：`SnapDrillCore` · `SnapDrillData` · `SnapDrillUI` · `SnapDrillFeatureLibrary`
 

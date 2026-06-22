@@ -223,7 +223,7 @@ final class ReviewRepositoryDimensionFilterTests {
     // MARK: - fetchSmartSelection 分类值筛选
 
     @Test("fetchSmartSelection 按分类值筛选 + limit 截断")
-    func smartSelection_subjectFilter() throws {
+    func smartSelection_categoryFilter() throws {
         let f = try makeFixture()
         try makeItem("数学1", values: [f.math])
         try makeItem("数学2", values: [f.math])
@@ -237,7 +237,7 @@ final class ReviewRepositoryDimensionFilterTests {
     }
 
     @Test("fetchSmartSelection 空分类筛选返回全部（limit 内）")
-    func smartSelection_noSubjectFilter() throws {
+    func smartSelection_noCategoryFilter() throws {
         let f = try makeFixture()
         try makeItem("题1", values: [f.math])
         try makeItem("题2", values: [f.english])

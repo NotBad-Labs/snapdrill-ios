@@ -10,9 +10,6 @@
 //  目的：在 PR2 修正 parser RFC 4180 偏差之前，先锁定当前实现的行为
 //  （含已知 bug），防止修 parser 时意外破坏其他正常路径。
 //
-//  CSV 字面量全部用单行 `\n` 拼接表示（而非 `"""..."""` 多行），
-//  避免 swiftlint 多行字符串解析误扫 CSV 数据里的 `,` 与 `+`。
-//
 //  测试命名约定：
 //  - `importCSV_<scenario>_<expected>` 描述当前实现实际行为
 //  - `__currentBehavior_` 前缀标记已知 bug 状态的 lock-in 测试
@@ -126,7 +123,9 @@ final class SettingsViewModelCSVTests {
 
     @Test("列名大小写不敏感：CONTENT = Content = content")
     func importCSV_columnNamesCaseInsensitive() async throws {
-        let csv = "CONTENT,SUBJECT,DIFFICULTY\n题目,数学,3"
+        try repos.dimension.insertAndSave(
+            CategoryDimensionModel(name: "分类", isBuiltIn: true, systemKey: CategorySystemKey.category))
+        let csv = "CONTENT,CATEGORY,DIFFICULTY\n题目,数学,3"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -137,6 +136,8 @@ final class SettingsViewModelCSVTests {
         #expect(items.first?.content == "题目")
         #expect(categoryValueNames(items.first).contains("数学"))
         #expect(items.first?.difficulty == 3)
+        let importedValues = try #require(items.first?.categoryValues)
+        #expect(importedValues.contains { $0.dimension?.systemKey == CategorySystemKey.category })
     }
 
     // MARK: - RFC 4180 引号转义（当前 parseCSVLine 行级正确）
