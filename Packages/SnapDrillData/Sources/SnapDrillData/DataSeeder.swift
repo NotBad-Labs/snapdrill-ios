@@ -298,7 +298,7 @@ public final class DataSeeder {
         }
         // L3：分类经动态维度值。App 启动 seedDefaultsIfNeeded 已建内置维度，按 systemKey 取
         let allDimensions = try modelContext.fetch(FetchDescriptor<CategoryDimensionModel>())
-        let subjectDim = allDimensions.first { $0.systemKey == CategorySystemKey.subject }
+        let categoryDim = allDimensions.first { $0.systemKey == CategorySystemKey.category }
         let sourceDim = allDimensions.first { $0.systemKey == CategorySystemKey.source }
         let tagDim = allDimensions.first { $0.systemKey == CategorySystemKey.tag }
         let sourcePool = ["文档", "网页", "培训资料", "截图", "其他"]
@@ -306,7 +306,7 @@ public final class DataSeeder {
 
         for (index, data) in targetData.enumerated() {
             var values: [CategoryValueModel] = []
-            if let subjectDim { values.append(seedValue(generalCategoryName(for: data.sub), in: subjectDim)) }
+            if let categoryDim { values.append(seedValue(generalCategoryName(for: data.sub), in: categoryDim)) }
             if let sourceDim, let source = sourcePool.randomElement() {
                 values.append(seedValue(source, in: sourceDim))
             }

@@ -173,7 +173,7 @@ public final class RepositoryContainer {
                 valuesById[dto.id] = model
             }
 
-            // 重建题目（旧 subject/source/grade/tags init 参数用默认；分类经 categoryValues）
+            // 重建题目（旧裸字符串字段用默认；分类经 categoryValues）
             for dto in profileData.reviewItems {
                 let model = ReviewItemModel(
                     id: dto.id,

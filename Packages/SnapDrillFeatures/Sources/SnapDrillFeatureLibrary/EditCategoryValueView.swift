@@ -5,8 +5,8 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  维度值的添加/编辑视图（L3）。取代 EditSubjectView/EditSourceView 同构表单，
-//  结构与 EditSubjectView 对等：名称 + 图标 + 颜色。
+//  维度值的添加/编辑视图（L3）。取代旧固定分类/来源表单，
+//  结构统一为：名称 + 图标 + 颜色。
 //
 
 import SwiftUI

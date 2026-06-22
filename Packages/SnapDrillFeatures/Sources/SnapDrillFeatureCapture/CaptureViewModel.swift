@@ -38,16 +38,16 @@ public final class CaptureViewModel {
     /// 当前待恢复的草稿（弹窗显示时有值）
     public var pendingDraft: CaptureDraftService.Draft? = nil
 
-    /// 草稿提示详情文案（含学科和编辑时间）
+    /// 草稿提示详情文案（含分类和编辑时间）
     public var draftAlertMessage: String {
         guard let draft = pendingDraft else {
             return L10n.Capture.draftAlertMessage
         }
         let timeAgo = draft.date.relativeDescription()
-        if let subject = draft.subject, !subject.isEmpty {
-            return "有一道\(subject)题未保存，上次编辑于\(timeAgo)。"
+        if let category = draft.category, !category.isEmpty {
+            return "有一条「\(category)」分类的资料未保存，上次编辑于\(timeAgo)。"
         }
-        return "有一道题未保存，上次编辑于\(timeAgo)。"
+        return "有一条资料未保存，上次编辑于\(timeAgo)。"
     }
     /// 是否弹出错误提示
     public var showErrorAlert = false
@@ -315,7 +315,7 @@ public final class CaptureViewModel {
             defer { activityTracker.end(.capturing) }
             // 数据安全：OCR 之前先把原图落盘为草稿，确保 OCR 失败或进程终止（崩溃/上滑/OOM）
             // 都不会丢失这次采集。OCR 是可重跑的富化步骤，不是持久化的前置闸门。
-            await draftService.saveDraft(image: image, content: "", subject: nil)
+            await draftService.saveDraft(image: image, content: "", category: nil)
             do {
                 guard let cgImage = image.cgImage else {
                     throw OCRError.invalidImage
@@ -326,7 +326,7 @@ public final class CaptureViewModel {
                 try Task.checkCancellation()
 
                 // OCR 成功：将识别文本富化回草稿，使 OCR 结果也具备崩溃恢复能力
-                await draftService.saveDraft(image: image, content: text, subject: nil)
+                await draftService.saveDraft(image: image, content: text, category: nil)
 
                 await MainActor.run { [weak self] in
                     guard let self = self else { return }

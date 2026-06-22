@@ -78,7 +78,7 @@ struct LibraryDetailView: View {
 
                 // 元信息
                 VStack(alignment: .leading, spacing: 12) {
-                    // 动态分类：每个有值的维度一行（维度名 + 值徽标），取代固定 学科/来源/标签/年级
+                    // 动态分类：每个有值的维度一行（维度名 + 值徽标），取代固定分类/来源/标签/级别
                     ForEach(item.categoryValuesByDimension, id: \.dimension.id) { entry in
                         HStack(alignment: .top, spacing: 8) {
                             Text(entry.dimension.name)
@@ -142,7 +142,7 @@ struct LibraryDetailView: View {
                     .padding(.horizontal)
                 }
 
-                // 难度（年级等已并入上方动态维度展示）
+                // 难度（级别等已并入上方动态维度展示）
                 HStack(spacing: 12) {
                     HStack(spacing: 3) {
                         ForEach(1...5, id: \.self) { level in
@@ -350,7 +350,7 @@ struct LibraryDetailView: View {
         let cardView = ShareCardView(
             content: item.content,
             image: loadedImage,
-            subject: item.subjectCategoryName ?? "",
+            category: item.primaryCategoryName ?? "",
             difficulty: item.difficulty,
             tags: item.tagCategoryNames
         )

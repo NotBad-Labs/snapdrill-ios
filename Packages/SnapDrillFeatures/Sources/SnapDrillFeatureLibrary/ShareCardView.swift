@@ -17,7 +17,7 @@ nonisolated struct ShareCardView: View {
 
     let content: String?
     let image: UIImage?
-    let subject: String
+    let category: String
     let difficulty: Int
     let tags: [String]
 
@@ -56,8 +56,8 @@ nonisolated struct ShareCardView: View {
 
             // 元数据行
             HStack(spacing: 12) {
-                // 学科
-                Text(subject)
+                // 主分类
+                Text(category)
                     .font(.caption.bold())
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)

@@ -29,11 +29,11 @@ final class RepositoryContainerBackupTests {
         repos = RepositoryContainer(modelContext: container.mainContext)
     }
 
-    /// 建一个学科维度 + 一个值（已 save），返回值供挂题
-    private func seedSubjectValue(dimensionName: String, valueName: String) throws -> CategoryValueModel {
+    /// 建一个分类维度 + 一个值（已 save），返回值供挂题
+    private func seedCategoryValue(dimensionName: String, valueName: String) throws -> CategoryValueModel {
         let dimension = CategoryDimensionModel(
             name: dimensionName, isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+            systemKey: CategorySystemKey.category, sortOrder: 0, icon: "book"
         )
         try repos.dimension.insertAndSave(dimension)
         let value = CategoryValueModel(name: valueName, sortOrder: 0, dimension: dimension)
@@ -45,7 +45,7 @@ final class RepositoryContainerBackupTests {
 
     @Test("collectProfileBackupData 正确收集全量数据（动态维度）")
     func collectPayloadBasic() throws {
-        let value = try seedSubjectValue(dimensionName: "学科", valueName: "数学")
+        let value = try seedCategoryValue(dimensionName: "分类", valueName: "数学")
 
         let item = ReviewItemModel(content: "测试题", answerText: "答案文本", difficulty: 4)
         item.categoryValues = [value]
@@ -63,7 +63,7 @@ final class RepositoryContainerBackupTests {
         #expect(profileData.reviewItems[0].answerText == "答案文本")
         #expect(profileData.reviewItems[0].difficulty == 4)
 
-        #expect(profileData.dimensions.contains(where: { $0.name == "学科" }))
+        #expect(profileData.dimensions.contains(where: { $0.name == "分类" }))
         #expect(profileData.categoryValues.contains(where: { $0.name == "数学" }))
     }
 
@@ -83,7 +83,7 @@ final class RepositoryContainerBackupTests {
 
     @Test("restoreFromProfileData 全量恢复 round-trip（动态维度）")
     func restorePayloadRoundTrip() async throws {
-        let value = try seedSubjectValue(dimensionName: "英语", valueName: "听力")
+        let value = try seedCategoryValue(dimensionName: "英语", valueName: "听力")
 
         let item = ReviewItemModel(
             content: "原始题目", answerText: "A", difficulty: 2, easeFactor: 2.8, interval: 5, repetitions: 3

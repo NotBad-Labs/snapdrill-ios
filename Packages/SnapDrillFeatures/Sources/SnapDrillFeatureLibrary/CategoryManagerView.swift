@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  分类维度管理统一入口（L3）：维度列表 + 新建维度。点维度进详情管理其值与开关。
-//  取代旧的 SubjectManagerView/SourceManagerView/GradeManagerView 三个并列入口。
+//  取代旧固定分类/来源/级别三个并列入口。
 //
 
 import SwiftUI

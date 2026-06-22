@@ -24,7 +24,7 @@ final class MockDraftService: CaptureDraftServiceProtocol {
     var savedDraft: CaptureDraftService.Draft?
     var clearDraftCallCount = 0
 
-    func saveDraft(image: UIImage?, content: String, subject: String?) async {
+    func saveDraft(image: UIImage?, content: String, category: String?) async {
         hasDraft = true
     }
 
@@ -163,7 +163,7 @@ final class DashboardViewModelTests {
     @Test("restoreDraft 有草稿时带草稿导航")
     func restoreDraft_withDraft_navigatesWithDraft() {
         let draftService = MockDraftService()
-        let draft = CaptureDraftService.Draft(image: createTestImage(), content: "草稿", date: Date(), subject: "数学")
+        let draft = CaptureDraftService.Draft(image: createTestImage(), content: "草稿", date: Date(), category: "数学")
         draftService.savedDraft = draft
         draftService.hasDraft = true
         let vm = DashboardViewModel(repositories: repos, draftService: draftService)

@@ -78,8 +78,8 @@ struct BackupDTOTests {
             ],
             dimensions: [
                 CategoryDimensionBackupDTO(
-                    id: dimensionID, name: "学科", isMultiValue: false, isBuiltIn: true,
-                    systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+                    id: dimensionID, name: "分类", isMultiValue: false, isBuiltIn: true,
+                    systemKey: CategorySystemKey.category, sortOrder: 0, icon: "book"
                 )
             ],
             categoryValues: [
@@ -117,8 +117,8 @@ struct BackupDTOTests {
         #expect(item.interval == 3)
         #expect(item.repetitions == 2)
 
-        #expect(profile.dimensions[0].name == "学科")
-        #expect(profile.dimensions[0].systemKey == CategorySystemKey.subject)
+        #expect(profile.dimensions[0].name == "分类")
+        #expect(profile.dimensions[0].systemKey == CategorySystemKey.category)
         #expect(profile.categoryValues[0].name == "数学")
         #expect(profile.categoryValues[0].dimensionId == profile.dimensions[0].id)
     }

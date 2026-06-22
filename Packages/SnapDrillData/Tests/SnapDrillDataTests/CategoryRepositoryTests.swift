@@ -76,10 +76,10 @@ final class CategoryRepositoryTests {
 
     @Test("fetchDimension(bySystemKey:) 命中内置维度，未知 key 返回 nil")
     func dimensions_fetchBySystemKey() throws {
-        try makeDimension(name: "学科", systemKey: CategorySystemKey.subject, isBuiltIn: true)
+        try makeDimension(name: "分类", systemKey: CategorySystemKey.category, isBuiltIn: true)
 
-        let found = try repos.dimension.fetchDimension(bySystemKey: CategorySystemKey.subject)
-        #expect(found?.name == "学科")
+        let found = try repos.dimension.fetchDimension(bySystemKey: CategorySystemKey.category)
+        #expect(found?.name == "分类")
         let missing = try repos.dimension.fetchDimension(bySystemKey: "nonexistent")
         #expect(missing == nil)
     }
@@ -94,8 +94,8 @@ final class CategoryRepositoryTests {
 
     @Test("维度名唯一：插入同名维度抛 duplicateName")
     func dimensions_duplicateName_throws() throws {
-        try makeDimension(name: "学科")
-        let dup = CategoryDimensionModel(name: "学科")
+        try makeDimension(name: "分类")
+        let dup = CategoryDimensionModel(name: "分类")
         #expect(throws: DataError.self) {
             try self.repos.dimension.insertAndSave(dup)
         }
@@ -122,7 +122,7 @@ final class CategoryRepositoryTests {
 
     @Test("内置维度不可删：delete 静默跳过，维度仍在")
     func dimensions_deleteBuiltIn_isNoOp() throws {
-        let dim = try makeDimension(name: "学科", systemKey: CategorySystemKey.subject, isBuiltIn: true)
+        let dim = try makeDimension(name: "分类", systemKey: CategorySystemKey.category, isBuiltIn: true)
         try repos.dimension.delete(id: dim.id)
         #expect(try repos.dimension.totalCount() == 1)
     }
@@ -131,7 +131,7 @@ final class CategoryRepositoryTests {
 
     @Test("fetchAllModels(in:) 按 sortOrder 升序")
     func values_fetchInDimension_sorted() throws {
-        let dim = try makeDimension(name: "学科")
+        let dim = try makeDimension(name: "分类")
         try makeValue("数学", in: dim, sortOrder: 1)
         try makeValue("语文", in: dim, sortOrder: 0)
 
@@ -141,7 +141,7 @@ final class CategoryRepositoryTests {
 
     @Test("fetchModel(byName:in:) 维度内命中 / 不存在返回 nil")
     func values_fetchByName() throws {
-        let dim = try makeDimension(name: "学科")
+        let dim = try makeDimension(name: "分类")
         try makeValue("数学", in: dim)
         #expect(repos.categoryValue.fetchModel(byName: "数学", in: dim)?.name == "数学")
         #expect(repos.categoryValue.fetchModel(byName: "英语", in: dim) == nil)
@@ -149,7 +149,7 @@ final class CategoryRepositoryTests {
 
     @Test("维度内值唯一：同维度同名抛 duplicateName")
     func values_duplicateWithinDimension_throws() throws {
-        let dim = try makeDimension(name: "学科")
+        let dim = try makeDimension(name: "分类")
         try makeValue("数学", in: dim)
         let dup = CategoryValueModel(name: "数学", dimension: dim)
         #expect(throws: DataError.self) {
@@ -157,13 +157,13 @@ final class CategoryRepositoryTests {
         }
     }
 
-    @Test("跨维度允许同名：学科'其他' 与 来源'其他' 共存")
+    @Test("跨维度允许同名：分类'其他' 与 来源'其他' 共存")
     func values_crossDimensionSameName_allowed() throws {
-        let subject = try makeDimension(name: "学科", systemKey: CategorySystemKey.subject, sortOrder: 0)
+        let category = try makeDimension(name: "分类", systemKey: CategorySystemKey.category, sortOrder: 0)
         let source = try makeDimension(name: "来源", systemKey: CategorySystemKey.source, sortOrder: 1)
-        try makeValue("其他", in: subject)
+        try makeValue("其他", in: category)
         try makeValue("其他", in: source)   // 不应抛错
-        #expect(repos.categoryValue.fetchModel(byName: "其他", in: subject) != nil)
+        #expect(repos.categoryValue.fetchModel(byName: "其他", in: category) != nil)
         #expect(repos.categoryValue.fetchModel(byName: "其他", in: source) != nil)
     }
 
@@ -186,7 +186,7 @@ final class CategoryRepositoryTests {
 
     @Test("删除值：解题目反向引用")
     func values_delete_detachesItemReferences() throws {
-        let dim = try makeDimension(name: "学科")
+        let dim = try makeDimension(name: "分类")
         let value = try makeValue("数学", in: dim)
         let item = ReviewItemModel(content: "数学题")
         item.categoryValues = [value]
@@ -203,19 +203,19 @@ final class CategoryRepositoryTests {
 
     @Test("重命名值：所有引用题目自动跟随（无字段拷贝 desync）")
     func values_rename_propagatesToReferencingItems() throws {
-        let dim = try makeDimension(name: "学科", systemKey: CategorySystemKey.subject, isBuiltIn: true)
+        let dim = try makeDimension(name: "分类", systemKey: CategorySystemKey.category, isBuiltIn: true)
         let value = try makeValue("数学", in: dim)
         let item = ReviewItemModel(content: "题")
         item.categoryValues = [value]
         repos.review.insert(item)
         try repos.review.saveContext()
-        #expect(item.subjectCategoryName == "数学")
+        #expect(item.primaryCategoryName == "数学")
 
         value.name = "高等数学"
         try repos.categoryValue.saveContext()
 
         // 重新 fetch 题目（非依赖同一引用），值名自动跟随
         let refetched = try refetchItem(item.id)
-        #expect(refetched.subjectCategoryName == "高等数学")
+        #expect(refetched.primaryCategoryName == "高等数学")
     }
 }

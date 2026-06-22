@@ -25,8 +25,8 @@ final class SmartPaperViewModel {
     /// 选题数量（默认 10）
     var questionCount: Int = 10
 
-    /// 学科筛选：选中的学科维度值 id（空 = 全部）
-    var selectedSubjectValueIds: Set<UUID> = []
+    /// 主分类筛选：选中的主分类维度值 id（空 = 全部）
+    var selectedCategoryValueIds: Set<UUID> = []
 
     /// 难度筛选（空 = 全部）
     var selectedDifficulties: Set<Int> = []
@@ -43,13 +43,13 @@ final class SmartPaperViewModel {
     /// 选题结果预览
     private(set) var selectedItems: [ReviewExportSnapshot] = []
 
-    /// 可用学科维度值列表（供 UI 展示）
-    private(set) var availableSubjects: [CategoryValueModel] = []
+    /// 可用主分类维度值列表（供 UI 展示）
+    private(set) var availableCategories: [CategoryValueModel] = []
 
-    /// 当前选中学科值名（摘要标签用）
-    var selectedSubjectNames: String {
-        availableSubjects
-            .filter { selectedSubjectValueIds.contains($0.id) }
+    /// 当前选中主分类值名（摘要标签用）
+    var selectedCategoryNames: String {
+        availableCategories
+            .filter { selectedCategoryValueIds.contains($0.id) }
             .map(\.name)
             .joined(separator: ", ")
     }
@@ -75,14 +75,14 @@ final class SmartPaperViewModel {
 
     // MARK: - Public API
 
-    /// 加载可用学科列表 + 执行初始选题
+    /// 加载可用主分类列表 + 执行初始选题
     func loadInitialData() {
         do {
-            if let subjectDimension = try repositories.dimension.fetchDimension(bySystemKey: CategorySystemKey.subject) {
-                availableSubjects = repositories.categoryValue.fetchAllModels(in: subjectDimension)
+            if let categoryDimension = try repositories.dimension.fetchDimension(bySystemKey: CategorySystemKey.category) {
+                availableCategories = repositories.categoryValue.fetchAllModels(in: categoryDimension)
             }
         } catch {
-            SnapDrillLogger.generic.error("加载学科列表失败: \(error.localizedDescription)")
+            SnapDrillLogger.generic.error("加载主分类列表失败: \(error.localizedDescription)")
         }
         refreshSelection()
     }
@@ -92,7 +92,7 @@ final class SmartPaperViewModel {
         do {
             let models = try repositories.review.fetchSmartSelection(
                 limit: questionCount,
-                subjectValueIds: selectedSubjectValueIds,
+                categoryValueIds: selectedCategoryValueIds,
                 difficulties: selectedDifficulties,
                 excluding: deletionScheduler.pendingDeletionIDs
             )

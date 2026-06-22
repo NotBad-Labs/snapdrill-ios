@@ -113,14 +113,14 @@ public final class CategoryDimensionRepository {
 
     // swiftlint:disable large_tuple
     /// 首次启动种入内置维度（分类/来源/级别=单值，标签=多值）及其默认值。幂等：维度非空则跳过。
-    /// 替代旧 Subject/Source/Grade Repository 的 seedDefaultsIfNeeded（S6 删旧）。
+    /// 替代旧固定分类/来源/级别 Repository 的 seedDefaultsIfNeeded（S6 删旧）。
     public func seedDefaultsIfNeeded() {
         do {
             guard try totalCount() == 0 else { return }
             let zh = Locale.current.language.languageCode?.identifier == "zh"
-            seedSubjectDimension(zh: zh)
+            seedCategoryDimension(zh: zh)
             seedSourceDimension(zh: zh)
-            seedGradeDimension(zh: zh)
+            seedLevelDimension(zh: zh)
             seedTagDimension(zh: zh)
             try modelContext.save()
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
@@ -130,8 +130,8 @@ public final class CategoryDimensionRepository {
         }
     }
 
-    private func seedSubjectDimension(zh: Bool) {
-        let dim = makeBuiltIn(systemKey: "subject", name: zh ? "分类" : "Category",
+    private func seedCategoryDimension(zh: Bool) {
+        let dim = makeBuiltIn(systemKey: CategorySystemKey.category, name: zh ? "分类" : "Category",
                               icon: "square.grid.2x2.fill", isMultiValue: false, sortOrder: 0)
         seedValues(zh ? [
             ("题目", "checklist", "#4FC3F7"),
@@ -168,8 +168,8 @@ public final class CategoryDimensionRepository {
         ], into: dim)
     }
 
-    private func seedGradeDimension(zh: Bool) {
-        let dim = makeBuiltIn(systemKey: "grade", name: zh ? "级别" : "Level",
+    private func seedLevelDimension(zh: Bool) {
+        let dim = makeBuiltIn(systemKey: CategorySystemKey.level, name: zh ? "级别" : "Level",
                               icon: "slider.horizontal.3", isMultiValue: false, sortOrder: 2)
         let names = zh
             ? ["基础", "进阶", "重点", "挑战"]

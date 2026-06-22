@@ -23,7 +23,7 @@ public enum SnapDrillSchemaV1: VersionedSchema {
     public static var models: [any PersistentModel.Type] {
         [
             ReviewItemModel.self,
-            // L3 动态维度系统（S6 已删旧 Subject/Source/Grade/TagModel）
+            // L3 动态维度系统（S6 已删旧固定分类/来源/级别/标签模型）
             CategoryDimensionModel.self,
             CategoryValueModel.self
         ]
@@ -47,8 +47,7 @@ public enum SnapDrillSchemaV1: VersionedSchema {
 /// public enum SnapDrillSchemaV2: VersionedSchema {
 ///     public static let versionIdentifier: Schema.Version = .init(2, 0, 0)
 ///     public static var models: [any PersistentModel.Type] {
-///         [ReviewItemModel.self, SubjectModel.self, TagModel.self,
-///          SourceModel.self, GradeModel.self]
+///         [ReviewItemModel.self, CategoryDimensionModel.self, CategoryValueModel.self]
 ///     }
 /// }
 ///

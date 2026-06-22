@@ -6,7 +6,7 @@ layer: pattern
 
 > 产品术语参考表。新增或修改术语时在本文件更新后同步下游文档。
 > PR Review 时通过 DoD checklist 检查术语一致性（见下方 DoD 定义）。
-> 本表同时记录对外推荐术语与内部模型/代码术语。代码中既有 `Library` / `ReviewItem` / `Subject` / `Grade` 等名称可以继续作为内部实现术语；面向用户、ASO、官网和发布材料时优先使用“资料 / 资料库 / 回顾”等通用受众语言。
+> 本表同时记录对外推荐术语与内部模型/代码术语。面向用户、ASO、官网和发布材料时优先使用“资料 / 资料库 / 回顾”等通用受众语言；内置 taxonomy 契约以本表“字段配置”条目为准。
 
 ---
 
@@ -43,7 +43,7 @@ layer: pattern
 |---|---|---|---|
 | **OCR** | Optical Character Recognition | Apple Vision 端上光学字符识别，用于生成搜索索引和可复制文本。原图是真相，OCR 是辅助 | `CaptureViewModel` (Features) |
 | **SM-2** | SM-2 Algorithm | SuperMemo 2 间隔重复调度算法，计算每个资料项的下次回顾时间 | `ReviewScheduler` (Core) |
-| **字段配置** | Field Configuration | 用户在分类管理中按需开关分类、来源、级别、标签等录入维度。内部 `subject/grade` key 保留为兼容实现名；面向用户默认显示为“分类/级别”，学科/年级语义降级为可选学习资料配置 | `CategoryDimensionModel.defaultCaptureVisibility` + `CategoryValueListViewModel.isVisibleInCapture` |
+| **字段配置** | Field Configuration | 用户在分类管理中按需开关分类、来源、级别、标签等录入维度。当前 canonical 内置维度 key 为 `category` / `source` / `level` / `tag`；`category` 是主分类维度，不等同于整个 `CategoryDimensionModel` 维度系统；`level` 是通用层级/阶段字段，不默认表达学习年龄段。 | `CategorySystemKey`, `CategoryDimensionModel.defaultCaptureVisibility`, `CategoryValueListViewModel.isVisibleInCapture` |
 | **连续录入** | Continuous Capture | 保存一项资料后自动回到相机界面，支持批量录入不中断 | `CaptureRouter` (Features) |
 | **软删除** | Soft Delete | 5 秒 Toast 撤销窗口内的临时删除状态，超时后执行真实删除 | `LibraryViewModel.softDeleteItems()` (Features) |
 
@@ -56,7 +56,7 @@ layer: pattern
 | **Dashboard** | Dashboard | 首屏状态总览界面，展示当前 Profile 的资料统计（总数、待回顾数）、回顾快捷入口和用户问候语 | `DashboardView` (Features) |
 | **Onboarding** | Onboarding | 首次启动多页引导流程（3-4 页），介绍核心功能（采集/回顾/导出），完成后不再显示 | `OnboardingView` (UI) |
 | **回顾卡片** | Review Card | 正反面翻转式卡片，正面展示资料内容（图文），背面展示答案/备注。用户通过滑动或按钮评估掌握程度 | `ReviewCardFront` / `ReviewCardBack` (Features) |
-| **标签** | Tag | 用户自定义的资料分类维度（如"重点""考前"），支持多选过滤和批量操作 | `TagModel` (Data), `TagRepository` (Data) |
+| **标签** | Tag | 多选资料分类维度（如"重点""考前"），支持过滤和批量操作 | `CategorySystemKey.tag`, `CategoryValueModel` (Data) |
 | **Profile 切换** | Profile Switch | 用户在多个独立资料库间切换，各 Profile 拥有独立数据库和统计 | `ProfileManager.switchProfile(to:)` (Data) |
 
 ---

@@ -39,10 +39,10 @@ extension ReviewItemModel {
 
 extension CategoryDimensionModel {
     static func mock(
-        name: String = "学科",
+        name: String = "分类",
         isMultiValue: Bool = false,
         isBuiltIn: Bool = true,
-        systemKey: String? = CategorySystemKey.subject,
+        systemKey: String? = CategorySystemKey.category,
         sortOrder: Int = 0,
         icon: String = "book"
     ) -> CategoryDimensionModel {

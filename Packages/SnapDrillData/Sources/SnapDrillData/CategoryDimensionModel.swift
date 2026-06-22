@@ -34,7 +34,7 @@ public final class CategoryDimensionModel {
     /// 是否内置维度（内置不可删除、改名受限）
     public var isBuiltIn: Bool = false
 
-    /// 稳定语义键：内置维度用它做代码识别与幂等 seed（如 "subject"/"source"/"grade"/"tag"），
+    /// 稳定语义键：内置维度用它做代码识别与幂等 seed（如 "category"/"source"/"level"/"tag"），
     /// 用户自定义维度为 nil。
     ///
     /// 不用 name/UUID 识别——name 可改、每次 seed 的 UUID 不同（CloudKit 同步后会撞成两份）。

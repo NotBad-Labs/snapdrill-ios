@@ -117,8 +117,8 @@ final class SettingsViewModelTests {
     @Test("clearAllData 同时清空动态维度与值")
     func clearAllData_alsoRemovesTaxonomy() async throws {
         let dimension = CategoryDimensionModel(
-            name: "学科", isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+            name: "分类", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.category, sortOrder: 0, icon: "book"
         )
         try repos.dimension.insertAndSave(dimension)
         try repos.categoryValue.insertAndSave(CategoryValueModel(name: "数学", dimension: dimension))
@@ -211,12 +211,12 @@ final class SettingsViewModelTests {
     @Test("restoreFromBackup 正常路径：round-trip 恢复")
     func restoreFromBackup_roundTrip() async throws {
         // 1. 准备原始数据——使用非默认 SM-2 值，区分"正确恢复"和"默认值重建"
-        let subjectDim = CategoryDimensionModel(
-            name: "学科", isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+        let categoryDim = CategoryDimensionModel(
+            name: "分类", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.category, sortOrder: 0, icon: "book"
         )
-        try repos.dimension.insertAndSave(subjectDim)
-        let english = CategoryValueModel(name: "英语", dimension: subjectDim)
+        try repos.dimension.insertAndSave(categoryDim)
+        let english = CategoryValueModel(name: "英语", dimension: categoryDim)
         try repos.categoryValue.insertAndSave(english)
         let item = ReviewItemModel(content: "恢复测试题目")
         item.categoryValues = [english]

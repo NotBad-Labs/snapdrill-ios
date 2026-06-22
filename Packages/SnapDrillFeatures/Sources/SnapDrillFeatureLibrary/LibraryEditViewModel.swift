@@ -27,7 +27,7 @@ public final class LibraryEditViewModel {
     /// 题目难度（有序刻度，不在动态维度系统内）
     public var difficulty: Difficulty
 
-    // 动态维度（L3：取代 selectedSubject/Source/grade/tagList + subjects/sources/grades/allTags）
+    // 动态维度（L3：取代旧固定分类/来源/级别/标签字段）
     /// 当前所有命名维度（按 sortOrder）
     public private(set) var dimensions: [CategoryDimensionModel] = []
     /// 每维度的可选值（dimensionId → values）
@@ -294,7 +294,7 @@ public final class LibraryEditViewModel {
         item.content = content.isEmpty ? nil : content
         item.answerText = answer.isEmpty ? nil : answer
         item.difficultyValue = difficulty
-        // L3：分类经动态维度值；旧 subject/source/grade/tags 字段暂留不写（S6 删）
+        // L3：分类经动态维度值；旧裸字符串字段不再写入
         item.categoryValues = selectedValues
 
         if let path = newImagePath { item.imagePath = path }

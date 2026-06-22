@@ -34,9 +34,9 @@ struct DashboardAnalyticsView: View {
     private var analyticsContent: some View {
         VStack(spacing: 16) {
             if viewModel.hasData {
-                subjectTrendCard
+                categoryTrendCard
                 difficultyCard
-                weakSubjectsCard
+                categoriesNeedingReviewCard
             } else {
                 emptyState
             }
@@ -47,21 +47,21 @@ struct DashboardAnalyticsView: View {
     // MARK: - 分类趋势图
 
     @ViewBuilder
-    private var subjectTrendCard: some View {
+    private var categoryTrendCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(L10n.Statistics.subjectTrend)
+            Text(L10n.Statistics.categoryTrend)
                 .font(.headline)
             Text(L10n.Statistics.last30Days)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Chart(viewModel.subjectTrend) { point in
+            Chart(viewModel.categoryTrend) { point in
                 LineMark(
                     x: .value("Date", point.date, unit: .day),
                     y: .value("Count", point.count)
                 )
-                .foregroundStyle(by: .value("Category", point.subject))
-                .symbol(by: .value("Category", point.subject))
+                .foregroundStyle(by: .value("Category", point.category))
+                .symbol(by: .value("Category", point.category))
             }
             .frame(height: 200)
             .chartXAxis {
@@ -73,7 +73,7 @@ struct DashboardAnalyticsView: View {
         .padding()
         .glassEffect(.regular, in: .rect(cornerRadius: 16))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(L10n.Statistics.subjectTrend + " " + L10n.Statistics.last30Days)
+        .accessibilityLabel(L10n.Statistics.categoryTrend + " " + L10n.Statistics.last30Days)
     }
 
     // MARK: - 难度分布
@@ -103,18 +103,18 @@ struct DashboardAnalyticsView: View {
     // MARK: - 待回顾分类排行
 
     @ViewBuilder
-    private var weakSubjectsCard: some View {
-        if !viewModel.weakSubjects.isEmpty {
+    private var categoriesNeedingReviewCard: some View {
+        if !viewModel.categoriesNeedingReview.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
-                Text(L10n.Statistics.weakSubjects)
+                Text(L10n.Statistics.categoriesNeedingReview)
                     .font(.headline)
-                Text(L10n.Statistics.weakSubjectsHint)
+                Text(L10n.Statistics.categoriesNeedingReviewHint)
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                ForEach(viewModel.weakSubjects) { item in
+                ForEach(viewModel.categoriesNeedingReview) { item in
                     HStack {
-                        Text(item.subject)
+                        Text(item.category)
                             .font(.subheadline)
                         Spacer()
                         Text(L10n.Statistics.dueCount(item.dueCount))

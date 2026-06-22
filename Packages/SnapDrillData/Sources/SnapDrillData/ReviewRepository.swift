@@ -85,7 +85,7 @@ public final class ReviewRepository {
         }
     }
     
-    // L3：countBySubject/Source/Grade + updateXxxUsage 已删（旧裸字符串字段去除）。
+    // L3：旧固定分类/来源/级别计数与使用频率 API 已删（旧裸字符串字段去除）。
     // 维度值的引用计数走 CategoryValueModel.items?.count；重命名直接改 value.name（关系自动跟随）。
 
     /// 收集所有题目的图片路径，供调用方在 saveContext 成功后清理磁盘文件
@@ -161,12 +161,12 @@ public final class ReviewRepository {
     /// `nextReviewAt == .distantPast` 表示从未复习，排在最前面。
     /// - Parameters:
     ///   - limit: 最大选题数量
-    ///   - subjectValueIds: 分类维度筛选（空 = 不限，参数名保留内部兼容）
+    ///   - categoryValueIds: 主分类维度筛选（空 = 不限）
     ///   - difficulties: 难度筛选（空 = 不限）
     /// - Returns: 按紧迫度排序的题目列表
     public func fetchSmartSelection(
         limit: Int,
-        subjectValueIds: Set<UUID> = [],
+        categoryValueIds: Set<UUID> = [],
         difficulties: Set<Int> = [],
         excluding ids: Set<UUID> = []
     ) throws -> [ReviewItemModel] {
@@ -188,7 +188,7 @@ public final class ReviewRepository {
         // 无分类过滤且无待删除排除时走 DB fetchLimit 快路径；
         // 一旦需要内存排除（pending 软删题），必须先取全量再排除/截断——
         // 否则 fetchLimit 会在排除前截断导致少选。
-        if subjectValueIds.isEmpty && ids.isEmpty {
+        if categoryValueIds.isEmpty && ids.isEmpty {
             descriptor.fetchLimit = limit
             return try modelContext.fetch(descriptor)
         }
@@ -196,8 +196,8 @@ public final class ReviewRepository {
         let all = try modelContext.fetch(descriptor)
         let filtered = all.filter { item in
             !ids.contains(item.id) &&
-            (subjectValueIds.isEmpty ||
-             !Set((item.categoryValues ?? []).map { $0.id }).isDisjoint(with: subjectValueIds))
+            (categoryValueIds.isEmpty ||
+             !Set((item.categoryValues ?? []).map { $0.id }).isDisjoint(with: categoryValueIds))
         }
         return Array(filtered.prefix(limit))
     }
@@ -251,7 +251,7 @@ public final class ReviewRepository {
         valueIdsByDimension: [UUID: Set<UUID>],
         difficulties: Set<Int> = [],
         sortDescriptors: [SortDescriptor<ReviewItemModel>] = [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
-        sortBySubjectName: Bool = false,
+        sortByCategoryName: Bool = false,
         limit: Int,
         offset: Int
     ) throws -> [ReviewItemModel] {
@@ -265,8 +265,8 @@ public final class ReviewRepository {
             (difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty))
         }
 
-        // 维度值过滤或 subject 维度值名排序都需要内存处理；否则用 DB 级分页（高效路径）。
-        let needsMemoryProcessing = !valueIdsByDimension.isEmpty || sortBySubjectName
+        // 维度值过滤或主分类维度值名排序都需要内存处理；否则用 DB 级分页（高效路径）。
+        let needsMemoryProcessing = !valueIdsByDimension.isEmpty || sortByCategoryName
         if !needsMemoryProcessing {
             var descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
             descriptor.fetchLimit = limit
@@ -301,11 +301,11 @@ public final class ReviewRepository {
             }
         }
 
-        // subject 维度值名排序（关系无法走 SortDescriptor），稳定 tiebreaker = createdAt 倒序
-        if sortBySubjectName {
+        // 主分类维度值名排序（关系无法走 SortDescriptor），稳定 tiebreaker = createdAt 倒序
+        if sortByCategoryName {
             matching.sort { lhs, rhs in
-                let lName = lhs.subjectCategoryName ?? ""
-                let rName = rhs.subjectCategoryName ?? ""
+                let lName = lhs.primaryCategoryName ?? ""
+                let rName = rhs.primaryCategoryName ?? ""
                 if lName != rName { return lName < rName }
                 return lhs.createdAt > rhs.createdAt
             }

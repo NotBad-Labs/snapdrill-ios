@@ -19,8 +19,8 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     public let content: String?
     /// 图片相对路径
     public let imagePath: String?
-    /// 分类维度首值（仅供 PDF 页眉 exportSubject；CSV 走 dimensionValues）
-    public let subject: String
+    /// 主分类维度首值（仅供 PDF 页眉 exportCategory；CSV 走 dimensionValues）
+    public let category: String
     /// 难度等级 (1-5)
     public let difficulty: Int
     /// 答案文本
@@ -36,10 +36,10 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
 }
 
 extension ReviewExportSnapshot: PDFExportable {
-    /// 桥接内部兼容字段 `subject: String` → 协议的 `exportSubject: String?`（PDF 页眉用分类维度首值）。
-    /// 空串归一为 nil：无分类值的条目须被 PDFExportService.resolveSubject 的 compactMap 丢弃，
-    /// 否则空串污染 subjects 集合 → 误判「综合资料」或页眉留白（恢复 S5 前契约）。
-    public var exportSubject: String? { subject.isEmpty ? nil : subject }
+    /// 桥接内部分类字段 → 协议的 `exportCategory: String?`（PDF 页眉用分类维度首值）。
+    /// 空串归一为 nil：无分类值的条目须被 PDFExportService.resolveCategory 的 compactMap 丢弃，
+    /// 否则空串污染 categories 集合 → 误判「综合资料」或页眉留白（恢复 S5 前契约）。
+    public var exportCategory: String? { category.isEmpty ? nil : category }
 }
 
 // CSV 编码统一走 `ReviewCSVCodec`（单一契约源）；A2 动态列经 dimensionValues。

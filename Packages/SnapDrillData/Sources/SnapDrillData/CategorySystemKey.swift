@@ -17,8 +17,9 @@ import Foundation
 /// 扩展逃逸 defaultIsolation 为 nonisolated）与 MainActor 的 ViewModel 都要用，
 /// 否则 nonisolated 上下文引用 MainActor-isolated 静态属性会编译失败。
 public enum CategorySystemKey {
-    public nonisolated static let subject = "subject"
+    /// 主分类维度。`CategoryDimensionModel` 仍表示整套动态字段系统，二者不要混用。
+    public nonisolated static let category = "category"
     public nonisolated static let source = "source"
-    public nonisolated static let grade = "grade"
+    public nonisolated static let level = "level"
     public nonisolated static let tag = "tag"
 }

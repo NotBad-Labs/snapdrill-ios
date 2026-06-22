@@ -23,7 +23,7 @@ public final class DashboardViewModel {
     // MARK: - State
 
     /// 是否正在显示分类管理器 Sheet
-    public var isShowingSubjectManager = false
+    public var isShowingCategoryManager = false
     /// 是否正在显示草稿恢复提示 Alert
     public var isShowingDraftAlert = false
 
@@ -104,8 +104,8 @@ public final class DashboardViewModel {
             return L10n.Dashboard.draftAlertMessage
         }
         let timeAgo = draft.date.relativeDescription()
-        if let subject = draft.subject, !subject.isEmpty {
-            return L10n.Dashboard.draftAlertMessage(subject: subject, timeAgo: timeAgo)
+        if let category = draft.category, !category.isEmpty {
+            return L10n.Dashboard.draftAlertMessage(category: category, timeAgo: timeAgo)
         }
         return L10n.Dashboard.draftAlertMessage(timeAgo: timeAgo)
     }

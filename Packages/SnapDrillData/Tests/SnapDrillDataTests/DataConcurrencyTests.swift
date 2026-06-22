@@ -287,8 +287,8 @@ func concurrentFetchesNoError() async throws {
     }
 }
 
-// L3：原 concurrentSubjectUpdateAllMigrated 已删——旧 updateSubjectUsage/countBySubject 随裸字符串
-// 字段移除；动态维度下「重命名学科」=单次 value.name 赋值（关系自动跟随），无逐题并发迁移问题。
+// L3：原 concurrentCategoryUpdateAllMigrated 已删——旧 updateCategoryUsage/countByCategory 随裸字符串
+// 字段移除；动态维度下「重命名分类」=单次 value.name 赋值（关系自动跟随），无逐题并发迁移问题。
 
 // MARK: - RepositoryContainer 原子操作
 
@@ -325,9 +325,9 @@ func deleteThenRestoreRoundTripNoResidue() async throws {
     let container = try TestModelContainer.create()
     let repos = RepositoryContainer(modelContext: container.mainContext)
 
-    let subjectDim = CategoryDimensionModel.mock(name: "学科")
-    try repos.dimension.insertAndSave(subjectDim)
-    let mathValue = CategoryValueModel.mock(name: "数学", dimension: subjectDim)
+    let categoryDim = CategoryDimensionModel.mock(name: "分类")
+    try repos.dimension.insertAndSave(categoryDim)
+    let mathValue = CategoryValueModel.mock(name: "数学", dimension: categoryDim)
     try repos.categoryValue.insertAndSave(mathValue)
     let item = ReviewItemModel.mock(content: "原始题")
     item.categoryValues = [mathValue]

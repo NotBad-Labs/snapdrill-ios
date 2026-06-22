@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  采集结果页的题目详情 section：难度（有序刻度，保留星级）/ 答案 + 答案图。
-//  L3：年级已并入动态维度（CaptureMetadataSection），不再在此渲染。
+//  L3：级别已并入动态维度（CaptureMetadataSection），不再在此渲染。
 //
 
 import SwiftUI

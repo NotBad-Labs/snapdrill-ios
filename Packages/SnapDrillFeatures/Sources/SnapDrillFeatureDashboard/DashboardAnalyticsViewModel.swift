@@ -16,10 +16,10 @@ import SnapDrillData
 // MARK: - 数据模型
 
 /// 分类趋势数据点（按天 × 分类）
-nonisolated struct SubjectTrendPoint: Identifiable {
+nonisolated struct CategoryTrendPoint: Identifiable {
     let id = UUID()
     let date: Date
-    let subject: String
+    let category: String
     let count: Int
 }
 
@@ -31,9 +31,9 @@ nonisolated struct DifficultyBucket: Identifiable {
 }
 
 /// 待回顾较多分类排行项
-nonisolated struct WeakSubjectItem: Identifiable {
+nonisolated struct CategoryReviewLoadItem: Identifiable {
     let id = UUID()
-    let subject: String
+    let category: String
     let dueCount: Int
     let totalCount: Int
 }
@@ -51,16 +51,16 @@ final class DashboardAnalyticsViewModel {
     // MARK: - 输出状态
 
     /// 分类趋势（最近 30 天，按天 × 分类）
-    private(set) var subjectTrend: [SubjectTrendPoint] = []
+    private(set) var categoryTrend: [CategoryTrendPoint] = []
 
     /// 难度分布（全量）
     private(set) var difficultyDistribution: [DifficultyBucket] = []
 
     /// 待回顾较多分类排行（Top 5）
-    private(set) var weakSubjects: [WeakSubjectItem] = []
+    private(set) var categoriesNeedingReview: [CategoryReviewLoadItem] = []
 
     /// 是否有数据
-    var hasData: Bool { !subjectTrend.isEmpty || !difficultyDistribution.isEmpty }
+    var hasData: Bool { !categoryTrend.isEmpty || !difficultyDistribution.isEmpty }
 
     // MARK: - 依赖
 
@@ -107,13 +107,13 @@ final class DashboardAnalyticsViewModel {
 
             // 分类趋势：最近 30 天按天 × 分类
             let recentItems = allItems.filter { $0.createdAt >= since }
-            subjectTrend = aggregateSubjectTrend(recentItems)
+            categoryTrend = aggregateCategoryTrend(recentItems)
 
             // 难度分布：全量
             difficultyDistribution = aggregateDifficultyDistribution(allItems)
 
             // 待回顾较多分类：按待回顾数排序
-            weakSubjects = aggregateWeakSubjects(allItems, now: now)
+            categoriesNeedingReview = aggregateCategoriesNeedingReview(allItems, now: now)
         } catch {
             SnapDrillLogger.generic.error("统计数据加载失败: \(error.localizedDescription)")
         }
@@ -121,24 +121,24 @@ final class DashboardAnalyticsViewModel {
 
     // MARK: - Private Aggregation
 
-    /// 资料的分类名：subject 维度的首个值名，无则「未分类」。
-    private func subjectValueName(of item: ReviewItemModel) -> String {
-        item.subjectCategoryName ?? L10n.Dashboard.uncategorized
+    /// 资料的主分类名：category 维度的首个值名，无则「未分类」。
+    private func categoryValueName(of item: ReviewItemModel) -> String {
+        item.primaryCategoryName ?? L10n.Dashboard.uncategorized
     }
 
     /// 按天 × 分类聚合，只取 Top 3 分类，无数据天补零
-    private func aggregateSubjectTrend(_ items: [ReviewItemModel]) -> [SubjectTrendPoint] {
+    private func aggregateCategoryTrend(_ items: [ReviewItemModel]) -> [CategoryTrendPoint] {
         var grouped: [Date: [String: Int]] = [:]
-        var subjectTotals: [String: Int] = [:]
+        var categoryTotals: [String: Int] = [:]
         for item in items {
             let day = Calendar.current.startOfDay(for: item.createdAt)
-            let subject = subjectValueName(of: item)
-            grouped[day, default: [:]][subject, default: 0] += 1
-            subjectTotals[subject, default: 0] += 1
+            let category = categoryValueName(of: item)
+            grouped[day, default: [:]][category, default: 0] += 1
+            categoryTotals[category, default: 0] += 1
         }
 
-        let topSubjects = Array(
-            subjectTotals.sorted { $0.value > $1.value }
+        let topCategories = Array(
+            categoryTotals.sorted { $0.value > $1.value }
                 .prefix(3)
                 .map(\.key)
         )
@@ -146,12 +146,12 @@ final class DashboardAnalyticsViewModel {
         // 补零：确保 30 天内每天每个 Top 分类都有数据点，避免 LineMark 跳过无数据日期
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
-        var points: [SubjectTrendPoint] = []
+        var points: [CategoryTrendPoint] = []
         for dayOffset in (-29...0) {
             guard let day = calendar.date(byAdding: .day, value: dayOffset, to: today) else { continue }
-            for subject in topSubjects {
-                let count = grouped[day]?[subject] ?? 0
-                points.append(SubjectTrendPoint(date: day, subject: subject, count: count))
+            for category in topCategories {
+                let count = grouped[day]?[category] ?? 0
+                points.append(CategoryTrendPoint(date: day, category: category, count: count))
             }
         }
         return points
@@ -167,20 +167,20 @@ final class DashboardAnalyticsViewModel {
     }
 
     /// 按分类统计待回顾数，取 Top 5
-    private func aggregateWeakSubjects(_ items: [ReviewItemModel], now: Date) -> [WeakSubjectItem] {
-        var subjectStats: [String: (total: Int, due: Int)] = [:]
+    private func aggregateCategoriesNeedingReview(_ items: [ReviewItemModel], now: Date) -> [CategoryReviewLoadItem] {
+        var categoryStats: [String: (total: Int, due: Int)] = [:]
         for item in items {
-            let subject = subjectValueName(of: item)
-            var stat = subjectStats[subject] ?? (total: 0, due: 0)
+            let category = categoryValueName(of: item)
+            var stat = categoryStats[category] ?? (total: 0, due: 0)
             stat.total += 1
             if item.nextReviewAt <= now {
                 stat.due += 1
             }
-            subjectStats[subject] = stat
+            categoryStats[category] = stat
         }
 
-        return subjectStats
-            .map { WeakSubjectItem(subject: $0.key, dueCount: $0.value.due, totalCount: $0.value.total) }
+        return categoryStats
+            .map { CategoryReviewLoadItem(category: $0.key, dueCount: $0.value.due, totalCount: $0.value.total) }
             .filter { $0.dueCount > 0 }
             .sorted { $0.dueCount > $1.dueCount }
             .prefix(5)

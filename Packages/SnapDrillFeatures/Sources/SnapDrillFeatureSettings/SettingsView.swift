@@ -45,15 +45,15 @@ public struct SettingsView: View {
     private let tabBarBreathingRoom: CGFloat = 160
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
-    private static let subjectVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.subject)"
+    private static let categoryVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.category)"
     private static let sourceVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.source)"
-    private static let gradeVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.grade)"
+    private static let levelVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.level)"
 
     // 录入字段可见性：内置分类/来源/级别默认隐藏；用户在这里或分类管理中按需打开。
-    @AppStorage(Self.subjectVisibilityKey) private var showSubjectField: Bool = false
+    @AppStorage(Self.categoryVisibilityKey) private var showCategoryField: Bool = false
     @AppStorage(Self.sourceVisibilityKey) private var showSourceField: Bool = false
     @AppStorage(UDKey.captureFieldDifficulty) private var showDifficultyField: Bool = false
-    @AppStorage(Self.gradeVisibilityKey) private var showGradeField: Bool = false
+    @AppStorage(Self.levelVisibilityKey) private var showLevelField: Bool = false
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
 
     // 外观设置
@@ -98,11 +98,11 @@ public struct SettingsView: View {
 
                 // 2. 录入字段配置
                 Section {
-                    Toggle(isOn: $showSubjectField) {
-                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.fieldSubject)
+                    Toggle(isOn: $showCategoryField) {
+                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.fieldCategory)
                     }
-                    .accessibilityIdentifier("settings.captureField.subject")
-                    .accessibilityHint(L10n.Accessibility.fieldSubjectHint)
+                    .accessibilityIdentifier("settings.captureField.category")
+                    .accessibilityHint(L10n.Accessibility.fieldCategoryHint)
 
                     Toggle(isOn: $showSourceField) {
                         SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.fieldSource)
@@ -116,11 +116,11 @@ public struct SettingsView: View {
                     .accessibilityIdentifier("settings.captureField.difficulty")
                     .accessibilityHint(L10n.Accessibility.fieldDifficultyHint)
 
-                    Toggle(isOn: $showGradeField) {
-                        SettingsRow(icon: "tag.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.fieldGrade)
+                    Toggle(isOn: $showLevelField) {
+                        SettingsRow(icon: "tag.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.fieldLevel)
                     }
-                    .accessibilityIdentifier("settings.captureField.grade")
-                    .accessibilityHint(L10n.Accessibility.fieldGradeHint)
+                    .accessibilityIdentifier("settings.captureField.level")
+                    .accessibilityHint(L10n.Accessibility.fieldLevelHint)
 
                     Toggle(isOn: $showAnswerField) {
                         SettingsRow(icon: "text.bubble.fill", gradientStart: .purple, gradientEnd: .pink, title: L10n.Settings.fieldAnswer)
@@ -210,7 +210,7 @@ public struct SettingsView: View {
 
                 }
 
-                // 6. 分类管理（L3：学科/来源/级别 + 用户自定义维度统一入口）
+                // 6. 分类管理（L3：分类/来源/级别 + 用户自定义维度统一入口）
                 Section(L10n.Settings.categoryManagement) {
                     NavigationLink {
                         CategoryManagerView()

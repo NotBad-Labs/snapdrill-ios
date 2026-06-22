@@ -65,7 +65,7 @@ final class DependencyContainer {
     @MainActor
     func createProfileManager() async -> ProfileManager {
         let manager = await ProfileManager.create(inMemory: Self.isUITesting)
-        // L3：种入内置维度（学科/来源/年级/标签），替代旧 3 个分类 seed（S6 删旧）
+        // L3：种入内置维度（分类/来源/级别/标签），替代旧 3 个分类 seed（S6 删旧）
         manager.activeRepositories.dimension.seedDefaultsIfNeeded()
 #if DEBUG
         await seedUITestImageFixtureIfNeeded(into: manager)
@@ -133,11 +133,11 @@ final class DependencyContainer {
 
     @MainActor
     private static func fixtureCategoryValues(from repositories: RepositoryContainer) throws -> [CategoryValueModel] {
-        guard let subject = try repositories.dimension.fetchDimension(bySystemKey: CategorySystemKey.subject) else {
+        guard let category = try repositories.dimension.fetchDimension(bySystemKey: CategorySystemKey.category) else {
             return []
         }
-        let values = repositories.categoryValue.fetchAllModels(in: subject)
-        return values.filter { $0.name == "数学" || $0.name == "Math" }.prefix(1).map { $0 }
+        let values = repositories.categoryValue.fetchAllModels(in: category)
+        return values.filter { $0.name == "题目" || $0.name == "Document" }.prefix(1).map { $0 }
     }
 
     @MainActor

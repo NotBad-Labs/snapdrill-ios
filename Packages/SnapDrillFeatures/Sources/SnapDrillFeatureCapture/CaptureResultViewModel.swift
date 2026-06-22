@@ -32,7 +32,7 @@ public final class CaptureResultViewModel {
     /// 题目截图（可为 `nil` 表示纯文字题）
     public var image: UIImage?
 
-    // 动态维度（L3：取代固定 selectedSubject/Source/grade/tagList + available*）
+    // 动态维度（L3：取代固定分类/来源/级别/标签字段）
     /// 当前所有命名维度（按 sortOrder）
     public private(set) var dimensions: [CategoryDimensionModel] = []
     /// 每维度的可选值（dimensionId → values）
@@ -168,7 +168,7 @@ public final class CaptureResultViewModel {
         startAITagging()
     }
 
-    /// AI 标注：有 OCR 文本时自动建议学科维度的值（best-effort；难度交用户判断，AI 不填）
+    /// AI 标注：有 OCR 文本时自动建议主分类维度的值（best-effort；难度交用户判断，AI 不填）
     private func startAITagging() {
         guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         taggingTask?.cancel()
@@ -177,17 +177,17 @@ public final class CaptureResultViewModel {
             defer { isTagging = false }
             guard let suggestion = await contentTaggingService.suggestTags(for: content),
                   !Task.isCancelled else { return }
-            applySuggestion(subject: suggestion.subject)
+            applySuggestion(category: suggestion.category)
         }
     }
 
-    /// 应用 AI 建议：subject 命中学科维度的同名值则选中（仅当该维度未选）。
+    /// 应用 AI 建议：category 命中主分类维度的同名值则选中（仅当该维度未选）。
     /// 难度是主观字段、由用户自行确定，AI 不自动填充（信任 even over 省事）。
-    private func applySuggestion(subject: String) {
-        if let subjectDim = dimensions.first(where: { $0.systemKey == CategorySystemKey.subject }),
-           (selectedByDimension[subjectDim.id] ?? []).isEmpty,
-           let value = (valuesByDimension[subjectDim.id] ?? []).first(where: { $0.name == subject }) {
-            selectedByDimension[subjectDim.id] = [value.id]
+    private func applySuggestion(category: String) {
+        if let categoryDim = dimensions.first(where: { $0.systemKey == CategorySystemKey.category }),
+           (selectedByDimension[categoryDim.id] ?? []).isEmpty,
+           let value = (valuesByDimension[categoryDim.id] ?? []).first(where: { $0.name == category }) {
+            selectedByDimension[categoryDim.id] = [value.id]
         }
     }
 
@@ -260,8 +260,8 @@ public final class CaptureResultViewModel {
     public func generateDraftIfNeeded() async {
         let hasContent = !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         if !isSaved, image != nil || hasContent {
-            let subjectName = selectedName(forSystemKey: CategorySystemKey.subject)
-            await draftService.saveDraft(image: image, content: content, subject: subjectName.isEmpty ? nil : subjectName)
+            let categoryName = selectedName(forSystemKey: CategorySystemKey.category)
+            await draftService.saveDraft(image: image, content: content, category: categoryName.isEmpty ? nil : categoryName)
         }
     }
 
@@ -341,7 +341,7 @@ public final class CaptureResultViewModel {
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
 
         analyticsService.track(.captureSaved, parameters: [
-            "subject": selectedName(forSystemKey: CategorySystemKey.subject),
+            "category": selectedName(forSystemKey: CategorySystemKey.category),
             "source": selectedName(forSystemKey: CategorySystemKey.source),
             "difficulty": String(difficulty.rawValue)
         ])

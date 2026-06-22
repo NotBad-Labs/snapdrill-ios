@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  动态维度筛选守护测试（L3）：fetchFilteredModels 的「维度间 AND / 维度内 OR」语义、
-//  内存路径分页切片、subject 维度值名排序；fetchSmartSelection 学科值筛选 + limit 截断。
+//  内存路径分页切片、category 维度值名排序；fetchSmartSelection 分类值筛选 + limit 截断。
 //  （many-to-many 关系无法走 #Predicate，全部内存过滤，是必须守护的退化点。）
 //
 
@@ -30,7 +30,7 @@ final class ReviewRepositoryDimensionFilterTests {
     // MARK: - Fixture
 
     private struct Fixture {
-        let subjectDim: CategoryDimensionModel
+        let categoryDim: CategoryDimensionModel
         let tagDim: CategoryDimensionModel
         let math: CategoryValueModel
         let english: CategoryValueModel
@@ -40,11 +40,11 @@ final class ReviewRepositoryDimensionFilterTests {
     }
 
     private func makeFixture() throws -> Fixture {
-        let subjectDim = CategoryDimensionModel(
-            name: "学科", isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0
+        let categoryDim = CategoryDimensionModel(
+            name: "分类", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.category, sortOrder: 0
         )
-        try repos.dimension.insertAndSave(subjectDim)
+        try repos.dimension.insertAndSave(categoryDim)
         let tagDim = CategoryDimensionModel(
             name: "标签", isMultiValue: true, isBuiltIn: true,
             systemKey: CategorySystemKey.tag, sortOrder: 1
@@ -57,10 +57,10 @@ final class ReviewRepositoryDimensionFilterTests {
             return v
         }
         return Fixture(
-            subjectDim: subjectDim, tagDim: tagDim,
-            math: try value("数学", in: subjectDim, order: 0),
-            english: try value("英语", in: subjectDim, order: 1),
-            chinese: try value("语文", in: subjectDim, order: 2),
+            categoryDim: categoryDim, tagDim: tagDim,
+            math: try value("数学", in: categoryDim, order: 0),
+            english: try value("英语", in: categoryDim, order: 1),
+            chinese: try value("语文", in: categoryDim, order: 2),
             mistake: try value("易错", in: tagDim, order: 0),
             key: try value("重点", in: tagDim, order: 1)
         )
@@ -81,7 +81,7 @@ final class ReviewRepositoryDimensionFilterTests {
 
     // MARK: - 维度间 AND / 维度内 OR
 
-    @Test("维度间 AND：同时命中学科与标签才入选")
+    @Test("维度间 AND：同时命中分类与标签才入选")
     func filter_acrossDimensions_isAND() throws {
         let f = try makeFixture()
         try makeItem("数学易错题", values: [f.math, f.mistake])
@@ -90,13 +90,13 @@ final class ReviewRepositoryDimensionFilterTests {
 
         let result = try repos.review.fetchFilteredModels(
             searchText: "",
-            valueIdsByDimension: [f.subjectDim.id: [f.math.id], f.tagDim.id: [f.mistake.id]],
+            valueIdsByDimension: [f.categoryDim.id: [f.math.id], f.tagDim.id: [f.mistake.id]],
             limit: 50, offset: 0
         )
         #expect(result.map(\.content) == ["数学易错题"])
     }
 
-    @Test("维度内 OR：选中学科多个值取并集")
+    @Test("维度内 OR：选中分类多个值取并集")
     func filter_withinDimension_isOR() throws {
         let f = try makeFixture()
         try makeItem("数学题", values: [f.math])
@@ -105,7 +105,7 @@ final class ReviewRepositoryDimensionFilterTests {
 
         let result = try repos.review.fetchFilteredModels(
             searchText: "",
-            valueIdsByDimension: [f.subjectDim.id: [f.math.id, f.english.id]],
+            valueIdsByDimension: [f.categoryDim.id: [f.math.id, f.english.id]],
             limit: 50, offset: 0
         )
         #expect(Set(result.map(\.content)) == ["数学题", "英语题"])
@@ -131,7 +131,7 @@ final class ReviewRepositoryDimensionFilterTests {
 
         let result = try repos.review.fetchFilteredModels(
             searchText: "抛物线",
-            valueIdsByDimension: [f.subjectDim.id: [f.math.id]],
+            valueIdsByDimension: [f.categoryDim.id: [f.math.id]],
             limit: 50, offset: 0
         )
         #expect(result.map(\.content) == ["抛物线数学题"])
@@ -147,7 +147,7 @@ final class ReviewRepositoryDimensionFilterTests {
         try makeItem("抛物线数学目标A", values: [f.math], difficulty: 3)
         try makeItem("抛物线数学目标B", values: [f.math], difficulty: 3)
 
-        let filter: [UUID: Set<UUID>] = [f.subjectDim.id: [f.math.id]]
+        let filter: [UUID: Set<UUID>] = [f.categoryDim.id: [f.math.id]]
         let page1 = try repos.review.fetchFilteredModels(
             searchText: "抛物线", valueIdsByDimension: filter,
             difficulties: [3], limit: 1, offset: 0
@@ -173,7 +173,7 @@ final class ReviewRepositoryDimensionFilterTests {
         for i in 0..<5 {
             try makeItem("数学题\(i)", values: [f.math])
         }
-        let filter: [UUID: Set<UUID>] = [f.subjectDim.id: [f.math.id]]
+        let filter: [UUID: Set<UUID>] = [f.categoryDim.id: [f.math.id]]
 
         let page1 = try repos.review.fetchFilteredModels(
             searchText: "", valueIdsByDimension: filter, limit: 2, offset: 0
@@ -196,16 +196,16 @@ final class ReviewRepositoryDimensionFilterTests {
         let f = try makeFixture()
         try makeItem("数学题", values: [f.math])
         let result = try repos.review.fetchFilteredModels(
-            searchText: "", valueIdsByDimension: [f.subjectDim.id: [f.math.id]],
+            searchText: "", valueIdsByDimension: [f.categoryDim.id: [f.math.id]],
             limit: 50, offset: 10
         )
         #expect(result.isEmpty)
     }
 
-    // MARK: - subject 维度值名排序
+    // MARK: - category 维度值名排序
 
-    @Test("sortBySubjectName 按学科值名升序")
-    func filter_sortBySubjectName() throws {
+    @Test("sortByCategoryName 按分类值名升序")
+    func filter_sortByCategoryName() throws {
         let f = try makeFixture()
         try makeItem("英语题", values: [f.english])
         try makeItem("数学题", values: [f.math])
@@ -213,30 +213,30 @@ final class ReviewRepositoryDimensionFilterTests {
 
         let result = try repos.review.fetchFilteredModels(
             searchText: "", valueIdsByDimension: [:],
-            sortBySubjectName: true, limit: 50, offset: 0
+            sortByCategoryName: true, limit: 50, offset: 0
         )
-        let names = result.map { $0.subjectCategoryName ?? "" }
+        let names = result.map { $0.primaryCategoryName ?? "" }
         #expect(names.count == 3)
         #expect(names == names.sorted())   // 升序，与值名 < 关系一致
     }
 
-    // MARK: - fetchSmartSelection 学科值筛选
+    // MARK: - fetchSmartSelection 分类值筛选
 
-    @Test("fetchSmartSelection 按学科值筛选 + limit 截断")
+    @Test("fetchSmartSelection 按分类值筛选 + limit 截断")
     func smartSelection_subjectFilter() throws {
         let f = try makeFixture()
         try makeItem("数学1", values: [f.math])
         try makeItem("数学2", values: [f.math])
         try makeItem("英语1", values: [f.english])
 
-        let result = try repos.review.fetchSmartSelection(limit: 10, subjectValueIds: [f.math.id])
+        let result = try repos.review.fetchSmartSelection(limit: 10, categoryValueIds: [f.math.id])
         #expect(Set(result.map { $0.content ?? "" }) == ["数学1", "数学2"])
 
-        let limited = try repos.review.fetchSmartSelection(limit: 1, subjectValueIds: [f.math.id])
+        let limited = try repos.review.fetchSmartSelection(limit: 1, categoryValueIds: [f.math.id])
         #expect(limited.count == 1)
     }
 
-    @Test("fetchSmartSelection 空学科筛选返回全部（limit 内）")
+    @Test("fetchSmartSelection 空分类筛选返回全部（limit 内）")
     func smartSelection_noSubjectFilter() throws {
         let f = try makeFixture()
         try makeItem("题1", values: [f.math])

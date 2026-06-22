@@ -65,7 +65,7 @@ struct CaptureSaveCoordinator {
             }
 
             // 构造 @Model 对象并插入（纯内存），再统一 saveContext。
-            // L3：分类经动态维度值（categoryValues）；旧 subject/source/tags/grade 字段暂留用 init 默认值（S6 删）。
+            // L3：分类经动态维度值（categoryValues）；旧裸字符串字段已不再写入。
             let model = ReviewItemModel(
                 content: contentValue,
                 imagePath: savedImagePath,

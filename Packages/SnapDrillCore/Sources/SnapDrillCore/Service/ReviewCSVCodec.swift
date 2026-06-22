@@ -34,7 +34,7 @@ public protocol ReviewCSVRow: Sendable {
     nonisolated var lastReviewedAt: Date? { get }
     /// 下次计划复习时间
     nonisolated var nextReviewAt: Date? { get }
-    /// 动态维度值：维度名 → 该题在该维度下的值名（A2 动态列；学科/来源/年级/标签/自定义各一列）
+    /// 动态维度值：维度名 → 该题在该维度下的值名（A2 动态列；分类/来源/级别/标签/自定义各一列）
     nonisolated var dimensionValues: [String: [String]] { get }
 }
 

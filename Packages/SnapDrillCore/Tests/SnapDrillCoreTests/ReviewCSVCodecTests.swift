@@ -67,12 +67,12 @@ struct ReviewCSVCodecTests {
             createdAt: Date(timeIntervalSince1970: 0),
             lastReviewedAt: nil,
             nextReviewAt: nil,
-            dimensionValues: ["标签": ["a", "b"], "学科": ["数学"]]
+            dimensionValues: ["标签": ["a", "b"], "分类": ["数学"]]
         )
         let csv = ReviewCSVCodec.makeCSV([row])
 
-        // header 居首 = 固定列 + 按列名排序的维度列（学科 < 标签），行尾 \n
-        #expect(csv.hasPrefix(ReviewCSVCodec.header(dimensionColumns: ["学科", "标签"]) + "\n"))
+        // header 居首 = 固定列 + 按列名排序的维度列（分类 < 标签），行尾 \n
+        #expect(csv.hasPrefix(ReviewCSVCodec.header(dimensionColumns: ["分类", "标签"]) + "\n"))
         #expect(csv.hasSuffix("\n"))
         // 注入内容被前置 tab 防护
         #expect(csv.contains("\"\t=danger\""))
@@ -84,7 +84,7 @@ struct ReviewCSVCodecTests {
         // 多值维度以 "; " 连接后整体转义；维度列名进 header
         #expect(csv.contains("\"a; b\""))
         #expect(csv.contains("\"标签\""))
-        #expect(csv.contains("\"学科\""))
+        #expect(csv.contains("\"分类\""))
     }
 
     @Test("makeCSV：空数组只产出固定列 header 行")

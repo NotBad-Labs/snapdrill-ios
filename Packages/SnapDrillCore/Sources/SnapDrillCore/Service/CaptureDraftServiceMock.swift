@@ -26,7 +26,7 @@ public final class CaptureDraftServiceMock: CaptureDraftServiceProtocol {
     public struct SaveCall: Sendable {
         public let image: UIImage?
         public let content: String
-        public let subject: String?
+        public let category: String?
     }
 
     /// `saveDraft` 调用记录
@@ -39,13 +39,13 @@ public final class CaptureDraftServiceMock: CaptureDraftServiceProtocol {
         self.storedDraft = initialDraft
     }
 
-    public func saveDraft(image: UIImage?, content: String, subject: String?) async {
-        saveCalls.append(SaveCall(image: image, content: content, subject: subject))
+    public func saveDraft(image: UIImage?, content: String, category: String?) async {
+        saveCalls.append(SaveCall(image: image, content: content, category: category))
         storedDraft = CaptureDraftService.Draft(
             image: image,
             content: content,
             date: Date(),
-            subject: subject
+            category: category
         )
     }
 

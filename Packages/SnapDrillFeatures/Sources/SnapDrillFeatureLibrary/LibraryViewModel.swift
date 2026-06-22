@@ -24,8 +24,8 @@ private struct LibraryQueryState: Equatable {
 public enum LibrarySortOption: String, CaseIterable, Identifiable {
     /// 按创建时间倒序（最新在前）
     case createdAt
-    /// 按学科升序（A→Z）
-    case subject
+    /// 按主分类升序（A→Z）
+    case category
     /// 按难度倒序（最难在前）
     case difficulty
     /// 按复习状态升序（最紧急在前）
@@ -36,7 +36,7 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
     var displayName: String {
         switch self {
         case .createdAt: L10n.Library.sortTime
-        case .subject: L10n.Library.sortSubject
+        case .category: L10n.Library.sortCategory
         case .difficulty: L10n.Library.sortDifficulty
         case .reviewStatus: L10n.Library.sortReviewStatus
         }
@@ -46,8 +46,8 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
         switch self {
         case .createdAt:
             [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
-        case .subject:
-            // 学科是动态维度值（关系），无法走 SortDescriptor → 实际排序由 sortsBySubjectName 内存完成；
+        case .category:
+            // 主分类是动态维度值（关系），无法走 SortDescriptor → 实际排序由 sortsByCategoryName 内存完成；
             // 此处仅给内存路径前的稳定预排序（createdAt 倒序作 tiebreaker）。
             [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
         case .difficulty:
@@ -59,13 +59,13 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
         }
     }
 
-    /// 是否按学科维度值名内存排序（关系不能走 SortDescriptor）
-    var sortsBySubjectName: Bool { self == .subject }
+    /// 是否按主分类维度值名内存排序（关系不能走 SortDescriptor）
+    var sortsByCategoryName: Bool { self == .category }
 }
 
 /// 题库列表 ViewModel
 ///
-/// 管理多维度过滤（搜索文本、学科、标签）、分页加载和数据刷新逻辑。
+/// 管理多维度过滤（搜索文本、分类、标签）、分页加载和数据刷新逻辑。
 /// 维度值过滤由 Data 层先缩小候选集，再按 many-to-many 语义校验；分页写回前会确认查询条件未变化。
 @Observable
 public final class LibraryViewModel {
@@ -243,7 +243,7 @@ public final class LibraryViewModel {
                 valueIdsByDimension: selectedValueIdsByDimension,
                 difficulties: selectedDifficulties,
                 sortDescriptors: sortOption.sortDescriptors,
-                sortBySubjectName: sortOption.sortsBySubjectName,
+                sortByCategoryName: sortOption.sortsByCategoryName,
                 limit: pageSize,
                 offset: 0
             )
@@ -275,7 +275,7 @@ public final class LibraryViewModel {
                 valueIdsByDimension: selectedValueIdsByDimension,
                 difficulties: selectedDifficulties,
                 sortDescriptors: sortOption.sortDescriptors,
-                sortBySubjectName: sortOption.sortsBySubjectName,
+                sortByCategoryName: sortOption.sortsByCategoryName,
                 limit: pageSize,
                 offset: nextPage * pageSize
             )
@@ -341,11 +341,11 @@ public final class LibraryViewModel {
         // 使用当前排序选项恢复列表顺序
         withAnimation {
             filteredItems.append(contentsOf: itemsToRestore)
-            if sortOption.sortsBySubjectName {
-                // 学科排序是关系内存排序，SortDescriptor 无法表达，单独按维度值名排
+            if sortOption.sortsByCategoryName {
+                // 主分类排序是关系内存排序，SortDescriptor 无法表达，单独按维度值名排
                 filteredItems.sort { lhs, rhs in
-                    let lName = lhs.subjectCategoryName ?? ""
-                    let rName = rhs.subjectCategoryName ?? ""
+                    let lName = lhs.primaryCategoryName ?? ""
+                    let rName = rhs.primaryCategoryName ?? ""
                     if lName != rName { return lName < rName }
                     return lhs.createdAt > rhs.createdAt
                 }

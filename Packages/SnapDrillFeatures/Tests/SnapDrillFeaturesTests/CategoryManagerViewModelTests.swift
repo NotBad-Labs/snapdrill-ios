@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  维度管理 ViewModel 守护测试（L3）：加载、新建（成功/重名）、
-//  删除（内置跳过 / 在用拦截 / 用户维度删除）。取代旧 3 套 Subject/Source/Grade Manager VM 测试。
+//  删除（内置跳过 / 在用拦截 / 用户维度删除）。取代旧 3 套 Category/Source/Level Manager VM 测试。
 //
 
 import Testing

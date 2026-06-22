@@ -27,7 +27,7 @@ intent_refs:
 
 ## 2. 需求规则 (What)
 - **多 Profile 隔离**：每个 Profile 拥有独立的题库、统计、复习进度、草稿、自动推断历史、字段配置、卡片字号、每日复习目标、题库排序偏好；切换 Profile 后只看到该 Profile 的数据。
-- **Per-Profile 自动推断**：切换 Profile 后学科 / 来源等默认值推断基于该 Profile 自身历史，不跨 Profile 漂移。
+- **Per-Profile 自动推断**：切换 Profile 后分类 / 来源等默认值推断基于该 Profile 自身历史，不跨 Profile 漂移。
 - **创建 / 删除**：首次启动自动创建默认 Profile（用户无感）；后续可在设置中新增（昵称 / 头像）/ 删除（二次确认 + 显式输入名称，不可撤销）；新 Profile 立即生效、不复制其他 Profile 数据；删除物理目录 + 数据库文件 + per-profile UserDefaults，不影响其他 Profile。
 - **最后 Profile 保护**：只剩 1 个 Profile 时禁用删除按钮，提示「至少保留一个 Profile」（阻止而非自动建空 Profile，避免"删不掉"困惑，奥卡姆剃刀）。
 - **切换中断保护**：存在未保存编辑 / 草稿时提示保存或放弃、不静默切换；关键操作（导出 / 备份 / 恢复，经 `AppActivityTracker` 跟踪）期间禁止切换，UI 提示「正在导出/备份/恢复中，请稍候」；切换失败回滚到原 Profile、不留中间态。

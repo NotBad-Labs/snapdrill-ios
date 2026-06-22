@@ -161,9 +161,9 @@ public final class SettingsViewModel {
 
     /// 从 CSV 文件导入资料数据
     ///
-    /// CSV 首行为列名，支持的列：Content, Subject, Source, Difficulty, Answer, Grade, Tags。
+    /// CSV 首行为列名，支持的列：Content, Category, Source, Difficulty, Answer, Level, Tags。
     /// 列名不区分大小写，缺失列使用默认值。
-    /// 内置维度列（Subject/Source/Grade/Tags）经 systemKey 兜底匹配——跨 locale 命中内置维度、
+    /// 内置维度列（Category/Source/Level/Tags）经 systemKey 兜底匹配——跨 locale 命中内置维度、
     /// 不建孤儿重复维度；其余非固定列按显示名匹配现有维度或新建用户维度。
     /// cell 以 ";" 分隔多值；单值维度只取首值。
     public func importCSV(fileURL: URL) async {
@@ -251,9 +251,9 @@ public final class SettingsViewModel {
     /// 文档承诺的内置列名（小写）→ systemKey。CSVParser 已把列头小写化；「Tags」复数也映射到 tag。
     /// 用于显示名匹配失败时兜底命中内置维度，不建孤儿重复维度（修 zh 设备导英文列的 desync）。
     private static let builtInColumnAliases: [String: String] = [
-        "subject": CategorySystemKey.subject,
+        "category": CategorySystemKey.category,
         "source": CategorySystemKey.source,
-        "grade": CategorySystemKey.grade,
+        "level": CategorySystemKey.level,
         "tag": CategorySystemKey.tag,
         "tags": CategorySystemKey.tag
     ]

@@ -110,7 +110,7 @@ public struct DashboardView: View {
                                         icon: "square.grid.2x2",
                                         gradient: DashboardTone.categories
                                     ) {
-                                        viewModel.isShowingSubjectManager = true
+                                        viewModel.isShowingCategoryManager = true
                                     }
                                     .accessibilityIdentifier("dashboard.bento.categories")
                                 }
@@ -174,17 +174,17 @@ public struct DashboardView: View {
             Text(viewModel?.draftAlertMessage ?? L10n.Dashboard.draftAlertMessage)
         }
         .sheet(isPresented: Binding(
-            get: { viewModel?.isShowingSubjectManager ?? false },
-            set: { viewModel?.isShowingSubjectManager = $0 }
+            get: { viewModel?.isShowingCategoryManager ?? false },
+            set: { viewModel?.isShowingCategoryManager = $0 }
         )) {
             // Sheet 场景需要 NavigationStack 宿主（CategoryManagerView 自身不再包含）。
-            // L3：分类管理已并入统一维度管理（VM 属性名 isShowingSubjectManager 暂留，S6 可改名）。
+            // L3：分类管理已并入统一维度管理。
             NavigationStack {
                 CategoryManagerView()
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button(L10n.Common.close) {
-                                viewModel?.isShowingSubjectManager = false
+                                viewModel?.isShowingCategoryManager = false
                             }
                         }
                     }

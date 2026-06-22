@@ -20,7 +20,7 @@ layer: pattern
 
 - 多种方式采集资料 / 题目（拍照、导入、手动）
 - OCR 文字识别（降低手动输入成本）
-- 资料分类管理（分类、来源、级别、标签、难度；面向学习资料的学科/年级模板降级为可选配置）
+- 资料分类管理（分类、来源、级别、标签、难度；面向学习资料的分类/级别模板降级为可选配置）
 - 搜索和过滤
 - 导出（PDF / JSON / CSV）
 - 本地数据存储（隐私优先）
@@ -67,7 +67,7 @@ layer: pattern
 
 - 公式识别与渲染（LaTeX/MathML，无 Apple 原生 API）
 - iPad + Apple Pencil 深度集成（依赖第三方 App 支持）
-- 学习资料模板（学科 / 年级等结构化字段）—— **边界**：仅作为可选字段配置模板，不进入默认录入页，不扩展核心字段系统的层级（vision §2 简洁，不增加 [../explanations/design-principles.md](../explanations/design-principles.md) §字段可配置系统 复杂度）
+- 学习资料模板（分类 / 级别等结构化字段）—— **边界**：仅作为可选字段配置模板，不进入默认录入页，不扩展核心字段系统的层级（vision §2 简洁，不增加 [../explanations/design-principles.md](../explanations/design-principles.md) §字段可配置系统 复杂度）
 - AI 解题提示（**初步评估为蚕食 vision §不是内容平台禁令 + 推翻 H3「核心需求是存档/打印，不是解题」假设；不进入近期路线**。若未来 H3 数据推翻，需先在 [../explanations/vision.md](../explanations/vision.md) 加新假设/原则承接才能纳入）
 
 ---

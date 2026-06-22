@@ -24,18 +24,18 @@ nonisolated extension L10n {
 
         // 排序
         public static let sortByDate = NSLocalizedString("library.sort_by_date", value: "按时间", comment: "按时间排序")
-        public static let sortBySubject = NSLocalizedString("library.sort_by_subject", value: "按分类", comment: "按分类排序")
+        public static let sortByCategory = NSLocalizedString("library.sort_by_category", value: "按分类", comment: "按分类排序")
         public static let sortByDifficulty = NSLocalizedString("library.sort_by_difficulty", value: "按难度", comment: "按难度排序")
         public static let sortByReviewStatus = NSLocalizedString("library.sort_by_review_status", value: "按复习状态", comment: "按复习状态排序")
 
         // 排序短名（LibrarySortOption.displayName 用）
         public static let sortTime = NSLocalizedString("library.sort_time", value: "时间", comment: "排序选项：时间")
-        public static let sortSubject = NSLocalizedString("library.sort_subject", value: "分类", comment: "排序选项：分类")
+        public static let sortCategory = NSLocalizedString("library.sort_category", value: "分类", comment: "排序选项：分类")
         public static let sortDifficulty = NSLocalizedString("library.sort_difficulty", value: "难度", comment: "排序选项：难度")
         public static let sortReviewStatus = NSLocalizedString("library.sort_review_status", value: "复习状态", comment: "排序选项：复习状态")
 
         // 列表
-        public static let allSubjects = NSLocalizedString("library.all_subjects", value: "全部", comment: "全部分类")
+        public static let allCategories = NSLocalizedString("library.all_categories", value: "全部", comment: "全部分类")
         public static let noContent = NSLocalizedString("library.no_content", value: "无文字内容", comment: "无文字内容占位")
         public static let noCategory = NSLocalizedString("library.no_category", value: "未分类", comment: "未分类占位")
         public static let loadingMore = NSLocalizedString("library.loading_more", value: "正在加载更多…", comment: "列表分页加载")
@@ -67,7 +67,7 @@ nonisolated extension L10n {
 
         // 过滤
         public static let filter = NSLocalizedString("library.filter", value: "过滤", comment: "过滤按钮")
-        public static let filterSubjects = NSLocalizedString("library.filter_subjects", value: "分类", comment: "过滤分类标签")
+        public static let filterCategories = NSLocalizedString("library.filter_categories", value: "分类", comment: "过滤分类标签")
         public static let filterDifficulty = NSLocalizedString("library.filter_difficulty", value: "难度", comment: "过滤难度标签")
         public static let filterTags = NSLocalizedString("library.filter_tags", value: "标签", comment: "过滤标签标签")
 
@@ -121,16 +121,15 @@ nonisolated extension L10n {
         }
         public static let undo = NSLocalizedString("library.undo", value: "撤销", comment: "撤销删除按钮")
 
-        // 分类管理
-        public static let subjectManager = NSLocalizedString("library.subject_manager", value: "管理分类", comment: "管理分类")
+        // 固定维度值管理
         public static let sourceManager = NSLocalizedString("library.source_manager", value: "管理来源", comment: "管理来源")
-        public static let gradeManager = NSLocalizedString("library.grade_manager", value: "管理级别", comment: "管理级别")
-        public static let addSubject = NSLocalizedString("library.add_subject", value: "添加分类", comment: "添加分类")
-        public static let editSubject = NSLocalizedString("library.edit_subject", value: "编辑分类", comment: "编辑分类")
+        public static let levelManager = NSLocalizedString("library.level_manager", value: "管理级别", comment: "管理级别")
+        public static let addCategory = NSLocalizedString("library.add_category", value: "添加分类", comment: "添加分类")
+        public static let editCategory = NSLocalizedString("library.edit_category", value: "编辑分类", comment: "编辑分类")
         public static let addSource = NSLocalizedString("library.add_source", value: "添加来源", comment: "添加来源")
         public static let editSource = NSLocalizedString("library.edit_source", value: "编辑来源", comment: "编辑来源")
-        public static let addGrade = NSLocalizedString("library.add_grade", value: "添加级别", comment: "添加级别")
-        public static let editGrade = NSLocalizedString("library.edit_grade", value: "编辑级别", comment: "编辑级别")
+        public static let addLevel = NSLocalizedString("library.add_level", value: "添加级别", comment: "添加级别")
+        public static let editLevel = NSLocalizedString("library.edit_level", value: "编辑级别", comment: "编辑级别")
         public static let name = NSLocalizedString("library.name", value: "名称", comment: "名称标签")
         public static let icon = NSLocalizedString("library.icon", value: "图标", comment: "图标标签")
         public static let color = NSLocalizedString("library.color", value: "颜色", comment: "颜色标签")
@@ -166,14 +165,14 @@ nonisolated extension L10n {
         public static let fullScreenImage = NSLocalizedString("library.full_screen_image", value: "查看图片", comment: "全屏查看图片")
 
         // 分类管理 — 删除受阻提示
-        public static func subjectHasItems(_ name: String) -> String {
-            String(format: NSLocalizedString("library.subject_has_items", value: "分类「%@」下仍有资料，请先修改相关资料或删除对应资料。", comment: "分类删除受阻"), name)
+        public static func categoryHasItems(_ name: String) -> String {
+            String(format: NSLocalizedString("library.category_has_items", value: "分类「%@」下仍有资料，请先修改相关资料或删除对应资料。", comment: "分类删除受阻"), name)
         }
         public static func sourceHasItems(_ name: String) -> String {
             String(format: NSLocalizedString("library.source_has_items", value: "来源「%@」下仍有资料，请先修改相关资料或删除对应资料。", comment: "来源删除受阻"), name)
         }
-        public static func gradeHasItems(_ name: String) -> String {
-            String(format: NSLocalizedString("library.grade_has_items", value: "级别「%@」下仍有资料，请先修改相关资料或删除对应资料。", comment: "级别删除受阻"), name)
+        public static func levelHasItems(_ name: String) -> String {
+            String(format: NSLocalizedString("library.level_has_items", value: "级别「%@」下仍有资料，请先修改相关资料或删除对应资料。", comment: "级别删除受阻"), name)
         }
 
         // 分类管理 — 重名提示
@@ -222,8 +221,8 @@ nonisolated extension L10n {
         public static let answerLabel = NSLocalizedString("export.answer_label", value: "答案：", comment: "PDF 导出中答案区域前缀")
         public static let showBlankArea = NSLocalizedString("export.show_blank_area", value: "显示答题区", comment: "导出选项：显示答题留白区开关")
         public static let showHeader = NSLocalizedString("export.show_header", value: "显示页眉页码", comment: "导出选项：显示页眉页码开关")
-        public static let mixedSubject = NSLocalizedString("export.mixed_subject", value: "综合资料", comment: "PDF 页眉：多分类混合时显示")
-        public static let defaultSubject = NSLocalizedString("export.default_subject", value: "资料集", comment: "PDF 页眉：无分类信息时的默认标题")
+        public static let mixedCategory = NSLocalizedString("export.mixed_category", value: "综合资料", comment: "PDF 页眉：多分类混合时显示")
+        public static let defaultCategory = NSLocalizedString("export.default_category", value: "资料集", comment: "PDF 页眉：无分类信息时的默认标题")
         public static let itemsPerPage = NSLocalizedString("export.items_per_page", value: "每页题数", comment: "导出选项：每页题目数量")
         public static let pdfOptions = NSLocalizedString("export.pdf_options", value: "打印选项", comment: "导出选项区域标题")
         public static func pageNumber(_ current: Int, _ total: Int) -> String {

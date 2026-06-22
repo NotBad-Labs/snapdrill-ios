@@ -148,7 +148,7 @@ class ValidateDocsTests(unittest.TestCase):
                 self.assertIsNone(severity)
                 self.assertIsNone(message)
 
-    def test_taxonomy_terms_are_warning_only(self) -> None:
+    def test_positioning_taxonomy_terms_are_warning_only(self) -> None:
         path = validate_docs.DOCS_ROOT / "features" / "active" / "feat-library.md"
 
         severity, message = validate_docs.classify_positioning_line(
@@ -158,6 +158,60 @@ class ValidateDocsTests(unittest.TestCase):
 
         self.assertEqual(severity, "warning")
         self.assertEqual(message, "taxonomy term requires PO context, not a hard fail")
+
+    def test_taxonomy_canonical_terms_fail_in_current_docs(self) -> None:
+        path = validate_docs.DOCS_ROOT / "features" / "active" / "feat-library.md"
+
+        examples = [
+            "字段配置支持学科 / 年级 / 来源。",
+            "Use `CategorySystemKey.subject` for the primary dimension.",
+            "The library.sort_by_subject key drives sorting.",
+        ]
+
+        for line in examples:
+            with self.subTest(line=line):
+                severity, message = validate_docs.classify_taxonomy_canonical_line(path, line)
+                self.assertEqual(severity, "error")
+                self.assertEqual(
+                    message,
+                    "old taxonomy term; use category/level canonical terminology",
+                )
+
+    def test_ambiguous_english_taxonomy_terms_warn_instead_of_fail(self) -> None:
+        path = validate_docs.DOCS_ROOT / "features" / "active" / "feat-library.md"
+
+        severity, message = validate_docs.classify_taxonomy_canonical_line(
+            path,
+            "This product is subject to platform constraints.",
+        )
+
+        self.assertEqual(severity, "warning")
+        self.assertEqual(message, "ambiguous taxonomy term requires human review")
+
+    def test_taxonomy_negation_and_allow_marker_do_not_fail(self) -> None:
+        path = validate_docs.DOCS_ROOT / "explanations" / "positioning-and-audience.md"
+
+        examples = [
+            "无注册，不要求姓名、手机号、学校或年级。",
+            "历史说明：旧版本使用学科字段。 <!-- taxonomy-allow: historical quote -->",
+        ]
+
+        for line in examples:
+            with self.subTest(line=line):
+                severity, message = validate_docs.classify_taxonomy_canonical_line(path, line)
+                self.assertIsNone(severity)
+                self.assertIsNone(message)
+
+    def test_taxonomy_legal_gated_docs_warn_instead_of_fail(self) -> None:
+        path = validate_docs.DOCS_ROOT / "reference" / "appstore-metadata.md"
+
+        severity, message = validate_docs.classify_taxonomy_canonical_line(
+            path,
+            "Subject, source, tags, and grade classification.",
+        )
+
+        self.assertEqual(severity, "warning")
+        self.assertEqual(message, "legal/fact-gated taxonomy term requires owner review")
 
     def test_historical_adr_and_ui_redesign_are_excluded_from_term_scan(self) -> None:
         adr_path = validate_docs.DOCS_ROOT / "decisions" / "ADR-003-dual-region-release.md"
@@ -169,6 +223,9 @@ class ValidateDocsTests(unittest.TestCase):
         self.assertTrue(validate_docs.should_skip_positioning_term_scan(adr_path))
         self.assertTrue(validate_docs.should_skip_positioning_term_scan(redesign_path))
         self.assertTrue(validate_docs.should_skip_positioning_term_scan(generated_path))
+        self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(adr_path))
+        self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(redesign_path))
+        self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(generated_path))
 
     def test_legal_gated_docs_warn_instead_of_fail(self) -> None:
         path = validate_docs.DOCS_ROOT / "reference" / "appstore-metadata.md"

@@ -371,7 +371,7 @@ final class SnapDrillUITests: XCTestCase {
         dismissKeyboardIfPresent(in: app)
         addScreenshot(named: "ui-freeze-capture-02-manual-filled-editor")
 
-        XCTAssertFalse(app.buttons["capture.dimRow.学科"].exists, "默认手动录入不应暴露学科字段")
+        XCTAssertFalse(app.buttons["capture.dimRow.分类"].exists, "默认手动录入不应暴露分类字段")
         XCTAssertFalse(app.buttons["capture.dimRow.分类"].exists, "默认手动录入不应预先要求分类")
         addScreenshot(named: "ui-freeze-capture-03-no-default-category")
 
@@ -509,7 +509,7 @@ final class SnapDrillUITests: XCTestCase {
 
         createManualItem(
             content: "Review QA Alpha",
-            subject: nil,
+            category: nil,
             answer: "Reference answer for Review QA Alpha",
             in: app
         )
@@ -543,13 +543,13 @@ final class SnapDrillUITests: XCTestCase {
 
         createManualItem(
             content: "Review QA First",
-            subject: nil,
+            category: nil,
             answer: "Reference answer for Review QA First",
             in: app
         )
         createManualItem(
             content: "Review QA Second",
-            subject: nil,
+            category: nil,
             answer: "Reference answer for Review QA Second",
             in: app
         )
@@ -607,13 +607,13 @@ final class SnapDrillUITests: XCTestCase {
 
         createManualItem(
             content: "Review Swipe First",
-            subject: nil,
+            category: nil,
             answer: "Reference answer for Review Swipe First",
             in: app
         )
         createManualItem(
             content: "Review Swipe Second",
-            subject: nil,
+            category: nil,
             answer: "Reference answer for Review Swipe Second",
             in: app
         )
@@ -647,7 +647,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launchArguments = l3LaunchArguments()
         app.launch()
 
-        createManualItem(content: "Dashboard QA Due", subject: nil, in: app)
+        createManualItem(content: "Dashboard QA Due", category: nil, in: app)
 
         app.tabBars.buttons.element(boundBy: 0).tap()
         waitForAnyElement("dashboard.root", in: app)
@@ -777,9 +777,9 @@ final class SnapDrillUITests: XCTestCase {
         manageCategories.tap()
         waitForAnyElement("settings.categoryManager.root", in: app)
 
-        app.buttons["dim.row.subject"].tap()
-        waitForAnyElement("dimValueList.root.subject", in: app)
-        addScreenshot(named: "ui-freeze-taxonomy-02-subject-values")
+        app.buttons["dim.row.category"].tap()
+        waitForAnyElement("dimValueList.root.category", in: app)
+        addScreenshot(named: "ui-freeze-taxonomy-02-category-values")
 
         app.buttons["dimValue.题目"].tap()
         waitForAnyElement("dimValueEdit.root", in: app)
@@ -1152,8 +1152,8 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
         enableBuiltInCategoryField(in: app)
 
-        createManualItem(content: "Library QA Alpha", subject: "题目", in: app)
-        createManualItem(content: "Library QA Beta", subject: "文档", in: app)
+        createManualItem(content: "Library QA Alpha", category: "题目", in: app)
+        createManualItem(content: "Library QA Beta", category: "文档", in: app)
 
         app.tabBars.buttons.element(boundBy: 1).tap()
         waitForAnyElement("library.root", in: app)
@@ -1336,8 +1336,8 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
         enableBuiltInCategoryField(in: app)
 
-        createManualItem(content: "Library Control Alpha", subject: "题目", in: app)
-        createManualItem(content: "Library Control Beta", subject: "文档", in: app)
+        createManualItem(content: "Library Control Alpha", category: "题目", in: app)
+        createManualItem(content: "Library Control Beta", category: "文档", in: app)
         createTagValue("重点", in: app)
 
         app.tabBars.buttons.element(boundBy: 1).tap()
@@ -1429,7 +1429,7 @@ final class SnapDrillUITests: XCTestCase {
         manageRow.tap()
 
         // 4 个内置维度都应出现（按 systemKey 的 identifier，locale 无关）
-        for key in ["subject", "source", "grade", "tag"] {
+        for key in ["category", "source", "level", "tag"] {
             XCTAssertTrue(
                 app.buttons["dim.row.\(key)"].waitForExistence(timeout: 5),
                 "应种出内置维度 dim.row.\(key)"
@@ -1437,10 +1437,10 @@ final class SnapDrillUITests: XCTestCase {
         }
 
         // 分类 = 单值（允许多选关）+ 含通用资料分类值
-        app.buttons["dim.row.subject"].tap()
-        let subjectMulti = app.switches["dim.multiToggle"]
-        XCTAssertTrue(subjectMulti.waitForExistence(timeout: 5), "分类详情应有‘允许多选’开关")
-        XCTAssertEqual(subjectMulti.value as? String, "0", "分类应为单值（允许多选=关）")
+        app.buttons["dim.row.category"].tap()
+        let categoryMulti = app.switches["dim.multiToggle"]
+        XCTAssertTrue(categoryMulti.waitForExistence(timeout: 5), "分类详情应有‘允许多选’开关")
+        XCTAssertEqual(categoryMulti.value as? String, "0", "分类应为单值（允许多选=关）")
         XCTAssertTrue(app.buttons["dimValue.题目"].waitForExistence(timeout: 3), "分类下应种有‘题目’值")
 
         // 返回 → 标签 = 多值（允许多选开）
@@ -1545,7 +1545,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
         enableBuiltInCategoryField(in: app)
 
-        createManualItem(content: "维度选择 E2E", subject: "题目", in: app)
+        createManualItem(content: "维度选择 E2E", category: "题目", in: app)
 
         // 题库验证徽标
         app.tabBars.buttons.element(boundBy: 1).tap()
@@ -1627,8 +1627,8 @@ final class SnapDrillUITests: XCTestCase {
         enableBuiltInCategoryField(in: app)
 
         // 造两项：甲=题目、乙=文档（--uitesting 起始空库，无噪音）
-        createManualItem(content: "筛选甲题目", subject: "题目", in: app)
-        createManualItem(content: "筛选乙文档", subject: "文档", in: app)
+        createManualItem(content: "筛选甲题目", category: "题目", in: app)
+        createManualItem(content: "筛选乙文档", category: "文档", in: app)
 
         // 进题库，确认两题都在
         app.tabBars.buttons.element(boundBy: 1).tap()
@@ -1657,7 +1657,7 @@ final class SnapDrillUITests: XCTestCase {
     }
 
     /// 手动录入一项资料（可选指定单值分类），保存后停在采集首页。复用于 ③⑥ 造数据。
-    private func createManualItem(content: String, subject: String?, answer: String? = nil, in app: XCUIApplication) {
+    private func createManualItem(content: String, category: String?, answer: String? = nil, in app: XCUIApplication) {
         let captureTab = app.tabBars.buttons["采集"].exists
             ? app.tabBars.buttons["采集"]
             : app.tabBars.buttons["camera"]
@@ -1672,14 +1672,14 @@ final class SnapDrillUITests: XCTestCase {
         editor.tap()
         editor.typeText(content)
         dismissKeyboardIfPresent(in: app)
-        if let subject {
+        if let category {
             // 单值维度暴露为 capture.dimRow.<title>（内层 Menu id 被外层 HStack 吞）
             let menu = app.buttons["capture.dimRow.分类"]
             scrollUntilHittable(menu, in: app)
             XCTAssertTrue(menu.waitForExistence(timeout: 5), "应有分类单值菜单")
             menu.tap()
-            let option = app.buttons["capture.opt.\(subject)"]
-            XCTAssertTrue(option.waitForExistence(timeout: 5), "分类菜单应有‘\(subject)’选项")
+            let option = app.buttons["capture.opt.\(category)"]
+            XCTAssertTrue(option.waitForExistence(timeout: 5), "分类菜单应有‘\(category)’选项")
             option.tap()
         }
         if let answer {
@@ -1703,12 +1703,12 @@ final class SnapDrillUITests: XCTestCase {
         settingsTab.tap()
         waitForAnyElement("settings.root", in: app)
 
-        let subjectToggle = app.switches["settings.captureField.subject"]
-        scrollUntilHittable(subjectToggle, in: app, maxSwipes: 4)
-        XCTAssertTrue(subjectToggle.waitForExistence(timeout: 5), "设置应显示分类录入字段开关")
+        let categoryToggle = app.switches["settings.captureField.category"]
+        scrollUntilHittable(categoryToggle, in: app, maxSwipes: 4)
+        XCTAssertTrue(categoryToggle.waitForExistence(timeout: 5), "设置应显示分类录入字段开关")
 
-        if !isSwitchOn(subjectToggle) {
-            subjectToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.5)).tap()
+        if !isSwitchOn(categoryToggle) {
+            categoryToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.5)).tap()
             waitForUIAnimation(seconds: 0.3)
         }
     }

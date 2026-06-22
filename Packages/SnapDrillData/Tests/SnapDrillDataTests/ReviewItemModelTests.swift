@@ -46,7 +46,7 @@ struct ReviewItemModelTests {
         let context = ModelContext(container)
 
         let dimension = CategoryDimensionModel(
-            name: "学科", isBuiltIn: true, systemKey: CategorySystemKey.subject, icon: "book"
+            name: "分类", isBuiltIn: true, systemKey: CategorySystemKey.category, icon: "book"
         )
         context.insert(dimension)
         let value = CategoryValueModel(name: "数学", dimension: dimension)
@@ -69,25 +69,25 @@ struct ReviewItemModelTests {
         #expect(snapshot.id == expectedID)
         #expect(snapshot.content == "Math Formula")
         #expect(snapshot.imagePath == "test/image.jpg")
-        // subject = 学科维度首值（PDF 页眉用）；CSV 动态列经 dimensionValues
-        #expect(snapshot.subject == "数学")
-        #expect(snapshot.dimensionValues["学科"] == ["数学"])
+        // category = 分类维度首值（PDF 页眉用）；CSV 动态列经 dimensionValues
+        #expect(snapshot.category == "数学")
+        #expect(snapshot.dimensionValues["分类"] == ["数学"])
         #expect(snapshot.createdAt == now)
     }
 
-    @Test("toExportSnapshot：无学科值题目 exportSubject 归一 nil（PDF 页眉 compactMap 兜底契约）")
-    func exportSnapshotEmptySubjectNormalizesToNil() throws {
+    @Test("toExportSnapshot：无分类值题目 exportCategory 归一 nil（PDF 页眉 compactMap 兜底契约）")
+    func exportSnapshotEmptyCategoryNormalizesToNil() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: Schema(SnapDrillSchemaV1.models), configurations: config)
         let context = ModelContext(container)
-        let model = ReviewItemModel(content: "无学科题")
+        let model = ReviewItemModel(content: "无分类题")
         context.insert(model)
         try context.save()
 
         let snapshot = model.toExportSnapshot()
-        #expect(snapshot.subject == "")
-        // 空串须归一 nil，否则污染 PDFExportService.resolveSubject 的 subjects 集合
-        #expect(snapshot.exportSubject == nil)
+        #expect(snapshot.category == "")
+        // 空串须归一 nil，否则污染 PDFExportService.resolveCategory 的 categories 集合
+        #expect(snapshot.exportCategory == nil)
         #expect(snapshot.dimensionValues.isEmpty)
     }
     

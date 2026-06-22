@@ -80,17 +80,17 @@ struct ReviewCardFront: View {
 
             // 元数据底栏
             HStack(spacing: 8) {
-                // 学科徽标（动态维度：学科维度首值，无则取首个有值维度首值，再无则不显示）
-                if let subjectLabel = item.subjectCategoryName
+                // 分类徽标（动态维度：主分类维度首值，无则取首个有值维度首值，再无则不显示）
+                if let categoryLabel = item.primaryCategoryName
                     ?? item.categoryValuesByDimension.first?.values.first?.name {
-                    Text(subjectLabel)
+                    Text(categoryLabel)
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.blue)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Color.blue.opacity(0.10))
                         .clipShape(Capsule())
-                        .accessibilityLabel("\(L10n.Settings.fieldSubject)：\(subjectLabel)")
+                        .accessibilityLabel("\(L10n.Settings.fieldCategory)：\(categoryLabel)")
                 }
 
                 // 难度指示器

@@ -100,7 +100,7 @@ final class ReviewRepositoryTests {
         #expect(dueCount == 3)
     }
 
-    // L3：原 countByGrade/countBySubject + updateXxxUsage 级联更新测试已删——
+    // L3：原 countByLevel/countByCategory + updateXxxUsage 级联更新测试已删——
     // 这些方法随裸字符串字段移除；动态维度下分类统计走 CategoryValueModel.items?.count、
     // 重命名走单次 value.name 赋值（关系自动跟随），相关守护在 S7 维度值测试覆盖。
 

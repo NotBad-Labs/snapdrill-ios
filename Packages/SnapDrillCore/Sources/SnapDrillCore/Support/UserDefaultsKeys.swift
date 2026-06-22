@@ -40,15 +40,15 @@ nonisolated public enum UDKey {
 
     // MARK: - Capture Field Visibility
 
-    public static let captureFieldSubject = "captureFieldSubject"
+    public static let captureFieldCategory = "captureFieldCategory"
     public static let captureFieldSource = "captureFieldSource"
     public static let captureFieldDifficulty = "captureFieldDifficulty"
-    public static let captureFieldGrade = "captureFieldGrade"
+    public static let captureFieldLevel = "captureFieldLevel"
     public static let captureFieldAnswer = "captureFieldAnswer"
 
     // MARK: - Last Selection (Auto-suggestion)
 
-    public static let lastSelectedSubject = "lastSelectedSubject"
+    public static let lastSelectedCategory = "lastSelectedCategory"
     public static let lastSelectedSource = "lastSelectedSource"
 
     // MARK: - Feature Flags

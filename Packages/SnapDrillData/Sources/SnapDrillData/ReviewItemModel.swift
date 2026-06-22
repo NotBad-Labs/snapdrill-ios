@@ -22,7 +22,7 @@ public final class ReviewItemModel {
     #Index<ReviewItemModel>(
         [\.createdAt],         // 题库列表默认排序
         [\.nextReviewAt]       // 待复习查询
-        // L3：subjectRawValue 索引删除——分类改走 categoryValues 关系，关系不能进 #Index
+        // L3：旧裸字符串索引删除——分类改走 categoryValues 关系，关系不能进 #Index
     )
 
     // MARK: - Properties
@@ -145,7 +145,7 @@ public final class ReviewItemModel {
             id: id,
             content: content,
             imagePath: imagePath,
-            subject: subjectCategoryName ?? "",
+            category: primaryCategoryName ?? "",
             difficulty: difficulty,
             answerText: answerText,
             createdAt: createdAt,

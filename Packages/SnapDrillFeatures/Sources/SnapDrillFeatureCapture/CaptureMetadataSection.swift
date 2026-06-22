@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  采集结果页的分类信息 section：动态渲染所有可见维度（DimensionInputRow）。
-//  L3：取代固定的学科/来源 Menu + 标签输入；可见性按维度（VM.isDimensionVisible）。
+//  L3：取代固定的分类/来源 Menu + 标签输入；可见性按维度（VM.isDimensionVisible）。
 //
 
 import SwiftUI

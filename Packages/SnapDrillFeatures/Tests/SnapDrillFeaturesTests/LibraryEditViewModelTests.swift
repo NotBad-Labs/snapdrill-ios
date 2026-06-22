@@ -97,7 +97,7 @@ final class LibraryEditViewModelTests {
 
         await ctx.vm.loadData()
 
-        // seed 出 4 个内置维度（subject/source/grade/tag）
+        // seed 出 4 个内置维度（category/source/level/tag）
         #expect(ctx.vm.dimensions.count >= 4)
     }
 
@@ -105,8 +105,8 @@ final class LibraryEditViewModelTests {
     func loadData_initializesSelectedFromCategoryValues() async throws {
         repos.dimension.seedDefaultsIfNeeded()
         let dims = try repos.dimension.fetchAllModels()
-        let subjectDim = try #require(dims.first { $0.systemKey == "subject" })
-        let value = repos.categoryValue.fetchOrCreate(name: "数学", in: subjectDim)
+        let categoryDim = try #require(dims.first { $0.systemKey == "category" })
+        let value = repos.categoryValue.fetchOrCreate(name: "数学", in: categoryDim)
         try repos.categoryValue.saveContext()
 
         let item = ReviewItemModel(content: "题目")
@@ -117,7 +117,7 @@ final class LibraryEditViewModelTests {
         let vm = LibraryEditViewModel(item: item, repositories: repos, ocrService: MockOCRServiceShared())
         await vm.loadData()
 
-        #expect(vm.selectedIds(forDimension: subjectDim.id).contains(value.id))
+        #expect(vm.selectedIds(forDimension: categoryDim.id).contains(value.id))
     }
 
     // MARK: - 图片操作

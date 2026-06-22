@@ -45,8 +45,8 @@ struct BackupServiceTests {
             ],
             dimensions: [
                 CategoryDimensionBackupDTO(
-                    id: Self.sampleDimensionId, name: "学科", isMultiValue: false, isBuiltIn: true,
-                    systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+                    id: Self.sampleDimensionId, name: "分类", isMultiValue: false, isBuiltIn: true,
+                    systemKey: CategorySystemKey.category, sortOrder: 0, icon: "book"
                 )
             ],
             categoryValues: [

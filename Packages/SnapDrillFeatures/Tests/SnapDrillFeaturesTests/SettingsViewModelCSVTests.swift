@@ -67,7 +67,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("happy path：标准 CSV 导入 3 道题")
     func importCSV_standardFormat_imports3Items() async throws {
-        let csv = "Content,Subject,Difficulty\na+b=?,数学,1\nc+d=?,数学,2\ne+f=?,数学,3"
+        let csv = "Content,Category,Difficulty\na+b=?,数学,1\nc+d=?,数学,2\ne+f=?,数学,3"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -80,7 +80,7 @@ final class SettingsViewModelCSVTests {
         #expect(items.contains { $0.content == "a+b=?" && $0.difficulty == 1 })
         #expect(items.contains { $0.content == "c+d=?" && $0.difficulty == 2 })
         #expect(items.contains { $0.content == "e+f=?" && $0.difficulty == 3 })
-        // Subject 列（动态维度）→ 题目挂「数学」值
+        // Category 列（动态维度）→ 题目挂「数学」值
         #expect(items.contains { categoryValueNames($0).contains("数学") })
     }
 
@@ -99,7 +99,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("只有 header 无数据行：backupError 设为 importNoValidRows")
     func importCSV_onlyHeader_setsNoValidRowsError() async throws {
-        let csv = "Content,Subject,Difficulty"
+        let csv = "Content,Category,Difficulty"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -109,9 +109,9 @@ final class SettingsViewModelCSVTests {
         #expect(try repos.review.fetchAllModels().isEmpty)
     }
 
-    @Test("content 与 subject 均为空的行被丢弃")
-    func importCSV_rowWithNoContentOrSubject_isDiscarded() async throws {
-        let csv = "Content,Subject,Difficulty\n,,1\n有内容的题,,2\n,数学,3"
+    @Test("content 与 category 均为空的行被丢弃")
+    func importCSV_rowWithNoContentOrCategory_isDiscarded() async throws {
+        let csv = "Content,Category,Difficulty\n,,1\n有内容的题,,2\n,数学,3"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -143,7 +143,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("RFC 4180：引号内逗号不切分字段")
     func importCSV_quotedCommaInField_preservedAsOneField() async throws {
-        let csv = "Content,Subject\n\"含,逗号的题\",数学"
+        let csv = "Content,Category\n\"含,逗号的题\",数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -156,7 +156,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("RFC 4180：双引号转义 双引双引 转 单引号")
     func importCSV_escapedDoubleQuote_producesSingleQuote() async throws {
-        let csv = "Content,Subject\n\"他说\"\"hello\"\"\",英语"
+        let csv = "Content,Category\n\"他说\"\"hello\"\"\",英语"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -172,7 +172,7 @@ final class SettingsViewModelCSVTests {
     @Test("RFC 4180：字段内嵌换行不切分行，content 保留原始换行")
     func importCSV_embeddedNewlineInQuotedField_preservedAsOneRow() async throws {
         // RFC 4180 标准：带引号字段可含换行。新的状态机 parser 正确处理。
-        let csv = "Content,Subject\n\"第一行\n第二行\",数学"
+        let csv = "Content,Category\n\"第一行\n第二行\",数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -186,7 +186,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("RFC 4180：CRLF 与 CR 行终止符归一化为 LF")
     func importCSV_crlfAndCrLineEndings_normalized() async throws {
-        let csv = "Content,Subject\r\n题目1,数学\r题目2,英语"
+        let csv = "Content,Category\r\n题目1,数学\r题目2,英语"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -203,7 +203,7 @@ final class SettingsViewModelCSVTests {
     @Test("RFC 4180：UTF-8 BOM 前缀剥离，首列 header 映射正确")
     func importCSV_utf8BOM_stripped() async throws {
         // Excel 导出 CSV 常带 BOM。不剥会让 headers[0] = "\uFEFFcontent" 导致字段映射失败。
-        let csv = "\u{FEFF}Content,Subject,Difficulty\n题目,数学,3"
+        let csv = "\u{FEFF}Content,Category,Difficulty\n题目,数学,3"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -218,7 +218,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("trailing newline：尾随换行不产生空行")
     func importCSV_trailingNewline_noEmptyRow() async throws {
-        let csv = "Content,Subject\n题目1,数学\n题目2,英语\n"
+        let csv = "Content,Category\n题目1,数学\n题目2,英语\n"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -232,28 +232,28 @@ final class SettingsViewModelCSVTests {
     func importCSV_unclosedQuote_lenientAbsorb() async throws {
         // 当前状态机对格式错误输入采用宽松容错策略（Codex 🟡 指出可能静默误拼接）。
         // 锁定此行为：奇数引号被视为开始一个引号字段，剩余所有字符直到 EOF 都被吞入。
-        let csv = "Content,Subject\n\"未闭合的引号,数学"
+        let csv = "Content,Category\n\"未闭合的引号,数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
         await vm.importCSV(fileURL: url)
 
         let items = try repos.review.fetchAllModels()
-        // 宽松吞入：content 含逗号+后续字段全部，subject 不设
+        // 宽松吞入：content 含逗号+后续字段全部，category 不设
         #expect(items.count == 1)
         #expect(items.first?.content == "未闭合的引号,数学")
     }
 
     @Test("空引号字段：trimming 后为空不写入 dict")
     func importCSV_emptyQuotedField_treatedAsEmpty() async throws {
-        let csv = "Content,Subject\n\"\",数学"
+        let csv = "Content,Category\n\"\",数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
         await vm.importCSV(fileURL: url)
 
         let items = try repos.review.fetchAllModels()
-        // content 为空，但 subject 有值 → 仍算有效行（parseCSV 要求 content 或 subject 至少一个）
+        // content 为空，但 category 有值 → 仍算有效行（parseCSV 要求 content 或 category 至少一个）
         #expect(items.count == 1)
         #expect(categoryValueNames(items.first).contains("数学"))
         // content 为空时 ReviewItemModel.content 应为 nil（init 参数 content: String? 对空过滤）
@@ -264,7 +264,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("Tags 字段按分号分隔并创建多个值（标签维度）")
     func importCSV_tagsFieldSemicolonSplit_createsMultipleValues() async throws {
-        let csv = "Content,Subject,Tags\n题目,数学,代数;方程;初中"
+        let csv = "Content,Category,Tags\n题目,数学,代数;方程;初中"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -272,14 +272,14 @@ final class SettingsViewModelCSVTests {
 
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 1)
-        // Subject「数学」+ Tags「代数/方程/初中」均挂为维度值
+        // Category「数学」+ Tags「代数/方程/初中」均挂为维度值
         let names = Set(categoryValueNames(items.first))
         #expect(names == ["数学", "代数", "方程", "初中"])
     }
 
     @Test("Tags 字段为空不创建标签值")
     func importCSV_emptyTagsField_noTagValues() async throws {
-        let csv = "Content,Subject,Tags\n题目,数学,"
+        let csv = "Content,Category,Tags\n题目,数学,"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -287,7 +287,7 @@ final class SettingsViewModelCSVTests {
 
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 1)
-        // 仅 Subject「数学」一个值，Tags 空不产生标签值
+        // 仅 Category「数学」一个值，Tags 空不产生标签值
         #expect(categoryValueNames(items.first) == ["数学"])
     }
 
@@ -295,7 +295,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("Difficulty 越界低值（0）clamp 到 1")
     func importCSV_difficultyBelow1_clampedTo1() async throws {
-        let csv = "Content,Subject,Difficulty\n题目,数学,0"
+        let csv = "Content,Category,Difficulty\n题目,数学,0"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -307,7 +307,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("Difficulty 越界高值（99）clamp 到 5")
     func importCSV_difficultyAbove5_clampedTo5() async throws {
-        let csv = "Content,Subject,Difficulty\n题目,数学,99"
+        let csv = "Content,Category,Difficulty\n题目,数学,99"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -319,7 +319,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("Difficulty 非数字 fallback 到 1")
     func importCSV_difficultyNonNumeric_fallsBackTo1() async throws {
-        let csv = "Content,Subject,Difficulty\n题目,数学,abc"
+        let csv = "Content,Category,Difficulty\n题目,数学,abc"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -331,7 +331,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("缺失 Difficulty 列 fallback 到 1")
     func importCSV_missingDifficultyColumn_fallsBackTo1() async throws {
-        let csv = "Content,Subject\n题目,数学"
+        let csv = "Content,Category\n题目,数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -357,7 +357,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("Answer 列非空时写入 answerText")
     func importCSV_answerColumn_populatesAnswerText() async throws {
-        let csv = "Content,Subject,Answer\na+b=?,数学,答案文本"
+        let csv = "Content,Category,Answer\na+b=?,数学,答案文本"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -371,7 +371,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("isBackupInProgress 导入前后恢复为 false")
     func importCSV_stateMachine_resetsInProgress() async throws {
-        let csv = "Content,Subject,Difficulty\n题目,数学,1"
+        let csv = "Content,Category,Difficulty\n题目,数学,1"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -382,7 +382,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("importCSV 与 createBackup 互斥：isBackupInProgress 时直接返回")
     func importCSV_whenAlreadyInProgress_skipsExecution() async throws {
-        let csv = "Content,Subject,Difficulty\n题目,数学,1"
+        let csv = "Content,Category,Difficulty\n题目,数学,1"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -397,7 +397,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("导入成功后发送 reviewDataDidChange 通知")
     func importCSV_successful_postsNotification() async throws {
-        let csv = "Content,Subject,Difficulty\n题目,数学,1"
+        let csv = "Content,Category,Difficulty\n题目,数学,1"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -420,49 +420,49 @@ final class SettingsViewModelCSVTests {
 
     @Test("英文列经 systemKey 别名命中内置维度，不建孤儿重复维度")
     func importCSV_englishColumnAliasesToBuiltIn_noOrphanDimension() async throws {
-        // 模拟 zh 设备：内置维度名是「学科/来源」而非英文，强制走别名兜底（不依赖 CI locale）
-        let subjectDim = CategoryDimensionModel(
-            name: "学科", isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0
+        // 模拟 zh 设备：内置维度名是「分类/来源」而非英文，强制走别名兜底（不依赖 CI locale）
+        let categoryDim = CategoryDimensionModel(
+            name: "分类", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.category, sortOrder: 0
         )
         let sourceDim = CategoryDimensionModel(
             name: "来源", isMultiValue: false, isBuiltIn: true,
             systemKey: CategorySystemKey.source, sortOrder: 1
         )
-        try repos.dimension.insertAndSave(subjectDim)
+        try repos.dimension.insertAndSave(categoryDim)
         try repos.dimension.insertAndSave(sourceDim)
         let dimCountBefore = try repos.dimension.totalCount()
 
-        let url = try writeCSV("Content,Subject,Source\n题目,数学,试卷")
+        let url = try writeCSV("Content,Category,Source\n题目,数学,试卷")
         let vm = SettingsViewModel(repositories: repos)
         await vm.importCSV(fileURL: url)
 
         #expect(vm.backupError == nil)
-        // 未建孤儿 subject/source 维度
+        // 未建孤儿 category/source 维度
         #expect(try repos.dimension.totalCount() == dimCountBefore)
         let dims = try repos.dimension.fetchAllModels()
-        #expect(!dims.contains { $0.name.lowercased() == "subject" })
+        #expect(!dims.contains { $0.name.lowercased() == "category" })
         #expect(!dims.contains { $0.name.lowercased() == "source" })
         // 值挂到 systemKey 内置维度
         let item = try #require(try repos.review.fetchAllModels().first)
-        #expect(item.subjectCategoryName == "数学")
+        #expect(item.primaryCategoryName == "数学")
         #expect(item.categoryValueNames(forSystemKey: CategorySystemKey.source) == ["试卷"])
     }
 
     @Test("单值维度即使分号也只取首值")
     func importCSV_singleValueDimensionWithSemicolon_keepsFirstOnly() async throws {
-        let subjectDim = CategoryDimensionModel(
-            name: "学科", isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0
+        let categoryDim = CategoryDimensionModel(
+            name: "分类", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.category, sortOrder: 0
         )
-        try repos.dimension.insertAndSave(subjectDim)
+        try repos.dimension.insertAndSave(categoryDim)
 
-        let url = try writeCSV("Content,Subject\n题目,数学;语文")
+        let url = try writeCSV("Content,Category\n题目,数学;语文")
         let vm = SettingsViewModel(repositories: repos)
         await vm.importCSV(fileURL: url)
 
         let item = try #require(try repos.review.fetchAllModels().first)
-        #expect(item.categoryValueNames(forSystemKey: CategorySystemKey.subject) == ["数学"])
+        #expect(item.categoryValueNames(forSystemKey: CategorySystemKey.category) == ["数学"])
     }
 
     @Test("多值内置维度（标签）经别名保留所有分号值，不建孤儿")

@@ -110,16 +110,16 @@ public enum AccessibilityHelper {
     ///
     /// - Parameters:
     ///   - content: 题目内容
-    ///   - subject: 学科
+    ///   - category: 分类
     ///   - difficulty: 难度
     /// - Returns: 完整的无障碍标签
     public static func reviewItemLabel(
         content: String,
-        subject: String,
+        category: String,
         difficulty: Int
     ) -> String {
         let difficultyText = difficultyDescription(difficulty)
-        return L10n.Accessibility.reviewItemLabel(subject: subject, difficulty: difficultyText, content: content)
+        return L10n.Accessibility.reviewItemLabel(category: category, difficulty: difficultyText, content: content)
     }
 
     /// 生成复习按钮的无障碍提示

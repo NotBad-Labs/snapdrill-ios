@@ -68,6 +68,22 @@ POSITIONING_TERMS = {
     "homework",
 }
 TAXONOMY_TERMS = {"学科", "年级"}
+TAXONOMY_CANONICAL_TERMS = {"学科", "年级"}
+TAXONOMY_ALLOW_MARKER = "taxonomy-allow"
+TAXONOMY_CODELIKE_PATTERNS = [
+    re.compile(pattern)
+    for pattern in (
+        r"`[^`]*(?:subject|grade|Subject|Grade)[^`]*`",
+        r"\bCategorySystemKey\.(?:subject|grade)\b",
+        r"\b(?:subject|grade)(?:RawValue|Value|Values|Model|Repository|Manager|Filter|Trend|Totals)\b",
+        r"\b(?:Subject|Grade)(?:Model|Repository|Manager|View|ViewModel|Filter|Trend|Totals)\b",
+        r"\b[a-zA-Z0-9_.-]+_(?:subject|grade)\b",
+        r"\b(?:subject|grade)_[a-zA-Z0-9_.-]+\b",
+    )
+]
+TAXONOMY_AMBIGUOUS_ENGLISH_PATTERN = re.compile(
+    r"\b(?:subject|grade|Subject|Grade)\b"
+)
 NEGATION_MARKERS = {
     "避免",
     "不得",
@@ -169,6 +185,14 @@ def should_skip_positioning_term_scan(path: Path) -> bool:
     )
 
 
+def should_skip_taxonomy_canonical_scan(path: Path) -> bool:
+    return (
+        path in HISTORICAL_ADRS
+        or path in GENERATED_DOCS
+        or is_under(path, DOCS_ROOT / "ui-redesign")
+    )
+
+
 def is_current_or_active_doc(path: Path) -> bool:
     if should_skip_positioning_term_scan(path):
         return False
@@ -203,6 +227,34 @@ def classify_positioning_line(path: Path, line: str) -> tuple[str | None, str | 
         return "warning", "taxonomy term requires PO context, not a hard fail"
 
     return "warning", "ambiguous positioning term requires human review"
+
+
+def classify_taxonomy_canonical_line(path: Path, line: str) -> tuple[str | None, str | None]:
+    """Classify current docs for old subject/grade taxonomy contracts.
+
+    The canonical built-in dimension keys are category/source/level/tag. Historical
+    logs and legal/fact-gated surfaces are not scrubbed here. English terms are
+    only hard-failed when they look like code/contracts; ordinary prose remains a
+    warning to avoid false positives such as "subject to".
+    """
+    if TAXONOMY_ALLOW_MARKER in line:
+        return None, None
+    if has_any(line, NEGATION_MARKERS):
+        return None, None
+
+    has_cn_term = has_any(line, TAXONOMY_CANONICAL_TERMS)
+    has_codelike_term = any(pattern.search(line) for pattern in TAXONOMY_CODELIKE_PATTERNS)
+    has_ambiguous_english_term = TAXONOMY_AMBIGUOUS_ENGLISH_PATTERN.search(line) is not None
+    if not has_cn_term and not has_codelike_term and not has_ambiguous_english_term:
+        return None, None
+
+    if path in LEGAL_OR_FACT_GATED_DOCS:
+        return "warning", "legal/fact-gated taxonomy term requires owner review"
+
+    if has_cn_term or has_codelike_term:
+        return "error", "old taxonomy term; use category/level canonical terminology"
+
+    return "warning", "ambiguous taxonomy term requires human review"
 
 
 def heading_slug(heading: str) -> str:
@@ -315,6 +367,23 @@ def validate_contextual_positioning_terms(
                 warnings.append(rendered)
 
 
+def validate_taxonomy_canonical_terms(
+    errors: list[str], warnings: list[str]
+) -> None:
+    for path in sorted(DOCS_ROOT.rglob("*.md")):
+        if path.suffix != ".md" or should_skip_taxonomy_canonical_scan(path):
+            continue
+        for number, line in enumerate(read(path).splitlines(), start=1):
+            severity, message = classify_taxonomy_canonical_line(path, line)
+            if severity is None or message is None:
+                continue
+            rendered = f"{rel(path)}:{number} {message}: {line.strip()}"
+            if severity == "error":
+                errors.append(rendered)
+            else:
+                warnings.append(rendered)
+
+
 def validate_frontmatter_freshness(warnings: list[str]) -> None:
     for path in sorted(DOCS_ROOT.rglob("*.md")):
         if not is_current_or_active_doc(path):
@@ -364,6 +433,7 @@ def run_checks() -> list[str]:
     validate_stale_claims(errors)
     validate_positioning_resets(errors)
     validate_contextual_positioning_terms(errors, warnings)
+    validate_taxonomy_canonical_terms(errors, warnings)
     validate_feature_intent(errors)
     return errors
 
@@ -372,6 +442,7 @@ def run_warnings() -> list[str]:
     warnings: list[str] = []
     errors: list[str] = []
     validate_contextual_positioning_terms(errors, warnings)
+    validate_taxonomy_canonical_terms(errors, warnings)
     validate_frontmatter_freshness(warnings)
     return warnings
 

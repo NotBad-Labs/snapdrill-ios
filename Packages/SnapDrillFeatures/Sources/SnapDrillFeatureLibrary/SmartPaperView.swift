@@ -15,7 +15,7 @@ import SnapDrillUI
 
 /// 智能组卷配置页
 ///
-/// 家长选择学科、难度、数量后一键生成"最需要复习的错题卷"。
+/// 用户选择分类、难度、数量后一键生成"最需要回顾的资料集"。
 /// 选题基于 SM-2 紧迫度排序，复用现有 ExportPreviewView 预览 PDF。
 struct SmartPaperView: View {
 
@@ -77,7 +77,7 @@ struct SmartPaperView: View {
             generateButtonSection(vm: vm)
         }
         .onChange(of: vm.questionCount) { _, _ in vm.refreshSelection() }
-        .onChange(of: vm.selectedSubjectValueIds) { _, _ in vm.refreshSelection() }
+        .onChange(of: vm.selectedCategoryValueIds) { _, _ in vm.refreshSelection() }
         .onChange(of: vm.selectedDifficulties) { _, _ in vm.refreshSelection() }
         .navigationDestination(isPresented: $showingPDFPreview) {
             ExportPreviewView(
@@ -100,14 +100,14 @@ struct SmartPaperView: View {
             }
 
             NavigationLink {
-                subjectSelectionList(vm: vm)
+                categorySelectionList(vm: vm)
             } label: {
                 HStack {
-                    Text(L10n.SmartPaper.subjectFilter)
+                    Text(L10n.SmartPaper.categoryFilter)
                     Spacer()
-                    Text(vm.selectedSubjectValueIds.isEmpty
-                         ? L10n.SmartPaper.allSubjects
-                         : vm.selectedSubjectNames)
+                    Text(vm.selectedCategoryValueIds.isEmpty
+                         ? L10n.SmartPaper.allCategories
+                         : vm.selectedCategoryNames)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -194,35 +194,35 @@ struct SmartPaperView: View {
         }
     }
 
-    // MARK: - 学科勾选列表
+    // MARK: - 分类勾选列表
 
-    private func subjectSelectionList(vm: SmartPaperViewModel) -> some View {
+    private func categorySelectionList(vm: SmartPaperViewModel) -> some View {
         List {
             Button {
-                vm.selectedSubjectValueIds.removeAll()
+                vm.selectedCategoryValueIds.removeAll()
             } label: {
                 HStack {
-                    Text(L10n.SmartPaper.allSubjects)
+                    Text(L10n.SmartPaper.allCategories)
                     Spacer()
-                    if vm.selectedSubjectValueIds.isEmpty {
+                    if vm.selectedCategoryValueIds.isEmpty {
                         Image(systemName: "checkmark")
                             .foregroundStyle(.tint)
                     }
                 }
             }
 
-            ForEach(vm.availableSubjects) { value in
+            ForEach(vm.availableCategories) { value in
                 Button {
-                    if vm.selectedSubjectValueIds.contains(value.id) {
-                        vm.selectedSubjectValueIds.remove(value.id)
+                    if vm.selectedCategoryValueIds.contains(value.id) {
+                        vm.selectedCategoryValueIds.remove(value.id)
                     } else {
-                        vm.selectedSubjectValueIds.insert(value.id)
+                        vm.selectedCategoryValueIds.insert(value.id)
                     }
                 } label: {
                     HStack {
                         Text(value.name)
                         Spacer()
-                        if vm.selectedSubjectValueIds.contains(value.id) {
+                        if vm.selectedCategoryValueIds.contains(value.id) {
                             Image(systemName: "checkmark")
                                 .foregroundStyle(.tint)
                         }
@@ -230,7 +230,7 @@ struct SmartPaperView: View {
                 }
             }
         }
-        .navigationTitle(L10n.SmartPaper.subjectFilter)
+        .navigationTitle(L10n.SmartPaper.categoryFilter)
     }
 
     // MARK: - 难度勾选列表

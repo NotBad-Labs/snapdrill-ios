@@ -78,5 +78,5 @@ final class MockOCRServiceShared: OCRServiceProtocol, @unchecked Sendable {
     }
 }
 
-// L3：seedDefaultTaxonomy 已删（用旧 Subject/Source/Grade Model，且无调用方）。
+// L3：seedDefaultTaxonomy 已删（用旧 Category/Source/Level Model，且无调用方）。
 // 需要维度数据的测试用 repos.dimension.seedDefaultsIfNeeded() 或手建 CategoryDimension/Value。
