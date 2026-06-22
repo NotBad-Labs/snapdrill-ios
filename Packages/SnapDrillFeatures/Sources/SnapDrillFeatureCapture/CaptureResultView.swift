@@ -12,6 +12,9 @@
 import SwiftUI
 import SnapDrillCore
 import SnapDrillUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// 采集结果预览与编辑视图
 public struct CaptureResultView: View {
@@ -61,6 +64,7 @@ public struct CaptureResultView: View {
             }
             .padding(.vertical)
         }
+        .scrollDismissesKeyboard(.interactively)
         .accessibilityIdentifier("capture.result.root")
         .onAppear {
             viewModel.loadFormData()
@@ -80,6 +84,13 @@ public struct CaptureResultView: View {
                 }
                 .disabled(viewModel.isRecognizing || viewModel.isSaving)
                 .accessibilityIdentifier("capture.saveButton")
+            }
+
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(L10n.Common.done) {
+                    dismissKeyboard()
+                }
             }
         }
         .safeAreaInset(edge: .bottom) {
@@ -120,6 +131,12 @@ public struct CaptureResultView: View {
                 Text(errorMessage)
             }
         }
+    }
+
+    private func dismissKeyboard() {
+        #if canImport(UIKit)
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        #endif
     }
 }
 

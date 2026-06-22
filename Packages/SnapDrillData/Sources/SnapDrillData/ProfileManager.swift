@@ -99,6 +99,7 @@ public final class ProfileManager {
         precondition(inMemory, "Use await ProfileManager.create() for production ProfileManager initialization.")
         self.isInMemory = inMemory
         // UI 测试模式：跳过文件迁移和磁盘操作，使用纯内存存储
+        Self.clearPerProfileValues(in: .standard)
         let profileId = UUID()
         let profile = Profile(id: profileId, name: "Test")
         let scope = ProfileScope(id: profile.id, name: profile.name)
@@ -284,7 +285,7 @@ public final class ProfileManager {
             UDKey.userName: name,
             UDKey.userAvatar: "person.crop.circle.fill",
             UDKey.userAvatarColorIndex: 0,
-            UDKey.captureFieldSubject: true,
+            UDKey.captureFieldSubject: false,
             UDKey.captureFieldSource: false,
             UDKey.captureFieldDifficulty: false,
             UDKey.captureFieldGrade: false,

@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-20
+last_verified: 2026-06-22
 layer: pattern
 ---
 # SnapDrill 术语表
@@ -43,7 +43,7 @@ layer: pattern
 |---|---|---|---|
 | **OCR** | Optical Character Recognition | Apple Vision 端上光学字符识别，用于生成搜索索引和可复制文本。原图是真相，OCR 是辅助 | `CaptureViewModel` (Features) |
 | **SM-2** | SM-2 Algorithm | SuperMemo 2 间隔重复调度算法，计算每个资料项的下次回顾时间 | `ReviewScheduler` (Core) |
-| **字段配置** | Field Configuration | 用户在设置中开关学科/难度/来源/年级/答案等录入字段。`学科/年级` 当前属于字段 taxonomy，不等同于对外儿童教育定位 | `SettingsView` §captureFields + `UDKey.captureField*` (Features) |
+| **字段配置** | Field Configuration | 用户在分类管理中按需开关分类、来源、级别、标签等录入维度。内部 `subject/grade` key 保留为兼容实现名；面向用户默认显示为“分类/级别”，学科/年级语义降级为可选学习资料配置 | `CategoryDimensionModel.defaultCaptureVisibility` + `CategoryValueListViewModel.isVisibleInCapture` |
 | **连续录入** | Continuous Capture | 保存一项资料后自动回到相机界面，支持批量录入不中断 | `CaptureRouter` (Features) |
 | **软删除** | Soft Delete | 5 秒 Toast 撤销窗口内的临时删除状态，超时后执行真实删除 | `LibraryViewModel.softDeleteItems()` (Features) |
 

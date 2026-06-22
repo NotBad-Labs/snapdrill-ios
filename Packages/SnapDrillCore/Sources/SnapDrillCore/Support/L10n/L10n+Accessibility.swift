@@ -122,7 +122,7 @@ nonisolated extension L10n {
             String(format: NSLocalizedString("accessibility.select_all_button", value: "已选中 %d 项，共 %d 项", comment: "VoiceOver 全选按钮值"), selected, total)
         }
         public static func filterSubject(_ name: String) -> String {
-            String(format: NSLocalizedString("accessibility.filter_subject", value: "过滤 %@", comment: "VoiceOver 学科过滤按钮"), name)
+            String(format: NSLocalizedString("accessibility.filter_subject", value: "过滤 %@", comment: "VoiceOver 分类过滤按钮"), name)
         }
         public static func removeTagFilter(_ name: String) -> String {
             String(format: NSLocalizedString("accessibility.remove_tag_filter", value: "移除标签过滤 %@", comment: "VoiceOver 移除标签过滤"), name)
@@ -148,7 +148,7 @@ nonisolated extension L10n {
         }
 
         // Settings
-        public static let fieldSubjectHint = NSLocalizedString("accessibility.field_subject_hint", value: "开启后录入时显示学科选择", comment: "VoiceOver 学科字段提示")
+        public static let fieldSubjectHint = NSLocalizedString("accessibility.field_subject_hint", value: "开启后录入时显示分类选择", comment: "VoiceOver 分类字段提示")
         public static let fieldSourceHint = NSLocalizedString("accessibility.field_source_hint", value: "开启后录入时显示来源选择", comment: "VoiceOver 来源字段提示")
         public static let fieldDifficultyHint = NSLocalizedString("accessibility.field_difficulty_hint", value: "开启后录入时显示难度选择", comment: "VoiceOver 难度字段提示")
         public static let fieldGradeHint = NSLocalizedString("accessibility.field_grade_hint", value: "开启后录入时显示级别选择", comment: "VoiceOver 级别字段提示")

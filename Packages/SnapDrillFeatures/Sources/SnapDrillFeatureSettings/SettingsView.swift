@@ -45,11 +45,15 @@ public struct SettingsView: View {
     private let tabBarBreathingRoom: CGFloat = 160
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
-    // 录入字段可见性（产品规格：学科默认开，其余默认关）
-    @AppStorage(UDKey.captureFieldSubject) private var showSubjectField: Bool = true
-    @AppStorage(UDKey.captureFieldSource) private var showSourceField: Bool = false
+    private static let subjectVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.subject)"
+    private static let sourceVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.source)"
+    private static let gradeVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.grade)"
+
+    // 录入字段可见性：内置分类/来源/级别默认隐藏；用户在这里或分类管理中按需打开。
+    @AppStorage(Self.subjectVisibilityKey) private var showSubjectField: Bool = false
+    @AppStorage(Self.sourceVisibilityKey) private var showSourceField: Bool = false
     @AppStorage(UDKey.captureFieldDifficulty) private var showDifficultyField: Bool = false
-    @AppStorage(UDKey.captureFieldGrade) private var showGradeField: Bool = false
+    @AppStorage(Self.gradeVisibilityKey) private var showGradeField: Bool = false
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
 
     // 外观设置
@@ -97,26 +101,31 @@ public struct SettingsView: View {
                     Toggle(isOn: $showSubjectField) {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.fieldSubject)
                     }
+                    .accessibilityIdentifier("settings.captureField.subject")
                     .accessibilityHint(L10n.Accessibility.fieldSubjectHint)
 
                     Toggle(isOn: $showSourceField) {
                         SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.fieldSource)
                     }
+                    .accessibilityIdentifier("settings.captureField.source")
                     .accessibilityHint(L10n.Accessibility.fieldSourceHint)
 
                     Toggle(isOn: $showDifficultyField) {
                         SettingsRow(icon: "star.fill", gradientStart: .yellow, gradientEnd: .orange, title: L10n.Settings.fieldDifficulty)
                     }
+                    .accessibilityIdentifier("settings.captureField.difficulty")
                     .accessibilityHint(L10n.Accessibility.fieldDifficultyHint)
 
                     Toggle(isOn: $showGradeField) {
                         SettingsRow(icon: "tag.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.fieldGrade)
                     }
+                    .accessibilityIdentifier("settings.captureField.grade")
                     .accessibilityHint(L10n.Accessibility.fieldGradeHint)
 
                     Toggle(isOn: $showAnswerField) {
                         SettingsRow(icon: "text.bubble.fill", gradientStart: .purple, gradientEnd: .pink, title: L10n.Settings.fieldAnswer)
                     }
+                    .accessibilityIdentifier("settings.captureField.answer")
                     .accessibilityHint(L10n.Accessibility.fieldAnswerHint)
 
                 } header: {

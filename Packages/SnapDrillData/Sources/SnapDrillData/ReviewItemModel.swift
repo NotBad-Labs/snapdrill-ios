@@ -22,7 +22,7 @@ public final class ReviewItemModel {
     #Index<ReviewItemModel>(
         [\.createdAt],         // 题库列表默认排序
         [\.nextReviewAt]       // 待复习查询
-        // L3：subjectRawValue 索引删除——学科改走 categoryValues 关系，关系不能进 #Index
+        // L3：subjectRawValue 索引删除——分类改走 categoryValues 关系，关系不能进 #Index
     )
 
     // MARK: - Properties
@@ -93,7 +93,7 @@ public final class ReviewItemModel {
     ///   - easeFactor: SM-2 难度因子
     ///   - interval: SM-2 当前间隔天数
     ///   - repetitions: SM-2 连续正确次数
-    /// - Note: 分类（学科/来源/年级/标签 + 自定义）经 `categoryValues` 动态维度，构造后赋值。
+    /// - Note: 分类（分类/来源/级别/标签 + 自定义）经 `categoryValues` 动态维度，构造后赋值。
     public init(
         id: UUID = UUID(),
         content: String? = nil,

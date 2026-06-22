@@ -161,7 +161,7 @@ public final class ReviewRepository {
     /// `nextReviewAt == .distantPast` 表示从未复习，排在最前面。
     /// - Parameters:
     ///   - limit: 最大选题数量
-    ///   - subjects: 学科筛选（空 = 不限）
+    ///   - subjectValueIds: 分类维度筛选（空 = 不限，参数名保留内部兼容）
     ///   - difficulties: 难度筛选（空 = 不限）
     /// - Returns: 按紧迫度排序的题目列表
     public func fetchSmartSelection(
@@ -172,7 +172,7 @@ public final class ReviewRepository {
     ) throws -> [ReviewItemModel] {
         let difficultiesArray = Array(difficulties)
 
-        // difficulty 走 DB #Predicate；学科是维度值（many-to-many）只能内存过滤，保持 SM-2 紧迫度排序后再截断
+        // difficulty 走 DB #Predicate；分类是维度值（many-to-many）只能内存过滤，保持 SM-2 紧迫度排序后再截断
         let predicate = #Predicate<ReviewItemModel> { item in
             difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty)
         }
@@ -185,7 +185,7 @@ public final class ReviewRepository {
             ]
         )
 
-        // 无学科过滤且无待删除排除时走 DB fetchLimit 快路径；
+        // 无分类过滤且无待删除排除时走 DB fetchLimit 快路径；
         // 一旦需要内存排除（pending 软删题），必须先取全量再排除/截断——
         // 否则 fetchLimit 会在排除前截断导致少选。
         if subjectValueIds.isEmpty && ids.isEmpty {
@@ -280,7 +280,7 @@ public final class ReviewRepository {
             matching = try modelContext.fetch(descriptor)
         } else {
             // 维度过滤走候选集路径：先从选中维度值的 inverse `items` 取候选题 ID，
-            // 再只对候选题做搜索 / 难度 / 关系排序。避免常见“点学科 chip”
+            // 再只对候选题做搜索 / 难度 / 关系排序。避免常见“点分类 chip”
             // 触发全量 ReviewItemModel fetch 后再内存过滤。
             let candidates = try fetchCandidateModels(
                 valueIdsByDimension: valueIdsByDimension,

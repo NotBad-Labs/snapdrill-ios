@@ -77,7 +77,7 @@
 "capture.re_recognizing" = "Re-recognizing...";
 "capture.category_info" = "Category Info";
 "capture.question_details" = "Material Details";
-"capture.subject" = "Subject";
+"capture.subject" = "Category";
 "capture.source" = "Source";
 "capture.tags" = "Tags";
 "capture.tag_input_placeholder" = "Type a tag, space to add";
@@ -90,9 +90,9 @@
 "capture.save_succeeded" = "Saved to Library";
 "capture.manual_empty_hint" = "Type or paste the content you want to file.";
 "capture.ocr_empty_hint" = "No text was recognized. You can type manually or capture again.";
-"capture.new_subject" = "New Subject";
-"capture.subject_name_placeholder" = "Subject name";
-"capture.new_subject_message" = "Enter a new subject name. It will be auto-selected after creation.";
+"capture.new_subject" = "New Category";
+"capture.subject_name_placeholder" = "Category name";
+"capture.new_subject_message" = "Enter a new category name. It will be auto-selected after creation.";
 "capture.new_source" = "New Source";
 "capture.source_name_placeholder" = "Source name";
 "capture.new_source_message" = "Enter a new source name. It will be auto-selected after creation.";
@@ -117,7 +117,7 @@
 "capture.ocr_continue_edit" = "Continue Editing";
 "capture.scan_unavailable_title" = "Document Scan Unavailable in Simulator";
 "capture.scan_unavailable_message" = "Use document scan on a real device, or choose Photos, PDF, or Manual Entry.";
-"capture.default_subject" = "Math";
+"capture.default_subject" = "Questions";
 "capture.default_source" = "Material";
 
 // MARK: - Dashboard
@@ -163,11 +163,11 @@
 "library.no_search_results" = "No Results";
 "library.no_search_results_hint" = "Try adjusting your search terms or filters";
 "library.sort_by_date" = "By Date";
-"library.sort_by_subject" = "By Subject";
+"library.sort_by_subject" = "By Category";
 "library.sort_by_difficulty" = "By Difficulty";
 "library.sort_by_review_status" = "By Review Status";
 "library.sort_time" = "Time";
-"library.sort_subject" = "Subject";
+"library.sort_subject" = "Category";
 "library.sort_difficulty" = "Difficulty";
 "library.sort_review_status" = "Review Status";
 "library.all_subjects" = "All";
@@ -196,7 +196,7 @@
 "library.add_answer_image" = "Add Answer Image";
 "library.metadata" = "Properties";
 "library.filter" = "Filter";
-"library.filter_subjects" = "Subjects";
+"library.filter_subjects" = "Categories";
 "library.filter_difficulty" = "Difficulty";
 "library.filter_tags" = "Tags";
 "library.batch_tag" = "Tag";
@@ -233,15 +233,15 @@
 "library.delete_confirm_message" = "You can undo within 5 seconds";
 "library.deleted_count" = "Deleted %d items";
 "library.undo" = "Undo";
-"library.subject_manager" = "Manage Subjects";
+"library.subject_manager" = "Manage Categories";
 "library.source_manager" = "Manage Sources";
-"library.grade_manager" = "Manage Grades";
-"library.add_subject" = "Add Subject";
-"library.edit_subject" = "Edit Subject";
+"library.grade_manager" = "Manage Levels";
+"library.add_subject" = "Add Category";
+"library.edit_subject" = "Edit Category";
 "library.add_source" = "Add Source";
 "library.edit_source" = "Edit Source";
-"library.add_grade" = "Add Grade";
-"library.edit_grade" = "Edit Grade";
+"library.add_grade" = "Add Level";
+"library.edit_grade" = "Edit Level";
 "library.name" = "Name";
 "library.icon" = "Icon";
 "library.color" = "Color";
@@ -265,9 +265,9 @@
 "library.icon_category_tools" = "Tools";
 "library.icon_category_measurement" = "Measurement";
 "library.full_screen_image" = "View Image";
-"library.subject_has_items" = "Subject \"%@\" still has questions. Please move them to another subject or delete them first.";
-"library.source_has_items" = "Source \"%@\" still has questions. Please move them to another source or delete them first.";
-"library.grade_has_items" = "Grade \"%@\" still has questions. Please move them to another grade or delete them first.";
+"library.subject_has_items" = "Category \"%@\" is still used by items. Please update those items or delete them first.";
+"library.source_has_items" = "Source \"%@\" is still used by items. Please update those items or delete them first.";
+"library.grade_has_items" = "Level \"%@\" is still used by items. Please update those items or delete them first.";
 "library.duplicate_name" = "Name Already Exists";
 "library.duplicate_name_message" = "\"%@\" is already in use. Please enter a different name.";
 
@@ -315,7 +315,7 @@
 "settings.about" = "About";
 "settings.version" = "Version";
 "settings.capture_fields" = "Capture Fields";
-"settings.field_subject" = "Subject";
+"settings.field_subject" = "Category";
 "settings.field_source" = "Source";
 "settings.field_difficulty" = "Difficulty";
 "settings.field_grade" = "Level";
@@ -336,7 +336,7 @@
 "settings.language" = "Language";
 "settings.simplified_chinese" = "Simplified Chinese";
 "settings.data_management" = "Data";
-"settings.manage_subjects" = "Manage Subjects";
+"settings.manage_subjects" = "Manage Categories";
 "settings.manage_sources" = "Manage Sources";
 "settings.manage_grades" = "Manage Levels";
 "settings.clear_all_data" = "Clear All Data";
@@ -553,7 +553,7 @@
 "errors.capture_failed" = "Image capture or recognition failed.";
 "errors.unknown_error_with_message" = "Unknown error: %@";
 
-// MARK: - Subjects
+// MARK: - Category Presets
 
 "subjects.math" = "Math";
 "subjects.chinese" = "Chinese";
@@ -601,10 +601,10 @@
 "onboarding.page_export_description" = "Export records as PDF or CSV for printing, sharing, or backup.";
 "onboarding.field_config_title" = "Choose Record Fields";
 "onboarding.field_config_description" = "Choose which fields appear when adding a record. You can change this anytime in Settings.";
-"onboarding.field_subject" = "Subject";
+"onboarding.field_subject" = "Category";
 "onboarding.field_source" = "Source";
 "onboarding.field_difficulty" = "Difficulty";
-"onboarding.field_grade" = "Grade";
+"onboarding.field_grade" = "Level";
 "onboarding.field_answer" = "Answer";
 "onboarding.dismiss_tooltip" = "Dismiss tooltip";
 "onboarding.field_config_icon" = "Field configuration";
@@ -733,7 +733,7 @@
 "export.answer_label" = "Answer: ";
 "export.show_blank_area" = "Show Answer Area";
 "export.show_header" = "Show Header & Page Numbers";
-"export.mixed_subject" = "Mixed Subjects";
+"export.mixed_subject" = "Mixed Categories";
 "export.default_subject" = "Reference Set";
 "export.items_per_page" = "Items per Page";
 "export.pdf_options" = "Print Options";
@@ -818,7 +818,7 @@
 "accessibility.add_grade_hint" = "Add a new level or stage";
 "accessibility.edit_grade_hint" = "Edit level %@";
 "accessibility.select_icon" = "Icon %@";
-"accessibility.field_subject_hint" = "When enabled, subject selection appears during capture";
+"accessibility.field_subject_hint" = "When enabled, category selection appears during capture";
 "accessibility.field_source_hint" = "When enabled, source selection appears during capture";
 "accessibility.field_difficulty_hint" = "When enabled, difficulty selection appears during capture";
 "accessibility.field_grade_hint" = "When enabled, level selection appears during capture";
@@ -861,9 +861,9 @@
 "smart_paper.subtitle" = "Automatically select the questions that need review most and generate a practice paper";
 "smart_paper.generate" = "Generate Paper";
 "smart_paper.question_count" = "Question Count";
-"smart_paper.subject_filter" = "Subject";
+"smart_paper.subject_filter" = "Category";
 "smart_paper.difficulty_filter" = "Difficulty";
-"smart_paper.all_subjects" = "All Subjects";
+"smart_paper.all_subjects" = "All Categories";
 "smart_paper.all_difficulties" = "All Difficulties";
 "smart_paper.no_items_title" = "No Questions Available";
 "smart_paper.no_items_message" = "No questions match the current filters. Adjust filters or capture some questions first.";

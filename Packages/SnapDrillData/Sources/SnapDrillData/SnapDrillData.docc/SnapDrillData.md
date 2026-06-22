@@ -13,19 +13,15 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ### 数据模型（@Model）
 
-- ``ReviewItemModel`` — 题目主模型，包含内容、图片、SM-2 状态、分类信息
-- ``SubjectModel`` — 学科（如数学、语文）
-- ``SourceModel`` — 来源（如试卷、作业、教材）
-- ``GradeModel`` — 年级
-- ``TagModel`` — 自由标签
+- ``ReviewItemModel`` — 资料条目主模型，包含内容、图片、SM-2 状态、动态分类信息
+- ``CategoryDimensionModel`` — 动态分类维度（如分类、来源、级别、标签）
+- ``CategoryValueModel`` — 某个动态分类维度下的可选值
 
 ### Repository（@MainActor final class）
 
 - ``ReviewRepository`` — 题目的 CRUD、计数、过滤、级联更新
-- ``SubjectRepository`` — 学科的 CRUD
-- ``SourceRepository`` — 来源的 CRUD
-- ``GradeRepository`` — 年级的 CRUD
-- ``TagRepository`` — 标签的 fetch-or-create
+- ``CategoryDimensionRepository`` — 动态分类维度的 CRUD
+- ``CategoryValueRepository`` — 动态分类值的 CRUD 与 fetch-or-create
 
 ### 容器与持久化
 

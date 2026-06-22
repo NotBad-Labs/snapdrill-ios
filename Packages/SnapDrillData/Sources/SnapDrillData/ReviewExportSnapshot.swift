@@ -19,7 +19,7 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     public let content: String?
     /// 图片相对路径
     public let imagePath: String?
-    /// 学科维度首值（仅供 PDF 页眉 exportSubject；CSV 走 dimensionValues）
+    /// 分类维度首值（仅供 PDF 页眉 exportSubject；CSV 走 dimensionValues）
     public let subject: String
     /// 难度等级 (1-5)
     public let difficulty: Int
@@ -36,9 +36,9 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
 }
 
 extension ReviewExportSnapshot: PDFExportable {
-    /// 桥接 `subject: String` → 协议的 `exportSubject: String?`（PDF 页眉用学科维度首值）。
-    /// 空串归一为 nil：无学科值的题目须被 PDFExportService.resolveSubject 的 compactMap 丢弃，
-    /// 否则空串污染 subjects 集合 → 误判「综合练习」或页眉学科留白（恢复 S5 前契约）。
+    /// 桥接内部兼容字段 `subject: String` → 协议的 `exportSubject: String?`（PDF 页眉用分类维度首值）。
+    /// 空串归一为 nil：无分类值的条目须被 PDFExportService.resolveSubject 的 compactMap 丢弃，
+    /// 否则空串污染 subjects 集合 → 误判「综合资料」或页眉留白（恢复 S5 前契约）。
     public var exportSubject: String? { subject.isEmpty ? nil : subject }
 }
 

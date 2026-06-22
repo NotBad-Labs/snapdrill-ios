@@ -19,7 +19,7 @@ nonisolated extension L10n {
 
         // 录入字段
         public static let captureFields = NSLocalizedString("settings.capture_fields", value: "录入字段", comment: "录入字段区标题")
-        public static let fieldSubject = NSLocalizedString("settings.field_subject", value: "学科", comment: "学科字段")
+        public static let fieldSubject = NSLocalizedString("settings.field_subject", value: "分类", comment: "分类字段")
         public static let fieldSource = NSLocalizedString("settings.field_source", value: "来源", comment: "来源字段")
         public static let fieldDifficulty = NSLocalizedString("settings.field_difficulty", value: "难度", comment: "难度字段")
         public static let fieldGrade = NSLocalizedString("settings.field_grade", value: "级别", comment: "级别字段")
@@ -49,7 +49,7 @@ nonisolated extension L10n {
 
         // 数据管理
         public static let dataManagement = NSLocalizedString("settings.data_management", value: "数据管理", comment: "数据管理区标题")
-        public static let manageSubjects = NSLocalizedString("settings.manage_subjects", value: "管理学科", comment: "管理学科")
+        public static let manageSubjects = NSLocalizedString("settings.manage_subjects", value: "管理分类", comment: "管理分类")
         public static let manageSources = NSLocalizedString("settings.manage_sources", value: "管理来源", comment: "管理来源")
         public static let manageGrades = NSLocalizedString("settings.manage_grades", value: "管理级别", comment: "管理级别")
         public static let manageCategories = NSLocalizedString("settings.manage_categories", value: "管理分类维度", comment: "管理分类维度（L3 动态维度统一入口）")

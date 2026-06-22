@@ -301,12 +301,12 @@ public final class DataSeeder {
         let subjectDim = allDimensions.first { $0.systemKey == CategorySystemKey.subject }
         let sourceDim = allDimensions.first { $0.systemKey == CategorySystemKey.source }
         let tagDim = allDimensions.first { $0.systemKey == CategorySystemKey.tag }
-        let sourcePool = ["试卷", "作业", "教材", "错题本", "其他"]
+        let sourcePool = ["文档", "网页", "培训资料", "截图", "其他"]
         let tagPool = ["必考", "易错", "真题", "重点", "压轴", "2024", "基础", "难点"]
 
         for (index, data) in targetData.enumerated() {
             var values: [CategoryValueModel] = []
-            if let subjectDim { values.append(seedValue(data.sub, in: subjectDim)) }
+            if let subjectDim { values.append(seedValue(generalCategoryName(for: data.sub), in: subjectDim)) }
             if let sourceDim, let source = sourcePool.randomElement() {
                 values.append(seedValue(source, in: sourceDim))
             }
@@ -345,6 +345,20 @@ public final class DataSeeder {
         let created = CategoryValueModel(name: name, sortOrder: dimension.values?.count ?? 0, dimension: dimension)
         modelContext.insert(created)
         return created
+    }
+
+    /// DEBUG 数据仍覆盖学习型样例内容，但默认分类值降级为通用资料分类。
+    private func generalCategoryName(for seedLabel: String) -> String {
+        switch seedLabel {
+        case "数学", "物理", "化学":
+            return "题目"
+        case "语文", "英语", "历史":
+            return "文档"
+        case "生物", "地理", "政治":
+            return "培训"
+        default:
+            return seedLabel
+        }
     }
 
     /// 清空所有 ReviewItem

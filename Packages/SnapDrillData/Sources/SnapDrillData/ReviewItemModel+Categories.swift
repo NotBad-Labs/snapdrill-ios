@@ -21,7 +21,7 @@ extension ReviewItemModel {
             .map { $0.name }
     }
 
-    /// 学科维度的首个值名（列表行/分享卡主标签用；无则 nil）
+    /// 分类维度的首个值名（列表行/分享卡主标签用；无则 nil）
     public var subjectCategoryName: String? {
         categoryValueNames(forSystemKey: CategorySystemKey.subject).first
     }

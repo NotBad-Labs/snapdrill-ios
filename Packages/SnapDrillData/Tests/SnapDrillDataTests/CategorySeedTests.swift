@@ -51,7 +51,7 @@ final class CategorySeedTests {
         ])
     }
 
-    @Test("标签维度多值且无默认值；学科/来源/年级单值且有默认值")
+    @Test("标签维度多值且无默认值；分类/来源/级别单值且有默认值")
     func seed_dimensionFlagsAndValuePresence() throws {
         repos.dimension.seedDefaultsIfNeeded()
 
@@ -74,9 +74,24 @@ final class CategorySeedTests {
         let source = try dimension(CategorySystemKey.source)
         let grade = try dimension(CategorySystemKey.grade)
 
-        #expect(repos.categoryValue.fetchAllModels(in: subject).count == (isZh ? 9 : 8))
+        #expect(repos.categoryValue.fetchAllModels(in: subject).count == 6)
         #expect(repos.categoryValue.fetchAllModels(in: source).count == 5)
-        #expect(repos.categoryValue.fetchAllModels(in: grade).count == (isZh ? 7 : 6))
+        #expect(repos.categoryValue.fetchAllModels(in: grade).count == 4)
+    }
+
+    @Test("seed 内置维度使用通用资料归档命名")
+    func seed_usesGeneralAudienceTaxonomyNames() throws {
+        repos.dimension.seedDefaultsIfNeeded()
+
+        let subject = try dimension(CategorySystemKey.subject)
+        let grade = try dimension(CategorySystemKey.grade)
+        let subjectValues = repos.categoryValue.fetchAllModels(in: subject).map(\.name)
+        let gradeValues = repos.categoryValue.fetchAllModels(in: grade).map(\.name)
+
+        #expect(subject.name == (isZh ? "分类" : "Category"))
+        #expect(grade.name == (isZh ? "级别" : "Level"))
+        #expect(subjectValues.contains(isZh ? "题目" : "Questions"))
+        #expect(gradeValues.contains(isZh ? "基础" : "Basic"))
     }
 
     @Test("seed 幂等：重复调用不重复种入")
