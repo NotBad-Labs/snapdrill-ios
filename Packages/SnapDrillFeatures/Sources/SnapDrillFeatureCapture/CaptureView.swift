@@ -36,6 +36,7 @@ public struct CaptureView: View {
     @State private var activeMethod: CaptureMethod?
 #if DEBUG
     @State private var didOpenUITestImageResult = false
+    @State private var didOpenUITestPagePicker = false
 #endif
     private let tabBarBreathingRoom: CGFloat = 180
     
@@ -282,6 +283,7 @@ public struct CaptureView: View {
                 viewModel.checkDraftOnAppear()
 #if DEBUG
                 openUITestImageResultIfNeeded()
+                openUITestPagePickerIfNeeded()
 #endif
             }
             // 连续录入：保存成功后自动重新打开摄像头（拍照模式）
@@ -404,6 +406,8 @@ public struct CaptureView: View {
 
 #if DEBUG
     private static let uiTestCaptureImageResultArgument = "--ui-test-capture-image-result"
+    private static let uiTestCapturePDFPagePickerArgument = "--ui-test-capture-pdf-page-picker"
+    private static let uiTestCaptureScanPagePickerArgument = "--ui-test-capture-scan-page-picker"
 
     @MainActor
     private func openUITestImageResultIfNeeded() {
@@ -416,44 +420,28 @@ public struct CaptureView: View {
         router.push(
             .scannerResult(
                 content: "Capture image fixture text",
-                image: Self.makeUITestCaptureImage()
+                image: CaptureUITestFixtures.makeCaptureImage()
             )
         )
     }
 
     @MainActor
-    private static func makeUITestCaptureImage() -> UIImage {
-        let size = CGSize(width: 900, height: 620)
-        let renderer = UIGraphicsImageRenderer(size: size)
-        return renderer.image { context in
-            UIColor.systemPurple.setFill()
-            context.fill(CGRect(origin: .zero, size: size))
+    private func openUITestPagePickerIfNeeded() {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard !didOpenUITestPagePicker,
+              arguments.contains("--uitesting") else {
+            return
+        }
 
-            let cardRect = CGRect(x: 80, y: 80, width: 740, height: 460)
-            UIColor.white.setFill()
-            UIBezierPath(roundedRect: cardRect, cornerRadius: 36).fill()
-
-            let paragraph = NSMutableParagraphStyle()
-            paragraph.alignment = .center
-            let titleAttributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 72, weight: .bold),
-                .foregroundColor: UIColor.systemPurple,
-                .paragraphStyle: paragraph
-            ]
-            "Capture".draw(
-                in: CGRect(x: 100, y: 235, width: 700, height: 95),
-                withAttributes: titleAttributes
-            )
-
-            let captionAttributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 32, weight: .medium),
-                .foregroundColor: UIColor.secondaryLabel,
-                .paragraphStyle: paragraph
-            ]
-            "SnapDrill UI QA".draw(
-                in: CGRect(x: 100, y: 340, width: 700, height: 50),
-                withAttributes: captionAttributes
-            )
+        if arguments.contains(Self.uiTestCapturePDFPagePickerArgument),
+           let document = CaptureUITestFixtures.makePDFDocument() {
+            didOpenUITestPagePicker = true
+            router.pdfDocument = document
+            router.push(.pdfPagePicker)
+        } else if arguments.contains(Self.uiTestCaptureScanPagePickerArgument) {
+            didOpenUITestPagePicker = true
+            router.scannedPages = CaptureUITestFixtures.makeScanPages()
+            router.push(.scanPagePicker)
         }
     }
 #endif

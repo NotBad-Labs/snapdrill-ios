@@ -21,8 +21,7 @@ struct ScanPagePickerView: View {
     @Environment(\.repositories) private var repositories
     @Environment(\.analyticsService) private var analyticsService
 
-    @State private var isShowingCropper = false
-    @State private var selectedImage: UIImage?
+    @State private var cropperItem: CropperItem?
     @State private var isProcessingOCR = false
     @State private var ocrTask: Task<Void, Never>?
     @State private var ocrNotice = OCRNotice()
@@ -39,10 +38,6 @@ struct ScanPagePickerView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(L10n.Capture.selectPage)
-                    .font(.headline)
-                    .padding(.horizontal)
-
                 Text(L10n.Capture.pdfPageHint(pages.count))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -51,8 +46,7 @@ struct ScanPagePickerView: View {
                 LazyVGrid(columns: columns, spacing: 16) {
                     ForEach(Array(pages.enumerated()), id: \.offset) { index, image in
                         Button {
-                            selectedImage = image
-                            isShowingCropper = true
+                            cropperItem = CropperItem(image: image)
                         } label: {
                             VStack(spacing: 8) {
                                 Image(uiImage: image)
@@ -68,29 +62,29 @@ struct ScanPagePickerView: View {
                             }
                         }
                         .buttonStyle(.plain)
+                        .accessibleButton(label: L10n.Accessibility.pdfPageButton(page: index + 1))
+                        .accessibilityIdentifier("capture.scanPage.\(index + 1)")
                     }
                 }
                 .padding(.horizontal)
             }
             .padding(.vertical)
         }
+        .accessibilityIdentifier("capture.scanPagePicker.root")
         .navigationTitle(L10n.Capture.selectPage)
         .navigationBarTitleDisplayMode(.inline)
-        .fullScreenCover(isPresented: $isShowingCropper) {
-            if let image = selectedImage {
-                ImageCropperView(
-                    originalImage: image,
-                    onCrop: { croppedImage in
-                        isShowingCropper = false
-                        processImage(croppedImage)
-                    },
-                    onCancel: {
-                        isShowingCropper = false
-                        selectedImage = nil
-                    }
-                )
-                .ignoresSafeArea()
-            }
+        .fullScreenCover(item: $cropperItem) { item in
+            ImageCropperView(
+                originalImage: item.image,
+                onCrop: { croppedImage in
+                    cropperItem = nil
+                    processImage(croppedImage)
+                },
+                onCancel: {
+                    cropperItem = nil
+                }
+            )
+            .ignoresSafeArea()
         }
         .overlay {
             if isProcessingOCR {
@@ -108,6 +102,7 @@ struct ScanPagePickerView: View {
                         .padding(32)
                         .background(.ultraThinMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .accessibilityIdentifier("capture.scanPagePicker.processing")
                     }
             }
         }
@@ -170,6 +165,11 @@ struct ScanPagePickerView: View {
             }
         }
     }
+}
+
+private struct CropperItem: Identifiable {
+    let id = UUID()
+    let image: UIImage
 }
 
 private struct OCRNotice {

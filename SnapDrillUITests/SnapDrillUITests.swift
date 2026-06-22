@@ -400,6 +400,51 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-capture-image-03-field-tip")
     }
 
+    /// UI-freeze evidence: capture PDF and scan page pickers plus their cropper entry.
+    func testUIFreezeCapturePagePickerScreenshots() {
+        let pdfApp = XCUIApplication()
+        pdfApp.launchArguments = l3LaunchArguments() + ["--ui-test-capture-pdf-page-picker"]
+        pdfApp.launch()
+
+        XCTAssertTrue(pdfApp.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        pdfApp.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.pdfPagePicker.root", in: pdfApp)
+        let firstPDFPage = waitForAnyElement("capture.pdfPage.1", in: pdfApp)
+        waitForAnyElement("capture.pdfPage.2", in: pdfApp)
+        waitUntil("PDF 缩略图应完成加载", timeout: 8) {
+            !pdfApp.activityIndicators.firstMatch.exists
+        }
+        waitForUIAnimation(seconds: 0.8)
+        addScreenshot(named: "ui-freeze-capture-page-picker-01-pdf-grid")
+
+        firstPDFPage.tap()
+        let pdfCropperCancel = waitForMantisCropper(in: pdfApp, timeout: 10)
+        waitForUIAnimation(seconds: 0.8)
+        addScreenshot(named: "ui-freeze-capture-page-picker-02-pdf-cropper")
+        pdfCropperCancel.tap()
+        waitForAnyElement("capture.pdfPagePicker.root", in: pdfApp)
+        pdfApp.terminate()
+
+        let scanApp = XCUIApplication()
+        scanApp.launchArguments = l3LaunchArguments() + ["--ui-test-capture-scan-page-picker"]
+        scanApp.launch()
+
+        XCTAssertTrue(scanApp.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        scanApp.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.scanPagePicker.root", in: scanApp)
+        waitForAnyElement("capture.scanPage.1", in: scanApp)
+        let secondScanPage = waitForAnyElement("capture.scanPage.2", in: scanApp)
+        waitForUIAnimation(seconds: 0.8)
+        addScreenshot(named: "ui-freeze-capture-page-picker-03-scan-grid")
+
+        secondScanPage.tap()
+        let scanCropperCancel = waitForMantisCropper(in: scanApp, timeout: 10)
+        waitForUIAnimation(seconds: 0.8)
+        addScreenshot(named: "ui-freeze-capture-page-picker-04-scan-cropper")
+        scanCropperCancel.tap()
+        waitForAnyElement("capture.scanPagePicker.root", in: scanApp)
+    }
+
     /// UI-freeze evidence: capture populated Review dashboard, active session, card back, summary, and done state.
     func testUIFreezeReviewPopulatedSessionScreenshots() {
         let app = XCUIApplication()

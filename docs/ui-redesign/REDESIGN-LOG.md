@@ -2,6 +2,33 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-22 - Capture PDF and scan page-picker UI freeze coverage
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureUITestFixtures.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/PDFPagePickerView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/ScanPagePickerView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-22-capture-page-picker-*.png`
+
+### Design Decisions
+
+- Added DEBUG-only PDF and scan page-picker fixtures so the route-derived Capture matrix can cover app-owned page-picking UI without invoking system `fileImporter` or `VNDocumentCameraViewController`.
+- Found and fixed a real PDF thumbnail bug: page cells could appear before `PDFThumbnailCache` existed, so the initial thumbnail request was dropped and the grid stayed on loading spinners. `PDFThumbnailView` now retries when the cache becomes available.
+- Replaced boolean-plus-optional cropper presentation in `PDFPagePickerView` and `ScanPagePickerView` with identifiable image payloads, matching the Library edit cropper fix and preventing blank full-screen covers.
+- Removed the duplicate body heading from `ScanPagePickerView` after screenshot review showed it rendering both a centered navigation title and an in-content `选择页面` heading, unlike the PDF picker.
+- Added `testUIFreezeCapturePagePickerScreenshots`, which captures loaded PDF thumbnails, PDF cropper, scan thumbnails, and scan cropper. The test waits for Mantis `CancelButton` / `DoneButton` rather than relying on app-owned markers inside the third-party cropper.
+- Recorded `SmartPaperView` in the matrix as route-unreachable/backlog instead of treating a source-only view as a release-facing Pass.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeCapturePagePickerScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-22-capture-page-picker-*.png`
+
 ## 2026-06-21 - App-shell degraded banner evidence
 
 ### Scope

@@ -27,8 +27,7 @@ struct PDFPagePickerView: View {
     @Environment(\.repositories) private var repositories
     @Environment(\.analyticsService) private var analyticsService
 
-    @State private var isShowingCropper = false
-    @State private var fullSizeImage: UIImage?
+    @State private var cropperItem: CropperItem?
     @State private var isRendering = false
     @State private var isProcessingOCR = false
     @State private var renderTask: Task<Void, Never>?
@@ -69,6 +68,7 @@ struct PDFPagePickerView: View {
                             }
                             .buttonStyle(.plain)
                             .accessibleButton(label: L10n.Accessibility.pdfPageButton(page: index + 1))
+                            .accessibilityIdentifier("capture.pdfPage.\(index + 1)")
                         }
                     }
                     .padding(.horizontal)
@@ -93,26 +93,24 @@ struct PDFPagePickerView: View {
                         .background(.ultraThinMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                         .accessible(label: L10n.Accessibility.processingOverlay)
+                        .accessibilityIdentifier("capture.pdfPagePicker.processing")
                     }
             }
         }
+        .accessibilityIdentifier("capture.pdfPagePicker.root")
         .navigationTitle(L10n.Capture.selectPage)
         .navigationBarTitleDisplayMode(.inline)
-        .fullScreenCover(isPresented: $isShowingCropper) {
-            if let image = fullSizeImage {
-                ImageCropperView(
-                    originalImage: image,
-                    onCrop: { croppedImage in
-                        isShowingCropper = false
-                        fullSizeImage = nil
-                        processOCRAndNavigate(croppedImage)
-                    },
-                    onCancel: {
-                        isShowingCropper = false
-                        fullSizeImage = nil
-                    }
-                )
-            }
+        .fullScreenCover(item: $cropperItem) { item in
+            ImageCropperView(
+                originalImage: item.image,
+                onCrop: { croppedImage in
+                    cropperItem = nil
+                    processOCRAndNavigate(croppedImage)
+                },
+                onCancel: {
+                    cropperItem = nil
+                }
+            )
         }
         .onAppear {
             // 初始化缩略图缓存（仅在首次出现时创建）
@@ -176,8 +174,7 @@ struct PDFPagePickerView: View {
             }.value
             guard !Task.isCancelled else { return }
             isRendering = false
-            fullSizeImage = image
-            isShowingCropper = true
+            cropperItem = CropperItem(image: image)
         }
     }
 
@@ -245,6 +242,11 @@ struct PDFPagePickerView: View {
         isProcessingOCR = false
         ocrNotice.present(title: title, message: message, image: image)
     }
+}
+
+private struct CropperItem: Identifiable {
+    let id = UUID()
+    let image: UIImage
 }
 
 private struct OCRNotice {
@@ -372,6 +374,9 @@ private struct PDFThumbnailView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: cache?.thumbnails[pageIndex] != nil)
         .onAppear {
+            cache?.requestThumbnail(for: pageIndex)
+        }
+        .task(id: cache == nil) {
             cache?.requestThumbnail(for: pageIndex)
         }
     }
