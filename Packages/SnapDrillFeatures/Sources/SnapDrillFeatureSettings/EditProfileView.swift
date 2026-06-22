@@ -10,6 +10,7 @@
 
 import SwiftUI
 import PhotosUI
+import UIKit
 import SnapDrillCore
 import SnapDrillUI
 import SnapDrillFeatureLibrary
@@ -62,7 +63,7 @@ struct EditProfileView: View {
                 VStack(spacing: 16) {
                     // 居中大头像
                     Group {
-                        if userAvatar.contains("images/"), let image = avatarImage {
+                        if showsPhotoAvatar, let image = avatarImage {
                             Image(uiImage: image)
                                 .resizable()
                                 .scaledToFill()
@@ -70,7 +71,8 @@ struct EditProfileView: View {
                                 .clipShape(Circle())
                                 .overlay(Circle().stroke(Color(.separator).opacity(0.25), lineWidth: 1))
                                 .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 3)
-                        } else if userAvatar.contains("images/") {
+                                .accessibilityIdentifier("settings.editProfile.photoAvatar")
+                        } else if showsPhotoAvatar {
                             // 自定义头像加载中占位
                             Image(systemName: "person.crop.circle.fill")
                                 .font(.system(size: 52))
@@ -156,7 +158,7 @@ struct EditProfileView: View {
             }
             
             // 图标主题色（仅使用 SF Symbol 时显示）
-            if !userAvatar.contains("images/") {
+            if !showsPhotoAvatar {
                 Section(L10n.EditProfile.themeColor) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
@@ -222,7 +224,7 @@ struct EditProfileView: View {
                 Label(L10n.EditProfile.systemIcon, systemImage: "star.circle")
             }
 
-            if userAvatar.contains("images/") {
+            if showsPhotoAvatar {
                 Button(L10n.EditProfile.removeAvatar, role: .destructive) {
                     userAvatar = "person.crop.circle.fill"
                 }
@@ -282,6 +284,12 @@ struct EditProfileView: View {
             imageLoadTask?.cancel()
         }
         .task(id: userAvatar) {
+#if DEBUG
+            if usesUITestPhotoAvatar {
+                avatarImage = Self.makeUITestAvatarImage()
+                return
+            }
+#endif
             if userAvatar.contains("images/") {
                 let storage = imageStorage
                 avatarImage = await storage.loadImageAsync(path: userAvatar)
@@ -290,6 +298,40 @@ struct EditProfileView: View {
             }
         }
     }
+
+    private var showsPhotoAvatar: Bool {
+#if DEBUG
+        if usesUITestPhotoAvatar {
+            return true
+        }
+#endif
+        return userAvatar.contains("images/")
+    }
+
+#if DEBUG
+    private static let uiTestPhotoAvatarArgument = "--ui-test-edit-profile-photo-avatar"
+
+    private var usesUITestPhotoAvatar: Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("--uitesting") && arguments.contains(Self.uiTestPhotoAvatarArgument)
+    }
+
+    private static func makeUITestAvatarImage() -> UIImage {
+        let size = CGSize(width: 160, height: 160)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { context in
+            UIColor.systemTeal.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+
+            UIColor.systemBlue.setFill()
+            context.cgContext.fillEllipse(in: CGRect(x: 18, y: 18, width: 124, height: 124))
+
+            UIColor.white.withAlphaComponent(0.92).setFill()
+            context.cgContext.fillEllipse(in: CGRect(x: 50, y: 42, width: 60, height: 60))
+            context.cgContext.fillEllipse(in: CGRect(x: 34, y: 96, width: 92, height: 54))
+        }
+    }
+#endif
 }
 
 #Preview {

@@ -2,6 +2,28 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-22 - Edit Profile photo-avatar UI freeze coverage
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/EditProfileView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-22-settings-edit-profile-photo-avatar.png`
+
+### Design Decisions
+
+- Added a DEBUG-only UI-test photo-avatar fixture so Edit Profile can be reviewed in the app-owned "custom avatar already selected" state without invoking the system PhotosPicker.
+- Used a single `showsPhotoAvatar` view contract to keep the large avatar, remove-avatar action eligibility, and theme-color section visibility aligned. The fixture does not write real user defaults or open the photo library.
+- Added a leaf accessibility identifier for the rendered photo avatar. The screenshot confirms the circular image avatar, hidden theme swatches, native grouped rows, and no bottom chrome overlap on the first viewport.
+- PhotosPicker presentation remains a system surface and is not claimed as visually covered by this fixture.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeEditProfilePhotoAvatarScreenshot`
+  - XCUITest screenshot attachment exported to `docs/ui-redesign/evidence/2026-06-22-settings-edit-profile-photo-avatar.png`
+
 ## 2026-06-22 - Data & Sync progress-state UI freeze coverage
 
 ### Scope

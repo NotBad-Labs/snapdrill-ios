@@ -681,6 +681,27 @@ final class SnapDrillUITests: XCTestCase {
         }
     }
 
+    /// UI-freeze evidence: capture Edit Profile when a photo avatar is already selected.
+    func testUIFreezeEditProfilePhotoAvatarScreenshot() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-edit-profile-photo-avatar"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let editProfile = app.descendants(matching: .any)["settings.editProfile"]
+        XCTAssertTrue(editProfile.waitForExistence(timeout: 5), "设置应显示编辑个人资料入口")
+        editProfile.tap()
+        waitForAnyElement("settings.editProfile.root", in: app)
+
+        let photoAvatar = app.descendants(matching: .any)["settings.editProfile.photoAvatar"]
+        XCTAssertTrue(photoAvatar.waitForExistence(timeout: 5), "照片头像状态应显示自定义头像")
+        XCTAssertFalse(app.buttons["settings.editProfile.color.0"].exists, "照片头像状态不应显示主题色 swatches")
+        addScreenshot(named: "ui-freeze-settings-edit-profile-photo-avatar")
+    }
+
     /// UI-freeze evidence: capture Profile/taxonomy selection controls and symbol-picker search states.
     func testUIFreezeTaxonomyControlStateScreenshots() {
         let app = XCUIApplication()
