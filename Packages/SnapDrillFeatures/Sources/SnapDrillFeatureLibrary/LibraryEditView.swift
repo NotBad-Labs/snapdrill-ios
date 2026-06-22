@@ -33,6 +33,7 @@ public struct LibraryEditView: View {
     @State private var isPickerPresented = false
     @State private var pickerSelection: PhotosPickerItem?
     @State private var answerPickerSelection: PhotosPickerItem?
+    @State private var cropperItem: CropperItem?
 
     public init(item: ReviewItemModel) {
         self.item = item
@@ -80,9 +81,6 @@ public struct LibraryEditView: View {
                 }
             }
             .scrollDismissesKeyboard(.immediately)
-            .onTapGesture {
-                isInputFocused = false
-            }
             .task {
                 await loadData()
             }
@@ -97,37 +95,32 @@ public struct LibraryEditView: View {
             } message: {
                 Text(viewModel?.errorMessage ?? "")
             }
-            // 图片选择器
-            .photosPicker(isPresented: $isPickerPresented, selection: $pickerSelection, matching: .images)
-            .onChange(of: pickerSelection) { _, newItem in
-                if let newItem {
-                    loadTransferable(from: newItem)
-                }
+        }
+        // 图片选择器
+        .photosPicker(isPresented: $isPickerPresented, selection: $pickerSelection, matching: .images)
+        .onChange(of: pickerSelection) { _, newItem in
+            if let newItem {
+                loadTransferable(from: newItem)
             }
-            .onChange(of: answerPickerSelection) { _, newItem in
-                if let newItem {
-                    loadAnswerTransferable(from: newItem)
-                }
+        }
+        .onChange(of: answerPickerSelection) { _, newItem in
+            if let newItem {
+                loadAnswerTransferable(from: newItem)
             }
-            // 裁剪器
-            .fullScreenCover(isPresented: Binding(
-                get: { viewModel?.isCropping ?? false },
-                set: { viewModel?.isCropping = $0 }
-            )) {
-                if let vm = viewModel, let img = vm.imageToCrop {
-                    ImageCropperView(
-                        originalImage: img,
-                        onCrop: { cropped in
-                            vm.isCropping = false
-                            vm.handleNewImage(cropped)
-                        },
-                        onCancel: {
-                            vm.isCropping = false
-                        }
-                    )
-                    .ignoresSafeArea()
+        }
+        // 裁剪器
+        .fullScreenCover(item: $cropperItem) { item in
+            ImageCropperView(
+                originalImage: item.image,
+                onCrop: { cropped in
+                    cropperItem = nil
+                    viewModel?.handleNewImage(cropped)
+                },
+                onCancel: {
+                    cropperItem = nil
                 }
-            }
+            )
+            .ignoresSafeArea()
         }
     }
     
@@ -154,6 +147,7 @@ public struct LibraryEditView: View {
                         .frame(maxHeight: 200)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .accessibleImage(label: L10n.Library.questionImage)
+                        .accessibilityIdentifier("library.edit.questionImage")
                 } else if vm.imageLoadFailed {
                     // 图片加载失败占位
                     ContentUnavailableView(L10n.Errors.imageLoadFailed, systemImage: "photo.badge.exclamationmark")
@@ -184,6 +178,21 @@ public struct LibraryEditView: View {
                 Label(L10n.Library.changeImage, systemImage: "arrow.triangle.2.circlepath.camera")
             })
             .disabled(vm.isProcessing)
+            .accessibilityIdentifier("library.edit.changeImage")
+
+            if let image = vm.displayedImage {
+                Button {
+                    cropperItem = CropperItem(image: image)
+                } label: {
+                    Label(L10n.Accessibility.cropImage, systemImage: "crop")
+                }
+                .accessibleButton(
+                    label: L10n.Accessibility.cropImage,
+                    hint: L10n.Accessibility.cropImageHint
+                )
+                .disabled(vm.isProcessing)
+                .accessibilityIdentifier("library.edit.cropImage")
+            }
         }
     }
     
@@ -192,6 +201,7 @@ public struct LibraryEditView: View {
             TextEditor(text: Binding(get: { vm.content }, set: { vm.content = $0 }))
                 .frame(minHeight: 120)
                 .focused($isInputFocused)
+                .accessibilityIdentifier("library.edit.contentEditor")
         }
     }
     
@@ -200,6 +210,7 @@ public struct LibraryEditView: View {
             TextEditor(text: Binding(get: { vm.answer }, set: { vm.answer = $0 }))
                 .frame(minHeight: 100)
                 .focused($isInputFocused)
+                .accessibilityIdentifier("library.edit.answerEditor")
 
             if let answerImage = vm.answerDisplayedImage {
                 Image(uiImage: answerImage)
@@ -211,12 +222,14 @@ public struct LibraryEditView: View {
                     .listRowInsets(EdgeInsets())
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 8)
+                    .accessibilityIdentifier("library.edit.answerImage")
 
                 Button(role: .destructive) {
                     vm.removeAnswerImage()
                 } label: {
                     Label(L10n.Library.removeAnswerImage, systemImage: "trash")
                 }
+                .accessibilityIdentifier("library.edit.removeAnswerImage")
             } else if item.answerImagePath != nil && !vm.isAnswerImageCleared {
                 // 有答案图路径但尚未加载完成（排除已删除待保存的情况）
                 ProgressView()
@@ -225,6 +238,7 @@ public struct LibraryEditView: View {
                 PhotosPicker(selection: $answerPickerSelection, matching: .images) {
                     Label(L10n.Library.addAnswerImage, systemImage: "photo.badge.plus")
                 }
+                .accessibilityIdentifier("library.edit.addAnswerImage")
             }
         }
     }
@@ -247,16 +261,20 @@ public struct LibraryEditView: View {
         HStack {
             Text(L10n.Capture.difficulty)
             Spacer()
-            HStack(spacing: 4) {
+            HStack(spacing: 0) {
                 ForEach(1...5, id: \.self) { star in
                     Button {
                         vm.difficulty = Difficulty(rawValue: star) ?? .one
                     } label: {
                         Image(systemName: vm.difficulty.rawValue >= star ? "star.fill" : "star")
                             .foregroundStyle(.yellow)
+                            .frame(width: 44, height: 44)
                     }
                     .buttonStyle(.plain)
+                    .contentShape(Rectangle())
                     .accessibilityLabel(L10n.Accessibility.starRating(difficulty: star))
+                    .accessibilityAddTraits(vm.difficulty.rawValue >= star ? .isSelected : [])
+                    .accessibilityIdentifier("library.edit.difficulty.\(star)")
                 }
             }
         }
@@ -268,8 +286,7 @@ public struct LibraryEditView: View {
             case .success(let data):
                 if let data = data, let uiImage = UIImage(data: data) {
                     Task { @MainActor in
-                        self.viewModel?.imageToCrop = uiImage
-                        self.viewModel?.isCropping = true
+                        self.cropperItem = CropperItem(image: uiImage)
                     }
                 }
             case .failure(let error):
@@ -292,6 +309,11 @@ public struct LibraryEditView: View {
             }
         }
     }
+}
+
+private struct CropperItem: Identifiable {
+    let id = UUID()
+    let image: UIImage
 }
 
 #Preview {

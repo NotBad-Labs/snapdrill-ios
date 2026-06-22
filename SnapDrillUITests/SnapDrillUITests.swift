@@ -42,6 +42,34 @@ final class SnapDrillUITests: XCTestCase {
         RunLoop.current.run(until: Date().addingTimeInterval(seconds))
     }
 
+    private func waitUntil(
+        _ failureMessage: String,
+        timeout: TimeInterval = 5,
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        condition: () -> Bool
+    ) {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if condition() { return }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+        XCTFail(failureMessage, file: file, line: line)
+    }
+
+    @discardableResult
+    private func waitForMantisCropper(
+        in app: XCUIApplication,
+        timeout: TimeInterval = 8,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> XCUIElement {
+        let cancelButton = app.buttons["CancelButton"]
+        XCTAssertTrue(cancelButton.waitForExistence(timeout: timeout), "应出现 Mantis 裁剪器", file: file, line: line)
+        XCTAssertTrue(app.buttons["DoneButton"].exists, "Mantis 裁剪器应显示完成按钮", file: file, line: line)
+        return cancelButton
+    }
+
     private func launchApp() -> XCUIApplication {
         let app = XCUIApplication()
         // --uitesting: 触发 DependencyContainer in-memory 模式
@@ -361,9 +389,10 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-capture-image-01-result")
 
         app.buttons["capture.image.crop"].tap()
-        waitForUIAnimation(seconds: 1.5)
+        let cropperCancelButton = waitForMantisCropper(in: app)
+        waitForUIAnimation(seconds: 0.8)
         addScreenshot(named: "ui-freeze-capture-image-02-cropper")
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.10, dy: 0.93)).tap()
+        cropperCancelButton.tap()
         waitForAnyElement("capture.result.root", in: app)
 
         app.buttons["capture.saveButton"].tap()
@@ -1084,6 +1113,51 @@ final class SnapDrillUITests: XCTestCase {
         ).firstMatch
         XCTAssertTrue(populatedSize.waitForExistence(timeout: 8), "存储页应显示非空图片缓存大小")
         addScreenshot(named: "ui-freeze-library-image-07-storage-populated")
+    }
+
+    /// UI-freeze evidence: Library edit image cropper, answer image, and lower field controls.
+    func testUIFreezeLibraryEditImageInteractionScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-seed-image-library"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+
+        let imageCell = app.cells.containing(.staticText, identifier: "Library Image Fixture").firstMatch
+        XCTAssertTrue(imageCell.waitForExistence(timeout: 10), "图片 fixture 应可进入详情")
+        imageCell.tap()
+        waitForAnyElement("library.detail.root", in: app)
+        app.buttons["library.detail.editButton"].tap()
+        waitForAnyElement("library.edit.root", in: app)
+        waitForAnyElement("library.edit.questionImage", in: app, timeout: 10)
+        waitForAnyElement("library.edit.cropImage", in: app)
+        addScreenshot(named: "ui-freeze-library-edit-image-01-crop-button")
+
+        let cropButton = app.buttons["library.edit.cropImage"]
+        XCTAssertTrue(cropButton.isHittable, "裁剪按钮应可点击")
+        cropButton.tap()
+        let cropperCancelButton = waitForMantisCropper(in: app)
+        waitForUIAnimation(seconds: 0.8)
+        addScreenshot(named: "ui-freeze-library-edit-image-02-cropper")
+        cropperCancelButton.tap()
+        waitForAnyElement("library.edit.root", in: app)
+
+        let answerImage = app.descendants(matching: .any)["library.edit.answerImage"]
+        scrollUntilHittable(answerImage, in: app, maxSwipes: 6)
+        XCTAssertTrue(answerImage.waitForExistence(timeout: 5), "编辑页应显示答案图片")
+        addScreenshot(named: "ui-freeze-library-edit-image-03-answer-image")
+
+        let difficultyFive = app.buttons["library.edit.difficulty.5"]
+        scrollUntilHittable(difficultyFive, in: app, maxSwipes: 6)
+        XCTAssertTrue(difficultyFive.waitForExistence(timeout: 5), "编辑页应显示难度控件")
+        XCTAssertTrue(difficultyFive.isHittable, "难度 5 应可点击")
+        difficultyFive.tap()
+        waitUntil("难度 5 应进入选中态") {
+            difficultyFive.isSelected
+        }
+        addScreenshot(named: "ui-freeze-library-edit-image-04-metadata-difficulty")
     }
 
     /// UI-freeze evidence: capture Library filter reset, batch tag, export option, and search states.

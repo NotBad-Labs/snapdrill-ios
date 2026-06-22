@@ -55,10 +55,6 @@ public final class LibraryEditViewModel {
     public var showErrorAlert = false
     /// 保存失败时的错误描述
     public var errorMessage = ""
-    /// 是否正在显示图片裁剪界面
-    public var isCropping = false
-    /// 待裁剪的图片（显示裁剪界面时有值）
-    public var imageToCrop: UIImage?
 
     // MARK: - Dependencies
 

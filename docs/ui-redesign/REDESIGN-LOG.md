@@ -1320,3 +1320,36 @@ Planning reviewed these files without editing them:
 ### Open Questions
 
 - Remaining Capture matrix gaps are still not UI-frozen: camera scanner, document scanner, PDF/scan page picker system flows, real OCR output variance, and device permission surfaces.
+
+## 2026-06-22 - Library edit image-interaction UI freeze coverage
+
+### Scope
+
+- Closed the simulator-coverable Library edit-item gap for direct image cropper entry, answer-image editing state, taxonomy field rows, and difficulty selection.
+- Captured evidence for the crop-current-image button, visible Mantis cropper, answer image section, and lower metadata fields.
+- Strengthened shared cropper screenshot tests so they wait for Mantis `CancelButton` / `DoneButton` instead of relying on screenshot names or coordinates.
+
+### Design Decisions
+
+- `LibraryEditView` now drives cropper presentation from an identifiable image payload. The previous boolean-plus-optional-image presentation could open a blank full-screen cover when SwiftUI evaluated the cover before the optional image payload was available.
+- Existing image items now expose a direct `裁剪图片` action. Before this pass, cropper access was only implicit after changing the question image through PhotosPicker.
+- Removed the broad `Form.onTapGesture` keyboard-dismiss handler from the edit page. `scrollDismissesKeyboard(.immediately)` remains; broad form gestures are too risky on a control-heavy editor surface.
+- Difficulty stars now reserve 44 pt hit areas and expose `.isSelected`. The UI test waits until difficulty 5 is actually selected before taking evidence.
+
+### Files Changed
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryEditView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryEditViewModel.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-22-library-edit-image-*.png`
+
+### DoD Status
+
+- Passed in this local change:
+  - `testUIFreezeLibraryEditImageInteractionScreenshots`
+  - `testUIFreezeCaptureImageResultScreenshots`
+
+### Open Questions
+
+- PhotosPicker import, system share sheets, large-image ZIP generation, landscape image, zoom/pan gestures, and device scanner/permission surfaces remain separate matrix rows rather than being implied complete by this simulator pass.
