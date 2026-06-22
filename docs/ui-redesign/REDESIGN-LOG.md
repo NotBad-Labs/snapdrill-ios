@@ -2,6 +2,28 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-22 - Data & Sync progress-state UI freeze coverage
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureSettings/DataAndSyncSettingsView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-22-settings-data-sync-*.png`
+
+### Design Decisions
+
+- Added DEBUG-only UI-test progress fixtures for Data & Sync backup/import rows so the route-derived Settings matrix can cover app-owned progress layout without opening the system share sheet or file importer.
+- Added leaf accessibility identifiers for the backup and import progress rows. The identifiers are scoped to the progress content and do not replace broader row semantics.
+- The screenshots confirm loading indicators, disabled action rows, status text, progress bars, and bottom reachability on the self-contained Data & Sync detail page.
+- Actual backup share-sheet presentation and file-importer presentation remain system surfaces and are still called out separately in the QA matrix.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeDataSyncProgressScreenshots`
+  - XCUITest screenshot attachments exported to `docs/ui-redesign/evidence/2026-06-22-settings-data-sync-*.png`
+
 ## 2026-06-22 - Capture PDF and scan page-picker UI freeze coverage
 
 ### Scope

@@ -158,6 +158,18 @@ final class SnapDrillUITests: XCTestCase {
         ]
     }
 
+    private func openDataAndSync(in app: XCUIApplication) {
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let dataAndSync = app.buttons["settings.dataAndSync"]
+        scrollUntilHittable(dataAndSync, in: app, maxSwipes: 8)
+        XCTAssertTrue(dataAndSync.waitForExistence(timeout: 5), "设置应有数据与备份入口")
+        dataAndSync.tap()
+        waitForAnyElement("settings.dataAndSync.root", in: app)
+    }
+
     /// 步骤①：启动竞态修复验证 —— 连续冷启动多次，每次都应稳定进入主界面
     /// （防 ProfileManager 环境注入冷启动崩溃复发）
     func testLaunchStabilityAcrossRelaunches() {
@@ -989,6 +1001,26 @@ final class SnapDrillUITests: XCTestCase {
         app.buttons["settings.licenses.mantis"].tap()
         waitForAnyElement("settings.licenses.detail.Mantis", in: app)
         addScreenshot(named: "ui-freeze-settings-controls-10-license-detail")
+    }
+
+    /// UI-freeze evidence: capture Data & Sync app-owned progress rows without opening system sheets.
+    func testUIFreezeDataSyncProgressScreenshots() {
+        let backupApp = XCUIApplication()
+        backupApp.launchArguments = l3LaunchArguments() + ["--ui-test-data-sync-backup-progress"]
+        backupApp.launch()
+
+        openDataAndSync(in: backupApp)
+        waitForAnyElement("settings.dataAndSync.backupProgress", in: backupApp)
+        addScreenshot(named: "ui-freeze-settings-data-sync-01-backup-progress")
+        backupApp.terminate()
+
+        let importApp = XCUIApplication()
+        importApp.launchArguments = l3LaunchArguments() + ["--ui-test-data-sync-import-progress"]
+        importApp.launch()
+
+        openDataAndSync(in: importApp)
+        waitForAnyElement("settings.dataAndSync.importProgress", in: importApp)
+        addScreenshot(named: "ui-freeze-settings-data-sync-02-import-progress")
     }
 
     /// UI-freeze evidence: capture deep Settings scroll zones and global clear-data confirmation.

@@ -41,6 +41,9 @@ struct DataAndSyncSettingsView: View {
     @State private var importTask: Task<Void, Never>?
     @State private var showingImportFilePicker = false
     @State private var showingImportSuccess = false
+#if DEBUG
+    @State private var didApplyUITestOperation = false
+#endif
 
     var body: some View {
         List {
@@ -108,6 +111,7 @@ struct DataAndSyncSettingsView: View {
                     }
                     .padding(.vertical, 4)
                     .accessibleGroup(label: viewModel.backupStatusMessage)
+                    .accessibilityIdentifier("settings.dataAndSync.backupProgress")
                 }
             } header: {
                 Text(L10n.Settings.backup)
@@ -142,6 +146,7 @@ struct DataAndSyncSettingsView: View {
                     }
                     .padding(.vertical, 4)
                     .accessibleGroup(label: viewModel.backupStatusMessage)
+                    .accessibilityIdentifier("settings.dataAndSync.importProgress")
                 }
             } header: {
                 Text(L10n.Settings.importData)
@@ -187,6 +192,9 @@ struct DataAndSyncSettingsView: View {
             Text(L10n.Settings.clearCacheMessage)
         }
         .onAppear {
+#if DEBUG
+            applyUITestOperationIfNeeded()
+#endif
             calculateCacheSize()
         }
         .onDisappear {
@@ -195,7 +203,15 @@ struct DataAndSyncSettingsView: View {
             backupTask?.cancel()
             restoreTask?.cancel()
             importTask?.cancel()
+#if DEBUG
+            if didApplyUITestOperation {
+                clearUITestOperation()
+            } else {
+                activeOperation = nil
+            }
+#else
             activeOperation = nil
+#endif
         }
         .confirmationDialog(
             L10n.Settings.restoreDialogTitle,
@@ -371,6 +387,41 @@ struct DataAndSyncSettingsView: View {
         formatter.countStyle = .file
         return formatter.string(fromByteCount: bytes)
     }
+
+#if DEBUG
+    private static let uiTestBackupProgressArgument = "--ui-test-data-sync-backup-progress"
+    private static let uiTestImportProgressArgument = "--ui-test-data-sync-import-progress"
+
+    private func applyUITestOperationIfNeeded() {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard !didApplyUITestOperation,
+              arguments.contains("--uitesting") else {
+            return
+        }
+
+        if arguments.contains(Self.uiTestBackupProgressArgument) {
+            didApplyUITestOperation = true
+            activeOperation = .backup
+            viewModel.isBackupInProgress = true
+            viewModel.backupProgress = 0.58
+            viewModel.backupStatusMessage = L10n.Settings.backupPackingItems(24)
+        } else if arguments.contains(Self.uiTestImportProgressArgument) {
+            didApplyUITestOperation = true
+            activeOperation = .importCSV
+            viewModel.isBackupInProgress = true
+            viewModel.backupProgress = 0.42
+            viewModel.backupStatusMessage = L10n.Settings.importSaving(36)
+        }
+    }
+
+    private func clearUITestOperation() {
+        didApplyUITestOperation = false
+        activeOperation = nil
+        viewModel.isBackupInProgress = false
+        viewModel.backupProgress = 0
+        viewModel.backupStatusMessage = ""
+    }
+#endif
 }
 
 private enum DataOperation {
