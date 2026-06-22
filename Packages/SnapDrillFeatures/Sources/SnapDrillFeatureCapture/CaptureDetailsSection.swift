@@ -47,16 +47,20 @@ struct CaptureDetailsSection: View {
         HStack {
             Text(L10n.Capture.difficulty)
             Spacer()
-            HStack(spacing: 4) {
+            HStack(spacing: 0) {
                 ForEach(1...5, id: \.self) { level in
                     Button {
                         viewModel.difficulty = Difficulty(rawValue: level) ?? .one
                     } label: {
                         Image(systemName: level <= viewModel.difficulty.rawValue ? "star.fill" : "star")
                             .foregroundStyle(level <= viewModel.difficulty.rawValue ? .orange : .gray.opacity(0.3))
+                            .frame(width: 44, height: 44)
                     }
                     .buttonStyle(.plain)
+                    .contentShape(Rectangle())
                     .accessibilityLabel(L10n.Accessibility.starRating(difficulty: level))
+                    .accessibilityAddTraits(level <= viewModel.difficulty.rawValue ? .isSelected : [])
+                    .accessibilityIdentifier("capture.difficulty.\(level)")
                 }
             }
         }

@@ -2,6 +2,27 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-22 - Capture difficulty-star UI freeze coverage
+
+### Scope
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureDetailsSection.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-22-capture-details-difficulty-selected.png`
+
+### Design Decisions
+
+- Static UI-risk scan found Capture result difficulty stars still used compact plain star buttons while Library edit difficulty stars had already been upgraded to stable 44 pt targets and selected-state traits.
+- Kept the existing star-rating visual language, but reserved 44 pt hit/draw targets, added `.isSelected`, and added leaf `capture.difficulty.*` identifiers. This aligns Capture result editing with the already-reviewed Library edit control without changing capture save behavior.
+- The UI-freeze test explicitly enables `captureFieldDifficulty` because the field is user-configurable and hidden by default. The screenshot verifies the visible app-owned selected state without pretending the default configuration shows the control.
+
+### DoD Status
+
+- Passed in this local change:
+  - XcodeBuildMCP `test_sim -testPlan UITests -only-testing:SnapDrillUITests/SnapDrillUITests/testUIFreezeCaptureManualResultEditorScreenshots`
+  - XCUITest screenshot attachment exported to `docs/ui-redesign/evidence/2026-06-22-capture-details-difficulty-selected.png`
+
 ## 2026-06-22 - Edit Profile photo-avatar UI freeze coverage
 
 ### Scope

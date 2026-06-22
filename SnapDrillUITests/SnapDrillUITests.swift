@@ -351,7 +351,7 @@ final class SnapDrillUITests: XCTestCase {
     /// UI-freeze evidence: capture the manual Capture result editor and metadata controls.
     func testUIFreezeCaptureManualResultEditorScreenshots() {
         let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments()
+        app.launchArguments = l3LaunchArguments() + ["-captureFieldDifficulty", "YES"]
         app.launch()
 
         app.tabBars.buttons.element(boundBy: 2).tap()
@@ -378,6 +378,14 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-capture-03-subject-menu")
         mathOption.tap()
         addScreenshot(named: "ui-freeze-capture-04-subject-selected")
+
+        let highestDifficulty = app.buttons["capture.difficulty.5"]
+        scrollUntilHittable(highestDifficulty, in: app)
+        XCTAssertTrue(highestDifficulty.waitForExistence(timeout: 5), "手动录入表单应显示难度星级")
+        highestDifficulty.tap()
+        waitForUIAnimation(seconds: 0.3)
+        XCTAssertTrue(highestDifficulty.isSelected, "选中的难度星级应暴露 selected 状态")
+        addScreenshot(named: "ui-freeze-capture-details-01-difficulty-selected")
 
         let save = app.buttons["capture.saveButton"]
         XCTAssertTrue(save.waitForExistence(timeout: 5), "保存按钮应仍然可用")
