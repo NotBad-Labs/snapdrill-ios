@@ -11,6 +11,9 @@
 import Foundation
 import SnapDrillCore
 import SnapDrillData
+#if DEBUG
+import UIKit
+#endif
 
 /// 应用的依赖注入容器 (Composition Root)
 ///
@@ -64,6 +67,113 @@ final class DependencyContainer {
         let manager = await ProfileManager.create(inMemory: Self.isUITesting)
         // L3：种入内置维度（学科/来源/年级/标签），替代旧 3 个分类 seed（S6 删旧）
         manager.activeRepositories.dimension.seedDefaultsIfNeeded()
+#if DEBUG
+        await seedUITestImageFixtureIfNeeded(into: manager)
+#endif
         return manager
     }
+
+#if DEBUG
+    private static let imageFixtureLaunchArgument = "--ui-test-seed-image-library"
+    private static let imageFixtureContent = "Library Image Fixture"
+
+    @MainActor
+    private func seedUITestImageFixtureIfNeeded(into manager: ProfileManager) async {
+        guard Self.isUITesting,
+              ProcessInfo.processInfo.arguments.contains(Self.imageFixtureLaunchArgument) else {
+            return
+        }
+
+        let repositories = manager.activeRepositories
+        var questionPath: String?
+        var answerPath: String?
+        do {
+            let existing = try repositories.review.fetchAllModels()
+            guard existing.contains(where: { $0.content == Self.imageFixtureContent }) == false else {
+                return
+            }
+
+            questionPath = try await manager.activeImageStorage.saveImage(
+                Self.makeFixtureImage(title: "Question", tint: .systemBlue)
+            )
+            answerPath = try await manager.activeImageStorage.saveImage(
+                Self.makeFixtureImage(title: "Answer", tint: .systemGreen)
+            )
+
+            let item = ReviewItemModel(
+                content: Self.imageFixtureContent,
+                imagePath: questionPath,
+                answerText: "Image fixture answer",
+                answerImagePath: answerPath,
+                difficulty: 3
+            )
+            item.categoryValues = try Self.fixtureCategoryValues(from: repositories)
+            repositories.review.insert(item)
+            try repositories.review.saveContext()
+            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        } catch {
+            repositories.review.rollbackContext()
+            if let questionPath {
+                await Self.deleteOrphanedFixtureImage(path: questionPath, storage: manager.activeImageStorage)
+            }
+            if let answerPath {
+                await Self.deleteOrphanedFixtureImage(path: answerPath, storage: manager.activeImageStorage)
+            }
+            SnapDrillLogger.generic.error("UI test image fixture seed failed: \(error.localizedDescription)")
+        }
+    }
+
+    private static func deleteOrphanedFixtureImage(path: String, storage: ImageStorage) async {
+        do {
+            try await storage.deleteImage(path: path)
+        } catch {
+            SnapDrillLogger.generic.error("UI test fixture image cleanup failed: \(error.localizedDescription)")
+        }
+    }
+
+    @MainActor
+    private static func fixtureCategoryValues(from repositories: RepositoryContainer) throws -> [CategoryValueModel] {
+        guard let subject = try repositories.dimension.fetchDimension(bySystemKey: CategorySystemKey.subject) else {
+            return []
+        }
+        let values = repositories.categoryValue.fetchAllModels(in: subject)
+        return values.filter { $0.name == "数学" || $0.name == "Math" }.prefix(1).map { $0 }
+    }
+
+    @MainActor
+    private static func makeFixtureImage(title: String, tint: UIColor) -> UIImage {
+        let size = CGSize(width: 900, height: 620)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { context in
+            tint.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+
+            let cardRect = CGRect(x: 80, y: 80, width: 740, height: 460)
+            UIColor.white.setFill()
+            UIBezierPath(roundedRect: cardRect, cornerRadius: 36).fill()
+
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.alignment = .center
+            let titleAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 72, weight: .bold),
+                .foregroundColor: tint,
+                .paragraphStyle: paragraph
+            ]
+            title.draw(
+                in: CGRect(x: 100, y: 235, width: 700, height: 95),
+                withAttributes: titleAttributes
+            )
+
+            let captionAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 32, weight: .medium),
+                .foregroundColor: UIColor.secondaryLabel,
+                .paragraphStyle: paragraph
+            ]
+            "SnapDrill UI QA".draw(
+                in: CGRect(x: 100, y: 340, width: 700, height: 50),
+                withAttributes: captionAttributes
+            )
+        }
+    }
+#endif
 }

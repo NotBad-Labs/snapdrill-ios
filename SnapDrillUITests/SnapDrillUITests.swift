@@ -995,6 +995,72 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-library-10-export-preview")
     }
 
+    /// UI-freeze evidence: capture image-backed Library detail, answer, edit, export, and storage states.
+    func testUIFreezeLibraryImageDataScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-seed-image-library"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+        XCTAssertTrue(app.staticTexts["Library Image Fixture"].waitForExistence(timeout: 10), "题库应显示图片 fixture")
+        addScreenshot(named: "ui-freeze-library-image-01-list")
+
+        let imageCell = app.cells.containing(.staticText, identifier: "Library Image Fixture").firstMatch
+        XCTAssertTrue(imageCell.waitForExistence(timeout: 5), "图片 fixture 应可进入详情")
+        imageCell.tap()
+        waitForAnyElement("library.detail.root", in: app)
+        let questionImage = waitForAnyElement("library.detail.questionImage", in: app, timeout: 10)
+        addScreenshot(named: "ui-freeze-library-image-02-detail-image")
+
+        questionImage.tap()
+        waitForAnyElement("library.fullScreenImage.close", in: app)
+        addScreenshot(named: "ui-freeze-library-image-04-fullscreen-image")
+        app.buttons["library.fullScreenImage.close"].tap()
+        waitForAnyElement("library.detail.root", in: app)
+
+        app.buttons["library.detail.answerToggle"].tap()
+        waitForAnyElement("library.detail.answerContent", in: app)
+        addScreenshot(named: "ui-freeze-library-image-03-answer-expanded")
+
+        app.buttons["library.detail.editButton"].tap()
+        waitForAnyElement("library.edit.root", in: app)
+        addScreenshot(named: "ui-freeze-library-image-05-edit-image")
+        app.buttons["取消"].tap()
+        waitForAnyElement("library.detail.root", in: app)
+
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        waitForAnyElement("library.root", in: app)
+        imageCell.press(forDuration: 0.6)
+        let exportButton = app.buttons["library.selection.export"]
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 5), "图片 fixture 选择后应显示导出按钮")
+        if !exportButton.isEnabled {
+            imageCell.tap()
+        }
+        XCTAssertTrue(exportButton.isEnabled, "图片 fixture 被选择后导出按钮应可用")
+        exportButton.tap()
+        waitForAnyElement("library.export.root", in: app)
+        XCTAssertTrue(app.buttons["library.export.zip"].isEnabled, "图片 fixture 应允许进入 ZIP 导出")
+        addScreenshot(named: "ui-freeze-library-image-06-export-image-item")
+        app.buttons["library.export.close"].tap()
+        XCTAssertTrue(app.buttons["完成"].waitForExistence(timeout: 5), "关闭导出页后应回到选择工具栏")
+        app.buttons["完成"].tap()
+
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+        let storage = app.buttons["settings.storage"]
+        scrollUntilHittable(storage, in: app, maxSwipes: 8)
+        XCTAssertTrue(storage.waitForExistence(timeout: 5), "设置应有存储入口")
+        storage.tap()
+        waitForAnyElement("settings.storage.root", in: app)
+        let populatedSize = app.staticTexts.containing(
+            NSPredicate(format: "label CONTAINS[c] 'KB' OR label CONTAINS[c] 'MB'")
+        ).firstMatch
+        XCTAssertTrue(populatedSize.waitForExistence(timeout: 8), "存储页应显示非空图片缓存大小")
+        addScreenshot(named: "ui-freeze-library-image-07-storage-populated")
+    }
+
     /// UI-freeze evidence: capture Library filter reset, batch tag, export option, and search states.
     func testUIFreezeLibraryControlStateScreenshots() {
         let app = XCUIApplication()

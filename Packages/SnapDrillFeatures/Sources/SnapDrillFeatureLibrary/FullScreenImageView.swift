@@ -79,6 +79,7 @@ struct FullScreenImageView: View {
                     .foregroundStyle(.white.opacity(0.8))
             }
             .accessibleButton(label: L10n.Accessibility.closeFullScreenImage)
+            .accessibilityIdentifier("library.fullScreenImage.close")
             .padding()
         }
     }

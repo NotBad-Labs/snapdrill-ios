@@ -1241,3 +1241,43 @@ Planning reviewed these files without editing them:
 ### Open Questions
 
 - Follow-up enforcement can be added selectively where cheap and useful: shared L10n namespace gate, focused Review rating tests, Dashboard error-state seam, and Export print dogfood tracking.
+
+## 2026-06-22 - Library image-state UI freeze coverage
+
+### Scope
+
+- Closed a simulator-coverable gap in the UI freeze matrix for image-backed Library rows.
+- Added DEBUG-only fixture seeding for a Library item with question and answer images.
+- Captured evidence for image detail, answer-expanded, full-screen image, image edit sheet, image export options, and populated storage.
+
+### Design Decisions
+
+- Tappable question and answer images are now plain `Button`s instead of image-only tap gestures, preserving visual styling while exposing real control semantics.
+- Full-screen image presentation is driven by the selected image state, avoiding split boolean/optional state drift.
+- Answer expansion scrolls to the answer block and reserves bottom breathing room so the iOS 26 floating tab bar does not obscure the answer image.
+- System share sheets, cropper, landscape, and zoom/pan remain explicit matrix gaps rather than being marked complete from partial simulator coverage.
+
+### Files Changed
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryDetailView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/FullScreenImageView.swift`
+- `SnapDrill/App/Composition/DependencyContainer.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-22-library-image-*.png`
+
+### DoD Status
+
+- Passed:
+  - `git diff --check`
+  - `swiftlint --strict`
+  - `python3 Scripts/generate_feature_status.py --check`
+  - `python3 Scripts/generate_intent_traceability.py --check`
+  - `python3 Scripts/validate_docs.py --check`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+  - `testUIFreezeLibraryImageDataScreenshots`
+  - `testUIFreezeLibraryPopulatedSurfaceScreenshots`
+
+### Open Questions
+
+- Remaining matrix gaps are still not UI-frozen: system share sheets, device camera/document scanner, file importer, permission alerts, cropper, landscape, and zoom/pan gesture states.

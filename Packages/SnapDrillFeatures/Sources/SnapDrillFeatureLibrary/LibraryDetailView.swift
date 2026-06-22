@@ -25,7 +25,6 @@ struct LibraryDetailView: View {
     let item: ReviewItemModel
 
     @State private var isEditing = false
-    @State private var showingFullScreenImage = false
     @State private var fullScreenImage: UIImage?
     @State private var loadedImage: UIImage?
     @State private var loadedAnswerImage: UIImage?
@@ -41,26 +40,33 @@ struct LibraryDetailView: View {
     @Environment(\.profileManager) private var profileManager
     @Environment(\.services) private var services
     @Environment(\.printPresenter) private var printPresenter
+    private static let answerContentScrollID = "library.detail.answerContentScroll"
+    private let tabBarBreathingRoom: CGFloat = 150
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+        ScrollViewReader { scrollProxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
                 // Image Header（异步加载，避免阻塞主线程）
                 if item.imagePath != nil {
                     if let image = loadedImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxHeight: 250)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .padding(.horizontal)
-                            .onTapGesture {
-                                fullScreenImage = image
-                                showingFullScreenImage = true
-                            }
-                            .accessibleImage(label: L10n.Accessibility.questionImage)
-                            .accessibilityHint(L10n.Accessibility.tapToEnlarge)
+                        Button {
+                            fullScreenImage = image
+                        } label: {
+                            Image(uiImage: image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 250)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal)
+                        .accessibleButton(
+                            label: L10n.Accessibility.questionImage,
+                            hint: L10n.Accessibility.tapToEnlarge
+                        )
+                        .accessibilityIdentifier("library.detail.questionImage")
                     } else {
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.secondary.opacity(0.1))
@@ -158,6 +164,13 @@ struct LibraryDetailView: View {
                             withAnimation(.snappy(duration: 0.22)) {
                                 isAnswerExpanded.toggle()
                             }
+                            if isAnswerExpanded {
+                                DispatchQueue.main.async {
+                                    withAnimation(.snappy(duration: 0.22)) {
+                                        scrollProxy.scrollTo(Self.answerContentScrollID, anchor: .top)
+                                    }
+                                }
+                            }
                         } label: {
                             HStack(spacing: 12) {
                                 Image(systemName: "lightbulb")
@@ -190,6 +203,7 @@ struct LibraryDetailView: View {
                             label: isAnswerExpanded ? L10n.Accessibility.hideAnswer : L10n.Accessibility.showAnswer,
                             hint: L10n.Library.answerPrivacyHint
                         )
+                        .accessibilityIdentifier("library.detail.answerToggle")
 
                         if isAnswerExpanded {
                             AnswerContentView(
@@ -197,10 +211,11 @@ struct LibraryDetailView: View {
                                 loadedAnswerImage: loadedAnswerImage,
                                 onTapImage: { answerImage in
                                     fullScreenImage = answerImage
-                                    showingFullScreenImage = true
                                 }
                             )
                             .transition(.opacity.combined(with: .move(edge: .top)))
+                            .id(Self.answerContentScrollID)
+                            .accessibilityIdentifier("library.detail.answerContent")
                         }
                     }
                     .padding(.horizontal)
@@ -211,6 +226,12 @@ struct LibraryDetailView: View {
             .padding(.top)
             .frame(maxWidth: 700)
             .frame(maxWidth: .infinity)
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            Color.clear
+                .frame(height: tabBarBreathingRoom)
+                .allowsHitTesting(false)
         }
         .accessibilityIdentifier("library.detail.root")
         .task(id: item.imagePath) {
@@ -279,10 +300,10 @@ struct LibraryDetailView: View {
         .sheet(isPresented: $isEditing) {
             LibraryEditView(item: item)
         }
-        .fullScreenCover(isPresented: $showingFullScreenImage) {
+        .fullScreenCover(isPresented: isShowingFullScreenImage) {
             if let image = fullScreenImage {
                 FullScreenImageView(image: image) {
-                    showingFullScreenImage = false
+                    fullScreenImage = nil
                 }
             }
         }
@@ -306,6 +327,17 @@ struct LibraryDetailView: View {
     private var answerImageTaskID: String {
         guard isAnswerExpanded else { return "collapsed" }
         return item.answerImagePath ?? "expanded-no-image"
+    }
+
+    private var isShowingFullScreenImage: Binding<Bool> {
+        Binding(
+            get: { fullScreenImage != nil },
+            set: { isPresented in
+                if !isPresented {
+                    fullScreenImage = nil
+                }
+            }
+        )
     }
 
     // MARK: - 分享题目卡片
@@ -389,16 +421,21 @@ private struct AnswerContentView: View {
 
             if item.answerImagePath != nil {
                 if let answerImage = loadedAnswerImage {
-                    Image(uiImage: answerImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxHeight: 200)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .onTapGesture {
-                            onTapImage(answerImage)
-                        }
-                        .accessibleImage(label: L10n.Accessibility.answerImage)
-                        .accessibilityHint(L10n.Accessibility.tapToEnlarge)
+                    Button {
+                        onTapImage(answerImage)
+                    } label: {
+                        Image(uiImage: answerImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxHeight: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibleButton(
+                        label: L10n.Accessibility.answerImage,
+                        hint: L10n.Accessibility.tapToEnlarge
+                    )
+                    .accessibilityIdentifier("library.detail.answerImage")
                 } else {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(Color.secondary.opacity(0.1))
