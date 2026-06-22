@@ -15,6 +15,9 @@ import SnapDrillUI
 import SnapDrillData
 import PhotosUI
 import UniformTypeIdentifiers
+#if DEBUG
+import UIKit
+#endif
 
 /// 采集功能界面，提供拍摄、导入与手动录入入口。
 public struct CaptureView: View {
@@ -31,6 +34,9 @@ public struct CaptureView: View {
     /// 连续裁剪模式：是否正在显示裁剪器
     @State private var isShowingContinuousCropper = false
     @State private var activeMethod: CaptureMethod?
+#if DEBUG
+    @State private var didOpenUITestImageResult = false
+#endif
     private let tabBarBreathingRoom: CGFloat = 180
     
     /// 初始化采集视图
@@ -274,6 +280,9 @@ public struct CaptureView: View {
             }
             .onAppear {
                 viewModel.checkDraftOnAppear()
+#if DEBUG
+                openUITestImageResultIfNeeded()
+#endif
             }
             // 连续录入：保存成功后自动重新打开摄像头（拍照模式）
             .onChange(of: router.shouldReopenScanner) { _, shouldReopen in
@@ -392,6 +401,62 @@ public struct CaptureView: View {
     private var isInteractionDisabled: Bool {
         viewModel.isProcessing || activeMethod != nil
     }
+
+#if DEBUG
+    private static let uiTestCaptureImageResultArgument = "--ui-test-capture-image-result"
+
+    @MainActor
+    private func openUITestImageResultIfNeeded() {
+        guard !didOpenUITestImageResult,
+              ProcessInfo.processInfo.arguments.contains("--uitesting"),
+              ProcessInfo.processInfo.arguments.contains(Self.uiTestCaptureImageResultArgument) else {
+            return
+        }
+        didOpenUITestImageResult = true
+        router.push(
+            .scannerResult(
+                content: "Capture image fixture text",
+                image: Self.makeUITestCaptureImage()
+            )
+        )
+    }
+
+    @MainActor
+    private static func makeUITestCaptureImage() -> UIImage {
+        let size = CGSize(width: 900, height: 620)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { context in
+            UIColor.systemPurple.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+
+            let cardRect = CGRect(x: 80, y: 80, width: 740, height: 460)
+            UIColor.white.setFill()
+            UIBezierPath(roundedRect: cardRect, cornerRadius: 36).fill()
+
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.alignment = .center
+            let titleAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 72, weight: .bold),
+                .foregroundColor: UIColor.systemPurple,
+                .paragraphStyle: paragraph
+            ]
+            "Capture".draw(
+                in: CGRect(x: 100, y: 235, width: 700, height: 95),
+                withAttributes: titleAttributes
+            )
+
+            let captionAttributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 32, weight: .medium),
+                .foregroundColor: UIColor.secondaryLabel,
+                .paragraphStyle: paragraph
+            ]
+            "SnapDrill UI QA".draw(
+                in: CGRect(x: 100, y: 340, width: 700, height: 50),
+                withAttributes: captionAttributes
+            )
+        }
+    }
+#endif
 }
 
 private enum CaptureMethod {

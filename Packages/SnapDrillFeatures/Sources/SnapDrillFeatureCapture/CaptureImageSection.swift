@@ -25,6 +25,7 @@ struct CaptureImageSection: View {
                     .frame(maxHeight: 200)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .accessibleImage(label: L10n.Accessibility.questionImage)
+                    .accessibilityIdentifier("capture.result.questionImage")
                     .overlay {
                         if viewModel.isRecognizing {
                             ZStack {
@@ -46,6 +47,7 @@ struct CaptureImageSection: View {
                         .clipShape(Circle())
                 })
                 .accessibleButton(label: L10n.Accessibility.cropImage, hint: L10n.Accessibility.cropImageHint)
+                .accessibilityIdentifier("capture.image.crop")
                 .padding(8)
                 .disabled(viewModel.isRecognizing)
             }

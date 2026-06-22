@@ -41,6 +41,14 @@ public struct CaptureResultView: View {
 
                 CaptureContentSection(viewModel: viewModel)
 
+                if viewModel.showFieldConfigTip {
+                    CaptureFieldConfigTipCard {
+                        viewModel.dismissFieldConfigTip()
+                    }
+                    .padding(.horizontal)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+
                 CaptureMetadataSection(viewModel: viewModel)
 
                 CaptureDetailsSection(
@@ -105,15 +113,6 @@ public struct CaptureResultView: View {
         .sensoryFeedback(.success, trigger: viewModel.isSaved) { _, newValue in
             newValue
         }
-        .popover(isPresented: $viewModel.showFieldConfigTip, arrowEdge: .bottom) {
-            TipPopoverContent(
-                icon: "slider.horizontal.3",
-                title: L10n.Onboarding.fieldConfigTitle,
-                message: L10n.Onboarding.fieldConfigDescription
-            ) {
-                viewModel.dismissFieldConfigTip()
-            }
-        }
         .alert(L10n.Capture.saveFailed, isPresented: $viewModel.showErrorAlert) {
             Button(L10n.Common.ok, role: .cancel) { }
         } message: {
@@ -121,6 +120,44 @@ public struct CaptureResultView: View {
                 Text(errorMessage)
             }
         }
+    }
+}
+
+private struct CaptureFieldConfigTipCard: View {
+    let onDismiss: () -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "slider.horizontal.3")
+                .font(.headline)
+                .foregroundStyle(.blue)
+                .frame(width: 32, height: 32)
+                .background(Circle().fill(Color.blue.opacity(0.12)))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(L10n.Onboarding.fieldConfigTitle)
+                    .font(.subheadline.weight(.semibold))
+
+                Text(L10n.Onboarding.fieldConfigDescription)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 8)
+
+            Button(L10n.Common.ok) {
+                onDismiss()
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+            .accessibilityIdentifier("capture.fieldConfigTip.ok")
+        }
+        .padding(14)
+        .background(Color(UIColor.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .accessibilityIdentifier("capture.fieldConfigTip")
     }
 }
 

@@ -113,11 +113,11 @@ final class SnapDrillUITests: XCTestCase {
     // MARK: - L3 动态维度系统 E2E
 
     /// 启动参数：强制中文 locale，使内置维度 seed 出中文名（学科/来源/年级/标签）
-    private func l3LaunchArguments() -> [String] {
+    private func l3LaunchArguments(fieldConfigTipSeen: Bool = true) -> [String] {
         [
             "--uitesting",
             "-hasCompletedOnboarding", "YES",
-            "-tip.fieldConfig.v1.seen", "YES",
+            "-tip.fieldConfig.v1.seen", fieldConfigTipSeen ? "YES" : "NO",
             "-tip.reviewSwipe.v1.seen", "YES",
             "-AppleLanguages", "(zh-Hans)",
             "-AppleLocale", "zh_CN"
@@ -344,6 +344,31 @@ final class SnapDrillUITests: XCTestCase {
         save.tap()
         waitForAnyElement("capture.root", in: app, timeout: 10)
         addScreenshot(named: "ui-freeze-capture-05-saved-back-to-capture")
+    }
+
+    /// UI-freeze evidence: capture image-backed Capture result, cropper, and field-tip states.
+    func testUIFreezeCaptureImageResultScreenshots() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments(fieldConfigTipSeen: false)
+            + ["--ui-test-capture-image-result"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.result.root", in: app)
+        waitForAnyElement("capture.result.questionImage", in: app)
+        waitForAnyElement("capture.contentEditor", in: app)
+        addScreenshot(named: "ui-freeze-capture-image-01-result")
+
+        app.buttons["capture.image.crop"].tap()
+        waitForUIAnimation(seconds: 1.5)
+        addScreenshot(named: "ui-freeze-capture-image-02-cropper")
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.10, dy: 0.93)).tap()
+        waitForAnyElement("capture.result.root", in: app)
+
+        app.buttons["capture.saveButton"].tap()
+        waitForAnyElement("capture.fieldConfigTip", in: app, timeout: 10)
+        addScreenshot(named: "ui-freeze-capture-image-03-field-tip")
     }
 
     /// UI-freeze evidence: capture populated Review dashboard, active session, card back, summary, and done state.

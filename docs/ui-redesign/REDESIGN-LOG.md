@@ -1281,3 +1281,42 @@ Planning reviewed these files without editing them:
 ### Open Questions
 
 - Remaining matrix gaps are still not UI-frozen: system share sheets, device camera/document scanner, file importer, permission alerts, cropper, landscape, and zoom/pan gesture states.
+
+## 2026-06-22 - Capture image-result UI freeze coverage
+
+### Scope
+
+- Closed the simulator-coverable Capture result-editor gap for image-backed results, cropper launch, and the first-save field-config tip.
+- Added a DEBUG-only Capture route that opens a deterministic image-backed result without camera, Photos, PDF, or OCR system surfaces.
+- Captured evidence for the image result first viewport, third-party cropper first viewport, and saved-state field tip.
+
+### Design Decisions
+
+- The field-config tip no longer uses a root-level popover. It now renders as an inline card inside the form, below the content editor and above the field rows, so it cannot overlap the navigation title or save/back controls.
+- The cropper screenshot test does not inject an app-owned accessibility marker into the Mantis full-screen view. It captures the visible third-party UI and returns through the visible lower-left cancel control.
+- Real camera, document scanner, file importer, permission alerts, and OCR behavior remain separate device/system-surface matrix rows.
+
+### Files Changed
+
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureView.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureImageSection.swift`
+- `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/CaptureResultView.swift`
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/evidence/2026-06-22-capture-image-*.png`
+
+### DoD Status
+
+- Passed:
+  - `git diff --check`
+  - `swiftlint --strict`
+  - `python3 Scripts/generate_feature_status.py --check`
+  - `python3 Scripts/generate_intent_traceability.py --check`
+  - `python3 Scripts/validate_docs.py --check`
+  - `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`
+  - `testUIFreezeCaptureImageResultScreenshots`
+  - `testUIFreezeCaptureManualResultEditorScreenshots`
+
+### Open Questions
+
+- Remaining Capture matrix gaps are still not UI-frozen: camera scanner, document scanner, PDF/scan page picker system flows, real OCR output variance, and device permission surfaces.
