@@ -253,30 +253,6 @@ public struct LibraryEditView: View {
                     onCreateValue: { vm.createValue(name: $0, inDimension: model.id) }
                 )
             }
-            difficultyPicker(vm: vm)
-        }
-    }
-
-    private func difficultyPicker(vm: LibraryEditViewModel) -> some View {
-        HStack {
-            Text(L10n.Capture.difficulty)
-            Spacer()
-            HStack(spacing: 0) {
-                ForEach(1...5, id: \.self) { star in
-                    Button {
-                        vm.difficulty = Difficulty(rawValue: star) ?? .one
-                    } label: {
-                        Image(systemName: vm.difficulty.rawValue >= star ? "star.fill" : "star")
-                            .foregroundStyle(.yellow)
-                            .frame(width: 44, height: 44)
-                    }
-                    .buttonStyle(.plain)
-                    .contentShape(Rectangle())
-                    .accessibilityLabel(L10n.Accessibility.starRating(difficulty: star))
-                    .accessibilityAddTraits(vm.difficulty.rawValue >= star ? .isSelected : [])
-                    .accessibilityIdentifier("library.edit.difficulty.\(star)")
-                }
-            }
         }
     }
     

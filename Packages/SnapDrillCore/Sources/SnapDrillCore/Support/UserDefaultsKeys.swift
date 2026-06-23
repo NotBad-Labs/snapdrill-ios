@@ -42,7 +42,6 @@ nonisolated public enum UDKey {
 
     public static let captureFieldCategory = "captureFieldCategory"
     public static let captureFieldSource = "captureFieldSource"
-    public static let captureFieldDifficulty = "captureFieldDifficulty"
     public static let captureFieldLevel = "captureFieldLevel"
     public static let captureFieldAnswer = "captureFieldAnswer"
 

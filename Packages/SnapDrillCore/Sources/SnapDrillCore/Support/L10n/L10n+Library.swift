@@ -25,13 +25,11 @@ nonisolated extension L10n {
         // 排序
         public static let sortByDate = NSLocalizedString("library.sort_by_date", value: "按时间", comment: "按时间排序")
         public static let sortByCategory = NSLocalizedString("library.sort_by_category", value: "按分类", comment: "按分类排序")
-        public static let sortByDifficulty = NSLocalizedString("library.sort_by_difficulty", value: "按难度", comment: "按难度排序")
         public static let sortByReviewStatus = NSLocalizedString("library.sort_by_review_status", value: "按复习状态", comment: "按复习状态排序")
 
         // 排序短名（LibrarySortOption.displayName 用）
         public static let sortTime = NSLocalizedString("library.sort_time", value: "时间", comment: "排序选项：时间")
         public static let sortCategory = NSLocalizedString("library.sort_category", value: "分类", comment: "排序选项：分类")
-        public static let sortDifficulty = NSLocalizedString("library.sort_difficulty", value: "难度", comment: "排序选项：难度")
         public static let sortReviewStatus = NSLocalizedString("library.sort_review_status", value: "复习状态", comment: "排序选项：复习状态")
 
         // 列表
@@ -68,7 +66,6 @@ nonisolated extension L10n {
         // 过滤
         public static let filter = NSLocalizedString("library.filter", value: "过滤", comment: "过滤按钮")
         public static let filterCategories = NSLocalizedString("library.filter_categories", value: "分类", comment: "过滤分类标签")
-        public static let filterDifficulty = NSLocalizedString("library.filter_difficulty", value: "难度", comment: "过滤难度标签")
         public static let filterTags = NSLocalizedString("library.filter_tags", value: "标签", comment: "过滤标签标签")
 
         // 批量标签

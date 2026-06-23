@@ -33,8 +33,7 @@ final class PerformanceTests {
     func libraryListLoad200Items() throws {
         for i in 0..<200 {
             let item = ReviewItemModel(
-                content: "测试题目内容 \(i)，包含一些用于搜索的文字",
-                difficulty: (i % 5) + 1
+                content: "测试题目内容 \(i)，包含一些用于搜索的文字"
             )
             context.insert(item)
         }
@@ -99,8 +98,7 @@ final class PerformanceTests {
         var snapshots: [ReviewExportSnapshot] = []
         for i in 0..<50 {
             let item = ReviewItemModel(
-                content: "PDF 导出测试题目 \(i)，包含较长的文字内容用于测试渲染性能。",
-                difficulty: (i % 5) + 1
+                content: "PDF 导出测试题目 \(i)，包含较长的文字内容用于测试渲染性能。"
             )
             snapshots.append(item.toExportSnapshot())
         }

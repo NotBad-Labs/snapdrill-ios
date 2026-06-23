@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-19
+last_updated: 2026-06-23
 intent_refs:
   - vision:P2
   - vision:P4
@@ -32,7 +32,7 @@ intent_refs:
 - **首个 Profile 自动创建**：首次启动时系统自动创建默认 Profile，用户无感（见 `feat-profile.md`）。
 - **只展示一次**：完成后不再显示；**完成状态为全局**，不因切换 Profile 重新触发。
 - **结束动作**：直接进入主界面（Dashboard）——一个已创建好的默认 Profile + 空 Dashboard（展示空状态引导）+ 底部 Tab（首页 / 题库 / 采集 / 复习 / 设置）。
-- **字段配置延后**：首次录入保存后，才通过引导提示「要不要开启更多字段（难度 / 来源等）？」触发；非首次启动。后续 TipKit 提示（首次进采集 / 首次进过滤 / 首次进复习）也在使用过程中触发，按 Profile 隔离。
+- **字段配置延后**：首次录入保存后，才通过引导提示「要不要开启更多字段（来源、级别或自定义属性等）？」触发；非首次启动。后续 TipKit 提示（首次进采集 / 首次进过滤 / 首次进复习）也在使用过程中触发，按 Profile 隔离。
 - **边界 / 不做**：不弹通知权限请求（仅在用户主动开启提醒开关时才触发系统弹窗）；不在 Onboarding 中索取相机 / 相册权限（point-of-use 请求，进采集时才请求）；不播放视频教程；不做动画过渡特效；角色预设套件等模板入口不进 Onboarding。
 - **前置依赖**：无（首个 Profile 由 `feat-profile.md` 在 Onboarding 期间自动创建，属同生命周期协作而非阻塞依赖）。
 - **商业分层**：免费。Onboarding 全程不嵌广告、不做 Pro 引导。

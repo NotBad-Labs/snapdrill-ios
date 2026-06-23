@@ -35,7 +35,6 @@ actor DataExporter {
             [
                 "id": item.id.uuidString,
                 "content": item.content ?? "",
-                "difficulty": item.difficulty,
                 "answerText": item.answerText ?? "",
                 "createdAt": item.createdAt.ISO8601Format(),
                 "lastReviewedAt": item.lastReviewedAt?.ISO8601Format() ?? "",

@@ -5,7 +5,7 @@ status: blocked
 tier: pro
 blocked_by: [479]
 mode: lightweight
-last_updated: 2026-06-20
+last_updated: 2026-06-23
 intent_refs:
   - vision:P2
   - vision:P3
@@ -32,7 +32,7 @@ intent_refs:
 - **核心能力**：选择分类范围与目标题目数量，系统自动选题并复用 PDF 导出管线生成可预览、可打印/分享/保存的资料集。
 - **选题策略（按订阅档差异化，Hybrid）**：
   - **基础选题（免费）**：按分类过滤 + 随机抽取；免费限次体验（有限次/月）。
-  - **精准选题（Pro）**：SM-2 weakness 权重 + 难度分布均衡 + 近期错误优先（recency）+ 分类交叉筛选；无限生成 + 多版式。
+  - **精准选题（Pro）**：SM-2 weakness 权重 + 近期错误优先（recency）+ 分类 / 动态维度交叉筛选；无限生成 + 多版式。
   - **⚠ 实现现状（GAP-R7，代码债·Batch 2 verify 补）**：当前 `SmartPaperView` 生成按钮**整体**经 `isProUser`（`ProEntitlementProvider` 默认 `false`）门控——**免费档"基础选题"路径未接通**，免费用户点"生成"仅弹 Pro 门控、不可达组卷；已实现的选题为 `fetchSmartSelection`（SM-2 排序，**非**上文"随机抽取"）；**"免费限次/月配额"未实现**（全仓无 quota 逻辑）。需求（免费基础组卷 = 随机限次可达）不变，待 code 债接通免费路径 + 实现配额（独立 PR）。
 - **输出格式**：PDF（去答案模式 / 留白答题区 / 页眉页码），复用现有导出管线。
 - **与高级统计联动**：可从薄弱排行一键进入智能组卷（Analytics → Smart Paper），联动仅传题目 ID。
@@ -51,7 +51,7 @@ intent_refs:
 ## 4. 验证标准 (Verify) — GWT 风格；Pro 分支当前不作回归基线
 - **Success path (GWT)**：
   - 免费档（可达基线）：Given 当前 Profile 有足够题目（建议 ≥10），When 用户选定分类范围与目标题数并触发组卷，Then 系统按随机策略选题、复用导出管线生成 PDF 预览，用户确认后可分享/打印/保存。
-  - Pro 档（**当前不可达、不作代码/测试回归基线**，待 #479）：When Pro 用户选精准选题，Then 按 SM-2 weakness + difficulty + recency 选题并支持多版式。
+  - Pro 档（**当前不可达、不作代码/测试回归基线**，待 #479）：When Pro 用户选精准选题，Then 按 SM-2 weakness + recency + 动态维度筛选选题并支持多版式。
 - **边界 / 异常**：
   - 免费配额耗尽 → 展示 Pro 引导，**不阻断**已有手动导出能力。
   - 题目不足 → 提示题库数量不够，建议先录入更多题目。

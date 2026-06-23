@@ -74,11 +74,13 @@ final class SettingsViewModelCSVTests {
         #expect(vm.isBackupInProgress == false)
         let items = try repos.review.fetchAllModels()
         #expect(items.count == 3)
-        #expect(items.contains { $0.content == "a+b=?" && $0.difficulty == 1 })
-        #expect(items.contains { $0.content == "c+d=?" && $0.difficulty == 2 })
-        #expect(items.contains { $0.content == "e+f=?" && $0.difficulty == 3 })
+        #expect(items.contains { $0.content == "a+b=?" })
+        #expect(items.contains { $0.content == "c+d=?" })
+        #expect(items.contains { $0.content == "e+f=?" })
         // Category 列（动态维度）→ 题目挂「数学」值
         #expect(items.contains { categoryValueNames($0).contains("数学") })
+        // Difficulty 不再是固定字段；作为普通动态维度列导入，cell 原样成为值名。
+        #expect(Set(items.flatMap { categoryValueNames($0) }).isSuperset(of: ["1", "2", "3"]))
     }
 
     // MARK: - 空文件与无效输入
@@ -96,7 +98,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("只有 header 无数据行：backupError 设为 importNoValidRows")
     func importCSV_onlyHeader_setsNoValidRowsError() async throws {
-        let csv = "Content,Category,Difficulty"
+        let csv = "Content,Category"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -108,7 +110,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("content 与 category 均为空的行被丢弃")
     func importCSV_rowWithNoContentOrCategory_isDiscarded() async throws {
-        let csv = "Content,Category,Difficulty\n,,1\n有内容的题,,2\n,数学,3"
+        let csv = "Content,Category,Level\n,,1\n有内容的题,,2\n,数学,3"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -135,7 +137,7 @@ final class SettingsViewModelCSVTests {
         #expect(items.count == 1)
         #expect(items.first?.content == "题目")
         #expect(categoryValueNames(items.first).contains("数学"))
-        #expect(items.first?.difficulty == 3)
+        #expect(categoryValueNames(items.first).contains("3"))
         let importedValues = try #require(items.first?.categoryValues)
         #expect(importedValues.contains { $0.dimension?.systemKey == CategorySystemKey.category })
     }
@@ -204,7 +206,7 @@ final class SettingsViewModelCSVTests {
     @Test("RFC 4180：UTF-8 BOM 前缀剥离，首列 header 映射正确")
     func importCSV_utf8BOM_stripped() async throws {
         // Excel 导出 CSV 常带 BOM。不剥会让 headers[0] = "\uFEFFcontent" 导致字段映射失败。
-        let csv = "\u{FEFF}Content,Category,Difficulty\n题目,数学,3"
+        let csv = "\u{FEFF}Content,Category\n题目,数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -214,7 +216,6 @@ final class SettingsViewModelCSVTests {
         #expect(items.count == 1)
         #expect(items.first?.content == "题目")
         #expect(categoryValueNames(items.first).contains("数学"))
-        #expect(items.first?.difficulty == 3)
     }
 
     @Test("trailing newline：尾随换行不产生空行")
@@ -292,60 +293,10 @@ final class SettingsViewModelCSVTests {
         #expect(categoryValueNames(items.first) == ["数学"])
     }
 
-    // MARK: - Difficulty clamp
-
-    @Test("Difficulty 越界低值（0）clamp 到 1")
-    func importCSV_difficultyBelow1_clampedTo1() async throws {
-        let csv = "Content,Category,Difficulty\n题目,数学,0"
-        let url = try writeCSV(csv)
-        let vm = SettingsViewModel(repositories: repos)
-
-        await vm.importCSV(fileURL: url)
-
-        let items = try repos.review.fetchAllModels()
-        #expect(items.first?.difficulty == 1)
-    }
-
-    @Test("Difficulty 越界高值（99）clamp 到 5")
-    func importCSV_difficultyAbove5_clampedTo5() async throws {
-        let csv = "Content,Category,Difficulty\n题目,数学,99"
-        let url = try writeCSV(csv)
-        let vm = SettingsViewModel(repositories: repos)
-
-        await vm.importCSV(fileURL: url)
-
-        let items = try repos.review.fetchAllModels()
-        #expect(items.first?.difficulty == 5)
-    }
-
-    @Test("Difficulty 非数字 fallback 到 1")
-    func importCSV_difficultyNonNumeric_fallsBackTo1() async throws {
-        let csv = "Content,Category,Difficulty\n题目,数学,abc"
-        let url = try writeCSV(csv)
-        let vm = SettingsViewModel(repositories: repos)
-
-        await vm.importCSV(fileURL: url)
-
-        let items = try repos.review.fetchAllModels()
-        #expect(items.first?.difficulty == 1)
-    }
-
-    @Test("缺失 Difficulty 列 fallback 到 1")
-    func importCSV_missingDifficultyColumn_fallsBackTo1() async throws {
-        let csv = "Content,Category\n题目,数学"
-        let url = try writeCSV(csv)
-        let vm = SettingsViewModel(repositories: repos)
-
-        await vm.importCSV(fileURL: url)
-
-        let items = try repos.review.fetchAllModels()
-        #expect(items.first?.difficulty == 1)
-    }
-
     // MARK: - 可选列默认值
 
-    @Test("无分类列时题目无维度值")
-    func importCSV_noCategoryColumns_noCategoryValues() async throws {
+    @Test("无分类列但有自定义列时写入对应动态维度值")
+    func importCSV_noCategoryColumns_importsCustomDimensionValues() async throws {
         let csv = "Content,Difficulty\n题目,3"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
@@ -353,7 +304,7 @@ final class SettingsViewModelCSVTests {
         await vm.importCSV(fileURL: url)
 
         let items = try repos.review.fetchAllModels()
-        #expect(categoryValueNames(items.first).isEmpty)
+        #expect(categoryValueNames(items.first) == ["3"])
     }
 
     @Test("Answer 列非空时写入 answerText")
@@ -372,7 +323,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("isBackupInProgress 导入前后恢复为 false")
     func importCSV_stateMachine_resetsInProgress() async throws {
-        let csv = "Content,Category,Difficulty\n题目,数学,1"
+        let csv = "Content,Category\n题目,数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -383,7 +334,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("importCSV 与 createBackup 互斥：isBackupInProgress 时直接返回")
     func importCSV_whenAlreadyInProgress_skipsExecution() async throws {
-        let csv = "Content,Category,Difficulty\n题目,数学,1"
+        let csv = "Content,Category\n题目,数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 
@@ -398,7 +349,7 @@ final class SettingsViewModelCSVTests {
 
     @Test("导入成功后发送 reviewDataDidChange 通知")
     func importCSV_successful_postsNotification() async throws {
-        let csv = "Content,Category,Difficulty\n题目,数学,1"
+        let csv = "Content,Category\n题目,数学"
         let url = try writeCSV(csv)
         let vm = SettingsViewModel(repositories: repos)
 

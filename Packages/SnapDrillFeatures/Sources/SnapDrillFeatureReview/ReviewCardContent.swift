@@ -93,24 +93,6 @@ struct ReviewCardFront: View {
                         .accessibilityLabel("\(L10n.Settings.fieldCategory)：\(categoryLabel)")
                 }
 
-                // 难度指示器
-                let starCount = item.difficultyValue.starCount
-                if starCount > 0 {
-                    HStack(spacing: 2) {
-                        ForEach(0..<starCount, id: \.self) { _ in
-                            Image(systemName: "star.fill")
-                                .font(.caption2)
-                                .foregroundStyle(.orange)
-                        }
-                    }
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 4)
-                    .background(Color.orange.opacity(0.10))
-                    .clipShape(Capsule())
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(L10n.Accessibility.starRating(difficulty: starCount))
-                }
-
                 // 标签（动态维度：标签维度值）
                 let tagNames = item.tagCategoryNames
                 if !tagNames.isEmpty {

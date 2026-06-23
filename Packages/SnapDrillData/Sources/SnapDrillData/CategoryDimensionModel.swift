@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  分类维度（命名维度型）：分类 / 来源 / 级别 / 标签 / 用户自定义。
-//  有序刻度型「难度」不在此系统内，仍是 ReviewItemModel.difficulty: Int。
+//  难度 / 级别等属性不再是 ReviewItemModel 的静态字段，统一由维度系统表达。
 //
 
 import Foundation

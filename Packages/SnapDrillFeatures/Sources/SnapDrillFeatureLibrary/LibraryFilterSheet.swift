@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  资料筛选页，提供多维度（分类、标签、日期）过滤能力。
+//  资料筛选页，提供动态维度过滤能力。
 //
 
 import SwiftUI
@@ -56,40 +56,6 @@ struct LibraryFilterSheet: View {
                                 )
                             }
                         }
-                    }
-                }
-
-                // Section: Difficulty
-                Section(L10n.Library.filterDifficulty) {
-                    ForEach(Difficulty.allCases) { difficulty in
-                        Button {
-                            if viewModel.selectedDifficulties.contains(difficulty.rawValue) {
-                                viewModel.selectedDifficulties.remove(difficulty.rawValue)
-                            } else {
-                                viewModel.selectedDifficulties.insert(difficulty.rawValue)
-                            }
-                        } label: {
-                            HStack(spacing: 2) {
-                                ForEach(0..<difficulty.starCount, id: \.self) { _ in
-                                    Image(systemName: "star.fill")
-                                        .foregroundStyle(.orange)
-                                        .font(.caption)
-                                }
-                                Spacer()
-                                if viewModel.selectedDifficulties.contains(difficulty.rawValue) {
-                                    Image(systemName: "checkmark")
-                                        .foregroundStyle(.blue)
-                                }
-                            }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(L10n.Accessibility.starRating(
-                            difficulty: difficulty.starCount,
-                            maxStars: Difficulty.allCases.count
-                        ))
-                        .accessibilityIdentifier("filter.difficulty.\(difficulty.rawValue)")
-                        .accessibilityAddTraits(viewModel.selectedDifficulties.contains(difficulty.rawValue) ? .isSelected : [])
                     }
                 }
             }

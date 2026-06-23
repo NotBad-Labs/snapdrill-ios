@@ -39,9 +39,9 @@ struct BackupDTOTests {
         #expect(decoded.createdAt == original.createdAt)
     }
 
-    @Test("currentSchemaVersion 已重置为动态维度基线 1")
+    @Test("currentSchemaVersion 标记静态 difficulty 删除后的备份边界")
     func schemaVersionIsResetBaseline() {
-        #expect(BackupManifest.currentSchemaVersion == 1)
+        #expect(BackupManifest.currentSchemaVersion == 2)
     }
 
     // MARK: - BackupPayload
@@ -69,7 +69,6 @@ struct BackupDTOTests {
                     nextReviewAt: Date(timeIntervalSince1970: 1_710_200_000),
                     answerText: "证明过程...",
                     answerImagePath: "images/answer_\(itemID).jpg",
-                    difficulty: 4,
                     easeFactor: 2.6,
                     interval: 3,
                     repetitions: 2,
@@ -112,7 +111,6 @@ struct BackupDTOTests {
         #expect(item.content == "已知 △ABC 中 AB=AC")
         #expect(item.categoryValueIds == [valueID])
         #expect(item.answerText == "证明过程...")
-        #expect(item.difficulty == 4)
         #expect(item.easeFactor == 2.6)
         #expect(item.interval == 3)
         #expect(item.repetitions == 2)
@@ -153,7 +151,6 @@ struct BackupDTOTests {
             nextReviewAt: .distantPast,
             answerText: nil,
             answerImagePath: nil,
-            difficulty: 1,
             easeFactor: 2.5,
             interval: 0,
             repetitions: 0,

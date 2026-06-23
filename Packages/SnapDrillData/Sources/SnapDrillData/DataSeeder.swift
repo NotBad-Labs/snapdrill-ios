@@ -319,7 +319,6 @@ public final class DataSeeder {
             let item = ReviewItemModel(content: data.q, imagePath: nil)
             item.categoryValues = values
             item.answerText = data.a
-            item.difficulty = Int.random(in: 1...5)
             item.createdAt = Date.now.addingTimeInterval(-Double.random(in: 0...(86400 * 5)))
 
             if index < Int(Double(count) * 0.8) {

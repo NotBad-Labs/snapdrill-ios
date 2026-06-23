@@ -27,7 +27,6 @@ struct CaptureFormSnapshot {
     let selectedValues: [CategoryValueModel]
     let answerText: String
     let answerImage: UIImage?
-    let difficulty: Difficulty
 }
 
 /// 采集结果保存事务编排器（无状态）
@@ -70,8 +69,7 @@ struct CaptureSaveCoordinator {
                 content: contentValue,
                 imagePath: savedImagePath,
                 answerText: form.answerText.isEmpty ? nil : form.answerText,
-                answerImagePath: savedAnswerImagePath,
-                difficulty: form.difficulty.rawValue
+                answerImagePath: savedAnswerImagePath
             )
             model.categoryValues = form.selectedValues
             repositories.review.insert(model)

@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  采集结果预览与编辑的 ViewModel，直接通过 RepositoryContainer 保存题目内容与图片。
-//  L3：分类改为动态维度（dimensions + selectedByDimension），难度保留为有序刻度。
+//  L3：分类改为动态维度（dimensions + selectedByDimension）。
 //
 
 import SwiftUI
@@ -43,8 +43,6 @@ public final class CaptureResultViewModel {
     // 详情表单
     /// 答案文本
     public var answerText: String = ""
-    /// 题目难度（有序刻度，不在动态维度系统内）
-    public var difficulty: Difficulty = .one
     /// 答案图片（可为 `nil`）
     public var answerImage: UIImage?
 
@@ -168,7 +166,7 @@ public final class CaptureResultViewModel {
         startAITagging()
     }
 
-    /// AI 标注：有 OCR 文本时自动建议主分类维度的值（best-effort；难度交用户判断，AI 不填）
+    /// AI 标注：有 OCR 文本时自动建议主分类维度的值（best-effort）
     private func startAITagging() {
         guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         taggingTask?.cancel()
@@ -182,7 +180,6 @@ public final class CaptureResultViewModel {
     }
 
     /// 应用 AI 建议：category 命中主分类维度的同名值则选中（仅当该维度未选）。
-    /// 难度是主观字段、由用户自行确定，AI 不自动填充（信任 even over 省事）。
     private func applySuggestion(category: String) {
         if let categoryDim = dimensions.first(where: { $0.systemKey == CategorySystemKey.category }),
            (selectedByDimension[categoryDim.id] ?? []).isEmpty,
@@ -293,8 +290,7 @@ public final class CaptureResultViewModel {
             image: image,
             selectedValues: selectedValues,
             answerText: answerText,
-            answerImage: answerImage,
-            difficulty: difficulty
+            answerImage: answerImage
         )
         do {
             try await coordinator.save(form)
@@ -342,8 +338,7 @@ public final class CaptureResultViewModel {
 
         analyticsService.track(.captureSaved, parameters: [
             "category": selectedName(forSystemKey: CategorySystemKey.category),
-            "source": selectedName(forSystemKey: CategorySystemKey.source),
-            "difficulty": String(difficulty.rawValue)
+            "source": selectedName(forSystemKey: CategorySystemKey.source)
         ])
         analyticsService.track(.reviewItemCreated, parameters: [
             "has_image": image != nil ? "true" : "false",

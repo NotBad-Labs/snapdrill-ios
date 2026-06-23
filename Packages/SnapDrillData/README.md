@@ -25,7 +25,7 @@
 - `DataSeeder`: 测试数据生成器
 
 ## 依赖
-- `SnapDrillCore`: 引用核心类型（Difficulty、ReviewRating 等）
+- `SnapDrillCore`: 引用核心类型（ReviewRating、PDFExportable 等）
 - `ZIPFoundation`: ZIP 压缩/解压（备份归档）
 
 ## 关键用法

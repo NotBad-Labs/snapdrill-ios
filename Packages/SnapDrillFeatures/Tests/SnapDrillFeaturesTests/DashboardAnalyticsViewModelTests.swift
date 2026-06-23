@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  DashboardAnalyticsViewModel 统计聚合逻辑测试：分类趋势、难度分布、薄弱分类。
+//  DashboardAnalyticsViewModel 统计聚合逻辑测试：分类趋势、待回顾分类。
 //
 
 import Testing
@@ -39,7 +39,6 @@ final class DashboardAnalyticsViewModelTests {
     private func makeItem(
         content: String = "题目",
         category: String = "数学",
-        difficulty: Int = 1,
         createdAt: Date = .now,
         nextReviewAt: Date = Date.distantFuture
     ) -> ReviewItemModel {
@@ -47,7 +46,6 @@ final class DashboardAnalyticsViewModelTests {
         if let categoryDim = try? repos.dimension.fetchDimension(bySystemKey: CategorySystemKey.category) {
             item.categoryValues = [repos.categoryValue.fetchOrCreate(name: category, in: categoryDim)]
         }
-        item.difficulty = difficulty
         item.createdAt = createdAt
         item.nextReviewAt = nextReviewAt
         return item
@@ -66,43 +64,8 @@ final class DashboardAnalyticsViewModelTests {
         vm.loadAnalytics()
 
         #expect(vm.categoryTrend.isEmpty)
-        // difficultyDistribution 始终有 5 个桶（1-5），空数据时全部 count=0
-        #expect(!vm.difficultyDistribution.isEmpty)
-        // swiftlint:disable:next empty_count
-        #expect(vm.difficultyDistribution.allSatisfy { $0.count == 0 }) // DifficultyBucket.count 是 Int 属性
         #expect(vm.categoriesNeedingReview.isEmpty)
-        // hasData 基于 !categoryTrend.isEmpty || !difficultyDistribution.isEmpty
-        // 空数据时 difficultyDistribution 仍有 5 个零桶，所以 hasData = true
-        #expect(vm.hasData)
-        vm.cancelTasks()
-    }
-
-    // MARK: - 难度分布
-
-    @Test("难度分布 — 正确按 1-5 分桶")
-    func difficultyDistribution_correctBuckets() throws {
-        // 难度 1 x2, 难度 3 x1, 难度 5 x1
-        let items = [
-            makeItem(difficulty: 1),
-            makeItem(difficulty: 1),
-            makeItem(difficulty: 3),
-            makeItem(difficulty: 5)
-        ]
-        for item in items { repos.review.insert(item) }
-        try repos.review.saveContext()
-
-        let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
-        vm.loadAnalytics()
-
-        // swiftlint:disable empty_count
-        #expect(vm.difficultyDistribution.count == 5)
-        #expect(vm.difficultyDistribution.first(where: { $0.difficulty == 1 })?.count == 2)
-        #expect(vm.difficultyDistribution.first(where: { $0.difficulty == 2 })?.count == 0)
-        #expect(vm.difficultyDistribution.first(where: { $0.difficulty == 3 })?.count == 1)
-        #expect(vm.difficultyDistribution.first(where: { $0.difficulty == 4 })?.count == 0)
-        #expect(vm.difficultyDistribution.first(where: { $0.difficulty == 5 })?.count == 1)
-        // swiftlint:enable empty_count
-        #expect(vm.hasData)
+        #expect(!vm.hasData)
         vm.cancelTasks()
     }
 
@@ -295,24 +258,20 @@ final class DashboardAnalyticsViewModelTests {
 
     // MARK: - 联合测试
 
-    @Test("loadAnalytics — 三个维度同时正确聚合")
+    @Test("loadAnalytics — 分类趋势与待回顾排行同时正确聚合")
     func loadAnalytics_allDimensions() throws {
         let pastDue = Date(timeIntervalSinceNow: -3600)
 
-        // 数学: 难度 1, 3 道, 2 道到期
-        repos.review.insert(makeItem(content: "数学1", category: "数学", difficulty: 1, nextReviewAt: pastDue))
-        repos.review.insert(makeItem(content: "数学2", category: "数学", difficulty: 1, nextReviewAt: pastDue))
-        repos.review.insert(makeItem(content: "数学3", category: "数学", difficulty: 1, nextReviewAt: .distantFuture))
-        // 英语: 难度 3, 1 道, 1 道到期
-        repos.review.insert(makeItem(content: "英语1", category: "英语", difficulty: 3, nextReviewAt: pastDue))
+        // 数学: 3 道，2 道到期
+        repos.review.insert(makeItem(content: "数学1", category: "数学", nextReviewAt: pastDue))
+        repos.review.insert(makeItem(content: "数学2", category: "数学", nextReviewAt: pastDue))
+        repos.review.insert(makeItem(content: "数学3", category: "数学", nextReviewAt: .distantFuture))
+        // 英语: 1 道，1 道到期
+        repos.review.insert(makeItem(content: "英语1", category: "英语", nextReviewAt: pastDue))
         try repos.review.saveContext()
 
         let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
-
-        // 难度分布
-        #expect(vm.difficultyDistribution.first(where: { $0.difficulty == 1 })?.count == 3)
-        #expect(vm.difficultyDistribution.first(where: { $0.difficulty == 3 })?.count == 1)
 
         // 薄弱分类
         #expect(vm.categoriesNeedingReview.count == 2)

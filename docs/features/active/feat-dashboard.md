@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-19
+last_updated: 2026-06-23
 intent_refs:
   - vision:P2
   - vision:P5
@@ -16,7 +16,7 @@ intent_refs:
 > 人读摘要派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 扫描各 spec 的 frontmatter **自动生成**，禁止手改（pre-commit 校验）。
 > 本 spec 高内聚承载该功能 Why / What / How / Verify，不拆散到多文件（docs 重组 B）。
-> 本文件于 2026-06-02 由 Batch 2 审计补建——Dashboard 代码先行存在而无 owning spec（孤儿代码，KI-03），多个 active spec（review / library / capture）消费其统计口径却无归属定义；本 spec 据 `DashboardView` / `DashboardViewModel` 实证补齐。**仅覆盖免费基础首页**；高级统计（分类趋势/难度分布/待回顾较多分类，Pro）归 `../backlog/feat-advanced-stats.md`。
+> 本文件于 2026-06-02 由 Batch 2 审计补建——Dashboard 代码先行存在而无 owning spec（孤儿代码，KI-03），多个 active spec（review / library / capture）消费其统计口径却无归属定义；本 spec 据 `DashboardView` / `DashboardViewModel` 实证补齐。**仅覆盖免费基础首页**；高级统计（分类趋势/薄弱排行/待回顾较多分类，Pro）归 `../backlog/feat-advanced-stats.md`。
 
 ## 1. 为什么做 (Why) — 纯 why，不混实现/UI 细节
 - **痛点 / 价值**：用户打开 App 需要一眼看到「资料 / 文档攒了多少、今天有没有要回顾的、今天新录了几条」，把分散的资料库/回顾状态收敛成一个概览入口，降低导航成本。首页是「看数据 → 回顾 / 整理 → 导出打印」闭环的起点与回归点。
@@ -30,7 +30,7 @@ intent_refs:
   - **草稿恢复入口**：检测到未保存草稿时，首页发起采集前弹窗提示恢复 / 新建（承接 `feat-capture` 的 `CaptureDraftService`）。
   - **字段管理入口**：提供分类管理器等配置入口跳转（归属 `feat-library`）。
 - **边界 / 不做**：
-  - **不做高级统计**：分类趋势 / 难度分布 / 待回顾较多分类 = Pro 高级统计，归 `../backlog/feat-advanced-stats.md`（阻塞 #479）；首页仅以 **Pro 门控 teaser**（模糊 + 稍后推出 overlay）呈现入口，完整图表为 Pro，免费首页不展开完整统计。
+  - **不做高级统计**：分类趋势 / 薄弱排行 / 待回顾较多分类 = Pro 高级统计，归 `../backlog/feat-advanced-stats.md`（阻塞 #479）；首页仅以 **Pro 门控 teaser**（模糊 + 稍后推出 overlay）呈现入口，完整图表为 Pro，免费首页不展开完整统计。
   - 首页不承载资料的增删改（写操作在采集/资料库/回顾），仅概览 + 跳转。
   - 统计口径不在本 spec 重新定义——以被消费 feature 的 spec 为准，避免口径分裂。
 - **前置依赖**：`feat-review`（SM-2 待回顾 / 已回顾口径）、`feat-library`（资料库总数与字段管理）、`feat-capture`（草稿恢复 + 采集入口）。

@@ -104,8 +104,7 @@ final class DependencyContainer {
                 content: Self.imageFixtureContent,
                 imagePath: questionPath,
                 answerText: "Image fixture answer",
-                answerImagePath: answerPath,
-                difficulty: 3
+                answerImagePath: answerPath
             )
             item.categoryValues = try Self.fixtureCategoryValues(from: repositories)
             repositories.review.insert(item)

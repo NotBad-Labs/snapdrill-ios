@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  高级统计 ViewModel — 按天聚合分类趋势、难度分布、待回顾较多分类。
+//  高级统计 ViewModel — 按天聚合分类趋势与待回顾较多分类。
 //
 
 import Foundation
@@ -23,13 +23,6 @@ nonisolated struct CategoryTrendPoint: Identifiable {
     let count: Int
 }
 
-/// 难度分布数据点
-nonisolated struct DifficultyBucket: Identifiable {
-    let id = UUID()
-    let difficulty: Int
-    let count: Int
-}
-
 /// 待回顾较多分类排行项
 nonisolated struct CategoryReviewLoadItem: Identifiable {
     let id = UUID()
@@ -42,7 +35,7 @@ nonisolated struct CategoryReviewLoadItem: Identifiable {
 
 /// 高级统计 ViewModel
 ///
-/// 从 ReviewRepository 获取原始数据，在内存层按天/分类/难度聚合。
+/// 从 ReviewRepository 获取原始数据，在内存层按天/分类聚合。
 /// 聚合在 ViewModel 而非 Repository，因为 SwiftData #Predicate 不支持 GROUP BY。
 @MainActor
 @Observable
@@ -53,14 +46,11 @@ final class DashboardAnalyticsViewModel {
     /// 分类趋势（最近 30 天，按天 × 分类）
     private(set) var categoryTrend: [CategoryTrendPoint] = []
 
-    /// 难度分布（全量）
-    private(set) var difficultyDistribution: [DifficultyBucket] = []
-
     /// 待回顾较多分类排行（Top 5）
     private(set) var categoriesNeedingReview: [CategoryReviewLoadItem] = []
 
     /// 是否有数据
-    var hasData: Bool { !categoryTrend.isEmpty || !difficultyDistribution.isEmpty }
+    var hasData: Bool { !categoryTrend.isEmpty || !categoriesNeedingReview.isEmpty }
 
     // MARK: - 依赖
 
@@ -109,9 +99,6 @@ final class DashboardAnalyticsViewModel {
             let recentItems = allItems.filter { $0.createdAt >= since }
             categoryTrend = aggregateCategoryTrend(recentItems)
 
-            // 难度分布：全量
-            difficultyDistribution = aggregateDifficultyDistribution(allItems)
-
             // 待回顾较多分类：按待回顾数排序
             categoriesNeedingReview = aggregateCategoriesNeedingReview(allItems, now: now)
         } catch {
@@ -155,15 +142,6 @@ final class DashboardAnalyticsViewModel {
             }
         }
         return points
-    }
-
-    /// 按 difficulty 1-5 分组
-    private func aggregateDifficultyDistribution(_ items: [ReviewItemModel]) -> [DifficultyBucket] {
-        var buckets: [Int: Int] = [:]
-        for item in items {
-            buckets[item.difficulty, default: 0] += 1
-        }
-        return (1...5).map { DifficultyBucket(difficulty: $0, count: buckets[$0] ?? 0) }
     }
 
     /// 按分类统计待回顾数，取 Top 5

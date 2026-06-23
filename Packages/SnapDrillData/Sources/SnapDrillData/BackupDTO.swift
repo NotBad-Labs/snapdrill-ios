@@ -32,9 +32,10 @@ nonisolated public struct BackupManifest: Codable, Sendable {
     ///
     /// **版本历史**：
     /// - 1 → 动态维度系统重构基线（零用户阶段重置；旧 v1–v4 备份不再兼容，删除向后兼容容错）。
+    /// - 2 → 移除静态 `difficulty` 字段，级别 / 难度等属性统一经动态维度表达。
     ///
     /// 注：备份 Schema 与 SwiftData Schema 独立管理；版本机制保留，待有真实用户后再递增。
-    public static let currentSchemaVersion = 1
+    public static let currentSchemaVersion = 2
 
     public init(schemaVersion: Int, createdAt: Date, appVersion: String, totalItemCount: Int, profileCount: Int, profileNames: [String]) {
         self.schemaVersion = schemaVersion
@@ -58,7 +59,6 @@ nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
     public let nextReviewAt: Date
     public let answerText: String?
     public let answerImagePath: String?
-    public let difficulty: Int
     public let easeFactor: Double
     public let interval: Int
     public let repetitions: Int
@@ -74,7 +74,6 @@ nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
         nextReviewAt: Date,
         answerText: String?,
         answerImagePath: String?,
-        difficulty: Int,
         easeFactor: Double,
         interval: Int,
         repetitions: Int,
@@ -88,7 +87,6 @@ nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
         self.nextReviewAt = nextReviewAt
         self.answerText = answerText
         self.answerImagePath = answerImagePath
-        self.difficulty = difficulty
         self.easeFactor = easeFactor
         self.interval = interval
         self.repetitions = repetitions
@@ -192,7 +190,6 @@ extension ReviewItemModel {
             nextReviewAt: nextReviewAt,
             answerText: answerText,
             answerImagePath: answerImagePath,
-            difficulty: difficulty,
             easeFactor: easeFactor,
             interval: interval,
             repetitions: repetitions,

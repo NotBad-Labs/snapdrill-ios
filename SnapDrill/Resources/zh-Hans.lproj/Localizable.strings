@@ -81,7 +81,6 @@
 "capture.source" = "来源";
 "capture.tags" = "标签";
 "capture.tag_input_placeholder" = "输入标签，空格添加";
-"capture.difficulty" = "难度";
 "capture.level" = "阶段/级别";
 "capture.answer" = "参考内容";
 "capture.add_answer_image" = "添加参考图片";
@@ -164,11 +163,9 @@
 "library.no_search_results_hint" = "尝试调整搜索词或过滤条件";
 "library.sort_by_date" = "按时间";
 "library.sort_by_category" = "按分类";
-"library.sort_by_difficulty" = "按难度";
 "library.sort_by_review_status" = "按复习状态";
 "library.sort_time" = "时间";
 "library.sort_category" = "分类";
-"library.sort_difficulty" = "难度";
 "library.sort_review_status" = "复习状态";
 "library.all_categories" = "全部";
 "library.no_content" = "无文字内容";
@@ -197,7 +194,6 @@
 "library.metadata" = "属性";
 "library.filter" = "过滤";
 "library.filter_categories" = "分类";
-"library.filter_difficulty" = "难度";
 "library.filter_tags" = "标签";
 "library.batch_tag" = "标签";
 "library.no_tags" = "还没有标签";
@@ -309,7 +305,6 @@
 "settings.capture_fields" = "录入字段";
 "settings.field_category" = "分类";
 "settings.field_source" = "来源";
-"settings.field_difficulty" = "难度";
 "settings.field_level" = "级别";
 "settings.field_answer" = "答案";
 "settings.review_settings" = "回顾设置";
@@ -543,14 +538,6 @@
 "categories.work" = "工作";
 "categories.other" = "其他";
 
-// MARK: - Difficulty
-
-"difficulty.very_easy" = "非常简单";
-"difficulty.easy" = "简单";
-"difficulty.medium" = "中等";
-"difficulty.hard" = "困难";
-"difficulty.very_hard" = "非常困难";
-
 // MARK: - Export
 
 "export.title" = "导出";
@@ -580,7 +567,6 @@
 "onboarding.field_config_description" = "选择录入资料时显示的字段，之后可在设置中调整。";
 "onboarding.field_category" = "分类";
 "onboarding.field_source" = "来源";
-"onboarding.field_difficulty" = "难度";
 "onboarding.field_level" = "级别";
 "onboarding.field_answer" = "答案";
 "onboarding.dismiss_tooltip" = "关闭提示";
@@ -683,13 +669,6 @@
 "accessibility.delete_tag" = "删除标签%@";
 "accessibility.add_tag" = "添加标签%@";
 "accessibility.stat_card" = "%@ %d 条";
-"accessibility.star_rating" = "难度 %d 星（共 %d 星），%@";
-"accessibility.difficulty_1" = "非常简单";
-"accessibility.difficulty_2" = "简单";
-"accessibility.difficulty_3" = "中等";
-"accessibility.difficulty_4" = "困难";
-"accessibility.difficulty_5" = "非常困难";
-"accessibility.review_item_label" = "%@资料，难度%@，内容：%@";
 "accessibility.review_button_hint" = "轻点开始回顾 %d 条内容";
 "accessibility.export_button_hint" = "轻点导出为 %@ 格式";
 "accessibility.progress_description" = "已处理 %d 条，共 %d 条，进度 %d%%";
@@ -784,7 +763,6 @@
 "accessibility.remove_tag_filter" = "移除标签过滤 %@";
 "accessibility.long_press_to_select" = "长按进入多选模式";
 "accessibility.tap_to_enlarge" = "轻点放大查看";
-"accessibility.metadata_group" = "%@ · %@ · 难度%@";
 "accessibility.close_full_screen_image" = "关闭全屏图片";
 "accessibility.full_screen_question_image" = "题目图片全屏预览";
 "accessibility.export_pdf_hint" = "生成 PDF 格式导出";
@@ -796,7 +774,6 @@
 "accessibility.select_icon" = "图标 %@";
 "accessibility.field_category_hint" = "开启后录入时显示分类选择";
 "accessibility.field_source_hint" = "开启后录入时显示来源选择";
-"accessibility.field_difficulty_hint" = "开启后录入时显示难度选择";
 "accessibility.field_level_hint" = "开启后录入时显示级别选择";
 "accessibility.field_answer_hint" = "开启后录入时显示答案输入";
 "accessibility.clear_all_data_hint" = "删除所有资料、标签和回顾记录，不可恢复";
@@ -849,7 +826,7 @@
 "settings.import_complete" = "成功导入 %d 条资料";
 "settings.import_failed" = "导入失败";
 "settings.import_no_valid_rows" = "CSV 文件中没有有效数据行";
-"settings.import_csv_format" = "CSV 首行需包含列名：Content, Category, Difficulty, Answer, Tags 等";
+"settings.import_csv_format" = "CSV 首行需包含列名：Content, Category, Answer, Tags 等";
 "settings.card_front_preview" = "内容：已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。";
 "settings.card_back_preview" = "参考：∠B = 72°。";
 "smart_paper.title" = "智能组卷";
@@ -857,9 +834,7 @@
 "smart_paper.generate" = "生成试卷";
 "smart_paper.question_count" = "题目数量";
 "smart_paper.category_filter" = "分类";
-"smart_paper.difficulty_filter" = "难度";
 "smart_paper.all_categories" = "全部分类";
-"smart_paper.all_difficulties" = "全部难度";
 "smart_paper.no_items_title" = "暂无可选题目";
 "smart_paper.no_items_message" = "当前筛选条件下没有题目，请调整筛选或先采集一些题目";
 "smart_paper.pdf_title" = "智能复习卷";
@@ -868,7 +843,6 @@
 "statistics.title" = "资料洞察";
 "statistics.category_trend" = "分类趋势";
 "statistics.last_30_days" = "最近 30 天";
-"statistics.difficulty_distribution" = "难度分布";
 "statistics.categories_needing_review" = "待回顾较多的分类";
 "statistics.categories_needing_review_hint" = "这些分类的待回顾内容较多";
 "statistics.no_data" = "暂无数据";

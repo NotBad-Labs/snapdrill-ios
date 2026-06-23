@@ -142,19 +142,6 @@ struct LibraryDetailView: View {
                     .padding(.horizontal)
                 }
 
-                // 难度（级别等已并入上方动态维度展示）
-                HStack(spacing: 12) {
-                    HStack(spacing: 3) {
-                        ForEach(1...5, id: \.self) { level in
-                            Image(systemName: level <= item.difficulty ? "star.fill" : "star")
-                                .font(.caption)
-                                .foregroundStyle(level <= item.difficulty ? .orange : .gray.opacity(0.3))
-                        }
-                    }
-                    .accessibleGroup(label: L10n.Accessibility.starRating(difficulty: item.difficulty))
-                }
-                .padding(.horizontal)
-
                 // 答案与备注区：默认隐藏，避免从列表进入详情时直接泄露答案。
                 if hasAnswerContent {
                     Divider()
@@ -351,7 +338,6 @@ struct LibraryDetailView: View {
             content: item.content,
             image: loadedImage,
             category: item.primaryCategoryName ?? "",
-            difficulty: item.difficulty,
             tags: item.tagCategoryNames
         )
 

@@ -162,23 +162,13 @@ public final class ReviewRepository {
     /// - Parameters:
     ///   - limit: 最大选题数量
     ///   - categoryValueIds: 主分类维度筛选（空 = 不限）
-    ///   - difficulties: 难度筛选（空 = 不限）
     /// - Returns: 按紧迫度排序的题目列表
     public func fetchSmartSelection(
         limit: Int,
         categoryValueIds: Set<UUID> = [],
-        difficulties: Set<Int> = [],
         excluding ids: Set<UUID> = []
     ) throws -> [ReviewItemModel] {
-        let difficultiesArray = Array(difficulties)
-
-        // difficulty 走 DB #Predicate；分类是维度值（many-to-many）只能内存过滤，保持 SM-2 紧迫度排序后再截断
-        let predicate = #Predicate<ReviewItemModel> { item in
-            difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty)
-        }
-
         var descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: predicate,
             sortBy: [
                 SortDescriptor(\.nextReviewAt, order: .forward),
                 SortDescriptor(\.repetitions, order: .forward)
@@ -249,20 +239,17 @@ public final class ReviewRepository {
     public func fetchFilteredModels(
         searchText: String,
         valueIdsByDimension: [UUID: Set<UUID>],
-        difficulties: Set<Int> = [],
         sortDescriptors: [SortDescriptor<ReviewItemModel>] = [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
         sortByCategoryName: Bool = false,
         limit: Int,
         offset: Int
     ) throws -> [ReviewItemModel] {
         let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
-        let difficultiesArray = Array(difficulties)
 
-        // search + difficulty 走 DB 级 #Predicate；维度值（many-to-many）只能内存过滤（#Predicate 不支持关系）。
+        // search 走 DB 级 #Predicate；维度值（many-to-many）只能内存过滤（#Predicate 不支持关系）。
         // #Predicate 内禁止 force unwrap，用 ?.localizedStandardContains == true 替代。
         let predicate = #Predicate<ReviewItemModel> { item in
-            (normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true) &&
-            (difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty))
+            normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true
         }
 
         // 维度值过滤或主分类维度值名排序都需要内存处理；否则用 DB 级分页（高效路径）。
@@ -280,14 +267,14 @@ public final class ReviewRepository {
             matching = try modelContext.fetch(descriptor)
         } else {
             // 维度过滤走候选集路径：先从选中维度值的 inverse `items` 取候选题 ID，
-            // 再只对候选题做搜索 / 难度 / 关系排序。避免常见“点分类 chip”
+            // 再只对候选题做搜索 / 关系排序。避免常见“点分类 chip”
             // 触发全量 ReviewItemModel fetch 后再内存过滤。
             let candidates = try fetchCandidateModels(
                 valueIdsByDimension: valueIdsByDimension,
                 sortDescriptors: sortDescriptors
             )
             matching = candidates.filter {
-                matchesSearchAndDifficulty($0, normalizedSearch: normalizedSearch, difficulties: difficulties)
+                matchesSearch($0, normalizedSearch: normalizedSearch)
             }
         }
 
@@ -388,13 +375,11 @@ public final class ReviewRepository {
         return try modelContext.fetch(descriptor)
     }
 
-    private func matchesSearchAndDifficulty(
+    private func matchesSearch(
         _ item: ReviewItemModel,
-        normalizedSearch: String,
-        difficulties: Set<Int>
+        normalizedSearch: String
     ) -> Bool {
-        (normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true) &&
-        (difficulties.isEmpty || difficulties.contains(item.difficulty))
+        normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true
     }
 
 }

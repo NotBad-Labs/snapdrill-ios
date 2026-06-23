@@ -51,14 +51,14 @@ layer: pattern
 | 事件名 | 触发条件 | 参数 | 用途 |
 |---|---|---|---|
 | `camera_opened` | 用户打开相机采集页 | — | 采集入口使用率 |
-| `capture_saved` | 用户完成录入并保存 | `capture_method`（camera/photos/pdf/manual/clipboard/share_extension）, `category`, `difficulty`, `has_answer`（true/false） | 录入成功率、采集方式分布 |
+| `capture_saved` | 用户完成录入并保存 | `capture_method`（camera/photos/pdf/manual/clipboard/share_extension）, `category`, `has_answer`（true/false） | 录入成功率、采集方式分布 |
 | `ocr_performed` | OCR 识别完成 | `ocr_language`（zh-Hans/en-US）, `character_count`, `ocr_duration_ms` | OCR 使用量和性能 |
 
 ### 管理
 
 | 事件名 | 触发条件 | 参数 | 用途 |
 |---|---|---|---|
-| `review_item_created` | 新题目保存成功 | `category`, `difficulty`, `capture_method` | 录入量、内容结构 |
+| `review_item_created` | 新题目保存成功 | `category`, `capture_method` | 录入量、内容结构 |
 | `review_item_completed` | 题目编辑/补充完成 | `category` | 管理行为 |
 
 ### 复习

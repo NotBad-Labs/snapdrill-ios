@@ -290,8 +290,8 @@ final class CaptureResultViewModelTests {
 
     // MARK: - AI 标注回填（动态分类维度，S6-cut 后从写裸字段改为命中维度值选中）
 
-    @Test("AI 标注：建议 category 命中分类维度值则选中；难度不被 AI 填，由用户自定")
-    func aiTagging_backfillsCategoryOnly_notDifficulty() async throws {
+    @Test("AI 标注：建议 category 命中分类维度值则选中")
+    func aiTagging_backfillsCategoryOnly() async throws {
         let categoryDim = CategoryDimensionModel(
             name: "分类", isMultiValue: false, isBuiltIn: true,
             systemKey: CategorySystemKey.category, sortOrder: 0
@@ -301,7 +301,7 @@ final class CaptureResultViewModelTests {
         try repos.categoryValue.insertAndSave(math)
 
         let tagging = ContentTaggingServiceMock()
-        tagging.suggestResult = ContentTagSuggestion(category: "数学", difficulty: 3)
+        tagging.suggestResult = ContentTagSuggestion(category: "数学")
         let vm = CaptureResultViewModel(
             content: "一道关于函数的数学题",   // 非空，触发 AI 标注
             image: nil,
@@ -316,7 +316,6 @@ final class CaptureResultViewModelTests {
         try await waitUntil { vm.selectedIds(forDimension: categoryDim.id).contains(math.id) }
 
         #expect(vm.selectedIds(forDimension: categoryDim.id) == [math.id])
-        #expect(vm.difficulty == .one)   // 难度不被 AI 标注修改，保持初始默认值，由用户自定
     }
 
     // MARK: - 字段配置引导

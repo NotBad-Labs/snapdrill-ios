@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  L10n 采集流程分片：Capture / Category presets / Difficulty。
+//  L10n 采集流程分片：Capture / Category presets。
 //
 
 import Foundation
@@ -46,7 +46,6 @@ nonisolated extension L10n {
         public static let source = NSLocalizedString("capture.source", value: "来源", comment: "来源标签")
         public static let tags = NSLocalizedString("capture.tags", value: "标签", comment: "标签标签")
         public static let tagInputPlaceholder = NSLocalizedString("capture.tag_input_placeholder", value: "输入标签，空格添加", comment: "标签输入框占位提示")
-        public static let difficulty = NSLocalizedString("capture.difficulty", value: "难度", comment: "难度标签")
         public static let level = NSLocalizedString("capture.level", value: "阶段/级别", comment: "阶段标签")
         public static let answer = NSLocalizedString("capture.answer", value: "参考内容", comment: "参考内容标签")
         public static let addAnswerImage = NSLocalizedString("capture.add_answer_image", value: "添加参考图片", comment: "添加参考图片")
@@ -130,24 +129,4 @@ nonisolated extension L10n {
         public static let other = NSLocalizedString("categories.other", value: "其他", comment: "其他")
     }
 
-    // MARK: - Difficulty
-
-    public enum Difficulty {
-        public static let veryEasy = NSLocalizedString("difficulty.very_easy", value: "非常简单", comment: "非常简单")
-        public static let easy = NSLocalizedString("difficulty.easy", value: "简单", comment: "简单")
-        public static let medium = NSLocalizedString("difficulty.medium", value: "中等", comment: "中等")
-        public static let hard = NSLocalizedString("difficulty.hard", value: "困难", comment: "困难")
-        public static let veryHard = NSLocalizedString("difficulty.very_hard", value: "非常困难", comment: "非常困难")
-
-        public static func text(for level: Int) -> String {
-            switch level {
-            case 1: return veryEasy
-            case 2: return easy
-            case 3: return medium
-            case 4: return hard
-            case 5: return veryHard
-            default: return medium
-            }
-        }
-    }
 }

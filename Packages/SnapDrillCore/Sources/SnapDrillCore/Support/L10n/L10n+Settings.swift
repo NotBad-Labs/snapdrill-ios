@@ -21,7 +21,6 @@ nonisolated extension L10n {
         public static let captureFields = NSLocalizedString("settings.capture_fields", value: "录入字段", comment: "录入字段区标题")
         public static let fieldCategory = NSLocalizedString("settings.field_category", value: "分类", comment: "分类字段")
         public static let fieldSource = NSLocalizedString("settings.field_source", value: "来源", comment: "来源字段")
-        public static let fieldDifficulty = NSLocalizedString("settings.field_difficulty", value: "难度", comment: "难度字段")
         public static let fieldLevel = NSLocalizedString("settings.field_level", value: "级别", comment: "级别字段")
         public static let fieldAnswer = NSLocalizedString("settings.field_answer", value: "答案", comment: "答案字段")
 
@@ -200,7 +199,7 @@ nonisolated extension L10n {
         }
         public static let importFailed = NSLocalizedString("settings.import_failed", value: "导入失败", comment: "导入失败")
         public static let importNoValidRows = NSLocalizedString("settings.import_no_valid_rows", value: "CSV 文件中没有有效数据行", comment: "无有效行")
-        public static let importCSVFormat = NSLocalizedString("settings.import_csv_format", value: "CSV 首行需包含列名：Content, Category, Difficulty, Answer, Tags 等", comment: "CSV 格式说明")
+        public static let importCSVFormat = NSLocalizedString("settings.import_csv_format", value: "CSV 首行需包含列名：Content, Category, Answer, Tags 等", comment: "CSV 格式说明")
         public static let restoreDialogTitle = NSLocalizedString("settings.restore_dialog_title", value: "恢复数据", comment: "恢复数据对话框标题")
         public static let selectBackupFile = NSLocalizedString("settings.select_backup_file", value: "选择备份文件", comment: "选择备份文件按钮")
         public static let restoreDialogMessage = NSLocalizedString("settings.restore_dialog_message", value: "恢复将替换当前所有数据，此操作不可撤销。恢复前会自动备份当前数据到临时目录。", comment: "恢复对话框提示")

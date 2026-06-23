@@ -53,16 +53,16 @@ final class SmartPaperViewModelTests {
     @discardableResult
     private func seedItems() throws -> [String: CategoryValueModel] {
         let values = try seedCategories()
-        func add(_ content: String, _ category: String, _ difficulty: Int) {
-            let item = ReviewItemModel(content: content, difficulty: difficulty)
+        func add(_ content: String, _ category: String) {
+            let item = ReviewItemModel(content: content)
             if let value = values[category] { item.categoryValues = [value] }
             repos.review.insert(item)
         }
-        add("数学题1", "数学", 3)
-        add("数学题2", "数学", 1)
-        add("英语题1", "英语", 2)
-        add("物理题1", "物理", 4)
-        add("物理题2", "物理", 5)
+        add("数学题1", "数学")
+        add("数学题2", "数学")
+        add("英语题1", "英语")
+        add("物理题1", "物理")
+        add("物理题2", "物理")
         try repos.review.saveContext()
         return values
     }
@@ -137,45 +137,6 @@ final class SmartPaperViewModelTests {
         #expect(vm.selectedItems[0].content == "英语题1")
     }
 
-    @Test("refreshSelection 难度筛选")
-    func refreshSelection_filtersByDifficulty() throws {
-        try seedItems()
-        let vm = makeVM()
-        vm.selectedDifficulties = [4, 5]
-        vm.refreshSelection()
-
-        // 难度 4 和 5 的题目只有物理的两道
-        #expect(vm.selectedItems.count == 2)
-        #expect(Set(vm.selectedItems.map(\.content)) == ["物理题1", "物理题2"])
-    }
-
-    // MARK: - 联合筛选
-
-    @Test("refreshSelection 分类+难度联合筛选")
-    func refreshSelection_combinedFilter() throws {
-        let values = try seedItems()
-        let vm = makeVM()
-        vm.selectedCategoryValueIds = [try #require(values["数学"]).id]
-        vm.selectedDifficulties = [3]
-        vm.refreshSelection()
-
-        // 数学+难度3 只有"数学题1"
-        #expect(vm.selectedItems.count == 1)
-        #expect(vm.selectedItems[0].content == "数学题1")
-    }
-
-    @Test("refreshSelection 联合筛选无匹配时返回空")
-    func refreshSelection_combinedFilter_noMatch() throws {
-        let values = try seedItems()
-        let vm = makeVM()
-        vm.selectedCategoryValueIds = [try #require(values["英语"]).id]
-        vm.selectedDifficulties = [5]
-        vm.refreshSelection()
-
-        #expect(vm.selectedItems.isEmpty)
-        #expect(vm.errorMessage == nil)
-    }
-
     // MARK: - 边界条件
 
     @Test("refreshSelection questionCount 大于可用题目时返回全部")
@@ -193,16 +154,6 @@ final class SmartPaperViewModelTests {
         try seedItems()
         let vm = makeVM()
         vm.selectedCategoryValueIds = [UUID()] // 不存在的分类值 id
-        vm.refreshSelection()
-
-        #expect(vm.selectedItems.isEmpty)
-    }
-
-    @Test("refreshSelection 不存在的难度筛选返回空")
-    func refreshSelection_nonexistentDifficulty() throws {
-        try seedItems()
-        let vm = makeVM()
-        vm.selectedDifficulties = [99]
         vm.refreshSelection()
 
         #expect(vm.selectedItems.isEmpty)

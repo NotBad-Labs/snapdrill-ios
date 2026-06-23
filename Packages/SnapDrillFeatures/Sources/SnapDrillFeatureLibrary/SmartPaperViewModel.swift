@@ -28,9 +28,6 @@ final class SmartPaperViewModel {
     /// 主分类筛选：选中的主分类维度值 id（空 = 全部）
     var selectedCategoryValueIds: Set<UUID> = []
 
-    /// 难度筛选（空 = 全部）
-    var selectedDifficulties: Set<Int> = []
-
     // MARK: - PDF 选项
 
     var hideAnswers = true
@@ -93,7 +90,6 @@ final class SmartPaperViewModel {
             let models = try repositories.review.fetchSmartSelection(
                 limit: questionCount,
                 categoryValueIds: selectedCategoryValueIds,
-                difficulties: selectedDifficulties,
                 excluding: deletionScheduler.pendingDeletionIDs
             )
             selectedItems = models.map { $0.toExportSnapshot() }

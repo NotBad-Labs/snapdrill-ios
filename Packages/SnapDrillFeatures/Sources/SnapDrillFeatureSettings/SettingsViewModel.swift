@@ -161,7 +161,7 @@ public final class SettingsViewModel {
 
     /// 从 CSV 文件导入资料数据
     ///
-    /// CSV 首行为列名，支持的列：Content, Category, Source, Difficulty, Answer, Level, Tags。
+    /// CSV 首行为列名，支持的列：Content, Category, Source, Answer, Level, Tags，以及用户自定义维度。
     /// 列名不区分大小写，缺失列使用默认值。
     /// 内置维度列（Category/Source/Level/Tags）经 systemKey 兜底匹配——跨 locale 命中内置维度、
     /// 不建孤儿重复维度；其余非固定列按显示名匹配现有维度或新建用户维度。
@@ -199,7 +199,7 @@ public final class SettingsViewModel {
                     dimensionsBySystemKey[systemKey] = dimension
                 }
             }
-            let fixedKeys: Set<String> = ["id", "content", "difficulty", "answer", "createdat", "lastreviewed", "nextreview"]
+            let fixedKeys: Set<String> = ["id", "content", "answer", "createdat", "lastreviewed", "nextreview"]
             let context = CSVImportContext(
                 fixedKeys: fixedKeys,
                 dimensionsBySystemKey: dimensionsBySystemKey,
@@ -210,8 +210,7 @@ public final class SettingsViewModel {
             for (index, row) in rows.enumerated() {
                 let model = ReviewItemModel(
                     content: row["content"],
-                    answerText: row["answer"],
-                    difficulty: min(5, max(1, Int(row["difficulty"] ?? "1") ?? 1))
+                    answerText: row["answer"]
                 )
                 repositories.review.insert(model)
                 model.categoryValues = importCategoryValues(from: row, context: context, dimensionsByName: &dimensionsByName)

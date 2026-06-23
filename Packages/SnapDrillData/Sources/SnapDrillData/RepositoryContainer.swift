@@ -184,7 +184,6 @@ public final class RepositoryContainer {
                     nextReviewAt: dto.nextReviewAt,
                     answerText: dto.answerText,
                     answerImagePath: dto.answerImagePath,
-                    difficulty: dto.difficulty,
                     easeFactor: dto.easeFactor,
                     interval: dto.interval,
                     repetitions: dto.repetitions

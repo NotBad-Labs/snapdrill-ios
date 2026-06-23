@@ -21,8 +21,6 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     public let imagePath: String?
     /// 主分类维度首值（仅供 PDF 页眉 exportCategory；CSV 走 dimensionValues）
     public let category: String
-    /// 难度等级 (1-5)
-    public let difficulty: Int
     /// 答案文本
     public let answerText: String?
     /// 创建时间

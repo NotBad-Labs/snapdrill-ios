@@ -12,7 +12,6 @@ import Testing
 import SwiftData
 import Foundation
 @testable import SnapDrillData
-@testable import SnapDrillCore
 
 struct ReviewItemModelTests {
     
@@ -35,7 +34,6 @@ struct ReviewItemModelTests {
         #expect(model.content == "Empty Test")
         #expect(model.easeFactor == 2.5, "SM-2 初始 ease factor 必须是 2.5")
         #expect(model.interval == 0)
-        #expect(model.difficulty == 1, "新题默认难度为 1 星（Difficulty.one.rawValue）")
         #expect(model.categoryValues?.isEmpty == true)
     }
     
@@ -109,13 +107,11 @@ struct ReviewItemModelTests {
         
         // 2. Update
         model.content = "Updated Lifecycle"
-        model.difficulty = 5
         try context.save()
         
         fetchDescriptor = FetchDescriptor<ReviewItemModel>()
         results = try context.fetch(fetchDescriptor)
         #expect(results.first?.content == "Updated Lifecycle")
-        #expect(results.first?.difficulty == 5)
         
         // 3. Delete
         context.delete(model)

@@ -62,7 +62,7 @@ public final class ProfileManager {
     static let perProfileKeys: [String] = [
         UDKey.userName, UDKey.userAvatar, UDKey.userAvatarColorIndex, UDKey.userMotto,
         UDKey.dailyReviewGoal,
-        UDKey.captureFieldCategory, UDKey.captureFieldSource, UDKey.captureFieldDifficulty,
+        UDKey.captureFieldCategory, UDKey.captureFieldSource,
         UDKey.captureFieldLevel, UDKey.captureFieldAnswer,
         UDKey.lastSelectedCategory, UDKey.lastSelectedSource,
         UDKey.cardFrontAlignment, UDKey.cardFrontFontSize,
@@ -287,7 +287,6 @@ public final class ProfileManager {
             UDKey.userAvatarColorIndex: 0,
             UDKey.captureFieldCategory: false,
             UDKey.captureFieldSource: false,
-            UDKey.captureFieldDifficulty: false,
             UDKey.captureFieldLevel: false,
             UDKey.captureFieldAnswer: false,
             UDKey.dailyReviewGoal: 10

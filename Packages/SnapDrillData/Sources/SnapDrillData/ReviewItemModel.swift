@@ -10,7 +10,6 @@
 
 import Foundation
 import SwiftData
-import SnapDrillCore
 
 /// SwiftData 数据模型
 ///
@@ -53,21 +52,12 @@ public final class ReviewItemModel {
     @Relationship(deleteRule: .nullify, inverse: \CategoryValueModel.items)
     public var categoryValues: [CategoryValueModel]? = []
     
-    // MARK: - 答案与难度
+    // MARK: - Answer
     /// 答案文本（可选）
     public var answerText: String?
     
     /// 答案图片路径
     public var answerImagePath: String?
-    
-    /// 难度等级原始值 (1-5)，通过 `difficultyValue` 访问枚举类型
-    public var difficulty: Int = 1
-
-    /// 难度枚举访问器（rawValue 桥接）
-    public var difficultyValue: Difficulty {
-        get { Difficulty(rawValue: difficulty) ?? .one }
-        set { difficulty = newValue.rawValue }
-    }
 
     // MARK: - SM-2 Algorithm Fields
     /// 难度因子，初始 2.5，最小 1.3
@@ -89,7 +79,6 @@ public final class ReviewItemModel {
     ///   - nextReviewAt: 下次计划复习时间
     ///   - answerText: 答案文本
     ///   - answerImagePath: 答案图片路径
-    ///   - difficulty: 难度原始值（1-5）
     ///   - easeFactor: SM-2 难度因子
     ///   - interval: SM-2 当前间隔天数
     ///   - repetitions: SM-2 连续正确次数
@@ -103,7 +92,6 @@ public final class ReviewItemModel {
         nextReviewAt: Date = .distantPast,
         answerText: String? = nil,
         answerImagePath: String? = nil,
-        difficulty: Int = 1,
         easeFactor: Double = 2.5,
         interval: Int = 0,
         repetitions: Int = 0
@@ -117,7 +105,6 @@ public final class ReviewItemModel {
 
         self.answerText = answerText
         self.answerImagePath = answerImagePath
-        self.difficulty = difficulty
 
         // SM-2
         self.easeFactor = easeFactor
@@ -146,7 +133,6 @@ public final class ReviewItemModel {
             content: content,
             imagePath: imagePath,
             category: primaryCategoryName ?? "",
-            difficulty: difficulty,
             answerText: answerText,
             createdAt: createdAt,
             lastReviewedAt: lastReviewedAt == .distantPast ? nil : lastReviewedAt,

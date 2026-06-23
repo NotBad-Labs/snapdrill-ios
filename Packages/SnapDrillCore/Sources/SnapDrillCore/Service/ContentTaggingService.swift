@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  端侧 AI 内容标注服务，使用 FoundationModels 框架自动建议分类和难度。
+//  端侧 AI 内容标注服务，使用 FoundationModels 框架自动建议分类。
 //
 
 import Foundation
@@ -17,12 +17,9 @@ import FoundationModels
 nonisolated public struct ContentTagSuggestion: Sendable, Equatable {
     /// 建议主分类（如"题目"、"文档"）
     public let category: String
-    /// 建议难度（1-5）
-    public let difficulty: Int
 
-    public init(category: String, difficulty: Int) {
+    public init(category: String) {
         self.category = category
-        self.difficulty = difficulty
     }
 }
 
@@ -30,10 +27,10 @@ nonisolated public struct ContentTagSuggestion: Sendable, Equatable {
 
 /// 内容标注服务协议
 ///
-/// 从资料文本中自动推断分类和难度。
+/// 从资料文本中自动推断分类。
 /// 设备不支持 Apple Intelligence 时返回 nil。
 public protocol ContentTaggingServiceProtocol: Sendable {
-    /// 从资料文本推断分类和难度
+    /// 从资料文本推断分类
     ///
     /// - Parameter text: OCR 识别的题目文本
     /// - Returns: AI 建议的元数据，设备不支持或推断失败时返回 nil
@@ -45,7 +42,7 @@ public protocol ContentTaggingServiceProtocol: Sendable {
 /// 端侧 AI 内容标注服务
 ///
 /// 使用 `FoundationModels` 框架的 `contentTagging` adapter，
-/// 在设备端推断资料分类和难度等级。全部数据本地处理，离线可用。
+/// 在设备端推断资料分类。全部数据本地处理，离线可用。
 public actor ContentTaggingService: ContentTaggingServiceProtocol {
 
     public init() {}
@@ -63,7 +60,7 @@ public actor ContentTaggingService: ContentTaggingServiceProtocol {
         do {
             let session = LanguageModelSession(
                 model: SystemLanguageModel(useCase: .contentTagging),
-                instructions: "根据资料内容判断分类和难度。分类从以下选择：题目、文档、票据、培训、工作、其他。难度 1-5，1 最简单 5 最难。"
+                instructions: "根据资料内容判断分类。分类从以下选择：题目、文档、票据、培训、工作、其他。"
             )
 
             let response = try await session.respond(
@@ -72,8 +69,7 @@ public actor ContentTaggingService: ContentTaggingServiceProtocol {
             )
 
             let result = response.content
-            let clampedDifficulty = max(1, min(5, result.difficulty))
-            return ContentTagSuggestion(category: result.category, difficulty: clampedDifficulty)
+            return ContentTagSuggestion(category: result.category)
         } catch {
             SnapDrillLogger.generic.error("AI 标注失败: \(error.localizedDescription)")
             return nil
@@ -87,8 +83,6 @@ public actor ContentTaggingService: ContentTaggingServiceProtocol {
 struct TaggingResult {
     @Guide(description: "资料分类，如题目、文档、票据、培训、工作、其他")
     var category: String
-    @Guide(description: "难度等级 1-5，1 最简单 5 最难")
-    var difficulty: Int
 }
 
 // MARK: - Mock

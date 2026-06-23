@@ -31,7 +31,7 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ### 导出
 
-- ``ReviewExportSnapshot`` — Sendable 快照（含 id、题干、图片路径、难度、标签等 11 个字段），用于跨 actor 边界传递题目数据
+- ``ReviewExportSnapshot`` — Sendable 快照（含 id、题干、图片路径、动态维度值等字段），用于跨 actor 边界传递题目数据
 
 ### 备份与恢复
 
@@ -47,7 +47,7 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ## 依赖
 
-- `SnapDrillCore`：引用核心类型（Difficulty、ReviewRating 等）
+- `SnapDrillCore`：引用核心类型（ReviewRating、PDFExportable 等）
 - `ZIPFoundation`：ZIP 压缩/解压（备份归档）
 
 ## 禁止模式

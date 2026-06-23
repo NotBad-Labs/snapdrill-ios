@@ -24,8 +24,7 @@ public struct CaptureResultView: View {
     // @Bindable 用于外部传入的 @Observable 对象，不持有所有权（区别于 @State）
     @Bindable var viewModel: CaptureResultViewModel
 
-    // 固定字段可见性（难度/答案）。L3：分类/来源/级别已并入动态维度，可见性按维度（VM）。
-    @AppStorage(UDKey.captureFieldDifficulty) private var showDifficultyField: Bool = false
+    // 固定字段可见性（答案）。分类/来源/级别/自定义维度可见性按维度（VM）。
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
 
     /// 创建采集结果视图
@@ -56,7 +55,6 @@ public struct CaptureResultView: View {
 
                 CaptureDetailsSection(
                     viewModel: viewModel,
-                    showDifficulty: showDifficultyField,
                     showAnswer: showAnswerField
                 )
 

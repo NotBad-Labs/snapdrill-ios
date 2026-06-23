@@ -16,7 +16,6 @@ import SnapDrillData
 private struct LibraryQueryState: Equatable {
     let searchText: String
     let valueIdsByDimension: [UUID: Set<UUID>]
-    let difficulties: Set<Int>
     let sortOption: LibrarySortOption
 }
 
@@ -26,8 +25,6 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
     case createdAt
     /// 按主分类升序（A→Z）
     case category
-    /// 按难度倒序（最难在前）
-    case difficulty
     /// 按复习状态升序（最紧急在前）
     case reviewStatus
 
@@ -37,7 +34,6 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
         switch self {
         case .createdAt: L10n.Library.sortTime
         case .category: L10n.Library.sortCategory
-        case .difficulty: L10n.Library.sortDifficulty
         case .reviewStatus: L10n.Library.sortReviewStatus
         }
     }
@@ -50,9 +46,6 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
             // 主分类是动态维度值（关系），无法走 SortDescriptor → 实际排序由 sortsByCategoryName 内存完成；
             // 此处仅给内存路径前的稳定预排序（createdAt 倒序作 tiebreaker）。
             [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
-        case .difficulty:
-            [SortDescriptor(\ReviewItemModel.difficulty, order: .reverse),
-             SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
         case .reviewStatus:
             [SortDescriptor(\ReviewItemModel.nextReviewAt, order: .forward),
              SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
@@ -65,7 +58,7 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
 
 /// 题库列表 ViewModel
 ///
-/// 管理多维度过滤（搜索文本、分类、标签）、分页加载和数据刷新逻辑。
+/// 管理多维度过滤（搜索文本、动态字段）、分页加载和数据刷新逻辑。
 /// 维度值过滤由 Data 层先缩小候选集，再按 many-to-many 语义校验；分页写回前会确认查询条件未变化。
 @Observable
 public final class LibraryViewModel {
@@ -89,10 +82,6 @@ public final class LibraryViewModel {
     }
     /// 已选中的维度值过滤（dimensionId → 选中 valueIds；语义：维度间 AND、维度内 OR；离散事件 → 即时刷新）
     public var selectedValueIdsByDimension: [UUID: Set<UUID>] = [:] {
-        didSet { scheduleRefresh(debounced: false) }
-    }
-    /// 已选中的难度过滤集合（离散事件 → 即时刷新）
-    public var selectedDifficulties: Set<Int> = [] {
         didSet { scheduleRefresh(debounced: false) }
     }
     /// 当前排序方式（离散事件 → 即时刷新）
@@ -135,7 +124,6 @@ public final class LibraryViewModel {
         LibraryQueryState(
             searchText: searchText,
             valueIdsByDimension: selectedValueIdsByDimension,
-            difficulties: selectedDifficulties,
             sortOption: sortOption
         )
     }
@@ -201,7 +189,7 @@ public final class LibraryViewModel {
         }
     }
 
-    /// 清除全部维度值过滤（保留搜索/难度）
+    /// 清除全部维度值过滤（保留搜索）
     public func clearValueFilters() {
         selectedValueIdsByDimension.removeAll()
     }
@@ -241,7 +229,6 @@ public final class LibraryViewModel {
             let results = try repositories.review.fetchFilteredModels(
                 searchText: searchText,
                 valueIdsByDimension: selectedValueIdsByDimension,
-                difficulties: selectedDifficulties,
                 sortDescriptors: sortOption.sortDescriptors,
                 sortByCategoryName: sortOption.sortsByCategoryName,
                 limit: pageSize,
@@ -273,7 +260,6 @@ public final class LibraryViewModel {
             let nextItems = try repositories.review.fetchFilteredModels(
                 searchText: searchText,
                 valueIdsByDimension: selectedValueIdsByDimension,
-                difficulties: selectedDifficulties,
                 sortDescriptors: sortOption.sortDescriptors,
                 sortByCategoryName: sortOption.sortsByCategoryName,
                 limit: pageSize,
@@ -401,7 +387,6 @@ public final class LibraryViewModel {
     public func resetFilters() {
         searchText = ""
         selectedValueIdsByDimension.removeAll()
-        selectedDifficulties.removeAll()
     }
 
     /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）

@@ -6,7 +6,6 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  LibraryEditViewModel 核心路径单元测试：init 状态映射、save 持久化、图片操作、动态维度。
-//  L3：分类断言改为动态维度（dimensions/selectedByDimension），难度保留有序刻度。
 //
 
 import Testing
@@ -46,14 +45,12 @@ final class LibraryEditViewModelTests {
     private func createVM(
         content: String? = "原始题目",
         imagePath: String? = nil,
-        answerText: String? = "原始答案",
-        difficulty: Int = 1
+        answerText: String? = "原始答案"
     ) throws -> TestContext {
         let item = ReviewItemModel(
             content: content,
             imagePath: imagePath,
-            answerText: answerText,
-            difficulty: difficulty
+            answerText: answerText
         )
         repos.review.insert(item)
 
@@ -67,17 +64,15 @@ final class LibraryEditViewModelTests {
 
     // MARK: - init 状态映射
 
-    @Test("init 从 ReviewItemModel 正确映射文本与难度字段")
+    @Test("init 从 ReviewItemModel 正确映射文本与答案字段")
     func init_mapsAllFields() throws {
         let ctx = try createVM(
             content: "测试内容",
-            answerText: "测试答案",
-            difficulty: 3
+            answerText: "测试答案"
         )
 
         #expect(ctx.vm.content == "测试内容")
         #expect(ctx.vm.answer == "测试答案")
-        #expect(ctx.vm.difficulty == .three)
     }
 
     @Test("init content 为 nil 时映射为空字符串")
@@ -165,20 +160,18 @@ final class LibraryEditViewModelTests {
 
     // MARK: - save
 
-    @Test("save 更新 @Model 文本与难度属性")
+    @Test("save 更新 @Model 文本与答案属性")
     func save_updatesModelProperties() async throws {
         let ctx = try createVM()
 
         ctx.vm.content = "修改后的内容"
         ctx.vm.answer = "修改后的答案"
-        ctx.vm.difficulty = .four
 
         await ctx.vm.save()
 
         #expect(ctx.vm.isSavedNormally == true)
         #expect(ctx.item.content == "修改后的内容")
         #expect(ctx.item.answerText == "修改后的答案")
-        #expect(ctx.item.difficulty == 4)
     }
 
     @Test("save 同步选中的维度值到 @Model")

@@ -126,7 +126,7 @@ struct LibraryListView: View {
             }
 
             if viewModel.filteredItems.isEmpty {
-                if viewModel.searchText.isEmpty && viewModel.selectedValueIdsByDimension.isEmpty && viewModel.selectedDifficulties.isEmpty {
+                if viewModel.searchText.isEmpty && viewModel.selectedValueIdsByDimension.isEmpty {
                     ContentUnavailableView {
                         Label(L10n.Library.noItems, systemImage: "books.vertical")
                     } description: {

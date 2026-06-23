@@ -13,7 +13,6 @@ import SwiftData
 
 import Foundation
 
-import SnapDrillCore
 @testable import SnapDrillData
 
 @Suite("ReviewRepository 单元测试")
@@ -37,8 +36,7 @@ final class ReviewRepositoryTests {
             id: id,
             content: content,
             imagePath: nil,
-            answerText: "测试答案",
-            difficulty: 3
+            answerText: "测试答案"
         )
     }
 
@@ -137,16 +135,6 @@ final class ReviewRepositoryTests {
 
         let fetched = try repo.fetchModel(by: model.id)
         #expect(fetched?.content == nil)
-    }
-
-    @Test("difficulty rawValue 正确持久化与读取")
-    func difficultyRawValueRoundTrip() throws {
-        let model = makeDummyModel()
-        model.difficulty = Difficulty.five.rawValue
-        try repo.insertAndSave(model)
-
-        let fetched = try repo.fetchModel(by: model.id)
-        #expect(fetched?.difficulty == Difficulty.five.rawValue)
     }
 
     // MARK: - 极限数据边界（Issue #57）

@@ -32,7 +32,6 @@ nonisolated extension L10n {
         public static let fieldConfigDescription = NSLocalizedString("onboarding.field_config_description", value: "选择录入资料时显示的字段，之后可在设置中调整。", comment: "字段配置描述")
         public static let fieldCategory = NSLocalizedString("onboarding.field_category", value: "分类", comment: "引导页字段：分类")
         public static let fieldSource = NSLocalizedString("onboarding.field_source", value: "来源", comment: "引导页字段：来源")
-        public static let fieldDifficulty = NSLocalizedString("onboarding.field_difficulty", value: "难度", comment: "引导页字段：难度")
         public static let fieldLevel = NSLocalizedString("onboarding.field_level", value: "级别", comment: "引导页字段：级别")
         public static let fieldAnswer = NSLocalizedString("onboarding.field_answer", value: "答案", comment: "引导页字段：答案")
         public static let dismissTooltip = NSLocalizedString("onboarding.dismiss_tooltip", value: "关闭提示", comment: "关闭功能提示气泡按钮")

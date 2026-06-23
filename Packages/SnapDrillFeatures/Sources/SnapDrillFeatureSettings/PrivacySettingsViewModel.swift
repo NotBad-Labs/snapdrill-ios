@@ -90,7 +90,6 @@ final class PrivacySettingsViewModel {
                 return ExportableItem(
                     id: item.id,
                     content: item.content,
-                    difficulty: item.difficulty,
                     answerText: item.answerText,
                     createdAt: item.createdAt,
                     lastReviewedAt: item.lastReviewedAt,
@@ -129,7 +128,6 @@ final class PrivacySettingsViewModel {
 nonisolated struct ExportableItem: Sendable {
     let id: UUID
     let content: String?
-    let difficulty: Int
     let answerText: String?
     let createdAt: Date
     let lastReviewedAt: Date?

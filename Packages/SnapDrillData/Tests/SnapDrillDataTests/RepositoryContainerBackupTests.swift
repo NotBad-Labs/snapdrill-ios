@@ -47,7 +47,7 @@ final class RepositoryContainerBackupTests {
     func collectPayloadBasic() throws {
         let value = try seedCategoryValue(dimensionName: "分类", valueName: "数学")
 
-        let item = ReviewItemModel(content: "测试题", answerText: "答案文本", difficulty: 4)
+        let item = ReviewItemModel(content: "测试题", answerText: "答案文本")
         item.categoryValues = [value]
         repos.review.insert(item)
         try repos.review.saveContext()
@@ -61,7 +61,6 @@ final class RepositoryContainerBackupTests {
         #expect(profileData.reviewItems[0].content == "测试题")
         #expect(profileData.reviewItems[0].categoryValueIds == [value.id])
         #expect(profileData.reviewItems[0].answerText == "答案文本")
-        #expect(profileData.reviewItems[0].difficulty == 4)
 
         #expect(profileData.dimensions.contains(where: { $0.name == "分类" }))
         #expect(profileData.categoryValues.contains(where: { $0.name == "数学" }))
@@ -86,7 +85,7 @@ final class RepositoryContainerBackupTests {
         let value = try seedCategoryValue(dimensionName: "英语", valueName: "听力")
 
         let item = ReviewItemModel(
-            content: "原始题目", answerText: "A", difficulty: 2, easeFactor: 2.8, interval: 5, repetitions: 3
+            content: "原始题目", answerText: "A", easeFactor: 2.8, interval: 5, repetitions: 3
         )
         item.categoryValues = [value]
         repos.review.insert(item)
@@ -110,7 +109,6 @@ final class RepositoryContainerBackupTests {
         let restored = restoredItems[0]
         #expect(restored.content == "原始题目")
         #expect(restored.answerText == "A")
-        #expect(restored.difficulty == 2)
         #expect(restored.easeFactor == 2.8)
         #expect(restored.interval == 5)
         #expect(restored.repetitions == 3)
@@ -137,13 +135,13 @@ final class RepositoryContainerBackupTests {
                 ReviewItemBackupDTO(
                     id: UUID(), content: "新题目 A", imagePath: nil,
                     createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
-                    answerText: nil, answerImagePath: nil, difficulty: 1,
+                    answerText: nil, answerImagePath: nil,
                     easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: []
                 ),
                 ReviewItemBackupDTO(
                     id: UUID(), content: "新题目 B", imagePath: nil,
                     createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
-                    answerText: nil, answerImagePath: nil, difficulty: 3,
+                    answerText: nil, answerImagePath: nil,
                     easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: [valueID]
                 )
             ],
@@ -183,7 +181,7 @@ final class RepositoryContainerBackupTests {
                 ReviewItemBackupDTO(
                     id: UUID(), content: "多值题目", imagePath: nil,
                     createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
-                    answerText: nil, answerImagePath: nil, difficulty: 1,
+                    answerText: nil, answerImagePath: nil,
                     easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: [v1, v2, v3]
                 )
             ],

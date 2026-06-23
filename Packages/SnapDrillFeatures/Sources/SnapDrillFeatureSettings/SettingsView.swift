@@ -52,7 +52,6 @@ public struct SettingsView: View {
     // 录入字段可见性：内置分类/来源/级别默认隐藏；用户在这里或分类管理中按需打开。
     @AppStorage(Self.categoryVisibilityKey) private var showCategoryField: Bool = false
     @AppStorage(Self.sourceVisibilityKey) private var showSourceField: Bool = false
-    @AppStorage(UDKey.captureFieldDifficulty) private var showDifficultyField: Bool = false
     @AppStorage(Self.levelVisibilityKey) private var showLevelField: Bool = false
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
 
@@ -109,12 +108,6 @@ public struct SettingsView: View {
                     }
                     .accessibilityIdentifier("settings.captureField.source")
                     .accessibilityHint(L10n.Accessibility.fieldSourceHint)
-
-                    Toggle(isOn: $showDifficultyField) {
-                        SettingsRow(icon: "star.fill", gradientStart: .yellow, gradientEnd: .orange, title: L10n.Settings.fieldDifficulty)
-                    }
-                    .accessibilityIdentifier("settings.captureField.difficulty")
-                    .accessibilityHint(L10n.Accessibility.fieldDifficultyHint)
 
                     Toggle(isOn: $showLevelField) {
                         SettingsRow(icon: "tag.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.fieldLevel)

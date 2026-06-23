@@ -18,7 +18,6 @@ nonisolated struct ShareCardView: View {
     let content: String?
     let image: UIImage?
     let category: String
-    let difficulty: Int
     let tags: [String]
 
     var body: some View {
@@ -64,15 +63,6 @@ nonisolated struct ShareCardView: View {
                     .background(Color.blue.opacity(0.1))
                     .foregroundStyle(.blue)
                     .clipShape(Capsule())
-
-                // 难度星级
-                HStack(spacing: 2) {
-                    ForEach(1...5, id: \.self) { level in
-                        Image(systemName: level <= difficulty ? "star.fill" : "star")
-                            .font(.caption2)
-                            .foregroundStyle(level <= difficulty ? .orange : .gray.opacity(0.3))
-                    }
-                }
 
                 Spacer()
             }

@@ -15,7 +15,7 @@ import SnapDrillUI
 
 /// 智能组卷配置页
 ///
-/// 用户选择分类、难度、数量后一键生成"最需要回顾的资料集"。
+/// 用户选择分类与数量后一键生成"最需要回顾的资料集"。
 /// 选题基于 SM-2 紧迫度排序，复用现有 ExportPreviewView 预览 PDF。
 struct SmartPaperView: View {
 
@@ -78,7 +78,6 @@ struct SmartPaperView: View {
         }
         .onChange(of: vm.questionCount) { _, _ in vm.refreshSelection() }
         .onChange(of: vm.selectedCategoryValueIds) { _, _ in vm.refreshSelection() }
-        .onChange(of: vm.selectedDifficulties) { _, _ in vm.refreshSelection() }
         .navigationDestination(isPresented: $showingPDFPreview) {
             ExportPreviewView(
                 items: vm.selectedItems,
@@ -110,19 +109,6 @@ struct SmartPaperView: View {
                          : vm.selectedCategoryNames)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
-                }
-            }
-
-            NavigationLink {
-                difficultySelectionList(vm: vm)
-            } label: {
-                HStack {
-                    Text(L10n.SmartPaper.difficultyFilter)
-                    Spacer()
-                    Text(vm.selectedDifficulties.isEmpty
-                         ? L10n.SmartPaper.allDifficulties
-                         : vm.selectedDifficulties.sorted().map { "\($0)" }.joined(separator: ", "))
-                        .foregroundStyle(.secondary)
                 }
             }
         }
@@ -231,52 +217,5 @@ struct SmartPaperView: View {
             }
         }
         .navigationTitle(L10n.SmartPaper.categoryFilter)
-    }
-
-    // MARK: - 难度勾选列表
-
-    private func difficultySelectionList(vm: SmartPaperViewModel) -> some View {
-        List {
-            Button {
-                vm.selectedDifficulties.removeAll()
-            } label: {
-                HStack {
-                    Text(L10n.SmartPaper.allDifficulties)
-                    Spacer()
-                    if vm.selectedDifficulties.isEmpty {
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(.tint)
-                    }
-                }
-            }
-
-            ForEach(Difficulty.allCases) { difficulty in
-                Button {
-                    if vm.selectedDifficulties.contains(difficulty.rawValue) {
-                        vm.selectedDifficulties.remove(difficulty.rawValue)
-                    } else {
-                        vm.selectedDifficulties.insert(difficulty.rawValue)
-                    }
-                } label: {
-                    HStack {
-                        HStack(spacing: 2) {
-                            ForEach(0..<difficulty.starCount, id: \.self) { _ in
-                                Image(systemName: "star.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(.orange)
-                                    .accessibilityHidden(true)
-                            }
-                        }
-                        Spacer()
-                        if vm.selectedDifficulties.contains(difficulty.rawValue) {
-                            Image(systemName: "checkmark")
-                                .foregroundStyle(.tint)
-                        }
-                    }
-                }
-                .accessibilityLabel(L10n.Accessibility.difficultyLevel(difficulty.rawValue))
-            }
-        }
-        .navigationTitle(L10n.SmartPaper.difficultyFilter)
     }
 }

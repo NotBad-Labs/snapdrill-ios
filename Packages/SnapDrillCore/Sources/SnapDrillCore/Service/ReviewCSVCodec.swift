@@ -24,8 +24,6 @@ public protocol ReviewCSVRow: Sendable {
     nonisolated var id: UUID { get }
     /// 题目内容文本；纯图片题为 `nil`
     nonisolated var content: String? { get }
-    /// 难度等级（1-5）
-    nonisolated var difficulty: Int { get }
     /// 答案文本；无答案为 `nil`
     nonisolated var answerText: String? { get }
     /// 创建时间
@@ -46,7 +44,7 @@ public enum ReviewCSVCodec {
 
     /// 固定列表头（A2 动态维度列在其后按列名追加；维度列名因用户可改/可删，故 header 非定值）。
     public nonisolated static var fixedHeader: String {
-        "ID,Content,Difficulty,Answer,CreatedAt,LastReviewed,NextReview"
+        "ID,Content,Answer,CreatedAt,LastReviewed,NextReview"
     }
 
     /// 给定动态维度列名时的完整表头（固定列 + 各维度列；维度列名也走 escape 防注入）。
@@ -65,7 +63,6 @@ public enum ReviewCSVCodec {
             var cells = [
                 row.id.uuidString,
                 escapeField(row.content ?? ""),
-                "\(row.difficulty)",
                 escapeField(row.answerText ?? ""),
                 row.createdAt.ISO8601Format(),
                 row.lastReviewedAt?.ISO8601Format() ?? "",

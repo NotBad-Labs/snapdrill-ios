@@ -13,7 +13,6 @@
 
 ### 业务模型
 
-- ``Difficulty`` — 题目难度等级（1-5 星）
 - ``Profile`` — 用户 Profile 值类型（Multi-Profile 支持）
 
 ### 复习调度引擎

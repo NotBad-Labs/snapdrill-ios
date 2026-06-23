@@ -69,10 +69,9 @@ final class ReviewRepositoryDimensionFilterTests {
     @discardableResult
     private func makeItem(
         _ content: String,
-        values: [CategoryValueModel],
-        difficulty: Int = 1
+        values: [CategoryValueModel]
     ) throws -> ReviewItemModel {
-        let item = ReviewItemModel(content: content, difficulty: difficulty)
+        let item = ReviewItemModel(content: content)
         item.categoryValues = values
         repos.review.insert(item)
         try repos.review.saveContext()
@@ -137,32 +136,28 @@ final class ReviewRepositoryDimensionFilterTests {
         #expect(result.map(\.content) == ["抛物线数学题"])
     }
 
-    @Test("维度候选集路径组合搜索、难度与分页")
-    func filter_candidatePath_combinesSearchDifficultyAndPagination() throws {
+    @Test("维度候选集路径组合搜索与分页")
+    func filter_candidatePath_combinesSearchAndPagination() throws {
         let f = try makeFixture()
         for i in 0..<20 {
-            try makeItem("抛物线英语干扰项\(i)", values: [f.english], difficulty: 3)
+            try makeItem("抛物线英语干扰项\(i)", values: [f.english])
         }
-        try makeItem("抛物线数学低难度", values: [f.math], difficulty: 1)
-        try makeItem("抛物线数学目标A", values: [f.math], difficulty: 3)
-        try makeItem("抛物线数学目标B", values: [f.math], difficulty: 3)
+        try makeItem("抛物线数学目标A", values: [f.math])
+        try makeItem("抛物线数学目标B", values: [f.math])
+        try makeItem("抛物线数学目标C", values: [f.math])
 
         let filter: [UUID: Set<UUID>] = [f.categoryDim.id: [f.math.id]]
         let page1 = try repos.review.fetchFilteredModels(
             searchText: "抛物线", valueIdsByDimension: filter,
-            difficulties: [3], limit: 1, offset: 0
+            limit: 2, offset: 0
         )
         let page2 = try repos.review.fetchFilteredModels(
             searchText: "抛物线", valueIdsByDimension: filter,
-            difficulties: [3], limit: 1, offset: 1
-        )
-        let page3 = try repos.review.fetchFilteredModels(
-            searchText: "抛物线", valueIdsByDimension: filter,
-            difficulties: [3], limit: 1, offset: 2
+            limit: 2, offset: 2
         )
 
-        #expect(Set((page1 + page2).compactMap(\.content)) == ["抛物线数学目标A", "抛物线数学目标B"])
-        #expect(page3.isEmpty)
+        #expect(Set((page1 + page2).compactMap(\.content)) == ["抛物线数学目标A", "抛物线数学目标B", "抛物线数学目标C"])
+        #expect((page1 + page2).count == 3)
     }
 
     // MARK: - 分页（内存路径）

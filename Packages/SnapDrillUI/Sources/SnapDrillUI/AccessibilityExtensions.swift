@@ -106,22 +106,6 @@ public enum AccessibilityHelper {
     
     // MARK: - Public API
     
-    /// 生成复习项目的无障碍标签
-    ///
-    /// - Parameters:
-    ///   - content: 题目内容
-    ///   - category: 分类
-    ///   - difficulty: 难度
-    /// - Returns: 完整的无障碍标签
-    public static func reviewItemLabel(
-        content: String,
-        category: String,
-        difficulty: Int
-    ) -> String {
-        let difficultyText = difficultyDescription(difficulty)
-        return L10n.Accessibility.reviewItemLabel(category: category, difficulty: difficultyText, content: content)
-    }
-
     /// 生成复习按钮的无障碍提示
     ///
     /// - Parameter count: 待复习数量
@@ -136,14 +120,6 @@ public enum AccessibilityHelper {
     /// - Returns: 无障碍提示文本
     public static func exportButtonHint(format: String) -> String {
         L10n.Accessibility.exportButtonHint(format: format)
-    }
-
-    /// 将难度数字转换为描述性文本
-    ///
-    /// - Parameter difficulty: 难度值 (1-5)
-    /// - Returns: 难度描述
-    public static func difficultyDescription(_ difficulty: Int) -> String {
-        L10n.Accessibility.difficultyLevel(difficulty)
     }
 
     /// 生成进度的无障碍描述
