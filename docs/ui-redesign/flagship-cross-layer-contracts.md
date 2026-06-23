@@ -45,7 +45,7 @@
 
 **判定：refined —— Codex「任意维度筛选需全量 fetch」的描述需修正。** 严重度 **P3**。
 
-**事实（`ReviewRepository.fetchFilteredModels` `:250-303`）**：实现**已有 DB 廉价路径**——`searchText` + `difficulty` 推进 `#Predicate`(`:264-267`) 先收窄；`needsMemoryProcessing = !valueIdsByDimension.isEmpty || sortBySubjectName`(`:270`)，只有维度筛选/学科名排序才走内存路径，且内存过滤作用在**已收窄的子集**上、非无条件全表。维度内存过滤本身是 SwiftData many-to-many `#Predicate` SIGTRAP 限制下的**被迫正确模式**（勿动）。
+**事实（`ReviewRepository.fetchFilteredModels` `:249-303`）**：实现**已有 DB 廉价路径**——`searchText` 进入 `#Predicate` 先按 OCR 文本收窄；静态 `difficulty` 字段已于 `077db353` 移除，动态维度值过滤改由 `valueIdsByDimension` 候选集与维度间 AND / 维度内 OR 校验完成。`needsMemoryProcessing = !valueIdsByDimension.isEmpty || sortByCategoryName`，只有动态维度筛选 / 主分类名排序才走内存路径，且内存过滤作用在**已收窄的子集**上、非无条件全表。维度内存过滤本身是 SwiftData many-to-many `#Predicate` SIGTRAP 限制下的**被迫正确模式**（勿动）。
 
 **真成本三处**（非「全量 fetch」）：
 1. `loadMore`(`LibraryViewModel:234-262`) 每翻一页都 `fetchFilteredModels(offset:)`，内存路径下 = 每页从 offset 0 重新 fetch + 重新 materialize 全部 `categoryValues` + 重新过滤 + 重新排序再切片(`:301-302`)。N 页 = O(N × 全集) 重复工作。

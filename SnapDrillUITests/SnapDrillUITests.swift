@@ -353,7 +353,7 @@ final class SnapDrillUITests: XCTestCase {
     /// UI-freeze evidence: capture the manual Capture result editor without default taxonomy fields.
     func testUIFreezeCaptureManualResultEditorScreenshots() {
         let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments() + ["-captureFieldDifficulty", "YES"]
+        app.launchArguments = l3LaunchArguments()
         app.launch()
 
         app.tabBars.buttons.element(boundBy: 2).tap()
@@ -374,14 +374,6 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertFalse(app.buttons["capture.dimRow.分类"].exists, "默认手动录入不应暴露分类字段")
         XCTAssertFalse(app.buttons["capture.dimRow.分类"].exists, "默认手动录入不应预先要求分类")
         addScreenshot(named: "ui-freeze-capture-03-no-default-category")
-
-        let highestDifficulty = app.buttons["capture.difficulty.5"]
-        scrollUntilHittable(highestDifficulty, in: app)
-        XCTAssertTrue(highestDifficulty.waitForExistence(timeout: 5), "手动录入表单应显示难度星级")
-        highestDifficulty.tap()
-        waitForUIAnimation(seconds: 0.3)
-        XCTAssertTrue(highestDifficulty.isSelected, "选中的难度星级应暴露 selected 状态")
-        addScreenshot(named: "ui-freeze-capture-details-01-difficulty-selected")
 
         let save = app.buttons["capture.saveButton"]
         XCTAssertTrue(save.waitForExistence(timeout: 5), "保存按钮应仍然可用")
@@ -1317,16 +1309,6 @@ final class SnapDrillUITests: XCTestCase {
         scrollUntilHittable(answerImage, in: app, maxSwipes: 6)
         XCTAssertTrue(answerImage.waitForExistence(timeout: 5), "编辑页应显示答案图片")
         addScreenshot(named: "ui-freeze-library-edit-image-03-answer-image")
-
-        let difficultyFive = app.buttons["library.edit.difficulty.5"]
-        scrollUntilHittable(difficultyFive, in: app, maxSwipes: 6)
-        XCTAssertTrue(difficultyFive.waitForExistence(timeout: 5), "编辑页应显示难度控件")
-        XCTAssertTrue(difficultyFive.isHittable, "难度 5 应可点击")
-        difficultyFive.tap()
-        waitUntil("难度 5 应进入选中态") {
-            difficultyFive.isSelected
-        }
-        addScreenshot(named: "ui-freeze-library-edit-image-04-metadata-difficulty")
     }
 
     /// UI-freeze evidence: capture Library filter reset, batch tag, export option, and search states.
