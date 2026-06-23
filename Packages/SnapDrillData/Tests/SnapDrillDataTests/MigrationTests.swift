@@ -52,9 +52,9 @@ struct MigrationTests {
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         let ctx = container.mainContext
-        ctx.insert(ReviewItemModel.mock(content: "migration test"))
+        ctx.insert(ArchiveItemModel.mock(content: "migration test"))
         try ctx.save()
-        #expect(try ctx.fetchCount(FetchDescriptor<ReviewItemModel>()) == 1)
+        #expect(try ctx.fetchCount(FetchDescriptor<ArchiveItemModel>()) == 1)
     }
 
     @Test("持久化 store 经 MigrationPlan 重开后数据完整（迁移基础设施 round-trip 守护）")
@@ -77,7 +77,7 @@ struct MigrationTests {
                 configurations: config
             )
             let ctx = container.mainContext
-            ctx.insert(ReviewItemModel.mock(content: "持久化迁移样本"))
+            ctx.insert(ArchiveItemModel.mock(content: "持久化迁移样本"))
             try ctx.save()
         }
 
@@ -87,7 +87,7 @@ struct MigrationTests {
             migrationPlan: SnapDrillMigrationPlan.self,
             configurations: config
         )
-        let count = try reopened.mainContext.fetchCount(FetchDescriptor<ReviewItemModel>())
+        let count = try reopened.mainContext.fetchCount(FetchDescriptor<ArchiveItemModel>())
         #expect(count == 1, "经 MigrationPlan 持久化往返后数据应完整")
     }
 
@@ -96,9 +96,9 @@ struct MigrationTests {
         let executor = DataExecutor(inMemory: true)
         #expect(executor.container != nil)
         let ctx = executor.container.mainContext
-        ctx.insert(ReviewItemModel.mock(content: "via executor"))
+        ctx.insert(ArchiveItemModel.mock(content: "via executor"))
         try ctx.save()
-        #expect(try ctx.fetchCount(FetchDescriptor<ReviewItemModel>()) == 1)
+        #expect(try ctx.fetchCount(FetchDescriptor<ArchiveItemModel>()) == 1)
     }
 
     // MARK: - DataExecutor 降级
@@ -121,7 +121,7 @@ struct MigrationTests {
         let container = try ModelContainer(for: schema, configurations: config)
         let context = container.mainContext
 
-        let item = ReviewItemModel()
+        let item = ArchiveItemModel()
         context.insert(item)
         try context.save()
 

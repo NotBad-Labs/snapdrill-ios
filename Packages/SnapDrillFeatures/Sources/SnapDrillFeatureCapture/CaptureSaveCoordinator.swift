@@ -23,7 +23,7 @@ import SnapDrillData
 struct CaptureFormSnapshot {
     let content: String
     let image: UIImage?
-    /// L3：所有维度的选中值实例（扁平），写入 ReviewItemModel.categoryValues
+    /// L3：所有维度的选中值实例（扁平），写入 ArchiveItemModel.categoryValues
     let selectedValues: [CategoryValueModel]
     let answerText: String
     let answerImage: UIImage?
@@ -32,7 +32,7 @@ struct CaptureFormSnapshot {
 /// 采集结果保存事务编排器（无状态）
 ///
 /// 必须 `@MainActor`：内部触碰 SwiftData `ModelContext`（repositories）与非 Sendable
-/// 的 `@Model`（ReviewItemModel/TagModel），不能跨 actor 搬运。调用方 ViewModel 同为
+/// 的 `@Model`（ArchiveItemModel/TagModel），不能跨 actor 搬运。调用方 ViewModel 同为
 /// MainActor 隔离，两者在同一隔离域内安全协作。
 @MainActor
 struct CaptureSaveCoordinator {
@@ -65,20 +65,20 @@ struct CaptureSaveCoordinator {
 
             // 构造 @Model 对象并插入（纯内存），再统一 saveContext。
             // L3：分类经动态维度值（categoryValues）；旧裸字符串字段已不再写入。
-            let model = ReviewItemModel(
+            let model = ArchiveItemModel(
                 content: contentValue,
                 imagePath: savedImagePath,
                 answerText: form.answerText.isEmpty ? nil : form.answerText,
                 answerImagePath: savedAnswerImagePath
             )
             model.categoryValues = form.selectedValues
-            repositories.review.insert(model)
-            try repositories.review.saveContext()
+            repositories.archive.insert(model)
+            try repositories.archive.saveContext()
         } catch {
-            // 回滚 mainContext：清除本次操作插入的脏 Tag 和脏 ReviewItemModel。
+            // 回滚 mainContext：清除本次操作插入的脏 Tag 和脏 ArchiveItemModel。
             // 单用户本地优先架构下，save 执行期间 mainContext 不存在其他并发未保存变更，
             // rollback 影响范围仅限本次调用，不会丢失其他模块的数据。
-            repositories.review.rollbackContext()
+            repositories.archive.rollbackContext()
             await cleanupOrphanImages(imagePath: savedImagePath, answerImagePath: savedAnswerImagePath)
             throw error
         }

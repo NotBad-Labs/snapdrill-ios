@@ -75,7 +75,7 @@ DependencyContainer.shared（App 启动时初始化）
 │   ├── executor: DataExecutor（actor 拥有 ModelContainer，消除 MainActor+XPC 死锁 #599）
 │   ├── activeContainer: ModelContainer（通过 executor 访问，Profile 切换时重建）
 │   ├── activeRepositories: RepositoryContainer（init(executor:) 构造）
-│   │   ├── review: ReviewRepository
+│   │   ├── review: ArchiveRepository
 │   │   ├── dimension: CategoryDimensionRepository（内置 key: category / source / level / tag）
 │   │   └── categoryValue: CategoryValueRepository（各维度下的值）
 │   └── activeImageStorage: ImageStorage
@@ -125,7 +125,7 @@ SwiftData @Model（持久化）
 - `saveContext()` 失败后必须 `rollbackContext()` 回滚内存脏状态
 
 **跨模块刷新机制**：
-`Notification.Name.reviewDataDidChange`（定义在 `SnapDrillCore/Support/ReviewDataNotification.swift`）。发布方包括 Repository 层（`ReviewRepository`、`CategoryDimensionRepository`、`CategoryValueRepository` 等）和部分 Feature 层写操作入口（`CaptureResultViewModel`、`LibraryEditViewModel`、`SettingsViewModel`、`DataSeeder`）。监听方：`DashboardViewModel`、`ReviewViewModel`、`DashboardAnalyticsViewModel`，通过 `for await` 订阅并刷新 UI。
+`Notification.Name.reviewDataDidChange`（定义在 `SnapDrillCore/Support/ReviewDataNotification.swift`）。发布方包括 Repository 层（`ArchiveRepository`、`CategoryDimensionRepository`、`CategoryValueRepository` 等）和部分 Feature 层写操作入口（`CaptureResultViewModel`、`LibraryEditViewModel`、`SettingsViewModel`、`DataSeeder`）。监听方：`DashboardViewModel`、`ReviewViewModel`、`DashboardAnalyticsViewModel`，通过 `for await` 订阅并刷新 UI。
 
 **错误处理策略**：
 - DB save/rollback：原子性保证，失败必须回滚
@@ -154,7 +154,7 @@ SwiftData @Model（持久化）
 
 | 模块 | 职责 |
 |---|---|
-| `*Model.swift` | SwiftData @Model 定义（ReviewItemModel、CategoryDimensionModel、CategoryValueModel） |
+| `*Model.swift` | SwiftData @Model 定义（ArchiveItemModel、CategoryDimensionModel、CategoryValueModel） |
 | `*Repository.swift` | 数据访问层，封装 ModelContext（推荐 `init(executor:)`，保留 `init(modelContext:)` 向后兼容） |
 | `DataExecutor` | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599） |
 | `RepositoryContainer` | Repository 聚合 + Environment 注入 |
@@ -166,7 +166,7 @@ SwiftData @Model（持久化）
 | `Persistence` | ModelContainer 工厂（PersistenceController 已废弃为兼容类型，生产代码走 DataExecutor） |
 | `DataError` / `PersistenceError` | 错误类型定义 |
 | `DataSeeder` | 初始数据填充（默认分类/来源） |
-| `ReviewExportSnapshot` | 复习数据导出快照 |
+| `ArchiveExportSnapshot` | 复习数据导出快照 |
 
 ### SnapDrillUI
 

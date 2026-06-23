@@ -1,11 +1,11 @@
 //
-//  ReviewRepositoryTests.swift
+//  ArchiveRepositoryTests.swift
 //  SnapDrillDataTests
 //
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  ReviewRepository CRUD / 边界 / 并发 单元测试。
+//  ArchiveRepository CRUD / 边界 / 并发 单元测试。
 //
 
 import Testing
@@ -15,15 +15,15 @@ import Foundation
 
 @testable import SnapDrillData
 
-@Suite("ReviewRepository 单元测试")
-final class ReviewRepositoryTests {
+@Suite("ArchiveRepository 单元测试")
+final class ArchiveRepositoryTests {
 
     private let container: ModelContainer
-    private let repo: ReviewRepository
+    private let repo: ArchiveRepository
 
     init() throws {
         container = try TestModelContainer.create()
-        repo = ReviewRepository(modelContext: container.mainContext)
+        repo = ArchiveRepository(modelContext: container.mainContext)
     }
 
     // MARK: - Helpers
@@ -31,8 +31,8 @@ final class ReviewRepositoryTests {
     private func makeDummyModel(
         id: UUID = UUID(),
         content: String? = "Test"
-    ) -> ReviewItemModel {
-        ReviewItemModel(
+    ) -> ArchiveItemModel {
+        ArchiveItemModel(
             id: id,
             content: content,
             imagePath: nil,

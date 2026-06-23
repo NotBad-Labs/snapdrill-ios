@@ -54,16 +54,16 @@ final class SmartPaperViewModelTests {
     private func seedItems() throws -> [String: CategoryValueModel] {
         let values = try seedCategories()
         func add(_ content: String, _ category: String) {
-            let item = ReviewItemModel(content: content)
+            let item = ArchiveItemModel(content: content)
             if let value = values[category] { item.categoryValues = [value] }
-            repos.review.insert(item)
+            repos.archive.insert(item)
         }
         add("数学题1", "数学")
         add("数学题2", "数学")
         add("英语题1", "英语")
         add("物理题1", "物理")
         add("物理题2", "物理")
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
         return values
     }
 
@@ -132,7 +132,7 @@ final class SmartPaperViewModelTests {
         vm.selectedCategoryValueIds = [try #require(values["英语"]).id]
         vm.refreshSelection()
 
-        // 注：selectedItems 是 ReviewExportSnapshot，其 .category 仍来自旧字段（S5d 重写）→ 此处断 content
+        // 注：selectedItems 是 ArchiveExportSnapshot，其 .category 仍来自旧字段（S5d 重写）→ 此处断 content
         #expect(vm.selectedItems.count == 1)
         #expect(vm.selectedItems[0].content == "英语题1")
     }
@@ -184,12 +184,12 @@ final class SmartPaperViewModelTests {
 
     @Test("refreshSelection 排除软删 pending 的题")
     func refreshSelection_excludesPendingDeletion() throws {
-        let keep = ReviewItemModel(content: "保留题")
+        let keep = ArchiveItemModel(content: "保留题")
         keep.nextReviewAt = Date(timeIntervalSinceNow: -3600)
-        let pending = ReviewItemModel(content: "待删题")
+        let pending = ArchiveItemModel(content: "待删题")
         pending.nextReviewAt = Date(timeIntervalSinceNow: -3600)
-        repos.review.insert(keep)
-        repos.review.insert(pending)
+        repos.archive.insert(keep)
+        repos.archive.insert(pending)
 
         let scheduler = DeletionScheduler()
         scheduler.scheduleDeletion(ids: [pending.id]) { _ in }  // 模拟 5 秒撤销窗口

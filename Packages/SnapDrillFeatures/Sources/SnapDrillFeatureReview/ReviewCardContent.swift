@@ -20,7 +20,7 @@ struct ReviewCardFront: View {
 
     // MARK: - Properties
 
-    let item: ReviewItemModel
+    let item: ArchiveItemModel
     let showsActions: Bool
 
     @State private var showingEditSheet = false
@@ -174,8 +174,8 @@ struct ReviewCardFront: View {
     let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
-    let item: ReviewItemModel = {
-        let i = ReviewItemModel(content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
+    let item: ArchiveItemModel = {
+        let i = ArchiveItemModel(content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
         container.mainContext.insert(i)
         return i
     }()
@@ -189,8 +189,8 @@ struct ReviewCardFront: View {
     let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
-    let item: ReviewItemModel = {
-        let i = ReviewItemModel(
+    let item: ArchiveItemModel = {
+        let i = ArchiveItemModel(
             content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。",
             answerText: "∠B = ∠C = (180° - 36°) / 2 = 72°"
         )

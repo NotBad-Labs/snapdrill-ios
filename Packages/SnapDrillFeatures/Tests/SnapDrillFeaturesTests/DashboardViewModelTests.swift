@@ -71,11 +71,11 @@ final class DashboardViewModelTests {
 
     @Test("loadData 正确统计题目数量")
     func loadData_countsItems() throws {
-        let item1 = ReviewItemModel(content: "题目1")
-        let item2 = ReviewItemModel(content: "题目2")
-        repos.review.insert(item1)
-        repos.review.insert(item2)
-        try repos.review.saveContext()
+        let item1 = ArchiveItemModel(content: "题目1")
+        let item2 = ArchiveItemModel(content: "题目2")
+        repos.archive.insert(item1)
+        repos.archive.insert(item2)
+        try repos.archive.saveContext()
 
         let vm = DashboardViewModel(repositories: repos)
         vm.loadData()
@@ -88,16 +88,16 @@ final class DashboardViewModelTests {
     @Test("loadData 区分到期和未到期题目的 dueCount")
     func loadData_dueCount() throws {
         // 一道已到期的题目（1 小时前到期）
-        let dueItem = ReviewItemModel(content: "待复习题目")
+        let dueItem = ArchiveItemModel(content: "待复习题目")
         dueItem.nextReviewAt = Date(timeIntervalSinceNow: -3600)
-        repos.review.insert(dueItem)
+        repos.archive.insert(dueItem)
 
         // 一道未到期的题目（远未来）
-        let futureItem = ReviewItemModel(content: "未到期题目")
+        let futureItem = ArchiveItemModel(content: "未到期题目")
         futureItem.nextReviewAt = Date.distantFuture
-        repos.review.insert(futureItem)
+        repos.archive.insert(futureItem)
 
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = DashboardViewModel(repositories: repos)
         vm.loadData()
@@ -210,9 +210,9 @@ final class DashboardViewModelTests {
 
     @Test("reviewDataDidChange 通知触发数据刷新")
     func notification_refreshesData() async throws {
-        let item = ReviewItemModel(content: "通知测试")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "通知测试")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = DashboardViewModel(repositories: repos)
         #expect(vm.totalCount == 0)
@@ -229,12 +229,12 @@ final class DashboardViewModelTests {
 
     @Test("loadData 的 dueCount 排除软删 pending 的到期题，totalCount 不受影响")
     func loadData_dueCountExcludesPendingDeletion() throws {
-        let keep = ReviewItemModel(content: "保留题")
+        let keep = ArchiveItemModel(content: "保留题")
         keep.nextReviewAt = Date(timeIntervalSinceNow: -3600)
-        let pending = ReviewItemModel(content: "待删题")
+        let pending = ArchiveItemModel(content: "待删题")
         pending.nextReviewAt = Date(timeIntervalSinceNow: -3600)
-        repos.review.insert(keep)
-        repos.review.insert(pending)
+        repos.archive.insert(keep)
+        repos.archive.insert(pending)
 
         let scheduler = DeletionScheduler()
         scheduler.scheduleDeletion(ids: [pending.id]) { _ in }  // 模拟 5 秒撤销窗口

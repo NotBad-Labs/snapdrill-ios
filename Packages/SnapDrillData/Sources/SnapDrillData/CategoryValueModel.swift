@@ -42,9 +42,9 @@ public final class CategoryValueModel {
     @Relationship(deleteRule: .nullify)
     public var dimension: CategoryDimensionModel?
 
-    /// 引用本值的题目（多对多）。inverse 在 `ReviewItemModel.categoryValues` 侧声明，本端裸关系。
+    /// 引用本值的题目（多对多）。inverse 在 `ArchiveItemModel.categoryValues` 侧声明，本端裸关系。
     @Relationship(deleteRule: .nullify)
-    public var items: [ReviewItemModel]? = []
+    public var items: [ArchiveItemModel]? = []
 
     // MARK: - Initialization
 

@@ -22,7 +22,7 @@ struct LibraryDetailView: View {
     @Bindable var router: LibraryRouter
 
     /// 要展示的资料数据模型
-    let item: ReviewItemModel
+    let item: ArchiveItemModel
 
     @State private var isEditing = false
     @State private var fullScreenImage: UIImage?
@@ -392,7 +392,7 @@ struct LibraryDetailView: View {
 }
 
 private struct AnswerContentView: View {
-    let item: ReviewItemModel
+    let item: ArchiveItemModel
     let loadedAnswerImage: UIImage?
     let onTapImage: (UIImage) -> Void
 
@@ -472,8 +472,8 @@ private struct ShareSheet: UIViewControllerRepresentable {
     let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
-    let item: ReviewItemModel = {
-        let i = ReviewItemModel(content: "Sample Domain Question")
+    let item: ArchiveItemModel = {
+        let i = ArchiveItemModel(content: "Sample Domain Question")
         container.mainContext.insert(i)
         return i
     }()

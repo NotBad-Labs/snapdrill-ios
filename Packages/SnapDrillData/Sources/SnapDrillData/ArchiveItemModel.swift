@@ -1,11 +1,11 @@
 //
-//  ReviewItemModel.swift
+//  ArchiveItemModel.swift
 //  SnapDrillData
 //
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  ReviewItem 的 SwiftData 模型定义。
+//  ArchiveItem 的 SwiftData 模型定义。
 //
 
 import Foundation
@@ -15,11 +15,11 @@ import SwiftData
 ///
 /// 直接作领域对象使用，通过 `toExportSnapshot()` 提供导出用只读视图。
 @Model
-public final class ReviewItemModel {
+public final class ArchiveItemModel {
 
     // 索引：提升高频查询性能
-    #Index<ReviewItemModel>(
-        [\.createdAt],         // 题库列表默认排序
+    #Index<ArchiveItemModel>(
+        [\.createdAt],         // 资料库列表默认排序
         [\.nextReviewAt]       // 待复习查询
         // L3：旧裸字符串索引删除——分类改走 categoryValues 关系，关系不能进 #Index
     )
@@ -29,7 +29,7 @@ public final class ReviewItemModel {
     /// 唯一主键
     public var id: UUID = UUID()
     
-    /// 题目内容（可选）
+    /// 资料内容（可选）
     /// - Note: 与 imagePath 至少有一个非空
     public var content: String?
     
@@ -69,11 +69,11 @@ public final class ReviewItemModel {
     
     // MARK: - Initialization
     
-    /// 创建复习题目
-    /// - Parameters:
-    ///   - id: 题目唯一 ID，默认自动生成
-    ///   - content: 题目文字内容
-    ///   - imagePath: 题目图片相对路径
+    /// 创建归档资料项
+/// - Parameters:
+    ///   - id: 资料项唯一 ID，默认自动生成
+    ///   - content: 资料项文字内容
+    ///   - imagePath: 资料项图片相对路径
     ///   - createdAt: 创建时间
     ///   - lastReviewedAt: 上次复习时间
     ///   - nextReviewAt: 下次计划复习时间
@@ -123,12 +123,12 @@ public final class ReviewItemModel {
     }
 
     /// 转为导出快照（仅含导出所需字段）。分类经动态维度值聚合（A2 动态列）。
-    public func toExportSnapshot() -> ReviewExportSnapshot {
+    public func toExportSnapshot() -> ArchiveExportSnapshot {
         var dimensionValues: [String: [String]] = [:]
         for entry in categoryValuesByDimension {
             dimensionValues[entry.dimension.name] = entry.values.map { $0.name }
         }
-        return ReviewExportSnapshot(
+        return ArchiveExportSnapshot(
             id: id,
             content: content,
             imagePath: imagePath,

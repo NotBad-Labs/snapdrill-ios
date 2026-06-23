@@ -57,8 +57,8 @@ final class CategoryRepositoryTests {
         try container.mainContext.fetchCount(FetchDescriptor<CategoryValueModel>())
     }
 
-    private func refetchItem(_ id: UUID) throws -> ReviewItemModel {
-        let model = try repos.review.fetchModel(by: id)
+    private func refetchItem(_ id: UUID) throws -> ArchiveItemModel {
+        let model = try repos.archive.fetchModel(by: id)
         return try #require(model)
     }
 
@@ -106,10 +106,10 @@ final class CategoryRepositoryTests {
     func dimensions_deleteUser_cascadesValuesAndDetachesItems() throws {
         let dim = try makeDimension(name: "章节")
         let value = try makeValue("第一章", in: dim)
-        let item = ReviewItemModel(content: "测试题")
+        let item = ArchiveItemModel(content: "测试题")
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
         #expect(try totalValueCount() == 1)
 
         try repos.dimension.delete(id: dim.id)
@@ -188,10 +188,10 @@ final class CategoryRepositoryTests {
     func values_delete_detachesItemReferences() throws {
         let dim = try makeDimension(name: "分类")
         let value = try makeValue("数学", in: dim)
-        let item = ReviewItemModel(content: "数学题")
+        let item = ArchiveItemModel(content: "数学题")
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         try repos.categoryValue.delete(id: value.id)
 
@@ -205,10 +205,10 @@ final class CategoryRepositoryTests {
     func values_rename_propagatesToReferencingItems() throws {
         let dim = try makeDimension(name: "分类", systemKey: CategorySystemKey.category, isBuiltIn: true)
         let value = try makeValue("数学", in: dim)
-        let item = ReviewItemModel(content: "题")
+        let item = ArchiveItemModel(content: "题")
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
         #expect(item.primaryCategoryName == "数学")
 
         value.name = "高等数学"

@@ -18,7 +18,7 @@ public enum LibraryDestination: Hashable {
     /// 占位页面
     case placeholder
     /// 题目详情
-    case detail(ReviewItemModel)
+    case detail(ArchiveItemModel)
 }
 
 /// 题库模块路由器
@@ -28,7 +28,7 @@ public enum LibraryDestination: Hashable {
 ///
 /// ## 导航路径
 /// - **列表页**: 模块首页，展示题目列表。
-/// - **详情页**: `.detail(ReviewItemModel)`，展示题目的图片、完整文本及元数据。
+/// - **详情页**: `.detail(ArchiveItemModel)`，展示题目的图片、完整文本及元数据。
 @MainActor
 @Observable
 public final class LibraryRouter: @MainActor FeatureRouter {

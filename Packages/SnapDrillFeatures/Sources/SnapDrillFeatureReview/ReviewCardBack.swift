@@ -19,7 +19,7 @@ struct ReviewCardBack: View {
 
     // MARK: - Properties
 
-    let item: ReviewItemModel
+    let item: ArchiveItemModel
     let showsActions: Bool
 
     @Environment(\.profileManager) private var profileManager

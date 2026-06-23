@@ -38,14 +38,14 @@ struct PersistenceControllerTests {
         let controller = PersistenceController(inMemory: true)
         let context = controller.container.mainContext
 
-        let model = ReviewItemModel(
+        let model = ArchiveItemModel(
             id: UUID(),
             content: "测试题目"
         )
         context.insert(model)
         try context.save()
 
-        let descriptor = FetchDescriptor<ReviewItemModel>()
+        let descriptor = FetchDescriptor<ArchiveItemModel>()
         let items = try context.fetch(descriptor)
         #expect(items.count == 1)
         #expect(items.first?.content == "测试题目")

@@ -28,10 +28,10 @@ struct DataExecutorTests {
         let executor = DataExecutor(inMemory: true)
         // container.mainContext 需在 MainActor 访问
         let context = executor.container.mainContext
-        let model = ReviewItemModel.mock(content: "测试")
+        let model = ArchiveItemModel.mock(content: "测试")
         context.insert(model)
         try context.save()
-        let count = try context.fetchCount(FetchDescriptor<ReviewItemModel>())
+        let count = try context.fetchCount(FetchDescriptor<ArchiveItemModel>())
         #expect(count == 1)
     }
 
@@ -39,11 +39,11 @@ struct DataExecutorTests {
     func insertAndFetchCorrectContent() throws {
         let executor = DataExecutor(inMemory: true)
         let context = executor.container.mainContext
-        let model = ReviewItemModel.mock(content: "DataExecutor 测试题")
+        let model = ArchiveItemModel.mock(content: "DataExecutor 测试题")
         context.insert(model)
         try context.save()
 
-        let items = try context.fetch(FetchDescriptor<ReviewItemModel>())
+        let items = try context.fetch(FetchDescriptor<ArchiveItemModel>())
         #expect(items.count == 1)
         #expect(items.first?.content == "DataExecutor 测试题")
     }
@@ -73,9 +73,9 @@ struct DataExecutorTests {
 
         // 验证 context 可正常使用
         let context = executor.container.mainContext
-        context.insert(ReviewItemModel.mock(content: "OffMainActor"))
+        context.insert(ArchiveItemModel.mock(content: "OffMainActor"))
         try context.save()
-        let count = try context.fetchCount(FetchDescriptor<ReviewItemModel>())
+        let count = try context.fetchCount(FetchDescriptor<ArchiveItemModel>())
         #expect(count == 1)
     }
 
@@ -99,17 +99,53 @@ struct DataExecutorTests {
     @Test("Repository 通过 DataExecutor 构造可正常工作")
     func repositoryViaExecutor() throws {
         let executor = DataExecutor(inMemory: true)
-        let repo = ReviewRepository(executor: executor)
-        try repo.insertAndSave(ReviewItemModel.mock(content: "via executor"))
+        let repo = ArchiveRepository(executor: executor)
+        try repo.insertAndSave(ArchiveItemModel.mock(content: "via executor"))
         #expect(try repo.totalCount() == 1)
+    }
+
+    @Test("磁盘 store 打不开时重建盘上 store 而不是静默降级到内存")
+    func diskStoreFailureRebuildsPersistentStore() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DataExecutorStoreRecovery_\(UUID().uuidString)")
+        let storeURL = root.appendingPathComponent("default.store")
+        let walURL = URL(fileURLWithPath: storeURL.path + "-wal")
+        let shmURL = URL(fileURLWithPath: storeURL.path + "-shm")
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let corruptStoreData = Data("not a sqlite store".utf8)
+        let staleWALData = Data("stale wal".utf8)
+        let staleSHMData = Data("stale shm".utf8)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        try corruptStoreData.write(to: storeURL)
+        try staleWALData.write(to: walURL)
+        try staleSHMData.write(to: shmURL)
+
+        let executor = DataExecutor(storeURL: storeURL)
+
+        #expect(await executor.isUsingInMemoryFallback == false)
+        #expect(await executor.initializationError == nil)
+        #expect((try? Data(contentsOf: storeURL)) != corruptStoreData)
+        if FileManager.default.fileExists(atPath: walURL.path) {
+            #expect((try? Data(contentsOf: walURL)) != staleWALData)
+        }
+        if FileManager.default.fileExists(atPath: shmURL.path) {
+            #expect((try? Data(contentsOf: shmURL)) != staleSHMData)
+        }
+
+        let context = executor.container.mainContext
+        context.insert(ArchiveItemModel.mock(content: "recovered disk store"))
+        try context.save()
+        let count = try context.fetchCount(FetchDescriptor<ArchiveItemModel>())
+        #expect(count == 1)
     }
 
     @Test("RepositoryContainer 通过 DataExecutor 构造可正常工作")
     func repositoryContainerViaExecutor() throws {
         let executor = DataExecutor(inMemory: true)
         let repos = RepositoryContainer(executor: executor, scope: ProfileScope(id: UUID(), name: "Test"), profileDirectory: FileManager.default.temporaryDirectory)
-        repos.review.insert(ReviewItemModel.mock(content: "container via executor"))
-        try repos.review.saveContext()
-        #expect(try repos.review.totalCount() == 1)
+        repos.archive.insert(ArchiveItemModel.mock(content: "container via executor"))
+        try repos.archive.saveContext()
+        #expect(try repos.archive.totalCount() == 1)
     }
 }

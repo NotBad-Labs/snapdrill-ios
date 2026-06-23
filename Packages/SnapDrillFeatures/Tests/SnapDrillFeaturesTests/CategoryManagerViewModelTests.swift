@@ -101,10 +101,10 @@ final class CategoryManagerViewModelTests {
         }
         let value = CategoryValueModel(name: "第一章", dimension: dim)
         try repos.categoryValue.insertAndSave(value)
-        let item = ReviewItemModel(content: "题")
+        let item = ArchiveItemModel(content: "题")
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         vm.loadData()
         guard let idx = vm.dimensions.firstIndex(where: { $0.name == "章节" }) else {

@@ -1,5 +1,5 @@
 //
-//  ReviewExportSnapshot.swift
+//  ArchiveExportSnapshot.swift
 //  SnapDrillData
 //
 //  Created by NotBad Labs.
@@ -12,10 +12,10 @@ import Foundation
 import SnapDrillCore
 
 /// 导出专用只读快照——满足 Sendable 和 PDFExportable，供 PDF 和 CSV 导出共用。
-nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
-    /// 题目唯一标识符
+nonisolated public struct ArchiveExportSnapshot: Sendable, Identifiable {
+    /// 资料项唯一标识符
     public let id: UUID
-    /// 题目内容文本
+    /// 资料项内容文本
     public let content: String?
     /// 图片相对路径
     public let imagePath: String?
@@ -33,7 +33,7 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     public let dimensionValues: [String: [String]]
 }
 
-extension ReviewExportSnapshot: PDFExportable {
+extension ArchiveExportSnapshot: PDFExportable {
     /// 桥接内部分类字段 → 协议的 `exportCategory: String?`（PDF 页眉用分类维度首值）。
     /// 空串归一为 nil：无分类值的条目须被 PDFExportService.resolveCategory 的 compactMap 丢弃，
     /// 否则空串污染 categories 集合 → 误判「综合资料」或页眉留白（恢复 S5 前契约）。
@@ -41,4 +41,4 @@ extension ReviewExportSnapshot: PDFExportable {
 }
 
 // CSV 编码统一走 `ReviewCSVCodec`（单一契约源）；A2 动态列经 dimensionValues。
-extension ReviewExportSnapshot: ReviewCSVRow {}
+extension ArchiveExportSnapshot: ReviewCSVRow {}

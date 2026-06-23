@@ -35,7 +35,7 @@ nonisolated struct CategoryReviewLoadItem: Identifiable {
 
 /// 高级统计 ViewModel
 ///
-/// 从 ReviewRepository 获取原始数据，在内存层按天/分类聚合。
+/// 从 ArchiveRepository 获取原始数据，在内存层按天/分类聚合。
 /// 聚合在 ViewModel 而非 Repository，因为 SwiftData #Predicate 不支持 GROUP BY。
 @MainActor
 @Observable
@@ -89,7 +89,7 @@ final class DashboardAnalyticsViewModel {
     /// 加载全部统计数据（单次 fetch 全量数据，内存聚合三个维度）
     func loadAnalytics() {
         do {
-            let allItems = try repositories.review.fetchAllModels()
+            let allItems = try repositories.archive.fetchAllModels()
             let now = Date.now
             // startOfDay 对齐，确保首日 00:00 起的数据不被遗漏
             let rawSince = Calendar.current.date(byAdding: .day, value: -30, to: now) ?? now
@@ -109,12 +109,12 @@ final class DashboardAnalyticsViewModel {
     // MARK: - Private Aggregation
 
     /// 资料的主分类名：category 维度的首个值名，无则「未分类」。
-    private func categoryValueName(of item: ReviewItemModel) -> String {
+    private func categoryValueName(of item: ArchiveItemModel) -> String {
         item.primaryCategoryName ?? L10n.Dashboard.uncategorized
     }
 
     /// 按天 × 分类聚合，只取 Top 3 分类，无数据天补零
-    private func aggregateCategoryTrend(_ items: [ReviewItemModel]) -> [CategoryTrendPoint] {
+    private func aggregateCategoryTrend(_ items: [ArchiveItemModel]) -> [CategoryTrendPoint] {
         var grouped: [Date: [String: Int]] = [:]
         var categoryTotals: [String: Int] = [:]
         for item in items {
@@ -145,7 +145,7 @@ final class DashboardAnalyticsViewModel {
     }
 
     /// 按分类统计待回顾数，取 Top 5
-    private func aggregateCategoriesNeedingReview(_ items: [ReviewItemModel], now: Date) -> [CategoryReviewLoadItem] {
+    private func aggregateCategoriesNeedingReview(_ items: [ArchiveItemModel], now: Date) -> [CategoryReviewLoadItem] {
         var categoryStats: [String: (total: Int, due: Int)] = [:]
         for item in items {
             let category = categoryValueName(of: item)

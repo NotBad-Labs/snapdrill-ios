@@ -27,7 +27,7 @@ struct BackupServiceTests {
             profileName: "默认",
             profileId: Self.testProfileId,
             reviewItems: [
-                ReviewItemBackupDTO(
+                ArchiveItemBackupDTO(
                     id: UUID(),
                     content: "测试题目",
                     imagePath: "images/test.jpg",
@@ -306,7 +306,7 @@ struct BackupServiceTests {
             profileName: "测试",
             profileId: profileId,
             reviewItems: [
-                ReviewItemBackupDTO(
+                ArchiveItemBackupDTO(
                     id: UUID(),
                     content: "恶意条目",
                     imagePath: "../evil.jpg",

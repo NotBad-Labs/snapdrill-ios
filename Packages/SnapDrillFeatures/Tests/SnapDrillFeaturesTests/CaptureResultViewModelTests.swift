@@ -95,7 +95,7 @@ final class CaptureResultViewModelTests {
         await ctx.vm.saveResult()
 
         #expect(ctx.vm.isSaved == true)
-        let items = try ctx.repos.review.fetchAllModels()
+        let items = try ctx.repos.archive.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == "纯文字题目")
         #expect(ctx.analytics.hasTrackedEvent(.captureSaved))
@@ -108,7 +108,7 @@ final class CaptureResultViewModelTests {
         await ctx.vm.saveResult()
 
         #expect(ctx.vm.isSaved == true)
-        let items = try ctx.repos.review.fetchAllModels()
+        let items = try ctx.repos.archive.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == nil)
         #expect(items.first?.imagePath != nil)
@@ -197,7 +197,7 @@ final class CaptureResultViewModelTests {
         #expect(ctx.vm.isSaved == true)
 
         // 验证只保存了一次（不是两次）
-        let items = try ctx.repos.review.fetchAllModels()
+        let items = try ctx.repos.archive.fetchAllModels()
         #expect(items.count == 1)
     }
 
@@ -212,7 +212,7 @@ final class CaptureResultViewModelTests {
         #expect(ctx.vm.showErrorAlert == true)
         #expect(ctx.vm.errorMessage != nil)
         // 确认没有数据被持久化
-        let count = try ctx.repos.review.totalCount()
+        let count = try ctx.repos.archive.totalCount()
         #expect(count == 0)
     }
 

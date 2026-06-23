@@ -38,7 +38,7 @@ final class SmartPaperViewModel {
     // MARK: - 输出状态
 
     /// 选题结果预览
-    private(set) var selectedItems: [ReviewExportSnapshot] = []
+    private(set) var selectedItems: [ArchiveExportSnapshot] = []
 
     /// 可用主分类维度值列表（供 UI 展示）
     private(set) var availableCategories: [CategoryValueModel] = []
@@ -87,7 +87,7 @@ final class SmartPaperViewModel {
     /// 根据当前筛选条件重新选题
     func refreshSelection() {
         do {
-            let models = try repositories.review.fetchSmartSelection(
+            let models = try repositories.archive.fetchSmartSelection(
                 limit: questionCount,
                 categoryValueIds: selectedCategoryValueIds,
                 excluding: deletionScheduler.pendingDeletionIDs

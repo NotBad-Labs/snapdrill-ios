@@ -16,7 +16,7 @@ freshness:
 |---|---|---|
 | `repository.save(model)` | `repository.insertAndSave(model)` | 没有 save() 方法 |
 | `repository.fetch(id:)` | `reviewRepository.fetchModel(by: id)`；其他 Repository 用 `fetchModel(byName:)` | 方法名不同 |
-| `ReviewItemModel.save()` | 通过 Repository 保存 | @Model 没有 save() |
+| `ArchiveItemModel.save()` | 通过 Repository 保存 | @Model 没有 save() |
 | `SM2State.update(...)` | `scheduler.scheduleNextReview()` 返回新值 | SM2State 是值类型 |
 | `SnapDrillLogger.log("...")` | `SnapDrillLogger.generic.error("...")` | 没有 .log()，用子系统 |
 | `ReviewDataNotification.post()` | `NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)` | 没有静态 post() |

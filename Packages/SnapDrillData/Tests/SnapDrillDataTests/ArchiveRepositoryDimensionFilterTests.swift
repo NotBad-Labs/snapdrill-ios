@@ -1,5 +1,5 @@
 //
-//  ReviewRepositoryDimensionFilterTests.swift
+//  ArchiveRepositoryDimensionFilterTests.swift
 //  SnapDrillDataTests
 //
 //  Created by NotBad Labs.
@@ -16,8 +16,8 @@ import Foundation
 import SnapDrillCore
 @testable import SnapDrillData
 
-@Suite("ReviewRepository 动态维度筛选测试", .serialized)
-final class ReviewRepositoryDimensionFilterTests {
+@Suite("ArchiveRepository 动态维度筛选测试", .serialized)
+final class ArchiveRepositoryDimensionFilterTests {
 
     private let container: ModelContainer
     private let repos: RepositoryContainer
@@ -70,11 +70,11 @@ final class ReviewRepositoryDimensionFilterTests {
     private func makeItem(
         _ content: String,
         values: [CategoryValueModel]
-    ) throws -> ReviewItemModel {
-        let item = ReviewItemModel(content: content)
+    ) throws -> ArchiveItemModel {
+        let item = ArchiveItemModel(content: content)
         item.categoryValues = values
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
         return item
     }
 
@@ -87,7 +87,7 @@ final class ReviewRepositoryDimensionFilterTests {
         try makeItem("英语易错题", values: [f.english, f.mistake])
         try makeItem("数学重点题", values: [f.math, f.key])
 
-        let result = try repos.review.fetchFilteredModels(
+        let result = try repos.archive.fetchFilteredModels(
             searchText: "",
             valueIdsByDimension: [f.categoryDim.id: [f.math.id], f.tagDim.id: [f.mistake.id]],
             limit: 50, offset: 0
@@ -102,7 +102,7 @@ final class ReviewRepositoryDimensionFilterTests {
         try makeItem("英语题", values: [f.english])
         try makeItem("语文题", values: [f.chinese])
 
-        let result = try repos.review.fetchFilteredModels(
+        let result = try repos.archive.fetchFilteredModels(
             searchText: "",
             valueIdsByDimension: [f.categoryDim.id: [f.math.id, f.english.id]],
             limit: 50, offset: 0
@@ -116,7 +116,7 @@ final class ReviewRepositoryDimensionFilterTests {
         try makeItem("题1", values: [f.math])
         try makeItem("题2", values: [f.english])
 
-        let result = try repos.review.fetchFilteredModels(
+        let result = try repos.archive.fetchFilteredModels(
             searchText: "", valueIdsByDimension: [:], limit: 50, offset: 0
         )
         #expect(result.count == 2)
@@ -128,7 +128,7 @@ final class ReviewRepositoryDimensionFilterTests {
         try makeItem("抛物线数学题", values: [f.math])
         try makeItem("几何数学题", values: [f.math])
 
-        let result = try repos.review.fetchFilteredModels(
+        let result = try repos.archive.fetchFilteredModels(
             searchText: "抛物线",
             valueIdsByDimension: [f.categoryDim.id: [f.math.id]],
             limit: 50, offset: 0
@@ -147,11 +147,11 @@ final class ReviewRepositoryDimensionFilterTests {
         try makeItem("抛物线数学目标C", values: [f.math])
 
         let filter: [UUID: Set<UUID>] = [f.categoryDim.id: [f.math.id]]
-        let page1 = try repos.review.fetchFilteredModels(
+        let page1 = try repos.archive.fetchFilteredModels(
             searchText: "抛物线", valueIdsByDimension: filter,
             limit: 2, offset: 0
         )
-        let page2 = try repos.review.fetchFilteredModels(
+        let page2 = try repos.archive.fetchFilteredModels(
             searchText: "抛物线", valueIdsByDimension: filter,
             limit: 2, offset: 2
         )
@@ -170,13 +170,13 @@ final class ReviewRepositoryDimensionFilterTests {
         }
         let filter: [UUID: Set<UUID>] = [f.categoryDim.id: [f.math.id]]
 
-        let page1 = try repos.review.fetchFilteredModels(
+        let page1 = try repos.archive.fetchFilteredModels(
             searchText: "", valueIdsByDimension: filter, limit: 2, offset: 0
         )
-        let page2 = try repos.review.fetchFilteredModels(
+        let page2 = try repos.archive.fetchFilteredModels(
             searchText: "", valueIdsByDimension: filter, limit: 2, offset: 2
         )
-        let page3 = try repos.review.fetchFilteredModels(
+        let page3 = try repos.archive.fetchFilteredModels(
             searchText: "", valueIdsByDimension: filter, limit: 2, offset: 4
         )
         #expect(page1.count == 2)
@@ -190,7 +190,7 @@ final class ReviewRepositoryDimensionFilterTests {
     func filter_offsetBeyondCount_returnsEmpty() throws {
         let f = try makeFixture()
         try makeItem("数学题", values: [f.math])
-        let result = try repos.review.fetchFilteredModels(
+        let result = try repos.archive.fetchFilteredModels(
             searchText: "", valueIdsByDimension: [f.categoryDim.id: [f.math.id]],
             limit: 50, offset: 10
         )
@@ -206,7 +206,7 @@ final class ReviewRepositoryDimensionFilterTests {
         try makeItem("数学题", values: [f.math])
         try makeItem("语文题", values: [f.chinese])
 
-        let result = try repos.review.fetchFilteredModels(
+        let result = try repos.archive.fetchFilteredModels(
             searchText: "", valueIdsByDimension: [:],
             sortByCategoryName: true, limit: 50, offset: 0
         )
@@ -224,10 +224,10 @@ final class ReviewRepositoryDimensionFilterTests {
         try makeItem("数学2", values: [f.math])
         try makeItem("英语1", values: [f.english])
 
-        let result = try repos.review.fetchSmartSelection(limit: 10, categoryValueIds: [f.math.id])
+        let result = try repos.archive.fetchSmartSelection(limit: 10, categoryValueIds: [f.math.id])
         #expect(Set(result.map { $0.content ?? "" }) == ["数学1", "数学2"])
 
-        let limited = try repos.review.fetchSmartSelection(limit: 1, categoryValueIds: [f.math.id])
+        let limited = try repos.archive.fetchSmartSelection(limit: 1, categoryValueIds: [f.math.id])
         #expect(limited.count == 1)
     }
 
@@ -237,7 +237,7 @@ final class ReviewRepositoryDimensionFilterTests {
         try makeItem("题1", values: [f.math])
         try makeItem("题2", values: [f.english])
 
-        let result = try repos.review.fetchSmartSelection(limit: 10)
+        let result = try repos.archive.fetchSmartSelection(limit: 10)
         #expect(result.count == 2)
     }
 }

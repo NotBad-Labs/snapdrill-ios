@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  题目编辑 ViewModel，直接操作 ReviewItemModel 进行持久化。
+//  题目编辑 ViewModel，直接操作 ArchiveItemModel 进行持久化。
 //  L3：分类改为动态维度（dimensions + selectedByDimension）。
 //
 
@@ -56,7 +56,7 @@ public final class LibraryEditViewModel {
 
     // MARK: - Dependencies
 
-    private let item: ReviewItemModel
+    private let item: ArchiveItemModel
     private let repositories: RepositoryContainer
     private let imageStorage: ImageStorage
     private let ocrService: OCRServiceProtocol
@@ -68,7 +68,7 @@ public final class LibraryEditViewModel {
 
     /// 创建题目编辑 ViewModel
     public init(
-        item: ReviewItemModel,
+        item: ArchiveItemModel,
         repositories: RepositoryContainer,
         imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
         ocrService: OCRServiceProtocol = OCRService(),
@@ -256,7 +256,7 @@ public final class LibraryEditViewModel {
         applyChangesToModel(newImagePath: newImagePath, newAnswerImagePath: newAnswerImagePath)
 
         do {
-            try repositories.review.saveContext()
+            try repositories.archive.saveContext()
             isSavedNormally = true
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             deleteReplacedImages(
@@ -264,7 +264,7 @@ public final class LibraryEditViewModel {
                 oldAnswerPath: oldAnswerImagePath, newAnswerPath: newAnswerImagePath
             )
         } catch {
-            repositories.review.rollbackContext()
+            repositories.archive.rollbackContext()
             if let path = newImagePath { bestEffortDeleteImage(path: path) }
             if let path = newAnswerImagePath { bestEffortDeleteImage(path: path) }
             SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
@@ -275,7 +275,7 @@ public final class LibraryEditViewModel {
 
     // MARK: - Private Helpers
 
-    /// 当前所有维度的选中值实例（扁平），写入 ReviewItemModel.categoryValues
+    /// 当前所有维度的选中值实例（扁平），写入 ArchiveItemModel.categoryValues
     private var selectedValues: [CategoryValueModel] {
         var result: [CategoryValueModel] = []
         for (dimId, valueIds) in selectedByDimension {

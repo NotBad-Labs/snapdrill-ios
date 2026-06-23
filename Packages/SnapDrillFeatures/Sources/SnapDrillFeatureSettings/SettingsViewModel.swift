@@ -72,7 +72,7 @@ public final class SettingsViewModel {
         } catch {
             // deleteAllData 是单次 saveContext 原子操作，失败时其内部已 rollback DB（旧数据完整保留）；
             // 此处 rollback 仅作防御性二次清理，确保本上下文无残留内存脏状态被后续操作意外持久化
-            repositories.review.rollbackContext()
+            repositories.archive.rollbackContext()
             SnapDrillLogger.generic.error("清空数据失败: \(error)")
             clearError = L10n.Settings.clearFailed
         }
@@ -206,13 +206,13 @@ public final class SettingsViewModel {
                 multiValueColumns: Self.inferMultiValueColumns(rows: rows, fixedKeys: fixedKeys)
             )
 
-            // 批量创建 ReviewItemModel（每 50 条 yield 一次，避免长时间阻塞主线程）
+            // 批量创建 ArchiveItemModel（每 50 条 yield 一次，避免长时间阻塞主线程）
             for (index, row) in rows.enumerated() {
-                let model = ReviewItemModel(
+                let model = ArchiveItemModel(
                     content: row["content"],
                     answerText: row["answer"]
                 )
-                repositories.review.insert(model)
+                repositories.archive.insert(model)
                 model.categoryValues = importCategoryValues(from: row, context: context, dimensionsByName: &dimensionsByName)
 
                 backupProgress = Double(index + 1) / Double(rows.count)
@@ -223,13 +223,13 @@ public final class SettingsViewModel {
                 }
             }
 
-            try repositories.review.saveContext()
+            try repositories.archive.saveContext()
 
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             backupStatusMessage = L10n.Settings.importComplete(rows.count)
             SnapDrillLogger.generic.info("CSV 导入完成: \(rows.count) 道题")
         } catch {
-            repositories.review.rollbackContext()
+            repositories.archive.rollbackContext()
             backupError = L10n.Settings.importFailed
             backupStatusMessage = ""
             SnapDrillLogger.generic.error("CSV 导入失败: \(error)")

@@ -129,22 +129,22 @@ private struct UncheckedSendableBox<Value>: @unchecked Sendable {
 
 @MainActor
 private func insertMockReviewItem(
-    into repository: ReviewRepository,
+    into repository: ArchiveRepository,
     content: String
 ) {
-    repository.insert(ReviewItemModel.mock(content: content))
+    repository.insert(ArchiveItemModel.mock(content: content))
 }
 
 @MainActor
 private func insertAndSaveMockReviewItem(
-    into repository: ReviewRepository,
+    into repository: ArchiveRepository,
     content: String
 ) throws {
-    try repository.insertAndSave(ReviewItemModel.mock(content: content))
+    try repository.insertAndSave(ArchiveItemModel.mock(content: content))
 }
 
 @MainActor
-private func fetchAllReviewModelCount(from repository: ReviewRepository) throws -> Int {
+private func fetchAllReviewModelCount(from repository: ArchiveRepository) throws -> Int {
     try repository.fetchAllModels().count
 }
 
@@ -205,12 +205,12 @@ func multipleContainersDataIsolation() async throws {
 
     for (i, c) in containers.enumerated() {
         let ctx = c.mainContext
-        ctx.insert(ReviewItemModel.mock(content: "c\(i)"))
+        ctx.insert(ArchiveItemModel.mock(content: "c\(i)"))
         try ctx.save()
     }
 
     for (i, c) in containers.enumerated() {
-        let count = try c.mainContext.fetchCount(FetchDescriptor<ReviewItemModel>())
+        let count = try c.mainContext.fetchCount(FetchDescriptor<ArchiveItemModel>())
         #expect(count == 1, "容器 \(i) 数据隔离失败")
     }
 }
@@ -219,9 +219,9 @@ func multipleContainersDataIsolation() async throws {
 func bypassPersistenceControllerInit() throws {
     let container = try TestModelContainer.create()
     let ctx = container.mainContext
-    ctx.insert(ReviewItemModel.mock(content: "绕过 PersistenceController"))
+    ctx.insert(ArchiveItemModel.mock(content: "绕过 PersistenceController"))
     try ctx.save()
-    let count = try ctx.fetchCount(FetchDescriptor<ReviewItemModel>())
+    let count = try ctx.fetchCount(FetchDescriptor<ArchiveItemModel>())
     #expect(count == 1)
 }
 
@@ -231,7 +231,7 @@ func bypassPersistenceControllerInit() throws {
 func concurrentInsertsCorrectCount() async throws {
     let count = try await withTimeout {
         let container = try TestModelContainer.create()
-        let repo = await UncheckedSendableBox(value: ReviewRepository(modelContext: ModelContext(container)))
+        let repo = await UncheckedSendableBox(value: ArchiveRepository(modelContext: ModelContext(container)))
 
         await withTaskGroup(of: Void.self) { group in
             for i in 0..<50 {
@@ -250,7 +250,7 @@ func concurrentInsertsCorrectCount() async throws {
 func concurrentBatchInsertsNoDataLoss() async throws {
     let count = try await withTimeout {
         let container = try TestModelContainer.create()
-        let repo = await UncheckedSendableBox(value: ReviewRepository(modelContext: ModelContext(container)))
+        let repo = await UncheckedSendableBox(value: ArchiveRepository(modelContext: ModelContext(container)))
 
         try await withThrowingTaskGroup(of: Void.self) { group in
             for batch in 0..<5 {
@@ -273,7 +273,7 @@ func concurrentBatchInsertsNoDataLoss() async throws {
 func concurrentFetchesNoError() async throws {
     try await withTimeout {
         let container = try TestModelContainer.create()
-        let repo = await UncheckedSendableBox(value: ReviewRepository(modelContext: ModelContext(container)))
+        let repo = await UncheckedSendableBox(value: ArchiveRepository(modelContext: ModelContext(container)))
         try await insertAndSaveMockReviewItem(into: repo.value, content: "基准数据")
 
         try await withThrowingTaskGroup(of: Void.self) { group in
@@ -301,17 +301,17 @@ func deleteAllDataAfterConcurrentInsertsClearsAll() async throws {
         await withTaskGroup(of: Void.self) { group in
             for i in 0..<30 {
                 group.addTask {
-                    await insertMockReviewItem(into: repos.value.review, content: "条目-\(i)")
+                    await insertMockReviewItem(into: repos.value.archive, content: "条目-\(i)")
                 }
             }
         }
-        try await repos.value.review.saveContext()
-        let beforeDeleteCount = try await repos.value.review.totalCount()
+        try await repos.value.archive.saveContext()
+        let beforeDeleteCount = try await repos.value.archive.totalCount()
 
         try await repos.value.deleteAllData()
         return (
             beforeDeleteCount,
-            try await repos.value.review.totalCount(),
+            try await repos.value.archive.totalCount(),
             try await repos.value.dimension.totalCount()
         )
     }
@@ -329,17 +329,17 @@ func deleteThenRestoreRoundTripNoResidue() async throws {
     try repos.dimension.insertAndSave(categoryDim)
     let mathValue = CategoryValueModel.mock(name: "数学", dimension: categoryDim)
     try repos.categoryValue.insertAndSave(mathValue)
-    let item = ReviewItemModel.mock(content: "原始题")
+    let item = ArchiveItemModel.mock(content: "原始题")
     item.categoryValues = [mathValue]
-    repos.review.insert(item)
-    try repos.review.saveContext()
+    repos.archive.insert(item)
+    try repos.archive.saveContext()
 
     let backup = try repos.collectProfileBackupData(profileName: "p1", profileId: UUID())
     try await repos.deleteAllData()
-    #expect(try repos.review.totalCount() == 0)
+    #expect(try repos.archive.totalCount() == 0)
 
     try await repos.restoreFromProfileData(backup)
-    #expect(try repos.review.totalCount() > 0)
+    #expect(try repos.archive.totalCount() > 0)
 }
 
 }

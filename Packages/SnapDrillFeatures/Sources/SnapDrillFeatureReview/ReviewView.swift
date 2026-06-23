@@ -59,7 +59,7 @@ public struct ReviewView: View {
                 // 先确保 ViewModel 存在（注册通知订阅），再加载数据
                 if viewModel == nil {
                     viewModel = ReviewViewModel(
-                        repository: repositories.review,
+                        repository: repositories.archive,
                         analyticsService: analyticsService,
                         deletionScheduler: services.deletionScheduler
                     )
@@ -235,7 +235,7 @@ public struct ReviewView: View {
     // MARK: - Flip Card Content
 
     @ViewBuilder
-    private func stackedReviewCard(item: ReviewItemModel, isTop: Bool, vm: ReviewViewModel) -> some View {
+    private func stackedReviewCard(item: ArchiveItemModel, isTop: Bool, vm: ReviewViewModel) -> some View {
         if isTop {
             SwipeCard(
                 content: { flipCardContent(item: item, isTop: true, vm: vm) },
@@ -258,7 +258,7 @@ public struct ReviewView: View {
     }
 
     @ViewBuilder
-    private func flipCardContent(item: ReviewItemModel, isTop: Bool, vm: ReviewViewModel) -> some View {
+    private func flipCardContent(item: ArchiveItemModel, isTop: Bool, vm: ReviewViewModel) -> some View {
         ZStack {
             ReviewCardFactory.makeFront(for: item, showsActions: isTop && !vm.isAnswerShown)
                 .opacity(vm.isAnswerShown && isTop ? 0 : 1)
@@ -357,7 +357,7 @@ public struct ReviewView: View {
         CGFloat(index) * 15
     }
 
-    private func cardRotation(for item: ReviewItemModel, index: Int, vm: ReviewViewModel) -> Double {
+    private func cardRotation(for item: ArchiveItemModel, index: Int, vm: ReviewViewModel) -> Double {
         guard index > 0, index < vm.workingItems.count else { return 0 }
         let seed = abs(item.id.hashValue)
         return Double(seed % 7) - 3.0

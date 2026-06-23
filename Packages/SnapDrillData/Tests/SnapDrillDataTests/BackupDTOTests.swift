@@ -60,7 +60,7 @@ struct BackupDTOTests {
             profileName: "默认",
             profileId: Self.testProfileId,
             reviewItems: [
-                ReviewItemBackupDTO(
+                ArchiveItemBackupDTO(
                     id: itemID,
                     content: "已知 △ABC 中 AB=AC",
                     imagePath: "images/\(itemID).jpg",
@@ -140,9 +140,9 @@ struct BackupDTOTests {
         #expect(decoded.profiles[0].categoryValues.isEmpty)
     }
 
-    @Test("ReviewItemBackupDTO nil content/answerText + 空 categoryValueIds 正确序列化")
+    @Test("ArchiveItemBackupDTO nil content/answerText + 空 categoryValueIds 正确序列化")
     func nilFieldsSerialization() throws {
-        let item = ReviewItemBackupDTO(
+        let item = ArchiveItemBackupDTO(
             id: UUID(),
             content: nil,
             imagePath: nil,
@@ -158,7 +158,7 @@ struct BackupDTOTests {
         )
 
         let data = try JSONEncoder().encode(item)
-        let decoded = try JSONDecoder().decode(ReviewItemBackupDTO.self, from: data)
+        let decoded = try JSONDecoder().decode(ArchiveItemBackupDTO.self, from: data)
 
         #expect(decoded.content == nil)
         #expect(decoded.answerText == nil)

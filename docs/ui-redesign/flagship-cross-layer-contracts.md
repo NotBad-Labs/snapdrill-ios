@@ -45,12 +45,12 @@
 
 **判定：refined —— Codex「任意维度筛选需全量 fetch」的描述需修正。** 严重度 **P3**。
 
-**事实（`ReviewRepository.fetchFilteredModels` `:249-303`）**：实现**已有 DB 廉价路径**——`searchText` 进入 `#Predicate` 先按 OCR 文本收窄；静态 `difficulty` 字段已于 `077db353` 移除，动态维度值过滤改由 `valueIdsByDimension` 候选集与维度间 AND / 维度内 OR 校验完成。`needsMemoryProcessing = !valueIdsByDimension.isEmpty || sortByCategoryName`，只有动态维度筛选 / 主分类名排序才走内存路径，且内存过滤作用在**已收窄的子集**上、非无条件全表。维度内存过滤本身是 SwiftData many-to-many `#Predicate` SIGTRAP 限制下的**被迫正确模式**（勿动）。
+**事实（`ArchiveRepository.fetchFilteredModels` `:249-303`）**：实现**已有 DB 廉价路径**——`searchText` 进入 `#Predicate` 先按 OCR 文本收窄；静态 `difficulty` 字段已于 `077db353` 移除，动态维度值过滤改由 `valueIdsByDimension` 候选集与维度间 AND / 维度内 OR 校验完成。`needsMemoryProcessing = !valueIdsByDimension.isEmpty || sortByCategoryName`，只有动态维度筛选 / 主分类名排序才走内存路径，且内存过滤作用在**已收窄的子集**上、非无条件全表。维度内存过滤本身是 SwiftData many-to-many `#Predicate` SIGTRAP 限制下的**被迫正确模式**（勿动）。
 
 **真成本三处**（非「全量 fetch」）：
 1. `loadMore`(`LibraryViewModel:234-262`) 每翻一页都 `fetchFilteredModels(offset:)`，内存路径下 = 每页从 offset 0 重新 fetch + 重新 materialize 全部 `categoryValues` + 重新过滤 + 重新排序再切片(`:301-302`)。N 页 = O(N × 全集) 重复工作。
-2. `categoryValues` 是 `@Relationship` to-many（`ReviewItemModel.swift:53-54`），全仓无 `relationshipKeyPathsForPrefetching`（grep 零命中），`:284` 逐条 `item.categoryValues` 触发懒加载 fault —— 5000 条 = N+1 关系访问。
-3. **⚠️ 验证补**：`sortBySubjectName` 路径(`:292-298`)调 `subjectCategoryName` → `categoryValueNames`(`ReviewItemModel+Categories.swift:17-22`) 含 `.filter { $0.dimension?.systemKey == ... }`，是 `categoryValues` 之下的**二级**关系 fault；且 sort 比较器 O(N log N) 次调用**未 memoize** 的计算属性。
+2. `categoryValues` 是 `@Relationship` to-many（`ArchiveItemModel.swift:53-54`），全仓无 `relationshipKeyPathsForPrefetching`（grep 零命中），`:284` 逐条 `item.categoryValues` 触发懒加载 fault —— 5000 条 = N+1 关系访问。
+3. **⚠️ 验证补**：`sortBySubjectName` 路径(`:292-298`)调 `subjectCategoryName` → `categoryValueNames`(`ArchiveItemModel+Categories.swift:17-22`) 含 `.filter { $0.dimension?.systemKey == ... }`，是 `categoryValues` 之下的**二级**关系 fault；且 sort 比较器 O(N log N) 次调用**未 memoize** 的计算属性。
 
 **契约（Claude，Data 层）**：
 1. 保留维度内存过滤（SIGTRAP 被迫正确，**不要**尝试用 `#Predicate` 改写关系过滤）。
@@ -110,14 +110,14 @@
 
 **判定：refined。** 严重度 P3。
 
-**事实**：`LibraryView`(`:206-222`) 导出 entry 仅置 `isExportSheetPresented=true`、sheet=`ResolvedExportSheet(ids:)`，**无 onComplete/onDismiss 回调**、不接受 selection 的 Binding，关闭后父层既不清 `selectedItemIDs` 也不退 editMode。对照 `deleteSelectedItems()`(`:298-305`) 就地 `selectedItemIDs.removeAll()` —— 父层**有**清选择能力，只是从未与子 sheet 完成事件接线。兄弟流 `BatchTagSheet`(`:67-74`) 同样只 dismiss —— 是 Library 批量操作的**系统性缺口**。`ResolvedExportSheet.resolvedItems` 初值 `[]`(`:19`)、`.task` 才 resolve(`:37-39`)，首帧必以「0 项」渲染导出表。**⚠️ Codex 称「异步解析」不准**：`fetchModels(by:)`(`ReviewRepository:229-236`) 是**同步 throws 标量主键查询**（`targetIds.contains(item.id)`、无 SIGTRAP），0 项中间态来自 `.task` 触发前的单次预渲染帧、非 async race。
+**事实**：`LibraryView`(`:206-222`) 导出 entry 仅置 `isExportSheetPresented=true`、sheet=`ResolvedExportSheet(ids:)`，**无 onComplete/onDismiss 回调**、不接受 selection 的 Binding，关闭后父层既不清 `selectedItemIDs` 也不退 editMode。对照 `deleteSelectedItems()`(`:298-305`) 就地 `selectedItemIDs.removeAll()` —— 父层**有**清选择能力，只是从未与子 sheet 完成事件接线。兄弟流 `BatchTagSheet`(`:67-74`) 同样只 dismiss —— 是 Library 批量操作的**系统性缺口**。`ResolvedExportSheet.resolvedItems` 初值 `[]`(`:19`)、`.task` 才 resolve(`:37-39`)，首帧必以「0 项」渲染导出表。**⚠️ Codex 称「异步解析」不准**：`fetchModels(by:)`(`ArchiveRepository:229-236`) 是**同步 throws 标量主键查询**（`targetIds.contains(item.id)`、无 SIGTRAP），0 项中间态来自 `.task` 触发前的单次预渲染帧、非 async race。
 
 **契约（Claude，Features/UI seam）**：
 - **(A) Completion seam**：`ResolvedExportSheet`/`ExportOptionsSheet` 顶层加 `onComplete` 回调，回传 `nonisolated enum ExportOutcome { case exported(ExportArtifact); case shared; case cancelled; case failed(Error) }`（定义在 FeatureLibrary）。父层 `LibraryView` 持 `selectedItemIDs`/editMode、是唯一该执行清/留的层；契约只回传「发生了什么」、由父层裁决。
   - **诚实边界**：SwiftUI `ShareLink` 拿不到「用户是否真完成分享」的回执，PDF/CSV 路径只能保证「发起」。**⚠️ 验证补：ZIP 路径走 `UIActivityViewController`（`ExportOptionsSheet:226-235`）有 `completionWithItemsHandler`、可拿真回执**——ZIP 不必和 ShareLink 一样悲观，可接线为「可确认完成」。`cancelled`（点 Close）可靠。
-- **(B) Phase 契约**：`ResolvedExportSheet` 引入 `enum ResolvePhase { case loading; case loaded([ReviewExportSnapshot]); case error(String) }`，初值 `.loading`，消除「首帧 0 项」与「真 0 项」混淆。
+- **(B) Phase 契约**：`ResolvedExportSheet` 引入 `enum ResolvePhase { case loading; case loaded([ArchiveExportSnapshot]); case error(String) }`，初值 `.loading`，消除「首帧 0 项」与「真 0 项」混淆。
   - **2026-06-15 Codex 接线注**：`codex/library-interaction-audit` 已把 `ResolvedExportSheet` 改为 `.loading/.loaded/.failed` phase，首帧显示 `ProgressView`，不再把尚未 resolve 的选择集渲染成 0 项导出表。
-  - **⚠️ 验证修正——勿过度工程化**：调查里「改 off-main async resolve」**不成立**——develop 无任何 models 的 async/off-main fetch 路径，`DataExecutor`(`:19-21`) **刻意**用 sync mainContext，`ReviewItemModel` 非 Sendable 不能跨 actor。而 `fetchModels` 是标量主键查询、导出选择集通常不大。**一个 `.loading` phase flag（首帧 `ProgressView`、`.task` 内同步 resolve 完成后转 `.loaded`）即足够，无需新建背景上下文。**
+  - **⚠️ 验证修正——勿过度工程化**：调查里「改 off-main async resolve」**不成立**——develop 无任何 models 的 async/off-main fetch 路径，`DataExecutor`(`:19-21`) **刻意**用 sync mainContext，`ArchiveItemModel` 非 Sendable 不能跨 actor。而 `fetchModels` 是标量主键查询、导出选择集通常不大。**一个 `.loading` phase flag（首帧 `ProgressView`、`.task` 内同步 resolve 完成后转 `.loaded`）即足够，无需新建背景上下文。**
   - **⚠️ 范围比想象小**：`ExportPreviewView` 下游已有完整三态（`:33-43` isLoading/pdfData/error）；`ResolvedExportSheet` 的 `loadError`(`:24-32`) 已是显式态。所以 (B) 只需补 `ResolvedExportSheet` 一处、error case 是把现状收编进 enum——改动面比读起来小、外科手术化。
 
 **lane 边界**：Claude 定 `ExportOutcome`/`ResolvePhase` enum（**冻结形状**）+ `ResolvedExportSheet` 三态重构 + `ExportOptionsSheet` `onComplete` 透传；Codex 填 `onComplete` 闭包内的具体选择态行为（清/留/退 editMode 的动画反馈）+ phase 视觉。**测试**：现无任何 sheet 测试（grep 零命中）；enum 接口变更须补单测（CLAUDE.md「改接口签名后同步测试」铁律）。

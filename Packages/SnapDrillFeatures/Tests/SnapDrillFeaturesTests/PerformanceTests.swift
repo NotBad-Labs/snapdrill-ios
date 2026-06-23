@@ -32,26 +32,26 @@ final class PerformanceTests {
     @Test("200 题列表加载 < 500ms")
     func libraryListLoad200Items() throws {
         for i in 0..<200 {
-            let item = ReviewItemModel(
+            let item = ArchiveItemModel(
                 content: "测试题目内容 \(i)，包含一些用于搜索的文字"
             )
             context.insert(item)
         }
         try context.save()
 
-        let repo = ReviewRepository(modelContext: context)
+        let repo = ArchiveRepository(modelContext: context)
 
         // 预热
         _ = try repo.fetchFilteredModels(
             searchText: "", valueIdsByDimension: [:],
-            sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
+            sortDescriptors: [SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
 
         let start = CFAbsoluteTimeGetCurrent()
         _ = try repo.fetchFilteredModels(
             searchText: "", valueIdsByDimension: [:],
-            sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
+            sortDescriptors: [SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
         let elapsed = CFAbsoluteTimeGetCurrent() - start
@@ -64,26 +64,26 @@ final class PerformanceTests {
     @Test("200 题搜索响应 < 300ms")
     func searchResponse200Items() throws {
         for i in 0..<200 {
-            let item = ReviewItemModel(
+            let item = ArchiveItemModel(
                 content: "这是第 \(i) 道关于抛物线和二次函数的数学题目"
             )
             context.insert(item)
         }
         try context.save()
 
-        let repo = ReviewRepository(modelContext: context)
+        let repo = ArchiveRepository(modelContext: context)
 
         // 预热
         _ = try repo.fetchFilteredModels(
             searchText: "抛物线", valueIdsByDimension: [:],
-            sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
+            sortDescriptors: [SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
 
         let start = CFAbsoluteTimeGetCurrent()
         _ = try repo.fetchFilteredModels(
             searchText: "抛物线", valueIdsByDimension: [:],
-            sortDescriptors: [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
+            sortDescriptors: [SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)],
             limit: 50, offset: 0
         )
         let elapsed = CFAbsoluteTimeGetCurrent() - start
@@ -95,9 +95,9 @@ final class PerformanceTests {
 
     @Test("50 题 PDF 导出 < 5s")
     func pdfExport50Items() async throws {
-        var snapshots: [ReviewExportSnapshot] = []
+        var snapshots: [ArchiveExportSnapshot] = []
         for i in 0..<50 {
-            let item = ReviewItemModel(
+            let item = ArchiveItemModel(
                 content: "PDF 导出测试题目 \(i)，包含较长的文字内容用于测试渲染性能。"
             )
             snapshots.append(item.toExportSnapshot())

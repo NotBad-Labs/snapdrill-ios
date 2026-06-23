@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  分类维度（命名维度型）：分类 / 来源 / 级别 / 标签 / 用户自定义。
-//  难度 / 级别等属性不再是 ReviewItemModel 的静态字段，统一由维度系统表达。
+//  难度 / 级别等属性不再是 ArchiveItemModel 的静态字段，统一由维度系统表达。
 //
 
 import Foundation

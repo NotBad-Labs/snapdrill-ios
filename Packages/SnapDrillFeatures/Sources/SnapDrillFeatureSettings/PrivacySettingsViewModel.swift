@@ -75,7 +75,7 @@ final class PrivacySettingsViewModel {
         exportError = nil
 
         do {
-            let items = try repositories.review.fetchAllModels()
+            let items = try repositories.archive.fetchAllModels()
             guard !Task.isCancelled else {
                 isExporting = false
                 return

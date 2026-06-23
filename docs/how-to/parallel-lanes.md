@@ -93,7 +93,7 @@ Antigravity 不修改 Swift 业务逻辑。法律结论必须标注来源与是�
 冻结集的成员与数量必须从 live code grep，不凭记忆。2026-06-11 实证锚点：
 
 - `ServiceContainer`：14 个属性，含 `metricService`
-- SwiftData `@Model`：`ReviewItemModel` / `CategoryDimensionModel` / `CategoryValueModel`
+- SwiftData `@Model`：`ArchiveItemModel` / `CategoryDimensionModel` / `CategoryValueModel`
 - Library public View：`CategoryManagerView` / `LibraryEditView` / `LibraryView` / `SFSymbolPickerView`
 - SPM package：Core / Data / Features / UI，共 4 个；Features 内含 5 个 feature target
 

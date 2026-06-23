@@ -311,7 +311,7 @@ public final class CaptureResultViewModel {
 
     // MARK: - Private Helpers
 
-    /// 当前所有维度的选中值实例（扁平），供保存写入 ReviewItemModel.categoryValues
+    /// 当前所有维度的选中值实例（扁平），供保存写入 ArchiveItemModel.categoryValues
     private var selectedValues: [CategoryValueModel] {
         var result: [CategoryValueModel] = []
         for (dimId, valueIds) in selectedByDimension {

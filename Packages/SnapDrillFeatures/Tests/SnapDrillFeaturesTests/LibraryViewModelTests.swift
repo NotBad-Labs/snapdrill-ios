@@ -51,12 +51,12 @@ final class LibraryViewModelTests {
         content: String = "测试题",
         categoryValue: String? = nil
     ) {
-        let model = ReviewItemModel(content: content)
+        let model = ArchiveItemModel(content: content)
         if let categoryValue,
            let categoryDim = try? repos.dimension.fetchDimension(bySystemKey: CategorySystemKey.category) {
             model.categoryValues = [repos.categoryValue.fetchOrCreate(name: categoryValue, in: categoryDim)]
         }
-        repos.review.insert(model)
+        repos.archive.insert(model)
     }
 
     // MARK: - loadDataAsync
@@ -104,7 +104,7 @@ final class LibraryViewModelTests {
         seedDimensions()
         insertItem(content: "数学题", categoryValue: "数学")
         insertItem(content: "英语题", categoryValue: "英语")
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = createVM()
         await vm.loadDataAsync()
@@ -132,7 +132,7 @@ final class LibraryViewModelTests {
         seedDimensions()
         insertItem(content: "题目A", categoryValue: "数学")
         insertItem(content: "题目B", categoryValue: "英语")
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = createVM()
         await vm.loadDataAsync()
@@ -156,7 +156,7 @@ final class LibraryViewModelTests {
             insertItem(content: "题目\(i)")
         }
         // fetchLimit/fetchOffset 仅对已持久化的行生效，必须 save 后再分页查询
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = createVM()
         await vm.refreshData()
@@ -170,7 +170,7 @@ final class LibraryViewModelTests {
     func loadMore_emptyNextPage_noChange() async throws {
         insertItem(content: "唯一题目")
         // fetchLimit/fetchOffset 仅对已持久化的行生效，必须 save 后再分页查询
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = createVM()
         await vm.refreshData()
@@ -187,7 +187,7 @@ final class LibraryViewModelTests {
             insertItem(content: "数学题\(i)", categoryValue: "数学")
             insertItem(content: "英语题\(i)", categoryValue: "英语")
         }
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = createVM()
         await vm.loadDataAsync()
@@ -207,8 +207,8 @@ final class LibraryViewModelTests {
 
     @Test("softDeleteItems 单条软删除并从列表移除")
     func softDeleteItem_removesFromList() async throws {
-        let model = ReviewItemModel(content: "待删除")
-        repos.review.insert(model)
+        let model = ArchiveItemModel(content: "待删除")
+        repos.archive.insert(model)
 
         let vm = createVM()
         await vm.refreshData()
@@ -227,8 +227,8 @@ final class LibraryViewModelTests {
     func softDeleteItems_batchRemoves() async throws {
         var ids: Set<UUID> = []
         for i in 0..<3 {
-            let model = ReviewItemModel(content: "题目\(i)")
-            repos.review.insert(model)
+            let model = ArchiveItemModel(content: "题目\(i)")
+            repos.archive.insert(model)
             ids.insert(model.id)
         }
         insertItem(content: "保留的题目")

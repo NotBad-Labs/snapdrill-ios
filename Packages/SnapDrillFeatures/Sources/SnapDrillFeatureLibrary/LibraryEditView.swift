@@ -25,7 +25,7 @@ public struct LibraryEditView: View {
     @Environment(\.profileManager) private var profileManager
 
     /// 要编辑的题目数据模型
-    let item: ReviewItemModel
+    let item: ArchiveItemModel
 
     @State private var viewModel: LibraryEditViewModel?
     @FocusState private var isInputFocused: Bool
@@ -35,7 +35,7 @@ public struct LibraryEditView: View {
     @State private var answerPickerSelection: PhotosPickerItem?
     @State private var cropperItem: CropperItem?
 
-    public init(item: ReviewItemModel) {
+    public init(item: ArchiveItemModel) {
         self.item = item
     }
     
@@ -296,8 +296,8 @@ private struct CropperItem: Identifiable {
     let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
-    let item: ReviewItemModel = {
-        let i = ReviewItemModel(content: "Sample Question")
+    let item: ArchiveItemModel = {
+        let i = ArchiveItemModel(content: "Sample Question")
         container.mainContext.insert(i)
         return i
     }()

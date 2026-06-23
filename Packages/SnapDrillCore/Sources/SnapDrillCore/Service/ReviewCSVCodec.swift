@@ -14,10 +14,10 @@ import Foundation
 
 // 需求显式 `nonisolated`：本类型在全局 `defaultIsolation(MainActor)` 下默认会变 MainActor 隔离，
 // 而 `ReviewCSVCodec` 是 nonisolated（供 actor / nonisolated Transferable 复用），故需求须可从
-// nonisolated 上下文读取。遵守方（ReviewExportSnapshot / ExportableItem）本就是 nonisolated struct，一致。
+// nonisolated 上下文读取。遵守方（ArchiveExportSnapshot / ExportableItem）本就是 nonisolated struct，一致。
 /// 可被编码为题库 CSV 一行的只读契约。
 ///
-/// 现有实现：`ReviewExportSnapshot`（Data）/ `ExportableItem`（Settings）。
+/// 现有实现：`ArchiveExportSnapshot`（Data）/ `ExportableItem`（Settings）。
 /// 字段顺序即 CSV 列序，由 `ReviewCSVCodec` 统一编码，遵守方只需提供字段。
 public protocol ReviewCSVRow: Sendable {
     /// 题目唯一标识符

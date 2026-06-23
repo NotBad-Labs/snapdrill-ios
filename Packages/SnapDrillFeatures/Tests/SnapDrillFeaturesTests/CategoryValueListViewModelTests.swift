@@ -84,10 +84,10 @@ final class CategoryValueListViewModelTests {
         let dim = try makeDimension(name: "章节")
         let value = CategoryValueModel(name: "第一章", dimension: dim)
         try repos.categoryValue.insertAndSave(value)
-        let item = ReviewItemModel(content: "题")
+        let item = ArchiveItemModel(content: "题")
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = CategoryValueListViewModel(dimension: dim, repositories: repos)
         vm.loadData()

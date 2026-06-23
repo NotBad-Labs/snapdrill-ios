@@ -1,17 +1,17 @@
 //
-//  ReviewItemModel+Categories.swift
+//  ArchiveItemModel+Categories.swift
 //  SnapDrillData
 //
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  ReviewItemModel 的动态分类值（categoryValues）展示辅助（L3）。
+//  ArchiveItemModel 的动态分类值（categoryValues）展示辅助（L3）。
 //  消费链（库列表/详情/分享卡/统计）经这些 helper 读分类，取代旧裸字符串字段。
 //
 
 import Foundation
 
-extension ReviewItemModel {
+extension ArchiveItemModel {
 
     /// 某维度（按 systemKey）下该题的值名（按值 sortOrder）
     public func categoryValueNames(forSystemKey systemKey: String) -> [String] {

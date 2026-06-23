@@ -75,10 +75,10 @@ public final class DashboardViewModel {
     /// 避免中途抛出异常导致 UI 呈现部分更新的不一致状态。
     public func loadData() {
         do {
-            let today = try repositories.review.fetchTodayCount()
-            let total = try repositories.review.totalItemCount()
-            let due = try repositories.review.fetchDueCount(excluding: deletionScheduler.pendingDeletionIDs)
-            let reviewed = try repositories.review.fetchTodayReviewedCount()
+            let today = try repositories.archive.fetchTodayCount()
+            let total = try repositories.archive.totalItemCount()
+            let due = try repositories.archive.fetchDueCount(excluding: deletionScheduler.pendingDeletionIDs)
+            let reviewed = try repositories.archive.fetchTodayReviewedCount()
             todayItemsCount = today
             totalCount = total
             dueCount = due

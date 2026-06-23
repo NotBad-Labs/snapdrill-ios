@@ -13,9 +13,9 @@ import SwiftData
 @testable import SnapDrillData
 @testable import SnapDrillCore
 
-// MARK: - ReviewItemModel Mock
+// MARK: - ArchiveItemModel Mock
 
-extension ReviewItemModel {
+extension ArchiveItemModel {
     static func mock(
         id: UUID = UUID(),
         content: String = "Test content",
@@ -23,8 +23,8 @@ extension ReviewItemModel {
         easeFactor: Double = 2.5,
         interval: Int = 0,
         repetitions: Int = 0
-    ) -> ReviewItemModel {
-        ReviewItemModel(
+    ) -> ArchiveItemModel {
+        ArchiveItemModel(
             id: id,
             content: content,
             imagePath: imagePath,

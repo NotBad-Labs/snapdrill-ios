@@ -13,13 +13,13 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ### 数据模型（@Model）
 
-- ``ReviewItemModel`` — 资料条目主模型，包含内容、图片、SM-2 状态、动态分类信息
+- ``ArchiveItemModel`` — 资料条目主模型，包含内容、图片、SM-2 状态、动态分类信息
 - ``CategoryDimensionModel`` — 动态分类维度（如分类、来源、级别、标签）
 - ``CategoryValueModel`` — 某个动态分类维度下的可选值
 
 ### Repository（@MainActor final class）
 
-- ``ReviewRepository`` — 题目的 CRUD、计数、过滤、级联更新
+- ``ArchiveRepository`` — 资料项的 CRUD、计数、过滤、级联更新
 - ``CategoryDimensionRepository`` — 动态分类维度的 CRUD
 - ``CategoryValueRepository`` — 动态分类值的 CRUD 与 fetch-or-create
 
@@ -31,7 +31,7 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ### 导出
 
-- ``ReviewExportSnapshot`` — Sendable 快照（含 id、题干、图片路径、动态维度值等字段），用于跨 actor 边界传递题目数据
+- ``ArchiveExportSnapshot`` — Sendable 快照（含 id、内容、图片路径、动态维度值等字段），用于跨 actor 边界传递资料项数据
 
 ### 备份与恢复
 

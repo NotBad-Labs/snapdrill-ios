@@ -41,8 +41,8 @@ final class DashboardAnalyticsViewModelTests {
         category: String = "数学",
         createdAt: Date = .now,
         nextReviewAt: Date = Date.distantFuture
-    ) -> ReviewItemModel {
-        let item = ReviewItemModel(content: content)
+    ) -> ArchiveItemModel {
+        let item = ArchiveItemModel(content: content)
         if let categoryDim = try? repos.dimension.fetchDimension(bySystemKey: CategorySystemKey.category) {
             item.categoryValues = [repos.categoryValue.fetchOrCreate(name: category, in: categoryDim)]
         }
@@ -79,19 +79,19 @@ final class DashboardAnalyticsViewModelTests {
 
         // 数学: 3 道待复习
         for i in 0..<3 {
-            repos.review.insert(makeItem(content: "数学\(i)", category: "数学", nextReviewAt: pastDue))
+            repos.archive.insert(makeItem(content: "数学\(i)", category: "数学", nextReviewAt: pastDue))
         }
         // 英语: 2 道待复习
         for i in 0..<2 {
-            repos.review.insert(makeItem(content: "英语\(i)", category: "英语", nextReviewAt: pastDue))
+            repos.archive.insert(makeItem(content: "英语\(i)", category: "英语", nextReviewAt: pastDue))
         }
         // 物理: 1 道待复习 + 1 道未到期
-        repos.review.insert(makeItem(content: "物理1", category: "物理", nextReviewAt: pastDue))
-        repos.review.insert(makeItem(content: "物理2", category: "物理", nextReviewAt: future))
+        repos.archive.insert(makeItem(content: "物理1", category: "物理", nextReviewAt: pastDue))
+        repos.archive.insert(makeItem(content: "物理2", category: "物理", nextReviewAt: future))
         // 化学: 0 道待复习（全部未到期）
-        repos.review.insert(makeItem(content: "化学1", category: "化学", nextReviewAt: future))
+        repos.archive.insert(makeItem(content: "化学1", category: "化学", nextReviewAt: future))
 
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
@@ -114,10 +114,10 @@ final class DashboardAnalyticsViewModelTests {
         for (index, category) in categories.enumerated() {
             // 每个分类 (7-index) 道待复习，确保排序不同
             for j in 0..<(7 - index) {
-                repos.review.insert(makeItem(content: "\(category)\(j)", category: category, nextReviewAt: pastDue))
+                repos.archive.insert(makeItem(content: "\(category)\(j)", category: category, nextReviewAt: pastDue))
             }
         }
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
@@ -136,10 +136,10 @@ final class DashboardAnalyticsViewModelTests {
         let categories = [("数学", 10), ("英语", 5), ("物理", 3), ("化学", 1)]
         for (category, count) in categories {
             for i in 0..<count {
-                repos.review.insert(makeItem(content: "\(category)\(i)", category: category))
+                repos.archive.insert(makeItem(content: "\(category)\(i)", category: category))
             }
         }
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
@@ -156,8 +156,8 @@ final class DashboardAnalyticsViewModelTests {
     @Test("分类趋势 — 30 天补零确保每天每分类都有数据点")
     func categoryTrend_zeroFilling() throws {
         // 只在今天创建 1 道数学题
-        repos.review.insert(makeItem(category: "数学"))
-        try repos.review.saveContext()
+        repos.archive.insert(makeItem(category: "数学"))
+        try repos.archive.saveContext()
 
         let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
@@ -182,10 +182,10 @@ final class DashboardAnalyticsViewModelTests {
     @Test("分类趋势 — 超过 30 天前的数据不纳入")
     func categoryTrend_excludesOldData() throws {
         // 40 天前的数据
-        repos.review.insert(makeItem(category: "数学", createdAt: daysAgo(40)))
+        repos.archive.insert(makeItem(category: "数学", createdAt: daysAgo(40)))
         // 今天的数据
-        repos.review.insert(makeItem(category: "数学"))
-        try repos.review.saveContext()
+        repos.archive.insert(makeItem(category: "数学"))
+        try repos.archive.saveContext()
 
         let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
@@ -199,10 +199,10 @@ final class DashboardAnalyticsViewModelTests {
     @Test("分类趋势 — 恰好 30 天前的数据纳入 recentItems 但不在趋势点中")
     func categoryTrend_boundaryDay30() throws {
         // 恰好 30 天前的数据（在 since 范围内，但 -29...0 不包含 day -30）
-        repos.review.insert(makeItem(category: "数学", createdAt: daysAgo(30)))
+        repos.archive.insert(makeItem(category: "数学", createdAt: daysAgo(30)))
         // 恰好 29 天前的数据（在趋势点范围内）
-        repos.review.insert(makeItem(category: "数学", createdAt: daysAgo(29)))
-        try repos.review.saveContext()
+        repos.archive.insert(makeItem(category: "数学", createdAt: daysAgo(29)))
+        try repos.archive.saveContext()
 
         let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
@@ -219,8 +219,8 @@ final class DashboardAnalyticsViewModelTests {
 
     @Test("hasData — 有分类趋势数据时为 true")
     func hasData_withTrend() throws {
-        repos.review.insert(makeItem())
-        try repos.review.saveContext()
+        repos.archive.insert(makeItem())
+        try repos.archive.saveContext()
 
         let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
@@ -233,8 +233,8 @@ final class DashboardAnalyticsViewModelTests {
 
     @Test("cancelTasks — 调用后状态安全，二次调用不崩溃")
     func cancelTasks_cleansUp() throws {
-        repos.review.insert(makeItem())
-        try repos.review.saveContext()
+        repos.archive.insert(makeItem())
+        try repos.archive.saveContext()
 
         let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()
@@ -263,12 +263,12 @@ final class DashboardAnalyticsViewModelTests {
         let pastDue = Date(timeIntervalSinceNow: -3600)
 
         // 数学: 3 道，2 道到期
-        repos.review.insert(makeItem(content: "数学1", category: "数学", nextReviewAt: pastDue))
-        repos.review.insert(makeItem(content: "数学2", category: "数学", nextReviewAt: pastDue))
-        repos.review.insert(makeItem(content: "数学3", category: "数学", nextReviewAt: .distantFuture))
+        repos.archive.insert(makeItem(content: "数学1", category: "数学", nextReviewAt: pastDue))
+        repos.archive.insert(makeItem(content: "数学2", category: "数学", nextReviewAt: pastDue))
+        repos.archive.insert(makeItem(content: "数学3", category: "数学", nextReviewAt: .distantFuture))
         // 英语: 1 道，1 道到期
-        repos.review.insert(makeItem(content: "英语1", category: "英语", nextReviewAt: pastDue))
-        try repos.review.saveContext()
+        repos.archive.insert(makeItem(content: "英语1", category: "英语", nextReviewAt: pastDue))
+        try repos.archive.saveContext()
 
         let vm = DashboardAnalyticsViewModel(repositories: repos, proEntitlementProvider: MockProEntitlementProvider(isProUser: false))
         vm.loadAnalytics()

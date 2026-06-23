@@ -39,7 +39,7 @@ final class LibraryEditViewModelTests {
     private struct TestContext {
         let vm: LibraryEditViewModel
         let repos: RepositoryContainer
-        let item: ReviewItemModel
+        let item: ArchiveItemModel
     }
 
     private func createVM(
@@ -47,12 +47,12 @@ final class LibraryEditViewModelTests {
         imagePath: String? = nil,
         answerText: String? = "原始答案"
     ) throws -> TestContext {
-        let item = ReviewItemModel(
+        let item = ArchiveItemModel(
             content: content,
             imagePath: imagePath,
             answerText: answerText
         )
-        repos.review.insert(item)
+        repos.archive.insert(item)
 
         let vm = LibraryEditViewModel(
             item: item,
@@ -64,7 +64,7 @@ final class LibraryEditViewModelTests {
 
     // MARK: - init 状态映射
 
-    @Test("init 从 ReviewItemModel 正确映射文本与答案字段")
+    @Test("init 从 ArchiveItemModel 正确映射文本与答案字段")
     func init_mapsAllFields() throws {
         let ctx = try createVM(
             content: "测试内容",
@@ -104,10 +104,10 @@ final class LibraryEditViewModelTests {
         let value = repos.categoryValue.fetchOrCreate(name: "数学", in: categoryDim)
         try repos.categoryValue.saveContext()
 
-        let item = ReviewItemModel(content: "题目")
+        let item = ArchiveItemModel(content: "题目")
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = LibraryEditViewModel(item: item, repositories: repos, ocrService: MockOCRServiceShared())
         await vm.loadData()
@@ -144,8 +144,8 @@ final class LibraryEditViewModelTests {
     func handleNewImage_triggersOCR() async throws {
         let mockOCR = MockOCRServiceShared()
         mockOCR.recognizeTextResult = "OCR 新文本"
-        let item = ReviewItemModel(content: "旧文本")
-        repos.review.insert(item)
+        let item = ArchiveItemModel(content: "旧文本")
+        repos.archive.insert(item)
 
         let vm = LibraryEditViewModel(item: item, repositories: repos, ocrService: mockOCR)
 

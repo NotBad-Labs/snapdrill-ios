@@ -37,7 +37,7 @@
 ### 协议
 
 - ``OCRServiceProtocol`` — OCR 服务协议，供 ViewModel 注入和测试替换
-- ``PDFExportable`` — PDF 导出协议，`ReviewExportSnapshot` 遵循
+- ``PDFExportable`` — PDF 导出协议，`ArchiveExportSnapshot` 遵循
 - ``ServiceContainer`` — 所有应用服务的协议约定
 - ``AnalyticsServiceProtocol`` — Analytics 事件上报协议
 - ``CaptureDraftServiceProtocol`` — 采集草稿服务协议

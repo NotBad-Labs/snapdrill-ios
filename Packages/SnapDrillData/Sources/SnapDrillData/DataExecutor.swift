@@ -61,24 +61,23 @@ public actor DataExecutor {
         SnapDrillLogger.data.info("🔧 DataExecutor: 初始化 ModelContainer")
 
         do {
-            let config: ModelConfiguration
-            if inMemory {
-                config = ModelConfiguration(isStoredInMemoryOnly: true)
-            } else if let storeURL {
-                config = ModelConfiguration(url: storeURL, cloudKitDatabase: .none)
-            } else {
-                config = ModelConfiguration(cloudKitDatabase: .none)
-            }
-            self.container = try ModelContainer(
-                for: Schema(SnapDrillSchemaV1.models),
-                migrationPlan: SnapDrillMigrationPlan.self,
-                configurations: config
-            )
+            self.container = try Self.makeContainer(inMemory: inMemory, storeURL: storeURL)
             self.isUsingInMemoryFallback = false
             self.initializationError = nil
             SnapDrillLogger.data.info("✅ DataExecutor: 容器创建成功")
         } catch {
             SnapDrillLogger.data.error("❌ DataExecutor: 初始化失败: \(error.localizedDescription)")
+
+            if !inMemory, let storeURL, let recoveredContainer = Self.recoverDiskContainer(
+                at: storeURL,
+                after: error
+            ) {
+                self.container = recoveredContainer
+                self.isUsingInMemoryFallback = false
+                self.initializationError = nil
+                return
+            }
+
             self.initializationError = PersistenceError.containerInitializationFailed(underlying: error)
 
             let (fallbackContainer, usedFallback) = Self.fallbackContainer()
@@ -115,15 +114,58 @@ public actor DataExecutor {
 
     // MARK: - Private Helpers
 
+    private static func makeContainer(inMemory: Bool = false, storeURL: URL? = nil) throws -> ModelContainer {
+        let config: ModelConfiguration
+        if inMemory {
+            config = ModelConfiguration(isStoredInMemoryOnly: true)
+        } else if let storeURL {
+            config = ModelConfiguration(url: storeURL, cloudKitDatabase: .none)
+        } else {
+            config = ModelConfiguration(cloudKitDatabase: .none)
+        }
+
+        return try ModelContainer(
+            for: Schema(SnapDrillSchemaV1.models),
+            migrationPlan: SnapDrillMigrationPlan.self,
+            configurations: config
+        )
+    }
+
+    private static func recoverDiskContainer(at storeURL: URL, after originalError: Error) -> ModelContainer? {
+        SnapDrillLogger.data.warning(
+            "⚠️ DataExecutor: 磁盘 store 打开失败，准备重建: \(originalError.localizedDescription)"
+        )
+        do {
+            try removeStoreFiles(at: storeURL)
+            let container = try makeContainer(inMemory: false, storeURL: storeURL)
+            SnapDrillLogger.data.warning("⚠️ DataExecutor: 已重建磁盘 store: \(storeURL.lastPathComponent)")
+            return container
+        } catch {
+            SnapDrillLogger.data.error("❌ DataExecutor: 磁盘 store 重建失败: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    private static func removeStoreFiles(at storeURL: URL) throws {
+        let manager = FileManager.default
+        for url in storeFileSet(for: storeURL) where manager.fileExists(atPath: url.path) {
+            try manager.removeItem(at: url)
+        }
+    }
+
+    private static func storeFileSet(for storeURL: URL) -> [URL] {
+        [
+            storeURL,
+            URL(fileURLWithPath: storeURL.path + "-wal"),
+            URL(fileURLWithPath: storeURL.path + "-shm")
+        ]
+    }
+
     /// 内存降级容器创建
     private static func fallbackContainer() -> (ModelContainer, Bool) {
         SnapDrillLogger.data.warning("⚠️ DataExecutor: 降级到内存存储")
         do {
-            let fallbackConfig = ModelConfiguration(isStoredInMemoryOnly: true)
-            let container = try ModelContainer(
-                for: Schema(SnapDrillSchemaV1.models),
-                configurations: fallbackConfig
-            )
+            let container = try makeContainer(inMemory: true)
             return (container, true)
         } catch {
             SnapDrillLogger.data.critical("💀 DataExecutor: 降级也失败: \(error.localizedDescription)")

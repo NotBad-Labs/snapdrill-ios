@@ -17,18 +17,18 @@ import Testing
 @MainActor
 final class ReviewViewModelStaleModelTests {
     private let container: ModelContainer
-    private let repo: ReviewRepository
+    private let repo: ArchiveRepository
 
     init() throws {
         let schema = Schema(SnapDrillSchemaV1.models)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         container = try ModelContainer(for: schema, configurations: [config])
-        repo = ReviewRepository(modelContext: container.mainContext)
+        repo = ArchiveRepository(modelContext: container.mainContext)
     }
 
     @discardableResult
-    private func insertDueItem(content: String) -> ReviewItemModel {
-        let model = ReviewItemModel(content: content)
+    private func insertDueItem(content: String) -> ArchiveItemModel {
+        let model = ArchiveItemModel(content: content)
         model.nextReviewAt = Date().addingTimeInterval(-3600)
         repo.insert(model)
         return model

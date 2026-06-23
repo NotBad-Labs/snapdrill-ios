@@ -88,7 +88,7 @@ final class DependencyContainer {
         var questionPath: String?
         var answerPath: String?
         do {
-            let existing = try repositories.review.fetchAllModels()
+            let existing = try repositories.archive.fetchAllModels()
             guard existing.contains(where: { $0.content == Self.imageFixtureContent }) == false else {
                 return
             }
@@ -100,18 +100,18 @@ final class DependencyContainer {
                 Self.makeFixtureImage(title: "Answer", tint: .systemGreen)
             )
 
-            let item = ReviewItemModel(
+            let item = ArchiveItemModel(
                 content: Self.imageFixtureContent,
                 imagePath: questionPath,
                 answerText: "Image fixture answer",
                 answerImagePath: answerPath
             )
             item.categoryValues = try Self.fixtureCategoryValues(from: repositories)
-            repositories.review.insert(item)
-            try repositories.review.saveContext()
+            repositories.archive.insert(item)
+            try repositories.archive.saveContext()
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
         } catch {
-            repositories.review.rollbackContext()
+            repositories.archive.rollbackContext()
             if let questionPath {
                 await Self.deleteOrphanedFixtureImage(path: questionPath, storage: manager.activeImageStorage)
             }

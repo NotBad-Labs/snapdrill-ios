@@ -38,17 +38,17 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
         }
     }
 
-    var sortDescriptors: [SortDescriptor<ReviewItemModel>] {
+    var sortDescriptors: [SortDescriptor<ArchiveItemModel>] {
         switch self {
         case .createdAt:
-            [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
+            [SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)]
         case .category:
             // 主分类是动态维度值（关系），无法走 SortDescriptor → 实际排序由 sortsByCategoryName 内存完成；
             // 此处仅给内存路径前的稳定预排序（createdAt 倒序作 tiebreaker）。
-            [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
+            [SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)]
         case .reviewStatus:
-            [SortDescriptor(\ReviewItemModel.nextReviewAt, order: .forward),
-             SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
+            [SortDescriptor(\ArchiveItemModel.nextReviewAt, order: .forward),
+             SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)]
         }
     }
 
@@ -70,7 +70,7 @@ public final class LibraryViewModel {
     // MARK: - State
 
     /// 当前过滤条件下的题目列表（支持分页追加）
-    public var filteredItems: [ReviewItemModel] = []
+    public var filteredItems: [ArchiveItemModel] = []
     /// 所有命名维度（按 sortOrder），用于过滤选项
     public var dimensions: [CategoryDimensionModel] = []
     /// 每维度可选值（dimensionId → values），用于过滤选项
@@ -111,7 +111,7 @@ public final class LibraryViewModel {
     private let deletionScheduler: DeletionScheduler
     /// 撤销恢复时按批次暂存 items，避免连续删除时后批次覆盖前批次缓冲区
     @ObservationIgnored
-    private var pendingDeletionItemBatches: [(ids: Set<UUID>, items: [ReviewItemModel])] = []
+    private var pendingDeletionItemBatches: [(ids: Set<UUID>, items: [ArchiveItemModel])] = []
     private var currentPage: Int = 0
     private let pageSize: Int = 50
     private let metadataFetchLimit: Int = 500
@@ -226,7 +226,7 @@ public final class LibraryViewModel {
         guard !Task.isCancelled else { return }
         let requestState = currentQueryState
         do {
-            let results = try repositories.review.fetchFilteredModels(
+            let results = try repositories.archive.fetchFilteredModels(
                 searchText: searchText,
                 valueIdsByDimension: selectedValueIdsByDimension,
                 sortDescriptors: sortOption.sortDescriptors,
@@ -257,7 +257,7 @@ public final class LibraryViewModel {
             // 避免 fetch 抛出异常时 currentPage 已递增导致后续跳页。
             let nextPage = currentPage + 1
             let requestState = currentQueryState
-            let nextItems = try repositories.review.fetchFilteredModels(
+            let nextItems = try repositories.archive.fetchFilteredModels(
                 searchText: searchText,
                 valueIdsByDimension: selectedValueIdsByDimension,
                 sortDescriptors: sortOption.sortDescriptors,
@@ -298,7 +298,7 @@ public final class LibraryViewModel {
             var anyDeleted = false
             for id in idsToDelete {
                 do {
-                    try await repos.review.delete(id: id)
+                    try await repos.archive.delete(id: id)
                     anyDeleted = true
                 } catch {
                     SnapDrillLogger.generic.error("删除题目失败（id=\(id)）: \(error.localizedDescription)")
@@ -363,7 +363,7 @@ public final class LibraryViewModel {
                 self.operationError = L10n.Errors.batchTagFailed
                 return
             }
-            let items = try repositories.review.fetchModels(by: ids)
+            let items = try repositories.archive.fetchModels(by: ids)
             for item in items {
                 var current = item.categoryValues ?? []
                 let currentIds = Set(current.map { $0.id })
@@ -373,12 +373,12 @@ public final class LibraryViewModel {
                 }
                 item.categoryValues = current
             }
-            try repositories.review.saveContext()
+            try repositories.archive.saveContext()
         } catch {
             // 回滚未提交的更改，避免脏值与关系污染共享 ModelContext
             SnapDrillLogger.generic.error("批量打标签失败: \(error.localizedDescription)")
             repositories.categoryValue.rollbackContext()
-            repositories.review.rollbackContext()
+            repositories.archive.rollbackContext()
             self.operationError = L10n.Errors.batchTagFailed
         }
     }

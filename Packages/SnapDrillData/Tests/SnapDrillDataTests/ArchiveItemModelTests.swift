@@ -1,11 +1,11 @@
 //
-//  ReviewItemModelTests.swift
+//  ArchiveItemModelTests.swift
 //  SnapDrillDataTests
 //
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  ReviewItemModel 单元测试，验证模型属性默认值与计算属性行为。
+//  ArchiveItemModel 单元测试，验证模型属性默认值与计算属性行为。
 //
 
 import Testing
@@ -13,7 +13,7 @@ import SwiftData
 import Foundation
 @testable import SnapDrillData
 
-struct ReviewItemModelTests {
+struct ArchiveItemModelTests {
     
     // MARK: - Helper Methods
     
@@ -28,7 +28,7 @@ struct ReviewItemModelTests {
 
     @Test("验证模型默认构造满足所有业务隐式要求")
     func initializationDefaults() {
-        let model = ReviewItemModel(content: "Empty Test")
+        let model = ArchiveItemModel(content: "Empty Test")
 
         #expect(model.id.uuidString != "00000000-0000-0000-0000-000000000000")
         #expect(model.content == "Empty Test")
@@ -52,7 +52,7 @@ struct ReviewItemModelTests {
 
         let expectedID = UUID()
         let now = Date()
-        let model = ReviewItemModel(
+        let model = ArchiveItemModel(
             id: expectedID,
             content: "Math Formula",
             imagePath: "test/image.jpg",
@@ -78,7 +78,7 @@ struct ReviewItemModelTests {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: Schema(SnapDrillSchemaV1.models), configurations: config)
         let context = ModelContext(container)
-        let model = ReviewItemModel(content: "无分类题")
+        let model = ArchiveItemModel(content: "无分类题")
         context.insert(model)
         try context.save()
 
@@ -94,13 +94,13 @@ struct ReviewItemModelTests {
     @Test("SwiftData Context 的基本生命周期，验证插入和删除影响")
     func persistenceLifecycle() throws {
         let context = try createTestContext()
-        let model = ReviewItemModel(content: "Lifecycle Test")
+        let model = ArchiveItemModel(content: "Lifecycle Test")
         
         // 1. Insert
         context.insert(model)
         try context.save()
         
-        var fetchDescriptor = FetchDescriptor<ReviewItemModel>()
+        var fetchDescriptor = FetchDescriptor<ArchiveItemModel>()
         var results = try context.fetch(fetchDescriptor)
         #expect(results.count == 1)
         #expect(results.first?.content == "Lifecycle Test")
@@ -109,7 +109,7 @@ struct ReviewItemModelTests {
         model.content = "Updated Lifecycle"
         try context.save()
         
-        fetchDescriptor = FetchDescriptor<ReviewItemModel>()
+        fetchDescriptor = FetchDescriptor<ArchiveItemModel>()
         results = try context.fetch(fetchDescriptor)
         #expect(results.first?.content == "Updated Lifecycle")
         
@@ -117,7 +117,7 @@ struct ReviewItemModelTests {
         context.delete(model)
         try context.save()
         
-        results = try context.fetch(FetchDescriptor<ReviewItemModel>())
+        results = try context.fetch(FetchDescriptor<ArchiveItemModel>())
         #expect(results.isEmpty)
     }
     
@@ -134,14 +134,14 @@ struct ReviewItemModelTests {
     func easeFactorBoundaryTolerance(abnormalEaseFactor: Double) throws {
         let context = try createTestContext()
         
-        let model = ReviewItemModel(content: "Extreme EF", easeFactor: abnormalEaseFactor)
+        let model = ArchiveItemModel(content: "Extreme EF", easeFactor: abnormalEaseFactor)
         context.insert(model)
         
         // 这里仅断言 Model 层作为简单的 ORM 能够成功储存在数据库即可，
         // 调度算法自身的边界拦截由 `ReviewSchedulerTests` 负责，此处不应崩溃。
         try context.save()
         
-        let results = try context.fetch(FetchDescriptor<ReviewItemModel>())
+        let results = try context.fetch(FetchDescriptor<ArchiveItemModel>())
         #expect(results.first?.easeFactor == abnormalEaseFactor)
     }
 }

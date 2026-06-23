@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习会话的状态与业务逻辑管理，直接依赖 ReviewRepository 和 ReviewScheduler。
+//  复习会话的状态与业务逻辑管理，直接依赖 ArchiveRepository 和 ReviewScheduler。
 //
 
 import Foundation
@@ -28,7 +28,7 @@ enum ReviewPhase: Equatable {
 
 /// 撤销栈条目，记录滑动前的 SM-2 状态和评分
 struct UndoEntry {
-    let item: ReviewItemModel
+    let item: ArchiveItemModel
     let previousState: SM2State
     let rating: ReviewRating
 }
@@ -45,9 +45,9 @@ final class ReviewViewModel {
     var phase: ReviewPhase = .loading
 
     /// 今日全部待复习条目
-    var reviewQueue: [ReviewItemModel] = []
+    var reviewQueue: [ArchiveItemModel] = []
     /// 当前会话的工作栈
-    var workingItems: [ReviewItemModel] = []
+    var workingItems: [ArchiveItemModel] = []
     /// 已完成卡片数量
     var finishedItems: Int = 0
     /// 撤销栈（记录滑动前的 SM-2 状态和评分，确保 undo 可完整回滚数据和统计）
@@ -82,9 +82,9 @@ final class ReviewViewModel {
 
     // MARK: - Dependencies
 
-    // ReviewRepository 标注为 @MainActor final class，
+    // ArchiveRepository 标注为 @MainActor final class，
     // 在 @MainActor ViewModel 中调用其方法（含 saveContext）完全线程安全。
-    private let repository: ReviewRepository
+    private let repository: ArchiveRepository
     private let scheduler = ReviewScheduler()
     private let analyticsService: AnalyticsServiceProtocol
     /// 软删调度器（注入 App 级共享实例）：用其 pendingDeletionIDs 把 5 秒撤销窗口内的软删题排除出复习队列
@@ -98,7 +98,7 @@ final class ReviewViewModel {
     // MARK: - Initialization
 
     init(
-        repository: ReviewRepository,
+        repository: ArchiveRepository,
         analyticsService: AnalyticsServiceProtocol,
         deletionScheduler: DeletionScheduler = DeletionScheduler(),
         saveContext: (() throws -> Void)? = nil,
@@ -310,7 +310,7 @@ final class ReviewViewModel {
 
     /// handleSwipeCompletion 的状态快照（用于 save 失败回滚）
     private struct SwipeSnapshot {
-        let workingItems: [ReviewItemModel]
+        let workingItems: [ArchiveItemModel]
         let undoStack: [UndoEntry]
         let finishedItems: Int
         let sessionGoodCount: Int
@@ -320,7 +320,7 @@ final class ReviewViewModel {
     }
 
     /// 持久化评分变更，失败时回滚全部 UI 状态。
-    private func persistRatingChange(item: ReviewItemModel, previousState: SM2State, snapshot: SwipeSnapshot) -> Bool {
+    private func persistRatingChange(item: ArchiveItemModel, previousState: SM2State, snapshot: SwipeSnapshot) -> Bool {
         do {
             try saveContext()
             return true
@@ -340,7 +340,7 @@ final class ReviewViewModel {
         }
     }
 
-    private func currentReviewItem(for queuedItem: ReviewItemModel) -> ReviewItemModel? {
+    private func currentReviewItem(for queuedItem: ArchiveItemModel) -> ArchiveItemModel? {
         do {
             guard let item = try repository.fetchModel(by: queuedItem.id) else {
                 skipMissingCurrentItem(id: queuedItem.id)
@@ -364,7 +364,7 @@ final class ReviewViewModel {
         SnapDrillLogger.generic.warning("复习条目已不存在，跳过: \(id.uuidString)")
     }
 
-    private func restore(_ item: ReviewItemModel, to state: SM2State) {
+    private func restore(_ item: ArchiveItemModel, to state: SM2State) {
         item.easeFactor = state.easeFactor
         item.interval = state.interval
         item.repetitions = state.repetitions

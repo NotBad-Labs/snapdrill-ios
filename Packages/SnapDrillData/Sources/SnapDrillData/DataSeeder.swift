@@ -316,7 +316,7 @@ public final class DataSeeder {
                 }
             }
 
-            let item = ReviewItemModel(content: data.q, imagePath: nil)
+            let item = ArchiveItemModel(content: data.q, imagePath: nil)
             item.categoryValues = values
             item.answerText = data.a
             item.createdAt = Date.now.addingTimeInterval(-Double.random(in: 0...(86400 * 5)))
@@ -362,7 +362,7 @@ public final class DataSeeder {
 
     /// 清空所有 ReviewItem
     public func clearAll() throws {
-        try modelContext.delete(model: ReviewItemModel.self)
+        try modelContext.delete(model: ArchiveItemModel.self)
         try modelContext.save()
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
     }

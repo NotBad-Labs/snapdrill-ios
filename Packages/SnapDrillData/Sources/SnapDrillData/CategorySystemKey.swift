@@ -13,7 +13,7 @@ import Foundation
 
 /// 内置维度稳定语义键（与 CategoryDimensionRepository.seed 建立的 systemKey 一致）
 ///
-/// 标 `nonisolated`：这些是不可变字符串常量，需被跨隔离引用——@Model（ReviewItemModel
+/// 标 `nonisolated`：这些是不可变字符串常量，需被跨隔离引用——@Model（ArchiveItemModel
 /// 扩展逃逸 defaultIsolation 为 nonisolated）与 MainActor 的 ViewModel 都要用，
 /// 否则 nonisolated 上下文引用 MainActor-isolated 静态属性会编译失败。
 public enum CategorySystemKey {

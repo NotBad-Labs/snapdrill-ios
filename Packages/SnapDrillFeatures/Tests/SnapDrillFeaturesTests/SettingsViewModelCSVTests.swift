@@ -43,7 +43,7 @@ final class SettingsViewModelCSVTests {
     }
 
     /// 导入后题目挂载的维度值名（L3：CSV 列名→维度，cell→值名）
-    private func categoryValueNames(_ item: ReviewItemModel?) -> [String] {
+    private func categoryValueNames(_ item: ArchiveItemModel?) -> [String] {
         (item?.categoryValues ?? []).map { $0.name }
     }
 
@@ -72,7 +72,7 @@ final class SettingsViewModelCSVTests {
 
         #expect(vm.backupError == nil)
         #expect(vm.isBackupInProgress == false)
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 3)
         #expect(items.contains { $0.content == "a+b=?" })
         #expect(items.contains { $0.content == "c+d=?" })
@@ -93,7 +93,7 @@ final class SettingsViewModelCSVTests {
         await vm.importCSV(fileURL: url)
 
         #expect(vm.backupError == L10n.Settings.importNoValidRows)
-        #expect(try repos.review.fetchAllModels().isEmpty)
+        #expect(try repos.archive.fetchAllModels().isEmpty)
     }
 
     @Test("只有 header 无数据行：backupError 设为 importNoValidRows")
@@ -105,7 +105,7 @@ final class SettingsViewModelCSVTests {
         await vm.importCSV(fileURL: url)
 
         #expect(vm.backupError == L10n.Settings.importNoValidRows)
-        #expect(try repos.review.fetchAllModels().isEmpty)
+        #expect(try repos.archive.fetchAllModels().isEmpty)
     }
 
     @Test("content 与 category 均为空的行被丢弃")
@@ -117,7 +117,7 @@ final class SettingsViewModelCSVTests {
         await vm.importCSV(fileURL: url)
 
         #expect(vm.backupError == nil)
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 2)
     }
 
@@ -133,7 +133,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == "题目")
         #expect(categoryValueNames(items.first).contains("数学"))
@@ -152,7 +152,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == "含,逗号的题")
     }
@@ -165,7 +165,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == "他说\"hello\"")
     }
@@ -181,7 +181,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == "第一行\n第二行")
         #expect(categoryValueNames(items.first).contains("数学"))
@@ -195,7 +195,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 2)
         #expect(items.contains { $0.content == "题目1" })
         #expect(items.contains { $0.content == "题目2" })
@@ -212,7 +212,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == "题目")
         #expect(categoryValueNames(items.first).contains("数学"))
@@ -226,7 +226,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 2)
     }
 
@@ -240,7 +240,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         // 宽松吞入：content 含逗号+后续字段全部，category 不设
         #expect(items.count == 1)
         #expect(items.first?.content == "未闭合的引号,数学")
@@ -254,11 +254,11 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         // content 为空，但 category 有值 → 仍算有效行（parseCSV 要求 content 或 category 至少一个）
         #expect(items.count == 1)
         #expect(categoryValueNames(items.first).contains("数学"))
-        // content 为空时 ReviewItemModel.content 应为 nil（init 参数 content: String? 对空过滤）
+        // content 为空时 ArchiveItemModel.content 应为 nil（init 参数 content: String? 对空过滤）
         #expect(items.first?.content == nil || items.first?.content?.isEmpty == true)
     }
 
@@ -272,7 +272,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 1)
         // Category「数学」+ Tags「代数/方程/初中」均挂为维度值
         let names = Set(categoryValueNames(items.first))
@@ -287,7 +287,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 1)
         // 仅 Category「数学」一个值，Tags 空不产生标签值
         #expect(categoryValueNames(items.first) == ["数学"])
@@ -303,7 +303,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(categoryValueNames(items.first) == ["3"])
     }
 
@@ -315,7 +315,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.first?.answerText == "答案文本")
     }
 
@@ -342,7 +342,7 @@ final class SettingsViewModelCSVTests {
 
         await vm.importCSV(fileURL: url)
 
-        #expect(try repos.review.fetchAllModels().isEmpty)
+        #expect(try repos.archive.fetchAllModels().isEmpty)
     }
 
     // MARK: - 通知
@@ -396,7 +396,7 @@ final class SettingsViewModelCSVTests {
         #expect(!dims.contains { $0.name.lowercased() == "category" })
         #expect(!dims.contains { $0.name.lowercased() == "source" })
         // 值挂到 systemKey 内置维度
-        let item = try #require(try repos.review.fetchAllModels().first)
+        let item = try #require(try repos.archive.fetchAllModels().first)
         #expect(item.primaryCategoryName == "数学")
         #expect(item.categoryValueNames(forSystemKey: CategorySystemKey.source) == ["试卷"])
     }
@@ -413,7 +413,7 @@ final class SettingsViewModelCSVTests {
         let vm = SettingsViewModel(repositories: repos)
         await vm.importCSV(fileURL: url)
 
-        let item = try #require(try repos.review.fetchAllModels().first)
+        let item = try #require(try repos.archive.fetchAllModels().first)
         #expect(item.categoryValueNames(forSystemKey: CategorySystemKey.category) == ["数学"])
     }
 
@@ -431,7 +431,7 @@ final class SettingsViewModelCSVTests {
         await vm.importCSV(fileURL: url)
 
         #expect(try repos.dimension.totalCount() == dimCountBefore)  // Tags 别名命中内置，无孤儿
-        let item = try #require(try repos.review.fetchAllModels().first)
+        let item = try #require(try repos.archive.fetchAllModels().first)
         #expect(Set(item.tagCategoryNames) == ["易错", "重点", "难"])
     }
 
@@ -445,7 +445,7 @@ final class SettingsViewModelCSVTests {
         let dims = try repos.dimension.fetchAllModels()
         let custom = try #require(dims.first { $0.name == "错因" })
         #expect(custom.isMultiValue == true)
-        let item = try #require(try repos.review.fetchAllModels().first)
+        let item = try #require(try repos.archive.fetchAllModels().first)
         #expect(Set(categoryValueNames(item)) == ["粗心", "审题"])
     }
 }

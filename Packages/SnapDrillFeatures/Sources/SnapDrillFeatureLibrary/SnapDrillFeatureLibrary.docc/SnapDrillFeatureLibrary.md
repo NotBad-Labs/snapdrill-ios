@@ -25,7 +25,7 @@
 - ``LibraryViewModel`` — 管理搜索文字、过滤条件和分页加载
 - ``LibraryEditViewModel`` — 管理资料字段编辑和保存
 - ``CategoryManagerViewModel`` — 管理维度增删改
-- ``CategoryValueListViewModel`` — 管理维度值增删改及级联更新 `ReviewItemModel`
+- ``CategoryValueListViewModel`` — 管理维度值增删改及级联更新 `ArchiveItemModel`
 
 ### 导航
 
