@@ -21,7 +21,7 @@
 - `BackupService`: 数据备份与恢复（JSON + 图片 ZIP 归档）
 - `ProfileManager`: Multi-Profile 管理（创建/切换/删除 Profile）
 - `ArchiveExportSnapshot`: 导出专用 Sendable 快照（桥接 @Model → Transferable）
-- `PersistenceController`: ModelContainer 配置与迁移
+- `DataExecutor`: actor 持有 `ModelContainer`，负责持久化入口与 #599 死锁规避
 - `DataSeeder`: 测试数据生成器
 
 ## 依赖

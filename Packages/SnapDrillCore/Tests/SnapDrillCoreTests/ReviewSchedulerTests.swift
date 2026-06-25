@@ -27,6 +27,70 @@ struct ReviewSchedulerTests {
         SM2State(easeFactor: easeFactor, interval: interval, repetitions: repetitions)
     }
 
+    // MARK: - Contract vectors
+
+    @Test("ReviewRating raw values match SM-2 contract")
+    func reviewRatingRawValuesMatchContract() {
+        #expect(ReviewRating.again.rawValue == 0)
+        #expect(ReviewRating.hard.rawValue == 2)
+        #expect(ReviewRating.good.rawValue == 3)
+        #expect(ReviewRating.easy.rawValue == 5)
+    }
+
+    @Test("SM-2 EF deltas match documented vector table")
+    func sm2EaseFactorDeltasMatchVectorTable() {
+        let hard = scheduler.scheduleNextReview(
+            state: makeState(easeFactor: 2.5, interval: 1, repetitions: 1),
+            rating: .hard
+        )
+        let good = scheduler.scheduleNextReview(
+            state: makeState(easeFactor: 2.5, interval: 1, repetitions: 1),
+            rating: .good
+        )
+        let easy = scheduler.scheduleNextReview(
+            state: makeState(easeFactor: 2.5, interval: 1, repetitions: 1),
+            rating: .easy
+        )
+
+        #expect(abs(hard.easeFactor - 2.18) < 0.001)
+        #expect(abs(good.easeFactor - 2.36) < 0.001)
+        #expect(abs(easy.easeFactor - 2.6) < 0.001)
+    }
+
+    @Test("SM-2 interval contract covers reset, first, second, formula, and cap")
+    func sm2IntervalContractVectors() {
+        let again = scheduler.scheduleNextReview(
+            state: makeState(easeFactor: 2.5, interval: 6, repetitions: 3),
+            rating: .again
+        )
+        let first = scheduler.scheduleNextReview(
+            state: makeState(repetitions: 0),
+            rating: .good
+        )
+        let second = scheduler.scheduleNextReview(
+            state: makeState(interval: 1, repetitions: 1),
+            rating: .good
+        )
+        let formula = scheduler.scheduleNextReview(
+            state: makeState(easeFactor: 2.5, interval: 6, repetitions: 2),
+            rating: .good
+        )
+        let capped = scheduler.scheduleNextReview(
+            state: makeState(easeFactor: 2.5, interval: 300, repetitions: 2),
+            rating: .easy
+        )
+
+        #expect(again.repetitions == 0)
+        #expect(again.interval == 0)
+        #expect(first.repetitions == 1)
+        #expect(first.interval == 1)
+        #expect(second.repetitions == 2)
+        #expect(second.interval == 6)
+        #expect(formula.repetitions == 3)
+        #expect(formula.interval == 15)
+        #expect(capped.interval == 365)
+    }
+
     // MARK: - 间隔进阶
 
     @Test("第 1 次答对后 interval = 1 天")

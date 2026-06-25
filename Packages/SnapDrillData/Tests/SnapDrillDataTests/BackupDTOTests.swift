@@ -15,6 +15,126 @@ import Foundation
 @Suite("BackupDTO 序列化测试")
 struct BackupDTOTests {
 
+    // MARK: - Golden Wire Fixtures
+
+    private static let fixtureDirectory = URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent()
+        .appendingPathComponent("Fixtures/BackupWireV2")
+
+    private static let profileId = fixedUUID("11111111-1111-1111-1111-111111111111")
+    private static let itemId = fixedUUID("22222222-2222-2222-2222-222222222222")
+    private static let dimensionId = fixedUUID("33333333-3333-3333-3333-333333333333")
+    private static let valueId = fixedUUID("44444444-4444-4444-4444-444444444444")
+    private static let emptyProfileId = fixedUUID("55555555-5555-5555-5555-555555555555")
+
+    private static func fixedUUID(_ value: String) -> UUID {
+        guard let uuid = UUID(uuidString: value) else {
+            fatalError("Invalid fixed UUID fixture value: \(value)")
+        }
+        return uuid
+    }
+
+    private func canonicalEncoder() -> JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return encoder
+    }
+
+    private func canonicalDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }
+
+    private func fixtureString(named name: String) throws -> String {
+        let url = Self.fixtureDirectory.appendingPathComponent(name)
+        let data = try Data(contentsOf: url)
+        guard let string = String(bytes: data, encoding: .utf8) else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        return string.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func canonicalString<T: Encodable>(_ value: T) throws -> String {
+        let data = try canonicalEncoder().encode(value)
+        guard let string = String(bytes: data, encoding: .utf8) else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        return string
+    }
+
+    private func goldenManifest() -> BackupManifest {
+        BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSince1970: 1_704_067_200),
+            appVersion: "1.0.0",
+            totalItemCount: 1,
+            profileCount: 1,
+            profileNames: ["Default"]
+        )
+    }
+
+    private func goldenPayload() -> BackupPayload {
+        let profileData = ProfileBackupData(
+            profileName: "Default",
+            profileId: Self.profileId,
+            reviewItems: [
+                ArchiveItemBackupDTO(
+                    id: Self.itemId,
+                    content: "Reference item",
+                    imagePath: "images/22222222-2222-2222-2222-222222222222.jpg",
+                    createdAt: Date(timeIntervalSince1970: 1_704_067_200),
+                    lastReviewedAt: Date(timeIntervalSince1970: 1_704_153_600),
+                    nextReviewAt: Date(timeIntervalSince1970: 1_704_672_000),
+                    answerText: "Reference answer",
+                    answerImagePath: nil,
+                    easeFactor: 2.5,
+                    interval: 6,
+                    repetitions: 2,
+                    categoryValueIds: [Self.valueId]
+                )
+            ],
+            dimensions: [
+                CategoryDimensionBackupDTO(
+                    id: Self.dimensionId,
+                    name: "Category",
+                    isMultiValue: false,
+                    isBuiltIn: true,
+                    systemKey: CategorySystemKey.category,
+                    sortOrder: 0,
+                    icon: "tray.full"
+                )
+            ],
+            categoryValues: [
+                CategoryValueBackupDTO(
+                    id: Self.valueId,
+                    name: "Reference",
+                    icon: "doc.text",
+                    colorHex: "#3366FF",
+                    sortOrder: 0,
+                    createdAt: Date(timeIntervalSince1970: 1_704_067_200),
+                    dimensionId: Self.dimensionId
+                )
+            ]
+        )
+        return BackupPayload(profiles: [profileData])
+    }
+
+    private func emptyGoldenPayload() -> BackupPayload {
+        BackupPayload(
+            profiles: [
+                ProfileBackupData(
+                    profileName: "Empty",
+                    profileId: Self.emptyProfileId,
+                    reviewItems: [],
+                    dimensions: [],
+                    categoryValues: []
+                )
+            ]
+        )
+    }
+
     // MARK: - BackupManifest
 
     @Test("BackupManifest JSON round-trip")
@@ -42,6 +162,20 @@ struct BackupDTOTests {
     @Test("currentSchemaVersion 标记静态 difficulty 删除后的备份边界")
     func schemaVersionIsResetBaseline() {
         #expect(BackupManifest.currentSchemaVersion == 2)
+    }
+
+    @Test("BackupManifest v2 golden wire JSON")
+    func manifestGoldenWireJSON() throws {
+        let fixture = try fixtureString(named: "manifest.json")
+        let encoded = try canonicalString(goldenManifest())
+        let decoded = try canonicalDecoder().decode(
+            BackupManifest.self,
+            from: Data(fixture.utf8)
+        )
+
+        #expect(encoded == fixture)
+        #expect(decoded.schemaVersion == 2)
+        #expect(decoded.profileNames == ["Default"])
     }
 
     // MARK: - BackupPayload
@@ -119,6 +253,43 @@ struct BackupDTOTests {
         #expect(profile.dimensions[0].systemKey == CategorySystemKey.category)
         #expect(profile.categoryValues[0].name == "数学")
         #expect(profile.categoryValues[0].dimensionId == profile.dimensions[0].id)
+    }
+
+    @Test("BackupPayload v2 golden wire JSON preserves reviewItems key")
+    func payloadGoldenWireJSONPreservesReviewItemsKey() throws {
+        let fixture = try fixtureString(named: "data.json")
+        let encoded = try canonicalString(goldenPayload())
+        let decoded = try canonicalDecoder().decode(
+            BackupPayload.self,
+            from: Data(fixture.utf8)
+        )
+
+        #expect(encoded == fixture)
+        #expect(fixture.contains(#""reviewItems""#))
+        #expect(!fixture.contains(#""archiveItems""#))
+        #expect(decoded.profiles[0].profileId == Self.profileId)
+        #expect(decoded.profiles[0].reviewItems[0].id == Self.itemId)
+        #expect(decoded.profiles[0].reviewItems[0].categoryValueIds == [Self.valueId])
+        #expect(decoded.profiles[0].dimensions[0].systemKey == CategorySystemKey.category)
+        #expect(decoded.profiles[0].categoryValues[0].dimensionId == Self.dimensionId)
+    }
+
+    @Test("BackupPayload v2 empty profile golden JSON keeps empty reviewItems")
+    func emptyPayloadGoldenWireJSONKeepsReviewItems() throws {
+        let fixture = try fixtureString(named: "data-empty.json")
+        let decodedFixture = try canonicalDecoder().decode(
+            BackupPayload.self,
+            from: Data(fixture.utf8)
+        )
+        let fixtureCanonical = try canonicalString(decodedFixture)
+        let encoded = try canonicalString(emptyGoldenPayload())
+
+        #expect(encoded == fixtureCanonical)
+        #expect(fixture.contains(#""reviewItems""#))
+        #expect(!fixture.contains(#""archiveItems""#))
+        #expect(decodedFixture.profiles[0].reviewItems.isEmpty)
+        #expect(decodedFixture.profiles[0].dimensions.isEmpty)
+        #expect(decodedFixture.profiles[0].categoryValues.isEmpty)
     }
 
     @Test("空 Payload round-trip")

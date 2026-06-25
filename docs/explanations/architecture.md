@@ -163,7 +163,6 @@ SwiftData @Model（持久化）
 | `ProfileManager` | 多 Profile / Vault 切换（独立数据库 + 图片目录 + per-profile UserDefaults），持有 DataExecutor |
 | `ProfileMigration` | Profile 结构迁移（老版本升级） |
 | `MigrationPlan` | SwiftData Schema 版本迁移 |
-| `Persistence` | ModelContainer 工厂（PersistenceController 已废弃为兼容类型，生产代码走 DataExecutor） |
 | `DataError` / `PersistenceError` | 错误类型定义 |
 | `DataSeeder` | 初始数据填充（默认分类/来源） |
 | `ArchiveExportSnapshot` | 复习数据导出快照 |

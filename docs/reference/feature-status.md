@@ -13,7 +13,7 @@
 | [题库管理 + 分享卡片](../features/active/feat-library.md) | ✅ 已实现 | 免费 | — | full | 2026-06-23 |
 | [Onboarding 新手引导](../features/active/feat-onboarding.md) | ✅ 已实现 | 免费 | — | full | 2026-06-23 |
 | [Multi-Profile Vault（独立资料库）](../features/active/feat-profile.md) | ✅ 已实现 | 免费 | — | full | 2026-06-19 |
-| [回顾（SM-2 间隔调度）](../features/active/feat-review.md) | ✅ 已实现 | 免费 | — | full | 2026-06-19 |
+| [回顾（SM-2 间隔调度）](../features/active/feat-review.md) | ✅ 已实现 | 免费 | — | full | 2026-06-25 |
 | [设置与个性化](../features/active/feat-settings.md) | ✅ 已实现 | 免费 | — | full | 2026-06-19 |
 | [高级统计（Pro）](../features/backlog/feat-advanced-stats.md) | ⛔ 阻塞 | Pro | #479 | lightweight | 2026-06-23 |
 | [iCloud 多设备同步](../features/backlog/feat-icloud-sync.md) | ⛔ 阻塞 | Pro | #485 | lightweight | 2026-05-30 |

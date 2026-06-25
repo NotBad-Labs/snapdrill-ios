@@ -26,7 +26,7 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 ### 容器与持久化
 
 - ``RepositoryContainer`` — 聚合所有 Repository 的单一入口，通过 `@Environment(\.repositories)` 注入
-- ``PersistenceController`` — 配置 `ModelContainer`，管理 Schema 迁移
+- ``DataExecutor`` — actor 持有 `ModelContainer`，负责持久化入口、Schema 配置与 #599 死锁规避
 - ``ProfileManager`` — Multi-Profile 管理（创建/切换/删除 Profile，驱动 ModelContainer 重建）
 
 ### 导出

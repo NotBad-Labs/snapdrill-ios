@@ -215,11 +215,11 @@ func multipleContainersDataIsolation() async throws {
     }
 }
 
-@Test("__currentBehavior_ #599 绕过: TestModelContainer 不经 PersistenceController.init")
-func bypassPersistenceControllerInit() throws {
+@Test("__currentBehavior_ #599 绕过: TestModelContainer 可直接创建隔离容器")
+func testModelContainerCreatesIsolatedContainer() throws {
     let container = try TestModelContainer.create()
     let ctx = container.mainContext
-    ctx.insert(ArchiveItemModel.mock(content: "绕过 PersistenceController"))
+    ctx.insert(ArchiveItemModel.mock(content: "TestModelContainer 隔离容器"))
     try ctx.save()
     let count = try ctx.fetchCount(FetchDescriptor<ArchiveItemModel>())
     #expect(count == 1)

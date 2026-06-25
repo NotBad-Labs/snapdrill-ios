@@ -1,0 +1,47 @@
+{
+  "profiles" : [
+    {
+      "categoryValues" : [
+        {
+          "colorHex" : "#3366FF",
+          "createdAt" : "2024-01-01T00:00:00Z",
+          "dimensionId" : "33333333-3333-3333-3333-333333333333",
+          "icon" : "doc.text",
+          "id" : "44444444-4444-4444-4444-444444444444",
+          "name" : "Reference",
+          "sortOrder" : 0
+        }
+      ],
+      "dimensions" : [
+        {
+          "icon" : "tray.full",
+          "id" : "33333333-3333-3333-3333-333333333333",
+          "isBuiltIn" : true,
+          "isMultiValue" : false,
+          "name" : "Category",
+          "sortOrder" : 0,
+          "systemKey" : "category"
+        }
+      ],
+      "profileId" : "11111111-1111-1111-1111-111111111111",
+      "profileName" : "Default",
+      "reviewItems" : [
+        {
+          "answerText" : "Reference answer",
+          "categoryValueIds" : [
+            "44444444-4444-4444-4444-444444444444"
+          ],
+          "content" : "Reference item",
+          "createdAt" : "2024-01-01T00:00:00Z",
+          "easeFactor" : 2.5,
+          "id" : "22222222-2222-2222-2222-222222222222",
+          "imagePath" : "images\/22222222-2222-2222-2222-222222222222.jpg",
+          "interval" : 6,
+          "lastReviewedAt" : "2024-01-02T00:00:00Z",
+          "nextReviewAt" : "2024-01-08T00:00:00Z",
+          "repetitions" : 2
+        }
+      ]
+    }
+  ]
+}
