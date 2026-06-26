@@ -35,7 +35,7 @@ SnapDrill 不使用一条混合优先级同时裁决“应该做什么”和“�
 
 代码可以证明当前实现，但不能覆盖 PO 意图。两条链不一致时，应记录为待修复偏差或待裁决问题，不能用现状反向改写产品目标。PO 的最新明确意图凌驾于所有仓库文档；影响其他 lane 的意图必须尽快固化到 git-tracked SSOT。
 
-私有记忆只是可丢弃缓存，不能覆盖仓库事实或产品意图。当前定位见 `docs/explanations/positioning-and-audience.md`，协作边界见 `docs/how-to/parallel-lanes.md`。
+私有记忆只是可丢弃缓存，不能覆盖仓库事实或产品意图。当前定位见 `docs/explanations/positioning-and-audience.md`；多 agent 协作边界、Claude planning DRI 与 Codex 本地实证挑战权见 `docs/how-to/parallel-lanes.md`。
 
 ## 构建命令
 
