@@ -25,41 +25,46 @@ enum ProfileMigration {
 
     /// 执行迁移（如果需要）。幂等操作：`profiles.json` 已存在则跳过。
     static func migrateIfNeeded() {
-        let vault = ProfileVault()
+        migrateIfNeeded(documentsURL: documentsURL, defaults: .standard)
+    }
+
+    /// 执行迁移（如果需要）。测试可注入隔离 Documents/UserDefaults，生产入口保持默认行为。
+    static func migrateIfNeeded(documentsURL: URL, defaults: UserDefaults) {
+        let vault = ProfileVault(documentsURL: documentsURL)
         guard !fileManager.fileExists(atPath: vault.profilesJSONURL.path) else { return }
 
         SnapDrillLogger.data.info("ProfileMigration: 首次升级，开始迁移到 Multi-Profile 目录结构")
 
-        let profile = createDefaultProfile()
+        let profile = createDefaultProfile(defaults: defaults)
         let profileDir = vault.profileDirectory(for: profile.id)
 
         do {
             try fileManager.createDirectory(at: profileDir, withIntermediateDirectories: true)
-            try migrateDatabase(to: profileDir)
-            try migrateImages(to: profileDir)
-            savePerProfilePreferences(to: profileDir)
+            try migrateDatabase(from: documentsURL, to: profileDir)
+            try migrateImages(from: documentsURL, to: profileDir)
+            savePerProfilePreferences(to: profileDir, defaults: defaults)
             try vault.saveProfiles([profile])
 
-            UserDefaults.standard.set(profile.id.uuidString, forKey: UDKey.activeProfileId)
-            cleanupOldFiles()
+            defaults.set(profile.id.uuidString, forKey: UDKey.activeProfileId)
+            cleanupOldFiles(in: documentsURL)
 
             SnapDrillLogger.data.info("ProfileMigration: 迁移完成，默认 Profile: \(profile.name)")
         } catch {
             SnapDrillLogger.data.error("ProfileMigration: 迁移失败: \(error.localizedDescription)")
-            createFallbackProfile()
+            createFallbackProfile(documentsURL: documentsURL, defaults: defaults)
         }
     }
 
     // MARK: - Steps
 
-    private static func createDefaultProfile() -> Profile {
-        let userName = UserDefaults.standard.string(forKey: UDKey.userName) ?? L10n.Settings.defaultProfileName
-        let userAvatar = UserDefaults.standard.string(forKey: UDKey.userAvatar) ?? "person.crop.circle.fill"
-        let avatarColorIndex = UserDefaults.standard.integer(forKey: UDKey.userAvatarColorIndex)
+    private static func createDefaultProfile(defaults: UserDefaults) -> Profile {
+        let userName = defaults.string(forKey: UDKey.userName) ?? L10n.Settings.defaultProfileName
+        let userAvatar = defaults.string(forKey: UDKey.userAvatar) ?? "person.crop.circle.fill"
+        let avatarColorIndex = defaults.integer(forKey: UDKey.userAvatarColorIndex)
         return Profile(name: userName, avatar: userAvatar, avatarColorIndex: avatarColorIndex)
     }
 
-    private static func migrateDatabase(to profileDir: URL) throws {
+    private static func migrateDatabase(from documentsURL: URL, to profileDir: URL) throws {
         let oldStoreURL = documentsURL.appendingPathComponent("default.store")
         let newStoreURL = profileDir.appendingPathComponent("default.store")
         guard fileManager.fileExists(atPath: oldStoreURL.path) else { return }
@@ -74,7 +79,7 @@ enum ProfileMigration {
         }
     }
 
-    private static func migrateImages(to profileDir: URL) throws {
+    private static func migrateImages(from documentsURL: URL, to profileDir: URL) throws {
         let oldImagesURL = documentsURL.appendingPathComponent("images")
         let newImagesURL = profileDir.appendingPathComponent("images")
         if fileManager.fileExists(atPath: oldImagesURL.path) {
@@ -84,8 +89,7 @@ enum ProfileMigration {
         }
     }
 
-    private static func savePerProfilePreferences(to profileDir: URL) {
-        let defaults = UserDefaults.standard
+    private static func savePerProfilePreferences(to profileDir: URL, defaults: UserDefaults) {
         var prefs: [String: Any] = [:]
         for key in ProfileManager.perProfileKeys {
             if let value = defaults.object(forKey: key) {
@@ -101,7 +105,7 @@ enum ProfileMigration {
         }
     }
 
-    private static func cleanupOldFiles() {
+    private static func cleanupOldFiles(in documentsURL: URL) {
         let oldStoreURL = documentsURL.appendingPathComponent("default.store")
         try? fileManager.removeItem(at: oldStoreURL) // best-effort: 迁移已完成，旧文件删不掉不影响功能
         for suffix in ["-wal", "-shm"] {
@@ -110,9 +114,9 @@ enum ProfileMigration {
         try? fileManager.removeItem(at: documentsURL.appendingPathComponent("images")) // best-effort: 旧图片目录清理
     }
 
-    private static func createFallbackProfile() {
-        let vault = ProfileVault()
-        let userName = UserDefaults.standard.string(forKey: UDKey.userName) ?? L10n.Settings.defaultProfileName
+    private static func createFallbackProfile(documentsURL: URL, defaults: UserDefaults) {
+        let vault = ProfileVault(documentsURL: documentsURL)
+        let userName = defaults.string(forKey: UDKey.userName) ?? L10n.Settings.defaultProfileName
         let profile = Profile(name: userName)
         do {
             try vault.createProfileDirectories(for: profile.id)
@@ -120,6 +124,6 @@ enum ProfileMigration {
         } catch {
             SnapDrillLogger.data.error("ProfileMigration: fallback Profile 创建失败: \(error.localizedDescription)")
         }
-        UserDefaults.standard.set(profile.id.uuidString, forKey: UDKey.activeProfileId)
+        defaults.set(profile.id.uuidString, forKey: UDKey.activeProfileId)
     }
 }
