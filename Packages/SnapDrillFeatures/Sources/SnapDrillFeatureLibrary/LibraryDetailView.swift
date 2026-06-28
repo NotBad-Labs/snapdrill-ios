@@ -22,7 +22,7 @@ struct LibraryDetailView: View {
     @Bindable var router: LibraryRouter
 
     /// 要展示的资料数据模型
-    let item: ReviewItemModel
+    let item: ArchiveItemModel
 
     @State private var isEditing = false
     @State private var fullScreenImage: UIImage?
@@ -78,7 +78,7 @@ struct LibraryDetailView: View {
 
                 // 元信息
                 VStack(alignment: .leading, spacing: 12) {
-                    // 动态分类：每个有值的维度一行（维度名 + 值徽标），取代固定 学科/来源/标签/年级
+                    // 动态分类：每个有值的维度一行（维度名 + 值徽标），取代固定分类/来源/标签/级别
                     ForEach(item.categoryValuesByDimension, id: \.dimension.id) { entry in
                         HStack(alignment: .top, spacing: 8) {
                             Text(entry.dimension.name)
@@ -141,19 +141,6 @@ struct LibraryDetailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .padding(.horizontal)
                 }
-
-                // 难度（年级等已并入上方动态维度展示）
-                HStack(spacing: 12) {
-                    HStack(spacing: 3) {
-                        ForEach(1...5, id: \.self) { level in
-                            Image(systemName: level <= item.difficulty ? "star.fill" : "star")
-                                .font(.caption)
-                                .foregroundStyle(level <= item.difficulty ? .orange : .gray.opacity(0.3))
-                        }
-                    }
-                    .accessibleGroup(label: L10n.Accessibility.starRating(difficulty: item.difficulty))
-                }
-                .padding(.horizontal)
 
                 // 答案与备注区：默认隐藏，避免从列表进入详情时直接泄露答案。
                 if hasAnswerContent {
@@ -350,8 +337,7 @@ struct LibraryDetailView: View {
         let cardView = ShareCardView(
             content: item.content,
             image: loadedImage,
-            subject: item.subjectCategoryName ?? "",
-            difficulty: item.difficulty,
+            category: item.primaryCategoryName ?? "",
             tags: item.tagCategoryNames
         )
 
@@ -406,7 +392,7 @@ struct LibraryDetailView: View {
 }
 
 private struct AnswerContentView: View {
-    let item: ReviewItemModel
+    let item: ArchiveItemModel
     let loadedAnswerImage: UIImage?
     let onTapImage: (UIImage) -> Void
 
@@ -486,8 +472,8 @@ private struct ShareSheet: UIViewControllerRepresentable {
     let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
-    let item: ReviewItemModel = {
-        let i = ReviewItemModel(content: "Sample Domain Question")
+    let item: ArchiveItemModel = {
+        let i = ArchiveItemModel(content: "Sample Domain Question")
         container.mainContext.insert(i)
         return i
     }()

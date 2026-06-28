@@ -1,17 +1,17 @@
 //
-//  ReviewItemModel+Categories.swift
+//  ArchiveItemModel+Categories.swift
 //  SnapDrillData
 //
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  ReviewItemModel 的动态分类值（categoryValues）展示辅助（L3）。
-//  消费链（库列表/详情/分享卡/统计）经这些 helper 读分类，取代旧 subject/source/grade/tags 字段。
+//  ArchiveItemModel 的动态分类值（categoryValues）展示辅助（L3）。
+//  消费链（库列表/详情/分享卡/统计）经这些 helper 读分类，取代旧裸字符串字段。
 //
 
 import Foundation
 
-extension ReviewItemModel {
+extension ArchiveItemModel {
 
     /// 某维度（按 systemKey）下该题的值名（按值 sortOrder）
     public func categoryValueNames(forSystemKey systemKey: String) -> [String] {
@@ -21,9 +21,9 @@ extension ReviewItemModel {
             .map { $0.name }
     }
 
-    /// 学科维度的首个值名（列表行/分享卡主标签用；无则 nil）
-    public var subjectCategoryName: String? {
-        categoryValueNames(forSystemKey: CategorySystemKey.subject).first
+    /// 分类维度的首个值名（列表行/分享卡主标签用；无则 nil）
+    public var primaryCategoryName: String? {
+        categoryValueNames(forSystemKey: CategorySystemKey.category).first
     }
 
     /// 标签维度（多值）的所有值名（分享卡/批量场景用）

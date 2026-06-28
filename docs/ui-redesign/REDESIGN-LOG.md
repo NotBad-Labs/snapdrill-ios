@@ -2,6 +2,26 @@
 
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
+## 2026-06-23 - Static difficulty-star evidence retired
+
+### Scope
+
+- `SnapDrillUITests/SnapDrillUITests.swift`
+- `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md`
+- `docs/ui-redesign/flagship-cross-layer-contracts.md`
+
+### Design Decisions
+
+- Static difficulty stars were removed in `077db353` as part of the taxonomy cleanup; difficulty/level semantics now belong to dynamic fields rather than fixed star controls.
+- Retired the previous Capture and Library edit difficulty selected-state assertions instead of preserving stale evidence claims.
+- Historical log entries below remain unchanged as chronology; current coverage is governed by `UI-FREEZE-QA-MATRIX.md`.
+
+### DoD Status
+
+- Passed in this local change:
+  - `SnapDrillUITests/SnapDrillUITests.swift` grep no longer finds `captureFieldDifficulty`, `capture.difficulty`, or `library.edit.difficulty`.
+  - `docs/ui-redesign/UI-FREEZE-QA-MATRIX.md` marks UI-FZ-028 and UI-FZ-032 as revoked instead of pass claims; remaining docs mentions are historical or revoked-evidence context.
+
 ## 2026-06-22 - Notification permission-denied alert UI freeze coverage
 
 ### Scope

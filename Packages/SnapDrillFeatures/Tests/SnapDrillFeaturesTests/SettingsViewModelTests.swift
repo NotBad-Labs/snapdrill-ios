@@ -33,24 +33,24 @@ final class SettingsViewModelTests {
 
     @Test("clearAllData 清空所有题目")
     func clearAllData_removesAllItems() async throws {
-        let item1 = ReviewItemModel(content: "题目1")
-        let item2 = ReviewItemModel(content: "题目2")
-        repos.review.insert(item1)
-        repos.review.insert(item2)
-        try repos.review.saveContext()
+        let item1 = ArchiveItemModel(content: "题目1")
+        let item2 = ArchiveItemModel(content: "题目2")
+        repos.archive.insert(item1)
+        repos.archive.insert(item2)
+        try repos.archive.saveContext()
 
         let vm = SettingsViewModel(repositories: repos)
         await vm.clearAllData()
 
-        let remaining = try repos.review.fetchAllModels()
+        let remaining = try repos.archive.fetchAllModels()
         #expect(remaining.isEmpty)
     }
 
     @Test("clearAllData 发送 reviewDataDidChange 通知")
     func clearAllData_postsNotification() async throws {
-        let item = ReviewItemModel(content: "题目")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "题目")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = SettingsViewModel(repositories: repos)
 
@@ -117,8 +117,8 @@ final class SettingsViewModelTests {
     @Test("clearAllData 同时清空动态维度与值")
     func clearAllData_alsoRemovesTaxonomy() async throws {
         let dimension = CategoryDimensionModel(
-            name: "学科", isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+            name: "分类", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.category, sortOrder: 0, icon: "book"
         )
         try repos.dimension.insertAndSave(dimension)
         try repos.categoryValue.insertAndSave(CategoryValueModel(name: "数学", dimension: dimension))
@@ -134,9 +134,9 @@ final class SettingsViewModelTests {
     @Test("createBackup 有数据时生成 backupFileURL")
     func createBackup_withData_producesFileURL() async throws {
         // 插入测试数据
-        let item = ReviewItemModel(content: "备份测试题目")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "备份测试题目")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = SettingsViewModel(repositories: repos)
         await vm.createBackup()
@@ -170,8 +170,8 @@ final class SettingsViewModelTests {
 
     @Test("createBackup 多 Profile 时包含非活跃 Profile 数据")
     func createBackup_multipleProfiles_includesInactiveProfile() async throws {
-        repos.review.insert(ReviewItemModel(content: "活跃 Profile 题目"))
-        try repos.review.saveContext()
+        repos.archive.insert(ArchiveItemModel(content: "活跃 Profile 题目"))
+        try repos.archive.saveContext()
 
         let profileManager = ProfileManager(inMemory: true)
         let inactiveProfile = try #require(profileManager.createProfile(name: "Second"))
@@ -191,9 +191,9 @@ final class SettingsViewModelTests {
 
     @Test("createBackup 完成后 isBackupInProgress 恢复为 false")
     func createBackup_resetsInProgressAfterCompletion() async throws {
-        let item = ReviewItemModel(content: "题目")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "题目")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = SettingsViewModel(repositories: repos)
         await vm.createBackup()
@@ -211,21 +211,21 @@ final class SettingsViewModelTests {
     @Test("restoreFromBackup 正常路径：round-trip 恢复")
     func restoreFromBackup_roundTrip() async throws {
         // 1. 准备原始数据——使用非默认 SM-2 值，区分"正确恢复"和"默认值重建"
-        let subjectDim = CategoryDimensionModel(
-            name: "学科", isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+        let categoryDim = CategoryDimensionModel(
+            name: "分类", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.category, sortOrder: 0, icon: "book"
         )
-        try repos.dimension.insertAndSave(subjectDim)
-        let english = CategoryValueModel(name: "英语", dimension: subjectDim)
+        try repos.dimension.insertAndSave(categoryDim)
+        let english = CategoryValueModel(name: "英语", dimension: categoryDim)
         try repos.categoryValue.insertAndSave(english)
-        let item = ReviewItemModel(content: "恢复测试题目")
+        let item = ArchiveItemModel(content: "恢复测试题目")
         item.categoryValues = [english]
         item.easeFactor = 1.8
         item.interval = 7
         item.repetitions = 3
         item.nextReviewAt = Date(timeIntervalSinceReferenceDate: 800_000_000)
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         // 2. 创建备份
         let vm = SettingsViewModel(repositories: repos)
@@ -238,7 +238,7 @@ final class SettingsViewModelTests {
 
         // 3. 清空数据
         await vm.clearAllData()
-        let countAfterClear = try repos.review.totalCount()
+        let countAfterClear = try repos.archive.totalCount()
         #expect(countAfterClear == 0)
 
         // 4. 从备份恢复
@@ -247,7 +247,7 @@ final class SettingsViewModelTests {
         // 5. 验证恢复结果——数量、内容字段、SM-2 调度字段均完整
         #expect(vm.backupError == nil)
         #expect(vm.isBackupInProgress == false)
-        let restoredItems = try repos.review.fetchAllModels()
+        let restoredItems = try repos.archive.fetchAllModels()
         #expect(restoredItems.count == 1)
         let restored = restoredItems.first
         #expect(restored?.content == "恢复测试题目")
@@ -260,9 +260,9 @@ final class SettingsViewModelTests {
     @Test("restoreFromBackup 成功后发送 reviewDataDidChange 通知")
     func restoreFromBackup_postsNotification() async throws {
         // 准备备份文件
-        let item = ReviewItemModel(content: "通知测试")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "通知测试")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = SettingsViewModel(repositories: repos)
         await vm.createBackup()
@@ -292,9 +292,9 @@ final class SettingsViewModelTests {
 
     @Test("restoreFromBackup 完成后 isBackupInProgress 恢复为 false")
     func restoreFromBackup_resetsInProgressAfterCompletion() async throws {
-        let item = ReviewItemModel(content: "题目")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "题目")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = SettingsViewModel(repositories: repos)
         await vm.createBackup()
@@ -313,9 +313,9 @@ final class SettingsViewModelTests {
 
     @Test("cleanupBackupFile 清理后 backupFileURL 为 nil")
     func cleanupBackupFile_clearsURL() async throws {
-        let item = ReviewItemModel(content: "题目")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "题目")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = SettingsViewModel(repositories: repos)
         await vm.createBackup()

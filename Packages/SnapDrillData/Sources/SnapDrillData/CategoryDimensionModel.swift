@@ -5,8 +5,8 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  分类维度（命名维度型）：学科 / 来源 / 年级 / 标签 / 用户自定义。
-//  有序刻度型「难度」不在此系统内，仍是 ReviewItemModel.difficulty: Int。
+//  分类维度（命名维度型）：分类 / 来源 / 级别 / 标签 / 用户自定义。
+//  难度 / 级别等属性不再是 ArchiveItemModel 的静态字段，统一由维度系统表达。
 //
 
 import Foundation
@@ -14,7 +14,7 @@ import SwiftData
 
 /// 分类维度模型
 ///
-/// 一个「维度」是一类分类（如学科、来源、章节）。内置维度（学科/来源/年级/标签）
+/// 一个「维度」是一类分类（如分类、来源、章节）。内置维度（分类/来源/级别/标签）
 /// 用稳定 `systemKey` 识别、不可删除；用户可新建任意维度。
 /// 每个维度通过 `isMultiValue` 决定一题在该维度下可贴一个值（单值）还是多个值（多值）。
 @Model
@@ -28,13 +28,13 @@ public final class CategoryDimensionModel {
     /// 维度显示名（用户自定义维度用它展示；内置维度按 systemKey 走本地化）
     public var name: String = ""
 
-    /// 单值 vs 多值：false=一题一个值（学科/来源/年级）；true=一题多个值（标签/错因）
+    /// 单值 vs 多值：false=一项一个值（分类/来源/级别）；true=一项多个值（标签）
     public var isMultiValue: Bool = false
 
     /// 是否内置维度（内置不可删除、改名受限）
     public var isBuiltIn: Bool = false
 
-    /// 稳定语义键：内置维度用它做代码识别与幂等 seed（如 "subject"/"source"/"grade"/"tag"），
+    /// 稳定语义键：内置维度用它做代码识别与幂等 seed（如 "category"/"source"/"level"/"tag"），
     /// 用户自定义维度为 nil。
     ///
     /// 不用 name/UUID 识别——name 可改、每次 seed 的 UUID 不同（CloudKit 同步后会撞成两份）。
@@ -88,9 +88,9 @@ extension CategoryDimensionModel {
     }
 
     /// 采集页 / 管理页可见性的缺省值（仅当 UserDefaults 无显式设置时生效）：
-    /// 学科维度 + 用户自建维度默认可见；内置非学科维度（来源/年级/标签）默认隐藏，保持采集极简。
-    /// 注：编辑页不读此缺省、始终显示全部维度（避免隐藏题目已贴的标签）。
+    /// 用户自建维度默认可见；所有内置维度默认隐藏，保持首次录入极简并避免把通用资料归档
+    /// 预先框进学习阶段场景。用户可在分类管理中按需打开内置维度。
     public var defaultCaptureVisibility: Bool {
-        systemKey == CategorySystemKey.subject || !isBuiltIn
+        !isBuiltIn
     }
 }

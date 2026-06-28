@@ -5,8 +5,8 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  题目编辑 ViewModel，直接操作 ReviewItemModel 进行持久化。
-//  L3：分类改为动态维度（dimensions + selectedByDimension），难度保留为有序刻度。
+//  题目编辑 ViewModel，直接操作 ArchiveItemModel 进行持久化。
+//  L3：分类改为动态维度（dimensions + selectedByDimension）。
 //
 
 import SwiftUI
@@ -24,10 +24,8 @@ public final class LibraryEditViewModel {
     public var content: String
     /// 答案文本
     public var answer: String
-    /// 题目难度（有序刻度，不在动态维度系统内）
-    public var difficulty: Difficulty
 
-    // 动态维度（L3：取代 selectedSubject/Source/grade/tagList + subjects/sources/grades/allTags）
+    // 动态维度（L3：取代旧固定分类/来源/级别/标签字段）
     /// 当前所有命名维度（按 sortOrder）
     public private(set) var dimensions: [CategoryDimensionModel] = []
     /// 每维度的可选值（dimensionId → values）
@@ -58,7 +56,7 @@ public final class LibraryEditViewModel {
 
     // MARK: - Dependencies
 
-    private let item: ReviewItemModel
+    private let item: ArchiveItemModel
     private let repositories: RepositoryContainer
     private let imageStorage: ImageStorage
     private let ocrService: OCRServiceProtocol
@@ -70,7 +68,7 @@ public final class LibraryEditViewModel {
 
     /// 创建题目编辑 ViewModel
     public init(
-        item: ReviewItemModel,
+        item: ArchiveItemModel,
         repositories: RepositoryContainer,
         imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
         ocrService: OCRServiceProtocol = OCRService(),
@@ -84,7 +82,6 @@ public final class LibraryEditViewModel {
 
         self.content = item.content ?? ""
         self.answer = item.answerText ?? ""
-        self.difficulty = item.difficultyValue
         // 维度选中态在 loadData() 加载 dimensions 后从 item.categoryValues 初始化
     }
 
@@ -259,7 +256,7 @@ public final class LibraryEditViewModel {
         applyChangesToModel(newImagePath: newImagePath, newAnswerImagePath: newAnswerImagePath)
 
         do {
-            try repositories.review.saveContext()
+            try repositories.archive.saveContext()
             isSavedNormally = true
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             deleteReplacedImages(
@@ -267,7 +264,7 @@ public final class LibraryEditViewModel {
                 oldAnswerPath: oldAnswerImagePath, newAnswerPath: newAnswerImagePath
             )
         } catch {
-            repositories.review.rollbackContext()
+            repositories.archive.rollbackContext()
             if let path = newImagePath { bestEffortDeleteImage(path: path) }
             if let path = newAnswerImagePath { bestEffortDeleteImage(path: path) }
             SnapDrillLogger.generic.error("保存题目修改失败: \(error.localizedDescription)")
@@ -278,7 +275,7 @@ public final class LibraryEditViewModel {
 
     // MARK: - Private Helpers
 
-    /// 当前所有维度的选中值实例（扁平），写入 ReviewItemModel.categoryValues
+    /// 当前所有维度的选中值实例（扁平），写入 ArchiveItemModel.categoryValues
     private var selectedValues: [CategoryValueModel] {
         var result: [CategoryValueModel] = []
         for (dimId, valueIds) in selectedByDimension {
@@ -293,8 +290,7 @@ public final class LibraryEditViewModel {
     private func applyChangesToModel(newImagePath: String?, newAnswerImagePath: String?) {
         item.content = content.isEmpty ? nil : content
         item.answerText = answer.isEmpty ? nil : answer
-        item.difficultyValue = difficulty
-        // L3：分类经动态维度值；旧 subject/source/grade/tags 字段暂留不写（S6 删）
+        // L3：分类经动态维度值；旧裸字符串字段不再写入
         item.categoryValues = selectedValues
 
         if let path = newImagePath { item.imagePath = path }

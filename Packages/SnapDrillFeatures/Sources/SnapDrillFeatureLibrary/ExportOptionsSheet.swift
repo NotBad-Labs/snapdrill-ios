@@ -20,7 +20,7 @@ struct ExportOptionsSheet: View {
     
     // MARK: - Properties
     
-    let items: [ReviewExportSnapshot]
+    let items: [ArchiveExportSnapshot]
     @Environment(\.dismiss) private var dismiss
     @Environment(\.profileManager) private var profileManager
     @Environment(\.services) private var services
@@ -261,7 +261,7 @@ private struct ZIPShareSheet: UIViewControllerRepresentable {
 import UniformTypeIdentifiers
 
 struct ReviewExport: Transferable {
-    let items: [ReviewExportSnapshot]
+    let items: [ArchiveExportSnapshot]
     let format: ExportFormat
     
     enum ExportFormat {

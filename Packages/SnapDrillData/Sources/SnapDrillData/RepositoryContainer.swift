@@ -18,8 +18,8 @@ import SnapDrillCore
 public final class RepositoryContainer {
     /// 当前 Profile 隔离作用域
     public let scope: ProfileScope
-    /// 复习题目仓库
-    public let review: ReviewRepository
+    /// 归档资料仓库
+    public let archive: ArchiveRepository
     /// 分类维度仓库（L3）
     public let dimension: CategoryDimensionRepository
     /// 维度值仓库（L3）
@@ -40,7 +40,7 @@ public final class RepositoryContainer {
         self.profileDirectory = profileDirectory
         self.dimension = CategoryDimensionRepository(executor: executor)
         self.categoryValue = CategoryValueRepository(executor: executor)
-        self.review = ReviewRepository(
+        self.archive = ArchiveRepository(
             executor: executor,
             imageStorageFactory: {
                 ImageStorage(baseDirectory: profileDirectory, scope: scope)
@@ -53,7 +53,7 @@ public final class RepositoryContainer {
     public init(modelContext: ModelContext) {
         self.scope = ProfileScope(id: UUID(), name: "Test")
         self.profileDirectory = nil
-        self.review = ReviewRepository(modelContext: modelContext)
+        self.archive = ArchiveRepository(modelContext: modelContext)
         self.dimension = CategoryDimensionRepository(modelContext: modelContext)
         self.categoryValue = CategoryValueRepository(modelContext: modelContext)
     }
@@ -71,18 +71,18 @@ public final class RepositoryContainer {
 
     // MARK: - 跨仓库协调操作
 
-    /// 原子删除所有复习数据与分类数据。
+    /// 原子删除所有归档资料与分类数据。
     /// 先收集图片路径，再批量内存删除，统一 save 一次；
     /// save 成功后清理图片文件（文件操作不可回滚，仅 best-effort）；
     /// save 失败时 rollback，数据库记录全部还原。
     public func deleteAllData() async throws {
-        let imagePaths = try review.collectAllImagePaths()
-        try review.deleteAll()
+        let imagePaths = try archive.collectAllImagePaths()
+        try archive.deleteAll()
         try deleteAllTaxonomyInMemory()
         do {
-            try review.saveContext()
+            try archive.saveContext()
         } catch {
-            review.rollbackContext()
+            archive.rollbackContext()
             throw error
         }
         // save 成功后清理图片文件（best-effort，async 避免阻塞主线程）
@@ -92,20 +92,20 @@ public final class RepositoryContainer {
         }
     }
 
-    /// 原子删除所有分类数据（学科、来源、标签、年级）。
+    /// 原子删除所有分类数据（分类、来源、标签、级别）。
     public func deleteAllTaxonomy() throws {
-        // 先解所有题目对维度值的反向引用——批量 deleteAll 不跑 per-item detach，
-        // 否则幸存题目 categoryValues 残留悬挂引用（desync）。
-        // deleteAllData/restoreFromProfileData 已先删题目，不经此路径，不受影响。
-        let items = try review.fetchAllModels()
+        // 先解所有资料项对维度值的反向引用——批量 deleteAll 不跑 per-item detach，
+        // 否则幸存资料项 categoryValues 残留悬挂引用（desync）。
+        // deleteAllData/restoreFromProfileData 已先删资料项，不经此路径，不受影响。
+        let items = try archive.fetchAllModels()
         for item in items {
             item.categoryValues = []
         }
         try deleteAllTaxonomyInMemory()
         do {
-            try review.saveContext()
+            try archive.saveContext()
         } catch {
-            review.rollbackContext()
+            archive.rollbackContext()
             throw error
         }
     }
@@ -117,7 +117,7 @@ public final class RepositoryContainer {
     /// 在 MainActor 上读取所有 @Model 数据并转为值类型 DTO，
     /// 供 BackupService（actor）在后台线程打包 ZIP。
     public func collectProfileBackupData(profileName: String, profileId: UUID) throws -> ProfileBackupData {
-        let items = try review.fetchAllModels()
+        let items = try archive.fetchAllModels()
         let allDimensions = try dimension.fetchAllModels()
         let allValues = allDimensions.flatMap { categoryValue.fetchAllModels(in: $0) }
 
@@ -144,14 +144,14 @@ public final class RepositoryContainer {
         let recoveryURL = try saveRecoveryBackup()
 
         // 1. 收集旧图片路径（用于恢复成功后清理）
-        let oldImagePaths = try review.collectAllImagePaths()
+        let oldImagePaths = try archive.collectAllImagePaths()
 
         // 2. 在内存中标记删除所有现有数据（不 save）
-        try review.deleteAll()
+        try archive.deleteAll()
         try deleteAllTaxonomyInMemory()
 
         do {
-            // 3. 在内存中插入备份数据（不 save）。顺序：维度 → 值（关联维度）→ 题目（按 id 挂值）
+            // 3. 在内存中插入备份数据（不 save）。顺序：维度 → 值（关联维度）→ 资料项（按 id 挂值）
             var dimensionsById: [UUID: CategoryDimensionModel] = [:]
             for dto in profileData.dimensions {
                 let model = CategoryDimensionModel(
@@ -173,9 +173,9 @@ public final class RepositoryContainer {
                 valuesById[dto.id] = model
             }
 
-            // 重建题目（旧 subject/source/grade/tags init 参数用默认；分类经 categoryValues）
+            // 重建资料项（旧裸字符串字段用默认；分类经 categoryValues）
             for dto in profileData.reviewItems {
-                let model = ReviewItemModel(
+                let model = ArchiveItemModel(
                     id: dto.id,
                     content: dto.content,
                     imagePath: dto.imagePath,
@@ -184,18 +184,17 @@ public final class RepositoryContainer {
                     nextReviewAt: dto.nextReviewAt,
                     answerText: dto.answerText,
                     answerImagePath: dto.answerImagePath,
-                    difficulty: dto.difficulty,
                     easeFactor: dto.easeFactor,
                     interval: dto.interval,
                     repetitions: dto.repetitions
                 )
                 model.categoryValues = dto.categoryValueIds.compactMap { valuesById[$0] }
-                review.insert(model)
+                archive.insert(model)
             }
 
             // 4. 单次 saveContext：删除+插入在同一个事务中原子提交。
             //    失败时 rollbackContext() 同时撤销删除和插入，旧数据完整保留。
-            try review.saveContext()
+            try archive.saveContext()
 
             // 5. save 成功后清理旧图片文件（best-effort，不影响数据一致性）
             let storage = makeImageStorage()
@@ -208,7 +207,7 @@ public final class RepositoryContainer {
 
         } catch {
             // rollback 撤销所有未提交变更（包括删除和插入），旧数据完整保留
-            review.rollbackContext()
+            archive.rollbackContext()
             SnapDrillLogger.data.error("恢复失败，数据已回滚。安全网备份保留在: \(recoveryURL.path)")
             throw error
         }
@@ -255,8 +254,8 @@ public final class RepositoryContainer {
 
 /// 预览专用数据仓库容器（使用内存 ModelContainer）
 public final class PreviewRepositoryContainer {
-    /// 复习题目仓库
-    public let review: ReviewRepository
+    /// 归档资料仓库
+    public let archive: ArchiveRepository
     /// 分类维度仓库（L3）
     public let dimension: CategoryDimensionRepository
     /// 维度值仓库（L3）
@@ -266,7 +265,7 @@ public final class PreviewRepositoryContainer {
     public init() {
         let executor = DataExecutor(inMemory: true)
 
-        self.review = ReviewRepository(executor: executor)
+        self.archive = ArchiveRepository(executor: executor)
         self.dimension = CategoryDimensionRepository(executor: executor)
         self.categoryValue = CategoryValueRepository(executor: executor)
     }

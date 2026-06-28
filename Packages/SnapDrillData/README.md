@@ -7,32 +7,30 @@
 ## 组成部分
 
 ### 数据模型（@Model）
-- `ReviewItemModel`: 复习条目（核心实体）
-- `SubjectModel`: 学科
-- `SourceModel`: 来源
-- `GradeModel`: 年级
-- `TagModel`: 标签（多对多关联）
+- `ArchiveItemModel`: 归档资料项（核心实体）
+- `CategoryDimensionModel`: 动态分类维度（内置 systemKey: category/source/level/tag）
+- `CategoryValueModel`: 分类维度值（与 ArchiveItemModel 多对多关联）
 
 ### 具体 Repository 类（无协议）
-- `ReviewRepository`: 复习条目的 CRUD、计数、过滤
-- `SubjectRepository` / `SourceRepository` / `GradeRepository`: 分类管理
-- `TagRepository`: 标签管理（含 fetchOrCreate）
+- `ArchiveRepository`: 归档资料项的 CRUD、计数、过滤
+- `CategoryDimensionRepository`: 分类维度管理
+- `CategoryValueRepository`: 分类值管理（含 fetchOrCreate）
 
 ### 数据管理
 - `RepositoryContainer`: 聚合容器，统一数据清理入口
 - `BackupService`: 数据备份与恢复（JSON + 图片 ZIP 归档）
 - `ProfileManager`: Multi-Profile 管理（创建/切换/删除 Profile）
-- `ReviewExportSnapshot`: 导出专用 Sendable 快照（桥接 @Model → Transferable）
-- `PersistenceController`: ModelContainer 配置与迁移
+- `ArchiveExportSnapshot`: 导出专用 Sendable 快照（桥接 @Model → Transferable）
+- `DataExecutor`: actor 持有 `ModelContainer`，负责持久化入口与 #599 死锁规避
 - `DataSeeder`: 测试数据生成器
 
 ## 依赖
-- `SnapDrillCore`: 引用核心类型（Difficulty、ReviewRating 等）
+- `SnapDrillCore`: 引用核心类型（ReviewRating、PDFExportable 等）
 - `ZIPFoundation`: ZIP 压缩/解压（备份归档）
 
 ## 关键用法
 ```swift
 // 需要有效的上下文 (MainActor)
-let repo = ReviewRepository(modelContext: context)
+let repo = ArchiveRepository(modelContext: context)
 let items = try repo.fetchAllModels()
 ```

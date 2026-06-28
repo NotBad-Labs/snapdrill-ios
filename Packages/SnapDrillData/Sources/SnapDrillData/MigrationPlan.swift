@@ -22,8 +22,8 @@ public enum SnapDrillSchemaV1: VersionedSchema {
     // 属于"框架强制 any"例外，不违反项目禁止 any existentials 的原则。
     public static var models: [any PersistentModel.Type] {
         [
-            ReviewItemModel.self,
-            // L3 动态维度系统（S6 已删旧 Subject/Source/Grade/TagModel）
+            ArchiveItemModel.self,
+            // L3 动态维度系统（S6 已删旧固定分类/来源/级别/标签模型）
             CategoryDimensionModel.self,
             CategoryValueModel.self
         ]
@@ -47,8 +47,7 @@ public enum SnapDrillSchemaV1: VersionedSchema {
 /// public enum SnapDrillSchemaV2: VersionedSchema {
 ///     public static let versionIdentifier: Schema.Version = .init(2, 0, 0)
 ///     public static var models: [any PersistentModel.Type] {
-///         [ReviewItemModel.self, SubjectModel.self, TagModel.self,
-///          SourceModel.self, GradeModel.self]
+///         [ArchiveItemModel.self, CategoryDimensionModel.self, CategoryValueModel.self]
 ///     }
 /// }
 ///

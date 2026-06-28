@@ -1,5 +1,5 @@
 //
-//  ReviewExportSnapshot.swift
+//  ArchiveExportSnapshot.swift
 //  SnapDrillData
 //
 //  Created by NotBad Labs.
@@ -12,17 +12,15 @@ import Foundation
 import SnapDrillCore
 
 /// 导出专用只读快照——满足 Sendable 和 PDFExportable，供 PDF 和 CSV 导出共用。
-nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
-    /// 题目唯一标识符
+nonisolated public struct ArchiveExportSnapshot: Sendable, Identifiable {
+    /// 资料项唯一标识符
     public let id: UUID
-    /// 题目内容文本
+    /// 资料项内容文本
     public let content: String?
     /// 图片相对路径
     public let imagePath: String?
-    /// 学科维度首值（仅供 PDF 页眉 exportSubject；CSV 走 dimensionValues）
-    public let subject: String
-    /// 难度等级 (1-5)
-    public let difficulty: Int
+    /// 主分类维度首值（仅供 PDF 页眉 exportCategory；CSV 走 dimensionValues）
+    public let category: String
     /// 答案文本
     public let answerText: String?
     /// 创建时间
@@ -35,12 +33,12 @@ nonisolated public struct ReviewExportSnapshot: Sendable, Identifiable {
     public let dimensionValues: [String: [String]]
 }
 
-extension ReviewExportSnapshot: PDFExportable {
-    /// 桥接 `subject: String` → 协议的 `exportSubject: String?`（PDF 页眉用学科维度首值）。
-    /// 空串归一为 nil：无学科值的题目须被 PDFExportService.resolveSubject 的 compactMap 丢弃，
-    /// 否则空串污染 subjects 集合 → 误判「综合练习」或页眉学科留白（恢复 S5 前契约）。
-    public var exportSubject: String? { subject.isEmpty ? nil : subject }
+extension ArchiveExportSnapshot: PDFExportable {
+    /// 桥接内部分类字段 → 协议的 `exportCategory: String?`（PDF 页眉用分类维度首值）。
+    /// 空串归一为 nil：无分类值的条目须被 PDFExportService.resolveCategory 的 compactMap 丢弃，
+    /// 否则空串污染 categories 集合 → 误判「综合资料」或页眉留白（恢复 S5 前契约）。
+    public var exportCategory: String? { category.isEmpty ? nil : category }
 }
 
 // CSV 编码统一走 `ReviewCSVCodec`（单一契约源）；A2 动态列经 dimensionValues。
-extension ReviewExportSnapshot: ReviewCSVRow {}
+extension ArchiveExportSnapshot: ReviewCSVRow {}

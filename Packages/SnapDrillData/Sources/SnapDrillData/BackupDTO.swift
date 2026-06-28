@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  备份文件的 Codable DTO 定义，用于 JSON 序列化/反序列化。
-//  L3 动态维度重构基线：分类经动态维度（dimensions + categoryValues），题目持 categoryValueIds。
+//  L3 动态维度重构基线：分类经动态维度（dimensions + categoryValues），资料项持 categoryValueIds。
 //
 
 import Foundation
@@ -21,7 +21,7 @@ nonisolated public struct BackupManifest: Codable, Sendable {
     public let createdAt: Date
     /// App 版本号（Marketing Version）
     public let appVersion: String
-    /// 所有 Profile 题目总数
+    /// 所有 Profile 资料项总数
     public let totalItemCount: Int
     /// 备份中包含的 Profile 数量
     public let profileCount: Int
@@ -32,9 +32,10 @@ nonisolated public struct BackupManifest: Codable, Sendable {
     ///
     /// **版本历史**：
     /// - 1 → 动态维度系统重构基线（零用户阶段重置；旧 v1–v4 备份不再兼容，删除向后兼容容错）。
+    /// - 2 → 移除静态 `difficulty` 字段，级别 / 难度等属性统一经动态维度表达。
     ///
     /// 注：备份 Schema 与 SwiftData Schema 独立管理；版本机制保留，待有真实用户后再递增。
-    public static let currentSchemaVersion = 1
+    public static let currentSchemaVersion = 2
 
     public init(schemaVersion: Int, createdAt: Date, appVersion: String, totalItemCount: Int, profileCount: Int, profileNames: [String]) {
         self.schemaVersion = schemaVersion
@@ -46,10 +47,10 @@ nonisolated public struct BackupManifest: Codable, Sendable {
     }
 }
 
-// MARK: - Review Item DTO
+// MARK: - Archive Item DTO
 
-/// ReviewItemModel 的序列化表示。分类经 `categoryValueIds`（指向 CategoryValueBackupDTO）。
-nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
+/// ArchiveItemModel 的序列化表示。分类经 `categoryValueIds`（指向 CategoryValueBackupDTO）。
+nonisolated public struct ArchiveItemBackupDTO: Codable, Sendable {
     public let id: UUID
     public let content: String?
     public let imagePath: String?
@@ -58,11 +59,10 @@ nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
     public let nextReviewAt: Date
     public let answerText: String?
     public let answerImagePath: String?
-    public let difficulty: Int
     public let easeFactor: Double
     public let interval: Int
     public let repetitions: Int
-    /// 该题挂载的维度值 id（A2 动态维度）
+    /// 该资料项挂载的维度值 id（A2 动态维度）
     public let categoryValueIds: [UUID]
 
     public init(
@@ -74,7 +74,6 @@ nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
         nextReviewAt: Date,
         answerText: String?,
         answerImagePath: String?,
-        difficulty: Int,
         easeFactor: Double,
         interval: Int,
         repetitions: Int,
@@ -88,7 +87,6 @@ nonisolated public struct ReviewItemBackupDTO: Codable, Sendable {
         self.nextReviewAt = nextReviewAt
         self.answerText = answerText
         self.answerImagePath = answerImagePath
-        self.difficulty = difficulty
         self.easeFactor = easeFactor
         self.interval = interval
         self.repetitions = repetitions
@@ -148,14 +146,14 @@ nonisolated public struct CategoryValueBackupDTO: Codable, Sendable {
 nonisolated public struct ProfileBackupData: Codable, Sendable {
     public let profileName: String
     public let profileId: UUID
-    public let reviewItems: [ReviewItemBackupDTO]
+    public let reviewItems: [ArchiveItemBackupDTO]
     public let dimensions: [CategoryDimensionBackupDTO]
     public let categoryValues: [CategoryValueBackupDTO]
 
     public init(
         profileName: String,
         profileId: UUID,
-        reviewItems: [ReviewItemBackupDTO],
+        reviewItems: [ArchiveItemBackupDTO],
         dimensions: [CategoryDimensionBackupDTO],
         categoryValues: [CategoryValueBackupDTO]
     ) {
@@ -180,10 +178,10 @@ nonisolated public struct BackupPayload: Codable, Sendable {
 
 // MARK: - Model → DTO Conversion
 
-extension ReviewItemModel {
+extension ArchiveItemModel {
     /// 转换为备份 DTO（纯值类型，可跨 actor 传递）
-    func toBackupDTO() -> ReviewItemBackupDTO {
-        ReviewItemBackupDTO(
+    func toBackupDTO() -> ArchiveItemBackupDTO {
+        ArchiveItemBackupDTO(
             id: id,
             content: content,
             imagePath: imagePath,
@@ -192,7 +190,6 @@ extension ReviewItemModel {
             nextReviewAt: nextReviewAt,
             answerText: answerText,
             answerImagePath: answerImagePath,
-            difficulty: difficulty,
             easeFactor: easeFactor,
             interval: interval,
             repetitions: repetitions,

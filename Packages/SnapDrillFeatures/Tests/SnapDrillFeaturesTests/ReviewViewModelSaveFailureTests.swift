@@ -8,18 +8,18 @@ import SnapDrillCore
 @MainActor
 struct ReviewViewModelSaveFailureTests {
     private let container: ModelContainer
-    private let repo: ReviewRepository
+    private let repo: ArchiveRepository
     private var context: ModelContext { container.mainContext }
 
     init() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        container = try ModelContainer(for: ReviewItemModel.self, configurations: config)
-        repo = ReviewRepository(modelContext: container.mainContext)
+        container = try ModelContainer(for: ArchiveItemModel.self, configurations: config)
+        repo = ArchiveRepository(modelContext: container.mainContext)
     }
 
     @discardableResult
-    private func insertDueItem(content: String = "测试题目", repetitions: Int = 0, interval: Int = 0) -> ReviewItemModel {
-        let model = ReviewItemModel(
+    private func insertDueItem(content: String = "测试题目", repetitions: Int = 0, interval: Int = 0) -> ArchiveItemModel {
+        let model = ArchiveItemModel(
             content: content,
             createdAt: Date(),
             easeFactor: 2.5,

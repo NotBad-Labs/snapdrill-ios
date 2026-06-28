@@ -72,7 +72,7 @@ public final class SettingsViewModel {
         } catch {
             // deleteAllData 是单次 saveContext 原子操作，失败时其内部已 rollback DB（旧数据完整保留）；
             // 此处 rollback 仅作防御性二次清理，确保本上下文无残留内存脏状态被后续操作意外持久化
-            repositories.review.rollbackContext()
+            repositories.archive.rollbackContext()
             SnapDrillLogger.generic.error("清空数据失败: \(error)")
             clearError = L10n.Settings.clearFailed
         }
@@ -161,9 +161,9 @@ public final class SettingsViewModel {
 
     /// 从 CSV 文件导入资料数据
     ///
-    /// CSV 首行为列名，支持的列：Content, Subject, Source, Difficulty, Answer, Grade, Tags。
+    /// CSV 首行为列名，支持的列：Content, Category, Source, Answer, Level, Tags，以及用户自定义维度。
     /// 列名不区分大小写，缺失列使用默认值。
-    /// 内置维度列（Subject/Source/Grade/Tags）经 systemKey 兜底匹配——跨 locale 命中内置维度、
+    /// 内置维度列（Category/Source/Level/Tags）经 systemKey 兜底匹配——跨 locale 命中内置维度、
     /// 不建孤儿重复维度；其余非固定列按显示名匹配现有维度或新建用户维度。
     /// cell 以 ";" 分隔多值；单值维度只取首值。
     public func importCSV(fileURL: URL) async {
@@ -199,21 +199,20 @@ public final class SettingsViewModel {
                     dimensionsBySystemKey[systemKey] = dimension
                 }
             }
-            let fixedKeys: Set<String> = ["id", "content", "difficulty", "answer", "createdat", "lastreviewed", "nextreview"]
+            let fixedKeys: Set<String> = ["id", "content", "answer", "createdat", "lastreviewed", "nextreview"]
             let context = CSVImportContext(
                 fixedKeys: fixedKeys,
                 dimensionsBySystemKey: dimensionsBySystemKey,
                 multiValueColumns: Self.inferMultiValueColumns(rows: rows, fixedKeys: fixedKeys)
             )
 
-            // 批量创建 ReviewItemModel（每 50 条 yield 一次，避免长时间阻塞主线程）
+            // 批量创建 ArchiveItemModel（每 50 条 yield 一次，避免长时间阻塞主线程）
             for (index, row) in rows.enumerated() {
-                let model = ReviewItemModel(
+                let model = ArchiveItemModel(
                     content: row["content"],
-                    answerText: row["answer"],
-                    difficulty: min(5, max(1, Int(row["difficulty"] ?? "1") ?? 1))
+                    answerText: row["answer"]
                 )
-                repositories.review.insert(model)
+                repositories.archive.insert(model)
                 model.categoryValues = importCategoryValues(from: row, context: context, dimensionsByName: &dimensionsByName)
 
                 backupProgress = Double(index + 1) / Double(rows.count)
@@ -224,13 +223,13 @@ public final class SettingsViewModel {
                 }
             }
 
-            try repositories.review.saveContext()
+            try repositories.archive.saveContext()
 
             NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
             backupStatusMessage = L10n.Settings.importComplete(rows.count)
             SnapDrillLogger.generic.info("CSV 导入完成: \(rows.count) 道题")
         } catch {
-            repositories.review.rollbackContext()
+            repositories.archive.rollbackContext()
             backupError = L10n.Settings.importFailed
             backupStatusMessage = ""
             SnapDrillLogger.generic.error("CSV 导入失败: \(error)")
@@ -251,9 +250,9 @@ public final class SettingsViewModel {
     /// 文档承诺的内置列名（小写）→ systemKey。CSVParser 已把列头小写化；「Tags」复数也映射到 tag。
     /// 用于显示名匹配失败时兜底命中内置维度，不建孤儿重复维度（修 zh 设备导英文列的 desync）。
     private static let builtInColumnAliases: [String: String] = [
-        "subject": CategorySystemKey.subject,
+        "category": CategorySystemKey.category,
         "source": CategorySystemKey.source,
-        "grade": CategorySystemKey.grade,
+        "level": CategorySystemKey.level,
         "tag": CategorySystemKey.tag,
         "tags": CategorySystemKey.tag
     ]

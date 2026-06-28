@@ -14,18 +14,16 @@ import Foundation
 
 // 需求显式 `nonisolated`：本类型在全局 `defaultIsolation(MainActor)` 下默认会变 MainActor 隔离，
 // 而 `ReviewCSVCodec` 是 nonisolated（供 actor / nonisolated Transferable 复用），故需求须可从
-// nonisolated 上下文读取。遵守方（ReviewExportSnapshot / ExportableItem）本就是 nonisolated struct，一致。
+// nonisolated 上下文读取。遵守方（ArchiveExportSnapshot / ExportableItem）本就是 nonisolated struct，一致。
 /// 可被编码为题库 CSV 一行的只读契约。
 ///
-/// 现有实现：`ReviewExportSnapshot`（Data）/ `ExportableItem`（Settings）。
+/// 现有实现：`ArchiveExportSnapshot`（Data）/ `ExportableItem`（Settings）。
 /// 字段顺序即 CSV 列序，由 `ReviewCSVCodec` 统一编码，遵守方只需提供字段。
 public protocol ReviewCSVRow: Sendable {
     /// 题目唯一标识符
     nonisolated var id: UUID { get }
     /// 题目内容文本；纯图片题为 `nil`
     nonisolated var content: String? { get }
-    /// 难度等级（1-5）
-    nonisolated var difficulty: Int { get }
     /// 答案文本；无答案为 `nil`
     nonisolated var answerText: String? { get }
     /// 创建时间
@@ -34,7 +32,7 @@ public protocol ReviewCSVRow: Sendable {
     nonisolated var lastReviewedAt: Date? { get }
     /// 下次计划复习时间
     nonisolated var nextReviewAt: Date? { get }
-    /// 动态维度值：维度名 → 该题在该维度下的值名（A2 动态列；学科/来源/年级/标签/自定义各一列）
+    /// 动态维度值：维度名 → 该题在该维度下的值名（A2 动态列；分类/来源/级别/标签/自定义各一列）
     nonisolated var dimensionValues: [String: [String]] { get }
 }
 
@@ -46,7 +44,7 @@ public enum ReviewCSVCodec {
 
     /// 固定列表头（A2 动态维度列在其后按列名追加；维度列名因用户可改/可删，故 header 非定值）。
     public nonisolated static var fixedHeader: String {
-        "ID,Content,Difficulty,Answer,CreatedAt,LastReviewed,NextReview"
+        "ID,Content,Answer,CreatedAt,LastReviewed,NextReview"
     }
 
     /// 给定动态维度列名时的完整表头（固定列 + 各维度列；维度列名也走 escape 防注入）。
@@ -65,7 +63,6 @@ public enum ReviewCSVCodec {
             var cells = [
                 row.id.uuidString,
                 escapeField(row.content ?? ""),
-                "\(row.difficulty)",
                 escapeField(row.answerText ?? ""),
                 row.createdAt.ISO8601Format(),
                 row.lastReviewedAt?.ISO8601Format() ?? "",

@@ -42,15 +42,15 @@ struct LibraryListView: View {
     
     var body: some View {
         List(selection: $selectedItemIDs) {
-            // 学科快速过滤器（学科维度的值；全量维度过滤在 FilterSheet）
-            if let subjectDim = viewModel.dimension(forSystemKey: CategorySystemKey.subject) {
+            // 主分类快速过滤器（主分类维度的值；全量维度过滤在 FilterSheet）
+            if let categoryDim = viewModel.dimension(forSystemKey: CategorySystemKey.category) {
                 Section {
                      ScrollView(.horizontal, showsIndicators: false) {
                          HStack(spacing: 12) {
-                             ForEach(viewModel.valuesByDimension[subjectDim.id] ?? []) { value in
-                                 let selected = viewModel.isFilterSelected(value.id, inDimension: subjectDim.id)
+                             ForEach(viewModel.valuesByDimension[categoryDim.id] ?? []) { value in
+                                 let selected = viewModel.isFilterSelected(value.id, inDimension: categoryDim.id)
                                  Button {
-                                     viewModel.toggleFilter(value.id, inDimension: subjectDim.id)
+                                     viewModel.toggleFilter(value.id, inDimension: categoryDim.id)
                                  } label: {
                                      Text(value.name)
                                          .font(.subheadline)
@@ -69,7 +69,7 @@ struct LibraryListView: View {
                                          }
                                  }
                                  .buttonStyle(.plain)
-                                 .accessibleButton(label: L10n.Accessibility.filterSubject(value.name))
+                                 .accessibleButton(label: L10n.Accessibility.filterCategory(value.name))
                                  .accessibilityIdentifier("library.quickFilter.\(value.name)")
                                  .accessibilityAddTraits(selected ? .isSelected : [])
                              }
@@ -82,9 +82,9 @@ struct LibraryListView: View {
                 }
             }
             
-            // 活跃过滤指示器：非学科维度的选中值（学科已在上方 capsule 展示），方便感知和快速清除
+            // 活跃过滤指示器：非主分类维度的选中值（主分类已在上方 capsule 展示），方便感知和快速清除
             let activeFilterChips = viewModel.selectedFilterValues
-                .filter { $0.dimension?.systemKey != CategorySystemKey.subject }
+                .filter { $0.dimension?.systemKey != CategorySystemKey.category }
             if !activeFilterChips.isEmpty {
                 Section {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -126,7 +126,7 @@ struct LibraryListView: View {
             }
 
             if viewModel.filteredItems.isEmpty {
-                if viewModel.searchText.isEmpty && viewModel.selectedValueIdsByDimension.isEmpty && viewModel.selectedDifficulties.isEmpty {
+                if viewModel.searchText.isEmpty && viewModel.selectedValueIdsByDimension.isEmpty {
                     ContentUnavailableView {
                         Label(L10n.Library.noItems, systemImage: "books.vertical")
                     } description: {
@@ -161,12 +161,12 @@ struct LibraryListView: View {
                                 .multilineTextAlignment(.leading)
 
                             HStack(spacing: 8) {
-                                // 主分类标签：学科维度值，无则取首个有值维度的首值
+                                // 主分类标签：主分类维度值，无则取首个有值维度的首值
                                 LibraryCategoryChip(
-                                    title: item.subjectCategoryName
+                                    title: item.primaryCategoryName
                                         ?? item.categoryValuesByDimension.first?.values.first?.name
                                         ?? L10n.Library.noCategory,
-                                    isPlaceholder: item.subjectCategoryName == nil
+                                    isPlaceholder: item.primaryCategoryName == nil
                                         && item.categoryValuesByDimension.first?.values.first == nil
                                 )
 

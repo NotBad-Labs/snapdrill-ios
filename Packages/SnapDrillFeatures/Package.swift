@@ -54,7 +54,7 @@ let package = Package(
             swiftSettings: sharedSwiftSettings
         ),
         // SnapDrillFeatureDashboard 依赖 SnapDrillFeatureLibrary：
-        // DashboardView 使用 SubjectManagerView（分类管理，迁入 Library 后引用）。
+        // DashboardView 使用 CategoryManagerView（分类管理，迁入 Library 后引用）。
         .target(
             name: "SnapDrillFeatureDashboard",
             dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData",
@@ -62,7 +62,7 @@ let package = Package(
             swiftSettings: sharedSwiftSettings
         ),
         // SnapDrillFeatureSettings 依赖 SnapDrillFeatureLibrary：
-        // SettingsView 包含 SubjectManagerView / SourceManagerView / GradeManagerView（分类管理，语义归 Library）。
+        // SettingsView 包含 CategoryManagerView（分类管理，语义归 Library）。
         .target(
             name: "SnapDrillFeatureSettings",
             dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData",

@@ -29,11 +29,11 @@ final class RepositoryContainerBackupTests {
         repos = RepositoryContainer(modelContext: container.mainContext)
     }
 
-    /// 建一个学科维度 + 一个值（已 save），返回值供挂题
-    private func seedSubjectValue(dimensionName: String, valueName: String) throws -> CategoryValueModel {
+    /// 建一个分类维度 + 一个值（已 save），返回值供挂题
+    private func seedCategoryValue(dimensionName: String, valueName: String) throws -> CategoryValueModel {
         let dimension = CategoryDimensionModel(
             name: dimensionName, isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+            systemKey: CategorySystemKey.category, sortOrder: 0, icon: "book"
         )
         try repos.dimension.insertAndSave(dimension)
         let value = CategoryValueModel(name: valueName, sortOrder: 0, dimension: dimension)
@@ -45,12 +45,12 @@ final class RepositoryContainerBackupTests {
 
     @Test("collectProfileBackupData 正确收集全量数据（动态维度）")
     func collectPayloadBasic() throws {
-        let value = try seedSubjectValue(dimensionName: "学科", valueName: "数学")
+        let value = try seedCategoryValue(dimensionName: "分类", valueName: "数学")
 
-        let item = ReviewItemModel(content: "测试题", answerText: "答案文本", difficulty: 4)
+        let item = ArchiveItemModel(content: "测试题", answerText: "答案文本")
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let profileData = try repos.collectProfileBackupData(
             profileName: "默认",
@@ -61,9 +61,8 @@ final class RepositoryContainerBackupTests {
         #expect(profileData.reviewItems[0].content == "测试题")
         #expect(profileData.reviewItems[0].categoryValueIds == [value.id])
         #expect(profileData.reviewItems[0].answerText == "答案文本")
-        #expect(profileData.reviewItems[0].difficulty == 4)
 
-        #expect(profileData.dimensions.contains(where: { $0.name == "学科" }))
+        #expect(profileData.dimensions.contains(where: { $0.name == "分类" }))
         #expect(profileData.categoryValues.contains(where: { $0.name == "数学" }))
     }
 
@@ -83,34 +82,33 @@ final class RepositoryContainerBackupTests {
 
     @Test("restoreFromProfileData 全量恢复 round-trip（动态维度）")
     func restorePayloadRoundTrip() async throws {
-        let value = try seedSubjectValue(dimensionName: "英语", valueName: "听力")
+        let value = try seedCategoryValue(dimensionName: "英语", valueName: "听力")
 
-        let item = ReviewItemModel(
-            content: "原始题目", answerText: "A", difficulty: 2, easeFactor: 2.8, interval: 5, repetitions: 3
+        let item = ArchiveItemModel(
+            content: "原始题目", answerText: "A", easeFactor: 2.8, interval: 5, repetitions: 3
         )
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let profileData = try repos.collectProfileBackupData(
             profileName: "默认",
             profileId: Self.testProfileId
         )
 
-        try repos.review.deleteAll()
+        try repos.archive.deleteAll()
         try repos.categoryValue.deleteAll()
         try repos.dimension.deleteAll()
-        try repos.review.saveContext()
-        #expect(try repos.review.totalCount() == 0)
+        try repos.archive.saveContext()
+        #expect(try repos.archive.totalCount() == 0)
 
         try await repos.restoreFromProfileData(profileData)
 
-        let restoredItems = try repos.review.fetchAllModels()
+        let restoredItems = try repos.archive.fetchAllModels()
         #expect(restoredItems.count == 1)
         let restored = restoredItems[0]
         #expect(restored.content == "原始题目")
         #expect(restored.answerText == "A")
-        #expect(restored.difficulty == 2)
         #expect(restored.easeFactor == 2.8)
         #expect(restored.interval == 5)
         #expect(restored.repetitions == 3)
@@ -123,10 +121,10 @@ final class RepositoryContainerBackupTests {
 
     @Test("restoreFromProfileData 替换已有数据")
     func restoreReplacesExistingData() async throws {
-        let oldItem = ReviewItemModel(content: "旧题目")
-        repos.review.insert(oldItem)
-        try repos.review.saveContext()
-        #expect(try repos.review.totalCount() == 1)
+        let oldItem = ArchiveItemModel(content: "旧题目")
+        repos.archive.insert(oldItem)
+        try repos.archive.saveContext()
+        #expect(try repos.archive.totalCount() == 1)
 
         let dimID = UUID()
         let valueID = UUID()
@@ -134,16 +132,16 @@ final class RepositoryContainerBackupTests {
             profileName: "新",
             profileId: UUID(),
             reviewItems: [
-                ReviewItemBackupDTO(
+                ArchiveItemBackupDTO(
                     id: UUID(), content: "新题目 A", imagePath: nil,
                     createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
-                    answerText: nil, answerImagePath: nil, difficulty: 1,
+                    answerText: nil, answerImagePath: nil,
                     easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: []
                 ),
-                ReviewItemBackupDTO(
+                ArchiveItemBackupDTO(
                     id: UUID(), content: "新题目 B", imagePath: nil,
                     createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
-                    answerText: nil, answerImagePath: nil, difficulty: 3,
+                    answerText: nil, answerImagePath: nil,
                     easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: [valueID]
                 )
             ],
@@ -163,7 +161,7 @@ final class RepositoryContainerBackupTests {
 
         try await repos.restoreFromProfileData(newProfileData)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 2)
         #expect(items.contains(where: { $0.content == "新题目 A" }))
         #expect(items.contains(where: { $0.content == "新题目 B" }))
@@ -180,10 +178,10 @@ final class RepositoryContainerBackupTests {
             profileName: "测试",
             profileId: UUID(),
             reviewItems: [
-                ReviewItemBackupDTO(
+                ArchiveItemBackupDTO(
                     id: UUID(), content: "多值题目", imagePath: nil,
                     createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
-                    answerText: nil, answerImagePath: nil, difficulty: 1,
+                    answerText: nil, answerImagePath: nil,
                     easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: [v1, v2, v3]
                 )
             ],
@@ -202,7 +200,7 @@ final class RepositoryContainerBackupTests {
 
         try await repos.restoreFromProfileData(profileData)
 
-        let items = try repos.review.fetchAllModels()
+        let items = try repos.archive.fetchAllModels()
         #expect(items.count == 1)
         let names = (items[0].categoryValues ?? []).map(\.name).sorted()
         #expect(names == ["易错", "高频", "考前"].sorted())
@@ -221,16 +219,16 @@ final class RepositoryContainerBackupTests {
             createdAt: Date(timeIntervalSinceReferenceDate: 700_000_000), dimension: tagDim
         )
         try repos.categoryValue.insertAndSave(value)
-        let item = ReviewItemModel(content: "题")
+        let item = ArchiveItemModel(content: "题")
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let profileData = try repos.collectProfileBackupData(profileName: "默认", profileId: Self.testProfileId)
-        try repos.review.deleteAll()
+        try repos.archive.deleteAll()
         try repos.categoryValue.deleteAll()
         try repos.dimension.deleteAll()
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         try await repos.restoreFromProfileData(profileData)
 

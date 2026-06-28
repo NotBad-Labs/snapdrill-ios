@@ -20,7 +20,7 @@ private struct MockPDFItem: PDFExportable {
     var content: String?
     var imagePath: String?
     var answerText: String?
-    var exportSubject: String?
+    var exportCategory: String?
 }
 
 struct PDFExportServiceTests {
@@ -39,7 +39,7 @@ struct PDFExportServiceTests {
                 content: "测试题目 \(index)",
                 imagePath: nil,
                 answerText: "测试答案 \(index)",
-                exportSubject: "数学"
+                exportCategory: "数学"
             )
         }
     }
@@ -196,30 +196,30 @@ struct PDFExportServiceTests {
         #expect(data.isEmpty == false)
     }
 
-    @Test("单一学科页眉正常显示")
-    func singleSubjectHeader() async throws {
+    @Test("单一分类页眉正常显示")
+    func singleCategoryHeader() async throws {
         let service = PDFExportService.shared
         let items = [
-            MockPDFItem(content: "题1", exportSubject: "数学"),
-            MockPDFItem(content: "题2", exportSubject: "数学")
+            MockPDFItem(content: "题1", exportCategory: "数学"),
+            MockPDFItem(content: "题2", exportCategory: "数学")
         ]
 
-        let subject = service.resolveSubject(from: items)
-        #expect(subject == "数学")
+        let category = service.resolveCategory(from: items)
+        #expect(category == "数学")
     }
 
-    @Test("混合学科页眉显示综合练习")
-    func mixedSubjectHeader() async throws {
+    @Test("混合分类页眉显示综合练习")
+    func mixedCategoryHeader() async throws {
         let service = PDFExportService.shared
         let items = [
-            MockPDFItem(content: "题1", exportSubject: "数学"),
-            MockPDFItem(content: "题2", exportSubject: "语文")
+            MockPDFItem(content: "题1", exportCategory: "数学"),
+            MockPDFItem(content: "题2", exportCategory: "语文")
         ]
 
-        let subject = service.resolveSubject(from: items)
-        // resolveSubject 在多学科时返回 L10n.Export.mixedSubject 的值
-        #expect(subject.isEmpty == false)
-        #expect(subject != "数学")
-        #expect(subject != "语文")
+        let category = service.resolveCategory(from: items)
+        // resolveCategory 在多分类时返回 L10n.Export.mixedCategory 的值
+        #expect(category.isEmpty == false)
+        #expect(category != "数学")
+        #expect(category != "语文")
     }
 }

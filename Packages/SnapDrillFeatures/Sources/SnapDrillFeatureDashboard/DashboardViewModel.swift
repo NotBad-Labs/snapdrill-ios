@@ -23,7 +23,7 @@ public final class DashboardViewModel {
     // MARK: - State
 
     /// 是否正在显示分类管理器 Sheet
-    public var isShowingSubjectManager = false
+    public var isShowingCategoryManager = false
     /// 是否正在显示草稿恢复提示 Alert
     public var isShowingDraftAlert = false
 
@@ -75,10 +75,10 @@ public final class DashboardViewModel {
     /// 避免中途抛出异常导致 UI 呈现部分更新的不一致状态。
     public func loadData() {
         do {
-            let today = try repositories.review.fetchTodayCount()
-            let total = try repositories.review.totalItemCount()
-            let due = try repositories.review.fetchDueCount(excluding: deletionScheduler.pendingDeletionIDs)
-            let reviewed = try repositories.review.fetchTodayReviewedCount()
+            let today = try repositories.archive.fetchTodayCount()
+            let total = try repositories.archive.totalItemCount()
+            let due = try repositories.archive.fetchDueCount(excluding: deletionScheduler.pendingDeletionIDs)
+            let reviewed = try repositories.archive.fetchTodayReviewedCount()
             todayItemsCount = today
             totalCount = total
             dueCount = due
@@ -104,8 +104,8 @@ public final class DashboardViewModel {
             return L10n.Dashboard.draftAlertMessage
         }
         let timeAgo = draft.date.relativeDescription()
-        if let subject = draft.subject, !subject.isEmpty {
-            return L10n.Dashboard.draftAlertMessage(subject: subject, timeAgo: timeAgo)
+        if let category = draft.category, !category.isEmpty {
+            return L10n.Dashboard.draftAlertMessage(category: category, timeAgo: timeAgo)
         }
         return L10n.Dashboard.draftAlertMessage(timeAgo: timeAgo)
     }

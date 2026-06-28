@@ -12,6 +12,9 @@
 import SwiftUI
 import SnapDrillCore
 import SnapDrillUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// 采集结果预览与编辑视图
 public struct CaptureResultView: View {
@@ -21,8 +24,7 @@ public struct CaptureResultView: View {
     // @Bindable 用于外部传入的 @Observable 对象，不持有所有权（区别于 @State）
     @Bindable var viewModel: CaptureResultViewModel
 
-    // 固定字段可见性（难度/答案）。L3：学科/来源/年级已并入动态维度，可见性按维度（VM）。
-    @AppStorage(UDKey.captureFieldDifficulty) private var showDifficultyField: Bool = false
+    // 固定字段可见性（答案）。分类/来源/级别/自定义维度可见性按维度（VM）。
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
 
     /// 创建采集结果视图
@@ -53,7 +55,6 @@ public struct CaptureResultView: View {
 
                 CaptureDetailsSection(
                     viewModel: viewModel,
-                    showDifficulty: showDifficultyField,
                     showAnswer: showAnswerField
                 )
 
@@ -61,6 +62,7 @@ public struct CaptureResultView: View {
             }
             .padding(.vertical)
         }
+        .scrollDismissesKeyboard(.interactively)
         .accessibilityIdentifier("capture.result.root")
         .onAppear {
             viewModel.loadFormData()
@@ -80,6 +82,13 @@ public struct CaptureResultView: View {
                 }
                 .disabled(viewModel.isRecognizing || viewModel.isSaving)
                 .accessibilityIdentifier("capture.saveButton")
+            }
+
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(L10n.Common.done) {
+                    dismissKeyboard()
+                }
             }
         }
         .safeAreaInset(edge: .bottom) {
@@ -120,6 +129,12 @@ public struct CaptureResultView: View {
                 Text(errorMessage)
             }
         }
+    }
+
+    private func dismissKeyboard() {
+        #if canImport(UIKit)
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        #endif
     }
 }
 

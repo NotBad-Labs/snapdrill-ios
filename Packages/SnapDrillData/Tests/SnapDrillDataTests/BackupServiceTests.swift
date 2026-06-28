@@ -27,7 +27,7 @@ struct BackupServiceTests {
             profileName: "默认",
             profileId: Self.testProfileId,
             reviewItems: [
-                ReviewItemBackupDTO(
+                ArchiveItemBackupDTO(
                     id: UUID(),
                     content: "测试题目",
                     imagePath: "images/test.jpg",
@@ -36,7 +36,6 @@ struct BackupServiceTests {
                     nextReviewAt: .distantPast,
                     answerText: "答案",
                     answerImagePath: nil,
-                    difficulty: 3,
                     easeFactor: 2.5,
                     interval: 0,
                     repetitions: 0,
@@ -45,8 +44,8 @@ struct BackupServiceTests {
             ],
             dimensions: [
                 CategoryDimensionBackupDTO(
-                    id: Self.sampleDimensionId, name: "学科", isMultiValue: false, isBuiltIn: true,
-                    systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+                    id: Self.sampleDimensionId, name: "分类", isMultiValue: false, isBuiltIn: true,
+                    systemKey: CategorySystemKey.category, sortOrder: 0, icon: "book"
                 )
             ],
             categoryValues: [
@@ -307,7 +306,7 @@ struct BackupServiceTests {
             profileName: "测试",
             profileId: profileId,
             reviewItems: [
-                ReviewItemBackupDTO(
+                ArchiveItemBackupDTO(
                     id: UUID(),
                     content: "恶意条目",
                     imagePath: "../evil.jpg",
@@ -316,7 +315,6 @@ struct BackupServiceTests {
                     nextReviewAt: .distantPast,
                     answerText: nil,
                     answerImagePath: nil,
-                    difficulty: 1,
                     easeFactor: 2.5,
                     interval: 0,
                     repetitions: 0,

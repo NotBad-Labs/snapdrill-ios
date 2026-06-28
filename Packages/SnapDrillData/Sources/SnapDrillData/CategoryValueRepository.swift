@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  维度值数据仓库（SwiftData 实现）。合并旧 Subject/Source/Grade/Tag 的值级操作。
+//  维度值数据仓库（SwiftData 实现）。合并旧固定分类/来源/级别/标签的值级操作。
 //
 
 import Foundation

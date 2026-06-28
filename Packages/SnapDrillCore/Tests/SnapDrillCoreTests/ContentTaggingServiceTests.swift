@@ -21,16 +21,15 @@ struct ContentTaggingServiceTests {
 
     @Test("ContentTagSuggestion 初始化正确")
     func suggestionInit() {
-        let suggestion = ContentTagSuggestion(subject: "数学", difficulty: 3)
-        #expect(suggestion.subject == "数学")
-        #expect(suggestion.difficulty == 3)
+        let suggestion = ContentTagSuggestion(category: "数学")
+        #expect(suggestion.category == "数学")
     }
 
     @Test("ContentTagSuggestion Equatable 正确比较")
     func suggestionEquatable() {
-        let a = ContentTagSuggestion(subject: "英语", difficulty: 2)
-        let b = ContentTagSuggestion(subject: "英语", difficulty: 2)
-        let c = ContentTagSuggestion(subject: "数学", difficulty: 2)
+        let a = ContentTagSuggestion(category: "英语")
+        let b = ContentTagSuggestion(category: "英语")
+        let c = ContentTagSuggestion(category: "数学")
         #expect(a == b)
         #expect(a != c)
     }
@@ -40,11 +39,10 @@ struct ContentTaggingServiceTests {
     @Test("Mock 返回配置的结果")
     func mockReturnsConfiguredResult() async {
         let mock = ContentTaggingServiceMock()
-        mock.suggestResult = ContentTagSuggestion(subject: "物理", difficulty: 4)
+        mock.suggestResult = ContentTagSuggestion(category: "物理")
 
         let result = await mock.suggestTags(for: "计算物体的加速度")
-        #expect(result?.subject == "物理")
-        #expect(result?.difficulty == 4)
+        #expect(result?.category == "物理")
         #expect(mock.suggestCallCount == 1)
     }
 

@@ -13,9 +13,9 @@ import SwiftData
 @testable import SnapDrillData
 @testable import SnapDrillCore
 
-// MARK: - ReviewItemModel Mock
+// MARK: - ArchiveItemModel Mock
 
-extension ReviewItemModel {
+extension ArchiveItemModel {
     static func mock(
         id: UUID = UUID(),
         content: String = "Test content",
@@ -23,8 +23,8 @@ extension ReviewItemModel {
         easeFactor: Double = 2.5,
         interval: Int = 0,
         repetitions: Int = 0
-    ) -> ReviewItemModel {
-        ReviewItemModel(
+    ) -> ArchiveItemModel {
+        ArchiveItemModel(
             id: id,
             content: content,
             imagePath: imagePath,
@@ -39,10 +39,10 @@ extension ReviewItemModel {
 
 extension CategoryDimensionModel {
     static func mock(
-        name: String = "学科",
+        name: String = "分类",
         isMultiValue: Bool = false,
         isBuiltIn: Bool = true,
-        systemKey: String? = CategorySystemKey.subject,
+        systemKey: String? = CategorySystemKey.category,
         sortOrder: Int = 0,
         icon: String = "book"
     ) -> CategoryDimensionModel {
@@ -70,9 +70,9 @@ extension CategoryValueModel {
 
 // MARK: - Test Container Helper
 
-/// 直接创建 in-memory ModelContainer，不经过 PersistenceController。
-/// PersistenceController 在 defaultIsolation(MainActor) 下的同步 init
-/// 会与 ModelContainer 内部 XPC 回调死锁（#599）。
+/// 直接创建 in-memory ModelContainer，避免在测试里走 MainActor 同步容器初始化。
+/// `DataExecutor.createOffMainActor()` 是生产路径的 #599 死锁规避入口；
+/// 本 helper 仅供低层 Data 测试创建隔离容器。
 /// 推荐使用 `DataExecutor(inMemory: true)` 替代（PR #8b）。
 enum TestModelContainer {
     // 用 SnapDrillSchemaV1.models（含 CategoryDimension/Value）；S6 删旧模型后自动跟随

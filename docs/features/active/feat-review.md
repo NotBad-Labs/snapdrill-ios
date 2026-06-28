@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-19
+last_updated: 2026-06-25
 intent_refs:
   - vision:P2
   - vision:P3
@@ -27,7 +27,7 @@ intent_refs:
 ## 2. 需求规则 (What)
 - **SM-2 间隔回顾**：翻卡 + 滑动评估（有印象 / 没印象）。
 - **Dashboard 回顾字段**（基础统计免费；口径由 Review 定义、Dashboard 仅消费）：
-  - 资料总数；**待回顾数 = `ReviewItem.dueDate ≤ now` 且资料未软删**；**已回顾数 = 至少 1 次 SM-2 评估**；今日新增；各分类分布。
+  - 资料总数；**待回顾数 = `ArchiveItemModel.nextReviewAt ≤ now` 且资料未软删**；**已回顾数 = 至少 1 次 SM-2 评估**；今日新增；各分类分布。
   - 时间序列 / 高级统计为 Pro，见 `../backlog/feat-advanced-stats.md`。
 - **复习卡片外观设置**：正/反面字号独立、对齐三选项（默认左对齐）、实时预览。
 - **提醒**：默认不推送通知；用户可在设置开启频率（选择权交用户）。
@@ -38,6 +38,12 @@ intent_refs:
 ## 3. 技术设计 (How)
 - **模块归属**：SM-2 引擎 `SnapDrillCore`（`ReviewScheduler` / `SM2State`）；Dashboard 聚合 `SnapDrillFeatureDashboard`。
 - **关键机制 / 数据流**：评估依结果更新该资料的 `easeFactor / interval / nextReviewAt` 并推进下一条；正面 = 原内容（图文，**必须显示图片**，尤其图形资料），背面 = 参考答案/备注；左滑/没印象、右滑/有印象，**手势必有等价按钮**（HIG）；答案缺失仍可翻面评估。
+- **SM-2 数值合同**（`ReviewScheduler` 是 SSOT，测试向量必须同步）：
+  - 评分 raw value：`again = 0`、`hard = 2`、`good = 3`、`easy = 5`。
+  - EF 公式：`newEF = max(oldEF + 0.1 - (5 - q) * (0.08 + (5 - q) * 0.02), 1.3)`；EF clamp 在输出侧执行。
+  - `again`：`repetitions = 0`、`interval = 0`、`nextReviewAt = now + 10 minutes`。
+  - 非 `again`：`repetitions += 1`；第 1 次 interval = 1 天；第 2 次 interval = 6 天；第 3 次及以后 `interval = min(ceil(previousInterval * newEF), 365)` 天。
+  - 当前合同向量：初始 EF 2.5 时 `hard → 2.18`、`good → 2.36`、`easy → 2.6`；`interval=6/repetitions=2/good` 的下一间隔为 15 天；`interval=10/repetitions=2/good` 的下一间隔为 24 天（证明使用更新后的 EF）；单次间隔上限为 365 天。
 - **State & Concurrency**（Swift 6 strict）：复习 View 由 `@Observable` ViewModel（`@MainActor`）驱动；SM-2 状态更新经 Repository → `DataExecutor`（actor）落库，不阻塞主线程；每次评估**即时持久化**（不缓存到本轮结束）。
 - **回顾 UI 可达性约束**：翻卡"有印象/没印象"为主观回忆自评，UI 必须低门槛、可达——大字号、清晰可点按钮、手势必有等价按钮（HIG 无障碍基线，承接 vision P5「无障碍是基础质量」）。重构回顾 UI 不得退化此可达性（缩小按钮 / 去掉按钮等价 = 退化）。
 - **设计裁决（仅本模块）**：滑动手势 vs 系统返回 edge-swipe 冲突——复习场景卡片简洁性权重高于 P6 原生优先，**仅本模块裁决、不外推**；其他模块手势冲突仍走全局 P1>…>P6。
@@ -47,7 +53,7 @@ intent_refs:
 - **边界 / 异常**：
   - 无到期资料 → Dashboard 与 Review 空状态，不进空白卡片流（Boundary B19）。
   - 某题缺答案 → 允许翻面进空答案状态，仍可评估。
-  - **软删除 × 回顾队列**：资料软删除（5s undo 窗口）→ 立即从到期队列移除；undo 恢复 → 回顾状态一并恢复；过窗口永久删除 → 其 `ReviewItem` 随资料级联清理。
+  - **软删除 × 回顾队列**：资料软删除（5s undo 窗口）→ 立即从到期队列移除；undo 恢复 → 回顾状态一并恢复；过窗口永久删除 → 其 `ArchiveItemModel` 随资料级联清理。
     - **⚠ 实现现状（GAP-R1，代码债）**：当前 `ReviewViewModel.loadDataAsync()` 已在加载队列时排除 `DeletionScheduler.pendingDeletionIDs`；但 `.reviewing` 期仍忽略 `reviewDataDidChange` 通知，进行中会话不会被外部删除即时打断。需求不变（应避免已删除资料继续处理），待后续 ViewModel 契约修复。
   - 单题状态更新失败 → 阻止标记"已完成本轮"，提示重试，避免**假完成**。
 - **数据保证**：只更新当前 Profile 下被评估资料的回顾状态、不改资料主内容；每次评估只落库一次（重复手势/点击不得双重更新）；结果摘要必须与本轮成功提交的评估一致。
@@ -92,6 +98,7 @@ intent_refs:
 |---|---|
 | 参考内容默认隐藏 | View/UI 测试或针对性模拟器实测 |
 | 评级词与 SM-2 语义一致 | L10n/a11y grep + Review ViewModel/服务层已有测试 |
+| SM-2 数值合同 | `ReviewSchedulerTests` 合同向量（raw value / EF delta / interval / 365 天上限） |
 | 取消不等于评级 | 针对性测试或 dogfood 实测 |
 | 外部删除当前资料 | GAP-R1 跨层 blocker，后续契约修复 |
 

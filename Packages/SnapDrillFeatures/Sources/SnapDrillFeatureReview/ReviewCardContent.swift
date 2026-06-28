@@ -20,7 +20,7 @@ struct ReviewCardFront: View {
 
     // MARK: - Properties
 
-    let item: ReviewItemModel
+    let item: ArchiveItemModel
     let showsActions: Bool
 
     @State private var showingEditSheet = false
@@ -80,35 +80,17 @@ struct ReviewCardFront: View {
 
             // 元数据底栏
             HStack(spacing: 8) {
-                // 学科徽标（动态维度：学科维度首值，无则取首个有值维度首值，再无则不显示）
-                if let subjectLabel = item.subjectCategoryName
+                // 分类徽标（动态维度：主分类维度首值，无则取首个有值维度首值，再无则不显示）
+                if let categoryLabel = item.primaryCategoryName
                     ?? item.categoryValuesByDimension.first?.values.first?.name {
-                    Text(subjectLabel)
+                    Text(categoryLabel)
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.blue)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Color.blue.opacity(0.10))
                         .clipShape(Capsule())
-                        .accessibilityLabel("\(L10n.Settings.fieldSubject)：\(subjectLabel)")
-                }
-
-                // 难度指示器
-                let starCount = item.difficultyValue.starCount
-                if starCount > 0 {
-                    HStack(spacing: 2) {
-                        ForEach(0..<starCount, id: \.self) { _ in
-                            Image(systemName: "star.fill")
-                                .font(.caption2)
-                                .foregroundStyle(.orange)
-                        }
-                    }
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 4)
-                    .background(Color.orange.opacity(0.10))
-                    .clipShape(Capsule())
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(L10n.Accessibility.starRating(difficulty: starCount))
+                        .accessibilityLabel("\(L10n.Settings.fieldCategory)：\(categoryLabel)")
                 }
 
                 // 标签（动态维度：标签维度值）
@@ -192,8 +174,8 @@ struct ReviewCardFront: View {
     let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
-    let item: ReviewItemModel = {
-        let i = ReviewItemModel(content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
+    let item: ArchiveItemModel = {
+        let i = ArchiveItemModel(content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。")
         container.mainContext.insert(i)
         return i
     }()
@@ -207,8 +189,8 @@ struct ReviewCardFront: View {
     let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
-    let item: ReviewItemModel = {
-        let i = ReviewItemModel(
+    let item: ArchiveItemModel = {
+        let i = ArchiveItemModel(
             content: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。",
             answerText: "∠B = ∠C = (180° - 36°) / 2 = 72°"
         )

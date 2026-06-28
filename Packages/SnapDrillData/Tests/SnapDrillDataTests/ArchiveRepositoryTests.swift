@@ -1,11 +1,11 @@
 //
-//  ReviewRepositoryTests.swift
+//  ArchiveRepositoryTests.swift
 //  SnapDrillDataTests
 //
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  ReviewRepository CRUD / 边界 / 并发 单元测试。
+//  ArchiveRepository CRUD / 边界 / 并发 单元测试。
 //
 
 import Testing
@@ -13,18 +13,17 @@ import SwiftData
 
 import Foundation
 
-import SnapDrillCore
 @testable import SnapDrillData
 
-@Suite("ReviewRepository 单元测试")
-final class ReviewRepositoryTests {
+@Suite("ArchiveRepository 单元测试")
+final class ArchiveRepositoryTests {
 
     private let container: ModelContainer
-    private let repo: ReviewRepository
+    private let repo: ArchiveRepository
 
     init() throws {
         container = try TestModelContainer.create()
-        repo = ReviewRepository(modelContext: container.mainContext)
+        repo = ArchiveRepository(modelContext: container.mainContext)
     }
 
     // MARK: - Helpers
@@ -32,13 +31,12 @@ final class ReviewRepositoryTests {
     private func makeDummyModel(
         id: UUID = UUID(),
         content: String? = "Test"
-    ) -> ReviewItemModel {
-        ReviewItemModel(
+    ) -> ArchiveItemModel {
+        ArchiveItemModel(
             id: id,
             content: content,
             imagePath: nil,
-            answerText: "测试答案",
-            difficulty: 3
+            answerText: "测试答案"
         )
     }
 
@@ -100,7 +98,7 @@ final class ReviewRepositoryTests {
         #expect(dueCount == 3)
     }
 
-    // L3：原 countByGrade/countBySubject + updateXxxUsage 级联更新测试已删——
+    // L3：原 countByLevel/countByCategory + updateXxxUsage 级联更新测试已删——
     // 这些方法随裸字符串字段移除；动态维度下分类统计走 CategoryValueModel.items?.count、
     // 重命名走单次 value.name 赋值（关系自动跟随），相关守护在 S7 维度值测试覆盖。
 
@@ -137,16 +135,6 @@ final class ReviewRepositoryTests {
 
         let fetched = try repo.fetchModel(by: model.id)
         #expect(fetched?.content == nil)
-    }
-
-    @Test("difficulty rawValue 正确持久化与读取")
-    func difficultyRawValueRoundTrip() throws {
-        let model = makeDummyModel()
-        model.difficulty = Difficulty.five.rawValue
-        try repo.insertAndSave(model)
-
-        let fetched = try repo.fetchModel(by: model.id)
-        #expect(fetched?.difficulty == Difficulty.five.rawValue)
     }
 
     // MARK: - 极限数据边界（Issue #57）

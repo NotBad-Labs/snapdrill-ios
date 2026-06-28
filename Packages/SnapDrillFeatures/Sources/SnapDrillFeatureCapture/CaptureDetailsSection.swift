@@ -5,8 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  采集结果页的题目详情 section：难度（有序刻度，保留星级）/ 答案 + 答案图。
-//  L3：年级已并入动态维度（CaptureMetadataSection），不再在此渲染。
+//  采集结果页的答案详情 section：答案 + 答案图。
 //
 
 import SwiftUI
@@ -17,54 +16,21 @@ import PhotosUI
 /// 采集结果页 — 题目详情 section
 struct CaptureDetailsSection: View {
     @Bindable var viewModel: CaptureResultViewModel
-    let showDifficulty: Bool
     let showAnswer: Bool
 
     var body: some View {
-        if showDifficulty || showAnswer {
+        if showAnswer {
             VStack(alignment: .leading, spacing: 20) {
                 Text(L10n.Capture.questionDetails)
                     .font(.headline)
                     .padding(.horizontal)
 
-                VStack(spacing: 0) {
-                    if showDifficulty { difficultyRow }
-                    if showAnswer {
-                        if showDifficulty { Divider().padding(.leading) }
-                        answerSection
-                    }
-                }
+                answerSection
                 .background(Color(UIColor.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(.horizontal)
             }
         }
-    }
-
-    // MARK: - 难度（保留星级，有序刻度不进动态维度）
-
-    private var difficultyRow: some View {
-        HStack {
-            Text(L10n.Capture.difficulty)
-            Spacer()
-            HStack(spacing: 0) {
-                ForEach(1...5, id: \.self) { level in
-                    Button {
-                        viewModel.difficulty = Difficulty(rawValue: level) ?? .one
-                    } label: {
-                        Image(systemName: level <= viewModel.difficulty.rawValue ? "star.fill" : "star")
-                            .foregroundStyle(level <= viewModel.difficulty.rawValue ? .orange : .gray.opacity(0.3))
-                            .frame(width: 44, height: 44)
-                    }
-                    .buttonStyle(.plain)
-                    .contentShape(Rectangle())
-                    .accessibilityLabel(L10n.Accessibility.starRating(difficulty: level))
-                    .accessibilityAddTraits(level <= viewModel.difficulty.rawValue ? .isSelected : [])
-                    .accessibilityIdentifier("capture.difficulty.\(level)")
-                }
-            }
-        }
-        .padding()
     }
 
     // MARK: - 答案

@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  维度管理 ViewModel 守护测试（L3）：加载、新建（成功/重名）、
-//  删除（内置跳过 / 在用拦截 / 用户维度删除）。取代旧 3 套 Subject/Source/Grade Manager VM 测试。
+//  删除（内置跳过 / 在用拦截 / 用户维度删除）。取代旧 3 套 Category/Source/Level Manager VM 测试。
 //
 
 import Testing
@@ -101,10 +101,10 @@ final class CategoryManagerViewModelTests {
         }
         let value = CategoryValueModel(name: "第一章", dimension: dim)
         try repos.categoryValue.insertAndSave(value)
-        let item = ReviewItemModel(content: "题")
+        let item = ArchiveItemModel(content: "题")
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         vm.loadData()
         guard let idx = vm.dimensions.firstIndex(where: { $0.name == "章节" }) else {

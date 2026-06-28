@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  分类维度管理 ViewModel（L3）：维度列表加载、新建、删除（仅用户维度）。
-//  取代 SubjectManagerViewModel/SourceManagerViewModel/GradeManagerViewModel 三套同构。
+//  取代旧固定分类/来源/级别三套同构管理 VM。
 //
 
 import Foundation
@@ -16,7 +16,7 @@ import SnapDrillCore
 
 /// 分类维度管理 ViewModel
 ///
-/// 负责命名维度（学科/来源/年级/标签 + 用户自定义）的列表、新建与删除。
+/// 负责命名维度（分类/来源/级别/标签 + 用户自定义）的列表、新建与删除。
 /// 单个维度内的值增删改、单值/多值开关、可见性开关下沉到 `CategoryValueListViewModel`。
 @Observable
 public final class CategoryManagerViewModel {

@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  维度值：某个维度下的一个可选项（如学科维度下的「数学」、标签维度下的「易错」）。
+//  维度值：某个维度下的一个可选项（如分类维度下的「题目」、标签维度下的「重点」）。
 //
 
 import Foundation
@@ -42,9 +42,9 @@ public final class CategoryValueModel {
     @Relationship(deleteRule: .nullify)
     public var dimension: CategoryDimensionModel?
 
-    /// 引用本值的题目（多对多）。inverse 在 `ReviewItemModel.categoryValues` 侧声明，本端裸关系。
+    /// 引用本值的题目（多对多）。inverse 在 `ArchiveItemModel.categoryValues` 侧声明，本端裸关系。
     @Relationship(deleteRule: .nullify)
-    public var items: [ReviewItemModel]? = []
+    public var items: [ArchiveItemModel]? = []
 
     // MARK: - Initialization
 

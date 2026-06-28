@@ -35,12 +35,12 @@ SnapDrill 不使用一条混合优先级同时裁决“应该做什么”和“�
 
 代码可以证明当前实现，但不能覆盖 PO 意图。两条链不一致时，应记录为待修复偏差或待裁决问题，不能用现状反向改写产品目标。PO 的最新明确意图凌驾于所有仓库文档；影响其他 lane 的意图必须尽快固化到 git-tracked SSOT。
 
-私有记忆只是可丢弃缓存，不能覆盖仓库事实或产品意图。当前定位见 `docs/explanations/positioning-and-audience.md`，协作边界见 `docs/how-to/parallel-lanes.md`。
+私有记忆只是可丢弃缓存，不能覆盖仓库事实或产品意图。当前定位见 `docs/explanations/positioning-and-audience.md`；多 agent 协作边界、Claude planning DRI 与 Codex 本地实证挑战权见 `docs/how-to/parallel-lanes.md`。
 
 ## 构建命令
 
 ```bash
-# Test build（CI 门禁；0 errors 才能合并）
+# Test build（编译 app/test bundles；CI 随后运行 test-without-building）
 xcodebuild build-for-testing \
   -scheme AllTests \
   -destination 'platform=iOS Simulator,name=iPhone 17' \
@@ -180,9 +180,11 @@ SnapDrill = 一个产品 + 两区域发行版（非两独立产品）。完整�
 - **挂起的国内资源**（保留勿删、可复活）：Bundle `com.snapdrill.app` / iCloud `iCloud.com.snapdrill.app` / App Group `group.com.snapdrill.app` / 个人 Team `W5A8THDKW8`。
 - **官网**：`notbadhq.com/snapdrill`（子目录非子域名）
 
-## 改代码后的 DoD
+## 开工前 DoR 与改代码后的 DoD
 
-每次 commit / PR 前跑这两个命令；0 errors 才算完。失败立刻修，不留 TODO。
+开工前先过 [`docs/how-to/definition-of-ready.md`](docs/how-to/definition-of-ready.md)：目标、scope、红线、验收标准、验证等级和 PO/legal/fact gate 必须清楚；不清楚就先 shape 或问 PO。
+
+每次 commit / PR 前至少跑这两个本地门禁；0 errors 才能继续。失败立刻修，不留 TODO。
 
 ```bash
 swiftlint --strict     # SwiftLint 规则见 .swiftlint.yml；force_unwrapping=error / file_length=600
@@ -190,7 +192,11 @@ xcodebuild build-for-testing -scheme AllTests \
   -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests
 ```
 
+`build-for-testing` 只证明 app 与测试 bundle 能编译，不等于测试已运行。凡是 T2+ 代码行为、用户可见交互、Core/Data/ViewModel/SM-2/存储/导出/隐私或跨层契约改动，完成声明必须包含相关 targeted test / contract test 的本地运行结果，或明确等待 CI 的 `test-without-building` 运行测试结果；不能把绿色编译说成绿色测试。
+
 低风险文档/流程与开发者可见小修的验证重量按 `docs/how-to/parallel-lanes.md` §7 的 T0–T4 分级执行；涉及代码行为、用户可见文案或跨层契约时不得降级。
+
+PO 裁决采用 thin pointer：裁决写入其权威文档（vision / positioning / ADR / feature spec / PO 指定范围文档），`intent-traceability.md` 负责索引。若新裁决暂时没有清晰归属，先在任务 brief 中标明；第二个同类未路由裁决出现时，再建立正式 tracked decision file，避免新增第二真相源。
 
 **本地 hooks**（自动触发）：
 
@@ -209,7 +215,7 @@ xcodebuild build-for-testing -scheme AllTests \
 | `docs/features/template.md` | 新建 feature spec 模板 |
 | `docs/explanations/` | 为什么：vision 愿景 / design-principles 设计原则 / business-model 商业化 / architecture 架构 / assumptions 待验证假设 / competitive-analysis 竞品 / user-journeys 旅程 / privacy-compliance 隐私合规 |
 | `docs/reference/` | 查阅：feature-status 功能状态(SSOT·自动生成) / intent-traceability 意图追溯索引(自动生成) / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO |
-| `docs/how-to/` | 操作：release-and-ci 发布与 CI |
+| `docs/how-to/` | 操作：definition-of-ready 开工入口 / shape-up 工作方式 / parallel-lanes 协作边界 / release-and-ci 发布与 CI |
 | `docs/decisions/` | 架构决策 ADR-001~005 |
 
 **功能状态单一真理源（B 方案）**：状态写在各 feature spec frontmatter（`status`/`tier`/`blocked_by`/`mode`），`docs/reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成（**勿手改**，pre-commit 校验）。

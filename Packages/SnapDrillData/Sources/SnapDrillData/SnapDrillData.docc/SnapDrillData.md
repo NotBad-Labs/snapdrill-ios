@@ -13,29 +13,25 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ### 数据模型（@Model）
 
-- ``ReviewItemModel`` — 题目主模型，包含内容、图片、SM-2 状态、分类信息
-- ``SubjectModel`` — 学科（如数学、语文）
-- ``SourceModel`` — 来源（如试卷、作业、教材）
-- ``GradeModel`` — 年级
-- ``TagModel`` — 自由标签
+- ``ArchiveItemModel`` — 资料条目主模型，包含内容、图片、SM-2 状态、动态分类信息
+- ``CategoryDimensionModel`` — 动态分类维度（如分类、来源、级别、标签）
+- ``CategoryValueModel`` — 某个动态分类维度下的可选值
 
 ### Repository（@MainActor final class）
 
-- ``ReviewRepository`` — 题目的 CRUD、计数、过滤、级联更新
-- ``SubjectRepository`` — 学科的 CRUD
-- ``SourceRepository`` — 来源的 CRUD
-- ``GradeRepository`` — 年级的 CRUD
-- ``TagRepository`` — 标签的 fetch-or-create
+- ``ArchiveRepository`` — 资料项的 CRUD、计数、过滤、级联更新
+- ``CategoryDimensionRepository`` — 动态分类维度的 CRUD
+- ``CategoryValueRepository`` — 动态分类值的 CRUD 与 fetch-or-create
 
 ### 容器与持久化
 
 - ``RepositoryContainer`` — 聚合所有 Repository 的单一入口，通过 `@Environment(\.repositories)` 注入
-- ``PersistenceController`` — 配置 `ModelContainer`，管理 Schema 迁移
+- ``DataExecutor`` — actor 持有 `ModelContainer`，负责持久化入口、Schema 配置与 #599 死锁规避
 - ``ProfileManager`` — Multi-Profile 管理（创建/切换/删除 Profile，驱动 ModelContainer 重建）
 
 ### 导出
 
-- ``ReviewExportSnapshot`` — Sendable 快照（含 id、题干、图片路径、难度、标签等 11 个字段），用于跨 actor 边界传递题目数据
+- ``ArchiveExportSnapshot`` — Sendable 快照（含 id、内容、图片路径、动态维度值等字段），用于跨 actor 边界传递资料项数据
 
 ### 备份与恢复
 
@@ -51,7 +47,7 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ## 依赖
 
-- `SnapDrillCore`：引用核心类型（Difficulty、ReviewRating 等）
+- `SnapDrillCore`：引用核心类型（ReviewRating、PDFExportable 等）
 - `ZIPFoundation`：ZIP 压缩/解压（备份归档）
 
 ## 禁止模式

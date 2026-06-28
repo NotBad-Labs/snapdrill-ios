@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  题库筛选页，提供多维度（学科、标签、日期）过滤能力。
+//  资料筛选页，提供动态维度过滤能力。
 //
 
 import SwiftUI
@@ -24,7 +24,7 @@ struct LibraryFilterSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                // 动态维度（学科/来源/年级/标签 + 用户自定义），每维度一段；维度间 AND、维度内 OR
+                // 动态维度（分类/来源/级别/标签 + 用户自定义），每维度一段；维度间 AND、维度内 OR
                 ForEach(viewModel.dimensions) { dimension in
                     Section(dimension.name) {
                         let values = viewModel.valuesByDimension[dimension.id] ?? []
@@ -58,40 +58,6 @@ struct LibraryFilterSheet: View {
                         }
                     }
                 }
-
-                // Section: Difficulty
-                Section(L10n.Library.filterDifficulty) {
-                    ForEach(Difficulty.allCases) { difficulty in
-                        Button {
-                            if viewModel.selectedDifficulties.contains(difficulty.rawValue) {
-                                viewModel.selectedDifficulties.remove(difficulty.rawValue)
-                            } else {
-                                viewModel.selectedDifficulties.insert(difficulty.rawValue)
-                            }
-                        } label: {
-                            HStack(spacing: 2) {
-                                ForEach(0..<difficulty.starCount, id: \.self) { _ in
-                                    Image(systemName: "star.fill")
-                                        .foregroundStyle(.orange)
-                                        .font(.caption)
-                                }
-                                Spacer()
-                                if viewModel.selectedDifficulties.contains(difficulty.rawValue) {
-                                    Image(systemName: "checkmark")
-                                        .foregroundStyle(.blue)
-                                }
-                            }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(L10n.Accessibility.starRating(
-                            difficulty: difficulty.starCount,
-                            maxStars: Difficulty.allCases.count
-                        ))
-                        .accessibilityIdentifier("filter.difficulty.\(difficulty.rawValue)")
-                        .accessibilityAddTraits(viewModel.selectedDifficulties.contains(difficulty.rawValue) ? .isSelected : [])
-                    }
-                }
             }
             .accessibilityIdentifier("library.filter.root")
             .navigationTitle(L10n.Library.filter)
@@ -118,8 +84,8 @@ struct LibraryFilterSheet: View {
 // #Preview {
 //     LibraryFilterSheet(
 //         viewModel: LibraryViewModel(
-//             reviewRepo: PreviewRepositoryContainer().review,
-//             subjectRepo: PreviewRepositoryContainer().subject,
+//             reviewRepo: PreviewRepositoryContainer().archive,
+//             categoryRepo: PreviewRepositoryContainer().category,
 //             tagRepo: PreviewRepositoryContainer().tag
 //         )
 //     )

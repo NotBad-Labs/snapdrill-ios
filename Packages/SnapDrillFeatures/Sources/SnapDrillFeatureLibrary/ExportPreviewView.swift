@@ -17,7 +17,7 @@ import SnapDrillUI
 struct ExportPreviewView: View {
     @Environment(\.dismiss) private var dismiss
     
-    let items: [ReviewExportSnapshot]
+    let items: [ArchiveExportSnapshot]
     var options: PDFExportOptions = .default
     @Environment(\.analyticsService) private var analyticsService
 

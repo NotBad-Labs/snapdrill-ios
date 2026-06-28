@@ -45,11 +45,14 @@ public struct SettingsView: View {
     private let tabBarBreathingRoom: CGFloat = 160
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
-    // 录入字段可见性（产品规格：学科默认开，其余默认关）
-    @AppStorage(UDKey.captureFieldSubject) private var showSubjectField: Bool = true
-    @AppStorage(UDKey.captureFieldSource) private var showSourceField: Bool = false
-    @AppStorage(UDKey.captureFieldDifficulty) private var showDifficultyField: Bool = false
-    @AppStorage(UDKey.captureFieldGrade) private var showGradeField: Bool = false
+    private static let categoryVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.category)"
+    private static let sourceVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.source)"
+    private static let levelVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.level)"
+
+    // 录入字段可见性：内置分类/来源/级别默认隐藏；用户在这里或分类管理中按需打开。
+    @AppStorage(Self.categoryVisibilityKey) private var showCategoryField: Bool = false
+    @AppStorage(Self.sourceVisibilityKey) private var showSourceField: Bool = false
+    @AppStorage(Self.levelVisibilityKey) private var showLevelField: Bool = false
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
 
     // 外观设置
@@ -94,29 +97,28 @@ public struct SettingsView: View {
 
                 // 2. 录入字段配置
                 Section {
-                    Toggle(isOn: $showSubjectField) {
-                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.fieldSubject)
+                    Toggle(isOn: $showCategoryField) {
+                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.fieldCategory)
                     }
-                    .accessibilityHint(L10n.Accessibility.fieldSubjectHint)
+                    .accessibilityIdentifier("settings.captureField.category")
+                    .accessibilityHint(L10n.Accessibility.fieldCategoryHint)
 
                     Toggle(isOn: $showSourceField) {
                         SettingsRow(icon: "doc.text.fill", gradientStart: .orange, gradientEnd: .yellow, title: L10n.Settings.fieldSource)
                     }
+                    .accessibilityIdentifier("settings.captureField.source")
                     .accessibilityHint(L10n.Accessibility.fieldSourceHint)
 
-                    Toggle(isOn: $showDifficultyField) {
-                        SettingsRow(icon: "star.fill", gradientStart: .yellow, gradientEnd: .orange, title: L10n.Settings.fieldDifficulty)
+                    Toggle(isOn: $showLevelField) {
+                        SettingsRow(icon: "tag.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.fieldLevel)
                     }
-                    .accessibilityHint(L10n.Accessibility.fieldDifficultyHint)
-
-                    Toggle(isOn: $showGradeField) {
-                        SettingsRow(icon: "tag.fill", gradientStart: .green, gradientEnd: .mint, title: L10n.Settings.fieldGrade)
-                    }
-                    .accessibilityHint(L10n.Accessibility.fieldGradeHint)
+                    .accessibilityIdentifier("settings.captureField.level")
+                    .accessibilityHint(L10n.Accessibility.fieldLevelHint)
 
                     Toggle(isOn: $showAnswerField) {
                         SettingsRow(icon: "text.bubble.fill", gradientStart: .purple, gradientEnd: .pink, title: L10n.Settings.fieldAnswer)
                     }
+                    .accessibilityIdentifier("settings.captureField.answer")
                     .accessibilityHint(L10n.Accessibility.fieldAnswerHint)
 
                 } header: {
@@ -201,7 +203,7 @@ public struct SettingsView: View {
 
                 }
 
-                // 6. 分类管理（L3：学科/来源/级别 + 用户自定义维度统一入口）
+                // 6. 分类管理（L3：分类/来源/级别 + 用户自定义维度统一入口）
                 Section(L10n.Settings.categoryManagement) {
                     NavigationLink {
                         CategoryManagerView()

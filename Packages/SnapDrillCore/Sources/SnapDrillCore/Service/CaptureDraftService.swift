@@ -29,7 +29,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
 
     // MARK: - Models
 
-    /// 草稿数据结构，携带图片、识别文本、学科和保存时间
+    /// 草稿数据结构，携带图片、识别文本、主分类和保存时间
     public struct Draft {
         /// 拍摄的原始图片（纯文字草稿为 nil）
         public let image: UIImage?
@@ -37,15 +37,15 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
         public let content: String
         /// 草稿保存时间
         public let date: Date
-        /// 保存时选中的学科（用于恢复提示展示）
-        public let subject: String?
+        /// 保存时选中的主分类（用于恢复提示展示）
+        public let category: String?
     }
 
     private struct DraftMetadata: Codable {
         let content: String
         let timestamp: TimeInterval
-        /// 保存时选中的学科（旧草稿缺失时 decode 为 nil）
-        let subject: String?
+        /// 保存时选中的主分类
+        let category: String?
     }
 
     // MARK: - Public API
@@ -60,7 +60,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
     /// async 签名使调用方可在 Task 中执行（如 onDisappear），不直接阻塞 UI 事件循环。
     /// UIImage 非 Sendable，JPEG 压缩和文件写入无法安全移至后台，仍在 MainActor 执行。
     /// 草稿图片已压缩（JPEG 0.8），I/O 量小（通常 < 500KB），阻塞时间可接受。
-    public func saveDraft(image: UIImage? = nil, content: String, subject: String? = nil) async {
+    public func saveDraft(image: UIImage? = nil, content: String, category: String? = nil) async {
         // 1. 图片处理：有图片时写入文件，无图片时清理旧文件（防止上一张图片残留）
         if let image,
            let data = ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8),
@@ -82,7 +82,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
         }
 
         // 2. 元数据写入 UserDefaults
-        let metadata = DraftMetadata(content: content, timestamp: Date().timeIntervalSince1970, subject: subject)
+        let metadata = DraftMetadata(content: content, timestamp: Date().timeIntervalSince1970, category: category)
         do {
             let data = try JSONEncoder().encode(metadata)
             defaults.set(data, forKey: draftMetadataKey)
@@ -133,7 +133,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
             image: image,
             content: metadata.content,
             date: Date(timeIntervalSince1970: metadata.timestamp),
-            subject: metadata.subject
+            category: metadata.category
         )
     }
 

@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  采集结果预览与编辑的 ViewModel，直接通过 RepositoryContainer 保存题目内容与图片。
-//  L3：分类改为动态维度（dimensions + selectedByDimension），难度保留为有序刻度。
+//  L3：分类改为动态维度（dimensions + selectedByDimension）。
 //
 
 import SwiftUI
@@ -32,7 +32,7 @@ public final class CaptureResultViewModel {
     /// 题目截图（可为 `nil` 表示纯文字题）
     public var image: UIImage?
 
-    // 动态维度（L3：取代固定 selectedSubject/Source/grade/tagList + available*）
+    // 动态维度（L3：取代固定分类/来源/级别/标签字段）
     /// 当前所有命名维度（按 sortOrder）
     public private(set) var dimensions: [CategoryDimensionModel] = []
     /// 每维度的可选值（dimensionId → values）
@@ -43,8 +43,6 @@ public final class CaptureResultViewModel {
     // 详情表单
     /// 答案文本
     public var answerText: String = ""
-    /// 题目难度（有序刻度，不在动态维度系统内）
-    public var difficulty: Difficulty = .one
     /// 答案图片（可为 `nil`）
     public var answerImage: UIImage?
 
@@ -168,7 +166,7 @@ public final class CaptureResultViewModel {
         startAITagging()
     }
 
-    /// AI 标注：有 OCR 文本时自动建议学科维度的值（best-effort；难度交用户判断，AI 不填）
+    /// AI 标注：有 OCR 文本时自动建议主分类维度的值（best-effort）
     private func startAITagging() {
         guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         taggingTask?.cancel()
@@ -177,24 +175,23 @@ public final class CaptureResultViewModel {
             defer { isTagging = false }
             guard let suggestion = await contentTaggingService.suggestTags(for: content),
                   !Task.isCancelled else { return }
-            applySuggestion(subject: suggestion.subject)
+            applySuggestion(category: suggestion.category)
         }
     }
 
-    /// 应用 AI 建议：subject 命中学科维度的同名值则选中（仅当该维度未选）。
-    /// 难度是主观字段、由用户自行确定，AI 不自动填充（信任 even over 省事）。
-    private func applySuggestion(subject: String) {
-        if let subjectDim = dimensions.first(where: { $0.systemKey == CategorySystemKey.subject }),
-           (selectedByDimension[subjectDim.id] ?? []).isEmpty,
-           let value = (valuesByDimension[subjectDim.id] ?? []).first(where: { $0.name == subject }) {
-            selectedByDimension[subjectDim.id] = [value.id]
+    /// 应用 AI 建议：category 命中主分类维度的同名值则选中（仅当该维度未选）。
+    private func applySuggestion(category: String) {
+        if let categoryDim = dimensions.first(where: { $0.systemKey == CategorySystemKey.category }),
+           (selectedByDimension[categoryDim.id] ?? []).isEmpty,
+           let value = (valuesByDimension[categoryDim.id] ?? []).first(where: { $0.name == category }) {
+            selectedByDimension[categoryDim.id] = [value.id]
         }
     }
 
     // MARK: - 维度选择 / 新建（供 View 经 DimensionInputRow 驱动）
 
     /// 某维度是否在录入页可见（per-维度可见性；缺省走 defaultCaptureVisibility：
-    /// 学科 + 用户自建默认可见，内置非学科默认隐藏；S4d 管理界面写入显式开关覆盖缺省）
+    /// 用户自建维度默认可见，内置维度默认隐藏；管理界面写入显式开关覆盖缺省）
     public func isDimensionVisible(_ dimension: CategoryDimensionModel) -> Bool {
         UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool ?? dimension.defaultCaptureVisibility
     }
@@ -260,8 +257,8 @@ public final class CaptureResultViewModel {
     public func generateDraftIfNeeded() async {
         let hasContent = !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         if !isSaved, image != nil || hasContent {
-            let subjectName = selectedName(forSystemKey: CategorySystemKey.subject)
-            await draftService.saveDraft(image: image, content: content, subject: subjectName.isEmpty ? nil : subjectName)
+            let categoryName = selectedName(forSystemKey: CategorySystemKey.category)
+            await draftService.saveDraft(image: image, content: content, category: categoryName.isEmpty ? nil : categoryName)
         }
     }
 
@@ -293,8 +290,7 @@ public final class CaptureResultViewModel {
             image: image,
             selectedValues: selectedValues,
             answerText: answerText,
-            answerImage: answerImage,
-            difficulty: difficulty
+            answerImage: answerImage
         )
         do {
             try await coordinator.save(form)
@@ -315,7 +311,7 @@ public final class CaptureResultViewModel {
 
     // MARK: - Private Helpers
 
-    /// 当前所有维度的选中值实例（扁平），供保存写入 ReviewItemModel.categoryValues
+    /// 当前所有维度的选中值实例（扁平），供保存写入 ArchiveItemModel.categoryValues
     private var selectedValues: [CategoryValueModel] {
         var result: [CategoryValueModel] = []
         for (dimId, valueIds) in selectedByDimension {
@@ -341,9 +337,8 @@ public final class CaptureResultViewModel {
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
 
         analyticsService.track(.captureSaved, parameters: [
-            "subject": selectedName(forSystemKey: CategorySystemKey.subject),
-            "source": selectedName(forSystemKey: CategorySystemKey.source),
-            "difficulty": String(difficulty.rawValue)
+            "category": selectedName(forSystemKey: CategorySystemKey.category),
+            "source": selectedName(forSystemKey: CategorySystemKey.source)
         ])
         analyticsService.track(.reviewItemCreated, parameters: [
             "has_image": image != nil ? "true" : "false",

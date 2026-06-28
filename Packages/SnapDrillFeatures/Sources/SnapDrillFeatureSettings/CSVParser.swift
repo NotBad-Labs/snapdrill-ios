@@ -27,7 +27,7 @@ enum CSVParser {
     /// - CRLF / CR / LF 三种行终止符（预处理归一化为 LF）
     ///
     /// - Parameter csvString: 原始 CSV 文本（首行为列名）
-    /// - Returns: 每行一个字典，key 为列名（小写），value 为字段值；至少有 content 或 subject 才算有效行
+    /// - Returns: 每行一个字典，key 为列名（小写），value 为字段值；至少有 content 或 category 才算有效行
     static func parse(_ csvString: String) -> [[String: String]] {
         // UTF-8 BOM (U+FEFF) 剥离：Excel 导出 CSV 常带 BOM，不剥会让首列 key 变成
         // "\u{FEFF}content" 导致字段映射异常（Codex PR #695 审查 🔴 指出）
@@ -52,7 +52,7 @@ enum CSVParser {
                     dict[header] = value
                 }
             }
-            if dict["content"] != nil || dict["subject"] != nil {
+            if dict["content"] != nil || dict["category"] != nil {
                 results.append(dict)
             }
         }

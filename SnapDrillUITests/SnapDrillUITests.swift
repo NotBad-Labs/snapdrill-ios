@@ -140,8 +140,10 @@ final class SnapDrillUITests: XCTestCase {
 
     // MARK: - L3 动态维度系统 E2E
 
-    /// 启动参数：强制中文 locale，使内置维度 seed 出中文名（学科/来源/年级/标签）
-    private func l3LaunchArguments(fieldConfigTipSeen: Bool = true) -> [String] {
+    /// 启动参数：强制中文 locale，使内置维度 seed 出中文名（分类/来源/级别/标签）
+    private func l3LaunchArguments(
+        fieldConfigTipSeen: Bool = true
+    ) -> [String] {
         [
             "--uitesting",
             "-hasCompletedOnboarding", "YES",
@@ -348,10 +350,10 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-onboarding-07-skip-completed")
     }
 
-    /// UI-freeze evidence: capture the manual Capture result editor and metadata controls.
+    /// UI-freeze evidence: capture the manual Capture result editor without default taxonomy fields.
     func testUIFreezeCaptureManualResultEditorScreenshots() {
         let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments() + ["-captureFieldDifficulty", "YES"]
+        app.launchArguments = l3LaunchArguments()
         app.launch()
 
         app.tabBars.buttons.element(boundBy: 2).tap()
@@ -369,23 +371,9 @@ final class SnapDrillUITests: XCTestCase {
         dismissKeyboardIfPresent(in: app)
         addScreenshot(named: "ui-freeze-capture-02-manual-filled-editor")
 
-        let subjectRow = app.buttons["capture.dimRow.学科"]
-        scrollUntilHittable(subjectRow, in: app)
-        XCTAssertTrue(subjectRow.waitForExistence(timeout: 5), "手动录入表单应显示学科字段")
-        subjectRow.tap()
-        let mathOption = app.buttons["capture.opt.数学"]
-        XCTAssertTrue(mathOption.waitForExistence(timeout: 5), "学科菜单应显示数学选项")
-        addScreenshot(named: "ui-freeze-capture-03-subject-menu")
-        mathOption.tap()
-        addScreenshot(named: "ui-freeze-capture-04-subject-selected")
-
-        let highestDifficulty = app.buttons["capture.difficulty.5"]
-        scrollUntilHittable(highestDifficulty, in: app)
-        XCTAssertTrue(highestDifficulty.waitForExistence(timeout: 5), "手动录入表单应显示难度星级")
-        highestDifficulty.tap()
-        waitForUIAnimation(seconds: 0.3)
-        XCTAssertTrue(highestDifficulty.isSelected, "选中的难度星级应暴露 selected 状态")
-        addScreenshot(named: "ui-freeze-capture-details-01-difficulty-selected")
+        XCTAssertFalse(app.buttons["capture.dimRow.分类"].exists, "默认手动录入不应暴露分类字段")
+        XCTAssertFalse(app.buttons["capture.dimRow.分类"].exists, "默认手动录入不应预先要求分类")
+        addScreenshot(named: "ui-freeze-capture-03-no-default-category")
 
         let save = app.buttons["capture.saveButton"]
         XCTAssertTrue(save.waitForExistence(timeout: 5), "保存按钮应仍然可用")
@@ -513,7 +501,7 @@ final class SnapDrillUITests: XCTestCase {
 
         createManualItem(
             content: "Review QA Alpha",
-            subject: "数学",
+            category: nil,
             answer: "Reference answer for Review QA Alpha",
             in: app
         )
@@ -547,13 +535,13 @@ final class SnapDrillUITests: XCTestCase {
 
         createManualItem(
             content: "Review QA First",
-            subject: "数学",
+            category: nil,
             answer: "Reference answer for Review QA First",
             in: app
         )
         createManualItem(
             content: "Review QA Second",
-            subject: "语文",
+            category: nil,
             answer: "Reference answer for Review QA Second",
             in: app
         )
@@ -611,13 +599,13 @@ final class SnapDrillUITests: XCTestCase {
 
         createManualItem(
             content: "Review Swipe First",
-            subject: "数学",
+            category: nil,
             answer: "Reference answer for Review Swipe First",
             in: app
         )
         createManualItem(
             content: "Review Swipe Second",
-            subject: "语文",
+            category: nil,
             answer: "Reference answer for Review Swipe Second",
             in: app
         )
@@ -651,7 +639,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launchArguments = l3LaunchArguments()
         app.launch()
 
-        createManualItem(content: "Dashboard QA Due", subject: "数学", in: app)
+        createManualItem(content: "Dashboard QA Due", category: nil, in: app)
 
         app.tabBars.buttons.element(boundBy: 0).tap()
         waitForAnyElement("dashboard.root", in: app)
@@ -781,15 +769,15 @@ final class SnapDrillUITests: XCTestCase {
         manageCategories.tap()
         waitForAnyElement("settings.categoryManager.root", in: app)
 
-        app.buttons["dim.row.subject"].tap()
-        waitForAnyElement("dimValueList.root.subject", in: app)
-        addScreenshot(named: "ui-freeze-taxonomy-02-subject-values")
+        app.buttons["dim.row.category"].tap()
+        waitForAnyElement("dimValueList.root.category", in: app)
+        addScreenshot(named: "ui-freeze-taxonomy-02-category-values")
 
-        app.buttons["dimValue.数学"].tap()
+        app.buttons["dimValue.题目"].tap()
         waitForAnyElement("dimValueEdit.root", in: app)
         addScreenshot(named: "ui-freeze-taxonomy-03-edit-value-default-color")
 
-        let redSwatch = app.buttons["dimValueEdit.color.E57373"]
+        let redSwatch = app.buttons["dimValueEdit.color.4FC3F7"]
         XCTAssertTrue(redSwatch.waitForExistence(timeout: 5), "分类值颜色 swatch 应可定位")
         redSwatch.tap()
         waitForUIAnimation(seconds: 0.4)
@@ -1154,9 +1142,10 @@ final class SnapDrillUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = l3LaunchArguments()
         app.launch()
+        enableBuiltInCategoryField(in: app)
 
-        createManualItem(content: "Library QA Alpha", subject: "数学", in: app)
-        createManualItem(content: "Library QA Beta", subject: "语文", in: app)
+        createManualItem(content: "Library QA Alpha", category: "题目", in: app)
+        createManualItem(content: "Library QA Beta", category: "文档", in: app)
 
         app.tabBars.buttons.element(boundBy: 1).tap()
         waitForAnyElement("library.root", in: app)
@@ -1168,14 +1157,14 @@ final class SnapDrillUITests: XCTestCase {
         waitForAnyElement("library.filter.root", in: app)
         addScreenshot(named: "ui-freeze-library-02-filter-sheet")
 
-        let mathFilter = app.buttons["filter.value.数学"]
-        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选页应显示数学值")
+        let mathFilter = app.buttons["filter.value.题目"]
+        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选页应显示题目值")
         mathFilter.tap()
         addScreenshot(named: "ui-freeze-library-03-filter-selected")
         app.buttons["完成"].tap()
 
-        XCTAssertTrue(app.staticTexts["Library QA Alpha"].waitForExistence(timeout: 5), "筛选后数学条目应保留")
-        XCTAssertTrue(app.staticTexts["Library QA Beta"].waitForNonExistence(timeout: 5), "筛选后语文条目应隐藏")
+        XCTAssertTrue(app.staticTexts["Library QA Alpha"].waitForExistence(timeout: 5), "筛选后题目类条目应保留")
+        XCTAssertTrue(app.staticTexts["Library QA Beta"].waitForNonExistence(timeout: 5), "筛选后文档类条目应隐藏")
         addScreenshot(named: "ui-freeze-library-04-filtered-list")
 
         let alphaCell = app.cells.containing(.staticText, identifier: "Library QA Alpha").firstMatch
@@ -1320,16 +1309,6 @@ final class SnapDrillUITests: XCTestCase {
         scrollUntilHittable(answerImage, in: app, maxSwipes: 6)
         XCTAssertTrue(answerImage.waitForExistence(timeout: 5), "编辑页应显示答案图片")
         addScreenshot(named: "ui-freeze-library-edit-image-03-answer-image")
-
-        let difficultyFive = app.buttons["library.edit.difficulty.5"]
-        scrollUntilHittable(difficultyFive, in: app, maxSwipes: 6)
-        XCTAssertTrue(difficultyFive.waitForExistence(timeout: 5), "编辑页应显示难度控件")
-        XCTAssertTrue(difficultyFive.isHittable, "难度 5 应可点击")
-        difficultyFive.tap()
-        waitUntil("难度 5 应进入选中态") {
-            difficultyFive.isSelected
-        }
-        addScreenshot(named: "ui-freeze-library-edit-image-04-metadata-difficulty")
     }
 
     /// UI-freeze evidence: capture Library filter reset, batch tag, export option, and search states.
@@ -1337,9 +1316,10 @@ final class SnapDrillUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = l3LaunchArguments()
         app.launch()
+        enableBuiltInCategoryField(in: app)
 
-        createManualItem(content: "Library Control Alpha", subject: "数学", in: app)
-        createManualItem(content: "Library Control Beta", subject: "语文", in: app)
+        createManualItem(content: "Library Control Alpha", category: "题目", in: app)
+        createManualItem(content: "Library Control Beta", category: "文档", in: app)
         createTagValue("重点", in: app)
 
         app.tabBars.buttons.element(boundBy: 1).tap()
@@ -1349,14 +1329,14 @@ final class SnapDrillUITests: XCTestCase {
 
         app.buttons["library.filterButton"].tap()
         waitForAnyElement("library.filter.root", in: app)
-        let mathFilter = app.buttons["filter.value.数学"]
-        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选页应显示数学值")
+        let mathFilter = app.buttons["filter.value.题目"]
+        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选页应显示题目值")
         mathFilter.tap()
         addScreenshot(named: "ui-freeze-library-controls-01-filter-selected-before-reset")
         app.buttons["library.filter.reset"].tap()
         waitForAnyElement("library.root", in: app)
-        XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 5), "重置后数学条目应恢复")
-        XCTAssertTrue(app.staticTexts["Library Control Beta"].waitForExistence(timeout: 5), "重置后语文条目应恢复")
+        XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 5), "重置后题目类条目应恢复")
+        XCTAssertTrue(app.staticTexts["Library Control Beta"].waitForExistence(timeout: 5), "重置后文档类条目应恢复")
         addScreenshot(named: "ui-freeze-library-controls-02-filter-reset-list")
 
         let alphaCell = app.cells.containing(.staticText, identifier: "Library Control Alpha").firstMatch
@@ -1431,19 +1411,19 @@ final class SnapDrillUITests: XCTestCase {
         manageRow.tap()
 
         // 4 个内置维度都应出现（按 systemKey 的 identifier，locale 无关）
-        for key in ["subject", "source", "grade", "tag"] {
+        for key in ["category", "source", "level", "tag"] {
             XCTAssertTrue(
                 app.buttons["dim.row.\(key)"].waitForExistence(timeout: 5),
                 "应种出内置维度 dim.row.\(key)"
             )
         }
 
-        // 学科 = 单值（允许多选关）+ 含「数学」值
-        app.buttons["dim.row.subject"].tap()
-        let subjectMulti = app.switches["dim.multiToggle"]
-        XCTAssertTrue(subjectMulti.waitForExistence(timeout: 5), "学科详情应有‘允许多选’开关")
-        XCTAssertEqual(subjectMulti.value as? String, "0", "学科应为单值（允许多选=关）")
-        XCTAssertTrue(app.buttons["dimValue.数学"].waitForExistence(timeout: 3), "学科下应种有‘数学’值")
+        // 分类 = 单值（允许多选关）+ 含通用资料分类值
+        app.buttons["dim.row.category"].tap()
+        let categoryMulti = app.switches["dim.multiToggle"]
+        XCTAssertTrue(categoryMulti.waitForExistence(timeout: 5), "分类详情应有‘允许多选’开关")
+        XCTAssertEqual(categoryMulti.value as? String, "0", "分类应为单值（允许多选=关）")
+        XCTAssertTrue(app.buttons["dimValue.题目"].waitForExistence(timeout: 3), "分类下应种有‘题目’值")
 
         // 返回 → 标签 = 多值（允许多选开）
         app.navigationBars.buttons.element(boundBy: 0).tap()
@@ -1540,18 +1520,19 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["doc.text.fill"].waitForExistence(timeout: 3), "维度编辑页应回填已选图标名")
     }
 
-    /// 步骤③：手动录入时选单值维度（学科=数学）+ 保存 + 题库显示徽标
+    /// 步骤③：显式开启内置分类后，手动录入时可选单值维度（分类=题目）+ 保存 + 题库显示徽标
     func testManualEntryWithDimensionSelection() {
         let app = XCUIApplication()
         app.launchArguments = l3LaunchArguments()
         app.launch()
+        enableBuiltInCategoryField(in: app)
 
-        createManualItem(content: "维度选择 E2E", subject: "数学", in: app)
+        createManualItem(content: "维度选择 E2E", category: "题目", in: app)
 
         // 题库验证徽标
         app.tabBars.buttons.element(boundBy: 1).tap()
         XCTAssertTrue(app.staticTexts["维度选择 E2E"].waitForExistence(timeout: 10), "题目应出现在题库")
-        XCTAssertTrue(app.staticTexts["数学"].waitForExistence(timeout: 5), "题库卡片应显示学科徽标‘数学’")
+        XCTAssertTrue(app.staticTexts["题目"].waitForExistence(timeout: 5), "题库卡片应显示分类徽标‘题目’")
     }
 
     /// 步骤⑤：用户新建的自定义维度应即时出现在采集表单、可选值并保存（L3 端到端杀手锏）
@@ -1620,47 +1601,51 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["自定义维度 E2E"].waitForExistence(timeout: 10), "题目应出现在题库")
     }
 
-    /// 步骤⑥：题库按动态维度筛选——选「学科=数学」只剩数学题、语文题隐藏；重置后恢复
+    /// 步骤⑥：题库按动态维度筛选——选「分类=题目」只剩题目类资料、文档类资料隐藏；重置后恢复
     func testLibraryFilterByDimension() {
         let app = XCUIApplication()
         app.launchArguments = l3LaunchArguments()
         app.launch()
+        enableBuiltInCategoryField(in: app)
 
-        // 造两题：甲=数学、乙=语文（--uitesting 起始空库，无噪音）
-        createManualItem(content: "筛选甲数学", subject: "数学", in: app)
-        createManualItem(content: "筛选乙语文", subject: "语文", in: app)
+        // 造两项：甲=题目、乙=文档（--uitesting 起始空库，无噪音）
+        createManualItem(content: "筛选甲题目", category: "题目", in: app)
+        createManualItem(content: "筛选乙文档", category: "文档", in: app)
 
         // 进题库，确认两题都在
         app.tabBars.buttons.element(boundBy: 1).tap()
-        XCTAssertTrue(app.staticTexts["筛选甲数学"].waitForExistence(timeout: 10), "数学题应在题库")
-        XCTAssertTrue(app.staticTexts["筛选乙语文"].waitForExistence(timeout: 5), "语文题应在题库")
+        XCTAssertTrue(app.staticTexts["筛选甲题目"].waitForExistence(timeout: 10), "题目类资料应在题库")
+        XCTAssertTrue(app.staticTexts["筛选乙文档"].waitForExistence(timeout: 5), "文档类资料应在题库")
 
-        // 打开筛选 → 选 学科=数学 → 完成
+        // 打开筛选 → 选 分类=题目 → 完成
         let filterBtn = app.buttons["library.filterButton"]
         XCTAssertTrue(filterBtn.waitForExistence(timeout: 5), "题库应有筛选入口")
         filterBtn.tap()
-        let mathFilter = app.buttons["filter.value.数学"]
-        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选面板应有‘数学’值")
+        let mathFilter = app.buttons["filter.value.题目"]
+        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选面板应有‘题目’值")
         mathFilter.tap()
         app.buttons["完成"].tap()
 
-        // 数学题留、语文题隐藏
-        XCTAssertTrue(app.staticTexts["筛选甲数学"].waitForExistence(timeout: 5), "筛选后数学题应仍在")
-        XCTAssertTrue(app.staticTexts["筛选乙语文"].waitForNonExistence(timeout: 5), "筛选数学后语文题应被隐藏")
+        // 题目类资料留、文档类资料隐藏
+        XCTAssertTrue(app.staticTexts["筛选甲题目"].waitForExistence(timeout: 5), "筛选后题目类资料应仍在")
+        XCTAssertTrue(app.staticTexts["筛选乙文档"].waitForNonExistence(timeout: 5), "筛选题目后文档类资料应被隐藏")
 
         // 重置筛选 → 两题恢复
         filterBtn.tap()
         let resetBtn = app.buttons["重置"]
         XCTAssertTrue(resetBtn.waitForExistence(timeout: 3), "筛选面板应有重置按钮")
         resetBtn.tap()
-        XCTAssertTrue(app.staticTexts["筛选乙语文"].waitForExistence(timeout: 5), "重置后语文题应恢复")
+        XCTAssertTrue(app.staticTexts["筛选乙文档"].waitForExistence(timeout: 5), "重置后文档类资料应恢复")
     }
 
-    /// 手动录入一题（可选指定单值学科），保存后停在采集首页。复用于 ③⑥ 造数据。
-    private func createManualItem(content: String, subject: String?, answer: String? = nil, in app: XCUIApplication) {
-        let captureTab = app.tabBars.buttons.element(boundBy: 2)
+    /// 手动录入一项资料（可选指定单值分类），保存后停在采集首页。复用于 ③⑥ 造数据。
+    private func createManualItem(content: String, category: String?, answer: String? = nil, in app: XCUIApplication) {
+        let captureTab = app.tabBars.buttons["采集"].exists
+            ? app.tabBars.buttons["采集"]
+            : app.tabBars.buttons["camera"]
         XCTAssertTrue(captureTab.waitForExistence(timeout: 5), "采集 Tab 应出现")
         captureTab.tap()
+        waitForAnyElement("capture.root", in: app)
         let manual = app.buttons["capture.manual"]
         XCTAssertTrue(manual.waitForExistence(timeout: 5), "手动录入按钮应出现")
         manual.tap()
@@ -1669,14 +1654,14 @@ final class SnapDrillUITests: XCTestCase {
         editor.tap()
         editor.typeText(content)
         dismissKeyboardIfPresent(in: app)
-        if let subject {
+        if let category {
             // 单值维度暴露为 capture.dimRow.<title>（内层 Menu id 被外层 HStack 吞）
-            let menu = app.buttons["capture.dimRow.学科"]
+            let menu = app.buttons["capture.dimRow.分类"]
             scrollUntilHittable(menu, in: app)
-            XCTAssertTrue(menu.waitForExistence(timeout: 5), "应有学科单值菜单")
+            XCTAssertTrue(menu.waitForExistence(timeout: 5), "应有分类单值菜单")
             menu.tap()
-            let option = app.buttons["capture.opt.\(subject)"]
-            XCTAssertTrue(option.waitForExistence(timeout: 5), "学科菜单应有‘\(subject)’选项")
+            let option = app.buttons["capture.opt.\(category)"]
+            XCTAssertTrue(option.waitForExistence(timeout: 5), "分类菜单应有‘\(category)’选项")
             option.tap()
         }
         if let answer {
@@ -1692,6 +1677,36 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(save.waitForExistence(timeout: 5), "保存按钮应出现")
         save.tap()
         XCTAssertTrue(manual.waitForExistence(timeout: 10), "保存后应返回采集首页")
+    }
+
+    private func enableBuiltInCategoryField(in app: XCUIApplication) {
+        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 10), "设置 Tab 应出现")
+        settingsTab.tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let categoryToggle = app.switches["settings.captureField.category"]
+        scrollUntilHittable(categoryToggle, in: app, maxSwipes: 4)
+        XCTAssertTrue(categoryToggle.waitForExistence(timeout: 5), "设置应显示分类录入字段开关")
+
+        if !isSwitchOn(categoryToggle) {
+            categoryToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.88, dy: 0.5)).tap()
+            waitForUIAnimation(seconds: 0.3)
+        }
+    }
+
+    private func isSwitchOn(_ element: XCUIElement) -> Bool {
+        switch element.value {
+        case let value as String:
+            let normalized = value.lowercased()
+            return value == "1" || normalized == "on" || normalized == "true" || normalized == "开" || normalized == "开启"
+        case let value as Bool:
+            return value
+        case let value as NSNumber:
+            return value.boolValue
+        default:
+            return false
+        }
     }
 
     private enum HorizontalDragDirection {
@@ -1737,10 +1752,20 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(app.buttons["dimValue.\(name)"].waitForExistence(timeout: 5), "新标签值应出现在列表")
     }
 
-    /// 收起软键盘（防表单下方控件被键盘遮挡）——点导航栏中性区域 resign first responder
+    /// 收起软键盘（防表单下方控件被键盘遮挡）。
     private func dismissKeyboardIfPresent(in app: XCUIApplication) {
         guard app.keyboards.element.exists else { return }
-        app.navigationBars.firstMatch.tap()
+        let doneButton = app.toolbars.buttons["完成"].exists
+            ? app.toolbars.buttons["完成"]
+            : app.toolbars.buttons["Done"]
+        if doneButton.exists {
+            doneButton.tap()
+        } else {
+            app.swipeUp()
+        }
+        waitUntil("软键盘应收起", timeout: 2) {
+            !app.keyboards.element.exists
+        }
     }
 
     /// 在可滚动容器里向上滑动直到目标元素可点击（应对 List 懒加载/折叠在下方的行）

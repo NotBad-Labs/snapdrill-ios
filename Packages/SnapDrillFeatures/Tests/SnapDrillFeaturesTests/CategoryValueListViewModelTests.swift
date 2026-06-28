@@ -84,10 +84,10 @@ final class CategoryValueListViewModelTests {
         let dim = try makeDimension(name: "章节")
         let value = CategoryValueModel(name: "第一章", dimension: dim)
         try repos.categoryValue.insertAndSave(value)
-        let item = ReviewItemModel(content: "题")
+        let item = ArchiveItemModel(content: "题")
         item.categoryValues = [value]
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = CategoryValueListViewModel(dimension: dim, repositories: repos)
         vm.loadData()
@@ -128,7 +128,7 @@ final class CategoryValueListViewModelTests {
     @Test("内置维度单/多值开关被守卫拦截（dimension 不变）")
     func toggleMultiValue_builtIn_guarded() throws {
         let dim = try makeDimension(
-            name: "学科", isMultiValue: false, isBuiltIn: true, systemKey: CategorySystemKey.subject
+            name: "分类", isMultiValue: false, isBuiltIn: true, systemKey: CategorySystemKey.category
         )
         let vm = CategoryValueListViewModel(dimension: dim, repositories: repos)
         vm.isMultiValue = true   // didSet → persistMultiValue → guard !isBuiltIn → no-op
@@ -153,17 +153,17 @@ final class CategoryValueListViewModelTests {
         #expect(UserDefaults.standard.object(forKey: key) as? Bool == true)
     }
 
-    @Test("默认可见性：学科 + 用户自建默认可见、内置非学科（来源/年级/标签）默认隐藏")
-    func defaultVisibility_subjectAndCustomVisible_otherBuiltInHidden() throws {
-        let subject = try makeDimension(name: "学科", isBuiltIn: true, systemKey: CategorySystemKey.subject)
+    @Test("默认可见性：内置维度默认隐藏，用户自建维度默认可见")
+    func defaultVisibility_builtInHidden_customVisible() throws {
+        let category = try makeDimension(name: "分类", isBuiltIn: true, systemKey: CategorySystemKey.category)
         let source = try makeDimension(name: "来源", isBuiltIn: true, systemKey: CategorySystemKey.source)
         let custom = try makeDimension(name: "章节")  // 用户自建（isBuiltIn=false）
-        let dims = [subject, source, custom]
+        let dims = [category, source, custom]
         // 清掉可能被其他测试写过的稳定 systemKey 对应 key，确保读到的是 defaultCaptureVisibility
         for d in dims { UserDefaults.standard.removeObject(forKey: d.captureVisibilityKey) }
         defer { for d in dims { UserDefaults.standard.removeObject(forKey: d.captureVisibilityKey) } }
 
-        #expect(CategoryValueListViewModel(dimension: subject, repositories: repos).isVisibleInCapture == true)
+        #expect(CategoryValueListViewModel(dimension: category, repositories: repos).isVisibleInCapture == false)
         #expect(CategoryValueListViewModel(dimension: source, repositories: repos).isVisibleInCapture == false)
         #expect(CategoryValueListViewModel(dimension: custom, repositories: repos).isVisibleInCapture == true)
     }

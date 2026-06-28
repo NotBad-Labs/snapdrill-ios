@@ -229,13 +229,13 @@ public struct LibraryView: View {
                 }
                 .toolbar(editMode.isEditing ? .hidden : .visible, for: .tabBar)
                 .onReceive(NotificationCenter.default.publisher(for: .switchToLibraryTab)) { notification in
-                    // 携带 subject 名时映射到学科维度对应值并选中（动态维度）
-                    if let subject = notification.userInfo?["subject"] as? String,
+                    // 携带 category 名时映射到主分类维度对应值并选中（动态维度）
+                    if let category = notification.userInfo?["category"] as? String,
                        let vm = viewModel,
-                       let subjectDim = vm.dimension(forSystemKey: CategorySystemKey.subject),
-                       let value = (vm.valuesByDimension[subjectDim.id] ?? []).first(where: { $0.name == subject }) {
+                       let categoryDim = vm.dimension(forSystemKey: CategorySystemKey.category),
+                       let value = (vm.valuesByDimension[categoryDim.id] ?? []).first(where: { $0.name == category }) {
                         vm.resetFilters()
-                        vm.toggleFilter(value.id, inDimension: subjectDim.id)
+                        vm.toggleFilter(value.id, inDimension: categoryDim.id)
                     }
                 }
                 .task {

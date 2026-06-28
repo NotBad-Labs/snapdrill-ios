@@ -1,19 +1,19 @@
 //
-//  ReviewRepository.swift
+//  ArchiveRepository.swift
 //  SnapDrillData
 //
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  复习条目的 SwiftData 仓库实现，提供 CRUD、SM-2 调度辅助及分页查询。
+//  归档资料项的 SwiftData 仓库实现，提供 CRUD、SM-2 调度辅助及分页查询。
 //
 
 import Foundation
 import SwiftData
 import SnapDrillCore
 
-/// 复习数据仓库的 SwiftData 实现
-public final class ReviewRepository {
+/// 归档资料仓库的 SwiftData 实现
+public final class ArchiveRepository {
     
     // MARK: - Properties
 
@@ -22,7 +22,7 @@ public final class ReviewRepository {
 
     // MARK: - Initialization
 
-    /// 创建复习数据仓库（推荐路径）
+    /// 创建归档资料仓库（推荐路径）
     /// - Parameters:
     ///   - executor: DataExecutor，从其 mainContext 获取 SwiftData 上下文
     ///   - imageStorageFactory: 可选的 ImageStorage 工厂闭包（用于 Profile 隔离的图片删除）
@@ -31,7 +31,7 @@ public final class ReviewRepository {
         self.imageStorageFactory = imageStorageFactory
     }
 
-    /// 创建复习数据仓库（向后兼容，Phase 2 移除）
+    /// 创建归档资料仓库（向后兼容，Phase 2 移除）
     /// - Parameter modelContext: 当前上下文
     public init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -40,15 +40,15 @@ public final class ReviewRepository {
     
     // MARK: - Public API
 
-    /// 返回数据库中所有题目总数
+    /// 返回数据库中所有资料项总数
     /// - Throws: SwiftData fetch 错误
     public func totalCount() throws -> Int {
-        let descriptor = FetchDescriptor<ReviewItemModel>()
+        let descriptor = FetchDescriptor<ArchiveItemModel>()
         return try modelContext.fetchCount(descriptor)
     }
     
-    /// 删除指定题目及其关联图片文件
-    /// - Parameter id: 要删除的题目 UUID
+    /// 删除指定资料项及其关联图片文件
+    /// - Parameter id: 要删除的资料项 UUID
     /// - Throws: 图片删除或数据库 save 失败时抛出
     /// - Note: async 是因为内部包含文件 I/O（删除图片），避免阻塞主线程
     public func delete(id: UUID) async throws {
@@ -85,10 +85,10 @@ public final class ReviewRepository {
         }
     }
     
-    // L3：countBySubject/Source/Grade + updateXxxUsage 已删（旧裸字符串字段去除）。
+    // L3：旧固定分类/来源/级别计数与使用频率 API 已删（旧裸字符串字段去除）。
     // 维度值的引用计数走 CategoryValueModel.items?.count；重命名直接改 value.name（关系自动跟随）。
 
-    /// 收集所有题目的图片路径，供调用方在 saveContext 成功后清理磁盘文件
+    /// 收集所有资料项的图片路径，供调用方在 saveContext 成功后清理磁盘文件
     public func collectAllImagePaths() throws -> [String] {
         let allModels = try fetchAllModels()
         var paths: [String] = []
@@ -99,23 +99,23 @@ public final class ReviewRepository {
         return paths
     }
 
-    /// 纯内存操作：将所有题目标记为待删除。调用方负责 saveContext()，
+    /// 纯内存操作：将所有资料项标记为待删除。调用方负责 saveContext()，
     /// saveContext 成功后再调用 ImageStorage.deleteImage 清理图片文件。
     public func deleteAll() throws {
-        try modelContext.delete(model: ReviewItemModel.self)
+        try modelContext.delete(model: ArchiveItemModel.self)
     }
 
     // MARK: - Performance-Optimized Query Methods
 
-    /// 返回当前到期待复习的题目数量
+    /// 返回当前到期待回顾的资料项数量
     /// - Throws: SwiftData fetch 错误
     public func fetchDueCount(excluding ids: Set<UUID> = []) throws -> Int {
         let now = Date.now
         // nextReviewAt 为非可选 Date（默认 distantPast = 立即到期），
         // 可直接使用 #Predicate 让 SQLite 完成过滤，避免全表扫描内存炸弹。
-        let predicate = #Predicate<ReviewItemModel> { $0.nextReviewAt <= now }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
-        // 无待删除时走 SQLite COUNT 快路径；有待删除（5 秒撤销窗口的软删题）时
+        let predicate = #Predicate<ArchiveItemModel> { $0.nextReviewAt <= now }
+        let descriptor = FetchDescriptor<ArchiveItemModel>(predicate: predicate)
+        // 无待删除时走 SQLite COUNT 快路径；有待删除（5 秒撤销窗口的软删资料项）时
         // fetchCount 无法按 id 集合过滤，回退到取模型后内存排除（pending 数极小）。
         if ids.isEmpty {
             return try modelContext.fetchCount(descriptor)
@@ -123,72 +123,62 @@ public final class ReviewRepository {
         return try modelContext.fetch(descriptor).filter { !ids.contains($0.id) }.count
     }
 
-    /// 返回今日新增的题目数量
+    /// 返回今日新增的资料项数量
     /// - Throws: SwiftData fetch 错误
     public func fetchTodayCount() throws -> Int {
         let startOfToday = Calendar.current.startOfDay(for: Date.now)
-        let predicate = #Predicate<ReviewItemModel> { item in
+        let predicate = #Predicate<ArchiveItemModel> { item in
             item.createdAt >= startOfToday
         }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        let descriptor = FetchDescriptor<ArchiveItemModel>(predicate: predicate)
         return try modelContext.fetchCount(descriptor)
     }
 
-    /// 返回今日已复习的题目数量
+    /// 返回今日已回顾的资料项数量
     /// - Throws: SwiftData fetch 错误
     public func fetchTodayReviewedCount() throws -> Int {
         let startOfToday = Calendar.current.startOfDay(for: Date.now)
         // lastReviewedAt 为非可选 Date（distantPast 表示从未复习），
-        // distantPast < startOfToday，自动排除未复习条目，可直接使用数据库级过滤。
-        let predicate = #Predicate<ReviewItemModel> { item in
+        // distantPast < startOfToday，自动排除未回顾条目，可直接使用数据库级过滤。
+        let predicate = #Predicate<ArchiveItemModel> { item in
             item.lastReviewedAt >= startOfToday
         }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        let descriptor = FetchDescriptor<ArchiveItemModel>(predicate: predicate)
         return try modelContext.fetchCount(descriptor)
     }
 
-    /// 返回数据库中所有题目总数（`totalCount()` 的别名）
+    /// 返回数据库中所有资料项总数（`totalCount()` 的别名）
     /// - Throws: SwiftData fetch 错误
     public func totalItemCount() throws -> Int {
         try totalCount()
     }
 
-    // MARK: - Smart Selection（智能选题，供组卷排版打印使用）
+    // MARK: - Smart Selection（智能选取，供组卷排版打印使用）
 
-    /// 基于 SM-2 紧迫度智能选题：优先选逾期和不熟练的题目
+    /// 基于 SM-2 紧迫度智能选取：优先选逾期和不熟练的资料项
     ///
     /// 排序策略：nextReviewAt ASC（越早到期越优先）→ repetitions ASC（越不熟练越优先）。
     /// `nextReviewAt == .distantPast` 表示从未复习，排在最前面。
     /// - Parameters:
-    ///   - limit: 最大选题数量
-    ///   - subjects: 学科筛选（空 = 不限）
-    ///   - difficulties: 难度筛选（空 = 不限）
-    /// - Returns: 按紧迫度排序的题目列表
+    ///   - limit: 最大选取数量
+    ///   - categoryValueIds: 主分类维度筛选（空 = 不限）
+    /// - Returns: 按紧迫度排序的资料项列表
     public func fetchSmartSelection(
         limit: Int,
-        subjectValueIds: Set<UUID> = [],
-        difficulties: Set<Int> = [],
+        categoryValueIds: Set<UUID> = [],
         excluding ids: Set<UUID> = []
-    ) throws -> [ReviewItemModel] {
-        let difficultiesArray = Array(difficulties)
-
-        // difficulty 走 DB #Predicate；学科是维度值（many-to-many）只能内存过滤，保持 SM-2 紧迫度排序后再截断
-        let predicate = #Predicate<ReviewItemModel> { item in
-            difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty)
-        }
-
-        var descriptor = FetchDescriptor<ReviewItemModel>(
-            predicate: predicate,
+    ) throws -> [ArchiveItemModel] {
+        var descriptor = FetchDescriptor<ArchiveItemModel>(
             sortBy: [
                 SortDescriptor(\.nextReviewAt, order: .forward),
                 SortDescriptor(\.repetitions, order: .forward)
             ]
         )
 
-        // 无学科过滤且无待删除排除时走 DB fetchLimit 快路径；
-        // 一旦需要内存排除（pending 软删题），必须先取全量再排除/截断——
+        // 无分类过滤且无待删除排除时走 DB fetchLimit 快路径；
+        // 一旦需要内存排除（pending 软删资料项），必须先取全量再排除/截断——
         // 否则 fetchLimit 会在排除前截断导致少选。
-        if subjectValueIds.isEmpty && ids.isEmpty {
+        if categoryValueIds.isEmpty && ids.isEmpty {
             descriptor.fetchLimit = limit
             return try modelContext.fetch(descriptor)
         }
@@ -196,102 +186,99 @@ public final class ReviewRepository {
         let all = try modelContext.fetch(descriptor)
         let filtered = all.filter { item in
             !ids.contains(item.id) &&
-            (subjectValueIds.isEmpty ||
-             !Set((item.categoryValues ?? []).map { $0.id }).isDisjoint(with: subjectValueIds))
+            (categoryValueIds.isEmpty ||
+             !Set((item.categoryValues ?? []).map { $0.id }).isDisjoint(with: categoryValueIds))
         }
         return Array(filtered.prefix(limit))
     }
 
     // MARK: - Model-Tier API（直接返回 @Model，供 Features ViewModel 使用）
 
-    /// 获取所有待复习条目的 SwiftData 模型
-    public func fetchDueModels(excluding ids: Set<UUID> = []) throws -> [ReviewItemModel] {
+    /// 获取所有待回顾资料项的 SwiftData 模型
+    public func fetchDueModels(excluding ids: Set<UUID> = []) throws -> [ArchiveItemModel] {
         let now = Date.now
         // nextReviewAt 为非可选 Date（distantPast 表示立即到期），
         // 可直接使用 #Predicate 让 SQLite 完成过滤，避免全表扫描内存炸弹。
-        let predicate = #Predicate<ReviewItemModel> { $0.nextReviewAt <= now }
-        let descriptor = FetchDescriptor<ReviewItemModel>(
+        let predicate = #Predicate<ArchiveItemModel> { $0.nextReviewAt <= now }
+        let descriptor = FetchDescriptor<ArchiveItemModel>(
             predicate: predicate,
             sortBy: [SortDescriptor(\.createdAt, order: .forward)]
         )
         let due = try modelContext.fetch(descriptor)
-        // 排除处于 5 秒撤销窗口的软删题（DeletionScheduler.pendingDeletionIDs）——
+        // 排除处于 5 秒撤销窗口的软删资料项（DeletionScheduler.pendingDeletionIDs）——
         // 软删纯内存集合、DB 里仍在，必须由调用方传入 pending IDs 在此过滤。
         return ids.isEmpty ? due : due.filter { !ids.contains($0.id) }
     }
 
-    /// 按 ID 获取单个 ReviewItemModel
-    public func fetchModel(by id: UUID) throws -> ReviewItemModel? {
+    /// 按 ID 获取单个 ArchiveItemModel
+    public func fetchModel(by id: UUID) throws -> ArchiveItemModel? {
         try fetchModelById(id)
     }
 
-    /// 按多个 ID 获取 ReviewItemModel 列表
-    public func fetchModels(by ids: Set<UUID>) throws -> [ReviewItemModel] {
+    /// 按多个 ID 获取 ArchiveItemModel 列表
+    public func fetchModels(by ids: Set<UUID>) throws -> [ArchiveItemModel] {
         let targetIds = Array(ids)
-        let predicate = #Predicate<ReviewItemModel> { item in
+        let predicate = #Predicate<ArchiveItemModel> { item in
             targetIds.contains(item.id)
         }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        let descriptor = FetchDescriptor<ArchiveItemModel>(predicate: predicate)
         return try modelContext.fetch(descriptor)
     }
 
-    /// 全量获取所有 ReviewItemModel
-    public func fetchAllModels() throws -> [ReviewItemModel] {
-        let descriptor = FetchDescriptor<ReviewItemModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+    /// 全量获取所有 ArchiveItemModel
+    public func fetchAllModels() throws -> [ArchiveItemModel] {
+        let descriptor = FetchDescriptor<ArchiveItemModel>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
         return try modelContext.fetch(descriptor)
     }
 
-    /// 按筛选条件分页获取 ReviewItemModel
+    /// 按筛选条件分页获取 ArchiveItemModel
     ///
     /// - 无维度值过滤：使用数据库级分页（高效路径）
-    /// - 有维度值过滤：先从选中维度值的 inverse `items` 缩小候选题集合，再内存校验维度语义并分页。
+    /// - 有维度值过滤：先从选中维度值的 inverse `items` 缩小候选资料项集合，再内存校验维度语义并分页。
     ///   SwiftData #Predicate 不支持 many-to-many 关联查询；直接用 fetchLimit + 内存过滤会导致分页数量不可控。
     public func fetchFilteredModels(
         searchText: String,
         valueIdsByDimension: [UUID: Set<UUID>],
-        difficulties: Set<Int> = [],
-        sortDescriptors: [SortDescriptor<ReviewItemModel>] = [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)],
-        sortBySubjectName: Bool = false,
+        sortDescriptors: [SortDescriptor<ArchiveItemModel>] = [SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)],
+        sortByCategoryName: Bool = false,
         limit: Int,
         offset: Int
-    ) throws -> [ReviewItemModel] {
+    ) throws -> [ArchiveItemModel] {
         let normalizedSearch = searchText.trimmingCharacters(in: .whitespaces).lowercased()
-        let difficultiesArray = Array(difficulties)
 
-        // search + difficulty 走 DB 级 #Predicate；维度值（many-to-many）只能内存过滤（#Predicate 不支持关系）。
+        // search 走 DB 级 #Predicate；维度值（many-to-many）只能内存过滤（#Predicate 不支持关系）。
         // #Predicate 内禁止 force unwrap，用 ?.localizedStandardContains == true 替代。
-        let predicate = #Predicate<ReviewItemModel> { item in
-            (normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true) &&
-            (difficultiesArray.isEmpty || difficultiesArray.contains(item.difficulty))
+        let predicate = #Predicate<ArchiveItemModel> { item in
+            normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true
         }
 
-        // 维度值过滤或 subject 维度值名排序都需要内存处理；否则用 DB 级分页（高效路径）。
-        let needsMemoryProcessing = !valueIdsByDimension.isEmpty || sortBySubjectName
+        // 维度值过滤或主分类维度值名排序都需要内存处理；否则用 DB 级分页（高效路径）。
+        let needsMemoryProcessing = !valueIdsByDimension.isEmpty || sortByCategoryName
         if !needsMemoryProcessing {
-            var descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
+            var descriptor = FetchDescriptor<ArchiveItemModel>(predicate: predicate, sortBy: sortDescriptors)
             descriptor.fetchLimit = limit
             descriptor.fetchOffset = offset
             return try modelContext.fetch(descriptor)
         }
 
-        var matching: [ReviewItemModel]
+        var matching: [ArchiveItemModel]
         if valueIdsByDimension.isEmpty {
-            let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
+            let descriptor = FetchDescriptor<ArchiveItemModel>(predicate: predicate, sortBy: sortDescriptors)
             matching = try modelContext.fetch(descriptor)
         } else {
-            // 维度过滤走候选集路径：先从选中维度值的 inverse `items` 取候选题 ID，
-            // 再只对候选题做搜索 / 难度 / 关系排序。避免常见“点学科 chip”
-            // 触发全量 ReviewItemModel fetch 后再内存过滤。
+            // 维度过滤走候选集路径：先从选中维度值的 inverse `items` 取候选资料项 ID，
+            // 再只对候选资料项做搜索 / 关系排序。避免常见“点分类 chip”
+            // 触发全量 ArchiveItemModel fetch 后再内存过滤。
             let candidates = try fetchCandidateModels(
                 valueIdsByDimension: valueIdsByDimension,
                 sortDescriptors: sortDescriptors
             )
             matching = candidates.filter {
-                matchesSearchAndDifficulty($0, normalizedSearch: normalizedSearch, difficulties: difficulties)
+                matchesSearch($0, normalizedSearch: normalizedSearch)
             }
         }
 
-        // 维度间 AND、维度内 OR：每个被选中的维度，题目至少命中其一个选中值
+        // 维度间 AND、维度内 OR：每个被选中的维度，资料项至少命中其一个选中值
         if !valueIdsByDimension.isEmpty && matching.isEmpty == false {
             matching = matching.filter { item in
                 let itemValueIds = Set((item.categoryValues ?? []).map { $0.id })
@@ -301,11 +288,11 @@ public final class ReviewRepository {
             }
         }
 
-        // subject 维度值名排序（关系无法走 SortDescriptor），稳定 tiebreaker = createdAt 倒序
-        if sortBySubjectName {
+        // 主分类维度值名排序（关系无法走 SortDescriptor），稳定 tiebreaker = createdAt 倒序
+        if sortByCategoryName {
             matching.sort { lhs, rhs in
-                let lName = lhs.subjectCategoryName ?? ""
-                let rName = rhs.subjectCategoryName ?? ""
+                let lName = lhs.primaryCategoryName ?? ""
+                let rName = rhs.primaryCategoryName ?? ""
                 if lName != rName { return lName < rName }
                 return lhs.createdAt > rhs.createdAt
             }
@@ -315,14 +302,14 @@ public final class ReviewRepository {
         return Array(matching[offset..<min(offset + limit, matching.count)])
     }
 
-    /// 纯内存操作：将 ReviewItemModel 插入 context 但不 save。
+    /// 纯内存操作：将 ArchiveItemModel 插入 context 但不 save。
     /// 调用方在所有内存操作完成后统一调用 saveContext()，失败时 rollbackContext() 清除脏数据。
-    public func insert(_ model: ReviewItemModel) {
+    public func insert(_ model: ArchiveItemModel) {
         modelContext.insert(model)
     }
 
-    /// 插入 ReviewItemModel 并立即保存（单步原子操作，适用于独立保存场景）
-    public func insertAndSave(_ model: ReviewItemModel) throws {
+    /// 插入 ArchiveItemModel 并立即保存（单步原子操作，适用于独立保存场景）
+    public func insertAndSave(_ model: ArchiveItemModel) throws {
         modelContext.insert(model)
         try modelContext.save()
     }
@@ -340,20 +327,20 @@ public final class ReviewRepository {
     // MARK: - Private Helpers
 
     /// 内部获取 SwiftData 模型，带性能优化
-    private func fetchModelById(_ id: UUID) throws -> ReviewItemModel? {
+    private func fetchModelById(_ id: UUID) throws -> ArchiveItemModel? {
         let targetId = id
-        let predicate = #Predicate<ReviewItemModel> { item in
+        let predicate = #Predicate<ArchiveItemModel> { item in
             item.id == targetId
         }
-        var descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate)
+        var descriptor = FetchDescriptor<ArchiveItemModel>(predicate: predicate)
         descriptor.fetchLimit = 1 // P0 优化：确保只取一条，防止全表扫描
         return try modelContext.fetch(descriptor).first
     }
 
     private func fetchCandidateModels(
         valueIdsByDimension: [UUID: Set<UUID>],
-        sortDescriptors: [SortDescriptor<ReviewItemModel>]
-    ) throws -> [ReviewItemModel] {
+        sortDescriptors: [SortDescriptor<ArchiveItemModel>]
+    ) throws -> [ArchiveItemModel] {
         var candidateIDs: Set<UUID>?
         for wantedValueIDs in valueIdsByDimension.values {
             guard !wantedValueIDs.isEmpty else { return [] }
@@ -378,23 +365,21 @@ public final class ReviewRepository {
 
     private func fetchModelsByIDs(
         _ ids: Set<UUID>,
-        sortDescriptors: [SortDescriptor<ReviewItemModel>]
-    ) throws -> [ReviewItemModel] {
+        sortDescriptors: [SortDescriptor<ArchiveItemModel>]
+    ) throws -> [ArchiveItemModel] {
         let targetIds = Array(ids)
-        let predicate = #Predicate<ReviewItemModel> { item in
+        let predicate = #Predicate<ArchiveItemModel> { item in
             targetIds.contains(item.id)
         }
-        let descriptor = FetchDescriptor<ReviewItemModel>(predicate: predicate, sortBy: sortDescriptors)
+        let descriptor = FetchDescriptor<ArchiveItemModel>(predicate: predicate, sortBy: sortDescriptors)
         return try modelContext.fetch(descriptor)
     }
 
-    private func matchesSearchAndDifficulty(
-        _ item: ReviewItemModel,
-        normalizedSearch: String,
-        difficulties: Set<Int>
+    private func matchesSearch(
+        _ item: ArchiveItemModel,
+        normalizedSearch: String
     ) -> Bool {
-        (normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true) &&
-        (difficulties.isEmpty || difficulties.contains(item.difficulty))
+        normalizedSearch.isEmpty || item.content?.localizedStandardContains(normalizedSearch) == true
     }
 
 }

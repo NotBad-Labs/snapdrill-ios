@@ -7,7 +7,6 @@
 ## 组成部分
 
 ### 1. Model (业务模型)
-- `Difficulty`: 难度枚举（1-5 星）
 - `Profile`: 用户 Profile 值类型（Multi-Profile 支持）
 
 ### 2. Engine (算法引擎)

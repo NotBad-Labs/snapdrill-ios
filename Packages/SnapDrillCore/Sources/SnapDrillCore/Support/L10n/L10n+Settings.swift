@@ -19,10 +19,9 @@ nonisolated extension L10n {
 
         // 录入字段
         public static let captureFields = NSLocalizedString("settings.capture_fields", value: "录入字段", comment: "录入字段区标题")
-        public static let fieldSubject = NSLocalizedString("settings.field_subject", value: "学科", comment: "学科字段")
+        public static let fieldCategory = NSLocalizedString("settings.field_category", value: "分类", comment: "分类字段")
         public static let fieldSource = NSLocalizedString("settings.field_source", value: "来源", comment: "来源字段")
-        public static let fieldDifficulty = NSLocalizedString("settings.field_difficulty", value: "难度", comment: "难度字段")
-        public static let fieldGrade = NSLocalizedString("settings.field_grade", value: "级别", comment: "级别字段")
+        public static let fieldLevel = NSLocalizedString("settings.field_level", value: "级别", comment: "级别字段")
         public static let fieldAnswer = NSLocalizedString("settings.field_answer", value: "答案", comment: "答案字段")
 
         // 回顾设置
@@ -49,10 +48,9 @@ nonisolated extension L10n {
 
         // 数据管理
         public static let dataManagement = NSLocalizedString("settings.data_management", value: "数据管理", comment: "数据管理区标题")
-        public static let manageSubjects = NSLocalizedString("settings.manage_subjects", value: "管理学科", comment: "管理学科")
-        public static let manageSources = NSLocalizedString("settings.manage_sources", value: "管理来源", comment: "管理来源")
-        public static let manageGrades = NSLocalizedString("settings.manage_grades", value: "管理级别", comment: "管理级别")
         public static let manageCategories = NSLocalizedString("settings.manage_categories", value: "管理分类维度", comment: "管理分类维度（L3 动态维度统一入口）")
+        public static let manageSources = NSLocalizedString("settings.manage_sources", value: "管理来源", comment: "管理来源")
+        public static let manageLevels = NSLocalizedString("settings.manage_levels", value: "管理级别", comment: "管理级别")
         public static let clearAllData = NSLocalizedString("settings.clear_all_data", value: "清空所有数据", comment: "清空所有数据")
         public static let clearConfirmTitle = NSLocalizedString("settings.clear_confirm_title", value: "确认清空所有数据？", comment: "清空确认标题")
         public static let clearConfirmMessage = NSLocalizedString("settings.clear_confirm_message", value: "此操作将删除所有资料、分类和标签，且不可恢复。", comment: "清空确认信息")
@@ -190,7 +188,7 @@ nonisolated extension L10n {
         public static let importData = NSLocalizedString("settings.import_data", value: "数据导入", comment: "数据导入区标题")
         public static let importCSV = NSLocalizedString("settings.import_csv", value: "导入 CSV", comment: "导入 CSV")
         public static let importCSVSubtitle = NSLocalizedString("settings.import_csv_subtitle", value: "从表格文件批量导入资料", comment: "CSV 导入按钮说明")
-        public static let importCSVHint = NSLocalizedString("settings.import_csv_hint", value: "从 CSV 文件导入资料数据（需包含 Content 或 Subject 列）", comment: "CSV 导入说明")
+        public static let importCSVHint = NSLocalizedString("settings.import_csv_hint", value: "从 CSV 文件导入资料数据（需包含 Content 或 Category 列）", comment: "CSV 导入说明")
         public static let importReading = NSLocalizedString("settings.import_reading", value: "正在读取文件…", comment: "导入状态：读取")
         public static let importParsing = NSLocalizedString("settings.import_parsing", value: "正在解析数据…", comment: "导入状态：解析")
         public static func importSaving(_ count: Int) -> String {
@@ -201,7 +199,7 @@ nonisolated extension L10n {
         }
         public static let importFailed = NSLocalizedString("settings.import_failed", value: "导入失败", comment: "导入失败")
         public static let importNoValidRows = NSLocalizedString("settings.import_no_valid_rows", value: "CSV 文件中没有有效数据行", comment: "无有效行")
-        public static let importCSVFormat = NSLocalizedString("settings.import_csv_format", value: "CSV 首行需包含列名：Content, Subject, Difficulty, Answer, Tags 等", comment: "CSV 格式说明")
+        public static let importCSVFormat = NSLocalizedString("settings.import_csv_format", value: "CSV 首行需包含列名：Content, Category, Answer, Tags 等", comment: "CSV 格式说明")
         public static let restoreDialogTitle = NSLocalizedString("settings.restore_dialog_title", value: "恢复数据", comment: "恢复数据对话框标题")
         public static let selectBackupFile = NSLocalizedString("settings.select_backup_file", value: "选择备份文件", comment: "选择备份文件按钮")
         public static let restoreDialogMessage = NSLocalizedString("settings.restore_dialog_message", value: "恢复将替换当前所有数据，此操作不可撤销。恢复前会自动备份当前数据到临时目录。", comment: "恢复对话框提示")

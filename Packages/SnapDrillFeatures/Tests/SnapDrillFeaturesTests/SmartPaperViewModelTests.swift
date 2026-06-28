@@ -33,12 +33,12 @@ final class SmartPaperViewModelTests {
         SmartPaperViewModel(repositories: repos)
     }
 
-    /// 手建学科维度（仅 3 个值，不走 seedDefaults 以免引入 locale 相关默认值），返回 name→value
+    /// 手建分类维度（仅 3 个值，不走 seedDefaults 以免引入 locale 相关默认值），返回 name→value
     @discardableResult
-    private func seedSubjects() throws -> [String: CategoryValueModel] {
+    private func seedCategories() throws -> [String: CategoryValueModel] {
         let dimension = CategoryDimensionModel(
-            name: "学科", isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0, icon: "book"
+            name: "分类", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.category, sortOrder: 0, icon: "book"
         )
         try repos.dimension.insertAndSave(dimension)
         var values: [String: CategoryValueModel] = [:]
@@ -52,18 +52,18 @@ final class SmartPaperViewModelTests {
 
     @discardableResult
     private func seedItems() throws -> [String: CategoryValueModel] {
-        let values = try seedSubjects()
-        func add(_ content: String, _ subject: String, _ difficulty: Int) {
-            let item = ReviewItemModel(content: content, difficulty: difficulty)
-            if let value = values[subject] { item.categoryValues = [value] }
-            repos.review.insert(item)
+        let values = try seedCategories()
+        func add(_ content: String, _ category: String) {
+            let item = ArchiveItemModel(content: content)
+            if let value = values[category] { item.categoryValues = [value] }
+            repos.archive.insert(item)
         }
-        add("数学题1", "数学", 3)
-        add("数学题2", "数学", 1)
-        add("英语题1", "英语", 2)
-        add("物理题1", "物理", 4)
-        add("物理题2", "物理", 5)
-        try repos.review.saveContext()
+        add("数学题1", "数学")
+        add("数学题2", "数学")
+        add("英语题1", "英语")
+        add("物理题1", "物理")
+        add("物理题2", "物理")
+        try repos.archive.saveContext()
         return values
     }
 
@@ -74,7 +74,7 @@ final class SmartPaperViewModelTests {
         let vm = makeVM()
         #expect(vm.questionCount == 10)
         #expect(vm.selectedItems.isEmpty)
-        #expect(vm.availableSubjects.isEmpty)
+        #expect(vm.availableCategories.isEmpty)
         #expect(vm.isLoading == false)
         #expect(vm.errorMessage == nil)
         #expect(vm.hideAnswers == true)
@@ -85,13 +85,13 @@ final class SmartPaperViewModelTests {
 
     // MARK: - loadInitialData
 
-    @Test("loadInitialData 加载学科列表并按 sortOrder 排序")
-    func loadInitialData_loadsSubjects() throws {
-        try seedSubjects()
+    @Test("loadInitialData 加载分类列表并按 sortOrder 排序")
+    func loadInitialData_loadsCategories() throws {
+        try seedCategories()
         let vm = makeVM()
         vm.loadInitialData()
 
-        #expect(vm.availableSubjects.map(\.name) == ["数学", "英语", "物理"])
+        #expect(vm.availableCategories.map(\.name) == ["数学", "英语", "物理"])
     }
 
     @Test("loadInitialData 同时触发选题")
@@ -125,55 +125,16 @@ final class SmartPaperViewModelTests {
         #expect(vm.selectedItems.count == 2)
     }
 
-    @Test("refreshSelection 学科筛选")
-    func refreshSelection_filtersBySubject() throws {
+    @Test("refreshSelection 分类筛选")
+    func refreshSelection_filtersByCategory() throws {
         let values = try seedItems()
         let vm = makeVM()
-        vm.selectedSubjectValueIds = [try #require(values["英语"]).id]
+        vm.selectedCategoryValueIds = [try #require(values["英语"]).id]
         vm.refreshSelection()
 
-        // 注：selectedItems 是 ReviewExportSnapshot，其 .subject 仍来自旧字段（S5d 重写）→ 此处断 content
+        // 注：selectedItems 是 ArchiveExportSnapshot，其 .category 仍来自旧字段（S5d 重写）→ 此处断 content
         #expect(vm.selectedItems.count == 1)
         #expect(vm.selectedItems[0].content == "英语题1")
-    }
-
-    @Test("refreshSelection 难度筛选")
-    func refreshSelection_filtersByDifficulty() throws {
-        try seedItems()
-        let vm = makeVM()
-        vm.selectedDifficulties = [4, 5]
-        vm.refreshSelection()
-
-        // 难度 4 和 5 的题目只有物理的两道
-        #expect(vm.selectedItems.count == 2)
-        #expect(Set(vm.selectedItems.map(\.content)) == ["物理题1", "物理题2"])
-    }
-
-    // MARK: - 联合筛选
-
-    @Test("refreshSelection 学科+难度联合筛选")
-    func refreshSelection_combinedFilter() throws {
-        let values = try seedItems()
-        let vm = makeVM()
-        vm.selectedSubjectValueIds = [try #require(values["数学"]).id]
-        vm.selectedDifficulties = [3]
-        vm.refreshSelection()
-
-        // 数学+难度3 只有"数学题1"
-        #expect(vm.selectedItems.count == 1)
-        #expect(vm.selectedItems[0].content == "数学题1")
-    }
-
-    @Test("refreshSelection 联合筛选无匹配时返回空")
-    func refreshSelection_combinedFilter_noMatch() throws {
-        let values = try seedItems()
-        let vm = makeVM()
-        vm.selectedSubjectValueIds = [try #require(values["英语"]).id]
-        vm.selectedDifficulties = [5]
-        vm.refreshSelection()
-
-        #expect(vm.selectedItems.isEmpty)
-        #expect(vm.errorMessage == nil)
     }
 
     // MARK: - 边界条件
@@ -188,21 +149,11 @@ final class SmartPaperViewModelTests {
         #expect(vm.selectedItems.count == 5)
     }
 
-    @Test("refreshSelection 不存在的学科筛选返回空")
-    func refreshSelection_nonexistentSubject() throws {
+    @Test("refreshSelection 不存在的分类筛选返回空")
+    func refreshSelection_nonexistentCategory() throws {
         try seedItems()
         let vm = makeVM()
-        vm.selectedSubjectValueIds = [UUID()] // 不存在的学科值 id
-        vm.refreshSelection()
-
-        #expect(vm.selectedItems.isEmpty)
-    }
-
-    @Test("refreshSelection 不存在的难度筛选返回空")
-    func refreshSelection_nonexistentDifficulty() throws {
-        try seedItems()
-        let vm = makeVM()
-        vm.selectedDifficulties = [99]
+        vm.selectedCategoryValueIds = [UUID()] // 不存在的分类值 id
         vm.refreshSelection()
 
         #expect(vm.selectedItems.isEmpty)
@@ -233,12 +184,12 @@ final class SmartPaperViewModelTests {
 
     @Test("refreshSelection 排除软删 pending 的题")
     func refreshSelection_excludesPendingDeletion() throws {
-        let keep = ReviewItemModel(content: "保留题")
+        let keep = ArchiveItemModel(content: "保留题")
         keep.nextReviewAt = Date(timeIntervalSinceNow: -3600)
-        let pending = ReviewItemModel(content: "待删题")
+        let pending = ArchiveItemModel(content: "待删题")
         pending.nextReviewAt = Date(timeIntervalSinceNow: -3600)
-        repos.review.insert(keep)
-        repos.review.insert(pending)
+        repos.archive.insert(keep)
+        repos.archive.insert(pending)
 
         let scheduler = DeletionScheduler()
         scheduler.scheduleDeletion(ids: [pending.id]) { _ in }  // 模拟 5 秒撤销窗口

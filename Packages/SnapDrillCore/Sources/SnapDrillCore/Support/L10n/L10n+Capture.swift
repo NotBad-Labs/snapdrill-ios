@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  L10n 采集流程分片：Capture / Subjects / Difficulty。
+//  L10n 采集流程分片：Capture / Category presets。
 //
 
 import Foundation
@@ -42,12 +42,11 @@ nonisolated extension L10n {
         public static let reRecognizing = NSLocalizedString("capture.re_recognizing", value: "正在重新识别...", comment: "重新 OCR 识别中")
         public static let categoryInfo = NSLocalizedString("capture.category_info", value: "分类信息", comment: "分类信息标签")
         public static let questionDetails = NSLocalizedString("capture.question_details", value: "资料详情", comment: "资料详情标签")
-        public static let subject = NSLocalizedString("capture.subject", value: "学科", comment: "学科标签")
+        public static let category = NSLocalizedString("capture.category", value: "分类", comment: "分类标签")
         public static let source = NSLocalizedString("capture.source", value: "来源", comment: "来源标签")
         public static let tags = NSLocalizedString("capture.tags", value: "标签", comment: "标签标签")
         public static let tagInputPlaceholder = NSLocalizedString("capture.tag_input_placeholder", value: "输入标签，空格添加", comment: "标签输入框占位提示")
-        public static let difficulty = NSLocalizedString("capture.difficulty", value: "难度", comment: "难度标签")
-        public static let grade = NSLocalizedString("capture.grade", value: "阶段/级别", comment: "阶段标签")
+        public static let level = NSLocalizedString("capture.level", value: "阶段/级别", comment: "阶段标签")
         public static let answer = NSLocalizedString("capture.answer", value: "参考内容", comment: "参考内容标签")
         public static let addAnswerImage = NSLocalizedString("capture.add_answer_image", value: "添加参考图片", comment: "添加参考图片")
         public static let saveFailed = NSLocalizedString("capture.save_failed", value: "保存失败", comment: "保存失败弹窗标题")
@@ -57,17 +56,17 @@ nonisolated extension L10n {
         public static let ocrEmptyHint = NSLocalizedString("capture.ocr_empty_hint", value: "未识别到文字，可以手动输入或重新采集。", comment: "OCR 空结果提示")
 
         // 新建分类弹窗
-        public static let newSubject = NSLocalizedString("capture.new_subject", value: "新建学科", comment: "新建学科")
-        public static let subjectNamePlaceholder = NSLocalizedString("capture.subject_name_placeholder", value: "学科名称", comment: "学科名称输入占位")
-        public static let newSubjectMessage = NSLocalizedString("capture.new_subject_message", value: "输入新学科名称，创建后自动选中", comment: "新建学科提示")
+        public static let newCategory = NSLocalizedString("capture.new_category", value: "新建分类", comment: "新建分类")
+        public static let categoryNamePlaceholder = NSLocalizedString("capture.category_name_placeholder", value: "分类名称", comment: "分类名称输入占位")
+        public static let newCategoryMessage = NSLocalizedString("capture.new_category_message", value: "输入新分类名称，创建后自动选中", comment: "新建分类提示")
         public static let newSource = NSLocalizedString("capture.new_source", value: "新建来源", comment: "新建来源")
         public static let sourceNamePlaceholder = NSLocalizedString("capture.source_name_placeholder", value: "来源名称", comment: "来源名称输入占位")
         public static let newSourceMessage = NSLocalizedString("capture.new_source_message", value: "输入新来源名称，创建后自动选中", comment: "新建来源提示")
-        public static let newGrade = NSLocalizedString("capture.new_grade", value: "新建阶段", comment: "新建阶段")
-        public static let gradeNamePlaceholder = NSLocalizedString("capture.grade_name_placeholder", value: "阶段名称", comment: "阶段名称输入占位")
-        public static let newGradeMessage = NSLocalizedString("capture.new_grade_message", value: "输入新阶段名称，创建后自动选中", comment: "新建阶段提示")
+        public static let newLevel = NSLocalizedString("capture.new_level", value: "新建阶段", comment: "新建阶段")
+        public static let levelNamePlaceholder = NSLocalizedString("capture.level_name_placeholder", value: "阶段名称", comment: "阶段名称输入占位")
+        public static let newLevelMessage = NSLocalizedString("capture.new_level_message", value: "输入新阶段名称，创建后自动选中", comment: "新建阶段提示")
 
-        // 动态维度通用（L3：取代上面 newSubject/newSource/newGrade 专用串，S6 删旧）
+        // 动态维度通用（L3：取代上面固定分类/来源/级别专用串，S6 删旧）
         public static let addValuePlaceholder = NSLocalizedString("capture.add_value_placeholder", value: "名称", comment: "新建维度值名称占位")
         public static let selectValue = NSLocalizedString("capture.select_value", value: "选择", comment: "单值维度未选时占位")
         public static func addValueTitle(_ dimensionName: String) -> String {
@@ -100,7 +99,7 @@ nonisolated extension L10n {
         public static let scanUnavailableMessage = NSLocalizedString("capture.scan_unavailable_message", value: "请在真机上使用文档扫描，或改用相册、PDF 与手动输入。", comment: "模拟器文档扫描不可用说明")
 
         // 默认值（自动推断兜底）
-        public static let defaultSubject = NSLocalizedString("capture.default_subject", value: "数学", comment: "默认学科")
+        public static let defaultCategory = NSLocalizedString("capture.default_category", value: "题目", comment: "默认分类")
         public static let defaultSource = NSLocalizedString("capture.default_source", value: "资料", comment: "默认来源")
 
         // PDF 大文件警告
@@ -119,39 +118,15 @@ nonisolated extension L10n {
 
     }
 
-    // MARK: - Subjects (预设学科)
+    // MARK: - Category Presets
 
-    public enum Subjects {
-        public static let math = NSLocalizedString("subjects.math", value: "数学", comment: "数学")
-        public static let chinese = NSLocalizedString("subjects.chinese", value: "语文", comment: "语文")
-        public static let english = NSLocalizedString("subjects.english", value: "英语", comment: "英语")
-        public static let physics = NSLocalizedString("subjects.physics", value: "物理", comment: "物理")
-        public static let chemistry = NSLocalizedString("subjects.chemistry", value: "化学", comment: "化学")
-        public static let biology = NSLocalizedString("subjects.biology", value: "生物", comment: "生物")
-        public static let history = NSLocalizedString("subjects.history", value: "历史", comment: "历史")
-        public static let geography = NSLocalizedString("subjects.geography", value: "地理", comment: "地理")
-        public static let politics = NSLocalizedString("subjects.politics", value: "政治", comment: "政治")
-        public static let other = NSLocalizedString("subjects.other", value: "其他", comment: "其他")
+    public enum CategoryPresets {
+        public static let questions = NSLocalizedString("categories.questions", value: "题目", comment: "题目")
+        public static let documents = NSLocalizedString("categories.documents", value: "文档", comment: "文档")
+        public static let receipts = NSLocalizedString("categories.receipts", value: "票据", comment: "票据")
+        public static let training = NSLocalizedString("categories.training", value: "培训", comment: "培训")
+        public static let work = NSLocalizedString("categories.work", value: "工作", comment: "工作")
+        public static let other = NSLocalizedString("categories.other", value: "其他", comment: "其他")
     }
 
-    // MARK: - Difficulty
-
-    public enum Difficulty {
-        public static let veryEasy = NSLocalizedString("difficulty.very_easy", value: "非常简单", comment: "非常简单")
-        public static let easy = NSLocalizedString("difficulty.easy", value: "简单", comment: "简单")
-        public static let medium = NSLocalizedString("difficulty.medium", value: "中等", comment: "中等")
-        public static let hard = NSLocalizedString("difficulty.hard", value: "困难", comment: "困难")
-        public static let veryHard = NSLocalizedString("difficulty.very_hard", value: "非常困难", comment: "非常困难")
-
-        public static func text(for level: Int) -> String {
-            switch level {
-            case 1: return veryEasy
-            case 2: return easy
-            case 3: return medium
-            case 4: return hard
-            case 5: return veryHard
-            default: return medium
-            }
-        }
-    }
 }

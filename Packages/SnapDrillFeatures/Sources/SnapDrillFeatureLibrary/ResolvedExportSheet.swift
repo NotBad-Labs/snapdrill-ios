@@ -45,7 +45,7 @@ struct ResolvedExportSheet: View {
     private func resolveItems() {
         phase = .loading
         do {
-            let resolvedItems = try repositories.review.fetchModels(by: ids).map { $0.toExportSnapshot() }
+            let resolvedItems = try repositories.archive.fetchModels(by: ids).map { $0.toExportSnapshot() }
             phase = .loaded(resolvedItems)
         } catch {
             SnapDrillLogger.generic.error("解析导出题目失败: \(error.localizedDescription)")
@@ -56,7 +56,7 @@ struct ResolvedExportSheet: View {
 
 private enum ResolvePhase {
     case loading
-    case loaded([ReviewExportSnapshot])
+    case loaded([ArchiveExportSnapshot])
     case failed(String)
 }
 

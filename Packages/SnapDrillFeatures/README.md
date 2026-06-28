@@ -10,8 +10,8 @@
 - **职责**: 拍照扫描、相册导入、剪贴板文本导入、PDF 导入、OCR 识别、手动录入、裁剪、连续录入。
 - **关键入口**: `CaptureView`, `CaptureRouter`.
 
-### 2. SnapDrillFeatureLibrary (题库)
-- **职责**: 浏览、编辑、搜索、多维过滤、PDF 导出；分类管理（学科/来源/年级）。
+### 2. SnapDrillFeatureLibrary (资料库)
+- **职责**: 浏览、编辑、搜索、多维过滤、PDF 导出；分类管理（分类/来源/级别/标签）。
 - **关键入口**: `LibraryView`, `LibraryRouter`.
 
 ### 3. SnapDrillFeatureReview (复习)
@@ -22,7 +22,7 @@
 ### 4. SnapDrillFeatureDashboard (仪表盘)
 - **职责**: 首页概览、今日统计、待复习计数。
 - **关键入口**: `DashboardView`, `DashboardRouter`.
-- **依赖**: Library（SubjectManagerView）。
+- **依赖**: Library（CategoryManagerView）。
 
 ### 5. SnapDrillFeatureSettings (设置)
 - **职责**: 录入字段配置、外观设置（App 主题 + 复习卡片）、数据管理（备份/恢复，未来 iCloud 同步）、通知提醒、隐私导出。

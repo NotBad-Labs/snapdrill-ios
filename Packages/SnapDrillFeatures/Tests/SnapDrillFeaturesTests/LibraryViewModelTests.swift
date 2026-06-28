@@ -46,17 +46,17 @@ final class LibraryViewModelTests {
         repos.dimension.seedDefaultsIfNeeded()
     }
 
-    /// 插入题目；传 subjectValue 时挂上学科维度对应值（现场 fetchOrCreate）
+    /// 插入题目；传 categoryValue 时挂上分类维度对应值（现场 fetchOrCreate）
     private func insertItem(
         content: String = "测试题",
-        subjectValue: String? = nil
+        categoryValue: String? = nil
     ) {
-        let model = ReviewItemModel(content: content)
-        if let subjectValue,
-           let subjectDim = try? repos.dimension.fetchDimension(bySystemKey: CategorySystemKey.subject) {
-            model.categoryValues = [repos.categoryValue.fetchOrCreate(name: subjectValue, in: subjectDim)]
+        let model = ArchiveItemModel(content: content)
+        if let categoryValue,
+           let categoryDim = try? repos.dimension.fetchDimension(bySystemKey: CategorySystemKey.category) {
+            model.categoryValues = [repos.categoryValue.fetchOrCreate(name: categoryValue, in: categoryDim)]
         }
-        repos.review.insert(model)
+        repos.archive.insert(model)
     }
 
     // MARK: - loadDataAsync
@@ -80,7 +80,7 @@ final class LibraryViewModelTests {
         await vm.loadDataAsync()
 
         #expect(vm.filteredItems.count == 2)
-        // seed 出 4 个内置维度（subject/source/grade/tag）
+        // seed 出 4 个内置维度（category/source/level/tag）
         #expect(vm.dimensions.count >= 4)
         #expect(vm.isLoading == false)
     }
@@ -99,18 +99,18 @@ final class LibraryViewModelTests {
 
     // MARK: - 过滤
 
-    @Test("按学科维度值过滤")
-    func filter_bySubjectValue() async throws {
+    @Test("按分类维度值过滤")
+    func filter_byCategoryValue() async throws {
         seedDimensions()
-        insertItem(content: "数学题", subjectValue: "数学")
-        insertItem(content: "英语题", subjectValue: "英语")
-        try repos.review.saveContext()
+        insertItem(content: "数学题", categoryValue: "数学")
+        insertItem(content: "英语题", categoryValue: "英语")
+        try repos.archive.saveContext()
 
         let vm = createVM()
         await vm.loadDataAsync()
-        let subjectDim = try #require(vm.dimension(forSystemKey: CategorySystemKey.subject))
-        let mathValue = try #require((vm.valuesByDimension[subjectDim.id] ?? []).first { $0.name == "数学" })
-        vm.toggleFilter(mathValue.id, inDimension: subjectDim.id)
+        let categoryDim = try #require(vm.dimension(forSystemKey: CategorySystemKey.category))
+        let mathValue = try #require((vm.valuesByDimension[categoryDim.id] ?? []).first { $0.name == "数学" })
+        vm.toggleFilter(mathValue.id, inDimension: categoryDim.id)
         // 轮询等待防抖完成（替代固定 400ms sleep）
         try await waitUntil { vm.filteredItems.count == 1 }
         #expect(vm.filteredItems.first?.content == "数学题")
@@ -130,15 +130,15 @@ final class LibraryViewModelTests {
     @Test("resetFilters 清空所有过滤器并刷新")
     func resetFilters_clearsAll() async throws {
         seedDimensions()
-        insertItem(content: "题目A", subjectValue: "数学")
-        insertItem(content: "题目B", subjectValue: "英语")
-        try repos.review.saveContext()
+        insertItem(content: "题目A", categoryValue: "数学")
+        insertItem(content: "题目B", categoryValue: "英语")
+        try repos.archive.saveContext()
 
         let vm = createVM()
         await vm.loadDataAsync()
-        let subjectDim = try #require(vm.dimension(forSystemKey: CategorySystemKey.subject))
-        let mathValue = try #require((vm.valuesByDimension[subjectDim.id] ?? []).first { $0.name == "数学" })
-        vm.toggleFilter(mathValue.id, inDimension: subjectDim.id)
+        let categoryDim = try #require(vm.dimension(forSystemKey: CategorySystemKey.category))
+        let mathValue = try #require((vm.valuesByDimension[categoryDim.id] ?? []).first { $0.name == "数学" })
+        vm.toggleFilter(mathValue.id, inDimension: categoryDim.id)
         try await waitUntil { vm.filteredItems.count == 1 }
 
         vm.resetFilters()
@@ -156,7 +156,7 @@ final class LibraryViewModelTests {
             insertItem(content: "题目\(i)")
         }
         // fetchLimit/fetchOffset 仅对已持久化的行生效，必须 save 后再分页查询
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = createVM()
         await vm.refreshData()
@@ -170,7 +170,7 @@ final class LibraryViewModelTests {
     func loadMore_emptyNextPage_noChange() async throws {
         insertItem(content: "唯一题目")
         // fetchLimit/fetchOffset 仅对已持久化的行生效，必须 save 后再分页查询
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = createVM()
         await vm.refreshData()
@@ -184,31 +184,31 @@ final class LibraryViewModelTests {
     func loadMore_afterFilterChangeAppendsOnlyMatchingItems() async throws {
         seedDimensions()
         for i in 0..<55 {
-            insertItem(content: "数学题\(i)", subjectValue: "数学")
-            insertItem(content: "英语题\(i)", subjectValue: "英语")
+            insertItem(content: "数学题\(i)", categoryValue: "数学")
+            insertItem(content: "英语题\(i)", categoryValue: "英语")
         }
-        try repos.review.saveContext()
+        try repos.archive.saveContext()
 
         let vm = createVM()
         await vm.loadDataAsync()
-        let subjectDim = try #require(vm.dimension(forSystemKey: CategorySystemKey.subject))
-        let mathValue = try #require((vm.valuesByDimension[subjectDim.id] ?? []).first { $0.name == "数学" })
+        let categoryDim = try #require(vm.dimension(forSystemKey: CategorySystemKey.category))
+        let mathValue = try #require((vm.valuesByDimension[categoryDim.id] ?? []).first { $0.name == "数学" })
 
-        vm.toggleFilter(mathValue.id, inDimension: subjectDim.id)
+        vm.toggleFilter(mathValue.id, inDimension: categoryDim.id)
         await vm.refreshData()
         #expect(vm.filteredItems.count == 50)
 
         await vm.loadMore()
         #expect(vm.filteredItems.count == 55)
-        #expect(vm.filteredItems.allSatisfy { $0.subjectCategoryName == "数学" })
+        #expect(vm.filteredItems.allSatisfy { $0.primaryCategoryName == "数学" })
     }
 
     // MARK: - 删除
 
     @Test("softDeleteItems 单条软删除并从列表移除")
     func softDeleteItem_removesFromList() async throws {
-        let model = ReviewItemModel(content: "待删除")
-        repos.review.insert(model)
+        let model = ArchiveItemModel(content: "待删除")
+        repos.archive.insert(model)
 
         let vm = createVM()
         await vm.refreshData()
@@ -227,8 +227,8 @@ final class LibraryViewModelTests {
     func softDeleteItems_batchRemoves() async throws {
         var ids: Set<UUID> = []
         for i in 0..<3 {
-            let model = ReviewItemModel(content: "题目\(i)")
-            repos.review.insert(model)
+            let model = ArchiveItemModel(content: "题目\(i)")
+            repos.archive.insert(model)
             ids.insert(model.id)
         }
         insertItem(content: "保留的题目")

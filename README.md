@@ -47,7 +47,7 @@
 
 这些模块为应用提供底层能力。
 
-- **[SnapDrillCore](Packages/SnapDrillCore/README.md)**: 核心逻辑层。包含 SM-2 调度引擎 (ReviewScheduler)、OCR/ImageStorage 服务、Difficulty/ReviewRating 枚举和通用工具。
+- **[SnapDrillCore](Packages/SnapDrillCore/README.md)**: 核心逻辑层。包含 SM-2 调度引擎 (ReviewScheduler)、OCR/ImageStorage 服务、ReviewRating 枚举和通用工具。
 - **[SnapDrillData](Packages/SnapDrillData/README.md)**: 数据层。基于 SwiftData 的 `@Model` 类（直接作领域对象）、具体 Repository 类、持久化控制器和迁移计划。
 - **[SnapDrillUI](Packages/SnapDrillUI/README.md)**: 表现层。包含设计系统、通用组件 (ImageCropper) 和基础路由协议。
 

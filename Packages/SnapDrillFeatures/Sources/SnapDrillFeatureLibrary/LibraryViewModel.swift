@@ -16,7 +16,6 @@ import SnapDrillData
 private struct LibraryQueryState: Equatable {
     let searchText: String
     let valueIdsByDimension: [UUID: Set<UUID>]
-    let difficulties: Set<Int>
     let sortOption: LibrarySortOption
 }
 
@@ -24,10 +23,8 @@ private struct LibraryQueryState: Equatable {
 public enum LibrarySortOption: String, CaseIterable, Identifiable {
     /// 按创建时间倒序（最新在前）
     case createdAt
-    /// 按学科升序（A→Z）
-    case subject
-    /// 按难度倒序（最难在前）
-    case difficulty
+    /// 按主分类升序（A→Z）
+    case category
     /// 按复习状态升序（最紧急在前）
     case reviewStatus
 
@@ -36,36 +33,32 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
     var displayName: String {
         switch self {
         case .createdAt: L10n.Library.sortTime
-        case .subject: L10n.Library.sortSubject
-        case .difficulty: L10n.Library.sortDifficulty
+        case .category: L10n.Library.sortCategory
         case .reviewStatus: L10n.Library.sortReviewStatus
         }
     }
 
-    var sortDescriptors: [SortDescriptor<ReviewItemModel>] {
+    var sortDescriptors: [SortDescriptor<ArchiveItemModel>] {
         switch self {
         case .createdAt:
-            [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
-        case .subject:
-            // 学科是动态维度值（关系），无法走 SortDescriptor → 实际排序由 sortsBySubjectName 内存完成；
+            [SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)]
+        case .category:
+            // 主分类是动态维度值（关系），无法走 SortDescriptor → 实际排序由 sortsByCategoryName 内存完成；
             // 此处仅给内存路径前的稳定预排序（createdAt 倒序作 tiebreaker）。
-            [SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
-        case .difficulty:
-            [SortDescriptor(\ReviewItemModel.difficulty, order: .reverse),
-             SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
+            [SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)]
         case .reviewStatus:
-            [SortDescriptor(\ReviewItemModel.nextReviewAt, order: .forward),
-             SortDescriptor(\ReviewItemModel.createdAt, order: .reverse)]
+            [SortDescriptor(\ArchiveItemModel.nextReviewAt, order: .forward),
+             SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)]
         }
     }
 
-    /// 是否按学科维度值名内存排序（关系不能走 SortDescriptor）
-    var sortsBySubjectName: Bool { self == .subject }
+    /// 是否按主分类维度值名内存排序（关系不能走 SortDescriptor）
+    var sortsByCategoryName: Bool { self == .category }
 }
 
 /// 题库列表 ViewModel
 ///
-/// 管理多维度过滤（搜索文本、学科、标签）、分页加载和数据刷新逻辑。
+/// 管理多维度过滤（搜索文本、动态字段）、分页加载和数据刷新逻辑。
 /// 维度值过滤由 Data 层先缩小候选集，再按 many-to-many 语义校验；分页写回前会确认查询条件未变化。
 @Observable
 public final class LibraryViewModel {
@@ -77,7 +70,7 @@ public final class LibraryViewModel {
     // MARK: - State
 
     /// 当前过滤条件下的题目列表（支持分页追加）
-    public var filteredItems: [ReviewItemModel] = []
+    public var filteredItems: [ArchiveItemModel] = []
     /// 所有命名维度（按 sortOrder），用于过滤选项
     public var dimensions: [CategoryDimensionModel] = []
     /// 每维度可选值（dimensionId → values），用于过滤选项
@@ -89,10 +82,6 @@ public final class LibraryViewModel {
     }
     /// 已选中的维度值过滤（dimensionId → 选中 valueIds；语义：维度间 AND、维度内 OR；离散事件 → 即时刷新）
     public var selectedValueIdsByDimension: [UUID: Set<UUID>] = [:] {
-        didSet { scheduleRefresh(debounced: false) }
-    }
-    /// 已选中的难度过滤集合（离散事件 → 即时刷新）
-    public var selectedDifficulties: Set<Int> = [] {
         didSet { scheduleRefresh(debounced: false) }
     }
     /// 当前排序方式（离散事件 → 即时刷新）
@@ -122,7 +111,7 @@ public final class LibraryViewModel {
     private let deletionScheduler: DeletionScheduler
     /// 撤销恢复时按批次暂存 items，避免连续删除时后批次覆盖前批次缓冲区
     @ObservationIgnored
-    private var pendingDeletionItemBatches: [(ids: Set<UUID>, items: [ReviewItemModel])] = []
+    private var pendingDeletionItemBatches: [(ids: Set<UUID>, items: [ArchiveItemModel])] = []
     private var currentPage: Int = 0
     private let pageSize: Int = 50
     private let metadataFetchLimit: Int = 500
@@ -135,7 +124,6 @@ public final class LibraryViewModel {
         LibraryQueryState(
             searchText: searchText,
             valueIdsByDimension: selectedValueIdsByDimension,
-            difficulties: selectedDifficulties,
             sortOption: sortOption
         )
     }
@@ -201,7 +189,7 @@ public final class LibraryViewModel {
         }
     }
 
-    /// 清除全部维度值过滤（保留搜索/难度）
+    /// 清除全部维度值过滤（保留搜索）
     public func clearValueFilters() {
         selectedValueIdsByDimension.removeAll()
     }
@@ -238,12 +226,11 @@ public final class LibraryViewModel {
         guard !Task.isCancelled else { return }
         let requestState = currentQueryState
         do {
-            let results = try repositories.review.fetchFilteredModels(
+            let results = try repositories.archive.fetchFilteredModels(
                 searchText: searchText,
                 valueIdsByDimension: selectedValueIdsByDimension,
-                difficulties: selectedDifficulties,
                 sortDescriptors: sortOption.sortDescriptors,
-                sortBySubjectName: sortOption.sortsBySubjectName,
+                sortByCategoryName: sortOption.sortsByCategoryName,
                 limit: pageSize,
                 offset: 0
             )
@@ -270,12 +257,11 @@ public final class LibraryViewModel {
             // 避免 fetch 抛出异常时 currentPage 已递增导致后续跳页。
             let nextPage = currentPage + 1
             let requestState = currentQueryState
-            let nextItems = try repositories.review.fetchFilteredModels(
+            let nextItems = try repositories.archive.fetchFilteredModels(
                 searchText: searchText,
                 valueIdsByDimension: selectedValueIdsByDimension,
-                difficulties: selectedDifficulties,
                 sortDescriptors: sortOption.sortDescriptors,
-                sortBySubjectName: sortOption.sortsBySubjectName,
+                sortByCategoryName: sortOption.sortsByCategoryName,
                 limit: pageSize,
                 offset: nextPage * pageSize
             )
@@ -312,7 +298,7 @@ public final class LibraryViewModel {
             var anyDeleted = false
             for id in idsToDelete {
                 do {
-                    try await repos.review.delete(id: id)
+                    try await repos.archive.delete(id: id)
                     anyDeleted = true
                 } catch {
                     SnapDrillLogger.generic.error("删除题目失败（id=\(id)）: \(error.localizedDescription)")
@@ -341,11 +327,11 @@ public final class LibraryViewModel {
         // 使用当前排序选项恢复列表顺序
         withAnimation {
             filteredItems.append(contentsOf: itemsToRestore)
-            if sortOption.sortsBySubjectName {
-                // 学科排序是关系内存排序，SortDescriptor 无法表达，单独按维度值名排
+            if sortOption.sortsByCategoryName {
+                // 主分类排序是关系内存排序，SortDescriptor 无法表达，单独按维度值名排
                 filteredItems.sort { lhs, rhs in
-                    let lName = lhs.subjectCategoryName ?? ""
-                    let rName = rhs.subjectCategoryName ?? ""
+                    let lName = lhs.primaryCategoryName ?? ""
+                    let rName = rhs.primaryCategoryName ?? ""
                     if lName != rName { return lName < rName }
                     return lhs.createdAt > rhs.createdAt
                 }
@@ -377,7 +363,7 @@ public final class LibraryViewModel {
                 self.operationError = L10n.Errors.batchTagFailed
                 return
             }
-            let items = try repositories.review.fetchModels(by: ids)
+            let items = try repositories.archive.fetchModels(by: ids)
             for item in items {
                 var current = item.categoryValues ?? []
                 let currentIds = Set(current.map { $0.id })
@@ -387,12 +373,12 @@ public final class LibraryViewModel {
                 }
                 item.categoryValues = current
             }
-            try repositories.review.saveContext()
+            try repositories.archive.saveContext()
         } catch {
             // 回滚未提交的更改，避免脏值与关系污染共享 ModelContext
             SnapDrillLogger.generic.error("批量打标签失败: \(error.localizedDescription)")
             repositories.categoryValue.rollbackContext()
-            repositories.review.rollbackContext()
+            repositories.archive.rollbackContext()
             self.operationError = L10n.Errors.batchTagFailed
         }
     }
@@ -401,7 +387,6 @@ public final class LibraryViewModel {
     public func resetFilters() {
         searchText = ""
         selectedValueIdsByDimension.removeAll()
-        selectedDifficulties.removeAll()
     }
 
     /// 取消所有进行中的异步任务（由 View 的 onDisappear 调用）

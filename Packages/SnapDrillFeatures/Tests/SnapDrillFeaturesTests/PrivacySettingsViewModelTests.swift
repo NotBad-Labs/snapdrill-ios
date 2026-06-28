@@ -56,9 +56,9 @@ final class PrivacySettingsViewModelTests {
 
     @Test("JSON 导出：插入数据后导出成功，文件存在且为有效 JSON")
     func jsonExport_withData_succeeds() async throws {
-        let item = ReviewItemModel(content: "JSON 测试题目")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "JSON 测试题目")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = makeVM()
         vm.startExport(format: .json)
@@ -80,9 +80,9 @@ final class PrivacySettingsViewModelTests {
 
     @Test("CSV 导出：插入数据后导出成功，文件存在且包含列头和数据行")
     func csvExport_withData_succeeds() async throws {
-        let item = ReviewItemModel(content: "CSV 测试题目")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "CSV 测试题目")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = makeVM()
         vm.startExport(format: .csv)
@@ -120,9 +120,9 @@ final class PrivacySettingsViewModelTests {
 
     @Test("导出成功后触发 dataExported 埋点")
     func export_tracksAnalytics() async throws {
-        let item = ReviewItemModel(content: "埋点测试")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "埋点测试")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = makeVM()
         vm.startExport(format: .json)
@@ -172,9 +172,9 @@ final class PrivacySettingsViewModelTests {
 
     @Test("连续调用 startExport 旧任务被取消，只有最后一次生效")
     func startExport_overridesPrevious() async throws {
-        let item = ReviewItemModel(content: "并发测试")
-        repos.review.insert(item)
-        try repos.review.saveContext()
+        let item = ArchiveItemModel(content: "并发测试")
+        repos.archive.insert(item)
+        try repos.archive.saveContext()
 
         let vm = makeVM()
         // 连续调用两次，第一次应被取消

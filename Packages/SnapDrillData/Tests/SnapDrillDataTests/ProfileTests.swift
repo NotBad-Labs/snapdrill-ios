@@ -170,14 +170,14 @@ struct ProfileManagerPreferenceTests {
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
         defaults.set(Data("draft".utf8), forKey: UDKey.captureDraftMetadata)
-        defaults.set(true, forKey: UDKey.captureFieldSubject)
+        defaults.set(true, forKey: UDKey.captureFieldCategory)
         defaults.set(true, forKey: "\(CategoryDimensionModel.visibilityKeyPrefix)test")
         defaults.set("keep", forKey: "unrelated.global.key")
 
         ProfileManager.clearPerProfileValues(in: defaults)
 
         #expect(defaults.object(forKey: UDKey.captureDraftMetadata) == nil)
-        #expect(defaults.object(forKey: UDKey.captureFieldSubject) == nil)
+        #expect(defaults.object(forKey: UDKey.captureFieldCategory) == nil)
         #expect(defaults.object(forKey: "\(CategoryDimensionModel.visibilityKeyPrefix)test") == nil)
         #expect(defaults.string(forKey: "unrelated.global.key") == "keep")
     }

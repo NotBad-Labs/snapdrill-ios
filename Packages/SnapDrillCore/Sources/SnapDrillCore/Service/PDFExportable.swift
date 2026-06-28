@@ -33,11 +33,11 @@ public protocol PDFExportable: Sendable {
     var imagePath: String? { get }
     /// 答案文本；无答案时为 `nil`
     var answerText: String? { get }
-    /// 导出用学科名称；用于 PDF 页眉显示
-    var exportSubject: String? { get }
+    /// 导出用分类名称；用于 PDF 页眉显示
+    var exportCategory: String? { get }
 }
 
 extension PDFExportable {
     public var answerText: String? { nil }
-    public var exportSubject: String? { nil }
+    public var exportCategory: String? { nil }
 }

@@ -95,7 +95,7 @@ final class CaptureResultViewModelTests {
         await ctx.vm.saveResult()
 
         #expect(ctx.vm.isSaved == true)
-        let items = try ctx.repos.review.fetchAllModels()
+        let items = try ctx.repos.archive.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == "纯文字题目")
         #expect(ctx.analytics.hasTrackedEvent(.captureSaved))
@@ -108,7 +108,7 @@ final class CaptureResultViewModelTests {
         await ctx.vm.saveResult()
 
         #expect(ctx.vm.isSaved == true)
-        let items = try ctx.repos.review.fetchAllModels()
+        let items = try ctx.repos.archive.fetchAllModels()
         #expect(items.count == 1)
         #expect(items.first?.content == nil)
         #expect(items.first?.imagePath != nil)
@@ -197,7 +197,7 @@ final class CaptureResultViewModelTests {
         #expect(ctx.vm.isSaved == true)
 
         // 验证只保存了一次（不是两次）
-        let items = try ctx.repos.review.fetchAllModels()
+        let items = try ctx.repos.archive.fetchAllModels()
         #expect(items.count == 1)
     }
 
@@ -212,7 +212,7 @@ final class CaptureResultViewModelTests {
         #expect(ctx.vm.showErrorAlert == true)
         #expect(ctx.vm.errorMessage != nil)
         // 确认没有数据被持久化
-        let count = try ctx.repos.review.totalCount()
+        let count = try ctx.repos.archive.totalCount()
         #expect(count == 0)
     }
 
@@ -255,7 +255,7 @@ final class CaptureResultViewModelTests {
     @Test("单值维度 toggleValue：选第二个替换第一个，再点取消")
     func toggleValue_singleValue_replaces() throws {
         let seeded = try seedDimension(
-            name: "学科", systemKey: CategorySystemKey.subject,
+            name: "分类", systemKey: CategorySystemKey.category,
             isMultiValue: false, valueA: "数学", valueB: "英语"
         )
         let ctx = createVM(content: "")   // 空内容跳过 AI 标注，避免预选干扰
@@ -288,20 +288,20 @@ final class CaptureResultViewModelTests {
         #expect(ctx.vm.selectedIds(forDimension: seeded.dim.id) == [seeded.b.id])               // 移除 a
     }
 
-    // MARK: - AI 标注回填（动态学科维度，S6-cut 后从写裸字段改为命中维度值选中）
+    // MARK: - AI 标注回填（动态分类维度，S6-cut 后从写裸字段改为命中维度值选中）
 
-    @Test("AI 标注：建议 subject 命中学科维度值则选中；难度不被 AI 填，由用户自定")
-    func aiTagging_backfillsSubjectOnly_notDifficulty() async throws {
-        let subjectDim = CategoryDimensionModel(
-            name: "学科", isMultiValue: false, isBuiltIn: true,
-            systemKey: CategorySystemKey.subject, sortOrder: 0
+    @Test("AI 标注：建议 category 命中分类维度值则选中")
+    func aiTagging_backfillsCategoryOnly() async throws {
+        let categoryDim = CategoryDimensionModel(
+            name: "分类", isMultiValue: false, isBuiltIn: true,
+            systemKey: CategorySystemKey.category, sortOrder: 0
         )
-        try repos.dimension.insertAndSave(subjectDim)
-        let math = CategoryValueModel(name: "数学", sortOrder: 0, dimension: subjectDim)
+        try repos.dimension.insertAndSave(categoryDim)
+        let math = CategoryValueModel(name: "数学", sortOrder: 0, dimension: categoryDim)
         try repos.categoryValue.insertAndSave(math)
 
         let tagging = ContentTaggingServiceMock()
-        tagging.suggestResult = ContentTagSuggestion(subject: "数学", difficulty: 3)
+        tagging.suggestResult = ContentTagSuggestion(category: "数学")
         let vm = CaptureResultViewModel(
             content: "一道关于函数的数学题",   // 非空，触发 AI 标注
             image: nil,
@@ -313,10 +313,9 @@ final class CaptureResultViewModelTests {
         )
 
         vm.loadFormData()   // 触发异步 AI 标注 Task
-        try await waitUntil { vm.selectedIds(forDimension: subjectDim.id).contains(math.id) }
+        try await waitUntil { vm.selectedIds(forDimension: categoryDim.id).contains(math.id) }
 
-        #expect(vm.selectedIds(forDimension: subjectDim.id) == [math.id])
-        #expect(vm.difficulty == .one)   // 难度不被 AI 标注修改，保持初始默认值，由用户自定
+        #expect(vm.selectedIds(forDimension: categoryDim.id) == [math.id])
     }
 
     // MARK: - 字段配置引导

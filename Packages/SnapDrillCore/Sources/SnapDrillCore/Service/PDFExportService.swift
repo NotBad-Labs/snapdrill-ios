@@ -50,7 +50,7 @@ public final class PDFExportService: Sendable {
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
 
         let totalPages = max(1, Int(ceil(Double(items.count) / Double(options.itemsPerPage))))
-        let subjectText = resolveSubject(from: items)
+        let categoryText = resolveCategory(from: items)
         let dateText = Date().formatted(date: .abbreviated, time: .omitted)
 
         // 渲染包含可能取消的操作
@@ -78,7 +78,7 @@ public final class PDFExportService: Sendable {
                         // 页眉
                         if options.showHeader {
                             let headerInfo = PageHeaderInfo(
-                                subjectText: subjectText,
+                                categoryText: categoryText,
                                 dateText: dateText,
                                 currentPage: pageIndex + 1,
                                 totalPages: totalPages
@@ -107,22 +107,22 @@ public final class PDFExportService: Sendable {
         return data
     }
 
-    // MARK: - Subject 解析
+    // MARK: - Category 解析
 
-    /// 从导出条目中解析统一学科名称
+    /// 从导出条目中解析统一分类名称
     ///
-    /// - 0 个学科 → 默认标题
-    /// - 1 个学科 → 该学科名
-    /// - 2+ 个学科 → "综合练习"
-    func resolveSubject(from items: [any PDFExportable]) -> String {
-        let subjects = Set(items.compactMap(\.exportSubject))
-        switch subjects.count {
+    /// - 0 个分类 → 默认标题
+    /// - 1 个分类 → 该分类名
+    /// - 2+ 个分类 → "综合资料"
+    func resolveCategory(from items: [any PDFExportable]) -> String {
+        let categories = Set(items.compactMap(\.exportCategory))
+        switch categories.count {
         case 0:
-            return L10n.Export.defaultSubject
+            return L10n.Export.defaultCategory
         case 1:
-            return subjects.first ?? L10n.Export.defaultSubject
+            return categories.first ?? L10n.Export.defaultCategory
         default:
-            return L10n.Export.mixedSubject
+            return L10n.Export.mixedCategory
         }
     }
 
@@ -130,7 +130,7 @@ public final class PDFExportService: Sendable {
 
     /// 页眉渲染所需的上下文数据
     private struct PageHeaderInfo {
-        let subjectText: String
+        let categoryText: String
         let dateText: String
         let currentPage: Int
         let totalPages: Int
@@ -144,8 +144,8 @@ public final class PDFExportService: Sendable {
             .foregroundColor: headerColor
         ]
 
-        // 左侧：「数学 · 2026-03-31」
-        let leftText = "\(info.subjectText) · \(info.dateText)"
+        // 左侧：「文档 · 2026-03-31」
+        let leftText = "\(info.categoryText) · \(info.dateText)"
         (leftText as NSString).draw(
             at: CGPoint(x: Self.margin, y: 15),
             withAttributes: headerAttrs

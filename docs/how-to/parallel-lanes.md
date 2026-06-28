@@ -1,6 +1,6 @@
 # 三路协作边界与交接协议
 
-> 当前版本：2026-06-12。适用于 Codex Desktop、Claude Code 与 Antigravity 并行协作。
+> 当前版本：2026-06-26。适用于 Codex Desktop、Claude Code 与 Antigravity 并行协作。
 > 目标是减少文件冲突与认知摩擦，不建立额外管理层。PO 对产品意图和争议拥有最终裁决权。
 
 ## 1. 共同真相源
@@ -75,6 +75,29 @@ Antigravity 不修改 Swift 业务逻辑。法律结论必须标注来源与是�
 
 跨层 Feature 默认由 Claude 承担工程集成 DRI，确保各层能共同构建和通过测试；Codex 仍对其最终 UI 体验负责。涉及产品语义的分歧必须交 PO。
 
+### 总规划 / 本地实证模型
+
+在 PO 明确授权的复杂阶段，Claude 可以承担总规划 / 架构规划 DRI，Codex 承担本地实现、验证与整合 DRI。该模型是 §3 与 §5 的细化，不改变共同真相源：
+
+- PO 仍是产品方向、体验取舍、默认行为、命名语义、发布授权和风险取舍的最终裁决者。
+- Claude 的规划职责是划分阶段、边界、依赖顺序、合同、风险和 PO 决策点；规划必须给 scope / no-go、owner、验证方式和 path:line 证据，并区分 `FACT` / `JUDGMENT` / `PENDING-PO`。
+- Codex 的本地职责是用 live repo 审查规划，执行 bounded slice，跑验证并提交；Codex 不因 Claude 规划而跳过 DoR、T0-T4 或本地证据。
+- 在“当前实现是什么”的问题上，live code、测试、构建、真机/模拟器证据高于任何规划文本或 agent 记忆。
+- Claude 不是 code-truth arbiter，不是 merge / execution authority，也不代理 PO 的产品裁决或 Codex + PO 已定的 UI 视觉判断。
+- Codex 可以挑战 Claude，但挑战必须绑定证据；纯偏好或空泛反驳不改变规划。
+
+Codex 挑战 Claude 的有效触发包括：
+
+- Claude 描述与 live code、测试、构建或真机证据不一致。
+- Claude 使用过期上下文、旧分支、旧报告或未验证的 agent 记忆。
+- Claude 把合法历史、guardrail、negation 或 legal/fact-gated 内容当成腐烂内容。
+- Claude 规划越过 lane 边界，例如直接裁决 UI/产品体验或要求无授权实现。
+- Claude 计划缺少 scope、no-go、owner、验证方式、证据或 PO 决策点。
+- Claude 计划过重、过宽、不可验证，或引入 speculative abstraction。
+- 规划存在明显 feasibility gap，无法在当前工具链、签名、CI、设备或时间 appetite 内完成。
+
+全局架构 / 生命周期规划只能作为 shaping input：它应产出候选阶段、依赖、风险和 bounded slices，随后仍需 Codex 本地实证审查与 PO 拍板，不能自动成为固定 roadmap 或当前 bet。
+
 ## 4. 共享接缝
 
 以下改动不是某个 lane 可静默完成的局部改动：
@@ -93,7 +116,7 @@ Antigravity 不修改 Swift 业务逻辑。法律结论必须标注来源与是�
 冻结集的成员与数量必须从 live code grep，不凭记忆。2026-06-11 实证锚点：
 
 - `ServiceContainer`：14 个属性，含 `metricService`
-- SwiftData `@Model`：`ReviewItemModel` / `CategoryDimensionModel` / `CategoryValueModel`
+- SwiftData `@Model`：`ArchiveItemModel` / `CategoryDimensionModel` / `CategoryValueModel`
 - Library public View：`CategoryManagerView` / `LibraryEditView` / `LibraryView` / `SFSymbolPickerView`
 - SPM package：Core / Data / Features / UI，共 4 个；Features 内含 5 个 feature target
 

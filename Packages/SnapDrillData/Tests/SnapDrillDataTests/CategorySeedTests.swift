@@ -46,12 +46,12 @@ final class CategorySeedTests {
         #expect(dims.allSatisfy { $0.isBuiltIn })
         let keys = Set(dims.compactMap(\.systemKey))
         #expect(keys == [
-            CategorySystemKey.subject, CategorySystemKey.source,
-            CategorySystemKey.grade, CategorySystemKey.tag
+            CategorySystemKey.category, CategorySystemKey.source,
+            CategorySystemKey.level, CategorySystemKey.tag
         ])
     }
 
-    @Test("标签维度多值且无默认值；学科/来源/年级单值且有默认值")
+    @Test("标签维度多值且无默认值；分类/来源/级别单值且有默认值")
     func seed_dimensionFlagsAndValuePresence() throws {
         repos.dimension.seedDefaultsIfNeeded()
 
@@ -59,7 +59,7 @@ final class CategorySeedTests {
         #expect(tag.isMultiValue == true)
         #expect(repos.categoryValue.fetchAllModels(in: tag).isEmpty)
 
-        for key in [CategorySystemKey.subject, CategorySystemKey.source, CategorySystemKey.grade] {
+        for key in [CategorySystemKey.category, CategorySystemKey.source, CategorySystemKey.level] {
             let dim = try dimension(key)
             #expect(dim.isMultiValue == false)
             #expect(!repos.categoryValue.fetchAllModels(in: dim).isEmpty)
@@ -70,13 +70,28 @@ final class CategorySeedTests {
     func seed_valueCountsMatchLocale() throws {
         repos.dimension.seedDefaultsIfNeeded()
 
-        let subject = try dimension(CategorySystemKey.subject)
+        let category = try dimension(CategorySystemKey.category)
         let source = try dimension(CategorySystemKey.source)
-        let grade = try dimension(CategorySystemKey.grade)
+        let level = try dimension(CategorySystemKey.level)
 
-        #expect(repos.categoryValue.fetchAllModels(in: subject).count == (isZh ? 9 : 8))
+        #expect(repos.categoryValue.fetchAllModels(in: category).count == 6)
         #expect(repos.categoryValue.fetchAllModels(in: source).count == 5)
-        #expect(repos.categoryValue.fetchAllModels(in: grade).count == (isZh ? 7 : 6))
+        #expect(repos.categoryValue.fetchAllModels(in: level).count == 4)
+    }
+
+    @Test("seed 内置维度使用通用资料归档命名")
+    func seed_usesGeneralAudienceTaxonomyNames() throws {
+        repos.dimension.seedDefaultsIfNeeded()
+
+        let category = try dimension(CategorySystemKey.category)
+        let level = try dimension(CategorySystemKey.level)
+        let categoryValues = repos.categoryValue.fetchAllModels(in: category).map(\.name)
+        let levelValues = repos.categoryValue.fetchAllModels(in: level).map(\.name)
+
+        #expect(category.name == (isZh ? "分类" : "Category"))
+        #expect(level.name == (isZh ? "级别" : "Level"))
+        #expect(categoryValues.contains(isZh ? "题目" : "Questions"))
+        #expect(levelValues.contains(isZh ? "基础" : "Basic"))
     }
 
     @Test("seed 幂等：重复调用不重复种入")

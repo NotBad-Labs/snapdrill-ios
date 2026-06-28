@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  错题编辑页面，用于修改题目内容、标签和学科。
+//  资料编辑页面，用于修改内容、标签和分类。
 //
 
 import SwiftUI
@@ -25,7 +25,7 @@ public struct LibraryEditView: View {
     @Environment(\.profileManager) private var profileManager
 
     /// 要编辑的题目数据模型
-    let item: ReviewItemModel
+    let item: ArchiveItemModel
 
     @State private var viewModel: LibraryEditViewModel?
     @FocusState private var isInputFocused: Bool
@@ -35,7 +35,7 @@ public struct LibraryEditView: View {
     @State private var answerPickerSelection: PhotosPickerItem?
     @State private var cropperItem: CropperItem?
 
-    public init(item: ReviewItemModel) {
+    public init(item: ArchiveItemModel) {
         self.item = item
     }
     
@@ -253,30 +253,6 @@ public struct LibraryEditView: View {
                     onCreateValue: { vm.createValue(name: $0, inDimension: model.id) }
                 )
             }
-            difficultyPicker(vm: vm)
-        }
-    }
-
-    private func difficultyPicker(vm: LibraryEditViewModel) -> some View {
-        HStack {
-            Text(L10n.Capture.difficulty)
-            Spacer()
-            HStack(spacing: 0) {
-                ForEach(1...5, id: \.self) { star in
-                    Button {
-                        vm.difficulty = Difficulty(rawValue: star) ?? .one
-                    } label: {
-                        Image(systemName: vm.difficulty.rawValue >= star ? "star.fill" : "star")
-                            .foregroundStyle(.yellow)
-                            .frame(width: 44, height: 44)
-                    }
-                    .buttonStyle(.plain)
-                    .contentShape(Rectangle())
-                    .accessibilityLabel(L10n.Accessibility.starRating(difficulty: star))
-                    .accessibilityAddTraits(vm.difficulty.rawValue >= star ? .isSelected : [])
-                    .accessibilityIdentifier("library.edit.difficulty.\(star)")
-                }
-            }
         }
     }
     
@@ -320,8 +296,8 @@ private struct CropperItem: Identifiable {
     let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
-    let item: ReviewItemModel = {
-        let i = ReviewItemModel(content: "Sample Question")
+    let item: ArchiveItemModel = {
+        let i = ArchiveItemModel(content: "Sample Question")
         container.mainContext.insert(i)
         return i
     }()
