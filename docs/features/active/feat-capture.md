@@ -56,7 +56,7 @@ intent_refs:
   - 剪贴板 / 手动 → `CaptureMethodCard` 手动入口 → ManualEdit；纯文本路径走 `CaptureResultView`（不依赖 OCR，允许无图保存，Image is Truth 例外）
   - Share Extension → `SnapDrillShare` Extension target（系统 ShareSheet，通过 App Groups 共享容器；进入后直接进裁剪/编辑 → 保存）
 - **关键机制 / 数据流**：图片来源进入裁剪（`ImageCropperView`，依赖 Mantis）→ 对图片执行 OCR（端上 Vision，目标态为 `recognitionLanguages` 按 Profile 优先语言传入，系统默认含 `zh-Hans` / `zh-Hant` / `en-US`）→ 识别结果展示可编辑/可复制但不阻塞保存 → 保存时 Repository 原子性写入题目、图片引用、OCR 文本、元数据。图片**只存裁剪压缩后的副本**（长边限制 2000px、JPEG quality 0.8，~200KB/张），不修改用户原始照片。
-  - **⚠ 实现现状（GAP-R3，代码债）**：当前 `OCRService.recognizeText` 的 `recognitionLanguages` 仍硬编码 `zh-Hans` / `en-US`（`OCRService.swift:43`），**未含 `zh-Hant` 繁体**、**未按 Profile 优先语言动态传入**。需求不变（含繁体 + Profile 语言感知），待 code 债修复。
+  - **⚠ 实现现状（GAP-R3，代码债，已收窄）**：当前 `OCRService.recognizeText` 与 `OCRService.recognizeDocument` 的 `recognitionLanguages` 已含 `zh-Hans` / `zh-Hant` / `en-US`，且保持 `zh-Hans` 首选；剩余缺口是**未按 Profile 优先语言动态传入**。需求不变（Profile 语言感知），待后续独立 slice 修复。
 - **EXIF 隐私铁律**：图片入库前必须经 `ImageStorage` 剥离 GPS / 位置信息（保存前清除）。
 - **State & Concurrency**（Swift 6 strict）：采集 View 由 `@Observable` ViewModel（`@MainActor`：`CaptureViewModel` / `CaptureResultViewModel`）驱动；OCR、图片压缩与落库等重活经 Core service / Repository → `DataExecutor`（actor 拥有 `ModelContainer`，`createOffMainActor()` 消除 MainActor+XPC 死锁 #599），不阻塞主线程；保存后通过 `Notification.Name.reviewDataDidChange` 跨模块刷新 Dashboard / Review。采集流程必须 `AppActivityTracker.begin(...)` → ... → `end(...)`，否则 Profile 切换不被阻塞（已接入 `CaptureViewModel` / `CaptureResultViewModel`）。
 - **设计裁决（仅本模块）**：采集入口作为底部 Tab 栏标准 Tab（首页/题库/采集/复习/设置），而非自定义突出按钮——为保持导航架构极致简洁（P2）、降低认知负荷；Share Extension 不污染主导航（不改变 Tab 结构），作为系统级扩展独立于主界面。
