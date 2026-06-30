@@ -101,7 +101,6 @@ nonisolated extension L10n {
         public static let noItemsTitle = NSLocalizedString("smart_paper.no_items_title", value: "暂无可选题目", comment: "无题目时的空状态标题")
         public static let noItemsMessage = NSLocalizedString("smart_paper.no_items_message", value: "当前筛选条件下没有题目，请调整筛选或先采集一些题目", comment: "无题目时的空状态描述")
         public static let pdfTitle = NSLocalizedString("smart_paper.pdf_title", value: "智能复习卷", comment: "智能组卷 PDF 封面标题")
-        public static let proRequired = NSLocalizedString("smart_paper.pro_required", value: "智能组卷为 Pro 功能，敬请期待", comment: "Pro 功能即将上线占位（StoreKit 未接）")
         public static let freeQuotaUsed = NSLocalizedString(
             "smart_paper.free_quota_used",
             value: "本月免费组卷体验已用完。你仍可手动选择资料导出；Pro 功能稍后开放。",

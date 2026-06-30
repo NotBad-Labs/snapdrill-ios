@@ -66,6 +66,7 @@ final class SmartPaperViewModel {
 
     /// 当前自然月已使用的免费生成次数
     private(set) var freeQuotaUsed = 0
+    private var hasUnchargedFreeGeneration = false
 
     // MARK: - 依赖
 
@@ -127,7 +128,7 @@ final class SmartPaperViewModel {
         }
     }
 
-    /// 生成入口：免费层消耗月配额，Pro 层无限但仍保持 StoreKit 门后路径。
+    /// 生成入口：免费层仅检查月配额，实际导出成功后才消耗；Pro 层无限但仍保持 StoreKit 门后路径。
     func prepareGeneration(isProUser: Bool) -> GenerationOutcome {
         if !isProUser {
             refreshFreeQuotaState()
@@ -137,11 +138,18 @@ final class SmartPaperViewModel {
         refreshSelection(isProUser: isProUser)
         guard !selectedItems.isEmpty else { return .unavailable }
 
-        if !isProUser {
-            freeQuotaUsed += 1
-            defaults.set(freeQuotaUsed, forKey: UDKey.smartPaperFreeQuotaUsed)
-        }
+        hasUnchargedFreeGeneration = !isProUser
         return .preview
+    }
+
+    /// 免费层实际完成分享/打印后消耗配额；同一次预览多次导出最多扣一次。
+    func consumeFreeQuota() {
+        refreshFreeQuotaState()
+        guard hasUnchargedFreeGeneration,
+              freeQuotaUsed < Self.freeMonthlyQuota else { return }
+        freeQuotaUsed += 1
+        defaults.set(freeQuotaUsed, forKey: UDKey.smartPaperFreeQuotaUsed)
+        hasUnchargedFreeGeneration = false
     }
 
     /// 构建 PDF 导出选项

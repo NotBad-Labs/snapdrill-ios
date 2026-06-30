@@ -250,8 +250,72 @@ final class SmartPaperViewModelTests {
 
     // MARK: - 免费配额
 
-    @Test("prepareGeneration 免费层每自然月 3 次，超额后自然月重置")
-    func prepareGeneration_freeQuotaMonthlyReset() throws {
+    @Test("freeMonthlyQuota 固定为 3 次每月")
+    func freeMonthlyQuota_isThree() {
+        #expect(SmartPaperViewModel.freeMonthlyQuota == 3)
+    }
+
+    @Test("prepareGeneration 免费层打开预览不消耗配额")
+    func prepareGeneration_freePreviewDoesNotConsumeQuota() throws {
+        try seedItems()
+        let defaults = makeDefaults()
+        let vm = makeVM(defaults: defaults)
+
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        #expect(vm.freeQuotaUsed == 0)
+        #expect(defaults.integer(forKey: UDKey.smartPaperFreeQuotaUsed) == 0)
+    }
+
+    @Test("consumeFreeQuota 免费层首次导出消耗 1 次")
+    func consumeFreeQuota_freeExportConsumesOnce() throws {
+        try seedItems()
+        let defaults = makeDefaults()
+        let vm = makeVM(defaults: defaults)
+
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        vm.consumeFreeQuota()
+
+        #expect(vm.freeQuotaUsed == 1)
+        #expect(defaults.integer(forKey: UDKey.smartPaperFreeQuotaUsed) == 1)
+    }
+
+    @Test("consumeFreeQuota 未导出或取消预览不消耗配额")
+    func consumeFreeQuota_cancelPreviewDoesNotConsumeQuota() throws {
+        try seedItems()
+        let vm = makeVM()
+
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+
+        #expect(vm.freeQuotaUsed == 0)
+    }
+
+    @Test("consumeFreeQuota 同一次生成多次导出最多消耗 1 次")
+    func consumeFreeQuota_multipleExportsForSameGenerationConsumeOnce() throws {
+        try seedItems()
+        let vm = makeVM()
+
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        vm.consumeFreeQuota()
+        vm.consumeFreeQuota()
+
+        #expect(vm.freeQuotaUsed == 1)
+    }
+
+    @Test("consumeFreeQuota 新生成重置单次扣减标志")
+    func consumeFreeQuota_newGenerationCanConsumeAgain() throws {
+        try seedItems()
+        let vm = makeVM()
+
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        vm.consumeFreeQuota()
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        vm.consumeFreeQuota()
+
+        #expect(vm.freeQuotaUsed == 2)
+    }
+
+    @Test("prepareGeneration 免费层导出满 3 次后拦截，跨自然月重置")
+    func prepareGeneration_freeQuotaMonthlyResetAfterExport() throws {
         try seedItems()
         var currentDate = Self.date(2026, 6, 15)
         let defaults = makeDefaults()
@@ -259,12 +323,15 @@ final class SmartPaperViewModelTests {
 
         for _ in 0..<SmartPaperViewModel.freeMonthlyQuota {
             #expect(vm.prepareGeneration(isProUser: false) == .preview)
+            vm.consumeFreeQuota()
         }
         #expect(vm.freeQuotaUsed == SmartPaperViewModel.freeMonthlyQuota)
         #expect(vm.prepareGeneration(isProUser: false) == .quotaExceeded)
 
         currentDate = Self.date(2026, 7, 1)
         #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        #expect(vm.freeQuotaUsed == 0)
+        vm.consumeFreeQuota()
         #expect(vm.freeQuotaUsed == 1)
         #expect(defaults.string(forKey: UDKey.smartPaperFreeQuotaMonth) == "2026-07")
     }

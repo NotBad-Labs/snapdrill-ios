@@ -81,7 +81,8 @@ struct SmartPaperView: View {
         .navigationDestination(isPresented: $showingPDFPreview) {
             ExportPreviewView(
                 items: vm.selectedItems,
-                options: vm.pdfOptions
+                options: vm.pdfOptions,
+                onExport: isProUser ? nil : { vm.consumeFreeQuota() }
             )
         }
         .overlay(alignment: .bottom) {

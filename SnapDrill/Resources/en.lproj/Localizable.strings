@@ -839,7 +839,6 @@
 "smart_paper.no_items_title" = "No Questions Available";
 "smart_paper.no_items_message" = "No questions match the current filters. Adjust filters or capture some questions first.";
 "smart_paper.pdf_title" = "Smart Review Paper";
-"smart_paper.pro_required" = "Smart Paper is a Pro feature, coming soon";
 "smart_paper.selected_count" = "%d selected";
 "statistics.title" = "Library Insights";
 "statistics.category_trend" = "Category Trend";
