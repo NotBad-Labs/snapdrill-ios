@@ -171,6 +171,8 @@ struct ProfileManagerPreferenceTests {
 
         defaults.set(Data("draft".utf8), forKey: UDKey.captureDraftMetadata)
         defaults.set(true, forKey: UDKey.captureFieldCategory)
+        defaults.set("2026-06", forKey: UDKey.smartPaperFreeQuotaMonth)
+        defaults.set(2, forKey: UDKey.smartPaperFreeQuotaUsed)
         defaults.set(true, forKey: "\(CategoryDimensionModel.visibilityKeyPrefix)test")
         defaults.set("keep", forKey: "unrelated.global.key")
 
@@ -178,6 +180,8 @@ struct ProfileManagerPreferenceTests {
 
         #expect(defaults.object(forKey: UDKey.captureDraftMetadata) == nil)
         #expect(defaults.object(forKey: UDKey.captureFieldCategory) == nil)
+        #expect(defaults.object(forKey: UDKey.smartPaperFreeQuotaMonth) == nil)
+        #expect(defaults.object(forKey: UDKey.smartPaperFreeQuotaUsed) == nil)
         #expect(defaults.object(forKey: "\(CategoryDimensionModel.visibilityKeyPrefix)test") == nil)
         #expect(defaults.string(forKey: "unrelated.global.key") == "keep")
     }

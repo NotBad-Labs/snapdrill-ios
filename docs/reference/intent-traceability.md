@@ -37,7 +37,7 @@
 | [高级统计（Pro）](../features/backlog/feat-advanced-stats.md) | ⛔ 阻塞 | Pro | [`vision:P3`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) / [`ADR-001`](../decisions/ADR-001-smart-paper-analytics-pricing.md) |
 | [iCloud 多设备同步](../features/backlog/feat-icloud-sync.md) | ⛔ 阻塞 | Pro | [`vision:P4`](../explanations/vision.md) / [`vision:P6`](../explanations/vision.md) / [`ADR-001`](../decisions/ADR-001-smart-paper-analytics-pricing.md) |
 | [图片处理增强（去手写 / 去批改痕迹 / 试卷还原）](../features/backlog/feat-image-enhance.md) | 📋 Backlog | Pro | [`vision:P3`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`ADR-001`](../decisions/ADR-001-smart-paper-analytics-pricing.md) |
-| [智能组卷（SmartPaper · Pro）](../features/backlog/feat-smartpaper.md) | ⛔ 阻塞 | Pro | [`vision:P2`](../explanations/vision.md) / [`vision:P3`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`ADR-001`](../decisions/ADR-001-smart-paper-analytics-pricing.md) |
+| [智能组卷（SmartPaper · Pro）](../features/backlog/feat-smartpaper.md) | 🛠 进行中 | Pro | [`vision:P2`](../explanations/vision.md) / [`vision:P3`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`ADR-001`](../decisions/ADR-001-smart-paper-analytics-pricing.md) |
 | [Word 导出（Pro）](../features/backlog/feat-word-export.md) | ⛔ 阻塞 | Pro | [`vision:P3`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`ADR-001`](../decisions/ADR-001-smart-paper-analytics-pricing.md) |
 
 ## Intent -> Feature
