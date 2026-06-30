@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-23
+last_updated: 2026-06-30
 intent_refs:
   - vision:P1
   - vision:P2
@@ -38,7 +38,7 @@ intent_refs:
 - **商业分层**：搜索 / 动态维度过滤 / 排序 / 编辑 / 批量打标签 / 批量删除 / 字段配置 / 单题分享卡片 / Multi-Profile = **免费基础能力，不作订阅门槛**（单设备资料库完整可管理，多套独立资料库可直接使用）。本 feature 无 Pro 项；SM-2 数据驱动的智能组卷 / 高级统计是 Pro（在各自 feature 展开，定价见 `../../explanations/business-model.md`）。
 
 ## 3. 技术设计 (How)
-- **模块归属**：`SnapDrillFeatureLibrary`（题库列表 / 搜索 / 过滤 / 详情 `LibraryDetailView` / 编辑 `LibraryEditViewModel` / `LibraryViewModel`）。`@Model` 类型 `ReviewItem` / `CategoryDimension` / `CategoryValue` 定义在 `SnapDrillData`，经 `ArchiveRepository` / `CategoryDimensionRepository` / `CategoryValueRepository` + `RepositoryContainer` 访问。删除窗口由 `DeletionScheduler`（App 级 Service，`SnapDrillCore`）管理。ShareCard 归 `SnapDrillFeatureLibrary/ShareCardView`。
+- **模块归属**：`SnapDrillFeatureLibrary`（题库列表 / 搜索 / 过滤 / 详情 `LibraryDetailView` / 编辑 `LibraryEditViewModel` / `LibraryViewModel`）。`@Model` 类型 `ArchiveItemModel` / `CategoryDimensionModel` / `CategoryValueModel` 定义在 `SnapDrillData`，经 `ArchiveRepository` / `CategoryDimensionRepository` / `CategoryValueRepository` + `RepositoryContainer` 访问。删除窗口由 `DeletionScheduler`（App 级 Service，`SnapDrillCore`）管理。ShareCard 归 `SnapDrillFeatureLibrary/ShareCardView`。注意：备份 wire key `reviewItems` 与开发种子入口 `seedReviewItems` 是刻意保留的外部格式 / 调试入口名称，不代表主领域模型仍叫 `ReviewItem`。
 - **关键机制 / 数据流**：View（`@Environment(\.repositories)` 注入）→ ViewModel → Repository（封装 ModelContext）→ `DataExecutor`（actor）→ SwiftData `@Model`。Repository `insert()` 为纯内存操作，必须显式 `saveContext()` 才持久化；保存失败 `rollbackContext()`。跨模块刷新发 `Notification.Name.reviewDataDidChange`（`LibraryEditViewModel` 等为发布方，Dashboard / Review ViewModel 监听刷新）。软删除：`LibraryViewModel.softDeleteItems()` → `DeletionScheduler.scheduleDeletion(ids:executor:)` 注册 ID 集合 + 删除执行器并启动 5 秒倒计时，从列表临时移除；`undoDeletion()` 恢复、取消倒计时；`commitImmediately()` 在 App 进入后台时立即落删。批量删除复用同一套机制。ShareCard 用 SwiftUI `ImageRenderer`（iOS 16+），**不走 PDFExport 批量管线**（仅渲染单题，单一职责）。
 - **State & Concurrency**（Swift 6 strict）：题库 View 由 `@Observable` ViewModel（`@MainActor`）驱动；搜索 / 过滤 / 排序为内存视图操作，不改底层数据；编辑保存、批量打标签、删除等重活与落库经 Repository → `DataExecutor`（actor），不阻塞主线程。题库列表图片**按需 + 降采样加载**（`loadDownsampledImage`）控制滚动内存。Per-Profile 隔离：题库 / 字段配置 / 自动推断历史 / 排序偏好由 `ProfileManager` 按 Profile 切换重建 `ModelContainer` + `RepositoryContainer`。
 - **设计裁决（仅本模块）**：

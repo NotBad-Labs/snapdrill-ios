@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-20
+last_updated: 2026-06-30
 intent_refs:
   - vision:P2
   - vision:P4
@@ -38,11 +38,11 @@ intent_refs:
 - **商业分层**：PDF 导出 + PDF 增强 + 单题/批量快速打印 = **免费基础能力，不作订阅门槛**。Word 高级排版导出（用户二次调整段落/页眉页码/字体后打印）= Pro 增值，是 PDF 导出的格式升级（见 `../backlog/feat-word-export.md`，阻塞 #486 前置 #479）。图片处理增强 = Pro（阻塞 #479）。定价见 `../../explanations/business-model.md`。
 
 ## 3. 技术设计 (How)
-- **模块归属**：PDF 渲染/排版管线 `SnapDrillCore/Service/PDFExportService`（统一 PDF 引擎，注入于 `ServiceContainer.pdfExport`）；快速打印**目标**为 `UIPrintInteractionController` + 自定义 `UIPrintPageRenderer`（layoutN：1/2/4 题/页），将来抽出落 `SnapDrillCore/Service/PrintService.swift`。
-  - **⚠ 实现现状（GAP-R5，代码债）**：当前快速打印为**过渡实现**——`LibraryDetailView` 单题打印生成 PDF 后经系统分享表（`UIActivityViewController` / ShareSheet，含 AirPrint 打印项）打印（多题/每页题数走导出预览 `ExportPreviewView`），**尚未接入** `UIPrintInteractionController` / `UIPrintPageRenderer`；每页题数直排打印（1/2/4 题/页）待真 AirPrint 补全。
+- **模块归属**：PDF 渲染/排版管线 `SnapDrillCore/Service/PDFExportService`（统一 PDF 引擎，注入于 `ServiceContainer.pdfExport`）；打印呈现走 `SnapDrillUI/PrintPresenting` adapter（生产默认 `LivePrintPresenter`，内部使用 `UIPrintInteractionController`，iPad 需要有效 anchor）。
+  - **实现现状（GAP-R5 已接入，剩余 dogfood）**：`LibraryDetailView` 单题快速打印生成 PDF 后调用 `PrintPresenting.present(...)`；`ExportPreviewView` 的批量打印同样通过 `PrintPresenting`。旧 spec 所称"经 ShareSheet 间接打印、尚未接入 `UIPrintInteractionController`"已过期。剩余真实缺口是无 AirPrint 打印机 / 真机 AirPrint 三态 dogfood 尚未完成。
 - **关键机制 / 数据流**：题库过滤/选中结果集 → 题目快照 → PDFExportService 排版（去答案 / 留白 / 页眉页码为布局选项）→ 生成 PDF → 预览 → 分享/保存/打印。智能组卷、Word 导出均**复用同一 PDF 管线，不重新实现 PDF 引擎**（单一职责）。ShareCard 例外：用 SwiftUI `ImageRenderer`，不走 PDFExport 管线。
-- **State & Concurrency**（Swift 6 strict）：导出/打印为只读编排。批量 PDF 渲染**逐页包 `autoreleasepool` 释放**控制峰值内存（防 OOM）；重活不阻塞主线程。PDF 导出预览经 `AppActivityTracker.begin(.exporting) → end(...)` 标记活动——期间禁止切换 Profile（互斥），UI 显示"正在导出中，请稍候"。
-  - **⚠ 实现现状（GAP-R4，代码债）**：快速打印（`LibraryDetailView` 单题）当前**未接入** tracker，`.printing` 活动类型生产代码零调用、部分编辑路径误用 `.capturing`——快速打印期间 Profile 切换保护暂缺，待 code 债补全。导出预览 `.exporting` 标记还受 `feat-profile.md` KI-01 的实例一致性问题影响。
+- **State & Concurrency**（Swift 6 strict）：导出/打印为只读编排。批量 PDF 渲染**逐页包 `autoreleasepool` 释放**控制峰值内存（防 OOM）；重活不阻塞主线程。PDF 导出预览经 `AppActivityTracker.begin(.exporting) → end(...)` 标记活动；单题快速打印与预览页打印经 `AppActivityTracker.begin(.printing) → end(...)` 标记活动——期间禁止切换 Profile（互斥），UI 显示对应忙碌提示。
+  - **实现现状（GAP-R4 已接入，剩余 caveat）**：旧 spec 所称"快速打印未接入 tracker、`.printing` 生产代码零调用"已过期。当前剩余真实缺口是 `LibraryEditViewModel.save()` 仍使用 `.capturing` 标记编辑保存，需后续判断是否改为更准确的活动类型；另外真机 AirPrint dogfood 尚未完成。
 - **设计裁决（仅本模块）**：
   - **去答案是布局层操作**（隐藏答案文字字段后排版），不触碰原题答案数据，与图片层的 Pro 图片处理增强技术路径完全分离。
   - ShareCard 单题渲染**不共享** PDF 批量管线（避免为单题强行复用批量流水线，design §简洁单一职责）。
@@ -76,7 +76,7 @@ intent_refs:
 ### B. 分享与打印
 
 - 分享走系统 share sheet；打印走 `PrintPresenting` adapter 或系统打印面板。iPad 必须提供有效 anchor。
-- 已知缺口：GAP-R5 指出分享表间接打印与直接打印入口的契约差异；真实打印仍需真机 dogfood。
+- 已知缺口：打印已通过 `PrintPresenting` adapter 接入系统打印面板；真实 AirPrint 打印机 dogfood 仍需补齐。
 - 打印/分享失败必须用户可见，并保留 retry 路径。
 
 ### C. 活动追踪与隐私
@@ -91,7 +91,7 @@ intent_refs:
 | completed/cancelled/failed 三态 | `PrintPresenting` tests + dogfood |
 | iPad anchor | UI test / simulator iPad route test |
 | 空集合不导出 | Export service tests |
-| 活动追踪 | GAP-R4 / AppActivityTracker 契约测试 |
+| 活动追踪 | AppActivityTracker 契约测试 + 编辑保存活动类型后续收敛 |
 | 真机打印 | dogfood 待验 |
 
 ## 意图追溯（永久保留）

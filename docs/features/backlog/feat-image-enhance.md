@@ -3,9 +3,9 @@ id: feat-image-enhance
 title: 图片处理增强（去手写 / 去批改痕迹 / 试卷还原）
 status: backlog
 tier: pro
-blocked_by: []
+blocked_by: [479]
 mode: lightweight
-last_updated: 2026-05-30
+last_updated: 2026-06-30
 intent_refs:
   - vision:P3
   - vision:P4

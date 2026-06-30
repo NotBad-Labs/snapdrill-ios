@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-23
+last_updated: 2026-06-30
 intent_refs:
   - vision:P2
   - vision:P5
@@ -37,7 +37,7 @@ intent_refs:
 - **商业分层**：基础概览首页 = **免费**；高级统计 = Pro（见 `../backlog/feat-advanced-stats.md`，定价见 `../../explanations/business-model.md`）。
 
 ## 3. 技术设计 (How) — 只放实现机制，不放商业/上位 why
-- **模块归属**：`Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard`（`DashboardView` / `DashboardViewModel` / `ReviewHeroCard` / `BentoCard` / `HeaderView` / `DashboardRouter`）。高级统计的 `DashboardAnalyticsView` / `DashboardAnalyticsViewModel` 同目录但归 Pro spec。新增 `@Model`：无（统计经 Repository 聚合既有资料 / `ReviewItem`）。
+- **模块归属**：`Packages/SnapDrillFeatures/Sources/SnapDrillFeatureDashboard`（`DashboardView` / `DashboardViewModel` / `ReviewHeroCard` / `BentoCard` / `HeaderView` / `DashboardRouter`）。高级统计的 `DashboardAnalyticsView` / `DashboardAnalyticsViewModel` 同目录但归 Pro spec。新增 `@Model`：无（统计经 Repository 聚合既有资料 / `ArchiveItemModel`）。
 - **关键机制 / 数据流**：`DashboardViewModel.loadData()` 经 `RepositoryContainer.archive` 取 `fetchTodayCount()` / `totalItemCount()` / 到期数 → 写入 `@Observable` 计数属性 → SwiftUI 渲染 BentoCard 网格 + Hero。进入首页（appear）时 `loadData()` 刷新统计；前台运行期间经 `Notification.Name.reviewDataDidChange` 去抖增量刷新（observer 在 `init` 建立、`onDisappear` 经 `cancelTasks()` 释放，再次 appear 重新 `loadData()`）。
 - **State & Concurrency**（Swift 6 strict）：首页状态归 `DashboardViewModel`（`@Observable`，`@MainActor`）；统计读取经 Repository → `DataExecutor`（actor）取数，不阻塞主线程；`reviewDataDidChange` 观察用 `Task` 去抖（`dataChangeTask` / `pendingRefreshTask`），退出时 `cancelTasks()` 释放。
 - **设计裁决**：无（首页为只读聚合，复用既有 Repository 与通知机制，无对全局原则的局部例外）。
