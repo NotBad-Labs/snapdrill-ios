@@ -49,6 +49,16 @@ struct OCRServiceTests {
 
     // MARK: - Core Functionality
 
+    @Test("RecognizeTextRequest 语言配置包含繁体中文且保持简体首选")
+    func recognizeTextLanguageConfigurationIncludesTraditionalChinese() {
+        #expect(OCRService.textRecognitionLanguageIdentifiers == ["zh-Hans", "zh-Hant", "en-US"])
+    }
+
+    @Test("RecognizeDocumentsRequest 语言配置包含繁体中文且保持简体首选")
+    func recognizeDocumentLanguageConfigurationIncludesTraditionalChinese() {
+        #expect(OCRService.documentRecognitionLanguageIdentifiers == ["zh-Hans", "zh-Hant", "en-US"])
+    }
+
     @Test("验证清晰的文字图片能够被正确识别出内容，防范连白板图片都通过的假象")
     func recognizeStandardText() async throws {
         let service = OCRService()

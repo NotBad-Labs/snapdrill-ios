@@ -21,6 +21,16 @@ import Vision
 /// - 自动进行语言校正。
 /// - 使用 `.accurate` 模式以确保最高识别率。
 public actor OCRService: OCRServiceProtocol {
+    nonisolated static let textRecognitionLanguageIdentifiers = ["zh-Hans", "zh-Hant", "en-US"]
+    nonisolated static let documentRecognitionLanguageIdentifiers = ["zh-Hans", "zh-Hant", "en-US"]
+
+    private nonisolated static var textRecognitionLanguages: [Locale.Language] {
+        textRecognitionLanguageIdentifiers.map { .init(identifier: $0) }
+    }
+
+    private nonisolated static var documentRecognitionLanguages: [Locale.Language] {
+        documentRecognitionLanguageIdentifiers.map { .init(identifier: $0) }
+    }
 
     // MARK: - Initialization
 
@@ -40,7 +50,7 @@ public actor OCRService: OCRServiceProtocol {
         request.recognitionLevel = .accurate
         request.usesLanguageCorrection = true
         // 中英文混合场景下显式指定优于自动检测，避免中文试卷上的英文被误判为全英文档
-        request.recognitionLanguages = [.init(identifier: "zh-Hans"), .init(identifier: "en-US")]
+        request.recognitionLanguages = Self.textRecognitionLanguages
 
         let observations = try await request.perform(on: cgImage)
         let recognizedStrings = observations.compactMap { observation in
@@ -58,7 +68,7 @@ public actor OCRService: OCRServiceProtocol {
     public func recognizeDocument(from cgImage: CGImage) async throws -> DocumentRecognitionResult {
         var request = RecognizeDocumentsRequest()
         request.textRecognitionOptions.useLanguageCorrection = true
-        request.textRecognitionOptions.recognitionLanguages = [.init(identifier: "zh-Hans"), .init(identifier: "en-US")]
+        request.textRecognitionOptions.recognitionLanguages = Self.documentRecognitionLanguages
 
         let observations = try await request.perform(on: cgImage)
 
