@@ -171,6 +171,8 @@ struct ProfileManagerPreferenceTests {
 
         defaults.set(Data("draft".utf8), forKey: UDKey.captureDraftMetadata)
         defaults.set(true, forKey: UDKey.captureFieldCategory)
+        defaults.set("2026-06", forKey: UDKey.smartPaperFreeQuotaMonth)
+        defaults.set(2, forKey: UDKey.smartPaperFreeQuotaUsed)
         defaults.set(true, forKey: "\(CategoryDimensionModel.visibilityKeyPrefix)test")
         defaults.set("keep", forKey: "unrelated.global.key")
 
@@ -178,7 +180,61 @@ struct ProfileManagerPreferenceTests {
 
         #expect(defaults.object(forKey: UDKey.captureDraftMetadata) == nil)
         #expect(defaults.object(forKey: UDKey.captureFieldCategory) == nil)
+        #expect(defaults.object(forKey: UDKey.smartPaperFreeQuotaMonth) == nil)
+        #expect(defaults.object(forKey: UDKey.smartPaperFreeQuotaUsed) == nil)
         #expect(defaults.object(forKey: "\(CategoryDimensionModel.visibilityKeyPrefix)test") == nil)
         #expect(defaults.string(forKey: "unrelated.global.key") == "keep")
+    }
+
+    @Test("SmartPaper 配额随磁盘 Profile 切换保存并往返恢复")
+    @MainActor
+    func smartPaperQuota_roundTripsAcrossDiskProfileSwitches() async throws {
+        let defaults = UserDefaults.standard
+        let originalMonth = defaults.object(forKey: UDKey.smartPaperFreeQuotaMonth)
+        let originalUsed = defaults.object(forKey: UDKey.smartPaperFreeQuotaUsed)
+        defer {
+            restore(originalMonth, forKey: UDKey.smartPaperFreeQuotaMonth, in: defaults)
+            restore(originalUsed, forKey: UDKey.smartPaperFreeQuotaUsed, in: defaults)
+        }
+
+        let manager = await ProfileManager.create()
+        let originalProfileId = manager.activeProfileId
+        let profileA = try #require(manager.createProfile(name: "Quota A \(UUID().uuidString)"))
+        let profileB = try #require(manager.createProfile(name: "Quota B \(UUID().uuidString)"))
+
+        do {
+            try await manager.switchProfile(to: profileA.id)
+            defaults.set("2026-06", forKey: UDKey.smartPaperFreeQuotaMonth)
+            defaults.set(2, forKey: UDKey.smartPaperFreeQuotaUsed)
+
+            try await manager.switchProfile(to: profileB.id)
+            defaults.set("2026-07", forKey: UDKey.smartPaperFreeQuotaMonth)
+            defaults.set(1, forKey: UDKey.smartPaperFreeQuotaUsed)
+
+            try await manager.switchProfile(to: profileA.id)
+            #expect(defaults.string(forKey: UDKey.smartPaperFreeQuotaMonth) == "2026-06")
+            #expect(defaults.integer(forKey: UDKey.smartPaperFreeQuotaUsed) == 2)
+
+            try await manager.switchProfile(to: profileB.id)
+            #expect(defaults.string(forKey: UDKey.smartPaperFreeQuotaMonth) == "2026-07")
+            #expect(defaults.integer(forKey: UDKey.smartPaperFreeQuotaUsed) == 1)
+
+            try await manager.switchProfile(to: originalProfileId)
+            manager.discardProfile(id: profileA.id)
+            manager.discardProfile(id: profileB.id)
+        } catch {
+            try? await manager.switchProfile(to: originalProfileId)
+            manager.discardProfile(id: profileA.id)
+            manager.discardProfile(id: profileB.id)
+            throw error
+        }
+    }
+
+    private func restore(_ value: Any?, forKey key: String, in defaults: UserDefaults) {
+        if let value {
+            defaults.set(value, forKey: key)
+        } else {
+            defaults.removeObject(forKey: key)
+        }
     }
 }

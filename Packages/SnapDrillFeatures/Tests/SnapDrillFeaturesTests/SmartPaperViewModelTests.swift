@@ -29,8 +29,44 @@ final class SmartPaperViewModelTests {
         repos = RepositoryContainer(modelContext: container.mainContext)
     }
 
-    private func makeVM() -> SmartPaperViewModel {
-        SmartPaperViewModel(repositories: repos)
+    private func makeVM(
+        defaults: UserDefaults? = nil,
+        now: @escaping () -> Date = Date.init,
+        randomizeArchiveItems: @escaping ([ArchiveItemModel]) -> [ArchiveItemModel] = { $0 }
+    ) -> SmartPaperViewModel {
+        SmartPaperViewModel(
+            repositories: repos,
+            defaults: defaults ?? makeDefaults(),
+            calendar: Self.gregorianCalendar,
+            now: now,
+            randomizeArchiveItems: randomizeArchiveItems
+        )
+    }
+
+    private func makeDefaults() -> UserDefaults {
+        let suiteName = "SmartPaperViewModelTests.\(UUID().uuidString)"
+        guard let defaults = UserDefaults(suiteName: suiteName) else {
+            preconditionFailure("Failed to create test UserDefaults suite: \(suiteName)")
+        }
+        defaults.removePersistentDomain(forName: suiteName)
+        return defaults
+    }
+
+    private static var gregorianCalendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .gmt
+        return calendar
+    }
+
+    private static func date(_ year: Int, _ month: Int, _ day: Int) -> Date {
+        let components = DateComponents(
+            calendar: gregorianCalendar,
+            timeZone: gregorianCalendar.timeZone,
+            year: year,
+            month: month,
+            day: day
+        )
+        return components.date ?? Date(timeIntervalSince1970: 0)
     }
 
     /// 手建分类维度（仅 3 个值，不走 seedDefaults 以免引入 locale 相关默认值），返回 name→value
@@ -159,6 +195,38 @@ final class SmartPaperViewModelTests {
         #expect(vm.selectedItems.isEmpty)
     }
 
+    @Test("refreshSelection 免费层走随机抽取，Pro 层保留 SM-2 精准排序")
+    func refreshSelection_freeRandomProPrecise() throws {
+        let oldestCreated = ArchiveItemModel(
+            content: "随机第一",
+            createdAt: Date(timeIntervalSince1970: 1),
+            nextReviewAt: Date(timeIntervalSince1970: 300)
+        )
+        let middle = ArchiveItemModel(
+            content: "随机第二",
+            createdAt: Date(timeIntervalSince1970: 2),
+            nextReviewAt: Date(timeIntervalSince1970: 200)
+        )
+        let mostUrgent = ArchiveItemModel(
+            content: "精准第一",
+            createdAt: Date(timeIntervalSince1970: 3),
+            nextReviewAt: Date(timeIntervalSince1970: 100)
+        )
+        repos.archive.insert(oldestCreated)
+        repos.archive.insert(middle)
+        repos.archive.insert(mostUrgent)
+        try repos.archive.saveContext()
+
+        let vm = makeVM(randomizeArchiveItems: { Array($0.reversed()) })
+        vm.questionCount = 2
+
+        vm.refreshSelection(isProUser: false)
+        #expect(vm.selectedItems.map { $0.content ?? "" } == ["随机第一", "随机第二"])
+
+        vm.refreshSelection(isProUser: true)
+        #expect(vm.selectedItems.map { $0.content ?? "" } == ["精准第一", "随机第二"])
+    }
+
     // 错误处理路径测试（refreshSelection + loadInitialData 的 catch 分支）：
     // 当前 RepositoryContainer 无 protocol 抽象，无法注入 mock 触发失败。
     // Codex/Gemini 审查确认此为架构限制，需后续引入 DI 后补充。
@@ -178,6 +246,105 @@ final class SmartPaperViewModelTests {
         #expect(options.showBlankAnswerArea == false)
         #expect(options.showHeader == false)
         #expect(options.itemsPerPage == 4)
+    }
+
+    // MARK: - 免费配额
+
+    @Test("freeMonthlyQuota 固定为 3 次每月")
+    func freeMonthlyQuota_isThree() {
+        #expect(SmartPaperViewModel.freeMonthlyQuota == 3)
+    }
+
+    @Test("prepareGeneration 免费层打开预览不消耗配额")
+    func prepareGeneration_freePreviewDoesNotConsumeQuota() throws {
+        try seedItems()
+        let defaults = makeDefaults()
+        let vm = makeVM(defaults: defaults)
+
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        #expect(vm.freeQuotaUsed == 0)
+        #expect(defaults.integer(forKey: UDKey.smartPaperFreeQuotaUsed) == 0)
+    }
+
+    @Test("consumeFreeQuota 免费层首次导出消耗 1 次")
+    func consumeFreeQuota_freeExportConsumesOnce() throws {
+        try seedItems()
+        let defaults = makeDefaults()
+        let vm = makeVM(defaults: defaults)
+
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        vm.consumeFreeQuota()
+
+        #expect(vm.freeQuotaUsed == 1)
+        #expect(defaults.integer(forKey: UDKey.smartPaperFreeQuotaUsed) == 1)
+    }
+
+    @Test("consumeFreeQuota 未导出或取消预览不消耗配额")
+    func consumeFreeQuota_cancelPreviewDoesNotConsumeQuota() throws {
+        try seedItems()
+        let vm = makeVM()
+
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+
+        #expect(vm.freeQuotaUsed == 0)
+    }
+
+    @Test("consumeFreeQuota 同一次生成多次导出最多消耗 1 次")
+    func consumeFreeQuota_multipleExportsForSameGenerationConsumeOnce() throws {
+        try seedItems()
+        let vm = makeVM()
+
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        vm.consumeFreeQuota()
+        vm.consumeFreeQuota()
+
+        #expect(vm.freeQuotaUsed == 1)
+    }
+
+    @Test("consumeFreeQuota 新生成重置单次扣减标志")
+    func consumeFreeQuota_newGenerationCanConsumeAgain() throws {
+        try seedItems()
+        let vm = makeVM()
+
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        vm.consumeFreeQuota()
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        vm.consumeFreeQuota()
+
+        #expect(vm.freeQuotaUsed == 2)
+    }
+
+    @Test("prepareGeneration 免费层导出满 3 次后拦截，跨自然月重置")
+    func prepareGeneration_freeQuotaMonthlyResetAfterExport() throws {
+        try seedItems()
+        var currentDate = Self.date(2026, 6, 15)
+        let defaults = makeDefaults()
+        let vm = makeVM(defaults: defaults, now: { currentDate })
+
+        for _ in 0..<SmartPaperViewModel.freeMonthlyQuota {
+            #expect(vm.prepareGeneration(isProUser: false) == .preview)
+            vm.consumeFreeQuota()
+        }
+        #expect(vm.freeQuotaUsed == SmartPaperViewModel.freeMonthlyQuota)
+        #expect(vm.prepareGeneration(isProUser: false) == .quotaExceeded)
+
+        currentDate = Self.date(2026, 7, 1)
+        #expect(vm.prepareGeneration(isProUser: false) == .preview)
+        #expect(vm.freeQuotaUsed == 0)
+        vm.consumeFreeQuota()
+        #expect(vm.freeQuotaUsed == 1)
+        #expect(defaults.string(forKey: UDKey.smartPaperFreeQuotaMonth) == "2026-07")
+    }
+
+    @Test("prepareGeneration Pro 路径不消耗免费配额")
+    func prepareGeneration_proDoesNotConsumeFreeQuota() throws {
+        try seedItems()
+        let defaults = makeDefaults()
+        let vm = makeVM(defaults: defaults)
+
+        #expect(vm.prepareGeneration(isProUser: true) == .preview)
+        #expect(vm.freeQuotaUsed == 0)
+        #expect(defaults.object(forKey: UDKey.smartPaperFreeQuotaUsed) == nil)
     }
 
     // MARK: - 软删 pending 排除（Fix 4 / GAP-R1）

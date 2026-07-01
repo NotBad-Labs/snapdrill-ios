@@ -10,6 +10,7 @@
 
 import SwiftUI
 import PDFKit
+import UIKit
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillUI
@@ -19,11 +20,13 @@ struct ExportPreviewView: View {
     
     let items: [ArchiveExportSnapshot]
     var options: PDFExportOptions = .default
+    var onExport: (() -> Void)?
     @Environment(\.analyticsService) private var analyticsService
 
     @State private var pdfData: Data?
     @State private var isLoading = true
     @State private var tempPDFURL: URL?
+    @State private var showingShareSheet = false
     @State private var showGenerateError = false
     @State private var showPrintError = false
     @State private var isPrinting = false
@@ -88,8 +91,16 @@ struct ExportPreviewView: View {
         .toolbar {
             ToolbarItemGroup(placement: .confirmationAction) {
                 if let tempPDFURL {
-                    ShareLink(item: tempPDFURL) {
-                        Label(L10n.Library.share, systemImage: "square.and.arrow.up")
+                    if onExport == nil {
+                        ShareLink(item: tempPDFURL) {
+                            Label(L10n.Library.share, systemImage: "square.and.arrow.up")
+                        }
+                    } else {
+                        Button {
+                            showingShareSheet = true
+                        } label: {
+                            Label(L10n.Library.share, systemImage: "square.and.arrow.up")
+                        }
                     }
                 }
 
@@ -113,6 +124,15 @@ struct ExportPreviewView: View {
         }
         .alert(L10n.Library.printFailed, isPresented: $showPrintError) {
             Button(L10n.Common.ok, role: .cancel) {}
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            if let tempPDFURL, let onExport {
+                PDFActivityView(activityItems: [tempPDFURL]) { completed in
+                    if completed {
+                        onExport()
+                    }
+                }
+            }
         }
         .task {
             generatePDF()
@@ -169,7 +189,7 @@ struct ExportPreviewView: View {
         }
     }
     
-    /// 写入临时文件供 ShareLink/打印用；成功返回 URL，失败返回 nil（作为「不进预览」的判据）。
+    /// 写入临时文件供分享/打印用；成功返回 URL，失败返回 nil（作为「不进预览」的判据）。
     private func saveToTemp(pdfData: Data) -> URL? {
         let fileName = "SnapDrill_Reference_Set_\(Date().filenameDateString).pdf"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
@@ -197,17 +217,35 @@ struct ExportPreviewView: View {
                 guard let printAnchorView else {
                     throw PrintError.presentationFailed
                 }
-                _ = try await presenter.present(
+                let outcome = try await presenter.present(
                     pdfData: pdfData,
                     jobName: L10n.Library.exportPreview,
                     anchor: .view(printAnchorView)
                 )
+                if outcome == .completed {
+                    onExport?()
+                }
             } catch {
                 SnapDrillLogger.generic.error("PDF 打印失败: \(error.localizedDescription)")
                 showPrintError = true
             }
         }
     }
+}
+
+private struct PDFActivityView: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    let onComplete: (Bool) -> Void
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        controller.completionWithItemsHandler = { _, completed, _, _ in
+            onComplete(completed)
+        }
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 private struct ExportPrintAnchorView: UIViewRepresentable {

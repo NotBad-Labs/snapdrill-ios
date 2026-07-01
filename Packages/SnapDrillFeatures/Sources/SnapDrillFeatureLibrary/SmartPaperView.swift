@@ -15,8 +15,8 @@ import SnapDrillUI
 
 /// 智能组卷配置页
 ///
-/// 用户选择分类与数量后一键生成"最需要回顾的资料集"。
-/// 选题基于 SM-2 紧迫度排序，复用现有 ExportPreviewView 预览 PDF。
+/// 用户选择分类与数量后一键生成资料集。
+/// 免费层随机抽取，Pro 层基于 SM-2 紧迫度排序，复用现有 ExportPreviewView 预览 PDF。
 struct SmartPaperView: View {
 
     @Environment(\.dismiss) private var dismiss
@@ -25,7 +25,7 @@ struct SmartPaperView: View {
 
     @State private var viewModel: SmartPaperViewModel?
     @State private var showingPDFPreview = false
-    @State private var showProGate = false
+    @State private var quotaGuidanceMessage: String?
 
     // TODO: #479 — 替换为 StoreKit 订阅状态检查
     private var isProUser: Bool { services.proEntitlement.isProUser }
@@ -54,7 +54,7 @@ struct SmartPaperView: View {
                     let repos = repositories
                     let vm = SmartPaperViewModel(repositories: repos, deletionScheduler: services.deletionScheduler)
                     self.viewModel = vm
-                    vm.loadInitialData()
+                    vm.loadInitialData(isProUser: isProUser)
                 }
             }
             .alert(viewModel?.errorMessage ?? "", isPresented: Binding(
@@ -76,13 +76,22 @@ struct SmartPaperView: View {
             selectionResultSection(vm: vm)
             generateButtonSection(vm: vm)
         }
-        .onChange(of: vm.questionCount) { _, _ in vm.refreshSelection() }
-        .onChange(of: vm.selectedCategoryValueIds) { _, _ in vm.refreshSelection() }
+        .onChange(of: vm.questionCount) { _, _ in vm.refreshSelection(isProUser: isProUser) }
+        .onChange(of: vm.selectedCategoryValueIds) { _, _ in vm.refreshSelection(isProUser: isProUser) }
         .navigationDestination(isPresented: $showingPDFPreview) {
             ExportPreviewView(
                 items: vm.selectedItems,
-                options: vm.pdfOptions
+                options: vm.pdfOptions,
+                onExport: isProUser ? nil : { vm.consumeFreeQuota() }
             )
+        }
+        .overlay(alignment: .bottom) {
+            if let quotaGuidanceMessage {
+                SmartPaperQuotaToast(message: quotaGuidanceMessage)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
     }
 
@@ -160,10 +169,13 @@ struct SmartPaperView: View {
     private func generateButtonSection(vm: SmartPaperViewModel) -> some View {
         Section {
             Button {
-                if isProUser {
+                switch vm.prepareGeneration(isProUser: isProUser) {
+                case .preview:
                     showingPDFPreview = true
-                } else {
-                    showProGate = true
+                case .quotaExceeded:
+                    showQuotaGuidance()
+                case .unavailable:
+                    break
                 }
             } label: {
                 HStack {
@@ -175,8 +187,16 @@ struct SmartPaperView: View {
             }
             .disabled(vm.selectedItems.isEmpty)
         }
-        .alert(L10n.SmartPaper.proRequired, isPresented: $showProGate) {
-            Button(L10n.Common.ok, role: .cancel) {}
+    }
+
+    private func showQuotaGuidance() {
+        let message = L10n.SmartPaper.freeQuotaUsed
+        quotaGuidanceMessage = message
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(3))
+            if quotaGuidanceMessage == message {
+                quotaGuidanceMessage = nil
+            }
         }
     }
 
@@ -217,5 +237,22 @@ struct SmartPaperView: View {
             }
         }
         .navigationTitle(L10n.SmartPaper.categoryFilter)
+    }
+}
+
+private struct SmartPaperQuotaToast: View {
+    let message: String
+
+    var body: some View {
+        Text(message)
+            .font(.subheadline)
+            .foregroundStyle(.white)
+            .multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(.black.opacity(0.85))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(radius: 8)
     }
 }

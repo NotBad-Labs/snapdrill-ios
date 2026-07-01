@@ -74,6 +74,11 @@ nonisolated public enum UDKey {
 
     public static let captureDraftMetadata = "capture_draft_metadata"
 
+    // MARK: - SmartPaper Free Quota
+
+    public static let smartPaperFreeQuotaMonth = "smartPaper.freeQuota.month"
+    public static let smartPaperFreeQuotaUsed = "smartPaper.freeQuota.used"
+
     // MARK: - Profile
 
     /// 当前活跃的 Profile ID（UUID 字符串）
