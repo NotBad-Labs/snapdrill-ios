@@ -90,11 +90,17 @@ struct ExportPreviewView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .confirmationAction) {
-                if tempPDFURL != nil {
-                    Button {
-                        showingShareSheet = true
-                    } label: {
-                        Label(L10n.Library.share, systemImage: "square.and.arrow.up")
+                if let tempPDFURL {
+                    if onExport == nil {
+                        ShareLink(item: tempPDFURL) {
+                            Label(L10n.Library.share, systemImage: "square.and.arrow.up")
+                        }
+                    } else {
+                        Button {
+                            showingShareSheet = true
+                        } label: {
+                            Label(L10n.Library.share, systemImage: "square.and.arrow.up")
+                        }
                     }
                 }
 
@@ -120,10 +126,10 @@ struct ExportPreviewView: View {
             Button(L10n.Common.ok, role: .cancel) {}
         }
         .sheet(isPresented: $showingShareSheet) {
-            if let tempPDFURL {
+            if let tempPDFURL, let onExport {
                 PDFActivityView(activityItems: [tempPDFURL]) { completed in
                     if completed {
-                        onExport?()
+                        onExport()
                     }
                 }
             }
