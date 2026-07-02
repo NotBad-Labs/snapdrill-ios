@@ -9,7 +9,7 @@ on:
 
 concurrency:
   # PR pushes cancel stale same-ref runs; develop/main push and manual dispatch preserve signal.
-  # This reduces same-ref self-hosted runner backlog without hiding post-merge truth.
+  # This keeps the self-hosted queue short without hiding post-merge truth.
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
