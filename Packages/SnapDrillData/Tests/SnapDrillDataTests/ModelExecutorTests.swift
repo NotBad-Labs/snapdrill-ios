@@ -104,8 +104,8 @@ struct DataExecutorTests {
         #expect(try repo.totalCount() == 1)
     }
 
-    @Test("磁盘 store 打不开时重建盘上 store 而不是静默降级到内存")
-    func diskStoreFailureRebuildsPersistentStore() async throws {
+    @Test("磁盘 store 打不开时隔离保留原文件并上报恢复事件")
+    func diskStoreFailureIsolatesCorruptStoreAndReportsEvent() async throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("DataExecutorStoreRecovery_\(UUID().uuidString)")
         let storeURL = root.appendingPathComponent("default.store")
@@ -122,22 +122,82 @@ struct DataExecutorTests {
         try staleSHMData.write(to: shmURL)
 
         let executor = DataExecutor(storeURL: storeURL)
+        let event = try #require(await executor.storeRecoveryEvent)
+        let isolationDirectory = event.isolationDirectoryURL
 
         #expect(await executor.isUsingInMemoryFallback == false)
         #expect(await executor.initializationError == nil)
-        #expect((try? Data(contentsOf: storeURL)) != corruptStoreData)
-        if FileManager.default.fileExists(atPath: walURL.path) {
-            #expect((try? Data(contentsOf: walURL)) != staleWALData)
-        }
-        if FileManager.default.fileExists(atPath: shmURL.path) {
-            #expect((try? Data(contentsOf: shmURL)) != staleSHMData)
-        }
+        #expect(event.storeURL == storeURL)
+        #expect(event.originalErrorDescription.isEmpty == false)
+        #expect(event.retryErrorDescription.isEmpty == false)
+        #expect(isolationDirectory.path.hasPrefix(ProfileVault.corruptedStoresDirectory(forProfileDirectory: root).path))
+        #expect(try Data(contentsOf: isolationDirectory.appendingPathComponent("default.store")) == corruptStoreData)
+        #expect(try Data(contentsOf: isolationDirectory.appendingPathComponent("default.store-wal")) == staleWALData)
+        #expect(try Data(contentsOf: isolationDirectory.appendingPathComponent("default.store-shm")) == staleSHMData)
 
         let context = executor.container.mainContext
+        #expect(try context.fetchCount(FetchDescriptor<ArchiveItemModel>()) == 0)
         context.insert(ArchiveItemModel.mock(content: "recovered disk store"))
         try context.save()
+        #expect((try? Data(contentsOf: storeURL)) != corruptStoreData)
         let count = try context.fetchCount(FetchDescriptor<ArchiveItemModel>())
         #expect(count == 1)
+    }
+
+    @Test("损坏 store 隔离目录最多保留最近三份")
+    func corruptStoreIsolationRetainsNewestThreeArchives() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DataExecutorStoreRetention_\(UUID().uuidString)")
+        let storeURL = root.appendingPathComponent("default.store")
+        let corruptedRoot = ProfileVault.corruptedStoresDirectory(forProfileDirectory: root)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        for name in [
+            "2026-01-01T00-00-00.000Z",
+            "2026-02-01T00-00-00.000Z",
+            "2026-03-01T00-00-00.000Z"
+        ] {
+            try FileManager.default.createDirectory(
+                at: corruptedRoot.appendingPathComponent(name, isDirectory: true),
+                withIntermediateDirectories: true
+            )
+        }
+        try Data("broken".utf8).write(to: storeURL)
+
+        let executor = DataExecutor(storeURL: storeURL)
+        let event = try #require(await executor.storeRecoveryEvent)
+        let retained = try FileManager.default.contentsOfDirectory(
+            at: corruptedRoot,
+            includingPropertiesForKeys: nil
+        )
+        .map(\.lastPathComponent)
+        .sorted()
+
+        #expect(retained.count == 3)
+        #expect(retained.contains(event.isolationDirectoryURL.lastPathComponent))
+        #expect(!retained.contains("2026-01-01T00-00-00.000Z"))
+    }
+
+    @Test("健康磁盘 store 打开不创建隔离目录也不上报恢复事件")
+    func healthyDiskStoreDoesNotReportRecovery() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DataExecutorHealthyStore_\(UUID().uuidString)")
+        let storeURL = root.appendingPathComponent("default.store")
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        let executor = DataExecutor(storeURL: storeURL)
+        let context = executor.container.mainContext
+        context.insert(ArchiveItemModel.mock(content: "healthy disk store"))
+        try context.save()
+
+        #expect(await executor.isUsingInMemoryFallback == false)
+        #expect(await executor.initializationError == nil)
+        #expect(await executor.storeRecoveryEvent == nil)
+        #expect(!FileManager.default.fileExists(
+            atPath: ProfileVault.corruptedStoresDirectory(forProfileDirectory: root).path
+        ))
     }
 
     @Test("RepositoryContainer 通过 DataExecutor 构造可正常工作")

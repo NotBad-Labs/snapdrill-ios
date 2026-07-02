@@ -34,6 +34,11 @@ struct ProfileVaultTests {
         #expect(vault.storeURL(for: id) == vault.profileDirectory(for: id).appendingPathComponent("default.store"))
         #expect(vault.imagesDirectory(for: id) == vault.profileDirectory(for: id).appendingPathComponent("images"))
         #expect(vault.preferencesURL(for: id) == vault.profileDirectory(for: id).appendingPathComponent("preferences.json"))
+        #expect(vault.corruptedStoresDirectory(for: id) == vault.profileDirectory(for: id).appendingPathComponent("corrupted", isDirectory: true))
+        #expect(
+            vault.corruptedStoreIsolationDirectory(for: id, timestamp: "2026-07-02T12-00-00.000Z")
+                == vault.corruptedStoresDirectory(for: id).appendingPathComponent("2026-07-02T12-00-00.000Z", isDirectory: true)
+        )
     }
 
     @Test("profiles.json load/save roundtrip（iso8601 codec，0 格式变更）")
@@ -94,5 +99,35 @@ struct ProfileManagerIngestTests {
 
         pm.discardProfile(id: id)
         #expect(!pm.profiles.contains { $0.id == id })
+    }
+
+    @Test("ProfileManager 暴露活跃 Profile 的磁盘 store 恢复事件")
+    func testProfileManagerExposesStoreRecoveryEvent() async throws {
+        let docs = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let vault = ProfileVault(documentsURL: docs)
+        let profile = Profile(name: "Recovered")
+        let previousActiveProfileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
+        defer {
+            if let previousActiveProfileId {
+                UserDefaults.standard.set(previousActiveProfileId, forKey: UDKey.activeProfileId)
+            } else {
+                UserDefaults.standard.removeObject(forKey: UDKey.activeProfileId)
+            }
+            try? FileManager.default.removeItem(at: docs)
+        }
+
+        try FileManager.default.createDirectory(at: docs, withIntermediateDirectories: true)
+        try vault.createProfileDirectories(for: profile.id)
+        try vault.saveProfiles([profile])
+        UserDefaults.standard.set(profile.id.uuidString, forKey: UDKey.activeProfileId)
+        try Data("not sqlite".utf8).write(to: vault.storeURL(for: profile.id))
+
+        let manager = await ProfileManager.create(vault: vault)
+        let event = try #require(manager.storeRecoveryEvent)
+
+        #expect(!manager.isUsingInMemoryFallback)
+        #expect(manager.activeProfileId == profile.id)
+        #expect(event.storeURL == vault.storeURL(for: profile.id))
+        #expect(event.isolationDirectoryURL.path.hasPrefix(vault.corruptedStoresDirectory(for: profile.id).path))
     }
 }

@@ -62,6 +62,30 @@ nonisolated public struct ProfileVault: Sendable {
         profileDirectory(for: profileId).appendingPathComponent("preferences.json")
     }
 
+    /// `Documents/profiles/<id>/corrupted/`
+    public func corruptedStoresDirectory(for profileId: UUID) -> URL {
+        Self.corruptedStoresDirectory(forProfileDirectory: profileDirectory(for: profileId))
+    }
+
+    /// `Documents/profiles/<id>/corrupted/<timestamp>/`
+    public func corruptedStoreIsolationDirectory(for profileId: UUID, timestamp: String) -> URL {
+        Self.corruptedStoreIsolationDirectory(
+            forProfileDirectory: profileDirectory(for: profileId),
+            timestamp: timestamp
+        )
+    }
+
+    /// `profiles/<id>/corrupted/` for a known profile directory.
+    static func corruptedStoresDirectory(forProfileDirectory profileDirectory: URL) -> URL {
+        profileDirectory.appendingPathComponent("corrupted", isDirectory: true)
+    }
+
+    /// `profiles/<id>/corrupted/<timestamp>/` for a known profile directory.
+    static func corruptedStoreIsolationDirectory(forProfileDirectory profileDirectory: URL, timestamp: String) -> URL {
+        corruptedStoresDirectory(forProfileDirectory: profileDirectory)
+            .appendingPathComponent(timestamp, isDirectory: true)
+    }
+
     // MARK: - 目录确保（internal）
 
     /// 创建 `profiles/<id>/` 与其 `images/` 子目录（幂等）。
