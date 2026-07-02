@@ -26,5 +26,7 @@ hooks_dir=$(git rev-parse --git-path hooks 2>/dev/null) || {
 mkdir -p "$hooks_dir"
 cp Scripts/pre-commit "$hooks_dir/pre-commit"
 chmod +x "$hooks_dir/pre-commit"
+cp Scripts/hooks/pre-push "$hooks_dir/pre-push"
+chmod +x "$hooks_dir/pre-push"
 
 echo "🎉 Setup Complete! Happy Coding!"
