@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 
 concurrency:
+  # PR pushes replace stale runs; develop/main push and manual dispatch preserve signal.
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
