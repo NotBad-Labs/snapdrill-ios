@@ -222,14 +222,21 @@ struct ExportPreviewView: View {
                     jobName: L10n.Library.exportPreview,
                     anchor: .view(printAnchorView)
                 )
-                if outcome == .completed {
-                    onExport?()
-                }
+                Self.notifyExportIfPrintCompleted(outcome, onExport: onExport)
             } catch {
                 SnapDrillLogger.generic.error("PDF 打印失败: \(error.localizedDescription)")
                 showPrintError = true
             }
         }
+    }
+
+    /// Maps the system print outcome to the export-consumption callback.
+    ///
+    /// This is intentionally tiny: SmartPaper free quota consumption is owned by
+    /// `SmartPaperViewModel`; `ExportPreviewView` only reports a completed export.
+    static func notifyExportIfPrintCompleted(_ outcome: PrintOutcome, onExport: (() -> Void)?) {
+        guard outcome == .completed else { return }
+        onExport?()
     }
 }
 
