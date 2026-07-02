@@ -19,7 +19,6 @@ import SnapDrillUI
 /// 免费层随机抽取，Pro 层基于 SM-2 紧迫度排序，复用现有 ExportPreviewView 预览 PDF。
 struct SmartPaperView: View {
 
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.repositories) private var repositories
     @Environment(\.services) private var services
 
@@ -33,36 +32,29 @@ struct SmartPaperView: View {
     init() {}
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if let vm = viewModel {
-                    smartPaperForm(vm: vm)
-                } else {
-                    ProgressView()
-                }
+        Group {
+            if let vm = viewModel {
+                smartPaperForm(vm: vm)
+            } else {
+                ProgressView()
             }
-            .navigationTitle(L10n.SmartPaper.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Common.close) { dismiss() }
-                }
+        }
+        .navigationTitle(L10n.SmartPaper.title)
+        .navigationBarTitleDisplayMode(.inline)
+        .task {
+            if viewModel == nil {
+                // 在 MainActor 上下文中捕获，避免 Task 闭包中跨 actor 访问
+                let repos = repositories
+                let vm = SmartPaperViewModel(repositories: repos, deletionScheduler: services.deletionScheduler)
+                self.viewModel = vm
+                vm.loadInitialData(isProUser: isProUser)
             }
-            .task {
-                if viewModel == nil {
-                    // 在 MainActor 上下文中捕获，避免 Task 闭包中跨 actor 访问
-                    let repos = repositories
-                    let vm = SmartPaperViewModel(repositories: repos, deletionScheduler: services.deletionScheduler)
-                    self.viewModel = vm
-                    vm.loadInitialData(isProUser: isProUser)
-                }
-            }
-            .alert(viewModel?.errorMessage ?? "", isPresented: Binding(
-                get: { viewModel?.errorMessage != nil },
-                set: { if !$0 { viewModel?.errorMessage = nil } }
-            )) {
-                Button(L10n.Common.ok, role: .cancel) {}
-            }
+        }
+        .alert(viewModel?.errorMessage ?? "", isPresented: Binding(
+            get: { viewModel?.errorMessage != nil },
+            set: { if !$0 { viewModel?.errorMessage = nil } }
+        )) {
+            Button(L10n.Common.ok, role: .cancel) {}
         }
     }
 
@@ -93,6 +85,7 @@ struct SmartPaperView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        .accessibilityIdentifier("smartPaper.root")
     }
 
     // MARK: - 选题配置

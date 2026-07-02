@@ -1210,6 +1210,24 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-library-10-export-preview")
     }
 
+    /// SmartPaper should remain reachable from the normal Library browsing state.
+    func testLibrarySmartPaperEntryNavigatesToSmartPaper() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+
+        let smartPaperButton = app.buttons["library.smartPaperButton"]
+        XCTAssertTrue(smartPaperButton.waitForExistence(timeout: 5), "题库正常浏览态应显示智能组卷入口")
+        smartPaperButton.tap()
+
+        waitForAnyElement("smartPaper.root", in: app)
+        XCTAssertTrue(app.navigationBars["智能组卷"].waitForExistence(timeout: 5), "应进入智能组卷配置页")
+    }
+
     /// UI-freeze evidence: capture image-backed Library detail, answer, edit, export, and storage states.
     func testUIFreezeLibraryImageDataScreenshots() {
         let app = XCUIApplication()

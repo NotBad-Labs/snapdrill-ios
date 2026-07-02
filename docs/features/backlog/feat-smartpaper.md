@@ -5,7 +5,7 @@ status: in-progress
 tier: pro
 blocked_by: [479]
 mode: lightweight
-last_updated: 2026-06-30
+last_updated: 2026-07-01
 intent_refs:
   - vision:P2
   - vision:P3
@@ -15,7 +15,7 @@ intent_refs:
 
 # Feature: 智能组卷（SmartPaper · Pro）
 
-> 人读摘要：🛠 **免费基础组卷已接通**：免费用户可按分类过滤 + 随机抽取生成资料集，按当前 Profile 本地自然月限次（3 次/月），打开预览不扣配额，分享/打印完成后每次生成最多扣 1 次；配额耗尽以非阻断 Toast 做中性 Pro 引导，不影响资料库手动导出/分享/打印。**Pro 精准组卷**（无限生成 + SM-2 精准选题）仍等待 StoreKit #479，因此本 spec 为 `status: in-progress`、`blocked_by: [479]`，而非全量 implemented。
+> 人读摘要：🛠 **免费基础组卷已接通并从 Library 正常浏览态可达**：免费用户可从题库右上角「智能组卷」入口进入，按分类过滤 + 随机抽取生成资料集，按当前 Profile 本地自然月限次（3 次/月），打开预览不扣配额，分享/打印完成后每次生成最多扣 1 次；配额耗尽以非阻断 Toast 做中性 Pro 引导，不影响资料库手动导出/分享/打印。**Pro 精准组卷**（无限生成 + SM-2 精准选题）仍等待 StoreKit #479，因此本 spec 为 `status: in-progress`、`blocked_by: [479]`，而非全量 implemented。
 > 派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / architecture 聚合（docs 重组 B）。
@@ -40,7 +40,7 @@ intent_refs:
 - **商业分层**：基础模板限次组卷 = 免费档；无限生成 + 精准选题 + 多版式 = Pro（Hybrid，ADR-001）。**当前 StoreKit #479 未接，`ProEntitlementProvider.isProUser` 硬编码 `false`，Pro 分支入口保留、门后"敬请期待"，首版全球版 TestFlight 纯免费、不可购买/测试 Pro。**
 
 ## 3. 技术设计 (How) — 仅浓缩已落档机制，未实现 Pro 分支不编造
-- **模块归属**：`SnapDrillFeatureLibrary/SmartPaperView` + `SmartPaperViewModel`（触发入口）；选题策略复用 `SnapDrillCore` 的 `ReviewScheduler` + `SM2State`（基于 SM-2 数据驱动）；排版/导出复用 `SnapDrillCore/Service/PDFExportService` 管线（不重新实现 PDF 引擎）；Pro gating 经 `ProEntitlementProvider` 接入 StoreKit。新增 `@Model` 类型：无（复用既有题目与 `SM2State`）。
+- **模块归属**：`SnapDrillFeatureLibrary/SmartPaperView` + `SmartPaperViewModel`；入口位于 `LibraryView` 正常浏览态右上工具栏（非编辑/多选导出路径，免费用户可见）；选题策略复用 `SnapDrillCore` 的 `ReviewScheduler` + `SM2State`（基于 SM-2 数据驱动）；排版/导出复用 `SnapDrillCore/Service/PDFExportService` 管线（不重新实现 PDF 引擎）；Pro gating 经 `ProEntitlementProvider` 接入 StoreKit。新增 `@Model` 类型：无（复用既有题目与 `SM2State`）。
 - **关键机制 / 数据流**：选题 → 生成题目快照 → PDF 预览（去答案 / 留白答题区 / 页眉页码）→ 分享/打印/保存。选题结果与 PDF 导出复用**同一份题目快照**，确保「预览—打印—分享」三步内容一致。免费配额计数为按 Profile 隔离的本地状态，不跨设备同步。
   - 免费层：`SmartPaperViewModel` 使用当前 Profile 题库 + 选定分类值做候选集，随机抽取至 `questionCount`；打开 PDF 预览前只检查 `freeMonthlyQuota = 3`，实际分享/打印完成后由 `ExportPreviewView.onExport` 调用 `consumeFreeQuota()` 扣减；同一次预览多次导出最多扣 1 次，计数写入 `UDKey.smartPaperFreeQuotaMonth` / `UDKey.smartPaperFreeQuotaUsed`。
   - Profile 隔离：配额键纳入 `ProfileManager.perProfileKeys`，随 Profile 偏好保存/切换/清理一起搬运，避免跨 Profile 串用。
