@@ -41,6 +41,9 @@ public final class ProfileManager {
     /// 是否使用内存降级存储（同步自 executor）
     public private(set) var isUsingInMemoryFallback: Bool = false
 
+    /// 当前活跃 Profile 的磁盘 store 隔离重建事件（若本次启动或切换发生过）。
+    public private(set) var storeRecoveryEvent: StoreRecoveryEvent?
+
     /// 当前活跃的 ImageStorage
     public private(set) var activeImageStorage: ImageStorage
 
@@ -54,7 +57,7 @@ public final class ProfileManager {
     private var scopesByProfileId: [UUID: ProfileScope] = [:]
 
     /// Vault 磁盘布局 + profiles.json codec 的单一 owner（路径 / 编解码均经此，杜绝手拼漂移）
-    private let vault = ProfileVault()
+    private let vault: ProfileVault
 
     // MARK: - Per-profile UserDefaults 键
 
@@ -82,23 +85,25 @@ public final class ProfileManager {
     /// 生产路径使用 `DataExecutor.createOffMainActor(storeURL:)`，避免在 MainActor 上同步创建磁盘
     /// `ModelContainer`。测试路径保留同步 in-memory 初始化以兼容现有单测。
     /// - Parameter inMemory: 为 true 时使用内存存储（UI 测试用）
-    public static func create(inMemory: Bool = false) async -> ProfileManager {
+    public static func create(inMemory: Bool = false, vault: ProfileVault = ProfileVault()) async -> ProfileManager {
         if inMemory {
-            return ProfileManager(inMemory: true)
+            return ProfileManager(inMemory: true, vault: vault)
         }
 
-        let state = makeDiskBootstrapState()
+        let state = makeDiskBootstrapState(vault: vault)
         let executor = await DataExecutor.createOffMainActor(storeURL: state.storeURL)
-        return ProfileManager(diskBootstrapState: state, executor: executor)
+        let executorStatus = await ProfileExecutorStatus(executor: executor)
+        return ProfileManager(diskBootstrapState: state, executor: executor, vault: vault, executorStatus: executorStatus)
     }
 
     /// 初始化 in-memory ProfileManager。
     ///
     /// 仅测试 / Preview 使用。生产磁盘路径必须通过 `await ProfileManager.create()` 创建。
     /// - Parameter inMemory: 必须为 true。
-    public init(inMemory: Bool) {
+    public init(inMemory: Bool, vault: ProfileVault = ProfileVault()) {
         precondition(inMemory, "Use await ProfileManager.create() for production ProfileManager initialization.")
         self.isInMemory = inMemory
+        self.vault = vault
         // UI 测试模式：跳过文件迁移和磁盘操作，使用纯内存存储
         Self.clearPerProfileValues(in: .standard)
         let profileId = UUID()
@@ -113,12 +118,18 @@ public final class ProfileManager {
         self.activeContainer = executor.container
         self.activeRepositories = RepositoryContainer(executor: executor, scope: scope, profileDirectory: FileManager.default.temporaryDirectory)
         self.activeImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory, scope: scope)
-        syncFallbackStatus()
+        syncExecutorStatus(.healthy)
         SnapDrillLogger.data.info("ProfileManager: in-memory 模式初始化完成")
     }
 
-    private init(diskBootstrapState state: DiskBootstrapState, executor: DataExecutor) {
+    private init(
+        diskBootstrapState state: DiskBootstrapState,
+        executor: DataExecutor,
+        vault: ProfileVault,
+        executorStatus: ProfileExecutorStatus
+    ) {
         self.isInMemory = false
+        self.vault = vault
         self.profiles = state.profiles
         self.activeProfileId = state.profileId
         self.scopesByProfileId = state.scopesByProfileId
@@ -131,7 +142,7 @@ public final class ProfileManager {
         )
         self.activeImageStorage = ImageStorage(baseDirectory: state.profileDirectory, scope: state.scope)
         self.activeScope = state.scope
-        syncFallbackStatus()
+        syncExecutorStatus(executorStatus)
 
         // 加载 per-profile 偏好到 UserDefaults
         loadPreferences(for: state.profileId)
@@ -149,12 +160,11 @@ public final class ProfileManager {
         let storeURL: URL
     }
 
-    private static func makeDiskBootstrapState() -> DiskBootstrapState {
+    private static func makeDiskBootstrapState(vault: ProfileVault) -> DiskBootstrapState {
         // 1. 执行首次升级迁移（必须在 ModelContainer 创建之前）
-        ProfileMigration.migrateIfNeeded()
+        ProfileMigration.migrateIfNeeded(documentsURL: vault.documentsURL, defaults: .standard)
 
         // 2. 加载 Profile 列表（空时自动创建默认 Profile）
-        let vault = ProfileVault()
         var loadedProfiles = vault.loadProfiles()
         if loadedProfiles.isEmpty {
             SnapDrillLogger.data.warning("ProfileManager: profiles.json 为空或不存在，创建默认 Profile")
@@ -229,13 +239,14 @@ public final class ProfileManager {
         let profileDir = vault.profileDirectory(for: profileId)
         let storeURL = vault.storeURL(for: profileId)
         let executor = await DataExecutor.createOffMainActor(storeURL: storeURL)
+        let executorStatus = await ProfileExecutorStatus(executor: executor)
 
         self.executor = executor
         activeContainer = executor.container
         activeRepositories = RepositoryContainer(executor: executor, scope: scope, profileDirectory: profileDir)
         activeImageStorage = ImageStorage(baseDirectory: profileDir, scope: scope)
         activeScope = scope
-        syncFallbackStatus()
+        syncExecutorStatus(executorStatus)
 
         // 4. 加载新 Profile 的偏好
         loadPreferences(for: profileId)
@@ -377,7 +388,7 @@ public final class ProfileManager {
         )
         activeImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory, scope: scope)
         activeScope = scope
-        syncFallbackStatus()
+        syncExecutorStatus(.healthy)
         activeProfileId = profile.id
     }
 
@@ -446,14 +457,10 @@ public final class ProfileManager {
         }
     }
 
-    /// 异步同步 executor 的降级状态到本地属性（供 SwiftUI 读取）
-    private func syncFallbackStatus() {
-        Task {
-            let fallback = await executor.isUsingInMemoryFallback
-            await MainActor.run {
-                self.isUsingInMemoryFallback = fallback
-            }
-        }
+    /// 同步 executor 状态到本地属性（供 SwiftUI 读取）
+    private func syncExecutorStatus(_ status: ProfileExecutorStatus) {
+        isUsingInMemoryFallback = status.isUsingInMemoryFallback
+        storeRecoveryEvent = status.storeRecoveryEvent
     }
 
     private func savePreferencesDict(_ dict: [String: Any], for profileId: UUID) {
@@ -476,24 +483,6 @@ public final class ProfileManager {
             try vault.saveProfiles(profiles)
         } catch {
             SnapDrillLogger.data.error("ProfileManager: profiles.json 保存失败: \(error.localizedDescription)")
-        }
-    }
-}
-
-// MARK: - Errors
-
-/// Profile 操作错误
-public enum ProfileError: LocalizedError {
-    case cannotDeleteLastProfile
-    /// 有进行中的操作，无法切换 Profile
-    case switchBlocked(reason: String)
-
-    public var errorDescription: String? {
-        switch self {
-        case .cannotDeleteLastProfile:
-            return "无法删除最后一个学习者"
-        case .switchBlocked(let reason):
-            return "无法切换：\(reason)"
         }
     }
 }

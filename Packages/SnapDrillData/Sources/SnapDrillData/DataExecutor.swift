@@ -45,6 +45,9 @@ public actor DataExecutor {
     /// 初始化错误（若有）
     public private(set) var initializationError: PersistenceError?
 
+    /// 磁盘 store 隔离重建事件（若本次启动发生过）。
+    public private(set) var storeRecoveryEvent: StoreRecoveryEvent?
+
     // MARK: - Initialization
 
     /// 创建 DataExecutor，初始化 ModelContainer。
@@ -68,13 +71,14 @@ public actor DataExecutor {
         } catch {
             SnapDrillLogger.data.error("❌ DataExecutor: 初始化失败: \(error.localizedDescription)")
 
-            if !inMemory, let storeURL, let recoveredContainer = Self.recoverDiskContainer(
+            if !inMemory, let storeURL, let recovered = Self.recoverDiskContainer(
                 at: storeURL,
                 after: error
             ) {
-                self.container = recoveredContainer
+                self.container = recovered.container
                 self.isUsingInMemoryFallback = false
                 self.initializationError = nil
+                self.storeRecoveryEvent = recovered.event
                 return
             }
 
@@ -131,26 +135,110 @@ public actor DataExecutor {
         )
     }
 
-    private static func recoverDiskContainer(at storeURL: URL, after originalError: Error) -> ModelContainer? {
+    private struct DiskRecoveryResult {
+        let container: ModelContainer
+        let event: StoreRecoveryEvent?
+    }
+
+    private static func recoverDiskContainer(at storeURL: URL, after originalError: Error) -> DiskRecoveryResult? {
         SnapDrillLogger.data.warning(
-            "⚠️ DataExecutor: 磁盘 store 打开失败，准备重建: \(originalError.localizedDescription)"
+            "⚠️ DataExecutor: 磁盘 store 打开失败，准备重试: \(originalError.localizedDescription)"
         )
+
         do {
-            try removeStoreFiles(at: storeURL)
             let container = try makeContainer(inMemory: false, storeURL: storeURL)
-            SnapDrillLogger.data.warning("⚠️ DataExecutor: 已重建磁盘 store: \(storeURL.lastPathComponent)")
-            return container
+            SnapDrillLogger.data.warning("⚠️ DataExecutor: 磁盘 store 重试打开成功: \(storeURL.lastPathComponent)")
+            return DiskRecoveryResult(container: container, event: nil)
         } catch {
-            SnapDrillLogger.data.error("❌ DataExecutor: 磁盘 store 重建失败: \(error.localizedDescription)")
+            SnapDrillLogger.data.error("❌ DataExecutor: 磁盘 store 重试仍失败: \(error.localizedDescription)")
+            return isolateAndRebuildDiskContainer(at: storeURL, originalError: originalError, retryError: error)
+        }
+    }
+
+    private static func isolateAndRebuildDiskContainer(
+        at storeURL: URL,
+        originalError: Error,
+        retryError: Error
+    ) -> DiskRecoveryResult? {
+        do {
+            let isolationDirectory = try isolateStoreFiles(at: storeURL)
+            let container = try makeContainer(inMemory: false, storeURL: storeURL)
+            let event = StoreRecoveryEvent(
+                storeURL: storeURL,
+                isolationDirectoryURL: isolationDirectory,
+                originalErrorDescription: originalError.localizedDescription,
+                retryErrorDescription: retryError.localizedDescription
+            )
+            SnapDrillLogger.data.warning(
+                "⚠️ DataExecutor: 已隔离并重建磁盘 store: \(isolationDirectory.path)"
+            )
+            return DiskRecoveryResult(container: container, event: event)
+        } catch {
+            SnapDrillLogger.data.error("❌ DataExecutor: 磁盘 store 隔离重建失败: \(error.localizedDescription)")
             return nil
         }
     }
 
-    private static func removeStoreFiles(at storeURL: URL) throws {
+    private static func isolateStoreFiles(at storeURL: URL) throws -> URL {
         let manager = FileManager.default
+        let profileDirectory = storeURL.deletingLastPathComponent()
+        let timestamp = storeIsolationTimestamp()
+        let isolationDirectory = try uniqueIsolationDirectory(
+            under: ProfileVault.corruptedStoreIsolationDirectory(
+                forProfileDirectory: profileDirectory,
+                timestamp: timestamp
+            ),
+            fileManager: manager
+        )
+
+        try manager.createDirectory(at: isolationDirectory, withIntermediateDirectories: true)
         for url in storeFileSet(for: storeURL) where manager.fileExists(atPath: url.path) {
-            try manager.removeItem(at: url)
+            try manager.moveItem(at: url, to: isolationDirectory.appendingPathComponent(url.lastPathComponent))
         }
+
+        pruneCorruptedStoreArchives(in: isolationDirectory.deletingLastPathComponent(), fileManager: manager)
+        return isolationDirectory
+    }
+
+    private static func uniqueIsolationDirectory(under baseURL: URL, fileManager: FileManager) throws -> URL {
+        var candidate = baseURL
+        var suffix = 1
+        while fileManager.fileExists(atPath: candidate.path) {
+            candidate = baseURL.deletingLastPathComponent()
+                .appendingPathComponent("\(baseURL.lastPathComponent)-\(suffix)", isDirectory: true)
+            suffix += 1
+        }
+        return candidate
+    }
+
+    private static func pruneCorruptedStoreArchives(in corruptedRoot: URL, fileManager: FileManager) {
+        do {
+            let directories = try fileManager.contentsOfDirectory(
+                at: corruptedRoot,
+                includingPropertiesForKeys: [.isDirectoryKey],
+                options: [.skipsHiddenFiles]
+            )
+            .filter { url in
+                (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
+            }
+            .sorted { $0.lastPathComponent > $1.lastPathComponent }
+
+            for staleDirectory in directories.dropFirst(3) {
+                try fileManager.removeItem(at: staleDirectory)
+                SnapDrillLogger.data.warning(
+                    "⚠️ DataExecutor: 已清理旧损坏 store 隔离目录: \(staleDirectory.path)"
+                )
+            }
+        } catch {
+            SnapDrillLogger.data.error("DataExecutor: 清理损坏 store 隔离目录失败: \(error.localizedDescription)")
+        }
+    }
+
+    private static func storeIsolationTimestamp(date: Date = Date()) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter.string(from: date)
+            .replacingOccurrences(of: ":", with: "-")
     }
 
     private static func storeFileSet(for storeURL: URL) -> [URL] {
