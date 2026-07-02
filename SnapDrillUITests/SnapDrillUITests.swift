@@ -790,8 +790,7 @@ final class SnapDrillUITests: XCTestCase {
         let searchField = app.textFields["symbolPicker.searchField"]
         XCTAssertTrue(searchField.waitForExistence(timeout: 5), "图标选择器应提供搜索框")
         searchField.tap()
-        searchField.typeText("zzzzzz")
-        dismissKeyboardIfPresent(in: app)
+        searchField.typeText("zzzzzz\n")
         waitForAnyElement("symbolPicker.empty", in: app)
         addScreenshot(named: "ui-freeze-taxonomy-06-symbol-picker-empty-search")
     }
@@ -1770,7 +1769,7 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(app.buttons["dimValue.\(name)"].waitForExistence(timeout: 5), "新标签值应出现在列表")
     }
 
-    /// 收起软键盘（防表单下方控件被键盘遮挡）。
+    /// 收起软键盘（防表单下方控件被键盘遮挡）；无 toolbar 的搜索框优先用换行提交。
     private func dismissKeyboardIfPresent(in app: XCUIApplication) {
         guard app.keyboards.element.exists else { return }
         let localizedDoneButton = app.toolbars.buttons["完成"]
