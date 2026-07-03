@@ -99,6 +99,8 @@ Codex 挑战 Claude 的有效触发包括：
 
 全局架构 / 生命周期规划只能作为 shaping input：它应产出候选阶段、依赖、风险和 bounded slices，随后仍需 Codex 本地实证审查与 PO 拍板，不能自动成为固定 roadmap 或当前 bet。
 
+规划文档还必须周期性对账保鲜：每当一条工作链闭合（相关 slices 合并进 `develop`）、选择下一个 bounded slice 之前，Claude 对现行全局规划做一次有界 freshness 对账，内容限于：已落地项标记（挂 PR / commit）、load-bearing 锚点对 live `develop` 的漂移核查、风险清单重排、候选 slices 刷新、PO 决策队列变化。产出为日期化 checkpoint 报告，按 §5 报告字段要求写入仓库外规划产物目录；不修改原规划文件，不新增并行状态 SSOT，feature 级状态权威仍是生成的 `feature-status.md`。
+
 ## 4. 共享接缝
 
 以下改动不是某个 lane 可静默完成的局部改动：
