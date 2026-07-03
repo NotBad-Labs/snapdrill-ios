@@ -198,6 +198,26 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-app-shell-01-degraded-banner")
     }
 
+    /// Store recovery should block app use until the user chooses a recovery path.
+    func testStoreRecoveryBlockingViewCanContinueWithEmptyLibrary() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-force-store-recovery"]
+        app.launch()
+
+        let recoveryRoot = waitForAnyElement("app.storeRecovery.root", in: app, timeout: 10)
+        XCTAssertTrue(app.buttons["app.storeRecovery.restoreBackup"].exists, "恢复页应提供从备份恢复入口")
+        XCTAssertTrue(app.buttons["app.storeRecovery.continueEmpty"].exists, "恢复页应提供空题库继续入口")
+        waitForAnyElement("app.storeRecovery.isolationPath", in: app)
+        addScreenshot(named: "store-recovery-01-blocking-sheet")
+
+        app.buttons["app.storeRecovery.continueEmpty"].tap()
+
+        XCTAssertTrue(recoveryRoot.waitForNonExistence(timeout: 5), "选择空题库继续后恢复页应关闭")
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "关闭恢复页后应进入正常主界面")
+        waitForAnyElement("dashboard.root", in: app)
+        addScreenshot(named: "store-recovery-02-empty-library-continued")
+    }
+
     /// UI-freeze evidence: capture the five primary tabs in a clean, empty-library state.
     func testUIFreezePrimaryTabSurfaceScreenshots() {
         let app = XCUIApplication()
