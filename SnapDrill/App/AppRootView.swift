@@ -10,6 +10,7 @@
 
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillFeatureCapture
@@ -28,7 +29,9 @@ struct AppRootView: View {
 
     @Bindable var router: AppRouter
     let makeProfileManager: () async -> ProfileManager
+    @Environment(\.services) private var services
     @State private var profileManager: ProfileManager?
+    @State private var handledStoreRecoveryEventKey: String?
 
     var body: some View {
         Group {
@@ -98,6 +101,18 @@ struct AppRootView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
+        .fullScreenCover(isPresented: storeRecoveryPresentationBinding(for: profileManager)) {
+            if let event = activeStoreRecoveryEvent(for: profileManager) {
+                StoreRecoveryBlockingView(
+                    event: event,
+                    repositories: profileManager.activeRepositories,
+                    profileManager: profileManager,
+                    activityTracker: services.activityTracker,
+                    onResolved: { markStoreRecoveryHandled(event) }
+                )
+                .interactiveDismissDisabled(true)
+            }
+        }
     }
     
     // MARK: - Private Helpers
@@ -112,6 +127,54 @@ struct AppRootView: View {
 #else
         return false
 #endif
+    }
+
+    private func storeRecoveryPresentationBinding(for profileManager: ProfileManager) -> Binding<Bool> {
+        Binding(
+            get: {
+                guard let event = activeStoreRecoveryEvent(for: profileManager) else {
+                    return false
+                }
+                return handledStoreRecoveryEventKey != storeRecoveryEventKey(event)
+            },
+            set: { isPresented in
+                guard !isPresented, let event = activeStoreRecoveryEvent(for: profileManager) else {
+                    return
+                }
+                markStoreRecoveryHandled(event)
+            }
+        )
+    }
+
+    private func activeStoreRecoveryEvent(for profileManager: ProfileManager) -> StoreRecoveryEvent? {
+        if let event = profileManager.storeRecoveryEvent {
+            return event
+        }
+
+#if DEBUG
+        guard ProcessInfo.processInfo.arguments.contains("--ui-test-force-store-recovery") else {
+            return nil
+        }
+
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("snapdrill-ui-test-store-recovery", isDirectory: true)
+        return StoreRecoveryEvent(
+            storeURL: directory.appendingPathComponent("default.store"),
+            isolationDirectoryURL: directory.appendingPathComponent("corrupted/2026-07-03T00-00-00Z", isDirectory: true),
+            originalErrorDescription: "UI test injected store open failure",
+            retryErrorDescription: "UI test injected retry failure"
+        )
+#else
+        return nil
+#endif
+    }
+
+    private func storeRecoveryEventKey(_ event: StoreRecoveryEvent) -> String {
+        event.isolationDirectoryURL.path
+    }
+
+    private func markStoreRecoveryHandled(_ event: StoreRecoveryEvent) {
+        handledStoreRecoveryEventKey = storeRecoveryEventKey(event)
     }
     
     /// 降级模式警告横幅
@@ -150,5 +213,161 @@ struct AppRootView: View {
     private func loadProfileManagerIfNeeded() async {
         guard profileManager == nil else { return }
         profileManager = await makeProfileManager()
+    }
+}
+
+@MainActor
+private struct StoreRecoveryBlockingView: View {
+    let event: StoreRecoveryEvent
+    let onResolved: () -> Void
+    @State private var viewModel: SettingsViewModel
+    @State private var showingBackupImporter = false
+    @State private var restoreErrorMessage: String?
+
+    init(
+        event: StoreRecoveryEvent,
+        repositories: RepositoryContainer,
+        profileManager: ProfileManager,
+        activityTracker: AppActivityTracker,
+        onResolved: @escaping () -> Void
+    ) {
+        self.event = event
+        self.onResolved = onResolved
+        _viewModel = State(
+            initialValue: SettingsViewModel(
+                repositories: repositories,
+                profileManager: profileManager,
+                activityTracker: activityTracker
+            )
+        )
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    header
+                    explanation
+
+                    if let restoreErrorMessage {
+                        errorMessage(restoreErrorMessage)
+                    }
+
+                    actions
+                }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 32)
+                .frame(maxWidth: 640, alignment: .leading)
+                .frame(maxWidth: .infinity)
+            }
+            .background(.background)
+            .navigationTitle(L10n.AppRoot.storeRecoveryNavigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .accessibilityIdentifier("app.storeRecovery.root")
+        .fileImporter(
+            isPresented: $showingBackupImporter,
+            allowedContentTypes: [.zip]
+        ) { result in
+            handleBackupSelection(result)
+        }
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Image(systemName: "externaldrive.badge.exclamationmark")
+                .font(.system(size: 44, weight: .semibold))
+                .foregroundStyle(.orange)
+
+            Text(L10n.AppRoot.storeRecoveryTitle)
+                .font(.largeTitle.weight(.bold))
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(L10n.AppRoot.storeRecoveryDescription)
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var explanation: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(L10n.AppRoot.storeRecoveryBackupCopyTitle, systemImage: "archivebox")
+                .font(.headline)
+
+            Text(L10n.AppRoot.storeRecoveryBackupCopyDescription)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            Text(event.isolationDirectoryURL.path)
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+                .textSelection(.enabled)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+                .accessibilityIdentifier("app.storeRecovery.isolationPath")
+        }
+        .padding(16)
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private var actions: some View {
+        VStack(spacing: 12) {
+            Button {
+                restoreErrorMessage = nil
+                showingBackupImporter = true
+            } label: {
+                Label(L10n.AppRoot.storeRecoveryRestoreBackup, systemImage: "arrow.clockwise.circle")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .disabled(viewModel.isBackupInProgress)
+            .accessibilityIdentifier("app.storeRecovery.restoreBackup")
+
+            Button(role: .none) {
+                onResolved()
+            } label: {
+                Text(L10n.AppRoot.storeRecoveryContinueEmpty)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+            .disabled(viewModel.isBackupInProgress)
+            .accessibilityIdentifier("app.storeRecovery.continueEmpty")
+
+            if viewModel.isBackupInProgress {
+                ProgressView(value: viewModel.backupProgress)
+                    .accessibilityIdentifier("app.storeRecovery.progress")
+            }
+        }
+    }
+
+    private func errorMessage(_ message: String) -> some View {
+        Label(message, systemImage: "exclamationmark.triangle")
+            .font(.subheadline)
+            .foregroundStyle(.red)
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.red.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+            .accessibilityIdentifier("app.storeRecovery.error")
+    }
+
+    private func handleBackupSelection(_ result: Result<URL, Error>) {
+        switch result {
+        case .success(let url):
+            restoreErrorMessage = nil
+            Task {
+                await viewModel.restoreFromBackup(fileURL: url)
+                if let backupError = viewModel.backupError {
+                    restoreErrorMessage = backupError
+                } else {
+                    onResolved()
+                }
+            }
+        case .failure(let error):
+            restoreErrorMessage = error.localizedDescription
+        }
     }
 }
