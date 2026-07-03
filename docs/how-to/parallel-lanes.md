@@ -85,6 +85,7 @@ Antigravity 不修改 Swift 业务逻辑。法律结论必须标注来源与是�
 - 在“当前实现是什么”的问题上，live code、测试、构建、真机/模拟器证据高于任何规划文本或 agent 记忆。
 - Claude 不是 code-truth arbiter，不是 merge / execution authority，也不代理 PO 的产品裁决或 Codex + PO 已定的 UI 视觉判断。
 - Codex 可以挑战 Claude，但挑战必须绑定证据；纯偏好或空泛反驳不改变规划。
+- 执行任何跨 agent 规划或合并前，先做 T0 对账：确认目标分支 / HEAD / dirty files、已合并与未合并工作、规划引用的 live path:line 是否仍成立；对账结果写入任务 brief、PR 描述或对应 report，不新增并行状态 SSOT。
 
 Codex 挑战 Claude 的有效触发包括：
 
