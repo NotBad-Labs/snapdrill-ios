@@ -17,7 +17,7 @@ public enum ProfileError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .cannotDeleteLastProfile:
-            return "无法删除最后一个学习者"
+            return "无法删除最后一个资料空间"
         case .switchBlocked(let reason):
             return "无法切换：\(reason)"
         }

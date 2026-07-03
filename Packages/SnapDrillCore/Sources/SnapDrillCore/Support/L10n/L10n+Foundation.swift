@@ -34,7 +34,7 @@ nonisolated extension L10n {
         public static let storeRecoveryTitle = NSLocalizedString("app_root.store_recovery.title", value: "需要确认数据恢复方式", comment: "损坏库恢复页标题")
         public static let storeRecoveryDescription = NSLocalizedString(
             "app_root.store_recovery.description",
-            value: "SnapDrill 无法打开当前资料空间的数据文件。为避免静默清空，应用已先打开一个空题库。",
+            value: "SnapDrill 无法打开当前资料空间的数据文件。原始文件已完整保留，应用当前打开的是一个空题库。",
             comment: "损坏库恢复页说明"
         )
         public static let storeRecoveryBackupCopyTitle = NSLocalizedString(
@@ -44,7 +44,7 @@ nonisolated extension L10n {
         )
         public static let storeRecoveryBackupCopyDescription = NSLocalizedString(
             "app_root.store_recovery.backup_copy_description",
-            value: "你可以从 ZIP 备份恢复，或先以空题库继续使用。隔离副本不会自动进入备份。",
+            value: "你可以从 ZIP 备份恢复，或先以空题库继续使用。该副本仅保留在本设备上。",
             comment: "损坏库隔离保留说明正文"
         )
         public static let storeRecoveryRestoreBackup = NSLocalizedString("app_root.store_recovery.restore_backup", value: "从备份恢复", comment: "损坏库恢复按钮")

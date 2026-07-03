@@ -326,7 +326,7 @@ private struct StoreRecoveryBlockingView: View {
             .disabled(viewModel.isBackupInProgress)
             .accessibilityIdentifier("app.storeRecovery.restoreBackup")
 
-            Button(role: .none) {
+            Button {
                 onResolved()
             } label: {
                 Text(L10n.AppRoot.storeRecoveryContinueEmpty)
