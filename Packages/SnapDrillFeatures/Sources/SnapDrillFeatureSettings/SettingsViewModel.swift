@@ -25,6 +25,7 @@ public final class SettingsViewModel {
     private let profileManager: ProfileManager
     private let backupService = BackupService()
     private let activityTracker: AppActivityTracker
+    private let profileVault: ProfileVault
 
     // MARK: - Properties
 
@@ -51,11 +52,13 @@ public final class SettingsViewModel {
     public init(
         repositories: RepositoryContainer,
         profileManager: ProfileManager = ProfileManager(inMemory: true),
-        activityTracker: AppActivityTracker? = nil
+        activityTracker: AppActivityTracker? = nil,
+        profileVault: ProfileVault = ProfileVault()
     ) {
         self.repositories = repositories
         self.profileManager = profileManager
         self.activityTracker = activityTracker ?? AppActivityTracker.shared
+        self.profileVault = profileVault
     }
 
     // MARK: - Public API
@@ -325,7 +328,8 @@ public final class SettingsViewModel {
         SettingsBackupCoordinator(
             repositories: repositories,
             profileManager: profileManager,
-            backupService: backupService
+            backupService: backupService,
+            vault: profileVault
         )
     }
 }

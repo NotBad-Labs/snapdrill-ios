@@ -25,7 +25,19 @@ struct SettingsBackupCoordinator {
     let repositories: RepositoryContainer
     let profileManager: ProfileManager
     let backupService: BackupService
-    private let vault = ProfileVault()
+    private let vault: ProfileVault
+
+    init(
+        repositories: RepositoryContainer,
+        profileManager: ProfileManager,
+        backupService: BackupService,
+        vault: ProfileVault = ProfileVault()
+    ) {
+        self.repositories = repositories
+        self.profileManager = profileManager
+        self.backupService = backupService
+        self.vault = vault
+    }
 
     /// 进度回写（0.0 ~ 1.0），@MainActor 闭包隐式 Sendable，可安全传入跨 actor 进度回调
     var onProgress: @MainActor (Double) -> Void = { _ in }

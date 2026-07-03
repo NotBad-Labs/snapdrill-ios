@@ -101,6 +101,32 @@ struct ProfileManagerIngestTests {
         #expect(!pm.profiles.contains { $0.id == id })
     }
 
+    @Test("外来 Profile 还原走 coordinator 磁盘路径")
+    func testRestoreForeignProfileUsesDiskRestoreCoordinatorPath() async throws {
+        let (vault, docs) = try makeTempVault()
+        let previousActiveProfileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
+        defer {
+            if let previousActiveProfileId {
+                UserDefaults.standard.set(previousActiveProfileId, forKey: UDKey.activeProfileId)
+            } else {
+                UserDefaults.standard.removeObject(forKey: UDKey.activeProfileId)
+            }
+            try? FileManager.default.removeItem(at: docs)
+        }
+
+        let manager = await ProfileManager.create(vault: vault)
+        let foreignProfileId = UUID()
+        let foreignProfileData = makeForeignProfileBackupData(profileId: foreignProfileId)
+
+        #expect(!manager.profiles.contains { $0.id == foreignProfileId })
+        let ingestedProfile = try manager.ingestProfile(id: foreignProfileId, name: foreignProfileData.profileName)
+        let repositories = await makeRestoreRepositoriesLikeCoordinator(for: ingestedProfile, vault: vault)
+
+        try await repositories.restoreFromProfileData(foreignProfileData)
+
+        #expect(try repositories.archive.totalCount() == foreignProfileData.reviewItems.count)
+    }
+
     @Test("ProfileManager 暴露活跃 Profile 的磁盘 store 恢复事件")
     func testProfileManagerExposesStoreRecoveryEvent() async throws {
         let docs = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -129,5 +155,66 @@ struct ProfileManagerIngestTests {
         #expect(manager.activeProfileId == profile.id)
         #expect(event.storeURL == vault.storeURL(for: profile.id))
         #expect(event.isolationDirectoryURL.path.hasPrefix(vault.corruptedStoresDirectory(for: profile.id).path))
+    }
+
+    private func makeTempVault() throws -> (vault: ProfileVault, docs: URL) {
+        let docs = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: docs, withIntermediateDirectories: true)
+        return (ProfileVault(documentsURL: docs), docs)
+    }
+
+    private func makeRestoreRepositoriesLikeCoordinator(for profile: Profile, vault: ProfileVault) async -> RepositoryContainer {
+        let executor = await DataExecutor.createOffMainActor(storeURL: vault.storeURL(for: profile.id))
+        let scope = ProfileScope(id: profile.id, name: profile.name)
+        return RepositoryContainer(
+            executor: executor,
+            scope: scope,
+            profileDirectory: vault.profileDirectory(for: profile.id)
+        )
+    }
+
+    private func makeForeignProfileBackupData(profileId: UUID) -> ProfileBackupData {
+        let now = Date(timeIntervalSinceReferenceDate: 0)
+        let dimensionId = UUID()
+        let valueId = UUID()
+        let item = ArchiveItemBackupDTO(
+            id: UUID(),
+            content: "外来 Profile 磁盘还原复现题",
+            imagePath: nil,
+            createdAt: now,
+            lastReviewedAt: now,
+            nextReviewAt: now,
+            answerText: "A",
+            answerImagePath: nil,
+            easeFactor: 2.5,
+            interval: 0,
+            repetitions: 0,
+            categoryValueIds: [valueId]
+        )
+        let dimension = CategoryDimensionBackupDTO(
+            id: dimensionId,
+            name: "分类",
+            isMultiValue: false,
+            isBuiltIn: true,
+            systemKey: CategorySystemKey.category,
+            sortOrder: 0,
+            icon: "folder"
+        )
+        let value = CategoryValueBackupDTO(
+            id: valueId,
+            name: "复现",
+            icon: "circle",
+            colorHex: "#0A84FF",
+            sortOrder: 0,
+            createdAt: now,
+            dimensionId: dimensionId
+        )
+        return ProfileBackupData(
+            profileName: "外来资料空间",
+            profileId: profileId,
+            reviewItems: [item],
+            dimensions: [dimension],
+            categoryValues: [value]
+        )
     }
 }

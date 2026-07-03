@@ -309,6 +309,73 @@ final class SettingsViewModelTests {
         #expect(vm.isBackupInProgress == false)
     }
 
+    @Test("restoreFromBackup 磁盘路径：外来 Profile ID ZIP 可恢复")
+    func restoreFromBackup_diskForeignProfileIdZip() async throws {
+        let (vault, docs) = try makeTempVault()
+        let previousActiveProfileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
+        defer {
+            restoreActiveProfileId(previousActiveProfileId)
+            try? FileManager.default.removeItem(at: docs)
+        }
+
+        let manager = await ProfileManager.create(vault: vault)
+        let foreignProfileData = makeProfileBackupData(
+            profileId: UUID(),
+            profileName: "外来资料空间",
+            itemCount: 2
+        )
+        let backupURL = try await makeBackupFile(for: foreignProfileData, vault: vault)
+        defer { try? FileManager.default.removeItem(at: backupURL) }
+
+        let vm = SettingsViewModel(
+            repositories: manager.activeRepositories,
+            profileManager: manager,
+            profileVault: vault
+        )
+
+        await vm.restoreFromBackup(fileURL: backupURL)
+
+        #expect(vm.backupError == nil)
+        #expect(manager.profiles.contains { $0.id == foreignProfileData.profileId })
+        let restored = await makeRepositories(
+            profileId: foreignProfileData.profileId,
+            profileName: foreignProfileData.profileName,
+            vault: vault
+        )
+        #expect(try restored.archive.totalCount() == foreignProfileData.reviewItems.count)
+    }
+
+    @Test("restoreFromBackup 磁盘路径：本机已有 Profile ID ZIP 可恢复")
+    func restoreFromBackup_diskExistingProfileIdZip() async throws {
+        let (vault, docs) = try makeTempVault()
+        let previousActiveProfileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
+        defer {
+            restoreActiveProfileId(previousActiveProfileId)
+            try? FileManager.default.removeItem(at: docs)
+        }
+
+        let manager = await ProfileManager.create(vault: vault)
+        let activeProfile = try #require(manager.activeProfile)
+        let profileData = makeProfileBackupData(
+            profileId: activeProfile.id,
+            profileName: activeProfile.name,
+            itemCount: 3
+        )
+        let backupURL = try await makeBackupFile(for: profileData, vault: vault)
+        defer { try? FileManager.default.removeItem(at: backupURL) }
+
+        let vm = SettingsViewModel(
+            repositories: manager.activeRepositories,
+            profileManager: manager,
+            profileVault: vault
+        )
+
+        await vm.restoreFromBackup(fileURL: backupURL)
+
+        #expect(vm.backupError == nil)
+        #expect(try manager.activeRepositories.archive.totalCount() == profileData.reviewItems.count)
+    }
+
     // MARK: - cleanupBackupFile
 
     @Test("cleanupBackupFile 清理后 backupFileURL 为 nil")
@@ -336,5 +403,92 @@ final class SettingsViewModelTests {
         vm.cleanupBackupFile()
 
         #expect(vm.backupFileURL == nil)
+    }
+
+    private func makeTempVault() throws -> (vault: ProfileVault, docs: URL) {
+        let docs = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: docs, withIntermediateDirectories: true)
+        return (ProfileVault(documentsURL: docs), docs)
+    }
+
+    private func restoreActiveProfileId(_ previousActiveProfileId: String?) {
+        if let previousActiveProfileId {
+            UserDefaults.standard.set(previousActiveProfileId, forKey: UDKey.activeProfileId)
+        } else {
+            UserDefaults.standard.removeObject(forKey: UDKey.activeProfileId)
+        }
+    }
+
+    private func makeBackupFile(for profileData: ProfileBackupData, vault: ProfileVault) async throws -> URL {
+        let payload = BackupPayload(profiles: [profileData])
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSinceReferenceDate: 0),
+            appVersion: "test",
+            totalItemCount: profileData.reviewItems.count,
+            profileCount: 1,
+            profileNames: [profileData.profileName]
+        )
+        return try await BackupService().createBackup(
+            payload: payload,
+            manifest: manifest,
+            profileDirectories: [vault.profileDirectory(for: profileData.profileId)]
+        )
+    }
+
+    private func makeRepositories(profileId: UUID, profileName: String, vault: ProfileVault) async -> RepositoryContainer {
+        let executor = await DataExecutor.createOffMainActor(storeURL: vault.storeURL(for: profileId))
+        return RepositoryContainer(
+            executor: executor,
+            scope: ProfileScope(id: profileId, name: profileName),
+            profileDirectory: vault.profileDirectory(for: profileId)
+        )
+    }
+
+    private func makeProfileBackupData(profileId: UUID, profileName: String, itemCount: Int) -> ProfileBackupData {
+        let now = Date(timeIntervalSinceReferenceDate: 0)
+        let dimensionId = UUID()
+        let valueId = UUID()
+        let items = (0 ..< itemCount).map { index in
+            ArchiveItemBackupDTO(
+                id: UUID(),
+                content: "恢复测试 \(index)",
+                imagePath: nil,
+                createdAt: now,
+                lastReviewedAt: now,
+                nextReviewAt: now,
+                answerText: "答案 \(index)",
+                answerImagePath: nil,
+                easeFactor: 2.5,
+                interval: index,
+                repetitions: index,
+                categoryValueIds: [valueId]
+            )
+        }
+        let dimension = CategoryDimensionBackupDTO(
+            id: dimensionId,
+            name: "分类",
+            isMultiValue: false,
+            isBuiltIn: true,
+            systemKey: CategorySystemKey.category,
+            sortOrder: 0,
+            icon: "folder"
+        )
+        let value = CategoryValueBackupDTO(
+            id: valueId,
+            name: "回归",
+            icon: "circle",
+            colorHex: "#0A84FF",
+            sortOrder: 0,
+            createdAt: now,
+            dimensionId: dimensionId
+        )
+        return ProfileBackupData(
+            profileName: profileName,
+            profileId: profileId,
+            reviewItems: items,
+            dimensions: [dimension],
+            categoryValues: [value]
+        )
     }
 }

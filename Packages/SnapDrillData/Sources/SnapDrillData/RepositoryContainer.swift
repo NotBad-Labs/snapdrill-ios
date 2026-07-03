@@ -27,6 +27,9 @@ public final class RepositoryContainer {
 
     // MARK: - Initialization
 
+    /// 生产路径必须保活 DataExecutor；其内部 ModelContainer 是各 repository 的 ModelContext 根所有者。
+    private let executor: DataExecutor?
+
     /// Profile 图片存储根目录（用于构造 scoped ImageStorage）
     private let profileDirectory: URL?
 
@@ -36,6 +39,7 @@ public final class RepositoryContainer {
     ///   - scope: 当前 Profile 的隔离作用域
     ///   - profileDirectory: Profile 根目录（用于图片操作）
     public init(executor: DataExecutor, scope: ProfileScope, profileDirectory: URL) {
+        self.executor = executor
         self.scope = scope
         self.profileDirectory = profileDirectory
         self.dimension = CategoryDimensionRepository(executor: executor)
@@ -51,6 +55,7 @@ public final class RepositoryContainer {
     /// 创建仓库容器（测试/Preview 路径，scope 使用占位值）
     /// - Parameter modelContext: 共享的 ModelContext
     public init(modelContext: ModelContext) {
+        self.executor = nil
         self.scope = ProfileScope(id: UUID(), name: "Test")
         self.profileDirectory = nil
         self.archive = ArchiveRepository(modelContext: modelContext)
@@ -254,6 +259,8 @@ public final class RepositoryContainer {
 
 /// 预览专用数据仓库容器（使用内存 ModelContainer）
 public final class PreviewRepositoryContainer {
+    private let executor: DataExecutor
+
     /// 归档资料仓库
     public let archive: ArchiveRepository
     /// 分类维度仓库（L3）
@@ -264,6 +271,7 @@ public final class PreviewRepositoryContainer {
     /// 创建内存预览容器
     public init() {
         let executor = DataExecutor(inMemory: true)
+        self.executor = executor
 
         self.archive = ArchiveRepository(executor: executor)
         self.dimension = CategoryDimensionRepository(executor: executor)
