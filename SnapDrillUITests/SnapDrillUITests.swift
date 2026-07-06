@@ -207,7 +207,7 @@ final class SnapDrillUITests: XCTestCase {
         let recoveryRoot = waitForAnyElement("app.storeRecovery.root", in: app, timeout: 10)
         XCTAssertTrue(app.buttons["app.storeRecovery.restoreBackup"].exists, "恢复页应提供从备份恢复入口")
         XCTAssertTrue(app.buttons["app.storeRecovery.continueEmpty"].exists, "恢复页应提供空题库继续入口")
-        waitForAnyElement("app.storeRecovery.isolationPath", in: app)
+        waitForAnyElement("app.storeRecovery.copyIsolationPath", in: app)
         addScreenshot(named: "store-recovery-01-blocking-sheet")
 
         app.buttons["app.storeRecovery.continueEmpty"].tap()
@@ -1451,7 +1451,7 @@ final class SnapDrillUITests: XCTestCase {
         doneButton.tap()
         XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 5), "退出选择模式后列表应仍可见")
 
-        let searchField = app.searchFields.firstMatch
+        let searchField = app.textFields["library.searchField"]
         if !searchField.exists {
             app.swipeDown()
         }
