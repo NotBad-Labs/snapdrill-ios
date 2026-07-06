@@ -694,7 +694,7 @@
 "export.show_header" = "显示页眉页码";
 "export.mixed_category" = "综合资料";
 "export.default_category" = "资料集";
-"export.items_per_page" = "每页题数";
+"export.items_per_page" = "每页资料数";
 "export.pdf_options" = "打印选项";
 "export.page_number" = "第 %d/%d 页";
 

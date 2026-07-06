@@ -220,7 +220,7 @@ nonisolated extension L10n {
         public static let showHeader = NSLocalizedString("export.show_header", value: "显示页眉页码", comment: "导出选项：显示页眉页码开关")
         public static let mixedCategory = NSLocalizedString("export.mixed_category", value: "综合资料", comment: "PDF 页眉：多分类混合时显示")
         public static let defaultCategory = NSLocalizedString("export.default_category", value: "资料集", comment: "PDF 页眉：无分类信息时的默认标题")
-        public static let itemsPerPage = NSLocalizedString("export.items_per_page", value: "每页题数", comment: "导出选项：每页题目数量")
+        public static let itemsPerPage = NSLocalizedString("export.items_per_page", value: "每页资料数", comment: "导出选项：每页资料数量")
         public static let pdfOptions = NSLocalizedString("export.pdf_options", value: "打印选项", comment: "导出选项区域标题")
         public static func pageNumber(_ current: Int, _ total: Int) -> String {
             String(format: NSLocalizedString("export.page_number", value: "第 %d/%d 页", comment: "PDF 页眉：页码"), current, total)
