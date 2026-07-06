@@ -27,12 +27,12 @@ nonisolated extension L10n {
         public static let serviceContent = NSLocalizedString(
             "terms.service_content",
             value: """
-            SnapDrill 是一款个人学习助手应用，旨在帮助用户通过间隔重复技术来采集、组织和复习知识。
+            SnapDrill 是一款个人资料整理应用，帮助用户采集、组织、回顾并导出本地内容。
 
             主要功能包括：
             • 智能扫描与 OCR 文字识别
-            • 错题管理和分类
-            • 间隔重复复习系统
+            • 资料管理和分类
+            • 间隔重复回顾系统
             • 数据导出（PDF/JSON/CSV）
             """,
             comment: "服务描述内容"
@@ -212,9 +212,9 @@ nonisolated extension L10n {
         public static let collectionContent = NSLocalizedString(
             "privacy.collection_content",
             value: """
-            SnapDrill 是一款离线优先应用。您在应用中创建的题目、图片、笔记、分类、标签、复盘记录和导出文件默认存储在您的设备本地。
+            SnapDrill 是一款离线优先应用。您在应用中创建的资料、图片、笔记、分类、标签、复盘记录和导出文件默认存储在您的设备本地。
 
-            当前版本不要求账户，不向 NotBad Labs 服务器发送题目内容，也不使用第三方分析或崩溃统计 SDK。
+            当前版本不要求账户，不向 NotBad Labs 服务器发送资料内容，也不使用第三方分析或崩溃统计 SDK。
             """,
             comment: "信息收集内容"
         )
@@ -236,7 +236,7 @@ nonisolated extension L10n {
 
             如果您主动通过邮件或 TestFlight 反馈联系我们，我们只使用您主动提供的信息回复该支持请求。
 
-            我们不会出售您的个人信息，不会将您的内容用于广告，也不会与第三方共享您的题目内容。
+            我们不会出售您的个人信息，不会将您的内容用于广告，也不会与第三方共享您的资料内容。
             """,
             comment: "数据使用内容"
         )
@@ -250,7 +250,7 @@ nonisolated extension L10n {
         public static let rightsContent = NSLocalizedString(
             "privacy.rights_content",
             value: """
-            您对自己的数据拥有完全控制权：访问权（您可以随时查看应用中的所有数据）、导出权（通过"导出"功能导出您的数据）、删除权（您可以删除单个错题或清空所有数据）、备份权（通过备份功能保护您的数据）。
+            您对自己的数据拥有完全控制权：访问权（您可以随时查看应用中的所有数据）、导出权（通过"导出"功能导出您的数据）、删除权（您可以删除单条资料或清空所有数据）、备份权（通过备份功能保护您的数据）。
 
             如需完全删除所有数据，请在设置中选择"清空所有数据"或卸载应用。
             """,

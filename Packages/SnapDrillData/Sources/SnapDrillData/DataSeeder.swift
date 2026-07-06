@@ -350,7 +350,7 @@ public final class DataSeeder {
     private func generalCategoryName(for seedLabel: String) -> String {
         switch seedLabel {
         case "数学", "物理", "化学":
-            return "题目"
+            return "资料"
         case "语文", "英语", "历史":
             return "文档"
         case "生物", "地理", "政治":

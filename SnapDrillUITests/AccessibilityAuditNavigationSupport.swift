@@ -98,7 +98,7 @@ extension AccessibilityAuditUITests {
         guard waitForElement("dimValueList.root.category", in: app) else {
             return false
         }
-        app.buttons["dimValue.题目"].tap()
+        app.buttons["dimValue.资料"].tap()
         guard waitForElement("dimValueEdit.root", in: app) else {
             return false
         }

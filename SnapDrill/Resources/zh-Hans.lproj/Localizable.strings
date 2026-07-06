@@ -42,8 +42,8 @@
 "common.yesterday" = "昨天";
 "common.days_later" = "%d天后";
 "common.days_ago" = "%d天前";
-"common.item_count" = "%d 道题";
-"common.item_count_short" = "%d 题";
+"common.item_count" = "%d 条资料";
+"common.item_count_short" = "%d 条";
 
 // MARK: - Activity
 
@@ -116,7 +116,7 @@
 "capture.ocr_continue_edit" = "继续编辑";
 "capture.scan_unavailable_title" = "模拟器不支持文档扫描";
 "capture.scan_unavailable_message" = "请在真机上使用文档扫描，或改用相册、PDF 与手动输入。";
-"capture.default_category" = "题目";
+"capture.default_category" = "资料";
 "capture.default_source" = "资料";
 
 // MARK: - Dashboard
@@ -158,10 +158,10 @@
 
 // MARK: - Library
 
-"library.title" = "题库";
+"library.title" = "资料库";
 "library.search_placeholder" = "搜索";
-"library.no_items" = "还没有题目";
-"library.no_items_hint" = "拍摄或导入题目后将在此处显示";
+"library.no_items" = "还没有资料";
+"library.no_items_hint" = "拍摄或导入资料后将在此处显示";
 "library.no_search_results" = "无结果";
 "library.no_search_results_hint" = "尝试调整搜索词或过滤条件";
 "library.sort_by_date" = "按时间";
@@ -176,9 +176,9 @@
 "library.loading_more" = "正在加载更多…";
 "library.loading_library" = "正在整理资料";
 "library.loading_library_hint" = "稍候即可浏览已归档内容";
-"library.detail" = "题目详情";
-"library.question_image" = "题目图片";
-"library.question_text" = "题目内容";
+"library.detail" = "资料详情";
+"library.question_image" = "资料图片";
+"library.question_text" = "资料内容";
 "library.answer_section" = "答案与备注";
 "library.answer_privacy_hint" = "默认隐藏，轻点展开或收起";
 "library.answer_text" = "答案文本";
@@ -187,8 +187,8 @@
 "library.created_at" = "录入时间";
 "library.next_review" = "下次复习";
 "library.not_scheduled" = "未安排";
-"library.edit_title" = "编辑题目";
-"library.edit_question" = "编辑题目";
+"library.edit_title" = "编辑资料";
+"library.edit_question" = "编辑资料";
 "library.edit_content" = "编辑内容";
 "library.no_image" = "无图片";
 "library.change_image" = "更换图片 & 重新识别";
@@ -200,7 +200,7 @@
 "library.filter_tags" = "标签";
 "library.batch_tag" = "标签";
 "library.no_tags" = "还没有标签";
-"library.batch_tag_hint" = "为 %d 道题添加标签";
+"library.batch_tag_hint" = "为 %d 条资料添加标签";
 "library.export" = "导出";
 "library.export_title" = "导出选项";
 "library.export_pdf" = "PDF / 打印";
@@ -222,7 +222,7 @@
 "library.print_single" = "打印";
 "library.delete_confirm_title" = "确认删除";
 "library.delete_confirm_message" = "删除后可在 5 秒内撤销";
-"library.deleted_count" = "已删除 %d 道题";
+"library.deleted_count" = "已删除 %d 条资料";
 "library.undo" = "撤销";
 "library.category_manager" = "管理分类";
 "library.source_manager" = "管理来源";
@@ -239,7 +239,7 @@
 "library.custom_color" = "自定义颜色";
 "library.name_placeholder" = "请输入名称";
 "library.cannot_delete_in_use" = "无法删除";
-"library.cannot_delete_message" = "该项正在被 %d 道题使用，请先修改相关题目。";
+"library.cannot_delete_message" = "该项正在被 %d 条资料使用，请先修改相关资料。";
 "library.selected_count" = "已选 %d 项";
 "library.icon_picker" = "选择图标";
 "library.icon_search" = "搜索图标";
@@ -534,7 +534,7 @@
 
 // MARK: - Category Presets
 
-"categories.questions" = "题目";
+"categories.questions" = "资料";
 "categories.documents" = "文档";
 "categories.receipts" = "票据";
 "categories.training" = "培训";
@@ -559,7 +559,7 @@
 "onboarding.get_started" = "开始使用";
 "onboarding.accessibility_group" = "SnapDrill 入门引导";
 "onboarding.page_welcome_title" = "欢迎使用 SnapDrill";
-"onboarding.page_welcome_description" = "扫描、归档并整理题目与文档，稍后随时查找与回顾。";
+"onboarding.page_welcome_description" = "扫描、归档并整理资料与文档，稍后随时查找与回顾。";
 "onboarding.page_capture_title" = "快速采集";
 "onboarding.page_capture_description" = "拍照、导入图片或录入文字，把内容保存为可检索资料。";
 "onboarding.page_review_title" = "按需回顾";
@@ -579,7 +579,7 @@
 // MARK: - Notification
 
 "notification.daily.title" = "复习时间到";
-"notification.daily.body" = "今天的错题还在等你，快来复习吧！";
+"notification.daily.body" = "今天的资料还在等你，快来回顾吧！";
 
 // MARK: - Help
 
@@ -590,7 +590,7 @@
 "terms.acceptance_title" = "接受条款";
 "terms.acceptance_content" = "欢迎使用 SnapDrill！通过下载、安装或使用本应用，您同意遵守本用户协议的所有条款和条件。如果您不同意这些条款，请不要使用本应用。";
 "terms.service_title" = "服务描述";
-"terms.service_content" = "SnapDrill 是一款个人学习助手应用，旨在帮助用户通过间隔重复技术来采集、组织和复习知识。\n\n主要功能包括：\n• 智能扫描与 OCR 文字识别\n• 错题管理和分类\n• 间隔重复复习系统\n• 数据导出（PDF/JSON/CSV）";
+"terms.service_content" = "SnapDrill 是一款个人资料整理应用，帮助用户采集、组织、回顾并导出本地内容。\n\n主要功能包括：\n• 智能扫描与 OCR 文字识别\n• 资料管理和分类\n• 间隔重复回顾系统\n• 数据导出（PDF/JSON/CSV）";
 "terms.data_storage_title" = "数据存储";
 "terms.data_storage_content" = "SnapDrill 无需创建账户即可使用，所有数据默认存储在您的设备本地。\n\n您有责任：\n• 保护您的设备安全\n• 定期备份重要数据\n• 注意：卸载应用将永久删除所有本地数据";
 "terms.license_title" = "许可授权";
@@ -627,15 +627,15 @@
 "privacy.intro_title" = "引言";
 "privacy.intro_content" = "欢迎使用 SnapDrill！我们非常重视您的隐私。本隐私政策说明了我们如何收集、使用、存储和保护您的个人信息。使用 SnapDrill 应用即表示您同意本隐私政策中描述的做法。";
 "privacy.collection_title" = "我们收集的信息";
-"privacy.collection_content" = "SnapDrill 是一款离线优先应用。您在应用中创建的题目、图片、笔记、分类、标签、复盘记录和导出文件默认存储在您的设备本地。\n\n当前版本不要求账户，不向 NotBad Labs 服务器发送题目内容，也不使用第三方分析或崩溃统计 SDK。";
+"privacy.collection_content" = "SnapDrill 是一款离线优先应用。您在应用中创建的资料、图片、笔记、分类、标签、复盘记录和导出文件默认存储在您的设备本地。\n\n当前版本不要求账户，不向 NotBad Labs 服务器发送资料内容，也不使用第三方分析或崩溃统计 SDK。";
 "privacy.icloud_title" = "iCloud 同步（未来功能）";
 "privacy.icloud_content" = "iCloud 同步是计划中的 Pro 付费功能，当前版本尚未提供。\n\n若未来启用，将使用 Apple CloudKit/iCloud，并在您的 Apple ID 下同步。NotBad Labs 不会为这些数据运行自有同步服务器，也无法读取您的个人 iCloud 内容。该功能上线前会同步更新隐私说明。";
 "privacy.usage_title" = "数据使用";
-"privacy.usage_content" = "SnapDrill 在设备本地处理您的数据，用于提供采集、整理、复盘、导出和打印等核心功能。\n\n如果您主动通过邮件或 TestFlight 反馈联系我们，我们只使用您主动提供的信息回复该支持请求。\n\n我们不会出售您的个人信息，不会将您的内容用于广告，也不会与第三方共享您的题目内容。";
+"privacy.usage_content" = "SnapDrill 在设备本地处理您的数据，用于提供采集、整理、复盘、导出和打印等核心功能。\n\n如果您主动通过邮件或 TestFlight 反馈联系我们，我们只使用您主动提供的信息回复该支持请求。\n\n我们不会出售您的个人信息，不会将您的内容用于广告，也不会与第三方共享您的资料内容。";
 "privacy.security_title" = "数据安全";
 "privacy.security_content" = "我们采取以下措施保护您的数据：本地存储（数据存储在您的设备上，受 iOS 沙盒保护）、无服务器（我们不运行服务器存储您的数据）、手动备份（您可以通过应用内的备份功能导出和恢复数据）。";
 "privacy.rights_title" = "您的权利";
-"privacy.rights_content" = "您对自己的数据拥有完全控制权：访问权（您可以随时查看应用中的所有数据）、导出权（通过\"导出\"功能导出您的数据）、删除权（您可以删除单个错题或清空所有数据）、备份权（通过备份功能保护您的数据）。\n\n如需完全删除所有数据，请在设置中选择\"清空所有数据\"或卸载应用。";
+"privacy.rights_content" = "您对自己的数据拥有完全控制权：访问权（您可以随时查看应用中的所有数据）、导出权（通过\"导出\"功能导出您的数据）、删除权（您可以删除单条资料或清空所有数据）、备份权（通过备份功能保护您的数据）。\n\n如需完全删除所有数据，请在设置中选择\"清空所有数据\"或卸载应用。";
 "privacy.third_party_title" = "第三方服务";
 "privacy.third_party_content" = "SnapDrill 使用以下第三方服务：\n\n• Apple Vision Framework：用于 OCR 文字识别，完全在设备本地处理，数据不离开设备。\n\n我们不使用任何第三方分析、崩溃统计或广告服务。所有数据均保留在您的设备本地，不会上传，也不会用于广告目的。";
 "privacy.children_title" = "儿童隐私";
@@ -680,7 +680,7 @@
 
 // MARK: - Tab Bar
 "tab.dashboard" = "首页";
-"tab.library" = "题库";
+"tab.library" = "资料库";
 "tab.capture" = "采集";
 "tab.review" = "复习";
 "tab.settings" = "设置";
@@ -694,7 +694,7 @@
 "export.show_header" = "显示页眉页码";
 "export.mixed_category" = "综合资料";
 "export.default_category" = "资料集";
-"export.items_per_page" = "每页题数";
+"export.items_per_page" = "每页资料数";
 "export.pdf_options" = "打印选项";
 "export.page_number" = "第 %d/%d 页";
 
@@ -768,7 +768,7 @@
 "accessibility.long_press_to_select" = "长按进入多选模式";
 "accessibility.tap_to_enlarge" = "轻点放大查看";
 "accessibility.close_full_screen_image" = "关闭全屏图片";
-"accessibility.full_screen_question_image" = "题目图片全屏预览";
+"accessibility.full_screen_question_image" = "资料图片全屏预览";
 "accessibility.export_pdf_hint" = "生成 PDF 格式导出";
 "accessibility.export_csv_hint" = "生成 CSV 格式导出";
 "accessibility.pdf_preview_label" = "PDF 预览";
@@ -800,9 +800,9 @@
 "accessibility.export_data_hint" = "导出个人数据副本";
 "edit_profile.avatar_save_failed" = "头像保存失败，请重试";
 "library.export_images" = "原图 ZIP";
-"library.export_images_hint" = "导出所有题目原图";
+"library.export_images_hint" = "导出所有资料原图";
 "library.exporting_images" = "正在打包原图…";
-"library.no_images" = "选中的题目没有图片";
+"library.no_images" = "选中的资料没有图片";
 "library.no_export_items" = "没有可导出的条目";
 "library.no_export_items_hint" = "返回列表后重新选择需要导出的内容";
 "library.select_all" = "全选";

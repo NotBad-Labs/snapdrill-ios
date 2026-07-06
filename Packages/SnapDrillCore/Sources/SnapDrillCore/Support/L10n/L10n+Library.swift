@@ -15,10 +15,10 @@ nonisolated extension L10n {
     // MARK: - Library
 
     public enum Library {
-        public static let title = NSLocalizedString("library.title", value: "题库", comment: "题库标题")
+        public static let title = NSLocalizedString("library.title", value: "资料库", comment: "题库标题")
         public static let searchPlaceholder = NSLocalizedString("library.search_placeholder", value: "搜索", comment: "搜索占位符")
-        public static let noItems = NSLocalizedString("library.no_items", value: "还没有题目", comment: "无题目提示")
-        public static let noItemsHint = NSLocalizedString("library.no_items_hint", value: "拍摄或导入题目后将在此处显示", comment: "无题目副提示")
+        public static let noItems = NSLocalizedString("library.no_items", value: "还没有资料", comment: "无题目提示")
+        public static let noItemsHint = NSLocalizedString("library.no_items_hint", value: "拍摄或导入资料后将在此处显示", comment: "无题目副提示")
         public static let noSearchResults = NSLocalizedString("library.no_search_results", value: "无结果", comment: "搜索无结果")
         public static let noSearchResultsHint = NSLocalizedString("library.no_search_results_hint", value: "尝试调整搜索词或过滤条件", comment: "搜索无结果提示")
 
@@ -41,9 +41,9 @@ nonisolated extension L10n {
         public static let loadingLibraryHint = NSLocalizedString("library.loading_library_hint", value: "稍候即可浏览已归档内容", comment: "题库加载中提示")
 
         // 详情
-        public static let detail = NSLocalizedString("library.detail", value: "题目详情", comment: "详情页标题")
-        public static let questionImage = NSLocalizedString("library.question_image", value: "题目图片", comment: "题目图片标签")
-        public static let questionText = NSLocalizedString("library.question_text", value: "题目内容", comment: "题目内容")
+        public static let detail = NSLocalizedString("library.detail", value: "资料详情", comment: "详情页标题")
+        public static let questionImage = NSLocalizedString("library.question_image", value: "资料图片", comment: "题目图片标签")
+        public static let questionText = NSLocalizedString("library.question_text", value: "资料内容", comment: "题目内容")
         public static let answerSection = NSLocalizedString("library.answer_section", value: "答案与备注", comment: "答案与备注区")
         public static let answerPrivacyHint = NSLocalizedString("library.answer_privacy_hint", value: "默认隐藏，轻点展开或收起", comment: "答案默认隐藏提示")
         public static let answerText = NSLocalizedString("library.answer_text", value: "答案文本", comment: "答案文本")
@@ -54,8 +54,8 @@ nonisolated extension L10n {
         public static let notScheduled = NSLocalizedString("library.not_scheduled", value: "未安排", comment: "未安排复习")
 
         // 编辑
-        public static let editTitle = NSLocalizedString("library.edit_title", value: "编辑题目", comment: "编辑题目页标题")
-        public static let editQuestion = NSLocalizedString("library.edit_question", value: "编辑题目", comment: "编辑题目按钮")
+        public static let editTitle = NSLocalizedString("library.edit_title", value: "编辑资料", comment: "编辑题目页标题")
+        public static let editQuestion = NSLocalizedString("library.edit_question", value: "编辑资料", comment: "编辑题目按钮")
         public static let editContent = NSLocalizedString("library.edit_content", value: "编辑内容", comment: "编辑内容按钮")
         public static let noImage = NSLocalizedString("library.no_image", value: "无图片", comment: "无图片占位")
         public static let changeImage = NSLocalizedString("library.change_image", value: "更换图片 & 重新识别", comment: "更换图片")
@@ -72,7 +72,7 @@ nonisolated extension L10n {
         public static let batchTag = NSLocalizedString("library.batch_tag", value: "标签", comment: "批量打标签按钮")
         public static let noTags = NSLocalizedString("library.no_tags", value: "还没有标签", comment: "批量标签空状态")
         public static func batchTagHint(_ count: Int) -> String {
-            String(format: NSLocalizedString("library.batch_tag_hint", value: "为 %d 道题添加标签", comment: "批量打标签提示"), count)
+            String(format: NSLocalizedString("library.batch_tag_hint", value: "为 %d 条资料添加标签", comment: "批量打标签提示"), count)
         }
 
         // 导出
@@ -83,9 +83,9 @@ nonisolated extension L10n {
         public static let exportCSV = NSLocalizedString("library.export_csv", value: "CSV", comment: "CSV 导出")
         public static let exportCSVHint = NSLocalizedString("library.export_csv_hint", value: "适合表格处理", comment: "CSV 提示")
         public static let exportImages = NSLocalizedString("library.export_images", value: "原图 ZIP", comment: "原图 ZIP 导出")
-        public static let exportImagesHint = NSLocalizedString("library.export_images_hint", value: "导出所有题目原图", comment: "原图导出提示")
+        public static let exportImagesHint = NSLocalizedString("library.export_images_hint", value: "导出所有资料原图", comment: "原图导出提示")
         public static let exportingImages = NSLocalizedString("library.exporting_images", value: "正在打包原图…", comment: "导出原图进度提示")
-        public static let noImages = NSLocalizedString("library.no_images", value: "选中的题目没有图片", comment: "无图片提示")
+        public static let noImages = NSLocalizedString("library.no_images", value: "选中的资料没有图片", comment: "无图片提示")
         public static let noExportItems = NSLocalizedString("library.no_export_items", value: "没有可导出的条目", comment: "导出空状态")
         public static let noExportItemsHint = NSLocalizedString("library.no_export_items_hint", value: "返回列表后重新选择需要导出的内容", comment: "导出空状态提示")
         public static let exportPreview = NSLocalizedString("library.export_preview", value: "导出预览", comment: "导出预览页标题")
@@ -114,7 +114,7 @@ nonisolated extension L10n {
         public static let deleteConfirmTitle = NSLocalizedString("library.delete_confirm_title", value: "确认删除", comment: "删除确认标题")
         public static let deleteConfirmMessage = NSLocalizedString("library.delete_confirm_message", value: "删除后可在 5 秒内撤销", comment: "删除确认信息")
         public static func deletedCount(_ count: Int) -> String {
-            String(format: NSLocalizedString("library.deleted_count", value: "已删除 %d 道题", comment: "撤销 Toast 显示已删除数量"), count)
+            String(format: NSLocalizedString("library.deleted_count", value: "已删除 %d 条资料", comment: "撤销 Toast 显示已删除数量"), count)
         }
         public static let undo = NSLocalizedString("library.undo", value: "撤销", comment: "撤销删除按钮")
 
@@ -135,7 +135,7 @@ nonisolated extension L10n {
         public static let cannotDeleteInUse = NSLocalizedString("library.cannot_delete_in_use", value: "无法删除", comment: "无法删除弹窗标题")
 
         public static func cannotDeleteMessage(_ count: Int) -> String {
-            String(format: NSLocalizedString("library.cannot_delete_message", value: "该项正在被 %d 道题使用，请先修改相关题目。", comment: "无法删除提示"), count)
+            String(format: NSLocalizedString("library.cannot_delete_message", value: "该项正在被 %d 条资料使用，请先修改相关资料。", comment: "无法删除提示"), count)
         }
 
         public static func selectedCount(_ count: Int) -> String {
@@ -190,13 +190,13 @@ nonisolated extension L10n {
         public static let multiValue = NSLocalizedString("library.multi_value", value: "允许多选", comment: "维度单值/多值开关")
         public static let multiValueDescription = NSLocalizedString("library.multi_value_description", value: "开启后，一项资料在该维度下可同时贴多个值（如标签）；关闭则只能选一个（如分类）。内置维度不可更改。", comment: "单值多值开关说明")
         public static let showInCapture = NSLocalizedString("library.show_in_capture", value: "在录入页显示", comment: "维度可见性开关")
-        public static let showInCaptureDescription = NSLocalizedString("library.show_in_capture_description", value: "关闭后，录入和编辑题目时不显示该维度（减少干扰，随时可重新打开）。", comment: "维度可见性说明")
+        public static let showInCaptureDescription = NSLocalizedString("library.show_in_capture_description", value: "关闭后，录入和编辑资料时不显示该维度（减少干扰，随时可重新打开）。", comment: "维度可见性说明")
         public static let valuesSection = NSLocalizedString("library.values_section", value: "值", comment: "维度值列表分区标题")
         public static let addValue = NSLocalizedString("library.add_value", value: "添加值", comment: "添加维度值")
         public static let editValue = NSLocalizedString("library.edit_value", value: "编辑值", comment: "编辑维度值")
         public static let noValues = NSLocalizedString("library.no_values", value: "暂无值，点右上角 + 添加", comment: "维度值空状态")
         public static func valueHasItems(_ name: String) -> String {
-            String(format: NSLocalizedString("library.value_has_items", value: "「%@」下仍有题目，请先移动或删除对应题目。", comment: "维度值删除受阻"), name)
+            String(format: NSLocalizedString("library.value_has_items", value: "「%@」下仍有资料，请先移动或删除对应资料。", comment: "维度值删除受阻"), name)
         }
     }
 
@@ -220,7 +220,7 @@ nonisolated extension L10n {
         public static let showHeader = NSLocalizedString("export.show_header", value: "显示页眉页码", comment: "导出选项：显示页眉页码开关")
         public static let mixedCategory = NSLocalizedString("export.mixed_category", value: "综合资料", comment: "PDF 页眉：多分类混合时显示")
         public static let defaultCategory = NSLocalizedString("export.default_category", value: "资料集", comment: "PDF 页眉：无分类信息时的默认标题")
-        public static let itemsPerPage = NSLocalizedString("export.items_per_page", value: "每页题数", comment: "导出选项：每页题目数量")
+        public static let itemsPerPage = NSLocalizedString("export.items_per_page", value: "每页资料数", comment: "导出选项：每页资料数量")
         public static let pdfOptions = NSLocalizedString("export.pdf_options", value: "打印选项", comment: "导出选项区域标题")
         public static func pageNumber(_ current: Int, _ total: Int) -> String {
             String(format: NSLocalizedString("export.page_number", value: "第 %d/%d 页", comment: "PDF 页眉：页码"), current, total)

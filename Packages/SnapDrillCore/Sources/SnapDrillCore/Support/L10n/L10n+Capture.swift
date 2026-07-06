@@ -99,7 +99,7 @@ nonisolated extension L10n {
         public static let scanUnavailableMessage = NSLocalizedString("capture.scan_unavailable_message", value: "请在真机上使用文档扫描，或改用相册、PDF 与手动输入。", comment: "模拟器文档扫描不可用说明")
 
         // 默认值（自动推断兜底）
-        public static let defaultCategory = NSLocalizedString("capture.default_category", value: "题目", comment: "默认分类")
+        public static let defaultCategory = NSLocalizedString("capture.default_category", value: "资料", comment: "默认分类")
         public static let defaultSource = NSLocalizedString("capture.default_source", value: "资料", comment: "默认来源")
 
         // PDF 大文件警告
@@ -121,7 +121,7 @@ nonisolated extension L10n {
     // MARK: - Category Presets
 
     public enum CategoryPresets {
-        public static let questions = NSLocalizedString("categories.questions", value: "题目", comment: "题目")
+        public static let questions = NSLocalizedString("categories.questions", value: "资料", comment: "题目")
         public static let documents = NSLocalizedString("categories.documents", value: "文档", comment: "文档")
         public static let receipts = NSLocalizedString("categories.receipts", value: "票据", comment: "票据")
         public static let training = NSLocalizedString("categories.training", value: "培训", comment: "培训")

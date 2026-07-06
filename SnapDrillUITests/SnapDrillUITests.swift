@@ -134,7 +134,7 @@ final class SnapDrillUITests: XCTestCase {
         let itemText = app.staticTexts["E2E UI Test Item"]
         XCTAssertTrue(
             itemText.waitForExistence(timeout: 10),
-            "保存的题目应出现在题库列表中"
+            "保存的资料应出现在资料库列表中"
         )
     }
 
@@ -206,13 +206,13 @@ final class SnapDrillUITests: XCTestCase {
 
         let recoveryRoot = waitForAnyElement("app.storeRecovery.root", in: app, timeout: 10)
         XCTAssertTrue(app.buttons["app.storeRecovery.restoreBackup"].exists, "恢复页应提供从备份恢复入口")
-        XCTAssertTrue(app.buttons["app.storeRecovery.continueEmpty"].exists, "恢复页应提供空题库继续入口")
+        XCTAssertTrue(app.buttons["app.storeRecovery.continueEmpty"].exists, "恢复页应提供空资料库继续入口")
         waitForAnyElement("app.storeRecovery.copyIsolationPath", in: app)
         addScreenshot(named: "store-recovery-01-blocking-sheet")
 
         app.buttons["app.storeRecovery.continueEmpty"].tap()
 
-        XCTAssertTrue(recoveryRoot.waitForNonExistence(timeout: 5), "选择空题库继续后恢复页应关闭")
+        XCTAssertTrue(recoveryRoot.waitForNonExistence(timeout: 5), "选择空资料库继续后恢复页应关闭")
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "关闭恢复页后应进入正常主界面")
         waitForAnyElement("dashboard.root", in: app)
         addScreenshot(named: "store-recovery-02-empty-library-continued")
@@ -301,10 +301,10 @@ final class SnapDrillUITests: XCTestCase {
             app.swipeUp()
             waitForUIAnimation(seconds: 0.15)
         }
-        assertBottomContentCellClearsFloatingTabBar(in: app, message: "题库底部区域应有完整可读的资料行")
+        assertBottomContentCellClearsFloatingTabBar(in: app, message: "资料库底部区域应有完整可读的资料行")
 
         let smartPaperButton = app.buttons["library.smartPaperButton"]
-        XCTAssertTrue(smartPaperButton.waitForExistence(timeout: 5), "题库正常浏览态应显示智能组卷入口")
+        XCTAssertTrue(smartPaperButton.waitForExistence(timeout: 5), "资料库正常浏览态应显示智能组卷入口")
         smartPaperButton.tap()
         waitForAnyElement("smartPaper.root", in: app)
 
@@ -620,7 +620,7 @@ final class SnapDrillUITests: XCTestCase {
         let frontCardMore = app.buttons.matching(identifier: "review.card.front.more").firstMatch
         XCTAssertTrue(frontCardMore.waitForExistence(timeout: 5), "正面卡片应提供更多操作菜单")
         frontCardMore.tap()
-        app.buttons["编辑题目"].tap()
+        app.buttons["编辑资料"].tap()
         waitForAnyElement("library.edit.root", in: app)
         addScreenshot(named: "ui-freeze-review-08-front-edit-sheet")
         app.buttons["取消"].tap()
@@ -830,7 +830,7 @@ final class SnapDrillUITests: XCTestCase {
         waitForAnyElement("dimValueList.root.category", in: app)
         addScreenshot(named: "ui-freeze-taxonomy-02-category-values")
 
-        app.buttons["dimValue.题目"].tap()
+        app.buttons["dimValue.资料"].tap()
         waitForAnyElement("dimValueEdit.root", in: app)
         addScreenshot(named: "ui-freeze-taxonomy-03-edit-value-default-color")
 
@@ -1200,26 +1200,26 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
         enableBuiltInCategoryField(in: app)
 
-        createManualItem(content: "Library QA Alpha", category: "题目", in: app)
+        createManualItem(content: "Library QA Alpha", category: "资料", in: app)
         createManualItem(content: "Library QA Beta", category: "文档", in: app)
 
         app.tabBars.buttons.element(boundBy: 1).tap()
         waitForAnyElement("library.root", in: app)
-        XCTAssertTrue(app.staticTexts["Library QA Alpha"].waitForExistence(timeout: 10), "题库应显示第一条 QA 数据")
-        XCTAssertTrue(app.staticTexts["Library QA Beta"].waitForExistence(timeout: 5), "题库应显示第二条 QA 数据")
+        XCTAssertTrue(app.staticTexts["Library QA Alpha"].waitForExistence(timeout: 10), "资料库应显示第一条 QA 数据")
+        XCTAssertTrue(app.staticTexts["Library QA Beta"].waitForExistence(timeout: 5), "资料库应显示第二条 QA 数据")
         addScreenshot(named: "ui-freeze-library-01-populated-list")
 
         app.buttons["library.filterButton"].tap()
         waitForAnyElement("library.filter.root", in: app)
         addScreenshot(named: "ui-freeze-library-02-filter-sheet")
 
-        let mathFilter = app.buttons["filter.value.题目"]
-        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选页应显示题目值")
+        let mathFilter = app.buttons["filter.value.资料"]
+        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选页应显示资料值")
         mathFilter.tap()
         addScreenshot(named: "ui-freeze-library-03-filter-selected")
         app.buttons["完成"].tap()
 
-        XCTAssertTrue(app.staticTexts["Library QA Alpha"].waitForExistence(timeout: 5), "筛选后题目类条目应保留")
+        XCTAssertTrue(app.staticTexts["Library QA Alpha"].waitForExistence(timeout: 5), "筛选后资料类条目应保留")
         XCTAssertTrue(app.staticTexts["Library QA Beta"].waitForNonExistence(timeout: 5), "筛选后文档类条目应隐藏")
         addScreenshot(named: "ui-freeze-library-04-filtered-list")
 
@@ -1277,7 +1277,7 @@ final class SnapDrillUITests: XCTestCase {
         waitForAnyElement("library.root", in: app)
 
         let smartPaperButton = app.buttons["library.smartPaperButton"]
-        XCTAssertTrue(smartPaperButton.waitForExistence(timeout: 5), "题库正常浏览态应显示智能组卷入口")
+        XCTAssertTrue(smartPaperButton.waitForExistence(timeout: 5), "资料库正常浏览态应显示智能组卷入口")
         smartPaperButton.tap()
 
         waitForAnyElement("smartPaper.root", in: app)
@@ -1293,7 +1293,7 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
         app.tabBars.buttons.element(boundBy: 1).tap()
         waitForAnyElement("library.root", in: app)
-        XCTAssertTrue(app.staticTexts["Library Image Fixture"].waitForExistence(timeout: 10), "题库应显示图片 fixture")
+        XCTAssertTrue(app.staticTexts["Library Image Fixture"].waitForExistence(timeout: 10), "资料库应显示图片 fixture")
         addScreenshot(named: "ui-freeze-library-image-01-list")
 
         let imageCell = app.cells.containing(.staticText, identifier: "Library Image Fixture").firstMatch
@@ -1392,24 +1392,24 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
         enableBuiltInCategoryField(in: app)
 
-        createManualItem(content: "Library Control Alpha", category: "题目", in: app)
+        createManualItem(content: "Library Control Alpha", category: "资料", in: app)
         createManualItem(content: "Library Control Beta", category: "文档", in: app)
         createTagValue("重点", in: app)
 
         app.tabBars.buttons.element(boundBy: 1).tap()
         waitForAnyElement("library.root", in: app)
-        XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 10), "题库应显示第一条 QA 数据")
-        XCTAssertTrue(app.staticTexts["Library Control Beta"].waitForExistence(timeout: 5), "题库应显示第二条 QA 数据")
+        XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 10), "资料库应显示第一条 QA 数据")
+        XCTAssertTrue(app.staticTexts["Library Control Beta"].waitForExistence(timeout: 5), "资料库应显示第二条 QA 数据")
 
         app.buttons["library.filterButton"].tap()
         waitForAnyElement("library.filter.root", in: app)
-        let mathFilter = app.buttons["filter.value.题目"]
-        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选页应显示题目值")
+        let mathFilter = app.buttons["filter.value.资料"]
+        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选页应显示资料值")
         mathFilter.tap()
         addScreenshot(named: "ui-freeze-library-controls-01-filter-selected-before-reset")
         app.buttons["library.filter.reset"].tap()
         waitForAnyElement("library.root", in: app)
-        XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 5), "重置后题目类条目应恢复")
+        XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 5), "重置后资料类条目应恢复")
         XCTAssertTrue(app.staticTexts["Library Control Beta"].waitForExistence(timeout: 5), "重置后文档类条目应恢复")
         addScreenshot(named: "ui-freeze-library-controls-02-filter-reset-list")
 
@@ -1441,9 +1441,9 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-library-controls-04-export-options")
 
         app.buttons["library.export.zip"].tap()
-        XCTAssertTrue(app.alerts["选中的题目没有图片"].waitForExistence(timeout: 5), "纯文本资料 ZIP 导出应显示无图片提示")
+        XCTAssertTrue(app.alerts["选中的资料没有图片"].waitForExistence(timeout: 5), "纯文本资料 ZIP 导出应显示无图片提示")
         addScreenshot(named: "ui-freeze-library-controls-05-zip-no-images-alert")
-        app.alerts["选中的题目没有图片"].buttons["关闭"].tap()
+        app.alerts["选中的资料没有图片"].buttons["关闭"].tap()
         app.buttons["library.export.close"].tap()
 
         let doneButton = app.buttons["完成"]
@@ -1455,7 +1455,7 @@ final class SnapDrillUITests: XCTestCase {
         if !searchField.exists {
             app.swipeDown()
         }
-        XCTAssertTrue(searchField.waitForExistence(timeout: 5), "题库应提供搜索框")
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5), "资料库应提供搜索框")
         searchField.tap()
         searchField.typeText("Alpha")
         XCTAssertTrue(app.staticTexts["Library Control Alpha"].waitForExistence(timeout: 5), "搜索 Alpha 应保留匹配条目")
@@ -1497,7 +1497,7 @@ final class SnapDrillUITests: XCTestCase {
         let categoryMulti = app.switches["dim.multiToggle"]
         XCTAssertTrue(categoryMulti.waitForExistence(timeout: 5), "分类详情应有‘允许多选’开关")
         XCTAssertEqual(categoryMulti.value as? String, "0", "分类应为单值（允许多选=关）")
-        XCTAssertTrue(app.buttons["dimValue.题目"].waitForExistence(timeout: 3), "分类下应种有‘题目’值")
+        XCTAssertTrue(app.buttons["dimValue.资料"].waitForExistence(timeout: 3), "分类下应种有‘资料’值")
 
         // 返回 → 标签 = 多值（允许多选开）
         app.navigationBars.buttons.element(boundBy: 0).tap()
@@ -1601,12 +1601,12 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
         enableBuiltInCategoryField(in: app)
 
-        createManualItem(content: "维度选择 E2E", category: "题目", in: app)
+        createManualItem(content: "维度选择 E2E", category: "资料", in: app)
 
         // 题库验证徽标
         app.tabBars.buttons.element(boundBy: 1).tap()
-        XCTAssertTrue(app.staticTexts["维度选择 E2E"].waitForExistence(timeout: 10), "题目应出现在题库")
-        XCTAssertTrue(app.staticTexts["题目"].waitForExistence(timeout: 5), "题库卡片应显示分类徽标‘题目’")
+        XCTAssertTrue(app.staticTexts["维度选择 E2E"].waitForExistence(timeout: 10), "资料应出现在资料库")
+        XCTAssertTrue(app.staticTexts["资料"].waitForExistence(timeout: 5), "资料库卡片应显示分类徽标‘资料’")
     }
 
     /// 步骤⑤：用户新建的自定义维度应即时出现在采集表单、可选值并保存（L3 端到端杀手锏）
@@ -1672,7 +1672,7 @@ final class SnapDrillUITests: XCTestCase {
         save.tap()
         XCTAssertTrue(manual.waitForExistence(timeout: 10), "保存后应返回采集首页")
         app.tabBars.buttons.element(boundBy: 1).tap()
-        XCTAssertTrue(app.staticTexts["自定义维度 E2E"].waitForExistence(timeout: 10), "题目应出现在题库")
+        XCTAssertTrue(app.staticTexts["自定义维度 E2E"].waitForExistence(timeout: 10), "资料应出现在资料库")
     }
 
     /// 步骤⑥：题库按动态维度筛选——选「分类=题目」只剩题目类资料、文档类资料隐藏；重置后恢复
@@ -1683,26 +1683,26 @@ final class SnapDrillUITests: XCTestCase {
         enableBuiltInCategoryField(in: app)
 
         // 造两项：甲=题目、乙=文档（--uitesting 起始空库，无噪音）
-        createManualItem(content: "筛选甲题目", category: "题目", in: app)
+        createManualItem(content: "筛选甲资料", category: "资料", in: app)
         createManualItem(content: "筛选乙文档", category: "文档", in: app)
 
         // 进题库，确认两题都在
         app.tabBars.buttons.element(boundBy: 1).tap()
-        XCTAssertTrue(app.staticTexts["筛选甲题目"].waitForExistence(timeout: 10), "题目类资料应在题库")
-        XCTAssertTrue(app.staticTexts["筛选乙文档"].waitForExistence(timeout: 5), "文档类资料应在题库")
+        XCTAssertTrue(app.staticTexts["筛选甲资料"].waitForExistence(timeout: 10), "资料类资料应在资料库")
+        XCTAssertTrue(app.staticTexts["筛选乙文档"].waitForExistence(timeout: 5), "文档类资料应在资料库")
 
         // 打开筛选 → 选 分类=题目 → 完成
         let filterBtn = app.buttons["library.filterButton"]
-        XCTAssertTrue(filterBtn.waitForExistence(timeout: 5), "题库应有筛选入口")
+        XCTAssertTrue(filterBtn.waitForExistence(timeout: 5), "资料库应有筛选入口")
         filterBtn.tap()
-        let mathFilter = app.buttons["filter.value.题目"]
-        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选面板应有‘题目’值")
+        let mathFilter = app.buttons["filter.value.资料"]
+        XCTAssertTrue(mathFilter.waitForExistence(timeout: 5), "筛选面板应有‘资料’值")
         mathFilter.tap()
         app.buttons["完成"].tap()
 
         // 题目类资料留、文档类资料隐藏
-        XCTAssertTrue(app.staticTexts["筛选甲题目"].waitForExistence(timeout: 5), "筛选后题目类资料应仍在")
-        XCTAssertTrue(app.staticTexts["筛选乙文档"].waitForNonExistence(timeout: 5), "筛选题目后文档类资料应被隐藏")
+        XCTAssertTrue(app.staticTexts["筛选甲资料"].waitForExistence(timeout: 5), "筛选后资料类资料应仍在")
+        XCTAssertTrue(app.staticTexts["筛选乙文档"].waitForNonExistence(timeout: 5), "筛选资料后文档类资料应被隐藏")
 
         // 重置筛选 → 两题恢复
         filterBtn.tap()
