@@ -7,9 +7,6 @@ platform :ios do
     # 1. 确保 git 状态干净
     ensure_git_status_clean
 
-    # 2. 增加 Build Number (需要先在 Xcode 设置 Versioning System 为 Apple Generic)
-    increment_build_number(xcodeproj: "SnapDrill.xcodeproj")
-
     # 3. 运行测试（AGENTS.md 门禁：必须 AllTests scheme + AllTests testPlan，
     #    SnapDrill scheme 不含 SPM 包测试）
     run_tests(

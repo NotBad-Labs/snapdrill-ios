@@ -3,23 +3,16 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>app-store</string>
+    <string>app-store-connect</string><!-- Xcode 15.4+ 规范名;旧名 app-store 仍兼容 -->
     <key>teamID</key>
     <string>J58U72W335</string>
-    <key>uploadBitcode</key>
-    <false/>
-    <key>uploadSymbols</key>
-    <false/>
-    <key>compileBitcode</key>
-    <false/>
     <key>signingStyle</key>
-    <string>automatic</string>
+    <string>automatic</string><!-- 自动签名下删除整个 provisioningProfiles 字典,由 Xcode 选分发 profile -->
     <key>destination</key>
-    <string>export</string>
-    <key>provisioningProfiles</key>
-    <dict>
-        <key>com.snapdrill.global</key>
-        <string>iOS Team Provisioning Profile: com.snapdrill.global</string>
-    </dict>
+    <string>export</string><!-- CI 化后可改 upload 直传 -->
+    <key>manageAppVersionAndBuildNumber</key>
+    <false/><!-- 关键:版本/build 唯一来源是 Shared.xcconfig,禁止 Xcode 自动改号 -->
+    <key>uploadSymbols</key>
+    <true/><!-- 崩溃符号化;MetricKit/Organizer 都受益。原 false 建议翻正,PO 可否 -->
 </dict>
 </plist>
