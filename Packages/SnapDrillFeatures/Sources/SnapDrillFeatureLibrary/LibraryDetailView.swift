@@ -83,7 +83,7 @@ struct LibraryDetailView: View {
                         HStack(alignment: .top, spacing: 8) {
                             Text(entry.dimension.name)
                                 .font(.caption.bold())
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.primary)
                                 .frame(minWidth: 36, alignment: .leading)
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 6) {
@@ -92,8 +92,8 @@ struct LibraryDetailView: View {
                                             .font(.caption)
                                             .padding(.horizontal, 8)
                                             .padding(.vertical, 3)
-                                            .background(Color(hex: value.colorHex).opacity(0.15))
-                                            .foregroundStyle(Color(hex: value.colorHex))
+                                            .background(Color(.secondarySystemGroupedBackground))
+                                            .foregroundStyle(.primary)
                                             .clipShape(Capsule())
                                     }
                                 }
@@ -104,7 +104,7 @@ struct LibraryDetailView: View {
                     HStack {
                         Label(item.createdAt.formatted(date: .abbreviated, time: .shortened), systemImage: "clock")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.primary)
 
                         Spacer()
 
@@ -115,7 +115,7 @@ struct LibraryDetailView: View {
                         } else {
                             Text(L10n.Library.notScheduled)
                                 .font(.caption)
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(.primary)
                         }
                     }
                 }
@@ -128,7 +128,7 @@ struct LibraryDetailView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Label(L10n.Library.questionText, systemImage: "doc.text")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.primary)
 
                         Text(content)
                             .font(.body.weight(.medium))
@@ -173,7 +173,7 @@ struct LibraryDetailView: View {
                                         .foregroundStyle(.primary)
                                     Text(L10n.Library.answerPrivacyHint)
                                         .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(.primary)
                                 }
 
                                 Spacer()
@@ -277,9 +277,12 @@ struct LibraryDetailView: View {
                     .accessibilityIdentifier("library.detail.printButton")
                     .disabled(isPrinting)
 
-                    Button(L10n.Common.edit) {
+                    Button {
                         isEditing = true
+                    } label: {
+                        Image(systemName: "pencil")
                     }
+                    .accessibilityLabel(L10n.Common.edit)
                     .accessibilityIdentifier("library.detail.editButton")
                 }
             }

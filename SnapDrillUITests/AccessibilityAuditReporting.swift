@@ -26,7 +26,7 @@ extension AccessibilityAuditUITests {
                         detailedDescription: issue.detailedDescription
                     )
                 )
-                // Report mode: collect the issue but do not fail this baseline test.
+                // Collect every issue first; the gate assertion runs after the report is written.
                 return true
             }
             results.append(.audited(screen: screen, rootIdentifier: rootIdentifier, issues: issues, screenshotPath))
@@ -60,6 +60,20 @@ extension AccessibilityAuditUITests {
         }
     }
 
+    func assertAuditGateIsClean(file: StaticString = #filePath, line: UInt = #line) {
+        let totalIssues = results.reduce(0) { $0 + $1.issues.count }
+        let blockedScreens = results.filter { $0.status == "BLOCKED" }
+        guard totalIssues == 0, blockedScreens.isEmpty else {
+            let blockedNames = blockedScreens.map(\.screen).joined(separator: ", ")
+            XCTFail(
+                "Accessibility audit gate failed: \(totalIssues) issue(s), \(blockedScreens.count) blocked screen(s). Blocked: \(blockedNames). See \(Self.reportFileName).",
+                file: file,
+                line: line
+            )
+            return
+        }
+    }
+
     func prepareReportOutput() {
         let fileManager = FileManager.default
         let reportDirectory = reportDirectory()
@@ -90,7 +104,7 @@ extension AccessibilityAuditUITests {
             "# SnapDrill Accessibility Audit Baseline",
             "",
             "- Date: 2026-07-05",
-            "- Mode: report-only; audit issues are collected, not treated as test failures.",
+            "- Mode: enforced; audit issues are collected into this report and then treated as test failures.",
             "- Scope: iOS Simulator UI audit for primary tabs and critical deep screens.",
             "- Coverage: \(results.count) screens (\(passedScreens) audited, \(blockedScreens) blocked), \(totalIssues) issues recorded.",
             "- Out of scope: system share/file panels, real-device camera/OCR/printing, manual HIG judgement."
@@ -179,9 +193,9 @@ extension AccessibilityAuditUITests {
             "",
             "## Gate Guidance",
             "",
-            "- Screens with zero issues can be considered candidates for future enforced audit gates after PO review.",
-            "- Screens with issues remain report-only until Q2/Q3 triage assigns severity and fixes.",
-            "- BLOCKED screens require navigation/API investigation before they can become gates."
+            "- This UITests-plan audit is now an enforced quality gate: any issue or BLOCKED screen fails the test.",
+            "- Keep this test out of PR Build & Test unless PO explicitly changes the CI policy.",
+            "- Any future exception must be an explicit PO-approved waiver with a local comment explaining the reason."
         ])
     }
 

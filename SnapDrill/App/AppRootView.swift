@@ -11,6 +11,7 @@
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
+import UIKit
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillFeatureCapture
@@ -278,6 +279,7 @@ private struct StoreRecoveryBlockingView: View {
             Image(systemName: "externaldrive.badge.exclamationmark")
                 .font(.system(size: 44, weight: .semibold))
                 .foregroundStyle(.orange)
+                .accessibilityLabel(L10n.AppRoot.storeRecoveryIconLabel)
 
             Text(L10n.AppRoot.storeRecoveryTitle)
                 .font(.largeTitle.weight(.bold))
@@ -285,7 +287,7 @@ private struct StoreRecoveryBlockingView: View {
 
             Text(L10n.AppRoot.storeRecoveryDescription)
                 .font(.body)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -297,16 +299,18 @@ private struct StoreRecoveryBlockingView: View {
 
             Text(L10n.AppRoot.storeRecoveryBackupCopyDescription)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
 
-            Text(event.isolationDirectoryURL.path)
-                .font(.caption.monospaced())
-                .foregroundStyle(.secondary)
-                .textSelection(.enabled)
-                .padding(10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
-                .accessibilityIdentifier("app.storeRecovery.isolationPath")
+            Button {
+                UIPasteboard.general.string = event.isolationDirectoryURL.path
+            } label: {
+                Label(L10n.AppRoot.storeRecoveryCopyPath, systemImage: "doc.on.doc")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .buttonStyle(.bordered)
+            .foregroundStyle(.primary)
+            .accessibilityIdentifier("app.storeRecovery.copyIsolationPath")
         }
         .padding(16)
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -320,9 +324,11 @@ private struct StoreRecoveryBlockingView: View {
             } label: {
                 Label(L10n.AppRoot.storeRecoveryRestoreBackup, systemImage: "arrow.clockwise.circle")
                     .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .foregroundStyle(Color(UIColor.systemBackground))
+                    .background(Color(UIColor.label), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .buttonStyle(.plain)
             .disabled(viewModel.isBackupInProgress)
             .accessibilityIdentifier("app.storeRecovery.restoreBackup")
 
@@ -331,9 +337,15 @@ private struct StoreRecoveryBlockingView: View {
             } label: {
                 Text(L10n.AppRoot.storeRecoveryContinueEmpty)
                     .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .foregroundStyle(.primary)
+                    .background(Color(UIColor.systemBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(Color(UIColor.label), lineWidth: 1)
+                    }
             }
-            .buttonStyle(.bordered)
-            .controlSize(.large)
+            .buttonStyle(.plain)
             .disabled(viewModel.isBackupInProgress)
             .accessibilityIdentifier("app.storeRecovery.continueEmpty")
 

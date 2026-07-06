@@ -47,6 +47,16 @@ nonisolated extension L10n {
             value: "你可以从 ZIP 备份恢复，或先以空题库继续使用。该副本仅保留在本设备上。",
             comment: "损坏库隔离保留说明正文"
         )
+        public static let storeRecoveryCopyPath = NSLocalizedString(
+            "app_root.store_recovery.copy_path",
+            value: "复制副本路径",
+            comment: "复制损坏库隔离目录路径按钮"
+        )
+        public static let storeRecoveryIconLabel = NSLocalizedString(
+            "app_root.store_recovery.icon_label",
+            value: "数据文件需要恢复",
+            comment: "损坏库恢复图标无障碍标签"
+        )
         public static let storeRecoveryRestoreBackup = NSLocalizedString("app_root.store_recovery.restore_backup", value: "从备份恢复", comment: "损坏库恢复按钮")
         public static let storeRecoveryContinueEmpty = NSLocalizedString("app_root.store_recovery.continue_empty", value: "以空题库继续", comment: "损坏库空库继续按钮")
     }

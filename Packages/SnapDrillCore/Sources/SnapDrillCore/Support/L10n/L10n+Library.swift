@@ -16,7 +16,7 @@ nonisolated extension L10n {
 
     public enum Library {
         public static let title = NSLocalizedString("library.title", value: "题库", comment: "题库标题")
-        public static let searchPlaceholder = NSLocalizedString("library.search_placeholder", value: "搜索题目", comment: "搜索占位符")
+        public static let searchPlaceholder = NSLocalizedString("library.search_placeholder", value: "搜索", comment: "搜索占位符")
         public static let noItems = NSLocalizedString("library.no_items", value: "还没有题目", comment: "无题目提示")
         public static let noItemsHint = NSLocalizedString("library.no_items_hint", value: "拍摄或导入题目后将在此处显示", comment: "无题目副提示")
         public static let noSearchResults = NSLocalizedString("library.no_search_results", value: "无结果", comment: "搜索无结果")
@@ -212,7 +212,7 @@ nonisolated extension L10n {
         public static let failed = NSLocalizedString("export.failed", value: "导出失败", comment: "导出失败")
         public static let pdfTitle = NSLocalizedString("export.pdf_title", value: "SnapDrill 资料集", comment: "PDF 导出封面标题")
         public static func pdfGenerationDate(_ date: String) -> String {
-            String(format: NSLocalizedString("export.pdf_generation_date", value: "生成日期: %@", comment: "PDF 导出封面副标题"), date)
+            String(format: NSLocalizedString("export.pdf_generation_date", value: "生成日期：%@", comment: "PDF 导出封面副标题"), date)
         }
         public static let hideAnswers = NSLocalizedString("export.hide_answers", value: "隐藏答案", comment: "导出选项：隐藏答案开关")
         public static let answerLabel = NSLocalizedString("export.answer_label", value: "答案：", comment: "PDF 导出中答案区域前缀")

@@ -13,7 +13,7 @@ review_gate: PO / legal / ASO final review required; do not treat last_verified 
 ---
 # App Store 元数据（ASO 文案）
 
-> 提交 App Store Connect 前的预备文案，提交前需重审。
+> 提交 App Store Connect 前的预备文案，提交前需重审；提交前必须确认 AccessibilityAuditUITests 强制门禁为 11 屏 AX 审计 0 警告。
 
 ---
 

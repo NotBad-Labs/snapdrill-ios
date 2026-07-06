@@ -48,14 +48,14 @@ struct ReviewDashboardView: View {
     }
 
     private var emptyLibraryState: some View {
-        ContentUnavailableView {
-            Label(L10n.Review.emptyTitle, systemImage: "clock.arrow.circlepath")
-        } description: {
-            Text(L10n.Review.emptyHint)
-        } actions: {
-            Button(L10n.Review.emptyAction, action: onEnter)
-                .buttonStyle(.borderedProminent)
-        }
+        AccessibleEmptyState(
+            title: L10n.Review.emptyTitle,
+            message: L10n.Review.emptyHint,
+            systemImage: "clock.arrow.circlepath",
+            actionTitle: L10n.Review.emptyAction,
+            actionSystemImage: "camera.viewfinder",
+            action: onEnter
+        )
         .padding(.horizontal, 24)
     }
 

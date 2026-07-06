@@ -53,6 +53,7 @@ struct CaptureContentSection: View {
                     .scrollContentBackground(.hidden)
                     .opacity(viewModel.isRecognizing ? 0.6 : 1)
                     .disabled(viewModel.isRecognizing)
+                    .accessibilityLabel(L10n.Accessibility.contentEditor)
                     .accessibilityIdentifier("capture.contentEditor")
 
                 if shouldShowEmptyHint {

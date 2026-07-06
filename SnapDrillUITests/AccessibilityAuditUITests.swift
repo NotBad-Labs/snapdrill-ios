@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  Report-mode accessibility audit baseline.
+//  Enforced accessibility audit baseline.
 //
 
 import XCTest
@@ -33,6 +33,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         auditSymbolPicker()
 
         writeReport()
+        assertAuditGateIsClean()
     }
 
     // MARK: - Screen Coverage

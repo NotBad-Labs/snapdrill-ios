@@ -183,9 +183,9 @@ public struct SFSymbolPickerView: View {
                         ForEach(filteredCategories) { category in
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(category.name)
-                                    .font(.caption)
+                                    .font(.headline)
                                     .fontWeight(.semibold)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(Color(UIColor.label))
                                     .padding(.horizontal, 4)
                                     .accessibilityIdentifier("symbolPicker.category.\(category.id)")
 
@@ -217,7 +217,12 @@ public struct SFSymbolPickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(L10n.Common.cancel) { dismiss() }
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(L10n.Common.cancel)
                 }
             }
         }

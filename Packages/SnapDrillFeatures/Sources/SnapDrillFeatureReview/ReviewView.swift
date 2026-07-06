@@ -48,6 +48,7 @@ public struct ReviewView: View {
                 Color(UIColor.systemGroupedBackground)
                     .ignoresSafeArea()
                     .accessibilityIdentifier("review.root")
+                    .accessibilityLabel(L10n.Review.title)
 
                 if let vm = viewModel {
                     reviewContent(vm: vm)

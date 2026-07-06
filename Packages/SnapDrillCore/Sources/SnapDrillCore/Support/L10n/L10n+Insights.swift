@@ -75,6 +75,9 @@ nonisolated extension L10n {
         // 问候语
         public static let defaultName = NSLocalizedString("dashboard.default_name", value: "用户", comment: "默认用户名")
         public static let greetingNight = NSLocalizedString("dashboard.greeting_night", value: "夜深了，注意休息", comment: "夜间问候")
+        public static let greetingMorning = NSLocalizedString("dashboard.greeting_morning_generic", value: "早安", comment: "无昵称早间问候")
+        public static let greetingAfternoon = NSLocalizedString("dashboard.greeting_afternoon_generic", value: "午安", comment: "无昵称午间问候")
+        public static let greetingEvening = NSLocalizedString("dashboard.greeting_evening_generic", value: "晚上好", comment: "无昵称晚间问候")
 
         public static func greetingMorning(_ name: String) -> String {
             String(format: NSLocalizedString("dashboard.greeting_morning", value: "早安，%@", comment: "早间问候"), name)
