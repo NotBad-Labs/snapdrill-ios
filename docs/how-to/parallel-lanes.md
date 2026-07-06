@@ -165,6 +165,28 @@ Claude Design 的推荐用法是先产出 wireframe / high fidelity 候选稿，
 - PO 要求本地交付时，完成信号是：clean diff + 本地 commit + commit hash + 验证结果
 - push、PR、merge、部署只有在 PO 明确授权时执行
 
+### 多窗口并行运行模式
+
+多窗口并行只用于 PO 或 shaping 已明确授权的阶段。每个窗口仍是一个独立 lane，协作只经 repo 产物流转：commit、PR、report、tracked docs；窗口之间不靠聊天口头同步状态。
+
+窗口角色：
+
+- **主刀**：当前主 write slice 的执行窗口；负责该 slice 的本地实现、验证、commit 和回报。
+- **副刀**：仅当规划方声明两刀文件集不相交时激活；负责第二个独立 write slice，不能触碰主刀文件集。
+- **运维**：负责合并、PR、CI、rerun 与 worktree 卫生；永不写代码。
+- **QA**：只读 dogfood、审计、盲审与报告；不直接改代码或文档。
+
+写并行准入：
+
+- shaping 必须先声明主刀 / 副刀的文件集不相交，且每刀都有独立验收与验证方式。
+- 若两刀都需要修改共享接缝，先拆出契约小 PR 冻结接口；两边基于该契约并行，不能各自猜接口。
+
+硬约束：
+
+- 同时进行的 write WIP 不超过 2 个窗口。
+- 合并永远串行，由运维执行；合并顺序由 shaping 标注，每次合并都需要 PO 明确授权。
+- 每个窗口开工先按 §3 的 T0 对账要求确认目标分支 / HEAD / dirty files / 已合并与未合并工作 / live path:line 仍成立，并把结果写入任务 brief、PR 描述或对应 report。
+
 ### PO 暂时不在线
 
 - 各 Agent 可以继续在自己的 worktree 中实现已明确的任务、补测试、核实事实并创建本地 commit
