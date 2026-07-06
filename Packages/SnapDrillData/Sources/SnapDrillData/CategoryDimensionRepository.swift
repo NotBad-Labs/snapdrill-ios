@@ -134,14 +134,14 @@ public final class CategoryDimensionRepository {
         let dim = makeBuiltIn(systemKey: CategorySystemKey.category, name: zh ? "分类" : "Category",
                               icon: "square.grid.2x2.fill", isMultiValue: false, sortOrder: 0)
         seedValues(zh ? [
-            ("题目", "checklist", "#4FC3F7"),
+            ("资料", "checklist", "#4FC3F7"),
             ("文档", "doc.text.fill", "#5C6BC0"),
             ("票据", "receipt.fill", "#66BB6A"),
             ("培训", "book.closed.fill", "#FFB74D"),
             ("工作", "briefcase.fill", "#7986CB"),
             ("其他", "folder.fill", "#78909C")
         ] : [
-            ("Questions", "checklist", "#4FC3F7"),
+            ("Material", "checklist", "#4FC3F7"),
             ("Documents", "doc.text.fill", "#5C6BC0"),
             ("Receipts", "receipt.fill", "#66BB6A"),
             ("Training", "book.closed.fill", "#FFB74D"),

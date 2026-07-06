@@ -116,7 +116,7 @@
 "capture.ocr_continue_edit" = "Continue Editing";
 "capture.scan_unavailable_title" = "Document Scan Unavailable in Simulator";
 "capture.scan_unavailable_message" = "Use document scan on a real device, or choose Photos, PDF, or Manual Entry.";
-"capture.default_category" = "Questions";
+"capture.default_category" = "Material";
 "capture.default_source" = "Material";
 
 // MARK: - Dashboard
@@ -177,8 +177,8 @@
 "library.loading_library" = "Organizing library";
 "library.loading_library_hint" = "Your archived items will appear shortly";
 "library.detail" = "Details";
-"library.question_image" = "Question Image";
-"library.question_text" = "Question Text";
+"library.question_image" = "Material Image";
+"library.question_text" = "Material Text";
 "library.answer_section" = "Answers and Notes";
 "library.answer_privacy_hint" = "Hidden by default. Tap to expand or collapse.";
 "library.answer_text" = "Answer Text";
@@ -188,7 +188,7 @@
 "library.next_review" = "Next Review";
 "library.not_scheduled" = "Not Scheduled";
 "library.edit_title" = "Edit Item";
-"library.edit_question" = "Edit Question";
+"library.edit_question" = "Edit Material";
 "library.edit_content" = "Edit Content";
 "library.no_image" = "No Image";
 "library.change_image" = "Change Image & Re-recognize";
@@ -247,7 +247,7 @@
 "library.custom_color" = "Custom Color";
 "library.name_placeholder" = "Enter name";
 "library.cannot_delete_in_use" = "Cannot Delete";
-"library.cannot_delete_message" = "This item is used by %d questions. Please modify or delete those questions first.";
+"library.cannot_delete_message" = "This item is used by %d materials. Please modify or delete those materials first.";
 "library.selected_count" = "%d selected";
 "library.icon_picker" = "Choose Icon";
 "library.icon_search" = "Search icons";
@@ -553,7 +553,7 @@
 
 // MARK: - Category Presets
 
-"categories.questions" = "Questions";
+"categories.questions" = "Material";
 "categories.documents" = "Documents";
 "categories.receipts" = "Receipts";
 "categories.training" = "Training";
@@ -578,7 +578,7 @@
 "onboarding.get_started" = "Get Started";
 "onboarding.accessibility_group" = "SnapDrill guide";
 "onboarding.page_welcome_title" = "Welcome to SnapDrill";
-"onboarding.page_welcome_description" = "Scan, archive, and organize questions and documents for later review.";
+"onboarding.page_welcome_description" = "Scan, archive, and organize materials and documents for later review.";
 "onboarding.page_capture_title" = "Capture Quickly";
 "onboarding.page_capture_description" = "Take a photo, import an image, or enter text to save searchable records.";
 "onboarding.page_review_title" = "Review When Needed";
@@ -598,7 +598,7 @@
 // MARK: - Notification
 
 "notification.daily.title" = "Review Time";
-"notification.daily.body" = "Your questions are waiting — time to review!";
+"notification.daily.body" = "Your materials are waiting — time to review!";
 
 // MARK: - Help (removed — v1.0 uses external web FAQ)
 
@@ -610,7 +610,7 @@
 "terms.acceptance_title" = "Acceptance of Terms";
 "terms.acceptance_content" = "Welcome to SnapDrill! By downloading, installing, or using this app, you agree to comply with all terms and conditions of this agreement. If you do not agree to these terms, please do not use this app.";
 "terms.service_title" = "Service Description";
-"terms.service_content" = "SnapDrill is a personal learning assistant app designed to help users capture, organize, and review knowledge through spaced repetition.\n\nKey features include:\n• Smart scanning & OCR text recognition\n• Question management and categorization\n• Spaced repetition review system\n• Data export (PDF/JSON/CSV)";
+"terms.service_content" = "SnapDrill is a personal material organizer designed to help users capture, organize, review, and export local content.\n\nKey features include:\n• Smart scanning & OCR text recognition\n• Material management and categorization\n• Spaced repetition review system\n• Data export (PDF/JSON/CSV)";
 "terms.data_storage_title" = "Data Storage";
 "terms.data_storage_content" = "SnapDrill does not require an account to use. All data is stored locally on your device by default.\n\nYou are responsible for:\n• Keeping your device secure\n• Regularly backing up important data\n• Note: Uninstalling the app will permanently delete all local data";
 "terms.license_title" = "License Grant";
@@ -647,15 +647,15 @@
 "privacy.intro_title" = "Introduction";
 "privacy.intro_content" = "Welcome to SnapDrill! We take your privacy very seriously. This privacy policy explains how we collect, use, store, and protect your personal information. By using the SnapDrill app, you agree to the practices described in this privacy policy.";
 "privacy.collection_title" = "Information We Collect";
-"privacy.collection_content" = "SnapDrill is an offline-first app. Questions, images, notes, categories, tags, review records, and export files you create in the app are stored locally on your device by default.\n\nThis version does not require an account, does not send question content to NotBad Labs servers, and does not use third-party analytics or crash-reporting SDKs.";
+"privacy.collection_content" = "SnapDrill is an offline-first app. Materials, images, notes, categories, tags, review records, and export files you create in the app are stored locally on your device by default.\n\nThis version does not require an account, does not send material content to NotBad Labs servers, and does not use third-party analytics or crash-reporting SDKs.";
 "privacy.icloud_title" = "iCloud Sync (Future Feature)";
 "privacy.icloud_content" = "iCloud sync is a planned Pro subscription feature and is not available in the current version.\n\nIf enabled in a future release, sync will use Apple's CloudKit/iCloud service under your Apple ID. NotBad Labs will not operate its own sync server for that data and cannot read your personal iCloud contents. The privacy notice will be updated before this feature ships.";
 "privacy.usage_title" = "Data Usage";
-"privacy.usage_content" = "SnapDrill processes your local data to provide core app functionality, including capture, organization, review, export, and printing.\n\nIf you contact us by email or through TestFlight feedback, we use only the information you choose to provide to respond to that support request.\n\nWe will not sell your personal information, use your content for advertising, or share your question content with third parties.";
+"privacy.usage_content" = "SnapDrill processes your local data to provide core app functionality, including capture, organization, review, export, and printing.\n\nIf you contact us by email or through TestFlight feedback, we use only the information you choose to provide to respond to that support request.\n\nWe will not sell your personal information, use your content for advertising, or share your material content with third parties.";
 "privacy.security_title" = "Data Security";
 "privacy.security_content" = "We take the following measures to protect your data: local storage (data is stored on your device, protected by iOS sandbox), no servers (we do not operate servers to store your data), manual backup (you can export and restore data using the in-app backup feature).";
 "privacy.rights_title" = "Your Rights";
-"privacy.rights_content" = "You have full control over your data: right of access (you can view all data in the app at any time), right to export (export your data through the Export feature), right to delete (you can delete individual questions or clear all data), right to backup (protect your data through the backup feature).\n\nTo completely delete all data, choose \"Clear All Data\" in Settings or uninstall the app.";
+"privacy.rights_content" = "You have full control over your data: right of access (you can view all data in the app at any time), right to export (export your data through the Export feature), right to delete (you can delete individual materials or clear all data), right to backup (protect your data through the backup feature).\n\nTo completely delete all data, choose \"Clear All Data\" in Settings or uninstall the app.";
 "privacy.third_party_title" = "Third-Party Services";
 "privacy.third_party_content" = "SnapDrill uses the following third-party services:\n\n• Apple Vision Framework: used for OCR text recognition, processed entirely on-device. Data never leaves your device.\n\nWe do not use any third-party analytics, crash-reporting, or advertising services. All your data stays local on your device and is never uploaded or used for advertising.";
 "privacy.children_title" = "Children's Privacy";
@@ -788,7 +788,7 @@
 "accessibility.long_press_to_select" = "Long press to enter selection mode";
 "accessibility.tap_to_enlarge" = "Tap to enlarge";
 "accessibility.close_full_screen_image" = "Close full-screen image";
-"accessibility.full_screen_question_image" = "Full-screen question image preview";
+"accessibility.full_screen_question_image" = "Full-screen material image preview";
 "accessibility.export_pdf_hint" = "Generate a PDF export";
 "accessibility.export_csv_hint" = "Generate a CSV export";
 "accessibility.pdf_preview_label" = "PDF Preview";

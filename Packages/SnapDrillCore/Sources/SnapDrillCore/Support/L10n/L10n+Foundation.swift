@@ -16,7 +16,7 @@ nonisolated extension L10n {
 
     public enum Tab {
         public static let dashboard = NSLocalizedString("tab.dashboard", value: "首页", comment: "Tab 栏：首页")
-        public static let library = NSLocalizedString("tab.library", value: "题库", comment: "Tab 栏：题库")
+        public static let library = NSLocalizedString("tab.library", value: "资料库", comment: "Tab 栏：题库")
         public static let capture = NSLocalizedString("tab.capture", value: "采集", comment: "Tab 栏：采集")
         public static let review = NSLocalizedString("tab.review", value: "复习", comment: "Tab 栏：复习")
         public static let settings = NSLocalizedString("tab.settings", value: "设置", comment: "Tab 栏：设置")
@@ -34,7 +34,7 @@ nonisolated extension L10n {
         public static let storeRecoveryTitle = NSLocalizedString("app_root.store_recovery.title", value: "需要确认数据恢复方式", comment: "损坏库恢复页标题")
         public static let storeRecoveryDescription = NSLocalizedString(
             "app_root.store_recovery.description",
-            value: "SnapDrill 无法打开当前资料空间的数据文件。原始文件已完整保留，应用当前打开的是一个空题库。",
+            value: "SnapDrill 无法打开当前资料空间的数据文件。原始文件已完整保留，应用当前打开的是一个空资料库。",
             comment: "损坏库恢复页说明"
         )
         public static let storeRecoveryBackupCopyTitle = NSLocalizedString(
@@ -44,7 +44,7 @@ nonisolated extension L10n {
         )
         public static let storeRecoveryBackupCopyDescription = NSLocalizedString(
             "app_root.store_recovery.backup_copy_description",
-            value: "你可以从 ZIP 备份恢复，或先以空题库继续使用。该副本仅保留在本设备上。",
+            value: "你可以从 ZIP 备份恢复，或先以空资料库继续使用。该副本仅保留在本设备上。",
             comment: "损坏库隔离保留说明正文"
         )
         public static let storeRecoveryCopyPath = NSLocalizedString(
@@ -58,7 +58,7 @@ nonisolated extension L10n {
             comment: "损坏库恢复图标无障碍标签"
         )
         public static let storeRecoveryRestoreBackup = NSLocalizedString("app_root.store_recovery.restore_backup", value: "从备份恢复", comment: "损坏库恢复按钮")
-        public static let storeRecoveryContinueEmpty = NSLocalizedString("app_root.store_recovery.continue_empty", value: "以空题库继续", comment: "损坏库空库继续按钮")
+        public static let storeRecoveryContinueEmpty = NSLocalizedString("app_root.store_recovery.continue_empty", value: "以空资料库继续", comment: "损坏库空库继续按钮")
     }
 
     // MARK: - Common
@@ -96,11 +96,11 @@ nonisolated extension L10n {
         }
 
         public static func itemCount(_ count: Int) -> String {
-            String(format: NSLocalizedString("common.item_count", value: "%d 道题", comment: "题目数量"), count)
+            String(format: NSLocalizedString("common.item_count", value: "%d 条资料", comment: "题目数量"), count)
         }
 
         public static func itemCountShort(_ count: Int) -> String {
-            String(format: NSLocalizedString("common.item_count_short", value: "%d 题", comment: "题目数量（短格式）"), count)
+            String(format: NSLocalizedString("common.item_count_short", value: "%d 条", comment: "题目数量（短格式）"), count)
         }
 
     }
@@ -118,6 +118,6 @@ nonisolated extension L10n {
 
     public enum Notification {
         public static let dailyTitle = NSLocalizedString("notification.daily.title", value: "复习时间到", comment: "每日复习通知标题")
-        public static let dailyBody = NSLocalizedString("notification.daily.body", value: "今天的错题还在等你，快来复习吧！", comment: "每日复习通知正文")
+        public static let dailyBody = NSLocalizedString("notification.daily.body", value: "今天的资料还在等你，快来回顾吧！", comment: "每日复习通知正文")
     }
 }

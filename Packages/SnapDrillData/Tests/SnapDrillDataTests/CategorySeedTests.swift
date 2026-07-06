@@ -90,7 +90,7 @@ final class CategorySeedTests {
 
         #expect(category.name == (isZh ? "分类" : "Category"))
         #expect(level.name == (isZh ? "级别" : "Level"))
-        #expect(categoryValues.contains(isZh ? "题目" : "Questions"))
+        #expect(categoryValues.contains(isZh ? "资料" : "Material"))
         #expect(levelValues.contains(isZh ? "基础" : "Basic"))
     }
 

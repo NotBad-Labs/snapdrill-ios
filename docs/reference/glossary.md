@@ -14,9 +14,10 @@ layer: pattern
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **采集** | Capture | 从外部载体（相机/相册/PDF/剪贴板文本/Share Extension）获取题目内容并进入录入流程的全过程 | `SnapDrillFeatureCapture` 模块 (Features) |
+| **采集** | Capture | 从外部载体（相机/相册/PDF/剪贴板文本/Share Extension）获取资料内容并进入录入流程的全过程 | `SnapDrillFeatureCapture` 模块 (Features) |
+| **资料** | Material / Item | 用户保存和管理的单条内容，可能包含图片、OCR 文本、答案/备注、分类、标签与回顾状态。PO 2026-07-05 裁决：通用资料系界面中，“题目”统一改为“资料”。 | `ArchiveItemModel` (Data) |
 | **录入** | Create / Save | 完成资料项编辑（OCR 文本、答案/备注、分类、标签）并保存到资料库的动作 | `CaptureResultViewModel` 模块 (Features) |
-| **资料库** | Library | 已保存资料项的集合，支持浏览、搜索、过滤、编辑、导出。代码与部分内部 spec 仍使用 `Library` / “题库”指代同一功能域 | `SnapDrillFeatureLibrary` 模块 (Features) |
+| **资料库** | Library | 已保存资料项的集合，支持浏览、搜索、过滤、编辑、导出。PO 2026-07-05 裁决：用户可见容器统一称“资料库”；代码与部分内部 spec 仍使用 `Library` 指代同一功能域。 | `SnapDrillFeatureLibrary` 模块 (Features) |
 | **管理** | Management | 价值链中间环节：资料库浏览、编辑、分类、标签、搜索、过滤等整理操作的统称 | `SnapDrillFeatureLibrary` 模块 (Features) |
 | **导出** | Export | 将资料数据从 App 输出为外部格式。资料库导出：PDF/CSV/ZIP/分享卡片；隐私数据导出：JSON（设置→隐私） | `ExportOptionsSheet` (Features)；隐私导出见 `PrivacySettingsView` (Features) |
 | **打印** | Print | 导出 PDF 后通过系统打印服务输出到纸质 | `ExportPreviewView` (Features) 提供打印入口，依赖 `PDFExportService` (Core) 生成 PDF |
@@ -30,7 +31,7 @@ layer: pattern
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **Profile** | Profile | 独立的本地资料库 / 工作区，每个 Profile 拥有独立的资料库、回顾进度、字段配置和统计数据 | `Profile` struct (Core), `ProfileManager` (Data) |
+| **资料空间 (Profile)** | Profile / Workspace | 独立的本地资料库 / 工作区，每个 Profile 拥有独立的资料库、回顾进度、字段配置和统计数据。用户可见中文优先用“资料空间”，代码和英文界面保留 Profile / Workspace。 | `Profile` struct (Core), `ProfileManager` (Data) |
 | **基线用户** | Baseline User | 不熟悉专业扫描 / 归档工具的成年用户（假设，待首批用户画像验证，见 `../explanations/assumptions.md` H1）。所有设计决策以此用户能否顺利完成为最低标准 | — |
 | **图片是真相** | Image is Truth | 当 OCR 文本与原图冲突时，以原图为准。原图是资料项的唯一真相源 | `ArchiveItemModel.imagePath` (Data) |
 | **.zip 备份** | .zip Backup | App 备份文件格式（ZIP 内含 JSON 数据 + 图片文件）；线格式合同见 `backup-wire-format.md` | `BackupService` (Data) |
@@ -46,6 +47,16 @@ layer: pattern
 | **字段配置** | Field Configuration | 用户在分类管理中按需开关分类、来源、级别、标签等录入维度。当前 canonical 内置维度 key 为 `category` / `source` / `level` / `tag`；`category` 是主分类维度，不等同于整个 `CategoryDimensionModel` 维度系统；`level` 是通用层级/阶段字段，不默认表达学习年龄段。 | `CategorySystemKey`, `CategoryDimensionModel.defaultCaptureVisibility`, `CategoryValueListViewModel.isVisibleInCapture` |
 | **连续录入** | Continuous Capture | 保存一项资料后自动回到相机界面，支持批量录入不中断 | `CaptureRouter` (Features) |
 | **软删除** | Soft Delete | 5 秒 Toast 撤销窗口内的临时删除状态，超时后执行真实删除 | `LibraryViewModel.softDeleteItems()` (Features) |
+
+### SmartPaper 域保留词
+
+PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库 / 资料空间”，但 SmartPaper 是生成练习卷的功能域，域内保留以下术语：
+
+| 术语 | 英文 | 使用边界 |
+|---|---|---|
+| **题** | Question | 仅在 SmartPaper 选题、题数、已选 N 题、暂无可选题目等组卷语境中使用 |
+| **试卷** | Paper | 仅用于 SmartPaper 输出物、PDF 标题或生成试卷动作 |
+| **组卷** | Paper Generation | 仅用于 SmartPaper 功能名称、入口、配额与生成流程 |
 
 ---
 

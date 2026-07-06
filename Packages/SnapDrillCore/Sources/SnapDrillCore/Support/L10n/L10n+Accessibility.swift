@@ -114,7 +114,7 @@ nonisolated extension L10n {
         public static let longPressToSelect = NSLocalizedString("accessibility.long_press_to_select", value: "长按进入多选模式", comment: "VoiceOver 长按多选提示")
         public static let tapToEnlarge = NSLocalizedString("accessibility.tap_to_enlarge", value: "轻点放大查看", comment: "VoiceOver 图片点击放大提示")
         public static let closeFullScreenImage = NSLocalizedString("accessibility.close_full_screen_image", value: "关闭全屏图片", comment: "VoiceOver 关闭全屏图片")
-        public static let fullScreenQuestionImage = NSLocalizedString("accessibility.full_screen_question_image", value: "题目图片全屏预览", comment: "VoiceOver 全屏题目图片")
+        public static let fullScreenQuestionImage = NSLocalizedString("accessibility.full_screen_question_image", value: "资料图片全屏预览", comment: "VoiceOver 全屏题目图片")
         public static let exportPDFHint = NSLocalizedString("accessibility.export_pdf_hint", value: "生成 PDF 格式导出", comment: "VoiceOver 导出 PDF 提示")
         public static let exportCSVHint = NSLocalizedString("accessibility.export_csv_hint", value: "生成 CSV 格式导出", comment: "VoiceOver 导出 CSV 提示")
         public static let pdfPreviewLabel = NSLocalizedString("accessibility.pdf_preview_label", value: "PDF 预览", comment: "VoiceOver PDF 预览")

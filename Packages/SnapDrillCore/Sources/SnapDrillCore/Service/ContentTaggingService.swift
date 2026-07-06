@@ -60,7 +60,7 @@ public actor ContentTaggingService: ContentTaggingServiceProtocol {
         do {
             let session = LanguageModelSession(
                 model: SystemLanguageModel(useCase: .contentTagging),
-                instructions: "根据资料内容判断分类。分类从以下选择：题目、文档、票据、培训、工作、其他。"
+                instructions: "根据资料内容判断分类。分类从以下选择：资料、文档、票据、培训、工作、其他。"
             )
 
             let response = try await session.respond(
@@ -81,7 +81,7 @@ public actor ContentTaggingService: ContentTaggingServiceProtocol {
 
 @Generable
 struct TaggingResult {
-    @Guide(description: "资料分类，如题目、文档、票据、培训、工作、其他")
+    @Guide(description: "资料分类，如资料、文档、票据、培训、工作、其他")
     var category: String
 }
 

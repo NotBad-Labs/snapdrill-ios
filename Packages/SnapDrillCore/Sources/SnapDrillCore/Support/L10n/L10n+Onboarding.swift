@@ -21,7 +21,7 @@ nonisolated extension L10n {
         public static let getStarted = NSLocalizedString("onboarding.get_started", value: "开始使用", comment: "引导页开始使用按钮")
         public static let accessibilityGroup = NSLocalizedString("onboarding.accessibility_group", value: "SnapDrill 入门引导", comment: "引导页无障碍分组标签")
         public static let pageWelcomeTitle = NSLocalizedString("onboarding.page_welcome_title", value: "欢迎使用 SnapDrill", comment: "引导页欢迎标题")
-        public static let pageWelcomeDescription = NSLocalizedString("onboarding.page_welcome_description", value: "扫描、归档并整理题目与文档，稍后随时查找与回顾。", comment: "引导页欢迎描述")
+        public static let pageWelcomeDescription = NSLocalizedString("onboarding.page_welcome_description", value: "扫描、归档并整理资料与文档，稍后随时查找与回顾。", comment: "引导页欢迎描述")
         public static let pageCaptureTitle = NSLocalizedString("onboarding.page_capture_title", value: "快速采集", comment: "引导页采集标题")
         public static let pageCaptureDescription = NSLocalizedString("onboarding.page_capture_description", value: "拍照、导入图片或录入文字，把内容保存为可检索资料。", comment: "引导页采集描述")
         public static let pageReviewTitle = NSLocalizedString("onboarding.page_review_title", value: "按需回顾", comment: "引导页回顾标题")
