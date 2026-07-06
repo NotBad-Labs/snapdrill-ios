@@ -95,10 +95,6 @@ public struct LibraryView: View {
                 }
             }
             .environment(\.editMode, $editMode)
-            .searchable(text: Binding(
-                get: { viewModel?.searchText ?? "" },
-                set: { viewModel?.searchText = $0 }
-            ), prompt: L10n.Library.searchPlaceholder)
             .navigationTitle(editMode.isEditing ? L10n.Library.selectedCount(selectedItemIDs.count) : L10n.Library.title)
             .toolbar {
                 // 编辑模式左上角：全选 / 取消全选（Apple 文件 App 模式）

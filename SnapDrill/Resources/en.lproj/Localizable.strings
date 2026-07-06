@@ -149,6 +149,9 @@
 "dashboard.all_done_subtitle" = "All review items are handled";
 "dashboard.default_name" = "User";
 "dashboard.greeting_night" = "It's late, get some rest";
+"dashboard.greeting_morning_generic" = "Good morning";
+"dashboard.greeting_afternoon_generic" = "Good afternoon";
+"dashboard.greeting_evening_generic" = "Good evening";
 "dashboard.greeting_morning" = "Good morning, %@";
 "dashboard.greeting_afternoon" = "Good afternoon, %@";
 "dashboard.greeting_evening" = "Good evening, %@";
@@ -156,7 +159,7 @@
 // MARK: - Library
 
 "library.title" = "Library";
-"library.search_placeholder" = "Search items...";
+"library.search_placeholder" = "Search";
 "library.no_items" = "No items yet";
 "library.no_items_hint" = "Items will appear here after you capture or import them";
 "library.no_search_results" = "No Results";
@@ -693,6 +696,7 @@
 "accessibility.export_button_hint" = "Tap to export as %@ format";
 "accessibility.progress_description" = "Processed %d of %d, progress %d%%";
 "accessibility.copy_content_hint" = "Copy recognized text to clipboard";
+"accessibility.content_editor" = "Content editor";
 
 // MARK: - Tab Bar
 "tab.dashboard" = "Home";

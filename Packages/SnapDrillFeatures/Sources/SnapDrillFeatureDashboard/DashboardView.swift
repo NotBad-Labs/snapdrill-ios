@@ -54,17 +54,16 @@ public struct DashboardView: View {
                             HeaderView()
 
                             if viewModel.totalCount == 0 {
-                                ContentUnavailableView {
-                                    Label(L10n.Dashboard.emptyTitle, systemImage: "tray")
-                                } description: {
-                                    Text(L10n.Dashboard.emptyDescription)
-                                } actions: {
-                                    Button(L10n.Dashboard.goCapture) {
-                                        viewModel.checkDraftAndCapture(router: router)
-                                    }
-                                    .buttonStyle(.borderedProminent)
-                                    .accessibilityIdentifier("dashboard.empty.capture")
+                                AccessibleEmptyState(
+                                    title: L10n.Dashboard.emptyTitle,
+                                    message: L10n.Dashboard.emptyDescription,
+                                    systemImage: "tray",
+                                    actionTitle: L10n.Dashboard.goCapture,
+                                    actionSystemImage: "camera.viewfinder"
+                                ) {
+                                    viewModel.checkDraftAndCapture(router: router)
                                 }
+                                .accessibilityIdentifier("dashboard.empty.capture")
                                 .padding(.top, 40)
                             } else {
                                 ReviewHeroCard(

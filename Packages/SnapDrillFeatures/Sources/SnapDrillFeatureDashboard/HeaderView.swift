@@ -26,12 +26,13 @@ struct HeaderView: View {
     // 动态问候语
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
-        let name = userName.isEmpty ? L10n.Dashboard.defaultName : userName
+        let trimmedName = userName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let hasPersonalName = !trimmedName.isEmpty && trimmedName != L10n.Dashboard.defaultName
 
         switch hour {
-        case 5..<12: return L10n.Dashboard.greetingMorning(name)
-        case 12..<18: return L10n.Dashboard.greetingAfternoon(name)
-        case 18..<22: return L10n.Dashboard.greetingEvening(name)
+        case 5..<12: return hasPersonalName ? L10n.Dashboard.greetingMorning(trimmedName) : L10n.Dashboard.greetingMorning
+        case 12..<18: return hasPersonalName ? L10n.Dashboard.greetingAfternoon(trimmedName) : L10n.Dashboard.greetingAfternoon
+        case 18..<22: return hasPersonalName ? L10n.Dashboard.greetingEvening(trimmedName) : L10n.Dashboard.greetingEvening
         default: return L10n.Dashboard.greetingNight
         }
     }
@@ -50,7 +51,7 @@ struct HeaderView: View {
                         .font(.caption)
                         .fontWeight(.medium)
                 }
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.primary)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
                 .background(.ultraThinMaterial)

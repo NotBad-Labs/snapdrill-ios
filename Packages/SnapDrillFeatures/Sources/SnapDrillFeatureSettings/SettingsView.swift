@@ -97,6 +97,11 @@ public struct SettingsView: View {
 
                 // 2. 录入字段配置
                 Section {
+                    Text(L10n.Settings.captureFields)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                        .accessibilityAddTraits(.isHeader)
+
                     Toggle(isOn: $showCategoryField) {
                         SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.fieldCategory)
                     }
@@ -121,14 +126,17 @@ public struct SettingsView: View {
                     .accessibilityIdentifier("settings.captureField.answer")
                     .accessibilityHint(L10n.Accessibility.fieldAnswerHint)
 
-                } header: {
-                    Text(L10n.Settings.captureFields)
                 } footer: {
                     bottomBreathingRoom
                 }
 
                 // 3. 回顾设置
-                Section(L10n.Settings.reviewSettings) {
+                Section {
+                    Text(L10n.Settings.reviewSettings)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                        .accessibilityAddTraits(.isHeader)
+
                     NavigationLink {
                         ReviewAppearanceSettingsView(
                             alignmentRaw: $alignmentRaw,
@@ -372,7 +380,7 @@ public struct SettingsView: View {
                     .lineLimit(1)
                 Text(L10n.Settings.editProfileSubtitle)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
             }
 

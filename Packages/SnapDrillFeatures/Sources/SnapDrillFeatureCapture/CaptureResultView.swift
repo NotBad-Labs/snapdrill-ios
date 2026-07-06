@@ -71,17 +71,17 @@ public struct CaptureResultView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     viewModel.save()
-                } label: {
-                    if viewModel.isSaving {
-                        ProgressView()
-                            .controlSize(.small)
-                    } else {
-                        Text(L10n.Common.save)
-                            .fontWeight(.bold)
+                    } label: {
+                        if viewModel.isSaving {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: "checkmark")
+                        }
                     }
-                }
-                .disabled(viewModel.isRecognizing || viewModel.isSaving)
-                .accessibilityIdentifier("capture.saveButton")
+                    .disabled(viewModel.isRecognizing || viewModel.isSaving)
+                    .accessibilityLabel(L10n.Common.save)
+                    .accessibilityIdentifier("capture.saveButton")
             }
 
             ToolbarItemGroup(placement: .keyboard) {

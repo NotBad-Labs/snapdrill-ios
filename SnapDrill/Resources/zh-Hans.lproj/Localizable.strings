@@ -149,6 +149,9 @@
 "dashboard.all_done_subtitle" = "待回顾内容已处理完";
 "dashboard.default_name" = "用户";
 "dashboard.greeting_night" = "夜深了，注意休息";
+"dashboard.greeting_morning_generic" = "早安";
+"dashboard.greeting_afternoon_generic" = "午安";
+"dashboard.greeting_evening_generic" = "晚上好";
 "dashboard.greeting_morning" = "早安，%@";
 "dashboard.greeting_afternoon" = "午安，%@";
 "dashboard.greeting_evening" = "晚上好，%@";
@@ -156,7 +159,7 @@
 // MARK: - Library
 
 "library.title" = "题库";
-"library.search_placeholder" = "搜索题目";
+"library.search_placeholder" = "搜索";
 "library.no_items" = "还没有题目";
 "library.no_items_hint" = "拍摄或导入题目后将在此处显示";
 "library.no_search_results" = "无结果";
@@ -673,6 +676,7 @@
 "accessibility.export_button_hint" = "轻点导出为 %@ 格式";
 "accessibility.progress_description" = "已处理 %d 条，共 %d 条，进度 %d%%";
 "accessibility.copy_content_hint" = "将识别文字复制到剪贴板";
+"accessibility.content_editor" = "资料内容编辑区";
 
 // MARK: - Tab Bar
 "tab.dashboard" = "首页";
@@ -683,7 +687,7 @@
 
 // MARK: - Export (PDF title)
 "export.pdf_title" = "SnapDrill 资料集";
-"export.pdf_generation_date" = "生成日期: %@";
+"export.pdf_generation_date" = "生成日期：%@";
 "export.hide_answers" = "隐藏答案";
 "export.answer_label" = "答案：";
 "export.show_blank_area" = "显示答题区";

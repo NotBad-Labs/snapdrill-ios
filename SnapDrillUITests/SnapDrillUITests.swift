@@ -276,6 +276,43 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-primary-ax-05-settings-main")
     }
 
+    /// Regression: AX XXXL bottom content must scroll above the floating tab bar before interaction.
+    func testAccessibilityXXXLBottomContentClearsFloatingTabBar() {
+        let app = XCUIApplication()
+        app.launchArguments = l3AccessibilityLaunchArguments()
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "AX 字号下主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
+        waitForAnyElement("settings.root", in: app)
+
+        let generateTestData = app.buttons["settings.generateTestData"]
+        scrollUntilHittable(generateTestData, in: app, maxSwipes: 10)
+        assertElementClearsFloatingTabBar(generateTestData, in: app, message: "设置 DEBUG 末尾行不应被浮动 tab bar 遮挡")
+        generateTestData.tap()
+        waitUntil("测试数据生成按钮应恢复可用") {
+            generateTestData.isEnabled
+        }
+
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+
+        for _ in 0..<10 {
+            app.swipeUp()
+            waitForUIAnimation(seconds: 0.15)
+        }
+        assertBottomContentCellClearsFloatingTabBar(in: app, message: "题库底部区域应有完整可读的资料行")
+
+        let smartPaperButton = app.buttons["library.smartPaperButton"]
+        XCTAssertTrue(smartPaperButton.waitForExistence(timeout: 5), "题库正常浏览态应显示智能组卷入口")
+        smartPaperButton.tap()
+        waitForAnyElement("smartPaper.root", in: app)
+
+        let generateButton = app.buttons["smartPaper.generateButton"]
+        scrollUntilHittable(generateButton, in: app, maxSwipes: 12)
+        assertElementClearsFloatingTabBar(generateButton, in: app, message: "SmartPaper 底部生成按钮不应被浮动 tab bar 遮挡")
+    }
+
     /// UI-freeze evidence: capture Capture method-grid bottom reachability at normal and AX sizes.
     func testUIFreezeCaptureMethodGridDeepScrollScreenshots() {
         let app = XCUIApplication()
@@ -1813,5 +1850,57 @@ final class SnapDrillUITests: XCTestCase {
             app.swipeUp()
             swipes += 1
         }
+    }
+
+    private func assertBottomContentCellClearsFloatingTabBar(
+        in app: XCUIApplication,
+        message: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let tabBar = app.tabBars.firstMatch
+        XCTAssertTrue(tabBar.exists, "主 tab bar 应存在以验证遮挡边界", file: file, line: line)
+        let cells = app.cells.allElementsBoundByIndex.filter {
+            $0.exists && $0.isHittable && !$0.staticTexts.allElementsBoundByIndex.isEmpty
+        }
+        guard !cells.isEmpty else {
+            XCTFail(message, file: file, line: line)
+            return
+        }
+
+        let cutoff = tabBar.frame.minY - 4
+        let clearCells = cells.filter { $0.frame.maxY <= cutoff }
+        if clearCells.isEmpty {
+            let frames = cells.map { NSCoder.string(for: $0.frame) }.joined(separator: ", ")
+            XCTFail("\(message). 可见资料行 frames: \(frames); tabBarY: \(tabBar.frame.minY)", file: file, line: line)
+            return
+        }
+    }
+
+    private func assertElementClearsFloatingTabBar(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        message: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard element.exists else {
+            XCTFail(message, file: file, line: line)
+            return
+        }
+        guard element.isHittable else {
+            XCTFail(message, file: file, line: line)
+            return
+        }
+
+        let tabBar = app.tabBars.firstMatch
+        XCTAssertTrue(tabBar.exists, "主 tab bar 应存在以验证遮挡边界", file: file, line: line)
+        XCTAssertLessThanOrEqual(
+            element.frame.maxY,
+            tabBar.frame.minY - 4,
+            message,
+            file: file,
+            line: line
+        )
     }
 }

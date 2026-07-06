@@ -25,6 +25,9 @@ struct SmartPaperView: View {
     @State private var viewModel: SmartPaperViewModel?
     @State private var showingPDFPreview = false
     @State private var quotaGuidanceMessage: String?
+    @ScaledMetric(relativeTo: .body) private var tabBarBreathingRoom: CGFloat = 110
+    private let tabBarViewportClearance: CGFloat = 72
+    private static let itemsPerPageOptions = [1, 2, 4]
 
     // TODO: #479 — 替换为 StoreKit 订阅状态检查
     private var isProUser: Bool { services.proEntitlement.isProUser }
@@ -64,10 +67,15 @@ struct SmartPaperView: View {
     private func smartPaperForm(vm: SmartPaperViewModel) -> some View {
         List {
             selectionConfigSection(vm: vm)
-            pdfOptionsSection(vm: vm)
             selectionResultSection(vm: vm)
-            generateButtonSection(vm: vm)
+            if !vm.selectedItems.isEmpty {
+                pdfOptionsSection(vm: vm)
+                generateButtonSection(vm: vm)
+            }
+
+            bottomBreathingRoom
         }
+        .padding(.bottom, tabBarViewportClearance)
         .onChange(of: vm.questionCount) { _, _ in vm.refreshSelection(isProUser: isProUser) }
         .onChange(of: vm.selectedCategoryValueIds) { _, _ in vm.refreshSelection(isProUser: isProUser) }
         .navigationDestination(isPresented: $showingPDFPreview) {
@@ -109,8 +117,10 @@ struct SmartPaperView: View {
                     Text(vm.selectedCategoryValueIds.isEmpty
                          ? L10n.SmartPaper.allCategories
                          : vm.selectedCategoryNames)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                        .foregroundStyle(.primary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.trailing)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
@@ -120,18 +130,45 @@ struct SmartPaperView: View {
 
     @ViewBuilder
     private func pdfOptionsSection(vm: SmartPaperViewModel) -> some View {
-        Section(L10n.Export.pdfOptions) {
+        Section {
+            Text(L10n.Export.pdfOptions)
+                .font(.headline)
+                .foregroundStyle(.primary)
+                .accessibilityAddTraits(.isHeader)
+
             Toggle(L10n.Export.hideAnswers, isOn: Bindable(vm).hideAnswers)
             if vm.hideAnswers {
                 Toggle(L10n.Export.showBlankArea, isOn: Bindable(vm).showBlankAnswerArea)
             }
             Toggle(L10n.Export.showHeader, isOn: Bindable(vm).showHeader)
-            Picker(L10n.Export.itemsPerPage, selection: Bindable(vm).itemsPerPage) {
-                Text("1").tag(1)
-                Text("2").tag(2)
-                Text("4").tag(4)
-            }
+            itemsPerPageControl(vm: vm)
         }
+    }
+
+    private func itemsPerPageControl(vm: SmartPaperViewModel) -> some View {
+        Stepper("\(L10n.Export.itemsPerPage)：\(vm.itemsPerPage)") {
+            vm.itemsPerPage = nextItemsPerPage(from: vm.itemsPerPage)
+        } onDecrement: {
+            vm.itemsPerPage = previousItemsPerPage(from: vm.itemsPerPage)
+        }
+        .foregroundStyle(.primary)
+        .accessibilityIdentifier("smartPaper.itemsPerPageControl")
+    }
+
+    private func nextItemsPerPage(from current: Int) -> Int {
+        guard let currentIndex = Self.itemsPerPageOptions.firstIndex(of: current) else {
+            return Self.itemsPerPageOptions[1]
+        }
+        let nextIndex = min(currentIndex + 1, Self.itemsPerPageOptions.count - 1)
+        return Self.itemsPerPageOptions[nextIndex]
+    }
+
+    private func previousItemsPerPage(from current: Int) -> Int {
+        guard let currentIndex = Self.itemsPerPageOptions.firstIndex(of: current) else {
+            return Self.itemsPerPageOptions[1]
+        }
+        let previousIndex = max(currentIndex - 1, 0)
+        return Self.itemsPerPageOptions[previousIndex]
     }
 
     // MARK: - 选题结果
@@ -140,16 +177,17 @@ struct SmartPaperView: View {
     private func selectionResultSection(vm: SmartPaperViewModel) -> some View {
         Section {
             if vm.selectedItems.isEmpty {
-                ContentUnavailableView {
-                    Label(L10n.SmartPaper.noItemsTitle, systemImage: "doc.questionmark")
-                } description: {
-                    Text(L10n.SmartPaper.noItemsMessage)
-                }
+                AccessibleEmptyState(
+                    title: L10n.SmartPaper.noItemsTitle,
+                    message: L10n.SmartPaper.noItemsMessage,
+                    systemImage: "doc.questionmark"
+                )
+                .padding(.vertical, 4)
             } else {
                 HStack {
                     Spacer()
                     Text(L10n.SmartPaper.selectedCount(vm.selectedItems.count))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
                     Spacer()
                 }
             }
@@ -175,10 +213,12 @@ struct SmartPaperView: View {
                     Spacer()
                     Label(L10n.SmartPaper.generate, systemImage: "doc.richtext")
                         .font(.headline)
+                        .fixedSize(horizontal: false, vertical: true)
                     Spacer()
                 }
             }
             .disabled(vm.selectedItems.isEmpty)
+            .accessibilityIdentifier("smartPaper.generateButton")
         }
     }
 
@@ -230,6 +270,16 @@ struct SmartPaperView: View {
             }
         }
         .navigationTitle(L10n.SmartPaper.categoryFilter)
+    }
+
+    private var bottomBreathingRoom: some View {
+        Color.clear
+            .frame(height: tabBarBreathingRoom)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
     }
 }
 

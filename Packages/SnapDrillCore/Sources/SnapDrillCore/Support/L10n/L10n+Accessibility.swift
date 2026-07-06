@@ -94,6 +94,7 @@ nonisolated extension L10n {
         public static let cropImageHint = NSLocalizedString("accessibility.crop_image_hint", value: "裁剪资料图片区域", comment: "VoiceOver 裁剪按钮提示")
         public static let reRecognizeHint = NSLocalizedString("accessibility.re_recognize_hint", value: "对裁剪后的图片重新进行文字识别", comment: "VoiceOver 重新识别提示")
         public static let copyContentHint = NSLocalizedString("accessibility.copy_content_hint", value: "将识别文字复制到剪贴板", comment: "VoiceOver 复制文本按钮提示")
+        public static let contentEditor = NSLocalizedString("accessibility.content_editor", value: "资料内容编辑区", comment: "VoiceOver 内容编辑器标签")
         public static func pdfPageButton(page: Int) -> String {
             String(format: NSLocalizedString("accessibility.pdf_page_button", value: "第 %d 页，轻点选择此页", comment: "VoiceOver PDF 页面按钮"), page)
         }

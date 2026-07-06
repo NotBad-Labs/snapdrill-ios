@@ -25,6 +25,8 @@ struct LibraryListView: View {
     @Bindable var viewModel: LibraryViewModel
     
     @Environment(\.editMode) private var editMode
+    @ScaledMetric(relativeTo: .body) private var tabBarBreathingRoom: CGFloat = 110
+    private let tabBarViewportClearance: CGFloat = 72
     @State private var swipeDeleteIDs: Set<UUID> = []
     @State private var showSwipeDeleteConfirm = false
 
@@ -42,6 +44,8 @@ struct LibraryListView: View {
     
     var body: some View {
         List(selection: $selectedItemIDs) {
+            searchSection
+
             // 主分类快速过滤器（主分类维度的值；全量维度过滤在 FilterSheet）
             if let categoryDim = viewModel.dimension(forSystemKey: CategorySystemKey.category) {
                 Section {
@@ -127,26 +131,24 @@ struct LibraryListView: View {
 
             if viewModel.filteredItems.isEmpty {
                 if viewModel.searchText.isEmpty && viewModel.selectedValueIdsByDimension.isEmpty {
-                    ContentUnavailableView {
-                        Label(L10n.Library.noItems, systemImage: "books.vertical")
-                    } description: {
-                        Text(L10n.Library.noItemsHint)
-                    } actions: {
-                        Button(L10n.Dashboard.goCapture) {
-                            NotificationCenter.default.post(name: .switchToCaptureTab, object: nil)
-                        }
-                        .buttonStyle(.borderedProminent)
+                    AccessibleEmptyState(
+                        title: L10n.Library.noItems,
+                        message: L10n.Library.noItemsHint,
+                        systemImage: "books.vertical",
+                        actionTitle: L10n.Dashboard.goCapture,
+                        actionSystemImage: "camera.viewfinder"
+                    ) {
+                        NotificationCenter.default.post(name: .switchToCaptureTab, object: nil)
                     }
                 } else {
-                    ContentUnavailableView {
-                        Label(L10n.Library.noSearchResults, systemImage: "line.3.horizontal.decrease.circle")
-                    } description: {
-                        Text(L10n.Library.noSearchResultsHint)
-                    } actions: {
-                        Button(L10n.Library.clearFilters) {
-                            viewModel.resetFilters()
-                        }
-                        .buttonStyle(.bordered)
+                    AccessibleEmptyState(
+                        title: L10n.Library.noSearchResults,
+                        message: L10n.Library.noSearchResultsHint,
+                        systemImage: "line.3.horizontal.decrease.circle",
+                        actionTitle: L10n.Library.clearFilters,
+                        actionSystemImage: "xmark.circle"
+                    ) {
+                        viewModel.resetFilters()
                     }
                 }
             } else {
@@ -218,9 +220,12 @@ struct LibraryListView: View {
                         }
                 }
             }
+
+            bottomBreathingRoom
         }
         .scrollContentBackground(.hidden)
         .background(Color.clear)
+        .padding(.bottom, tabBarViewportClearance)
         .accessibilityIdentifier("library.root")
         .listRowSpacing(12)
         .confirmationDialog(L10n.Library.deleteConfirmTitle, isPresented: $showSwipeDeleteConfirm, titleVisibility: .visible) {
@@ -234,6 +239,61 @@ struct LibraryListView: View {
         } message: {
             Text(L10n.Library.deleteConfirmMessage)
         }
+    }
+
+    private var searchSection: some View {
+        Section {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .accessibilityHidden(true)
+
+                TextField(
+                    L10n.Library.searchPlaceholder,
+                    text: Binding(
+                        get: { viewModel.searchText },
+                        set: { viewModel.searchText = $0 }
+                    ),
+                    axis: .vertical
+                )
+                .font(.body)
+                .lineLimit(1...2)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .submitLabel(.search)
+                .accessibilityIdentifier("library.searchField")
+
+                if !viewModel.searchText.isEmpty {
+                    Button {
+                        viewModel.searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.primary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(L10n.Library.clearFilters)
+                    .accessibilityIdentifier("library.search.clear")
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(minHeight: 52, alignment: .center)
+            .background(Color(.secondarySystemGroupedBackground), in: Capsule())
+        }
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+    }
+
+    private var bottomBreathingRoom: some View {
+        Color.clear
+            .frame(height: tabBarBreathingRoom)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
     }
 }
 
@@ -249,7 +309,7 @@ private struct LibraryCategoryChip: View {
             .padding(.vertical, 3)
             .frame(minWidth: 42)
             .background(isPlaceholder ? Color.secondary.opacity(0.12) : Color.blue.opacity(0.1))
-            .foregroundStyle(isPlaceholder ? Color.secondary : Color.blue)
+            .foregroundStyle(.primary)
             .clipShape(Capsule())
     }
 }
