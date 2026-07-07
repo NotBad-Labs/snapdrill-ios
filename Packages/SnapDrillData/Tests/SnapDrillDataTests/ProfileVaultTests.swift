@@ -58,6 +58,16 @@ struct ProfileVaultTests {
         #expect(loaded.map(\.name) == ["甲", "乙"])
     }
 
+    @Test("profiles.json 读失败时记录错误路径并返回空数组")
+    func testLoadProfilesReadFailureReturnsEmpty() throws {
+        let (vault, docs) = try makeTempVault()
+        defer { try? FileManager.default.removeItem(at: docs) }
+
+        try FileManager.default.createDirectory(at: vault.profilesJSONURL, withIntermediateDirectories: false)
+
+        #expect(vault.loadProfiles().isEmpty)
+    }
+
     @Test("createProfileDirectories 建 profiles/<id>/ 与 images/ 子目录")
     func testCreateDirectories() throws {
         let (vault, docs) = try makeTempVault()
@@ -155,6 +165,32 @@ struct ProfileManagerIngestTests {
         #expect(manager.activeProfileId == profile.id)
         #expect(event.storeURL == vault.storeURL(for: profile.id))
         #expect(event.isolationDirectoryURL.path.hasPrefix(vault.corruptedStoresDirectory(for: profile.id).path))
+    }
+
+    @Test("ProfileManager 启动时保留首个重复 Profile ID，避免 profiles.json 触发 Dictionary trap")
+    func testProfileManagerDeduplicatesDuplicateProfileIds() async throws {
+        let (vault, docs) = try makeTempVault()
+        let duplicateId = UUID()
+        let first = Profile(id: duplicateId, name: "First")
+        let duplicate = Profile(id: duplicateId, name: "Duplicate")
+        let previousActiveProfileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
+        defer {
+            if let previousActiveProfileId {
+                UserDefaults.standard.set(previousActiveProfileId, forKey: UDKey.activeProfileId)
+            } else {
+                UserDefaults.standard.removeObject(forKey: UDKey.activeProfileId)
+            }
+            try? FileManager.default.removeItem(at: docs)
+        }
+
+        try vault.saveProfiles([first, duplicate])
+        UserDefaults.standard.set(duplicateId.uuidString, forKey: UDKey.activeProfileId)
+
+        let manager = await ProfileManager.create(vault: vault)
+
+        #expect(manager.profiles.map(\.id) == [duplicateId])
+        #expect(manager.profiles.map(\.name) == ["First"])
+        #expect(manager.activeProfileId == duplicateId)
     }
 
     private func makeTempVault() throws -> (vault: ProfileVault, docs: URL) {

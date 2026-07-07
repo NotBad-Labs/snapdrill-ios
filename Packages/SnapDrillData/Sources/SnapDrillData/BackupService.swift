@@ -34,9 +34,32 @@ public actor BackupService {
         let stagingDir: URL
     }
 
+    private struct ExtractedEntryData {
+        let data: Data
+        let byteCount: Int64
+    }
+
+    struct RestoreSizeLimits: Sendable {
+        let maxSingleEntryBytes: Int64
+        let maxTotalEntryBytes: Int64
+
+        static let production = RestoreSizeLimits(
+            maxSingleEntryBytes: 50 * 1024 * 1024,
+            maxTotalEntryBytes: 1024 * 1024 * 1024
+        )
+    }
+
+    private let restoreSizeLimits: RestoreSizeLimits
+
     // MARK: - Initialization
 
-    public init() {}
+    public init() {
+        self.restoreSizeLimits = .production
+    }
+
+    init(restoreSizeLimits: RestoreSizeLimits) {
+        self.restoreSizeLimits = restoreSizeLimits
+    }
 
     // MARK: - Export
 
@@ -181,10 +204,7 @@ public actor BackupService {
             throw BackupError.missingManifest
         }
 
-        var manifestData = Data()
-        _ = try archive.extract(manifestEntry) { data in
-            manifestData.append(data)
-        }
+        let manifestData = try extractEntryData(manifestEntry, from: archive).data
 
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
@@ -206,10 +226,7 @@ public actor BackupService {
             throw BackupError.missingDataFile
         }
 
-        var payloadData = Data()
-        _ = try archive.extract(dataEntry) { data in
-            payloadData.append(data)
-        }
+        let payloadData = try extractEntryData(dataEntry, from: archive).data
 
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
@@ -294,6 +311,7 @@ public actor BackupService {
         let stagingBasePath = context.stagingDir.standardizedFileURL.path + "/"
         let profilePrefix = "profiles/\(context.profileId.uuidString)/"
         var stagedFiles: [StagedImageFile] = []
+        var totalRestoredBytes: Int64 = 0
 
         for (index, entry) in context.imageEntries.enumerated() {
             let relativePath = String(entry.path.dropFirst(profilePrefix.count))
@@ -309,7 +327,14 @@ public actor BackupService {
                 continue
             }
 
-            try stageImageEntry(entry, from: context.archive, to: stagedURL, fileManager: fileManager)
+            let restoredBytes = try stageImageEntry(
+                entry,
+                from: context.archive,
+                to: stagedURL,
+                fileManager: fileManager,
+                totalBytesSoFar: totalRestoredBytes
+            )
+            totalRestoredBytes += restoredBytes
             stagedFiles.append(StagedImageFile(stagedURL: stagedURL, destinationURL: destinationURL))
             reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
         }
@@ -317,17 +342,59 @@ public actor BackupService {
         return stagedFiles
     }
 
-    private func stageImageEntry(_ entry: Entry, from archive: Archive, to stagedURL: URL, fileManager: FileManager) throws {
+    private func stageImageEntry(
+        _ entry: Entry,
+        from archive: Archive,
+        to stagedURL: URL,
+        fileManager: FileManager,
+        totalBytesSoFar: Int64
+    ) throws -> Int64 {
         let stagingParentDir = stagedURL.deletingLastPathComponent()
         if !fileManager.fileExists(atPath: stagingParentDir.path) {
             try fileManager.createDirectory(at: stagingParentDir, withIntermediateDirectories: true)
         }
 
+        let extracted = try extractEntryData(entry, from: archive, totalBytesSoFar: totalBytesSoFar)
+        try extracted.data.write(to: stagedURL)
+        return extracted.byteCount
+    }
+
+    private func extractEntryData(
+        _ entry: Entry,
+        from archive: Archive,
+        totalBytesSoFar: Int64? = nil
+    ) throws -> ExtractedEntryData {
+        try validateSingleEntrySize(entry)
         var fileData = Data()
+        var extractedBytes: Int64 = 0
         _ = try archive.extract(entry) { data in
+            extractedBytes += Int64(data.count)
+            guard extractedBytes <= restoreSizeLimits.maxSingleEntryBytes else {
+                throw BackupError.archiveEntryTooLarge(
+                    path: entry.path,
+                    limitBytes: restoreSizeLimits.maxSingleEntryBytes
+                )
+            }
+            if let totalBytesSoFar {
+                guard totalBytesSoFar + extractedBytes <= restoreSizeLimits.maxTotalEntryBytes else {
+                    throw BackupError.archiveEntryTooLarge(
+                        path: entry.path,
+                        limitBytes: restoreSizeLimits.maxTotalEntryBytes
+                    )
+                }
+            }
             fileData.append(data)
         }
-        try fileData.write(to: stagedURL)
+        return ExtractedEntryData(data: fileData, byteCount: extractedBytes)
+    }
+
+    private func validateSingleEntrySize(_ entry: Entry) throws {
+        guard Int64(entry.uncompressedSize) <= restoreSizeLimits.maxSingleEntryBytes else {
+            throw BackupError.archiveEntryTooLarge(
+                path: entry.path,
+                limitBytes: restoreSizeLimits.maxSingleEntryBytes
+            )
+        }
     }
 
     private func commitStagedFiles(_ stagedFiles: [StagedImageFile], fileManager: FileManager) throws {
@@ -367,6 +434,8 @@ public enum BackupError: LocalizedError {
     case schemaVersionTooNew(fileVersion: Int, appVersion: Int)
     /// 磁盘空间不足
     case insufficientDiskSpace
+    /// ZIP entry 解压体积超过恢复上限
+    case archiveEntryTooLarge(path: String, limitBytes: Int64)
 
     public var errorDescription: String? {
         switch self {
@@ -382,6 +451,8 @@ public enum BackupError: LocalizedError {
             return L10n.BackupErrors.schemaVersionTooNew(fileVersion, appVersion)
         case .insufficientDiskSpace:
             return L10n.BackupErrors.insufficientDiskSpace
+        case .archiveEntryTooLarge:
+            return L10n.BackupErrors.invalidArchive
         }
     }
 }
