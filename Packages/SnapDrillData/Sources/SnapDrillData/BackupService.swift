@@ -34,13 +34,18 @@ public actor BackupService {
         let stagingDir: URL
     }
 
+    private struct ExtractedEntryData {
+        let data: Data
+        let byteCount: Int64
+    }
+
     struct RestoreSizeLimits: Sendable {
         let maxSingleEntryBytes: Int64
         let maxTotalEntryBytes: Int64
 
         static let production = RestoreSizeLimits(
             maxSingleEntryBytes: 50 * 1024 * 1024,
-            maxTotalEntryBytes: 500 * 1024 * 1024
+            maxTotalEntryBytes: 1024 * 1024 * 1024
         )
     }
 
@@ -199,7 +204,7 @@ public actor BackupService {
             throw BackupError.missingManifest
         }
 
-        let manifestData = try extractEntryData(manifestEntry, from: archive)
+        let manifestData = try extractEntryData(manifestEntry, from: archive).data
 
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
@@ -221,7 +226,7 @@ public actor BackupService {
             throw BackupError.missingDataFile
         }
 
-        let payloadData = try extractEntryData(dataEntry, from: archive)
+        let payloadData = try extractEntryData(dataEntry, from: archive).data
 
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
@@ -309,7 +314,6 @@ public actor BackupService {
         var totalRestoredBytes: Int64 = 0
 
         for (index, entry) in context.imageEntries.enumerated() {
-            try validateEntrySize(entry, totalBytes: &totalRestoredBytes)
             let relativePath = String(entry.path.dropFirst(profilePrefix.count))
             let pathComponents = relativePath.split(separator: "/")
             let destinationURL = context.imageBasePath.appendingPathComponent(relativePath).standardizedFileURL
@@ -323,7 +327,14 @@ public actor BackupService {
                 continue
             }
 
-            try stageImageEntry(entry, from: context.archive, to: stagedURL, fileManager: fileManager)
+            let restoredBytes = try stageImageEntry(
+                entry,
+                from: context.archive,
+                to: stagedURL,
+                fileManager: fileManager,
+                totalBytesSoFar: totalRestoredBytes
+            )
+            totalRestoredBytes += restoredBytes
             stagedFiles.append(StagedImageFile(stagedURL: stagedURL, destinationURL: destinationURL))
             reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
         }
@@ -331,17 +342,28 @@ public actor BackupService {
         return stagedFiles
     }
 
-    private func stageImageEntry(_ entry: Entry, from archive: Archive, to stagedURL: URL, fileManager: FileManager) throws {
+    private func stageImageEntry(
+        _ entry: Entry,
+        from archive: Archive,
+        to stagedURL: URL,
+        fileManager: FileManager,
+        totalBytesSoFar: Int64
+    ) throws -> Int64 {
         let stagingParentDir = stagedURL.deletingLastPathComponent()
         if !fileManager.fileExists(atPath: stagingParentDir.path) {
             try fileManager.createDirectory(at: stagingParentDir, withIntermediateDirectories: true)
         }
 
-        let fileData = try extractEntryData(entry, from: archive)
-        try fileData.write(to: stagedURL)
+        let extracted = try extractEntryData(entry, from: archive, totalBytesSoFar: totalBytesSoFar)
+        try extracted.data.write(to: stagedURL)
+        return extracted.byteCount
     }
 
-    private func extractEntryData(_ entry: Entry, from archive: Archive) throws -> Data {
+    private func extractEntryData(
+        _ entry: Entry,
+        from archive: Archive,
+        totalBytesSoFar: Int64? = nil
+    ) throws -> ExtractedEntryData {
         try validateSingleEntrySize(entry)
         var fileData = Data()
         var extractedBytes: Int64 = 0
@@ -353,20 +375,17 @@ public actor BackupService {
                     limitBytes: restoreSizeLimits.maxSingleEntryBytes
                 )
             }
+            if let totalBytesSoFar {
+                guard totalBytesSoFar + extractedBytes <= restoreSizeLimits.maxTotalEntryBytes else {
+                    throw BackupError.archiveEntryTooLarge(
+                        path: entry.path,
+                        limitBytes: restoreSizeLimits.maxTotalEntryBytes
+                    )
+                }
+            }
             fileData.append(data)
         }
-        return fileData
-    }
-
-    private func validateEntrySize(_ entry: Entry, totalBytes: inout Int64) throws {
-        try validateSingleEntrySize(entry)
-        totalBytes += Int64(entry.uncompressedSize)
-        guard totalBytes <= restoreSizeLimits.maxTotalEntryBytes else {
-            throw BackupError.archiveEntryTooLarge(
-                path: entry.path,
-                limitBytes: restoreSizeLimits.maxTotalEntryBytes
-            )
-        }
+        return ExtractedEntryData(data: fileData, byteCount: extractedBytes)
     }
 
     private func validateSingleEntrySize(_ entry: Entry) throws {

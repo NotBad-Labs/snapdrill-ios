@@ -52,6 +52,8 @@ struct ImageStorageTests {
     func loadImage_invalidPath_returnsNil() {
         let result = storage.loadImage(path: "images/does_not_exist.jpg")
         #expect(result == nil)
+        #expect(storage.loadImage(path: "/etc/hosts") == nil)
+        #expect(storage.loadImage(path: #"images\evil.jpg"#) == nil)
     }
 
     @Test("imageFileURL 返回已保存图片 URL 且拒绝路径穿越")
