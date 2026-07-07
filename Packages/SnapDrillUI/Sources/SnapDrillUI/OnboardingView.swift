@@ -64,7 +64,7 @@ public struct OnboardingView: View {
 
     public var body: some View {
         ZStack {
-            Color(uiColor: .systemGroupedBackground)
+            Color(uiColor: .systemBackground)
                 .ignoresSafeArea()
                 .accessibilityIdentifier("onboarding.root")
 
@@ -73,9 +73,9 @@ public struct OnboardingView: View {
                 pager
                 bottomControls
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 12)
-            .padding(.bottom, 24)
+            .padding(.horizontal, 24)
+            .padding(.top, 4)
+            .padding(.bottom, 20)
         }
         .accessibleGroup(label: L10n.Onboarding.accessibilityGroup, combineChildren: false)
         // HIG：翻页用 light（翻书感），完成引导用 success（正向仪式感）
@@ -83,19 +83,31 @@ public struct OnboardingView: View {
         .sensoryFeedback(.success, trigger: completionFeedbackTrigger)
     }
 
+    // 顶栏：左「上一页」（page>0 才出现）+ 右「跳过」，都用无边框文字，克制不抢焦点。
     private var topBar: some View {
         HStack {
+            if currentPage > 0 {
+                Button {
+                    withAnimation(.snappy) { currentPage -= 1 }
+                } label: {
+                    Label(L10n.Onboarding.previous, systemImage: "chevron.backward")
+                        .font(.subheadline.weight(.medium))
+                }
+                .tint(.secondary)
+                .accessibilityIdentifier("onboarding.previous")
+            }
+
             Spacer()
+
             Button(L10n.Onboarding.skip) {
                 completeOnboarding()
             }
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.capsule)
-            .controlSize(.small)
+            .font(.subheadline.weight(.medium))
             .tint(.secondary)
             .accessibilityIdentifier("onboarding.skip")
         }
-        .padding(.bottom, 8)
+        .frame(minHeight: 32)
+        .padding(.bottom, 4)
     }
 
     private var pager: some View {
@@ -108,46 +120,36 @@ public struct OnboardingView: View {
         .tabViewStyle(.page(indexDisplayMode: .never))
     }
 
+    // 底部：进度点 + 一个自信的全宽胶囊主按钮，主行动点独占底部、层级清晰（Apple 现代引导页做法）。
     private var bottomControls: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             progressDots
 
-            HStack(spacing: 12) {
-                if currentPage > 0 {
-                    Button(L10n.Onboarding.previous) {
-                        withAnimation(.snappy) {
-                            currentPage -= 1
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.roundedRectangle(radius: 14))
-                    .accessibilityIdentifier("onboarding.previous")
-                }
-
-                Button(isLastPage ? L10n.Onboarding.getStarted : L10n.Onboarding.next) {
-                    if isLastPage {
-                        completeOnboarding()
-                    } else {
-                        withAnimation(.snappy) {
-                            currentPage += 1
-                        }
+            Button(isLastPage ? L10n.Onboarding.getStarted : L10n.Onboarding.next) {
+                if isLastPage {
+                    completeOnboarding()
+                } else {
+                    withAnimation(.snappy) {
+                        currentPage += 1
                     }
                 }
-                .buttonStyle(.borderedProminent)
-                .buttonBorderShape(.roundedRectangle(radius: 14))
-                .frame(maxWidth: .infinity)
-                .accessibilityIdentifier(isLastPage ? "onboarding.getStarted" : "onboarding.next")
             }
+            .font(.headline)
+            .buttonStyle(.borderedProminent)
+            .buttonBorderShape(.capsule)
+            .controlSize(.large)
+            .frame(maxWidth: .infinity)
+            .accessibilityIdentifier(isLastPage ? "onboarding.getStarted" : "onboarding.next")
         }
-        .padding(.top, 10)
+        .padding(.top, 8)
     }
 
     private var progressDots: some View {
         HStack(spacing: 8) {
             ForEach(pages.indices, id: \.self) { index in
                 Capsule(style: .continuous)
-                    .fill(index == currentPage ? Color.accentColor : Color.secondary.opacity(0.25))
-                    .frame(width: index == currentPage ? 22 : 7, height: 7)
+                    .fill(index == currentPage ? Color.accentColor : Color.secondary.opacity(0.22))
+                    .frame(width: index == currentPage ? 24 : 7, height: 7)
             }
         }
         .animation(.snappy, value: currentPage)
@@ -175,17 +177,18 @@ struct OnboardingPageView: View {
     var body: some View {
         GeometryReader { proxy in
             ScrollView {
-                VStack {
+                VStack(spacing: 0) {
                     Spacer(minLength: 24)
 
-                    VStack(spacing: 28) {
+                    // 全屏留白，无卡片：大图标 + 大标题 + 次级描述，垂直居中。
+                    VStack(spacing: dynamicTypeSize.isAccessibilitySize ? 24 : 36) {
                         if !dynamicTypeSize.isAccessibilitySize {
                             icon
                         }
 
-                        VStack(spacing: 12) {
+                        VStack(spacing: 14) {
                             Text(page.title)
-                                .font(.title.bold())
+                                .font(.largeTitle.bold())
                                 .multilineTextAlignment(.center)
                                 .lineLimit(3)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -195,49 +198,48 @@ struct OnboardingPageView: View {
                                 .font(.body)
                                 .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
-                                .lineSpacing(3)
+                                .lineSpacing(4)
                                 .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: 340)
                                 .accessible(label: page.description)
                         }
                     }
-                    .frame(maxWidth: 430)
-                    .padding(.horizontal, dynamicTypeSize.isAccessibilitySize ? 16 : 24)
-                    .padding(.vertical, dynamicTypeSize.isAccessibilitySize ? 24 : 42)
-                    .background(Color(uiColor: .secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 28, style: .continuous)
-                            .stroke(Color(uiColor: .separator).opacity(0.18), lineWidth: 1)
-                    }
+                    .padding(.horizontal, 8)
                     .accessibilityIdentifier("onboarding.page.\(index)")
 
                     Spacer(minLength: 24)
                 }
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: proxy.size.height)
-                .padding(.horizontal, 4)
             }
             .scrollIndicators(.hidden)
         }
     }
 
+    // Hero 图标：SF Symbol（hierarchical 渲染，有层次不扁平）坐在柔和同色圆里，
+    // 给图标存在感又不落入「设置行小方块」的模板感。
     private var icon: some View {
-        Group {
-            if let systemImage = page.systemImage {
-                Image(systemName: systemImage)
-                    .font(.system(size: 34, weight: .semibold))
-                    .foregroundStyle(Color.accentColor)
-                    .accessibleImage(label: page.title)
-            } else if !page.imageName.isEmpty {
-                Image(page.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 44, height: 44)
-                    .accessibleImage(label: page.title)
+        ZStack {
+            Circle()
+                .fill(Color.accentColor.opacity(0.12))
+                .frame(width: 128, height: 128)
+
+            Group {
+                if let systemImage = page.systemImage {
+                    Image(systemName: systemImage)
+                        .font(.system(size: 54, weight: .regular))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(Color.accentColor)
+                        .accessibleImage(label: page.title)
+                } else if !page.imageName.isEmpty {
+                    Image(page.imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 64, height: 64)
+                        .accessibleImage(label: page.title)
+                }
             }
         }
-        .frame(width: 82, height: 82)
-        .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 
