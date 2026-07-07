@@ -99,7 +99,14 @@ nonisolated public struct ProfileVault: Sendable {
 
     /// 读取并解码 profiles.json；不存在 / 损坏返回 `[]`（与历史行为一致）。
     func loadProfiles() -> [Profile] {
-        guard let data = try? Data(contentsOf: profilesJSONURL) else {
+        guard FileManager.default.fileExists(atPath: profilesJSONURL.path) else {
+            return []
+        }
+        let data: Data
+        do {
+            data = try Data(contentsOf: profilesJSONURL)
+        } catch {
+            SnapDrillLogger.data.error("ProfileVault: profiles.json 读取失败: \(error.localizedDescription)")
             return []
         }
         let decoder = JSONDecoder()

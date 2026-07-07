@@ -165,7 +165,7 @@ public final class ProfileManager {
         ProfileMigration.migrateIfNeeded(documentsURL: vault.documentsURL, defaults: .standard)
 
         // 2. 加载 Profile 列表（空时自动创建默认 Profile）
-        var loadedProfiles = vault.loadProfiles()
+        var loadedProfiles = deduplicatedProfiles(vault.loadProfiles())
         if loadedProfiles.isEmpty {
             SnapDrillLogger.data.warning("ProfileManager: profiles.json 为空或不存在，创建默认 Profile")
             let fallback = Profile(name: L10n.Settings.defaultProfileName)

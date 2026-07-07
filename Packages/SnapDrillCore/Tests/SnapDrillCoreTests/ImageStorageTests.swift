@@ -65,6 +65,37 @@ struct ImageStorageTests {
         #expect(storage.imageFileURL(path: "/tmp/outside.jpg") == nil)
     }
 
+    @Test("loadImage 拒绝路径穿越读取越界图片")
+    func loadImage_rejectsTraversalToExistingOutsideImage() throws {
+        let outsideURL = testDir.deletingLastPathComponent()
+            .appendingPathComponent("outside_\(UUID().uuidString).jpg")
+        defer { try? FileManager.default.removeItem(at: outsideURL) }
+
+        let imageData = try #require(ImageStorage.compressedJPEGData(
+            from: createTestImage(width: 10, height: 10),
+            maxLongSide: 20,
+            quality: 0.8
+        ))
+        try imageData.write(to: outsideURL)
+
+        #expect(storage.loadImage(path: "../\(outsideURL.lastPathComponent)") == nil)
+        #expect(storage.loadDownsampledImage(path: "../\(outsideURL.lastPathComponent)") == nil)
+    }
+
+    @Test("deleteImage 拒绝路径穿越删除越界文件")
+    func deleteImage_rejectsTraversalToExistingOutsideFile() async throws {
+        let outsideURL = testDir.deletingLastPathComponent()
+            .appendingPathComponent("delete_victim_\(UUID().uuidString).jpg")
+        defer { try? FileManager.default.removeItem(at: outsideURL) }
+
+        try Data("do-not-delete".utf8).write(to: outsideURL)
+        #expect(FileManager.default.fileExists(atPath: outsideURL.path))
+
+        try await storage.deleteImage(path: "../\(outsideURL.lastPathComponent)")
+
+        #expect(FileManager.default.fileExists(atPath: outsideURL.path))
+    }
+
     // MARK: - compressedJPEGData & saveImage
 
     @Test("compressedJPEGData 长边未超限时直接编码不缩放")

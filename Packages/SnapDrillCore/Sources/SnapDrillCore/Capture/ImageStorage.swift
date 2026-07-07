@@ -88,6 +88,10 @@ public struct ImageStorage: Sendable {
     /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
     /// - Throws: 文件删除失败时抛出 FileManager 错误；文件不存在时静默返回
     nonisolated public func deleteImage(path: String) async throws {
+        guard Self.isSafeRelativeImagePath(path) else {
+            SnapDrillLogger.generic.warning("跳过非法图片删除路径: \(path)")
+            return
+        }
         let base = baseDirectory
         try await Task.detached {
             let fileManager = FileManager.default
@@ -105,6 +109,7 @@ public struct ImageStorage: Sendable {
     /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
     /// - Returns: 加载的 UIImage，如果失败返回 nil
     nonisolated public func loadImage(path: String) -> UIImage? {
+        guard Self.isSafeRelativeImagePath(path) else { return nil }
         let fileManager = FileManager.default
         let fileURL = baseDirectory.appendingPathComponent(path)
 
@@ -148,6 +153,7 @@ public struct ImageStorage: Sendable {
     ///   - maxLongSide: 长边像素上限（默认 1200，A4 150dpi 足够）
     /// - Returns: 降采样后的 UIImage，失败时回退到 `loadImage(path:)`
     nonisolated public func loadDownsampledImage(path: String, maxLongSide: Int = 1200) -> UIImage? {
+        guard Self.isSafeRelativeImagePath(path) else { return nil }
         let fileManager = FileManager.default
         let fileURL = baseDirectory.appendingPathComponent(path)
 
