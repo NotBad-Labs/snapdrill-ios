@@ -467,8 +467,13 @@ public final class ProfileManager {
         guard !isInMemory else { return }
         let prefsURL = vault.preferencesURL(for: profileId)
 
+        let (safe, dropped) = Self.jsonSafePreferences(dict)
+        if !dropped.isEmpty {
+            SnapDrillLogger.data.error("ProfileManager: 偏好含非 JSON 值，已跳过键：\(dropped.joined(separator: ", "))")
+        }
+
         do {
-            let data = try JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted)
+            let data = try JSONSerialization.data(withJSONObject: safe, options: .prettyPrinted)
             try data.write(to: prefsURL)
         } catch {
             SnapDrillLogger.data.error("ProfileManager: 偏好保存失败: \(error.localizedDescription)")
