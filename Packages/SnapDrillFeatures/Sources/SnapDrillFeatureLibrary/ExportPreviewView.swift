@@ -95,12 +95,14 @@ struct ExportPreviewView: View {
                         ShareLink(item: tempPDFURL) {
                             Label(L10n.Library.share, systemImage: "square.and.arrow.up")
                         }
+                        .accessibilityIdentifier("library.exportPreview.share")
                     } else {
                         Button {
                             showingShareSheet = true
                         } label: {
                             Label(L10n.Library.share, systemImage: "square.and.arrow.up")
                         }
+                        .accessibilityIdentifier("library.exportPreview.share")
                     }
                 }
 
@@ -125,15 +127,22 @@ struct ExportPreviewView: View {
         .alert(L10n.Library.printFailed, isPresented: $showPrintError) {
             Button(L10n.Common.ok, role: .cancel) {}
         }
-        .sheet(isPresented: $showingShareSheet) {
-            if let tempPDFURL, let onExport {
-                PDFActivityView(activityItems: [tempPDFURL]) { completed in
-                    if completed {
-                        onExport()
+        .sheet(
+            isPresented: $showingShareSheet,
+            onDismiss: {
+                showingShareSheet = false
+            },
+            content: {
+                if let tempPDFURL, let onExport {
+                    PDFActivityView(activityItems: [tempPDFURL]) { completed in
+                        showingShareSheet = false
+                        if completed {
+                            onExport()
+                        }
                     }
                 }
             }
-        }
+        )
         .task {
             generatePDF()
         }
@@ -247,7 +256,9 @@ private struct PDFActivityView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIActivityViewController {
         let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         controller.completionWithItemsHandler = { _, completed, _, _ in
-            onComplete(completed)
+            DispatchQueue.main.async {
+                onComplete(completed)
+            }
         }
         return controller
     }
