@@ -75,7 +75,7 @@ nonisolated extension L10n {
             • 您的内容不侵犯任何第三方的权利
             • 您的内容不包含非法、有害或不当的材料
 
-            我们不会访问、使用或分享您的个人学习内容。
+            我们不会访问、使用或分享您的个人资料内容。
             """,
             comment: "用户内容"
         )
@@ -271,7 +271,7 @@ nonisolated extension L10n {
         public static let childrenTitle = NSLocalizedString("privacy.children_title", value: "儿童隐私", comment: "章节标题：儿童隐私")
         public static let childrenContent = NSLocalizedString(
             "privacy.children_content",
-            value: "SnapDrill 适合所有年龄段的用户使用。我们不会有意收集 13 岁以下儿童的个人信息。如果您是家长或监护人，发现您的孩子在未经您同意的情况下向我们提供了个人信息，请联系我们，我们将采取措施删除相关信息。",
+            value: "SnapDrill 是面向通用受众的效率工具，不提供儿童账户、儿童模式或儿童专属体验。当前版本不要求注册，不向 NotBad Labs 服务器发送用户资料内容，也不会有意收集 13 岁以下儿童的个人信息。若您认为儿童在未经适当同意的情况下向我们提供了个人信息，请通过本政策中的联系方式联系我们，我们会按适用法律处理。",
             comment: "儿童隐私内容"
         )
         public static let gdprTitle = NSLocalizedString("privacy.gdpr_title", value: "GDPR 合规（欧盟用户）", comment: "章节标题：GDPR 合规")
@@ -283,7 +283,7 @@ nonisolated extension L10n {
         public static let ccpaTitle = NSLocalizedString("privacy.ccpa_title", value: "CCPA 合规（加州用户）", comment: "章节标题：CCPA 合规")
         public static let ccpaContent = NSLocalizedString(
             "privacy.ccpa_content",
-            value: "如果您是加州居民，您享有了解我们收集的个人信息类别、了解我们是否出售您的个人信息（我们不会）、删除您的个人信息等权利。SnapDrill 不会出售您的个人信息，也不会与第三方共享您的学习内容。",
+            value: "如果您是加州居民，您享有了解我们收集的个人信息类别、了解我们是否出售您的个人信息（我们不会）、删除您的个人信息等权利。SnapDrill 不会出售您的个人信息，也不会与第三方共享您的资料内容。",
             comment: "CCPA 合规内容"
         )
         public static let updateTitle = NSLocalizedString("privacy.update_title", value: "隐私政策更新", comment: "章节标题：隐私政策更新")

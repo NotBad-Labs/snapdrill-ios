@@ -5,8 +5,8 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  端侧 AI 题目分割服务，使用 FoundationModels 框架从整页 OCR 文本提取独立题目。
-//  Issue #626 PoC：评估边界检测准确率 >= 80%（10 份真实试卷）则正式纳入。
+//  端侧 AI 内容分割服务，使用 FoundationModels 框架从整页 OCR 文本提取独立条目。
+//  Issue #626 PoC：评估边界检测准确率 >= 80%（10 份真实资料）则正式纳入。
 //
 
 import Foundation
@@ -63,15 +63,15 @@ public actor QuestionSplittingService: QuestionSplittingServiceProtocol {
         do {
             let session = LanguageModelSession(
                 instructions: """
-                从试卷或作业 OCR 文本中提取每道独立题目。
+                从 OCR 文本中提取每条独立内容项，例如题目、清单项或小节。
 
                 规则：
-                1. 每题返回完整题号（如"1."、"①"）和题干
-                2. 保留选择题的选项（A/B/C/D）在同一题目内
-                3. 题号缺失时按上下文顺序推断
-                4. 不要合并多题、不要拆分单题
-                5. 空白或无法识别的段落跳过，不产出题目
-                6. 题目顺序必须和原文一致
+                1. 若原文有编号（如"1."、"①"），保留编号和完整正文
+                2. 若内容项包含选项或子段落，保留在同一项内
+                3. 编号缺失时按上下文顺序推断
+                4. 不要合并多个内容项、不要拆分单个内容项
+                5. 空白或无法识别的段落跳过，不产出内容项
+                6. 内容项顺序必须和原文一致
                 """
             )
 

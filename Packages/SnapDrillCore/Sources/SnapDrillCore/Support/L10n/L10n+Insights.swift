@@ -95,22 +95,22 @@ nonisolated extension L10n {
     // MARK: - SmartPaper
 
     public enum SmartPaper {
-        public static let title = NSLocalizedString("smart_paper.title", value: "智能组卷", comment: "智能组卷页标题")
-        public static let subtitle = NSLocalizedString("smart_paper.subtitle", value: "自动选出最需要复习的题目，生成练习卷", comment: "智能组卷副标题")
-        public static let generate = NSLocalizedString("smart_paper.generate", value: "生成试卷", comment: "生成试卷按钮")
-        public static let questionCount = NSLocalizedString("smart_paper.question_count", value: "题目数量", comment: "选题数量配置项")
+        public static let title = NSLocalizedString("smart_paper.title", value: "智能资料集", comment: "智能资料集页标题")
+        public static let subtitle = NSLocalizedString("smart_paper.subtitle", value: "自动选出最需要回顾的资料，生成复盘资料集", comment: "智能资料集副标题")
+        public static let generate = NSLocalizedString("smart_paper.generate", value: "生成资料集", comment: "生成资料集按钮")
+        public static let questionCount = NSLocalizedString("smart_paper.question_count", value: "资料数量", comment: "选取资料数量配置项")
         public static let categoryFilter = NSLocalizedString("smart_paper.category_filter", value: "分类", comment: "分类筛选配置项")
         public static let allCategories = NSLocalizedString("smart_paper.all_categories", value: "全部分类", comment: "分类筛选：不限")
-        public static let noItemsTitle = NSLocalizedString("smart_paper.no_items_title", value: "暂无可选题目", comment: "无题目时的空状态标题")
-        public static let noItemsMessage = NSLocalizedString("smart_paper.no_items_message", value: "当前筛选条件下没有题目，请调整筛选或先采集一些题目", comment: "无题目时的空状态描述")
-        public static let pdfTitle = NSLocalizedString("smart_paper.pdf_title", value: "智能复习卷", comment: "智能组卷 PDF 封面标题")
+        public static let noItemsTitle = NSLocalizedString("smart_paper.no_items_title", value: "暂无可选资料", comment: "无资料时的空状态标题")
+        public static let noItemsMessage = NSLocalizedString("smart_paper.no_items_message", value: "当前筛选条件下没有资料，请调整筛选或先采集一些资料", comment: "无资料时的空状态描述")
+        public static let pdfTitle = NSLocalizedString("smart_paper.pdf_title", value: "智能复盘资料集", comment: "智能资料集 PDF 封面标题")
         public static let freeQuotaUsed = NSLocalizedString(
             "smart_paper.free_quota_used",
-            value: "本月免费组卷体验已用完。你仍可手动选择资料导出；Pro 功能稍后开放。",
+            value: "本月免费智能资料集体验已用完。你仍可手动选择资料导出；Pro 功能稍后开放。",
             comment: "SmartPaper 免费配额耗尽后的中性引导 Toast"
         )
         public static func selectedCount(_ count: Int) -> String {
-            String(format: NSLocalizedString("smart_paper.selected_count", value: "已选 %d 题", comment: "已选题目数量"), count)
+            String(format: NSLocalizedString("smart_paper.selected_count", value: "已选 %d 条", comment: "已选资料数量"), count)
         }
     }
 

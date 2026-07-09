@@ -155,7 +155,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
             return nil
         }
         // 数据隔离：草稿图按 Profile 隔离（与 ProfileManager.perProfileKeys 已隔离的元数据对齐），
-        // 防切换孩子档案时 A 的草稿图配上 B 的元数据——这是撞儿童隐私隔离根基的敏感数据串档。
+        // 防切换资料空间时 A 的草稿图配上 B 的元数据，避免本地资料串档。
         let profileId = defaults.string(forKey: UDKey.activeProfileId) ?? "default"
         let draftDir = supportDir
             .appendingPathComponent("CaptureDrafts", isDirectory: true)

@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-06-13
+last_verified: 2026-07-09
 layer: snapshot
 freshness:
   max_age_days: 60
   decay_trigger: [app_store_submission]
-audit_note: VALID_WITH_GAP — Apple 账号与公开 URL 已就绪；真实 ASO 文案 / App Store Connect 元数据仍待提交前重审
+audit_note: VALID_WITH_GAP — 通用受众 ASO 草稿已替换旧教育化口径；App Store Connect 提交前仍需按 release binary 与实际 ASC 页面终审
 gap_type: placeholder
 gap_due: app_store_submission
 gap_owner: product
@@ -22,11 +22,11 @@ review_gate: PO / legal / ASO final review required; do not treat last_verified 
 | 字段 | 值 |
 |---|---|
 | App 名称 | SnapDrill |
-| 副标题 | 练习题数字化效率工具 |
+| 副标题 | 本地资料整理与复盘工具 |
 | 类别（主） | Productivity |
 | 类别（副） | Utilities |
-| 年龄分级 | 4+ |
-| 价格 | 免费（含 App 内购买） |
+| 年龄分级 | 4+（草稿；最终以 App Store Connect 年龄分级问卷为准） |
+| 价格 | 免费（不要在此草稿中承诺尚未配置的付费功能） |
 | 版权 | 2026 NotBad Labs L.L.C. |
 
 ---
@@ -35,12 +35,12 @@ review_gate: PO / legal / ASO final review required; do not treat last_verified 
 
 ### 中文（简体）
 ```
-错题本,练习题,拍照录入,OCR,试卷,复习,间隔重复,效率工具,文档,归档,PDF导出,扫描,整理,打印
+资料整理,文档扫描,OCR,本地存储,复盘,标签,归档,PDF导出,效率工具,知识管理,打印,隐私
 ```
 
 ### 英文
 ```
-wrong,answers,practice,OCR,exam,review,spaced,repetition,productivity,homework,archive,organize,PDF,export,scan
+document,scanner,OCR,notes,archive,review,local,productivity,tags,PDF,export,privacy,organize
 ```
 
 ---
@@ -49,41 +49,41 @@ wrong,answers,practice,OCR,exam,review,spaced,repetition,productivity,homework,a
 
 ### 中文（简体）
 
-SnapDrill 让练习题数字化变得简单。拍照、扫描或导入 PDF，自动识别文字，一键归档到题库。
+SnapDrill 是一个本地优先的资料采集、整理与复盘工具。你可以拍照、扫描或导入 PDF，把纸面资料、工作材料、培训内容、票据和个人笔记整理成可检索、可导出的资料库。
 
 核心功能：
-- 拍照/扫描/PDF 导入 — 多种采集方式，灵活高效
-- OCR 文字识别 — 自动提取题目内容，支持中英文混合
-- 学科/来源/标签/年级 — 多维分类，快速检索
-- 间隔重复复习 — SM-2 算法科学安排复习计划
-- PDF 导出 — 一键生成可打印的练习卷
+- 拍照、扫描、PDF 导入 — 快速保存纸面或电子资料
+- OCR 文字识别 — 在设备本地提取可搜索文本
+- 分类、来源与标签 — 按自己的方式整理资料
+- 回顾与复盘 — 为需要反复查看的内容安排提醒
+- PDF 导出与打印 — 把资料带入文件、纸张或其他工作流
 
 隐私承诺：
 - 零注册，打开即用
-- 不收集姓名、手机号、学校等直接身份信息
-- 练习内容与图片仅本地存储
-- 无第三方分析与崩溃统计，全部数据保留在设备本地
+- 用户内容默认保存在设备本地
+- 不向 NotBad Labs 服务器发送资料内容
+- 不使用第三方分析、崩溃统计或广告 SDK
 
-SnapDrill 专注一件事：让你用最少的时间，把纸上的练习题变成可管理、可复习的数字资产。
+SnapDrill 不是内容平台，不提供题库、课程、教材或第三方资料。它只是一个安静、可靠的工具，帮助你管理自己提供的材料。
 
 ### 英文
 
-SnapDrill makes digitizing practice problems effortless. Snap a photo, scan a document, or import a PDF — text is recognized automatically and archived into your personal question bank.
+SnapDrill is a local-first productivity tool for capturing, organizing, reviewing, and exporting your own materials. Use your camera, document scanner, or PDF import to turn paper documents, work materials, training notes, receipts, and personal references into a searchable personal archive.
 
 Key Features:
-- Photo/Scan/PDF Import — Multiple capture methods for maximum flexibility
-- OCR Text Recognition — Automatically extracts question content with Chinese-English support
-- Multi-dimensional Organization — Subject, source, tags, and grade classification
-- Spaced Repetition Review — SM-2 algorithm for scientifically scheduled reviews
-- PDF Export — One-tap printable practice sheets
+- Photo, scan, and PDF import — Capture paper or digital materials quickly
+- On-device OCR — Extract searchable text on your device
+- Categories, sources, and tags — Organize materials your way
+- Review workflow — Revisit important materials when needed
+- PDF export and printing — Move your archive into files, paper, or other workflows
 
 Privacy Promise:
-- Zero registration required
-- We do not collect direct identifiers such as your name, phone number, or school
-- Practice content and images stored locally on your device
-- No third-party analytics or crash reporting; all data stays on-device
+- No account required
+- User content is stored locally by default
+- Material content is not sent to NotBad Labs servers
+- No third-party analytics, crash-reporting, or advertising SDKs
 
-SnapDrill does one thing well: turn paper-based practice problems into manageable, reviewable digital assets with minimal effort.
+SnapDrill is not a content platform and does not provide question banks, courses, textbooks, or third-party materials. It is a quiet, reliable tool for managing materials you provide yourself.
 
 ---
 
@@ -91,12 +91,12 @@ SnapDrill does one thing well: turn paper-based practice problems into manageabl
 
 ### 中文
 ```
-拍照录入练习题，OCR 自动识别文字，间隔重复科学复习。零注册，数据纯本地。
+扫描资料，OCR 识别，标签归档，本地优先。用 SnapDrill 管理自己的文档、笔记和参考材料。
 ```
 
 ### 英文
 ```
-Snap practice problems, OCR extracts text, spaced repetition supports review. Zero signup, local-first.
+Scan, OCR, tag, review, and export your own materials. Local-first productivity for documents and notes.
 ```
 
 ---
@@ -104,19 +104,19 @@ Snap practice problems, OCR extracts text, spaced repetition supports review. Ze
 ## 审核备注（Review Notes）
 
 ```
-SnapDrill is a productivity utility for digitizing user-provided practice materials (notebooks, printouts, homework). Content is supplied entirely by the user; the app does not provide any question bank, course content, or third-party material.
+SnapDrill is a general-audience productivity utility for capturing, organizing, reviewing, exporting, and printing user-provided materials such as documents, notes, receipts, work references, and training materials.
+
+The app does not provide courses, textbooks, question banks, social features, user-generated public feeds, or third-party content. All materials are supplied by the user.
 
 Core workflow:
-1. Capture: Photo / Document Scanner / PDF Import
-2. Organize: Subject, Source, Tags, Grade classification
-3. Review: SM-2 spaced repetition algorithm
-4. Export: PDF generation for printing
+1. Capture: photo capture, document scanner, PDF import, image import, manual entry, or clipboard input.
+2. Organize: categories, sources, tags, search, and local workspaces.
+3. Review: optional review workflow for user-saved materials.
+4. Export: PDF export, printing, and user-controlled backup/export.
 
-No account registration is required. All data is stored locally on the device using SwiftData.
+No account registration is required. User content is stored locally on the device using app-local storage. The production app does not use Firebase, third-party analytics, third-party crash reporting, advertising SDKs, or developer-operated content servers.
 
-SnapDrill does not collect direct identifiers such as name, phone number, email, or school. The production app does not use Firebase or third-party analytics/crash reporting. User content remains on-device; device diagnostics use on-device MetricKit and Apple-provided aggregated diagnostics.
-
-The app requires camera permission for photo capture and photo library permission for image import. Notification permission is optional for daily review reminders.
+Camera permission is used for photo capture. Photo library permission is used for user-selected image import. Notification permission is optional and is used only for local reminders.
 ```
 
 ---

@@ -49,7 +49,7 @@ public actor OCRService: OCRServiceProtocol {
         var request = RecognizeTextRequest()
         request.recognitionLevel = .accurate
         request.usesLanguageCorrection = true
-        // 中英文混合场景下显式指定优于自动检测，避免中文试卷上的英文被误判为全英文档
+        // 中英文混合场景下显式指定优于自动检测，避免中文资料上的英文被误判为全英文档
         request.recognitionLanguages = Self.textRecognitionLanguages
 
         let observations = try await request.perform(on: cgImage)

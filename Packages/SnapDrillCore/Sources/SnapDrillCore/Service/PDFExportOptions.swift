@@ -13,9 +13,9 @@ import Foundation
 /// PDF 导出渲染配置
 ///
 /// 控制 `PDFExportService` 的渲染行为，由导出选项 UI 构造后传入。
-/// 默认值面向最常见场景：家长打印 A4 给孩子重做。
+/// 默认值面向常见复盘场景：导出 A4 资料集供稍后查看或打印。
 nonisolated public struct PDFExportOptions: Sendable {
-    /// 是否隐藏答案（默认隐藏——打印给孩子重做时不应显示答案）
+    /// 是否隐藏参考内容（默认隐藏，便于稍后自查或打印）
     public var hideAnswers: Bool
     /// 是否显示答题留白区（仅在 `hideAnswers == true` 时生效）
     public var showBlankAnswerArea: Bool
@@ -26,7 +26,7 @@ nonisolated public struct PDFExportOptions: Sendable {
         get { validatedItemsPerPage }
         set { validatedItemsPerPage = Self.validatedItemsPerPage(newValue) }
     }
-    /// 自定义封面标题（nil 时使用默认"SnapDrill 错题本"）
+    /// 自定义封面标题（nil 时使用默认资料集标题）
     public var customTitle: String?
     /// 每页题目数的有效范围，防止 0 导致分页除零或过大导致布局失控
     public static let itemsPerPageRange = 1...100

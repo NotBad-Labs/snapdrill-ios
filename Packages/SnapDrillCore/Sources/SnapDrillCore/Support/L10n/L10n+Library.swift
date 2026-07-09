@@ -15,7 +15,7 @@ nonisolated extension L10n {
     // MARK: - Library
 
     public enum Library {
-        public static let title = NSLocalizedString("library.title", value: "资料库", comment: "题库标题")
+        public static let title = NSLocalizedString("library.title", value: "资料库", comment: "资料库标题")
         public static let searchPlaceholder = NSLocalizedString("library.search_placeholder", value: "搜索", comment: "搜索占位符")
         public static let noItems = NSLocalizedString("library.no_items", value: "还没有资料", comment: "无题目提示")
         public static let noItemsHint = NSLocalizedString("library.no_items_hint", value: "拍摄或导入资料后将在此处显示", comment: "无题目副提示")
@@ -54,7 +54,7 @@ nonisolated extension L10n {
         public static let notScheduled = NSLocalizedString("library.not_scheduled", value: "未安排", comment: "未安排复习")
 
         // 编辑
-        public static let editTitle = NSLocalizedString("library.edit_title", value: "编辑资料", comment: "编辑题目页标题")
+        public static let editTitle = NSLocalizedString("library.edit_title", value: "编辑资料", comment: "编辑资料页标题")
         public static let editQuestion = NSLocalizedString("library.edit_question", value: "编辑资料", comment: "编辑题目按钮")
         public static let editContent = NSLocalizedString("library.edit_content", value: "编辑内容", comment: "编辑内容按钮")
         public static let noImage = NSLocalizedString("library.no_image", value: "无图片", comment: "无图片占位")
