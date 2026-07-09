@@ -120,7 +120,15 @@ final class CameraSessionManager: NSObject {
         }
     }
 
+    var canCapturePhoto: Bool {
+        session.isRunning && photoOutput.connection(with: .video)?.isActive == true
+    }
+
     func capturePhoto() {
+        guard canCapturePhoto else {
+            SnapDrillLogger.capture.warning("跳过拍照：相机会话未运行或视频连接不可用")
+            return
+        }
         let settings = AVCapturePhotoSettings()
         photoOutput.capturePhoto(with: settings, delegate: self)
     }

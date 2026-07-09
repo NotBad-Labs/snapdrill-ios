@@ -465,6 +465,28 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-capture-image-03-field-tip")
     }
 
+    func testCaptureContinuousCropAfterFieldTipPresentsCropper() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments(fieldConfigTipSeen: false)
+            + ["--ui-test-capture-continuous-crop-result"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 2).tap()
+        waitForAnyElement("capture.result.root", in: app)
+        app.buttons["capture.saveButton"].tap()
+        waitForAnyElement("capture.fieldConfigTip", in: app, timeout: 10)
+        app.buttons["capture.fieldConfigTip"].tap()
+
+        let cropperCancelButton = waitForMantisCropper(in: app, timeout: 12)
+        XCTAssertFalse(
+            app.otherElements["capture.continuousCropper.missingImageFallback"].exists,
+            "连续裁剪应拿到原图并进入裁剪器，不应落入缺图兜底"
+        )
+        cropperCancelButton.tap()
+        waitForAnyElement("capture.root", in: app, timeout: 10)
+    }
+
     /// UI-freeze evidence: capture PDF and scan page pickers plus their cropper entry.
     func testUIFreezeCapturePagePickerScreenshots() {
         let pdfApp = XCUIApplication()

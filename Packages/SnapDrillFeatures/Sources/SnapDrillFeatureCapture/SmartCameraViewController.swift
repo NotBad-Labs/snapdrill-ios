@@ -10,6 +10,7 @@
 
 import UIKit
 @preconcurrency import AVFoundation
+import SnapDrillCore
 
 /// 智能相机控制器
 ///
@@ -53,6 +54,10 @@ final class SmartCameraViewController: UIViewController {
     // MARK: - Actions
     
     func capturePhoto() {
+        guard manager.canCapturePhoto else {
+            SnapDrillLogger.capture.warning("跳过拍照：相机控制器收到无效拍照请求")
+            return
+        }
         manager.capturePhoto()
     }
     
