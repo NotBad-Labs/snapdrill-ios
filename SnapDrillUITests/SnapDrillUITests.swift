@@ -1284,6 +1284,80 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["智能组卷"].waitForExistence(timeout: 5), "应进入智能组卷配置页")
     }
 
+    /// Regression: SmartPaper preview back navigation should work both before and after cancelling share.
+    func testSmartPaperPreviewBackNavigationAfterShareCancel() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-seed-image-library"]
+        app.launch()
+
+        openSmartPaper(in: app)
+        openSmartPaperPreview(in: app)
+        tapBackFromSmartPaperPreview(in: app, context: "未打开分享面板时")
+
+        openSmartPaperPreview(in: app)
+        let shareButton = app.buttons["library.exportPreview.share"]
+        XCTAssertTrue(shareButton.waitForExistence(timeout: 5), "PDF 预览页应显示分享按钮")
+        shareButton.tap()
+        dismissSystemShareSheet(in: app)
+        tapBackFromSmartPaperPreview(in: app, context: "取消分享面板后")
+    }
+
+    private func openSmartPaper(in app: XCUIApplication) {
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+
+        let smartPaperButton = app.buttons["library.smartPaperButton"]
+        XCTAssertTrue(smartPaperButton.waitForExistence(timeout: 5), "资料库正常浏览态应显示智能组卷入口")
+        smartPaperButton.tap()
+
+        waitForAnyElement("smartPaper.root", in: app)
+    }
+
+    private func openSmartPaperPreview(in app: XCUIApplication) {
+        let generateButton = app.buttons["smartPaper.generateButton"]
+        scrollUntilHittable(generateButton, in: app, maxSwipes: 12)
+        XCTAssertTrue(generateButton.waitForExistence(timeout: 5), "SmartPaper 应显示生成按钮")
+        XCTAssertTrue(generateButton.isEnabled, "已 seed 资料后 SmartPaper 生成按钮应可用")
+        generateButton.tap()
+
+        waitForAnyElement("library.exportPreview.root", in: app, timeout: 12)
+        XCTAssertTrue(app.staticTexts["正在生成..."].waitForNonExistence(timeout: 12), "PDF 预览应完成生成态")
+    }
+
+    private func tapBackFromSmartPaperPreview(in app: XCUIApplication, context: String) {
+        let labeledBackButton = app.navigationBars.buttons["智能组卷"].firstMatch
+        if labeledBackButton.waitForExistence(timeout: 2), labeledBackButton.isHittable {
+            labeledBackButton.tap()
+        } else {
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+        }
+
+        XCTAssertTrue(app.descendants(matching: .any)["smartPaper.root"].waitForExistence(timeout: 5), "\(context)应返回智能组卷页")
+        XCTAssertTrue(app.descendants(matching: .any)["library.exportPreview.root"].waitForNonExistence(timeout: 5), "\(context)PDF 预览页应退出")
+    }
+
+    private func dismissSystemShareSheet(in app: XCUIApplication) {
+        let closeLabels = ["关闭", "取消", "Close", "Cancel"]
+        waitUntil("点击分享后应出现系统分享面板关闭入口", timeout: 5) {
+            closeLabels.contains { app.buttons[$0].firstMatch.exists }
+        }
+
+        for label in closeLabels {
+            let button = app.buttons[label].firstMatch
+            if button.exists && button.isHittable {
+                button.tap()
+                waitUntil("系统分享面板应关闭") {
+                    closeLabels.allSatisfy { !app.buttons[$0].firstMatch.exists }
+                }
+                return
+            }
+        }
+
+        addScreenshot(named: "smartpaper-share-sheet-no-cancel")
+        XCTFail("系统分享面板未找到可点击的关闭/取消按钮")
+    }
+
     /// UI-freeze evidence: capture image-backed Library detail, answer, edit, export, and storage states.
     func testUIFreezeLibraryImageDataScreenshots() {
         let app = XCUIApplication()
