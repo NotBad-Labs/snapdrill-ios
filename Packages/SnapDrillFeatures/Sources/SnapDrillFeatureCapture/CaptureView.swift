@@ -297,10 +297,12 @@ public struct CaptureView: View {
             // 延迟弹出：等退栈动画完成后再呈现 fullScreenCover，避免同帧竞争
             .onChange(of: router.shouldContinuousCrop) { _, shouldCrop in
                 if shouldCrop {
-                    router.shouldContinuousCrop = false
                     Task {
                         try? await Task.sleep(for: .milliseconds(150)) // best-effort: 等退栈动画完成，取消不影响正确性
-                        isShowingContinuousCropper = true
+                        isShowingContinuousCropper = ContinuousCropperPresentationPolicy.shouldPresent(
+                            originalAlbumImage: router.originalAlbumImage
+                        )
+                        router.shouldContinuousCrop = false
                     }
                 }
             }
@@ -320,6 +322,12 @@ public struct CaptureView: View {
                         }
                     )
                     .ignoresSafeArea()
+                } else {
+                    Color.clear
+                        .accessibilityIdentifier("capture.continuousCropper.missingImageFallback")
+                        .onAppear {
+                            isShowingContinuousCropper = false
+                        }
                 }
             }
             .onDisappear {
@@ -406,21 +414,28 @@ public struct CaptureView: View {
 
 #if DEBUG
     private static let uiTestCaptureImageResultArgument = "--ui-test-capture-image-result"
+    private static let uiTestCaptureContinuousCropResultArgument = "--ui-test-capture-continuous-crop-result"
     private static let uiTestCapturePDFPagePickerArgument = "--ui-test-capture-pdf-page-picker"
     private static let uiTestCaptureScanPagePickerArgument = "--ui-test-capture-scan-page-picker"
 
     @MainActor
     private func openUITestImageResultIfNeeded() {
+        let arguments = ProcessInfo.processInfo.arguments
         guard !didOpenUITestImageResult,
-              ProcessInfo.processInfo.arguments.contains("--uitesting"),
-              ProcessInfo.processInfo.arguments.contains(Self.uiTestCaptureImageResultArgument) else {
+              arguments.contains("--uitesting"),
+              arguments.contains(Self.uiTestCaptureImageResultArgument)
+                || arguments.contains(Self.uiTestCaptureContinuousCropResultArgument) else {
             return
         }
         didOpenUITestImageResult = true
+        let image = CaptureUITestFixtures.makeCaptureImage()
+        if arguments.contains(Self.uiTestCaptureContinuousCropResultArgument) {
+            router.originalAlbumImage = image
+        }
         router.push(
             .scannerResult(
                 content: "Capture image fixture text",
-                image: CaptureUITestFixtures.makeCaptureImage()
+                image: image
             )
         )
     }
@@ -452,6 +467,12 @@ private enum CaptureMethod {
     case clipboard
     case documentScan
     case pdf
+}
+
+enum ContinuousCropperPresentationPolicy {
+    static func shouldPresent<Image>(originalAlbumImage: Image?) -> Bool {
+        originalAlbumImage != nil
+    }
 }
 
 #Preview {
