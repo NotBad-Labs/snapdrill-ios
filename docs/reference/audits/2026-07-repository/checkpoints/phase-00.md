@@ -37,7 +37,19 @@ actions runs: 1881 total / 1305 success / 506 failure / 70 cancelled
 ## Status
 
 - `00a`：complete
-- `00b`：pending
-- verified findings：0
+- `00b`：complete
+- verified findings：3（1×P2，2×P3）
 - blockers：0
-- 下一条命令：为 `00b` 创建三个 detached worktree，并用同一 brief 独立审阅 control-plane 文件集
+- routed Phase 09 candidates：2
+- 下一步：为 Phase 01 生成 GitHub 元数据快照和分层抽样 brief
+
+## 00b Adapter Results
+
+- Claude：`--safe-mode --permission-mode plan` + read tools；一次产出合格报告。
+- Grok：`plan` 只返回执行计划；改为 `dontAsk` 且工具仅限 `Read,Grep,Glob` 后产出合格报告。
+- Antigravity：cwd 和 `--new-project` 不能可靠绑定 worktree；必须显式 `--project <absolute-worktree-path>`。全局旧权限清零后，`--mode plan --sandbox` 仍可只读运行。
+- 三方均未读取另一方报告。无模型原始 transcript 入仓。
+
+本机 shared pre-commit 在 00b 开始时落后 tracked `Scripts/pre-commit`，缺少 Capture 契约和脚本回归测试。执行 `Scripts/setup.sh` 后，pre-commit / pre-push 与 tracked source 均已 `cmp` 一致。这是已修复的本机状态，不作为 base commit finding。
+
+Antigravity 清理了 1.2 GB 旧代码备份、22 MB 旧聊天、旧项目映射、旧 CLI conversations 和 141 条全局 allow grants；OAuth、CLI 二进制和必要偏好保留。清理后 `Gemini 3.5 Flash (High)` 显式 project/read-only 握手成功。

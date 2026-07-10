@@ -40,7 +40,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 
 | Phase | 范围 | 预定 slices | 状态 |
 |---|---|---|---|
-| 00 Control plane | T0、工具链、模型、报告协议、恢复演练 | `00a` 基线；`00b` 小范围盲审 | in progress |
+| 00 Control plane | T0、工具链、模型、报告协议、恢复演练 | `00a` 基线；`00b` 小范围盲审 | complete |
 | 01 History | issue/PR 生命周期、CI 失败分类、返工热点 | `01a` 元数据；`01b` 分层抽样；`01c` 成本解释 | pending |
 | 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a` docs；`02b` guardrails；`02c` stale claims | pending |
 | 03 Architecture | package 依赖、DI、并发、共享接缝、废弃代码 | `03a` graph；`03b` runtime flow；`03c` debt | pending |
@@ -62,4 +62,5 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **报告模板**：`report-template.md`
 - **finding ledger**：`findings.md`
 - **当前 checkpoint**：`checkpoints/phase-00.md`
-- **下一步**：提交 Phase 00 协议，然后在三个独立 detached worktree 上执行 `00b` control-plane 盲审
+- **00b 结果**：`phases/00b-results.md`
+- **下一步**：进入 Phase 01，先导出 issue / PR / Actions 元数据并定义分层抽样，不读取模型旧会话
