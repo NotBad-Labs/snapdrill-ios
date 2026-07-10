@@ -4,7 +4,7 @@
 
 Phase 03 在固定 `develop@d62fead8` 上冻结 4 个 SPM package、8 个 production package target、4 个 package test target、4 个 native Xcode target，并审查 compile graph、composition root、DI 实例流、Profile 生命周期、静态 facade、coordinator 与历史 Domain/UseCase 简化。
 
-当前 package 图没有 cycle、反向引用或 Core 第三方依赖，Share Extension 也保持进程/模块隔离。主要风险不在“缺少更多 Clean Architecture 层”，而在现有显式边界没有做透：in-memory Profile helper 隐式改写 process-level 偏好；App target 依赖声明依靠传递暴露；ServiceContainer 与 `.shared`/concrete fallback 并存；删除后台提交契约没有接入 App 生命周期。
+当前 package 图没有 cycle、反向引用或 Core 第三方依赖，Share Extension 也保持进程/模块隔离。主要风险不在“缺少更多 Clean Architecture 层”，而在现有显式边界没有做透：SwiftUI Environment fallback 的 in-memory helper 会在正常 App 启动清除真实 Profile 偏好；App target 依赖声明依靠传递暴露；ServiceContainer 与 `.shared`/concrete fallback 并存；删除后台提交契约没有接入 App 生命周期。
 
 本阶段只记录事实，不修改产品代码、Xcode target、Package manifest、依赖锁文件或权威架构文档。
 
@@ -52,21 +52,22 @@ DependencyContainer.shared
 ProfileManager construction
 ├── create(inMemory: false) -> disk bootstrap -> load per-profile preferences
 ├── create(inMemory: true)  -> direct in-memory init -> clear .standard
-└── direct in-memory init   -> clear .standard (unexpected for tests/previews)
+└── Environment fallback   -> direct in-memory init -> clear .standard during App render
 ```
 
 Production Profile switching currently works only because both `LiveServiceContainer.activityTracker` and hard-coded `ProfileManager.switchProfile` resolve to `AppActivityTracker.shared`. An injected alternate tracker or UI-test `MockServiceContainer` creates a split graph.
 
 ## Verified Findings
 
-### RA-03-001 — P2 — Direct in-memory ProfileManager construction mutates process-level preferences
+### RA-03-001 — P1 — Profile environment fallback clears live per-profile preferences during App launch
 
-- `ProfileManager.swift:88-108` routes both the explicit UI-test factory and every direct `ProfileManager(inMemory: true)` call through an initializer that invokes `clearPerProfileValues(in: .standard)`.
-- `ProfileManager+Preferences.swift:4-10` removes every per-profile and dynamic visibility key. Direct construction is used by tests, Preview/environment fallback code and a Settings ViewModel default; those call sites do not explicitly request a process-wide reset.
-- C1 added a sentinel test before changing production code: the old direct initializer removed the sentinel and failed deterministically.
-- The original P1 production hypothesis was **rejected** after platform-specific verification. An iOS `UIHostingController` test passed on the old code without constructing a second default manager, and two iPhone 17 Simulator launches retained a unique per-profile sentinel (`1 -> 1`) after 5 and 12 seconds, including a launch with onboarding skipped. The earlier macOS custom EnvironmentKey probe was not representative evidence for the iOS App path.
-- Impact: unit tests/previews can erase process-standard Profile state and interfere with each other; no current production cold-launch data loss was reproduced.
-- Smallest repair: keep reset semantics only at the explicit `create(inMemory: true)` UI-test factory; make direct in-memory initialization side-effect free and test both contracts.
+- `ProfileManager+Environment.swift:27-29` builds `ProfileManager(inMemory: true)` as `EnvironmentKey.defaultValue`; `ProfileManager.swift:88-108` routes that direct initializer through `clearPerProfileValues(in: .standard)`.
+- `ProfileManager+Preferences.swift:4-10` removes every per-profile and dynamic visibility key. The disk manager loads `preferences.json` at `ProfileManager.swift:147-148`, then `AppRootView.swift:39-44` applies the real manager to the SwiftUI environment.
+- C1 first added a sentinel unit test without changing production code: the old direct initializer removed the sentinel and failed deterministically.
+- The production path was then reproduced against the App's actual Simulator data container. With `CFFIXED_USER_HOME` set to the path returned by `simctl get_app_container`, the old binary changed a unique per-profile sentinel from `1` to missing after an eight-second normal launch. The repaired binary preserved `1 -> 1` on normal launch while `--uitesting` intentionally produced `1 -> missing`.
+- Earlier `simctl spawn defaults` checks without App-container `CFFIXED_USER_HOME` wrote the Simulator user domain and were discarded. A generic macOS EnvironmentKey probe and an isolated iOS hosting test are not used as production proof.
+- Impact: normal cold launch can erase active Profile preferences after they are loaded; a later Profile switch may persist the emptied state. Tests/previews also suffer process-global preference interference.
+- Smallest repair: keep reset semantics only at the explicit `create(inMemory: true)` UI-test factory; make direct/environment fallback initialization side-effect free and test both contracts.
 
 ### RA-03-002 — P2 — App target relies on undeclared transitive package products
 
@@ -196,12 +197,12 @@ No concrete business rule requires restoring Domain or UseCase packages. The ver
 
 - Claude Fable、Antigravity `Gemini 3.5 Flash (High)`、Grok 4.5 均完成 03a/03b/03c；Grok 03c 因只读工具不含 shell，明确把 Git history 标为未覆盖，历史由 C1 独立验证。
 - 三方在 App direct dependencies、activity tracker 双所有权、ServiceContainer 半迁移上收敛；severity 仍由 C1 按 shipping path 降噪。外部 agent 把后两项报为 P1，C1 因生产默认当前收敛为同一实例而定为 P2。
-- Agy/Grok 把若干 current-code hazard 绝对化为用户数据 bug；C1 后续用 iOS hosting 与真实模拟器冷启动证伪 Environment 生产 P1，仅保留 direct in-memory constructor 的 P2 隔离缺陷，其余数据候选路由 Phase 04。
+- Agy/Grok 把若干 current-code hazard 绝对化为用户数据 bug；C1 对 RA-03-001 使用 App sandbox 的 container-domain sentinel 独立复现为生产 P1，其余数据候选仍路由 Phase 04。
 - Grok 的自动 repo bundle 超过 50 MiB，但 local Read/Grep/Glob 正常；raw transcript、debug/auth log 和 brain artifact 不入仓。
 
 ## Validation
 
-- Profile preference probe：旧 direct in-memory initializer 删除 sentinel，红测复现；iOS hosting 与两次真实模拟器启动均未复现生产清除。
+- Profile preference probe：旧 direct initializer 红测；旧 App-container normal launch `1 -> missing`；fixed normal/UI-test launch `1 -> 1` / `1 -> missing`。
 - feature status / intent traceability `--check`：通过。
 - docs generators：8 passed；docs health / Capture contract：通过，保留既有人工复核 warnings，无 error。
 - script regression tests：25 passed。
@@ -216,4 +217,4 @@ No concrete business rule requires restoring Domain or UseCase packages. The ver
 - invocation contract：`../agent-invocation-protocol.md`
 - ledger：`../findings.md`
 - checkpoint：`../checkpoints/phase-03.md`
-- next：Phase 04 Data safety，先冻结 SwiftData model/profile/backup/image contract 与 fixtures；RA-03-001 作为独立低风险隔离修复，不在审计分支改产品代码
+- next：Phase 04 Data safety，先冻结 SwiftData model/profile/backup/image contract 与 fixtures；RA-03-001 由独立 P1 修复分支处理，不在审计分支改产品代码

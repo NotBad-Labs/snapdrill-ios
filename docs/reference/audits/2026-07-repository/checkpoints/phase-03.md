@@ -30,15 +30,16 @@
 
 ## Verified Results
 
-- findings：10（0×P1，6×P2，4×P3）
-- P2：in-memory Profile helper 污染 process defaults、App implicit products、activity tracker 双所有权、ServiceContainer 半迁移、background delete 未提交、Capture transaction failure oracle 缺失。
+- findings：10（1×P1，5×P2，4×P3）
+- P1：Profile Environment fallback 的 direct in-memory initializer 在正常 App 启动清真实 per-profile UserDefaults。
+- P2：App implicit products、activity tracker 双所有权、ServiceContainer 半迁移、background delete 未提交、Capture transaction failure oracle 缺失。
 - P3：架构图/DI current-state 漂移、SmartPaper implementation prose、四份 lockfile 漂移、Live container mock analytics default。
 - keep：4-package topology、Core invariant、coordinators、real system-service protocols、removed Domain/UseCase 保持删除。
 - repair/retire/defer 分类见 `phases/03-results.md`；未授权任何产品代码修复。
 
 ## Corrections To Agent Output
 
-- macOS custom EnvironmentKey hosting probe 不能外推 iOS App；iOS hosting 旧代码未触发第二个默认实例，iPhone 17 冷启动 5s/12s sentinel 均保留，生产 P1 被证伪。
+- `simctl spawn defaults` 默认写 Simulator user domain，不能证明 App sandbox 偏好；改用 `get_app_container` + `CFFIXED_USER_HOME` 后，旧 normal launch `1 -> missing`，P1 成立。
 - production activity tracker 当前因 `.shared` 默认收敛，不是已发生的切换守卫失效；定 P2 而非外部报告的 P1。
 - ServiceContainer 半迁移是结构/测试替换风险，不等于六个服务都应继续挂容器；按 finish/retire/defer 分开。
 - SmartPaper 使用 SM-2-derived fields，但未直接复用 `ReviewScheduler + SM2State`；只判 current How prose 错误。
@@ -46,7 +47,7 @@
 
 ## Validation
 
-- direct-construction sentinel：旧代码红测复现；iOS hosting + iPhone 17 cold-launch sentinel：生产清除未复现。
+- direct-construction sentinel：旧代码红测；App-container launch：旧 normal `1 -> missing`、fixed normal `1 -> 1`、fixed UI-test `1 -> missing`。
 - feature status / intent traceability、8 generator tests、docs health、Capture contract、25 script tests：通过；docs health 仅既有 warnings。
 - `swiftlint --strict`：245 files，0 violations。
 - focused architecture tests：45 passed。
