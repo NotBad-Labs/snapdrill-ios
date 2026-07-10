@@ -16,6 +16,7 @@
 - **`how-to/`** — 操作指南（definition-of-ready 开工入口 / **shape-up 我们怎么工作·Shape Up 单人版** / parallel-lanes 协作边界与分支生命周期 / release-and-ci 发布与 CI）
 - **`decisions/`** — 决策记录（PO 决策台账 + ADR-001~005；ADR-003 为已挂起的历史区域路线，ADR-004 已被 ADR-005 取代）
 - **`ui-redesign/`** — UI 重设计日志与跨层契约（Codex + PO 决策、真机/模拟器验证、跨层发现）
+- **`reference/audits/`** — 按 base commit 固定的仓库审计证据、checkpoint 与已复核 finding；不替代功能状态或产品意图 SSOT
 
 ## 意图可追溯
 
@@ -61,6 +62,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 | 发布上架流程 | `how-to/release-and-ci.md` |
 | 查 PO 决策台账 | `decisions/po-decision-log.md` |
 | 架构决策依据 | `decisions/ADR-*.md` |
+| 看全仓审计方法与本次进度 | `how-to/repository-audit.md` + `reference/audits/2026-07-repository/README.md` |
 
 ## 状态单一真理源（B 方案 · 自动单写）
 
