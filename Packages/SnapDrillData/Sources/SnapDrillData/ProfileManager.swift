@@ -87,7 +87,7 @@ public final class ProfileManager {
     /// - Parameter inMemory: 为 true 时使用内存存储（UI 测试用）
     public static func create(inMemory: Bool = false, vault: ProfileVault = ProfileVault()) async -> ProfileManager {
         if inMemory {
-            return ProfileManager(inMemory: true, vault: vault)
+            return makeInMemoryForUITesting(vault: vault, clearing: .standard)
         }
 
         let state = makeDiskBootstrapState(vault: vault)
@@ -96,16 +96,23 @@ public final class ProfileManager {
         return ProfileManager(diskBootstrapState: state, executor: executor, vault: vault, executorStatus: executorStatus)
     }
 
+    static func makeInMemoryForUITesting(vault: ProfileVault = ProfileVault(), clearing defaults: UserDefaults) -> ProfileManager {
+        // UI 测试显式请求干净的 process-level per-profile 偏好；测试可注入隔离 suite。
+        Self.clearPerProfileValues(in: defaults)
+        return ProfileManager(inMemory: true, vault: vault)
+    }
+
     /// 初始化 in-memory ProfileManager。
     ///
-    /// 仅测试 / Preview 使用。生产磁盘路径必须通过 `await ProfileManager.create()` 创建。
+    /// 仅测试 / Preview 使用，不修改 `UserDefaults.standard`。
+    /// 需要干净 process-level 偏好的 UI 测试应调用 `await ProfileManager.create(inMemory: true)`；
+    /// 生产磁盘路径必须调用 `await ProfileManager.create()`。
     /// - Parameter inMemory: 必须为 true。
     public init(inMemory: Bool, vault: ProfileVault = ProfileVault()) {
         precondition(inMemory, "Use await ProfileManager.create() for production ProfileManager initialization.")
         self.isInMemory = inMemory
         self.vault = vault
-        // UI 测试模式：跳过文件迁移和磁盘操作，使用纯内存存储
-        Self.clearPerProfileValues(in: .standard)
+        // 跳过文件迁移和磁盘操作，使用纯内存存储。
         let profileId = UUID()
         let profile = Profile(id: profileId, name: "Test")
         let scope = ProfileScope(id: profile.id, name: profile.name)

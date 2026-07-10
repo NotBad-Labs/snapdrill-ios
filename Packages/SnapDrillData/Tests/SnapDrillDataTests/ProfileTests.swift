@@ -160,8 +160,37 @@ struct ProfileErrorTests {
     }
 }
 
-@Suite("ProfileManager per-profile preferences")
+@Suite("ProfileManager per-profile preferences", .serialized)
 struct ProfileManagerPreferenceTests {
+
+    @Test("inMemory 直接构造不清理标准偏好")
+    @MainActor
+    func inMemoryInitializer_preservesStandardPreferences() {
+        let defaults = UserDefaults.standard
+        let sentinelKey = "\(CategoryDimensionModel.visibilityKeyPrefix)initializer-\(UUID().uuidString)"
+        defer { defaults.removeObject(forKey: sentinelKey) }
+        defaults.set(true, forKey: sentinelKey)
+
+        _ = ProfileManager(inMemory: true)
+
+        #expect(defaults.bool(forKey: sentinelKey))
+    }
+
+    @Test("inMemory 工厂为 UI 测试显式清理 per-profile 偏好")
+    @MainActor
+    func inMemoryFactory_clearsPerProfilePreferences() throws {
+        let suiteName = "ProfileManagerFactoryTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let sentinelKey = "\(CategoryDimensionModel.visibilityKeyPrefix)factory-\(UUID().uuidString)"
+        defaults.set(true, forKey: sentinelKey)
+        defaults.set(Data("draft".utf8), forKey: UDKey.captureDraftMetadata)
+
+        _ = ProfileManager.makeInMemoryForUITesting(clearing: defaults)
+
+        #expect(defaults.object(forKey: sentinelKey) == nil)
+        #expect(defaults.object(forKey: UDKey.captureDraftMetadata) == nil)
+    }
 
     @Test("切换 Profile 前清理 per-profile keys，避免草稿 metadata 串档")
     func clearPerProfileValues_removesDraftMetadataAndDynamicVisibilityOnly() throws {
