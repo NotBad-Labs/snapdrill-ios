@@ -117,6 +117,28 @@ struct ProfileMigrationTests {
         #expect(defaults.string(forKey: UDKey.activeProfileId) == nil)
     }
 
+    @Test("迁移跳过 Data 偏好并保留可序列化值与动态可见性")
+    func dropsNonJSONPreferencesWithoutCrashing() throws {
+        let documentsURL = try makeTempDocuments()
+        defer { try? FileManager.default.removeItem(at: documentsURL) }
+
+        let (defaults, suiteName) = try makeDefaults()
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set(Data("draft".utf8), forKey: UDKey.captureDraftMetadata)
+        defaults.set("Keep local first", forKey: UDKey.userMotto)
+        let visibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)legacy"
+        defaults.set(false, forKey: visibilityKey)
+
+        ProfileMigration.migrateIfNeeded(documentsURL: documentsURL, defaults: defaults)
+
+        let vault = ProfileVault(documentsURL: documentsURL)
+        let profile = try #require(vault.loadProfiles().first)
+        let preferences = try readPreferences(from: vault.preferencesURL(for: profile.id))
+        #expect(preferences[UDKey.captureDraftMetadata] == nil)
+        #expect(preferences[UDKey.userMotto] as? String == "Keep local first")
+        #expect(preferences[visibilityKey] as? Bool == false)
+    }
+
     private func makeTempDocuments() throws -> URL {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("ProfileMigrationTests_\(UUID().uuidString)")
