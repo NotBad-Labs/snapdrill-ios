@@ -64,8 +64,8 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **报告模板**：`report-template.md`
 - **再基线契约**：`rebaseline-contract.md`
 - **finding ledger**：`findings.md`
-- **当前 checkpoint**：`checkpoints/phase-02.md`
+- **当前 checkpoint**：`checkpoints/phase-03-in-progress.md`（PO 临时暂停；Phase 03 未完成）
 - **00b 结果**：`phases/00b-results.md`
 - **Phase 01 结果**：`phases/01-results.md`
 - **Phase 02 结果**：`phases/02-results.md`
-- **下一步**：进入 Phase 03 Architecture，先冻结 package / target dependency graph，再审 runtime data flow、共享接缝与废弃抽象
+- **下一步**：按 `phase-03-in-progress.md` 恢复，先验证 ProfileManager Environment 默认值副作用，再补 Antigravity 03c 与 Grok 三个 slice
