@@ -44,7 +44,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 |---|---|---|---|
 | 00 Control plane | T0、工具链、模型、报告协议、恢复演练 | `00a` 基线；`00b` 小范围盲审 | complete |
 | 01 History | issue/PR 生命周期、CI 失败分类、返工热点 | `01a` lifecycle；`01b` CI；`01c` churn；`01d-f` 证伪 | complete |
-| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a` docs；`02b` guardrails；`02c` stale claims | pending |
+| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a` docs；`02b` guardrails；`02c` stale claims | complete |
 | 03 Architecture | package 依赖、DI、并发、共享接缝、废弃代码 | `03a` graph；`03b` runtime flow；`03c` debt | pending |
 | 04 Data safety | SwiftData、repository、profile、迁移、备份、图片 | `04a` models；`04b` profile；`04c` backup；`04d` images | pending |
 | 05 Capture | camera、scanner、album/PDF、crop、OCR、save | `05a` input；`05b` processing；`05c` persistence | pending |
@@ -64,7 +64,8 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **报告模板**：`report-template.md`
 - **再基线契约**：`rebaseline-contract.md`
 - **finding ledger**：`findings.md`
-- **当前 checkpoint**：`checkpoints/phase-01.md`
+- **当前 checkpoint**：`checkpoints/phase-02.md`
 - **00b 结果**：`phases/00b-results.md`
 - **Phase 01 结果**：`phases/01-results.md`
-- **下一步**：进入 Phase 02 Truth，先冻结规范链 / 实证链 inventory，再审 SSOT、生成物与 dead pointers
+- **Phase 02 结果**：`phases/02-results.md`
+- **下一步**：进入 Phase 03 Architecture，先冻结 package / target dependency graph，再审 runtime data flow、共享接缝与废弃抽象
