@@ -33,17 +33,17 @@
 | Lane | 固定入口 | 约束 |
 |---|---|---|
 | Codex | 当前 C1 | 统筹、独立审阅、现场复核和归并；不把自身判断当裁决 |
-| Claude | `claude-fable-5[1m]` | 新会话、plan/read-only、禁用私有记忆和自定义 skill |
+| Claude | `claude-fable-5[1m]` | `--safe-mode` + 显式 read tools；执行型只读审计用 `dontAsk`，跨 worktree 证据显式 `--add-dir`；禁用私有记忆和自定义 skill |
 | Antigravity | `Gemini 3.5 Flash (High)` | 必须显式指定；禁止 3.1 Pro 和默认模型回退 |
-| Grok | `grok-4.5` | `--no-memory --no-subagents`，plan/read-only，禁用 web search，除非 slice 明确要求外部事实 |
+| Grok | `grok-4.5` | `--no-memory --no-subagents`，read-only，禁用 web search；terminal schema 不可用时降为 `Read,Grep,Glob` inference challenge，不伪装成数据执行 |
 
-外部 agent 只把最终报告打印到 stdout，由编排器保存到仓库外：
+外部 agent 的最终报告由编排器保存到仓库外：
 
 ```text
 /private/tmp/snapdrill-repository-audit-raw/<base_sha>/<phase>/<agent>.md
 ```
 
-原始 transcript、模型缓存和重复分析不入仓。仓库只保留 brief、可复现命令、归一化 finding、拒绝理由和 checkpoint。
+原始 transcript、模型缓存和重复分析不入仓。若 Antigravity 把 artifact 写入 `brain/`，或 Grok 建立 session / upload queue，编排器取证后必须删除本轮临时状态。Claude 达到 `max-turns` 时可续接同一 session，追加“停止取样并仅汇总”的最多 4 turns；不得重启后重新消费证据。仓库只保留 brief、可复现命令、归一化 finding、拒绝理由和 checkpoint。
 
 ## 4. Finding 生命周期
 
