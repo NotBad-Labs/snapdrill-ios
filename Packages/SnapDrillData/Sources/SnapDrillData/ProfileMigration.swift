@@ -96,9 +96,16 @@ enum ProfileMigration {
                 prefs[key] = value
             }
         }
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(CategoryDimensionModel.visibilityKeyPrefix) {
+            prefs[key] = defaults.object(forKey: key)
+        }
+        let (safe, dropped) = ProfileManager.jsonSafePreferences(prefs)
+        if !dropped.isEmpty {
+            SnapDrillLogger.data.warning("ProfileMigration: 偏好含非 JSON 值，已跳过键：\(dropped.joined(separator: ", "))")
+        }
         let prefsURL = profileDir.appendingPathComponent("preferences.json")
         do {
-            let data = try JSONSerialization.data(withJSONObject: prefs, options: .prettyPrinted)
+            let data = try JSONSerialization.data(withJSONObject: safe, options: .prettyPrinted)
             try data.write(to: prefsURL)
         } catch {
             SnapDrillLogger.data.error("ProfileMigration: 偏好保存失败: \(error.localizedDescription)")
