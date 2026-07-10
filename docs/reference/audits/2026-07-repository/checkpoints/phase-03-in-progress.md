@@ -61,7 +61,8 @@ Antigravity 03b 越界提出的 restore/image/preferences 数据正确性候选�
 ## Resume Order
 
 1. 确认 worktree clean、`origin/develop` 仍为固定 base；若移动，遵守 `rebaseline-contract.md`，不静默 rebase。
-2. 执行 CAND-03-002 的独立 SwiftUI Environment setter probe；这是当前最高优先级候选。
-3. 重跑 Antigravity 03c；再运行 Grok 03a / 03b / 03c，只允许 read-only tools。
-4. C1 对所有 candidate 做 live `path:line`、调用链、focused test / build 复核。
-5. 仅把 verified / pending-po 项写入 `findings.md` 和 `phases/03-results.md`；补正式 `checkpoints/phase-03.md` 后跑全门禁与 AllTests build。
+2. 按 `../agent-invocation-protocol.md` 调用外部 reviewer；恢复前的三条 smoke test 已通过，Grok debug 已确认实际 `grok-4.5` high。
+3. 执行 CAND-03-002 的独立 SwiftUI Environment setter probe；这是当前最高优先级候选。
+4. 重跑 Antigravity 03c；再运行 Grok 03a / 03b / 03c，只允许 read-only tools。
+5. C1 对所有 candidate 做 live `path:line`、调用链、focused test / build 复核。
+6. 仅把 verified / pending-po 项写入 `findings.md` 和 `phases/03-results.md`；补正式 `checkpoints/phase-03.md` 后跑全门禁与 AllTests build。
