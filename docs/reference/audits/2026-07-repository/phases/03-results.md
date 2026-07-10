@@ -4,7 +4,7 @@
 
 Phase 03 在固定 `develop@d62fead8` 上冻结 4 个 SPM package、8 个 production package target、4 个 package test target、4 个 native Xcode target，并审查 compile graph、composition root、DI 实例流、Profile 生命周期、静态 facade、coordinator 与历史 Domain/UseCase 简化。
 
-当前 package 图没有 cycle、反向引用或 Core 第三方依赖，Share Extension 也保持进程/模块隔离。主要风险不在“缺少更多 Clean Architecture 层”，而在现有显式边界没有做透：一个 SwiftUI Environment 默认值会清除真实 Profile 偏好；App target 依赖声明依靠传递暴露；ServiceContainer 与 `.shared`/concrete fallback 并存；删除后台提交契约没有接入 App 生命周期。
+当前 package 图没有 cycle、反向引用或 Core 第三方依赖，Share Extension 也保持进程/模块隔离。主要风险不在“缺少更多 Clean Architecture 层”，而在现有显式边界没有做透：in-memory Profile helper 隐式改写 process-level 偏好；App target 依赖声明依靠传递暴露；ServiceContainer 与 `.shared`/concrete fallback 并存；删除后台提交契约没有接入 App 生命周期。
 
 本阶段只记录事实，不修改产品代码、Xcode target、Package manifest、依赖锁文件或权威架构文档。
 
@@ -49,27 +49,24 @@ DependencyContainer.shared
 └── createProfileManager()
     └── ProfileManager.create() -> DataExecutor -> RepositoryContainer
 
-SnapDrillApp
-└── AppRootView
-    ├── environment(services)
-    └── after disk ProfileManager loads preferences:
-        environment(profileManager) -> ProfileManagerKey.defaultValue initialization
-                                    -> ProfileManager(inMemory: true)
-                                    -> clearPerProfileValues(.standard)
+ProfileManager construction
+├── create(inMemory: false) -> disk bootstrap -> load per-profile preferences
+├── create(inMemory: true)  -> direct in-memory init -> clear .standard
+└── direct in-memory init   -> clear .standard (unexpected for tests/previews)
 ```
 
 Production Profile switching currently works only because both `LiveServiceContainer.activityTracker` and hard-coded `ProfileManager.switchProfile` resolve to `AppActivityTracker.shared`. An injected alternate tracker or UI-test `MockServiceContainer` creates a split graph.
 
 ## Verified Findings
 
-### RA-03-001 — P1 — SwiftUI Profile environment default clears live per-profile preferences
+### RA-03-001 — P2 — Direct in-memory ProfileManager construction mutates process-level preferences
 
-- `ProfileManager+Environment.swift:27-29` builds `ProfileManager(inMemory: true)` as `EnvironmentKey.defaultValue`.
-- `ProfileManager.swift:103-108` makes that initializer call `clearPerProfileValues(in: .standard)`; `ProfileManager+Preferences.swift:4-10` removes every per-profile and dynamic visibility key.
-- The disk manager loads `preferences.json` into `.standard` at `ProfileManager.swift:147-148`; `AppRootView.swift:39-44` then applies `.environment(\.profileManager, profileManager)`.
-- C1's isolated SwiftUI probe distinguished two behaviors: direct `EnvironmentValues` key-path assignment did **not** initialize the default, but rendering `Text(...).environment(\.probe, value)` through `NSHostingController` printed `DEFAULT_BUILT`. This reproduces the production modifier/hosting boundary described by the source comment.
-- Impact: a cold render can erase the active Profile's visible preferences immediately after loading them. A later Profile switch can persist the emptied state back to `preferences.json`; tests/previews constructing in-memory managers also mutate process-standard defaults.
-- Smallest repair: make the environment fallback side-effect free, then add a rendering regression test with sentinel per-profile keys. Do not solve this by weakening Profile isolation.
+- `ProfileManager.swift:88-108` routes both the explicit UI-test factory and every direct `ProfileManager(inMemory: true)` call through an initializer that invokes `clearPerProfileValues(in: .standard)`.
+- `ProfileManager+Preferences.swift:4-10` removes every per-profile and dynamic visibility key. Direct construction is used by tests, Preview/environment fallback code and a Settings ViewModel default; those call sites do not explicitly request a process-wide reset.
+- C1 added a sentinel test before changing production code: the old direct initializer removed the sentinel and failed deterministically.
+- The original P1 production hypothesis was **rejected** after platform-specific verification. An iOS `UIHostingController` test passed on the old code without constructing a second default manager, and two iPhone 17 Simulator launches retained a unique per-profile sentinel (`1 -> 1`) after 5 and 12 seconds, including a launch with onboarding skipped. The earlier macOS custom EnvironmentKey probe was not representative evidence for the iOS App path.
+- Impact: unit tests/previews can erase process-standard Profile state and interfere with each other; no current production cold-launch data loss was reproduced.
+- Smallest repair: keep reset semantics only at the explicit `create(inMemory: true)` UI-test factory; make direct in-memory initialization side-effect free and test both contracts.
 
 ### RA-03-002 — P2 — App target relies on undeclared transitive package products
 
@@ -199,12 +196,12 @@ No concrete business rule requires restoring Domain or UseCase packages. The ver
 
 - Claude Fable、Antigravity `Gemini 3.5 Flash (High)`、Grok 4.5 均完成 03a/03b/03c；Grok 03c 因只读工具不含 shell，明确把 Git history 标为未覆盖，历史由 C1 独立验证。
 - 三方在 App direct dependencies、activity tracker 双所有权、ServiceContainer 半迁移上收敛；severity 仍由 C1 按 shipping path 降噪。外部 agent 把后两项报为 P1，C1 因生产默认当前收敛为同一实例而定为 P2。
-- Agy/Grok 把若干 current-code hazard 绝对化为用户数据 bug；C1 只保留可复现的 Environment 清偏好 P1，其余数据候选路由 Phase 04。
+- Agy/Grok 把若干 current-code hazard 绝对化为用户数据 bug；C1 后续用 iOS hosting 与真实模拟器冷启动证伪 Environment 生产 P1，仅保留 direct in-memory constructor 的 P2 隔离缺陷，其余数据候选路由 Phase 04。
 - Grok 的自动 repo bundle 超过 50 MiB，但 local Read/Grep/Glob 正常；raw transcript、debug/auth log 和 brain artifact 不入仓。
 
 ## Validation
 
-- SwiftUI Environment hosting probe：direct set 不构造 default；hosting `.environment` 构造 default，复现通过。
+- Profile preference probe：旧 direct in-memory initializer 删除 sentinel，红测复现；iOS hosting 与两次真实模拟器启动均未复现生产清除。
 - feature status / intent traceability `--check`：通过。
 - docs generators：8 passed；docs health / Capture contract：通过，保留既有人工复核 warnings，无 error。
 - script regression tests：25 passed。
@@ -219,4 +216,4 @@ No concrete business rule requires restoring Domain or UseCase packages. The ver
 - invocation contract：`../agent-invocation-protocol.md`
 - ledger：`../findings.md`
 - checkpoint：`../checkpoints/phase-03.md`
-- next：Phase 04 Data safety，先冻结 SwiftData model/profile/backup/image contract 与 fixtures；RA-03-001 应由 PO 优先授权独立修复，不在审计分支改产品代码
+- next：Phase 04 Data safety，先冻结 SwiftData model/profile/backup/image contract 与 fixtures；RA-03-001 作为独立低风险隔离修复，不在审计分支改产品代码

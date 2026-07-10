@@ -70,4 +70,4 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **Phase 01 结果**：`phases/01-results.md`
 - **Phase 02 结果**：`phases/02-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
-- **下一步**：Phase 04 Data safety；先冻结 models/profile/backup/image contract 与 fixtures，并优先把 RA-03-001 交给 PO 裁决独立修复
+- **下一步**：Phase 04 Data safety；先冻结 models/profile/backup/image contract 与 fixtures；RA-03-001 以独立测试隔离修复跟踪

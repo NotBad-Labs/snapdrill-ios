@@ -30,16 +30,15 @@
 
 ## Verified Results
 
-- findings：10（1×P1，5×P2，4×P3）
-- P1：ProfileManager Environment default 在 SwiftUI hosting 注入时构造 in-memory manager，清真实 per-profile UserDefaults。
-- P2：App implicit products、activity tracker 双所有权、ServiceContainer 半迁移、background delete 未提交、Capture transaction failure oracle 缺失。
+- findings：10（0×P1，6×P2，4×P3）
+- P2：in-memory Profile helper 污染 process defaults、App implicit products、activity tracker 双所有权、ServiceContainer 半迁移、background delete 未提交、Capture transaction failure oracle 缺失。
 - P3：架构图/DI current-state 漂移、SmartPaper implementation prose、四份 lockfile 漂移、Live container mock analytics default。
 - keep：4-package topology、Core invariant、coordinators、real system-service protocols、removed Domain/UseCase 保持删除。
 - repair/retire/defer 分类见 `phases/03-results.md`；未授权任何产品代码修复。
 
 ## Corrections To Agent Output
 
-- 普通 `EnvironmentValues` key-path set 不构造 default；SwiftUI hosting `.environment` 才构造。最终 P1 基于真实 modifier/render probe，不引用错误机理。
+- macOS custom EnvironmentKey hosting probe 不能外推 iOS App；iOS hosting 旧代码未触发第二个默认实例，iPhone 17 冷启动 5s/12s sentinel 均保留，生产 P1 被证伪。
 - production activity tracker 当前因 `.shared` 默认收敛，不是已发生的切换守卫失效；定 P2 而非外部报告的 P1。
 - ServiceContainer 半迁移是结构/测试替换风险，不等于六个服务都应继续挂容器；按 finish/retire/defer 分开。
 - SmartPaper 使用 SM-2-derived fields，但未直接复用 `ReviewScheduler + SM2State`；只判 current How prose 错误。
@@ -47,7 +46,7 @@
 
 ## Validation
 
-- SwiftUI Environment hosting probe：通过；输出 `AFTER_MODIFIER=false`、`DEFAULT_BUILT`、`AFTER_HOSTING=true`。
+- direct-construction sentinel：旧代码红测复现；iOS hosting + iPhone 17 cold-launch sentinel：生产清除未复现。
 - feature status / intent traceability、8 generator tests、docs health、Capture contract、25 script tests：通过；docs health 仅既有 warnings。
 - `swiftlint --strict`：245 files，0 violations。
 - focused architecture tests：45 passed。
