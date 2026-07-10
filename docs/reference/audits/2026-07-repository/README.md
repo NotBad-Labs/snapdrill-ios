@@ -7,9 +7,11 @@
 - **协调者**：Codex C1
 - **工作状态**：C2 / C3 / C4 暂挂；本审计的外部 CLI 是只读 reviewer，不是新的 write lane
 - **write WIP**：1 个审计分支；不在本分支修产品代码
-- **目标**：区分必要投入、可解释返工、真实浪费和当前发布风险，形成可验证的 keep / fix / freeze / delete / release 输入
+- **目标**：区分必要投入、可解释返工、真实浪费和当前发布风险，形成可验证的 keep / repair / replace / retire / delete / defer 与 release 输入
 
 本 charter 只约束本次审计，不改写 steady-state lane 归属。产品方向、风险接受、修复优先级、合并和发布仍由 PO 裁决。
+
+本轮以 [`rebaseline-contract.md`](rebaseline-contract.md) 定义“无死角清理”的边界、分类、删除/替换门和完成条件。审计与修复分离：本分支只记录事实，已授权修复在最新 `develop` 的独立分支落地，并在合并后回填 finding ledger。
 
 ## 已确认基线
 
@@ -60,6 +62,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **branch**：`codex/repository-audit-program`
 - **方法**：`docs/how-to/repository-audit.md`
 - **报告模板**：`report-template.md`
+- **再基线契约**：`rebaseline-contract.md`
 - **finding ledger**：`findings.md`
 - **当前 checkpoint**：`checkpoints/phase-01.md`
 - **00b 结果**：`phases/00b-results.md`
