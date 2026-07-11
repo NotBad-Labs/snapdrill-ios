@@ -44,7 +44,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 |---|---|---|---|
 | 00 Control plane | T0、工具链、模型、报告协议、恢复演练 | `00a` 基线；`00b` 小范围盲审 | complete |
 | 01 History | issue/PR 生命周期、CI 失败分类、返工热点 | `01a` lifecycle；`01b` CI；`01c` churn；`01d-f` 证伪 | complete |
-| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a` docs；`02b` guardrails；`02c` stale claims；`02d` product constitution | reopened; 02d pending PO |
+| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a-c` truth；`02d` constitution；`02e` PO workshop | reopened; Gate A pending PO |
 | 03 Architecture | package 依赖、DI、并发、共享接缝、废弃代码 | `03a` graph；`03b` runtime flow；`03c` debt | complete |
 | 04 Data safety | SwiftData、repository、单资料库重基线、备份、图片 | `04a` models；`04b` single library；`04c` backup；`04d` images | in progress |
 | 05 Capture | camera、scanner、album/PDF、crop、OCR、save | `05a` input；`05b` processing；`05c` persistence | pending |
@@ -70,6 +70,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **Phase 01 结果**：`phases/01-results.md`
 - **Phase 02 结果**：`phases/02-results.md`
 - **Phase 02d 产品宪法结果**：`phases/02d-product-constitution-results.md`
+- **Phase 02e PO 工作坊候选 / 复核**：`phases/02e-po-product-workshop-candidate.md` / `phases/02e-product-workshop-review-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
 - **Phase 04a/04b 结果**：`phases/04a-results.md` / `phases/04b-results.md`
 - **下一步**：先完成 02d Gate A 产品治理裁决，再起草 Product Constitution v1 与 Release 1 Product Contract；#868 维持 Draft，不进入合并裁决

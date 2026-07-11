@@ -53,6 +53,17 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
 - PO Gate A is now the earliest dependency: decision lifecycle, legacy-baseline
   default and contract-first rule for high-blast changes. The recommended rules
   are recorded in `phases/02d-product-constitution-results.md`.
+- While Gate A awaited PO response, `02e` produced a non-normative workshop
+  candidate with options for workflow wedge, promise, data posture, single
+  library, commercial/platform scope, Release 1 outcomes and optional features.
+- Three-agent challenge rejected preselected answers and forced revisions:
+  workflow rather than demographic wedge; product behavior separate from
+  `ProfileManager` implementation; hidden SmartPaper as the current pure-free
+  recommendation; Dashboard/Review IA as time-bounded dogfood; explicit failure,
+  recovery, TestFlight and no-telemetry learning evidence.
+- C1 rejected unsupported reviewer claims about missing EXIF tests, absent
+  capture rollback and inevitable App Store rejection; primary code/tests show
+  the first two are false and no Apple/legal source supported the third.
 
 ## Recovery
 
@@ -61,6 +72,8 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
   `codex/single-library-rebaseline@b670a2c8` in Draft PR #868, not merged
 - `02d` complete pending PO rulings: `phases/02d-product-constitution-results.md`;
   4×P2 and 1×P3, with four findings requiring product/governance ratification
+- `02e` workshop packet/review complete: `phases/02e-po-product-workshop-candidate.md`
+  and `phases/02e-product-workshop-review-results.md`; no new ledger finding
 - next action: obtain PO Gate A rulings, then draft Product Constitution v1 and
   Release 1 Product Contract; no #868 merge request and no `04c` regeneration yet
 - stop conditions: base drift, write WIP above 2, verified destructive P0/P1 without fix authority, or a required dynamic probe that cannot run
