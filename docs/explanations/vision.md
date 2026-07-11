@@ -1,11 +1,11 @@
 ---
-last_verified: 2026-06-13
+last_verified: 2026-07-11
 layer: vision
 authority: po
 ---
 # SnapDrill 产品愿景
 
-> 本文件是 PO 当前产品意图在仓库中的最高层持久化表达。PO 的最新明确意图始终高于本文；本文不是 PO 的上级，也不能替代 PO 对新产品问题的裁决。
+> 本文件是 SnapDrill 当前有效产品意图在仓库中的最高层持久化表达。PO 的最新明确意图启动 shaping，但必须经过 `exploration -> shaped candidate -> ratified -> effective -> superseded` 生命周期，并在归属权威合入 `develop` 后，才替换本文基线。
 >
 > 本文件只保存耐久的使命、定位、价值链和产品原则。实现状态、市场数字、阶段任务、具体功能设计与待验证假设必须下沉到对应文档。
 
@@ -81,12 +81,16 @@ SnapDrill 是一款面向通用受众的原生效率工具，扫描、归档、�
 ## 意图派生规则
 
 ```text
-PO 最新明确意图
-  -> Vision
+exploration（PO 明确意图 / 问题）
+  -> shaped candidate
+  -> PO ratified
+  -> 归属权威合入 develop（effective）
   -> 产品政策 / 设计原则 / 商业模型 / ADR
   -> Feature Spec
   -> 验收标准
   -> 代码与测试
+
+effective 规则被新的 effective 权威取代 -> superseded
 ```
 
 1. 下游规范必须说明承接了哪条上游意图。
@@ -94,6 +98,7 @@ PO 最新明确意图
 3. 代码和测试证明当前实现，不能反向覆盖产品意图。
 4. 实现与规范冲突时，记录为偏差并修复，或提交 PO 重新裁决。
 5. 私有记忆、历史研究、旧 pitch 和关闭任务只用于追溯，不参与当前产品裁决。
+6. 跨 feature、数据 / wire、公开承诺、商业或平台边界的变更，合并前必须先有上游产品或 release contract。
 
 ## 下游文档
 

@@ -30,10 +30,24 @@ SnapDrill：一款 SwiftUI 单平台 iOS 通用效率工具。扫描、归档、
 
 SnapDrill 不使用一条混合优先级同时裁决“应该做什么”和“现在实现了什么”。两类问题分别沿不同链路判断：
 
-- **规范链（产品应该是什么）**：PO 最新明确意图 > `docs/explanations/vision.md` > 定位 / 设计原则 / 商业模型 / ADR > feature spec > 代码与测试。
+- **规范链（产品应该是什么）**：`develop` 中当前有效的 `docs/explanations/vision.md` > 定位 / 设计原则 / 商业模型 / ADR > feature spec > 代码与测试。
 - **实证链（产品现在是什么）**：当前代码、测试、构建、真机与发布实证 > 自动生成状态 > 当前说明文档 > agent 私有记忆与历史材料。
 
-代码可以证明当前实现，但不能覆盖 PO 意图。两条链不一致时，应记录为待修复偏差或待裁决问题，不能用现状反向改写产品目标。PO 的最新明确意图凌驾于所有仓库文档；影响其他 lane 的意图必须尽快固化到 git-tracked SSOT。
+代码可以证明当前实现，但不能覆盖产品规范。两条链不一致时，应记录为待修复偏差或待裁决问题，不能用现状反向改写产品目标。PO 的最新明确意图启动 shaping，但在归属权威文档合入 `develop` 前，不替换其他 lane 正在执行的有效基线。
+
+产品决策采用统一生命周期：
+
+```text
+exploration -> shaped candidate -> ratified -> effective -> superseded
+```
+
+- 对话中的想法、偏好和类比属于 **exploration**，没有跨 lane 规范效力。
+- agent 写清选项、影响、可逆性、归属和验证后成为 **shaped candidate**。
+- PO 明确批准候选及范围后成为 **ratified**；批准不等于授权合并。
+- 归属权威文档合入 `develop` 后才成为 **effective**，并可替换旧基线。
+- 旧决定被新有效权威取代后成为 **superseded**，保留历史指针但不得驱动新工作。
+
+现有 tracked 规范在被明确 supersede 前持续有效。跨 feature、数据 / wire、公开承诺、商业或平台边界的变更，合并前必须先有上游产品或 release contract；Draft 实验可提前存在，但不得凭实现反向生成产品事实。每次合并仍需 PO 单独明确授权。
 
 私有记忆只是可丢弃缓存，不能覆盖仓库事实或产品意图。当前定位见 `docs/explanations/positioning-and-audience.md`；多 agent 协作边界、Claude planning DRI 与 Codex 本地实证挑战权见 `docs/how-to/parallel-lanes.md`。
 

@@ -6,6 +6,10 @@
 >
 > **范围**：2026-06-27 至 2026-07-11。初始草案由 Claude 起草，后续裁决由 PO 直接确认、Codex 固化入仓。
 
+## 决策状态
+
+本文使用 `exploration -> shaped candidate -> ratified -> effective -> superseded`。PO 批准候选只使其成为 `ratified`，不同时授权合并；归属权威合入 `develop` 后才成为 `effective`。旧 tracked 规范在被明确 supersede 前持续有效。
+
 ## A. 产品意图与功能语义
 
 | 日期 | 决策 | 归属 |
@@ -20,7 +24,7 @@
 | 07-06 | “每页题数”→“每页资料数”（通用导出面归资料系） | `docs/reference/glossary.md` 边界的应用；PR 描述 |
 | 07-06 | 配额 Toast 混域句维持现状（组卷 = 域内词，资料 = 通用词） | PR 描述 |
 | 07-06 | 隐私政策文案校正批准（“学习助手”→“资料整理应用”，清除 pre-pivot 残留） | L10n + Policy 实现；与 `docs/explanations/positioning-and-audience.md` 一致 |
-| 07-11 | **退休 Multi-Profile，重基线为单一本地资料库**；项目无内测用户，开发期 Profile 数据、偏好和旧多 Profile 备份无需迁移或兼容 | `docs/reference/audits/2026-07-repository/phases/04b-single-library-brief.md`；实施时回填 `docs/features/active/feat-profile.md` 的替代归属 |
+| 07-11 | **退休 Multi-Profile，重基线为单一本地资料库**；项目无内测用户，开发期 Profile 数据、偏好和旧多 Profile 备份无需迁移或兼容（ratified，not effective；持久性分类待 Gate B） | `docs/reference/audits/2026-07-repository/phases/04b-single-library-brief.md`；实施前须先合入 Product Constitution / Release Contract |
 
 ## B. 质量门槛
 
@@ -51,6 +55,7 @@
 | 07-02 | **规划 freshness 对账成为习惯**并固化入仓 | `docs/how-to/parallel-lanes.md` §3（PR #849） |
 | 07-06 | **多窗口并行模式采用**（主刀 / 副刀 / 运维 / QA；write ≤ 2；合并串行） | `docs/how-to/parallel-lanes.md` 多窗口小节（PR #855） |
 | 07-06 | 老窗口退役；PO 转发降级为提醒信号（Claude 自查仓库为准） | 本台账 |
+| 07-11 | **产品决策五态 + 旧规范显式 supersede + contract-first**（effective）；Draft 实验可先存在，但跨 feature / 数据 wire / 公开 / 商业 / 平台变更必须先有上游契约，每次合并仍需 PO 单独授权 | `AGENTS.md` §意图与事实的裁决规则 + `docs/how-to/definition-of-ready.md` |
 
 ## E. 处置类
 
