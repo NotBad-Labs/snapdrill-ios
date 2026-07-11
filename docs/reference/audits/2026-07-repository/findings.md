@@ -32,5 +32,9 @@
 | RA-03-008 | P3 | product/docs | verified | `d62fead8` | `feat-smartpaper.md:43-49`; `architecture.md:204-208`; `SmartPaperViewModel.swift:168-173`; `ArchiveRepository.swift:156-193` | document raw SM-2-field ordering; leave planned strategy behind #479 |
 | RA-03-009 | P3 | dependency/build | verified | `d62fead8` | package-local vs workspace `Package.resolved` Mantis/test-transitive pins | define canonical lock ownership or checked synchronization before deleting any lockfile |
 | RA-03-010 | P3 | architecture | verified | `d62fead8` | `LiveServiceContainer.swift:40-57`; `DependencyContainer.swift:48-56`; bare construction in ServiceContainer tests | require analytics or default Live to NoOp; keep mock behavior in MockServiceContainer |
+| RA-04-001 | P2 | data/correctness | verified | `56e9d27e` | `CaptureResultViewModel.swift:226-238`; `LibraryEditViewModel.swift:167-179`; `CategoryValueRepository.swift:65-80`; capture/library save-failure contracts | add rollback to both failed inline value-create paths and a deterministic save-failure regression oracle |
+| RA-04-002 | P2 | data/product | pending-po | `56e9d27e` | `CategoryValueListViewModel.swift:139-154`; `DimensionInputRow.swift:97-115,166-169`; detached probe retained two links after multi-to-single | recommended: block conversion while any item has multiple values; PO decides versus destructive keep-first normalization |
+| RA-04-003 | P3 | test/data | verified | `56e9d27e` | `ArchiveRepositoryTests.swift:31-40,129-138` | repair the image-only fixture and document/test the accepted both-nil storage boundary |
+| RA-04-004 | P3 | architecture/waste | verified | `56e9d27e` | `RepositoryContainer.swift:100-116`; no caller/test from repository-wide search | synthesis classifies retire versus a real owner/test; do not delete during audit |
 
 允许状态：`verified` / `rejected` / `pending-po` / `deferred` / `fixed`。`candidate` 只存在于 phase 工作报告，不进入本表。

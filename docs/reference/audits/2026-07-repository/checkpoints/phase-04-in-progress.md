@@ -26,5 +26,6 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
 
 ## Recovery
 
-- next action: run independent `04a` reviews from `phases/04a-models-brief.md`
+- `04a` complete: `phases/04a-results.md`; 2×P2 and 2×P3, no P0/P1
+- next action: run independent `04b` reviews from `phases/04b-profile-brief.md`
 - stop conditions: base drift, write WIP above 2, verified destructive P0/P1 without fix authority, or a required dynamic probe that cannot run
