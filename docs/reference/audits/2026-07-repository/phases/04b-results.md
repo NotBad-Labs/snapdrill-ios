@@ -87,7 +87,6 @@ Staging prevents target writes until all ZIP entries extract, and the persistent
 
 ## Handoff
 
-1. Open the authorized Draft PR from `codex/single-library-rebaseline`; do not merge without fresh PO authority.
+1. Draft PR #868 is open from `codex/single-library-rebaseline`; do not merge without fresh PO authority.
 2. After merge, rebaseline `04c` on v3. The existing V2/Profile brief is superseded and must not be executed.
 3. Carry RA-04-008 into `04c` as the first crash-recovery/retention question.
-

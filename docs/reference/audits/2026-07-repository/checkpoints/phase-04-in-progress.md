@@ -38,7 +38,7 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
 
 - `04a` complete: `phases/04a-results.md`; 2×P2 and 2×P3, no P0/P1
 - `04b` complete: `phases/04b-results.md`; 2×P1 and 2×P2; P1 fixes committed at
-  `codex/single-library-rebaseline@b670a2c8`, not merged
-- next action: open the authorized Draft PR, then wait for PO merge authority;
+  `codex/single-library-rebaseline@b670a2c8` in Draft PR #868, not merged
+- next action: wait for PO merge authority on Draft PR #868;
   regenerate `04c` only after v3 reaches develop
 - stop conditions: base drift, write WIP above 2, verified destructive P0/P1 without fix authority, or a required dynamic probe that cannot run

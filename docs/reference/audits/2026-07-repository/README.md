@@ -71,4 +71,4 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **Phase 02 结果**：`phases/02-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
 - **Phase 04a/04b 结果**：`phases/04a-results.md` / `phases/04b-results.md`
-- **下一步**：打开已授权的单资料库 Draft PR；合并后以 v3 重新冻结 `04c`，不执行旧 V2/Profile brief
+- **下一步**：等待 PO 对单资料库 Draft PR #868 的合并授权；合并后以 v3 重新冻结 `04c`，不执行旧 V2/Profile brief
