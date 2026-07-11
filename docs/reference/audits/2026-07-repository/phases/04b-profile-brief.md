@@ -1,4 +1,8 @@
-# Phase 04b Brief: Profile Isolation and Migration
+# Phase 04b Brief: Profile Isolation and Migration (Superseded)
+
+> Superseded by `04b-single-library-brief.md` after the PO retired Multi-Profile
+> on 2026-07-11. No review run against this brief is valid evidence for the
+> current product. The file remains only to preserve the audit trail.
 
 ## Fixed Base
 
@@ -9,7 +13,7 @@
 
 Do not read prior audit findings, phase results, checkpoints, private memory, agent reports or another reviewer's output.
 
-## Question
+## Historical Question
 
 Do Profile creation, loading, switching, deletion and legacy migration preserve strict store/image/preference isolation without data loss, cross-profile leakage or silent fallback?
 
