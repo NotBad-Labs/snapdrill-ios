@@ -16,14 +16,19 @@ check, shape the task further or ask PO instead of silently choosing.
 3. **Authority**: product intent links to its current authority document:
    `vision.md`, `positioning-and-audience.md`, an ADR, a feature spec, or a
    PO-specified scope document.
-4. **Acceptance criteria**: the task names observable pass/fail checks. At
+4. **Decision state**: every upstream product decision is identified as
+   exploration, shaped candidate, ratified, effective, or superseded. Only an
+   effective authority on `develop` may replace the current cross-lane baseline.
+5. **Contract first**: cross-feature, data/wire, public, business, or platform
+   changes name the upstream product or release contract required before merge.
+6. **Acceptance criteria**: the task names observable pass/fail checks. At
    least one check must be a command, fixture, test, screenshot/evidence path,
    or direct PO-verifiable behavior.
-5. **Validation level**: the task declares a T0-T4 level from
+7. **Validation level**: the task declares a T0-T4 level from
    `parallel-lanes.md` and lists the commands or manual evidence required.
-6. **Red lines**: files, product meanings, legal/fact-gated content, release
+8. **Red lines**: files, product meanings, legal/fact-gated content, release
    resources, or user data that must not be changed are named.
-7. **Decision gates**: unresolved PO, legal, fact, App Store, or irreversible
+9. **Decision gates**: unresolved PO, legal, fact, App Store, or irreversible
    data decisions are called out before coding.
 
 ## Stop And Ask
@@ -38,6 +43,8 @@ Stop before implementation when any of these are true:
   or App Store Connect action.
 - The task depends on an external review finding without path/line evidence or
   a reproducible command.
+- A PO ruling is ratified but its owning authority has not yet been merged, and
+  the task would treat that ruling as the new cross-lane baseline.
 
 ## PO Ruling Routing
 
@@ -54,6 +61,19 @@ temporary routing in the task brief. If a second unrouted ruling of the same
 kind appears, create a dedicated tracked decision file instead of accumulating
 hidden chat memory.
 
+Decision states follow:
+
+```text
+exploration -> shaped candidate -> ratified -> effective -> superseded
+```
+
+PO ratification approves product meaning and scope; it does not authorize a
+merge. A ruling becomes effective only when its owning authority is merged into
+`develop`. Existing tracked norms remain effective until explicitly
+superseded. Draft implementation may precede a contract for comparison, but a
+cross-feature, data/wire, public, business, or platform change may not merge
+before its upstream product or release contract.
+
 ## Minimal Task Brief
 
 ```text
@@ -61,6 +81,7 @@ Outcome:
 Scope:
 Out of scope / red lines:
 Authority:
+Decision state and required upstream contract:
 Acceptance criteria:
 Validation level and commands:
 PO/legal/fact gates:
