@@ -70,5 +70,5 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **Phase 01 结果**：`phases/01-results.md`
 - **Phase 02 结果**：`phases/02-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
-- **下一步**：按 `phases/04b-single-library-brief.md` 独立审阅
-  Multi-Profile 退休方案；RA-03-001 已由 PR #866 修复并回填 ledger
+- **Phase 04a/04b 结果**：`phases/04a-results.md` / `phases/04b-results.md`
+- **下一步**：打开已授权的单资料库 Draft PR；合并后以 v3 重新冻结 `04c`，不执行旧 V2/Profile brief

@@ -1,5 +1,9 @@
 # Phase 04c Brief: Backup Wire, Restore and Rollback
 
+> **Superseded 2026-07-11:** this brief freezes the retired V2/Profile contract.
+> Do not execute it. Regenerate 04c from the merged single-library v3 baseline,
+> starting with RA-04-008 crash recovery and Recovery ZIP retention.
+
 ## Fixed Base
 
 - Rebaseline reference: `develop@d62fead87fb103708652ac5378eda8e2c03f8257`

@@ -36,5 +36,9 @@
 | RA-04-002 | P2 | data/product | pending-po | `56e9d27e` | `CategoryValueListViewModel.swift:139-154`; `DimensionInputRow.swift:97-115,166-169`; detached probe retained two links after multi-to-single | recommended: block conversion while any item has multiple values; PO decides versus destructive keep-first normalization |
 | RA-04-003 | P3 | test/data | verified | `56e9d27e` | `ArchiveRepositoryTests.swift:31-40,129-138` | repair the image-only fixture and document/test the accepted both-nil storage boundary |
 | RA-04-004 | P3 | architecture/waste | verified | `56e9d27e` | `RepositoryContainer.swift:100-116`; no caller/test from repository-wide search | synthesis classifies retire versus a real owner/test; do not delete during audit |
+| RA-04-005 | P1 | security/data | verified | `56e9d27e` | `ImageStorage.isSafeRelativeImagePath`; `deleteImage(path:)`; `phases/04b-results.md` | candidate `7af361de` rejects the image root and sanitizes restore writes; open authorized Draft PR, merge requires PO |
+| RA-04-006 | P1 | data/recovery | verified | `56e9d27e` | best-effort auto backup; DB/image restore ordering; focused three-agent review | candidate `7af361de` adds preflight, persistent tolerant safety ZIP and delayed image cleanup; merge requires PO |
+| RA-04-007 | P2 | data/backup | verified | `56e9d27e` | missing images skipped; second-resolution ZIP names; `phases/04b-results.md` | candidate `7af361de` enforces completeness and UUID names; verify again in post-merge `04c` |
+| RA-04-008 | P2 | data/recovery | verified | `b670a2c8` candidate | DB commit precedes per-file image commit; orphan Recovery ZIP has no launch UX/retention | first `04c` question after v3 merge; no P0/P1 remains in focused implementation review |
 
 允许状态：`verified` / `rejected` / `pending-po` / `deferred` / `fixed`。`candidate` 只存在于 phase 工作报告，不进入本表。

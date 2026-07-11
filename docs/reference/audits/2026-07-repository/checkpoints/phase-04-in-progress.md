@@ -8,8 +8,8 @@
 - worktree: `/private/tmp/snapdrill-repository-audit-phase04`
 - branch: `codex/repository-audit-phase04`
 - phase start HEAD: `56e9d27e29e39fdcec083c4ec4e8a230edaa7f84`
-- open write work: audit branch only; Draft PR #864 was closed with PO authority;
-  write WIP = 1
+- open write work: audit branch plus `codex/single-library-rebaseline` implementation branch;
+  Draft PR #864 was closed with PO authority; write WIP = 2
 
 ## Frozen Slices
 
@@ -31,12 +31,14 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
 - SnapDrill has no test users whose data must survive this change. Development
   Profile stores, Profile preferences and multi-Profile backups may be discarded;
   no migration or compatibility reader is required. Git is the rollback boundary.
-- The interrupted external `04b` runs used the superseded Multi-Profile brief and
-  were discarded before normalization; they are not audit evidence.
+- Superseded initial runs were discarded. Fresh fixed-base and focused candidate
+  reviews completed under the single-library ruling.
 
 ## Recovery
 
 - `04a` complete: `phases/04a-results.md`; 2×P2 and 2×P3, no P0/P1
-- next action: run independent `04b` reviews from
-  `phases/04b-single-library-brief.md`
+- `04b` complete: `phases/04b-results.md`; 2×P1 and 2×P2; P1 fixes committed at
+  `codex/single-library-rebaseline@b670a2c8`, not merged
+- next action: open the authorized Draft PR, then wait for PO merge authority;
+  regenerate `04c` only after v3 reaches develop
 - stop conditions: base drift, write WIP above 2, verified destructive P0/P1 without fix authority, or a required dynamic probe that cannot run
