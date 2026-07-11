@@ -34,11 +34,33 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
 - Superseded initial runs were discarded. Fresh fixed-base and focused candidate
   reviews completed under the single-library ruling.
 
+## Product Constitution Interlude
+
+- On 2026-07-11 the PO questioned whether product intent and requirements were
+  stable enough to keep driving downstream work. Phase 02 was reopened as the
+  bounded `02d` product-constitution slice; no third write branch was created.
+- `02d` verified five structural findings: PO intent lacks an activation
+  lifecycle; the current release lacks a bounded product contract; downstream
+  docs can originate cross-feature invariants; decision records mix product and
+  architecture authority; SmartPaper bet guidance conflicts.
+- Claude Fable 5, Antigravity Gemini 3.5 Flash (High) and Grok 4.5 ran read-only
+  fixed-base reviews. C1 retained only claims reproduced on live primary files;
+  exaggerated subscription/iPad blockers and agent severity inflation were
+  rejected.
+- Draft PR #868 remains implementation evidence. Its 126-file blast radius is
+  also evidence that single-library must be classified as a durable product
+  boundary or Release 1 simplification before merge authorization is considered.
+- PO Gate A is now the earliest dependency: decision lifecycle, legacy-baseline
+  default and contract-first rule for high-blast changes. The recommended rules
+  are recorded in `phases/02d-product-constitution-results.md`.
+
 ## Recovery
 
 - `04a` complete: `phases/04a-results.md`; 2×P2 and 2×P3, no P0/P1
 - `04b` complete: `phases/04b-results.md`; 2×P1 and 2×P2; P1 fixes committed at
   `codex/single-library-rebaseline@b670a2c8` in Draft PR #868, not merged
-- next action: wait for PO merge authority on Draft PR #868;
-  regenerate `04c` only after v3 reaches develop
+- `02d` complete pending PO rulings: `phases/02d-product-constitution-results.md`;
+  4×P2 and 1×P3, with four findings requiring product/governance ratification
+- next action: obtain PO Gate A rulings, then draft Product Constitution v1 and
+  Release 1 Product Contract; no #868 merge request and no `04c` regeneration yet
 - stop conditions: base drift, write WIP above 2, verified destructive P0/P1 without fix authority, or a required dynamic probe that cannot run
