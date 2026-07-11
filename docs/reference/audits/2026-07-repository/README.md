@@ -46,7 +46,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 | 01 History | issue/PR 生命周期、CI 失败分类、返工热点 | `01a` lifecycle；`01b` CI；`01c` churn；`01d-f` 证伪 | complete |
 | 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a` docs；`02b` guardrails；`02c` stale claims | complete |
 | 03 Architecture | package 依赖、DI、并发、共享接缝、废弃代码 | `03a` graph；`03b` runtime flow；`03c` debt | complete |
-| 04 Data safety | SwiftData、repository、profile、迁移、备份、图片 | `04a` models；`04b` profile；`04c` backup；`04d` images | pending |
+| 04 Data safety | SwiftData、repository、profile、迁移、备份、图片 | `04a` models；`04b` profile；`04c` backup；`04d` images | in progress |
 | 05 Capture | camera、scanner、album/PDF、crop、OCR、save | `05a` input；`05b` processing；`05c` persistence | pending |
 | 06 Library/export | library、search、taxonomy、SmartPaper、export/share | `06a` library；`06b` SmartPaper；`06c` export | pending |
 | 07 Other features | review、dashboard、settings、onboarding | `07a` review；`07b` dashboard；`07c` settings/onboarding | pending |
@@ -65,9 +65,9 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **外部 agent 调用协议**：`agent-invocation-protocol.md`
 - **再基线契约**：`rebaseline-contract.md`
 - **finding ledger**：`findings.md`
-- **当前 checkpoint**：`checkpoints/phase-03.md`
+- **当前 checkpoint**：`checkpoints/phase-04-in-progress.md`
 - **00b 结果**：`phases/00b-results.md`
 - **Phase 01 结果**：`phases/01-results.md`
 - **Phase 02 结果**：`phases/02-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
-- **下一步**：Phase 04 Data safety；先冻结 models/profile/backup/image contract 与 fixtures；RA-03-001 由独立 P1 修复分支优先处理
+- **下一步**：执行 Phase 04 的 `04a` models 独立审阅；RA-03-001 已由 PR #866 修复并回填 ledger
