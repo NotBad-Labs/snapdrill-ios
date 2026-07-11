@@ -98,6 +98,23 @@ Recommended default: pre-2026-07-10 tracked norms remain effective until explici
 
 For urgent security/data-safety fixes, PO may authorize immediate bounded implementation, but merge still requires the relevant product/data contract and the existing separate merge authorization.
 
+## Gate A PO Ruling — 2026-07-11
+
+The PO ratified all three Gate A governance rules as one package:
+
+1. product intent follows `exploration -> shaped candidate -> ratified -> effective -> superseded`;
+2. current tracked norms remain effective until explicitly superseded;
+3. cross-feature, data-wire, public, business or platform changes require an
+   upstream product/release contract before merge, although a Draft experiment
+   may precede that contract.
+
+This ruling is **ratified, not yet effective**. The activation clause still has
+to land in its owning root/DoR authority on `develop`. The ruling does not
+authorize merging #867, #868 or a future contract PR. The earlier PO instruction
+to retire Multi-Profile with no migration/old-backup compatibility is likewise a
+ratified product/data candidate; it becomes effective only when the owning
+Product Constitution or Release Contract is merged under Gate A.
+
 ## Decision Rights
 
 | Decision class | PO required | Agent authority within ratified constraints |
@@ -112,9 +129,12 @@ For urgent security/data-safety fixes, PO may authorize immediate bounded implem
 
 ### Gate A — governance before further high-blast work
 
-1. Ratify or reject the five-state decision lifecycle above.
-2. Ratify the recommended legacy default: current tracked norms remain effective until explicitly superseded.
-3. Ratify a contract-first gate for cross-feature/data-wire/public/business/platform changes; Draft exploration may precede it, merge may not.
+**PO status (2026-07-11): all three items ratified; authority integration pending.**
+
+1. Ratified: the five-state decision lifecycle above.
+2. Ratified: current tracked norms remain effective until explicitly superseded.
+3. Ratified: cross-feature/data-wire/public/business/platform changes require a
+   contract before merge; Draft exploration may precede it.
 
 ### Gate B — Product Constitution v1
 
@@ -134,7 +154,9 @@ For urgent security/data-safety fixes, PO may authorize immediate bounded implem
 5. Restore, relocate or retire the orphaned success signals and free-tier non-degradation rule (RA-02-005).
 6. State launch language/market boundary and the outcome evidence required for go/no-go.
 
-Only Gate A is required before drafting the two contracts. Gates B/C are the product workshop; agents should provide options and impact, not select answers for the PO.
+Gate A is now ratified. Its authority clause must become effective before a later
+product choice supersedes `develop`. Gates B/C remain the product workshop;
+agents provide options and impact, not answers on behalf of the PO.
 
 ## Agent Cross-Check
 
@@ -158,4 +180,5 @@ Only Gate A is required before drafting the two contracts. Gates B/C are the pro
 - results: this file
 - ledger: `../findings.md`
 - current checkpoint: `../checkpoints/phase-04-in-progress.md`
-- next: obtain Gate A PO rulings, then draft Product Constitution v1 and Release 1 Product Contract on the existing audit WIP before any #868 merge decision
+- next: obtain separate PO merge authorization for #867, then land Gate A in a
+  small authority/contract branch before any #868 merge decision

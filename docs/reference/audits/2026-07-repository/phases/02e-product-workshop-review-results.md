@@ -102,7 +102,8 @@ The revised `02e-po-product-workshop-candidate.md` now:
 
 The candidate is now suitable for discussion, not batch approval. Decision order remains:
 
-1. Gate A governance and post-base Multi-Profile ruling.
+1. Integrate the ratified Gate A rules and post-base Multi-Profile ruling into
+   their owning authority; neither is effective merely from this audit record.
 2. B1-B3 workflow, promise and value chain.
 3. B4-B5 data posture and single-library behavior.
 4. B6-B7 commercial/platform posture.

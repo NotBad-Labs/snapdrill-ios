@@ -116,4 +116,5 @@ or private memory is stored as project truth.
 - review result: this file
 - upstream workshop: `phases/02e-po-product-workshop-candidate.md`
 - structural findings: `phases/02d-product-constitution-results.md`
-- next dependency: PO Gate A; this result does not select an answer
+- next dependency: Gate A authority integration after PO ratification; this
+  result does not select Gate B/C answers or authorize a merge

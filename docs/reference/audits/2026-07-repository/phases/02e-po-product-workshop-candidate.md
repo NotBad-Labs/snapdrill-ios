@@ -19,16 +19,21 @@
 | management | searchable/editable personal library | search, filtering, taxonomy, edit, batch actions and undo exist | whether dynamic taxonomy complexity is core or optional |
 | output | export/print is a first-class endpoint | PDF/print/share, JSON/CSV and backup are present | which formats are user-value Must versus data-portability support |
 | data | local-first, no account, user owns data | SwiftData/files local; no CloudKit/Firebase; backup/restore exists | local-first forever versus optional future Apple-private sync |
-| library identity | `develop@56e9d27e` 仍把 Multi-Profile 视为 Must；PO 之后口头裁决退休，尚未按 Gate A 成为 effective baseline | Draft PR #868 replaces it across 126 files; not merged (count reproduced in `02d-product-constitution-results.md`) | confirm the PO ruling, then separate durable product behavior from implementation strategy |
+| library identity | `develop@56e9d27e` 仍把 Multi-Profile 视为 Must；PO 已明确裁决退休，该裁决为 ratified candidate，尚未按 Gate A 成为 effective baseline | Draft PR #868 replaces it across 126 files; not merged (count reproduced in `02d-product-constitution-results.md`) | route the ratified ruling into its owning authority, then separate durable product behavior from implementation strategy |
 | business | free core; future Pro may add sync/intelligence/output | StoreKit/CloudKit/Word unavailable; SmartPaper free quota still promotes future Pro | hide unavailable Pro, show placeholders, or finish monetization before ship |
 | platform/region | US-company global production; current target iPhone-only | `com.snapdrill.global`, iPhone family, English + Simplified Chinese resources | Release 1 languages; iPad/China re-entry policy |
 | quality/success | no crash/data loss, privacy/AX, low capture friction | strong local gates; no external users and no backend event stream | outcome acceptance and post-TestFlight learning signals |
 
 ## Gate A — Governance
 
-Recommended as a package:
+**PO status (2026-07-11): items 1-3 below are ratified as a package but remain
+non-effective until their owning authority is merged. Item 0 is a separately
+ratified product/data candidate and must land through the same lifecycle. No
+merge authorization is implied.**
 
-0. Ratify or reject the post-base chat ruling that retires Multi-Profile with no data migration/old-backup compatibility. Until then it remains a pending candidate despite #868 implementation evidence.
+Ratified package (not effective until the owning authority is merged):
+
+0. Separately ratified product/data candidate: retire Multi-Profile with no data migration/old-backup compatibility. It remains non-effective despite #868 implementation evidence.
 1. `exploration -> shaped candidate -> ratified -> effective -> superseded`.
 2. Current tracked norms remain effective until explicitly superseded.
 3. Cross-feature, data-wire, public, business or platform changes require an upstream contract before merge; Draft exploration may happen earlier.
@@ -78,7 +83,7 @@ Recommendation rationale: “general audience” is an audience/compliance postu
 |---|---|---|
 | **B5-A (recommended shaping hypothesis, medium confidence)** | users see one library; no workspace/Profile model is planned until external evidence earns a new product decision | Removes unvalidated user-facing complexity; does not claim multiple workspaces can never return |
 | B5-B | users see one library in Release 1, but a future workspace/Profile model remains an explicit roadmap item | Preserves a product promise with no demand evidence and keeps downstream architecture uncertain |
-| B5-C | retain visible Multi-Profile now | Retains current `develop` behavior but conflicts with the latest pending PO ruling and adds cross-cutting UI/data burden |
+| B5-C | retain visible Multi-Profile now | Retains current `develop` behavior but conflicts with the ratified, non-effective PO ruling and adds cross-cutting UI/data burden |
 | B5-D | ship one visible library while hiding/disabling the existing Multi-Profile code path | Maximizes short-term technical reversibility but retains speculative state, backup and failure complexity |
 
 The PO should decide product behavior, not whether a particular `ProfileManager` abstraction survives. After B5 is ratified, engineering owns the simplest implementation consistent with the chosen reversibility and data contract. #868's existing work is impact evidence, not product justification. Any future evidence-backed PDR may supersede B5 through Gate A.

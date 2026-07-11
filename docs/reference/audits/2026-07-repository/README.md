@@ -44,7 +44,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 |---|---|---|---|
 | 00 Control plane | T0、工具链、模型、报告协议、恢复演练 | `00a` 基线；`00b` 小范围盲审 | complete |
 | 01 History | issue/PR 生命周期、CI 失败分类、返工热点 | `01a` lifecycle；`01b` CI；`01c` churn；`01d-f` 证伪 | complete |
-| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a-c` truth；`02d` constitution；`02e` PO workshop；`02f` impact map | reopened; Gate A pending PO |
+| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a-c` truth；`02d` constitution；`02e` PO workshop；`02f` impact map | reopened; Gate A ratified, authority integration pending |
 | 03 Architecture | package 依赖、DI、并发、共享接缝、废弃代码 | `03a` graph；`03b` runtime flow；`03c` debt | complete |
 | 04 Data safety | SwiftData、repository、单资料库重基线、备份、图片 | `04a` models；`04b` single library；`04c` backup；`04d` images | in progress |
 | 05 Capture | camera、scanner、album/PDF、crop、OCR、save | `05a` input；`05b` processing；`05c` persistence | pending |
@@ -74,4 +74,4 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **Phase 02f 产品意图影响图 / 复核**：`phases/02f-product-intent-impact-map-candidate.md` / `phases/02f-product-impact-review-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
 - **Phase 04a/04b/04d 结果**：`phases/04a-results.md` / `phases/04b-results.md` / `phases/04d-results.md`
-- **下一步**：先完成 02d Gate A 产品治理裁决，再起草 Product Constitution v1 与 Release 1 Product Contract；#868 维持 Draft，不进入合并裁决
+- **下一步**：单独取得 #867 合并授权，随后在小型 authority/contract 分支落地已 ratify 的 Gate A，并起草 Product Constitution v1 与 Release 1 Product Contract；#868 维持 Draft，不进入合并裁决
