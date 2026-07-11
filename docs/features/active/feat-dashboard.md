@@ -43,12 +43,12 @@ intent_refs:
 - **设计裁决**：无（首页为只读聚合，复用既有 Repository 与通知机制，无对全局原则的局部例外）。
 
 ## 4. 验证标准 (Verify) — GWT 风格，不复述 How 的交互细节
-- **Success path (GWT)**：Given 当前 Profile 有资料，When 用户进入首页，Then 展示资料库总数 / 今日新增 / 今日待回顾 / 今日已回顾四项概览 + 回顾 Hero，点击 Hero 可进入回顾流；采集/回顾/删除后回到首页（appear）经 `loadData()` 刷新统计；前台运行期间 `reviewDataDidChange` 去抖刷新。
+- **Success path (GWT)**：Given 资料库有资料，When 用户进入首页，Then 展示总数 / 今日新增 / 今日待回顾 / 今日已回顾 + 回顾 Hero；数据变化后去抖刷新。
 - **边界 / 异常**：
   - 资料库为空 → 不进空白卡片流，展示「采集第一条资料」空状态引导（与 `feat-review` 空状态一致，Boundary B19）。
   - 存在未保存草稿且用户发起采集 → 弹窗提示恢复 / 新建（承接 `feat-capture`）。
   - 统计读取失败（SwiftData 错误）→ 不崩溃、不显示假数据，保留上次成功值或零值，下次刷新重试。
-- **数据保证**：首页为**只读聚合**，不产生 / 修改任何资料或回顾记录；统计口径与被消费 feature（review / library）一致，不在首页层制造口径分裂；仅展示当前 Profile 数据，Profile 切换后重新加载。
+- **数据保证**：首页为只读聚合，不产生/修改资料或回顾记录；统计口径与 review/library 一致，并来自唯一资料库。
 - **NFR**：首页加载与刷新不阻塞主线程；`reviewDataDidChange` 刷新去抖避免高频抖动；无额外埋点要求（高级统计埋点归 Pro spec）。
 
 

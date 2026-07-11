@@ -60,9 +60,3 @@ freshness:
 | ModelContainer(inMemory: true) 在 CI 模拟器上初始化 | XPC 回调与 MainActor 死锁（本地不复现） | 测试用 async 初始化；CI 脚本添加 `xcrun simctl erase`；Issue #599 追踪 |
 | XCTestCase setUp/tearDown + defaultIsolation(MainActor) | 隔离域冲突：MainActor 方法覆盖 nonisolated 基类方法 | 优先用 Swift Testing @Test；XCUITest target 覆盖 OTHER_SWIFT_FLAGS 移除 `-default-isolation MainActor`（PR #598 实现） |
 | 本地测试全绿就推 CI | CI 环境差异（残留数据、资源限制、进程状态）暴露本地无法覆盖的问题 | push 后 `gh pr checks --watch` 等待 CI 通过再推进下一任务 |
-
-## 多 Profile 陷阱
-
-| 陷阱 | 后果 | 正确做法 |
-|---|---|---|
-| Profile 切换后 ViewModel 持有旧 Profile 的数据 | 显示错误 Profile 的题目 | 切换 Profile 时重建 ViewModel 或刷新数据源 |

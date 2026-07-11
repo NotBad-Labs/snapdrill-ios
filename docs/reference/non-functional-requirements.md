@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-12
+last_verified: 2026-07-11
 layer: pattern
 freshness:
   max_age_days: 180
@@ -86,7 +86,7 @@ freshness:
 |---|---|
 | **正面字号** | 用户在设置中通过滑杆调整（默认 32pt，范围按代码实现） |
 | **反面字号** | 独立设置（默认 16pt，与正面互不影响） |
-| **存储** | `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)`，Per-Profile 隔离 |
+| **存储** | `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)`，设备级偏好 |
 | **关系** | **与 Dynamic Type 互不依赖**——复习卡片正反面是阅读体验核心，需用户精细控制；Dynamic Type 仅影响装饰性数字（统计、印章） |
 
 ## 可靠性

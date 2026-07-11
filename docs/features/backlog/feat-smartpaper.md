@@ -15,7 +15,7 @@ intent_refs:
 
 # Feature: 智能组卷（SmartPaper · Pro）
 
-> 人读摘要：🛠 **免费基础组卷已接通并从 Library 正常浏览态可达**：免费用户可从题库右上角「智能组卷」入口进入，按分类过滤 + 随机抽取生成资料集，按当前 Profile 本地自然月限次（3 次/月），打开预览不扣配额，分享/打印完成后每次生成最多扣 1 次；配额耗尽以非阻断 Toast 做中性 Pro 引导，不影响资料库手动导出/分享/打印。**Pro 精准组卷**（无限生成 + SM-2 精准选题）仍等待 StoreKit #479，因此本 spec 为 `status: in-progress`、`blocked_by: [479]`，而非全量 implemented。
+> 人读摘要：🛠 **免费基础组卷已接通并从 Library 正常浏览态可达**：免费用户可按分类过滤 + 随机抽取生成资料集，设备本地自然月限次（3 次/月）；打开预览不扣，分享/打印完成后每次生成最多扣 1 次。Pro 精准组卷仍等待 StoreKit #479。
 > 派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / architecture 聚合（docs 重组 B）。
@@ -35,15 +35,14 @@ intent_refs:
 - **输出格式**：PDF（去答案模式 / 留白答题区 / 页眉页码），复用现有导出管线。
 - **与高级统计联动**：可从薄弱排行一键进入智能组卷（Analytics → Smart Paper），联动仅传题目 ID。
 - **配额机制（防焦虑铁律）**：免费配额按自然月重置；耗尽后展示 Pro 引导但**不阻断**已有手动导出能力；文案中性（不红色/警告色、不倒计时、不显示「剩余 N 次」）；Pro 预览须明确标「Pro 功能预览」；引导 Toast ≤3 秒自动消失，不用 Modal 阻断。
-- **边界 / 不做**：仅在当前 Profile 题库范围内选题，**不跨 Profile**；不在免费层完全锁死（限次体验是转化关键）；不向 Anki 式记忆工具靠拢；组卷入口不得压过采集与题库。
+- **边界 / 不做**：只从唯一资料库当前候选集选题；不在免费层完全锁死；组卷入口不得压过采集与资料库。
 - **前置依赖**：依赖 `../active/feat-review.md` 产出的 SM-2 数据（`easeFactor` / `interval` / weakness 信号）驱动精准选题；依赖 PDF 导出管线（`PDFExportService`）排版输出；Pro 分支前置 StoreKit 入口（#479）。
 - **商业分层**：基础模板限次组卷 = 免费档；无限生成 + 精准选题 + 多版式 = Pro（Hybrid，ADR-001）。**当前 StoreKit #479 未接，`ProEntitlementProvider.isProUser` 硬编码 `false`，Pro 分支入口保留、门后"敬请期待"，首版全球版 TestFlight 纯免费、不可购买/测试 Pro。**
 
 ## 3. 技术设计 (How) — 仅浓缩已落档机制，未实现 Pro 分支不编造
 - **模块归属**：`SnapDrillFeatureLibrary/SmartPaperView` + `SmartPaperViewModel`；入口位于 `LibraryView` 正常浏览态右上工具栏（非编辑/多选导出路径，免费用户可见）；选题策略复用 `SnapDrillCore` 的 `ReviewScheduler` + `SM2State`（基于 SM-2 数据驱动）；排版/导出复用 `SnapDrillCore/Service/PDFExportService` 管线（不重新实现 PDF 引擎）；Pro gating 经 `ProEntitlementProvider` 接入 StoreKit。新增 `@Model` 类型：无（复用既有题目与 `SM2State`）。
-- **关键机制 / 数据流**：选题 → 生成题目快照 → PDF 预览（去答案 / 留白答题区 / 页眉页码）→ 分享/打印/保存。选题结果与 PDF 导出复用**同一份题目快照**，确保「预览—打印—分享」三步内容一致。免费配额计数为按 Profile 隔离的本地状态，不跨设备同步。
-  - 免费层：`SmartPaperViewModel` 使用当前 Profile 题库 + 选定分类值做候选集，随机抽取至 `questionCount`；打开 PDF 预览前只检查 `freeMonthlyQuota = 3`，实际分享/打印完成后由 `ExportPreviewView.onExport` 调用 `consumeFreeQuota()` 扣减；同一次预览多次导出最多扣 1 次，计数写入 `UDKey.smartPaperFreeQuotaMonth` / `UDKey.smartPaperFreeQuotaUsed`。
-  - Profile 隔离：配额键纳入 `ProfileManager.perProfileKeys`，随 Profile 偏好保存/切换/清理一起搬运，避免跨 Profile 串用。
+- **关键机制 / 数据流**：选题 → 生成题目快照 → PDF 预览 → 分享/打印/保存。免费配额是设备级本地状态，不跨设备同步。
+  - 免费层：`SmartPaperViewModel` 使用资料库 + 选定分类值做候选集；实际分享/打印完成后扣减，同一次预览最多扣 1 次，计数写入 `UDKey.smartPaperFreeQuotaMonth` / `UDKey.smartPaperFreeQuotaUsed`。
   - Pro 层：`isProUser == true` 时仍走 `ArchiveRepository.fetchSmartSelection(...)`（SM-2 排序），且不消耗免费配额；真实购买状态待 #479 接入。
 - **State & Concurrency**（Swift 6 strict）：组卷 View 由 `@Observable` 的 `SmartPaperViewModel`（`@MainActor`）驱动（业务编排走 ViewModel，符合"复杂写/编排流程"例外）；SM-2 数据查询与题目读取经 Repository → `DataExecutor`（actor）落库/取数，不阻塞主线程；PDF 批量渲染按 NFR 用 `autoreleasepool` 逐页释放防 OOM。
   - *注*：Pro 精准选题打分细节与多版式实现待 #479 解阻后补；本段仅锁定已落档的模块归属与并发约束，不展开未实现的算法权重公式。
@@ -51,15 +50,15 @@ intent_refs:
 
 ## 4. 验证标准 (Verify) — GWT 风格；Pro 分支当前不作回归基线
 - **Success path (GWT)**：
-  - 免费档（可达基线）：Given 当前 Profile 有足够题目（建议 ≥10）且本自然月配额未耗尽，When 用户选定分类范围与目标题数并触发组卷，Then 系统按随机策略选题并复用导出管线生成 PDF 预览，不立即扣配额；When 用户在该预览中完成分享或打印，Then 消耗 1 次本 Profile 免费配额，同一预览多次导出不重复扣减。
+  - 免费档（可达基线）：Given 资料库有足够题目且本自然月配额未耗尽，When 用户触发组卷并完成分享或打印，Then 消耗 1 次设备级免费配额，同一预览不重复扣减。
   - Pro 档（**当前不可达、不作代码/测试回归基线**，待 #479）：When Pro 用户选精准选题，Then 按 SM-2 weakness + recency + 动态维度筛选选题并支持多版式。
 - **边界 / 异常**：
   - 免费配额耗尽 → 展示中性 Pro 引导 Toast，**不阻断**已有手动导出能力。
   - 题目不足 → 提示题库数量不够，建议先录入更多题目。
   - PDF 生成失败 → 提示失败原因，**保留选题结果可重试**。
   - 用户取消预览 → 不消耗免费配额，选题结果不持久化，下次进入需重新选题。
-- **数据保证**：仅在当前 Profile 题库范围内选题，不跨 Profile；选题结果与 PDF 导出复用同一份题目快照（三步内容一致）；免费配额计数按 Profile 隔离、为本地状态、不跨设备同步；「薄弱排行 → 智能组卷」联动仅传题目 ID，不携带跨 Profile 数据。
-- **回归测试**：`SmartPaperViewModelTests` 覆盖免费随机选题、打开预览不扣配额、导出后扣减、同一预览多次导出只扣一次、Pro 精准排序不消耗免费配额、3 次/自然月配额与月重置；`ProfileManagerPreferenceTests` 覆盖 SmartPaper 配额键进入 per-profile 清理链与磁盘 Profile 切换往返。
+- **数据保证**：选题结果与 PDF 导出复用同一份题目快照；免费配额为设备级本地状态；联动仅传题目 ID。
+- **回归测试**：`SmartPaperViewModelTests` 覆盖随机选题、预览不扣、导出扣减、同一预览只扣一次、Pro 分支、月配额与月重置。
 - **NFR**：PDF 批量导出内存 < 200MB（`autoreleasepool` 逐页释放）。其余精准选题性能/埋点指标待 Pro 分支实现后补。
 
 

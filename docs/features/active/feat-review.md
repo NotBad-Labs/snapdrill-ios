@@ -56,7 +56,7 @@ intent_refs:
   - **软删除 × 回顾队列**：资料软删除（5s undo 窗口）→ 立即从到期队列移除；undo 恢复 → 回顾状态一并恢复；过窗口永久删除 → 其 `ArchiveItemModel` 随资料级联清理。
     - **⚠ 实现现状（GAP-R1，代码债）**：当前 `ReviewViewModel.loadDataAsync()` 已在加载队列时排除 `DeletionScheduler.pendingDeletionIDs`；但 `.reviewing` 期仍忽略 `reviewDataDidChange` 通知，进行中会话不会被外部删除即时打断。需求不变（应避免已删除资料继续处理），待后续 ViewModel 契约修复。
   - 单题状态更新失败 → 阻止标记"已完成本轮"，提示重试，避免**假完成**。
-- **数据保证**：只更新当前 Profile 下被评估资料的回顾状态、不改资料主内容；每次评估只落库一次（重复手势/点击不得双重更新）；结果摘要必须与本轮成功提交的评估一致。
+- **数据保证**：只更新被评估资料的回顾状态、不改资料主内容；每次评估只落库一次；结果摘要与成功提交一致。
 - **NFR**：卡片大图用降采样加载（`loadDownsampledImage`）控制延迟与内存；因每次评估即时落库，**中途退出不丢已评估进度**（仅未评估题保留到期）。
 
 ## 5. Review flagship polish checklist (2026-06-17)

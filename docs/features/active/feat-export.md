@@ -41,7 +41,7 @@ intent_refs:
 - **模块归属**：PDF 渲染/排版管线 `SnapDrillCore/Service/PDFExportService`（统一 PDF 引擎，注入于 `ServiceContainer.pdfExport`）；打印呈现走 `SnapDrillUI/PrintPresenting` adapter（生产默认 `LivePrintPresenter`，内部使用 `UIPrintInteractionController`，iPad 需要有效 anchor）。
   - **实现现状（GAP-R5 已接入，剩余 dogfood）**：`LibraryDetailView` 单题快速打印生成 PDF 后调用 `PrintPresenting.present(...)`；`ExportPreviewView` 的批量打印同样通过 `PrintPresenting`。旧 spec 所称"经 ShareSheet 间接打印、尚未接入 `UIPrintInteractionController`"已过期。剩余真实缺口是无 AirPrint 打印机 / 真机 AirPrint 三态 dogfood 尚未完成。
 - **关键机制 / 数据流**：题库过滤/选中结果集 → 题目快照 → PDFExportService 排版（去答案 / 留白 / 页眉页码为布局选项）→ 生成 PDF → 预览 → 分享/保存/打印。智能组卷、Word 导出均**复用同一 PDF 管线，不重新实现 PDF 引擎**（单一职责）。ShareCard 例外：用 SwiftUI `ImageRenderer`，不走 PDFExport 管线。
-- **State & Concurrency**（Swift 6 strict）：导出/打印为只读编排。批量 PDF 渲染**逐页包 `autoreleasepool` 释放**控制峰值内存（防 OOM）；重活不阻塞主线程。PDF 导出预览经 `AppActivityTracker.begin(.exporting) → end(...)` 标记活动；单题快速打印与预览页打印经 `AppActivityTracker.begin(.printing) → end(...)` 标记活动——期间禁止切换 Profile（互斥），UI 显示对应忙碌提示。
+- **State & Concurrency**（Swift 6 strict）：导出/打印为只读编排。批量 PDF 渲染逐页包 `autoreleasepool`；导出与打印通过 `AppActivityTracker.begin/end` 成对记录应用级活动。
   - **实现现状（GAP-R4 已接入，剩余 caveat）**：旧 spec 所称"快速打印未接入 tracker、`.printing` 生产代码零调用"已过期。当前剩余真实缺口是 `LibraryEditViewModel.save()` 仍使用 `.capturing` 标记编辑保存，需后续判断是否改为更准确的活动类型；另外真机 AirPrint dogfood 尚未完成。
 - **设计裁决（仅本模块）**：
   - **去答案是布局层操作**（隐藏答案文字字段后排版），不触碰原题答案数据，与图片层的 Pro 图片处理增强技术路径完全分离。
@@ -49,14 +49,14 @@ intent_refs:
 
 ## 4. 验证标准 (Verify)
 - **Success path (GWT)**：
-  - Given 当前 Profile 下有可导出题目，When 在题库经搜索/过滤形成结果集并发起 PDF 导出，Then 系统生成导出前预览；用户可选去答案/留白/页眉页码，确认后生成 PDF 并提供预览、分享、保存（UC5）。
+  - Given 资料库有可导出资料，When 经搜索/过滤形成结果集并发起 PDF 导出，Then 系统生成预览；用户确认选项后可分享、保存或打印（UC5）。
   - Given 选中单题或多题，When 发起快速打印并选择每页题数（1/2/4），Then 调用系统打印（UC5）。
 - **边界 / 异常**：
   - 导出结果集为空 → 不生成空文件，提示"无可导出题目"（UC5 Exception）。
   - 文件写入失败 / 磁盘空间不足 → 不提示导出成功；已生成临时文件必须清理（UC5 Exception / Boundary B07）。
   - 无 AirPrint 打印机 → 停留在打印前状态并给出失败反馈，不得误记为已打印（UC5 Exception）。
 - **数据保证**：
-  - PDF 内容必须来自当前过滤结果或当前选择结果，**不得夹带其他 Profile 题目**。
+  - PDF 内容必须来自当前过滤结果或当前选择结果。
   - 去答案模式只影响导出内容，**不改动原题答案数据**。
   - 导出与打印是**只读操作**，不得修改题目主数据、复习状态或统计。
 - **NFR**：
@@ -81,7 +81,7 @@ intent_refs:
 
 ### C. 活动追踪与隐私
 
-- 导出、分享、打印、备份等长任务必须通过 `AppActivityTracker` 阻止 Profile 切换等破坏性操作。
+- 导出、分享、打印、备份等长任务必须成对记录 `AppActivityTracker` 状态。
 - PDF 渲染应使用 autoreleasepool 防 OOM；导出内容不得重新引入图片 EXIF GPS/位置信息。
 
 ### D. Enforcement

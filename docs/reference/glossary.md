@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-22
+last_verified: 2026-07-11
 layer: pattern
 ---
 # SnapDrill 术语表
@@ -31,7 +31,7 @@ layer: pattern
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **资料空间 (Profile)** | Profile / Workspace | 独立的本地资料库 / 工作区，每个 Profile 拥有独立的资料库、回顾进度、字段配置和统计数据。用户可见中文优先用“资料空间”，代码和英文界面保留 Profile / Workspace。 | `Profile` struct (Core), `ProfileManager` (Data) |
+| **个人资料** | Personal Profile | 头像、昵称、个人备注、每日回顾目标等全局个性化偏好。它不是账号，也不创建第二个资料库。 | `EditProfileView`, `UDKey.userName` 等 |
 | **基线用户** | Baseline User | 不熟悉专业扫描 / 归档工具的成年用户（假设，待首批用户画像验证，见 `../explanations/assumptions.md` H1）。所有设计决策以此用户能否顺利完成为最低标准 | — |
 | **图片是真相** | Image is Truth | 当 OCR 文本与原图冲突时，以原图为准。原图是资料项的唯一真相源 | `ArchiveItemModel.imagePath` (Data) |
 | **.zip 备份** | .zip Backup | App 备份文件格式（ZIP 内含 JSON 数据 + 图片文件）；线格式合同见 `backup-wire-format.md` | `BackupService` (Data) |
@@ -50,7 +50,7 @@ layer: pattern
 
 ### SmartPaper 域保留词
 
-PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库 / 资料空间”，但 SmartPaper 是生成练习卷的功能域，域内保留以下术语：
+PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库”；2026-07-11 取消多资料空间。SmartPaper 是生成练习卷的功能域，域内保留以下术语：
 
 | 术语 | 英文 | 使用边界 |
 |---|---|---|
@@ -64,11 +64,10 @@ PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库 / 资料
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **Dashboard** | Dashboard | 首屏状态总览界面，展示当前 Profile 的资料统计（总数、待回顾数）、回顾快捷入口和用户问候语 | `DashboardView` (Features) |
+| **Dashboard** | Dashboard | 首屏状态总览界面，展示唯一资料库的资料统计（总数、待回顾数）、回顾快捷入口和用户问候语 | `DashboardView` (Features) |
 | **Onboarding** | Onboarding | 首次启动多页引导流程（3-4 页），介绍核心功能（采集/回顾/导出），完成后不再显示 | `OnboardingView` (UI) |
 | **回顾卡片** | Review Card | 正反面翻转式卡片，正面展示资料内容（图文），背面展示答案/备注。用户通过滑动或按钮评估掌握程度 | `ReviewCardFront` / `ReviewCardBack` (Features) |
 | **标签** | Tag | 多选资料分类维度（如"重点""考前"），支持过滤和批量操作 | `CategorySystemKey.tag`, `CategoryValueModel` (Data) |
-| **Profile 切换** | Profile Switch | 用户在多个独立资料库间切换，各 Profile 拥有独立数据库和统计 | `ProfileManager.switchProfile(to:)` (Data) |
 
 ---
 

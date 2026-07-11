@@ -87,7 +87,7 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 
 - `DependencyContainer.shared` App 启动时初始化
 - Core service 全部经 `ServiceContainer` 注入（14 属性：analytics / pdfExport / appConfig / privacyConsent / notification / ocr / captureDraft / contentTagging / questionSplitting / deletionScheduler / proEntitlement / activityTracker / reviewScheduler / metricService）
-- Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`（典型例外：`ImageStorage`）
+- 唯一资料库由 `LibrarySession` 持有 `ModelContainer` / `RepositoryContainer` / `ImageStorage`
 - `DataExecutor` 是 actor 拥有 `ModelContainer`，`createOffMainActor()` 消除 MainActor + XPC 死锁（#599）
 - 静态 facade 显式豁免清单：`TelemetryGate` / `ZIPArchiver` / `ImageStorage` / `OnboardingManager` / `DependencyContainer.shared`
 
@@ -98,7 +98,7 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 | 4 个 SPM Package（Features 含 5 个 feature target） | 编译隔离 + 依赖方向强制 + 模块独立测试 |
 | SwiftData 而非 Core Data | iOS 26+ 原生 Swift 集成 |
 | `defaultIsolation(MainActor)` | xcconfig 全局 + `-default-isolation MainActor`，减少并发标注噪音 |
-| Multi-Profile Vault 模式 | 每个 Profile 独立 ModelContainer + 图片目录 + per-profile UserDefaults |
+| 单一资料库 | `LibrarySession` 生命周期内固定 ModelContainer + 图片目录；不做 Profile 分区或旧布局迁移 |
 | Soft Delete + Undo | `DeletionScheduler` 管理 5 秒撤销窗口 |
 | 零后端行为采集 | Firebase 已删除；生产注入 NoOp analytics，设备诊断使用端侧 MetricKit |
 
@@ -129,7 +129,7 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 ### DO
 
 - 改代码前用 `Grep` / `Read` 确认 API 真实存在
-- 采集 / 导出 / 备份流必须 `AppActivityTracker.begin(...)` → ... → `end(...)`，否则 Profile 切换不被阻塞
+- 采集 / 导出 / 备份流必须 `AppActivityTracker.begin(...)` → ... → `end(...)`，保持应用级长操作状态成对闭合
 - 图片加载用 `loadImageAsync()` / `loadDownsampledImage()`
 - Repository 保存用 `insertAndSave()`；或 `insert()` + `saveContext()`，失败必须 `rollbackContext()`
 - 跨模块刷新发 `Notification.Name.reviewDataDidChange`

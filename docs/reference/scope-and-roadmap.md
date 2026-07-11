@@ -24,7 +24,7 @@ layer: pattern
 - 搜索和过滤
 - 导出（PDF / JSON / CSV）
 - 本地数据存储（隐私优先）
-- 多 Profile（多套独立资料库 / 工作区隔离场景）
+- 单一资料库（固定本地 store + 图片目录 + 恢复边界）
 - 草稿恢复（S0 数据丢失防护）
 - 删除撤销（数据安全信任）
 
@@ -125,10 +125,10 @@ layer: pattern
 - 智能组卷 / Smart Paper（Hybrid：免费限次 + Pro 无限；SM-2 驱动选题 → 自动排版 → PDF/打印，ADR-001）
 
 **同步与存储**
-- iCloud CloudKit 同步（Pro 付费，**付费核心引擎**）：同步范围为全部 Profile（与备份策略对齐），基于 Apple CloudKit，利用设备已有 Apple ID。设计决策见 [../features/backlog/feat-icloud-sync.md](../features/backlog/feat-icloud-sync.md) [阻塞: #485（前置 #479）— 需 CloudKit Container]
+- iCloud CloudKit 同步（Pro 付费，**付费核心引擎**）：同步唯一资料库，基于 Apple CloudKit 与设备 Apple ID。设计见 [../features/backlog/feat-icloud-sync.md](../features/backlog/feat-icloud-sync.md) [阻塞: #485（前置 #479）]
 
-**多 Profile**
-- 多 Profile / 多题库隔离（本地切换，参考 Obsidian Vault 切换，覆盖多套独立资料库 / 工作区场景）
+**单一资料库**
+- 唯一资料库由 `LibrarySession` 管理；不同项目通过动态 taxonomy 组织，不提供工作区切换
 
 **设置与个性化**
 - 用户资料（昵称/座右铭/头像/每日目标，纯本地）
@@ -142,7 +142,7 @@ layer: pattern
 **引导与帮助**
 - 多页 Onboarding（功能介绍，不含字段选择）
 - 首次录入后字段配置引导
-- Feature Tooltips（首次使用提示；TipKit 按 Profile 隔离）
+- Feature Tooltips（设备级首次使用提示）
 - 帮助中心（外部网页 FAQ 链接）
 
 **隐私与合规**

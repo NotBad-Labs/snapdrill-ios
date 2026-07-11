@@ -33,19 +33,18 @@ intent_refs:
 - **语言设置**：App 内直接切换中文/英文，不依赖系统设置。
 - **存储维护**：媒体缓存清理——只清 App 运行产生的临时文件（OCR 临时图片、PDF 渲染缓存），不触碰用户题目数据。
 - **匿名遥测开关**：单一开关保存本地 `TelemetryGate` 同意状态，默认关闭。全球生产环境注入 `NoOpAnalyticsService`，因此打开开关也不会记录或发送逐事件行为；Firebase SDK 已删除，当前没有海外版恢复计划。端侧 MetricKit 是独立设备诊断能力，不受此开关控制（ADR-005）。
-- **设置页承载的其他入口（深度/合规）**：字段管理器（系统字段开关 + 选项 CRUD，详见 `feat-library.md`）、Profile 管理入口（`feat-profile.md`）、隐私设置页的 JSON/CSV 导出（`feat-export.md`）、手动备份/恢复入口（`feat-backup.md`）、帮助中心外链（外部网页 FAQ）、卸载数据丢失提醒、关于（隐私政策 / 服务条款 / 开源许可展示）。
+- **设置页承载的其他入口（深度/合规）**：字段管理器（系统字段开关 + 选项 CRUD，详见 `feat-library.md`）、个人资料、隐私设置页的 JSON/CSV 导出、手动备份/恢复、帮助中心、卸载数据丢失提醒、关于与法律文档。
 - **边界 / 不做**：不在 App 内构建帮助搜索系统（仅外链 FAQ）；角色预设套件仅作设置页可选模板入口、**不进入 Onboarding**（不增加首次配置摩擦）；用户资料不外传、不做账号体系。
-- **前置依赖**：无。设置是承载入口的容器层，所托管的导出/备份/Profile/字段管理各自有独立 feature spec。
+- **前置依赖**：无。设置是承载入口的容器层，导出/备份/字段管理各自有独立 feature spec。
 - **商业分层**：设置与个性化整体属**免费层**，无付费墙。匿名遥测开关与 Pro 无关；当前生产环境没有后端遥测实现。定价见 `../../explanations/business-model.md`。
 
 ## 3. 技术设计 (How)
-- **模块归属**：`Packages/SnapDrillFeatures/SnapDrillFeatureSettings`（依赖 Library）。通知能力经 `SnapDrillCore` 的 `NotificationServiceProtocol`（ServiceContainer 注入）；复习卡片字号经 `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)`，Per-Profile 隔离。
+- **模块归属**：`Packages/SnapDrillFeatures/SnapDrillFeatureSettings`（依赖 Library）。通知能力经 `NotificationServiceProtocol` 注入；复习卡片字号经设备级 `@AppStorage` 保存。
 - **关键机制 / 数据流**：
-  - 用户资料、复习目标、字段配置等 per-Profile 偏好由 `ProfileManager` 通过 `perProfileKeys` 机制管理（切换 Profile 时自动 save/load），存 per-profile UserDefaults。
-  - Onboarding 完成、VoiceOver 等设置为**全局状态**，不随 Profile 切换。
+  - 个人资料、复习目标、字段配置、Onboarding 与辅助功能设置均为设备级状态。
   - 通知权限延迟请求：仅在用户翻开提醒开关时触发系统授权弹窗；权限被拒后再次开启 → 引导跳转系统设置，不静默失败。
   - 媒体缓存清理只作用于 `Caches/` 临时文件，绝不触碰 `Documents/` 或 `Application Support/`。
-- **State & Concurrency**（Swift 6 strict）：设置页交互由 `@Observable` `SettingsViewModel`（`@MainActor`）与 `@AppStorage` 驱动；复杂写操作（CSV 导入、备份/恢复编排）在 ViewModel 内编排，落库经 Repository → `DataExecutor`（actor），不阻塞主线程。备份/恢复期间 `SettingsViewModel` 接入 `AppActivityTracker.begin/end` 以阻塞 Profile 切换。`SettingsViewModel` 是 `Notification.Name.reviewDataDidChange` 的发布方之一（字段/选项变更触发跨模块刷新）。
+- **State & Concurrency**（Swift 6 strict）：设置页由 `@Observable` `SettingsViewModel` 与 `@AppStorage` 驱动；CSV 导入、备份/恢复落库经 Repository → `DataExecutor`。长操作成对记录 `AppActivityTracker.begin/end`。
 - **设计裁决（仅本模块）**：外观提供"跟随系统 / 浅色 / 深色"三选项——HIG 建议跟随系统，但三选项是行业惯例（Telegram / Bear / Notion），Apple 不因此拒审；本裁决仅限外观设置、不外推。
 
 ## 4. 验证标准 (Verify)
@@ -56,7 +55,7 @@ intent_refs:
 - **边界 / 异常**：
   - 通知权限被系统拒绝后再次开启提醒开关（B21）→ 提示权限已被拒绝并引导跳转系统设置；不发送本地通知。
   - 媒体缓存清理（B23）→ 只清 `Caches/` 临时文件，绝不删除题目原图、备份文件或 SwiftData 数据（S0）。
-- **数据保证**：用户资料/偏好纯本地存储、不外传（与 PV-4 / P4 一致）；缓存清理对题目数据零影响（任何缓存清理不得导致题目原图、备份、SwiftData 数据丢失）；per-Profile 偏好仅作用于当前 Profile，切换时正确 save/load 互不污染。
+- **数据保证**：个人资料/偏好纯本地存储、不外传；缓存清理不得删除资料原图、备份或 SwiftData 数据。
 - **NFR**：VoiceOver 全模块覆盖（含 Settings）所有常见任务可完成；复习卡片自定义字号为 App 独立设置（非 Dynamic Type），范围按代码实现；全球生产环境不含 Firebase 或其他第三方分析/崩溃 SDK，逐事件调用由 NoOp 服务丢弃（ADR-005）。
   - **文案约束**：Settings 与隐私政策文案必须继续与发布构建、Privacy Manifest、App Store Privacy 标签及律师审查一致；不得声称当前版本会自动发送使用分析、崩溃报告、题目内容或设备明细。
 
@@ -67,7 +66,7 @@ intent_refs:
 
 - Settings 中每个 toggle、sheet、导航项必须表达真实行为；无实现或无副作用的控件不得伪装成已启用功能。
 - 设置项保存失败必须用户可见；不能只写日志或静默恢复旧值。
-- 资料库/Profile 切换入口只负责呈现和路由，实际隔离契约见 `docs/features/active/feat-profile.md`。
+- 个人资料入口只编辑全局个性化偏好，不创建数据分区；资料库契约见 `feat-local-library.md`。
 
 ### B. 诊断与隐私
 
@@ -105,4 +104,4 @@ intent_refs:
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 7：备份 / 恢复；App 内语言切换贯穿各成人旅程）
 - 决策：`../../decisions/ADR-005-analytics-privacy-strategy.md`（全球生产零后端行为采集）
-- 相关 / 承载入口 feature：`feat-export.md`（JSON/CSV 导出）、`feat-backup.md`（备份/恢复）、`feat-profile.md`（Profile 管理）、`feat-library.md`（字段管理器）、`feat-review.md`（复习卡片外观字段口径）
+- 相关 / 承载入口 feature：`feat-export.md`、`feat-backup.md`、`feat-local-library.md`、`feat-library.md`、`feat-review.md`

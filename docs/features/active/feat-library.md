@@ -35,12 +35,12 @@ intent_refs:
 - **分享卡片（ShareCard）**：单题生成一张图片，用于用户间一对一样张交流；走系统 ShareSheet 保留路径自由，但 App 内 UI 文案不引导公开传播。
 - **边界 / 不做**：不做独立难度字段 / 星级难度筛选；不做回收站 / 多级撤销栈；不做批量编辑系统字段；分享卡片不做社交分享 / 社区 / 推荐算法；不提供题库内容（工具非内容平台）。**PDF / JSON / CSV / `.zip` 导出与打印是同级 / 独立 feature**，本 spec 不展开（见 `feat-export.md`）。
 - **前置依赖**：无。被依赖：复习（`feat-review.md`）、智能组卷（`../backlog/feat-smartpaper.md`）、高级统计（`../backlog/feat-advanced-stats.md`）消费本 feature 的题目 / 分类 / 过滤数据；导出（`feat-export.md`）以题库过滤 / 选中结果集为输入。
-- **商业分层**：搜索 / 动态维度过滤 / 排序 / 编辑 / 批量打标签 / 批量删除 / 字段配置 / 单题分享卡片 / Multi-Profile = **免费基础能力，不作订阅门槛**（单设备资料库完整可管理，多套独立资料库可直接使用）。本 feature 无 Pro 项；SM-2 数据驱动的智能组卷 / 高级统计是 Pro（在各自 feature 展开，定价见 `../../explanations/business-model.md`）。
+- **商业分层**：搜索 / 动态维度过滤 / 排序 / 编辑 / 批量打标签 / 批量删除 / 字段配置 / 分享卡片均为免费基础能力。本 feature 无 Pro 项。
 
 ## 3. 技术设计 (How)
 - **模块归属**：`SnapDrillFeatureLibrary`（题库列表 / 搜索 / 过滤 / 详情 `LibraryDetailView` / 编辑 `LibraryEditViewModel` / `LibraryViewModel`）。`@Model` 类型 `ArchiveItemModel` / `CategoryDimensionModel` / `CategoryValueModel` 定义在 `SnapDrillData`，经 `ArchiveRepository` / `CategoryDimensionRepository` / `CategoryValueRepository` + `RepositoryContainer` 访问。删除窗口由 `DeletionScheduler`（App 级 Service，`SnapDrillCore`）管理。ShareCard 归 `SnapDrillFeatureLibrary/ShareCardView`。注意：备份 wire key `reviewItems` 与开发种子入口 `seedReviewItems` 是刻意保留的外部格式 / 调试入口名称，不代表主领域模型仍叫 `ReviewItem`。
 - **关键机制 / 数据流**：View（`@Environment(\.repositories)` 注入）→ ViewModel → Repository（封装 ModelContext）→ `DataExecutor`（actor）→ SwiftData `@Model`。Repository `insert()` 为纯内存操作，必须显式 `saveContext()` 才持久化；保存失败 `rollbackContext()`。跨模块刷新发 `Notification.Name.reviewDataDidChange`（`LibraryEditViewModel` 等为发布方，Dashboard / Review ViewModel 监听刷新）。软删除：`LibraryViewModel.softDeleteItems()` → `DeletionScheduler.scheduleDeletion(ids:executor:)` 注册 ID 集合 + 删除执行器并启动 5 秒倒计时，从列表临时移除；`undoDeletion()` 恢复、取消倒计时；`commitImmediately()` 在 App 进入后台时立即落删。批量删除复用同一套机制。ShareCard 用 SwiftUI `ImageRenderer`（iOS 16+），**不走 PDFExport 批量管线**（仅渲染单题，单一职责）。
-- **State & Concurrency**（Swift 6 strict）：题库 View 由 `@Observable` ViewModel（`@MainActor`）驱动；搜索 / 过滤 / 排序为内存视图操作，不改底层数据；编辑保存、批量打标签、删除等重活与落库经 Repository → `DataExecutor`（actor），不阻塞主线程。题库列表图片**按需 + 降采样加载**（`loadDownsampledImage`）控制滚动内存。Per-Profile 隔离：题库 / 字段配置 / 自动推断历史 / 排序偏好由 `ProfileManager` 按 Profile 切换重建 `ModelContainer` + `RepositoryContainer`。
+- **State & Concurrency**（Swift 6 strict）：资料库由 `@Observable` ViewModel 驱动；搜索/过滤/排序为内存视图；写操作经 Repository → `DataExecutor`。列表图片按需降采样，所有界面共享 `LibrarySession` 的 repositories。
 - **设计裁决（仅本模块）**：
   - **过滤维度取动态字段全集**：分类 / 来源 / 级别 / 标签 / 自定义属性走同一维度系统；不再为难度保留独立静态筛选器，避免产品重新滑回教育专用结构。
   - **无回收站、单级撤销**：误删用 5 秒软删除窗口兜底而非回收站（回收站增加信息架构复杂度，违 P2）；只撤销最近一次（奥卡姆剃刀）。
@@ -48,7 +48,7 @@ intent_refs:
 
 ## 4. 验证标准 (Verify)
 - **Success path (GWT)**：
-  - Given 当前 Profile 题库已有 ≥1 道题，When 进入题库，Then 默认按录入时间倒序展示当前 Profile 题目；可搜索（OCR 文字）、可按动态维度多选叠加过滤、可切换排序（UC2）。
+  - Given 资料库已有 ≥1 条资料，When 进入资料库，Then 默认按录入时间倒序展示；可搜索、按动态维度过滤并切换排序（UC2）。
   - Given 选中某题，When 进入编辑并改系统字段 / 标签 / 答案文字或图片后保存，Then 列表与详情反映更新结果；可只补答案 / 只改动态字段而不动主内容（UC2）。
   - Given 进入选择模式勾选多题，When 执行批量打标签，Then 目标标签追加到所选题目、不移除未触及的既有标签（UC2）。
   - Given 删除单题或多题，When 软删除并弹出 5 秒 Toast，Then 窗口内点撤销恢复最近一次删除的全部题目；未撤销超时永久删除，列表 / 统计 / 复习入口同步移除（UC3）。
@@ -65,7 +65,7 @@ intent_refs:
   - 编辑保存原子更新，失败保持旧数据不变；批量打标签对每个题目独立落库，不因单条失败回滚已成功项。
   - 软删除窗口内题目不得被其他功能当作正式可编辑记录修改；撤销成功后题目 ID / 元数据 / 图片 / 复习进度完整恢复；永久删除后题目主记录 / 图片引用 / 搜索索引 / 复习记录一致移除。
   - 重命名系统字段选项级联更新所有引用该选项的题目。
-  - 题目始终归属当前 Profile，搜索 / 过滤 / 编辑 / 删除 / 撤销不得跨 Profile 泄露或污染数据。
+  - 搜索 / 过滤 / 编辑 / 删除 / 撤销只操作唯一资料库的明确目标集合。
 - **NFR**：题库列表加载 < 500ms（200 题，Tab 切换到渲染完成）；搜索响应 < 300ms（输入到结果更新）；滚动 60fps（快速滚动无掉帧）；题库浏览内存 < 150MB（200 题，图片按需 + 降采样）。分享走系统分享 sheet（非 Analytics 事件）；无内置 `library_count` 事件（激活深度由 `review_item_created` 累计推导）。
 
 

@@ -6,13 +6,13 @@
 
 | 功能 | 状态 | 层级 | 阻塞 | 模式 | 最后更新 |
 |---|---|---|---|---|---|
-| [备份与 CSV 导入导出](../features/active/feat-backup.md) | ✅ 已实现 | 免费 | — | full | 2026-06-19 |
+| [备份与 CSV 导入导出](../features/active/feat-backup.md) | ✅ 已实现 | 免费 | — | full | 2026-07-11 |
 | [采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）](../features/active/feat-capture.md) | ✅ 已实现 | 免费 | — | full | 2026-06-30 |
 | [首页概览（Dashboard）](../features/active/feat-dashboard.md) | ✅ 已实现 | 免费 | — | full | 2026-06-30 |
 | [PDF 导出与打印](../features/active/feat-export.md) | ✅ 已实现 | 免费 | — | full | 2026-06-30 |
 | [题库管理 + 分享卡片](../features/active/feat-library.md) | ✅ 已实现 | 免费 | — | full | 2026-06-30 |
+| [单一资料库](../features/active/feat-local-library.md) | ✅ 已实现 | 免费 | — | full | 2026-07-11 |
 | [Onboarding 新手引导](../features/active/feat-onboarding.md) | ✅ 已实现 | 免费 | — | full | 2026-06-23 |
-| [Multi-Profile Vault（独立资料库）](../features/active/feat-profile.md) | ✅ 已实现 | 免费 | — | full | 2026-06-30 |
 | [回顾（SM-2 间隔调度）](../features/active/feat-review.md) | ✅ 已实现 | 免费 | — | full | 2026-06-25 |
 | [设置与个性化](../features/active/feat-settings.md) | ✅ 已实现 | 免费 | — | full | 2026-06-19 |
 | [智能组卷（SmartPaper · Pro）](../features/backlog/feat-smartpaper.md) | 🛠 进行中 | Pro | #479 | lightweight | 2026-07-01 |

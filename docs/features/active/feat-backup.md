@@ -5,116 +5,91 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-19
+last_updated: 2026-07-11
 intent_refs:
   - vision:P4
 ---
 
 # Feature: 备份与 CSV 导入导出
 
-> 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
-> 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
-> 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / tech 聚合（docs 重组 B）。
+> 人读摘要：已实现（免费）。派生自上方 frontmatter；状态总表由生成器维护，禁手改。
 
 ## 1. 为什么做 (Why)
-- **痛点 / 价值**：本地存储意味着 App 是用户数据的唯一守护者。免费用户没有 iCloud 同步，换机或卸载 = 数据永久丢失。`.zip` 手动备份是免费用户的生命线——让换机迁移成为可执行路径，确保数据可携带、不被平台锁定。
-- **定位**：`.zip` 是免费用户换机的数据迁移出口，**不是象征性导出**；CSV 导入定位为**数据可携带权场景**（从其他工具迁移进 SnapDrill），不是主推录入路径，不应在 UI 上与拍照同级展示。
-- **原则归属**：P4 数据属于用户（隐私是核心差异化）+ 其数据安全子条款「保存可靠、删除可撤销、备份可用」。导出/备份是「数据属于用户」的体现而非口号——可导出、可打印、可带走。详见 `../../explanations/vision.md`。
+
+- 本地存储意味着 App 必须给用户可靠的数据带走与恢复路径。ZIP 备份是完整恢复通道，CSV/JSON 是结构化数据可携带通道。
+- 备份、恢复、CSV 导入导出均为免费基础能力，不作为订阅门槛。
 
 ## 2. 需求规则 (What)
-- **手动备份**：`.zip` ZIP 文件，打包**全部 Profile**（题目主数据、图片、元数据、复习进度、配置性数据），通过系统分享面板导出。
-- **全 Profile 覆盖**：备份覆盖设备上所有 Profile，**不支持单 Profile 导出**（简化操作，避免用户漏备）。
-- **恢复安全规范**：仅在文件完整性与版本兼容性满足要求时执行恢复；不满足时必须**拒绝恢复且保持现有数据不变**。
-- **向后兼容规范（S0）**：`.zip` 是免费换机迁移出口，新版本 App 必须能恢复旧版本备份；任何违反该承诺并导致数据永久丢失的情形按 S0 处理。
-- **元数据原子 vs 图片 best-effort 差异化**：元数据（题目记录、字段配置、复习进度、Profile 列表）原子恢复（全成功或全回滚）；图片 best-effort 恢复，单张解压失败不阻断整体，缺图题目仍可恢复（OCR 文字保留），UI 显示「图片缺失」占位。
-- **CSV 导出**：结构化字段与 OCR 文本摘要，可用 Excel 打开，以实际导出字段清单为准；**双入口**——隐私设置页 或 题库导出面板。
-- **CSV 导入**：RFC 4180 合规导入，用于从其他工具迁移数据。
-- **边界 / 不做**：不做自动本地备份（增加存储负担）；不做云端备份（那是 Pro iCloud 同步的职责）；导入文件损坏/不可读时提示重新选择，不破坏现有数据。
-- **前置依赖**：无。备份/恢复经 `AppActivityTracker` 互斥保护（关键操作期间禁止切换 Profile）。
-- **商业分层**：`.zip` 手动备份/恢复 + JSON/CSV 导出/导入**全部免费**，不作为订阅门槛——付费解锁的是「增值体验」（多设备流转、图片处理增强、高级导出），不是「基础能力」。iCloud 自动同步是 Pro 的不同职责（定价见 `../../explanations/business-model.md`）。
+
+- **ZIP 备份**：打包唯一资料库的资料、动态分类维度、分类值、复习字段和图片，通过系统分享面板导出。
+- **恢复**：只接受当前 schema v3；先读 manifest 并验证版本，再读取 payload。旧 Profile schema 与未知 schema 直接拒绝，不做迁移。
+- **完整回滚**：恢复前在资料库 `Recovery/` 目录创建当前状态的持久 ZIP 安全网。数据库或图片阶段任一失败时，用该 ZIP 回滚资料、分类和可用图片；全流程成功后才清理。
+- **图片完整性**：用户主动备份遇到非法或缺失的引用图片必须失败，不产生“成功但不完整”的 ZIP；恢复在写库前校验 payload 引用的安全图片都存在于 ZIP。仅恢复前安全网允许跳过当前已缺失的图片，避免损坏库陷入备份/恢复死锁。
+- **路径与体积防护**：图片 entry 只接受安全的 `images/` 相对路径；单 entry 解压上限 50MB，图片总实际提取字节上限 1GB。超限抛可捕获错误并触发回滚。
+- **CSV 导出**：导出结构化字段与 OCR 文本；以 `=+-@` 开头的 cell 前加 tab，防止电子表格公式注入。
+- **CSV 导入**：用于从其他工具批量迁移资料；内置维度通过稳定 `systemKey` 跨语言匹配，自定义列可生成动态维度。
+- **边界**：不做自动本地备份、不做云端备份；CloudKit 同步是独立的 Pro backlog。
 
 ## 3. 技术设计 (How)
-- **模块归属**：
-  - 备份引擎 `SnapDrillData`（`BackupService` 做 `.zip` 备份/恢复，actor 隔离；`BackupDTO` 备份数据传输对象；依赖 `ZIPFoundation`）。
-  - Schema 版本判定走 `MigrationPlan`（SwiftData Schema 版本迁移）/ `ProfileMigration`（Profile 结构迁移，老版本升级）。
-  - CSV 解析 `SnapDrillFeatureSettings/CSVParser.swift`（RFC 4180，enum 纯函数，与 ViewModel 状态分离）；JSON/CSV 导出 `SnapDrillFeatureSettings/DataExporter.swift`（含 `=+-@` 前缀防注入）；导入流程编排 `SettingsViewModel.swift`（解析 + 字段映射 + 写入 repository）。
-- **关键机制 / 数据流**：
-  - `.zip` 备份包必须包含 Schema 版本号、Migration Plan 等元数据，供恢复流程判定直接导入 / 触发本地迁移 / 拒绝恢复。
-  - **恢复前校验**：先验证文件可读性、结构完整性、版本兼容性，校验失败直接拒绝并保持现有数据不变。
-  - **恢复前安全网（自动备份）**：执行恢复前自动将当前数据快照到沙盒临时目录（带时间戳的 `.zip`），失败时一键回滚到操作前状态；成功后保留临时备份至下次启动自动清理。用户看不到此步，但失败 Alert 文案明确告知「您的原数据已自动备份在内部临时目录」。
-  - **多 Profile 提交策略**：`SettingsViewModel.restoreFromBackup` 按 Profile sequential 提交（逐个 Profile DB → 图片）；自动备份回滚仅对当前活跃 Profile 有效。**多 Profile 全局原子恢复待实现**（追踪：未来增量 issue）。
-  - **CSV 注入防护（导出）**：导出 CSV 时以 `=+-@` 开头的值前加 tab。
-  - **CSV 解析（导入）**：严格 RFC 4180——引号转义、CRLF/LF 兼容、字段数不匹配则整行拒绝并提示用户。
-    - **⚠ 实现现状（GAP-R6，代码债）**：当前 `CSVParser` 按表头列尽力映射（缺列填空、多列丢弃），**未对字段数不匹配做严格校验与整行拒绝/提示**。需求不变（数据完整性优先，严格拒绝 + 提示哪些行被拒），待 code 债修复。
-- **State & Concurrency**（Swift 6 strict）：备份/恢复流程由 `SettingsViewModel`（`@Observable`，`@MainActor`）编排；`.zip` 打包/解包重活在 `BackupService`（actor 隔离）执行，不阻塞主线程；单 Profile 内 DB 恢复经 `RepositoryContainer` 单次 saveContext（失败 rollback）。`CSVParser` 为无状态纯函数层，与 ViewModel 状态分离。
-- **设计裁决（仅本模块）**：恢复目标是「完整成功或完整失败」，当前实现达成**单 Profile 维度原子**（DB 事务原子 + 图片 best-effort），**多 Profile 全局原子事务尚未实现**——这是已知与目标的差距，单 Profile 安全网兜底，不外推为已达成全局原子。
+
+- `BackupService`（actor）负责 ZIP 创建、manifest/payload 提取、图片暂存和原子提交；依赖 ZIPFoundation。
+- `BackupManifest.currentSchemaVersion == 3`。`data.json` 顶层直接包含：
+  - `reviewItems`
+  - `dimensions`
+  - `categoryValues`
+- 图片以 DTO 中的安全相对路径直接写入 ZIP，例如 `images/<uuid>.jpg`，不含 Profile ID 或目录层。
+- `SettingsBackupCoordinator` 负责编排：版本/payload/图片完整性预检 → 持久安全网备份 → DB 替换 → 图片暂存/提交 → 失败回滚 → 成功清理。
+- `RepositoryContainer.restore(from:)` 在一次 save 中替换资料与 taxonomy；失败 rollback context。
+- 图片恢复先将全部 entry 写入 staging 目录，再逐文件替换目标；提交失败由外层持久 ZIP 回滚。SwiftData 与文件系统无法共享单一事务，进程在 DB 提交后、图片提交前被强杀仍是已知 P2 窗口；遗留 Recovery ZIP 的启动时呈现与清理策略待后续专刀。
+- 解压总量按实际提取字节累计，不信任 ZIP header 的 `uncompressedSize`；header 仍用于单 entry 提前拒绝。
+- CSV 解析与导入由 Settings feature 负责；当前 parser 对字段数不匹配仍是 best-effort 映射，严格 RFC 4180 行拒绝与错误摘要是已知缺口。
 
 ## 4. 验证标准 (Verify)
-- **Success path (GWT)**：Given 设备存在至少一个含数据的 Profile，When 用户在设置发起手动备份，Then 系统打包全部 Profile（题目、图片引用、元数据、复习进度）为 `.zip` 并交用户保存/分享；Given 用户持有 `.zip`，When 选择文件发起恢复且校验（可读性/结构完整性/版本兼容性）通过，Then 导入全部 Profile 数据，题库 / Dashboard / Review / 设置与备份内容一致。
-- **边界 / 异常**：
-  - 备份文件损坏/不可读 → 拒绝恢复，现有本地数据完全不变（Boundary B04, S0）。
-  - 备份版本高于当前 App → 拒绝恢复并提示版本不兼容、建议升级 App（Boundary B09）。
-  - 备份版本低于当前 App 但在兼容范围内 → 允许迁移恢复；失败时不得破坏现有本地数据。
-  - 恢复写入中途失败 → 提示恢复失败、尽力回滚；目标不留半恢复状态，当前图片为 best-effort，可能 DB 有记录但图片缺失，须在结果摘要明确提示（Boundary B05, S0）。
-  - 多 Profile 恢复中途某 Profile 失败 → 已成功 commit 的 Profile 数据保留，活跃 Profile 自动备份回滚生效，未触达 Profile 不动。
-  - 磁盘空间不足 → 恢复前检查可用空间，不足则拒绝开始恢复并提示。
-  - CSV/JSON 导出磁盘写满 → 提示导出失败、清理临时文件，不生成损坏文件，原数据不受影响（Boundary B07, S1）。
-  - 导入文件损坏/不可读 → 提示文件不可用、允许重新选择，现有数据不变（Boundary B08, S1）。
-  - 缓存清理 → 只清理 `Caches/` 临时文件，不触碰 `Documents/` 或 `Application Support/`；不得导致题目原图、备份文件、SwiftData 数据丢失（Boundary B23, S0）。
-- **数据保证**：
-  - 备份生成失败不得产生「文件已导出」假象。
-  - 恢复必须保留 Profile 隔离关系；一个 Profile 的恢复不得污染其他 Profile。
-  - 单 Profile 内：DB 恢复事务原子（`RepositoryContainer` 单次 saveContext，失败 rollback），图片 best-effort。
-  - 任何恢复失败均不得损坏**该 Profile 恢复前的现有本地数据**（单 Profile 维度保证）；图片 best-effort 恢复失败必须在结果摘要明确提示，不得静默跳过。
-  - CSV/JSON 导出以实际导出字段清单为准，不得静默宣称为全字段导出；导出为只读操作，不修改题目主数据/复习状态/统计。
-- **NFR**：
-  - 性能：备份打包 < 30 秒（500 题 + 图片，点击备份到 ShareSheet 弹出）；CSV 导入 < 5 秒（1000 行，选择文件到入库完成）。
-  - 内存：备份/恢复 < 200MB（流式 ZIP 写入，不全量加载）；CSV 导入（1000 行）< 80MB（解析流逐行处理，不全文加载到内存）。
-  - 中断恢复：恢复前自动备份当前数据作为安全网（备份完整性）。
 
+- Given 资料库含资料、taxonomy 与图片，When 创建 v3 备份并恢复到空库，Then 所有字段、关联和图片 round-trip 一致。
+- Given 资料库只有 taxonomy、没有资料，When 恢复图片阶段失败，Then taxonomy 也从自动备份恢复。
+- Given schema v1/v2/未知或高于 v3，When 恢复，Then 在写数据库前拒绝，现有资料库不变。
+- Given ZIP 含 `..`、绝对路径、反斜杠或越界 entry，When 恢复，Then 不在资料库外读写文件。
+- Given ZIP header 谎报体积，When 实际提取总量超过 1GB，Then 仍拒绝并回滚。
+- Given 当前资料库已引用缺失图片，When 从完整 ZIP 恢复，Then 安全网备份不得阻断恢复。
+- Given 输入 ZIP 在 payload 或图片完整性预检失败，When 恢复被拒绝，Then 不创建 Recovery ZIP、不改写当前资料库。
+- Given CSV cell 以 `=+-@` 开头，When 导出，Then 文件打开时不会执行公式。
 
-## 5. Contracts（备份 / 恢复 / 数据导入导出）
+## 5. Wire Contract
 
-### A. 操作状态
+```text
+backup.zip
+├── manifest.json   # schemaVersion, createdAt, appVersion, totalItemCount
+├── data.json       # reviewItems, dimensions, categoryValues
+└── images/
+    └── <uuid>.jpg
+```
 
-- 备份、恢复、CSV 导入、CSV 导出必须区分 idle / running / success / failure；运行中要有可见进度或明确等待反馈。
-- 用户取消不等于失败；系统失败必须展示可理解错误，不只写日志。
-- 同一时间只能有一个破坏性或长耗时数据操作；并发请求应禁用或排队。
+- v3 是 2026-07-11 单一资料库重基线；零用户阶段明确不兼容旧 Profile wire。
+- 从首个真实用户/公开测试构建开始，任何 wire 变更必须递增 schema 并先裁决兼容策略，不能再静默重置。
+- golden fixtures 位于 `Packages/SnapDrillData/Tests/SnapDrillDataTests/Fixtures/BackupWireV3/`。
 
-### B. 数据边界
-
-- 完整备份必须包含所有 Profile 相关数据和图片引用；恢复前必须先校验 schema/version，不得部分写入后才报错。
-- CSV/JSON 导入导出属于本地文件操作，不暗示云同步或远程备份。
-- 已知缺口：GAP-R6 指出 `CSVParser` 对字段不匹配不够严格；在修复前，UI 不应宣称 CSV 导入已覆盖所有格式错误。
-
-### C. 隐私与安全
-
-- 导出文件可能包含用户资料内容；分享前必须由系统 share sheet 或文件选择器显式交给用户确认。
-- CSV 导出必须继续保留 formula injection 防护；图片备份不得重新引入 EXIF GPS/位置信息。
-
-### D. Enforcement
+## 6. Enforcement
 
 | 契约项 | Enforcement |
 |---|---|
-| 备份/恢复四态 | Settings UI test / 手动实测 |
-| schema/version 预校验 | Data 层契约测试 |
-| CSV 字段严格性 | GAP-R6 后续修复测试 |
-| 导出隐私防护 | Export/Backup 流程 review + dogfood |
+| v3 wire 字段稳定 | `BackupDTOTests` golden fixtures |
+| round-trip、图片完整性与 staging | `BackupServiceTests` |
+| 实际字节体积上限 | `BackupServiceSizeLimitTests` |
+| DB 字段/关系恢复 | `RepositoryContainerBackupTests` |
+| 旧 schema 拒绝、失败回滚 | `SettingsViewModelTests` |
+| CSV 注入与动态维度 | Settings CSV/DataExporter tests |
 
-## 意图追溯（永久保留）
+## 意图追溯
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P4 用户拥有数据·数据安全子条款） | `.zip` 是免费换机迁移出口；恢复前校验、失败不破坏现有数据、结果透明 |
-| 产品政策 / ADR | 无（iCloud 自动同步为 Pro 的不同职责，见 `../backlog/feat-icloud-sync.md`） | 备份 / CSV 全免费、不作订阅门槛 |
-| 待验证假设 | `../../explanations/assumptions.md` H10（用户仅保存有权处理的个人资料） | 备份 / 导出边界与版权提示 |
-| 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
-
-找不到上游依据的需求是孤儿需求，不应直接实现。
+| PO 裁决 | 2026-07-11：单一资料库、无旧 Profile 数据迁移 | schema v3 直接 payload；旧 schema 拒绝 |
+| Vision | `../../explanations/vision.md` P4 | 用户可备份、恢复、导出并带走数据 |
+| 验收证据 | §4 + targeted tests | 见 Enforcement |
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P4 数据属于用户 / 数据安全子条款）
-- 状态总表（自动生成）：`../../reference/feature-status.md`
-- 用户旅程：`../../explanations/user-journeys.md`（旅程 7：备份 / 恢复）
-- 商业分层：`../../explanations/business-model.md`
-- 相关 / 上位 feature：`feat-review.md`（复习进度随备份一并迁移）
+
+- 单一资料库：`feat-local-library.md`
+- iCloud 同步：`../backlog/feat-icloud-sync.md`
+- 隐私与安全：`../../explanations/privacy-compliance.md`

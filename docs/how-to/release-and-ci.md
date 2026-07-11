@@ -305,13 +305,12 @@ PO 离线时，Claude 可以完成分诊、修复、验证和本地 commit，但
 - [ ] 生成测试数据后：题库和复习界面均刷新
 - [ ] 清空数据后：题库和复习界面均清空
 
-## 多 Profile
+## 单一资料库
 
-- [ ] Profile 创建：可创建新 Profile（如「资料库 A」「资料库 B」）
-- [ ] Profile 切换：设置页或 Dashboard 头像区域可切换，切换后题库/统计/复习进度完全独立
-- [ ] Profile 数据隔离：不同 Profile 的题目互不可见
-- [ ] Profile 持久化：切换后再切回，原 Profile 数据完整保留
-- [ ] Profile 备份恢复：全 Profile 备份/恢复（#531 已修复）
+- [ ] 设置与 Dashboard 不出现资料空间创建、切换或删除入口
+- [ ] 冷启动后采集、资料库、统计、回顾与设置使用同一份数据
+- [ ] 旧 `activeProfileId` 或旧 Profile 文件不影响新资料库
+- [ ] v3 ZIP 备份/恢复资料、taxonomy 和图片完整；旧 schema 明确拒绝
 
 ## 数据与同步
 

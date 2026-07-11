@@ -32,7 +32,7 @@ layer: pattern
 | 持续录入行为 | D7 仍有录入/管理/导出行为的用户占 D0 用户比例 | App Store Connect 聚合留存；事件口径仅供未来本地统计设计 | 待发布后观察 |
 | 激活深度 | D7 留存用户的题库题目数中位数 | 定性验证（无内置 `library_count` 事件；可由 `review_item_created` 累计推导，或后续补查询事件） | 待发布后测定 |
 | 有机增长结构 | App Store 下载来源分布（Search / Browse / Referral / 外部） | App Store Connect（非 Analytics 事件） | 待发布后观察，不做预设比例 |
-| Multi-Profile 可用性 | 跨 Profile 数据泄漏事件 = 0 | 定性验证（用户测试）+ 自动化：跨 Profile 数据泄漏作为 S0 级 Bug | 已实现，持续监控 |
+| 单一资料库可靠性 | store 恢复与备份回滚成功率 | 本地测试 + dogfood；不上传用户行为事件 | 已实现，持续验证 |
 | 成果分发 | 用户能导出或分享整理成果（通过系统分享菜单，非社交功能） | 可用性测试；系统分享 sheet 不产生 Analytics 事件 | 待发布后验证 |
 | 价值链完成率 | 完成“管理 → 导出/打印”闭环 | 用户测试；`pdf_exported` 仅保留为未来本地统计事件口径 | 当前无生产事件数据源 |
 

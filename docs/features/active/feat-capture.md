@@ -55,15 +55,14 @@ intent_refs:
   - PDF 导入 → `PDFPagePickerView`（PDFKit 选页 → 渲染为 UIImage）
   - 剪贴板 / 手动 → `CaptureMethodCard` 手动入口 → ManualEdit；纯文本路径走 `CaptureResultView`（不依赖 OCR，允许无图保存，Image is Truth 例外）
   - Share Extension → `SnapDrillShare` Extension target（系统 ShareSheet，通过 App Groups 共享容器；进入后直接进裁剪/编辑 → 保存）
-- **关键机制 / 数据流**：图片来源进入裁剪（`ImageCropperView`，依赖 Mantis）→ 对图片执行 OCR（端上 Vision，目标态为 `recognitionLanguages` 按 Profile 优先语言传入，系统默认含 `zh-Hans` / `zh-Hant` / `en-US`）→ 识别结果展示可编辑/可复制但不阻塞保存 → 保存时 Repository 原子性写入题目、图片引用、OCR 文本、元数据。图片**只存裁剪压缩后的副本**（长边限制 2000px、JPEG quality 0.8，~200KB/张），不修改用户原始照片。
-  - **⚠ 实现现状（GAP-R3，代码债，已收窄）**：当前 `OCRService.recognizeText` 与 `OCRService.recognizeDocument` 的 `recognitionLanguages` 已含 `zh-Hans` / `zh-Hant` / `en-US`，且保持 `zh-Hans` 首选；剩余缺口是**未按 Profile 优先语言动态传入**。需求不变（Profile 语言感知），待后续独立 slice 修复。
+- **关键机制 / 数据流**：图片来源进入裁剪 → 端上 Vision OCR（`zh-Hans` / `zh-Hant` / `en-US`）→ 可编辑识别结果 → Repository 原子写入资料、图片引用、OCR 文本与元数据。图片只存裁剪压缩后的副本，不修改原始照片。
 - **EXIF 隐私铁律**：图片入库前必须经 `ImageStorage` 剥离 GPS / 位置信息（保存前清除）。
-- **State & Concurrency**（Swift 6 strict）：采集 View 由 `@Observable` ViewModel（`@MainActor`：`CaptureViewModel` / `CaptureResultViewModel`）驱动；OCR、图片压缩与落库等重活经 Core service / Repository → `DataExecutor`（actor 拥有 `ModelContainer`，`createOffMainActor()` 消除 MainActor+XPC 死锁 #599），不阻塞主线程；保存后通过 `Notification.Name.reviewDataDidChange` 跨模块刷新 Dashboard / Review。采集流程必须 `AppActivityTracker.begin(...)` → ... → `end(...)`，否则 Profile 切换不被阻塞（已接入 `CaptureViewModel` / `CaptureResultViewModel`）。
+- **State & Concurrency**（Swift 6 strict）：采集由 `@Observable` ViewModel 驱动；OCR、压缩与落库经 Core service / Repository → `DataExecutor`；保存后发 `reviewDataDidChange`。采集活动必须成对调用 `AppActivityTracker.begin/end`。
 - **设计裁决（仅本模块）**：采集入口作为底部 Tab 栏标准 Tab（首页/题库/采集/复习/设置），而非自定义突出按钮——为保持导航架构极致简洁（P2）、降低认知负荷；Share Extension 不污染主导航（不改变 Tab 结构），作为系统级扩展独立于主界面。
 - **平台边界**（apple-limits）：Vision OCR 强项是印刷体，**无独立中文手写识别模型**；`RecognizeDocumentsRequest` 适合整页文档结构、**不适合裁剪后的单题图片**；Foundation Models（`ContentTaggingService`）擅长分类/摘要、**不擅长数学推理**（自动标签可用、解题不可）；Math Notes / Smart Script / 原生公式识别（LaTeX/MathML）均无可用公开 API——故手写增强、AI 拆题、公式识别列为探索性。
 
 ## 4. 验证标准 (Verify)
-- **Success path (GWT)**：Given 当前 Profile 已选定且用户位于采集入口，When 用户从 Camera / Photos / PDF / Clipboard / Manual 任一入口（含 Document Scan）进入并完成裁剪、OCR、元数据填写后点击保存，Then 系统原子性写入题目（含 Profile 归属、图片引用、OCR 文本、元数据），给出成功反馈（触觉 + 缩略图动画）并默认回到采集界面支持连续录入。
+- **Success path (GWT)**：Given 用户位于采集入口，When 从 Camera / Photos / PDF / Clipboard / Manual 任一入口完成编辑并保存，Then 系统向唯一资料库原子写入资料、图片引用、OCR 文本与元数据，并支持连续录入。
 - **边界 / 异常**：
   - Camera 权限拒绝/受限 → 不可进入拍照，给出权限说明 + 跳转系统设置入口，不创建空题目（B14）；权限后续被系统撤销 → 再次进入立即提示、不黑屏假死（B15）。
   - Photo Library 权限拒绝/受限 → 提示权限缺失、不静默返回、不生成空白导入任务（B16）。
@@ -74,8 +73,7 @@ intent_refs:
   - 连续保存重复点击 → 忽略重复或 disable 保存按钮，不产生重复题目记录（B13）。
   - 录题中意外退出（来电/崩溃/强退）→ 下次进入采集提示恢复最近一份 draft（B03 / B11）。
   - 未裁剪直接保存整页大图 → 给裁剪引导提示或保留更高清晰度，满足再次放大查看（B22）。
-- **数据保证**：未点击保存前不产生正式题目记录；保存成功后题目记录必须同时含当前 Profile 归属、主内容载体、元数据与可检索 OCR 文本；图片题必须保留裁剪后的副本，OCR 不是唯一数据来源；任何写入失败不得产生「列表已出现但内容不完整」的半写入记录；Draft 仅保留最近一份、按 Profile 隔离、成功保存后自动清除、7 天过期清理；图片入库前必须剥离 EXIF GPS/位置信息。
-  - **实现现状（GAP-R2 已缓解，剩余 caveat）**：草稿图片不再使用全局 `Caches/draft_capture.jpg`，而是按 `activeProfileId` 写入 `Application Support/CaptureDrafts/<profileId>/draft_capture.jpg`；草稿元数据仍写 `UserDefaults.standard`，但 `UDKey.captureDraftMetadata` 已列入 `ProfileManager.perProfileKeys`，切换 Profile 时随偏好保存 / 加载。剩余 caveat：`CaptureDraftService` 仍通过 `UserDefaults.standard` 读取 active profile 与元数据，尚未显式接收 `ProfileScope`。
+- **数据保证**：未保存前不产生正式记录；写入失败不得产生半记录；Draft 固定保留最近一份、成功后清除、7 天过期；图片入库前剥离 EXIF GPS/位置信息。
 - **NFR**：OCR 识别响应 < 2 秒（印刷体中英文，拍照到文字出现在编辑区）；图片裁剪内存 < 300MB（Mantis 内部管理）；单题存储均值 ~205KB（OCR ~5KB + 压缩图 ~200KB）；草稿恢复为 S0 级数据丢失防护（意外退出后可恢复）；OCR 端上执行、图片不上传云端。
 
 ## 5. Contracts（状态 / 错误 / 文案 / L10n 归属）

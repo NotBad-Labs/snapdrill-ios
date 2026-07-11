@@ -29,28 +29,27 @@ intent_refs:
 - **首次启动多页引导**：~3-4 页，每页一个核心概念，滑动翻页，介绍核心功能与定位（是什么 / 怎么录题 / 存下来能做什么 / 隐私保护）。
 - **快进不配置**：Onboarding **不要求配置任何字段**，不要求填昵称 / 头像 / 学校 / 年级，不要求选学科（Apple HIG: "Avoid asking for setup information up front"）。
 - **可跳过**：提供"开始使用"跳过按钮；语气成熟、面向成年用户，不幼稚不卡通。
-- **首个 Profile 自动创建**：首次启动时系统自动创建默认 Profile，用户无感（见 `feat-profile.md`）。
-- **只展示一次**：完成后不再显示；**完成状态为全局**，不因切换 Profile 重新触发。
-- **结束动作**：直接进入主界面（Dashboard）——一个已创建好的默认 Profile + 空 Dashboard（展示空状态引导）+ 底部 Tab（首页 / 题库 / 采集 / 复习 / 设置）。
-- **字段配置延后**：首次录入保存后，才通过引导提示「要不要开启更多字段（来源、级别或自定义属性等）？」触发；非首次启动。后续 TipKit 提示（首次进采集 / 首次进过滤 / 首次进复习）也在使用过程中触发，按 Profile 隔离。
+- **资料库自动创建**：首次启动时系统创建唯一资料库，用户无感（见 `feat-local-library.md`）。
+- **只展示一次**：完成后不再显示；完成状态为设备级全局状态。
+- **结束动作**：直接进入主界面（Dashboard）——空资料库状态 + 底部 Tab（首页 / 题库 / 采集 / 复习 / 设置）。
+- **字段配置延后**：首次录入保存后，才通过引导提示「要不要开启更多字段（来源、级别或自定义属性等）？」；功能提示为设备级状态。
 - **边界 / 不做**：不弹通知权限请求（仅在用户主动开启提醒开关时才触发系统弹窗）；不在 Onboarding 中索取相机 / 相册权限（point-of-use 请求，进采集时才请求）；不播放视频教程；不做动画过渡特效；角色预设套件等模板入口不进 Onboarding。
-- **前置依赖**：无（首个 Profile 由 `feat-profile.md` 在 Onboarding 期间自动创建，属同生命周期协作而非阻塞依赖）。
+- **前置依赖**：无；唯一资料库由 App composition root 创建，Onboarding 不负责数据初始化。
 - **商业分层**：免费。Onboarding 全程不嵌广告、不做 Pro 引导。
 
 ## 3. 技术设计 (How)
 - **模块归属**：`OnboardingView`（引导页）+ `OnboardingManager`（完成状态）位于 `SnapDrillUI`。`OnboardingManager` 在架构上是**显式豁免清单**成员（不挂 DI 容器，全局静态状态）。
-- **关键机制 / 数据流**：多页滑动引导 → "开始使用"或翻完末页 → `OnboardingManager` 标记完成 → 进入 Dashboard。Onboarding 完成状态是**全局**状态（与 VoiceOver / 辅助功能同类），不随 `ProfileManager` 切换 Profile 而重置；与之相对，TipKit tooltip 状态按 Profile 隔离（每个资料库各自看一次新功能引导，由 `ProfileTipState` 管理）。后续字段引导用 Alert（首次保存后），功能 tooltip 用 TipKit。
-- **State & Concurrency**（Swift 6 strict）：Onboarding 是纯展示流，无重活、无落库——完成标记走 `OnboardingManager` 全局状态，不经 `DataExecutor`；首个默认 Profile 的创建由 `ProfileManager` 负责（详见 `feat-profile.md`，其 ModelContainer 重建在该模块内处理），Onboarding 本身不直接持有 `ModelContext`。
-- **设计裁决**：`OnboardingManager` 列入静态 facade 豁免清单（全局静态状态，非 Profile-scoped），与 `TelemetryGate` / `ImageStorage` / `DependencyContainer.shared` 同属架构层显式豁免，不视为违反 DI 注入约定。
+- **关键机制 / 数据流**：多页滑动引导 → “开始使用”或翻完末页 → `OnboardingManager` 标记完成 → 进入 Dashboard。后续字段引导用 Alert，功能提示由 `FeatureTipState` 管理。
+- **State & Concurrency**（Swift 6 strict）：Onboarding 是纯展示流，无重活、无落库；完成标记走 `OnboardingManager`，不经 `DataExecutor`，也不直接持有 `ModelContext`。
+- **设计裁决**：`OnboardingManager` 列入静态 facade 豁免清单，与 `TelemetryGate` / `DependencyContainer.shared` 同属显式豁免。
 
 ## 4. 验证标准 (Verify)
-- **Success path (GWT)**：Given 用户首次启动 App（设备无任何 Profile），When 系统自动创建默认 Profile 并展示 ~3-4 页引导、用户翻完或点"开始使用"，Then `OnboardingManager` 标记完成并进入 Dashboard（已有默认 Profile + 空状态引导 + 底部 Tab），全程不要求注册 / 不要求配置字段 / 不索取权限。
+- **Success path (GWT)**：Given 用户首次启动 App，When 唯一资料库就绪并展示 4 页引导、用户翻完或点“开始使用”，Then `OnboardingManager` 标记完成并进入空资料库 Dashboard，全程不要求注册 / 不要求配置字段 / 不索取权限。
 - **边界 / 异常**：
-  - 完成 Onboarding 后切换 Profile → 不重新触发首次引导（完成状态全局）。
   - 进入采集页才触发相机权限请求；用户拒绝 → 不阻断主流程、不弹空白页，展示降级引导（相册导入 / 文档扫描 / 手动编辑）+「去设置开启」入口（Boundary B14/B16）。
   - 用户主动开启提醒开关后系统已拒绝通知权限 → 提示权限已被拒绝并引导跳转系统设置（Boundary B21）。
   - 空题库（Onboarding 后无数据）→ Dashboard 显示空状态 + 采集入口引导，不显示脏数据（Boundary B17）。
-- **数据保证**：Onboarding 完成状态只写一次且全局，不随 Profile 切换被清除；首个默认 Profile 创建后不复制任何其他数据；Onboarding 流程不写入任何题目 / 图片记录。
+- **数据保证**：Onboarding 完成状态为设备级；流程不写入任何资料 / 图片记录。
 - **NFR**：无（纯展示流，无大图加载 / 无落库 / 无中断恢复要求）。
 
 
@@ -98,4 +97,4 @@ intent_refs:
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 1：首次采集与保存）
 - 决策：`../../decisions/ADR-002-remove-att-authorization.md`（ATT 已移除，Onboarding 不索取追踪授权）
-- 相关 feature：`feat-profile.md`（首个默认 Profile 自动创建 + Onboarding 完成状态全局不随切换重置）、`feat-capture.md`（point-of-use 相机 / 相册权限请求 + 拒绝后降级路径）、`feat-settings.md`（字段配置延后入口 + 通知权限开关）
+- 相关 feature：`feat-local-library.md`、`feat-capture.md`（point-of-use 权限）、`feat-settings.md`（字段配置与通知入口）

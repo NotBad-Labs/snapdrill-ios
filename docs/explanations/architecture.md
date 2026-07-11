@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-20
+last_verified: 2026-07-11
 layer: pattern
 freshness:
   max_age_days: 180
@@ -46,10 +46,10 @@ SnapDrillShare（Share Extension）
 ## 新增 Core service 规则（S-D4-001 共识）
 
 1. 若服务跨 Feature 使用、持有状态、依赖系统 API/AI/外部 SDK、或测试需要替换 → 必须进入 `ServiceContainer`
-2. Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`，不得放入全局 `ServiceContainer`（典型例外：`ImageStorage`）
+2. 唯一资料库资源走 `LibrarySession` / `RepositoryContainer`，不得伪装成全局无状态 service（典型：`ImageStorage`）
 3. 静态 facade（如 `TelemetryGate`）必须有架构豁免决策；Feature 层不得直接调用
 4. `ServiceContainer` 当前 14 个属性：analytics/pdfExport/appConfig/privacyConsent/notification/ocr/captureDraft/contentTagging/questionSplitting/deletionScheduler/proEntitlement/activityTracker/reviewScheduler/metricService
-5. 显式豁免清单（不挂容器）：`TelemetryGate`（nonisolated enum，全局静态状态）/ `ZIPArchiver`（Data 层，跨包循环依赖）/ `ImageStorage`（Profile-scoped）/ `OnboardingManager` / `DependencyContainer.shared`
+5. 显式豁免清单（不挂容器）：`TelemetryGate`（nonisolated enum，全局静态状态）/ `ZIPArchiver`（Data 层）/ `ImageStorage`（由 RepositoryContainer 持有）/ `OnboardingManager` / `DependencyContainer.shared`
 
 ## 解耦准则（最优解耦 · AI 协作）
 
@@ -63,7 +63,7 @@ SnapDrillShare（Share Extension）
 **操作法则**：
 - **agent 度量痛点、不提议抽象**：让 agent 在当前结构下试实现变更，看它要的 diff/上下文多大；有痛点→开缝，无痛点→YAGNI。
 - **触发器驱动重构**：同类变更连续 2 次碰 5+ 文件 = 边界画错才重构；共享抽象开始加第 2 个 bool 参数 = inline 回重复（Metz：错误抽象比重复贵）。
-- **缝要么做完**：半截解耦最危险（如 KI-01——S-D4-001 半截迁移在缝里留洞、导出期 Profile 切换保护失效）；一次做透 + 配跨边界集成测试守缝，或别开。
+- **缝要么做完**：半截解耦最危险；一次做透 + 配跨边界集成测试守缝，或别开。
 - **编排者（人 + 主力 agent）= 架构守门**；外部评审 agent 查"YAGNI 违规 + 单实现 protocol + 隐式契约"，而非盲目鼓励解耦。
 
 ## DI 注入链路
@@ -71,17 +71,17 @@ SnapDrillShare（Share Extension）
 ```
 DependencyContainer.shared（App 启动时初始化）
 ├── services: ServiceContainer（协议）→ LiveServiceContainer（实现）
-├── profileManager: ProfileManager（@Observable，持有 DataExecutor）
+├── createLibrarySession(): LibrarySession（App 生命周期 owner）
 │   ├── executor: DataExecutor（actor 拥有 ModelContainer，消除 MainActor+XPC 死锁 #599）
-│   ├── activeContainer: ModelContainer（通过 executor 访问，Profile 切换时重建）
-│   ├── activeRepositories: RepositoryContainer（init(executor:) 构造）
-│   │   ├── review: ArchiveRepository
-│   │   ├── dimension: CategoryDimensionRepository（内置 key: category / source / level / tag）
-│   │   └── categoryValue: CategoryValueRepository（各维度下的值）
-│   └── activeImageStorage: ImageStorage
+│   ├── container: ModelContainer
+│   └── repositories: RepositoryContainer
+│       ├── archive: ArchiveRepository
+│       ├── dimension: CategoryDimensionRepository（内置 key: category / source / level / tag）
+│       ├── categoryValue: CategoryValueRepository（各维度下的值）
+│       └── imageStorage: ImageStorage
 ├── router: AppRouter（构造器注入到 AppRootView）
 │   └── 5 个 FeatureRouter（DashboardRouter, LibraryRouter, ...）
-└── ActivityTracker: AppActivityTracker（Profile 切换保护）
+└── ActivityTracker: AppActivityTracker（应用级长操作状态）
 ```
 
 **Environment 注入点**（SnapDrillApp.body）：
@@ -90,7 +90,6 @@ DependencyContainer.shared（App 启动时初始化）
 |---|---|---|
 | `\.services` | `ServiceContainer` | PDF 导出、通知、隐私授权、Analytics |
 | `\.repositories` | `RepositoryContainer` | 数据读写 |
-| `\.profileManager` | `ProfileManager` | 多 Profile 切换 |
 | `\.analyticsService` | `AnalyticsServiceProtocol` | 埋点 |
 | `.modelContainer()` | `ModelContainer` | SwiftData |
 
@@ -157,11 +156,11 @@ SwiftData @Model（持久化）
 | `*Model.swift` | SwiftData @Model 定义（ArchiveItemModel、CategoryDimensionModel、CategoryValueModel） |
 | `*Repository.swift` | 数据访问层，封装 ModelContext（推荐 `init(executor:)`，保留 `init(modelContext:)` 向后兼容） |
 | `DataExecutor` | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599） |
+| `LibraryLayout` | 唯一资料库的固定文件系统路径契约 |
+| `LibrarySession` | App 生命周期 owner，聚合 ModelContainer、RepositoryContainer 与恢复状态 |
 | `RepositoryContainer` | Repository 聚合 + Environment 注入 |
 | `BackupService` | .zip 备份/恢复（actor 隔离） |
 | `BackupDTO` | 备份数据传输对象 |
-| `ProfileManager` | 多 Profile / Vault 切换（独立数据库 + 图片目录 + per-profile UserDefaults），持有 DataExecutor |
-| `ProfileMigration` | Profile 结构迁移（老版本升级） |
 | `MigrationPlan` | SwiftData Schema 版本迁移 |
 | `DataError` / `PersistenceError` | 错误类型定义 |
 | `DataSeeder` | 初始数据填充（默认分类/来源） |
@@ -225,18 +224,16 @@ SwiftData @Model（持久化）
 
 **iCloud 同步（占位段，阻塞 #485（前置 #479））**：
 - 当前实现：所有 `@Model` 默认 `cloudKitDatabase: .none`（关闭）
-- 启用路径：StoreKit 落地（#479）→ 创建 CloudKit Container（#485）→ ProEntitlementProvider 判断 → Per-Profile 同步（与 BackupService 同语义边界）
+- 启用路径：StoreKit 落地（#479）→ 创建 CloudKit Container（#485）→ ProEntitlementProvider 判断 → 单一资料库同步
 - 触发文档：`business-model.md` §iCloud 同步 / `../features/backlog/feat-icloud-sync.md` §设计
 
-## Multi-Profile 实现
+## 单一资料库实现
 
-ProfileManager 采用 Vault 模式：
-- 每个 Profile 拥有独立的 SwiftData ModelContainer + 图片存储目录
-- 切换 Profile 时重建 ModelContainer 和 RepositoryContainer
-- **切换保护**：`ProfileManager.switchProfile` 先检查 `AppActivityTracker.shared.switchBlockReason`，有进行中操作时拒绝切换并返回阻塞原因。`AppActivityTracker`（SnapDrillCore/Support）定义了 `begin/end` 活动跟踪 API 和 `canSwitchProfile` / `switchBlockReason` 查询 API。目标态为采集、导出/打印、备份/恢复全部接入；当前实现以 feature spec 的缺口记录为准：采集已接入，导出预览/备份恢复仍需核对实例一致性（`feat-profile.md` KI-01 / GAP-R4），快速打印尚未接入 `.printing` tracker（`feat-export.md` GAP-R4）。
-- **Per-Profile UserDefaults 隔离**：字段配置（开启的系统字段）、自动推断历史、复习目标等由 `ProfileManager` 内部通过 `perProfileKeys` 等机制管理（`savePreferences`/`loadPreferences` 为内部实现），切换 Profile 时自动保存/加载
-- **全局状态**：Onboarding 完成、VoiceOver 设置不随 Profile 切换
-- **Profile 级 TipKit**：ReviewSwipeTip / FieldConfigTip 通过 ProfileTipState 管理，按 Profile 隔离（#532 已修复）；设备级 Tip 基础设施保留 TipKit
+- `LibraryLayout` 将生产数据固定在 `Application Support/SnapDrill/Library`，包含 `default.store`、`images/` 与 `corrupted/`。
+- `LibrarySession` 在 App 启动时创建一次，并向整棵 SwiftUI 树注入同一 `ModelContainer` 与 `RepositoryContainer`。
+- store 无法打开时，`DataExecutor` 隔离 store/WAL/SHM 后重建磁盘库；`StoreRecoveryEvent` 驱动阻塞式恢复 UI。
+- 偏好和功能 Tip 均为设备级 UserDefaults；个人资料是全局个性化，不是数据 partition。
+- 备份 schema v3 顶层直接描述唯一资料库。零用户重基线不读取旧 Profile 布局或旧备份。
 
 ---
 
@@ -262,7 +259,7 @@ LibraryViewModel 是调用方：
 | SwiftData 而非 Core Data | iOS 26+ 项目，原生 Swift 集成更好 |
 | DataExecutor actor | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599）；Repository 双 init（executor / modelContext）向后兼容 |
 | Repository 封装 ModelContext | 避免 View/ViewModel 直接操作数据库 |
-| ProfileManager Vault 模式 | 每个 Profile 独立数据库，参考 Obsidian，切换时重建 ModelContainer |
+| LibrarySession 单一资料库 | 一个 App 生命周期 owner，固定 store/图片/恢复边界，减少跨库状态复杂度 |
 | 零后端行为采集 | Firebase 与 Infrastructure 已删除；生产使用 NoOp analytics，端侧诊断使用 MetricKit（ADR-005） |
 | defaultIsolation(MainActor) | xcconfig `SWIFT_VERSION = 6.3` + `-default-isolation MainActor`，统一使用 `.defaultIsolation(MainActor.self)` 减少并发标注噪音 |
 

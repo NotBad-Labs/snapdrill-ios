@@ -59,7 +59,7 @@ Vision 列出 8 项可度量信号；本段把它们映射到具体设计承诺�
 | 首次录入效率（进入采集页后） | OCR 定位（不强迫校对）/ 连续录入设计 / 一图多题（拆题不阻塞保存），均见 `../features/active/feat-capture.md` |
 | 持续录入行为 | 连续录入设计 / 字段配置（按需开启）/ 草稿恢复，均见 `../features/active/feat-capture.md` |
 | 激活深度 | 字段配置（见 `../features/active/feat-capture.md`）/ 批量操作（见 `../features/active/feat-library.md`）/ 回顾（见 `../features/active/feat-review.md`） |
-| Multi-Profile 可用性 | 多 Profile 设计 / 数据隔离边界（S0 监控），见 `../features/active/feat-profile.md` |
+| 单一资料库可靠性 | 固定资料库生命周期、损坏 store 恢复与备份回滚，见 `../features/active/feat-local-library.md` |
 | 成果分发 | 导出与打印（系统分享菜单非社交分享），见 `../features/active/feat-export.md` |
 | 价值链完成率 | 导出与打印（PDF 主路径，见 `../features/active/feat-export.md`）/ 智能组卷（Pro 增值，见 `../features/backlog/feat-smartpaper.md`） |
 
@@ -80,7 +80,7 @@ Vision 列出 8 项可度量信号；本段把它们映射到具体设计承诺�
 ### Dashboard 设计角色
 
 Dashboard 是用户打开 App 后的第一屏，定位是**状态总览 + 快捷入口**，不是功能操作界面：
-- 展示当前 Profile 的核心统计（资料总数、待回顾数、已回顾数、今日新增）
+- 展示资料库核心统计（资料总数、待回顾数、已回顾数、今日新增）
 - 展示待回顾数量和快捷入口
 - 问候语 + 用户昵称（个性化但不过度）
 - 不在 Dashboard 做录入或管理操作——录入走采集 Tab，管理走题库 Tab
@@ -130,7 +130,7 @@ Dashboard 是用户打开 App 后的第一屏，定位是**状态总览 + 快捷
 |---|---|---|
 | **L1 可忽略提示** | OCR 识别不准、搜索无结果、无到期复习题 | 内联说明 + 可继续当前流程，不打断任务 |
 | **L2 可恢复错误** | 权限缺失、导出失败、恢复校验失败、网络/CloudKit 暂时异常 | 明确原因 + 给重试或替代路径，不静默吞错 |
-| **L3 数据风险错误** | 保存失败、恢复半成功、活跃 Profile 丢失、图片文件缺失 | 必须醒目提示结果摘要和后果，优先保护现有数据 |
+| **L3 数据风险错误** | 保存失败、恢复半成功、资料库损坏、图片文件缺失 | 必须醒目提示结果摘要和后果，优先保护现有数据 |
 
 ### 可访问性基线
 
@@ -154,6 +154,6 @@ Dashboard 是用户打开 App 后的第一屏，定位是**状态总览 + 快捷
 
 优先级排序：**S0 > S1 > S2 > S3**。术语定义同 `../reference/glossary.md`§术语表。
 
-**边界用例收录约定**：边界用例（Boundary Cases）仅收录 S0/S1 全部 + 高频 S2。具体边界用例（B01-B26 等）已按功能归入各 feature spec 的 Verify 节，例如采集相关见 `../features/active/feat-capture.md`、备份恢复相关见 `../features/active/feat-backup.md`、Profile 相关见 `../features/active/feat-profile.md`。
+**边界用例收录约定**：边界用例（Boundary Cases）仅收录 S0/S1 全部 + 高频 S2。具体用例按功能归入各 feature spec 的 Verify 节，例如采集、备份恢复与单一资料库。
 
 > 双框架分工：本严重度框架（S0-S3）与§价值链与优先级中的用户价值金字塔（Kano 对标）并用——价值金字塔回答"做什么 / 优先做什么"，严重度框架回答"哪个缺陷先修 / 哪个边界必测"。
