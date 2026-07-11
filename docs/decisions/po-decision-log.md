@@ -4,7 +4,7 @@
 >
 > **维护规则**：后续新决策由 Claude 起草条目，PO 确认，Codex 落盘；路由方式与根 `AGENTS.md` / `CLAUDE.md` 的裁决路由规则一致。更早的奠基性决策（2026-06-09 美国全球版 pivot、零后端、iPhone-only 等）已在 ADR / positioning 固化，不重复收录。
 >
-> **范围**：2026-06-27 至 2026-07-07。草案由 Claude 起草，PO 已过目批准，Codex 固化入仓。
+> **范围**：2026-06-27 至 2026-07-11。初始草案由 Claude 起草，后续裁决由 PO 直接确认、Codex 固化入仓。
 
 ## A. 产品意图与功能语义
 
@@ -20,6 +20,7 @@
 | 07-06 | “每页题数”→“每页资料数”（通用导出面归资料系） | `docs/reference/glossary.md` 边界的应用；PR 描述 |
 | 07-06 | 配额 Toast 混域句维持现状（组卷 = 域内词，资料 = 通用词） | PR 描述 |
 | 07-06 | 隐私政策文案校正批准（“学习助手”→“资料整理应用”，清除 pre-pivot 残留） | L10n + Policy 实现；与 `docs/explanations/positioning-and-audience.md` 一致 |
+| 07-11 | **退休 Multi-Profile，重基线为单一本地资料库**；项目无内测用户，开发期 Profile 数据、偏好和旧多 Profile 备份无需迁移或兼容 | `docs/reference/audits/2026-07-repository/phases/04b-single-library-brief.md`；实施时回填 `docs/features/active/feat-profile.md` 的替代归属 |
 
 ## B. 质量门槛
 

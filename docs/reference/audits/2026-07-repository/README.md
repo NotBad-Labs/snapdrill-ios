@@ -6,7 +6,7 @@
 - **审计 base**：`develop@d62fead87fb103708652ac5378eda8e2c03f8257`
 - **协调者**：Codex C1
 - **工作状态**：C2 / C3 / C4 暂挂；本审计的外部 CLI 是只读 reviewer，不是新的 write lane
-- **write WIP**：1 个审计分支；不在本分支修产品代码
+- **write WIP**：1 个审计分支 + 最多 1 个独立修复分支；总数不超过 2，审计分支不写产品代码
 - **目标**：区分必要投入、可解释返工、真实浪费和当前发布风险，形成可验证的 keep / repair / replace / retire / delete / defer 与 release 输入
 
 本 charter 只约束本次审计，不改写 steady-state lane 归属。产品方向、风险接受、修复优先级、合并和发布仍由 PO 裁决。
@@ -44,9 +44,9 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 |---|---|---|---|
 | 00 Control plane | T0、工具链、模型、报告协议、恢复演练 | `00a` 基线；`00b` 小范围盲审 | complete |
 | 01 History | issue/PR 生命周期、CI 失败分类、返工热点 | `01a` lifecycle；`01b` CI；`01c` churn；`01d-f` 证伪 | complete |
-| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a` docs；`02b` guardrails；`02c` stale claims | complete |
+| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a-c` truth；`02d` constitution；`02e` PO workshop；`02f` impact map | reopened; Gate A ratified, authority integration pending |
 | 03 Architecture | package 依赖、DI、并发、共享接缝、废弃代码 | `03a` graph；`03b` runtime flow；`03c` debt | complete |
-| 04 Data safety | SwiftData、repository、profile、迁移、备份、图片 | `04a` models；`04b` profile；`04c` backup；`04d` images | pending |
+| 04 Data safety | SwiftData、repository、单资料库重基线、备份、图片 | `04a` models；`04b` single library；`04c` backup；`04d` images | in progress |
 | 05 Capture | camera、scanner、album/PDF、crop、OCR、save | `05a` input；`05b` processing；`05c` persistence | pending |
 | 06 Library/export | library、search、taxonomy、SmartPaper、export/share | `06a` library；`06b` SmartPaper；`06c` export | pending |
 | 07 Other features | review、dashboard、settings、onboarding | `07a` review；`07b` dashboard；`07c` settings/onboarding | pending |
@@ -58,16 +58,20 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 
 ## Recovery
 
-- **worktree**：`/private/tmp/snapdrill-repository-audit`
-- **branch**：`codex/repository-audit-program`
+- **current worktree**：`/private/tmp/snapdrill-repository-audit-phase04`
+- **current branch**：`codex/repository-audit-phase04`
 - **方法**：`docs/how-to/repository-audit.md`
 - **报告模板**：`report-template.md`
 - **外部 agent 调用协议**：`agent-invocation-protocol.md`
 - **再基线契约**：`rebaseline-contract.md`
 - **finding ledger**：`findings.md`
-- **当前 checkpoint**：`checkpoints/phase-03.md`
+- **当前 checkpoint**：`checkpoints/phase-04-in-progress.md`
 - **00b 结果**：`phases/00b-results.md`
 - **Phase 01 结果**：`phases/01-results.md`
 - **Phase 02 结果**：`phases/02-results.md`
+- **Phase 02d 产品宪法结果**：`phases/02d-product-constitution-results.md`
+- **Phase 02e PO 工作坊候选 / 复核**：`phases/02e-po-product-workshop-candidate.md` / `phases/02e-product-workshop-review-results.md`
+- **Phase 02f 产品意图影响图 / 复核**：`phases/02f-product-intent-impact-map-candidate.md` / `phases/02f-product-impact-review-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
-- **下一步**：Phase 04 Data safety；先冻结 models/profile/backup/image contract 与 fixtures；RA-03-001 由独立 P1 修复分支优先处理
+- **Phase 04a/04b/04d 结果**：`phases/04a-results.md` / `phases/04b-results.md` / `phases/04d-results.md`
+- **下一步**：单独取得 #867 合并授权，随后在小型 authority/contract 分支落地已 ratify 的 Gate A，并起草 Product Constitution v1 与 Release 1 Product Contract；#868 维持 Draft，不进入合并裁决
