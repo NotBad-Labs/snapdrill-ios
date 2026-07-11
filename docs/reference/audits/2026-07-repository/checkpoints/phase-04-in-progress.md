@@ -64,6 +64,13 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
 - C1 rejected unsupported reviewer claims about missing EXIF tests, absent
   capture rollback and inevitable App Store rejection; primary code/tests show
   the first two are false and no Apple/legal source supported the third.
+- `02f` mapped Gate B/C blast radius from authority through runtime, wire,
+  public and verification consumers. Independent review added live App Group
+  identity paths, onboarding/export behavior, frozen-wire compatibility or
+  explicit rejection, the native `UITests` plan and shared preference seams.
+- The map rejects retargeting #867 into a normative contract branch. With write
+  WIP already at 2, a contract branch waits for a separate PO merge/close action
+  on #867; #868 stays frozen implementation evidence.
 
 ## Recovery
 
@@ -74,6 +81,8 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
   4×P2 and 1×P3, with four findings requiring product/governance ratification
 - `02e` workshop packet/review complete: `phases/02e-po-product-workshop-candidate.md`
   and `phases/02e-product-workshop-review-results.md`; no new ledger finding
+- `02f` impact map/review complete: `phases/02f-product-intent-impact-map-candidate.md`
+  and `phases/02f-product-impact-review-results.md`; no new ledger finding
 - next action: obtain PO Gate A rulings, then draft Product Constitution v1 and
   Release 1 Product Contract; no #868 merge request and no `04c` regeneration yet
 - stop conditions: base drift, write WIP above 2, verified destructive P0/P1 without fix authority, or a required dynamic probe that cannot run
